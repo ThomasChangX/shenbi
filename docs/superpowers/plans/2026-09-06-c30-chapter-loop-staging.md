@@ -17,7 +17,7 @@
 - 验证命令一律 `uv run pytest ...`（与 CI `uv run --frozen` 同构）。
 - Conventional commits；每个 task commit 显式列文件路径（禁 `git add -A`）。
 - Scope 裁决：T102/F1110/F305/F1153/F379 已在 main 修复，本 plan 不重复实现；F311 零消费面留 C37 裁决。
-- **测试落点裁决（plan 审查 C1）**：本仓无 `tests/integration/pipeline/` 目录——pipeline 集成测试既有惯例落点为 `tests/pipeline/`，spec 验证命令中的 `tests/integration/pipeline/` 一律映射为 `tests/pipeline/`（记 spec-deviations）。R1/R2/R5 的链路级用例（确定性崩溃注入）落在对应 task 的测试文件内，标记 T2 层级。
+- **测试落点裁决（plan 审查 C1）**：本仓无 `tests/integration/pipeline/` 目录——pipeline 集成测试既有惯例落点为 `tests/pipeline/`，spec 验证命令中的 `tests/integration/pipeline/` 一律映射为 `tests/pipeline/`；同理 spec 的 `tests/unit/pipeline/ -k steps_migration` 映射为 `tests/pipeline/test_resume_anchor.py -k migration`（均记 spec-deviations）。R1/R2/R5 的链路级用例（确定性崩溃注入）落在对应 task 的测试文件内，标记 T2 层级。spec R1 正文「经 `write_safety` 原子写」的设施实名 `src/shenbi/safe_write.py`（`safe_write`），随 T1 spec-deviations 记一行。
 
 ## 现状签名（从源码复制，2026-09-06 main HEAD）
 
@@ -209,7 +209,7 @@ def test_steps_done_migration_v1_to_v2():
 - [ ] **Step 3: 跑测失败**：`uv run pytest tests/pipeline/test_resume_anchor.py -q --no-cov` → FAIL
 - [ ] **Step 4: 实现**：
   - `committed_chapter_anchor`：glob `chapters/chapter-*.md` 取最大 N（regex `chapter-(\d+)\.md`，排除 `*-emergency.md` 等带 label 副本——匹配仅 `chapter-N.md` 精确形态）
-  - `_clamp_resume_cursor`：`anchor = committed_chapter_anchor(pd)`；仅当 `cl.current_chapter > anchor + 1 and not cl.steps_done`（当前章零进展 = 游标虚高）→ `cl.current_chapter = anchor + 1`，`cl.step_index = 0`，`log.warning("resume_cursor_clamped", old=…, new=…)`
+  - `_clamp_resume_cursor`：`anchor = committed_chapter_anchor(pd)`；仅当 `cl.current_chapter > anchor + 1` 且当前章零进展（`cs = cl.chapter_states.get(str(cl.current_chapter))`，`cs is None or not cs.steps_done`——steps_done 在 ChapterState 上，ChapterLoopStateData 无此字段）→ `cl.current_chapter = anchor + 1`，`cl.step_index = 0`，`log.warning("resume_cursor_clamped", old=…, new=…)`
   - 事件消费：`clear_checkpoint`（machine.py）给 history 条目加 `"consumed": False`；`cmd_resume` 取尾部第一条 `decision=="approve" and not consumed` 的事件做 phase 转换（替换现 `history[-1]` 直读），转换后置 `consumed=True`。字面量 `"approve"` 已有 `ReviewDecision` 枚举承载，不新增裸串
   - `PIPELINE_STEPS_VERSION = 2`；`STEP_NAME_MIGRATIONS = {1: {"shenbi-foreshadowing-plant": "shenbi-foreshadowing-lifecycle", "shenbi-foreshadowing-track": "shenbi-foreshadowing-lifecycle", "shenbi-foreshadowing-recall": "shenbi-foreshadowing-lifecycle", "shenbi-context-composing": "pipeline-context-prepare", ...}}`——实现时 grep 旧步名全集（audit 证据：55 章 steps_done 旧代名），映射去重后写入
   - `cmd_resume` 在 state heal 后对每章 `steps_done` 跑 `migrate_steps_done`，发生迁移即 WARN + save_state
@@ -327,22 +327,25 @@ def test_cache_key_uses_size_and_mtime(tmp_path):
 
 ```python
 def test_partial_wave_results_survive_crash(tmp_path, monkeypatch):
-    # 注意：dispatch_reviews_parallel 吞掉任务异常（DispatchResult(success=False)），
-    # 崩溃注入 = 第 2 个任务返回失败而非抛异常；DispatchResult 实际字段 (success, returncode, stdout, stderr)，
+    # 注意：_dispatch_with_retry 对 success=False 重试 MAX_RETRIES=2 次——失败注入必须
+    # 按 task 持久失败（不能全局计数只失败一次），并 patch MAX_RETRIES=0 + time.sleep
+    # 消除真实 backoff。DispatchResult 字段 (success, returncode, stdout, stderr)；
     # project_dir 在 ReviewTask 上而非函数 kwarg。
+    import shenbi.pipeline.parallel_dispatch as pd
+    monkeypatch.setattr(pd, "MAX_RETRIES", 0)
+    monkeypatch.setattr(pd.time, "sleep", lambda s: None)
     from shenbi.pipeline.parallel_dispatch import ReviewTask, dispatch_reviews_parallel
     completed_cb = []
-    calls = {"n": 0}
     def fake_dispatch_skill(skill, *a, **k):
-        calls["n"] += 1
-        if calls["n"] == 2:
-            from shenbi.pipeline.dispatch_helper import DispatchResult
-            return DispatchResult(success=False, returncode=1, stdout="", stderr="injected failure")
         from shenbi.pipeline.dispatch_helper import DispatchResult
+        if skill == FAILING_SKILL:   # 按名持久失败，重试也不得成功
+            return DispatchResult(success=False, returncode=1, stdout="", stderr="injected failure")
         return DispatchResult(success=True, returncode=0, stdout="ok", stderr="")
-    monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.dispatch_skill", fake_dispatch_skill)
-    tasks = [ReviewTask(...project_dir=tmp_path, prompt=真实审计产物内容...), ReviewTask(...)]   # 两个真实 skill 名
-    dispatch_reviews_parallel(tasks, on_task_complete=lambda i, r: completed_cb.append(i))   # 不抛异常（批量吞错语义）
+    monkeypatch.setattr(pd, "dispatch_skill", fake_dispatch_skill)
+    # 两个真实 READ_ONLY_AUDIT 审计 skill 名（assert_parallelizable 跑真实 classify_skill_write_safety）
+    tasks = [ReviewTask(OK_SKILL, project_dir=tmp_path, prompt=<真实审计产物内容>, ...),
+             ReviewTask(FAILING_SKILL, project_dir=tmp_path, prompt=<...>, ...)]
+    dispatch_reviews_parallel(tasks, on_task_complete=lambda i, r: completed_cb.append(i))
     assert completed_cb == [0]   # 成功者回调（可 save）、失败者不回调
     # 重放范围 = 未成功段：调用方以回调集合差集构造重放清单（同文件加用例断言差集逻辑）
 ```
