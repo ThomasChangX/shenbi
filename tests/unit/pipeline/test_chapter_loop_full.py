@@ -178,6 +178,14 @@ def chapter_succeeds():
                 return_value=RevisionRoute.NO_REVISION,
             )
         )
+        # Dispatch is stubbed, so declared outputs never materialize here —
+        # neutralize the F1112 output guard (it has dedicated tests).
+        stack.enter_context(
+            patch(
+                "shenbi.pipeline.chapter_loop._step_output_exists",
+                return_value=True,
+            )
+        )
         yield SimpleNamespace(
             dispatch=dispatch,
             serial_disp=serial_disp,

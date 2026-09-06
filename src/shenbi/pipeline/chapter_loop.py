@@ -341,6 +341,23 @@ def committed_chapter_anchor(project_dir: Path) -> int:
     return anchor
 
 
+def _step_output_exists(project_dir: Path, step: ChapterStep, chapter: int) -> bool:
+    """C30 F1112: verify a dispatched step's declared output exists.
+
+    Steps without a declared output_path (audits via aggregate, parallel
+    pairs) are not guarded here — their completion is tracked by their own
+    post-checks. Staging steps are checked in staging/.
+    """
+    if not step.output_path:
+        return True
+    from shenbi.pipeline.checkpoint import STAGING_DIR
+
+    resolved = resolve_chapter_path(step.output_path, chapter)
+    if step.uses_staging:
+        resolved = f"{STAGING_DIR}/{resolved}"
+    return (project_dir / resolved).exists()
+
+
 def _clamp_resume_cursor(  # pyright: ignore[reportUnusedFunction]
     cl: ChapterLoopStateData, project_dir: Path
 ) -> None:
@@ -3207,7 +3224,19 @@ def _run_chapter_step_impl(
 
         _route_revision_after_resonance(state, project_dir, chapter)
 
-    # Success: record, reset retries, advance.
+    # Success: record, reset retries, advance. C30 F1112: a step whose
+    # declared output is missing must NOT be recorded as done — downgrade
+    # (skip the done-marking) with a WARN so state never claims completion
+    # without the product on disk.
+    if not _step_output_exists(project_dir, step, chapter):
+        log.warning(
+            "step_output_missing_downgraded",
+            chapter=chapter,
+            step=step.skill,
+            expected=step.output_path,
+        )
+        _reset_retries(state, step, chapter)
+        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
     state.add_step_done(chapter, step.skill)
     _reset_retries(state, step, chapter)
 
