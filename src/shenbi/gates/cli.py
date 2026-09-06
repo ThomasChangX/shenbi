@@ -6,28 +6,17 @@ Argument parsing mirrors the legacy tests/validate-gate.py main() to preserve
 the dispatch protocol: shell callers and shenbi-dispatch depend on the
 JSON-decode (G1), comma-split (G2/G4), and shorthand-name mapping (G4)
 conventions.
+
+T1604 (C28 R4): every gate module is imported lazily inside its dispatch
+branch. The gate CLI is spawned as a subprocess ~5-6 times per chapter and
+96% of each 0.29-0.37s spawn was import cost (the eager g0-g7/g_dispatch/g_reconcile/
+g_transition block, the logging/cli_utils/gates.shared chains, and jieba
+pulled in top-level by text.cjk — now also lazy there). Only the requested
+gate's dependency chain is paid now.
 """
 
 import json
 import sys
-
-from shenbi.cli_utils import emit_json
-from shenbi.gates.g0 import gate_G0
-from shenbi.gates.g1 import gate_G1
-from shenbi.gates.g2 import gate_G2
-from shenbi.gates.g3 import gate_G3
-from shenbi.gates.g4 import gate_G4, gate_G4_bughunt, gate_G4_clean
-from shenbi.gates.g5 import gate_G5
-from shenbi.gates.g6 import gate_G6
-from shenbi.gates.g7 import gate_G7
-from shenbi.gates.g_dispatch import gate_G_DISPATCH
-from shenbi.gates.g_reconcile import gate_G_RECONCILE
-from shenbi.gates.g_transition import gate_G_TRANSITION
-from shenbi.gates.shared import PROJECT, write_gate_marker
-from shenbi.status import GateStatus
-from shenbi.logging import configure_logging, get_logger
-
-log = get_logger(__name__)
 
 # Shorthand skill name -> full shenbi-* name. Mirrors legacy validate-gate.py.
 SHORT_MAP = {
@@ -55,6 +44,10 @@ SHORT_MAP = {
 
 
 def main() -> int:
+    from shenbi.cli_utils import emit_json
+    from shenbi.logging import configure_logging, get_logger
+
+    log = get_logger(__name__)
     configure_logging()
     if len(sys.argv) < 2:
         usage = """Usage: shenbi-validate <GATE> [args...]
@@ -78,9 +71,13 @@ Examples:
 
     result: object = None
     if gate == "G0":
+        from shenbi.gates.g0 import gate_G0
+
         result = gate_G0(seed_file=arg(0), round_dir=arg(1))
 
     elif gate == "G1":
+        from shenbi.gates.g1 import gate_G1
+
         files_raw = arg(1, "[]") or "[]"
         try:
             input_files = json.loads(files_raw)
@@ -89,6 +86,8 @@ Examples:
         result = gate_G1(skill_name=arg(0), input_files=input_files, round_dir=arg(2))
 
     elif gate == "G2":
+        from shenbi.gates.g2 import gate_G2
+
         a0 = arg(0) or ""
         files = a0.split(",") if a0 else []
         ftype = arg(1, "chapter") or "chapter"
@@ -97,9 +96,15 @@ Examples:
         result = gate_G2(files, ftype, rd, pd)
 
     elif gate == "G3":
+        from shenbi.gates.g3 import gate_G3
+
         result = gate_G3(arg(0), arg(1), arg(2))
 
     elif gate == "G4":
+        from shenbi.gates.g4 import gate_G4, gate_G4_bughunt, gate_G4_clean
+        from shenbi.gates.shared import PROJECT, write_gate_marker
+        from shenbi.status import GateStatus
+
         g4_args = list(args)
         test_type = "generative"
         if "--test-type" in g4_args:
@@ -159,18 +164,31 @@ Examples:
             write_gate_marker("G4", full_name, test_type, result, rd, file_list)
 
     elif gate == "G5":
+        from shenbi.gates.g5 import gate_G5
+
         result = gate_G5(phase_name=arg(0), round_dir=arg(1), project_dir=arg(2))
     elif gate == "G6":
+        from shenbi.gates.g6 import gate_G6
+        from shenbi.gates.shared import write_gate_marker
+
         pipeline_name = arg(0)
         result = gate_G6(pipeline_name, arg(1), arg(2))
         write_gate_marker("G6", pipeline_name or "", "generative", result, arg(1))
     elif gate == "G7":
+        from shenbi.gates.g7 import gate_G7
+
         result = gate_G7(arg(0) or "")
     elif gate == "G_TRANSITION":
+        from shenbi.gates.g_transition import gate_G_TRANSITION
+
         result = gate_G_TRANSITION(arg(0) or "", arg(1) or "", arg(2) or "")
     elif gate == "G_DISPATCH":
+        from shenbi.gates.g_dispatch import gate_G_DISPATCH
+
         result = gate_G_DISPATCH(arg(0) or "", arg(1) or "")
     elif gate == "G_RECONCILE":
+        from shenbi.gates.g_reconcile import gate_G_RECONCILE
+
         result = gate_G_RECONCILE(arg(0) or "")
     else:
         log.error("unknown_gate", gate=gate)

@@ -170,20 +170,26 @@ def _update_route_b(
     rules = getattr(index, "rules", {})
     store = EmbeddingStore(project_dir / "truth-embeddings.db")
     embedded = 0
-    for hook_id, entry in hooks.items():
-        text = str(entry.extra.get("content_keywords", ""))
-        if text:
-            if embed_and_store(
-                store, text, f"hook-{hook_id}", entry.file, "hook", entity_refs=hook_id
-            ):
-                embedded += 1
-    for rule_id, entry in rules.items():
-        text = str(entry.extra.get("content", ""))
-        if text:
-            if embed_and_store(
-                store, text, f"rule-{rule_id}", entry.file, "rule", entity_refs=rule_id
-            ):
-                embedded += 1
+    try:
+        for hook_id, entry in hooks.items():
+            text = str(entry.extra.get("content_keywords", ""))
+            if text:
+                if embed_and_store(
+                    store, text, f"hook-{hook_id}", entry.file, "hook", entity_refs=hook_id
+                ):
+                    embedded += 1
+        for rule_id, entry in rules.items():
+            text = str(entry.extra.get("content", ""))
+            if text:
+                if embed_and_store(
+                    store, text, f"rule-{rule_id}", entry.file, "rule", entity_refs=rule_id
+                ):
+                    embedded += 1
+    finally:
+        # F328 (C28 R2b): the sqlite handle was never closed — genesis leaked
+        # one connection per skill (the model itself stays resident as the
+        # process singleton by design).
+        store.close()
     if embedded:
         log.info("route_b_embeds_updated", skill=skill, embedded=embedded)
 

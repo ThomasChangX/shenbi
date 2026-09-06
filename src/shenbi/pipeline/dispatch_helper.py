@@ -63,7 +63,7 @@ from shenbi.pipeline.llm_output_integrity import (
     check_prose_leakage,
     detect_write_failure,
 )
-from shenbi.safe_write import locked_transact, safe_write
+from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
 log = get_logger(__name__)
@@ -662,15 +662,23 @@ def _build_skill_prompt(
 
         resolved_paths = _resolve_read_with_fallback(project_dir, resolved)
         for full_path in resolved_paths:
-            try:
-                content = full_path.read_text(encoding="utf-8")
-            except Exception:
-                content = f"[binary or unreadable: {full_path}]"
+            key = _input_key(full_path, project_dir)
+            # C28 R1 read suppression: consult the shared raw-bytes table
+            # first (byte-identical to the disk read; Layer B filtering and
+            # meta-strip apply to the hit exactly as to a disk read).
+            cached = shared_context.raw_files.get(key) if shared_context is not None else None
+            if cached is not None:
+                content = cached
+            else:
+                try:
+                    content = full_path.read_text(encoding="utf-8")
+                except Exception:
+                    content = f"[binary or unreadable: {full_path}]"
             if fields:
                 content, _matched = filter_to_fields(content, fields, str(full_path))
             # 10a: Strip META blocks for non-drafting skills (save 16-31% input)
             content = _strip_meta_for_non_drafting(skill, content)
-            raw_inputs[_input_key(full_path, project_dir)] = content
+            raw_inputs[key] = content
 
     # Inject cached fields from shared_context so auditors skip re-reading
     # those files from disk (Task 6 Step 2 wiring). Keys must match the
@@ -679,16 +687,20 @@ def _build_skill_prompt(
     if shared_context is not None:
         _INJECT_FROM_CACHE: dict[str, str] = {}
         if getattr(shared_context, "world_rules", ""):
-            _INJECT_FROM_CACHE[
-                _input_key(project_dir / "truth" / "world_rules.md", project_dir)
-            ] = shared_context.world_rules
+            # C28 R1 (F312): canonical path is world/rules.md — the old
+            # truth/ key was a phantom that never matched a real read.
+            _INJECT_FROM_CACHE[_input_key(project_dir / "world" / "rules.md", project_dir)] = (
+                shared_context.world_rules
+            )
         if getattr(shared_context, "character_list", ""):
             _INJECT_FROM_CACHE[
                 _input_key(project_dir / "truth" / "character_matrix.md", project_dir)
             ] = shared_context.character_list
         if getattr(shared_context, "style_profile", ""):
+            # C28 R1 (F312): canonical path is style/style_profile.md (the
+            # builder reads style/, the old truth/ key was a phantom duplicate).
             _INJECT_FROM_CACHE[
-                _input_key(project_dir / "truth" / "style_profile.md", project_dir)
+                _input_key(project_dir / "style" / "style_profile.md", project_dir)
             ] = shared_context.style_profile
         if getattr(shared_context, "pending_hooks", ""):
             _INJECT_FROM_CACHE[
@@ -852,7 +864,16 @@ def _build_skill_prompt(
                 inject_checklist_into_prompt,
             )
 
-            checklist = generate_review_checklist(project_dir, chapter)
+            # C28 R1: route the checklist's chapter reads through the shared
+            # raw-bytes table (3 full-text reads on the cold path).
+            chapter_content = (
+                shared_context.raw_files.get(f"chapters/chapter-{chapter}.md")
+                if shared_context is not None
+                else None
+            )
+            checklist = generate_review_checklist(
+                project_dir, chapter, chapter_content=chapter_content
+            )
             user_prompt = inject_checklist_into_prompt(user_prompt, checklist)
         except Exception as e:
             log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
@@ -1135,21 +1156,22 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
     num = m.group(1) if m else "unknown"
     out = project_dir / "audits" / f".integrity-findings-{num}.jsonl"
 
-    def _append(existing: object) -> str:
-        text = str(existing) if existing else ""
-        for issue in issues:
-            text += (
-                json.dumps(
-                    {"file": str(file_path.relative_to(project_dir)), "finding": issue},
-                    ensure_ascii=False,
-                )
-                + "\n"
-            )
-        return text
+    # T1610 (C28 R3b): true append (O(k) total bytes; was O(k^2) read-rewrite
+    # via locked_transact) in the same directory-flock domain (spec #37 F347
+    # concurrency semantics preserved). The reader (g4/generic.py
+    # g4_post_write_integrity) already skips undecodable tail lines,
+    # tolerating a torn final line on crash.
+    from shenbi.safe_write import locked_append  # local: cold path only
 
-    # spec #37 F347/T601: read-modify-write under one critical section — the
-    # old read-outside-lock shape let concurrent per-chapter auditors drop lines.
-    locked_transact(out, _append)
+    payload = "".join(
+        json.dumps(
+            {"file": str(file_path.relative_to(project_dir)), "finding": issue},
+            ensure_ascii=False,
+        )
+        + "\n"
+        for issue in issues
+    )
+    locked_append(out, payload)
 
 
 _TRUTH_DIR_PREFIX = "truth/"
@@ -1602,6 +1624,10 @@ def _init_truth_templates(project_dir: Path) -> None:
     must match one of the modes accepted by ``write_truth_file()``.
     """
     truth_dir = project_dir / "truth"
+    # T1606 (C28 R2a): skip the 74-skill contract scan (~655ms) when every
+    # template already exists — the scan result only fills new templates.
+    if all((truth_dir / fn).exists() for fn in _TRUTH_FILE_TITLES):
+        return
     truth_dir.mkdir(parents=True, exist_ok=True)
     declared_fields = _collect_declared_truth_fields()
     for filename, (title, mode) in _TRUTH_FILE_TITLES.items():

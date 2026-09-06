@@ -90,7 +90,7 @@ def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str
     if re.search(r"第\d+章", title):
         issues.append(
             "G4.cd.title:contains_chapter_number -- "
-            "title must not include chapter number (SKILL.md:125)"
+            "title must not include chapter number (SKILL.md「章节标题不要包含章节号」)"
         )
 
     # HARD FAIL: Duplicate title
@@ -111,6 +111,31 @@ def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str
         )
 
     return issues
+
+
+# F415-0815 (C28 R3b): in-process (path, mtime_ns, size) fingerprint
+# memoization. Production G4 runs are subprocess-per-call (cold per spawn) —
+# the cache serves in-process multi-file callers (g5.5's embedded gate_G4
+# loop, tests) and future in-process gate invocation. Failures are never
+# cached; verdicts stay idempotent under the stat key. One slot per path:
+# each rewrite replaces the entry, so the cache is bounded by the number
+# of distinct files (no unbounded growth across chapter rewrites).
+_FINGERPRINT_CACHE: dict[str, tuple[tuple[int, int], frozenset[int]]] = {}
+
+
+def _fingerprint_of(path: Path) -> frozenset[int]:
+    """Fingerprint of a chapter file, memoized per path under (mtime_ns, size)."""
+    try:
+        st = path.stat()
+        slot = _FINGERPRINT_CACHE.get(str(path))
+        if slot is not None and slot[0] == (st.st_mtime_ns, st.st_size):
+            return slot[1]
+        fp = frozenset(_text_fingerprint(path.read_text(encoding="utf-8")))
+    except (OSError, UnicodeDecodeError) as e:
+        log.warning("file_read_failed", file=str(path), error=str(e))
+        return frozenset()
+    _FINGERPRINT_CACHE[str(path)] = ((st.st_mtime_ns, st.st_size), fp)
+    return fp
 
 
 def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
@@ -287,15 +312,14 @@ def g4_chapter_drafting(
                     for other in other_chapters:
                         if str(other) == str(pf):
                             continue
-                        try:
-                            other_content = other.read_text(encoding="utf-8")
-                            other_fp = _text_fingerprint(other_content)
-                            overlap = len(this_fingerprint & other_fp) / max(
-                                len(this_fingerprint), 1
-                            )
-                            max_overlap = max(max_overlap, overlap)
-                        except (OSError, UnicodeDecodeError) as e:
-                            log.warning("file_read_failed", file=str(other), error=str(e))
+                        # F415-0815 (C28 R3b): memoized per (path, mtime_ns,
+                        # size) — was a full re-read + re-hash of every other
+                        # chapter on each per-chapter invocation (O(N^2)).
+                        # Read failure yields an empty fingerprint (overlap 0),
+                        # matching the previous except-branch semantics.
+                        other_fp = _fingerprint_of(other)
+                        overlap = len(this_fingerprint & other_fp) / max(len(this_fingerprint), 1)
+                        max_overlap = max(max_overlap, overlap)
                     if max_overlap > 0.40:
                         mf.append(f"G4.cd.content_overlap:{fp}:{max_overlap:.0%}")
                     else:

@@ -22,6 +22,8 @@ from __future__ import annotations
 import importlib
 import importlib.util
 import sqlite3
+import threading
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -96,6 +98,46 @@ def is_embed_available() -> bool:
     return available
 
 
+_MODEL_LOCK = threading.Lock()
+# holder dict (avoids ``global``): {"model": singleton | None,
+# "neg_until": time.monotonic() retry-suppression deadline}
+_model_state: dict[str, Any] = {"model": None, "neg_until": 0.0}
+_NEG_CACHE_TTL_S = 600.0
+
+
+def get_shared_model() -> Any | None:
+    """Process-level ``bge-large-zh`` singleton with TTL negative cache.
+
+    T1603/F328 (C28 R2b): ``SentenceTransformer`` construction retries the HF
+    download on every call — in a degraded (offline / 401) environment each
+    chapter assembly paid 0.3-3.5s; genesis re-instantiated per hook/rule
+    entry. Construction failure is remembered for ``_NEG_CACHE_TTL_S`` so the
+    chapter loop does not re-pay it every assembly. ``None`` means
+    unavailable-or-cached-fail. Construction points are sequential today
+    (``_route_b`` / genesis); the lock is defensive.
+    """
+    model = _model_state["model"]
+    if model is not None:
+        return model
+    if time.monotonic() < _model_state["neg_until"]:
+        return None
+    with _MODEL_LOCK:
+        model = _model_state["model"]
+        if model is not None:
+            return model
+        if time.monotonic() < _model_state["neg_until"]:
+            return None
+        try:
+            st = importlib.import_module("sentence_transformers")
+            model = st.SentenceTransformer("bge-large-zh")
+        except Exception as e:
+            _model_state["neg_until"] = time.monotonic() + _NEG_CACHE_TTL_S
+            log.warning("embed_model_unavailable_cached", error=str(e), ttl_s=_NEG_CACHE_TTL_S)
+            return None
+        _model_state["model"] = model
+    return model
+
+
 def embed_and_store(
     store: EmbeddingStore,
     text: str,
@@ -111,14 +153,19 @@ def embed_and_store(
     encoding fails (§7.3 degradation: the orchestrator then marks
     ``route_b_degraded`` and Routes A+C continue). Called by the orchestrator
     after state-settling (to embed chapter summaries) and after memory-distill
-    (to embed arc syntheses).
+    (to embed arc syntheses). Uses the process singleton (C28 R2b) — no
+    per-call model construction. Construction failure now logs one
+    ``embed_model_unavailable_cached`` warning per TTL window and per-chunk
+    ``route_b_unavailable`` info rows (was: per-chunk ``embed_failed``).
     """
     if not is_embed_available():
         log.info("route_b_unavailable", chunk_id=chunk_id)
         return False
+    model = get_shared_model()
+    if model is None:
+        log.info("route_b_unavailable", chunk_id=chunk_id)
+        return False
     try:
-        st = importlib.import_module("sentence_transformers")
-        model = st.SentenceTransformer("bge-large-zh")
         vec = model.encode(text).astype("<f4").tobytes()
     except Exception as e:
         log.warning("embed_failed", chunk_id=chunk_id, error=str(e))
@@ -212,6 +259,7 @@ __all__ = [
     "EmbeddingResult",
     "EmbeddingStore",
     "embed_and_store",
+    "get_shared_model",
     "is_embed_available",
 ]
 
