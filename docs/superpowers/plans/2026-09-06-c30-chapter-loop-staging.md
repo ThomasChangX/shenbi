@@ -12,7 +12,7 @@
 
 - `src/shenbi/` 禁 `print()`（structlog）；文件 I/O 用 `pathlib.Path`；gate 检查器幂等纯函数。
 - 新状态/事件字面量以 `Literal` 定义于 `src/shenbi/contracts/enums.py`（`tools/lint_status_strings.py` 红即 Critical）。
-- 原子写经 `write_safety`（`safe_write` / `atomic` 设施）；atexit 路径不得盲取 `WriteLock`。
+- 原子写经 `src/shenbi/safe_write.py`（`safe_write` 等设施）；atexit 路径不得盲取 `WriteLock`。
 - fixtures 只能引用 `tests/fixtures/` 真实产物（G0.9）；崩溃注入用确定性故障 hook，非真实信号 kill。
 - 验证命令一律 `uv run pytest ...`（与 CI `uv run --frozen` 同构）。
 - Conventional commits；每个 task commit 显式列文件路径（禁 `git add -A`）。
@@ -168,6 +168,7 @@ elif decision == ReviewDecision.REJECT:
 **Files:**
 - Modify: `src/shenbi/pipeline/chapter_loop.py`（版本常量 + 迁移表）
 - Modify: `src/shenbi/pipeline/cli.py:791-910`（cmd_resume 锚定 + 事件消费）
+- Modify: `src/shenbi/pipeline/machine.py:90-116`（clear_checkpoint consumed 字段）
 - Modify: `src/shenbi/contracts/enums.py`（如需新字面量）
 - Test: `tests/pipeline/test_resume_anchor.py`（新建）
 
@@ -189,13 +190,16 @@ def test_anchor_clamps_uncommitted_chapter(tmp_path):
     for n in (1, 2, 3):
         (tmp_path / "chapters").mkdir(exist_ok=True)
         (tmp_path / "chapters" / f"chapter-{n}.md").write_text(f"# 第{n}章\n", encoding="utf-8")
-    cl = ChapterLoopStateData(current_chapter=6, step_index=0, steps_done=[])   # 注：steps_done 在 ChapterState（chapter_states[N]）；锚定判据「当前章零进展」取 chapter_states.get(str(current_chapter)) 的 steps_done
+    cl = ChapterLoopStateData(current_chapter=6, step_index=0)   # 「当前章零进展」判据 = cl.chapter_states.get("6") 无 steps_done（ChapterState 才有该字段）
     _clamp_resume_cursor(cl, tmp_path)
     assert cl.current_chapter == 4   # 锚=已提交 3，恢复从 4 续，不回 1 也不越 6 静默覆盖
 
 def test_anchor_noop_when_mid_committed_chapter(tmp_path):
-    # 已提交章内的修订中断（steps_done 有内容）不动游标
-    ...  # current_chapter=3, steps_done=["shenbi-chapter-drafting"] → 不变
+    # 已提交章内的修订中断（当前章 steps_done 有内容）不动游标
+    cl = ChapterLoopStateData(current_chapter=3, step_index=2,
+                              chapter_states={"3": ChapterState(steps_done=["shenbi-chapter-drafting"])})
+    _clamp_resume_cursor(cl, tmp_path)
+    assert cl.current_chapter == 3
 
 def test_steps_done_migration_v1_to_v2():
     migrated, changed = migrate_steps_done(["shenbi-foreshadowing-plant"])
@@ -243,7 +247,7 @@ def test_foreshadowing_idx_derived_not_literal():
     assert not re.search(r"_FORESHADOWING_LIFECYCLE_IDX\s*=\s*6\b", src)   # 字面量清零（含空格变体）
 def test_assembly_guard_skips_when_plan_missing(tmp_path, monkeypatch):
     calls = []
-    monkeypatch.setattr("shenbi.pipeline.chapter_loop.assemble_context",
+    monkeypatch.setattr("shenbi.pipeline.context_assemble.assemble_context",
                         lambda *a, **k: calls.append(1) or (_ for _ in ()).throw(AssertionError("must not assemble")))
     # step-3 入口、plan 缺失 → 跳过装配且不写 fallback（调用计数 == 0）
     ...  # 构造 state，走装配守卫函数，断言 calls == [] 且无 context/chapter-N-context.md 生成
@@ -323,22 +327,24 @@ def test_cache_key_uses_size_and_mtime(tmp_path):
 
 ```python
 def test_partial_wave_results_survive_crash(tmp_path, monkeypatch):
+    # 注意：dispatch_reviews_parallel 吞掉任务异常（DispatchResult(success=False)），
+    # 崩溃注入 = 第 2 个任务返回失败而非抛异常；DispatchResult 实际字段 (success, returncode, stdout, stderr)，
+    # project_dir 在 ReviewTask 上而非函数 kwarg。
     from shenbi.pipeline.parallel_dispatch import ReviewTask, dispatch_reviews_parallel
-    from shenbi.pipeline.dispatch_helper import DispatchResult
-    real = Path("tests/fixtures/audits").glob("*.md")  # 实现时取 2 个真实审计产物为 prompt 上下文
-    calls = {"n": 0}
     completed_cb = []
-    def fake_dispatch_skill(skill, project_dir, prompt, *a, **k):
+    calls = {"n": 0}
+    def fake_dispatch_skill(skill, *a, **k):
         calls["n"] += 1
         if calls["n"] == 2:
-            raise RuntimeError("injected crash")
-        return DispatchResult(success=True, skill=skill, output="ok", returncode=0)
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+            return DispatchResult(success=False, returncode=1, stdout="", stderr="injected failure")
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+        return DispatchResult(success=True, returncode=0, stdout="ok", stderr="")
     monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.dispatch_skill", fake_dispatch_skill)
-    tasks = [ReviewTask(...), ReviewTask(...)]   # 两个真实 skill 名
-    with pytest.raises(RuntimeError):
-        dispatch_reviews_parallel(tasks, project_dir=tmp_path, on_task_complete=lambda i, r: completed_cb.append(i))
-    assert completed_cb == [0]   # 成功者已回调（可 save），失败者不回调
-    # 重放范围 = 未完成段：调用方以 completed 集合差集构造重放清单（同文件加用例断言差集逻辑）
+    tasks = [ReviewTask(...project_dir=tmp_path, prompt=真实审计产物内容...), ReviewTask(...)]   # 两个真实 skill 名
+    dispatch_reviews_parallel(tasks, on_task_complete=lambda i, r: completed_cb.append(i))   # 不抛异常（批量吞错语义）
+    assert completed_cb == [0]   # 成功者回调（可 save）、失败者不回调
+    # 重放范围 = 未成功段：调用方以回调集合差集构造重放清单（同文件加用例断言差集逻辑）
 ```
 
 - [ ] **Step 2: 确认失败** → **Step 3: 实现**：`dispatch_reviews_parallel` 的 `as_completed(futures)` 循环内，每个成功完成的 future 即调 `on_task_complete(idx, result)`（异常/失败任务不回调，docstring 定契约）；chapter_loop 并行审计波调用处传闭包：合并该 skill 的 audit_results 进 state（走既有 `add_step_done`/audit_results 串行化设施，state.py:222 线程安全面）+ `save_state`。触发器扇出处（若 parallel 波之外的扇出点存在，grep `dispatch_reviews_parallel(` 全部调用方逐一接回调）——裁决记 spec-deviations `### T5`
