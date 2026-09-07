@@ -27,7 +27,8 @@
 ### R1 · ledger 与记账 lint（F972 + F973 + F975 + F969 + F1176 + F979 + phase4 §0 注记）
 - `tools/lint_audit_run.py`：列数/管道转义/ID 唯一/重复行检测（本轮 19 畸形行形态入库为反例）；分区清单 ↔ ledger ↔ final-report 三方计数对账（任何差值非零 FAIL）
 - F979（标题列转录缺口，本批已回填）由本项行格式 lint 显式覆盖（标题≠ID 占位检查），随簇回写关闭
-- **接线强制（防 dead-wire）**：justfile 增 `audit-lint` recipe（`uv run python tools/lint_audit_run.py <run-dir>`）并纳入 `just check` 与 ci workflow；历史冻结 run（2026-08-14/2026-08-15）**只加显式豁免注记，不改历史行**（豁免文件 `audit-lint-exemptions.json` 入 run 目录），修复策略只对未来 run 生效
+- **接线强制（防 dead-wire）**：justfile 增 `audit-lint` recipe（`uv run python tools/lint_audit_run.py <run-dir>`）并纳入 `just check` 与 ci workflow——check 模式固定 lint 全部 `docs/superpowers/audit-runs/*/` 现存 run 目录；历史冻结 run（2026-08-14/2026-08-15）**只加显式豁免注记，不改历史行**，修复策略只对未来 run 生效
+- 豁免机制定义：豁免文件为 `<run-dir>/audit-lint-exemptions.json`，schema `{"exemptions": [{"check": "<检查类名>", "id": "<F/T 编号或行标识>", "reason": "<一句话>", "date": "YYYY-MM-DD"}]}`；唯一读方是 `lint_audit_run.py`（判定 FAIL 前加载，逐条匹配消音）；lint 自身校验豁免文件 schema 与「豁免 id 必须对应真实命中项」（豁免不命中 = FAIL，防豁免腐烂）；无豁免文件的 run 目录一律 strict
 - **验收**：`uv run just audit-lint docs/superpowers/audit-runs/2026-08-15`——成员缺口 F969/F972/F973/F975/F1176 五类全部被抓出且以豁免注记闭合；`just check` 含该 lint 且全绿
 
 ### R2 · 跨轮命名空间与承接（F978 + F956 + F1177 + T513 + T1501）
@@ -45,7 +46,7 @@
 - T1502：~~孤儿分支 docs/token-efficiency-p2-spec 开 PR 或 cherry-pick 后删除~~（**阶段 2 修订 2026-09-07**：分支已在 main 历史中被清除、无处置记录——本项降为「记录裁决 + 回写关闭」，481 行 spec 内容 grep main 零副本，按记录后弃处置）
 - 删已 squash-merge 未清的远程分支（现核：`origin/docs/archive-spec44-c30` 1 支，`git branch -r --merged origin/main` 为准）；dependabot 10 条 **triage 决策记录**（每条 upgrade/close + 理由，写入本 spec 交付的 triage 记录文件；**实际升级/合并不在本 spec 范围**——依赖升级动 uv.lock/生产代码，与「不碰生产代码」边界冲突，另开 chore 批次执行）
 - INDEX 计数改脚本生成（`tools/count_active_specs.py`：目录扫描活跃条目并核对 INDEX 头计数，差值非零 FAIL；纳入 `just check`），消除手工 66/68/63 漂移
-- F771/F772：按 phase4-clustering.md §4 严重度校准提案执行（11 项升/降级 + 已采纳注记核对），只改 ledger 严重度列并留提案引用（**阶段 2 修订 2026-09-07**：12 项校准已在 main 落账（总纲记账 pass PR #147 一并完成）——本项降为「逐项核实 + 补提案引用注记 + 回写关闭」，不改严重度列）
+- F771/F772：按 phase4-clustering.md §4 严重度校准提案执行（~~11 项~~ **12 项**升/降级 + 已采纳注记核对），只改 ledger 严重度列并留提案引用（**阶段 2 修订 2026-09-07**：12 项校准已在 main 落账（总纲记账 pass PR #147 一并完成）——本项降为「逐项核实 + 补提案引用注记 + 回写关闭」，不改严重度列）
 - **验收**：`git branch -r` 无已合并残留；INDEX 计数与目录扫描一致；severity 校准核实+注记完成
 
 ## 验收（簇级）
