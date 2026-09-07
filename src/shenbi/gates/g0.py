@@ -186,7 +186,8 @@ def _layout_project_roots(base: Path, layouts: frozenset[Layout]) -> list[Path]:
         if cand.name in ("novel-output", "skill-output", "project-output") or cand in seen:
             continue  # container dirs never returned as project roots
         verdict = detect_layout(cand)
-        if verdict in layouts and (cand / "genre-config.json").exists():
+        key_file = "novel.json" if verdict is Layout.PROJECT_OUTPUT else "genre-config.json"
+        if verdict in layouts and (cand / key_file).exists():
             roots.append(cand)
             seen.add(cand)
     return sorted(roots)
