@@ -11,7 +11,6 @@ _BASE = {
     "beats": {"铺垫": 25.0, "升级": 30.0, "爆发": 25.0, "余波": 20.0},
     "line_ratios": {"QUEST": 40.0, "FIRE": 35.0, "CONSTELLATION": 25.0},
     "scene_types": [f"s{i}" for i in range(8)],
-    "chapter_sequence": [],
 }
 
 
@@ -51,13 +50,6 @@ def test_wrong_scene_type_count_fails() -> None:
     bad = dict(_BASE)
     bad["scene_types"] = [f"s{i}" for i in range(5)]
     with pytest.raises(ValidationError, match="6-12 scene types"):
-        PacingDesign.model_validate(bad)
-
-
-def test_three_consecutive_same_fails() -> None:
-    bad = dict(_BASE)
-    bad["chapter_sequence"] = ["battle", "battle", "battle", "dialogue"]
-    with pytest.raises(ValidationError, match="3 consecutive"):
         PacingDesign.model_validate(bad)
 
 

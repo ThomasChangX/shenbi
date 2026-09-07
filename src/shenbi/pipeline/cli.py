@@ -494,6 +494,9 @@ def _cmd_init_locked(
         )
 
     # Persist each genesis-context section as its own prompt fragment.
+    # NOTE (F886, C37 triage defer): write-only — these fragments have zero
+    # readers repo-wide as of 2026-09-07; seed-content flow restoration awaits
+    # a product ruling, tracked in the c37-triage defer row.
     ctx_dir = project_dir / "genesis-context"
     for key, value in seed_data.genesis_context.items():
         if value:

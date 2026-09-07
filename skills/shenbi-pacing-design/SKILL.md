@@ -23,7 +23,6 @@ contract:
 - beat sum is 100
 - constellation range
 - four beats present
-- no three consecutive same
 - scene type count
 - three lines present
 

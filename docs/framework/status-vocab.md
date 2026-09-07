@@ -46,7 +46,6 @@
 | G4Severity | shenbi.pipeline.chapter_loop.G4Severity | hard\|soft\|warn | chapter_loop G4_CHECK_MAP | chapter_loop（独立域，与 AuditSeverity 适用面互斥） |
 | DriftSeverity | shenbi.skill_utils.drift_detection.linguistic_drift.DriftResult.severity | NONE\|WARN\|HARD\|ESCALATE | drift 检测 | drift 升级链（独立域，未持久化） |
 | WriteSafety | shenbi.pipeline.write_safety.WriteSafety | read_only_audit\|write_isolated\|write_shared | 静态声明 | 审计波串行化 |
-| RecoveryStrategy | shenbi.recovery.RecoveryStrategy | none\|auto_retry\|auto_rebuild\|halt | recovery | - |
 | DriftKind | shenbi.skill_utils.drift_detection.compute_drift.DriftKind | monotonic_decline\|below_mean_2sigma\|volume_decline | compute_drift | - |
 | RevisionRoute | shenbi.pipeline.revision_router.RevisionRoute | spot-fix\|regenerate\|constrained-regenerate\|reconstruction\|no-revision | revision_router | chapter_loop（T910 合一后为 enums.RevisionMode 的别名，值集同域） |
 | RevisionDecision | shenbi.pipeline.revision_router.RevisionDecision | pass\|revision\|escalation | revision_router | chapter_loop |

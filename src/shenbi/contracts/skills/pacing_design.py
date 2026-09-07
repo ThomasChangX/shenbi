@@ -23,7 +23,6 @@ class PacingDesign(BaseModel):
     beats: dict[str, float] = Field(default_factory=dict)
     line_ratios: dict[str, float] = Field(default_factory=dict)
     scene_types: list[str] = Field(default_factory=list)
-    chapter_sequence: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _four_beats_present(self) -> PacingDesign:
@@ -62,24 +61,12 @@ class PacingDesign(BaseModel):
             raise ValueError(f"expected 6-12 scene types, got {len(self.scene_types)}")
         return self
 
-    @model_validator(mode="after")
-    def _no_three_consecutive_same(self) -> PacingDesign:
-        if len(self.chapter_sequence) >= 3:
-            for i in range(len(self.chapter_sequence) - 2):
-                window = self.chapter_sequence[i : i + 3]
-                if len(set(window)) == 1:
-                    raise ValueError(
-                        f"3 consecutive chapters of type '{window[0]}' at position {i}"
-                    )
-        return self
-
     @classmethod
     def from_markdown(cls, content: str) -> PacingDesign:
         """Parse rhythm_principles.md markdown into structured data."""
         beats: dict[str, float] = {}
         line_ratios: dict[str, float] = {}
         scene_types: list[str] = []
-        chapter_sequence: list[str] = []
 
         # Extract beat percentages from tight "beat <sep> N%" shapes only —
         # the beat name must be IMMEDIATELY followed by the number (whitespace
@@ -129,7 +116,6 @@ class PacingDesign(BaseModel):
             beats=beats,
             line_ratios=line_ratios,
             scene_types=scene_types,
-            chapter_sequence=chapter_sequence,
         )
 
 

@@ -71,20 +71,8 @@ class RegistryMissingError(RegistryError):
     """Lockfile doesn't exist."""
 
 
-class RegistryCorruptError(RegistryError):
-    """Lockfile is corrupt."""
-
-
 class SchemaValidationError(FrameworkError):
     """Pydantic schema validation failed."""
-
-
-class DefectApplicationError(FrameworkError):
-    """Defect patch failed to apply."""
-
-
-class MigrationError(FrameworkError):
-    """Skill migration failed."""
 
 
 class DispatcherError(FrameworkError):
@@ -110,14 +98,6 @@ class SubAgentTimeoutError(DispatcherError):
 
 class SubAgentProtocolError(DispatcherError):
     """Sub-agent returned invalid output."""
-
-
-class SubAgentUnavailableError(DispatcherError):
-    """No executor available."""
-
-
-class ConfigurationError(FrameworkError):
-    """Configuration invalid."""
 
 
 class IntegrityError(ShenbiError):
@@ -171,14 +151,6 @@ class GateMarkerMissingError(GateError):
             blocked_action="scoring",
             missing_markers=missing_markers,
         )
-
-
-class ScoringError(ShenbiError):
-    """Scoring computation failure."""
-
-
-class ScoringRejectError(ScoringError):
-    """Scoring validation rejected the result."""
 
 
 class RetryExhaustedError(ShenbiError):
