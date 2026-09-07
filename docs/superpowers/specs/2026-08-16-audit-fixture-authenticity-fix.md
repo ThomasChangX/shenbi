@@ -34,10 +34,10 @@
 ### T0 · provenance 载体与滚出机制（设计审查 2026-09-07 补，先于 T1 定约）
 
 - **载体双形态**：`.md` fixture 用 YAML frontmatter 字段 `provenance:`（三态 `real-output | upstream-copy | synthetic-sample`，另含 `source:` 指针）；非 md fixture（.txt/.json 等）用同目录 sidecar `<文件名>.provenance.json`（同三态字段）。三态外的标注 = FAIL（消灭 T802 自我豁免 note 与非法 YAML）
-- **滚出机制（保持 CI 全程绿）**：T1 合入时新检查以 **report/WARN 模式**上线（`GateStatus.WARN` 已有先例，g0.py:272/340；CLI 对 WARN 不翻非零退出码，cli.py:224，向后兼容）；基线快照 `tests/fixtures/provenance-baseline.json` 由**独立生成器**（tools/ 下 CLI 脚本）产出——gate 检查器只读基线，不写任何文件（纯度规则：gate 无副作用）。**基线的唯一用途 = 报告增量违规（new-since-baseline 计数）**；WARN/FAIL 判定只看现场扫描 + 当前波次模式，升级判据 = **现场重扫该波违规计数 == 0**（不是读静态基线），清零波升级 FAIL 与基线再生成在同一 PR 内完成。原「feature flag 可单独关闭」提案**撤销**——与 AGENTS.md「no gate can be skipped」冲突，回滚依赖 fixture 删除独立 commit + 分波升级本身（单波可降回 WARN）
+- **滚出机制（保持 CI 全程绿）**：T1 合入时新检查以 **report/WARN 模式**上线（`GateStatus.WARN` 已有先例，g0.py:272/340；gates CLI 对 PASS/FAIL/WARN 退出码均为 0——legacy 契约，见 src/shenbi/gates/cli.py:224 注释——**FAIL 模式的执法面在单测断言 `GateStatus.FAIL`**，不靠 CLI 退出码）；基线快照 `tests/fixtures/provenance-baseline.json` 由**独立生成器**（tools/ 下 CLI 脚本）产出——gate 检查器只读基线，不写任何文件（纯度规则：gate 无副作用）。**基线的唯一用途 = 报告增量违规（new-since-baseline 计数）**；WARN/FAIL 判定只看现场扫描 + 当前波次模式，升级判据 = **现场重扫该波违规计数 == 0**（不是读静态基线），清零波升级 FAIL 与基线再生成在同一 PR 内完成。原「feature flag 可单独关闭」提案**撤销**——与 AGENTS.md「no gate can be skipped」冲突，回滚依赖 fixture 删除独立 commit + 分波升级本身（单波可降回 WARN）
 - **扫描目标集**：闭包扫描/provenance 检查的目标 = 被 scenario/测试消费的 fixture 文件；**载体文件自身豁免**（`*.provenance.json` sidecar、`provenance-baseline.json` 不是 fixture、不适用三态）——防止递归自违
 - **负样本位置**：红灯验证的 3 个负样本（不存在路径/无 provenance/虚构 generated_by）在测试 `tmp_path` 内构造，**永不落入 `tests/fixtures/`**（否则自违 G0.9 并污染 AC3 扫描）
-- **白名单（AC3 扫描豁免面，穷举）**：`report-example.txt`（公版小说 import 源——保留唯一合法角色）+ `novel.json`/`pipeline-state.json` 类机器状态产物（若入 fixtures）。**白名单豁免的是"真实产物角色"要求，不豁免 provenance 标注本身**——条目仍须 sidecar 三态标注（report-example.txt 标 `upstream-copy`）；合规白名单条目在闭包扫描中零命中，白名单本身写入执法检查的常量表，新增需 PR 评审
+- **白名单（AC3 扫描豁免面）**：常量表只收录合并时实存的文件——首版仅 `report-example.txt`（公版小说 import 源——保留唯一合法角色）；`novel.json`/`pipeline-state.json` 类机器状态产物**待其真实入库时**随 PR 增补，不预置空挂条目。**白名单豁免的是"真实产物角色"要求，不豁免 provenance 标注本身**——条目仍须 sidecar 三态标注（report-example.txt 标 `upstream-copy`）；合规白名单条目在闭包扫描中零命中，新增需 PR 评审
 - **真实样本权威源**：`novel-output/xinghuo-ranqiong/`（仓内真实 pipeline 产物树：chapters/ 真实章节、world/、truth/ 等）——T2/T3 一切"重建为真实样本"= 从该树复制 + provenance `source:` 记 file+line；截断须按 C29 披露协议标注
 
 ### T1 · G0.9 执法补齐（先立防线再清库）
@@ -46,9 +46,9 @@
 3. G0.11 缺侧静默跳过改为显式报告缺失清单（T803）
 
 ### T2 · fixture 库治理（T1 红线内逐类处置）
-4. 复制体族（F777/F778）：9 个 chapter-draft 复制体零引用 → 删除；chapter-7/8/9 三胞胎 → **三文件全保留文件名**，各自内容替换为对应真实章节 `novel-output/xinghuo-ranqiong/chapters/chapter-{7,8,9}.md` 的副本 + provenance 标注（互异天然成立；不允许"重写"——重写即再造假）。**消费者清单执行时现推导**（全库 grep 三文件名），已知至少含 review-resonance 场景、tests/unit/pipeline/test_chapter_titles.py、regenerate-baselines.sh、tests/pipeline/test_audit_context_cache.py、tests/unit/gates/test_sampling_disclosure.py（内容尺寸敏感断言——真实章节替换后阈值/断言须按实尺寸重推导）、tests/baselines/gate-outputs/G2-chapter.json
+4. 复制体族（F777/F778）：`chapter-{2..10}-draft.md` 复制体 9 个（仅 H1 章号互异）→ **删除清单执行时现推导**（全库 grep 逐文件复核零引用；驳斥轮已核实部分有真实消费者——`chapter-7-draft.md` 被 test_quote_pair_count.py:113 引用、`chapter-2-draft.md` 被 test_scr_cache_invalidation.py 引用——有消费者者改指真实章节副本或保留并标 provenance，不得盲删）；**另一族** `chapter-{7,8,9}-example.md` 三胞胎 → **三文件全保留文件名**，各自内容替换为对应真实章节 `novel-output/xinghuo-ranqiong/chapters/chapter-{7,8,9}.md` 的副本 + provenance 标注（互异天然成立；不允许"重写"——重写即再造假）。**example 族消费者清单同样执行时现推导**（全库 grep 三文件名），已知至少含 review-resonance 场景、context-composing 场景、tests/unit/pipeline/test_chapter_titles.py、regenerate-baselines.sh、tests/pipeline/test_audit_context_cache.py、tests/unit/gates/test_sampling_disclosure.py（内容尺寸敏感断言——真实章节替换后阈值/断言须按实尺寸重推导）、tests/baselines/gate-outputs/G2-chapter.json
    4b. **数字断链/身份错配（T807/T808，设计审查补归属）**：T807「20 chapters」类数字断链与 T808 rhythm_principles 身份错配随本项一并核对修正——场景声称的数字/身份与所引 fixture 实际内容对账
-5. 角色滥用（F752/F753）：report-example.txt 恢复其唯一合法角色（import 源小说），9 个误用场景改指各技能真实产物 fixture（从 novel-output 真实树复制入库并标 provenance）
+5. 角色滥用（F752/F753）：report-example.txt 恢复其唯一合法角色（import 源小说），**误用场景清单执行时现推导**（grep `report-example` 全库 + 逐场景判定角色：import 源引用合法 / 冒充技能产物违法——审计期计数 9 已过期，2026-09-07 复核 t1 bug-hunt 面引用 ≥31 处），违法场景改指各技能真实产物 fixture（从 novel-output 真实树复制入库并标 provenance）
 6. 伪造快照族（F779/F780）：chapter-025 manifest 占位 checksum → 用真实 novel-output 快照重建；镜像对登记 MIRROR_MAP 或去重（F781 的 32 副本同步守卫一并为 check_fixture_mirror 加 CI 接线——与 C25 F1012 协同；接线时更新 check_fixture_mirror.py:12 的过期注释「提模块级后生效」——MIRROR_MAP 已在 g0.py 模块级）
 7. 孤儿/死件（F761/F784）：删除（word-stem 级 grep 0 命中复核后）。**注意（驳斥轮 2026-09-07 核实）**：F761 的 15 孤儿清单已部分过期——`world-rules-example.md`、`chapter-2-draft.md`、`truth-chapter_summaries.md` 现有真实测试消费者；删除清单必须执行时现推导（全库 grep 0 引用复核），不得照抄审计期清单
 8. 词表/配置类（F785/F786/F787）：stop_words_zh.txt 按自身 spec 重排并接线消费者或删；sensitive_words.txt 扩容并与 scenario 声称对齐；genre-config-example.json 从真实输出重导
