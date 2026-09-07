@@ -43,11 +43,11 @@ def check_scenario_reference_closure(t1_skill_dir: Path, project_root: Path) -> 
 def check_fixture_provenance(t1_skill_dir: Path, fixtures_dir: Path) -> list[dict[str, Any]]
     # id "G0.18": 被消费 fixture 的 provenance 载体存在且三态合法；违规 → wave["P1"] 判定
 def check_variant_bypass(t1_skill_dir: Path, fixtures_dir: Path) -> list[dict[str, Any]]
-    # id "G0.19": fixtures 内未被场景引用的「变体旁路」文件（与已引用文件名 stem 相似但未被引用）不豁免 provenance；违规 → wave["P2"] 判定
+    # id "G0.19": fixtures 内未被场景引用的「变体旁路」文件不豁免 provenance；相似判据定死：与任一被引用文件 stem 共享前 2 个 `-` 分段（如 foo-example 与 foo-example-variant）；违规 → wave["P2"] 判定
 def load_provenance(fixture_path: Path) -> str | None  # frontmatter 或 sidecar 解析（非法 YAML → 返回 None 并计数）
 ```
 
-- [ ] **Step 1: 写失败测试**（红灯三类 + WARN 模式 + 升级守卫）
+- [ ] **Step 1: 写失败测试**（红灯三类 + WARN 模式 + 升级守卫；测试名钉死：`test_closure_zero_violations`、`test_promotion_guard`、`test_negative_missing_path`、`test_negative_no_provenance`、`test_negative_fake_generated_by`、`test_carrier_self_exempt`、`test_variant_bypass_detects_unreferenced`）
   - `test_g0_purity_enforcement.py`：tmp_path 构造 (a) scenario 引用不存在 fixture → `check_scenario_reference_closure` 返回 `s==GateStatus.WARN`（P0 波 warn 态）；把 `ENFORCEMENT_WAVES["P0"]="fail"`（monkeypatch）→ FAIL。(b) 消费中 fixture 无 provenance → WARN；非法三态（`provenance: hand-made note`）→ 计入违规。(c) 变体文件 `foo-example-variant.md` 无引用无 provenance → G0.19 WARN。(d) 载体豁免：`x.provenance.json` 不进扫描目标。(e) 升级守卫：`wave=="fail"` 且现场计数>0 时结果为 FAIL；计数==0 时 PASS——同函数内由计数驱动，无静态基线读取。
   - `test_g0.py` 追加：MIRROR_MAP 侧缺文件（tmp monkeypatch PROJECT）→ G0.11 输出含 `missing:` 的 WARN 而非静默 continue。
 - [ ] **Step 2: 跑测试确认失败** `uv run pytest tests/unit/gates/test_g0_purity_enforcement.py -x -q` → FAIL (ImportError/AttributeError)
@@ -104,7 +104,7 @@ def verify_scenario(skill_bug_hunt_dir: Path, fixtures_root: Path) -> list[str] 
 - Modify: `docs/superpowers/single-model-sdd-prompt.md`（writing-plans 约定：plan 阶段不改写即 BLOCKED——加一句）
 
 - [ ] **Step 1: 锚点逐个处置**：excerpt 能在 novel-output/xinghuo-ranqiong 章节中溯源的 → 替换为真实 excerpt + `source:` 字段（file+line）；不可溯源 → `provenance: synthetic-sample` 降级标注；schema（README）加 source 字段定义（T805）；引文行号虚构（T806）随替换消灭
-- [ ] **Step 2: G0.14 重锁**：`uv run bash tests/lock-tool-hashes.sh` → deps.json 新 combined 哈希；`uv run just gate G0 tests/fixtures/canary-3-chapter-seed.md` 的 G0.14 分支 PASS（注意走 gate 同一规范化路径，CRLF→LF）
+- [ ] **Step 2: lock 脚本规范化对齐 + G0.14 重锁**：先给 `tests/lock-tool-hashes.sh` calibration 循环补 CRLF→LF 归一（与 g0.py:111 `read_bytes().replace(b"\r\n", b"\n")` 逐字一致——当前脚本哈希原始字节，仅因现存文件皆 LF 巧合通过，重写 28 文件后任何 CRLF 混入即锁出 gate 必拒哈希）；`uv run bash tests/lock-tool-hashes.sh` → deps.json 新 combined 哈希；`uv run just gate G0 tests/fixtures/canary-3-chapter-seed.md` 的 G0.14 分支 PASS
 - [ ] **Step 3: F947 扫描改写**：`git grep -nE "真实 LLM dispatch|真实 dispatch|现场 dispatch|live dispatch|real dispatch" docs/superpowers/specs/` 命中集逐条改写为 fixtures 回放/结构断言形式（不含本 spec 自身对禁令的引用）；single-model-sdd-prompt.md 加 BLOCKED 规则一句
 - [ ] **Step 4: F1154 裁决**：#57 (C19) 未冻结 → 不实施，PR 描述显式记 BLOCKED（宁留显式缺失）
 - [ ] **Step 5: 终态验收 + commit**：AC1-AC8 逐条跑（见验收覆盖表）贴 progress.md；commit `fix: calibration anchor rebuild + G0.14 relock + spec acceptance offline-ization (spec54 T3/T4)`
@@ -117,10 +117,10 @@ def verify_scenario(skill_bug_hunt_dir: Path, fixtures_root: Path) -> list[str] 
 |---|---|---|
 | 1 | T1 | `uv run pytest tests/unit/gates/test_g0_purity_enforcement.py -q`（tmp_path 负样本三类 FAIL 用例）+ `uv run just gate G0 tests/fixtures/canary-3-chapter-seed.md` PASS |
 | 2 | T2 | `uv run python tools/check_bug_hunt_evidence.py` → `0 violations` |
-| 3 | T1+T3 | `uv run pytest -q tests/unit/gates/test_g0_purity_enforcement.py::test_closure_zero_violations` + hash 去重脚本（`uv run python -c "import hashlib,pathlib,collections;..."` 输出 0 组，MIRROR_MAP 显式镜像除外） |
+| 3 | T1+T3 | `uv run python tools/gen_provenance_baseline.py`（扫真实库，验收时三计数须为 0）+ `uv run pytest -q tests/unit/gates/test_g0_purity_enforcement.py::test_closure_zero_violations`（回归守卫）+ hash 去重脚本（`uv run python -c "import hashlib,pathlib,collections;..."` 输出 0 组，MIRROR_MAP 显式镜像除外） |
 | 4 | T1 | `test_g0_purity_enforcement.py::test_promotion_guard`（warn 态 + 计数>0 → 非 FAIL） |
-| 5 | T4 | `uv run just gate G0 ...` G0.14 PASS（新哈希）+ `! grep -L "source:" $(find tests/fixtures/calibration/arc-payoff tests/fixtures/calibration/resonance -name '*.md')` 输出为空（27 锚点全带 source） |
-| 6 | T3 | `uv run just check` 全绿 skip 不增 + 被删 fixture `git grep <name>` 0 残留 |
+| 5 | T4 | `uv run just gate G0 ...` G0.14 PASS（新哈希）+ `! grep -L -e "source:" -e "provenance: synthetic-sample" $(find tests/fixtures/calibration/arc-payoff tests/fixtures/calibration/resonance -name '*.md')` 输出为空（27 锚点每条带 source 或显式降级标注） |
+| 6 | T3 | `uv run just check` 全绿且 skip 数不增（基线采集：执行前在 main 跑 `uv run pytest -q -n auto -m "not last" 2>&1 | tail -3` 记录 skipped 数，对照 522）+ 被删 fixture `git grep <name>` 0 残留 |
 | 7 | — | #18 R1-R4 对照表写入 PR 描述（协调者执行） |
 | 8 | T4 | F947 grep 命中集（除禁令引用）= 0；F1154 BLOCKED 注记 |
 
