@@ -8,6 +8,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
+
+from structlog import get_logger
+
+log = get_logger(__name__)
 from shenbi.contracts.paths import resolve_chapter_path
 
 
@@ -53,11 +57,16 @@ class RoundPaths:
     project_dir: Path  # the novel project root (novel.json, world/, chapters/, truth/)
     repo_root: Path  # repo root (SKILL.md, fixtures, rubric)
 
-    def read(self, rel: str, chapter: int | None = None) -> Path:
+    def read(self, rel: str, chapter: int | None = None, *, strict: bool = False) -> Path:
         resolved = resolve_chapter_path(rel, chapter)
         rd = self.round_dir / resolved
         if rd.exists():
             return rd.resolve()
+        # spec #48 C34: rd-miss fallback to project_dir is explicit and
+        # logged — no silent fallthrough.
+        if strict:
+            raise FileNotFoundError(f"round_dir miss and strict=True: {rd}")
+        log.debug("round_paths_read_fallback", rel=rel)
         return (self.project_dir / resolved).resolve()
 
     def write(self, rel: str, chapter: int | None = None) -> Path:
