@@ -43,3 +43,16 @@ def test_detect_upward_walk(tmp_path):
     deep = p / "chapters" / "ch3"
     deep.mkdir(parents=True)
     assert detect_layout(deep) is Layout.SKILL_OUTPUT
+
+
+def test_detect_precedence_novel_json_first(tmp_path):
+    p = _mk(tmp_path, "skill-output")
+    (p / "genre-config.json").write_text("{}", encoding="utf-8")
+    (p / "novel.json").write_text("{}", encoding="utf-8")
+    assert detect_layout(p) is Layout.PROJECT_OUTPUT  # novel.json wins regardless of parent
+
+
+def test_project_output_parent_name_not_a_genre_key(tmp_path):
+    p = _mk(tmp_path, "project-output")
+    (p / "genre-config.json").write_text("{}", encoding="utf-8")
+    assert detect_layout(p) is Layout.NONE  # parent-name keying excludes project-output

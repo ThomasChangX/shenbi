@@ -20,7 +20,7 @@ class Layout(StrEnum):
     NONE = "none"
 
 
-_LAYOUT_ROOT_NAMES = {layout.value for layout in Layout if layout is not Layout.NONE}
+_LAYOUT_ROOT_NAMES = {Layout.NOVEL_OUTPUT.value, Layout.SKILL_OUTPUT.value}
 
 
 def detect_layout(project_dir: Path) -> Layout:
@@ -28,8 +28,8 @@ def detect_layout(project_dir: Path) -> Layout:
 
     Project-dir level keying with upward parent walk:
     - dir contains novel.json -> PROJECT_OUTPUT
-    - dir contains genre-config.json and parent.name is a layout root
-      ("novel-output"/"skill-output") -> that layout
+    - dir contains genre-config.json and parent.name is
+      "novel-output"/"skill-output" -> that layout
     - dir name itself is a layout root -> that layout (anchors root derivation;
       callers collecting *project roots* must additionally require a key file)
     - otherwise walk up one parent and retry; filesystem root -> NONE
