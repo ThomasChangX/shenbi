@@ -10,9 +10,9 @@
 
 ## 背景与根因
 AGENTS.md 规定框架代码（src/shenbi/）禁用 `print()`、统一 structlog，但没有定义"用户面 CLI 输出"的豁免边界，也没有 lint 执法。现状 6 处直用 print：
-- `src/shenbi/cost/report.py:93,95`（成本报告人面输出）
-- `src/shenbi/pipeline/cli.py:945,947`（pipeline CLI 状态输出）
-- `src/shenbi/skill_utils/escalation/check.py:149`（F616：CLI 输出 vs 禁令的边界裁决条）
+- `src/shenbi/cost/report.py:135,137`（成本报告人面输出）
+- `src/shenbi/pipeline/cli.py:1065,1067`（pipeline CLI 状态输出）
+- `src/shenbi/skill_utils/escalation/check.py:164`（F616：CLI 输出 vs 禁令的边界裁决条）
 - `src/shenbi/skill_utils/foreshadowing_recall/recall.py:61`（F324 关联站点）
 
 根因不是"有人写错"，而是**规则颗粒度缺失**：人面 CLI 工具的表格/汇总输出天然该走 stdout，但"哪些入口算 CLI、CLI 内是否允许 print、还是必须经统一 output helper"从未裁决，于是各文件自行其是且无 lint 拦截。
