@@ -38,7 +38,7 @@
 - 死模块/死表/死参数/死常量/死导出按表删（2026-09-07 修订：预计 ~20 条落此桶，F243/F512 已修不在此列）；F427 三 checker 合一；F110/F118 等散点同 PR 批量清；T1506 legacy.py 改名 + shim 删除；T1612 死缓存删除（C28 R2 不修它）
 - 每删一处同步删除其直测（C14 协同：死函数的自证测试不许存活）
 - 删除模块前显式核对：`src/shenbi/__init__.py` 及各 `__init__` re-export、pyproject console-scripts 入口、`justfile`/CI 调用面零引用，方可删（CLI 入口不破调用方）
-- **验收**：`just check` 全绿；vulture 基线清零（见 R3）；删除清单与 R0 表一一对应
+- **验收**：`just check` 全绿；dead-code 门零错（basedpyright + allowlist lint，见 R3）；删除清单与 R0 表一一对应
 
 ### R3 · CI dead-code 执法
 - vulture（min-confidence 60——unused function 置信度层级；白名单文件收紧补偿）或 basedpyright reportUnusedFunction 定向开启入 ci.yml；白名单=显式 deferred 项 + 公共 API 面；`just check` 同步（C25 合写面）

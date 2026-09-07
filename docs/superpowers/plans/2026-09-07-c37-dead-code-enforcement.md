@@ -4,7 +4,7 @@
 
 **Goal:** 按当前 main 现判收口 C37 簇 43 条 findings（7 已修关闭、~27 处存活面三桶裁决），清除假防线、批量删除死面，并落地 CI dead-code 执法门。
 
-**Architecture:** R0 分桶表是硬闸（每编号一行，未经认领的删除禁止合入）；R1 假防线优先（error_guidance/recovery 整删 + 谎称接线注释清理）；R2 按 R0 表批量删（含 F427 三 checker 合一、T1506 legacy 改名、F325 fail-fast 接线）；R3 以 vulture（min-confidence 60 + 白名单文件——unused function 报 60% 置信度）接入 `just check` 与 CI。
+**Architecture:** R0 分桶表是硬闸（每编号一行，未经认领的删除禁止合入）；R1 假防线优先（error_guidance/recovery 整删 + 谎称接线注释清理）；R2 按 R0 表批量删（含 F427 三 checker 合一、T1506 legacy 改名、F325 fail-fast 接线）；R3 以 dead-code 执法门接入 `just check` 与 CI（执行裁定：basedpyright reportUnusedFunction + 冻结白名单 lint——见文末执行偏离记录）。
 
 **Tech Stack:** Python 3.11+/uv、pytest、vulture（新增 dev 依赖）、just、GitHub Actions。
 
