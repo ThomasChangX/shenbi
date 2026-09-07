@@ -48,7 +48,7 @@ G1.4 备份 `.bak` 锚定 = 源文件同目录（`bak_path`，gates/shared.py）
 
 非布局探测的合法命中（成文豁免，lint 不追）：
 
-- `g0.py:329/330/340/346/356` — G0.6 可写性检查的错误文案与注释
+- `g0.py:355/356/366/372/382` — G0.6 可写性检查的注释与错误文案（含 PROJECT/skill-output 写探测，非布局探测）
 - `g7.py:72/88` — G7.5 语义检查引用
 
 其余命中必须落入 `detect_layout`/`_layout_project_roots` 消费侧。
