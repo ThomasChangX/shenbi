@@ -99,3 +99,4 @@ novel-output/
 # spec #37 lockfile debris (lazily reused, never committed)
 *.lockfile
 *.lock
+coverage.json

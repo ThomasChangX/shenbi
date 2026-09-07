@@ -34,3 +34,18 @@ def test_main_invalid_json_exits_nonzero() -> None:
 def test_main_requires_diagnosis_flag() -> None:
     p = run_module([])
     assert p.returncode != 0
+
+
+def test_main_in_process_covers_entry(tmp_path, monkeypatch, capsys) -> None:
+    """In-process call (coverage-recordable; the subprocess tests above are
+    the black-box CLI view).
+    """
+    from shenbi.skill_utils.revision_routing.__main__ import main
+
+    monkeypatch.setattr(
+        "sys.argv",
+        ["revision_routing", "--diagnosis", json.dumps({"issues": []})],
+    )
+    main()
+    out = capsys.readouterr().out
+    assert json.loads(out)["mode"] == "spot-fix"

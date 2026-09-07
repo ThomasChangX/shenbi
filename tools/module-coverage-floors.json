@@ -1,0 +1,13 @@
+{
+  "_comment": "C15 per-module coverage floors (spec #53 T3). Values = 2026-09-08 baseline rounded down to a 5% step minus >=5pp headroom. Global fail_under=85 unchanged. Data source: pytest --cov JSON; enforced by tools/check_module_coverage.py.",
+  "src/shenbi/sync_contracts.py": 90,
+  "src/shenbi/dispatcher/cli.py": 95,
+  "src/shenbi/dispatcher/executor.py": 75,
+  "src/shenbi/pipeline/genesis.py": 90,
+  "src/shenbi/gates/g4/memory_distill.py": 95,
+  "src/shenbi/gates/g4/book_spine_init.py": 95,
+  "src/shenbi/skill_utils/revision_routing/__main__.py": 95,
+  "src/shenbi/pipeline/parallel_dispatch.py": 90,
+  "src/shenbi/pipeline/audit_context_cache.py": 90,
+  "src/shenbi/gates/g4/chapter_drafting.py": 75
+}
