@@ -27,7 +27,7 @@
 
 **Interfaces:**
 - G0.9 注记：detect_layout 为纯路径拓扑函数，测试用最小 JSON 占位文件测探测逻辑（非 LLM 产物语义校验，不属 fixture 真实性管辖）；布局**内容** fixture（genre-config/novel.json/md）一律复制 `tests/fixtures/genre-config-example.json`、`tests/fixtures/novel-example.json`、`tests/fixtures/chapter-*-draft.md` 真实产物。
-- Produces: `class Layout(str, Enum): SKILL_OUTPUT="skill-output"; NOVEL_OUTPUT="novel-output"; PROJECT_OUTPUT="project-output"; NONE="none"` 与 `def detect_layout(root: Path) -> Layout`（纯函数：root 含 novel.json→PROJECT_OUTPUT；root 或子目录含 genre-config.json 且 root.name=="novel-output"→NOVEL_OUTPUT；root.name=="skill-output" 或其子目录含 genre-config.json→SKILL_OUTPUT；否则 NONE）
+- Produces: `class Layout(str, Enum): SKILL_OUTPUT="skill-output"; NOVEL_OUTPUT="novel-output"; PROJECT_OUTPUT="project-output"; NONE="none"` 与 `def detect_layout(project_dir: Path) -> Layout`（纯函数，**项目目录级**键控：dir 含 novel.json→PROJECT_OUTPUT；dir 含 genre-config.json 且 dir.parent.name=="novel-output"→NOVEL_OUTPUT；dir 含 genre-config.json 且 dir.parent.name=="skill-output"→SKILL_OUTPUT；dir 名即布局根（"novel-output"/"skill-output"/"project-output"）→对应布局（根级命中，供根推导用）；否则从 dir 逐级上溯父目录重复上述判定，到文件系统根仍无命中→NONE）
 
 - [ ] **Step 1: 写失败测试**
 
@@ -47,7 +47,7 @@ def test_detect_project_output(tmp_path):
     assert detect_layout(p) is Layout.PROJECT_OUTPUT
 
 def test_detect_novel_output(tmp_path):
-    p = _mk(tmp_path, "novel-output")
+    p = _mk(tmp_path, "novel-output")  # p = <tmp>/novel-output/proj-x，parent.name=="novel-output"
     (p / "genre-config.json").write_text("{}", encoding="utf-8")
     assert detect_layout(p) is Layout.NOVEL_OUTPUT
 
@@ -55,6 +55,13 @@ def test_detect_skill_output(tmp_path):
     p = _mk(tmp_path, "skill-output")
     (p / "genre-config.json").write_text("{}", encoding="utf-8")
     assert detect_layout(p) is Layout.SKILL_OUTPUT
+
+def test_detect_upward_walk(tmp_path):
+    p = _mk(tmp_path, "skill-output")
+    (p / "genre-config.json").write_text("{}", encoding="utf-8")
+    deep = p / "chapters" / "ch3"
+    deep.mkdir(parents=True)
+    assert detect_layout(deep) is Layout.SKILL_OUTPUT  # 上溯命中
 
 def test_detect_none(tmp_path):
     p = _mk(tmp_path, "misc")
@@ -76,7 +83,7 @@ def test_detect_none(tmp_path):
 
 **Interfaces:**
 - Consumes: Task 1 的 paths.py。
-- Produces: `RoundPaths.read(rel, chapter=None, *, strict: bool = False)`——rd 命中返回；miss 且 strict=True 抛 `FileNotFoundError`；miss 且 strict=False 返回 project_dir 路径**并**经模块级 `log = get_logger(__name__).debug`（仓库惯例，gates/shared.py:7-11 同款）("round_paths_read_fallback", rel=rel)` 记事件（满足 spec"记 debug 日志"；测试用 `structlog.testing.capture_logs()` 断言——本仓 configure_logging 用 PrintLoggerFactory(stderr)，caplog 捕不到 structlog 事件（先例：tests/unit/test_phase_cli.py:30））。checker 侧构造改为 `RoundPaths(round_dir=Path(rd) if rd else Path(project_dir), project_dir=Path(project_dir) if project_dir else Path(rd), repo_root=...)` 的显式双根形式不变，但 read miss 回退事件可观测。
+- Produces: `RoundPaths.read(rel, chapter=None, *, strict: bool = False)`——rd 命中返回；miss 且 strict=True 抛 `FileNotFoundError`；miss 且 strict=False 返回 project_dir 路径**并**经模块级 `log = get_logger(__name__).debug`（仓库惯例，gates/shared.py:7-11 同款）("round_paths_read_fallback", rel=rel)` 记事件（满足 spec"记 debug 日志"；测试用 `structlog.testing.capture_logs()` 断言——本仓 configure_logging 用 PrintLoggerFactory(stderr)，caplog 捕不到 structlog 事件（capture_logs 工作先例：tests/unit/test_scoring.py:1240、tests/unit/test_dispatcher_executor.py:350））。checker 侧构造改为 `RoundPaths(round_dir=Path(rd) if rd else Path(project_dir), project_dir=Path(project_dir) if project_dir else Path(rd), repo_root=...)` 的显式双根形式不变，但 read miss 回退事件可观测。
 
 - [ ] **Step 1: 失败测试**（rd miss → project_dir 命中返回 + hook 记录；rd miss 且 strict → FileNotFoundError；rd 命中不触发 hook；三个真实 checker（pacing_design/worldbuilding/character_design）在 rd 只有 genre-config、目标 md 在 project_dir 时 read 走通且 hook 有记录——用 tmp_path 从 `tests/fixtures/` 复制真实 fixture 文件组装）
 - [ ] **Step 2:** 跑 → FAIL
@@ -92,7 +99,7 @@ def test_detect_none(tmp_path):
 
 **Interfaces:**
 - Consumes: Task 1 `detect_layout`。
-- Produces: 布局根枚举改为 detect 驱动：`_layout_project_roots(base: Path) -> list[Path]`（新纯 helper 于 g0.py）——对 base 下每个子目录跑 `detect_layout`，收集 NOVEL_OUTPUT/SKILL_OUTPUT 布局的 genre-config 项目根（detect 优先级：novel.json→PROJECT_OUTPUT 不参与枚举扫描；detect 跑在 base 下每个子目录上，返回的是**项目根**（如 novel-output/<proj>/），布局根判定来自子目录自身 name+内容）；G0.3 与 G0.cc 均改调此 helper（G0.3 现扫 skill-output 根、G0.cc 现扫 novel-output 根，统一后两 gate 各自语义不变但项目根集合来自同一探测）。chapter_drafting 的 `while proj_dir.name != "skill-output"` 上溯改 `detect_layout(pf)` 返回的布局根推导 project_root（无 genre-config 布局检出时回落 `read_genre_config(pf.parent)` 现状并注释）。
+- Produces: 布局根枚举改为 detect 驱动：`_layout_project_roots(base: Path) -> list[Path]`（新纯 helper 于 g0.py）——候选 = base 直接子目录 ∪ base/{"novel-output","skill-output"} 的子目录，逐个跑项目目录级 `detect_layout`，收集 verdict∈{NOVEL_OUTPUT, SKILL_OUTPUT} 的**项目根**（PROJECT_OUTPUT 不参与枚举扫描）；G0.3 与 G0.cc 均改调此 helper（G0.3 现扫 skill-output 根、G0.cc 现扫 novel-output 根，统一后两 gate 各自语义不变但项目根集合来自同一探测）。chapter_drafting 的 `while proj_dir.name != "skill-output"` 上溯改为：从 `pf.parent` 逐级上溯父目录至首个含 genre-config.json 的祖先，取其为 project_root（单项目假设显式化：布局根下多项目时取路径上最近的那个）；无命中回落 `read_genre_config(str(pf.parent))` 现状并注释对齐 paths.md。
 
 - [ ] **Step 1: 失败测试**（G0.3 在 novel-output 布局项目上能找到 genre-config（现状找不到→silent no-op）；chapter_drafting 的 project_root 在 project-output 布局 md 上指向含 genre-config 的真实项目根——tmp_path 从 fixtures 组装三布局）
 - [ ] **Step 2:** FAIL → **Step 3:** 实现接线 → **Step 4:** PASS + `git grep -n "skill-output" -- src/shenbi/gates/` 命中仅剩 g0.py 注释/文案豁免点与 g7.py:72/88（g0.py:210 与 chapter_drafting.py:265/267 的探测语义命中消失）
@@ -108,7 +115,7 @@ def test_detect_none(tmp_path):
 - Produces: cli G4 分支新增可选第 4 位置参数 `project_dir`（缺省回落 rd，T1 形态 rd==project_dir 成文于 paths.md 矩阵）；`gate_G4_bughunt(file_paths, round_dir=None, project_dir=None, repo_root=None)` 与 `gate_G4_clean(...)` 同签名（透传 g4_generic_*，向后兼容默认 None）；g2.py G2.1 改 `p = resolve_input_path(fp, round_dir)`（ValueError 捕获转结构化 FAIL：`{"id":"G2.1","s":FAIL,"r":"not found (relative path requires round_dir)"}`）；G7.13 的 `project_dir=str(rd / "project-output")` 改与 cli 同源：`project_dir=str(detect 布局根)`：g7 侧用 `detect_layout(rd)` 推导（rd 为 project-output 布局根时即 rd 本身；否则回落 `rd / "project-output"` 现状并注释对齐 paths.md 矩阵）。
 
 - [ ] **Step 1: 失败测试**：
-  - F433 复现：project-output 布局，rd 与真实 project_dir 分置。`.integrity-findings-3.jsonl` **G0.9 合规来源 = 测试内经真实写方代码路径生成**：调用 `src/shenbi/pipeline/dispatch_helper.py` 的 `_write_parsed_outputs`（或其提取的最小写方 helper，若不可直调则在 plan 执行时以其真实调用链派生）产出 jsonl 到 `<pd>/audits/`——不手写 jsonl 内容。写方文件名须含章号（`audits/chapter-01-*.md`，写方按 _CHAPTER_NUM_RE 取章号否则记 unknown，读方按 checker 文件章号寻址——不匹配则读方永远缺席）。cli G4 传第 4 参 project_dir 后 `gate_G4(...)` 结果含 G4.ac/av PWI checks（现状 project_dir=rd 时缺席）
+  - F433 复现：project-output 布局，rd 与真实 project_dir 分置。`.integrity-findings-3.jsonl` **G0.9 合规来源 = 测试内经真实写方代码路径生成**：直调模块级函数 `from shenbi.pipeline.dispatch_helper import _write_parsed_outputs`（dispatch_helper.py:1418，模块级可独立调用；`skill=None` + `parsed={"audits/chapter-01-x.md": "<无 verdict 短文本>"}` 即触发 check_audit_completeness→_append_integrity_findings 写 `<pd>/audits/.integrity-findings-01.jsonl`）——不手写 jsonl 内容。写方文件名须含章号（`audits/chapter-01-*.md`，写方按 _CHAPTER_NUM_RE 取章号否则记 unknown，读方按 checker 文件章号寻址——不匹配则读方永远缺席）。cli G4 传第 4 参 project_dir 后 `gate_G4(...)` 结果含 G4.ac/av PWI checks（现状 project_dir=rd 时缺席）
   - F457 复现：bughunt/clean + 相对路径 + rd → 结构化结果非未捕获 ValueError
   - F456 复现：gate_G2(["ch3.md"], "chapter", rd=tmp) 且 CWD≠rd → G2.1 定位 rd/ch3.md 成功（现状 not found）
   - F446 回归：相对 json + rd + CWD≠rd → 结构化 FAIL JSON 或 PASS，永不裸崩
