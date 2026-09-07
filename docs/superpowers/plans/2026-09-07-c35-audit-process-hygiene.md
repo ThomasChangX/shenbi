@@ -72,14 +72,16 @@ def test_real_0815_run_after_exemptions():
 **Interfaces:**
 - Consumes: Task 1 `lint_run` 骨架
 - Produces: `reconcile(run_dir: Path) -> list[Finding]`，检查名 `counts_reconcile`（run 级聚合，豁免 id=`run:counts_reconcile`）：
-  - ledger 条目数（按 ID 前缀 F/T/D 分组）↔ final-report「机械统计」段 `F=… T=… D=… G=… total=…` 逐项相等
-  - `zones/*.files` 并集条目数 ↔ final-report zones 并集声称数（final-report 内自称两数亦须一致，F973 形态）
+  - ledger 条目数（按 ID 前缀 F/T/D 分组）↔ final-report 统计（**双格式抽取**：代码块 `F=… T=… D=… G=… total=…` 行与 markdown 表 `| P0 | n |`/`**总 findings: N**` 行——08-14 报告无机械统计段，数字全在表与 prose 里）
+  - zones 并集 = `cat zones/*.files | sort -u`（glob 钉死 `*.files`，排除 d2-drift-sampling.txt 类杂项）↔ final-report 表 A/tracked 声称数（08-14 实测 2755 vs 2738 即 F973 命中形态；报告侧单数字也须与并集一致）
 - Produces: `report_internal(run_dir: Path) -> list[Finding]`，检查名 `report_internal`（run 级聚合）：
-  - severity 分布行 `P0=… P1=… P2=… M=… (sum=…)` ↔ ledger severity 列现值（F969 形态：781 vs 786 类同源自相矛盾）
-  - final-report 内同量两处声称须相等 + `sum=N` 行须等于各分量之和（F1176 形态：1082 vs 1083 笔误）
-- **F975 无机械检查面**（zones 漏登 = 缺项遗漏，存在性检查抓不到省略）：闭环口径为「执行期核实注记 + 随簇回写关闭」，spec 验收已同步降级，不造豁免
+  - 报告声称 total/severity 分布 ↔ **计算出的 ledger 现值**（08-14 报告 781 vs ledger 786 = F969 命中形态）
+  - severity 单元格归一化：剥离全/半角括号后缀（`M（升级证据已具备…）`→`M`）
+  - final-report 内同量两处声称须相等 + `sum=N` 行须等于分量之和（F1176 历史形态——**注意 08-15 报告该矛盾已被修正**（:40「含 F1176 修正（1083）」），F1176 以核实注记闭合，不造豁免）
+- **F975/F1176 均无现存机械命中面**：闭环口径为「执行期核实注记 + 随簇回写关闭」（spec 验收已同步降级），不造豁免——豁免不命中=FAIL 纪律下，无命中就不许有豁免条目
+- **豁免清单冻结程序**：豁免 json 不许按 plan 预写——实现后先 dry-run `uv run python tools/lint_audit_run.py`（全目录）拿真实命中清单，再按「命中项 → spec 成员映射」生成豁免（08-15 的 report_internal 命中系 PR #147 严重度校准后报告冻结的历史漂移，run 级豁免 reason 注明）；pipe 击伤行（severity 列含「漏报」等错位）按实际命中入豁免
 
-- [ ] **Step 1: 失败测试**：tmp_path 组装 mini run（ledger 3 行 + zones 2 文件 + final-report 机械统计段数字故意错 1 处）→ `counts_reconcile` 命中；真实 08-14 run 引用 → 至少命中 F969/F973/F1176 对应缺口（豁免前）
+- [ ] **Step 1: 失败测试**：tmp_path 组装 mini run（ledger 3 行 + zones 2 文件 + final-report 双格式统计（表+代码块）数字故意错 1 处）→ `counts_reconcile`/`report_internal` 命中；真实 08-14 run 引用 → 至少命中 F969（781↔786）与 F973（2755↔2738）（豁免前）
 - [ ] **Step 2: 确认失败 → 实现 → 通过**（正则抽取 final-report 代码块内统计行；zones 并集去重计数）
 - [ ] **Step 3: Commit** `test: count reconciliation checks zones↔ledger↔final-report (spec #49 R1)`
 
@@ -97,7 +99,7 @@ def test_real_0815_run_after_exemptions():
 - Produces: `generate_carryover(prev_ledger: Path, out: Path) -> int`（抽取 status ∈ {verified, open} 全 severity 条目，行格式 `<ID> <severity> <status> <标题>`）；CLI `uv run python tools/generate_carryover.py <prev-run-dir>` 默认写 `<prev-run-dir>/carryover.md`
 - `--verify-carryover` 语义：run 目录含 carryover.md 时，next-run = `docs/superpowers/audit-runs/` 下字典序**下一个** run 目录（08-14→08-15；末轮无 next = 显式 skip log）；逐条目 grep next-run ledger 的承接注记/同 ID 行，未承接=FAIL（08-14 演示文件的断链本体以 run:verify-carryover 豁免）
 - 验收演示（spec R2）：`grep -Ecw "F1301|F1302|F1320" docs/superpowers/audit-runs/2026-08-14/carryover.md` ≥3
-- 豁免内容：08-14 run（run:row_columns=F972 十六行组、F969/F973 对账缺口 + run:verify-carryover 演示豁免）、08-15 run（F1176 report_internal 命中豁免；F975 核实闭合不入豁免）
+- 豁免内容（从 dry-run 真实命中生成，非预写）：08-14 run（run:row_columns=F972 畸形行组 + 既有 12 列 specced/verified 行、F969/F973 对账缺口、run:verify-carryover 演示豁免）；08-15 run（run:report_internal=PR #147 校准后报告冻结漂移 + dry-run 实际命中的 pipe/列错位行）
 
 - [ ] **Step 1: 失败测试**：generate_carryover 用真实 08-14 ledger → 输出含 F1301/F1302/F1320 verified 行、不含 closed/merged 条目；verify-carryover：tmp mini run carryover 2 条 1 条未承接 → FAIL 1；无 carryover.md → skip 不 FAIL
 - [ ] **Step 2: 实现两脚本 + 落两份豁免 json（reason 注明冻结历史 run + spec #49）**
@@ -115,7 +117,7 @@ def test_real_0815_run_after_exemptions():
 - Test: `tests/unit/test_count_active_specs.py`
 
 **Interfaces:**
-- Produces: `count_active(path: str) -> int`（**文件数口径**：`docs/superpowers/specs/*.md` 顶层 .md 文件数、排除 INDEX.md；archive/ 子目录不被该 glob 命中）；CLI 核对 `docs/superpowers/specs/INDEX.md` 头部 `活跃 spec 数`：N 与目录扫描差值非零 → exit 1
+- Produces: `count_active(path: str) -> int`（**文件数口径**：`docs/superpowers/specs/*.md` 顶层 .md 文件数、排除 INDEX.md；archive/ 子目录不被该 glob 命中）；CLI 核对 INDEX 头计数——**抽取规则钉死：`活跃 spec 数**：` 之后、`（` 之前的第一个整数**（prose 括注防误parse）；差值非零 → exit 1
 
 - [ ] **Step 1: 失败测试**：tmp specs 目录（3 spec + INDEX 头写 3 → PASS；写 4 → FAIL）；真实 main 当前应 PASS（19==19）
 - [ ] **Step 2: 实现 + 接线 + `just check` 局部跑通**
