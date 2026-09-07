@@ -34,7 +34,7 @@
 ### T0 · provenance 载体与滚出机制（设计审查 2026-09-07 补，先于 T1 定约）
 
 - **载体双形态**：`.md` fixture 用 YAML frontmatter 字段 `provenance:`（三态 `real-output | upstream-copy | synthetic-sample`，另含 `source:` 指针）；非 md fixture（.txt/.json 等）用同目录 sidecar `<文件名>.provenance.json`（同三态字段）。三态外的标注 = FAIL（消灭 T802 自我豁免 note 与非法 YAML）
-- **滚出机制（保持 CI 全程绿）**：T1 合入时新检查以 **report/WARN 模式**上线（`GateStatus.WARN` 已有先例，g0.py:272/340；gates CLI 对 PASS/FAIL/WARN 退出码均为 0——legacy 契约，见 src/shenbi/gates/cli.py:224 注释——**FAIL 模式的执法面在单测断言 `GateStatus.FAIL`**，不靠 CLI 退出码）；基线快照 `tests/fixtures/provenance-baseline.json` 由**独立生成器**（tools/ 下 CLI 脚本）产出——gate 检查器只读基线，不写任何文件（纯度规则：gate 无副作用）。**基线的唯一用途 = 报告增量违规（new-since-baseline 计数）**；WARN/FAIL 判定只看现场扫描 + 当前波次模式，升级判据 = **现场重扫该波违规计数 == 0**（不是读静态基线），清零波升级 FAIL 与基线再生成在同一 PR 内完成。原「feature flag 可单独关闭」提案**撤销**——与 AGENTS.md「no gate can be skipped」冲突，回滚依赖 fixture 删除独立 commit + 分波升级本身（单波可降回 WARN）
+- **滚出机制（保持 CI 全程绿）**：T1 合入时新检查以 **report/WARN 模式**上线（`GateStatus.WARN` 已有先例，g0.py:272/340；gates CLI 对 PASS/FAIL/WARN 退出码均为 0——legacy 契约，见 src/shenbi/gates/cli.py:224 注释——**FAIL 模式的执法面在单测断言 `GateStatus.FAIL`**，不靠 CLI 退出码；FAIL 对人工调用者的可见面 = gate JSON 输出的 `s` 字段）；基线快照 `tests/fixtures/provenance-baseline.json` 由**独立生成器**（tools/ 下 CLI 脚本）产出——gate 检查器只读基线，不写任何文件（纯度规则：gate 无副作用）。**基线的唯一用途 = 报告增量违规（new-since-baseline 计数）**；WARN/FAIL 判定只看现场扫描 + 当前波次模式，升级判据 = **现场重扫该波违规计数 == 0**（不是读静态基线），清零波升级 FAIL 与基线再生成在同一 PR 内完成。原「feature flag 可单独关闭」提案**撤销**——与 AGENTS.md「no gate can be skipped」冲突，回滚依赖 fixture 删除独立 commit + 分波升级本身（单波可降回 WARN）
 - **扫描目标集**：闭包扫描/provenance 检查的目标 = 被 scenario/测试消费的 fixture 文件；**载体文件自身豁免**（`*.provenance.json` sidecar、`provenance-baseline.json` 不是 fixture、不适用三态）——防止递归自违
 - **负样本位置**：红灯验证的 3 个负样本（不存在路径/无 provenance/虚构 generated_by）在测试 `tmp_path` 内构造，**永不落入 `tests/fixtures/`**（否则自违 G0.9 并污染 AC3 扫描）
 - **白名单（AC3 扫描豁免面）**：常量表只收录合并时实存的文件——首版仅 `report-example.txt`（公版小说 import 源——保留唯一合法角色）；`novel.json`/`pipeline-state.json` 类机器状态产物**待其真实入库时**随 PR 增补，不预置空挂条目。**白名单豁免的是"真实产物角色"要求，不豁免 provenance 标注本身**——条目仍须 sidecar 三态标注（report-example.txt 标 `upstream-copy`）；合规白名单条目在闭包扫描中零命中，新增需 PR 评审
@@ -53,6 +53,7 @@
 7. 孤儿/死件（F761/F784）：删除（word-stem 级 grep 0 命中复核后）。**注意（驳斥轮 2026-09-07 核实）**：F761 的 15 孤儿清单已部分过期——`world-rules-example.md`、`chapter-2-draft.md`、`truth-chapter_summaries.md` 现有真实测试消费者；删除清单必须执行时现推导（全库 grep 0 引用复核），不得照抄审计期清单
 8. 词表/配置类（F785/F786/F787）：stop_words_zh.txt 按自身 spec 重排并接线消费者或删；sensitive_words.txt 扩容并与 scenario 声称对齐；genre-config-example.json 从真实输出重导
 9. 虚构常数（F763）："11 truth files" 改为从 truth-files.yaml 计算
+9b. **存量 expected-output.md 文法迁移（T1.2 FAIL 升级前置）**：全库 grep `expected-output.md` 现推导清单，bug-hunt expected 的证据定位行统一迁移到 T1.2 文法（`tests/fixtures/<file>` + `L<行号>`/锚文本）——迁移完成是 P0 波升级 FAIL 的硬前置
 
 ### T3 · calibration 锚点重建
 10. 27 锚点（F776/T805）：锚文语料改用 novel-output 真实章节 excerpt；无法溯源的按"显式合成样本"降级标注；schema 加 source 字段（file+line 指针）
