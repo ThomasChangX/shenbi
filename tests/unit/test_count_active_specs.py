@@ -29,11 +29,16 @@ def test_count_excludes_index_and_archive(tmp_path: Path) -> None:
     assert count_active(specs) == 3
 
 
-def test_drift_fails(tmp_path: Path) -> None:
+def test_drift_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import tools.count_active_specs as mod
+
     specs = _write_specs(tmp_path, n=3, header_count=4)
     text = (specs / "INDEX.md").read_text(encoding="utf-8")
     assert declared_count(text) == 4
     assert count_active(specs) == 3
+    monkeypatch.setattr(mod, "SPECS_DIR", specs)
+    monkeypatch.setattr(mod, "INDEX", specs / "INDEX.md")
+    assert mod.main() == 1  # drift must exit FAIL
 
 
 def test_missing_marker_returns_none(tmp_path: Path) -> None:
