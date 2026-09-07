@@ -76,7 +76,7 @@ def _parse_rows(run_dir: Path) -> list[tuple[int, str, list[str]]]:
 
 def _normalize_severity(cell: str) -> str:
     """Strip a trailing parenthetical suffix (half/full-width) from a severity cell."""
-    return re.sub(r"[\uff08(][^\uff09())]*[\uff09)]\s*$", "", cell)
+    return re.sub(r"[\uff08(][^\uff09()]*[\uff09)]\s*$", "", cell)
 
 
 def _row_format_findings(rows: list[tuple[int, str, list[str]]]) -> list[Finding]:
@@ -89,9 +89,10 @@ def _row_format_findings(rows: list[tuple[int, str, list[str]]]) -> list[Finding
             msg = f"line {lineno}: {len(cells)} columns (< {EXPECTED_BODY_COLUMNS})"
             findings.append(Finding("row_columns", fid, msg))
         else:
-            extras = "".join(cells[EXPECTED_BODY_COLUMNS:])
-            if extras and not extras.lstrip().startswith("→"):
-                msg = f"line {lineno}: extra column(s) not closure annotation: {extras!r}"
+            extras = cells[EXPECTED_BODY_COLUMNS:]
+            bad = [c for c in extras if c.strip() and not c.lstrip().startswith("→")]
+            if bad:
+                msg = f"line {lineno}: extra column(s) not closure annotation: {bad}"
                 findings.append(Finding("row_columns", fid, msg))
         severity = _normalize_severity(cells[3]) if len(cells) > _SEVERITY_COL else ""
         if severity and severity not in SEVERITY_VOCAB:
@@ -147,11 +148,15 @@ def reconcile(run_dir: Path) -> list[Finding]:
     prefix_counts: dict[str, int] = {}
     for _lineno, _raw, cells in rows:
         if cells and cells[0]:
-            key = cells[0][0].upper()
-            prefix_counts[key] = prefix_counts.get(key, 0) + 1
+            # first F/T/D/G letter works for legacy IDs and date-prefixed
+            # forms alike (2026-08-16-F117 -> F)
+            m = re.search(r"[FTDG]", cells[0])
+            if m:
+                key = m.group(0)
+                prefix_counts[key] = prefix_counts.get(key, 0) + 1
 
     # last match per prefix wins: quoted prior-run stats must not shadow final claims
-    claimed = {k: int(v) for k, v in reversed(re.findall(r"\b([FTDG])=(\d+)\b", report))}
+    claimed = {k: int(v) for k, v in re.findall(r"\b([FTDG])=(\d+)\b", report)}
     for prefix, count in claimed.items():
         actual = prefix_counts.get(prefix, 0)
         if actual != count:
@@ -348,13 +353,16 @@ def verify_carryover(run_dir: Path) -> list[Finding]:
     if not younger:
         print(f"SKIP verify-carryover {run_dir.name}: no next run yet")
         return []
-    next_ids = {cells[0] for _ln, _raw, cells in _parse_rows(younger[0]) if cells}
+    next_ledger = younger[0] / "findings-ledger.md"
+    next_text = next_ledger.read_text(encoding="utf-8") if next_ledger.exists() else ""
     findings: list[Finding] = []
     for line in carryover.read_text(encoding="utf-8").splitlines():
         if not line or line.startswith("#"):
             continue
         fid = line.split()[0]
-        if fid not in next_ids:
+        # token match anywhere in the next ledger row text: covers closure
+        # annotations and future date-prefixed IDs citing the source ID
+        if not re.search(rf"\b{re.escape(fid)}\b", next_text):
             findings.append(
                 Finding("verify_carryover", fid, f"{fid} not carried into {younger[0].name}")
             )

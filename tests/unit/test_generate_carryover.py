@@ -49,7 +49,7 @@ def test_skips_closed_and_merged(tmp_path: Path) -> None:
         [
             "| F1 | a | error | P1 | e | r | v | i | s | d | closed |",
             "| F2 | b | error | P1 | e | r | v | i | s | d | verified "
-            "| → closed (C-34 spec #48) (merged-into-F433, spec #48, PR #168) |",
+            + "| → closed (C-34 spec #48) (merged-into-F433, spec #48, PR #168) |",
             "| F3 | c | error | P1 | e | r | v | i | s | d | open |",
         ],
     )

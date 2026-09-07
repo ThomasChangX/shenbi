@@ -14,6 +14,7 @@ import pytest
 
 pytestmark = pytest.mark.unit
 
+import tools.lint_audit_run as lar  # noqa: E402
 from tools.lint_audit_run import (  # noqa: E402
     apply_exemptions,
     lint_run,
@@ -154,16 +155,12 @@ def test_real_0815_run_after_exemptions() -> None:
 def test_corrupt_exemption_file_fails_not_crashes(tmp_path: Path) -> None:
     _write_ledger(tmp_path, [GOOD_ROW])
     (tmp_path / "audit-lint-exemptions.json").write_text("{not json", encoding="utf-8")
-    from tools.lint_audit_run import lint_run_full
-
-    findings = lint_run_full(tmp_path)
+    findings = lar.lint_run_full(tmp_path)
     assert any(f.check == "exemption_schema" for f in findings)
 
 
 def test_missing_run_dir_flagged(capsys: pytest.CaptureFixture[str]) -> None:
-    from tools.lint_audit_run import main
-
-    assert main([str(Path("docs/superpowers/audit-runs/nonexistent"))]) == 1
+    assert lar.main([str(Path("docs/superpowers/audit-runs/nonexistent"))]) == 1
     assert "does not exist" in capsys.readouterr().out
 
 
@@ -185,52 +182,41 @@ def _write_mini_run(
 
 
 def test_counts_reconcile_prefix_mismatch(tmp_path: Path) -> None:
-    from tools.lint_audit_run import reconcile
-
     rows = [GOOD_ROW, "| T1 | t | error | P1 | e | r | v | i | s | d | open |"]
     _write_mini_run(
         tmp_path,
         rows,
         "```\nF=1 T=2 D=0 G=0 total=3\nP0=0 P1=2 P2=0 M=0 (sum=2)\n```\n",
     )
-    assert any(f.id == "prefix:T" for f in reconcile(tmp_path))
+    assert any(f.id == "prefix:T" for f in lar.reconcile(tmp_path))
 
 
 def test_report_internal_total_vs_ledger(tmp_path: Path) -> None:
-    from tools.lint_audit_run import report_internal
-
     _write_mini_run(tmp_path, [GOOD_ROW], "**总 findings: 5**\n")
-    assert any(f.id == "total_claim" for f in report_internal(tmp_path))
+    assert any(f.id == "total_claim" for f in lar.report_internal(tmp_path))
 
 
 def test_report_internal_sum_line(tmp_path: Path) -> None:
-    from tools.lint_audit_run import report_internal
-
     _write_mini_run(tmp_path, [GOOD_ROW], "```\nP0=1 P1=3 P2=0 M=0 (sum=5)\n```\n")
-    assert any(f.id == "sum_claim" for f in report_internal(tmp_path))
+    assert any(f.id == "sum_claim" for f in lar.report_internal(tmp_path))
 
 
 def test_report_internal_severity_vs_ledger(tmp_path: Path) -> None:
-    from tools.lint_audit_run import report_internal
-
     _write_mini_run(tmp_path, [GOOD_ROW], "```\nP0=0 P1=2 P2=0 M=0 (sum=2)\n```\n")
-    assert any(f.id == "severity:P1" for f in report_internal(tmp_path))
+    assert any(f.id == "severity:P1" for f in lar.report_internal(tmp_path))
 
 
 def test_reconcile_zones_union_vs_table_a(tmp_path: Path) -> None:
-    from tools.lint_audit_run import reconcile
-
     _write_mini_run(
         tmp_path,
         [GOOD_ROW],
         "| tracked 文件（表 A） | 1 |",
         zones={"Z1.files": "a.py\nb.py\n", "Z2.files": "b.py\nc.py\n"},  # union=3
     )
-    assert any(f.id == "zones_union" for f in reconcile(tmp_path))
+    assert any(f.id == "zones_union" for f in lar.reconcile(tmp_path))
 
 
 def test_reconcile_clean_mini_run(tmp_path: Path) -> None:
-    from tools.lint_audit_run import reconcile, report_internal
 
     rows = [GOOD_ROW, "| T1 | t | error | P1 | e | r | v | i | s | d | open |"]
     _write_mini_run(
@@ -244,40 +230,34 @@ def test_reconcile_clean_mini_run(tmp_path: Path) -> None:
         + "\n| tracked 文件（表 A） | 2 |\n",
         encoding="utf-8",
     )
-    assert reconcile(tmp_path) == []
-    assert report_internal(tmp_path) == []
+    assert lar.reconcile(tmp_path) == []
+    assert lar.report_internal(tmp_path) == []
 
 
 def test_real_0814_reconcile_hits_f969_f973() -> None:
-    from tools.lint_audit_run import reconcile, report_internal
 
     run = Path("docs/superpowers/audit-runs/2026-08-14")
-    assert any(f.id == "zones_union" for f in reconcile(run))  # F973: 2755 vs 2738
-    assert any(f.id == "total_claim" for f in report_internal(run))  # F969: 781 vs 786
+    assert any(f.id == "zones_union" for f in lar.reconcile(run))  # F973: 2755 vs 2738
+    assert any(f.id == "total_claim" for f in lar.report_internal(run))  # F969: 781 vs 786
 
 
 def test_missing_report_is_explicit_fail(tmp_path: Path) -> None:
-    from tools.lint_audit_run import reconcile
-
     _write_ledger(tmp_path, [GOOD_ROW])  # no final-report.md
-    hits = reconcile(tmp_path)
+    hits = lar.reconcile(tmp_path)
     assert any(f.id == "report_missing" for f in hits)
 
 
 def test_missing_zones_dir_is_explicit_fail(tmp_path: Path) -> None:
-    from tools.lint_audit_run import reconcile
-
     _write_ledger(tmp_path, [GOOD_ROW])
     (tmp_path / "final-report.md").write_text("| tracked 文件（表 A） | 2 |\n", encoding="utf-8")
-    assert any(f.id == "zones_missing" for f in reconcile(tmp_path))
+    assert any(f.id == "zones_missing" for f in lar.reconcile(tmp_path))
 
 
 # ---- Task 3: verify_carryover ----
 
 
 def test_verify_carryover_flags_uncarried(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    import tools.lint_audit_run as mod
-
+    mod = lar
     # fake audit-runs root containing prev + next runs
     prev, nxt = tmp_path / "2026-01-01", tmp_path / "2026-01-02"
     _write_ledger(prev, [GOOD_ROW])
@@ -293,8 +273,7 @@ def test_verify_carryover_flags_uncarried(monkeypatch: pytest.MonkeyPatch, tmp_p
 def test_verify_carryover_skips_without_file(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    import tools.lint_audit_run as mod
-
+    mod = lar
     run = tmp_path / "2026-01-01"
     run.mkdir()
     monkeypatch.setattr(mod, "AUDIT_RUNS_DIR", tmp_path)

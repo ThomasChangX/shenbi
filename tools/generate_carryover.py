@@ -18,10 +18,8 @@ import argparse
 import sys
 from pathlib import Path
 
-try:  # pytest: repo root on sys.path
-    from tools.lint_audit_run import EXPECTED_BODY_COLUMNS, _parse_rows
-except ImportError:  # direct script run: tools/ itself on sys.path
-    from lint_audit_run import EXPECTED_BODY_COLUMNS, _parse_rows
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from tools.lint_audit_run import EXPECTED_BODY_COLUMNS, _parse_rows
 
 CARRIED_STATUSES = {"verified", "open"}
 

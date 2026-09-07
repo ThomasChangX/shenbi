@@ -8,6 +8,7 @@ import pytest
 
 pytestmark = pytest.mark.unit
 
+import tools.count_active_specs as cas  # noqa: E402
 from tools.count_active_specs import count_active, declared_count  # noqa: E402
 
 
@@ -30,7 +31,7 @@ def test_count_excludes_index_and_archive(tmp_path: Path) -> None:
 
 
 def test_drift_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    import tools.count_active_specs as mod
+    mod = cas
 
     specs = _write_specs(tmp_path, n=3, header_count=4)
     text = (specs / "INDEX.md").read_text(encoding="utf-8")
@@ -46,7 +47,7 @@ def test_missing_marker_returns_none(tmp_path: Path) -> None:
 
 
 def test_real_index_consistent() -> None:
-    from tools.count_active_specs import SPECS_DIR
+    SPECS_DIR = cas.SPECS_DIR
 
     assert count_active(SPECS_DIR) == declared_count(
         (SPECS_DIR / "INDEX.md").read_text(encoding="utf-8")
