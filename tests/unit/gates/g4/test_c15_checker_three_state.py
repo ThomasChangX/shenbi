@@ -11,10 +11,15 @@ import json
 import shutil
 from pathlib import Path
 
+import pytest
+
 from shenbi.gates.g4.book_spine_init import g4_book_spine_init
 from shenbi.gates.g4.memory_distill import g4_memory_distill
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures"
+
+
+pytestmark = pytest.mark.unit
 
 
 def _status(out: str) -> str:
