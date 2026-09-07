@@ -31,7 +31,7 @@ AGENTS.md 规定框架代码（src/shenbi/）禁用 `print()`、统一 structlog
 - **裁决（定案）**：扩展 `src/shenbi/cli_utils.py`（既有模块，非新建）：
   - 新增 `echo(msg: str, *, err: bool = False) -> None` —— 人面文本；`err=True` 写 stderr（保 report.py:135 / cli.py:1067 的 stderr 语义）。实现**对齐同文件 emit_json**：`(sys.stderr if err else sys.stdout).write(msg + "\n")` + flush + `BrokenPipeError → SystemExit(0)`——**不用 print**，故 src/shenbi 无需任何 per-file-ignores
   - 机器 JSON 复用既有 `emit_json`（`ensure_ascii=False` 语义保 check.py:164 中文 detail 字节级不变——**不得**引入 print/ensure_ascii 默认值回归）
-  - 不设可测试性 hook（capsys 直接拦截 write/print，hook 属 YAGNI）；模块保持纯函数、无状态，过 mypy + basedpyright strict
+  - 不设可测试性 hook（capsys 直接拦截 write/print，hook 属 YAGNI）；模块保持纯函数、无状态，过 mypy + basedpyright strict；echo 继承流编码（与 emit_json 同性质，非 UTF-8 locale 下中文同抛 UnicodeEncodeError——接受该一致性，不另行处理）
 - AGENTS.md Python Conventions 修订一句："No `print()` in framework code (enforced by ruff T20, zero exemptions in src/shenbi); user-facing text goes through `shenbi.cli_utils.echo` (`err=True` for stderr), machine-readable CLI stdout through `shenbi.cli_utils.emit_json` or direct `sys.stdout.write`; use structlog for logging."；三类通道枚举成文于 `docs/framework/logging.md`（既有 5 行 stub，扩充为通道裁决正文；`docs/api/logging.md` 引用保持一致）
 - **验收**：规则文本合入（AGENTS.md + docs/framework/logging.md）；`git grep -n "print(" -- 'src/shenbi/'` 剔除 `_text_fingerprint` 子串误报后**零命中**
 
@@ -42,7 +42,7 @@ AGENTS.md 规定框架代码（src/shenbi/）禁用 `print()`、统一 structlog
 - INDEX #50 行的 file:line 摘要随落地 PR 同步为现行行号
 
 ### R3 · lint 执法
-- ruff `select` 加 `"T20"`；`[tool.ruff.lint.per-file-ignores]` 加三条框架外豁免（键加引号，对齐既有 BLE001 条目格式）：`"tools/**" = ["T201"]`、`"scripts/**" = ["T201"]`、`"tests/**" = ["T201"]`（tools/scripts 是 CLI 脚本、tests 有审计记录型 print，均合法人面输出；实跑基线：tools/scripts 83 处、tests 2 处均为存量合法）。src/shenbi **零豁免**。ruff 已由 justfile check、`.pre-commit-config.yaml` ruff hook、ci.yml 三处既有接线运行——无需新增任何清单行，C25 合写面就此消解（C25 将来重排清单时对账即可）
+- ruff `select` 加 `"T20"`；`[tool.ruff.lint.per-file-ignores]` 框架外豁免三条（键加引号）：新增 `"tools/**" = ["T201"]`、`"scripts/**" = ["T201"]`，既有 `"tests/**" = ["BLE001"]` **合并为 `["BLE001", "T201"]`**（TOML 禁重复键，实测 ruff 遇 duplicate key 直接 config parse 失败）（tools/scripts 是 CLI 脚本、tests 有审计记录型 print，均合法人面输出；实跑基线：tools/scripts 83 处、tests 2 处均为存量合法；ruff 对多条匹配 per-file-ignores 取并集，无遮蔽）。src/shenbi **零豁免**。ruff 已由 justfile check、`.pre-commit-config.yaml` ruff hook、ci.yml 三处既有接线运行——无需新增任何清单行，C25 合写面就此消解（C25 将来重排清单时对账即可）
 - `tools/lint_no_print.py` 自定义脚本降为最后手段，仅在 T20 语义与豁免需求冲突时启用
 - **验收**：src/shenbi 任一文件临时加 `print("x")` → `just check` FAIL；`tools/` 内 print 存量 → PASS
 
