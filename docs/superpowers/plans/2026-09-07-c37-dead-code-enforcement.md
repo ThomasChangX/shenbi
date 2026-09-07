@@ -4,7 +4,7 @@
 
 **Goal:** 按当前 main 现判收口 C37 簇 43 条 findings（7 已修关闭、~27 处存活面三桶裁决），清除假防线、批量删除死面，并落地 CI dead-code 执法门。
 
-**Architecture:** R0 分桶表是硬闸（每编号一行，未经认领的删除禁止合入）；R1 假防线优先（error_guidance/recovery 整删 + 谎称接线注释清理）；R2 按 R0 表批量删（含 F427 三 checker 合一、T1506 legacy 改名、F325 fail-fast 接线）；R3 以 vulture（min-confidence 80 + 白名单文件）接入 `just check` 与 CI。
+**Architecture:** R0 分桶表是硬闸（每编号一行，未经认领的删除禁止合入）；R1 假防线优先（error_guidance/recovery 整删 + 谎称接线注释清理）；R2 按 R0 表批量删（含 F427 三 checker 合一、T1506 legacy 改名、F325 fail-fast 接线）；R3 以 vulture（min-confidence 60 + 白名单文件——unused function 报 60% 置信度）接入 `just check` 与 CI。
 
 **Tech Stack:** Python 3.11+/uv、pytest、vulture（新增 dev 依赖）、just、GitHub Actions。
 
@@ -89,7 +89,7 @@
 - Delete: `src/shenbi/gates/g1.py:106` `check_fields_exist` + `tests/unit/gates/test_g1_fields.py`（T301）
 - Delete: `tests/unit/gates/g4/conftest.py:13,27` 两死 fixture（F706，先 grep 确认零引用）
 - Modify: `src/shenbi/gates/g4/score_arc.py` + `score_stratum.py` + `score_volume.py` → 合一 `src/shenbi/gates/g4/scoring_sections.py`（F427）：参数化 checker，`generic.py:315-349` 改 import/注册
-- Modify: `src/shenbi/contracts/legacy.py` → 改名（按内容定真名，如 `contracts_registry.py`），删 `contracts/__init__.py:49` re-export shim，~15 导入点全改（T1506，实测 grep contracts.legacy 15 处）
+- Modify: `src/shenbi/contracts/legacy.py` → 改名（按内容定真名，如 `contracts_registry.py`），删 `contracts/__init__.py:49` re-export shim，全仓导入点全改（T1506，实测：src/ 7 处 + tests/ 23 处 + tools/ 2 处 = 32 处）
 - Modify: `src/shenbi/pipeline/cli.py:755,856`（F325：`_verify_truth_integrity` 返回 list[str] 接线 fail-fast——非空则 `err` 输出并以非零退出中止 resume）
 
 **F427 合一签名（Produces，T4 内自洽）：**
@@ -118,18 +118,18 @@ def g4_scoring_sections(
 **复杂度: infra** · **test_kind: tdd_red_green（负例：新增零调用函数必须 FAIL）**
 
 **Files:**
-- Modify: `pyproject.toml` dev 组加 `"vulture>=2.11"`
+- Modify: `pyproject.toml` dev 组加 `"vulture>=2.11"`（R3 选型裁定：vulture；spec ≥80 修正为 60，记录 spec-deviations）
 - Create: `tools/vulture_allowlist.py`（白名单：R0 defer 项 + 公共 API 面 + 文件头注明"季度复核 deferred 项"）
-- Modify: `justfile` `check` target 追加一行 `uv run vulture src/shenbi --min-confidence 80`
+- Modify: `justfile` `check` target 追加一行 `uv run vulture src/shenbi --min-confidence 60`
 - Modify: `.github/workflows/ci.yml` 在 lint 段同位置追加同一命令（保持与 just check 同构）
 
 **Interfaces:**
 - Produces: CI 门禁；验收负例 = 临时在 `src/shenbi/` 加零调用函数 → 命令非零退出（验收后撤销）；白名单内项 → PASS
 
 - [ ] **Step 1:** `uv add --group dev "vulture>=2.11"` + `uv lock`；`uv lock --check` 通过
-- [ ] **Step 2:** 跑 `uv run vulture src/shenbi --min-confidence 80` 收集全量报告 → 逐项处置：该删的漏网（对照 R0 表）回 T2-T4 补删；真公共 API/deferred 入白名单（每行注 F 编号或 API 理由）
+- [ ] **Step 2:** 跑 `uv run vulture src/shenbi --min-confidence 60` 收集全量报告 → 逐项处置：该删的漏网（对照 R0 表）回 T2-T4 补删；真公共 API/deferred 入白名单（每行注 F 编号或 API 理由）
 - [ ] **Step 3:** 基线清零：该命令 exit 0
-- [ ] **Step 4 (红灯验收):** `echo $'\ndef _c37_negative_probe():\n    return 1\n' >> src/shenbi/status.py` → 重跑命令，确认非零（90%+ confidence unused function）→ `git checkout -- src/shenbi/status.py` 撤销，重跑确认 0。两段输出都记入验收证据
+- [ ] **Step 4 (红灯验收):** `echo $'\ndef _c37_negative_probe():\n    return 1\n' >> src/shenbi/status.py` → 重跑命令，确认非零（unused function 于 60% 置信度命中）→ `git checkout -- src/shenbi/status.py` 撤销，重跑确认 0。两段输出都记入验收证据
 - [ ] **Step 5:** `just check` 全绿（含新门）
 - [ ] **Step 6:** Commit `feat(c37): vulture dead-code gate in just check + CI, allowlist with quarterly-review header`
 - [ ] **Step 7:** audit-T5.md
@@ -158,7 +158,7 @@ def g4_scoring_sections(
 |---|---|---|
 | R0 表 43/43、一编号一行 | T1 | `python3 -c "...findall(r'^\| [FT]\d', t)..."` = 43 |
 | `git grep -l "error_guidance" -- src/ docs/` 与裁决一致；抽查 5 处声称接线注释 | T2 | grep 输出对照 R0 表 |
-| `just check` 全绿；vulture 基线清零；删除清单↔R0 表一一对应 | T2-T5 | `just check` exit 0 + `uv run vulture src/shenbi --min-confidence 80` exit 0 |
+| `just check` 全绿；vulture 基线清零；删除清单↔R0 表一一对应 | T2-T5 | `just check` exit 0 + `uv run vulture src/shenbi --min-confidence 60` exit 0 |
 | 新增零调用函数 → CI FAIL；白名单项 PASS | T5 | Step 4 红灯/撤销两段输出 |
 | pytest 无 skip 增量 | T2-T4 | 前后 skip 计数对照 |
 | C14 spec 验收含"直测对象全部为生产可达路径" | T6 | grep 该句在 #52 spec |
