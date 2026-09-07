@@ -33,7 +33,7 @@ ALLOWLIST: set[tuple[str, str]] = {
     ("pipeline/crash_recovery.py", "_check_emergency_flag"),  # chapter_loop.py wrapper call
 }
 
-SUPPRESSION_RE = re.compile(r"^\s*def (_\w+)\(")
+SUPPRESSION_RE = re.compile(r"^\s*(?:async\s+)?def\s+(_?\w+)\(")
 
 JUSTIFICATION_MIN_LEN = 20  # " -- called from ..." style comments
 
@@ -50,10 +50,13 @@ def main() -> int:
                 continue
             fn = m.group(1)
             seen.add((rel, fn))
-            comment = line.split("#", 1)[1] if "#" in line else ""
-            if len(comment) < JUSTIFICATION_MIN_LEN:
+            # Justification = text AFTER the ignore directive (PR #179 review:
+            # counting the directive itself made the length check vacuous).
+            parts = line.split("reportUnusedFunction]", 1)
+            justification = parts[1].strip(" #:-") if len(parts) > 1 else ""
+            if len(justification) < JUSTIFICATION_MIN_LEN:
                 problems.append(
-                    f"{rel}:{lineno}: suppression for {fn} lacks a justification comment"
+                    f"{rel}:{lineno}: {fn} suppression lacks justification after the directive"
                 )
     for extra in sorted(seen - ALLOWLIST):
         problems.append(
