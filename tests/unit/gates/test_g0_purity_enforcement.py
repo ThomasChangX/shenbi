@@ -149,12 +149,43 @@ def test_template_dir_in_scope(tmp_path: Path) -> None:
 
 
 def test_whitelist_exempt(tmp_path: Path) -> None:
+    """Whitelist waives the role requirement, never the annotation (spec T0)."""
+    from shenbi.gates.g0_purity import PROVENANCE_WHITELIST
+
     t1, fixtures = _make_tree(tmp_path)
-    _make_fixture(fixtures, "report-example.txt", "novel")
-    (fixtures / "report-example.txt.provenance.json").write_text(
+    (tmp_path / "tests" / "fixtures" / "report-example.txt").write_text("novel", encoding="utf-8")
+    _make_scenario(t1, "shenbi-x", "generative", "imports `tests/fixtures/report-example.txt`")
+    assert "tests/fixtures/report-example.txt" in PROVENANCE_WHITELIST
+    # no sidecar → still a violation (annotation is not exempt)
+    res = check_fixture_provenance(t1, tmp_path / "tests" / "fixtures")
+    assert res[0]["s"] is GateStatus.WARN
+    assert "report-example.txt" in res[0]["r"]
+    # sidecar with legal tri-state → PASS
+    (tmp_path / "tests" / "fixtures" / "report-example.txt.provenance.json").write_text(
         '{"provenance": "upstream-copy", "source": "public domain novel"}',
         encoding="utf-8",
     )
-    _make_scenario(t1, "shenbi-x", "generative", "imports `tests/fixtures/report-example.txt`")
-    res = check_fixture_provenance(t1, fixtures)
+    res = check_fixture_provenance(t1, tmp_path / "tests" / "fixtures")
     assert res[0]["s"] is GateStatus.PASS
+
+
+def test_zero_violations_fail_wave_passes(tmp_path: Path) -> None:
+    """count==0 + wave==fail → PASS (promotion guard passthrough)."""
+    t1, _fixtures = _make_tree(tmp_path)
+    _make_scenario(t1, "shenbi-x", "bug-hunt", "no fixture refs at all")
+    ENFORCEMENT_WAVES["P0"] = "fail"
+    try:
+        res = check_scenario_reference_closure(t1, tmp_path)
+        assert res[0]["s"] is GateStatus.PASS
+    finally:
+        ENFORCEMENT_WAVES["P0"] = "warn"
+
+
+def test_directory_reference_is_missing(tmp_path: Path) -> None:
+    """Directory refs are not files (F789): closure flags empty-dir refs."""
+    t1, fixtures = _make_tree(tmp_path)
+    (fixtures / "empty-dir").mkdir()
+    _make_scenario(t1, "shenbi-x", "generative", "reads `tests/fixtures/empty-dir`")
+    res = check_scenario_reference_closure(t1, tmp_path)
+    assert res[0]["s"] is GateStatus.WARN
+    assert "empty-dir" in res[0]["r"]

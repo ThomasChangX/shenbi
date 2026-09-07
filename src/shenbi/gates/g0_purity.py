@@ -79,7 +79,7 @@ def load_provenance(fixture_path: Path) -> str | None:
             pm = re.search(r"^provenance:\s*(\S+)\s*$", m.group(1), re.MULTILINE)
             if not pm:
                 return None
-            value = pm.group(1)
+            value = pm.group(1).strip("\"'")
         else:
             sidecar = fixture_path.parent / (fixture_path.name + ".provenance.json")
             if not sidecar.exists():
@@ -118,7 +118,7 @@ def check_scenario_reference_closure(
     """G0.17: every scenario-referenced tests/fixtures/ path must exist."""
     missing: dict[str, list[str]] = {}
     for ref, consumers in _consumed_fixtures(t1_skill_dir).items():
-        if not (project_root / ref).exists():
+        if not (project_root / ref).is_file():
             missing.setdefault(ref, []).extend(consumers[:3])
     violations = len(missing)
     if violations:
@@ -137,13 +137,16 @@ def check_scenario_reference_closure(
 
 
 def check_fixture_provenance(t1_skill_dir: Path, fixtures_dir: Path) -> list[dict[str, Any]]:
-    """G0.18: consumed fixtures carry a legal tri-state provenance carrier."""
+    """G0.18: consumed fixtures carry a legal tri-state provenance carrier.
+
+    Whitelist entries waive the real-output ROLE requirement but never the
+    annotation itself (spec T0): a whitelisted fixture without a legal
+    carrier is still a violation.
+    """
     offenders: list[str] = []
     for ref in _consumed_fixtures(t1_skill_dir):
-        if ref in PROVENANCE_WHITELIST:
-            continue
         fixture_path = fixtures_dir / ref.removeprefix("tests/fixtures/")
-        if not fixture_path.exists() or fixture_path.is_dir():
+        if not fixture_path.is_file():
             continue  # existence is G0.17's wave
         if load_provenance(fixture_path) is None:
             offenders.append(ref)
@@ -175,9 +178,8 @@ def check_variant_bypass(t1_skill_dir: Path, fixtures_dir: Path) -> list[dict[st
     any scenario-referenced fixture (e.g. ``foo-example`` vs
     ``foo-example-variant``). Carrier files are never scan targets.
     """
-    referenced = {
-        _stem_segments(ref.rsplit("/", 1)[-1])[:2] for ref in _consumed_fixtures(t1_skill_dir)
-    }
+    consumed = _consumed_fixtures(t1_skill_dir)
+    referenced = {_stem_segments(ref.rsplit("/", 1)[-1])[:2] for ref in consumed}
     offenders: list[str] = []
     if fixtures_dir.exists():
         for p in sorted(fixtures_dir.rglob("*")):
@@ -186,7 +188,7 @@ def check_variant_bypass(t1_skill_dir: Path, fixtures_dir: Path) -> list[dict[st
             if p.name.endswith(_CARRIER_SUFFIX) or p.name == _BASELINE_NAME:
                 continue
             rel = "tests/fixtures/" + p.relative_to(fixtures_dir).as_posix()
-            if rel in _consumed_fixtures(t1_skill_dir) or rel in PROVENANCE_WHITELIST:
+            if rel in consumed or rel in PROVENANCE_WHITELIST:
                 continue
             if _stem_segments(p.name)[:2] in referenced and load_provenance(p) is None:
                 offenders.append(rel)
