@@ -31,7 +31,7 @@
 ## 任务分解
 
 ### T1 · hypothesis 回归重放复活（P1 优先）
-1. .gitignore 手术：`.hypothesis/` 整目录忽略改为 `.hypothesis/*` + 定向反排除（`!examples/`、`!.gitignore`）——目录级忽略下 git 无法 re-include 子文件（F1318 失败模式根源），必须先拆目录通配；提交现存 44 样本
+1. .gitignore 手术：`.hypothesis/` 整目录忽略改为 `.hypothesis/*` + 定向反排除（`!examples/`、`!.gitignore`）——目录级忽略下 git 无法 re-include 子文件（F1318 失败模式根源），必须先拆目录通配；提交现存 44 样本（**执行结果 2026-09-08**：43 stale 样本删除——hypothesis 6.155 对通过样本自动剪除，43 个沉积即陈旧证据；库以 go-forward 形态激活，见 spec-deviations）
 2. 清 stale（F1158）：对 10 个 digest 0/10 匹配的 key 重放定级——仍失败的修测试或删样本，全 stale 的整批重建
 3. CI replay 接线：样本入库后 Hypothesis 在常规 pytest 运行中隐式重放 examples 库；CI 步骤须使日志可见证重放发生（如 `--hypothesis-show-statistics` 输出），使"样本入库"真正等于"CI 重放"（F1159 验收锚点）
 
@@ -40,7 +40,7 @@
 5. 该防线上线即成为 C23 机械漂移修复的持续防线（C23 验收依赖此项）
 
 ### T3 · mutation 基线建立或下线
-6. T1104 残存修复路径（配置键已修，2026-09-08 复核）：排除 editable .pth 干扰（沙盒复制树方案为首选；mutmut 3.x CLI/配置可用面先实测核实再选）后建立基线；下线时钟自本任务开工起算两周
+6. T1104 残存修复路径（配置键已修，2026-09-08 复核）：排除 editable .pth 干扰（沙盒复制树方案为首选；mutmut 3.x CLI/配置可用面先实测核实再选）后建立基线；下线时钟自本任务开工起算两周（**执行结果 2026-09-08**：SDD 单 session 压缩为限时尝试，复现三重结构性障碍后裁决下线，见 spec-deviations）
 7. F783/F1010：基线建立后 mutation-score.txt 写入真实值、compare_mutation_score.py 接入 CI（weekly）或删除；T1105 低分模块（escalation 等）→ C15 已 Done（PR #189），若其补测面未覆盖则在 findings-ledger 为 T1105 开新登记行、归属本 spec 处理，不指向已关闭 spec
 8. 若两周内无法修复 mutmut 空转：下线路径——删 mutmut 配置与 just mutate-check，justfile/README 同步（自包含步骤，不等 C24）
 9. F782/T1103：gate-outputs 剩余 6/7 基线接线（G6/G7 回归测试读取）或删除（G4-genre_config.json 已有消费者，保留）
