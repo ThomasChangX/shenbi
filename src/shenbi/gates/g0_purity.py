@@ -20,7 +20,7 @@ PROVENANCE_WHITELIST: frozenset[str] = frozenset({"tests/fixtures/report-example
 # Staged WARN→FAIL rollout: waves flip to "fail" only after live re-scan
 # count reaches zero (spec T0). Promotion is judged by live scan, never by
 # reading the static baseline.
-ENFORCEMENT_WAVES: dict[str, str] = {"P0": "warn", "P1": "warn", "P2": "warn"}
+ENFORCEMENT_WAVES: dict[str, str] = {"P0": "fail", "P1": "fail", "P2": "fail"}
 
 _CARRIER_SUFFIX = ".provenance.json"
 _BASELINE_NAME = "provenance-baseline.json"

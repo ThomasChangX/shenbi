@@ -5,6 +5,9 @@ under tests/fixtures/.
 """
 
 from pathlib import Path
+from typing import Any
+
+import pytest
 
 from shenbi.gates.g0_purity import (
     ENFORCEMENT_WAVES,
@@ -29,6 +32,14 @@ def _make_fixture(fixtures: Path, rel: str, content: str = "x\n") -> Path:
     return p
 
 
+@pytest.fixture(autouse=True)
+def _restore_waves() -> Any:
+    """Snapshot/restore ENFORCEMENT_WAVES so no test leaks wave state."""
+    saved = dict(ENFORCEMENT_WAVES)
+    yield
+    ENFORCEMENT_WAVES.update(saved)
+
+
 def _make_tree(tmp_path: Path) -> tuple[Path, Path]:
     t1 = tmp_path / "t1-skill"
     fixtures = tmp_path / "tests" / "fixtures"
@@ -40,33 +51,38 @@ def _make_tree(tmp_path: Path) -> tuple[Path, Path]:
 def test_negative_missing_path(tmp_path: Path) -> None:
     t1, _ = _make_tree(tmp_path)
     _make_scenario(t1, "shenbi-x", "bug-hunt", "uses `tests/fixtures/nope.md` here")
-    res = check_scenario_reference_closure(t1, tmp_path)
-    assert res[0]["id"] == "G0.17"
-    assert res[0]["s"] is GateStatus.WARN  # P0 wave starts in warn mode
-    ENFORCEMENT_WAVES["P0"] = "fail"
+    prev = ENFORCEMENT_WAVES["P0"]
+    ENFORCEMENT_WAVES["P0"] = "warn"
     try:
+        res = check_scenario_reference_closure(t1, tmp_path)
+        assert res[0]["id"] == "G0.17"
+        assert res[0]["s"] is GateStatus.WARN  # warn wave reports, not fails
+        ENFORCEMENT_WAVES["P0"] = "fail"
         res = check_scenario_reference_closure(t1, tmp_path)
         assert res[0]["s"] is GateStatus.FAIL
     finally:
-        ENFORCEMENT_WAVES["P0"] = "warn"
+        ENFORCEMENT_WAVES["P0"] = prev
 
 
 def test_negative_no_provenance(tmp_path: Path) -> None:
+    ENFORCEMENT_WAVES["P1"] = "warn"
     t1, fixtures = _make_tree(tmp_path)
     _make_fixture(fixtures, "a.md")
     _make_scenario(t1, "shenbi-x", "generative", "reads `tests/fixtures/a.md`")
     res = check_fixture_provenance(t1, fixtures)
     assert res[0]["id"] == "G0.18"
     assert res[0]["s"] is GateStatus.WARN
+    prev = ENFORCEMENT_WAVES["P1"]
     ENFORCEMENT_WAVES["P1"] = "fail"
     try:
         res = check_fixture_provenance(t1, fixtures)
         assert res[0]["s"] is GateStatus.FAIL
     finally:
-        ENFORCEMENT_WAVES["P1"] = "warn"
+        ENFORCEMENT_WAVES["P1"] = prev
 
 
 def test_negative_fake_generated_by(tmp_path: Path) -> None:
+    ENFORCEMENT_WAVES["P1"] = "warn"
     t1, fixtures = _make_tree(tmp_path)
     _make_fixture(
         fixtures,
@@ -95,6 +111,7 @@ def test_carrier_self_exempt(tmp_path: Path) -> None:
 
 
 def test_variant_bypass_detects_unreferenced(tmp_path: Path) -> None:
+    ENFORCEMENT_WAVES["P2"] = "warn"
     t1, fixtures = _make_tree(tmp_path)
     _make_fixture(fixtures, "foo-example.md", "---\nprovenance: real-output\n---\n")
     _make_fixture(fixtures, "foo-example-variant.md")  # unreferenced, no provenance
@@ -103,12 +120,13 @@ def test_variant_bypass_detects_unreferenced(tmp_path: Path) -> None:
     assert res[0]["id"] == "G0.19"
     assert res[0]["s"] is GateStatus.WARN
     assert "foo-example-variant.md" in res[0]["r"]
+    prev = ENFORCEMENT_WAVES["P2"]
     ENFORCEMENT_WAVES["P2"] = "fail"
     try:
         res = check_variant_bypass(t1, fixtures)
         assert res[0]["s"] is GateStatus.FAIL
     finally:
-        ENFORCEMENT_WAVES["P2"] = "warn"
+        ENFORCEMENT_WAVES["P2"] = prev
 
 
 def test_closure_zero_violations(tmp_path: Path) -> None:
@@ -125,22 +143,24 @@ def test_promotion_guard(tmp_path: Path) -> None:
     t1, _ = _make_tree(tmp_path)
     _make_scenario(t1, "shenbi-x", "bug-hunt", "uses `tests/fixtures/missing.md`")
     # wave in warn mode: violations > 0 must NOT produce FAIL
+    saved = dict(ENFORCEMENT_WAVES)
     for wave in ("P0", "P1", "P2"):
         ENFORCEMENT_WAVES[wave] = "warn"
-    res = check_scenario_reference_closure(t1, tmp_path)
-    assert res[0]["s"] is GateStatus.WARN
-    # zero violations + fail wave → PASS (guard passes through)
-    _make_scenario(t1, "shenbi-y", "bug-hunt", "no refs")
-    ENFORCEMENT_WAVES["P0"] = "fail"
     try:
+        res = check_scenario_reference_closure(t1, tmp_path)
+        assert res[0]["s"] is GateStatus.WARN
+        # zero violations + fail wave → PASS (guard passes through)
+        _make_scenario(t1, "shenbi-y", "bug-hunt", "no refs")
+        ENFORCEMENT_WAVES["P0"] = "fail"
         res = check_scenario_reference_closure(t1, tmp_path)
         # missing.md still referenced by shenbi-x → live count > 0 → FAIL stays
         assert res[0]["s"] is GateStatus.FAIL
     finally:
-        ENFORCEMENT_WAVES["P0"] = "warn"
+        ENFORCEMENT_WAVES.update(saved)
 
 
 def test_template_dir_in_scope(tmp_path: Path) -> None:
+    ENFORCEMENT_WAVES["P0"] = "warn"
     """_template scenarios are scanned (F751 main battlefield)."""
     t1, fixtures = _make_tree(tmp_path)
     _make_scenario(t1, "_template", "bug-hunt", "uses `tests/fixtures/tpl.md`")
@@ -149,6 +169,7 @@ def test_template_dir_in_scope(tmp_path: Path) -> None:
 
 
 def test_whitelist_exempt(tmp_path: Path) -> None:
+    ENFORCEMENT_WAVES["P1"] = "warn"
     """Whitelist waives the role requirement, never the annotation (spec T0)."""
     from shenbi.gates.g0_purity import PROVENANCE_WHITELIST
 
@@ -173,15 +194,17 @@ def test_zero_violations_fail_wave_passes(tmp_path: Path) -> None:
     """count==0 + wave==fail → PASS (promotion guard passthrough)."""
     t1, _fixtures = _make_tree(tmp_path)
     _make_scenario(t1, "shenbi-x", "bug-hunt", "no fixture refs at all")
+    prev = ENFORCEMENT_WAVES["P0"]
     ENFORCEMENT_WAVES["P0"] = "fail"
     try:
         res = check_scenario_reference_closure(t1, tmp_path)
         assert res[0]["s"] is GateStatus.PASS
     finally:
-        ENFORCEMENT_WAVES["P0"] = "warn"
+        ENFORCEMENT_WAVES["P0"] = prev
 
 
 def test_directory_reference_is_missing(tmp_path: Path) -> None:
+    ENFORCEMENT_WAVES["P0"] = "warn"
     """Directory refs are not files (F789): closure flags empty-dir refs."""
     t1, fixtures = _make_tree(tmp_path)
     (fixtures / "empty-dir").mkdir()

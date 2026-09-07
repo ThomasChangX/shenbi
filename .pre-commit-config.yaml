@@ -82,8 +82,8 @@ repos:
         language: system
         pass_filenames: false
       - id: bug-hunt-evidence-closure
-        name: bug-hunt evidence closure (G0.9 content-level, warn stage)
-        entry: uv run python tools/check_bug_hunt_evidence.py --warn-only
+        name: bug-hunt evidence closure (G0.9 content-level)
+        entry: uv run python tools/check_bug_hunt_evidence.py
         language: system
         pass_filenames: false
       - id: autocheck-docs-idempotency
