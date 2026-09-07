@@ -71,6 +71,11 @@ MIRROR_MAP: dict[str, str] = {
     "tests/fixtures/decisions/corpus/case14-bad_schema_p25.json": (
         "tests/fixtures/revision-decisions/chapter-sample-revision-decisions.json"
     ),
+    # 阶段 8 终审补：payload 级（frontmatter 剥离后）重复对
+    "tests/fixtures/audits/chapter-1-character.md": ("tests/fixtures/audit-report-example.md"),
+    "tests/fixtures/consolidation/volume-1/unresolved-hooks.md": (
+        "tests/fixtures/truth-pending_hooks-ch56.md"
+    ),
 }
 
 
