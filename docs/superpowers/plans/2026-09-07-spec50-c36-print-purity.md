@@ -274,7 +274,7 @@ git commit -m "feat: enforce ruff T20 print ban with 3-channel output ruling (sp
 
 ---
 
-### Task ### Task 4: findings-ledger 回写关闭
+### Task ### Task 4### Task 4
 
 **复杂度: leaf**（机械文本编辑）· **test_kind: regression_guard**（git diff 审查）· **层级: docs**
 
@@ -283,13 +283,13 @@ git commit -m "feat: enforce ruff T20 print ban with 3-channel output ruling (sp
 
 **Interfaces:** 无代码接口。
 
-- [ ] **Step 1: 三行状态 `open` → `closed (C-36 spec #50, PR #N)`**（N = 本 PR 号，出 PR 后、合并前回填；对齐既有 F605/F627/F606 关闭行格式。顺手修正 D102 行内「2 处误报」→「3 处（chapter_drafting.py:133,141,320）」，不改证据列历史行号——仅注记现行行号已漂移）
-- [ ] **Step 2: `just audit-lint` 全绿**（spec #49 审计产物 lint）
+- [x] **Step 1: 三行状态 `open` → `closed (C-36 spec #50, PR #N)`**（N = 本 PR 号，出 PR 后、合并前回填；对齐既有 F605/F627/F606 关闭行格式。顺手修正 D102 行内「2 处误报」→「3 处（chapter_drafting.py:133,141,320）」，不改证据列历史行号——仅注记现行行号已漂移）
+- [x] **Step 2: `just audit-lint` 全绿**（spec #49 审计产物 lint）
 
 Run: `just audit-lint`
 Expected: exit 0
 
-- [ ] **Step 3: Commit**（与 PR 号回填同 commit）
+- [x] **Step 3: Commit**（与 PR 号回填同 commit）
 
 ```bash
 git add docs/superpowers/audit-runs/2026-08-15/findings-ledger.md
