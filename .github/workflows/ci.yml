@@ -63,6 +63,8 @@ jobs:
         run: uv run python tools/lint_no_fs_mutation.py src/shenbi
       - name: Audit-run lint (ledger, reconciliation, carryover; spec 49)
         run: uv run python tools/lint_audit_run.py
+      - name: Active-spec count lint (INDEX header vs scan; spec 49)
+        run: uv run python tools/count_active_specs.py
       - name: Run tests (parallel, excluding last)
         run: >-
           uv run pytest -n auto --dist loadscope
