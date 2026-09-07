@@ -36,7 +36,6 @@ dev = [
     "pre-commit>=3.6.0",
     "pip-audit>=2.7.0",
     "cyclonedx-bom>=7.3.1",
-    "mutmut>=3.0.0",
     "coverage>=7.4.0",
     "yamllint>=1.33.0",
     "git-cliff>=2.4.0",
@@ -85,13 +84,6 @@ ignore_missing_imports = true
 module = "tenacity.*"
 ignore_missing_imports = true
 
-[tool.mutmut]
-# mutmut 3.x reads underscored keys; the prior hyphenated names
-# (paths-to-mutate / tests-dir / do-not-mutate) were silently ignored, so
-# mutmut mutated a default set and ran the whole suite (including integration
-# tests that subprocess-run gates needing skills/, which is absent in mutants/).
-paths_to_mutate = ["src/shenbi/exceptions.py", "src/shenbi/logging.py", "src/shenbi/gates/shared.py"]
-pytest_add_cli_args_test_selection = ["tests/unit/"]
 
 [tool.ruff]
 line-length = 100
