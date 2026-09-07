@@ -15,7 +15,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from shenbi.contracts.legacy import load_registry
+from shenbi.contracts.loader import load_registry
 from shenbi.gates.shared import (
     SKILLS,
     bak_path,
@@ -46,7 +46,7 @@ def derive_backup_skills() -> frozenset[str]:
     frontmatter directly (``read_frontmatter_contract``), avoiding the
     O(#skills) registry reloads that ``load_contract`` would trigger.
     """
-    from shenbi.contracts.legacy import read_frontmatter_contract
+    from shenbi.contracts.loader import read_frontmatter_contract
 
     reg = load_registry()
     truth_names = {c.name for c in reg.concepts if c.kind == "truth"}
@@ -101,51 +101,6 @@ def compute_backup_targets(
     if not skill_name or skill_name not in BACKUP_SKILLS or not round_dir:
         return []
     return [(fp, bak_path(fp)) for fp in file_paths]
-
-
-def check_fields_exist(
-    skill: str, inputs: list[str], fields_map: dict[str, list[str]]
-) -> list[str]:
-    """WARN (not FAIL) if declared fields are not found in input files.
-
-    Runs before _build_skill_prompt's filtering, so skill authors see
-    field-name drift warnings before the LLM sees filtered content.
-    Non-blocking — returns warning strings only.
-
-    Markdown files: declared field names are matched against the literal
-    text of ``## H2`` headings (e.g. ``## Foo Bar`` is matched as
-    ``"Foo Bar"``). JSON files: matched against top-level keys of an
-    object. Files not present on disk, or of other extensions, are skipped
-    silently (existence is G1.1's concern).
-    """
-    warnings: list[str] = []
-    for fp in inputs:
-        fields = fields_map.get(fp) or fields_map.get(Path(fp).name)
-        if not fields:
-            continue
-        p = Path(fp)
-        if not p.exists():
-            continue
-        content = p.read_text(encoding="utf-8")
-        if fp.endswith(".md"):
-            # Collect literal H2 heading text (no snake_case normalization).
-            actual: set[str] = set()
-            for line in content.splitlines():
-                if line.startswith("## "):
-                    actual.add(line[3:].strip())
-            missing = set(fields) - actual
-            if missing:
-                warnings.append(f"{fp}: declared fields {missing} not found in file")
-        elif fp.endswith(".json"):
-            try:
-                data = json.loads(content)
-            except json.JSONDecodeError:
-                continue  # G1.2 already handles JSON parse errors
-            if isinstance(data, dict):
-                missing = set(fields) - set(data.keys())
-                if missing:
-                    warnings.append(f"{fp}: declared keys {missing} not found in file")
-    return warnings
 
 
 def gate_G1(

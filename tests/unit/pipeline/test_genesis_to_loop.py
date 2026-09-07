@@ -36,6 +36,7 @@ from shenbi.pipeline.state import (
     GenesisState,
     PipelinePhase,
 )
+from tests.conftest import seed_genesis_outputs
 
 # Every genesis step passes G4; step 17 additionally passes G3.
 _GATE_PASS = {"status": "PASS"}
@@ -189,6 +190,9 @@ class TestGenesisToChapterLoopTransition:
 
         # 3. Resume transitions into the chapter loop and runs to the next
         #    checkpoint (chapter-memo, step 2 of chapter 1).
+        seed_genesis_outputs(
+            seeded_project
+        )  # C37 F325: resume fail-fast on missing genesis outputs
         rc = main(["resume", str(seeded_project)])
 
         assert rc == 0
@@ -205,6 +209,7 @@ class TestGenesisToChapterLoopTransition:
     ) -> None:
         main(["next", str(seeded_project)])
         main(["review", str(seeded_project), "approve"])
+        seed_genesis_outputs(seeded_project)  # C37 F325
         assert main(["resume", str(seeded_project)]) == 0
 
         state = load_state(seeded_project)
@@ -225,6 +230,7 @@ class TestGenesisToChapterLoopTransition:
     ) -> None:
         main(["next", str(seeded_project)])
         main(["review", str(seeded_project), "approve"])
+        seed_genesis_outputs(seeded_project)  # C37 F325
         main(["resume", str(seeded_project)])
 
         state = load_state(seeded_project)

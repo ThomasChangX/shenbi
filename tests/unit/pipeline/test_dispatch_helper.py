@@ -67,7 +67,7 @@ class TestDispatchSkill:
     @patch(PATCH)
     def test_timeout_returns_error(self, mock_run, tmp_path):
         mock_run.side_effect = subprocess.TimeoutExpired(cmd=[], timeout=1)
-        result = dispatch_skill("shenbi-worldbuilding", tmp_path, "prompt", timeout=1)
+        result = dispatch_skill("shenbi-worldbuilding", tmp_path, "prompt")
         assert result.success is False
         assert result.returncode == -1
 
@@ -266,9 +266,9 @@ class TestMultiFileOutputFormat:
             "read_fields": {},
         }
         # load_contract is imported locally inside _build_skill_prompt from
-        # shenbi.contracts.legacy, so patch it there.
+        # shenbi.contracts.loader, so patch it there.
         monkeypatch.setattr(
-            "shenbi.contracts.legacy.load_contract",
+            "shenbi.contracts.loader.load_contract",
             lambda s: mock_contract,
         )
 
@@ -293,7 +293,7 @@ class TestMultiFileOutputFormat:
             "read_fields": {},
         }
         monkeypatch.setattr(
-            "shenbi.contracts.legacy.load_contract",
+            "shenbi.contracts.loader.load_contract",
             lambda s: mock_contract,
         )
 
@@ -367,31 +367,6 @@ class TestTruthTemplates:
         (truth / "current_state.md").write_text(pre_existing, encoding="utf-8")
         _init_truth_templates(tmp_path)
         assert (truth / "current_state.md").read_text(encoding="utf-8") == pre_existing
-
-    def test_template_satisfies_check_fields_exist(self, tmp_path):
-        """D21 canary: a freshly-seeded template produces no G1 field WARNs."""
-        from shenbi.gates.g1 import check_fields_exist
-        from shenbi.pipeline.dispatch_helper import _init_truth_templates
-
-        _init_truth_templates(tmp_path)
-        inputs = [str(tmp_path / "truth" / "current_state.md")]
-        # Key must be str(fp) (absolute path), matching check_fields_exist's
-        # lookup convention (g1.py:104); a relative key matches neither fp nor
-        # Path(fp).name, making the canary vacuously pass.
-        fields_map = {
-            str(tmp_path / "truth" / "current_state.md"): [
-                "系统演化阶段",
-                "参数当前位置",
-                "进行中的情节线",
-            ]
-        }
-        warnings = check_fields_exist("shenbi-chapter-planning", inputs, fields_map)
-        assert warnings == []
-
-
-# ---------------------------------------------------------------------------
-# JSON validation + raw_decode() recovery tests (Plan 02 Task 1)
-# ---------------------------------------------------------------------------
 
 
 class TestValidateJsonOutput:
@@ -789,7 +764,7 @@ class TestPlanSkeletonInjection:
             "read_fields": {},
         }
         monkeypatch.setattr(
-            "shenbi.contracts.legacy.load_contract",
+            "shenbi.contracts.loader.load_contract",
             lambda s: mock_contract,
         )
 

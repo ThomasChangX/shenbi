@@ -1,5 +1,5 @@
 """T12-06 (spec #22 R3): skill-name lexical validation shared by all three
-path join points (dispatch_helper / contracts.legacy._skill_path /
+path join points (dispatch_helper / contracts.loader._skill_path /
 phase_runner) + plugins/generate.py output containment.
 """
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from shenbi.contracts.legacy import ContractError, validate_skill_name
+from shenbi.contracts.loader import ContractError, validate_skill_name
 
 BAD = ["../escape", "a/b", "/abs/skill", "", "UPPER", "shenbi x", "shenbi/../shenbi", "."]
 GOOD = ["shenbi-worldbuilding", "using-shenbi", "a", "shenbi-2nd"]

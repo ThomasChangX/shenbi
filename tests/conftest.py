@@ -50,3 +50,35 @@ def sample_worldbuilding_output(tmp_project_dir: Path) -> Path:
     (base / "world").mkdir()
     (base / "world" / "story_bible.md").write_text("# Bible\n## A\nx\n## B\nx\n## C\nx\n## D\nx\n")
     return base
+
+
+def seed_genesis_outputs(project_dir) -> None:
+    """Create the genesis-output file set _verify_truth_integrity requires.
+
+    C37 F325 wiring: resume fails fast on missing genesis outputs, so tests
+    that drive cmd_resume past the integrity check must seed this set.
+    """
+    import json as _json
+    from pathlib import Path as _Path
+
+    base = _Path(project_dir)
+    for d in ("truth", "characters", "outline", "world", "style", "plans", "context"):
+        (base / d).mkdir(parents=True, exist_ok=True)
+    files = {
+        "world/story_bible.md": "# Bible\n",
+        "genre-config.json": _json.dumps({}),
+        "characters/protagonist.md": "# Hero\n",
+        "outline/story_frame.md": "# Frame\n",
+        "outline/volume_map.md": "# Volumes\n",
+        "outline/rhythm_principles.md": "# Rhythm\n",
+        "outline/thread_map.md": "# Threads\n",
+        "truth/pending_hooks.md": "# Hooks\n",
+        "world/power_system.md": "# Power\n",
+        "world/locations.md": "# Places\n",
+        "characters/relationships.md": "# Relationships\n",
+        "truth/book_spine.md": "# Spine\n",
+        "truth/author_intent.md": "# Intent\n",
+        "style/style_profile.md": "# Style\n",
+    }
+    for rel, content in files.items():
+        (base / rel).write_text(content, encoding="utf-8")

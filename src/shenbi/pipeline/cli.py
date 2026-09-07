@@ -855,8 +855,19 @@ def cmd_resume(args: argparse.Namespace) -> int:
 
             # Truth-integrity check (spec §3.4): verify truth files exist
             # before resuming, so missing files surface immediately rather than
-            # on the first step dispatch.
-            _verify_truth_integrity(state, project_dir)
+            # on the first step dispatch. C37 F325 wiring: the returned
+            # missing-list was previously ignored — fail fast on it.
+            _integrity_missing = _verify_truth_integrity(state, project_dir)
+            if _integrity_missing:
+                log.error("resume_truth_integrity_failed", missing=_integrity_missing)
+                emit_json(
+                    {
+                        "status": CommandStatus.ERROR,
+                        "message": "truth integrity check failed on resume",
+                        "missing": _integrity_missing,
+                    }
+                )
+                return 1
 
             # Detect stale/missing progress.json (no rebuild — spec #37 F630 ruling b).
             from shenbi.pipeline.chapter_loop import _auto_rebuild_progress_if_stale  # pyright: ignore[reportPrivateUsage]

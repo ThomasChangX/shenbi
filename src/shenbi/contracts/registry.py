@@ -24,7 +24,7 @@ def bootstrap_registry() -> dict[str, str]:
     and re-parsing the YAML, so the two never drift. Returns ``{}`` only when the
     registry file is absent (pre-bootstrap), keeping the existing fall-back.
     """
-    from shenbi.contracts.legacy import load_registry
+    from shenbi.contracts.loader import load_registry
     from shenbi.exceptions import FrameworkError
 
     try:

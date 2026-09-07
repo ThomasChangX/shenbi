@@ -430,7 +430,6 @@ def main() -> int:
     kill_switch_triggered = "--kill-switch" in sys.argv
     test_type = None
     tier = None
-    _phase = None
     round_dir = None
     for i, arg in enumerate(sys.argv):
         if arg == "--test-type" and i + 1 < len(sys.argv):
@@ -439,8 +438,6 @@ def main() -> int:
             round_dir = sys.argv[i + 1]
         if arg == "--tier" and i + 1 < len(sys.argv):
             tier = sys.argv[i + 1]
-        if arg == "--phase" and i + 1 < len(sys.argv):
-            _phase = sys.argv[i + 1]
 
     # Gate integration: run pre-scoring dependency checks
     if tier:

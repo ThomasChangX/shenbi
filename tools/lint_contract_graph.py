@@ -38,7 +38,7 @@ from shenbi import sync_contracts
 #   ``shenbi.sync_contracts.load_all_contracts``; a bound ``from`` import would
 #   bypass the patch.)
 from shenbi.contracts.graph import dag_key
-from shenbi.contracts.legacy import load_registry
+from shenbi.contracts.loader import load_registry
 
 
 def find_closure_violations() -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:

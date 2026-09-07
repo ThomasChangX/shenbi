@@ -12,7 +12,7 @@ the fictional ``snapshots/chapter-NNN/`` directory concept).
 
 from __future__ import annotations
 
-from shenbi.contracts.legacy import load_registry
+from shenbi.contracts.loader import load_registry
 
 # Pipeline-only files the pipeline writes directly (no skill producer).
 # Each must resolve to a concept whose producer is pipeline (or shared when a

@@ -635,7 +635,7 @@ def _build_skill_prompt(
             When provided, reads/writes resolve arc/stratum/volume/chapter
             families from it instead of the bare chapter number.
     """
-    from shenbi.contracts.legacy import ContractError, load_contract, validate_skill_name
+    from shenbi.contracts.loader import ContractError, load_contract, validate_skill_name
 
     try:
         contract = load_contract(skill)
@@ -1642,7 +1642,7 @@ def _collect_declared_truth_fields() -> dict[str, list[str]]:
     no contract or an unparseable one are skipped — template seeding must
     never block genesis on a single malformed skill.
     """
-    from shenbi.contracts.legacy import ContractError, load_contract
+    from shenbi.contracts.loader import ContractError, load_contract
     from shenbi.gates.shared import ALL_SKILLS
 
     declared: dict[str, dict[str, None]] = {name: {} for name in _TRUTH_FILE_TITLES}
@@ -2675,7 +2675,6 @@ def dispatch_skill(
     prompt: str,
     test_type: str = "generative",
     round_dir: Path | str | None = None,
-    timeout: int = 900,
     skip_reads: list[str] | None = None,
     uses_staging: bool = False,
     shared_context: Any = None,
@@ -2698,7 +2697,8 @@ def dispatch_skill(
         prompt: The task prompt describing what to generate/audit.
         test_type: Test mode identifier (default 'generative').
         round_dir: Optional round-specific directory for output isolation.
-        timeout: Subprocess timeout in seconds (default 900).
+        timeout is computed adaptively via _compute_dispatch_timeout (C37 F345:
+        the fixed ``timeout=900`` signature param was never used by the body).
         skip_reads: Optional list of read patterns to skip.
         uses_staging: If True, dispatch writes to staging/ first.
         shared_context: Optional SharedAuditContext with pre-extracted fields.

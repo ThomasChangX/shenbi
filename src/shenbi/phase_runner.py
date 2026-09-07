@@ -21,7 +21,7 @@ from typing import Any, NoReturn, cast
 from shenbi.cli_utils import emit_json
 from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts.file_list import join_gate_file_list
-from shenbi.contracts.legacy import validate_skill_name
+from shenbi.contracts.loader import validate_skill_name
 from shenbi.exceptions import ShenbiError
 from shenbi.logging import configure_logging, get_logger
 from shenbi.process_guard import run_subprocess_json

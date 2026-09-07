@@ -52,7 +52,7 @@ def _normalize_path_list(items: list[Any]) -> list[str]:
     """Normalize a contract list (reads/writes/updates) that may contain plain
     strings or dict-form entries (``{file, ...}``) into a flat list of file
     paths. This mirrors ``_normalize_write_item`` / ``_normalize_read_item``
-    in ``shenbi.contracts.legacy`` but operates on the raw frontmatter.
+    in ``shenbi.contracts.loader`` but operates on the raw frontmatter.
     """
     out: list[str] = []
     for item in items:
