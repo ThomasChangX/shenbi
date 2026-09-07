@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-08（spec #52 C14 plan 归档——Done PR #183）
-> **活跃 plan 数**：0 | **已归档**：105（见 `archive/`）
+> **最后更新**：2026-09-08（#40 总纲维护 pass plan 创建——executing）
+> **活跃 plan 数**：1 | **已归档**：105（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,10 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无——当前无活跃 plan）
+### 2026-09-08-spec40-master-matrix-sync-2.md ✅ ready
+
+- **spec**：#40 审计修复总纲（master 维护 pass：C14/C16/C37 回标 + ledger 回写 55 closed/2 注记）
+- **状态**：executing（SDD #40，分支 chore/spec40-master-matrix-sync-2）
 
 
 
