@@ -91,7 +91,7 @@ def _normalize_write_item(item: Any, field: str, skill: str) -> tuple[str, dict[
     """Normalize a writes/updates entry into (path, semantics_meta).
 
     Accepts a plain string (no declared semantics -> empty meta) or a dict
-    {file, mode?, no_op_behavior?, key?}. Dict-form is the new write-semantics
+    {file, mode?, key?}. Dict-form is the write-semantics
     declaration (spec §3.2).
     """
     if isinstance(item, str):

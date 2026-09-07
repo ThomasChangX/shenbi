@@ -44,7 +44,6 @@ PERMANENT_ALLOWLIST: frozenset[str] = frozenset(
 
 TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset(
     {
-        "trace/compaction.py",
         "pipeline/checkpoint.py",
         # F218 (spec #39 T9): codex .raw scratch cleanup after parse —
         # deletion of a temp artifact, not a truth/output write; safe_write

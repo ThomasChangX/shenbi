@@ -185,45 +185,6 @@ def test_holder_mode_tracks_write_lock(tmp_path: Path) -> None:
     assert holder_mode() is None
 
 
-def test_trace_writer_compaction_mutual_exclusion(tmp_path: Path) -> None:
-    """Concurrent compaction (whole-file replace) and append must not tear (F619)."""
-    from shenbi.trace.compaction import compact
-    from shenbi.trace.writer import TraceWriter
-
-    w = TraceWriter(tmp_path)
-    for i in range(5):
-        w.append(actor="seed", actor_role="GATE", action="TEST", target="t", payload={"i": i})
-    barrier = threading.Barrier(2)
-
-    def do_compact() -> None:
-        barrier.wait(timeout=10)
-        compact(tmp_path, snapshot={})
-
-    def do_append() -> None:
-        barrier.wait(timeout=10)
-        w.append(actor="a", actor_role="GATE", action="TEST", target="t", payload={"i": 99})
-
-    t1 = threading.Thread(target=do_compact)
-    t2 = threading.Thread(target=do_append)
-    t1.start()
-    t2.start()
-    t1.join(timeout=25)
-    t2.join(timeout=25)
-    from shenbi.trace.replay import replay
-
-    events = replay(tmp_path)
-    seqs = [e.seq for e in events]
-    assert len(seqs) == len(set(seqs))  # chain intact, no duplicate seq
-    # both the COMPACTION head and any post-compaction append survive —
-    # a lost append (replace landing after it) is the F619 silent-delete shape
-    actions = [e.action for e in events]
-    assert "COMPACTION" in actions
-    assert len(events) in (1, 2)  # compact-only, or compact then append
-    if len(events) == 2:
-        assert actions == ["COMPACTION", "TEST"]
-        assert events[1].payload.get("i") == 99
-
-
 def test_record_audit_outcome_g7_no_false_tamper(tmp_path: Path) -> None:
     """Concurrent record_audit_outcome keeps the chain verifiable (F531/F536, spec AC4)."""
     from shenbi.audit._shared import AuditResult
@@ -293,27 +254,6 @@ def test_ledger_ctor_no_mkdir(tmp_path: Path) -> None:
     project.mkdir()
     TokenLedger(project)  # constructor may not create cost/
     assert not (project / "cost").exists()
-
-
-def test_genre_cache_keyed_by_project_dir(tmp_path: Path) -> None:
-    """Same chapter across two projects must not cross-pollinate (T607)."""
-    import json
-
-    from shenbi.pipeline import dispatch_helper as dh
-
-    for name, marker in (("p1", "one"), ("p2", "two")):
-        proj = tmp_path / name
-        (proj / "config").mkdir(parents=True)
-        (proj / "config" / "genre-config.json").write_text(
-            json.dumps({"version": "1.0", "marker": marker}), encoding="utf-8"
-        )
-    try:
-        c1 = dh._load_genre_config_cached(tmp_path / "p1", 1)
-        c2 = dh._load_genre_config_cached(tmp_path / "p2", 1)
-        assert c1.get("marker") == "one"
-        assert c2.get("marker") == "two"
-    finally:
-        dh._genre_config_cache.clear()
 
 
 def test_path_lock_registry_bounded() -> None:

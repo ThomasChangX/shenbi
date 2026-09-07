@@ -18,7 +18,6 @@ class SharedAuditContext:
     """Pre-extracted context shared across all audit calls for a single chapter."""
 
     chapter_text: str = ""
-    chapter_summary: str = ""
     world_rules: str = ""
     character_list: str = ""
     style_profile: str = ""
@@ -36,7 +35,6 @@ class SharedAuditContext:
             len(v)
             for v in [
                 self.chapter_text,
-                self.chapter_summary,
                 self.world_rules,
                 self.character_list,
                 self.style_profile,

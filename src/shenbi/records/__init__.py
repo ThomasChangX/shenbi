@@ -4,9 +4,8 @@
 
 from shenbi.records.parser import (
     extract_yaml_block,
-    is_idempotent,
     parse_records,
     serialize_records,
 )
 
-__all__ = ["extract_yaml_block", "is_idempotent", "parse_records", "serialize_records"]
+__all__ = ["extract_yaml_block", "parse_records", "serialize_records"]

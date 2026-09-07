@@ -6,84 +6,8 @@ payload={prev_compaction_seq, snapshot, truncated_at_seq}。旧事件被截断�
 
 from __future__ import annotations
 
-import os
-import tempfile
-from pathlib import Path
 
-from shenbi.trace.event import GENESIS_PREV, TraceEvent
-from shenbi.trace.replay import replay
-
-
-def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
-    """Compact the current trace: rewrite to a fresh file with one COMPACTION event.
-
-    N2 fix: crash-safe via temp+fsync+os.replace+dir-fsync (mirrors safe_write),
-    so a mid-compaction crash cannot leave an empty trace.jsonl. The COMPACTION
-    head is built directly via TraceEvent.sign_and_new (no stale TraceWriter).
-    """
-    from shenbi.trace.locks import trace_lock
-
-    path = Path(round_dir) / "trace.jsonl"
-    with trace_lock(path.parent):
-        return _compact_locked(round_dir, path, snapshot)
-
-
-def _compact_locked(round_dir: Path, path: Path, snapshot: dict[str, object]) -> TraceEvent:
-    prev_events = replay(round_dir)
-    prev_compaction_seq: int | None = None
-    truncated_at = 0
-    for e in prev_events:
-        if e.action == "COMPACTION":
-            prev_compaction_seq = e.seq
-        truncated_at = max(truncated_at, e.seq)
-
-    # Build the new COMPACTION head as the sole event (seq=1, prev=GENESIS).
-    head_event = TraceEvent.sign_and_new(
-        prev_signature=GENESIS_PREV,
-        seq=1,
-        actor="system",
-        actor_role="GATE",
-        action="COMPACTION",
-        target="trace.jsonl",
-        schema_version=1,
-        payload={
-            "prev_compaction_seq": prev_compaction_seq,
-            "snapshot": snapshot,
-            "truncated_at_seq": truncated_at,
-        },
-    )
-    # spec #37 F619: replay + whole-file replace both run under trace_lock
-    # (caller holds it) so concurrent appends cannot interleave — an append
-    # landing between replay and replace would silently vanish.
-    return _compact_replace(path, head_event)
-
-
-def _compact_replace(path: Path, head_event: TraceEvent) -> TraceEvent:
-    """Write to temp, fsync, atomically replace, dir-fsync (caller holds trace_lock)."""
-    content = head_event.model_dump_json() + "\n"
-    fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix="trace.", suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as fh:
-            fh.write(content)
-            fh.flush()
-            os.fsync(fh.fileno())
-        os.replace(tmp, path)
-        # Best-effort dir fsync (POSIX-only; Windows can't open dirs as fds).
-        try:
-            dirfd = os.open(str(path.parent), os.O_RDONLY)
-            try:
-                os.fsync(dirfd)
-            finally:
-                os.close(dirfd)
-        except OSError:
-            # Windows / network FS: can't open dirs for fsync — safe to skip
-            # (os.replace already provides atomic durability via rename).
-            pass
-    except BaseException:
-        if os.path.exists(tmp):
-            os.unlink(tmp)
-        raise
-    return head_event
+from shenbi.trace.event import TraceEvent
 
 
 def verify_chain(events: list[TraceEvent]) -> list[str]:

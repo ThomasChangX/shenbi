@@ -71,10 +71,3 @@ def serialize_records(records: list[dict[str, Any]]) -> str:
     return yaml.safe_dump(
         records, sort_keys=True, allow_unicode=True, default_flow_style=False
     ).strip()
-
-
-def is_idempotent(text: str) -> bool:
-    """判据 12 语义 round-trip：parse(serialize(parse(x))) == parse(x)。"""
-    once = parse_records(text)
-    twice = _parse_body(serialize_records(once))
-    return once == twice

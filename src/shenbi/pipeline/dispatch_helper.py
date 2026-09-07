@@ -211,26 +211,6 @@ def _strip_autogen_blocks(text: str) -> str:
     return _AUTOGEN_CHECK_RE.sub("", text)
 
 
-# ---------------------------------------------------------------------------
-# 10b: Genre-config per-chapter cache
-# ---------------------------------------------------------------------------
-
-# spec #37 T607: keyed by (project_dir, chapter) — a chapter-only key
-# cross-pollutes configs when one process serves multiple projects.
-_genre_config_cache: dict[tuple[str, int], dict[str, Any]] = {}
-
-
-def _load_genre_config_cached(project_dir: Path, chapter: int) -> dict[str, Any]:  # pyright: ignore[reportUnusedFunction]
-    """Load genre-config.json with per-chapter cache. ~7 disk I/O -> 1."""
-    key = (str(project_dir), chapter)
-    if key in _genre_config_cache:
-        return _genre_config_cache[key]
-    config_path = project_dir / "config" / "genre-config.json"
-    config: dict[str, Any] = json.loads(config_path.read_text(encoding="utf-8"))
-    _genre_config_cache[key] = config
-    return config
-
-
 def _get_skill_temperature(skill_name: str) -> float:
     """Get temperature for a skill from executor_config.toml."""
     config = _load_executor_config()
@@ -1422,10 +1402,9 @@ def _write_parsed_outputs(
     create_truth_templates: bool = False,
     *,
     skill: str | None = None,
-    skip_paths: set[str] | None = None,
     parsed: dict[str, str] | None = None,
 ) -> list[str]:
-    """Parse agent response and write per-file content, honoring no_op_behavior.
+    """Parse agent response and write per-file content.
 
     This generic dispatch path writes WHOLE FILES (one ``### FILE: <path>`` block
     per output), with ONE routed exception: contract targets declared
@@ -1434,8 +1413,7 @@ def _write_parsed_outputs(
     :func:`_route_append_dedup_write`). The skill's output for such a target is
     the INCREMENT (the new chapter's row/rows); the program merges it by the
     contract-declared key, so cumulative truth files accumulate instead of
-    collapsing to the latest increment. It honors ``no_op_behavior: skip_write``
-    (paths in *skip_paths* are not written).
+    collapsing to the latest increment.
 
     Returns list of successfully written paths.
     """
@@ -1448,7 +1426,6 @@ def _write_parsed_outputs(
     if parsed is None:
         parsed = _parse_file_outputs(response)
     written: list[str] = []
-    skip = skip_paths or set()
 
     semantics: dict[str, dict[str, Any]] = {}
     if skill is not None:
@@ -1585,9 +1562,6 @@ def _write_parsed_outputs(
     for rel_path in literal_paths:
         if "*" in rel_path:
             continue
-        if rel_path in skip:
-            log.info("write_skipped_noop", path=rel_path, skill=skill)
-            continue
         content = parsed.get(rel_path)
         if content is None:
             # F329 (spec #38): the literal-fallback that wrote the whole
@@ -1620,9 +1594,6 @@ def _write_parsed_outputs(
             continue
         if rel_path in literal_paths:
             continue  # Already handled above
-        if rel_path in skip:
-            log.info("write_skipped_noop", path=rel_path, skill=skill)
-            continue
         if FORBIDDEN_FILENAME_RE.search(rel_path):
             log.error("wildcard_filename_rejected", path=rel_path, skill=skill)
             raise DispatchWriteFailureError(

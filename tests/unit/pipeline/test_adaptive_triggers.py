@@ -1,4 +1,4 @@
-"""Tests for adaptive recall, drift, and snapshot triggers."""
+"""Tests for adaptive conditional-step dispatch."""
 
 from __future__ import annotations
 
@@ -6,14 +6,8 @@ from pathlib import Path
 
 from shenbi.pipeline.chapter_loop import (
     ChapterStep,
-    _should_run_drift,
     _should_run_step,
 )
-
-
-class TestAdaptiveDrift:
-    def test_insufficient_scores_returns_false(self, tmp_path: Path):
-        assert _should_run_drift(tmp_path, chapter=5) is False
 
 
 class TestShouldRunStep:
