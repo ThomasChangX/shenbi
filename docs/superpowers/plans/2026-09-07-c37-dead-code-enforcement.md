@@ -55,7 +55,7 @@
 - [ ] **Step 1:** `grep -rn "error_guidance\|from shenbi import recovery\|ScoringRejectError\|RegistryCorruptError\|_validate_state_consistency" src/ tests/` 收集全部引用点，逐一对 R0 表核对后删除（含 tests）
 - [ ] **Step 2:** 删 F886 谎称面：`src/shenbi/pipeline/cli.py:497-500` genesis 写点上注释如实标注"write-only，零消费者（F886 defer——种子断流为产品缺陷，移交后续 spec）"
 - [ ] **Step 3:** `uv run pytest -n auto -m "not last" -q` 全绿 + skip 数不增（记录前后数）
-- [ ] **Step 4:** 抽查验收：`git grep -n "error_guidance\|Consumed by CLI" -- src/ docs/` 与 R0 表裁决一致
+- [ ] **Step 4:** 抽查验收：`git grep -n "error_guidance\|Consumed by CLI" -- src/ docs/` 与 R0 表裁决一致；另枚举 5 处声称接线注释/文档（R0 表 F108/F109/F378/F343/F345 行）逐条核对与真实调用图一致，结果记入验收证据
 - [ ] **Step 5:** Commit `chore(c37): remove A-class false-frontline — error_guidance/recovery, 7 dead exceptions, F378 dead validator, F230 unreachable validation`
 - [ ] **Step 6:** audit-T2.md
 
@@ -68,13 +68,13 @@
 - Modify: `src/shenbi/pipeline/chapter_loop.py:439`（删 CONDITIONAL_STEPS 死表）, `:1774`（删 `_should_run_drift` + `pyright: ignore`）, `:1174`（删 build_index 即弃调用，按 R0 F313 行裁决）
 - Modify: `src/shenbi/pipeline/state.py:435,459`（删 `_archive_chapter_state`/`compact_pipeline_state`）
 - Modify: `src/shenbi/trace/`（删 `compact()`；删 `migrate_from_progress` 及 `trace/__init__.py:6` 导出）
-- Modify: `src/shenbi/records/__init__.py:7-12`（删 serialize_records/is_idempotent 导出）、`src/shenbi/text`（删 count_words/tokenize/PUNCTUATION_TOKENS，保 count_punctuation）
+- Modify: `src/shenbi/records/__init__.py:7-12`（删 serialize_records/is_idempotent 导出）、`src/shenbi/text`（删 count_words/tokenize，保 count_punctuation 与其数据依赖 PUNCTUATION_TOKENS——cjk.py:106 消费 .items()，F642 的 PUNCTUATION_TOKENS 零消费主张对该常量不成立，R0 表 F642 行照此收窄）
 - Modify: `src/shenbi/contracts/schemas/state.py:19,25`（删 ProgressDoc/SummaryDoc）
 - Modify: `src/shenbi/pipeline/dispatch_helper.py:220-260`（删 `_genre_config_cache` + `_load_genre_config_cached`——F343+T1612 同点，死缓存与错误路径一并消）
 - Modify: dispatch_helper `skip_paths` 假象面（F226：删未被喂养的 skip_paths 参数与 docstring 声称，skills frontmatter 的 `no_op_behavior: skip_write` 声明如仍零消费则一并删并跑 `just generate` 同步）
 - 同步删除上述全部直测/引用测试。
 
-- [ ] **Step 1:** 逐符号 grep 生产调用方（排除定义文件）确认为零后删；有调用方的（与 R0 表冲突）→ 停，记 deviation 回 R0 改行
+- [ ] **Step 1:** 逐符号 grep **全 src/**（不排除定义文件，仅排除定义行本身；同文件命中逐条人工复核——同模块存活函数是常见隐藏消费方，cjk.py PUNCTUATION_TOKENS 即实例）确认为零后删；有调用方的（与 R0 表冲突）→ 停，记 deviation 回 R0 改行
 - [ ] **Step 2:** `just check` 全绿（契约面若动 SKILL frontmatter：`just generate` diff 为空）
 - [ ] **Step 3:** `uv run pytest -n auto -q` skip 无增量
 - [ ] **Step 4:** Commit `chore(c37): R2 batch deletion — volume_align/CONDITIONAL_STEPS/compact-pair/trace dead lines/records+text exports/ProgressDoc+SummaryDoc/genre cache`
@@ -82,14 +82,14 @@
 
 ### Task 4: R2 续 · 死参数/直测死函数/F427 合一/T1506 改名/F325 接线
 
-**复杂度: infra** · **test_kind: characterization（F427/F325）+ regression_guard**
+**复杂度: infra** · **test_kind: tdd_red_green（F325）+ characterization（F427）+ regression_guard**
 
 **Files:**
 - Modify: `src/shenbi/scoring.py:433,443`（删 `_phase` 死参，F118）；`src/shenbi/pipeline/dispatch_helper.py:2707,2807`（F345：删 timeout 形参，体内本用 `_compute_dispatch_timeout`；调用方同步）
 - Delete: `src/shenbi/gates/g1.py:106` `check_fields_exist` + `tests/unit/gates/test_g1_fields.py`（T301）
 - Delete: `tests/unit/gates/g4/conftest.py:13,27` 两死 fixture（F706，先 grep 确认零引用）
 - Modify: `src/shenbi/gates/g4/score_arc.py` + `score_stratum.py` + `score_volume.py` → 合一 `src/shenbi/gates/g4/scoring_sections.py`（F427）：参数化 checker，`generic.py:315-349` 改 import/注册
-- Modify: `src/shenbi/contracts/legacy.py` → 改名（按内容定真名，如 `contracts_registry.py`），删 `contracts/__init__.py:49` re-export shim，7+ 导入点全改（T1506）
+- Modify: `src/shenbi/contracts/legacy.py` → 改名（按内容定真名，如 `contracts_registry.py`），删 `contracts/__init__.py:49` re-export shim，~15 导入点全改（T1506，实测 grep contracts.legacy 15 处）
 - Modify: `src/shenbi/pipeline/cli.py:755,856`（F325：`_verify_truth_integrity` 返回 list[str] 接线 fail-fast——非空则 `err` 输出并以非零退出中止 resume）
 
 **F427 合一签名（Produces，T4 内自洽）：**
@@ -120,7 +120,7 @@ def g4_scoring_sections(
 **Files:**
 - Modify: `pyproject.toml` dev 组加 `"vulture>=2.11"`
 - Create: `tools/vulture_allowlist.py`（白名单：R0 defer 项 + 公共 API 面 + 文件头注明"季度复核 deferred 项"）
-- Modify: `justfile` `check` target 追加一行 `uv run vulture src/shenbi --min-confidence 80 --exclude tests`
+- Modify: `justfile` `check` target 追加一行 `uv run vulture src/shenbi --min-confidence 80`
 - Modify: `.github/workflows/ci.yml` 在 lint 段同位置追加同一命令（保持与 just check 同构）
 
 **Interfaces:**
