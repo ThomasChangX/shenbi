@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-07（spec #40 总纲矩阵同步 pass plan ready）
-> **活跃 plan 数**：1 | **已归档**：100（见 `archive/`）
+> **最后更新**：2026-09-07（spec #40 §6.4 维护 pass done PR #172，plan 归档）
+> **活跃 plan 数**：0 | **已归档**：101（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- [2026-09-07-spec40-master-matrix-sync.md](2026-09-07-spec40-master-matrix-sync.md) — spec #40 §6.4 矩阵同步维护 pass（✅ ready，2026-09-07）
 
 
 
