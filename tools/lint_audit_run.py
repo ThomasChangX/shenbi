@@ -150,7 +150,8 @@ def reconcile(run_dir: Path) -> list[Finding]:
             key = cells[0][0].upper()
             prefix_counts[key] = prefix_counts.get(key, 0) + 1
 
-    claimed: dict[str, int] = {k: int(v) for k, v in re.findall(r"\b([FTDG])=(\d+)\b", report)}
+    # last match per prefix wins: quoted prior-run stats must not shadow final claims
+    claimed = {k: int(v) for k, v in reversed(re.findall(r"\b([FTDG])=(\d+)\b", report))}
     for prefix, count in claimed.items():
         actual = prefix_counts.get(prefix, 0)
         if actual != count:
