@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-07（spec #51 C37 dead-code enforcement plan 创建 ✅ ready）
-> **活跃 plan 数**：1 | **已归档**：103（见 `archive/`）
+> **最后更新**：2026-09-07（spec #51 C37 plan 归档——Done PR #179）
+> **活跃 plan 数**：0 | **已归档**：104（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- `2026-09-07-c37-dead-code-enforcement.md`（SDD #51 C37 死代码清理与零接线执法，✅ ready——阶段 5 审查 3 轮收敛）
+（无——当前无活跃 plan）
 
 
 
@@ -40,6 +40,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 最近归档项：
 
+- `2026-09-07-c37-dead-code-enforcement.md`（SDD #51 C37 死代码清理与零接线执法，PR #179 + review 修复 #180）
 - `2026-09-07-spec54-c16-fixture-authenticity.md`（SDD #54 C16 fixture 真实性与 G0.9 执法，PR #174）
 - `2026-09-04-spec42-c28-perf-antipatterns.md`（SDD #42 C28 性能反模式，PR #153 + flake 修复 #154）
 - `2026-08-31-spec34-status-vocab.md`（SDD #34 状态词表单源，PR #129）
