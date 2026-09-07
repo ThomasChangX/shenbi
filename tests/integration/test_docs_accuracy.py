@@ -60,8 +60,7 @@ def extract_paths_from_doc(doc_path: Path) -> list[Path]:
 def test_doc_references_existing_files(doc_relative: str) -> None:
     """Each code-span file reference in docs must point to an existing file."""
     doc_path = REPO_ROOT / doc_relative
-    if not doc_path.exists():
-        pytest.skip(f"{doc_relative} not present (may be added by later PR)")
+    assert doc_path.exists(), f"{doc_relative} missing (F731: dead skip — doc set is fixed)"
 
     missing = []
     for referenced in extract_paths_from_doc(doc_path):
@@ -81,8 +80,7 @@ def test_chapter_file_format_doc_exists():
 
 def test_chapter_file_format_documents_meta_blocks():
     doc_path = Path(__file__).resolve().parents[2] / "docs" / "framework" / "chapter-file-format.md"
-    if not doc_path.exists():
-        pytest.skip("File not yet created")
+    assert doc_path.exists(), "chapter-file-format.md missing (F731: dead skip)"
     content = doc_path.read_text(encoding="utf-8")
     assert "META" in content
     assert "<!--META-BEGIN-->" in content or "META-BEGIN" in content
@@ -90,15 +88,13 @@ def test_chapter_file_format_documents_meta_blocks():
 
 def test_chapter_file_format_documents_stripping_method():
     doc_path = Path(__file__).resolve().parents[2] / "docs" / "framework" / "chapter-file-format.md"
-    if not doc_path.exists():
-        pytest.skip("File not yet created")
+    assert doc_path.exists(), "chapter-file-format.md missing (F731: dead skip)"
     content = doc_path.read_text(encoding="utf-8")
     assert "strip" in content.lower() or "shared.py" in content
 
 
 def test_chapter_file_format_states_meta_not_prose():
     doc_path = Path(__file__).resolve().parents[2] / "docs" / "framework" / "chapter-file-format.md"
-    if not doc_path.exists():
-        pytest.skip("File not yet created")
+    assert doc_path.exists(), "chapter-file-format.md missing (F731: dead skip)"
     content = doc_path.read_text(encoding="utf-8")
     assert "not part of" in content.lower() or "not prose" in content.lower()

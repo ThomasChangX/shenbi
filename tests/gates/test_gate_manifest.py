@@ -3,8 +3,6 @@ import json
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.gate_manifest import (
     GATE_MANIFEST_FILENAME,
     get_gate_result,
@@ -12,7 +10,6 @@ from shenbi.gates.gate_manifest import (
 )
 
 
-@pytest.mark.last
 def test_record_and_retrieve_gate_result():
     with tempfile.TemporaryDirectory() as tmp:
         manifest_dir = Path(tmp)
@@ -111,3 +108,35 @@ def test_concurrent_manifest_writes_do_not_lose_results():
             assert len(skills_for_ch) == n_writers, (
                 f"chapter {ch}: expected {n_writers} skill entries, got {len(skills_for_ch)}"
             )
+
+
+def test_repeated_records_keep_history_list_and_latest_wins():
+    """Historical list branch: same (phase, chapter, skill, gate) recorded twice
+    stores a list, and get_gate_result returns the MOST RECENT entry.
+    """
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        manifest_dir = Path(tmp)
+        record_gate_result(
+            gate_manifest_dir=manifest_dir,
+            phase="chapter_loop",
+            chapter=7,
+            skill="shenbi-review-continuity",
+            gate="G4",
+            result={"passed": True},
+        )
+        record_gate_result(
+            gate_manifest_dir=manifest_dir,
+            phase="chapter_loop",
+            chapter=7,
+            skill="shenbi-review-continuity",
+            gate="G4",
+            result={"passed": False},
+        )
+        manifest = json.loads((manifest_dir / GATE_MANIFEST_FILENAME).read_text(encoding="utf-8"))
+        entry = manifest["gates"]["chapter_loop"]["7"]["shenbi-review-continuity"]["G4"]
+        assert isinstance(entry, list), "second record must convert to history list"
+        assert len(entry) == 2
+        latest = get_gate_result(manifest_dir, "chapter_loop", 7, "shenbi-review-continuity", "G4")
+        assert latest == {"passed": False}, "get_gate_result must return the most recent"
