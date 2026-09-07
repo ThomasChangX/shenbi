@@ -50,5 +50,5 @@
 | T1612 | _genre_config_cache 死缓存（每章仅一击、仅测试调用） | src/shenbi/pipeline/dispatch_helper.py:220-226 | delete | T3 | 与 F343 同点一并删 |
 
 ## 桶计数（核对）
-already-fixed 12（F243/F319/F321/F346/F366/F512/F611/F633/F634/F635/F636/F903/F1027 为 13——F633-636 计 4 行）+ delete 27 + wire 1（F325）+ defer 2（F368/F886）= 43 ✓
-（执行中改行须同步本表与 spec-deviations）
+already-fixed 13（F243/F319/F321/F346/F366/F512/F611/F633/F634/F635/F636/F903/F1027——F633-636 计 4 行）+ delete 27 + wire 1（F325）+ defer 2（F368/F886）= 43 ✓
+（执行中改行须同步本表与 spec-deviations；commit 9bbc862b 消息中 "12 already-fixed" 为笔误，实为 13）
