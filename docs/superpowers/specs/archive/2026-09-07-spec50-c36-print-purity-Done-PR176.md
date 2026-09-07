@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-07 · 重审两轮：三类输出通道裁决 + 复用 cli_utils + ruff T20) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #176, 2026-09-07; Revised 2026-09-07 · 重审两轮：三类输出通道裁决 + 复用 cli_utils + ruff T20) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C36——窄根因小簇，独立成 spec）| **依赖:** 无 | **范围:** src/shenbi/cli_utils.py、cost/report.py、pipeline/cli.py、skill_utils/escalation/check.py、skill_utils/foreshadowing_recall/recall.py、AGENTS.md 豁免规则、pyproject.toml（ruff T20）| **核心洞察:** "No print() in framework code"是 AGENTS.md 成文铁则，但 CLI 输出的豁免边界从未成文——6 处 print 既违规又无人拦（无 lint），规则与执法双缺
 
 # C36 · print() 违禁清理与框架纯度豁免成文（print-purity）
