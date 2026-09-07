@@ -43,7 +43,7 @@ P2 成员（症状族）：F703（`assert len(result) >= 0` 空断言）、F705�
 
 ### T3 · 红灯验证与防回潮
 - 对本簇触及的每个测试文件执行一次"临时破坏生产代码 → 确认红 → 还原"记录（写入 PR 描述，不落库）
-- 考虑在 tests/ 加一条 meta 测试：grep 检查测试文件中禁用模式（`or True` 恒真形态、`>= 0` 空断言）——模式清单以本簇症状为初始集，须带 allowlist（tests/unit/test_revision_count.py:77 的 `append(...) or True` lambda 惯用法为合法非恒真用法）
+- 可选（超出验收范围）：在 tests/ 加一条 meta 测试：grep 检查测试文件中禁用模式（`or True` 恒真形态、`>= 0` 空断言）——模式清单以本簇症状为初始集，须带 allowlist（tests/unit/pipeline/test_revision_count.py:77 的 `append(...) or True` lambda 惯用法为合法非恒真用法）
 
 ### 批量清理（M 级成员）
 - **F715**：MASTER_PATH 手工保存/恢复改 pytest fixture（异常安全）+ 测试名/docstring 与行为对齐
