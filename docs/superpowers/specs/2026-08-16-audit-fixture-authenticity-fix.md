@@ -34,7 +34,8 @@
 ### T0 · provenance 载体与滚出机制（设计审查 2026-09-07 补，先于 T1 定约）
 
 - **载体双形态**：`.md` fixture 用 YAML frontmatter 字段 `provenance:`（三态 `real-output | upstream-copy | synthetic-sample`，另含 `source:` 指针）；非 md fixture（.txt/.json 等）用同目录 sidecar `<文件名>.provenance.json`（同三态字段）。三态外的标注 = FAIL（消灭 T802 自我豁免 note 与非法 YAML）
-- **滚出机制（保持 CI 全程绿）**：T1 合入时新检查以 **report/WARN 模式**上线，同时提交基线快照（违规计数落盘 `tests/fixtures/provenance-baseline.json`）；T2/T3 分 P0（内容断链）/P1（无 provenance）/P2（孤儿）三波清理，每波清零后把该波检查升级 FAIL（机器判据：baseline 中该波违规计数 == 0 才允许升级）。原「feature flag 可单独关闭」提案**撤销**——与 AGENTS.md「no gate can be skipped」冲突，回滚依赖 fixture 删除独立 commit + 分波升级本身
+- **滚出机制（保持 CI 全程绿）**：T1 合入时新检查以 **report/WARN 模式**上线（`GateStatus.WARN` 已有先例，g0.py:272/340）；基线快照 `tests/fixtures/provenance-baseline.json` 由**独立生成器**（tools/ 下 CLI 脚本）产出——gate 检查器只读基线，不写任何文件（纯度规则：gate 无副作用）；T2/T3 分 P0（内容断链）/P1（无 provenance）/P2（孤儿）三波清理，**升级判据 = 现场重扫该波违规计数 == 0**（不是读静态基线），清零波升级 FAIL 与基线再生成在同一 PR 内完成。原「feature flag 可单独关闭」提案**撤销**——与 AGENTS.md「no gate can be skipped」冲突，回滚依赖 fixture 删除独立 commit + 分波升级本身（单波可降回 WARN）
+- **扫描目标集**：闭包扫描/provenance 检查的目标 = 被 scenario/测试消费的 fixture 文件；**载体文件自身豁免**（`*.provenance.json` sidecar、`provenance-baseline.json` 不是 fixture、不适用三态）——防止递归自违
 - **负样本位置**：红灯验证的 3 个负样本（不存在路径/无 provenance/虚构 generated_by）在测试 `tmp_path` 内构造，**永不落入 `tests/fixtures/`**（否则自违 G0.9 并污染 AC3 扫描）
 - **白名单（AC3 扫描豁免面，穷举）**：`report-example.txt`（公版小说 import 源——保留唯一合法角色）+ `novel.json`/`pipeline-state.json` 类机器状态产物（若入 fixtures）。白名单条目仍须 sidecar 记录三态标注；白名单本身写入执法检查的常量表，新增需 PR 评审
 - **真实样本权威源**：`novel-output/xinghuo-ranqiong/`（仓内真实 pipeline 产物树：chapters/ 真实章节、world/、truth/ 等）——T2/T3 一切"重建为真实样本"= 从该树复制 + provenance `source:` 记 file+line；截断须按 C29 披露协议标注
@@ -45,7 +46,7 @@
 3. G0.11 缺侧静默跳过改为显式报告缺失清单（T803）
 
 ### T2 · fixture 库治理（T1 红线内逐类处置）
-4. 复制体族（F777/F778）：9 个 chapter-draft 复制体零引用 → 删除；chapter-7/8/9 三胞胎 → 删 2 留 1，保留者从 `novel-output/xinghuo-ranqiong/chapters/chapter-{7,8,9}.md` 复制互异真实样本并标 provenance（T0 权威源；不允许"重写"——重写即再造假）
+4. 复制体族（F777/F778）：9 个 chapter-draft 复制体零引用 → 删除；chapter-7/8/9 三胞胎 → **三文件全保留文件名**，各自内容替换为对应真实章节 `novel-output/xinghuo-ranqiong/chapters/chapter-{7,8,9}.md` 的副本 + provenance 标注（互异天然成立；不允许"重写"——重写即再造假）；已核实消费者（review-resonance 场景、tests/unit/pipeline/test_chapter_titles.py、regenerate-baselines.sh）随内容替换同步更新断言
    4b. **数字断链/身份错配（T807/T808，设计审查补归属）**：T807「20 chapters」类数字断链与 T808 rhythm_principles 身份错配随本项一并核对修正——场景声称的数字/身份与所引 fixture 实际内容对账
 5. 角色滥用（F752/F753）：report-example.txt 恢复其唯一合法角色（import 源小说），9 个误用场景改指各技能真实产物 fixture（从 novel-output 真实树复制入库并标 provenance）
 6. 伪造快照族（F779/F780）：chapter-025 manifest 占位 checksum → 用真实 novel-output 快照重建；镜像对登记 MIRROR_MAP 或去重（F781 的 32 副本同步守卫一并为 check_fixture_mirror 加 CI 接线——与 C25 F1012 协同；接线时更新 check_fixture_mirror.py:6 的过期注释「提模块级后生效」——MIRROR_MAP 已在 g0.py 模块级）
@@ -68,11 +69,12 @@
 
 1. `shenbi-validate G0 <seed>`（或对应 g0_purity 入口）在治理后的 fixture 库上 PASS，且对注入的 3 个负样本（不存在路径 / 无 provenance / 虚构 generated_by）各 FAIL 一次（红灯验证记录）
 2. bug-hunt expected 证据闭包扫描 0 失败（扫描脚本输出计数 = 0）
-3. provenance 闭包扫描（frontmatter ∪ sidecar 双形态，T0 约定）仅返回 T0 白名单文件（白名单为执法检查内穷举常量）；复制体检测（`fdupes` 或 hash 去重）在 fixtures 内 0 组重复（显式镜像登记除外）
+3. provenance 闭包扫描（frontmatter ∪ sidecar 双形态，T0 约定）仅返回 T0 白名单文件（白名单为执法检查内穷举常量）；复制体检测（**hash 去重脚本**，fdupes 等外部二进制不作依赖）在 fixtures 内 0 组重复（显式镜像登记除外）
+3b. **（滚出机制验收）**：单测证明 WARN 模式输出且计数 >0 时升级守卫阻止 FAIL 升级（M-1）
+7. **（T4 验收，设计审查补）**：活跃 spec 验收面按**具体 pattern 清单** grep（`真实 LLM dispatch|真实 dispatch|现场 dispatch|live dispatch|real dispatch`，实施时以实测命中集为准扩充）零未离线化条目；snapshot-manage 测试消费的 manifest.json 为真实 skill 产物（provenance 记路径）——若 #57 未冻结则本项显式记 BLOCKED 于 PR 描述而非手工构造
 4. calibration 27 锚点全部带可解析 source 指针，`shenbi-validate G0` 的 G0.14 分支用新哈希 PASS
 5. 依赖 fixtures 的测试套件全绿且 skip 数不增；被删孤儿 fixture 全库引用扫描 0 残留
 6. 与 #18 的验收项逐条对照：#18 R1–R4 全部被本 spec T1–T3 覆盖（对照表写入 PR 描述）
-7. **（T4 验收，设计审查补）**：活跃 spec 验收面 grep 零"依赖真实 LLM dispatch"未离线化条目；snapshot-manage 测试消费的 manifest.json 为真实 skill 产物（provenance 记路径）——若 #57 未冻结则本项显式记 BLOCKED 于 PR 描述而非手工构造
 
 ## 风险与回滚
 
