@@ -21,7 +21,7 @@
 
 - **文件**：`2026-08-16-audit-zero-coverage-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C15，12 条）
-- **状态**：Design | **优先级**：🟡 P2
+- **状态**：Design（Revised 2026-09-08：F418/F766 驳斥剔除、F216/F737/F738 收窄，活跃 12→10 条） | **优先级**：🟡 P2
 - **内容**：仓内变更器 sync_contracts 56%（F112）+ dispatcher/cli 0%（F216）+ G2.dec 恢复路径（F418）+ g4 检查器 12%/零引用（F417/F765）+ parallel_dispatch 重试退避（F738）+ audit_context_cache（F737）等 12 面补行为级测试 + per-module 覆盖率底线表（跌破即 CI FAIL，留 5-10pp 余量防 flaky）
 
 ### #55 · 审计修复 C17：测试基础设施配置失效（P1）
