@@ -26,7 +26,7 @@
 - Test: `tests/unit/test_lint_audit_run.py`
 
 **Interfaces:**
-- Produces: `lint_run(run_dir: Path) -> list[Finding]`（Finding: dataclass{check, id, message}）；`load_exemptions(run_dir: Path) -> dict[str, set[str]]`（check → ids 集合，`run:<check>` 键并入）；`validate_exemptions(run_dir, exemptions, findings) -> list[Finding]`（schema 校验 + 不命中豁免=FAIL）；CLI：无参=lint 全部 `docs/superpowers/audit-runs/*/`；`<run-dir>` 参数=单目录；`--verify-carryover` 开关（Task 3 实现 diff 前，先保留参数占位并 pass-through）
+- Produces: `lint_run(run_dir: Path) -> list[Finding]`（Finding: dataclass{check, id, message}）；`apply_exemptions(findings, exemptions) -> list[Finding]`（消音后剩余）；`load_exemptions(run_dir: Path) -> dict[str, set[str]]`（check → ids 集合，`run:<check>` 键并入）；`validate_exemptions(run_dir, exemptions, findings) -> list[Finding]`（schema 校验 + 不命中豁免=FAIL）；CLI：无参=lint 全部 `docs/superpowers/audit-runs/*/`；`<run-dir>` 参数=单目录；`--verify-carryover` 开关（Task 3 实现 diff 前，先保留参数占位并 pass-through）
 - 检查项（check 名）：`row_columns`（主体列数≠11，**或**第 12+ 列不匹配注记列语法 `→ closed (…)`/`→ merged-into-…` 白名单——既有回写先例是追加列，11 列硬约束会让 Task 5/6 回写后 check 自爆）、`pipe_escape`（单元格拉管道）、`id_unique`（同 ID 复现）、`dup_row`（整行重复）、`title_placeholder`（标题==ID，F979）
 - 豁免 id 形态：`F/T 编号`、`row:<ledger 行号>`、`run:<check>`（run 级整检查豁免——08-14 的 16 条 F972 畸形行整组用 run:row_columns，避免逐行豁免爆炸）
 
@@ -100,7 +100,7 @@ def test_real_0815_run_after_exemptions():
 - Produces: `generate_carryover(prev_ledger: Path, out: Path) -> int`（抽取 status ∈ {verified, open} 全 severity 条目，行格式 `<ID> <severity> <status> <标题>`）；CLI `uv run python tools/generate_carryover.py <prev-run-dir>` 默认写 `<prev-run-dir>/carryover.md`
 - `--verify-carryover` 语义：run 目录含 carryover.md 时，next-run = `docs/superpowers/audit-runs/` 下字典序**下一个** run 目录（08-14→08-15；末轮无 next = 显式 skip log）；逐条目 grep next-run ledger 的承接注记/同 ID 行，未承接=FAIL（08-14 演示文件的断链本体以 run:verify-carryover 豁免）
 - 验收演示（spec R2）：`grep -Ecw "F1301|F1302|F1320" docs/superpowers/audit-runs/2026-08-14/carryover.md` ≥3
-- 豁免内容（从 dry-run 真实命中生成，非预写）：08-14 run（run:row_columns=F972 畸形行组 + 既有 12 列 specced/verified 行、F969/F973 对账缺口、run:verify-carryover 演示豁免）；08-15 run（**run:counts_reconcile 预授权豁免**——zones 并集 3019 vs 表A 2937 系表A 排除审计自身产物、非记账错误；run:report_internal=PR #147 校准后报告冻结漂移；dry-run 实际命中的 pipe/列错位行）；counts_reconcile 的 total 检查覆盖 G 前缀行、F/T/D 前缀含 08-14 块式 ID（F0-01/D1-01）按首字母归类
+- 豁免内容（从 dry-run 真实命中生成，非预写；聚合检查一律 run 级 id，F 编号写进 reason 而非 id——聚合缺口无机械可得的条目 ID，id 用 F 编号必触发 stale-exemption FAIL）：08-14 run（run:row_columns（reason 引 F972 畸形行组+既有 12 列 specced/verified 行）、run:counts_reconcile（reason 引 F973 2755↔2738）、run:report_internal（reason 引 F969 781↔786）、run:verify-carryover 演示豁免）；08-15 run（**run:counts_reconcile 预授权豁免**——zones 并集 3019 vs 表A 2937 系表A 排除审计自身产物、非记账错误；run:report_internal=PR #147 校准后报告冻结漂移；dry-run 实际命中的 pipe/列错位行）；counts_reconcile 的 total 检查覆盖 G 前缀行、F/T/D 前缀含 08-14 块式 ID（F0-01/D1-01）按首字母归类
 
 - [ ] **Step 1: 失败测试**：generate_carryover 用真实 08-14 ledger → 输出含 F1301/F1302/F1320 verified 行、不含 closed/merged 条目；verify-carryover：tmp mini run carryover 2 条 1 条未承接 → FAIL 1；无 carryover.md → skip 不 FAIL
 - [ ] **Step 2: 实现两脚本 + 落两份豁免 json（reason 注明冻结历史 run + spec #49）**
@@ -129,7 +129,7 @@ def test_real_0815_run_after_exemptions():
 **Files:**
 - Modify: `docs/superpowers/full-project-audit-prompt.md`（补两规则：①跨段重复立案须显式 merged 标注；②「N tests」类声称必须附文件名与命令——置于 Iron Law 段后）
 - Create: `docs/superpowers/audit-runs/2026-08-15/dependabot-triage-2026-09-07.md`（10 条 PR 逐条 upgrade/close + 理由；安全补丁类标 urgent 建议另开 chore PR）
-- Modify: `docs/superpowers/audit-runs/2026-08-15/findings-ledger.md`（F771/F772 行附 phase4 §4 提案引用注记，不改严重度列）
+- Modify: `docs/superpowers/audit-runs/2026-08-15/findings-ledger.md`（F771/F772 行附 phase4 §4 提案引用注记，**注记形态 `→ closed (C-35 spec #49) (ref phase4-clustering.md §4)`——落在 row_columns 白名单语法内**，不改严重度列）
 
 **动作：**
 - [ ] **Step 1**: prompt 两规则落文，验收 `grep -n "跨段重复立案须显式\|必须附文件名与命令" docs/superpowers/full-project-audit-prompt.md` 命中
@@ -155,7 +155,7 @@ def test_real_0815_run_after_exemptions():
 
 | spec 验收 | task | 验证 |
 |---|---|---|
-| R1 lint 抓出 F969/F972/F973 且豁免闭合 | T2/T3 | `just audit-lint`（无参）全 PASS；豁免 json 三 id（F969/F973/run:row_columns）在列；F975/F1176 核实注记闭合（无豁免条目） |
+| R1 lint 抓出 F969/F972/F973 且豁免闭合 | T2/T3 | `just audit-lint`（无参）全 PASS；08-14 豁免 json 含 run:row_columns/run:counts_reconcile/run:report_internal（reason 引 F972/F973/F969）；F975/F1176 核实注记闭合（无豁免条目） |
 | R1 just check 接线 | T3/T4 | `just check` 含 audit-lint 行且全绿 |
 | R2 承接演示 ≥3 | T3 | `grep -Ecw "F1301|F1302|F1320" docs/superpowers/audit-runs/2026-08-14/carryover.md` ≥3 |
 | R3 prompt 两规则 | T5 | grep 两规则字符串命中 |
