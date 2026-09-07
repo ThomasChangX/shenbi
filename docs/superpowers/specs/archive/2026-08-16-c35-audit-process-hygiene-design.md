@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #170) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C35）| **依赖:** 无（纯流程/工具面，不碰生产代码）| **范围:** audit-run 目录流程、findings-ledger 格式校验器、跨轮承接清单、git 分支卫生 | **核心洞察:** 审计闭环自身无 lint——上轮 verified 条目本轮零承接（F1177）、跨轮 F 编号 72/123 碰撞（F978）、ledger 19 行畸形行，都是"审计的审计"缺失的症状
 
 # C35 · 审计过程自身卫生（audit-process-hygiene）
