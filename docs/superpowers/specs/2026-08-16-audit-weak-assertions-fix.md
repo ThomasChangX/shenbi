@@ -20,8 +20,7 @@ P2 成员（症状族）：F703（`assert len(result) >= 0` 空断言）、F705�
 ## 目标
 
 1. 簇内 25 条存活成员全部改写或删除：每条测试断言的都是**生产代码的真实行为**（真实输入 → 真实调用 → 对真实输出的断言），消灭"测试重实现逻辑"模式
-2. 建立"`
-mutation/变异自检`导向"的最低防线：对本簇修复的每个测试文件，至少注入 1 处故意破坏生产逻辑的临时变更确认会红（红灯验证法），防回潮
+2. 建立"mutation/变异自检"导向的最低防线：对本簇修复的每个测试文件，至少注入 1 处故意破坏生产逻辑的临时变更确认会红（红灯验证法），防回潮
 3. 与 C15（零覆盖）分工：本 spec 只改既有测试的断言质量，不新增覆盖面（C15 负责）
 
 ## 任务分解
@@ -35,7 +34,7 @@ mutation/变异自检`导向"的最低防线：对本簇修复的每个测试文
 
 ### T2 · P2 恒真/空断言批量改写
 按文件逐条处理 F703/F705/F712/F713/F719/F731/F733-F735/F739/F740/F743/F744（F730 已由 C37 PR #179 随孤儿模块同删，剔除）：
-- 空断言（F703/F734/F7735 类）→ 换成具体值断言
+- 空断言（F703/F734/F735 类）→ 换成具体值断言
 - 过期 skip（F712/F731）→ 删守卫直接执行（文件已存在）
 - 条件包裹哨兵（F713）→ 哨兵改为"检查缺失即 FAIL"方向
 - 集成名不符实（F719）→ 处置定为：改 docstring/测试名为如实描述"filter_to_fields 本体单测"，迁至 tests/unit/contracts/ 或就地改名——不重写为 dispatch_helper 集成测试（该集成面已由 #43 test_dispatch_helper_read_suppression.py 覆盖，重写即重复）
@@ -48,7 +47,7 @@ mutation/变异自检`导向"的最低防线：对本簇修复的每个测试文
 
 ### 批量清理（M 级成员）
 - **F715**：MASTER_PATH 手工保存/恢复改 pytest fixture（异常安全）+ 测试名/docstring 与行为对齐
-- **F716**：弱断言/条件断言集合逐一收紧——2026-09-08 复核存活 8 站点：test_g2.py 原站点已消失，现存 test_g5.py:221、cost/test_report.py:34、test_parallel_dispatch.py:82、test_context_curation.py:30、test_scoring_anti_collapse.py:98-99、test_phase_runner.py:862-864、test_g0.py:215-216（以符号定位为准，行号有漂移）。每处改为断言单一确定状态，或注明"gate must complete, not raise"意图的显式理由。**边界**：F767 的 6 处 PASS/FAIL 双收站点归 spec #49 处置（若未修，移交回 #49 立案，不在本簇）
+- **F716**：弱断言/条件断言集合逐一收紧——2026-09-08 复核存活 8 站点（以符号定位为准，行号有漂移）：tests/unit/gates/test_g5.py:221、tests/unit/cost/test_report.py:34、tests/unit/pipeline/test_parallel_dispatch.py:82、tests/unit/pipeline/test_context_curation.py:30、tests/unit/test_scoring_anti_collapse.py:98-99、tests/unit/test_phase_runner.py:869-870（`if captured_outputs:` 条件包裹 `assert "stray.md" not in captured_outputs[0]`）、tests/unit/gates/test_g0.py:215-216（test_g2.py 原站点已消失）。每处改为断言单一确定状态，或注明"gate must complete, not raise"意图的显式理由。**边界**：F767 的 6 处 PASS/FAIL 双收站点归 spec #49 处置（若未修，移交回 #49 立案，不在本簇）
 - **F718**：`seed` 形参未使用的 property 壳——补真实 draw 或删形参
 - **F745**：executed_concurrently 测试**必须**补 barrier 交错断言（无 escape hatch）；single-writer 守卫优先行为验证，仅当目标断言是"无文件写"类否定性主张时允许保留文本级 grep，且须注明该论证（说明为何无法行为化）
 - **F746**：测试名与断言对齐（returns_empty vs raises）；short title 补过 gate 断言
