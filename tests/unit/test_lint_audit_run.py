@@ -1,0 +1,151 @@
+"""Unit tests for tools/lint_audit_run.py (spec #49 R1 — C35 audit-process hygiene).
+
+Row-format checks + exemption mechanism. Test inputs are tmp_path-assembled
+mini ledgers plus references to real frozen audit-run artifacts (G0.9: real
+products, not hand-crafted fixtures).
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+
+pytestmark = pytest.mark.unit
+
+from tools.lint_audit_run import (  # noqa: E402
+    apply_exemptions,
+    lint_run,
+    load_exemptions,
+    validate_exemptions,
+)
+
+GOOD_ROW = "| F1 | 标题甲 | error | P1 | e | r | v | i | s | d | open |"
+
+
+def _write_ledger(run_dir: Path, rows: list[str]) -> None:
+    run_dir.mkdir(parents=True, exist_ok=True)
+    header = (
+        "# Findings Ledger\n\n"
+        "| ID | 标题 | 类别 | 严重度 | 证据 | 根因 | 验证 | 影响 | 建议方向 | 深度 | 状态 |\n"
+        "|---|---|---|---|---|---|---|---|---|---|---|\n"
+    )
+    (run_dir / "findings-ledger.md").write_text(header + "\n".join(rows) + "\n", encoding="utf-8")
+
+
+def test_good_row_passes(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, [GOOD_ROW])
+    assert lint_run(tmp_path) == []
+
+
+def test_row_columns_too_few(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, ["| F1 | x | error | P1 | e | r | v | i | s | d |"])
+    assert any(f.check == "row_columns" for f in lint_run(tmp_path))
+
+
+def test_row_columns_accepts_closure_annotation_columns(tmp_path: Path) -> None:
+    annotated = (
+        "| F2 | 标题乙 | error | P1 | e | r | v | i | s | d | open "
+        "| → closed (C-34 spec #48) (merged-into-F433, spec #48, PR #168) |"
+    )
+    _write_ledger(tmp_path, [GOOD_ROW, annotated])
+    assert not any(f.check == "row_columns" and f.id == "F2" for f in lint_run(tmp_path))
+
+
+def test_row_columns_rejects_unrecognized_extra_column(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, ["| F3 | t | error | P1 | e | r | v | i | s | d | open | 备注正文 |"])
+    assert any(f.check == "row_columns" and f.id == "F3" for f in lint_run(tmp_path))
+
+
+def test_pipe_escape_detects_column_shift(tmp_path: Path) -> None:
+    # unescaped pipe inside 标题 shifts severity cell out of vocab
+    row = "| F4 | 标|题 | error | P1 | e | r | v | i | s | d | open |"
+    _write_ledger(tmp_path, [row])
+    assert any(f.check == "pipe_escape" for f in lint_run(tmp_path))
+
+
+def test_id_unique(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, [GOOD_ROW, GOOD_ROW.replace("标题甲", "另一标题")])
+    assert any(f.check == "id_unique" for f in lint_run(tmp_path))
+
+
+def test_dup_row(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, [GOOD_ROW, GOOD_ROW])
+    assert any(f.check == "dup_row" for f in lint_run(tmp_path))
+
+
+def test_title_placeholder(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, ["| F5 | F5 | error | P1 | e | r | v | i | s | d | open |"])
+    assert any(f.check == "title_placeholder" and f.id == "F5" for f in lint_run(tmp_path))
+
+
+def _write_exemptions(run_dir: Path, entries: list[dict[str, str]]) -> None:
+    (run_dir / "audit-lint-exemptions.json").write_text(
+        json.dumps({"exemptions": entries}, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def test_exemption_mutes_finding(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, ["| F6 | t | error | P1 | e | r | v | i | s | d | open | 备注 |"])
+    _write_exemptions(
+        tmp_path,
+        [{"check": "row_columns", "id": "F6", "reason": "frozen", "date": "2026-09-07"}],
+    )
+    raw = lint_run(tmp_path)
+    exemptions = load_exemptions(tmp_path)
+    assert apply_exemptions(raw, exemptions) == []
+
+
+def test_run_level_exemption(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, ["| F7 | t | error | P1 | e | r | v | i | s | d | open | 备注 |"])
+    _write_exemptions(
+        tmp_path,
+        [
+            {
+                "check": "row_columns",
+                "id": "run:row_columns",
+                "reason": "frozen run",
+                "date": "2026-09-07",
+            }
+        ],
+    )
+    assert apply_exemptions(lint_run(tmp_path), load_exemptions(tmp_path)) == []
+
+
+def test_stale_exemption_fails(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, [GOOD_ROW])
+    _write_exemptions(
+        tmp_path,
+        [{"check": "row_columns", "id": "F999", "reason": "no hit", "date": "2026-09-07"}],
+    )
+    problems = validate_exemptions(tmp_path, lint_run(tmp_path))
+    assert any(p.check == "stale_exemption" for p in problems)
+
+
+def test_exemption_schema_violation_fails(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, [GOOD_ROW])
+    _write_exemptions(tmp_path, [{"check": "row_columns", "id": "F1"}])  # missing reason/date
+    problems = validate_exemptions(tmp_path, lint_run(tmp_path))
+    assert problems  # schema violation must FAIL
+
+
+def test_severity_parenthetical_suffix_normalized(tmp_path: Path) -> None:
+    row = "| F8 | t | error | M（置信度 medium） | e | r | v | i | s | d | open |"
+    _write_ledger(tmp_path, [row])
+    assert not any(f.check == "pipe_escape" for f in lint_run(tmp_path))
+
+
+def test_real_0814_run_lint_has_raw_hits() -> None:
+    raw = lint_run(Path("docs/superpowers/audit-runs/2026-08-14"))
+    assert raw  # frozen 08-14 run: malformed-row group (F972 family) must hit pre-exemption
+
+
+@pytest.mark.skipif(
+    not (Path("docs/superpowers/audit-runs/2026-08-15") / "audit-lint-exemptions.json").exists(),
+    reason="Task 3 exemptions not landed yet",
+)
+def test_real_0815_run_after_exemptions() -> None:
+    raw = lint_run(Path("docs/superpowers/audit-runs/2026-08-15"))
+    exemptions = load_exemptions(Path("docs/superpowers/audit-runs/2026-08-15"))
+    assert apply_exemptions(raw, exemptions) == []
