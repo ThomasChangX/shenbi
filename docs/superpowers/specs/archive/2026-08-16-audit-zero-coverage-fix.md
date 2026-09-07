@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-08) | **Severity:** 🟡 P2（簇内全 P2，但含改写全仓的 sync_contracts 等"变更器零测"高危面）
+> **Date:** 2026-08-16 | **Status:** Done (PR #189; Revised 2026-09-08) | **Severity:** 🟡 P2（簇内全 P2，但含改写全仓的 sync_contracts 等"变更器零测"高危面）
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C15）| **代表 finding:** F717 | **簇规模:** 12 条（修订后 10 条） | **严重度上限:** P2
 > **范围:** tests/ 新增测试 + 覆盖率门槛 | **证据等级:** 实验佐证（Z1/Z4/Z7-a 初审，d1-06-coverage-gaps.log 数据；2026-09-08 驳斥复核后修订）
 > **修订注记（2026-09-08）:** F418/F766 经驳斥复核确认已由既有测试覆盖，剔除（记 closed）；F216/F737/F738 收窄至残余面；audit_context_cache 实际路径为 `src/shenbi/pipeline/`

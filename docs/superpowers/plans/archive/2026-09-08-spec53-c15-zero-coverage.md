@@ -8,7 +8,7 @@
 
 **Tech Stack:** pytest（monkeypatch/tmp_path）、coverage.py（json report）、现有 `just check` 门禁链。
 
-**Spec:** `docs/superpowers/specs/2026-08-16-audit-zero-coverage-fix.md`（Revised 2026-09-08）
+**Spec:** `docs/superpowers/specs/archive/2026-08-16-audit-zero-coverage-fix.md`（Revised 2026-09-08）
 
 ## Global Constraints
 

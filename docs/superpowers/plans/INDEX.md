@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-08（#53 C15 零覆盖 plan 创建——✅ ready）
-> **活跃 plan 数**：1 | **已归档**：106（见 `archive/`）
+> **最后更新**：2026-09-08（#53 C15 零覆盖 plan 归档——Done PR #189）
+> **活跃 plan 数**：0 | **已归档**：107（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- [x] `2026-09-08-spec53-c15-zero-coverage.md` ✅ ready — #53 C15 零覆盖修复（6 task，tests-only + 覆盖底线表）
+（无——当前无活跃 plan）
 
 
 
