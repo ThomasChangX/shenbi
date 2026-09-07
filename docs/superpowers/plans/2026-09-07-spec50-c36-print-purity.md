@@ -35,9 +35,6 @@
 ```python
 """T1 tests for cli_utils output channels (spec #50 / C36)."""
 
-import pytest  # noqa: F401  (markers below)
-# 注：本文件用例均为同步单元测试，无需 mark；与 sibling 一致性不强制
-
 import json
 
 import pytest
