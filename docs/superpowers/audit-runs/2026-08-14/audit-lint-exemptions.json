@@ -1,0 +1,34 @@
+{
+  "exemptions": [
+    {
+      "check": "row_columns",
+      "id": "run:row_columns",
+      "reason": "F972 冻结历史畸形行组（19 行 10 列）+ 既有 12 列 specced/verified 行——冻结 run 只豁免不改行（spec #49 R1）",
+      "date": "2026-09-07"
+    },
+    {
+      "check": "pipe_escape",
+      "id": "run:pipe_escape",
+      "reason": "F972 家族列错位行（F417 占位/F627/F149 severity 错位）——冻结 run 只豁免不改行（spec #49 R1）",
+      "date": "2026-09-07"
+    },
+    {
+      "check": "counts_reconcile",
+      "id": "run:counts_reconcile",
+      "reason": "F973 zones 并集 2755 vs 表A 2738 记账缺口——冻结 run 只豁免不改行（spec #49 R1）",
+      "date": "2026-09-07"
+    },
+    {
+      "check": "report_internal",
+      "id": "run:report_internal",
+      "reason": "F969 final-report 总数 781 vs ledger 786 自相矛盾——冻结 run 只豁免不改行（spec #49 R1）",
+      "date": "2026-09-07"
+    },
+    {
+      "check": "verify_carryover",
+      "id": "run:verify_carryover",
+      "reason": "F1177 断链本体演示：08-14 verified/open 642 条中 249 条未承接进 08-15——本豁免即承接清单机制的验收演示（spec #49 R2）",
+      "date": "2026-09-07"
+    }
+  ]
+}

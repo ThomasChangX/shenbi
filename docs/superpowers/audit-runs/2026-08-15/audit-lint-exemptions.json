@@ -1,0 +1,10 @@
+{
+  "exemptions": [
+    {
+      "check": "counts_reconcile",
+      "id": "run:counts_reconcile",
+      "reason": "zones 并集 3019 vs 表A 2937：表A 排除审计自身产物（self-artifact），非记账错误（spec #49 R1，plan 预授权）",
+      "date": "2026-09-07"
+    }
+  ]
+}

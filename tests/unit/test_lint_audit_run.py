@@ -270,3 +270,32 @@ def test_missing_zones_dir_is_explicit_fail(tmp_path: Path) -> None:
     _write_ledger(tmp_path, [GOOD_ROW])
     (tmp_path / "final-report.md").write_text("| tracked 文件（表 A） | 2 |\n", encoding="utf-8")
     assert any(f.id == "zones_missing" for f in reconcile(tmp_path))
+
+
+# ---- Task 3: verify_carryover ----
+
+
+def test_verify_carryover_flags_uncarried(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    import tools.lint_audit_run as mod
+
+    # fake audit-runs root containing prev + next runs
+    prev, nxt = tmp_path / "2026-01-01", tmp_path / "2026-01-02"
+    _write_ledger(prev, [GOOD_ROW])
+    (prev / "carryover.md").write_text(
+        "# 承接清单\n\nF1 P1 open 标题甲\nF2 P1 verified 标题乙\n", encoding="utf-8"
+    )
+    _write_ledger(nxt, ["| F2 | t | error | P1 | e | r | v | i | s | d | open |"])
+    monkeypatch.setattr(mod, "AUDIT_RUNS_DIR", tmp_path)
+    hits = mod.verify_carryover(prev)
+    assert [f.id for f in hits] == ["F1"]  # F2 carried, F1 broken
+
+
+def test_verify_carryover_skips_without_file(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    import tools.lint_audit_run as mod
+
+    run = tmp_path / "2026-01-01"
+    run.mkdir()
+    monkeypatch.setattr(mod, "AUDIT_RUNS_DIR", tmp_path)
+    assert mod.verify_carryover(run) == []

@@ -284,9 +284,11 @@ def validate_exemptions(run_dir: Path, raw_findings: list[Finding]) -> list[Find
     return problems
 
 
-def lint_run_full(run_dir: Path) -> list[Finding]:
-    """Lint one run dir: raw findings + reconciliation + exemption handling."""
+def lint_run_full(run_dir: Path, include_carryover: bool = False) -> list[Finding]:
+    """Lint one run dir: raw + reconciliation (+ carryover) + exemption handling."""
     raw = lint_run(run_dir) + reconcile(run_dir) + report_internal(run_dir)
+    if include_carryover:
+        raw += verify_carryover(run_dir)
     if not (run_dir / "audit-lint-exemptions.json").exists():
         return raw  # strict: no exemption file
     exemptions = load_exemptions(run_dir)
@@ -316,9 +318,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     failed = False
     for run_dir in run_dirs:
-        findings = lint_run_full(run_dir)
-        if args.verify_carryover:
-            findings += verify_carryover(run_dir)
+        # check mode (no explicit dir) always verifies carryover; flag forces it
+        include_carryover = args.verify_carryover or args.run_dir is None
+        findings = lint_run_full(run_dir, include_carryover=include_carryover)
         if findings:
             failed = True
             for f in findings:
@@ -329,12 +331,33 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def verify_carryover(run_dir: Path) -> list[Finding]:
-    """Spec #49 R2 — implemented alongside generate_carryover (Task 3).
+    """Spec #49 R2: diff carryover.md entries against the next run's ledger.
 
-    Placeholder before Task 3: carryover.md may exist but no next-run ledger
-    comparison is wired yet.
+    next-run = lexically next audit-run dir; a run without carryover.md skips
+    (first round / frozen historical runs) with an explicit note. An entry
+    whose ID appears nowhere in the next run's ledger is a broken-carryover
+    FAIL (the F1177 failure mode).
     """
-    return []
+    carryover = run_dir / "carryover.md"
+    if not carryover.exists():
+        print(f"SKIP verify-carryover {run_dir.name}: no carryover.md")
+        return []
+    siblings = sorted(p for p in AUDIT_RUNS_DIR.iterdir() if p.is_dir())
+    younger = [p for p in siblings if p.name > run_dir.name]
+    if not younger:
+        print(f"SKIP verify-carryover {run_dir.name}: no next run yet")
+        return []
+    next_ids = {cells[0] for _ln, _raw, cells in _parse_rows(younger[0]) if cells}
+    findings: list[Finding] = []
+    for line in carryover.read_text(encoding="utf-8").splitlines():
+        if not line or line.startswith("#"):
+            continue
+        fid = line.split()[0]
+        if fid not in next_ids:
+            findings.append(
+                Finding("verify_carryover", fid, f"{fid} not carried into {younger[0].name}")
+            )
+    return findings
 
 
 if __name__ == "__main__":
