@@ -1,11 +1,15 @@
-> **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-07 — 阶段 2 复核：43 成员中 7 已被其他 spec 修复剔除、7 半修收窄、2 被重构待现判，实际存活 ~27) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C37——43 条最大 P1 簇）| **依赖:** 在 C3/C7/C19(#26)/C28 各"接线裁决"spec 之后执行（本簇只清理其余 spec 未认领的死面）；与 C14 协同（直测死函数的自证测试随删除下线）| **范围:** src/shenbi 全域（error_guidance/recovery、volume_align、compact、迁移器、CONDITIONAL_STEPS、死参数/死字段/死常量）+ CI dead-code 检查 | **核心洞察:** 每一批"已实现但零接线"的功能都在说谎（docstring 声称 consumed by CLI boundary、注释声称 cli.py resume 调用）——死代码不只是浪费，它是**假防线**：读者与审计都以为机制存在。无 vulture 式执法使 43 处横散
 
 # C37 · 死代码清理与零接线执法（dead-code-enforcement）
 
 ## 元信息
-- 簇：C37（框架功能零接线/死代码横散，无 dead-code 执法），43 条，最高严重度 P1（F793/F886 verified、F903 P1），证据等级=实验佐证
-- 成员：F108（代表）+ F109-F110、F118、F226、F230、F243、F313-F316、F319、F321、F325、F343、F345-F346、F356、F366、F368、F378、F427、F471、F512、F611、F622、F631-F636、F641-F642、F706、F793、F886、F903、F1027、T301、T1506、T1605、T1612
+- 簇：C37（框架功能零接线/死代码横散，无 dead-code 执法），原始 43 条 → 2026-09-07 复核存活 ~27，最高严重度 P1（F793/F886 verified），证据等级=实验佐证
+- **2026-09-07 复核修订**（fresh-context 驳斥审计 + 协调者抽查，2026-08-16 后 49 commit 影响面）：
+  - **已修剔除（7）**：F243（EPHEMERAL 已接线 dispatcher/executor.py:87）、F346（snapshot_retention 随 #26 移除）、F366（%5 物化随 #37 F630 裁决 b 移除）、F512（return 2 已可达 cost/report.py:137）、F611（RHETORICAL 已删）、F903（G0.14 工具哈希执法已由 #54/C16 落地 gates/g0.py:188-226）、F1027（lint_status_strings 面已由 #34 修复）
+  - **半修收窄（7）**：F313/T1605（in-memory index 已有读者，仅"rebuild 即弃"半面存活 chapter_loop.py:1174）、F315/F793（_should_run_recall 已删，_should_run_drift 死而直测仍在 chapter_loop.py:1774）、F356（audit_context_cache 模块已接线，仅 chapter_summary 死字段面待查）、F622（escalation 已接线，foreshadowing_recall helper 仍零生产引用）、F631-F636（触发引擎已由 #33 接线，trace compact()/migrate_from_progress 死线仍在）、F642（count_punctuation 已消费，count_words/tokenize/PUNCTUATION_TOKENS 仍零生产消费）
+  - **待现判（2，被 MERGE-1/2 重构）**：F319（review_checklist split 段）、F321（串行审计分支）——R0 表按当前 main 现判
+- 存活成员：F108（代表）+ F109-F110、F118、F226、F230、F313(半)、F314、F315(半)、F316、F319(待判)、F321(待判)、F325、F343、F345、F356(半)、F368、F378、F427、F471、F622(半)、F631-636(半)、F641、F642(半)、F706、F793(半)、F886、T301、T1506、T1605(半)、T1612
 - 来源：Z1/Z2/Z3/Z4/Z6/Z7/Z8/Z9/Z10 + T3/T15/T16 线程
 
 ## 背景与根因
@@ -17,21 +21,21 @@
 根因：**无执法**。CI 没有 dead-code 检查（vulture/`pyright: reportUnusedFunction` 全仓关闭式标注散布），删除恐惧（"以后可能用"）+ 直测死函数的自证测试（F793 点名的 F727/F730 模式，C14 簇）使死面只进不出。
 
 ## 目标
-1. 43 处每处一裁决：**接线**（移交对应簇 spec）/ **删除**（本 spec 执行）/ **显式 deferred**（登记理由与复活条件），零"无主"残留
+1. 每处存活面（~27，以 R0 现判表为准）一裁决：**接线**（移交对应簇 spec）/ **删除**（本 spec 执行）/ **显式 deferred**（登记理由与复活条件），零"无主"残留；已修 7 条记 "already-fixed by <spec>" 关闭行
 2. 假防线优先：A 类全部消除（要么真接线要么删声称）
 3. CI 引入 dead-code 执法（vulture 白名单制），防回归
 
 ## 任务分解
 ### R0 · 分桶裁决表（先于一切动作）
-- 产出 `docs/superpowers/audit-runs/2026-08-15/c37-triage.md`：43 条 × 三桶（wire→认领簇 spec 编号 / delete→本 spec / defer→理由）。裁决规则：对应簇 spec 已存在的机制面交其认领（快照→#26/C19；truth 写→C3；helper→C7；性能缓存→C28 R2；`_verify_truth_integrity`→C30 R2；`chapter_summary` 死字段→C28）；无认领且近三轮无引用者删；有明确设计意图但无预算者 defer（≤5 条）
-- **验收**：表覆盖 43/43；每条有桶归属与执行者
+- 产出 `docs/superpowers/audit-runs/2026-08-15/c37-triage.md`：按**当前 main 现判**（非照抄 2026-08-16 名单）——原始 43 条 × 四桶（wire→认领簇 spec 编号 / delete→本 spec / defer→理由 / already-fixed→注明修复 spec）。裁决规则：对应簇 spec 已存在的机制面交其认领（快照→#26/C19；truth 写→C3；helper→C7；性能缓存→C28 R2；`_verify_truth_integrity`→C30 R2；`chapter_summary` 死字段→C28）；无认领且近三轮无引用者删；有明确设计意图但无预算者 defer（≤5 条）；F319/F321 按重构后代码形态现判
+- **验收**：表覆盖原始 43/43（含 already-fixed 关闭行）；每条有桶归属与执行者
 
 ### R1 · A 类假防线清除（优先）
 - error_guidance/recovery（F108/F109）：整模块删除或最小接线（若 dispatcher 想要错误指引则接线+修 doc_url；默认删）；F903：G0.13 承诺从文档删除或恢复 enforcement；F378/F886：注释/文档改为真实描述，genesis-context 零消费问题移交 C30/C1 裁决（其内容断流是产品缺陷不只是卫生）
 - **验收**：`git grep -l "error_guidance" -- src/ docs/` 结果与裁决一致；声称"consumed/caller"的注释与真实调用图一致（抽查 5 处）
 
 ### R2 · B 类批量删除/合并（按 R0 表执行）
-- 死模块/死表/死参数/死常量/死导出按表删（预计 ≥30 条落此桶）；F427 三 checker 合一；F110/F243/F512/F118 等散点同 PR 批量清；T1506 legacy.py 改名 + shim 删除；T1612 死缓存删除（C28 R2 不修它）
+- 死模块/死表/死参数/死常量/死导出按表删（2026-09-07 修订：预计 ~20 条落此桶，F243/F512 已修不在此列）；F427 三 checker 合一；F110/F118 等散点同 PR 批量清；T1506 legacy.py 改名 + shim 删除；T1612 死缓存删除（C28 R2 不修它）
 - 每删一处同步删除其直测（C14 协同：死函数的自证测试不许存活）
 - **验收**：`just check` 全绿；vulture 基线清零（见 R3）；删除清单与 R0 表一一对应
 
