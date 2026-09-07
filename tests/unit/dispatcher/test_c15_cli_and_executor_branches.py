@@ -39,7 +39,7 @@ class TestCliMainArgvMatrix:
         assert dcli.main() == 0
         # F267: multi-word prompt joined with spaces, not truncated
         args = next(iter(calls))
-        assert "/tmp/rd" in str(args[2])
+        assert args[2] == Path("/tmp/rd")
         assert args[3] == "multi word prompt"
         assert args[:2] == ("skill", "generative")
 
@@ -108,6 +108,11 @@ class TestExecutorFailureBranches:
         executor.dispatch("shenbi-worldbuilding", "generative", tmp_path, "test")
         baseline["files"] = captured["files"]
         assert baseline["files"], "fixture sanity: skill derives a non-empty read list"
+
+        # control: non-matching pattern must leave the input list untouched
+        monkeypatch.setenv("SHENBI_G1_SKIP_READS", "no-match-*")
+        executor.dispatch("shenbi-worldbuilding", "generative", tmp_path, "test")
+        assert captured["files"] == baseline["files"]
 
         monkeypatch.setenv("SHENBI_G1_SKIP_READS", "*")
         executor.dispatch("shenbi-worldbuilding", "generative", tmp_path, "test")
