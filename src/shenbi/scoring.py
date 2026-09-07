@@ -393,7 +393,6 @@ def main() -> int:
   scores.json format: {"1": 100, "2": 95, "3": 80, ...}
   --kill-switch: force final score to 0 (any kill switch triggered)
   --test-type: filter dimensions by applicability (renormalizes weights)
-  --tier T1|T2|T3 --phase <name>: enable gate checks before scoring
   --gate-only <GATE> --files <f1,f2>: run gate check only, no scoring
   Or: scoring.py <rubric.md> --interactive"""
         log.info("usage", message=usage)
@@ -430,7 +429,6 @@ def main() -> int:
     kill_switch_triggered = "--kill-switch" in sys.argv
     test_type = None
     tier = None
-    _phase = None
     round_dir = None
     for i, arg in enumerate(sys.argv):
         if arg == "--test-type" and i + 1 < len(sys.argv):
@@ -439,8 +437,6 @@ def main() -> int:
             round_dir = sys.argv[i + 1]
         if arg == "--tier" and i + 1 < len(sys.argv):
             tier = sys.argv[i + 1]
-        if arg == "--phase" and i + 1 < len(sys.argv):
-            _phase = sys.argv[i + 1]
 
     # Gate integration: run pre-scoring dependency checks
     if tier:

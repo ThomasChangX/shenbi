@@ -5,7 +5,6 @@ import pytest
 from shenbi.gates.shared import PROJECT
 from shenbi.records.parser import (
     extract_yaml_block,
-    is_idempotent,
     parse_records,
     serialize_records,
 )
@@ -61,7 +60,6 @@ def test_union_record_keys_are_sixteen() -> None:
 def test_semantic_round_trip_on_fixture() -> None:
     """判据 12：parse(serialize(parse(x))) == parse(x)。"""
     text = FIXTURE.read_text(encoding="utf-8")
-    assert is_idempotent(text)
     once = parse_records(text)
     twice = parse_records("## hooks\n" + serialize_records(once))
     assert once == twice

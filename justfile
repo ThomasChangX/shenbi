@@ -21,6 +21,7 @@ check:
     uv run python tools/lint_decisions_sources.py
     uv run python tools/lint_helper_usage.py
     uv run python tools/lint_threshold_reconciliation.py
+    uv run python tools/lint_dead_code_allowlist.py
     uv run python tools/lint_audit_run.py
     uv run python tools/count_active_specs.py
     just lint-contracts

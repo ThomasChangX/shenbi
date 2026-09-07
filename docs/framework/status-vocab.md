@@ -36,7 +36,7 @@
 | NovelStatus | shenbi.contracts.enums.NovelStatus | worldbuilding\|worldbuilding_complete | worldbuilding 技能 novel.json | -（T911：有生产值立域） |
 | FailureClass | shenbi.contracts.enums.FailureClass | transient\|deterministic_gate\|deterministic_content | pipeline dispatch 失败分类 | 重试决策四分类点（tenacity 谓词/write-audit rc=2/scoring 出口/并行波）+ trace failure_class 字段（spec #47 C33 R1） |
 | WriteMode | shenbi.contracts.enums.WriteMode | create_or_overwrite\|append_dedup\|merge_prose | SKILL.md write-semantics mode | gates/g0_skill_contract.py G0.16（spec #34 T204：值合法性校验） |
-| OutputKind | shenbi.contracts.legacy.OutputKind | artifact\|report\|ephemeral | SKILL 契约 kind | G0/G2 |
+| OutputKind | shenbi.contracts.loader.OutputKind | artifact\|report\|ephemeral | SKILL 契约 kind | G0/G2 |
 | RecordState | shenbi.records.writer.RecordState | PENDING\|RELEVANT\|TRIGGER\|TRIGGERED\|REINFORCE | records/writer.py md 表 state 列 | truth_index（md 列与 schemas HookState 的归并归 F815/F820 已立案族） |
 | HookState | shenbi.contracts.schemas.hooks.HookState | PLANTED\|RELEVANT\|TRIGGERED\|RESOLVED\|ARCHIVED\|EXPIRED | foreshadowing-lifecycle | truth hooks（F815/F820 已立案族） |
 | RegistryKind | shenbi.contracts.schemas.registry.RegistryKind | benchmark\|chapter\|character\|config\|context\|decisions\|import\|outline\|plan\|reference\|report\|short\|snapshot\|style\|truth\|world | truth-files.yaml | registry loader（F445/F440 已立案族） |
@@ -46,7 +46,6 @@
 | G4Severity | shenbi.pipeline.chapter_loop.G4Severity | hard\|soft\|warn | chapter_loop G4_CHECK_MAP | chapter_loop（独立域，与 AuditSeverity 适用面互斥） |
 | DriftSeverity | shenbi.skill_utils.drift_detection.linguistic_drift.DriftResult.severity | NONE\|WARN\|HARD\|ESCALATE | drift 检测 | drift 升级链（独立域，未持久化） |
 | WriteSafety | shenbi.pipeline.write_safety.WriteSafety | read_only_audit\|write_isolated\|write_shared | 静态声明 | 审计波串行化 |
-| RecoveryStrategy | shenbi.recovery.RecoveryStrategy | none\|auto_retry\|auto_rebuild\|halt | recovery | - |
 | DriftKind | shenbi.skill_utils.drift_detection.compute_drift.DriftKind | monotonic_decline\|below_mean_2sigma\|volume_decline | compute_drift | - |
 | RevisionRoute | shenbi.pipeline.revision_router.RevisionRoute | spot-fix\|regenerate\|constrained-regenerate\|reconstruction\|no-revision | revision_router | chapter_loop（T910 合一后为 enums.RevisionMode 的别名，值集同域） |
 | RevisionDecision | shenbi.pipeline.revision_router.RevisionDecision | pass\|revision\|escalation | revision_router | chapter_loop |

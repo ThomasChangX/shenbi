@@ -45,7 +45,6 @@ def test_complete_chapter_renders_report(tmp_path, monkeypatch):
         ),
     )
     with (
-        patch.object(chapter_loop, "_maybe_rebuild_truth_index", return_value=None),
         patch.object(chapter_loop, "_check_world_file_freshness", return_value=None),
         patch.object(chapter_loop, "_print_timing_summary", return_value=None),
         patch.object(chapter_loop, "print_token_summary", return_value=None),

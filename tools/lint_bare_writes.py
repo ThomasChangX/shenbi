@@ -25,7 +25,6 @@ ALLOWED_FILES = {
     "append_helper.py",
     "trace/writer.py",
     "config/config_coherence.py",
-    "trace/compaction.py",
     "pipeline/checkpoint.py",
     # F218 (spec #39 T9): mirrors purity lint transitional allowlist.
     "dispatcher/modes/codex.py",

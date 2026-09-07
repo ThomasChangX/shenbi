@@ -56,17 +56,3 @@ class TestAppendDedupRoutedThroughTruthUpsert:
         assert "- chapter: ch0" in result
         # The increment landed.
         assert "| 第 2 章 | 林烽进入内门 |" in result
-
-
-class TestNoOpSkipWrite:
-    def test_skip_write_paths_not_written(self, tmp_path: Path):
-        """A path in skip_paths is not written even if content is present."""
-        out = _write_parsed_outputs(
-            response="### FILE: chapters/c-1.md\nbody\n",
-            output_paths=["chapters/c-1.md"],
-            project_dir=tmp_path,
-            skill="shenbi-chapter-revision",
-            skip_paths={"chapters/c-1.md"},
-        )
-        assert out == []
-        assert not (tmp_path / "chapters" / "c-1.md").exists()

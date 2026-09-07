@@ -14,7 +14,7 @@ from typing import Any
 
 import pytest
 
-from shenbi.contracts.legacy import _parse_registry_uncached
+from shenbi.contracts.loader import _parse_registry_uncached
 
 pytestmark = pytest.mark.benchmark
 

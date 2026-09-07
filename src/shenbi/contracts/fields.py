@@ -1,5 +1,5 @@
 """Unified field-level filtering. Replaces 3 divergent matching semantics:
-extract_h2_sections (exact), check_fields_exist (exact), lint normalize (lower).
+extract_h2_sections (exact), lint normalize (lower).
 Canonical rule: strip + fold ASCII whitespace AND U+3000 to single ASCII space;
 remove zero-width chars (U+200B, U+FEFF, U+200C, U+200D);
 apply NFKC normalization (handles fullwidth ASCII, etc.);

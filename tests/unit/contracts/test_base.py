@@ -36,7 +36,7 @@ class TestFrontmatterAnchoringSpec16:
         import sys
 
         sys.path.insert(0, "src")
-        from shenbi.contracts.legacy import read_frontmatter_contract
+        from shenbi.contracts.loader import read_frontmatter_contract
 
         skill_md = tmp_path / "SKILL.md"
         skill_md.write_text(
@@ -48,7 +48,7 @@ class TestFrontmatterAnchoringSpec16:
 
     def test_closing_fence_at_eof_accepted(self, tmp_path):
         """F263: closing `---` with no trailing newline is still valid."""
-        from shenbi.contracts.legacy import read_frontmatter_contract
+        from shenbi.contracts.loader import read_frontmatter_contract
 
         skill_md = tmp_path / "SKILL.md"
         skill_md.write_text(

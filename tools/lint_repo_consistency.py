@@ -94,7 +94,7 @@ def find_extra_contract_key_readers(files: Iterable[File]) -> list[str]:
     """A module other than contract.py indexing/reading the 'contract' key."""
     flagged: list[str] = []
     for path, src in files:
-        if path.endswith(("contract.py", "legacy.py")):
+        if path.endswith(("contract.py", "legacy.py", "loader.py")):
             continue
         if re.search(r'["\']contract["\']\s*\]', src) or re.search(
             r"\.get\(\s*[\"']contract[\"']\s*\)", src

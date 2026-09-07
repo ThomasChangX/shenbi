@@ -26,6 +26,7 @@ from shenbi.pipeline.cli import main
 from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.machine import load_state, save_state, set_checkpoint
 from shenbi.pipeline.state import CheckpointType, PipelinePhase
+from tests.conftest import seed_genesis_outputs
 
 
 def _run(argv: list[str], monkeypatch: pytest.MonkeyPatch) -> tuple[int, str]:
@@ -295,6 +296,9 @@ class TestEndToEndErrorPaths:
             mock_ch_disp.return_value = DispatchResult(True, 0, "{}", "")
             mock_ch_g4.return_value = {"status": "PASS"}
 
+            seed_genesis_outputs(
+                project_dir
+            )  # C37 F325: resume now fail-fast on missing genesis outputs
             rc, out = _run(["resume", str(project_dir)], monkeypatch)
             result = json.loads(out)
             assert rc == 0

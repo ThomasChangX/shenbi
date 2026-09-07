@@ -138,8 +138,8 @@ class ChapterStep:
 # Merged: 7 serial core-circle auditors → domain-grouped calls (MERGE-2).
 # Added: 4 deterministic steps (volume-align, context-prepare, post-draft-extract,
 #   linguistic-drift-check).
-# Conditional: intent-management, drift-guidance, snapshot-manage moved to
-#   CONDITIONAL_STEPS (invoked only when gates open).
+# Conditional steps (intent-management, drift-guidance, snapshot-manage) were
+# removed with CONDITIONAL_STEPS (C37 F315: dead table, zero consumers).
 # NOTE: escalation-review is NOT a CHAPTER_STEPS entry — it is dispatched
 #   reactively by revision_router.dispatch_escalation (Spec 5).
 CHAPTER_STEPS: list[ChapterStep] = [
@@ -403,7 +403,7 @@ def _step_output_exists(project_dir: Path, step: ChapterStep, chapter: int) -> b
     return (project_dir / resolved).exists()
 
 
-def _clamp_resume_cursor(  # pyright: ignore[reportUnusedFunction]
+def _clamp_resume_cursor(  # pyright: ignore[reportUnusedFunction] -- called from cli.py:cmd_resume (local import; pyright false positive)
     cl: ChapterLoopStateData, project_dir: Path
 ) -> None:
     """Clamp a runaway resume cursor to the committed-product anchor (F371).
@@ -436,31 +436,6 @@ def _clamp_resume_cursor(  # pyright: ignore[reportUnusedFunction]
 
 # NOTE: escalation-review is intentionally ABSENT -- it is dispatched
 # reactively from revision_router.dispatch_escalation (Spec 5), NOT from here.
-CONDITIONAL_STEPS: list[ChapterStep] = [
-    ChapterStep(
-        1,
-        "shenbi-intent-management",
-        "intent-management",
-        step_type="core",
-        conditional=True,
-        output_path="truth/current_focus.md",
-    ),
-    ChapterStep(
-        2,
-        "shenbi-drift-guidance",
-        "drift-guidance",
-        step_type="core",
-        conditional=True,
-        output_path="truth/drift_guidance.md",
-    ),
-    ChapterStep(
-        3,
-        "shenbi-snapshot-manage",
-        "snapshot-manage",
-        step_type="checkpoint",
-        conditional=True,
-    ),
-]
 
 # 0-based index of the first core-circle audit step (for parallel dispatch trigger).
 _FIRST_AUDIT_IDX = min(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
@@ -1044,7 +1019,9 @@ def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> Non
 # ---------------------------------------------------------------------------
 
 
-def _auto_rebuild_progress_if_stale(project_dir: Path) -> None:  # pyright: ignore[reportUnusedFunction] -- called from cli.py:cmd_resume via local import
+def _auto_rebuild_progress_if_stale(  # pyright: ignore[reportUnusedFunction] -- called from cli.py:cmd_resume (local import; pyright false positive)
+    project_dir: Path,
+) -> None:
     """Detect (but no longer rebuild) stale progress.json on pipeline resume.
 
     spec #37 F630 ruling (b): the zero-producer materialize rebuild is
@@ -1160,22 +1137,6 @@ def _check_word_count_bounds(chapter_text: str) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# 10c: Truth-index periodic rebuild
-# ---------------------------------------------------------------------------
-
-
-def _maybe_rebuild_truth_index(project_dir: Path, chapter: int) -> None:
-    """Rebuild truth-index at volume boundaries or every 15 chapters."""
-    from shenbi.pipeline.triggers import is_volume_boundary
-
-    if chapter % 15 == 0 or is_volume_boundary(chapter, project_dir):
-        from shenbi.pipeline.truth_index import build_index
-
-        build_index(project_dir)
-        log.info("truth_index_rebuilt", chapter=chapter)
-
-
-# ---------------------------------------------------------------------------
 # 10e: World file freshness check
 # ---------------------------------------------------------------------------
 
@@ -1280,9 +1241,6 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
         cs = ChapterState()
         state.chapter_loop.chapter_states[key] = cs
     cs.status = ChapterStatus.COMPLETE
-
-    # 10c: Rebuild truth-index at volume boundaries or every 15 chapters
-    _maybe_rebuild_truth_index(project_dir, chapter)
 
     # 10e: Check world file freshness at volume boundaries
     _check_world_file_freshness(project_dir, chapter)
@@ -1749,12 +1707,6 @@ def _save_manifest(project_dir: Path, manifest: dict[str, Any]) -> None:
     safe_write(manifest_path, json.dumps(manifest, indent=2, ensure_ascii=False))
 
 
-def _get_last_drift_chapter(project_dir: Path) -> int | None:
-    """Return the chapter number where drift guidance last ran, or None."""
-    manifest = _load_manifest(project_dir)
-    return manifest.get("last_drift_chapter")
-
-
 def _get_recent_resonance_scores(project_dir: Path, chapter: int, window: int = 3) -> list[int]:
     """Collect resonance scores from the most recent *window* audit reports.
 
@@ -1769,47 +1721,6 @@ def _get_recent_resonance_scores(project_dir: Path, chapter: int, window: int = 
         if score is not None:
             scores.append(score)
     return scores
-
-
-def _should_run_drift(project_dir: Path, chapter: int) -> bool:  # pyright: ignore[reportUnusedFunction]
-    """Determine whether drift guidance should run for *chapter*.
-
-    Triggers when either:
-
-    1. The 3-chapter resonance moving average drops more than 10 points
-       compared to the previous window (0-100 scale).
-    2. More than 12 chapters have elapsed since the last drift run.
-    """
-    # Condition 1: 3-chapter MA drop >10 points
-    current_scores = _get_recent_resonance_scores(project_dir, chapter, window=3)
-    prev_scores = _get_recent_resonance_scores(project_dir, chapter - 1, window=3)
-
-    if len(current_scores) >= 3 and len(prev_scores) >= 3:
-        current_ma = sum(current_scores) / len(current_scores)
-        prev_ma = sum(prev_scores) / len(prev_scores)
-        drop = prev_ma - current_ma
-        if drop > 10:
-            log.info(
-                "drift_triggered_by_resonance_drop",
-                chapter=chapter,
-                current_ma=round(current_ma, 1),
-                prev_ma=round(prev_ma, 1),
-                drop=round(drop, 1),
-            )
-            return True
-
-    # Condition 2: >12 chapters since last drift
-    last = _get_last_drift_chapter(project_dir)
-    if last is not None and chapter - last > 12:
-        log.info(
-            "drift_triggered_by_chapter_gap",
-            chapter=chapter,
-            last_drift=last,
-            gap=chapter - last,
-        )
-        return True
-
-    return False
 
 
 def _update_last_drift_manifest(project_dir: Path, chapter: int) -> None:
@@ -2164,7 +2075,7 @@ def _ensure_revision_decisions_exists(
 # ---------------------------------------------------------------------------
 
 
-def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:  # pyright: ignore[reportUnusedFunction]
+def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:
     """Check chapter text for linguistic drift and apply tiered intervention.
 
     Reads the just-written ``chapters/chapter-{chapter}.md`` (no zero-padding),
@@ -2281,30 +2192,6 @@ Forbidden openings: "冷知道/冷在/冷在场于" sentence patterns.
 # ---------------------------------------------------------------------------
 # Context Coverage Audit (Task 6)
 # ---------------------------------------------------------------------------
-
-
-def _audit_context_coverage(project_dir: Path, current_chapter: int) -> list[int]:  # pyright: ignore[reportUnusedFunction]
-    """Scan all chapters up to current_chapter and return list of missing context files.
-
-    Uses the real (non-padded) ``chapter-{ch}-context.md`` naming. Called at
-    pipeline resume initialization to surface the 77% coverage gap (spec §3.1).
-    """
-    import structlog
-
-    log = structlog.get_logger()
-    context_dir = project_dir / "context"
-    missing = []
-    for ch in range(1, current_chapter + 1):
-        context_file = context_dir / f"chapter-{ch}-context.md"
-        if not context_file.exists():
-            missing.append(ch)
-    if missing:
-        log.warning(
-            "context_coverage_gap",
-            missing_chapters=missing,
-            gap_ratio=f"{len(missing)}/{current_chapter}",
-        )
-    return missing
 
 
 # ---------------------------------------------------------------------------
@@ -2516,7 +2403,7 @@ def _run_g4_checks(state: PipelineState, chapter: int) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def _cleanup_residual_staging(  # pyright: ignore[reportUnusedFunction]
+def _cleanup_residual_staging(  # pyright: ignore[reportUnusedFunction] -- called from cli.py:195 (local import; pyright false positive)
     project_dir: Path,
     has_pending_staging: bool,
 ) -> None:
@@ -2547,7 +2434,9 @@ def _cleanup_residual_staging(  # pyright: ignore[reportUnusedFunction]
     log.info("residual_staging_cleaned_at_resume", project_dir=str(project_dir))
 
 
-def _has_pending_staging_step(state: PipelineState) -> bool:  # pyright: ignore[reportUnusedFunction]
+def _has_pending_staging_step(  # pyright: ignore[reportUnusedFunction] -- called from cli.py:195 (local import; pyright false positive)
+    state: PipelineState,
+) -> bool:
     """Check if any pending step in the current chapter uses staging."""
     step_idx = state.chapter_loop.step_index
     if step_idx >= len(CHAPTER_STEPS):

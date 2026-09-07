@@ -19,7 +19,6 @@ contract:
   updates:
   - file: chapters/chapter-N.md
     mode: merge_prose
-    no_op_behavior: skip_write
 ---
 <!-- AUTO-CHECK-START -->
 

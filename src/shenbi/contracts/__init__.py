@@ -44,9 +44,9 @@ __all__ = [
 ]
 
 
-# Legacy contract.py re-exports (criterion 3: contracts/ is the unified import surface).
+# Public re-exports (former contract.py compatibility surface) (criterion 3: contracts/ is the unified import surface).
 # New code should import from shenbi.contracts, not shenbi.contract.
-from shenbi.contracts.legacy import (
+from shenbi.contracts.loader import (
     ContractError as ContractError,
     Contract as Contract,
     OutputKind as OutputKind,

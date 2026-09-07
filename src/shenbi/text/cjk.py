@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import re
-import threading
 from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Literal
 
 
 @dataclass(frozen=True)
@@ -107,69 +105,3 @@ def count_punctuation(text: str) -> dict[str, int]:
     }
     counts["引号"] = count_quote_pairs(text)
     return counts
-
-
-_CJK_RE = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]")
-_NON_CJK_WORD_RE = re.compile(r"[a-zA-Z0-9]+")
-
-
-def count_words(text: str, mode: Literal["cjk_only", "mixed"]) -> int:
-    """Count words: cjk_only = CJK chars only; mixed = CJK + Latin words + digits."""
-    cjk = len(_CJK_RE.findall(text))
-    if mode == "cjk_only":
-        return cjk
-    return cjk + len(_NON_CJK_WORD_RE.findall(text))
-
-
-@dataclass(frozen=True)
-class Token:
-    """A tokenized word with part-of-speech tag."""
-
-    word: str
-    pos: str
-
-
-# Spec #32 F615: module-level private tokenizer — jieba.add_word on the
-# global jieba.dt mutated process-wide state and leaked domain terms into
-# every other jieba consumer. Domain words are registered on this isolated
-# instance only; the global dictionary is never touched.
-_tokenizers: dict[str, Any] = {}
-_TOKENIZERS_LOCK = threading.Lock()
-
-
-def _get_tokenizers() -> tuple[Any, Any]:
-    """Lazily construct the isolated (tokenizer, pos_tokenizer) pair.
-
-    Isolation semantics of spec #32 F615 are preserved: a private
-    ``jieba.Tokenizer`` plus its ``POSTokenizer`` wrapper; the global
-    ``jieba.dt`` dictionary is never touched. Publish order matters: the
-    ``poseg`` entry is written before ``tokenizer`` (the presence flag) so
-    a lock-free fast-path reader never sees a tokenizer published with the
-    POSTokenizer still missing.
-    """
-    if "tokenizer" not in _tokenizers:
-        with _TOKENIZERS_LOCK:
-            if "tokenizer" not in _tokenizers:
-                import jieba
-                import jieba.posseg as pseg
-
-                tok = jieba.Tokenizer()
-                _tokenizers["poseg"] = pseg.POSTokenizer(tok)
-                _tokenizers["tokenizer"] = tok
-    return _tokenizers["tokenizer"], _tokenizers["poseg"]
-
-
-def tokenize(text: str, domain_dict: Iterable[str] | None = None) -> list[Token]:
-    """Tokenize with jieba. Domain terms registered to prevent splitting.
-
-    Isolation (spec #32 F615): tokenization runs on the module-level private
-    ``_TOKENIZER`` (plus its ``POSTokenizer`` wrapper); the global
-    ``jieba.dt`` dictionary is never mutated. Lazy construction per T1604
-    (C28 R4): the jieba import chain (~105ms) stays off every import path
-    that does not actually tokenize (only the G6 path does).
-    """
-    tokenizer, poseg = _get_tokenizers()
-    if domain_dict:
-        for term in domain_dict:
-            tokenizer.add_word(term)  # Tokenizer.add_word self-initializes
-    return [Token(word=w, pos=f) for w, f in poseg.cut(text) if w.strip()]

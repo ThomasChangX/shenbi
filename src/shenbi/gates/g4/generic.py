@@ -312,9 +312,7 @@ def gate_G4(
     from shenbi.gates.g4.worldbuilding import g4_worldbuilding
     from shenbi.gates.g4.book_spine_init import g4_book_spine_init
     from shenbi.gates.g4.memory_distill import g4_memory_distill
-    from shenbi.gates.g4.score_arc import g4_score_arc
-    from shenbi.gates.g4.score_volume import g4_score_volume
-    from shenbi.gates.g4.score_stratum import g4_score_stratum
+    from shenbi.gates.g4.scoring_sections import register_score_checkers
     from shenbi.gates.g4.escalation_review import g4_escalation_review
     from shenbi.gates.g4.chapter_revision import g4_chapter_revision
     from shenbi.gates.g4.decisions_validator import g4_decisions, make_composite_checker
@@ -344,9 +342,6 @@ def gate_G4(
         "shenbi-worldbuilding": g4_worldbuilding,
         "shenbi-book-spine-init": g4_book_spine_init,
         "shenbi-memory-distill": g4_memory_distill,
-        "shenbi-score-arc": g4_score_arc,
-        "shenbi-score-volume": g4_score_volume,
-        "shenbi-score-stratum": g4_score_stratum,
         "shenbi-escalation-review": g4_escalation_review,
         # New: decisions-only (no existing dedicated checker)
         "shenbi-market-radar": g4_decisions,
@@ -360,6 +355,9 @@ def gate_G4(
         ),
         "shenbi-short-drafting": g4_decisions,
     }
+    # C37 F427: three copy-paste score checkers unified
+    register_score_checkers(checkers)
+
     fn = checkers.get(skill_name)
     if fn:
         result = fn(file_paths, round_dir, project_dir, repo_root)

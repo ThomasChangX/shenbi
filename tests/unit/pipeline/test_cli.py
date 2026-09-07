@@ -28,6 +28,7 @@ from shenbi.pipeline.state import (
     GenesisState,
     PipelinePhase,
 )
+from tests.conftest import seed_genesis_outputs
 
 
 def _run(argv: list[str], monkeypatch: pytest.MonkeyPatch) -> tuple[int, str]:
@@ -423,6 +424,9 @@ class TestResumeCommand:
 
         _run(["review", str(project_dir), "approve"], monkeypatch)
 
+        seed_genesis_outputs(
+            project_dir
+        )  # C37 F325: resume now fail-fast on missing genesis outputs
         rc, out = _run(["resume", str(project_dir)], monkeypatch)
 
         assert rc == 0
@@ -471,6 +475,9 @@ class TestResumeCommand:
         )
         save_state(project_dir, state)
 
+        seed_genesis_outputs(
+            project_dir
+        )  # C37 F325: resume now fail-fast on missing genesis outputs
         rc, out = _run(["resume", str(project_dir)], monkeypatch)
         result = json.loads(out)
 
@@ -837,3 +844,37 @@ class TestModifyDecision:
 
         assert "Fix the pacing in section 3" in prompt
         assert state.chapter_loop.modify_feedback is None  # consumed
+
+
+class TestResumeFailFastOnMissingTruth:
+    """C37 F325 wiring: cmd_resume must fail fast when truth integrity fails."""
+
+    def test_resume_stops_before_later_steps_when_integrity_fails(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        """Integrity failures abort resume before later resume machinery runs."""
+        import argparse
+
+        from shenbi.pipeline import cli as pipeline_cli
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState(phase=PipelinePhase.GENESIS)
+        monkeypatch.setattr(pipeline_cli, "load_state", lambda pd: state)
+        monkeypatch.setattr(pipeline_cli, "save_state", lambda pd, s: None)
+        monkeypatch.setattr("shenbi.pipeline.state_heal.heal_state_counters", lambda s, pd: None)
+        monkeypatch.setattr(pipeline_cli, "_verify_truth_integrity", lambda s, pd: ["truth"])
+        called = {"later": False}
+
+        def _later(pd):
+            called["later"] = True
+
+        import shenbi.pipeline.chapter_loop as cl
+
+        monkeypatch.setattr(cl, "_auto_rebuild_progress_if_stale", _later, raising=False)
+
+        args = argparse.Namespace(project_dir=str(tmp_path))
+        rc = pipeline_cli.cmd_resume(args)
+        assert rc != 0, "resume must exit non-zero on truth-integrity failure"
+        assert not called["later"], "fail-fast must abort BEFORE later resume steps"
+        out = capsys.readouterr()
+        assert "truth" in (out.out + out.err)

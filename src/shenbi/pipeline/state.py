@@ -9,7 +9,6 @@ import json
 import threading
 from dataclasses import dataclass, field
 from enum import StrEnum
-from pathlib import Path
 from typing import Any
 
 from shenbi.config.thresholds import DEFAULT_THRESHOLDS
@@ -432,126 +431,9 @@ class PipelineState:
 # ---------------------------------------------------------------------------
 
 
-def _archive_chapter_state(
-    project_dir: Path | str, chapter_key: str, chapter_state: ChapterState
-) -> None:
-    """Archive a single chapter state to a JSON file in state/archive/."""
-    archive_dir = Path(project_dir) / "state" / "archive"
-    archive_dir.mkdir(parents=True, exist_ok=True)
-    archive_path = archive_dir / f"chapter-{chapter_key}.json"
-    archive_data = {
-        "chapter": chapter_key,
-        "steps_done": chapter_state.steps_done,
-        "status": chapter_state.status,
-        "resonance_score": chapter_state.resonance_score,
-        "audit_results": chapter_state.audit_results,
-        "revision_count": chapter_state.revision_count,
-        "audit_retry_count": chapter_state.audit_retry_count,
-    }
-    from shenbi.safe_write import safe_write
-
-    safe_write(
-        archive_path,
-        json.dumps(archive_data, indent=2, ensure_ascii=False),
-    )
-
-
-def compact_pipeline_state(state: PipelineState) -> None:
-    """Archive old chapter states and prune retry feedback.
-
-    Reduces ~236KB (at 100 chapters) to ~80KB.
-    """
-    if not hasattr(state, "chapter_loop"):
-        return
-
-    cl = state.chapter_loop
-    current = cl.current_chapter
-
-    # Archive chapter states beyond last 10
-    if hasattr(cl, "chapter_states"):
-        keys_to_archive = [k for k in cl.chapter_states if k.isdigit() and int(k) < current - 10]
-        for k in keys_to_archive:
-            _archive_chapter_state(state.project_dir, k, cl.chapter_states.pop(k))
-
-    # Prune retry_feedback to last 30 entries (dict order preserved, Python 3.7+)
-    if hasattr(cl, "retry_feedback") and len(cl.retry_feedback) > 30:
-        # Keep only the most recent 30 entries by insertion order
-        items = list(cl.retry_feedback.items())
-        cl.retry_feedback = dict(items[-30:])
-
-
 # ---------------------------------------------------------------------------
 # State machine healing: current_step corruption (Task 17-13)
 # ---------------------------------------------------------------------------
-
-
-def _heal_current_step(state: PipelineState, chapter_steps: list[Any]) -> None:
-    """Heal current_step from step_index when current_step is empty.
-
-    Fixes the known corruption bug: _advance sets step_index
-    but not current_step, leaving it as "".
-
-    Args:
-        state: The pipeline state to heal.
-        chapter_steps: Ordered list of ChapterStep objects defining the step
-            sequence (imported from chapter_loop.CHAPTER_STEPS).
-    """
-    cl = state.chapter_loop
-    if cl.current_step:
-        return  # Already set, nothing to heal
-
-    if cl.step_index <= 0:
-        return  # Not yet started
-
-    if cl.step_index < len(chapter_steps):
-        cl.current_step = chapter_steps[cl.step_index].skill
-    else:
-        cl.current_step = "chapter_complete"
-
-    from shenbi.logging import get_logger
-
-    logger = get_logger(__name__)
-    logger.warning(
-        "healed_current_step",
-        step_index=cl.step_index,
-        new_current_step=cl.current_step,
-    )
-
-
-def _validate_state_consistency(state: PipelineState, chapter_steps: list[Any]) -> list[str]:  # pyright: ignore[reportUnusedFunction] -- called from cli.py on resume
-    """Validate pipeline state consistency at resume. Heals if possible.
-
-    Checks:
-    - step_index > 0 but current_step is empty -> heal
-    - step_index out of range -> clamp
-
-    Args:
-        state: The pipeline state to validate.
-        chapter_steps: Ordered list of ChapterStep objects defining the step
-            sequence.
-
-    Returns:
-        List of issue strings describing any problems found and actions taken.
-        Empty list means state is consistent.
-    """
-    issues: list[str] = []
-    cl = state.chapter_loop
-
-    if not cl.current_step and cl.step_index > 0:
-        issues.append(
-            f"state_inconsistent: step_index={cl.step_index} but current_step='' -- auto-healing"
-        )
-        _heal_current_step(state, chapter_steps)
-
-    if cl.step_index > len(chapter_steps):
-        issues.append(
-            f"step_index={cl.step_index} exceeds CHAPTER_STEPS length "
-            f"({len(chapter_steps)}) -- clamping"
-        )
-        cl.step_index = len(chapter_steps)
-        cl.current_step = "chapter_complete"
-
-    return issues
 
 
 # ---------------------------------------------------------------------------
@@ -559,7 +441,9 @@ def _validate_state_consistency(state: PipelineState, chapter_steps: list[Any]) 
 # ---------------------------------------------------------------------------
 
 
-def _merge_step_result(state: PipelineState, result: Any) -> None:  # pyright: ignore[reportUnusedFunction]  -- called from chapter_loop.py
+def _merge_step_result(  # pyright: ignore[reportUnusedFunction] -- called from chapter_loop.py (local import; pyright false positive)
+    state: PipelineState, result: Any
+) -> None:
     """Merge a worker thread's result into PipelineState on the main thread.
 
     Single-writer (actor-model) pattern: only the main thread mutates state.
