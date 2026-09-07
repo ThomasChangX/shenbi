@@ -6,7 +6,7 @@
 ## 元信息
 - 簇：C36（print() 违禁散点），3 条（D102 代表 + F324 + F616——两条 M 为 D102 的分点复述），最高严重度 P1，证据等级=实验佐证（git grep 实跑）
 - 成员：D102、F324、F616
-- 来源：d1 机械扫描 + Z3/Z6 深读（D102：`git grep -n "print(" -- 'src/shenbi/*.py'`，2 处 _text_fingerprint 子串误报已剔除）
+- 来源：d1 机械扫描 + Z3/Z6 深读（D102：`git grep -n "print(" -- 'src/shenbi/*.py'`，3 处 _text_fingerprint 子串误报已剔除（chapter_drafting.py:133,141,320））
 
 ## 背景与根因
 AGENTS.md 规定框架代码（src/shenbi/）禁用 `print()`、统一 structlog，但没有定义"用户面 CLI 输出"的豁免边界，也没有 lint 执法。现状 6 处直用 print：
@@ -42,7 +42,7 @@ AGENTS.md 规定框架代码（src/shenbi/）禁用 `print()`、统一 structlog
 - INDEX #50 行的 file:line 摘要随落地 PR 同步为现行行号
 
 ### R3 · lint 执法
-- ruff `select` 加 `"T20"`；`[tool.ruff.lint.per-file-ignores]` 框架外豁免三条（键加引号）：新增 `"tools/**" = ["T201"]`、`"scripts/**" = ["T201"]`，既有 `"tests/**" = ["BLE001"]` **合并为 `["BLE001", "T201"]`**（TOML 禁重复键，实测 ruff 遇 duplicate key 直接 config parse 失败）（tools/scripts 是 CLI 脚本、tests 有审计记录型 print，均合法人面输出；实跑基线：tools/scripts 83 处、tests 6 处均为存量合法；ruff 对多条匹配 per-file-ignores 取并集，无遮蔽）。src/shenbi 对 **T20 零豁免**（其既有 ~24 条 BLE001 per-file-ignores 属 spec #39 吞错豁免面，与本项无关）。ruff 已由 justfile check、`.pre-commit-config.yaml` ruff hook、ci.yml 三处既有接线运行——无需新增任何清单行，C25 合写面就此消解（C25 将来重排清单时对账即可）
+- ruff `select` 加 `"T20"`；`[tool.ruff.lint.per-file-ignores]` 框架外豁免三条（键加引号）：新增 `"tools/**" = ["T201"]`、`"scripts/**" = ["T201"]`，既有 `"tests/**" = ["BLE001"]` **合并为 `["BLE001", "T201"]`**（TOML 禁重复键，实测 ruff 遇 duplicate key 直接 config parse 失败）（tools/scripts 是 CLI 脚本、tests 有审计记录型 print，均合法人面输出；实跑基线：tools/scripts 83 处、tests 6 个文件 34 处均为存量合法；ruff 对多条匹配 per-file-ignores 取并集，无遮蔽）。src/shenbi 对 **T20 零豁免**（其既有 ~23 条 BLE001 per-file-ignores 属 spec #39 吞错豁免面，与本项无关）。ruff 已由 justfile check、`.pre-commit-config.yaml` ruff hook、ci.yml 三处既有接线运行——无需新增任何清单行，C25 合写面就此消解（C25 将来重排清单时对账即可）
 - `tools/lint_no_print.py` 自定义脚本降为最后手段，仅在 T20 语义与豁免需求冲突时启用
 - **验收**：src/shenbi 任一文件临时加 `print("x")` → `just check` FAIL；`tools/` 内 print 存量 → PASS
 
@@ -55,7 +55,7 @@ AGENTS.md 规定框架代码（src/shenbi/）禁用 `print()`、统一 structlog
 - F324/F616 原为 M 级"待裁决"条——本 spec 的裁决即其关闭依据，无需另行处理
 
 ## 验证命令
-- 违规扫描（D102 同口径）：`git grep -n "print(" -- 'src/shenbi/*.py'`（剔除 _text_fingerprint 子串误报后命中集 = ∅）
+- 违规扫描（D102 同口径）：`git grep -n "print(" -- 'src/shenbi/*.py'`（剔除 3 处 _text_fingerprint 子串误报后命中集 = ∅）
 - lint 执法负例：src/shenbi 任一文件临时加 `print("x")` → `just check` FAIL；tools/ 存量 print → PASS
 - 输出可测性：`pytest tests/unit/test_cli_utils.py -q`（T1；capsys 断言 echo/emit_json）
 - 回归：`just check` 全绿
