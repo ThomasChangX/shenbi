@@ -59,3 +59,32 @@ def test_checkers_read_fallback_walks(tmp_path):
         result = pacing_design.g4_pacing_design(fps, str(rd), str(pd), str(tmp_path))
     assert isinstance(result, str)
     assert [e for e in logs if e.get("event") == "round_paths_read_fallback"]
+
+
+def test_checkers_read_fallback_worldbuilding_character(tmp_path):
+    # plan fidelity: worldbuilding + character_design also walk the logged
+    # fallback; genre-config copied from the real fixture (G0.9).
+    import shutil
+
+    from shenbi.gates.g4 import character_design, worldbuilding
+
+    rd = tmp_path / "rd"
+    pd = tmp_path / "pd"
+    rd.mkdir()
+    pd.mkdir()
+    shutil.copy(
+        Path(__file__).resolve().parents[3] / "fixtures/genre-config-example.json",
+        pd / "genre-config.json",
+    )
+    (pd / "characters").mkdir()
+    shutil.copy(
+        Path(__file__).resolve().parents[3] / "fixtures/character-profile-example.md",
+        pd / "characters" / "protagonist.md",
+    )
+    (pd / "worldbuilding.md").write_text("# 世界\n规则。\n", encoding="utf-8")
+    with capture_logs() as logs:
+        worldbuilding.g4_worldbuilding(["worldbuilding.md"], str(rd), str(pd), str(tmp_path))
+        character_design.g4_character_design(
+            ["characters/protagonist.md"], str(rd), str(pd), str(tmp_path)
+        )
+    assert [e for e in logs if e.get("event") == "round_paths_read_fallback"]
