@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
+
+from shenbi.cli_utils import echo
 
 from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
@@ -132,7 +133,7 @@ def main(argv: list[str] | None = None) -> int:
 
     args = ap.parse_args(argv)  # subparsers required=True: cmd is always set (F510)
     if not args.project_dir.is_dir():
-        print(f"error: project dir not found: {args.project_dir}", file=sys.stderr)
+        echo(f"error: project dir not found: {args.project_dir}", err=True)
         return 2
-    print(render_report(args.project_dir))
+    echo(render_report(args.project_dir))
     return 0

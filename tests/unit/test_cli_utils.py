@@ -1,0 +1,71 @@
+"""T1 tests for cli_utils output channels (spec #50 / C36)."""
+
+import json
+
+import pytest
+
+from shenbi.cli_utils import echo, emit_json
+
+
+def test_echo_writes_stdout_with_newline(capsys):
+    echo("hello")
+    captured = capsys.readouterr()
+    assert captured.out == "hello\n"
+    assert captured.err == ""
+
+
+def test_echo_err_writes_stderr(capsys):
+    echo("boom", err=True)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == "boom\n"
+
+
+def test_emit_json_non_escaped_utf8(capsys):
+    emit_json([{"detail": "中文"}])
+    captured = capsys.readouterr()
+    assert captured.out == json.dumps([{"detail": "中文"}], ensure_ascii=False) + "\n"
+
+
+def test_echo_broken_pipe_exits_clean(monkeypatch):
+    import sys
+
+    class _Closed:
+        def write(self, _):
+            raise BrokenPipeError
+
+        def flush(self):
+            pass
+
+    monkeypatch.setattr(sys, "stdout", _Closed())
+    with pytest.raises(SystemExit) as exc:
+        echo("x")
+    assert exc.value.code == 0
+
+
+def test_report_main_error_stderr(capsys, tmp_path):
+    from shenbi.cost import report
+
+    code = report.main(["report", str(tmp_path / "nope")])
+    captured = capsys.readouterr()
+    assert code == 2
+    assert captured.out == ""
+    assert captured.err.startswith("error: project dir not found:")
+
+
+def test_recall_main_json_payload(capsys, monkeypatch):
+    import sys
+
+    from shenbi.skill_utils.foreshadowing_recall import recall
+
+    argv = [
+        "prog",
+        "--hooks-json",
+        '[{"id": "h1", "last_reinforced": 1, "max_distance": 2}]',
+        "--current-chapter",
+        "10",
+    ]
+    monkeypatch.setattr(sys, "argv", argv)
+    recall.main()
+    captured = capsys.readouterr()
+    assert captured.out == '["h1"]\n'

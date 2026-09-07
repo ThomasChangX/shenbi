@@ -25,7 +25,7 @@
 - **文件**：`2026-08-16-c36-print-purity-design.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C36，3 条窄根因小簇）
 - **状态**：Design | **优先级**：🟠 P1
-- **内容**：src/shenbi 6 处 print（cost/report.py:93,95、pipeline/cli.py:945,947、escalation/check.py:149、foreshadowing_recall/recall.py:61，D102 git grep 实跑）+ CLI 豁免边界未成文 + 无 lint 执法——shenbi.console 薄封装（或文件级豁免）+ 豁免规则入 AGENTS.md + lint 进 just check/ci.yml（与 C25 合写面）
+- **内容**：src/shenbi 6 处 print（cost/report.py:135,137、pipeline/cli.py:1065,1067、escalation/check.py:164、foreshadowing_recall/recall.py:61，D102 git grep 实跑）+ CLI 豁免边界未成文 + 无 lint 执法——三类输出通道裁决（structlog 日志 / cli_utils.echo 人面 / cli_utils.emit_json 机器 stdout）+ 豁免规则入 AGENTS.md + ruff T20 执法（src/shenbi 零豁免，C25 合写面已消解）
 
 ### #51 · 审计修复 C37：死代码清理与零接线执法（P1）
 
