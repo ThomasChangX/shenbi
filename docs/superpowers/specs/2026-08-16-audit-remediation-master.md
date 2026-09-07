@@ -27,10 +27,10 @@
 
 | 簇 | 根因短语 | 条数 | 批次 | 量级 | 关键前置 |
 |---|---|---|---|---|---|
-| C32 | 写审计假阳性机器+diff 谓词漏洞 | 11 | C | M | 无（先行——C33/C1 的输入） |
+| C32 ❌ Rejected (PR #163 · 已由 PR #43 等效修复) | 写审计假阳性机器+diff 谓词漏洞 | 11 | C | M | 无（先行——C33/C1 的输入） |
 | C3 ✅ Done (PR #117) | truth 追加写路径零接线 | 21 | A | L | 无 |
-| C34 | 路径/布局三套分裂 | 14 | C | M | 无（C1 验收的地基） |
-| C1 | 读方↔写方键空间从未对账 | 67 | A | L | C3 定稿写方 + C34 路径协议（验收期） |
+| C34 ✅ Done (PR #168) | 路径/布局三套分裂 | 14 | C | M | 无（C1 验收的地基） |
+| C1 ✅ Done (PR #107) | 读方↔写方键空间从未对账 | 67 | A | L | C3 定稿写方 + C34 路径协议（验收期） |
 | C4 ✅ Done (PR #120) | decisions-sidecar 四层断裂 | 17 | A | M | C3 staging 提交路由（sidecar 同生共死面） |
 | C10 ✅ Done (PR #137) | token 计量 dead-wire | 20 | A | M | 无（先行——成本类验收的输入） |
 | C16 | fixture 真实性失真/G0.9 零执法 | 31 | B | L | 无（C14 重写断言的输入） |
@@ -151,16 +151,16 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C23 | 文档机械漂移 | 46 | P1 | audit-docs-mechanical-drift-fix.md | B | M | — |
 | C24 | 文档语义矛盾 | 56 | P2 | audit-docs-semantic-conflicts-fix.md | B | M | — |
 | C25 | CI/just 双向手工同步 | 24 | P1 | audit-ci-just-sync-fix.md | B | M | — |
-| C26 | shell/just 注入误用 | 11 | P1 | （批次 B spec；见 INDEX 登记） | B | S | — |
-| C27 | 供应链审计盲区 | 9 | P1 | c27-supply-chain-audit-design.md | C | S-M | — |
-| C28 | 性能反模式 | 13 | P1 | c28-perf-antipatterns-design.md | C | M | C10 |
-| C29 | 截断/采样静默 | 8 | P2 | c29-truncation-observability-design.md | C | S-M | 最小实证闸门 |
-| C30 | 章循环/staging 生命周期 | 20 | P1 | c30-chapter-loop-staging-design.md | C | L | C3 |
-| C31 | 注入/越权安全面 | 10 | P1 | c31-injection-authorization-design.md | C | M | — |
-| C32 | 写审计机制缺陷 | 11 | P0 | c32-write-audit-mechanism-design.md | C | M | —（C33 的前置） |
-| C33 | 重试/失败分类分裂 | 11 | P1 | c33-retry-failure-taxonomy-design.md | C | M | C32+C10 |
-| C34 | 路径/布局契约分裂 | 14 | P1 | c34-path-layout-contract-design.md | C | M | —（C1 验收地基） |
-| C35 | 审计过程自身缺陷 | 18 | P1 | c35-audit-process-hygiene-design.md | C | M | —（全程并行） |
+| C26 | shell/just 注入误用 | 11 | P1 | audit-shell-injection-fix.md | B | S | — |
+| C27 ✅ Done (PR #149) | 供应链审计盲区 | 9 | P1 | archive/2026-08-16-c27-supply-chain-audit-design.md | C | S-M | — |
+| C28 ✅ Done (PR #153 + #154) | 性能反模式 | 13 | P1 | archive/2026-08-16-c28-perf-antipatterns-design.md | C | M | C10 |
+| C29 ✅ Done (PR #156) | 截断/采样静默 | 8 | P2 | archive/2026-08-16-c29-truncation-observability-design.md | C | S-M | 最小实证闸门 |
+| C30 ✅ Done (PR #158) | 章循环/staging 生命周期 | 20 | P1 | archive/2026-08-16-c30-chapter-loop-staging-design.md | C | L | C3 |
+| C31 ✅ Done (PR #161) | 注入/越权安全面 | 10 | P1 | archive/2026-08-16-c31-injection-authorization-design.md | C | M | — |
+| C32 ❌ Rejected (2026-09-07 · 11 条成员已由 PR #43 等效修复；F513 残留待新归属) | 写审计机制缺陷 | 11 | P0 | archive/2026-08-16-c32-write-audit-mechanism-design.md | C | M | —（C33 的前置） |
+| C33 ✅ Done (PR #164) | 重试/失败分类分裂 | 11 | P1 | archive/2026-08-16-c33-retry-failure-taxonomy-design.md | C | M | C32+C10 |
+| C34 ✅ Done (PR #168 · spec #48 于 #167 重写) | 路径/布局契约分裂 | 14 | P1 | archive/2026-08-16-c34-path-layout-contract-design.md | C | M | —（C1 验收地基） |
+| C35 ✅ Done (PR #170) | 审计过程自身缺陷 | 18 | P1 | archive/2026-08-16-c35-audit-process-hygiene-design.md | C | M | —（全程并行） |
 | C36 | print 违禁散点 | 3 | P1 | c36-print-purity-design.md | C | S | — |
 | C37 | 死代码零执法 | 43 | P1 | c37-dead-code-enforcement-design.md | C | L | C3/C7/C19/C28 裁决 |
 
