@@ -24,19 +24,21 @@
 
 ## 任务分解
 ### R1 · 路径协议成文 + 布局探测单源（F413 + F407 + 全簇地基）
-- `gates/paths.py`（或扩展既有 resolve_input_path/paths.py）：`Layout = detect(project_dir)`（novel-output/project-output/skill-output 兼容探测）+ 协议写入 docs/framework/paths.md（含 rd≠project_dir 的 T2 调用矩阵、RoundPaths 与 resolve_input_path 的分工声明）；G0.3/G0.cc 布局扫描改走探测单源
-- **验收**：`git grep -n "skill-output" -- src/shenbi/gates/` 仅剩探测表一处；三布局 fixture 各跑一遍 G4 定位到同一文件
+- **模块家宅定死**：`Layout.detect(project_dir)` 落在 `src/shenbi/paths.py`（RoundPaths 已自declare 单一信源，禁止另立 gates/paths.py 第三权威）；`resolve_input_path`（gates/shared.py）保持为 checker 入口薄封装，协议文档声明两者分工（RoundPaths=round 级读写根对象，resolve_input_path=单文件相对解析）；顺带消除 `RoundPaths.read()` 的 rd→project_dir 静默回退（paths.py:22-24，与 F401 修复确立的"无静默回退"信条对齐——回退改为显式 ValueError 或成文豁免）
+- 协议写入 docs/framework/paths.md（含 rd≠project_dir 的 T2 调用矩阵）；G0.3/G0.cc 布局扫描改走 detect() 单源
+- **fixture 策略（G0.9 合规）**：三布局 fixture 用 tmp_path 从 `tests/fixtures/` 真实产物组装（复制既有真实文件成布局形状，不手造内容）；"定位到同一文件"的逐布局映射表：skill-output=skill-output/&lt;proj&gt;/、novel-output=novel-output/&lt;proj&gt;/、project-output=rd/project-output/，同一目标文件=同一 fixture 源文件置于各布局对应目录
+- **验收**：`git grep -n "skill-output" -- src/shenbi/gates/` 的命中仅剩 detect() 消费侧与既有非探测豁免点（G0.6 可写性检查错误文案 g0.py:330/340/356、g7.py:72/88 语义检查、g2.py:292 novel-output 章节范围 regex——以上为语义/文案使用非布局探测，成文豁免清单）；三布局 tmp 组装 fixture 各跑一遍 G4 定位到同一文件
 
 ### R2 · gate 接线收口（F433 + F101 残留 + F456 + F457 + F446 裁注）
-- cli.py G4 分支区分 rd 与 project_dir（新增显式 project_dir 参数或成文 rd==project_dir 的 T1 豁免矩阵）；g4_post_write_integrity 按 R1 协议锚定真实 project_dir；gate_G2 的 G2.1 存在性检查改走 resolve_input_path(fp, rd)；bughunt/clean 包装签名收 rd 并接线；F446 裁注改回归用例（相对 json + rd + CWD≠rd 恒绿）
-- **验收**：project-output 布局 + project_dir≠rd 场景 PWI findings 可被 G4 定位（修复 F433 静默缺席）；相对路径 + CWD≠rd 下 G2/bughunt/clean 全绿不崩溃
+- cli.py G4 分支区分 rd 与 project_dir（新增显式 project_dir 参数或成文 rd==project_dir 的 T1 豁免矩阵）；g4_post_write_integrity 按 R1 协议锚定真实 project_dir；**G7.13 re-run 根**（g7.py:175-180 `project_dir=str(rd / "project-output")`）同步对齐新协议避免与 fresh G4 定位分歧；gate_G2 的 G2.1 存在性检查改走 resolve_input_path(fp, rd)——**迁移面含 G2 全调用方**（cli 无 rd 手动形态改为结构化 FAIL 不裸崩、g3.py:240 传 rd 安全、phase_runner subprocess 传 rd 安全）；bughunt/clean 包装签名收 rd 并接线；F446 裁注改回归用例（相对 json + rd + CWD≠rd 形态返回结构化 FAIL JSON 经 cli.py:153-163 守卫路径，永不未捕获崩溃）
+- **验收**：project-output 布局 + project_dir≠rd 场景 PWI findings 可被 G4 定位（修复 F433 静默缺席）；相对路径 + CWD≠rd 下 G2/bughunt/clean 返回结构化结果不崩溃；G2 无 rd + 相对路径手动形态 = 结构化 FAIL（非未捕获 ValueError）
 
 ### R3 · 观测面同根残留（F115 残留 + F628 + F119）
-- cmd_post_skill rglob 回退限定声明输出目录（或 chapter is None 时显式 FAIL 而非扫描）；compute_drift 的 audit/trend 写入路径按显式根（--project-dir 或 allow_root）解析；CapabilityFS 相对路径改按 allow_root 拼接后校验
-- **验收**：rglob 回退不再捡项目内预存 .md；CWD≠project_dir 下 compute_drift 写入位置不变；相对路径 CapabilityFS 操作锚定 allow_root（单测断言）
+- cmd_post_skill rglob 回退限定声明输出目录（或 chapter is None 时显式 FAIL 而非扫描）；compute_drift 的 audit/trend 写入路径锚定 **project_dir/truth（与 CWD 无关）**，与下游读方（pipeline/triggers.py:77 AUDIT_DRIFT_PATH、chapter_loop.py:1567）路径一致；CapabilityFS 相对路径改按 allow_root 拼接后校验（**休眠注记**：capability_fs 当前零生产消费方（仅单测），本修复为语义正确性修复，成文"fix-and-keep-dormant"不留 dead-wire 计分争议）
+- **验收**：rglob 回退不再捡项目内预存 .md；compute_drift 写入位置 == project_dir/truth/audit_drift.md 与 CWD 无关（单测断言，含下游读方路径一致）；相对路径 CapabilityFS 操作锚定 allow_root（单测断言）
 
 ### R4 · .bak 契约裁决（F412）
-- G1.4 的 .bak 写入移出 checker（由 dispatcher 预阶段统一备份，checker 只读）或在 AGENTS.md/docs/framework/gates.md 成文豁免——二选一裁决并同步文档
+- G1.4 的 .bak 写入移出 checker（由 dispatcher/executor 预阶段统一备份——executor.py:125-131 经 subprocess 调 G1 处为接线点；**协同迁移点**：G1.4 无 round_dir 的 SKIP 分支（g1.py:233-245）、G2.11 的 .bak 读方契约（shared.py:40-48 bak_path）须同步迁移）或在 AGENTS.md/docs/framework/gates.md 成文豁免——二选一裁决并同步文档
 - **验收**：裁决落地后 G1 checker 无写副作用（或豁免成文 + docstring 引用）
 
 ## 验收（簇级）
@@ -46,7 +48,8 @@
 ## 风险
 - R1 协议若选择"废除 skill-output 兼容"，旧 round 数据不可读——保留只读兼容探测，新产物单一布局
 - 本簇是 C1（读方对账 lint）的地基：C1 验收中"gate 能读到真实写方产物"的用例须在本簇合入后才能全绿，两 spec 验收顺序见总纲依赖表
-- R2 改 cli.py G4 签名/语义涉及全部 G4 调用方（phase_runner、tests、pipeline）——须 grep 全调用方兼容迁移
+- R2 改 cli.py G4 签名/语义涉及全部 G4 调用方（cli.py、g5.py:324、g6.py:94、g7.py:175、phase_runner run_gate、tests/test_g7.py:233）与 G2 全调用方（见 R2）——须 grep 全调用方兼容迁移，可选参数扩展保兼容
+- 回写步骤须同步 INDEX #48 条目的修订状态注记（11 存活 + 3 出簇）
 
 ## 验证命令
 - 布局探测单源：`git grep -n "skill-output" -- src/shenbi/gates/`（仅剩探测表一处）
