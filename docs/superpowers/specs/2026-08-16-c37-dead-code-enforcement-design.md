@@ -60,7 +60,7 @@
 ## 验证命令
 - 分桶覆盖：`python3 -c "import re,pathlib; t=pathlib.Path('docs/superpowers/audit-runs/2026-08-15/c37-triage.md').read_text(); print(len(re.findall(r'^\| [FT]\d', t, flags=re.M)))"`（=43，锚定数据行 `^| [FT]\d`，表头/分隔行/补充表不计数）
 - 假防线抽查：`git grep -n "error_guidance\|Consumed by CLI" -- src/ docs/` 与裁决一致
-- dead-code 门（post-R3，工具随 R3 选型）：`uv run vulture src/shenbi --min-confidence 60`（基线清零，白名单外——2026-09-07 plan 审查修正：80 对 unused function 失效）
+- dead-code 门（post-R3）：`uv run basedpyright`（reportUnusedFunction 零错）+ `uv run python tools/lint_dead_code_allowlist.py`（冻结白名单 6 项一致）；负例=新增零调用函数 → basedpyright FAIL / 新增裸压制 → allowlist lint FAIL
 - 负例：新增零调用函数 → `just check` FAIL
 - 直测随删：`uv run pytest -n auto -q` 无 skip 增量
 - 回归：`just check` 全绿

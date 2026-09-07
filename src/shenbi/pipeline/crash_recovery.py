@@ -83,7 +83,9 @@ def _handle_emergency_signal(signum: int, frame: object) -> None:
     signal.signal(signum, signal.SIG_DFL)
 
 
-def _check_emergency_flag(project_dir: Path) -> None:  # pyright: ignore[reportUnusedFunction]
+def _check_emergency_flag(  # pyright: ignore[reportUnusedFunction] -- called from chapter_loop.py via _cr_check_emergency_flag wrapper (pyright false positive)
+    project_dir: Path,
+) -> None:
     """Called at step boundaries in main loop. Performs cleanup if flag set."""
     global _emergency_flag  # noqa: PLW0603
     if _emergency_flag:

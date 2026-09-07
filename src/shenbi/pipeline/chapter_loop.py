@@ -403,7 +403,7 @@ def _step_output_exists(project_dir: Path, step: ChapterStep, chapter: int) -> b
     return (project_dir / resolved).exists()
 
 
-def _clamp_resume_cursor(  # pyright: ignore[reportUnusedFunction]
+def _clamp_resume_cursor(  # pyright: ignore[reportUnusedFunction] -- called from cli.py:cmd_resume (local import; pyright false positive)
     cl: ChapterLoopStateData, project_dir: Path
 ) -> None:
     """Clamp a runaway resume cursor to the committed-product anchor (F371).
@@ -1019,7 +1019,9 @@ def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> Non
 # ---------------------------------------------------------------------------
 
 
-def _auto_rebuild_progress_if_stale(project_dir: Path) -> None:  # pyright: ignore[reportUnusedFunction] -- called from cli.py:cmd_resume via local import
+def _auto_rebuild_progress_if_stale(  # pyright: ignore[reportUnusedFunction] -- called from cli.py:cmd_resume (local import; pyright false positive)
+    project_dir: Path,
+) -> None:
     """Detect (but no longer rebuild) stale progress.json on pipeline resume.
 
     spec #37 F630 ruling (b): the zero-producer materialize rebuild is
@@ -2073,7 +2075,7 @@ def _ensure_revision_decisions_exists(
 # ---------------------------------------------------------------------------
 
 
-def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:  # pyright: ignore[reportUnusedFunction]
+def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:
     """Check chapter text for linguistic drift and apply tiered intervention.
 
     Reads the just-written ``chapters/chapter-{chapter}.md`` (no zero-padding),
@@ -2190,30 +2192,6 @@ Forbidden openings: "冷知道/冷在/冷在场于" sentence patterns.
 # ---------------------------------------------------------------------------
 # Context Coverage Audit (Task 6)
 # ---------------------------------------------------------------------------
-
-
-def _audit_context_coverage(project_dir: Path, current_chapter: int) -> list[int]:  # pyright: ignore[reportUnusedFunction]
-    """Scan all chapters up to current_chapter and return list of missing context files.
-
-    Uses the real (non-padded) ``chapter-{ch}-context.md`` naming. Called at
-    pipeline resume initialization to surface the 77% coverage gap (spec §3.1).
-    """
-    import structlog
-
-    log = structlog.get_logger()
-    context_dir = project_dir / "context"
-    missing = []
-    for ch in range(1, current_chapter + 1):
-        context_file = context_dir / f"chapter-{ch}-context.md"
-        if not context_file.exists():
-            missing.append(ch)
-    if missing:
-        log.warning(
-            "context_coverage_gap",
-            missing_chapters=missing,
-            gap_ratio=f"{len(missing)}/{current_chapter}",
-        )
-    return missing
 
 
 # ---------------------------------------------------------------------------
@@ -2425,7 +2403,7 @@ def _run_g4_checks(state: PipelineState, chapter: int) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def _cleanup_residual_staging(  # pyright: ignore[reportUnusedFunction]
+def _cleanup_residual_staging(  # pyright: ignore[reportUnusedFunction] -- called from cli.py:195 (local import; pyright false positive)
     project_dir: Path,
     has_pending_staging: bool,
 ) -> None:
@@ -2456,7 +2434,9 @@ def _cleanup_residual_staging(  # pyright: ignore[reportUnusedFunction]
     log.info("residual_staging_cleaned_at_resume", project_dir=str(project_dir))
 
 
-def _has_pending_staging_step(state: PipelineState) -> bool:  # pyright: ignore[reportUnusedFunction]
+def _has_pending_staging_step(  # pyright: ignore[reportUnusedFunction] -- called from cli.py:195 (local import; pyright false positive)
+    state: PipelineState,
+) -> bool:
     """Check if any pending step in the current chapter uses staging."""
     step_idx = state.chapter_loop.step_index
     if step_idx >= len(CHAPTER_STEPS):

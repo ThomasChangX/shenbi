@@ -441,7 +441,9 @@ class PipelineState:
 # ---------------------------------------------------------------------------
 
 
-def _merge_step_result(state: PipelineState, result: Any) -> None:  # pyright: ignore[reportUnusedFunction]  -- called from chapter_loop.py
+def _merge_step_result(  # pyright: ignore[reportUnusedFunction] -- called from chapter_loop.py (local import; pyright false positive)
+    state: PipelineState, result: Any
+) -> None:
     """Merge a worker thread's result into PipelineState on the main thread.
 
     Single-writer (actor-model) pattern: only the main thread mutates state.

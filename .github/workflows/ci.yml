@@ -61,6 +61,8 @@ jobs:
         run: uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
       - name: Purity lint (no FS-mutation in src/shenbi/, spec P4)
         run: uv run python tools/lint_no_fs_mutation.py src/shenbi
+      - name: Dead-code allowlist lint (C37 R3, spec 51)
+        run: uv run python tools/lint_dead_code_allowlist.py
       - name: Audit-run lint (ledger, reconciliation, carryover; spec 49)
         run: uv run python tools/lint_audit_run.py
       - name: Active-spec count lint (INDEX header vs scan; spec 49)
