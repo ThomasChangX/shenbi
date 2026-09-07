@@ -17,7 +17,7 @@ AGENTS.md 规定框架代码（src/shenbi/）禁用 `print()`、统一 structlog
 
 根因不是"有人写错"，而是**规则颗粒度缺失**：人面 CLI 工具的表格/汇总输出天然该走 stdout，但"哪些入口算 CLI、CLI 内是否允许 print、还是必须经统一 output helper"从未裁决，于是各文件自行其是且无 lint 拦截。
 
-> **修订 2（2026-09-07 · 重审轮 2）**：撤销新建 `shenbi.console`——既有 `src/shenbi/cli_utils.py` 已含 `emit_json(data)`（`sys.stdout.write` + `ensure_ascii=False` + flush + `BrokenPipeError→SystemExit(0)`，8 个生产消费方：gates/cli、scoring、phase_runner、pipeline/cli、context_assemble、truth_embed、truth_index、dispatcher/modes/codex）且其 docstring 已裁决 stdout/stderr 通道分工。本 spec 改为**扩展 cli_utils**：新增 `echo(msg, *, err=False)`（对齐 emit_json 的 write/flush/BrokenPipe 语义，不用 print），6 处全部迁入；src/shenbi 因此可达成**零 per-file-ignores**。lint 采用 ruff 内建 `T20`，豁免仅在框架外（tools/scripts/tests）。
+> **修订 2（2026-09-07 · 重审轮 2）**：撤销新建 `shenbi.console`——既有 `src/shenbi/cli_utils.py` 已含 `emit_json(data)`（`sys.stdout.write` + `ensure_ascii=False` + flush + `BrokenPipeError→SystemExit(0)`，8 个生产消费方：gates/cli、scoring、phase_runner、pipeline/cli、context_assemble、truth_embed、truth_index、dispatcher/modes/codex）且其 docstring 已裁决 stdout/stderr 通道分工。本 spec 改为**扩展 cli_utils**：新增 `echo(msg, *, err=False)`（对齐 emit_json 的 write/flush/BrokenPipe 语义，不用 print），6 处全部迁入；src/shenbi 对 T20 因此可达成**零 per-file-ignores**。lint 采用 ruff 内建 `T20`，豁免仅在框架外（tools/scripts/tests）。
 >
 > **修订 1（2026-09-07 · 设计审查）**：确立**三类输出通道**裁决——① 日志走 structlog（唯一日志通道）；② 人面文本走 `cli_utils.echo`；③ **机器可读 stdout 是独立契约面**（skills 层以 `python -m shenbi.skill_utils.*` 消费 JSON stdout，见 audit T14 证据），走 `cli_utils.emit_json`，不得混标为"用户面文本"。机器 stdout 的合法形态 = `cli_utils.emit_json` 或直接 `sys.stdout.write`（chapter_pattern/calibration 等既有 `sys.stdout.write` 站点合法、不在本 spec 迁移面）；**禁止的只是 `print()`**。
 
@@ -37,12 +37,12 @@ AGENTS.md 规定框架代码（src/shenbi/）禁用 `print()`、统一 structlog
 
 ### R2 · 6 处整改
 - 人面文本 4 处改 `cli_utils.echo`：`cost/report.py:135`（err=True）、`:137`、`pipeline/cli.py:1065`、`:1067`（err=True）；structlog 记录保持不变（用户面输出，非日志）
-- 机器 JSON 2 处改 `cli_utils.emit_json`：`escalation/check.py:164`（现已是 `ensure_ascii=False`，字节级不变）、`foreshadowing_recall/recall.py:61`（现为默认 `ensure_ascii=True`，迁入后**有意变更**为非转义 UTF-8，与 check.py 对齐——JSON 语义等价；recall 消费方仅 skill 层读 JSON，无字节敏感比对，已核）。两处均**不得**改 stderr/structlog 通道
+- 机器 JSON 2 处改 `cli_utils.emit_json`：`escalation/check.py:164`（现已是 `ensure_ascii=False`，字节级不变）、`foreshadowing_recall/recall.py:61`（现为默认 `ensure_ascii=True`，迁入后**有意变更**为非转义 UTF-8，与 check.py 对齐——JSON 语义等价；recall CLI 的活消费方实为**零**：唯一相关 skill `shenbi-foreshadowing-recall` 已 DEPRECATED 且其流程直调 `recall_overdue_hooks` 不走 CLI stdout，故无字节敏感比对面；该模块存废另归 C37 裁决，本 spec 只迁通道不改去留）。两处均**不得**改 stderr/structlog 通道
 - **验收**：`src/shenbi/` 内 `print(` 零命中（同上口径）；`pytest tests/unit/test_cli_utils.py -q`（T1 层；capsys 断言 echo stdout/err 双流 + emit_json 输出 `== json.dumps(obj, ensure_ascii=False) + "\n"`）
 - INDEX #50 行的 file:line 摘要随落地 PR 同步为现行行号
 
 ### R3 · lint 执法
-- ruff `select` 加 `"T20"`；`[tool.ruff.lint.per-file-ignores]` 框架外豁免三条（键加引号）：新增 `"tools/**" = ["T201"]`、`"scripts/**" = ["T201"]`，既有 `"tests/**" = ["BLE001"]` **合并为 `["BLE001", "T201"]`**（TOML 禁重复键，实测 ruff 遇 duplicate key 直接 config parse 失败）（tools/scripts 是 CLI 脚本、tests 有审计记录型 print，均合法人面输出；实跑基线：tools/scripts 83 处、tests 2 处均为存量合法；ruff 对多条匹配 per-file-ignores 取并集，无遮蔽）。src/shenbi **零豁免**。ruff 已由 justfile check、`.pre-commit-config.yaml` ruff hook、ci.yml 三处既有接线运行——无需新增任何清单行，C25 合写面就此消解（C25 将来重排清单时对账即可）
+- ruff `select` 加 `"T20"`；`[tool.ruff.lint.per-file-ignores]` 框架外豁免三条（键加引号）：新增 `"tools/**" = ["T201"]`、`"scripts/**" = ["T201"]`，既有 `"tests/**" = ["BLE001"]` **合并为 `["BLE001", "T201"]`**（TOML 禁重复键，实测 ruff 遇 duplicate key 直接 config parse 失败）（tools/scripts 是 CLI 脚本、tests 有审计记录型 print，均合法人面输出；实跑基线：tools/scripts 83 处、tests 6 处均为存量合法；ruff 对多条匹配 per-file-ignores 取并集，无遮蔽）。src/shenbi 对 **T20 零豁免**（其既有 ~24 条 BLE001 per-file-ignores 属 spec #39 吞错豁免面，与本项无关）。ruff 已由 justfile check、`.pre-commit-config.yaml` ruff hook、ci.yml 三处既有接线运行——无需新增任何清单行，C25 合写面就此消解（C25 将来重排清单时对账即可）
 - `tools/lint_no_print.py` 自定义脚本降为最后手段，仅在 T20 语义与豁免需求冲突时启用
 - **验收**：src/shenbi 任一文件临时加 `print("x")` → `just check` FAIL；`tools/` 内 print 存量 → PASS
 
