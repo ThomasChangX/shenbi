@@ -41,7 +41,7 @@
 - **验收**：`just check` 全绿；vulture 基线清零（见 R3）；删除清单与 R0 表一一对应
 
 ### R3 · CI dead-code 执法
-- vulture（置信度 ≥80 + 白名单文件）或 basedpyright reportUnusedFunction 定向开启入 ci.yml；白名单=显式 deferred 项 + 公共 API 面；`just check` 同步（C25 合写面）
+- vulture（min-confidence 60——unused function 置信度层级；白名单文件收紧补偿）或 basedpyright reportUnusedFunction 定向开启入 ci.yml；白名单=显式 deferred 项 + 公共 API 面；`just check` 同步（C25 合写面）
 - **验收**：新增一个零调用函数 → CI FAIL；白名单内项 → PASS
 
 ### R4 · 直测死函数治理移交

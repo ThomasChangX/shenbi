@@ -89,7 +89,7 @@
 - Delete: `src/shenbi/gates/g1.py:106` `check_fields_exist` + `tests/unit/gates/test_g1_fields.py`（T301）
 - Delete: `tests/unit/gates/g4/conftest.py:13,27` 两死 fixture（F706，先 grep 确认零引用）
 - Modify: `src/shenbi/gates/g4/score_arc.py` + `score_stratum.py` + `score_volume.py` → 合一 `src/shenbi/gates/g4/scoring_sections.py`（F427）：参数化 checker，`generic.py:315-349` 改 import/注册
-- Modify: `src/shenbi/contracts/legacy.py` → 改名（按内容定真名，如 `contracts_registry.py`），删 `contracts/__init__.py:49` re-export shim，全仓导入点全改（T1506，实测：src/ 7 处 + tests/ 23 处 + tools/ 2 处 = 32 处）
+- Modify: `src/shenbi/contracts/legacy.py` → 改名（按内容定真名，如 `contracts_registry.py`），删 `contracts/__init__.py:49` re-export shim，全仓引用点全改（T1506，实测 `grep -rn "contracts\.legacy"` src/ 7 + tests/ 23 + tools/ 2 = 32 处，其中 tests 含 patch 字符串；另 grep `from shenbi.contracts import legacy` 变体一并改）
 - Modify: `src/shenbi/pipeline/cli.py:755,856`（F325：`_verify_truth_integrity` 返回 list[str] 接线 fail-fast——非空则 `err` 输出并以非零退出中止 resume）
 
 **F427 合一签名（Produces，T4 内自洽）：**
@@ -140,6 +140,7 @@ def g4_scoring_sections(
 
 **Files:**
 - Modify: `docs/superpowers/specs/2026-08-16-audit-weak-assertions-fix.md`（#52 C14 spec）验收追加一条："直测对象全部为生产可达路径（C37 R4 移交）"
+- Modify: 本 spec（C37）R3 段 vulture 置信度表述与验证命令一致（60，已同步则核验）
 - Modify: `docs/superpowers/audit-runs/2026-08-14/findings-ledger.md`：C37 全部成员按 R0 表回写 merged-into F108 / already-fixed 注明修复 spec
 - Modify: `docs/superpowers/audit-runs/2026-08-15/c37-triage.md` 若执行中出现改行，同步定稿
 - F886 defer 若裁定需后续 spec：INDEX.md append-only 登记新条目（P2），否则 defer 行注记即可
