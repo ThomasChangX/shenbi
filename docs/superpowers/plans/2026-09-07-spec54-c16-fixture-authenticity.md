@@ -39,6 +39,7 @@ PROVENANCE_WHITELIST: frozenset[str]  # {"tests/fixtures/report-example.txt"}
 ENFORCEMENT_WAVES: dict[str, str]  # {"P0":"warn","P1":"warn","P2":"warn"} 初始全 warn
 def check_scenario_reference_closure(t1_skill_dir: Path, project_root: Path) -> list[dict[str, Any]]
     # id "G0.17": 三 test_type 场景引用的 tests/fixtures/<p> 全部存在；缺失 → wave["P0"]=="fail" ? FAIL : WARN
+    # 扫描目标含 `_template/`（F751 正是模板场景的缺陷——`_` 前缀跳过惯例在本组新检查中不适用；仅载体文件豁免）
 def check_fixture_provenance(t1_skill_dir: Path, fixtures_dir: Path) -> list[dict[str, Any]]
     # id "G0.18": 被消费 fixture 的 provenance 载体存在且三态合法；违规 → wave["P1"] 判定
 def check_variant_bypass(t1_skill_dir: Path, fixtures_dir: Path) -> list[dict[str, Any]]
@@ -52,7 +53,7 @@ def load_provenance(fixture_path: Path) -> str | None  # frontmatter 或 sidecar
 - [ ] **Step 2: 跑测试确认失败** `uv run pytest tests/unit/gates/test_g0_purity_enforcement.py -x -q` → FAIL (ImportError/AttributeError)
 - [ ] **Step 3: 实现 g0_purity.py 三检查 + gate_G0 接线**（G0.17/18/19 追加进 gate_G0 的 checks；G0.11 改造：缺侧收集 `missing_sides` 列表 → 非空输出 WARN `f"missing mirror side: {detail}"`，双侧存在才比哈希）
 - [ ] **Step 4: 跑测试通过** `uv run pytest tests/unit/gates/ -q` 全绿
-- [ ] **Step 5: 基线生成器** `tools/gen_provenance_baseline.py`：CLI 无参，全量跑三检查的计数逻辑，写 `tests/fixtures/provenance-baseline.json`（`{"generated_at": iso, "G0.17": n, "G0.18": n, "G0.19": n, "violations": {check: [file,...]}}`）；gate 侧只读该文件做 delta 报告（new-since-baseline 计数入 note）。生成并提交首版基线。
+- [ ] **Step 5: 基线生成器** `tools/gen_provenance_baseline.py`：CLI 无参，全量跑三检查的计数逻辑，写 `tests/fixtures/provenance-baseline.json`（`{"generated_at": iso, "G0.17": n, "G0.18": n, "G0.19": n, "violations": {check: [file,...]}}`）；gate 侧只读该文件做 delta 报告（new-since-baseline 计数入 note；**文件缺失容忍**：fresh clone 无基线 → note "no baseline"，绝不 FAIL/报错）。生成并提交首版基线。
 - [ ] **Step 6: 全量回归 + commit** `uv run just check`；commit `feat: G0.17-19 fixture provenance enforcement + G0.11 missing-side report + baseline generator (spec54 T0/T1)`
 
 ### Task 2: bug-hunt 证据闭包 + 文法迁移（T1.2 + T2.9b）
@@ -60,7 +61,7 @@ def load_provenance(fixture_path: Path) -> str | None  # frontmatter 或 sidecar
 **Files:**
 - Create: `tools/check_bug_hunt_evidence.py`
 - Modify: `.pre-commit-config.yaml`（新增 hook，WARN 阶段 `--warn-only`）
-- Modify: `tests/tiers/t1-skill/*/bug-hunt/{input/scenario.md,expected-output.md}`（文法迁移 + 证据修复，清单执行时 `grep -rl expected-output tests/tiers` 现推导）
+- Modify: `tests/tiers/t1-skill/*/bug-hunt/{input/scenario.md,expected/expected-output.md}`（含 `_template`；文法迁移 + 证据修复，清单执行时 `grep -rl expected-output tests/tiers` 现推导）
 - Test: `tests/unit/tools/test_check_bug_hunt_evidence.py`
 
 **Interfaces:**
@@ -70,6 +71,7 @@ def load_provenance(fixture_path: Path) -> str | None  # frontmatter 或 sidecar
 def parse_evidence_lines(text: str) -> list[tuple[str, str | None, str | None]]  # (fixture_rel, lineno, anchor)
 def verify_scenario(skill_bug_hunt_dir: Path, fixtures_root: Path) -> list[str]  # 违规描述
 # CLI: python tools/check_bug_hunt_evidence.py [--warn-only]; 退出码 0/1；pre-commit 阶段用 --warn-only
+# 扫描目标含 `_template/`（F751 主战场）；遍历 bug-hunt 目录树不跳过 `_` 前缀
 ```
 
 - [ ] **Step 1: 失败测试**：tmp_path 构造 scenario 引用 fixture + expected-output.md 三行——命中 / 行号越界 / 锚文本不存在 → verify_scenario 返回 2 违规
@@ -86,12 +88,12 @@ def verify_scenario(skill_bug_hunt_dir: Path, fixtures_root: Path) -> list[str] 
 - Modify: `tests/tiers/t1-skill/shenbi-snapshot-manage/**`（"11 truth files" → 动态表述）、受影响测试断言
 
 - [ ] **Step 1: 现推导三清单**（全库 grep，输出贴 progress.md）：draft 族逐文件引用扫描（chapter-7-draft 有 test_quote_pair_count.py:113 消费者、chapter-2-draft 有 2 消费者——有消费者者改指真实副本，零引用者删）；example 三胞胎消费者（≥7 处含尺寸敏感 test_sampling_disclosure.py）；report-example 误用场景（≥31 引用，逐场景判角色）
-- [ ] **Step 2: 三胞胎替换**：`chapter-{7,8,9}-example.md` ← `novel-output/xinghuo-ranqiong/chapters/chapter-{7,8,9}.md` 逐字节副本 + frontmatter `provenance: real-output`/`source: novel-output/...`；尺寸敏感断言按实尺寸重推导；`tests/baselines/gate-outputs/G2-chapter.json` 走 regenerate-baselines.sh 重生成
+- [ ] **Step 2: 三胞胎替换**：`chapter-{7,8,9}-example.md` ← `novel-output/xinghuo-ranqiong/chapters/chapter-{7,8,9}.md` 逐字节副本 + frontmatter `provenance: real-output`/`source: novel-output/...`；尺寸敏感断言按实尺寸重推导；`tests/baselines/gate-outputs/` 走 `uv run bash tests/regenerate-baselines.sh` **全量重生成**（Task 1 gate_G0 输出已变，G0.json 同步陈旧，全量重生成属预期 churn）
 - [ ] **Step 3: draft 族处置**：零引用者删除（独立 commit）；有消费者者——测试改指三胞胎真实副本或保留 + provenance 标注
 - [ ] **Step 4: F753 误用场景改指**：违法场景改指各技能真实产物 fixture（从 novel-output 复制 + provenance）；report-example.txt 加 sidecar `upstream-copy` 标注；import 源引用保留
 - [ ] **Step 5: 快照族**：chapter-025 manifest 用真实快照 checksums 重建（provenance 标注）；F780 四对镜像登记 MIRROR_MAP；check_fixture_mirror.py:12 注释修正；pre-commit fixture-mirror hook 已存在即 CI 接线完成（F1012 协同面在本仓已就绪则记 deviation 不重复接线）
 - [ ] **Step 6: 词表/配置/常数**：stop_words_zh.txt 零消费者 → 删除（F785）；sensitive_words.txt 与 scenario 声称对齐扩容（F786，消费者 g6.py:495）；genre-config-example.json 从 novel-output/xinghuo-ranqiong/genre-config.json 重导（F787）；"11 truth files" → 从 docs/framework/truth-files.yaml 计数动态表述（F763，涉及 snapshot-manage 6 文件）；T807/T808 随 Step 2/4 对账修正；F790 qidian fixture 降级 synthetic-sample 或删
-- [ ] **Step 7: 每类独立 commit + 全量回归**：`uv run just check` 全绿、skip 数不增（对照 main 基线 522 skipped）；provenance 违规计数对照 Task 1 基线递减（贴 progress.md）
+- [ ] **Step 7: 每类独立 commit + 全量回归**：`uv run just check` 全绿、skip 数不增（对照 main 基线 522 skipped）；**每类内容替换 commit 内复跑 `uv run python tools/check_bug_hunt_evidence.py` 必须 `0 violations`**（Task 2 闭包不被本 task 打破——破坏即同 commit 修复）；provenance 违规计数对照 Task 1 基线递减（贴 progress.md）
 
 ### Task 4: calibration 锚点重建 + G0.14 重锁 + T4（F947/F1154）
 
@@ -117,7 +119,7 @@ def verify_scenario(skill_bug_hunt_dir: Path, fixtures_root: Path) -> list[str] 
 | 2 | T2 | `uv run python tools/check_bug_hunt_evidence.py` → `0 violations` |
 | 3 | T1+T3 | `uv run pytest -q tests/unit/gates/test_g0_purity_enforcement.py::test_closure_zero_violations` + hash 去重脚本（`uv run python -c "import hashlib,pathlib,collections;..."` 输出 0 组，MIRROR_MAP 显式镜像除外） |
 | 4 | T1 | `test_g0_purity_enforcement.py::test_promotion_guard`（warn 态 + 计数>0 → 非 FAIL） |
-| 5 | T4 | `uv run just gate G0 ...` G0.14 PASS（新哈希）+ 27 锚点 `grep -L "source:" tests/fixtures/calibration/{arc-payoff,resonance}/**/*.md` 仅 README |
+| 5 | T4 | `uv run just gate G0 ...` G0.14 PASS（新哈希）+ `! grep -L "source:" $(find tests/fixtures/calibration/arc-payoff tests/fixtures/calibration/resonance -name '*.md')` 输出为空（27 锚点全带 source） |
 | 6 | T3 | `uv run just check` 全绿 skip 不增 + 被删 fixture `git grep <name>` 0 残留 |
 | 7 | — | #18 R1-R4 对照表写入 PR 描述（协调者执行） |
 | 8 | T4 | F947 grep 命中集（除禁令引用）= 0；F1154 BLOCKED 注记 |
