@@ -1,6 +1,6 @@
 # Spec #40 总纲矩阵同步维护 pass Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** 按 master spec §6.4 维护协议，把 PR #148-#171 期间关闭的 9 个批次 C 簇状态回标进 §2.1/§7 矩阵（含 C1/C26 两处 PR #147 遗漏），刷新状态速览行。
 
@@ -26,7 +26,7 @@
 
 **Interfaces:** 无代码接口；Task 2 依赖本 task 的行内标注已落盘。
 
-- [ ] **Step 1: §7 九行标注 + 文件名改 archive 实名**
+- [x] **Step 1: §7 九行标注 + 文件名改 archive 实名**
 
 逐行编辑（簇号列加标注，文件名列换 archive/ 前缀实名）：
 
@@ -44,13 +44,13 @@
 
 同表 C26 行文件名列占位 `（批次 B spec；见 INDEX 登记）` → `audit-shell-injection-fix.md`（不带日期前缀、不带 archive/——对齐相邻 C14-C25 活跃行的无日期实名形态；spec 仍活跃不迁移）。
 
-- [ ] **Step 2: §2.1 三处补标**
+- [x] **Step 2: §2.1 三处补标**
 
 - `C1` 行 → `C1 ✅ Done (PR #107)`（PR #147 T1 遗漏）
 - `C32` 行 → `C32 ❌ Rejected (PR #163 · 已由 PR #43 等效修复)`
 - `C34` 行 → `C34 ✅ Done (PR #168)`
 
-- [ ] **Step 3: grep 验证**
+- [x] **Step 3: grep 验证**
 
 ```bash
 grep -cE "C1 ✅|C2[789] ✅|C3[01345] ✅|C32 ❌" docs/superpowers/specs/2026-08-16-audit-remediation-master.md   # 期望 13（§7 10 含既有 C1 行 L129 + §2.1 新增 3：C1/C34 ✅ + C32 ❌）
@@ -58,7 +58,7 @@ grep -cE "archive/2026-08-16-c(2[789]|3[0-5])" docs/superpowers/specs/2026-08-16
 grep -c "见 INDEX 登记）" docs/superpowers/specs/2026-08-16-audit-remediation-master.md                     # 期望 0
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs/superpowers/specs/2026-08-16-audit-remediation-master.md
@@ -72,7 +72,7 @@ git commit -m "docs(spec40): §2.1/§7 矩阵回标 C27-C35 关闭状态 + C1/C2
 
 **Interfaces:** 无。
 
-- [ ] **Step 1: 四处叙述面编辑**
+- [x] **Step 1: 四处叙述面编辑**
 
 1. L59 状态速览整行替换为：
    `状态速览（2026-09-07）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）9 簇关闭（C32 Rejected、余 8 Done，PR #149-#170），仅 C36/C37 活跃（#50/#51）；批次 B（C14-C26）活跃。承接关系以 §7 为准。`
@@ -80,7 +80,7 @@ git commit -m "docs(spec40): §2.1/§7 矩阵回标 C27-C35 关闭状态 + C1/C2
 3. §3 链 1 条目末追加：`（注：C32 已 Rejected 2026-09-07——R1-R4 已由 PR #43 等效修复；C33 已独立落地 PR #164，本链前提由驳斥轮收口。）`
 4. L1 头部 Status 追加：`· §6.4 同步 pass Done — PR <本批>（C27-C35 回标，2026-09-07）`——PR 号开 PR 后回填追加 commit。
 
-- [ ] **Step 2: grep 验证**
+- [x] **Step 2: grep 验证**
 
 ```bash
 grep -c "状态速览（2026-09-07）" docs/superpowers/specs/2026-08-16-audit-remediation-master.md  # 期望 1
@@ -88,7 +88,7 @@ grep -c "状态速览（2026-09-03）" docs/superpowers/specs/2026-08-16-audit-r
 grep -c "C32 已 Rejected 2026-09-07" docs/superpowers/specs/2026-08-16-audit-remediation-master.md  # 期望 1
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add docs/superpowers/specs/2026-08-16-audit-remediation-master.md
