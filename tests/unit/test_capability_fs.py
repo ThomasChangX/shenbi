@@ -81,9 +81,8 @@ def test_gate_purity_pattern(tmp_path: Path) -> None:
     assert pure_fn(fs.read_text, f) == "DATA"
 
 
-def test_relative_path_anchors_allow_root(tmp_path):
+def test_relative_path_anchors_allow_root(tmp_path, monkeypatch):
     # spec #48 C34 (F119): relative paths join allow_root, not process CWD.
-    import os
 
     root = tmp_path / "root"
     other = tmp_path / "other"
@@ -92,6 +91,6 @@ def test_relative_path_anchors_allow_root(tmp_path):
     (root / "truth").mkdir()
     (root / "truth" / "x.md").write_text("data", encoding="utf-8")
     fs = CapabilityFS(root)
-    os.chdir(other)
+    monkeypatch.chdir(other)
     assert fs.exists(Path("truth/x.md"))
     assert fs.read_text(Path("truth/x.md")) == "data"

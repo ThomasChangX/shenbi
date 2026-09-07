@@ -289,7 +289,26 @@ def main(argv: list[str] | None = None) -> None:
 
     findings: list[DriftFinding] = []
 
-    resonance_path = Path(args.resonance)
+    # spec #48 C34 (F628 follow-up): trend READ defaults anchor at the
+    # project root too — CWD-relative defaults silently no-op'd the whole
+    # drift check when CWD != project_dir.
+    anchor_root = _derive_project_dir(args)
+    if args.project_dir is None:
+        resonance_arg = (
+            str(anchor_root / args.resonance)
+            if not Path(args.resonance).is_absolute()
+            else args.resonance
+        )
+        arc_arg = (
+            str(anchor_root / args.arc_payoff)
+            if not Path(args.arc_payoff).is_absolute()
+            else args.arc_payoff
+        )
+    else:
+        resonance_arg = args.resonance
+        arc_arg = args.arc_payoff
+
+    resonance_path = Path(resonance_arg)
     if resonance_path.exists():
         parsed = parse_trend(resonance_path, RESONANCE_DIMS)
         for dim in RESONANCE_DIMS:
@@ -300,7 +319,7 @@ def main(argv: list[str] | None = None) -> None:
             excl = {i for i, (_, e) in enumerate(series) if e}
             findings.extend(detect_chapter_drift(raw, dim=dim, exclude_indices=excl))
 
-    arc_path = Path(args.arc_payoff)
+    arc_path = Path(arc_arg)
     if arc_path.exists():
         parsed = parse_trend(arc_path, ARC_PAYOFF_DIMS)
         overall_series = parsed.get("overall", [])
