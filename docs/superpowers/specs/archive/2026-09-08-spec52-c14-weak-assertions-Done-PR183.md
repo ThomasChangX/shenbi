@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-08 · SDD #52 阶段 1/2 事实核对：F730 剔除——C37 PR #179 已删孤儿模块及其测试；F739 目标 snapshot_diff.py 已被 spec #26 路径 3 删除，重定向至 audit/snapshot.py；F728 生产注入块已由 #43 覆盖，残留面仅测试体重实现；F704 仅 test_cli.py 站点存活；F743 文件已迁移 tests/unit/pipeline/test_state_heal.py；成员存活计数 26→25) | **Severity:** 🟠 P1
+> **Date:** 2026-08-16 | **Status:** Done (PR #183, 2026-09-08; Revised 2026-09-08 · SDD #52 阶段 1/2 事实核对：F730 剔除——C37 PR #179 已删孤儿模块及其测试；F739 目标 snapshot_diff.py 已被 spec #26 路径 3 删除，重定向至 audit/snapshot.py；F728 生产注入块已由 #43 覆盖，残留面仅测试体重实现；F704 仅 test_cli.py 站点存活；F743 文件已迁移 tests/unit/pipeline/test_state_heal.py；成员存活计数 26→25) | **Severity:** 🟠 P1
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C14）| **代表 finding:** F704 | **簇规模:** 26 条（2026-09-08 复核后存活 25）| **严重度上限:** P1
 > **范围:** tests/（test_cli.py、test_scoring.py、test_safe_write.py、test_audit_context_cache.py、test_dispatch_helper_keys.py 等约 20 个文件）| **证据等级:** 实验佐证（Z7-a/Z7-b 初审，5 条 verified）
 
