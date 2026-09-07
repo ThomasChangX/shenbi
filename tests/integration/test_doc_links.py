@@ -37,7 +37,7 @@ def _strip_code(text: str) -> str:
     return _CODE_SPAN_RE.sub("", without_fences)
 
 
-def check_internal_links(doc: Path, repo_root: Path = REPO_ROOT) -> list[str]:
+def check_internal_links(doc: Path) -> list[str]:
     """Return descriptions of broken internal links in ``doc`` (empty = OK).
 
     A link is checked when its target is relative (not http(s)/mailto/#) and
@@ -91,7 +91,7 @@ class TestCheckInternalLinks:
             encoding="utf-8",
         )
         (tmp_path / "exists.md").write_text("x", encoding="utf-8")
-        assert check_internal_links(d, repo_root=tmp_path) == []
+        assert check_internal_links(d) == []
 
     def test_relative_and_anchor_links(self, tmp_path: Path) -> None:
         d = tmp_path / "page.md"
@@ -103,15 +103,15 @@ class TestCheckInternalLinks:
             "[d](mailto:x@y.z) [e](https://example.com)\n",
             encoding="utf-8",
         )
-        assert check_internal_links(d, repo_root=tmp_path) == []
+        assert check_internal_links(d) == []
 
     def test_broken_link_reported(self, tmp_path: Path) -> None:
         d = tmp_path / "page.md"
         d.write_text("[gone](missing.md)\n", encoding="utf-8")
-        assert check_internal_links(d, repo_root=tmp_path) == ["page.md: [missing.md]"]
+        assert check_internal_links(d) == ["page.md: [missing.md]"]
 
     def test_directory_link_with_trailing_slash(self, tmp_path: Path) -> None:
         d = tmp_path / "page.md"
         (tmp_path / "dir").mkdir()
         d.write_text("[dir](dir/)\n", encoding="utf-8")
-        assert check_internal_links(d, repo_root=tmp_path) == []
+        assert check_internal_links(d) == []
