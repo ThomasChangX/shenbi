@@ -27,15 +27,15 @@
 ### R1 · ledger 与记账 lint（F972 + F973 + F975 + F969 + F1176 + F979 + phase4 §0 注记）
 - `tools/lint_audit_run.py`：列数/管道转义/ID 唯一/重复行检测（本轮 19 畸形行形态入库为反例）；分区清单 ↔ ledger ↔ final-report 三方计数对账（任何差值非零 FAIL）
 - F979（标题列转录缺口，本批已回填）由本项行格式 lint 显式覆盖（标题≠ID 占位检查），随簇回写关闭
-- **接线强制（防 dead-wire）**：justfile 增 `audit-lint` recipe（`uv run python tools/lint_audit_run.py <run-dir>`）并纳入 `just check` 与 ci workflow——check 模式固定 lint 全部 `docs/superpowers/audit-runs/*/` 现存 run 目录；历史冻结 run（2026-08-14/2026-08-15）**只加显式豁免注记，不改历史行**，修复策略只对未来 run 生效
+- **接线强制（防 dead-wire）**：justfile 增 `audit-lint` recipe 并纳入 `just check` 与 ci workflow——recipe 无参 = check 模式，固定 lint 全部 `docs/superpowers/audit-runs/*/` 现存 run 目录（脚本内置无参全目录模式；带 `<run-dir>` 参数 = 单目录模式）；历史冻结 run（2026-08-14/2026-08-15）**只加显式豁免注记，不改历史行**，修复策略只对未来 run 生效
 - 豁免机制定义：豁免文件为 `<run-dir>/audit-lint-exemptions.json`，schema `{"exemptions": [{"check": "<检查类名>", "id": "<F/T 编号或行标识>", "reason": "<一句话>", "date": "YYYY-MM-DD"}]}`；唯一读方是 `lint_audit_run.py`（判定 FAIL 前加载，逐条匹配消音）；lint 自身校验豁免文件 schema 与「豁免 id 必须对应真实命中项」（豁免不命中 = FAIL，防豁免腐烂）；无豁免文件的 run 目录一律 strict
 - **验收**：`uv run just audit-lint docs/superpowers/audit-runs/2026-08-15`——成员缺口 F969/F972/F973/F975/F1176 五类全部被抓出且以豁免注记闭合；`just check` 含该 lint 且全绿
 
 ### R2 · 跨轮命名空间与承接（F978 + F956 + F1177 + T513 + T1501）
 - ledger ID 方案裁决：`F<轮标识>-NN` 或全局单调段（T/D 前缀同理）；写迁移注记而非改历史行（旧轮文件与既有 spec 的旧 ID 引用一律不动，新轮生效）
-- 新轮启动脚本 `tools/generate_carryover.py`：从上轮 ledger 抽取 status=verified/open 的 **P0/P1/M** 条目（M 级纳入：F1320 为 M，F1177 的断链主体含 M 级 verified——P0/P1 过滤会复现 F1177 断链）生成承接清单文件，run 结束时 diff 承接状态——未承接条目 FAIL
+- 新轮启动脚本 `tools/generate_carryover.py`：从上轮 ledger 抽取 status=verified/open 的 **P0/P1/M** 条目（M 级纳入：F1320 为 M，F1177 的断链主体含 M 级 verified——P0/P1 过滤会复现 F1177 断链）生成承接清单文件；run 结束时的承接核验由 `lint_audit_run.py --verify-carryover`（或无参 check 模式自动执行）承担：diff 承接清单条目与本轮 ledger 的承接状态——未承接条目 FAIL，进 `just check`
 - T1501 的"修复被 revert 丢失"类问题由承接清单自然覆盖（盘上复现检查）
-- **验收**：用 2026-08-14 轮生成承接清单，`grep -cw "F1301\|F1302\|F1320" <carryover>` ≥3（词边界精确匹配，防 F1301x 误配）
+- **验收**：用 2026-08-14 轮生成承接清单，`grep -Ecw "F1301|F1302|F1320" <carryover>` ≥3（ERE + 词边界精确匹配，防 F1301x 误配与 BRE 跨平台漂移）
 
 ### R3 · 断言清点与处置一致性（F767 + F768 + F894）
 - 审计 prompt 模板（full-project-audit-prompt.md，本 spec 为授权修订载体）补两规则：跨段重复立案须显式 merged 标注；"N tests"类声称必须附文件名与命令
@@ -59,8 +59,8 @@
 - R4 dependabot triage 若发现升级紧迫（安全补丁类），记录中标注 urgent 并建议立即开 chore PR，不在本 spec 内升级
 
 ## 验证命令
-- audit-lint 对账：`uv run just audit-lint docs/superpowers/audit-runs/2026-08-15`（成员缺口 F969/F972/F973/F975/F1176 全被抓出且以豁免注记闭合）
-- 承接演示：用 2026-08-14 轮 ledger 生成承接清单，`grep -cw "F1301\|F1302\|F1320" <carryover>` ≥3
+- audit-lint 对账：`just audit-lint docs/superpowers/audit-runs/2026-08-15`（成员缺口 F969/F972/F973/F975/F1176 全被抓出且以豁免注记闭合）
+- 承接演示：用 2026-08-14 轮 ledger 生成承接清单，`grep -Ecw "F1301|F1302|F1320" <carryover>` ≥3
 - 分支卫生：`git branch -r --merged origin/main` 除 origin/main 外为空；INDEX 计数与 `tools/count_active_specs.py` 输出一致（自动核对，差值非零 FAIL）
 - severity 校准：phase4 §4 12 项提案逐项核实注记（F131/F1103/F1105/F376/F536/F351/F004/F005/F438/F355/F007/F796——含二选一项已裁 F007=P2）
 - 回归：`just check` 全绿
