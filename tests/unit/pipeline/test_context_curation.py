@@ -26,8 +26,10 @@ class TestEndingDiversity:
             "# Chapter 3\n\nFinal text.\n\n但他知道一切尚未结束。", encoding="utf-8"
         )
         result = _check_ending_diversity(tmp_path, chapter=4)
-        # Should have rows for chapters 1,2,3 with different types
-        assert "chapter-1.md" not in result.lower() or "1" in result
+        # Rows for chapters 1,2,3 (1 resolution + 1 dialogue-ish + 1 hook in
+        # practice) and no 3-consecutive warning — pinned exactly.
+        for row in ("| 1 |", "| 2 |", "| 3 |"):
+            assert row in result, f"missing table row {row}"
         assert "⚠️" not in result  # No 3-consecutive warning
 
     def test_consecutive_cliffhanger_warns(self, tmp_path: Path):

@@ -14,15 +14,35 @@ from shenbi.pipeline.state import PipelineState
 class TestParallelPostDraft:
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
     def test_both_steps_executed_concurrently(self, mock_dispatch):
-        """Verify both foreshadowing-lifecycle and state-settling are dispatched."""
-        mock_dispatch.return_value = MagicMock(success=True, result={})
+        """Both steps truly overlap: neither returns until BOTH have started.
+
+        F745 (spec #52): a threading.Barrier(2) inside the faked dispatches
+        proves real concurrency — a serial implementation deadlocks against
+        the barrier timeout and this test goes red. The old call_count==2
+        assertion passed even for fully sequential execution.
+        """
+        import threading
+
+        barrier = threading.Barrier(2, timeout=5.0)
+        started = threading.Event()
+
+        def barrier_dispatch(skill, *args, **kwargs):
+            try:
+                barrier.wait()  # both workers must arrive for either to proceed
+                started.set()
+                return MagicMock(success=True, result={})
+            except threading.BrokenBarrierError:
+                return MagicMock(success=False, result={})
+
+        mock_dispatch.side_effect = barrier_dispatch
         state = PipelineState.default("/tmp/test-project")
         state.chapter_loop.current_chapter = 3
 
-        run_parallel_post_draft_steps(state)
+        lifecycle_result, settling_result = run_parallel_post_draft_steps(state)
 
-        assert mock_dispatch.call_count == 2
-        skills_called = [c.kwargs.get("skill") or c.args[0] for c in mock_dispatch.call_args_list]
+        assert started.is_set(), "both dispatches ran"
+        assert lifecycle_result.success and settling_result.success
+        skills_called = [c.args[0] for c in mock_dispatch.call_args_list]
         assert "shenbi-foreshadowing-lifecycle" in skills_called
         assert "shenbi-state-settling" in skills_called
 
@@ -90,4 +110,29 @@ class TestParallelPostDraft:
         # The single-writer pattern forbids a module-level _state_lock
         assert "_state_lock" not in src, (
             "Use single-writer (actor-model), NOT _state_lock (Spec 6 §3.4)"
+        )
+        # F745 behavioral complement: state mutations happen only on the
+        # calling (main) thread — the workers' results are merged after
+        # future.result() returns (chapter_loop.py "merge on the main thread
+        # ONLY"). The textual grep above cannot see call-site discipline;
+        # this pins the observable contract: after run_parallel_post_draft_steps
+        # returns, both steps' results are merged into the state.
+        import threading as _threading
+
+        from shenbi.pipeline.state import _merge_step_result
+
+        merge_thread_ids: list[int] = []
+        real_merge = _merge_step_result
+
+        def tracking_merge(*a, **k):
+            merge_thread_ids.append(_threading.get_ident())
+            return real_merge(*a, **k)
+
+        with patch("shenbi.pipeline.state._merge_step_result", tracking_merge):
+            state = PipelineState.default("/tmp/test-project")
+            state.chapter_loop.current_chapter = 4
+            run_parallel_post_draft_steps(state)
+        main_id = _threading.get_ident()
+        assert merge_thread_ids and all(tid == main_id for tid in merge_thread_ids), (
+            "state merges must happen on the calling thread only (single-writer)"
         )

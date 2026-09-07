@@ -35,11 +35,11 @@ class TestExtractChapterTitle:
             chapter_path.write_text("Just content, no heading.", encoding="utf-8")
             assert _extract_chapter_title(chapter_path) == ""
 
-    def test_returns_empty_for_missing_file(self):
+    def test_raises_for_missing_file(self):
         """_extract_chapter_title raises FileNotFoundError if file missing.
 
-        This is expected behavior — the caller must guard with .exists()
-        before calling. No need to handle this inside the function.
+        F746 (spec #52): renamed — the old name claimed "returns_empty"
+        while the body asserts the raise.
         """
         import pytest
 
@@ -214,3 +214,7 @@ class TestRunG4ChecksIntegration:
 
             title = _extract_chapter_title(chapters_dir / "chapter-1.md")
             assert 1 <= len(title) <= 20
+            # F746 (spec #52): a short-but-valid title must also clear the
+            # real G4 title checks — length alone is a vacuous gate.
+            issues = _run_g4_checks(state, 1)
+            assert issues == [], f"Expected short title to pass G4, got: {issues}"

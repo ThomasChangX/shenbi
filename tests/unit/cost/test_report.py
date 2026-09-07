@@ -31,7 +31,7 @@ class TestRenderReport:
 
     def test_report_on_empty_ledger(self, tmp_path: Path):
         out = render_report(tmp_path)
-        assert "no token usage" in out.lower() or "$0" in out or "Total" in out
+        assert "No token usage recorded" in out  # exact empty-ledger copy
 
 
 class TestCli:

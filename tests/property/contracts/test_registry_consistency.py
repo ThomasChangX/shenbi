@@ -41,6 +41,17 @@ def test_every_truth_file_has_kind(name: str) -> None:
 
 @given(st.data())
 @settings(max_examples=20, deadline=None)
-def test_bootstrap_subset_of_yaml(_data: object) -> None:
-    """bootstrap_registry 词汇必 ⊆ truth-files.yaml concept 名集（派生一致性）。"""
-    assert set(bootstrap_registry().keys()) <= _yaml_concept_names()
+def test_bootstrap_subset_of_yaml(data: object) -> None:
+    """bootstrap_registry 词汇必 ⊆ truth-files.yaml concept 名集（派生一致性）。
+
+    F747 (spec #52): the draw is real — each example samples a bootstrap
+    term and checks its presence in the YAML concept set (plus the full
+    subset check), so st.data() is not a decorative no-draw shell.
+    """
+    import hypothesis.strategies as st_
+
+    names = sorted(bootstrap_registry().keys())
+    sampled = data.draw(st_.sampled_from(names)) if names else None  # type: ignore[attr-defined]
+    assert set(names) <= _yaml_concept_names()
+    if sampled is not None:
+        assert sampled in _yaml_concept_names()

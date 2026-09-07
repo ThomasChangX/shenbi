@@ -50,7 +50,7 @@ def test_gen_codex_adds_marketplace_and_type() -> None:
 
 
 @pytest.mark.unit
-def test_load_master_with_valid_master_fails_on_bad_data(tmp_path: Path) -> None:
+def test_load_master_with_valid_master_fails_on_bad_data(tmp_path: Path, monkeypatch) -> None:
     """load_master raises FileNotFoundError on missing file, ValueError on invalid data.
 
     monkeypatch the MASTER_PATH to simulate errors.
@@ -60,12 +60,11 @@ def test_load_master_with_valid_master_fails_on_bad_data(tmp_path: Path) -> None
     from shenbi.plugins import generate as gen_mod
     from shenbi.plugins.generate import load_master
 
-    original = gen_mod.MASTER_PATH
-    # Test with non-existent path
-    gen_mod.MASTER_PATH = tmp_path / "nonexistent.json"
+    # F715 (spec #52): monkeypatch restores on ANY exit (exception-safe),
+    # unlike the old manual save/restore pair.
+    monkeypatch.setattr(gen_mod, "MASTER_PATH", tmp_path / "nonexistent.json")
     with pytest.raises(FileNotFoundError):
         load_master()
-    gen_mod.MASTER_PATH = original  # restore
 
 
 # ---------------------------------------------------------------------------

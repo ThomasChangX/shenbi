@@ -95,8 +95,12 @@ class TestGateMarkers:
         (rd / "gate-markers").mkdir()
 
         missing = check_gate_markers(str(rubric), "generative", str(rd))
-        # T2 paths check deps.json; if deps.json is missing, no markers checked
-        assert isinstance(missing, list)
+        # The phase "test-phase" is not registered in the real repo deps.json,
+        # so no prerequisite markers are checked -> deterministic empty list.
+        # (The registered-phase branch is covered in test_scoring.py via the
+        # F705 __file__-redirect test.) Pinned exactly — the old
+        # isinstance(list) assert passed for any gate breakage.
+        assert missing == []
 
     def test_t3_marker_missing(self, tmp_path: Path):
         rubric = tmp_path / "t3-pipeline" / "test-pipeline" / "rubric.json"
