@@ -83,7 +83,7 @@ def test_detect_none(tmp_path):
 
 **Interfaces:**
 - Consumes: Task 1 的 paths.py。
-- Produces: `RoundPaths.read(rel, chapter=None, *, strict: bool = False)`——rd 命中返回；miss 且 strict=True 抛 `FileNotFoundError`；miss 且 strict=False 返回 project_dir 路径**并**经模块级 `log = get_logger(__name__).debug`（仓库惯例，gates/shared.py:7-11 同款）("round_paths_read_fallback", rel=rel)` 记事件（满足 spec"记 debug 日志"；测试用 `structlog.testing.capture_logs()` 断言——本仓 configure_logging 用 PrintLoggerFactory(stderr)，caplog 捕不到 structlog 事件（capture_logs 工作先例：tests/unit/test_scoring.py:1240、tests/unit/test_dispatcher_executor.py:350））。checker 侧构造改为 `RoundPaths(round_dir=Path(rd) if rd else Path(project_dir), project_dir=Path(project_dir) if project_dir else Path(rd), repo_root=...)` 的显式双根形式不变，但 read miss 回退事件可观测。
+- Produces: `RoundPaths.read(rel, chapter=None, *, strict: bool = False)`——rd 命中返回；miss 且 strict=True 抛 `FileNotFoundError`；miss 且 strict=False 返回 project_dir 路径**并**经模块级 logger `log = get_logger(__name__)` 的 `log.debug`（仓库惯例，gates/shared.py:7-11 同款）("round_paths_read_fallback", rel=rel)` 记事件（满足 spec"记 debug 日志"；测试用 `structlog.testing.capture_logs()` 断言——本仓 configure_logging 用 PrintLoggerFactory(stderr)，caplog 捕不到 structlog 事件（capture_logs 工作先例：tests/unit/test_scoring.py:1240、tests/unit/test_dispatcher_executor.py:350））。checker 侧构造改为 `RoundPaths(round_dir=Path(rd) if rd else Path(project_dir), project_dir=Path(project_dir) if project_dir else Path(rd), repo_root=...)` 的显式双根形式不变，但 read miss 回退事件可观测。
 
 - [ ] **Step 1: 失败测试**（rd miss → project_dir 命中返回 + hook 记录；rd miss 且 strict → FileNotFoundError；rd 命中不触发 hook；三个真实 checker（pacing_design/worldbuilding/character_design）在 rd 只有 genre-config、目标 md 在 project_dir 时 read 走通且 hook 有记录——用 tmp_path 从 `tests/fixtures/` 复制真实 fixture 文件组装）
 - [ ] **Step 2:** 跑 → FAIL
@@ -99,9 +99,9 @@ def test_detect_none(tmp_path):
 
 **Interfaces:**
 - Consumes: Task 1 `detect_layout`。
-- Produces: 布局根枚举改为 detect 驱动：`_layout_project_roots(base: Path, layouts: frozenset[Layout]) -> list[Path]`（新纯 helper 于 g0.py）——候选 = base 直接子目录 ∪ base/{"novel-output","skill-output"} 的子目录（排除自身名为布局根的容器目录），逐个跑项目目录级 `detect_layout`，收集 verdict ∈ layouts 的**项目根**；G0.3 传 {NOVEL_OUTPUT, SKILL_OUTPUT}（项目根集合**扩大**为全部检出布局——F413 行为修复本体，Step-1 测试断言 novel-output 项目可被 G0.3 找到），G0.cc 传 {NOVEL_OUTPUT}（语义不变）。chapter_drafting 的 `while proj_dir.name != "skill-output"` 上溯改为：从 `pf.parent` 逐级上溯父目录至首个含 genre-config.json 的祖先，取其为 project_root（单项目假设显式化：布局根下多项目时取路径上最近的那个）；无命中回落 `read_genre_config(str(pf.parent))` 现状并注释对齐 paths.md。
+- Produces: 布局根枚举改为 detect 驱动：`_layout_project_roots(base: Path, layouts: frozenset[Layout]) -> list[Path]`（新纯 helper 于 g0.py）——候选 = base 直接子目录 ∪ base/{"novel-output","skill-output"} 的子目录（排除自身名为布局根的容器目录），逐个跑项目目录级 `detect_layout`，且 (root / "genre-config.json").exists() 的**项目根**（键文件存在性保留 G0.cc 既有过滤语义——detect 的布局根名命中仅在上溯判定中作锚，不单独构成项目根返回）；结果 sorted() 保序。G0.3 传 {NOVEL_OUTPUT, SKILL_OUTPUT}（项目根集合**扩大**为全部检出布局——F413 行为修复本体，Step-1 测试断言 novel-output 项目可被 G0.3 找到），G0.cc 传 {NOVEL_OUTPUT}（语义不变）。chapter_drafting 的 `while proj_dir.name != "skill-output"` 上溯改为：从 `pf.parent` 逐级上溯父目录至首个含 genre-config.json 的祖先，取其为 project_root（单项目假设显式化：布局根下多项目时取路径上最近的那个）；无命中回落 `read_genre_config(str(pf.parent))` 现状并注释对齐 paths.md。
 
-- [ ] **Step 1: 失败测试**（G0.3 在 novel-output 布局项目上能找到 genre-config（现状找不到→silent no-op）；chapter_drafting 的 project_root 在 project-output 布局 md 上指向含 genre-config 的真实项目根——tmp_path 从 fixtures 组装三布局）
+- [ ] **Step 1: 失败测试**（PROJECT 注入：monkeypatch.setattr(g0, "PROJECT", tmp_path)（g0.py 用模块级 PROJECT 常量，无 base 参数）；G0.3 在 novel-output 布局项目上能找到 genre-config（现状找不到→silent no-op）；chapter_drafting 的 project_root 在 project-output 布局 md 上指向含 genre-config 的真实项目根——tmp_path 从 fixtures 组装三布局）
 - [ ] **Step 2:** FAIL → **Step 3:** 实现接线 → **Step 4:** PASS + `git grep -n "skill-output" -- src/shenbi/gates/` 命中仅剩 g0.py 注释/文案豁免点与 g7.py:72/88（g0.py:210 与 chapter_drafting.py:265/267 的探测语义命中消失）
 - [ ] **Step 5:** Commit `fix: C34 R1 G0.3/G0.cc/chapter_drafting layout scans via detect() (spec #48 T3)`
 
@@ -116,7 +116,7 @@ def test_detect_none(tmp_path):
 
 - [ ] **Step 1: 失败测试**：
   - F433 复现：project-output 布局，rd 与真实 project_dir 分置。`.integrity-findings-3.jsonl` **G0.9 合规来源 = 测试内经真实写方代码路径生成**：直调模块级函数 `from shenbi.pipeline.dispatch_helper import _write_parsed_outputs`（dispatch_helper.py:1418，模块级可独立调用；`skill=None` + `parsed={"audits/chapter-3-x.md": "<无 verdict 短文本>"}` 即触发 check_audit_completeness→_append_integrity_findings 写 `<pd>/audits/.integrity-findings-3.jsonl`）——不手写 jsonl 内容。写方文件名须含**非补零**章号（`audits/chapter-3-x.md`）：写方以 `m.group(1)` 字符串拼名（chapter-03 → "03"），读方 `int()` 去 padding 寻址（→"3"）——补零名会让读方永远缺席，此处 pin 非补零形态。cli G4 传第 4 参 project_dir 后 `gate_G4(...)` 结果含 G4.ac/av PWI checks（现状 project_dir=rd 时缺席）
-  - F457 复现：bughunt/clean + 相对路径 + rd → 结构化结果非未捕获 ValueError
+  - F457 复现：bughunt/clean + 相对路径 + rd → 结构化结果非未捕获 ValueError；另 no-rd 形态（shenbi-validate G4 bughunt <rel>）→ cli ValueError 守卫扩展至 bughunt/clean 分支，同样结构化 FAIL
   - F456 复现：gate_G2(["ch3.md"], "chapter", rd=tmp) 且 CWD≠rd → G2.1 定位 rd/ch3.md 成功（现状 not found）
   - F446 回归：相对 json + rd + CWD≠rd → 结构化 FAIL JSON 或 PASS，永不裸崩
 - [ ] **Step 2:** FAIL → **Step 3:** 实现（cli argparse 位置参数扩展注意向后兼容：第 4 参可缺省）→ **Step 4:** `uv run pytest tests/unit/gates/test_cli_g4_project_dir.py tests/unit/gates/test_g2_resolve.py tests/unit/gates/ -q --no-cov` 全 PASS
@@ -133,7 +133,7 @@ def test_detect_none(tmp_path):
 
 - [ ] **Step 1: 失败测试**：
   - rglob 回退不再捡 proj 内声明目录之外的预存 .md（tmp 组装：契约无输出声明 + 目录有无关 .md → G2 SKIP 非 chapter 校验）
-  - compute_drift：CWD≠project_dir 下 `--write-audit-drift` 写入 `<project_dir>/truth/audit_drift.md`；无 --project-dir 时从输入路径推导同位置；与 `pipeline/triggers.py:77` AUDIT_DRIFT_PATH 路径形态一致
+  - compute_drift：CWD≠project_dir 下 `--write-audit-drift` 写入 `<project_dir>/truth/audit_drift.md`；无 --project-dir 时从输入路径推导同位置；与 `pipeline/triggers.py:77` AUDIT_DRIFT_PATH 及 chapter_loop.py:1567 读方路径形态一致
   - CapabilityFS：`fs.read_text(Path("truth/x.md"))` 锚定 allow_root/truth/x.md（现状 PermissionError 或 CWD 误读）
 - [ ] **Step 2:** FAIL → **Step 3:** 实现 → **Step 4:** `uv run pytest tests/unit/test_phase_runner_fallback.py tests/unit/skill_utils/test_compute_drift_anchor.py tests/unit/test_capability_fs.py tests/property/gates/test_capability_fs_properties.py -q --no-cov` 全 PASS
 - [ ] **Step 5:** Commit `fix: C34 R3 observation-plane roots — rglob scope, drift anchor, CapabilityFS allow_root join (spec #48 T5)`
