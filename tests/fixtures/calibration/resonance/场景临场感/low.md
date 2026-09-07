@@ -1,3 +1,8 @@
+## provenance
+
+provenance: synthetic-sample
+source: tests/fixtures/calibration/resonance/场景临场感/low.md（显式合成校准语料——2026-08 审计期构建，非 novel-output 真实章节；per spec #54 T3.10 降级标注）
+
 ## excerpt
 
 林烽在锈泥巷开始了新一天的日常。这里的居住环境十分恶劣，到处都是破旧的建筑和肮脏的街道。每天清晨，矿工们都会准时出发前往矿场工作，这已经成了雷打不动的规矩。林烽也渐渐适应了这样的生活节奏，条件虽苦，他却别无选择。周围的人同样过着日复一日的劳碌生活，为偿还各自的债务而奔波。整个贫民窟弥漫着压抑而麻木的氛围，仿佛看不到任何希望。

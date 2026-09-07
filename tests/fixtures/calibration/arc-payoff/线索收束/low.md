@@ -1,3 +1,8 @@
+## provenance
+
+provenance: synthetic-sample
+source: tests/fixtures/calibration/arc-payoff/线索收束/low.md（显式合成校准语料——2026-08 审计期构建，非 novel-output 真实章节；per spec #54 T3.10 降级标注）
+
 ## excerpt
 
 本卷新增了好几条线索：矿场深处的异响、催收员脖子上的疤、灵能管道泄漏的蓝光、隔壁老张突然消失的邻居。但这些线索在本卷结尾时一条都没有闭合，也没有任何一条被明确标记为要带到下一卷。异响提了一次再没出现，催收员的疤从头到尾没人问起，蓝光泄漏被一句"修好了"带过，老张的邻居消失了也没人追究。pending_hooks.md 里 resolved_this_arc 空空荡荡，carried_forward 也没有对应条目。整卷像是种了一地种子却一颗都没收获。

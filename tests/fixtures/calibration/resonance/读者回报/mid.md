@@ -1,3 +1,8 @@
+## provenance
+
+provenance: synthetic-sample
+source: tests/fixtures/calibration/resonance/读者回报/mid.md（显式合成校准语料——2026-08 审计期构建，非 novel-output 真实章节；per spec #54 T3.10 降级标注）
+
 ## excerpt
 
 林烽又过了一天。他照常去矿场上班，干了一整天，再拖着身子回到锈泥巷。这一趟和前些日子差不多，没出什么岔子。他和几个矿工搭了几句话，听说矿场最近要加班，因为上头催得紧。他还试着打听灵能修炼贷款的细节，可众人说法不一，也没问出什么有用的。回到屋里，他草草吃了点东西，躺在床上盘算明天的事。日子就这么一天天过，他也说不好什么时候是个头。

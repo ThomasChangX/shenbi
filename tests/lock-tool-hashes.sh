@@ -46,7 +46,7 @@ h = hashlib.sha256()
 if cal_dir.exists():
     for p in sorted(cal_dir.rglob('*')):
         if p.is_file() and p.name != '.gitkeep':
-            h.update(p.read_bytes())
+            h.update(p.read_bytes().replace(b'\r\n', b'\n'))
 combined = h.hexdigest()
 deps.setdefault('_calibration_hashes', {})['combined'] = combined
 deps_path.write_text(json.dumps(deps, indent=2, ensure_ascii=False) + '\n')

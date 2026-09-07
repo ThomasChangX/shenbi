@@ -6,6 +6,11 @@ paired with the score band an independent subagent is expected to assign
 it. The anchors let a reviewer skill self-check whether its scoring is
 drifting away from the established baseline.
 
+Schema (spec #54 C16 / T805): each anchor file carries a `## provenance`
+section with a tri-state `provenance:` line and a `source:` pointer
+(file+line for real excerpts; explicit synthetic disclosure for
+synthetic-sample anchors).
+
 No anchors are authored yet — Phase 2/3 tasks create them per anti-trope
 dimension. Until then this directory contains only this README and
 `.gitkeep`, and G0.14 locks the empty-set hash.
