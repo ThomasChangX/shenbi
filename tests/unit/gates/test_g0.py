@@ -323,6 +323,24 @@ def test_g0_cc_reads_state_floor(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     assert "floor_too_low:resonance_global_floor=55" in json.dumps(result)
 
 
+def test_g011_reports_missing_mirror_side(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """G0.11 missing mirror sides are reported explicitly, not silently skipped (spec54/T803)."""
+    from shenbi.gates import g0 as g0_mod
+
+    monkeypatch.setattr(g0_mod, "PROJECT", tmp_path)
+    (tmp_path / "tests").symlink_to(
+        (Path(__file__).parents[3] / "tests").resolve(), target_is_directory=True
+    )
+    monkeypatch.setattr(g0_mod, "MIRROR_MAP", {"tests/fixtures/gone-fixture.md": "gone-source.md"})
+    seed = tmp_path / "seed.md"
+    seed.write_text("目标字数：10000\n", encoding="utf-8")
+    result = _result_dict(gate_G0(seed_file=str(seed)))
+    checks = result.get("checks", result)
+    g011 = [c for c in checks if c.get("id") == "G0.11"]
+    assert g011 and "missing mirror side" in g011[0]["r"]
+    assert g011[0]["s"] == "WARN"
+
+
 def test_g0_cc_flags_corrupt_state_floor(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Non-numeric floor in pipeline-state.json → loud floor_invalid_type (audit-T2 I)."""
     from shenbi.gates import g0 as g0_mod

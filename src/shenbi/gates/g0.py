@@ -41,7 +41,10 @@ from shenbi.gates.g0_config_coherence import check_config_coherence
 from shenbi.gates.g0_purity import (
     check_scenario_dir_purity,
     check_scenario_file_purity,
+    check_scenario_reference_closure,
     check_skill_md_purity,
+    check_fixture_provenance,
+    check_variant_bypass,
 )
 from shenbi.paths import Layout, detect_layout
 from shenbi.gates.shared import (
@@ -451,6 +454,14 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
 
     checks.extend(check_scenario_dir_purity(t1_skill_dir))
 
+    # G0.17/G0.18/G0.19 — fixture authenticity enforcement (spec #54 C16):
+    # reference existence closure, provenance tri-state carriers, variant
+    # bypass. Waves start in WARN mode; promotion to FAIL is per-wave after
+    # live re-scan count reaches zero (see g0_purity.ENFORCEMENT_WAVES).
+    checks.extend(check_scenario_reference_closure(t1_skill_dir, PROJECT))
+    checks.extend(check_fixture_provenance(t1_skill_dir, FIXTURES))
+    checks.extend(check_variant_bypass(t1_skill_dir, FIXTURES))
+
     purity_checks, fail_reason, must_fix = check_skill_md_purity(SKILLS)
     if fail_reason:
         return fail("G0", checks + purity_checks, "round_creation", must_fix)
@@ -509,14 +520,18 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
 
     # G0.11 — fixture mirror integrity: fixtures that mirror project source
     # files must have matching content hashes. This catches the "fixture
-    # stale while source updated" failure mode.
+    # stale while source updated" failure mode. Missing sides are reported
+    # explicitly (spec #54 C16 / T803 fix: no silent skip).
     stale_mirrors: list[str] = []
+    missing_sides: list[str] = []
     for fixture_rel, source_rel in MIRROR_MAP.items():
         fixture_path = PROJECT / fixture_rel
         source_path = PROJECT / source_rel
         if not fixture_path.exists():
+            missing_sides.append(f"fixture side missing: {fixture_rel}")
             continue
         if not source_path.exists():
+            missing_sides.append(f"source side missing: {source_rel} (for {fixture_rel})")
             continue
         try:
             fh = hashlib.sha256(fixture_path.read_bytes()).hexdigest()
@@ -525,6 +540,15 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             continue
         if fh != sh:
             stale_mirrors.append(f"{fixture_rel} (fixture={fh[:12]}... != source={sh[:12]}...)")
+    if missing_sides:
+        checks.append(
+            {
+                "id": "G0.11",
+                "s": GateStatus.WARN,
+                "r": f"missing mirror side: {'; '.join(missing_sides)}",
+                "note": "register or remove the half-dead MIRROR_MAP entry",
+            }
+        )
     if stale_mirrors:
         detail = "; ".join(stale_mirrors)
         return fail(

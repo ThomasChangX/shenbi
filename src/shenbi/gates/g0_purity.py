@@ -7,9 +7,204 @@ project-relative paths.
 
 from shenbi.status import GateStatus
 
+import json
 import re
 from pathlib import Path
 from typing import Any
+
+# spec #54 C16 (T0): provenance tri-state literals — single definition point.
+PROVENANCE_STATES: frozenset[str] = frozenset({"real-output", "upstream-copy", "synthetic-sample"})
+# Whitelist exempts the "real output role" requirement, never the annotation
+# itself; entries must exist at merge time (no vacant slots).
+PROVENANCE_WHITELIST: frozenset[str] = frozenset({"tests/fixtures/report-example.txt"})
+# Staged WARN→FAIL rollout: waves flip to "fail" only after live re-scan
+# count reaches zero (spec T0). Promotion is judged by live scan, never by
+# reading the static baseline.
+ENFORCEMENT_WAVES: dict[str, str] = {"P0": "warn", "P1": "warn", "P2": "warn"}
+
+_CARRIER_SUFFIX = ".provenance.json"
+_BASELINE_NAME = "provenance-baseline.json"
+_FIXTURE_REF_RE = re.compile(r"tests/fixtures/[\w\-/]+(?:\.\w+)?")
+
+
+def _iter_scenarios(
+    t1_skill_dir: Path,
+) -> list[tuple[str, str, Path, str]]:
+    """All (skill, test_type, scenario, content) triples under t1_skill_dir.
+
+    Unlike the legacy purity scans, ``_``-prefixed dirs (``_template``) are
+    IN scope — F751's planted-defect breakage lives in the template scenarios.
+    """
+    out: list[tuple[str, str, Path, str]] = []
+    if not t1_skill_dir.exists():
+        return out
+    for skill_dir in sorted(t1_skill_dir.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        for test_type in ("generative", "bug-hunt", "clean"):
+            scenario = skill_dir / test_type / "input" / "scenario.md"
+            if not scenario.exists():
+                continue
+            try:
+                content = scenario.read_text(encoding="utf-8")
+            except Exception:
+                continue
+            out.append((skill_dir.name, test_type, scenario, content))
+    return out
+
+
+def _consumed_fixtures(t1_skill_dir: Path) -> dict[str, list[str]]:
+    """Map fixture rel-path → consuming scenario labels (dedup)."""
+    consumed: dict[str, list[str]] = {}
+    for skill, test_type, _sc, content in _iter_scenarios(t1_skill_dir):
+        for ref in set(_FIXTURE_REF_RE.findall(content)):
+            consumed.setdefault(ref, []).append(f"{skill}/{test_type}")
+    return consumed
+
+
+def load_provenance(fixture_path: Path) -> str | None:
+    """Resolve a fixture's provenance state, or None if missing/illegal.
+
+    Carriers: ``.md`` YAML frontmatter ``provenance:`` field; anything else
+    reads the sibling ``<name>.provenance.json`` sidecar. A value outside
+    PROVENANCE_STATES (including self-exemption notes) returns None so the
+    caller counts it as a violation.
+    """
+    try:
+        if fixture_path.suffix == ".md":
+            text = fixture_path.read_text(encoding="utf-8")
+            m = re.match(r"^---\r?\n(.*?)\r?\n---", text, re.DOTALL)
+            if not m:
+                return None
+            pm = re.search(r"^provenance:\s*(\S+)\s*$", m.group(1), re.MULTILINE)
+            if not pm:
+                return None
+            value = pm.group(1)
+        else:
+            sidecar = fixture_path.parent / (fixture_path.name + ".provenance.json")
+            if not sidecar.exists():
+                return None
+            value = str(json.loads(sidecar.read_text(encoding="utf-8"))["provenance"])
+    except Exception:
+        return None
+    return value if value in PROVENANCE_STATES else None
+
+
+def _wave_status(wave: str, violations: int) -> GateStatus:
+    if violations == 0:
+        return GateStatus.PASS
+    return GateStatus.FAIL if ENFORCEMENT_WAVES[wave] == "fail" else GateStatus.WARN
+
+
+def baseline_delta_note(check_id: str, current_violations: list[str]) -> str | None:
+    """Read-only new-since-baseline delta for reporting (spec T0).
+
+    The baseline never drives WARN/FAIL judgement (that is live-scan only);
+    a missing baseline file yields None ("no baseline") and never errors.
+    """
+    baseline_path = Path(__file__).resolve().parents[3] / "tests/fixtures/provenance-baseline.json"
+    try:
+        baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return "no baseline"
+    known = baseline.get("violations", {}).get(check_id, [])
+    new = [v for v in current_violations if not any(v in tok for tok in known)]
+    return f"new-since-baseline: +{len(new)}" if new else "no new violations since baseline"
+
+
+def check_scenario_reference_closure(
+    t1_skill_dir: Path, project_root: Path
+) -> list[dict[str, Any]]:
+    """G0.17: every scenario-referenced tests/fixtures/ path must exist."""
+    missing: dict[str, list[str]] = {}
+    for ref, consumers in _consumed_fixtures(t1_skill_dir).items():
+        if not (project_root / ref).exists():
+            missing.setdefault(ref, []).extend(consumers[:3])
+    violations = len(missing)
+    if violations:
+        detail = "; ".join(f"{r} (needed by: {', '.join(c)})" for r, c in sorted(missing.items()))
+        status = _wave_status("P0", violations)
+        return [
+            {
+                "id": "G0.17",
+                "s": status,
+                "r": f"{violations} referenced fixtures missing: {detail}",
+                "note": baseline_delta_note("G0.17", sorted(missing)),
+                "violations": sorted(missing),
+            }
+        ]
+    return [{"id": "G0.17", "s": GateStatus.PASS, "note": "all referenced fixtures exist"}]
+
+
+def check_fixture_provenance(t1_skill_dir: Path, fixtures_dir: Path) -> list[dict[str, Any]]:
+    """G0.18: consumed fixtures carry a legal tri-state provenance carrier."""
+    offenders: list[str] = []
+    for ref in _consumed_fixtures(t1_skill_dir):
+        if ref in PROVENANCE_WHITELIST:
+            continue
+        fixture_path = fixtures_dir / ref.removeprefix("tests/fixtures/")
+        if not fixture_path.exists() or fixture_path.is_dir():
+            continue  # existence is G0.17's wave
+        if load_provenance(fixture_path) is None:
+            offenders.append(ref)
+    violations = len(offenders)
+    if violations:
+        status = _wave_status("P1", violations)
+        return [
+            {
+                "id": "G0.18",
+                "s": status,
+                "r": f"{violations} consumed fixtures lack legal provenance: "
+                f"{'; '.join(sorted(offenders)[:10])}"
+                f"{'...' if violations > 10 else ''}",
+                "note": baseline_delta_note("G0.18", sorted(offenders)),
+                "violations": sorted(offenders),
+            }
+        ]
+    return [{"id": "G0.18", "s": GateStatus.PASS, "note": "all consumed fixtures carry provenance"}]
+
+
+def _stem_segments(name: str) -> tuple[str, ...]:
+    return tuple(name.rsplit(".", 1)[0].split("-"))
+
+
+def check_variant_bypass(t1_skill_dir: Path, fixtures_dir: Path) -> list[dict[str, Any]]:
+    """G0.19: unreferenced variant-sibling files are not exempt from provenance.
+
+    Variant criterion (fixed): shares the first two ``-`` stem segments with
+    any scenario-referenced fixture (e.g. ``foo-example`` vs
+    ``foo-example-variant``). Carrier files are never scan targets.
+    """
+    referenced = {
+        _stem_segments(ref.rsplit("/", 1)[-1])[:2] for ref in _consumed_fixtures(t1_skill_dir)
+    }
+    offenders: list[str] = []
+    if fixtures_dir.exists():
+        for p in sorted(fixtures_dir.rglob("*")):
+            if not p.is_file():
+                continue
+            if p.name.endswith(_CARRIER_SUFFIX) or p.name == _BASELINE_NAME:
+                continue
+            rel = "tests/fixtures/" + p.relative_to(fixtures_dir).as_posix()
+            if rel in _consumed_fixtures(t1_skill_dir) or rel in PROVENANCE_WHITELIST:
+                continue
+            if _stem_segments(p.name)[:2] in referenced and load_provenance(p) is None:
+                offenders.append(rel)
+    violations = len(offenders)
+    if violations:
+        status = _wave_status("P2", violations)
+        return [
+            {
+                "id": "G0.19",
+                "s": status,
+                "r": f"{violations} unreferenced variant files lack provenance: "
+                f"{'; '.join(sorted(offenders)[:10])}"
+                f"{'...' if violations > 10 else ''}",
+                "note": baseline_delta_note("G0.19", sorted(offenders)),
+                "violations": sorted(offenders),
+            }
+        ]
+    return [{"id": "G0.19", "s": GateStatus.PASS, "note": "variant bypass files annotated"}]
 
 
 def check_scenario_file_purity(
