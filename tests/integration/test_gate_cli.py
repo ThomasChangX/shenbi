@@ -452,7 +452,7 @@ class TestPhaseRunner(unittest.TestCase):
 
         # finalize calls G5 which may fail in test env; verify it sets finalized
         # by directly checking that finalize was attempted
-        run_py(
+        rc, out, _err = run_py(
             PR,
             [
                 "finalize",
@@ -463,13 +463,41 @@ class TestPhaseRunner(unittest.TestCase):
                 str(self.round_dir / "project-output"),
             ],
         )
+        self.assertEqual(rc, 1, "blocked G5 must exit non-zero")
+        blocked = json.loads(out)
+        self.assertEqual(blocked["status"], "blocked")
         state = json.loads(state_file.read_text(encoding="utf-8"))
-        # G5 may fail in test env; check state is at least attempted
-        self.assertIn(
-            state["state"],
-            ["scored", "finalized"],
-            f"finalize should progress state, got: {state['state']}",
+        self.assertEqual(state["state"], "scored", "blocked finalize must not mutate state")
+        finalize_steps = [s for s in state["steps"] if s["action"] == "finalize"]
+        self.assertTrue(finalize_steps, "blocked finalize must record its step")
+        self.assertTrue(
+            finalize_steps[-1].get("g5_must_fix"), "g5 must_fix evidence must be recorded"
         )
+
+    def test_finalize_transitions_to_finalized_when_g5_passes(self):
+        """Green path (F734): with G5 PASS, finalize deterministically sets
+        state=finalized. In-process call with run_gate stubbed so the state
+        machine itself is what's under test (the blocked path is covered by
+        the real-subprocess test_finalize_sets_state above).
+        """
+        from unittest.mock import patch
+
+        deps = json.loads((TESTS / "tiers" / "deps.json").read_text(encoding="utf-8"))
+        self._set_phase_state("genesis", "scored")
+        for skill in deps["t2-phases"]["genesis"]["prerequisites"]:
+            self._make_marker("G4", skill, "generative")
+
+        from shenbi import phase_runner
+
+        with patch.object(phase_runner, "run_gate", return_value={"status": "PASS"}):
+            phase_runner.cmd_finalize(
+                "genesis", str(self.round_dir), str(self.round_dir / "project-output")
+            )
+        state_file = self.round_dir / "phase-state" / "genesis.json"
+        state = json.loads(state_file.read_text(encoding="utf-8"))
+        self.assertEqual(state["state"], "finalized")
+        finalize_steps = [s for s in state["steps"] if s["action"] == "finalize"]
+        self.assertEqual(finalize_steps[-1]["g5_status"], "PASS")
 
     def test_wrong_order_rejected(self):
         """Commands with wrong preconditions should fail."""

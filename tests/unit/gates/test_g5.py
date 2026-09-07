@@ -218,7 +218,11 @@ class TestG5ErrorPaths:
         round_dir.mkdir()
         (round_dir / "summary.json").write_text("{invalid json", encoding="utf-8")
         result = _result_dict(gate_G5("genesis", str(round_dir), None))
-        assert result["status"] in ("PASS", "FAIL")
+        # Invalid summary.json: the gate still runs every declared check and
+        # deterministically FAILs on the missing reports/products (pinned —
+        # the old ("PASS", "FAIL") dual-accept hid a broken gate).
+        assert result["status"] == "FAIL"
+        assert any(str(m).startswith("G5.1:") for m in result["must_fix"])
 
 
 @pytest.mark.unit

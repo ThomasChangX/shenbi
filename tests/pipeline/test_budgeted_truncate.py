@@ -28,11 +28,29 @@ def test_budgeted_truncate_preserves_high_priority():
 
 
 def test_priority_weights_exist_for_all_keys():
-    assert "chapter-current.md" in _FILE_PRIORITY_WEIGHTS or "chapter" in str(
-        _FILE_PRIORITY_WEIGHTS
-    )
+    """F744 (spec #52): pin the exact key set — the old `"chapter" in str(dict)`
+    near-tautology passed on any key containing the substring.
+    """
     assert isinstance(_FILE_PRIORITY_WEIGHTS, dict)
-    assert len(_FILE_PRIORITY_WEIGHTS) >= 5
+    # Exact pinned key set (substring matching is the near-tautology F744
+    # removed). Keys are basename-without-extension forms.
+    assert set(_FILE_PRIORITY_WEIGHTS) == {
+        "chapter",
+        "chapter-current",
+        "chapter-plan",
+        "volume_map",
+        "character_matrix",
+        "world_rules",
+        "current_state",
+        "style_profile",
+        "pending_hooks",
+        "review_checklist",
+        "current_focus",
+        "archive",
+        "snapshot",
+        "default",
+    }
+    assert all(w > 0 for w in _FILE_PRIORITY_WEIGHTS.values())
 
 
 def test_high_priority_retains_more_than_low_priority():

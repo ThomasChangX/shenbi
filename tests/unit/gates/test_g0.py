@@ -209,12 +209,13 @@ class TestG0ErrorPaths:
 
     def test_gate_emits_timestamp_in_all_paths(self, tmp_path: Path) -> None:
         """Every result (PASS, FAIL, short-circuit) includes ISO-8601 timestamp."""
-        # Short-circuit path (seed_file=None)
+        # Short-circuit path (seed_file=None): PASS without touching disk
         r1 = _result_dict(gate_G0(seed_file=None))
-        assert "timestamp" in r1
-        # FAIL path (missing seed)
+        assert r1["status"] == "PASS"
+        # FAIL path (missing seed): deterministic FAIL with must_fix
         r2 = _result_dict(gate_G0(seed_file=str(tmp_path / "nope.md")))
-        assert "timestamp" in r2
+        assert r2["status"] == "FAIL"
+        assert r2["must_fix"]
 
     def test_gate_emits_gate_identifier_in_all_paths(self, tmp_path: Path) -> None:
         """Every result includes gate == 'G0'."""

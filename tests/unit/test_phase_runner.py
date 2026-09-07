@@ -865,9 +865,12 @@ class TestPostSkillOutputDiscovery:
             chapter=5,
         )
 
-        # With empty derive_output_files, G2 should receive empty string (no stray.md)
-        if captured_outputs:
-            assert "stray.md" not in captured_outputs[0]
+        # With empty derive_output_files, production SKIPS G2 entirely
+        # (C34 F115 residual: no rglob fallback sweeping stray .md files).
+        # Pinned deterministically: G2 is never invoked — so stray.md can
+        # never leak into validation. The old `if captured_outputs:` wrapper
+        # was vacuous on this exact path.
+        assert captured_outputs == [], "G2 must not run with no declared outputs"
 
 
 # --- F158: phase name sanitization (path traversal) ---

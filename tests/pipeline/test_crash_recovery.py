@@ -142,17 +142,36 @@ class TestShutdownFlag:
 
 
 class TestEmergencyCleanup:
-    def test_saves_pipeline_state(self, tmp_path):
-        state = MagicMock()
-        cr._emergency_cleanup(tmp_path, state)
-        # Should attempt to save state
-        # (save_state from shenbi.pipeline.machine is called if available)
+    """F735 (spec #52): real state, real disk effects — no MagicMock assertions."""
 
-    def test_cleanup_failure_does_not_prevent_exit(self, tmp_path):
-        state = MagicMock()
-        state.save.side_effect = RuntimeError("disk full")
-        # Should not raise -- emergency cleanup is best-effort
-        try:
-            cr._emergency_cleanup(tmp_path, state)
-        except Exception:
-            pytest.fail("_emergency_cleanup should not raise on failure")
+    def test_saves_and_annotates_real_pipeline_state(self, tmp_path):
+        from shenbi.pipeline.state import PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 2
+        state.chapter_loop.current_step = "shenbi-chapter-drafting"
+
+        cr._emergency_cleanup(tmp_path, state)
+
+        # 1. The step marker annotation landed on the in-memory state
+        assert state.chapter_loop.current_step == "EMERGENCY_SHUTDOWN_AT_shenbi-chapter-drafting"
+        # 2. The state was persisted to the real on-disk location
+        from shenbi.pipeline.machine import load_state
+
+        reloaded = load_state(tmp_path)
+        assert reloaded.chapter_loop.current_step == "EMERGENCY_SHUTDOWN_AT_shenbi-chapter-drafting"
+
+    def test_cleanup_failure_does_not_prevent_exit(self, tmp_path, monkeypatch):
+        from shenbi.pipeline.state import PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        monkeypatch.setattr(
+            "shenbi.pipeline.machine.save_state",
+            lambda *a, **k: (_ for _ in ()).throw(RuntimeError("disk full")),
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.machine.transact_state",
+            lambda *a, **k: (_ for _ in ()).throw(RuntimeError("disk full")),
+        )
+        # Best-effort: a failing save must not raise out of emergency cleanup
+        cr._emergency_cleanup(tmp_path, state)

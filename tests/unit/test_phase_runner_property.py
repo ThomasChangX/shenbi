@@ -45,9 +45,13 @@ def test_save_then_load_preserves_state(
     assert loaded == original
 
 
-@given(seed=st.integers(min_value=0, max_value=10**6))
-def test_now_iso_always_ends_with_utc_offset(seed: int) -> None:
-    """now_iso always returns UTC timestamps regardless of when called."""
+@given(st.integers(min_value=0, max_value=10**6))
+def test_now_iso_always_ends_with_utc_offset(repetition: int) -> None:
+    """now_iso always returns UTC timestamps regardless of when called.
+
+    F718 (spec #52): the draw is real repetition (20 distinct examples),
+    exercising the timestamp across property-engine invocations.
+    """
     ts = now_iso()
     assert ts.endswith("+00:00")
 

@@ -1,11 +1,9 @@
-"""Integration tests for Layer B field-level filtering through dispatch_helper.
+"""Unit tests for the shared Layer B field filter ``contracts.fields.filter_to_fields``.
 
-Task 12 migrated dispatch_helper to import :func:`filter_to_fields` from
-``shenbi.contracts.fields`` (returning a ``(filtered_text, matched_any)`` tuple).
-These tests assert that the dispatch_helper read loop correctly delegates to
-the shared filter — covering the markdown H2 extraction, JSON key projection,
-and the escape-hatch (full text + WARN when nothing matches). The canonical
-unit coverage of ``contracts.fields`` lives in ``tests/unit/contracts/test_fields.py``.
+F719 (spec #52): this module exercises ``filter_to_fields`` directly — markdown
+H2 extraction, JSON key projection, and the escape hatch (full text + WARN when
+nothing matches). It does NOT test the dispatch_helper read loop; that
+integration is covered by ``tests/unit/pipeline/test_dispatch_helper_read_suppression.py``.
 """
 
 from __future__ import annotations

@@ -59,45 +59,69 @@ def test_safe_write_no_lockfile_leak(tmp_path: Path) -> None:
     assert not (tmp_path / "out.json.lock").exists()
 
 
-def test_lockfile_has_correct_permissions():
-    """Lockfile created by safe_write has 0o600 permissions."""
-    import tempfile
+@pytest.mark.skipif(sys.platform == "win32", reason="fcntl is POSIX-only")
+def test_lockfile_mutual_exclusion_via_acquire_lock(tmp_path: Path, monkeypatch) -> None:
+    """A second _acquire_lock on a held lock must not succeed within the window."""
+    import fcntl
+    import threading
 
-    with tempfile.TemporaryDirectory() as tmp:
-        # Use _acquire_lock directly to test the lockfile path
-        lockfile = Path(tmp) / "test.json.lock"
-        # Create lockfile like _acquire_lock does
-        fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-        os.close(fd)
+    from shenbi.safe_write import _acquire_lock
 
-        # Set permissions
-        os.chmod(lockfile, 0o600)
+    def boom(fd: int, op: int) -> None:
+        raise OSError("flock unavailable (test)")
 
-        actual_mode = lockfile.stat().st_mode & 0o777
-        assert actual_mode == 0o600, f"Expected 0o600, got {oct(actual_mode)}"
+    monkeypatch.setattr(fcntl, "flock", boom)  # force O_EXCL lockfile path
+    target = tmp_path / "data.json"
+    target.write_text("{}", encoding="utf-8")
+    fd1, lock1 = _acquire_lock(target)
+    assert fd1 >= 0
+    assert lock1 is not None  # O_EXCL fallback produced a real lockfile
 
-        # Clean up
-        os.unlink(lockfile)
+    results: dict[str, object] = {}
+
+    def try_second() -> None:
+        try:
+            fd2, lock2 = _acquire_lock(target)
+            results["second"] = (fd2, lock2)
+            os.close(fd2)
+            if lock2 is not None:
+                lock2.unlink()
+        except Exception as exc:
+            results["error"] = exc
+
+    t = threading.Thread(
+        target=try_second, daemon=True
+    )  # daemon: never hang the suite on a failure
+    t.start()
+    t.join(timeout=2.0)
+    # Snapshot INSIDE the held-lock window; after release the waiter may
+    # legitimately acquire, so asserting post-release would be a false red.
+    acquired_during_window = "second" in results
+    os.close(fd1)
+    lock1.unlink()
+    t.join(timeout=2.0)
+    assert not acquired_during_window, f"mutual exclusion broken: {results.get('second')}"
 
 
-def test_lockfile_permissions_are_set_via_os_chmod():
-    """Verify os.chmod sets correct permissions on lockfile creation."""
-    import tempfile
+@pytest.mark.skipif(sys.platform == "win32", reason="fcntl is POSIX-only")
+def test_lockfile_fallback_sets_0o600(tmp_path: Path, monkeypatch) -> None:
+    """The O_EXCL fallback lockfile produced by _acquire_lock has 0o600 perms."""
+    import fcntl
 
-    with tempfile.TemporaryDirectory() as tmp:
-        lockfile = Path(tmp) / "test.lock"
-        # Create lockfile like _acquire_lock does
-        fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-        os.close(fd)
+    from shenbi.safe_write import _acquire_lock
 
-        # Set permissions
-        os.chmod(lockfile, 0o600)
+    def boom(fd: int, op: int) -> None:
+        raise OSError("flock unavailable (test)")
 
-        actual_mode = lockfile.stat().st_mode & 0o777
-        assert actual_mode == 0o600, f"Expected 0o600, got {oct(actual_mode)}"
-
-        # Clean up
-        os.unlink(lockfile)
+    monkeypatch.setattr(fcntl, "flock", boom)
+    target = tmp_path / "data.json"
+    target.write_text("{}", encoding="utf-8")
+    fd, lockfile = _acquire_lock(target)
+    assert lockfile is not None
+    actual_mode = lockfile.stat().st_mode & 0o777
+    assert actual_mode == 0o600, f"Expected 0o600, got {oct(actual_mode)}"
+    os.close(fd)
+    lockfile.unlink()
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="fcntl is POSIX-only")

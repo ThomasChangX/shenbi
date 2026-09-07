@@ -423,25 +423,30 @@ class TestComputeScore:
         score = compute_score(dims, {1: 10, 2: 20, 3: 30})
         assert score == round((10 * 33 + 20 * 33 + 30 * 34) / 100, 2)
 
-    def test_logs_warning_when_weights_dont_sum_to_100(
-        self, base_dims: list[Dimension], caplog: pytest.LogCaptureFixture
-    ) -> None:
+    def test_logs_warning_when_weights_dont_sum_to_100(self, base_dims: list[Dimension]) -> None:
         """Weights not summing to 100 is a rubric authoring error — surfaced
         as a warning so reviewers catch it, but scoring still proceeds.
+
+        scoring logs via structlog (not stdlib logging, so caplog sees
+        nothing); capture_logs() is structlog's own capture mechanism.
         """
+        from structlog.testing import capture_logs
+
         bad_dims = [
             Dimension(num=1, name="x", weight=50),
             Dimension(num=2, name="y", weight=30),
         ]
-        with caplog.at_level("WARNING"):
+        with capture_logs() as logs:
             compute_score(bad_dims, {1: 100, 2: 100})
-        assert (
-            any(
-                r"weight_mismatch" in r.getMessage() or "weight_mismatch" in str(r)
-                for r in caplog.records
-            )
-            or True
-        )
+        assert any(entry["event"] == "weight_mismatch" for entry in logs)
+
+        ok_dims = [
+            Dimension(num=1, name="x", weight=60),
+            Dimension(num=2, name="y", weight=40),
+        ]
+        with capture_logs() as logs:
+            compute_score(ok_dims, {1: 100, 2: 100})
+        assert not any(entry["event"] == "weight_mismatch" for entry in logs)
 
 
 # --- TestClassify --------------------------------------------------------
@@ -517,42 +522,40 @@ class TestCheckGateMarkers:
         missing = check_gate_markers(str(sample_rubric), "generative", str(tmp_path))
         assert missing == []
 
-    def test_t2_phase_branch_uses_real_deps_json(self, tmp_path: Path) -> None:
+    def test_t2_phase_branch_uses_real_deps_json(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """T2 phase rubrics depend on prerequisite T1 skill markers listed
-        in tests/tiers/deps.json. scoring.py reads this file relative to its
-        own location (parents[2] = repo root), so we exercise the branch via
-        the real repo deps.json by adding a temporary entry we control.
-
-        This test is skipped if tests/tiers/deps.json is read-only (CI sandboxes).
+        in tests/tiers/deps.json. scoring.py resolves that path from its own
+        ``__file__`` (parents[2] = repo root), so we redirect the module's
+        ``__file__`` into tmp_path and place a controlled deps.json there —
+        the repo-tracked file is never touched (F705: xdist race source).
         """
-        deps_path = Path(__file__).resolve().parents[2] / "tests" / "tiers" / "deps.json"
-        if not deps_path.parent.exists():
-            pytest.skip("tests/tiers/ not present in this checkout")
+        import shenbi.scoring as scoring_mod
+
+        fake_root = tmp_path / "fake-repo"
+        (fake_root / "tests" / "tiers").mkdir(parents=True)
+        (fake_root / "tests" / "tiers" / "deps.json").write_text(
+            json.dumps(
+                {
+                    "t2-phases": {
+                        "_test_phase_marker_check": {"prerequisites": ["_test_skill_marker"]}
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        monkeypatch.setattr(
+            scoring_mod, "__file__", str(fake_root / "src" / "shenbi" / "scoring.py")
+        )
 
         phase_root = tmp_path / "t2-phase" / "_test_phase_marker_check"
         phase_root.mkdir(parents=True)
         rubric = phase_root / "rubric.md"
         rubric.write_text("# x\n", encoding="utf-8")
 
-        original = deps_path.read_text(encoding="utf-8") if deps_path.exists() else None
-        try:
-            deps_path.write_text(
-                json.dumps(
-                    {
-                        "t2-phases": {
-                            "_test_phase_marker_check": {"prerequisites": ["_test_skill_marker"]}
-                        }
-                    }
-                ),
-                encoding="utf-8",
-            )
-            missing = check_gate_markers(str(rubric), "generative", str(tmp_path))
-            assert "G4-_test_skill_marker-generative" in missing
-        finally:
-            if original is None:
-                deps_path.unlink(missing_ok=True)
-            else:
-                deps_path.write_text(original, encoding="utf-8")
+        missing = check_gate_markers(str(rubric), "generative", str(tmp_path))
+        assert "G4-_test_skill_marker-generative" in missing
 
     def test_t3_pipeline_marker_check(self, tmp_path: Path) -> None:
         pipeline_root = tmp_path / "t3-pipeline" / "alpha"

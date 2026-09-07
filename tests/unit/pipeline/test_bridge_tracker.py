@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 BRIDGE_TRACKER_HEADER = (
     "| Bridge ID | Content | Expected Activation Ch | Actual Activation Ch | Status |"
 )
@@ -10,8 +8,7 @@ BRIDGE_TRACKER_HEADER = (
 def test_bridge_tracker_template_has_correct_structure():
     """The bridge tracker template file must contain the expected table header."""
     template_path = Path(__file__).resolve().parents[3] / "truth" / "bridge_tracker.md"
-    if not template_path.exists():
-        pytest.skip("bridge_tracker.md template not yet created")
+    assert template_path.exists(), "bridge_tracker.md template must exist (F712: stale skip)"
     content = template_path.read_text(encoding="utf-8")
     assert BRIDGE_TRACKER_HEADER in content
     assert "PENDING" in content
@@ -20,8 +17,7 @@ def test_bridge_tracker_template_has_correct_structure():
 
 def test_bridge_tracker_template_is_valid_markdown_table():
     template_path = Path(__file__).resolve().parents[3] / "truth" / "bridge_tracker.md"
-    if not template_path.exists():
-        pytest.skip("bridge_tracker.md template not yet created")
+    assert template_path.exists(), "bridge_tracker.md template must exist (F712: stale skip)"
     content = template_path.read_text(encoding="utf-8")
     lines = content.strip().split("\n")
     # Must have at least a header row and separator row

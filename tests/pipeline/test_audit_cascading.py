@@ -112,7 +112,7 @@ def test_get_audit_history_extracts_previous_chapters():
     state.chapter_loop.chapter_states["2"] = cs2
 
     history = _get_audit_history(state, current_chapter=3)
-    assert len(history) == 3  # 2 from ch1 + 1 from ch2? Wait, 1 from ch1 + 2 from ch2 = 3
+    assert len(history) == 3  # 1 from ch1 + 2 from ch2
 
     # Verify chapter 2's entries are included
     dialogue_entries = [h for h in history if h["skill"] == "dialogue"]
@@ -147,3 +147,16 @@ def test_cascade_wiring_skips_dialogue_keeps_continuity():
     assert _should_skip_audit("continuity", audit_history) is False
     # resonance is always-run → never skipped
     assert _should_skip_audit("resonance", audit_history) is False
+
+
+def test_unknown_skill_never_skipped():
+    """F748 (spec #52): an audit in NO list (core/always-run/cascadable) is
+    never cascade-skipped — unknown skills are outside the heuristic's scope.
+    """
+    from shenbi.pipeline.chapter_loop import _should_skip_audit
+
+    passing_history = [
+        {"skill": "mystery-audit", "chapter": i, "passed": True, "hard_failures": 0}
+        for i in range(1, 4)
+    ]
+    assert _should_skip_audit("mystery-audit", passing_history) is False

@@ -79,4 +79,8 @@ class TestConsolidation:
         ]
         result = consolidate_review_results(reviews, chapter=1)
         assert "CRITICAL" in result
-        assert "BLOCKING Issues" not in result.split("##")[-1] if "##" in result else True
+        # Parenthesized explicitly: the old bare conditional expression
+        # (`x not in y if c else True`) evaluated to True whenever "##" was
+        # absent — a syntax-shaped tautology.
+        last_section = result.split("##")[-1] if "##" in result else result
+        assert "BLOCKING Issues" not in last_section
