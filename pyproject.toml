@@ -114,6 +114,7 @@ select = [
     "UP",
     "RUF",
     "D",
+    "T20",
 ]
 ignore = [
     "D100", "D104",
@@ -124,13 +125,16 @@ ignore = [
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-# Tests legitimately aggregate unexpected failures — production
+# Tests legitimately aggregate unexpected failures and print audit records;
+# T201 (spec #50 / C36) exempted here alongside BLE001. — production
 # blind-catch rules (BLE001) do not apply to test assertion paths.
-"tests/**" = ["BLE001"]
+"tests/**" = ["BLE001", "T201"]
 # spec #39 T5 (F103-family prevention): BLE001 blind-except lint is
 # ACTIVE repo-wide; the files below are legacy out-of-scope sites pending
 # their own cluster fixes — each entry is an explicit, reviewed allowlist
 # member. Spec-scope files use inline `# noqa: BLE001` with justification.
+"tools/**" = ["T201"]
+"scripts/**" = ["T201"]
 "src/shenbi/cost/report.py" = ["BLE001"]
 "src/shenbi/gates/g0.py" = ["BLE001"]
 "src/shenbi/gates/g0_purity.py" = ["BLE001"]

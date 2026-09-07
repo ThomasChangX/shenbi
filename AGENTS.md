@@ -112,7 +112,7 @@ chore: add round output patterns to .gitignore
 
 ### Python Conventions
 
-Framework code under `src/shenbi/` uses Python 3.11+, `pathlib.Path` for file I/O, `json` for structured output. Gate functions return `passed()`/`fail()` helpers. Keep gate checkers idempotent—every function is a pure validation with no side effects on output files. Sole exemption: G1.4's idempotent `.bak` backup write (adjudicated in docs/framework/gates.md, spec #48). No `print()` in framework code; use structlog.
+Framework code under `src/shenbi/` uses Python 3.11+, `pathlib.Path` for file I/O, `json` for structured output. Gate functions return `passed()`/`fail()` helpers. Keep gate checkers idempotent—every function is a pure validation with no side effects on output files. Sole exemption: G1.4's idempotent `.bak` backup write (adjudicated in docs/framework/gates.md, spec #48). No `print()` in framework code (enforced by ruff T20, zero exemptions in `src/shenbi/`); user-facing text goes through `shenbi.cli_utils.echo` (`err=True` for stderr), machine-readable CLI stdout through `shenbi.cli_utils.emit_json` or direct `sys.stdout.write`; use structlog for logging.
 
 ### PR Review Protocol
 
