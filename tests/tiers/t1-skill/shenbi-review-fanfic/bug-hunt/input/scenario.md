@@ -4,7 +4,7 @@
 `skills/shenbi-review-fanfic/SKILL.md`
 
 ## Test Setup
-A fanfic novel project exists with `tests/fixtures/novel-example.json` declaring `fanfic_mode: "Canon"`. The SKILL.md severity table defines that in Canon mode, any character behavior deviation from the original source material must be classified as "error" (not "warning"). Drafted chapter 4 at `tests/fixtures/chapter-draft-example.md` contains a scene where character 哈利·波特 (Harry Potter) — known in the source material for his bravery and willingness to confront danger — runs away from a confrontation in fear, which is a significant character deviation.
+A fanfic novel project exists with its project config at `tests/fixtures/novel-example.json` declaring canon-compliance mode, and the drafted chapter under audit at `tests/fixtures/chapter-draft-example.md`. The SKILL.md severity table defines that in Canon mode, any character behavior deviation from the original source material must be classified at error severity rather than warning severity. The drafted chapter contains a scene where the protagonist 哈利·波特 (Harry Potter) — known in the source material for his bravery and willingness to confront danger — runs away from a confrontation in fear, which is a significant character deviation.
 
 ## Scenario
 The agent runs a fanfic audit on chapter 4. The audit report at `tests/fixtures/audit-report-example.md` identifies the character deviation (哈利 running away from confrontation) but classifies it as "warning" instead of "error". In Canon mode, the SKILL.md severity table explicitly requires "error" severity for character deviations. The severity is incorrectly downgraded.

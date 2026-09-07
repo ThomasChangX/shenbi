@@ -34,8 +34,13 @@ def test_parse_evidence_lines() -> None:
     assert lines[0][1] == "3"
     assert lines[0][2] == "锚文本样本"
     assert lines[1] == ("tests/fixtures/b.md", "3", "锚文本样本")  # same-line pointers apply
-    # ASCII straight quotes are decorative prose, not anchors
-    assert parse_evidence_lines('defect: `tests/fixtures/b.md` "quoted phrase" here')[0][2] is None
+    # ASCII straight quotes ARE anchors (F751 fabrications quoted chapter text
+    # in straight quotes); tiny spans (<4 non-space chars) are ignored
+    assert (
+        parse_evidence_lines('defect: `tests/fixtures/b.md` "quoted phrase" here')[0][2]
+        == "quoted phrase"
+    )
+    assert parse_evidence_lines('defect: `tests/fixtures/b.md` "a b" here')[0][2] is None
 
 
 def test_verify_scenario_hit_and_miss(tmp_path: Path) -> None:

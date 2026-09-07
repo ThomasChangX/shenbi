@@ -4,7 +4,9 @@
 `skills/shenbi-review-arc-payoff/SKILL.md`
 
 ## Test Setup
-A volume/arc boundary has been reached. The arc promised a major foreshadowing payoff: hook-007 ("老周留下的半块黑石饼的真正用途"), planted in volume 1 as a seemingly mundane object, was declared as the arc's signature surprising+earned reveal. The volume outline (`tests/fixtures/outline-example.md`) lists `arc_beats` with hook-007's payoff as the climax of the arc. Pending hooks (`tests/fixtures/truth-pending_hooks.md`) mark hook-007 as `resolved_this_arc`. Anchors are `tests/fixtures/calibration/arc-payoff/`. Style profile is `tests/fixtures/style-profile-example.md`.
+A volume/arc boundary has been reached. The arc promised a major foreshadowing payoff: hook-007, planted in volume 1 as a seemingly mundane object, was declared as the arc's signature surprising+earned reveal. Pending hooks (`tests/fixtures/truth-pending_hooks.md`) track the volume-1 seed hooks — e.g. hook-ch1-001, content "催收员告知林烽灵能修炼贷款已逾期", core_hook: true.
+The volume outline (`tests/fixtures/outline-example.md`) plants the arc-payoff escalation path, including the 第3章 seed "特权豁免权" (高等种姓 privilege) as a later-arc conflict seed.
+Anchors are `tests/fixtures/calibration/arc-payoff/`. Style profile is `tests/fixtures/style-profile-example.md`.
 
 The volume's foreshadowing-track shows hook-007 as cleanly RESOLVED. But the prose payoff itself is perfunctory — resolved by a single line of narration rather than a scene:
 

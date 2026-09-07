@@ -4,16 +4,17 @@
 `skills/shenbi-review-continuity/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapters 2 and 3 at `tests/fixtures/chapter-draft-example.md` and `tests/fixtures/chapter-draft-example.md`. Chapter summaries at `tests/fixtures/chapter-summaries-example.md` record the timeline. Chapter 2 ends with an explicit time marker: "三天后" (three days later), establishing that chapter 3 takes place 3 days after chapter 2.
+A novel project exists with the drafted first chapter at `tests/fixtures/chapter-draft-example.md`. Chapter summaries at `tests/fixtures/chapter-summaries-example.md` record the timeline.
+The summaries' 时间推进 entry states the chapter spans "时间跨度: 约半天" from a modern-China dusk to a Medran dusk with purple skylight.
 
 ## Scenario
-The agent runs a continuity audit on chapters 2-3. In chapter 3, the narrative describes events that implicitly span 5 days — a character recovers from an injury over "五天的恢复" (five days of recovery). However, the time marker in chapter 2 explicitly says "三天后". The timeline audit report at `tests/fixtures/audit-report-example.md` does not flag this discrepancy. The "三天后" time reference from chapter 2 is listed but the inconsistency with chapter 3's 5-day span is not caught.
+The agent runs a continuity audit across the draft and the summaries. The audit report at `tests/fixtures/audit-report-example.md` notes in its 弧线评估 that "林烽从意识到穿越到接受事实的过渡仅约 3 段" and dismisses the pace as a genre convention — but it never cross-checks the summaries' timeline claim against the draft. The draft's modern-side opening is a daytime scene (七月的热风 blowing through the window, a delivery flyer on the table) before 天快黑了, so the modern side alone already spans afternoon-to-dusk; the 约半天 total and the dusk-to-dusk framing do not reconcile with the draft's own opening. The discrepancy is not caught.
 
 ## Planted Defect
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `tests/fixtures/audit-report-example.md` | Time marker "三天后" (ch2) contradicts "五天的恢复" (ch3 paragraph 7) — timeline jumps 5 days instead of 3; discrepancy not caught | error |
+| `tests/fixtures/audit-report-example.md`: 弧线评估 section | Timeline cross-check skipped — the report cites "林烽从意识到穿越到接受事实的过渡仅约 3 段" as its only pacing evidence and never reconciles the summaries' 约半天 (dusk-to-dusk) time span against the draft's daytime modern-side opening | error |
 
 ## Agent Task
-Run shenbi-review-continuity audit on chapters 2-3. Find the planted timeline discrepancy where the explicit time reference is not properly accounted for.
+Run shenbi-review-continuity audit on the chapter and its summaries. Find the planted timeline discrepancy where the recorded time span is not reconciled against the draft's actual opening.

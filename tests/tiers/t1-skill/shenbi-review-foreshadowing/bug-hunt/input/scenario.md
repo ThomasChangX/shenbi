@@ -4,16 +4,17 @@
 `skills/shenbi-review-foreshadowing/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapters 3 and 4 at `tests/fixtures/chapter-draft-example.md` and `tests/fixtures/chapter-draft-example.md`. The foreshadowing pool at `tests/fixtures/pending-hooks-example.md` tracks hook states: PLANTED, ADVANCED, RESOLVED, ABANDONED. A hook "mysterious-key" was PLANTED in chapter 3 (the protagonist finds an old key under a floorboard — chapter 3, paragraph 8). In chapter 4, the key is used to open a locked door (chapter 4, paragraph 12), advancing the hook.
+A novel project exists with drafted chapters at `tests/fixtures/chapter-draft-example.md` and `tests/fixtures/chapter-draft-example.md`. The foreshadowing pool at `tests/fixtures/pending-hooks-example.md` tracks hook states: PLANTED, ADVANCED, RESOLVED, ABANDONED. A hook "hook-ch1-002" was PLANTED in chapter 1 (the protagonist senses a low-frequency hum in the air that others do not seem to notice — chapter 1, paragraph 26).
+In chapter 2, the perception strengthens at the chapter end ("手掌上的酥麻感又强了一点"), advancing the hook.
 
 ## Scenario
-The agent runs a foreshadowing audit on chapters 3-4. The audit report at `tests/fixtures/audit-report-example.md` records the "mysterious-key" hook as transitioning from PLANTED to ADVANCED. However, the transition entry for the ADVANCED state has no text evidence — no chapter citation and no specific prose passage is listed. The report simply says "mysterious-key: PLANTED → ADVANCED" without citing which paragraph or prose passage in chapter 4 shows the advancement.
+The agent runs a foreshadowing audit on chapters 1-2. The audit report at `tests/fixtures/audit-report-example.md` records the Hook 植入 check as PASS with the note "hook-ch1-001/002/003 全部植入". However, the entry carries no text evidence — no chapter citation and no specific prose passage is listed for any hook. The report never cites which paragraph or prose passage shows each hook's state in the text.
 
 ## Planted Defect
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `tests/fixtures/audit-report-example.md`: mysterious-key ADVANCED entry | Hook state transition PLANTED → ADVANCED has no text evidence — missing chapter citation and prose passage reference | error |
+| `tests/fixtures/audit-report-example.md`: Hook 植入 row | Hook verification lacks text evidence — PASS note "hook-ch1-001/002/003 全部植入" cites no chapter/paragraph or prose passage for any hook's state | error |
 
 ## Agent Task
-Run shenbi-review-foreshadowing audit on chapters 3-4. Find the planted defect where a hook state transition lacks text evidence.
+Run shenbi-review-foreshadowing audit on chapters 1-2. Find the planted defect where hook state evidence is missing from the audit.

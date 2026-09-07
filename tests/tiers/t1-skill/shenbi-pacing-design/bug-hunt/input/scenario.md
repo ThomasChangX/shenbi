@@ -15,7 +15,7 @@ The pacing design has been generated. Upon review of the pacing cycles, Cycle 3 
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `tests/fixtures/chapter-plan-example.md`: Cycle 3 (chapters 18-24) | Missing "aftermath" beat — cycle has only buildup, escalation, explosion | error |
+| `tests/fixtures/chapter-plan-example.md`: Cycle 3 (chapters 18-24) | Missing the "情绪沉淀" (aftermath) beat — cycle has only buildup, escalation, explosion | error |
 
 ## Agent Task
 Run shenbi-pacing-design quality check on the existing pacing output. The agent must detect the pacing cycle missing the aftermath beat.

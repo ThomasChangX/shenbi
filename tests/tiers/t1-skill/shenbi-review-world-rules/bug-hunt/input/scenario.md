@@ -4,16 +4,18 @@
 `skills/shenbi-review-world-rules/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 5 at `tests/fixtures/chapter-draft-example.md`. Truth files include character profiles at `tests/fixtures/character-profile-example.md` which records character 林墨's age as 17. The chapter text at paragraph 4 states: "林墨，今年二十五岁的小伙子，站在门口..."
+A novel project exists with drafted chapter 5 at `tests/fixtures/chapter-draft-example.md`. Truth files include character profiles at `tests/fixtures/character-profile-example.md`.
+The profile's 年龄 field records "穿越时23岁（现代中国大学计算机系毕业生）".
+The chapter text at `tests/fixtures/chapter-draft-example.md` L20 describes the protagonist as "他一个计算机系毕业的" whose "简历石沉大海".
 
 ## Scenario
-The agent runs a world-rules audit on chapter 5. The audit report at `tests/fixtures/audit-report-example.md` does not flag the age discrepancy. The truth file says 林墨 is 17, but the chapter text says 25. The audit misses this numerical contradiction entirely.
+The agent runs a world-rules audit on chapter 5. The audit report at `tests/fixtures/audit-report-example.md` admits it was performed "在无外部角色档案（truth/character_profiles/ 不存在）的情况下" — no cross-check of chapter claims against the character profile was done. If the chapter's background statements contradicted the profile's 年龄 field, the audit would miss the contradiction entirely.
 
 ## Planted Defect
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `tests/fixtures/chapter-draft-example.md`: paragraph 4 | Character age mismatch — text says "二十五岁" (25) but truth file `tests/fixtures/character-profile-example.md` field `age` says 17; audit report does not catch this | error |
+| `tests/fixtures/chapter-draft-example.md`: L20 background statement vs `tests/fixtures/character-profile-example.md` 年龄 field | Profile cross-check gap — chapter states the protagonist is "计算机系毕业的" but the audit, run without external character archives, never verifies this against the profile's recorded 年龄 field (穿越时23岁); any numerical contradiction would be missed | error |
 
 ## Agent Task
-Run shenbi-review-world-rules audit on chapter 5. Find the planted defect where a character's age in the text contradicts the truth file.
+Run shenbi-review-world-rules audit on chapter 5. Find the planted defect where chapter claims are never cross-checked against the character profile truth file.

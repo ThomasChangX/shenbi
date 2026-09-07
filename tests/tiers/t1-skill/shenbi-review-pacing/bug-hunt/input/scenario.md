@@ -7,7 +7,7 @@
 A novel project exists with 8 drafted chapters. Rhythm principles defined at `tests/fixtures/chapter-plan-example.md`. The audit covers the last 5 chapters (chapters 4-8). Chapter 7 contains high-stakes confrontation scenes with intense action, rapid dialogue exchanges, emotional escalation, and a cliffhanger ending — its content matches the FIRE definition in rhythm_principles.md.
 
 ## Scenario
-The agent runs a pacing audit on the last 5 chapters. In the audit report at `tests/fixtures/audit-report-example.md`, chapter 7 is classified as QUEST type. However, chapter 7's content clearly matches the FIRE definition: high-stakes confrontation, rapid exchanges, emotional escalation. The rhythm_principles.md defines FIRE as "high-intensity chapters with escalating tension and confrontation" and QUEST as "exploration and discovery chapters with moderate pace." Chapter 7's classification is incorrect.
+The agent runs a pacing audit on the last 5 chapters. In the audit report at `tests/fixtures/audit-report-example.md`, chapter 7 is classified as QUEST type. However, chapter 7's content clearly matches the FIRE definition: high-stakes confrontation, rapid exchanges, emotional escalation. The rhythm_principles.md defines FIRE as high-intensity chapters with escalating tension and confrontation, and QUEST as exploration and discovery chapters with moderate pace. Chapter 7's classification is incorrect.
 
 ## Planted Defect
 

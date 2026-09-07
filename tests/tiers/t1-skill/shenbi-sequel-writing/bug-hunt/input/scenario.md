@@ -9,7 +9,7 @@ A novel project with 30 published chapters was paused after chapter 30. A breakp
 ## Scenario
 The sequel writing has been started. However, a critical historical immutability violation has occurred:
 
-1. **Modified published chapter**: The checksum of `tests/fixtures/chapter-draft-example.md` in the current filesystem (SHA-256: a1b2c3d4...) differs from the snapshot checksum recorded in `tests/fixtures/chapter-plan-example.md` (SHA-256: e5f6a7b8...). Comparison reveals that a paragraph in chapter 25 was rewritten — the original described the protagonist as "hesitant and uncertain" but the current version reads "confident and determined." Published chapters must never be modified.
+1. **Modified published chapter**: The checksum of `tests/fixtures/chapter-draft-example.md` in the current filesystem (SHA-256: a1b2c3d4...) differs from the snapshot checksum recorded in `tests/fixtures/chapter-plan-example.md` (SHA-256: e5f6a7b8...). Comparison reveals that a passage in chapter 25 was rewritten — the snapshot-era copy frames the "灵能修炼贷款" as an inescapable trap with the protagonist merely resolving to "先算清楚账", but the current copy presents the same debt passage as already half-solved and optimistic. Published chapters must never be modified.
 
 2. **Missing drift detection**: The pre-writing report at `tests/fixtures/report-example.txt` includes context reconstruction and human intent confirmation but has no drift detection section. Behavioral drift, voice drift, style drift, and setting drift checks are all missing.
 
@@ -19,7 +19,7 @@ The sequel writing has been started. However, a critical historical immutability
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `tests/fixtures/chapter-draft-example.md` vs `tests/fixtures/chapter-plan-example.md` | Historical immutability violation — chapter 25 checksum differs from snapshot; paragraph rewritten from "hesitant and uncertain" to "confident and determined" | error |
+| `tests/fixtures/chapter-draft-example.md` vs `tests/fixtures/chapter-plan-example.md` | Historical immutability violation — chapter 25 checksum differs from snapshot; passage rewritten away from the "灵能修炼贷款" trap framing and the "先算清楚账" resolution stance | error |
 | `tests/fixtures/report-example.txt` | Drift detection missing — no behavioral, voice, style, or setting drift checks in pre-writing report | error |
 | Writing log vs intent confirmation timestamp | Human intent confirmation violation — writing started at T+30min but intent confirmed at T+120min; confirmation must precede writing | error |
 

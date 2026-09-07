@@ -4,22 +4,23 @@
 `skills/shenbi-review-memo-compliance/SKILL.md`
 
 ## Test Setup
-A novel project exists with chapter memo at `tests/fixtures/chapter-plan-example.md` and drafted chapter 7 at `tests/fixtures/chapter-draft-example.md`. The memo has 8 sections. Section "key_scenes" lists 4 required scenes:
-1. Protagonist enters the abandoned temple
-2. Discovery of the hidden chamber
-3. Confrontation with the guardian spirit
-4. Escape through the underground river
+A novel project exists with chapter memo at `tests/fixtures/chapter-plan-example.md` and drafted chapter 7 at `tests/fixtures/chapter-draft-example.md`. The memo has 8 sections. Section 3 lists 5 required payoffs in its 该兑现的 table:
+1. 林烽的现代人设（≤300字，用行为而非旁白展示）
+2. 锈泥巷的物理环境（五感逐步展开）
+3. 灵能修炼贷款机制（规则用对话展示）
+4. 种姓制度的基本框架（通过不以为然的日常对话反衬）
+5. 灵能僭越罪（章中段冲击性信息）
 
-The drafted chapter only contains scenes 1 and 2. Scenes 3 and 4 are missing — there is no confrontation with the guardian spirit and no escape through the underground river.
+The drafted chapter delivers items 1-3 and 5, but item 4's required delivery vehicle — a neighbour or collector explaining the caste framework through offhand daily dialogue — never occurs; 庶民 status is conveyed only through the protagonist's own inference.
 
 ## Scenario
-The agent runs a memo-compliance audit on chapter 7. The audit report at `tests/fixtures/audit-report-example.md` rates section "key_scenes" as "fulfill" — marking it as fully completed. However, only 2 of 4 required scenes are present. The section should be rated "partial" since 2 of 4 items are missing.
+The agent runs a memo-compliance audit on chapter 7. The audit report at `tests/fixtures/audit-report-example.md` checks BDI, OOC, 配角, 声音, and PRE_WRITE_CHECK — but performs no section-by-section verification against the memo at all. Its stated 审计依据 is only "章节内部一致性 + PRE_WRITE_CHECK 自定规则", so the memo's per-item delivery requirements are never checked and under-delivered items pass undetected.
 
 ## Planted Defect
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `tests/fixtures/audit-report-example.md`: key_scenes section verdict | Section "key_scenes" marked as "fulfill" but only 2 of 4 required scenes present (confrontation with guardian spirit and escape through underground river are missing) | error |
+| `tests/fixtures/audit-report-example.md`: audit scope | Memo compliance coverage gap — audit cites "章节内部一致性 + PRE_WRITE_CHECK 自定规则" as its only basis; no verification of the memo's 5 payoff items, so the undelivered caste-dialogue requirement (item 4) is missed | error |
 
 ## Agent Task
-Run shenbi-review-memo-compliance audit on chapter 7. Find the planted defect where a memo section's verdict is inflated from "partial" to "fulfill".
+Run shenbi-review-memo-compliance audit on chapter 7. Find the planted defect where the audit never performs the section-by-section memo compliance check, letting an under-delivered memo item pass.

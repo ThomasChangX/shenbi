@@ -23,9 +23,30 @@ FIXTURES = PROJECT / "tests" / "fixtures"
 
 _FIXTURE_REF_RE = re.compile(r"tests/fixtures/[\w\-/]+(?:\.\w+)?")
 _LINE_PTR_RE = re.compile(r"\bL(\d+)\b")
-# Anchors: CJK corner/curly quotes only. ASCII straight quotes are too
-# promiscuous in English prose (decorative quoting, not evidence pointers).
-_ANCHOR_RE = re.compile(r"[「“]([^「」“”]{4,})[」”]")
+# Anchors: any quote style (「」/""/""/straight ASCII). ASCII quotes are the
+# dominant evidence-quoting style in the existing corpus (F751 fabrications
+# quoted chapter text in straight quotes); a quoted span with >= 4 non-space
+# characters on a fixture-ref line is an evidence anchor and must resolve.
+_MIN_ANCHOR_CHARS = 4
+
+_QUOTED_RES = (
+    re.compile(r"「([^「」]{4,})」"),
+    re.compile(r"“([^“”]{4,})”"),
+    re.compile(r"\"([^\"\n]{4,})\""),
+)
+
+
+def _find_anchor(line: str) -> str | None:
+    """Longest quoted span on the line with >= _MIN_ANCHOR_CHARS non-space chars."""
+    best: str | None = None
+    for rx in _QUOTED_RES:
+        for m in rx.finditer(line):
+            span = m.group(1)
+            if len("".join(span.split())) >= _MIN_ANCHOR_CHARS and (
+                best is None or len(span) > len(best)
+            ):
+                best = span
+    return best
 
 
 def parse_evidence_lines(text: str) -> list[tuple[str, str | None, str | None]]:
@@ -36,13 +57,13 @@ def parse_evidence_lines(text: str) -> list[tuple[str, str | None, str | None]]:
         if not refs:
             continue
         lineno_m = _LINE_PTR_RE.search(line)
-        anchor_m = _ANCHOR_RE.search(line)
+        anchor = _find_anchor(line)
         for ref in refs:
             out.append(
                 (
                     ref,
                     lineno_m.group(1) if lineno_m else None,
-                    anchor_m.group(1) if anchor_m else None,
+                    anchor,
                 )
             )
     return out
