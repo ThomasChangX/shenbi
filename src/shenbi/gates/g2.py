@@ -20,6 +20,7 @@ from pydantic import ValidationError
 from shenbi.contracts.schemas.adapt import decisions_err_to_g2_failures
 from shenbi.contracts.schemas.decisions import DecisionsDoc
 from shenbi.gates.shared import (
+    resolve_input_path,
     CHAPTER_WORD_CEILING,
     CHAPTER_WORD_FLOOR,
     bak_path,
@@ -56,8 +57,20 @@ def gate_G2(
     else:
         fps = list(file_paths)
     for fp in fps:
-        p = Path(fp)
-        # G2.1 — exists
+        # G2.1 — exists (spec #48 C34/F456: relative paths resolve against rd,
+        # not process CWD; no-rd relative → structured FAIL, never bare ValueError)
+        try:
+            p = resolve_input_path(fp, round_dir)
+        except ValueError:
+            mf.append(
+                {
+                    "id": "G2.1",
+                    "file": fp,
+                    "s": GateStatus.FAIL,
+                    "r": "not found (relative path requires round_dir)",
+                }
+            )
+            continue
         if not p.exists():
             mf.append({"id": "G2.1", "file": fp, "s": GateStatus.FAIL, "r": "not found"})
             continue
@@ -172,7 +185,7 @@ def gate_G2(
 
         # Chapter-specific checks
         if eff_type == "chapter":
-            wc = word_count_md(fp)
+            wc = word_count_md(p)  # spec #48 C34/F456: resolved path, not raw fp
 
             # G2.6 — word count >= floor
             if wc < CHAPTER_WORD_FLOOR:

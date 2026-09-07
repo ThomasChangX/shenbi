@@ -258,8 +258,16 @@ def cmd_post_skill(
         g2 = run_gate("G2", [join_gate_file_list(output_files), file_type, str(round_dir)])
         g2_status = g2.get("status", GateStatus.FAIL.value)
         _record_gate_manifest(proj, phase, chapter or 0, skill, "G2", g2)
+    # spec #48 C34 (F433): thread the real project_dir — T2 protocol rd !=
+    # project_dir; PWI findings anchor project_dir/audits.
     g4 = run_gate(
-        "G4", [skill, join_gate_file_list(output_files) if output_files else "", str(round_dir)]
+        "G4",
+        [
+            skill,
+            join_gate_file_list(output_files) if output_files else "",
+            str(round_dir),
+            str(proj),
+        ],
     )
     g4_status = g4.get("status", GateStatus.FAIL.value)
     _record_gate_manifest(proj, phase, chapter or 0, skill, "G4", g4)

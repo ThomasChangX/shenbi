@@ -16,6 +16,7 @@ gate's dependency chain is paid now.
 """
 
 import json
+from collections.abc import Callable
 import sys
 
 # Shorthand skill name -> full shenbi-* name. Mirrors legacy validate-gate.py.
@@ -124,43 +125,62 @@ Examples:
         a1 = g4_arg(1)
         file_list = a1.split(",") if a1 else []
         rd = g4_arg(2, None)
+        pd = g4_arg(3, None) or rd  # spec #48 C34 (F433): T2 protocol rd != project_dir
+
+        _G4_PATH_FAIL = "__G4_PATH_FAIL__"  # sentinel str: FAIL already emitted
+
+        def _guarded_g4(fn: Callable[..., str], *fargs: object, **fkwargs: object) -> str:
+            # spec #48 C34 (F457/F437): all G4 branches convert ValueError from
+            # resolve_input_path into structured FAIL (guard was generative-only).
+            try:
+                return fn(*fargs, **fkwargs)
+            except ValueError as e:
+                emit_json(
+                    {
+                        "status": GateStatus.FAIL,
+                        "gate": "G4",
+                        "error": f"invalid file path argument: {e}",
+                    }
+                )
+                return _G4_PATH_FAIL
 
         if skill_or_type in ("bughunt", "bug-hunt"):
             # Legacy positional form: checker only, no marker (target "bug-hunt"
             # matches no reader key — the reader derives skill names from rubric paths).
-            result = gate_G4_bughunt(file_list)
+            result = _guarded_g4(gate_G4_bughunt, file_list, rd, pd, str(PROJECT))
+            if result is _G4_PATH_FAIL:
+                return 1
         elif skill_or_type == "clean":
-            result = gate_G4_clean(file_list)
+            result = _guarded_g4(gate_G4_clean, file_list, rd, pd, str(PROJECT))
+            if result is _G4_PATH_FAIL:
+                return 1
         else:
             full_name = SHORT_MAP.get(skill_or_type, skill_or_type)
             if test_type in ("bug-hunt", "bughunt"):
-                result = gate_G4_bughunt(file_list)
+                result = _guarded_g4(gate_G4_bughunt, file_list, rd, pd, str(PROJECT))
+                if result is _G4_PATH_FAIL:
+                    return 1
             elif test_type == "clean":
-                result = gate_G4_clean(file_list)
+                result = _guarded_g4(gate_G4_clean, file_list, rd, pd, str(PROJECT))
+                if result is _G4_PATH_FAIL:
+                    return 1
             else:
                 # bare-split-exempt (spec #38 F337 residual): callers pass
                 # comma-free file lists — a filename containing a comma cannot
                 # be expressed in this positional form; pinned by test.
-                try:
-                    result = gate_G4(
-                        full_name,
-                        "generative",
-                        file_list,
-                        rd,
-                        project_dir=rd,
-                        repo_root=str(PROJECT),
-                    )
-                except ValueError as e:
-                    # F437 (spec #38): documented three-segment relative-path
-                    # invocation raised bare ValueError from resolve_input_path.
-                    emit_json(
-                        {
-                            "status": GateStatus.FAIL,
-                            "gate": "G4",
-                            "error": f"invalid file path argument: {e}",
-                        }
-                    )
-                    return 1
+                # F437 (spec #38) + F433 (spec #48): ValueError → structured
+                # FAIL; project_dir no longer hardwired to rd.
+                result = _guarded_g4(
+                    gate_G4,
+                    full_name,
+                    "generative",
+                    file_list,
+                    rd,
+                    project_dir=pd,
+                    repo_root=str(PROJECT),
+                )
+            if result is _G4_PATH_FAIL:
+                return 1
             write_gate_marker("G4", full_name, test_type, result, rd, file_list)
 
     elif gate == "G5":
