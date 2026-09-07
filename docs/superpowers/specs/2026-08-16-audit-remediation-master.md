@@ -142,7 +142,7 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C12 ✅ Done (PR #142) | 裸崩边界 | 28 | P1 | archive/2026-09-02-spec38-crash-boundary-guards-Done-PR142.md | A | M | — |
 | C13 ✅ Done (PR #145) | 静默吞错/部分校验 | 35 | P1 | archive/2026-09-03-spec39-silent-swallow-validation-Done-PR145.md | A | M-L | — |
 | C14 ✅ Done (PR #183 · spec #52) | 弱断言/自证测试 | 26 | P1 | archive/2026-09-08-spec52-c14-weak-assertions-Done-PR183.md | B | M-L | C16 ✅（F730 剔除归 C37） |
-| C15 | 关键零覆盖 | 12 | P2 | audit-zero-coverage-fix.md | B | M | C14/C16 |
+| C15 | 关键零覆盖 | 12 | P2 | archive/audit-zero-coverage-fix.md | B | M | C14/C16 |
 | C16 ✅ Done (PR #174 · spec #54) | fixture 真实性失真 | 31 | P0 | archive/2026-08-16-audit-fixture-authenticity-fix.md | B | L | —（F750 deferred→悬空见 §8、F1154 blocked-on #57/C19） |
 | C17 | 测试基础设施失效 | 18 | P1 | audit-test-infra-fix.md | B | M | — |
 | C18 | 生产产物污染 | 17 | P1 | audit-artifact-contamination-fix.md | B | M | — |
