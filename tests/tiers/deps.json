@@ -233,7 +233,7 @@
     "src/shenbi/append_helper.py": "sha256:f5d7c824d48904dc7b1884f8ae026051d56e8bc4948ee4291755d9664e0339b5",
     "src/shenbi/gates/g5.py": "sha256:801e6736036a49ca371a9b4112097647418fd81f24edfa5c89fa21ea7c75cfe1",
     "src/shenbi/gates/g1.py": "sha256:c2d41e0d4ae45e4a74d887c68f5ef1db776397e8c6a6b4bea66c2322a9fcc858",
-    "src/shenbi/gates/g0.py": "sha256:21683acd71088500d0c2b8316262327f2b44acb8647e48b965117c4d9626bd1f",
+    "src/shenbi/gates/g0.py": "sha256:abe1afe526fc72300060888fea84d008fe7112a0a3bf43e5b58fdf31418eebd5",
     "src/shenbi/gates/g0_skill_contract.py": "sha256:72c0c3deed0ee511d73c45f3344cc16f49240ec1b91e79ede737ba89aa3b0789",
     "src/shenbi/gates/__init__.py": "sha256:42591abd9fd3d46d937e36a5c8c3ea0f4a79ced04d671fe01e2158244c5a5f8f",
     "src/shenbi/gates/g_reconcile.py": "sha256:1ca815c3975b3e0cf0f45d9e9ca245c854661c395533e21b54eda789112c2bfd",

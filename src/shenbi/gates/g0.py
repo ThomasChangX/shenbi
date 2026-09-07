@@ -41,6 +41,36 @@ MIRROR_MAP: dict[str, str] = {
     "tests/fixtures/truth-character_matrix.md": (
         "tests/fixtures/snapshots/chapter-025/truth/character_matrix.md"
     ),
+    # spec #54 C16 AC3 / F781: same-source duplicate pairs populated during
+    # library governance — registered so the sync guard (not hash dedup)
+    # owns their equality.
+    "tests/fixtures/characters/supporting/relationships.md": (
+        "tests/fixtures/truth/character_profiles/relationships.md"
+    ),
+    "tests/fixtures/consolidation/volume-1/volume-summary.md": (
+        "tests/fixtures/story/volumes/volume-map.md"
+    ),
+    "tests/fixtures/source/report-example.txt": (
+        "tests/fixtures/truth/source_material/original-work.txt"
+    ),
+    "tests/fixtures/config/platform-rules/genre-config.json": (
+        "tests/fixtures/genre-config-example.json"
+    ),
+    "tests/fixtures/samples/reference-texts/reference-chapter-3.md": (
+        "tests/fixtures/drafts/chapter-3.md"
+    ),
+    "tests/fixtures/decisions/corpus/case01-ok.json": (
+        "tests/fixtures/decisions/valid-chapter-decisions.json"
+    ),
+    "tests/fixtures/decisions/corpus/case07-bad_json_prefix.json": (
+        "tests/fixtures/revision-decisions/chapter-legacy-severity-revision-decisions.json"
+    ),
+    "tests/fixtures/decisions/corpus/case03-bad_json_concat.json": (
+        "tests/fixtures/decisions/trailing-sample.json"
+    ),
+    "tests/fixtures/decisions/corpus/case14-bad_schema_p25.json": (
+        "tests/fixtures/revision-decisions/chapter-sample-revision-decisions.json"
+    ),
 }
 
 
