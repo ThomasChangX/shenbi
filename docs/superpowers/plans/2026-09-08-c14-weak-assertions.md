@@ -35,7 +35,7 @@
   - `src/shenbi/pipeline/chapter_loop.py:2615` `def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool`（反馈注入块 :3033-3039）；`dispatch_skill` 从 `shenbi.pipeline.chapter_loop` 名字空间 monkeypatch（已 import 于 :58）
   - `src/shenbi/pipeline/machine.py:69/90` `set_checkpoint` / `clear_checkpoint(state, decision)`
   - `src/shenbi/safe_write.py:113` `def _acquire_lock(path: Path) -> tuple[int, Path | None]`
-  - `src/shenbi/scoring.py:240-256` `compute_score(dimensions, scores, kill_switch_triggered=False)`——`weight_mismatch` warning 于 total_weight != 100 且非 0 时触发（caplog WARNING 捕获）
+  - `src/shenbi/scoring.py:240-256` `compute_score(dimensions, scores, kill_switch_triggered=False)`——`weight_mismatch` warning 于 total_weight != 100 且非 0 时触发（structlog → configure_logging 后 stderr，capsys 捕获）
   - `src/shenbi/pipeline/dispatch_helper.py:588` `def _input_key(full_path: Path, project_dir: Path) -> str`、`:603` `def _build_skill_prompt(skill, project_dir, prompt, chapter, uses_staging=False, shared_context=None, json_mode=False, path_context=None) -> tuple[str, str, list[str]]`
 
 - [ ] **Step 1: F704 step 回滚站点重写**
@@ -161,13 +161,15 @@ def test_lockfile_mutual_exclusion_via_acquire_lock(tmp_path):
 
 - [ ] **Step 4: F702 weight_mismatch 双向断言**
 
-`test_scoring.py:435-444` 删 `or True`。**注意：scoring 用 structlog（PrintLoggerFactory → stderr），不走 stdlib logging，caplog 收不到**——原 `or True` 掩盖的正是这一点。断言打在 stderr 上：
+`test_scoring.py:435-444` 删 `or True`。**注意：scoring 用 structlog，且 pytest 下 conftest 恢复 structlog 默认配置（默认打 stdout）——须先 `configure_logging()` 绑定 stderr 再断言**（conftest fixture 会在 teardown 恢复，安全）：
 
 ```python
 def test_weight_mismatch_warns_and_clean_input_silent(capsys):
     """total_weight != 100 warns on stderr; == 100 stays silent — both pinned."""
+    from shenbi.logging import configure_logging
     from shenbi.scoring import compute_score
 
+    configure_logging()  # PrintLoggerFactory(file=sys.stderr)；conftest teardown 恢复
     dims = [{"num": 1, "weight": 60}, {"num": 2, "weight": 50}]  # 110 != 100
     compute_score(dims, {1: 100, 2: 100})
     assert "weight_mismatch" in capsys.read_outerr().err
@@ -276,7 +278,7 @@ git commit -m "test: C14 T1 — rewrite five self-proving shells to production-p
 - Modify: `tests/pipeline/test_audit_cascading.py`（F748）
 
 - [ ] **F715**：MASTER_PATH 手工保存/恢复改 `monkeypatch.setattr(gen_mod, "MASTER_PATH", tmp_copy)`（异常安全由 monkeypatch 保证）+ 名实对齐
-- [ ] **F716**：8 站点逐一收紧——每处改单一确定状态断言或注明 "gate must complete, not raise" 显式意图（test_g5.py:221、cost/test_report.py:34、test_parallel_dispatch.py:82、test_context_curation.py:30、test_scoring_anti_collapse.py:98-99、test_phase_runner.py:869-870、test_g0.py:215-216；F767 站点不碰）
+- [ ] **F716**：7 站点逐一收紧（spec 标"8 存活"中 test_g2.py 站点已消失，实际处置 7 处）——每处改单一确定状态断言或注明 "gate must complete, not raise" 显式意图（test_g5.py:221、cost/test_report.py:34、test_parallel_dispatch.py:82、test_context_curation.py:30、test_scoring_anti_collapse.py:98-99、test_phase_runner.py:869-870、test_g0.py:215-216；F767 站点不碰）
 - [ ] **F718**：`seed` 形参真实 `st.seed(...)` draw 或删形参（`data.draw` 或直接去参）
 - [ ] **F745**：`executed_concurrently` 用 `threading.Barrier(2)` 在 fake dispatch 内交错验证真并发（两线程都到 barrier 才放行，超时即 FAIL）；single-writer 守卫优先行为验证（并发两写 → 串行化结果一致），否定性主张保留文本级则注明论证
 - [ ] **F746**：`test_returns_empty_for_missing_file` 改名 `test_raises_for_missing_file`；short title 测试补过 `_run_g4_checks` 真实 gate 断言
