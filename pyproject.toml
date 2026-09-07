@@ -427,8 +427,6 @@ norecursedirs = [
     "tests/coverage",
     "tests/tiers",
     "tests/dispatcher",
-    "tests/benchmarks",
-    "tests/pressure-tests",
     "tests/skill-behavior",
     "tests/skill-triggering",
     ".hypothesis",
