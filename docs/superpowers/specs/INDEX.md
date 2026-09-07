@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-09-07（#50 C36 print 纯度 Done PR #176；此前 #54 C16 Done PR #174——fixture 真实性与 G0.9 执法：G0.17-19 provenance 执法 + bug-hunt 证据闭包 + fixture 库治理 + calibration 锚点重建，归档）
-> **活跃 spec 数**：16（#50 C36 Done PR #176；#46 C32 Rejected：11 条成员已由 PR #43 修复；F513 残留待新归属）
+> **最后更新**：2026-09-07（#51 C37 死代码清理与零接线执法 Done PR #179；此前 #50 C36 Done PR #176——fixture 真实性与 G0.9 执法：G0.17-19 provenance 执法 + bug-hunt 证据闭包 + fixture 库治理 + calibration 锚点重建，归档）
+> **活跃 spec 数**：15（#51 C37 Done PR #179——R0 分桶 43 行收口、假防线清除、批量删除、dead-code 执法门；#46 C32 Rejected：11 条成员已由 PR #43 修复；F513 残留待新归属）
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -17,96 +17,6 @@
 - **状态**：Design（记账 pass Done PR #147；索引长期保留） | **优先级**：🔴 P0（总纲）
 - **内容**：phase4 37 簇修复优先级矩阵（P0×7 簇=191 条 / P1×26 簇=483 / P2×4 簇=100，纯 M 簇 0 个）、跨簇依赖链（C32→C33→成本类、C3+C34→C1 验收、C10→C28/C33、C19#26→C37 解冻、C16→C14→C15）、量级汇总（L×7/M×22/S-M×8，3 泳道 6-9 周墙钟）、与既有 23 活跃 spec 的 supersede/解散/保留关系表、回写协议（737 条 merged）
 
-### #51 · 审计修复 C37：死代码清理与零接线执法（P1）
-
-- **文件**：`2026-08-16-c37-dead-code-enforcement-design.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C37，43 条最大 P1 簇）
-- **状态**：Design | **优先级**：🟠 P1 | **依赖**：C3/C7/#26(C19)/C28 各接线裁决后执行
-- **内容**：四桶裁决（接线移交/删除/deferred/already-fixed）收口原始 43 处（2026-09-07 修订：7 已修剔除、7 半修收窄、实际存活 ~27 处/36 编号）——假防线类优先（error_guidance/recovery 谎称消费 F108/F109、注释谎称接线 F378、genesis-context 零消费 F886 verified）；死模块/死表/死参数/死常量批量删（volume_align/CONDITIONAL_STEPS/compact/迁移器等）+ 直测死函数随删（协同 C14）+ dead-code CI 执法防回归（工具 plan 阶段定一）；R0 分桶表是硬闸，未经认领的删除禁止合入
-
-### #52 · 审计修复 C14：弱断言/自证测试（P1）
-
-- **文件**：`2026-08-16-audit-weak-assertions-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C14，26 条）
-- **状态**：Design | **优先级**：🟠 P1
-- **内容**：自证壳重写（F704 内联重实现 / F701 同义反复 / F702 `or True` 恒真 / F728 生产注入块零覆盖 / F729 C1 守卫恒真，均 verified）+ 恒真空断言批量改写（F703/F705/F712/F713/F719/F730-F735/F743/F744）——红灯验证法（破坏生产代码必须变红）+ 禁用模式 meta 检查防回潮；只改测试不改生产（孤儿模块归 C37）
-
-### #53 · 审计修复 C15：关键模块/分支零覆盖（P2）
-
-- **文件**：`2026-08-16-audit-zero-coverage-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C15，12 条）
-- **状态**：Design | **优先级**：🟡 P2
-- **内容**：仓内变更器 sync_contracts 56%（F112）+ dispatcher/cli 0%（F216）+ G2.dec 恢复路径（F418）+ g4 检查器 12%/零引用（F417/F765）+ parallel_dispatch 重试退避（F738）+ audit_context_cache（F737）等 12 面补行为级测试 + per-module 覆盖率底线表（跌破即 CI FAIL，留 5-10pp 余量防 flaky）
-
-### #55 · 审计修复 C17：测试基础设施配置失效（P1）
-
-- **文件**：`2026-08-16-audit-test-infra-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C17，18 条）
-- **状态**：Design | **优先级**：🟠 P1（F1159 回归重放双重死亡）
-- **内容**：hypothesis 样本入库 + CI replay（F1159/T1107/T1108 族）+ doc-links 拆 per-PR CI（F001/F732，承载 C23）+ mutmut 空转修复或诚实下线（T1104 实测 editable .pth 根因）+ golden/benchmark 建集或删承诺（F741/F742）+ G0.5 假 PASS 清理（T1109）——每条防线"激活或下线"二选一，消灭配置存在但永不运行态
-
-### #56 · 审计修复 C18：生产产物污染清洗（P1）
-
-- **文件**：`2026-08-16-audit-artifact-contamination-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C18，17 条；候选元根因 G）
-- **状态**：Design | **优先级**：🟠 P1 | **依赖**：与 C11 写安全协同；R5 覆写面在 #7 不重复
-- **内容**：F1171 权威复扫 109 文件元叙述污染（audits 55+snapshots 37+staging 9+decisions 7+正文 1，verified）+ 2 章手算 resonance（F1162/F1172 铁律 3 实证）——派发层沙箱写权根治（临时区+原子搬入）+ 产物 lint（元叙述/手算自证/时间戳倒挂）+ 分层清洗与机器重算；清洗前后 lint 计数对照可复验
-
-### #57 · 审计修复 C19：快照子系统半迁移收口（P1）
-
-- **文件**：`2026-08-16-audit-snapshot-unify-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C19，12 条）
-- **状态**：Design（大部分失效待复核）| **优先级**：🟠 P1 | **依赖**：#26 三路裁决先决 · **2026-08-30 注记**：#26 已裁决路径 3（移除差分子系统）——本 spec 按其 T0 大部分自动失效，存活面仅 T4 truth-files.yaml/词面协调，待其自身价值门复核
-- **内容**：F351 step-15 空操作 + F1109 生产实证失能（拼接审计非正文、漏 ch1-4/ch56）——布局/命名单源化（F792/F350/F306 三套并存）、TRUTH_FILES 从 truth-files.yaml 派生（F348 缺 book_strata/arcs）、state_heal 识别定稿布局（F317）、词表 D20 协调（F1155）+ 恢复演练与 F1109 复验脚本
-
-### #58 · 审计修复 C20：技能契约声明面断裂（P1）
-
-- **文件**：`2026-08-16-audit-skill-contract-declaration-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C20，21 条）
-- **状态**：Design | **优先级**：🟠 P1
-- **内容**：契约闭合 lint（R1 正文引用⊆声明 / R2 声明 writes⇒正文有步骤）+ P1 十技能修复（F836 memory-distill L5 盲写风险 / F811 context-composing 写未声明+时序错位 / F838 market-radar 必然 JSON 校验失败 / F870 越权写 / F871 dedup key 错配 等）+ D104 meta skill 契约二义性裁决——#23 声明面并入（待归档）；token 预算与 C2 Layer B/C29 截断协同
-
-### #59 · 审计修复 C21：技能注册/触发路由漂移（P1）
-
-- **文件**：`2026-08-16-audit-skill-routing-deprecated-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C21，12 条）
-- **状态**：Design | **优先级**：🟠 P1 | **依赖**：GENESIS_STEPS 换 lifecycle 排在 C3/C20 契约定稿后
-- **内容**：F873（verified）触发表路由 14 个 DEPRECATED 且后继零触发行 + F887 GENESIS_STEPS 仍派发 plant + F816/F817/F819 deps.json 仍注册——三路由面拆除 + 后继触发行补齐 + description 契约整改（F835/F842/F877 when-to-use）+ 防回潮 lint（DEPRECATED⇒零路由）+ F905 双重调度语义面（自 #23 补登）；#23 拆除面并入（已归档 Rejected）
-
-### #60 · 审计修复 C22：平行登记表对账门禁（P1）
-
-- **文件**：`2026-08-16-audit-registry-reconcile-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C22，29 条）
-- **状态**：Design | **优先级**：🟠 P1 | **依赖**：T209 canonicalizer 裁决先于 R2 词表闭包
-- **内容**：单一对账 lint 五规则（R1 技能闭包八面 / R2 词表闭包 / R3 哈希新鲜度 / R4 迁移表 / R5 glob 有效性）+ 存量修正（#9 R1 已实现 skill↔deps.json 闭包 lint，R1 并入时以 #9 实现为基线扩展；F432 G5_CHECKER_GLOBS 假 FAIL 生产面 / F1004 master.json 缺 15 技能 / F414 SHORT_MAP 缺 11 / F756 66 过期哈希 / F231 三方 74-69-69）——phase4 §7 第 9 位（改动小拦截面大）；#9/#23 登记面并入（待归档）；T203 dependency-dag.json 生成零消费（自 #24 补登）
-
-### #61 · 审计修复 C23：文档机械漂移（P1）
-
-- **文件**：`2026-08-16-audit-docs-mechanical-drift-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C23，46 条）
-- **状态**：Design | **优先级**：🟠 P1 | **依赖**：C17 T2 doc-links CI 承载
-- **内容**：断链清零（F901 执行协议引用已删脚本 / F461/F1034 / F952 / F968 归档 32 路径）+ 计数去数字化（69/59/15 族四文档 vs 磁盘 74，F904/F1033 合并域；#9 R5 已做 69→74 同步，去数字化时直接替换）+ 行号锚点改符号引用（T1001 第三次漂移教训）+ docstring 过期批量清——与 C24 共用"文档对账工具+CI"（phase4 §7 合并建议的机械半）
-
-### #62 · 审计修复 C24：文档语义矛盾（P2）
-
-- **文件**：`2026-08-16-audit-docs-semantic-conflicts-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C24，56 条最大文档簇）
-- **状态**：Design | **优先级**：🟡 P2 | **依赖**：阈值/词表类等 C9/C22/C16 定源后改引用
-- **内容**：裁决次序表（代码实值 > 最新设计 > 多数版本）+ DOT↔正文矛盾修复（F837/F852/F855，DOT 为权威）+ 缺失件补齐（F893 五技能缺 DOT 含 group-* 主力 / F801/F813 anti-rationalization 表）+ INDEX/spec 体系自洽（F935 排序 / F936 编号 / F938 重复 / F946-F950 勘误注）+ 术语/刻度统一（F885 X/10 vs /100）+ F903 skill 内部矛盾族（自 #23 补登）
-
-### #63 · 审计修复 C25：CI/just 双向同步漂移（P1）
-
-- **文件**：`2026-08-16-audit-ci-just-sync-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C25，24 条）
-- **状态**：Design | **优先级**：🟠 P1 | **依赖**：是 C17/C20/C21/C22 新 lint 的承载前提（先于此执行）
-- **内容**：清单一源化（CI 调 just check，F004/F005/F1001/F1002 双向洞 + AGENTS.md 等价命令失真）+ coverage 工件隔离（D101 collect-only 污染 16.08% / F1040 just test 假失败，AGENTS.md PR 协议 4 制度化）+ hook/工具激活面（F1038/F1011/F1012/F1015/F1036）+ workflow 修复（F1006/F1007/F1021）+ F1207 codeql.yml 无 pull_request vs SECURITY.md "every PR" 声明漂移（自 #24 补登）+ T1504 novel-output 22.7MB 反忽略出库（与 C18 协同）
-
-### #64 · 审计修复 C26：shell/just 包装层注入（P1）
-
-- **文件**：`2026-08-16-audit-shell-injection-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C26，11 条）
-- **状态**：Design | **优先级**：🟠 P1
-- **内容**：F1031（verified）just 全 recipe 参数无引用插值——自然语言 prompt 含 ;/$() 即任意命令（AGENTS.md 标准入口即攻击面）→ argv/env 安全传递模式 + 六类注入样本矩阵回归；F002 run_pipeline.sh 自动 approve ESCALATION + 直改 step_index → 白名单 opt-in 或降级 smoke 工具；F1013/T1205 python3 -c 拼接实证可执行任意 Python → argv 传参 + JSON 工具解析；README 示例实测（F902/F1030）
 ### #6 · Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置
 
 - **文件**：`2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design.md`

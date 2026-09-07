@@ -2,7 +2,7 @@
 
 > 硬闸：T2-T6 逐行执行；表外删除禁止合入。行首锚定 `| F###`/`| T###`（行数验收用）。
 > 桶：wire=接线/移交 · delete=本 spec 删除 · defer=显式延期 · already-fixed=已由其他 spec 修复/主张失效
-> 执行者 T2-T6 对应 plan `docs/superpowers/plans/2026-09-07-c37-dead-code-enforcement.md`
+> 执行者 T2-T6 对应 plan `docs/superpowers/plans/archive/2026-09-07-spec51-c37-dead-code-enforcement.md`
 
 | Finding | 形态摘要 | file:line（当前 main） | 桶 | 执行者 | 备注 |
 | F108 | error_guidance 模块零消费者、doc_url/脚本引用不存在 | src/shenbi/error_guidance.py:24-35 | delete | T2 | 与 F109 整删 |

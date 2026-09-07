@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-07 — 阶段 2 复核：43 成员中 7 已被其他 spec 修复剔除、7 半修收窄、2 被重构待现判，实际存活 ~27) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #179 + #180, 2026-09-07) (was: Design (Revised 2026-09-07 — 阶段 2 复核：43 成员中 7 已被其他 spec 修复剔除、7 半修收窄、2 被重构待现判，实际存活 ~27) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C37——43 条最大 P1 簇）| **依赖:** 在 C3/C7/C19(#26)/C28 各"接线裁决"spec 之后执行（本簇只清理其余 spec 未认领的死面）；与 C14 协同（直测死函数的自证测试随删除下线）| **范围:** src/shenbi 全域（error_guidance/recovery、volume_align、compact、迁移器、CONDITIONAL_STEPS、死参数/死字段/死常量）+ CI dead-code 检查 | **核心洞察:** 每一批"已实现但零接线"的功能都在说谎（docstring 声称 consumed by CLI boundary、注释声称 cli.py resume 调用）——死代码不只是浪费，它是**假防线**：读者与审计都以为机制存在。无 vulture 式执法使 43 处横散
 
 # C37 · 死代码清理与零接线执法（dead-code-enforcement）
