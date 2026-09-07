@@ -22,8 +22,15 @@ def _chapter_fixture() -> Path:
 LAYOUTS = ["skill-output", "novel-output", "project-output"]
 
 
-def _assemble(base: Path, layout: str) -> tuple[Path, Path]:
-    """Build a layout-shaped project; return (rd, project_dir)."""
+def _assemble(base: Path, layout: str) -> tuple[Path, Path, Path]:
+    """Build a layout-shaped project; return (rd, default project_dir, alt_pd).
+
+    alt_pd is a separate project root (own genre-config) so the pd-ne-rd
+    matrix cell is meaningful for skill/novel-output layouts too.
+    """
+    alt = base / "pd-alt"
+    alt.mkdir()
+    shutil.copy(FIXTURES / "genre-config-example.json", alt / "genre-config.json")
     if layout == "project-output":
         pd = base / "pd"
         rd = base / "rd"
@@ -39,7 +46,7 @@ def _assemble(base: Path, layout: str) -> tuple[Path, Path]:
     )
     target_dir = rd / "project-output" if layout == "project-output" else rd
     shutil.copy(_chapter_fixture(), target_dir / "chapter-3-x.md")
-    return rd, pd
+    return rd, pd, alt
 
 
 def _project_root(pd: Path, layout: str) -> Path:
@@ -58,13 +65,13 @@ def test_g4_locates_same_file_across_matrix(
     cwd_inside: bool,
     pd_differs: bool,
 ) -> None:
-    rd, pd = _assemble(tmp_path / "case", layout)
+    rd, pd, alt_pd = _assemble(tmp_path / "case", layout)
     chapter_dir = rd / "project-output" if layout == "project-output" else rd
     target = chapter_dir / "chapter-3-x.md"
     rel_fp = "project-output/chapter-3-x.md" if layout == "project-output" else "chapter-3-x.md"
     fp = rel_fp if relative else str(target)
     monkeypatch.chdir(rd if cwd_inside else tmp_path)
-    gpd = pd if pd_differs else rd
+    gpd = (pd if layout == "project-output" else alt_pd) if pd_differs else rd
     result = json.loads(g4_chapter_drafting([fp], str(rd), str(gpd), str(tmp_path)))
     must_fix = " ".join(str(x) for x in result.get("must_fix", []))
     assert "G4.file_not_found" not in must_fix, (
