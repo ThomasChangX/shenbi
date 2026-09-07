@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-09-07（#47 C33 Done PR #164——FailureClass 分类 + 全局重试预算语义，归档）
-> **活跃 spec 数**：20（#46 C32 Rejected：11 条成员已由 PR #43 修复；F513 残留待新归属）
+> **最后更新**：2026-09-07（#48 C34 Done PR #168——路径/布局契约统一：detect 单源 + gate 接线收口 + 观测面同根，归档；前置 REWRITE PR #167）
+> **活跃 spec 数**：19（#46 C32 Rejected：11 条成员已由 PR #43 修复；F513 残留待新归属）
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -19,13 +19,6 @@
 - **内容**：phase4 37 簇修复优先级矩阵（P0×7 簇=191 条 / P1×26 簇=483 / P2×4 簇=100，纯 M 簇 0 个）、跨簇依赖链（C32→C33→成本类、C3+C34→C1 验收、C10→C28/C33、C19#26→C37 解冻、C16→C14→C15）、量级汇总（L×7/M×22/S-M×8，3 泳道 6-9 周墙钟）、与既有 23 活跃 spec 的 supersede/解散/保留关系表、回写协议（737 条 merged）
 
 
-
-### #48 · 审计修复 C34：路径/布局契约统一（P1）
-
-- **文件**：`2026-08-16-c34-path-layout-contract-design.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C34，14 条）
-- **状态**：Design（对应 plan ✅ ready：plans/2026-09-07-c34-path-layout-contract.md） | **优先级**：🟠 P1
-- **内容**：skill-output/novel-output/project-output 三布局并存，rd/project_dir 语义从未统一——cli G4 project_dir 恒等 rd 致 PWI 静默缺席（F433/F101 残留）/ gate_G2 裸 Path(fp) 按 CWD 解析（F456）/ bughunt/clean 分支丢 rd 崩溃（F457）/ G0.3 扫描不存在的 skill-output（F413/F407）/ CWD 依赖（F628/F115 残留/F119）/ G1.4 checker 内写 .bak（F412）——一页路径协议 + resolve 单入口 + 观测面同根；supersede #8 的 R8/F163 面；是 C1 对账 lint 验收的地基（2026-09-07 Revised：F401/F408/F519 已由先前 PR 修复出簇，11 条存活）
 
 ### #49 · 审计修复 C35：审计过程自身卫生（P1）
 
