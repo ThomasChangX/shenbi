@@ -153,9 +153,10 @@ def test_lockfile_mutual_exclusion_via_acquire_lock(tmp_path):
     os.close(fd1)
     if lock1 is not None:
         lock1.unlink()
-    # 在持锁窗口内，第二个获取不得成功返回
-    assert "second" not in results, f"mutual exclusion broken: {results.get('second')}"
-```
+    t.join(timeout=2.0)  # 释放后再等线程退出，消除 release→assert 间唤醒窗口
+    # 在持锁窗口内，第二个获取不得成功返回（此刻 results 只反映持锁窗口内的事实：
+    # 记录于 release 前由 try_second 写入——将下面断言改为在 release 前快照）
+    assert "second" not in results, f"mutual exclusion broken: {results.get('second')}"```
 
 保留/补一条权限断言测试——**POSIX 下 `_acquire_lock` 走 flock 分支不产 lockfile**，须强制 O_EXCL fallback（monkeypatch `fcntl` 导入失败，同文件已有先例 `test_safe_write_lockfile_fallback_cleanup_posix`），在 fallback 产出 lockfile 后断言 `stat().st_mode & 0o777 == 0o600`，删除 raw `os.open`+`os.chmod` 自建 lockfile 的同义反复体。
 
