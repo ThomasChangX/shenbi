@@ -223,9 +223,7 @@ from hypothesis import strategies as st
 from shenbi.skill_utils.chapter_pattern.compute_pattern import PATTERNS, compute_entropy
 
 # input 必须取自 PATTERNS（compute_entropy 的契约：未知模式不入归一分母）
-pattern_lists = st.lists(
-    st.sampled_from(PATTERNS), min_size=1, max_size=40
-)
+pattern_lists = st.lists(st.sampled_from(PATTERNS), min_size=1, max_size=40)
 
 
 @given(pattern_lists)
@@ -306,9 +304,9 @@ from shenbi.skill_utils.style_learning.compute_stats import (
     compute_sentence_stats,
 )
 
-sorted_pos_ints = st.lists(
-    st.integers(min_value=1, max_value=999), min_size=1, max_size=60
-).map(lambda xs: sorted(xs))
+sorted_pos_ints = st.lists(st.integers(min_value=1, max_value=999), min_size=1, max_size=60).map(
+    lambda xs: sorted(xs)
+)
 
 
 @given(sorted_pos_ints)
@@ -422,9 +420,7 @@ scores_st = st.lists(
     excl=st.sets(st.integers(min_value=0, max_value=19), max_size=8),
 )
 @settings(max_examples=200, deadline=None)
-def test_monotonic_decline_span_excludes_overridden(
-    raw: list[float], excl: set[int]
-) -> None:
+def test_monotonic_decline_span_excludes_overridden(raw: list[float], excl: set[int]) -> None:
     """drift 排除不泄漏（触发层）：任何 MONOTONIC_DECLINE 的章节跨度不含 excl 索引。
 
     excl reset run/start/prev（compute_drift.py:91-92），故递减不可能跨越被排除章。
@@ -549,7 +545,9 @@ from hypothesis import strategies as st
 
 from shenbi.text.cjk import find_terms
 
-cjk_pad = st.text(alphabet=st.sampled_from(list("在这个时代悄然兴起运动发展和平")), min_size=1, max_size=6)
+cjk_pad = st.text(
+    alphabet=st.sampled_from(list("在这个时代悄然兴起运动发展和平")), min_size=1, max_size=6
+)
 term_st = st.sampled_from(["革命", "暴动", "起义", "敏感词"])
 
 
@@ -628,9 +626,7 @@ skill = st.sampled_from(["shenbi-worldbuilding", "shenbi-chapter-drafting"])
 @settings(max_examples=40, deadline=None)
 def test_no_scorer_recorded_fails_closed(skill: str) -> None:
     """G3.4 fail-closed：progress.json 存在但无 current_scorer_agent → FAIL（空转 bug 的正确化）。"""
-    status, _ = scoring_independence_status(
-        {"agent_trace": {skill: "agent-1"}}, skill
-    )
+    status, _ = scoring_independence_status({"agent_trace": {skill: "agent-1"}}, skill)
     assert status == "FAIL"
 
 
@@ -666,9 +662,7 @@ def test_different_agents_pass_only_when_distinct(skill: str, gen: str, scorer: 
 @settings(max_examples=40, deadline=None)
 def test_scorer_present_no_gen_trace_passes(skill: str) -> None:
     """有独立评分者、无该技能生成 trace（无法证同源）→ 不能判同源 → PASS。"""
-    status, _ = scoring_independence_status(
-        {"current_scorer_agent": "scorer-9"}, skill
-    )
+    status, _ = scoring_independence_status({"current_scorer_agent": "scorer-9"}, skill)
     assert status == "PASS"
 ```
 
@@ -689,14 +683,13 @@ current_scorer_agent 时返回 PASS（空转 bug）。本模块承载**正确**�
   - 生成 agent == 评分 agent（同源）→ FAIL
   - 否则 → PASS
 """
+
 from __future__ import annotations
 
 from typing import Any
 
 
-def scoring_independence_status(
-    progress: dict[str, Any], skill_name: str
-) -> tuple[str, str]:
+def scoring_independence_status(progress: dict[str, Any], skill_name: str) -> tuple[str, str]:
     """返回 ("PASS","") 或 ("FAIL", reason)。fail-closed：缺评分证据即 FAIL。"""
     scorer = progress.get("current_scorer_agent")
     if not scorer:
@@ -806,6 +799,7 @@ def test_exists_and_list_dir_read_only(tmp_path: Path) -> None:
 v5 命名分离（I1）：本模块仅 in-process；codex subprocess 的 read-provenance
 （需 FUSE/ptrace）是 future work / 已知盲点，不由本模块承担。
 """
+
 from __future__ import annotations
 
 from pathlib import Path

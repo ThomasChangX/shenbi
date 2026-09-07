@@ -399,6 +399,7 @@ git commit -m "feat: add density-driven trigger to memory-distill (wave4 task6c)
 ```python
 # tests/unit/pipeline/test_skill_integration.py
 """Verify all Wave 4 skill modifications are consistent."""
+
 from __future__ import annotations
 from pathlib import Path
 import yaml
@@ -407,11 +408,13 @@ import pytest
 PROJECT = Path(__file__).resolve().parents[3]
 SKILLS = PROJECT / "skills"
 
+
 def _load_frontmatter(skill: str) -> dict:
     path = SKILLS / skill / "SKILL.md"
     text = path.read_text(encoding="utf-8")
     parts = text.split("---", 2)
     return yaml.safe_load(parts[1]) or {}
+
 
 class TestCharacterDesignExpand:
     def test_contract_unchanged(self):
@@ -421,12 +424,16 @@ class TestCharacterDesignExpand:
 
     def test_expand_mode_documented(self):
         text = (SKILLS / "shenbi-character-design" / "SKILL.md").read_text(encoding="utf-8")
-        assert "expand" in text.lower() and "## 扩展模式" in text  # check section heading, not just keyword
+        assert (
+            "expand" in text.lower() and "## 扩展模式" in text
+        )  # check section heading, not just keyword
+
 
 class TestForeshadowingPlantGenesis:
     def test_genesis_mode_documented(self):
         text = (SKILLS / "shenbi-foreshadowing-plant" / "SKILL.md").read_text(encoding="utf-8")
         assert "genesis" in text.lower()
+
 
 class TestChapterDraftingContextRead:
     def test_context_in_reads(self):
@@ -434,15 +441,21 @@ class TestChapterDraftingContextRead:
         reads = fm["contract"]["reads"]
         assert any("context/chapter-N-context.md" in r for r in reads)
 
+
 class TestDriftGuidanceWindow:
     def test_rolling_window_documented(self):
         text = (SKILLS / "shenbi-drift-guidance" / "SKILL.md").read_text(encoding="utf-8")
-        assert "滚动窗口" in text and "12" in text  # verify both the rule name and the chapter count
+        assert (
+            "滚动窗口" in text and "12" in text
+        )  # verify both the rule name and the chapter count
+
 
 class TestStyleLearningBootstrap:
     def test_bootstrap_documented(self):
         text = (SKILLS / "shenbi-style-learning" / "SKILL.md").read_text(encoding="utf-8")
-        assert "bootstrap" in text.lower() and "bootstrap: true" in text.lower()  # check actual field reference
+        assert (
+            "bootstrap" in text.lower() and "bootstrap: true" in text.lower()
+        )  # check actual field reference
 ```
 
 - [ ] **Step 2: Run tests, verify pass. Commit.**

@@ -56,12 +56,16 @@ def test_unknown_model_conservative_limit():
 def test_unknown_model_warns_once(caplog):
     estimate.reset_unknown_model_warning()
     import logging
+
     logger = logging.getLogger("shenbi.cost.estimate")
     with caplog.at_level(logging.WARNING, logger="shenbi.cost.estimate"):
         estimate.warn_if_over_budget("x" * 600_000, "totally-unknown-model", logger=logger)
         estimate.warn_if_over_budget("x" * 600_000, "totally-unknown-model", logger=logger)
-    once = [r for r in caplog.records if r.name == "shenbi.cost.estimate"
-            and "unknown model" in str(r.msg)]
+    once = [
+        r
+        for r in caplog.records
+        if r.name == "shenbi.cost.estimate" and "unknown model" in str(r.msg)
+    ]
     assert len(once) == 1
     estimate.reset_unknown_model_warning()
 ```
@@ -160,11 +164,18 @@ from shenbi.cost.ledger import TokenLedger, TokenUsageRecord
 
 def _old_row(skill="chapter-drafting"):
     # 0d36d31a 时代的旧格式行：无新字段
-    return json.dumps({
-        "timestamp": "2026-08-16T00:00:00+00:00", "skill": skill, "chapter": 1,
-        "model": "deepseek-v4-flash", "prompt_tokens": 10, "completion_tokens": 5,
-        "total_tokens": 15, "estimated_cost_usd": 0.001,
-    })
+    return json.dumps(
+        {
+            "timestamp": "2026-08-16T00:00:00+00:00",
+            "skill": skill,
+            "chapter": 1,
+            "model": "deepseek-v4-flash",
+            "prompt_tokens": 10,
+            "completion_tokens": 5,
+            "total_tokens": 15,
+            "estimated_cost_usd": 0.001,
+        }
+    )
 
 
 def test_mixed_old_and_new_rows_all_readable(tmp_path: Path):
@@ -186,8 +197,9 @@ def test_record_estimated_and_attempt_flags(tmp_path: Path):
 
 
 def test_unknown_model_marked_not_silent_zero(tmp_path: Path):
-    rec = TokenLedger(tmp_path).record("s", 1, {"prompt_tokens": 10, "total_tokens": 10},
-                                       model="no-such-model-v9")
+    rec = TokenLedger(tmp_path).record(
+        "s", 1, {"prompt_tokens": 10, "total_tokens": 10}, model="no-such-model-v9"
+    )
     assert rec.pricing_status == "unknown-model"
     assert rec.model == "no-such-model-v9"  # 真实模型名保留
 
@@ -299,14 +311,17 @@ def test_ide_dispatch_records_estimate_row(tmp_path: Path, monkeypatch):
         returncode = 0
         stdout = "### FILE: out.md\nhi"
         stderr = ""
+
     monkeypatch.setattr(dh.subprocess, "run", lambda *a, **k: R())
     monkeypatch.setattr(dh, "_find_ide_cli", lambda: ["cat", "{dir}"])
     monkeypatch.setattr(dh, "_build_skill_prompt", lambda *a, **k: ("sys", "user", ["out.md"]))
     monkeypatch.setattr(dh, "_write_parsed_outputs", lambda *a, **k: True)
     res = dh._dispatch_via_ide("skill-x", tmp_path, "写第 3 章 chapter-003.md")
     assert res.success
-    rows = [json.loads(l) for l in
-            (tmp_path / "cost" / "token-ledger.jsonl").read_text(encoding="utf-8").splitlines()]
+    rows = [
+        json.loads(l)
+        for l in (tmp_path / "cost" / "token-ledger.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
     assert any(r["estimated"] is True for r in rows)
 ```
 
@@ -395,6 +410,7 @@ def test_write_report_creates_file(tmp_path: Path):
 
 def test_write_report_fail_safe(tmp_path: Path, monkeypatch):
     import shenbi.cost.report as rep
+
     monkeypatch.setattr(rep, "render_report", lambda p: (_ for _ in ()).throw(RuntimeError("x")))
     assert write_report(tmp_path) is None  # WARN 不 raise
 
@@ -404,14 +420,16 @@ def test_complete_chapter_renders_report(tmp_path: Path, monkeypatch):
     # state.project_dir / state.chapter_loop.chapter_states；上游检查打桩。
     from types import SimpleNamespace as NS
     from shenbi.pipeline import chapter_loop
+
     monkeypatch.setattr("shenbi.pipeline.product_contracts.check_product_contracts", lambda pd: [])
     monkeypatch.setattr(chapter_loop, "_maybe_rebuild_truth_index", lambda *a: None)
     # 其余下游（checkpoint 设定等）按 _complete_chapter 实际代码路径补桩，
     # 目标断言只有一个：函数返回后 cost/report.md 存在。
-    state = NS(project_dir=str(tmp_path),
-               chapter_loop=NS(chapter_states={}),
-               # 按 _complete_chapter 读到的其余属性逐个补 NS 默认
-               )
+    state = NS(
+        project_dir=str(tmp_path),
+        chapter_loop=NS(chapter_states={}),
+        # 按 _complete_chapter 读到的其余属性逐个补 NS 默认
+    )
     try:
         chapter_loop._complete_chapter(state, 1)
     except Exception:
@@ -422,8 +440,13 @@ def test_complete_chapter_renders_report(tmp_path: Path, monkeypatch):
 def test_closure_completed_renders_report(tmp_path: Path, monkeypatch):
     from types import SimpleNamespace as NS
     from shenbi.pipeline import closure as clo
-    state = NS(closure_step=len(clo.CLOSURE_STEPS), closure=None,
-               closure_retries={}, project_dir=str(tmp_path))
+
+    state = NS(
+        closure_step=len(clo.CLOSURE_STEPS),
+        closure=None,
+        closure_retries={},
+        project_dir=str(tmp_path),
+    )
     assert clo.run_closure_step(state, tmp_path) is True
     assert state.closure == clo.ClosureState.COMPLETED
     assert (tmp_path / "cost" / "report.md").exists()
@@ -519,8 +542,9 @@ def test_per_chapter_average_has_caveat_line(tmp_path: Path):
 
 def test_estimated_rows_broken_out(tmp_path: Path):
     TokenLedger(tmp_path).record("metered", 1, {"prompt_tokens": 5, "total_tokens": 5})
-    TokenLedger(tmp_path).record("unmetered", 2, {"prompt_tokens": 50, "total_tokens": 50},
-                                 estimated=True)
+    TokenLedger(tmp_path).record(
+        "unmetered", 2, {"prompt_tokens": 50, "total_tokens": 50}, estimated=True
+    )
     text = render_report(tmp_path)
     assert "Estimated (lower-bound) rows: 1" in text
     assert "50" in text.split("Estimated (lower-bound) rows: 1")[1].splitlines()[0]
@@ -592,17 +616,20 @@ from shenbi.pipeline import dispatch_helper as dh
 
 def _fake_client(stream):
     """client stub whose create() returns the given iterable stream."""
+
     class Client:
         class chat:
             class completions:
                 @staticmethod
                 def create(**kw):
                     return stream
+
     return Client()
 
 
 class _MidstreamStream:
     """建流成功、中途断流——usage 永不送达。"""
+
     def __iter__(self):
         yield NS(usage=None, choices=[NS(finish_reason=None, delta=NS(content="部分"))])
         raise ConnectionError("reset")
@@ -610,6 +637,7 @@ class _MidstreamStream:
 
 class _UsageThenErrorStream:
     """usage 已送达后失败——流末失败形态。"""
+
     def __iter__(self):
         yield NS(usage=None, choices=[NS(finish_reason="stop", delta=NS(content="ok"))])
         yield NS(usage=NS(prompt_tokens=10, completion_tokens=4, total_tokens=14), choices=[])
@@ -620,8 +648,12 @@ def test_usage_acc_semantics_midstream():
     """usage_acc 语义单元层断言：中途断流 usage 永不送达，attempts 递增。"""
     acc: dict = {}
     try:
-        dh._call_llm_streaming(_fake_client(_MidstreamStream()), "m",
-                               [{"role": "user", "content": "写"}], usage_acc=acc)
+        dh._call_llm_streaming(
+            _fake_client(_MidstreamStream()),
+            "m",
+            [{"role": "user", "content": "写"}],
+            usage_acc=acc,
+        )
     except ConnectionError:
         pass
     assert acc.get("usage") is None
@@ -636,14 +668,18 @@ def test_wrapper_accounts_via_dispatch_api_midstream(tmp_path: Path, monkeypatch
     monkeypatch.setenv("SHENBI_LLM_MODEL", "deepseek-v4-flash")
     with (
         patch("openai.OpenAI") as mock_openai,
-        patch("shenbi.pipeline.dispatch_helper._build_skill_prompt",
-              return_value=("sys", "user", ["chapters/chapter-1.md"])),
+        patch(
+            "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+            return_value=("sys", "user", ["chapters/chapter-1.md"]),
+        ),
     ):
         mock_openai.return_value.chat.completions.create.return_value = _MidstreamStream()
         res = dh._dispatch_via_api("shenbi-chapter-drafting", tmp_path, "Chapter 1 draft")
     assert not res.success
-    rows = [json.loads(l) for l in
-            (tmp_path / "cost" / "token-ledger.jsonl").read_text(encoding="utf-8").splitlines()]
+    rows = [
+        json.loads(l)
+        for l in (tmp_path / "cost" / "token-ledger.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
     assert any(r.get("estimated") is True and r["attempt"] >= 1 for r in rows)
 
 
@@ -655,16 +691,22 @@ def test_wrapper_accounts_real_usage_after_stream_end(tmp_path: Path, monkeypatc
     monkeypatch.setenv("SHENBI_LLM_MODEL", "deepseek-v4-flash")
     with (
         patch("openai.OpenAI") as mock_openai,
-        patch("shenbi.pipeline.dispatch_helper._build_skill_prompt",
-              return_value=("sys", "user", ["chapters/chapter-1.md"])),
+        patch(
+            "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+            return_value=("sys", "user", ["chapters/chapter-1.md"]),
+        ),
     ):
         mock_openai.return_value.chat.completions.create.return_value = _UsageThenErrorStream()
         res = dh._dispatch_via_api("shenbi-chapter-drafting", tmp_path, "Chapter 1 draft")
     assert not res.success
-    rows = [json.loads(l) for l in
-            (tmp_path / "cost" / "token-ledger.jsonl").read_text(encoding="utf-8").splitlines()]
-    assert any(r.get("estimated") is not True and r["prompt_tokens"] == 10
-               and r["attempt"] >= 1 for r in rows)
+    rows = [
+        json.loads(l)
+        for l in (tmp_path / "cost" / "token-ledger.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert any(
+        r.get("estimated") is not True and r["prompt_tokens"] == 10 and r["attempt"] >= 1
+        for r in rows
+    )
 
 
 def test_success_emits_dispatch_trace_with_finish_reason(tmp_path: Path, monkeypatch):
@@ -674,23 +716,34 @@ def test_success_emits_dispatch_trace_with_finish_reason(tmp_path: Path, monkeyp
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "k")
     monkeypatch.setenv("SHENBI_LLM_MODEL", "deepseek-v4-flash")
     fake_stream = [
-        NS(usage=None, choices=[NS(finish_reason="stop", delta=NS(content="### FILE: chapters/chapter-1.md\nbody\n"))]),
+        NS(
+            usage=None,
+            choices=[
+                NS(
+                    finish_reason="stop",
+                    delta=NS(content="### FILE: chapters/chapter-1.md\nbody\n"),
+                )
+            ],
+        ),
         NS(usage=NS(prompt_tokens=5, completion_tokens=1, total_tokens=6), choices=[]),
     ]
     with (
         patch("openai.OpenAI") as mock_openai,
-        patch("shenbi.pipeline.dispatch_helper._build_skill_prompt",
-              return_value=("sys", "user", ["chapters/chapter-1.md"])),
+        patch(
+            "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+            return_value=("sys", "user", ["chapters/chapter-1.md"]),
+        ),
     ):
         mock_openai.return_value.chat.completions.create.return_value = fake_stream
         res = dh._dispatch_via_api("shenbi-chapter-drafting", tmp_path, "Chapter 1 draft")
     assert res.success
-    events = [json.loads(l) for l in
-              (tmp_path / "trace.jsonl").read_text(encoding="utf-8").strip().splitlines() if l]
+    events = [
+        json.loads(l)
+        for l in (tmp_path / "trace.jsonl").read_text(encoding="utf-8").strip().splitlines()
+        if l
+    ]
     disp = [e for e in events if e["action"] == "DISPATCH"]
     assert disp and disp[0]["payload"]["finish_reason"] == "stop"
-
-
 ```
 
 （`_is_retryable` 对 ConnectionError 的归类决定 attempt 计数上限；若 ConnectionError 非 retryable，attempt=1 仍满足 `>= 1` 断言。timeout 路径同构，不单测。）
@@ -753,8 +806,9 @@ def _account_failed_attempt(
         if usage is not None:
             _record_usage_to_ledger(skill, chapter, usage, project_dir, attempt=attempts)
         else:
-            _record_estimate_row(skill, chapter, f"{system_prompt}\n\n{user_prompt}",
-                                 project_dir, attempt=attempts)
+            _record_estimate_row(
+                skill, chapter, f"{system_prompt}\n\n{user_prompt}", project_dir, attempt=attempts
+            )
     except Exception:
         log.warning("failed_attempt_accounting_error", skill=skill, exc_info=True)
 ```
@@ -764,8 +818,16 @@ def _account_failed_attempt(
 4. 成功路径 trace：`_dispatch_via_api` 收尾（`api_dispatch_complete` 日志附近，finish_reason 已知处）：
 
 ```python
-    _emit_dispatch_trace(project_dir, skill, chapter, model, finish_reason,
-                         bool(usage is None), usage_acc.get("attempts", 1), success=True)
+_emit_dispatch_trace(
+    project_dir,
+    skill,
+    chapter,
+    model,
+    finish_reason,
+    bool(usage is None),
+    usage_acc.get("attempts", 1),
+    success=True,
+)
 ```
 
 5. trace helper（fail-safe，trace 不存在则 DEBUG 跳过——不新建 trace 文件面）：

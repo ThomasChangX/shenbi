@@ -96,6 +96,7 @@ L3 context 缺失（H3）
 ```python
 # 新增文件：src/shenbi/skill_utils/drift_detection/linguistic_drift.py
 
+
 def compute_linguistic_drift(chapter_text: str, baseline: dict) -> dict:
     """计算章节文本的语言学漂移指标。
 
@@ -105,23 +106,27 @@ def compute_linguistic_drift(chapter_text: str, baseline: dict) -> dict:
 
     # 1. 系统术语密度
     SYSTEM_TERMS = re.compile(
-        r'(参数|系统|格式串|历法|槽位|帧序列|阈值|在场于|'
-        r'知道.{0,10}在|Phase\s+\d|MH-\d+|P[012]\.\d+)'
+        r"(参数|系统|格式串|历法|槽位|帧序列|阈值|在场于|"
+        r"知道.{0,10}在|Phase\s+\d|MH-\d+|P[012]\.\d+)"
     )
-    metrics['system_term_density'] = len(SYSTEM_TERMS.findall(chapter_text)) / len(chapter_text) * 1000
+    metrics["system_term_density"] = (
+        len(SYSTEM_TERMS.findall(chapter_text)) / len(chapter_text) * 1000
+    )
 
     # 2. 破折号密度（枚举分隔符）
-    metrics['em_dash_density'] = chapter_text.count('——') / max(len(chapter_text), 1) * 1000
+    metrics["em_dash_density"] = chapter_text.count("——") / max(len(chapter_text), 1) * 1000
 
     # 3. 短句链密度（连续5+个 ≤15字句子）
-    short_sents = re.findall(r'(?:[^。]{1,15}。){5,}', chapter_text)
-    metrics['short_sentence_chain_density'] = sum(len(s) for s in short_sents) / max(len(chapter_text), 1) * 1000
+    short_sents = re.findall(r"(?:[^。]{1,15}。){5,}", chapter_text)
+    metrics["short_sentence_chain_density"] = (
+        sum(len(s) for s in short_sents) / max(len(chapter_text), 1) * 1000
+    )
 
     # 4. "冷在"句式密度
-    metrics['leng_zai_density'] = chapter_text.count('冷在') / max(len(chapter_text), 1) * 1000
+    metrics["leng_zai_density"] = chapter_text.count("冷在") / max(len(chapter_text), 1) * 1000
 
     # 5. 对话密度（" 出现次数 / 总字数）
-    metrics['dialogue_density'] = chapter_text.count('"') / max(len(chapter_text), 1) * 1000
+    metrics["dialogue_density"] = chapter_text.count('"') / max(len(chapter_text), 1) * 1000
 
     # 计算与 baseline 的偏差
     deviations = {}
@@ -130,9 +135,9 @@ def compute_linguistic_drift(chapter_text: str, baseline: dict) -> dict:
             deviations[key] = abs(value - baseline[key]) / baseline[key]
 
     return {
-        'metrics': metrics,
-        'deviations': deviations,
-        'max_deviation': max(deviations.values()) if deviations else 0.0,
+        "metrics": metrics,
+        "deviations": deviations,
+        "max_deviation": max(deviations.values()) if deviations else 0.0,
     }
 ```
 
@@ -143,13 +148,14 @@ def compute_linguistic_drift(chapter_text: str, baseline: dict) -> dict:
 ```python
 # compute_drift.py 新增（约 line 147 后）
 
+
 def check_linguistic_drift_trigger(chapter_text: str, baseline_metrics: dict) -> bool:
     """检查语言学漂移是否触发告警。
 
     触发阈值：任一指标偏离 baseline 超过 500%。
     """
     result = compute_linguistic_drift(chapter_text, baseline_metrics)
-    return result['max_deviation'] > 5.0  # 500% deviation
+    return result["max_deviation"] > 5.0  # 500% deviation
 ```
 
 #### 3.1.3 baseline 建立

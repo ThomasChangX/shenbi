@@ -41,14 +41,15 @@ from shenbi.gates.shared import CHAPTER_HEADER_RE, META_BLOCK_RE
 def test_chapter_header_re_matches_contract_form() -> None:
     assert CHAPTER_HEADER_RE.match("# Chapter 1:")
     assert CHAPTER_HEADER_RE.match("# Chapter 56: 星火")
-    assert not CHAPTER_HEADER_RE.match("## Chapter 1")   # h2 不算
-    assert not CHAPTER_HEADER_RE.match("Chapter 1")      # 无 # 前缀
+    assert not CHAPTER_HEADER_RE.match("## Chapter 1")  # h2 不算
+    assert not CHAPTER_HEADER_RE.match("Chapter 1")  # 无 # 前缀
 
 
 def test_meta_block_re_is_single_source() -> None:
     assert META_BLOCK_RE.search("正文\n<!--META-BEGIN-->\nfoo\n<!--META-END-->\n尾")
     # 与 g2 既有 _META_RE 行为一致（DOTALL 跨行）
     from shenbi.gates.g2 import _META_RE
+
     assert _META_RE.pattern == META_BLOCK_RE.pattern
 ```
 
@@ -179,8 +180,13 @@ def test_g2_chapter_contract_meta_exemption_passes(tmp_path):
     proj = tmp_path / "novel-output" / "xinghuo-ranqiong" / "chapters"
     proj.mkdir(parents=True)
     f = proj / "chapter-40.md"
-    f.write_text("# Chapter 40:\n\n" + FIX.joinpath("chapter-40-no-meta.md").read_text(encoding="utf-8"), encoding="utf-8")
-    result = json.loads(gate_G2(str(f), "chapter", project_dir=str(tmp_path / "novel-output" / "xinghuo-ranqiong")))
+    f.write_text(
+        "# Chapter 40:\n\n" + FIX.joinpath("chapter-40-no-meta.md").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    result = json.loads(
+        gate_G2(str(f), "chapter", project_dir=str(tmp_path / "novel-output" / "xinghuo-ranqiong"))
+    )
     ids = [c["id"] for c in result.get("checks", [])]
     assert "G2.13" in ids  # 豁免命中 → PASS 记录
 
@@ -208,7 +214,9 @@ def test_g2_chapter_contract_passes_compliant(tmp_path):
 
 ```python
 # src/shenbi/gates/shared.py 追加
-_EXEMPTIONS_PATH = Path(__file__).resolve().parents[2] / "docs" / "framework" / "z11-chapter-exemptions.json"
+_EXEMPTIONS_PATH = (
+    Path(__file__).resolve().parents[2] / "docs" / "framework" / "z11-chapter-exemptions.json"
+)
 
 
 def load_chapter_exemptions() -> dict[str, set[int]]:
@@ -272,6 +280,7 @@ def load_chapter_exemptions() -> dict[str, set[int]]:
 z11 SDD #20 R1c (F1301). Deterministic, no LLM. Delete after merge window or
 keep under tools/oneoff/ as immutable history — never wire into CI/just.
 """
+
 import sys
 from pathlib import Path
 
@@ -351,10 +360,14 @@ SCORER_KEYS = {"current_scorer_agent", "scoring_history"}
 
 def _mk(tmp_path: Path, progress: dict | None, ledger_lines: list[str] | None) -> Path:
     if progress is not None:
-        (tmp_path / "progress.json").write_text(json.dumps(progress, ensure_ascii=False), encoding="utf-8")
+        (tmp_path / "progress.json").write_text(
+            json.dumps(progress, ensure_ascii=False), encoding="utf-8"
+        )
     if ledger_lines is not None:
         (tmp_path / "cost").mkdir()
-        (tmp_path / "cost" / "token-ledger.jsonl").write_text("\n".join(ledger_lines) + "\n", encoding="utf-8")
+        (tmp_path / "cost" / "token-ledger.jsonl").write_text(
+            "\n".join(ledger_lines) + "\n", encoding="utf-8"
+        )
     return tmp_path
 
 
@@ -385,7 +398,10 @@ def test_complete_chapter_raises_on_contract_violation(tmp_path, monkeypatch):
     from shenbi.exceptions import ProductContractError
     from shenbi.pipeline import chapter_loop as cl
 
-    (tmp_path / "progress.json").write_text(json.dumps(json.loads(FIX.joinpath("progress-shell-bad.json").read_text(encoding="utf-8"))), encoding="utf-8")
+    (tmp_path / "progress.json").write_text(
+        json.dumps(json.loads(FIX.joinpath("progress-shell-bad.json").read_text(encoding="utf-8"))),
+        encoding="utf-8",
+    )
     state = ...  # 以既有 chapter_loop 测试的 state 构造方式为准（复制 tests/unit/pipeline/test_chapter_loop.py 中 _complete_chapter 相关用例的构造）
     with pytest.raises(ProductContractError):
         cl._complete_chapter(state, 1)
@@ -409,6 +425,7 @@ Pure, read-only, idempotent: returns a list of violation descriptions.
 Wired into chapter completion (chapter_loop._complete_chapter) FAIL-CLOSED;
 the fix bodies for F640/F302 live in specs #27/#36 — this module only detects.
 """
+
 import json
 from pathlib import Path
 
@@ -428,14 +445,16 @@ def check_product_contracts(project_dir: Path) -> list[str]:
         except json.JSONDecodeError:
             return [f"progress.json: invalid JSON"]
         if isinstance(data, dict) and set(data.keys()) <= _SCORER_SHELL_KEYS:
-            violations.append(
-                "progress.json: scorer-only shell, no progress fields (F1309)"
-            )
+            violations.append("progress.json: scorer-only shell, no progress fields (F1309)")
     ledger = project_dir / "cost" / "token-ledger.jsonl"
-    if progress.exists() and (not ledger.exists() or not ledger.read_text(encoding="utf-8").strip()):
+    if progress.exists() and (
+        not ledger.exists() or not ledger.read_text(encoding="utf-8").strip()
+    ):
         violations.append("cost/token-ledger.jsonl missing or empty (F1313)")
     if violations:
-        log.warning("product_contract_violations", project_dir=str(project_dir), violations=violations)
+        log.warning(
+            "product_contract_violations", project_dir=str(project_dir), violations=violations
+        )
     return violations
 ```
 

@@ -60,20 +60,23 @@
 ```python
 # dispatch_helper.py 或 chapter_loop.py
 
+
 def record_gate_result(project_dir, phase, chapter, skill, gate, result):
-    manifest_path = project_dir / 'gate-markers' / 'pipeline-manifest.json'
+    manifest_path = project_dir / "gate-markers" / "pipeline-manifest.json"
 
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text())
     else:
-        manifest = {'pipeline': str(project_dir.name), 'gates': {}}
+        manifest = {"pipeline": str(project_dir.name), "gates": {}}
 
     # 按 phase → chapter → skill → gate 组织
     phase_key = phase  # 'genesis' or 'chapter_loop'
-    chapter_key = str(chapter) if chapter else 'genesis'
+    chapter_key = str(chapter) if chapter else "genesis"
 
-    manifest.setdefault('gates', {}).setdefault(phase_key, {}).setdefault(chapter_key, {}).setdefault(skill, {})[gate] = result
-    manifest['updated_at'] = datetime.now(timezone.utc).isoformat()
+    manifest.setdefault("gates", {}).setdefault(phase_key, {}).setdefault(
+        chapter_key, {}
+    ).setdefault(skill, {})[gate] = result
+    manifest["updated_at"] = datetime.now(timezone.utc).isoformat()
 
     safe_write(manifest_path, json.dumps(manifest, ensure_ascii=False, indent=2))
 ```
@@ -83,19 +86,19 @@ def record_gate_result(project_dir, phase, chapter, skill, gate, result):
 保留旧格式的读取支持（过渡期），但新写入仅使用 manifest：
 
 ```python
-def get_gate_result(project_dir, skill, gate='G4'):
+def get_gate_result(project_dir, skill, gate="G4"):
     # 优先新格式
-    manifest_path = project_dir / 'gate-markers' / 'pipeline-manifest.json'
+    manifest_path = project_dir / "gate-markers" / "pipeline-manifest.json"
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text())
         # 搜索所有 phase/chapter
-        for phase, chapters in manifest.get('gates', {}).items():
+        for phase, chapters in manifest.get("gates", {}).items():
             for chapter, skills in chapters.items():
                 if skill in skills and gate in skills[skill]:
                     return skills[skill][gate]
 
     # 回退旧格式
-    old_path = project_dir / 'gate-markers' / f'{gate}-{skill}-generative.json'
+    old_path = project_dir / "gate-markers" / f"{gate}-{skill}-generative.json"
     if old_path.exists():
         return json.loads(old_path.read_text())
 

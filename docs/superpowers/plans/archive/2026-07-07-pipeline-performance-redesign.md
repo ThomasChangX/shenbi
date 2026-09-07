@@ -108,9 +108,12 @@ class TestStagingAutoCommit:
         state.config.chapter_memo_review_required = False
 
         step = ChapterStep(
-            step_num=2, skill="shenbi-chapter-planning",
-            name="chapter-planning", checkpoint=CheckpointType.CHAPTER_MEMO,
-            uses_staging=True, output_path="plans/chapter-N-plan.md",
+            step_num=2,
+            skill="shenbi-chapter-planning",
+            name="chapter-planning",
+            checkpoint=CheckpointType.CHAPTER_MEMO,
+            uses_staging=True,
+            output_path="plans/chapter-N-plan.md",
         )
 
         result = _advance(state, 1, step, 1, project_dir=tmp_path)
@@ -128,9 +131,12 @@ class TestStagingAutoCommit:
         state.config.chapter_memo_review_required = False
 
         step = ChapterStep(
-            step_num=2, skill="shenbi-chapter-planning",
-            name="chapter-planning", checkpoint=CheckpointType.CHAPTER_MEMO,
-            uses_staging=True, output_path="plans/chapter-N-plan.md",
+            step_num=2,
+            skill="shenbi-chapter-planning",
+            name="chapter-planning",
+            checkpoint=CheckpointType.CHAPTER_MEMO,
+            uses_staging=True,
+            output_path="plans/chapter-N-plan.md",
         )
 
         # No staging file exists — should not raise
@@ -154,6 +160,7 @@ class TestDispatchUsesStaging:
         )
 
         import os
+
         os.chdir(tmp_path)
 
         _, _, output_paths = _build_skill_prompt(
@@ -251,10 +258,12 @@ In `_dispatch_via_api` (line ~321), add `uses_staging: bool = False` parameter a
 In `chapter_loop.py:run_chapter_step`, update the dispatch call (line ~706):
 
 ```python
-    result = dispatch_skill(
-        step.skill, project_dir, prompt,
-        uses_staging=step.uses_staging,
-    )
+result = dispatch_skill(
+    step.skill,
+    project_dir,
+    prompt,
+    uses_staging=step.uses_staging,
+)
 ```
 
 - [ ] **Step 1.6: Run all tests**
@@ -337,21 +346,25 @@ class TestG4FailureClassification:
     """_classify_g4_failures partitions must_fix by severity."""
 
     def test_hard_and_soft_split(self):
-        hard, soft, warn = _classify_g4_failures([
-            "G4.not_found:path/file.md",
-            "G4.transition:path/file.md:8>7",
-            "G4.cp.golden:path/file.md",
-            "G4.meta:path/file.md:{'让人感悟': 1}",
-        ])
-        assert len(hard) == 2   # not_found, meta
-        assert len(soft) == 1   # transition
-        assert len(warn) == 1   # golden
+        hard, soft, warn = _classify_g4_failures(
+            [
+                "G4.not_found:path/file.md",
+                "G4.transition:path/file.md:8>7",
+                "G4.cp.golden:path/file.md",
+                "G4.meta:path/file.md:{'让人感悟': 1}",
+            ]
+        )
+        assert len(hard) == 2  # not_found, meta
+        assert len(soft) == 1  # transition
+        assert len(warn) == 1  # golden
 
     def test_all_soft_no_retry_needed(self):
-        hard, soft, warn = _classify_g4_failures([
-            "G4.transition:path/file.md:8>7",
-            "G4.fatigue:path/file.md:10>8",
-        ])
+        hard, soft, warn = _classify_g4_failures(
+            [
+                "G4.transition:path/file.md:8>7",
+                "G4.fatigue:path/file.md:10>8",
+            ]
+        )
         assert len(hard) == 0
         assert len(soft) == 2
         assert len(warn) == 0
@@ -404,10 +417,12 @@ In `src/shenbi/pipeline/chapter_loop.py`, after the `_LAST_AUDIT_IDX` definition
 ```python
 from enum import StrEnum
 
+
 class G4Severity(StrEnum):
     HARD = "hard"
     SOFT = "soft"
     WARN = "warn"
+
 
 G4_CHECK_MAP: dict[str, G4Severity] = {
     "not_found": G4Severity.HARD,
@@ -492,8 +507,10 @@ In `src/shenbi/pipeline/state.py`, add to `ChapterLoopStateData`. Use `TYPE_CHEC
 # state.py — at top of file
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from shenbi.pipeline.chapter_loop import SoftFailTracker
+
 
 # In ChapterLoopStateData:
 @dataclass
@@ -509,45 +526,58 @@ Import SoftFailTracker (circular import avoidance — store as dict, reconstruct
 In `src/shenbi/pipeline/chapter_loop.py`, replace the G4 handling block (~lines 740-774) with:
 
 ```python
-    g4 = run_gate_g4(step.skill, g4_files, project_dir)
-    if not _gate_passed(g4):
-        must_fix = g4.get("must_fix", []) if isinstance(g4, dict) else []
-        hard_fails, soft_fails, warn_fails = _classify_g4_failures(must_fix)
+g4 = run_gate_g4(step.skill, g4_files, project_dir)
+if not _gate_passed(g4):
+    must_fix = g4.get("must_fix", []) if isinstance(g4, dict) else []
+    hard_fails, soft_fails, warn_fails = _classify_g4_failures(must_fix)
 
-        for w in warn_fails:
-            log.info("chapter_g4_warn", chapter=chapter, step=step.step_num, item=w)
+    for w in warn_fails:
+        log.info("chapter_g4_warn", chapter=chapter, step=step.step_num, item=w)
 
-        for s in soft_fails:
-            tracker_key = _extract_check_id(s)
-            tracker = state.chapter_loop.soft_fail_trackers.get(tracker_key)
-            if tracker is None:
-                tracker = SoftFailTracker(check_id=tracker_key)
-                state.chapter_loop.soft_fail_trackers[tracker_key] = tracker
-            should_escalate = tracker.record(chapter)
-            log.warning("chapter_g4_soft_fail", chapter=chapter, step=step.step_num,
-                         item=s, occurrences=len(tracker.occurrences))
-            if should_escalate:
-                log.error("chapter_g4_soft_escalated", chapter=chapter, check_id=tracker_key,
-                          occurrences=tracker.occurrences)
-
-        if hard_fails:
-            state.chapter_loop.retry_feedback[retry_key] = (
-                f"G4 HARD check failed: {hard_fails}\n"
-                f"Full result: {json.dumps(g4, default=str)}"
+    for s in soft_fails:
+        tracker_key = _extract_check_id(s)
+        tracker = state.chapter_loop.soft_fail_trackers.get(tracker_key)
+        if tracker is None:
+            tracker = SoftFailTracker(check_id=tracker_key)
+            state.chapter_loop.soft_fail_trackers[tracker_key] = tracker
+        should_escalate = tracker.record(chapter)
+        log.warning(
+            "chapter_g4_soft_fail",
+            chapter=chapter,
+            step=step.step_num,
+            item=s,
+            occurrences=len(tracker.occurrences),
+        )
+        if should_escalate:
+            log.error(
+                "chapter_g4_soft_escalated",
+                chapter=chapter,
+                check_id=tracker_key,
+                occurrences=tracker.occurrences,
             )
-            if state.config.per_chapter_review_enabled:
-                return _handle_failure(state, step, chapter, "gate", project_dir)
+
+    if hard_fails:
+        state.chapter_loop.retry_feedback[retry_key] = (
+            f"G4 HARD check failed: {hard_fails}\nFull result: {json.dumps(g4, default=str)}"
+        )
+        if state.config.per_chapter_review_enabled:
+            return _handle_failure(state, step, chapter, "gate", project_dir)
+        else:
+            count = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
+            state.chapter_loop.retry_counts[retry_key] = count
+            if count <= 1:
+                log.info(
+                    "chapter_g4_retry_auto_hard",
+                    chapter=chapter,
+                    step=step.step_num,
+                    attempt=count,
+                    hard_fails=hard_fails,
+                )
+                return False
             else:
-                count = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
-                state.chapter_loop.retry_counts[retry_key] = count
-                if count <= 1:
-                    log.info("chapter_g4_retry_auto_hard", chapter=chapter,
-                             step=step.step_num, attempt=count, hard_fails=hard_fails)
-                    return False
-                else:
-                    log.info("chapter_g4_continue_auto", chapter=chapter, step=step.step_num)
-                    state.chapter_loop.retry_counts.pop(retry_key, None)
-        # No hard fails → fall through to advance
+                log.info("chapter_g4_continue_auto", chapter=chapter, step=step.step_num)
+                state.chapter_loop.retry_counts.pop(retry_key, None)
+    # No hard fails → fall through to advance
 ```
 
 Add helper:
@@ -621,16 +651,13 @@ class TestEndingDiversity:
     def test_no_repetition_passes(self, tmp_path: Path):
         (tmp_path / "chapters").mkdir()
         (tmp_path / "chapters" / "chapter-1.md").write_text(
-            "# Chapter 1\n\nSome text.\n\n他突然停下了脚步。",
-            encoding="utf-8"
+            "# Chapter 1\n\nSome text.\n\n他突然停下了脚步。", encoding="utf-8"
         )
         (tmp_path / "chapters" / "chapter-2.md").write_text(
-            "# Chapter 2\n\nMore text.\n\n第二天，他出发了。",
-            encoding="utf-8"
+            "# Chapter 2\n\nMore text.\n\n第二天，他出发了。", encoding="utf-8"
         )
         (tmp_path / "chapters" / "chapter-3.md").write_text(
-            "# Chapter 3\n\nFinal text.\n\n但他知道一切尚未结束。",
-            encoding="utf-8"
+            "# Chapter 3\n\nFinal text.\n\n但他知道一切尚未结束。", encoding="utf-8"
         )
         result = _check_ending_diversity(tmp_path, chapter=4)
         # Should have rows for chapters 1,2,3 with different types
@@ -641,8 +668,7 @@ class TestEndingDiversity:
         (tmp_path / "chapters").mkdir()
         for ch in range(1, 4):
             (tmp_path / "chapters" / f"chapter-{ch}.md").write_text(
-                f"# Chapter {ch}\n\nText.\n\n突然，一声巨响打破了寂静。",
-                encoding="utf-8"
+                f"# Chapter {ch}\n\nText.\n\n突然，一声巨响打破了寂静。", encoding="utf-8"
             )
         result = _check_ending_diversity(tmp_path, chapter=4)
         assert "⚠️" in result  # 3 consecutive cliffhangers
@@ -675,7 +701,7 @@ class TestCurateContext:
         # Write assembled context
         (tmp_path / "context" / "chapter-5-context.md").write_text(
             "## route-a:Hero\n\nHero context text.\n\n## route-c:book_spine\n\nSpine text.",
-            encoding="utf-8"
+            encoding="utf-8",
         )
         # Write plan
         (tmp_path / "plans" / "chapter-5-plan.md").write_text(
@@ -684,8 +710,7 @@ class TestCurateContext:
         # Write chapters for ending check
         for ch in range(2, 5):
             (tmp_path / "chapters" / f"chapter-{ch}.md").write_text(
-                f"# Chapter {ch}\n\nText.\n\n最终，他做出了选择。",
-                encoding="utf-8"
+                f"# Chapter {ch}\n\nText.\n\n最终，他做出了选择。", encoding="utf-8"
             )
         # Write pending hooks
         (tmp_path / "truth" / "pending_hooks.md").write_text(
@@ -716,15 +741,16 @@ Key points: use `safe_write` for output, log with structlog, handle missing file
 In `run_chapter_step` (line ~662-663), after context assembly:
 
 ```python
-    if step.calls_context_assembly:
-        _run_context_assembly(project_dir, chapter)
-        # Also run deterministic curation — replaces context-composing LLM call
-        try:
-            from shenbi.pipeline.context_curation import curate_context
-            curated = curate_context(project_dir, chapter)
-            log.info("context_curated", chapter=chapter, length=len(curated))
-        except Exception as e:
-            log.warning("context_curation_failed", chapter=chapter, error=str(e))
+if step.calls_context_assembly:
+    _run_context_assembly(project_dir, chapter)
+    # Also run deterministic curation — replaces context-composing LLM call
+    try:
+        from shenbi.pipeline.context_curation import curate_context
+
+        curated = curate_context(project_dir, chapter)
+        log.info("context_curated", chapter=chapter, length=len(curated))
+    except Exception as e:
+        log.warning("context_curation_failed", chapter=chapter, error=str(e))
 ```
 
 In the skip section (after pipeline- check, before dispatch), add:
@@ -824,7 +850,9 @@ class TestPlantHooksFromPlan:
             """## 7. 本章 hook 账
 
 | hook-005 | 矿井深处的心跳声 | plant | GENUINE | CHARACTER |
-""", encoding="utf-8")
+""",
+            encoding="utf-8",
+        )
 
         (tmp_path / "truth" / "pending_hooks.md").write_text(
             "---\nhooks: []\n---\n", encoding="utf-8"
@@ -856,14 +884,15 @@ Use `safe_write` for pending_hooks updates. Log with structlog. Handle missing p
 In `run_chapter_step`, after the context-composing skip, add:
 
 ```python
-    # foreshadowing-plant replaced by deterministic YAML generation
-    if step.skill == "shenbi-foreshadowing-plant":
-        from shenbi.pipeline.hook_planting import plant_hooks_from_plan
-        count = plant_hooks_from_plan(project_dir, chapter)
-        log.info("hooks_planted_deterministically", chapter=chapter, count=count)
-        _record_step_done(state, step, chapter)
-        _reset_retries(state, step, chapter)
-        return _advance(state, step_idx, step, chapter)
+# foreshadowing-plant replaced by deterministic YAML generation
+if step.skill == "shenbi-foreshadowing-plant":
+    from shenbi.pipeline.hook_planting import plant_hooks_from_plan
+
+    count = plant_hooks_from_plan(project_dir, chapter)
+    log.info("hooks_planted_deterministically", chapter=chapter, count=count)
+    _record_step_done(state, step, chapter)
+    _reset_retries(state, step, chapter)
+    return _advance(state, step_idx, step, chapter)
 ```
 
 - [ ] **Step 4.5: Run all tests**
@@ -923,11 +952,16 @@ from shenbi.pipeline.review_checklist import (
 
 class TestReviewChecklistGeneration:
     def test_generates_from_project_files(self, tmp_path: Path):
-        (tmp_path / "genre-config.json").write_text(json.dumps({
-            "fatigueWords": ["突然", "猛地"],
-            "povMode": "third-limited",
-            "sensitivityFlags": ["violence"],
-        }), encoding="utf-8")
+        (tmp_path / "genre-config.json").write_text(
+            json.dumps(
+                {
+                    "fatigueWords": ["突然", "猛地"],
+                    "povMode": "third-limited",
+                    "sensitivityFlags": ["violence"],
+                }
+            ),
+            encoding="utf-8",
+        )
         (tmp_path / "truth").mkdir()
         (tmp_path / "chapters").mkdir()
         (tmp_path / "chapters" / "chapter-5.md").write_text(
@@ -958,10 +992,9 @@ class TestReviewChecklistGeneration:
 
         # Modify genre-config → cache invalidated
         import time
+
         time.sleep(0.01)
-        (tmp_path / "genre-config.json").write_text(
-            '{"povMode": "first-person"}', encoding="utf-8"
-        )
+        (tmp_path / "genre-config.json").write_text('{"povMode": "first-person"}', encoding="utf-8")
         c3 = generate_review_checklist(tmp_path, chapter=3)
         assert c3.pov_mode == "first-person"
 
@@ -969,11 +1002,16 @@ class TestReviewChecklistGeneration:
 class TestChecklistInjection:
     def test_injects_json_block_into_prompt(self):
         checklist = ReviewChecklist(
-            chapter=5, transition_budget=6,
-            ai_blacklist=["让人感悟"], fatigue_warnings={},
-            voice_constraints={}, pov_mode="third-limited",
-            hook_deliverables=[], ending_constraints=[],
-            world_rules_brief="", sensitivity_flags=[],
+            chapter=5,
+            transition_budget=6,
+            ai_blacklist=["让人感悟"],
+            fatigue_warnings={},
+            voice_constraints={},
+            pov_mode="third-limited",
+            hook_deliverables=[],
+            ending_constraints=[],
+            world_rules_brief="",
+            sensitivity_flags=[],
         )
         result = inject_checklist_into_prompt("Execute review.", checklist)
         assert "审查参考数据" in result
@@ -999,16 +1037,17 @@ Each extractor handles missing files gracefully. Use `safe_write` for cache. Mti
 In `_build_skill_prompt` (dispatch_helper.py), after building the user prompt (before the return), add:
 
 ```python
-    if _is_review_skill(skill) and chapter is not None:
-        try:
-            from shenbi.pipeline.review_checklist import (
-                generate_review_checklist,
-                inject_checklist_into_prompt,
-            )
-            checklist = generate_review_checklist(project_dir, chapter)
-            user_prompt = inject_checklist_into_prompt(user_prompt, checklist)
-        except Exception as e:
-            log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
+if _is_review_skill(skill) and chapter is not None:
+    try:
+        from shenbi.pipeline.review_checklist import (
+            generate_review_checklist,
+            inject_checklist_into_prompt,
+        )
+
+        checklist = generate_review_checklist(project_dir, chapter)
+        user_prompt = inject_checklist_into_prompt(user_prompt, checklist)
+    except Exception as e:
+        log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
 ```
 
 Add `_is_review_skill` helper if not already present:
@@ -1168,9 +1207,9 @@ In `src/shenbi/pipeline/audit_layer.py`, rename `_audit_suffix` to `audit_suffix
 def audit_suffix(skill: str) -> str:
     """Strip the ``shenbi-`` / ``shenbi-review-`` prefix for file naming."""
     if skill.startswith("shenbi-review-"):
-        return skill[len("shenbi-review-"):]
+        return skill[len("shenbi-review-") :]
     if skill.startswith("shenbi-"):
-        return skill[len("shenbi-"):]
+        return skill[len("shenbi-") :]
     return skill
 ```
 
@@ -1185,80 +1224,79 @@ Update the internal call site in `audit_relative_path` (line 139):
 In `run_chapter_step`, after step 9 (foreshadowing-recall), add a check for the first audit step index. When reached, dispatch all reviews in two parallel waves:
 
 ```python
-    # After the last pre-audit step (foreshadowing-recall), run all reviews
-    # in two parallel waves instead of serial dispatch.
-    _FIRST_AUDIT_IDX = min(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
+# After the last pre-audit step (foreshadowing-recall), run all reviews
+# in two parallel waves instead of serial dispatch.
+_FIRST_AUDIT_IDX = min(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
 
-    if step_idx == _FIRST_AUDIT_IDX and step.is_audit:
-        from shenbi.pipeline.parallel_dispatch import (
-            ReviewTask, dispatch_reviews_parallel, consolidate_review_results
+if step_idx == _FIRST_AUDIT_IDX and step.is_audit:
+    from shenbi.pipeline.parallel_dispatch import (
+        ReviewTask,
+        dispatch_reviews_parallel,
+        consolidate_review_results,
+    )
+    from shenbi.pipeline.audit_layer import (
+        get_active_genre_audits,
+        audit_relative_path,
+        audit_suffix,
+    )
+
+    chapter = state.chapter_loop.current_chapter
+
+    # Wave 1: Core-circle reviews (7 skills in parallel)
+    core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and "review" in s.skill]
+    core_tasks = [
+        ReviewTask(
+            skill=skill,
+            project_dir=project_dir,
+            prompt=f"Execute {skill} for chapter {chapter}. Project dir: {project_dir}",
+            output_path=f"audits/chapter-{chapter}-{audit_suffix(skill)}.md",
         )
-        from shenbi.pipeline.audit_layer import (
-            get_active_genre_audits, audit_relative_path, audit_suffix
+        for skill in core_skills
+    ]
+    log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_tasks))
+    core_results = dispatch_reviews_parallel(core_tasks)
+
+    # Wave 2: Genre-circle reviews (conditionally active, in parallel)
+    gc_path = project_dir / "genre-config.json"
+    gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
+    genre_skills = get_active_genre_audits(gc)
+    genre_tasks = [
+        ReviewTask(
+            skill=skill,
+            project_dir=project_dir,
+            prompt=f"Execute {skill} audit for chapter {chapter}.",
+            output_path=audit_relative_path(chapter, skill),
         )
+        for skill in genre_skills
+    ]
+    if genre_tasks:
+        log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_tasks))
+        genre_results = dispatch_reviews_parallel(genre_tasks)
+    else:
+        genre_results = []
 
-        chapter = state.chapter_loop.current_chapter
+    # Consolidate
+    all_results = core_results + genre_results
+    consolidated = consolidate_review_results(all_results, chapter)
+    summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
+    safe_write(summary_path, consolidated)
 
-        # Wave 1: Core-circle reviews (7 skills in parallel)
-        core_skills = [
-            s.skill for s in CHAPTER_STEPS
-            if s.is_audit and "review" in s.skill
-        ]
-        core_tasks = [
-            ReviewTask(
-                skill=skill,
-                project_dir=project_dir,
-                prompt=f"Execute {skill} for chapter {chapter}. Project dir: {project_dir}",
-                output_path=f"audits/chapter-{chapter}-{audit_suffix(skill)}.md",
-            )
-            for skill in core_skills
-        ]
-        log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_tasks))
-        core_results = dispatch_reviews_parallel(core_tasks)
+    # Record all review steps as done and advance past them
+    for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
+        if i < len(CHAPTER_STEPS):
+            _record_step_done(state, CHAPTER_STEPS[i], chapter)
 
-        # Wave 2: Genre-circle reviews (conditionally active, in parallel)
-        gc_path = project_dir / "genre-config.json"
-        gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
-        genre_skills = get_active_genre_audits(gc)
-        genre_tasks = [
-            ReviewTask(
-                skill=skill,
-                project_dir=project_dir,
-                prompt=f"Execute {skill} audit for chapter {chapter}.",
-                output_path=audit_relative_path(chapter, skill),
-            )
-            for skill in genre_skills
-        ]
-        if genre_tasks:
-            log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_tasks))
-            genre_results = dispatch_reviews_parallel(genre_tasks)
-        else:
-            genre_results = []
+    state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1
+    state.chapter_loop.current_step = ""
 
-        # Consolidate
-        all_results = core_results + genre_results
-        consolidated = consolidate_review_results(all_results, chapter)
-        summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
-        safe_write(summary_path, consolidated)
+    # Check for blocking issues
+    cs = _get_chapter_state(state, chapter)
+    cs.audit_results["blocking_found"] = "BLOCKING" in consolidated
+    cs.audit_results["audit_reports"] = [t.output_path for t in core_tasks + genre_tasks]
 
-        # Record all review steps as done and advance past them
-        for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
-            if i < len(CHAPTER_STEPS):
-                _record_step_done(state, CHAPTER_STEPS[i], chapter)
-
-        state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1
-        state.chapter_loop.current_step = ""
-
-        # Check for blocking issues
-        cs = _get_chapter_state(state, chapter)
-        cs.audit_results["blocking_found"] = "BLOCKING" in consolidated
-        cs.audit_results["audit_reports"] = [
-            t.output_path for t in core_tasks + genre_tasks
-        ]
-
-        return _advance(state, _LAST_AUDIT_IDX,
-                        CHAPTER_STEPS[_LAST_AUDIT_IDX], chapter,
-                        project_dir=project_dir)
+    return _advance(
+        state, _LAST_AUDIT_IDX, CHAPTER_STEPS[_LAST_AUDIT_IDX], chapter, project_dir=project_dir
+    )
 ```
 
 - [ ] **Step 7.2: Run all tests**
@@ -1321,7 +1359,7 @@ class TestAdaptiveRecall:
         (tmp_path / "truth").mkdir()
         (tmp_path / "truth" / "pending_hooks.md").write_text(
             "---\nhooks:\n  - id: hook-001\n    state: PLANTED\n    last_reinforced: 5\n    max_distance: 20\n---\n",
-            encoding="utf-8"
+            encoding="utf-8",
         )
         # Chapter 22: silence = 22-5 = 17, max_distance = 20, 17 >= 20-3 = 17 → triggers
         assert _should_run_recall(tmp_path, chapter=22) is True

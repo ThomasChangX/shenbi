@@ -435,6 +435,7 @@ route A：战役节奏/氛围质感维度对照 AC-004/AC-008 锚点
 ```python
 # src/shenbi/skill_utils/revision_routing/route.py
 
+
 def route_revision(diagnosis: dict) -> str:
     """分类诊断 → 路由到 spot-fix / regenerate / constrained-regenerate。
 
@@ -449,8 +450,7 @@ def route_revision(diagnosis: dict) -> str:
     """
     issues = diagnosis.get("issues", [])
     has_unmet_blocking = any(
-        i.get("category") == "unmet_goal" and i.get("severity") == "BLOCKING"
-        for i in issues
+        i.get("category") == "unmet_goal" and i.get("severity") == "BLOCKING" for i in issues
     )
     has_craft = any(i.get("category") == "craft" for i in issues)
     if has_unmet_blocking and has_craft:
@@ -470,6 +470,7 @@ def route_revision(diagnosis: dict) -> str:
 
 ```python
 # src/shenbi/skill_utils/revision_routing/preserve_check.py
+
 
 def verify_preservation(original: dict, regenerated: dict) -> tuple[bool, list[str]]:
     # original/regenerated 结构: {"chapter": int, "hooks_advanced": [str], "changes_realized": [str], "state_changes": [str]}
@@ -560,6 +561,7 @@ route A 要求对照锚点定相对位置。锚点是固定参考，天然抑制
 
 ```python
 # src/shenbi/skill_utils/escalation/check.py
+
 
 def check_escalation(round_dir: Path, chapter: int) -> list[EscalationSignal]:
     """在每章评分完成后调用。检查是否需要人工升级。返回升级信号列表。"""

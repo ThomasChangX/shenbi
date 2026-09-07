@@ -464,6 +464,7 @@ pytest-cov 的 `--cov-fail-under=N` 仅作用于 line coverage。Branch coverage
 ```python
 # tests/unit/test_coverage_thresholds.py
 """Enforce coverage thresholds post-test."""
+
 import xml.etree.ElementTree as ET
 from pathlib import Path
 import pytest
@@ -471,6 +472,7 @@ import pytest
 COVERAGE_XML = Path("tests/coverage/coverage.xml")
 LINE_THRESHOLD = 90
 BRANCH_THRESHOLD = 80
+
 
 # 通过 pytest-ordering 保证此测试在所有其他测试之后跑（coverage.xml 必须先生成）
 # pytest-ordering 通过 @pytest.mark.last 或 [tool.pytest.ini_options] 中的 order 配置
@@ -720,6 +722,7 @@ JSON 输出（生产）+ console 输出（dev），环境变量 `SHENBI_LOG_FORM
 import os
 import structlog
 
+
 def configure_logging() -> None:
     """Configure structured logging for the framework."""
     log_format = os.environ.get("SHENBI_LOG_FORMAT", "console")
@@ -739,6 +742,7 @@ def configure_logging() -> None:
         ],
         cache_logger_on_first_use=True,
     )
+
 
 def get_logger(name: str) -> structlog.BoundLogger:
     """Get a structured logger."""
@@ -1154,6 +1158,7 @@ class RecoveryStrategy(Enum):
     AUTO_REBUILD = "auto_rebuild"
     HALT = "halt"
 
+
 RECOVERY_STRATEGIES: dict[str, RecoveryStrategy] = {
     "RegistryStaleError": RecoveryStrategy.AUTO_REBUILD,
     "RegistryMissingError": RecoveryStrategy.AUTO_REBUILD,
@@ -1223,6 +1228,7 @@ P-1 内只写测试基础设施本身所需的测试（约 470 tests）。P0-P6 
 ```python
 # tests/conftest.py
 from hypothesis import settings
+
 settings.register_profile("ci", max_examples=1000, deadline=None)
 settings.register_profile("dev", max_examples=100, deadline=200)
 settings.register_profile("debug", max_examples=10, deadline=None)

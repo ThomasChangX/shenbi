@@ -42,8 +42,8 @@ def check_hook_fulfillment(plan_path, chapter_path):
     chapter_text = chapter_path.read_text()
 
     # 提取 plan 中声明的 hook IDs
-    plan_hooks = set(re.findall(r'MH-\d+', plan_text))
-    chapter_hooks = set(re.findall(r'MH-\d+', chapter_text))
+    plan_hooks = set(re.findall(r"MH-\d+", plan_text))
+    chapter_hooks = set(re.findall(r"MH-\d+", chapter_text))
 
     missing = plan_hooks - chapter_hooks
     if missing:

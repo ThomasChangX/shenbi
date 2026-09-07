@@ -62,13 +62,15 @@ Step timing summary:
 
 ```python
 # 在 API response 处理后
-if hasattr(response, 'usage'):
+if hasattr(response, "usage"):
     usage = response.usage
-    logger.info("llm_token_usage",
-                skill=skill_name,
-                prompt_tokens=usage.prompt_tokens,
-                completion_tokens=usage.completion_tokens,
-                total_tokens=usage.total_tokens)
+    logger.info(
+        "llm_token_usage",
+        skill=skill_name,
+        prompt_tokens=usage.prompt_tokens,
+        completion_tokens=usage.completion_tokens,
+        total_tokens=usage.total_tokens,
+    )
     _record_token_usage(state, skill_name, usage)
 ```
 

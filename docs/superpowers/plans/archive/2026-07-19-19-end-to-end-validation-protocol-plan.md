@@ -47,16 +47,22 @@ import json
 from pathlib import Path
 from shenbi.pipeline.chapter_timing import record_chapter_timing, compute_pearson
 
+
 def test_record_chapter_timing_persists_elapsed_field(tmp_path: Path):
     progress = tmp_path / "progress.json"
     progress.write_text(json.dumps({"chapter": 0}))
-    record_chapter_timing(progress, chapter=1, elapsed=42.5,
-                          skills={"shenbi-chapter-drafting": 30.0, "shenbi-review-resonance": 12.5},
-                          retries={"shenbi-review-resonance": 2})
+    record_chapter_timing(
+        progress,
+        chapter=1,
+        elapsed=42.5,
+        skills={"shenbi-chapter-drafting": 30.0, "shenbi-review-resonance": 12.5},
+        retries={"shenbi-review-resonance": 2},
+    )
     data = json.loads(progress.read_text())
     assert "timings" in data
     assert data["timings"]["1"]["elapsed"] == 42.5
     assert data["timings"]["1"]["retries"]["shenbi-review-resonance"] == 2
+
 
 def test_compute_pearson_returns_coefficient_for_sizes_vs_times():
     sizes = [2000, 3000, 4000, 5000, 6000]

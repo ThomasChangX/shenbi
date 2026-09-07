@@ -151,9 +151,11 @@ if step.skill == "shenbi-intent-management":
 
     # Run only at volume boundaries, drift-guidance triggers,
     # or when author_intent.md has been manually modified
-    if (current_ch not in volume_boundaries
+    if (
+        current_ch not in volume_boundaries
         and not _drift_guidance_triggered(state)
-        and not _author_intent_modified_since_last_run(state)):
+        and not _author_intent_modified_since_last_run(state)
+    ):
         return False
 ```
 
@@ -264,22 +266,26 @@ using the standard defect evidence format.
 ```python
 def check_volume_alignment(project_dir, chapter, plan_text):
     """Verify chapter plan aligns with volume_map. Non-blocking -- WARN only."""
-    vm = (project_dir / 'outline' / 'volume_map.md').read_text()
+    vm = (project_dir / "outline" / "volume_map.md").read_text()
     node = extract_chapter_node(vm, chapter)
 
     issues = []
     if node:
-        key_terms = extract_key_terms(node['desc'])
+        key_terms = extract_key_terms(node["desc"])
         match_rate = sum(1 for t in key_terms if t in plan_text) / len(key_terms)
         if match_rate < 0.3:
-            issues.append(f"Volume alignment WARNING: only {match_rate:.0%} "
-                          f"key terms from volume_map present in plan")
+            issues.append(
+                f"Volume alignment WARNING: only {match_rate:.0%} "
+                f"key terms from volume_map present in plan"
+            )
 
         expected_chars = extract_expected_characters(vm, chapter)
         for char in expected_chars:
             if char not in plan_text:
-                issues.append(f"Volume alignment WARNING: {char} expected "
-                              f"this chapter per volume_map but not in plan")
+                issues.append(
+                    f"Volume alignment WARNING: {char} expected "
+                    f"this chapter per volume_map but not in plan"
+                )
 
     return issues  # Non-blocking, WARN only
 ```
@@ -292,12 +298,12 @@ def extract_chapter_facts(chapter_text):
     Feeds structured guidance to state-settling instead of raw 30KB text.
     """
     return {
-        'character_locations': _extract_character_locations(chapter_text),
-        'emotional_state': _extract_emotional_markers(chapter_text),
-        'active_conflicts': _extract_conflict_markers(chapter_text),
-        'hook_appearances': _extract_hook_references(chapter_text),
-        'new_characters': _extract_new_character_introductions(chapter_text),
-        'key_events': _extract_event_sentences(chapter_text),
+        "character_locations": _extract_character_locations(chapter_text),
+        "emotional_state": _extract_emotional_markers(chapter_text),
+        "active_conflicts": _extract_conflict_markers(chapter_text),
+        "hook_appearances": _extract_hook_references(chapter_text),
+        "new_characters": _extract_new_character_introductions(chapter_text),
+        "key_events": _extract_event_sentences(chapter_text),
     }
 ```
 
@@ -311,16 +317,16 @@ def extract_chapter_facts(chapter_text):
 ```python
 def check_linguistic_drift(project_dir, chapter):
     """Run linguistic drift detection every chapter. Non-conditional."""
-    chapter_text = (project_dir / 'chapters' / f'chapter-{chapter}.md').read_text()
+    chapter_text = (project_dir / "chapters" / f"chapter-{chapter}.md").read_text()
     baseline = _load_baseline(project_dir)
     metrics = compute_linguistic_drift(chapter_text, baseline)
 
     alerts = []
-    if metrics['system_term_density'] > 30:
+    if metrics["system_term_density"] > 30:
         alerts.append(f"System term density {metrics['system_term_density']:.0f}‰")
-    if metrics['em_dash_density'] > 20:
+    if metrics["em_dash_density"] > 20:
         alerts.append(f"Em-dash density {metrics['em_dash_density']:.0f}‰")
-    if metrics['dialogue_density'] < 1 and chapter > 10:
+    if metrics["dialogue_density"] < 1 and chapter > 10:
         alerts.append("Dialogue density near zero -- possible character disappearance")
 
     # 3 consecutive chapter triggers -> inject corrective instructions
@@ -381,6 +387,7 @@ The Structured Chapter Representation (SCR) is extracted once per chapter via de
 ```python
 # src/shenbi/pipeline/scr_extractor.py
 
+
 @dataclass
 class StructuredChapterRepresentation:
     chapter: int
@@ -409,9 +416,10 @@ class StructuredChapterRepresentation:
     total_chinese_chars: int
     extraction_confidence: float
 
+
 def extract_scr(project_dir: Path, chapter: int) -> StructuredChapterRepresentation:
     """Once per chapter: deterministic structured extraction."""
-    chapter_text = (project_dir / 'chapters' / f'chapter-{chapter}.md').read_text()
+    chapter_text = (project_dir / "chapters" / f"chapter-{chapter}.md").read_text()
     prose = extract_prose(chapter_text)  # Strip META block
 
     scr = StructuredChapterRepresentation(
@@ -432,12 +440,12 @@ def extract_scr(project_dir: Path, chapter: int) -> StructuredChapterRepresentat
         opening_paragraph=_extract_opening(prose),
         closing_paragraph=_extract_closing(prose),
         implicit_info_passages=_extract_implicit_passages(prose),
-        total_chinese_chars=sum(1 for c in prose if '\u4e00' <= c <= '\u9fff'),
+        total_chinese_chars=sum(1 for c in prose if "\u4e00" <= c <= "\u9fff"),
         extraction_confidence=_compute_confidence(prose),
     )
 
     # Cache to disk
-    cache_path = project_dir / 'context' / f'chapter-{chapter}-scr.json'
+    cache_path = project_dir / "context" / f"chapter-{chapter}-scr.json"
     safe_write(cache_path, json.dumps(asdict(scr), ensure_ascii=False, indent=2))
     return scr
 ```
@@ -446,21 +454,26 @@ def extract_scr(project_dir: Path, chapter: int) -> StructuredChapterRepresentat
 
 ```python
 SCR_CONSUMER_MAP = {
-    'shenbi-chapter-planning': ['volume_node', 'character_locations', 'event_timeline'],
-    'shenbi-state-settling': ['character_locations', 'emotional_markers',
-                               'event_timeline', 'hook_appearances', 'implicit_info_passages'],
-    'shenbi-foreshadowing-lifecycle': ['hook_appearances', 'pending_hooks'],
-    'shenbi-review-continuity': ['event_timeline', 'character_locations', 'world_refs'],
-    'shenbi-review-character': ['dialogue_segments', 'emotional_markers', 'implicit_info_passages'],
-    'shenbi-review-world-rules': ['world_refs', 'world_rules_summary'],
-    'shenbi-review-pacing': ['event_timeline', 'paragraph_stats'],
-    'shenbi-review-memo-compliance': ['plan_checklist', 'event_timeline'],
-    'shenbi-review-foreshadowing': ['hook_appearances', 'pending_hooks'],
-    'shenbi-review-pov': ['pov_shifts'],
-    'shenbi-review-dialogue': ['dialogue_segments'],
-    'shenbi-review-motivation': ['decision_points', 'implicit_info_passages'],
-    'shenbi-review-reader-pull': ['opening_paragraph', 'closing_paragraph'],
-    'shenbi-review-sensitivity': ['sensitive_hits'],
+    "shenbi-chapter-planning": ["volume_node", "character_locations", "event_timeline"],
+    "shenbi-state-settling": [
+        "character_locations",
+        "emotional_markers",
+        "event_timeline",
+        "hook_appearances",
+        "implicit_info_passages",
+    ],
+    "shenbi-foreshadowing-lifecycle": ["hook_appearances", "pending_hooks"],
+    "shenbi-review-continuity": ["event_timeline", "character_locations", "world_refs"],
+    "shenbi-review-character": ["dialogue_segments", "emotional_markers", "implicit_info_passages"],
+    "shenbi-review-world-rules": ["world_refs", "world_rules_summary"],
+    "shenbi-review-pacing": ["event_timeline", "paragraph_stats"],
+    "shenbi-review-memo-compliance": ["plan_checklist", "event_timeline"],
+    "shenbi-review-foreshadowing": ["hook_appearances", "pending_hooks"],
+    "shenbi-review-pov": ["pov_shifts"],
+    "shenbi-review-dialogue": ["dialogue_segments"],
+    "shenbi-review-motivation": ["decision_points", "implicit_info_passages"],
+    "shenbi-review-reader-pull": ["opening_paragraph", "closing_paragraph"],
+    "shenbi-review-sensitivity": ["sensitive_hits"],
 }
 ```
 

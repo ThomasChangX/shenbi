@@ -85,12 +85,13 @@ G4 失败 → retry → LLM 重新输出到同一文件 → `safe_write` 覆盖�
 在 `_write_parsed_outputs`（`dispatch_helper.py:316` 附近）中，对 `.json` 文件增加预写验证：
 
 ```python
-if path.suffix == '.json':
+if path.suffix == ".json":
     try:
         parsed = json.loads(content)
         # 额外：验证 shenbi-decisions-v1 schema
-        if isinstance(parsed, dict) and parsed.get('$schema') == 'shenbi-decisions-v1':
+        if isinstance(parsed, dict) and parsed.get("$schema") == "shenbi-decisions-v1":
             from shenbi.contracts.schemas.decisions import DecisionsDoc
+
             DecisionsDoc.model_validate(parsed)
     except (json.JSONDecodeError, ValidationError) as e:
         logger.error("decisions_json_invalid", path=str(path), error=str(e))
@@ -98,8 +99,12 @@ if path.suffix == '.json':
         try:
             decoder = json.JSONDecoder()
             clean_data, end_pos = decoder.raw_decode(content)
-            logger.warning("decisions_json_truncated", path=str(path),
-                           original_len=len(content), cleaned_len=end_pos)
+            logger.warning(
+                "decisions_json_truncated",
+                path=str(path),
+                original_len=len(content),
+                cleaned_len=end_pos,
+            )
             content = json.dumps(clean_data, ensure_ascii=False, indent=2)
         except json.JSONDecodeError:
             # 无法恢复，写入失败标记

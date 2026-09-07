@@ -184,10 +184,11 @@ import threading
 
 _state_lock = threading.Lock()
 
+
 def _record_step_done_threadsafe(state, chapter, skill_name):
     with _state_lock:
         ch_state = state.chapter_loop.chapter_states.setdefault(str(chapter), {})
-        steps = ch_state.setdefault('steps_done', [])
+        steps = ch_state.setdefault("steps_done", [])
         if skill_name not in steps:
             steps.append(skill_name)
 ```

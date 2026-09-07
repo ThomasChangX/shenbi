@@ -42,7 +42,7 @@ if not rev_path.exists():
     min_decisions = {
         "route": "no_revision",
         "changes": [],
-        "rationale": "All audits passed, no revision needed."
+        "rationale": "All audits passed, no revision needed.",
     }
     safe_write(rev_path, json.dumps(min_decisions, ensure_ascii=False, indent=2))
 ```

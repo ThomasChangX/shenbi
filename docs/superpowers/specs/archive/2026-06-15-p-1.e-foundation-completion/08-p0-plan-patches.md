@@ -190,7 +190,10 @@ def export_json_schemas(skills: dict[str, SkillMetadata]) -> None:
             for model_class in iter_pydantic_models(pydantic_module):
                 schema = model_class.model_json_schema()
                 output_path = (
-                    SKILLS_DIR / skill_name / "schemas" / "generated"
+                    SKILLS_DIR
+                    / skill_name
+                    / "schemas"
+                    / "generated"
                     / f"{model_class.__name__}.schema.json"
                 )
                 output_path.write_text(json.dumps(schema, indent=2) + "\n")
@@ -249,19 +252,19 @@ MIGRATIONS = {
     "2026.2": None,  # current, no migration needed
 }
 
+
 def load_lockfile(path: Path) -> Lockfile:
     raw = json.loads(path.read_text())
     version = raw.get("schema_version", "2026.1")
     while version != SCHEMA_VERSION:
         migrator = MIGRATIONS.get(version)
         if not migrator:
-            raise RegistryCorruptError(
-                f"No migration from schema_version {version}"
-            )
+            raise RegistryCorruptError(f"No migration from schema_version {version}")
         raw = migrator(raw)
         version = raw["schema_version"]
-        log.warning("registry_lockfile_migrated",
-                    from_version=version, to_version=raw["schema_version"])
+        log.warning(
+            "registry_lockfile_migrated", from_version=version, to_version=raw["schema_version"]
+        )
     # Write back if migrated
     if raw["schema_version"] != original_version:
         path.write_text(json.dumps(raw, indent=2) + "\n")
@@ -348,23 +351,21 @@ def migrate_skill_schema(skill_name: str, generator: AgentFn, reviewer: AgentFn)
     # 3. Property-based testing (1000 iterations)
     property_results = run_property_tests(candidate)
     if not property_results.all_passed:
-        return MigrationResult(status="property_failed",
-                               candidate=candidate,
-                               failures=property_results.failures)
+        return MigrationResult(
+            status="property_failed", candidate=candidate, failures=property_results.failures
+        )
 
     # 4. Mutation testing
     mutation_results = run_mutation_tests(candidate)
     if mutation_results.survival_rate > 0.1:  # > 10% mutations survive
-        return MigrationResult(status="mutation_failed",
-                               candidate=candidate,
-                               results=mutation_results)
+        return MigrationResult(
+            status="mutation_failed", candidate=candidate, results=mutation_results
+        )
 
     # 5. Static analysis
     static_results = run_static_analysis(candidate)  # ruff + mypy
     if static_results.errors:
-        return MigrationResult(status="static_failed",
-                               candidate=candidate,
-                               errors=static_results)
+        return MigrationResult(status="static_failed", candidate=candidate, errors=static_results)
 
     return MigrationResult(status="accepted", candidate=candidate)
 ```
@@ -490,36 +491,43 @@ modern observability stacks.
 from dataclasses import dataclass
 from typing import Literal
 
+
 @dataclass
 class SkillExecutionMetric:
     """OTLP-compatible metric for a single skill execution."""
+
     skill_name: str
     test_type: Literal["generative", "bug-hunt", "clean"]
     round_id: str
     duration_ms: int
-    token_count: int | None         # None if not reported
-    score: int                       # 0-100
+    token_count: int | None  # None if not reported
+    score: int  # 0-100
     status: Literal["pass", "fail", "rejected", "error"]
-    error_class: str | None          # if status == "error"
+    error_class: str | None  # if status == "error"
+
 
 @dataclass
 class SchemaValidationMetric:
     """OTLP-compatible metric for a schema validation."""
+
     schema_name: str
     instance_path: str
     valid: bool
     error_count: int
     duration_ms: int
 
+
 @dataclass
 class MigrationMetric:
     """OTLP-compatible metric for a single skill migration attempt."""
+
     skill_name: str
     iteration: int
     generator_model: str
     reviewer_model: str
-    status: Literal["accepted", "review_failed", "property_failed",
-                    "mutation_failed", "static_failed"]
+    status: Literal[
+        "accepted", "review_failed", "property_failed", "mutation_failed", "static_failed"
+    ]
     duration_ms: int
 ```
 

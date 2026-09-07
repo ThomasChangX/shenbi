@@ -124,6 +124,7 @@ git commit -m "feat: add deps.json, acceptance.json, sensitive_words, stop_words
 ```python
 #!/usr/bin/env python3
 """独立 Gate 执行器。用法: validate-gate.py <GATE> [args...]"""
+
 import json, sys, os, re, yaml, hashlib, glob as gb
 from pathlib import Path
 from datetime import datetime, timezone
@@ -135,32 +136,60 @@ FIXTURES = TESTS / "fixtures"
 CHAPTER_WORD_FLOOR = 3000
 CHAPTER_WORD_CEILING = 10000
 
-def jload(p): return json.loads(Path(p).read_text())
+
+def jload(p):
+    return json.loads(Path(p).read_text())
+
+
 def yload(p):
     with open(p) as f:
         content = f.read()
-    if content.startswith('---'):
-        parts = content.split('---', 2)
+    if content.startswith("---"):
+        parts = content.split("---", 2)
         return yaml.safe_load(parts[1]) if len(parts) > 1 else {}
     return yaml.safe_load(content)
 
+
 def word_count_md(fp):
     """统计 Markdown 正文中文字数"""
-    c = Path(fp).read_text(encoding='utf-8')
-    c = re.sub(r'^---\n.*?\n---\n', '', c, flags=re.DOTALL)
-    c = re.sub(r'```.*?```', '', c, flags=re.DOTALL)
-    c = re.sub(r'## PRE_WRITE_CHECK.*?(?=## |\Z)', '', c, flags=re.DOTALL)
-    c = re.sub(r'## POST_WRITE_SELF_CHECK.*?(?=## |\Z)', '', c, flags=re.DOTALL)
-    c = re.sub(r'## 润色说明.*?(?=## |\Z)', '', c, flags=re.DOTALL)
-    c = re.sub(r'## 改写报告.*?(?=## |\Z)', '', c, flags=re.DOTALL)
-    c = re.sub(r'## 归一化报告.*?(?=## |\Z)', '', c, flags=re.DOTALL)
-    return len(re.findall(r'[一-鿿]', c))
+    c = Path(fp).read_text(encoding="utf-8")
+    c = re.sub(r"^---\n.*?\n---\n", "", c, flags=re.DOTALL)
+    c = re.sub(r"```.*?```", "", c, flags=re.DOTALL)
+    c = re.sub(r"## PRE_WRITE_CHECK.*?(?=## |\Z)", "", c, flags=re.DOTALL)
+    c = re.sub(r"## POST_WRITE_SELF_CHECK.*?(?=## |\Z)", "", c, flags=re.DOTALL)
+    c = re.sub(r"## 润色说明.*?(?=## |\Z)", "", c, flags=re.DOTALL)
+    c = re.sub(r"## 改写报告.*?(?=## |\Z)", "", c, flags=re.DOTALL)
+    c = re.sub(r"## 归一化报告.*?(?=## |\Z)", "", c, flags=re.DOTALL)
+    return len(re.findall(r"[一-鿿]", c))
+
 
 def fail(gid, checks, blocked, must_fix):
-    return json.dumps({"gate":gid,"status":"FAIL","timestamp":datetime.now(timezone.utc).isoformat(),"checks":checks,"blocked_action":blocked,"must_fix":must_fix},indent=2,ensure_ascii=False)
+    return json.dumps(
+        {
+            "gate": gid,
+            "status": "FAIL",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "checks": checks,
+            "blocked_action": blocked,
+            "must_fix": must_fix,
+        },
+        indent=2,
+        ensure_ascii=False,
+    )
+
 
 def passed(gid, checks):
-    return json.dumps({"gate":gid,"status":"PASS","timestamp":datetime.now(timezone.utc).isoformat(),"checks":checks},indent=2,ensure_ascii=False)
+    return json.dumps(
+        {
+            "gate": gid,
+            "status": "PASS",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "checks": checks,
+        },
+        indent=2,
+        ensure_ascii=False,
+    )
+
 
 def read_genre_config(project_dir):
     """从项目目录读取 genre-config.json 获取疲劳词和 chapter_word 配置"""
@@ -169,10 +198,54 @@ def read_genre_config(project_dir):
         return jload(gc_path)
     return {}
 
+
 ALL_SKILLS = sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
-FATIGUE_BASE = ["突然","猛地","瞬间","一股","恐怖","死死","眼中闪过","嘴角","冷冷","淡淡","微微一笑","心中一动","暗道","不由得","显然","似乎","仿佛","如同","无比","极致","难以形容","不可思议","前所未有","令人发指","震惊","愣住","呆住"]
-META_NARRATIVE = ["让人感悟","引人深思","由此可见","综上所述","值得注意的是","不禁感慨","不由得想到"]
-TRANSITION_WORDS = ["然", "不过", "此时", "突然", "终于", "于是"]  # "然"检测用词边界避免与"然而"重叠: re.findall(r'\b然\b|\B然\B的否定', content)
+FATIGUE_BASE = [
+    "突然",
+    "猛地",
+    "瞬间",
+    "一股",
+    "恐怖",
+    "死死",
+    "眼中闪过",
+    "嘴角",
+    "冷冷",
+    "淡淡",
+    "微微一笑",
+    "心中一动",
+    "暗道",
+    "不由得",
+    "显然",
+    "似乎",
+    "仿佛",
+    "如同",
+    "无比",
+    "极致",
+    "难以形容",
+    "不可思议",
+    "前所未有",
+    "令人发指",
+    "震惊",
+    "愣住",
+    "呆住",
+]
+META_NARRATIVE = [
+    "让人感悟",
+    "引人深思",
+    "由此可见",
+    "综上所述",
+    "值得注意的是",
+    "不禁感慨",
+    "不由得想到",
+]
+TRANSITION_WORDS = [
+    "然",
+    "不过",
+    "此时",
+    "突然",
+    "终于",
+    "于是",
+]  # "然"检测用词边界避免与"然而"重叠: re.findall(r'\b然\b|\B然\B的否定', content)
 ```
 
 #### Section 1: G0 — 环境就绪
@@ -185,43 +258,79 @@ def gate_G0(seed_file=None):
     # G0.1: seed exists, readable, UTF-8
     if seed_file:
         sp = Path(seed_file)
-        if not sp.exists(): return fail("G0",[{"id":"G0.1","s":"FAIL","r":f"seed not found: {seed_file}"}],"round_creation",["G0.1"])
+        if not sp.exists():
+            return fail(
+                "G0",
+                [{"id": "G0.1", "s": "FAIL", "r": f"seed not found: {seed_file}"}],
+                "round_creation",
+                ["G0.1"],
+            )
         try:
-            content = sp.read_text(encoding='utf-8')
-            checks.append({"id":"G0.1","s":"PASS"})
-        except Exception as e: return fail("G0",[{"id":"G0.1","s":"FAIL","r":str(e)}],"round_creation",["G0.1"])
+            content = sp.read_text(encoding="utf-8")
+            checks.append({"id": "G0.1", "s": "PASS"})
+        except Exception as e:
+            return fail(
+                "G0", [{"id": "G0.1", "s": "FAIL", "r": str(e)}], "round_creation", ["G0.1"]
+            )
         # G0.2: target_words extraction
-        m = re.search(r'目标字数[：:]\s*(\d+)', content)
-        if not m or int(m.group(1)) <= 0: return fail("G0",[{"id":"G0.2","s":"FAIL","r":"target_words not found"}],"round_creation",["G0.2"])
-        checks.append({"id":"G0.2","s":"PASS","target_words":int(m.group(1))})
+        m = re.search(r"目标字数[：:]\s*(\d+)", content)
+        if not m or int(m.group(1)) <= 0:
+            return fail(
+                "G0",
+                [{"id": "G0.2", "s": "FAIL", "r": "target_words not found"}],
+                "round_creation",
+                ["G0.2"],
+            )
+        checks.append({"id": "G0.2", "s": "PASS", "target_words": int(m.group(1))})
         # G0.3: expected_chapters = ceil(target_words / genre_config.chapter_word.default)
         default_w = CHAPTER_WORD_FLOOR
         novel_output = PROJECT / "novel-output"
         if novel_output.exists():
             for proj_dir in novel_output.iterdir():
-                if not proj_dir.is_dir(): continue
+                if not proj_dir.is_dir():
+                    continue
                 gc = proj_dir / "genre-config.json"
                 if gc.exists():
-                    default_w = jload(str(gc)).get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR)
+                    default_w = (
+                        jload(str(gc)).get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR)
+                    )
                     break
         expected = -(-int(m.group(1)) // default_w)
-        checks.append({"id":"G0.3","s":"PASS","expected_chapters":expected})
+        checks.append({"id": "G0.3", "s": "PASS", "expected_chapters": expected})
     # G0.4: skill dirs
     missing_dirs, missing_md = [], []
     for d in SKILLS.iterdir():
-        if not d.is_dir(): continue
-        if not (d / "SKILL.md").exists(): missing_md.append(d.name)
-    if missing_dirs: return fail("G0",checks+[{"id":"G0.4","s":"FAIL","r":f"dirs missing: {missing_dirs}"}],"round_creation",["G0.4"])
-    if missing_md: checks.append({"id":"G0.4","s":"WARN","r":f"SKIP skills missing SKILL.md: {missing_md}"})
-    else: checks.append({"id":"G0.4","s":"PASS"})
+        if not d.is_dir():
+            continue
+        if not (d / "SKILL.md").exists():
+            missing_md.append(d.name)
+    if missing_dirs:
+        return fail(
+            "G0",
+            checks + [{"id": "G0.4", "s": "FAIL", "r": f"dirs missing: {missing_dirs}"}],
+            "round_creation",
+            ["G0.4"],
+        )
+    if missing_md:
+        checks.append(
+            {"id": "G0.4", "s": "WARN", "r": f"SKIP skills missing SKILL.md: {missing_md}"}
+        )
+    else:
+        checks.append({"id": "G0.4", "s": "PASS"})
     # G0.5: rubric weight sum = 100% (sampling check — full check is expensive)
-    checks.append({"id":"G0.5","s":"PASS","note":"sampled"})
+    checks.append({"id": "G0.5", "s": "PASS", "note": "sampled"})
     # G0.6: novel-output writable
     no = PROJECT / "novel-output"
-    if not os.access(str(no), os.W_OK): return fail("G0",checks+[{"id":"G0.6","s":"FAIL","r":"novel-output not writable"}],"round_creation",["G0.6"])
-    checks.append({"id":"G0.6","s":"PASS"})
+    if not os.access(str(no), os.W_OK):
+        return fail(
+            "G0",
+            checks + [{"id": "G0.6", "s": "FAIL", "r": "novel-output not writable"}],
+            "round_creation",
+            ["G0.6"],
+        )
+    checks.append({"id": "G0.6", "s": "PASS"})
     # G0.7: scoring.py self-test
-    checks.append({"id":"G0.7","s":"PASS","note":"manual verification"})
+    checks.append({"id": "G0.7", "s": "PASS", "note": "manual verification"})
     return passed("G0", checks)
 ```
 
@@ -235,33 +344,45 @@ def gate_G1(skill_name, input_files, round_dir):
     checks, mf = [], []
     rd = Path(round_dir)
     # G1.1: input files exist and non-empty
-    for fp, required in (input_files or []):
+    for fp, required in input_files or []:
         p = Path(fp)
         if not p.exists():
-            (mf if required else checks).append({"id":"G1.1","file":fp,"s":"FAIL","r":"not found"})
+            (mf if required else checks).append(
+                {"id": "G1.1", "file": fp, "s": "FAIL", "r": "not found"}
+            )
         elif p.stat().st_size == 0:
-            (mf if required else checks).append({"id":"G1.1","file":fp,"s":"FAIL","r":"empty"})
+            (mf if required else checks).append(
+                {"id": "G1.1", "file": fp, "s": "FAIL", "r": "empty"}
+            )
         else:
-            checks.append({"id":"G1.1","file":fp,"s":"PASS"})
+            checks.append({"id": "G1.1", "file": fp, "s": "PASS"})
         # G1.2: JSON parse
-        if fp.endswith('.json') and p.exists():
-            try: jload(fp); checks.append({"id":"G1.2","file":fp,"s":"PASS"})
-            except: mf.append({"id":"G1.2","file":fp,"s":"FAIL","r":"invalid JSON"})
+        if fp.endswith(".json") and p.exists():
+            try:
+                jload(fp)
+                checks.append({"id": "G1.2", "file": fp, "s": "PASS"})
+            except:
+                mf.append({"id": "G1.2", "file": fp, "s": "FAIL", "r": "invalid JSON"})
         # G1.3: YAML parse
-        if fp.endswith('.md') and p.exists():
-            try: yload(fp); checks.append({"id":"G1.3","file":fp,"s":"PASS"})
-            except: mf.append({"id":"G1.3","file":fp,"s":"FAIL","r":"invalid YAML frontmatter"})
+        if fp.endswith(".md") and p.exists():
+            try:
+                yload(fp)
+                checks.append({"id": "G1.3", "file": fp, "s": "PASS"})
+            except:
+                mf.append({"id": "G1.3", "file": fp, "s": "FAIL", "r": "invalid YAML frontmatter"})
     # G1.4: backup for in-place modifying skills
-    for fp, _ in (input_files or []):
-        if fp.endswith('.md') and Path(fp).exists():
-            bak = Path(str(fp) + '.bak')
+    for fp, _ in input_files or []:
+        if fp.endswith(".md") and Path(fp).exists():
+            bak = Path(str(fp) + ".bak")
             if not bak.exists():
                 import shutil
+
                 shutil.copy2(fp, str(bak))
-                checks.append({"id":"G1.4","file":fp,"s":"PASS","action":"backup created"})
+                checks.append({"id": "G1.4", "file": fp, "s": "PASS", "action": "backup created"})
     # G1.5: file lock — see gate-lock convention in spec Section 3.1
     # G1.6: scoring history check — in gate_G3
-    if mf: return fail("G1", checks, "dispatch", [x["id"] for x in mf])
+    if mf:
+        return fail("G1", checks, "dispatch", [x["id"] for x in mf])
     return passed("G1", checks)
 ```
 
@@ -273,89 +394,158 @@ def gate_G1(skill_name, input_files, round_dir):
 def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
     """G2: 写盘验证。file_type: chapter|report|truth"""
     checks, mf = [], []
-    for fp in (file_paths or []):
+    for fp in file_paths or []:
         p = Path(fp)
         # G2.1: exists
-        if not p.exists(): mf.append({"id":"G2.1","file":fp,"s":"FAIL","r":"not found"}); continue
+        if not p.exists():
+            mf.append({"id": "G2.1", "file": fp, "s": "FAIL", "r": "not found"})
+            continue
         # G2.2: non-empty
-        if p.stat().st_size==0: mf.append({"id":"G2.2","file":fp,"s":"FAIL","r":"empty"}); continue
-        checks.append({"id":"G2.1","file":fp,"s":"PASS"}); checks.append({"id":"G2.2","file":fp,"s":"PASS"})
+        if p.stat().st_size == 0:
+            mf.append({"id": "G2.2", "file": fp, "s": "FAIL", "r": "empty"})
+            continue
+        checks.append({"id": "G2.1", "file": fp, "s": "PASS"})
+        checks.append({"id": "G2.2", "file": fp, "s": "PASS"})
         # G2.3: UTF-8
         try:
-            content = p.read_text(encoding='utf-8')
-            checks.append({"id":"G2.3","file":fp,"s":"PASS"})
-        except: mf.append({"id":"G2.3","file":fp,"s":"FAIL"}); continue
+            content = p.read_text(encoding="utf-8")
+            checks.append({"id": "G2.3", "file": fp, "s": "PASS"})
+        except:
+            mf.append({"id": "G2.3", "file": fp, "s": "FAIL"})
+            continue
         # G2.4: JSON syntax (if JSON)
-        if fp.endswith('.json'):
-            try: jload(fp); checks.append({"id":"G2.4","file":fp,"s":"PASS"})
-            except: mf.append({"id":"G2.4","file":fp,"s":"FAIL"})
+        if fp.endswith(".json"):
+            try:
+                jload(fp)
+                checks.append({"id": "G2.4", "file": fp, "s": "PASS"})
+            except:
+                mf.append({"id": "G2.4", "file": fp, "s": "FAIL"})
         # G2.5: YAML frontmatter (if MD)
-        if fp.endswith('.md'):
+        if fp.endswith(".md"):
             try:
                 fm = yload(fp)
-                checks.append({"id":"G2.5","file":fp,"s":"PASS","has_frontmatter":bool(fm)})
-            except: mf.append({"id":"G2.5","file":fp,"s":"FAIL","r":"YAML parse error"})
+                checks.append({"id": "G2.5", "file": fp, "s": "PASS", "has_frontmatter": bool(fm)})
+            except:
+                mf.append({"id": "G2.5", "file": fp, "s": "FAIL", "r": "YAML parse error"})
         if file_type == "chapter":
             wc = word_count_md(fp)
             # G2.6: word count >= floor
             if wc < CHAPTER_WORD_FLOOR:
-                mf.append({"id":"G2.6","file":fp,"s":"FAIL","expected":f">={CHAPTER_WORD_FLOOR}","actual":wc,"resolution":"run length-normalizing expand"})
-            else: checks.append({"id":"G2.6","file":fp,"s":"PASS","word_count":wc})
+                mf.append(
+                    {
+                        "id": "G2.6",
+                        "file": fp,
+                        "s": "FAIL",
+                        "expected": f">={CHAPTER_WORD_FLOOR}",
+                        "actual": wc,
+                        "resolution": "run length-normalizing expand",
+                    }
+                )
+            else:
+                checks.append({"id": "G2.6", "file": fp, "s": "PASS", "word_count": wc})
             # G2.7: word count ceiling
             is_important = _is_important_chapter(fp, project_dir)
             ceiling = CHAPTER_WORD_CEILING if is_important else int(CHAPTER_WORD_FLOOR * 1.5)
             if wc > ceiling:
-                mf.append({"id":"G2.7","file":fp,"s":"FAIL","expected":f"<={ceiling}","actual":wc})
-            else: checks.append({"id":"G2.7","file":fp,"s":"PASS"})
+                mf.append(
+                    {
+                        "id": "G2.7",
+                        "file": fp,
+                        "s": "FAIL",
+                        "expected": f"<={ceiling}",
+                        "actual": wc,
+                    }
+                )
+            else:
+                checks.append({"id": "G2.7", "file": fp, "s": "PASS"})
             # G2.8: PRE_WRITE_CHECK
-            if "## PRE_WRITE_CHECK" not in content: mf.append({"id":"G2.8","file":fp,"s":"FAIL"})
-            else: checks.append({"id":"G2.8","file":fp,"s":"PASS"})
+            if "## PRE_WRITE_CHECK" not in content:
+                mf.append({"id": "G2.8", "file": fp, "s": "FAIL"})
+            else:
+                checks.append({"id": "G2.8", "file": fp, "s": "PASS"})
             # G2.9: POST_WRITE_SELF_CHECK
-            if "## POST_WRITE_SELF_CHECK" not in content: mf.append({"id":"G2.9","file":fp,"s":"FAIL"})
-            else: checks.append({"id":"G2.9","file":fp,"s":"PASS"})
+            if "## POST_WRITE_SELF_CHECK" not in content:
+                mf.append({"id": "G2.9", "file": fp, "s": "FAIL"})
+            else:
+                checks.append({"id": "G2.9", "file": fp, "s": "PASS"})
         # G2.10: not template placeholder
-        lines = content.split('\n')
+        lines = content.split("\n")
         if len(lines) > 0:
-            placeholder_ratio = sum(1 for l in lines if '待填充' in l) / len(lines)
-            if placeholder_ratio > 0.1: mf.append({"id":"G2.10","file":fp,"s":"FAIL","r":f"template: {placeholder_ratio:.0%}"})
-            else: checks.append({"id":"G2.10","file":fp,"s":"PASS"})
+            placeholder_ratio = sum(1 for l in lines if "待填充" in l) / len(lines)
+            if placeholder_ratio > 0.1:
+                mf.append(
+                    {
+                        "id": "G2.10",
+                        "file": fp,
+                        "s": "FAIL",
+                        "r": f"template: {placeholder_ratio:.0%}",
+                    }
+                )
+            else:
+                checks.append({"id": "G2.10", "file": fp, "s": "PASS"})
         # G2.11: truth files — .bak comparison
         if file_type == "truth" and round_dir:
             bak = Path(fp + ".bak")
             if bak.exists():
                 import difflib
-                old_lines = bak.read_text(encoding='utf-8').splitlines(keepends=True)
+
+                old_lines = bak.read_text(encoding="utf-8").splitlines(keepends=True)
                 new_lines = content.splitlines(keepends=True)
-                diff = list(difflib.unified_diff(old_lines, new_lines, fromfile=str(bak), tofile=fp))
+                diff = list(
+                    difflib.unified_diff(old_lines, new_lines, fromfile=str(bak), tofile=fp)
+                )
                 # Only removals (lines starting with -) are violations
-                removals = [l for l in diff if l.startswith('-') and not l.startswith('---')]
+                removals = [l for l in diff if l.startswith("-") and not l.startswith("---")]
                 if removals:
-                    mf.append({"id":"G2.11","file":fp,"s":"FAIL","r":f"{len(removals)} lines removed from truth file","removed_lines":removals[:5]})
-                else: checks.append({"id":"G2.11","file":fp,"s":"PASS"})
+                    mf.append(
+                        {
+                            "id": "G2.11",
+                            "file": fp,
+                            "s": "FAIL",
+                            "r": f"{len(removals)} lines removed from truth file",
+                            "removed_lines": removals[:5],
+                        }
+                    )
+                else:
+                    checks.append({"id": "G2.11", "file": fp, "s": "PASS"})
         # G2.12: file completeness
-        last = content.strip().split('\n')[-1].strip()
-        ends_ok = last.endswith(('。','！','？','…','」','』','"','）',')','---')) or last.startswith('#')
-        if not ends_ok: checks.append({"id":"G2.12","file":fp,"s":"WARN","r":"may be truncated"})
-        else: checks.append({"id":"G2.12","file":fp,"s":"PASS"})
-    if mf: return fail("G2", checks, "scoring", [x["id"]+":"+x.get("file","") for x in mf])
+        last = content.strip().split("\n")[-1].strip()
+        ends_ok = last.endswith(
+            ("。", "！", "？", "…", "」", "』", '"', "）", ")", "---")
+        ) or last.startswith("#")
+        if not ends_ok:
+            checks.append({"id": "G2.12", "file": fp, "s": "WARN", "r": "may be truncated"})
+        else:
+            checks.append({"id": "G2.12", "file": fp, "s": "PASS"})
+    if mf:
+        return fail("G2", checks, "scoring", [x["id"] + ":" + x.get("file", "") for x in mf])
     return passed("G2", checks)
+
 
 def _is_important_chapter(fp, project_dir):
     """检查章节是否为重要章。来源: (a) volume_map.md 标注, (b) chapter-N-plan.md 第1段 '重要章' 标注"""
-    if not project_dir: return False
-    ch_num = re.search(r'chapter-(\d+)', str(fp))
-    if not ch_num: return False
+    if not project_dir:
+        return False
+    ch_num = re.search(r"chapter-(\d+)", str(fp))
+    if not ch_num:
+        return False
     n = int(ch_num.group(1))
     # (a) volume_map.md: 爆发段/高潮/卷首/卷末
     vm = Path(project_dir) / "outline" / "volume_map.md"
     if vm.exists():
-        patterns = [rf'第{n}章.*(?:爆发|高潮|卷首|卷末|开篇|收官)']
-        if any(re.search(p, vm.read_text()) for p in patterns): return True
+        patterns = [rf"第{n}章.*(?:爆发|高潮|卷首|卷末|开篇|收官)"]
+        if any(re.search(p, vm.read_text()) for p in patterns):
+            return True
     # (b) chapter-N-plan.md 第1段标注 "重要章"
     plan = Path(project_dir) / "plans" / f"chapter-{n}-plan.md"
     if plan.exists():
-        first_section = plan.read_text().split('## 2.')[0] if '## 2.' in plan.read_text() else plan.read_text()[:500]
-        if '重要章' in first_section: return True
+        first_section = (
+            plan.read_text().split("## 2.")[0]
+            if "## 2." in plan.read_text()
+            else plan.read_text()[:500]
+        )
+        if "重要章" in first_section:
+            return True
     return False
 ```
 
@@ -379,41 +569,61 @@ def gate_G3(skill_name, test_type, round_dir):
     for phase_data in deps.get("t2-phases", {}).values():
         plist = phase_data["prerequisites"]
         if skill_name in plist:
-            prereqs = plist[:plist.index(skill_name)]
+            prereqs = plist[: plist.index(skill_name)]
             break
     for pr in prereqs:
         report = rd / "t1-reports" / f"{pr}-{test_type}.json"
         if not report.exists():
-            return fail("G3",[{"id":"G3.1","s":"FAIL","missing":pr}],"scoring",[f"G3.1:{pr}"])
+            return fail(
+                "G3", [{"id": "G3.1", "s": "FAIL", "missing": pr}], "scoring", [f"G3.1:{pr}"]
+            )
         try:
-            pr_score = jload(report).get("score",0)
+            pr_score = jload(report).get("score", 0)
             if pr_score < threshold:
-                return fail("G3",[{"id":"G3.2","s":"FAIL","skill":pr,"score":pr_score,"threshold":threshold}],"scoring",[f"G3.2:{pr}"])
-        except: pass
-    checks.append({"id":"G3.1","s":"PASS","prereqs_checked":len(prereqs)})
+                return fail(
+                    "G3",
+                    [
+                        {
+                            "id": "G3.2",
+                            "s": "FAIL",
+                            "skill": pr,
+                            "score": pr_score,
+                            "threshold": threshold,
+                        }
+                    ],
+                    "scoring",
+                    [f"G3.2:{pr}"],
+                )
+        except:
+            pass
+    checks.append({"id": "G3.1", "s": "PASS", "prereqs_checked": len(prereqs)})
 
     # G3.3: file passed G2 — run G2 on the actual output files
     output_files = []  # derive from progress.json or skill data contract
-    skill_progress = progress.get("skills",{}).get(skill_name,{})
+    skill_progress = progress.get("skills", {}).get(skill_name, {})
     output_files = skill_progress.get("output_files", [])
     if output_files:
         g2_result = json.loads(gate_G2(output_files, test_type, round_dir))
         if g2_result["status"] == "FAIL":
-            return fail("G3",[{"id":"G3.3","s":"FAIL","g2_result":g2_result}],"scoring",["G3.3"])
-    checks.append({"id":"G3.3","s":"PASS","files_checked":len(output_files)})
+            return fail(
+                "G3", [{"id": "G3.3", "s": "FAIL", "g2_result": g2_result}], "scoring", ["G3.3"]
+            )
+    checks.append({"id": "G3.3", "s": "PASS", "files_checked": len(output_files)})
 
     # G3.4: scorer agent_id != generator agent_id
     if progress:
-        skill_progress = progress.get("skills",{}).get(skill_name,{})
-        trace = skill_progress.get("agent_trace",{})
-        gen_id = trace.get(f"{test_type}_generator","")
+        skill_progress = progress.get("skills", {}).get(skill_name, {})
+        trace = skill_progress.get("agent_trace", {})
+        gen_id = trace.get(f"{test_type}_generator", "")
         # scorer_id set at dispatch time by round-exec; checked here
-        checks.append({"id":"G3.4","s":"PASS","note":"agent_id check deferred to round-exec dispatch"})
+        checks.append(
+            {"id": "G3.4", "s": "PASS", "note": "agent_id check deferred to round-exec dispatch"}
+        )
 
     # G3.5: scorer not in scoring_history
-    skill_progress = progress.get("skills",{}).get(skill_name,{})
-    history = skill_progress.get("scoring_history",[])
-    checks.append({"id":"G3.5","s":"PASS","prior_scores":len(history)})
+    skill_progress = progress.get("skills", {}).get(skill_name, {})
+    history = skill_progress.get("scoring_history", [])
+    checks.append({"id": "G3.5", "s": "PASS", "prior_scores": len(history)})
 
     return passed("G3", checks)
 ```
@@ -424,21 +634,38 @@ def gate_G3(skill_name, test_type, round_dir):
 
 ```python
 def gate_G4(skill_name, test_type, file_paths, round_dir=None):
-    if test_type == "bug-hunt": return gate_G4_bughunt(file_paths)
-    if test_type == "clean": return gate_G4_clean(file_paths)
+    if test_type == "bug-hunt":
+        return gate_G4_bughunt(file_paths)
+    if test_type == "clean":
+        return gate_G4_clean(file_paths)
     checkers = {
-        "shenbi-worldbuilding": g4_worldbuilding, "shenbi-character-design": g4_character_design,
-        "shenbi-story-architecture": g4_story_architecture, "shenbi-power-system": g4_power_system,
-        "shenbi-faction-builder": g4_faction_builder, "shenbi-location-builder": g4_location_builder,
-        "shenbi-relationship-map": g4_relationship_map, "shenbi-pacing-design": g4_pacing_design,
-        "shenbi-plot-thread-weaver": g4_plot_thread_weaver, "shenbi-genre-config": g4_genre_config,
-        "shenbi-volume-outlining": g4_volume_outlining, "shenbi-chapter-planning": g4_chapter_planning,
-        "shenbi-chapter-drafting": g4_chapter_drafting, "shenbi-foreshadowing-plant": g4_foreshadowing_plant,
-        "shenbi-foreshadowing-track": g4_foreshadowing_track, "shenbi-context-composing": g4_context_composing,
-        "shenbi-state-settling": g4_state_settling, "shenbi-style-polishing": g4_style_polishing,
-        "shenbi-anti-detect": g4_anti_detect, "shenbi-length-normalizing": g4_length_normalizing,
+        "shenbi-worldbuilding": g4_worldbuilding,
+        "shenbi-character-design": g4_character_design,
+        "shenbi-story-architecture": g4_story_architecture,
+        "shenbi-power-system": g4_power_system,
+        "shenbi-faction-builder": g4_faction_builder,
+        "shenbi-location-builder": g4_location_builder,
+        "shenbi-relationship-map": g4_relationship_map,
+        "shenbi-pacing-design": g4_pacing_design,
+        "shenbi-plot-thread-weaver": g4_plot_thread_weaver,
+        "shenbi-genre-config": g4_genre_config,
+        "shenbi-volume-outlining": g4_volume_outlining,
+        "shenbi-chapter-planning": g4_chapter_planning,
+        "shenbi-chapter-drafting": g4_chapter_drafting,
+        "shenbi-foreshadowing-plant": g4_foreshadowing_plant,
+        "shenbi-foreshadowing-track": g4_foreshadowing_track,
+        "shenbi-context-composing": g4_context_composing,
+        "shenbi-state-settling": g4_state_settling,
+        "shenbi-style-polishing": g4_style_polishing,
+        "shenbi-anti-detect": g4_anti_detect,
+        "shenbi-length-normalizing": g4_length_normalizing,
     }
-    return checkers.get(skill_name, lambda f,r: json.dumps({"gate":f"G4-{skill_name}","status":"UNIMPLEMENTED"},indent=2,ensure_ascii=False))(file_paths, round_dir)
+    return checkers.get(
+        skill_name,
+        lambda f, r: json.dumps(
+            {"gate": f"G4-{skill_name}", "status": "UNIMPLEMENTED"}, indent=2, ensure_ascii=False
+        ),
+    )(file_paths, round_dir)
 ```
 
 每个检查函数遵循统一模式：读文件 → 检查结构完整性 → 检查可量化指标。以下列出所有 19 个函数的完整规格。实施时每个函数按规格编写约 15-30 行代码。
@@ -529,149 +756,218 @@ def g4_worldbuilding(fps, rd=None):
     nj = Path(project_dir) / "novel.json"
     if nj.exists():
         d = jload(nj)
-        for f in ["title","genre","language","target_words"]:
-            if f not in d or not d[f]: mf.append(f"G4.novel.missing_{f}")
-            else: c.append({"id":f"G4.novel.{f}","s":"PASS"})
-    else: mf.append("G4.novel.not_found")
+        for f in ["title", "genre", "language", "target_words"]:
+            if f not in d or not d[f]:
+                mf.append(f"G4.novel.missing_{f}")
+            else:
+                c.append({"id": f"G4.novel.{f}", "s": "PASS"})
+    else:
+        mf.append("G4.novel.not_found")
     # story_bible.md: 4 section headings, prose density
     sb = Path(project_dir) / "world" / "story_bible.md"
     if sb.exists():
         content = sb.read_text()
-        sections = re.findall(r'^##\s', content, re.MULTILINE)
-        bullet_density = len(re.findall(r'^[\-\*\d+\.]\s', content, re.MULTILINE)) / max(len(content.split('\n')),1)
-        if len(sections) < 4: mf.append("G4.sb.sections")
-        if bullet_density > 0.05: mf.append("G4.sb.bullet_density")
+        sections = re.findall(r"^##\s", content, re.MULTILINE)
+        bullet_density = len(re.findall(r"^[\-\*\d+\.]\s", content, re.MULTILINE)) / max(
+            len(content.split("\n")), 1
+        )
+        if len(sections) < 4:
+            mf.append("G4.sb.sections")
+        if bullet_density > 0.05:
+            mf.append("G4.sb.bullet_density")
     # rules.md: 1-10 rules, each has 可测试标准
     rp = Path(project_dir) / "world" / "rules.md"
     if rp.exists():
         rc = rp.read_text()
-        rule_count = len(re.findall(r'## 规则[一二三四五六七八九十]', rc))
-        testable = len(re.findall(r'可测试标准', rc))
-        if rule_count < 1 or rule_count > 10: mf.append("G4.rules.count")
-        if testable < rule_count: mf.append("G4.rules.testable")
+        rule_count = len(re.findall(r"## 规则[一二三四五六七八九十]", rc))
+        testable = len(re.findall(r"可测试标准", rc))
+        if rule_count < 1 or rule_count > 10:
+            mf.append("G4.rules.count")
+        if testable < rule_count:
+            mf.append("G4.rules.testable")
     # locations.md: 3-5 locations
     lp = Path(project_dir) / "world" / "locations.md"
     if lp.exists():
-        loc_count = len(re.findall(r'## 地点[：:]', lp.read_text()))
-        if loc_count < 3 or loc_count > 5: mf.append("G4.locations.count")
-    if mf: return fail("G4-worldbuilding",c,"scoring",mf)
-    return passed("G4-worldbuilding",c)
+        loc_count = len(re.findall(r"## 地点[：:]", lp.read_text()))
+        if loc_count < 3 or loc_count > 5:
+            mf.append("G4.locations.count")
+    if mf:
+        return fail("G4-worldbuilding", c, "scoring", mf)
+    return passed("G4-worldbuilding", c)
+
 
 def g4_character_design(fps, rd=None):
     """character-design: frontmatter fields + voice_profile arrays + relationships table"""
     c, mf = [], []
-    for fp in (fps or []):
+    for fp in fps or []:
         if "protagonist" in str(fp):
             fm = yload(fp) or {}
-            required = ["name","role","personality_tags","core_value","goal_surface","goal_deep","fear","arc_type","arc_starting","arc_turning","arc_ending","voice_profile"]
+            required = [
+                "name",
+                "role",
+                "personality_tags",
+                "core_value",
+                "goal_surface",
+                "goal_deep",
+                "fear",
+                "arc_type",
+                "arc_starting",
+                "arc_turning",
+                "arc_ending",
+                "voice_profile",
+            ]
             for f in required:
-                if f not in fm or not fm[f]: mf.append(f"G4.protag.missing_{f}")
-            vp = fm.get("voice_profile",{})
-            for arr in ["speech_patterns","catchphrases","avoid_patterns"]:
-                if not isinstance(vp.get(arr),list) or len(vp.get(arr,[])) < 1:
+                if f not in fm or not fm[f]:
+                    mf.append(f"G4.protag.missing_{f}")
+            vp = fm.get("voice_profile", {})
+            for arr in ["speech_patterns", "catchphrases", "avoid_patterns"]:
+                if not isinstance(vp.get(arr), list) or len(vp.get(arr, [])) < 1:
                     mf.append(f"G4.voice.{arr}")
         if "relationships" in str(fp):
             content = Path(fp).read_text()
-            tables = len(re.findall(r'^\|.*\|.*\|$', content, re.MULTILINE))
-            if tables < 3: mf.append("G4.rel.table_rows")
-    if mf: return fail("G4-character-design",c,"scoring",mf)
-    return passed("G4-character-design",c)
+            tables = len(re.findall(r"^\|.*\|.*\|$", content, re.MULTILINE))
+            if tables < 3:
+                mf.append("G4.rel.table_rows")
+    if mf:
+        return fail("G4-character-design", c, "scoring", mf)
+    return passed("G4-character-design", c)
+
 
 def g4_chapter_drafting(fps, rd=None):
     """chapter-drafting: PRE/POST check blocks, transition density, fatigue words, meta-narrative, word count"""
     c, mf = [], []
-    for fp in (fps or []):
+    for fp in fps or []:
         content = Path(fp).read_text()
         wc = word_count_md(fp)
         # PRE_WRITE_CHECK
-        if "## PRE_WRITE_CHECK" not in content: mf.append(f"G4.pre_check:{fp}")
+        if "## PRE_WRITE_CHECK" not in content:
+            mf.append(f"G4.pre_check:{fp}")
         # POST_WRITE_SELF_CHECK
-        if "## POST_WRITE_SELF_CHECK" not in content: mf.append(f"G4.post_check:{fp}")
+        if "## POST_WRITE_SELF_CHECK" not in content:
+            mf.append(f"G4.post_check:{fp}")
         # Transition density
         tc = sum(content.count(w) for w in TRANSITION_WORDS)
         max_t = max(1, wc // 3000)
-        if tc > max_t: mf.append(f"G4.transition:{fp}:{tc}>{max_t}")
-        else: c.append({"id":"G4.transition","file":fp,"s":"PASS","density":f"{tc}/{wc}"})
+        if tc > max_t:
+            mf.append(f"G4.transition:{fp}:{tc}>{max_t}")
+        else:
+            c.append({"id": "G4.transition", "file": fp, "s": "PASS", "density": f"{tc}/{wc}"})
         # Fatigue words (from genre-config if available)
         gc = read_genre_config(str(Path(fp).parent.parent)) if "novel-output" in str(fp) else {}
         fatigue_list = gc.get("fatigue_words", FATIGUE_BASE)
         fatigue_hits = sum(content.count(w) for w in fatigue_list)
-        if fatigue_hits > 3: mf.append(f"G4.fatigue:{fp}:{fatigue_hits}")
-        else: c.append({"id":"G4.fatigue","file":fp,"s":"PASS","hits":fatigue_hits})
+        if fatigue_hits > 3:
+            mf.append(f"G4.fatigue:{fp}:{fatigue_hits}")
+        else:
+            c.append({"id": "G4.fatigue", "file": fp, "s": "PASS", "hits": fatigue_hits})
         # Meta-narrative
-        meta_hits = {w:content.count(w) for w in META_NARRATIVE if w in content}
-        if meta_hits: mf.append(f"G4.meta:{fp}:{meta_hits}")
-        else: c.append({"id":"G4.meta","file":fp,"s":"PASS"})
+        meta_hits = {w: content.count(w) for w in META_NARRATIVE if w in content}
+        if meta_hits:
+            mf.append(f"G4.meta:{fp}:{meta_hits}")
+        else:
+            c.append({"id": "G4.meta", "file": fp, "s": "PASS"})
         # Word count floor
-        if wc < CHAPTER_WORD_FLOOR: mf.append(f"G4.word_count:{fp}:{wc}<{CHAPTER_WORD_FLOOR}")
-        else: c.append({"id":"G4.word_count","file":fp,"s":"PASS","wc":wc})
-    if mf: return fail("G4-chapter-drafting",c,"scoring",mf)
-    return passed("G4-chapter-drafting",c)
+        if wc < CHAPTER_WORD_FLOOR:
+            mf.append(f"G4.word_count:{fp}:{wc}<{CHAPTER_WORD_FLOOR}")
+        else:
+            c.append({"id": "G4.word_count", "file": fp, "s": "PASS", "wc": wc})
+    if mf:
+        return fail("G4-chapter-drafting", c, "scoring", mf)
+    return passed("G4-chapter-drafting", c)
+
 
 def g4_foreshadowing_plant(fps, rd=None):
     """foreshadowing-plant: hook metadata completeness, depends_on not null, operations <= 8"""
     c, mf = [], []
-    for fp in (fps or []):
+    for fp in fps or []:
         fm = yload(fp) or {}
-        hooks = fm.get("hooks",[])
+        hooks = fm.get("hooks", [])
         for h in hooks:
-            required = ["type","dimension","subtlety","cultivation_interval","max_distance","escalation_curve","depends_on"]
+            required = [
+                "type",
+                "dimension",
+                "subtlety",
+                "cultivation_interval",
+                "max_distance",
+                "escalation_curve",
+                "depends_on",
+            ]
             for f in required:
-                if f not in h: mf.append(f"G4.hook.{h.get('id','?')}.missing_{f}")
-            if h.get("depends_on") is None: mf.append(f"G4.hook.{h.get('id','?')}.depends_on_null")
+                if f not in h:
+                    mf.append(f"G4.hook.{h.get('id', '?')}.missing_{f}")
+            if h.get("depends_on") is None:
+                mf.append(f"G4.hook.{h.get('id', '?')}.depends_on_null")
             if h.get("type") == "SMOKESCREEN":
-                notes = h.get("notes","")
-                if len(notes) < 50 or not re.search(r'如果|若|when|if|则|then', notes):
-                    mf.append(f"G4.hook.{h.get('id','?')}.smokescreen_no_exit")
+                notes = h.get("notes", "")
+                if len(notes) < 50 or not re.search(r"如果|若|when|if|则|then", notes):
+                    mf.append(f"G4.hook.{h.get('id', '?')}.smokescreen_no_exit")
         ops = len(hooks)  # Simplified; spec requires plant+reinforce+trigger+resolve count
-        if ops > 8: mf.append(f"G4.hook.ops:{ops}>8")
-    if mf: return fail("G4-foreshadowing-plant",c,"scoring",mf)
-    return passed("G4-foreshadowing-plant",c)
+        if ops > 8:
+            mf.append(f"G4.hook.ops:{ops}>8")
+    if mf:
+        return fail("G4-foreshadowing-plant", c, "scoring", mf)
+    return passed("G4-foreshadowing-plant", c)
+
 
 def g4_state_settling(fps, rd=None):
     """state-settling: current_state has position, char_matrix has new chars, summaries appended"""
     c, mf = [], []
-    for fp in (fps or []):
+    for fp in fps or []:
         content = Path(fp).read_text()
         if "current_state" in str(fp):
-            if "## 位置" not in content: mf.append("G4.cs.no_position")
+            if "## 位置" not in content:
+                mf.append("G4.cs.no_position")
         if "character_matrix" in str(fp):
-            if "## 已登场角色" not in content and "## 角色" not in content: mf.append("G4.cm.no_characters")
+            if "## 已登场角色" not in content and "## 角色" not in content:
+                mf.append("G4.cm.no_characters")
         if "chapter_summaries" in str(fp):
-            if not re.search(r'## 第\d+章', content): mf.append("G4.csum.no_chapter")
+            if not re.search(r"## 第\d+章", content):
+                mf.append("G4.csum.no_chapter")
         if "emotional_arcs" in str(fp):
-            if not re.search(r'### 第\d+章', content): mf.append("G4.ea.no_arc")
-    if mf: return fail("G4-state-settling",c,"scoring",mf)
-    return passed("G4-state-settling",c)
+            if not re.search(r"### 第\d+章", content):
+                mf.append("G4.ea.no_arc")
+    if mf:
+        return fail("G4-state-settling", c, "scoring", mf)
+    return passed("G4-state-settling", c)
+
 
 def g4_style_polishing(fps, rd=None):
     c, mf = [], []
-    for fp in (fps or []):
+    for fp in fps or []:
         content = Path(fp).read_text()
-        if "## 润色说明" not in content: mf.append(f"G4.sp.no_report:{fp}")
-    if mf: return fail("G4-style-polishing",c,"scoring",mf)
-    return passed("G4-style-polishing",c)
+        if "## 润色说明" not in content:
+            mf.append(f"G4.sp.no_report:{fp}")
+    if mf:
+        return fail("G4-style-polishing", c, "scoring", mf)
+    return passed("G4-style-polishing", c)
+
 
 def g4_anti_detect(fps, rd=None):
     c, mf = [], []
-    for fp in (fps or []):
+    for fp in fps or []:
         content = Path(fp).read_text()
-        if "## 改写报告" not in content: mf.append(f"G4.ad.no_report:{fp}")
-    if mf: return fail("G4-anti-detect",c,"scoring",mf)
-    return passed("G4-anti-detect",c)
+        if "## 改写报告" not in content:
+            mf.append(f"G4.ad.no_report:{fp}")
+    if mf:
+        return fail("G4-anti-detect", c, "scoring", mf)
+    return passed("G4-anti-detect", c)
+
 
 def g4_length_normalizing(fps, rd=None):
     c, mf = [], []
-    for fp in (fps or []):
+    for fp in fps or []:
         content = Path(fp).read_text()
         wc = word_count_md(fp)
-        if "## 归一化报告" not in content: mf.append(f"G4.ln.no_report:{fp}")
+        if "## 归一化报告" not in content:
+            mf.append(f"G4.ln.no_report:{fp}")
         if wc < CHAPTER_WORD_FLOOR:
             mf.append(f"G4.ln.below_floor:{fp}:{wc}<{CHAPTER_WORD_FLOOR}")
         elif wc > CHAPTER_WORD_CEILING:
             mf.append(f"G4.ln.above_ceiling:{fp}:{wc}>{CHAPTER_WORD_CEILING}")
-    if mf: return fail("G4-length-normalizing",c,"scoring",mf)
-    return passed("G4-length-normalizing",c)
+    if mf:
+        return fail("G4-length-normalizing", c, "scoring", mf)
+    return passed("G4-length-normalizing", c)
+
 
 # Remaining G4 functions (story_architecture, power_system, faction_builder, location_builder,
 # relationship_map, pacing_design, plot_thread_weaver, genre_config, volume_outlining,
@@ -686,33 +982,49 @@ def g4_length_normalizing(fps, rd=None):
 def gate_G4_bughunt(file_paths):
     """G4.b: Bug-hunt checks — script verifies finding format, LLM verifies correctness"""
     c, mf = [], []
-    for fp in (file_paths or []):
+    for fp in file_paths or []:
         content = Path(fp).read_text()
         # G4.b3: each finding has severity and evidence location
-        findings = re.findall(r'(?:error|warning|错误|警告).*?(?:文件|段落|line|para)', content, re.IGNORECASE)
-        if not findings: mf.append(f"G4.b3.no_findings:{fp}")
+        findings = re.findall(
+            r"(?:error|warning|错误|警告).*?(?:文件|段落|line|para)", content, re.IGNORECASE
+        )
+        if not findings:
+            mf.append(f"G4.b3.no_findings:{fp}")
         # G4.b1 (Kill switch) requires semantic matching — defer to scoring subagent
-        c.append({"id":"G4.b1","s":"PASS","note":"kill switch check deferred to scoring subagent"})
+        c.append(
+            {"id": "G4.b1", "s": "PASS", "note": "kill switch check deferred to scoring subagent"}
+        )
         # G4.b2: false positive count <= planted defect count — defer to subagent
-        c.append({"id":"G4.b2","s":"PASS","note":"false positive check deferred to scoring subagent"})
-    if mf: return fail("G4-bughunt",c,"scoring",mf)
-    return passed("G4-bughunt",c)
+        c.append(
+            {
+                "id": "G4.b2",
+                "s": "PASS",
+                "note": "false positive check deferred to scoring subagent",
+            }
+        )
+    if mf:
+        return fail("G4-bughunt", c, "scoring", mf)
+    return passed("G4-bughunt", c)
+
 
 def gate_G4_clean(file_paths):
     """G4.c: Clean checks — issues count = 0, summary present"""
     c, mf = [], []
-    for fp in (file_paths or []):
+    for fp in file_paths or []:
         content = Path(fp).read_text()
         # G4.c1: zero issues (Kill switch — semantic check by subagent)
         # Script proxy: check for absence of finding markers
-        finding_markers = len(re.findall(r'(?:finding|issue|问题|缺陷|错误)', content, re.IGNORECASE))
+        finding_markers = len(
+            re.findall(r"(?:finding|issue|问题|缺陷|错误)", content, re.IGNORECASE)
+        )
         if finding_markers > 5:  # heuristic: more than 5 keywords suggests findings exist
             mf.append(f"G4.c1.potential_findings:{fp}")
         # G4.c2: summary present
-        if not re.search(r'已检查.*维度.*全部通过', content):
+        if not re.search(r"已检查.*维度.*全部通过", content):
             mf.append(f"G4.c2.no_summary:{fp}")
-    if mf: return fail("G4-clean",c,"scoring",mf)
-    return passed("G4-clean",c)
+    if mf:
+        return fail("G4-clean", c, "scoring", mf)
+    return passed("G4-clean", c)
 ```
 
 #### Section 6: G5/G6 — T2/T3 Phase + Pipeline
@@ -725,8 +1037,9 @@ def gate_G5(phase_name, round_dir):
     c, mf = [], []
     rd = Path(round_dir)
     deps = jload(TESTS / "tiers" / "deps.json")
-    phase_data = deps.get("t2-phases",{}).get(phase_name)
-    if not phase_data: return fail("G5",[],"scoring",[f"unknown phase: {phase_name}"])
+    phase_data = deps.get("t2-phases", {}).get(phase_name)
+    if not phase_data:
+        return fail("G5", [], "scoring", [f"unknown phase: {phase_name}"])
     acceptance = jload(TESTS / "tiers" / "acceptance.json")
     threshold = acceptance["t2"]
     prereqs = phase_data["prerequisites"]
@@ -735,49 +1048,76 @@ def gate_G5(phase_name, round_dir):
     for pr in prereqs:
         report = rd / "t1-reports" / f"{pr}-generative.json"
         if report.exists():
-            score = jload(report).get("score",0)
+            score = jload(report).get("score", 0)
             if score < threshold:
                 mf.append(f"G5.1:{pr}:{score}<{threshold}")
-        else: mf.append(f"G5.1:{pr}:no_report")
+        else:
+            mf.append(f"G5.1:{pr}:no_report")
 
     # G5.2: handoff integrity — parse SKILL.md Reads vs upstream Writes+Updates
     for i in range(1, len(prereqs)):
-        upstream = prereqs[i-1]; downstream = prereqs[i]
+        upstream = prereqs[i - 1]
+        downstream = prereqs[i]
         # Parse SKILL.md data contract sections
-        us_skill = (SKILLS / upstream / "SKILL.md").read_text() if (SKILLS / upstream / "SKILL.md").exists() else ""
-        ds_skill = (SKILLS / downstream / "SKILL.md").read_text() if (SKILLS / downstream / "SKILL.md").exists() else ""
-        us_outputs = set(re.findall(r'`([^`]+)`', '\n'.join(re.findall(r'\*\*(?:Writes|Updates):\*\*\s*(.*)', us_skill))))
-        ds_inputs = set(re.findall(r'`([^`]+)`', '\n'.join(re.findall(r'\*\*Reads:\*\*\s*(.*)', ds_skill))))
+        us_skill = (
+            (SKILLS / upstream / "SKILL.md").read_text()
+            if (SKILLS / upstream / "SKILL.md").exists()
+            else ""
+        )
+        ds_skill = (
+            (SKILLS / downstream / "SKILL.md").read_text()
+            if (SKILLS / downstream / "SKILL.md").exists()
+            else ""
+        )
+        us_outputs = set(
+            re.findall(
+                r"`([^`]+)`", "\n".join(re.findall(r"\*\*(?:Writes|Updates):\*\*\s*(.*)", us_skill))
+            )
+        )
+        ds_inputs = set(
+            re.findall(r"`([^`]+)`", "\n".join(re.findall(r"\*\*Reads:\*\*\s*(.*)", ds_skill)))
+        )
         missing = ds_inputs - us_outputs
-        if missing: mf.append(f"G5.2:handoff:{upstream}->{downstream}:missing:{list(missing)}")
+        if missing:
+            mf.append(f"G5.2:handoff:{upstream}->{downstream}:missing:{list(missing)}")
 
     # G5.3: character name cross-reference (grep section headers)
     # G5.4: rule/location cross-reference
     # G5.5: expected outputs present (glob patterns)
-    for pattern in phase_data.get("expected_outputs",[]):
-        if '*' in pattern:
+    for pattern in phase_data.get("expected_outputs", []):
+        if "*" in pattern:
             matches = list(Path(project_dir).rglob(pattern)) if project_dir else []
-            if not matches: mf.append(f"G5.5:{pattern}:no_matches")
+            if not matches:
+                mf.append(f"G5.5:{pattern}:no_matches")
         else:
             p = Path(project_dir) / pattern if project_dir else None
-            if p and not p.exists(): mf.append(f"G5.5:{pattern}:not_found")
+            if p and not p.exists():
+                mf.append(f"G5.5:{pattern}:not_found")
 
     # G5.6: no regression — re-run G4 script checks on phase outputs
     for pr in prereqs:
         output_files = []  # from progress.json
         g4_result = json.loads(gate_G4(pr, "generative", output_files, round_dir))
         if g4_result.get("status") == "FAIL":
-            return fail("G5",c+[{"id":"G5.6","s":"FAIL","skill":pr,"g4":g4_result}],"scoring",["G5.6"])
+            return fail(
+                "G5",
+                c + [{"id": "G5.6", "s": "FAIL", "skill": pr, "g4": g4_result}],
+                "scoring",
+                ["G5.6"],
+            )
 
-    if mf: return fail("G5",c,"scoring",mf)
-    return passed("G5",c)
+    if mf:
+        return fail("G5", c, "scoring", mf)
+    return passed("G5", c)
+
 
 def gate_G6(pipeline_name, round_dir, project_dir):
     """G6: T3 Pipeline check"""
     c, mf = [], []
     deps = jload(TESTS / "tiers" / "deps.json")
-    pipe_data = deps.get("t3-pipelines",{}).get(pipeline_name)
-    if not pipe_data: return fail("G6",[],"scoring",[f"unknown pipeline: {pipeline_name}"])
+    pipe_data = deps.get("t3-pipelines", {}).get(pipeline_name)
+    if not pipe_data:
+        return fail("G6", [], "scoring", [f"unknown pipeline: {pipeline_name}"])
     min_ratio = pipe_data.get("min_chapter_ratio", 0.5)
     # G6.1: read target_words dynamically from novel.json
     nj_path = Path(project_dir) / "novel.json"
@@ -791,18 +1131,27 @@ def gate_G6(pipeline_name, round_dir, project_dir):
         chapters = sorted(ch_dir.glob("chapter-*.md"))
         if len(chapters) < min_chapters:
             mf.append(f"G6.1:{len(chapters)}<{min_chapters}")
-        else: c.append({"id":"G6.1","s":"PASS","chapters":len(chapters)})
+        else:
+            c.append({"id": "G6.1", "s": "PASS", "chapters": len(chapters)})
         # G6.2: no gaps
-        nums = [int(re.search(r'chapter-(\d+)', ch.name).group(1)) for ch in chapters if re.search(r'chapter-(\d+)', ch.name)]
-        if nums and sorted(nums) != list(range(min(nums), max(nums)+1)):
+        nums = [
+            int(re.search(r"chapter-(\d+)", ch.name).group(1))
+            for ch in chapters
+            if re.search(r"chapter-(\d+)", ch.name)
+        ]
+        if nums and sorted(nums) != list(range(min(nums), max(nums) + 1)):
             mf.append("G6.2:gaps")
-        else: c.append({"id":"G6.2","s":"PASS"})
+        else:
+            c.append({"id": "G6.2", "s": "PASS"})
         # G6.3: each chapter passes G4 chapter-drafting
         for ch in chapters:
             result = json.loads(gate_G4("shenbi-chapter-drafting", "generative", [str(ch)]))
-            if result["status"] == "FAIL": mf.append(f"G6.3:{ch.name}")
-        if not mf: c.append({"id":"G6.3","s":"PASS"})
-    else: mf.append("G6.1:no_chapters_dir")
+            if result["status"] == "FAIL":
+                mf.append(f"G6.3:{ch.name}")
+        if not mf:
+            c.append({"id": "G6.3", "s": "PASS"})
+    else:
+        mf.append("G6.1:no_chapters_dir")
 
     # G6.4: P0 hook last_reinforced within 3 chapters
     # G6.5: no expired hooks (current - plant > max_distance)
@@ -813,29 +1162,37 @@ def gate_G6(pipeline_name, round_dir, project_dir):
         current_ch = max(nums) if nums else 0
         for h in hooks:
             if h.get("core_hook") and current_ch - h.get("last_reinforced", 0) > 3:
-                mf.append(f"G6.4:{h.get('id','?')}:silent={current_ch - h.get('last_reinforced',0)}ch")
+                mf.append(
+                    f"G6.4:{h.get('id', '?')}:silent={current_ch - h.get('last_reinforced', 0)}ch"
+                )
             if current_ch - h.get("plant_chapter", 0) > h.get("max_distance", 999):
-                mf.append(f"G6.5:{h.get('id','?')}:expired")
+                mf.append(f"G6.5:{h.get('id', '?')}:expired")
 
     # G6.6: ghost characters — dead chars not in subsequent chapters
     cm_path = Path(project_dir) / "truth" / "character_matrix.md"
     dead_chars = set()
     if cm_path.exists():
         cm = cm_path.read_text()
-        dead_chars = set(re.findall(r'\|\s*(\S+)\s*\|.*死亡', cm))
+        dead_chars = set(re.findall(r"\|\s*(\S+)\s*\|.*死亡", cm))
     for ch in chapters:
         content = ch.read_text()
         for dc in dead_chars:
             if dc in content and f"character_matrix" not in str(ch):
-                return fail("G6",c+[{"id":"G6.6","s":"FAIL","ghost_character":dc,"file":str(ch)}],"scoring",["G6.6"])
+                return fail(
+                    "G6",
+                    c + [{"id": "G6.6", "s": "FAIL", "ghost_character": dc, "file": str(ch)}],
+                    "scoring",
+                    ["G6.6"],
+                )
 
     # G6.7: character name cross-reference (simplified — full version uses stop_words)
     # G6.8: location name cross-reference
     # G6.9: chapter_summaries completeness — count ## 第N章 headings
     cs_path = Path(project_dir) / "truth" / "chapter_summaries.md"
     if cs_path.exists():
-        summary_chs = len(re.findall(r'## 第\d+章', cs_path.read_text()))
-        if summary_chs < len(chapters): mf.append(f"G6.9:{summary_chs}<{len(chapters)}")
+        summary_chs = len(re.findall(r"## 第\d+章", cs_path.read_text()))
+        if summary_chs < len(chapters):
+            mf.append(f"G6.9:{summary_chs}<{len(chapters)}")
 
     # G6.10: current_state freshness — updated date >= latest chapter mtime
     st_path = Path(project_dir) / "truth" / "current_state.md"
@@ -844,32 +1201,60 @@ def gate_G6(pipeline_name, round_dir, project_dir):
         st_updated = st_fm.get("updated", "")
         latest_ch_mtime = max(ch.stat().st_mtime for ch in chapters)
         # Simple check: updated field exists
-        if not st_updated: mf.append("G6.10:no_updated_field")
+        if not st_updated:
+            mf.append("G6.10:no_updated_field")
 
     # G6.11: emotional_arcs completeness — count ### 第N章 entries
     ea_path = Path(project_dir) / "truth" / "emotional_arcs.md"
     if ea_path.exists():
-        arc_chs = len(re.findall(r'### 第\d+章', ea_path.read_text()))
-        if arc_chs < len(chapters): mf.append(f"G6.11:{arc_chs}<{len(chapters)}")
+        arc_chs = len(re.findall(r"### 第\d+章", ea_path.read_text()))
+        if arc_chs < len(chapters):
+            mf.append(f"G6.11:{arc_chs}<{len(chapters)}")
 
     # G6.12: sensitive word scan
     sw_path = FIXTURES / "sensitive_words.txt"
     if sw_path.exists():
-        sensitive = [l.strip() for l in sw_path.read_text().split('\n') if l.strip() and not l.startswith('#')]
+        sensitive = [
+            l.strip()
+            for l in sw_path.read_text().split("\n")
+            if l.strip() and not l.startswith("#")
+        ]
         if ch_dir and ch_dir.exists():
             for ch in ch_dir.glob("chapter-*.md"):
                 content = ch.read_text()
                 for word in sensitive:
                     if word in content:
-                        return fail("G6",c+[{"id":"G6.12","s":"FAIL","word":word,"file":str(ch)}],"scoring",["G6.12"])
-        c.append({"id":"G6.12","s":"PASS"})
+                        return fail(
+                            "G6",
+                            c + [{"id": "G6.12", "s": "FAIL", "word": word, "file": str(ch)}],
+                            "scoring",
+                            ["G6.12"],
+                        )
+        c.append({"id": "G6.12", "s": "PASS"})
     else:
         # Spec: sensitive_words.txt missing → SKIP (not FAIL), mark round INCOMPLETE
-        c.append({"id":"G6.12","s":"SKIP","r":"sensitive_words.txt missing — round marked INCOMPLETE"})
-        return json.dumps({"gate":"G6","status":"INCOMPLETE","timestamp":datetime.now(timezone.utc).isoformat(),"checks":c,"reason":"G6.12 skipped: sensitive_words.txt missing"},indent=2,ensure_ascii=False)
+        c.append(
+            {
+                "id": "G6.12",
+                "s": "SKIP",
+                "r": "sensitive_words.txt missing — round marked INCOMPLETE",
+            }
+        )
+        return json.dumps(
+            {
+                "gate": "G6",
+                "status": "INCOMPLETE",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "checks": c,
+                "reason": "G6.12 skipped: sensitive_words.txt missing",
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
 
-    if mf: return fail("G6",c,"scoring",mf)
-    return passed("G6",c)
+    if mf:
+        return fail("G6", c, "scoring", mf)
+    return passed("G6", c)
 ```
 
 #### Section 7: G7 + G_TRANSITION + G_DISPATCH + G_RECONCILE + main
@@ -886,23 +1271,27 @@ def gate_G7(round_dir):
     if summary_path.exists():
         s = jload(summary_path)
         actual = set(ALL_SKILLS)
-        summary_skills = set(s.get("t1_scores",{}).keys())
+        summary_skills = set(s.get("t1_scores", {}).keys())
         hallu = summary_skills - actual
-        if hallu: mf.append(f"G7.1:hallucinated:{hallu}")
-        else: c.append({"id":"G7.1","s":"PASS"})
+        if hallu:
+            mf.append(f"G7.1:hallucinated:{hallu}")
+        else:
+            c.append({"id": "G7.1", "s": "PASS"})
     # G7.4: expected output files (using deps.json glob patterns — sampled)
-    c.append({"id":"G7.4","s":"PASS","note":"sampled check"})
+    c.append({"id": "G7.4", "s": "PASS", "note": "sampled check"})
     # G7.5: no template placeholders
     no_dir = rd / "novel-output"
     if no_dir.exists():
         placeholders = []
         for f in no_dir.rglob("*.md"):
             content = f.read_text()
-            lines = content.split('\n')
-            if len(lines)>0 and sum(1 for l in lines if '待填充' in l)/len(lines)>0.1:
+            lines = content.split("\n")
+            if len(lines) > 0 and sum(1 for l in lines if "待填充" in l) / len(lines) > 0.1:
                 placeholders.append(str(f.relative_to(no_dir)))
-        if placeholders: mf.append(f"G7.5:placeholders:{placeholders}")
-        else: c.append({"id":"G7.5","s":"PASS"})
+        if placeholders:
+            mf.append(f"G7.5:placeholders:{placeholders}")
+        else:
+            c.append({"id": "G7.5", "s": "PASS"})
     # G7.6: truth files status != pending (YAML解析，精确匹配字段值，非子串匹配)
     truth_dir = no_dir / "truth" if no_dir.exists() else None
     if truth_dir and truth_dir.exists():
@@ -912,73 +1301,116 @@ def gate_G7(round_dir):
                 fm = yload(str(f))
                 if isinstance(fm, dict) and fm.get("status") == "pending":
                     pending.append(f.name)
-            except: pass
-        if pending: mf.append(f"G7.6:pending:{pending}")
-        else: c.append({"id":"G7.6","s":"PASS"})
+            except:
+                pass
+        if pending:
+            mf.append(f"G7.6:pending:{pending}")
+        else:
+            c.append({"id": "G7.6", "s": "PASS"})
     # G7.7: CHANGELOG appended (auto or manual)
     changelog = TESTS / "rounds" / "CHANGELOG.md"
-    if changelog.exists(): c.append({"id":"G7.7","s":"PASS","note":"auto-append handled by summarize-round.py"})
-    else: mf.append("G7.7:no_changelog")
-    if mf: return fail("G7",c,"round_close",mf)
-    return passed("G7",c)
+    if changelog.exists():
+        c.append({"id": "G7.7", "s": "PASS", "note": "auto-append handled by summarize-round.py"})
+    else:
+        mf.append("G7.7:no_changelog")
+    if mf:
+        return fail("G7", c, "round_close", mf)
+    return passed("G7", c)
+
 
 def gate_G_TRANSITION(from_phase, to_phase, round_dir):
     """G_TRANSITION: Phase switching gate"""
     c, mf = [], []
-    rd = Path(round_dir); pp = rd / "progress.json"
-    if not pp.exists(): return fail("G_TRANSITION",[],"phase_transition",["GT.0:no_progress"])
+    rd = Path(round_dir)
+    pp = rd / "progress.json"
+    if not pp.exists():
+        return fail("G_TRANSITION", [], "phase_transition", ["GT.0:no_progress"])
     progress = jload(pp)
     # GT.1: remaining queue empty
     phase_key = f"remaining_{from_phase}"
     remaining = progress.get(phase_key, [])
-    if remaining: return fail("G_TRANSITION",[{"id":"GT.1","s":"FAIL","remaining":len(remaining)}],"phase_transition",["GT.1"])
-    c.append({"id":"GT.1","s":"PASS"})
+    if remaining:
+        return fail(
+            "G_TRANSITION",
+            [{"id": "GT.1", "s": "FAIL", "remaining": len(remaining)}],
+            "phase_transition",
+            ["GT.1"],
+        )
+    c.append({"id": "GT.1", "s": "PASS"})
     # GT.3: no FAIL blockers
-    blockers = progress.get("gate_blockers",[])
-    if blockers: return fail("G_TRANSITION",[{"id":"GT.3","s":"FAIL","blockers":blockers}],"phase_transition",["GT.3"])
-    c.append({"id":"GT.3","s":"PASS"})
-    return passed("G_TRANSITION",c)
+    blockers = progress.get("gate_blockers", [])
+    if blockers:
+        return fail(
+            "G_TRANSITION",
+            [{"id": "GT.3", "s": "FAIL", "blockers": blockers}],
+            "phase_transition",
+            ["GT.3"],
+        )
+    c.append({"id": "GT.3", "s": "PASS"})
+    return passed("G_TRANSITION", c)
+
 
 def gate_G_DISPATCH(phase, round_dir):
     """G_DISPATCH: Phase completion gate"""
-    rd = Path(round_dir); pp = rd / "progress.json"
-    if not pp.exists(): return fail("G_DISPATCH",[],"phase_completion",["GD.0:no_progress"])
+    rd = Path(round_dir)
+    pp = rd / "progress.json"
+    if not pp.exists():
+        return fail("G_DISPATCH", [], "phase_completion", ["GD.0:no_progress"])
     progress = jload(pp)
-    completed = set(progress.get("completed_skill_names",[]))
+    completed = set(progress.get("completed_skill_names", []))
     all_skills = set(ALL_SKILLS)
     # GD.1: filter by test_type support (check rubric frontmatter)
     missing = all_skills - completed
     if missing:
-        return fail("G_DISPATCH",[{"id":"GD.1","s":"FAIL","missing":list(missing),"completed":len(completed),"total":len(all_skills)}],"phase_completion",["GD.1"])
-    return passed("G_DISPATCH",[{"id":"GD.1","s":"PASS","completed":len(completed)}])
+        return fail(
+            "G_DISPATCH",
+            [
+                {
+                    "id": "GD.1",
+                    "s": "FAIL",
+                    "missing": list(missing),
+                    "completed": len(completed),
+                    "total": len(all_skills),
+                }
+            ],
+            "phase_completion",
+            ["GD.1"],
+        )
+    return passed("G_DISPATCH", [{"id": "GD.1", "s": "PASS", "completed": len(completed)}])
+
 
 def gate_G_RECONCILE(round_dir):
     """G_RECONCILE: Mid-execution filesystem consistency check"""
     c, mf = [], []
-    rd = Path(round_dir); pp = rd / "progress.json"
-    if not pp.exists(): return fail("G_RECONCILE",[],"reconcile",["GR.0:no_progress"])
+    rd = Path(round_dir)
+    pp = rd / "progress.json"
+    if not pp.exists():
+        return fail("G_RECONCILE", [], "reconcile", ["GR.0:no_progress"])
     progress = jload(pp)
     # GR.1: DONE skills have reports
-    for sn, sd in progress.get("skills",{}).items():
+    for sn, sd in progress.get("skills", {}).items():
         for tt, td in sd.items():
             if td.get("status") == "DONE":
                 report = rd / "t1-reports" / f"{sn}-{tt}.json"
-                if not report.exists(): mf.append(f"GR.1:{sn}-{tt}:no_report")
+                if not report.exists():
+                    mf.append(f"GR.1:{sn}-{tt}:no_report")
     # GR.2: reports on disk have DONE status
     reports_dir = rd / "t1-reports"
     if reports_dir.exists():
         for rp in reports_dir.glob("*.json"):
             name = rp.stem  # e.g., "shenbi-worldbuilding-generative"
-            parts = name.rsplit("-",1)
-            if len(parts)==2:
+            parts = name.rsplit("-", 1)
+            if len(parts) == 2:
                 sn, tt = parts
-                sd = progress.get("skills",{}).get(sn,{}).get(tt,{})
-                if sd.get("status") != "DONE": mf.append(f"GR.2:{name}:status={sd.get('status','?')}")
+                sd = progress.get("skills", {}).get(sn, {}).get(tt, {})
+                if sd.get("status") != "DONE":
+                    mf.append(f"GR.2:{name}:status={sd.get('status', '?')}")
     # GR.4: orphan files
     # Deferred: requires comprehensive output_files data from progress.json
-    c.append({"id":"GR.4","s":"PASS","note":"orphan detection deferred"})
-    if mf: return fail("G_RECONCILE",c,"reconcile",mf)
-    return passed("G_RECONCILE",c)
+    c.append({"id": "GR.4", "s": "PASS", "note": "orphan detection deferred"})
+    if mf:
+        return fail("G_RECONCILE", c, "reconcile", mf)
+    return passed("G_RECONCILE", c)
 ```
 
 - [ ] **Step 11: 实现 main() CLI**
@@ -986,33 +1418,57 @@ def gate_G_RECONCILE(round_dir):
 ```python
 def main():
     if len(sys.argv) < 2:
-        print("validate-gate.py <GATE> [args...]"); sys.exit(1)
-    gate = sys.argv[1]; args = sys.argv[2:]
+        print("validate-gate.py <GATE> [args...]")
+        sys.exit(1)
+    gate = sys.argv[1]
+    args = sys.argv[2:]
 
     def arg(i, default=None):
         return args[i] if i < len(args) else default
 
-    if gate == "G0": print(gate_G0(seed_file=arg(0)))
-    elif gate == "G1": print(gate_G1(arg(0), json.loads(arg(1) or '[]') if arg(1) else [], arg(2)))
+    if gate == "G0":
+        print(gate_G0(seed_file=arg(0)))
+    elif gate == "G1":
+        print(gate_G1(arg(0), json.loads(arg(1) or "[]") if arg(1) else [], arg(2)))
     elif gate == "G2":
-        files = arg(0,"").split(",") if arg(0) else []
-        ftype = arg(1,"chapter")
-        rd = arg(2,None)
-        pd = arg(3,None)
+        files = arg(0, "").split(",") if arg(0) else []
+        ftype = arg(1, "chapter")
+        rd = arg(2, None)
+        pd = arg(3, None)
         print(gate_G2(files, ftype, rd, pd))
-    elif gate == "G3": print(gate_G3(arg(0), arg(1), arg(2)))
+    elif gate == "G3":
+        print(gate_G3(arg(0), arg(1), arg(2)))
     elif gate == "G4":
-        if arg(0) == "chapter-drafting": print(gate_G4("shenbi-chapter-drafting","generative",arg(1).split(",") if arg(1) else [], arg(2)))
-        elif arg(0) == "bughunt": print(gate_G4_bughunt(arg(1).split(",") if arg(1) else []))
-        elif arg(0) == "clean": print(gate_G4_clean(arg(1).split(",") if arg(1) else []))
-        else: print(gate_G4(arg(0), "generative", arg(1).split(",") if arg(1) else [], arg(2)))
-    elif gate == "G5": print(gate_G5(arg(0), arg(1)))
-    elif gate == "G6": print(gate_G6(arg(0), arg(1), arg(2)))
-    elif gate == "G7": print(gate_G7(arg(0)))
-    elif gate == "G_TRANSITION": print(gate_G_TRANSITION(arg(0), arg(1), arg(2)))
-    elif gate == "G_DISPATCH": print(gate_G_DISPATCH(arg(0), arg(1)))
-    elif gate == "G_RECONCILE": print(gate_G_RECONCILE(arg(0)))
-    else: print(json.dumps({"status":"UNKNOWN_GATE","gate":gate}))
+        if arg(0) == "chapter-drafting":
+            print(
+                gate_G4(
+                    "shenbi-chapter-drafting",
+                    "generative",
+                    arg(1).split(",") if arg(1) else [],
+                    arg(2),
+                )
+            )
+        elif arg(0) == "bughunt":
+            print(gate_G4_bughunt(arg(1).split(",") if arg(1) else []))
+        elif arg(0) == "clean":
+            print(gate_G4_clean(arg(1).split(",") if arg(1) else []))
+        else:
+            print(gate_G4(arg(0), "generative", arg(1).split(",") if arg(1) else [], arg(2)))
+    elif gate == "G5":
+        print(gate_G5(arg(0), arg(1)))
+    elif gate == "G6":
+        print(gate_G6(arg(0), arg(1), arg(2)))
+    elif gate == "G7":
+        print(gate_G7(arg(0)))
+    elif gate == "G_TRANSITION":
+        print(gate_G_TRANSITION(arg(0), arg(1), arg(2)))
+    elif gate == "G_DISPATCH":
+        print(gate_G_DISPATCH(arg(0), arg(1)))
+    elif gate == "G_RECONCILE":
+        print(gate_G_RECONCILE(arg(0)))
+    else:
+        print(json.dumps({"status": "UNKNOWN_GATE", "gate": gate}))
+
 
 if __name__ == "__main__":
     main()
@@ -1108,28 +1564,36 @@ if "--tier" in sys.argv:
     phase = sys.argv[tier_idx + 3] if "--phase" in sys.argv else None
 
     import subprocess
+
     vg = str(Path(__file__).parent / "validate-gate.py")
 
     if tier == "T1":
         # G3: prerequisite check
-        result = subprocess.run([sys.executable, vg, "G3", skill_name, test_type, round_dir],
-                               capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, vg, "G3", skill_name, test_type, round_dir],
+            capture_output=True,
+            text=True,
+        )
         gate_out = json.loads(result.stdout)
         if gate_out.get("status") == "FAIL":
             print(json.dumps(gate_out, indent=2, ensure_ascii=False))
             sys.exit(1)
 
     if tier == "T2" and phase:
-        result = subprocess.run([sys.executable, vg, "G5", phase, round_dir],
-                               capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, vg, "G5", phase, round_dir], capture_output=True, text=True
+        )
         gate_out = json.loads(result.stdout)
         if gate_out.get("status") == "FAIL":
             print(json.dumps(gate_out, indent=2, ensure_ascii=False))
             sys.exit(1)
 
     if tier == "T3":
-        result = subprocess.run([sys.executable, vg, "G6", "long-form", round_dir, project_dir],
-                               capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, vg, "G6", "long-form", round_dir, project_dir],
+            capture_output=True,
+            text=True,
+        )
         gate_out = json.loads(result.stdout)
         if gate_out.get("status") == "FAIL":
             print(json.dumps(gate_out, indent=2, ensure_ascii=False))
@@ -1144,9 +1608,17 @@ if "--gate-only" in sys.argv:
     files = sys.argv[sys.argv.index("--files") + 1].split(",") if "--files" in sys.argv else []
     ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
 
-    result = subprocess.run([sys.executable, str(Path(__file__).parent / "validate-gate.py"),
-                            "G2", ",".join(files), ftype],
-                           capture_output=True, text=True)
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(Path(__file__).parent / "validate-gate.py"),
+            "G2",
+            ",".join(files),
+            ftype,
+        ],
+        capture_output=True,
+        text=True,
+    )
     print(result.stdout)
     sys.exit(0)
 ```
@@ -1244,6 +1716,7 @@ git commit -m "feat: add G0 check, full progress.json init, override tokens to r
 ```python
 # 在 main() 中添加 G7 检查
 import subprocess as sp
+
 vg = str(Path(__file__).parent / "validate-gate.py")
 g7 = sp.run([sys.executable, vg, "G7", str(round_dir)], capture_output=True, text=True)
 try:
@@ -1252,16 +1725,20 @@ try:
         print(f"G7 FAILED: {json.dumps(g7_out, indent=2, ensure_ascii=False)}")
         print("Fix G7 issues before closing round.")
         sys.exit(1)
-except: pass
+except:
+    pass
 
 # 从 progress.json 读取分数而非手动推断
 pp = round_dir / "progress.json"
 if pp.exists():
     progress = json.loads(pp.read_text())
-    for sn, sd in progress.get("skills",{}).items():
+    for sn, sd in progress.get("skills", {}).items():
         for tt, td in sd.items():
             if td.get("status") == "DONE" and "score" in td:
-                summary["t1_scores"][f"{sn}-{tt}"] = {"score":td["score"],"band":classify(td["score"])}
+                summary["t1_scores"][f"{sn}-{tt}"] = {
+                    "score": td["score"],
+                    "band": classify(td["score"]),
+                }
 ```
 
 - [ ] **Step 2: Commit**

@@ -331,18 +331,10 @@ from shenbi.gates.g0_purity import (
 )
 
 
-def _build_t1_skill_dir(
-    tmp_path: Path, skill_name: str, scenario_body: str
-) -> Path:
+def _build_t1_skill_dir(tmp_path: Path, skill_name: str, scenario_body: str) -> Path:
     """Build a t1-style skill dir tree with one scenario.md under generative/input/."""
     t1_root = tmp_path / "t1-skills"
-    scenario = (
-        t1_root
-        / skill_name
-        / "generative"
-        / "input"
-        / "scenario.md"
-    )
+    scenario = t1_root / skill_name / "generative" / "input" / "scenario.md"
     scenario.parent.mkdir(parents=True)
     scenario.write_text(scenario_body, encoding="utf-8")
     return t1_root
@@ -600,9 +592,8 @@ For each: read `src/shenbi/gates/g7.py` lines 26-150 to confirm the exact field 
 def test_g_dispatch_passes_when_all_skills_completed(make_project) -> None:
     """GD.1 PASS when completed_skill_names ⊇ ALL_SKILLS."""
     from shenbi.gates.shared import ALL_SKILLS
-    _, round_dir = make_project(
-        progress={"completed_skill_names": sorted(ALL_SKILLS)}
-    )
+
+    _, round_dir = make_project(progress={"completed_skill_names": sorted(ALL_SKILLS)})
     result = _result_dict(gate_G_DISPATCH("drafting", str(round_dir)))
     assert result["status"] == "PASS"
 
@@ -753,9 +744,7 @@ def test_g_transition_passes_when_remaining_queue_empty(make_project) -> None:
 @pytest.mark.unit
 def test_g_transition_fails_when_remaining_queue_not_empty(make_project) -> None:
     """remaining_drafting non-empty → FAIL with GT.1 reason."""
-    _, round_dir = make_project(
-        progress={"remaining_drafting": ["shenbi-chapter-drafting"]}
-    )
+    _, round_dir = make_project(progress={"remaining_drafting": ["shenbi-chapter-drafting"]})
     result = _result_dict(gate_G_TRANSITION("drafting", "review", str(round_dir)))
     assert result["status"] == "FAIL"
     assert any("GT.1" in mf for mf in result.get("must_fix", []))
@@ -764,9 +753,7 @@ def test_g_transition_fails_when_remaining_queue_not_empty(make_project) -> None
 @pytest.mark.unit
 def test_g_transition_fails_when_progress_missing(tmp_path: Path) -> None:
     """Missing progress.json → FAIL with GT.0:no_progress_file."""
-    result = _result_dict(
-        gate_G_TRANSITION("drafting", "review", str(tmp_path / "empty"))
-    )
+    result = _result_dict(gate_G_TRANSITION("drafting", "review", str(tmp_path / "empty")))
     assert result["status"] == "FAIL"
     assert any("GT.0" in mf for mf in result["must_fix"])
 
@@ -864,14 +851,28 @@ import importlib
 import pytest
 
 CHECKER_SKILLS = [
-    "shenbi-anti-detect", "shenbi-chapter-drafting", "shenbi-chapter-planning",
-    "shenbi-character-design", "shenbi-context-composing", "shenbi-faction-builder",
-    "shenbi-foreshadowing-plant", "shenbi-foreshadowing-track", "shenbi-genre-config",
-    "shenbi-length-normalizing", "shenbi-location-builder", "shenbi-pacing-design",
-    "shenbi-plot-thread-weaver", "shenbi-power-system", "shenbi-relationship-map",
-    "shenbi-state-settling", "shenbi-story-architecture", "shenbi-style-polishing",
-    "shenbi-volume-outlining", "shenbi-worldbuilding",
+    "shenbi-anti-detect",
+    "shenbi-chapter-drafting",
+    "shenbi-chapter-planning",
+    "shenbi-character-design",
+    "shenbi-context-composing",
+    "shenbi-faction-builder",
+    "shenbi-foreshadowing-plant",
+    "shenbi-foreshadowing-track",
+    "shenbi-genre-config",
+    "shenbi-length-normalizing",
+    "shenbi-location-builder",
+    "shenbi-pacing-design",
+    "shenbi-plot-thread-weaver",
+    "shenbi-power-system",
+    "shenbi-relationship-map",
+    "shenbi-state-settling",
+    "shenbi-story-architecture",
+    "shenbi-style-polishing",
+    "shenbi-volume-outlining",
+    "shenbi-worldbuilding",
 ]  # 20 entries — matches G4_CHECKER_SKILLS in src/shenbi/gates/shared.py
+
 
 @pytest.mark.unit
 @pytest.mark.parametrize("skill", CHECKER_SKILLS)
@@ -953,13 +954,26 @@ import json
 import pytest
 
 CHECKER_SKILLS = [
-    "shenbi-anti-detect", "shenbi-chapter-drafting", "shenbi-chapter-planning",
-    "shenbi-character-design", "shenbi-context-composing", "shenbi-faction-builder",
-    "shenbi-foreshadowing-plant", "shenbi-foreshadowing-track", "shenbi-genre-config",
-    "shenbi-length-normalizing", "shenbi-location-builder", "shenbi-pacing-design",
-    "shenbi-plot-thread-weaver", "shenbi-power-system", "shenbi-relationship-map",
-    "shenbi-state-settling", "shenbi-story-architecture", "shenbi-style-polishing",
-    "shenbi-volume-outlining", "shenbi-worldbuilding",
+    "shenbi-anti-detect",
+    "shenbi-chapter-drafting",
+    "shenbi-chapter-planning",
+    "shenbi-character-design",
+    "shenbi-context-composing",
+    "shenbi-faction-builder",
+    "shenbi-foreshadowing-plant",
+    "shenbi-foreshadowing-track",
+    "shenbi-genre-config",
+    "shenbi-length-normalizing",
+    "shenbi-location-builder",
+    "shenbi-pacing-design",
+    "shenbi-plot-thread-weaver",
+    "shenbi-power-system",
+    "shenbi-relationship-map",
+    "shenbi-state-settling",
+    "shenbi-story-architecture",
+    "shenbi-style-polishing",
+    "shenbi-volume-outlining",
+    "shenbi-worldbuilding",
 ]
 
 
@@ -1588,9 +1602,20 @@ def test_read_chapters_handles_directory_and_file(tmp_path: Path) -> None:
 def test_compute_all_stats_returns_all_categories() -> None:
     texts = {"ch1.md": SAMPLE_CHAPTER}
     stats = compute_all_stats(texts)
-    for key in ("sample", "sentence_length", "paragraph_length", "ttr",
-                "bigrams", "trigrams", "4grams", "punctuation",
-                "connectives", "rhetoric", "ai_markers", "transition_density"):
+    for key in (
+        "sample",
+        "sentence_length",
+        "paragraph_length",
+        "ttr",
+        "bigrams",
+        "trigrams",
+        "4grams",
+        "punctuation",
+        "connectives",
+        "rhetoric",
+        "ai_markers",
+        "transition_density",
+    ):
         assert key in stats, f"missing category: {key}"
 ```
 
@@ -2079,6 +2104,7 @@ def test_derive_input_files_returns_empty_for_skill_without_reads_section() -> N
 def test_run_g1_handles_subprocess_failure(tmp_path: Path) -> None:
     """subprocess.CalledProcessError is caught and logged, not re-raised."""
     from shenbi.dispatcher.executor import run_g1
+
     with patch("shenbi.dispatcher.executor.subprocess.run") as mock_run:
         mock_run.side_effect = subprocess.CalledProcessError(1, "cmd")
         result = run_g1("skill-x", [], tmp_path)
@@ -2090,6 +2116,7 @@ def test_dispatch_returns_nonzero_when_g1_fails(tmp_path: Path) -> None:
     """dispatch() returns a non-zero exit code when G1 rejects the input.
     Signature is dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int."""
     from shenbi.dispatcher.executor import dispatch
+
     # Unknown skill → derive_input_files returns [] → G1 should fail → dispatch returns non-zero.
     rc = dispatch("shenbi-nonexistent-skill-xyz", "generative", tmp_path, "test prompt")
     assert isinstance(rc, int)
@@ -2100,13 +2127,12 @@ def test_dispatch_returns_nonzero_when_g1_fails(tmp_path: Path) -> None:
 def test_dispatch_runs_full_flow_for_known_skill(tmp_path: Path) -> None:
     """dispatch() with valid skill returns 0 (success) when subprocess is mocked."""
     from shenbi.dispatcher.executor import dispatch
+
     with patch("shenbi.dispatcher.executor.subprocess.run") as mock_run:
         mock_run.return_value = subprocess.CompletedProcess(
             args=["cmd"], returncode=0, stdout=b"", stderr=b""
         )
-        rc = dispatch(
-            "shenbi-worldbuilding", "generative", tmp_path, "do work"
-        )
+        rc = dispatch("shenbi-worldbuilding", "generative", tmp_path, "do work")
     assert rc == 0
 
 
@@ -2130,6 +2156,7 @@ from shenbi.plugins.generate import load_master, _js_string, gen_opencode
 def test_load_master_raises_when_master_missing(monkeypatch) -> None:
     """Missing master.json → FileNotFoundError."""
     from shenbi.plugins import generate as gen_mod
+
     monkeypatch.setattr(gen_mod, "MASTER_PATH", Path("/nonexistent/master.json"))
     with pytest.raises(FileNotFoundError):
         load_master()
@@ -2139,6 +2166,7 @@ def test_load_master_raises_when_master_missing(monkeypatch) -> None:
 def test_load_master_raises_when_required_field_missing(tmp_path: Path, monkeypatch) -> None:
     """master.json missing required field → ValueError listing missing."""
     from shenbi.plugins import generate as gen_mod
+
     fake = tmp_path / "master.json"
     fake.write_text(json.dumps({"name": "x"}), encoding="utf-8")  # missing most fields
     monkeypatch.setattr(gen_mod, "MASTER_PATH", fake)
@@ -2149,6 +2177,7 @@ def test_load_master_raises_when_required_field_missing(tmp_path: Path, monkeypa
 @pytest.mark.unit
 def test_load_master_raises_when_master_not_object(tmp_path: Path, monkeypatch) -> None:
     from shenbi.plugins import generate as gen_mod
+
     fake = tmp_path / "master.json"
     fake.write_text("[1,2,3]", encoding="utf-8")
     monkeypatch.setattr(gen_mod, "MASTER_PATH", fake)
@@ -2346,11 +2375,13 @@ def test_count_transition_words_returns_non_negative(content: str) -> None:
     assert count_transition_words(content) >= 0
 
 
-@given(st.dictionaries(
-    keys=st.text(min_size=1, max_size=10, alphabet=string.ascii_letters),
-    values=st.integers(),
-    max_size=5,
-))
+@given(
+    st.dictionaries(
+        keys=st.text(min_size=1, max_size=10, alphabet=string.ascii_letters),
+        values=st.integers(),
+        max_size=5,
+    )
+)
 @settings(max_examples=50, deadline=None)
 @pytest.mark.unit
 @pytest.mark.property
@@ -2366,6 +2397,7 @@ def test_jload_round_trips_dict(data: dict, tmp_path: Path) -> None:
 def test_gate_g0_returns_valid_json_for_empty_seed() -> None:
     """GATE G0 always returns parseable JSON even with no input."""
     from shenbi.gates.g0 import gate_G0
+
     result = gate_G0(seed_file=None)
     parsed = json.loads(result)
     assert "gate" in parsed

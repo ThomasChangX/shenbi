@@ -88,21 +88,25 @@
 - [ ] **3a. Write test:** Create `tests/pipeline/test_retry.py`
   ```python
   """Test tenacity retry with exponential backoff on LLM calls."""
+
   import pytest
   import httpx
   from unittest.mock import MagicMock, patch, call
   from tenacity import RetryError
   from shenbi.pipeline.dispatch_helper import _call_llm_with_retry
 
+
   class TestLLMRetry:
       def test_retries_on_429(self):
           """Should retry on HTTP 429 (rate limit)."""
           mock_client = MagicMock()
           mock_client.chat.completions.create.side_effect = [
-              httpx.HTTPStatusError("rate limit",
-                  request=MagicMock(), response=MagicMock(status_code=429)),
-              httpx.HTTPStatusError("rate limit",
-                  request=MagicMock(), response=MagicMock(status_code=429)),
+              httpx.HTTPStatusError(
+                  "rate limit", request=MagicMock(), response=MagicMock(status_code=429)
+              ),
+              httpx.HTTPStatusError(
+                  "rate limit", request=MagicMock(), response=MagicMock(status_code=429)
+              ),
               MagicMock(choices=[MagicMock(message=MagicMock(content="ok"))]),
           ]
 
@@ -116,8 +120,9 @@
           """Should retry on HTTP 500/502/503."""
           mock_client = MagicMock()
           mock_client.chat.completions.create.side_effect = [
-              httpx.HTTPStatusError("server error",
-                  request=MagicMock(), response=MagicMock(status_code=500)),
+              httpx.HTTPStatusError(
+                  "server error", request=MagicMock(), response=MagicMock(status_code=500)
+              ),
               MagicMock(choices=[MagicMock(message=MagicMock(content="ok"))]),
           ]
 
@@ -129,28 +134,22 @@
       def test_gives_up_after_3_failures(self):
           """Should raise after 3 consecutive failures."""
           mock_client = MagicMock()
-          mock_client.chat.completions.create.side_effect = (
-              httpx.HTTPStatusError("error",
-                  request=MagicMock(), response=MagicMock(status_code=429))
+          mock_client.chat.completions.create.side_effect = httpx.HTTPStatusError(
+              "error", request=MagicMock(), response=MagicMock(status_code=429)
           )
 
           with pytest.raises((RetryError, httpx.HTTPStatusError)):
-              _call_llm_with_retry(
-                  mock_client, "test-model", [{"role": "user", "content": "hi"}]
-              )
+              _call_llm_with_retry(mock_client, "test-model", [{"role": "user", "content": "hi"}])
 
       def test_no_retry_on_4xx_non_429(self):
           """Should NOT retry on 400/401/403 (client errors)."""
           mock_client = MagicMock()
-          mock_client.chat.completions.create.side_effect = (
-              httpx.HTTPStatusError("bad request",
-                  request=MagicMock(), response=MagicMock(status_code=400))
+          mock_client.chat.completions.create.side_effect = httpx.HTTPStatusError(
+              "bad request", request=MagicMock(), response=MagicMock(status_code=400)
           )
 
           with pytest.raises(httpx.HTTPStatusError):
-              _call_llm_with_retry(
-                  mock_client, "test-model", [{"role": "user", "content": "hi"}]
-              )
+              _call_llm_with_retry(mock_client, "test-model", [{"role": "user", "content": "hi"}])
           assert mock_client.chat.completions.create.call_count == 1
 
       def test_retries_on_timeout(self):
@@ -181,6 +180,7 @@
 
   _RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
 
+
   def _is_retryable(exception: Exception) -> bool:
       """Determine if an HTTP error is retryable."""
       if isinstance(exception, httpx.TimeoutException):
@@ -188,6 +188,7 @@
       if isinstance(exception, httpx.HTTPStatusError):
           return exception.response.status_code in _RETRYABLE_STATUSES
       return False
+
 
   @retry(
       stop=stop_after_attempt(3),
@@ -205,9 +206,7 @@
       Retries: 429 (rate limit), 5xx (server errors), timeouts.
       Does NOT retry: 400, 401, 403 (client errors).
       """
-      return client.chat.completions.create(
-          model=model, messages=messages, **kwargs
-      )
+      return client.chat.completions.create(model=model, messages=messages, **kwargs)
   ```
 
 - [ ] **3d. Run test -- confirm PASS.**
@@ -251,12 +250,14 @@
   def _parse_file_markers(raw_content: str) -> SkillOutput:
       """Legacy ### FILE: regex fallback parser."""
       files = []
-      pattern = re.compile(r'###\s*FILE:\s*(.+?)\n(.*?)(?=###\s*FILE:|\Z)', re.DOTALL)
+      pattern = re.compile(r"###\s*FILE:\s*(.+?)\n(.*?)(?=###\s*FILE:|\Z)", re.DOTALL)
       for match in pattern.finditer(raw_content):
-          files.append(FileOutput(
-              path=match.group(1).strip(),
-              content=match.group(2).strip(),
-          ))
+          files.append(
+              FileOutput(
+                  path=match.group(1).strip(),
+                  content=match.group(2).strip(),
+              )
+          )
       return SkillOutput(files=files)
   ```
 
@@ -319,6 +320,7 @@
 
   _executor_config: dict | None = None
 
+
   def _load_executor_config() -> dict:
       """Load executor_config.toml, caching in memory."""
       global _executor_config
@@ -327,7 +329,7 @@
       # Use existing _PROJECT_ROOT from dispatch_helper.py:37 instead of navigating upward
       config_path = _PROJECT_ROOT / "executor_config.toml"
       if config_path.exists():
-          with open(config_path, 'rb') as f:
+          with open(config_path, "rb") as f:
               _executor_config = tomllib.load(f)
       else:
           _executor_config = {}
@@ -337,37 +339,32 @@
   def _get_skill_temperature(skill_name: str) -> float:
       """Get temperature for a skill from executor_config.toml."""
       config = _load_executor_config()
-      overrides = config.get('overrides', {})
+      overrides = config.get("overrides", {})
       if skill_name in overrides:
           return overrides[skill_name].get(
-              'temperature',
-              config.get('default', {}).get('temperature', 0.7)
+              "temperature", config.get("default", {}).get("temperature", 0.7)
           )
-      return config.get('default', {}).get('temperature', 0.7)
+      return config.get("default", {}).get("temperature", 0.7)
 
 
   def _get_skill_max_tokens(skill_name: str) -> int:
       """Get max_tokens for a skill from executor_config.toml."""
       config = _load_executor_config()
-      overrides = config.get('overrides', {})
+      overrides = config.get("overrides", {})
       if skill_name in overrides:
           return overrides[skill_name].get(
-              'max_tokens',
-              config.get('default', {}).get('max_tokens', 16384)
+              "max_tokens", config.get("default", {}).get("max_tokens", 16384)
           )
-      return config.get('default', {}).get('max_tokens', 16384)
+      return config.get("default", {}).get("max_tokens", 16384)
   ```
 
 - [ ] **5c. Implement** streaming in `dispatch_helper.py`:
   ```python
-  def _call_llm_streaming(client, model, messages,
-                          early_stop_patterns=None, **kwargs):
+  def _call_llm_streaming(client, model, messages, early_stop_patterns=None, **kwargs):
       """Stream LLM response with optional early-stop patterns."""
       collected = []
       stop_reason = None
-      stream = client.chat.completions.create(
-          model=model, messages=messages, stream=True, **kwargs
-      )
+      stream = client.chat.completions.create(model=model, messages=messages, stream=True, **kwargs)
       for chunk in stream:
           if chunk.choices and chunk.choices[0].delta.content:
               delta = chunk.choices[0].delta.content
@@ -403,8 +400,7 @@
 - [ ] **6a. Implement** in `src/shenbi/dispatcher/modes/internal.py`:
   ```python
   raise DispatcherError(
-      "internal mode has no LLM backend, cannot score. "
-      "Set SHENBI_LLM_API_KEY to use API mode."
+      "internal mode has no LLM backend, cannot score. Set SHENBI_LLM_API_KEY to use API mode."
   )
   ```
 
@@ -434,9 +430,11 @@
 - [ ] **7a. Write test:** Create `tests/contracts/test_cjk_normalization.py`
   ```python
   """Test CJK zero-width and NFKC normalization in fields.py."""
+
   import pytest
   import unicodedata
   from shenbi.contracts.fields import _normalize_ws
+
 
   class TestCJKNormalization:
       def test_normalizes_ideographic_space(self):
@@ -493,6 +491,7 @@
   import re
   import unicodedata
 
+
   def _normalize_ws(text: str) -> str:
       """Normalize whitespace and CJK-specific characters.
 
@@ -503,10 +502,7 @@
       - Strip leading/trailing whitespace
       """
       text = text.replace("\u3000", " ")
-      text = "".join(
-          c for c in text
-          if c not in ("\u200b", "\ufeff", "\u200c", "\u200d")
-      )
+      text = "".join(c for c in text if c not in ("\u200b", "\ufeff", "\u200c", "\u200d"))
       text = unicodedata.normalize("NFKC", text)
       text = re.sub(r"\s+", " ", text).strip()
       return text
@@ -533,8 +529,10 @@
 
   Severity = Literal["low", "medium", "high"]
 
+
   class Selection(BaseModel):
       severity: Severity = "low"
+
 
   class Adjustment(BaseModel):
       severity: Severity  # was: str
@@ -581,6 +579,7 @@
   To:
   ```python
   from shenbi.gates.shared import unimplemented
+
   c.append(unimplemented("G7.2", "skill-traces check not yet implemented"))
   ```
   Affected: `g7.py:108-112`, `g_dispatch.py:67-69`, `g_reconcile.py:74-76`, `g_transition.py:66-91`, `g0.py:237-238`.
@@ -606,6 +605,7 @@
 - [ ] **9a. Write test:** Create `tests/pipeline/test_crash_recovery.py`
   ```python
   """Test crash recovery signal handlers, emergency cleanup, and shutdown flag."""
+
   import signal
   import pytest
   import tempfile
@@ -618,30 +618,35 @@
       _handle_emergency_signal,
   )
 
+
   class TestSignalHandlers:
       def test_registers_sigterm_and_sigint(self):
-          with patch('signal.signal') as mock_signal:
-              register_emergency_handlers(Path('/tmp'), MagicMock())
+          with patch("signal.signal") as mock_signal:
+              register_emergency_handlers(Path("/tmp"), MagicMock())
               assert mock_signal.call_count >= 2
               signals_registered = [c[0][0] for c in mock_signal.call_args_list]
               assert signal.SIGTERM in signals_registered
               assert signal.SIGINT in signals_registered
 
       def test_registers_atexit(self):
-          with patch('atexit.register') as mock_atexit:
-              register_emergency_handlers(Path('/tmp'), MagicMock())
+          with patch("atexit.register") as mock_atexit:
+              register_emergency_handlers(Path("/tmp"), MagicMock())
               mock_atexit.assert_called_once()
+
 
   class TestShutdownFlag:
       def test_initially_false(self):
           import shenbi.pipeline.crash_recovery as cr
+
           cr._shutdown_requested = False
           assert not is_shutdown_requested()
 
       def test_set_on_signal(self):
           import shenbi.pipeline.crash_recovery as cr
+
           cr._shutdown_requested = True
           assert is_shutdown_requested()
+
 
   class TestEmergencyCleanup:
       def test_saves_pipeline_state(self, tmp_path):
@@ -806,6 +811,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
   ```python
   from shenbi.pipeline.crash_recovery import _check_emergency_flag
 
+
   def run_chapter_loop(state):
       """Run the per-chapter step loop with shutdown awareness."""
       for step in CHAPTER_STEPS:
@@ -826,13 +832,13 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
   def cmd_resume(args):
       """Resume pipeline from last saved state."""
       from shenbi.pipeline.machine import load_state, save_state
+
       state = load_state(args.project_dir)
 
       # Heal emergency shutdown state
       cl = state.chapter_loop
       if cl.current_step and cl.current_step.startswith("EMERGENCY_SHUTDOWN"):
-          logger.warning("resuming_from_emergency_shutdown",
-                         chapter=cl.current_chapter)
+          logger.warning("resuming_from_emergency_shutdown", chapter=cl.current_chapter)
           if cl.step_index < len(CHAPTER_STEPS):
               cl.current_step = CHAPTER_STEPS[cl.step_index].skill
           else:
@@ -861,7 +867,8 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
 
 - [ ] **10a. Runtime Opt 1: META block stripping** in `dispatch_helper.py`:
   ```python
-  _META_PATTERN = re.compile(r'<!--META-BEGIN-->.*?<!--META-END-->', re.DOTALL)
+  _META_PATTERN = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+
 
   def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
       """Strip META blocks from chapter text for non-drafting LLM calls.
@@ -870,21 +877,22 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
       All other skills (auditors, state-settling, etc.) receive stripped text.
       Saves 16-31% input per non-drafting call.
       """
-      if skill_name in ('shenbi-chapter-drafting', 'shenbi-chapter-revision'):
+      if skill_name in ("shenbi-chapter-drafting", "shenbi-chapter-revision"):
           return text
-      return _META_PATTERN.sub('', text)
+      return _META_PATTERN.sub("", text)
   ```
 
 - [ ] **10b. Runtime Opt 2: Genre-config caching** in `dispatch_helper.py`:
   ```python
   _genre_config_cache: dict[int, dict] = {}
 
+
   def _load_genre_config_cached(project_dir: Path, chapter: int) -> dict:
       """Load genre-config.json with per-chapter cache. ~7 disk I/O -> 1."""
       if chapter in _genre_config_cache:
           return _genre_config_cache[chapter]
-      config_path = project_dir / 'config' / 'genre-config.json'
-      config = json.loads(config_path.read_text(encoding='utf-8'))
+      config_path = project_dir / "config" / "genre-config.json"
+      config = json.loads(config_path.read_text(encoding="utf-8"))
       _genre_config_cache[chapter] = config
       return config
   ```
@@ -895,6 +903,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
       """Rebuild truth-index at volume boundaries or every 15 chapters."""
       if chapter % 15 == 0 or _is_volume_boundary(project_dir, chapter):
           from shenbi.pipeline.truth_index import rebuild_index
+
           rebuild_index(project_dir)
           logger.info("truth_index_rebuilt", chapter=chapter)
   ```
@@ -906,23 +915,20 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
 
       Reduces ~236KB (at 100 chapters) to ~80KB.
       """
-      if not hasattr(state, 'chapter_loop'):
+      if not hasattr(state, "chapter_loop"):
           return
 
       cl = state.chapter_loop
       current = cl.current_chapter
 
       # Archive chapter states beyond last 10
-      if hasattr(cl, 'chapter_states'):
-          keys_to_archive = [
-              k for k in cl.chapter_states
-              if k.isdigit() and int(k) < current - 10
-          ]
+      if hasattr(cl, "chapter_states"):
+          keys_to_archive = [k for k in cl.chapter_states if k.isdigit() and int(k) < current - 10]
           for k in keys_to_archive:
               _archive_chapter_state(state.project_dir, k, cl.chapter_states.pop(k))
 
       # Prune retry_feedback to last 30 entries
-      if hasattr(state, 'retry_feedback') and len(state.retry_feedback) > 30:
+      if hasattr(state, "retry_feedback") and len(state.retry_feedback) > 30:
           state.retry_feedback = state.retry_feedback[-30:]
   ```
 
@@ -933,7 +939,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
       if not _is_volume_boundary(project_dir, chapter):
           return
 
-      locations_path = project_dir / 'world' / 'locations.md'
+      locations_path = project_dir / "world" / "locations.md"
       if not locations_path.exists():
           return
 
@@ -943,25 +949,23 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
       # feature will silently degrade until Plan 18 ships. This is intentional --
       # no hard dependency.
       from shenbi.pipeline.scr_extractor import extract_scr
+
       recent_locations = set()
       for ch in range(max(1, chapter - 10), chapter):
           try:
               scr = extract_scr(project_dir, ch)
               for ref in scr.world_refs:
-                  if ref.get('category') == 'location':
-                      recent_locations.add(ref['element'])
+                  if ref.get("category") == "location":
+                      recent_locations.add(ref["element"])
           except Exception:
               continue
 
-      current_locations_text = locations_path.read_text(encoding='utf-8')
-      missing = [
-          loc for loc in recent_locations
-          if loc not in current_locations_text
-      ]
+      current_locations_text = locations_path.read_text(encoding="utf-8")
+      missing = [loc for loc in recent_locations if loc not in current_locations_text]
       if missing:
-          logger.warning("world_file_stale_locations",
-                         chapter=chapter,
-                         missing_locations=missing[:10])
+          logger.warning(
+              "world_file_stale_locations", chapter=chapter, missing_locations=missing[:10]
+          )
   ```
 
 - [ ] **10f. Run `just check` -- confirm full pass.**
@@ -980,6 +984,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
   ```python
   import time
 
+
   def run_chapter_step(state, step: StepDef) -> StepResult:
       """Execute a single pipeline step with timing instrumentation."""
       step_start = time.monotonic()
@@ -991,10 +996,12 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
           return StepResult(success=False, error=str(e))
       finally:
           elapsed = time.monotonic() - step_start
-          logger.info("step_timing",
-                      chapter=state.chapter_loop.current_chapter,
-                      step=step.skill,
-                      elapsed_seconds=round(elapsed, 1))
+          logger.info(
+              "step_timing",
+              chapter=state.chapter_loop.current_chapter,
+              step=step.skill,
+              elapsed_seconds=round(elapsed, 1),
+          )
           _record_step_timing(state, step.skill, elapsed)
   ```
 
@@ -1002,7 +1009,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
   ```python
   def _print_timing_summary(state) -> None:
       """Print per-skill timing summary at end of pipeline."""
-      if not hasattr(state, 'step_timings'):
+      if not hasattr(state, "step_timings"):
           return
       logger.info("timing_summary_header")
       for skill, times in sorted(state.step_timings.items()):
@@ -1010,12 +1017,14 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
               avg = sum(times) / len(times)
               mn = min(times)
               mx = max(times)
-              logger.info("timing_summary_row",
-                          skill=skill,
-                          calls=len(times),
-                          avg_seconds=round(avg, 1),
-                          min_seconds=round(mn, 1),
-                          max_seconds=round(mx, 1))
+              logger.info(
+                  "timing_summary_row",
+                  skill=skill,
+                  calls=len(times),
+                  avg_seconds=round(avg, 1),
+                  min_seconds=round(mn, 1),
+                  max_seconds=round(mx, 1),
+              )
   ```
 
 - [ ] **11b. Word count stability** -- add bounds in chapter planning/drafting prompts and G4 post-write check:
@@ -1024,7 +1033,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
       """G4 word count bounds check. WARN outside 4000-15000 range."""
       issues = []
       # Count Chinese characters
-      chinese_chars = sum(1 for c in chapter_text if '\u4e00' <= c <= '\u9fff')
+      chinese_chars = sum(1 for c in chapter_text if "\u4e00" <= c <= "\u9fff")
       if chinese_chars < 4000:
           issues.append(f"G4.word_count:below_floor -- {chinese_chars} chars (min 4000)")
       if chinese_chars > 15000:
@@ -1051,7 +1060,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
       """Record step completion and emit MARK_DONE trace event."""
       # Existing in-memory update
       ch_state = state.chapter_loop.chapter_states.setdefault(str(chapter), {})
-      steps = ch_state.setdefault('steps_done', [])
+      steps = ch_state.setdefault("steps_done", [])
       if skill_name not in steps:
           steps.append(skill_name)
 
@@ -1066,6 +1075,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
           from shenbi.trace.writer import TraceWriter, ActorRole
           from datetime import datetime, timezone
           from pathlib import Path
+
           # The trace is organized per round under <project_dir>/trace/ (the
           # round dir). TraceWriter resolves its JSONL file from round_dir.
           round_dir = Path(state.project_dir) / "trace"
@@ -1080,26 +1090,25 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
               payload={"chapter": chapter, "timestamp": datetime.now(timezone.utc).isoformat()},
           )
       except Exception as e:
-          logger.warning("mark_done_event_failed",
-                         skill=skill_name, chapter=chapter, error=str(e))
+          logger.warning("mark_done_event_failed", skill=skill_name, chapter=chapter, error=str(e))
   ```
 
   Materialize progress every 5 steps or at chapter completion:
   ```python
   def _maybe_materialize_progress(state, chapter: int) -> None:
       """Materialize progress.json from trace events."""
-      steps_done = len(
-          state.chapter_loop.chapter_states.get(str(chapter), {}).get('steps_done', [])
-      )
+      steps_done = len(state.chapter_loop.chapter_states.get(str(chapter), {}).get("steps_done", []))
       if steps_done % 5 == 0:
           try:
               from shenbi.trace.materialize import materialize_progress
+
               # API CORRECTION: materialize_progress requires the total_skills
               # keyword argument (the real signature is
               # materialize_progress(project_dir, total_skills)). Gather the
               # count of declared skills from the active CHAPTER_STEPS list.
               # (Import lazily to avoid a circular import at module load.)
               from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
+
               total_skills = [step.skill for step in CHAPTER_STEPS]  # list[str], not int
               materialize_progress(state.project_dir, total_skills=total_skills)
           except Exception:
@@ -1110,21 +1119,23 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
   ```python
   def _auto_rebuild_progress_if_stale(project_dir: Path) -> None:
       """Rebuild progress.json if trace events exist but progress is stale."""
-      progress_path = project_dir / 'progress.json'
-      trace_dir = project_dir / 'trace'
+      progress_path = project_dir / "progress.json"
+      trace_dir = project_dir / "trace"
 
       if not trace_dir.exists():
           return
 
-      trace_events = list(trace_dir.glob('*.jsonl'))
+      trace_events = list(trace_dir.glob("*.jsonl"))
       if not trace_events:
           return
 
       if not progress_path.exists():
           logger.info("auto_rebuilding_progress_from_trace")
           from shenbi.trace.materialize import materialize_progress
+
           # API CORRECTION: materialize_progress requires total_skills kwarg.
           from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
+
           materialize_progress(project_dir, total_skills=len(CHAPTER_STEPS))
           return
 
@@ -1133,8 +1144,10 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
       if trace_mtime > progress_path.stat().st_mtime:
           logger.info("progress_stale_rebuilding_from_trace")
           from shenbi.trace.materialize import materialize_progress
+
           # API CORRECTION: materialize_progress requires total_skills kwarg.
           from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
+
           materialize_progress(project_dir, total_skills=len(CHAPTER_STEPS))
   ```
 
@@ -1153,6 +1166,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
 - [ ] **13a. Write test:** Create `tests/pipeline/test_state_machine_heal.py`
   ```python
   """Test state machine current_step healing and validation."""
+
   import pytest
   from unittest.mock import MagicMock
   from shenbi.pipeline.state import (
@@ -1160,6 +1174,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
       _validate_state_consistency,
   )
   from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
+
 
   class TestHealCurrentStep:
       def test_heals_empty_current_step_with_valid_index(self):
@@ -1195,6 +1210,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
           _heal_current_step(state, CHAPTER_STEPS)
           # At step 0, current_step maps to first step
           assert state.chapter_loop.current_step == CHAPTER_STEPS[0].skill
+
 
   class TestValidateStateConsistency:
       def test_detects_and_heals_corrupt_state(self):
@@ -1238,9 +1254,9 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
       else:
           cl.current_step = "chapter_complete"
 
-      logger.warning("healed_current_step",
-                     step_index=cl.step_index,
-                     new_current_step=cl.current_step)
+      logger.warning(
+          "healed_current_step", step_index=cl.step_index, new_current_step=cl.current_step
+      )
 
 
   def _validate_state_consistency(state, CHAPTER_STEPS: list) -> list[str]:
@@ -1255,8 +1271,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
 
       if not cl.current_step and cl.step_index > 0:
           issues.append(
-              f"state_inconsistent: step_index={cl.step_index} "
-              f"but current_step='' -- auto-healing"
+              f"state_inconsistent: step_index={cl.step_index} but current_step='' -- auto-healing"
           )
           _heal_current_step(state, CHAPTER_STEPS)
 
@@ -1338,10 +1353,9 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
 
       Save partial LLM output, log WARN (not HARD failure).
       """
-      logger.warning("dispatch_timeout",
-                     skill=skill_name,
-                     chapter=chapter,
-                     resolution="saving_partial_output")
+      logger.warning(
+          "dispatch_timeout", skill=skill_name, chapter=chapter, resolution="saving_partial_output"
+      )
       # Reuse previous truth file versions for incomplete updates
       # This is logged for observability; actual handling depends on skill
   ```
@@ -1354,9 +1368,7 @@ def _emergency_cleanup(project_dir: Path | None = None) -> None:
 
   # (b) API path -- currently passes NO timeout; add it:
   timeout = _compute_dispatch_timeout(skill_name, chapter_path)
-  response = client.chat.completions.create(
-      model=model, messages=messages, timeout=timeout
-  )
+  response = client.chat.completions.create(model=model, messages=messages, timeout=timeout)
 
   # (c) IDE-CLI path -- replace the hardcoded _IDE_AGENT_TIMEOUT (line 47,
   #     used at line 512). Scale _IDE_AGENT_TIMEOUT with chapter size using

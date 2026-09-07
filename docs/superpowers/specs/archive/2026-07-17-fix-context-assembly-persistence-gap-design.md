@@ -104,8 +104,11 @@ def _audit_context_coverage(project_dir: Path, state: PipelineState) -> dict:
             missing.append(ch)
 
     if missing:
-        logger.warning("context_coverage_gap", missing_chapters=missing,
-                       gap_ratio=f"{len(missing)}/{state.chapter_loop.current_chapter - 1}")
+        logger.warning(
+            "context_coverage_gap",
+            missing_chapters=missing,
+            gap_ratio=f"{len(missing)}/{state.chapter_loop.current_chapter - 1}",
+        )
 
     return {"missing": missing, "total": state.chapter_loop.current_chapter - 1}
 ```

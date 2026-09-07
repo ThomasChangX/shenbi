@@ -82,29 +82,36 @@ git commit -m "feat(text): add jieba dependency + text/ package skeleton"
 from __future__ import annotations
 from shenbi.text.cjk import TermHit, find_terms
 
+
 def test_sensitive_word_embedded_in_chinese() -> None:
     text = "他在这个时代发起了革命运动"
     hits = find_terms(text, ["革命"])
     assert len(hits) == 1
     assert hits[0].term == "革命"
 
+
 def test_term_at_boundary() -> None:
     assert len(find_terms("革命开始了", ["革命"])) == 1
     assert len(find_terms("开始了革命", ["革命"])) == 1
+
 
 def test_multiple_terms() -> None:
     hits = find_terms("第一场革命和第二场暴动", ["革命", "暴动"])
     assert {h.term for h in hits} == {"革命", "暴动"}
 
+
 def test_not_found() -> None:
     assert find_terms("和平发展", ["革命"]) == []
+
 
 def test_empty_text() -> None:
     assert find_terms("", ["革命"]) == []
 
+
 def test_positions() -> None:
     hits = find_terms("这是革命的故事", ["革命"])
     assert hits[0].start == 2 and hits[0].end == 4
+
 
 def test_substring_match_semantics() -> None:
     """v2 I2: find_terms = exact substring. '升级' inside '超级升级' matches;
@@ -119,6 +126,7 @@ def test_substring_match_semantics() -> None:
 ```python
 # src/shenbi/text/cjk.py
 """Centralized CJK text operations (spec pillar 3)."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -173,15 +181,24 @@ git commit -m "feat(text): add find_terms with CJK-aware substring matching (fix
 ```python
 from shenbi.text.cjk import count_punctuation
 
+
 def test_dash_counted_once() -> None:
     assert count_punctuation("你好——世界")["破折号"] == 1
+
+
 def test_ellipsis_counted_once() -> None:
     assert count_punctuation("你好……世界")["省略号"] == 1
+
+
 def test_single_char_punct() -> None:
     c = count_punctuation("你好。世界！")
     assert c["句号"] == 1 and c["感叹号"] == 1
+
+
 def test_no_punctuation() -> None:
     assert all(v == 0 for v in count_punctuation("纯文本").values())
+
+
 def test_multiple_dashes() -> None:
     assert count_punctuation("第一——第二——第三")["破折号"] == 2
 ```
@@ -190,12 +207,18 @@ def test_multiple_dashes() -> None:
 - [ ] **Step 3: Append to cjk.py (function only)**
 ```python
 PUNCTUATION_TOKENS: dict[str, list[str]] = {
-    "句号": ["。"], "逗号": ["，"], "感叹号": ["！", "!"],
-    "问号": ["？", "?"], "破折号": ["——", "──"],
-    "省略号": ["……", "。。。"], "顿号": ["、"],
-    "分号": ["；"], "冒号": ["：", ":"],
+    "句号": ["。"],
+    "逗号": ["，"],
+    "感叹号": ["！", "!"],
+    "问号": ["？", "?"],
+    "破折号": ["——", "──"],
+    "省略号": ["……", "。。。"],
+    "顿号": ["、"],
+    "分号": ["；"],
+    "冒号": ["：", ":"],
     "引号": ['""', "''", "「」", "『』"],
 }
+
 
 def count_punctuation(text: str) -> dict[str, int]:
     """Count punctuation by whole tokens, not per-char."""
@@ -221,18 +244,29 @@ git commit -m "feat(text): add count_punctuation with whole-token counting"
 ```python
 from shenbi.text.cjk import count_words
 
+
 def test_cjk_only_pure_chinese() -> None:
     assert count_words("这是一段中文文本", "cjk_only") == 8
+
+
 def test_cjk_only_drops_english() -> None:
     assert count_words("这是level提升", "cjk_only") == 4
+
+
 def test_mixed_includes_english() -> None:
     assert count_words("这是level提升", "mixed") >= 5
+
+
 def test_mixed_ge_cjk_only() -> None:
     text = "这是level提升123"
     assert count_words(text, "mixed") >= count_words(text, "cjk_only")
+
+
 def test_empty() -> None:
     assert count_words("", "cjk_only") == 0
     assert count_words("", "mixed") == 0
+
+
 def test_numbers_in_mixed() -> None:
     assert count_words("第1章", "mixed") >= 2
 ```
@@ -244,6 +278,7 @@ Add `import re` and `from typing import Literal` to the top import block. Then a
 ```python
 _CJK_RE = re.compile(r"[\u4e00-\u9fff]")
 _NON_CJK_WORD_RE = re.compile(r"[a-zA-Z0-9]+")
+
 
 def count_words(text: str, mode: Literal["cjk_only", "mixed"]) -> int:
     """Count words: cjk_only = CJK chars only; mixed = CJK + Latin words + digits."""
@@ -270,18 +305,22 @@ git commit -m "feat(text): add count_words with dual semantics (cjk_only/mixed)"
 ```python
 from shenbi.text.cjk import Token, tokenize
 
+
 def test_tokenize_returns_tokens() -> None:
     tokens = tokenize("他是一个高手")
     assert len(tokens) > 0
     assert all(isinstance(t, Token) for t in tokens)
 
+
 def test_tokenize_preserves_chars() -> None:
     text = "他是一个高手"
     assert "".join(t.word for t in tokenize(text)) == text
 
+
 def test_domain_dict_prevents_split() -> None:
     tokens = tokenize("他开始了筑基期修炼", domain_dict=["筑基期"])
     assert "筑基期" in [t.word for t in tokens]
+
 
 def test_tokenize_empty() -> None:
     assert tokenize("") == []
@@ -302,10 +341,13 @@ Then append the function:
 @dataclass(frozen=True)
 class Token:
     """A tokenized word with part-of-speech tag."""
+
     word: str
     pos: str
 
+
 _jieba_ready = False
+
 
 def tokenize(text: str, domain_dict: Iterable[str] | None = None) -> list[Token]:
     """Tokenize with jieba. Domain terms registered to prevent splitting."""
@@ -347,14 +389,17 @@ from shenbi.text.cjk import count_punctuation, count_words, find_terms
 
 cjk_text = st.text(
     alphabet=st.sampled_from(list("你好世界革命暴动和平发展——……。！？，level123")),
-    min_size=0, max_size=50,
+    min_size=0,
+    max_size=50,
 )
+
 
 @given(cjk_text)
 def test_find_terms_substring_found(text: str) -> None:
     if len(text) >= 2:
         term = text[:2]
         assert len(find_terms(text, [term])) >= 1
+
 
 @given(cjk_text)
 def test_punctuation_matches_all_tokens(text: str) -> None:
@@ -363,9 +408,11 @@ def test_punctuation_matches_all_tokens(text: str) -> None:
     assert counts["破折号"] == text.count("——") + text.count("──")
     assert counts["省略号"] == text.count("……") + text.count("。。。")
 
+
 @given(cjk_text)
 def test_mixed_ge_cjk_only(text: str) -> None:
     assert count_words(text, "mixed") >= count_words(text, "cjk_only")
+
 
 @given(st.text(min_size=0, max_size=100))
 def test_count_words_non_negative(text: str) -> None:
@@ -409,14 +456,26 @@ def test_tokenize_frozen_baseline() -> None:
 ```python
 # src/shenbi/text/__init__.py
 """Shenbi text processing toolkit (spec pillar 3)."""
+
 from __future__ import annotations
 from shenbi.text.cjk import (
-    PUNCTUATION_TOKENS, TermHit, Token,
-    count_punctuation, count_words, find_terms, tokenize,
+    PUNCTUATION_TOKENS,
+    TermHit,
+    Token,
+    count_punctuation,
+    count_words,
+    find_terms,
+    tokenize,
 )
+
 __all__ = [
-    "PUNCTUATION_TOKENS", "TermHit", "Token",
-    "count_punctuation", "count_words", "find_terms", "tokenize",
+    "PUNCTUATION_TOKENS",
+    "TermHit",
+    "Token",
+    "count_punctuation",
+    "count_words",
+    "find_terms",
+    "tokenize",
 ]
 ```
 

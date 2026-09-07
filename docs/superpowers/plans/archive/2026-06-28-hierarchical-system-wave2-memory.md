@@ -809,6 +809,7 @@ git commit -m "test: add hierarchical memory fixtures (spec §9.7)"
 ```python
 # src/shenbi/gates/g4/book_spine_init.py
 """G4 checker for shenbi-book-spine-init."""
+
 from __future__ import annotations
 import re
 from pathlib import Path
@@ -841,6 +842,7 @@ def g4_book_spine_init(fps: list[str], rd: str | None = None) -> str:
 ```python
 # src/shenbi/gates/g4/memory_distill.py
 """G4 checker for shenbi-memory-distill (溯源校验)."""
+
 from __future__ import annotations
 import re
 from pathlib import Path

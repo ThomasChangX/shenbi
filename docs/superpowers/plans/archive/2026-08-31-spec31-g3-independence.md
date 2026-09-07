@@ -111,6 +111,7 @@ git commit -m "fix: flag_score_collapse exempts single-dim/all-zero results (F12
 
 ```python
 """spec #31 T3 (F113 residual): scored_by provenance 三值。"""
+
 import pytest
 
 from shenbi.contracts.enums import ScoredBy, ALL_ENUMS
@@ -130,6 +131,7 @@ def test_scored_by_in_all_enums():
 )
 def test_scored_by_three_values(monkeypatch, argv_extra, expected):
     from shenbi.scoring import _resolve_scored_by
+
     monkeypatch.setattr("sys.argv", ["scoring.py", "r.md", "s.json", *argv_extra])
     assert _resolve_scored_by() == expected
 ```
@@ -191,6 +193,7 @@ git commit -m "fix: scored_by provenance file/interactive/subagent via explicit 
 
 ```python
 """spec #31 T2a: 独立评分后坍缩检测落盘（F114 接线，零额外派发）。"""
+
 import json
 
 from shenbi.dispatcher.modes.codex import _record_collapse_check
@@ -241,7 +244,9 @@ def _record_collapse_check(round_dir: Path, skill: str, test_type: str, scores: 
     out.parent.mkdir(parents=True, exist_ok=True)
     safe_write(out, json.dumps(result, indent=2, ensure_ascii=False))
     if result.get("collapse_suspected"):
-        log.warning("score_collapse_suspected", skill=skill, test_type=test_type, signals=result["signals"])
+        log.warning(
+            "score_collapse_suspected", skill=skill, test_type=test_type, signals=result["signals"]
+        )
     return result
 ```
 
@@ -289,6 +294,7 @@ G0.9 注记：本测试的对象是 dispatch 控制流（subprocess 打桩），
 程序内构造的输入而非「真实技能产物 fixture」——dispatch 内部 JSON 协议不属于
 G0.9 管辖的 scenario fixture 面；第二评分 = 主评分的程序化副本 + 单维度受控 delta。
 """
+
 import json
 from pathlib import Path
 
@@ -304,13 +310,17 @@ def _fake_codex_exec(second_scores: dict):
     def run(cmd, **kwargs):
         if "shenbi-score" in cmd:  # scoring subprocess: no -o flag
             calls["n"] += 1
-            return type("P", (), {"returncode": 0, "stderr": "", "stdout": json.dumps({"final_score": 85})})()
+            return type(
+                "P", (), {"returncode": 0, "stderr": "", "stdout": json.dumps({"final_score": 85})}
+            )()
         # codex exec: cmd 形如 ["codex","exec","-C",str(round_dir),"-o",str(raw_out),prompt]
         idx = calls["n"]
         calls["n"] += 1
         out_path = Path(cmd[cmd.index("-o") + 1])
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(json.dumps(second_scores if idx == 1 else REAL_SCORES), encoding="utf-8")
+        out_path.write_text(
+            json.dumps(second_scores if idx == 1 else REAL_SCORES), encoding="utf-8"
+        )
         return type("P", (), {"returncode": 0, "stderr": "", "stdout": ""})()
 
     return run, calls
@@ -331,7 +341,8 @@ def test_dual_scorer_agreement_no_arbitration(tmp_path, monkeypatch):
 
 
 def test_dual_scorer_dispute_writes_arbitration(tmp_path, monkeypatch):
-    disputed = dict(REAL_SCORES); disputed["2"] = 70  # 差 15 > 5
+    disputed = dict(REAL_SCORES)
+    disputed["2"] = 70  # 差 15 > 5
     run, _ = _fake_codex_exec(disputed)
     monkeypatch.setattr(codex_mod.subprocess, "run", run)
     monkeypatch.setenv("SHENBI_DUAL_SCORER", "1")
@@ -414,6 +425,7 @@ git commit -m "docs: re-point resonance trend row docstring at real reader; fix 
 
 ```python
 """spec #31 T5: G3 must fail closed without fabricating progress.json (F794 guard)."""
+
 from shenbi.pipeline.dispatch_helper import run_gate_g3
 
 

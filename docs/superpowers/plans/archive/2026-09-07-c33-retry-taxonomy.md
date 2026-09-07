@@ -39,6 +39,7 @@
 
 ```python
 """C33 R1: FailureClass taxonomy + classification points (spec #47)."""
+
 from __future__ import annotations
 
 import httpx
@@ -210,10 +211,19 @@ class TestTraceFailureClass:
 
         (tmp_path / "trace.jsonl").write_text('{"action": "SEED"}\n', encoding="utf-8")
         dh._emit_dispatch_trace(
-            tmp_path, "shenbi-review-resonance", 1, "test-model", None, False, 1,
-            success=False, failure_class=FailureClass.DETERMINISTIC_CONTENT,
+            tmp_path,
+            "shenbi-review-resonance",
+            1,
+            "test-model",
+            None,
+            False,
+            1,
+            success=False,
+            failure_class=FailureClass.DETERMINISTIC_CONTENT,
         )
-        line = json.loads((tmp_path / "trace.jsonl").read_text(encoding="utf-8").strip().splitlines()[-1])
+        line = json.loads(
+            (tmp_path / "trace.jsonl").read_text(encoding="utf-8").strip().splitlines()[-1]
+        )
         assert line["payload"]["failure_class"] == "deterministic_content"
 ```
 
@@ -304,8 +314,10 @@ class TestAmplificationCap:
         # tenacity stop_after_attempt(3) is the only retry surface for
         # persistent transient failures; assert via the actual decorator state.
         import tenacity
+
         retry_state = tenacity.RetryCallState(
-            fn=dh._call_llm_streaming_with_retry, args=(), kwargs={})
+            fn=dh._call_llm_streaming_with_retry, args=(), kwargs={}
+        )
         retry_state.attempt_number = 3
         # stop_after_attempt(3): should_stop True at attempt 3
         assert dh._call_llm_streaming_with_retry.retry.stop(retry_state) is True
@@ -354,9 +366,7 @@ Expected: FAIL — `handle_scoring_failure` returns bool not tuple; no sleep in 
 `error_handler.py` — replace `handle_scoring_failure`:
 
 ```python
-def handle_scoring_failure(
-    state: PipelineState, exit_code: int
-) -> tuple[bool, FailureClass]:
+def handle_scoring_failure(state: PipelineState, exit_code: int) -> tuple[bool, FailureClass]:
     """Classify a scoring failure for retry routing (spec S11 + C33 spec #47 R2).
 
     Exit code 2 (validation failure) → deterministic_content: zero retry,
@@ -366,10 +376,14 @@ def handle_scoring_failure(
     Returns (retry, failure_class); retry is now False for both (C33).
     """
     if exit_code == 2:
-        log.warning("scoring_failure_classified", exit_code=exit_code, failure_class="deterministic_content")
+        log.warning(
+            "scoring_failure_classified", exit_code=exit_code, failure_class="deterministic_content"
+        )
         return False, FailureClass.DETERMINISTIC_CONTENT
     if exit_code == 3:
-        log.warning("scoring_failure_classified", exit_code=exit_code, failure_class="deterministic_gate")
+        log.warning(
+            "scoring_failure_classified", exit_code=exit_code, failure_class="deterministic_gate"
+        )
         return False, FailureClass.DETERMINISTIC_GATE
     log.error("scoring_unrecoverable", exit_code=exit_code)
     return False, FailureClass.DETERMINISTIC_CONTENT
@@ -512,18 +526,15 @@ Expected: FAIL — counters stay non-zero after clear_checkpoint
 `machine.py` `clear_checkpoint` ESCALATION branch — after the three `.clear()` calls add (NOTE: `chapter_states` is STR-keyed at `state.chapter_loop.chapter_states`):
 
 ```python
-        # C33 R3 (T508): per-chapter audit counters share the reset contract.
-        # New scope rule: chapter set → clear that chapter only; None → all
-        # (mirrors _reset_retry_budget prefix semantics, NOT dict clear-all).
-        _keys = (
-            [str(cp.chapter)] if cp.chapter is not None
-            else list(state.chapter_loop.chapter_states)
-        )
-        for k in _keys:
-            cs = state.chapter_loop.chapter_states.get(k)
-            if cs is not None:
-                cs.audit_retry_count = 0
-                cs.revision_count = 0
+# C33 R3 (T508): per-chapter audit counters share the reset contract.
+# New scope rule: chapter set → clear that chapter only; None → all
+# (mirrors _reset_retry_budget prefix semantics, NOT dict clear-all).
+_keys = [str(cp.chapter)] if cp.chapter is not None else list(state.chapter_loop.chapter_states)
+for k in _keys:
+    cs = state.chapter_loop.chapter_states.get(k)
+    if cs is not None:
+        cs.audit_retry_count = 0
+        cs.revision_count = 0
 ```
 
 Add to the `machine.py` docstring: `All per-phase retry counters — including per-chapter audit_retry_count/revision_count — are reset when an ESCALATION checkpoint is resolved (approve/reject/modify).`
@@ -531,11 +542,11 @@ Add to the `machine.py` docstring: `All per-phase retry counters — including p
 `cli.py` `_reset_retry_budget` — same loop appended inside the function (idempotent mirror; same STR-key convention):
 
 ```python
-    for k in ([str(cp.chapter)] if cp.chapter is not None else list(state.chapter_loop.chapter_states)):
-        cs = state.chapter_loop.chapter_states.get(k)
-        if cs is not None:
-            cs.audit_retry_count = 0
-            cs.revision_count = 0
+for k in [str(cp.chapter)] if cp.chapter is not None else list(state.chapter_loop.chapter_states):
+    cs = state.chapter_loop.chapter_states.get(k)
+    if cs is not None:
+        cs.audit_retry_count = 0
+        cs.revision_count = 0
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -574,8 +585,12 @@ class TestWaveBudgetAggregation:
 
         st = PipelineState()
         tasks = [
-            (ReviewTask(skill="shenbi-review-anti-ai", project_dir=tmp_path, prompt="p",
-                        output_path="o"), DispatchResult(False, 1, "", "x")),
+            (
+                ReviewTask(
+                    skill="shenbi-review-anti-ai", project_dir=tmp_path, prompt="p", output_path="o"
+                ),
+                DispatchResult(False, 1, "", "x"),
+            ),
         ]
         tasks[0][0].attempts = 3  # 3 attempts → 2 retries consumed
         _charge_wave_retries(st, 1, tasks)
@@ -587,8 +602,9 @@ class TestWaveBudgetAggregation:
         from shenbi.pipeline.parallel_dispatch import DispatchResult, ReviewTask
 
         st = PipelineState()
-        t = ReviewTask(skill="shenbi-review-anti-ai", project_dir=tmp_path, prompt="p",
-                       output_path="o")
+        t = ReviewTask(
+            skill="shenbi-review-anti-ai", project_dir=tmp_path, prompt="p", output_path="o"
+        )
         t.attempts = 3
         res = DispatchResult(False, 1, "", "x")
         _charge_wave_retries(st, 1, [(t, res)])
@@ -723,15 +739,13 @@ Lifecycle dispatch failure (:2937-2944) — replace log-only with routing:
 G4 failure (:2946-2957) — same routing per-step:
 
 ```python
-            if not _gate_passed(g4):
-                log.warning(
-                    "parallel_post_draft_g4_failed",
-                    chapter=chapter,
-                    skill=pstep.skill,
-                )
-                return _handle_failure(
-                    state, pstep, chapter, "g4", project_dir, budget_pre_consumed=True
-                )
+if not _gate_passed(g4):
+    log.warning(
+        "parallel_post_draft_g4_failed",
+        chapter=chapter,
+        skill=pstep.skill,
+    )
+    return _handle_failure(state, pstep, chapter, "g4", project_dir, budget_pre_consumed=True)
 ```
 
 (Use `budget_pre_consumed=True` only if the G4 hard-fail pre-charge already ran for this path — check the existing G4 hard-fail pre-charge at :3168-3175 and mirror its convention; if this site does not pre-charge, pass False.)
