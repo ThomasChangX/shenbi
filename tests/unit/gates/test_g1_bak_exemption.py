@@ -17,9 +17,11 @@ def test_g1_4_bak_idempotent(tmp_path):
     baks = list(tmp_path.rglob("*.bak"))
     assert baks, "first run creates the .bak"
     first_content = baks[0].read_bytes()
+    # mutate the source between runs: a non-idempotent re-copy would pick up
+    # the new bytes — the ".bak exists → skip" branch must keep the original.
+    target.write_text("k: CHANGED\n", encoding="utf-8")
     r3 = json.loads(g1.gate_G1(skill_name=skill, input_files=args, round_dir=str(tmp_path)))
-    # second run: .bak exists branch — no rewrite (idempotent)
-    assert baks[0].read_bytes() == first_content
+    assert baks[0].read_bytes() == first_content, "idempotent: .bak not rewritten"
     g14 = [c for r in (r1, r2, r3) for c in r.get("checks", []) if c.get("id") == "G1.4"]
     assert g14, "G1.4 check present"
 
@@ -33,4 +35,4 @@ def test_exemption_documented():
     agents = (Path(__file__).resolve().parents[3] / "AGENTS.md").read_text(encoding="utf-8")
     assert "G1.4" in agents
     src = Path(g1.__file__).read_text(encoding="utf-8")
-    assert "exemption" in src.lower() or "豁免" in src
+    assert "Option B" in src and "F412" in src
