@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-07（spec #54 C16 plan 归档——Done PR #174）
-> **活跃 plan 数**：0 | **已归档**：102（见 `archive/`）
+> **最后更新**：2026-09-07（spec #50 C36 print-purity plan 创建——✅ ready）
+> **活跃 plan 数**：1 | **已归档**：102（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无——当前无活跃 plan）
+- `2026-09-07-spec50-c36-print-purity.md`（spec #50 C36：cli_utils.echo + 6 处迁移 + ruff T20，✅ ready）
 
 
 

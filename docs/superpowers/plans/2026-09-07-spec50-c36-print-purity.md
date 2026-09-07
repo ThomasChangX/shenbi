@@ -35,6 +35,9 @@
 ```python
 """T1 tests for cli_utils output channels (spec #50 / C36)."""
 
+import pytest  # noqa: F401  (markers below)
+# 注：本文件用例均为同步单元测试，无需 mark；与 sibling 一致性不强制
+
 import json
 
 import pytest
@@ -136,7 +139,7 @@ echo(f"error: project dir not found: {args.project_dir}", err=True)
 echo(render_report(args.project_dir))
 ```
 
-- [ ] **Step 2: pipeline/cli.py**（backfill 循环内；import 区加 `from shenbi.cli_utils import echo`）
+- [ ] **Step 2: pipeline/cli.py**（backfill 循环内；既有 `from shenbi.cli_utils import emit_json`（cli.py:30）合并为 `from shenbi.cli_utils import echo, emit_json`）
 
 ```python
 # :1065 原: print(f"  Backfilled context for chapter {ch}")
@@ -231,7 +234,7 @@ git commit -m "fix: migrate 6 print sites to cli_utils.echo/emit_json (spec #50 
 ```toml
 "tools/**" = ["T201"]
 "scripts/**" = ["T201"]
-# 既有 "tests/**" = ["BLE001"] 改为：
+# 既有 "tests/**" = ["BLE001"] 改为（其上方解释 BLE001 的注释行一并补 T201 语义）：
 "tests/**" = ["BLE001", "T201"]
 ```
 
@@ -283,7 +286,7 @@ git commit -m "feat: enforce ruff T20 print ban with 3-channel output ruling (sp
 
 **Interfaces:** 无代码接口。
 
-- [ ] **Step 1: 三行状态 `open` → `closed (C-36 spec #50, PR #N)`**（N = 本 PR 号，出 PR 后、合并前回填；对齐既有 F605/F627/F606 关闭行格式）
+- [ ] **Step 1: 三行状态 `open` → `closed (C-36 spec #50, PR #N)`**（N = 本 PR 号，出 PR 后、合并前回填；对齐既有 F605/F627/F606 关闭行格式。顺手修正 D102 行内「2 处误报」→「3 处（chapter_drafting.py:133,141,320）」，不改证据列历史行号——仅注记现行行号已漂移）
 - [ ] **Step 2: `just audit-lint` 全绿**（spec #49 审计产物 lint）
 
 Run: `just audit-lint`
