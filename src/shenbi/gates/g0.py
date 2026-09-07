@@ -27,6 +27,55 @@ MIRROR_MAP: dict[str, str] = {
     "tests/fixtures/truth-current_state-xinghuo.md": (
         "novel-output/xinghuo-ranqiong/truth/current_state.md"
     ),
+    # spec #54 C16 F780: chapter-025 snapshot truth mirrors must stay
+    # byte-identical to their top-level truth-*.md counterparts.
+    "tests/fixtures/truth-chapter_summaries.md": (
+        "tests/fixtures/snapshots/chapter-025/truth/chapter_summaries.md"
+    ),
+    "tests/fixtures/truth-emotional_arcs.md": (
+        "tests/fixtures/snapshots/chapter-025/truth/emotional_arcs.md"
+    ),
+    "tests/fixtures/truth-pending_hooks.md": (
+        "tests/fixtures/snapshots/chapter-025/truth/pending_hooks.md"
+    ),
+    "tests/fixtures/truth-character_matrix.md": (
+        "tests/fixtures/snapshots/chapter-025/truth/character_matrix.md"
+    ),
+    # spec #54 C16 AC3 / F781: same-source duplicate pairs populated during
+    # library governance — registered so the sync guard (not hash dedup)
+    # owns their equality.
+    "tests/fixtures/characters/supporting/relationships.md": (
+        "tests/fixtures/truth/character_profiles/relationships.md"
+    ),
+    "tests/fixtures/consolidation/volume-1/volume-summary.md": (
+        "tests/fixtures/story/volumes/volume-map.md"
+    ),
+    "tests/fixtures/source/report-example.txt": (
+        "tests/fixtures/truth/source_material/original-work.txt"
+    ),
+    "tests/fixtures/config/platform-rules/genre-config.json": (
+        "tests/fixtures/genre-config-example.json"
+    ),
+    "tests/fixtures/samples/reference-texts/reference-chapter-3.md": (
+        "tests/fixtures/drafts/chapter-3.md"
+    ),
+    "tests/fixtures/decisions/corpus/case01-ok.json": (
+        "tests/fixtures/decisions/valid-chapter-decisions.json"
+    ),
+    "tests/fixtures/decisions/corpus/case07-bad_json_prefix.json": (
+        "tests/fixtures/revision-decisions/chapter-legacy-severity-revision-decisions.json"
+    ),
+    "tests/fixtures/decisions/corpus/case03-bad_json_concat.json": (
+        "tests/fixtures/decisions/trailing-sample.json"
+    ),
+    "tests/fixtures/decisions/corpus/case14-bad_schema_p25.json": (
+        "tests/fixtures/revision-decisions/chapter-sample-revision-decisions.json"
+    ),
+    # 阶段 8 终审补：payload 级（frontmatter 剥离后）重复对
+    "tests/fixtures/audits/chapter-1-character.md": ("tests/fixtures/audit-report-example.md"),
+    "tests/fixtures/consolidation/volume-1/unresolved-hooks.md": (
+        "tests/fixtures/truth-pending_hooks-ch56.md"
+    ),
 }
 
 
@@ -37,11 +86,32 @@ import re
 from pathlib import Path
 from typing import Any
 
+_FM_PROVENANCE_RE = re.compile(
+    rb"\A---\r?\n.*?^provenance:.*?\r?\n---\r?\n\n?", re.DOTALL | re.MULTILINE
+)
+
+
+def mirror_digest(path: Path) -> str:
+    """Content sha256 with provenance frontmatter stripped (spec #54 C16 F780).
+
+    Provenance carriers are metadata, not content: a mirror may carry a
+    ``provenance:`` frontmatter block that its source lacks. Mirror identity
+    is judged on the payload bytes after stripping such a leading block.
+    """
+    data = path.read_bytes()
+    if path.suffix == ".md":
+        data = _FM_PROVENANCE_RE.sub(b"", data, count=1)
+    return hashlib.sha256(data).hexdigest()
+
+
 from shenbi.gates.g0_config_coherence import check_config_coherence
 from shenbi.gates.g0_purity import (
     check_scenario_dir_purity,
     check_scenario_file_purity,
+    check_scenario_reference_closure,
     check_skill_md_purity,
+    check_fixture_provenance,
+    check_variant_bypass,
 )
 from shenbi.paths import Layout, detect_layout
 from shenbi.gates.shared import (
@@ -451,6 +521,14 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
 
     checks.extend(check_scenario_dir_purity(t1_skill_dir))
 
+    # G0.17/G0.18/G0.19 — fixture authenticity enforcement (spec #54 C16):
+    # reference existence closure, provenance tri-state carriers, variant
+    # bypass. Waves start in WARN mode; promotion to FAIL is per-wave after
+    # live re-scan count reaches zero (see g0_purity.ENFORCEMENT_WAVES).
+    checks.extend(check_scenario_reference_closure(t1_skill_dir, PROJECT))
+    checks.extend(check_fixture_provenance(t1_skill_dir, FIXTURES))
+    checks.extend(check_variant_bypass(t1_skill_dir, FIXTURES))
+
     purity_checks, fail_reason, must_fix = check_skill_md_purity(SKILLS)
     if fail_reason:
         return fail("G0", checks + purity_checks, "round_creation", must_fix)
@@ -509,22 +587,35 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
 
     # G0.11 — fixture mirror integrity: fixtures that mirror project source
     # files must have matching content hashes. This catches the "fixture
-    # stale while source updated" failure mode.
+    # stale while source updated" failure mode. Missing sides are reported
+    # explicitly (spec #54 C16 / T803 fix: no silent skip).
     stale_mirrors: list[str] = []
+    missing_sides: list[str] = []
     for fixture_rel, source_rel in MIRROR_MAP.items():
         fixture_path = PROJECT / fixture_rel
         source_path = PROJECT / source_rel
         if not fixture_path.exists():
+            missing_sides.append(f"fixture side missing: {fixture_rel}")
             continue
         if not source_path.exists():
+            missing_sides.append(f"source side missing: {source_rel} (for {fixture_rel})")
             continue
         try:
-            fh = hashlib.sha256(fixture_path.read_bytes()).hexdigest()
-            sh = hashlib.sha256(source_path.read_bytes()).hexdigest()
+            fh = mirror_digest(fixture_path)
+            sh = mirror_digest(source_path)
         except Exception:
             continue
         if fh != sh:
             stale_mirrors.append(f"{fixture_rel} (fixture={fh[:12]}... != source={sh[:12]}...)")
+    if missing_sides:
+        checks.append(
+            {
+                "id": "G0.11",
+                "s": GateStatus.WARN,
+                "r": f"missing mirror side: {'; '.join(missing_sides)}",
+                "note": "register or remove the half-dead MIRROR_MAP entry",
+            }
+        )
     if stale_mirrors:
         detail = "; ".join(stale_mirrors)
         return fail(

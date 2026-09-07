@@ -1,3 +1,8 @@
+## provenance
+
+provenance: synthetic-sample
+source: tests/fixtures/calibration/arc-payoff/期待债务结算/mid.md（显式合成校准语料——2026-08 审计期构建，非 novel-output 真实章节；per spec #54 T3.10 降级标注）
+
 ## excerpt
 
 本卷回答了老周之死和催收员身份这两个悬念，读者还算满意。但同时新增了三个新悬念：灵脉通向哪里、矿场深夜的警报、隔壁老张的去向。回答了两笔旧债，却创建了三笔新债，总体上债务是在增加的。好在新增的悬念多少都和当前剧情有点关系，读者虽然觉得"问题越来越多"，但还不至于不耐烦。不过如果下一卷继续只加不减，读者可能就要觉得被吊着了。

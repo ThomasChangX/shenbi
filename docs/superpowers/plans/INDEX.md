@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-07（spec #40 §6.4 维护 pass done PR #172，plan 归档）
-> **活跃 plan 数**：0 | **已归档**：101（见 `archive/`）
+> **最后更新**：2026-09-07（spec #54 C16 plan 创建）
+> **活跃 plan 数**：1 | **已归档**：101（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,6 +9,9 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
+### 2026-09-07-spec54-c16-fixture-authenticity（✅ ready）
+- **spec**：`../specs/2026-08-16-audit-fixture-authenticity-fix.md`（#54 C16，🟥 P0）
+- **内容**：G0.17-19 provenance 执法（WARN→FAIL 分波）+ bug-hunt 证据闭包 + fixture 库治理 + calibration 锚点重建/G0.14 重锁（4 tasks，全 infra 协调者亲实现）
 
 
 

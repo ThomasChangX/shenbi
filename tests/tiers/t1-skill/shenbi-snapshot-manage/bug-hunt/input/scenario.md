@@ -4,7 +4,7 @@
 `skills/shenbi-snapshot-manage/SKILL.md`
 
 ## Test Setup
-A novel project has 11 truth files in the `tests/fixtures/truth/` directory (matching the canonical list in SKILL.md):
+A novel project has the truth files registered in truth-files.yaml (mirrored under `tests/fixtures/truth/` and matching the canonical list in SKILL.md):
 1. `tests/fixtures/chapter-summaries-example.md`
 2. `tests/fixtures/pending-hooks-example.md`
 3. `tests/fixtures/chapter-summaries-example.md`
@@ -20,7 +20,7 @@ A novel project has 11 truth files in the `tests/fixtures/truth/` directory (mat
 The agent creates a snapshot after completing chapter 25.
 
 ## Scenario
-The snapshot at `tests/fixtures/snapshots/chapter-025/` contains only 8 of the 11 truth files. The following three files are missing from the snapshot:
+The snapshot at `tests/fixtures/snapshots/chapter-025/` contains only 8 of the registered truth files. The following three files are missing from the snapshot:
 - `tests/fixtures/pending-hooks-example.md`
 - `tests/fixtures/chapter-plan-example.md`
 - `tests/fixtures/author-intent-example.md`
@@ -31,7 +31,7 @@ All 8 included files have correct content and non-zero size. The snapshot manife
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `tests/fixtures/snapshots/chapter-025/`: directory contents | Snapshot completeness violation — only 8 of 11 truth files archived; missing `tests/fixtures/pending-hooks-example.md`, `tests/fixtures/chapter-plan-example.md`, and `tests/fixtures/author-intent-example.md` | error |
+| `tests/fixtures/snapshots/chapter-025/`: directory contents | Snapshot completeness violation — only 8 of the registered truth files archived; missing `tests/fixtures/pending-hooks-example.md`, `tests/fixtures/chapter-plan-example.md`, and `tests/fixtures/author-intent-example.md` | error |
 | `tests/fixtures/chapter-plan-example.md`: files field | Manifest inconsistency — claims 11 files but actual count is 8 | error |
 
 ## Agent Task

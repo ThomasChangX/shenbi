@@ -1,3 +1,8 @@
+---
+provenance: synthetic-sample
+source: hand-authored example structure (spec #54 C16)
+---
+
 ## 角色一致性审计报告
 
 **章节**: 第1章 — "毕业即失业与穿越即负债"

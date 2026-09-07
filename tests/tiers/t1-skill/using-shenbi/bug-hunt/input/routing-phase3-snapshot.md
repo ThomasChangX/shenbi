@@ -26,7 +26,7 @@
 
 - [ ] Agent 加载 `using-shenbi`
 - [ ] 路由到 `shenbi-snapshot-manage`（不是 `shenbi-state-settling`）
-- [ ] 创建快照时复制全部 11 个 truth 文件 + chapters/chapter-015.md
+- [ ] 创建快照时复制全部 truth 文件（truth-files.yaml 注册项）+ chapters/chapter-015.md
 - [ ] 写入 manifest（含 type/chapter/created/trigger/files）
 
 ## 失败条件

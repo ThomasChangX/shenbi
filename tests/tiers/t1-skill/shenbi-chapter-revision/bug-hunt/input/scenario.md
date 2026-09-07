@@ -5,7 +5,7 @@
 
 ## Test Setup
 A novel project exists with a drafted chapter at `tests/fixtures/chapter-draft-example.md`. An audit has been completed and produced the following findings:
-- Finding A1 (warning): A character named Lin Yue refers to her sword as "Frostbite" but in the truth file `tests/fixtures/character-profile-example.md` the sword is named "Frostveil".
+- Finding A1 (warning): The neighbor's dialogue addresses the protagonist by the name "林烽", but the truth file `tests/fixtures/character-profile-example.md` records that the possessed body's name is 林 and that 林烽 is the transmigrator's original name kept only for internal use.
 - Finding A2 (warning): Paragraph 14 describes the market as "bustling with afternoon crowds" but chapter 8 established the scene takes place at dawn.
 
 The agent runs shenbi-chapter-revision to fix these two audit findings.

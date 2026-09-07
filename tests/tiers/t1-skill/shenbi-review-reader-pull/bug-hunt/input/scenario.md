@@ -4,13 +4,13 @@
 `skills/shenbi-review-reader-pull/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 10 at `tests/fixtures/chapter-draft-example.md`. The chapter is approximately 4000 words. The chapter-end suspense is properly classified. Mid-chapter traction points are counted. However, the chapter opening begins with: "那天的天气不错，阳光很好。" (The weather was nice that day, the sunshine was good.) — a flat, descriptive opening with no hook.
+A novel project exists with the drafted first chapter at `tests/fixtures/chapter-draft-example.md`. The chapter opens with a flat scrolling beat — the protagonist stares at his phone and 拇指往上一划 — no story question, no tension. The chapter-end suspense is properly classified.
 
 ## Scenario
-The agent runs a reader-pull audit on chapter 10. The audit report at `tests/fixtures/audit-report-example.md` includes:
-- Chapter-end suspense type: classified as "cliffhanger" (correct)
-- Mid-chapter traction points: 3 points counted at ~1000, ~2000, ~3000 word intervals (correct)
-- Opening hook type: **SKIPPED** — the report has no opening hook assessment at all. The section is missing from the report.
+The agent runs a reader-pull audit on the chapter. The audit report at `tests/fixtures/audit-report-example.md` includes:
+- Chapter-end curiosity check: covered (the PRE_WRITE_CHECK table records the 章尾好奇心点燃 rule)
+- Mid-chapter checks: 对白/声音 sections covered
+- Opening hook type: **SKIPPED** — the report has no opening-hook assessment at all. The PRE_WRITE_CHECK table checks the chapter ending but contains no row classifying the opening's hook type.
 
 The opening has no hook type classified; the hook assessment was simply skipped.
 
@@ -18,7 +18,7 @@ The opening has no hook type classified; the hook assessment was simply skipped.
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `tests/fixtures/audit-report-example.md`: opening hook section | Opening hook assessment skipped — no hook type classified for chapter opening which begins with flat description ("那天的天气不错") with no hook value | error |
+| `tests/fixtures/audit-report-example.md`: PRE_WRITE_CHECK 合规 table | Opening hook assessment skipped — the table audits "章尾好奇心点燃" but has no row classifying an opening hook type for the chapter opening, a flat phone-scrolling beat with no hook value | error |
 
 ## Agent Task
-Run shenbi-review-reader-pull audit on chapter 10. Find the planted defect where the opening hook assessment is skipped.
+Run shenbi-review-reader-pull audit on the chapter. Find the planted defect where the opening hook assessment is skipped.

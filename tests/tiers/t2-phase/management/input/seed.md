@@ -3,7 +3,7 @@
 Use the output from Drafting phase as input (chapters/chapter-1.md, truth/*, characters/*).
 
 Agent instructions:
-1. Run shenbi-snapshot-manage with current truth files. Creates snapshots/ snapshot with checksums for all 11 truth files. Approve.
+1. Run shenbi-snapshot-manage with current truth files. Creates snapshots/ snapshot with checksums for all truth files registered in truth-files.yaml. Approve.
 2. Run shenbi-drift-guidance with audit reports and truth files. Produces truth/drift_guidance.md with ≤5 drift items, each with targeted_chapter and source audit reference. Approve.
 3. Run shenbi-intent-management with drift_guidance.md and current_focus.md. Updates truth/author_intent.md and truth/current_focus.md with P0/P1/P2 priorities. Approve.
 4. Run shenbi-chapter-pattern on chapter-1.md. Produces outline/chapter_patterns.md with pattern classification, entropy calculation, and next-chapter suggestions. Approve.

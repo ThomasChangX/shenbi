@@ -137,7 +137,7 @@ def test_fails_when_required_key_missing(tmp_path: Path) -> None:
 @pytest.mark.unit
 def test_trope_inventory_optional(tmp_path: Path) -> None:
     cfg = _real_config()
-    cfg.pop("tropeInventory")
+    cfg.pop("tropeInventory", None)  # real fixture (upstream copy) has no tropeInventory
     gc = _write_gc(tmp_path, cfg)
     r = _result(g4_genre_config([gc]))
     assert r["status"] == "PASS"

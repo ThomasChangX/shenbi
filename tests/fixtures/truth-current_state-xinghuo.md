@@ -1,4 +1,9 @@
 ---
+provenance: upstream-copy
+source: novel-output/xinghuo-ranqiong/truth/current_state.md (payload byte-identical)
+---
+
+---
 title: 当前状态
 project: 星火燃穹
 version: 0.2.2

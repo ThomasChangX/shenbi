@@ -4,8 +4,8 @@
 `skills/shenbi-snapshot-manage/SKILL.md`
 
 ## Test Setup
-A novel project has 11 truth files in the `tests/fixtures/truth/` directory. A snapshot was created at `tests/fixtures/snapshots/pre-chapter-25/` and is fully correct:
-- All 11 truth files included with non-zero size
+A novel project has the truth files registered in truth-files.yaml (mirrored under `tests/fixtures/truth/`). A snapshot was created at `tests/fixtures/snapshots/pre-chapter-25/` and is fully correct:
+- All registered truth files included with non-zero size
 - Post-creation checksum matches for every file
 - Metadata correctly reports 11 files archived
 - Snapshot format follows spec (create/view/list operations produce correct output)

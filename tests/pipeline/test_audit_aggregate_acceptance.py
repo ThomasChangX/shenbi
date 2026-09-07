@@ -35,7 +35,7 @@ def test_lossless_every_raw_finding_survives(tmp_path: Path):
     for u in units:
         assert u.text in out, f"finding lost: {u.text[:60]}"
     # 修复建议（WARNING 级）逐字存活——revision 的可操作输入
-    assert "了" in out and "密度" in out
+    assert "微微" in out and "破折号" in out  # 真实 fixture 的 WARNING/ERROR 修复要点逐字存活
     # 每份 raw 报告在聚合中被引用
     assert "chapter-1-consistency.md" in out
     assert "chapter-1-character.md" in out

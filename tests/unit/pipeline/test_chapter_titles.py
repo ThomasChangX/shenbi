@@ -29,8 +29,12 @@ def test_previous_titles_include_meta_first_chapters(tmp_path: Path) -> None:
     shutil.copy(_FIX / "chapter-7-example.md", chapters / "chapter-1.md")
     shutil.copy(_FIX / "chapter-8-example.md", chapters / "chapter-2.md")
     titles = _load_previous_titles(tmp_path, 3)
-    # both copies share the fixture's H1 -> one deduped key at the later chapter
-    assert titles == {"毕业即失业与穿越即负债": 2}
+    # real chapters 7/8 carry distinct H1s ("Chapter 7:" / "Chapter 8:");
+    # expectations are derived from the fixtures, not hardcoded prose
+    assert titles == {
+        _extract_chapter_title(_FIX / "chapter-7-example.md"): 1,
+        _extract_chapter_title(_FIX / "chapter-8-example.md"): 2,
+    }
 
 
 def test_title_lookup_corpus_scale(tmp_path: Path) -> None:

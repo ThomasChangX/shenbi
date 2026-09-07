@@ -4,7 +4,7 @@
 `skills/shenbi-review-resonance/SKILL.md`
 
 ## Test Setup
-A finished climax chapter has been written. The chapter plan declares `chapter_role: 高潮/兑现` with the core task "林烽在催收窗口亲眼读完整份债务条款，第一次看清债务奴隶机制的全貌——本章是全书'个人 vs 系统'对抗的认知高潮，情感交付必须震撼". The style profile is `tests/fixtures/style-profile-example.md`; anchors are `tests/fixtures/calibration/resonance/`.
+A finished climax chapter has been written. The chapter plan declares `chapter_role: 高潮/兑现` and requires the debt-slavery revelation to land as the cognitive and emotional climax of the whole book, with a devastating (震撼) emotional delivery. The style profile is `tests/fixtures/style-profile-example.md`; anchors are `tests/fixtures/calibration/resonance/`.
 
 The drafted climax passage under evaluation is:
 

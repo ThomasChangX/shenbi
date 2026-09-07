@@ -1,3 +1,8 @@
+---
+provenance: synthetic-sample
+source: outline-example.md (repo root, payload byte-identical mirror)
+---
+
 # 星火燃穹：位面解放战争史
 
 ## 基本信息

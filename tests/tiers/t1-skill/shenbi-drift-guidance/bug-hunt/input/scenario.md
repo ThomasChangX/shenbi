@@ -5,21 +5,21 @@
 
 ## Test Setup
 A novel project has completed chapter 14 and multiple audits have been run. The audit reports contain findings at different severity levels:
-- `tests/fixtures/audit-report-example.md`: Finding CC-F001 (error) — "Character Zhao Lin refers to an event that has not occurred yet"
-- `tests/fixtures/audit-report-example.md`: Finding CC-F002 (warning) — "Market scene lacks sensory detail"
-- `tests/fixtures/audit-report-example.md`: Finding CH-F001 (warning) — "Dialogue voice for Mei Ling inconsistent with profile in chapter 14"
-- `tests/fixtures/audit-report-example.md`: Finding PC-F001 (warning) — "Middle section pacing slows noticeably"
+- `tests/fixtures/audit-report-example.md`: 发现项 #1 (warning, voice) — 了字密度超标 at 行59 (neighbour dialogue)
+- `tests/fixtures/audit-report-example.md`: PRE_WRITE_CHECK 了字密度 row — WARNING (行 59)
+- `tests/fixtures/audit-report-example.md`: OOC 检测 — 未发现角色行为违反已建立的性格 (clean)
+- `tests/fixtures/audit-report-example.md`: 结果 header — 通过（1 warning, 0 errors）, 评分 9/10
 
-The drift guidance output at `tests/fixtures/report-example.txt` contains 3 drift items. One of the items is derived from the error-level finding CC-F001, presenting it as guidance for the next chapter.
+The drift guidance output at `tests/fixtures/report-example.txt` contains 3 drift items. One of the items is derived from the audit's single warning-level finding (发现项 #1), presenting the 了字密度 issue as guidance for the next chapter.
 
 ## Scenario
-The drift guidance incorrectly conducts an error-level finding forward. Finding CC-F001 is classified as "error" in the audit, meaning it represents a definitive problem that must be fixed (not forwarded as drift guidance). Only warnings should pass through to drift guidance. However, the drift guidance output includes an item based on CC-F001 that says "Next chapter should address the timeline inconsistency with Zhao Lin's reference."
+The drift guidance forwards a warning-level finding but strips its provenance. 发现项 #1 is classified as warning in the audit and carries a precise location anchor (行59). Warnings may pass through to drift guidance, but each forwarded item must carry its source finding's severity marker and location anchor so the guidance stays traceable. The drift guidance output includes an item based on 发现项 #1 that drops both the warning classification and the 行59 anchor.
 
 ## Planted Defect
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `tests/fixtures/report-example.txt`: drift item 1 | Classification violation — error-level finding CC-F001 (character refers to event that has not occurred) is conducted forward as drift guidance; only warnings should pass, errors must be blocked | error |
+| `tests/fixtures/report-example.txt`: drift item 1 | Provenance violation — drift item derived from audit 发现项 #1 (warning, 行59) drops both the severity marker and the 行59 location anchor; forwarded guidance must stay traceable to its source finding | error |
 
 ## Agent Task
-Run shenbi-drift-guidance quality check on the drift guidance output. The agent must detect that an error-level audit finding was incorrectly included in the drift guidance instead of being blocked.
+Run shenbi-drift-guidance quality check on the drift guidance output. The agent must detect that the forwarded warning-derived drift item lost its severity classification and location anchor.

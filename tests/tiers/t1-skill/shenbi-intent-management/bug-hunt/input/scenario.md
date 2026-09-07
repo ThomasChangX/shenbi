@@ -5,19 +5,19 @@
 
 ## Test Setup
 A novel project has the following state:
-- The human author has provided intent input: "Focus on developing the rivalry between Lin and Zhao; I want more tension in their interactions."
-- Drift guidance at `tests/fixtures/report-example.txt` contains 3 warning-level items about pacing, sensory detail, and dialogue voice.
+- The human author has provided intent input: "Focus on developing the protagonist's awakening arc; keep the tension between self-interest and conscience."
+- Drift guidance at `tests/fixtures/pending-hooks-example.md` carries hook-tracking items about pacing and unresolved threads.
 - `tests/fixtures/author-intent-example.md` contains the human's overall creative vision and preferences.
 - The agent runs shenbi-intent-management to update `tests/fixtures/author-intent-example.md`.
 
 ## Scenario
-The output at `tests/fixtures/author-intent-example.md` contains all the human-provided intent correctly, but also includes a creative suggestion that was NOT provided by the human: a P1 priority item reading "Consider introducing a romantic subplot between Lin and a secondary character to add emotional depth." This suggestion was not present in any human input, drift guidance, or author intent file. The AI generated this creative direction autonomously.
+The output at `tests/fixtures/author-intent-example.md` retains the human's declared constraints — the 创作约束 section still lists "1条副线：与老政委的师徒关系" and "1条情感线：对底层人民的共情觉醒" — but the update also appends a second emotional line (a romantic subplot for the protagonist and a secondary character) that appears in no human input, drift guidance, or prior intent file. The AI generated this creative direction autonomously, expanding the human's explicitly budgeted thread count.
 
 ## Planted Defect
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `tests/fixtures/author-intent-example.md`: P1 items section | Human sovereignty violation — AI added a creative suggestion "Consider introducing a romantic subplot between Lin and a secondary character to add emotional depth" that does not originate from any human input or drift guidance; the AI is making a creative decision rather than only organizing human input | error |
+| `tests/fixtures/author-intent-example.md`: 创作约束 section | Human sovereignty violation — human constraints budget exactly "1条副线：与老政委的师徒关系" and "1条情感线：对底层人民的共情觉醒", but the AI update appends an extra romance subplot line that originates from no human input or drift guidance; the AI is making a creative decision rather than only organizing human input | error |
 
 ## Agent Task
-Run shenbi-intent-management quality check on the current_focus.md output. The agent must detect that a creative suggestion was added by the AI that does not originate from human input.
+Run shenbi-intent-management quality check on the intent output. The agent must detect that a creative suggestion was added by the AI that does not originate from human input.

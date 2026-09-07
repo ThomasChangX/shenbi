@@ -1,4 +1,6 @@
 ---
+provenance: synthetic-sample
+source: hand-authored example structure (spec #54 C16)
 title: 章节摘要
 project: 星火燃穹：位面解放战争史
 version: 0.1.0

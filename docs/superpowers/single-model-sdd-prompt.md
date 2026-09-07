@@ -152,6 +152,7 @@
   - 测试层级与 fixture：每个测试声明 T1|T2|T3 归属 + `tests/fixtures/` 引用路径（G0.9：scenario 输入只能引用真实产物）
   - 验收覆盖表（spec 每条 `**验收：**` → task → 可执行验证命令）
   - 涉及评分的场景：声明 G3.4 独立评分子 agent 的调度方式（dispatcher 自评无效；阈值 ≥94 晋级 / ≥90 单项通过）
+  - **F947 规则（spec #54）**：spec 验收若依赖真实 LLM dispatch 或手写 mock，plan 阶段**必须**改写为可离线复验形式（fixtures 回放 / 结构断言）——不改写即该 task BLOCKED，禁止带入执行阶段
 
 ### 阶段 5 · Plan 审查
 

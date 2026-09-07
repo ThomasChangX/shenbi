@@ -47,7 +47,7 @@
 ## 验收标准（真实数据可复验）
 
 1. 产物 lint 全树基线跑批：清洗后同一 lint 在 novel-output 上报告 0 命中（清洗前计数 109 文件留存于审计 run 记录，前后对照可复验）
-2. 派发层修复后连续 2 次真实 dispatch（或回放 fixture 等价路径）产物 0 元叙述（人工抽查 + lint 双确认）
+2. 派发层修复后回放 fixture 等价路径（fixtures 驱动，禁真实 dispatch——spec #54 F947 离线化改写）产物 0 元叙述（人工抽查 + lint 双确认）
 3. 手算分数替换：2 章 resonance 与 ch51 trend 的机器重算值落盘，重算脚本与输入可从仓库复现（确定性 helper，无 LLM 依赖）
 4. `git grep -l "手动复制\|只读沙箱" novel-output/` 0 命中（模式族以 lint 定义为准）
 5. F1169 的 17 个 patches 回归例状态落账（applied/voided 二态，无第三态）

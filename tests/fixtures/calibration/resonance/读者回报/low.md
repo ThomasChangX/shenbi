@@ -1,3 +1,8 @@
+## provenance
+
+provenance: synthetic-sample
+source: tests/fixtures/calibration/resonance/读者回报/low.md（显式合成校准语料——2026-08 审计期构建，非 novel-output 真实章节；per spec #54 T3.10 降级标注）
+
 ## excerpt
 
 清晨，阳光洒进锈泥巷。林烽起了个大早，洗漱完毕，简单吃了早饭。他走出家门，吹着晨风，心情还算不错。沿着熟路到了矿场，他开始一天的工作，专心完成每项任务。同事们都很友善，大家相处融洽。下班后他回到家，做了顿可口的晚饭犒劳自己，又看了会儿窗外风景，便早早歇下。这就是他平凡而充实的一天。

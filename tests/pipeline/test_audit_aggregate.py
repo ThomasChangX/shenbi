@@ -17,11 +17,12 @@ def _content() -> str:
 
 
 def test_extract_captures_real_fixture_warning_findings():
-    # 真实 fixture：发现项表 warning 行 + 建议修复 **[WARNING]** 列表项
+    # 真实产物 fixture（novel-output anti-ai 审计副本）：表行 + **WARNING** 列表项
     units, ctx = extract_finding_units("chapter-1-consistency.md", _content())
     assert len(units) >= 2
-    assert all(u.severity == "WARNING" for u in units)
-    assert any("了" in u.text and "密度" in u.text for u in units)
+    assert {u.severity for u in units} == {"WARNING", "ERROR"}
+    assert any(u.severity == "WARNING" and "微微" in u.text for u in units)
+    assert any(u.severity == "ERROR" and "破折号" in u.text for u in units)
     # 上下文保留结果/评分行
     assert any("通过" in line for line in ctx)
     # 空表行（全 — 的 OOC 行）与 BDI PASS 行不得成为 finding
@@ -60,7 +61,7 @@ def test_render_is_lossless_and_deduped():
     for u in [*units, *units2]:
         merged.setdefault((u.severity, u.text), u)
     out = render_aggregate(1, list(merged.values()), {"chapter-1-consistency.md": ctx})
-    # 无损：每个 raw 单元的 text 都出现在聚合（fixture 有真实 WARNING，非空集）
+    # 无损：每个 raw 单元的 text 都出现在聚合（真实 fixture 有 WARNING，非空集）
     assert units, "fixture must yield at least one finding (non-vacuous)"
     for u in [*units, *units2]:
         assert u.text in out

@@ -1,4 +1,9 @@
 ---
+provenance: upstream-copy
+source: novel-output/xinghuo-ranqiong/truth/pending_hooks.md (payload byte-identical)
+---
+
+---
 title: 伏笔追踪
 project: 星火燃穹
 version: 0.2.2

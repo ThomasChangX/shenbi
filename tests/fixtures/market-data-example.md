@@ -1,3 +1,8 @@
+---
+provenance: synthetic-sample
+source: hand-authored example structure (spec #54 C16)
+---
+
 # Market Data: Chinese Web Novel Landscape (2025-2026)
 
 **数据用途**: 用于 `shenbi-market-research` 技能的测试 fixture。所有排名、月票数据、评分均为真实收集数据（来源：Qidian、Zhihu、各平台公开榜单，2025-2026）。标注"数据有限"的条目为信息不完整区域，需补充调研。
