@@ -148,7 +148,6 @@ class TestEmptyIssuesOnCleanContract:
                         {
                             "file": "chapters/chapter-N.md",
                             "mode": "merge_prose",
-                            "no_op_behavior": "skip_write",
                         }
                     ],
                 },

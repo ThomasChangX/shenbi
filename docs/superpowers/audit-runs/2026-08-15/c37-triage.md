@@ -12,7 +12,7 @@
 | F226 | no_op_behavior: skip_write 零消费 + skip_paths 参数从未被喂养 | src/shenbi/pipeline/dispatch_helper.py:1428+ 及 skills frontmatter | delete | T3 | 契约面同步 `just generate` |
 | F230 | from_markdown 不填 chapter_sequence，3-window 校验不可达 | src/shenbi/contracts/skills/pacing_design.py:67-72,82,131 | delete | T2 | 删不可达校验与透传；G4 no_beat_data 留空表 skip 路径 |
 | F243 | OutputKind.EPHEMERAL 死值 | src/shenbi/dispatcher/executor.py:87 | already-fixed | — | 已接线（#33 时代），注释在 :75 |
-| F313 | build_index 返回值即弃（仅 log） | src/shenbi/pipeline/chapter_loop.py:1174 | delete | T3 | 删该调用；build_index 本体有读者（CLI rebuild + query_index）保留 |
+| F313 | build_index 返回值即弃（仅 log） | src/shenbi/pipeline/chapter_loop.py:1174 | delete | T3 | 已删 _maybe_rebuild_truth_index 整函数+调用（audit-T3 I-1：留空壳即假防线）；build_index 本体有读者保留 |
 | F314 | volume_align 整模块死 | src/shenbi/pipeline/volume_align.py:52 | delete | T3 | 直测随删 |
 | F315 | CONDITIONAL_STEPS 死表（零消费；_get_last_drift_chapter 级联随删） | src/shenbi/pipeline/chapter_loop.py:439 | delete | T3 | |
 | F316 | _archive_chapter_state + compact_pipeline_state 零调用 | src/shenbi/pipeline/state.py:435,459 | delete | T3 | |

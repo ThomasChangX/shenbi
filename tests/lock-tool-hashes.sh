@@ -12,7 +12,7 @@ deps_path = project / 'tests' / 'tiers' / 'deps.json'
 deps = json.loads(deps_path.read_text(encoding='utf-8'))
 # PR-19 (P-1.E): validate-gate.py / scoring.py / phase-runner.py / summarize-round.py
 # moved to src/shenbi/. Hash the full src/shenbi/ tree so new helpers
-# (Wave 1+: revision_routing, escalation, foreshadowing_recall, etc.)
+# (Wave 1+: revision_routing, escalation, etc.)
 # are auto-included without manual list maintenance.
 tool_paths = [
     str(p.relative_to(project))

@@ -138,7 +138,8 @@ class ChapterStep:
 # Merged: 7 serial core-circle auditors → domain-grouped calls (MERGE-2).
 # Added: 4 deterministic steps (volume-align, context-prepare, post-draft-extract,
 #   linguistic-drift-check).
-# Conditional: intent-management, drift-guidance, snapshot-manage moved to
+# Conditional steps (intent-management, drift-guidance, snapshot-manage) were
+# removed with CONDITIONAL_STEPS (C37 F315: dead table, zero consumers).
 # NOTE: escalation-review is NOT a CHAPTER_STEPS entry — it is dispatched
 #   reactively by revision_router.dispatch_escalation (Spec 5).
 CHAPTER_STEPS: list[ChapterStep] = [
@@ -1134,15 +1135,6 @@ def _check_word_count_bounds(chapter_text: str) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# 10c: Truth-index periodic rebuild
-# ---------------------------------------------------------------------------
-
-
-def _maybe_rebuild_truth_index(project_dir: Path, chapter: int) -> None:
-    """Rebuild truth-index at volume boundaries or every 15 chapters."""
-
-
-# ---------------------------------------------------------------------------
 # 10e: World file freshness check
 # ---------------------------------------------------------------------------
 
@@ -1247,9 +1239,6 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
         cs = ChapterState()
         state.chapter_loop.chapter_states[key] = cs
     cs.status = ChapterStatus.COMPLETE
-
-    # 10c: Rebuild truth-index at volume boundaries or every 15 chapters
-    _maybe_rebuild_truth_index(project_dir, chapter)
 
     # 10e: Check world file freshness at volume boundaries
     _check_world_file_freshness(project_dir, chapter)
