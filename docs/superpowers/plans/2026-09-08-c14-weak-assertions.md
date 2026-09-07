@@ -70,7 +70,7 @@ def test_modify_rolls_back_step_index_via_cmd_review(tmp_path, monkeypatch):
     )
     rc = pipeline_cli.cmd_review(args)
 
-    assert rc in (0, None)
+    assert rc == 0
     reloaded = load_state(project)  # cmd_review 保存的是它自己的副本——必须重载
     assert reloaded.chapter_loop.step_index == 1  # CHAPTER_STEPS[1] = chapter-planning
     assert reloaded.chapter_loop.modify_feedback == "Fix the pacing in section 3"
@@ -144,41 +144,37 @@ def test_lockfile_mutual_exclusion_via_acquire_lock(tmp_path):
         except Exception as exc:  # noqa: BLE001 - record for assertion
             results["error"] = exc
 
-    t = threading.Thread(target=try_second)
+    t = threading.Thread(target=try_second, daemon=True)  # daemon：失败路径 flock 无超时，防套件挂死
     t.start()
     t.join(timeout=2.0)
-    # 在持锁窗口内，第二个获取不得成功返回
-    assert "second" not in results, f"mutual exclusion broken: {results['second']}"
+    # 先释放锁，再断言（断言失败时不应留下持锁线程阻塞解释器关闭）
     import os
 
     os.close(fd1)
     if lock1 is not None:
         lock1.unlink()
+    # 在持锁窗口内，第二个获取不得成功返回
+    assert "second" not in results, f"mutual exclusion broken: {results.get('second')}"
 ```
 
 保留/补一条权限断言测试——**POSIX 下 `_acquire_lock` 走 flock 分支不产 lockfile**，须强制 O_EXCL fallback（monkeypatch `fcntl` 导入失败，同文件已有先例 `test_safe_write_lockfile_fallback_cleanup_posix`），在 fallback 产出 lockfile 后断言 `stat().st_mode & 0o777 == 0o600`，删除 raw `os.open`+`os.chmod` 自建 lockfile 的同义反复体。
 
 - [ ] **Step 4: F702 weight_mismatch 双向断言**
 
-`test_scoring.py:435-444` 删 `or True`，改为：
+`test_scoring.py:435-444` 删 `or True`。**注意：scoring 用 structlog（PrintLoggerFactory → stderr），不走 stdlib logging，caplog 收不到**——原 `or True` 掩盖的正是这一点。断言打在 stderr 上：
 
 ```python
-def test_weight_mismatch_warns_and_clean_input_silent(caplog):
-    """total_weight != 100 warns; == 100 stays silent — both directions pinned."""
-    import logging
-
+def test_weight_mismatch_warns_and_clean_input_silent(capsys):
+    """total_weight != 100 warns on stderr; == 100 stays silent — both pinned."""
     from shenbi.scoring import compute_score
 
     dims = [{"num": 1, "weight": 60}, {"num": 2, "weight": 50}]  # 110 != 100
-    with caplog.at_level(logging.WARNING):
-        compute_score(dims, {1: 100, 2: 100})
-    assert any("weight_mismatch" in r.getMessage() for r in caplog.records)
+    compute_score(dims, {1: 100, 2: 100})
+    assert "weight_mismatch" in capsys.read_outerr().err
 
-    caplog.clear()
     dims_ok = [{"num": 1, "weight": 60}, {"num": 2, "weight": 40}]  # == 100
-    with caplog.at_level(logging.WARNING):
-        compute_score(dims_ok, {1: 100, 2: 100})
-    assert not any("weight_mismatch" in r.getMessage() for r in caplog.records)
+    compute_score(dims_ok, {1: 100, 2: 100})
+    assert "weight_mismatch" not in capsys.read_outerr().err
 ```
 
 - [ ] **Step 5: F728 注入块自证壳清除**
@@ -230,7 +226,7 @@ git commit -m "test: C14 T1 — rewrite five self-proving shells to production-p
 **Files:**
 - Modify: `tests/unit/pipeline/test_review_checklist.py:207-209`（F703）
 - Modify: `tests/unit/test_scoring.py:517-556`（F705）
-- Modify: `tests/test_bridge_tracker.py:13-24`、`tests/unit/gates/g4/test_state_settling.py:166-167`（F712）
+- Modify: `tests/unit/pipeline/test_bridge_tracker.py:13-24`、`tests/unit/gates/g4/test_state_settling.py:166-167`（F712）
 - Modify: `tests/unit/gates/test_g6.py:637-640`（F713）
 - Modify: `tests/unit/pipeline/test_field_filtering.py`（F719）
 
@@ -239,7 +235,7 @@ git commit -m "test: C14 T1 — rewrite five self-proving shells to production-p
 - [ ] **F712**：两文件共 3 处 `pytest.skip("... not yet created")` 死守卫删除，直接执行；若执行暴露真失败按 pinned-bug 政策立案不回退
 - [ ] **F713**：`if g610 is not None: assert ...` → `assert g610 is not None, "D16 check must exist"; assert g610["s"] != "SKIP"`（检查缺失即 FAIL）
 - [ ] **F719**：docstring/测试名改为如实描述 `filter_to_fields` 本体单测（删"dispatch_helper read loop delegates"虚假集成声称），文件头注释同步
-- [ ] 运行：`uv run pytest tests/unit/pipeline/test_review_checklist.py tests/unit/test_scoring.py tests/test_bridge_tracker.py tests/unit/gates/g4/test_state_settling.py tests/unit/gates/test_g6.py tests/unit/pipeline/test_field_filtering.py -q` → 全 PASS，skip 数较改前下降
+- [ ] 运行：`uv run pytest tests/unit/pipeline/test_review_checklist.py tests/unit/test_scoring.py tests/unit/pipeline/test_bridge_tracker.py tests/unit/gates/g4/test_state_settling.py tests/unit/gates/test_g6.py tests/unit/pipeline/test_field_filtering.py -q` → 全 PASS，skip 数较改前下降
 - [ ] Commit `test: C14 T2a — concrete-value assertions, tmp_path isolation, dead-skip removal (F703/F705/F712/F713/F719)`（显式列 6 文件）→ 产出 audit-T2.md
 
 ---
