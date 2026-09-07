@@ -58,7 +58,7 @@
 | C8 | 状态/词表多源 | 24 | B | enums.py 收编 + lint 补洞（是 C1/C29 的词表输入，实际执行宜提前） |
 | C15 | 关键零覆盖 | 12 | B | 补测 + 覆盖率 per-module 底线（依赖 C14/C16 先治断言与 fixture） |
 
-状态速览（2026-09-07）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）9 簇关闭（C32 Rejected、余 8 Done，PR #149-#170），仅 C36/C37 活跃（#50/#51）；批次 B（C14-C26）活跃。承接关系以 §7 为准。
+状态速览（2026-09-07）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）9 簇关闭（C32 Rejected、余 8 Done，PR #149-#170），仅 C37 活跃（#51；C36 Done PR #176）；批次 B（C14-C26）活跃。承接关系以 §7 为准。
 
 ## 3. 跨簇依赖顺序（关键链）
 
@@ -163,7 +163,7 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C33 ✅ Done (PR #164) | 重试/失败分类分裂 | 11 | P1 | archive/2026-08-16-c33-retry-failure-taxonomy-design.md | C | M | C32+C10 |
 | C34 ✅ Done (PR #168 · spec #48 于 #167 重写) | 路径/布局契约分裂 | 14 | P1 | archive/2026-08-16-c34-path-layout-contract-design.md | C | M | —（C1 验收地基） |
 | C35 ✅ Done (PR #170) | 审计过程自身缺陷 | 18 | P1 | archive/2026-08-16-c35-audit-process-hygiene-design.md | C | M | —（全程并行） |
-| C36 | print 违禁散点 | 3 | P1 | c36-print-purity-design.md | C | S | — |
+| C36 ✅ Done (PR #176) | print 违禁散点 | 3 | P1 | archive/2026-09-07-spec50-c36-print-purity-Done-PR176.md | C | S | — |
 | C37 | 死代码零执法 | 43 | P1 | c37-dead-code-enforcement-design.md | C | L | C3/C7/C19/C28 裁决 |
 
 列校验：条数列合计 = 774；P0 行 7（C1/C3/C4/C10/C11/C16/C32）合计 191；P2 行 4（C8/C15/C24/C29）合计 100；P1 行 26 合计 483——与 §1 总览一致。C26 文件名为 `2026-08-16-audit-shell-injection-fix.md`（批次 B 登记为 INDEX #64，占位消除）。
