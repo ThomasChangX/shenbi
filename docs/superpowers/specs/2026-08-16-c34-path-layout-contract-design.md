@@ -26,7 +26,7 @@
 ### R1 · 路径协议成文 + 布局探测单源（F413 + F407 + 全簇地基）
 - **模块家宅定死**：`Layout.detect(project_dir)` 落在 `src/shenbi/paths.py`（RoundPaths 已自declare 单一信源，禁止另立 gates/paths.py 第三权威）；`resolve_input_path`（gates/shared.py）保持为 checker 入口薄封装，协议文档声明两者分工（RoundPaths=round 级读写根对象，resolve_input_path=单文件相对解析）；顺带消除 `RoundPaths.read()` 的 rd→project_dir 静默回退（paths.py:24，与 F401 修复确立的"无静默回退"信条对齐——回退改为显式 ValueError 或成文豁免）
 - 协议写入 docs/framework/paths.md（含 rd≠project_dir 的 T2 调用矩阵）；G0.3/G0.cc 布局扫描与 chapter_drafting.py:265-267 的 skill-output 上溯（布局探测性质）改走 detect() 单源
-- **RoundPaths.read() 回退消除的调用方迁移面**（rd→project_dir fallthrough 的依赖方，`rp.read()` 共 11 个 checker 文件 / 21 处调用点）：g4/pacing_design.py:36-44、g4/foreshadowing_track.py:30、g4/faction_builder.py:30、g4/location_builder.py:30、g4/relationship_map.py:30、g4/story_architecture.py、g4/worldbuilding.py、g4/character_design.py、g4/plot_thread_weaver.py、g4/power_system.py、g4/volume_outlining.py——全部显式传根（rd 命中优先、miss 显式转 project_dir 并记 debug 日志），禁止静默 fallthrough；实现时以 `git grep -n '\.read(' -- src/shenbi/gates/g4/` 复核清单闭包
+- **RoundPaths.read() 回退消除的调用方迁移面**（rd→project_dir fallthrough 的依赖方，`rp.read()` 共 11 个 checker 文件 / 21 处调用点）：g4/pacing_design.py:42、g4/foreshadowing_track.py:36、g4/faction_builder.py:36、g4/location_builder.py:36、g4/relationship_map.py:36/:63、g4/story_architecture.py、g4/worldbuilding.py、g4/character_design.py、g4/plot_thread_weaver.py、g4/power_system.py、g4/volume_outlining.py——全部显式传根（rd 命中优先、miss 显式转 project_dir 并记 debug 日志），禁止静默 fallthrough；实现时以 `git grep -n '\.read(' -- src/shenbi/gates/g4/` 复核清单闭包
 - **fixture 策略（G0.9 合规）**：三布局 fixture 用 tmp_path 从 `tests/fixtures/` 真实产物组装（复制既有真实文件成布局形状，不手造内容）；"定位到同一文件"的逐布局映射表：skill-output=skill-output/&lt;proj&gt;/、novel-output=novel-output/&lt;proj&gt;/、project-output=rd/project-output/，同一目标文件=同一 fixture 源文件置于各布局对应目录
 - **验收**：`git grep -n "skill-output" -- src/shenbi/gates/` 的命中仅剩 detect() 消费侧与既有非探测豁免点（G0.6 可写性检查文案与注释 g0.py:329/330/340/346/356、g7.py:72/88 语义检查——以上为语义/文案使用非布局探测，成文豁免清单）；三布局 tmp 组装 fixture 各跑一遍 G4 定位到同一文件
 
@@ -53,7 +53,7 @@
 - 回写步骤须同步 INDEX #48 条目的修订状态注记（11 存活 + 3 出簇）
 
 ## 验证命令
-- 布局探测单源：`git grep -n "skill-output" -- src/shenbi/gates/` 命中全部落入 detect() 消费侧或 R1 成文豁免清单（布局探测语义命中仅剩探测表）
+- 布局探测单源：`git grep -n "skill-output" -- src/shenbi/gates/` 命中全部落入 detect() 消费侧或 R1 成文豁免清单（布局探测语义命中仅剩 detect() 探测表一处）
 - 路径矩阵：`pytest tests/unit/gates/test_path_resolution.py -q`（3 布局 × rd 传/不传 × 相对/绝对 × CWD 两态 × project_dir 两态参数化）
 - F433 复现：project-output 布局 + project_dir≠rd round 上 `shenbi-validate G4` PWI findings 定位成功
 - 观测面同根：CWD≠project_dir 下 drift 写入位置不变（单测断言）+ CapabilityFS 相对路径锚定 allow_root（单测断言）
