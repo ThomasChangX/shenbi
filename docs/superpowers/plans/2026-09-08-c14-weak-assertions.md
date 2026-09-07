@@ -40,7 +40,7 @@
 
 - [ ] **Step 1: F704 step 回滚站点重写**
 
-删除 `test_cli.py:815-830`（`test_modify_rolls_back_step_index` 类站点，"Simulate MODIFY: step_index should roll back to 1" 测试体内自映射 step_index），替换为走 `cmd_review` 生产路径：
+删除 `test_cli.py:815-830`（`test_modify_rolls_back_step_index` 类站点，"Simulate MODIFY: step_index should roll back to 1" 测试体内自映射 step_index），替换为走 `cmd_review` 生产路径。**关键**：状态文件名是 `pipeline-state.json`（machine.py:23 `STATE_FILENAME`），且 `cmd_review` 内部 `load_state` 得到自己的 state 副本——断言必须打在 **重新 load 的 state** 上，不得用测试本地旧对象（否则假通过）：
 
 ```python
 def test_modify_rolls_back_step_index_via_cmd_review(tmp_path, monkeypatch):
@@ -48,7 +48,7 @@ def test_modify_rolls_back_step_index_via_cmd_review(tmp_path, monkeypatch):
     import argparse
 
     from shenbi.pipeline import cli as pipeline_cli
-    from shenbi.pipeline.machine import set_checkpoint
+    from shenbi.pipeline.machine import load_state, save_state, set_checkpoint
     from shenbi.pipeline.state import CheckpointType, PipelineState, ReviewDecision
 
     project = tmp_path / "proj"
@@ -56,12 +56,10 @@ def test_modify_rolls_back_step_index_via_cmd_review(tmp_path, monkeypatch):
     state = PipelineState.default(str(project))
     state.chapter_loop.current_chapter = 3
     state.chapter_loop.step_index = 5
-    state_save = project / "state.json"
-    state.save(str(state_save))
+    save_state(project, state)
     set_checkpoint(state, CheckpointType.CHAPTER_MEMO, chapter=3, artifact="plans/chapter-3-plan.md")
-    state.save(str(state_save))
+    save_state(project, state)
 
-    monkeypatch.setattr(pipeline_cli, "_commit_staging_for_checkpoint", lambda *a, **k: None)
     monkeypatch.setattr(pipeline_cli, "_queue_re_dispatches", lambda *a, **k: None)
 
     feedback = project / "feedback.md"
@@ -70,15 +68,15 @@ def test_modify_rolls_back_step_index_via_cmd_review(tmp_path, monkeypatch):
     args = argparse.Namespace(
         project_dir=str(project), decision=ReviewDecision.MODIFY.value, feedback=str(feedback),
     )
-    # 依照 cmd_review 实际 argparse 字段名调整（先 grep add_argument 核对）
     rc = pipeline_cli.cmd_review(args)
 
     assert rc in (0, None)
-    assert state.chapter_loop.step_index == 1  # CHAPTER_STEPS[1] = chapter-planning
-    assert state.chapter_loop.modify_feedback == "Fix the pacing in section 3"
+    reloaded = load_state(project)  # cmd_review 保存的是它自己的副本——必须重载
+    assert reloaded.chapter_loop.step_index == 1  # CHAPTER_STEPS[1] = chapter-planning
+    assert reloaded.chapter_loop.modify_feedback == "Fix the pacing in section 3"
 ```
 
-注：`cmd_review` 的 argparse 字段集先 `grep -n "add_argument" src/shenbi/pipeline/cli.py` 核对后对齐；若 cmd_review 需要 review 子命令分发（`shenbi-pipeline review`），字段名以其 review parser 为准。
+注：review parser 字段为 `project_dir`（positional）/ `decision`（choices）/ `--feedback`（cli.py:1111-1113）——Namespace 字段名以 parser 定义为准核对。MODIFY 分支的 in-function import `discard_staging` 对无 staging 的 tmp 项目可容忍（`_load_staging_meta` 处理缺失），不需 monkeypatch。回滚映射为 CHAPTER_MEMO→1、STATE_SETTLE→**7**（cli.py:678-686；旧测试自模拟的 6 本身就是错的——pinned-bug 风险点，若暴露真差异按 finding 立案）。
 
 - [ ] **Step 2: F704 prompt 注入站点重写**
 
@@ -92,10 +90,16 @@ def test_modify_injects_feedback_into_dispatch_prompt(tmp_path, monkeypatch):
 
     captured: dict[str, object] = {}
 
+    class FakeResult:  # dispatch_skill 返回 SkillResult 形（success/returncode/stderr 等）
+        success = True
+        returncode = 0
+        stderr = ""
+        stdout = "ok"
+
     def fake_dispatch(skill, project_dir, prompt, *args, **kwargs):  # signature 对齐 dispatch_skill
         captured["skill"] = skill
         captured["prompt"] = prompt
-        return "ok"
+        return FakeResult()
 
     monkeypatch.setattr(chapter_loop, "dispatch_skill", fake_dispatch)
     state = PipelineState.default(str(tmp_path))
@@ -109,7 +113,7 @@ def test_modify_injects_feedback_into_dispatch_prompt(tmp_path, monkeypatch):
     assert state.chapter_loop.modify_feedback is None  # one-shot consumption
 ```
 
-注：`dispatch_skill` 在 chapter_loop 中的调用形参先 `grep -n "dispatch_skill(" src/shenbi/pipeline/chapter_loop.py` 核对并对齐 fake 签名；`run_chapter_step` 前置（G4/重试等）若对 tmp_path 状态有要求，用 `PipelineState.default` + 最小 chapter 配置满足；若 step 1 的 chapter-planning 因 contract 缺失抛错，monkeypatch 该 step 的 G4 校验入口（最小面）并记录 deviation。
+注：`run_chapter_step` 在 dispatch 后立即读 `result.success/.returncode/.stderr`（chapter_loop.py:3061+），fake 必须返回 SkillResult 形对象（如上 FakeResult）。若 chapter-planning 因 tmp_path 无产物在 G4 处失败，monkeypatch 该 step 的 G4 入口（最小面）并记 deviation。
 
 - [ ] **Step 3: F701 lockfile 互斥重写**
 
@@ -152,7 +156,7 @@ def test_lockfile_mutual_exclusion_via_acquire_lock(tmp_path):
         lock1.unlink()
 ```
 
-保留/补一条权限断言测试（走真实 `_acquire_lock` 产出的 lockfile，断言 `stat().st_mode & 0o777 == 0o600`），删除 raw `os.open`+`os.chmod` 自建 lockfile 的同义反复体。
+保留/补一条权限断言测试——**POSIX 下 `_acquire_lock` 走 flock 分支不产 lockfile**，须强制 O_EXCL fallback（monkeypatch `fcntl` 导入失败，同文件已有先例 `test_safe_write_lockfile_fallback_cleanup_posix`），在 fallback 产出 lockfile 后断言 `stat().st_mode & 0o777 == 0o600`，删除 raw `os.open`+`os.chmod` 自建 lockfile 的同义反复体。
 
 - [ ] **Step 4: F702 weight_mismatch 双向断言**
 
@@ -183,23 +187,27 @@ def test_weight_mismatch_warns_and_clean_input_silent(caplog):
 
 - [ ] **Step 6: F729 期望键集 pin**
 
-`test_dispatch_helper_keys.py:38-40` 恒真守卫改为硬编码期望列表：
+`test_dispatch_helper_keys.py:38-40` 恒真守卫改为硬编码期望列表 **并驱动真实注入块**（`_build_skill_prompt(shared_context=ctx)`，ctx 用 `build_shared_audit_context` 或复用 `tests/unit/pipeline/test_dispatch_helper_read_suppression.py` 的真实构造）：
 
 ```python
-EXPECTED_KEYS = [
-    "truth/world_rules.md",
+EXPECTED_INJECTION_KEYS = [
+    "world/rules.md",             # C28 R1 (F312): canonical, 旧 truth/ 键是 phantom
     "truth/character_matrix.md",
-    "truth/style_profile.md",
+    "style/style_profile.md",     # C28 R1 (F312): canonical
     "truth/pending_hooks.md",
 ]
-def test_injection_keys_are_canonical(tmp_path):
-    from shenbi.pipeline.dispatch_helper import _input_key
+def test_injection_block_keys_are_pinned(tmp_path):
+    from tests.unit.pipeline.test_dispatch_helper_read_suppression import <ctx 构造 helper>
 
-    for rel in EXPECTED_KEYS:
-        assert _input_key(tmp_path / rel, tmp_path) == rel
+    ctx = <真实 SharedAuditContext 构造（复用 read_suppression 测试的写法）>
+    _, user_prompt, _ = _build_skill_prompt(
+        <chapter-planning skill>, tmp_path, "do it", 1, shared_context=ctx,
+    )
+    for key in EXPECTED_INJECTION_KEYS:
+        assert key in user_prompt, f"injection key drifted: {key}"
 ```
 
-期望列表以当前 main 生产 SharedAuditContext 实际注入文件集为准（`grep -n "shared_context" src/shenbi/pipeline/dispatch_helper.py` 核对），key 漂移即红。
+生产注入键源为 dispatch_helper.py:707-727 `_INJECT_FROM_CACHE`（`world/rules.md`、`truth/character_matrix.md`、`style/style_profile.md`、`truth/pending_hooks.md`）——期望列表必须与该处对齐，`_INJECT_FROM_CACHE` 键漂移即红。`_input_key` 本体的相对路径语义另以 `assert _input_key(tmp_path / rel, tmp_path) == rel` 保持覆盖。
 
 - [ ] **Step 7: 运行本文件测试**
 
@@ -292,8 +300,9 @@ git commit -m "test: C14 T1 — rewrite five self-proving shells to production-p
   - `grep -rn "or True" tests/ --include="*.py"` → 仅 allowlist 1 命中
   - `grep -rn "assert len(.*) >= 0" tests/` → 零命中
   - `grep -n "from shenbi\|import shenbi" tests/pipeline/test_audit_context_cache.py tests/unit/pipeline/test_cli.py` → 非空 + 人工复查无重实现块
-  - `uv run pytest -n auto -m "not last"` 全绿，skip 数 == 526（基线持平或更低）
+  - `uv run pytest -n auto -m "not last"` 全绿 + `just test` 全绿，skip 数 == 526（基线持平或更低）
   - F705 修复后测试运行前后 `git status` 干净
+  - `uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py tests/pipeline/test_audit_context_cache.py --cov=src/shenbi/pipeline/dispatch_helper --cov-report=term` 中注入块行（dispatch_helper.py:707-727）覆盖 >0（验收 6）
 - [ ] Commit（如有 meta 记录文件；否则零 commit，证据直接进 progress.md）→ 产出 audit-T5.md
 
 ---
@@ -307,5 +316,5 @@ git commit -m "test: C14 T1 — rewrite five self-proving shells to production-p
 | 3. 红灯验证记录 | T5 | PR 描述 |
 | 4. 全绿无新 skip | T5 | pytest 摘要 |
 | 5. deps.json 不被改写 | T2a(F705)+T5 | git status |
-| 6. 注入块覆盖不回退 | T1(F728) | pytest 相关文件 PASS |
+| 6. 注入块覆盖不回退 | T1(F728)+T5 | `--cov=src/shenbi/pipeline/dispatch_helper` 注入块行 :707-727 覆盖 >0 |
 | 7. 直测对象生产可达 | T1-T4 | basedpyright 门（just check 内含） |
