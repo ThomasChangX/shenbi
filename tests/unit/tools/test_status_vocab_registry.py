@@ -14,9 +14,8 @@ def test_registry_has_full_domain_count() -> None:
     # T9 matrix: 36 declared domains + ownerless production domains consolidated.
     # +1 C33 (spec #47 R1): FailureClass dispatch 失败分类域.
     # Exact count pins the registry against silent row loss.
-    assert (
-        len(rows) == 43
-    )  # C37: RecoveryStrategy row removed with dead recovery.py, f"registry row count changed: {len(rows)}"
+    # C37: RecoveryStrategy row removed with dead recovery.py (44 -> 43).
+    assert len(rows) == 43, f"registry row count changed: {len(rows)}"
 
 
 def test_every_row_resolves_with_equal_values() -> None:
