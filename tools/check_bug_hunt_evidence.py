@@ -85,7 +85,7 @@ def verify_scenario(skill_bug_hunt_dir: Path, fixtures_root: Path) -> list[str]:
             continue
         try:
             text = doc.read_text(encoding="utf-8")
-        except OSError:
+        except (OSError, UnicodeDecodeError):
             continue
         for ref, lineno, anchor in parse_evidence_lines(text):
             fixture_path = fixtures_root / ref.removeprefix("tests/fixtures/")
@@ -100,8 +100,8 @@ def verify_scenario(skill_bug_hunt_dir: Path, fixtures_root: Path) -> list[str]:
                 continue
             try:
                 content_lines = fixture_path.read_text(encoding="utf-8").splitlines()
-            except OSError:
-                continue
+            except (OSError, UnicodeDecodeError):
+                continue  # binary fixture: pointer checks meaningless, skip
             if lineno is not None:
                 n = int(lineno)
                 if n < 1 or n > len(content_lines):

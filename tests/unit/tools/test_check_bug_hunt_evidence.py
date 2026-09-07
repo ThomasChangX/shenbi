@@ -81,10 +81,19 @@ def test_no_fixture_ref_lines_ignored(tmp_path: Path) -> None:
     assert verify_scenario(bh, tmp_path / "fixtures") == []
 
 
+def test_populated_dir_reference_ok(tmp_path: Path) -> None:
+    """Existing non-empty dir ref is a legitimate scope pointer (F789 positive case)."""
+    fixtures = tmp_path / "fixtures"
+    (fixtures / "audits").mkdir(parents=True)
+    (fixtures / "audits" / "a.md").write_text("x\n", encoding="utf-8")
+    bh = _make_bh(tmp_path, scenario="audits under `tests/fixtures/audits/`", expected="ok")
+    assert verify_scenario(bh, fixtures) == []
+
+
 @pytest.mark.parametrize("args,expected", [([], 1), (["--warn-only"], 0)])
 def test_cli_exit_codes(args: list[str], expected: int, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(check_bug_hunt_evidence, "T1", PROJECT / "tests" / "tiers" / "t1-skill")
     monkeypatch.setattr(sys, "argv", ["prog", *args])
-    # real library currently has violations (pre-migration); exit code per mode
+    # real library currently holds 11 empty-dir violations → strict rc 1, warn rc 0
     rc = check_bug_hunt_evidence.main()
-    assert rc in (0, expected)
+    assert rc == expected

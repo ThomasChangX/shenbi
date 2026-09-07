@@ -60,14 +60,14 @@ def load_provenance(fixture_path: Path) -> str | None  # frontmatter 或 sidecar
 
 **Files:**
 - Create: `tools/check_bug_hunt_evidence.py`
-- Modify: `.pre-commit-config.yaml`（新增 hook，WARN 阶段 `--warn-only`）
+- Modify: `.pre-commit-config.yaml`（新增 hook，WARN 阶段 `--warn-only`；**升级判据 = 严格模式现场扫描 == 0 violations**——Task 3 清掉空目录引用后同 PR 移除 `--warn-only`，对齐 T0 波次升级协议）
 - Modify: `tests/tiers/t1-skill/*/bug-hunt/{input/scenario.md,expected/expected-output.md}`（含 `_template`；文法迁移 + 证据修复，清单执行时 `grep -rl expected-output tests/tiers` 现推导）
 - Test: `tests/unit/tools/test_check_bug_hunt_evidence.py`
 
 **Interfaces:**
 ```python
 # tools/check_bug_hunt_evidence.py
-# 证据行文法: 行含 `tests/fixtures/<file>` 且含 `L<digits>` 或 8+ 字符锚文本
+# 证据行文法: 行含 `tests/fixtures/<file>` 且含 `L<digits>` 或 ≥4 非空白字符锚文本（任意引号样式「」/curly/ASCII）
 def parse_evidence_lines(text: str) -> list[tuple[str, str | None, str | None]]  # (fixture_rel, lineno, anchor)
 def verify_scenario(skill_bug_hunt_dir: Path, fixtures_root: Path) -> list[str]  # 违规描述
 # CLI: python tools/check_bug_hunt_evidence.py [--warn-only]; 退出码 0/1；pre-commit 阶段用 --warn-only
