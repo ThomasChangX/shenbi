@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v3
       - run: sudo apt-get update && sudo apt-get install -y libcairo2-dev
       - run: uv sync --frozen --group docs
@@ -25,7 +25,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v3
       - run: sudo apt-get update && sudo apt-get install -y libcairo2-dev
       - run: uv sync --frozen --group docs

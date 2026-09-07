@@ -12,7 +12,7 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v3
       # Spec #41 (C27) R1: 审计对象 = uv.lock 全集（--all-groups 含 docs 组，
       # --all-extras 含 embeddings；默认 export 仅 prod+dev 是 T1303 盲区）。
