@@ -52,3 +52,6 @@
 ## 桶计数（核对）
 already-fixed 13（F243/F319/F321/F346/F366/F512/F611/F633/F634/F635/F636/F903/F1027——F633-636 计 4 行）+ delete 27 + wire 1（F325）+ defer 2（F368/F886）= 43 ✓
 （执行中改行须同步本表与 spec-deviations；commit 9bbc862b 消息中 "12 already-fixed" 为笔误，实为 13）
+
+## R3 执法首跑表外新发现（deviation 补登）
+- `_audit_context_coverage`（chapter_loop.py，零调用、仅直测）——R3 basedpyright reportUnusedFunction 执法首跑发现，属 C37 簇同类死面；已删（含直测 tests/unit/pipeline/test_context_audit.py），commit 490da516。表外删除豁免依据：与 F793"死函数被直测"同模式、spec 目标 1"零无主残留"直接覆盖；补登于此保持硬闸审计链完整。

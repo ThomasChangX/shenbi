@@ -1623,7 +1623,7 @@ def _write_parsed_outputs(
 #: template's body is derived from the union of consumer-declared ``fields:``
 #: (fix D21) rather than a bare H1, so skills that read e.g.
 #: ``truth/current_state.md [系统演化阶段, 参数当前位置, 进行中的情节线]`` find their H2
-#: headings present on first run instead of tripping G1 ``check_fields_exist``.
+#: headings present on first run (G1 field-drift soft check was removed in C37).
 _TRUTH_FILE_TITLES: dict[str, tuple[str, str]] = {
     "current_state.md": ("Current State", "replace"),
     "character_matrix.md": ("Character Matrix", "replace"),

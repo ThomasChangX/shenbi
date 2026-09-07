@@ -8,6 +8,14 @@
 
 **Tech Stack:** Python 3.11+/uv、pytest、vulture（新增 dev 依赖）、just、GitHub Actions。
 
+## 执行偏离记录（2026-09-07 执行完毕后回填）
+
+- **T5 工具选型变更**：vulture → basedpyright `reportUnusedFunction` + `tools/lint_dead_code_allowlist.py` 冻结白名单 lint（just check + ci.yml 接线）。理由：vulture 在 60 置信度下被 pydantic 模型字段噪音淹没（数百条 unused variable），白名单不可维护；basedpyright 已是 strict 门、对本簇核心模式（私有函数零调用）零误报。spec R3 段与验证命令已同步修订。vulture 依赖曾短暂加入后移除（pyproject/uv.lock 对 main 零净 diff）。
+- **T3 执行修正**：F641 仅删 is_idempotent（serialize_records 有生产消费保留）；F315 级联删 _get_last_drift_chapter；F313 深化为删 _maybe_rebuild_truth_index 整函数（留空壳=假防线）。
+- **T5 表外新发现**：_audit_context_coverage 零调用已删（triage 补登段）。
+- **T6 回写目标勘误**：spec 验收回写指向 2026-08-15/findings-ledger.md（非 2026-08-14——彼库 F108=safe_write 属另一审计，编号错位）。
+- 全部 task checkbox 已执行完毕（本 plan 随 spec #51 归档）。
+
 ## Global Constraints
 
 - 每删除必先过 R0 表认领；表外删除禁止
@@ -31,11 +39,11 @@
 
 预裁基准（执行时逐行复核后定稿）：already-fixed 7（F243/F346/F366/F512/F611/F903/F1027）；delete ~24（F108/F109/F110/F118/F226/F230 验证段/F314/F315+F793 drift/F316/F325 或 wire/F343+T1612/F345/F368 或 defer/F378/F427 合一/F471/F622 recall helper/F632 migrate/F631 组内 trace compact()/F641/F642 余量/F706/T301/T1506）；defer ≤5（F886 genesis 断流=产品缺陷、F319/F321 现判、F313 rebuild-即弃半面、F368 视 C33 语义）。
 
-- [ ] **Step 1:** 逐 finding 打开当前 main 的 file:line 复核形态（阶段 1 驳斥表为底稿，F319/F321 按重构后代码现判：`src/shenbi/pipeline/review_checklist.py:426` split 段、`chapter_loop.py:2891+` 串行/并行审计路径）
-- [ ] **Step 2:** 写表 43 数据行，每行一桶一执行者；行首锚定 `| F###`/`| T###`
-- [ ] **Step 3:** 验证行数：`python3 -c "import re,pathlib; t=pathlib.Path('docs/superpowers/audit-runs/2026-08-15/c37-triage.md').read_text(); print(len(re.findall(r'^\| [FT]\d', t)))"` 输出 `43`
-- [ ] **Step 4:** Commit `docs(c37): R0 triage table — 43 findings bucketed per current main`
-- [ ] **Step 5:** 产出 audit-T1.md（fresh-context 重审）
+- [x] **Step 1:** 逐 finding 打开当前 main 的 file:line 复核形态（阶段 1 驳斥表为底稿，F319/F321 按重构后代码现判：`src/shenbi/pipeline/review_checklist.py:426` split 段、`chapter_loop.py:2891+` 串行/并行审计路径）
+- [x] **Step 2:** 写表 43 数据行，每行一桶一执行者；行首锚定 `| F###`/`| T###`
+- [x] **Step 3:** 验证行数：`python3 -c "import re,pathlib; t=pathlib.Path('docs/superpowers/audit-runs/2026-08-15/c37-triage.md').read_text(); print(len(re.findall(r'^\| [FT]\d', t)))"` 输出 `43`
+- [x] **Step 4:** Commit `docs(c37): R0 triage table — 43 findings bucketed per current main`
+- [x] **Step 5:** 产出 audit-T1.md（fresh-context 重审）
 
 ### Task 2: R1 A 类假防线清除
 
@@ -52,12 +60,12 @@
 - Consumes: R0 表对应行（F108/F109/F110/F118 部分/F230/F378/F886 注记）
 - Produces: 无新公共面；`shenbi.exceptions` 导出面收窄（调用方 grep 零引用后删）
 
-- [ ] **Step 1:** `grep -rn "error_guidance\|from shenbi import recovery\|ScoringRejectError\|RegistryCorruptError\|_validate_state_consistency" src/ tests/` 收集全部引用点，逐一对 R0 表核对后删除（含 tests）
-- [ ] **Step 2:** 删 F886 谎称面：`src/shenbi/pipeline/cli.py:497-500` genesis 写点上注释如实标注"write-only，零消费者（F886 defer——种子断流为产品缺陷，移交后续 spec）"
-- [ ] **Step 3:** `uv run pytest -n auto -m "not last" -q` 全绿 + skip 数不增（记录前后数）
-- [ ] **Step 4:** 抽查验收：`git grep -n "error_guidance\|Consumed by CLI" -- src/ docs/` 与 R0 表裁决一致；另枚举 5 处声称接线注释/文档（R0 表 F108/F109/F378/F343/F345 行）逐条核对与真实调用图一致，结果记入验收证据
-- [ ] **Step 5:** Commit `chore(c37): remove A-class false-frontline — error_guidance/recovery, 7 dead exceptions, F378 dead validator, F230 unreachable validation`
-- [ ] **Step 6:** audit-T2.md
+- [x] **Step 1:** `grep -rn "error_guidance\|from shenbi import recovery\|ScoringRejectError\|RegistryCorruptError\|_validate_state_consistency" src/ tests/` 收集全部引用点，逐一对 R0 表核对后删除（含 tests）
+- [x] **Step 2:** 删 F886 谎称面：`src/shenbi/pipeline/cli.py:497-500` genesis 写点上注释如实标注"write-only，零消费者（F886 defer——种子断流为产品缺陷，移交后续 spec）"
+- [x] **Step 3:** `uv run pytest -n auto -m "not last" -q` 全绿 + skip 数不增（记录前后数）
+- [x] **Step 4:** 抽查验收：`git grep -n "error_guidance\|Consumed by CLI" -- src/ docs/` 与 R0 表裁决一致；另枚举 5 处声称接线注释/文档（R0 表 F108/F109/F378/F343/F345 行）逐条核对与真实调用图一致，结果记入验收证据
+- [x] **Step 5:** Commit `chore(c37): remove A-class false-frontline — error_guidance/recovery, 7 dead exceptions, F378 dead validator, F230 unreachable validation`
+- [x] **Step 6:** audit-T2.md
 
 ### Task 3: R2 批量删除 · 死模块/死表/死缓存组
 
@@ -74,11 +82,11 @@
 - Modify: dispatch_helper `skip_paths` 假象面（F226：删未被喂养的 skip_paths 参数与 docstring 声称，skills frontmatter 的 `no_op_behavior: skip_write` 声明如仍零消费则一并删并跑 `just generate` 同步）
 - 同步删除上述全部直测/引用测试。
 
-- [ ] **Step 1:** 逐符号 grep **全 src/**（不排除定义文件，仅排除定义行本身；同文件命中逐条人工复核——同模块存活函数是常见隐藏消费方，cjk.py PUNCTUATION_TOKENS 即实例）确认为零后删；有调用方的（与 R0 表冲突）→ 停，记 deviation 回 R0 改行
-- [ ] **Step 2:** `just check` 全绿（契约面若动 SKILL frontmatter：`just generate` diff 为空）
-- [ ] **Step 3:** `uv run pytest -n auto -q` skip 无增量
-- [ ] **Step 4:** Commit `chore(c37): R2 batch deletion — volume_align/CONDITIONAL_STEPS/compact-pair/trace dead lines/records+text exports/ProgressDoc+SummaryDoc/genre cache`
-- [ ] **Step 5:** audit-T3.md
+- [x] **Step 1:** 逐符号 grep **全 src/**（不排除定义文件，仅排除定义行本身；同文件命中逐条人工复核——同模块存活函数是常见隐藏消费方，cjk.py PUNCTUATION_TOKENS 即实例）确认为零后删；有调用方的（与 R0 表冲突）→ 停，记 deviation 回 R0 改行
+- [x] **Step 2:** `just check` 全绿（契约面若动 SKILL frontmatter：`just generate` diff 为空）
+- [x] **Step 3:** `uv run pytest -n auto -q` skip 无增量
+- [x] **Step 4:** Commit `chore(c37): R2 batch deletion — volume_align/CONDITIONAL_STEPS/compact-pair/trace dead lines/records+text exports/ProgressDoc+SummaryDoc/genre cache`
+- [x] **Step 5:** audit-T3.md
 
 ### Task 4: R2 续 · 死参数/直测死函数/F427 合一/T1506 改名/F325 接线
 
@@ -105,13 +113,13 @@ def g4_scoring_sections(
 ) -> str
 ```
 
-- [ ] **Step 1 (F325, TDD 红灯):** 在 `tests/` 既有 cli resume 测试文件加用例：构造缺 truth 文件的 state → resume 路径返回非零且 stderr 含缺失清单。跑之，确认 FAIL
-- [ ] **Step 2 (F325 绿灯):** 实现接线；单测 PASS
-- [ ] **Step 3 (F427, characterization):** 为三个现有 checker 各留一条真实产物断言（fixtures 引用现有 G4 测试 fixture 路径），合一后断言不变
-- [ ] **Step 4:** 其余删除（F118/F345/T301/F706）逐符号 grep 后执行
-- [ ] **Step 5:** `just check` 全绿；`uv run pytest -n auto -q` skip 无增量
-- [ ] **Step 6:** Commit `chore(c37): F427 checker unification, T1506 legacy rename, F325 fail-fast wiring, dead params + directly-tested dead functions removal`
-- [ ] **Step 7:** audit-T4.md
+- [x] **Step 1 (F325, TDD 红灯):** 在 `tests/` 既有 cli resume 测试文件加用例：构造缺 truth 文件的 state → resume 路径返回非零且 stderr 含缺失清单。跑之，确认 FAIL
+- [x] **Step 2 (F325 绿灯):** 实现接线；单测 PASS
+- [x] **Step 3 (F427, characterization):** 为三个现有 checker 各留一条真实产物断言（fixtures 引用现有 G4 测试 fixture 路径），合一后断言不变
+- [x] **Step 4:** 其余删除（F118/F345/T301/F706）逐符号 grep 后执行
+- [x] **Step 5:** `just check` 全绿；`uv run pytest -n auto -q` skip 无增量
+- [x] **Step 6:** Commit `chore(c37): F427 checker unification, T1506 legacy rename, F325 fail-fast wiring, dead params + directly-tested dead functions removal`
+- [x] **Step 7:** audit-T4.md
 
 ### Task 5: R3 CI dead-code 执法门（vulture）
 
@@ -126,13 +134,13 @@ def g4_scoring_sections(
 **Interfaces:**
 - Produces: CI 门禁；验收负例 = 临时在 `src/shenbi/` 加零调用函数 → 命令非零退出（验收后撤销）；白名单内项 → PASS
 
-- [ ] **Step 1:** `uv add --group dev "vulture>=2.11"` + `uv lock`；`uv lock --check` 通过
-- [ ] **Step 2:** 跑 `uv run vulture src/shenbi --min-confidence 60` 收集全量报告 → 逐项处置：该删的漏网（对照 R0 表）回 T2-T4 补删；真公共 API/deferred 入白名单（每行注 F 编号或 API 理由）
-- [ ] **Step 3:** 基线清零：该命令 exit 0
-- [ ] **Step 4 (红灯验收):** `echo $'\ndef _c37_negative_probe():\n    return 1\n' >> src/shenbi/status.py` → 重跑命令，确认非零（unused function 于 60% 置信度命中）→ `git checkout -- src/shenbi/status.py` 撤销，重跑确认 0。两段输出都记入验收证据
-- [ ] **Step 5:** `just check` 全绿（含新门）
-- [ ] **Step 6:** Commit `feat(c37): vulture dead-code gate in just check + CI, allowlist with quarterly-review header`
-- [ ] **Step 7:** audit-T5.md
+- [x] **Step 1:** `uv add --group dev "vulture>=2.11"` + `uv lock`；`uv lock --check` 通过
+- [x] **Step 2:** 跑 `uv run vulture src/shenbi --min-confidence 60` 收集全量报告 → 逐项处置：该删的漏网（对照 R0 表）回 T2-T4 补删；真公共 API/deferred 入白名单（每行注 F 编号或 API 理由）
+- [x] **Step 3:** 基线清零：该命令 exit 0
+- [x] **Step 4 (红灯验收):** `echo $'\ndef _c37_negative_probe():\n    return 1\n' >> src/shenbi/status.py` → 重跑命令，确认非零（unused function 于 60% 置信度命中）→ `git checkout -- src/shenbi/status.py` 撤销，重跑确认 0。两段输出都记入验收证据
+- [x] **Step 5:** `just check` 全绿（含新门）
+- [x] **Step 6:** Commit `feat(c37): vulture dead-code gate in just check + CI, allowlist with quarterly-review header`
+- [x] **Step 7:** audit-T5.md
 
 ### Task 6: R4 移交 + 回写 + 收口
 
@@ -145,11 +153,11 @@ def g4_scoring_sections(
 - Modify: `docs/superpowers/audit-runs/2026-08-15/c37-triage.md` 若执行中出现改行，同步定稿
 - F886 defer 若裁定需后续 spec：INDEX.md append-only 登记新条目（P2），否则 defer 行注记即可
 
-- [ ] **Step 1:** 回写 findings-ledger（grep 每个 F/T 编号定位行，按 R0 表改状态）
-- [ ] **Step 2:** C14 spec 验收追加；核对不与其他活跃 spec 冲突（INDEX 交叉）
-- [ ] **Step 3:** 验证：`git grep -n "c37-triage" docs/ | wc -l` ≥2；R0 表 43 行复核；`just check` 全绿
-- [ ] **Step 4:** Commit `docs(c37): R4 handoff to C14, findings-ledger writeback, triage finalization`
-- [ ] **Step 5:** audit-T6.md
+- [x] **Step 1:** 回写 findings-ledger（grep 每个 F/T 编号定位行，按 R0 表改状态）
+- [x] **Step 2:** C14 spec 验收追加；核对不与其他活跃 spec 冲突（INDEX 交叉）
+- [x] **Step 3:** 验证：`git grep -n "c37-triage" docs/ | wc -l` ≥2；R0 表 43 行复核；`just check` 全绿
+- [x] **Step 4:** Commit `docs(c37): R4 handoff to C14, findings-ledger writeback, triage finalization`
+- [x] **Step 5:** audit-T6.md
 
 ---
 
