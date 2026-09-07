@@ -121,7 +121,7 @@ git commit -m "feat: add cli_utils.echo for human-facing output (spec #50 R1)"
 **Files:**
 - Modify: `src/shenbi/cost/report.py:135,137`
 - Modify: `src/shenbi/pipeline/cli.py:1065,1067`
-- Modify: `src/shenbi/skill_utils/escalation/check.py:163-167`
+- Modify: `src/shenbi/skill_utils/escalation/check.py:164-168`
 - Modify: `src/shenbi/skill_utils/foreshadowing_recall/recall.py:61`
 
 **Interfaces:**
@@ -136,7 +136,7 @@ echo(f"error: project dir not found: {args.project_dir}", err=True)
 echo(render_report(args.project_dir))
 ```
 
-- [ ] **Step 2: pipeline/cli.py**（backfill 循环内）
+- [ ] **Step 2: pipeline/cli.py**（backfill 循环内；import 区加 `from shenbi.cli_utils import echo`）
 
 ```python
 # :1065 原: print(f"  Backfilled context for chapter {ch}")
@@ -148,11 +148,12 @@ echo(f"  FAILED chapter {ch}: {e}", err=True)
 - [ ] **Step 3: escalation/check.py**
 
 ```python
+# 文件头 import 区：删除 import json（迁移后该文件唯一 json 用点消失，F401 会红），加 from shenbi.cli_utils import emit_json
 # 原 print(json.dumps([...], ensure_ascii=False)) 整块替换：
 emit_json([{"trigger": s.trigger, "detail": s.detail} for s in signals])
 ```
 
-- [ ] **Step 4: foreshadowing_recall/recall.py**
+- [ ] **Step 4: foreshadowing_recall/recall.py**（import 区加 `from shenbi.cli_utils import emit_json`；该文件 `json.loads` 仍在用，`import json` 保留）
 
 ```python
 # 原: print(json.dumps(overdue))
@@ -180,7 +181,7 @@ def test_recall_main_json_payload(capsys, monkeypatch):
     argv = [
         "prog",
         "--hooks-json",
-        '[{"id": "h1", "last_reinforced": 1}]',
+        '[{"id": "h1", "last_reinforced": 1, "max_distance": 2}]',
         "--current-chapter",
         "10",
     ]
@@ -190,7 +191,7 @@ def test_recall_main_json_payload(capsys, monkeypatch):
     assert captured.out == '["h1"]\n'
 ```
 
-（若 `recall_overdue_hooks` 的 max_distance 语义使该 fixture 不触发 overdue，先读其阈值逻辑调整 fixture 数值——断言以实际 JSON 语义为准，测试意图是「stdout == json.dumps(overdue) + 换行」这一契约形态。）
+（fixture 须含 `max_distance` 字段——`recall_overdue_hooks` 跳过缺该字段的 hook；测试意图是「stdout == json.dumps(overdue) + 换行」契约形态。）
 
 - [ ] **Step 6: 运行测试 + 相关回归**
 
@@ -244,7 +245,7 @@ Expected: 无 T20 相关错误（src/shenbi 零命中；tools/scripts/tests 豁�
 ```bash
 echo 'print("x")' >> src/shenbi/paths.py
 uv run ruff check src/shenbi/paths.py   # Expected: FAIL T201
-git checkout -- src/shenbi/paths.py
+git stash push -- src/shenbi/paths.py && git stash pop   # 还原（不销毁任何既有本地改动）
 uv run ruff check src/shenbi/paths.py   # Expected: PASS
 ```
 
@@ -255,16 +256,44 @@ uv run ruff check src/shenbi/paths.py   # Expected: PASS
 
 - [ ] **Step 5: docs/framework/logging.md 扩充**（保留既有指向 `../api/logging.md` 的链接，追加「输出通道裁决」节：structlog 日志 / cli_utils.echo 人面 / cli_utils.emit_json 或 sys.stdout.write 机器 stdout 三类，附 ruff T20 执法说明与框架外豁免清单）
 
-- [ ] **Step 6: 全量门禁**
+- [ ] **Step 6: docs/api/logging.md 一致性核查**（若该文提及 print 政策则同步；仅核查，无则零改动）
+
+Run: `grep -n "print" docs/api/logging.md`
+
+- [ ] **Step 7: 全量门禁**
 
 Run: `just check`
 Expected: 全绿（含 ruff/format/mypy/basedpyright/两段 pytest）
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add pyproject.toml AGENTS.md docs/framework/logging.md
 git commit -m "feat: enforce ruff T20 print ban with 3-channel output ruling (spec #50 R1+R3, C36)"
+```
+
+---
+
+### Task 4: findings-ledger 回写关闭
+
+**复杂度: leaf**（机械文本编辑）· **test_kind: regression_guard**（git diff 审查）· **层级: docs**
+
+**Files:**
+- Modify: `docs/superpowers/audit-runs/2026-08-15/findings-ledger.md`（D102/F324/F616 三行）
+
+**Interfaces:** 无代码接口。
+
+- [ ] **Step 1: 三行状态 `open` → `closed (C-36 spec #50, PR #N)`**（N = 本 PR 号，出 PR 后、合并前回填；对齐既有 F605/F627/F606 关闭行格式）
+- [ ] **Step 2: `just audit-lint` 全绿**（spec #49 审计产物 lint）
+
+Run: `just audit-lint`
+Expected: exit 0
+
+- [ ] **Step 3: Commit**（与 PR 号回填同 commit）
+
+```bash
+git add docs/superpowers/audit-runs/2026-08-15/findings-ledger.md
+git commit -m "docs(ledger): close D102/F324/F616 via C36 spec #50"
 ```
 
 ---
