@@ -19,7 +19,7 @@ P2 成员（症状族）：F703（`assert len(result) >= 0` 空断言）、F705�
 
 ## 目标
 
-1. 簇内 26 条全部改写或删除：每条测试断言的都是**生产代码的真实行为**（真实输入 → 真实调用 → 对真实输出的断言），消灭"测试重实现逻辑"模式
+1. 簇内 25 条存活成员全部改写或删除：每条测试断言的都是**生产代码的真实行为**（真实输入 → 真实调用 → 对真实输出的断言），消灭"测试重实现逻辑"模式
 2. 建立"`
 mutation/变异自检`导向"的最低防线：对本簇修复的每个测试文件，至少注入 1 处故意破坏生产逻辑的临时变更确认会红（红灯验证法），防回潮
 3. 与 C15（零覆盖）分工：本 spec 只改既有测试的断言质量，不新增覆盖面（C15 负责）
@@ -27,7 +27,7 @@ mutation/变异自检`导向"的最低防线：对本簇修复的每个测试文
 ## 任务分解
 
 ### T1 · P1 五连修复（自证壳重写）
-1. **F704**：删除 test_cli.py:817-862 内联重实现（存活站点 test_modify_injects_feedback_into_dispatch_prompt，"Simulate dispatch prompt construction" 注释为标记），改为调用生产函数（modify 反馈注入、step 回滚、C1 守卫）并对返回结构断言——test_final_review_fixes.py 站点已走生产代码（run_triggered_skills/clear_checkpoint），不再处理
+1. **F704**：删除 test_cli.py:817-862 内联重实现（存活站点两处：step 回滚 `test_modify_rolls_back_step_index`（"Simulate MODIFY: step_index should roll back to 1" 测试体内自映射 step_index）与 prompt 注入 `test_modify_injects_feedback_into_dispatch_prompt`（"Simulate dispatch prompt construction"）），改为调用生产函数（modify 反馈注入、step 回滚、C1 守卫）并对返回结构断言——test_final_review_fixes.py 站点已走生产代码（run_triggered_skills/clear_checkpoint），不再处理
 2. **F701**：lockfile 权限测试改为真实触发 lockfile 竞态路径（借 tmp_path + 真实 WriteLock），断言互斥行为
 3. **F702**：删除 `or True`，构造真实 weight_mismatch 输入断言警告出现；再构造匹配输入断言无警告
 4. **F728**：test_audit_context_cache.py 测试体内"重实现注入逻辑"（:45-79 "Simulate the injection logic from _build_skill_prompt"）改为直接调用生产 `_build_skill_prompt` 注入块并对注入结果断言——生产块覆盖已由 #43 的 test_dispatch_helper_read_suppression.py 补齐，本条只清自证壳
@@ -38,6 +38,7 @@ mutation/变异自检`导向"的最低防线：对本簇修复的每个测试文
 - 空断言（F703/F734/F7735 类）→ 换成具体值断言
 - 过期 skip（F712/F731）→ 删守卫直接执行（文件已存在）
 - 条件包裹哨兵（F713）→ 哨兵改为"检查缺失即 FAIL"方向
+- 集成名不符实（F719）→ 处置定为：改 docstring/测试名为如实描述"filter_to_fields 本体单测"，迁至 tests/unit/contracts/ 或就地改名——不重写为 dispatch_helper 集成测试（该集成面已由 #43 test_dispatch_helper_read_suppression.py 覆盖，重写即重复）
 - 改写真实仓库文件（F705）→ 全部换 tmp_path 隔离
 - 语义矛盾提示词（F739/F740）→ 与 src/shenbi/audit/snapshot.py（记录级差分，非全量副本）/ chapter_loop.py CASCADABLE_AUDITS 实现对齐改写场景文本
 
@@ -47,17 +48,17 @@ mutation/变异自检`导向"的最低防线：对本簇修复的每个测试文
 
 ### 批量清理（M 级成员）
 - **F715**：MASTER_PATH 手工保存/恢复改 pytest fixture（异常安全）+ 测试名/docstring 与行为对齐
-- **F716**：7 处弱断言/条件断言集合逐一收紧
+- **F716**：弱断言/条件断言集合逐一收紧——2026-09-08 复核存活 8 站点：test_g2.py 原站点已消失，现存 test_g5.py:221、cost/test_report.py:34、test_parallel_dispatch.py:82、test_context_curation.py:30、test_scoring_anti_collapse.py:98-99、test_phase_runner.py:862-864、test_g0.py:215-216（以符号定位为准，行号有漂移）。每处改为断言单一确定状态，或注明"gate must complete, not raise"意图的显式理由。**边界**：F767 的 6 处 PASS/FAIL 双收站点归 spec #49 处置（若未修，移交回 #49 立案，不在本簇）
 - **F718**：`seed` 形参未使用的 property 壳——补真实 draw 或删形参
-- **F745**：executed_concurrently 测试补 barrier 交错断言；single-writer 守卫由 grep 源码文本改为行为验证（或注明为何只能文本级）
+- **F745**：executed_concurrently 测试**必须**补 barrier 交错断言（无 escape hatch）；single-writer 守卫优先行为验证，仅当目标断言是"无文件写"类否定性主张时允许保留文本级 grep，且须注明该论证（说明为何无法行为化）
 - **F746**：测试名与断言对齐（returns_empty vs raises）；short title 补过 gate 断言
 - **F747**：st.data() 不 draw 的伪属性——改为真实 draw
 - **F748**：删行内遗留困惑注释；补 unknown-skill 分支测试
 
 ## 验收标准（真实数据可复验）
 
-1. `grep -rn "or True" tests/` 零命中；`grep -rn "assert len(.*) >= 0" tests/` 零命中
-2. F704/F728 两个测试文件中不再存在"重实现生产逻辑"的代码块（人工复查 + 生产函数 import 断言：测试文件必须 import 被测模块）
+1. `grep -rn "or True" tests/ --include="*.py"` 除 allowlist（tests/unit/pipeline/test_revision_count.py:77 `escalations.append(ch) or True` lambda 惯用法）外零命中；`grep -rn "assert len(.*) >= 0" tests/` 零命中
+2. F704/F728 两个测试文件中不再存在"重实现生产逻辑"的代码块（人工复查 + 机械检查：`grep -n "from shenbi\|import shenbi" <测试文件>` 非空——测试文件必须 import 被测模块）
 3. 红灯验证记录：每个触及文件至少 1 处"破坏→红→还原"证据（PR 描述）
 4. `just test` + `pytest -n auto -m "not last"` 全绿且无新增 skip（skip 数不增）
 5. F705 修复后 `git status` 在测试运行前后保持干净（不再改写 tests/tiers/deps.json）
