@@ -304,7 +304,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--verify-carryover",
         action="store_true",
-        help="also verify carryover.md coverage (spec #49 R2)",
+        help="carryover verification is always on; flag kept for compatibility (spec #49 R2)",
     )
     args = parser.parse_args(argv)
 
@@ -318,9 +318,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     failed = False
     for run_dir in run_dirs:
-        # check mode (no explicit dir) always verifies carryover; flag forces it
-        include_carryover = args.verify_carryover or args.run_dir is None
-        findings = lint_run_full(run_dir, include_carryover=include_carryover)
+        # carryover verification is unconditional (single-dir too) — the
+        # run-level verify_carryover exemption must never go mode-dependent
+        findings = lint_run_full(run_dir, include_carryover=True)
         if findings:
             failed = True
             for f in findings:
@@ -342,7 +342,7 @@ def verify_carryover(run_dir: Path) -> list[Finding]:
     if not carryover.exists():
         print(f"SKIP verify-carryover {run_dir.name}: no carryover.md")
         return []
-    siblings = sorted(p for p in AUDIT_RUNS_DIR.iterdir() if p.is_dir())
+    siblings = sorted(p for p in AUDIT_RUNS_DIR.iterdir() if (p / "findings-ledger.md").exists())
     younger = [p for p in siblings if p.name > run_dir.name]
     if not younger:
         print(f"SKIP verify-carryover {run_dir.name}: no next run yet")
