@@ -254,3 +254,19 @@ def test_real_0814_reconcile_hits_f969_f973() -> None:
     run = Path("docs/superpowers/audit-runs/2026-08-14")
     assert any(f.id == "zones_union" for f in reconcile(run))  # F973: 2755 vs 2738
     assert any(f.id == "total_claim" for f in report_internal(run))  # F969: 781 vs 786
+
+
+def test_missing_report_is_explicit_fail(tmp_path: Path) -> None:
+    from tools.lint_audit_run import reconcile
+
+    _write_ledger(tmp_path, [GOOD_ROW])  # no final-report.md
+    hits = reconcile(tmp_path)
+    assert any(f.id == "report_missing" for f in hits)
+
+
+def test_missing_zones_dir_is_explicit_fail(tmp_path: Path) -> None:
+    from tools.lint_audit_run import reconcile
+
+    _write_ledger(tmp_path, [GOOD_ROW])
+    (tmp_path / "final-report.md").write_text("| tracked 文件（表 A） | 2 |\n", encoding="utf-8")
+    assert any(f.id == "zones_missing" for f in reconcile(tmp_path))

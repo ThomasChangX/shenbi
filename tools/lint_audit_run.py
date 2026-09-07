@@ -119,17 +119,12 @@ def lint_run(run_dir: Path) -> list[Finding]:
 
 def _report_text(run_dir: Path) -> str:
     report = run_dir / "final-report.md"
-    if not report.exists():
-        return ""
-    return report.read_text(encoding="utf-8")
+    return report.read_text(encoding="utf-8") if report.exists() else ""
 
 
 def _zones_union(run_dir: Path) -> int:
-    zones_dir = run_dir / "zones"
     union: set[str] = set()
-    if not zones_dir.is_dir():
-        return 0
-    for files_list in sorted(zones_dir.glob("*.files")):
+    for files_list in sorted((run_dir / "zones").glob("*.files")):
         union.update(
             ln.strip() for ln in files_list.read_text(encoding="utf-8").splitlines() if ln.strip()
         )
@@ -140,6 +135,13 @@ def reconcile(run_dir: Path) -> list[Finding]:
     """Ledger prefix counts + zones union vs final-report claims (spec #49 R1)."""
     findings: list[Finding] = []
     rows = _parse_rows(run_dir)
+    if not (run_dir / "findings-ledger.md").exists():
+        return findings  # ledger-less dir (not an audit run shape): nothing to reconcile
+    if not (run_dir / "final-report.md").exists():
+        return [Finding("counts_reconcile", "report_missing", "final-report.md absent")]
+    if not (run_dir / "zones").is_dir():
+        findings.append(Finding("counts_reconcile", "zones_missing", "zones/ dir absent"))
+        return findings
     report = _report_text(run_dir)
 
     prefix_counts: dict[str, int] = {}
@@ -154,7 +156,9 @@ def reconcile(run_dir: Path) -> list[Finding]:
         if actual != count:
             msg = f"report {prefix}={count} vs ledger {actual}"
             findings.append(Finding("counts_reconcile", f"prefix:{prefix}", msg))
-    total_match = re.search(r"\btotal=(\d+)\b", report)
+    # last match wins: a report may quote a prior run's stats (trend sections)
+    total_matches = list(re.finditer(r"\btotal=(\d+)\b", report))
+    total_match = total_matches[-1] if total_matches else None
     if total_match and int(total_match.group(1)) != len(rows):
         claimed_total = int(total_match.group(1))
         msg = f"report total={claimed_total} vs ledger rows {len(rows)}"
@@ -179,6 +183,8 @@ def report_internal(run_dir: Path) -> list[Finding]:
     """Final-report internal consistency vs computed ledger values (spec #49 R1)."""
     findings: list[Finding] = []
     rows = _parse_rows(run_dir)
+    if not (run_dir / "findings-ledger.md").exists() or not (run_dir / "final-report.md").exists():
+        return findings
     report = _report_text(run_dir)
 
     total_claims = [int(m) for m in re.findall(r"总 findings[:\uff1a]?\s*\*{0,2}(\d+)", report)]
@@ -187,7 +193,9 @@ def report_internal(run_dir: Path) -> list[Finding]:
             msg = f"report 总 findings={claim} vs ledger rows {len(rows)}"
             findings.append(Finding("report_internal", "total_claim", msg))
 
-    sum_match = re.search(r"\(sum=(\d+)\)", report)
+    # last match wins: quoted prior-run stats must not shadow the final claim
+    sum_matches = list(re.finditer(r"\(sum=(\d+)\)", report))
+    sum_match = sum_matches[-1] if sum_matches else None
     if sum_match:
         severity_claims = {k: int(v) for k, v in re.findall(r"\b(P0|P1|P2|M)=(\d+)\b", report)}
         components_sum = sum(severity_claims.values())
@@ -203,13 +211,7 @@ def report_internal(run_dir: Path) -> list[Finding]:
         for sev, claim in severity_claims.items():
             if actual.get(sev, 0) != claim:
                 msg = f"report {sev}={claim} vs ledger {actual.get(sev, 0)}"
-                findings.append(
-                    Finding(
-                        "report_internal",
-                        f"severity:{sev}",
-                        f"report {sev}={claim} vs ledger {actual.get(sev, 0)}",
-                    )
-                )
+                findings.append(Finding("report_internal", f"severity:{sev}", msg))
     return findings
 
 
