@@ -1,30 +1,29 @@
 # Calibration anchors
 
 This directory holds calibration anchor fixtures used by the positive
-quality-gates framework. Each anchor is a short excerpt of **real prose**
-paired with the score band an independent subagent is expected to assign
-it. The anchors let a reviewer skill self-check whether its scoring is
-drifting away from the established baseline.
+quality-gates framework. Each anchor is a prose excerpt paired with the
+score band an independent subagent is expected to assign it. The anchors
+let a reviewer skill self-check whether its scoring is drifting away from
+the established baseline.
 
-Schema (spec #54 C16 / T805): each anchor file carries a `## provenance`
-section with a tri-state `provenance:` line and a `source:` pointer
-(file+line for real excerpts; explicit synthetic disclosure for
-synthetic-sample anchors).
+## Anchor schema (spec #54 C16 / T805)
 
-No anchors are authored yet — Phase 2/3 tasks create them per anti-trope
-dimension. Until then this directory contains only this README and
-`.gitkeep`, and G0.14 locks the empty-set hash.
-
-## Anchor schema
-
-Every anchor file is Markdown with exactly three sections, in this order:
+Every anchor file is Markdown with exactly four sections, in this order:
 
 ```markdown
+## provenance
+
+provenance: real-output | upstream-copy | synthetic-sample
+source: <file+line pointer for real excerpts; explicit synthetic
+disclosure for synthetic-sample anchors>
+
 ## excerpt
 
-<a real prose excerpt — the actual text under evaluation. Never invented
-or hand-crafted for the test; always a genuine passage from a shipped
-chapter, imported canon, or fixture.>
+<the prose passage under evaluation. Real excerpts (real-output /
+upstream-copy) must be genuine passages from a shipped chapter, imported
+canon, or fixture — never invented for the test. Synthetic-sample anchors
+must say so explicitly in the provenance section; they calibrate relative
+banding, not real-product fidelity.>
 
 ## expected_band
 
@@ -39,28 +38,28 @@ it into the high/mid/low range. This is what makes the anchor calibratable
 rather than merely a label.>
 ```
 
+Current corpus (2026-08 audit-era, disclosed per spec #54 T3.10): all 27
+anchors are `synthetic-sample` — the corpus was authored during the audit
+period and is not derived from `novel-output/` chapters. Future anchors
+built from real prose must use `real-output`/`upstream-copy` with a
+file+line source pointer.
+
 ## Layout
 
 Three anchors per dimension — `high`, `mid`, `low` — covering the full
-0–30 score range. Anchors may sit directly in this directory or in a
-per-dimension subdirectory:
-
-``+calibration/
-├── 情感落地-high.md      # or 情感落地/high.md
-├── 情感落地-mid.md
-└── 情感落地-low.md
-```
+0–30 score range, under per-dimension subdirectories of `arc-payoff/` and
+`resonance/`.
 
 ## Integrity locking
 
-G0.14 computes a combined SHA256 over every file under this tree
-(excluding `.gitkeep`) and compares it to the locked value at
-`tests/tiers/deps.json` → `_calibration_hashes.combined`. Any added,
-removed, or modified anchor trips the gate until the lock is refreshed.
+G0.14 computes a combined SHA256 (CRLF→LF normalized, matching the gate's
+own normalization) over every file under this tree (excluding `.gitkeep`)
+and compares it to the locked value at `tests/tiers/deps.json` →
+`_calibration_hashes.combined`. Any added, removed, or modified anchor
+trips the gate until the lock is refreshed.
 
 Re-lock after authoring or editing anchors:
 
 ```bash
 tests/lock-tool-hashes.sh
-```
 ```
