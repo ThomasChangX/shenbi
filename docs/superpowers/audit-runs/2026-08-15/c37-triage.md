@@ -31,7 +31,7 @@
 | F512 | 不可达 return 2 | src/shenbi/cost/report.py:137 | already-fixed | — | 目录守卫后已可达 |
 | F611 | RHETORICAL 死正则 | （全仓零命中） | already-fixed | — | #33 dead-face cleanup 已删 |
 | F622 | escalation/foreshadowing_recall CLI 零引用（escalation 半面已接线） | skill_utils/foreshadowing_recall（零生产引用） | delete | T3 | 删 foreshadowing_recall helper；escalation 保留 |
-| F631 | trace compact() 零生产调用 | src/shenbi/trace/compact.py（仅测试） | delete | T3 | 触发引擎已由 #33 接线，此死线删 |
+| F631 | trace compact() 零生产调用（compaction.py 内 verify_chain 为活代码、g7_trace.py 消费，保留） | src/shenbi/trace/compaction.py:17 | delete | T3 | 仅删 compact() 及私有 helper；verify_chain 保留（PR #179 review 修正路径与表述） |
 | F632 | migrate_from_progress 零调用 | src/shenbi/trace/__init__.py:6 导出、零调用 | delete | T3 | |
 | F633 | drift 触发器组零调用（原主张） | triggers.py:234,297 | already-fixed | — | #33 已接线 check_triggers/run_triggered_skills |
 | F634 | escalation 触发器组零调用（原主张） | cli.py:227,231,255 | already-fixed | — | #33 已接线 |
