@@ -63,6 +63,7 @@ mutation/变异自检`导向"的最低防线：对本簇修复的每个测试文
 4. `just test` + `pytest -n auto -m "not last"` 全绿且无新增 skip（skip 数不增）
 5. F705 修复后 `git status` 在测试运行前后保持干净（不再改写 tests/tiers/deps.json）
 6. 对 dispatch_helper.py:615-634 注入块，`pytest --cov=src/shenbi/dispatch_helper` 显示该行区间覆盖 >0（补齐 F728 伴随覆盖）
+7. 直测对象全部为生产可达路径（C37 R4 移交，2026-09-07）：C37 删除死面时已随删其直测（volume_align/_should_run_drift/compact/check_fields_exist/genre-cache/skip_write/foreshadowing_recall/_audit_context_coverage 等）；本 spec 执行时新增/改写的测试不得直接测试生产不可达函数——basedpyright reportUnusedFunction 门（C37 R3）+ 冻结白名单 lint 是机械防线
 
 ## 风险与回滚
 
