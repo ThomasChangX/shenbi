@@ -7,6 +7,7 @@ from pathlib import Path
 from shenbi.pipeline.audit_context_cache import (
     build_shared_audit_context,
 )
+from tests.pipeline.conftest import assemble_shared_context_project
 
 _FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
 
@@ -48,26 +49,9 @@ def test_shared_context_fields_are_injectable(tmp_path):
     instead of re-implementing it: canonical keys (C28 R1 F312) must appear
     in the built user_prompt with the ctx content.
     """
-    import shutil as _shutil
-
     from shenbi.pipeline.dispatch_helper import _build_skill_prompt
 
-    # Real-output fixture project (G0.9), same assembly as read-suppression tests
-    _fix = _FIXTURES / "multi-chapter-example"
-    for sub in ("chapters", "truth", "world", "style", "context"):
-        (tmp_path / sub).mkdir(parents=True, exist_ok=True)
-    for src in sorted(_fix.glob("chapter-*.md")):
-        _shutil.copy(src, tmp_path / "chapters" / src.name)
-    _shutil.copy(
-        _FIXTURES / "snapshots" / "chapter-025" / "truth" / "character_matrix.md",
-        tmp_path / "truth" / "character_matrix.md",
-    )
-    _shutil.copy(
-        _FIXTURES / "snapshots" / "chapter-025" / "truth" / "pending_hooks.md",
-        tmp_path / "truth" / "pending_hooks.md",
-    )
-    _shutil.copy(_FIXTURES / "world-rules-example.md", tmp_path / "world" / "rules.md")
-    _shutil.copy(_FIXTURES / "style-profile-example.md", tmp_path / "style" / "style_profile.md")
+    assemble_shared_context_project(tmp_path)
 
     ctx = build_shared_audit_context(tmp_path, 3)
     _, user_prompt, _ = _build_skill_prompt(

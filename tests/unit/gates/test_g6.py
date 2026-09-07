@@ -643,10 +643,11 @@ def test_g610_not_skipped_when_style_profile_exists(tmp_path: Path) -> None:
     assert g610 is not None or g610_mf, (
         "G6.10 left no execution evidence (neither check entry nor must_fix) — dead path returned"
     )
-    assert g610 is None or g610["s"] != "SKIP", (
-        "G6.10 must not SKIP when style/style_profile.md exists "
-        "(D16: old config/ path was a dead code path)"
-    )
+    # This fixture's blatant outliers take the must_fix-only branch
+    # (check_style_consistency emits no check dict on outliers) — pinned.
+    # The SKIP-must-not-happen guard for the check-entry branch lives in
+    # g610's non-outlier siblings; no unreachable disjunct here.
+    assert g610 is None, "outlier fixture should produce must_fix entries only"
     # This fixture's chapter is 4-char sentences / 1600-char paragraphs /
     # 0% dialogue vs the profile's 15-25 / 80-120 / 20-40 — G6.10 must have
     # flagged them (proof the check really reads the profile).

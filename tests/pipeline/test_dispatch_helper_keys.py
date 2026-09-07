@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from shenbi.pipeline.dispatch_helper import _input_key
+from tests.pipeline.conftest import assemble_shared_context_project
 
 
 def test_input_key_uses_relative_path():
@@ -42,26 +43,10 @@ def test_injection_block_pins_canonical_keys(tmp_path):
     key drift in _INJECT_FROM_CACHE fails here (the old form called the same
     helper twice and compared — always green).
     """
-    import shutil
-
     from shenbi.pipeline.audit_context_cache import build_shared_audit_context
     from shenbi.pipeline.dispatch_helper import _build_skill_prompt
 
-    _fix = Path(__file__).resolve().parents[1] / "fixtures"
-    for sub in ("chapters", "truth", "world", "style", "context"):
-        (tmp_path / sub).mkdir(parents=True, exist_ok=True)
-    for src in sorted((_fix / "multi-chapter-example").glob("chapter-*.md")):
-        shutil.copy(src, tmp_path / "chapters" / src.name)
-    shutil.copy(
-        _fix / "snapshots" / "chapter-025" / "truth" / "character_matrix.md",
-        tmp_path / "truth" / "character_matrix.md",
-    )
-    shutil.copy(
-        _fix / "snapshots" / "chapter-025" / "truth" / "pending_hooks.md",
-        tmp_path / "truth" / "pending_hooks.md",
-    )
-    shutil.copy(_fix / "world-rules-example.md", tmp_path / "world" / "rules.md")
-    shutil.copy(_fix / "style-profile-example.md", tmp_path / "style" / "style_profile.md")
+    assemble_shared_context_project(tmp_path)
 
     ctx = build_shared_audit_context(tmp_path, 3)
     _, user_prompt, _ = _build_skill_prompt(
