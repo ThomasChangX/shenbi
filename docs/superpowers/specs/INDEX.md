@@ -25,7 +25,7 @@
 - **文件**：`2026-08-16-c34-path-layout-contract-design.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C34，14 条）
 - **状态**：Design | **优先级**：🟠 P1
-- **内容**：skill-output/novel-output/project-output 三布局并存，rd/project_dir 语义从未统一——phase_runner G4 传错参致 T2 永久阻塞（F101 verified）/ checker 忽略 rd 假 FAIL（F401 verified/F433/F456/F457/F408）/ 快照根=框架仓库根（F519）/ CWD 依赖（F628/F115/F119）/ G1.4 checker 内写 .bak（F412）——一页路径协议 + resolve 单入口 + 观测面同根；supersede #8 的 R8/F163 面；是 C1 对账 lint 验收的地基
+- **内容**：skill-output/novel-output/project-output 三布局并存，rd/project_dir 语义从未统一——cli G4 project_dir 恒等 rd 致 PWI 静默缺席（F433/F101 残留）/ gate_G2 裸 Path(fp) 按 CWD 解析（F456）/ bughunt/clean 分支丢 rd 崩溃（F457）/ G0.3 扫描不存在的 skill-output（F413/F407）/ CWD 依赖（F628/F115 残留/F119）/ G1.4 checker 内写 .bak（F412）——一页路径协议 + resolve 单入口 + 观测面同根；supersede #8 的 R8/F163 面；是 C1 对账 lint 验收的地基（2026-09-07 Revised：F401/F408/F519 已由先前 PR 修复出簇，11 条存活）
 
 ### #49 · 审计修复 C35：审计过程自身卫生（P1）
 
