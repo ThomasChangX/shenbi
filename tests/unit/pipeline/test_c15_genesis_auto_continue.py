@@ -40,9 +40,11 @@ def test_auto_mode_g4_failure_retries_once_then_continues(
     assert state.pending_checkpoint.type == CheckpointType.NONE
 
     # 2nd failure on the same skill: continue despite G4 failure
-    # (genesis_g4_continue_auto) — success path runs, retry counter cleared
+    # (genesis_g4_continue_auto) — success path runs, retry counter cleared,
+    # cursor advances past the step
     run_genesis_step(state, tmp_path)
     assert "shenbi-worldbuilding" not in state.genesis.retry_counts
+    assert state.genesis.current_step == 1
     assert state.pending_checkpoint.type == CheckpointType.NONE
 
 
