@@ -423,25 +423,30 @@ class TestComputeScore:
         score = compute_score(dims, {1: 10, 2: 20, 3: 30})
         assert score == round((10 * 33 + 20 * 33 + 30 * 34) / 100, 2)
 
-    def test_logs_warning_when_weights_dont_sum_to_100(
-        self, base_dims: list[Dimension], caplog: pytest.LogCaptureFixture
-    ) -> None:
+    def test_logs_warning_when_weights_dont_sum_to_100(self, base_dims: list[Dimension]) -> None:
         """Weights not summing to 100 is a rubric authoring error — surfaced
         as a warning so reviewers catch it, but scoring still proceeds.
+
+        scoring logs via structlog (not stdlib logging, so caplog sees
+        nothing); capture_logs() is structlog's own capture mechanism.
         """
+        from structlog.testing import capture_logs
+
         bad_dims = [
             Dimension(num=1, name="x", weight=50),
             Dimension(num=2, name="y", weight=30),
         ]
-        with caplog.at_level("WARNING"):
+        with capture_logs() as logs:
             compute_score(bad_dims, {1: 100, 2: 100})
-        assert (
-            any(
-                r"weight_mismatch" in r.getMessage() or "weight_mismatch" in str(r)
-                for r in caplog.records
-            )
-            or True
-        )
+        assert any(entry["event"] == "weight_mismatch" for entry in logs)
+
+        ok_dims = [
+            Dimension(num=1, name="x", weight=60),
+            Dimension(num=2, name="y", weight=40),
+        ]
+        with capture_logs() as logs:
+            compute_score(ok_dims, {1: 100, 2: 100})
+        assert not any(entry["event"] == "weight_mismatch" for entry in logs)
 
 
 # --- TestClassify --------------------------------------------------------

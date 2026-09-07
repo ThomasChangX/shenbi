@@ -799,8 +799,11 @@ class TestModifyDecision:
     """Tests that MODIFY rolls back step cursor and stores feedback."""
 
     def test_modify_chapter_memo_rolls_back_step_index(self, tmp_path, monkeypatch):
-        """MODIFY on CHAPTER_MEMO checkpoint resets step_index to 1."""
-        from shenbi.pipeline.machine import clear_checkpoint, set_checkpoint
+        """MODIFY via cmd_review rolls the step cursor back to chapter-planning."""
+        import argparse
+
+        from shenbi.pipeline import cli as pipeline_cli
+        from shenbi.pipeline.machine import load_state, save_state, set_checkpoint
         from shenbi.pipeline.state import (
             CheckpointType,
             PipelinePhase,
@@ -808,42 +811,64 @@ class TestModifyDecision:
             ReviewDecision,
         )
 
-        state = PipelineState.default(str(tmp_path))
+        project = tmp_path / "proj"
+        (project / "truth").mkdir(parents=True)
+        state = PipelineState.default(str(project))
         state.phase = PipelinePhase.CHAPTER_LOOP
         state.chapter_loop.current_chapter = 3
         state.chapter_loop.step_index = 2  # after chapter-planning
-
+        save_state(project, state)
         set_checkpoint(
             state, CheckpointType.CHAPTER_MEMO, chapter=3, artifact="plans/chapter-3-plan.md"
         )
+        save_state(project, state)
 
-        # Simulate MODIFY: step_index should roll back to 1
-        cp = state.pending_checkpoint
-        clear_checkpoint(state, ReviewDecision.MODIFY)
+        monkeypatch.setattr(pipeline_cli, "_queue_re_dispatches", lambda *a, **k: None)
 
-        if cp.type == CheckpointType.CHAPTER_MEMO:
-            state.chapter_loop.step_index = 1
-        elif cp.type == CheckpointType.STATE_SETTLE:
-            state.chapter_loop.step_index = 6
+        feedback = project / "feedback.md"
+        feedback.write_text("Fix the pacing in section 3", encoding="utf-8")
 
-        assert state.chapter_loop.step_index == 1
-        assert state.pending_checkpoint.type == CheckpointType.NONE
+        args = argparse.Namespace(
+            project_dir=str(project),
+            decision=ReviewDecision.MODIFY.value,
+            feedback=str(feedback),
+        )
+        rc = pipeline_cli.cmd_review(args)
+
+        assert rc == 0
+        reloaded = load_state(project)  # cmd_review saved its own copy — assert on reloaded state
+        assert reloaded.chapter_loop.step_index == 1  # CHAPTER_STEPS[1] = chapter-planning
+        assert reloaded.chapter_loop.modify_feedback == "Fix the pacing in section 3"
 
     def test_modify_injects_feedback_into_dispatch_prompt(self, tmp_path, monkeypatch):
-        """Feedback stored in modify_feedback appears in next dispatch prompt."""
-        from shenbi.pipeline.state import PipelineState
+        """Feedback stored in modify_feedback reaches the real dispatch prompt (one-shot)."""
+        from shenbi.pipeline import chapter_loop
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
 
+        captured: dict[str, object] = {}
+
+        class FakeResult:
+            success = True
+            returncode = 0
+            stderr = ""
+            stdout = "ok"
+
+        def fake_dispatch(skill, project_dir, prompt, *args, **kwargs):
+            captured["skill"] = skill
+            captured["prompt"] = prompt
+            return FakeResult()
+
+        monkeypatch.setattr(chapter_loop, "dispatch_skill", fake_dispatch)
         state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 3
+        state.chapter_loop.step_index = 1  # CHAPTER_STEPS[1] = chapter-planning, dispatched
         state.chapter_loop.modify_feedback = "Fix the pacing in section 3"
 
-        # Simulate dispatch prompt construction (same logic as run_chapter_step)
-        prompt = f"Execute chapter-planning for chapter 3. Project dir: {tmp_path}"
-        if state.chapter_loop.modify_feedback:
-            prompt += f"\n\nHuman review feedback: {state.chapter_loop.modify_feedback}"
-            state.chapter_loop.modify_feedback = None
+        chapter_loop.run_chapter_step(state, tmp_path)
 
-        assert "Fix the pacing in section 3" in prompt
-        assert state.chapter_loop.modify_feedback is None  # consumed
+        assert "Fix the pacing in section 3" in str(captured.get("prompt", ""))
+        assert state.chapter_loop.modify_feedback is None  # one-shot consumption
 
 
 class TestResumeFailFastOnMissingTruth:
