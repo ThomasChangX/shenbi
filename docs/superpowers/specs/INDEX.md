@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-09-07（#49 C35 Done PR #170——审计过程自身卫生：audit-lint 三方对账 + 跨轮承接 + 计数 lint + prompt 铁则 7/8 + 分支/INDEX 卫生，归档）
-> **活跃 spec 数**：18（#46 C32 Rejected：11 条成员已由 PR #43 修复；F513 残留待新归属）
+> **最后更新**：2026-09-07（#54 C16 Done PR #174——fixture 真实性与 G0.9 执法：G0.17-19 provenance 执法 + bug-hunt 证据闭包 + fixture 库治理 + calibration 锚点重建，归档）
+> **活跃 spec 数**：17（#46 C32 Rejected：11 条成员已由 PR #43 修复；F513 残留待新归属）
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -47,13 +47,6 @@
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C15，12 条）
 - **状态**：Design | **优先级**：🟡 P2
 - **内容**：仓内变更器 sync_contracts 56%（F112）+ dispatcher/cli 0%（F216）+ G2.dec 恢复路径（F418）+ g4 检查器 12%/零引用（F417/F765）+ parallel_dispatch 重试退避（F738）+ audit_context_cache（F737）等 12 面补行为级测试 + per-module 覆盖率底线表（跌破即 CI FAIL，留 5-10pp 余量防 flaky）
-
-### #54 · 审计修复 C16：fixture 真实性与 G0.9 执法（P0）
-
-- **文件**：`2026-08-16-audit-fixture-authenticity-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C16，31 条；候选元根因 F 核心）
-- **状态**：Design | **优先级**：🟥 P0（F751 内容级断链）
-- **内容**：g0_purity 三检查（引用存在性闭包 / provenance 三态 / 变体旁路纳入，T801 verified 零执法）+ bug-hunt expected 证据内容级校验（F751/F754）+ 复制体/角色滥用/伪造快照/27 虚构锚点清理重建（F777/F753/F779/F776，G0.14 锁值重算）——吸收 #18 未执行 R1-R4（#18 待归档）；四链传导（T809）收口
 
 ### #55 · 审计修复 C17：测试基础设施配置失效（P1）
 
