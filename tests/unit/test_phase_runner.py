@@ -363,8 +363,10 @@ class TestCmdPostSkill:
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        """post-skill assumes the skill wrote files under project_dir.
-        Both G2 (per-file quality) and G4 (skill-specific) run.
+        """post-skill runs G2/G4 on CONTRACT-DECLARED outputs. Since spec #48
+        C34 (F115) the rglob sweep no longer invents outputs from disk — a
+        present-but-undeclared file does not trigger G2 (see
+        tests/unit/test_phase_runner_fallback.py).
         """
         project_dir = round_dir / "project-output"
         project_dir.mkdir()
@@ -377,6 +379,10 @@ class TestCmdPostSkill:
             return {"gate": gate, "status": "PASS"}
 
         monkeypatch.setattr(phase_runner, "run_gate", fake_run_gate)
+        monkeypatch.setattr(
+            "shenbi.audit._shared.derive_output_files",
+            lambda skill, chapter, proj: [str(proj / "chapter.md")],
+        )
         cmd_post_skill("design", "shenbi-x", str(round_dir), str(project_dir))
         gates_run = {g for g, _ in gate_calls}
         assert "G2" in gates_run

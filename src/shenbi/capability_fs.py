@@ -20,7 +20,11 @@ class CapabilityFS:
         self._root = Path(allow_root).resolve()
 
     def _sandbox(self, path: Path) -> Path:
+        # spec #48 C34 (F119): relative paths anchor at allow_root instead of
+        # the process CWD (was fail-closed-but-CWD-relative).
         p = Path(path)
+        if not p.is_absolute():
+            p = self._root / p
         try:
             resolved = p.resolve(strict=False)
             resolved.relative_to(self._root)
