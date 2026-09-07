@@ -15,12 +15,6 @@ import pytest
 pytestmark = pytest.mark.unit
 
 import tools.lint_audit_run as lar  # noqa: E402
-from tools.lint_audit_run import (  # noqa: E402
-    apply_exemptions,
-    lint_run,
-    load_exemptions,
-    validate_exemptions,
-)
 
 GOOD_ROW = "| F1 | 标题甲 | error | P1 | e | r | v | i | s | d | open |"
 
@@ -37,12 +31,12 @@ def _write_ledger(run_dir: Path, rows: list[str]) -> None:
 
 def test_good_row_passes(tmp_path: Path) -> None:
     _write_ledger(tmp_path, [GOOD_ROW])
-    assert lint_run(tmp_path) == []
+    assert lar.lint_run(tmp_path) == []
 
 
 def test_row_columns_too_few(tmp_path: Path) -> None:
     _write_ledger(tmp_path, ["| F1 | x | error | P1 | e | r | v | i | s | d |"])
-    assert any(f.check == "row_columns" for f in lint_run(tmp_path))
+    assert any(f.check == "row_columns" for f in lar.lint_run(tmp_path))
 
 
 def test_row_columns_accepts_closure_annotation_columns(tmp_path: Path) -> None:
@@ -51,34 +45,34 @@ def test_row_columns_accepts_closure_annotation_columns(tmp_path: Path) -> None:
         "| → closed (C-34 spec #48) (merged-into-F433, spec #48, PR #168) |"
     )
     _write_ledger(tmp_path, [GOOD_ROW, annotated])
-    assert not any(f.check == "row_columns" and f.id == "F2" for f in lint_run(tmp_path))
+    assert not any(f.check == "row_columns" and f.id == "F2" for f in lar.lint_run(tmp_path))
 
 
 def test_row_columns_rejects_unrecognized_extra_column(tmp_path: Path) -> None:
     _write_ledger(tmp_path, ["| F3 | t | error | P1 | e | r | v | i | s | d | open | 备注正文 |"])
-    assert any(f.check == "row_columns" and f.id == "F3" for f in lint_run(tmp_path))
+    assert any(f.check == "row_columns" and f.id == "F3" for f in lar.lint_run(tmp_path))
 
 
 def test_pipe_escape_detects_column_shift(tmp_path: Path) -> None:
     # unescaped pipe inside 标题 shifts severity cell out of vocab
     row = "| F4 | 标|题 | error | P1 | e | r | v | i | s | d | open |"
     _write_ledger(tmp_path, [row])
-    assert any(f.check == "pipe_escape" for f in lint_run(tmp_path))
+    assert any(f.check == "pipe_escape" for f in lar.lint_run(tmp_path))
 
 
 def test_id_unique(tmp_path: Path) -> None:
     _write_ledger(tmp_path, [GOOD_ROW, GOOD_ROW.replace("标题甲", "另一标题")])
-    assert any(f.check == "id_unique" for f in lint_run(tmp_path))
+    assert any(f.check == "id_unique" for f in lar.lint_run(tmp_path))
 
 
 def test_dup_row(tmp_path: Path) -> None:
     _write_ledger(tmp_path, [GOOD_ROW, GOOD_ROW])
-    assert any(f.check == "dup_row" for f in lint_run(tmp_path))
+    assert any(f.check == "dup_row" for f in lar.lint_run(tmp_path))
 
 
 def test_title_placeholder(tmp_path: Path) -> None:
     _write_ledger(tmp_path, ["| F5 | F5 | error | P1 | e | r | v | i | s | d | open |"])
-    assert any(f.check == "title_placeholder" and f.id == "F5" for f in lint_run(tmp_path))
+    assert any(f.check == "title_placeholder" and f.id == "F5" for f in lar.lint_run(tmp_path))
 
 
 def _write_exemptions(run_dir: Path, entries: list[dict[str, str]]) -> None:
@@ -93,9 +87,9 @@ def test_exemption_mutes_finding(tmp_path: Path) -> None:
         tmp_path,
         [{"check": "row_columns", "id": "F6", "reason": "frozen", "date": "2026-09-07"}],
     )
-    raw = lint_run(tmp_path)
-    exemptions = load_exemptions(tmp_path)
-    assert apply_exemptions(raw, exemptions) == []
+    raw = lar.lint_run(tmp_path)
+    exemptions = lar.load_exemptions(tmp_path)
+    assert lar.apply_exemptions(raw, exemptions) == []
 
 
 def test_run_level_exemption(tmp_path: Path) -> None:
@@ -111,7 +105,7 @@ def test_run_level_exemption(tmp_path: Path) -> None:
             }
         ],
     )
-    assert apply_exemptions(lint_run(tmp_path), load_exemptions(tmp_path)) == []
+    assert lar.apply_exemptions(lar.lint_run(tmp_path), lar.load_exemptions(tmp_path)) == []
 
 
 def test_stale_exemption_fails(tmp_path: Path) -> None:
@@ -120,25 +114,25 @@ def test_stale_exemption_fails(tmp_path: Path) -> None:
         tmp_path,
         [{"check": "row_columns", "id": "F999", "reason": "no hit", "date": "2026-09-07"}],
     )
-    problems = validate_exemptions(tmp_path, lint_run(tmp_path))
+    problems = lar.validate_exemptions(tmp_path, lar.lint_run(tmp_path))
     assert any(p.check == "stale_exemption" for p in problems)
 
 
 def test_exemption_schema_violation_fails(tmp_path: Path) -> None:
     _write_ledger(tmp_path, [GOOD_ROW])
     _write_exemptions(tmp_path, [{"check": "row_columns", "id": "F1"}])  # missing reason/date
-    problems = validate_exemptions(tmp_path, lint_run(tmp_path))
+    problems = lar.validate_exemptions(tmp_path, lar.lint_run(tmp_path))
     assert problems  # schema violation must FAIL
 
 
 def test_severity_parenthetical_suffix_normalized(tmp_path: Path) -> None:
     row = "| F8 | t | error | M（置信度 medium） | e | r | v | i | s | d | open |"
     _write_ledger(tmp_path, [row])
-    assert not any(f.check == "pipe_escape" for f in lint_run(tmp_path))
+    assert not any(f.check == "pipe_escape" for f in lar.lint_run(tmp_path))
 
 
 def test_real_0814_run_lint_has_raw_hits() -> None:
-    raw = lint_run(Path("docs/superpowers/audit-runs/2026-08-14"))
+    raw = lar.lint_run(Path("docs/superpowers/audit-runs/2026-08-14"))
     assert raw  # frozen 08-14 run: malformed-row group (F972 family) must hit pre-exemption
 
 
@@ -147,9 +141,9 @@ def test_real_0814_run_lint_has_raw_hits() -> None:
     reason="Task 3 exemptions not landed yet",
 )
 def test_real_0815_run_after_exemptions() -> None:
-    raw = lint_run(Path("docs/superpowers/audit-runs/2026-08-15"))
-    exemptions = load_exemptions(Path("docs/superpowers/audit-runs/2026-08-15"))
-    assert apply_exemptions(raw, exemptions) == []
+    raw = lar.lint_run(Path("docs/superpowers/audit-runs/2026-08-15"))
+    exemptions = lar.load_exemptions(Path("docs/superpowers/audit-runs/2026-08-15"))
+    assert lar.apply_exemptions(raw, exemptions) == []
 
 
 def test_corrupt_exemption_file_fails_not_crashes(tmp_path: Path) -> None:

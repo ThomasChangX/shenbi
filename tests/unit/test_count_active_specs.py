@@ -9,7 +9,6 @@ import pytest
 pytestmark = pytest.mark.unit
 
 import tools.count_active_specs as cas  # noqa: E402
-from tools.count_active_specs import count_active, declared_count  # noqa: E402
 
 
 def _write_specs(tmp_path: Path, n: int, header_count: int) -> Path:
@@ -27,7 +26,7 @@ def _write_specs(tmp_path: Path, n: int, header_count: int) -> Path:
 
 def test_count_excludes_index_and_archive(tmp_path: Path) -> None:
     specs = _write_specs(tmp_path, n=3, header_count=3)
-    assert count_active(specs) == 3
+    assert cas.count_active(specs) == 3
 
 
 def test_drift_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -35,20 +34,20 @@ def test_drift_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
 
     specs = _write_specs(tmp_path, n=3, header_count=4)
     text = (specs / "INDEX.md").read_text(encoding="utf-8")
-    assert declared_count(text) == 4
-    assert count_active(specs) == 3
+    assert cas.declared_count(text) == 4
+    assert cas.count_active(specs) == 3
     monkeypatch.setattr(mod, "SPECS_DIR", specs)
     monkeypatch.setattr(mod, "INDEX", specs / "INDEX.md")
     assert mod.main() == 1  # drift must exit FAIL
 
 
 def test_missing_marker_returns_none(tmp_path: Path) -> None:
-    assert declared_count("# no marker here\n") is None
+    assert cas.declared_count("# no marker here\n") is None
 
 
 def test_real_index_consistent() -> None:
     SPECS_DIR = cas.SPECS_DIR
 
-    assert count_active(SPECS_DIR) == declared_count(
+    assert cas.count_active(SPECS_DIR) == cas.declared_count(
         (SPECS_DIR / "INDEX.md").read_text(encoding="utf-8")
     )
