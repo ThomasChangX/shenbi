@@ -38,11 +38,11 @@
 - **验收**：下一轮 audit prompt（full-project-audit-prompt.md v4 修订）含上述两规则
 
 ### R4 · 分支与 INDEX 卫生（T1502 + T1507 + F771/F772）
-- T1502：孤儿分支 docs/token-efficiency-p2-spec 开 PR 或 cherry-pick 后删除（481 行 spec 去留由内容裁：若与现行 spec 重复则记录后弃）
+- T1502：~~孤儿分支 docs/token-efficiency-p2-spec 开 PR 或 cherry-pick 后删除~~（**阶段 2 修订 2026-09-07**：分支已在 main 历史中被清除、无处置记录——本项降为「记录裁决 + 回写关闭」，481 行 spec 内容 grep main 零副本，按记录后弃处置）
 - 删 3 个已 squash-merge 远程分支；dependabot 10 条 triage（升级或闭合并记录理由）
 - INDEX 计数改脚本生成（活跃数=目录扫描），消除手工 66/68/63 漂移
-- F771/F772：按 phase4-clustering.md §4 严重度校准提案执行（11 项升/降级 + 已采纳注记核对），只改 ledger 严重度列并留提案引用
-- **验收**：`git branch -r` 无已合并残留；INDEX 计数与目录扫描一致；severity 校准 11 项落账
+- F771/F772：按 phase4-clustering.md §4 严重度校准提案执行（11 项升/降级 + 已采纳注记核对），只改 ledger 严重度列并留提案引用（**阶段 2 修订 2026-09-07**：12 项校准已在 main 落账（总纲记账 pass PR #147 一并完成）——本项降为「逐项核实 + 补提案引用注记 + 回写关闭」，不改严重度列）
+- **验收**：`git branch -r` 无已合并残留；INDEX 计数与目录扫描一致；severity 校准核实+注记完成
 
 ## 验收（簇级）
 - `just check` 全绿（lint_audit_run 若入 CI，先对本轮数据生成豁免清单）
