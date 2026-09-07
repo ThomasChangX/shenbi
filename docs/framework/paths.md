@@ -10,7 +10,7 @@
 | `project_dir`（小说项目根） | 一个小说项目的根目录 | novel.json、genre-config.json、world/、chapters/、truth/、audits/ |
 | `repo_root` | 框架仓库根 | SKILL.md、fixtures、rubric |
 
-**铁律：rd ≠ project_dir。** T2/rounds 场景下 round 目录不是项目根；任何把 `project_dir=rd` 写死的调用形态都是本协议禁止项（历史反例：cli G4 分支，F433）。
+**铁律：默认 rd ≠ project_dir，唯一豁免是 T1 单目录形态。** T2/rounds 场景下 round 目录不是项目根，任何把 `project_dir=rd` 写死的调用形态都是本协议禁止项（历史反例：cli G4 分支，F433）；例外见下方矩阵第一行——T1 手动单目录 round 是唯一合法的 rd==project_dir 形态（cli 第 4 参缺省回落 rd 即为此豁免）。
 
 ## 三布局与探测规则
 

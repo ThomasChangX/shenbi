@@ -59,3 +59,18 @@ def test_project_dir_flag_overrides(tmp_path, monkeypatch):
             ]
         )
     assert (pd / "truth" / "audit_drift.md").exists()
+
+
+def test_project_dir_flag_anchors_relative_defaults(tmp_path, monkeypatch):
+    # PR #168 review: with --project-dir and the RELATIVE default --resonance,
+    # reads must anchor at the flag's root, not process CWD.
+    import pytest
+
+    pd = tmp_path / "pd"
+    _write_inputs(pd)
+    other = tmp_path / "other-cwd"
+    other.mkdir()
+    monkeypatch.chdir(other)
+    with pytest.raises(SystemExit):
+        compute_drift.main(["--project-dir", str(pd), "--write-audit-drift"])
+    assert (pd / "truth" / "audit_drift.md").exists()

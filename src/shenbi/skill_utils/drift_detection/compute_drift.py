@@ -293,20 +293,14 @@ def main(argv: list[str] | None = None) -> None:
     # project root too — CWD-relative defaults silently no-op'd the whole
     # drift check when CWD != project_dir.
     anchor_root = _derive_project_dir(args)
-    if args.project_dir is None:
-        resonance_arg = (
-            str(anchor_root / args.resonance)
-            if not Path(args.resonance).is_absolute()
-            else args.resonance
-        )
-        arc_arg = (
-            str(anchor_root / args.arc_payoff)
-            if not Path(args.arc_payoff).is_absolute()
-            else args.arc_payoff
-        )
-    else:
-        resonance_arg = args.resonance
-        arc_arg = args.arc_payoff
+    resonance_arg = (
+        args.resonance if Path(args.resonance).is_absolute() else str(anchor_root / args.resonance)
+    )
+    arc_arg = (
+        args.arc_payoff
+        if Path(args.arc_payoff).is_absolute()
+        else str(anchor_root / args.arc_payoff)
+    )
 
     resonance_path = Path(resonance_arg)
     if resonance_path.exists():
