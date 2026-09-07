@@ -112,15 +112,23 @@ def lint_run(run_dir: Path) -> list[Finding]:
 
 
 def load_exemptions(run_dir: Path) -> dict[str, set[str]]:
-    """Load audit-lint-exemptions.json → {check: {ids}}; run-level ids included."""
+    """Load audit-lint-exemptions.json → {check: {ids}}; run-level ids included.
+
+    Schema-invalid files yield {} here — validate_exemptions reports the
+    violation (a corrupt file must FAIL, never crash the lint).
+    """
     path = run_dir / "audit-lint-exemptions.json"
     if not path.exists():
         return {}
-    data = json.loads(path.read_text(encoding="utf-8"))
-    result: dict[str, set[str]] = {}
-    for entry in data.get("exemptions", []):
-        result.setdefault(entry["check"], set()).add(entry["id"])
-    return result
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        entries = data.get("exemptions", [])
+        result: dict[str, set[str]] = {}
+        for entry in entries:
+            result.setdefault(entry["check"], set()).add(entry["id"])
+        return result
+    except (json.JSONDecodeError, KeyError, TypeError, AttributeError):
+        return {}
 
 
 def apply_exemptions(findings: list[Finding], exemptions: dict[str, set[str]]) -> list[Finding]:
@@ -194,6 +202,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if args.run_dir is not None and not args.run_dir.is_dir():
+        print(f"FAIL {args.run_dir}: run directory does not exist")
+        return 1
     run_dirs = (
         [args.run_dir]
         if args.run_dir

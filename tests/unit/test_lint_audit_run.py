@@ -149,3 +149,19 @@ def test_real_0815_run_after_exemptions() -> None:
     raw = lint_run(Path("docs/superpowers/audit-runs/2026-08-15"))
     exemptions = load_exemptions(Path("docs/superpowers/audit-runs/2026-08-15"))
     assert apply_exemptions(raw, exemptions) == []
+
+
+def test_corrupt_exemption_file_fails_not_crashes(tmp_path: Path) -> None:
+    _write_ledger(tmp_path, [GOOD_ROW])
+    (tmp_path / "audit-lint-exemptions.json").write_text("{not json", encoding="utf-8")
+    from tools.lint_audit_run import lint_run_full
+
+    findings = lint_run_full(tmp_path)
+    assert any(f.check == "exemption_schema" for f in findings)
+
+
+def test_missing_run_dir_flagged(capsys: pytest.CaptureFixture[str]) -> None:
+    from tools.lint_audit_run import main
+
+    assert main([str(Path("docs/superpowers/audit-runs/nonexistent"))]) == 1
+    assert "does not exist" in capsys.readouterr().out
