@@ -29,7 +29,7 @@ def _assemble(base: Path, layout: str) -> tuple[Path, Path, Path]:
     matrix cell is meaningful for skill/novel-output layouts too.
     """
     alt = base / "pd-alt"
-    alt.mkdir()
+    alt.mkdir(parents=True)
     shutil.copy(FIXTURES / "genre-config-example.json", alt / "genre-config.json")
     if layout == "project-output":
         pd = base / "pd"
