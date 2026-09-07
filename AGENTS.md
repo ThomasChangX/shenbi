@@ -32,6 +32,7 @@ Use entry points (not `python3 tests/X.py`):
 
 - `just check` — Run all CI checks locally
 - `just test` — Fast unit tests only
+- `just audit-lint` — Audit-run artifact lint: ledger rows, count reconciliation, cross-round carryover (spec #49)
 - `shenbi-validate G0 <seed>` — Gate 0: environment check
 - `shenbi-validate G2 <files> <type>` — Gate 2: output validation
 - `shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural check

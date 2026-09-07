@@ -1,13 +1,15 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-07（c34-path-layout done PR #168，归档）
-> **活跃 plan 数**：0 | **已归档**：94（见 `archive/`）
+> **最后更新**：2026-09-07（spec #49 c35-audit-process-hygiene plan ready）
+> **活跃 plan 数**：1 | **已归档**：94（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
 ---
 
 ## 活跃 Plan
+
+- [2026-09-07-c35-audit-process-hygiene](2026-09-07-c35-audit-process-hygiene.md) — spec #49 ✅ ready（6 tasks：lint 工具/对账/承接+接线/计数 lint/prompt 规则+卫生/回写）
 
 
 

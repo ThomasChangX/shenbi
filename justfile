@@ -21,6 +21,8 @@ check:
     uv run python tools/lint_decisions_sources.py
     uv run python tools/lint_helper_usage.py
     uv run python tools/lint_threshold_reconciliation.py
+    uv run python tools/lint_audit_run.py
+    uv run python tools/count_active_specs.py
     just lint-contracts
     uv run ruff check .
     uv run ruff format --check .
@@ -50,6 +52,10 @@ fix:
 # Lint bare status strings (spec D3)
 lint-status:
 	uv run python tools/lint_status_strings.py
+
+# Lint audit-run artifacts: ledger rows, count reconciliation, carryover (spec #49)
+audit-lint *args:
+    uv run python tools/lint_audit_run.py {{args}}
 
 # Lint contract.reads fields vs truth file headings/keys (spec B.5)
 lint-contract-fields:
