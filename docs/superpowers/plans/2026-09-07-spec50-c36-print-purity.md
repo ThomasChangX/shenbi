@@ -19,7 +19,7 @@
 
 ---
 
-### Task 1: `cli_utils.echo()` + T1 测试
+### Task ### Task 1: `cli_utils.echo()` + T1 测试
 
 **复杂度: infra**（公共模块，8 个既有消费方所在文件）· **test_kind: tdd_red_green** · **层级: T1**
 
@@ -30,7 +30,7 @@
 **Interfaces:**
 - Produces: `echo(msg: str, *, err: bool = False) -> None`——写 `msg + "\n"` 到 stdout（默认）或 stderr（err=True），flush，`BrokenPipeError → SystemExit(0)`（与 `emit_json(data: Any) -> None` 完全同语义）
 
-- [ ] **Step 1: 写失败测试** `tests/unit/test_cli_utils.py`
+- [x] **Step 1: 写失败测试** `tests/unit/test_cli_utils.py`
 
 ```python
 """T1 tests for cli_utils output channels (spec #50 / C36)."""
@@ -62,7 +62,7 @@ def test_emit_json_non_escaped_utf8(capsys):
     assert captured.out == json.dumps([{"detail": "中文"}], ensure_ascii=False) + "\n"
 
 
-def test_echo_broken_pipe_exits_clean(capsys, monkeypatch):
+def test_echo_broken_pipe_exits_clean(monkeypatch):
     import sys
 
     class _Closed:
@@ -78,12 +78,12 @@ def test_echo_broken_pipe_exits_clean(capsys, monkeypatch):
     assert exc.value.code == 0
 ```
 
-- [ ] **Step 2: 跑测试确认失败**
+- [x] **Step 2: 跑测试确认失败**
 
 Run: `uv run pytest tests/unit/test_cli_utils.py -v`
 Expected: FAIL（`ImportError: cannot import name 'echo'`）
 
-- [ ] **Step 3: 最小实现**（`src/shenbi/cli_utils.py` 追加，并更新模块 docstring 通道分工句）
+- [x] **Step 3: 最小实现**（`src/shenbi/cli_utils.py` 追加，并更新模块 docstring 通道分工句）
 
 ```python
 def echo(msg: str, *, err: bool = False) -> None:
@@ -100,12 +100,12 @@ def echo(msg: str, *, err: bool = False) -> None:
         raise SystemExit(0) from None
 ```
 
-- [ ] **Step 4: 跑测试确认通过**
+- [x] **Step 4: 跑测试确认通过**
 
 Run: `uv run pytest tests/unit/test_cli_utils.py -v`
 Expected: 4 passed
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/shenbi/cli_utils.py tests/unit/test_cli_utils.py
@@ -114,7 +114,7 @@ git commit -m "feat: add cli_utils.echo for human-facing output (spec #50 R1)"
 
 ---
 
-### Task 2: 6 处 print 迁移
+### Task ### Task 2: 6 处 print 迁移
 
 **复杂度: infra**（`pipeline/cli.py` 属 infra 模块）· **test_kind: characterization**（行为保持：stdout/stderr 流向与 JSON 负载不变）· **层级: T1**
 
@@ -127,7 +127,7 @@ git commit -m "feat: add cli_utils.echo for human-facing output (spec #50 R1)"
 **Interfaces:**
 - Consumes: Task 1 的 `echo(msg, *, err=False)`；既有 `emit_json(data)`
 
-- [ ] **Step 1: cost/report.py**（先加 import `from shenbi.cli_utils import echo`，删除已不再使用的 `import sys` 仅当无其他 sys 用途——该文件 main 里只有这两处 print 用 sys，grep 确认）
+- [x] **Step 1: cost/report.py**（先加 import `from shenbi.cli_utils import echo`，删除已不再使用的 `import sys` 仅当无其他 sys 用途——该文件 main 里只有这两处 print 用 sys，grep 确认）
 
 ```python
 # :135 原: print(f"error: project dir not found: {args.project_dir}", file=sys.stderr)
@@ -136,7 +136,7 @@ echo(f"error: project dir not found: {args.project_dir}", err=True)
 echo(render_report(args.project_dir))
 ```
 
-- [ ] **Step 2: pipeline/cli.py**（backfill 循环内；既有 `from shenbi.cli_utils import emit_json`（cli.py:30）合并为 `from shenbi.cli_utils import echo, emit_json`）
+- [x] **Step 2: pipeline/cli.py**（backfill 循环内；既有 `from shenbi.cli_utils import emit_json`（cli.py:30）合并为 `from shenbi.cli_utils import echo, emit_json`）
 
 ```python
 # :1065 原: print(f"  Backfilled context for chapter {ch}")
@@ -145,7 +145,7 @@ echo(f"  Backfilled context for chapter {ch}")
 echo(f"  FAILED chapter {ch}: {e}", err=True)
 ```
 
-- [ ] **Step 3: escalation/check.py**
+- [x] **Step 3: escalation/check.py**
 
 ```python
 # 文件头 import 区：删除 import json（迁移后该文件唯一 json 用点消失，F401 会红），加 from shenbi.cli_utils import emit_json
@@ -153,14 +153,14 @@ echo(f"  FAILED chapter {ch}: {e}", err=True)
 emit_json([{"trigger": s.trigger, "detail": s.detail} for s in signals])
 ```
 
-- [ ] **Step 4: foreshadowing_recall/recall.py**（import 区加 `from shenbi.cli_utils import emit_json`；该文件 `json.loads` 仍在用，`import json` 保留）
+- [x] **Step 4: foreshadowing_recall/recall.py**（import 区加 `from shenbi.cli_utils import emit_json`；该文件 `json.loads` 仍在用，`import json` 保留）
 
 ```python
 # 原: print(json.dumps(overdue))
 emit_json(overdue)
 ```
 
-- [ ] **Step 5: 流向/负载表征测试**（追加到 `tests/unit/test_cli_utils.py`）
+- [x] **Step 5: 流向/负载表征测试**（追加到 `tests/unit/test_cli_utils.py`）
 
 ```python
 def test_report_main_error_stderr(capsys, tmp_path):
@@ -193,17 +193,17 @@ def test_recall_main_json_payload(capsys, monkeypatch):
 
 （fixture 须含 `max_distance` 字段——`recall_overdue_hooks` 跳过缺该字段的 hook；测试意图是「stdout == json.dumps(overdue) + 换行」契约形态。）
 
-- [ ] **Step 6: 运行测试 + 相关回归**
+- [x] **Step 6: 运行测试 + 相关回归**
 
 Run: `uv run pytest tests/unit/test_cli_utils.py tests/unit/skill_utils/test_foreshadowing_recall.py tests/unit/skill_utils -q`
 Expected: all passed
 
-- [ ] **Step 7: 全局扫描零命中**
+- [x] **Step 7: 全局扫描零命中**
 
 Run: `git grep -n "print(" -- 'src/shenbi/' | grep -v _text_fingerprint`
 Expected: 空输出（exit 1）
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/shenbi/cost/report.py src/shenbi/pipeline/cli.py src/shenbi/skill_utils/escalation/check.py src/shenbi/skill_utils/foreshadowing_recall/recall.py tests/unit/test_cli_utils.py
@@ -212,7 +212,7 @@ git commit -m "fix: migrate 6 print sites to cli_utils.echo/emit_json (spec #50 
 
 ---
 
-### Task 3: ruff T20 执法 + 豁免成文
+### Task ### Task 3: ruff T20 执法 + 豁免成文
 
 **复杂度: infra**（lint 配置全局生效）· **test_kind: regression_guard** · **层级: T1（负例验证）**
 
@@ -224,7 +224,7 @@ git commit -m "fix: migrate 6 print sites to cli_utils.echo/emit_json (spec #50 
 **Interfaces:**
 - Consumes: 无（独立于 T1/T2 代码面，但依赖 T2 完成后 src/shenbi 才能零豁免全绿）
 
-- [ ] **Step 1: pyproject.toml**
+- [x] **Step 1: pyproject.toml**
 
 `[tool.ruff.lint]` 的 `select` 列表追加 `"T20"`（保持字母序位置按现有列表风格）。`[tool.ruff.lint.per-file-ignores]` 追加两条 + 合并一条：
 
@@ -235,12 +235,12 @@ git commit -m "fix: migrate 6 print sites to cli_utils.echo/emit_json (spec #50 
 "tests/**" = ["BLE001", "T201"]
 ```
 
-- [ ] **Step 2: 验证存量全绿**
+- [x] **Step 2: 验证存量全绿**
 
 Run: `uv run ruff check .`
 Expected: 无 T20 相关错误（src/shenbi 零命中；tools/scripts/tests 豁免生效）
 
-- [ ] **Step 3: 负例验证（加临时 print → 红 → 还原）**
+- [x] **Step 3: 负例验证（加临时 print → 红 → 还原）**
 
 ```bash
 echo 'print("x")' >> src/shenbi/paths.py
@@ -249,23 +249,23 @@ git stash push -- src/shenbi/paths.py && git stash pop   # 还原（不销毁任
 uv run ruff check src/shenbi/paths.py   # Expected: PASS
 ```
 
-- [ ] **Step 4: AGENTS.md Python Conventions 句替换**
+- [x] **Step 4: AGENTS.md Python Conventions 句替换**
 
 原句（该节末尾）："No `print()` in framework code; use structlog."
 替换为："No `print()` in framework code (enforced by ruff T20, zero exemptions in `src/shenbi/`); user-facing text goes through `shenbi.cli_utils.echo` (`err=True` for stderr), machine-readable CLI stdout through `shenbi.cli_utils.emit_json` or direct `sys.stdout.write`; use structlog for logging."
 
-- [ ] **Step 5: docs/framework/logging.md 扩充**（保留既有指向 `../api/logging.md` 的链接，追加「输出通道裁决」节：structlog 日志 / cli_utils.echo 人面 / cli_utils.emit_json 或 sys.stdout.write 机器 stdout 三类，附 ruff T20 执法说明与框架外豁免清单）
+- [x] **Step 5: docs/framework/logging.md 扩充**（保留既有指向 `../api/logging.md` 的链接，追加「输出通道裁决」节：structlog 日志 / cli_utils.echo 人面 / cli_utils.emit_json 或 sys.stdout.write 机器 stdout 三类，附 ruff T20 执法说明与框架外豁免清单）
 
-- [ ] **Step 6: docs/api/logging.md 一致性核查**（若该文提及 print 政策则同步；仅核查，无则零改动）
+- [x] **Step 6: docs/api/logging.md 一致性核查**（若该文提及 print 政策则同步；仅核查，无则零改动）
 
 Run: `grep -n "print" docs/api/logging.md`
 
-- [ ] **Step 7: 全量门禁**
+- [x] **Step 7: 全量门禁**
 
 Run: `just check`
 Expected: 全绿（含 ruff/format/mypy/basedpyright/两段 pytest）
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add pyproject.toml AGENTS.md docs/framework/logging.md
@@ -274,7 +274,7 @@ git commit -m "feat: enforce ruff T20 print ban with 3-channel output ruling (sp
 
 ---
 
-### Task 4: findings-ledger 回写关闭
+### Task ### Task 4: findings-ledger 回写关闭
 
 **复杂度: leaf**（机械文本编辑）· **test_kind: regression_guard**（git diff 审查）· **层级: docs**
 

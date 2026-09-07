@@ -125,9 +125,8 @@ ignore = [
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-# Tests legitimately aggregate unexpected failures and print audit records;
-# T201 (spec #50 / C36) exempted here alongside BLE001. — production
-# blind-catch rules (BLE001) do not apply to test assertion paths.
+# Tests legitimately aggregate unexpected failures (BLE001) and print
+# audit records (T201, spec #50 / C36): neither applies to test paths.
 "tests/**" = ["BLE001", "T201"]
 # spec #39 T5 (F103-family prevention): BLE001 blind-except lint is
 # ACTIVE repo-wide; the files below are legacy out-of-scope sites pending
