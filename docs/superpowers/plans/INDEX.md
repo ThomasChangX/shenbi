@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-08（#55 C17 test-infra plan ✅ ready）
-> **活跃 plan 数**：1 | **已归档**：107（见 `archive/`）
+> **最后更新**：2026-09-08（#55 C17 test-infra plan 归档——Done PR #191）
+> **活跃 plan 数**：0 | **已归档**：108（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- ✅ ready · [2026-09-08-spec55-c17-test-infra.md](2026-09-08-spec55-c17-test-infra.md) — #55 C17 测试基础设施配置失效（7 task：hypothesis 重放 / internal-links per-PR / G0.5 实装 / mutation 激活或下线 / gate-outputs 对账 / golden-benchmark 诚实化 / 门禁+ledger 回写）
 
 
 
