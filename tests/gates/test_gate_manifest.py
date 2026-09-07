@@ -114,8 +114,6 @@ def test_repeated_records_keep_history_list_and_latest_wins():
     """Historical list branch: same (phase, chapter, skill, gate) recorded twice
     stores a list, and get_gate_result returns the MOST RECENT entry.
     """
-    import tempfile
-
     with tempfile.TemporaryDirectory() as tmp:
         manifest_dir = Path(tmp)
         record_gate_result(
