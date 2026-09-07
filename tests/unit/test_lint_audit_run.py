@@ -165,3 +165,92 @@ def test_missing_run_dir_flagged(capsys: pytest.CaptureFixture[str]) -> None:
 
     assert main([str(Path("docs/superpowers/audit-runs/nonexistent"))]) == 1
     assert "does not exist" in capsys.readouterr().out
+
+
+# ---- Task 2: counts_reconcile + report_internal ----
+
+
+def _write_mini_run(
+    run_dir: Path,
+    ledger_rows: list[str],
+    report_body: str,
+    zones: dict[str, str] | None = None,
+) -> None:
+    _write_ledger(run_dir, ledger_rows)
+    (run_dir / "final-report.md").write_text(f"# Final Report\n{report_body}", encoding="utf-8")
+    zones_dir = run_dir / "zones"
+    zones_dir.mkdir(exist_ok=True)
+    for name, content in (zones or {"Z1.files": "a.py\nb.py\n"}).items():
+        (zones_dir / name).write_text(content, encoding="utf-8")
+
+
+def test_counts_reconcile_prefix_mismatch(tmp_path: Path) -> None:
+    from tools.lint_audit_run import reconcile
+
+    rows = [GOOD_ROW, "| T1 | t | error | P1 | e | r | v | i | s | d | open |"]
+    _write_mini_run(
+        tmp_path,
+        rows,
+        "```\nF=1 T=2 D=0 G=0 total=3\nP0=0 P1=2 P2=0 M=0 (sum=2)\n```\n",
+    )
+    assert any(f.id == "prefix:T" for f in reconcile(tmp_path))
+
+
+def test_report_internal_total_vs_ledger(tmp_path: Path) -> None:
+    from tools.lint_audit_run import report_internal
+
+    _write_mini_run(tmp_path, [GOOD_ROW], "**总 findings: 5**\n")
+    assert any(f.id == "total_claim" for f in report_internal(tmp_path))
+
+
+def test_report_internal_sum_line(tmp_path: Path) -> None:
+    from tools.lint_audit_run import report_internal
+
+    _write_mini_run(tmp_path, [GOOD_ROW], "```\nP0=1 P1=3 P2=0 M=0 (sum=5)\n```\n")
+    assert any(f.id == "sum_claim" for f in report_internal(tmp_path))
+
+
+def test_report_internal_severity_vs_ledger(tmp_path: Path) -> None:
+    from tools.lint_audit_run import report_internal
+
+    _write_mini_run(tmp_path, [GOOD_ROW], "```\nP0=0 P1=2 P2=0 M=0 (sum=2)\n```\n")
+    assert any(f.id == "severity:P1" for f in report_internal(tmp_path))
+
+
+def test_reconcile_zones_union_vs_table_a(tmp_path: Path) -> None:
+    from tools.lint_audit_run import reconcile
+
+    _write_mini_run(
+        tmp_path,
+        [GOOD_ROW],
+        "| tracked 文件（表 A） | 1 |",
+        zones={"Z1.files": "a.py\nb.py\n", "Z2.files": "b.py\nc.py\n"},  # union=3
+    )
+    assert any(f.id == "zones_union" for f in reconcile(tmp_path))
+
+
+def test_reconcile_clean_mini_run(tmp_path: Path) -> None:
+    from tools.lint_audit_run import reconcile, report_internal
+
+    rows = [GOOD_ROW, "| T1 | t | error | P1 | e | r | v | i | s | d | open |"]
+    _write_mini_run(
+        tmp_path,
+        rows,
+        "```\nF=1 T=1 D=0 G=0 total=2\nP0=0 P1=2 P2=0 M=0 (sum=2)\n```\n**总 findings: 2**\n",
+        zones={"Z1.files": "a.py\nb.py\n"},
+    )
+    (tmp_path / "final-report.md").write_text(
+        (tmp_path / "final-report.md").read_text(encoding="utf-8")
+        + "\n| tracked 文件（表 A） | 2 |\n",
+        encoding="utf-8",
+    )
+    assert reconcile(tmp_path) == []
+    assert report_internal(tmp_path) == []
+
+
+def test_real_0814_reconcile_hits_f969_f973() -> None:
+    from tools.lint_audit_run import reconcile, report_internal
+
+    run = Path("docs/superpowers/audit-runs/2026-08-14")
+    assert any(f.id == "zones_union" for f in reconcile(run))  # F973: 2755 vs 2738
+    assert any(f.id == "total_claim" for f in report_internal(run))  # F969: 781 vs 786

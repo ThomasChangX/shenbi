@@ -7,6 +7,12 @@ Checks per run directory (docs/superpowers/audit-runs/<date>/):
 - pipe_escape: unescaped pipes shifting columns (detected via severity cell
   falling outside the known vocabulary).
 - id_unique / dup_row / title_placeholder: ledger hygiene.
+- counts_reconcile: ledger prefix counts (F/T/D/G) vs final-report stat
+  claims (code-block `F=… T=… D=… G=… total=…` lines); zones *.files union
+  vs the report's 表A/tracked claim (F973 shape).
+- report_internal: report total claims vs computed ledger row count (F969
+  shape: 781 vs 786); `(sum=N)` component sums; severity distribution
+  claims vs normalized ledger severity counts.
 
 Exemptions: <run-dir>/audit-lint-exemptions.json
     {"exemptions": [{"check": str, "id": str, "reason": str, "date": "YYYY-MM-DD"}]}
@@ -111,6 +117,102 @@ def lint_run(run_dir: Path) -> list[Finding]:
     return _row_format_findings(_parse_rows(run_dir))
 
 
+def _report_text(run_dir: Path) -> str:
+    report = run_dir / "final-report.md"
+    if not report.exists():
+        return ""
+    return report.read_text(encoding="utf-8")
+
+
+def _zones_union(run_dir: Path) -> int:
+    zones_dir = run_dir / "zones"
+    union: set[str] = set()
+    if not zones_dir.is_dir():
+        return 0
+    for files_list in sorted(zones_dir.glob("*.files")):
+        union.update(
+            ln.strip() for ln in files_list.read_text(encoding="utf-8").splitlines() if ln.strip()
+        )
+    return len(union)
+
+
+def reconcile(run_dir: Path) -> list[Finding]:
+    """Ledger prefix counts + zones union vs final-report claims (spec #49 R1)."""
+    findings: list[Finding] = []
+    rows = _parse_rows(run_dir)
+    report = _report_text(run_dir)
+
+    prefix_counts: dict[str, int] = {}
+    for _lineno, _raw, cells in rows:
+        if cells and cells[0]:
+            key = cells[0][0].upper()
+            prefix_counts[key] = prefix_counts.get(key, 0) + 1
+
+    claimed: dict[str, int] = {k: int(v) for k, v in re.findall(r"\b([FTDG])=(\d+)\b", report)}
+    for prefix, count in claimed.items():
+        actual = prefix_counts.get(prefix, 0)
+        if actual != count:
+            msg = f"report {prefix}={count} vs ledger {actual}"
+            findings.append(Finding("counts_reconcile", f"prefix:{prefix}", msg))
+    total_match = re.search(r"\btotal=(\d+)\b", report)
+    if total_match and int(total_match.group(1)) != len(rows):
+        claimed_total = int(total_match.group(1))
+        msg = f"report total={claimed_total} vs ledger rows {len(rows)}"
+        findings.append(Finding("counts_reconcile", "total_claim", msg))
+
+    table_a = re.search("表\\s*A\\*{0,2}[\\uff09):\\uff1a]\\s*(?:\\|\\s*)?(\\d+)", report)
+    if table_a:
+        zones_union = _zones_union(run_dir)
+        claimed_files = int(table_a.group(1))
+        if zones_union != claimed_files:
+            findings.append(
+                Finding(
+                    "counts_reconcile",
+                    "zones_union",
+                    f"zones union {zones_union} vs report 表A {claimed_files}",
+                )
+            )
+    return findings
+
+
+def report_internal(run_dir: Path) -> list[Finding]:
+    """Final-report internal consistency vs computed ledger values (spec #49 R1)."""
+    findings: list[Finding] = []
+    rows = _parse_rows(run_dir)
+    report = _report_text(run_dir)
+
+    total_claims = [int(m) for m in re.findall(r"总 findings[:\uff1a]?\s*\*{0,2}(\d+)", report)]
+    for claim in total_claims:
+        if claim != len(rows):
+            msg = f"report 总 findings={claim} vs ledger rows {len(rows)}"
+            findings.append(Finding("report_internal", "total_claim", msg))
+
+    sum_match = re.search(r"\(sum=(\d+)\)", report)
+    if sum_match:
+        severity_claims = {k: int(v) for k, v in re.findall(r"\b(P0|P1|P2|M)=(\d+)\b", report)}
+        components_sum = sum(severity_claims.values())
+        if severity_claims and components_sum != int(sum_match.group(1)):
+            msg = f"(sum={sum_match.group(1)}) vs components {components_sum}"
+            findings.append(Finding("report_internal", "sum_claim", msg))
+        actual: dict[str, int] = {}
+        for _lineno, _raw, cells in rows:
+            if len(cells) > _SEVERITY_COL:
+                sev = _normalize_severity(cells[_SEVERITY_COL])
+                if sev in severity_claims:
+                    actual[sev] = actual.get(sev, 0) + 1
+        for sev, claim in severity_claims.items():
+            if actual.get(sev, 0) != claim:
+                msg = f"report {sev}={claim} vs ledger {actual.get(sev, 0)}"
+                findings.append(
+                    Finding(
+                        "report_internal",
+                        f"severity:{sev}",
+                        f"report {sev}={claim} vs ledger {actual.get(sev, 0)}",
+                    )
+                )
+    return findings
+
+
 def load_exemptions(run_dir: Path) -> dict[str, set[str]]:
     """Load audit-lint-exemptions.json → {check: {ids}}; run-level ids included.
 
@@ -181,8 +283,8 @@ def validate_exemptions(run_dir: Path, raw_findings: list[Finding]) -> list[Find
 
 
 def lint_run_full(run_dir: Path) -> list[Finding]:
-    """Lint one run dir: raw findings + exemption application + exemption validation."""
-    raw = lint_run(run_dir)
+    """Lint one run dir: raw findings + reconciliation + exemption handling."""
+    raw = lint_run(run_dir) + reconcile(run_dir) + report_internal(run_dir)
     if not (run_dir / "audit-lint-exemptions.json").exists():
         return raw  # strict: no exemption file
     exemptions = load_exemptions(run_dir)
