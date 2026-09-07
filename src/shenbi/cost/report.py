@@ -9,9 +9,9 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 
 from shenbi.cli_utils import echo
-from pathlib import Path
 
 from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
