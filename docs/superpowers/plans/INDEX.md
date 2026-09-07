@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-09-07（spec #40 总纲矩阵同步 pass plan ready）
-> **活跃 plan 数**：1 | **已归档**：95（见 `archive/`）
+> **活跃 plan 数**：1 | **已归档**：100（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
