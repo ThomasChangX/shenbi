@@ -74,6 +74,14 @@ jobs:
           --cov-report=json:coverage.json
       - name: Per-module coverage floors (spec 53 C15 T3)
         run: uv run python tools/check_module_coverage.py coverage.json
+      - name: Hypothesis replay statistics (C17 T1, spec 55)
+        # Visible proof that property tests run in CI. Statistics alone are
+        # not the replay proof — the fresh-clone injection red-light is the
+        # mechanism anchor (spec #55 acceptance 1) — this makes the property
+        # execution surface inspectable in workflow logs.
+        run: >-
+          uv run pytest tests/property -q --no-cov
+          --hypothesis-profile=ci --hypothesis-show-statistics
       - name: Run coverage threshold test (serial, last only)
         run: uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 

@@ -105,16 +105,6 @@ clean:
 precommit:
     uv run pre-commit run --all-files
 
-# Mutation testing
-mutate:
-    uv run mutmut run --use-cache
-
-# Compare mutation score to baseline
-mutate-check:
-    @test -f tools/compare_mutation_score.py && test -f tests/baselines/mutation-score.txt \
-      || { echo 'mutate-check requires Plan 2 (tools/compare_mutation_score.py + tests/baselines/mutation-score.txt)'; exit 1; }
-    uv run python tools/compare_mutation_score.py --baseline tests/baselines/mutation-score.txt
-
 # Generate changelog from conventional commits
 changelog:
     uv run git-cliff --unreleased -p CHANGELOG.md

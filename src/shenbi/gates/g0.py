@@ -80,6 +80,7 @@ MIRROR_MAP: dict[str, str] = {
 
 
 import hashlib
+import math
 import json
 import os
 import re
@@ -263,6 +264,73 @@ def _layout_project_roots(base: Path, layouts: frozenset[Layout]) -> list[Path]:
     return sorted(roots)
 
 
+_WEIGHT_VALUE_RE = re.compile(r"(\d+(?:\.\d+)?)%")
+
+
+def _rubric_weight_sum(rubric_path: Path) -> float | None:
+    """Sum the Weight column of a rubric's dimension tables.
+
+    Header-aware: the Weight column is located by the table header row, so
+    layouts with populated columns after Weight (the majority convention in
+    this repo's rubrics) are parsed correctly, and percent tokens in other
+    columns (e.g. "≥90%" in a Standard cell) are never counted.
+
+    Returns None when the rubric has no weight cells at all (prose-only or
+    non-scoring rubric) — such rubrics are skipped, not failed.
+    """
+    lines = rubric_path.read_text(encoding="utf-8").splitlines()
+    total = 0.0
+    found = False
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        cells = (
+            [c.strip() for c in line.strip().strip("|").split("|")]
+            if line.lstrip().startswith("|")
+            else []
+        )
+        if cells and "weight" in [c.lower() for c in cells]:
+            widx = [c.lower() for c in cells].index("weight")
+            j = i + 2  # skip the |---|---| separator row
+            while j < len(lines) and lines[j].lstrip().startswith("|"):
+                row = [c.strip() for c in lines[j].strip().strip("|").split("|")]
+                if widx < len(row):
+                    m = _WEIGHT_VALUE_RE.fullmatch(row[widx])
+                    if m:
+                        total += float(m.group(1))
+                        found = True
+                j += 1
+            i = j
+        else:
+            i += 1
+    return total if found else None
+
+
+def _g05_weight_check() -> dict[str, Any]:
+    """G0.5: every rubric weight table under tests/tiers sums to exactly 100%."""
+    bad: list[str] = []
+    rubrics = sorted((TESTS / "tiers").rglob("rubric.md")) if (TESTS / "tiers").exists() else []
+    for rubric in rubrics:
+        total = _rubric_weight_sum(rubric)
+        # Skip _-prefixed scaffolding (same convention as G0.4/G0.5b):
+        # _template carries placeholder weights, not a scoring contract.
+        if total is None or any(part.startswith("_") for part in rubric.relative_to(TESTS).parts):
+            continue
+        if not math.isclose(total, 100, abs_tol=1e-9):
+            bad.append(f"{rubric.relative_to(TESTS)}={total:g}%")
+    if bad:
+        return {
+            "id": "G0.5",
+            "s": GateStatus.FAIL,
+            "r": f"rubric weights must sum to 100%: {bad}",
+        }
+    return {
+        "id": "G0.5",
+        "s": GateStatus.PASS,
+        "rubrics_checked": len(rubrics),
+    }
+
+
 def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     """G0: Round creation environment check."""
     checks: list[dict[str, Any]] = []
@@ -346,8 +414,8 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     else:
         checks.append({"id": "G0.4", "s": GateStatus.PASS, "skills_count": len(ALL_SKILLS)})
 
-    # G0.5 — rubric weight sum = 100% (sampling check — full check is expensive)
-    checks.append({"id": "G0.5", "s": GateStatus.UNIMPLEMENTED, "note": "not yet implemented"})
+    # G0.5 — rubric weight sum = 100% (C17 T5 / T1109: real implementation)
+    checks.append(_g05_weight_check())
 
     # G0.5b — rubric-SKILL.md consistency: for each rubric, verify that
     # dimension requirements reference concepts/rules that exist in the

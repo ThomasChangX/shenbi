@@ -9,5 +9,7 @@
   "src/shenbi/skill_utils/revision_routing/__main__.py": 95,
   "src/shenbi/pipeline/parallel_dispatch.py": 90,
   "src/shenbi/pipeline/audit_context_cache.py": 90,
-  "src/shenbi/gates/g4/chapter_drafting.py": 75
+  "src/shenbi/gates/g4/chapter_drafting.py": 75,
+  "src/shenbi/skill_utils/escalation/check.py": 90,
+  "src/shenbi/gates/g_reconcile.py": 80
 }

@@ -21,8 +21,8 @@
 
 - **文件**：`2026-08-16-audit-test-infra-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C17，18 条）
-- **状态**：Design | **优先级**：🟠 P1（F1159 回归重放双重死亡）
-- **内容**：hypothesis 样本入库 + CI replay（F1159/T1107/T1108 族）+ doc-links 拆 per-PR CI（F001/F732，承载 C23）+ mutmut 空转修复或诚实下线（T1104 实测 editable .pth 根因）+ golden/benchmark 建集或删承诺（F741/F742）+ G0.5 假 PASS 清理（T1109）——每条防线"激活或下线"二选一，消灭配置存在但永不运行态
+- **状态**：Design（Revised 2026-09-08 · 证据刷新至 HEAD） | **优先级**：🟠 P1（F1159 回归重放双重死亡）
+- **内容**：hypothesis 样本入库 + CI replay（F1159/F1158/T1101-T1107 族）+ doc-links 拆 per-PR CI（F001/F732，承载 C23）+ mutmut 空转修复或诚实下线（T1104 editable .pth 根因；配置键已修）+ golden/benchmark 建集或删承诺（F741/F742）+ G0.5 假 PASS 清理（T1109）——每条防线"激活或下线"二选一，消灭配置存在但永不运行态
 
 ### #56 · 审计修复 C18：生产产物污染清洗（P1）
 
