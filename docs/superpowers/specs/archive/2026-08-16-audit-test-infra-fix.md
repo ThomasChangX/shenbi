@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-08 · 阶段 1 复核：11 存活 / 2 降级 / 1 子句驳斥，证据刷新至 main HEAD b21997f4) | **Severity:** 🟠 P1（F1159 回归重放机制双重死亡）
+> **Date:** 2026-08-16 | **Status:** Done (PR #191) (Revised 2026-09-08 · 阶段 1 复核：11 存活 / 2 降级 / 1 子句驳斥，证据刷新至 main HEAD b21997f4) | **Severity:** 🟠 P1（F1159 回归重放机制双重死亡）
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C17）| **代表 finding:** F001 | **簇规模:** 18 条 | **严重度上限:** P1
 > **范围:** .github/workflows/（nightly/ci）、pyproject.toml（pytest/mutmut/hypothesis 配置）、tests/baselines/、tests/golden/、tests/benchmark/ | **证据等级:** 实验佐证（T11 线程实测复现 mutmut 空转根因 + Z11-b）
 > **与既有 spec 关系:** #16/#25 批量 spec 不含本簇；doc-links 部分与 C23（文档机械漂移）共享防线目标，执行顺序建议 C17 先立 CI 承载面
