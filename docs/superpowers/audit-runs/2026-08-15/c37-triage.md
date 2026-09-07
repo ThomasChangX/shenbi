@@ -14,7 +14,7 @@
 | F243 | OutputKind.EPHEMERAL 死值 | src/shenbi/dispatcher/executor.py:87 | already-fixed | — | 已接线（#33 时代），注释在 :75 |
 | F313 | build_index 返回值即弃（仅 log） | src/shenbi/pipeline/chapter_loop.py:1174 | delete | T3 | 删该调用；build_index 本体有读者（CLI rebuild + query_index）保留 |
 | F314 | volume_align 整模块死 | src/shenbi/pipeline/volume_align.py:52 | delete | T3 | 直测随删 |
-| F315 | CONDITIONAL_STEPS 死表（零消费） | src/shenbi/pipeline/chapter_loop.py:439 | delete | T3 | |
+| F315 | CONDITIONAL_STEPS 死表（零消费；_get_last_drift_chapter 级联随删） | src/shenbi/pipeline/chapter_loop.py:439 | delete | T3 | |
 | F316 | _archive_chapter_state + compact_pipeline_state 零调用 | src/shenbi/pipeline/state.py:435,459 | delete | T3 | |
 | F319 | review_checklist split 段死面 | src/shenbi/pipeline/review_checklist.py:426 | already-fixed | — | 重构后为活 frontmatter 解析，原主张形态不复存在 |
 | F321 | 串行审计分支不可达 | src/shenbi/pipeline/chapter_loop.py:2891+ | already-fixed | — | MERGE-2 重构后串行路径是 C32 WRITE_SHARED 真实路径，主张失效 |
@@ -37,8 +37,8 @@
 | F634 | escalation 触发器组零调用（原主张） | cli.py:227,231,255 | already-fixed | — | #33 已接线 |
 | F635 | drift 接线面（原主张） | src/shenbi/pipeline/chapter_loop.py:89 等 | already-fixed | — | #33 已接线 |
 | F636 | escalation 接线面（原主张） | src/shenbi/pipeline/cli.py:300 | already-fixed | — | #33 已接线 |
-| F641 | records 半数导出零消费 | src/shenbi/records/__init__.py:7-12 | delete | T3 | 删 serialize_records/is_idempotent |
-| F642 | text 半数导出零消费（PUNCTUATION_TOKENS 除外——count_punctuation 消费 .items()，主张对该常量不成立） | src/shenbi/text（count_words/tokenize） | delete | T3 | 保 count_punctuation + PUNCTUATION_TOKENS |
+| F641 | records 半数导出零消费（执行修正：serialize_records 有生产消费 writer.py:187/parser 内部——保留；仅 is_idempotent 零消费） | src/shenbi/records/parser.py:76 | delete | T3 | 仅删 is_idempotent 及导出 |
+| F642 | text 半数导出零消费（PUNCTUATION_TOKENS 除外——count_punctuation 消费 .items()；Token/_get_tokenizers 随 tokenize 级联删） | src/shenbi/text（count_words/tokenize/Token） | delete | T3 | 保 count_punctuation + PUNCTUATION_TOKENS + find_terms |
 | F706 | g4/conftest 两死 fixture | tests/unit/gates/g4/conftest.py:13,27 | delete | T4 | grep 确认零引用后删 |
 | F793 | 死函数被直测模式（_should_run_recall 已删、_should_run_drift 仍在） | src/shenbi/pipeline/chapter_loop.py:1774 + tests/unit/pipeline/test_adaptive_triggers.py:16 | delete | T3 | 模式治理整体移交 C14（R4/T6） |
 | F886 | genesis-context/*.md 写后零消费 | src/shenbi/pipeline/cli.py:497-500 | defer | T2 注记 | 种子断流是产品缺陷非卫生问题；写点注释如实标注，内容恢复待产品裁决/后续 spec |
