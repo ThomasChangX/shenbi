@@ -29,7 +29,7 @@
 - F979（标题列转录缺口，本批已回填）由本项行格式 lint 显式覆盖（标题≠ID 占位检查），随簇回写关闭
 - **接线强制（防 dead-wire）**：justfile 增 `audit-lint` recipe 并纳入 `just check` 与 ci workflow——recipe 无参 = check 模式，固定 lint 全部 `docs/superpowers/audit-runs/*/` 现存 run 目录（脚本内置无参全目录模式；带 `<run-dir>` 参数 = 单目录模式）；历史冻结 run（2026-08-14/2026-08-15）**只加显式豁免注记，不改历史行**，修复策略只对未来 run 生效
 - 豁免机制定义：豁免文件为 `<run-dir>/audit-lint-exemptions.json`，schema `{"exemptions": [{"check": "<检查类名>", "id": "<F/T 编号、行标识，或聚合检查的 run 级 id `run:<检查类名>`>", "reason": "<一句话>", "date": "YYYY-MM-DD"}]}`（计数对账类聚合检查无自然条目 ID，用 run 级 id 豁免整检查项）；唯一读方是 `lint_audit_run.py`（判定 FAIL 前加载，逐条匹配消音）；lint 自身校验豁免文件 schema 与「豁免 id 必须对应真实命中项」（豁免不命中 = FAIL，防豁免腐烂）；无豁免文件的 run 目录一律 strict
-- **验收**：`just audit-lint`（无参全目录模式——F969/F972/F973 缺口在 2026-08-14 run、F975/F1176 在 2026-08-15 run，须两轮都被扫）——成员缺口 F969/F972/F973/F975/F1176 五类全部被抓出且以豁免注记闭合；`just check` 含该 lint 且全绿
+- **验收**：`just audit-lint`（无参全目录模式——F969/F972/F973 缺口在 2026-08-14 run、F975/F1176 在 2026-08-15 run，须两轮都被扫）——F969/F972/F973/F1176 四类被机械抓出且以豁免注记闭合；F975（分区清单漏登=缺项遗漏，存在性检查抓不到省略）以执行期核实注记闭合（记 deviation）；row_columns 检查容忍既有回写注记列（第 12+ 列匹配注记语法）；`just check` 含该 lint 且全绿
 
 ### R2 · 跨轮命名空间与承接（F978 + F956 + F1177 + T513 + T1501）
 - ledger ID 方案裁决：`F<轮标识>-NN` 或全局单调段（T/D 前缀同理）；写迁移注记而非改历史行（旧轮文件与既有 spec 的旧 ID 引用一律不动，新轮生效）

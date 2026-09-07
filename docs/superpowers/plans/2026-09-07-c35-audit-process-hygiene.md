@@ -27,14 +27,16 @@
 
 **Interfaces:**
 - Produces: `lint_run(run_dir: Path) -> list[Finding]`（Finding: dataclass{check, id, message}）；`load_exemptions(run_dir: Path) -> dict[str, set[str]]`（check → ids 集合，`run:<check>` 键并入）；`validate_exemptions(run_dir, exemptions, findings) -> list[Finding]`（schema 校验 + 不命中豁免=FAIL）；CLI：无参=lint 全部 `docs/superpowers/audit-runs/*/`；`<run-dir>` 参数=单目录；`--verify-carryover` 开关（Task 3 实现 diff 前，先保留参数占位并 pass-through）
-- 检查项（check 名）：`row_columns`（列数≠11）、`pipe_escape`（单元格拉管道）、`id_unique`（同 ID 复现）、`dup_row`（整行重复）、`title_placeholder`（标题==ID，F979）
+- 检查项（check 名）：`row_columns`（主体列数≠11，**或**第 12+ 列不匹配注记列语法 `→ closed (…)`/`→ merged-into-…` 白名单——既有回写先例是追加列，11 列硬约束会让 Task 5/6 回写后 check 自爆）、`pipe_escape`（单元格拉管道）、`id_unique`（同 ID 复现）、`dup_row`（整行重复）、`title_placeholder`（标题==ID，F979）
+- 豁免 id 形态：`F/T 编号`、`row:<ledger 行号>`、`run:<check>`（run 级整检查豁免——08-14 的 16 条 F972 畸形行整组用 run:row_columns，避免逐行豁免爆炸）
 
 - [ ] **Step 1: 写失败测试**（row_columns/pipe_escape/id_unique/dup_row/title_placeholder 各一例 + 豁免加载/消音/不命中=FAIL + run 级豁免；输入用 tmp_path 组装的 11 列管道表与真实 08-15 run 目录引用）
 
 ```python
-# tests/unit/test_lint_audit_run.py 关键用例骨架
+# tests/unit/test_lint_audit_run.py 关键用例骨架（全部 @pytest.mark.unit）
+import pytest
 from pathlib import Path
-from tools.lint_audit_run import lint_run, load_exemptions, validate_exemptions
+from tools.lint_audit_run import lint_run, load_exemptions, validate_exemptions, apply_exemptions
 
 GOOD = "| F1 | 标题 | error | P1 | e | r | v | i | s | d | open |"
 def test_row_columns(tmp_path):
@@ -48,8 +50,12 @@ def test_exemption_mutes(tmp_path):
 def test_stale_exemption_fails(tmp_path):
     ...  # 豁免 id 无对应命中 → validate_exemptions 产出 stale-exemption FAIL
 def test_real_0815_run_lint():
-    f = lint_run(Path("docs/superpowers/audit-runs/2026-08-15"))
-    assert f, "08-15 冻结 run 在豁免落地前必须报 FAIL 项"  # Task 3 落豁免后转绿
+    raw = lint_run(Path("docs/superpowers/audit-runs/2026-08-15"))
+    assert raw  # 豁免前原始命中非空（豁免落地前的事实 pin）
+def test_real_0815_run_after_exemptions():
+    raw = lint_run(Path("docs/superpowers/audit-runs/2026-08-15"))
+    exemptions = load_exemptions(Path("docs/superpowers/audit-runs/2026-08-15"))
+    assert not apply_exemptions(raw, exemptions)  # Task 3 豁免落地后消音为空
 ```
 
 - [ ] **Step 2: 跑测试确认失败** `uv run pytest tests/unit/test_lint_audit_run.py -v` → ModuleNotFoundError
@@ -67,8 +73,11 @@ def test_real_0815_run_lint():
 - Consumes: Task 1 `lint_run` 骨架
 - Produces: `reconcile(run_dir: Path) -> list[Finding]`，检查名 `counts_reconcile`（run 级聚合，豁免 id=`run:counts_reconcile`）：
   - ledger 条目数（按 ID 前缀 F/T/D 分组）↔ final-report「机械统计」段 `F=… T=… D=… G=… total=…` 逐项相等
-  - `zones/*.files` 并集条目数 ↔ final-report zones 并集声称数（如 08-15 的 2755/2738 对账形态：以 final-report 内自称两数亦须一致为检查面，F973 形态）
-  - severity 分布行 `P0=… P1=… P2=… M=… (sum=…)` ↔ ledger severity 列现值（F969/F1176 形态）
+  - `zones/*.files` 并集条目数 ↔ final-report zones 并集声称数（final-report 内自称两数亦须一致，F973 形态）
+- Produces: `report_internal(run_dir: Path) -> list[Finding]`，检查名 `report_internal`（run 级聚合）：
+  - severity 分布行 `P0=… P1=… P2=… M=… (sum=…)` ↔ ledger severity 列现值（F969 形态：781 vs 786 类同源自相矛盾）
+  - final-report 内同量两处声称须相等 + `sum=N` 行须等于各分量之和（F1176 形态：1082 vs 1083 笔误）
+- **F975 无机械检查面**（zones 漏登 = 缺项遗漏，存在性检查抓不到省略）：闭环口径为「执行期核实注记 + 随簇回写关闭」，spec 验收已同步降级，不造豁免
 
 - [ ] **Step 1: 失败测试**：tmp_path 组装 mini run（ledger 3 行 + zones 2 文件 + final-report 机械统计段数字故意错 1 处）→ `counts_reconcile` 命中；真实 08-14 run 引用 → 至少命中 F969/F973/F1176 对应缺口（豁免前）
 - [ ] **Step 2: 确认失败 → 实现 → 通过**（正则抽取 final-report 代码块内统计行；zones 并集去重计数）
@@ -86,8 +95,9 @@ def test_real_0815_run_lint():
 
 **Interfaces:**
 - Produces: `generate_carryover(prev_ledger: Path, out: Path) -> int`（抽取 status ∈ {verified, open} 全 severity 条目，行格式 `<ID> <severity> <status> <标题>`）；CLI `uv run python tools/generate_carryover.py <prev-run-dir>` 默认写 `<prev-run-dir>/carryover.md`
+- `--verify-carryover` 语义：run 目录含 carryover.md 时，next-run = `docs/superpowers/audit-runs/` 下字典序**下一个** run 目录（08-14→08-15；末轮无 next = 显式 skip log）；逐条目 grep next-run ledger 的承接注记/同 ID 行，未承接=FAIL（08-14 演示文件的断链本体以 run:verify-carryover 豁免）
 - 验收演示（spec R2）：`grep -Ecw "F1301|F1302|F1320" docs/superpowers/audit-runs/2026-08-14/carryover.md` ≥3
-- 豁免内容：08-14 run（F969/F972/F973 + run:counts_reconcile + run:verify-carryover 演示豁免）、08-15 run（F975/F1176 残口 + run:counts_reconcile 如命中）
+- 豁免内容：08-14 run（run:row_columns=F972 十六行组、F969/F973 对账缺口 + run:verify-carryover 演示豁免）、08-15 run（F1176 report_internal 命中豁免；F975 核实闭合不入豁免）
 
 - [ ] **Step 1: 失败测试**：generate_carryover 用真实 08-14 ledger → 输出含 F1301/F1302/F1320 verified 行、不含 closed/merged 条目；verify-carryover：tmp mini run carryover 2 条 1 条未承接 → FAIL 1；无 carryover.md → skip 不 FAIL
 - [ ] **Step 2: 实现两脚本 + 落两份豁免 json（reason 注明冻结历史 run + spec #49）**
@@ -105,7 +115,7 @@ def test_real_0815_run_lint():
 - Test: `tests/unit/test_count_active_specs.py`
 
 **Interfaces:**
-- Produces: `count_active(path: str) -> int`（`docs/superpowers/specs/*.md` 顶层、排除 INDEX.md 与 archive/，`# ` 标题即一份）；CLI 核对 `docs/superpowers/specs/INDEX.md` 头部 `活跃 spec 数`：N 与目录扫描差值非零 → exit 1
+- Produces: `count_active(path: str) -> int`（**文件数口径**：`docs/superpowers/specs/*.md` 顶层 .md 文件数、排除 INDEX.md；archive/ 子目录不被该 glob 命中）；CLI 核对 `docs/superpowers/specs/INDEX.md` 头部 `活跃 spec 数`：N 与目录扫描差值非零 → exit 1
 
 - [ ] **Step 1: 失败测试**：tmp specs 目录（3 spec + INDEX 头写 3 → PASS；写 4 → FAIL）；真实 main 当前应 PASS（19==19）
 - [ ] **Step 2: 实现 + 接线 + `just check` 局部跑通**
@@ -133,6 +143,7 @@ def test_real_0815_run_lint():
 - Modify: `docs/superpowers/specs/INDEX.md`（#49 条目状态改 Done（PR 回填）→ 归档在阶段 12，本 task 只改状态字段）
 
 **验收（spec 簇级）：** `just check` 全绿；18 条 closed 注记 grep 计数 = 18
+- [ ] **Step 4**: PR 号回填 = 开 PR 后**追加 commit**（禁 amend/force-push，pre-push hook 在）
 - [ ] **Step 1**: 回写 18 条 + grep 核验 `grep -c "closed (C-35 spec #49)" findings-ledger.md` = 18
 - [ ] **Step 2**: AGENTS.md 增行
 - [ ] **Step 3**: `just check` 全绿 → Commit `docs: close C35 cluster — 18 findings merged-into F1177 writeback (spec #49)`
