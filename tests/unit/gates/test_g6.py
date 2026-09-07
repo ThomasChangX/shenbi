@@ -634,12 +634,20 @@ def test_g610_not_skipped_when_style_profile_exists(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    # F713: no conditional-wrapped sentinel — the D16 canary must fail when
+    # G6.10 leaves no evidence of execution. Evidence is EITHER a check entry
+    # (SKIP/PASS — SKIP still fails below) OR must_fix entries (outliers found:
+    # the outlier branch emits mf entries without a check dict).
     g610 = next((c for c in result["checks"] if c.get("id") == "G6.10"), None)
-    # If G6.10 SKIPped, it failed its job (dead path returned). It must run.
-    if g610 is not None:
-        assert g610["s"] != "SKIP", (
-            "G6.10 must not SKIP when style/style_profile.md exists "
-            "(D16: old config/ path was a dead code path)"
-        )
-    # When G6.10 runs and finds no outliers it PASSes; outliers go to must_fix.
-    # Either way the canary's invariant is: not SKIP, which the assert above guards.
+    g610_mf = any(str(x).startswith("G6.10:") for x in result.get("must_fix", []))
+    assert g610 is not None or g610_mf, (
+        "G6.10 left no execution evidence (neither check entry nor must_fix) — dead path returned"
+    )
+    assert g610 is None or g610["s"] != "SKIP", (
+        "G6.10 must not SKIP when style/style_profile.md exists "
+        "(D16: old config/ path was a dead code path)"
+    )
+    # This fixture's chapter is 4-char sentences / 1600-char paragraphs /
+    # 0% dialogue vs the profile's 15-25 / 80-120 / 20-40 — G6.10 must have
+    # flagged them (proof the check really reads the profile).
+    assert g610_mf, "G6.10 ran but missed blatant outliers in this fixture"

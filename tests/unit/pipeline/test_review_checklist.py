@@ -205,8 +205,18 @@ class TestExtractHookDeliverables:
             encoding="utf-8",
         )
         result = _extract_hook_deliverables(tmp_path, 4)
-        # Only returns H001 (PLANTED state, due chapter 5 is >= current chapter 4)
-        assert len(result) >= 0
+        # Only H001 (PLANTED); H002 (RESOLVED) is filtered out. H001 has no
+        # last_reinforced/plant_chapter -> silence sentinel 999 -> URGENT
+        # (999 > max_distance 20 * 0.7).
+        assert result == [
+            {
+                "id": "H001",
+                "content": "伏笔一",
+                "state": "PLANTED",
+                "silence": 999,
+                "urgency": "URGENT",
+            }
+        ]
 
     def test_returns_empty_when_no_hooks_file(self, tmp_path: Path):
         from shenbi.pipeline.review_checklist import _extract_hook_deliverables
