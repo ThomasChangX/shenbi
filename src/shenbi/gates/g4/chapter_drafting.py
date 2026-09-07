@@ -261,10 +261,20 @@ def g4_chapter_drafting(
 
         # Fatigue words ≤ 8 (relaxed from 3 for automated first-draft gen)
         # Determine project dir from file path
-        proj_dir = pf.parent
-        while proj_dir.name != "skill-output" and proj_dir.parent != proj_dir:
-            proj_dir = proj_dir.parent
-        project_root = proj_dir.parent if proj_dir.name == "skill-output" else pf.parent
+        # spec #48 C34 (F407): project_root resolution order = explicit
+        # project_dir param (if it carries genre-config) > genre-config
+        # ancestor walk (nearest on path; single-project assumption) > pf.parent.
+        candidates: list[Path] = []
+        if project_dir:
+            candidates.append(Path(project_dir))
+        walk = pf.parent
+        while walk.parent != walk and not (walk / "genre-config.json").exists():
+            walk = walk.parent
+        candidates.append(walk if (walk / "genre-config.json").exists() else pf.parent)
+        project_root = next(
+            (cdir for cdir in candidates if (cdir / "genre-config.json").exists()),
+            candidates[-1],
+        )
         gc = read_genre_config(str(project_root))
         fatigue_list = gc.get("fatigue_words", FATIGUE_BASE)
         fatigue_hits = sum(content.count(w) for w in fatigue_list)

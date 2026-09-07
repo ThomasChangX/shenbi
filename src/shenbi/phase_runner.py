@@ -244,22 +244,26 @@ def cmd_post_skill(
     ]
     # M8: use derived file_type instead of hardcoded "chapter".
     file_type = derive_file_type(skill)
-    # Safety fallback: when chapter is unknown (non-pipeline T2), fall back to
-    # rglob. The fallback file_type must match what rglob finds (.md). Since
-    # spec #30 T1 the decisions type partitions per file (.json -> G2.dec,
-    # .md -> chapter checks), so typing rglob'd .md files as "decisions" would
-    # now run chapter checks — but "chapter" remains the honest type for a
-    # bare .md rglob sweep.
+    # spec #48 C34 (F115 residual): the rglob fallback that swept arbitrary
+    # pre-existing .md files into G2 is deleted — with no declared outputs and
+    # no chapter, G2 stays SKIP instead of validating unrelated files.
     if not output_files and chapter is None:
-        output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
-        file_type = "chapter"  # override: rglob finds .md, not decisions.json
+        log.info("post_skill_g2_skip_no_declared_outputs", skill=skill, phase=phase)
     g2_status = GateStatus.SKIP.value
     if output_files:
         g2 = run_gate("G2", [join_gate_file_list(output_files), file_type, str(round_dir)])
         g2_status = g2.get("status", GateStatus.FAIL.value)
         _record_gate_manifest(proj, phase, chapter or 0, skill, "G2", g2)
+    # spec #48 C34 (F433): thread the real project_dir — T2 protocol rd !=
+    # project_dir; PWI findings anchor project_dir/audits.
     g4 = run_gate(
-        "G4", [skill, join_gate_file_list(output_files) if output_files else "", str(round_dir)]
+        "G4",
+        [
+            skill,
+            join_gate_file_list(output_files) if output_files else "",
+            str(round_dir),
+            str(proj),
+        ],
     )
     g4_status = g4.get("status", GateStatus.FAIL.value)
     _record_gate_manifest(proj, phase, chapter or 0, skill, "G4", g4)

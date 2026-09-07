@@ -378,11 +378,23 @@ def gate_G4(
     return result
 
 
-def gate_G4_bughunt(file_paths: list[str]) -> str:
+def gate_G4_bughunt(
+    file_paths: list[str],
+    round_dir: str | None = None,
+    project_dir: str | None = None,
+    repo_root: str | None = None,
+) -> str:
     """G4.b: Bug-hunt checks (delegates to generic checker)."""
-    return g4_generic_bughunt(file_paths)
+    # spec #48 C34 (F457): rd threaded so relative paths resolve instead of
+    # raising bare ValueError.
+    return g4_generic_bughunt(file_paths, round_dir, project_dir, repo_root)
 
 
-def gate_G4_clean(file_paths: list[str]) -> str:
+def gate_G4_clean(
+    file_paths: list[str],
+    round_dir: str | None = None,
+    project_dir: str | None = None,
+    repo_root: str | None = None,
+) -> str:
     """G4.c: Clean checks (delegates to generic checker)."""
-    return g4_generic_clean(file_paths)
+    return g4_generic_clean(file_paths, round_dir, project_dir, repo_root)

@@ -243,7 +243,22 @@ def _append_audit(findings: list[DriftFinding], audit_path: Path) -> None:
         locked_transact(audit_path, lambda raw: (raw or "") + "".join(lines))
 
 
-def main() -> None:
+def _derive_project_dir(args: argparse.Namespace) -> Path:
+    """Project root for truth/ writes: explicit --project-dir wins; else the
+    parent of the truth/ dir containing the --resonance input (spec #48 C34).
+    """
+    if args.project_dir:
+        return Path(args.project_dir)
+    p = Path(args.resonance)
+    for anc in (p, *p.parents):
+        if anc.name == "truth":
+            return anc.parent
+        if (anc / "truth").is_dir():
+            return anc
+    return Path.cwd()
+
+
+def main(argv: list[str] | None = None) -> None:
     """CLI: read trend files, print DriftFindings, optionally audit + gate."""
     parser = argparse.ArgumentParser(
         prog="compute_drift",
@@ -264,11 +279,30 @@ def main() -> None:
         action="store_true",
         help="Append findings to truth/audit_drift.md.",
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--project-dir",
+        default=None,
+        help="Project root anchoring truth/ writes (spec #48 C34/F628). "
+        "Defaults to the parent of the truth/ dir containing --resonance.",
+    )
+    args = parser.parse_args(argv)
 
     findings: list[DriftFinding] = []
 
-    resonance_path = Path(args.resonance)
+    # spec #48 C34 (F628 follow-up): trend READ defaults anchor at the
+    # project root too — CWD-relative defaults silently no-op'd the whole
+    # drift check when CWD != project_dir.
+    anchor_root = _derive_project_dir(args)
+    resonance_arg = (
+        args.resonance if Path(args.resonance).is_absolute() else str(anchor_root / args.resonance)
+    )
+    arc_arg = (
+        args.arc_payoff
+        if Path(args.arc_payoff).is_absolute()
+        else str(anchor_root / args.arc_payoff)
+    )
+
+    resonance_path = Path(resonance_arg)
     if resonance_path.exists():
         parsed = parse_trend(resonance_path, RESONANCE_DIMS)
         for dim in RESONANCE_DIMS:
@@ -279,7 +313,7 @@ def main() -> None:
             excl = {i for i, (_, e) in enumerate(series) if e}
             findings.extend(detect_chapter_drift(raw, dim=dim, exclude_indices=excl))
 
-    arc_path = Path(args.arc_payoff)
+    arc_path = Path(arc_arg)
     if arc_path.exists():
         parsed = parse_trend(arc_path, ARC_PAYOFF_DIMS)
         overall_series = parsed.get("overall", [])
@@ -294,7 +328,11 @@ def main() -> None:
         sys.stdout.write(f"- [{f.kind.value}] {f.dim}: {f.detail}\n")
 
     if args.write_audit_drift and findings:
-        _append_audit(findings, Path("truth/audit_drift.md"))
+        # spec #48 C34 (F628): anchor at project_dir/truth regardless of CWD —
+        # consistent with downstream readers (pipeline/triggers.py
+        # AUDIT_DRIFT_PATH, chapter_loop route-C).
+        project_dir = _derive_project_dir(args)
+        _append_audit(findings, project_dir / "truth" / "audit_drift.md")
 
     sys.exit(1 if findings else 0)
 

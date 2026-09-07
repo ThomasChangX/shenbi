@@ -43,6 +43,7 @@ from shenbi.gates.g0_purity import (
     check_scenario_file_purity,
     check_skill_md_purity,
 )
+from shenbi.paths import Layout, detect_layout
 from shenbi.gates.shared import (
     ALL_SKILLS,
     CHAPTER_WORD_FLOOR,
@@ -165,6 +166,33 @@ def check_calibration_integrity(
     )
 
 
+def _layout_project_roots(base: Path, layouts: frozenset[Layout]) -> list[Path]:
+    """Collect project roots under ``base`` whose detected layout is in ``layouts``.
+
+    Spec #48 C34 (F413): single probe authority is ``shenbi.paths.detect_layout``.
+    Candidates = direct children of base plus children of the layout-root
+    containers (excluding container dirs themselves); a candidate is a project
+    root only when its layout key file exists (detect root-name hits alone are
+    anchors for the upward walk, never project roots).
+    """
+    candidates: list[Path] = sorted(p for p in base.iterdir() if p.is_dir())
+    for container in ("novel-output", "skill-output"):
+        cdir = base / container
+        if cdir.is_dir():
+            candidates.extend(sorted(p for p in cdir.iterdir() if p.is_dir()))
+    roots: list[Path] = []
+    seen: set[Path] = set()
+    for cand in candidates:
+        if cand.name in ("novel-output", "skill-output", "project-output") or cand in seen:
+            continue  # container dirs never returned as project roots
+        verdict = detect_layout(cand)
+        key_file = "novel.json" if verdict is Layout.PROJECT_OUTPUT else "genre-config.json"
+        if verdict in layouts and (cand / key_file).exists():
+            roots.append(cand)
+            seen.add(cand)
+    return sorted(roots)
+
+
 def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     """G0: Round creation environment check."""
     checks: list[dict[str, Any]] = []
@@ -207,19 +235,18 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
 
     # G0.3 — expected_chapters = ceil(target_words / genre_config.chapter_word.default)
     default_w = CHAPTER_WORD_FLOOR
-    novel_output = PROJECT / "skill-output"
-    if novel_output.exists():
-        for proj_dir in novel_output.iterdir():
-            if not proj_dir.is_dir():
-                continue
-            gc = proj_dir / "genre-config.json"
-            if gc.exists():
-                try:
-                    gc_data = jload(str(gc))
-                    default_w = gc_data.get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR)
-                    break
-                except (json.JSONDecodeError, OSError):
-                    continue  # malformed genre-config.json → try next project dir
+    # spec #48 C34 (F413): project-root set expanded from skill-output-only to
+    # all detected layouts via the single probe authority.
+    for proj_dir in _layout_project_roots(
+        PROJECT, frozenset({Layout.NOVEL_OUTPUT, Layout.SKILL_OUTPUT})
+    ):
+        gc = proj_dir / "genre-config.json"
+        try:
+            gc_data = jload(str(gc))
+            default_w = gc_data.get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR)
+            break
+        except (json.JSONDecodeError, OSError):
+            continue  # malformed genre-config.json → try next project dir
     # Ceiling division: -(-a // b)
     expected = -(-target_words // default_w)
     checks.append(
@@ -661,14 +688,9 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # the loop finds nothing and the check is a silent no-op.
     cc_must_fix: list[str] = []
     try:
-        novel_output = PROJECT / "novel-output"
-        project_dirs: list[Path] = []
-        if novel_output.is_dir():
-            project_dirs = [
-                p
-                for p in novel_output.iterdir()
-                if p.is_dir() and (p / "genre-config.json").exists()
-            ]
+        # spec #48 C34: novel-output-only semantics preserved, scan via
+        # _layout_project_roots single source.
+        project_dirs = _layout_project_roots(PROJECT, frozenset({Layout.NOVEL_OUTPUT}))
         for project_dir in project_dirs:
             # Read the in-effect floor from pipeline-state.json when present
             # (was dead-wired: floor checks never ran from gate_G0 — spec 13 R1).

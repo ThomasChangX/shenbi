@@ -6,8 +6,49 @@ bare-string path joins and silent CWD fallbacks.
 
 from __future__ import annotations
 from dataclasses import dataclass
+from enum import StrEnum
 from pathlib import Path
+
+from structlog import get_logger
+
+log = get_logger(__name__)
 from shenbi.contracts.paths import resolve_chapter_path
+
+
+class Layout(StrEnum):
+    """Output layout families (spec #48 C34/F413). Single probe authority."""
+
+    SKILL_OUTPUT = "skill-output"
+    NOVEL_OUTPUT = "novel-output"
+    PROJECT_OUTPUT = "project-output"
+    NONE = "none"
+
+
+_LAYOUT_ROOT_NAMES = {Layout.NOVEL_OUTPUT.value, Layout.SKILL_OUTPUT.value}
+
+
+def detect_layout(project_dir: Path) -> Layout:
+    """Detect the output layout family for ``project_dir`` (pure, no I/O side effects).
+
+    Project-dir level keying with upward parent walk:
+    - dir contains novel.json -> PROJECT_OUTPUT
+    - dir contains genre-config.json and parent.name is
+      "novel-output"/"skill-output" -> that layout
+    - dir name itself is a layout root -> that layout (anchors root derivation;
+      callers collecting *project roots* must additionally require a key file)
+    - otherwise walk up one parent and retry; filesystem root -> NONE
+    """
+    d = Path(project_dir)
+    while True:
+        if (d / "novel.json").exists():
+            return Layout.PROJECT_OUTPUT
+        if (d / "genre-config.json").exists() and d.parent.name in _LAYOUT_ROOT_NAMES:
+            return Layout(d.parent.name)
+        if d.name in _LAYOUT_ROOT_NAMES:
+            return Layout(d.name)
+        if d.parent == d:
+            return Layout.NONE
+        d = d.parent
 
 
 @dataclass(frozen=True)
@@ -16,11 +57,18 @@ class RoundPaths:
     project_dir: Path  # the novel project root (novel.json, world/, chapters/, truth/)
     repo_root: Path  # repo root (SKILL.md, fixtures, rubric)
 
-    def read(self, rel: str, chapter: int | None = None) -> Path:
+    def read(self, rel: str, chapter: int | None = None, *, strict: bool = False) -> Path:
         resolved = resolve_chapter_path(rel, chapter)
         rd = self.round_dir / resolved
         if rd.exists():
             return rd.resolve()
+        # spec #48 C34: rd-miss fallback to project_dir is explicit and
+        # logged — no silent fallthrough.
+        if strict:
+            # API affordance (spec #48 C34 T2): no production caller yet —
+            # fix-and-keep-dormant, consumers opt in when they need no-fallback
+            raise FileNotFoundError(f"round_dir miss and strict=True: {rd}")
+        log.debug("round_paths_read_fallback", rel=rel)
         return (self.project_dir / resolved).resolve()
 
     def write(self, rel: str, chapter: int | None = None) -> Path:

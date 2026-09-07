@@ -171,13 +171,21 @@ def gate_G7(round_dir: str) -> str:
                 if gate_id == "G4":
                     from shenbi.gates.g4 import gate_G4
 
+                    # spec #48 C34: G7.13 re-run root aligned with the path
+                    # protocol (detect-driven; falls back to legacy assumption).
+                    from shenbi.paths import detect_layout
+
+                    det = detect_layout(rd)
+                    rerun_pd = (
+                        str(rd) if det.value == "project-output" else str(rd / "project-output")
+                    )
                     rerun = json.loads(
                         gate_G4(
                             target,
                             test_type or "",
                             files_checked,
                             str(rd),
-                            project_dir=str(rd / "project-output"),
+                            project_dir=rerun_pd,
                             repo_root=str(PROJECT),
                         )
                     )

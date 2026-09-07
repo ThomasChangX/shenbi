@@ -93,7 +93,10 @@ def compute_backup_targets(
     Extracted from G1.4 so the backup decision is testable without I/O. The
     gate still performs the copy (G2.11 truth-diff depends on the .bak
     existing pre-dispatch); moving the write fully to the dispatcher is a
-    follow-up orchestration refactor (out of scope here).
+    follow-up orchestration refactor (out of scope here). The copy itself is
+    the adjudicated exemption (Option B, spec #48 C34/F412): the sole
+    side-effecting write allowed inside a gate checker, idempotent (.bak
+    exists → skip), documented in docs/framework/gates.md.
     """
     if not skill_name or skill_name not in BACKUP_SKILLS or not round_dir:
         return []
