@@ -30,8 +30,15 @@ check:
     uv run mypy src/shenbi/
     uv run basedpyright
     uv run shenbi-sync-contracts >/dev/null && git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
-    uv run pytest -n auto -m "not last" --hypothesis-profile=ci
+    uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=json:coverage.json
+    uv run python tools/check_module_coverage.py coverage.json
     uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
+
+# Enforce per-module coverage floors only (spec #53 C15 T3) — self-sufficient:
+# runs the suite with a JSON coverage report, then checks tools/module-coverage-floors.json
+module-coverage:
+    uv run pytest -n auto -m "not last" --cov-report=json:coverage.json -q
+    uv run python tools/check_module_coverage.py coverage.json
 
 # Run tests only (fast unit tests)
 test *args:
