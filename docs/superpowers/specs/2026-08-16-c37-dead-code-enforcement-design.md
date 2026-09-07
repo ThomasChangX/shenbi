@@ -7,7 +7,7 @@
 - 簇：C37（框架功能零接线/死代码横散，无 dead-code 执法），原始 43 条 → 2026-09-07 复核存活 ~27，最高严重度 P1（F793/F886 verified），证据等级=实验佐证
 - **2026-09-07 复核修订**（fresh-context 驳斥审计 + 协调者抽查，2026-08-16 后 49 commit 影响面）：
   - **已修剔除（7）**：F243（EPHEMERAL 已接线 dispatcher/executor.py:87）、F346（snapshot_retention 随 #26 移除）、F366（%5 物化随 #37 F630 裁决 b 移除）、F512（return 2 已可达 cost/report.py:137）、F611（RHETORICAL 已删）、F903（G0.14 工具哈希执法已由 #54/C16 落地 gates/g0.py:188-226）、F1027（lint_status_strings 面已由 #34 修复）
-  - **半修收窄（7）**：F313/T1605（in-memory index 已有读者，仅"rebuild 即弃"半面存活 chapter_loop.py:1174）、F315/F793（_should_run_recall 已删，_should_run_drift 死而直测仍在 chapter_loop.py:1774）、F356（audit_context_cache 模块已接线，仅 chapter_summary 死字段面待查）、F622（escalation 已接线，foreshadowing_recall helper 仍零生产引用）、F631-F636（触发引擎已由 #33 接线，trace compact()/migrate_from_progress 死线仍在）、F642（count_punctuation 已消费，count_words/tokenize/PUNCTUATION_TOKENS 仍零生产消费）
+  - **半修收窄（6 组 ~13 编号）**：F313/T1605（in-memory index 已有读者，仅"rebuild 即弃"半面存活 chapter_loop.py:1174）、F315/F793（_should_run_recall 已删，_should_run_drift 死而直测仍在 chapter_loop.py:1774）、F356（audit_context_cache 模块已接线，仅 chapter_summary 死字段面待查）、F622（escalation 已接线，foreshadowing_recall helper 仍零生产引用）、F631-F636（触发引擎已由 #33 接线，trace compact()/migrate_from_progress 死线仍在）、F642（count_punctuation 已消费，count_words/tokenize/PUNCTUATION_TOKENS 仍零生产消费）
   - **待现判（2，被 MERGE-1/2 重构）**：F319（review_checklist split 段）、F321（串行审计分支）——R0 表按当前 main 现判
 - 存活成员（36 个 F/T 编号、~27 处独立代码面——半修成员各只活一半）：F108（代表）+ F109-F110、F118、F226、F230、F313(半)、F314、F315(半)、F316、F319(待判)、F321(待判)、F325、F343（_load_genre_config_cached 死缓存+错误路径 config/genre-config.json，仅测试调用）、F345（dispatch_skill timeout 死参数，签名/文档/测试三重假象但函数体从不使用）、F356(半)、F368、F378、F427、F471、F622(半)、F631-636(半)、F641、F642(半)、F706、F793(半)、F886、T301（gates/g1.py check_fields_exist 零生产调用、仅直测）、T1506、T1605(半)、T1612
 - 来源：Z1/Z2/Z3/Z4/Z6/Z7/Z8/Z9/Z10 + T3/T15/T16 线程
@@ -58,7 +58,7 @@
 - vulture 误报公共 API——白名单评审与 deferred 项季度复核（写进 R3 白名单文件头）
 
 ## 验证命令
-- 分桶覆盖：`python3 -c "import re,pathlib; t=pathlib.Path('docs/superpowers/audit-runs/2026-08-15/c37-triage.md').read_text(); print(len(re.findall(r'^\|', t))-2)"`（=43）
+- 分桶覆盖：`python3 -c "import re,pathlib; t=pathlib.Path('docs/superpowers/audit-runs/2026-08-15/c37-triage.md').read_text(); print(len(re.findall(r'^\| [FT]\d', t)))"`（=43，锚定数据行 `^| [FT]\d`，表头/分隔行/补充表不计数）
 - 假防线抽查：`git grep -n "error_guidance\|Consumed by CLI" -- src/ docs/` 与裁决一致
 - dead-code 门（post-R3，工具随 R3 选型）：`uv run vulture src/shenbi --min-confidence 80`（基线清零，白名单外）
 - 负例：新增零调用函数 → `just check` FAIL
