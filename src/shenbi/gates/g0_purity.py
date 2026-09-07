@@ -115,10 +115,18 @@ def baseline_delta_note(check_id: str, current_violations: list[str]) -> str | N
 def check_scenario_reference_closure(
     t1_skill_dir: Path, project_root: Path
 ) -> list[dict[str, Any]]:
-    """G0.17: every scenario-referenced tests/fixtures/ path must exist."""
+    """G0.17: every scenario-referenced tests/fixtures/ path must resolve.
+
+    A populated directory is a legitimate scope pointer; an EMPTY directory
+    referenced as if content exists is the F789 violation, same class as a
+    missing path.
+    """
     missing: dict[str, list[str]] = {}
     for ref, consumers in _consumed_fixtures(t1_skill_dir).items():
-        if not (project_root / ref).is_file():
+        p = project_root / ref
+        populated = p.is_dir() and any(ch for ch in p.iterdir() if ch.name != ".gitkeep")
+        ok = p.is_file() or populated
+        if not ok:
             missing.setdefault(ref, []).extend(consumers[:3])
     violations = len(missing)
     if violations:
