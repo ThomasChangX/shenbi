@@ -393,7 +393,6 @@ def main() -> int:
   scores.json format: {"1": 100, "2": 95, "3": 80, ...}
   --kill-switch: force final score to 0 (any kill switch triggered)
   --test-type: filter dimensions by applicability (renormalizes weights)
-  --tier T1|T2|T3 --phase <name>: enable gate checks before scoring
   --gate-only <GATE> --files <f1,f2>: run gate check only, no scoring
   Or: scoring.py <rubric.md> --interactive"""
         log.info("usage", message=usage)
