@@ -31,7 +31,7 @@ AGENTS.md 规定框架代码（src/shenbi/）禁用 `print()`、统一 structlog
 
 ### R2 · 6 处整改
 - 方案 A：4 文件 6 处改 `console.echo`；structlog 记录保持不变（这是用户面输出，非日志）
-- 方案 B：escalation/check.py:149 与 recall.py:61 若非 CLI 入口（D102 证据显示二者为模块级 main），改 structlog `logger.info` 或补 CLI 入口后豁免
+- 方案 B：escalation/check.py:164 与 recall.py:61 若非 CLI 入口（D102 证据显示二者为模块级 main），改 structlog `logger.info` 或补 CLI 入口后豁免
 - **验收**：豁免清单外 `git grep -n "print(" -- 'src/shenbi/'` 零命中；`just test` 输出捕获用例（console.echo 可被 capsys 断言）
 
 ### R3 · lint 执法
