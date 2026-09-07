@@ -7,10 +7,12 @@ name: Nightly
 #   - windows-smoke:        Smoke test for Windows fallback code
 #                           (defensive support, not a target platform)
 #   - python-313-migration: Python 3.13 migration monitoring
-#   - doc-links:            Markdown link checks (internal + external).
-#                           External links depend on third-party site
-#                           availability (flaky); internal links are a
-#                           valid signal but gated here for simplicity.
+#
+# Removed (spec #55 C17 T2): the doc-links job — it ran the same
+# tests/integration/test_doc_links.py that the per-PR CI suite now runs
+# natively (pure-Python internal link check, no npm dependency). Keeping a
+# second manual-dispatch copy would be a duplicate defense, not an
+# additional one.
 #
 # To enable: uncomment the schedule trigger below and monitor
 # Actions failure alerts.
@@ -52,25 +54,3 @@ jobs:
       - run: uv python install 3.13
       - run: uv sync --frozen --group dev
       - run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
-
-  doc-links:
-    # Markdown link checks (internal relative links + external HTTP links).
-    # External links depend on third-party site availability (flaky risk);
-    # kept here to avoid external outages blocking PRs. Internal link rot
-    # (e.g. renamed file) also surfaces here instead of per-PR — accepted
-    # trade-off.
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - run: npm install -g markdown-link-check
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.11"
-      - uses: astral-sh/setup-uv@v3
-        with:
-          enable-cache: true
-      - run: uv sync --frozen --group dev
-      - run: uv run pytest -n auto tests/integration/test_doc_links.py -q --no-cov
