@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-07 · 价值门首轮驳斥复核：F401/F408/F519 已由先前 PR 修复出簇，F101/F115 降级为部分残留，见各条注记) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #168 + REWRITE PR #167) (Revised 2026-09-07 · 价值门首轮驳斥复核：F401/F408/F519 已由先前 PR 修复出簇，F101/F115 降级为部分残留，见各条注记) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C34）| **依赖:** 无硬前置（但 C1 键空间对账 lint 的验收依赖本簇的路径协议先定稿——gate 读方假 FAIL 多为路径解析错位的症状）| **范围:** gates/cli.py 参数协议、g4 各 checker 路径解析、G0 布局探测、phase_runner、write-audit/drift 观测根、capability_fs | **核心洞察:** skill-output/novel-output/project-output 三套布局并存，rd/project_dir 双参数语义从未统一——checker 按 CWD 或错误根解析，相对路径调用恒假 FAIL
 
 # C34 · 路径/布局契约统一（path-layout-contract）

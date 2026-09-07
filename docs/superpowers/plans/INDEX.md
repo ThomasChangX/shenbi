@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-07
-> **活跃 plan 数**：1 | **已归档**：94（见 `archive/`）
+> **最后更新**：2026-09-07（c34-path-layout done PR #168，归档）
+> **活跃 plan 数**：0 | **已归档**：94（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **2026-09-07 · C34 路径/布局契约统一**（spec #48，fix/spec-48-c34-path-layout）— `2026-09-07-c34-path-layout-contract.md` · ✅ ready（7 infra tasks，阶段 5 审查 6 轮收敛）
 
 
 
