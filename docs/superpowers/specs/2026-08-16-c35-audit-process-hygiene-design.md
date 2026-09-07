@@ -35,17 +35,17 @@
 - ledger ID 方案裁决：`F<轮标识>-NN` 或全局单调段（T/D 前缀同理）；写迁移注记而非改历史行（旧轮文件与既有 spec 的旧 ID 引用一律不动，新轮生效）
 - 新轮启动脚本 `tools/generate_carryover.py`：从上轮 ledger 抽取 status=verified/open 的**全 severity** 条目（P0/P1/P2/M 一律纳入——F1177 本身为 P2、F969 为 P2，任何 severity 截断都会为该级复现 F1177 断链）生成承接清单文件 `carryover.md`（每条目一行 `<ID> <severity> <status> <标题摘要>`，grep 词边界可精确命中）；run 结束时的承接核验由 `lint_audit_run.py --verify-carryover`（或无参 check 模式自动执行）承担：diff 承接清单条目与本轮 ledger 的承接状态——未承接条目 FAIL，进 `just check`；**无承接文件的 run 目录跳过该检查**（首轮无上轮、冻结历史 run 无清单——跳过显式 log，非静默）
 - T1501 的"修复被 revert 丢失"类问题由承接清单自然覆盖（盘上复现检查）
-- **验收**：用 2026-08-14 轮生成承接清单 `carryover.md`，`grep -Ecw "F1301|F1302|F1320" docs/superpowers/audit-runs/2026-08-14/carryover.md` ≥3（ERE + 词边界精确匹配，防 F1301x 误配与 BRE 跨平台漂移）
+- **验收**：用 2026-08-14 轮生成承接清单 `carryover.md`（每条目一行 `<ID> <severity> <status> <标题摘要>`，grep 词边界可精确命中），`grep -Ecw "F1301|F1302|F1320" docs/superpowers/audit-runs/2026-08-14/carryover.md` ≥3（ERE + 词边界精确匹配，防 F1301x 误配与 BRE 跨平台漂移）；该演示文件的承接缺口（F1177 断链本体）以 `run:verify-carryover` 级豁免闭合，不进 check FAIL
 
 ### R3 · 断言清点与处置一致性（F767 + F768 + F894）
 - 审计 prompt 模板（full-project-audit-prompt.md，本 spec 为授权修订载体）补两规则：跨段重复立案须显式 merged 标注；"N tests"类声称必须附文件名与命令
 - F894 的同缺陷异处置：phase4 clustering 已建立 merged-into 机制（737 条），本条随回写关闭
-- **验收**：本 spec 落地后 `grep -n "跨段重复立案\|N tests" docs/superpowers/full-project-audit-prompt.md` 命中两新增规则文本
+- **验收**：本 spec 落地后 `grep -n "跨段重复立案须显式\|必须附文件名与命令" docs/superpowers/full-project-audit-prompt.md` 命中两新增规则文本
 
 ### R4 · 分支与 INDEX 卫生（T1502 + T1507 + F771/F772）
 - T1502：~~孤儿分支 docs/token-efficiency-p2-spec 开 PR 或 cherry-pick 后删除~~（**阶段 2 修订 2026-09-07**：分支已在 main 历史中被清除、无处置记录——本项降为「记录裁决 + 回写关闭」，481 行 spec 内容 grep main 零副本，按记录后弃处置）
-- 删已 squash-merge 未清的远程分支（现核：`origin/docs/archive-spec44-c30` 1 支，`git branch -r --merged origin/main` 为准）；dependabot 10 条 **triage 决策记录**（每条 upgrade/close + 理由，写入本 spec 交付的 triage 记录文件；**实际升级/合并不在本 spec 范围**——依赖升级动 uv.lock/生产代码，与「不碰生产代码」边界冲突，另开 chore 批次执行）
-- INDEX 计数改脚本生成（`tools/count_active_specs.py`：目录扫描活跃条目并核对 INDEX 头计数，差值非零 FAIL；纳入 `just check`），消除手工 66/68/63 漂移
+- 删已 squash-merge 未清的远程分支（现核：`origin/docs/archive-spec44-c30` 1 支，`git branch -r --merged origin/main` 为准）；dependabot 10 条 **triage 决策记录**（每条 upgrade/close + 理由，写入 `docs/superpowers/audit-runs/2026-08-15/dependabot-triage-2026-09-07.md`；**实际升级/合并不在本 spec 范围**——依赖升级动 uv.lock/生产代码，与「不碰生产代码」边界冲突，另开 chore 批次执行）
+- INDEX 计数改脚本生成（`tools/count_active_specs.py`：扫描 `docs/superpowers/specs/*.md` 顶层非 INDEX spec 文件（**排除 archive/ 子目录**）核对 INDEX 头 `活跃 spec 数` 计数，差值非零 FAIL；纳入 `just check`），消除手工 66/68/63 漂移
 - F771/F772：按 phase4-clustering.md §4 严重度校准提案执行（~~11 项~~ **12 项**升/降级 + 已采纳注记核对），只改 ledger 严重度列并留提案引用（**阶段 2 修订 2026-09-07**：12 项校准已在 main 落账（总纲记账 pass PR #147 一并完成）——本项降为「逐项核实 + 补提案引用注记 + 回写关闭」，不改严重度列）
 - **验收**：`git branch -r` 无已合并残留；INDEX 计数与目录扫描一致；severity 校准核实+注记完成
 
@@ -59,7 +59,7 @@
 - R4 dependabot triage 若发现升级紧迫（安全补丁类），记录中标注 urgent 并建议立即开 chore PR，不在本 spec 内升级
 
 ## 验证命令
-- audit-lint 对账：`just audit-lint docs/superpowers/audit-runs/2026-08-15`（成员缺口 F969/F972/F973/F975/F1176 全被抓出且以豁免注记闭合）
+- audit-lint 对账：`just audit-lint`（无参全目录模式，同 R1 验收；F969/F972/F973 在 2026-08-14 run、F975/F1176 在 2026-08-15 run——成员缺口全部被抓出且以豁免注记闭合）
 - 承接演示：用 2026-08-14 轮 ledger 生成承接清单，`grep -Ecw "F1301|F1302|F1320" docs/superpowers/audit-runs/2026-08-14/carryover.md` ≥3
 - 分支卫生：`git branch -r --merged origin/main` 除 origin/main 与 origin/HEAD 符号引用外为空；INDEX 计数与 `tools/count_active_specs.py` 输出一致（自动核对，差值非零 FAIL；条目内 prose 计数漂移不在此检查面，属已知残口记 deviation）
 - severity 校准：phase4 §4 12 项提案逐项核实注记（F131/F1103/F1105/F376/F536/F351/F004/F005/F438/F355/F007/F796——含二选一项已裁 F007=P2）
