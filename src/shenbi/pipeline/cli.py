@@ -27,7 +27,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from shenbi.cli_utils import emit_json
+from shenbi.cli_utils import echo, emit_json
 from shenbi.logging import configure_logging, get_logger
 from shenbi.pipeline.filelock_utils import ReadLock, WriteLock
 from shenbi.pipeline.chapter_loop import chapter_sort_key
@@ -1062,9 +1062,9 @@ def _backfill_range(project_path: Path, chapter_range: range) -> int:
             curated_path = project_path / "context" / f"chapter-{ch}-curated.md"
             curated_path.parent.mkdir(parents=True, exist_ok=True)
             safe_write(curated_path, curated)
-            print(f"  Backfilled context for chapter {ch}")
+            echo(f"  Backfilled context for chapter {ch}")
         except Exception as e:
-            print(f"  FAILED chapter {ch}: {e}", file=sys.stderr)
+            echo(f"  FAILED chapter {ch}: {e}", err=True)
 
     return 0
 

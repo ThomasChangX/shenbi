@@ -27,6 +27,8 @@ from typing import Any
 import argparse
 import json
 
+from shenbi.cli_utils import emit_json
+
 
 def recall_overdue_hooks(hooks: list[dict[str, Any]], current_chapter: int) -> list[str]:
     """Return hook_ids whose silence exceeds max_distance (spec §3.6).
@@ -58,4 +60,4 @@ def main() -> None:
     args = parser.parse_args()
     hooks = json.loads(args.hooks_json)
     overdue = recall_overdue_hooks(hooks, args.current_chapter)
-    print(json.dumps(overdue))
+    emit_json(overdue)

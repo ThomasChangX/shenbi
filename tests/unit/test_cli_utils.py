@@ -41,3 +41,31 @@ def test_echo_broken_pipe_exits_clean(monkeypatch):
     with pytest.raises(SystemExit) as exc:
         echo("x")
     assert exc.value.code == 0
+
+
+def test_report_main_error_stderr(capsys, tmp_path):
+    from shenbi.cost import report
+
+    code = report.main(["report", str(tmp_path / "nope")])
+    captured = capsys.readouterr()
+    assert code == 2
+    assert captured.out == ""
+    assert captured.err.startswith("error: project dir not found:")
+
+
+def test_recall_main_json_payload(capsys, monkeypatch):
+    import sys
+
+    from shenbi.skill_utils.foreshadowing_recall import recall
+
+    argv = [
+        "prog",
+        "--hooks-json",
+        '[{"id": "h1", "last_reinforced": 1, "max_distance": 2}]',
+        "--current-chapter",
+        "10",
+    ]
+    monkeypatch.setattr(sys, "argv", argv)
+    recall.main()
+    captured = capsys.readouterr()
+    assert captured.out == '["h1"]\n'

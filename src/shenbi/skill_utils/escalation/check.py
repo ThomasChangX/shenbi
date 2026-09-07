@@ -19,8 +19,9 @@ from __future__ import annotations
 import structlog
 
 import argparse
-import json
 from dataclasses import dataclass
+
+from shenbi.cli_utils import emit_json
 
 
 @dataclass(frozen=True)
@@ -161,8 +162,4 @@ def main() -> None:
         arc_score=args.arc_score,
         stratum_axis_drift=args.stratum_axis_drift.lower() == "true",
     )
-    print(
-        json.dumps(
-            [{"trigger": s.trigger, "detail": s.detail} for s in signals], ensure_ascii=False
-        )
-    )
+    emit_json([{"trigger": s.trigger, "detail": s.detail} for s in signals])
