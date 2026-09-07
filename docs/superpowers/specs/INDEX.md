@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-09-07（#54 C16 Done PR #174——fixture 真实性与 G0.9 执法：G0.17-19 provenance 执法 + bug-hunt 证据闭包 + fixture 库治理 + calibration 锚点重建，归档）
-> **活跃 spec 数**：17（#46 C32 Rejected：11 条成员已由 PR #43 修复；F513 残留待新归属）
+> **最后更新**：2026-09-07（#50 C36 print 纯度 Done PR #176；此前 #54 C16 Done PR #174——fixture 真实性与 G0.9 执法：G0.17-19 provenance 执法 + bug-hunt 证据闭包 + fixture 库治理 + calibration 锚点重建，归档）
+> **活跃 spec 数**：16（#50 C36 Done PR #176；#46 C32 Rejected：11 条成员已由 PR #43 修复；F513 残留待新归属）
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -10,22 +10,12 @@
 
 ## 执行队列
 
-
 ### #40 · 2026-08-15 审计修复总纲（37 簇 master）
 
 - **文件**：`2026-08-16-audit-remediation-master.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（总纲；supersede #17 的 catalog 角色）
 - **状态**：Design（记账 pass Done PR #147；索引长期保留） | **优先级**：🔴 P0（总纲）
 - **内容**：phase4 37 簇修复优先级矩阵（P0×7 簇=191 条 / P1×26 簇=483 / P2×4 簇=100，纯 M 簇 0 个）、跨簇依赖链（C32→C33→成本类、C3+C34→C1 验收、C10→C28/C33、C19#26→C37 解冻、C16→C14→C15）、量级汇总（L×7/M×22/S-M×8，3 泳道 6-9 周墙钟）、与既有 23 活跃 spec 的 supersede/解散/保留关系表、回写协议（737 条 merged）
-
-
-
-### #50 · 审计修复 C36：print 违禁与框架纯度豁免（P1）
-
-- **文件**：`2026-08-16-c36-print-purity-design.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C36，3 条窄根因小簇）
-- **状态**：Design | **优先级**：🟠 P1
-- **内容**：src/shenbi 6 处 print（cost/report.py:135,137、pipeline/cli.py:1065,1067、escalation/check.py:164、foreshadowing_recall/recall.py:61，D102 git grep 实跑）+ CLI 豁免边界未成文 + 无 lint 执法——三类输出通道裁决（structlog 日志 / cli_utils.echo 人面 / cli_utils.emit_json 机器 stdout）+ 豁免规则入 AGENTS.md + ruff T20 执法（src/shenbi 零豁免，C25 合写面已消解）
 
 ### #51 · 审计修复 C37：死代码清理与零接线执法（P1）
 
