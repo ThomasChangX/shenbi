@@ -65,6 +65,8 @@ class RoundPaths:
         # spec #48 C34: rd-miss fallback to project_dir is explicit and
         # logged — no silent fallthrough.
         if strict:
+            # API affordance (spec #48 C34 T2): no production caller yet —
+            # fix-and-keep-dormant, consumers opt in when they need no-fallback
             raise FileNotFoundError(f"round_dir miss and strict=True: {rd}")
         log.debug("round_paths_read_fallback", rel=rel)
         return (self.project_dir / resolved).resolve()
