@@ -69,7 +69,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/shenbi"]
 
-# Mutation testing configuration (P-1 加成项 19，baseline 跑在 PR-23)
 [[tool.mypy.overrides]]
 # Pydantic v2 @computed_field stacks on @property — mypy's prop-decorator
 # check rejects this. It's the official pydantic pattern; disable per-module.
