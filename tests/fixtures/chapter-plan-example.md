@@ -1,4 +1,6 @@
 ---
+provenance: synthetic-sample
+source: hand-authored example structure (spec #54 C16)
 chapter: 1
 goal: "现代失业穿越到异世界，发现灵能修炼贷款债务陷阱，接受种姓制度的第一课"
 volume: 1

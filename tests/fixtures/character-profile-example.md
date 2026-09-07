@@ -1,4 +1,6 @@
 ---
+provenance: synthetic-sample
+source: hand-authored example structure (spec #54 C16)
 name: 林烽
 role: protagonist
 personality_tags: ["幽默自嘲", "骨子里的不屈", "实用主义", "利己主义(初期)", "富有同情心(逐渐觉醒)", "实事求是(后期)"]

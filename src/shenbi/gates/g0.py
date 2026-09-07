@@ -27,6 +27,20 @@ MIRROR_MAP: dict[str, str] = {
     "tests/fixtures/truth-current_state-xinghuo.md": (
         "novel-output/xinghuo-ranqiong/truth/current_state.md"
     ),
+    # spec #54 C16 F780: chapter-025 snapshot truth mirrors must stay
+    # byte-identical to their top-level truth-*.md counterparts.
+    "tests/fixtures/truth-chapter_summaries.md": (
+        "tests/fixtures/snapshots/chapter-025/truth/chapter_summaries.md"
+    ),
+    "tests/fixtures/truth-emotional_arcs.md": (
+        "tests/fixtures/snapshots/chapter-025/truth/emotional_arcs.md"
+    ),
+    "tests/fixtures/truth-pending_hooks.md": (
+        "tests/fixtures/snapshots/chapter-025/truth/pending_hooks.md"
+    ),
+    "tests/fixtures/truth-character_matrix.md": (
+        "tests/fixtures/snapshots/chapter-025/truth/character_matrix.md"
+    ),
 }
 
 
@@ -36,6 +50,24 @@ import os
 import re
 from pathlib import Path
 from typing import Any
+
+_FM_PROVENANCE_RE = re.compile(
+    rb"\A---\r?\n.*?^provenance:.*?\r?\n---\r?\n\n?", re.DOTALL | re.MULTILINE
+)
+
+
+def mirror_digest(path: Path) -> str:
+    """Content sha256 with provenance frontmatter stripped (spec #54 C16 F780).
+
+    Provenance carriers are metadata, not content: a mirror may carry a
+    ``provenance:`` frontmatter block that its source lacks. Mirror identity
+    is judged on the payload bytes after stripping such a leading block.
+    """
+    data = path.read_bytes()
+    if path.suffix == ".md":
+        data = _FM_PROVENANCE_RE.sub(b"", data, count=1)
+    return hashlib.sha256(data).hexdigest()
+
 
 from shenbi.gates.g0_config_coherence import check_config_coherence
 from shenbi.gates.g0_purity import (
@@ -534,8 +566,8 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             missing_sides.append(f"source side missing: {source_rel} (for {fixture_rel})")
             continue
         try:
-            fh = hashlib.sha256(fixture_path.read_bytes()).hexdigest()
-            sh = hashlib.sha256(source_path.read_bytes()).hexdigest()
+            fh = mirror_digest(fixture_path)
+            sh = mirror_digest(source_path)
         except Exception:
             continue
         if fh != sh:

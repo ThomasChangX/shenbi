@@ -90,10 +90,10 @@ def test_populated_dir_reference_ok(tmp_path: Path) -> None:
     assert verify_scenario(bh, fixtures) == []
 
 
-@pytest.mark.parametrize("args,expected", [([], 1), (["--warn-only"], 0)])
+@pytest.mark.parametrize("args,expected", [([], 0), (["--warn-only"], 0)])
 def test_cli_exit_codes(args: list[str], expected: int, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(check_bug_hunt_evidence, "T1", PROJECT / "tests" / "tiers" / "t1-skill")
     monkeypatch.setattr(sys, "argv", ["prog", *args])
-    # real library currently holds 11 empty-dir violations → strict rc 1, warn rc 0
+    # real library holds 0 evidence violations (F789 fixed, spec #54 C16 T3) → rc 0
     rc = check_bug_hunt_evidence.main()
     assert rc == expected

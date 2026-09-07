@@ -4,7 +4,7 @@
 `skills/shenbi-canon-import/SKILL.md`
 
 ## Test Setup
-A fanfic project is being set up in AU (alternate universe) mode based on a popular 200-episode TV drama. The canon import has been run, producing 5 section files at `tests/fixtures/import/canon/` (world.md, character.md, event.md, relationship.md, timeline.md) and a deviation list at `tests/fixtures/report-example.txt`.
+A fanfic project is being set up in AU (alternate universe) mode based on a popular 200-episode TV drama. The canon import has been run, producing canon section files derived from the source text at `tests/fixtures/report-example.txt` (world/character/event structure mirrored by the real-project fixtures at `tests/fixtures/world/factions/` and `tests/fixtures/truth/character_profiles/`) and a deviation list at `tests/fixtures/report-example.txt`.
 
 ## Scenario
 The canon import has been completed in AU mode. However, the output contains a silent deviation:

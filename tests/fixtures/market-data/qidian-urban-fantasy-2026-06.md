@@ -1,3 +1,8 @@
+---
+provenance: synthetic-sample
+source: hand-authored example structure (spec #54 C16)
+---
+
 # Qidian Leaderboard Snapshot — Urban Fantasy (都市奇幻)
 # Generated: 2026-06-12 | Source: Qidian 24h Hot List + Monthly Ticket Rankings
 

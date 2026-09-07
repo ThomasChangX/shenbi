@@ -1,3 +1,8 @@
+---
+provenance: synthetic-sample
+source: hand-authored example structure (spec #54 C16)
+---
+
 # 风格画像
 
 **样本来源**: 历史测试数据集（round test 已清理）

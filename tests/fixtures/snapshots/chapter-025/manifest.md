@@ -1,11 +1,13 @@
 ---
+provenance: synthetic-sample
+source: hand-authored snapshot manifest; checksums are real sha256 of tests/fixtures/chapters/chapter-{1,25}.md (spec #54 C16 F779)
 type: snapshot
 chapter: 25
 created: 2026-06-11
 status: approved
 checksums:
-  chapters/chapter-1.md: sha256:abc123
-  chapters/chapter-25.md: sha256:xyz789
+  chapters/chapter-1.md: sha256:03b144aedb6bde93ba3beaf644a53116ece0137b0d98aafcd88de48e8b9c482e
+  chapters/chapter-25.md: sha256:1133603fc109a4402d763d9705a6e487202f825ee0d34f0d011ca28760e8c9a9
 files:
   - truth/current_state.md
   - truth/character_matrix.md

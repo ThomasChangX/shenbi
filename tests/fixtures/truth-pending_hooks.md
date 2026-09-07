@@ -1,4 +1,9 @@
 ---
+provenance: synthetic-sample
+source: hand-authored example pending-hooks state (payload differs from novel-output truth/pending_hooks.md)
+---
+
+---
 project: 星火燃穹：位面解放战争史
 last_updated: 2026-06-11
 version: 0.1.0

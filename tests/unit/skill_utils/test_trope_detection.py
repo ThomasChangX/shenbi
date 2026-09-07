@@ -80,7 +80,7 @@ def test_trope_overuse_boundary_is_strict_greater() -> None:
     assert trope_overuse(4, t) is True
 
 
-FIXTURE = "tests/fixtures/genre-config-example.json"
+FIXTURE = "tests/fixtures/trope-inventory-example.json"  # F787: genre-config-example is now a verbatim upstream copy with no tropeInventory
 
 
 @pytest.mark.unit

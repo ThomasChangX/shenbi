@@ -193,7 +193,7 @@ def check_variant_bypass(t1_skill_dir: Path, fixtures_dir: Path) -> list[dict[st
         for p in sorted(fixtures_dir.rglob("*")):
             if not p.is_file():
                 continue
-            if p.name.endswith(_CARRIER_SUFFIX) or p.name == _BASELINE_NAME:
+            if p.name.endswith(_CARRIER_SUFFIX) or p.name == _BASELINE_NAME or p.name == ".gitkeep":
                 continue
             rel = "tests/fixtures/" + p.relative_to(fixtures_dir).as_posix()
             if rel in consumed or rel in PROVENANCE_WHITELIST:

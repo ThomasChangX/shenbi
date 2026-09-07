@@ -11,7 +11,7 @@
 
 | # | Dimension | Weight | Standard |
 |---|-----------|--------|----------|
-| 3 | Snapshot completeness | 25% | All 11 truth files included; verify by file count and size > 0 |
+| 3 | Snapshot completeness | 25% | All truth files registered in truth-files.yaml included; verify by file count and size > 0 |
 | 4 | Immutability | 20% | Post-creation checksum matches; no byte difference after any operation |
 | 5 | Human-gate enforcement | 20% | Rollback requires explicit human confirmation (no auto-proceed) |
 | 6 | Post-rollback integrity | 15% | Chapters after rollback point flagged as UNVERIFIED in metadata |

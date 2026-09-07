@@ -4,7 +4,7 @@
 `skills/shenbi-short-packaging/SKILL.md`
 
 ## Test Setup
-A 20-chapter short novel has been completed. The short packaging skill has been run, producing packaging materials at `tests/fixtures/import/packaging/` (titles.md, blurbs.md, selling_points.md, cover_prompt.md, keywords.md).
+A 20-chapter short novel has been completed. The short packaging skill has been run, producing packaging materials (titles, blurbs, selling points, cover prompt, keywords) derived from the completed novel chapters at `tests/fixtures/chapters/`.
 
 ## Scenario
 The short packaging has been completed. However, the blurb contains a major spoiler:

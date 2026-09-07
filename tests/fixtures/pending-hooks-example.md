@@ -1,4 +1,6 @@
 ---
+provenance: synthetic-sample
+source: hand-authored example structure (spec #54 C16)
 project: 星火燃穹：位面解放战争史
 last_updated: 2026-06-12
 version: 0.1.0

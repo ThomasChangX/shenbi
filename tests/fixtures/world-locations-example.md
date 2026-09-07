@@ -1,4 +1,9 @@
 ---
+provenance: synthetic-sample
+source: hand-authored example structure (spec #54 C16)
+---
+
+---
 title: 初始地点图谱
 project: 星火燃穹：位面解放战争史
 version: 1.0.0

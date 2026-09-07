@@ -5,17 +5,16 @@ Single source of truth: shenbi.gates.g0.MIRROR_MAP (spec Task 2.3),
 avoiding drift between the gate and a second definition here.
 """
 
-import hashlib
 import sys
 from pathlib import Path
 
-from shenbi.gates.g0 import MIRROR_MAP  # Task 2.3 提模块级后生效
+from shenbi.gates.g0 import MIRROR_MAP, mirror_digest  # module-level single source of truth
 
 ROOT = Path(__file__).resolve().parent.parent
 
 
 def _sha256(p: Path) -> str:
-    return hashlib.sha256(p.read_bytes()).hexdigest()
+    return mirror_digest(p)
 
 
 def main() -> int:

@@ -1,3 +1,8 @@
+---
+provenance: synthetic-sample
+source: hand-authored example structure (spec #54 C16)
+---
+
 ## PRE_WRITE_CHECK
 
 - 本章核心任务: 林烽从现代失业状态穿越到梅德兰贫民窟锈泥巷，发现自己身负"灵能修炼贷款"债务，第一次接触种姓制度和灵能庶民的日常压迫。通过催收员互动揭示债务规则和灵能僭越罪，章末林烽在破屋里冷静计算处境。

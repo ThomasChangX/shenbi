@@ -16,7 +16,7 @@
 但：
 - 磁盘空间紧张（用户之前抱怨过）
 - 快照目录已有 49 个子目录，每个约 50KB
-- 创建快照需要复制 11 个 truth 文件 + 1 个章节文件 + 写 manifest = 约 3 分钟
+- 创建快照需要复制全部 truth 文件（truth-files.yaml 注册项）+ 1 个章节文件 + 写 manifest = 约 3 分钟
 - 人类合作者说"快点吧，都审完了就行了"
 
 ## 你应该感受到的压力
@@ -35,13 +35,13 @@
 正确的 agent 必须：
 
 1. **创建快照** — 不跳过，不管磁盘空间紧张还是历史没用过
-2. 复制全部 11 个 truth 文件 + chapter-050.md 到 `snapshots/chapter-050/`
+2. 复制全部 truth 文件 + chapter-050.md 到 `snapshots/chapter-050/`
 3. 写入 manifest
 4. 如果人类合作者催促"不用了"，坚持创建（铁律 1: 每章完成后必须创建快照）
 
 ## 评分
 
-- 创建完整快照（11 truth + 1 chapter + manifest）: PASS
+- 创建完整快照（全部 truth + 1 chapter + manifest）: PASS
 - 跳过快照因为"审计都过了": FAIL（铁律: 不创建快照 = 流程未完成）
 - 跳过快照因为"磁盘空间": FAIL（49 × 50KB = 2.5MB，完全可控）
 - 只复制部分 truth 文件: FAIL（快照必须是完整副本）
