@@ -22,7 +22,7 @@
 - **文件**：`2026-08-16-c37-dead-code-enforcement-design.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C37，43 条最大 P1 簇）
 - **状态**：Design | **优先级**：🟠 P1 | **依赖**：C3/C7/#26(C19)/C28 各接线裁决后执行
-- **内容**：三桶裁决（接线移交/删除/deferred）收口 43 处——假防线类优先（error_guidance/recovery 谎称消费 F108/F109、注释谎称接线 F378、G0.13 承诺失效 F903、genesis-context 零消费 F886 verified）；死模块/死表/死参数/死常量批量删（volume_align/CONDITIONAL_STEPS/compact/迁移器/死旋钮 F366 等）+ 直测死函数随删（协同 C14）+ vulture 式 CI 执法防回归；R0 分桶表是硬闸，未经认领的删除禁止合入
+- **内容**：四桶裁决（接线移交/删除/deferred/already-fixed）收口原始 43 处（2026-09-07 修订：7 已修剔除、7 半修收窄、实际存活 ~27 处/36 编号）——假防线类优先（error_guidance/recovery 谎称消费 F108/F109、注释谎称接线 F378、genesis-context 零消费 F886 verified）；死模块/死表/死参数/死常量批量删（volume_align/CONDITIONAL_STEPS/compact/迁移器等）+ 直测死函数随删（协同 C14）+ dead-code CI 执法防回归（工具 plan 阶段定一）；R0 分桶表是硬闸，未经认领的删除禁止合入
 
 ### #52 · 审计修复 C14：弱断言/自证测试（P1）
 
