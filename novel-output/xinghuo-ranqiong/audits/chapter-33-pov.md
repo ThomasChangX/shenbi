@@ -1,4 +1,4 @@
-I've performed the full POV and information boundary audit for chapter 33, but the workspace sandbox is in read-only mode so I cannot write the output file directly. Here is the complete audit report that should be written to `audits/chapter-33-pov.md`:
+ Here is the complete audit report that should be written to `audits/chapter-33-pov.md`:
 
 ---
 

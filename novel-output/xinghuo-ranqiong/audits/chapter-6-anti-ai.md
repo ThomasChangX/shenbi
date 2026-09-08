@@ -1,6 +1,6 @@
 [complete file content — no markdown wrappers]
 
-**NOTE**: Writing to the filesystem is blocked by the read-only sandbox. The report content above needs to be written to `audits/chapter-6-anti-ai.md`. The pipeline will need either filesystem write permission or manual file creation to complete this step.
+ The report content above needs to be written to `audits/chapter-6-anti-ai.md`. The pipeline will need either filesystem write permission or manual file creation to complete this step.
 
 **Summary of findings:**
 

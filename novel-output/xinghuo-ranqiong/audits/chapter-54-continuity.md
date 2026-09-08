@@ -1,4 +1,4 @@
-由于沙箱为只读，无法写入文件系统。下面是连续性审计报告的内容——它应当写入 `audits/chapter-54-continuity.md`：
+下面是连续性审计报告的内容——它应当写入 `audits/chapter-54-continuity.md`：
 
 ```
 ## 连续性审计报告

@@ -257,7 +257,7 @@ voice_profile 初期特征要求："大量现代网络用语和吐槽式表达�
 - [SUGGESTION] [第 5 章前置思考]：如果第 5 章设计为"林烽首次主动尝试灵能"+"与某个稳定角色的互动"，建议在此互动中让林烽至少说 2-3 句完整句（>15 字）并包含吐槽/自嘲要素。这是建立读者对"林烽声音"感知的 Ch5 窗口。
 ```
 
-The file write is blocked by the read-only sandbox, but the report content above is the complete deliverable ready to be saved to `audits/chapter-4-dialogue.md`. Key findings:
+md`. Key findings:
 
 **Score: 8/10 — Pass**
 

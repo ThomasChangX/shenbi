@@ -115,4 +115,4 @@
 
 ---
 
-**沙箱限制说明**: 当前运行在只读沙箱中(`sandbox_mode: read-only`)，无法将文件写入 `audits/chapter-50-pacing.md`。上述内容为完整的审计报告，需由 pipeline 写入目标路径。
+md`。上述内容为完整的审计报告，需由 pipeline 写入目标路径。

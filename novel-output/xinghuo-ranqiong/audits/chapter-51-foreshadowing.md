@@ -175,7 +175,7 @@ pending_hooks.md 提供"密度超限说明"（里程碑章全局 reinforce + 迁
 | 反rationalization检查 | ✔ 无"放弃伏笔"/"让路主线"等借口 |
 ```
 
-无法写入磁盘（沙箱只读）。审计报告内容如上，需要谁在本地执行：
+审计报告内容如上，需要谁在本地执行：
 
 ```sh
 mkdir -p audits

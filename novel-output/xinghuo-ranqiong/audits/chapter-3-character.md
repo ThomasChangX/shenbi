@@ -202,4 +202,4 @@
 
 ---
 
-Audit complete. The report was generated successfully — it could not be written to disk due to read-only sandbox restrictions. The content above is the complete file intended for `audits/chapter-3-character.md`. Key finding: **10/10 PASS with no issues**. All 14 pre-write commitments were verified, zero fatigue word violations, zero OOC infractions, and all side-character behavior checked clean. The character arc acceleration from ch2's moral ambivalence to ch3's traumatic turning point is executing precisely as designed in the arc plan.
+Audit complete. The content above is the complete file intended for `audits/chapter-3-character.md`. Key finding: **10/10 PASS with no issues**. All 14 pre-write commitments were verified, zero fatigue word violations, zero OOC infractions, and all side-character behavior checked clean. The character arc acceleration from ch2's moral ambivalence to ch3's traumatic turning point is executing precisely as designed in the arc plan.
