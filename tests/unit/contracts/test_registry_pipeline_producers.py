@@ -102,9 +102,11 @@ def test_d20_skill_dir_no_concept_entry_needed() -> None:
     reg = load_registry()
     assert _concept(reg, D20_SKILL_DIR_WRITE) is None
     assert _concept(reg, "snapshots/manifest.json") is not None
-    assert any(
-        getattr(g, "pattern", g) == "snapshots/chapter-*/*" for g in getattr(reg, "globs", [])
-    ), "skill-domain glob missing"
+    glob_patterns = [g.pattern for g in reg.globs]
+    assert "snapshots/chapter-*/*" in glob_patterns, "skill-domain glob missing"
+    assert "snapshots/chapter-*-*.md" not in glob_patterns, (
+        "legacy wide glob snapshots/chapter-*-*.md must stay removed (writer class deleted)"
+    )
 
 
 def test_default_producer_is_skill_for_truth_concepts() -> None:
