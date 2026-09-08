@@ -16,6 +16,7 @@ import pytest
 from tools.lint_artifact_contamination import (
     META_NARRATION_PATTERNS,
     lint_tree,
+    lint_tree_all,
     load_exemptions,
     main,
 )
@@ -55,10 +56,11 @@ def test_meta_narration_scans_json_sidecars(tmp_path: Path) -> None:
 
 def test_manual_calc_requires_pattern_and_number(tmp_path: Path) -> None:
     _write(tmp_path, "with-num.md", "分流为手动计算，overall 70 ≥ 65\n")
+    _write(tmp_path, "same-file-split.md", "分流为手动计算。\n表格里有 70。\n")
     _write(tmp_path, "no-num.md", "分流为手动计算。\n")
     _write(tmp_path, "num-only.md", "overall 70\n")
     findings = [f for f in lint_tree(tmp_path) if f["check"] == "manual_calc"]
-    assert [f["path"] for f in findings] == ["with-num.md"]
+    assert sorted(str(f["path"]) for f in findings) == ["same-file-split.md", "with-num.md"]
 
 
 # --- check (c): timestamp ---
@@ -118,7 +120,7 @@ def _make_state_tree(tmp_path: Path) -> None:
 def test_state_reconcile_both_branches(tmp_path: Path) -> None:
     _make_state_tree(tmp_path)
     findings = [f for f in lint_tree(tmp_path) if f["check"] == "state_reconcile"]
-    paths = sorted(f["path"] for f in findings)
+    paths = sorted(str(f["path"]) for f in findings)
     assert paths == ["audits/chapter-1-pov.md", "audits/chapter-2-pov.md"]
 
 
@@ -163,3 +165,28 @@ def test_cli_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> N
     assert main(argv) == 1
     out = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
     assert out["total"] == 1
+
+
+def test_cli_exit_zero_on_clean_tree(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    _write(tmp_path, "clean.md", "正常产物\n")
+    assert main(["--tree", str(tmp_path)]) == 0
+    out = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert out["total"] == 0
+
+
+def test_cli_missing_tree_errors(tmp_path: Path) -> None:
+    assert main(["--tree", str(tmp_path / "nope")]) == 2
+
+
+def test_baseline_out_marks_exempt_entries(tmp_path: Path) -> None:
+    _write(tmp_path, "x.md", "produced_at: 2026-07-16T12:00:00Z\n")
+    _write(tmp_path, "y.md", "produced_at: 2026-07-16T12:00:00Z\n")
+    exemptions = {
+        "timestamp": [
+            {"path": "x.md", "reason": "F1163 adjudicated"},
+            {"path": "y.md", "reason": "F1163 adjudicated"},
+        ]
+    }
+    all_findings = lint_tree_all(tmp_path, exemptions=exemptions)
+    assert len(all_findings) == 2 and all(f["exempt"] for f in all_findings)
+    assert lint_tree(tmp_path, exemptions=exemptions) == []
