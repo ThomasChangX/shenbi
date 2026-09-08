@@ -1,4 +1,3 @@
-Here is the complete audit report content.Save it to `audits/chapter-4-character.md`:
 
 ---
 

@@ -1,4 +1,3 @@
-以下是完整的审计报告内容，可保存至 `audits/chapter-36-motivation.md`：
 
 ---
 

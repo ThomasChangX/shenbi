@@ -203,5 +203,3 @@
 - **Zero AI fatigue words or AI markers**
 - **Two new narrative challenges handled cleanly**: (1) MH-020 "concept flip" — phone's spontaneous Meridian text described purely through Lin Feng's observable sensory sequence, no narrator explanation; (2) Door's spontaneous response — described via exclusion ("not temperature, not sound") + physical reality check, stays within Lin Feng's "something happened but I don't know what" frame
 - **Middle-aged woman relationship upgrade** — narrative distance maintained; her psychology shown through external actions only
-
-The file needs to be saved to `audits/chapter-6-pov.md` — the content above is the complete file ready for writing.

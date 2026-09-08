@@ -1,4 +1,3 @@
-Here's the completed audit report — you can save it to `audits/chapter-37-dialogue.md`:
 
 ---
 

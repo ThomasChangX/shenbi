@@ -120,7 +120,7 @@
 
 ### 建议修复
 
-1. [MINOR] [行105/行167] 光柱计数规则不透明。建议在truth/current_state.md或下一章pre-write-check中记录计数方案（例如：仅工作日计数；或Sunday为独立类别不计数），以消除"每天一张纸"与11/15的张力。
+1.[MINOR] [行105/行167] 光柱计数规则不透明。建议在truth/current_state.md或下一章pre-write-check中记录计数方案（例如：仅工作日计数；或Sunday为独立类别不计数），以消除"每天一张纸"与11/15的张力。
 
 2. [MINOR] [行17/行59] 天数编号从Ch32显式→Ch33隐式。建议在truth/current_state.md时间推进段添加"Day 12（第三周Monday）"的映射，维持跨章数据连续性。
 
