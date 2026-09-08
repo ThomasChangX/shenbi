@@ -187,6 +187,15 @@ def test_malformed_exemption_entry_exits_2(tmp_path: Path) -> None:
     assert exc.value.code == 2
 
 
+def test_malformed_exemption_json_exits_2(tmp_path: Path) -> None:
+    cfg = tmp_path / "tools" / "artifact-lint-exemptions.json"
+    cfg.parent.mkdir(parents=True)
+    cfg.write_text("{not json", encoding="utf-8")
+    with pytest.raises(SystemExit) as exc:
+        load_exemptions(tmp_path)
+    assert exc.value.code == 2
+
+
 def test_signature_counts_distinct_files(tmp_path: Path) -> None:
     # Same stamp twice in ONE file + once in another → not a 2-file group.
     _write(tmp_path, "a.md", "t1 2026-07-16T12:00:00Z t2 2026-07-16T12:00:00Z\n")
