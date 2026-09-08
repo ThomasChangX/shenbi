@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-08 · 价值门 GO，scope 按 T0 路径 3 裁剪为 T4-only：词面定稿 + 契约对账 + 磁盘遗留处置；失效面 F306/F317/F348/F351/F792-src/F1109-代码面已随 #26 移除自然消解) | **Severity:** 🟠 P1 | **INDEX 编号**：#57
+> **Date:** 2026-08-16 | **Status:** Done (PR #198)（Revised 2026-09-08 · 价值门 GO，scope 按 T0 路径 3 裁剪为 T4-only：词面定稿 + 契约对账 + 磁盘遗留处置；失效面 F306/F317/F348/F351/F792-src/F1109-代码面已随 #26 移除自然消解） | **Severity:** 🟠 P1 | **INDEX 编号**：#57
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C19）| **代表 finding:** F351 | **簇规模:** 12 条 | **严重度上限:** P1
 > **范围:** src/shenbi/pipeline/{snapshot_diff,chapter_loop,crash_recovery,state_heal}.py、docs/framework/truth-files.yaml、tests 快照族、novel-output 生产快照 | **证据等级:** 实验佐证（Z3-review-r1 + Z7-review-r2 + Z11-a 生产实证）
 > **与既有 spec 关系:** **依赖 #26**（2026-08-15-snapshot-subsystem-wiring-design.md，F303 三路裁决：接线/收敛后接线/移除）——本 spec 承接 #26 裁决结果，收口其未覆盖的布局单源化、TRUTH_FILES 完备性、命名统一与生产实证复验；执行顺序 #26 先决
