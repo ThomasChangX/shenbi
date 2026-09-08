@@ -1,0 +1,1691 @@
+{
+  "tree": "novel-output",
+  "exemptions_registered": {
+    "meta_narration": 0,
+    "manual_calc": 0,
+    "timestamp": 0,
+    "state_reconcile": 0
+  },
+  "total": 239,
+  "by_check": {
+    "meta_narration": 52,
+    "manual_calc": 4,
+    "timestamp": 66,
+    "state_reconcile": 117
+  },
+  "findings": [
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-1-pov.md",
+      "line": 67,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-10-character.md",
+      "line": 196,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-15-pacing.md",
+      "line": 72,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-15-pov.md",
+      "line": 1,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-2-pov.md",
+      "line": 88,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-21-dialogue.md",
+      "line": 90,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-3-character.md",
+      "line": 205,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-33-pov.md",
+      "line": 1,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-36-motivation.md",
+      "line": 1,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-37-pacing.md",
+      "line": 1,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-38-pov.md",
+      "line": 150,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-4-character.md",
+      "line": 1,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-4-dialogue.md",
+      "line": 260,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-40-pov.md",
+      "line": 127,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-40-sensitivity.md",
+      "line": 60,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-42-dialogue.md",
+      "line": 1,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-43-pacing.md",
+      "line": 191,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-49-motivation.md",
+      "line": 127,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-49-resonance.md",
+      "line": 5,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "manual_calc",
+      "path": "xinghuo-ranqiong/audits/chapter-49-resonance.md",
+      "line": 5,
+      "detail": "manual-calc self-certification",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-50-pacing.md",
+      "line": 118,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-51-dialogue.md",
+      "line": 79,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-51-foreshadowing.md",
+      "line": 178,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-51-resonance.md",
+      "line": 31,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "manual_calc",
+      "path": "xinghuo-ranqiong/audits/chapter-51-resonance.md",
+      "line": 31,
+      "detail": "manual-calc self-certification",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-53-world-rules.md",
+      "line": 140,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-54-continuity.md",
+      "line": 1,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-6-anti-ai.md",
+      "line": 3,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/audits/chapter-7-pacing.md",
+      "line": 67,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/chapters/chapter-14-decisions.json",
+      "line": 128,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/chapters/chapter-16-decisions.json",
+      "line": 94,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/chapters/chapter-31-decisions.json",
+      "line": 82,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/chapters/chapter-40-decisions.json",
+      "line": 1,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/chapters/chapter-42-decisions.json",
+      "line": 89,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/plans/chapter-44-plan-decisions.json",
+      "line": 290,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/plans/chapter-45-plan-decisions.json",
+      "line": 46,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-006-20260715T234925.md",
+      "line": 242,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-007-20260716T002647.md",
+      "line": 1544,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-010-20260716T020310.md",
+      "line": 622,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-015-20260716T051424.md",
+      "line": 1186,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-021-20260716T104950.md",
+      "line": 604,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-033-20260716T210348.md",
+      "line": 1056,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-036-20260716T234701.md",
+      "line": 965,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-037-20260717T002200.md",
+      "line": 976,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-038-20260717T005440.md",
+      "line": 1395,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-039-20260717T013217.md",
+      "line": 2079,
+      "detail": "same-file timestamps non-monotonic",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-040-20260717T021845.md",
+      "line": 1403,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-041-20260717T030303.md",
+      "line": 2370,
+      "detail": "same-file timestamps non-monotonic",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-042-20260717T035039.md",
+      "line": 608,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-042-20260717T035039.md",
+      "line": 2179,
+      "detail": "same-file timestamps non-monotonic",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-043-20260717T044037.md",
+      "line": 1597,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-046-20260717T070043.md",
+      "line": 1785,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-049-20260717T090450.md",
+      "line": 1360,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "manual_calc",
+      "path": "xinghuo-ranqiong/snapshots/chapter-049-20260717T090450.md",
+      "line": 1648,
+      "detail": "manual-calc self-certification",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-050-20260717T095806.md",
+      "line": 1182,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-051-20260717T102846.md",
+      "line": 758,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "manual_calc",
+      "path": "xinghuo-ranqiong/snapshots/chapter-051-20260717T102846.md",
+      "line": 1458,
+      "detail": "manual-calc self-certification",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-053-20260717T114007.md",
+      "line": 2018,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "meta_narration",
+      "path": "xinghuo-ranqiong/snapshots/chapter-054-20260717T122629.md",
+      "line": 572,
+      "detail": "meta-narration pattern present",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/audits/chapter-17-resonance.md",
+      "line": 77,
+      "detail": "fabricated on-the-hour signature 2026-07-16T23:00:00Z shared by 3 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-25-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T23:00:00Z shared by 3 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-017-20260716T063953.md",
+      "line": 1551,
+      "detail": "fabricated on-the-hour signature 2026-07-16T23:00:00Z shared by 3 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/audits/chapter-7-resonance.md",
+      "line": 84,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/audits/chapter-8-resonance.md",
+      "line": 103,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-23-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-3-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-10-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-11-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-13-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-14-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-22-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-24-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-25-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-9-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-007-20260716T002647.md",
+      "line": 1718,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-008-20260716T005511.md",
+      "line": 1464,
+      "detail": "fabricated on-the-hour signature 2026-07-16T12:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-18-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T15:00:00Z shared by 4 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-19-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T15:00:00Z shared by 4 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-19-revision-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T15:00:00Z shared by 4 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-019-20260716T083739.md",
+      "line": 2072,
+      "detail": "fabricated on-the-hour signature 2026-07-16T15:00:00Z shared by 4 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-27-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-28-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-36-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-37-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-38-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-26-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-27-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-35-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-36-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-37-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-39-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-48-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-49-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-50-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T00:00:00Z shared by 14 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-39-revision-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T02:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-039-20260717T013217.md",
+      "line": 2070,
+      "detail": "fabricated on-the-hour signature 2026-07-17T02:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-40-revision-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T22:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-040-20260717T021845.md",
+      "line": 2402,
+      "detail": "fabricated on-the-hour signature 2026-07-17T22:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-41-revision-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T23:00:00Z shared by 3 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-041-20260717T030303.md",
+      "line": 2357,
+      "detail": "fabricated on-the-hour signature 2026-07-17T23:00:00Z shared by 3 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-042-20260717T035039.md",
+      "line": 2166,
+      "detail": "fabricated on-the-hour signature 2026-07-17T23:00:00Z shared by 3 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-46-revision-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T15:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-046-20260717T070043.md",
+      "line": 2203,
+      "detail": "fabricated on-the-hour signature 2026-07-17T15:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-7-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T10:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/chapters/chapter-8-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T10:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-1-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T00:00:00Z shared by 7 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-19-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T00:00:00Z shared by 7 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-2-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T00:00:00Z shared by 7 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-3-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T00:00:00Z shared by 7 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-4-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T00:00:00Z shared by 7 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-5-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T00:00:00Z shared by 7 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-6-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T00:00:00Z shared by 7 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-20-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T18:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-21-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-16T18:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-40-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T09:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-41-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T09:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-42-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T12:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/staging/truth/state-settling-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T12:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-52-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T18:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/plans/chapter-53-plan-decisions.json",
+      "line": 5,
+      "detail": "fabricated on-the-hour signature 2026-07-17T18:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-009-20260716T012654.md",
+      "line": 2343,
+      "detail": "fabricated on-the-hour signature 2026-07-16T21:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "timestamp",
+      "path": "xinghuo-ranqiong/snapshots/chapter-010-20260716T020310.md",
+      "line": 2692,
+      "detail": "fabricated on-the-hour signature 2026-07-16T21:00:00Z shared by 2 files",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-1-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[1].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-1-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[1].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-10-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[10].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-10-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[10].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-11-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[11].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-11-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[11].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-12-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[12].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-12-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[12].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-13-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[13].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-13-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[13].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-14-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[14].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-14-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[14].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-15-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[15].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-15-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[15].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-16-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[16].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-16-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[16].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-17-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[17].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-17-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[17].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-18-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[18].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-18-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[18].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-19-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[19].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-19-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[19].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-2-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[2].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-2-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[2].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-20-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[20].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-20-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[20].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-21-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[21].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-21-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[21].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-22-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[22].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-22-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[22].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-23-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[23].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-23-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[23].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-24-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[24].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-24-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[24].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-25-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[25].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-25-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[25].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-26-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[26].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-26-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[26].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-27-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[27].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-27-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[27].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-28-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[28].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-28-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[28].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-29-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[29].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-29-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[29].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-3-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[3].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-3-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[3].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-30-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[30].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-30-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[30].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-31-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[31].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-31-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[31].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-32-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[32].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-32-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[32].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-33-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[33].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-33-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[33].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-34-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[34].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-34-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[34].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-35-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[35].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-35-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[35].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-36-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[36].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-36-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[36].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-37-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[37].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-37-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[37].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-38-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[38].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-38-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[38].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-39-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[39].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-39-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[39].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-4-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[4].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-4-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[4].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-40-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[40].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-40-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[40].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-41-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[41].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-41-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[41].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-42-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[42].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-42-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[42].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-43-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[43].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-43-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[43].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-44-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[44].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-44-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[44].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-45-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[45].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-45-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[45].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-46-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[46].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-46-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[46].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-47-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[47].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-47-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[47].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-48-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[48].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-48-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[48].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-49-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[49].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-49-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[49].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-5-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[5].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-5-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[5].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-50-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[50].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-50-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[50].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-51-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[51].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-51-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[51].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-52-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[52].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-52-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[52].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-53-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[53].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-53-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[53].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-54-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[54].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-54-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[54].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-55-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[55].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-55-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[55].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-56-anti-ai.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[56].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-56-character.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[56].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-56-continuity.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[56].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-56-foreshadowing.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[56].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-56-memo-compliance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[56].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-56-pacing.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[56].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-56-pov.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[56].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-6-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[6].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-6-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[6].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-7-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[7].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-7-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[7].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-8-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[8].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-8-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[8].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-9-resonance.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[9].audit_results.audit_reports",
+      "exempt": false
+    },
+    {
+      "check": "state_reconcile",
+      "path": "xinghuo-ranqiong/audits/chapter-9-review-summary.md",
+      "line": 0,
+      "detail": "on disk but not in chapter_states[9].audit_results.audit_reports",
+      "exempt": false
+    }
+  ]
+}
