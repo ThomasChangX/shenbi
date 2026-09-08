@@ -1,4 +1,3 @@
-The sandbox is read-only, so I can't write the file directly. Here's the completed audit report — you can save it to `audits/chapter-37-dialogue.md`:
 
 ---
 

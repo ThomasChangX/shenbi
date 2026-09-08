@@ -1,4 +1,3 @@
-The sandbox is read-only so I cannot write the file directly. Here is the complete audit report content. Save it to `audits/chapter-4-character.md`:
 
 ---
 

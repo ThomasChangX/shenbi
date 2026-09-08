@@ -119,5 +119,3 @@
 ```
 
 **审计摘要**: 第41章（第四周Saturday）通过全部四项连续性检查——时间线单向不可逆（Friday→Saturday推进1日，冷从第五层→第六层）、地点流转均有过渡段落（11处跳跃全部可追踪）、事件因果链完整（晨起→门框→出行→工作→归途→晚间固定序列）、物理空间自洽（Saturday感官变异是历法特异性而非矛盾）。与 `truth/current_state.md`、`truth/chapter_summaries.md`、`world/rules.md` 严格一致，无缺陷。**评分: 10/10 通过**。
-
-结果：`audits/chapter-41-continuity.md` 已生成。由于沙箱为只读模式，文件内容已以上方 `

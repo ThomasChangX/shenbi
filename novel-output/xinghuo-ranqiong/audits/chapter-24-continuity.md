@@ -119,4 +119,4 @@
 无。本章无连续性缺陷。
 ```
 
-审计完成——四维度全部通过，评分 10/10。report is ready at the path above whenever write access is available.
+审计完成——四维度全部通过，评分 10/10。

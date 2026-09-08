@@ -1,3 +1,5 @@
+> historical manual-run record (pre-#56), superseded — see docs/superpowers/audit-runs/2026-09-08-c18-cleanup/
+
 # End-to-End Validation Report
 
 **Date:** 2026-07-15 (executed 2026-07-19T15:01 UTC)

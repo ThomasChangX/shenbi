@@ -14,15 +14,18 @@
       ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "context/chapter-31-context.md",
       "selected": [],
       "basis": "manual_override",
       "severity": "high",
-      "omitted": ["file_not_found"],
-      "rationale": "context/chapter-31-context.md not assembled by pipeline — all context loaded from plan + truth files directly"
+      "omitted": [
+        "file_not_found"
+      ],
+      "rationale": "context/chapter-31-context.md not assembled by pipeline — all context loaded from plan + truth …"
     },
     {
       "target": "style/style_profile.md",
@@ -32,14 +35,19 @@
       ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "truth/audit_drift.md",
-      "selected": ["ch30_audit_drift", "ch29_audit_drift_responded"],
+      "selected": [
+        "ch30_audit_drift",
+        "ch29_audit_drift_responded"
+      ],
       "basis": "arc_relevance",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "truth/current_focus.md",
@@ -52,14 +60,22 @@
       ],
       "basis": "arc_relevance",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "truth/pending_hooks.md",
-      "selected": ["MH-022", "MH-023", "MH-003", "MH-020", "MH-021"],
+      "selected": [
+        "MH-022",
+        "MH-023",
+        "MH-003",
+        "MH-020",
+        "MH-021"
+      ],
       "basis": "arc_relevance",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     }
   ],
   "adjustments": [
@@ -76,13 +92,3 @@
     "trim_applied": "none"
   }
 }
-
----
-
-**Note**: The sandbox is read-only and I cannot write to disk. The two files above are the complete deliverables. You'll need to save them to `chapters/chapter-31.md` and `chapters/chapter-31-decisions.json` in your project directory.
-
-**For chapter-31.md (~7500 char)**: Walking Thursday of the second week — assessment week calendar transitions from calendrical presence to habitual presence, cold air intensity crossing as the first perceptible seasonal change, and zero-category pre-avoidance. Three P0 advances:
-
-1. **Assessment habitual presence** — Thursday density registered as Thursday's density, no comparison. "Tuesday有Tuesday的密度——Wednesday有Wednesday的密度——Thursday有Thursday的密度"
-2. **External anchor — cold crossing** — Cold from temperature reading to behavior-modulating parameter. Breath visible in the first waking frame. Cold changes stride width, walking frequency. Cold from first frame to last. Cold is cold, not metaphor.
-3. **Pre-avoidance** — Parameter system detects the zero-category's addressable range in preprocessing, executes encoding skip. "钟不在午夜停止——钟在午夜走快——午夜在钟里" — the clock no longer stops at midnight; it speeds up through it.

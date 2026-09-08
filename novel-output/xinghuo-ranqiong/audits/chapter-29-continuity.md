@@ -175,7 +175,6 @@
 ```
 ```
 
-I've completed the continuity audit for Chapter 29. The full report is written to `audits/chapter-29-continuity.md`.
 
 **Key findings:**
 

@@ -189,7 +189,7 @@
 
 ---
 
-POV audit for Chapter 5 is complete. The chapter passes all checks with a **10/10 score** — the same standard maintained across chapters 1–4. Key findings:
+The chapter passes all checks with a **10/10 score** — the same standard maintained across chapters 1–4.Key findings:
 
 - **Zero POV switches** — whole chapter is single third-limited perspective (林烽)
 - **Zero information boundary violations** — all 50+ "X knows Y" statements have verified sourcing (direct observation, being told, reasonable inference)

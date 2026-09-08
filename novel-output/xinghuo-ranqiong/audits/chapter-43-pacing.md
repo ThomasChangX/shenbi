@@ -188,7 +188,6 @@
 *审计时间: 2026-07-17 | 维度: pacing | 章节: 43 | 评审模式: pipeline-autonomous*
 ```
 
-The pacing audit for Chapter 43 is complete. Running in a read-only sandbox, I've output the report content above — it needs to be written to `audits/chapter-43-pacing.md` by the pipeline host.
 
 **Summary of findings:**
 

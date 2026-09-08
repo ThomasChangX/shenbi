@@ -437,17 +437,17 @@
 | F1105 | 趋势类 truth 同样覆盖坍缩：resonance_trend 1 行、audit_drift 1 章 | error | P1| 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | closed (fixed by PR #43) |
 | F1106 | truth/state_snapshot-pre-rev.md 不在词表——静默同义词 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
 | F1107 | BLOCKING 汇总抑制：单项审计判 BLOCKING，review-summary 全部报 0 | error | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | closed (fixed in main — spec #27 修订剔除) |
-| F1108 | 审计波冗余：6.2MB 审计对 1.3MB 正文（4.64x），并在快照内二次嵌埋 | optimization | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1108 | 审计波冗余：6.2MB 审计对 1.3MB 正文（4.64x），并在快照内二次嵌埋 | optimization | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | merged (spec #56 PR pending) |
 | F1109 | 快照机制失能：拼接审计而非正文副本，且未覆盖 ch1–4/ch56 | error | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
 | F1110 | staging 晋升半途而废：55 个 plan-decisions 仅存暂存，truth 暂存过期 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | closed (spec #30 decisions-sidecar, PR #120) |
 | F1111 | gate marker 空转/被覆写：无法证明其所名内容，且与复验矛盾 | error | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | closed (C-1 spec #27, PR #107) |
 | F1112 | state 声称 context-composing 完成但 41 章无 context 产物 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | closed (C-30 spec #44, PR #158) |
 | F1113 | progress.json 为 171B 空壳（仅 scorer 字段） | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | closed (C-11 spec #37, PR #140) |
 | F1114 | 运行中断态与 state 尾部失真 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | closed (C-30 spec #44, PR #158) |
-| F1118 | DEBUG 文档自证已知缺陷与 state 漂移；正文与 genesis 大纲完全脱轨 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1118 | DEBUG 文档自证已知缺陷与 state 漂移；正文与 genesis 大纲完全脱轨 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | merged (spec #56 PR pending) |
 | F1116 | 计量链盲点：trace 无 finish_reason 字段、重试无反馈变化 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | closed (C-10 spec #36, PR #137) |
-| F1119 | 三子项目结构漂移：xinghuo 缺 instrumentation，test-validation 词表不全 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
-| F1117 | 验证报告如实但记录了未修复的门禁失败集 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1119 | 三子项目结构漂移：xinghuo 缺 instrumentation，test-validation 词表不全 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | merged (spec #56 PR pending) |
+| F1117 | 验证报告如实但记录了未修复的门禁失败集 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | merged (spec #56 PR pending) |
 | F1115 | token-ledger 全仓不存在：40 小时/56 章运行零 token 计量 | error | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | closed (C-10 spec #36, PR #137) |
 | F1151 | 根级 truth/ 以生产 truth 文件名/路径存放模板，与词表的「项目内 truth/」语义同名冲突，仅被 2 个模板结构测试消费 | error | P2 | 见 Z11-b | 见 zone-reports/Z11-b.md | 见 Z11-b | 见 Z11-b | 见 Z11-b | Z11-b 初审 | open |
 | F1152 | truth/bridge_tracker.md 未登记 truth-files.yaml 词表（index.json 有条目、yaml 无 concept；且为 write-only 无读者） | error | P2 | 见 Z11-b | 见 zone-reports/Z11-b.md | 见 Z11-b | 见 Z11-b | 见 Z11-b | Z11-b 初审 | open |
@@ -633,19 +633,19 @@
 | F772 | F777（P1）降级讨论：零消费者死文件的契约违反——维持 P1 记录张力 | severity-dispute | P1 | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open | → closed (C-35 spec #49) (ref phase4-clustering.md §4) |
 | F891 | SharedAuditContext 缓存 4 字段中 2 个经幻影路径/键错位 100% 失效 | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | closed (C-1 spec #27, PR #107) |
 | F895 | truth-files.yaml "pipeline-written files" 节登记不全：progress.json / config-change-log.jsonl / gate-markers/* 实产未注册 | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
-| F1162 | 67 个生产产物内嵌 LLM 沙箱元叙述（只读沙箱无法写入请手动复制）污染 audits 全域 12 维度覆盖 35/56 章 + 2 章 resonance 分数自证手动计算（协调者独立复扫 44+ 量级证实）（F1171 权威复扫修正：实为 109 文件，r1 计数分层不可复现） | 漏报 | P1 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | verified |
-| F1163 | 时间戳编造倒挂 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
-| F1164 | ch35 唯一缺失 drafting-decisions | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
-| F1165 | 上轮 F1311 的 117 项脱节复现 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
-| F1166 | 污染 marker 滞留 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
-| F1167 | texture 配置脱节复现 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
-| F1168 | truth-index 停留 genesis 态 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
-| F1169 | patches 17 个回归例从未套用 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
-| F1170 | 残留 0 字节 lockfile | 漏报 | M | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
-| F1171 | F1162 权威复扫：全树元叙述污染实为 109 文件（audits 55+snapshots 37+staging 9+decisions 7+正文 ch35 1）——r1 报 67 且分层不可复现；扩展至正文交付物与快照二次嵌埋（协调者抽验 ch35:338 与 snapshots 证实） | 漏报 | P1 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | verified |
-| F1172 | ch51 resonance 手算 trend 五行三窗口两错值 + 超出阈值>5 断言为假（70-65=5 恰在边界带）——铁律3 违反的实际后果实证 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open |
-| F1173 | helper 可用性矛盾 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open |
-| F1174 | 35 章 verdict 重试无账 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open |
+| F1162 | 67 个生产产物内嵌 LLM 沙箱元叙述（只读沙箱无法写入请手动复制）污染 audits 全域 12 维度覆盖 35/56 章 + 2 章 resonance 分数自证手动计算（协调者独立复扫 44+ 量级证实）（F1171 权威复扫修正：实为 109 文件，r1 计数分层不可复现） | 漏报 | P1 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | merged (spec #56 PR pending) |
+| F1163 | 时间戳编造倒挂 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | merged (spec #56 PR pending) |
+| F1164 | ch35 唯一缺失 drafting-decisions | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | merged (spec #56 PR pending) |
+| F1165 | 上轮 F1311 的 117 项脱节复现 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | merged (spec #56 PR pending) |
+| F1166 | 污染 marker 滞留 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | merged (spec #56 PR pending) |
+| F1167 | texture 配置脱节复现 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | merged (spec #56 PR pending) |
+| F1168 | truth-index 停留 genesis 态 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | merged (spec #56 PR pending) |
+| F1169 | patches 17 个回归例从未套用 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | merged (spec #56 PR pending) |
+| F1170 | 残留 0 字节 lockfile | 漏报 | M | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | merged (spec #56 PR pending) |
+| F1171 | F1162 权威复扫：全树元叙述污染实为 109 文件（audits 55+snapshots 37+staging 9+decisions 7+正文 ch35 1）——r1 报 67 且分层不可复现；扩展至正文交付物与快照二次嵌埋（协调者抽验 ch35:338 与 snapshots 证实） | 漏报 | P1 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | merged (spec #56 PR pending) |
+| F1172 | ch51 resonance 手算 trend 五行三窗口两错值 + 超出阈值>5 断言为假（70-65=5 恰在边界带）——铁律3 违反的实际后果实证 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | merged (spec #56 PR pending) |
+| F1173 | helper 可用性矛盾 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | merged (spec #56 PR pending) |
+| F1174 | 35 章 verdict 重试无账 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | merged (spec #56 PR pending) |
 | F1175 | ### FILE: 捕获模式（快照实证 state-settling 曾生成 8 truth 文件含 Ch5 摘要但未落盘） | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | closed (fixed by PR #43) |
 | F1176 | b 段清单缺口处置落账：1082 实为 1083（r1 加法笔误）；constants 1067=cache-ignored、patches 13=needs-review（F1169）、unicode 2+playwright 1=generated-excluded | 漏报 | M | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open | | → closed (C-35 spec #49) (merged-into-F1177, spec #49, PR #170) |
 | F1177 | 上轮 verified 承接断链：F1301（P1 章节头 56/56 缺失）/F1302（P1 META 契约）/F1320（M DEBUG 计数漂移 1226 vs 1229）三条本轮零承接且盘上复现；F1315/F1316/F1317 部分承接无映射 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open | | → closed (C-35 spec #49) (merged-into-F1177, spec #49, PR #170) |

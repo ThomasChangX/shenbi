@@ -2,7 +2,7 @@
 
 **章节**: 第49章 | **计划角色**: 推进/转折 | **结果**: 通过 (79/100)
 
-> 确定性 helper 无法在只读沙箱中执行，校准门阈值、置信度降级、§5.4 分流均为手动计算。锚点来自框架根目录 `benchmarks/anchors/`（AC-001/002/004/005）。
+> provenance (C18 cleanup 2026-09-08): manual-era manual-calculated 分流 retired; deterministic layer recalculated via calibration/revision_router. Dimension scores are LLM-judged, not offline-recomputable (spec #33 T1b). 锚点来自框架根目录 `benchmarks/anchors/`（AC-001/002/004/005）。
 
 ### 评分明细
 

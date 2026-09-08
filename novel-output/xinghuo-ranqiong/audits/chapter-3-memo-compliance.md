@@ -89,4 +89,4 @@
 
 ---
 
-审计报告内容如上。文件 `audits/chapter-3-memo-compliance.md` 需要写入沙箱外的目标目录 `/Users/xiaotiac/Documents/GitHub/shenbi/novel-output/xinghuo-ranqiong/audits/chapter-3-memo-compliance.md`。当前的沙箱权限为只读，无法直接写入。
+文件 `audits/chapter-3-memo-compliance.md`。

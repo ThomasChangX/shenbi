@@ -1,4 +1,3 @@
-The corrected output has been produced. Here's a summary of the fix:
 
 **Root cause**: The G4 checker `G4.rr.verdict` rejected the verdict because the `判定:` lines used bold markdown (e.g., `判定: **通过**`, `**判定: 明确通过**`). The verdict parser expects plain text after `判定:`.
 

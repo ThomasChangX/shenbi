@@ -75,6 +75,7 @@
   "skill": "shenbi-review-resonance",
   "chapter": 17,
   "produced_at": "2026-07-16T23:00:00Z",
+<!-- fabricated manual-era timestamp, true time unrecoverable (C18 F1163 adjudication) -->
   "selections": [
     {
       "target": "audits/chapter-17-resonance.md",

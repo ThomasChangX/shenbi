@@ -173,13 +173,3 @@ pending_hooks.md 提供"密度超限说明"（里程碑章全局 reinforce + 迁
 | 禁区遵守 | ✔ 无人物/对话/感官/质地/情感化表达/虚假宣告 |
 | 词汇拓展 | ✔ 间隙/之间/空间在场/交叉在场/之外 自然嵌入 |
 | 反rationalization检查 | ✔ 无"放弃伏笔"/"让路主线"等借口 |
-```
-
-无法写入磁盘（沙箱只读）。审计报告内容如上，需要谁在本地执行：
-
-```sh
-mkdir -p audits
-cat > audits/chapter-51-foreshadowing.md << 'ENDFILE'
-## 伏笔审计报告
-...
-ENDFILE

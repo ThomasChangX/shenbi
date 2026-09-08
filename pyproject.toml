@@ -124,6 +124,10 @@ convention = "google"
 # their own cluster fixes — each entry is an explicit, reviewed allowlist
 # member. Spec-scope files use inline `# noqa: BLE001` with justification.
 "tools/**" = ["T201"]
+# SDD #56 C18 oneoff cleanup scripts live in the audit-run record dir (spec
+# pins them next to their evidence); CLI prints and CJK punctuation are
+# legitimate there.
+"docs/superpowers/audit-runs/**" = ["T201", "RUF001", "RUF002"]
 "scripts/**" = ["T201"]
 "src/shenbi/cost/report.py" = ["BLE001"]
 "src/shenbi/gates/g0.py" = ["BLE001"]

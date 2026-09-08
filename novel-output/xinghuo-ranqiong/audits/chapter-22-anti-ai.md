@@ -47,5 +47,5 @@ Pipeline state 显示 chapter 22 已完成 drafting/foreshadowing tracking/recal
 ### 建议操作
 
 1. **恢复章节正文**：从 drafting agent 的输出重新生成 chapter-22.md，确保正文完整（>=3000字）
-2. **修复管道逻辑**：G4修复流程不应覆写章节正文文件，修复摘要应输出到独立的 `.g4-fix-summary.md` 文件而非直接写入 `chapters/chapter-N.md`
+2.**修复管道逻辑**：G4修复流程不应覆写章节正文文件，修复摘要应输出到独立的 `.g4-fix-summary.md`
 3. **重新审计**：正文恢复后重新运行 shenbi-review-anti-ai audit
