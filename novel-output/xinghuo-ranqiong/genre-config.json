@@ -143,15 +143,9 @@
     "sensitivity": true,
     "worldRules": true,
     "dialogue": true,
-    "texture": true
+    "texture": false
   },
   "customRules": [
-    {
-      "id": "rule-001",
-      "description": "文字质感(texture)维度已启用——前期写作阶段同样执行质感审计，捕捉感官细节与场景临场感的退化（E34 修复）",
-      "enforcement": "warning",
-      "example": ""
-    },
     {
       "id": "rule-002",
       "description": "政治敏感内容审查——涉及殖民主义、法西斯主义、阶级斗争等内容需确保符合小说主题设定，不出现无意义的政治口号",

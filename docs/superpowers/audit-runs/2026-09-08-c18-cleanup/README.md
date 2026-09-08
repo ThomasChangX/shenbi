@@ -14,3 +14,8 @@ spec: `docs/superpowers/specs/2026-08-16-audit-artifact-contamination-fix.md` ·
 ## T4 补充说明
 
 - lint 7 模式族为 spec 锚定（F1171 定义，基线 52）；英文聊天体变体（Here's/deliver/needs to go into/write access 等）与 heredoc 交付块超出该族，已在 T4 分轮定点清除（轮 2-5 共 30+ 文件；ch22 族 Here's 为审计对上游污染文件的原文引述，合法保留），以 grep 证据留档，不扩 lint 模式族（保 AC1 基线对照完整性）。存量孤立 fence（92 文件基线即奇）不属 7 模式族，本 run 不动
+
+## T6/T7 记录
+- F1165 回填 117 项（backfill_audit_reports.py 幂等 0 missing）；F1168 truth-index 13 文件机械注册（presence-only，F947）；F1174 ch35 retry_feedback 补账（来源 DEBUG 文档 L82/124）；F1166 污染 marker 删除
+- F1169 check-ignore 证据：`git check-ignore .hypothesis/patches/<patch>` 命中（git-ignored 出范围）
+- F1170：2 个 0 字节 lockfile 删除（find 0 输出）
