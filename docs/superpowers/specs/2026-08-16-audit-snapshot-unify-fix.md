@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (大部分失效注记：#26 已于 2026-08-30 裁决路径 3——差分快照子系统整体移除，本 spec 按 T0 仅存活 T4 truth-files.yaml/词面协调面，待自身价值门复核) | **Severity:** 🟠 P1
+> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-08 · 价值门 GO，scope 按 T0 路径 3 裁剪为 T4-only：词面定稿 + 契约对账 + 磁盘遗留处置；失效面 F306/F317/F348/F351/F792-src/F1109-代码面已随 #26 移除自然消解) | **Severity:** 🟠 P1 | **INDEX 编号**：#57
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C19）| **代表 finding:** F351 | **簇规模:** 12 条 | **严重度上限:** P1
 > **范围:** src/shenbi/pipeline/{snapshot_diff,chapter_loop,crash_recovery,state_heal}.py、docs/framework/truth-files.yaml、tests 快照族、novel-output 生产快照 | **证据等级:** 实验佐证（Z3-review-r1 + Z7-review-r2 + Z11-a 生产实证）
 > **与既有 spec 关系:** **依赖 #26**（2026-08-15-snapshot-subsystem-wiring-design.md，F303 三路裁决：接线/收敛后接线/移除）——本 spec 承接 #26 裁决结果，收口其未覆盖的布局单源化、TRUTH_FILES 完备性、命名统一与生产实证复验；执行顺序 #26 先决
@@ -32,33 +32,41 @@
    - 路径 1/2（保留快照）：执行 T1–T4 全量
    - 路径 3（移除）：只执行 T4 的词表/文档收口 + 磁盘残留清理，F792/F306/F317/F348 随移除自然消解
 
-### T1 · 布局与命名单源化（F792/F350/F890/F306）
+### T1 · 布局与命名单源化（F792/F350/F890/F306）——（路径 3 下不执行，随 #26 移除自然消解）
 2. 布局二选一定稿（差分目录为默认建议，与测试族一致）：legacy 写入分支删除或降级为一次性迁移器（读 legacy → 写差分，迁完即废）
 3. 命名三套收敛为一套（零填充/非填充统一为一种 chapter 文件名模式）；ring-buffer 匹配逻辑用定稿命名重写并用真实文件名测试（F306 红灯：改名前永不到达的分支改名后必须到达）
-4. 紧急快照并入 snapshots/manifest.json 与保留策略（F350）
+4. 紧急快照并入 snapshots/manifest.json 与保留策略（F350）（作废——路径 3 下不执行；F350 半存活已列入「已知接受的残留」）
 
-### T2 · truth 覆盖集与恢复链（F348/F317/T708）
+### T2 · truth 覆盖集与恢复链（F348/F317/T708）——（路径 3 下不执行）
 5. TRUTH_FILES 单源化：改为从 truth-files.yaml 派生（消灭代码内手抄集合——与 C22 词表对账协同），至少补 book_strata/volume_summaries/arcs
 6. state_heal._heal_last_snapshot 识别定稿布局（F317）；restore 链接到 cli rollback（#26 路径 1/2 时），消除"只写不还"（T708）
 
-### T3 · 生产实证复验（F1109/F351）
+### T3 · 生产实证复验（F1109/F351）——（路径 3 下不执行；F1109 仅存活磁盘遗留面，归 T4 item 11）
 7. step-15 接线后对 novel-output（或回放项目）跑一轮 pre-revision 流程：快照含**正文副本**（非审计拼接）、覆盖全部活跃章（含 ch1–4 末章）、manifest 完整
 8. 恢复演练：从最新快照 restore 单章 + truth 子集，断言内容一致
 
-### T4 · 词表与测试对账（F1155/F792/F890/T710）
-9. truth-files.yaml D20 概念按定稿布局重写（删 supersession 注记式和稀泥）；声明面（SKILL.md 契约）与磁盘面同口径
-10. 快照测试族从"差分布局专用"改为对生产布局断言；F1154 的 snapshot-manage fixture 换真实产物（与 C16 T4 协同）
+### T4 · 词面定稿与三面对账（F1155/F792/F890/F1109 遗留面/T710）
+9. truth-files.yaml D20 概念定稿重写（删 supersession 注记式和稀泥），三项词面裁决逐一落地：
+   - **目录布局 `snapshots/chapter-NNN/`（含 manifest.json）正名为 skill 域快照**——snapshot-manage 写 / sequel-writing 读，chapter_loop.py:134 已指定其为回滚机制，删除「fictional/deprecated」措辞
+   - **平铺 `snapshots/chapter-N-emergency.md` 登记为 crash_recovery 紧急域**（crash_recovery._snapshot_chapter_files 是唯一 src/ 快照写方，label 恒 emergency；时间戳平铺命名属已移除写方，不再登记）
+   - **`snapshots/manifest.json` 改 kind 为 drift/config 标记**（chapter_loop._update_last_drift_manifest 实写 last_drift_chapter，非快照索引）；同步清理 chapter_loop._load_manifest/_save_manifest 过时 docstring（「chapters」字典描述）与 `{"chapters": {}}` 返回骨架
+10. 声明面（SKILL.md 契约）与词表/磁盘同口径；F1154 的 snapshot-manage fixture 换真实产物（C16 #54 已归档，其 archive 明记 F1154 blocked-on 本 spec 布局冻结——现解除，唯一归属本 spec；禁止在 `tests/fixtures/` 下现造 manifest——G0.9 域；tmp_path 内单测自建输入不在此列，如 test_g4_directory.py:30 / test_write_audit_glob.py:135 属正常测试建制）；快照测试族对两个存活面断言：skill 目录快照（tests/fixtures/snapshots）+ 紧急平铺快照（tests/fixtures/snapshot-dir），差分行为零断言
+11. 磁盘遗留处置：novel-output/xinghuo-ranqiong/snapshots/ 下 51 个时间戳平铺快照（+1 manifest.json）出自已移除的 chapter_loop 写方——按文件裁决去留并记录；g0.py MIRROR_MAP 两条以 novel-output 时间戳快照为上游源（fixture=tests/fixtures/snapshot-dir/chapter-00{5,6}-*.md），上游类已整体移除，镜像校验失去对象 → **从 MIRROR_MAP 摘除该两条并注明理由**（选 b；fixture 自身保留为真实历史产物，G0.9 满足）
+
+**T4 执行注记**：truth-files.yaml 消费方 = contracts/{loader,registry,schemas/registry}.py、dispatcher/executor.py、gates/g6.py、audit/snapshot.py、tools/lint_decisions_sources.py（间接：sync_contracts.py、tools/migrate_contract_to_frontmatter.py）——yaml 改动后必须 `just lint-contracts` 绿 + `just generate` 生成物 diff 为空；改 SKILL.md 契约同义务（禁手改生成物）；`tests/unit/contracts/test_registry_pipeline_producers.py:22,51` 硬编码 snapshots/manifest.json producer 与 D20_FICTIONAL_DIR_CONCEPT 断言需同步更新
+
+**已知接受的残留**（下轮审计勿重复立案）：F350 半存活——紧急平铺快照仍无保留策略管理（无 prune），T4-only scope 出范围
 
 ### 批量清理（M 级成员）
 本簇无 M 级成员（12 条全 P1/P2）。
 
-## 验收标准（真实数据可复验）
+## 验收标准（2026-09-08 按 T4-only scope 重写；原 1/3/4 条引用已移除的 TRUTH_FILES/差分快照/恢复链，随路径 3 作废）
 
-1. `git grep -n "TRUTH_FILES" src/` 仅一处定义且来源为 truth-files.yaml 派生（或注释指向派生函数）；对 yaml 注入一个假 concept 后快照内容随之变化（红灯验证）
-2. 布局定稿后：生产树 + 测试 + 词表三面 `find <project>/snapshots -maxdepth 1 -type d | wc -l` 与声明一致；命名模式 grep 仅一种（`chapter-\d+\.md` 或定稿形式）
-3. F1109 复验脚本输出：快照章覆盖 = 活跃章集合（对照 novel-output 章清单），每章快照含正文副本（字节级或哈希对照）
-4. 恢复演练记录：restore 后目标章与源章 hash 一致；restore 不越出 project_dir（与 C31 路径安全协同）
-5. #26 自身验收（按其路径）同步达成；本 spec 与 #26 的验收对照表进 PR 描述
+1. truth-files.yaml D20 区 `grep -inE "supersed|fictional|deprecated"` 零注记式和稀泥命中；每布局恰一套词面（目录=skill 域、emergency 平铺=crash_recovery 域、manifest.json=drift 标记），yaml globs 与登记一一对应
+2. 声明面↔词表↔磁盘三面同口径：snapshot-manage 写面、sequel-writing 读面与 yaml 登记一致；`just lint-contracts` 绿 + `just generate` diff 为空
+3. F1154：snapshot-manage manifest.json fixture 为真实技能产物（或显式缺失报告），无现造 manifest
+4. novel-output snapshots 遗留处置记录在 PR（逐文件去留 + g0.py MIRROR_MAP 两条摘除后——fixtures 自身保留于 tests/fixtures/snapshot-dir 为真实历史产物——`just check` 全绿）
+5. 本 spec 与 #26 路径 3 的验收对照说明进 PR 描述
 
 ## 风险与回滚
 

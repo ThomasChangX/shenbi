@@ -1688,20 +1688,20 @@ def build_resonance_trend_row(chapter: int, overall: int) -> str:
 
 
 def _load_manifest(project_dir: Path) -> dict[str, Any]:
-    """Load the snapshot manifest from ``snapshots/manifest.json``.
+    """Load the drift-marker manifest from ``snapshots/manifest.json``.
 
-    Returns a dict with ``chapters`` (dict of chapter→filenames),
-    ``last_drift_chapter``. Returns an empty
-    skeleton when the manifest file does not exist.
+    The manifest records ``last_drift_chapter`` (drift-guidance progress);
+    it is not a snapshot index. Returns an empty skeleton when the file
+    does not exist.
     """
     manifest_path = project_dir / "snapshots" / "manifest.json"
     if manifest_path.exists():
         return cast(dict[str, Any], json.loads(manifest_path.read_text(encoding="utf-8")))
-    return {"chapters": {}}
+    return {"last_drift_chapter": 0}
 
 
 def _save_manifest(project_dir: Path, manifest: dict[str, Any]) -> None:
-    """Persist the snapshot manifest to ``snapshots/manifest.json``."""
+    """Persist the drift-marker manifest to ``snapshots/manifest.json``."""
     manifest_path = project_dir / "snapshots" / "manifest.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     safe_write(manifest_path, json.dumps(manifest, indent=2, ensure_ascii=False))

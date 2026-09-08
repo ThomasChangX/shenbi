@@ -6,8 +6,10 @@ distinguish skill-produced / pipeline-produced / external-seed / shared files, s
 pipeline-written files are not falsely reported as orphan reads. This test pins
 the phase-0 inventory: pipeline-only files carry ``producer: pipeline`` (or
 ``shared`` when a skill also writes them), external seeds carry ``external``,
-and the D20 real flatfile ``snapshots/chapter-NNN-*.md`` is registered (replacing
-the fictional ``snapshots/chapter-NNN/`` directory concept).
+and the D20 snapshot vocabulary is finalized (spec #57 T4): the skill-domain
+directory layout ``snapshots/chapter-NNN/`` is covered by glob, the
+crash_recovery emergency flatfile ``snapshots/chapter-N-emergency.md`` is a
+registered concept, and ``snapshots/manifest.json`` is a drift marker.
 """
 
 from __future__ import annotations
@@ -39,16 +41,13 @@ SHARED = {
     "genre-config.json",
 }
 
-# D20: flatfile snapshot concept snapshots/chapter-NNN-*.md. The original
-# chapter_loop timestamped writer was removed (spec #26 path 3); the current
-# in-repo flat writer is crash_recovery emergency snapshots
-# (snapshots/chapter-N-{label}.md) and the LLM skill writes the
-# snapshots/chapter-NNN/ directory format. Reconciling the D20 concept
-# entry (docs/framework/truth-files.yaml) with the post-removal writers is
-# owned by spec #57 T4 (its surviving scope). The fictional directory concept
-# must no longer be the ONLY snapshot concept name.
-D20_REAL_FLATFILE = "snapshots/chapter-NNN-*.md"
-D20_FICTIONAL_DIR_CONCEPT = "snapshots/chapter-NNN/manifest.json"
+# D20 snapshot vocabulary — finalized spec #57 T4:
+# - skill domain: snapshots/chapter-NNN/ (snapshot-manage writes, sequel-writing
+#   reads) — covered by glob `snapshots/chapter-*/*`, no concept entry needed.
+# - emergency domain: snapshots/chapter-N-emergency.md (crash_recovery
+#   _snapshot_chapter_files, label always "emergency") — registered concept.
+D20_EMERGENCY_FLATFILE = "snapshots/chapter-N-emergency.md"
+D20_SKILL_DIR_WRITE = "snapshots/chapter-NNN/*"
 
 
 def _concept(reg, name: str):
@@ -85,21 +84,28 @@ def test_shared_files_marked_shared_producer() -> None:
         assert concept.producer == "shared", f"{name} producer={concept.producer}"
 
 
-def test_d20_real_flatfile_registered() -> None:
-    # D20: the real pipeline-written flatfile must be a registered concept.
+def test_d20_emergency_flatfile_registered() -> None:
+    # D20: crash_recovery emergency snapshot must be a registered concept
+    # (the only src/ snapshot writer after spec #26 path 3).
     reg = load_registry()
-    flatfile = _concept(reg, D20_REAL_FLATFILE)
-    assert flatfile is not None, f"{D20_REAL_FLATFILE} not registered (D20)"
-    assert flatfile.kind == "snapshot"
-    assert flatfile.producer == "pipeline"
+    concept = _concept(reg, D20_EMERGENCY_FLATFILE)
+    assert concept is not None, f"{D20_EMERGENCY_FLATFILE} not registered (D20)"
+    assert concept.kind == "snapshot"
+    assert concept.producer == "pipeline"
 
 
-def test_d20_fictional_dir_concept_deprecated() -> None:
-    # The fictional snapshots/chapter-NNN/ directory concept must not remain
-    # as a snapshot concept name now that the real flatfile is registered.
+def test_d20_skill_dir_no_concept_entry_needed() -> None:
+    # D20 (spec #57 T4): the skill-domain directory layout snapshots/chapter-NNN/
+    # is legitimate (snapshot-manage writes, sequel-writing reads) and is
+    # covered by the glob `snapshots/chapter-*/*`; it intentionally has no
+    # per-file concept entry.
     reg = load_registry()
-    assert _concept(reg, D20_FICTIONAL_DIR_CONCEPT) is None, (
-        f"{D20_FICTIONAL_DIR_CONCEPT} should be deprecated (D20 real flatfile registered)"
+    assert _concept(reg, D20_SKILL_DIR_WRITE) is None
+    assert _concept(reg, "snapshots/manifest.json") is not None
+    glob_patterns = [g.pattern for g in reg.globs]
+    assert "snapshots/chapter-*/*" in glob_patterns, "skill-domain glob missing"
+    assert "snapshots/chapter-*-*.md" not in glob_patterns, (
+        "legacy wide glob snapshots/chapter-*-*.md must stay removed (writer class deleted)"
     )
 
 

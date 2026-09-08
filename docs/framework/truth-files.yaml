@@ -71,16 +71,17 @@ concepts:
   - {name: audits/chapter-N.aggregate.md, kind: report, producer: pipeline}
   # foundation / snapshots / import / short
   - {name: foundation/review_report.md, kind: report}
-  # D20: flatfile snapshots/chapter-NNN-*.md. The chapter_loop timestamped
-  # writer was removed (spec #26 path 3); current flat writer is
-  # crash_recovery emergency snapshots (D20 concept reconciliation pending
-  # spec #57 T4). The fictional snapshots/chapter-NNN/
-  # directory concept is deprecated. Register the real flatfile.
-  # (Superseded 2026-08-15, spec #6 R3: snapshots/chapter-NNN/manifest.json is
-  # now a real snapshot-manage contract write; see skills/shenbi-snapshot-manage.)
-  - {name: snapshots/chapter-NNN-*.md, kind: snapshot, producer: pipeline}
+  # D20 snapshot vocabulary — finalized (spec #57 T4, post #26 path 3):
+  # - skill domain: snapshots/chapter-NNN/ directory snapshots, written by
+  #   shenbi-snapshot-manage and read by shenbi-sequel-writing (the designated
+  #   rollback mechanism); covered by glob `snapshots/chapter-*/*`.
+  # - emergency domain: flat snapshots/chapter-N-emergency.md written by
+  #   crash_recovery._snapshot_chapter_files (label always "emergency").
+  - {name: snapshots/chapter-N-emergency.md, kind: snapshot, producer: pipeline}
   # pipeline-written files (no skill producer):
-  - {name: snapshots/manifest.json, kind: snapshot, producer: pipeline}
+  # drift marker only (chapter_loop._update_last_drift_manifest writes
+  # last_drift_chapter); NOT a snapshot index.
+  - {name: snapshots/manifest.json, kind: config, producer: pipeline}
   - {name: truth-index.json, kind: truth, producer: pipeline}
   - {name: pipeline-state.json, kind: config, producer: pipeline}
   - {name: genesis-context/*.md, kind: context, producer: pipeline}
@@ -112,9 +113,7 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - parametric: chapters/chapter-N-revision-decisions.json
     glob: chapters/chapter-*-revision-decisions.json
   - {parametric: plans/chapter-N-plan-decisions.json, glob: plans/chapter-*-plan-decisions.json}
-  # D20: snapshots/chapter-NNN/manifest.json parametric removed (fictional directory
-  # concept deprecated). The real flatfile snapshots/chapter-NNN-*.md is a literal
-  # glob concept (no parametric entry needed).
+  - {parametric: snapshots/chapter-N-emergency.md, glob: snapshots/chapter-*-emergency.md}
   - {parametric: audits/chapter-N-<dim>.md, glob: audits/chapter-*.md}
   - {parametric: audits/volume-N-payoff.md, glob: audits/volume-*.md}
   - {parametric: audits/arc-N-score.md, glob: audits/arc-*-score.md}
@@ -141,8 +140,8 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: plans/chapter-*-plan-decisions.json}
   - {pattern: audits/chapter-*.md}
   - {pattern: audits/volume-*.md}
-  - {pattern: snapshots/chapter-*/*}
-  - {pattern: snapshots/chapter-*-*.md}  # D20: real flatfile glob
+  - {pattern: snapshots/chapter-*/*}   # D20: skill-domain directory snapshots
+  - {pattern: snapshots/chapter-*-emergency.md}  # D20: crash_recovery emergency flatfile
   - {pattern: snapshots/*.json}
   - {pattern: import/analysis/*.md}
   - {pattern: import/canon/*.md}

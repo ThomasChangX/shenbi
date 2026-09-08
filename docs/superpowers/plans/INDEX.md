@@ -1,13 +1,15 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-08（#56 C18 plan 归档——Done PR #194）
-> **活跃 plan 数**：0 | **已归档**：109（见 `archive/`）
+> **最后更新**：2026-09-08（#57 C19 T4 plan 创建 ✅ ready）
+> **活跃 plan 数**：1 | **已归档**：109（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
 ---
 
 ## 活跃 Plan
+
+- `2026-09-08-spec57-c19-t4-vocabulary-reconcile.md`（SDD #57 C19 快照词面定稿 T4-only，✅ ready）
 
 
 

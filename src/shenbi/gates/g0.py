@@ -12,15 +12,12 @@ log = get_logger(__name__)
 
 # G0.11 fixture mirror map — single source of truth (spec Task 2.3 铁律 7).
 # tools/check_fixture_mirror.py 与 gate_G0() 都读此常量，避免两处漂移。
+# spec #57 T4: timestamped snapshot mirrors removed — upstream writer class
+# deleted (#26 path 3); fixtures retained in tests/fixtures/snapshot-dir as
+# real historical outputs.
 MIRROR_MAP: dict[str, str] = {
     "tests/fixtures/outline-example.md": "outline-example.md",
     "tests/fixtures/volume-map-xinghuo.md": "novel-output/xinghuo-ranqiong/outline/volume_map.md",
-    "tests/fixtures/snapshot-dir/chapter-005-20260715T232231.md": (
-        "novel-output/xinghuo-ranqiong/snapshots/chapter-005-20260715T232231.md"
-    ),
-    "tests/fixtures/snapshot-dir/chapter-006-20260715T234925.md": (
-        "novel-output/xinghuo-ranqiong/snapshots/chapter-006-20260715T234925.md"
-    ),
     "tests/fixtures/truth-pending_hooks-ch56.md": (
         "novel-output/xinghuo-ranqiong/truth/pending_hooks.md"
     ),

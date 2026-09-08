@@ -87,14 +87,6 @@
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T12:00:00Z, true time unrecoverable"
     },
     {
-      "path": "xinghuo-ranqiong/snapshots/chapter-007-20260716T002647.md",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T12:00:00Z, true time unrecoverable"
-    },
-    {
-      "path": "xinghuo-ranqiong/snapshots/chapter-008-20260716T005511.md",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T12:00:00Z, true time unrecoverable"
-    },
-    {
       "path": "xinghuo-ranqiong/chapters/chapter-18-decisions.json",
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T15:00:00Z, true time unrecoverable"
     },
@@ -107,10 +99,6 @@
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T15:00:00Z, true time unrecoverable"
     },
     {
-      "path": "xinghuo-ranqiong/snapshots/chapter-019-20260716T083739.md",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T15:00:00Z, true time unrecoverable"
-    },
-    {
       "path": "xinghuo-ranqiong/plans/chapter-20-plan-decisions.json",
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T18:00:00Z, true time unrecoverable"
     },
@@ -119,23 +107,11 @@
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T18:00:00Z, true time unrecoverable"
     },
     {
-      "path": "xinghuo-ranqiong/snapshots/chapter-009-20260716T012654.md",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T21:00:00Z, true time unrecoverable"
-    },
-    {
-      "path": "xinghuo-ranqiong/snapshots/chapter-010-20260716T020310.md",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T21:00:00Z, true time unrecoverable"
-    },
-    {
       "path": "xinghuo-ranqiong/audits/chapter-17-resonance.md",
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T23:00:00Z, true time unrecoverable"
     },
     {
       "path": "xinghuo-ranqiong/chapters/chapter-25-decisions.json",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T23:00:00Z, true time unrecoverable"
-    },
-    {
-      "path": "xinghuo-ranqiong/snapshots/chapter-017-20260716T063953.md",
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-16T23:00:00Z, true time unrecoverable"
     },
     {
@@ -199,10 +175,6 @@
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T02:00:00Z, true time unrecoverable"
     },
     {
-      "path": "xinghuo-ranqiong/snapshots/chapter-039-20260717T013217.md",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T02:00:00Z, true time unrecoverable"
-    },
-    {
       "path": "xinghuo-ranqiong/plans/chapter-40-plan-decisions.json",
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T09:00:00Z, true time unrecoverable"
     },
@@ -223,10 +195,6 @@
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T15:00:00Z, true time unrecoverable"
     },
     {
-      "path": "xinghuo-ranqiong/snapshots/chapter-046-20260717T070043.md",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T15:00:00Z, true time unrecoverable"
-    },
-    {
       "path": "xinghuo-ranqiong/plans/chapter-52-plan-decisions.json",
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T18:00:00Z, true time unrecoverable"
     },
@@ -239,19 +207,7 @@
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T22:00:00Z, true time unrecoverable"
     },
     {
-      "path": "xinghuo-ranqiong/snapshots/chapter-040-20260717T021845.md",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T22:00:00Z, true time unrecoverable"
-    },
-    {
       "path": "xinghuo-ranqiong/chapters/chapter-41-revision-decisions.json",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T23:00:00Z, true time unrecoverable"
-    },
-    {
-      "path": "xinghuo-ranqiong/snapshots/chapter-041-20260717T030303.md",
-      "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T23:00:00Z, true time unrecoverable"
-    },
-    {
-      "path": "xinghuo-ranqiong/snapshots/chapter-042-20260717T035039.md",
       "reason": "F1163 manual-era fabricated batch timestamp 2026-07-17T23:00:00Z, true time unrecoverable"
     }
   ],
