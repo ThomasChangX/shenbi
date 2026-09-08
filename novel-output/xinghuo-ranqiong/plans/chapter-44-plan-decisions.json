@@ -6,51 +6,92 @@
   "selections": [
     {
       "target": "outline/volume_map.md",
-      "selected": ["卷3 KR2: 陈卫民牺牲——第44章承接——陈卫民为掩护主力撤退主动断后"],
+      "selected": [
+        "卷3 KR2: 陈卫民牺牲——第44章承接——陈卫民为掩护主力撤退主动断后"
+      ],
       "basis": "volume_scope",
       "severity": "low",
       "rationale": null,
-      "omitted": ["其他KR", "其他卷", "卷内张力曲线", "跨卷桥接", "黄金三章约束", "汇总"]
+      "omitted": [
+        "其他KR",
+        "其他卷",
+        "卷内张力曲线",
+        "跨卷桥接",
+        "黄金三章约束",
+        "汇总"
+      ]
     },
     {
       "target": "truth/current_focus.md",
-      "selected": ["P0 七项: 格式串稳定/门框计数/quiet厚度/安静速率/跨域衰减/触碰域演化/质地维度系统认知"],
+      "selected": [
+        "P0 七项: 格式串稳定/门框计数/quiet厚度/安静速率/跨域衰减/触碰域演化/质地维度系统认知"
+      ],
       "basis": "arc_relevance",
       "severity": "low",
       "rationale": null,
-      "omitted": ["P1 details beyond 格式串/门框/quiet/安静/跨域/触碰域/质地", "P2 defer items"]
+      "omitted": [
+        "P1 details beyond 格式串/门框/quiet/安静/跨域/触碰域/质地",
+        "P2 defer items"
+      ]
     },
     {
       "target": "truth/pending_hooks.md",
-      "selected": ["活跃伏笔", "第43章伏笔追踪", "追踪汇总", "下一章建议动作"],
+      "selected": [
+        "活跃伏笔",
+        "第43章伏笔追踪",
+        "追踪汇总",
+        "下一章建议动作"
+      ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
       "rationale": null,
-      "omitted": ["已解决伏笔", "过期警告", "距离上限逼近"]
+      "omitted": [
+        "已解决伏笔",
+        "过期警告",
+        "距离上限逼近"
+      ]
     },
     {
       "target": "truth/chapter_summaries.md",
-      "selected": ["第42章", "第43章"],
+      "selected": [
+        "第42章",
+        "第43章"
+      ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
       "rationale": null,
-      "omitted": ["第1-41章章节摘要"]
+      "omitted": [
+        "第1-41章章节摘要"
+      ]
     },
     {
       "target": "truth/current_state.md",
-      "selected": ["第43章更新", "第43章状态变化"],
+      "selected": [
+        "第43章更新",
+        "第43章状态变化"
+      ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
       "rationale": null,
-      "omitted": ["第31-39章", "第40章", "第41章更新"]
+      "omitted": [
+        "第31-39章",
+        "第40章",
+        "第41章更新"
+      ]
     },
     {
       "target": "truth/author_intent.md",
-      "selected": ["arc_progress.ch44"],
+      "selected": [
+        "arc_progress.ch44"
+      ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
       "rationale": null,
-      "omitted": ["全局长远目标", "叙事原则", "thematic_progress"]
+      "omitted": [
+        "全局长远目标",
+        "叙事原则",
+        "thematic_progress"
+      ]
     }
   ],
   "decisions": [
@@ -70,7 +111,7 @@
       "id": "D002",
       "type": "execution",
       "severity": "high",
-      "choice": "缺口（MH-028）从"首曝系统边界危机"过渡至"系统容纳的持续在场物"——参数系统在周二不再对缺口做紧急查询——系统知道缺口在场——系统容纳缺口在场——安静和冷域边界在缺口在场下维持稳定",
+      "choice": "缺口（MH-028）从「首曝系统边界危机」过渡至「系统容纳的持续在场物」——参数系统在周二不再对缺口做紧急查询——系统知道缺口在场——系统容纳缺口在场——安静和冷域边界在缺口在场下维持稳定",
       "alternatives_considered": [
         "缺口在周二继续触发系统紧急响应",
         "缺口在周三被参数系统解析并纳入槽位",
@@ -159,7 +200,7 @@
         "混合执行——段间切换",
         "完全忽略卷纲Key Result仅执行current_focus"
       ],
-      "rationale": "参数化感知模式自Ch25稳定执行19章——current_focus P0七项与author_intent方向一致——卷纲KR2对应早期写作规划——Ch37-Ch42已建立优先惯例——断后在参数域映射为系统在缺口在场下的正常运行（不解决不封闭不扩大）对应卷纲"主动断后"的语义——不宣告映射关系——P2.5高严重性——override与Ch43 D011一致"
+      "rationale": "参数化感知模式自Ch25稳定执行19章——current_focus P0七项与author_intent方向一致——卷纲KR2对应早期写作规划——Ch37-Ch42已建立优先惯例——断后在参数域映射为系统在缺口在场下的正常运行（不解决不封闭不扩大）对应卷纲「主动断后」的语义——不宣告映射关系——P2.5高严重性——override与Ch43 D011一致"
     }
   ],
   "adjustments": [
@@ -168,7 +209,7 @@
       "issue_id": "gap_system_accommodation",
       "severity": "high",
       "handling": "explicit_callout",
-      "rationale": "缺口(MH-028)从首曝系统边界事件向系统容纳过渡——参数系统在周二不再紧急查询——系统在缺口在场下维持正常运行——对应卷纲KR2"断后"参数域映射"
+      "rationale": "「缺口(MH-028)从首曝系统边界事件向系统容纳过渡——参数系统在周二不再紧急查询——系统在缺口在场下维持正常运行——对应卷纲KR2」断后「参数域映射」"
     },
     {
       "id": "ADJ-002",
@@ -284,10 +325,3 @@
     "zombie_hooks": 0
   }
 }
-
----
-
-The sandbox in this session is read-only, so I cannot write those files to disk. The content above is the complete, pipeline-ready output for both files in the exact required format. Both files will pass G4 validation:
-
-- **chapter-44-plan.md**: All 8 sections present with exact headers, `chapter_role: 推进/转折` declared in section 1, priority source declared, hook table with exact columns (`ID | 操作 | 推进方式 | 沉默章数`), all operations set to `advance` (valid ops), 3 changes in section 6 (≥ 1 advance), and section 8's "不要做" filled with content
-- **chapter-44-plan-decisions.json**: Conforms to `shenbi-decisions-v1` schema with `selections`, `decisions`, `adjustments`, `budget`, and `hook_operations` arrays — P2.5 rationale rules respected (rationale FORBIDDEN on routine+low-severity, REQUIRED on high-severity)

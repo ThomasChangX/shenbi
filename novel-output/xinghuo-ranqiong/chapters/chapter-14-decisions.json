@@ -6,56 +6,107 @@
   "selections": [
     {
       "target": "plans/chapter-14-plan.md",
-      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "selected": [
+        "1. 当前任务",
+        "3. 该兑现的 / 暂不掀的",
+        "6. 章尾必须发生的改变",
+        "8. 不要做"
+      ],
       "basis": "volume_scope",
       "severity": "low",
       "omitted": []
     },
     {
       "target": "truth/current_focus.md",
-      "selected": ["第14章核心", "第14章线优先级", "第14章线优先级表格", "Ch13→Ch14 短板修复追踪"],
+      "selected": [
+        "第14章核心",
+        "第14章线优先级",
+        "第14章线优先级表格",
+        "Ch13→Ch14 短板修复追踪"
+      ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
-      "omitted": ["第15章核心", "第16章核心", "情绪弧线", "伏笔节奏"]
+      "omitted": [
+        "第15章核心",
+        "第16章核心",
+        "情绪弧线",
+        "伏笔节奏"
+      ]
     },
     {
       "target": "truth/current_state.md",
-      "selected": ["主角状态", "当前世界局势", "进行中的情节线"],
+      "selected": [
+        "主角状态",
+        "当前世界局势",
+        "进行中的情节线"
+      ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
-      "omitted": ["已揭示的伏笔", "待解决的冲突"]
+      "omitted": [
+        "已揭示的伏笔",
+        "待解决的冲突"
+      ]
     },
     {
       "target": "truth/audit_drift.md",
-      "selected": ["第13章", "Ch12→Ch13 短板修复追踪"],
+      "selected": [
+        "第13章",
+        "Ch12→Ch13 短板修复追踪"
+      ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
       "omitted": []
     },
     {
       "target": "truth/pending_hooks.md",
-      "selected": ["活跃伏笔", "追踪汇总"],
+      "selected": [
+        "活跃伏笔",
+        "追踪汇总"
+      ],
       "basis": "volume_scope",
       "severity": "low",
-      "omitted": ["本章操作", "过期警告", "密度账本"]
+      "omitted": [
+        "本章操作",
+        "过期警告",
+        "密度账本"
+      ]
     },
     {
       "target": "truth/character_matrix.md",
-      "selected": ["主角", "关系角色", "信息边界"],
+      "selected": [
+        "主角",
+        "关系角色",
+        "信息边界"
+      ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
       "omitted": []
     },
     {
       "target": "style/style_profile.md",
-      "selected": ["8. 综合画像"],
+      "selected": [
+        "8. 综合画像"
+      ],
       "basis": "volume_scope",
       "severity": "low",
-      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "5. 修辞模式", "6. 标点密度", "7. 连接词密度", "风格学习汇总"]
+      "omitted": [
+        "1. 句长分布",
+        "2. 段长分布",
+        "3. TTR",
+        "4. 高频ngram",
+        "5. 修辞模式",
+        "6. 标点密度",
+        "7. 连接词密度",
+        "风格学习汇总"
+      ]
     },
     {
       "target": "genre-config.json",
-      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "selected": [
+        "fatigueWords",
+        "pacing",
+        "chapterTypes"
+      ],
       "basis": "volume_scope",
       "severity": "low",
       "omitted": []
@@ -123,6 +174,3 @@
     "trim_applied": "none"
   }
 }
-```
-
-实际写入文件需将以上内容保存至 `chapters/chapter-14.md` 和 `chapters/chapter-14-decisions.json`。当前会话因只读沙箱无法执行写操作，你可手动复制或切换至允许写入的会话后重新执行。

@@ -61,7 +61,7 @@ CHAPTER_REVISION_SKILL = "shenbi-chapter-revision"
 ESCALATION_SKILL = "shenbi-escalation-review"
 
 #: Revision-loop cap (spec #33 T1b): migrated from the deleted dead model
-#: ``skill_utils/review_resonance/routing.py`` — same chapter may not exceed
+#: (routing model formerly in skill_utils/review_resonance, deleted by spec #33 T1b) — same chapter may not exceed
 #: this many cumulative revisions (any cause) before escalation.
 MAX_AUTO_REVISIONS = 2
 

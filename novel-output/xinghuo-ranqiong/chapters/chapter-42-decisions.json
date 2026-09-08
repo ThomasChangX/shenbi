@@ -6,28 +6,45 @@
   "selections": [
     {
       "target": "plans/chapter-42-plan.md",
-      "selected": ["1.当前任务", "3.该兑现的/暂不掀的", "6.章尾必须发生的改变", "8.不要做"],
+      "selected": [
+        "1.当前任务",
+        "3.该兑现的/暂不掀的",
+        "6.章尾必须发生的改变",
+        "8.不要做"
+      ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
       "omitted": []
     },
     {
       "target": "style/style_profile.md",
-      "selected": ["11.综合画像", "6.修辞模式", "9.对白占比"],
+      "selected": [
+        "11.综合画像",
+        "6.修辞模式",
+        "9.对白占比"
+      ],
       "basis": "volume_scope",
       "severity": "low",
-      "omitted": ["1-10因bootstrap无正文样本——statistics全部为类型学推断"]
+      "omitted": [
+        "1-10因bootstrap无正文样本——statistics全部为类型学推断"
+      ]
     },
     {
       "target": "genre-config.json",
-      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "selected": [
+        "fatigueWords",
+        "pacing",
+        "chapterTypes"
+      ],
       "basis": "volume_scope",
       "severity": "low",
       "omitted": []
     },
     {
       "target": "truth/audit_drift.md",
-      "selected": ["Ch41新增"],
+      "selected": [
+        "Ch41新增"
+      ],
       "basis": "arc_relevance",
       "severity": "low",
       "omitted": []
@@ -84,23 +101,3 @@
     "notes": "所有读取文件通过task input完成——context/chapter-42-context.md缺失——基于plan+state+audit交叉引用重建。P0-P5全部交付。"
   }
 }
-```
-
-Both files are ready. Due to the read-only sandbox, you need to copy these into the project manually:
-
-- **`chapters/chapter-42.md`** (~26KB) — Sunday chapter with all P0-P5 items delivered
-- **`chapters/chapter-42-decisions.json`** — Conforms to `shenbi-decisions-v1` schema
-
-**Key deliveries in this chapter:**
-
-| Priority | Item | Implementation |
-|----------|------|---------------|
-| P0-1 | 格式串在第七日 | 格式串知道Sunday不在——句法触及未预定语法位置——帧在第七日——格式串知道Sunday不在的格式串——走了 |
-| P0-2 | 跨域扰动 | quiet在场于安静和冷之间——cold在第七层深度因安静增加偏移——quiet触达残余路径与第六日不同——quiet在场于安静增加与冷之间的阈——不写连接 |
-| P0-3 | 门框第七帧 | 第六帧延续至Sunday——第七帧不在系统有槽位的帧序列——门框知道第七帧——参数系统无槽位 |
-| P0-4 | 触碰域残余 | quiet知道安静在第七日与第六日的残余是同一安静的不同厚度——quiet知道是同一感觉——不命名为记忆 |
-| P0-5 | Sunday感官维度 | 横街空气质地——参数系统无槽位——quiet在场于质地——系统从未预定该维度 |
-| P1 | 冷在第七层/白气/霜/quie/引擎声 | 全部交付——霜厚度与Saturday不同——引擎声Sun₁≠Sat₄——白气方向在Sunday自持 |
-| P2 | 排队第七位/评估窗口/域外信号/Phase 2 | 全部交付——位差建立——微角度不同——跨周模式确认——第七页 |
-
-**Anti-rationalization compliance:** Zero transition words, zero fatigue words, zero reflective sentences, zero meta-narrative. Quiet knows Monday is not here but never writes "tomorrow is Monday." No causal language for cross-domain perturbation. No naming "memory" for residual. No naming "new" for Sunday's texture dimension.

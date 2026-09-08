@@ -1,11 +1,11 @@
 {
   "$schema": "shenbi-decisions-v1",
   "skill": "shenbi-chapter-drafting",
-  "chapter": 40,
-  "produced_at": "2026-09-08T01:46:12Z",
+  "chapter": 35,
+  "produced_at": "2026-09-08T01:47:33Z",
   "selections": [
     {
-      "target": "plans/chapter-40-plan.md",
+      "target": "plans/chapter-35-plan.md",
       "selected": [
         "core task",
         "chapter-end change"
@@ -36,18 +36,8 @@
   ],
   "adjustments": [
     {
-      "issue_id": "missing_context",
-      "adjustment": "context override applied",
-      "severity": "low"
-    },
-    {
-      "issue_id": "mh020_format_anomaly",
-      "adjustment": "first digit enters 4-point segment with 1-frame stutter — hook rekindle",
-      "severity": "low"
-    },
-    {
-      "issue_id": "word_count_expansion",
-      "adjustment": "body expanded 2727→~3147 chars to pass 3000 minimum; 走了 count 21 ≤ 28",
+      "issue_id": "drafting_decisions_loss",
+      "adjustment": "original drafting-decisions lost in manual-era timeout run (DEBUG_USE_MANUAL_CREATE.md L82/124); backfilled during C18 cleanup from plan + revision-decisions",
       "severity": "low"
     }
   ],
@@ -56,5 +46,5 @@
     "limit": 16000,
     "trim_applied": "none"
   },
-  "provenance": "synthesized during C18 cleanup 2026-09-08 from the manual-era chat summary (original JSON was never written to disk (manual-era sandbox limitation)); see docs/superpowers/audit-runs/2026-09-08-c18-cleanup/"
+  "provenance": "synthesized from chapter-35-revision-decisions + plans/chapter-35-plan.md during C18 cleanup 2026-09-08 (F1164); see docs/superpowers/audit-runs/2026-09-08-c18-cleanup/"
 }

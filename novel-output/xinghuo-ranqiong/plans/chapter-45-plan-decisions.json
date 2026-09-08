@@ -6,25 +6,38 @@
   "selections": [
     {
       "target": "chapter_role",
-      "selected": ["推进/转折"],
+      "selected": [
+        "推进/转折"
+      ],
       "basis": "volume_scope",
       "severity": "low",
-      "omitted": ["高潮/兑现", "过渡/铺垫"]
+      "omitted": [
+        "高潮/兑现",
+        "过渡/铺垫"
+      ]
     },
     {
       "target": "priority_source",
-      "selected": ["current_focus"],
+      "selected": [
+        "current_focus"
+      ],
       "basis": "manual_override",
       "severity": "high",
-      "omitted": ["卷纲 Key Result"],
+      "omitted": [
+        "卷纲 Key Result"
+      ],
       "rationale": "实际叙事已沿卷2·灭海黄昏日常结构深入;卷纲KR2(陈卫民牺牲)不匹配当前弧线状态"
     },
     {
       "target": "hook_density",
-      "selected": ["10_ops_single_day"],
+      "selected": [
+        "10_ops_single_day"
+      ],
       "basis": "arc_relevance",
       "severity": "low",
-      "omitted": ["trim_to_8"]
+      "omitted": [
+        "trim_to_8"
+      ]
     }
   ],
   "adjustments": [
@@ -41,6 +54,3 @@
     "trim_applied": "none"
   }
 }
-```
-
-Note: The read-only sandbox prevented writing to `staging/plans/`. The file content above is the complete output. The pipeline should capture these directly.
