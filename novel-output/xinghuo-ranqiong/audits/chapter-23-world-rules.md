@@ -1,4 +1,3 @@
-I'll deliver the audit as structured text here instead.
 
 ```
 ## 世界规则审计报告

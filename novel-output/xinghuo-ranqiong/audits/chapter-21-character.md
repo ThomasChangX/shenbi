@@ -1,4 +1,3 @@
-The audit content is complete.Here's what needs to go into `audits/chapter-21-character.md`:
 
 ---
 

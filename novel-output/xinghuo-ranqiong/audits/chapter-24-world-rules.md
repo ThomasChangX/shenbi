@@ -1,4 +1,3 @@
-Here's the complete audit result:
 
 ---
 

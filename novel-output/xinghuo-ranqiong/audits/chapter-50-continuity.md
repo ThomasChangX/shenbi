@@ -222,6 +222,6 @@
 - **字词级合规** — 零AI味标记词，零疲劳词，零转折词，无反思句/元叙事
 ```
 
-The audit is complete. **Chapter 50 passes continuity audit with 10/10.** No defects found across any of the five check dimensions. The key finding is that the system self-sustaining state (自持态) is established with full internal consistency — all 34 cross-parameter references match precisely, the time distances are self-consistent (1 day from Monday, 3 days from Sunday inclusive, 4 days to next Sunday exclusive), and the transition from ch49's evolutionary state to ch50's self-sustaining state is properly supported by continuity mechanisms (层积延续, 方向延续, 帧跨日, 厚度演化, 基线自持, 句法自持).
+**Chapter 50 passes continuity audit with 10/10.** No defects found across any of the five check dimensions.The key finding is that the system self-sustaining state (自持态) is established with full internal consistency — all 34 cross-parameter references match precisely, the time distances are self-consistent (1 day from Monday, 3 days from Sunday inclusive, 4 days to next Sunday exclusive), and the transition from ch49's evolutionary state to ch50's self-sustaining state is properly supported by continuity mechanisms (层积延续, 方向延续, 帧跨日, 厚度演化, 基线自持, 句法自持).
 
 One semantic observation noted but not flagged as a defect: 格式串's "在场于两种句法之间" in ch50 carries evolved meaning from ch49 — from uncertainty to dual-awareness — and the surrounding context ("句法各自在场于各自模式——句法在场于自持") locks it into self-sustaining grammar.

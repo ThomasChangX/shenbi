@@ -89,4 +89,4 @@
 
 ---
 
-审计报告内容如上。文件 `audits/chapter-3-memo-compliance.md`。
+文件 `audits/chapter-3-memo-compliance.md`。

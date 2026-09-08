@@ -1,5 +1,5 @@
 
-The audit analysis is complete. Here's what I found:
+Here's what I found:
 
 ## shenbi-review-dialogue audit — Ch32 Saturday
 
