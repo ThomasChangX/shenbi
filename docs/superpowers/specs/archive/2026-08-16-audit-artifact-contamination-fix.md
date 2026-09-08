@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-08 · 阶段 1 价值门 REWRITE：派发层根因已由 main 后续合并根治，存量缩量 109→52) | **Severity:** 🟠 P1
+> **Date:** 2026-08-16 | **Status:** Done (PR #194, 2026-09-08; Revised 2026-09-08 · 阶段 1 价值门 REWRITE：派发层根因已由 main 后续合并根治，存量缩量 109→52) | **Severity:** 🟠 P1
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C18，候选元根因 G）| **代表 finding:** F1171 | **簇规模:** 17 条 | **严重度上限:** P1
 > **范围:** novel-output/ 全树（生产树 xinghuo-ranqiong/ 存量清洗为主；validation-results/ 历史记录注记）、src/shenbi/pipeline/dispatch_helper.py（验证性任务）、产物 lint（tools/ + CI，作用域 novel-output 全树） | **证据等级:** 实验佐证（Z11 双轮复扫 + 2026-09-08 驳斥复核 14 存活/3 降级/0 驳回）
 > **与既有 spec 关系:** R5（revision 摘要覆写正文）属数据丢失簇 #7；本 spec 只管污染清洗与产物 lint，不重复 #7 内容；C25（#63）T1504 novel-output 反忽略出库为协同边
