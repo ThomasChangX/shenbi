@@ -1,4 +1,3 @@
- Here is the complete audit report that should be written to `audits/chapter-33-pov.md`:
 
 ---
 
@@ -163,5 +162,3 @@
 本审计未发现问题——无需修复。
 
 ---
-
-**注意**: 由于当前 sandbox 权限限制(`read-only`)，本报告无法直接写入 `audits/chapter-33-pov.md`。请将以上内容保存至目标路径。

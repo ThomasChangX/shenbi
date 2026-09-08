@@ -179,7 +179,7 @@ pending_hooks.md 提供"密度超限说明"（里程碑章全局 reinforce + 迁
 
 ```sh
 mkdir -p audits
-cat > audits/chapter-51-foreshadowing.md << 'ENDFILE'
+md << 'ENDFILE'
 ## 伏笔审计报告
 ...
 ENDFILE

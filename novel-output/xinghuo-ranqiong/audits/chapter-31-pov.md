@@ -180,5 +180,3 @@ third-limited 模式下，章内无 POV 切换。碎片化风险不存在。
 **建议（非缺陷）：** 在 `genre-config.json` 中增加 `"povMode": "third-limited"` 字段，以支持后续自动化 POV 审计流程。同时建议标准化 `auditDimensions` 的维度编号系统，使其与 SKILL.md 的激活条件（维度9/19）对齐。
 
 ---
-
-**POV审计完成。** 第31章通过全部五项铁律检查（POV切换、信息边界、感官边界、心理边界、场景过渡）。单一视点（林烽/third-limited）全程坚守，无任何边界越界。评分 10/10 通过。由于沙箱只读权限，报告内容已输出至标准输出，需由管道系统写入 `audits/chapter-31-pov.md`。

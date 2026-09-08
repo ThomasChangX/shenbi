@@ -1,4 +1,3 @@
-The sandbox is in read-only mode, so I can't write the audit file to disk. Here's the completed pacing audit — the content is ready to be placed at `audits/chapter-51-pacing.md` when the sandbox permits writes:
 
 ---
 

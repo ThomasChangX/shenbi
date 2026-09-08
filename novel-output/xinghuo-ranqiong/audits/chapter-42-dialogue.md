@@ -67,5 +67,3 @@
 **综合裁定**: 本章不计入对白审计评分。零对白是文体选择，符合"quiet在第七日安静的安静中quiet走了"的核心状态。建议在下一章（第五周周一或场景切换后恢复互动时）恢复对话审计。如果零对白章节成为常规模式，建议在 `voice_profile` 补充 `silent_mode` 字段，定义知觉语言特征维度。
 
 ---
-
-由于沙箱只读限制，我无法在 `audits/chapter-42-dialogue.md` 写入文件。如需我写入，请调整沙箱权限或使用 `sandbox_permissions: require_escalated` 执行写入命令。

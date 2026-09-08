@@ -237,7 +237,6 @@
 本审计根据`shenbi-review-character` SKILL.md 和 `ooc-dimensions.md` 规范执行。BDI评估、OOC检测、配角检查、声音一致性、弧线检测、关系动态检查六项全部完成。四要素缺陷格式（位置+原文引述+违反规则+严重度）适用于所有MINOR备注。
 ```
 
-The sandbox restrictions prevent me from writing the file directly to `audits/chapter-45-character.md`. The content above is the complete audit report — ready to be saved to that path.
 
 Here's the summary of the character consistency audit for chapter 45:
 

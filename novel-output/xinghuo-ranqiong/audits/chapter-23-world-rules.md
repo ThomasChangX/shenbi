@@ -1,4 +1,4 @@
-The sandbox is read-only — I can't write to disk. I'll deliver the audit as structured text here instead.
+I'll deliver the audit as structured text here instead.
 
 ```
 ## 世界规则审计报告

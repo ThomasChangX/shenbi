@@ -1,4 +1,4 @@
-The sandbox is read-only — I can't write files directly. The audit content is complete. Here's what needs to go into `audits/chapter-21-character.md`:
+The audit content is complete.Here's what needs to go into `audits/chapter-21-character.md`:
 
 ---
 
@@ -46,5 +46,3 @@ The sandbox is read-only — I can't write files directly. The audit content is 
 - 当前角色处于"下限确认"阶段，维持2-3章后应考虑向下一个情感节拍微量过渡
 
 ---
-
-完整报告需要写入 `audits/chapter-21-character.md`。当前沙箱为只读模式，无法直接写文件。如果你能让沙箱允许写入，我可以创建这个文件；或者你也可以把上面的内容粘贴进去。

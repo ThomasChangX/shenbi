@@ -121,4 +121,4 @@
 
 ---
 
-**注意**: 当前工作区为只读权限，文件未写入磁盘。请将以上内容保存至 `audits/chapter-29-motivation.md`。
+请将以上内容保存至 `audits/chapter-29-motivation.md`。

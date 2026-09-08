@@ -131,7 +131,6 @@
   > 所有真相文件（subplot_board.md、current_state.md、particle_ledger.md 等）均被 state-settling 工具输出覆盖，内容丢失
 - **违反规则**: 无明确铁律对应，但破坏了 G0/G2 的"纯函数验证"原则——truth 文件被工具输出覆盖，后续审计 skill 无法读取正确的输入数据
 - **严重度**: **MINOR**
-- **修复方案**: state-settling 工具的输出应写入 `staging/` 而非直接覆盖 `truth/`，或确保输出格式兼容 Markdown frontmatter + 正文并存
 
 ---
 
@@ -156,7 +155,6 @@
 - **[CRITICAL]** `truth/pending_hooks.md` MH-020: 连续 3 章零文本证据 — 第6章必须落地，否则第7章前标记 EXPIRED
 - **[MINOR]** `truth/pending_hooks.md`: H-N01/H-N02 仍未注册 — 注册为新钩或将计划 ledger 标记为"临时不注册"
 - **[MINOR]** S-001 铁山异象: 连续 2 章未推进 — 第6章安排一次主动推进（参见第4章审计已有预警）
-- **[MINOR]** state-settling 工具输出应写入 `staging/` 而非直接覆盖 `truth/`
 - **[INFO]** S-001-S1 路灯闪烁: 已 SUSPENDED 4 章 — 评估是否正式废弃或在第7-8章恢复
 
 ### Anti-Rationalization 检测

@@ -1,4 +1,4 @@
-The sandbox is read-only for this session — I can't write the output file. Here's the complete audit result:
+Here's the complete audit result:
 
 ---
 
@@ -22,5 +22,3 @@ The sandbox is read-only for this session — I can't write the output file. Her
 ### 建议修复
 
 无。
-
-如需将报告写入文件系统，请在可写模式下重新运行该技能。

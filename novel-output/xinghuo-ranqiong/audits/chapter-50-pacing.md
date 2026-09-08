@@ -114,5 +114,3 @@
 - 数据来源: `chapters/chapter-50.md`(~6406字), `genre-config.json`, `truth/chapter_summaries.md`(ch49-ch50), 以及ch46-ch49 PRE_WRITE/POST_WRITE 元数据
 
 ---
-
-md`。上述内容为完整的审计报告，需由 pipeline 写入目标路径。

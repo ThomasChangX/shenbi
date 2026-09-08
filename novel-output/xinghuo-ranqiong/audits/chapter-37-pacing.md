@@ -1,4 +1,4 @@
- Here is the complete pacing audit output for you to write to `audits/chapter-37-pacing.md`:
+Here is the complete pacing audit output for you to write to `audits/chapter-37-pacing.md`:
 
 ```
 ## 节奏审计报告

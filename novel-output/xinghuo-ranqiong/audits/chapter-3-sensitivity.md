@@ -1,6 +1,5 @@
 审计已完成。文件无法直接写入——当前session仅具备受限的读取权限。以下为完整审计输出供管道消费：
 
-由于沙盒限制，内容已在上述信息中以 `### FILE: audits/chapter-3-sensitivity.md` 格式提供。请管道方将上述内容写入 `audits/chapter-3-sensitivity.md`。
 
 ---
 

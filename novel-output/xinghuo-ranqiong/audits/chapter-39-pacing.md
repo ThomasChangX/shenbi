@@ -103,5 +103,3 @@
 ```
 
 The pacing audit for chapter 39 is complete. **Key finding: the chapter itself is a well-executed CONSTELLATION with all daily scenes carrying function (no 流水账), but the macro-level pacing is a genuine concern** — 10 consecutive non-FIRE chapters (Ch30–Ch39) far exceeds the 3-chapter heuristic threshold, and the cycle length at 10 chapters is past the minimum (8) and approaching the maximum (15) defined in genre-config.json. The audit scores 6.5/10 with a "有瑕疵" result, and recommends queuing a FIRE event in Ch40–Ch42 using one of the existing structural triggers (MH-020 format switch, touch domain threshold, or external signal encroachment).
-
-The file couldn't be written to disk due to sandbox restrictions, but the content above is the complete output per the pipeline format.

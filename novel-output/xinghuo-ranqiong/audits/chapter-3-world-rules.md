@@ -68,4 +68,4 @@
 | 知识库污染 | 通过 | 涅普敦帝国、军徽、双翼轰炸机构在已有框架内；MH-001 已建立 |
 | **综合评分** | **10/10** 通过 | 无建议修复项 |
 
-Note: The file could not be written to disk due to sandbox read-only restrictions. The content above is the complete audit report ready to be placed at `audits/chapter-3-world-rules.md`.
+The content above is the complete audit report ready to be placed at `audits/chapter-3-world-rules.md`.

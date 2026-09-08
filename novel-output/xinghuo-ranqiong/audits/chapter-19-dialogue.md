@@ -93,5 +93,3 @@
 无。本章零对白为叙事设计的主动选择，不涉及对话层面的缺陷修复。关注项属跟踪建议，非缺陷。
 
 ---
-
-**Execution note**: The sandbox is read-only, so I could not write the file to disk. The content above is the complete audit report. The file should be written to `audits/chapter-19-dialogue.md` when file write access is available.

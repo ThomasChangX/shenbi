@@ -101,7 +101,6 @@ DEFER（P0-4, P0-14）不计入密度预算（生命周期成本仅含种植、�
 
 ### 大规模伏笔召回合规性
 
-ch55 = 55 > 50，按 spec §11.9 应调用 `shenbi-foreshadowing-recall` 获取 `recall_overdue_hooks` 结果替代全量读取 `pending_hooks.md`。本次审计直接使用 `pending_hooks.md` 提供的完整数据。当前仅有7条活跃伏笔且 `pending_hooks.md` 覆盖完整无漏项——替代使用无信息损失。后续 ch56+ 若 hook 生态扩张（>15条）应启用召回机制。
 
 ### 评分: 8/10 有瑕疵
 
