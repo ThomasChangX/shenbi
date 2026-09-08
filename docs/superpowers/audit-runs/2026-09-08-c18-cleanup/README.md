@@ -1,6 +1,6 @@
 # C18 清洗 run 记录（SDD #56 · 2026-09-08）
 
-spec: `docs/superpowers/specs/2026-08-16-audit-artifact-contamination-fix.md` · plan: `docs/superpowers/plans/2026-09-08-spec56-c18-artifact-contamination.md`
+spec: `docs/superpowers/specs/archive/2026-08-16-audit-artifact-contamination-fix.md`（Done PR #194） · plan: `docs/superpowers/plans/archive/2026-09-08-spec56-c18-artifact-contamination.md`
 
 ## 目录内容
 
