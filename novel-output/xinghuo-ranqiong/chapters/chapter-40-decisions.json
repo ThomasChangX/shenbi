@@ -12,7 +12,8 @@
       ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "style/style_profile.md",
@@ -21,7 +22,8 @@
       ],
       "basis": "volume_scope",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "genre-config.json",
@@ -31,30 +33,39 @@
       ],
       "basis": "volume_scope",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     }
   ],
   "adjustments": [
     {
       "issue_id": "missing_context",
-      "adjustment": "context override applied",
-      "severity": "low"
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "context override applied"
     },
     {
       "issue_id": "mh020_format_anomaly",
-      "adjustment": "first digit enters 4-point segment with 1-frame stutter — hook rekindle",
-      "severity": "low"
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "first digit enters 4-point segment with 1-frame stutter — hook rekindle"
     },
     {
       "issue_id": "word_count_expansion",
-      "adjustment": "body expanded 2727→~3147 chars to pass 3000 minimum; 走了 count 21 ≤ 28",
-      "severity": "low"
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "body expanded 2727→~3147 chars to pass 3000 minimum; 走了 count 21 ≤ 28"
+    },
+    {
+      "issue_id": "c18_provenance",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "synthesized during C18 cleanup 2026-09-08 from the manual-era chat summary (original JSON was n…"
     }
   ],
   "budget": {
     "context_tokens_estimate": 9500,
     "limit": 16000,
     "trim_applied": "none"
-  },
-  "provenance": "synthesized during C18 cleanup 2026-09-08 from the manual-era chat summary (original JSON was never written to disk (manual-era sandbox limitation)); see docs/superpowers/audit-runs/2026-09-08-c18-cleanup/"
+  }
 }

@@ -14,7 +14,8 @@
       "omitted": [
         "高潮/兑现",
         "过渡/铺垫"
-      ]
+      ],
+      "rationale": ""
     },
     {
       "target": "priority_source",
@@ -37,7 +38,8 @@
       "severity": "low",
       "omitted": [
         "trim_to_8"
-      ]
+      ],
+      "rationale": ""
     }
   ],
   "adjustments": [

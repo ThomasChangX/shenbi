@@ -14,7 +14,8 @@
       ],
       "basis": "volume_scope",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "truth/current_focus.md",
@@ -31,7 +32,8 @@
         "第16章核心",
         "情绪弧线",
         "伏笔节奏"
-      ]
+      ],
+      "rationale": ""
     },
     {
       "target": "truth/current_state.md",
@@ -45,7 +47,8 @@
       "omitted": [
         "已揭示的伏笔",
         "待解决的冲突"
-      ]
+      ],
+      "rationale": ""
     },
     {
       "target": "truth/audit_drift.md",
@@ -55,7 +58,8 @@
       ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "truth/pending_hooks.md",
@@ -69,7 +73,8 @@
         "本章操作",
         "过期警告",
         "密度账本"
-      ]
+      ],
+      "rationale": ""
     },
     {
       "target": "truth/character_matrix.md",
@@ -80,7 +85,8 @@
       ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "style/style_profile.md",
@@ -98,7 +104,8 @@
         "6. 标点密度",
         "7. 连接词密度",
         "风格学习汇总"
-      ]
+      ],
+      "rationale": ""
     },
     {
       "target": "genre-config.json",
@@ -109,7 +116,8 @@
       ],
       "basis": "volume_scope",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     }
   ],
   "adjustments": [
@@ -134,37 +142,37 @@
     {
       "issue_id": "plan_door_frame_plasticity",
       "severity": "high",
-      "handling": "apply",
+      "handling": "explicit_callout",
       "rationale": "门框灵能场偏移约1/3维持——塑性/跨日积累有效(衰减系数~66%在6-8小时)。门后完全不揭示"
     },
     {
       "issue_id": "plan_mh020_scale",
       "severity": "high",
-      "handling": "apply",
+      "handling": "explicit_callout",
       "rationale": "竖立标尺确认波动中间1/3边界(过程量特征)+折线图标可移动(模式选择器)+[s]12.4*0.3[s]格式串揭示n尾缀在更大状态标记中的位置"
     },
     {
       "issue_id": "plan_direction_drift_behavioral",
       "severity": "high",
-      "handling": "apply",
+      "handling": "explicit_callout",
       "rationale": "方向偏移从Ch13触发→Ch14路线预期:身体在转角前自动偏左选择窄巷——不需要场景支撑。回程另走一条方向偏差一致的新窄巷"
     },
     {
       "issue_id": "plan_mh003_three_engines",
       "severity": "medium",
-      "handling": "apply",
+      "handling": "explicit_callout",
       "rationale": "三台引擎在场+第三分钟相位差位移/干涉模式三次切换(强弱交替→均匀持续→强弱交替)。引擎来源不揭示"
     },
     {
       "issue_id": "plan_reconnaissance_plane",
       "severity": "medium",
-      "handling": "apply",
+      "handling": "explicit_callout",
       "rationale": "单发活塞式侦察机低空通过——识别涂装(铝原色→蓝灰色)+固定航线复查特征+北偏西进南偏东退。战争线地面信号积累"
     },
     {
       "issue_id": "plan_gray_channel_trace",
       "severity": "low",
-      "handling": "apply",
+      "handling": "explicit_callout",
       "rationale": "废弃装卸场被刺穿撕开的饮料罐——囤积期旧开法/灰区生态残迹(非面孔化推进)"
     }
   ],

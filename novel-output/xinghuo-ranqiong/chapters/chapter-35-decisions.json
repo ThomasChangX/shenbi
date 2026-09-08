@@ -12,7 +12,8 @@
       ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "style/style_profile.md",
@@ -21,7 +22,8 @@
       ],
       "basis": "volume_scope",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "genre-config.json",
@@ -31,20 +33,27 @@
       ],
       "basis": "volume_scope",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     }
   ],
   "adjustments": [
     {
       "issue_id": "drafting_decisions_loss",
-      "adjustment": "original drafting-decisions lost in manual-era timeout run (DEBUG_USE_MANUAL_CREATE.md L82/124); backfilled during C18 cleanup from plan + revision-decisions",
-      "severity": "low"
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "original drafting-decisions lost in manual-era timeout run (DEBUG_USE_MANUAL_CREATE.md L82/124)…"
+    },
+    {
+      "issue_id": "c18_provenance",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "synthesized from chapter-35-revision-decisions + plans/chapter-35-plan.md during C18 cleanup 20…"
     }
   ],
   "budget": {
     "context_tokens_estimate": 9500,
     "limit": 16000,
     "trim_applied": "none"
-  },
-  "provenance": "synthesized from chapter-35-revision-decisions + plans/chapter-35-plan.md during C18 cleanup 2026-09-08 (F1164); see docs/superpowers/audit-runs/2026-09-08-c18-cleanup/"
+  }
 }

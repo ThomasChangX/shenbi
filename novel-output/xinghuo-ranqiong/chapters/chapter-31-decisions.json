@@ -14,7 +14,8 @@
       ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "context/chapter-31-context.md",
@@ -24,7 +25,7 @@
       "omitted": [
         "file_not_found"
       ],
-      "rationale": "context/chapter-31-context.md not assembled by pipeline — all context loaded from plan + truth files directly"
+      "rationale": "context/chapter-31-context.md not assembled by pipeline — all context loaded from plan + truth …"
     },
     {
       "target": "style/style_profile.md",
@@ -34,7 +35,8 @@
       ],
       "basis": "adjacent_to_target_chapter",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "truth/audit_drift.md",
@@ -44,7 +46,8 @@
       ],
       "basis": "arc_relevance",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "truth/current_focus.md",
@@ -57,7 +60,8 @@
       ],
       "basis": "arc_relevance",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     },
     {
       "target": "truth/pending_hooks.md",
@@ -70,7 +74,8 @@
       ],
       "basis": "arc_relevance",
       "severity": "low",
-      "omitted": []
+      "omitted": [],
+      "rationale": ""
     }
   ],
   "adjustments": [
