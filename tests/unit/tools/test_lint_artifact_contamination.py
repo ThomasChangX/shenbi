@@ -178,6 +178,23 @@ def test_cli_missing_tree_errors(tmp_path: Path) -> None:
     assert main(["--tree", str(tmp_path / "nope")]) == 2
 
 
+def test_malformed_exemption_entry_exits_2(tmp_path: Path) -> None:
+    cfg = tmp_path / "tools" / "artifact-lint-exemptions.json"
+    cfg.parent.mkdir(parents=True)
+    cfg.write_text(json.dumps({"meta_narration": [{"path": "a.md"}]}), encoding="utf-8")
+    with pytest.raises(SystemExit) as exc:
+        load_exemptions(tmp_path)
+    assert exc.value.code == 2
+
+
+def test_signature_counts_distinct_files(tmp_path: Path) -> None:
+    # Same stamp twice in ONE file + once in another → not a 2-file group.
+    _write(tmp_path, "a.md", "t1 2026-07-16T12:00:00Z t2 2026-07-16T12:00:00Z\n")
+    _write(tmp_path, "b.md", "produced 2026-07-16T12:00:01Z\n")
+    findings = [f for f in lint_tree(tmp_path) if f["check"] == "timestamp"]
+    assert findings == []
+
+
 def test_baseline_out_marks_exempt_entries(tmp_path: Path) -> None:
     _write(tmp_path, "x.md", "produced_at: 2026-07-16T12:00:00Z\n")
     _write(tmp_path, "y.md", "produced_at: 2026-07-16T12:00:00Z\n")

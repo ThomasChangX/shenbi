@@ -79,7 +79,11 @@ def load_exemptions(repo_root: Path) -> Exemptions:
     exemptions_file = repo_root / "tools" / "artifact-lint-exemptions.json"
     if not exemptions_file.exists():
         return {}
-    data = json.loads(exemptions_file.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(exemptions_file.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        print(f"error: malformed exemption JSON: {exc}", file=sys.stderr)
+        raise SystemExit(2) from exc
     out: Exemptions = {}
     for check, entries in data.items():
         checked: list[ExemptionEntry] = []
@@ -127,9 +131,10 @@ def lint_tree_all(root: Path, *, exemptions: Exemptions | None = None) -> list[F
         findings.extend(_scan_file(path_obj, root, text, ts_occurrences))
 
     for ts, occ in ts_occurrences.items():
-        if len(occ) < _SIGNATURE_MIN_FILES or not _ON_THE_HOUR_RE.match(ts):
+        files = {rel for rel, _ in occ}
+        if len(files) < _SIGNATURE_MIN_FILES or not _ON_THE_HOUR_RE.match(ts):
             continue
-        detail = f"fabricated on-the-hour signature {ts} shared by {len(occ)} files"
+        detail = f"fabricated on-the-hour signature {ts} shared by {len(files)} files"
         for rel, line in occ:
             findings.append(
                 {"check": "timestamp", "path": rel, "line": line, "detail": detail, "exempt": False}
@@ -196,16 +201,28 @@ def _scan_file(
             ts_occurrences[m.group(0)].append((rel, i))
     stamps = [m.group(0) for m in _TS_RE.finditer(text)]
     if stamps != sorted(stamps):
+        line_no = _first_inversion_line(lines)
         out.append(
             {
                 "check": "timestamp",
                 "path": rel,
-                "line": 1,
+                "line": line_no,
                 "detail": "same-file timestamps non-monotonic",
                 "exempt": False,
             }
         )
     return out
+
+
+def _first_inversion_line(lines: list[str]) -> int:
+    """Line number of the first timestamp that breaks monotonic order."""
+    prev: str | None = None
+    for i, line in enumerate(lines, start=1):
+        for m in _TS_RE.finditer(line):
+            if prev is not None and m.group(0) < prev:
+                return i
+            prev = m.group(0)
+    return 1
 
 
 def _lint_state_reconcile(state_root: Path, tree_root: Path) -> list[Finding]:
