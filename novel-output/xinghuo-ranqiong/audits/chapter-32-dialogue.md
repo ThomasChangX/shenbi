@@ -1,5 +1,4 @@
 
-Here's what I found:
 
 ## shenbi-review-dialogue audit — Ch32 Saturday
 

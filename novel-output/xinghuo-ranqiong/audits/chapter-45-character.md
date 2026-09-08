@@ -238,7 +238,6 @@
 ```
 
 
-Here's the summary of the character consistency audit for chapter 45:
 
 **Result: 8.5/10 — PASS** (same quality as Ch44)
 

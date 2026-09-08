@@ -13,4 +13,4 @@ spec: `docs/superpowers/specs/2026-08-16-audit-artifact-contamination-fix.md` ·
 
 ## T4 补充说明
 
-- lint 7 模式族为 spec 锚定（F1171 定义，基线 52）；英文聊天体变体（Here's/deliver/needs to go into/write access 等）与 heredoc 交付块超出该族，已在 T4 定点清除（13 文件），以本轮 grep 证据留档，不扩 lint 模式族（保 AC1 基线对照完整性）
+- lint 7 模式族为 spec 锚定（F1171 定义，基线 52）；英文聊天体变体（Here's/deliver/needs to go into/write access 等）与 heredoc 交付块超出该族，已在 T4 分轮定点清除（轮 2-5 共 30+ 文件；ch22 族 Here's 为审计对上游污染文件的原文引述，合法保留），以 grep 证据留档，不扩 lint 模式族（保 AC1 基线对照完整性）。存量孤立 fence（92 文件基线即奇）不属 7 模式族，本 run 不动
