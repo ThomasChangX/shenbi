@@ -1,15 +1,13 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-08（#56 C18 plan 创建——✅ ready）
-> **活跃 plan 数**：1 | **已归档**：108（见 `archive/`）
+> **最后更新**：2026-09-08（#56 C18 plan 归档——Done PR #194）
+> **活跃 plan 数**：0 | **已归档**：109（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
 ---
 
 ## 活跃 Plan
-
-- `2026-09-08-spec56-c18-artifact-contamination.md` — SDD #56 C18 生产产物污染清洗（spec #56；8 task：派发层验证/产物 lint 四 check/存量 52 文件分层清洗/F1163 全组豁免/F1165 回填/孤儿收尾/ledger 回写）✅ ready
 
 
 
