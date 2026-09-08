@@ -171,5 +171,85 @@
         "content": "历史的火种永远无法被彻底扑灭"
       }
     }
+  },
+  "files": {
+    "audit_drift": {
+      "path": "truth/audit_drift.md",
+      "bytes": 850,
+      "mtime": "2026-07-20T02:29:49.337095+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "author_intent": {
+      "path": "truth/author_intent.md",
+      "bytes": 5350,
+      "mtime": "2026-07-20T02:29:49.337242+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "book_spine": {
+      "path": "truth/book_spine.md",
+      "bytes": 3349,
+      "mtime": "2026-07-20T02:29:49.337382+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "chapter_summaries": {
+      "path": "truth/chapter_summaries.md",
+      "bytes": 5955,
+      "mtime": "2026-07-20T02:29:49.337493+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "character_matrix": {
+      "path": "truth/character_matrix.md",
+      "bytes": 3711,
+      "mtime": "2026-07-20T02:29:49.337594+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "current_focus": {
+      "path": "truth/current_focus.md",
+      "bytes": 20280,
+      "mtime": "2026-07-20T02:29:49.337751+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "current_state": {
+      "path": "truth/current_state.md",
+      "bytes": 10292,
+      "mtime": "2026-07-20T02:29:49.337876+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "emotional_arcs": {
+      "path": "truth/emotional_arcs.md",
+      "bytes": 4566,
+      "mtime": "2026-07-20T02:29:49.337989+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "particle_ledger": {
+      "path": "truth/particle_ledger.md",
+      "bytes": 5361,
+      "mtime": "2026-07-20T02:29:49.338121+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "pending_hooks": {
+      "path": "truth/pending_hooks.md",
+      "bytes": 9886,
+      "mtime": "2026-07-20T02:29:49.338285+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "resonance_trend": {
+      "path": "truth/resonance_trend.md",
+      "bytes": 316,
+      "mtime": "2026-07-20T02:29:49.338422+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "state_snapshot-pre-rev": {
+      "path": "truth/state_snapshot-pre-rev.md",
+      "bytes": 4921,
+      "mtime": "2026-07-20T02:29:49.338585+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    },
+    "subplot_board": {
+      "path": "truth/subplot_board.md",
+      "bytes": 5306,
+      "mtime": "2026-07-20T02:29:49.338712+00:00",
+      "provenance": "c18-regen 2026-09-08 (presence registration only; content not re-summarized, F947)"
+    }
   }
 }

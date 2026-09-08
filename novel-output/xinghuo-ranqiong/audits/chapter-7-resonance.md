@@ -82,6 +82,7 @@
   "skill": "shenbi-review-resonance",
   "chapter": 7,
   "produced_at": "2026-07-16T12:00:00Z",
+<!-- fabricated manual-era timestamp, true time unrecoverable (C18 F1163 adjudication) -->
   "selections": [
     {"target": "dimensions.情感落地", "selected": 24, "basis": "show-dominant beats across 6 emotional touchpoints, constrained by character-appropriate restraint", "severity": "low", "omitted": []},
     {"target": "dimensions.场景临场感", "selected": 21, "basis": "10 physical spaces with 2-4 sensory modalities; analytical dip at L85-97", "severity": "low", "omitted": []},

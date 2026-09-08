@@ -101,6 +101,7 @@
   "skill": "shenbi-review-resonance",
   "chapter": 8,
   "produced_at": "2026-07-16T12:00:00Z",
+<!-- fabricated manual-era timestamp, true time unrecoverable (C18 F1163 adjudication) -->
   "selections": [
     {"target": "dimensions.情感落地", "selected": 25, "basis": "三重释放暴露show-driven; 扣5因窄频谱+线tell偏重", "severity": "low"},
     {"target": "dimensions.场景临场感", "selected": 24, "basis": "9子空间5感官全覆; 零叙述断裂; 计算完全行动化", "severity": "low"},

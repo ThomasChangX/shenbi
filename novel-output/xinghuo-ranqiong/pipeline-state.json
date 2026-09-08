@@ -73,7 +73,9 @@
             "audits/chapter-1-dialogue.md",
             "audits/chapter-1-motivation.md",
             "audits/chapter-1-sensitivity.md",
-            "audits/chapter-1-world-rules.md"
+            "audits/chapter-1-world-rules.md",
+            "audits/chapter-1-resonance.md",
+            "audits/chapter-1-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -118,7 +120,9 @@
             "audits/chapter-2-dialogue.md",
             "audits/chapter-2-motivation.md",
             "audits/chapter-2-sensitivity.md",
-            "audits/chapter-2-world-rules.md"
+            "audits/chapter-2-world-rules.md",
+            "audits/chapter-2-resonance.md",
+            "audits/chapter-2-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -163,7 +167,9 @@
             "audits/chapter-3-dialogue.md",
             "audits/chapter-3-motivation.md",
             "audits/chapter-3-sensitivity.md",
-            "audits/chapter-3-world-rules.md"
+            "audits/chapter-3-world-rules.md",
+            "audits/chapter-3-resonance.md",
+            "audits/chapter-3-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -208,7 +214,9 @@
             "audits/chapter-4-dialogue.md",
             "audits/chapter-4-motivation.md",
             "audits/chapter-4-sensitivity.md",
-            "audits/chapter-4-world-rules.md"
+            "audits/chapter-4-world-rules.md",
+            "audits/chapter-4-resonance.md",
+            "audits/chapter-4-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -253,7 +261,9 @@
             "audits/chapter-5-dialogue.md",
             "audits/chapter-5-motivation.md",
             "audits/chapter-5-sensitivity.md",
-            "audits/chapter-5-world-rules.md"
+            "audits/chapter-5-world-rules.md",
+            "audits/chapter-5-resonance.md",
+            "audits/chapter-5-review-summary.md"
           ],
           "revision_route": "constrained-regenerate"
         },
@@ -298,7 +308,9 @@
             "audits/chapter-6-dialogue.md",
             "audits/chapter-6-motivation.md",
             "audits/chapter-6-sensitivity.md",
-            "audits/chapter-6-world-rules.md"
+            "audits/chapter-6-world-rules.md",
+            "audits/chapter-6-resonance.md",
+            "audits/chapter-6-review-summary.md"
           ],
           "revision_route": "regenerate"
         },
@@ -343,7 +355,9 @@
             "audits/chapter-7-dialogue.md",
             "audits/chapter-7-motivation.md",
             "audits/chapter-7-sensitivity.md",
-            "audits/chapter-7-world-rules.md"
+            "audits/chapter-7-world-rules.md",
+            "audits/chapter-7-resonance.md",
+            "audits/chapter-7-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -388,7 +402,9 @@
             "audits/chapter-8-dialogue.md",
             "audits/chapter-8-motivation.md",
             "audits/chapter-8-sensitivity.md",
-            "audits/chapter-8-world-rules.md"
+            "audits/chapter-8-world-rules.md",
+            "audits/chapter-8-resonance.md",
+            "audits/chapter-8-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -433,7 +449,9 @@
             "audits/chapter-9-dialogue.md",
             "audits/chapter-9-motivation.md",
             "audits/chapter-9-sensitivity.md",
-            "audits/chapter-9-world-rules.md"
+            "audits/chapter-9-world-rules.md",
+            "audits/chapter-9-resonance.md",
+            "audits/chapter-9-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -478,7 +496,9 @@
             "audits/chapter-10-dialogue.md",
             "audits/chapter-10-motivation.md",
             "audits/chapter-10-sensitivity.md",
-            "audits/chapter-10-world-rules.md"
+            "audits/chapter-10-world-rules.md",
+            "audits/chapter-10-resonance.md",
+            "audits/chapter-10-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -523,7 +543,9 @@
             "audits/chapter-11-dialogue.md",
             "audits/chapter-11-motivation.md",
             "audits/chapter-11-sensitivity.md",
-            "audits/chapter-11-world-rules.md"
+            "audits/chapter-11-world-rules.md",
+            "audits/chapter-11-resonance.md",
+            "audits/chapter-11-review-summary.md"
           ],
           "revision_route": "constrained-regenerate"
         },
@@ -568,7 +590,9 @@
             "audits/chapter-12-dialogue.md",
             "audits/chapter-12-motivation.md",
             "audits/chapter-12-sensitivity.md",
-            "audits/chapter-12-world-rules.md"
+            "audits/chapter-12-world-rules.md",
+            "audits/chapter-12-resonance.md",
+            "audits/chapter-12-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -613,7 +637,9 @@
             "audits/chapter-13-dialogue.md",
             "audits/chapter-13-motivation.md",
             "audits/chapter-13-sensitivity.md",
-            "audits/chapter-13-world-rules.md"
+            "audits/chapter-13-world-rules.md",
+            "audits/chapter-13-resonance.md",
+            "audits/chapter-13-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -658,7 +684,9 @@
             "audits/chapter-14-dialogue.md",
             "audits/chapter-14-motivation.md",
             "audits/chapter-14-sensitivity.md",
-            "audits/chapter-14-world-rules.md"
+            "audits/chapter-14-world-rules.md",
+            "audits/chapter-14-resonance.md",
+            "audits/chapter-14-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -703,7 +731,9 @@
             "audits/chapter-15-dialogue.md",
             "audits/chapter-15-motivation.md",
             "audits/chapter-15-sensitivity.md",
-            "audits/chapter-15-world-rules.md"
+            "audits/chapter-15-world-rules.md",
+            "audits/chapter-15-resonance.md",
+            "audits/chapter-15-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -748,7 +778,9 @@
             "audits/chapter-16-dialogue.md",
             "audits/chapter-16-motivation.md",
             "audits/chapter-16-sensitivity.md",
-            "audits/chapter-16-world-rules.md"
+            "audits/chapter-16-world-rules.md",
+            "audits/chapter-16-resonance.md",
+            "audits/chapter-16-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -793,7 +825,9 @@
             "audits/chapter-17-dialogue.md",
             "audits/chapter-17-motivation.md",
             "audits/chapter-17-sensitivity.md",
-            "audits/chapter-17-world-rules.md"
+            "audits/chapter-17-world-rules.md",
+            "audits/chapter-17-resonance.md",
+            "audits/chapter-17-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -838,7 +872,9 @@
             "audits/chapter-18-dialogue.md",
             "audits/chapter-18-motivation.md",
             "audits/chapter-18-sensitivity.md",
-            "audits/chapter-18-world-rules.md"
+            "audits/chapter-18-world-rules.md",
+            "audits/chapter-18-resonance.md",
+            "audits/chapter-18-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -883,7 +919,9 @@
             "audits/chapter-19-dialogue.md",
             "audits/chapter-19-motivation.md",
             "audits/chapter-19-sensitivity.md",
-            "audits/chapter-19-world-rules.md"
+            "audits/chapter-19-world-rules.md",
+            "audits/chapter-19-resonance.md",
+            "audits/chapter-19-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -928,7 +966,9 @@
             "audits/chapter-20-dialogue.md",
             "audits/chapter-20-motivation.md",
             "audits/chapter-20-sensitivity.md",
-            "audits/chapter-20-world-rules.md"
+            "audits/chapter-20-world-rules.md",
+            "audits/chapter-20-resonance.md",
+            "audits/chapter-20-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -973,7 +1013,9 @@
             "audits/chapter-21-dialogue.md",
             "audits/chapter-21-motivation.md",
             "audits/chapter-21-sensitivity.md",
-            "audits/chapter-21-world-rules.md"
+            "audits/chapter-21-world-rules.md",
+            "audits/chapter-21-resonance.md",
+            "audits/chapter-21-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -1018,7 +1060,9 @@
             "audits/chapter-22-dialogue.md",
             "audits/chapter-22-motivation.md",
             "audits/chapter-22-sensitivity.md",
-            "audits/chapter-22-world-rules.md"
+            "audits/chapter-22-world-rules.md",
+            "audits/chapter-22-resonance.md",
+            "audits/chapter-22-review-summary.md"
           ],
           "revision_route": "constrained-regenerate"
         },
@@ -1063,7 +1107,9 @@
             "audits/chapter-23-dialogue.md",
             "audits/chapter-23-motivation.md",
             "audits/chapter-23-sensitivity.md",
-            "audits/chapter-23-world-rules.md"
+            "audits/chapter-23-world-rules.md",
+            "audits/chapter-23-resonance.md",
+            "audits/chapter-23-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -1108,7 +1154,9 @@
             "audits/chapter-24-dialogue.md",
             "audits/chapter-24-motivation.md",
             "audits/chapter-24-sensitivity.md",
-            "audits/chapter-24-world-rules.md"
+            "audits/chapter-24-world-rules.md",
+            "audits/chapter-24-resonance.md",
+            "audits/chapter-24-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -1153,7 +1201,9 @@
             "audits/chapter-25-dialogue.md",
             "audits/chapter-25-motivation.md",
             "audits/chapter-25-sensitivity.md",
-            "audits/chapter-25-world-rules.md"
+            "audits/chapter-25-world-rules.md",
+            "audits/chapter-25-resonance.md",
+            "audits/chapter-25-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1198,7 +1248,9 @@
             "audits/chapter-26-dialogue.md",
             "audits/chapter-26-motivation.md",
             "audits/chapter-26-sensitivity.md",
-            "audits/chapter-26-world-rules.md"
+            "audits/chapter-26-world-rules.md",
+            "audits/chapter-26-resonance.md",
+            "audits/chapter-26-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -1243,7 +1295,9 @@
             "audits/chapter-27-dialogue.md",
             "audits/chapter-27-motivation.md",
             "audits/chapter-27-sensitivity.md",
-            "audits/chapter-27-world-rules.md"
+            "audits/chapter-27-world-rules.md",
+            "audits/chapter-27-resonance.md",
+            "audits/chapter-27-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1288,7 +1342,9 @@
             "audits/chapter-28-dialogue.md",
             "audits/chapter-28-motivation.md",
             "audits/chapter-28-sensitivity.md",
-            "audits/chapter-28-world-rules.md"
+            "audits/chapter-28-world-rules.md",
+            "audits/chapter-28-resonance.md",
+            "audits/chapter-28-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1333,7 +1389,9 @@
             "audits/chapter-29-dialogue.md",
             "audits/chapter-29-motivation.md",
             "audits/chapter-29-sensitivity.md",
-            "audits/chapter-29-world-rules.md"
+            "audits/chapter-29-world-rules.md",
+            "audits/chapter-29-resonance.md",
+            "audits/chapter-29-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1378,7 +1436,9 @@
             "audits/chapter-30-dialogue.md",
             "audits/chapter-30-motivation.md",
             "audits/chapter-30-sensitivity.md",
-            "audits/chapter-30-world-rules.md"
+            "audits/chapter-30-world-rules.md",
+            "audits/chapter-30-resonance.md",
+            "audits/chapter-30-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1423,7 +1483,9 @@
             "audits/chapter-31-dialogue.md",
             "audits/chapter-31-motivation.md",
             "audits/chapter-31-sensitivity.md",
-            "audits/chapter-31-world-rules.md"
+            "audits/chapter-31-world-rules.md",
+            "audits/chapter-31-resonance.md",
+            "audits/chapter-31-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1468,7 +1530,9 @@
             "audits/chapter-32-dialogue.md",
             "audits/chapter-32-motivation.md",
             "audits/chapter-32-sensitivity.md",
-            "audits/chapter-32-world-rules.md"
+            "audits/chapter-32-world-rules.md",
+            "audits/chapter-32-resonance.md",
+            "audits/chapter-32-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1513,7 +1577,9 @@
             "audits/chapter-33-dialogue.md",
             "audits/chapter-33-motivation.md",
             "audits/chapter-33-sensitivity.md",
-            "audits/chapter-33-world-rules.md"
+            "audits/chapter-33-world-rules.md",
+            "audits/chapter-33-resonance.md",
+            "audits/chapter-33-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -1558,7 +1624,9 @@
             "audits/chapter-34-dialogue.md",
             "audits/chapter-34-motivation.md",
             "audits/chapter-34-sensitivity.md",
-            "audits/chapter-34-world-rules.md"
+            "audits/chapter-34-world-rules.md",
+            "audits/chapter-34-resonance.md",
+            "audits/chapter-34-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1603,7 +1671,9 @@
             "audits/chapter-35-dialogue.md",
             "audits/chapter-35-motivation.md",
             "audits/chapter-35-sensitivity.md",
-            "audits/chapter-35-world-rules.md"
+            "audits/chapter-35-world-rules.md",
+            "audits/chapter-35-resonance.md",
+            "audits/chapter-35-review-summary.md"
           ],
           "revision_route": "regenerate"
         },
@@ -1648,7 +1718,9 @@
             "audits/chapter-36-dialogue.md",
             "audits/chapter-36-motivation.md",
             "audits/chapter-36-sensitivity.md",
-            "audits/chapter-36-world-rules.md"
+            "audits/chapter-36-world-rules.md",
+            "audits/chapter-36-resonance.md",
+            "audits/chapter-36-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1693,7 +1765,9 @@
             "audits/chapter-37-dialogue.md",
             "audits/chapter-37-motivation.md",
             "audits/chapter-37-sensitivity.md",
-            "audits/chapter-37-world-rules.md"
+            "audits/chapter-37-world-rules.md",
+            "audits/chapter-37-resonance.md",
+            "audits/chapter-37-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1738,7 +1812,9 @@
             "audits/chapter-38-dialogue.md",
             "audits/chapter-38-motivation.md",
             "audits/chapter-38-sensitivity.md",
-            "audits/chapter-38-world-rules.md"
+            "audits/chapter-38-world-rules.md",
+            "audits/chapter-38-resonance.md",
+            "audits/chapter-38-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1783,7 +1859,9 @@
             "audits/chapter-39-dialogue.md",
             "audits/chapter-39-motivation.md",
             "audits/chapter-39-sensitivity.md",
-            "audits/chapter-39-world-rules.md"
+            "audits/chapter-39-world-rules.md",
+            "audits/chapter-39-resonance.md",
+            "audits/chapter-39-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -1828,7 +1906,9 @@
             "audits/chapter-40-dialogue.md",
             "audits/chapter-40-motivation.md",
             "audits/chapter-40-sensitivity.md",
-            "audits/chapter-40-world-rules.md"
+            "audits/chapter-40-world-rules.md",
+            "audits/chapter-40-resonance.md",
+            "audits/chapter-40-review-summary.md"
           ],
           "revision_route": "regenerate"
         },
@@ -1873,7 +1953,9 @@
             "audits/chapter-41-dialogue.md",
             "audits/chapter-41-motivation.md",
             "audits/chapter-41-sensitivity.md",
-            "audits/chapter-41-world-rules.md"
+            "audits/chapter-41-world-rules.md",
+            "audits/chapter-41-resonance.md",
+            "audits/chapter-41-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -1918,7 +2000,9 @@
             "audits/chapter-42-dialogue.md",
             "audits/chapter-42-motivation.md",
             "audits/chapter-42-sensitivity.md",
-            "audits/chapter-42-world-rules.md"
+            "audits/chapter-42-world-rules.md",
+            "audits/chapter-42-resonance.md",
+            "audits/chapter-42-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -1963,7 +2047,9 @@
             "audits/chapter-43-dialogue.md",
             "audits/chapter-43-motivation.md",
             "audits/chapter-43-sensitivity.md",
-            "audits/chapter-43-world-rules.md"
+            "audits/chapter-43-world-rules.md",
+            "audits/chapter-43-resonance.md",
+            "audits/chapter-43-review-summary.md"
           ],
           "revision_route": "constrained-regenerate"
         },
@@ -2008,7 +2094,9 @@
             "audits/chapter-44-dialogue.md",
             "audits/chapter-44-motivation.md",
             "audits/chapter-44-sensitivity.md",
-            "audits/chapter-44-world-rules.md"
+            "audits/chapter-44-world-rules.md",
+            "audits/chapter-44-resonance.md",
+            "audits/chapter-44-review-summary.md"
           ],
           "revision_route": "regenerate"
         },
@@ -2053,7 +2141,9 @@
             "audits/chapter-45-dialogue.md",
             "audits/chapter-45-motivation.md",
             "audits/chapter-45-sensitivity.md",
-            "audits/chapter-45-world-rules.md"
+            "audits/chapter-45-world-rules.md",
+            "audits/chapter-45-resonance.md",
+            "audits/chapter-45-review-summary.md"
           ],
           "revision_route": "constrained-regenerate"
         },
@@ -2098,7 +2188,9 @@
             "audits/chapter-46-dialogue.md",
             "audits/chapter-46-motivation.md",
             "audits/chapter-46-sensitivity.md",
-            "audits/chapter-46-world-rules.md"
+            "audits/chapter-46-world-rules.md",
+            "audits/chapter-46-resonance.md",
+            "audits/chapter-46-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -2143,7 +2235,9 @@
             "audits/chapter-47-dialogue.md",
             "audits/chapter-47-motivation.md",
             "audits/chapter-47-sensitivity.md",
-            "audits/chapter-47-world-rules.md"
+            "audits/chapter-47-world-rules.md",
+            "audits/chapter-47-resonance.md",
+            "audits/chapter-47-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -2188,7 +2282,9 @@
             "audits/chapter-48-dialogue.md",
             "audits/chapter-48-motivation.md",
             "audits/chapter-48-sensitivity.md",
-            "audits/chapter-48-world-rules.md"
+            "audits/chapter-48-world-rules.md",
+            "audits/chapter-48-resonance.md",
+            "audits/chapter-48-review-summary.md"
           ],
           "revision_route": "regenerate"
         },
@@ -2233,7 +2329,9 @@
             "audits/chapter-49-dialogue.md",
             "audits/chapter-49-motivation.md",
             "audits/chapter-49-sensitivity.md",
-            "audits/chapter-49-world-rules.md"
+            "audits/chapter-49-world-rules.md",
+            "audits/chapter-49-resonance.md",
+            "audits/chapter-49-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -2278,7 +2376,9 @@
             "audits/chapter-50-dialogue.md",
             "audits/chapter-50-motivation.md",
             "audits/chapter-50-sensitivity.md",
-            "audits/chapter-50-world-rules.md"
+            "audits/chapter-50-world-rules.md",
+            "audits/chapter-50-resonance.md",
+            "audits/chapter-50-review-summary.md"
           ],
           "revision_route": "regenerate"
         },
@@ -2323,7 +2423,9 @@
             "audits/chapter-51-dialogue.md",
             "audits/chapter-51-motivation.md",
             "audits/chapter-51-sensitivity.md",
-            "audits/chapter-51-world-rules.md"
+            "audits/chapter-51-world-rules.md",
+            "audits/chapter-51-resonance.md",
+            "audits/chapter-51-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -2368,7 +2470,9 @@
             "audits/chapter-52-dialogue.md",
             "audits/chapter-52-motivation.md",
             "audits/chapter-52-sensitivity.md",
-            "audits/chapter-52-world-rules.md"
+            "audits/chapter-52-world-rules.md",
+            "audits/chapter-52-resonance.md",
+            "audits/chapter-52-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -2413,7 +2517,9 @@
             "audits/chapter-53-dialogue.md",
             "audits/chapter-53-motivation.md",
             "audits/chapter-53-sensitivity.md",
-            "audits/chapter-53-world-rules.md"
+            "audits/chapter-53-world-rules.md",
+            "audits/chapter-53-resonance.md",
+            "audits/chapter-53-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -2458,7 +2564,9 @@
             "audits/chapter-54-dialogue.md",
             "audits/chapter-54-motivation.md",
             "audits/chapter-54-sensitivity.md",
-            "audits/chapter-54-world-rules.md"
+            "audits/chapter-54-world-rules.md",
+            "audits/chapter-54-resonance.md",
+            "audits/chapter-54-review-summary.md"
           ],
           "revision_route": "no-revision"
         },
@@ -2503,7 +2611,9 @@
             "audits/chapter-55-dialogue.md",
             "audits/chapter-55-motivation.md",
             "audits/chapter-55-sensitivity.md",
-            "audits/chapter-55-world-rules.md"
+            "audits/chapter-55-world-rules.md",
+            "audits/chapter-55-resonance.md",
+            "audits/chapter-55-review-summary.md"
           ],
           "revision_route": "spot-fix"
         },
@@ -2524,7 +2634,17 @@
         ],
         "status": "pending",
         "resonance_score": null,
-        "audit_results": {},
+        "audit_results": {
+          "audit_reports": [
+            "audits/chapter-56-anti-ai.md",
+            "audits/chapter-56-character.md",
+            "audits/chapter-56-continuity.md",
+            "audits/chapter-56-foreshadowing.md",
+            "audits/chapter-56-memo-compliance.md",
+            "audits/chapter-56-pacing.md",
+            "audits/chapter-56-pov.md"
+          ]
+        },
         "revision_count": 0,
         "audit_retry_count": 0
       }
@@ -2586,7 +2706,8 @@
       "ch52-shenbi-review-resonance": "G4 HARD check failed: ['G4.rr.verdict:chapter-52-resonance.md:no_valid_verdict']\nFull result: {\"gate\": \"G4-review-resonance\", \"status\": \"FAIL\", \"timestamp\": \"2026-07-17T11:04:30.238448+00:00\", \"checks\": [{\"id\": \"G4.rr.detail_table\", \"file\": \"audits/chapter-52-resonance.md\", \"s\": \"PASS\"}, {\"id\": \"G4.rr.evidence\", \"file\": \"audits/chapter-52-resonance.md\", \"s\": \"PASS\"}], \"blocked_action\": \"scoring\", \"must_fix\": [\"G4.rr.verdict:chapter-52-resonance.md:no_valid_verdict\"]}",
       "ch53-shenbi-review-resonance": "G4 HARD check failed: [\"G4.rr.detail_table:chapter-53-resonance.md:missing_['置信度']\", 'G4.rr.evidence:chapter-53-resonance.md:no_file_line_ref']\nFull result: {\"gate\": \"G4-review-resonance\", \"status\": \"FAIL\", \"timestamp\": \"2026-07-17T11:34:23.404148+00:00\", \"checks\": [{\"id\": \"G4.rr.verdict\", \"file\": \"audits/chapter-53-resonance.md\", \"s\": \"PASS\", \"v\": \"\\u963b\\u65ad\"}], \"blocked_action\": \"scoring\", \"must_fix\": [\"G4.rr.detail_table:chapter-53-resonance.md:missing_['\\u7f6e\\u4fe1\\u5ea6']\", \"G4.rr.evidence:chapter-53-resonance.md:no_file_line_ref\"]}",
       "ch54-shenbi-review-resonance": "G4 HARD check failed: ['G4.rr.verdict:chapter-54-resonance.md:no_valid_verdict']\nFull result: {\"gate\": \"G4-review-resonance\", \"status\": \"FAIL\", \"timestamp\": \"2026-07-17T12:26:28.862124+00:00\", \"checks\": [{\"id\": \"G4.rr.detail_table\", \"file\": \"audits/chapter-54-resonance.md\", \"s\": \"PASS\"}, {\"id\": \"G4.rr.evidence\", \"file\": \"audits/chapter-54-resonance.md\", \"s\": \"PASS\"}], \"blocked_action\": \"scoring\", \"must_fix\": [\"G4.rr.verdict:chapter-54-resonance.md:no_valid_verdict\"]}",
-      "ch55-shenbi-chapter-drafting": "G4 HARD check failed: ['G4.word_count:chapters/chapter-55.md:2981<3000']\nFull result: {\"gate\": \"G4-composite-g4_chapter_drafting\", \"status\": \"FAIL\", \"timestamp\": \"2026-07-17T12:35:12.599014+00:00\", \"checks\": [{\"id\": \"G4.pre_check\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\"}, {\"id\": \"G4.post_check\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\"}, {\"id\": \"G4.transition\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\", \"density\": \"0/2981\"}, {\"id\": \"G4.fatigue\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\", \"hits\": 3}, {\"id\": \"G4.meta\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\"}, {\"id\": \"G4.cd.scene_concreteness\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\", \"visual_paragraphs\": 2}, {\"id\": \"G4.cd.chapter_end_hook\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\"}, {\"id\": \"G4.dec\", \"s\": \"SKIP\", \"r\": \"no files\"}], \"blocked_action\": \"scoring\", \"must_fix\": [\"G4.word_count:chapters/chapter-55.md:2981<3000\"]}"
+      "ch55-shenbi-chapter-drafting": "G4 HARD check failed: ['G4.word_count:chapters/chapter-55.md:2981<3000']\nFull result: {\"gate\": \"G4-composite-g4_chapter_drafting\", \"status\": \"FAIL\", \"timestamp\": \"2026-07-17T12:35:12.599014+00:00\", \"checks\": [{\"id\": \"G4.pre_check\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\"}, {\"id\": \"G4.post_check\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\"}, {\"id\": \"G4.transition\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\", \"density\": \"0/2981\"}, {\"id\": \"G4.fatigue\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\", \"hits\": 3}, {\"id\": \"G4.meta\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\"}, {\"id\": \"G4.cd.scene_concreteness\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\", \"visual_paragraphs\": 2}, {\"id\": \"G4.cd.chapter_end_hook\", \"file\": \"chapters/chapter-55.md\", \"s\": \"PASS\"}, {\"id\": \"G4.dec\", \"s\": \"SKIP\", \"r\": \"no files\"}], \"blocked_action\": \"scoring\", \"must_fix\": [\"G4.word_count:chapters/chapter-55.md:2981<3000\"]}",
+      "ch35-shenbi-chapter-drafting": "G4 timeout 900s -> escalation -> retry succeeded\nBackfilled from DEBUG_USE_MANUAL_CREATE.md L82/124 during C18 cleanup 2026-09-08 (F1174); original retry left no ledger entry (manual-era run)."
     },
     "soft_fail_trackers": {
       "transition": {
