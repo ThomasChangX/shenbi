@@ -146,7 +146,7 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C16 ✅ Done (PR #174 · spec #54) | fixture 真实性失真 | 31 | P0 | archive/2026-08-16-audit-fixture-authenticity-fix.md | B | L | —（F750 deferred→悬空见 §8、F1154 blocked-on #57/C19） |
 | C17 | 测试基础设施失效 | 18 | P1 | audit-test-infra-fix.md | B | M | — |
 | C18 | 生产产物污染 | 17 | P1 | audit-artifact-contamination-fix.md | B | M | — |
-| C19 | 快照子系统半迁移 | 12 | P1 | audit-snapshot-unify-fix.md（+INDEX #26 裁决 spec） | B | M | — |
+| C19 ✅ Done (PR #198 · spec #57 · T4-only，失效面随 #26 路径 3 消解) | 快照子系统半迁移 | 12 | P1 | archive/2026-08-16-audit-snapshot-unify-fix.md | B | M | — |
 | C20 | 技能契约声明面断裂 | 21 | P1 | audit-skill-contract-declaration-fix.md | B | M | — |
 | C21 | 注册/触发路由漂移 | 12 | P1 | audit-skill-routing-deprecated-fix.md | B | S-M | — |
 | C22 | 平行登记表无对账 | 29 | P1 | audit-registry-reconcile-fix.md | B | M | — |
