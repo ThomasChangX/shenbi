@@ -171,6 +171,8 @@ python3 -c "import hashlib; print(hashlib.sha256(open('FILE_PATH','rb').read()).
 
 ## 输出格式
 
+快照目录的清单文件写出至 `snapshots/chapter-NNN/manifest.json`：
+
 ### 创建快照
 
 ```markdown

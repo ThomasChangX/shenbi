@@ -81,6 +81,8 @@ digraph review_sensitivity {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-sensitivity.md`：
+
 ```markdown
 ## 敏感内容审计报告
 

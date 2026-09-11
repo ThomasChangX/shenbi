@@ -99,6 +99,8 @@ digraph review_era {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-era.md`：
+
 ```markdown
 ## 时代准确性审计报告
 

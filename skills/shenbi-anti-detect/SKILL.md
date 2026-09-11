@@ -83,6 +83,8 @@ digraph anti_detect {
 
 ## 输出格式
 
+修订/处理后的**完整章节**写出至 `chapters/chapter-N.md`：
+
 ```markdown
 # 反检测改写后的第N章
 

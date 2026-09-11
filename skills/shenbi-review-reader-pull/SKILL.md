@@ -115,6 +115,8 @@ digraph review_reader_pull {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-reader-pull.md`：
+
 ```markdown
 ## 读者牵引力审计报告
 

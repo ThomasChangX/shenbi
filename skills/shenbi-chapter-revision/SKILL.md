@@ -106,6 +106,8 @@ chapter-revision 是**通用修订入口**，但以下三类问题应优先委�
 
 ## 输出格式
 
+修订/处理后的**完整章节**写出至 `chapters/chapter-N.md`：
+
 如果是 spot-fix：输出 PATCHES 格式，人类批准后应用到原文。
 如果是 rewrite/rework：输出完整修订正文，人类批准后替换原章节文件。
 

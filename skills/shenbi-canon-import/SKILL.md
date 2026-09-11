@@ -106,6 +106,8 @@ digraph canon_import {
 
 ## 输出格式
 
+正典条目写出至 `import/canon/*.md`：
+
 每个 SECTION 一个文件，写入 `import/canon/`：
 
 ```markdown

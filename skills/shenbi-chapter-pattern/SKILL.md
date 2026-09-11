@@ -122,6 +122,8 @@ digraph chapter_pattern {
 
 ## 输出格式
 
+拍点统计输入写出至 `context/chapter-pattern-input-N.json`：
+
 ```markdown
 # 章节模式分析
 

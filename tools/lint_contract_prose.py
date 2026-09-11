@@ -87,6 +87,26 @@ ALLOWLIST: tuple[tuple[str, str, str], ...] = (
         "shenbi-truth-sync:character_matrix.md",
         "变更报告示例表的裸名, 非真实读依赖(实际读取走 truth/*.md glob)",
     ),
+    (
+        "repo-docs",
+        "shenbi-chapter-drafting:docs/framework/chapter-file-format.md",
+        "仓库框架文档引用, 开发者参考, dispatcher 不注入",
+    ),
+    (
+        "repo-docs",
+        "shenbi-chapter-revision:docs/framework/status-vocab.md",
+        "仓库框架文档引用, 开发者参考, dispatcher 不注入",
+    ),
+    (
+        "anti-example",
+        "shenbi-foreshadowing-track:foreshadowing_ledger.md",
+        "DEPRECATED 技能残文幻影(已被 foreshadowing-lifecycle 取代, 不派发)",
+    ),
+    (
+        "anti-example",
+        "shenbi-review-anti-ai:checklist.md",
+        "否定引用(原文件已随 spec #33 T2 死资产清理删除), 非读依赖",
+    ),
 )
 
 
@@ -113,14 +133,17 @@ def _trim_unbalanced(ref: str) -> str:
         ref = ref[1:]
     if ref.endswith(")") and "(" not in ref:
         ref = ref[:-1]
-    return ref
+    # Markdown bold / code-span residue: ``**path**`` and ``{path}`` tails.
+    return ref.rstrip("*}{")
 
 
 def _body_refs(body: str) -> set[str]:
+    # Filter AFTER trimming: bold/code-span residue (``**mode-name**``) loses
+    # its ``*`` tail in the trim and must then drop out as a non-file token.
     return {
-        _trim_unbalanced(m)
+        ref
         for m in _LOOSE_REF_RE.findall(body)
-        if m.endswith((".md", ".json")) or "*" in m
+        if (ref := _trim_unbalanced(m)).endswith((".md", ".json")) or "*" in ref
     }
 
 
@@ -148,7 +171,10 @@ def _declared_covers(cref: str, base: str, declared: list[str]) -> bool:
             return True
         # Bare-basename normalization (T1.1 a) — BARE refs only: a ref with a
         # directory must match its own directory, cross-dir drift is quarry.
-        if "/" not in cref and base == Path(cd).name:
+        # The declared basename may itself be a glob (``truth/*.md``), so a
+        # prose shorthand like ``pending_hooks.md`` matches the writer's own
+        # declared glob.
+        if "/" not in cref and fnmatch.fnmatch(base, Path(cd).name):
             return True
     return False
 

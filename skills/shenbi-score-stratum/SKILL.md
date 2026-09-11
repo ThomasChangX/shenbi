@@ -103,6 +103,8 @@ digraph shenbi_score_stratum {
 
 ## 输出格式
 
+审计报告写出至 `audits/stratum-N-score.md`：
+
 ```markdown
 ## 大弧/书级健康评分报告
 

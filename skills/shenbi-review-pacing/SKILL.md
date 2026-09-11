@@ -101,6 +101,8 @@ digraph review_pacing {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-pacing.md`：
+
 ```markdown
 ## 节奏审计报告
 

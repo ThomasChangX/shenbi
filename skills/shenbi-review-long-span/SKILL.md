@@ -107,6 +107,8 @@ digraph review_long_span {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-long-span.md`：
+
 ```markdown
 ## 跨章模式审计报告
 

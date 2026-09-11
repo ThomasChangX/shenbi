@@ -113,6 +113,8 @@ digraph review_dialogue {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-dialogue.md`：
+
 ```markdown
 ## 对白审计报告
 

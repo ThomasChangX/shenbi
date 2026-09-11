@@ -123,6 +123,8 @@ Pass 4-7 之间有数据依赖但无强顺序：
 
 ## 输出格式
 
+分析产物写出至 `import/analysis/*.md`：
+
 每个 Pass 输出独立文件，结构：
 
 ```markdown

@@ -105,6 +105,8 @@ digraph review_texture {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-texture.md`：
+
 ```markdown
 ## 写作质感审计报告
 

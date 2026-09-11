@@ -80,6 +80,8 @@ digraph length_normalizing {
 
 ## 输出格式
 
+修订/处理后的**完整章节**写出至 `chapters/chapter-N.md`：
+
 ```markdown
 # 归一化后的第N章
 

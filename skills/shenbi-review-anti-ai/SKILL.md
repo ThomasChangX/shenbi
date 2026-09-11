@@ -77,6 +77,8 @@ digraph review_anti_ai {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-anti-ai.md`：
+
 ```markdown
 ## Anti-AI 审计报告
 
