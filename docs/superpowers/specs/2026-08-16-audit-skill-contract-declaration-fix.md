@@ -34,7 +34,7 @@ P2/M 族（2026-09-11 收窄后）：F802（anti-detect：仅 DOT 与铁律 3 �
 
 ### T1 · 契约闭合 lint（先立防线）
 1. 扩展契约闭合 lint（`tools/lint_contract_graph.py` 族 + `gates/g0_skill_contract.py` 雏形——**CI 承载事实（2026-09-11 核实）**：CI 直调底层命令不经 just，新规则须同时挂 justfile `lint-contracts`（:74）与 ci.yml 契约 lint 步（:53-57）；该步现漏跑 lint_contract_graph.py 本体，接线时一并补）加两条机械规则：
-   - **R1 正文→声明**：解析 SKILL.md 正文中的相对路径引用（`[a-z-]+/[\w.-]+` 模式 + 代码块内路径 + **glob 形态 `dir/**/name-*` 与裸文件名**——2026-09-11 审查补：`characters/**/*.md` 类 glob 的 `*` 不在 `\w` 内、`:101` 类裸名无 `/` 前缀，纯正则漏抓 F809 形态；规范化须 glob-aware，可复用 `lint_contract_graph.py` 的 `dag_key` glob/超集匹配语义），不在 reads/writes/updates 声明中的即 WARN/FAIL（白名单机制：词表公认路径）
+   - **R1 正文→声明**：解析 SKILL.md 正文中的相对路径引用（`[a-z-]+/[\w.-]+` 模式 + 代码块内路径 + **glob 形态 `dir/**/name-*` 与裸文件名**——2026-09-11 审查补：`characters/**/*.md` 类 glob 的 `*` 不在 `\w` 内、`:101` 类裸名无 `/` 前缀，纯正则漏抓 F809 形态；规范化须 glob-aware，可复用 `lint_contract_graph.py` 的 `dag_key` glob/超集匹配语义），不在 reads/writes/updates 声明中的即 WARN/FAIL。**裸名与白名单设计裁决（2026-09-11 轮 3 审查，FAIL 切换可达的关键路径）**：(a) 裸文件名规范化——与该 skill 已声明 reads/writes/updates 任一路径的基名（basename）匹配即通过（truth 文件速记形态：45/74 SKILL.md 含 60 处裸名，最大类为基名速记）；(b) 白名单增设具名类别 **skill-bundle reference**——`skills/<name>/` 同目录捆绑参考文件（anti-ai-reference.md、revision-modes.md 等 14 个物理存在者），此类文件非项目文件、dispatcher 按 `project_dir` 解析必零注入，**禁止补进 reads（制造死声明 = F811 失效复现）**，一律白名单条目 + 一行理由（chapter-drafting:86 即此类）；(c) 其余公认路径白名单（词表 concepts/patterns/globs）
    - **R2 声明→正文**：writes/updates 的每个文件，正文须含其文件名或等价产出节引用（防 F812/F871/F881 类"声明了但正文不知道"）。**证据扫描显式排除正文 Contract 摘要块**（`**Reads:**`/`**Writes:**`/`**Updates:**` 行——2026-09-11 轮 2 审查：F812/F871/F872 被告正文今天就含文件名于该块，缺陷在文件名存在下依然成立；引用须出现在步骤/标题/输出格式节中才计数）
 2. R1/R2 对 74 skill 跑基线，输出违规清单——作为 T2 修复的机械验收底单
 3. **WARN→FAIL 升级归属（2026-09-11 审查补）**：R1/R2 初始以 WARN 跑基线收集误报 → 白名单收敛 → T2/T3 修复清零后**切 FAIL 阻断——在基线清零的那个修复 PR 内完成切换**（本 spec 交付即单一 PR：lint 与修复同 PR 落地，WARN 仅存在于本地基线收集阶段；验收 5 断言 FAIL 级别生效，防"永久 WARN 的零阻断安全网"）
@@ -43,7 +43,7 @@ P2/M 族（2026-09-11 收窄后）：F802（anti-detect：仅 DOT 与铁律 3 �
 4. 补 reads 族：F803/F809/F811(前半)/F821/F836/F889/F892——以 Z8 分区报告的文件级清单为准逐技能补 frontmatter
 5. **使能任务（infra · 协调者亲实现）：相对章号占位符**——扩展 `src/shenbi/contracts/paths.py`（`_BOUND_N`/`_FAMILY_N` 族）支持相对偏移形态 `chapter-{N-3}`（bounded、family-scoped）：`resolve_contract_path`/closure 替换 + dispatch 侧 `_build_skill_prompt` 解析 + 单测。**背景（2026-09-11 轮 2 审查）**：现行语法无偏移支持，字面 `chapter-(N-3).md` 的 N 前邻 `(` 不匹配 `_BOUND_N` lookbehind → 走字面路径解析 → 文件不存在 → 静默零注入（F811 断粮形态换马甲）；唯一替代 glob `chapters/chapter-*.md` 注入全部历史章节（token 爆炸，违反成本纪律）。R1 白名单/规范化同步认得新形态
 6. 时序修正：F811 近章以 `chapters/chapter-{N-3}.md`…`chapter-{N-1}.md` 形态进 reads（依赖上项使能）、chapter-N.md 从 reads 移除（组装时不存在）
-7. 写声明补正文：F812（drift_guidance 产出节——注意 pipeline 侧 triggers.py:268-273 volume 触发器期待该产物而正文永不产出，产出节须与该消费面定义对齐）、F871（volume_score_trend 步骤+格式+dedup key 改 volume——key 声明在 SKILL.md:19，无集中注册处，改后 `just generate` 重生视图）；F811 后半（主产物 `context/chapter-N-context.md` 写未声明——pipeline 模式正文 :111-116 覆写而 frontmatter writes 仅 decisions.json，补 writes 声明含 mode）——F838 已由 e92ea482 等效闭合，退出本 task
+7. 写声明补正文：F812（drift_guidance 产出节——注意 pipeline 侧 triggers.py:268-273 volume 触发器期待该产物而正文永不产出，产出节须与该消费面定义对齐）、F871（volume_score_trend 步骤+格式+dedup key 改 volume——key 声明在 SKILL.md:20，无集中注册处，改后 `just generate` 重生视图）；F811 后半（主产物 `context/chapter-N-context.md` 写未声明——pipeline 模式正文 :111-116 覆写而 frontmatter writes 仅 decisions.json，补 writes 声明含 mode——裁决（2026-09-11 轮 3）：正文两模式均写该文件（pipeline 模式 :111-116 已写；非 pipeline 模式正文同步补产出步骤，顺带使直接 dispatch 链路获得持久上下文包），避免 pipeline-conditional 声明的诚实性问题）——F838 已由 e92ea482 等效闭合，退出本 task
 8. 越权写拆除：F870 state-settling 删 protagonist.md 写指令（字段所有权归 character 域技能）——F882 mode-rules 子项已修退出（c112a95a），勿重复修
 
 ### T3 · P2/M 批量与 D104 裁决
@@ -59,7 +59,7 @@ P2/M 族（2026-09-11 收窄后）：F802（anti-detect：仅 DOT 与铁律 3 �
 ## 验收标准（真实数据可复验）
 
 1. 契约闭合 lint 对全仓 74 skill 跑批：R1/R2 违规 = 0（基线报告与修复后报告同口径对照，附 PR）
-2. 读侧存活技能抽查（F803/F809/F811/F821/F836）：以 `dispatch_helper._build_skill_prompt` 过滤链的**单元级断言**验证其正文所需全部输入注入（F836 的 L5 复核输入不再被过滤掉）——离线 tmp_path 项目驱动（先例 `tests/pipeline/test_dispatch_helper_keys.py:38-54`）、fixtures 引用 `tests/fixtures/` 真实产物（G0.9 溯源）、F947 规则禁真实 dispatch（「dry-run」能力 main 不存在、不新建）；写侧发现（F870/F871/F812）由验收 1/3 的 R2/G4 覆盖，D104 由验收 4 覆盖
+2. 读侧存活技能抽查（F803/F809/F811/F821/F836）：以 `dispatch_helper._build_skill_prompt` 过滤链的**单元级断言**验证其正文所需全部输入注入（F836 的 L5 复核输入不再被过滤掉）——离线 tmp_path 项目驱动（先例 `tests/pipeline/test_dispatch_helper_keys.py:38-60`）、fixtures 引用 `tests/fixtures/` 真实产物（G0.9 溯源）、F947 规则禁真实 dispatch（「dry-run」能力 main 不存在、不新建）；写侧发现（F870/F871/F812）由验收 1/3 的 R2/G4 覆盖，D104 由验收 4 覆盖
 3. `shenbi-validate G4 <skill> <files>` 对修复后技能 PASS；market-radar decisions.json 现行形态（e92ea482 已闭合）过 G2/G4 decisions 校验作回归确认（原 F838 红灯验证不适用）
 4. meta 豁免成文：lint 输出显式列出 2 个 meta skill 豁免条目（D104）
 5. `just check` 全绿且 R1/R2 已切 **FAIL 级阻断**（见 T1.3——终态非 WARN）；白名单调整记录在 lint 工具内的具名 allowlist 数据结构（逐条附一行理由），PR 描述附基线→清零对照；新 lint 同步挂 ci.yml 契约 lint 步（CI 不经 just，见 T1.1）
@@ -67,7 +67,7 @@ P2/M 族（2026-09-11 收窄后）：F802（anti-detect：仅 DOT 与铁律 3 �
 ## 风险与回滚
 
 - **风险**：R1 正文路径解析有假阳性（示例代码、反例文本）——白名单 + 先 WARN 一轮收集再升 FAIL，分两步收紧
-- **风险**：补 reads 会扩大 dispatcher 注入 token 量（F836 类多文件）——与 C29 截断披露协议协同，超预算文件按字段级 reads（Layer B，C2 簇）裁剪
+- **风险**：补 reads 会扩大 dispatcher 注入 token 量（F836 类多文件）——与 C29 截断披露协议协同；近章使能（T2.5/6）量级有界（恰 3 文件，典型 9-18k 字符，远低于全局预算），超预算走全局截断披露。注：Layer B 字段过滤按节标题切，不适用于章节散文尾部切片，不作本风险缓解面
 - **回滚**：lint 规则可独立关闭（WARN 级回退）；每技能修复独立 commit，74 个 SKILL.md 改动走 codemod + 人工复核，可按技能 revert
 
 ## 簇成员清单（21 条，自查用）
