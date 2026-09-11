@@ -176,7 +176,7 @@ digraph volume_consolidation {
 
 ## 卷目标达成
 
-[≤100字：本卷开卷时声明的卷目标（承接 book_spine 卷规划）达成情况——达成/部分达成/未达成 + 一句依据。**本节与下面两节为 H2 当前态节**：多卷时整文件重写更新为最新卷，节名与 context-composing 的 fields 字节匹配（Layer B H2 过滤）]
+[≤100字：本卷开卷时声明的卷目标（承接 book_spine 卷规划）达成情况——达成/部分达成/未达成 + 一句依据。**本节与下面两节为 H2 当前态节**：多卷重写时**删除上一卷的三个当前态节**、以本卷内容重立（extract_h2_sections 取 first-wins，旧节残留会喂给消费方过期状态），节名与 context-composing 的 fields 字节匹配（Layer B H2 过滤）]
 
 ## 核心事件
 
