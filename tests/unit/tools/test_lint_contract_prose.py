@@ -207,3 +207,34 @@ def test_fail_flag_exit_semantics(monkeypatch: pytest.MonkeyPatch, capsys):
     assert "meta-exempt: using-shenbi" in out
     assert "meta-exempt: shenbi-writing-skills" in out
     assert "allowlist[skill-bundle]" in out
+
+
+@pytest.mark.unit
+def test_r1_cross_dir_basename_not_covered(tmp_path):
+    # audit-T2 r2 加固：跨目录基名漂移必须违规（③级裸名门控的钉）
+    c = {"shenbi-zz": {"reads": ["characters/protagonist.md"], "writes": [], "updates": []}}
+    _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "误读 otherdir/protagonist.md。")
+    assert ("shenbi-zz", "otherdir/protagonist.md") in _r1(c, tmp_path)
+
+
+@pytest.mark.unit
+def test_r2_dual_side_offset_canonicalization(tmp_path):
+    # audit-T2 r2 加固：声明 {N-3} 写 + 正文 (N-3) 提及 → 双侧归一后不违规
+    c = {
+        "shenbi-zz": {
+            "reads": [],
+            "writes": [{"file": "zzdir/chapter-{N-3}.md", "mode": "create_or_overwrite"}],
+            "updates": [],
+        }
+    }
+    _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "产出节：写出 zzdir/chapter-(N-3).md。")
+    assert not any(s == "shenbi-zz" for s, _t in _r2(c, tmp_path))
+
+
+@pytest.mark.unit
+def test_r1_allowlist_entry_covers(tmp_path):
+    # audit-T2 r2 加固：⑥级 allowlist 匹配行为钉（anti-ai-reference.md 无物理
+    # 文件时仍由 *: 通配条目覆盖）
+    c = {"shenbi-zz": {"reads": [], "writes": [], "updates": []}}
+    _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "检查清单见 anti-ai-reference.md。")
+    assert not any(r == "anti-ai-reference.md" for _s, r in _r1(c, tmp_path))
