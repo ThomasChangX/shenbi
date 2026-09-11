@@ -120,7 +120,7 @@ _FAMILY_N_OFFSET = re.compile(
 
 
 def _offset_sub(path: str, base: int) -> str:
-    return _FAMILY_N_OFFSET.sub(lambda m: f"{m.group(1)}-{base + int(m.group(2))}", path)
+    return _FAMILY_N_OFFSET.sub(lambda fm: f"{fm.group(1)}-{base + int(fm.group(2))}", path)
 ```
 
 `resolve_contract_path` 的 `if ctx is not None:` 块内、`_FAMILY_N.search` 之前插入：
@@ -361,7 +361,7 @@ Expected: PASS（Task 1 语义仍绿）
 ```bash
 git add skills/shenbi-book-spine-init/SKILL.md skills/shenbi-character-design/SKILL.md skills/shenbi-context-composing/SKILL.md skills/shenbi-foundation-review/SKILL.md skills/shenbi-memory-distill/SKILL.md skills/shenbi-sequel-writing/SKILL.md skills/shenbi-escalation-review/SKILL.md skills/shenbi-volume-consolidation/SKILL.md
 just generate
-git add docs/skills deps.json 2>/dev/null
+git add docs/skills tests/tiers/deps.json docs/framework/dependency-dag.json docs/framework/truth-files.index.json
 git commit -m "fix: P1 read-side contract closures — F803/F809/F811/F821/F836/F889/F892 + volume_summaries 3-way alignment (spec58 C20)"
 ```
 
@@ -400,7 +400,7 @@ git commit -m "fix: P1 read-side contract closures — F803/F809/F811/F821/F836/
 ```
 
 3. **F812 子项 2（audit_drift_archive 写未声明）**：drift-guidance frontmatter writes += `- file: truth/audit_drift_archive.md
-    mode: create_or_overwrite`（正文铁律 6 :69 的滚动归档语义 = 整文件重写归档；改后 `just lint-contracts` 须绿）。
+    mode: create_or_overwrite` 且 **reads += `truth/audit_drift_archive.md`**。**mode 裁决（2026-09-11 轮 3/4 两轮证据）**：归档与 audit_drift.md 同为 YAML frontmatter 形态——SKILL.md:44 明文「append_dedup 会把整份 YAML 块追加到文件尾破坏 frontmatter 位消费，整文件重写是合并器正确形态」→ mode 取 create_or_overwrite；**轮 2/4 的历史坍缩担忧由 reads 补声明消解**——dispatcher 注入既有归档、合并器生成权威版本时并入未剪枝历史（缺失文件在 `_resolve_read_path` 静默跳过，爬坡期安全）；正文铁律 6 补一句「重写归档前先读既有归档条目，未被剪枝的并入后整体写出」。改后 `just lint-contracts` 须绿。
 4. **F811 后半 context-composing**：frontmatter `writes` += `- file: context/chapter-N-context.md\n    mode: create_or_overwrite`；正文非 pipeline 模式补产出步骤（pipeline 模式 `:111-116` 已有）——直接 dispatch 时同样把组装结果写出至 `context/chapter-N-context.md`（spec 轮 3 裁决：双模式均写）。
 
 - [ ] **Step 1: 三处编辑**
@@ -410,14 +410,14 @@ Run: `just generate && uv run python tools/lint_contract_prose.py 2>&1 | grep -E
 Expected: 三技能零 R2 违规（R1 若因新增正文路径引用出现新违规，本 task 内补声明或 allowlist——增补 allowlist 须附理由）
 - [ ] **Step 3: G4 结构验证（score-volume key 变更）**
 
-Run: `uv run pytest tests/gates -q && just lint-contracts`
+Run: `uv run pytest tests/unit/gates -q && just lint-contracts`
 Expected: gates 全 PASS（score-volume key 变更由 G4/键对账测试承载——仓内无独立 score-volume 真实产物 fixture）；lint-contracts 四件绿
 - [ ] **Step 4: Commit**
 
 ```bash
 git add skills/shenbi-drift-guidance/SKILL.md skills/shenbi-score-volume/SKILL.md skills/shenbi-context-composing/SKILL.md
 just generate
-git add -u docs/skills deps.json 2>/dev/null
+git add docs/skills tests/tiers/deps.json docs/framework/dependency-dag.json docs/framework/truth-files.index.json
 git commit -m "fix: P1 write-side closures — F812 drift_guidance output section, F871 volume key+steps, F811 main-artifact writes (spec58 C20)"
 ```
 
@@ -426,21 +426,22 @@ git commit -m "fix: P1 write-side closures — F812 drift_guidance output sectio
 ### Task 6: 越权写拆除（F870）+ 占位模式 glob 化（F884）
 
 **Files:**
-- Modify: `skills/shenbi-state-settling/SKILL.md`（`:277-287` arc_log 指令）、`skills/shenbi-truth-sync/SKILL.md`（reads）
+- Modify: `skills/shenbi-state-settling/SKILL.md`（`:277-287` arc_log 指令）、`skills/shenbi-truth-sync/SKILL.md`（reads）、`tests/unit/gates/g4/test_state_settling.py:182-187`（钉住测试同步）
 
 **编辑清单：**
-1. F870：删除「For the protagonist specifically, append an `arc_log` entry to `characters/protagonist.md` frontmatter」整个代码块与指令（字段所有权归 character 域技能）；其上「Set "Last Updated Ch"」与其下「3. Write updated character_matrix.md」步骤序号顺延重排。
+1. F870：删除「For the protagonist specifically, append an `arc_log` entry to `characters/protagonist.md` frontmatter」整个代码块与指令（字段所有权归 character 域技能），原位替换为一行说明：「主角弧进度通过上方 character_matrix 更新落账（Arc Stage / Last Updated Ch 列）；`characters/protagonist.md` 归 character 域技能所有，本 skill 不写（arc_log 结构由其维护）」；其后「3. Write updated character_matrix.md」步骤序号 3→2（原步骤 2 被删）。
+   同步更新钉住测试 `tests/unit/gates/g4/test_state_settling.py:182-187`：`test_state_settling_skill_mentions_arc_log` 的 `assert "arc_log" in content` 保留（替换说明含该词），**新增** `assert "append an `arc_log` entry" not in content`（钉住写指令移除——C1 轮 4 审查：不改此测试则删除即击穿）。
 2. F884：reads `chapters/chapter-N.md` → `chapters/chapter-*.md`（多章 N..M 语义；token 由预算截断+披露兜底——spec 轮 3 裁决倾向 glob 化）。
 
 - [ ] **Step 1: 两处编辑**
 - [ ] **Step 2: 验证**
 
-Run: `just generate && uv run python tools/lint_contract_prose.py 2>&1 | grep -E "state-settling|truth-sync" || echo "(清零)"; uv run pytest tests/gates -q`
+Run: `just generate && uv run python tools/lint_contract_prose.py 2>&1 | grep -E "state-settling|truth-sync" || echo "(清零)"; uv run pytest tests/unit/gates -q`
 Expected: 两技能零新违规；G4 state-settling 相关测试绿
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/shenbi-state-settling/SKILL.md skills/shenbi-truth-sync/SKILL.md
+git add skills/shenbi-state-settling/SKILL.md skills/shenbi-truth-sync/SKILL.md tests/unit/gates/g4/test_state_settling.py tests/tiers/deps.json docs/framework/dependency-dag.json docs/framework/truth-files.index.json
 git commit -m "fix: remove protagonist.md out-of-contract write (F870) + truth-sync multi-chapter glob read (F884) (spec58 C20)"
 ```
 
@@ -466,7 +467,7 @@ Expected: 五技能零新违规；fields lint 绿（F805 后消费方声明与 f
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/shenbi-anti-detect/SKILL.md skills/shenbi-style-learning/SKILL.md skills/shenbi-chapter-planning/SKILL.md skills/shenbi-foreshadowing-lifecycle/SKILL.md skills/shenbi-score-stratum/SKILL.md
+git add skills/shenbi-anti-detect/SKILL.md skills/shenbi-style-learning/SKILL.md skills/shenbi-chapter-planning/SKILL.md skills/shenbi-foreshadowing-lifecycle/SKILL.md skills/shenbi-score-stratum/SKILL.md tests/tiers/deps.json docs/framework/dependency-dag.json docs/framework/truth-files.index.json
 git commit -m "fix: P2 contract closures — F802 DOT/F805 style template 11-section/F807/F825 bridge_tracker/F872 (spec58 C20)"
 ```
 
@@ -604,7 +605,7 @@ Expected: exit=0（零违规——对照 `.superpowers/sdd/r1r2-baseline.md` 存
 
 - [ ] **Step 4: G4/G2 回归（验收 3）**
 
-Run: `uv run pytest tests/tiers/t1-skill/shenbi-market-radar -q && uv run pytest tests/test_lint_decisions_sources.py -q && uv run pytest tests/gates -q`
+Run: `uv run pytest tests/tiers/t1-skill/shenbi-market-radar -q && uv run pytest tests/test_lint_decisions_sources.py -q && uv run pytest tests/unit/gates -q`
 Expected: 全 PASS（market-radar decisions 链 = T1 套件 + decisions 三源 lint + gates 全量；**spec 验收 3 的 market-radar decisions.json 直跑形态因仓内无真实产物按 G0.9 改由本组测试承载——spec deviation 已记**）
 
 - [ ] **Step 5: just check 终验（验收 5 + 全门禁闭环）**
