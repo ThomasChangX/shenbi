@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-11 · SDD #58 价值门/事实核实：F838/F881/F882 已由 main 等效修复退出、F805/F807/F825 收窄、F825 增补 bridge_tracker 新发现、lint 路径与验收面修正) | **Severity:** 🟠 P1
+> **Date:** 2026-08-16 | **Status:** Done (PR #202 · 2026-09-11 · Revised 2026-09-11 价值门/事实核实/设计审查四轮) | **Severity:** 🟠 P1
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C20）| **代表 finding:** D104 | **簇规模:** 21 条 | **严重度上限:** P1
 > **范围:** skills/*/SKILL.md（约 20 个技能 frontmatter + 正文）、契约闭合 lint（雏形：gates/g0_skill_contract.py + tools/lint_contract_graph.py 族扩展）| **证据等级:** 实验佐证（Z8-a/b/c 三分区初审 + d1-03-frontmatter.log 74 skill 全量解析）
 > **与既有 spec 关系:** #23（z8-contract-drift）的 reads/writes 补全面（F953/F1002/F1011 等）并入本 spec 统一处置；本 spec 为其 2026-08-15 轮扩展与机制化（对账 lint），#23 已归档（Rejected 2026-08-30，PR 归档见 archive）
