@@ -28,6 +28,11 @@ PATH_CONTEXT_PREFIX = "[path-context]"
 
 # Family-prefixed N: arc-N / stratum-N / volume-N / chapter-N / escalation-N
 _FAMILY_N = re.compile(r"(?<=[-/])(arc|stratum|volume|chapter|escalation)-N(?=[-./]|$)")
+# Spec #58 C20 (F811): relative-offset placeholders `chapter-{N-3}` — brace
+# form only (prose's paren form `(N-3)` is lint-side canonicalized, never a
+# declared read). Base value: ctx family value (ctx route, F207 semantics —
+# None/str-sentinel raises) or chapter (no-ctx route).
+_FAMILY_N_OFFSET = re.compile(r"(?<=[-/])(arc|stratum|volume|chapter|escalation)-\{N([+-]\d+)\}")
 _AC_ANCHOR = re.compile(r"(?<=[-/])AC-NNN(?=[-./]|$)")
 _CTX_KEYS = ("chapter", "arc", "stratum", "volume", "anchor", "escalation")
 
@@ -115,6 +120,15 @@ def resolve_contract_path(path: str, chapter: int | None, ctx: PathContext | Non
     substitution are no longer mutually exclusive.
     """
     if ctx is not None:
+        # Spec #58 C20 (F811): relative-offset placeholders resolve from the
+        # ctx family value (F207 semantics: a missing/str-sentinel family
+        # value raises instead of silently falling back to chapter base).
+        if _FAMILY_N_OFFSET.search(path):
+            for fm in _FAMILY_N_OFFSET.finditer(path):
+                base = getattr(ctx, fm.group(1))
+                if not isinstance(base, int):
+                    raise UnresolvedPathError(path)
+                path = path.replace(fm.group(0), f"{fm.group(1)}-{base + int(fm.group(2))}")
         m = _FAMILY_N.search(path)
         if m:
             vals: dict[str, int | str] = {}
@@ -152,12 +166,17 @@ def _bounded_replace_n(path: str, value: int) -> str:
     return _BOUND_N.sub(str(value), path)
 
 
+def _offset_sub(path: str, base: int) -> str:
+    return _FAMILY_N_OFFSET.sub(lambda fm: f"{fm.group(1)}-{base + int(fm.group(2))}", path)
+
+
 def resolve_chapter_path(path: str, chapter: int | None) -> str:
     if chapter is None:
-        if _NNN in path or _BOUND_N.search(path):
+        if _NNN in path or _BOUND_N.search(path) or _FAMILY_N_OFFSET.search(path):
             raise UnresolvedPathError(path)
         return path
     result = _NNN_BOUNDED.sub(f"{chapter:03d}", path)
+    result = _offset_sub(result, chapter)
     return _bounded_replace_n(result, chapter)
 
 
