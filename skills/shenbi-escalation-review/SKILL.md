@@ -10,7 +10,7 @@ contract:
   - audits/chapter-N-sensitivity.md
   - truth/volume_score_trend.md
   - truth/arc_payoff_trend.md
-  - audits/stratum-N-score.md
+  - audits/stratum-*-score.md
   writes:
   - file: audits/escalation-N-report.md
     mode: create_or_overwrite
@@ -26,7 +26,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/resonance_trend.md, audits/chapter-N-sensitivity.md, truth/volume_score_trend.md, truth/arc_payoff_trend.md, audits/stratum-N-score.md
+- **Reads:** truth/resonance_trend.md, audits/chapter-N-sensitivity.md, truth/volume_score_trend.md, truth/arc_payoff_trend.md, audits/stratum-*-score.md
 - **Writes:** audits/escalation-N-report.md
 - **Updates:** none
 

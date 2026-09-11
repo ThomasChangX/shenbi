@@ -189,22 +189,6 @@
     ],
     "updates": []
   },
-  "truth/author_intent.md": {
-    "reads": [
-      "shenbi-book-spine-init",
-      "shenbi-chapter-planning",
-      "shenbi-intent-management",
-      "shenbi-memory-distill",
-      "shenbi-short-drafting",
-      "shenbi-short-outline",
-      "shenbi-short-packaging",
-      "shenbi-volume-outlining"
-    ],
-    "writes": [],
-    "updates": [
-      "shenbi-intent-management"
-    ]
-  },
   "truth/book_spine.md": {
     "reads": [
       "shenbi-context-composing",
@@ -415,6 +399,21 @@
   "truth/current_focus.md": {
     "reads": [
       "shenbi-chapter-planning"
+    ],
+    "writes": [],
+    "updates": [
+      "shenbi-intent-management"
+    ]
+  },
+  "truth/author_intent.md": {
+    "reads": [
+      "shenbi-chapter-planning",
+      "shenbi-intent-management",
+      "shenbi-memory-distill",
+      "shenbi-short-drafting",
+      "shenbi-short-outline",
+      "shenbi-short-packaging",
+      "shenbi-volume-outlining"
     ],
     "writes": [],
     "updates": [
@@ -678,13 +677,11 @@
     ],
     "updates": []
   },
-  "audits/stratum-N-score.md": {
+  "audits/stratum-*-score.md": {
     "reads": [
       "shenbi-escalation-review"
     ],
-    "writes": [
-      "shenbi-score-stratum"
-    ],
+    "writes": [],
     "updates": []
   },
   "audits/escalation-N-report.md": {
@@ -1005,6 +1002,13 @@
     "reads": [],
     "writes": [
       "shenbi-score-arc"
+    ],
+    "updates": []
+  },
+  "audits/stratum-N-score.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-score-stratum"
     ],
     "updates": []
   },

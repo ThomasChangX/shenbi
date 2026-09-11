@@ -146,106 +146,6 @@
       "file": "world/rules.md"
     },
     {
-      "producer": "shenbi-chapter-revision",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-drift-guidance",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-foreshadowing-lifecycle",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-foreshadowing-plant",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-foreshadowing-recall",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-foreshadowing-resolve",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-foreshadowing-track",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-intent-management",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-memory-distill",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-relationship-map",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-review-arc-payoff",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-review-resonance",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-score-arc",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-score-stratum",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-score-volume",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-sequel-writing",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-state-settling",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-truth-sync",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-volume-consolidation",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
-      "producer": "shenbi-worldbuilding",
-      "consumer": "shenbi-book-spine-init",
-      "file": "truth/author_intent.md"
-    },
-    {
       "producer": "shenbi-chapter-planning",
       "consumer": "shenbi-chapter-drafting",
       "file": "plans/chapter-N-plan.md"
@@ -3403,7 +3303,7 @@
     {
       "producer": "shenbi-score-stratum",
       "consumer": "shenbi-escalation-review",
-      "file": "audits/stratum-N-score.md"
+      "file": "audits/stratum-*-score.md"
     },
     {
       "producer": "shenbi-worldbuilding",
