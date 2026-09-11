@@ -175,7 +175,7 @@ git commit -m "feat: relative-offset placeholder chapter-{N-k} in contract paths
 
 **Files:**
 - Create: `tools/lint_contract_prose.py`
-- Test: `tests/test_lint_contract_prose.py`
+- Test: `tests/unit/tools/test_lint_contract_prose.py`
 
 **Interfaces:**
 - Consumes: `shenbi.sync_contracts.load_all_contracts()`（dict[skill → contract dict]，monkeypatch 点同 `tests/unit/tools/test_lint_contract_graph.py:50` 先例：`monkeypatch.setattr("shenbi.sync_contracts.load_all_contracts", ...)`）、`shenbi.contracts.graph.dag_key`、`shenbi.pipeline.dispatch_helper._strip_autogen_blocks`（R2/R1 共用：AUTO-GENERATED 数据契约块不算正文证据）、`tools.lint_contracts.META_SKILLS`
@@ -212,7 +212,7 @@ ALLOWLIST: tuple[tuple[str, str, str], ...] = (
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `uv run pytest tests/test_lint_contract_prose.py -v`
+Run: `uv run pytest tests/unit/tools/test_lint_contract_prose.py -v`
 Expected: FAIL（模块不存在）
 
 - [ ] **Step 3: 实现 tools/lint_contract_prose.py**
@@ -258,18 +258,18 @@ def main(argv: list[str] | None = None) -> int: ...  # --fail / --list-exempt
 
 - [ ] **Step 4: 跑测试确认通过**
 
-Run: `uv run pytest tests/test_lint_contract_prose.py -v`
+Run: `uv run pytest tests/unit/tools/test_lint_contract_prose.py -v`
 Expected: 全 PASS
 
 - [ ] **Step 5: ruff/mypy 门（tools 面按仓库现状跑 ruff 即可，mypy 仅 src/）**
 
-Run: `uv run ruff check tools/lint_contract_prose.py tests/test_lint_contract_prose.py && uv run ruff format --check tools/lint_contract_prose.py`
+Run: `uv run ruff check tools/lint_contract_prose.py tests/unit/tools/test_lint_contract_prose.py && uv run ruff format --check tools/lint_contract_prose.py`
 Expected: 0 errors（format 不符则 `ruff format` 该两文件后复跑）
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add tools/lint_contract_prose.py tests/test_lint_contract_prose.py
+git add tools/lint_contract_prose.py tests/unit/tools/test_lint_contract_prose.py
 git commit -m "feat: R1/R2 prose-contract closure lint tool (spec58 C20 T1)"
 ```
 
@@ -489,7 +489,7 @@ Expected: `2`
 
 - [ ] **Step 2: 验证**
 
-Run: `uv run pytest tests/test_lint_contract_prose.py -q && uv run python tools/lint_contract_prose.py 2>&1 | grep -E "review-fanfic" || echo "(清零)"`
+Run: `uv run pytest tests/unit/tools/test_lint_contract_prose.py -q && uv run python tools/lint_contract_prose.py 2>&1 | grep -E "review-fanfic" || echo "(清零)"`
 Expected: 全绿/清零
 - [ ] **Step 3: Commit**
 
