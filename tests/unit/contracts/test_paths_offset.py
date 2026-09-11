@@ -65,3 +65,9 @@ def test_offset_ctx_route_respects_lookbehind():
     ctx = PathContext(chapter=9)
     out = resolve_contract_path("a/xchapter-{N-3}.md b/chapter-{N-3}.md", 9, ctx)
     assert out == "a/xchapter-{N-3}.md b/chapter-6.md"
+
+
+def test_offset_no_ctx_route_respects_lookbehind():
+    # no-ctx 路由同一 regex + re.sub，性质与 ctx 路由一致——测试钉住
+    out = resolve_chapter_path("a/xchapter-{N-3}.md b/chapter-{N-3}.md", 9)
+    assert out == "a/xchapter-{N-3}.md b/chapter-6.md"
