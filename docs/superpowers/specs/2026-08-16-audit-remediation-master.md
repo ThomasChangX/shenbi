@@ -58,7 +58,7 @@
 | C8 | 状态/词表多源 | 24 | B | enums.py 收编 + lint 补洞（是 C1/C29 的词表输入，实际执行宜提前） |
 | C15 | 关键零覆盖 | 12 | B | 补测 + 覆盖率 per-module 底线（依赖 C14/C16 先治断言与 fixture） |
 
-状态速览（2026-09-11）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）11 簇全部关闭（C32 Rejected、余 10 Done，PR #149-#179）；批次 B 已关闭 C14（#52，PR #183）、C15（#53，PR #189）、C16（#54，PR #174）、C17（#55，PR #191）、C18（#56，PR #194）、C19（#57，PR #198，T4-only）——余 C20-C26 共 7 簇。承接关系以 §7 为准。
+状态速览（2026-09-11）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）11 簇全部关闭（C32 Rejected、余 10 Done，PR #149-#179）；批次 B 已关闭 C14（#52，PR #183）、C15（#53，PR #189）、C16（#54，PR #174）、C17（#55，PR #191）、C18（#56，PR #194）、C19（#57，PR #198，T4-only）、C20（#58，PR #202）——余 C21-C26 共 6 簇。承接关系以 §7 为准。
 
 ## 3. 跨簇依赖顺序（关键链）
 
@@ -147,7 +147,7 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C17 ✅ Done (PR #191 · spec #55) | 测试基础设施失效 | 18 | P1 | archive/2026-08-16-audit-test-infra-fix.md | B | M | — |
 | C18 ✅ Done (PR #194 · spec #56) | 生产产物污染 | 17 | P1 | archive/2026-08-16-audit-artifact-contamination-fix.md | B | M | — |
 | C19 ✅ Done (PR #198 · spec #57 · T4-only，失效面随 #26 路径 3 消解) | 快照子系统半迁移 | 12 | P1 | archive/2026-08-16-audit-snapshot-unify-fix.md | B | M | — |
-| C20 | 技能契约声明面断裂 | 21 | P1 | audit-skill-contract-declaration-fix.md | B | M | — |
+| C20 ✅ Done (PR #202 · spec #58) | 技能契约声明面断裂 | 21 | P1 | archive/2026-08-16-audit-skill-contract-declaration-fix-Done-PR202.md | B | M | — |
 | C21 | 注册/触发路由漂移 | 12 | P1 | audit-skill-routing-deprecated-fix.md | B | S-M | — |
 | C22 | 平行登记表无对账 | 29 | P1 | audit-registry-reconcile-fix.md | B | M | — |
 | C23 | 文档机械漂移 | 46 | P1 | audit-docs-mechanical-drift-fix.md | B | M | — |
