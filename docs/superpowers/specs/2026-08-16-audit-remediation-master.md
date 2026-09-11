@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design（索引长期保留 per §5；§8 记账 pass Done — PR #147, 2026-09-03 · §6.4 同步 pass Done — PR #172（C27-C35 回标，2026-09-07） · C14/C16/C37 回标 pass Done — 2026-09-08（C14 #52 PR #183 / C16 #54 PR #174 / C37 #51 PR #179）） | **Severity:** 🔴 P0（总纲）| **方法:** 聚类→spec 映射与依赖排序
+> **Date:** 2026-08-16 | **Status:** Design（索引长期保留 per §5；§8 记账 pass Done — PR #147, 2026-09-03 · §6.4 同步 pass Done — PR #172（C27-C35 回标，2026-09-07） · C14/C16/C37 回标 pass Done — 2026-09-08（C14 #52 PR #183 / C16 #54 PR #174 / C37 #51 PR #179） · C15-C18/C37 回标 + C19 速览补录与 ledger 回写 13 行 + F750/F0-06 归宿 #66 pass Done — 2026-09-11） | **Severity:** 🔴 P0（总纲）| **方法:** 聚类→spec 映射与依赖排序
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 总纲（master）| **依赖:** phase4-clustering.md（37 簇唯一权威输入）| **范围:** 全部 37 簇修复 spec 的优先级矩阵、依赖顺序、量级与既有 spec 关系 | **核心洞察:** 774 条 findings 的修复不是 774 个动作，是 37 个根因收口；跨簇依赖（写路径先于读方对账、审计谓词先于失败分类、计量先于成本报告）决定合入顺序，否则修复互踩
 
 # 2026-08-15 审计修复总纲（audit-remediation-master）
@@ -58,7 +58,7 @@
 | C8 | 状态/词表多源 | 24 | B | enums.py 收编 + lint 补洞（是 C1/C29 的词表输入，实际执行宜提前） |
 | C15 | 关键零覆盖 | 12 | B | 补测 + 覆盖率 per-module 底线（依赖 C14/C16 先治断言与 fixture） |
 
-状态速览（2026-09-08）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）11 簇全部关闭（C32 Rejected、余 10 Done，PR #149-#179）；C16 Done（#54，PR #174）、C14 Done（#52，PR #183）——批次 B（C14-C26）余 C15/C17-C26 共 11 簇。承接关系以 §7 为准。
+状态速览（2026-09-11）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）11 簇全部关闭（C32 Rejected、余 10 Done，PR #149-#179）；批次 B 已关闭 C14（#52，PR #183）、C15（#53，PR #189）、C16（#54，PR #174）、C17（#55，PR #191）、C18（#56，PR #194）、C19（#57，PR #198，T4-only）——余 C20-C26 共 7 簇。承接关系以 §7 为准。
 
 ## 3. 跨簇依赖顺序（关键链）
 
@@ -142,10 +142,10 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C12 ✅ Done (PR #142) | 裸崩边界 | 28 | P1 | archive/2026-09-02-spec38-crash-boundary-guards-Done-PR142.md | A | M | — |
 | C13 ✅ Done (PR #145) | 静默吞错/部分校验 | 35 | P1 | archive/2026-09-03-spec39-silent-swallow-validation-Done-PR145.md | A | M-L | — |
 | C14 ✅ Done (PR #183 · spec #52) | 弱断言/自证测试 | 26 | P1 | archive/2026-09-08-spec52-c14-weak-assertions-Done-PR183.md | B | M-L | C16 ✅（F730 剔除归 C37） |
-| C15 | 关键零覆盖 | 12 | P2 | archive/audit-zero-coverage-fix.md | B | M | C14/C16 |
-| C16 ✅ Done (PR #174 · spec #54) | fixture 真实性失真 | 31 | P0 | archive/2026-08-16-audit-fixture-authenticity-fix.md | B | L | —（F750 deferred→悬空见 §8、F1154 blocked-on #57/C19） |
-| C17 | 测试基础设施失效 | 18 | P1 | audit-test-infra-fix.md | B | M | — |
-| C18 | 生产产物污染 | 17 | P1 | audit-artifact-contamination-fix.md | B | M | — |
+| C15 ✅ Done (PR #189 · spec #53) | 关键零覆盖 | 12 | P2 | archive/2026-08-16-audit-zero-coverage-fix.md | B | M | C14/C16 ✅ |
+| C16 ✅ Done (PR #174 · spec #54) | fixture 真实性失真 | 31 | P0 | archive/2026-08-16-audit-fixture-authenticity-fix.md | B | L | —（F750 → 微修 #66 见 §8、F1154 closed via #57 PR #198） |
+| C17 ✅ Done (PR #191 · spec #55) | 测试基础设施失效 | 18 | P1 | archive/2026-08-16-audit-test-infra-fix.md | B | M | — |
+| C18 ✅ Done (PR #194 · spec #56) | 生产产物污染 | 17 | P1 | archive/2026-08-16-audit-artifact-contamination-fix.md | B | M | — |
 | C19 ✅ Done (PR #198 · spec #57 · T4-only，失效面随 #26 路径 3 消解) | 快照子系统半迁移 | 12 | P1 | archive/2026-08-16-audit-snapshot-unify-fix.md | B | M | — |
 | C20 | 技能契约声明面断裂 | 21 | P1 | audit-skill-contract-declaration-fix.md | B | M | — |
 | C21 | 注册/触发路由漂移 | 12 | P1 | audit-skill-routing-deprecated-fix.md | B | S-M | — |
@@ -164,7 +164,7 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C34 ✅ Done (PR #168 · spec #48 于 #167 重写) | 路径/布局契约分裂 | 14 | P1 | archive/2026-08-16-c34-path-layout-contract-design.md | C | M | —（C1 验收地基） |
 | C35 ✅ Done (PR #170) | 审计过程自身缺陷 | 18 | P1 | archive/2026-08-16-c35-audit-process-hygiene-design.md | C | M | —（全程并行） |
 | C36 ✅ Done (PR #176) | print 违禁散点 | 3 | P1 | archive/2026-09-07-spec50-c36-print-purity-Done-PR176.md | C | S | — |
-| C37 ✅ Done (PR #179 · spec #51) | 死代码零执法 | 43 | P1 | archive/2026-09-07-spec51-c37-dead-code-Done-PR179.md | C | L | C3/C7/C19/C28 裁决 |
+| C37 ✅ Done (PR #179 + #180 · spec #51) | 死代码零执法 | 43 | P1 | archive/2026-09-07-spec51-c37-dead-code-Done-PR179.md | C | L | C3/C7/C19/C28 裁决 |
 
 列校验：条数列合计 = 774；P0 行 7（C1/C3/C4/C10/C11/C16/C32）合计 191；P2 行 4（C8/C15/C24/C29）合计 100；P1 行 26 合计 483——与 §1 总览一致。C26 文件名为 `2026-08-16-audit-shell-injection-fix.md`（批次 B 登记为 INDEX #64，占位消除）。
 
@@ -183,3 +183,9 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 Deviation（T3 残余核对产出，2026-09-03）：08-14 轮 F0-06（python 版本三元不一致：requires-python>=3.11 vs mypy python_version=3.12 vs basedpyright 3.11）经核对仍存活，37 簇无 squarely 承接者（C23 是文档面、C9 已 Done 且范围在阈值）——随 C23（spec #61）修订时裁决归宿或单列微修。
 
 Deviation（F750 归宿悬空，2026-09-08 本 pass）：spec54（C16）设计审查把 F750（集成测试手工捏造 worldbuilding 项目 vs 真实 world fixture，G0.9 边界争议）踢给「C37 R0 分桶表随写安全面定」，但 c37-triage.md 43 成员清单未含 F750（F750 非 C37 成员），C37 关闭时未裁决——现保持 open，候选归宿 C15（#53）/C17（#55），待下次维护 pass 或对应簇 spec 认领（对齐 F0-06 先例）。
+
+裁决（F750 归宿，2026-09-11 本 pass）：候选归宿 C15（#53）/C17（#55）均已关闭且未认领，C20-C26 无测试质量面可挂靠——登记微修 spec #66（与 F0-06 合批），ledger F750 行注记 re-homed，实施由 #66 后续 SDD 承担。
+
+裁决（F0-06 归宿，2026-09-11 本 pass）：C23（#61）为文档面 spec 管不到 pyproject 工具配置，原挂靠失效——并入微修 spec #66（统一值裁决在 #66 spec 内定），08-14 ledger F0-06 行注记 re-homed（状态 verified 不动）。
+
+补录（C19 ledger 回写，2026-09-11 本 pass）：spec #57（C19）Done（PR #198）与归档（PR #199）均未回写 ledger——本 pass 补做 13 行（12 成员 + F1154 唯一归属条），分派依据 = spec #57 归档 T4-only 修订头/验收/已知残留段。
