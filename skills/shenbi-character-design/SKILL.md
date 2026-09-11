@@ -7,6 +7,10 @@ contract:
   reads:
   - world/story_bible.md
   - world/rules.md
+  - outline/chapter_outline.md
+  - outline/three_act.md
+  - characters/*.md
+  - characters/**/*.md
   writes:
   - file: characters/protagonist.md
     mode: create_or_overwrite
@@ -28,7 +32,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** world/story_bible.md, world/rules.md
+- **Reads:** world/story_bible.md, world/rules.md, outline/chapter_outline.md, outline/three_act.md, characters/*.md, characters/**/*.md
 - **Writes:** characters/protagonist.md, characters/major/*.md, characters/minor/*.md, characters/relationships.md
 - **Updates:** none
 

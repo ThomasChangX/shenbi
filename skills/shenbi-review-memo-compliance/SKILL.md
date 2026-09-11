@@ -103,6 +103,8 @@ digraph review_memo_compliance {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-memo-compliance.md`：
+
 ```markdown
 ## 章节备忘合规审计报告
 

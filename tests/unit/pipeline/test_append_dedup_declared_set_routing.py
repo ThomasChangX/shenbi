@@ -61,13 +61,15 @@ _PAIRS = _declared_append_dedup_pairs()
 
 
 def test_declared_surface_snapshot_count() -> None:
-    """Explicit snapshot of the declared surface: 17 (skill, path) pairs as of
-    the C3 T6 guard (10 skills; state-settling owns 6 targets). This is the
-    anti-silent-shrink tripwire — the parametrized guard below adapts to any
-    future growth automatically, but a REMOVED declaration must surface here
-    so it cannot pass unnoticed. Updating this number is the explicit action.
+    """Explicit snapshot of the declared surface: 18 (skill, path) pairs —
+    17 as of the C3 T6 guard (10 skills; state-settling owns 6 targets) + 1
+    from spec #58 C20 (foreshadowing-lifecycle bridge_tracker, F825). This is
+    the anti-silent-shrink tripwire — the parametrized guard below adapts to
+    any future growth automatically, but a REMOVED declaration must surface
+    here so it cannot pass unnoticed. Updating this number is the explicit
+    action.
     """
-    assert len(_PAIRS) == 17, (
+    assert len(_PAIRS) == 18, (
         "declared append_dedup surface changed — if intentional, update the "
         f"snapshot (currently {len(_PAIRS)} pairs: {_PAIRS})"
     )

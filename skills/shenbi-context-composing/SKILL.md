@@ -42,9 +42,13 @@ contract:
   - world/rules.md
   - truth/character_matrix.md
   - style/style_profile.md
-  - chapters/chapter-N.md
+  - chapters/chapter-{N-3}.md
+  - chapters/chapter-{N-2}.md
+  - chapters/chapter-{N-1}.md
   writes:
   - file: context/chapter-N-context-decisions.json
+    mode: create_or_overwrite
+  - file: context/chapter-N-context.md
     mode: create_or_overwrite
   updates: []
 ---
@@ -64,8 +68,8 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, truth/book_spine.md, truth/book_strata.md, truth/volume_summaries.md, truth/arcs/arc-N.md, truth/chapter_summaries.md, truth/pending_hooks.md, truth/audit_drift.md, world/rules.md, truth/character_matrix.md, style/style_profile.md, chapters/chapter-N.md
-- **Writes:** context/chapter-N-context-decisions.json
+- **Reads:** plans/chapter-N-plan.md, truth/book_spine.md, truth/book_strata.md, truth/volume_summaries.md, truth/arcs/arc-N.md, truth/chapter_summaries.md, truth/pending_hooks.md, truth/audit_drift.md, world/rules.md, truth/character_matrix.md, style/style_profile.md, chapters/chapter-{N-3}.md, chapters/chapter-{N-2}.md, chapters/chapter-{N-1}.md
+- **Writes:** context/chapter-N-context-decisions.json, context/chapter-N-context.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
@@ -97,7 +101,7 @@ digraph context_composing {
     "Read chapter plan (P1)" -> "Load L5: book_spine.md (P2)";
     "Load L5: book_spine.md (P2)" -> "Load L4: book_strata.md current stratum (P3)";
     "Load L4 (P3)" -> "Load L3: volume_summaries.md current volume (P4)";
-    "Load L3 (P4)" -> "Load L2: arcs/arc-N.md current arc (P5)";
+    "Load L3 (P4)" -> "Load L2: truth/arcs/arc-N.md current arc (P5)";
     "Load L2 (P5)" -> "Load L1: chapter_summaries.md near 8 chapters (P6)";
     "Load L1 (P6)" -> "Load P7: world/rules.md (max 5) + style/style_profile.md";
     "Load P7" -> "Check near-chapter endings (avoid repetition)";
@@ -115,7 +119,7 @@ digraph context_composing {
 3. **不重复检索**: 不再自行从 truth files 加载 (orchestrator 已完成)
 4. **输出**: 策展后的上下文包覆写到 `context/chapter-N-context.md`
 
-非 pipeline 模式 (直接 dispatch) 时,保持现有行为:自行按 P1-P7 加载。
+非 pipeline 模式 (直接 dispatch) 时,保持现有行为:自行按 P1-P7 加载，并将策展后的上下文包**写出至 `context/chapter-N-context.md`**（与 pipeline 模式的预检索包同文件——直接 dispatch 链路同样获得持久上下文包，两模式产物一致）。
 
 ## 铁律
 

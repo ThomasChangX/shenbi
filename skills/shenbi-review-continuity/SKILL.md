@@ -121,6 +121,8 @@ Report any arithmetic discrepancy with:
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-continuity.md`：
+
 ```markdown
 ## 连续性审计报告
 

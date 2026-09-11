@@ -103,6 +103,8 @@ digraph review_world_rules {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-world-rules.md`：
+
 ```markdown
 ## 世界规则审计报告
 

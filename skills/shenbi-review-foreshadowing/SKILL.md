@@ -81,6 +81,8 @@ digraph review_foreshadowing {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-foreshadowing.md`：
+
 ```markdown
 ## 伏笔审计报告
 

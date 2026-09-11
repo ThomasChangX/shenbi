@@ -57,6 +57,8 @@ contract:
 - **没有完成稿 + 计划不评分。** 必须读到 `chapters/chapter-N.md`（prose）与 `plans/chapter-N-plan.md`（含 `chapter_role`）。缺任一 → 不打分，报告标 `resonance_pending` 并入待评队列，**严禁**主 agent 补评（spec §9）。
 - **不在生成上下文里评分。** `requires_independent_agent: true`（spec §8.1）：dispatcher 必须清空生成上下文，只传入 reads 路径 + 本技能 + 锚点。provenance 标记非独立 → 评分作废，重 dispatch。
 
+向 `truth/audit_drift.md` **append** 本审计的趋势短板条目（单写者合并器为 drift-guidance，勿整文件重写）。
+
 ## 铁律
 
 1. **独立评分** — 本技能产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得给自己的产出评分（spec §8.1）。
@@ -115,6 +117,8 @@ digraph review_resonance {
 **修订循环上限（防死循环）**：同一章累计 revision（一切成因）最多 **2** 次。第 3 次重评仍 clear-fail → **升级人因复核**（不再自动 revision）。「评不出来」的章必须人因介入，不得无限重试。
 
 ## 输出格式
+
+审计报告写出至 `audits/chapter-N-resonance.md`：
 
 ```markdown
 ## 共鸣评分报告

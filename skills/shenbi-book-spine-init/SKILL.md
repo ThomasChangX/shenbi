@@ -8,6 +8,8 @@ contract:
   - outline/story_frame.md
   - outline/volume_map.md
   - novel.json
+  - characters/protagonist.md
+  - world/rules.md
   writes:
   - file: truth/book_spine.md
     mode: create_or_overwrite
@@ -23,7 +25,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** outline/story_frame.md, outline/volume_map.md, novel.json
+- **Reads:** outline/story_frame.md, outline/volume_map.md, novel.json, characters/protagonist.md, world/rules.md
 - **Writes:** truth/book_spine.md
 - **Updates:** none
 

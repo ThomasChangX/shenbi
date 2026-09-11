@@ -97,6 +97,8 @@ digraph review_spinoff {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-spinoff.md`：
+
 ```markdown
 ## 外传/衍生作品审计报告
 

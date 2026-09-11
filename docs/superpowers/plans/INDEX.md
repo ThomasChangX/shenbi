@@ -1,13 +1,15 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-11（spec40 回标 pass plan 归档——Done PR #200）
-> **活跃 plan 数**：0 | **已归档**：111（见 `archive/`）
+> **最后更新**：2026-09-11（spec58 C20 plan 创建 ✅ ready——设计+plan 审查九轮收敛）
+> **活跃 plan 数**：1 | **已归档**：111（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
 ---
 
 ## 活跃 Plan
+
+- [x] **spec #58（C20 技能契约声明面断裂）** · `2026-09-11-spec58-c20-skill-contract-declaration.md` ✅ ready（9 tasks · spec 设计审查 4 轮 + plan 审查 5 轮收敛 · 分支 fix/spec58-c20-skill-contract-declaration）
 
 ## 待执行的 spec → plan 映射
 

@@ -34,9 +34,9 @@ contract:
 
 这是条件激活的审计技能。检查角色还原度、世界规则一致性、关系动态、原作事件一致性。支持 4 种同人模式（canon/au/ooc/cp），每种模式严格度不同。
 
-> **同人模式缩写**：canon=忠于原作续写；au=Alternate Universe 架空设定（核心设定变更）；ooc=Out of Character 性格偏离（至少 1 个核心性格/关系变化）；cp=Couple/Pairing 角色配对（关系正典）。模式由 `shenbi-canon-import` 导入并声明。注意：本 skill 的 cp 指**角色配对**，与 `shenbi-foreshadowing-resolve` 的 CP（Chase Power 期望债务）语义无关。
+> **同人模式缩写**：canon=忠于原作续写；au=Alternate Universe 架空设定（核心设定变更）；ooc=Out of Character 性格偏离（至少 1 个核心性格/关系变化）；cp=Couple/Pairing 角色配对（关系正典）。模式由 human partner 在派发指令中直接给出（au/ooc/cp 任一）——`novel.json` 无 fanfic 配置字段（NovelConfig `extra: forbid`），勿依赖配置读取。注意：本 skill 的 cp 指**角色配对**，与 `shenbi-foreshadowing-resolve` 的 CP（Chase Power 期望债务）语义无关。
 
-> 激活条件：`novel.json.mode` = `"fanfic"` 时激活。
+> 激活条件：human partner 明确要求同人审查（指令含 fanfic/同人/au/ooc/cp 语境）时激活。
 
 > 与 `shenbi-review-character` 区别：角色一致性审计检查"作品内自洽"，本审计检查"与原作的对齐"。
 
@@ -44,7 +44,7 @@ contract:
 
 ```dot
 digraph review_fanfic {
-    "Read chapter content" -> "Read novel.json (fanfic mode + sourceWork)";
+    "Read chapter content" -> "Read novel.json (source work info; mode from dispatch instruction)";
     "Read novel.json" -> "Read source canon materials (source_canon/)";
     "Read source_canon/" -> "Read fanfic-modes.md (severity rules)";
     "Read fanfic-modes.md" -> "Identify fanfic mode (canon/au/ooc/cp)";
@@ -73,7 +73,7 @@ digraph review_fanfic {
 完整模式严格度对照见 `fanfic-modes.md`。执行顺序：
 
 ### 1. 同人模式识别
-- 读取 `novel.json.fanfic.mode`（canon/au/ooc/cp）
+- 从派发指令中确认模式（canon/au/ooc/cp——human partner 直接给出，非配置读取）
 - 加载对应模式的严格度参数
 
 ### 2. 角色还原度（按模式严格度）
@@ -105,6 +105,8 @@ digraph review_fanfic {
 - cp 模式：事件作为背景存在，关系演绎为主
 
 ## 输出格式
+
+审计报告写出至 `audits/chapter-N-fanfic.md`：
 
 ```markdown
 ## 同人创作审计报告

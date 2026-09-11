@@ -6,7 +6,7 @@ description: Use when restoring consistency between manually edited chapter cont
 contract:
   kind: artifact
   reads:
-  - chapters/chapter-N.md
+  - chapters/chapter-*.md
   - truth/*.md
   - world/*.md
   - characters/**/*.md
@@ -25,7 +25,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, truth/*.md, world/*.md, characters/**/*.md
+- **Reads:** chapters/chapter-*.md, truth/*.md, world/*.md, characters/**/*.md
 - **Writes:** none
 - **Updates:** truth/*.md
 

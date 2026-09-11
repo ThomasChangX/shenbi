@@ -105,6 +105,8 @@ digraph review_motivation {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-motivation.md`：
+
 ```markdown
 ## 动机与行为链审计报告
 

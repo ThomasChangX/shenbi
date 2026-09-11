@@ -58,6 +58,8 @@ contract:
 - **没有本卷正文 + 卷图不评分。** 必须读到弧内 `chapters/*.md`（正文）与 `outline/volume_map.md`（含 `volume_promise` + `arc_beats`）。缺任一 → 不打分，报告标 `arc_payoff_pending` 并入待评队列，**严禁**主 agent 补评（spec §9）。
 - **不在生成上下文里评分。** `requires_independent_agent: true`（spec §8.1）：dispatcher 必须清空生成上下文，只传入 reads 路径 + 本技能 + 锚点。provenance 标记非独立 → 评分作废，重 dispatch。
 
+向 `truth/audit_drift.md` **append** 本审计的趋势短板条目（单写者合并器为 drift-guidance，勿整文件重写）。
+
 ## 铁律
 
 1. **独立评分** — 本技能产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting / volume-consolidation / planning agent 不得给自己的弧打分（spec §8.1）。
@@ -113,6 +115,8 @@ digraph review_arc_payoff {
 **为何二元、无边界带**：卷级修订成本远高于逐章修订，必须高确定性。不像逐章 resonance 留「边界/不确定走人因」分流的噪声容错，arc-payoff 的阻断一律经人机复核把关后再修订——人因是阻断的必经环节，不是兜底，因此门本身只做二元裁决。
 
 ## 输出格式
+
+审计报告写出至 `audits/volume-N-payoff.md`：
 
 ```markdown
 ## 弧级正向质量门报告

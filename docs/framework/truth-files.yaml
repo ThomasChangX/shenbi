@@ -49,7 +49,7 @@ concepts:
   # plans / chapters / context
   - {name: plans/chapter-N-plan.md, kind: plan}      # parametric: N
   - {name: chapters/chapter-N.md, kind: chapter}     # parametric: N
-  - {name: context/chapter-N-context.md, kind: context, producer: pipeline}
+  - {name: context/chapter-N-context.md, kind: context, producer: shared}
   - {name: context/chapter-N-context-decisions.json, kind: decisions}  # NEW: decisions sidecar
   - {name: chapters/chapter-N-decisions.json, kind: decisions}          # NEW: decisions sidecar
   - {name: chapters/chapter-N-revision-decisions.json, kind: decisions}  # revision decisions
@@ -130,6 +130,7 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: outline/*.md}
   - {pattern: characters/major/*.md}
   - {pattern: characters/minor/*.md}
+  - {pattern: characters/*.md}
   - {pattern: characters/**/*.md}
   - {pattern: chapters/*.md}
   - {pattern: plans/chapter-*-plan.md}

@@ -6,6 +6,7 @@ description: Use when modeling character relationships, building interest chains
 contract:
   kind: artifact
   reads:
+  - characters/*.md
   - characters/**/*.md
   - characters/relationships.md
   - truth/character_matrix.md
@@ -27,7 +28,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** characters/**/*.md, characters/relationships.md, truth/character_matrix.md, world/factions.md
+- **Reads:** characters/*.md, characters/**/*.md, characters/relationships.md, truth/character_matrix.md, world/factions.md
 - **Writes:** none
 - **Updates:** characters/relationships.md, truth/character_matrix.md
 

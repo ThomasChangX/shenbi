@@ -8,6 +8,7 @@ contract:
   - novel.json
   - world/story_bible.md
   - world/rules.md
+  - characters/*.md
   - characters/**/*.md
   - outline/story_frame.md
   writes: []
@@ -25,7 +26,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, world/story_bible.md, world/rules.md, characters/**/*.md, outline/story_frame.md
+- **Reads:** novel.json, world/story_bible.md, world/rules.md, characters/*.md, characters/**/*.md, outline/story_frame.md
 - **Writes:** none
 - **Updates:** world/factions.md
 

@@ -89,6 +89,8 @@ digraph review_character {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-character.md`：
+
 ```markdown
 ## 角色一致性审计报告
 

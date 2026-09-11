@@ -6,6 +6,7 @@ contract:
   kind: artifact
   reads:
   - truth/*.md
+  - characters/*.md
   - characters/**/*.md
   - world/*.md
   - outline/*.md
@@ -29,7 +30,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/*.md, characters/**/*.md, world/*.md, outline/*.md, plans/chapter-N-plan.md, style/style_profile.md, chapters/chapter-N.md
+- **Reads:** truth/*.md, characters/*.md, characters/**/*.md, world/*.md, outline/*.md, plans/chapter-N-plan.md, style/style_profile.md, chapters/chapter-N.md
 - **Writes:** snapshots/chapter-NNN/*, snapshots/chapter-NNN/manifest.json
 - **Updates:** none
 
@@ -170,6 +171,8 @@ python3 -c "import hashlib; print(hashlib.sha256(open('FILE_PATH','rb').read()).
 `config.snapshot_retention_chapters`（默认 50）。超过此数量的旧章节快照可清理，但全量快照始终保留。
 
 ## 输出格式
+
+快照目录的清单文件写出至 `snapshots/chapter-NNN/manifest.json`：
 
 ### 创建快照
 

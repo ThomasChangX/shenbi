@@ -105,6 +105,8 @@ digraph review_pov {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-pov.md`：
+
 ```markdown
 ## 视点与信息边界审计报告
 

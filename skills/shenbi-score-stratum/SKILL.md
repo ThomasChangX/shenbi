@@ -77,6 +77,10 @@ digraph shenbi_score_stratum {
 }
 ```
 
+## book_spine 数据字段更新
+
+评分后更新 `truth/book_spine.md` 的**数据字段**（当前位置/进度/themes 探索深度），不改声明字段（核心冲突/themes/主角弧终点为声明值）——与 memory-distill L5 滚动复核同语义。未触发大弧边界时本节跳过。
+
 ## 铁律
 
 1. **独立评分** — context-cleaned 独立 subagent
@@ -98,6 +102,8 @@ digraph shenbi_score_stratum {
 战役节奏/氛围质感维度对照 AC-004/AC-008
 
 ## 输出格式
+
+审计报告写出至 `audits/stratum-N-score.md`：
 
 ```markdown
 ## 大弧/书级健康评分报告

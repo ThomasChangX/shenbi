@@ -7,8 +7,13 @@ contract:
     - {file: plans/chapter-N-plan.md, fields: [7. 本章 hook 账]}
     - {file: chapters/chapter-N.md}
     - {file: truth/pending_hooks.md}
+    - {file: truth/bridge_tracker.md}
     - outline/volume_map.md
-  writes: []
+    - outline/story_frame.md
+  writes:
+    - file: truth/bridge_tracker.md
+      mode: append_dedup
+      key: bridge_id
   updates:
     - file: truth/pending_hooks.md
       mode: append_dedup
@@ -24,8 +29,8 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, chapters/chapter-N.md, truth/pending_hooks.md, outline/volume_map.md
-- **Writes:** none
+- **Reads:** plans/chapter-N-plan.md, chapters/chapter-N.md, truth/pending_hooks.md, truth/bridge_tracker.md, outline/volume_map.md, outline/story_frame.md
+- **Writes:** truth/bridge_tracker.md
 - **Updates:** truth/pending_hooks.md
 
 <!-- END AUTO-GENERATED -->
@@ -125,6 +130,8 @@ After updating `pending_hooks.md`, also check `truth/bridge_tracker.md`:
 3. If a bridge was expected to activate by this chapter but has not, mark DEFERRED with a note
 4. Write updated `bridge_tracker.md` back to disk
 
+
+**bridge_tracker 写纪律（append_dedup，key=bridge_id）**：向 `truth/bridge_tracker.md` 输出**本卷触及的桥一行一条**（首列=Bridge ID，勿输出其他桥的行/表头/标题——派发写路径按首列键合并，重跑同桥只替换该行）。
 ## Output Format
 
 ```

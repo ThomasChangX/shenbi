@@ -19,7 +19,6 @@
     "reads": [
       "shenbi-anti-detect",
       "shenbi-chapter-revision",
-      "shenbi-context-composing",
       "shenbi-drift-guidance",
       "shenbi-foreshadowing-lifecycle",
       "shenbi-foreshadowing-track",
@@ -50,7 +49,6 @@
       "shenbi-snapshot-manage",
       "shenbi-state-settling",
       "shenbi-style-polishing",
-      "shenbi-truth-sync",
       "shenbi-volume-consolidation"
     ],
     "writes": [
@@ -71,6 +69,7 @@
       "shenbi-chapter-drafting",
       "shenbi-chapter-pattern",
       "shenbi-foreshadowing-plant",
+      "shenbi-foundation-review",
       "shenbi-genre-config",
       "shenbi-market-radar",
       "shenbi-pacing-design",
@@ -101,6 +100,7 @@
       "shenbi-book-spine-init",
       "shenbi-chapter-planning",
       "shenbi-faction-builder",
+      "shenbi-foreshadowing-lifecycle",
       "shenbi-foreshadowing-plant",
       "shenbi-location-builder",
       "shenbi-pacing-design",
@@ -137,6 +137,7 @@
   "novel.json": {
     "reads": [
       "shenbi-book-spine-init",
+      "shenbi-chapter-planning",
       "shenbi-faction-builder",
       "shenbi-genre-config",
       "shenbi-length-normalizing",
@@ -155,9 +156,45 @@
     ],
     "updates": []
   },
+  "characters/protagonist.md": {
+    "reads": [
+      "shenbi-book-spine-init",
+      "shenbi-review-character",
+      "shenbi-review-dialogue",
+      "shenbi-review-group-character",
+      "shenbi-review-motivation"
+    ],
+    "writes": [
+      "shenbi-character-design",
+      "shenbi-character-extraction"
+    ],
+    "updates": []
+  },
+  "world/rules.md": {
+    "reads": [
+      "shenbi-book-spine-init",
+      "shenbi-character-design",
+      "shenbi-context-composing",
+      "shenbi-faction-builder",
+      "shenbi-location-builder",
+      "shenbi-memory-distill",
+      "shenbi-power-system",
+      "shenbi-review-continuity",
+      "shenbi-review-group-factual",
+      "shenbi-review-spinoff",
+      "shenbi-review-world-rules"
+    ],
+    "writes": [
+      "shenbi-world-extraction",
+      "shenbi-worldbuilding"
+    ],
+    "updates": []
+  },
   "truth/book_spine.md": {
     "reads": [
       "shenbi-context-composing",
+      "shenbi-foundation-review",
+      "shenbi-memory-distill",
       "shenbi-score-arc",
       "shenbi-score-stratum",
       "shenbi-score-volume"
@@ -211,7 +248,9 @@
     "reads": [
       "shenbi-chapter-drafting"
     ],
-    "writes": [],
+    "writes": [
+      "shenbi-context-composing"
+    ],
     "updates": []
   },
   "context/chapter-N-context-decisions.json": {
@@ -228,6 +267,7 @@
       "shenbi-chapter-drafting",
       "shenbi-context-composing",
       "shenbi-review-resonance",
+      "shenbi-sequel-writing",
       "shenbi-short-drafting",
       "shenbi-snapshot-manage",
       "shenbi-style-polishing"
@@ -372,6 +412,7 @@
     "reads": [
       "shenbi-chapter-planning",
       "shenbi-intent-management",
+      "shenbi-memory-distill",
       "shenbi-short-drafting",
       "shenbi-short-outline",
       "shenbi-short-packaging",
@@ -427,35 +468,41 @@
     ],
     "updates": []
   },
-  "world/rules.md": {
+  "outline/chapter_outline.md": {
     "reads": [
-      "shenbi-character-design",
-      "shenbi-context-composing",
-      "shenbi-faction-builder",
-      "shenbi-location-builder",
-      "shenbi-power-system",
-      "shenbi-review-continuity",
-      "shenbi-review-group-factual",
-      "shenbi-review-spinoff",
-      "shenbi-review-world-rules"
+      "shenbi-character-design"
     ],
-    "writes": [
-      "shenbi-world-extraction",
-      "shenbi-worldbuilding"
-    ],
+    "writes": [],
     "updates": []
   },
-  "characters/protagonist.md": {
+  "outline/three_act.md": {
     "reads": [
-      "shenbi-review-character",
-      "shenbi-review-dialogue",
-      "shenbi-review-group-character",
-      "shenbi-review-motivation"
+      "shenbi-character-design"
     ],
-    "writes": [
+    "writes": [],
+    "updates": []
+  },
+  "characters/*.md": {
+    "reads": [
       "shenbi-character-design",
-      "shenbi-character-extraction"
+      "shenbi-faction-builder",
+      "shenbi-relationship-map",
+      "shenbi-snapshot-manage"
     ],
+    "writes": [],
+    "updates": []
+  },
+  "characters/**/*.md": {
+    "reads": [
+      "shenbi-character-design",
+      "shenbi-faction-builder",
+      "shenbi-foundation-review",
+      "shenbi-relationship-map",
+      "shenbi-snapshot-manage",
+      "shenbi-story-architecture",
+      "shenbi-truth-sync"
+    ],
+    "writes": [],
     "updates": []
   },
   "characters/major/*.md": {
@@ -558,11 +605,41 @@
       "shenbi-relationship-map"
     ]
   },
+  "chapters/chapter-{N-3}.md": {
+    "reads": [
+      "shenbi-context-composing"
+    ],
+    "writes": [],
+    "updates": []
+  },
+  "chapters/chapter-{N-2}.md": {
+    "reads": [
+      "shenbi-context-composing"
+    ],
+    "writes": [],
+    "updates": []
+  },
+  "chapters/chapter-{N-1}.md": {
+    "reads": [
+      "shenbi-context-composing"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "audits/chapter-N-*.md": {
     "reads": [
       "shenbi-drift-guidance"
     ],
     "writes": [],
+    "updates": []
+  },
+  "truth/audit_drift_archive.md": {
+    "reads": [
+      "shenbi-drift-guidance"
+    ],
+    "writes": [
+      "shenbi-drift-guidance"
+    ],
     "updates": []
   },
   "truth/resonance_trend.md": {
@@ -580,6 +657,7 @@
   "truth/volume_score_trend.md": {
     "reads": [
       "shenbi-drift-guidance",
+      "shenbi-escalation-review",
       "shenbi-score-volume"
     ],
     "writes": [],
@@ -590,6 +668,7 @@
   "truth/arc_payoff_trend.md": {
     "reads": [
       "shenbi-drift-guidance",
+      "shenbi-escalation-review",
       "shenbi-review-arc-payoff"
     ],
     "writes": [],
@@ -613,23 +692,18 @@
     ],
     "updates": []
   },
+  "audits/stratum-*-score.md": {
+    "reads": [
+      "shenbi-escalation-review"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "audits/escalation-N-report.md": {
     "reads": [],
     "writes": [
       "shenbi-escalation-review"
     ],
-    "updates": []
-  },
-  "characters/**/*.md": {
-    "reads": [
-      "shenbi-faction-builder",
-      "shenbi-foundation-review",
-      "shenbi-relationship-map",
-      "shenbi-snapshot-manage",
-      "shenbi-story-architecture",
-      "shenbi-truth-sync"
-    ],
-    "writes": [],
     "updates": []
   },
   "world/factions.md": {
@@ -643,17 +717,20 @@
       "shenbi-faction-builder"
     ]
   },
+  "truth/bridge_tracker.md": {
+    "reads": [
+      "shenbi-foreshadowing-lifecycle"
+    ],
+    "writes": [
+      "shenbi-foreshadowing-lifecycle",
+      "shenbi-foreshadowing-track"
+    ],
+    "updates": []
+  },
   "truth/foreshadowing_recall_result.md": {
     "reads": [],
     "writes": [
       "shenbi-foreshadowing-recall"
-    ],
-    "updates": []
-  },
-  "truth/bridge_tracker.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-foreshadowing-track"
     ],
     "updates": []
   },
@@ -1028,6 +1105,13 @@
     "writes": [
       "shenbi-state-settling"
     ],
+    "updates": []
+  },
+  "chapters/chapter-*.md": {
+    "reads": [
+      "shenbi-truth-sync"
+    ],
+    "writes": [],
     "updates": []
   },
   "import/analysis/03_world.md": {

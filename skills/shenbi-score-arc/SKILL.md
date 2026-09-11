@@ -104,6 +104,8 @@ digraph shenbi_score_arc {
 
 ## 输出格式
 
+审计报告写出至 `audits/arc-N-score.md`：
+
 ```markdown
 ## 弧段级评分报告
 

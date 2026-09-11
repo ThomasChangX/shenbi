@@ -103,6 +103,8 @@ digraph review_highpoint {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-highpoint.md`：
+
 ```markdown
 ## 高潮与爽点审计报告
 

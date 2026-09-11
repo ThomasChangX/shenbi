@@ -10,6 +10,7 @@ contract:
   - truth/*.md
   - outline/volume_map.md
   - outline/thread_map.md
+  - style/style_profile.md
   writes:
   - file: chapters/chapter-N.md
     mode: create_or_overwrite
@@ -27,7 +28,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** snapshots/chapter-NNN/*, truth/*.md, outline/volume_map.md, outline/thread_map.md
+- **Reads:** snapshots/chapter-NNN/*, truth/*.md, outline/volume_map.md, outline/thread_map.md, style/style_profile.md
 - **Writes:** chapters/chapter-N.md
 - **Updates:** truth/*.md
 

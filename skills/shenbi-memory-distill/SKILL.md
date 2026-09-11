@@ -10,6 +10,9 @@ contract:
   - truth/volume_summaries.md
   - truth/pending_hooks.md
   - truth/character_matrix.md
+  - truth/author_intent.md
+  - truth/book_spine.md
+  - world/rules.md
   writes:
   - file: truth/arcs/arc-N.md
     mode: create_or_overwrite
@@ -29,7 +32,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/chapter_summaries.md, truth/volume_summaries.md, truth/pending_hooks.md, truth/character_matrix.md
+- **Reads:** truth/chapter_summaries.md, truth/volume_summaries.md, truth/pending_hooks.md, truth/character_matrix.md, truth/author_intent.md, truth/book_spine.md, world/rules.md
 - **Writes:** truth/arcs/arc-N.md, truth/book_strata.md
 - **Updates:** truth/book_spine.md
 
@@ -43,7 +46,7 @@ contract:
 
 | 触发条件 | 动作 |
 |---------|------|
-| `chapter % 12 == 0` | L2 弧段蒸馏 → 写 `truth/arcs/arc-(chapter//12).md` |
+| `chapter % 12 == 0` | L2 弧段蒸馏 → 写 `truth/arcs/arc-N.md`（N = chapter // 12） |
 | `chapter % 36 == 0` | L4 大弧蒸馏 → append 到 `truth/book_strata.md` |
 | 卷边界（volume_map 声明的卷末章） | L3 卷摘要（复用 volume-consolidation 逻辑）+ L5 滚动复核 |
 | 大弧边界（chapter % 36 == 0） | L5 滚动复核（合并 author_intent，更新进度） |
@@ -86,7 +89,7 @@ digraph memory_distill {
 1. **蒸馏可溯源** — 每条合成结论必须可追溯到具体章节（引用章号），例如"第23-25章：林轩获得传承 → 第26章：首次实战"
 2. **增量产出** — L2/L4 只追加本弧/本大弧的合成，不重写历史层
 3. **信息损失显式标注** — 蒸馏必然损失信息，未兑现的伏笔/悬置的张力必须在"未解决悬置"显式列出
-4. **L5 滚动复核不破坏声明** — 书脊的核心冲突/themes/主角弧终点是声明值（book-spine-init 从 author_intent/novel.json 继承），复核只更新数据字段（当前位置/进度/themes探索深度），不改声明本身
+4. **L5 滚动复核不破坏声明** — 书脊的核心冲突/themes/主角弧终点是声明值（book-spine-init 从 `outline/story_frame.md` 与 `novel.json` 继承），复核只更新数据字段（当前位置/进度/themes探索深度），不改声明本身
 5. **L5 字段分区所有权** — memory-distill 只写数据值（进度/状态）；诊断值（漂移/达成）由 score-stratum 写；声明值由 book-spine-init 初始化。三者用不同 YAML 字段
 
 ## L2 弧段合成输出格式

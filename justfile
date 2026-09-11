@@ -75,6 +75,7 @@ lint-contracts:
 	uv run python tools/lint_contract_graph.py
 	uv run python scripts/lint_contract_fields.py
 	uv run python tools/lint_contracts.py
+	uv run python tools/lint_contract_prose.py --fail
 
 # Regenerate contract-derived artifacts (deps.json expected_outputs, DAG, index, body views)
 generate:

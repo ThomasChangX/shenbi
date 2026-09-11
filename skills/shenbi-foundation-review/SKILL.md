@@ -12,6 +12,8 @@ contract:
   - outline/*.md
   - truth/current_state.md
   - truth/chapter_summaries.md
+  - genre-config.json
+  - truth/book_spine.md
   writes:
   - file: foundation/review_report.md
     mode: create_or_overwrite
@@ -27,7 +29,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** world/*.md, characters/**/*.md, outline/*.md, truth/current_state.md, truth/chapter_summaries.md
+- **Reads:** world/*.md, characters/**/*.md, outline/*.md, truth/current_state.md, truth/chapter_summaries.md, genre-config.json, truth/book_spine.md
 - **Writes:** foundation/review_report.md
 - **Updates:** none
 
@@ -94,6 +96,8 @@ digraph foundation_review {
 
 ## 输出格式
 
+审核报告写出至 `foundation/review_report.md`：
+
 ```markdown
 ## 基础设定审核报告
 
@@ -122,9 +126,7 @@ digraph foundation_review {
 - [ERROR] [维度名] [问题描述]：[修复方案 — 改哪个文件哪个段落、修改什么]
 ```
 
-## 输出格式
-
-### 证据引用格式
+## 证据引用格式
 
 所有评分扣分和修改建议必须使用精确证据引用格式：
 

@@ -87,6 +87,8 @@ digraph style_polishing {
 
 ## 输出格式
 
+修订/处理后的**完整章节**写出至 `chapters/chapter-N.md`：
+
 ```markdown
 # 润色后的第N章
 
