@@ -44,7 +44,7 @@ contract:
 
 ```dot
 digraph review_fanfic {
-    "Read chapter content" -> "Read novel.json (fanfic mode + sourceWork)";
+    "Read chapter content" -> "Read novel.json (source work info; mode from dispatch instruction)";
     "Read novel.json" -> "Read source canon materials (source_canon/)";
     "Read source_canon/" -> "Read fanfic-modes.md (severity rules)";
     "Read fanfic-modes.md" -> "Identify fanfic mode (canon/au/ooc/cp)";
