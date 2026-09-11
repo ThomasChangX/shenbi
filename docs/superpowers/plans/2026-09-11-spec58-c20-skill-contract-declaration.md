@@ -27,7 +27,7 @@
 |---|---|---|
 | 1. R1/R2 违规=0（基线↔修复同口径对照） | T3 基线 + T9 清零 | `uv run python tools/lint_contract_prose.py --fail` exit 0（对照 `.superpowers/sdd/r1r2-baseline.md`） |
 | 2. 读侧五技能 dispatch 注入断言 | T9 | `uv run pytest tests/pipeline/test_dispatch_reads_injection.py -v` 全 PASS |
-| 3. G4 PASS + market-radar decisions 回归 | T9 | `uv run shenbi-validate G4 <skill> <fixture>`；`uv run pytest tests/tiers/t1-skill/shenbi-market-radar tests/test_lint_decisions_sources.py -q`（**deviation**：仓内无真实 market-radar decisions.json——G0.9 禁现造，以既有 T1 套件 + decisions 链测试承载回归） |
+| 3. G4 PASS + market-radar decisions 回归 | T9 | T9 Step 4（gates 全量 pytest + T1 套件 + decisions lint）；`uv run pytest tests/tiers/t1-skill/shenbi-market-radar tests/test_lint_decisions_sources.py -q`（**deviation**：仓内无真实 market-radar decisions.json——G0.9 禁现造，以既有 T1 套件 + decisions 链测试承载回归） |
 | 4. meta 豁免显式输出 | T8 | `uv run python tools/lint_contract_prose.py --list-exempt` 列 2 条 meta 豁免 |
 | 5. just check 全绿 + FAIL 级 + CI 挂载 | T3 + T9 | `just check` exit 0；ci.yml 契约步含新工具与 lint_contract_graph |
 
@@ -84,9 +84,9 @@ def test_offset_ctx_family_base():
     assert resolve_contract_path("chapters/chapter-{N-3}.md", 99, ctx) == "chapters/chapter-96.md"
 
 
-def test_offset_ctx_family_value_missing_raises():
+def test_offset_ctx_family_value_missing_raises():  # 路径须家族前有 / 或 -（_FAMILY_N_OFFSET lookbehind），字符串起始形态不匹配
     with pytest.raises(UnresolvedPathError):
-        resolve_contract_path("volume-{N-1}/x.md", 5, PathContext(chapter=5))
+        resolve_contract_path("truth/volume-{N-1}/x.md", 5, PathContext(chapter=5))
 
 
 def test_offset_genesis_skipped_via_resolve_or_skip():
@@ -455,7 +455,7 @@ git commit -m "fix: remove protagonist.md out-of-contract write (F870) + truth-s
 1. **F802 anti-detect**：DOT 流程图 `:44-48` 循环边补 sensitivity 复审节点——`"Re-run anti-AI audit" -> "Re-run sensitivity audit"` → `-> "Pass"`（与铁律 3「anti-ai + sensitivity 两个审计必须重新通过」对齐，DOT 为权威）。
 2. **F805 style-learning**：输出模板节名/编号对齐 fixture 11 节实名（`tests/fixtures/style-profile-example.md`：`## 1. 句长分布`/`## 2. 段长分布`/`## 3. TTR（Type-Token Ratio）`/`## 4. 高频 character 二元组（bigrams，出现 ≥ 30 次）`/`## 5. 高频 character 三元组（trigrams，出现 ≥ 15 次）`/`## 6. 修辞模式`/`## 7. 标点密度（每千字）`/`## 8. 连接词密度（每千字）`/`## 9. 对白占比`/`## 10. 各章统计`/`## 11. 综合画像`）——模板重排为该 11 节（消费方 chapter-drafting fields 声明 `11. 综合画像/6. 修辞模式/9. 对白占比` 由此为真）。
 3. **F807 chapter-planning**：reads += `novel.json`。
-4. **F825 foreshadowing-lifecycle**：reads += `outline/story_frame.md`；writes += `- file: truth/bridge_tracker.md\n    mode: append_dedup\n    key: bridge_id`；正文 Cross-Volume Bridge Tracking 节（`:120-126`）补一句产出说明（每桥一行、首列 Bridge ID、勿输出他行——append_dedup 纪律，镜像 state-settling mode-rules 行文）。
+4. **F825 foreshadowing-lifecycle**：reads += `outline/story_frame.md`、`truth/bridge_tracker.md`（spec 明文「**读写**声明补全」——Cross-Volume Bridge 节先读 tracker 查 pending 桥再写）；writes += `- file: truth/bridge_tracker.md\n    mode: append_dedup\n    key: bridge_id`；正文 Cross-Volume Bridge Tracking 节（`:120-126`）补一句产出说明（每桥一行、首列 Bridge ID、勿输出他行——append_dedup 纪律，镜像 state-settling mode-rules 行文）。
 5. **F872 score-stratum**：正文补 book_spine 更新说明节（「评分后更新 `truth/book_spine.md` 的**数据字段**（当前位置/进度/themes 探索深度），不改声明字段——与 memory-distill L5 同语义」）。
 
 - [ ] **Step 1: 五处编辑**
@@ -556,7 +556,8 @@ CASES = [
     ),
     (
         "shenbi-memory-distill",  # F836: L5 inputs no longer filtered out
-        ["truth/chapter_summaries.md", "truth/pending_hooks.md", "truth/character_matrix.md"],
+        ["truth/chapter_summaries.md", "truth/pending_hooks.md", "truth/character_matrix.md",
+         "truth/author_intent.md", "truth/book_spine.md", "world/rules.md"],
         ["truth/author_intent.md", "truth/book_spine.md", "world/rules.md"],
         [],
     ),
