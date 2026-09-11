@@ -238,3 +238,14 @@ def test_r1_allowlist_entry_covers(tmp_path):
     c = {"shenbi-zz": {"reads": [], "writes": [], "updates": []}}
     _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "检查清单见 anti-ai-reference.md。")
     assert not any(r == "anti-ai-reference.md" for _s, r in _r1(c, tmp_path))
+
+
+@pytest.mark.unit
+def test_score_volume_append_key_pinned() -> None:
+    # audit-T5 C4: the append_dedup key for volume_score_trend is `volume`
+    # (F871) — a silent revert to `chapter` would pass every other gate.
+    skill = Path(__file__).resolve().parents[3] / "skills" / "shenbi-score-volume" / "SKILL.md"
+    text = skill.read_text(encoding="utf-8")
+    assert "file: truth/volume_score_trend.md" in text
+    seg = text[text.find("file: truth/volume_score_trend.md") :]
+    assert "key: volume" in seg[: seg.find("updates:") if "updates:" in seg else len(seg)]

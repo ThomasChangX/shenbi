@@ -16,15 +16,20 @@ from __future__ import annotations
 
 from shenbi.contracts.loader import load_registry
 
-# Pipeline-only files the pipeline writes directly (no skill producer).
-# Each must resolve to a concept whose producer is pipeline (or shared when a
-# skill co-writes the same path).
+# Pipeline-written files (no skill producer), unless a skill co-writes the
+# same path (spec #58: context-composing direct-dispatch write makes the
+# context artifact producer=shared — still accepted by the loop below).
 PIPELINE_PRODUCED = {
     "context/chapter-N-context.md",
     "snapshots/manifest.json",
     "truth-index.json",
     "pipeline-state.json",
     "audits/chapter-N-review-summary.md",
+}
+
+# spec #58: co-written by a skill AND the pipeline — producer must be shared.
+SHARED_PRODUCED = {
+    "context/chapter-N-context.md",
 }
 
 # External seeds: author/seed-supplied read-only inputs (no skill producer).
@@ -124,3 +129,13 @@ def test_default_producer_is_skill_for_truth_concepts() -> None:
         "truth/chapter_patterns.md",
         "truth/resonance_anchors.md",
     }, f"unexpected non-skill truth producers: {sorted(c.name for c in non_skill)}"
+
+
+def test_shared_co_written_context_pinned() -> None:
+    # spec #58: context-composing co-writes the context artifact (direct
+    # dispatch) — producer must be shared, not pipeline-only.
+    reg = load_registry()
+    for name in SHARED_PRODUCED:
+        concept = _concept(reg, name)
+        assert concept is not None, f"{name} not in registry"
+        assert concept.producer == "shared", f"{name} producer={concept.producer}"
