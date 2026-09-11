@@ -105,8 +105,23 @@ def _prose(skill_file_text: str) -> str:
     return text[fm.end() :] if fm else text
 
 
+def _trim_unbalanced(ref: str) -> str:
+    # Paren-wrapped DOT-label enumerations yield fragments like ``(novel.json``
+    # — strip an unbalanced leading/trailing paren; balanced forms
+    # (``chapter-(N-3).md``) pass through untouched.
+    if ref.startswith("(") and ")" not in ref:
+        ref = ref[1:]
+    if ref.endswith(")") and "(" not in ref:
+        ref = ref[:-1]
+    return ref
+
+
 def _body_refs(body: str) -> set[str]:
-    return {m for m in _LOOSE_REF_RE.findall(body) if m.endswith((".md", ".json")) or "*" in m}
+    return {
+        _trim_unbalanced(m)
+        for m in _LOOSE_REF_RE.findall(body)
+        if m.endswith((".md", ".json")) or "*" in m
+    }
 
 
 def _contract_paths(contract: Mapping[str, object], keys: tuple[str, ...]) -> list[str]:
