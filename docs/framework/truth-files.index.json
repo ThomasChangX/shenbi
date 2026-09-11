@@ -484,7 +484,10 @@
   },
   "characters/*.md": {
     "reads": [
-      "shenbi-character-design"
+      "shenbi-character-design",
+      "shenbi-faction-builder",
+      "shenbi-relationship-map",
+      "shenbi-snapshot-manage"
     ],
     "writes": [],
     "updates": []

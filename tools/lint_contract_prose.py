@@ -24,7 +24,11 @@ behavioral dispatch assertions (tests/pipeline/test_dispatch_reads_injection.py)
 Also deliberate: fnmatch is not path-aware, so a concrete ref under a ``**``
 declaration (e.g. ``characters/alice.md`` vs ``characters/**/*.md``) does NOT
 match — mirroring the dispatcher's non-recursive glob semantics; such refs
-surface as violations for explicit adjudication.
+surface as violations for explicit adjudication. The registry level (⑤) is
+the broadest mask: ANY body ref matching ANY registry concept/glob passes
+regardless of that skill's own declarations — regression of the undeclared-
+read shapes fixed here is re-caught only by the behavioral injection tests
+(tests/pipeline/test_dispatch_reads_injection.py), not by R1=0 alone.
 """
 
 from __future__ import annotations

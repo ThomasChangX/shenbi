@@ -180,8 +180,14 @@ def _offset_sub(path: str, base: int) -> str:
 
 
 def _offset_sub_ctx(path: str, ctx: PathContext) -> str:
+    # Self-guarded like _offset_sub (non-int/str-sentinel/negative raise), so
+    # the helper stays correct independent of caller-side validation order.
     # re.sub (not str.replace): respects the regex lookbehind so an
     # ``xchapter-{N-3}`` shape that must not match stays untouched.
+    for fm in _FAMILY_N_OFFSET.finditer(path):
+        base = getattr(ctx, fm.group(1))
+        if not isinstance(base, int) or base + int(fm.group(2)) < 0:
+            raise UnresolvedPathError(path)
     return _FAMILY_N_OFFSET.sub(
         lambda fm: f"{fm.group(1)}-{getattr(ctx, fm.group(1)) + int(fm.group(2))}",
         path,

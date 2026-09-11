@@ -3463,6 +3463,21 @@
     {
       "producer": "shenbi-character-design",
       "consumer": "shenbi-faction-builder",
+      "file": "characters/*.md"
+    },
+    {
+      "producer": "shenbi-character-extraction",
+      "consumer": "shenbi-faction-builder",
+      "file": "characters/*.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-faction-builder",
+      "file": "characters/*.md"
+    },
+    {
+      "producer": "shenbi-character-design",
+      "consumer": "shenbi-faction-builder",
       "file": "characters/**/*.md"
     },
     {
@@ -6209,6 +6224,16 @@
       "producer": "shenbi-volume-outlining",
       "consumer": "shenbi-power-system",
       "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-character-design",
+      "consumer": "shenbi-relationship-map",
+      "file": "characters/*.md"
+    },
+    {
+      "producer": "shenbi-character-extraction",
+      "consumer": "shenbi-relationship-map",
+      "file": "characters/*.md"
     },
     {
       "producer": "shenbi-character-design",
@@ -12784,6 +12809,21 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-snapshot-manage",
       "file": "truth/*.md"
+    },
+    {
+      "producer": "shenbi-character-design",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "characters/*.md"
+    },
+    {
+      "producer": "shenbi-character-extraction",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "characters/*.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "characters/*.md"
     },
     {
       "producer": "shenbi-character-design",
