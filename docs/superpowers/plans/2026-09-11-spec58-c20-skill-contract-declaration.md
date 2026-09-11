@@ -339,7 +339,7 @@ git commit -m "chore: wire prose-closure lint into justfile+CI, backfill lint_co
 **编辑清单（每处 = frontmatter `reads:` 列表增行；YAML 缩进对齐既有条目）：**
 
 1. book-spine-init（F803）: reads += `characters/protagonist.md`、`world/rules.md`
-2. character-design（F809）: reads += `outline/chapter_outline.md`、`outline/three_act.md`、`characters/**/*.md`
+2. character-design（F809）: reads += `outline/chapter_outline.md`、`outline/three_act.md`、`characters/**/*.md`（**glob 语义边界（2026-09-11 轮 3 亲证）**：dispatcher `_resolve_read_path` 用 stdlib glob **无 recursive=True**——`**` 退化为单层，匹配 `characters/<dir>/*.md` 嵌套位、不匹配顶层 `characters/*.md`；registry 也无 `characters/*.md` glob，故角色文件按既有 registry 布局放嵌套位（`characters/major/` 等），声明保持 `characters/**/*.md` 与 SKILL.md:224 散文一致）
 3. context-composing（F811 读侧+时序）: reads -= `chapters/chapter-N.md`；reads += `chapters/chapter-{N-3}.md`、`chapters/chapter-{N-2}.md`、`chapters/chapter-{N-1}.md`
 4. foundation-review（F821）: reads += `genre-config.json`、`truth/book_spine.md`；正文删重复的第二个 `## 输出格式` 节（`:95` 与 `:125` 并存——保留信息更全的一节，另一节删除）
 5. memory-distill（F836）: reads += `truth/author_intent.md`、`truth/book_spine.md`、`world/rules.md`
@@ -400,7 +400,7 @@ git commit -m "fix: P1 read-side contract closures — F803/F809/F811/F821/F836/
 ```
 
 3. **F812 子项 2（audit_drift_archive 写未声明）**：drift-guidance frontmatter writes += `- file: truth/audit_drift_archive.md
-    mode: create_or_overwrite`（正文铁律 6 :69 的滚动归档语义 = 整文件重写归档；改后 `uv run python tools/lint_key_reconciliation.py --strict` 须绿）。
+    mode: create_or_overwrite`（正文铁律 6 :69 的滚动归档语义 = 整文件重写归档；改后 `just lint-contracts` 须绿）。
 4. **F811 后半 context-composing**：frontmatter `writes` += `- file: context/chapter-N-context.md\n    mode: create_or_overwrite`；正文非 pipeline 模式补产出步骤（pipeline 模式 `:111-116` 已有）——直接 dispatch 时同样把组装结果写出至 `context/chapter-N-context.md`（spec 轮 3 裁决：双模式均写）。
 
 - [ ] **Step 1: 三处编辑**
@@ -536,8 +536,8 @@ CASES = [
     (
         "shenbi-character-design",  # F809
         ["world/story_bible.md", "world/rules.md", "outline/chapter_outline.md",
-         "outline/three_act.md", "characters/alice.md"],
-        ["outline/chapter_outline.md", "outline/three_act.md", "characters/alice.md"],
+         "outline/three_act.md", "characters/major/alice.md"],
+        ["outline/chapter_outline.md", "outline/three_act.md", "characters/major/alice.md"],
         [],
     ),
     (
@@ -557,7 +557,8 @@ CASES = [
     (
         "shenbi-memory-distill",  # F836: L5 inputs no longer filtered out
         ["truth/chapter_summaries.md", "truth/pending_hooks.md", "truth/character_matrix.md",
-         "truth/author_intent.md", "truth/book_spine.md", "world/rules.md"],
+         "truth/volume_summaries.md", "truth/author_intent.md", "truth/book_spine.md",
+         "world/rules.md"],
         ["truth/author_intent.md", "truth/book_spine.md", "world/rules.md"],
         [],
     ),
