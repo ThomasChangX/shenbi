@@ -5,7 +5,7 @@ R1 body→decl: every file path referenced in a SKILL.md body (outside the
 AUTO-GENERATED contract block) must be covered by the frontmatter contract
 via a six-level match: exact (both sides offset-canonicalized) / declaration
 as glob (``N``→``*`` fnmatch) / bare-basename vs any declared basename /
-skill-bundle reference (a file physically living in ``skills/<skill>/``) /
+skill-bundle reference (a file physically living under ``skills/*/``) /
 registry vocabulary (truth-files.yaml concepts, parametric globs, globs) /
 named allowlist entry (category + one-line reason each).
 

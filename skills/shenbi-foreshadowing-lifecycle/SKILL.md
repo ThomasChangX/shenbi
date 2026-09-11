@@ -130,6 +130,8 @@ After updating `pending_hooks.md`, also check `truth/bridge_tracker.md`:
 3. If a bridge was expected to activate by this chapter but has not, mark DEFERRED with a note
 4. Write updated `bridge_tracker.md` back to disk
 
+
+**bridge_tracker 写纪律（append_dedup，key=bridge_id）**：向 `truth/bridge_tracker.md` 输出**本卷触及的桥一行一条**（首列=Bridge ID，勿输出其他桥的行/表头/标题——派发写路径按首列键合并，重跑同桥只替换该行）。
 ## Output Format
 
 ```
