@@ -1,6 +1,6 @@
 # Spec 执行索引
 
-> **最后更新**：2026-09-11（#66 微修登记 F750/F0-06 归宿；#40 pass：C15-C18/C37 回标 + C19 速览补录与 ledger 回写）
+> **最后更新**：2026-09-11（#66 微修登记 F750/F0-06 归宿；#40 pass：C15-C18/C37 回标 + C19 速览补录与 ledger 回写；#58 价值门/事实核实修订：F838/F881/F882 已修退出、收窄与增补）
 > **活跃 spec 数**：11（#66 微修登记 F750/F0-06 归宿）
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
@@ -22,7 +22,7 @@
 - **文件**：`2026-08-16-audit-skill-contract-declaration-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C20，21 条）
 - **状态**：Design | **优先级**：🟠 P1
-- **内容**：契约闭合 lint（R1 正文引用⊆声明 / R2 声明 writes⇒正文有步骤）+ P1 十技能修复（F836 memory-distill L5 盲写风险 / F811 context-composing 写未声明+时序错位 / F838 market-radar 必然 JSON 校验失败 / F870 越权写 / F871 dedup key 错配 等）+ D104 meta skill 契约二义性裁决——#23 声明面并入（待归档）；token 预算与 C2 Layer B/C29 截断协同
+- **内容**：契约闭合 lint（R1 正文引用⊆声明 / R2 声明 writes⇒正文有步骤 / WARN→FAIL 升级同 PR 完成）+ P1 技能修复（存活八条：F836 memory-distill L5 盲写风险 / F811 context-composing 写未声明+时序错位 / F870 越权写 / F871 dedup key 错配 等；F838 已由 PR #120 等效修复退出）+ D104 meta skill 契约二义性裁决——#23 声明面并入（已归档 Rejected 2026-08-30）；token 预算与 C2 Layer B/C29 截断协同；2026-09-11 价值门/事实核实修订（F838/F881/F882 退出、F805/F807/F825 收窄、F825 增补 bridge_tracker）
 
 ### #59 · 审计修复 C21：技能注册/触发路由漂移（P1）
 
