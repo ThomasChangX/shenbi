@@ -49,7 +49,6 @@
       "shenbi-snapshot-manage",
       "shenbi-state-settling",
       "shenbi-style-polishing",
-      "shenbi-truth-sync",
       "shenbi-volume-consolidation"
     ],
     "writes": [
@@ -1098,6 +1097,13 @@
     "writes": [
       "shenbi-state-settling"
     ],
+    "updates": []
+  },
+  "chapters/chapter-*.md": {
+    "reads": [
+      "shenbi-truth-sync"
+    ],
+    "writes": [],
     "updates": []
   },
   "import/analysis/03_world.md": {

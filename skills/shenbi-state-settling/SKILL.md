@@ -274,19 +274,9 @@ After updating character state, update `truth/character_matrix.md`:
    - Update "Arc Stage" if a stage transition occurred this chapter
    - Set "Last Updated Ch" to current chapter number
 
-2. For the protagonist specifically, append an `arc_log` entry to
-   `characters/protagonist.md` frontmatter:
+2. Write updated character_matrix.md to disk.
 
-```yaml
-arc_log:
-  - chapter: {N}
-    stage: {current_arc_stage}
-    key_beat: {one-line description of arc-relevant event}
-    emotional_shift: {from -> to}
-    relationship_change: {brief description or "none"}
-```
-
-3. Write updated character_matrix.md to disk.
+   主角弧进度通过上方 character_matrix 更新落账（Arc Stage / Last Updated Ch 列）；`characters/protagonist.md` 归 character 域技能所有，本 skill 不写（arc_log 结构由其维护）。
 
 ## decisions sidecar 必填字段
 

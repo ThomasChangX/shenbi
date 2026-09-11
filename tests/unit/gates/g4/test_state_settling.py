@@ -185,3 +185,6 @@ def test_state_settling_skill_mentions_arc_log():
     )
     content = skill_path.read_text(encoding="utf-8")
     assert "arc_log" in content
+    # F870 (spec #58): the out-of-contract protagonist.md write instruction
+    # is removed — arc progression lands in character_matrix only.
+    assert "append an `arc_log` entry" not in content

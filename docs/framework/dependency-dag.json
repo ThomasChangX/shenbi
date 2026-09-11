@@ -13538,37 +13538,37 @@
     {
       "producer": "shenbi-anti-detect",
       "consumer": "shenbi-truth-sync",
-      "file": "chapters/chapter-N.md"
+      "file": "chapters/chapter-*.md"
     },
     {
       "producer": "shenbi-chapter-drafting",
       "consumer": "shenbi-truth-sync",
-      "file": "chapters/chapter-N.md"
+      "file": "chapters/chapter-*.md"
     },
     {
       "producer": "shenbi-chapter-revision",
       "consumer": "shenbi-truth-sync",
-      "file": "chapters/chapter-N.md"
+      "file": "chapters/chapter-*.md"
     },
     {
       "producer": "shenbi-length-normalizing",
       "consumer": "shenbi-truth-sync",
-      "file": "chapters/chapter-N.md"
+      "file": "chapters/chapter-*.md"
     },
     {
       "producer": "shenbi-sequel-writing",
       "consumer": "shenbi-truth-sync",
-      "file": "chapters/chapter-N.md"
+      "file": "chapters/chapter-*.md"
     },
     {
       "producer": "shenbi-short-drafting",
       "consumer": "shenbi-truth-sync",
-      "file": "chapters/chapter-N.md"
+      "file": "chapters/chapter-*.md"
     },
     {
       "producer": "shenbi-style-polishing",
       "consumer": "shenbi-truth-sync",
-      "file": "chapters/chapter-N.md"
+      "file": "chapters/chapter-*.md"
     },
     {
       "producer": "shenbi-book-spine-init",
