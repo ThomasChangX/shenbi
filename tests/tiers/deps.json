@@ -50,6 +50,7 @@
       ],
       "expected_outputs": [
         "context/chapter-*-context-decisions.json",
+        "context/chapter-*-context.md",
         "plans/chapter-*-plan-decisions.json",
         "plans/chapter-*-plan.md",
         "truth/*.md"

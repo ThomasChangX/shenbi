@@ -16,7 +16,7 @@ contract:
   updates:
   - file: truth/volume_score_trend.md
     mode: append_dedup
-    key: chapter
+    key: volume
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -103,6 +103,8 @@ digraph shenbi_score_volume {
 
 ## 输出格式
 
+卷级评分报告写出至 `audits/volume-N-score.md`：
+
 ```markdown
 ## 卷级评分报告
 
@@ -116,6 +118,11 @@ digraph shenbi_score_volume {
 | 维度 | 得分 | 对照锚点 | 相对位置 |
 |------|------|---------|---------|
 ```
+
+## volume_score_trend 追加（append_dedup，key=卷号）
+
+评分完成后向 `truth/volume_score_trend.md` 追加**本卷一行**（首列=第X卷，勿输出他卷行/表头——派发写路径按键合并，重跑同卷只替换本卷行）：
+`| 第X卷 | <总评> | <三维分项> | <相较上卷 Δ> |`
 
 ## Anti-Rationalization
 

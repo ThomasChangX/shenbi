@@ -8,12 +8,15 @@ contract:
   reads:
   - chapters/chapter-N.md
   - audits/chapter-N-*.md
+  - truth/audit_drift_archive.md
   - truth/resonance_trend.md
   - truth/volume_score_trend.md
   - truth/arc_payoff_trend.md
   - truth/audit_drift.md
   writes:
   - file: truth/drift_guidance.md
+    mode: create_or_overwrite
+  - file: truth/audit_drift_archive.md
     mode: create_or_overwrite
   updates:
   - file: truth/audit_drift.md
@@ -29,8 +32,8 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, truth/resonance_trend.md, truth/volume_score_trend.md, truth/arc_payoff_trend.md, truth/audit_drift.md
-- **Writes:** truth/drift_guidance.md
+- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, truth/audit_drift_archive.md, truth/resonance_trend.md, truth/volume_score_trend.md, truth/arc_payoff_trend.md, truth/audit_drift.md
+- **Writes:** truth/drift_guidance.md, truth/audit_drift_archive.md
 - **Updates:** truth/audit_drift.md
 
 <!-- END AUTO-GENERATED -->
@@ -66,7 +69,13 @@ digraph drift_guidance {
 3. **warning 级别传导** — warning 可以传导给下一章（如"转折词密度偏高→下章注意"）
 4. **每条传导必须指定目标章节** — `targeted_chapter` 字段不可省略
 5. **累积传导 ≤ 5 条** — 过多传导 = 审计噪音，下章无法消化
-6. **滚动窗口 (12章)** — `truth/audit_drift.md` 只保留最近 12 章的纠偏条目。超过 12 章的历史条目归档到 `truth/audit_drift_archive.md`。合并重写时:读取当前 audit_drift.md + 新一章条目 -> 如果超过 12 章 -> 移除最旧的到 archive -> 写入新 audit_drift.md
+6. **滚动窗口 (12章)** — `truth/audit_drift.md` 只保留最近 12 章的纠偏条目。超过 12 章的历史条目归档到 `truth/audit_drift_archive.md`。合并重写时:读取当前 audit_drift.md + 新一章条目 -> 如果超过 12 章 -> 移除最旧的到 archive -> 写入新 audit_drift.md。**归档为整文件重写（create_or_overwrite）**：重写前先读取既有 `truth/audit_drift_archive.md`（已声明 reads），未被剪枝的历史条目并入后整体写出——归档与 audit_drift.md 同为 YAML frontmatter 形态，append_dedup 会破坏 frontmatter 位消费
+
+## drift_guidance 产出（truth/drift_guidance.md，create_or_overwrite）
+
+每次执行末尾整体写出该文件（pipeline volume 边界触发器期待其存在——triggers.py volume_boundary 链，仅存在性检查、无代码级字段消费）。最小模板：
+- `## 漂移状态`：无漂移 | 轻度漂移 | 重度漂移（汇总自本次读取的 audit_drift 证据）
+- `## 拦截建议`：一句话处置建议（供下一卷开卷决策的人类伙伴参考）
 
 ## 传导规则
 

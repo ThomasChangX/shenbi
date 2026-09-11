@@ -153,6 +153,11 @@
     {
       "producer": "shenbi-context-composing",
       "consumer": "shenbi-chapter-drafting",
+      "file": "context/chapter-N-context.md"
+    },
+    {
+      "producer": "shenbi-context-composing",
+      "consumer": "shenbi-chapter-drafting",
       "file": "context/chapter-N-context-decisions.json"
     },
     {
@@ -2469,6 +2474,106 @@
       "producer": "shenbi-review-world-rules",
       "consumer": "shenbi-drift-guidance",
       "file": "audits/chapter-N-*.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift_archive.md"
     },
     {
       "producer": "shenbi-book-spine-init",

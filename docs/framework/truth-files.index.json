@@ -247,7 +247,9 @@
     "reads": [
       "shenbi-chapter-drafting"
     ],
-    "writes": [],
+    "writes": [
+      "shenbi-context-composing"
+    ],
     "updates": []
   },
   "context/chapter-N-context-decisions.json": {
@@ -625,6 +627,15 @@
       "shenbi-drift-guidance"
     ],
     "writes": [],
+    "updates": []
+  },
+  "truth/audit_drift_archive.md": {
+    "reads": [
+      "shenbi-drift-guidance"
+    ],
+    "writes": [
+      "shenbi-drift-guidance"
+    ],
     "updates": []
   },
   "truth/resonance_trend.md": {
