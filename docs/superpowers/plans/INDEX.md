@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-08（#57 C19 T4 plan 归档——Done PR #198）
-> **活跃 plan 数**：0 | **已归档**：110（见 `archive/`）
+> **最后更新**：2026-09-11（spec40 回标 pass plan 登记）
+> **活跃 plan 数**：1 | **已归档**：110（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,8 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-
-
+- `2026-09-11-spec40-master-reannotation-pass.md` — spec #40 维护 pass（C15-C19 回标 + C19 ledger 回写 + F750/F0-06 归宿 #66）· 执行中
 
 ## 待执行的 spec → plan 映射
 
