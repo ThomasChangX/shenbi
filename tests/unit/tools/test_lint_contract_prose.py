@@ -249,3 +249,15 @@ def test_score_volume_append_key_pinned() -> None:
     assert "file: truth/volume_score_trend.md" in text
     seg = text[text.find("file: truth/volume_score_trend.md") :]
     assert "key: volume" in seg[: seg.find("updates:") if "updates:" in seg else len(seg)]
+
+
+@pytest.mark.unit
+def test_r1_cross_skill_bundle_reference_passes(tmp_path):
+    # audit-T7: reference docs bundled in a SIBLING skill's dir (hook-types.md
+    # lives in shenbi-foreshadowing-plant/ while other skills cite it).
+    c = {"shenbi-zz": {"reads": [], "writes": [], "updates": []}}
+    _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "类型对照见 hook-types.md。")
+    sib = tmp_path / "shenbi-sibling"
+    sib.mkdir()
+    (sib / "hook-types.md").write_text("types\n", encoding="utf-8")
+    assert not _r1(c, tmp_path)

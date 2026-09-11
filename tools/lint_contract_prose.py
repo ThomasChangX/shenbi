@@ -150,7 +150,10 @@ def _covered(
     base = Path(cref).name
     return (
         _declared_covers(cref, base, declared)
-        or ("/" not in cref and (skills_root / skill / base).exists())  # b
+        # b: skill-bundle reference — own dir OR a sibling skill's dir
+        # (cross-skill reference docs like hook-types.md physically live in
+        # one skill's dir while several prose bodies cite them).
+        or ("/" not in cref and any(skills_root.glob(f"*/{base}")))  # b
         or any(fnmatch.fnmatch(cref, pat) for pat in reg_patterns)  # c
         or any(fnmatch.fnmatch(f"{skill}:{cref}", pat) for _c, pat, _r in ALLOWLIST)
     )

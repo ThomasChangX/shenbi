@@ -5,6 +5,7 @@ description: Use when planning the next chapter, generating chapter memo, or dec
 contract:
   kind: artifact
   reads:
+  - novel.json
   - file: truth/current_state.md
     fields:
     - 系统演化阶段
@@ -44,7 +45,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md
+- **Reads:** novel.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md
 - **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json
 - **Updates:** none
 

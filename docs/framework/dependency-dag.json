@@ -431,6 +431,11 @@
       "file": "genre-config.json"
     },
     {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-chapter-planning",
+      "file": "novel.json"
+    },
+    {
       "producer": "shenbi-book-spine-init",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/current_state.md"
@@ -3641,6 +3646,106 @@
       "file": "truth/pending_hooks.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "truth/bridge_tracker.md"
+    },
+    {
       "producer": "shenbi-chapter-pattern",
       "consumer": "shenbi-foreshadowing-lifecycle",
       "file": "outline/volume_map.md"
@@ -3669,6 +3774,36 @@
       "producer": "shenbi-volume-outlining",
       "consumer": "shenbi-foreshadowing-lifecycle",
       "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-chapter-pattern",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-pacing-design",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-plot-thread-weaver",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-short-outline",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-story-architecture",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-volume-outlining",
+      "consumer": "shenbi-foreshadowing-lifecycle",
+      "file": "outline/story_frame.md"
     },
     {
       "producer": "shenbi-chapter-planning",

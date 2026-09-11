@@ -100,6 +100,7 @@
       "shenbi-book-spine-init",
       "shenbi-chapter-planning",
       "shenbi-faction-builder",
+      "shenbi-foreshadowing-lifecycle",
       "shenbi-foreshadowing-plant",
       "shenbi-location-builder",
       "shenbi-pacing-design",
@@ -136,6 +137,7 @@
   "novel.json": {
     "reads": [
       "shenbi-book-spine-init",
+      "shenbi-chapter-planning",
       "shenbi-faction-builder",
       "shenbi-genre-config",
       "shenbi-length-normalizing",
@@ -712,17 +714,20 @@
       "shenbi-faction-builder"
     ]
   },
+  "truth/bridge_tracker.md": {
+    "reads": [
+      "shenbi-foreshadowing-lifecycle"
+    ],
+    "writes": [
+      "shenbi-foreshadowing-lifecycle",
+      "shenbi-foreshadowing-track"
+    ],
+    "updates": []
+  },
   "truth/foreshadowing_recall_result.md": {
     "reads": [],
     "writes": [
       "shenbi-foreshadowing-recall"
-    ],
-    "updates": []
-  },
-  "truth/bridge_tracker.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-foreshadowing-track"
     ],
     "updates": []
   },

@@ -7,8 +7,13 @@ contract:
     - {file: plans/chapter-N-plan.md, fields: [7. 本章 hook 账]}
     - {file: chapters/chapter-N.md}
     - {file: truth/pending_hooks.md}
+    - {file: truth/bridge_tracker.md}
     - outline/volume_map.md
-  writes: []
+    - outline/story_frame.md
+  writes:
+    - file: truth/bridge_tracker.md
+      mode: append_dedup
+      key: bridge_id
   updates:
     - file: truth/pending_hooks.md
       mode: append_dedup
@@ -24,8 +29,8 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, chapters/chapter-N.md, truth/pending_hooks.md, outline/volume_map.md
-- **Writes:** none
+- **Reads:** plans/chapter-N-plan.md, chapters/chapter-N.md, truth/pending_hooks.md, truth/bridge_tracker.md, outline/volume_map.md, outline/story_frame.md
+- **Writes:** truth/bridge_tracker.md
 - **Updates:** truth/pending_hooks.md
 
 <!-- END AUTO-GENERATED -->

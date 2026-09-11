@@ -42,7 +42,8 @@ digraph anti_detect {
     "Identify AI markers" -> "Apply rewriting techniques by marker type";
     "Apply rewriting techniques" -> "Verify: no content/plot/character changes";
     "Verify" -> "Re-run anti-AI audit";
-    "Re-run anti-AI audit" -> "Passed?";
+    "Re-run anti-AI audit" -> "Re-run sensitivity audit";
+    "Re-run sensitivity audit" -> "Passed?";
     "Passed?" -> "Output revised chapter" [label="yes"];
     "Passed?" -> "Apply additional techniques" [label="no"];
     "Apply additional techniques" -> "Re-run anti-AI audit";
