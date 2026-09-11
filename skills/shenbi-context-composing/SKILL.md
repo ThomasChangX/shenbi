@@ -42,7 +42,9 @@ contract:
   - world/rules.md
   - truth/character_matrix.md
   - style/style_profile.md
-  - chapters/chapter-N.md
+  - chapters/chapter-{N-3}.md
+  - chapters/chapter-{N-2}.md
+  - chapters/chapter-{N-1}.md
   writes:
   - file: context/chapter-N-context-decisions.json
     mode: create_or_overwrite
@@ -64,7 +66,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, truth/book_spine.md, truth/book_strata.md, truth/volume_summaries.md, truth/arcs/arc-N.md, truth/chapter_summaries.md, truth/pending_hooks.md, truth/audit_drift.md, world/rules.md, truth/character_matrix.md, style/style_profile.md, chapters/chapter-N.md
+- **Reads:** plans/chapter-N-plan.md, truth/book_spine.md, truth/book_strata.md, truth/volume_summaries.md, truth/arcs/arc-N.md, truth/chapter_summaries.md, truth/pending_hooks.md, truth/audit_drift.md, world/rules.md, truth/character_matrix.md, style/style_profile.md, chapters/chapter-{N-3}.md, chapters/chapter-{N-2}.md, chapters/chapter-{N-1}.md
 - **Writes:** context/chapter-N-context-decisions.json
 - **Updates:** none
 
@@ -97,7 +99,7 @@ digraph context_composing {
     "Read chapter plan (P1)" -> "Load L5: book_spine.md (P2)";
     "Load L5: book_spine.md (P2)" -> "Load L4: book_strata.md current stratum (P3)";
     "Load L4 (P3)" -> "Load L3: volume_summaries.md current volume (P4)";
-    "Load L3 (P4)" -> "Load L2: arcs/arc-N.md current arc (P5)";
+    "Load L3 (P4)" -> "Load L2: truth/arcs/arc-N.md current arc (P5)";
     "Load L2 (P5)" -> "Load L1: chapter_summaries.md near 8 chapters (P6)";
     "Load L1 (P6)" -> "Load P7: world/rules.md (max 5) + style/style_profile.md";
     "Load P7" -> "Check near-chapter endings (avoid repetition)";

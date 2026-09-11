@@ -62,6 +62,11 @@ ALLOWLIST: tuple[tuple[str, str, str], ...] = (
         "shenbi-context-composing:chapters/chapter-*.md",
         "anti-rationalization 反例行引用, 非真实读依赖",
     ),
+    (
+        "anti-example",
+        "shenbi-foundation-review:characters/villain.md",
+        "证据引用格式的示例路径, 非真实读依赖",
+    ),
 )
 
 

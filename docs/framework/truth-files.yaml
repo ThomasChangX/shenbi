@@ -130,6 +130,7 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: outline/*.md}
   - {pattern: characters/major/*.md}
   - {pattern: characters/minor/*.md}
+  - {pattern: characters/*.md}
   - {pattern: characters/**/*.md}
   - {pattern: chapters/*.md}
   - {pattern: plans/chapter-*-plan.md}

@@ -15,10 +15,9 @@
         "shenbi-book-spine-init"
       ],
       "expected_outputs": [
+        "characters/*.md",
         "characters/major/*.md",
         "characters/minor/*.md",
-        "characters/protagonist.md",
-        "characters/relationships.md",
         "genre-config-decisions.json",
         "genre-config.json",
         "novel.json",
@@ -144,10 +143,9 @@
         "shenbi-canon-import"
       ],
       "expected_outputs": [
+        "characters/*.md",
         "characters/major/*.md",
         "characters/minor/*.md",
-        "characters/protagonist.md",
-        "characters/relationships.md",
         "import/analysis/*.md",
         "import/canon/*.md",
         "world/*.md"
