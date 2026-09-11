@@ -106,6 +106,8 @@ digraph review_fanfic {
 
 ## 输出格式
 
+审计报告写出至 `audits/chapter-N-fanfic.md`：
+
 ```markdown
 ## 同人创作审计报告
 
