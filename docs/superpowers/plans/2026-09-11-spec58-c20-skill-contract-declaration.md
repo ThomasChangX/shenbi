@@ -361,7 +361,7 @@ Expected: PASS（Task 1 语义仍绿）
 ```bash
 git add skills/shenbi-book-spine-init/SKILL.md skills/shenbi-character-design/SKILL.md skills/shenbi-context-composing/SKILL.md skills/shenbi-foundation-review/SKILL.md skills/shenbi-memory-distill/SKILL.md skills/shenbi-sequel-writing/SKILL.md skills/shenbi-escalation-review/SKILL.md skills/shenbi-volume-consolidation/SKILL.md
 just generate
-git add docs/skills tests/tiers/deps.json docs/framework/dependency-dag.json docs/framework/truth-files.index.json
+git add docs/skills tests/tiers/deps.json docs/framework/dependency-dag.json docs/framework/truth-files.index.json  # docs/skills 为无害兜底（sync 主产物=后三件套）
 git commit -m "fix: P1 read-side contract closures — F803/F809/F811/F821/F836/F889/F892 + volume_summaries 3-way alignment (spec58 C20)"
 ```
 
@@ -417,7 +417,7 @@ Expected: gates 全 PASS（score-volume key 变更由 G4/键对账测试承载�
 ```bash
 git add skills/shenbi-drift-guidance/SKILL.md skills/shenbi-score-volume/SKILL.md skills/shenbi-context-composing/SKILL.md
 just generate
-git add docs/skills tests/tiers/deps.json docs/framework/dependency-dag.json docs/framework/truth-files.index.json
+git add docs/skills tests/tiers/deps.json docs/framework/dependency-dag.json docs/framework/truth-files.index.json  # docs/skills 为无害兜底
 git commit -m "fix: P1 write-side closures — F812 drift_guidance output section, F871 volume key+steps, F811 main-artifact writes (spec58 C20)"
 ```
 
@@ -430,7 +430,7 @@ git commit -m "fix: P1 write-side closures — F812 drift_guidance output sectio
 
 **编辑清单：**
 1. F870：删除「For the protagonist specifically, append an `arc_log` entry to `characters/protagonist.md` frontmatter」整个代码块与指令（字段所有权归 character 域技能），原位替换为一行说明：「主角弧进度通过上方 character_matrix 更新落账（Arc Stage / Last Updated Ch 列）；`characters/protagonist.md` 归 character 域技能所有，本 skill 不写（arc_log 结构由其维护）」；其后「3. Write updated character_matrix.md」步骤序号 3→2（原步骤 2 被删）。
-   同步更新钉住测试 `tests/unit/gates/g4/test_state_settling.py:182-187`：`test_state_settling_skill_mentions_arc_log` 的 `assert "arc_log" in content` 保留（替换说明含该词），**新增** `assert "append an `arc_log` entry" not in content`（钉住写指令移除——C1 轮 4 审查：不改此测试则删除即击穿）。
+   同步更新钉住测试 `tests/unit/gates/g4/test_state_settling.py:182-187`：`test_state_settling_skill_mentions_arc_log` 的 `assert "arc_log" in content` 保留（替换说明含该词），**新增** `assert "append an `arc_log` entry" not in content`（钉住写指令移除——C1 轮 4 审查：不改此测试则删除即击穿）。注（轮 5）：替换句保留 `characters/protagonist.md` 字样（所有权免责声明）会留一条 R1 基线违规——T9 清零时以 allowlist 条目处置（类别 ownership-disclaimer，理由：所有权免责声明非读依赖）。
 2. F884：reads `chapters/chapter-N.md` → `chapters/chapter-*.md`（多章 N..M 语义；token 由预算截断+披露兜底——spec 轮 3 裁决倾向 glob 化）。
 
 - [ ] **Step 1: 两处编辑**
@@ -453,7 +453,7 @@ git commit -m "fix: remove protagonist.md out-of-contract write (F870) + truth-s
 - Modify: `skills/shenbi-anti-detect/SKILL.md`、`skills/shenbi-style-learning/SKILL.md`、`skills/shenbi-chapter-planning/SKILL.md`、`skills/shenbi-foreshadowing-lifecycle/SKILL.md`、`skills/shenbi-score-stratum/SKILL.md`
 
 **编辑清单：**
-1. **F802 anti-detect**：DOT 流程图 `:44-48` 循环边补 sensitivity 复审节点——`"Re-run anti-AI audit" -> "Re-run sensitivity audit"` → `-> "Pass"`（与铁律 3「anti-ai + sensitivity 两个审计必须重新通过」对齐，DOT 为权威）。
+1. **F802 anti-detect**：DOT 流程图 `:44-48` 循环边补 sensitivity 复审节点——在 `"Re-run anti-AI audit"` 后接 `"Re-run anti-AI audit" -> "Re-run sensitivity audit"`、`"Re-run sensitivity audit" -> "Passed?"`，失败侧回连既有重修边（沿用 :45 既有节点名 `Passed?`，勿造 `Pass` 新节点）——与铁律 3「anti-ai + sensitivity 两个审计必须重新通过」对齐，DOT 为权威。
 2. **F805 style-learning**：输出模板节名/编号对齐 fixture 11 节实名（`tests/fixtures/style-profile-example.md`：`## 1. 句长分布`/`## 2. 段长分布`/`## 3. TTR（Type-Token Ratio）`/`## 4. 高频 character 二元组（bigrams，出现 ≥ 30 次）`/`## 5. 高频 character 三元组（trigrams，出现 ≥ 15 次）`/`## 6. 修辞模式`/`## 7. 标点密度（每千字）`/`## 8. 连接词密度（每千字）`/`## 9. 对白占比`/`## 10. 各章统计`/`## 11. 综合画像`）——模板重排为该 11 节（消费方 chapter-drafting fields 声明 `11. 综合画像/6. 修辞模式/9. 对白占比` 由此为真）。
 3. **F807 chapter-planning**：reads += `novel.json`。
 4. **F825 foreshadowing-lifecycle**：reads += `outline/story_frame.md`、`truth/bridge_tracker.md`（spec 明文「**读写**声明补全」——Cross-Volume Bridge 节先读 tracker 查 pending 桥再写）；writes += `- file: truth/bridge_tracker.md\n    mode: append_dedup\n    key: bridge_id`；正文 Cross-Volume Bridge Tracking 节（`:120-126`）补一句产出说明（每桥一行、首列 Bridge ID、勿输出他行——append_dedup 纪律，镜像 state-settling mode-rules 行文）。
