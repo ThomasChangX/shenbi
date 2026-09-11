@@ -32,7 +32,7 @@ from __future__ import annotations
 import fnmatch
 import re
 import sys
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -106,7 +106,9 @@ def _declared_covers(cref: str, base: str, declared: list[str]) -> bool:
             return True
         if fnmatch.fnmatch(cref, cd.replace("N", "*")):
             return True
-        if base == Path(cd).name:  # bare-basename normalization (T1.1 a)
+        # Bare-basename normalization (T1.1 a) — BARE refs only: a ref with a
+        # directory must match its own directory, cross-dir drift is quarry.
+        if "/" not in cref and base == Path(cd).name:
             return True
     return False
 
@@ -115,14 +117,15 @@ def _covered(
     ref: str,
     declared: list[str],
     skill: str,
-    reg_patterns: list[str],
+    reg_patterns: Sequence[str],
+    skills_root: Path,
 ) -> bool:
     """Six-level match: declared / skill-bundle / registry / allowlist."""
     cref = _canonical(ref)
     base = Path(cref).name
     return (
         _declared_covers(cref, base, declared)
-        or ("/" not in cref and (SKILLS_DIR / skill / base).exists())  # b
+        or ("/" not in cref and (skills_root / skill / base).exists())  # b
         or any(fnmatch.fnmatch(cref, pat) for pat in reg_patterns)  # c
         or any(fnmatch.fnmatch(f"{skill}:{cref}", pat) for _c, pat, _r in ALLOWLIST)
     )
@@ -131,6 +134,7 @@ def _covered(
 def find_violations(
     contracts: Mapping[str, Mapping[str, object]] | None = None,
     skills_dir: Path | None = None,
+    reg_patterns: Sequence[str] | None = None,
 ) -> tuple[list[tuple[str, str, str]], list[tuple[str, str]]]:
     """Return ``(r1_violations, r2_violations)``.
 
@@ -139,7 +143,8 @@ def find_violations(
     """
     contracts = sync_contracts.load_all_contracts() if contracts is None else contracts
     skills = skills_dir if skills_dir is not None else SKILLS_DIR
-    reg_patterns = _registry_patterns(load_registry())
+    if reg_patterns is None:
+        reg_patterns = _registry_patterns(load_registry())
 
     r1: list[tuple[str, str, str]] = []
     r2: list[tuple[str, str]] = []
@@ -150,13 +155,16 @@ def find_violations(
         if not skill_file.exists():
             continue
         body = _prose(skill_file.read_text(encoding="utf-8"))
+        # Canonicalize BOTH sides for R2 — a declared ``{N-3}`` write must
+        # match prose that says ``(N-3)`` (same canonical key).
+        cbody = _OFFSET_FORMS.sub("N", body)
         declared = _contract_paths(contract, ("reads", "writes", "updates"))
         for ref in sorted(_body_refs(body)):
-            if not _covered(ref, declared, skill, reg_patterns):
+            if not _covered(ref, declared, skill, reg_patterns, skills):
                 r1.append((skill, ref, "R1_UNDECLARED"))
         for target in _contract_paths(contract, ("writes", "updates")):
             cd = _canonical(target)
-            if Path(cd).name not in body and cd not in body:
+            if Path(cd).name not in cbody and cd not in cbody:
                 r2.append((skill, target))
     return r1, r2
 

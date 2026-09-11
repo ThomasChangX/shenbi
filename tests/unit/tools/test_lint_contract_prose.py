@@ -40,13 +40,13 @@ def _mk_skill(
         (d / f).write_text("reference\n", encoding="utf-8")
 
 
-def _r1(contracts: Mapping[str, Mapping[str, object]], root: Path):
-    r1, _ = find_violations(contracts, root)
+def _r1(contracts: Mapping[str, Mapping[str, object]], root: Path, reg: Sequence[str] = ()):
+    r1, _ = find_violations(contracts, root, reg_patterns=list(reg))
     return {(s, r) for s, r, _rule in r1}
 
 
-def _r2(contracts: Mapping[str, Mapping[str, object]], root: Path):
-    _, r2 = find_violations(contracts, root)
+def _r2(contracts: Mapping[str, Mapping[str, object]], root: Path, reg: Sequence[str] = ()):
+    _, r2 = find_violations(contracts, root, reg_patterns=list(reg))
     return set(r2)
 
 
@@ -94,28 +94,32 @@ def test_r1_body_glob_vs_declared_glob_passes(tmp_path):
 
 @pytest.mark.unit
 def test_r1_offset_form_canonicalization_passes(tmp_path):
+    # isolated reg——否则 registry chapters/chapter-*.md glob 的 * 吞掉 (N-3)，
+    # _canonical 分支零覆盖（audit-T2 kill-switch 实证）
     c = {
         "shenbi-zz": {
-            "reads": ["chapters/chapter-{N-3}.md"],
+            "reads": ["zzdir/chapter-{N-3}.md"],
             "writes": [],
             "updates": [],
         }
     }
-    _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "近章结尾核对 chapters/chapter-(N-3).md。")
+    _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "近章结尾核对 zzdir/chapter-(N-3).md。")
     assert not _r1(c, tmp_path)
 
 
 @pytest.mark.unit
 def test_r1_skill_bundle_reference_passes(tmp_path):
     c = {"shenbi-zz": {"reads": [], "writes": [], "updates": []}}
+    # my-ref.md 不在 allowlist（anti-ai-reference.md 被 *: 通配遮蔽会空转，
+    # audit-T2 kill-switch 实证）——独钉第④级 skill-bundle 物理存在
     _mk_skill(
         tmp_path,
         "shenbi-zz",
         c["shenbi-zz"],
-        "检查清单见 anti-ai-reference.md。",
-        extra_files=["anti-ai-reference.md"],
+        "检查清单见 my-ref.md。",
+        extra_files=["my-ref.md"],
     )
-    assert not _r1(c, tmp_path)
+    assert not any(s == "shenbi-zz" and r == "my-ref.md" for s, r in _r1(c, tmp_path))
 
 
 @pytest.mark.unit
@@ -128,9 +132,14 @@ def test_r1_autogen_block_not_counted(tmp_path):
 
 @pytest.mark.unit
 def test_r1_registry_vocabulary_passes(tmp_path):
+    # 默认 reg=() 隔离——本测试显式注入真实词表，独钉第⑤级 registry 覆盖
+    from shenbi.contracts.loader import load_registry
+    from tools.lint_contract_prose import _registry_patterns
+
     c = {"shenbi-zz": {"reads": [], "writes": [], "updates": []}}
     _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "读 truth/pending_hooks.md 全文。")
-    assert not _r1(c, tmp_path)
+    real = _registry_patterns(load_registry())
+    assert not _r1(c, tmp_path, reg=real)
 
 
 @pytest.mark.unit
@@ -192,7 +201,7 @@ def test_fail_flag_exit_semantics(monkeypatch: pytest.MonkeyPatch, capsys):
     assert main([]) == 0
     monkeypatch.setattr("tools.lint_contract_prose.find_violations", lambda *a, **k: ([], []))
     assert main(["--fail"]) == 0
-    out = capsys.readouterr().out
+    capsys.readouterr()
     assert main(["--list-exempt"]) == 0
     out = capsys.readouterr().out
     assert "meta-exempt: using-shenbi" in out
