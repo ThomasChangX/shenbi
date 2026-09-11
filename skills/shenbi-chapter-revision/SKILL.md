@@ -136,6 +136,7 @@ digraph chapter_revision_loop {
     "verify_preservation" -> "Accept" [label="preserved"];
     "verify_preservation" -> "Retry (max 3)" [label="violations"];
 }
+```
 
 ### 铁律（补充）
 

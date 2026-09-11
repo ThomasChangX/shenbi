@@ -73,21 +73,6 @@ ALLOWLIST: tuple[tuple[str, str, str], ...] = (
         "铁律 1 显式否定引用(创世层不读此文件), 非读依赖——reads 补声明即死声明",
     ),
     (
-        "anti-example",
-        "shenbi-truth-sync:current_state.md",
-        "变更报告示例表的裸名, 非真实读依赖(实际读取走 truth/*.md glob)",
-    ),
-    (
-        "anti-example",
-        "shenbi-truth-sync:pending_hooks.md",
-        "变更报告示例表的裸名, 非真实读依赖(实际读取走 truth/*.md glob)",
-    ),
-    (
-        "anti-example",
-        "shenbi-truth-sync:character_matrix.md",
-        "变更报告示例表的裸名, 非真实读依赖(实际读取走 truth/*.md glob)",
-    ),
-    (
         "repo-docs",
         "shenbi-chapter-drafting:docs/framework/chapter-file-format.md",
         "仓库框架文档引用, 开发者参考, dispatcher 不注入",
