@@ -43,15 +43,15 @@
 | 6 | F870 越权写 + F884 glob | leaf | characterization | T1 |
 | 7 | P2 批量 5 面 | leaf | characterization | T1 |
 | 8 | D104 + F849 | leaf | characterization | T1 |
-| 9 | 验收聚合 | **infra**（断言面广） | tdd_red_green | T1 |
+| 9 | 验收聚合 | **infra**（断言面广） | acceptance/regression | T1 |
 
 ---
 
 ### Task 1: 相对章号偏移占位符（paths.py）
 
 **Files:**
-- Modify: `src/shenbi/contracts/paths.py`（`_BOUND_N` 区块后新增偏移正则；`resolve_contract_path` ctx 路由 + `resolve_chapter_path` no-ctx/genesis 路由）
-- Test: `tests/contracts/test_paths_offset.py`（新建；查 `tests/contracts/` 既有目录形态，若无则建包）
+- Modify: `src/shenbi/contracts/paths.py`（`_FAMILY_N` 定义行（:30）后新增偏移正则；`resolve_contract_path` ctx 路由 + `resolve_chapter_path` no-ctx/genesis 路由）
+- Test: `tests/unit/contracts/test_paths_offset.py`（新建；paths 旧族测试在 `tests/unit/contracts/test_paths.py` + `test_paths_family.py`，新测试与家族同位）
 
 **Interfaces:**
 - Consumes: `PathContext`（既有 dataclass，`chapter/arc/stratum/volume/anchor/escalation`）
@@ -60,7 +60,7 @@
 - [ ] **Step 1: 写失败测试**
 
 ```python
-# tests/contracts/test_paths_offset.py
+# tests/unit/contracts/test_paths_offset.py
 """Relative-offset placeholder semantics (spec #58 C20 T2.5 enabler, F811)."""
 
 import pytest
@@ -103,7 +103,7 @@ def test_offset_no_interference_with_legacy_forms():
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `uv run pytest tests/contracts/test_paths_offset.py -v`
+Run: `uv run pytest tests/unit/contracts/test_paths_offset.py -v`
 Expected: FAIL（`chapter-{N-3}` 原样返回/不抛 UnresolvedPathError——偏移形态未实现）
 
 - [ ] **Step 3: 最小实现**
@@ -128,19 +128,16 @@ def _offset_sub(path: str, base: int) -> str:
 ```python
         if _FAMILY_N_OFFSET.search(path):
             for fm in _FAMILY_N_OFFSET.finditer(path):
-                val = getattr(ctx, fm.group(1))
-                if not isinstance(val, int):
-                    raise UnresolvedPathError(path)
-            path = _offset_sub(path, ctx.chapter or 0) if False else path
-            # family-aware: per-family base, not global
-            for fm in _FAMILY_N_OFFSET.finditer(path):
                 base = getattr(ctx, fm.group(1))
+                if not isinstance(base, int):
+                    # F207 语义沿用：家族值缺失/str sentinel 无算术基 → 显式错
+                    raise UnresolvedPathError(path)
                 path = path.replace(
-                    f"{fm.group(1)}-{{N{fm.group(2)}}}", f"{fm.group(1)}-{base + int(fm.group(2))}"
+                    fm.group(0), f"{fm.group(1)}-{base + int(fm.group(2))}"
                 )
 ```
 
-（实现时收敛为单一循环——上两行示意意图，终版一个 `for` 循环内完成 per-family base 替换。）
+（单一循环：per-family base 校验 + 逐处替换。）
 
 `resolve_chapter_path` 改为：
 
@@ -157,18 +154,18 @@ def resolve_chapter_path(path: str, chapter: int | None) -> str:
 
 - [ ] **Step 4: 跑测试确认通过**
 
-Run: `uv run pytest tests/contracts/test_paths_offset.py -v`
+Run: `uv run pytest tests/unit/contracts/test_paths_offset.py -v`
 Expected: 5 passed
 
 - [ ] **Step 5: 回归既有路径测试 + 类型门**
 
-Run: `uv run pytest tests/contracts -q && uv run ruff check src/shenbi/contracts/paths.py && uv run mypy src/shenbi/contracts/paths.py`
-Expected: 既有全 PASS（含 `test_paths*.py` 旧族）、ruff/mypy 0 errors
+Run: `uv run pytest tests/unit/contracts -q && uv run ruff check src/shenbi/contracts/paths.py && uv run mypy src/shenbi/contracts/paths.py`
+Expected: tests/unit/contracts 全 PASS（含 test_paths.py/test_paths_family.py 旧族 + 新 test_paths_offset.py）、ruff/mypy 0 errors
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/shenbi/contracts/paths.py tests/contracts/test_paths_offset.py
+git add src/shenbi/contracts/paths.py tests/unit/contracts/test_paths_offset.py
 git commit -m "feat: relative-offset placeholder chapter-{N-k} in contract paths (spec58 C20 enabler)"
 ```
 
@@ -181,7 +178,7 @@ git commit -m "feat: relative-offset placeholder chapter-{N-k} in contract paths
 - Test: `tests/test_lint_contract_prose.py`
 
 **Interfaces:**
-- Consumes: `shenbi.sync_contracts.load_all_contracts()`（dict[skill → contract dict]，monkeypatch 点同 `tests/test_lint_contract_graph.py` 先例——执行时先读该测试文件确认 patch 目标）、`shenbi.contracts.graph.dag_key`、`shenbi.pipeline.dispatch_helper._strip_autogen_blocks`（R2/R1 共用：AUTO-GENERATED 数据契约块不算正文证据）、`tools.lint_contracts.META_SKILLS`
+- Consumes: `shenbi.sync_contracts.load_all_contracts()`（dict[skill → contract dict]，monkeypatch 点同 `tests/unit/tools/test_lint_contract_graph.py:50` 先例：`monkeypatch.setattr("shenbi.sync_contracts.load_all_contracts", ...)`）、`shenbi.contracts.graph.dag_key`、`shenbi.pipeline.dispatch_helper._strip_autogen_blocks`（R2/R1 共用：AUTO-GENERATED 数据契约块不算正文证据）、`tools.lint_contracts.META_SKILLS`
 - Produces: CLI `python tools/lint_contract_prose.py [--fail] [--list-exempt]`——默认 WARN（打印违规 exit 0）；`--fail` 违规 exit 1；`--list-exempt` 显式输出 meta 豁免与 allowlist（验收 4/5）。Task 3 挂载、Task 9 清零验证消费。
 
 **规则设计（spec T1.1 三段裁决全文落地）：**
@@ -199,7 +196,7 @@ ALLOWLIST: tuple[tuple[str, str, str], ...] = (
 )
 ```
 
-- [ ] **Step 1: 写失败测试**（tmp_path 组装合成 SKILL 文本——先例 `test_g4_directory.py:30` 的 tmp_path 豁免，非 tests/fixtures 产物；monkeypatch `load_all_contracts` 与 skills 根路径）
+- [ ] **Step 1: 写失败测试**（tmp_path 组装合成 SKILL 文本——先例 `tests/pipeline/test_g4_directory.py:24-32` 的 tmp_path 豁免（G0.9 边界裁决在其 docstring），非 tests/fixtures 产物；monkeypatch `load_all_contracts` 与 skills 根路径）
 
 测试覆盖矩阵（每条一个 test 函数，全部写全）：
 1. R1 命中：正文引用 `outline/three_act.md` 未声明 → 违规列表含 `(skill, "outline/three_act.md")`
@@ -348,7 +345,7 @@ git commit -m "chore: wire prose-closure lint into justfile+CI, backfill lint_co
 5. memory-distill（F836）: reads += `truth/author_intent.md`、`truth/book_spine.md`、`world/rules.md`
 6. sequel-writing（F889）: reads += `style/style_profile.md`
 7. escalation-review（F892）: reads += `truth/volume_score_trend.md`、`truth/arc_payoff_trend.md`、`audits/stratum-N-score.md`（六类触发：score_decline/sensitivity 已覆盖，volume_objective_missed/arc_score_below_threshold/stratum_axis_drift 三源补入；regeneration_loop_exhausted 为 pipeline 计数器非文件，无 reads 面）
-8. volume-consolidation（F811c 三方对齐）: 输出模板 `### 叙事弧线` 区块前增三节 `### 卷目标达成`、`### 核心事件`、`### 跨卷钩子`（模板为**增量**扩展——既有六节保留，消费方 fields（卷目标达成/核心事件/跨卷钩子）与 fixture（tests/fixtures/volume-summary-example.md 三 H2）三方闭合；生产者其余节为超集，下游 fields 过滤不受影响）
+8. volume-consolidation（F811c 三方对齐）: 锚定**精确输出模板**（`:166 ## 输出格式` 下的模板块，`:177 ### 叙事弧线` 起——注意勿改 `:80` 的填充示例区）增三节 `### 卷目标达成`、`### 核心事件`、`### 跨卷钩子`；既有六节保留（`### 关键事件` 与新增 `### 核心事件` 并存为有意超集：前者服务其他读者，后者为 context-composing fields/fixture 的三方闭合节，勿删改前者）。消费方 fields（卷目标达成/核心事件/跨卷钩子）与 fixture（tests/fixtures/volume-summary-example.md 三 H2）由此闭合
 
 - [ ] **Step 1: 逐技能编辑**（上表 1-8；每技能一个独立 commit 可选，按仓库惯例合并为本 task 单 commit 亦可——本 plan 取单 commit）
 - [ ] **Step 2: 契约同步与 lint 收敛验证**
@@ -357,13 +354,14 @@ Run: `just generate && just lint-contracts || true` → 重点看 `lint_contract
 Expected: 生成物 diff 空（`git status --short` 无 deps.json/docs/skills 意外变更——预期变更仅 AUTO-GENERATED 块重生）；无新 ORPHAN_READ
 - [ ] **Step 3: 偏移声明生效单测**
 
-Run: `uv run pytest tests/contracts/test_paths_offset.py -q`
+Run: `uv run pytest tests/unit/contracts/test_paths_offset.py -q`
 Expected: PASS（Task 1 语义仍绿）
 - [ ] **Step 4: Commit**
 
 ```bash
 git add skills/shenbi-book-spine-init/SKILL.md skills/shenbi-character-design/SKILL.md skills/shenbi-context-composing/SKILL.md skills/shenbi-foundation-review/SKILL.md skills/shenbi-memory-distill/SKILL.md skills/shenbi-sequel-writing/SKILL.md skills/shenbi-escalation-review/SKILL.md skills/shenbi-volume-consolidation/SKILL.md
-just generate && git add docs/skills deps.json 2>/dev/null || true
+just generate
+git add docs/skills deps.json 2>/dev/null
 git commit -m "fix: P1 read-side contract closures — F803/F809/F811/F821/F836/F889/F892 + volume_summaries 3-way alignment (spec58 C20)"
 ```
 
@@ -380,17 +378,17 @@ git commit -m "fix: P1 read-side contract closures — F803/F809/F811/F821/F836/
 
 **编辑清单：**
 
-1. **F812 drift-guidance**：正文步骤区（`## 数据契约` AUTO-GEN 块之外）新增产出节——先 `sed -n '260,280p' src/shenbi/pipeline/triggers.py` 核对该 volume 触发器解析 drift_guidance.md 的实际字段（消费面定义），再按其写：
+1. **F812 drift-guidance**：正文步骤区（`## 数据契约` AUTO-GEN 块之外）新增产出节。**消费面实况（2026-09-11 亲证）**：`truth/drift_guidance.md` 仅被 triggers.py:268-273 声明为 volume 边界 TriggerStep 的 `output_path`——pipeline 消费的是「产物存在性」（dispatch 后 gate 检查输出落盘），**无任何代码解析其字段**（全 src/ grep `drift_guidance` 仅 3 处：声明 + chapter_loop:1743/1814 的触发器读的是 `truth/audit_drift.md` 而非本文件）。因此产出节**不得虚构消费者行为**，字段语义由本 skill 自身定义：
 
 ```markdown
 ## drift_guidance 产出（truth/drift_guidance.md，create_or_overwrite）
 
-每次执行末尾整体写出该文件，字段与 pipeline volume 触发器（triggers.py volume 分支）的解析面对齐：
-- `## 漂移状态`：无漂移 | 轻度漂移 | 重度漂移（触发器按此行判定是否拦截下一卷）
-- `## 拦截建议`：一句话处置建议（触发器原样透传给 volume 决策）
+每次执行末尾整体写出该文件（pipeline volume 边界触发器期待其存在——triggers.py volume_boundary 链）。最小模板：
+- `## 漂移状态`：无漂移 | 轻度漂移 | 重度漂移（汇总自本次读取的 audit_drift 证据）
+- `## 拦截建议`：一句话处置建议（供下一卷开卷决策的人类伙伴参考）
 ```
 
-（执行时以 triggers.py 实际读取的行/节形态为准微调措辞——对齐义务来自 spec T2.6 注记；若触发器读全文件则给最小两节模板。）
+核对命令：`grep -rn "drift_guidance" src/shenbi/`（预期仅 3 处，如上——若执行时出现新消费代码以其为准）。
 
 2. **F871 score-volume**：frontmatter `updates` 条目 `key: chapter` → `key: volume`（`:19`）；正文新增步骤与格式节：
 
@@ -401,7 +399,9 @@ git commit -m "fix: P1 read-side contract closures — F803/F809/F811/F821/F836/
 `| 第X卷 | <总评> | <三维分项> | <相较上卷 Δ> |`
 ```
 
-3. **F811 后半 context-composing**：frontmatter `writes` += `- file: context/chapter-N-context.md\n    mode: create_or_overwrite`；正文非 pipeline 模式补产出步骤（pipeline 模式 `:111-116` 已有）——直接 dispatch 时同样把组装结果写出至 `context/chapter-N-context.md`（spec 轮 3 裁决：双模式均写）。
+3. **F812 子项 2（audit_drift_archive 写未声明）**：drift-guidance frontmatter writes += `- file: truth/audit_drift_archive.md
+    mode: create_or_overwrite`（正文铁律 6 :69 的滚动归档语义 = 整文件重写归档；改后 `uv run python tools/lint_key_reconciliation.py --strict` 须绿）。
+4. **F811 后半 context-composing**：frontmatter `writes` += `- file: context/chapter-N-context.md\n    mode: create_or_overwrite`；正文非 pipeline 模式补产出步骤（pipeline 模式 `:111-116` 已有）——直接 dispatch 时同样把组装结果写出至 `context/chapter-N-context.md`（spec 轮 3 裁决：双模式均写）。
 
 - [ ] **Step 1: 三处编辑**
 - [ ] **Step 2: R2 收敛验证**
@@ -410,13 +410,14 @@ Run: `just generate && uv run python tools/lint_contract_prose.py 2>&1 | grep -E
 Expected: 三技能零 R2 违规（R1 若因新增正文路径引用出现新违规，本 task 内补声明或 allowlist——增补 allowlist 须附理由）
 - [ ] **Step 3: G4 结构验证（score-volume key 变更）**
 
-Run: `uv run shenbi-validate G4 score-volume <(任一既有真实 score-volume 产物或跳过——若无产物则依赖 pytest tests/gates -q 全绿承载)`
-Expected: 无 FAIL；`just lint-contracts` 其余三件绿
+Run: `uv run pytest tests/gates -q && just lint-contracts`
+Expected: gates 全 PASS（score-volume key 变更由 G4/键对账测试承载——仓内无独立 score-volume 真实产物 fixture）；lint-contracts 四件绿
 - [ ] **Step 4: Commit**
 
 ```bash
 git add skills/shenbi-drift-guidance/SKILL.md skills/shenbi-score-volume/SKILL.md skills/shenbi-context-composing/SKILL.md
-just generate && git add -u docs/skills deps.json 2>/dev/null || true
+just generate
+git add -u docs/skills deps.json 2>/dev/null
 git commit -m "fix: P1 write-side closures — F812 drift_guidance output section, F871 volume key+steps, F811 main-artifact writes (spec58 C20)"
 ```
 
@@ -434,7 +435,7 @@ git commit -m "fix: P1 write-side closures — F812 drift_guidance output sectio
 - [ ] **Step 1: 两处编辑**
 - [ ] **Step 2: 验证**
 
-Run: `just generate && uv run python tools/lint_contract_prose.py 2>&1 | grep -E "state-settling|truth-sync" || echo "(清零)"; uv run pytest tests/gates/g4 -k state -q`
+Run: `just generate && uv run python tools/lint_contract_prose.py 2>&1 | grep -E "state-settling|truth-sync" || echo "(清零)"; uv run pytest tests/gates -q`
 Expected: 两技能零新违规；G4 state-settling 相关测试绿
 - [ ] **Step 3: Commit**
 
@@ -478,7 +479,7 @@ git commit -m "fix: P2 contract closures — F802 DOT/F805 style template 11-sec
 
 **编辑清单：**
 1. **D104**：lint 的 meta 处理已 import `META_SKILLS`（Task 2 单一信源）；本 task 在 `--list-exempt` 输出中显式列出两条豁免（`meta-exempt: using-shenbi`、`meta-exempt: shenbi-writing-skills`——验收 4 的可观察面）；豁免即裁决落文：meta skill 免契约（既有 lint_contracts 同裁定的沿用，不对称从静默变声明）。
-2. **F849**：review-fanfic 正文删除 `:37`「模式由 shenbi-canon-import 导入并声明」句 + `:76` 区 `novel.json.fanfic.mode` 读取指令改为「模式由 human partner 在指令中直接给出（au/ooc/cp）」+ 删除依赖 fanfic.mode 配置的子模式选择分支描述（YAGNI——NovelConfig `extra: forbid` 无该字段，spec 推荐）。
+2. **F849**：review-fanfic 正文删除 `:37`「模式由 shenbi-canon-import 导入并声明」句 + `:75` 区 `novel.json.fanfic.mode` 读取指令改为「模式由 human partner 在指令中直接给出（au/ooc/cp）」+ 删除依赖 fanfic.mode 配置的子模式选择分支描述（YAGNI——NovelConfig `extra: forbid` 无该字段，spec 推荐）。
 
 - [ ] **Step 1: 编辑 + 豁免输出**
 
@@ -534,14 +535,14 @@ CASES = [
     ),
     (
         "shenbi-character-design",  # F809
-        ["outline/story_bible.md", "world/rules.md", "outline/chapter_outline.md",
+        ["world/story_bible.md", "world/rules.md", "outline/chapter_outline.md",
          "outline/three_act.md", "characters/alice.md"],
         ["outline/chapter_outline.md", "outline/three_act.md", "characters/alice.md"],
         [],
     ),
     (
         "shenbi-context-composing",  # F811: near-chapter in, current-chapter out
-        ["truth/current_state.md", "truth/pending_hooks.md", "truth/chapter_summaries.md",
+        ["truth/pending_hooks.md", "truth/chapter_summaries.md",
          "truth/volume_summaries.md", "chapters/chapter-2.md", "chapters/chapter-3.md",
          "chapters/chapter-4.md", "chapters/chapter-5.md"],
         ["chapters/chapter-2.md", "chapters/chapter-3.md", "chapters/chapter-4.md"],
@@ -550,7 +551,7 @@ CASES = [
     (
         "shenbi-foundation-review",  # F821 (genre-config uses the real fixture)
         ["outline/story_frame.md", "world/rules.md"],
-        ["truth/book_spine.md"],
+        ["genre-config.json", "truth/book_spine.md"],
         [],
     ),
     (
@@ -604,7 +605,12 @@ Expected: exit=0（零违规——对照 `.superpowers/sdd/r1r2-baseline.md` 存
 Run: `uv run pytest tests/tiers/t1-skill/shenbi-market-radar -q && uv run pytest tests/test_lint_decisions_sources.py -q && uv run pytest tests/gates -q`
 Expected: 全 PASS（market-radar decisions 链 = T1 套件 + decisions 三源 lint + gates 全量；**spec 验收 3 的 market-radar decisions.json 直跑形态因仓内无真实产物按 G0.9 改由本组测试承载——spec deviation 已记**）
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: just check 终验（验收 5 + 全门禁闭环）**
+
+Run: `just check`
+Expected: exit 0（含 ruff/format 触达文件、`lint_key_reconciliation --strict`——score-volume key 改 volume 后由此验证、两段 pytest + 覆盖率门；本步是 T3 设计内红态的解除点）
+
+- [ ] **Step 6: Commit**
 
 ```bash
 git add tests/pipeline/test_dispatch_reads_injection.py
