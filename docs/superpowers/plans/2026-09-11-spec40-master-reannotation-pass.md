@@ -357,11 +357,24 @@ git commit -m "docs(plans): register spec40 reannotation pass plan (active 0->1)
 
 - [ ] **Step 3: §7 断链复查 one-liner**
 
+> **执行注记（audit-T1 M3 + 最终审查 I1 修正）**：下方原始 one-liner 的预期说明有误——活跃 C20-C26 行按 §7 惯例写**无日期前缀简写**（如 `audit-skill-contract-declaration-fix.md`，实际文件为 `specs/2026-08-16-audit-skill-contract-declaration-fix.md`），原始命令对这 7 行确定性输出假阳性 BROKEN（"恒失败 check" 形态）。**实际执行的归一化版**（简写自动补 `2026-08-16-` 前缀后再校验）：
+>
+> ```bash
+> grep -E "^\| C[0-9]+ " docs/superpowers/specs/2026-08-16-audit-remediation-master.md | grep -oE "(archive/)?[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-zA-Z0-9-]+\.md|[a-z0-9-]+-fix\.md" | sort -u | while read f; do
+>   if [[ "$f" == archive/* ]]; then base="${f#archive/}"; test -f "docs/superpowers/specs/archive/$base" || echo "BROKEN: $f"
+>   else
+>     test -f "docs/superpowers/specs/$f" || test -f "docs/superpowers/specs/2026-08-16-$f" || test -f "docs/superpowers/specs/archive/2026-08-16-$f" || echo "BROKEN: $f"
+>   fi
+> done
+> # 预期：无 BROKEN（已关闭簇 = archive/ 实名；活跃簇 = specs/ 根 2026-08-16- 前缀实名，行内为简写）
+> ```
+> 本 pass 执行结果：零 BROKEN ✓
+
 ```bash
 grep -E "^\| C[0-9]+ " docs/superpowers/specs/2026-08-16-audit-remediation-master.md | grep -oE "(archive/)?[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-zA-Z0-9-]+\.md|[a-z0-9-]+-fix\.md" | sort -u | while read f; do
   test -f "docs/superpowers/specs/$f" || test -f "docs/superpowers/specs/archive/${f}" || echo "BROKEN: $f"
 done
-# 预期：无 BROKEN 输出（活跃 C20-C26 指向 specs/ 根实名、已关闭簇指向 archive/ 实名）
+# 预期（原文，有误勿照抄）：无 BROKEN 输出——实际对活跃行简写产生 7 行假阳性，见上方执行注记
 ```
 
 - [ ] **Step 4: 验收覆盖表逐条跑**（本 plan 头部表格 8 行,每行命令 + 输出粘贴 progress.md `## 验收证据`）
