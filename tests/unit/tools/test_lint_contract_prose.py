@@ -267,6 +267,10 @@ def test_r1_cross_skill_bundle_reference_passes(tmp_path):
 def test_r1_paren_fragment_trimmed(tmp_path):
     # audit-T7 fixup: DOT-label enumeration "(novel.json + genre-config.json)"
     # yields the fragment "(novel.json" — trimmed to the registry-covered name.
+    from shenbi.contracts.loader import load_registry
+    from tools.lint_contract_prose import _registry_patterns
+
     c = {"shenbi-zz": {"reads": [], "writes": [], "updates": []}}
     _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "种子指纹 (novel.json + genre-config.json)。")
-    assert not any("novel.json" in r for _s, r in _r1(c, tmp_path))
+    real = _registry_patterns(load_registry())
+    assert not any("novel.json" in r for _s, r in _r1(c, tmp_path, reg=real))
