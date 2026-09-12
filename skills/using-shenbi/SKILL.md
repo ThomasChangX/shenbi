@@ -52,6 +52,10 @@ digraph skill_check {
 | "卷质量" / "整卷交付" / "伏笔兑现" | shenbi-review-arc-payoff |
 | "时代感" / "年代感" / "历史氛围" | shenbi-review-era |
 | "同人" / "原作一致" / "角色崩坏" | shenbi-review-fanfic |
+| "锚点维护" / "记忆锚点" / "锚点失效" | shenbi-anchor-curate |
+| "书脊" / "全书结构" / "故事主轴" | shenbi-book-spine-init |
+| "升级审查" / "人工复核" / "争议裁决" | shenbi-escalation-review |
+| "记忆蒸馏" / "跨章记忆" / "信息压缩" | shenbi-memory-distill |
 | "番外" / "衍生" / "外传" | shenbi-review-spinoff |
 | "敏感性" / "争议" / "冒犯" | shenbi-review-sensitivity |
 | "修改这章" / "修订" / "这段有问题" | shenbi-chapter-revision |
