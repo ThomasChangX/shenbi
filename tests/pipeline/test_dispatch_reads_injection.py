@@ -148,3 +148,19 @@ def test_genesis_outputs_override_excludes_per_chapter_writes(tmp_path):
     assert "truth/bridge_tracker.md" in output_paths  # persistence allowlist intact
     assert "bridge_tracker" not in user_prompt  # prompt instruction narrowed
     assert "audits/chapter" not in user_prompt
+
+
+def test_staging_prompt_lists_prefixed_paths(tmp_path):
+    """Stage-8 r3 C-1 pin: staged prompts list staging/-prefixed paths so the
+    prompt instruction and the persistence lookup keys stay identical.
+    """
+    _, user_prompt, output_paths = _build_skill_prompt(
+        skill="shenbi-chapter-planning",
+        project_dir=tmp_path,
+        prompt="plan chapter 5",
+        chapter=5,
+        uses_staging=True,
+    )
+    assert output_paths and all(p.startswith("staging/") for p in output_paths)
+    listed = [ln[2:] for ln in user_prompt.splitlines() if ln.startswith("- ") and "/" in ln]
+    assert any(p.startswith("staging/") for p in listed), listed

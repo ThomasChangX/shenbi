@@ -793,12 +793,15 @@ def _build_skill_prompt(
             log.warning("output_path_unresolvable_genesis_skip", skill=skill, path=update_path)
         else:
             output_paths.append(resolved)
-    if not prompt_outputs:
-        prompt_outputs = output_paths
-
-    # When uses_staging is True, prefix all output paths with staging/
+    # When uses_staging is True, prefix all output paths with staging/.
+    # The prompt-instruction fallback below must bind AFTER this so staged
+    # prompts list the prefixed paths the persistence lookup expects (r3 C-1:
+    # binding earlier made the prompt/persistence keys diverge for staged
+    # steps). Override values stay unprefixed — genesis never stages.
     if uses_staging:
         output_paths = [f"staging/{p}" for p in output_paths]
+    if not prompt_outputs:
+        prompt_outputs = output_paths
 
     # Build user prompt
     user_parts = [
@@ -858,7 +861,7 @@ def _build_skill_prompt(
     for p in prompt_outputs:
         if "*" not in p:
             user_parts.append(f"- {p}")
-    if len(prompt_outputs) > 1:
+    if len(output_paths) > 1:  # note follows persistence reality (r3 I-2)
         user_parts.append(
             "\nNote: This skill produces multiple files. "
             "Decisions JSON must conform to shenbi-decisions-v1 schema "
