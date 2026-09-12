@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-13（spec #62 C24 plan 创建——ready）
-> **活跃 plan 数**：1 | **已归档**：115（见 `archive/`）
+> **最后更新**：2026-09-13（spec #62 C24 plan 归档——Done PR #214）
+> **活跃 plan 数**：0 | **已归档**：116（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,10 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-### 2026-09-13 · spec #62 C24 文档语义矛盾批量修复
-- **文件**：`2026-09-13-spec62-c24-docs-semantic-conflicts.md`
-- **状态**：✅ ready（SDD 阶段 4 产出；45 条裁决表内嵌；7 task）
-- **对应 spec**：#62（docs/superpowers/specs/2026-08-16-audit-docs-semantic-conflicts-fix.md）
 
 
 

@@ -58,7 +58,7 @@
 | C8 | 状态/词表多源 | 24 | B | enums.py 收编 + lint 补洞（是 C1/C29 的词表输入，实际执行宜提前） |
 | C15 | 关键零覆盖 | 12 | B | 补测 + 覆盖率 per-module 底线（依赖 C14/C16 先治断言与 fixture） |
 
-状态速览（2026-09-13）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）11 簇全部关闭（C32 Rejected、余 10 Done，PR #149-#179）；批次 B 已关闭 C14（#52，PR #183）、C15（#53，PR #189）、C16（#54，PR #174）、C17（#55，PR #191）、C18（#56，PR #194）、C19（#57，PR #198，T4-only）、C20（#58，PR #202）、C21（#59，PR #204）、C22（#60，PR #207）、C23（#61，PR #210）——余 C24-C26 共 3 簇。承接关系以 §7 为准。
+状态速览（2026-09-13，C24 回标 pass）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）11 簇全部关闭（C32 Rejected、余 10 Done，PR #149-#179）；批次 B 已关闭 C14（#52，PR #183）、C15（#53，PR #189）、C16（#54，PR #174）、C17（#55，PR #191）、C18（#56，PR #194）、C19（#57，PR #198，T4-only）、C20（#58，PR #202）、C21（#59，PR #204）、C22（#60，PR #207）、C23（#61，PR #210）、C24（#62，PR #214）——余 C25-C26 共 2 簇。承接关系以 §7 为准。
 
 ## 3. 跨簇依赖顺序（关键链）
 
@@ -151,7 +151,7 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C21 ✅ Done (PR #204 · spec #59) | 注册/触发路由漂移 | 12 | P1 | archive/2026-08-16-audit-skill-routing-deprecated-fix-Done-PR204.md | B | S-M | — |
 | C22 | 平行登记表无对账 | 29 | P1 | audit-registry-reconcile-fix.md | B | M | ✅ Done (#60, PR #207) |
 | C23 | 文档机械漂移 | 46 | P1 | audit-docs-mechanical-drift-fix.md | B | M | — |
-| C24 | 文档语义矛盾 | 56 | P2 | audit-docs-semantic-conflicts-fix.md | B | M | — |
+| C24 | 文档语义矛盾 | 56 | P2 | audit-docs-semantic-conflicts-fix.md | B | M | ✅ Done (#62, PR #214)——45 条裁决批量清零（驳斥剔 10+F1024 归 #66）；DOT/契约/术语/INDEX 体系/配置注释五面 |
 | C25 | CI/just 双向手工同步 | 24 | P1 | audit-ci-just-sync-fix.md | B | M | — |
 | C26 | shell/just 注入误用 | 11 | P1 | audit-shell-injection-fix.md | B | S | — |
 | C27 ✅ Done (PR #149) | 供应链审计盲区 | 9 | P1 | archive/2026-08-16-c27-supply-chain-audit-design.md | C | S-M | — |

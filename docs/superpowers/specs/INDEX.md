@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-09-13（#61 Done PR #210——C23 文档机械漂移闭合，48 findings 回写；C24 语义矛盾轮 F935：执行队列重排 #62 至 #66 前，现序 #40→#63→#64→#6→#65→#62→#66）
-> **活跃 spec 数**：7（#61 Done PR #210）
+> **最后更新**：2026-09-13（#62 Done PR #214——C24 文档语义矛盾闭合，45 findings 回写；F935 队列重排已随 #62 归档消解，现序 #40→#63→#64→#6→#65→#66）
+> **活跃 spec 数**：6（#62 Done PR #214）
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -50,14 +50,6 @@
 - **方法**：`systematic-debugging` 四阶段
 - **依赖**：已归档总纲 §3.7/§6.2；`contracts/fields.py` `filter_to_fields`；`audit_context_cache.py` `_extract_volume_chapter`；`skills/shenbi-{chapter-planning,context-composing,review-world-rules}/SKILL.md`；真实 round header（`novel-output/*/world/power_system.md` + `outline/volume_map.md`）
 - **内容**：解决 PR #39 T8 延后项。三大文件分类处置——(1) `power_system.md`（固定 header）：review-world-rules + context-composing 声明 fields（能力边界/代价机制/力量天花板 等），~28.8KB→~8-12KB；(2) `volume_map.md`（动态卷标题，不可 fields）：把已有 `_extract_volume_chapter` 提取器接入通用 read 路径（选项 A：新 `extractor:` 契约字段），~26.3KB→~500B-2KB；(3) `chapter-N.md`（连续 prose 无 section）：**显式不本 spec 管**，归 P2 spec #6 cache + 确定性替换 #4 snapshot。逃逸门 WARN 即缺陷（field 声明必须字节匹配真实 header）。审计修复 #28（字段过滤死线/escape-hatch 修复）为接线前置。
-- **对应 plan**：❌ 未写
-
-### #62 · 审计修复 C24：文档语义矛盾（P2）
-
-- **文件**：`2026-08-16-audit-docs-semantic-conflicts-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C24，45 条最大文档簇——2026-09-13 驳斥修订：剔 10 已修、F1024 归 #66、F801/F936 收窄）
-- **状态**：Design | **优先级**：🟡 P2 | **依赖**：阈值/词表类等 C9/C22/C16 定源后改引用
-- **内容**：裁决次序表（代码实值 > 最新设计 > 多数版本）+ DOT↔正文矛盾修复（F837/F852/F855，DOT 为权威）+ 缺失件补齐（F893 五技能缺 DOT 含 group-* 主力 / F801/F813 anti-rationalization 表）+ INDEX/spec 体系自洽（F935 排序 / F936 编号 / F938 重复 / F946-F950 勘误注）+ 术语/刻度统一（F885 X/10 vs /100）（F903 skill 内部矛盾族已由 PR #132 修复，2026-09-13 驳斥剔除）；12 skill 温度调优队列（评估 8 + 聚合 4，inference-control SDD 延后项）显式登记为 follow-up 待办，不并入本 spec（F1156 断链闭合）
 - **对应 plan**：❌ 未写
 
 ### #66 · 遗留微修批：F750 集成测试真实 fixture 化 + F0-06 python 版本三元统一
