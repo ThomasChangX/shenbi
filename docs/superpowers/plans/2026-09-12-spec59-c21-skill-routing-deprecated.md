@@ -188,7 +188,8 @@ def test_deps_closure_deprecated_exempt_and_forbidden(tmp_path: Path) -> None:
 - [ ] **Step 6: 实现**——`check_skill_deps_closure` 中：
 
 ```python
-    from shenbi.skill_utils.deprecated import deprecated_skill_names
+    # 文件头 module top 增：from shenbi.skill_utils.deprecated import deprecated_skill_names
+    # （函数级 import 触发 PLC0415——tools/** 无该豁免，pre-commit ruff 钩子阻断）
     dead = deprecated_skill_names(skills_dir)
     missing = sorted(d for d in (dirs - deps_names) if d not in dead)
     if missing:
@@ -298,13 +299,11 @@ def test_lifecycle_prompt_reachable(tmp_path: Path) -> None:
     from shenbi.pipeline.genesis import GENESIS_STEPS
     step9 = next(s for s in GENESIS_STEPS if s.step_num == 9)
     assert step9.skill == "shenbi-foreshadowing-lifecycle"
-    built = _build_skill_prompt(
+    system_prompt, user_prompt, output_paths = _build_skill_prompt(
         skill=step9.skill, project_dir=tmp_path, prompt="genesis", chapter=None
-    )
-    # 按 built 的真实返回形态断言（该文件 :105-110 邻域已有同族断言可对齐）：
-    # 组装产物含技能名或 system prompt 非空——禁止 `x or True` 式空断言
-    text = built if isinstance(built, str) else getattr(built, "system_prompt", "") or str(built)
-    assert "foreshadowing-lifecycle" in text or len(text) > 0 and text.strip()
+    )  # 返回 tuple[str, str, list[str]]——按 :105-110 邻域同族断言解包
+    assert "foreshadowing-lifecycle" in system_prompt or user_prompt.strip()
+    assert output_paths  # prompt 组装携带输出路径
 ```
 
 - [ ] **Step 5: commit**
@@ -389,11 +388,7 @@ def g4_foreshadowing_lifecycle(
 # generic.py（import 行同步）："shenbi-foreshadowing-plant": g4_foreshadowing_plant, 与 track 行 →
     "shenbi-foreshadowing-lifecycle": g4_foreshadowing_lifecycle,
 # shared.py G4_CHECKER_SKILLS：删 plant/track 两字符串成员，加 "shenbi-foreshadowing-lifecycle"
-# ownership.py：plant(record_create) 与 track(record_field state) 两行 →
-    ("shenbi-foreshadowing-lifecycle", "truth/pending_hooks.md"): FileOwnership(
-        level="record_field", write_keys=frozenset({"state"})
-    ),
-#   （裁决：record_field(state)——last_reinforced/subtlety 归 state-settling（F819 修正方向）；genesis/新 hook 的 record 创建事件由 append_dedup 契约 mode + G4 结构校验承接，不入 ownership 单级行）
+# ownership.py：删 plant(record_create) 与 track(record_field state) 两行，**不新增 lifecycle 行**（plan 审查轮 2 I1 裁决：record_field 级把「新增记录」判越权（ownership.py:129-131），而 lifecycle 每章 plant-from-plan 与 genesis 都创建记录——加行即自相矛盾；无行则落 file-level 声明写入检查（:110 fallthrough），与「创建事件由 append_dedup 契约 mode + G4 结构校验承接」的裁决一致。last_reinforced/subtlety 仍归 state-settling 行不变）
 # g5.py：
     "shenbi-foreshadowing-lifecycle": ["truth/pending_hooks.md"],
 # gates/cli.py：删 "foreshadowing-track"/"foreshadowing-plant" 两短名，加 "foreshadowing-lifecycle": "shenbi-foreshadowing-lifecycle",
@@ -413,7 +408,7 @@ uv run pytest tests/unit/gates -q
 grep -rn "g4_foreshadowing_plant\|g4_foreshadowing_track" src/ tests/   # → 零命中
 grep -rn "foreshadowing-plant\|foreshadowing-track" tests/ --include="*.py" | grep -v test_resume_anchor
 ```
-具名迁移清单（审查员亲证行号）：`tests/unit/gates/g4/test_all_skills_parametrized.py:37-38`（参数对 → lifecycle/foreshadowing_lifecycle/g4_foreshadowing_lifecycle）、`tests/unit/gates/g4/test_foreshadowing_plant_regression.py`（断言 `G4-foreshadowing-plant` → 改 lifecycle checker 或随模块删除）、`tests/unit/gates/test_g1_bak_exemption.py:11`（fixture 技能名 → lifecycle）、`tests/unit/contracts/test_ownership.py:44,53,63,72,82`（plant record_create / track record_field 断言 → lifecycle record_field(state)）、`tests/unit/audit/test_write_audit.py:47,64,85` 与 `test_write_audit_diff_predicate.py:44,94,101`（`audit_writes("shenbi-foreshadowing-track", ...)` → lifecycle 行）、`tests/unit/pipeline/test_parallel_dispatch_safety.py:47,57`（track → lifecycle）。`tests/pipeline/test_chapter_steps_restructured.py:22-23`（断言 plant/track 不在 CHAPTER_STEPS——历史断言方向不变仍绿则不动）
+具名迁移清单（审查员亲证行号）：`tests/unit/gates/g4/test_all_skills_parametrized.py:37-38`（参数对 → lifecycle/foreshadowing_lifecycle/g4_foreshadowing_lifecycle）、`tests/unit/gates/g4/test_foreshadowing_plant_regression.py`（断言 `G4-foreshadowing-plant` → 改 lifecycle checker）、`tests/unit/gates/g4/test_foreshadowing_plant.py` 与 `test_foreshadowing_track.py`（Step 1 移植后 `git rm` 删除原文件）、`tests/unit/gates/test_g1_bak_exemption.py:11`（fixture 技能名 → lifecycle）、`tests/unit/contracts/test_ownership.py:44,53,63,72,82`（plant/track 行断言**删除**——lifecycle 无 ownership 行（Step 4 裁决），对应用例改为断言 `get_ownership("shenbi-foreshadowing-lifecycle", ...) is None` 落 file-level 检查）、`tests/unit/audit/test_write_audit.py:47,64,85` 与 `test_write_audit_diff_predicate.py:44,94,101`（`audit_writes("shenbi-foreshadowing-track", ...)` → 断言 lifecycle 无越权（file-level 路径）或改用 state-settling 对照样）、`tests/unit/pipeline/test_parallel_dispatch_safety.py:47,57`（track → lifecycle）、`tests/unit/test_t4_scatter_guards.py:12,16`（track 引用）、`tests/unit/tools/test_lint_contract_prose.py:247`（注释引用）。`tests/pipeline/test_chapter_steps_restructured.py:22-23`（断言 plant/track 不在 CHAPTER_STEPS——历史断言方向不变仍绿则不动）
 - [ ] **Step 7: commit**（pathspec 列全：新 checker、四注册文件、两删除模块、deps.json、migrate 工具、schema、全部迁移测试）
 
 ```bash
@@ -497,18 +492,20 @@ git commit -m "fix: using-shenbi trigger table drops 14 DEPRECATED routes, succe
 **复杂度: infra** · **test_kind: characterization** · 测试层级: T1/T2 边界（tier 输入为真实场景数据）
 
 **Files:**
-- Modify: `tests/tiers/t2-phase/drafting/input/seed.md:8`（scenario 指令更新）、同目录 `rubric.md:3,:26`（track 输出引用）
+- Modify: `tests/tiers/t2-phase/drafting/input/seed.md:8`、`tests/tiers/t2-phase/drafting/rubric.md:3,:26`（rubric 在 input/ 的同级，非 input/ 内）
+- Modify: `tests/tiers/t2-phase/planning/input/seed.md:7`、`tests/tiers/t2-phase/planning/rubric.md:3,:11`
+- Modify: `tests/tiers/t3-pipeline/long-form/input/seed.md:8-9`
 - Test: `tests/unit/test_lint_repo_consistency.py`（真仓终态断言已随 T1 落，此处回归复跑）
 
 - [ ] **Step 1: 消费方回归**——`uv run pytest tests/unit -q -k "phase or deps or g5 or tier"`（phase_runner:296/:384 数据驱动消费 prerequisites，删成员不炸硬编码——回归确认）+ `uv run python tools/lint_repo_consistency.py` → 绿
-- [ ] **Step 2: 陈旧 tier 输入**——drafting 阶段 scenario 仍指令 "Run shenbi-foreshadowing-track"（seed.md:8）与 rubric 引 track 产物（rubric.md:3/:26）：改指 `shenbi-foreshadowing-lifecycle`（scenario 反映现行链路；G0.9 语义不变——scenario 输入本就是随管线演进的场景数据）；`grep -rn "foreshadowing-plant\|foreshadowing-track\|foreshadowing-recall" tests/tiers/` → 仅剩 STEP_NAME_MIGRATIONS 类合法旧名（如有）
+- [ ] **Step 2: 陈旧 tier 输入**——五处 scenario 指令更新到现行链路：drafting seed/rubric（track→lifecycle）、planning seed/rubric（plant→lifecycle）、t3 long-form seed 两行（plant→lifecycle、track→lifecycle）；**t1-skill 场景目录裁决**：`tests/tiers/t1-skill/shenbi-foreshadowing-{plant,track,recall}/` 是退役技能的 T1 测试资产（验收 1 grep 范围外）——本 spec 保留为 legacy 资产（物理删除不在 spec 范围，与技能目录同处置），理由记 spec-deviations；`grep -rn "foreshadowing-plant\|foreshadowing-track\|foreshadowing-recall" tests/tiers/` → t1-skill legacy 目录与迁移映射类合法旧名之外零命中
 - [ ] **Step 3: 验证 + commit**
 
 Run: `uv run pytest tests/unit/test_lint_repo_consistency.py -v` → passed
 
 ```bash
-git add tests/tiers/t2-phase/drafting/input/seed.md tests/tiers/t2-phase/drafting/input/rubric.md
-git commit -m "test: drafting tier scenario follows lifecycle successor (spec #59 T5)"
+git add tests/tiers/t2-phase/drafting/input/seed.md tests/tiers/t2-phase/drafting/rubric.md tests/tiers/t2-phase/planning/input/seed.md tests/tiers/t2-phase/planning/rubric.md tests/tiers/t3-pipeline/long-form/input/seed.md
+git commit -m "test: tier scenarios follow lifecycle successor (spec #59 T5)"
 ```
 
 ---
@@ -640,9 +637,9 @@ def _desc_has_behavioral_text(desc: str) -> bool:
 
 - [ ] **Step 4: 测试过 + 收集清单** — `uv run pytest <该测试文件> -v` 绿；随后跑清单（T2.8 序列①，exit-1 即人工过目材料）：
 
-Run: `uv run python tools/audit-skill-descriptions.py; echo "exit=$?"` → 输出违规清单（预期含 4 group-*、writing-skills、using-shenbi、location-builder、lifecycle 及可能新增误报——**清单全文贴 progress.md 验收证据**，误报者逐条裁决：改写或带理由调 opener 集）
+Run: `uv run python tools/audit-skill-descriptions.py; echo "exit=$?"` → 输出违规清单（轮 2 实测预期命中恰 7 项：4 group-* + writing-skills + using-shenbi + lifecycle——location-builder 现行 description 已能通过强化规则（F842 的改写仍做，属 T8 Step 1 显式目标非清单驱动）；**清单全文贴 progress.md 验收证据**，若实测多于 7 项逐条裁决：改写或带理由调 opener 集——注意调整 opener 集等于改规则，须回补 T7 单测用例）
 
-- [ ] **Step 5: 回归** — `uv run pytest tests/unit/gates -q -k "g0 or skill_contract"`（G0.sc 消费同一函数：中间红为设计内——T8 改写后复绿；本 task 不跑全量 G0 套件以外断言）
+- [ ] **Step 5: 回归与 push 窗口注记** — `uv run pytest tests/unit/gates -q -k "g0 or skill_contract"`（G0.sc 消费同一函数：中间红为设计内——T8 改写后复绿）。**push 纪律：T7 与 T8 之间禁止 push**——pre-push 钩子跑全量 `just check`，其中 `test_all_real_skills_pass_contract_check`（tests/unit/gates/test_g0_skill_contract.py:160）在 T7 后 T8 前必红；两 task 连续完成后才可 push
 - [ ] **Step 6: commit**
 
 ```bash
@@ -702,7 +699,7 @@ git commit -m "fix: rewrite behavioral descriptions to when-to-use form (spec #5
 - Test: `just lint-contracts`（R1/R2 闭包）+ `uv run pytest tests/contracts -q`
 
 - [ ] **Step 1: (b)** — `cp skills/shenbi-foreshadowing-track/lifecycle-states.md skills/shenbi-foreshadowing-lifecycle/`、`cp skills/shenbi-foreshadowing-plant/hook-types.md skills/shenbi-foreshadowing-lifecycle/`；SKILL.md :64 `（see lifecycle-states.md）` 与 :108 `Full type/dimension/curve/subtlety lookup table in hook-types.md.` 引用路径不变（现落本目录）
-- [ ] **Step 2: (c)** — :84 `Set initial lifecycle_state to ACTIVE` → `Set initial lifecycle_state to PLANTED`（:161 示例与 :65 状态机起点本就是 PLANTED——正名对齐规范六态；G4 lifecycle checker 的 non_canonical_state:ACTIVE 检查（T3）同步闭环）
+- [ ] **Step 2: (c)** — :84 `Set initial lifecycle_state to ACTIVE` → `Set initial lifecycle_state to PLANTED`（:161 示例与 :65 状态机起点本就是 PLANTED——正名对齐规范六态；G4 lifecycle checker 的 non_canonical_state:ACTIVE 检查（T3）同步闭环）；**另修 genesis 模式措辞**（plan 审查轮 2 M3）：:115 `**writes**: same as default mode (truth/pending_hooks.md)` → `**updates**: truth/pending_hooks.md via append_dedup（同默认模式）；genesis 不触 bridge_tracker.md`——与 frontmatter（updates 含 pending_hooks、writes 含 bridge_tracker+audits）对齐
 - [ ] **Step 3: (d)** — frontmatter `writes:` 增条目（audits 输出为每章新文件）：
 ```yaml
   writes:
@@ -772,7 +769,7 @@ git commit -m "fix: 15 DEPRECATED bodies get retirement notices + successor poin
 import json
 from pathlib import Path
 
-from tools.lint_routing_faces import lint_routing_faces  # noqa: TID252 — 工具测试直引
+from tools.lint_routing_faces import lint_routing_faces
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -892,9 +889,10 @@ lint-routing:
 - [ ] **Step 6: commit**
 
 ```bash
-git add tools/lint_routing_faces.py tests/test_lint_routing_faces.py justfile
+git add tools/lint_routing_faces.py tests/test_lint_routing_faces.py justfile tests/tiers/deps.json
 git commit -m "feat: lint_routing_faces 7-face reconciliation lint + just check mounts (spec #59 T11, F1011 wiring)"
 ```
+（`tests/tiers/deps.json` 必须在 pathspec——Step 5 终态重锁改写了它，漏 stage 则 contract-sync-idempotency 钩子 `git diff --exit-code` 阻断 commit）
 
 ---
 
