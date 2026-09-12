@@ -46,7 +46,7 @@ contract:
 
 | 触发条件 | 动作 |
 |---------|------|
-| `chapter % 12 == 0` | L2 弧段蒸馏 → 写 `truth/arcs/arc-N.md`（N = chapter // 12） |
+| `chapter % 12 == 0 且 chapter % 36 != 0` | L2 弧段蒸馏 → 写 `truth/arcs/arc-N.md`（N = chapter // 12） |
 | `chapter % 36 == 0` | L4 大弧蒸馏 → append 到 `truth/book_strata.md` |
 | 卷边界（volume_map 声明的卷末章） | L3 卷摘要（复用 volume-consolidation 逻辑）+ L5 滚动复核 |
 | 大弧边界（chapter % 36 == 0） | L5 滚动复核（合并 author_intent，更新进度） |
