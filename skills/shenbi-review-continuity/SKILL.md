@@ -147,7 +147,7 @@ Report any arithmetic discrepancy with:
 ### 物理空间
 [空间矛盾标注]
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [具体段落] [问题描述]：[修复方案]

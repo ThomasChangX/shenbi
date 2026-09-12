@@ -121,7 +121,7 @@ This dimension supersedes the deprecated `shenbi-review-character` skill.
 ### 弧线
 [近3章情感变化曲线]
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [具体段落] [问题描述]：[修复方案]
@@ -178,7 +178,7 @@ This dimension supersedes the deprecated `shenbi-review-dialogue` skill.
 |------|-----|-----|------|--------|
 | ... | ... | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [角色] [声音偏差]：[修复方案]
@@ -231,7 +231,7 @@ This dimension supersedes the deprecated `shenbi-review-motivation` skill.
 |------|------|-------|---------|--------|
 | ... | ... | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [角色] [动机缺失/不可信]：[具体补足方案]
@@ -285,7 +285,7 @@ This dimension supersedes the deprecated `shenbi-review-pov` skill.
 |------|------|------|---------|--------|
 | ... | ... | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [POV/信息/感官] [问题描述]：[修复方案]

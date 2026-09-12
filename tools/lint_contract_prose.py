@@ -62,6 +62,11 @@ _OFFSET_FORMS = re.compile(r"[({]N[+-]\d+[)}]")
 ALLOWLIST: tuple[tuple[str, str, str], ...] = (
     ("skill-bundle", "*:anti-ai-reference.md", "捆绑参考文件, dispatcher 不注入 (T1.1 裁决 b)"),
     (
+        "skill-bundle",
+        "shenbi-review-era:skills/shenbi-review-era/era-reference.md",
+        "捆绑参考文件全路径消歧 (spec62 F857), dispatcher 不注入",
+    ),
+    (
         "anti-example",
         "shenbi-context-composing:chapters/chapter-*.md",
         "anti-rationalization 反例行引用, 非真实读依赖",

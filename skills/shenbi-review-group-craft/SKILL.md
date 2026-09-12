@@ -122,7 +122,7 @@ This dimension supersedes the deprecated `shenbi-review-texture` skill.
 |---------|---------|---------|
 | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [流水账/说教]：[具体改写方向]
@@ -188,7 +188,7 @@ This dimension supersedes the deprecated `shenbi-review-reader-pull` skill.
 - 净压力: +/-N
 - 累计: 第N章连续+
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [位置] [钩子/悬念/期待问题]：[修复方案]
@@ -245,7 +245,7 @@ Execute checks in order. 第 1/4/5 项已由框架在派发 prompt 的「审查�
 | 2 | 不是...而是... | PASS/ERROR | N occurrences |
 | ... | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [问题描述]：[修复方案]

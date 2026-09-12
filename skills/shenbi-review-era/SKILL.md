@@ -78,7 +78,7 @@ digraph review_era {
 - 时代错位（宋词出现"咖啡"）= error
 - 架空时代混用 = warning
 
-完整方法与各时代参考词表见 `era-reference.md`。
+完整方法与各时代参考词表见 `skills/shenbi-review-era/era-reference.md`。
 
 ### 3. 器物事实核查
 - 提取本章所有具体器物（武器/服饰/家具/工具）
@@ -128,7 +128,7 @@ digraph review_era {
 |------|---------|------|--------|
 | P22 | 制度 | 内阁 | error |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [错位类型] [元素]：[修复方案]

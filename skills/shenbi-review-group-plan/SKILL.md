@@ -104,7 +104,7 @@ This dimension supersedes the deprecated `shenbi-review-memo-compliance` skill.
 ### 读者等待/日常功能
 [第2段与第4段的核对结果]
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落位置] [备忘段引用] [问题描述]：[修复方案]
@@ -119,7 +119,7 @@ This dimension supersedes the deprecated `shenbi-review-foreshadowing` skill.
 
 > Default-activated (every chapter).
 
-> Distinction from `shenbi-reader-pull`: foreshadowing checks "hook ledger cultivation and resolution"; reader-pull checks "immediate stimulation for continued reading."
+> Distinction from `shenbi-review-reader-pull`: foreshadowing checks "hook ledger cultivation and resolution"; reader-pull checks "immediate stimulation for continued reading."
 > Distinction from `shenbi-foreshadowing-lifecycle`: the lifecycle skill performs recall-track-plant operations on `pending_hooks.md`; this audit dimension checks whether the foreshadowing outcomes align with the chapter plan and hook ledger.
 
 #### 铁律
@@ -166,7 +166,7 @@ This dimension supersedes the deprecated `shenbi-review-foreshadowing` skill.
 ### 副线板对齐
 [伏笔与subplot_board的交叉验证]
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [伏笔ID] [问题类型]：[修复方案]

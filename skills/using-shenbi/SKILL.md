@@ -113,7 +113,7 @@ If your human partner asks to write before these exist, load the appropriate cre
 
 ## Novel Project Directory
 
-When working with a novel project, the directory structure is defined in `docs/specs/2026-06-08-shenbi-design.md` Section 4. Verify the structure exists before proceeding with any skill.
+When working with a novel project, the directory structure is defined in `docs/superpowers/specs/archive/2026-06-08-shenbi-design.md` Section 4. Verify the structure exists before proceeding with any skill.
 
 ## Audit Activation
 

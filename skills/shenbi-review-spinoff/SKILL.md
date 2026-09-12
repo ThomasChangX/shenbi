@@ -127,7 +127,7 @@ digraph review_spinoff {
 | sh-h001 | spinoff | 活跃 | ✓ |
 | sh-h002 | shared | 激活 | 跨作品联动未声明 = error |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [违规类型] [原作引用]：[修复方案]
