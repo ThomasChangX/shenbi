@@ -1,6 +1,6 @@
 # T2 Phase Rubric: Drafting
 
-Phase: chapter-drafting → state-settling → foreshadowing-track → style-polishing / anti-detect / length-normalizing
+Phase: chapter-drafting → state-settling → foreshadowing-lifecycle → style-polishing / anti-detect / length-normalizing
 Seed: Output from Planning phase
 
 ## Dimensions
@@ -23,4 +23,4 @@ Any skill's output scores below its T1 score on same input → phase = 0.
 - truth/ (updated state files)
 - truth/character_matrix.md
 - truth/pending_hooks.md
-- truth/foreshadowing_tracker.md
+- truth/pending_hooks.md
