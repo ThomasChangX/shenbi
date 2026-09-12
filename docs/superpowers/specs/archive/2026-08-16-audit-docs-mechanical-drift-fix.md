@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design（Revised 2026-09-13 · 价值门驳斥复核剔除 9 条已失效成员，见「2026-09-13 修订注记」） | **Severity:** 🟠 P1（F901 执行协议断链）
+> **Date:** 2026-08-16 | **Status:** Done (PR #210) | **Severity:** 🟠 P1（F901 执行协议断链）
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C23）| **代表 finding:** T1001 | **簇规模:** 46 条 | **严重度上限:** P1
 > **范围:** AGENTS.md、command-to-give.md、overview.md、gates/dispatcher docstring、活跃+归档 spec、plans/INDEX、README、doc-links CI | **证据等级:** 实验佐证（grep/ls 机械对账实跑，T10 线程 + Z9-a + Z6 + Z7-d）
 > **与既有 spec 关系:** phase4 §7 建议 C23/C24 合并为"文档对账工具+CI"批量处理——本 spec 与 C24（语义矛盾）为**同工具两用**：本 spec 管机械面（计数/断链/行号），C24 管语义面（矛盾版本）；CI 承载面依赖 C17 T2 的 doc-links 落地
