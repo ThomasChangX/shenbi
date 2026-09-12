@@ -220,3 +220,31 @@ def test_no_files_skips_per_file_checks(tmp_path: Path) -> None:
     project_dir, _ = _setup(tmp_path)
     result = _result(g4_foreshadowing_lifecycle([], rd=str(project_dir)))
     assert result["status"] == "PASS"  # project face still green; per-file SKIP recorded
+
+
+@pytest.mark.unit
+def test_empty_hooks_payload_fails_like_no_hooks(tmp_path: Path) -> None:
+    """Ported regression: `## hooks: []` must FAIL (old plant no_hooks parity),
+    not silently skip per-file checks.
+    """
+    f = tmp_path / "hooks.md"
+    f.write_text("# Foreshadowing\n\n## hooks\n\n[]\n", encoding="utf-8")
+    project_dir, _ = _setup(tmp_path)
+
+    result = _result(g4_foreshadowing_lifecycle([str(f)], rd=str(project_dir)))
+    assert result["status"] == "FAIL"
+    assert any("G4.fl.no_hook_states" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_scalar_yaml_hooks_body_fails_free_form(tmp_path: Path) -> None:
+    """Ported regression: a scalar (non-list) `## hooks` body falls to the
+    free-form state check and FAILs on state-less content.
+    """
+    f = tmp_path / "hooks.md"
+    f.write_text("# Foreshadowing\n\n## hooks\n\njust a scalar\n", encoding="utf-8")
+    project_dir, _ = _setup(tmp_path)
+
+    result = _result(g4_foreshadowing_lifecycle([str(f)], rd=str(project_dir)))
+    assert result["status"] == "FAIL"
+    assert any("G4.fl.no_hook_states" in mf for mf in result["must_fix"])

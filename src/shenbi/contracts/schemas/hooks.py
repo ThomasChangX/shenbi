@@ -24,7 +24,7 @@ class HookState(StrEnum):
     TRIGGERED = "TRIGGERED"
     RESOLVED = "RESOLVED"
     ARCHIVED = "ARCHIVED"  # phase-0: lifecycle SKILL.md
-    EXPIRED = "EXPIRED"  # phase-0: SKILL.md:73,120
+    EXPIRED = "EXPIRED"  # phase-0: lifecycle SKILL.md
 
 
 # Non-canonical spellings emitted by skills, mapped to the canonical value.

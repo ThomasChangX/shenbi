@@ -95,7 +95,7 @@
         "audits/chapter-*.md"
       ],
       "g4_checker": null,
-      "_g4_note": "grouped audits (review-group-*) have dedicated G4 checkers; conditional singles fall to the generic checker"
+      "_g4_note": "all audit-tier skills (grouped group-* waves + conditional singles) fall to the generic G4 checker"
     },
     "management": {
       "prerequisites": [
@@ -320,7 +320,7 @@
     "src/shenbi/text/__init__.py": "sha256:c4594274aea2eb95aac941661d429ff94f16c51892b4ebf26bbc78ae49b84e33",
     "src/shenbi/text/cjk.py": "sha256:49641261c8359c7e9e0f208ae38dc01ce5b98f060c310ab2927ca99c95f23b15",
     "src/shenbi/gates/g4/pacing_design.py": "sha256:3d3833f361c7e124a129fac0bfbd6917c8f444a462590398c87de3e3e667524d",
-    "src/shenbi/gates/g4/foreshadowing_lifecycle.py": "sha256:b17de3d5549b0e6b396ddd2fad915e47c5c972e0bfbf8e22644c295e215530c4",
+    "src/shenbi/gates/g4/foreshadowing_lifecycle.py": "sha256:5c9b91687708be4f57a47b12714a5caec1d07ae6914c50a48f6f2479cb1d63e8",
     "src/shenbi/gates/g4/decisions_validator.py": "sha256:9e840e4845a7dd453a7c70c1e2cccfcdf6a2ebb836601984c4d1908f357459f2",
     "src/shenbi/gates/g4/length_normalizing.py": "sha256:39eda68610cc7122f9ea930cc3516f36ad3e185430b827b82d8c3c7a21102e5b",
     "src/shenbi/gates/g4/faction_builder.py": "sha256:e7484273e70c38e7238a6175dd08ad0550abd913b35bed322b7ee3d50d35d5d0",
@@ -350,7 +350,7 @@
     "src/shenbi/gates/g4/character_design.py": "sha256:1d512e6eedd70a200a6e130e47db02b6e95c96493c13a9c85f0974898ee0686d",
     "src/shenbi/gates/g4/review_resonance.py": "sha256:42181a2b79bd6671968764f26b62b353ee10ec23904b24c2369061fe22ce544c",
     "src/shenbi/contracts/schemas/deps.py": "sha256:bacb32607236851cd2f47dae94ee063e7aceb062119e1f13be54e279cbf6b464",
-    "src/shenbi/contracts/schemas/hooks.py": "sha256:61da914634d65a4c03ce6067abbd2274fc98db6fc8378cbc4eed7ed5bae9c99a",
+    "src/shenbi/contracts/schemas/hooks.py": "sha256:841437f19cfd5a9ac6d6970f160bc08e20a8828af5c1cb50c12d8dd73ac4aa35",
     "src/shenbi/contracts/schemas/registry.py": "sha256:461c7402734a7495589a56c5c3679037c6efd693553b63c269f6a2ce8583bbc2",
     "src/shenbi/contracts/schemas/novel.py": "sha256:9cce5585c9a83390a7ca3a079f984a1472b79ceac8b054f3ac6ea0ad1294b806",
     "src/shenbi/contracts/schemas/decisions.py": "sha256:61fd9f2c505aa743a01a27581f5c0190cc3807cc2b40b3aeba782aadd39639c8",

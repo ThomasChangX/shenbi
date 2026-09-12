@@ -40,7 +40,7 @@ def _parse_hooks(content: str) -> list[Any] | None:
         except yaml.YAMLError:
             loaded = None
         if isinstance(loaded, list):
-            return list(loaded)
+            return list(loaded) or None  # empty payload -> free-form checks
     fm_match = re.match(r"^---\s*\n(.*?)\n---", content, re.DOTALL)
     if fm_match:
         try:
@@ -48,7 +48,7 @@ def _parse_hooks(content: str) -> list[Any] | None:
         except yaml.YAMLError:
             fm = None
         if isinstance(fm, dict) and isinstance(fm.get("hooks"), list):
-            return list(fm["hooks"])
+            return list(fm["hooks"]) or None  # empty payload -> free-form checks
     return None
 
 
