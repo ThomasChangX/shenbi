@@ -98,7 +98,7 @@ concepts:
   - {name: import/analysis/04_plot.md, kind: import, producer: skill}
   - {name: outline/chapter_outline.md, kind: outline, producer: skill}
   - {name: outline/three_act.md, kind: outline, producer: skill}
-  - {name: snapshots/chapter-NNN/manifest.json, kind: snapshot, producer: pipeline}
+  - {name: snapshots/chapter-NNN/manifest.json, kind: snapshot, producer: skill}
   - {name: progress.json, kind: config, producer: pipeline}
   - {name: config-change-log.jsonl, kind: config, producer: pipeline}
   - {name: truth/resonance_anchors.md, kind: truth, producer: pipeline}

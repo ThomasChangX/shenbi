@@ -74,10 +74,6 @@ OWNERSHIP: dict[tuple[str, str], FileOwnership] = {
     ("shenbi-genre-config", "genre-config.json"): FileOwnership(
         level="field", write_keys=GENRE_KEYS
     ),
-    # foundation-review 读 tropeInventory（声明 read；写集为空）
-    ("shenbi-foundation-review", "genre-config.json"): FileOwnership(
-        level="field", read_keys=frozenset({"tropeInventory"})
-    ),
     # pending_hooks.md 分工（state-settling SKILL.md 权威声明；track 服从）
     ("shenbi-foreshadowing-resolve", "truth/pending_hooks.md"): FileOwnership(
         level="record_field", write_keys=frozenset({"state"})
