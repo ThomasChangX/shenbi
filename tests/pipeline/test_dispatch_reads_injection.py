@@ -142,6 +142,9 @@ def test_genesis_outputs_override_excludes_per_chapter_writes(tmp_path):
         chapter=None,
         outputs_override=["truth/pending_hooks.md"],
     )
-    assert output_paths == ["truth/pending_hooks.md"]
-    assert "bridge_tracker" not in user_prompt
+    # persistence set stays contract-full (r2: narrowing dropped genesis
+    # artifacts); the PROMPT instruction is what the override narrows
+    assert "truth/pending_hooks.md" in output_paths
+    assert "truth/bridge_tracker.md" in output_paths  # persistence allowlist intact
+    assert "bridge_tracker" not in user_prompt  # prompt instruction narrowed
     assert "audits/chapter" not in user_prompt

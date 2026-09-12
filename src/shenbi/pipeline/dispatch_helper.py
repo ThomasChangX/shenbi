@@ -632,9 +632,9 @@ def _build_skill_prompt(
         path_context: Optional per-family placeholder context (spec #6 R4).
             When provided, reads/writes resolve arc/stratum/volume/chapter
             families from it instead of the bare chapter number.
-        outputs_override: Explicit output set replacing contract-derived
-            paths (genesis dispatch passes the GenesisStep's declared
-            output_path; stage-8 review I1).
+        outputs_override: Prompt-instruction-only output narrowing (genesis
+            dispatch passes the GenesisStep's declared output_path; stage-8
+            review I1/r2 — the returned persistence set stays contract-full).
     """
     from shenbi.contracts.loader import ContractError, load_contract, validate_skill_name
 
@@ -770,25 +770,31 @@ def _build_skill_prompt(
     # with a WARN instead of raising. Spec #59 T9 follow-up: lifecycle's
     # audits write made genesis step 9 crash on prompt assembly.
     if outputs_override is not None:
-        # Genesis dispatch (stage-8 review I1): the GenesisStep's declared
-        # output_path IS the genesis output set — contract writes that belong
-        # to per-chapter modes (e.g. lifecycle's bridge_tracker / audits) must
-        # not leak into the genesis "Files to create" instruction.
-        output_paths: list[str] = list(outputs_override)
+        # Genesis dispatch narrows ONLY the prompt instruction (stage-8 r1
+        # I1): the "Files to create" list shows the GenesisStep's declared
+        # output so per-chapter-mode writes (lifecycle's bridge_tracker /
+        # audits) do not leak into genesis instructions. The PERSISTENCE set
+        # below stays the full contract collection — r2 showed narrowing it
+        # silently dropped legit multi-file genesis artifacts (worldbuilding
+        # truth/*.md templates, character cards, decisions sidecars).
+        prompt_outputs: list[str] = list(outputs_override)
     else:
-        output_paths = []
-        for write_path in contract.get("writes", []):
-            resolved = resolve_or_skip_ctx(write_path, chapter, path_context)
-            if resolved is None:
-                log.warning("output_path_unresolvable_genesis_skip", skill=skill, path=write_path)
-            else:
-                output_paths.append(resolved)
-        for update_path in contract.get("updates", []):
-            resolved = resolve_or_skip_ctx(update_path, chapter, path_context)
-            if resolved is None:
-                log.warning("output_path_unresolvable_genesis_skip", skill=skill, path=update_path)
-            else:
-                output_paths.append(resolved)
+        prompt_outputs = []
+    output_paths: list[str] = []
+    for write_path in contract.get("writes", []):
+        resolved = resolve_or_skip_ctx(write_path, chapter, path_context)
+        if resolved is None:
+            log.warning("output_path_unresolvable_genesis_skip", skill=skill, path=write_path)
+        else:
+            output_paths.append(resolved)
+    for update_path in contract.get("updates", []):
+        resolved = resolve_or_skip_ctx(update_path, chapter, path_context)
+        if resolved is None:
+            log.warning("output_path_unresolvable_genesis_skip", skill=skill, path=update_path)
+        else:
+            output_paths.append(resolved)
+    if not prompt_outputs:
+        prompt_outputs = output_paths
 
     # When uses_staging is True, prefix all output paths with staging/
     if uses_staging:
@@ -849,10 +855,10 @@ def _build_skill_prompt(
         )
 
     user_parts.append("Files to create:")
-    for p in output_paths:
+    for p in prompt_outputs:
         if "*" not in p:
             user_parts.append(f"- {p}")
-    if len(output_paths) > 1:
+    if len(prompt_outputs) > 1:
         user_parts.append(
             "\nNote: This skill produces multiple files. "
             "Decisions JSON must conform to shenbi-decisions-v1 schema "
