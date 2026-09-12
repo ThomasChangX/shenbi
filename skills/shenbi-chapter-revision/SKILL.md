@@ -143,7 +143,7 @@ digraph chapter_revision_loop {
 6. **重生不是润色** — 目标未达成不能用 spot-fix
 7. **重生保留已兑现项** — verify_preservation 必须通过
 8. **重生后强制 state-settling 重跑** — 否则 truth 文件过时
-9. **重生上限 3 次** — 超限触发 escalation_check
+9. **重生上限 3 次** — 超限触发 `run_escalation_check`
 
 ## Anti-Rationalization
 

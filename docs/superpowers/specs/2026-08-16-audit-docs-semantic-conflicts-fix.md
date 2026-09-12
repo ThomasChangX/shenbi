@@ -49,7 +49,7 @@ F829、F847-F848、F850-F853、F855-F857（F851/F853 挂 T2 第 5 条）、F879 
 
 1. 抽样复验 10 条（F707/F837/F876/F885/F935/F936/F938/F948/F949/F950）：每条在同一时点全仓只剩一个版本（`git grep` 对照裁决记录）；阈值类显示的是 C9 单源表的引用而非独立数值
 2. INDEX 机械自洽：排序符合优先级声明（人工按 🟥→🟠→🟡 逐行核对队列序并粘贴核对结果；预期序见 T3 第 7 条）；#6 引用可解析（`grep -rn "#6" docs/superpowers/specs/` 各命中处可达 `### #6` 编号标记，逐命中列点验证非计数）
-3. 5 个缺 DOT 技能（F893 清单）全部有 DOT 流程图（`grep -l "flowchart\|graph TD\|graph LR" <skill>/SKILL.md` 命中）
+3. 5 个缺 DOT 技能（F893 清单）全部有 DOT 流程图（`grep -l "digraph\|flowchart\|graph TD" <skill>/SKILL.md` 命中——执行期发现原口径漏 `digraph`，仓内 DOT 惯例为 dot fence + digraph，已修正）
 4. 评分刻度全仓统一（`grep -rnE "[0-9]+/10(分| )?" skills/ | grep -v 豁免清单` 与 /100 口径对账；豁免项以 T1 裁决表为准，逐条有理由）
 5. `just check` 全绿；C23 的 doc-links 检查对本 spec 改动文件 0 断链；**F841 子集附加**：`just lint-contracts` 绿 + `just generate` 生成物 diff 为空（Contract YAML/frontmatter 互换触及契约三源）
 

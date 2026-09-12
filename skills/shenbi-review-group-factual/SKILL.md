@@ -48,7 +48,7 @@ This skill performs three independent factual-consistency audits in a **single L
 
 ```dot
 digraph review_group_factual {
-    "Read chapters/chapter-N.md + truth/current_state.md + truth/chapter_summaries.md + world/*.md" -> "Single LLM call: run all three dimensions";
+    "Read chapters/chapter-N.md + truth/current_state.md + truth/chapter_summaries.md + world/*.md + genre-config.json" -> "Single LLM call: run all three dimensions";
     "Single LLM call: run all three dimensions" -> "D1 Continuity: timeline + locations + event order + arithmetic";
     "Single LLM call: run all three dimensions" -> "D2 World Rules: rules conflicts + power-system ceiling + numeric consistency + knowledge pollution";
     "Single LLM call: run all three dimensions" -> "D3 Pacing: QUEST/FIRE/CONSTELLATION sequence + buildup-release cycle";

@@ -49,7 +49,7 @@ This skill performs four independent character-integrity audits in a **single LL
 
 ```dot
 digraph review_group_character {
-    "Read chapters/chapter-N.md + characters/*.md + truth/character_matrix.md + truth/emotional_arcs.md + truth/current_state.md" -> "Single LLM call: run all four dimensions";
+    "Read chapters/chapter-N.md + characters/*.md + truth/character_matrix.md + truth/emotional_arcs.md + truth/current_state.md + genre-config.json" -> "Single LLM call: run all four dimensions";
     "Single LLM call: run all four dimensions" -> "D1 Character Consistency: BDI + OOC + side-character checks";
     "Single LLM call: run all four dimensions" -> "D2 Dialogue Style: voice match + catchphrases + tag diversity";
     "Single LLM call: run all four dimensions" -> "D3 Motivation: interest-driven + derivability + behavior chain";

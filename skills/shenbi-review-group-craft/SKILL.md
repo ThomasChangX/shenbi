@@ -45,10 +45,10 @@ This skill performs three independent writing-craft audits in a **single LLM cal
 ```dot
 digraph review_group_craft {
     "Read chapters/chapter-N.md + genre-config.json + plans/chapter-N-plan.md + truth/pending_hooks.md" -> "Single LLM call: run all three dimensions";
-    "Single LLM call: run all three dimensions" -> "D1 Texture: flow-account + author preaching + segment extremes + daily-scene function";
+    "Single LLM call: run all three dimensions" -> "D1 Texture: flow-account + author preaching + paragraph-breathing + segment extremes + daily-scene function";
     "Single LLM call: run all three dimensions" -> "D2 Reader Pull: opening hook + ending suspense + expectation + mid-chapter pull points";
     "Single LLM call: run all three dimensions" -> "D3 Anti-AI: injected paragraph_cv / transition_count / ai_marker_hits first, then LLM checks";
-    "D1 Texture: flow-account + author preaching + segment extremes + daily-scene function" -> "Defects found (four-element format)?";
+    "D1 Texture: flow-account + author preaching + paragraph-breathing + segment extremes + daily-scene function" -> "Defects found (four-element format)?";
     "D2 Reader Pull: opening hook + ending suspense + expectation + mid-chapter pull points" -> "Defects found (four-element format)?";
     "D3 Anti-AI: injected paragraph_cv / transition_count / ai_marker_hits first, then LLM checks" -> "Defects found (four-element format)?";
     "Defects found (four-element format)?" -> "Rate PASS" [label="no"];
