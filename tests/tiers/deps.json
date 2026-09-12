@@ -49,6 +49,7 @@
         "shenbi-foreshadowing-lifecycle"
       ],
       "expected_outputs": [
+        "audits/chapter-*.md",
         "context/chapter-*-context-decisions.json",
         "context/chapter-*-context.md",
         "plans/chapter-*-plan-decisions.json",

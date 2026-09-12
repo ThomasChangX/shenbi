@@ -14,6 +14,8 @@ contract:
     - file: truth/bridge_tracker.md
       mode: append_dedup
       key: bridge_id
+    - file: audits/chapter-N-foreshadowing.md
+      mode: create_or_overwrite
   updates:
     - file: truth/pending_hooks.md
       mode: append_dedup
@@ -30,7 +32,7 @@ contract:
 ## 数据契约
 
 - **Reads:** plans/chapter-N-plan.md, chapters/chapter-N.md, truth/pending_hooks.md, truth/bridge_tracker.md, outline/volume_map.md, outline/story_frame.md
-- **Writes:** truth/bridge_tracker.md
+- **Writes:** truth/bridge_tracker.md, audits/chapter-N-foreshadowing.md
 - **Updates:** truth/pending_hooks.md
 
 <!-- END AUTO-GENERATED -->
@@ -81,7 +83,7 @@ From the chapter plan Section 7 (Hook Ledger), identify hooks that should be
 newly planted this chapter. For each:
 1. Assign a unique hook ID (format: MH-NNN or CP-NNN or sequel-specific prefix)
 2. Define `trigger_condition` and `resolve_condition`
-3. Set initial `lifecycle_state` to ACTIVE
+3. Set initial `lifecycle_state` to PLANTED
 4. Register in `pending_hooks.md`
 
 **Iron Laws:**
@@ -112,7 +114,7 @@ Full type/dimension/curve/subtlety lookup table in `hook-types.md`.
 Genesis phase has no chapter memo (`plans/chapter-N-plan.md`). Genesis mode extracts cross-volume master hooks from outline:
 - **reads**: `outline/story_frame.md` + `outline/volume_map.md` (replaces chapter plan)
 - **Extract master hooks**: from volume_map cross-volume hooks, initialize as PLANTED state
-- **writes**: same as default mode (`truth/pending_hooks.md`)
+- **updates**: `truth/pending_hooks.md` via append_dedup (same as default mode); genesis does NOT touch `truth/bridge_tracker.md`
 
 Genesis mode flow:
 1. Read `outline/story_frame.md` extract three-act cross-volume promises

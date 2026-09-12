@@ -1056,6 +1056,11 @@
       "file": "chapters/chapter-N-decisions.json"
     },
     {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-chapter-revision",
+      "file": "audits/chapter-N.aggregate.md"
+    },
+    {
       "producer": "shenbi-review-anti-ai",
       "consumer": "shenbi-chapter-revision",
       "file": "audits/chapter-N.aggregate.md"
@@ -2366,6 +2371,11 @@
       "file": "chapters/chapter-N.md"
     },
     {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-drift-guidance",
+      "file": "audits/chapter-N-*.md"
+    },
+    {
       "producer": "shenbi-review-anti-ai",
       "consumer": "shenbi-drift-guidance",
       "file": "audits/chapter-N-*.md"
@@ -3084,6 +3094,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-escalation-review",
       "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-escalation-review",
+      "file": "audits/chapter-N-sensitivity.md"
     },
     {
       "producer": "shenbi-review-anti-ai",
