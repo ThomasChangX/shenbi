@@ -3,7 +3,8 @@
 The foreshadowing lifecycle has **6 canonical values** (phase-0:
 shenbi-foreshadowing-lifecycle/SKILL.md): PLANTED → RELEVANT → TRIGGERED →
 RESOLVED, with ARCHIVED/EXPIRED as terminal exits. Skills also emit
-non-canonical spellings (e.g. ``TRIGGER`` at SKILL.md:87), so
+non-canonical spellings (e.g. the bare ``TRIGGER`` form in the status
+table of shenbi-foreshadowing-lifecycle SKILL.md), so
 :func:`parse_hook_state` folds those + is case-insensitive.
 
 This is deliberately a YAML-enum concern — NOT ``match_field`` (which is the
@@ -28,7 +29,8 @@ class HookState(StrEnum):
 
 
 # Non-canonical spellings emitted by skills, mapped to the canonical value.
-# SKILL.md:87 uses the bare ``TRIGGER`` form; we normalize it so a hook is
+# the status table in shenbi-foreshadowing-lifecycle SKILL.md uses the bare
+# ``TRIGGER`` form; we normalize it so a hook is
 # never missed just because the author abbreviated the state.
 _NONCANONICAL: dict[str, HookState] = {
     "TRIGGER": HookState.TRIGGERED,

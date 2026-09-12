@@ -389,7 +389,7 @@ def _resolve_scored_by() -> ScoredBy:
 def main() -> int:
     configure_logging()
     if len(sys.argv) < 3 and "--gate-only" not in sys.argv:
-        usage = """Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]
+        usage = """Usage: shenbi-score <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]
   scores.json format: {"1": 100, "2": 95, "3": 80, ...}
   --kill-switch: force final score to 0 (any kill switch triggered)
   --test-type: filter dimensions by applicability (renormalizes weights)

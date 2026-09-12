@@ -3,19 +3,19 @@
 `pyproject.toml` configures basedpyright in strict mode with two
 categories of relaxation:
 
-1. **Per-directory `executionEnvironments`** for `tests/` and
-   `src/shenbi/skill_utils/` — mirrors mypy's existing overrides.
+1. **Per-directory `executionEnvironments`** — currently only `tests/`
+   (industry-norm relaxation; see table below).
 2. **Project-level rule downgrades** for the Unknown-family rules.
 
 ## Project-level rule downgrades
 
 ```toml
-reportMissingTypeStubs = "warning"
-reportUnknownMemberType = "warning"
-reportUnknownVariableType = "warning"
-reportUnknownArgumentType = "warning"
-reportUnknownLambdaType = "warning"
-reportUnknownParameterType = "warning"
+reportMissingTypeStubs = "none"
+reportUnknownMemberType = "none"
+reportUnknownVariableType = "none"
+reportUnknownArgumentType = "none"
+reportUnknownLambdaType = "none"
+reportUnknownParameterType = "none"
 ```
 
 ### Why
@@ -55,7 +55,10 @@ boundaries, these rules can be re-tightened to error.
 | Root | Disabled rules | Why |
 |---|---|---|
 | `tests` | reportUnused*, reportUnknown*, reportPrivateUsage, reportMissingParameterType | Industry norm: test code uses fixtures, Mock, dynamic setattr that are inherently untyped. |
-| `src/shenbi/skill_utils` | reportUnknown*, reportPrivateUsage, reportMissingTypeStubs | Mirrors mypy's `ignore_errors = true` for `shenbi.skill_utils.*` (PR-27 deferral). |
+
+`src/shenbi/skill_utils` is NOT a separate executionEnvironment — it is
+covered by the project-level downgrades above and by mypy's per-module
+overrides in `[[tool.mypy.overrides]]` (no `ignore_errors` remains).
 
 ## What was removed (post-PR-25 follow-up)
 

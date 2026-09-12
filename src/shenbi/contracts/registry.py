@@ -59,7 +59,7 @@ REGISTRY: dict[str, type[BaseModel]] = _discover_skill_models()
 
 
 def load_skill_contract(skill: str) -> type[BaseModel] | None:
-    """已迁移返回 Pydantic 模型；未迁移返回 None（contract.py 仍负责）。"""
+    """已迁移返回 Pydantic 模型；未迁移返回 None（contracts/ 包其余模块仍负责）。"""
     return REGISTRY.get(skill)
 
 

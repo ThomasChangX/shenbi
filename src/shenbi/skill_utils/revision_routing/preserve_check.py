@@ -13,10 +13,7 @@ Dict schema (spec §11.5):
      "changes_realized": [str],     # §6 changes that occurred in original
      "state_changes": [str]}        # character matrix deltas in original
 
-Usage (CLI):
-  python -m shenbi.skill_utils.revision_routing.preserve_check \
-      --original '{"hooks_advanced":["H01"],"changes_realized":[],"state_changes":[]}' \
-      --regenerated '{"hooks_advanced":[],"changes_realized":[],"state_changes":[]}'
+No CLI entry point; import and call the check functions directly.
 """
 
 from __future__ import annotations

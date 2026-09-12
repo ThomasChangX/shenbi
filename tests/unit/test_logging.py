@@ -2,7 +2,7 @@
 
 Business value: logging must produce correct structured output for both JSON
 (production) and console (dev) renderers, written to stderr (Unix convention).
-These tests verify the REAL production code path in tests/logging.py:
+These tests verify the REAL production code path in src/shenbi/logging.py:
 - configure_logging() reads SHENBI_LOG_FORMAT and installs the right renderer
 - JSON renderer emits parseable JSON containing event + bound fields
 - Console renderer does not emit JSON (stays human-readable)
