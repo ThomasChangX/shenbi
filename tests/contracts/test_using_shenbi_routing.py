@@ -44,6 +44,8 @@ def test_merged_phrases_survive() -> None:
     rows = "\n".join(ln for ln in text.splitlines() if ln.startswith("| "))
     for phrase in (
         "检查这章",
+        "审计",
+        "审查",
         "连贯性",
         "前后矛盾",
         "对不上",
