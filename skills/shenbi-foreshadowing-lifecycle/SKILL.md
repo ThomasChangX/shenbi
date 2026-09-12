@@ -41,6 +41,47 @@ contract:
 
 HARD-GATE: Must execute after chapter drafting and state-settling. Combines recall, track, and plant operations into a single LLM call for shared context and consistent lifecycle management.
 
+## 流程
+
+```dot
+digraph foreshadowing_lifecycle {
+    "Chapter drafted + state settled (HARD-GATE)" -> "Genesis mode?";
+    "Genesis mode?" -> "Read outline/story_frame.md + outline/volume_map.md" [label="yes (--mode genesis)"];
+    "Read outline/story_frame.md + outline/volume_map.md" -> "Extract cross-volume master hooks (MH-NNN, PLANTED)";
+    "Extract cross-volume master hooks (MH-NNN, PLANTED)" -> "Append truth/pending_hooks.md (append_dedup)";
+    "Append truth/pending_hooks.md (append_dedup)" -> "Write audits/chapter-N-foreshadowing.md";
+    "Genesis mode?" -> "Phase 1: Recall (single LLM call)" [label="no"];
+    "Phase 1: Recall (single LLM call)" -> "DORMANT hook: trigger_condition matches chapter context?";
+    "DORMANT hook: trigger_condition matches chapter context?" -> "Set DORMANT -> ACTIVE" [label="yes"];
+    "DORMANT hook: trigger_condition matches chapter context?" -> "Keep DORMANT" [label="no"];
+    "Set DORMANT -> ACTIVE" -> "Phase 2: Track";
+    "Keep DORMANT" -> "Phase 2: Track";
+    "Phase 2: Track" -> "Evaluate every ACTIVE hook against chapter body";
+    "Evaluate every ACTIVE hook against chapter body" -> "Textual evidence found?";
+    "Textual evidence found?" -> "Apply state transition per lifecycle-states.md" [label="yes"];
+    "Textual evidence found?" -> "No transition + emit overdue/max-distance warning" [label="no"];
+    "Apply state transition per lifecycle-states.md" -> "Phase 3: Plant";
+    "No transition + emit overdue/max-distance warning" -> "Phase 3: Plant";
+    "Phase 3: Plant" -> "Hooks in chapter plan Section 7 to plant?";
+    "Hooks in chapter plan Section 7 to plant?" -> "Assign ID + metadata + PLANTED, register in pending_hooks.md" [label="yes"];
+    "Hooks in chapter plan Section 7 to plant?" -> "Skip planting" [label="no"];
+    "Assign ID + metadata + PLANTED, register in pending_hooks.md" -> "Total operations <= 8?";
+    "Skip planting" -> "Total operations <= 8?";
+    "Total operations <= 8?" -> "Commit operations" [label="yes"];
+    "Total operations <= 8?" -> "Defer overflow + report in density accounting" [label="no"];
+    "Commit operations" -> "Cross-Volume Bridge Tracking";
+    "Defer overflow + report in density accounting" -> "Cross-Volume Bridge Tracking";
+    "Cross-Volume Bridge Tracking" -> "PENDING bridge key terms in chapter?";
+    "PENDING bridge key terms in chapter?" -> "Mark ACTIVATED (actual chapter)" [label="yes"];
+    "PENDING bridge key terms in chapter?" -> "Expected by now but absent?" [label="no"];
+    "Expected by now but absent?" -> "Mark DEFERRED + note" [label="yes"];
+    "Expected by now but absent?" -> "Write outputs" [label="no"];
+    "Mark ACTIVATED (actual chapter)" -> "Write outputs";
+    "Mark DEFERRED + note" -> "Write outputs";
+    "Write outputs" -> "Update truth/bridge_tracker.md + write audits/chapter-N-foreshadowing.md";
+}
+```
+
 ## Internal Operation Order
 
 Perform three sequential operations in a **single LLM call**:

@@ -45,6 +45,26 @@ This skill performs four independent character-integrity audits in a **single LL
 
 > **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the four dimensions serially.
 
+## 流程
+
+```dot
+digraph review_group_character {
+    "Read chapters/chapter-N.md + characters/*.md + truth/character_matrix.md + truth/emotional_arcs.md + truth/current_state.md" -> "Single LLM call: run all four dimensions";
+    "Single LLM call: run all four dimensions" -> "D1 Character Consistency: BDI + OOC + side-character checks";
+    "Single LLM call: run all four dimensions" -> "D2 Dialogue Style: voice match + catchphrases + tag diversity";
+    "Single LLM call: run all four dimensions" -> "D3 Motivation: interest-driven + derivability + behavior chain";
+    "Single LLM call: run all four dimensions" -> "D4 POV: povMode + switches + information/sensory boundaries";
+    "D1 Character Consistency: BDI + OOC + side-character checks" -> "Defects found (four-element format)?";
+    "D2 Dialogue Style: voice match + catchphrases + tag diversity" -> "Defects found (four-element format)?";
+    "D3 Motivation: interest-driven + derivability + behavior chain" -> "Defects found (four-element format)?";
+    "D4 POV: povMode + switches + information/sensory boundaries" -> "Defects found (four-element format)?";
+    "Defects found (four-element format)?" -> "Rate PASS" [label="no"];
+    "Defects found (four-element format)?" -> "List ERROR/WARNING + fix suggestions" [label="yes"];
+    "Rate PASS" -> "Write 4 audit files (character / dialogue / motivation / pov)";
+    "List ERROR/WARNING + fix suggestions" -> "Write 4 audit files (character / dialogue / motivation / pov)";
+}
+```
+
 ## Evaluation Dimensions
 
 Evaluate the provided chapter from four independent dimensions. Score each separately. Produce four independent audit report sections.

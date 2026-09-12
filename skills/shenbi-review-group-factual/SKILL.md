@@ -44,6 +44,24 @@ This skill performs three independent factual-consistency audits in a **single L
 
 > **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the three dimensions serially.
 
+## 流程
+
+```dot
+digraph review_group_factual {
+    "Read chapters/chapter-N.md + truth/current_state.md + truth/chapter_summaries.md + world/*.md" -> "Single LLM call: run all three dimensions";
+    "Single LLM call: run all three dimensions" -> "D1 Continuity: timeline + locations + event order + arithmetic";
+    "Single LLM call: run all three dimensions" -> "D2 World Rules: rules conflicts + power-system ceiling + numeric consistency + knowledge pollution";
+    "Single LLM call: run all three dimensions" -> "D3 Pacing: QUEST/FIRE/CONSTELLATION sequence + buildup-release cycle";
+    "D1 Continuity: timeline + locations + event order + arithmetic" -> "Defects found (four-element format)?";
+    "D2 World Rules: rules conflicts + power-system ceiling + numeric consistency + knowledge pollution" -> "Defects found (four-element format)?";
+    "D3 Pacing: QUEST/FIRE/CONSTELLATION sequence + buildup-release cycle" -> "Defects found (four-element format)?";
+    "Defects found (four-element format)?" -> "Rate PASS" [label="no"];
+    "Defects found (four-element format)?" -> "List ERROR/WARNING + fix suggestions" [label="yes"];
+    "Rate PASS" -> "Write 3 audit files (continuity / world-rules / pacing)";
+    "List ERROR/WARNING + fix suggestions" -> "Write 3 audit files (continuity / world-rules / pacing)";
+}
+```
+
 ## Evaluation Dimensions
 
 Evaluate the provided chapter from three independent dimensions. Score each separately. Produce three independent audit report sections.

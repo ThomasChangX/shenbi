@@ -38,6 +38,22 @@ This skill performs two independent plan-compliance audits in a **single LLM cal
 
 > **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the two dimensions serially.
 
+## 流程
+
+```dot
+digraph review_group_plan {
+    "Read chapters/chapter-N.md + plans/chapter-N-plan.md + truth/pending_hooks.md + truth/subplot_board.md" -> "Single LLM call: run both dimensions";
+    "Single LLM call: run both dimensions" -> "D1 Memo Compliance: verify memo sections 1/3/6/7/8 delivered or avoided";
+    "Single LLM call: run both dimensions" -> "D2 Foreshadowing Consistency: hook lifecycle + payoff-window + subplot alignment";
+    "D1 Memo Compliance: verify memo sections 1/3/6/7/8 delivered or avoided" -> "Defects found (four-element format)?";
+    "D2 Foreshadowing Consistency: hook lifecycle + payoff-window + subplot alignment" -> "Defects found (four-element format)?";
+    "Defects found (four-element format)?" -> "Rate PASS" [label="no"];
+    "Defects found (four-element format)?" -> "List ERROR/WARNING + fix suggestions" [label="yes"];
+    "Rate PASS" -> "Write audits/chapter-N-memo-compliance.md + audits/chapter-N-foreshadowing.md";
+    "List ERROR/WARNING + fix suggestions" -> "Write audits/chapter-N-memo-compliance.md + audits/chapter-N-foreshadowing.md";
+}
+```
+
 ## Evaluation Dimensions
 
 Evaluate the provided chapter from two independent dimensions. Score each separately. Produce two independent audit report sections.

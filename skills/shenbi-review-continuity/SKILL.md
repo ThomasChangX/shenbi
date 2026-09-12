@@ -115,7 +115,7 @@ Report any arithmetic discrepancy with:
 
 ## 缺陷证据格式
 
-每条缺陷报告必须遵循  定义的四要素格式：
+每条缺陷报告必须遵循 `shenbi-review-highpoint` 的缺陷证据格式（四要素）定义：
 1. **位置**: 文件路径 + 行号范围
 2. **原文引述**: ≥20 字上下文，用 `>` 标记
 3. **违反规则**: SKILL.md 规则名（精确匹配）
