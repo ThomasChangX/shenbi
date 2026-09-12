@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-09-12（#59 Done PR #204——C21 路由/触发/描述契约闭合，13 findings 回写）
-> **活跃 spec 数**：9（#59 Done PR #204——C21 闭合）
+> **最后更新**：2026-09-12（#60 Done PR #207——C22 五族登记表对账门禁闭合，29 findings 回写）
+> **活跃 spec 数**：8（#60 Done PR #207——C22 闭合）
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -16,14 +16,6 @@
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（总纲；supersede #17 的 catalog 角色）
 - **状态**：Design（记账 pass Done PR #147；§6.4 矩阵同步 pass Done PR #172；C14/C16/C37 回标 pass 2026-09-08——C14 #52 PR #183、C16 #54 PR #174、C37 #51 PR #179；C15-C18/C37 回标 + C19 速览补录与 ledger 回写 13 行 + F750/F0-06 归宿 #66 pass 2026-09-11；索引长期保留） | **优先级**：🔴 P0（总纲）
 - **内容**：phase4 37 簇修复优先级矩阵（P0×7 簇=191 条 / P1×26 簇=483 / P2×4 簇=100，纯 M 簇 0 个）、跨簇依赖链（C32→C33→成本类、C3+C34→C1 验收、C10→C28/C33、C19#26→C37 解冻、C16→C14→C15）、量级汇总（L×7/M×22/S-M×8，3 泳道 6-9 周墙钟）、与既有 23 活跃 spec 的 supersede/解散/保留关系表、回写协议（737 条 merged）
-
-### #60 · 审计修复 C22：平行登记表对账门禁（P1）
-
-- **文件**：`2026-08-16-audit-registry-reconcile-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C22，29 条）
-- **状态**：Design (Revised 2026-09-12 ×5轮 · 驳斥复核核心论点存活 + 设计审查四轮收敛 2C5I→1C2I→0C4I→0C1I→0C1I 全修：T0 前置、每面不变量、R2 glob 可解析不变量（patterns/globs 二居一）、R5 定案、R4 删除性、5b/5c backfill、全成员归宿) | **优先级**：🟠 P1 | **依赖**：T209 canonicalizer 裁决先于 R2 词表闭包（已升格 spec 内 T0b 任务）
-- **对应 plan**：✅ ready（`plans/2026-09-12-registry-reconcile-lint.md`，2026-09-12，审查四轮收敛）
-- **内容**：单一对账 lint 五规则（R1 技能闭包——deps↔disk 面已由 #9/#66+C21 门禁为基线，扩展 master.json/SHORT_MAP/G5_GLOBS/seed/AGENTS 计数(transitional)/触发表反向/G4_CHECKER_SKILLS 双向+index.md 三源 / R2 词表闭包（含参数化 patterns 不变量）/ R3 哈希新鲜度门禁化（数据 193/193 已新鲜）/ R4 删除性处置（迁移器+CLASSIFICATION+快照+其测试，T207 漂移随表消亡）/ R5 定案 checker-having 缺 glob FAIL marker、checker-less 保留代码回退+WARN）+ T0 前置（注册表提取 G5_GLOBS 模块级/checkers 工厂/G4_DECISIONS_WIRED 导出；canonicalizer 统一）+ 存量修正（master.json 删 14 DEPRECATED 路由并补 14 活技能至 59 / F432 生产面 / F445 SHORT_MAP 缺 11 / 5b backfill G4_CHECKER_SKILLS+9·index.md+5·触发表+7 或豁免 / F755 seed 漂移 15 / F242 / F1017 派生化 / F521 / T203 裁决）——phase4 §7 第 9 位（改动小拦截面大）；#9/#23 登记面并入（#9 已归档，其闭包 lint 为 R1 基线）；T203 dependency-dag.json 生成零消费（自 #24 补登）
 
 ### #61 · 审计修复 C23：文档机械漂移（P1）
 
