@@ -3,7 +3,7 @@
 Wave 3 Task 4 — spec section 6.2 three-circle audit layer. This module covers
 the genre circle (gate-driven activation from genre-config.json) and the
 boundary circle (deterministic chapter-number triggers). The core circle
-runs as regular chapter_loop steps 10-16 before run_audit_layer is called.
+runs as regular chapter_loop steps 9-14 before run_audit_layer is called.
 """
 
 from __future__ import annotations
@@ -167,7 +167,7 @@ class TestAuditRelativePath:
 # ---------------------------------------------------------------------------
 class TestRunAuditLayerNoActive:
     def test_no_active_audits_clean(self, tmp_project: Path):
-        # texture explicitly disabled: absent would mean enabled (R2 split)
+        # spec #59 T6: texture is a core dim — inert here, nothing activates
         result = run_audit_layer(tmp_project, 1, {"auditDimensions": {"texture": False}})
         assert result.blocking_found is False
         assert result.critical_found is False
@@ -300,22 +300,16 @@ class TestAuditResultDefaults:
 class TestGenreActivationCamelCase:
     """Tests that GENRE_ACTIVATION_MATRIX matches real genre-config.json format."""
 
-    def test_real_fixture_activates_audits(self):
-        """Real fixture uses auditDimensions (camelCase) top-level key."""
+    def test_real_fixture_routes_only_matrix_dims(self):
+        """Real fixture uses auditDimensions (camelCase) top-level key; its
+        dimension keys are all core/exited post spec #59 T6, so nothing
+        matrix-dispatches (era/fanfic/highpoint are the only live rows).
+        """
         fixture_path = Path("tests/fixtures/genre-config-example.json")
         if not fixture_path.exists():
             pytest.skip("fixture not available")
         gc = json.loads(fixture_path.read_text(encoding="utf-8"))
-        result = get_active_genre_audits(gc)
-        # Post spec #59 T6: only matrix-routed conditional dims dispatch here
-        # (era/fanfic/highpoint); the six exited dims are carried by group steps.
-        for skill in result:
-            assert skill.startswith("shenbi-review-"), f"Unexpected skill: {skill}"
-            assert skill in (
-                "shenbi-review-era",
-                "shenbi-review-fanfic",
-                "shenbi-review-highpoint",
-            ), f"matrix-routed dispatch only, got {skill}"
+        assert get_active_genre_audits(gc) == []
 
     def test_camelcase_audit_dimensions_read(self):
         """AuditDimensions (camelCase) is the real fixture format."""
@@ -347,8 +341,8 @@ class TestGenreActivationCamelCase:
                 "pacing": True,
                 "continuity": True,
                 "foreshadowing": True,
-                # texture is the one critical genre dim; absent = enabled (R2),
-                # so disable it explicitly to keep this test about core keys.
+                # spec #59 T6: texture/worldRules/motivation/dialogue are core
+                # keys now — valid vocabulary, filtered from genre dispatch.
                 "texture": False,
             }
         }
@@ -378,12 +372,15 @@ class TestCriticalitySplitActivation:
         active = get_active_genre_audits({"audit_dimensions": {"era": True}})
         assert "shenbi-review-era" in active
 
-    def test_truthy_one_does_not_activate(self):
-        active = get_active_genre_audits({"auditDimensions": {"texture": 1, "dialogue": True}})
-        assert "shenbi-review-texture" not in active
+    def test_truthy_one_does_not_activate_live_dim(self):
+        """Liveness is ``value is True`` (strict): truthy-one on a LIVE matrix
+        dim (era) must not dispatch.
+        """
+        active = get_active_genre_audits({"auditDimensions": {"era": 1}})
+        assert active == []
 
     def test_truthy_one_exited_dim_does_not_activate(self):
-        """Spec #59 T6: exited dims stay filtered even under truthy-one form."""
+        """Spec #59 T6: exited dims stay filtered even under truthy-True form."""
         active = get_active_genre_audits({"audit_dimensions": {"dialogue": True}})
         assert "shenbi-review-dialogue" not in active
 
