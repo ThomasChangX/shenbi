@@ -8,7 +8,7 @@
 
 **Tech Stack:** grep/python3 codemod/pytest（tests/integration/test_doc_links.py 承载断链防线）/just
 
-**Spec:** `docs/superpowers/specs/2026-08-16-audit-docs-mechanical-drift-fix.md`（2026-09-13 收敛版，活成员 33）
+**Spec:** `docs/superpowers/specs/archive/2026-08-16-audit-docs-mechanical-drift-fix.md`（2026-09-13 收敛版，活成员 33）
 
 ## Global Constraints
 
