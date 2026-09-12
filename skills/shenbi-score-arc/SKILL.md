@@ -79,6 +79,7 @@ digraph shenbi_score_arc {
     "Route C: hard-binary" -> "Route C: soft-degree scoring";
     "Route C: soft-degree" -> "Route A: anchor positioning";
     "Route A: anchor" -> "Write audit report";
+    "Write audit report" -> "Append 弧段评分短板条目 to truth/audit_drift.md";
 }
 ```
 

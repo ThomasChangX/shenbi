@@ -42,27 +42,7 @@ contract:
 
 This skill performs three independent factual-consistency audits in a **single LLM call**. Each dimension produces an independent audit report section using the standard defect evidence format. All three reports are written to their respective audit files.
 
-> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `parallel_dispatch.py` (invoked at `chapter_loop.py:1090-1168`), preserving the existing two-wave parallel dispatch model. Do NOT run the three dimensions serially.
-
-## Contract
-
-```yaml
-contract:
-  reads:
-    - {file: chapters/chapter-N.md}
-    - {file: truth/current_state.md, fields: [系统演化阶段, 参数当前位置, 进行中的情节线]}
-    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
-    - {file: world/rules.md}
-    - {file: world/power_system.md}
-    - {file: world/locations.md}
-    - {file: world/story_bible.md}
-    - {file: genre-config.json, fields: [pacing, chapterTypes]}
-  writes: []
-  updates:
-    - audits/chapter-N-continuity.md
-    - audits/chapter-N-world-rules.md
-    - audits/chapter-N-pacing.md
-```
+> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the three dimensions serially.
 
 ## Evaluation Dimensions
 

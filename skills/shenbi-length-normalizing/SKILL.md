@@ -1,7 +1,6 @@
 ---
 name: shenbi-length-normalizing
-description: Use when a chapter falls below 3000 words (needs expansion) or exceeds
-  10000 words (needs compression)
+description: Use when a chapter falls below 3000 words or exceeds 10000 words
 contract:
   kind: artifact
   reads:
@@ -46,7 +45,9 @@ digraph length_normalizing {
     "Word count < 3000?" -> "Word count > 10000?" [label="no"];
     "Word count > 10000?" -> "Done — within acceptable range" [label="no (3000-10000)"];
     "Word count > 10000?" -> "Compress: trim redundant prose + merge descriptions" [label="yes"];
-    "Expand: enrich descriptions + deepen content" -> "Output normalized chapter";
+    "Expand: enrich descriptions + deepen content" -> "Expanded ≥ 3000?";
+    "Expanded ≥ 3000?" -> "Output normalized chapter" [label="yes"];
+    "Expanded ≥ 3000?" -> "Expand: enrich descriptions + deepen content" [label="no (still < 3000)"];
     "Compress: trim redundant prose + merge descriptions" -> "Compressed ≥ 3000 AND ≥ 25% original?";
     "Compressed ≥ 3000 AND ≥ 25% original?" -> "Output normalized chapter" [label="yes"];
     "Compressed ≥ 3000 AND ≥ 25% original?" -> "REJECT: surface compression cannot achieve target without structural damage" [label="no"];

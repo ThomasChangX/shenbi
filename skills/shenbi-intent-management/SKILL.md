@@ -39,7 +39,8 @@ contract:
 ```dot
 digraph intent_management {
     "Read truth/author_intent.md (if exists)" -> "Ask human: any changes to long-term intent?";
-    "Ask human: any changes to long-term intent?" -> "Update author_intent.md";
+    "Ask human: any changes to long-term intent?" -> "Update author_intent.md" [label="有变化"];
+    "Ask human: any changes to long-term intent?" -> "Read truth/current_focus.md" [label="无变化"];
     "Update author_intent.md" -> "Read truth/current_focus.md";
     "Read truth/current_focus.md" -> "Read truth/audit_drift.md (drift guidance)";
     "Read truth/audit_drift.md" -> "Generate current_focus for next 1-3 chapters";

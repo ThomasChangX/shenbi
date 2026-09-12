@@ -67,7 +67,7 @@ contract:
 ```dot
 digraph memory_distill {
     "Determine trigger type" -> "L2 arc distill?";
-    "L2 arc distill?" -> "Read chapter_summaries for arc range" [label="chapter%12==0"];
+    "L2 arc distill?" -> "Read chapter_summaries for arc range" [label="chapter%12==0 且 chapter%36!=0"];
     "L2 arc distill?" -> "L4 stratum distill?" [label="chapter%36==0"];
     "Read chapter_summaries for arc range" -> "Synthesize arc event chain";
     "Synthesize arc event chain" -> "Extract arc hook resolution";

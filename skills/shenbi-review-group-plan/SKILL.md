@@ -36,22 +36,7 @@ contract:
 
 This skill performs two independent plan-compliance audits in a **single LLM call**. Each dimension produces an independent audit report section using the standard defect evidence format. Both reports are written to their respective audit files.
 
-> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `parallel_dispatch.py` (invoked at `chapter_loop.py:1090-1168`), preserving the existing two-wave parallel dispatch model. Do NOT run the two dimensions serially.
-
-## Contract
-
-```yaml
-contract:
-  reads:
-    - {file: chapters/chapter-N.md}
-    - {file: plans/chapter-N-plan.md}
-    - {file: truth/pending_hooks.md}
-    - {file: truth/subplot_board.md}
-  writes: []
-  updates:
-    - audits/chapter-N-memo-compliance.md
-    - audits/chapter-N-foreshadowing.md
-```
+> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the two dimensions serially.
 
 ## Evaluation Dimensions
 

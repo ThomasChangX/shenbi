@@ -54,7 +54,8 @@ contract:
 digraph genre_config {
     "Read novel.json" -> "Read existing genre-config.json (if any)";
     "Read existing config" -> "Identify config change need";
-    "Identify config change need" -> "Modify target section";
+    "Identify config change need" -> "Backup genre-config.json to genre-config.json.bak";
+    "Backup genre-config.json to genre-config.json.bak" -> "Modify target section";
     "Modify target section" -> "Validate no conflict with other sections";
     "Validate" -> "Human reviews";
     "Human reviews" -> "Revise" [label="rejected"];

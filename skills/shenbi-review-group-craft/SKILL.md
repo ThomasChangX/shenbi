@@ -38,23 +38,7 @@ contract:
 
 This skill performs three independent writing-craft audits in a **single LLM call**. Each dimension produces an independent audit report section using the standard defect evidence format. All three reports are written to their respective audit files.
 
-> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `parallel_dispatch.py` (invoked at `chapter_loop.py:1090-1168`), preserving the existing two-wave parallel dispatch model. Do NOT run the three dimensions serially.
-
-## Contract
-
-```yaml
-contract:
-  reads:
-    - {file: chapters/chapter-N.md}
-    - {file: genre-config.json}
-    - {file: plans/chapter-N-plan.md}
-    - {file: truth/pending_hooks.md}
-  writes: []
-  updates:
-    - audits/chapter-N-texture.md
-    - audits/chapter-N-reader-pull.md
-    - audits/chapter-N-anti-ai.md
-```
+> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the three dimensions serially.
 
 ## Evaluation Dimensions
 

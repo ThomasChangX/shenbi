@@ -43,27 +43,7 @@ contract:
 
 This skill performs four independent character-integrity audits in a **single LLM call**. Each dimension produces an independent audit report section using the standard defect evidence format. All four reports are written to their respective audit files.
 
-> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `parallel_dispatch.py` (invoked at `chapter_loop.py:1090-1168`), preserving the existing two-wave parallel dispatch model. Do NOT run the four dimensions serially.
-
-## Contract
-
-```yaml
-contract:
-  reads:
-    - {file: chapters/chapter-N.md}
-    - {file: characters/protagonist.md}
-    - {file: characters/major/*.md}
-    - {file: truth/character_matrix.md}
-    - {file: truth/emotional_arcs.md}
-    - {file: truth/current_state.md}
-    - {file: genre-config.json, fields: [povMode]}
-  writes: []
-  updates:
-    - audits/chapter-N-character.md
-    - audits/chapter-N-dialogue.md
-    - audits/chapter-N-motivation.md
-    - audits/chapter-N-pov.md
-```
+> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the four dimensions serially.
 
 ## Evaluation Dimensions
 
