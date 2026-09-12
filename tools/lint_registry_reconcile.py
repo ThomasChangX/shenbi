@@ -138,16 +138,7 @@ def _checker_keys(repo: Path) -> set[str]:
     generic = repo / "src" / "shenbi" / "gates" / "g4" / "generic.py"
     if not generic.exists():
         return set()
-    keys = _literal_str_set(generic.read_text(encoding="utf-8"), "G4_CHECKER_KEYS")
-    if keys:
-        return keys
-    # Fallback: static dict keys + score family from scoring_sections.py
-    static = _literal_str_set(generic.read_text(encoding="utf-8"), "checkers")
-    scoring = repo / "src" / "shenbi" / "gates" / "g4" / "scoring_sections.py"
-    if scoring.exists():
-        stext = scoring.read_text(encoding="utf-8")
-        static |= set(re.findall(r'"(shenbi-score-[a-z-]+)"', stext))
-    return static
+    return _literal_str_set(generic.read_text(encoding="utf-8"), "G4_CHECKER_KEYS")
 
 
 def _g5_checker_globs(repo: Path) -> dict[str, list[str]]:
@@ -224,7 +215,7 @@ def _face_short_map(repo: Path, checkers: set[str]) -> list[str]:
     """SHORT_MAP ⊇ checker-having skills."""
     short_map = _short_map_keys(repo)
     if short_map is None:
-        _WARN.append("[R1] SHORT_MAP: unreadable (cli.py import failed)")
+        _WARN.append("[R1] SHORT_MAP: unreadable (cli.py missing or SHORT_MAP unparseable)")
         return []
     gap = sorted(checkers - short_map)
     return [f"[R1] SHORT_MAP: missing-checkers: {gap}"] if gap else []
@@ -331,6 +322,11 @@ def _r1_skill_closure(repo: Path, allow_missing: frozenset[str]) -> list[str]:
 
 
 def _collect_deps_names(node: object) -> set[str]:
+    """Collect shenbi-* names from list positions only.
+
+    Prose strings (e.g. a _note mentioning "supersedes shenbi-review-pov")
+    must not count as registrations — final-review M3.
+    """
     names: set[str] = set()
     if isinstance(node, dict):
         for v in node.values():
@@ -339,7 +335,7 @@ def _collect_deps_names(node: object) -> set[str]:
         for v in node:
             if isinstance(v, str) and v.startswith("shenbi-"):
                 names.add(v)
-            else:
+            elif isinstance(v, (dict, list)):
                 names |= _collect_deps_names(v)
     return names
 
