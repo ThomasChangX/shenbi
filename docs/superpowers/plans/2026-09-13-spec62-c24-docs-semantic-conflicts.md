@@ -107,7 +107,7 @@
 **复杂度:** leaf · **test_kind:** regression_guard
 
 - [ ] **Step 1:** 逐条按裁决表改（F885 先跑 `grep -rnE "[0-9X]+/10([^0-9]|\$)" skills/` 全清单，豁免项入裁决表附理由）
-- [ ] **Step 2:** 验证：`grep -rnE "[0-9]+/10(分| )?" skills/` 剩余命中 = 豁免清单；`shenbi-reader-pull` 0 命中；`MUTUAL_SECRET` 三处同构
+- [ ] **Step 2:** 验证：`grep -rnE "[0-9X]+/10([^0-9]|$)" skills/` 剩余命中 = 豁免清单；`shenbi-reader-pull` 0 命中；`MUTUAL_SECRET` 三处同构
 - [ ] **Step 3:** Commit `docs(skills): spec62 terminology/scale/misc reconciliation (11 findings)` → audit-T4.md
 
 ## Task 5 · INDEX/spec 体系自洽（T3：F935/F936/F938/F939/F941/F942/F943/F946/F948/F949/F950/F913/F914/F915/F916/F918/F919/F707）
@@ -148,5 +148,5 @@
 | 1 抽样 10 条单版本 | T7 | git grep 对照裁决表 |
 | 2 INDEX 机械自洽 | T5/T7 | 人工逐行核对（粘贴）+ #6 逐命中验证 |
 | 3 五技能 DOT | T3/T7 | `grep -l "flowchart\|graph" <skill>/SKILL.md` |
-| 4 刻度统一 | T4/T7 | `grep -rnE "[0-9]+/10" skills/` = 豁免清单 |
+| 4 刻度统一 | T4/T7 | `grep -rnE "[0-9X]+/10([^0-9]|$)" skills/` = 豁免清单 |
 | 5 just check + doc-links 0 断链 + 契约同步 | T2/T7 | `just check`、`just lint-contracts`、`just generate` diff |
