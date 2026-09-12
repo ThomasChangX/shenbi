@@ -129,3 +129,19 @@ def test_lifecycle_prompt_reachable(tmp_path):
     combined = system_prompt + user_prompt
     assert "foreshadowing-lifecycle" in combined
     assert output_paths, "prompt assembly must carry output paths"
+
+
+def test_genesis_outputs_override_excludes_per_chapter_writes(tmp_path):
+    """Stage-8 review I1 pin: genesis dispatch output set is the GenesisStep's
+    declared output — lifecycle's bridge_tracker/audits must NOT appear.
+    """
+    system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        skill="shenbi-foreshadowing-lifecycle",
+        project_dir=tmp_path,
+        prompt="genesis",
+        chapter=None,
+        outputs_override=["truth/pending_hooks.md"],
+    )
+    assert output_paths == ["truth/pending_hooks.md"]
+    assert "bridge_tracker" not in user_prompt
+    assert "audits/chapter" not in user_prompt

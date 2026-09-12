@@ -334,7 +334,16 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     step_ctx = (
         PathContext(anchor=1) if step.skill == "shenbi-anchor-curate" else None
     )  # F380 (spec #6): AC-NNN -> AC-001.md genesis sentinel, conditional on this step
-    result = dispatch_skill(step.skill, project_dir, prompt, path_context=step_ctx)
+    result = dispatch_skill(
+        step.skill,
+        project_dir,
+        prompt,
+        path_context=step_ctx,
+        # Stage-8 review I1: the GenesisStep's declared output IS the genesis
+        # output set — keeps per-chapter-mode contract writes (lifecycle's
+        # bridge_tracker) out of the genesis "Files to create" instruction.
+        outputs_override=[step.output_path] if step.output_path else None,
+    )
     if not result.success:
         log.error("genesis_dispatch_failed", step=step.step_num, skill=step.skill)
         if hasattr(result, "stderr") and result.stderr:
