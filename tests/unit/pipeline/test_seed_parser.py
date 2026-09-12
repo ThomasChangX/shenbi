@@ -89,7 +89,9 @@ class TestParseSeed:
         assert "穿越" in str(data.novel_json["genre"])
         assert "中世纪" in str(data.novel_json["era"])
         assert "穿越" in str(data.novel_json["core_concept"])
-        assert data.novel_json["target_word_count"] == 100000
+        assert (
+            data.novel_json["target_word_count"] == 200000
+        )  # F919: 20万 adjudicated (goal-prompt/concepts 2:1)
         assert "total_chapters" not in data.novel_json
 
         # section -> genesis context
