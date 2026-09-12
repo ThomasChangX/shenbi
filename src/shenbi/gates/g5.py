@@ -58,6 +58,19 @@ G5_CHECKER_GLOBS: dict[str, list[str]] = {
     "shenbi-style-polishing": ["chapters/*.md"],
     "shenbi-anti-detect": ["chapters/*.md"],
     "shenbi-length-normalizing": ["chapters/*.md"],
+    "shenbi-book-spine-init": ["truth/book_spine.md"],
+    "shenbi-chapter-revision": [
+        "chapters/chapter-*.md",
+        "chapters/chapter-*-revision-decisions.json",
+        "truth/state_snapshot-pre-rev.md",
+    ],
+    "shenbi-memory-distill": ["truth/arcs/arc-*.md", "truth/book_strata.md", "truth/book_spine.md"],
+    "shenbi-review-arc-payoff": ["audits/volume-*-payoff.md"],
+    "shenbi-review-resonance": ["audits/chapter-*-resonance.md"],
+    "shenbi-score-arc": ["audits/arc-*-score.md"],
+    "shenbi-score-stratum": ["audits/stratum-*-score.md"],
+    "shenbi-score-volume": ["audits/volume-*-score.md"],
+    "shenbi-short-drafting": ["chapters/chapter-*.md", "short/short-*-decisions.json"],
 }
 
 
