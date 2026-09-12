@@ -366,11 +366,17 @@ def g4_foreshadowing_lifecycle(
         if not content:
             mf.append(f"G4.fl.empty_or_missing:{fp}")
             continue
-        # 1) canonical states only (ACTIVE etc. fold to None upstream — reject here)
-        states = set(re.findall(r"\b(PLANTED|RELEVANT|TRIGGERED|RESOLVED|ARCHIVED|EXPIRED|ACTIVE)\b", content))
-        if "ACTIVE" in states:
-            mf.append("G4.fl.non_canonical_state:ACTIVE")
-        elif states:
+        # 1) hook-state presence (PLANTED/RELEVANT/TRIGGERED/RESOLVED/ARCHIVED/EXPIRED,
+        #    plus the designed recall-phase vocabulary DORMANT/ACTIVE/ABANDONED — see
+        #    plan review r5 deviation: blanket ACTIVE rejection would contradict the
+        #    merged skill's recall semantics at SKILL.md :50/:59/:150 and lifecycle-states.md)
+        states = set(
+            re.findall(
+                r"\b(PLANTED|RELEVANT|TRIGGERED|RESOLVED|ARCHIVED|EXPIRED|DORMANT|ACTIVE|ABANDONED)\b",
+                content,
+            )
+        )
+        if states:
             c.append({"id": "G4.fl.states", "s": GateStatus.PASS, "seen": sorted(states)})
         else:
             mf.append("G4.fl.no_hook_states")
@@ -411,7 +417,13 @@ grep -rn "g4_foreshadowing_plant\|g4_foreshadowing_track" src/ tests/   # → �
 grep -rn "foreshadowing-plant\|foreshadowing-track" tests/ --include="*.py" | grep -v test_resume_anchor
 ```
 具名迁移清单（审查员亲证行号）：`tests/unit/gates/g4/test_all_skills_parametrized.py:37-38`（参数对 → lifecycle/foreshadowing_lifecycle/g4_foreshadowing_lifecycle）、`tests/unit/gates/g4/test_foreshadowing_plant_regression.py`（断言 `G4-foreshadowing-plant` → 改 lifecycle checker）、`tests/unit/gates/g4/test_foreshadowing_plant.py` 与 `test_foreshadowing_track.py`（Step 1 移植后 `git rm` 删除原文件）、`tests/unit/gates/test_g1_bak_exemption.py:11`（fixture 技能名 → lifecycle）、`tests/unit/contracts/test_ownership.py:44,53,63,72,82`（plant/track 行断言**删除**——lifecycle 无 ownership 行（Step 4 裁决），对应用例改为断言 `get_ownership("shenbi-foreshadowing-lifecycle", ...) is None` 落 file-level 检查）、`tests/unit/audit/test_write_audit.py:47,64,85` 与 `test_write_audit_diff_predicate.py:44,94,101`（`audit_writes("shenbi-foreshadowing-track", ...)` → 断言 lifecycle 无越权（file-level 路径）或改用 state-settling 对照样）、`tests/unit/pipeline/test_parallel_dispatch_safety.py:47,57`（track → lifecycle）、`tests/unit/test_t4_scatter_guards.py:12,16`（track 引用）、`tests/unit/tools/test_lint_contract_prose.py:247`（注释引用）。`tests/pipeline/test_chapter_steps_restructured.py:22-23`（断言 plant/track 不在 CHAPTER_STEPS——历史断言方向不变仍绿则不动）
-- [ ] **Step 7: commit**（pathspec 列全：新 checker、四注册文件、两删除模块、deps.json、migrate 工具、schema、全部迁移测试）
+- [ ] **Step 7: commit**（pathspec 列全——含第五注册文件 ownership.py 与 pyproject 清理）
+
+```bash
+git add src/shenbi/gates/g4/foreshadowing_lifecycle.py src/shenbi/gates/g4/generic.py src/shenbi/gates/shared.py src/shenbi/contracts/ownership.py src/shenbi/gates/g5.py src/shenbi/gates/cli.py src/shenbi/contracts/schemas/hooks.py tools/migrate_contract_to_frontmatter.py tests/tiers/deps.json pyproject.toml <全部迁移测试文件>
+git commit -m "feat: G4 lifecycle checker + registration swap across gates/contracts faces (spec #59 T3)"
+```
+（`pyproject.toml:139` 的 `foreshadowing_plant.py` BLE001 per-file-ignore 随模块删除一并清；`schemas/hooks.py` 权威源改指时其行号引用（`:72-73,:120`）改为去行号或按 lifecycle 实况）
 
 ```bash
 git commit -m "feat: G4 lifecycle checker + registration swap across gates/contracts faces (spec #59 T3)"
@@ -701,7 +713,7 @@ git commit -m "fix: rewrite behavioral descriptions to when-to-use form (spec #5
 - Test: `just lint-contracts`（R1/R2 闭包）+ `uv run pytest tests/contracts -q`
 
 - [ ] **Step 1: (b)** — `cp skills/shenbi-foreshadowing-track/lifecycle-states.md skills/shenbi-foreshadowing-lifecycle/`、`cp skills/shenbi-foreshadowing-plant/hook-types.md skills/shenbi-foreshadowing-lifecycle/`；SKILL.md :64 `（see lifecycle-states.md）` 与 :108 `Full type/dimension/curve/subtlety lookup table in hook-types.md.` 引用路径不变（现落本目录）
-- [ ] **Step 2: (c)** — :84 `Set initial lifecycle_state to ACTIVE` → `Set initial lifecycle_state to PLANTED`（:161 示例与 :65 状态机起点本就是 PLANTED——正名对齐规范六态；G4 lifecycle checker 的 non_canonical_state:ACTIVE 检查（T3）同步闭环）；**另修 genesis 模式措辞**（plan 审查轮 2 M3）：:115 `**writes**: same as default mode (truth/pending_hooks.md)` → `**updates**: truth/pending_hooks.md via append_dedup（同默认模式）；genesis 不触 bridge_tracker.md`——与 frontmatter（updates 含 pending_hooks、writes 含 bridge_tracker+audits）对齐
+- [ ] **Step 2: (c)** — :84 `Set initial lifecycle_state to ACTIVE` → `Set initial lifecycle_state to PLANTED`（:161 示例与 :65 状态机起点本就是 PLANTED——正名对齐规范六态；G4 lifecycle checker 的 non_canonical_state:ACTIVE 检查（T3）同步闭环）；**范围裁定（plan 审查轮 5）**：:50/:59/:150 的 DORMANT/ACTIVE/ABANDONED 是合并技能的 recall 阶段设计词表（lifecycle-states.md :15-19 状态机）——**保留不改**，与 F815(c) 的初始态矛盾面（:84 创建时初值）正交；canonical HookState 解析器对扩展词折叠 None 是既有张力，出本 spec 范围记 spec-deviations；**另修 genesis 模式措辞**（plan 审查轮 2 M3）：:115 `**writes**: same as default mode (truth/pending_hooks.md)` → `**updates**: truth/pending_hooks.md via append_dedup（同默认模式）；genesis 不触 bridge_tracker.md`——与 frontmatter（updates 含 pending_hooks、writes 含 bridge_tracker+audits）对齐
 - [ ] **Step 3: (d)** — frontmatter `writes:` 增条目（audits 输出为每章新文件）：
 ```yaml
   writes:
