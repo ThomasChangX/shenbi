@@ -13,7 +13,6 @@ shenbi/
 │   ├── dispatcher/         # Sub-agent dispatch
 │   └── skill_utils/        # Skill Python helpers
 ├── tests/                  # Test code only (unit, integration, property, benchmark)
-│   ├── rounds/             # Active + archived rounds
 │   ├── fixtures/           # Real skill outputs (no mocks)
 │   └── baselines/          # Differential testing baselines
 ├── skills/                 # functional (shenbi-*) + meta skills (using-shenbi, shenbi-writing-skills); authoritative count via tools/lint_registry_reconcile.py

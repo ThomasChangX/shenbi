@@ -1,4 +1,4 @@
-在 /Users/xiaotiac/Documents/GitHub/shenbi 根目录，按 docs/superpowers/plans/2026-06-11-test-framework.md 执行测试轮次。
+在 /Users/xiaotiac/Documents/GitHub/shenbi 根目录，按 docs/superpowers/plans/archive/2026-06-11-test-framework.md 执行测试轮次。
 
 > **Quick reference**: All commands have `just` shortcuts. Run `just --list` for the full list. Key commands: `just check`, `just test`, `just gate G0 <seed>`, `just dispatch <skill> <type> <round> <prompt>`.
 
@@ -21,10 +21,11 @@ bash tests/round-exec.sh deepseek-v4-flash T1
 
 输出包含 G0 结果。G0 通过 → 继续第二步。G0 失败 → 按 G0 输出的 `must_fix` 逐条修复，重新运行 G0。**G0 不通过不 dispatch 任何 skill。**
 
-**注意**：修改 validate-gate.py / scoring.py / phase-runner.py 后，必须运行 `bash tests/lock-tool-hashes.sh` 更新 `deps.json` 中的 SHA256 锁定值，否则 G0.13 阻断。
+**注意**：修改 `src/shenbi/gates/` 下任何 gate 模块 / scoring.py / phase-runner.py 后，必须运行 `bash tests/lock-tool-hashes.sh` 更新 `deps.json` 中的 SHA256 锁定值，否则 G0.13 阻断。
 
 ### 第二步：确认进度
 
+检查 `.superpowers/sdd/progress.md`（如存在）与既有轮次输出目录，确定本轮起点；无进行中轮次则从新 round 目录开始。
 
 ### 第三步：按 skill 列表执行
 
@@ -45,7 +46,7 @@ bash tests/round-exec.sh deepseek-v4-flash T1
 3. 执行 skill。输出到 `skill-output/<skill>/`
 4. 跑 `uv run shenbi-validate G2 <files> <FILE_TYPE> <round_dir>`（FILE_TYPE 从 skill 推导：chapter-drafting/style-polishing → `chapter`，state-settling/foreshadowing → `truth`，其余默认 `chapter`）
 5. 跑 `uv run shenbi-validate G4 <skill> <files> <round_dir>`
-6. **只在 G2 和 G4 都通过后**，新开独立 subagent 评分（使用 `bash tests/dispatch-subagent.sh <skill> generative <round_dir> "<prompt>"`）。**Dispatcher 不得评分。** 评分 subagent 只接收 rubric 路径和输出文件路径，不接收生成过程上下文。评分 subagent 的输出格式必须是：`{"1": 90, "2": 85, ...}`（仅整数键映射到 0-100 分数，无其他字段）。
+6. **只在 G2 和 G4 都通过后**，新开独立 subagent 评分（使用 `shenbi-dispatch <skill> generative <round_dir> "<prompt>"`）。**Dispatcher 不得评分。** 评分 subagent 只接收 rubric 路径和输出文件路径，不接收生成过程上下文。评分 subagent 的输出格式必须是：`{"1": 90, "2": 85, ...}`（仅整数键映射到 0-100 分数，无其他字段）。
 7. 跑 `uv run shenbi-score <rubric> <scores.json> --test-type generative`
    - **scoring.py 退出的四种状态**：
      - 0 = 评分计算成功，结果写入 stdout。Dispatcher 将 stdout 保存到 `t1-reports/<skill>-generative-scores.json`
@@ -82,7 +83,7 @@ bash tests/round-exec.sh deepseek-v4-flash T1
 
 ### 第五步：推进
 
-**全部 59 个 skill 的 generative、bug-hunt、clean 均 ≥ 94 → 开始 T2。**
+**全部 skill（以 `tools/lint_registry_reconcile.py` 对账口径为准）的 generative、bug-hunt、clean 均 ≥ 94 → 开始 T2。**
 在此之前不进入 T2。T2 的推进门槛同样是 94。
 
 ### 第六步：T2 Phase 执行
