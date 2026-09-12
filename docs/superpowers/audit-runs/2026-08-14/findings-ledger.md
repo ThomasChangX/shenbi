@@ -688,7 +688,7 @@
 | F902 | foreshadowing-lifecycle 引用不存在的参考文件 lifecycle-states.md / hook-types.md | error | P2 | 见 zone-reports/Z8-a.md#F902 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F903 | foreshadowing-resolve 的 Chase Power 公式/阈值三处不一致，且示例自相矛盾 | error | P1 | 见 zone-reports/Z8-a.md#F903 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F904 | review-anti-ai / review-motivation / review-pov 的 DEPRECATED 标注未传导：仍注册于 index/deps/executor_config/using-shenbi，正文仍自称活跃 | error | P2 | 见 zone-reports/Z8-a.md#F904 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F905 | review-sensitivity 双重调度：固定章节步骤 14 与 genre-circle 均调度同一 skill，真实配置下每章重复执行 | error | P1 | 见 zone-reports/Z8-a.md#F905 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F905 | review-sensitivity 双重调度：固定章节步骤 14 与 genre-circle 均调度同一 skill，真实配置下每章重复执行 | error | P1 | 见 zone-reports/Z8-a.md#F905 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | closed (C-21 spec #59, PR #204) |
 | F906 | genre-config.json 字段级 reads 漂移：prohibitions / climaxKeywords / prohibitedClimaxKeywords / povMode / maxClimaxPerChapter 被 4+ skill 读取但 schema 与真实文件均无 | error | P1 | 见 zone-reports/Z8-a.md#F906 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F907 | review skill 激活条件使用存档 spec 的数值维度 ID（维度 15/9/19/11/17/32），与运行时 named-key 机制脱节 | error | P2 | 见 zone-reports/Z8-a.md#F907 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F908 | character-design expand 模式读取 characters/**/*.md 未在 frontmatter 声明，且正文引用未注册文件 outline/chapter_outline.md、outline/three_act.md | contract | P2 | 见 zone-reports/Z8-a.md#F908 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
