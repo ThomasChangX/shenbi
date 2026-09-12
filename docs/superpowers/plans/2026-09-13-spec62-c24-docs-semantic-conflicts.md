@@ -36,8 +36,8 @@
 | F813 | 补 anti-rationalization 表；escalation_check→run_escalation_check | skills/shenbi-escalation-review/SKILL.md:37（实 helper：orchestration/escalation_bridge.py:28） |
 | F829 | DOT 补齐正文强制节点 | score-arc（audit_drift 追加节点）、genre-config（备份节点）、chapter-drafting（PRE_WRITE_CHECK 全列）三个 SKILL.md 的 DOT |
 | F837 | 修 DOT 分支条件使 L2/L4 互斥（ch36 只走 L4，L2 条件加 `且非 %36`） | skills/shenbi-memory-distill/SKILL.md:69-71 |
-| F841 | 删正文内嵌 Contract YAML（frontmatter 为唯一信源）；chapter_loop.py:1090-1168 → 符号化引用 | 4 个 group-* SKILL.md（group-plan:39,44-56 / group-character:46 / group-craft:41 / group-factual:45） |
-| F847 | 空引用补指代对象 | review-continuity:118、review-dialogue:110、review-character:86、review-long-span:100「遵循  定义」→ 指向四要素格式正式定义处（review-* 契约节） |
+| F841 | 删正文内嵌 Contract YAML（frontmatter 为唯一信源）；chapter_loop.py:1090-1168 → 符号化引用 | 4 个 group-* SKILL.md（group-plan:39,44-56 / group-character:51 / group-craft:46 / group-factual:50；chapter_loop.py:1090-1168 引用一律改符号化「src/shenbi/pipeline/chapter_loop.py 派发函数」——该行段现为统计代码，行号引用本身就是 F841 指控对象） |
+| F847 | 空引用补指代对象 | review-continuity:118、review-dialogue:110、review-character:86、review-long-span:100「遵循  定义」→ 指向 canonical 锚点 skills/shenbi-review-highpoint/SKILL.md:150 四要素格式节（该处有完整定义） |
 | F848 | 示例数值与阈值对齐：+15.9% 等标「不满足 >0.20 的示例」或换满足例；窗口示例改「4 个 5 字串」 | skills/shenbi-review-long-span/ngram-methodology.md:14,56,62-64 |
 | F850 | 输出模板枚举补 MUTUAL_SECRET（4 态，与 g4/relationship_map.py:47 一致） | skills/shenbi-relationship-map/SKILL.md:119 |
 | F851 | B 线统一「中线」；默认值清单补 P3=16 | skills/shenbi-plot-thread-weaver/SKILL.md:59,:70,:144；:86 |
@@ -47,30 +47,30 @@
 | F856 | 蔗糖「唐代」、高足椅「唐宋普及」（多数史学口径） | skills/shenbi-review-era/era-reference.md:32-33 |
 | F857 | 方法论指针改全路径 skills/shenbi-review-era/era-reference.md 消歧 | skills/shenbi-review-era/SKILL.md:81 |
 | F874 | 同 F847 指代补全 | skills/shenbi-review-sensitivity/SKILL.md:74 |
-| F876 | 「11 个」→「12 个」；合并双「## 铁律」节 | skills/shenbi-worldbuilding/SKILL.md:82；:62,:104 |
+| F876 | 「11 个」→「12 个」；:106「11+ 个」同批改「12 个」；合并双「## 铁律」节 | skills/shenbi-worldbuilding/SKILL.md:82,:106；:62,:104 |
 | F879 | 路径改 docs/superpowers/specs/archive/2026-06-08-shenbi-design.md | skills/using-shenbi/SKILL.md:116 |
 | F883 | 步骤重编号；二输出模板择一（保留 :166 精确模板，:69 改指针） | skills/shenbi-volume-consolidation/SKILL.md:113-114,:69,:166 |
-| F885 | 刻度统一 /100（约 20 处 X/10）；score-arc/stratum/volume description 中英分列 | 全 skills grep `[0-9]+/10` 清扫；三个 score-* SKILL.md:3 |
+| F885 | 刻度统一 /100（实况 29 处字面 `X/10`，如 `### 评分: X/10 通过`）；score-arc/stratum/volume description 中英分列 | 全 skills `grep -rnE "[0-9X]+/10([^0-9]|$)"` 清扫；三个 score-* SKILL.md:3 |
 | F893 | 5 技能补 DOT：foreshadowing-lifecycle + 4 个 review-group-* | 5 个 SKILL.md 各新增 DOT 节 |
-| F913 | goal-prompt 快照加「历史快照，现状以 AGENTS.md/INDEX 为准」注 + 修正 59 skill/60 T1/115 fixture 计数 | goal-prompt.md:3,71（skill 数以 tools/lint_registry_reconcile.py 权威计数为准） |
+| F913 | goal-prompt 快照加「历史快照，现状以 AGENTS.md/INDEX 为准」注 + 修正 59 skill/60 T1/115 fixture 计数 | goal-prompt.md:19,:20,:23（计数行；:3,:71 的 20 万字表述本就正确不动；skill 数以 tools/lint_registry_reconcile.py 权威计数为准） |
 | F914 | 「7-gate (G0-G7)」→「8-gate (G0-G7)」 | CHANGELOG.md:18 |
-| F915 | 占位符填实（repo owner GitHub 联系方式） | CODE_OF_CONDUCT.md:43 |
+| F915 | 占位符填实（repo owner GitHub 联系方式，https://github.com/ThomasChangX） | CODE_OF_CONDUCT.md:39 |
 | F916 | ADR-0009 追加失效注（shim 已由 PR-22 0f68102f 删除） | docs/adr/0009-dispatcher-python-rewrite.md:12 后 |
 | F918 | 删连续双水平线之一 | docs/getting-started/concepts.md:55,57 |
-| F919 | 20 万（goal-prompt+concepts.md 2:1，outline-example 10 万为异值） | outline-example.md:7 + tests/fixtures/outline-example.md:7 → 200000 |
+| F919 | 20 万（goal-prompt+concepts.md 2:1，outline-example 10 万为异值） | outline-example.md:7 + tests/fixtures/outline-example.md 目标字数行（grep 定位，provenance frontmatter 偏移）→ 200000 |
 | F935 | INDEX 重排：#40→#63→#64→#6→#65→#62→#66 | docs/superpowers/specs/INDEX.md 执行队列 |
 | F936 | 归档 spec 头部补 `# <N>` 编号标记（引用可解析） | docs/superpowers/specs/archive/ 各文件头部（引用到的编号处） |
 | F938 | #19 副本重复条目改指针注「由 #22 主登记」 | archive/2026-08-14-decisions-chain-design.md:38,46 |
-| F939 | 追加勘误注：头部分级 4+45+318+98=465，与 :8 467 差异源自 false-positive×1 口径 | archive/2026-08-14-full-project-audit-design.md |
+| F939 | 追加勘误注如实披露：头部分级加总 465，加 F325 false-positive×1 = 466，与 :8 的 467 尚差 1，来源不明属历史计数缺口，以 findings-ledger 为准（禁止虚构闭合口径） | archive/2026-08-14-full-project-audit-design.md |
 | F941 | :34 F125 PR 归因加勘误注（正确为 PR-22，与 :19 F0-05 一致） | archive/2026-08-14-p2-batch-design.md |
 | F942 | 追加「历史版本，以 v3 为准」注（T1-T11 → 实际 T1-T16） | archive/2026-08-13-full-project-audit-prompt-design.md:137,204 |
 | F943 | §9 文件名加勘误注（实际 2026-08-14-*） | 同上文件 :272-274 |
 | F946 | F1100 加勘误注（疑似误报：目标文件可解析于 plans/archive 且 :7 属实） | archive/2026-08-14-p2-batch-design.md:289 |
 | F948 | MAX_DISPATCH_DETRIES→MAX_DISPATCH_RETRIES | archive/2026-08-01-output-side-waste-audit-design.md:38 |
 | F949 | R1 实证描述加勘误注（现盘 1 行 9 列，以 truth 现盘为准） | archive/2026-08-14-truth-write-path-design.md:9 |
-| F950 | 「23 份全部产自同一次」→「多数产自 2026-08-14 audit（20/23），余为 08-01/08-13」 | docs/superpowers/single-model-sdd-prompt.md:247 |
+| F950 | 「23 份全部产自同一次」→「现活跃 spec 数份且多数源自 2026-08-14/15 审计系列（历史各轮来源分布以 specs/archive 目录现势为准）」——活跃数与历史归属均以执行时现势核对落笔 | docs/superpowers/single-model-sdd-prompt.md:247 |
 | F1028 | CODEOWNERS 收敛为单默认行 + 差异化段（或删冗余段） | .github/CODEOWNERS |
-| F1029 | `弧段/卷级.高光` → `卷级.弧段高光`? 以其余 AC 记法「层级.维度」对齐实值核对后改 | benchmarks/anchors/AC-003.md calibrates 行 |
+| F1029 | calibrates 改 `卷级.高光, 卷级.伏笔纪律`（与 AC-003.md:11 prose「卷级高光/伏笔纪律」及全仓「层级.维度」记法一致；不造新维度名） | benchmarks/anchors/AC-003.md calibrates 行 |
 | F1156 | 12 skill 队列显式 void：INDEX #62 条目注记（本 spec 不承接温度调优，登记为 follow-up 待办或显式不做） | docs/superpowers/specs/INDEX.md #62 条目 + progress 注记 |
 | F1157 | 本地删除过时 checklist（local-only，不进 PR） | .superpowers/sdd-archive-inference-control/progress.md:54-61 |
 | T1307 | pydantic 注释改「g2 schemas 生产使用中」 | pyproject.toml:11 |
@@ -106,7 +106,7 @@
 **Files:** Modify: 上表对应 11 族文件（含 using-shenbi、worldbuilding、volume-consolidation、era-reference 等）
 **复杂度:** leaf · **test_kind:** regression_guard
 
-- [ ] **Step 1:** 逐条按裁决表改（F885 先跑 `grep -rnE "[0-9]+/10" skills/` 全清单，豁免项入裁决表附理由）
+- [ ] **Step 1:** 逐条按裁决表改（F885 先跑 `grep -rnE "[0-9X]+/10([^0-9]|\$)" skills/` 全清单，豁免项入裁决表附理由）
 - [ ] **Step 2:** 验证：`grep -rnE "[0-9]+/10(分| )?" skills/` 剩余命中 = 豁免清单；`shenbi-reader-pull` 0 命中；`MUTUAL_SECRET` 三处同构
 - [ ] **Step 3:** Commit `docs(skills): spec62 terminology/scale/misc reconciliation (11 findings)` → audit-T4.md
 
@@ -137,7 +137,7 @@
 - [ ] **Step 1:** 验收 1——抽样 10 条（F707/F837/F876/F885/F935/F936/F938/F948/F949/F950）git grep 单版本对照
 - [ ] **Step 2:** 验收 2——INDEX 序逐行核对 + #6 引用逐命中可达编号标记
 - [ ] **Step 3:** 验收 3——五技能 DOT grep 全命中
-- [ ] **Step 4:** 验收 4——X/10 grep 与豁免清单对账
+- [ ] **Step 4:** 验收 4——`grep -rnE "[0-9X]+/10([^0-9]|$)" skills/` 剩余命中逐条 = 豁免清单（有理由）
 - [ ] **Step 5:** 验收 5——`just check` 全绿 + lint-contracts + generate diff 空
 - [ ] **Step 6:** 输出粘贴 progress.md `## 验收证据` → audit-T7.md
 
