@@ -16,6 +16,10 @@ contract:
   updates: []
 ---
 <!-- DEPRECATED: Superseded by shenbi-review-group-character (2026-07-19). -->
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-review-group-character` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 <!-- This skill is retained for reference. Do not dispatch. -->
 
 <!-- AUTO-CHECK-START -->

@@ -17,6 +17,10 @@ contract:
   updates: []
 ---
 <!-- DEPRECATED: Superseded by shenbi-review-group-character (2026-07-19). -->
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-review-group-character` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 <!-- This skill is retained for reference. Do not dispatch. -->
 
 <!-- AUTO-CHECK-START -->
@@ -37,7 +41,7 @@ contract:
 
 # 角色一致性审计
 
-这是默认激活的审计技能（每章必查）。OOC (Out of Character) 检测、声音一致性、配角降智/工具人化检测、弧线平坦检测。
+**已退役正文**（历史描述，现行职责由 shenbi-review-group-character 承接）：历史上面向 OOC 检测、声音一致性、配角降智/工具人化检测、弧线平坦检测。
 
 ## 流程
 

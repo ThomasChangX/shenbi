@@ -22,6 +22,10 @@ contract:
   updates: []
 ---
 <!-- DEPRECATED: Superseded by shenbi-review-group-factual (2026-07-19). -->
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-review-group-factual` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 <!-- This skill is retained for reference. Do not dispatch. -->
 
 <!-- AUTO-CHECK-START -->
@@ -42,7 +46,7 @@ contract:
 
 # 连续性审计
 
-这是默认激活的审计技能（每章必查）。检查时间线一致性、地点矛盾、事件时序、物理空间合理性。
+**已退役正文**（历史描述，现行职责由 shenbi-review-group-factual 承接）：历史上面向时间线一致性、地点矛盾、事件时序、物理空间合理性审计。
 
 ## 流程
 

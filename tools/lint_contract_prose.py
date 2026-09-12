@@ -88,11 +88,6 @@ ALLOWLIST: tuple[tuple[str, str, str], ...] = (
     ),
     (
         "anti-example",
-        "shenbi-foreshadowing-track:foreshadowing_ledger.md",
-        "DEPRECATED 技能残文幻影(已被 foreshadowing-lifecycle 取代, 不派发)",
-    ),
-    (
-        "anti-example",
         "shenbi-review-anti-ai:checklist.md",
         "否定引用(原文件已随 spec #33 T2 死资产清理删除), 非读依赖",
     ),
