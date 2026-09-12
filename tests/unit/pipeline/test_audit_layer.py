@@ -37,18 +37,13 @@ class TestActivationMatrix:
     def test_era_maps_to_review_era(self):
         assert GENRE_ACTIVATION_MATRIX["era"] == "shenbi-review-era"
 
-    def test_sensitivity_maps(self):
-        assert GENRE_ACTIVATION_MATRIX["sensitivity"] == "shenbi-review-sensitivity"
-
-    def test_all_9_genre_skills_mapped(self):
-        assert len(GENRE_ACTIVATION_MATRIX) == 9
+    def test_all_3_conditional_dims_mapped(self):
+        """Spec #59 T6: six dims exited to _CORE_CIRCLE_KEYS (group fixed steps)."""
+        assert len(GENRE_ACTIVATION_MATRIX) == 3
 
     def test_all_values_are_shenbi_review(self):
         for v in GENRE_ACTIVATION_MATRIX.values():
             assert v.startswith("shenbi-review-")
-
-    def test_world_rules_key(self):
-        assert GENRE_ACTIVATION_MATRIX["worldRules"] == "shenbi-review-world-rules"
 
     def test_highpoint_key(self):
         assert GENRE_ACTIVATION_MATRIX["highpoint"] == "shenbi-review-highpoint"
@@ -90,32 +85,29 @@ class TestBoundaryTriggers:
 # Genre-circle activation logic
 # ---------------------------------------------------------------------------
 class TestGetActiveGenreAudits:
-    def test_empty_config_critical_only(self):
-        # Criticality split (spec 13 R2): texture defaults enabled.
-        assert get_active_genre_audits({}) == ["shenbi-review-texture"]
+    def test_empty_config_nothing_active(self):
+        # Spec #59 T6: texture left the critical set with the matrix exit —
+        # its criticality is structurally guaranteed by the group-craft step.
+        assert get_active_genre_audits({}) == []
 
-    def test_no_audit_dimensions_key_critical_only(self):
-        assert get_active_genre_audits({"other": 1}) == ["shenbi-review-texture"]
+    def test_no_audit_dimensions_key_nothing_active(self):
+        assert get_active_genre_audits({"other": 1}) == []
 
     def test_all_active(self):
         gc = {"audit_dimensions": dict.fromkeys(GENRE_ACTIVATION_MATRIX, True)}
         result = get_active_genre_audits(gc)
-        assert len(result) == 9
+        assert len(result) == 3
         assert "shenbi-review-era" in result
-        assert "shenbi-review-sensitivity" in result
 
     def test_subset_active(self):
         gc = {"audit_dimensions": {"era": True, "sensitivity": True, "dialogue": False}}
         result = get_active_genre_audits(gc)
-        # texture absent → enabled (criticality split)
-        assert result == [
-            "shenbi-review-era",
-            "shenbi-review-sensitivity",
-            "shenbi-review-texture",
-        ]
+        # sensitivity/dialogue are core dims (spec #59 T6): filtered here,
+        # carried by grouped fixed steps — only matrix-routed era dispatches
+        assert result == ["shenbi-review-era"]
 
     def test_false_values_excluded(self):
-        gc = {"audit_dimensions": {"texture": False}}
+        gc = {"audit_dimensions": {"era": False}}
         assert get_active_genre_audits(gc) == []
 
     def test_non_dict_audit_dimensions(self):
@@ -315,24 +307,36 @@ class TestGenreActivationCamelCase:
             pytest.skip("fixture not available")
         gc = json.loads(fixture_path.read_text(encoding="utf-8"))
         result = get_active_genre_audits(gc)
-        # Real fixture should activate at least 1 audit dimension
-        assert len(result) > 0, f"Expected >0 audits, got {result}"
+        # Post spec #59 T6: only matrix-routed conditional dims dispatch here
+        # (era/fanfic/highpoint); the six exited dims are carried by group steps.
         for skill in result:
             assert skill.startswith("shenbi-review-"), f"Unexpected skill: {skill}"
+            assert skill in (
+                "shenbi-review-era",
+                "shenbi-review-fanfic",
+                "shenbi-review-highpoint",
+            ), f"matrix-routed dispatch only, got {skill}"
 
     def test_camelcase_audit_dimensions_read(self):
         """AuditDimensions (camelCase) is the real fixture format."""
-        gc: dict[str, object] = {"auditDimensions": {"sensitivity": True, "worldRules": True}}
+        gc: dict[str, object] = {"auditDimensions": {"era": True, "highpoint": True}}
         result = get_active_genre_audits(gc)
-        assert "shenbi-review-sensitivity" in result
-        assert "shenbi-review-world-rules" in result
+        assert "shenbi-review-era" in result
+        assert "shenbi-review-highpoint" in result
 
-    def test_motivation_and_dialogue_camelcase(self):
-        """Motivation and dialogue are camelCase in real fixture."""
-        gc: dict[str, object] = {"auditDimensions": {"motivation": True, "dialogue": True}}
-        result = get_active_genre_audits(gc)
-        assert "shenbi-review-motivation" in result
-        assert "shenbi-review-dialogue" in result
+    def test_exited_dims_camelcase_filtered(self):
+        """Spec #59 T6: sensitivity/worldRules/motivation/dialogue are valid
+        config vocabulary but filtered here (group fixed steps carry them).
+        """
+        gc: dict[str, object] = {
+            "auditDimensions": {
+                "sensitivity": True,
+                "worldRules": True,
+                "motivation": True,
+                "dialogue": True,
+            }
+        }
+        assert get_active_genre_audits(gc) == []
 
     def test_core_circle_keys_not_in_genre_circle(self):
         """antiAi, character, pacing, continuity, foreshadowing are core circle — not genre."""
@@ -353,13 +357,15 @@ class TestGenreActivationCamelCase:
 
     def test_snake_case_fallback_works(self):
         """Backward compat: audit_dimensions (snake_case) still readable."""
-        gc: dict[str, object] = {"audit_dimensions": {"sensitivity": True}}
+        gc: dict[str, object] = {"audit_dimensions": {"era": True}}
         result = get_active_genre_audits(gc)
-        assert "shenbi-review-sensitivity" in result
+        assert "shenbi-review-era" in result
 
-    def test_missing_key_criticality_split(self):
-        """No auditDimensions key → only the critical dim (texture) activates."""
-        assert get_active_genre_audits({}) == ["shenbi-review-texture"]
+    def test_missing_key_nothing_activates(self):
+        """No auditDimensions key → nothing activates (critical set emptied by
+        the texture matrix exit, spec #59 T6).
+        """
+        assert get_active_genre_audits({}) == []
 
     def test_non_dict_audit_dims_returns_empty(self):
         """AuditDimensions is not a dict → empty list."""
@@ -367,15 +373,41 @@ class TestGenreActivationCamelCase:
 
 
 class TestCriticalitySplitActivation:
-    def test_missing_texture_still_activates(self):
+    def test_snake_case_still_honored(self):
         # Derived from the real fixture's auditDimensions shape (G0.9).
-        active = get_active_genre_audits({"auditDimensions": {"dialogue": True}})
-        assert "shenbi-review-texture" in active
+        active = get_active_genre_audits({"audit_dimensions": {"era": True}})
+        assert "shenbi-review-era" in active
 
     def test_truthy_one_does_not_activate(self):
         active = get_active_genre_audits({"auditDimensions": {"texture": 1, "dialogue": True}})
         assert "shenbi-review-texture" not in active
 
-    def test_snake_case_still_honored(self):
+    def test_truthy_one_exited_dim_does_not_activate(self):
+        """Spec #59 T6: exited dims stay filtered even under truthy-one form."""
         active = get_active_genre_audits({"audit_dimensions": {"dialogue": True}})
-        assert "shenbi-review-dialogue" in active
+        assert "shenbi-review-dialogue" not in active
+
+
+class TestRoutingDeprecationExit:
+    """Spec #59 T6 (F905): matrix exits DEPRECATED dims + sensitivity; the six
+    dims move to _CORE_CIRCLE_KEYS and are carried by grouped fixed steps.
+    """
+
+    def test_matrix_routes_no_deprecated_and_no_fixed_step_dup(self):
+        from pathlib import Path
+
+        from shenbi.pipeline.audit_layer import _CORE_CIRCLE_KEYS, GENRE_ACTIVATION_MATRIX
+        from shenbi.skill_utils.deprecated import deprecated_skill_names
+
+        dead = deprecated_skill_names(Path(__file__).resolve().parents[3] / "skills")
+        assert not [v for v in GENRE_ACTIVATION_MATRIX.values() if v in dead]
+        for dim in ("sensitivity", "worldRules", "motivation", "dialogue", "texture", "readerPull"):
+            assert dim in _CORE_CIRCLE_KEYS, dim
+
+    def test_genre_audits_filters_core_dims(self):
+        gc = {"auditDimensions": {"worldRules": True, "texture": True, "era": True}}
+        active = get_active_genre_audits(gc)
+        assert "shenbi-review-era" in active
+        # core dims: filtered, carried by group fixed steps (CHAPTER_STEPS 9-14)
+        assert "shenbi-review-world-rules" not in active
+        assert "shenbi-review-sensitivity" not in active  # F905: fixed step 14 is the sole source

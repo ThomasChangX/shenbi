@@ -169,14 +169,14 @@ digraph genre_config {
 |------|----------|
 | antiAi | 反 AI 检测审计 |
 | character | 角色 OOC 审计 |
-| motivation | 主角动机审计 |
+| motivation | 主角动机审计（固定组步承接，键保留合法） |
 | pacing | 节奏审计 |
 | continuity | 跨章连续性审计 |
 | foreshadowing | 伏笔审计 |
-| sensitivity | 敏感内容审计 |
-| worldRules | 世界规则审计 |
-| dialogue | 对话质量审计 |
-| texture | 文字质感审计 |
+| sensitivity | 敏感内容审计（固定组步承接，键保留合法） |
+| worldRules | 世界规则审计（固定组步承接，键保留合法） |
+| dialogue | 对话质量审计（固定组步承接，键保留合法） |
+| texture | 文字质感审计（固定组步承接，键保留合法） |
 
 ### 5. 自定义规则
 
