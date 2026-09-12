@@ -23,4 +23,3 @@ Any skill's output scores below its T1 score on same input → phase = 0.
 - truth/ (updated state files)
 - truth/character_matrix.md
 - truth/pending_hooks.md
-- truth/pending_hooks.md
