@@ -1,8 +1,6 @@
 ---
 name: shenbi-location-builder
-description: Use when designing a new story location or resolving cross-location spatial consistency.
-  detailed place profiles with spatial layout and atmosphere, or resolving cross-location
-  spatial consistency
+description: Use when designing, expanding, or detailing a story location, or resolving cross-location spatial consistency.
 contract:
   kind: artifact
   reads:
