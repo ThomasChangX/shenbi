@@ -1,6 +1,6 @@
 ---
 name: using-shenbi
-description: Use when starting any conversation — establishes skill discovery and trigger rules for the shenbi novel writing skill system
+description: Use when starting any conversation about the shenbi novel-writing system, before picking or dispatching a skill.
 meta: true
 ---
 

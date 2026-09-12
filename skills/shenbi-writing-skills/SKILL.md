@@ -1,6 +1,6 @@
 ---
 name: shenbi-writing-skills
-description: Use when creating or modifying any shenbi skill — guides the design, testing, and iteration of new novel-writing skills
+description: Use when creating or modifying any shenbi skill (SKILL.md, contracts, or tests).
 meta: true
 ---
 <!-- AUTO-CHECK-START -->

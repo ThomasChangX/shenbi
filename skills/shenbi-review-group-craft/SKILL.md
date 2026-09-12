@@ -1,6 +1,6 @@
 ---
 name: shenbi-review-group-craft
-description: Grouped audit for writing craft -- texture, reader-pull, and anti-AI patterns in one call; dispatches as a parallel wave via parallel_dispatch.py
+description: Use when a chapter needs its grouped craft audit — texture, reader-pull, and anti-AI pattern dimensions.
 requires_independent_agent: true
 contract:
   kind: report

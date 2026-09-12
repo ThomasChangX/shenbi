@@ -1,6 +1,6 @@
 ---
 name: shenbi-location-builder
-description: Use when designing or expanding specific locations in a novel, building
+description: Use when designing a new story location or resolving cross-location spatial consistency.
   detailed place profiles with spatial layout and atmosphere, or resolving cross-location
   spatial consistency
 contract:

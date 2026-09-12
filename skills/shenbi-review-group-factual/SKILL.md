@@ -1,6 +1,6 @@
 ---
 name: shenbi-review-group-factual
-description: Grouped audit for factual consistency -- continuity, world rules, and pacing in one call; dispatches as a parallel wave via parallel_dispatch.py
+description: Use when a chapter needs its grouped factual audit — continuity, world rules, and pacing dimensions.
 requires_independent_agent: true
 contract:
   kind: report

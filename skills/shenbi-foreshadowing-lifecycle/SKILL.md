@@ -1,6 +1,6 @@
 ---
 name: shenbi-foreshadowing-lifecycle
-description: Combined foreshadowing lifecycle -- recall dormant hooks, track active hooks against chapter body, and plant new hooks from plan in a single call.
+description: Use when managing foreshadowing hooks for a chapter — recall, tracking, and planting in one lifecycle call; also for genesis (cross-volume master hooks).
 contract:
   kind: artifact
   reads:
