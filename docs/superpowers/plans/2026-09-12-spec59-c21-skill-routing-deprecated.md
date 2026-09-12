@@ -4,14 +4,14 @@
 
 **Goal:** 五路由面（using-shenbi 触发表 / deps.json / GENESIS_STEPS / TRIGGER_STEPS / GENRE_ACTIVATION_MATRIX，另含 CHAPTER_STEPS/BOUNDARY_TRIGGERS 防回潮面）对 15 个 DEPRECATED 技能零路由零注册零派发；后继技能进触发表；description 契约全仓合规且检查器能检出违规；防回潮 lint 七面挂载。
 
-**Architecture:** 自底向上——T1 一个 commit 同时落共享 DEPRECATED 判定 helper、闭包语义翻转与 deps.json 拆注册（规避 pre-commit `lint-repo-consistency` 钩子的中间红死锁）；再拆 pipeline 路由面（T2）与 gates/contracts 注册面（T3）、触发表（T4）；tier 消费方回归（T5）；矩阵按派发拓扑退出（T6）；description 检查器强化先行再改写（T7→T8）；DEPRECATED 正文退役收尾（T10）；防回潮 lint 最后挂载红灯验证 + 哈希终态重锁（T11）。
+**Architecture:** 自底向上——T1 一个 commit 同时落共享 DEPRECATED 判定 helper、闭包语义翻转与 deps.json 拆注册（规避 pre-commit `lint-repo-consistency` 钩子的中间红死锁）；再拆 pipeline 路由面（T2）与 gates/contracts 注册面（T3）、触发表（T4）；tier 消费方回归（T5）；矩阵按派发拓扑退出（T6）；description 检查器强化先行再改写（T7→T8）；F815 残项契约闭合（T9）；DEPRECATED 正文退役收尾（T10）；防回潮 lint 最后挂载红灯验证 + 哈希终态重锁（T11）。
 
 **Tech Stack:** Python 3.11+ / pathlib / structlog / pytest / just / pre-commit。全部验证离线（F947：无真实 dispatch；G3.4：本 spec 无评分场景，N/A）。
 
 ## Global Constraints
 
 - 禁止 `print()` 于 `src/shenbi/`（ruff T20，structlog/cli_utils 替代）；gate 检查器纯函数幂等
-- 状态字面量唯一定义于 `src/shenbi/contracts/enums.py`（HookState 六态：PLANTED/RELEVANT/TRIGGERED/RESOLVED/ARCHIVED/EXPIRED——无 ACTIVE）
+- 状态字面量唯一定义于单一信源（HookState 六态在 `src/shenbi/contracts/schemas/hooks.py`：PLANTED/RELEVANT/TRIGGERED/RESOLVED/ARCHIVED/EXPIRED——无 ACTIVE；其余词表在 `src/shenbi/contracts/enums.py`）
 - 改 SKILL.md frontmatter 契约后必须 `just generate`（`uv run shenbi-sync-contracts`）再提交，生成物 diff 须与源同步（禁手改 expected_outputs/DAG/index/body views；`prerequisites`/`_tool_hashes` 是组织性字段可直接编辑）
 - 所有 commit 显式 pathspec，禁 `git add -A`；conventional commits
 - 测试引用 `tests/fixtures/` 真实产物（G0.9）；验证命令走 `uv run`/`just`（与 CI 同构）
@@ -380,7 +380,9 @@ def g4_foreshadowing_lifecycle(
         return fail("G4-foreshadowing-lifecycle", c, "scoring", mf)
     return passed("G4-foreshadowing-lifecycle", c)
 ```
-（实现时可再吸收 plant 的 ops≤24 与 depends_on 检查——以移植测试全绿为准绳精化；上面是最小可过骨架。）
+（实现时可再吸收 plant 的 ops≤24 与 depends_on 检查——以移植测试全绿为准绳精化；上面是最小可过骨架。**注意**：plant 模块带 3 处裸 `except Exception:` 与专属 per-file ignore，`src/shenbi/gates/g4/*.py` 的 ruff 豁免**不含** BLE001——移植时用窄化 except 或逐处 `# noqa: BLE001`，否则 pre-commit ruff 阻断 T3 commit。）
+
+补两处审查注记：`tests/unit/pipeline/test_skill_integration.py` 的 5 处 plant 引用预期保持绿（DEPRECATED 目录留存，无需动作）；`tests/unit/pipeline/test_genesis.py:46` 与 `test_triggers.py:351` 的 plant 断言由 T2 Step 3 的测试改写覆盖。
 
 - [ ] **Step 4: 注册面换名**（逐文件、行号以实况为准）
 
@@ -710,7 +712,7 @@ git commit -m "fix: rewrite behavioral descriptions to when-to-use form (spec #5
       mode: create_or_overwrite
 ```
 正文 :140-142 输出示例块已在（R2 声明⇒正文步骤自然满足；若 lint 报缺步骤句，在写纪律段补一句「每章产出 audits/chapter-N-foreshadowing.md 报告」）。
-- [ ] **Step 4: 同步与验证** — `just generate && git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/`（本 task 改 frontmatter 契约——生成物须再生后 diff 空，`git add` 再生改动）+ `just lint-contracts` + `uv run pytest tests/contracts -q` → 全绿
+- [ ] **Step 4: 同步与验证（顺序：再生 → stage → diff 必净）** — `uv run shenbi-sync-contracts`（frontmatter writes 变更 → expected_outputs/DAG/index/body views 再生）→ `git add tests/tiers/deps.json docs/framework/ skills/shenbi-foreshadowing-lifecycle/` 把再生物入 stage → `git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/` 须净（未 stage 前该 diff 设计内红）→ `just lint-contracts` + `uv run pytest tests/contracts -q` → 全绿
 - [ ] **Step 5: commit**（pathspec 含生成物——contract-sync-idempotency pre-commit 钩子要求再生物同 commit staged）
 
 ```bash
@@ -833,13 +835,19 @@ def lint_routing_faces(repo: Path, skills_dir: Path) -> list[str]:
     hits = sorted(set(_walk(deps)) & dead)
     if hits:
         errs.append(f"deps.json routes DEPRECATED skills: {hits}")
-    # 2) using-shenbi trigger table (guard: synthetic trees may omit it)
+    # 2) using-shenbi SKILL.md — full text (covers table rows + :124 default column
+    #    + :126 phase list; not pipe-prefixed lines only). Both directions (spec T3.11(b)):
+    #    dead-name ban AND routed-name disk existence (ghost typo detection).
     table_path = skills_dir / "using-shenbi" / "SKILL.md"
     if table_path.exists():
-        table = table_path.read_text(encoding="utf-8")
-        row_hits = sorted({d for d in dead if re.search(rf"\|[^|]*{re.escape(d)}", table, re.M)})
+        text = table_path.read_text(encoding="utf-8")
+        row_hits = sorted({d for d in dead if d in text})
         if row_hits:
-            errs.append(f"using-shenbi trigger table routes DEPRECATED skills: {row_hits}")
+            errs.append(f"using-shenbi routes DEPRECATED skills: {row_hits}")
+        live_dirs = {p.parent.name for p in skills_dir.glob("*/SKILL.md")}
+        ghosts = sorted(set(re.findall(r"\bshenbi-[a-z0-9-]+\b", text)) - live_dirs)
+        if ghosts:
+            errs.append(f"using-shenbi routes skills without a skills/ dir: {ghosts}")
     # 3) code faces
     faces: dict[str, list[str]] = {
         "GENESIS_STEPS": [s.skill for s in GENESIS_STEPS],
