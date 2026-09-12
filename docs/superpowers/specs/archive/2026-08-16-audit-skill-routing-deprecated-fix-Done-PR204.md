@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-12 · 价值门 GO + 事实核实 + 设计审查轮 1/2/3) | **Severity:** 🟠 P1
+> **Date:** 2026-08-16 | **Status:** Done (PR #204) | **Severity:** 🟠 P1
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C21）| **代表 finding:** F873 | **簇规模:** 12 条 | **严重度上限:** P1
 > **范围:** skills/using-shenbi/SKILL.md（触发表）、tests/tiers/deps.json、src/shenbi/pipeline/genesis.py（GENESIS_STEPS）、src/shenbi/pipeline/triggers.py（TRIGGER_STEPS）、src/shenbi/pipeline/audit_layer.py（GENRE_ACTIVATION_MATRIX）、src/shenbi/pipeline/dispatch_helper.py（OPTIONAL_READS）、5+ 个技能 description、DEPRECATED 技能正文 | **证据等级:** 实验佐证（Z8-a/b/c/review-r1，F873 verified；F905 源自 2026-08-14 轮 verified）
 > **与既有 spec 关系:** #23 的 DEPRECATED 接线拆除面（F904/F950/F1004）并入本 spec；#9 的 deps.json 补登归 C22 词表对账，本 spec 只管路由/触发/描述契约；#23 驳斥归档时补登其残留 **F905 双重调度语义面**（见 T1.6）
