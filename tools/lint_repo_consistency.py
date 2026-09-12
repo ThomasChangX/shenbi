@@ -107,19 +107,10 @@ def find_extra_contract_key_readers(files: Iterable[File]) -> list[str]:
 
 # Skills whose decisions.json is structurally validated by G4 g4_decisions
 # (alone or via make_composite_checker). These are NOT dead even with no skill
-# reads: — G4 consumes their schema. Verified against the checkers dict in
-# src/shenbi/gates/g4/generic.py (7 skills use g4_decisions as of this audit).
-_G4_DECISIONS_SKILLS = frozenset(
-    {
-        "shenbi-chapter-drafting",
-        "shenbi-chapter-planning",
-        "shenbi-context-composing",
-        "shenbi-market-radar",
-        "shenbi-chapter-revision",
-        "shenbi-short-drafting",
-        "shenbi-state-settling",
-    }
-)
+# reads: — G4 consumes their schema. Derived from the declarative wiring roster
+# co-located with checker construction (spec #60 T0a-2 / F1017: the old
+# hand-copied snapshot had already drifted — it was missing shenbi-genre-config).
+from shenbi.gates.g4.generic import G4_DECISIONS_WIRED as _G4_DECISIONS_SKILLS  # noqa: E402
 
 # A SKILL.md with frontmatter splits into [pre, frontmatter, body] on "---".
 _FRONTMATTER_DELIM = "---"
