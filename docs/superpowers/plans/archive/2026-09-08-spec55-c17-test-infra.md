@@ -8,7 +8,7 @@
 
 **Tech Stack:** pytest + hypothesis（examples 库）、GitHub Actions（ci.yml）、纯 Python markdown 内链解析（无 npm 依赖）、mutmut 3.x。
 
-**Spec:** `docs/superpowers/specs/2026-08-16-audit-test-infra-fix.md`（Revised 2026-09-08，HEAD b21997f4）
+**Spec:** `docs/superpowers/specs/archive/2026-08-16-audit-test-infra-fix.md`（Revised 2026-09-08，HEAD b21997f4）
 
 ## Global Constraints
 

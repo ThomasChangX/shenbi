@@ -18,7 +18,7 @@
 - Conventional Commits: `feat:` for new modules, `fix:` for the production config corrections
 - `just check` (ruff + mypy + basedpyright + pytest) must pass after every task
 
-**Spec reference:** `docs/superpowers/specs/2026-07-19-04-configuration-coherence-and-threshold-governance-design.md`
+**Spec reference:** `docs/superpowers/specs/archive/2026-07-19-04-configuration-coherence-and-threshold-governance-design.md`
 
 ---
 

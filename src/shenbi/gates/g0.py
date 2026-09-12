@@ -708,7 +708,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # (dedicated or generic fallback) — none returns UNIMPLEMENTED
     # bug-hunt and clean have generic checkers (apply to ALL skills via
     # g4_generic_bughunt / g4_generic_clean). Generative has dedicated
-    # checkers for 20 skills + g4_generic_generative fallback for the rest.
+    # checkers for G4_CHECKER_SKILLS entries + g4_generic_generative fallback for the rest.
     # G0.12 verifies that the fallback exists (no skill returns UNIMPLEMENTED).
     dedicated_count = len(G4_CHECKER_SKILLS)
     generic_count = len(ALL_SKILLS) - dedicated_count

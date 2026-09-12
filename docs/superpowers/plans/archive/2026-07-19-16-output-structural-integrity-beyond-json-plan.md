@@ -19,7 +19,7 @@
 - Conventional Commits: `feat:` for the new module, `feat:` for the integration
 - `just check` (ruff + mypy + basedpyright + pytest) must pass after every task
 
-**Spec reference:** `docs/superpowers/specs/2026-07-19-16-output-structural-integrity-beyond-json-design.md` (the merged Spec 19 + former Spec 20)
+**Spec reference:** `docs/superpowers/specs/archive/2026-07-19-16-output-structural-integrity-beyond-json-design.md` (the merged Spec 19 + former Spec 20)
 
 ---
 

@@ -18,7 +18,7 @@
 - 测试基线（V1/V2）：≥2787 passed + 4 last-marked，coverage ≥85.03%（PR #25 后 main 实测值）。**不回归**。
 - 每个 task commit 后必须产 `.superpowers/sdd/audit-T<N>.md`（fresh-context 全量重审），无 audit-T<N>.md 不得开始 T<N+1>。
 
-**Spec:** `docs/superpowers/specs/2026-08-02-issue24-cyclic-import-refactor-design.md`（Phase 1 已核实、Phase 2 已设计审查收敛）
+**Spec:** `docs/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design.md`（Phase 1 已核实、Phase 2 已设计审查收敛）
 
 ---
 
@@ -353,7 +353,7 @@ git commit -m "refactor(pipeline): extract volume-map domain to _shared — brea
 - delete all 6 Cluster-1 py/cyclic-import comments (CodeQL ignores them anyway)
 - behavior unchanged (pure relocation)
 
-Spec: docs/superpowers/specs/2026-08-02-issue24-cyclic-import-refactor-design.md §3.2"
+Spec: docs/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design.md §3.2"
 ```
 
 ---
@@ -564,7 +564,7 @@ git commit -m "refactor(audit): extract derive_output_files + AuditResult to _sh
 - delete 4 py/cyclic-import suppression comments
 - behavior unchanged (pure relocation)
 
-Spec: docs/superpowers/specs/2026-08-02-issue24-cyclic-import-refactor-design.md §3.3"
+Spec: docs/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design.md §3.3"
 ```
 
 ---
@@ -651,7 +651,7 @@ git commit -m "refactor(dispatch_helper): remove write_truth_file vacuous re-exp
   write assertions (real signal via safe_write)
 - behavior unchanged; CodeQL py/unused-import on dispatch_helper.py:57 → 0
 
-Spec: docs/superpowers/specs/2026-08-02-issue24-cyclic-import-refactor-design.md §3.4"
+Spec: docs/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design.md §3.4"
 ```
 
 ---

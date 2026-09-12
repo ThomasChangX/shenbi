@@ -6,7 +6,7 @@
 
 **Architecture:** R1 在 `truth_io` 新增 `insert_markdown_row` mode（锁内原子判定 key 存在即跳过，消除 check-then-act 竞态），`chapter_loop` 只换 mode；R2 新模块 `src/shenbi/pipeline/truth_readers.py` 为唯一解析源，`context_curation._read_pending_hooks`、`gates/g6.py` G6.7、`truth_index._index_hooks`(body 源) 改调它；R3 改 `dispatch_helper._route_append_dedup_write` staging 分支（链式基+锁+sidecar read-merge-write）、`pipeline/checkpoint.commit_staging`（sidecar 元数据 + live 优先行级合并）、oneoff 清理工具。
 
-**Tech Stack:** Python 3.11+ / pytest / structlog / pathlib。spec：`docs/superpowers/specs/2026-08-14-truth-write-path-design.md`（R4 已剔除——PR #43 已修）。
+**Tech Stack:** Python 3.11+ / pytest / structlog / pathlib。spec：`docs/superpowers/specs/archive/2026-08-14-truth-write-path-design.md`（R4 已剔除——PR #43 已修）。
 
 ## Global Constraints
 

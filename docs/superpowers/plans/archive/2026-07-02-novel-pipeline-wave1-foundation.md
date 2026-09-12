@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+, pathlib, json, fcntl.flock (POSIX stdlib), pyyaml, structlog, argparse, pytest
 
-**Spec reference:** `docs/superpowers/specs/2026-07-01-novel-pipeline-design.md` Sections 2-4, 9
+**Spec reference:** `docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md` Sections 2-4, 9
 
 ## Global Constraints
 
@@ -217,7 +217,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'shenbi.pipeline'`
 # src/shenbi/pipeline/state.py
 """Typed state vocabulary and dataclasses for the novel pipeline state machine.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 3.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 3.
 """
 
 from __future__ import annotations
@@ -580,7 +580,7 @@ Expected: FAIL with `ModuleNotFoundError`
 # src/shenbi/pipeline/machine.py
 """State machine: load, save, and checkpoint management for pipeline-state.json.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 3.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 3.
 """
 
 from __future__ import annotations
@@ -783,7 +783,7 @@ In WriteLock/ReadLock `__enter__`, use `_FallbackLock` when `_HAS_FCNTL` is Fals
 # src/shenbi/pipeline/filelock_utils.py
 """Read/write lock separation for multi-user pipeline concurrency.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 2.4.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 2.4.
 
 - WriteLock: exclusive, used by next/review/resume/rollback/init
 - ReadLock: shared, used by status/chapters
@@ -985,7 +985,7 @@ Expected: FAIL with `ModuleNotFoundError`
 # src/shenbi/pipeline/seed_parser.py
 """Parse seed files (format: outline-example.md) into structured project data.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 4.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 4.
 """
 
 from __future__ import annotations
@@ -1234,7 +1234,7 @@ Expected: FAIL
 # src/shenbi/pipeline/checkpoint.py
 """Staging mechanism for checkpoint-gated skill outputs.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 2.7.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 2.7.
 
 Checkpoint-gated skills (chapter-planning, state-settling) write to staging/
 during dispatch. On review approve, pipeline commits staging to final paths.
@@ -1395,7 +1395,7 @@ Expected: FAIL
 # src/shenbi/pipeline/cli.py
 """CLI entry point for the novel pipeline.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 2.2.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 2.2.
 
 Commands:
     init <seed-file> [--project-dir <dir>]

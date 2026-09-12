@@ -99,7 +99,7 @@ def test_revision_step_follows_sensitivity_audit():
 **Files:**
 - Modify: `docs/superpowers/audit-runs/2026-08-14/findings-ledger.md:63`（F303 状态 `specced` → `removed (spec #26 path 3)`）
 - Modify: `docs/superpowers/specs/INDEX.md` #57 条目（加「**2026-08-30 注记**: #26 已裁决路径 3（移除）——本 spec 按其 T0 大部分自动失效，存活面仅 T4 truth-files.yaml/词面协调，待其自身价值门复核」）
-- Modify: `docs/superpowers/specs/2026-08-16-audit-snapshot-unify-fix.md`（#57 spec 头加同义失效注记——其正文多处引用差分机制与 F351「step-15 空操作」，头部注记为权威失效声明，正文不逐条改）
+- Modify: `docs/superpowers/specs/archive/2026-08-16-audit-snapshot-unify-fix.md`（#57 spec 头加同义失效注记——其正文多处引用差分机制与 F351「step-15 空操作」，头部注记为权威失效声明，正文不逐条改）
 - Modify: `docs/superpowers/specs/archive/2026-08-15-snapshot-subsystem-wiring-design.md`（本 spec 头 Status 加「三路裁决: 路径 3（移除）· 2026-08-30」——spec 自身在文档同步面内）
 - Modify: `tests/unit/contracts/test_registry_pipeline_producers.py:42-44`（D20 注释：`chapter_loop._snapshot_chapter_files` 已删，改指 `crash_recovery._snapshot_chapter_files`——grep 该注释实际文本后改写）
 

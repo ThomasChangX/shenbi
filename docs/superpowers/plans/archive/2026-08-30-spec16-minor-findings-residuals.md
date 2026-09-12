@@ -147,7 +147,7 @@
 - Modify: `src/shenbi/cost/report.py:96`（不可达 return 2）
 - Modify: `src/shenbi/skill_utils/drift_detection/compute_drift.py:278-280`（卷级排除丢弃）
 - Modify: `src/shenbi/records/drift.py:57`（重复 id last-wins）
-- Modify: `docs/superpowers/specs/2026-08-14-minor-findings-batch-design.md`（头注记收窄）
+- Modify: `docs/superpowers/specs/archive/2026-08-14-minor-findings-batch-design.md`（头注记收窄）
 - Modify: `docs/superpowers/specs/INDEX.md`（#16 内容注记）
 - Test: `tests/unit/test_records_drift*.py` 等（追加）
 

@@ -107,8 +107,9 @@ def _compute_dispatch_timeout(
 ) -> int:
     """Compute adaptive dispatch timeout based on chapter size.
 
-    base = 300s (5 min)
-    extra = 30s per KB of chapter size
+    base = 900s
+    extra = 30s per KB of chapter size (0 when no chapter file exists)
+
     cap = 1800s (30 min)
     state-settling gets 2x multiplier.
 

@@ -51,7 +51,7 @@ LEAKAGE_PATTERNS: list[str] = [
 VERDICT_MARKERS: list[str] = ["判定", "结论", "verdict", "通过", "阻断", "PASS", "BLOCK"]
 PREAMBLE_MARKERS: list[str] = ["现在执行", "inputs confirmed", "now executing", "开始审计"]
 
-#: Minimum audit size in bytes — real audits are > 500 bytes.
+#: Minimum audit size in bytes — real audits comfortably exceed this floor.
 _AUDIT_MIN_BYTES = 200
 
 #: Retry-prompt suffix confirming write capability.

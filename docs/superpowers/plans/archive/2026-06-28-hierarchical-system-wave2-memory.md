@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，pathlib.Path，SKILL.md (markdown + YAML frontmatter)，pytest。
 
-**Spec:** `docs/superpowers/specs/2026-06-28-hierarchical-memory-scoring-system-design.md` v1.4.0
+**Spec:** `docs/superpowers/specs/archive/2026-06-28-hierarchical-memory-scoring-system-design.md` v1.4.0
 - §3.1-3.4 七层蒸馏树 + memory-distill
 - §3.5 context-composing 按层组装
 - §3.6 RAG 辅助召回

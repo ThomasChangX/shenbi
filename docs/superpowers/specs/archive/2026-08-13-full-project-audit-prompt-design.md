@@ -223,7 +223,7 @@ v3 是对 v2 的**实证修复版**：每条机制变更对应 2026-08-14 执行
 
 ## 8. 报告与台账 schema（写入 tracked 审计目录）
 
-审计状态目录：`docs/superpowers/audit-runs/2026-08-13/`（tracked；每阶段 checkpoint commit）：
+审计状态目录：`docs/superpowers/audit-runs/2026-08-14/`（tracked；每阶段 checkpoint commit）：
 
 ```
 audit-runs/2026-08-13/

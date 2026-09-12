@@ -19,7 +19,7 @@
 - Conventional Commits: `fix:` for both corrections
 - `just check` (ruff + mypy + basedpyright + pytest) must pass after every task
 
-**Spec reference:** `docs/superpowers/specs/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-design.md`
+**Spec reference:** `docs/superpowers/specs/archive/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-design.md`
 
 ---
 

@@ -1246,7 +1246,7 @@ Expected: PASS — review the printed audit table to determine overlap
 
 - [ ] **Step 3: Document the decision in spec Open Question #4**
 
-Based on the audit results, update `docs/superpowers/specs/2026-07-07-clean-context-handoff-design.md` Open Question #4 with:
+Based on the audit results, update `docs/superpowers/specs/archive/2026-07-07-clean-context-handoff-design.md` Open Question #4 with:
 - Which skills have PRE_WRITE_CHECK
 - For each: is decisions.json redundant or complementary?
 - Decision: proceed with all 5, or narrow scope
@@ -1254,7 +1254,7 @@ Based on the audit results, update `docs/superpowers/specs/2026-07-07-clean-cont
 - [ ] **Step 4: Commit**
 
 ```bash
-git add tests/unit/gates/test_pre_write_check_overlap.py docs/superpowers/specs/2026-07-07-clean-context-handoff-design.md
+git add tests/unit/gates/test_pre_write_check_overlap.py docs/superpowers/specs/archive/2026-07-07-clean-context-handoff-design.md
 git commit -m "test: add PRE_WRITE_CHECK overlap audit gate (Task 9)"
 ```
 

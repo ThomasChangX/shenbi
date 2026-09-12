@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+, pathlib, json, structlog, pytest, yaml, re
 
-**Spec:** `docs/superpowers/specs/2026-07-06-pipeline-phase1-defect-fix-design.md`
+**Spec:** `docs/superpowers/specs/archive/2026-07-06-pipeline-phase1-defect-fix-design.md`
 
 ## Global Constraints
 

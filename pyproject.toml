@@ -399,7 +399,7 @@ pythonVersion = "3.11"
 # package; "." puts the repo root on the import search path so they resolve).
 extraPaths = ["."]
 reportMissingTypeStubs = "none"
-# Unknown-family rules downgraded to warning for JSON/YAML dict access.
+# Unknown-family rules downgraded to none for JSON/YAML dict access.
 # Gates load heterogeneous external data (progress.json, deps.json, etc.)
 # via jload/yload returning dict[str, Any]. Value access propagates Any,
 # which strict mode flags as Unknown. These rules catch noise, not bugs —

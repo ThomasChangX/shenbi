@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Unify the three uncoordinated retry layers (openai SDK implicit / tenacity dead predicate / outer serial+parallel+scoring loops) behind a single `FailureClass` taxonomy, a chapter-durable retry budget, deterministic-failure zero-retry routing, and a correct `audit_retry_count` lifecycle — per `docs/superpowers/specs/2026-08-16-c33-retry-failure-taxonomy-design.md` (Revised 2026-09-07).
+**Goal:** Unify the three uncoordinated retry layers (openai SDK implicit / tenacity dead predicate / outer serial+parallel+scoring loops) behind a single `FailureClass` taxonomy, a chapter-durable retry budget, deterministic-failure zero-retry routing, and a correct `audit_retry_count` lifecycle — per `docs/superpowers/specs/archive/2026-08-16-c33-retry-failure-taxonomy-design.md` (Revised 2026-09-07).
 
 **Architecture:** `FailureClass` lives in `src/shenbi/contracts/enums.py` (C8 single source). A pure classifier `classify_dispatch_failure` in `dispatch_helper.py` feeds four mandatory classification points (tenacity predicate, write-audit rc=2 downgrade, chapter-loop scoring exit, parallel wave retry — the last is spec point ④ "audit_layer 派发失败出口" rendered as the wave's per-task failure branch). All transient retries converge on the tenacity layer (SDK `max_retries=0`); durable accounting reuses the existing `retry_budget_consumed` machinery. Parallel waves report per-task attempt counts aggregated into state at wave completion (no cross-thread state writes).
 

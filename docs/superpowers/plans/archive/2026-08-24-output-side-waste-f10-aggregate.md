@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+ / pathlib / structlog / pytest（fixtures 驱动，G0.9）。
 
-**Spec:** `docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md`（2026-08-24 修订版；F8/F7 已关闭，本 plan 只实施 F10 + 2.3b）
+**Spec:** `docs/superpowers/specs/archive/2026-08-01-output-side-waste-audit-design.md`（2026-08-24 修订版；F8/F7 已关闭，本 plan 只实施 F10 + 2.3b）
 
 **分类:** 全部 task 为 **infra**（触及 `src/shenbi/pipeline/` 与契约）→ 协调者亲自实现，不分派。
 

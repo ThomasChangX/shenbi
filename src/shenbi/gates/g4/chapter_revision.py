@@ -5,7 +5,7 @@ Validates revision-specific content WITHIN the DecisionsDoc schema
 DecisionsDoc has `extra="forbid"`, so the checker must not invent fields.
 
 Returns a JSON result string matching the G4 checker protocol:
-make_composite_checker (decisions_validator.py:87) does
+make_composite_checker (decisions_validator.py::make_composite_checker) does
 json.loads(existing_result) and expects {"status", "checks", "must_fix"}.
 """
 

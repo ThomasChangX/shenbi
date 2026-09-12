@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+, pydantic v2, pytest, justfile, structlog. Framework code under `src/shenbi/`, tests under `tests/`.
 
-**Spec:** `docs/superpowers/specs/2026-07-08-contract-consistency-infrastructure-design.md`
+**Spec:** `docs/superpowers/specs/archive/2026-07-08-contract-consistency-infrastructure-design.md`
 
 ## Global Constraints
 

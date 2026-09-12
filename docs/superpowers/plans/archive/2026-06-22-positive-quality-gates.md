@@ -6,7 +6,7 @@
 
 **Architecture:** Extend the proven `foundation-review` weighted-rubric pattern to two new layers. Deterministic logic (drift triggers, confidence calibration, block routing, trope matching) lives in `src/shenbi/skill_utils/` as tested Python; skill behavior lives in `SKILL.md`; output validation in `gates/g4/`; the independence rule is a top-level frontmatter marker `requires_independent_agent` enforced via `contract.py` + a G0 check.
 
-**Tech Stack:** Python 3 (src/shenbi, uv, ruff/mypy strict, pytest, structlog), PyYAML frontmatter, Markdown skills, JSON config. Spec: `docs/superpowers/specs/2026-06-22-positive-quality-gates-design.md`.
+**Tech Stack:** Python 3 (src/shenbi, uv, ruff/mypy strict, pytest, structlog), PyYAML frontmatter, Markdown skills, JSON config. Spec: `docs/superpowers/specs/archive/2026-06-22-positive-quality-gates-design.md`.
 
 **Spec refinements discovered during planning (authoritative — override spec frontmatter):**
 - **R1:** A/B `reads` use `{file, fields}` dict form. `contract.py` currently rejects non-str → Task 0.1 extends the loader (this *is* the P7 forward-compat work).

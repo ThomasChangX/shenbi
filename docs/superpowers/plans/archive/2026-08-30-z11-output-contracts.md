@@ -6,7 +6,7 @@
 
 **Architecture:** 契约正则单源化到 `gates/shared.py`（g2 与 dispatch_helper 共用）；写入侧规范化挂在 `dispatch_helper._write_one` 的章节写路径（写前内容规范化，post-snapshot 前完成，不干扰 write-audit）；产物契约检查为独立纯函数模块 `pipeline/product_contracts.py`，由 `chapter_loop._complete_chapter` 调用。
 
-**Tech Stack:** Python 3.11+ / pytest / structlog / pathlib。spec：`docs/superpowers/specs/2026-08-14-z11-output-contracts-design.md`（R2 已移交 C22，不在本 plan）。
+**Tech Stack:** Python 3.11+ / pytest / structlog / pathlib。spec：`docs/superpowers/specs/archive/2026-08-14-z11-output-contracts-design.md`（R2 已移交 C22，不在本 plan）。
 
 ## Global Constraints
 

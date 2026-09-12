@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+, pathlib, json, structlog, pytest, re, yaml, threading, concurrent.futures
 
-**Spec:** `docs/superpowers/specs/2026-07-07-pipeline-performance-redesign.md`
+**Spec:** `docs/superpowers/specs/archive/2026-07-07-pipeline-performance-redesign.md`
 
 ## Global Constraints
 

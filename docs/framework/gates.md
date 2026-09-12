@@ -1,6 +1,6 @@
 # Gates
 
-Shenbi uses 8 validation gates to enforce pipeline integrity:
+Shenbi uses 11 validation gates to enforce pipeline integrity (G0-G7 plus G_TRANSITION/G_DISPATCH/G_RECONCILE):
 
 | Gate | Purpose |
 |------|---------|

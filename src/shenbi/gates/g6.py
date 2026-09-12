@@ -524,7 +524,7 @@ def gate_G6(
             {
                 "id": "G6.12",
                 "s": GateStatus.SKIP,
-                "note": "sensitive_words.txt missing — round INCOMPLETE",
+                "note": "sensitive_words.txt missing — non-blocking skip",
             }
         )
 

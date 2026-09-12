@@ -239,7 +239,7 @@ def gate_G2(
             else:
                 checks.append({"id": "G2.9", "file": fp, "s": GateStatus.PASS})
 
-        # G2.10 — template placeholder detection (10% threshold, chapter files only)
+        # G2.10 — template placeholder detection (10% threshold, all file types; see also G7.5)
         lines = content.split("\n")
         if len(lines) > 0:
             placeholder_ratio = sum(1 for l in lines if "待填充" in l) / len(lines)

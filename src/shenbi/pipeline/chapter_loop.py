@@ -16,10 +16,7 @@ dispatch/gate failures retry per spec section 11: up to
 The retry decision is delegated to
 ``shenbi.pipeline.error_handler.handle_dispatch_failure`` (W3T8).
 
-Steps 8-11 (audit genre circle + revision routing) are stubbed: W3T4
-implements the audit layer, W3T5 implements revision routing. Clear TODO
-markers indicate the integration points.
-Revision routing (W3T5) is integrated: after review-resonance the router
+Revision routing is integrated: after review-resonance the router
 determines the route and chapter-revision is skipped when no
 revision is needed.
 
