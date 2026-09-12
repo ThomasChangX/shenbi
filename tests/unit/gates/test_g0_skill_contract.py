@@ -56,6 +56,22 @@ class TestBehavioralText:
     def test_generates_flagged(self):
         assert _desc_has_behavioral_text("Generates a new plot outline.")
 
+    def test_strengthened_non_trigger_opening(self):
+        """Spec #59 T2.7 miss class 1: 'Grouped audit for ...' openings."""
+        assert _desc_has_behavioral_text(
+            "Grouped audit for character integrity -- one call; dispatches as a wave"
+        )
+
+    def test_strengthened_trailing_functional_clause(self):
+        """Spec #59 T2.7 miss class 2: 'Use when X — Y' trailing functional clause."""
+        assert _desc_has_behavioral_text("Use when creating skills — guides the design and testing")
+
+    def test_strengthened_compliant_forms_pass(self):
+        assert not _desc_has_behavioral_text("Use when a chapter needs its grouped craft audit.")
+        assert not _desc_has_behavioral_text(
+            "Use when auditing factual consistency for the current chapter."
+        )
+
 
 class TestWriteUpdateOverlap:
     def test_overlap_flagged(self, tmp_path: Path):
