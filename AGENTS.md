@@ -16,7 +16,7 @@ shenbi/
 │   ├── rounds/             # Active + archived rounds
 │   ├── fixtures/           # Real skill outputs (no mocks)
 │   └── baselines/          # Differential testing baselines
-├── skills/                 # 72 functional (shenbi-*) + 2 meta (using-shenbi, shenbi-writing-skills) = 74 total
+├── skills/                 # functional (shenbi-*) + meta skills (using-shenbi, shenbi-writing-skills); authoritative count via tools/lint_registry_reconcile.py
 ├── docs/                   # Documentation, ADRs, specs, plans
 ├── .github/workflows/      # CI: ci, security, docs, codeql, release
 ├── pyproject.toml          # PEP 621 + tool config

@@ -9,5 +9,10 @@ Agent instructions:
 4. Run shenbi-location-builder with worldbuilding output. Approve.
 5. Run shenbi-character-design with all previous output. Approve.
 6. Run shenbi-relationship-map with all previous output. Approve.
+7. Run shenbi-story-architecture with worldbuilding output. Produces outline/story_frame.md. Approve.
+8. Run shenbi-volume-outlining with story frame. Produces outline/volume_map.md. Approve.
+9. Run shenbi-genre-config with the outline. Produces genre-config.json. Approve.
+10. Run shenbi-pacing-design with volume map. Produces outline/rhythm_principles.md. Approve.
+11. Run shenbi-book-spine-init to seed the book spine. Produces truth/book_spine.md. Approve.
 
 After each skill, verify handoff integrity: does the next skill find all required input files?
