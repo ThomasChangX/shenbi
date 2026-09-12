@@ -1,3 +1,5 @@
+> **Spec 编号**: #14
+
 > **Date:** 2026-08-14 | **Status:** Done (PR #100) | **Severity:** 🟡 P2 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查 | **依赖:** 无 | **范围:** skill_utils/ + text/cjk.py | **核心洞察:** 确定性助手统计口径系统性错误，驱动 LLM 判断的数据失真
 

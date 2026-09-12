@@ -1,5 +1,7 @@
 ## 目标
 
+> **历史快照（2026-06-13 目标冻结版）**，现状以 `AGENTS.md` / `docs/superpowers/specs/INDEX.md` 为准；下列计数为 2026-09-13 现势校正。
+
 从 `command-to-give.md` 的执行协议出发，推进 Shenbi 三层测试框架全量执行+T1+T2+T3，产出基于 `outline-example.md`（星火燃穹）的真实完整的 20 万字小说文件。
 
 ## 所需技能
@@ -16,11 +18,11 @@
 
 ### 文件结构
 
-- 59 个 skill: `skills/<skill-name>/SKILL.md`
-- 60 个 T1 测试目录（59 skill + `_template`）: `tests/tiers/t1-skill/<skill-name>/`（含 rubric.md/bug-hunt/clean/generative）
+- 72 个 skill: `skills/<skill-name>/SKILL.md`（权威计数以 `tools/lint_registry_reconcile.py` 为准；另有 meta skill `using-shenbi` / `shenbi-writing-skills`）
+- 70 个 T1 测试目录: `tests/tiers/t1-skill/<skill-name>/`（含 rubric.md/bug-hunt/clean/generative）
 - 9 个 T2 phase: `tests/tiers/t2-phase/<phase>/`
 - 3 个 T3 pipeline: `tests/tiers/t3-pipeline/<pipeline>/`
-- 115 个 fixture（83 文件 + 32 目录）: `tests/fixtures/`
+- 157 个 fixture 文件: `tests/fixtures/`
 - 工具脚本（entry points）: `shenbi-score`, `shenbi-validate`, `shenbi-phase`, `shenbi-dispatch`（源码在 `src/shenbi/`）
 - 辅助脚本: `tests/round-exec.sh`（round 创建 + G0 验证）, `tests/lock-tool-hashes.sh`（工具哈希锁定）
 - 接受阈值：T1≥94, T2≥94, T3≥94（`tests/tiers/acceptance.json`）

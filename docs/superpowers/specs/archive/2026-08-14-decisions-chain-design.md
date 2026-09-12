@@ -39,6 +39,8 @@
 - **T12-04（P2）** codex/zcode 子进程全量继承父环境：SHENBI_LLM_API_KEY（T1 路径）/CI token 等凭证可达 workspace-write 通用编码 agent；与 T12-02 注入链叠加构成凭证外泄路径
 - **T12-05（P2）** 写路径穿越防御脆弱隐式：`relative_to` 词法不归一化 `..`（拦截仅靠 wildcard 正则形态）；symlink 目录逃逸（声明目录为 symlink 时契约校验通过的写落盘到 link 目标）；safe_write 零规范化
 - **T12-06（P2）** 按名拼接的防御缺失：`skills/{skill}/SKILL.md` 与 `load_contract(skill)` 无 skill 名词法校验（当前调用方全为硬编码配置，未来不可信 skill 名 → 任意仓库文件读入 system prompt + 契约混淆）；plugins/generate.py `REPO_ROOT / config["output"]` 允许 `..`
+
+> **勘误注（2026-09-13，F938）**：上方 T12-03/04/05/06 四条与 tooling-gate-chain spec（#22，2026-08-14-tooling-gate-chain-design.md）登记重复——主登记在 #22，本处为历史副本，以 #22 为准。
 - **T1301（P2）** pytest-asyncio 声明于 dev group 但全仓零异步测试（休眠插件）
 - **T1302（P2）** pytest-ordering 声明但零使用，且 0.6（2019）无人维护
 - **T1303（P2）** numpy 为核心依赖但其全部引用点仅在 Route B 可选路径执行

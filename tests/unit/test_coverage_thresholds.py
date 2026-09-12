@@ -25,9 +25,10 @@ BRANCH_THRESHOLD_PCT = 78
 
 @pytest.mark.last
 def test_branch_coverage_meets_threshold(request: pytest.FixtureRequest) -> None:
-    """Branch coverage across the framework must meet the permanent >=80% floor.
+    """Branch coverage across the framework must meet the 78% floor.
 
-    P-1.E PR-56 removed the xfail after Phase 3 raised branch coverage past 80%.
+    The floor is BRANCH_THRESHOLD_PCT (78%), code-enforced. Historical
+    ">=80% floor" wording is superseded by the enforced 78% value.
     """
     if not request.config.getoption("--no-cov", default=False):
         pytest.skip(

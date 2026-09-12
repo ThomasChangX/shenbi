@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial Shenbi framework with 59 skills.
-- 7-gate validation system (G0-G7).
+- 8-gate validation system (G0-G7).
 - Three-tier testing (T1/T2/T3).
 - P-1 Foundation Hygiene: uv, ruff, mypy, basedpyright, pytest, structlog,
   typed exceptions, ADRs.

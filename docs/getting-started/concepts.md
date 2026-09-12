@@ -54,8 +54,6 @@ A gate failure means the output is rejected — not scored, not advanced.
 
 ---
 
----
-
 ## 评分层级 / Scoring Tiers
 
 三层评分系统衡量质量的不同范围：

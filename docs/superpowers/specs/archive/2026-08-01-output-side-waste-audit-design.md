@@ -35,7 +35,7 @@
 
 - **症状**：一个质量差的章节触发重试链，产出多份废弃全量输出。
 - **证据**：
-  - `error_handler.py:36-37`：`MAX_DISPATCH_DETRIES = 2`（=3 总尝试）、`MAX_AUDIT_RETRIES = 3`。
+  - `error_handler.py:36-37`：`MAX_DISPATCH_RETRIES = 2`（=3 总尝试）、`MAX_AUDIT_RETRIES = 3`。
   - `handle_dispatch_failure`（`error_handler.py:40-57`）：drafting 失败重试最多 3 次全量输出。
   - `handle_audit_blocking`（`error_handler.py:60-81`）：revision↔audit 循环最多 3 次修订 + 3 次重审。
   - drafting 输出 ~31KB 章节 prose。坏章最坏路径：3 次 draft 输出（~93KB，仅末份保留）+ 3 次 revision 输出（~93KB）+ 3 审计波 = **~6 章等价输出 + 3 审计波**。

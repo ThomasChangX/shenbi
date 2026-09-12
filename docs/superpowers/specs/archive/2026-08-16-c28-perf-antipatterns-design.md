@@ -1,3 +1,5 @@
+> **Spec 编号**: #42
+
 > **Date:** 2026-08-16 | **Status:** Done (PR #153, 2026-09-06;后续 flake 修复 PR #154) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C28）| **依赖:** C10（token 计量接线——已由 spec36/PR #137 落地，三条派发路径全落账）| **范围:** contracts/legacy.py registry 缓存、gates/cli 懒加载、truth_embed/context_assemble 模型单例、audit_context_cache 四处路径错配+读抑制、gate 侧 O(N²) 重读 | **核心洞察:** registry 每次重解析（8.5ms×每派发×每门禁子进程）、门禁子进程 96% import 开销（实测 368.6ms/spawn）、gate 侧 O(N²) 全量重读——性能债直接折算为 token 与墙钟成本
 > **修订注记（2026-09-04 R2，设计审查第 2 轮收敛）**：T1607 已被 spec #26 路径 3（commit 66e7f69d/PR #105）移除差分子系统而消解；T1608（save_state 步级全量 dump）**让位** C30（#44 拥有 resume 游标锚定与 staging 生命周期语义）；R1 机制从「摘要字段注入」改为「原始字节表读抑制」（摘要字段注入会破坏字节等价——字段是截断值非文件原文）；F312 死键清单从 2 处扩至 **4 处路径错配**（builder 3 + 注入块 1 组）；volume_context 无审计波消费者移出 R1；F415 有两个跨轮同号条目（C35 已立案的编号碰撞）：08-15 轮 = gate 侧 O(N²) 重读放大（本 spec R3 承接 content_uniqueness 面），08-14 轮 = chapter_drafting.py 行号引用漂移（R4 顺手修正）

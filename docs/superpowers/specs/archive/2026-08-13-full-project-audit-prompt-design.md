@@ -141,6 +141,8 @@ v3 是对 v2 的**实证修复版**：每条机制变更对应 2026-08-14 执行
 
 阶段 2 与阶段 3 可交错（线程可随分区并行派发）；其余严格串行。
 
+> **勘误注（2026-09-13，F942）**：上表「T1-T11 十一条」为 v1 遗留计数，属历史版本；实际执行以 v3 为准（B1-B6 增补后为 T1-T16），本文件其余 T1-T11 表述同此口径。
+
 ---
 
 ## 4. 覆盖模型：三层 D1/D2/D3 + 覆盖台账
@@ -272,6 +274,8 @@ audit-runs/2026-08-13/
 - **严重度规则**：P0/P1/P2 每个根因一个独立子 spec；M 级（错别字/命名不一致等文案类）合入单一批量 spec `2026-08-13-minor-findings-batch-design.md`（按区分节）——避免数十个单行 spec 噪音。
 - **文件**：`docs/superpowers/specs/2026-08-13-<slug>-design.md`，头部块 `Date/Status/Severity/方法/系列/依赖/范围/核心洞察`；每条 finding 含 症状/证据 file:line/根因/分类/影响/假设+验证命令/修复方向/数值化标准（沿用现有 audit spec 格式）。
 - **总纲**：`2026-08-13-full-project-audit-design.md`（catalog：每 finding 一行 + 根因簇图 + 建议执行顺序 + 覆盖统计）。
+
+> **勘误注（2026-09-13，F943）**：本节预写的 `2026-08-13-*` 文件名为 prewrite 稿口径；实际归档件以 `2026-08-14-*` 命名（如 `2026-08-14-full-project-audit-design.md`、`2026-08-14-minor-findings-batch-design.md`），以 archive 目录现势为准。
 - **INDEX**：登记 1 总纲 + N 子 spec；`#NN` 顺序号按现有队列续排。
 - **只审不改**：全程唯一可写的是审计目录 + specs/ + INDEX.md；src/tests/skills/docs 正文零修改，修复一律留给后续 spec→plan。
 
