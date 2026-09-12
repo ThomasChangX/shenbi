@@ -3198,6 +3198,11 @@ def _run_chapter_step_impl(
             return _handle_failure(state, step, chapter, "gate", project_dir)
 
     # Conditional: foreshadowing-resolve after foreshadowing-lifecycle (step 7).
+    # NOTE (spec #59 T2 audit): step 7 is unconditionally intercepted by the
+    # parallel post-draft block above (_FORESHADOWING_LIFECYCLE_IDX), so this
+    # serial branch stays unreachable in production — kept for the serial
+    # fallback path; per-chapter conditional resolve via the parallel block is
+    # a known pre-existing gap (recorded in spec #59 deviations).
     if "foreshadowing-lifecycle" in step.skill:
         _check_conditional_resolve(state, project_dir, chapter)
 

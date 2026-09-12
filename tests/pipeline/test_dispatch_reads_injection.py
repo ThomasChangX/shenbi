@@ -127,5 +127,5 @@ def test_lifecycle_prompt_reachable(tmp_path):
         chapter=None,
     )
     combined = system_prompt + user_prompt
-    assert "foreshadowing-lifecycle" in combined or user_prompt.strip()
+    assert "foreshadowing-lifecycle" in combined
     assert output_paths, "prompt assembly must carry output paths"
