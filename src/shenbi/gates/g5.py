@@ -31,6 +31,35 @@ from shenbi.gates.shared import (
 from shenbi.contracts.thresholds import T2_PASS
 
 
+# G5.5 checker -> file pattern mapping (each checker only validates semantically
+# relevant files). Module-level so lint tooling can import it (spec #60 T0a-1).
+G5_CHECKER_GLOBS: dict[str, list[str]] = {
+    "shenbi-worldbuilding": ["novel.json", "genre-config.json", "world/*.md", "truth/*.md"],
+    "shenbi-power-system": ["world/power_system.md"],
+    "shenbi-faction-builder": ["world/factions.md", "world/faction-relations.md"],
+    "shenbi-location-builder": ["world/locations.md"],
+    "shenbi-character-design": ["characters/*.md", "characters/**/*.md"],
+    "shenbi-relationship-map": ["characters/relationships.md", "truth/character_matrix.md"],
+    "shenbi-story-architecture": [
+        "outline/story_frame.md",
+        "outline/volume_map.md",
+        "outline/rhythm_principles.md",
+    ],
+    "shenbi-volume-outlining": ["outline/volume_map.md"],
+    "shenbi-genre-config": ["genre-config.json"],
+    "shenbi-pacing-design": ["outline/rhythm_principles.md"],
+    "shenbi-plot-thread-weaver": ["outline/thread_map.md"],
+    "shenbi-chapter-planning": ["plans/*.md"],
+    "shenbi-chapter-drafting": ["chapters/*.md"],
+    "shenbi-foreshadowing-lifecycle": ["truth/pending_hooks.md"],
+    "shenbi-context-composing": ["context/*.md"],
+    "shenbi-state-settling": ["truth/*.md"],
+    "shenbi-style-polishing": ["chapters/*.md"],
+    "shenbi-anti-detect": ["chapters/*.md"],
+    "shenbi-length-normalizing": ["chapters/*.md"],
+}
+
+
 def gate_G5(
     phase_name: str | None = None, round_dir: str | None = None, project_dir: str | None = None
 ) -> str:
@@ -266,33 +295,6 @@ def gate_G5(
                 mf.append(f"G5.4:{pattern}:not_found")
             else:
                 c.append({"id": "G5.4", "pattern": pattern, "s": GateStatus.PASS})
-
-    # G5.5 checker → file pattern mapping (each checker only validates semantically relevant files)
-    G5_CHECKER_GLOBS = {
-        "shenbi-worldbuilding": ["novel.json", "genre-config.json", "world/*.md", "truth/*.md"],
-        "shenbi-power-system": ["world/power_system.md"],
-        "shenbi-faction-builder": ["world/factions.md", "world/faction-relations.md"],
-        "shenbi-location-builder": ["world/locations.md"],
-        "shenbi-character-design": ["characters/*.md", "characters/**/*.md"],
-        "shenbi-relationship-map": ["characters/relationships.md", "truth/character_matrix.md"],
-        "shenbi-story-architecture": [
-            "outline/story_frame.md",
-            "outline/volume_map.md",
-            "outline/rhythm_principles.md",
-        ],
-        "shenbi-volume-outlining": ["outline/volume_map.md"],
-        "shenbi-genre-config": ["genre-config.json"],
-        "shenbi-pacing-design": ["outline/rhythm_principles.md"],
-        "shenbi-plot-thread-weaver": ["outline/thread_map.md"],
-        "shenbi-chapter-planning": ["plans/*.md"],
-        "shenbi-chapter-drafting": ["chapters/*.md"],
-        "shenbi-foreshadowing-lifecycle": ["truth/pending_hooks.md"],
-        "shenbi-context-composing": ["context/*.md"],
-        "shenbi-state-settling": ["truth/*.md"],
-        "shenbi-style-polishing": ["chapters/*.md"],
-        "shenbi-anti-detect": ["chapters/*.md"],
-        "shenbi-length-normalizing": ["chapters/*.md"],
-    }
 
     def _g5_file_matches_glob(file_path: str, project_dir: str, patterns: list[str]) -> bool:
         """Check if file_path (relative to project_dir) matches any of the given glob patterns."""
