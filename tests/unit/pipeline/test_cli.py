@@ -665,6 +665,9 @@ class TestVerifyTruthIntegrity:
         (tmp_path / "truth/book_spine.md").write_text("# Spine")
         (tmp_path / "truth/author_intent.md").write_text("# Intent")
         (tmp_path / "style/style_profile.md").write_text("# Style")
+        (tmp_path / "world/factions.md").write_text("# Factions")
+        (tmp_path / "foundation").mkdir(exist_ok=True)
+        (tmp_path / "foundation/review_report.md").write_text("# Review")
         (tmp_path / "plans").mkdir(exist_ok=True)
 
         state = PipelineState(
@@ -673,6 +676,39 @@ class TestVerifyTruthIntegrity:
         )
         missing = _verify_truth_integrity(state, tmp_path)
         assert missing == []
+
+    def test_chapter_loop_missing_f354_files_reported(self, tmp_path, monkeypatch):
+        """F354: factions.md + review_report.md are required genesis outputs."""
+        from shenbi.pipeline.cli import _verify_truth_integrity
+        from shenbi.pipeline.state import ChapterLoopStateData, PipelinePhase, PipelineState
+
+        for d in ("truth", "characters", "outline", "world", "style", "plans", "foundation"):
+            (tmp_path / d).mkdir(parents=True, exist_ok=True)
+        seeded = {
+            "world/story_bible.md": "# Bible",
+            "genre-config.json": "{}",
+            "characters/protagonist.md": "# Hero",
+            "outline/story_frame.md": "# Frame",
+            "outline/volume_map.md": "# Volumes",
+            "outline/rhythm_principles.md": "# Rhythm",
+            "outline/thread_map.md": "# Threads",
+            "truth/pending_hooks.md": "# Hooks",
+            "world/power_system.md": "# Power",
+            "world/locations.md": "# Places",
+            "characters/relationships.md": "# Relationships",
+            "truth/book_spine.md": "# Spine",
+            "truth/author_intent.md": "# Intent",
+            "style/style_profile.md": "# Style",
+        }
+        for rel, content in seeded.items():
+            (tmp_path / rel).write_text(content, encoding="utf-8")
+        # world/factions.md + foundation/review_report.md deliberately absent
+        state = PipelineState(
+            phase=PipelinePhase.CHAPTER_LOOP,
+            chapter_loop=ChapterLoopStateData(current_chapter=1),
+        )
+        missing = _verify_truth_integrity(state, tmp_path)
+        assert missing == ["world/factions.md", "foundation/review_report.md"]
 
     def test_genesis_phase_missing_all(self, tmp_path, monkeypatch):
         """Genesis phase with no dirs reports all required ones."""
