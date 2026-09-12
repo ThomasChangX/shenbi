@@ -8,7 +8,7 @@ authors = [{ name = "ThomasChangX" }]
 requires-python = ">=3.11"
 dependencies = [
     "jieba==0.42.1",
-    "pydantic>=2.5.0",        # P-1 不用；为 P0 schemas 准备
+    "pydantic>=2.5.0",        # gates/G2 schemas 生产使用
     "pyyaml>=6.0.1",
     "structlog>=24.1.0",
     # 注：去除 patch>=1.16（unmaintained since 2016, codebase 用 unittest.mock）
