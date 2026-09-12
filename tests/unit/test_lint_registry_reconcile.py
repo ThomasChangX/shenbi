@@ -25,9 +25,7 @@ _COPY_LIST = [
     "src/shenbi/gates/g4/generic.py",
     "src/shenbi/gates/g4/scoring_sections.py",
     "src/shenbi/contracts/registry.py",
-    "src/shenbi/gates/cli.py",  # SHORT_MAP import face needs the module itself
-    "src/shenbi/__init__.py",
-    "src/shenbi/gates/__init__.py",  # regular-package precedence
+    "src/shenbi/gates/cli.py",  # SHORT_MAP face: AST-parsed (no import)
 ]
 _SCORE_EXEMPT = frozenset({"shenbi-score-arc", "shenbi-score-stratum", "shenbi-score-volume"})
 

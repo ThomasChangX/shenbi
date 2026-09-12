@@ -106,27 +106,31 @@ def _literal_str_set(source: str, assign_target: str) -> set[str]:
 
 
 def _short_map_keys(repo: Path) -> set[str] | None:
-    """SHORT_MAP values via isolated import of the repo's own cli.py."""
-    src_dir = repo / "src"
-    cli = src_dir / "shenbi" / "gates" / "cli.py"
+    """SHORT_MAP values via AST extraction of the repo's own cli.py.
+
+    AST (not import): importing a temp-copy cli.py would register the copy's
+    module lines in pytest-cov and tank the coverage gate (spec60 execution
+    finding); the map is a pure string-literal dict, so AST is exact.
+    """
+    cli = repo / "src" / "shenbi" / "gates" / "cli.py"
     if not cli.exists():
         return None
-    saved = {k: v for k, v in sys.modules.items() if k.split(".")[0] == "shenbi"}
-    for k in saved:
-        del sys.modules[k]
-    saved_path = list(sys.path)
-    sys.path.insert(0, str(src_dir))
     try:
-        import shenbi.gates.cli as cli_mod  # noqa: PLC0415
-
-        return set(cli_mod.SHORT_MAP.values())
-    except Exception:  # noqa: BLE001 (lint robustness: report, don't crash)
+        tree = ast.parse(cli.read_text(encoding="utf-8"))
+    except SyntaxError:
         return None
-    finally:
-        sys.path[:] = saved_path
-        for k in [k for k in sys.modules if k.split(".")[0] == "shenbi"]:
-            del sys.modules[k]
-        sys.modules.update(saved)
+    for node in ast.walk(tree):
+        if (
+            isinstance(node, ast.Assign)
+            and any(isinstance(tg, ast.Name) and tg.id == "SHORT_MAP" for tg in node.targets)
+            and isinstance(node.value, ast.Dict)
+        ):
+            return {
+                v.value
+                for v in node.value.values
+                if isinstance(v, ast.Constant) and isinstance(v.value, str)
+            }
+    return None
 
 
 def _checker_keys(repo: Path) -> set[str]:
