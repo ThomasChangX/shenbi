@@ -15,6 +15,7 @@ check:
     uv run python tools/lint_status_strings.py
     uv run python tools/lint_routing_faces.py
     uv run python tools/audit-skill-descriptions.py
+    uv run python tools/lint_registry_reconcile.py --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume
     uv run python tools/lint_bare_writes.py
     uv run python tools/lint_bare_subprocess_json.py
     uv run python tools/check_severity_vocab.py
