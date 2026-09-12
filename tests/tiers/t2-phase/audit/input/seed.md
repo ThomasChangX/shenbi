@@ -11,11 +11,11 @@ since they are independent:
 2. shenbi-review-group-craft — pacing/motivation/memo-compliance/texture craft audits
 3. shenbi-review-group-factual — continuity/world-rules/anti-ai factual audits
 4. shenbi-review-group-plan — foreshadowing payoff-and-plan audits
-10. shenbi-review-highpoint — buildup-payoff comparison on 1-5 scale
-10. shenbi-review-sensitivity — platform rule application, prohibited word check
-10. shenbi-review-long-span — 6-char n-gram repetition rate computation
-10. shenbi-review-era — anachronism detection against declared time period
-10. shenbi-review-fanfic — mode strictness (Canon/AU/OOC/CP)
+5. shenbi-review-highpoint — buildup-payoff comparison on 1-5 scale
+6. shenbi-review-sensitivity — platform rule application, prohibited word check
+7. shenbi-review-long-span — 6-char n-gram repetition rate computation
+8. shenbi-review-era — anachronism detection against declared time period
+9. shenbi-review-fanfic — mode strictness (Canon/AU/OOC/CP)
 10. shenbi-review-spinoff — timeline-aware information leakage
 
 Each skill produces an audit report. After all complete, verify: cross-audit consistency (no contradictory findings), finding deduplication, severity alignment.
