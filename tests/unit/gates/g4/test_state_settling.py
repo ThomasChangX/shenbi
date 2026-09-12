@@ -162,7 +162,9 @@ update_mode: replace
 
 
 def test_character_matrix_template_has_slug_column():
-    matrix_path = Path(__file__).resolve().parents[4] / "truth" / "character_matrix.md"
+    matrix_path = (
+        Path(__file__).resolve().parents[4] / "_templates" / "truth" / "character_matrix.md"
+    )
     assert matrix_path.exists(), "character_matrix.md must exist (F712: stale skip)"
     content = matrix_path.read_text(encoding="utf-8")
     assert "Slug" in content

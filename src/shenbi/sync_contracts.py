@@ -3,7 +3,9 @@
 Reads every skill's contract via contract.load_contract (no third parser) and
 derives:
   * deps.json expected_outputs  (parametric -> glob; in place)
-  * docs/framework/dependency-dag.json   (producer/consumer graph — NEW)
+  * docs/framework/dependency-dag.json — RETIRED (spec #60 T203: the checked-in
+    file had zero consumers beyond the codegen git-diff; build_dag() itself
+    stays, consumed in memory by tools/lint_contracts.py)
   * docs/framework/truth-files.index.json (per-file usage)
   * the auto-rendered body 数据契约 view (OD-1)
 """
@@ -25,7 +27,6 @@ from shenbi.logging import configure_logging, get_logger
 log = get_logger(__name__)
 
 DEPS_PATH = PROJECT / "tests" / "tiers" / "deps.json"
-DAG_PATH = PROJECT / "docs" / "framework" / "dependency-dag.json"
 INDEX_PATH = PROJECT / "docs" / "framework" / "truth-files.index.json"
 BODY_BANNER = "<!-- AUTO-GENERATED from frontmatter — do not edit -->"
 BODY_END = "<!-- END AUTO-GENERATED -->"
@@ -182,8 +183,7 @@ def main() -> int:
         log.error("deps_json_corrupt", path=str(DEPS_PATH), error=str(exc))
         return 1
 
-    # DAG + index
-    _write_json(DAG_PATH, build_dag(contracts, registry))
+    # index (DAG write retired — spec #60 T203)
     usage: dict[str, dict[str, list[str]]] = {}
     for skill, c in contracts.items():
         for role, files in (

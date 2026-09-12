@@ -62,7 +62,7 @@ def seed_genesis_outputs(project_dir) -> None:
     from pathlib import Path as _Path
 
     base = _Path(project_dir)
-    for d in ("truth", "characters", "outline", "world", "style", "plans", "context"):
+    for d in ("truth", "characters", "outline", "world", "style", "plans", "context", "foundation"):
         (base / d).mkdir(parents=True, exist_ok=True)
     files = {
         "world/story_bible.md": "# Bible\n",
@@ -79,6 +79,8 @@ def seed_genesis_outputs(project_dir) -> None:
         "truth/book_spine.md": "# Spine\n",
         "truth/author_intent.md": "# Intent\n",
         "style/style_profile.md": "# Style\n",
+        "world/factions.md": "# Factions\n",
+        "foundation/review_report.md": "# Review\n",
     }
     for rel, content in files.items():
         (base / rel).write_text(content, encoding="utf-8")

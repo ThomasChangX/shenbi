@@ -789,6 +789,8 @@ def _verify_truth_integrity(state: PipelineState, project_dir: Path) -> list[str
             "truth/book_spine.md",
             "truth/author_intent.md",
             "style/style_profile.md",
+            "world/factions.md",  # genesis step-5 output (F354)
+            "foundation/review_report.md",  # genesis step-17 output (F354)
         ]
         for rel_path in genesis_outputs:
             if not (project_dir / rel_path).exists():

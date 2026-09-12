@@ -9,5 +9,7 @@ Agent instructions:
 4. Run shenbi-style-polishing on chapter-1.md. Produces polished version with 润色说明 report. Approve.
 5. Run shenbi-anti-detect on polished chapter-1.md. Produces anti-AI audited version with 改写报告. Approve.
 6. Run shenbi-length-normalizing on audited chapter-1.md. Produces normalized version with 归一化报告. Approve.
+7. Run shenbi-review-resonance on chapter-1.md. Produces audits/chapter-1-resonance.md. Approve.
+8. Run shenbi-score-arc with truth arcs. Produces audits/arc-1-score.md. Approve.
 
 After each skill, verify handoff integrity and that the chapter passes all quality gates.

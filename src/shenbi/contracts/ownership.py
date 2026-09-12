@@ -4,7 +4,7 @@
 本文件含参考 OWNERSHIP 条目（genre-config.json 真实 9 顶层键 + pending_hooks.md
 plant/track/resolve/state-settling 写键集），均经 tests/fixtures/ 亲手核对（v5 C1/New-A/B）。
 
-注：完整 69 技能 OWNERSHIP 迁移是「支柱一续」；本矩阵是 Tier B 审计消费的接口 +
+注：全量技能 OWNERSHIP 迁移是「支柱一续」（计数以 skills/ 磁盘与对账 lint 为准）；本矩阵是 Tier B 审计消费的接口 +
 参考 fixture 条目。审计粒度为 per-skill-per-file（New-H），非 per-record；值正确性不在范围。
 """
 
@@ -73,10 +73,6 @@ _HOOK_KEYS_NEW_RECORD = frozenset(
 OWNERSHIP: dict[tuple[str, str], FileOwnership] = {
     ("shenbi-genre-config", "genre-config.json"): FileOwnership(
         level="field", write_keys=GENRE_KEYS
-    ),
-    # foundation-review 读 tropeInventory（声明 read；写集为空）
-    ("shenbi-foundation-review", "genre-config.json"): FileOwnership(
-        level="field", read_keys=frozenset({"tropeInventory"})
     ),
     # pending_hooks.md 分工（state-settling SKILL.md 权威声明；track 服从）
     ("shenbi-foreshadowing-resolve", "truth/pending_hooks.md"): FileOwnership(

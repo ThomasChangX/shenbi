@@ -272,6 +272,155 @@ def _merge_pwi_into_result(result_str: str, pwi: dict[str, Any]) -> str:
     return json.dumps(result_data, indent=2, ensure_ascii=False)
 
 
+# Declarative wiring facts (spec #60 T0a-2 / F1017): make_composite_checker
+# closures are not introspectable, so the decisions-wired roster is declared here
+# and asserted against actual construction inside build_checkers().
+G4_DECISIONS_WIRED: frozenset[str] = frozenset(
+    {
+        "shenbi-chapter-drafting",
+        "shenbi-chapter-planning",
+        "shenbi-context-composing",
+        "shenbi-genre-config",
+        "shenbi-chapter-revision",
+        "shenbi-short-drafting",
+        "shenbi-state-settling",
+        "shenbi-market-radar",
+    }
+)
+
+# The full checker roster: 27 static keys below + 3 score-* keys registered
+# dynamically by register_score_checkers(). String-only so lint tooling (and
+# g5) can import it without pulling the per-skill checker modules.
+G4_CHECKER_KEYS: frozenset[str] = frozenset(
+    {
+        "shenbi-anti-detect",
+        "shenbi-chapter-drafting",
+        "shenbi-chapter-planning",
+        "shenbi-character-design",
+        "shenbi-context-composing",
+        "shenbi-faction-builder",
+        "shenbi-foreshadowing-lifecycle",
+        "shenbi-genre-config",
+        "shenbi-length-normalizing",
+        "shenbi-location-builder",
+        "shenbi-pacing-design",
+        "shenbi-plot-thread-weaver",
+        "shenbi-power-system",
+        "shenbi-relationship-map",
+        "shenbi-review-arc-payoff",
+        "shenbi-review-resonance",
+        "shenbi-state-settling",
+        "shenbi-story-architecture",
+        "shenbi-style-polishing",
+        "shenbi-volume-outlining",
+        "shenbi-worldbuilding",
+        "shenbi-book-spine-init",
+        "shenbi-memory-distill",
+        "shenbi-escalation-review",
+        "shenbi-market-radar",
+        "shenbi-chapter-revision",
+        "shenbi-short-drafting",
+        "shenbi-score-arc",
+        "shenbi-score-stratum",
+        "shenbi-score-volume",
+    }
+)
+
+
+def build_checkers() -> dict[str, Any]:
+    """Construct the per-skill G4 checker registry.
+
+    Late imports are deliberate (circular-import avoidance at module load;
+    see cli.py T1604 note) and stay inside this factory. The declarative
+    G4_DECISIONS_WIRED / G4_CHECKER_KEYS frozensets are asserted against the
+    actual construction so they cannot silently drift (F1017 recurrence guard).
+    """
+    from shenbi.gates.g4.anti_detect import g4_anti_detect
+    from shenbi.gates.g4.book_spine_init import g4_book_spine_init
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+    from shenbi.gates.g4.chapter_planning import g4_chapter_planning
+    from shenbi.gates.g4.chapter_revision import g4_chapter_revision
+    from shenbi.gates.g4.character_design import g4_character_design
+    from shenbi.gates.g4.context_composing import g4_context_composing
+    from shenbi.gates.g4.decisions_validator import g4_decisions, make_composite_checker
+    from shenbi.gates.g4.escalation_review import g4_escalation_review
+    from shenbi.gates.g4.faction_builder import g4_faction_builder
+    from shenbi.gates.g4.foreshadowing_lifecycle import g4_foreshadowing_lifecycle
+    from shenbi.gates.g4.genre_config import g4_genre_config
+    from shenbi.gates.g4.length_normalizing import g4_length_normalizing
+    from shenbi.gates.g4.location_builder import g4_location_builder
+    from shenbi.gates.g4.memory_distill import g4_memory_distill
+    from shenbi.gates.g4.pacing_design import g4_pacing_design
+    from shenbi.gates.g4.plot_thread_weaver import g4_plot_thread_weaver
+    from shenbi.gates.g4.power_system import g4_power_system
+    from shenbi.gates.g4.relationship_map import g4_relationship_map
+    from shenbi.gates.g4.review_arc_payoff import g4_review_arc_payoff
+    from shenbi.gates.g4.review_resonance import g4_review_resonance
+    from shenbi.gates.g4.scoring_sections import register_score_checkers
+    from shenbi.gates.g4.state_settling import g4_state_settling
+    from shenbi.gates.g4.story_architecture import g4_story_architecture
+    from shenbi.gates.g4.style_polishing import g4_style_polishing
+    from shenbi.gates.g4.volume_outlining import g4_volume_outlining
+    from shenbi.gates.g4.worldbuilding import g4_worldbuilding
+
+    wired: set[str] = set()
+
+    def comp(base: Any, name: str, pred: Any = None) -> Any:
+        wired.add(name)
+        if pred is None:
+            return make_composite_checker(base, g4_decisions)
+        return make_composite_checker(base, g4_decisions, pred)
+
+    checkers: dict[str, Any] = {
+        "shenbi-anti-detect": g4_anti_detect,
+        "shenbi-chapter-drafting": comp(g4_chapter_drafting, "shenbi-chapter-drafting"),
+        "shenbi-chapter-planning": comp(g4_chapter_planning, "shenbi-chapter-planning"),
+        "shenbi-character-design": g4_character_design,
+        "shenbi-context-composing": comp(g4_context_composing, "shenbi-context-composing"),
+        "shenbi-faction-builder": g4_faction_builder,
+        "shenbi-foreshadowing-lifecycle": g4_foreshadowing_lifecycle,
+        "shenbi-genre-config": comp(g4_genre_config, "shenbi-genre-config"),
+        "shenbi-length-normalizing": g4_length_normalizing,
+        "shenbi-location-builder": g4_location_builder,
+        "shenbi-pacing-design": g4_pacing_design,
+        "shenbi-plot-thread-weaver": g4_plot_thread_weaver,
+        "shenbi-power-system": g4_power_system,
+        "shenbi-relationship-map": g4_relationship_map,
+        "shenbi-review-arc-payoff": g4_review_arc_payoff,
+        "shenbi-review-resonance": g4_review_resonance,
+        "shenbi-state-settling": comp(g4_state_settling, "shenbi-state-settling"),
+        "shenbi-story-architecture": g4_story_architecture,
+        "shenbi-style-polishing": g4_style_polishing,
+        "shenbi-volume-outlining": g4_volume_outlining,
+        "shenbi-worldbuilding": g4_worldbuilding,
+        "shenbi-book-spine-init": g4_book_spine_init,
+        "shenbi-memory-distill": g4_memory_distill,
+        "shenbi-escalation-review": g4_escalation_review,
+        # New: decisions-only (no existing dedicated checker)
+        "shenbi-market-radar": g4_decisions,
+        "shenbi-chapter-revision": comp(
+            g4_chapter_revision,
+            "shenbi-chapter-revision",
+            # revision sidecars carry stricter G4.rev semantics than DecisionsDoc
+            # (empty_adjustments_no_skip / >=20-char rationale) — route them to
+            # the dedicated checker, not the generic decisions slot.
+            lambda fp: fp.endswith("-decisions.json") and "revision" not in Path(fp).name,
+        ),
+        "shenbi-short-drafting": g4_decisions,
+    }
+    wired.add("shenbi-market-radar")  # bare g4_decisions assignment — wired too
+    wired.add("shenbi-short-drafting")  # bare g4_decisions assignment — wired too
+    # C37 F427: three copy-paste score checkers unified
+    register_score_checkers(checkers)
+    assert wired == set(G4_DECISIONS_WIRED), (
+        f"G4_DECISIONS_WIRED drifted from construction: {wired ^ set(G4_DECISIONS_WIRED)}"
+    )
+    assert set(checkers) == set(G4_CHECKER_KEYS), (
+        f"G4_CHECKER_KEYS drifted from construction: {set(checkers) ^ set(G4_CHECKER_KEYS)}"
+    )
+    return checkers
+
+
 def gate_G4(
     skill_name: str,
     test_type: str,
@@ -286,77 +435,10 @@ def gate_G4(
     if test_type == "clean":
         return g4_generic_clean(file_paths, round_dir, project_dir, repo_root)
 
-    # Late imports: per-skill checkers live in sibling modules to avoid
-    # circular imports at module load time.
-    from shenbi.gates.g4.anti_detect import g4_anti_detect
-    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
-    from shenbi.gates.g4.chapter_planning import g4_chapter_planning
-    from shenbi.gates.g4.character_design import g4_character_design
-    from shenbi.gates.g4.context_composing import g4_context_composing
-    from shenbi.gates.g4.faction_builder import g4_faction_builder
-    from shenbi.gates.g4.foreshadowing_lifecycle import g4_foreshadowing_lifecycle
-    from shenbi.gates.g4.genre_config import g4_genre_config
-    from shenbi.gates.g4.length_normalizing import g4_length_normalizing
-    from shenbi.gates.g4.location_builder import g4_location_builder
-    from shenbi.gates.g4.pacing_design import g4_pacing_design
-    from shenbi.gates.g4.plot_thread_weaver import g4_plot_thread_weaver
-    from shenbi.gates.g4.power_system import g4_power_system
-    from shenbi.gates.g4.relationship_map import g4_relationship_map
-    from shenbi.gates.g4.review_arc_payoff import g4_review_arc_payoff
-    from shenbi.gates.g4.review_resonance import g4_review_resonance
-    from shenbi.gates.g4.state_settling import g4_state_settling
-    from shenbi.gates.g4.story_architecture import g4_story_architecture
-    from shenbi.gates.g4.style_polishing import g4_style_polishing
-    from shenbi.gates.g4.volume_outlining import g4_volume_outlining
-    from shenbi.gates.g4.worldbuilding import g4_worldbuilding
-    from shenbi.gates.g4.book_spine_init import g4_book_spine_init
-    from shenbi.gates.g4.memory_distill import g4_memory_distill
-    from shenbi.gates.g4.scoring_sections import register_score_checkers
-    from shenbi.gates.g4.escalation_review import g4_escalation_review
-    from shenbi.gates.g4.chapter_revision import g4_chapter_revision
-    from shenbi.gates.g4.decisions_validator import g4_decisions, make_composite_checker
-
-    checkers = {
-        "shenbi-anti-detect": g4_anti_detect,
-        "shenbi-chapter-drafting": make_composite_checker(g4_chapter_drafting, g4_decisions),
-        "shenbi-chapter-planning": make_composite_checker(g4_chapter_planning, g4_decisions),
-        "shenbi-character-design": g4_character_design,
-        "shenbi-context-composing": make_composite_checker(g4_context_composing, g4_decisions),
-        "shenbi-faction-builder": g4_faction_builder,
-        "shenbi-foreshadowing-lifecycle": g4_foreshadowing_lifecycle,
-        "shenbi-genre-config": make_composite_checker(g4_genre_config, g4_decisions),
-        "shenbi-length-normalizing": g4_length_normalizing,
-        "shenbi-location-builder": g4_location_builder,
-        "shenbi-pacing-design": g4_pacing_design,
-        "shenbi-plot-thread-weaver": g4_plot_thread_weaver,
-        "shenbi-power-system": g4_power_system,
-        "shenbi-relationship-map": g4_relationship_map,
-        "shenbi-review-arc-payoff": g4_review_arc_payoff,
-        "shenbi-review-resonance": g4_review_resonance,
-        "shenbi-state-settling": make_composite_checker(g4_state_settling, g4_decisions),
-        "shenbi-story-architecture": g4_story_architecture,
-        "shenbi-style-polishing": g4_style_polishing,
-        "shenbi-volume-outlining": g4_volume_outlining,
-        "shenbi-worldbuilding": g4_worldbuilding,
-        "shenbi-book-spine-init": g4_book_spine_init,
-        "shenbi-memory-distill": g4_memory_distill,
-        "shenbi-escalation-review": g4_escalation_review,
-        # New: decisions-only (no existing dedicated checker)
-        "shenbi-market-radar": g4_decisions,
-        "shenbi-chapter-revision": make_composite_checker(
-            g4_chapter_revision,
-            g4_decisions,
-            # revision sidecars carry stricter G4.rev semantics than DecisionsDoc
-            # (empty_adjustments_no_skip / >=20-char rationale) — route them to
-            # the dedicated checker, not the generic decisions slot.
-            lambda fp: fp.endswith("-decisions.json") and "revision" not in Path(fp).name,
-        ),
-        "shenbi-short-drafting": g4_decisions,
-    }
-    # C37 F427: three copy-paste score checkers unified
-    register_score_checkers(checkers)
+    checkers = build_checkers()
 
     fn = checkers.get(skill_name)
+    result: str
     if fn:
         result = fn(file_paths, round_dir, project_dir, repo_root)
     else:

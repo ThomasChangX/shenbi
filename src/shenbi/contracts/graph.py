@@ -1,7 +1,7 @@
 """Glob-aware DAG key normalization.
 
 Extracted from sync_contracts.py so that G5.2 (runtime WARN), lint_contract_graph
-(CI FAIL), and sync_contracts (DAG generation) all use IDENTICAL matching
+(CI FAIL), and lint_contracts (in-memory closure checks) all use IDENTICAL matching
 semantics by importing from one place.
 
 These functions take the typed ``TruthFilesRegistry`` model (Task 10) and read
@@ -42,18 +42,12 @@ def normalize_to_glob(path: str, registry: TruthFilesRegistry) -> str:
 def dag_key(path: str, registry: TruthFilesRegistry) -> str:
     """Canonical matching key for a path in the DAG.
 
-    A concrete write (audits/chapter-N-anti-ai.md) and a glob read
-    (audits/chapter-N-*.md) must join under one edge, so the completeness check
-    can see that a report is consumed downstream. Map any path to a declared
-    glob it matches; else its parametric glob; else itself.
-
-    Trade-off: matching is glob-aware, so unrelated files that share a broad
-    declared glob (e.g. every ``truth/*.md`` file) collapse to one key and
-    over-connect in the DAG. Benign for the completeness check — it only
-    scrutinizes REPORT producers, which carry specific audit writes — but it
-    adds noise for future impact analysis.
+    Unified patterns-first (spec #60 T0b): identical to normalize_to_glob.
+    The former globs-first ordering collapsed specific paths into broad
+    declared globs (truth/arcs/arc-N.md -> truth/*.md), diverging from the
+    expected_outputs keys produced by normalize_to_glob — two canonicalizers
+    disagreeing over the same path was the registry-reconcile failure mode.
+    Curly-form reads (chapters/chapter-{N-3}.md) join producers via explicit
+    patterns entries mapping them to chapters/chapter-*.md.
     """
-    for g in registry.globs:
-        if fnmatch.fnmatch(path, g.pattern):
-            return str(g.pattern)
     return normalize_to_glob(path, registry)

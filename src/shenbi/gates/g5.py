@@ -3,6 +3,7 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.gates.g4.generic import G4_CHECKER_KEYS
 from shenbi.status import GateStatus
 
 from shenbi.logging import get_logger
@@ -29,6 +30,48 @@ from shenbi.gates.shared import (
     sampled_checks_summary,
 )
 from shenbi.contracts.thresholds import T2_PASS
+
+
+# G5.5 checker -> file pattern mapping (each checker only validates semantically
+# relevant files). Module-level so lint tooling can import it (spec #60 T0a-1).
+G5_CHECKER_GLOBS: dict[str, list[str]] = {
+    "shenbi-worldbuilding": ["novel.json", "genre-config.json", "world/*.md", "truth/*.md"],
+    "shenbi-power-system": ["world/power_system.md"],
+    "shenbi-faction-builder": ["world/factions.md", "world/faction-relations.md"],
+    "shenbi-location-builder": ["world/locations.md"],
+    "shenbi-character-design": ["characters/*.md", "characters/**/*.md"],
+    "shenbi-relationship-map": ["characters/relationships.md", "truth/character_matrix.md"],
+    "shenbi-story-architecture": [
+        "outline/story_frame.md",
+        "outline/volume_map.md",
+        "outline/rhythm_principles.md",
+    ],
+    "shenbi-volume-outlining": ["outline/volume_map.md"],
+    "shenbi-genre-config": ["genre-config.json"],
+    "shenbi-pacing-design": ["outline/rhythm_principles.md"],
+    "shenbi-plot-thread-weaver": ["outline/thread_map.md"],
+    "shenbi-chapter-planning": ["plans/*.md"],
+    "shenbi-chapter-drafting": ["chapters/*.md"],
+    "shenbi-foreshadowing-lifecycle": ["truth/pending_hooks.md"],
+    "shenbi-context-composing": ["context/*.md"],
+    "shenbi-state-settling": ["truth/*.md"],
+    "shenbi-style-polishing": ["chapters/*.md"],
+    "shenbi-anti-detect": ["chapters/*.md"],
+    "shenbi-length-normalizing": ["chapters/*.md"],
+    "shenbi-book-spine-init": ["truth/book_spine.md"],
+    "shenbi-chapter-revision": [
+        "chapters/chapter-*.md",
+        "chapters/chapter-*-revision-decisions.json",
+        "truth/state_snapshot-pre-rev.md",
+    ],
+    "shenbi-memory-distill": ["truth/arcs/arc-*.md", "truth/book_strata.md", "truth/book_spine.md"],
+    "shenbi-review-arc-payoff": ["audits/volume-*-payoff.md"],
+    "shenbi-review-resonance": ["audits/chapter-*-resonance.md"],
+    "shenbi-score-arc": ["audits/arc-*-score.md"],
+    "shenbi-score-stratum": ["audits/stratum-*-score.md"],
+    "shenbi-score-volume": ["audits/volume-*-score.md"],
+    "shenbi-short-drafting": ["chapters/chapter-*.md", "short/short-*-decisions.json"],
+}
 
 
 def gate_G5(
@@ -267,33 +310,6 @@ def gate_G5(
             else:
                 c.append({"id": "G5.4", "pattern": pattern, "s": GateStatus.PASS})
 
-    # G5.5 checker → file pattern mapping (each checker only validates semantically relevant files)
-    G5_CHECKER_GLOBS = {
-        "shenbi-worldbuilding": ["novel.json", "genre-config.json", "world/*.md", "truth/*.md"],
-        "shenbi-power-system": ["world/power_system.md"],
-        "shenbi-faction-builder": ["world/factions.md", "world/faction-relations.md"],
-        "shenbi-location-builder": ["world/locations.md"],
-        "shenbi-character-design": ["characters/*.md", "characters/**/*.md"],
-        "shenbi-relationship-map": ["characters/relationships.md", "truth/character_matrix.md"],
-        "shenbi-story-architecture": [
-            "outline/story_frame.md",
-            "outline/volume_map.md",
-            "outline/rhythm_principles.md",
-        ],
-        "shenbi-volume-outlining": ["outline/volume_map.md"],
-        "shenbi-genre-config": ["genre-config.json"],
-        "shenbi-pacing-design": ["outline/rhythm_principles.md"],
-        "shenbi-plot-thread-weaver": ["outline/thread_map.md"],
-        "shenbi-chapter-planning": ["plans/*.md"],
-        "shenbi-chapter-drafting": ["chapters/*.md"],
-        "shenbi-foreshadowing-lifecycle": ["truth/pending_hooks.md"],
-        "shenbi-context-composing": ["context/*.md"],
-        "shenbi-state-settling": ["truth/*.md"],
-        "shenbi-style-polishing": ["chapters/*.md"],
-        "shenbi-anti-detect": ["chapters/*.md"],
-        "shenbi-length-normalizing": ["chapters/*.md"],
-    }
-
     def _g5_file_matches_glob(file_path: str, project_dir: str, patterns: list[str]) -> bool:
         """Check if file_path (relative to project_dir) matches any of the given glob patterns."""
         try:
@@ -305,6 +321,13 @@ def gate_G5(
 
     # G5.5: No regression — re-run G4 checks for each prerequisite skill on phase outputs
     phase_outputs = phase_data.get("expected_outputs", [])
+    # F432 (spec #60 R5): a checker-having prereq without a glob entry used to
+    # silently fall back to *.md — the dedicated checker then swept every md
+    # file and false-FAILed. Fail explicitly instead. Checker-less prereqs
+    # keep the explicit *.md default (generic check) below.
+    for _pr in prereqs:
+        if _pr in G4_CHECKER_KEYS and _pr not in G5_CHECKER_GLOBS:
+            mf.append(f"G5.5:{_pr}:missing G5_CHECKER_GLOBS entry")
     if phase_outputs and project_dir:
         pd = Path(project_dir)
         for pattern in phase_outputs:
@@ -314,7 +337,12 @@ def gate_G5(
                         # Run G4 check for every prerequisite skill on each output file
                         for pr in prereqs:
                             # Only run checker if file matches its applicable globs
-                            globs = G5_CHECKER_GLOBS.get(pr, ["*.md"])
+                            if pr not in G5_CHECKER_GLOBS:
+                                if pr in G4_CHECKER_KEYS:
+                                    continue  # already FAIL-flagged above (missing glob)
+                                globs = ["*.md"]  # checker-less: explicit default -> generic check
+                            else:
+                                globs = G5_CHECKER_GLOBS[pr]
                             if not _g5_file_matches_glob(str(fp), str(pd), globs):
                                 continue
                             try:

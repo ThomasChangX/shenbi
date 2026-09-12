@@ -1,4 +1,4 @@
-"""Auto-generated minimal contract model for shenbi-worldbuilding."""
+"""Hand-maintained minimal contract model for shenbi-worldbuilding (provenance claim corrected: no generator exists; spec60 T206)."""
 
 from __future__ import annotations
 

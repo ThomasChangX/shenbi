@@ -7,7 +7,9 @@ BRIDGE_TRACKER_HEADER = (
 
 def test_bridge_tracker_template_has_correct_structure():
     """The bridge tracker template file must contain the expected table header."""
-    template_path = Path(__file__).resolve().parents[3] / "truth" / "bridge_tracker.md"
+    template_path = (
+        Path(__file__).resolve().parents[3] / "_templates" / "truth" / "bridge_tracker.md"
+    )
     assert template_path.exists(), "bridge_tracker.md template must exist (F712: stale skip)"
     content = template_path.read_text(encoding="utf-8")
     assert BRIDGE_TRACKER_HEADER in content
@@ -16,7 +18,9 @@ def test_bridge_tracker_template_has_correct_structure():
 
 
 def test_bridge_tracker_template_is_valid_markdown_table():
-    template_path = Path(__file__).resolve().parents[3] / "truth" / "bridge_tracker.md"
+    template_path = (
+        Path(__file__).resolve().parents[3] / "_templates" / "truth" / "bridge_tracker.md"
+    )
     assert template_path.exists(), "bridge_tracker.md template must exist (F712: stale skip)"
     content = template_path.read_text(encoding="utf-8")
     lines = content.strip().split("\n")

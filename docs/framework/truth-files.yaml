@@ -89,15 +89,24 @@ concepts:
   - {name: context/review-checklist-N.json, kind: context, producer: pipeline}
   - {name: context/chapter-pattern-input-N.json, kind: context, producer: skill}
   - {name: truth/chapter_patterns.md, kind: truth, producer: pipeline}
+  - {name: truth/bridge_tracker.md, kind: truth, producer: skill}
+  - {name: truth/state_snapshot-pre-rev.md, kind: truth, producer: skill}
+  - {name: truth/audit_drift_archive.md, kind: truth, producer: skill}
+  - {name: truth/foreshadowing_recall_result.md, kind: truth, producer: skill}
+  - {name: import/analysis/02_characters.md, kind: import, producer: skill}
+  - {name: import/analysis/03_world.md, kind: import, producer: skill}
+  - {name: import/analysis/04_plot.md, kind: import, producer: skill}
+  - {name: outline/chapter_outline.md, kind: outline, producer: skill}
+  - {name: outline/three_act.md, kind: outline, producer: skill}
+  - {name: snapshots/chapter-NNN/manifest.json, kind: snapshot, producer: skill}
+  - {name: progress.json, kind: config, producer: pipeline}
+  - {name: config-change-log.jsonl, kind: config, producer: pipeline}
   - {name: truth/resonance_anchors.md, kind: truth, producer: pipeline}
-  - {name: import/analysis/01_overview.md, kind: import}
   - {name: import/canon/01_SECTION.md, kind: import}
   - {name: import/packaging/package.md, kind: import}
   # external seeds (author-supplied, read-only):
   - {name: import/source/*.txt, kind: import, producer: external}
   - {name: source_canon/*, kind: import, producer: external}
-  - {name: short/outline.md, kind: short}
-  - {name: short/package.md, kind: short}
   - {name: short/short-N-decisions.json, kind: decisions}  # short-drafting decisions
   # benchmarks (Wave 3: scoring anchor library, spec §4.3)
   - {name: benchmarks/anchors/, kind: benchmark, producer: external}
@@ -106,6 +115,14 @@ concepts:
 patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: plans/chapter-N-plan.md, glob: plans/chapter-*-plan.md}
   - {parametric: chapters/chapter-N.md, glob: chapters/chapter-*.md}
+  # Curly-form relative reads (context-composing reads N-3/N-2/N-1) join the
+  # same key as the producer (spec #60 T0b: patterns-first dag_key unification).
+  - {parametric: "chapters/chapter-{N-3}.md", glob: chapters/chapter-*.md}
+  - {parametric: "chapters/chapter-{N-2}.md", glob: chapters/chapter-*.md}
+  - {parametric: "chapters/chapter-{N-1}.md", glob: chapters/chapter-*.md}
+  # F242 (spec #60): parametric checklist/pattern-input concepts get explicit patterns
+  - {parametric: context/review-checklist-N.json, glob: context/review-checklist-*.json}
+  - {parametric: context/chapter-pattern-input-N.json, glob: context/chapter-pattern-input-*.json}
   - {parametric: context/chapter-N-context.md, glob: context/chapter-*-context.md}
   - parametric: context/chapter-N-context-decisions.json
     glob: context/chapter-*-context-decisions.json
@@ -140,6 +157,9 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: chapters/chapter-*-revision-decisions.json}
   - {pattern: plans/chapter-*-plan-decisions.json}
   - {pattern: audits/chapter-*.md}
+  - {pattern: audits/chapter-N-*.md}
+  - {pattern: snapshots/chapter-NNN/*}
+  - {pattern: gate-markers/*}
   - {pattern: audits/volume-*.md}
   - {pattern: snapshots/chapter-*/*}   # D20: skill-domain directory snapshots
   - {pattern: snapshots/chapter-*-emergency.md}  # D20: crash_recovery emergency flatfile

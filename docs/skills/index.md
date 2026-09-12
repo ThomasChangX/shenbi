@@ -86,6 +86,11 @@ Post-drafting quality checks: 18 specialized audit dimensions covering character
 | shenbi-review-foreshadowing | Use when a finished chapter needs foreshadowing audit against hook ledger and cultivation rules |
 | shenbi-review-world-rules | Use when a finished chapter needs a world-rules consistency audit against power system, setting, and numerical records |
 | shenbi-review-sensitivity | Use when a finished chapter needs a sensitivity and platform-compliance audit against prohibited words and content boundaries |
+| shenbi-foreshadowing-lifecycle | Use when a chapter's foreshadowing hooks need planting, tracking, and resolution state transitions in the hook ledger |
+| shenbi-review-group-character | Use when a finished chapter needs the character-family audit bundle (BDI, voice, dialogue, POV, motivation, reader-pull) |
+| shenbi-review-group-craft | Use when a finished chapter needs the craft-family audit bundle (pacing, texture, memo compliance, anti-AI patterns) |
+| shenbi-review-group-factual | Use when a finished chapter needs the factual-family audit bundle (continuity, world rules, numerical cross-reference) |
+| shenbi-review-group-plan | Use when a finished chapter needs the plan-family audit bundle (foreshadowing payoff, highpoint buildup, memo-plan alignment) |
 | shenbi-review-memo-compliance | Use when a finished chapter needs an 8-section chapter memo compliance audit against `plans/chapter-N-plan.md` |
 | shenbi-review-motivation | Use when a finished chapter needs a character motivation and behavior-chain plausibility audit |
 | shenbi-review-pov | Use when a finished chapter needs a POV consistency and information boundary audit |

@@ -57,6 +57,9 @@ jobs:
           uv run python tools/lint_contract_prose.py --fail
           uv run python scripts/lint_contract_fields.py
           uv run python tools/lint_repo_consistency.py
+          uv run python tools/lint_registry_reconcile.py \
+            --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume
+        # NOTE: dual-list with justfile is C25 debt (spec #63) — systematic single-sourcing deferred
       - name: Key reconciliation lint (spec 27 T7)
         run: uv run python tools/lint_key_reconciliation.py --strict
       - name: N7 lint (no forbid on computed_field)

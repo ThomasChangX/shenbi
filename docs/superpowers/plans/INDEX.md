@@ -1,13 +1,15 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-12（spec59 C21 plan 归档——Done PR #204）
-> **活跃 plan 数**：0 | **已归档**：113（见 `archive/`）
+> **最后更新**：2026-09-12（spec #60 C22 plan 创建——✅ ready）
+> **活跃 plan 数**：1 | **已归档**：113（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
 ---
 
 ## 活跃 Plan
+
+- `2026-09-12-registry-reconcile-lint.md`（✅ ready）— spec #60 C22 平行登记表对账门禁：15 task（T0 提取/canonicalizer 前置 → R1-R5 lint → 分表存量修正 → 终态重锁+红灯验证 → CI 双挂载）；plan 审查四轮收敛（2C6I→2C2I→1C4I→0C1I-Yes）
 
 
 ## 待执行的 spec → plan 映射
