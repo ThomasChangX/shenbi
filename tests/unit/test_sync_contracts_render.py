@@ -80,13 +80,11 @@ def _make_tmp_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str,
         ),
         encoding="utf-8",
     )
-    dag = tmp_path / "dag.json"
     index = tmp_path / "index.json"
     monkeypatch.setattr(sc, "SKILLS", skills)
     monkeypatch.setattr(sc, "DEPS_PATH", deps)
-    monkeypatch.setattr(sc, "DAG_PATH", dag)
     monkeypatch.setattr(sc, "INDEX_PATH", index)
-    return {"skills": skills, "deps": deps, "dag": dag, "index": index}
+    return {"skills": skills, "deps": deps, "index": index}
 
 
 def test_main_end_to_end_regenerates_artifacts(
@@ -110,8 +108,7 @@ def test_main_end_to_end_regenerates_artifacts(
     # deps.json: expected_outputs regenerated in place, org fields preserved
     deps_out = json.loads(paths["deps"].read_text(encoding="utf-8"))
     assert deps_out["t2-phases"]["p1"]["expected_outputs"] == ["out/alpha.md"]
-    # dag + index written
-    assert paths["dag"].exists()
+    # index written; DAG write retired (spec #60 T203 — zero consumers)
     assert paths["index"].exists()
     index_out = json.loads(paths["index"].read_text(encoding="utf-8"))
     assert index_out["truth/a.md"]["reads"] == ["shenbi-alpha"]
@@ -144,5 +141,4 @@ def test_main_fails_closed_on_corrupt_deps(tmp_path: Path, monkeypatch: pytest.M
     paths["deps"].write_text("{corrupt", encoding="utf-8")
     assert sc.main() == 1
     # fail-closed: no partial artifact writes before the deps bail
-    assert not paths["dag"].exists()
     assert not paths["index"].exists()

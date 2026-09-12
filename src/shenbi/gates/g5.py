@@ -3,6 +3,7 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.gates.g4.generic import G4_CHECKER_KEYS
 from shenbi.status import GateStatus
 
 from shenbi.logging import get_logger
@@ -307,6 +308,13 @@ def gate_G5(
 
     # G5.5: No regression — re-run G4 checks for each prerequisite skill on phase outputs
     phase_outputs = phase_data.get("expected_outputs", [])
+    # F432 (spec #60 R5): a checker-having prereq without a glob entry used to
+    # silently fall back to *.md — the dedicated checker then swept every md
+    # file and false-FAILed. Fail explicitly instead. Checker-less prereqs
+    # keep the explicit *.md default (generic check) below.
+    for _pr in prereqs:
+        if _pr in G4_CHECKER_KEYS and _pr not in G5_CHECKER_GLOBS:
+            mf.append(f"G5.5:{_pr}:missing G5_CHECKER_GLOBS entry")
     if phase_outputs and project_dir:
         pd = Path(project_dir)
         for pattern in phase_outputs:
@@ -316,7 +324,12 @@ def gate_G5(
                         # Run G4 check for every prerequisite skill on each output file
                         for pr in prereqs:
                             # Only run checker if file matches its applicable globs
-                            globs = G5_CHECKER_GLOBS.get(pr, ["*.md"])
+                            if pr not in G5_CHECKER_GLOBS:
+                                if pr in G4_CHECKER_KEYS:
+                                    continue  # already FAIL-flagged above (missing glob)
+                                globs = ["*.md"]  # checker-less: explicit default -> generic check
+                            else:
+                                globs = G5_CHECKER_GLOBS[pr]
                             if not _g5_file_matches_glob(str(fp), str(pd), globs):
                                 continue
                             try:
