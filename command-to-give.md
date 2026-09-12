@@ -25,7 +25,7 @@ bash tests/round-exec.sh deepseek-v4-flash T1
 
 ### 第二步：确认进度
 
-检查 `.superpowers/sdd/progress.md`（如存在）与既有轮次输出目录，确定本轮起点；无进行中轮次则从新 round 目录开始。
+检查会话工作态记录（如有）与既有轮次输出目录，确定本轮起点；无进行中轮次则从新 round 目录开始。
 
 ### 第三步：按 skill 列表执行
 
