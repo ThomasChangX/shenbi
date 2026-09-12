@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟠 P1（F901 执行协议断链）
+> **Date:** 2026-08-16 | **Status:** Design（Revised 2026-09-13 · 价值门驳斥复核剔除 9 条已失效成员，见「2026-09-13 修订注记」） | **Severity:** 🟠 P1（F901 执行协议断链）
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C23）| **代表 finding:** T1001 | **簇规模:** 46 条 | **严重度上限:** P1
 > **范围:** AGENTS.md、command-to-give.md、overview.md、gates/dispatcher docstring、活跃+归档 spec、plans/INDEX、README、doc-links CI | **证据等级:** 实验佐证（grep/ls 机械对账实跑，T10 线程 + Z9-a + Z6 + Z7-d）
 > **与既有 spec 关系:** phase4 §7 建议 C23/C24 合并为"文档对账工具+CI"批量处理——本 spec 与 C24（语义矛盾）为**同工具两用**：本 spec 管机械面（计数/断链/行号），C24 管语义面（矛盾版本）；CI 承载面依赖 C17 T2 的 doc-links 落地
@@ -60,6 +60,15 @@ D103、F117、F127、F236、F334、F335、F423、F425、F426、F428、F429、F44
 - **风险**：行号改符号引用在重构时同样会断（符号改名）——doc-links + CI 符号存在性检查兜底（T4）
 - **回滚**：全部为文档/docstring 改动，零生产代码；分 T1/T2/T3 三批 PR 各自可回滚
 
-## 簇成员清单（46 条，自查用）
+## 簇成员清单（修订后 37 条活 + 9 条剔除，自查用）
 
-D103, F006-F007, F117, F126-F127, F236, F331, F334-F335, F423, F425-F426, F428-F429, F440, F460-F461, F612, F638, F714, F769, F804, F854, F901, F904, F906-F907, F909-F910, F917, F951-F953, F955, F967-F968, F970-F971, F974, F1023, F1033-F1034, F1037, T1001, T1003（代表 T1001）
+**活成员（37）**：D103, F006-F007, F117, F126-F127, F236, F331, F334-F335, F423, F426, F428-F429, F440, F460-F461, F612, F714, F804, F854, F901, F904, F906, F909-F910, F917, F951-F952, F955, F968, F970-F971, F974, F1023, F1033-F1034, T1001（代表 T1001）+ 执行期新登：hooks.py:6,31 SKILL.md:87 锚点漂移
+
+**已剔除（9，2026-09-13 驳斥复核）**：F638（recall.py 整文件已删，主张 moot）、F907（registry docstring 已改 16）、F967（plans/INDEX 114==114 已同步）、F1037（活跃文档已统一 85，"78" 仅存归档）、F769（"371 项" 仅存归档）、F425（g3_independence docstring 无行号锚点）、F460（SKILL.md:125 引用全仓 0 命中）、F953（command-to-give.md 无空节）、T1003（文本 0 命中）
+
+## 2026-09-13 修订注记（价值门驳斥复核）
+
+- **T2 计数治理大半已被 PR #207（C22）消化**：AGENTS.md/overview.md 去数字化已完成，计数族仅剩 `command-to-give.md:85`「全部 59 个 skill」一处（磁盘 74）——T2 收窄为该残留 + F423（gates.md:3 称 8 实际 cli 11）+ F440（g0.py:711 "20 skills"）+ F974（复选框回填，裁归档区历史记录豁免与否）+ F970/F971（执行期核实载体是否仍存在）
+- **T3 行号族收窄**：F425/F460 剔除；新增执行期发现实例 `src/shenbi/contracts/schemas/hooks.py:6,31`（"``TRIGGER`` at SKILL.md:87" 与现况不符）；F127/F428/F429/F612 驳斥未能定位原文，执行期先核实后处置（核实不成立即随批剔除，不开 task）
+- **F804/F854 实测宽于原记载**：全仓 ~47 处 .gitkeep，含已populate目录（tests/unit/、tests/fixtures/、多个 skills/）——scope 扩为「非空目录中的冗余 .gitkeep 清理」，空目录保留项不动
+- **T4 依赖确认就绪**：C17 T2 已落地（`tests/integration/test_doc_links.py` 550 passed，per-PR CI 全量 pytest 覆盖）——验收 1 直接可跑
