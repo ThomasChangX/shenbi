@@ -309,7 +309,7 @@ def test_lifecycle_prompt_reachable(tmp_path: Path) -> None:
 - [ ] **Step 5: commit**
 
 ```bash
-git add src/shenbi/pipeline/genesis.py src/shenbi/pipeline/triggers.py src/shenbi/pipeline/dispatch_helper.py src/shenbi/pipeline/truth_readers.py src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/truth_index.py tests/unit/pipeline/test_genesis.py tests/unit/pipeline/test_triggers.py
+git add src/shenbi/pipeline/genesis.py src/shenbi/pipeline/triggers.py src/shenbi/pipeline/dispatch_helper.py src/shenbi/pipeline/truth_readers.py src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/truth_index.py tests/unit/pipeline/test_genesis.py tests/unit/pipeline/test_triggers.py tests/pipeline/test_dispatch_reads_injection.py
 git commit -m "fix: swap GENESIS_STEPS step 9 to lifecycle, drop plant trigger + OPTIONAL_READS dead entries (spec #59 T2)"
 ```
 
@@ -336,6 +336,7 @@ git commit -m "fix: swap GENESIS_STEPS step 9 to lifecycle, drop plant trigger +
 """G4 checker for shenbi-foreshadowing-lifecycle (spec #59 T3 wiring)."""
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -366,7 +367,6 @@ def g4_foreshadowing_lifecycle(
             mf.append(f"G4.fl.empty_or_missing:{fp}")
             continue
         # 1) canonical states only (ACTIVE etc. fold to None upstream — reject here)
-        import re
         states = set(re.findall(r"\b(PLANTED|RELEVANT|TRIGGERED|RESOLVED|ARCHIVED|EXPIRED|ACTIVE)\b", content))
         if "ACTIVE" in states:
             mf.append("G4.fl.non_canonical_state:ACTIVE")
@@ -500,7 +500,7 @@ git commit -m "fix: using-shenbi trigger table drops 14 DEPRECATED routes, succe
 - Test: `tests/unit/test_lint_repo_consistency.py`（真仓终态断言已随 T1 落，此处回归复跑）
 
 - [ ] **Step 1: 消费方回归**——`uv run pytest tests/unit -q -k "phase or deps or g5 or tier"`（phase_runner:296/:384 数据驱动消费 prerequisites，删成员不炸硬编码——回归确认）+ `uv run python tools/lint_repo_consistency.py` → 绿
-- [ ] **Step 2: 陈旧 tier 输入**——五处 scenario 指令更新到现行链路：drafting seed/rubric（track→lifecycle）、planning seed/rubric（plant→lifecycle）、t3 long-form seed 两行（plant→lifecycle、track→lifecycle）；**t1-skill 场景目录裁决**：`tests/tiers/t1-skill/shenbi-foreshadowing-{plant,track,recall}/` 是退役技能的 T1 测试资产（验收 1 grep 范围外）——本 spec 保留为 legacy 资产（物理删除不在 spec 范围，与技能目录同处置），理由记 spec-deviations；`grep -rn "foreshadowing-plant\|foreshadowing-track\|foreshadowing-recall" tests/tiers/` → t1-skill legacy 目录与迁移映射类合法旧名之外零命中
+- [ ] **Step 2: 陈旧 tier 输入**——五处 scenario 指令更新到现行链路：drafting seed/rubric（track→lifecycle；rubric.md:26 的陈旧产物名 truth/foreshadowing_tracker.md 一并改为 truth/pending_hooks.md——机械替换会留错名）、planning seed/rubric（plant→lifecycle）、t3 long-form seed 两行（plant→lifecycle、track→lifecycle）；**t1-skill 场景目录裁决**：`tests/tiers/t1-skill/shenbi-foreshadowing-{plant,track,recall}/` 是退役技能的 T1 测试资产（验收 1 grep 范围外）——本 spec 保留为 legacy 资产（物理删除不在 spec 范围，与技能目录同处置），理由记 spec-deviations；`grep -rn "foreshadowing-plant\|foreshadowing-track\|foreshadowing-recall" tests/tiers/` → t1-skill legacy 目录与迁移映射类合法旧名之外零命中
 - [ ] **Step 3: 验证 + commit**
 
 Run: `uv run pytest tests/unit/test_lint_repo_consistency.py -v` → passed
@@ -635,7 +635,7 @@ def _desc_has_behavioral_text(desc: str) -> bool:
         return True
     return bool(_DASH_FUNCTIONAL_RE.search(desc))
 ```
-（`import re` 已在文件头。）
+（`import re` 已在文件头。**Deviation 注记（plan 审查轮 4 M2）**：spec T2.7 列了第三组件「中段行为动词」——本 plan 弃用：中段动词检测会对合法触发式 "Use when generating chapter drafts"（Use when + 动名词=合法触发结构）大规模误报，两轮审查员实测两组件规则命中恰 7 目标零误报；F842 的唯一存活实例（location-builder 中段 "building..." 从句）由 T8 Step 1 显式改写承接。偏离记入 spec-deviations。）
 
 - [ ] **Step 4: 测试过 + 收集清单** — `uv run pytest <该测试文件> -v` 绿；随后跑清单（T2.8 序列①，exit-1 即人工过目材料）：
 
@@ -681,7 +681,7 @@ description: Use when managing foreshadowing hooks for a chapter — recall, tra
 （注意：破折号后是维度枚举名词短语非动词从句，不触 _DASH_FUNCTIONAL_RE。）
 - [ ] **Step 2: 清单其余项逐个同法改写**（T7 exit-1 清单为准；误报裁决为合法的除外，理由记 spec-deviations）
 - [ ] **Step 3: 验证** — `uv run python tools/audit-skill-descriptions.py; echo "exit=$?"` → `OK: all descriptions compliant`、exit=0
-- [ ] **Step 4: 契约同步 + 回归** — `uv run shenbi-sync-contracts && git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/`（description 非 sync 输入，diff 应空；红则查）+ `uv run pytest tests/unit/gates -q -k "g0 or skill_contract"` → 绿（G0.sc 复绿）
+- [ ] **Step 4: 契约同步 + 回归（顺序：stage 改写 → 再生 → diff 必净）**——先 `git add` T7 清单命中技能目录（description 行非 sync 输入，`shenbi-sync-contracts` 对已 staged 内容跑后 `git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/` 须净——skills/ 的未 staged 改动会让 diff 误红，故先 stage）→ `uv run pytest tests/unit/gates -q -k "g0 or skill_contract"` → 绿（G0.sc 复绿）
 - [ ] **Step 5: commit**
 
 ```bash
@@ -845,7 +845,9 @@ def lint_routing_faces(repo: Path, skills_dir: Path) -> list[str]:
         if row_hits:
             errs.append(f"using-shenbi routes DEPRECATED skills: {row_hits}")
         live_dirs = {p.parent.name for p in skills_dir.glob("*/SKILL.md")}
-        ghosts = sorted(set(re.findall(r"\bshenbi-[a-z0-9-]+\b", text)) - live_dirs)
+        # lookbehind 排除文件名片段（如 `2026-06-08-shenbi-design.md` 的 shenbi-design——
+        # 其前邻是 '-'，真表格/清单引用前邻是空白或行首，不受影响；真仓模拟 ghost 集为空）
+        ghosts = sorted(set(re.findall(r"(?<![\w-])shenbi-[a-z0-9-]+", text)) - live_dirs)
         if ghosts:
             errs.append(f"using-shenbi routes skills without a skills/ dir: {ghosts}")
     # 3) code faces
