@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3（validate-gate.py、scoring.py 改造）、Bash 3.2（round-exec.sh 改造）、JSON/YAML（配置文件）
 
-**Design Spec:** `docs/superpowers/specs/2026-06-11-test-gate-system-design.md`
+**Design Spec:** `docs/superpowers/specs/archive/2026-06-11-test-gate-system-design.md`
 
 ---
 

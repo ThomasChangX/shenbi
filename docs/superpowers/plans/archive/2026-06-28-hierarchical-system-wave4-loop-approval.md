@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，SKILL.md，pytest。
 
-**Spec:** `docs/superpowers/specs/2026-06-28-hierarchical-memory-scoring-system-design.md` v1.4.0
+**Spec:** `docs/superpowers/specs/archive/2026-06-28-hierarchical-memory-scoring-system-design.md` v1.4.0
 - §5 闭环（§5.1-5.5 + §11.3-11.5 接缝）
 - §6 自动审批（§6.1-6.4）
 - §11.4-11.5 chapter-revision 接缝

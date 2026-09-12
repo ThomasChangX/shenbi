@@ -1,7 +1,7 @@
 # Novel Pipeline: Spec Coverage Matrix
 
 > **Purpose.** Maps every section of the novel-pipeline spec
-> (`docs/superpowers/specs/2026-07-01-novel-pipeline-design.md`, §1-§19) and every
+> (`docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md`, §1-§19) and every
 > acceptance criterion in spec §15 to the wave/task that implements it. Gaps and
 > partial implementations are called out explicitly so nothing is silently dropped.
 >
@@ -169,6 +169,6 @@ named, located, and scoped.
 
 - Implementation source: `src/shenbi/pipeline/` (18 modules) + `skills/`.
 - Wave plans: `docs/superpowers/plans/2026-07-02-novel-pipeline-wave{1..5}-*.md`.
-- Spec: `docs/superpowers/specs/2026-07-01-novel-pipeline-design.md`.
+- Spec: `docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md`.
 - Integration tests (Wave 5): `tests/integration/pipeline/test_genesis_to_loop.py`,
   `test_chapter_loop_full.py`, `test_full_flows.py`.

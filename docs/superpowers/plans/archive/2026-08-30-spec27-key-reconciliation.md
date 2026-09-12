@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+ / pytest / structlog / just。全部为 `src/shenbi/`（infra 面，协调者亲自实现）+ `tools/` + `tests/`。
 
-**Spec:** `docs/superpowers/specs/2026-08-16-audit-reader-writer-key-reconciliation-fix.md`（含 2026-08-30 修订节——已核销项不得实施）
+**Spec:** `docs/superpowers/specs/archive/2026-08-16-audit-reader-writer-key-reconciliation-fix.md`（含 2026-08-30 修订节——已核销项不得实施）
 
 ## Global Constraints
 

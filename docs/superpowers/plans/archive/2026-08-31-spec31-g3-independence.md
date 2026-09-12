@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，structlog，pathlib，pytest，dataclasses（PipelineConfig）。
 
-**Spec:** `docs/superpowers/specs/2026-08-16-audit-g3-independence-fix.md`（Revised 2026-08-31）
+**Spec:** `docs/superpowers/specs/archive/2026-08-16-audit-g3-independence-fix.md`（Revised 2026-08-31）
 
 ## Global Constraints
 

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Markdown (SKILL.md), YAML frontmatter, Python helpers
 
-**Spec reference:** `docs/superpowers/specs/2026-07-01-novel-pipeline-design.md` Section 12
+**Spec reference:** `docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md` Section 12
 
 ## Global Constraints
 

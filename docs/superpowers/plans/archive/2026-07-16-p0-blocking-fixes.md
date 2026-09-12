@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+, subprocess (stdlib), pathlib, json, pytest, existing `shenbi.gates.cli` / `safe_write` / `emit_json`
 
-**Spec reference:** `docs/superpowers/specs/2026-07-16-pipeline-maturity-and-bp-fixes-design.md` §4 (Steps P0.1–P0.4)
+**Spec reference:** `docs/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.md` §4 (Steps P0.1–P0.4)
 
 ## Global Constraints
 
@@ -748,7 +748,7 @@ def cmd_rollback(args: argparse.Namespace) -> int:
     """Rollback to a chapter snapshot.
 
     Not yet implemented — requires snapshot integration (deferred to a future
-    spec, see docs/superpowers/specs/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9).
+    spec, see docs/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9).
     The subparser registration has been removed so 'pipeline --help' does not
     advertise this command. This function is retained for direct callers and
     returns a non-zero exit code.
@@ -760,7 +760,7 @@ def cmd_rollback(args: argparse.Namespace) -> int:
             "status": "not_implemented",
             "message": (
                 "Rollback requires snapshot integration (deferred to future spec). "
-                "See docs/superpowers/specs/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9."
+                "See docs/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9."
             ),
         }
     )

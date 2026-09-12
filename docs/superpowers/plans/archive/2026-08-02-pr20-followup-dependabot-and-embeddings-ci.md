@@ -8,7 +8,7 @@
 
 **Tech Stack:** GitHub Dependabot v2 config（`package-ecosystem: uv`）、GitHub Actions workflow、uv（`uv sync --group dev`）、sentence-transformers + torch（推理 smoke）。
 
-**Spec:** `docs/superpowers/specs/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md`（已过 Phase 1 事实核实 + Phase 2 设计审查，plan-ready）。
+**Spec:** `docs/superpowers/specs/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md`（已过 Phase 1 事实核实 + Phase 2 设计审查，plan-ready）。
 
 ## Global Constraints
 
@@ -28,7 +28,7 @@
 | `.github/dependabot.yml` | Create | Dependabot v2 配置：uv ecosystem（direct-only）+ github-actions ecosystem |
 | `renovate.json` | Delete | stale 残留（Renovate bot 从未开 PR），用户裁决删除 |
 | `.github/workflows/embeddings-smoke.yml` | Create | 独立 scheduled（daily）+ dispatch workflow，跑 embeddings 推理 smoke |
-| `docs/superpowers/specs/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md` | (已有，归档时移) | 设计 spec（plan 依据） |
+| `docs/superpowers/specs/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md` | (已有，归档时移) | 设计 spec（plan 依据） |
 
 **为什么独立 workflow 而非加进 nightly.yml**：`nightly.yml` 当前 DISABLED（schedule 注释掉，仅 dispatch），加进去不会自动跑（§5.4）。独立 `embeddings-smoke.yml` 精准启用 schedule，不连带启用 nightly 的 flaky job（doc-links 依赖外部站）。
 
@@ -56,7 +56,7 @@
 # Dependabot 版本更新配置。承接 PR #20 follow-up：
 # PR #20 是为 torch（sentence-transformers 的 transitive 依赖）开的僵尸 PR。
 # 此配置约束 Dependabot 只为直接依赖开 PR，transitive 由父包升级连带解决。
-# 详见 docs/superpowers/specs/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md
+# 详见 docs/superpowers/specs/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md
 version: 2
 updates:
   # uv lockfile —— GitHub Dependabot 自 2025-03 GA 原生支持 uv（§5.1）

@@ -1,6 +1,6 @@
 # Plan · spec #14 stats-determinism（收窄 9 条独有残留）
 
-> **Date:** 2026-08-30 | **Spec:** `docs/superpowers/specs/2026-08-14-stats-determinism-design.md` | **裁决:** GO（收窄）
+> **Date:** 2026-08-30 | **Spec:** `docs/superpowers/specs/archive/2026-08-14-stats-determinism-design.md` | **裁决:** GO（收窄）
 > **收窄依据:** 阶段 1 驳斥复核——6 条被 #32 语义覆盖移交（F604/F613/F608/F621/F645/F659/F661），F648 已修半且残余为接受语义；本 plan 实施 9 条独有残留
 > **复杂度:** leaf（三模块均 skill_utils 下纯函数，无 pipeline/gates/contracts 触点）
 > **分支:** `fix/spec-14-stats-determinism`

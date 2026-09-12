@@ -6,11 +6,11 @@
 
 **Architecture:** Direct-import unit tests (no subprocess). Shared fixture factory `make_project` in `tests/unit/gates/conftest.py` returns `(project_dir, round_dir)` tuple matching real gate signatures. G4 checkers tested via parametrized harness (7 functions × 20 dedicated checkers = 140 cases; `src/shenbi/gates/g4/generic.py` provides `g4_generic_generative/_bughunt/_clean` router variants that are not part of the parametrized matrix) plus bespoke error-path tests. skill_utils tested via realistic chapter fixtures. Property-based tests (Hypothesis) cover invariant verification in Phase 3. Threshold ratcheting: `fail_under` 1→25→55→90, xfail `strict=True`→`strict=False`→removed.
 
-> **Reviewer's note (Round-1 critical pass):** every gate signature cited in this plan has been verified against `src/shenbi/gates/*.py` as of 2026-06-17. `gate_G_TRANSITION` requires `(from_phase, to_phase, round_dir)`; `gate_G_RECONCILE` requires `progress.json` with a `skills` map at the round_dir root. The spec (`docs/superpowers/specs/2026-06-16-test-coverage-completion-design.md`) incorrectly states "21 checkers / 147 cases" — actual count is 20 dedicated checkers (matches `G4_CHECKER_SKILLS` in `src/shenbi/gates/shared.py:206`); this plan corrects the count to 20/140 and flags the spec for follow-up.
+> **Reviewer's note (Round-1 critical pass):** every gate signature cited in this plan has been verified against `src/shenbi/gates/*.py` as of 2026-06-17. `gate_G_TRANSITION` requires `(from_phase, to_phase, round_dir)`; `gate_G_RECONCILE` requires `progress.json` with a `skills` map at the round_dir root. The spec (`docs/superpowers/specs/archive/2026-06-16-test-coverage-completion-design.md`) incorrectly states "21 checkers / 147 cases" — actual count is 20 dedicated checkers (matches `G4_CHECKER_SKILLS` in `src/shenbi/gates/shared.py:206`); this plan corrects the count to 20/140 and flags the spec for follow-up.
 
 **Tech Stack:** Python 3.11, pytest 8.x, pytest-cov, Hypothesis 6.97+, coverage.py with branch tracking. Tests run via `just test` (`pytest -m "unit"`). Source under `src/shenbi/`, tests under `tests/unit/`, `tests/property/`.
 
-**Spec:** `docs/superpowers/specs/2026-06-16-test-coverage-completion-design.md` (score 9.5/10 after 4 review rounds)
+**Spec:** `docs/superpowers/specs/archive/2026-06-16-test-coverage-completion-design.md` (score 9.5/10 after 4 review rounds)
 
 ---
 
@@ -2569,7 +2569,7 @@ For each of the 9 acceptance criteria from the spec:
 
 - [ ] **Step 2: Update spec status**
 
-Edit `docs/superpowers/specs/2026-06-16-test-coverage-completion-design.md`:
+Edit `docs/superpowers/specs/archive/2026-06-16-test-coverage-completion-design.md`:
 
 ```markdown
 - Status: **completed** (2026-06-XX, post-PR-56)

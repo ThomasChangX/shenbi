@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 修复 spec #8（`docs/superpowers/specs/2026-08-14-gate-effectiveness-design.md`）的 R1-R7、R9 与 F402/F158/F417——G3 伪造证据、并行波无 G3、门序回归、GR.2 后缀、P2.5 空串、genre_config 空 rules、G7.1b 全集、G3.3 层级+producer、g4 路径解析、phase 穿越净化。R8/F163 已划归 #48，不在本 plan。
+**Goal:** 修复 spec #8（`docs/superpowers/specs/archive/2026-08-14-gate-effectiveness-design.md`）的 R1-R7、R9 与 F402/F158/F417——G3 伪造证据、并行波无 G3、门序回归、GR.2 后缀、P2.5 空串、genre_config 空 rules、G7.1b 全集、G3.3 层级+producer、g4 路径解析、phase 穿越净化。R8/F163 已划归 #48，不在本 plan。
 
 **Architecture:** 全部为既有 gate/校验器内部修复 + 一处 producer 接线（codex `_record_completion` 增可选 `output_files`）+ 一处并行波 G3 接线（chapter_loop 波完成后调 `run_gate_g3`）。无新模块、无契约 schema 变更、无新依赖。
 

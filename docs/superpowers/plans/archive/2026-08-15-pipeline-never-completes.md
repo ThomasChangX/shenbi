@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+ / pathlib / structlog / pytest（T1 单测 + T2 状态机测）。验证一律 `uv run pytest` / `just check`（与 CI `uv run --frozen` 同构）。
 
-**Spec:** `docs/superpowers/specs/2026-08-14-pipeline-never-completes-design.md`（Revised 2026-08-15，设计审查 6 轮收敛版）
+**Spec:** `docs/superpowers/specs/archive/2026-08-14-pipeline-never-completes-design.md`（Revised 2026-08-15，设计审查 6 轮收敛版）
 
 ## Global Constraints
 
@@ -1894,7 +1894,7 @@ git commit -m "fix: REJECT redo semantics with retry-budget reset (F340), parall
 **复杂度: infra** · **test_kind: regression_guard** · **层级: 全仓**
 
 **Files:**
-- Modify: `docs/superpowers/specs/2026-08-14-pipeline-never-completes-design.md`（Status 加执行注）
+- Modify: `docs/superpowers/specs/archive/2026-08-14-pipeline-never-completes-design.md`（Status 加执行注）
 - 全部新测试文件
 
 - [ ] **Step 1: spec 手动验收命令（只读）**
@@ -1914,7 +1914,7 @@ Expected: 全绿（ruff/format/mypy/basedpyright/契约三件/两段 pytest + �
 - [ ] **Step 4: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-08-14-pipeline-never-completes-design.md
+git add docs/superpowers/specs/archive/2026-08-14-pipeline-never-completes-design.md
 git commit -m "docs(spec): #6 acceptance sweep recorded — H1 boundaries {15,35,55,75,100} on real project"
 ```
 

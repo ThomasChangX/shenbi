@@ -326,7 +326,7 @@ def test_trailing_json_g2_g4_agree(fixture_path):
 ### Task 8: spec 定稿修订 + 全量验收
 
 **Files:**
-- Modify: `docs/superpowers/specs/2026-08-16-audit-decisions-chain-fix.md`——回写阶段 3 裁决（I1 文件名分区形状、I2 WARN 模式删除、I3 基线数字 5/83/57）、`Status: Revised 2026-08-31`（本分支内修订，随主 PR 合并）
+- Modify: `docs/superpowers/specs/archive/2026-08-16-audit-decisions-chain-fix.md`——回写阶段 3 裁决（I1 文件名分区形状、I2 WARN 模式删除、I3 基线数字 5/83/57）、`Status: Revised 2026-08-31`（本分支内修订，随主 PR 合并）
 
 **Steps:**
 - [ ] 回写 spec 三处裁决 + 验收 1 改 fixtures 口径、验收 2 补「copy-then-degrade 真实产物」措辞（Minor 4）

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+ / stdlib only（lint 脚本无三方依赖）；yaml frontmatter；just task runner。
 
-**Spec:** `docs/superpowers/specs/2026-08-16-audit-layerb-field-reads-fix.md`（Revised 2026-08-31）
+**Spec:** `docs/superpowers/specs/archive/2026-08-16-audit-layerb-field-reads-fix.md`（Revised 2026-08-31）
 
 ## Global Constraints
 

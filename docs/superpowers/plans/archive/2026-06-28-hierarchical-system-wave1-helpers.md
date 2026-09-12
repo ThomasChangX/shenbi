@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，pathlib.Path，pytest，dataclasses，无外部依赖。
 
-**Spec:** `docs/superpowers/specs/2026-06-28-hierarchical-memory-scoring-system-design.md` v1.4.0
+**Spec:** `docs/superpowers/specs/archive/2026-06-28-hierarchical-memory-scoring-system-design.md` v1.4.0
 - §5.2 诊断 schema + route_revision
 - §5.3 verify_preservation
 - §5.5 scoring.py 扩展（双评员一致性 + 塍缩检测）

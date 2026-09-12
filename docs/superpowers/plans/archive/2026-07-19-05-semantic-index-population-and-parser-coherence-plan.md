@@ -19,7 +19,7 @@
 - Conventional Commits: `fix:` for the parser corrections
 - `just check` (ruff + mypy + basedpyright + pytest) must pass after every task
 
-**Spec reference:** `docs/superpowers/specs/2026-07-19-05-semantic-index-population-and-parser-coherence-design.md`
+**Spec reference:** `docs/superpowers/specs/archive/2026-07-19-05-semantic-index-population-and-parser-coherence-design.md`
 
 ---
 

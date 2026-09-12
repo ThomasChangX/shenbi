@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- spec：`docs/superpowers/specs/2026-08-14-security-injection-design.md`（Revised 2026-08-30）
+- spec：`docs/superpowers/specs/archive/2026-08-14-security-injection-design.md`（Revised 2026-08-30）
 - 禁双修：不碰 `safe_content` 的 `<`→`\u003c`（归 spec #45 R2）；不碰 `run_pipeline.sh`（归 spec #64）；不碰 safe_write 规范化与状态文件只读保护（归 #45 R3）
 - AGENTS.md：`src/shenbi/` 无 `print()`（structlog）；pathlib；conventional commits；G0.9（对抗文件名由测试在 tmp_path 构造，提交面 fixtures 仅用于良性路径）；G3.4 不涉及（无评分场景）
 - 全部 task 为 **infra**（触及 `src/shenbi/pipeline/dispatch_helper.py`、`src/shenbi/contracts/`）→ 协调者亲自实现

@@ -8,7 +8,7 @@
 
 **Tech Stack:** GitHub Actions (YAML), `uv`, pytest.
 
-**Spec:** `docs/superpowers/specs/2026-07-09-ci-optimization-design.md`
+**Spec:** `docs/superpowers/specs/archive/2026-07-09-ci-optimization-design.md`
 
 ## Global Constraints
 
@@ -581,5 +581,5 @@ After pushing and opening a PR:
 ```bash
 git push -u origin HEAD
 gh pr create --title "ci: optimize PR CI (matrix shrink, codegen merge, nightly)" \
-  --body "See docs/superpowers/specs/2026-07-09-ci-optimization-design.md"
+  --body "See docs/superpowers/specs/archive/2026-07-09-ci-optimization-design.md"
 ```

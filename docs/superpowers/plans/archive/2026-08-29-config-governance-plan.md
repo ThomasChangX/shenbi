@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Close the 8 config-governance bypass vectors (F606/F611/F631/F643/F666/F638/F635/F614) of spec `docs/superpowers/specs/2026-08-14-config-governance-design.md` (fix design R1-R5).
+**Goal:** Close the 8 config-governance bypass vectors (F606/F611/F631/F643/F666/F638/F635/F614) of spec `docs/superpowers/specs/archive/2026-08-14-config-governance-design.md` (fix design R1-R5).
 
 **Architecture:** One shared dimension resolver (`resolve_audit_dimensions`) used by write side (Rule 1), G0 read side, and runtime activation; criticality-split missing-key semantics; G0 loud-fails malformed shapes instead of crashing; the genre-config TriggerStep update path gains snapshot → composite-G4 (filename-partitioned) → diff-governance (`govern_genre_config_change`) → all-stage rollback; both governance entry points become two-phase (validate-all-then-commit).
 

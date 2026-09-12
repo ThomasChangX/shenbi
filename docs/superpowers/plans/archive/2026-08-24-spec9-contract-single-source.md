@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 修复 spec #9（docs/superpowers/specs/2026-08-14-contract-single-source-design.md）的 5 条契约单一信源断裂：deps.json 闭包 lint（R1）、死契约模型删除 + defer-silence 接线（R2）、字段过滤 escape-hatch 兑现（R3）、scoring 适用性表头兼容（R4）、skills 计数同步（R5）。
+**Goal:** 修复 spec #9（docs/superpowers/specs/archive/2026-08-14-contract-single-source-design.md）的 5 条契约单一信源断裂：deps.json 闭包 lint（R1）、死契约模型删除 + defer-silence 接线（R2）、字段过滤 escape-hatch 兑现（R3）、scoring 适用性表头兼容（R4）、skills 计数同步（R5）。
 
 **Architecture:** R1 在 tools/lint_repo_consistency.py 增加第 5 类检查（skills 目录↔deps.json 双向闭包）并补登 5 个 skill；R2 删除三个零消费者的 pydantic 契约模型（spec 明示的合法方向「删除死模型」——真实产物为 markdown 且 fixture 列名与模板不一致，模型消费方向不可行；把模型独有的 defer-silence 规则以 markdown 级检查补进 g4_chapter_planning，SKILL.md 段 7 模板已声明该规则「可自动检查」）；R3 按 AGENTS.md:87-89 权威契约改 `_filter_md`/`_filter_json`（任一声明字段缺失 → 全文 + WARN + 缺失清单；spec 原文 WARN-only 记 deviation）；R4 `load_applicability` 兼容 `| # | Dimension | <Type> Standard |` 表头；R5 三文档计数 69→74 同步。
 

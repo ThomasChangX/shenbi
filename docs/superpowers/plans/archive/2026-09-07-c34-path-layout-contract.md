@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 落地 spec #48（docs/superpowers/specs/2026-08-16-c34-path-layout-contract-design.md）：布局探测单源 + gate 路径解析收口 + 观测面同根 + G1.4 .bak 契约裁决。
+**Goal:** 落地 spec #48（docs/superpowers/specs/archive/2026-08-16-c34-path-layout-contract-design.md）：布局探测单源 + gate 路径解析收口 + 观测面同根 + G1.4 .bak 契约裁决。
 
 **Architecture:** `Layout.detect()` 落在 `src/shenbi/paths.py`（与 RoundPaths 同家，禁立第三权威）；checker 相对解析统一走 `resolve_input_path`（gates/shared.py）；drift/audit 写观测锚定 project_dir；G1.4 .bak 走**成文豁免**裁决（Option B，见 T6 裁决记录）。
 

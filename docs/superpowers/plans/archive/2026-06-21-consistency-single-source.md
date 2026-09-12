@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11, stdlib `enum.StrEnum` / `TypedDict`, PyYAML (already a dep), pytest (TDD), ruff + mypy + basedpyright (enforcement), `just` + pre-commit + GitHub Actions (checkpoints). No new runtime dependencies.
 
-**Spec:** `docs/superpowers/specs/2026-06-21-consistency-single-source-design.md` (accepted rev 2).
+**Spec:** `docs/superpowers/specs/archive/2026-06-21-consistency-single-source-design.md` (accepted rev 2).
 
 ---
 

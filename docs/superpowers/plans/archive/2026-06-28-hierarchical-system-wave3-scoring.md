@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，SKILL.md，benchmarks/anchors/，pytest。
 
-**Spec:** `docs/superpowers/specs/2026-06-28-hierarchical-memory-scoring-system-design.md` v1.4.0
+**Spec:** `docs/superpowers/specs/archive/2026-06-28-hierarchical-memory-scoring-system-design.md` v1.4.0
 - §4.1-4.5 四层评分金字塔 + route C/A + skill 家族
 - §11.2 score-arc 读 L5 非 L4
 - §11.6-11.7 卷边界顺序 + book_spine 字段所有权

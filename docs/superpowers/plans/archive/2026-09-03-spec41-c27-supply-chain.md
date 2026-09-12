@@ -15,7 +15,7 @@
 - 框架代码（若有）无 print、pathlib；本 plan 不触 src/shenbi
 - conventional commits；每 task commit 后产出 `.superpowers/sdd/audit-T<N>.md`
 - C25（#63）合写面：security.yml 改动处加注释占位，C25 侧只做清单对账不重排步骤
-- spec：docs/superpowers/specs/2026-08-16-c27-supply-chain-audit-design.md（Revised 2026-09-03 版，commit d8f0e834）
+- spec：docs/superpowers/specs/archive/2026-08-16-c27-supply-chain-audit-design.md（Revised 2026-09-03 版，commit d8f0e834）
 
 ---
 

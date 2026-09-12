@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+, pathlib, json, structlog, pytest, existing pipeline framework
 
-**Spec:** `docs/superpowers/specs/2026-07-02-novel-pipeline-root-cause-fixes-design.md`
+**Spec:** `docs/superpowers/specs/archive/2026-07-02-novel-pipeline-root-cause-fixes-design.md`
 
 ## Global Constraints
 
