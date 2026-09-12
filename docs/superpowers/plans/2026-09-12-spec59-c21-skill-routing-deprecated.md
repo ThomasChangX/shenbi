@@ -38,7 +38,7 @@ class TriggerStep:
 TRIGGER_STEPS  # :294-301 含 plant (mode="expand", category="volume_boundary")
 
 # src/shenbi/pipeline/chapter_loop.py
-CHAPTER_STEPS  # step 7 = shenbi-foreshadowing-lifecycle (step_type="core")；steps 9-14 = group-* (is_audit=True)；step 14 = review-sensitivity
+CHAPTER_STEPS  # step 7 = shenbi-foreshadowing-lifecycle (step_type="core")；steps 9-14 = 固定审计步（9-12 group-*、13 review-resonance、14 review-sensitivity，均 is_audit=True）
 STEP_NAME_MIGRATIONS = {"shenbi-foreshadowing-plant": "shenbi-foreshadowing-lifecycle", ...}  # :282-284 保留
 
 # src/shenbi/pipeline/audit_layer.py
@@ -416,7 +416,7 @@ uv run pytest tests/unit/gates -q
 grep -rn "g4_foreshadowing_plant\|g4_foreshadowing_track" src/ tests/   # → 零命中
 grep -rn "foreshadowing-plant\|foreshadowing-track" tests/ --include="*.py" | grep -v test_resume_anchor
 ```
-具名迁移清单（审查员亲证行号）：`tests/unit/gates/g4/test_all_skills_parametrized.py:37-38`（参数对 → lifecycle/foreshadowing_lifecycle/g4_foreshadowing_lifecycle）、`tests/unit/gates/g4/test_foreshadowing_plant_regression.py`（断言 `G4-foreshadowing-plant` → 改 lifecycle checker）、`tests/unit/gates/g4/test_foreshadowing_plant.py` 与 `test_foreshadowing_track.py`（Step 1 移植后 `git rm` 删除原文件）、`tests/unit/gates/test_g1_bak_exemption.py:11`（fixture 技能名 → lifecycle）、`tests/unit/contracts/test_ownership.py:44,53,63,72,82`（plant/track 行断言**删除**——lifecycle 无 ownership 行（Step 4 裁决），对应用例改为断言 `get_ownership("shenbi-foreshadowing-lifecycle", ...) is None` 落 file-level 检查）、`tests/unit/audit/test_write_audit.py:47,64,85` 与 `test_write_audit_diff_predicate.py:44,94,101`（`audit_writes("shenbi-foreshadowing-track", ...)` → 断言 lifecycle 无越权（file-level 路径）或改用 state-settling 对照样）、`tests/unit/pipeline/test_parallel_dispatch_safety.py:47,57`（track → lifecycle）、`tests/unit/test_t4_scatter_guards.py:12,16`（track 引用）、`tests/unit/tools/test_lint_contract_prose.py:247`（注释引用）。`tests/pipeline/test_chapter_steps_restructured.py:22-23`（断言 plant/track 不在 CHAPTER_STEPS——历史断言方向不变仍绿则不动）
+具名迁移清单（审查员亲证行号）：`tests/unit/gates/g4/test_all_skills_parametrized.py:37-38`（参数对 → lifecycle/foreshadowing_lifecycle/g4_foreshadowing_lifecycle）、`tests/unit/gates/g4/test_foreshadowing_plant_regression.py`（断言 `G4-foreshadowing-plant` → 改 lifecycle checker）、`tests/unit/gates/g4/test_foreshadowing_plant.py` 与 `test_foreshadowing_track.py`（Step 1 移植后 `git rm` 删除原文件）、`tests/unit/gates/test_g1_bak_exemption.py:11`（fixture 技能名 → lifecycle）、`tests/unit/contracts/test_ownership.py:44,53,63,72,82`（plant/track 行断言**删除**——lifecycle 无 ownership 行（Step 4 裁决），对应用例改为断言 `get_ownership("shenbi-foreshadowing-lifecycle", ...) is None` 落 file-level 检查）、`tests/unit/audit/test_write_audit.py:47,64,85` 与 `test_write_audit_diff_predicate.py:44,94,101`（`audit_writes("shenbi-foreshadowing-track", ...)` → 断言 lifecycle 无越权（file-level 路径）或改用 state-settling 对照样）、`tests/unit/pipeline/test_parallel_dispatch_safety.py:47,57`（track → lifecycle）、`tests/unit/test_t4_scatter_guards.py:12,16`（plant 引用——lifecycle checker 移植时补 `hook_not_dict` 场景：字符串元素 hooks 列表的 F409 鲁棒性）、`tests/unit/tools/test_lint_contract_prose.py:247`（注释引用）。`tests/pipeline/test_chapter_steps_restructured.py:22-23`（断言 plant/track 不在 CHAPTER_STEPS——历史断言方向不变仍绿则不动）
 - [ ] **Step 7: commit**（pathspec 列全——含第五注册文件 ownership.py 与 pyproject 清理）
 
 ```bash
