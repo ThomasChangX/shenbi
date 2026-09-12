@@ -18,7 +18,7 @@
 
 ### 文件结构
 
-- 72 个 skill: `skills/<skill-name>/SKILL.md`（权威计数以 `tools/lint_registry_reconcile.py` 为准；另有 meta skill `using-shenbi` / `shenbi-writing-skills`）
+- 72 个 functional skill（另有 2 个 meta skill `using-shenbi` / `shenbi-writing-skills`，共 74 目录）：`skills/<skill-name>/SKILL.md`，权威计数以 `tools/lint_registry_reconcile.py` 为准
 - 70 个 T1 测试目录: `tests/tiers/t1-skill/<skill-name>/`（含 rubric.md/bug-hunt/clean/generative）
 - 9 个 T2 phase: `tests/tiers/t2-phase/<phase>/`
 - 3 个 T3 pipeline: `tests/tiers/t3-pipeline/<pipeline>/`
@@ -64,12 +64,12 @@
 
 ### Phase 3: T2 Phase 和 T3 Pipeline
 
-全部 59 skill 三种测试均 ≥94 后，按 `deps.json` 顺序执行 T2 phase，再按 T3 pipeline 执行端到端长篇小说生成。
+全部 72 个 functional skill 三种测试均 ≥94 后，按 `deps.json` 顺序执行 T2 phase，再按 T3 pipeline 执行端到端长篇小说生成。
 
 ## 预期最终交付物
 
-1. 完整测试报告：59 skill 的 T1 评分，9 phase 的 T2 评分，3 pipeline 的 T3 评分
-2. 59 skill 中所有 <100 分的已修复并增强到 ≥94
+1. 完整测试报告：72 个 functional skill 的 T1 评分，9 phase 的 T2 评分，3 pipeline 的 T3 评分
+2. 72 个 functional skill 中所有 <100 分的已修复并增强到 ≥94
 3. 基于星火燃穹的一部长篇小说（20 万字目标），包含完整的世界观设定、角色档案、章节草稿、审核报告等全部中间产物
 4. 每轮 round 目录持久化，跨 session 可恢复
 
