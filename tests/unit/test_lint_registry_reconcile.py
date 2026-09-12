@@ -143,3 +143,46 @@ def test_r5_strict_containment_detected(repo_copy: Path) -> None:
     # chapters/*.md (chapter-drafting) strictly contains chapters/chapter-*.md
     # (mutated state-settling) within the drafting phase -> containment fires.
     assert any("strict-containment" in v for v in vios)
+
+
+def test_r2_pattern_globs_double_delete_fails(repo_copy: Path) -> None:
+    """Acceptance-1 sample: deleting a parametric concept's patterns coverage."""
+    p = repo_copy / "docs" / "framework" / "truth-files.yaml"
+    text = p.read_text(encoding="utf-8")
+    # audits/escalation-N-report.md is patterns-only (no declared glob covers
+    # it) — dropping its patterns line turns a green concept red.
+    mutated = "\n".join(
+        ln for ln in text.splitlines() if "parametric: audits/escalation-N-report" not in ln
+    )
+    p.write_text(mutated + "\n", encoding="utf-8")
+    vios = lint_registry_reconcile(repo_copy)
+    assert any("parametric-unresolvable" in v and "escalation-N-report" in v for v in vios)
+
+
+def test_r3_hash_byte_flip_fails(repo_copy: Path) -> None:
+    """Acceptance-1 sample: flip one hash byte of a copied target (g5.py)."""
+    p = repo_copy / "tests" / "tiers" / "deps.json"
+    deps = json.loads(p.read_text(encoding="utf-8"))
+    key = "src/shenbi/gates/g5.py"
+    good = deps["_tool_hashes"][key]
+    flipped = ("0" if good[-1] != "0" else "1") + good[1:]
+    deps["_tool_hashes"][key] = flipped
+    p.write_text(json.dumps(deps, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    vios = lint_registry_reconcile(repo_copy)
+    assert any("_tool_hashes: stale" in v and key in v for v in vios)
+
+
+def test_r3_absent_targets_skipped(repo_copy: Path) -> None:
+    """Temp-copy semantics: entries whose target files were not copied skip."""
+    p = repo_copy / "tests" / "tiers" / "deps.json"
+    # mutate one copied target so a stale line must exist, then assert the
+    # not-copied entries stay absent from it (self-contained post-relock too)
+    deps = json.loads(p.read_text(encoding="utf-8"))
+    key = "src/shenbi/gates/g5.py"
+    deps["_tool_hashes"][key] = "sha256:" + "0" * 64
+    p.write_text(json.dumps(deps, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    vios = lint_registry_reconcile(repo_copy)
+    stale = next(v for v in vios if "_tool_hashes: stale" in v)
+    assert key in stale
+    for rel in ("src/shenbi/pipeline/chapter_loop.py", "src/shenbi/scoring.py"):
+        assert rel not in stale  # not copied -> skipped

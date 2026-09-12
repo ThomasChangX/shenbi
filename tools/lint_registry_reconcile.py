@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Registry reconciliation lint (spec #60 C22): R1 skill closure + R5 glob faces.
+"""Registry reconciliation lint (spec #60 C22): R1 closure + R2 word list + R3 hashes + R5 globs.
 
 R1 invariants (per-face, bidirectional where stated):
   master.json      == live skill set  AND  master ∩ DEPRECATED = ∅  AND no ghosts
@@ -11,6 +11,18 @@ R1 invariants (per-face, bidirectional where stated):
   AGENTS.md counts == disk when numeric claims present (transitional face; vacuous
                      once de-numericized — spec acceptance 4 / C23 domain)
   using-shenbi trigger table ⊇ functional live - allow-missing (meta pre-exempted)
+
+R2 invariants (word-list closure):
+  every parametric concept (name carries N/NNN/<dim>/SECTION placeholder) is
+  glob-resolvable — via its ``patterns:`` entry OR a declared ``globs:`` entry
+  (either-or; plan r5 ruling after the yaml's 5-placeholder reality);
+  truth-files.index.json concept keys ⊆ yaml concepts (registration closure —
+  F1106/F1152 class); hardcoded ``truth/…`` literals in src/shenbi are WARN-only
+  when absent from the word list.
+
+R3 invariant: deps.json ``_tool_hashes`` entries are fresh (sha256 envelope per
+tests/lock-tool-hashes.sh; entries whose target file is absent from the linted
+tree are skipped — temp-copy semantics, plan r3 I3).
 
 R5 invariant: within a t2 phase, no checker glob pattern's file set strictly
 contains another same-phase checker's specialized glob (equal patterns and
@@ -31,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import json
 import re
 import sys
@@ -327,6 +340,164 @@ def _collect_deps_names(node: object) -> set[str]:
     return names
 
 
+# ------------------------------------------------------------- R2 faces --
+
+
+def _load_yaml_registry(repo: Path) -> dict[str, list[dict[str, str]]] | None:
+    """Parse truth-files.yaml into {concepts, patterns, globs} string dicts."""
+    yaml_path = repo / "docs" / "framework" / "truth-files.yaml"
+    if not yaml_path.exists():
+        return None
+    try:
+        import yaml  # noqa: PLC0415 (deferred: keep lint startup cheap)
+    except ImportError:
+        return None
+    data = yaml.safe_load(yaml_path.read_text(encoding="utf-8")) or {}
+    out: dict[str, list[dict[str, str]]] = {}
+    for section in ("concepts", "patterns", "globs"):
+        entries = data.get(section) or []
+        out[section] = [{k: str(v) for k, v in e.items() if isinstance(v, str)} for e in entries]
+    return out
+
+
+_PARAMETRIC_RE = re.compile(r"N(?![A-Za-z0-9])|NNN(?![A-Za-z0-9])|<dim>|SECTION")
+
+
+def _is_parametric(name: str) -> bool:
+    """Parametric = carries an N/NNN/<dim>/SECTION placeholder (spec R2 note)."""
+    return bool(_PARAMETRIC_RE.search(name))
+
+
+def _r2_unregistered_index_keys(
+    repo: Path,
+    concept_set: set[str],
+    pattern_parametrics: set[str],
+    pattern_globs: set[str],
+    glob_patterns: list[str],
+) -> list[str]:
+    """index.json keys not registered in any yaml form (F1106/F1152 closure).
+
+    Glob-shaped keys (with *) must equal a declared pattern/glob; concrete keys
+    must be concept-registered OR an instance of a registered parametric (a
+    broad declared glob covering a concrete file is NOT registration — F1152).
+    """
+    index_json = repo / "docs" / "framework" / "truth-files.index.json"
+    if not index_json.exists():
+        return []
+    idx = json.loads(index_json.read_text(encoding="utf-8"))
+    parametric_as_globs = [
+        c.replace("NNN", "*").replace("N", "*").replace("<dim>", "*")
+        for c in (concept_set | pattern_parametrics)
+    ]
+    unregistered: list[str] = []
+    for k in idx:
+        if "*" in k:
+            ok = k in pattern_globs or k in set(glob_patterns)
+        else:
+            ok = (
+                k in concept_set
+                or k in pattern_parametrics
+                or any(fnmatch(k, pg) for pg in parametric_as_globs)
+            )
+        if not ok:
+            unregistered.append(k)
+    return sorted(unregistered)
+
+
+def _r2_word_list(repo: Path) -> list[str]:
+    errs: list[str] = []
+    reg = _load_yaml_registry(repo)
+    if reg is None:
+        _WARN.append("[R2] truth-files.yaml: unreadable (missing or yaml unavailable)")
+        return errs
+    concepts = [c.get("name", "") for c in reg["concepts"]]
+    concept_set = set(concepts)
+    pattern_parametrics = {p.get("parametric", "") for p in reg["patterns"]}
+    pattern_globs = {p.get("glob", "") for p in reg["patterns"]}
+    glob_patterns = [g.get("pattern", "") for g in reg["globs"]]
+
+    # parametric concepts must be glob-resolvable (patterns OR globs — either-or)
+    for name in concepts:
+        if not _is_parametric(name):
+            continue
+        if name in pattern_parametrics:
+            continue
+        if any(fnmatch(name, g) for g in glob_patterns):
+            continue
+        errs.append(f"[R2] truth-files.yaml: parametric-unresolvable: {name}")
+
+    unregistered = _r2_unregistered_index_keys(
+        repo, concept_set, pattern_parametrics, pattern_globs, glob_patterns
+    )
+    if unregistered:
+        errs.append(f"[R2] truth-files.index.json: not-in-yaml: {unregistered}")
+
+    _r2_orphan_warn(repo, reg["concepts"])
+
+    # hardcoded truth/ literals in src not in the word list -> WARN only
+    src_dir = repo / "src" / "shenbi"
+    if src_dir.exists():
+        known = concept_set | set(glob_patterns) | set(pattern_parametrics)
+        seen: set[str] = set()
+        literal_re = re.compile(r"[\"']((?:truth|audits|context)/[a-z0-9_*./-]+)[\"']")
+        for py in src_dir.rglob("*.py"):
+            for m in literal_re.finditer(py.read_text(encoding="utf-8")):
+                lit = m.group(1)
+                if lit not in seen and lit not in known:
+                    seen.add(lit)
+        # WARN-only face: noise-prone (dynamic paths); never FAILs
+        _WARN.extend(f"[R2] src-literal-unregistered: {lit}" for lit in sorted(seen)[:20])
+    return errs
+
+
+def _r2_orphan_warn(repo: Path, concepts: list[dict[str, str]]) -> None:
+    """Orphan concepts (F888/F823): absent from index.json keys entirely.
+
+    index.json maps concept -> {reads/writes/updates: [skill names]}, so its
+    KEY set is exactly the concepts with a producer or consumer. WARN only;
+    producer: pipeline/shared concepts are infrastructure outputs and exempt.
+    """
+    index_json = repo / "docs" / "framework" / "truth-files.index.json"
+    if not index_json.exists():
+        return
+    idx_keys = set(json.loads(index_json.read_text(encoding="utf-8")))
+    for c in concepts:
+        name = c.get("name", "")
+        if c.get("producer") in ("pipeline", "shared") or not name:
+            continue
+        if name in idx_keys:
+            continue
+        # index keys are normalized globs; match the concept against them
+        # either way, treating N/NNN/<dim> placeholders as wildcards
+        name_as_glob = name.replace("NNN", "*").replace("N", "*").replace("<dim>", "*")
+        if any(fnmatch(name, k) or fnmatch(k, name_as_glob) for k in idx_keys):
+            continue
+        _WARN.append(f"[R2] orphan-concept: {name}")
+
+
+# ------------------------------------------------------------- R3 face --
+
+
+def _r3_hash_freshness(repo: Path) -> list[str]:
+    """_tool_hashes entries fresh (sha256 envelope; absent targets skipped)."""
+    deps = _deps(repo)
+    hashes = deps.get("_tool_hashes")
+    if not isinstance(hashes, dict):
+        return []
+    errs: list[str] = []
+    stale: list[str] = []
+    for rel, expected in hashes.items():
+        target = repo / str(rel)
+        if not target.exists():
+            continue  # temp-copy semantics (plan r3 I3)
+        digest = hashlib.sha256(target.read_bytes()).hexdigest()
+        if expected != f"sha256:{digest}":
+            stale.append(str(rel))
+    if stale:
+        errs.append(f"[R3] _tool_hashes: stale[{len(stale)}]: {stale[:10]}")
+    return errs
+
+
 # -------------------------------------------------------------- R5 face --
 
 
@@ -370,8 +541,11 @@ def _r5_glob_validity(repo: Path) -> list[str]:
 
 def lint_registry_reconcile(repo: Path, allow_missing: frozenset[str] = frozenset()) -> list[str]:
     """Run all reconciliation faces; return FAIL-level violation lines."""
+    _WARN.clear()
     errs: list[str] = []
     errs += _r1_skill_closure(repo, allow_missing)
+    errs += _r2_word_list(repo)
+    errs += _r3_hash_freshness(repo)
     errs += _r5_glob_validity(repo)
     return errs
 
