@@ -50,7 +50,6 @@ from shenbi.contracts.paths import (
     format_path_context,
     extract_chapter,
     parse_path_context,
-    resolve_contract_path,
     resolve_or_skip_ctx,
 )
 from shenbi.cost.ledger import TokenLedger
@@ -760,12 +759,25 @@ def _build_skill_prompt(
                 else:
                     input_texts[fname] = text
 
-    # Collect output paths
+    # Collect output paths. Same resolve-or-skip genesis semantics as the
+    # reads side above: a write/update path carrying an N placeholder with
+    # chapter=None (genesis dispatch) is not part of this dispatch's output
+    # set (e.g. per-chapter audits reports have no genesis instance) — skip
+    # with a WARN instead of raising. Spec #59 T9 follow-up: lifecycle's
+    # audits write made genesis step 9 crash on prompt assembly.
     output_paths: list[str] = []
     for write_path in contract.get("writes", []):
-        output_paths.append(resolve_contract_path(write_path, chapter, path_context))
+        resolved = resolve_or_skip_ctx(write_path, chapter, path_context)
+        if resolved is None:
+            log.warning("output_path_unresolvable_genesis_skip", skill=skill, path=write_path)
+        else:
+            output_paths.append(resolved)
     for update_path in contract.get("updates", []):
-        output_paths.append(resolve_contract_path(update_path, chapter, path_context))
+        resolved = resolve_or_skip_ctx(update_path, chapter, path_context)
+        if resolved is None:
+            log.warning("output_path_unresolvable_genesis_skip", skill=skill, path=update_path)
+        else:
+            output_paths.append(resolved)
 
     # When uses_staging is True, prefix all output paths with staging/
     if uses_staging:
