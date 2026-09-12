@@ -51,7 +51,7 @@ contract:
 
 # 伏笔种植
 
-HARD-GATE: 必须在章节备忘完成后、正文起草前执行。根据备忘 hook 账的 open 项种植新伏笔到伏笔池。
+(Retired body, historical HARD-GATE) 必须在章节备忘完成后、正文起草前执行。根据备忘 hook 账的 open 项种植新伏笔到伏笔池。
 
 ## 流程
 

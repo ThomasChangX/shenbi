@@ -40,7 +40,7 @@ contract:
 
 # 视点与信息边界审计
 
-这是条件激活的审计技能。检查 POV（视点角色）切换过渡、角色是否引用了不应知道的信息。
+**已退役正文**（历史描述，现行职责由 shenbi-review-group-character 承接）：历史上面向检查 POV（视点角色）切换过渡、角色是否引用了不应知道的信息。
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 9 或 19 时激活。
 
