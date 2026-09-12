@@ -42,9 +42,16 @@ class TestGenesisSteps:
         fb = next(i for i, s in enumerate(GENESIS_STEPS) if "faction-builder" in s.skill)
         assert sa < fb
 
-    def test_foreshadowing_plant_genesis_mode(self):
-        fp = next(s for s in GENESIS_STEPS if "foreshadowing-plant" in s.skill)
+    def test_foreshadowing_lifecycle_genesis_mode(self):
+        fp = next(s for s in GENESIS_STEPS if "foreshadowing-lifecycle" in s.skill)
         assert fp.mode == "genesis"
+
+    def test_genesis_step9_is_lifecycle(self):
+        step9 = next(s for s in GENESIS_STEPS if s.step_num == 9)
+        assert step9.skill == "shenbi-foreshadowing-lifecycle"
+        assert step9.output_path == "truth/pending_hooks.md"
+        assert "shenbi-foreshadowing-lifecycle" in _INDEX_UPDATE_SKILLS
+        assert "shenbi-foreshadowing-plant" not in _INDEX_UPDATE_SKILLS
 
     def test_character_design_genesis_mode(self):
         cd = next(s for s in GENESIS_STEPS if "character-design" in s.skill)

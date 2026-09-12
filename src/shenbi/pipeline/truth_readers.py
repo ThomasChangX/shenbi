@@ -1,6 +1,6 @@
 """Single-source table-aware readers for truth/pending_hooks.md (SDD #21 R2).
 
-The production ``pending_hooks.md`` (written by shenbi-foreshadowing-track /
+The production ``pending_hooks.md`` (written by shenbi-foreshadowing-lifecycle /
 shenbi-state-settling) is a Chinese markdown TABLE format:
 
 * ``### 文本强化确认`` presentation table — ``当前生命周期`` column carries

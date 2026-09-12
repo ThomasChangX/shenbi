@@ -112,3 +112,20 @@ def test_required_inputs_injected(tmp_path: Path, skill, files, expected, absent
         assert key in user_prompt, f"{skill}: expected input not injected: {key}"
     for key in absent:
         assert key not in user_prompt, f"{skill}: must NOT be injected: {key}"
+
+
+def test_lifecycle_prompt_reachable(tmp_path):
+    """Acceptance 5 (spec #59, F947 offline): GENESIS_STEPS step-9 successor assembles a prompt."""
+    from shenbi.pipeline.genesis import GENESIS_STEPS
+
+    step9 = next(s for s in GENESIS_STEPS if s.step_num == 9)
+    assert step9.skill == "shenbi-foreshadowing-lifecycle"
+    system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        skill=step9.skill,
+        project_dir=tmp_path,
+        prompt="genesis",
+        chapter=None,
+    )
+    combined = system_prompt + user_prompt
+    assert "foreshadowing-lifecycle" in combined or user_prompt.strip()
+    assert output_paths, "prompt assembly must carry output paths"

@@ -294,12 +294,6 @@ TRIGGER_STEPS: list[TriggerStep] = [
         category="volume_boundary",
     ),
     TriggerStep(
-        skill="shenbi-foreshadowing-plant",
-        mode="expand",
-        output_path="truth/pending_hooks.md",
-        category="volume_boundary",
-    ),
-    TriggerStep(
         skill="shenbi-plot-thread-weaver",
         output_path="outline/thread_map.md",
         category="volume_boundary",

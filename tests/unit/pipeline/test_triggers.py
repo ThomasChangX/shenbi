@@ -348,7 +348,6 @@ class TestTriggerSteps:
         assert "shenbi-faction-builder" in skills
         assert "shenbi-location-builder" in skills
         assert "shenbi-relationship-map" in skills
-        assert "shenbi-foreshadowing-plant" in skills
         assert "shenbi-plot-thread-weaver" in skills
 
     def test_empty_result_no_steps(self):
@@ -739,3 +738,15 @@ class TestMalformedSnapshotRollback:
         )
         assert ok is False
         assert not (tmp_path / "genre-config.json").exists()
+
+
+def test_trigger_steps_have_no_deprecated():
+    """Spec #59 T2: TRIGGER_STEPS routes zero DEPRECATED skills."""
+    from pathlib import Path
+
+    from shenbi.pipeline.triggers import TRIGGER_STEPS
+    from shenbi.skill_utils.deprecated import deprecated_skill_names
+
+    dead = deprecated_skill_names(Path(__file__).resolve().parents[3] / "skills")
+    routed = [s.skill for s in TRIGGER_STEPS if s.skill in dead]
+    assert not routed

@@ -67,7 +67,7 @@ GENESIS_STEPS: list[GenesisStep] = [
     GenesisStep(7, "shenbi-pacing-design", output_path="outline/rhythm_principles.md"),
     GenesisStep(8, "shenbi-plot-thread-weaver", output_path="outline/thread_map.md"),
     GenesisStep(
-        9, "shenbi-foreshadowing-plant", mode="genesis", output_path="truth/pending_hooks.md"
+        9, "shenbi-foreshadowing-lifecycle", mode="genesis", output_path="truth/pending_hooks.md"
     ),
     GenesisStep(10, "shenbi-power-system", output_path="world/power_system.md"),
     GenesisStep(11, "shenbi-location-builder", output_path="world/locations.md"),
@@ -94,7 +94,7 @@ _INDEX_UPDATE_SKILLS: frozenset[str] = frozenset(
         "shenbi-volume-outlining",
         "shenbi-pacing-design",
         "shenbi-plot-thread-weaver",
-        "shenbi-foreshadowing-plant",
+        "shenbi-foreshadowing-lifecycle",
         "shenbi-power-system",
         "shenbi-location-builder",
         "shenbi-relationship-map",
