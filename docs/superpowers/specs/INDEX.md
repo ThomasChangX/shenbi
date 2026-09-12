@@ -21,8 +21,8 @@
 
 - **文件**：`2026-08-16-audit-registry-reconcile-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C22，29 条）
-- **状态**：Design | **优先级**：🟠 P1 | **依赖**：T209 canonicalizer 裁决先于 R2 词表闭包
-- **内容**：单一对账 lint 五规则（R1 技能闭包八面 / R2 词表闭包 / R3 哈希新鲜度 / R4 迁移表 / R5 glob 有效性）+ 存量修正（#9 R1 已实现 skill↔deps.json 闭包 lint，R1 并入时以 #9 实现为基线扩展；F432 G5_CHECKER_GLOBS 假 FAIL 生产面 / F1004 master.json 缺 15 技能 / F414 SHORT_MAP 缺 11 / F756 66 过期哈希 / F231 三方 74-69-69）——phase4 §7 第 9 位（改动小拦截面大）；#9/#23 登记面并入（待归档）；T203 dependency-dag.json 生成零消费（自 #24 补登）
+- **状态**：Design (Revised 2026-09-12 · 驳斥复核：核心论点存活——五族登记表仍无跨表双向对账门禁；F231/F905 已闭合、F756 数据已修、F759/F1152/F424/T208 半闭合移除或标注；验收 2 等值不变量改 C21 禁注册语义 master=59=74−15 ∧ master∩DEPRECATED=∅) | **优先级**：🟠 P1 | **依赖**：T209 canonicalizer 裁决先于 R2 词表闭包
+- **内容**：单一对账 lint 五规则（R1 技能闭包——deps↔disk 面已由 #9/#66+C21 门禁为基线，扩展 master.json/SHORT_MAP/G5_GLOBS/seed/AGENTS 计数/触发表反向 / R2 词表闭包 / R3 哈希新鲜度门禁化（数据 193/193 已新鲜）/ R4 迁移表（漂移扩至 29 格）/ R5 glob 有效性）+ 存量修正（master.json 删 14 DEPRECATED 路由并补至 59 活技能 / F432 g5.py:317 `*.md` 回退灭除 / F445 SHORT_MAP 缺 11 / F755 seed 漂移 15 / F242 参数化 pattern 解析 / F1017 快照派生化）——phase4 §7 第 9 位（改动小拦截面大）；#9/#23 登记面并入（#9 已归档，其闭包 lint 为 R1 基线）；T203 dependency-dag.json 生成零消费（自 #24 补登）
 
 ### #61 · 审计修复 C23：文档机械漂移（P1）
 
