@@ -48,6 +48,9 @@ digraph skill_check {
 | "伏笔检查" / "埋线检查" / "备忘合规" / "章节备忘检查" / "计划执行" | shenbi-review-group-plan |
 | "高光" / "高潮" / "名场面" | shenbi-review-highpoint |
 | "共鸣评分" / "正向质量" / "这章写得好不好" | shenbi-review-resonance |
+| "弧段评分" / "弧线打分" | shenbi-score-arc |
+| "大弧健康" / "书级健康" / "大弧评分" | shenbi-score-stratum |
+| "卷评分" / "卷级打分" | shenbi-score-volume |
 | "长程" / "跨卷" / "长线" | shenbi-review-long-span |
 | "卷质量" / "整卷交付" / "伏笔兑现" | shenbi-review-arc-payoff |
 | "时代感" / "年代感" / "历史氛围" | shenbi-review-era |

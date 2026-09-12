@@ -1,6 +1,6 @@
 ---
 name: shenbi-score-arc
-description: Use when scoring 弧段级评分 on goal attainment and anchor calibration
+description: Use when scoring arc-level (弧段级) goal attainment and anchor calibration
 requires_independent_agent: true
 contract:
   kind: report

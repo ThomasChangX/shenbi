@@ -1,6 +1,6 @@
 ---
 name: shenbi-score-volume
-description: Use when scoring 卷级评分 on goal attainment and anchor calibration
+description: Use when scoring volume-level (卷级) goal attainment and anchor calibration
 requires_independent_agent: true
 contract:
   kind: report
