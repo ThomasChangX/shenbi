@@ -38,22 +38,24 @@ contract:
 
 This skill performs three independent writing-craft audits in a **single LLM call**. Each dimension produces an independent audit report section using the standard defect evidence format. All three reports are written to their respective audit files.
 
-> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `parallel_dispatch.py` (invoked at `chapter_loop.py:1090-1168`), preserving the existing two-wave parallel dispatch model. Do NOT run the three dimensions serially.
+> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the three dimensions serially.
 
-## Contract
+## 流程
 
-```yaml
-contract:
-  reads:
-    - {file: chapters/chapter-N.md}
-    - {file: genre-config.json}
-    - {file: plans/chapter-N-plan.md}
-    - {file: truth/pending_hooks.md}
-  writes: []
-  updates:
-    - audits/chapter-N-texture.md
-    - audits/chapter-N-reader-pull.md
-    - audits/chapter-N-anti-ai.md
+```dot
+digraph review_group_craft {
+    "Read chapters/chapter-N.md + genre-config.json + plans/chapter-N-plan.md + truth/pending_hooks.md" -> "Single LLM call: run all three dimensions";
+    "Single LLM call: run all three dimensions" -> "D1 Texture: flow-account + author preaching + paragraph-breathing + segment extremes + daily-scene function";
+    "Single LLM call: run all three dimensions" -> "D2 Reader Pull: opening hook + ending suspense + expectation + mid-chapter pull points";
+    "Single LLM call: run all three dimensions" -> "D3 Anti-AI: injected paragraph_cv / transition_count / ai_marker_hits first, then LLM checks";
+    "D1 Texture: flow-account + author preaching + paragraph-breathing + segment extremes + daily-scene function" -> "Defects found (four-element format)?";
+    "D2 Reader Pull: opening hook + ending suspense + expectation + mid-chapter pull points" -> "Defects found (four-element format)?";
+    "D3 Anti-AI: injected paragraph_cv / transition_count / ai_marker_hits first, then LLM checks" -> "Defects found (four-element format)?";
+    "Defects found (four-element format)?" -> "Rate PASS" [label="no"];
+    "Defects found (four-element format)?" -> "List ERROR/WARNING + fix suggestions" [label="yes"];
+    "Rate PASS" -> "Write 3 audit files (texture / reader-pull / anti-ai)";
+    "List ERROR/WARNING + fix suggestions" -> "Write 3 audit files (texture / reader-pull / anti-ai)";
+}
 ```
 
 ## Evaluation Dimensions
@@ -120,7 +122,7 @@ This dimension supersedes the deprecated `shenbi-review-texture` skill.
 |---------|---------|---------|
 | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [流水账/说教]：[具体改写方向]
@@ -186,7 +188,7 @@ This dimension supersedes the deprecated `shenbi-review-reader-pull` skill.
 - 净压力: +/-N
 - 累计: 第N章连续+
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [位置] [钩子/悬念/期待问题]：[修复方案]
@@ -243,7 +245,7 @@ Execute checks in order. 第 1/4/5 项已由框架在派发 prompt 的「审查�
 | 2 | 不是...而是... | PASS/ERROR | N occurrences |
 | ... | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [问题描述]：[修复方案]

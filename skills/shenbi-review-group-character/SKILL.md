@@ -43,26 +43,26 @@ contract:
 
 This skill performs four independent character-integrity audits in a **single LLM call**. Each dimension produces an independent audit report section using the standard defect evidence format. All four reports are written to their respective audit files.
 
-> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `parallel_dispatch.py` (invoked at `chapter_loop.py:1090-1168`), preserving the existing two-wave parallel dispatch model. Do NOT run the four dimensions serially.
+> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the four dimensions serially.
 
-## Contract
+## 流程
 
-```yaml
-contract:
-  reads:
-    - {file: chapters/chapter-N.md}
-    - {file: characters/protagonist.md}
-    - {file: characters/major/*.md}
-    - {file: truth/character_matrix.md}
-    - {file: truth/emotional_arcs.md}
-    - {file: truth/current_state.md}
-    - {file: genre-config.json, fields: [povMode]}
-  writes: []
-  updates:
-    - audits/chapter-N-character.md
-    - audits/chapter-N-dialogue.md
-    - audits/chapter-N-motivation.md
-    - audits/chapter-N-pov.md
+```dot
+digraph review_group_character {
+    "Read chapters/chapter-N.md + characters/*.md + truth/character_matrix.md + truth/emotional_arcs.md + truth/current_state.md + genre-config.json" -> "Single LLM call: run all four dimensions";
+    "Single LLM call: run all four dimensions" -> "D1 Character Consistency: BDI + OOC + side-character checks";
+    "Single LLM call: run all four dimensions" -> "D2 Dialogue Style: voice match + catchphrases + tag diversity";
+    "Single LLM call: run all four dimensions" -> "D3 Motivation: interest-driven + derivability + behavior chain";
+    "Single LLM call: run all four dimensions" -> "D4 POV: povMode + switches + information/sensory boundaries";
+    "D1 Character Consistency: BDI + OOC + side-character checks" -> "Defects found (four-element format)?";
+    "D2 Dialogue Style: voice match + catchphrases + tag diversity" -> "Defects found (four-element format)?";
+    "D3 Motivation: interest-driven + derivability + behavior chain" -> "Defects found (four-element format)?";
+    "D4 POV: povMode + switches + information/sensory boundaries" -> "Defects found (four-element format)?";
+    "Defects found (four-element format)?" -> "Rate PASS" [label="no"];
+    "Defects found (four-element format)?" -> "List ERROR/WARNING + fix suggestions" [label="yes"];
+    "Rate PASS" -> "Write 4 audit files (character / dialogue / motivation / pov)";
+    "List ERROR/WARNING + fix suggestions" -> "Write 4 audit files (character / dialogue / motivation / pov)";
+}
 ```
 
 ## Evaluation Dimensions
@@ -121,7 +121,7 @@ This dimension supersedes the deprecated `shenbi-review-character` skill.
 ### 弧线
 [近3章情感变化曲线]
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [具体段落] [问题描述]：[修复方案]
@@ -178,7 +178,7 @@ This dimension supersedes the deprecated `shenbi-review-dialogue` skill.
 |------|-----|-----|------|--------|
 | ... | ... | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [角色] [声音偏差]：[修复方案]
@@ -231,7 +231,7 @@ This dimension supersedes the deprecated `shenbi-review-motivation` skill.
 |------|------|-------|---------|--------|
 | ... | ... | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [角色] [动机缺失/不可信]：[具体补足方案]
@@ -285,7 +285,7 @@ This dimension supersedes the deprecated `shenbi-review-pov` skill.
 |------|------|------|---------|--------|
 | ... | ... | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [POV/信息/感官] [问题描述]：[修复方案]

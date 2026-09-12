@@ -1,3 +1,5 @@
+> **Spec 编号**: #25
+
 > **Date:** 2026-08-14 | **Status:** Dissolved (2026-09-03, 总纲 #40 §8 T3) | **Severity:** 🟡 P2 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查（补齐 spec 8/8） | **依赖:** 全部子 spec | **范围:** 全仓库 | **核心洞察:** 287 条 P2 为各家族扩展实例/边界/错误处理/死代码/漂移，按家族统一修复模式批量处置（与 M 批量 spec 同构）
 >
@@ -32,6 +34,7 @@
 - **F123** capability_fs.CapabilityFS 无任何生产接线：支柱五"读 provenance 运行时兜底"仅测试消费，模块为生产死代码
 - **F124** phase_runner CLI 无位置参数校验：缺参 → IndexError traceback；flag 被解析为位置参数
 - **F125** command-to-give.md:48 引用不存在的 tests/dispatch-subagent.sh：PR-20 迁移后执行协议断链
+  > **勘误注（2026-09-13，F941）**：本条 PR 归因「PR-20」为笔误，正确归因为 PR-22（与上文 :19 F0-05「0f68102 PR-22 删除 shim」一致）。
 - **F128** phase_runner cmd_post_score 只校验 JSON 语法不校验结构：垃圾 scores 文件（`[]`/`"hello"`/`{"foo":1}`）推进状态机到 SCORED/FINALIZED，注释 "malformed must abort" 未落实
 - **F129** scoring --gate-only 模式 `--type` 尾参 IndexError（:303 无长度守卫，对照 :300 gate_type 有守卫；flag 命名与主路径 --test-type 不一致）
 - **F133** safe_write O_EXCL 释放路径 close(fd)→unlink(lockfile) 非原子：stale-takeover 后释放者 unlink 删除新持有者锁 → 双写者并发丢失更新（与 F108/F119 同区域第三独立缺陷站点）
@@ -287,6 +290,7 @@
 - **F720** tests/unit/skill_utils/test_calibration.py / test_confidence_routing_integration.py 只测 `calibrate_confidence` 单个 HitRate 组合，未覆盖 anchor 命中率驱动的真实校准数据来源
 ## Z9（4 条）
 - **F1100** D2 漂移：deterministic spec :18 引用 `2026-06-22-positive-quality-gates.md:7`，实际文件为 `...-gates-design.md`（缺 `-design` 后缀），且 :7 非分层表（分层表在 :63）
+  > **勘误注（2026-09-13，F946）**：本条疑似误报——目标 `2026-06-22-positive-quality-gates.md` 可精确解析到 plans/archive 同名文件，且其 :7 即分层定义（prose 形态），原判「缺 `-design` 后缀 + :7 非分层表」不成立。
 - **F1101** D2 漂移：deterministic spec :102 引用 `dispatch_helper.py:1030-1037` 为 append_dedup caller-责任文档，实际该注释在 :1059-1065
 - **F1104** basedpyright-overrides.md:7,58 描述 `src/shenbi/skill_utils` executionEnvironment + "mirrors mypy ignore_errors = true for skill_utils"——实际 pyproject basedpyright 仅有 tests env，mypy overrides 无 skill_utils 条目
 - **F1113** README.md:45 `just pipeline-init outline-example.md ./my-novel --auto` 不可执行——justfile pipeline-init recipe 不接受/不转发 `--auto`，just 报错

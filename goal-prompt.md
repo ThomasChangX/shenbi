@@ -1,5 +1,7 @@
 ## 目标
 
+> **历史快照（2026-06-13 目标冻结版）**，现状以 `AGENTS.md` / `docs/superpowers/specs/INDEX.md` 为准；下列计数为 2026-09-13 现势校正。
+
 从 `command-to-give.md` 的执行协议出发，推进 Shenbi 三层测试框架全量执行+T1+T2+T3，产出基于 `outline-example.md`（星火燃穹）的真实完整的 20 万字小说文件。
 
 ## 所需技能
@@ -16,11 +18,11 @@
 
 ### 文件结构
 
-- 59 个 skill: `skills/<skill-name>/SKILL.md`
-- 60 个 T1 测试目录（59 skill + `_template`）: `tests/tiers/t1-skill/<skill-name>/`（含 rubric.md/bug-hunt/clean/generative）
+- 72 个 functional skill（另有 2 个 meta skill `using-shenbi` / `shenbi-writing-skills`，共 74 目录）：`skills/<skill-name>/SKILL.md`，权威计数以 `tools/lint_registry_reconcile.py` 为准
+- 70 个 T1 测试目录: `tests/tiers/t1-skill/<skill-name>/`（含 rubric.md/bug-hunt/clean/generative）
 - 9 个 T2 phase: `tests/tiers/t2-phase/<phase>/`
 - 3 个 T3 pipeline: `tests/tiers/t3-pipeline/<pipeline>/`
-- 115 个 fixture（83 文件 + 32 目录）: `tests/fixtures/`
+- 157 个 fixture 文件: `tests/fixtures/`
 - 工具脚本（entry points）: `shenbi-score`, `shenbi-validate`, `shenbi-phase`, `shenbi-dispatch`（源码在 `src/shenbi/`）
 - 辅助脚本: `tests/round-exec.sh`（round 创建 + G0 验证）, `tests/lock-tool-hashes.sh`（工具哈希锁定）
 - 接受阈值：T1≥94, T2≥94, T3≥94（`tests/tiers/acceptance.json`）
@@ -62,12 +64,12 @@
 
 ### Phase 3: T2 Phase 和 T3 Pipeline
 
-全部 59 skill 三种测试均 ≥94 后，按 `deps.json` 顺序执行 T2 phase，再按 T3 pipeline 执行端到端长篇小说生成。
+全部 72 个 functional skill 三种测试均 ≥94 后，按 `deps.json` 顺序执行 T2 phase，再按 T3 pipeline 执行端到端长篇小说生成。
 
 ## 预期最终交付物
 
-1. 完整测试报告：59 skill 的 T1 评分，9 phase 的 T2 评分，3 pipeline 的 T3 评分
-2. 59 skill 中所有 <100 分的已修复并增强到 ≥94
+1. 完整测试报告：72 个 functional skill 的 T1 评分，9 phase 的 T2 评分，3 pipeline 的 T3 评分
+2. 72 个 functional skill 中所有 <100 分的已修复并增强到 ≥94
 3. 基于星火燃穹的一部长篇小说（20 万字目标），包含完整的世界观设定、角色档案、章节草稿、审核报告等全部中间产物
 4. 每轮 round 目录持久化，跨 session 可恢复
 

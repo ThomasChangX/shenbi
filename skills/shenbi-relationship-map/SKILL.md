@@ -116,7 +116,7 @@ digraph relationship_map {
 **类型**: [师徒/敌对/盟友/...]
 **利益根基**: [简要说明利益/情感连接]
 **阵营关系**: [同阵营/跨阵营/对立阵营]
-**信息边界**: [SYMMETRIC/ASYMMETRIC/ISOLATED]
+**信息边界**: [SYMMETRIC/ASYMMETRIC/ISOLATED/MUTUAL_SECRET]
   - 谁多知道: [角色X 知道 Y]
 **起始状态**: [第1章时]
 **演化轨迹**:

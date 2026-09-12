@@ -64,8 +64,8 @@ digraph chapter_drafting {
     "Write PRE_WRITE_CHECK" -> "Human approves PRE_WRITE_CHECK";
     "Human approves PRE_WRITE_CHECK" -> "Generate chapter content";
     "Human approves PRE_WRITE_CHECK" -> "Revise PRE_WRITE_CHECK" [label="rejected"];
-    "Generate chapter content" -> "Self-check against anti-ai rules";
-    "Self-check against anti-ai rules" -> "Count transition words (然/不过/此时/突然/终于/于是)";
+    "Generate chapter content" -> "Self-check against anti-ai rules + full PRE_WRITE_CHECK list (核心任务/伏笔/禁忌/近3章结尾/AI味/共鸣短板)";
+    "Self-check against anti-ai rules + full PRE_WRITE_CHECK list (核心任务/伏笔/禁忌/近3章结尾/AI味/共鸣短板)" -> "Count transition words (然/不过/此时/突然/终于/于是)";
     "Count transition words" -> "Within 1/3000 limit?";
     "Within 1/3000 limit?" -> "Write chapter title + content" [label="yes"];
     "Within 1/3000 limit?" -> "Replace excess transitions" [label="no"];

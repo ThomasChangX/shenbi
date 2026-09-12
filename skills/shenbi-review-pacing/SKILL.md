@@ -125,7 +125,7 @@ digraph review_pacing {
 - maxGapFIRE: 1/3 OK
 - 序列多样性: QUEST 60% OK
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [WARNING] [具体章节] [问题描述]：[修复方案]

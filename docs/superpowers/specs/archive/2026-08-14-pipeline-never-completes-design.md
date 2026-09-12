@@ -37,6 +37,8 @@
 - `_extract_chapter_node_from_map`（chapter_loop.py:2182）匹配 `\|\s*N\s*\|`，生产节点表行是 `| 第1章 |`——正则只误中跨卷桥接表的 `| 1 |` 行（1-4 章取到垃圾节点，5+ 章取 None）
 - `context_assemble.py:254` / `plan_skeleton.py:208` 按 `"## Cross-Volume Bridges"` 切分桥接段，生产是 `### 跨卷桥接`——桥接永不浮现。与 R1 同族中英不匹配，双实现待去重
 
+> **勘误（2026-09-13，T1505）**：`_shared.py` 清理托付未落入 #16/#25（两归档件均无该项），待后续 spec 承接或显式 void。
+
 ## 影响
 - 长篇小说无法完成（P0 级产品功能缺失）
 - 卷级特性全家静默失效（foreshadowing-resolve/volume-consolidation/score-volume 等）

@@ -117,7 +117,7 @@ digraph review_foreshadowing {
 
 ### 密度: N/8 操作
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [具体 Hook ID / 段落] [问题描述]：[修复方案]

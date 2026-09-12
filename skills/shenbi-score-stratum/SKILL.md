@@ -1,6 +1,6 @@
 ---
 name: shenbi-score-stratum
-description: Use when scoring 大弧/书级健康评分 on goal attainment and anchor calibration
+description: Use when scoring grand-arc/book-level (大弧/书级) goal attainment and anchor calibration
 requires_independent_agent: true
 contract:
   kind: report

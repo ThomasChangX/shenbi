@@ -36,21 +36,22 @@ contract:
 
 This skill performs two independent plan-compliance audits in a **single LLM call**. Each dimension produces an independent audit report section using the standard defect evidence format. Both reports are written to their respective audit files.
 
-> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `parallel_dispatch.py` (invoked at `chapter_loop.py:1090-1168`), preserving the existing two-wave parallel dispatch model. Do NOT run the two dimensions serially.
+> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the two dimensions serially.
 
-## Contract
+## 流程
 
-```yaml
-contract:
-  reads:
-    - {file: chapters/chapter-N.md}
-    - {file: plans/chapter-N-plan.md}
-    - {file: truth/pending_hooks.md}
-    - {file: truth/subplot_board.md}
-  writes: []
-  updates:
-    - audits/chapter-N-memo-compliance.md
-    - audits/chapter-N-foreshadowing.md
+```dot
+digraph review_group_plan {
+    "Read chapters/chapter-N.md + plans/chapter-N-plan.md + truth/pending_hooks.md + truth/subplot_board.md" -> "Single LLM call: run both dimensions";
+    "Single LLM call: run both dimensions" -> "D1 Memo Compliance: verify memo sections 1/3/6/7/8 delivered or avoided";
+    "Single LLM call: run both dimensions" -> "D2 Foreshadowing Consistency: hook lifecycle + payoff-window + subplot alignment";
+    "D1 Memo Compliance: verify memo sections 1/3/6/7/8 delivered or avoided" -> "Defects found (four-element format)?";
+    "D2 Foreshadowing Consistency: hook lifecycle + payoff-window + subplot alignment" -> "Defects found (four-element format)?";
+    "Defects found (four-element format)?" -> "Rate PASS" [label="no"];
+    "Defects found (four-element format)?" -> "List ERROR/WARNING + fix suggestions" [label="yes"];
+    "Rate PASS" -> "Write audits/chapter-N-memo-compliance.md + audits/chapter-N-foreshadowing.md";
+    "List ERROR/WARNING + fix suggestions" -> "Write audits/chapter-N-memo-compliance.md + audits/chapter-N-foreshadowing.md";
+}
 ```
 
 ## Evaluation Dimensions
@@ -103,7 +104,7 @@ This dimension supersedes the deprecated `shenbi-review-memo-compliance` skill.
 ### 读者等待/日常功能
 [第2段与第4段的核对结果]
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落位置] [备忘段引用] [问题描述]：[修复方案]
@@ -118,7 +119,7 @@ This dimension supersedes the deprecated `shenbi-review-foreshadowing` skill.
 
 > Default-activated (every chapter).
 
-> Distinction from `shenbi-reader-pull`: foreshadowing checks "hook ledger cultivation and resolution"; reader-pull checks "immediate stimulation for continued reading."
+> Distinction from `shenbi-review-reader-pull`: foreshadowing checks "hook ledger cultivation and resolution"; reader-pull checks "immediate stimulation for continued reading."
 > Distinction from `shenbi-foreshadowing-lifecycle`: the lifecycle skill performs recall-track-plant operations on `pending_hooks.md`; this audit dimension checks whether the foreshadowing outcomes align with the chapter plan and hook ledger.
 
 #### 铁律
@@ -165,7 +166,7 @@ This dimension supersedes the deprecated `shenbi-review-foreshadowing` skill.
 ### 副线板对齐
 [伏笔与subplot_board的交叉验证]
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [伏笔ID] [问题类型]：[修复方案]

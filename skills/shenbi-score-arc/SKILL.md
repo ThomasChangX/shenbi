@@ -1,6 +1,6 @@
 ---
 name: shenbi-score-arc
-description: Use when scoring 弧段级评分 on goal attainment and anchor calibration
+description: Use when scoring arc-level (弧段级) goal attainment and anchor calibration
 requires_independent_agent: true
 contract:
   kind: report
@@ -79,6 +79,7 @@ digraph shenbi_score_arc {
     "Route C: hard-binary" -> "Route C: soft-degree scoring";
     "Route C: soft-degree" -> "Route A: anchor positioning";
     "Route A: anchor" -> "Write audit report";
+    "Write audit report" -> "Append 弧段评分短板条目 to truth/audit_drift.md";
 }
 ```
 

@@ -42,26 +42,24 @@ contract:
 
 This skill performs three independent factual-consistency audits in a **single LLM call**. Each dimension produces an independent audit report section using the standard defect evidence format. All three reports are written to their respective audit files.
 
-> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `parallel_dispatch.py` (invoked at `chapter_loop.py:1090-1168`), preserving the existing two-wave parallel dispatch model. Do NOT run the three dimensions serially.
+> **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the three dimensions serially.
 
-## Contract
+## 流程
 
-```yaml
-contract:
-  reads:
-    - {file: chapters/chapter-N.md}
-    - {file: truth/current_state.md, fields: [系统演化阶段, 参数当前位置, 进行中的情节线]}
-    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
-    - {file: world/rules.md}
-    - {file: world/power_system.md}
-    - {file: world/locations.md}
-    - {file: world/story_bible.md}
-    - {file: genre-config.json, fields: [pacing, chapterTypes]}
-  writes: []
-  updates:
-    - audits/chapter-N-continuity.md
-    - audits/chapter-N-world-rules.md
-    - audits/chapter-N-pacing.md
+```dot
+digraph review_group_factual {
+    "Read chapters/chapter-N.md + truth/current_state.md + truth/chapter_summaries.md + world/*.md + genre-config.json" -> "Single LLM call: run all three dimensions";
+    "Single LLM call: run all three dimensions" -> "D1 Continuity: timeline + locations + event order + arithmetic";
+    "Single LLM call: run all three dimensions" -> "D2 World Rules: rules conflicts + power-system ceiling + numeric consistency + knowledge pollution";
+    "Single LLM call: run all three dimensions" -> "D3 Pacing: QUEST/FIRE/CONSTELLATION sequence + buildup-release cycle";
+    "D1 Continuity: timeline + locations + event order + arithmetic" -> "Defects found (four-element format)?";
+    "D2 World Rules: rules conflicts + power-system ceiling + numeric consistency + knowledge pollution" -> "Defects found (four-element format)?";
+    "D3 Pacing: QUEST/FIRE/CONSTELLATION sequence + buildup-release cycle" -> "Defects found (four-element format)?";
+    "Defects found (four-element format)?" -> "Rate PASS" [label="no"];
+    "Defects found (four-element format)?" -> "List ERROR/WARNING + fix suggestions" [label="yes"];
+    "Rate PASS" -> "Write 3 audit files (continuity / world-rules / pacing)";
+    "List ERROR/WARNING + fix suggestions" -> "Write 3 audit files (continuity / world-rules / pacing)";
+}
 ```
 
 ## Evaluation Dimensions
@@ -118,7 +116,7 @@ For each chapter, verify:
 ### 物理空间
 [空间矛盾标注]
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [具体段落] [问题描述]：[修复方案]
@@ -174,7 +172,7 @@ This dimension supersedes the deprecated `shenbi-review-world-rules` skill.
 |------|-------|----------|--------|
 | ... | ... | ... | ... |
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [ERROR] [段落] [冲突类型] [规则引用]：[修复方案]
@@ -221,7 +219,7 @@ This dimension supersedes the deprecated `shenbi-review-pacing` skill.
 - maxGapFIRE: X/Y
 - 序列多样性: ...
 
-### 评分: X/10 通过
+### 评分: X/100 通过
 
 ### 建议修复
 - [WARNING] [具体章节] [问题描述]：[修复方案]

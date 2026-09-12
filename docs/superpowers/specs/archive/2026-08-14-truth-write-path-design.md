@@ -7,6 +7,7 @@
 
 ## R1 · resonance_trend 双写者键格式统一（T7-01, P1）
 - 残留证据：框架行构造器 `_build_resonance_trend_row`（chapter_loop.py:1403）7 列 `| Ch{N} |` vs skill 契约 9 列 key `{N}`（review-resonance SKILL.md:160-165）；upsert 整格键比较 `Ch55 != 55` → 同章两写者都跑产双行
+  > **勘误注（2026-09-13，F949）**：现盘 `truth/resonance_trend.md` 为 1 行 9 列 `{N}` 表头形态；原文「2 行/7 列」为当时实证口径，以 truth 现盘为准。
 - 修复（audit r1 C1/I1a/I1b 并入）：**框架写者改「key 不存在才写」**——写前查该章 key 是否已存在（truth_io 加 `has_markdown_row` 辅助或等价检查），skill 已写的富行（四维/角色/confidence）绝不被框架占位行覆盖；占位行本身对齐 9 列、confidence 列用空格与 skill 一致；oneoff 迁移旧 `Ch{N}` 7 列历史行为 `{N}` 9 列（或验收明确仅对新章生效，实现时定）
 - **验收：两写者同章先后写入后同章仅一行且保留 skill 富行；历史行归一化后同章无 `Ch{N}` 残留**
 

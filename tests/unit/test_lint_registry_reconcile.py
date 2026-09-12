@@ -112,13 +112,21 @@ def test_index_md_row_deletion_fails(repo_copy: Path) -> None:
 
 
 def test_trigger_table_exemption_roundtrip(repo_copy: Path) -> None:
-    """allow_missing removes exactly the named skills from the trigger face."""
+    """allow_missing removes exactly the named skills from the trigger face.
+
+    Uses a synthetic carrier (remove a score-* routing row) because the real
+    repo now mentions all functional skills (spec #62 F885 closed the R1).
+    """
+    p = repo_copy / "skills" / "using-shenbi" / "SKILL.md"
+    orig = (_SRC / "skills/using-shenbi/SKILL.md").read_text(encoding="utf-8")
+    row = next(line for line in orig.splitlines() if "shenbi-score-arc" in line)
+    p.write_text(orig.replace(row + "\n", "", 1), encoding="utf-8")
     vios = lint_registry_reconcile(repo_copy)  # no exemption
     unmentioned = next(v for v in vios if "using-shenbi: unmentioned" in v)
     assert "shenbi-score-arc" in unmentioned
     vios2 = lint_registry_reconcile(repo_copy, allow_missing=_SCORE_EXEMPT)
     face = [v for v in vios2 if "using-shenbi: unmentioned" in v]
-    if face:  # other non-exempt gaps may remain pre-Task-9; score-* must not
+    if face:  # other non-exempt gaps may remain; score-* must not
         assert "shenbi-score-arc" not in face[0]
 
 
