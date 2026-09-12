@@ -19,6 +19,8 @@ from typing import Any
 
 import yaml
 
+from shenbi.skill_utils.deprecated import deprecated_skill_names
+
 REPO = Path(__file__).resolve().parents[1]
 BANNER = "<!-- AUTO-GENERATED from frontmatter — do not edit -->"
 BODY_END = "<!-- END AUTO-GENERATED -->"
@@ -243,9 +245,13 @@ def check_skill_deps_closure(repo: Path) -> list[str]:
     skills_dir = repo / "skills"
     dirs = {p.name for p in skills_dir.iterdir() if p.is_dir() and p.name.startswith("shenbi-")}
     deps_names = _collect_deps_names(json.loads(deps_path.read_text(encoding="utf-8")))
-    missing = sorted(dirs - deps_names)
+    dead = deprecated_skill_names(skills_dir)  # spec #59 T1: DEPRECATED => forbid-register
+    missing = sorted(d for d in (dirs - deps_names) if d not in dead)
     if missing:
         errs.append(f"skills_deps_closure: skill dirs not registered in deps.json: {missing}")
+    forbidden = sorted(dead & deps_names)
+    if forbidden:
+        errs.append(f"skills_deps_closure: DEPRECATED skills registered in deps.json: {forbidden}")
     ghost = sorted(deps_names - dirs)
     if ghost:
         errs.append(f"skills_deps_closure: deps.json names without skill dir: {ghost}")
