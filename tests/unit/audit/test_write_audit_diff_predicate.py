@@ -39,9 +39,9 @@ HOOKS_FIXTURE = PROJECT / "tests" / "fixtures" / "pending-hooks-example.md"
 def test_diff_predicate_delete_blocks_ownership_files() -> None:
     """OWNERSHIP 管控文件被整体删除：record 级与 field 级审计均不得豁免。"""
     hooks = HOOKS_FIXTURE.read_text(encoding="utf-8")
-    # record 级：track 对 pending_hooks.md 仅有 record_field 写权
+    # record 级：state-settling 对 pending_hooks.md 仅有 record_field 写权
     res_record = audit_writes(
-        "shenbi-foreshadowing-track",
+        "shenbi-state-settling",
         {"truth/pending_hooks.md": hooks},
         {"truth/pending_hooks.md": None},
     )
@@ -88,21 +88,21 @@ def test_diff_predicate_delete_rebuild_added_checked_by_keyset() -> None:
         {"genre-config.json": json.dumps(["不是对象"])},
     )
     assert any(TOP_LEVEL_TYPE_CHANGED_KEY in v for v in res_list.violations)
-    # record 侧对称：track 重建 pending_hooks.md → 全部记录按"新增"判越权
+    # record 侧对称：state-settling（存活 record_field 行）重建 pending_hooks.md
+    # → 全部记录按"新增"判越权；lifecycle（无行，spec #59 T3）落 file-level 声明检查
     hooks = HOOKS_FIXTURE.read_text(encoding="utf-8")
-    res_track = audit_writes(
-        "shenbi-foreshadowing-track",
+    res_settling = audit_writes(
+        "shenbi-state-settling",
         {"truth/pending_hooks.md": None},
         {"truth/pending_hooks.md": hooks},
     )
-    assert any("新增记录" in v and "hook-ch1-001" in v for v in res_track.violations)
-    # plant（record_create）重建/首建合法：新增记录是其声明写权
-    res_plant = audit_writes(
-        "shenbi-foreshadowing-plant",
+    assert any("新增记录" in v and "hook-ch1-001" in v for v in res_settling.violations)
+    res_lifecycle = audit_writes(
+        "shenbi-foreshadowing-lifecycle",
         {"truth/pending_hooks.md": None},
         {"truth/pending_hooks.md": hooks},
     )
-    assert res_plant.violations == ()
+    assert res_lifecycle.violations == ()  # pending_hooks 是声明写面（append/upsert 语义）
 
 
 # —— 形态三：非法 JSON 替换（F503）——

@@ -9,11 +9,11 @@ import pytest
 class TestHooksNotDict:
     def test_string_hook_element_mf_not_crash(self, tmp_path) -> None:
         """F409:hooks 列表含字符串元素 → mf 计数,非 AttributeError。"""
-        from shenbi.gates.g4.foreshadowing_plant import g4_foreshadowing_plant
+        from shenbi.gates.g4.foreshadowing_lifecycle import g4_foreshadowing_lifecycle
 
         md = tmp_path / "foreshadowing.md"
         md.write_text("---\nhooks:\n  - 'just a string'\n---\nbody", encoding="utf-8")
-        out = g4_foreshadowing_plant([str(md)])
+        out = g4_foreshadowing_lifecycle([str(md)], rd=str(tmp_path))
         assert isinstance(out, str)
         assert "hook_not_dict" in out
 

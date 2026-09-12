@@ -1,7 +1,7 @@
 """Canonical hook lifecycle state enum (fixes D22).
 
 The foreshadowing lifecycle has **6 canonical values** (phase-0:
-foreshadowing-track/SKILL.md:72-73,120): PLANTED → RELEVANT → TRIGGERED →
+shenbi-foreshadowing-lifecycle/SKILL.md): PLANTED → RELEVANT → TRIGGERED →
 RESOLVED, with ARCHIVED/EXPIRED as terminal exits. Skills also emit
 non-canonical spellings (e.g. ``TRIGGER`` at SKILL.md:87), so
 :func:`parse_hook_state` folds those + is case-insensitive.
@@ -23,7 +23,7 @@ class HookState(StrEnum):
     RELEVANT = "RELEVANT"
     TRIGGERED = "TRIGGERED"
     RESOLVED = "RESOLVED"
-    ARCHIVED = "ARCHIVED"  # phase-0: foreshadowing-track SKILL.md:72
+    ARCHIVED = "ARCHIVED"  # phase-0: lifecycle SKILL.md
     EXPIRED = "EXPIRED"  # phase-0: SKILL.md:73,120
 
 
