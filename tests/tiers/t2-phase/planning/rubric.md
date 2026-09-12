@@ -1,6 +1,6 @@
 # T2 Phase Rubric: Planning
 
-Phase: chapter-planning → foreshadowing-plant → context-composing
+Phase: chapter-planning → foreshadowing-lifecycle → context-composing
 Seed: Output from Architecture phase
 
 ## Dimensions
@@ -8,7 +8,7 @@ Seed: Output from Architecture phase
 | # | Dimension | Weight | Standard |
 |---|-----------|--------|----------|
 | 1 | Handoff integrity | 20% | Every skill receives correctly structured input from previous skill; missing fields = -5% per field |
-| 2 | Cross-skill consistency | 20% | Zero contradictions between outputs of different skills (e.g., foreshadowing-plant doesn't violate chapter-planning structure) |
+| 2 | Cross-skill consistency | 20% | Zero contradictions between outputs of different skills (e.g., foreshadowing-lifecycle doesn't violate chapter-planning structure) |
 | 3 | State propagation accuracy | 15% | Truth files updated by skill N correctly read by skill N+1; stale reads = -10% per instance |
 | 4 | Phase output completeness | 15% | All files expected at phase end present and non-empty |
 | 5 | Regression within phase | 15% | No skill's output during T2 scores below its T1 score on same input |

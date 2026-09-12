@@ -14,6 +14,10 @@ contract:
   updates: []
 ---
 <!-- DEPRECATED: Superseded by shenbi-review-group-craft (2026-07-19). -->
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-review-group-craft` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 <!-- This skill is retained for reference. Do not dispatch. -->
 
 <!-- AUTO-CHECK-START -->
@@ -34,7 +38,7 @@ contract:
 
 # Anti-AI 审计
 
-这是默认激活的审计技能（每章必查）。
+**已退役正文**（历史描述，现行职责由 shenbi-review-group-craft 承接）。
 
 > 与 `shenbi-review-texture` 区别：段长由两者都触及——本审计审"段长**等长/规律性**（CV 过低 = AI 生成特征）"；texture 审"段长**极端**（>500/<20 字）与**呼吸感**（可读性）。本审计判可检测性，texture 判写作质量。
 

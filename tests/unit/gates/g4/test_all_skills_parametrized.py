@@ -34,8 +34,11 @@ _SKILL_CHECKERS: list[tuple[str, str, str]] = [
     ("shenbi-character-design", "shenbi.gates.g4.character_design", "g4_character_design"),
     ("shenbi-context-composing", "shenbi.gates.g4.context_composing", "g4_context_composing"),
     ("shenbi-faction-builder", "shenbi.gates.g4.faction_builder", "g4_faction_builder"),
-    ("shenbi-foreshadowing-plant", "shenbi.gates.g4.foreshadowing_plant", "g4_foreshadowing_plant"),
-    ("shenbi-foreshadowing-track", "shenbi.gates.g4.foreshadowing_track", "g4_foreshadowing_track"),
+    (
+        "shenbi-foreshadowing-lifecycle",
+        "shenbi.gates.g4.foreshadowing_lifecycle",
+        "g4_foreshadowing_lifecycle",
+    ),
     ("shenbi-genre-config", "shenbi.gates.g4.genre_config", "g4_genre_config"),
     ("shenbi-length-normalizing", "shenbi.gates.g4.length_normalizing", "g4_length_normalizing"),
     ("shenbi-location-builder", "shenbi.gates.g4.location_builder", "g4_location_builder"),

@@ -1,6 +1,6 @@
 ---
 name: using-shenbi
-description: Use when starting any conversation — establishes skill discovery and trigger rules for the shenbi novel writing skill system
+description: Use when starting any conversation about the shenbi novel-writing system, before picking or dispatching a skill.
 meta: true
 ---
 
@@ -41,17 +41,11 @@ digraph skill_check {
 | "帮我写这章" / "起草" / "写正文" | shenbi-chapter-drafting |
 | "结算" / "更新状态" / "提取变化" | shenbi-state-settling |
 | "字数调整" / "扩写" / "压缩" / "字数不够" | shenbi-length-normalizing |
-| "检查这章" / "审计" / "审查" | shenbi-review-anti-ai (default) + activated audit skills |
-| "连贯性" / "前后矛盾" / "对不上" | shenbi-review-continuity |
-| "角色一致性" / "人设崩了" / "OOC" | shenbi-review-character |
-| "节奏不对" / "太拖" / "太赶" / "节奏检查" | shenbi-review-pacing |
-| "伏笔检查" / "埋线检查" | shenbi-review-foreshadowing |
-| "世界观矛盾" / "设定冲突" / "世界规则" | shenbi-review-world-rules |
-| "对话问题" / "台词" / "说话方式" | shenbi-review-dialogue |
-| "动机不合理" / "为什么这么做" / "角色动机" | shenbi-review-motivation |
-| "视角问题" / "POV" / "视角混乱" | shenbi-review-pov |
-| "质感" / "沉浸感" / "画面感" | shenbi-review-texture |
-| "吸引力" / "读不下去" / "读者" | shenbi-review-reader-pull |
+| "检查这章" / "审计" / "审查" | default audits（group-factual / group-character / group-craft / group-plan + review-sensitivity + review-resonance） |
+| "连贯性" / "前后矛盾" / "对不上" / "世界观矛盾" / "设定冲突" / "世界规则" / "节奏不对" / "太拖" / "太赶" / "节奏检查" | shenbi-review-group-factual |
+| "角色一致性" / "人设崩了" / "OOC" / "对话问题" / "台词" / "说话方式" / "动机不合理" / "为什么这么做" / "角色动机" / "视角问题" / "POV" / "视角混乱" | shenbi-review-group-character |
+| "质感" / "沉浸感" / "画面感" / "吸引力" / "读不下去" / "读者" | shenbi-review-group-craft |
+| "伏笔检查" / "埋线检查" / "备忘合规" / "章节备忘检查" / "计划执行" | shenbi-review-group-plan |
 | "高光" / "高潮" / "名场面" | shenbi-review-highpoint |
 | "共鸣评分" / "正向质量" / "这章写得好不好" | shenbi-review-resonance |
 | "长程" / "跨卷" / "长线" | shenbi-review-long-span |
@@ -60,7 +54,6 @@ digraph skill_check {
 | "同人" / "原作一致" / "角色崩坏" | shenbi-review-fanfic |
 | "番外" / "衍生" / "外传" | shenbi-review-spinoff |
 | "敏感性" / "争议" / "冒犯" | shenbi-review-sensitivity |
-| "备忘合规" / "章节备忘检查" / "计划执行" | shenbi-review-memo-compliance |
 | "修改这章" / "修订" / "这段有问题" | shenbi-chapter-revision |
 | "润色" / "打磨" / "文字" | shenbi-style-polishing |
 | "去AI味" / "反检测" | shenbi-anti-detect |
@@ -70,8 +63,7 @@ digraph skill_check {
 | "关系" / "角色关系" | shenbi-relationship-map |
 | "节奏设计" / "张弛" | shenbi-pacing-design |
 | "线索" / "主线支线" | shenbi-plot-thread-weaver |
-| "伏笔" / "埋线" / "hook" | shenbi-foreshadowing-plant |
-| "伏笔追踪" / "hook状态" | shenbi-foreshadowing-track |
+| "伏笔" / "埋线" / "hook" / "伏笔追踪" / "hook状态" | shenbi-foreshadowing-lifecycle |
 | "伏笔兑现" / "收线" | shenbi-foreshadowing-resolve |
 | "导入" / "分析已有作品" | shenbi-import-analysis |
 | "文风" / "风格学习" | shenbi-style-learning |
@@ -121,9 +113,9 @@ When working with a novel project, the directory structure is defined in `docs/s
 
 ## Audit Activation
 
-Default audits (always run): review-anti-ai, review-continuity, review-character, review-sensitivity, review-resonance
+Default audits (always run): review-group-factual, review-group-character, review-group-craft, review-group-plan, review-sensitivity, review-resonance
 
-> All default audits are now implemented (Phase 1 + Phase 2 + Phase 4a). Conditional audits: Phase 2 (review-pacing, review-foreshadowing), Phase 4b (review-world-rules, review-dialogue, review-motivation, review-pov, review-texture, review-reader-pull, review-memo-compliance, review-highpoint, review-long-span, review-era, review-fanfic, review-spinoff). Activation rules in design spec Section 7.4.
+> Default audits run as grouped fixed steps (group-factual / group-character / group-craft / group-plan) plus review-sensitivity and review-resonance. Conditional singleton audits: review-highpoint, review-long-span, review-era, review-fanfic, review-spinoff (activation via genre-config / boundary triggers, design spec Section 7.4).
 
 Additional audits activate based on `genre-config.json` in the novel project. See design spec Section 7.4 for activation rules.
 

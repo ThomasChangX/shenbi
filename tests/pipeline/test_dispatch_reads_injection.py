@@ -112,3 +112,55 @@ def test_required_inputs_injected(tmp_path: Path, skill, files, expected, absent
         assert key in user_prompt, f"{skill}: expected input not injected: {key}"
     for key in absent:
         assert key not in user_prompt, f"{skill}: must NOT be injected: {key}"
+
+
+def test_lifecycle_prompt_reachable(tmp_path):
+    """Acceptance 5 (spec #59, F947 offline): GENESIS_STEPS step-9 successor assembles a prompt."""
+    from shenbi.pipeline.genesis import GENESIS_STEPS
+
+    step9 = next(s for s in GENESIS_STEPS if s.step_num == 9)
+    assert step9.skill == "shenbi-foreshadowing-lifecycle"
+    system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        skill=step9.skill,
+        project_dir=tmp_path,
+        prompt="genesis",
+        chapter=None,
+    )
+    combined = system_prompt + user_prompt
+    assert "foreshadowing-lifecycle" in combined
+    assert output_paths, "prompt assembly must carry output paths"
+
+
+def test_genesis_outputs_override_excludes_per_chapter_writes(tmp_path):
+    """Stage-8 review I1 pin: genesis dispatch output set is the GenesisStep's
+    declared output — lifecycle's bridge_tracker/audits must NOT appear.
+    """
+    system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        skill="shenbi-foreshadowing-lifecycle",
+        project_dir=tmp_path,
+        prompt="genesis",
+        chapter=None,
+        outputs_override=["truth/pending_hooks.md"],
+    )
+    # persistence set stays contract-full (r2: narrowing dropped genesis
+    # artifacts); the PROMPT instruction is what the override narrows
+    assert "truth/pending_hooks.md" in output_paths
+    assert "truth/bridge_tracker.md" in output_paths  # persistence allowlist intact
+    assert "bridge_tracker" not in user_prompt  # prompt instruction narrowed
+    assert "audits/chapter" not in user_prompt
+
+
+def test_staging_prompt_lists_prefixed_paths(tmp_path):
+    """Stage-8 r3 C-1 pin: staged prompts list staging/-prefixed paths so the
+    prompt instruction and the persistence lookup keys stay identical.
+    """
+    _, user_prompt, output_paths = _build_skill_prompt(
+        skill="shenbi-chapter-planning",
+        project_dir=tmp_path,
+        prompt="plan chapter 5",
+        chapter=5,
+        uses_staging=True,
+    )
+    assert output_paths and all(p.startswith("staging/") for p in output_paths)
+    listed = [ln[2:] for ln in user_prompt.splitlines() if ln.startswith("- ") and "/" in ln]
+    assert any(p.startswith("staging/") for p in listed), listed

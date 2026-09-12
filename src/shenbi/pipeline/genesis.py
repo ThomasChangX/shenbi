@@ -67,7 +67,7 @@ GENESIS_STEPS: list[GenesisStep] = [
     GenesisStep(7, "shenbi-pacing-design", output_path="outline/rhythm_principles.md"),
     GenesisStep(8, "shenbi-plot-thread-weaver", output_path="outline/thread_map.md"),
     GenesisStep(
-        9, "shenbi-foreshadowing-plant", mode="genesis", output_path="truth/pending_hooks.md"
+        9, "shenbi-foreshadowing-lifecycle", mode="genesis", output_path="truth/pending_hooks.md"
     ),
     GenesisStep(10, "shenbi-power-system", output_path="world/power_system.md"),
     GenesisStep(11, "shenbi-location-builder", output_path="world/locations.md"),
@@ -94,7 +94,7 @@ _INDEX_UPDATE_SKILLS: frozenset[str] = frozenset(
         "shenbi-volume-outlining",
         "shenbi-pacing-design",
         "shenbi-plot-thread-weaver",
-        "shenbi-foreshadowing-plant",
+        "shenbi-foreshadowing-lifecycle",
         "shenbi-power-system",
         "shenbi-location-builder",
         "shenbi-relationship-map",
@@ -334,7 +334,16 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     step_ctx = (
         PathContext(anchor=1) if step.skill == "shenbi-anchor-curate" else None
     )  # F380 (spec #6): AC-NNN -> AC-001.md genesis sentinel, conditional on this step
-    result = dispatch_skill(step.skill, project_dir, prompt, path_context=step_ctx)
+    result = dispatch_skill(
+        step.skill,
+        project_dir,
+        prompt,
+        path_context=step_ctx,
+        # Stage-8 review I1: the GenesisStep's declared output IS the genesis
+        # output set — keeps per-chapter-mode contract writes (lifecycle's
+        # bridge_tracker) out of the genesis "Files to create" instruction.
+        outputs_override=[step.output_path] if step.output_path else None,
+    )
     if not result.success:
         log.error("genesis_dispatch_failed", step=step.step_num, skill=step.skill)
         if hasattr(result, "stderr") and result.stderr:

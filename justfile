@@ -13,6 +13,8 @@ install group="dev":
 # Run all checks (contract lints + ruff + mypy + basedpyright + sync idempotency + tests)
 check:
     uv run python tools/lint_status_strings.py
+    uv run python tools/lint_routing_faces.py
+    uv run python tools/audit-skill-descriptions.py
     uv run python tools/lint_bare_writes.py
     uv run python tools/lint_bare_subprocess_json.py
     uv run python tools/check_severity_vocab.py
@@ -61,6 +63,10 @@ fix:
 # Lint bare status strings (spec D3)
 lint-status:
 	uv run python tools/lint_status_strings.py
+
+# Lint routing faces: DEPRECATED skills must not be routed anywhere (spec #59 T3)
+lint-routing:
+	uv run python tools/lint_routing_faces.py
 
 # Lint audit-run artifacts: ledger rows, count reconciliation, carryover (spec #49)
 audit-lint *args:

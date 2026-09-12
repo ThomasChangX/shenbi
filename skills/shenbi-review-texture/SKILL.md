@@ -15,6 +15,10 @@ contract:
   updates: []
 ---
 <!-- DEPRECATED: Superseded by shenbi-review-group-craft (2026-07-19). -->
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-review-group-craft` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 <!-- This skill is retained for reference. Do not dispatch. -->
 
 <!-- AUTO-CHECK-START -->
@@ -35,7 +39,7 @@ contract:
 
 # 写作质感审计
 
-这是条件激活的审计技能。检查流水账、段长极端、段落呼吸感、作者说教渗透、日常段功能失效。
+**已退役正文**（历史描述，现行职责由 shenbi-review-group-craft 承接）：历史上面向检查流水账、段长极端、段落呼吸感、作者说教渗透、日常段功能失效。
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 17 时激活。
 

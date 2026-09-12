@@ -44,7 +44,7 @@ class TestClassification:
             "shenbi-review-resonance",
             "shenbi-review-arc-payoff",
             "shenbi-state-settling",
-            "shenbi-foreshadowing-track",
+            "shenbi-foreshadowing-lifecycle",
         ],
     )
     def test_shared_truth_review_skills_must_serialize(self, skill: str):
@@ -54,7 +54,7 @@ class TestClassification:
         "skill",
         [
             "shenbi-state-settling",
-            "shenbi-foreshadowing-track",
+            "shenbi-foreshadowing-lifecycle",
         ],
     )
     def test_shared_writers_must_serialize(self, skill: str):

@@ -1,6 +1,6 @@
 ---
 name: shenbi-review-group-character
-description: Grouped audit for character integrity -- character consistency, dialogue, motivation, and POV in one call; dispatches as a parallel wave via parallel_dispatch.py
+description: Use when a chapter needs its grouped character audit — character voice, dialogue quality, motivation, and POV dimensions.
 requires_independent_agent: true
 contract:
   kind: report

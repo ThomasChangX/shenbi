@@ -168,3 +168,38 @@ class TestSkillDepsClosure:
         from tools.lint_repo_consistency import check_skill_deps_closure
 
         assert "not found" in check_skill_deps_closure(tmp_path)[0]
+
+    @pytest.mark.unit
+    def test_deps_closure_deprecated_exempt_and_forbidden(self, tmp_path):
+        """Spec #59 T1: DEPRECATED dirs need no registration; registration is forbidden."""
+        from tools.lint_repo_consistency import check_skill_deps_closure
+
+        (tmp_path / "skills" / "shenbi-live").mkdir(parents=True)
+        (tmp_path / "skills" / "shenbi-live" / "SKILL.md").write_text("---\n---\nbody")
+        (tmp_path / "skills" / "shenbi-dead").mkdir(parents=True)
+        (tmp_path / "skills" / "shenbi-dead" / "SKILL.md").write_text("# DEPRECATED: gone")
+        (tmp_path / "tests" / "tiers").mkdir(parents=True)
+        (tmp_path / "tests" / "tiers" / "deps.json").write_text(
+            '{"t2-phases": {"audit": {"prerequisites": ["shenbi-live", "shenbi-dead"]}}}'
+        )
+        errs = check_skill_deps_closure(tmp_path)
+        assert not any("not registered" in e for e in errs)  # 豁免方向
+        assert any(  # 禁注册方向
+            "DEPRECATED skills registered" in e and "shenbi-dead" in e for e in errs
+        )
+
+    @pytest.mark.unit
+    def test_deps_closure_deprecated_unregistered_is_green(self, tmp_path):
+        from tools.lint_repo_consistency import check_skill_deps_closure
+
+        (tmp_path / "skills" / "shenbi-live").mkdir(parents=True)
+        (tmp_path / "skills" / "shenbi-live" / "SKILL.md").write_text("---\n---\nbody")
+        (tmp_path / "skills" / "shenbi-dead").mkdir(parents=True)
+        (tmp_path / "skills" / "shenbi-dead" / "SKILL.md").write_text(
+            "<!-- DEPRECATED: Superseded by x (2026-07-19). -->"
+        )
+        (tmp_path / "tests" / "tiers").mkdir(parents=True)
+        (tmp_path / "tests" / "tiers" / "deps.json").write_text(
+            '{"t2-phases": {"audit": {"prerequisites": ["shenbi-live"]}}}'
+        )
+        assert check_skill_deps_closure(tmp_path) == []

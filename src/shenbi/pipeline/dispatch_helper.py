@@ -50,7 +50,6 @@ from shenbi.contracts.paths import (
     format_path_context,
     extract_chapter,
     parse_path_context,
-    resolve_contract_path,
     resolve_or_skip_ctx,
 )
 from shenbi.cost.ledger import TokenLedger
@@ -421,8 +420,6 @@ def build_retry_feedback(exc: BaseException) -> str:
 OPTIONAL_READS: dict[str, list[str]] = {
     "shenbi-context-composing": ["arc-*.md", "volume_summaries.md", "trend"],
     "shenbi-drift-guidance": ["arc-*.md"],
-    "shenbi-foreshadowing-plant": ["chapter-*-plan.md"],
-    "shenbi-foreshadowing-track": ["chapter-*-plan.md"],
     "shenbi-chapter-planning": ["chapter-*-plan.md"],
     "shenbi-chapter-drafting": ["chapter-*-plan.md"],
     "shenbi-escalation-review": [
@@ -609,6 +606,7 @@ def _build_skill_prompt(
     shared_context: Any = None,
     json_mode: bool = False,
     path_context: PathContext | None = None,
+    outputs_override: list[str] | None = None,
 ) -> tuple[str, str, list[str]]:
     """Build a complete execution prompt for a skill.
 
@@ -634,6 +632,9 @@ def _build_skill_prompt(
         path_context: Optional per-family placeholder context (spec #6 R4).
             When provided, reads/writes resolve arc/stratum/volume/chapter
             families from it instead of the bare chapter number.
+        outputs_override: Prompt-instruction-only output narrowing (genesis
+            dispatch passes the GenesisStep's declared output_path; stage-8
+            review I1/r2 — the returned persistence set stays contract-full).
     """
     from shenbi.contracts.loader import ContractError, load_contract, validate_skill_name
 
@@ -762,16 +763,45 @@ def _build_skill_prompt(
                 else:
                     input_texts[fname] = text
 
-    # Collect output paths
+    # Collect output paths. Same resolve-or-skip genesis semantics as the
+    # reads side above: a write/update path carrying an N placeholder with
+    # chapter=None (genesis dispatch) is not part of this dispatch's output
+    # set (e.g. per-chapter audits reports have no genesis instance) — skip
+    # with a WARN instead of raising. Spec #59 T9 follow-up: lifecycle's
+    # audits write made genesis step 9 crash on prompt assembly.
+    if outputs_override is not None:
+        # Genesis dispatch narrows ONLY the prompt instruction (stage-8 r1
+        # I1): the "Files to create" list shows the GenesisStep's declared
+        # output so per-chapter-mode writes (lifecycle's bridge_tracker /
+        # audits) do not leak into genesis instructions. The PERSISTENCE set
+        # below stays the full contract collection — r2 showed narrowing it
+        # silently dropped legit multi-file genesis artifacts (worldbuilding
+        # truth/*.md templates, character cards, decisions sidecars).
+        prompt_outputs: list[str] = list(outputs_override)
+    else:
+        prompt_outputs = []
     output_paths: list[str] = []
     for write_path in contract.get("writes", []):
-        output_paths.append(resolve_contract_path(write_path, chapter, path_context))
+        resolved = resolve_or_skip_ctx(write_path, chapter, path_context)
+        if resolved is None:
+            log.warning("output_path_unresolvable_genesis_skip", skill=skill, path=write_path)
+        else:
+            output_paths.append(resolved)
     for update_path in contract.get("updates", []):
-        output_paths.append(resolve_contract_path(update_path, chapter, path_context))
-
-    # When uses_staging is True, prefix all output paths with staging/
+        resolved = resolve_or_skip_ctx(update_path, chapter, path_context)
+        if resolved is None:
+            log.warning("output_path_unresolvable_genesis_skip", skill=skill, path=update_path)
+        else:
+            output_paths.append(resolved)
+    # When uses_staging is True, prefix all output paths with staging/.
+    # The prompt-instruction fallback below must bind AFTER this so staged
+    # prompts list the prefixed paths the persistence lookup expects (r3 C-1:
+    # binding earlier made the prompt/persistence keys diverge for staged
+    # steps). Override values stay unprefixed — genesis never stages.
     if uses_staging:
         output_paths = [f"staging/{p}" for p in output_paths]
+    if not prompt_outputs:
+        prompt_outputs = output_paths
 
     # Build user prompt
     user_parts = [
@@ -828,10 +858,10 @@ def _build_skill_prompt(
         )
 
     user_parts.append("Files to create:")
-    for p in output_paths:
+    for p in prompt_outputs:
         if "*" not in p:
             user_parts.append(f"- {p}")
-    if len(output_paths) > 1:
+    if len(output_paths) > 1:  # note follows persistence reality (r3 I-2)
         user_parts.append(
             "\nNote: This skill produces multiple files. "
             "Decisions JSON must conform to shenbi-decisions-v1 schema "
@@ -2096,6 +2126,7 @@ def _dispatch_via_api(
     prompt: str,
     uses_staging: bool = False,
     shared_context: Any = None,
+    outputs_override: list[str] | None = None,
 ) -> DispatchResult:
     """Execute a skill via OpenAI-compatible API.
 
@@ -2114,6 +2145,7 @@ def _dispatch_via_api(
         prompt: The prompt text to send to the skill.
         uses_staging: Whether to use staging directories for output paths.
         shared_context: Optional shared context object for prompt building.
+        outputs_override: Explicit output set (genesis dispatch).
     """
     from openai import OpenAI
 
@@ -2141,6 +2173,7 @@ def _dispatch_via_api(
             shared_context=shared_context,
             path_context=path_ctx,
             json_mode=True,
+            outputs_override=outputs_override,
         )
     except Exception as exc:
         return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
@@ -2419,6 +2452,7 @@ def _dispatch_via_ide(
     uses_staging: bool = False,
     shared_context: Any = None,
     state: Any = None,
+    outputs_override: list[str] | None = None,
 ) -> DispatchResult:
     """Execute a skill via an IDE agent CLI (codex / zcode).
 
@@ -2448,6 +2482,7 @@ def _dispatch_via_ide(
             uses_staging=uses_staging,
             shared_context=shared_context,
             path_context=path_ctx,
+            outputs_override=outputs_override,
         )
     except Exception as exc:
         return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
@@ -2680,6 +2715,7 @@ def dispatch_skill(
     shared_context: Any = None,
     state: Any = None,
     path_context: PathContext | None = None,
+    outputs_override: list[str] | None = None,
 ) -> DispatchResult:
     """Dispatch a skill for execution.
 
@@ -2712,6 +2748,8 @@ def dispatch_skill(
             When provided, the ``[path-context]`` carrier line is appended to
             the prompt (visible to the executing LLM as a machine-generated
             echo of the Files-to-create list) and reaches all three routes.
+        outputs_override: Explicit output set forwarded to the API/IDE routes
+            (genesis dispatch: the GenesisStep's declared output_path).
     """
     pd = Path(project_dir)
     if path_context is not None:
@@ -2723,7 +2761,12 @@ def dispatch_skill(
     if os.environ.get(_ENV_LLM_API_KEY):
         return _with_write_audit(
             lambda: _dispatch_via_api(
-                skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
+                skill,
+                pd,
+                prompt,
+                uses_staging=uses_staging,
+                shared_context=shared_context,
+                outputs_override=outputs_override,
             ),
             skill,
             pd,
@@ -2742,6 +2785,7 @@ def dispatch_skill(
                 uses_staging=uses_staging,
                 shared_context=shared_context,
                 state=state,
+                outputs_override=outputs_override,
             ),
             skill,
             pd,

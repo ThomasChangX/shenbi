@@ -16,6 +16,10 @@ contract:
       key: hook_id
 ---
 # DEPRECATED: Superseded by shenbi-foreshadowing-lifecycle (2026-07-19).
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-foreshadowing-lifecycle` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 # This skill is retained for reference. Do not dispatch.
 
 <!-- AUTO-CHECK-START -->
@@ -36,7 +40,7 @@ contract:
 
 # 伏笔追踪
 
-在每章起草并结算状态后，更新 `truth/pending_hooks.md` 中所有活跃伏笔的状态。
+**已退役正文**（历史描述，现行职责由 shenbi-foreshadowing-lifecycle 承接）：历史上面向每章伏笔状态更新。
 > **字段分工**：本 skill 是 `truth/pending_hooks.md` 中 **hook 生命周期状态**（PLANTED→RELEVANT→TRIGGERED→RESOLVED）的**唯一推进者**。`last_reinforced`/`subtlety` 字段由 `shenbi-state-settling` 维护；新增 hook 由 `shenbi-foreshadowing-plant`；兑现由 `shenbi-foreshadowing-resolve`。详见 state-settling 的 pending_hooks 字段分工声明。
 
 ## 流程
@@ -153,7 +157,7 @@ digraph foreshadowing_track {
 
 ## Cross-Volume Bridge Tracking (NEW)
 
-After updating foreshadowing_ledger.md, also check `truth/bridge_tracker.md`:
+(Retired body — historically: after hook ledger updates, bridge tracking applied.) Cross-volume bridge tracking is owned by `shenbi-foreshadowing-lifecycle`:
 
 1. Read the current chapter text
 2. For each bridge in PENDING state: if the chapter contains the bridge's key

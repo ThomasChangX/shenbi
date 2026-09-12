@@ -16,6 +16,10 @@ contract:
   updates: []
 ---
 <!-- DEPRECATED: Superseded by shenbi-review-group-plan (2026-07-19). -->
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-review-group-plan` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 <!-- This skill is retained for reference. Do not dispatch. -->
 
 <!-- AUTO-CHECK-START -->
@@ -36,7 +40,7 @@ contract:
 
 # 伏笔审计
 
-这是条件激活的审计技能。检查伏笔账本兑现、培育间隔合规、距离上限约束、密度预算、支线活跃度。
+**已退役正文**（历史描述，现行职责由 shenbi-review-group-plan 承接）：历史上面向检查伏笔账本兑现、培育间隔合规、距离上限约束、密度预算、支线活跃度。
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 6 或 24 时激活。
 

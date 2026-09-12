@@ -727,6 +727,15 @@
     ],
     "updates": []
   },
+  "audits/chapter-N-foreshadowing.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-foreshadowing-lifecycle",
+      "shenbi-review-foreshadowing",
+      "shenbi-review-group-plan"
+    ],
+    "updates": []
+  },
   "truth/foreshadowing_recall_result.md": {
     "reads": [],
     "writes": [
@@ -906,14 +915,6 @@
     "updates": [
       "shenbi-state-settling"
     ]
-  },
-  "audits/chapter-N-foreshadowing.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-review-foreshadowing",
-      "shenbi-review-group-plan"
-    ],
-    "updates": []
   },
   "audits/chapter-N-motivation.md": {
     "reads": [],

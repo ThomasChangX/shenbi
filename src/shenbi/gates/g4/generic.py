@@ -294,8 +294,7 @@ def gate_G4(
     from shenbi.gates.g4.character_design import g4_character_design
     from shenbi.gates.g4.context_composing import g4_context_composing
     from shenbi.gates.g4.faction_builder import g4_faction_builder
-    from shenbi.gates.g4.foreshadowing_plant import g4_foreshadowing_plant
-    from shenbi.gates.g4.foreshadowing_track import g4_foreshadowing_track
+    from shenbi.gates.g4.foreshadowing_lifecycle import g4_foreshadowing_lifecycle
     from shenbi.gates.g4.genre_config import g4_genre_config
     from shenbi.gates.g4.length_normalizing import g4_length_normalizing
     from shenbi.gates.g4.location_builder import g4_location_builder
@@ -324,8 +323,7 @@ def gate_G4(
         "shenbi-character-design": g4_character_design,
         "shenbi-context-composing": make_composite_checker(g4_context_composing, g4_decisions),
         "shenbi-faction-builder": g4_faction_builder,
-        "shenbi-foreshadowing-plant": g4_foreshadowing_plant,
-        "shenbi-foreshadowing-track": g4_foreshadowing_track,
+        "shenbi-foreshadowing-lifecycle": g4_foreshadowing_lifecycle,
         "shenbi-genre-config": make_composite_checker(g4_genre_config, g4_decisions),
         "shenbi-length-normalizing": g4_length_normalizing,
         "shenbi-location-builder": g4_location_builder,

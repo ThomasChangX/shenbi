@@ -27,6 +27,10 @@ contract:
     key: hook_id
 ---
 # DEPRECATED: Superseded by shenbi-foreshadowing-lifecycle (2026-07-19).
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-foreshadowing-lifecycle` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 # This skill is retained for reference. Do not dispatch.
 
 <!-- AUTO-CHECK-START -->
@@ -47,7 +51,7 @@ contract:
 
 # 伏笔种植
 
-HARD-GATE: 必须在章节备忘完成后、正文起草前执行。根据备忘 hook 账的 open 项种植新伏笔到伏笔池。
+(Retired body, historical HARD-GATE) 必须在章节备忘完成后、正文起草前执行。根据备忘 hook 账的 open 项种植新伏笔到伏笔池。
 
 ## 流程
 

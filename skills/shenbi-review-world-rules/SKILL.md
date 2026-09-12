@@ -19,6 +19,10 @@ contract:
   updates: []
 ---
 <!-- DEPRECATED: Superseded by shenbi-review-group-factual (2026-07-19). -->
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-review-group-factual` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 <!-- This skill is retained for reference. Do not dispatch. -->
 
 <!-- AUTO-CHECK-START -->
@@ -39,7 +43,7 @@ contract:
 
 # 世界规则审计
 
-这是条件激活的审计技能。检查设定冲突、战力体系崩坏、数值一致性、知识库污染。
+**已退役正文**（历史描述，现行职责由 shenbi-review-group-factual 承接）：历史上面向检查设定冲突、战力体系崩坏、数值一致性、知识库污染。
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 3、4、5 或 18 时激活。
 

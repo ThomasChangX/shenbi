@@ -12,6 +12,10 @@ contract:
   updates: []
 ---
 # DEPRECATED: Superseded by shenbi-foreshadowing-lifecycle (2026-07-19).
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-foreshadowing-lifecycle` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 # This skill is retained for reference. Do not dispatch.
 
 <!-- AUTO-CHECK-START -->
@@ -55,7 +59,7 @@ digraph foreshadowing_recall {
 
 1. **确定性阈值过滤** — 最终判定（超期/未超期）由 `recall_overdue_hooks` 纯数值比较决定，不受嵌入不确定性影响
 2. **排除 RESOLVED** — 已解决的伏笔不召回
-3. **输出可溯源** — 每个超期 hook 标注 last_reinformed/max_distance/沉默章数
+3. **输出可溯源** — 每个超期 hook 标注 last_reinforced/max_distance/沉默章数
 
 ## 输出格式
 

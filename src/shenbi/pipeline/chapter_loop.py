@@ -133,7 +133,7 @@ class ChapterStep:
 # snapshot step removed per spec #26 path 3 — differential snapshot
 # subsystem dead-wired, rollback served by shenbi-snapshot-manage skill).
 # Deprecated skills removed: foreshadowing-plant, foreshadowing-track,
-#   foreshadowing-recall, context-composing.
+#   foreshadowing-recall (context-composing remains user-routable, spec #59 T1.4).
 # Merged: 3 foreshadowing skills → shenbi-foreshadowing-lifecycle (MERGE-1).
 # Merged: 7 serial core-circle auditors → domain-grouped calls (MERGE-2).
 # Added: 4 deterministic steps (volume-align, context-prepare, post-draft-extract,
@@ -1580,7 +1580,7 @@ def _run_context_curation(project_dir: Path, chapter: int) -> None:
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
     """Dispatch foreshadowing-resolve if TRIGGERED hooks are detected.
 
-    Reads the foreshadowing-track output (``truth/pending_hooks.md``). If any
+    Reads the foreshadowing-lifecycle output (``truth/pending_hooks.md``). If any
     hooks have ``state: TRIGGERED``, dispatches ``shenbi-foreshadowing-resolve``
     to handle them (spec section 6.1 step 7b). Missing file or no triggered
     hooks are no-ops.
@@ -3197,8 +3197,13 @@ def _run_chapter_step_impl(
             )
             return _handle_failure(state, step, chapter, "gate", project_dir)
 
-    # Conditional: foreshadowing-resolve after foreshadowing-track (step 7b).
-    if "foreshadowing-track" in step.skill:
+    # Conditional: foreshadowing-resolve after foreshadowing-lifecycle (step 7).
+    # NOTE (spec #59 T2 audit): step 7 is unconditionally intercepted by the
+    # parallel post-draft block above (_FORESHADOWING_LIFECYCLE_IDX), so this
+    # serial branch stays unreachable in production — kept for the serial
+    # fallback path; per-chapter conditional resolve via the parallel block is
+    # a known pre-existing gap (recorded in spec #59 deviations).
+    if "foreshadowing-lifecycle" in step.skill:
         _check_conditional_resolve(state, project_dir, chapter)
 
     # After last core-circle audit: genre circle + boundary circle via audit_layer.

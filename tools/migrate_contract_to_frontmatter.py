@@ -202,18 +202,6 @@ CLASSIFICATION: dict[str, dict[str, object]] = {
             "truth/chapter_summaries.md",
         ],
     },
-    "shenbi-foreshadowing-plant": {
-        "kind": "artifact",
-        "reads": ["plans/chapter-N-plan.md", "truth/pending_hooks.md", "genre-config.json"],
-        "writes": [],
-        "updates": ["truth/pending_hooks.md"],
-    },
-    "shenbi-foreshadowing-track": {
-        "kind": "artifact",
-        "reads": ["chapters/chapter-N.md", "truth/pending_hooks.md", "truth/chapter_summaries.md"],
-        "writes": [],
-        "updates": ["truth/pending_hooks.md"],
-    },
     "shenbi-foreshadowing-resolve": {
         "kind": "artifact",
         "reads": ["truth/pending_hooks.md", "truth/chapter_summaries.md"],

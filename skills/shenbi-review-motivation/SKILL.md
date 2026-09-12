@@ -16,6 +16,10 @@ contract:
   updates: []
 ---
 <!-- DEPRECATED: Superseded by shenbi-review-group-character (2026-07-19). -->
+> **RETIRED**: This skill is no longer routed or dispatched. Its coverage moved to
+> `shenbi-review-group-character` (see that skill's SKILL.md). This body is retained for
+> reference only — do not follow its instructions in current pipelines.
+
 <!-- This skill is retained for reference. Do not dispatch. -->
 
 <!-- AUTO-CHECK-START -->
@@ -36,7 +40,7 @@ contract:
 
 # 动机与行为链审计
 
-这是条件激活的审计技能。检查角色行为是否利益驱动、动机是否可信、行为链是否完整。
+**已退役正文**（历史描述，现行职责由 shenbi-review-group-character 承接）：历史上面向检查角色行为是否利益驱动、动机是否可信、行为链是否完整。
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 11 时激活。
 

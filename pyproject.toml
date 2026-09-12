@@ -136,7 +136,6 @@ convention = "google"
 "src/shenbi/gates/g1.py" = ["BLE001"]
 "src/shenbi/gates/g2.py" = ["BLE001"]
 "src/shenbi/gates/g3.py" = ["BLE001"]
-"src/shenbi/gates/g4/foreshadowing_plant.py" = ["BLE001"]
 "src/shenbi/gates/g4/story_architecture.py" = ["BLE001"]
 "src/shenbi/gates/g4/worldbuilding.py" = ["BLE001"]
 "src/shenbi/gates/g6.py" = ["BLE001"]

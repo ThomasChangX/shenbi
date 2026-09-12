@@ -8,7 +8,7 @@ from shenbi.gates import g1
 
 
 def test_g1_4_bak_idempotent(tmp_path):
-    skill = "shenbi-foreshadowing-track"
+    skill = "shenbi-foreshadowing-lifecycle"
     target = tmp_path / "state.md"
     target.write_text("k: v\n", encoding="utf-8")
     args = [str(target)]

@@ -1,6 +1,6 @@
 ---
 name: shenbi-review-group-plan
-description: Grouped audit for plan compliance -- memo compliance and foreshadowing consistency in one call; dispatches as a parallel wave via parallel_dispatch.py
+description: Use when a chapter needs its grouped plan-compliance audit — memo compliance and foreshadowing consistency dimensions.
 requires_independent_agent: true
 contract:
   kind: report

@@ -53,10 +53,35 @@ _BEHAVIORAL_MARKERS = [
 ]
 
 
+# Trigger-phrase openers a compliant description must start with (spec #59 T2.7:
+# beyond the legacy startswith markers, a description that does not open with a
+# trigger phrase reads as behavioral regardless of what follows).
+_TRIGGER_OPENERS = ("use when", "used when", "用于", "使用当")
+
+# A trailing functional clause after an em-dash/double-hyphen in an otherwise
+# trigger-shaped description ("Use when X — guides the design ...").
+_DASH_FUNCTIONAL_RE = re.compile(
+    r"(?:—|--)\s*(?:guides?|establishes?|dispatches?|covers?|building|generates?|"
+    r"writes?|creates?|validates?|checks?|analyzes?|computes?|extracts?)\b",
+    re.IGNORECASE,
+)
+
+
 def _desc_has_behavioral_text(desc: str) -> bool:
-    """True if the description reads as behavioral ('does X') not trigger ('use when Y')."""
+    """True if the description reads as behavioral ('does X') not trigger ('use when Y').
+
+    spec #59 T2.7: beyond the legacy startswith markers, catches (1) openings
+    that are not trigger phrases at all ("Grouped audit for ...") and (2)
+    trailing functional clauses after an em-dash/double-hyphen. Mid-string
+    verbs are deliberately NOT flagged — "Use when generating chapter drafts"
+    is a legitimate trigger form (deviation note in the spec #59 plan).
+    """
     lowered = desc.lstrip().lower()
-    return any(lowered.startswith(m) for m in _BEHAVIORAL_MARKERS)
+    if any(lowered.startswith(m) for m in _BEHAVIORAL_MARKERS):
+        return True
+    if not any(lowered.startswith(t) for t in _TRIGGER_OPENERS):
+        return True
+    return bool(_DASH_FUNCTIONAL_RE.search(desc))
 
 
 def _parse_frontmatter(skill_md: Path) -> dict[str, Any] | None:

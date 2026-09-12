@@ -39,18 +39,16 @@ AUDIT_DIR = "audits"
 # implements that dimension. Values are full ``shenbi-*`` skill names so they
 # can be dispatched directly.
 #
-# Core-circle dimensions (antiAi, character, pacing, continuity, foreshadowing,
-# memoCompliance, pov) are NOT here — they run as chapter_loop fixed steps.
+# Core-circle dimensions are NOT here — they run as chapter_loop fixed steps.
+# Per spec #59 T6 (F905) this includes the six dims formerly matrix-routed
+# (sensitivity/worldRules/motivation/dialogue/texture/readerPull): post-MERGE-2
+# they are covered by the always-scheduled grouped fixed steps (CHAPTER_STEPS
+# 9-14), so genre configs may still set these keys, but they are filtered here
+# and structurally honored via the group waves — no dispatch from this matrix.
 # ---------------------------------------------------------------------------
 GENRE_ACTIVATION_MATRIX: dict[str, str] = {
-    "sensitivity": "shenbi-review-sensitivity",
-    "worldRules": "shenbi-review-world-rules",
-    "motivation": "shenbi-review-motivation",
-    "dialogue": "shenbi-review-dialogue",
-    "texture": "shenbi-review-texture",
     "era": "shenbi-review-era",
     "fanfic": "shenbi-review-fanfic",
-    "readerPull": "shenbi-review-reader-pull",
     "highpoint": "shenbi-review-highpoint",
 }
 
@@ -64,11 +62,21 @@ _CORE_CIRCLE_KEYS = frozenset(
         "foreshadowing",
         "memoCompliance",
         "pov",
+        # spec #59: dims carried by always-scheduled grouped fixed steps
+        # (CHAPTER_STEPS 9-14) — kept as valid config vocabulary, filtered here.
+        "sensitivity",
+        "worldRules",
+        "motivation",
+        "dialogue",
+        "texture",
+        "readerPull",
     }
 )
 
-#: Critical dims that appear in the genre activation matrix (texture only —
-#: antiAi/continuity are core-circle keys). Missing = enabled (criticality split).
+#: Critical dims that appear in the genre activation matrix. texture left the
+#: matrix with the DEPRECATED singleton exit (spec #59 T6) — its criticality is
+#: structurally guaranteed by the always-on group-craft fixed step, so the set
+#: self-empties (comprehension kept for future matrix-routed critical dims).
 _CRITICAL_GENRE_DIMS = frozenset(d for d in ("texture",) if d in GENRE_ACTIVATION_MATRIX)
 
 

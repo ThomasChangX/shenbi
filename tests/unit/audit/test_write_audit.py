@@ -37,32 +37,35 @@ def test_genre_skill_blocked_undeclared_key(tmp_path: Path) -> None:
     assert any("title" in v for v in res.violations)
 
 
-def test_track_skill_allowed_state_change(tmp_path: Path) -> None:
+def test_lifecycle_skill_allowed_state_change_file_level(tmp_path: Path) -> None:
     md = tmp_path / "truth" / "pending_hooks.md"
     md.parent.mkdir(parents=True)
     md.write_text(_hook_md("PLANTED"), encoding="utf-8")
     pre = snapshot_tree(tmp_path, ["truth/pending_hooks.md"])
     md.write_text(_hook_md("RELEVANT"), encoding="utf-8")
     post = snapshot_tree(tmp_path, ["truth/pending_hooks.md"])
-    res = audit_writes("shenbi-foreshadowing-track", pre, post)
+    res = audit_writes("shenbi-foreshadowing-lifecycle", pre, post)
     assert res.violations == ()
     assert res.drift == ()
 
 
-def test_track_skill_blocked_subtlety_change(tmp_path: Path) -> None:
+def test_state_settling_blocked_undeclared_field_change(tmp_path: Path) -> None:
+    """Row semantics survive via the state-settling row: changing a field
+    outside its write_keys is a violation (spec #59 T3 migration).
+    """
     md = tmp_path / "truth" / "pending_hooks.md"
     md.parent.mkdir(parents=True)
     md.write_text(_hook_md("PLANTED"), encoding="utf-8")
     pre = snapshot_tree(tmp_path, ["truth/pending_hooks.md"])
     md.write_text(
         _hook_md("PLANTED").replace(
-            "- id: h1\n  state: PLANTED", "- id: h1\n  state: PLANTED\n  subtlety: 0.9"
+            "- id: h1\n  state: PLANTED", "- id: h1\n  state: PLANTED\n  depth: 0.9"
         ),
         encoding="utf-8",
     )
     post = snapshot_tree(tmp_path, ["truth/pending_hooks.md"])
-    res = audit_writes("shenbi-foreshadowing-track", pre, post)
-    assert any("subtlety" in v for v in res.violations)
+    res = audit_writes("shenbi-state-settling", pre, post)
+    assert any("depth" in v for v in res.violations)
 
 
 def test_cross_section_drift_detected(tmp_path: Path) -> None:
@@ -82,7 +85,7 @@ def test_cross_section_drift_detected(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     post = snapshot_tree(tmp_path, ["truth/pending_hooks.md"])
-    res = audit_writes("shenbi-foreshadowing-track", pre, post)
+    res = audit_writes("shenbi-foreshadowing-lifecycle", pre, post)
     assert any("state" in d and "h1" in d for d in res.drift)
 
 

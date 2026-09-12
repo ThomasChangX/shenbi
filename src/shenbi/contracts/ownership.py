@@ -79,12 +79,6 @@ OWNERSHIP: dict[tuple[str, str], FileOwnership] = {
         level="field", read_keys=frozenset({"tropeInventory"})
     ),
     # pending_hooks.md 分工（state-settling SKILL.md 权威声明；track 服从）
-    ("shenbi-foreshadowing-plant", "truth/pending_hooks.md"): FileOwnership(
-        level="record_create", write_keys=_HOOK_KEYS_NEW_RECORD
-    ),
-    ("shenbi-foreshadowing-track", "truth/pending_hooks.md"): FileOwnership(
-        level="record_field", write_keys=frozenset({"state"})
-    ),
     ("shenbi-foreshadowing-resolve", "truth/pending_hooks.md"): FileOwnership(
         level="record_field", write_keys=frozenset({"state"})
     ),
