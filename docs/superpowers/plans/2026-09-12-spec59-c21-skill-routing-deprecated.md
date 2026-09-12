@@ -423,11 +423,7 @@ grep -rn "foreshadowing-plant\|foreshadowing-track" tests/ --include="*.py" | gr
 git add src/shenbi/gates/g4/foreshadowing_lifecycle.py src/shenbi/gates/g4/generic.py src/shenbi/gates/shared.py src/shenbi/contracts/ownership.py src/shenbi/gates/g5.py src/shenbi/gates/cli.py src/shenbi/contracts/schemas/hooks.py tools/migrate_contract_to_frontmatter.py tests/tiers/deps.json pyproject.toml <全部迁移测试文件>
 git commit -m "feat: G4 lifecycle checker + registration swap across gates/contracts faces (spec #59 T3)"
 ```
-（`pyproject.toml:139` 的 `foreshadowing_plant.py` BLE001 per-file-ignore 随模块删除一并清；`schemas/hooks.py` 权威源改指时其行号引用（`:72-73,:120`）改为去行号或按 lifecycle 实况）
-
-```bash
-git commit -m "feat: G4 lifecycle checker + registration swap across gates/contracts faces (spec #59 T3)"
-```
+（`pyproject.toml:139` 的 `foreshadowing_plant.py` BLE001 per-file-ignore 随模块删除一并清；`schemas/hooks.py` 权威源改指时其行号引用（`:72-73,:120`）改为去行号或按 lifecycle 实况；checker 实现时六规范态词表从 `HookState` 枚举派生、仅 recall 三词（DORMANT/ACTIVE/ABANDONED）字面量——守单一信源约束）
 
 ---
 
@@ -512,7 +508,7 @@ git commit -m "fix: using-shenbi trigger table drops 14 DEPRECATED routes, succe
 - Test: `tests/unit/test_lint_repo_consistency.py`（真仓终态断言已随 T1 落，此处回归复跑）
 
 - [ ] **Step 1: 消费方回归**——`uv run pytest tests/unit -q -k "phase or deps or g5 or tier"`（phase_runner:296/:384 数据驱动消费 prerequisites，删成员不炸硬编码——回归确认）+ `uv run python tools/lint_repo_consistency.py` → 绿
-- [ ] **Step 2: 陈旧 tier 输入**——五处 scenario 指令更新到现行链路：drafting seed/rubric（track→lifecycle；rubric.md:26 的陈旧产物名 truth/foreshadowing_tracker.md 一并改为 truth/pending_hooks.md——机械替换会留错名）、planning seed/rubric（plant→lifecycle）、t3 long-form seed 两行（plant→lifecycle、track→lifecycle）；**t1-skill 场景目录裁决**：`tests/tiers/t1-skill/shenbi-foreshadowing-{plant,track,recall}/` 是退役技能的 T1 测试资产（验收 1 grep 范围外）——本 spec 保留为 legacy 资产（物理删除不在 spec 范围，与技能目录同处置），理由记 spec-deviations；`grep -rn "foreshadowing-plant\|foreshadowing-track\|foreshadowing-recall" tests/tiers/` → t1-skill legacy 目录与迁移映射类合法旧名之外零命中
+- [ ] **Step 2: 陈旧 tier 输入**——五处 scenario 指令更新到现行链路：drafting seed/rubric（track→lifecycle；rubric.md:26 的陈旧产物名 truth/foreshadowing_tracker.md 一并改为 truth/pending_hooks.md——机械替换会留错名）、planning seed/rubric（plant→lifecycle）、t3 long-form seed 两行（plant→lifecycle、track→lifecycle）；**t1-skill 场景目录裁决**：`tests/tiers/t1-skill/shenbi-foreshadowing-{plant,track,recall}/` 是退役技能的 T1 测试资产（验收 1 grep 范围外）——本 spec 保留为 legacy 资产（物理删除不在 spec 范围，与技能目录同处置），理由记 spec-deviations；`grep -rn "foreshadowing-plant\|foreshadowing-track\|foreshadowing-recall" tests/tiers/` → 残留命中全部落在 `tests/tiers/t1-skill/` 树内（legacy 场景资产，含 using-shenbi/bug-hunt 与 review-* bug-hunt 输入）——树外零命中
 - [ ] **Step 3: 验证 + commit**
 
 Run: `uv run pytest tests/unit/test_lint_repo_consistency.py -v` → passed
@@ -713,7 +709,7 @@ git commit -m "fix: rewrite behavioral descriptions to when-to-use form (spec #5
 - Test: `just lint-contracts`（R1/R2 闭包）+ `uv run pytest tests/contracts -q`
 
 - [ ] **Step 1: (b)** — `cp skills/shenbi-foreshadowing-track/lifecycle-states.md skills/shenbi-foreshadowing-lifecycle/`、`cp skills/shenbi-foreshadowing-plant/hook-types.md skills/shenbi-foreshadowing-lifecycle/`；SKILL.md :64 `（see lifecycle-states.md）` 与 :108 `Full type/dimension/curve/subtlety lookup table in hook-types.md.` 引用路径不变（现落本目录）
-- [ ] **Step 2: (c)** — :84 `Set initial lifecycle_state to ACTIVE` → `Set initial lifecycle_state to PLANTED`（:161 示例与 :65 状态机起点本就是 PLANTED——正名对齐规范六态；G4 lifecycle checker 的 non_canonical_state:ACTIVE 检查（T3）同步闭环）；**范围裁定（plan 审查轮 5）**：:50/:59/:150 的 DORMANT/ACTIVE/ABANDONED 是合并技能的 recall 阶段设计词表（lifecycle-states.md :15-19 状态机）——**保留不改**，与 F815(c) 的初始态矛盾面（:84 创建时初值）正交；canonical HookState 解析器对扩展词折叠 None 是既有张力，出本 spec 范围记 spec-deviations；**另修 genesis 模式措辞**（plan 审查轮 2 M3）：:115 `**writes**: same as default mode (truth/pending_hooks.md)` → `**updates**: truth/pending_hooks.md via append_dedup（同默认模式）；genesis 不触 bridge_tracker.md`——与 frontmatter（updates 含 pending_hooks、writes 含 bridge_tracker+audits）对齐
+- [ ] **Step 2: (c)** — :84 `Set initial lifecycle_state to ACTIVE` → `Set initial lifecycle_state to PLANTED`（:161 示例与 :65 状态机起点本就是 PLANTED——正名对齐规范六态；与 T3 checker 的 recall 词表裁定正交（见 T3 r5 注记））；**范围裁定（plan 审查轮 5）**：:50/:59/:150 的 DORMANT/ACTIVE/ABANDONED 是合并技能的 recall 阶段设计词表（lifecycle-states.md :15-19 状态机）——**保留不改**，与 F815(c) 的初始态矛盾面（:84 创建时初值）正交；canonical HookState 解析器对扩展词折叠 None 是既有张力，出本 spec 范围记 spec-deviations；**另修 genesis 模式措辞**（plan 审查轮 2 M3）：:115 `**writes**: same as default mode (truth/pending_hooks.md)` → `**updates**: truth/pending_hooks.md via append_dedup（同默认模式）；genesis 不触 bridge_tracker.md`——与 frontmatter（updates 含 pending_hooks、writes 含 bridge_tracker+audits）对齐
 - [ ] **Step 3: (d)** — frontmatter `writes:` 增条目（audits 输出为每章新文件）：
 ```yaml
   writes:
