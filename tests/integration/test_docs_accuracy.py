@@ -58,9 +58,9 @@ REPO_PREFIXES = (
     "scripts/",
     ".github/",
     ".codex-plugin/",
-    "contracts/",
+    # plans/ 仓库根不存在，但既有 ALLOWED_MISSING 条目（plans/chapter-N-plan.md）
+    # 依赖其严格校验语义，保留（audit-T7 I 裁决）
     "plans/",
-    "examples/",
 )
 
 
