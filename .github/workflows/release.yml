@@ -10,6 +10,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history + tags：changelog range 与 SBOM 均需（spec #63 audit-T5 C-3）
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
