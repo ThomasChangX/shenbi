@@ -8,7 +8,9 @@ from pathlib import Path
 from shenbi.config.thresholds import DEFAULT_THRESHOLDS
 from shenbi.gates.g0_config_coherence import check_config_coherence
 
-PRODUCTION_DIR = Path("novel-output/xinghuo-ranqiong")
+# 生产树 novel-output/xinghuo-ranqiong 已出库（spec #63 T1504）；此为出库前
+# verbatim 副本（G0.9 真实产物，provenance：原产树 xinghuo-ranqiong，2026-09-13）。
+PRODUCTION_DIR = Path(__file__).resolve().parents[3] / "tests/fixtures/production-config"
 
 
 def test_production_texture_is_enabled():

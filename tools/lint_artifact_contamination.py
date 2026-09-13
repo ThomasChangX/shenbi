@@ -24,8 +24,9 @@ Exemptions: ``tools/artifact-lint-exemptions.json`` maps check name to a
 list of ``{"path": ..., "reason": ...}`` entries (paths relative to the
 linted tree). Exempted findings are skipped and do not count as hits.
 
-Exit codes: 0 when no non-exempt findings; 1 when there are; 2 on usage
-errors (missing tree, malformed exemption entries).
+Exit codes: 0 when no non-exempt findings (default tree absent = skip-0,
+spec #63 T1504); 1 when there are findings; 2 on usage errors (explicitly
+passed missing tree, malformed exemption entries).
 ``--baseline-out FILE`` writes the full finding list *including*
 exempt-marked entries (``"exempt": true``) as JSON for before/after
 comparison and exemption-bookkeeping reconciliation.
@@ -281,6 +282,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if not args.tree.is_dir():
+        if args.tree == DEFAULT_TREE:
+            # novel-output checked out of git (spec #63 T1504): default tree
+            # absent = nothing to lint (skip). Explicit --tree still errors.
+            name = getattr(args.tree, "name", args.tree)
+            print(f"artifact-contamination: default tree {name} absent - nothing to lint (skip)")
+            return 0
         print(f"error: tree does not exist: {args.tree}", file=sys.stderr)
         return 2
 

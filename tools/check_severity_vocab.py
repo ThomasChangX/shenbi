@@ -97,6 +97,11 @@ def main(argv: list[str] | None = None) -> int:
     """Print the out-of-vocab severity rate; exit 1 iff any value escapes."""
     argv = argv if argv is not None else sys.argv[1:]
     tree = Path(argv[0]) if argv else REPO_ROOT / "novel-output"
+    if not tree.exists():
+        # novel-output checked out of git (spec #63 T1504): default tree
+        # absent = nothing to scan (skip). Explicit arg still raises.
+        print(f"severity-vocab: tree {tree} absent - nothing to scan (skip)")
+        return 0
     values = collect_severities(tree)
     out_of_vocab = [
         v for v in values if v not in LEGAL and LEGACY_SEVERITY.get(v.lower(), v) not in LEGAL

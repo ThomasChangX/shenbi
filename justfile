@@ -111,10 +111,11 @@ docs:
 build:
     uv build
 
-# Clean all build artifacts
+# Clean all build artifacts (tracked .gitkeep preserved — spec #63 F1039)
 clean:
     rm -rf dist/ build/ src/shenbi.egg-info/
-    rm -rf tests/coverage/ site/ .cache/
+    mkdir -p tests/coverage && find tests/coverage -mindepth 1 ! -name .gitkeep -delete
+    rm -rf site/ .cache/
     rm -rf .pytest_cache .ruff_cache .mypy_cache .basedpyright_cache
 
 # Pre-commit run on all files
