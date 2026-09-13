@@ -1,0 +1,1444 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-06-c29-truncation-observability/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>C29 截断/采样/排序可观测性 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="C29 截断/采样/排序可观测性 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-06-c29-truncation-observability.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-06-c29-truncation-observability/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="C29 截断/采样/排序可观测性 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-06-c29-truncation-observability.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#c29-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              C29 截断/采样/排序可观测性 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-r1-f361-f330-f362" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: R1 截断标记协议 + 预算回补（F361 + F330 + F362）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-r2-f459-f235" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: R2 字符截取采样披露（F459 + F235）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-r2b-f459" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: R2b 计数型采样披露 + 采样策略成文（F459 补全面）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-r3-f326" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: R3 章号数值排序（F326）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-r4-replay-warnf620" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: R4 replay 截断 WARN（F620）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="c29-implementation-plan">C29 截断/采样/排序可观测性 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 一切输入截断、检查面采样、章号排序都留痕可审计（spec #43 C29，8 条 findings：F361/F330/F362/F459/F235/F326/F620 + T1615 观测）。</p>
+<p><strong>Architecture:</strong> 纯函数层加披露元数据（截断 meta / sampled 标志），调用方落 structlog WARN 并把披露字段写进 gate 结果 JSON；排序经单一 numeric 章号 key helper 替换三处字典序调用点。无新依赖、无 schema 破坏（gate 结果为加键）。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pydantic / structlog / pytest（fixtures 驱动，无真实 dispatch）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>全部 task 均为 <strong>infra</strong>（触及 <code>src/shenbi/pipeline/</code>、<code>gates/</code>、<code>trace/</code>）→ 协调者亲自实现，不分派 implementer 子 agent；每 task commit 后必须产出 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>（fresh-context 全量重审）</li>
+<li>框架纯度：<code>src/shenbi/</code> 禁 <code>print()</code>，用 structlog；gate 检查器保持纯函数幂等（写结果 JSON 字段可以，写文件不行）</li>
+<li>G0.9：新 fixture 一律由 <code>tests/fixtures/</code> 真实产物拼接/派生（测试内生成器），禁手写 mock 内容</li>
+<li>验证命令走 <code>uv run</code> / <code>just</code>（与 CI 同构）；禁止真实 <code>shenbi-dispatch</code> / <code>pipeline</code> 子命令</li>
+<li>状态字面量不新增（无新 Literal）；conventional commits</li>
+</ul>
+<hr />
+<h3 id="task-1-r1-f361-f330-f362">Task 1: R1 截断标记协议 + 预算回补（F361 + F330 + F362）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:314-337</code>（<code>_budgeted_truncate</code>）及调用点 <code>:728</code>
+- Modify: <code>src/shenbi/pipeline/audit_context_cache.py:96-98</code>（pending_hooks 截断）
+- Test: <code>tests/pipeline/test_budgeted_truncate.py</code>（扩展；<strong>既有 2 个调用 <code>_budgeted_truncate</code> 的测试须同步改写</strong>——返回值从 dict 变 tuple，<code>result.get(...)</code> 改为解包后取 texts（<code>test_priority_weights_exist_for_all_keys</code> 不调用该函数，不动））</p>
+<p><strong>Interfaces:</strong>
+- Produces:
+  <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TruncateRecord</span><span class="p">:</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">original_len</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">kept_len</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># 0（现实现只做头部截取）</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_budgeted_truncate</span><span class="p">(</span>
+    <span class="n">input_texts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">budget</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">TruncateRecord</span><span class="p">]]</span>  <span class="c1"># (texts_with_marker, records)</span>
+</code></pre></div>
+  标记格式：<code>"\n\n[TRUNCATED {kept}/{orig} chars]"</code>，<strong>在 per-file cap 切片之后追加</strong>（永不被切掉）。调用方对每条 record 发一条 structlog WARN（event <code>input_truncated</code>，含 file/original_len/kept_len）。</p>
+<ul>
+<li>[ ] <strong>Step 0: 被动基线（spec 最小实证前置）</strong></li>
+</ul>
+<p>Run: <code>grep -rn "input_over_budget_applying_priority_truncation\|\[\.\.\. truncated from" .superpowers tests/rounds 2&gt;/dev/null | head -20</code>（若仓内无既有 round 日志 → 0 命中，记 deviation 供用户裁决，不阻塞——测试驱动的功能验收独立成立）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/pipeline/test_budgeted_truncate.py 追加（同时改写既有 2 个调用方测试为 tuple 解包；import 处补 `_INPUT_MAX_CHARS_TOTAL, _INPUT_MAX_CHARS_PER_FILE`）</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_marker_survives_per_file_cap</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;F361: 标记必须在 cap 切片之后追加，不可被 32K cap 切掉。&quot;&quot;&quot;</span>
+    <span class="n">huge</span> <span class="o">=</span> <span class="s2">&quot;A&quot;</span> <span class="o">*</span> <span class="mi">60000</span>  <span class="c1"># allocation 会 &gt; 32000 的超长文件</span>
+    <span class="n">texts</span><span class="p">,</span> <span class="n">records</span> <span class="o">=</span> <span class="n">_budgeted_truncate</span><span class="p">({</span><span class="s2">&quot;chapter-N.md&quot;</span><span class="p">:</span> <span class="n">huge</span><span class="p">},</span> <span class="n">_INPUT_MAX_CHARS_TOTAL</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">texts</span><span class="p">[</span><span class="s2">&quot;chapter-N.md&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">out</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;] chars]&quot;</span><span class="p">)</span>  <span class="c1"># 标记在末尾存活</span>
+    <span class="k">assert</span> <span class="s2">&quot;[TRUNCATED &quot;</span> <span class="ow">in</span> <span class="n">out</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_len</span> <span class="o">==</span> <span class="mi">60000</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_budget_surplus_redistributed</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;F330: 短文件余量回补给被截断文件，且不越过 per-file cap。&quot;&quot;&quot;</span>
+    <span class="n">texts</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter-N.md&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span> <span class="o">*</span> <span class="mi">40000</span><span class="p">,</span>      <span class="c1"># HIGH，配额 16667 会被截</span>
+        <span class="s2">&quot;archive-notes.md&quot;</span><span class="p">:</span> <span class="s2">&quot;Y&quot;</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>   <span class="c1"># LOW，配额 3333 只用 1000 → 余量 2333</span>
+    <span class="p">}</span>
+    <span class="n">out</span><span class="p">,</span> <span class="n">records</span> <span class="o">=</span> <span class="n">_budgeted_truncate</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+    <span class="n">kept</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">kept_len</span>
+    <span class="c1"># 纯按权重分配 = 16667；回补后必须超过它（16667 + 2333 ≈ 19000）</span>
+    <span class="k">assert</span> <span class="n">kept</span> <span class="o">&gt;</span> <span class="mi">17000</span>
+    <span class="c1"># 回补不得越过 cap</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;chapter-N.md&quot;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">_INPUT_MAX_CHARS_PER_FILE</span> <span class="o">+</span> <span class="mi">64</span>  <span class="c1"># +标记长度余量</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_truncation_no_records</span><span class="p">():</span>
+    <span class="n">texts</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;a.md&quot;</span><span class="p">:</span> <span class="s2">&quot;short&quot;</span><span class="p">}</span>
+    <span class="n">out</span><span class="p">,</span> <span class="n">records</span> <span class="o">=</span> <span class="n">_budgeted_truncate</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">records</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">out</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;a.md&quot;</span><span class="p">:</span> <span class="s2">&quot;short&quot;</span><span class="p">}</span>
+</code></pre></div>
+<p>（&gt;32K 输入由测试内 <code>"A" * 60000</code> 合成字符构成——这是对纯函数的输入，非 skill 产物 fixture，G0.9 不适用；dispatch 集成面用 Step 4 structlog capture 断言。）</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/pipeline/test_budgeted_truncate.py -q</code>
+Expected: 新测试 FAIL（返回值仍是 dict、无标记存活保证）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_budgeted_truncate</span><span class="p">(</span><span class="n">input_texts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">budget</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">TruncateRecord</span><span class="p">]]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">input_texts</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{},</span> <span class="p">[]</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">_get_priority</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">input_texts</span><span class="p">}</span>
+    <span class="n">total_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="c1"># Pass 1: proportional allocation</span>
+    <span class="n">alloc</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">budget</span> <span class="o">*</span> <span class="n">w</span> <span class="o">/</span> <span class="n">total_weight</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">kept</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">input_texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">kept</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">alloc</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">_INPUT_MAX_CHARS_PER_FILE</span><span class="p">))</span>
+    <span class="c1"># Pass 2 (F330): redistribute surplus from files allocated more than they need</span>
+    <span class="n">surplus</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">alloc</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">_INPUT_MAX_CHARS_PER_FILE</span><span class="p">)</span> <span class="o">-</span> <span class="n">kept</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">input_texts</span><span class="p">)</span>
+    <span class="c1"># 补给循环：只补给仍被截的文件，按权重降序（HIGH 先得）</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">input_texts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="o">-</span><span class="n">weights</span><span class="p">[</span><span class="n">n</span><span class="p">]):</span>
+        <span class="n">need</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_texts</span><span class="p">[</span><span class="n">name</span><span class="p">]),</span> <span class="n">_INPUT_MAX_CHARS_PER_FILE</span><span class="p">)</span> <span class="o">-</span> <span class="n">kept</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">need</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">surplus</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">give</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">need</span><span class="p">,</span> <span class="n">surplus</span><span class="p">)</span>
+            <span class="n">kept</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="n">give</span>
+            <span class="n">surplus</span> <span class="o">-=</span> <span class="n">give</span>
+    <span class="c1"># Pass 3: build outputs — 标记在 cap 切片之后追加（F361 修复）</span>
+    <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TruncateRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">input_texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">kept</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span><span class="p">[:</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">[TRUNCATED </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span><span class="si">}</span><span class="s2"> chars]&quot;</span>
+            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TruncateRecord</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">original_len</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="n">kept_len</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">records</span>
+</code></pre></div>
+调用点（dispatch_helper.py:723-741）改两处：
+1. 超预算路径 <code>:728</code>：<code>input_texts, trunc_records = _budgeted_truncate(...)</code>，随后
+   <div class="highlight"><pre><span></span><code><span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">trunc_records</span><span class="p">:</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;input_truncated&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">rec</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="n">original_len</span><span class="o">=</span><span class="n">rec</span><span class="o">.</span><span class="n">original_len</span><span class="p">,</span> <span class="n">kept_len</span><span class="o">=</span><span class="n">rec</span><span class="o">.</span><span class="n">kept_len</span><span class="p">)</span>
+</code></pre></div>
+2. <strong>欠预算路径 <code>:733-741</code>（F361 主形态——per-file cap 静默截断）</strong>：dict comprehension 改为循环，超过 <code>_INPUT_MAX_CHARS_PER_FILE</code> 的文件走同一标记格式 + 同一 <code>input_truncated</code> WARN（抽一个模块内小 helper <code>_cap_single(text: str, fname: str) -&gt; str</code> 复用标记与 log）。
+摘除 <code>:314</code> 行过时的 <code># pyright: ignore[reportUnusedFunction]</code>。audit_context_cache.py:97 改为：
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3000</span><span class="p">:</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="n">pending_hooks</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[:</span><span class="mi">3000</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">[TRUNCATED 3000/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span><span class="si">}</span><span class="s2"> chars]&quot;</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;pending_hooks_truncated&quot;</span><span class="p">,</span> <span class="n">original_len</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">))</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="n">pending_hooks</span> <span class="o">=</span> <span class="n">raw</span>
+</code></pre></div>
+（logger 已存在于模块 <code>:13</code> <code>log = get_logger(__name__)</code>，无需新增；<code>_summarize_if_large</code> 的旧标记同步改为新哨兵格式保持一致。）</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + structlog capture</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/pipeline/test_budgeted_truncate.py -q</code> → PASS；补一条用 <code>caplog</code>/structlog 捕获断言 <code>input_truncated</code> WARN 的测试（调 <code>_budgeted_truncate</code> 的调用方逻辑可经直接调用 helper 后手动复现 log 行，或对 <code>_summarize_if_large</code> 场景断言）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>src/shenbi/pipeline/audit_context_cache.py<span class="w"> </span>tests/pipeline/test_budgeted_truncate.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: C29 R1 truncation marker protocol — cap-proof sentinel, surplus redistribution, WARN logs (F361/F330/F362)&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: audit-T1.md</strong>（fresh-context 子 agent 全量重审本 task 改动文件）</li>
+</ul>
+<hr />
+<h3 id="task-2-r2-f459-f235">Task 2: R2 字符截取采样披露（F459 + F235）</h3>
+<p><strong>Files:</strong>
+- Create: helper 于 <code>src/shenbi/gates/shared.py</code>
+- Modify: <code>src/shenbi/gates/g5.py:154,189</code>、<code>src/shenbi/gates/g6.py:224,234,291</code>、<code>src/shenbi/gates/g6_checks.py:37</code> 及 <code>_chapter_text(ch, 3000)</code> 两处调用（:70/:89，属 <strong>G6.4 check_continuity</strong> 双 pass——直接改 <code>_chapter_text</code> 内部走 <code>clip_with_disclosure</code> 并向调用方回传 sampled，聚合进 <strong>G6.4</strong> check dict；G6.10 <code>check_style_consistency</code> 读全文无字符截取，不在改面）（g5.py:187 属计数型采样，归 Task 3，不在本 task）
+- Modify: <code>src/shenbi/gates/g4/genre_config.py:38-48</code>（全量错误计数）
+- Modify: <code>src/shenbi/gates/g7.py:186-194</code>（G7.13 重跑分支透传 sampling_disclosed）
+- Test: <code>tests/unit/gates/test_sampling_disclosure.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces（<code>src/shenbi/gates/shared.py</code>）:
+  <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clip_with_disclosure</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return (text[:limit], sampled_flag). Pure, no side effects.&quot;&quot;&quot;</span>
+</code></pre></div>
+  各 check dict 加键 <code>"input_sampled": True</code>（仅发生过截取时加；未截取不加，保持输出精简）。顶层 <code>sampling_disclosed</code> 机制：<code>GateResult</code> TypedDict（<code>src/shenbi/status.py:85</code>，total=False）加可选键 <code>sampling_disclosed: str</code>；<code>gate_G5</code>/<code>gate_G6</code> 在最终 <code>passed()/fail()</code> 前聚合 checks 计算 <code>"n/m checks ran on sampled input"</code>——实现方式：两个 gate 函数结尾改为先构造 <code>result: GateResult</code> dict、加键、再 <code>json.dumps</code>（不走 <code>passed()</code> 的固定形状；或给 <code>shared.py</code> 加可选参数 <code>extra: GateResult | None = None</code> 合并——实现时任选其一，禁止改 <code>passed()/fail()</code> 既有调用方语义）。schema 文档同步：<code>docs/framework/gates.md</code> 增补 <code>sampling_disclosed</code>/<code>input_sampled</code> 字段说明（C8 词表单源协同）。
+- 消费方（dead-wire 防护，<strong>接真实读方</strong>）：<code>gates/g7.py:186-199</code>（G7.13 重跑 gate_G6 比对结果的真实消费点）——重跑循环中<strong>收集</strong>每次 <code>rerun.get("sampling_disclosed")</code> 非 None 的值（跨多个 marker 聚合，不只留最后一个），循环后<strong>扩写既有</strong> <code>c.append({"id": "G7.13", "s": PASS, "note": ...})</code> 的 note（g7.py:197-199）：拼接聚合到的全部 <code>sampling_disclosed</code>（<strong>不新增第二条 G7.13 check</strong>，避免重复 check dict）；<code>write_gate_marker</code> 持久化的 PASS JSON 自带该字段（操作员/G7 可见）。<strong>不要接 audit_layer</strong>（它只跑 G4，看不到该字段——plan review C3）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong> — 用 <code>tests/fixtures/chapter-10-draft.md</code> 拼接成 &gt;5000 字临时文件（tmp_path + 真实产物内容复制，G0.9 合规），对 <code>clip_with_disclosure</code> 断言 <code>(prefix, True)</code>；对 <code>check_continuity</code>（g6_checks）传 chapter fixture 列表断言结果 violations 之外的 check 元数据含 <code>input_sampled</code>；genre_config 用真实 <code>tests/fixtures</code> 下 genre/JSON 配置构造 ValidationError 场景断言 mf 含 <code>+N more</code> 计数行</li>
+<li>[ ] <strong>Step 2:</strong> <code>uv run pytest tests/unit/gates/test_sampling_disclosure.py -q</code> → FAIL</li>
+<li>[ ] <strong>Step 3:</strong> 实现 helper + 八处 <code>[:3000]</code>/<code>[:5000]</code> 改 <code>text, sampled = clip_with_disclosure(...)</code>（g6.py:234 为内联 <code>cp in ...[:5000]</code> 形态：先绑定 <code>text, sampled</code> 再做 membership，sampled 聚合进 G6.8 check dict），check dict 条件加键；genre_config 改为：
+  <div class="highlight"><pre><span></span><code><span class="n">errors</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">errors</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">err</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
+    <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.gc.</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">gc_path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">err</span><span class="p">[</span><span class="s1">&#39;loc&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">err</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+    <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.gc.</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">gc_path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: +</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">5</span><span class="si">}</span><span class="s2"> more errors (total </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+</code></pre></div>
+  gate_G5/gate_G6 顶层聚合 <code>"sampling_disclosed"</code> 摘要；audit_layer 接线如上</li>
+<li>[ ] <strong>Step 4:</strong> 同命令 → PASS</li>
+<li>[ ] <strong>Step 5:</strong> <code>git add</code> 列出的文件，commit <code>feat: C29 R2 sampling disclosure — clip_with_disclosure, input_sampled fields, genre-config full error count (F459/F235)</code></li>
+<li>[ ] <strong>Step 6:</strong> audit-T2.md</li>
+</ul>
+<hr />
+<h3 id="task-3-r2b-f459">Task 3: R2b 计数型采样披露 + 采样策略成文（F459 补全面）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g5.py:147,152,187,199</code>、<code>src/shenbi/gates/g6.py:223,233,294</code>
+- Create: <code>docs/framework/sampling-policy.md</code>
+- Test: <code>tests/unit/gates/test_sampling_disclosure.py</code>（扩展）</p>
+<p><strong>Interfaces:</strong>
+- Produces: check dict 键 <code>files_sampled: "3/12"</code>（输入文件型：g5:147/152/187、g6:223）；<code>findings_capped: "10/N"</code>（输出封顶型：g5:199 conflicts、g6:233 catchphrases、g6:294 constraints）。分母 N 为截取前列表全长。
+- [ ] <strong>Step 1:</strong> 失败测试 — tmp_path 下由真实 fixture 复制 &gt;12 个 outline md，跑 G5.3（经 <code>gate_G5</code> 或直接内层函数）断言 check 含 <code>files_sampled</code> 且分母正确
+- [ ] <strong>Step 2:</strong> 跑 → FAIL
+- [ ] <strong>Step 3:</strong> 实现：各截取点改 <code>lst[:n]</code> → 先 <code>total = len(lst); capped = lst[:n]</code>，check dict 加对应键；写 <code>docs/framework/sampling-policy.md</code>（表格：check id / 采样点 / 量 / 理由，覆盖 R2 的 [:3000]/[:5000] 与本 task 全部计数点）
+- [ ] <strong>Step 4:</strong> 跑 → PASS
+- [ ] <strong>Step 5:</strong> commit <code>feat: C29 R2b count-sampling disclosure + sampling policy doc</code>
+- [ ] <strong>Step 6:</strong> audit-T3.md</p>
+<hr />
+<h3 id="task-4-r3-f326">Task 4: R3 章号数值排序（F326）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（helper 定义）+ <code>src/shenbi/pipeline/cli.py:928</code>、<code>chapter_loop.py:391</code>、<code>src/shenbi/gates/g6.py:68</code>（g6 侧用<strong>惰性 import</strong>，先例 g6.py:124，避免把 pipeline 重依赖图拉进 gates 顶层）
+- Test: <code>tests/unit/pipeline/test_chapter_sort.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces:
+  <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">chapter_sort_key</span><span class="p">(</span><span class="n">name_or_num</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;`chapter-10.md` / `10` / Path → (10, 原字符串)；非数字稳定排后。&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name_or_num</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+)&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">s</span><span class="p">)</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="mi">9</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+</code></pre></div>
+  （<code>str()</code> 先转——g6.py:68 传入的是 Path 对象。）
+- [ ] <strong>Step 1:</strong> 失败测试 — 用 <code>tests/fixtures/chapter-{2..10}-draft.md</code>（9 个真实稿全存在）文件名列表断言 <code>sorted(names, key=chapter_sort_key)</code> 为 2,3,…,10；对 <code>cmd_chapters</code> 构造含 <code>"10"</code>/<code>"2"</code> 键的 chapter_states（真实 state 数据结构，pydantic model 构造）断言输出顺序
+- [ ] <strong>Step 2:</strong> → FAIL（现行字典序 10 在 2 前）
+- [ ] <strong>Step 3:</strong> 三处 <code>sorted(...)</code> 加 <code>key=chapter_sort_key</code>（cli.py:928 对 items 的 key 元素取 <code>chapter_sort_key(kv[0])</code>；g6.py:68 <code>sorted(ch_dir.glob("chapter-*.md"), key=chapter_sort_key)</code>；chapter_loop.py:391 同理）
+- [ ] <strong>Step 4:</strong> → PASS
+- [ ] <strong>Step 5:</strong> commit <code>fix: C29 R3 numeric chapter sort across cli/audit-history/G6 traversal (F326)</code>
+- [ ] <strong>Step 6:</strong> audit-T4.md</p>
+<hr />
+<h3 id="task-5-r4-replay-warnf620">Task 5: R4 replay 截断 WARN（F620）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/trace/replay.py:20-49</code>
+- Test: <code>tests/unit/trace/test_replay.py</code>（扩展，沿用既有 TraceWriter fixture 构造法）</p>
+<p><strong>Interfaces:</strong> <code>replay(round_dir: Path) -&gt; list[TraceEvent]</code> 签名不变；新增行为：torn line / signature gap 截断时 <code>log.warning("replay_truncated", path=str(path), kept_chars=keep_chars, dropped_chars=len(raw) - keep_chars, kept_events=len(out), drop_reason=reason)</code>（reason ∈ {"torn_line", "signature_gap"}；行号范围由 kept_chars/内容长度可推，如需精确可在循环中记最后有效行号），模块顶部 <code>from shenbi.logging import get_logger</code> + <code>log = get_logger(__name__)</code>（仓内规范 import，非 structlog 直引）。
+- [ ] <strong>Step 1:</strong> 失败测试 — 复用既有 <code>test_replay_truncates_torn_tail</code> 构造法（TraceWriter 写合法链 + 追加撕裂行），structlog capture 断言 <code>replay_truncated</code> WARN 含 dropped_chars&gt;0，且返回事件数正确
+- [ ] <strong>Step 2:</strong> → FAIL
+- [ ] <strong>Step 3:</strong> 实现（两个 <code>break</code> 点改为记录 reason 后 break，函数尾部 <code>if keep_chars &lt; len(raw):</code> 处发 WARN 再 <code>safe_write</code>）
+- [ ] <strong>Step 4:</strong> → PASS
+- [ ] <strong>Step 5:</strong> commit <code>feat: C29 R4 replay truncation WARN with dropped-byte accounting (F620)</code>
+- [ ] <strong>Step 6:</strong> audit-T5.md</p>
+<hr />
+<h2 id="_1">验收覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1 标记/WARN/回补</td>
+<td>T1</td>
+<td><code>uv run pytest tests/pipeline/test_budgeted_truncate.py -q</code></td>
+</tr>
+<tr>
+<td>被动基线</td>
+<td>T1 Step 0</td>
+<td>grep 既有信号，输出记 progress.md</td>
+</tr>
+<tr>
+<td>R2 input_sampled + schema 同步</td>
+<td>T2</td>
+<td><code>uv run pytest tests/unit/gates/test_sampling_disclosure.py -q</code> + <code>just gate G6 &lt;pipeline&gt; &lt;round&gt; &lt;project&gt;</code> 抽查（fixture round）</td>
+</tr>
+<tr>
+<td>R2b files_sampled + policy 文档</td>
+<td>T3</td>
+<td>同上测试 + <code>ls docs/framework/sampling-policy.md</code></td>
+</tr>
+<tr>
+<td>R3 排序</td>
+<td>T4</td>
+<td><code>uv run pytest tests/unit/pipeline/test_chapter_sort.py -q</code> + fixture round 下 <code>uv run shenbi-pipeline chapters</code> 人工核对 2..10</td>
+</tr>
+<tr>
+<td>R4 replay WARN</td>
+<td>T5</td>
+<td><code>uv run pytest tests/unit/trace/test_replay.py -q</code></td>
+</tr>
+<tr>
+<td>簇级回归</td>
+<td>全部</td>
+<td><code>just check</code> 全绿</td>
+</tr>
+</tbody>
+</table>
+<p>T1615：不在本簇修；注入量观测由 R1 的 <code>input_truncated</code> WARN（original_len 字段）提供最小可观测性，量化归 C10/C28。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
