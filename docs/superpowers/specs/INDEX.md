@@ -20,8 +20,8 @@
 ### #63 · 审计修复 C25：CI/just 双向同步漂移（P1）
 
 - **文件**：`2026-08-16-audit-ci-just-sync-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C25，24 条）
-- **状态**：Design | **优先级**：🟠 P1 | **依赖**：是 C17/C20/C21/C22 新 lint 的承载前提（先于此执行）
+- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C25，21 条 · Revised 2026-09-13 剔 3 已修成员）
+- **状态**：Design (Revised 2026-09-13) | **优先级**：🟠 P1 | **依赖**：原 C17-C22 承载前提已随归档消解；现为 ci.yml:62 自认结构债的系统性收口
 - **内容**：清单一源化（CI 调 just check，F004/F005/F1001/F1002 双向洞 + AGENTS.md 等价命令失真）+ coverage 工件隔离（D101 collect-only 污染 16.08% / F1040 just test 假失败，AGENTS.md PR 协议 4 制度化）+ hook/工具激活面（F1038/F1011/F1012/F1015/F1036）+ workflow 修复（F1006/F1007/F1021）+ F1207 codeql.yml 无 pull_request vs SECURITY.md "every PR" 声明漂移（自 #24 补登）+ T1504 novel-output 22.7MB 反忽略出库（与 C18 协同）
 
 ### #64 · 审计修复 C26：shell/just 包装层注入（P1）
