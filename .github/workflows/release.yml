@@ -27,20 +27,15 @@ jobs:
           --output-reproducible -o sbom-dev.cdx.json
       - name: Build sdist and wheel
         run: uv build
-      - name: Generate changelog for tag
+      - name: Generate changelog for tag  # git-cliff, conventional grouping (spec #63 F1021)
         id: changelog
         run: |
-          # Guard against first-commit-ever tag (HEAD^ doesn't exist)
-          if ! git rev-parse --verify HEAD^ >/dev/null 2>&1; then
-            notes=$(git log --format='- %s (%h)' -n 100)
+          prev_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$prev_tag" ]; then
+            notes=$(uvx git-cliff --unreleased ${prev_tag}..HEAD --strip header)
           else
-            prev_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-            if [ -n "$prev_tag" ]; then
-              notes=$(git log --format='- %s (%h)' ${prev_tag}..HEAD)
-            else
-              # First release tag: cap to recent 100 commits
-              notes=$(git log --format='- %s (%h)' -n 100)
-            fi
+            # First release tag: cap to recent 100 commits
+            notes=$(uvx git-cliff --unreleased -n 100 --strip header)
           fi
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$notes" >> $GITHUB_OUTPUT

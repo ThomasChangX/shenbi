@@ -11,6 +11,7 @@ name: CodeQL
 # scan analyzes the entire ref and uploads all findings regardless of size.
 on:
   push:
+    branches: [main]
   schedule:
     - cron: '0 4 * * 1'  # Weekly Monday 04:00 UTC
   workflow_dispatch:

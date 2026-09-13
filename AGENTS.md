@@ -117,7 +117,7 @@ Framework code under `src/shenbi/` uses Python 3.11+, `pathlib.Path` for file I/
 
 When processing PR review comments and CI failures, follow these rules in order:
 
-1. **Validate locally before pushing.** Run `just check` (or equivalent: `ruff check . && ruff format --check . && mypy src/shenbi/ && basedpyright && pytest -n auto -m "not last" --cov-fail-under=85`). Do not push until all checks pass locally.
+1. **Validate locally before pushing.** Run `just check` (single source of truth — the old hand-chained equivalent command omitted the lint face and the `-m "last"` second pytest phase, so it was never equivalent). Do not push until all checks pass locally.
 
 2. **Collect all failures before fixing.** Pull ALL CodeQL comments, ALL Copilot comments, and ALL CI failure annotations at once. Produce a complete inventory before writing any code. Never fix one error, push, and repeat.
 
