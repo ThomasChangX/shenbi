@@ -41,7 +41,9 @@ uv run pip-audit -r /tmp/req-audit.txt --no-deps --disable-pip
 # 4c. mkdocs link check (only when docs changes)
 # 触发：检测待 push 的 docs 变更。pre-push 阶段已 commit，--cached 和 HEAD diff 都恒空，
 #   正确 idiom 是 main...HEAD（推送范围）。
-if git diff --name-only main...HEAD 2>/dev/null | grep -qE '^(docs/|mkdocs\.yml)'; then
+if ! git rev-parse --verify main...HEAD >/dev/null 2>&1; then
+  echo "pre-push: cannot resolve main...HEAD (shallow clone?); skipping mkdocs gate explicitly" >&2
+elif git diff --name-only main...HEAD | grep -qE '^(docs/|mkdocs\.yml)'; then
   echo "--- mkdocs link check (docs changed) ---"
   uv sync --frozen --group docs >/dev/null
   # 单次 build 捕获输出与 exit code
@@ -67,11 +69,12 @@ fi
 # --dist loadscope groups tests by module so ThreadPoolExecutor tests
 # don't interfere across modules. --timeout prevents indefinite hangs.
 echo "--- pytest (with coverage >= 85%) ---"
-uv run pytest -n auto --dist loadscope -m "not last" --cov-fail-under=85 --timeout=120
+uv run pytest -n auto --dist loadscope -m "not last" --cov=shenbi --cov-branch --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing --cov-fail-under=85 --timeout=120
 
 # 6. Dead code detection
 echo "--- dead code check (reportUnusedFunction) ---"
-UNUSED_COUNT=$(grep -r 'reportUnusedFunction' src/shenbi/ --include='*.py' | grep -v test_ | grep -v __pycache__ | wc -l | tr -d ' ')
+# set -euo pipefail 下命令替换继承 pipefail：零命中 grep 退 1 会崩整钩（F1036），故 || true 守卫
+UNUSED_COUNT=$( { grep -r 'reportUnusedFunction' src/shenbi/ --include='*.py' | grep -v test_ | grep -v __pycache__ || true; } | wc -l | tr -d ' ')
 if [ "$UNUSED_COUNT" -gt 5 ]; then
     echo "WARNING: $UNUSED_COUNT reportUnusedFunction suppressions found in src/shenbi/"
     echo "These may indicate dead code that should be removed or wired in."

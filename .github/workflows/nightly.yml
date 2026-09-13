@@ -38,7 +38,9 @@ jobs:
           enable-cache: true
       - run: uv python install 3.12
       - run: uv sync --frozen --group dev
-      - run: uv run pytest -n auto -m "not last" --cov-fail-under=85
+      - run: >-
+          uv run pytest -n auto -m "not last"
+          --cov=shenbi --cov-report=json:coverage.json --cov-fail-under=85
 
   python-313-migration:
     # 3.13 migration monitoring. No continue-on-error: nightly itself is

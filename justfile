@@ -48,20 +48,20 @@ check:
 # Enforce per-module coverage floors only (spec #53 C15 T3) — self-sufficient:
 # runs the suite with a JSON coverage report, then checks tools/module-coverage-floors.json
 module-coverage:
-    uv run pytest -n auto -m "not last" --cov-report=json:coverage.json -q
+    uv run pytest -n auto -m "not last" --cov=shenbi --cov-branch --cov-report=json:coverage.json -q
     uv run python tools/check_module_coverage.py coverage.json
 
 # Run tests only (fast unit tests)
 test *args:
-    uv run pytest -n auto -m "unit" {{args}}
+    uv run pytest -n auto -m "unit" --no-cov {{args}}
 
 # Run tests including integration
 test-all *args:
-    uv run pytest -n auto -m "not last" {{args}}
+    uv run pytest -n auto -m "not last" --no-cov {{args}}
 
 # Run a single test file
 test-file file:
-    uv run pytest {{file}} -v
+    uv run pytest {{file}} -v --no-cov
 
 # Fix lint and formatting
 fix:
