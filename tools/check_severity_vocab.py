@@ -96,10 +96,13 @@ def _walk_severities(node: object) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     """Print the out-of-vocab severity rate; exit 1 iff any value escapes."""
     argv = argv if argv is not None else sys.argv[1:]
-    tree = Path(argv[0]) if argv else REPO_ROOT / "novel-output"
+    default_tree = REPO_ROOT / "novel-output"
+    tree = Path(argv[0]) if argv else default_tree
     if not tree.exists():
+        if tree != default_tree:
+            raise SystemExit(f"error: tree does not exist: {tree}")
         # novel-output checked out of git (spec #63 T1504): default tree
-        # absent = nothing to scan (skip). Explicit arg still raises.
+        # absent = nothing to scan (skip). Explicit --tree still errors.
         print(f"severity-vocab: tree {tree} absent - nothing to scan (skip)")
         return 0
     values = collect_severities(tree)

@@ -15,15 +15,10 @@ log = get_logger(__name__)
 # spec #57 T4: timestamped snapshot mirrors removed — upstream writer class
 # deleted (#26 path 3); fixtures retained in tests/fixtures/snapshot-dir as
 # real historical outputs.
+# spec #63 T1504: novel-output 生产树出库 — 三个以其为源的镜像条目随之移除
+# （同 spec #57 T4 先例：fixtures 保留作真实历史产物，不再镜像校验）。
 MIRROR_MAP: dict[str, str] = {
     "tests/fixtures/outline-example.md": "outline-example.md",
-    "tests/fixtures/volume-map-xinghuo.md": "novel-output/xinghuo-ranqiong/outline/volume_map.md",
-    "tests/fixtures/truth-pending_hooks-ch56.md": (
-        "novel-output/xinghuo-ranqiong/truth/pending_hooks.md"
-    ),
-    "tests/fixtures/truth-current_state-xinghuo.md": (
-        "novel-output/xinghuo-ranqiong/truth/current_state.md"
-    ),
     # spec #54 C16 F780: chapter-025 snapshot truth mirrors must stay
     # byte-identical to their top-level truth-*.md counterparts.
     "tests/fixtures/truth-chapter_summaries.md": (
