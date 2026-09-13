@@ -41,7 +41,7 @@ uv run pip-audit -r /tmp/req-audit.txt --no-deps --disable-pip
 # 4c. mkdocs link check (only when docs changes)
 # 触发：检测待 push 的 docs 变更。pre-push 阶段已 commit，--cached 和 HEAD diff 都恒空，
 #   正确 idiom 是 main...HEAD（推送范围）。
-if ! git rev-parse --verify main...HEAD >/dev/null 2>&1; then
+if ! git merge-base main HEAD >/dev/null 2>&1; then
   echo "pre-push: cannot resolve main...HEAD (shallow clone?); skipping mkdocs gate explicitly" >&2
 elif git diff --name-only main...HEAD | grep -qE '^(docs/|mkdocs\.yml)'; then
   echo "--- mkdocs link check (docs changed) ---"
