@@ -40,7 +40,7 @@ jobs:
       - run: uv sync --frozen --group dev
       - run: >-
           uv run pytest -n auto -m "not last"
-          --cov=shenbi --cov-report=json:coverage.json --cov-fail-under=85
+          --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-fail-under=85
 
   python-313-migration:
     # 3.13 migration monitoring. No continue-on-error: nightly itself is

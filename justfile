@@ -41,7 +41,7 @@ check:
     uv run python tools/generate_autocheck_docs.py
     uv run shenbi-generate-plugins
     git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ .codex-plugin/
-    uv run pytest -n auto --dist loadscope -m "not last" --hypothesis-profile=ci --timeout=120 --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing
+    uv run pytest -n auto --dist loadscope -m "not last" --hypothesis-profile=ci --timeout=120 --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing --cov-fail-under=85
     uv run python tools/check_module_coverage.py coverage.json
     uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 
