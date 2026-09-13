@@ -10,8 +10,9 @@ default:
 install group="dev":
     uv sync --group {{group}}
 
-# Run all checks (contract lints + ruff + mypy + basedpyright + sync idempotency + tests)
+# Run all checks (single source of truth — CI calls this; see spec #63 C25)
 check:
+    uv lock --check
     uv run python tools/lint_status_strings.py
     uv run python tools/lint_routing_faces.py
     uv run python tools/audit-skill-descriptions.py
@@ -28,13 +29,19 @@ check:
     uv run python tools/lint_audit_run.py
     uv run python tools/lint_artifact_contamination.py
     uv run python tools/count_active_specs.py
+    uv run python tools/check_fixture_mirror.py
+    uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
+    uv run python tools/lint_no_fs_mutation.py src/shenbi
     just lint-contracts
     uv run ruff check .
     uv run ruff format --check .
     uv run mypy src/shenbi/
     uv run basedpyright
-    uv run shenbi-sync-contracts >/dev/null && git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
-    uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=json:coverage.json
+    uv run shenbi-sync-contracts >/dev/null
+    uv run python tools/generate_autocheck_docs.py
+    uv run shenbi-generate-plugins
+    git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ .codex-plugin/
+    uv run pytest -n auto --dist loadscope -m "not last" --hypothesis-profile=ci --timeout=120 --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing
     uv run python tools/check_module_coverage.py coverage.json
     uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 
