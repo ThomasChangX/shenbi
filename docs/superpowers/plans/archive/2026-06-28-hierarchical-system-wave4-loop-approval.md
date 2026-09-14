@@ -405,9 +405,7 @@ if arc_scores:
     arc_bands = classify_scores(arc_scores)
     next_actions.append(f"分层评分: 弧段级均分 {arc_avg:.1f} (bands: {arc_bands})")
 if volume_scores:
-    vol_failed = below_threshold(
-        {k: float(v) for k, v in volume_scores.items()}, threshold=80.0
-    )
+    vol_failed = below_threshold({k: float(v) for k, v in volume_scores.items()}, threshold=80.0)
     if vol_failed:
         next_actions.append(f"分层评分: 卷级 Objective 未达成的卷: {vol_failed}，需人工复核")
 if stratum_scores:
@@ -432,6 +430,7 @@ if stratum_scores:
 ```python
 # tests/unit/test_summarize_hierarchical.py
 """Test summarize_round hierarchical_scores parsing (spec §9.8)."""
+
 import pytest
 from shenbi.summarize_round import classify_scores, below_threshold
 
@@ -547,6 +546,7 @@ git commit -m "chore: final hash lock after Wave 4 — hierarchical system compl
 ```python
 # src/shenbi/orchestration/escalation_bridge.py
 """Bridge: parse resonance_trend.md → check_escalation params (spec §6.3)."""
+
 from __future__ import annotations
 import re
 from pathlib import Path
@@ -597,11 +597,14 @@ def run_escalation_check(
 ```python
 # src/shenbi/orchestration/scoring_bridge.py
 """Bridge: run dual-scorer agreement + collapse detection on scoring results."""
+
 from __future__ import annotations
 from shenbi.scoring import check_scorer_agreement, flag_score_collapse
 
 
-def validate_dual_scorer(scores_a: dict[int, float], scores_b: dict[int, float], threshold: float = 5.0) -> dict:
+def validate_dual_scorer(
+    scores_a: dict[int, float], scores_b: dict[int, float], threshold: float = 5.0
+) -> dict:
     """Run agreement check; return result with escalation flag if disputed."""
     result = check_scorer_agreement(scores_a, scores_b, threshold)
     return {
@@ -620,6 +623,7 @@ def check_single_scorer_collapse(scores: dict[int, float]) -> dict:
 ```python
 # tests/unit/orchestration/test_bridges.py
 """Tests for orchestration bridges (spec §6.3, §5.5)."""
+
 import pytest
 from pathlib import Path
 from shenbi.orchestration.escalation_bridge import parse_resonance_scores, run_escalation_check
@@ -630,10 +634,11 @@ from shenbi.orchestration.scoring_bridge import validate_dual_scorer, check_sing
 def test_parse_resonance_scores_extracts_overall():
     # Create a temp trend file
     import tempfile, os
+
     content = """| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报 | overall | confidence |
 | N | 高潮 | 22 | 20 | 22 | 18 | 82 | high |
 | N+1 | 推进 | 20 | 18 | 20 | 16 | 74 | mid |"""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False, encoding='utf-8') as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False, encoding="utf-8") as f:
         f.write(content)
         f.flush()
         scores = parse_resonance_scores(Path(f.name))

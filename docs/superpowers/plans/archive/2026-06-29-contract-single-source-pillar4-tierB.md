@@ -116,9 +116,22 @@ def test_union_record_keys_are_sixteen() -> None:
     for r in recs:
         keys |= set(r.keys())
     assert keys == {
-        "id", "state", "operation", "type", "dimension", "content", "subtlety",
-        "plant_chapter", "cultivation_interval", "last_reinforced", "max_distance",
-        "escalation_curve", "depends_on", "core_hook", "promoted", "notes",
+        "id",
+        "state",
+        "operation",
+        "type",
+        "dimension",
+        "content",
+        "subtlety",
+        "plant_chapter",
+        "cultivation_interval",
+        "last_reinforced",
+        "max_distance",
+        "escalation_curve",
+        "depends_on",
+        "core_hook",
+        "promoted",
+        "notes",
     }
 
 
@@ -146,6 +159,7 @@ def test_serialize_preserves_depends_on_list() -> None:
 # src/shenbi/records/__init__.py
 """记录级解析（spec 支柱四 Tier B 判据 12）。pending_hooks.md 的 ## hooks YAML block
 为权威记录源；本包解析、序列化、检测 cross-section drift。纯函数，无 trace 依赖。"""
+
 from shenbi.records.parser import (
     extract_yaml_block,
     is_idempotent,
@@ -167,6 +181,7 @@ __all__ = ["extract_yaml_block", "parse_records", "serialize_records", "is_idemp
     ## 伏笔统计 的 markdown 表行 | 维度 | 数量 | 误当 YAML 块标量而 ScannerError 崩溃）；
   - serialize 用排序键 YAML；语义 round-trip = parse(serialize(parse(x)))==parse(x)。
 """
+
 from __future__ import annotations
 
 import re
@@ -341,10 +356,11 @@ def test_no_drift_when_no_active_table() -> None:
     init = (PROJECT / "tests" / "fixtures" / "pending-hooks-init.md").read_text(encoding="utf-8")
     assert detect_cross_section_drift(parse_records(init), parse_markdown_table(init)) == []
 
+
 def test_no_false_drift_on_float_formatting() -> None:
     """Pin the float-format case: YAML 0.8 vs markdown '0.80' must NOT drift."""
-    recs = [{"id": "h", "subtlety": 0.8}]          # YAML parses to float 0.8
-    md = {"h": {"id": "h", "subtlety": "0.80"}}    # markdown table text "0.80"
+    recs = [{"id": "h", "subtlety": 0.8}]  # YAML parses to float 0.8
+    md = {"h": {"id": "h", "subtlety": "0.80"}}  # markdown table text "0.80"
     assert detect_cross_section_drift(recs, md) == []
 ```
 
@@ -358,6 +374,7 @@ def test_no_false_drift_on_float_formatting() -> None:
 """cross-section drift 检测（判据 12）。pending_hooks.md 的 ## 活跃伏笔 markdown 表是
 YAML 记录的派生视图。spec New-F「检测」模型：YAML 权威；派生表必须与 YAML 一致；
 不一致即 drift（YAML 在冲突时胜出 → 报告 drift → ship 失败 → 人工修）。"""
+
 from __future__ import annotations
 
 import re
@@ -444,9 +461,7 @@ def detect_cross_section_drift(
                 continue
             yaml_val = rec.get(key)
             if not _values_equal(yaml_val, md_val):
-                issues.append(
-                    f"drift: id={rid} key={key} md={md_val!r} != YAML={yaml_val!r}"
-                )
+                issues.append(f"drift: id={rid} key={key} md={md_val!r} != YAML={yaml_val!r}")
     return issues
 ```
 
@@ -486,8 +501,15 @@ def test_genre_config_has_nine_write_keys() -> None:
     assert own is not None
     assert own.level == "field"
     assert own.write_keys == {
-        "approval", "auditDimensions", "chapterTypes", "customRules",
-        "fatigueWords", "pacing", "tropeInventory", "updated", "version",
+        "approval",
+        "auditDimensions",
+        "chapterTypes",
+        "customRules",
+        "fatigueWords",
+        "pacing",
+        "tropeInventory",
+        "updated",
+        "version",
     }
 
 
@@ -504,7 +526,8 @@ def test_genre_field_level_rejects_undeclared_key() -> None:
 
 def test_plant_record_create_allows_new_record() -> None:
     ch = FileChange(
-        relpath="truth/pending_hooks.md", status="modified",
+        relpath="truth/pending_hooks.md",
+        status="modified",
         new_record_ids=("hook-new",),
     )
     assert check_write_ownership("shenbi-foreshadowing-plant", ch) == []
@@ -512,7 +535,8 @@ def test_plant_record_create_allows_new_record() -> None:
 
 def test_plant_rejects_modifying_existing_record() -> None:
     ch = FileChange(
-        relpath="truth/pending_hooks.md", status="modified",
+        relpath="truth/pending_hooks.md",
+        status="modified",
         modified_record_keys=(("hook-ch1-001", frozenset({"state"})),),
     )
     v = check_write_ownership("shenbi-foreshadowing-plant", ch)
@@ -521,7 +545,8 @@ def test_plant_rejects_modifying_existing_record() -> None:
 
 def test_track_record_field_allows_state_only() -> None:
     ch = FileChange(
-        relpath="truth/pending_hooks.md", status="modified",
+        relpath="truth/pending_hooks.md",
+        status="modified",
         modified_record_keys=(("hook-ch1-001", frozenset({"state"})),),
     )
     assert check_write_ownership("shenbi-foreshadowing-track", ch) == []
@@ -529,7 +554,8 @@ def test_track_record_field_allows_state_only() -> None:
 
 def test_track_rejects_subtlety_change() -> None:
     ch = FileChange(
-        relpath="truth/pending_hooks.md", status="modified",
+        relpath="truth/pending_hooks.md",
+        status="modified",
         modified_record_keys=(("hook-ch1-001", frozenset({"subtlety"})),),
     )
     v = check_write_ownership("shenbi-foreshadowing-track", ch)
@@ -538,7 +564,8 @@ def test_track_rejects_subtlety_change() -> None:
 
 def test_track_rejects_creating_new_record() -> None:
     ch = FileChange(
-        relpath="truth/pending_hooks.md", status="modified",
+        relpath="truth/pending_hooks.md",
+        status="modified",
         new_record_ids=("hook-new",),
     )
     v = check_write_ownership("shenbi-foreshadowing-track", ch)
@@ -567,6 +594,7 @@ plant/track/resolve/state-settling 写键集），均经 tests/fixtures/ 亲手�
 注：完整 69 技能 OWNERSHIP 迁移是「支柱一续」；本矩阵是 Tier B 审计消费的接口 +
 参考 fixture 条目。审计粒度为 per-skill-per-file（New-H），非 per-record；值正确性不在范围。
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -594,32 +622,62 @@ class FileOwnership:
 
 # —— 参考 OWNERSHIP 条目（Tier B 审计消费；完整迁移见「支柱一续」）——
 # genre-config.json：真实 9 顶层键（fixture 亲手核对，见计划「fixture 核对」节）
-_GENRE_KEYS = frozenset({
-    "approval", "auditDimensions", "chapterTypes", "customRules",
-    "fatigueWords", "pacing", "tropeInventory", "updated", "version",
-})
+_GENRE_KEYS = frozenset(
+    {
+        "approval",
+        "auditDimensions",
+        "chapterTypes",
+        "customRules",
+        "fatigueWords",
+        "pacing",
+        "tropeInventory",
+        "updated",
+        "version",
+    }
+)
 # pending_hooks.md 新记录键（fixture ## hooks 16 键；state 非 status，亲手核对）
-_HOOK_KEYS_NEW_RECORD = frozenset({
-    "id", "state", "operation", "type", "dimension", "content", "subtlety",
-    "plant_chapter", "cultivation_interval", "last_reinforced", "max_distance",
-    "escalation_curve", "depends_on", "core_hook", "promoted", "notes",
-})
+_HOOK_KEYS_NEW_RECORD = frozenset(
+    {
+        "id",
+        "state",
+        "operation",
+        "type",
+        "dimension",
+        "content",
+        "subtlety",
+        "plant_chapter",
+        "cultivation_interval",
+        "last_reinforced",
+        "max_distance",
+        "escalation_curve",
+        "depends_on",
+        "core_hook",
+        "promoted",
+        "notes",
+    }
+)
 
 OWNERSHIP: dict[tuple[str, str], FileOwnership] = {
-    ("shenbi-genre-config", "genre-config.json"):
-        FileOwnership(level="field", write_keys=_GENRE_KEYS),
+    ("shenbi-genre-config", "genre-config.json"): FileOwnership(
+        level="field", write_keys=_GENRE_KEYS
+    ),
     # foundation-review 读 tropeInventory（声明 read；写集为空）
-    ("shenbi-foundation-review", "genre-config.json"):
-        FileOwnership(level="field", read_keys=frozenset({"tropeInventory"})),
+    ("shenbi-foundation-review", "genre-config.json"): FileOwnership(
+        level="field", read_keys=frozenset({"tropeInventory"})
+    ),
     # pending_hooks.md 分工（state-settling SKILL.md 权威声明；track 服从）
-    ("shenbi-foreshadowing-plant", "truth/pending_hooks.md"):
-        FileOwnership(level="record_create", write_keys=_HOOK_KEYS_NEW_RECORD),
-    ("shenbi-foreshadowing-track", "truth/pending_hooks.md"):
-        FileOwnership(level="record_field", write_keys=frozenset({"state"})),
-    ("shenbi-foreshadowing-resolve", "truth/pending_hooks.md"):
-        FileOwnership(level="record_field", write_keys=frozenset({"state"})),
-    ("shenbi-state-settling", "truth/pending_hooks.md"):
-        FileOwnership(level="record_field", write_keys=frozenset({"last_reinforced", "subtlety"})),
+    ("shenbi-foreshadowing-plant", "truth/pending_hooks.md"): FileOwnership(
+        level="record_create", write_keys=_HOOK_KEYS_NEW_RECORD
+    ),
+    ("shenbi-foreshadowing-track", "truth/pending_hooks.md"): FileOwnership(
+        level="record_field", write_keys=frozenset({"state"})
+    ),
+    ("shenbi-foreshadowing-resolve", "truth/pending_hooks.md"): FileOwnership(
+        level="record_field", write_keys=frozenset({"state"})
+    ),
+    ("shenbi-state-settling", "truth/pending_hooks.md"): FileOwnership(
+        level="record_field", write_keys=frozenset({"last_reinforced", "subtlety"})
+    ),
 }
 
 
@@ -731,11 +789,7 @@ def test_compute_json_field_change() -> None:
 
 
 def test_compute_markdown_record_change() -> None:
-    pre = (
-        "## hooks\n"
-        "- id: h1\n  state: PLANTED\n  subtlety: 0.4\n"
-        "- id: h2\n  state: PLANTED\n"
-    )
+    pre = "## hooks\n- id: h1\n  state: PLANTED\n  subtlety: 0.4\n- id: h2\n  state: PLANTED\n"
     post = (
         "## hooks\n"
         "- id: h1\n  state: RELEVANT\n  subtlety: 0.4\n"  # track 改 state（允许）
@@ -776,6 +830,7 @@ __all__ = ["compute_file_change", "parametric_globs", "snapshot_tree"]
 避免 round_dir 内 scores/progress 噪音。markdown truth 用 records.parser 做记录级 diff；
 JSON 用顶层键 field diff。
 """
+
 from __future__ import annotations
 
 import functools
@@ -1008,6 +1063,7 @@ def test_undeclared_file_write_blocked(tmp_path: Path) -> None:
 对 OWNERSHIP 内文件调 check_write_ownership；对其余文件做 file-level 声明写入检查。
 cross-section drift（pending_hooks.md YAML vs 派生表）一并检测（判据 12）。
 """
+
 from __future__ import annotations
 
 import fnmatch
@@ -1071,9 +1127,7 @@ def audit_writes(
         # 无 OWNERSHIP 条目 → file-level 声明写入检查
         if get_ownership(skill, rel) is None:
             if not _matches_declared(rel, declared, globs):
-                violations.append(
-                    f"未声明写入: {rel}（不在 {skill} 契约 writes/updates）"
-                )
+                violations.append(f"未声明写入: {rel}（不在 {skill} 契约 writes/updates）")
     return AuditResult(
         skill=skill,
         violations=tuple(violations),
@@ -1156,6 +1210,7 @@ def test_drift_also_blocks(tmp_path: Path) -> None:
 账本（round_dir 内）。Tier A 落地后，GATE_FAIL 事件应追加到 trace.jsonl；此处 try-import
 TraceWriter 的 seam 已预留，trace 不在时回退账本 + structlog。绝不静默丢弃审计结果。
 """
+
 from __future__ import annotations
 
 import json
@@ -1230,6 +1285,7 @@ git commit -m "feat(audit): add audit-outcome recording seam (self-contained led
 # tests/unit/dispatcher/test_read_provenance_honest.py
 """诚实分层（spec C2）：read-provenance 仅 internal mode 可行；codex 子进程是已知盲点。
 此测试锚定该事实，防回归误声称「真闭口」。"""
+
 from __future__ import annotations
 
 import inspect
@@ -1260,9 +1316,7 @@ def _cfg() -> dict:
     return {"version": "1.0", "updated": "2026-06-12", "approval": {}}
 
 
-def test_audit_passes_on_allowed_genre_key_change(
-    tmp_path: Path, monkeypatch: object
-) -> None:
+def test_audit_passes_on_allowed_genre_key_change(tmp_path: Path, monkeypatch: object) -> None:
     monkeypatch.setattr(ex, "PROJECT_DIR", tmp_path)  # type: ignore[attr-defined]
     monkeypatch.setattr(ex, "derive_output_files", lambda s: ["genre-config.json"])  # type: ignore[attr-defined]
     cfg = tmp_path / "genre-config.json"
@@ -1280,9 +1334,7 @@ def test_audit_passes_on_allowed_genre_key_change(
     assert (tmp_path / "write-audit.jsonl").exists()
 
 
-def test_audit_blocks_on_undeclared_genre_key(
-    tmp_path: Path, monkeypatch: object
-) -> None:
+def test_audit_blocks_on_undeclared_genre_key(tmp_path: Path, monkeypatch: object) -> None:
     monkeypatch.setattr(ex, "PROJECT_DIR", tmp_path)  # type: ignore[attr-defined]
     monkeypatch.setattr(ex, "derive_output_files", lambda s: ["genre-config.json"])  # type: ignore[attr-defined]
     cfg = tmp_path / "genre-config.json"
@@ -1323,9 +1375,7 @@ def _audit_watch_paths(skill: str) -> list[str]:
         return []
 
 
-def dispatch_with_write_audit(
-    skill: str, test_type: str, round_dir: Path, prompt: str
-) -> int:
+def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
     """审计版 dispatch（spec 支柱四 Tier B 真实拓扑）。
 
     pre snapshot(声明写入面) → dispatch → post snapshot → audit_writes → record。
@@ -1369,8 +1419,12 @@ from shenbi.audit.snapshot import compute_file_change, parametric_globs, snapsho
 from shenbi.audit.write_audit import AuditResult, audit_writes
 
 __all__ = [
-    "AuditResult", "audit_writes", "compute_file_change",
-    "parametric_globs", "record_audit_outcome", "snapshot_tree",
+    "AuditResult",
+    "audit_writes",
+    "compute_file_change",
+    "parametric_globs",
+    "record_audit_outcome",
+    "snapshot_tree",
 ]
 ```
 

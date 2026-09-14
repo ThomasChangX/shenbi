@@ -67,8 +67,9 @@ def test_d20_skill_dir_no_concept_entry_needed() -> None:
     reg = load_registry()
     assert _concept(reg, D20_SKILL_DIR_WRITE) is None
     assert _concept(reg, "snapshots/manifest.json") is not None
-    assert any(getattr(g, "pattern", g) == "snapshots/chapter-*/*"
-               for g in getattr(reg, "globs", [])), "skill-domain glob missing"
+    assert any(
+        getattr(g, "pattern", g) == "snapshots/chapter-*/*" for g in getattr(reg, "globs", [])
+    ), "skill-domain glob missing"
 ```
 （`reg.globs` 的字段名以 `src/shenbi/contracts/loader.py` 实际注册表结构为准，执行时先核对再落笔；若 registry 不暴露 globs，退化为对 yaml 文本的断言。）
 

@@ -46,6 +46,7 @@
 
 ```python
 """SDD #56 C18 T1.1: dispatch CLI argv capture-mode verification (F947 offline)."""
+
 import shutil
 from unittest import mock
 
@@ -53,12 +54,22 @@ from shenbi.pipeline import dispatch_helper
 
 
 def test_cli_argv_contains_capture_mode_no_meta_narration_codex():
-    with mock.patch.object(shutil, "which", side_effect=lambda n: "/usr/bin/fake" if n == "codex" else None):
+    with mock.patch.object(
+        shutil, "which", side_effect=lambda n: "/usr/bin/fake" if n == "codex" else None
+    ):
         argv = dispatch_helper._find_ide_cli()
     assert argv is not None and argv[0] == "codex"
     joined = " ".join(argv)
     assert "sandbox_permissions=workspace-write" in joined
-    for pattern in ("手动复制", "只读沙箱", "无法写入", "请手动", "manually copy", "read-only sandbox", "cannot write"):
+    for pattern in (
+        "手动复制",
+        "只读沙箱",
+        "无法写入",
+        "请手动",
+        "manually copy",
+        "read-only sandbox",
+        "cannot write",
+    ):
         assert pattern not in joined
 
 
@@ -66,9 +77,12 @@ def test_cli_argv_shared_for_zcode():
     # 现状锁定：zcode 分支返回同一份 codex 专属 argv（专属 flag 未测——spec T1.1 deviation）
     def fake_which(name: str):
         return None if name == "codex" else "/usr/bin/fake-zcode"
+
     with mock.patch.object(shutil, "which", side_effect=fake_which):
         argv_zcode = dispatch_helper._find_ide_cli()
-    with mock.patch.object(shutil, "which", side_effect=lambda n: "/usr/bin/fake" if n == "codex" else None):
+    with mock.patch.object(
+        shutil, "which", side_effect=lambda n: "/usr/bin/fake" if n == "codex" else None
+    ):
         argv_codex = dispatch_helper._find_ide_cli()
     assert argv_zcode is not None and argv_zcode[0] == "zcode"
     assert argv_zcode[1:] == argv_codex[1:]  # 共享 flag 面；zcode 专属适配记 deviation

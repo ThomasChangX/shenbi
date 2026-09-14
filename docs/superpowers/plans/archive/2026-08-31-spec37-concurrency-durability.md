@@ -56,6 +56,7 @@ Every test here reproduces a LIVE defect on main and is expected to FAIL
 (red) until the corresponding fix task lands. Deterministic interleaving
 strategies are mandatory — no pure-timing reliance. POSIX-only (flock).
 """
+
 from __future__ import annotations
 
 import json
@@ -90,12 +91,16 @@ def test_t605_dual_writer_lost_update(tmp_path: Path) -> None:
         for _ in range(N):
             transact_state(
                 tmp_path,
-                lambda s: setattr(s.chapter_loop, "current_chapter",
-                                  s.chapter_loop.current_chapter + 1),
+                lambda s: setattr(
+                    s.chapter_loop, "current_chapter", s.chapter_loop.current_chapter + 1
+                ),
             )
 
     t1, t2 = threading.Thread(target=bump), threading.Thread(target=bump)
-    t1.start(); t2.start(); t1.join(timeout=25); t2.join(timeout=25)
+    t1.start()
+    t2.start()
+    t1.join(timeout=25)
+    t2.join(timeout=25)
     assert load_state(tmp_path).chapter_loop.current_chapter == 2 * N
 
 
@@ -113,8 +118,10 @@ def test_t601_concurrent_integrity_findings_conservation(tmp_path: Path) -> None
         _append_integrity_findings(tmp_path, target, [f"finding-{i}"])
 
     threads = [threading.Thread(target=append_one, args=(i,)) for i in range(5)]
-    for t in threads: t.start()
-    for t in threads: t.join(timeout=25)
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=25)
     out = tmp_path / "audits" / ".integrity-findings-001.jsonl"
     lines = [ln for ln in out.read_text(encoding="utf-8").splitlines() if ln.strip()]
     assert len(lines) == 5  # red: last-writer-wins drops lines
@@ -131,14 +138,19 @@ def test_f531_trace_seq_duplicate(tmp_path: Path) -> None:
         barrier.wait(timeout=10)
         w = TraceWriter(tmp_path)
         for i in range(K):
-            w.append(actor=tag, actor_role="GATE", action="TEST",
-                     target="t", payload={"i": i})
+            w.append(actor=tag, actor_role="GATE", action="TEST", target="t", payload={"i": i})
 
     t1 = threading.Thread(target=write_many, args=("a",))
     t2 = threading.Thread(target=write_many, args=("b",))
-    t1.start(); t2.start(); t1.join(timeout=25); t2.join(timeout=25)
-    seqs = [json.loads(ln)["seq"] for ln in
-            (tmp_path / "trace.jsonl").read_text(encoding="utf-8").splitlines() if ln.strip()]
+    t1.start()
+    t2.start()
+    t1.join(timeout=25)
+    t2.join(timeout=25)
+    seqs = [
+        json.loads(ln)["seq"]
+        for ln in (tmp_path / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if ln.strip()
+    ]
     assert len(seqs) == len(set(seqs)) == 2 * K  # red: both start at seq=1
 
 
@@ -154,11 +166,11 @@ def test_t604_emergency_cleanup_double_execution(tmp_path: Path, monkeypatch) ->
     cr._emergency_state["pipeline_state"] = object()  # truthy sentinel
     cr._emergency_flag = True
     try:
-        cr._check_emergency_flag(tmp_path)   # step-boundary path
-        cr._emergency_cleanup(tmp_path)      # atexit path fires again
+        cr._check_emergency_flag(tmp_path)  # step-boundary path
+        cr._emergency_cleanup(tmp_path)  # atexit path fires again
     finally:
-        cr._emergency_flag = False           # xdist 安全：模块全局复位
-        cr.reset_emergency_state()           # crash_recovery.py:28-45 要求测试后复位
+        cr._emergency_flag = False  # xdist 安全：模块全局复位
+        cr.reset_emergency_state()  # crash_recovery.py:28-45 要求测试后复位
     assert len(calls) == 1  # red: save_state called twice
 
 
@@ -167,10 +179,16 @@ def test_f630_materialize_clobbers_foreign_keys(tmp_path: Path) -> None:
     from shenbi.trace.materialize import materialize_progress
 
     progress = tmp_path / "progress.json"
-    progress.write_text(json.dumps({
-        "custom_key": 1,
-        "skills": {"x": {"generative": {"status": "DONE", "score": 95.0}}},
-    }, ensure_ascii=False), encoding="utf-8")
+    progress.write_text(
+        json.dumps(
+            {
+                "custom_key": 1,
+                "skills": {"x": {"generative": {"status": "DONE", "score": 95.0}}},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
     materialize_progress(tmp_path, total_skills=["x"], tier="T1")
     out = json.loads(progress.read_text(encoding="utf-8"))
     assert out.get("custom_key") == 1  # red: wholesale rebuild drops it

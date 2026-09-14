@@ -175,6 +175,7 @@ Expected: FAIL（is_drift False——`max(...,5.0)` 后 `>5.0` 恒假）
 
 ```python
 from typing import Final, Literal
+
 # ...
 # R2 (F601): single source for the drift threshold. Dialogue collapse sets the
 # deviation ratio to exactly this value, so the trigger test must be >=.
@@ -485,9 +486,7 @@ def test_render_roundtrip_idempotent_and_drift_free():
     rendered = render_pending_hooks(once)
     twice = collect_records(rendered)
     assert [r["id"] for r in once] == [r["id"] for r in twice]  # 首现序稳定
-    assert detect_cross_section_drift(
-        parse_records(rendered), parse_markdown_table(rendered)
-    ) == []
+    assert detect_cross_section_drift(parse_records(rendered), parse_markdown_table(rendered)) == []
 
 
 def test_render_resembles_real_fixture_shape():
@@ -537,6 +536,7 @@ def test_append_preserves_existing_body_and_table(tmp_path):
 
 def _frontmatter_ids(text: str) -> set[str]:
     import yaml
+
     parts = text.split("---", 2)
     fm = yaml.safe_load(parts[1]) or {}
     return {h["id"] for h in fm.get("hooks", []) if isinstance(h, dict) and "id" in h}
@@ -552,9 +552,7 @@ def _frontmatter_only_variant() -> str:
     real = FIXTURE.read_text(encoding="utf-8")
     records = pr(real)
     return (
-        "---\n"
-        + yaml.safe_dump({"hooks": records}, allow_unicode=True, sort_keys=False)
-        + "---\n"
+        "---\n" + yaml.safe_dump({"hooks": records}, allow_unicode=True, sort_keys=False) + "---\n"
     )
 
 
@@ -565,9 +563,7 @@ def _body_freetext_only_variant() -> str:
     n_rows = sum(1 for ln in real.splitlines() if ln.startswith("| hook-ch"))
     prose_ids = [f"H{i}" for i in range(1, n_rows + 1)]
     return (
-        "# 伏笔池\n\n"
-        + "\n".join(f"主角注意到 {hid} 的伏笔已种下。" for hid in prose_ids)
-        + "\n"
+        "# 伏笔池\n\n" + "\n".join(f"主角注意到 {hid} 的伏笔已种下。" for hid in prose_ids) + "\n"
     )
 
 
@@ -652,7 +648,7 @@ def _split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
         fm = yaml.safe_load(m.group(1)) or {}
     except yaml.YAMLError:
         return {}, text
-    return fm if isinstance(fm, dict) else {}, text[m.end():]
+    return fm if isinstance(fm, dict) else {}, text[m.end() :]
 
 
 def normalize_record(rec: dict[str, Any]) -> dict[str, Any]:
@@ -682,9 +678,11 @@ def collect_records(text: str) -> list[dict[str, Any]]:
     """
     fm, body = _split_frontmatter(text)
 
-    fm_records = [
-        h for h in (fm.get("hooks") or []) if isinstance(h, dict) and h.get("id")
-    ] if isinstance(fm.get("hooks"), list) else []
+    fm_records = (
+        [h for h in (fm.get("hooks") or []) if isinstance(h, dict) and h.get("id")]
+        if isinstance(fm.get("hooks"), list)
+        else []
+    )
     body_block = parse_records(text)
     table_rows = parse_markdown_table(text)
     free_ids = _HOOK_ID_RE.findall(body)
@@ -742,9 +740,7 @@ def render_pending_hooks(
     """
     fm: dict[str, Any] = dict(preserve_frontmatter or {})
     fm["hooks"] = records
-    frontmatter = yaml.safe_dump(
-        fm, sort_keys=True, allow_unicode=True, default_flow_style=False
-    )
+    frontmatter = yaml.safe_dump(fm, sort_keys=True, allow_unicode=True, default_flow_style=False)
     return (
         "---\n"
         + frontmatter

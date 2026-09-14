@@ -141,9 +141,7 @@ class TestRule1BypassVectors:
     def test_snake_case_key_blocked(self, tmp_path):
         _real_config(tmp_path)
         with pytest.raises(ConfigError):
-            update_genre_config(
-                tmp_path, {"audit_dimensions.texture": False}, rationale="none"
-            )
+            update_genre_config(tmp_path, {"audit_dimensions.texture": False}, rationale="none")
 
     def test_malformed_scalar_change_blocked(self, tmp_path):
         _real_config(tmp_path)
@@ -262,25 +260,23 @@ def _validate_changes(
 `update_genre_config` 主体改为两阶段：
 
 ```python
-    config = _load_config(project_dir)
+config = _load_config(project_dir)
 
-    # Phase 1: stage all changes on a copy and validate — no side effects yet (F614).
-    staged = copy.deepcopy(config)
-    for key, new_value in changes.items():
-        _set_nested(staged, key, new_value)
-    _validate_changes(config, staged, changes, rationale)
+# Phase 1: stage all changes on a copy and validate — no side effects yet (F614).
+staged = copy.deepcopy(config)
+for key, new_value in changes.items():
+    _set_nested(staged, key, new_value)
+_validate_changes(config, staged, changes, rationale)
 
-    # Phase 2: commit — write config, then append trail entries.
-    entries = [(key, _get_nested(config, key), value) for key, value in changes.items()]
-    safe_write(
-        project_dir / "genre-config.json",
-        json.dumps(staged, ensure_ascii=False, indent=2),
-    )
-    for key, old_value, new_value in entries:
-        _append_audit_trail(project_dir, key, old_value, new_value, rationale)
-        log.info(
-            "config_changed", key=key, old=old_value, new=new_value, rationale=rationale
-        )
+# Phase 2: commit — write config, then append trail entries.
+entries = [(key, _get_nested(config, key), value) for key, value in changes.items()]
+safe_write(
+    project_dir / "genre-config.json",
+    json.dumps(staged, ensure_ascii=False, indent=2),
+)
+for key, old_value, new_value in entries:
+    _append_audit_trail(project_dir, key, old_value, new_value, rationale)
+    log.info("config_changed", key=key, old=old_value, new=new_value, rationale=rationale)
 ```
 
 同时更新模块 docstring：注明生产更新路径为 `govern_genre_config_change`（Task 5），本函数为库 API。
@@ -422,19 +418,17 @@ class TestGovernanceReadSide:
 `g0.py` cc 循环内（现 `cc_issues = check_config_coherence(project_dir)` 处）：
 
 ```python
-            floor: int | float | None = None
-            state_path = project_dir / "pipeline-state.json"
-            if state_path.exists():
-                try:
-                    state_data = json.loads(state_path.read_text(encoding="utf-8"))
-                    raw_floor = state_data.get("config", {}).get(
-                        "resonance_global_floor"
-                    )
-                    if isinstance(raw_floor, (int, float)) and not isinstance(raw_floor, bool):
-                        floor = raw_floor
-                except (OSError, json.JSONDecodeError):
-                    log.debug("g0_state_read_failed_for_floor", path=str(state_path))
-            cc_issues = check_config_coherence(project_dir, resonance_global_floor=floor)
+floor: int | float | None = None
+state_path = project_dir / "pipeline-state.json"
+if state_path.exists():
+    try:
+        state_data = json.loads(state_path.read_text(encoding="utf-8"))
+        raw_floor = state_data.get("config", {}).get("resonance_global_floor")
+        if isinstance(raw_floor, (int, float)) and not isinstance(raw_floor, bool):
+            floor = raw_floor
+    except (OSError, json.JSONDecodeError):
+        log.debug("g0_state_read_failed_for_floor", path=str(state_path))
+cc_issues = check_config_coherence(project_dir, resonance_global_floor=floor)
 ```
 
 - [ ] **Step 5: 写失败测试（audit_layer critical 缺失=启用 + is True 判活）**
@@ -486,9 +480,7 @@ def get_active_genre_audits(genre_config: Mapping[str, object]) -> list[str]:
 ```python
 #: Critical dims that appear in the genre activation matrix (texture only —
 #: antiAi/continuity are core-circle keys). Missing = enabled (criticality split).
-_CRITICAL_GENRE_DIMS = frozenset(
-    d for d in ("texture",) if d in GENRE_ACTIVATION_MATRIX
-)
+_CRITICAL_GENRE_DIMS = frozenset(d for d in ("texture",) if d in GENRE_ACTIVATION_MATRIX)
 ```
 
 - [ ] **Step 8: 全量相关测试**
@@ -543,6 +535,7 @@ git commit -m "fix: G0 read-side unified semantics — malformed loud-fail, is-n
 
 ```python
 """Filename-partition semantics of make_composite_checker (spec 13 R4a')."""
+
 import json
 
 from shenbi.gates.g4.decisions_validator import make_composite_checker
@@ -615,8 +608,8 @@ def test_chapter_revision_registration_order():
     import shenbi.gates.g4.generic as g
 
     src = inspect.getsource(g)
-    assert 'make_composite_checker(g4_decisions, g4_chapter_revision)' not in src
-    assert 'make_composite_checker(g4_chapter_revision, g4_decisions)' in src
+    assert "make_composite_checker(g4_decisions, g4_chapter_revision)" not in src
+    assert "make_composite_checker(g4_chapter_revision, g4_decisions)" in src
 ```
 
 - [ ] **Step 2: 跑测试确认失败** → FAIL（现行分区按扩展名；generic.py:333 反向）
@@ -873,9 +866,7 @@ class TestGenreConfigGovernanceWiring:
         }
 
         def fake_dispatch(skill, project_dir, prompt):
-            (Path(project_dir) / "genre-config.json").write_text(
-                json.dumps(bad), encoding="utf-8"
-            )
+            (Path(project_dir) / "genre-config.json").write_text(json.dumps(bad), encoding="utf-8")
             (Path(project_dir) / "genre-config-decisions.json").write_text(
                 json.dumps(sidecar), encoding="utf-8"
             )
@@ -906,9 +897,7 @@ class TestGenreConfigGovernanceWiring:
         bad["auditDimensions"]["texture"] = False
 
         def fake_dispatch(skill, project_dir, prompt):
-            (Path(project_dir) / "genre-config.json").write_text(
-                json.dumps(bad), encoding="utf-8"
-            )
+            (Path(project_dir) / "genre-config.json").write_text(json.dumps(bad), encoding="utf-8")
             return SimpleNamespace(success=True)
 
         monkeypatch.setattr("shenbi.pipeline.triggers.dispatch_skill", fake_dispatch)

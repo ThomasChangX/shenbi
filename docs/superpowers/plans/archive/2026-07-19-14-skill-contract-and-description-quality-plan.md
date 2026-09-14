@@ -38,6 +38,7 @@
 ```python
 # tests/unit/gates/test_g0_skill_contract.py
 """Tests for G0.skill_contract check (spec §3.1)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -156,9 +157,7 @@ class TestMissingWriteSemantics:
                 "description": "Use when y",
                 "contract": {
                     "kind": "artifact",
-                    "updates": [
-                        {"file": "chapters/chapter-N.md", "mode": "merge_prose"}
-                    ],
+                    "updates": [{"file": "chapters/chapter-N.md", "mode": "merge_prose"}],
                 },
             },
         )
@@ -178,10 +177,17 @@ class TestEmptyIssuesOnCleanContract:
                     "kind": "artifact",
                     "reads": ["audits/chapter-N-*.md"],
                     "writes": [
-                        {"file": "chapters/chapter-N-revision-decisions.json", "mode": "create_or_overwrite"}
+                        {
+                            "file": "chapters/chapter-N-revision-decisions.json",
+                            "mode": "create_or_overwrite",
+                        }
                     ],
                     "updates": [
-                        {"file": "chapters/chapter-N.md", "mode": "merge_prose", "no_op_behavior": "skip_write"}
+                        {
+                            "file": "chapters/chapter-N.md",
+                            "mode": "merge_prose",
+                            "no_op_behavior": "skip_write",
+                        }
                     ],
                 },
             },
@@ -209,6 +215,7 @@ Issues are returned as "G0.sc.<check>:<skill>:<detail>" strings; empty == pass.
 Skills whose frontmatter fails to parse are skipped (their own checks surface
 those errors).
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -262,6 +269,7 @@ def _parse_frontmatter(skill_md: Path) -> dict[str, Any] | None:
     Returns None (skip) on any ContractError, keeping the tolerant behavior.
     """
     from shenbi.contracts.legacy import read_frontmatter_contract
+
     try:
         return read_frontmatter_contract(skill_md)
     except Exception:
@@ -340,32 +348,30 @@ Expected: PASS (all tests)
 In `src/shenbi/gates/g0.py`, immediately before the final `return passed("G0", checks)` (after the G0.15 block), add:
 
 ```python
-    # G0.16 — skill contract + description quality (spec §3.1). Validates every
-    # skills/*/SKILL.md: description <= 500 chars and trigger-only, writes/
-    # updates disjoint, write semantics (mode) declared.
-    from shenbi.gates.g0_skill_contract import check_skill_contracts
+# G0.16 — skill contract + description quality (spec §3.1). Validates every
+# skills/*/SKILL.md: description <= 500 chars and trigger-only, writes/
+# updates disjoint, write semantics (mode) declared.
+from shenbi.gates.g0_skill_contract import check_skill_contracts
 
-    sc_issues = check_skill_contracts()
-    if sc_issues:
-        return fail(
-            "G0",
-            checks
-            + [
-                {
-                    "id": "G0.16",
-                    "s": "FAIL",
-                    "r": "; ".join(sc_issues),
-                }
-            ],
-            "round_creation",
-            [
-                "G0.16: shorten descriptions to <=500 chars (trigger-only), "
-                "remove writes/updates overlap, add mode: to declared writes/updates"
-            ],
-        )
-    checks.append(
-        {"id": "G0.16", "s": "PASS", "note": "all skills pass contract + description checks"}
+sc_issues = check_skill_contracts()
+if sc_issues:
+    return fail(
+        "G0",
+        checks
+        + [
+            {
+                "id": "G0.16",
+                "s": "FAIL",
+                "r": "; ".join(sc_issues),
+            }
+        ],
+        "round_creation",
+        [
+            "G0.16: shorten descriptions to <=500 chars (trigger-only), "
+            "remove writes/updates overlap, add mode: to declared writes/updates"
+        ],
     )
+checks.append({"id": "G0.16", "s": "PASS", "note": "all skills pass contract + description checks"})
 ```
 
 - [ ] **Step 6: Run g0 tests + verify G0.16 wiring**
@@ -417,9 +423,8 @@ class TestRealSkillsTree:
         issues = check_skill_contracts(SKILLS)
         # If this fails, the failing skill needs its writes/updates given a
         # 'mode:' (and the description shortened/triggerified if flagged).
-        assert issues == [], (
-            "G0.16 contract violations in real skills tree:\n  "
-            + "\n  ".join(issues)
+        assert issues == [], "G0.16 contract violations in real skills tree:\n  " + "\n  ".join(
+            issues
         )
 ```
 
@@ -511,6 +516,7 @@ new; reads/writes/updates already existed."
 ```python
 # tests/unit/pipeline/test_dispatch_write_semantics.py
 """Tests for contract-driven write semantics in _write_parsed_outputs (spec §3.3)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -552,9 +558,7 @@ class TestAppendDedupNotRoutedInDispatch:
         truth.parent.mkdir(parents=True)
         truth.write_text("# Current State\n\n- chapter: ch0\n", encoding="utf-8")
 
-        with patch(
-            "shenbi.pipeline.dispatch_helper.write_truth_file"
-        ) as mock_wtf:
+        with patch("shenbi.pipeline.dispatch_helper.write_truth_file") as mock_wtf:
             mock_wtf.return_value = None
             out = _write_parsed_outputs(
                 response="### FILE: truth/current_state.md\nrow\n",
@@ -735,10 +739,13 @@ def _write_parsed_outputs(
 Then update the two call sites in `_dispatch_via_api` (line ~449) and `_dispatch_via_ide` (line ~527) to pass `skill=skill`:
 
 ```python
-    written = _write_parsed_outputs(
-        output_text, output_paths, project_dir,
-        create_truth_templates=True, skill=skill,
-    )
+written = _write_parsed_outputs(
+    output_text,
+    output_paths,
+    project_dir,
+    create_truth_templates=True,
+    skill=skill,
+)
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -777,6 +784,7 @@ stays the caller's job). Callers pass skill= so the contract is consulted."
 ```python
 # tests/unit/tools/test_audit_skill_descriptions.py
 """Tests for the skill-description audit tool (spec §3.4)."""
+
 from __future__ import annotations
 
 import subprocess
@@ -843,6 +851,7 @@ Report (and exit non-zero on):
 Reuses the G0.skill_contract helpers so there is one source of truth for the
 rules. Run:  python tools/audit-skill-descriptions.py [--skills-dir skills]
 """
+
 from __future__ import annotations
 
 import argparse

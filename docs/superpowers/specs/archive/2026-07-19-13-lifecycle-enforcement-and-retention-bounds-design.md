@@ -58,9 +58,9 @@ def _check_soft_fail_escalation(state: PipelineState, project_dir: Path, chapter
     from shenbi.skill_utils.escalation.check import check_escalation
 
     for tracker_name, tracker in state.chapter_loop.soft_fail_trackers.items():
-        occurrences = tracker.get('occurrences', [])
-        threshold = tracker.get('escalation_threshold', 3)
-        window = tracker.get('window_size', 5)
+        occurrences = tracker.get("occurrences", [])
+        threshold = tracker.get("escalation_threshold", 3)
+        window = tracker.get("window_size", 5)
 
         # Count occurrences within the sliding window
         window_start = max(1, chapter - window + 1)
@@ -116,8 +116,9 @@ def _prune_old_snapshots(project_dir: Path, state: PipelineState):
     while len(snapshots) > max_snapshots:
         oldest = snapshots.pop(0)
         oldest.unlink()
-        logger.info("snapshot_pruned", file=oldest.name,
-                    remaining=len(snapshots), cap=max_snapshots)
+        logger.info(
+            "snapshot_pruned", file=oldest.name, remaining=len(snapshots), cap=max_snapshots
+        )
 
     # GUARD: assert the cap is now respected (fail loudly if still overshooting)
     if len(snapshots) > max_snapshots:

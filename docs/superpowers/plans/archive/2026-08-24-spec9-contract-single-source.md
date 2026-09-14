@@ -34,6 +34,7 @@
 class TestSkillDepsClosure:
     def test_all_registered_passes(self, tmp_path):
         from tools.lint_repo_consistency import check_skill_deps_closure
+
         # 完整闭包：目录与 deps.json 一致
         repo = tmp_path
         (repo / "skills" / "shenbi-alpha").mkdir(parents=True)
@@ -46,6 +47,7 @@ class TestSkillDepsClosure:
 
     def test_missing_registration_fails(self, tmp_path):
         from tools.lint_repo_consistency import check_skill_deps_closure
+
         repo = tmp_path
         (repo / "skills" / "shenbi-beta").mkdir(parents=True)
         (repo / "skills" / "shenbi-beta" / "SKILL.md").write_text("x")
@@ -57,6 +59,7 @@ class TestSkillDepsClosure:
 
     def test_deps_name_without_dir_fails(self, tmp_path):
         from tools.lint_repo_consistency import check_skill_deps_closure
+
         repo = tmp_path
         (repo / "skills").mkdir()
         (repo / "tests" / "tiers").mkdir(parents=True)
@@ -96,6 +99,7 @@ def _collect_deps_names(deps: Any) -> set[str]:
 def check_skill_deps_closure(repo: Path) -> list[str]:
     """Spec #9 R1: skills/ dir <-> deps.json closure (both directions)."""
     import json
+
     errs: list[str] = []
     skills_dir = repo / "skills"
     dirs = {p.name for p in skills_dir.iterdir() if p.is_dir() and p.name.startswith("shenbi-")}
@@ -160,23 +164,24 @@ Expected: 仅三模型文件自身（test_skill_integration.py:188 的类名 `Te
 ```python
 """G4 chapter_planning defer-silence rule (spec #9 R2; was dead-wired in
 contracts.skills.chapter_planning.ChapterPlanning._defer_silence_warning)."""
+
 import pytest
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
+
 
 def _plan(hook_table: str, tail: str = "") -> str:
     # Sections 1-6 first, then section 7 (hook table), then a SINGLE section 8.
     # (Checker regex `## 7\..*?\n(?=## 8\.|\Z)` stops at the FIRST `## 8.` —
     # the hook table must be inside section 7's span.)
     head = "\n".join(f"## {i}. s" for i in range(1, 7))
-    return (
-        f"{head}\nchapter_role: 推进\n"
-        f"## 7. 本章 hook 账\n{hook_table}\n{tail}\n## 8. 不要做\n无"
-    )
+    return f"{head}\nchapter_role: 推进\n## 7. 本章 hook 账\n{hook_table}\n{tail}\n## 8. 不要做\n无"
+
 
 GOOD_TABLE = """| ID | 操作 | 推进方式 | 沉默章数 |
 |----|------|---------|---------|
 | H01 | defer | 延迟原因 | 4 |
 """
+
 
 class TestDeferSilence:
     def test_defer_silent4_without_activation_fails(self, tmp_path):
@@ -220,9 +225,7 @@ Expected: FAIL（marker 不存在，前 2 个断言失败）
 # 操作=defer 且 沉默章数 ≥ 4 的行，段 7 末尾须附激活方案或 ABANDON 标注。
 s7 = _section_body(content, "## 7")  # 若无该 helper 则用现有提取方式
 defer_rows = re.findall(r"\|\s*[^|]*\|\s*defer\s*\|[^|]*\|\s*(\d+)\s*\|", s7)
-if any(int(n) >= 4 for n in defer_rows) and not re.search(
-    r"激活方案|ABANDON", s7, re.IGNORECASE
-):
+if any(int(n) >= 4 for n in defer_rows) and not re.search(r"激活方案|ABANDON", s7, re.IGNORECASE):
     mf.append(f"G4.cp.s7_defer_silence:{fp}")
 else:
     c.append({"id": "G4.cp.s7_defer_silence", "file": fp, "s": "PASS"})
@@ -268,6 +271,7 @@ git commit -m "fix: delete 3 dead contract models, wire defer-silence rule into 
 class TestPartialMatchEscapeHatch:
     def test_partial_match_returns_full_text_with_warn(self, caplog):
         from shenbi.contracts.fields import filter_to_fields
+
         text = "## A\na\n\n## B\nb\n\n## C\nc"
         out, matched = filter_to_fields(text, ["A", "B", "MISSING"], "x.md")
         assert matched is False
@@ -275,6 +279,7 @@ class TestPartialMatchEscapeHatch:
 
     def test_full_match_still_filters(self):
         from shenbi.contracts.fields import filter_to_fields
+
         text = "## A\na\n\n## B\nb"
         out, matched = filter_to_fields(text, ["A", "B"], "x.md")
         assert matched is True
@@ -282,6 +287,7 @@ class TestPartialMatchEscapeHatch:
 
     def test_json_partial_returns_full_with_warn(self):
         from shenbi.contracts.fields import filter_to_fields
+
         out, matched = filter_to_fields('{"a": 1, "b": 2}', ["a", "z"], "x.json")
         assert matched is False
         assert '"b"' in out  # 全文回退
@@ -353,6 +359,7 @@ git commit -m "fix: field filter escape hatch honors any-missing->full-text+WARN
 
 ```python
 """Spec #9 R4: per-dim-row applicability tables must not be a silent no-op."""
+
 from pathlib import Path
 import textwrap
 
@@ -361,11 +368,13 @@ from shenbi.scoring import filter_dimensions_by_test_type, load_applicability
 REPO = Path(__file__).resolve().parents[2]
 WORLDBUILDING = REPO / "tests/tiers/t1-skill/shenbi-worldbuilding/rubric.md"
 
+
 def _write_rubric(tmp_path, header_row, data_rows):
     body = "# r\n\n## Dimensions\n\n" + header_row + "\n" + "\n".join(data_rows) + "\n"
     p = tmp_path / "rubric.md"
     p.write_text(textwrap.dedent(body), encoding="utf-8")
     return str(p)
+
 
 PER_DIM_HEADER = "| # | Dimension | Bug-hunt Standard | Clean Standard |"
 PER_DIM_ROWS = [
@@ -373,6 +382,7 @@ PER_DIM_ROWS = [
     "| 1 | World depth | standard | standard |",
     "| 4 | Prose quality | N/A — exempted | standard |",
 ]
+
 
 class TestPerDimRowApplicability:
     def test_real_worldbuilding_bug_hunt_excludes_dim4(self):
@@ -388,7 +398,9 @@ class TestPerDimRowApplicability:
 
     def test_no_applicability_section_exempt(self, tmp_path):
         p = tmp_path / "rubric.md"
-        p.write_text("# r\n\n## Dimensions\n\n| # | Dimension |\n|---|---|\n| 1 | A |\n", encoding="utf-8")
+        p.write_text(
+            "# r\n\n## Dimensions\n\n| # | Dimension |\n|---|---|\n| 1 | A |\n", encoding="utf-8"
+        )
         assert load_applicability(str(p)) == {}
 
     def test_legacy_dimension_scope_still_parsed(self, tmp_path):

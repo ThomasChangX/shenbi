@@ -62,15 +62,13 @@ response = client.chat.completions.create(...)
 content = response.choices[0].message.content
 
 # NEW: Capture usage
-if hasattr(response, 'usage') and response.usage:
+if hasattr(response, "usage") and response.usage:
     usage = {
-        'prompt_tokens': response.usage.prompt_tokens,
-        'completion_tokens': response.usage.completion_tokens,
-        'total_tokens': response.usage.total_tokens,
+        "prompt_tokens": response.usage.prompt_tokens,
+        "completion_tokens": response.usage.completion_tokens,
+        "total_tokens": response.usage.total_tokens,
     }
-    log.info("llm_token_usage",
-             skill=skill, chapter=chapter,
-             **usage)
+    log.info("llm_token_usage", skill=skill, chapter=chapter, **usage)
     _record_token_usage(project_dir, skill, chapter, usage)
 ```
 
@@ -81,6 +79,7 @@ Create a persistent token usage ledger:
 ```python
 # src/shenbi/cost/ledger.py (new)
 
+
 @dataclass
 class TokenUsageRecord:
     timestamp: str
@@ -90,6 +89,7 @@ class TokenUsageRecord:
     completion_tokens: int
     total_tokens: int
     estimated_cost_usd: float
+
 
 class TokenLedger:
     """Persistent token usage ledger."""
@@ -103,13 +103,13 @@ class TokenLedger:
             timestamp=datetime.now(timezone.utc).isoformat(),
             skill=skill,
             chapter=chapter,
-            prompt_tokens=usage['prompt_tokens'],
-            completion_tokens=usage['completion_tokens'],
-            total_tokens=usage['total_tokens'],
+            prompt_tokens=usage["prompt_tokens"],
+            completion_tokens=usage["completion_tokens"],
+            total_tokens=usage["total_tokens"],
             estimated_cost_usd=_estimate_cost(usage),
         )
-        with open(self.ledger_path, 'a') as f:
-            f.write(json.dumps(asdict(record)) + '\n')
+        with open(self.ledger_path, "a") as f:
+            f.write(json.dumps(asdict(record)) + "\n")
 
     def summarize(self) -> dict:
         """Aggregate token usage by skill, chapter, and total."""
@@ -128,10 +128,11 @@ PRICING = {
     # Add other models as needed
 }
 
+
 def estimate_cost(usage: dict, model: str = "gpt-4o") -> float:
     rates = PRICING.get(model, PRICING["gpt-4o"])
-    input_cost = usage['prompt_tokens'] * rates['input']
-    output_cost = usage['completion_tokens'] * rates['output']
+    input_cost = usage["prompt_tokens"] * rates["input"]
+    output_cost = usage["completion_tokens"] * rates["output"]
     return input_cost + output_cost
 ```
 
@@ -142,15 +143,15 @@ Before dispatching any skill, estimate the prompt token count and warn if it exc
 ```python
 def _estimate_prompt_tokens(prompt: str) -> int:
     """Rough estimate: 1 token ≈ 4 chars for English, ≈ 1.5 chars for CJK."""
-    cjk_chars = sum(1 for c in prompt if '\u4e00' <= c <= '\u9fff')
+    cjk_chars = sum(1 for c in prompt if "\u4e00" <= c <= "\u9fff")
     other_chars = len(prompt) - cjk_chars
     return int(cjk_chars / 1.5 + other_chars / 4)
+
 
 # Before dispatch:
 estimated = _estimate_prompt_tokens(full_prompt)
 if estimated > model_context_limit * 0.8:
-    log.warning("prompt_approaching_context_limit",
-                estimated=estimated, limit=model_context_limit)
+    log.warning("prompt_approaching_context_limit", estimated=estimated, limit=model_context_limit)
 ```
 
 ### 3.5 Cost Dashboard CLI

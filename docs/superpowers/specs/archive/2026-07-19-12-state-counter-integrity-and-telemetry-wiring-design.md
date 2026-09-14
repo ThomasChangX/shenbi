@@ -70,6 +70,7 @@ When `_snapshot_chapter_files` (`chapter_loop.py:903-960`) writes a snapshot:
 #
 # Fix: Maintain a SEPARATE durable counter that is NOT cleared on success.
 
+
 def _handle_g4_failure(state: PipelineState, chapter: int, skill: str, failures: list[str]):
     """Record G4 failure for durable retry budget tracking."""
     step_key = f"ch{chapter}-{skill}"
@@ -84,8 +85,13 @@ def _handle_g4_failure(state: PipelineState, chapter: int, skill: str, failures:
     # Enforce retry limit using DURABLE counter
     max_retries = state.config.max_audit_retries
     if current_budget + 1 > max_retries:
-        logger.error("retry_limit_exhausted", chapter=chapter, skill=skill,
-                     consumed=current_budget + 1, max=max_retries)
+        logger.error(
+            "retry_limit_exhausted",
+            chapter=chapter,
+            skill=skill,
+            consumed=current_budget + 1,
+            max=max_retries,
+        )
         raise RetryExhaustedError(f"Retry budget ({max_retries}) exhausted for {step_key}")
 ```
 
@@ -100,8 +106,9 @@ def _route_revision_after_resonance(state, project_dir, chapter):
         cs = state.chapter_loop.chapter_states[chapter - 1]
         cs.revision_count += 1  # ADD THIS LINE
 
-        logger.info("revision_routed", chapter=chapter, route=route,
-                    revision_count=cs.revision_count)
+        logger.info(
+            "revision_routed", chapter=chapter, route=route, revision_count=cs.revision_count
+        )
 ```
 
 ### 3.3 Wire last_snapshot to Snapshot Creation
@@ -144,9 +151,12 @@ def _heal_state_counters(state: PipelineState, project_dir: Path):
         # seed it with a minimum of 1 (conservative: never undercount consumed budget).
         if step_key not in budget:
             budget[step_key] = 1
-            logger.warning("retry_budget_consumed_healed", step_key=step_key,
-                           seeded_value=1,
-                           note="durable budget missing for key with retry_feedback")
+            logger.warning(
+                "retry_budget_consumed_healed",
+                step_key=step_key,
+                seeded_value=1,
+                note="durable budget missing for key with retry_feedback",
+            )
 
     # Heal revision_count: count revision-decisions files on disk
     # Note: this counts at most 1 since the latest revision-decisions file
@@ -157,9 +167,13 @@ def _heal_state_counters(state: PipelineState, project_dir: Path):
         rev_path = project_dir / f"chapters/chapter-{cs.chapter_number}-revision-decisions.json"
         disk_count = 1 if rev_path.exists() else 0
         if cs.revision_count != disk_count:
-            logger.warning("revision_count_healed", chapter=cs.chapter_number,
-                           state_value=cs.revision_count, disk_value=disk_count,
-                           note="disk_count undercounts: revision-decisions file is overwritten per round")
+            logger.warning(
+                "revision_count_healed",
+                chapter=cs.chapter_number,
+                state_value=cs.revision_count,
+                disk_value=disk_count,
+                note="disk_count undercounts: revision-decisions file is overwritten per round",
+            )
             cs.revision_count = disk_count
 
     # Heal last_snapshot: find the most recent snapshot on disk

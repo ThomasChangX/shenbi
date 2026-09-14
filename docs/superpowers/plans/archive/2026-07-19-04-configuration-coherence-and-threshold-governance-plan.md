@@ -366,18 +366,14 @@ def _seed_genre_config(tmp_path: Path) -> Path:
 class TestUpdateGenreConfig:
     def test_non_critical_dim_can_be_disabled_without_rationale(self, tmp_path):
         _seed_genre_config(tmp_path)
-        update_genre_config(
-            tmp_path, {"auditDimensions.dialogue": False}, rationale="none needed"
-        )
+        update_genre_config(tmp_path, {"auditDimensions.dialogue": False}, rationale="none needed")
         cfg = json.loads((tmp_path / "genre-config.json").read_text(encoding="utf-8"))
         assert cfg["auditDimensions"]["dialogue"] is False
 
     def test_critical_dim_requires_long_rationale(self, tmp_path):
         _seed_genre_config(tmp_path)
         with pytest.raises(ConfigError) as exc:
-            update_genre_config(
-                tmp_path, {"auditDimensions.texture": False}, rationale="too short"
-            )
+            update_genre_config(tmp_path, {"auditDimensions.texture": False}, rationale="too short")
         assert "texture" in str(exc.value)
         assert ">= 50 char" in str(exc.value)
 
@@ -387,17 +383,13 @@ class TestUpdateGenreConfig:
             "Disabled because we switched to the shenbi-review-sensory skill which "
             "covers the same sensory-detail detection surface (E34 mitigation)."
         )
-        update_genre_config(
-            tmp_path, {"auditDimensions.texture": False}, rationale=long_rationale
-        )
+        update_genre_config(tmp_path, {"auditDimensions.texture": False}, rationale=long_rationale)
         cfg = json.loads((tmp_path / "genre-config.json").read_text(encoding="utf-8"))
         assert cfg["auditDimensions"]["texture"] is False
 
     def test_audit_trail_entry_appended(self, tmp_path):
         _seed_genre_config(tmp_path)
-        update_genre_config(
-            tmp_path, {"resonance_global_floor": 70}, rationale="raising the bar"
-        )
+        update_genre_config(tmp_path, {"resonance_global_floor": 70}, rationale="raising the bar")
         trail = (tmp_path / "config-change-log.jsonl").read_text(encoding="utf-8")
         entry = json.loads(trail.strip().splitlines()[-1])
         assert entry["key"] == "resonance_global_floor"
@@ -518,9 +510,7 @@ def _append_audit_trail(
             fh.write(line)
 
 
-def update_genre_config(
-    project_dir: Path, changes: dict[str, Any], rationale: str
-) -> None:
+def update_genre_config(project_dir: Path, changes: dict[str, Any], rationale: str) -> None:
     """Apply *changes* (dotted keys) to genre-config.json with governance.
 
     Raises :class:`ConfigError` if a critical audit dimension is being disabled
@@ -547,7 +537,10 @@ def update_genre_config(
 
         # Rule 2: floor cannot drop below the revision trigger.
         if key == "resonance_global_floor":
-            if isinstance(new_value, int) and new_value < DEFAULT_THRESHOLDS.resonance_revision_trigger:
+            if (
+                isinstance(new_value, int)
+                and new_value < DEFAULT_THRESHOLDS.resonance_revision_trigger
+            ):
                 raise ConfigError(
                     f"floor_too_low:resonance_global_floor={new_value} < revision trigger "
                     f"{DEFAULT_THRESHOLDS.resonance_revision_trigger}. Floors below the "
@@ -740,9 +733,7 @@ def check_config_coherence(
     # --- Check 1 & 2: floor coherence (only when a floor was supplied). ---
     if resonance_global_floor is not None:
         if resonance_global_floor != DEFAULT_THRESHOLDS.resonance_global_floor:
-            lo, hi = sorted(
-                (resonance_global_floor, DEFAULT_THRESHOLDS.resonance_global_floor)
-            )
+            lo, hi = sorted((resonance_global_floor, DEFAULT_THRESHOLDS.resonance_global_floor))
             issues.append(
                 f"G0.cc.threshold_mismatch:resonance_floor "
                 f"state={resonance_global_floor} vs "
@@ -853,34 +844,33 @@ from shenbi.gates.g0_config_coherence import check_config_coherence
 Then locate the final success path of `gate_G0` (the `return passed("G0", checks)` near the end of the function). Replace it with:
 
 ```python
-    # G0.cc — configuration coherence (threshold mismatch + critical audit
-    # disabled). Production genre-config.json does NOT live at the repo root
-    # (PROJECT); it lives one level down under novel-output/<project>/. So scan
-    # PROJECT / "novel-output" / "*" for any subdir containing a genre-config.json
-    # and run the coherence check against each. G0 is also invoked standalone on
-    # the repo itself, where there may be no novel-output/ at all — in that case
-    # the loop finds nothing and the check is a silent no-op.
-    cc_must_fix: list[str] = []
-    try:
-        novel_output = PROJECT / "novel-output"
-        project_dirs: list[Path] = []
-        if novel_output.is_dir():
-            project_dirs = [
-                p for p in novel_output.iterdir()
-                if p.is_dir() and (p / "genre-config.json").exists()
-            ]
-        for project_dir in project_dirs:
-            cc_issues = check_config_coherence(project_dir)
-            for idx, issue in enumerate(cc_issues):
-                check_id = f"G0.cc.{idx + 1}"
-                checks.append({"id": check_id, "s": "FAIL", "r": issue})
-                cc_must_fix.append(check_id)
-    except (FileNotFoundError, json.JSONDecodeError, OSError):
-        log.debug("g0_config_coherence_skipped")
+# G0.cc — configuration coherence (threshold mismatch + critical audit
+# disabled). Production genre-config.json does NOT live at the repo root
+# (PROJECT); it lives one level down under novel-output/<project>/. So scan
+# PROJECT / "novel-output" / "*" for any subdir containing a genre-config.json
+# and run the coherence check against each. G0 is also invoked standalone on
+# the repo itself, where there may be no novel-output/ at all — in that case
+# the loop finds nothing and the check is a silent no-op.
+cc_must_fix: list[str] = []
+try:
+    novel_output = PROJECT / "novel-output"
+    project_dirs: list[Path] = []
+    if novel_output.is_dir():
+        project_dirs = [
+            p for p in novel_output.iterdir() if p.is_dir() and (p / "genre-config.json").exists()
+        ]
+    for project_dir in project_dirs:
+        cc_issues = check_config_coherence(project_dir)
+        for idx, issue in enumerate(cc_issues):
+            check_id = f"G0.cc.{idx + 1}"
+            checks.append({"id": check_id, "s": "FAIL", "r": issue})
+            cc_must_fix.append(check_id)
+except (FileNotFoundError, json.JSONDecodeError, OSError):
+    log.debug("g0_config_coherence_skipped")
 
-    if cc_must_fix:
-        return fail("G0", checks, "config_coherence", cc_must_fix)
-    return passed("G0", checks)
+if cc_must_fix:
+    return fail("G0", checks, "config_coherence", cc_must_fix)
+return passed("G0", checks)
 ```
 
 > The `state.config.resonance_global_floor` value is not available inside `gate_G0` (G0 runs before state load); we therefore omit the floor checks here and rely on the production fix in Task 7 to correct the default. The floor-mismatch rule still fires in unit tests of `check_config_coherence` and in any future caller that passes the floor. This keeps G0 self-contained.

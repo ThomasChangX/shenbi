@@ -60,12 +60,12 @@ update_mode: append  # 或 replace
 
 ```python
 # truth 写入工具
-def write_truth_file(project_dir, filename, new_content, mode='replace'):
-    path = project_dir / 'truth' / filename
-    if mode == 'append':
-        existing = path.read_text() if path.exists() else ''
+def write_truth_file(project_dir, filename, new_content, mode="replace"):
+    path = project_dir / "truth" / filename
+    if mode == "append":
+        existing = path.read_text() if path.exists() else ""
         # 仅追加新章节部分，不重复已有内容
-        path.write_text(existing.rstrip() + '\n' + new_content)
+        path.write_text(existing.rstrip() + "\n" + new_content)
     else:
         safe_write(path, new_content)
 ```

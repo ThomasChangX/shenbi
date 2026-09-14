@@ -70,6 +70,7 @@ if step.checkpoint is not None:
     if step.checkpoint == CheckpointType.CHAPTER_MEMO and not cfg.chapter_memo_review_required:
         # Auto mode: commit staging immediately since no human review
         from shenbi.pipeline.checkpoint import commit_staging
+
         try:
             commit_staging(project_dir, [_substitute_chapter(step.output_path, chapter)])
         except FileNotFoundError:
@@ -78,6 +79,7 @@ if step.checkpoint is not None:
         # Fall through to chapter-completion check (no checkpoint raised)
     elif step.checkpoint == CheckpointType.STATE_SETTLE and not cfg.state_settle_review_required:
         from shenbi.pipeline.checkpoint import commit_staging
+
         # state-settling writes multiple truth files
         staging_files = [f.name for f in (project_dir / "staging" / "truth").glob("*.md")]
         if staging_files:
@@ -105,10 +107,12 @@ if uses_staging:
 
 from enum import StrEnum
 
+
 class G4Severity(StrEnum):
-    HARD = "hard"    # 结构性缺陷 — 必须重试
-    SOFT = "soft"    # 质量阈值 — 单次 warn，累积 3 次 escalate
-    WARN = "warn"    # 信息性 — 记录即可
+    HARD = "hard"  # 结构性缺陷 — 必须重试
+    SOFT = "soft"  # 质量阈值 — 单次 warn，累积 3 次 escalate
+    WARN = "warn"  # 信息性 — 记录即可
+
 
 G4_CHECK_MAP: dict[str, G4Severity] = {
     # HARD — structural problems
@@ -136,12 +140,13 @@ G4_CHECK_MAP: dict[str, G4Severity] = {
     "cp.s5_choice": G4Severity.WARN,
 }
 
+
 # Soft-fail trend tracking with sliding window (persisted in PipelineState)
 @dataclass
 class SoftFailTracker:
     check_id: str
     occurrences: list[int] = field(default_factory=list)  # chapter numbers
-    window_size: int = 5         # sliding window — only look at last N chapters
+    window_size: int = 5  # sliding window — only look at last N chapters
     escalation_threshold: int = 3
 
     def record(self, chapter: int) -> bool:
@@ -182,6 +187,7 @@ class SoftFailTracker:
 # 新文件: src/shenbi/pipeline/context_curation.py
 """Deterministic context curation — replaces LLM-based context-composing."""
 
+
 def curate_context(project_dir: Path, chapter: int) -> str:
     """Curate the assembled context into a structured 9-section format.
 
@@ -217,9 +223,15 @@ def _reorder_to_layered_format(assembled: str, chapter: int, project_dir: Path) 
 
     # Priority key for sorting
     priority_order = {
-        "chapter-plan": 1, "book_spine": 2, "book_strata": 3,
-        "volume_summaries": 4, "arcs": 5, "chapter_summaries": 6,
-        "world_rules": 7, "style_profile": 7, "audit_drift": 7,
+        "chapter-plan": 1,
+        "book_spine": 2,
+        "book_strata": 3,
+        "volume_summaries": 4,
+        "arcs": 5,
+        "chapter_summaries": 6,
+        "world_rules": 7,
+        "style_profile": 7,
+        "audit_drift": 7,
     }
 
     def sort_key(s: Section) -> int:
@@ -259,14 +271,16 @@ def _parse_assembled_sections(assembled: str) -> list[Section]:
             continue
         category = header_match.group(1)
         source_id = header_match.group(2).strip()
-        text = part[header_match.end():].strip()
-        sections.append(Section(
-            source=f"{category}:{source_id}",
-            priority={"route-a": 1.0, "route-b": 0.8, "route-c": 0.6}.get(category, 0.5),
-            text=text,
-            category=category,
-            estimated_tokens=int(len(text) * 1.5),
-        ))
+        text = part[header_match.end() :].strip()
+        sections.append(
+            Section(
+                source=f"{category}:{source_id}",
+                priority={"route-a": 1.0, "route-b": 0.8, "route-c": 0.6}.get(category, 0.5),
+                text=text,
+                category=category,
+                estimated_tokens=int(len(text) * 1.5),
+            )
+        )
     return sections
 
 
@@ -286,7 +300,9 @@ def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
     Reads actual chapter files (not summaries — SKILL.md 铁律 4).
     """
     if chapter < 3:
-        return "| 章节 | 结尾方式 | 末段首句 |\n|------|---------|---------|\n| (不足3章) | — | — |\n"
+        return (
+            "| 章节 | 结尾方式 | 末段首句 |\n|------|---------|---------|\n| (不足3章) | — | — |\n"
+        )
 
     ENDING_PATTERNS = {
         "cliffhanger": r"(突然|猛然|就在此时|一声|眼前一|[？?]$)",
@@ -306,8 +322,11 @@ def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
 
         text = ch_path.read_text(encoding="utf-8")
         # Get last paragraph (skip meta blocks)
-        paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()
-                      and not p.startswith("<!--") and not p.startswith("## ")]
+        paragraphs = [
+            p.strip()
+            for p in text.split("\n\n")
+            if p.strip() and not p.startswith("<!--") and not p.startswith("## ")
+        ]
         last_p = paragraphs[-1] if paragraphs else ""
         first_20 = last_p[:20].replace("\n", " ")
 
@@ -329,8 +348,12 @@ def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
     # Monitor classifier health: if "other" rate exceeds 20%, patterns may have drifted
     other_rate = ending_types.count("other") / len(ending_types) if ending_types else 0
     if other_rate > 0.2:
-        log.warning("ending_classifier_drift", chapter=chapter, other_rate=f"{other_rate:.0%}",
-                    msg="ending type classifier 'other' rate high — regex patterns may need update")
+        log.warning(
+            "ending_classifier_drift",
+            chapter=chapter,
+            other_rate=f"{other_rate:.0%}",
+            msg="ending type classifier 'other' rate high — regex patterns may need update",
+        )
 
     header = "| 章节 | 结尾方式 | 末段首句（前 20 字） |\n|------|---------|-------------------|\n"
     return header + "\n".join(rows) + warning
@@ -402,6 +425,7 @@ if step.calls_context_assembly:
 # 新文件: src/shenbi/pipeline/hook_planting.py
 """Deterministic hook planting — replaces LLM-based foreshadowing-plant."""
 
+
 def plant_hooks_from_plan(project_dir: Path, chapter: int) -> int:
     """Parse chapter plan section 7, extract plant operations, generate
     hook YAML, and append to truth/pending_hooks.md.
@@ -467,19 +491,22 @@ def _parse_hook_entries(section7: str, chapter: int | None = None) -> list[dict]
             continue
         cells = [c.strip() for c in line.split("|") if c.strip()]
         if len(cells) >= 3 and "plant" in cells[2].lower():
-            entries.append({
-                "hook_id": cells[0],
-                "content": cells[1],
-                "operation": "plant",
-                "type": cells[3] if len(cells) > 3 else None,
-                "dimension": cells[4] if len(cells) > 4 else None,
-            })
+            entries.append(
+                {
+                    "hook_id": cells[0],
+                    "content": cells[1],
+                    "operation": "plant",
+                    "type": cells[3] if len(cells) > 3 else None,
+                    "dimension": cells[4] if len(cells) > 4 else None,
+                }
+            )
 
     # Try YAML block format
     yaml_match = re.search(r"```ya?ml\s*\n(.*?)```", section7, re.DOTALL)
     if yaml_match:
         try:
             import yaml
+
             yaml_entries = yaml.safe_load(yaml_match.group(1))
             if isinstance(yaml_entries, list):
                 entries.extend(yaml_entries)
@@ -494,6 +521,7 @@ def _parse_hook_entries(section7: str, chapter: int | None = None) -> list[dict]
 ```python
 if step.skill == "shenbi-foreshadowing-plant":
     from shenbi.pipeline.hook_planting import plant_hooks_from_plan
+
     count = plant_hooks_from_plan(project_dir, chapter)
     _record_step_done(state, step, chapter)
     _reset_retries(state, step, chapter)
@@ -656,10 +684,10 @@ import random
 from dataclasses import dataclass
 
 # Resilience configuration
-MAX_CONCURRENT_REVIEWS = 4   # Semaphore cap — stay under API rate limits
-MAX_RETRIES = 2              # Per-review retry on transient failures
-RETRY_BACKOFF_BASE = 2.0     # Exponential backoff base (seconds)
-RETRY_JITTER = 1.0           # Random jitter range (seconds)
+MAX_CONCURRENT_REVIEWS = 4  # Semaphore cap — stay under API rate limits
+MAX_RETRIES = 2  # Per-review retry on transient failures
+RETRY_BACKOFF_BASE = 2.0  # Exponential backoff base (seconds)
+RETRY_JITTER = 1.0  # Random jitter range (seconds)
 
 # Shared rate limiter across all parallel dispatch calls
 _rate_limiter = Semaphore(MAX_CONCURRENT_REVIEWS)
@@ -683,8 +711,10 @@ def _dispatch_with_retry(task: ReviewTask) -> DispatchResult:
             return result
 
         if attempt < MAX_RETRIES:
-            delay = RETRY_BACKOFF_BASE ** attempt + random.uniform(0, RETRY_JITTER)
-            log.warning("review_retry", skill=task.skill, attempt=attempt+1, delay=f"{delay:.1f}s")
+            delay = RETRY_BACKOFF_BASE**attempt + random.uniform(0, RETRY_JITTER)
+            log.warning(
+                "review_retry", skill=task.skill, attempt=attempt + 1, delay=f"{delay:.1f}s"
+            )
             time.sleep(delay)
 
     log.error("review_all_retries_exhausted", skill=task.skill)
@@ -701,10 +731,7 @@ def dispatch_reviews_parallel(tasks: list[ReviewTask]) -> list[DispatchResult]:
     results: list[DispatchResult] = []
 
     with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_REVIEWS) as executor:
-        future_map = {
-            executor.submit(_dispatch_with_retry, t): t
-            for t in tasks
-        }
+        future_map = {executor.submit(_dispatch_with_retry, t): t for t in tasks}
 
         for future in as_completed(future_map):
             task = future_map[future]
@@ -792,7 +819,7 @@ def consolidate_review_results(results: list[DispatchResult], chapter: int) -> s
 
     summary += f"\n## All Reports\n"
     for i, result in enumerate(results):
-        summary += f"- Report {i+1}: {'PASS' if result.success else 'FAIL'}\n"
+        summary += f"- Report {i + 1}: {'PASS' if result.success else 'FAIL'}\n"
 
     return summary
 ```
@@ -806,9 +833,12 @@ step 10 (核心审查批次) 和 genre circle 合并为两波并行 dispatch：
 if step_idx == _FIRST_AUDIT_IDX:
     # Wave 1: 7 core-circle reviews in parallel
     core_tasks = [
-        ReviewTask("shenbi-review-anti-ai", project_dir,
-                   f"Execute anti-ai review for chapter {chapter}.",
-                   f"audits/chapter-{chapter}-anti-ai.md"),
+        ReviewTask(
+            "shenbi-review-anti-ai",
+            project_dir,
+            f"Execute anti-ai review for chapter {chapter}.",
+            f"audits/chapter-{chapter}-anti-ai.md",
+        ),
         # ... 6 more core reviews
     ]
     core_results = dispatch_reviews_parallel(core_tasks, max_workers=7)
@@ -816,9 +846,12 @@ if step_idx == _FIRST_AUDIT_IDX:
     # Wave 2: genre-circle reviews in parallel
     genre_skills = get_active_genre_audits(gc)
     genre_tasks = [
-        ReviewTask(skill, project_dir,
-                   f"Execute {skill} audit for chapter {chapter}.",
-                   f"audits/chapter-{chapter}-{_audit_suffix(skill)}.md")
+        ReviewTask(
+            skill,
+            project_dir,
+            f"Execute {skill} audit for chapter {chapter}.",
+            f"audits/chapter-{chapter}-{_audit_suffix(skill)}.md",
+        )
         for skill in genre_skills
     ]
     genre_results = dispatch_reviews_parallel(genre_tasks, max_workers=4) if genre_tasks else []
@@ -849,6 +882,7 @@ if step_idx == _FIRST_AUDIT_IDX:
 
 ```python
 # src/shenbi/pipeline/chapter_loop.py — conditional step execution
+
 
 def _should_run_step(step: ChapterStep, state: PipelineState, project_dir: Path) -> bool:
     """Determine if a periodic step should run this chapter."""
@@ -959,9 +993,7 @@ def _snapshot_chapter_files(project_dir: Path, chapter: int) -> None:
     manifest = _load_manifest(snap_dir)
     manifest["chapters"][str(chapter)] = {
         "timestamp": timestamp,
-        "files": [
-            f.name for f in snap_dir.glob(f"chapter-{chapter:03d}-{timestamp}*")
-        ],
+        "files": [f.name for f in snap_dir.glob(f"chapter-{chapter:03d}-{timestamp}*")],
     }
     _save_manifest(snap_dir, manifest)
 

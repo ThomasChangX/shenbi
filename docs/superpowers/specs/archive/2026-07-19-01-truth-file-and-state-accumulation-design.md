@@ -191,19 +191,20 @@ from shenbi.safe_write import safe_write
 _ACCUM_REGISTRY: dict[str, tuple[str, str, int]] = {
     # filename: (format, key_field, key_column_index)
     # key_column_index = 0-based index of the key column in markdown rows
-    "resonance_trend.md":  ("markdown_table", "chapter", 0),
-    "audit_drift.md":      ("markdown_table", "chapter", 0),
-    "emotional_arcs.md":   ("markdown_table", "chapter", 0),
-    "chapter_summaries.md":("markdown_table", "chapter", 0),
-    "pending_hooks.md":    ("yaml",           "id",      None),
+    "resonance_trend.md": ("markdown_table", "chapter", 0),
+    "audit_drift.md": ("markdown_table", "chapter", 0),
+    "emotional_arcs.md": ("markdown_table", "chapter", 0),
+    "chapter_summaries.md": ("markdown_table", "chapter", 0),
+    "pending_hooks.md": ("yaml", "id", None),
 }
+
 
 def write_truth_file(
     project_dir: Path,
     filename: str,
     new_data: str | list[dict],  # str for markdown_table mode, list[dict] for yaml
     *,
-    mode: str = "replace",       # replace | upsert_yaml | upsert_markdown_row
+    mode: str = "replace",  # replace | upsert_yaml | upsert_markdown_row
     key_field: str | None = None,
 ) -> None:
     """Write to a truth file, respecting update_mode.
@@ -238,7 +239,11 @@ def write_truth_file(
         content = _serialize_yaml_records(merged, filename)
         safe_write(path, content)
     else:  # replace
-        safe_write(path, new_data if isinstance(new_data, str) else _serialize_yaml_records(new_data, filename))
+        safe_write(
+            path,
+            new_data if isinstance(new_data, str) else _serialize_yaml_records(new_data, filename),
+        )
+
 
 def _upsert_markdown_table_row(existing: str, new_row: str, key_name: str) -> str:
     """Dedup markdown table row by key column value.
@@ -300,6 +305,7 @@ Post-hoc G4 detection alone is insufficient — failing G4 sends the chapter bac
 # Parameter agents (冷, 光, 安静, etc.) belong in particle_ledger.md (which
 # already exists and already tracks them) — NOT duplicated in character_matrix.md
 
+
 def _check_character_matrix_integrity(path: Path, context: GateContext) -> list[Issue]:
     """Verify human character definitions persist and parameter agents don't leak."""
     issues = []
@@ -309,12 +315,14 @@ def _check_character_matrix_integrity(path: Path, context: GateContext) -> list[
     # Check at least one human character name appears in definitions section
     definitions_section = _extract_section(text, "角色定义") or _extract_section(text, "人物")
     if definitions_section and not any(n in definitions_section for n in human_names):
-        issues.append(Issue(
-            id="G4.ss.human_chars_erased",
-            severity="error",
-            message="Human character definitions erased from character_matrix.md; "
-                    "only parameter agents remain",
-        ))
+        issues.append(
+            Issue(
+                id="G4.ss.human_chars_erased",
+                severity="error",
+                message="Human character definitions erased from character_matrix.md; "
+                "only parameter agents remain",
+            )
+        )
     return issues
 ```
 
@@ -323,15 +331,19 @@ def _check_character_matrix_integrity(path: Path, context: GateContext) -> list[
 ```python
 # G4.cd.protagonist_presence check — add to chapter_drafting.py
 def _check_protagonist_presence(path: Path, context: GateContext) -> list[Issue]:
-    protagonist_names = _load_protagonist_names(context.project_dir)  # from characters/protagonist.md
+    protagonist_names = _load_protagonist_names(
+        context.project_dir
+    )  # from characters/protagonist.md
     text = extract_prose(path)
     name_count = sum(text.count(n) for n in protagonist_names)
     if name_count < 3:
-        issues.append(Issue(
-            id="G4.cd.protagonist_absent",
-            severity="error",
-            message=f"Protagonist appears <3 times ({name_count}) in chapter",
-        ))
+        issues.append(
+            Issue(
+                id="G4.cd.protagonist_absent",
+                severity="error",
+                message=f"Protagonist appears <3 times ({name_count}) in chapter",
+            )
+        )
     return issues
 ```
 
@@ -367,10 +379,11 @@ if overall is None:
 # (column 7 = overall score, which is all the reader extracts)
 trend_row = f"| Ch{chapter} | - | - | - | - | {overall} | - |"
 write_truth_file(
-    project_dir, "resonance_trend.md",
+    project_dir,
+    "resonance_trend.md",
     trend_row,
     mode="upsert_markdown_row",
-    key_field="chapter",       # dedup on first column (Ch{N})
+    key_field="chapter",  # dedup on first column (Ch{N})
 )
 ```
 
@@ -404,6 +417,7 @@ def run_triggered_skills(state, project_dir, chapter, result) -> bool:
             return False
     # ...
 
+
 # Fix 2: Self-heal on resume — in cli.py or check_triggers
 def check_triggers(state, chapter, total_chapters) -> TriggerResult:
     r = TriggerResult()
@@ -415,13 +429,14 @@ def check_triggers(state, chapter, total_chapters) -> TriggerResult:
         r.style_learning = True
     return r
 
+
 def _style_profile_is_stale(project_dir: Path) -> bool:
     """True if style_profile.md is still bootstrap mode with >=3 chapters done."""
     profile = project_dir / "style" / "style_profile.md"
     if not profile.exists():
         return False
     text = profile.read_text()
-    is_bootstrap = ("confidence: low" in text or "Generation mode: Seed" in text)
+    is_bootstrap = "confidence: low" in text or "Generation mode: Seed" in text
     sample_count_match = re.search(r"[Ss]ample.{0,20}count.{0,5}(\d+)", text)
     sample_count = int(sample_count_match.group(1)) if sample_count_match else 0
     if is_bootstrap and sample_count == 0:
@@ -443,20 +458,26 @@ def _count_audits_on_disk(project_dir: Path, chapter: int) -> int:
     audit_dir = project_dir / "audits"
     return len(list(audit_dir.glob(f"chapter-{chapter}-*.md")))
 
+
 # Before state save (chapter_loop.py, near state persistence)
 actual_audits = _count_audits_on_disk(project_dir, chapter)
 if actual_audits != recorded_audits:
     if actual_audits > recorded_audits:
         # Safe direction: disk has more — we missed counting some
-        logger.warning("audit_count_undercount", chapter=chapter,
-                       recorded=recorded_audits, actual=actual_audits)
-        ch_state['audit_count'] = actual_audits  # self-heal
+        logger.warning(
+            "audit_count_undercount",
+            chapter=chapter,
+            recorded=recorded_audits,
+            actual=actual_audits,
+        )
+        ch_state["audit_count"] = actual_audits  # self-heal
     else:
         # Unsafe direction: disk has fewer — possible data loss or gate bypass
-        logger.error("audit_count_overcount", chapter=chapter,
-                     recorded=recorded_audits, actual=actual_audits)
+        logger.error(
+            "audit_count_overcount", chapter=chapter, recorded=recorded_audits, actual=actual_audits
+        )
         # Do NOT self-heal — flag for investigation
-        ch_state['audit_count_anomaly'] = True
+        ch_state["audit_count_anomaly"] = True
 ```
 
 ### 3.7 Register Missing Audit Types in Audit Registry

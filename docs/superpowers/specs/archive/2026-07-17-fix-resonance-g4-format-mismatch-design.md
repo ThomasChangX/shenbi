@@ -62,10 +62,10 @@ G4_FORMAT_EXAMPLES = {
         "注意：'判定: ' 后必须有空格，且必须使用中文冒号"
     ),
     "G4.rr.evidence": (
-        "证据列每行必须包含文件和行号引用，格式：\n"
-        "chapter-N.md L45-52 > \"引用原文\""
+        '证据列每行必须包含文件和行号引用，格式：\nchapter-N.md L45-52 > "引用原文"'
     ),
 }
+
 
 def _enrich_g4_feedback(failures: list[str]) -> str:
     feedback = "以下 G4 检查失败，请按指定格式修正：\n\n"
@@ -88,9 +88,9 @@ def _enrich_g4_feedback(failures: list[str]) -> str:
 ```python
 # 对 verdict 检查，允许多种合理变体
 VERDICT_PATTERNS = [
-    r'判定[：:]\s*(通过|阻断|待人机复核)',
-    r'\*\*判定\*\*[：:]\s*(通过|阻断|待人机复核)',
-    r'Verdict[：:]\s*(PASS|BLOCK|HUMAN_REVIEW)',
+    r"判定[：:]\s*(通过|阻断|待人机复核)",
+    r"\*\*判定\*\*[：:]\s*(通过|阻断|待人机复核)",
+    r"Verdict[：:]\s*(PASS|BLOCK|HUMAN_REVIEW)",
 ]
 ```
 

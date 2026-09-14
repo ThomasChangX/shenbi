@@ -39,12 +39,12 @@
 def generate_review_summary(project_dir, chapter):
     results = {}
     for audit_type in ALL_AUDIT_TYPES:
-        audit_file = project_dir / 'audits' / f'chapter-{chapter}-{audit_type}.md'
+        audit_file = project_dir / "audits" / f"chapter-{chapter}-{audit_type}.md"
         if audit_file.exists():
             results[audit_type] = _parse_audit_verdict(audit_file)
 
     # 仅在有 blocking/critical 时才调用 LLM 做 escalation
-    has_blocking = any(r.get('blocking') for r in results.values())
+    has_blocking = any(r.get("blocking") for r in results.values())
     if has_blocking:
         return _dispatch_llm_escalation(project_dir, chapter, results)
     else:
@@ -190,22 +190,26 @@ contract:
 ```python
 def check_volume_alignment(project_dir, chapter, plan_text):
     """验证 chapter plan 是否与 volume_map 对齐。非阻断——仅 WARN。"""
-    vm = (project_dir / 'outline' / 'volume_map.md').read_text()
+    vm = (project_dir / "outline" / "volume_map.md").read_text()
     node = extract_chapter_node(vm, chapter)
 
     issues = []
     if node:
         # 关键术语匹配
-        key_terms = extract_key_terms(node['desc'])
+        key_terms = extract_key_terms(node["desc"])
         match_rate = sum(1 for t in key_terms if t in plan_text) / len(key_terms)
         if match_rate < 0.3:
-            issues.append(f"Volume alignment WARNING: only {match_rate:.0%} key terms from volume_map present in plan")
+            issues.append(
+                f"Volume alignment WARNING: only {match_rate:.0%} key terms from volume_map present in plan"
+            )
 
         # 人物登场检查
         expected_chars = extract_expected_characters(vm, chapter)
         for char in expected_chars:
             if char not in plan_text:
-                issues.append(f"Volume alignment WARNING: {char} expected this chapter per volume_map but not in plan")
+                issues.append(
+                    f"Volume alignment WARNING: {char} expected this chapter per volume_map but not in plan"
+                )
 
     return issues  # 不阻断，仅记录
 ```
@@ -224,12 +228,12 @@ def check_volume_alignment(project_dir, chapter, plan_text):
 def extract_chapter_facts(chapter_text):
     """确定性提取章节关键事实——无需 LLM。"""
     return {
-        'character_locations': _extract_character_locations(chapter_text),
-        'emotional_state': _extract_emotional_markers(chapter_text),
-        'active_conflicts': _extract_conflict_markers(chapter_text),
-        'hook_appearances': _extract_hook_references(chapter_text),
-        'new_characters': _extract_new_character_introductions(chapter_text),
-        'key_events': _extract_event_sentences(chapter_text),
+        "character_locations": _extract_character_locations(chapter_text),
+        "emotional_state": _extract_emotional_markers(chapter_text),
+        "active_conflicts": _extract_conflict_markers(chapter_text),
+        "hook_appearances": _extract_hook_references(chapter_text),
+        "new_characters": _extract_new_character_introductions(chapter_text),
+        "key_events": _extract_event_sentences(chapter_text),
     }
 ```
 
@@ -249,17 +253,21 @@ def extract_chapter_facts(chapter_text):
 ```python
 def check_linguistic_drift(project_dir, chapter):
     """每章运行语言学漂移检测。"""
-    chapter_text = (project_dir / 'chapters' / f'chapter-{chapter}.md').read_text()
+    chapter_text = (project_dir / "chapters" / f"chapter-{chapter}.md").read_text()
     baseline = _load_baseline(project_dir)
 
     metrics = compute_linguistic_drift(chapter_text, baseline)
 
     alerts = []
-    if metrics['system_term_density'] > 30:
-        alerts.append(f"System term density {metrics['system_term_density']:.0f}‰ — above 30‰ threshold")
-    if metrics['em_dash_density'] > 20:
-        alerts.append(f"Em-dash density {metrics['em_dash_density']:.0f}‰ — possible enumeration collapse")
-    if metrics['dialogue_density'] < 1 and chapter > 10:
+    if metrics["system_term_density"] > 30:
+        alerts.append(
+            f"System term density {metrics['system_term_density']:.0f}‰ — above 30‰ threshold"
+        )
+    if metrics["em_dash_density"] > 20:
+        alerts.append(
+            f"Em-dash density {metrics['em_dash_density']:.0f}‰ — possible enumeration collapse"
+        )
+    if metrics["dialogue_density"] < 1 and chapter > 10:
         alerts.append(f"Dialogue density near zero — possible character disappearance")
 
     # 连续 3 章触发 → 在下一章 planning prompt 中注入纠正指令
@@ -279,8 +287,8 @@ def check_linguistic_drift(project_dir, chapter):
 ```python
 def pre_revision_backup(project_dir, chapter):
     """修订前备份当前章节。"""
-    chapter_path = project_dir / 'chapters' / f'chapter-{chapter}.md'
-    backup_path = project_dir / 'chapters' / f'chapter-{chapter}-pre-rev.md'
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+    backup_path = project_dir / "chapters" / f"chapter-{chapter}-pre-rev.md"
     if chapter_path.exists():
         shutil.copy2(chapter_path, backup_path)
 ```
