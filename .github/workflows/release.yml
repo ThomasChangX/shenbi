@@ -37,10 +37,10 @@ jobs:
           # 故有 prev tag 时用 range、首个 tag 时用 --latest（audit-T5 C-1/C-2，spec #63）
           prev_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           if [ -n "$prev_tag" ]; then
-            notes=$(uvx git-cliff ${prev_tag}..HEAD --strip header)
+            notes=$(uvx git-cliff@2 ${prev_tag}..HEAD --strip header)
           else
             # First release tag: the latest tag section covers the full history
-            notes=$(uvx git-cliff --latest --strip header)
+            notes=$(uvx git-cliff@2 --latest --strip header)
           fi
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$notes" >> $GITHUB_OUTPUT

@@ -21,7 +21,13 @@ def _check_body() -> str:
 
 class TestCISingleSource:
     def test_ci_invokes_just_check(self):
-        assert "uvx just check" in CI
+        # `uvx just` would resolve PyPI 'just' (kootenpv/just) — an unrelated
+        # Python tool, not the casey/just task runner. The real just must be
+        # installed from its release artifacts (taiki-e/install-action, pinned)
+        # and invoked bare so `uv run` inside the recipe uses the synced env.
+        assert "uvx just" not in CI
+        assert re.search(r"run: just check\b", CI), "ci.yml must run `just check`"
+        assert "tool: just@" in CI, "just install must be version-pinned"
 
     def test_ci_has_no_direct_tool_lint_calls(self):
         direct = re.findall(r"uv run python (?:tools|scripts)/lint_\S+", CI)

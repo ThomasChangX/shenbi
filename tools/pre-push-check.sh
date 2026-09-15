@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Pre-push CI simulation — runs the same checks as GitHub CI.
+# Pre-push fast pre-flight — a SUBSET of the CI gates. The authority is
+# `just check` (spec #63 C25); this hook adds push-time ergonomics only.
 # Install: pre-commit install --hook-type pre-push
 set -euo pipefail
 
-echo "=== pre-push: CI simulation ==="
+echo "=== pre-push: fast pre-flight (full gates: just check) ==="
 
 # 1. Lockfile integrity (ci.yml step 1)
 echo "--- uv lock --check ---"
@@ -43,7 +44,7 @@ uv run pip-audit -r /tmp/req-audit.txt --no-deps --disable-pip
 #   正确 idiom 是 main...HEAD（推送范围）。
 if ! git merge-base main HEAD >/dev/null 2>&1; then
   echo "pre-push: cannot resolve main...HEAD (shallow clone?); skipping mkdocs gate explicitly" >&2
-elif git diff --name-only main...HEAD | grep -qE '^(docs/|mkdocs\.yml)'; then
+elif changed="$(git diff --name-only main...HEAD)" && grep -qE '^(docs/|mkdocs\.yml)' <<<"$changed"; then
   echo "--- mkdocs link check (docs changed) ---"
   uv sync --frozen --group docs >/dev/null
   # 单次 build 捕获输出与 exit code
@@ -90,7 +91,7 @@ uv run pytest -p no:xdist -m "last" --no-cov --timeout=60
 # 8. Contract sync idempotency (ci.yml contract-sync job)
 echo "--- contract-sync idempotency ---"
 uv run shenbi-sync-contracts >/dev/null
-git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
+git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ .codex-plugin/
 
 # 9. Auto-check docs idempotency
 echo "--- autocheck-docs idempotency ---"

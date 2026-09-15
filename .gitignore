@@ -92,9 +92,9 @@ staging/
 # novel-output 生产树已出库（spec #63 T1504，前向删除；审计历史在 git log 与 C18 清洗记录）
 novel-output/
 
-# run_pipeline.sh root artifacts (spec #63 F1020)
-novel-*/
-pipeline.log
+# run_pipeline.sh root artifacts, root-anchored (spec #63 F1020)
+/novel-*/
+/pipeline.log
 
 # spec #37 lockfile debris (lazily reused, never committed)
 *.lockfile

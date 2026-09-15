@@ -100,10 +100,12 @@ def main(argv: list[str] | None = None) -> int:
     tree = Path(argv[0]) if argv else default_tree
     if not tree.exists():
         if tree != default_tree:
-            raise SystemExit(f"error: tree does not exist: {tree}")
+            print(f"error: tree does not exist: {tree}", file=sys.stderr)
+            return 2
         # novel-output checked out of git (spec #63 T1504): default tree
-        # absent = nothing to scan (skip). Explicit --tree still errors.
-        print(f"severity-vocab: tree {tree} absent - nothing to scan (skip)")
+        # absent = nothing to scan (skip). Explicit --tree still errors (2,
+        # same vocabulary as lint_artifact_contamination).
+        print(f"severity-vocab: tree {tree} absent - nothing to scan (skip)", file=sys.stderr)
         return 0
     values = collect_severities(tree)
     out_of_vocab = [

@@ -42,6 +42,9 @@ ALLOWED_MISSING: set[str] = {
 }
 
 # 多字符 codespan，允许空格分隔的中英路径 token 与参数化形态（spec #63 F957）。
+# PATH_TOKEN 要求带扩展名（`.\w+` 结尾）——无扩展名目录引用（如 `docs/getting-started`）
+# 不在此防线内（有意收窄：避免把自然语言 token 误判为路径；目录级断链由 C17 的
+# markdown-link 防线覆盖）。
 CODESPAN_PATTERN = re.compile(r"`([^`\n]+)`")
 PATH_TOKEN_PATTERN = re.compile(r"[.\w][\w./-]*\.\w+")
 

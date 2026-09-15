@@ -44,8 +44,15 @@ jobs:
       - name: Verify uv.lock is up to date
         run: uv lock --check
       - run: uv sync --frozen --group dev
+      - name: Install just 1.58.0 (pinned)  # spec #63 C25
+        # PyPI 'just' (kootenpv/just) is an unrelated Python tool — the real
+        # task runner must come from its release artifacts, never via uvx's
+        # PyPI package resolution.
+        uses: taiki-e/install-action@v2
+        with:
+          tool: just@1.58.0
       - name: Single-source checks (justfile is the authority)  # spec #63 C25
-        run: uvx just check
+        run: just check
       - name: Hypothesis replay statistics (C17 T1, spec 55)
         # Visible proof that property tests run in CI. Statistics alone are
         # not the replay proof — the fresh-clone injection red-light is the
