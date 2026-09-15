@@ -101,16 +101,17 @@ def main(argv: list[str] | None = None) -> int:
     """
     argv = argv if argv is not None else sys.argv[1:]
     default_tree = REPO_ROOT / "novel-output"
-    tree = Path(argv[0]) if argv else default_tree
+    explicit_tree = Path(argv[0]) if argv else None
+    tree = explicit_tree if explicit_tree is not None else default_tree
     if not tree.exists():
-        if tree != default_tree:
-            print(f"error: tree does not exist: {tree}", file=sys.stderr)
-            return 2
-        # novel-output checked out of git (spec #63 T1504): default tree
-        # absent = nothing to scan (skip). Explicit --tree still errors (2,
-        # same vocabulary as lint_artifact_contamination).
-        print(f"severity-vocab: tree {tree} absent - nothing to scan (skip)", file=sys.stderr)
-        return 0
+        if explicit_tree is None:
+            # novel-output checked out of git (spec #63 T1504): implicit default
+            # absent = nothing to scan (skip). An explicit argument always
+            # errors — even when it spells the default path (PR #217 review).
+            print(f"severity-vocab: tree {tree} absent - nothing to scan (skip)", file=sys.stderr)
+            return 0
+        print(f"error: tree does not exist: {tree}", file=sys.stderr)
+        return 2
     values = collect_severities(tree)
     out_of_vocab = [
         v for v in values if v not in LEGAL and LEGACY_SEVERITY.get(v.lower(), v) not in LEGAL

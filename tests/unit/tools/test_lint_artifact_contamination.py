@@ -224,3 +224,13 @@ def test_default_tree_absent_skips_zero(monkeypatch, tmp_path: Path) -> None:
 
     monkeypatch.setattr(mod, "DEFAULT_TREE", tmp_path / "gone")
     assert main([]) == 0
+
+
+def test_explicit_default_path_while_absent_exits_two(monkeypatch, tmp_path: Path) -> None:
+    # PR #217 review: explicit --tree spelling the default path must error,
+    # not skip — skip is reserved for the implicit default only.
+    import tools.lint_artifact_contamination as mod
+
+    gone = tmp_path / "gone"
+    monkeypatch.setattr(mod, "DEFAULT_TREE", gone)
+    assert main(["--tree", str(gone)]) == 2
