@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-13 · SDD #63 阶段 1 REWRITE：剔除 F1007/F1015/F1011 三条已被后续 PR 顺带修复成员，F004 改述结构债，T1504 按 C18 后实况重写) | **Severity:** 🟠 P1（F005/F1002/F1003/D101/F1040 本地绿 CI 红双向失真）
+> **Date:** 2026-08-16 | **Status:** Done (PR #217, 2026-09-15; Revised 2026-09-13 · SDD #63 阶段 1 REWRITE：剔除 F1007/F1015/F1011 三条已被后续 PR 顺带修复成员，F004 改述结构债，T1504 按 C18 后实况重写) | **Severity:** 🟠 P1（F005/F1002/F1003/D101/F1040 本地绿 CI 红双向失真）
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C25）| **代表 finding:** F005 | **簇规模:** 22 条（原 25 条——原 spec 计数 24 为差一，REWRITE 剔 3） | **严重度上限:** P1
 > **范围:** .github/workflows/ci.yml、justfile、tools/pre-push-check.sh、pyproject.toml（addopts）、.gitignore、.pre-commit-config.yaml、release/docs/codeql workflows、AGENTS.md（等价命令表述） | **证据等级:** 实验佐证（Z10 三区 + Z10-review-r1/r2 实跑 + phase1 + 2026-09-13 SDD 驳斥复核亲证）
 > **Ledger:** `docs/superpowers/audit-runs/2026-08-15/findings-ledger.md`（**更正**：本簇成员在 08-15 ledger，非 08-14）

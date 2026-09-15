@@ -1,17 +1,13 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-13（spec #63 C25 plan 创建——ready）
-> **活跃 plan 数**：1 | **已归档**：116（见 `archive/`）
+> **最后更新**：2026-09-15（spec #63 C25 plan Done——PR #217）
+> **活跃 plan 数**：0 | **已归档**：117（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
 ---
 
 ## 活跃 Plan
-
-- **2026-09-13-c25-ci-just-sync**（spec #63）— ✅ ready（SDD 阶段 5 审查 3 轮收敛）
-
-
 
 
 ## 待执行的 spec → plan 映射
@@ -40,6 +36,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 最近归档项：
 
+- `2026-09-13-c25-ci-just-sync.md`（SDD #63 C25 CI/just 双向同步漂移，PR #217）
 - `2026-09-07-c37-dead-code-enforcement.md`（SDD #51 C37 死代码清理与零接线执法，PR #179 + review 修复 #180）
 - `2026-09-07-spec54-c16-fixture-authenticity.md`（SDD #54 C16 fixture 真实性与 G0.9 执法，PR #174）
 - `2026-09-04-spec42-c28-perf-antipatterns.md`（SDD #42 C28 性能反模式，PR #153 + flake 修复 #154）
