@@ -6,23 +6,23 @@ set -euo pipefail
 
 echo "=== pre-push: fast pre-flight (full gates: just check) ==="
 
-# 1. Lockfile integrity (ci.yml step 1)
+# 1. Lockfile integrity (just check line 1)
 echo "--- uv lock --check ---"
 uv lock --check
 
-# 2. Ruff lint + format (ci.yml steps 2-3)
+# 2. Ruff lint + format (just check ruff lines)
 echo "--- ruff check ---"
 uv run ruff check .
 echo "--- ruff format --check ---"
 uv run ruff format --check .
 
-# 3. Type checking (ci.yml steps 4-5)
+# 3. Type checking (just check mypy/basedpyright lines)
 echo "--- mypy ---"
 uv run mypy src/shenbi/
 echo "--- basedpyright ---"
 uv run basedpyright || { echo "basedpyright failed"; exit 1; }
 
-# 4. Custom linters (ci.yml steps 6-9)
+# 4. Custom linters (subset of just check lint lines)
 echo "--- lint_status_strings ---"
 uv run python tools/lint_status_strings.py
 echo "--- lint_contracts ---"
@@ -34,7 +34,7 @@ uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
 echo "--- lint_no_fs_mutation ---"
 uv run python tools/lint_no_fs_mutation.py src/shenbi
 
-# 4b. Security audit (ci.yml security workflow)
+# 4b. Security audit (security workflow; not in just check)
 echo "--- pip-audit (uv.lock full set, mirroring CI security.yml — spec #41 R1) ---"
 uv export --frozen --all-groups --all-extras --no-emit-project -o /tmp/req-audit.txt
 uv run pip-audit -r /tmp/req-audit.txt --no-deps --disable-pip
@@ -66,7 +66,7 @@ elif changed="$(git diff --name-only main...HEAD)" && grep -qE '^(docs/|mkdocs\.
   uv sync --frozen --group dev >/dev/null  # restore dev env for subsequent pytest/mypy/ruff
 fi
 
-# 5. Tests (ci.yml step 10)
+# 5. Tests (just check pytest lines, flag-aligned)
 # --dist loadscope groups tests by module so ThreadPoolExecutor tests
 # don't interfere across modules. --timeout prevents indefinite hangs.
 echo "--- pytest (with coverage >= 85%) ---"
@@ -88,7 +88,7 @@ fi
 echo "--- pytest coverage threshold ---"
 uv run pytest -p no:xdist -m "last" --no-cov --timeout=60
 
-# 8. Contract sync idempotency (ci.yml contract-sync job)
+# 8. Contract sync idempotency (just check codegen idempotency)
 echo "--- contract-sync idempotency ---"
 uv run shenbi-sync-contracts >/dev/null
 git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ .codex-plugin/
