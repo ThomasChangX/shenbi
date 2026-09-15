@@ -20,7 +20,7 @@ jobs:
       HF_HOME: ${{ github.workspace }}/.hf-cache
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
