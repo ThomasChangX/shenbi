@@ -94,7 +94,11 @@ def _walk_severities(node: object) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Print the out-of-vocab severity rate; exit 1 iff any value escapes."""
+    """Print the out-of-vocab severity rate.
+
+    Exit codes: 1 iff any value escapes vocab; 2 on explicit missing tree;
+    0 with a stderr skip note when the default tree is absent (spec #63 T1504).
+    """
     argv = argv if argv is not None else sys.argv[1:]
     default_tree = REPO_ROOT / "novel-output"
     tree = Path(argv[0]) if argv else default_tree

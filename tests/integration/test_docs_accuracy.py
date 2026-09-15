@@ -27,7 +27,7 @@ GENERATED_OR_EXEMPT = {
 DOCS_TO_CHECK = sorted(str(p.relative_to(REPO_ROOT)) for p in REPO_ROOT.glob("*.md")) + sorted(
     str(p.relative_to(REPO_ROOT))
     for p in (REPO_ROOT / "docs").rglob("*.md")
-    if not any(str(p).startswith(str(REPO_ROOT / e)) for e in GENERATED_OR_EXEMPT)
+    if not any(p.is_relative_to(REPO_ROOT / e) for e in GENERATED_OR_EXEMPT)
 )
 
 ALLOWED_MISSING: set[str] = {

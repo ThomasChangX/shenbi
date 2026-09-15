@@ -216,3 +216,11 @@ def test_baseline_out_marks_exempt_entries(tmp_path: Path) -> None:
     all_findings = lint_tree_all(tmp_path, exemptions=exemptions)
     assert len(all_findings) == 2 and all(f["exempt"] for f in all_findings)
     assert lint_tree(tmp_path, exemptions=exemptions) == []
+
+
+def test_default_tree_absent_skips_zero(monkeypatch, tmp_path: Path) -> None:
+    # spec #63 T1504: default novel-output tree checked out of git → skip 0.
+    import tools.lint_artifact_contamination as mod
+
+    monkeypatch.setattr(mod, "DEFAULT_TREE", tmp_path / "gone")
+    assert main([]) == 0

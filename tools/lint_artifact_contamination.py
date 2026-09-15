@@ -285,7 +285,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.tree == DEFAULT_TREE:
             # novel-output checked out of git (spec #63 T1504): default tree
             # absent = nothing to lint (skip). Explicit --tree still errors.
-            name = getattr(args.tree, "name", args.tree)
+            name = args.tree.name
             print(
                 f"artifact-contamination: default tree {name} absent - nothing to lint (skip)",
                 file=sys.stderr,
