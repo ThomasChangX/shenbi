@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 消灭 ci.yml↔justfile 双清单漂移（CI 调 `just check` 单源化）、隔离 coverage 工件、闭合 hook/工具/workflow 激活面、清出 novel-output 生产产物并修忽略规则——spec `docs/superpowers/specs/2026-08-16-audit-ci-just-sync-fix.md`（簇 C25，22 条）。
+**Goal:** 消灭 ci.yml↔justfile 双清单漂移（CI 调 `just check` 单源化）、隔离 coverage 工件、闭合 hook/工具/workflow 激活面、清出 novel-output 生产产物并修忽略规则——spec `docs/superpowers/specs/archive/2026-08-16-audit-ci-just-sync-fix-Done-PR217.md`（簇 C25，22 条）。
 
 **Architecture:** justfile `check` 成为唯一检查清单信源；CI quality job 收敛为「matrix 环境准备 + `uvx just check`」；codegen-idempotency job 并入 just check 后删除。coverage 从全局 addopts 拆到五个显式入口。工作态文件（.codex-plugin 生成物、novel-output 产物）一个入库一个出库。
 
@@ -386,7 +386,7 @@ DOCS_TO_CHECK = sorted(
   5. `git diff main -- .github/workflows/codeql.yml` 摘录 + `uvx git-cliff --unreleased --strip header | head -20` dry-run
   6. `just check`（本地）+ PR CI（干净 runner）双绿对照
 - [ ] **Step 2: `just check` 终跑（shim PATH）全绿 + `uv lock --check`**
-- [ ] **Step 3: Commit**（如 spec 验收措辞需回写）：`git add docs/superpowers/specs/2026-08-16-audit-ci-just-sync-fix.md && git commit -m "docs: spec #63 execution-period revisions (SDD phase 3 review fixes + count erratum)"`
+- [ ] **Step 3: Commit**（如 spec 验收措辞需回写）：`git add docs/superpowers/specs/archive/2026-08-16-audit-ci-just-sync-fix-Done-PR217.md && git commit -m "docs: spec #63 execution-period revisions (SDD phase 3 review fixes + count erratum)"`
 - [ ] **Step 4: 更新 .superpowers/sdd/{progress.md, spec-deviations.md}**
 
 ## 验收覆盖表
