@@ -10,6 +10,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history + tags：changelog range 与 SBOM 均需（spec #63 audit-T5 C-3）
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
@@ -27,20 +30,17 @@ jobs:
           --output-reproducible -o sbom-dev.cdx.json
       - name: Build sdist and wheel
         run: uv build
-      - name: Generate changelog for tag
+      - name: Generate changelog for tag  # git-cliff, conventional grouping (spec #63 F1021)
         id: changelog
         run: |
-          # Guard against first-commit-ever tag (HEAD^ doesn't exist)
-          if ! git rev-parse --verify HEAD^ >/dev/null 2>&1; then
-            notes=$(git log --format='- %s (%h)' -n 100)
+          # 发布时点 HEAD 已带新 tag：--unreleased 会滤掉全部已标记提交产出空 notes，
+          # 故有 prev tag 时用 range、首个 tag 时用 --latest（audit-T5 C-1/C-2，spec #63）
+          prev_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$prev_tag" ]; then
+            notes=$(uvx git-cliff@2.13.1 "${prev_tag}..HEAD" --strip header)
           else
-            prev_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-            if [ -n "$prev_tag" ]; then
-              notes=$(git log --format='- %s (%h)' ${prev_tag}..HEAD)
-            else
-              # First release tag: cap to recent 100 commits
-              notes=$(git log --format='- %s (%h)' -n 100)
-            fi
+            # First release tag: the latest tag section covers the full history
+            notes=$(uvx git-cliff@2.13.1 --latest --strip header)
           fi
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$notes" >> $GITHUB_OUTPUT

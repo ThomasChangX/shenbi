@@ -40,7 +40,7 @@ uv sync --group docs
 ### 4. 安装 pre-commit hooks / Install pre-commit hooks
 
 ```bash
-uv run pre-commit install
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
 
 ## 验证安装 / Verify Installation

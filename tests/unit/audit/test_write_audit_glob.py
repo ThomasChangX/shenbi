@@ -28,7 +28,9 @@ from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts.paths import resolve_chapter_path
 from shenbi.gates.shared import PROJECT, SKILLS
 
-PROD_TREE = PROJECT / "novel-output" / "test-validation"
+# 生产实证复现（provenance：原产树 novel-output/test-validation 已出库（spec #63
+# T1504），此为出库前 verbatim 副本，G0.9 真实产物，2026-09-13）。
+PROD_TREE = PROJECT / "tests/fixtures/write-audit-glob"
 PROD_WRITE_AUDIT = PROD_TREE / "write-audit.jsonl"
 
 

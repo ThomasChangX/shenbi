@@ -216,3 +216,21 @@ def test_baseline_out_marks_exempt_entries(tmp_path: Path) -> None:
     all_findings = lint_tree_all(tmp_path, exemptions=exemptions)
     assert len(all_findings) == 2 and all(f["exempt"] for f in all_findings)
     assert lint_tree(tmp_path, exemptions=exemptions) == []
+
+
+def test_default_tree_absent_skips_zero(monkeypatch, tmp_path: Path) -> None:
+    # spec #63 T1504: default novel-output tree checked out of git → skip 0.
+    import tools.lint_artifact_contamination as mod
+
+    monkeypatch.setattr(mod, "DEFAULT_TREE", tmp_path / "gone")
+    assert main([]) == 0
+
+
+def test_explicit_default_path_while_absent_exits_two(monkeypatch, tmp_path: Path) -> None:
+    # PR #217 review: explicit --tree spelling the default path must error,
+    # not skip — skip is reserved for the implicit default only.
+    import tools.lint_artifact_contamination as mod
+
+    gone = tmp_path / "gone"
+    monkeypatch.setattr(mod, "DEFAULT_TREE", gone)
+    assert main(["--tree", str(gone)]) == 2

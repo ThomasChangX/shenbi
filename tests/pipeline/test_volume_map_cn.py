@@ -1,6 +1,6 @@
 """R1: 中文卷图卷级作用域解析(spec #6 修复方向 1).
 
-fixture 是生产 volume_map.md 的精确副本(G0.9 真实产物,G0.11 MIRROR_MAP 镜像).
+fixture 是生产 volume_map.md 的精确副本(G0.9 真实产物;原 G0.11 MIRROR_MAP 镜像条目已随 spec #63 T6 移除,本测试直读 fixture).
 """
 
 import shutil

@@ -44,41 +44,15 @@ jobs:
       - name: Verify uv.lock is up to date
         run: uv lock --check
       - run: uv sync --frozen --group dev
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uv run mypy src/shenbi/
-      - run: uv run basedpyright
-      - name: Lint bare status strings (spec D3)
-        run: uv run python tools/lint_status_strings.py
-      - name: Contract + repo-consistency lints (spec §5.5)
-        run: |
-          uv run python tools/lint_contracts.py
-          uv run python tools/lint_contract_graph.py
-          uv run python tools/lint_contract_prose.py --fail
-          uv run python scripts/lint_contract_fields.py
-          uv run python tools/lint_repo_consistency.py
-          uv run python tools/lint_registry_reconcile.py \
-            --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume
-        # NOTE: dual-list with justfile is C25 debt (spec #63) — systematic single-sourcing deferred
-      - name: Key reconciliation lint (spec 27 T7)
-        run: uv run python tools/lint_key_reconciliation.py --strict
-      - name: N7 lint (no forbid on computed_field)
-        run: uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
-      - name: Purity lint (no FS-mutation in src/shenbi/, spec P4)
-        run: uv run python tools/lint_no_fs_mutation.py src/shenbi
-      - name: Dead-code allowlist lint (C37 R3, spec 51)
-        run: uv run python tools/lint_dead_code_allowlist.py
-      - name: Audit-run lint (ledger, reconciliation, carryover; spec 49)
-        run: uv run python tools/lint_audit_run.py
-      - name: Active-spec count lint (INDEX header vs scan; spec 49)
-        run: uv run python tools/count_active_specs.py
-      - name: Run tests (parallel, excluding last)
-        run: >-
-          uv run pytest -n auto --dist loadscope
-          -m "not last" --hypothesis-profile=ci --timeout=120
-          --cov-report=json:coverage.json
-      - name: Per-module coverage floors (spec 53 C15 T3)
-        run: uv run python tools/check_module_coverage.py coverage.json
+      - name: Install just 1.58.0 (pinned)  # spec #63 C25
+        # PyPI 'just' (kootenpv/just) is an unrelated Python tool — the real
+        # task runner must come from its release artifacts, never via uvx's
+        # PyPI package resolution.
+        uses: taiki-e/install-action@v2
+        with:
+          tool: just@1.58.0
+      - name: Single-source checks (justfile is the authority)  # spec #63 C25
+        run: just check
       - name: Hypothesis replay statistics (C17 T1, spec 55)
         # Visible proof that property tests run in CI. Statistics alone are
         # not the replay proof — the fresh-clone injection red-light is the
@@ -87,31 +61,6 @@ jobs:
         run: >-
           uv run pytest tests/property -q --no-cov
           --hypothesis-profile=ci --hypothesis-show-statistics
-      - name: Run coverage threshold test (serial, last only)
-        run: uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
-
-  codegen-idempotency:
-    # Merges former contract-sync + plugin-manifest-freshness. Both follow
-    # the same pattern: run generators, git diff for drift. Sharing one
-    # uv sync saves ~25s of redundant environment setup.
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
-        with:
-          enable-cache: true
-      - run: uv sync --frozen --group dev
-      # Three generators run sequentially (each <1s, order-independent).
-      - name: Contract artifacts (deps.json, body views, DAG)
-        run: uv run shenbi-sync-contracts
-      - name: Auto-check docs (spec P6)
-        run: uv run python tools/generate_autocheck_docs.py
-      - name: Plugin manifests (.codex)
-        run: uv run shenbi-generate-plugins
-      - name: Idempotency — all generated artifacts must match committed
-        run: |
-          git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ \
-                                  .codex-plugin/
 
   dependency-review:
     runs-on: ubuntu-latest

@@ -8,7 +8,7 @@ Thank you for your interest in contributing! This document covers setup, workflo
 git clone https://github.com/ThomasChangX/shenbi.git
 cd shenbi
 uv sync --group dev
-uv run pre-commit install
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
 
 Requires: Python 3.11+, uv 0.5+ (PEP 735 dependency-groups), and [just](https://github.com/casey/just) (`brew install just` on macOS, `cargo install just` on other platforms, or see [the just releases](https://github.com/casey/just/releases) for prebuilt binaries).

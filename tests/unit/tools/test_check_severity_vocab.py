@@ -42,3 +42,25 @@ def test_out_of_vocab_detected(tmp_path: Path) -> None:
     values = collect_severities(tmp_path)
     assert values == ["catastrophic"]
     assert main([str(tmp_path)]) == 1
+
+
+def test_default_tree_absent_skips_zero(monkeypatch, tmp_path: Path) -> None:
+    # spec #63 T1504: default novel-output tree checked out of git → skip 0.
+    import tools.check_severity_vocab as mod
+
+    monkeypatch.setattr(mod, "REPO_ROOT", tmp_path)
+    assert main([]) == 0
+
+
+def test_explicit_missing_tree_exits_two(tmp_path: Path) -> None:
+    # Explicit tree must still error (exit 2, aligned with contamination vocab).
+    assert main([str(tmp_path / "nope")]) == 2
+
+
+def test_explicit_default_path_while_absent_exits_two(monkeypatch, tmp_path: Path) -> None:
+    # PR #217 review: explicit argv spelling the default path must error,
+    # not skip — skip is reserved for the implicit default only.
+    import tools.check_severity_vocab as mod
+
+    monkeypatch.setattr(mod, "REPO_ROOT", tmp_path)
+    assert main([str(tmp_path / "novel-output")]) == 2

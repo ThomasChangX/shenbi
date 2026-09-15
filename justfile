@@ -10,8 +10,9 @@ default:
 install group="dev":
     uv sync --group {{group}}
 
-# Run all checks (contract lints + ruff + mypy + basedpyright + sync idempotency + tests)
+# Run all checks (single source of truth — CI calls this; see spec #63 C25)
 check:
+    uv lock --check
     uv run python tools/lint_status_strings.py
     uv run python tools/lint_routing_faces.py
     uv run python tools/audit-skill-descriptions.py
@@ -28,33 +29,39 @@ check:
     uv run python tools/lint_audit_run.py
     uv run python tools/lint_artifact_contamination.py
     uv run python tools/count_active_specs.py
+    uv run python tools/check_fixture_mirror.py
+    uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
+    uv run python tools/lint_no_fs_mutation.py src/shenbi
     just lint-contracts
     uv run ruff check .
     uv run ruff format --check .
     uv run mypy src/shenbi/
     uv run basedpyright
-    uv run shenbi-sync-contracts >/dev/null && git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
-    uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=json:coverage.json
+    uv run shenbi-sync-contracts >/dev/null
+    uv run python tools/generate_autocheck_docs.py
+    uv run shenbi-generate-plugins
+    git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ .codex-plugin/
+    uv run pytest -n auto --dist loadscope -m "not last" --hypothesis-profile=ci --timeout=120 --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing --cov-fail-under=85
     uv run python tools/check_module_coverage.py coverage.json
     uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 
 # Enforce per-module coverage floors only (spec #53 C15 T3) — self-sufficient:
 # runs the suite with a JSON coverage report, then checks tools/module-coverage-floors.json
 module-coverage:
-    uv run pytest -n auto -m "not last" --cov-report=json:coverage.json -q
+    uv run pytest -n auto -m "not last" --cov=shenbi --cov-branch --cov-report=json:coverage.json -q
     uv run python tools/check_module_coverage.py coverage.json
 
 # Run tests only (fast unit tests)
 test *args:
-    uv run pytest -n auto -m "unit" {{args}}
+    uv run pytest -n auto -m "unit" --no-cov {{args}}
 
 # Run tests including integration
 test-all *args:
-    uv run pytest -n auto -m "not last" {{args}}
+    uv run pytest -n auto -m "not last" --no-cov {{args}}
 
 # Run a single test file
 test-file file:
-    uv run pytest {{file}} -v
+    uv run pytest {{file}} -v --no-cov
 
 # Fix lint and formatting
 fix:
@@ -104,10 +111,11 @@ docs:
 build:
     uv build
 
-# Clean all build artifacts
+# Clean all build artifacts (tracked .gitkeep preserved — spec #63 F1039)
 clean:
     rm -rf dist/ build/ src/shenbi.egg-info/
-    rm -rf tests/coverage/ site/ .cache/
+    mkdir -p tests/coverage && find tests/coverage -mindepth 1 ! -name .gitkeep -delete
+    rm -rf site/ .cache/
     rm -rf .pytest_cache .ruff_cache .mypy_cache .basedpyright_cache
 
 # Pre-commit run on all files

@@ -1,27 +1,28 @@
 #!/usr/bin/env bash
-# Pre-push CI simulation — runs the same checks as GitHub CI.
+# Pre-push fast pre-flight — a SUBSET of the CI gates. The authority is
+# `just check` (spec #63 C25); this hook adds push-time ergonomics only.
 # Install: pre-commit install --hook-type pre-push
 set -euo pipefail
 
-echo "=== pre-push: CI simulation ==="
+echo "=== pre-push: fast pre-flight (full gates: just check) ==="
 
-# 1. Lockfile integrity (ci.yml step 1)
+# 1. Lockfile integrity (just check line 1)
 echo "--- uv lock --check ---"
 uv lock --check
 
-# 2. Ruff lint + format (ci.yml steps 2-3)
+# 2. Ruff lint + format (just check ruff lines)
 echo "--- ruff check ---"
 uv run ruff check .
 echo "--- ruff format --check ---"
 uv run ruff format --check .
 
-# 3. Type checking (ci.yml steps 4-5)
+# 3. Type checking (just check mypy/basedpyright lines)
 echo "--- mypy ---"
 uv run mypy src/shenbi/
 echo "--- basedpyright ---"
 uv run basedpyright || { echo "basedpyright failed"; exit 1; }
 
-# 4. Custom linters (ci.yml steps 6-9)
+# 4. Custom linters (subset of just check lint lines)
 echo "--- lint_status_strings ---"
 uv run python tools/lint_status_strings.py
 echo "--- lint_contracts ---"
@@ -33,7 +34,7 @@ uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
 echo "--- lint_no_fs_mutation ---"
 uv run python tools/lint_no_fs_mutation.py src/shenbi
 
-# 4b. Security audit (ci.yml security workflow)
+# 4b. Security audit (security workflow; not in just check)
 echo "--- pip-audit (uv.lock full set, mirroring CI security.yml — spec #41 R1) ---"
 uv export --frozen --all-groups --all-extras --no-emit-project -o /tmp/req-audit.txt
 uv run pip-audit -r /tmp/req-audit.txt --no-deps --disable-pip
@@ -41,7 +42,9 @@ uv run pip-audit -r /tmp/req-audit.txt --no-deps --disable-pip
 # 4c. mkdocs link check (only when docs changes)
 # 触发：检测待 push 的 docs 变更。pre-push 阶段已 commit，--cached 和 HEAD diff 都恒空，
 #   正确 idiom 是 main...HEAD（推送范围）。
-if git diff --name-only main...HEAD 2>/dev/null | grep -qE '^(docs/|mkdocs\.yml)'; then
+if ! git merge-base main HEAD >/dev/null 2>&1; then
+  echo "pre-push: cannot resolve main...HEAD (shallow clone?); skipping mkdocs gate explicitly" >&2
+elif changed="$(git diff --name-only main...HEAD)" && grep -qE '^(docs/|mkdocs\.yml)' <<<"$changed"; then
   echo "--- mkdocs link check (docs changed) ---"
   uv sync --frozen --group docs >/dev/null
   # 单次 build 捕获输出与 exit code
@@ -63,15 +66,16 @@ if git diff --name-only main...HEAD 2>/dev/null | grep -qE '^(docs/|mkdocs\.yml)
   uv sync --frozen --group dev >/dev/null  # restore dev env for subsequent pytest/mypy/ruff
 fi
 
-# 5. Tests (ci.yml step 10)
+# 5. Tests (just check pytest lines, flag-aligned)
 # --dist loadscope groups tests by module so ThreadPoolExecutor tests
 # don't interfere across modules. --timeout prevents indefinite hangs.
 echo "--- pytest (with coverage >= 85%) ---"
-uv run pytest -n auto --dist loadscope -m "not last" --cov-fail-under=85 --timeout=120
+uv run pytest -n auto --dist loadscope -m "not last" --cov=shenbi --cov-branch --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing --cov-fail-under=85 --timeout=120
 
 # 6. Dead code detection
 echo "--- dead code check (reportUnusedFunction) ---"
-UNUSED_COUNT=$(grep -r 'reportUnusedFunction' src/shenbi/ --include='*.py' | grep -v test_ | grep -v __pycache__ | wc -l | tr -d ' ')
+# set -euo pipefail 下命令替换继承 pipefail：零命中 grep 退 1 会崩整钩（F1036），故 || true 守卫
+UNUSED_COUNT=$( { grep -r 'reportUnusedFunction' src/shenbi/ --include='*.py' | grep -v test_ | grep -v __pycache__ || true; } | wc -l | tr -d ' ')
 if [ "$UNUSED_COUNT" -gt 5 ]; then
     echo "WARNING: $UNUSED_COUNT reportUnusedFunction suppressions found in src/shenbi/"
     echo "These may indicate dead code that should be removed or wired in."
@@ -84,10 +88,10 @@ fi
 echo "--- pytest coverage threshold ---"
 uv run pytest -p no:xdist -m "last" --no-cov --timeout=60
 
-# 8. Contract sync idempotency (ci.yml contract-sync job)
+# 8. Contract sync idempotency (just check codegen idempotency)
 echo "--- contract-sync idempotency ---"
 uv run shenbi-sync-contracts >/dev/null
-git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
+git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ .codex-plugin/
 
 # 9. Auto-check docs idempotency
 echo "--- autocheck-docs idempotency ---"

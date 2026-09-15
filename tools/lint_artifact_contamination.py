@@ -24,8 +24,9 @@ Exemptions: ``tools/artifact-lint-exemptions.json`` maps check name to a
 list of ``{"path": ..., "reason": ...}`` entries (paths relative to the
 linted tree). Exempted findings are skipped and do not count as hits.
 
-Exit codes: 0 when no non-exempt findings; 1 when there are; 2 on usage
-errors (missing tree, malformed exemption entries).
+Exit codes: 0 when no non-exempt findings (default tree absent = skip-0,
+spec #63 T1504); 1 when there are findings; 2 on usage errors (explicitly
+passed missing tree, malformed exemption entries).
 ``--baseline-out FILE`` writes the full finding list *including*
 exempt-marked entries (``"exempt": true``) as JSON for before/after
 comparison and exemption-bookkeeping reconciliation.
@@ -273,19 +274,33 @@ def main(argv: list[str] | None = None) -> int:
     doc = __doc__ or ""
     parser = argparse.ArgumentParser(description=doc.splitlines()[0] if doc else None)
     parser.add_argument(
-        "--tree", type=Path, default=DEFAULT_TREE, help="tree to lint (default novel-output)"
+        "--tree",
+        type=Path,
+        default=None,
+        help="tree to lint (default novel-output)",
     )
     parser.add_argument(
         "--baseline-out", type=Path, default=None, help="write full findings JSON here"
     )
     args = parser.parse_args(argv)
+    tree = args.tree if args.tree is not None else DEFAULT_TREE
 
-    if not args.tree.is_dir():
-        print(f"error: tree does not exist: {args.tree}", file=sys.stderr)
+    if not tree.is_dir():
+        if args.tree is None:
+            # novel-output checked out of git (spec #63 T1504): implicit default
+            # absent = nothing to lint (skip). Explicit --tree always errors —
+            # even when it spells the same path as the default (PR #217 review).
+            name = tree.name
+            print(
+                f"artifact-contamination: default tree {name} absent - nothing to lint (skip)",
+                file=sys.stderr,
+            )
+            return 0
+        print(f"error: tree does not exist: {tree}", file=sys.stderr)
         return 2
 
     exemptions = load_exemptions(REPO_ROOT)
-    all_findings = lint_tree_all(args.tree, exemptions=exemptions)
+    all_findings = lint_tree_all(tree, exemptions=exemptions)
     hits = [f for f in all_findings if not f["exempt"]]
 
     if args.baseline_out:
@@ -293,7 +308,7 @@ def main(argv: list[str] | None = None) -> int:
         args.baseline_out.write_text(
             json.dumps(
                 {
-                    "tree": str(args.tree),
+                    "tree": str(tree),
                     "exemptions_registered": {k: len(v) for k, v in exemptions.items()},
                     "total": len(hits),
                     "by_check": dict(Counter(str(f["check"]) for f in hits)),
