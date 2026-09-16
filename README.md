@@ -54,6 +54,8 @@ just pipeline-status ./my-novel
 just pipeline-review ./my-novel approve
 ```
 
+> 根目录的 `run_pipeline.sh` 只是 smoke 测试工具——它绝不自动审批 checkpoint、也绝不改写 pipeline 状态（spec #64 C26），生产 checkpoint 一律用上面的 `just pipeline-review` 人工提交。
+
 ### LLM 配置 / LLM Configuration
 
 Pipeline 自动检测执行环境。以下环境变量控制 LLM 后端：
