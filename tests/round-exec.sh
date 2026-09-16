@@ -17,7 +17,11 @@ if [ "${1:-}" = "--validate" ]; then
 
   # Skill-roster reconciliation now reads t1-reports artifacts (the real
   # writer surface); summary.json t1_scores has no writer (spec #27 T1).
-  FRAMEWORK_SKILLS=$(ls tests/tiers/t1-skill/ | grep -v _template | sort)
+  FRAMEWORK_SKILLS=$(for entry in tests/tiers/t1-skill/*; do
+    name=$(basename "$entry")
+    case "$name" in *_template*) continue ;; esac
+    echo "$name"
+  done | sort)
   # ROUND_DIR is passed as argv (never interpolated) — round-exec is
   # injection-tested (tests/test_round_exec_injection.py).
   # stderr passes through (a failing reconciliation step must be visible,
@@ -75,7 +79,7 @@ MODEL="${1:?Usage: round-exec.sh <model> <tier>}"
 TIER="${2:?Specify T1, T2, or T3}"
 DATE=$(date +%Y-%m-%d)
 
-LAST=$(ls -d tests/rounds/round-* 2>/dev/null | { grep -v TEMPLATE || true; } | sort | tail -1)
+LAST=$(find tests/rounds -maxdepth 1 -type d -name 'round-*' 2>/dev/null | { grep -v TEMPLATE || true; } | sort | tail -1)
 if [ -z "$LAST" ]; then
   NUM=1
 else

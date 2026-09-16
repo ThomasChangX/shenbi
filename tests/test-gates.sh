@@ -19,34 +19,20 @@ test_fail() { echo "  FAIL: $1 — $2"; FAIL=$((FAIL + 1)); }
 
 # ---------------------------------------------------------------------------
 # Helper: run a gate and parse the JSON result.  Returns the JSON object via
-# a global variable GATE_JSON.  Set GATE_EXIT to the exit code.
+# a global variable GATE_JSON.
 # ---------------------------------------------------------------------------
 run_gate() {
     local gate="$1"
     shift
-    local exit_code=0
     local stdout
     local stderr_file
     stderr_file=$(mktemp) || stderr_file="/tmp/gate-test-stderr-$$.tmp"
-    stdout=$($VALIDATE_GATE "$gate" "$@" 2>"$stderr_file") || exit_code=$?
-    GATE_EXIT=$exit_code
+    stdout=$($VALIDATE_GATE "$gate" "$@" 2>"$stderr_file") || true
     if [ -s "$stderr_file" ]; then
         echo "  [stderr]: $(head -1 "$stderr_file")" >&2
     fi
     rm -f "$stderr_file"
     GATE_JSON="$stdout"
-}
-
-# Helper: assert JSON field equals expected value
-assert_json_field() {
-    local label="$1" field="$2" expected="$3"
-    local actual
-    actual=$(echo "$GATE_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('$field',''))" 2>/dev/null) || true
-    if [ "$actual" = "$expected" ]; then
-        test_pass "$label ($field=$expected)"
-    else
-        test_fail "$label" "expected $field='$expected', got '$actual'"
-    fi
 }
 
 # Helper: assert JSON has a field (non-empty)

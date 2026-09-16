@@ -47,6 +47,12 @@ repos:
         files: \.(yaml|yml)$
         exclude: ^tests/rounds/(archived/|round-[0-9]{3}-)
 
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        files: \.sh$
+
   - repo: local
     hooks:
       - id: basedpyright

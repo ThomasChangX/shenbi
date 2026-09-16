@@ -45,6 +45,7 @@ check:
     uv run ruff format --check .
     uv run mypy src/shenbi/
     uv run basedpyright
+    uv run shellcheck run_pipeline.sh tools/pre-push-check.sh tests/round-exec.sh tests/lock-tool-hashes.sh tests/test-gates.sh
     uv run shenbi-sync-contracts >/dev/null
     uv run python tools/generate_autocheck_docs.py
     uv run shenbi-generate-plugins
