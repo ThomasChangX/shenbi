@@ -2,15 +2,15 @@
 
 | ID | 标题 | 类别 | 严重度 | 证据 | 根因 | 验证 | 影响 | 建议方向 | 深度 | 状态 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| D101 | pytest-cov 在 --collect-only 阶段仍写 coverage 工件并以 16.08% FAIL 污染正式覆盖率文件 | optimization | P2 | d1-11-collect-only.log 尾部（FAIL Required ... 16.08%；tests/coverage/coverage.xml 被覆写） | pyproject addopts 全局挂 --cov 无 collect-only 豁免 | `uv run pytest --co -q` 两次复现，输出在 d1/ | 非覆盖目的 pytest 调用静默污染覆盖率工件（2026-08-14 轮 2 次覆写先例） | addopts 拆分或常态 COVERAGE_FILE 隔离 | d1 | open |
+| D101 | pytest-cov 在 --collect-only 阶段仍写 coverage 工件并以 16.08% FAIL 污染正式覆盖率文件 | optimization | P2 | d1-11-collect-only.log 尾部（FAIL Required ... 16.08%；tests/coverage/coverage.xml 被覆写） | pyproject addopts 全局挂 --cov 无 collect-only 豁免 | `uv run pytest --co -q` 两次复现，输出在 d1/ | 非覆盖目的 pytest 调用静默污染覆盖率工件（2026-08-14 轮 2 次覆写先例） | addopts 拆分或常态 COVERAGE_FILE 隔离 | d1 | closed (C25 spec #63, PR #217) |
 | D102 | src/shenbi 内 6 处 print( 违反 AGENTS.md "No print() in framework code"（CLI 入口豁免边界待裁） | error | P1 | src/shenbi/cost/report.py:93,95; src/shenbi/pipeline/cli.py:945,947; src/shenbi/skill_utils/escalation/check.py:149; src/shenbi/skill_utils/foreshadowing_recall/recall.py:61 | CLI 输出直用 print，框架纯度例外未成文 | `git grep -n "print(" -- 'src/shenbi/*.py'`（3 处 _text_fingerprint 子串误报已剔除：chapter_drafting.py:133,141,320；证据列行号为审计时点值，现行已漂移） | AGENTS.md 合规性；structlog 统一性 | Z3/Z5/Z6 深读裁豁免边界，豁免者降级并将豁免规则文档化 | d1 | closed (C-36 spec #50, PR #176) |
 | D103 | chapter_loop.py:20 docstring 遗留 TODO 措辞（W3T4/W3T5 迁移说明未清理） | optimization | M | src/shenbi/pipeline/chapter_loop.py:20 | 历史迁移注释未清理 | `git grep -nE "TODO" -- src/shenbi/` | 误导读者以为有待办 | 清理措辞 | d1 | closed (C-23 spec #61, PR #210) |
 | D104 | 2 个 meta skill（using-shenbi、shenbi-writing-skills）无 contract.kind 声明 | error | P2 | skills/using-shenbi/SKILL.md frontmatter; skills/shenbi-writing-skills/SKILL.md frontmatter | meta skill 从未纳入契约迁移范围 | d1-03-frontmatter.log（74 skill 全量解析） | 若 meta skill 应有契约则缺失；若豁免则 lint 无豁免规则（静默不对称） | Z8 语义裁决 + lint_contracts 明确 meta 豁免规则 | d1 | closed (C-20 spec #58, PR #202) |
 | F001 | nightly.yml 整体 DISABLED → doc-links 371 项测试零自动执行环境（本地 skip + nightly 禁用） | error | P2 | .github/workflows/nightly.yml:8-16（schedule 注释）；tests/integration/test_doc_links.py:19-20（工具未装即 skip）；d1-11-skip-reasons.log（371=doc_links） | 有效检查被双层门禁挡住：本地需 npm 工具、nightly 需人工 dispatch | `git grep -n markdown-link-check -- .github/` + nightly.yml 头部注释 | 内部链接 rot（改名文件）无任何自动防线；371 项测试形同虚设 | 启用 nightly 或把 internal-links 子集拆入 per-PR CI | phase1 | closed (C-17 spec #55, PR #191) — internal-links 纯 Python 化进 per-PR CI，nightly 冗余 job 删除 |
 | F002 | run_pipeline.sh 自动 approve 全部 checkpoint（含 ESCALATION）+ 手改 pipeline-state.json step_index 绕过状态机与人工门 | error | P1 | run_pipeline.sh:73-91（stuck≥3 → python3 直改 step_index+1 清 retry_counts）；:93-102（error\|failed 且 grep 命中 escalation/gate/dispatch 即自动 approve） | 无人值守长跑脚本与"checkpoint review 人工决策"设计冲突，形成平行状态操作路径 | `sed -n '73,102p' run_pipeline.sh` | AGENTS.md "no gate can be skipped" 契约面；escalation 的设计意图（人工介入）被脚本吞掉 | 明确其为 smoke 工具并加防误用护栏，或将 auto-approve 策略降级为白名单 checkpoint 类型 | phase1 | open |
 | F003 | run_pipeline.sh 用 python3 -c 拼接 $PROJECT_DIR（注入/语法破坏面）+ grep -o 解析 JSON 状态（脆弱） | security | P2 | run_pipeline.sh:40-46,75-87（'$PROJECT_DIR/pipeline-state.json' 内插进 python 字符串）；:35-37（grep -o '"status"' 解析） | shell 包装层复用字符串拼接而非参数化调用/JSON 工具 | `bash -n run_pipeline.sh` 通过（语法层）；语义面待 T12 实证 | 含单引号路径即语法破坏；JSON 输出格式微变即静默误判 status | 改用 argv 传参 + jq/python -m json.tool 解析 | phase1 | open |
-| F004 | ci.yml 契约 lint 面缺 lint_contract_graph.py 与 scripts/lint_contract_fields.py（CI 窄于本地权威门） | error | P1| .github/workflows/ci.yml:63-66（仅 lint_contracts + lint_repo_consistency） vs justfile:52-55（lint-contracts 三件） | CI 与 justfile 双向手工同步无单一信源，漂移单向累积 | `diff <(grep -o 'lint_[a-z_]*\.py' justfile \| sort -u) <(grep -o 'lint_[a-z_]*\.py' .github/workflows/ci.yml \| sort -u)` | dangling-write 类缺陷（graph lint 拦截面）在 PR CI 不设防 | ci.yml 补两 lint 或统一由 just check 驱动 CI | phase1 | open |
-| F005 | just check 幂等 diff 范围缺 .codex-plugin/、autocheck docs、plugin manifests（本地权威门窄于 CI codegen job） | error | P1| justfile:22（diff -- tests/tiers/deps.json docs/framework/ skills/） vs ci.yml:86-99（codegen-idempotency 另查 .codex-plugin/ + generate_autocheck_docs.py + shenbi-generate-plugins） | 同 F004 根因（双向手工同步） | 对比 justfile:22 与 ci.yml codegen job 步骤清单 | 本地 just check 绿 ≠ CI codegen 绿（AGENTS.md "Validate locally before pushing" 的保证面有洞） | just check 补三个生成器 + 全范围 diff | phase1 | open |
+| F004 | ci.yml 契约 lint 面缺 lint_contract_graph.py 与 scripts/lint_contract_fields.py（CI 窄于本地权威门） | error | P1| .github/workflows/ci.yml:63-66（仅 lint_contracts + lint_repo_consistency） vs justfile:52-55（lint-contracts 三件） | CI 与 justfile 双向手工同步无单一信源，漂移单向累积 | `diff <(grep -o 'lint_[a-z_]*\.py' justfile \| sort -u) <(grep -o 'lint_[a-z_]*\.py' .github/workflows/ci.yml \| sort -u)` | dangling-write 类缺陷（graph lint 拦截面）在 PR CI 不设防 | ci.yml 补两 lint 或统一由 just check 驱动 CI | phase1 | closed (C25 spec #63, PR #217) |
+| F005 | just check 幂等 diff 范围缺 .codex-plugin/、autocheck docs、plugin manifests（本地权威门窄于 CI codegen job） | error | P1| justfile:22（diff -- tests/tiers/deps.json docs/framework/ skills/） vs ci.yml:86-99（codegen-idempotency 另查 .codex-plugin/ + generate_autocheck_docs.py + shenbi-generate-plugins） | 同 F004 根因（双向手工同步） | 对比 justfile:22 与 ci.yml codegen job 步骤清单 | 本地 just check 绿 ≠ CI codegen 绿（AGENTS.md "Validate locally before pushing" 的保证面有洞） | just check 补三个生成器 + 全范围 diff | phase1 | closed (C25 spec #63, PR #217) |
 | F006 | overview.md 声称 15 种 truth kind，实际 16 种 | error | M | docs/architecture/overview.md:141,166（"15 种 kind 值"） vs docs/framework/truth-files.yaml（grep -oE 'kind: [a-z-]+' \| sort -u = 16：config/reference/world/character/outline/truth/plan/chapter/context/decisions/style/report/snapshot/import/short/benchmark） | kind 新增后文档计数未同步 | `grep -oE 'kind: [a-z-]+' docs/framework/truth-files.yaml \| sort -u \| wc -l` → 16 | 读者对体系规模的认知漂移 | 更新 overview 计数（或改为"见 truth-files.yaml"不写死数字） | phase1 | closed (spec #61 执行期剔除——kind 已回 15) |
 | F007 | AGENTS.md 声称 69 skills，磁盘 74 个 SKILL.md | error | P2| AGENTS.md（"67 functional + 2 meta = 69 total"） vs `ls skills/*/SKILL.md \| wc -l` = 74（d1-03-frontmatter.log TOTAL=74） | skill 新增后 AGENTS.md 计数未同步 | `ls -d skills/*/ \| wc -l` | 入口文档计数漂移误导新 agent/贡献者 | 更新计数（或去数字改描述） | phase1 | closed (spec #61 执行期剔除——PR #207 去数字化) |
 | F603 | resonance_global_floor float 值绕过 Rule2 下限校验 | error | P1 | src/shenbi/config/config_coherence.py:121-125 | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | Z6 初审 | closed (fixed by PR #74) |
@@ -352,32 +352,32 @@
 | F883 | volume-consolidation 执行步骤双"5"编号 + 两个冲突的"## 输出格式"模板 | error | M | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | closed (C24 #62 PR #214) |
 | F884 | truth-sync 操作范围多章（N..M）但 reads 仅单章 parametric chapters/chapter-N.md | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | closed (C-20 spec #58, PR #202) |
 | F885 | score-arc/stratum/volume description 中英混排 + audit 技能评分刻度不统一（X/10 vs /100） | optimization | M | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | closed (C24 #62 PR #214) |
-| F1001 | ci.yml | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | verified |
-| F1002 | justfile | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
-| F1003 | ci.yml + .gitignore | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | verified |
+| F1001 | ci.yml | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C25 spec #63, PR #217) |
+| F1002 | justfile | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C25 spec #63, PR #217) |
+| F1003 | ci.yml + .gitignore | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C25 spec #63, PR #217) |
 | F1004 | plugins/master.json | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-22 spec #60, PR #207) |
 | F1005 | plugins/master.json | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-22 spec #60, PR #207) |
-| F1006 | codeql.yml | optimization | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
-| F1007 | pre-commit-autoupdate.yml | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1006 | codeql.yml | optimization | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C25 spec #63, PR #217) |
+| F1007 | pre-commit-autoupdate.yml | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (pre-spec pre-fix commit 1a10dfab · C25 spec #63 REWRITE 剔除) |
 | F1008 | .pre-commit-config.yaml | deps | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-27 spec #41 R4: rev v1.38.0 对齐锁内) |
 | F1009 | pyproject.toml | deps | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-27 spec #41 R4: pytest-ordering 删除) |
 | F1010 | compare_mutation_score.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-17 spec #55, PR #191) — compare_mutation_score.py 随 mutation 下线删除（原声称 CI 使用即未接线） |
-| F1011 | audit-skill-descriptions.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
-| F1012 | check_fixture_mirror.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1011 | audit-skill-descriptions.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C21 spec #59, PR #204 · C25 spec #63 REWRITE 剔除) |
+| F1012 | check_fixture_mirror.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C25 spec #63, PR #217) |
 | F1013 | run_pipeline.sh（T1205 证据升级：括号平衡前提可执行任意 Python；P2 维持=本地自攻击威胁模型） | security | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1014 | run_pipeline.sh | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
-| F1015 | lint_status_strings.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1015 | lint_status_strings.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C8 spec #34, PR #129 · C25 spec #63 REWRITE 剔除) |
 | F1016 | lint_status_strings.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-8 spec #34, PR #129) |
 | F1017 | lint_repo_consistency.py | optimization | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-22 spec #60, PR #207) |
 | F1018 | generate_autocheck_docs.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-12 spec #38, PR #142) |
-| F1019 | .gitignore | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
-| F1020 | .gitignore | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
-| F1021 | release.yml | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1019 | .gitignore | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C25 spec #63, PR #217) |
+| F1020 | .gitignore | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C25 spec #63, PR #217) |
+| F1021 | release.yml | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C25 spec #63, PR #217) |
 | F1022 | migrate_contract_to_frontmatter.py | optimization | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-22 spec #60, PR #207) |
 | F1023 | AGENTS.md（跨区） | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (spec #61 执行期剔除——PR #207 去数字化) |
 | F1024 | pyproject.toml | optimization | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1025 | justfile | error | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
-| F1026 | docs.yml | optimization | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1026 | docs.yml | optimization | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C25 spec #63, PR #217) |
 | F1027 | lint_status_strings.py | error | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open | → closed (C-37 spec #51) (already fixed by spec #34)
 | F1028 | CODEOWNERS | optimization | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C24 #62 PR #214) |
 | F1029 | AC-003.md | error | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C24 #62 PR #214) |
@@ -387,13 +387,13 @@
 | F1033 | 技能计数四文档漂移（59/67/69/69 vs 磁盘 74）（=F904/F906/F007 同域，阶段 4 合并） | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | closed (C-23 spec #61, PR #210——F906 残留一并修) |
 | F1034 | command-to-give.md:48 引用已删除的 tests/dispatch-subagent.sh（=F461 双重发现，阶段 4 合并） | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | closed (C-23 spec #61, PR #210) |
 | F1035 | run_pipeline.sh :26/:70-79 无守卫命令在 set -e 下静默死（FATAL 分支不可达） | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
-| F1036 | pre-push-check.sh:74 计数管道零命中即崩整钩 | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
+| F1036 | pre-push-check.sh:74 计数管道零命中即崩整钩 | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | closed (C25 spec #63, PR #217) |
 | F1037 | 覆盖率阈值自述漂移：文档 78/85 vs 实际配置 80/89 | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | closed (先前 PR 已统一 85) |
-| F1038 | pre-push hook 配置齐全但文档安装命令不激活 | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
-| F1039 | just clean 删跟踪文件 .gitkeep | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
-| F1040 | 全局 addopts --cov + fail_under=85 使部分 pytest 运行（just test/test-file）测试全过也假失败退出非零（机制链安装版源码取证+现存 21.92% 产物实证，协调者抽验） | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
+| F1038 | pre-push hook 配置齐全但文档安装命令不激活 | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | closed (C25 spec #63, PR #217) |
+| F1039 | just clean 删跟踪文件 .gitkeep | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | closed (C25 spec #63, PR #217) |
+| F1040 | 全局 addopts --cov + fail_under=85 使部分 pytest 运行（just test/test-file）测试全过也假失败退出非零（机制链安装版源码取证+现存 21.92% 产物实证，协调者抽验） | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | closed (C25 spec #63, PR #217) |
 | F1041 | SBOM dev 组口径过度包含 | 漏报 | M | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | closed (C-27 spec #41 R2: 按组分层 SBOM) |
-| F1042 | mkdocs 条件门 ref 失败静默跳过 | 漏报 | M | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
+| F1042 | mkdocs 条件门 ref 失败静默跳过 | 漏报 | M | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | closed (C25 spec #63, PR #217) |
 | F901 | 执行协议引用已删除的 dispatch 脚本 | error | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | closed (C-23 spec #61, PR #210) |
 | F902 | README pipeline-init 示例命令实测失败 | error | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | F903 | "G0.13 工具哈希阻断"承诺已静默失效 | security | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open | → closed (C-37 spec #51) (already fixed by spec #54/C16 (G0.14 enforcement))
@@ -404,7 +404,7 @@
 | F908 | decisions 枚举与 P2.5 表欠指定 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | closed (C-4 spec #30, PR #120) |
 | F909 | basedpyright 设计笔记三处失实 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | closed (C-23 spec #61, PR #210) |
 | F910 | "No ignore_errors in mypy overrides" 不实 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | closed (spec #61 执行期剔除——ignore_errors 已清) |
-| F911 | plugin-manifest CI 强制描述失效 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
+| F911 | plugin-manifest CI 强制描述失效 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | closed (C25 spec #63, PR #217) |
 | F912 | "pip-audit weekly" 不存在 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | closed (C-27 spec #41 R4: weekly cron 落地) |
 | F913 | goal-prompt 快照多处与现状矛盾 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | closed (C24 #62 PR #214) |
 | F914 | CHANGELOG "7-gate (G0-G7)" 自相矛盾 | error | M | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | closed (C24 #62 PR #214) |
@@ -567,7 +567,7 @@
 | F767 | F716 弱断言清点不完整：同类"PASS/FAIL 双收"另有 6 处 | error | M | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open | | → closed (C-35 spec #49) (merged-into-F1177, spec #49, PR #170) |
 | F768 | Z7-a "三个代表性文件 96 tests collected" 未指名文件、不可复现 | error | M | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open | | → closed (C-35 spec #49) (merged-into-F1177, spec #49, PR #170) |
 | F769 | doc_links 参数化计数随 docs/ 单调增长，"371 项"类计数自设计上过期 | error | P2 | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | closed (仅存归档历史) |
-| F770 | pytest addopts 全局含 --cov：collect-only 也会重写 coverage 产物 | error | M | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open |
+| F770 | pytest addopts 全局含 --cov：collect-only 也会重写 coverage 产物 | error | M | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | closed (C25 spec #63, PR #217) |
 | F886 | genesis-context/*.md 写后全仓零消费：种子实质内容在管道 genesis 阶段断流 | error | P1 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | verified | → closed (C-37 spec #51) (deferred (C37 triage defer row, revival condition documented))
 | F887 | GENESIS_STEPS 仍派发 DEPRECATED 的 shenbi-foreshadowing-plant；另有 3 处正文把 track/plant 当现行链路引用 | error | P1 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | closed (C-21 spec #59, PR #204) |
 | F888 | truth-files.yaml 孤儿概念 short/outline.md 与 short/package.md（零生产者、零消费者、零引用） | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | closed (C-22 spec #60, PR #207) |
@@ -582,7 +582,7 @@
 | F954 | plans/INDEX.md:23 三项附加过期：PR 范围、日期域、最近归档项 | error | P2 | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
 | F955 | prompt 设计 spec :226 预写审计目录 2026-08-13/（F943 未列的第三处同族漂移） | error | M | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | closed (C-23 spec #61, PR #210——载体归档，路径修正) |
 | F956 | F8/F9/F10 跨审计代 finding 编号命名空间复用 | error | M | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open | | → closed (C-35 spec #49) (merged-into-F1177, spec #49, PR #170) |
-| F957 | 文档断链 CI 防线（test_docs_accuracy.py）盲区：F901/F951 类断链可无感穿过 | error | P2 | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
+| F957 | 文档断链 CI 防线（test_docs_accuracy.py）盲区：F901/F951 类断链可无感穿过 | error | P2 | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | closed (C25 spec #63, PR #217) |
 | F231 | deps.json 技能账目三方漂移：磁盘 74 vs 账目 69 vs AGENTS.md 69，5 个生产技能漏账且无对账防线 | error | P2 | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | closed (C-21 spec #59/#66, PR #204 — 08-15 row closed by spec #60 refutation) |
 | F232 | genre-config 契约模型"9 条可自动检查规则"只实现 7 条：approval 必填与顶层字段数=8 完全未编码，G4 放行无审批配置 | error | P1 | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | closed (C-9 spec #35, PR #132) |
 | F236 | registry.py docstring 指向已删除的 src/shenbi/contract.py（"未迁移返回 None（contract.py 仍负责）"） | error | M | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | closed (C-23 spec #61, PR #210) |
@@ -696,7 +696,7 @@
 | T1501 | revert 丢失 g5 修复（dc6fc67），follow-up 承诺悬空 2 个月——pin 测试仍钉死，与 F708 P1 互证 | git 考古 | P2 | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open | | → closed (C-35 spec #49) (merged-into-F1177, spec #49, PR #170) |
 | T1502 | 孤儿本地分支 docs/token-efficiency-p2-spec 携带 481 行独有 spec，main 零副本从未开 PR，spec 编号已被 main #6 占用 | git 考古 | P2 | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open | | → closed (C-35 spec #49) (merged-into-F1177, spec #49, PR #170) |
 | T1503 | 快照子系统半迁移：同名双实现，差分版仅活在测试里（=F351 历史面） | git 考古 | P2 | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | closed (obsolete — spec #57, PR #198; 随 #26 路径 3 移除消解) · =F351 历史面 |
-| T1504 | novel-output 22.7MB/1260 文件反忽略入库 main（52 个 ~320KB 快照+119 staging；staging 与顶层忽略规则对冲；协调者抽验证实 25M/119 staging） | git 考古 | P2 | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
+| T1504 | novel-output 22.7MB/1260 文件反忽略入库 main（52 个 ~320KB 快照+119 staging；staging 与顶层忽略规则对冲；协调者抽验证实 25M/119 staging） | git 考古 | P2 | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | closed (C25 spec #63, PR #217) |
 | T1505 | 悬空清理托付：specs #16/#25 并不含 _shared.py 清理项 | git 考古 | M | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | closed (C24 #62 PR #214) |
 | T1506 | canonical loader 仍名 legacy.py + 已删 contract.py 的 re-export shim 残留 | git 考古 | M | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open | → closed (C-37 spec #51) (deleted in C37 PR (spec #51 R2))
 | T1507 | 分支卫生（3 squash-merge 未删远程+10 dependabot 未 triage）+ INDEX 计数 66/68/63 三处漂移 | git 考古 | M | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open | | → closed (C-35 spec #49) (merged-into-F1177, spec #49, PR #170) |
