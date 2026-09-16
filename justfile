@@ -2,13 +2,21 @@
 set dotenv-load := true
 set positional-arguments := true
 
+# Recipe-authoring covenant (spec #64 C26 / F1031): recipes taking
+# natural-language or flag-value parameters MUST NOT interpolate {{param}}
+# into the shell line (just substitutes textually BEFORE the shell parses,
+# so `;`/`$()` in the value execute). Use positional references ("$1",
+# "${@:N}") — see tests/test_justfile_injection.py. `${@:N}` is bash-only,
+# hence the explicit bash shell below (dash would abort: Bad substitution).
+set shell := ["bash", "-cu"]
+
 # Default: show available recipes
 default:
     @just --list
 
 # Install dependencies (dev group by default)
 install group="dev":
-    uv sync --group {{group}}
+    uv sync --group "$1"
 
 # Run all checks (single source of truth — CI calls this; see spec #63 C25)
 check:
@@ -53,15 +61,15 @@ module-coverage:
 
 # Run tests only (fast unit tests)
 test *args:
-    uv run pytest -n auto -m "unit" --no-cov {{args}}
+    uv run pytest -n auto -m "unit" --no-cov "$@"
 
 # Run tests including integration
 test-all *args:
-    uv run pytest -n auto -m "not last" --no-cov {{args}}
+    uv run pytest -n auto -m "not last" --no-cov "$@"
 
 # Run a single test file
 test-file file:
-    uv run pytest {{file}} -v --no-cov
+    uv run pytest "$1" -v --no-cov
 
 # Fix lint and formatting
 fix:
@@ -78,7 +86,7 @@ lint-routing:
 
 # Lint audit-run artifacts: ledger rows, count reconciliation, carryover (spec #49)
 audit-lint *args:
-    uv run python tools/lint_audit_run.py {{args}}
+    uv run python tools/lint_audit_run.py "$@"
 
 # Lint contract.reads fields vs truth file headings/keys (spec B.5)
 lint-contract-fields:
@@ -97,11 +105,11 @@ generate:
 
 # Run gates CLI (e.g., just gate G0 <seed>)
 gate name *args:
-    uv run shenbi-validate {{name}} {{args}}
+    uv run shenbi-validate "$1" "${@:2}"
 
 # Dispatch a skill
 dispatch skill test_type round_dir *prompt:
-    uv run shenbi-dispatch {{skill}} {{test_type}} {{round_dir}} {{prompt}}
+    uv run shenbi-dispatch "$1" "$2" "$3" "${@:4}"
 
 # Build docs site
 docs:
@@ -127,17 +135,17 @@ changelog:
     uv run git-cliff --unreleased -p CHANGELOG.md
 
 # Initialize a novel pipeline from a seed file
-pipeline-init seed project_dir="":
-    uv run pipeline init {{seed}} {{ if project_dir != "" { "--project-dir " + project_dir } else { "" } }}
+pipeline-init seed project_dir="" *args:
+    if [ -n "$2" ]; then uv run pipeline init "$1" --project-dir "$2" "${@:3}"; else uv run pipeline init "$1" "${@:3}"; fi
 
 # Check pipeline status
 pipeline-status project_dir:
-    uv run pipeline status {{project_dir}}
+    uv run pipeline status "$1"
 
 # Submit a checkpoint review
 pipeline-review project_dir decision feedback="":
-    uv run pipeline review {{project_dir}} {{decision}} {{ if feedback != "" { "--feedback " + feedback } else { "" } }}
+    if [ -n "$3" ]; then uv run pipeline review "$1" "$2" --feedback "$3"; else uv run pipeline review "$1" "$2"; fi
 
 # Resume pipeline execution
 pipeline-resume project_dir:
-    uv run pipeline resume {{project_dir}}
+    uv run pipeline resume "$1"
