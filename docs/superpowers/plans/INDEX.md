@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-15（spec #63 C25 plan Done——PR #217）
-> **活跃 plan 数**：0 | **已归档**：117（见 `archive/`）
+> **最后更新**：2026-09-17（spec #64 C26 plan ready）
+> **活跃 plan 数**：1 | **已归档**：117（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,6 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
+- `2026-09-17-c26-shell-injection-fix.md` ✅ ready — spec #64（C26 shell/just 包装层注入，SDD 阶段 5 审查收敛）
 
 ## 待执行的 spec → plan 映射
 
