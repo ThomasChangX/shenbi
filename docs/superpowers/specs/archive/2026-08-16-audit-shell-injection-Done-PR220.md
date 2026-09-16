@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-17 · SDD #64 阶段 3 审查修正：T1 修复模式单一化为 positional-arguments 模式、验收 1/3 离线化、T2.7 裁决 B 为默认、shellcheck 覆盖全部 *.sh) | **Severity:** 🟠 P1（F1031 just 标准入口任意命令执行）
+> **Date:** 2026-08-16 | **Status:** Done (PR #220 · 2026-09-17 · SDD 全周期) — 原 Design (Revised 2026-09-17 · SDD #64 阶段 3 审查修正：T1 修复模式单一化为 positional-arguments 模式、验收 1/3 离线化、T2.7 裁决 B 为默认、shellcheck 覆盖全部 *.sh) | **Severity:** 🟠 P1（F1031 just 标准入口任意命令执行）
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C26）| **代表 finding:** F002 | **簇规模:** 11 条 | **严重度上限:** P1
 > **范围:** justfile（recipe 参数引用）、run_pipeline.sh、README 快速开始 | **证据等级:** 实验佐证（Z9-a + Z10-review-r1 + T12 实证注入；F1031/T1205 verified）
 > **与既有 spec 关系:** C31（注入/越权安全面）的包装层半——C31 管 g4 判定/symlink/env/phase 参数，本 spec 只管 shell/just 包装层
