@@ -6,6 +6,7 @@
 # approves checkpoints and never writes pipeline-state.json. On a blocked
 # checkpoint, run `just pipeline-review <dir> <decision> [feedback]`
 # manually, then re-run this script.
+# Exit codes: 0 completed, 1 fatal error, 2 max loops, 3 blocked checkpoint (manual review required).
 set -euo pipefail
 
 PROJECT_DIR="${1:-novel-${USER}-$(date +%Y%m%d-%H%M%S)}"

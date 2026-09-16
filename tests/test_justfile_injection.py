@@ -120,6 +120,20 @@ def test_matrix_all_parameterized_recipes_pass_literals(tmp_path: Path) -> None:
             proc = run_just(env, recipe, *call)
             assert proc.returncode == 0, f"{recipe} {call}: {proc.stderr}"
 
+    # Six-class matrix (spec T1.3) through the two natural-language
+    # positions: the dispatch prompt (F1031) and the pipeline-review
+    # free-form feedback (F1032). Each sample must arrive as ONE argv
+    # entry, and no sample may execute anything.
+    for sample in SAMPLES:
+        for recipe, prefix in (
+            ("dispatch", ["shenbi-x", "generative", "/tmp/r"]),
+            ("pipeline-review", ["/tmp/d", "approve"]),
+        ):
+            proc = run_just(env, recipe, *prefix, sample)
+            assert proc.returncode == 0, f"{recipe} {sample!r}: {proc.stderr}"
+        lines = stub_lines(tmp_path)
+        assert sample in lines, f"payload not literal argv: {sample!r}"
+
     lines = stub_lines(tmp_path)
     # Zero execution: no marker anywhere in the repo root (pwned = the bare
     # `touch pwned` variants used by the install/gate rows).
