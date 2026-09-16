@@ -22,7 +22,7 @@
 - **文件**：`2026-08-16-audit-shell-injection-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C26，11 条）
 - **状态**：Design | **优先级**：🟠 P1
-- **内容**：F1031（verified）just 全 recipe 参数无引用插值——自然语言 prompt 含 ;/$() 即任意命令（AGENTS.md 标准入口即攻击面）→ argv/env 安全传递模式 + 六类注入样本矩阵回归；F002 run_pipeline.sh 自动 approve ESCALATION + 直改 step_index → 白名单 opt-in 或降级 smoke 工具；F1013/T1205 python3 -c 拼接实证可执行任意 Python → argv 传参 + JSON 工具解析；README 示例实测（F902/F1030）
+- **内容**：F1031（verified）just 全 recipe 参数无引用插值——自然语言 prompt 含 ;/$() 即任意命令（AGENTS.md 标准入口即攻击面）→ positional-arguments 唯一模式（`set shell := ["bash","-cu"]` + recipe 体 `"$N"`/`"${@:N}"`）+ PATH-stub 六类注入样本矩阵回归；F002 run_pipeline.sh 自动 approve ESCALATION + 直改 step_index → **裁决 B：降级 smoke 工具**（自动 approve 全删，ESCALATION 一律停人工 checkpoint；白名单 A 已否决）；F1013/T1205 python3 -c 拼接实证可执行任意 Python → heredoc argv 传参 + JSON 解析；README 示例实测（F902/F1030）；shellcheck-py mirror 净新增覆盖全 *.sh（2026-09-17 修订）
 ### #6 · Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置
 
 - **文件**：`2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design.md`
