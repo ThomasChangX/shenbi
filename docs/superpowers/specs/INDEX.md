@@ -20,13 +20,13 @@
 ### #6 · Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置
 
 - **文件**：`2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design.md`
-- **系列**：Token 效率全栈 audit（P2 效率优化轮，承接已归档总纲 §6.3 P2 五项中的 3.3/3.9/3.10；3.2 归 #4（输出侧浪费），2.3 #8/#9 视 §3 而定）
-- **状态**：Design
-- **优先级**：🟡 Medium（效率优化，非阻塞；度量前提 TokenLedger 已由 PR #39 落地；每项需 G4 全量验证 + 准备回滚）
+- **系列**：Token 效率全栈 audit（P2 效率优化轮，承接已归档总纲 §6.3 P2 五项中的 3.3/3.9/3.10；3.2 归已归档的输出侧浪费子 spec；2.3 #8/#9 已裁决延后独立立项——2026-09-17 轮 4 同步）
+- **状态**：Design（**Revised 2026-09-17** · SDD 阶段 3 八轮审查修订：T_B 缓存降级不实施——审计波已归 #42/PR#153，剩余纯 I/O；§3 重设计为无条件 body 瘦身——外置到各 skill 自有目录（先例 anti-ai-reference.md），运行时不注入，废弃 dispatched_examples 与 `skills/_shared/`；resonance/arc-payoff 阈值口径 SKIP（净省 <500B）+ state-settling 定性裁决 SKIP（588B 超阈值但无 G4 安全网输出契约风险不值）——重段主体为 checker/机器/输出契约结构——**实施集终版 2 skill（chapter-pattern/pacing），一次性 ~1.3KB 落地、稳态 ~0.12KB/章；pass 主交付 = T_A 字节稳定测试 + T_D IDE 分离（CLI 门控）+ 分解证据**）
+- **优先级**：🟡 Medium（效率优化，非阻塞；度量前提 TokenLedger 已由 PR #39 落地；格式遵循度验证归 audit-run，逐项准备回滚）
 - **方法**：`systematic-debugging` 四阶段
-- **依赖**：已归档总纲（Cluster C 重复传输根因簇、§3.3/§3.9/§3.10 findings）；**PR #39**（TokenLedger API 路径接线 = 全部收益的度量前提；`_input_key` = 缓存 key 基础；`_strip_autogen_blocks` = system 字节稳定前置）；`src/shenbi/pipeline/{dispatch_helper,audit_context_cache,chapter_loop}.py`；`skills/shenbi-{chapter-pattern,review-resonance,review-arc-payoff,state-settling}/SKILL.md`
-- **内容**：把总纲 P2 三项从提议推进到可实施——(1) §1 跨 dispatch 文件缓存层（保守首版：read-only truth 文件 only，规避 content-hash 失效语义；`pending_hooks`/`current_state` 等高 churn 文件不入缓存）；(2) §2 IDE-CLI system/user 分离（默认形态=system 字节稳定回归测试；强形态=CLI 支持 `--system` flag 才做，否则 stretch 放弃）；(3) §3 重 SKILL.md 示例外置到 `skills/_shared/`（同时解决 2.3 #9），首次 dispatch 带、后续引用，逐 skill 可回滚。实施顺序 T_A→T_B→T_C→T_D（风险升序）。与审计 #42（C28 性能）分工：彼覆盖审计波共享注入/registry/SentenceTransformer 缓存化，本 spec 为跨 dispatch 只读 truth 文件缓存。
-- **对应 plan**：❌ 未写
+- **依赖**：已归档总纲（Cluster C 重复传输根因簇、§3.3/§3.9/§3.10 findings）；**PR #39**（TokenLedger API 路径接线 = 全部收益的度量前提；`_strip_autogen_blocks` = system 字节稳定前置）；`src/shenbi/pipeline/{dispatch_helper,audit_context_cache,chapter_loop}.py`；skills/shenbi-{chapter-pattern,review-resonance,review-arc-payoff,pacing-design,state-settling}/SKILL.md
+- **内容**：把总纲 P2 三项从提议推进到可实施——(1) §1 跨 dispatch 文件缓存（**已降级不实施**，2026-09-17 价值门：审计波部分已被 #42/PR#153 覆盖，剩余非审计链缺口纯磁盘 I/O 无 token 收益）；(2) §2 IDE-CLI system/user 分离（默认形态=system 字节稳定回归测试；强形态=CLI 支持 `--system` flag 才做，plan 阶段验证）；(3) §3 重 SKILL.md body 瘦身——教学示例/参考段外置到各自 skill 目录，输出契约（矩阵/EXACT 模板/门禁骨架/checker 锚定结构）永不外置，验收=离线字节与 estimate_prompt_tokens 差 + just check（真实 dispatch 面归后续 audit-run）。实施顺序 T_A（字节稳定测试）→T_C（瘦身）→T_D（IDE 分离，CLI 门控）。与审计 #42（C28 性能）分工：彼覆盖审计波读抑制，本 spec 为（已降级的）跨 dispatch 缓存与 system prompt 结构/示例体重。范围注记：12 个 >10KB SKILL.md 中晚于 08-01 审计诞生/长大者（foreshadowing-lifecycle 等）不在本 spec 范围
+- **对应 plan**：✅ ready（`2026-09-17-spec6-token-efficiency-p2.md`）
 
 ### #65 · 字段级 reads 覆盖率：三大 truth 文件的精准切片
 
