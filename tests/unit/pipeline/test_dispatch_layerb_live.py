@@ -109,3 +109,54 @@ def test_string_reads_unfiltered(project_tree: Path) -> None:
     # outline/story_frame.md is a string read -> full content present
     # (marker chosen to differ from the input key itself)
     assert "STORY_FRAME_MARKER" in user_prompt
+
+
+POWER_SYSTEM_FIXTURE = Path("tests/fixtures/world-power-system-example.md")
+
+
+@pytest.fixture()
+def factual_tree(tmp_path: Path) -> Path:
+    """review-group-factual read set with real power_system fixture content."""
+    (tmp_path / "world").mkdir()
+    (tmp_path / "truth").mkdir()
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "audits").mkdir()
+    ps = POWER_SYSTEM_FIXTURE.read_text(encoding="utf-8")
+    (tmp_path / "world" / "power_system.md").write_text(ps, encoding="utf-8")
+    (tmp_path / "world" / "rules.md").write_text("rules", encoding="utf-8")
+    (tmp_path / "world" / "locations.md").write_text("loc", encoding="utf-8")
+    (tmp_path / "world" / "story_bible.md").write_text("bible", encoding="utf-8")
+    (tmp_path / "truth" / "current_state.md").write_text("## 主角状态\n\n甲。\n", encoding="utf-8")
+    (tmp_path / "truth" / "chapter_summaries.md").write_text(
+        "## 已完成章节\n\n1。\n", encoding="utf-8"
+    )
+    (tmp_path / "chapters" / "chapter-26.md").write_text("# 第26章\n\n正文。", encoding="utf-8")
+    (tmp_path / "genre-config.json").write_text("{}", encoding="utf-8")
+    return tmp_path
+
+
+def test_power_system_fields_filter_in_dispatch(
+    factual_tree: Path, warn_spy: dict[str, list[str]]
+) -> None:
+    from shenbi.cost.estimate import estimate_prompt_tokens
+
+    ps_full = POWER_SYSTEM_FIXTURE.read_text(encoding="utf-8")
+    full_len = len(ps_full.encode("utf-8"))
+    assert full_len > 50_000  # fixture sanity (synthetic sample, 58,113B)
+    _, user_prompt, _ = _build_skill_prompt(
+        "shenbi-review-group-factual", factual_tree, "audit ch26", chapter=26
+    )
+    # Declared sections survive, undeclared filtered away
+    assert "力量天花板" in user_prompt and "代价机制" in user_prompt
+    assert "等级表" not in user_prompt  # undeclared section (appears only at fixture :38)
+    # All four declared fields matched -> escape hatch silent
+    assert warn_spy["fields"] == [], warn_spy["fields"]
+    # Spec §7 byte metric: isolate the power_system CONTRIBUTION by
+    # subtracting a no-power_system baseline prompt.
+    (factual_tree / "world" / "power_system.md").unlink()
+    _, baseline, _ = _build_skill_prompt(
+        "shenbi-review-group-factual", factual_tree, "audit ch26", chapter=26
+    )
+    contribution = len(user_prompt.encode("utf-8")) - len(baseline.encode("utf-8"))
+    assert 4_000 < contribution < full_len * 0.75  # deep cut, bounded below
+    assert estimate_prompt_tokens(user_prompt) < estimate_prompt_tokens(baseline + ps_full)
