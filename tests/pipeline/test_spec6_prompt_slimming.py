@@ -16,6 +16,8 @@ SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
 # Pre-slim constants (captured before externalization, branch f64d13c5)
 PRE_LEN_CHAPTER_PATTERN = 7629
 PRE_EST_CHAPTER_PATTERN = 2681
+PRE_LEN_PACING = 6829
+PRE_EST_PACING = 2511
 
 
 def _system_prompt(skill: str, tmp_path: Path) -> str:
@@ -44,3 +46,26 @@ def test_chapter_pattern_slimmed(tmp_path: Path) -> None:
     # moved teaching markers no longer in the system prompt
     assert "H = -Σ(p_i × log₂(p_i))" not in system
     assert "假设模式分布为" not in system
+
+
+def test_pacing_design_slimmed(tmp_path: Path) -> None:
+    system = _system_prompt("shenbi-pacing-design", tmp_path)
+
+    # net char drop: removed 481 chars, pointer block 111 chars (plan-review simulated)
+    assert PRE_LEN_PACING - len(system) >= 280
+    # estimated-token drop (simulated 146, threshold with margin)
+    assert estimate_prompt_tokens(system) <= PRE_EST_PACING - 130
+
+    ref = SKILLS_DIR / "shenbi-pacing-design" / "pacing-design-reference.md"
+    assert ref.is_file()
+    body = (SKILLS_DIR / "shenbi-pacing-design" / "SKILL.md").read_text(encoding="utf-8")
+    assert "`pacing-design-reference.md`" in body
+
+    # runtime invariants kept inline
+    assert "单调性检测阈值" in body
+    assert "## 输出格式" in body
+    assert "EXACT 节标题" in body
+
+    # moved teaching markers no longer in the system prompt
+    assert "太多=流水账" not in system
+    assert "每卷使用全部类型" not in system
