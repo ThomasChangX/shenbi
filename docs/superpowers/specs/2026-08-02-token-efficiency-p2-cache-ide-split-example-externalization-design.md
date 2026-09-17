@@ -1,7 +1,7 @@
 # Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置
 
 > **Date:** 2026-08-02
-> **Status:** Design
+> **Status:** Design（**Revised 2026-09-17** · SDD 价值门复核：§1 降级为不实施——审计波部分已被归档 spec #42/PR #153 的 C28 R1 字节等价读抑制实现，剩余非审计链缺口为纯磁盘 I/O（缓存命中在 `filter_to_fields` 之前、字节等价，不省 prompt token），按本 spec 铁律 1 度量将归零；§2/§3/度量前提全部复核存活。全文行号已按 main@4eedf14d 刷新）
 > **Severity:** 🟡 Medium（效率优化，非阻塞；单项收益需 G4 全量验证，且 P2 的度量前提——TokenLedger 接线——已由 PR #39 落地）
 > **方法:** [`systematic-debugging`](archive/2026-07-19-06-llm-context-engineering-design.md) skill 四阶段（Root Cause → Pattern → Hypothesis → Implementation）
 > **系列:** Token 效率全栈 audit（效率优化轮，承接已归档总纲 [`archive/2026-08-01-pipeline-read-write-consistency-audit-design.md`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §6.3 P2 五项中的三项；另两项——shared_context serial 接线（3.2）、world_summarizer 落地（2.3 #8）——见 §0.2 分工）
@@ -38,6 +38,8 @@
 ---
 
 ## 1. Finding 3.3 — 跨 dispatch 文件缓存层（Cluster C 核心）
+
+> **Revised 2026-09-17（价值门复核 · 降级为不实施）**：本节所述"无跨调用缓存"在审计波已不成立——归档 spec #42/PR #153 的 C28 R1 落地了 `SharedAuditContext.raw_files` 字节等价读抑制（覆盖 chapter-N / world/rules / character_matrix / style_profile / pending_hooks 五文件，`_build_skill_prompt` :690 命中检查，章界于审计波起点整建）。剩余缺口（非审计主链 step 1-8 / revision / audit_layer / genesis / closure / triggers 不注入 shared_context，chapter_summaries / current_state 不在 raw_files）为**纯磁盘 I/O 去重**——缓存命中在 `filter_to_fields`（:698）之前且字节等价，**不减少 prompt 发送字节**；§1.5 的 token 浪费估算与 §1.8 的 prompt_tokens 下降行系错位归因（真实的输入侧 token 削减归 Layer B 字段过滤（spec #65）与本 spec §3 示例外置）。按本 spec 铁律 1（无度量 = 不可证收益 = 不合并），T_B 不实施。高 churn truth 文件的"每章发送一次"语义是另一种更高风险的设计（改每 dispatch 的 prompt 内容），不在本 spec 范围。
 
 ### 1.1 症状
 
@@ -95,13 +97,13 @@ repo 有 6+（实测 20）skill 同章既读又写 truth 文件（drift-guidance
 
 ### 2.1 症状
 
-同一 skill 在一章内被多次 dispatch 时，其 ~3-14KB 的 SKILL.md 每次都作为 system prompt 全量发送。最大的 5 个：`review-resonance` 13,987 字节 / `review-arc-payoff` 13,354 / `chapter-pattern` 11,582 / `pacing-design` 11,089 / `state-settling` 10,996（PR #39 核实，每章被发 N 次）。
+同一 skill 在一章内被多次 dispatch 时，其 ~3-15KB 的 SKILL.md 每次都作为 system prompt 全量发送。最大的 5 个（Revised 2026-09-17 复测）：`review-resonance` 14,829 字节 / `review-arc-payoff` 13,799 / `state-settling` 12,322 / `chapter-pattern` 12,191 / `pacing-design` 11,338（PR #39 核实原值 13,987/13,354/11,582/11,089/10,996，全部微增；每章被发 N 次）。
 
 ### 2.2 证据（PR #39 后行号）
 
 - `dispatch_helper.py` `_build_skill_prompt`: `system_prompt = _strip_autogen_blocks(skill_file.read_text(...))`（PR #39 已剥离 auto-gen 块，但 SKILL.md body 本身仍每次重读重发）。
-- **IDE-CLI 路径绕过 provider cache:** `_dispatch_via_ide`（`dispatch_helper.py` def ~:1575）把 `full_prompt = f"{system_prompt}\n\n{user_prompt}"`（`:1621`）拼成单 stdin 字符串，`subprocess.run(cmd, input=full_prompt, ...)`。provider prompt cache 要求 system 与 user 分离、system 前缀字节稳定——拼接成单字符串完全绕过。
-- `_find_ide_cli`（`:1570`）构造 `codex exec --skip-git-repo-check -c sandbox_permissions=workspace-write -C {dir} -`——**无 `--system` flag**，stdin 是唯一输入通道。
+- **IDE-CLI 路径绕过 provider cache:** `_dispatch_via_ide`（`dispatch_helper.py` def :2449，Revised 2026-09-17 行号）把 `full_prompt = f"{system_prompt}\n\n{user_prompt}"`（:2495）拼成单 stdin 字符串，`subprocess.run(cmd, input=full_prompt, ...)`（:2505-2507）。provider prompt cache 要求 system 与 user 分离、system 前缀字节稳定——拼接成单字符串完全绕过。
+- `_find_ide_cli`（:2428）构造 `codex exec --skip-git-repo-check -c sandbox_permissions=workspace-write -C {dir} -`——**无 `--system` flag**，stdin 是唯一输入通道。
 
 ### 2.3 根因
 
@@ -153,7 +155,7 @@ zcode --help | grep -i system
 ### 3.2 证据
 
 - `shenbi-chapter-pattern/SKILL.md`: 13×13 矩阵（模式：引入/升级/转折/揭示/决战/沉淀/日常/训练/探索/阴谋/逃亡/回忆/总结）+ 熵算例（`H = -Σp·log₂p` 逐步计算）。
-- `shenbi-state-settling/SKILL.md`: `:171` "人工审批门禁" 模板（`:176` 起门禁文档格式，`:225` 审批签名行）。
+- `shenbi-state-settling/SKILL.md`: `:172` 起"人工审批门禁"模板（格式段约 :177 起，审批签名行 :226，Revised 2026-09-17 行号，≈55 行）。
 - `skills/_shared/` 目录**仍不存在**（PR #39 确认 2.3 #9 未落地）。
 - `world_summarizer.py` **仍不存在**（2.3 #8 未落地）；`audit_context_cache.py:84` 的 `_summarize_if_large` 仍是 `text[:max_chars]` 裸截断。
 
@@ -212,14 +214,14 @@ PR #39（P0+P1 + TokenLedger 度量前提）—— 已合并
         ▼
 本 spec 的 plan（按风险升序）:
         ├─ T_A  §2 默认形态（system 字节稳定回归测试）         风险: 极低
-        ├─ T_B  §1 保守缓存（read-only truth 文件 only）        风险: 低（无失效语义）
+        ├─ T_B  §1 保守缓存（read-only truth 文件 only）        ~~降级不实施（Revised 2026-09-17：审计波已被 #42/PR#153 实现；剩余缺口纯 I/O 无 token 收益，铁律 1 度量归零）~~
         ├─ T_C  §3 示例外置（逐 skill，可回滚）                 风险: 中（G4 格式遵循）
         └─ T_D  §2 强形态（IDE system/user 分离，需 CLI 验证）  风险: 中（依赖 CLI 能力）
 ```
 
 **顺序理由:**
 - T_A 先（纯回归测试，零代码行为改变，固化当前隐式契约）。
-- T_B 次（保守缓存无失效语义，收益最稳）。
+- ~~T_B 次（保守缓存无失效语义，收益最稳）。~~（Revised 2026-09-17：降级不实施，理由见 §1 复核注记）
 - T_C 再次（逐 skill 可回滚，风险可控）。
 - T_D 最后（依赖外部 CLI 能力验证，可能 stretch 放弃）。
 
@@ -233,7 +235,7 @@ PR #39（P0+P1 + TokenLedger 度量前提）—— 已合并
 |---|---|---|
 | 同章同 read-only truth 文件 read_text 次数 | baseline（T_B 前度量） | 每章 1 次（T_B） |
 | 同 skill 同章两次 dispatch 的 system_prompt 字节 | 未测 | 相等（T_A 回归测试） |
-| 5 skill system prompt 字符数 | 13,987 / 13,354 / 11,582 / 11,089 / 10,996 | 各降 ~3-5KB（T_C） |
+| 5 skill system prompt 字符数 | 14,829 / 13,799 / 12,322 / 12,191 / 11,338（Revised 2026-09-17 复测） | 各降 ~3-5KB（T_C） |
 | 一章 round 的 `cost/token-ledger.jsonl` 总 prompt_tokens | baseline（PR #39 后可度量） | 下降（三项合计） |
 | G4 全 skills | PASS | PASS（任何一项 FAIL 即回滚该单项） |
 | `just check` | PASS | PASS |
