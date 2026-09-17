@@ -111,7 +111,7 @@ def _normalize_read_item(item: Any) -> tuple[str, list[str] | None, str | None]:
                     allowed=sorted(READ_EXTRACTORS),
                 )
         return str(item["file"]), fields, extractor
-    raise ContractError("contract.reads[] must be str or {file, fields?}", field="reads")
+    raise ContractError("contract.reads[] must be str or {file, fields?/extractor?}", field="reads")
 
 
 def _normalize_write_item(item: Any, field: str, skill: str) -> tuple[str, dict[str, Any]]:

@@ -246,7 +246,9 @@ def test_volume_extractor_survives_unreadable_map(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
     assert "binary or unreadable" in user_prompt or "第一卷" in user_prompt
-    assert "extractor_failed_fulltext" in warn_spy["dispatch"]
+    # PR #227 review: the exception path must WARN exactly ONCE (no duplicate
+    # from the resolved-empty else branch).
+    assert warn_spy["dispatch"].count("extractor_failed_fulltext") == 1
 
 
 @pytest.mark.parametrize("chapter", [27, 30])  # mid-range and range-end of KR3 (26-30)

@@ -704,9 +704,15 @@ def _build_skill_prompt(
                 # _shared family; chapter=None (genesis / manual no-chapter
                 # dispatch) falls through to full text (§4.3). Extraction
                 # failure -> full-text fallback + WARN (never a silent drop).
+                extraction_error: Exception | None = None
                 try:
                     extracted = load_volume_context(project_dir, chapter)
                 except Exception as exc:
+                    extraction_error = exc
+                    extracted = ""
+                if extracted:
+                    content = extracted
+                elif extraction_error is not None:
                     # Parity with the loop's own read guard above: an
                     # unreadable map degrades to sentinel/full text + WARN,
                     # never raises out of the prompt builder (final-review I2).
@@ -715,12 +721,11 @@ def _build_skill_prompt(
                         extractor=extractor,
                         path=str(full_path),
                         chapter=chapter,
-                        error=str(exc),
+                        error=str(extraction_error),
                     )
-                    extracted = ""
-                if extracted:
-                    content = extracted
                 else:
+                    # Resolved-empty extraction (no chapter node / no volume
+                    # boundaries): full-text fallback, single WARN (PR #227).
                     log.warning(
                         "extractor_failed_fulltext",
                         extractor=extractor,
