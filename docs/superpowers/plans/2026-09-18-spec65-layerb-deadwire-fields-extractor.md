@@ -72,11 +72,11 @@ def estimate_prompt_tokens(text: str) -> int  # :49
 |---|---|---|
 | §3.0 dispatch 循环字段过滤行为生效 | T1 | `uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -v` (behavior asserts) |
 | §3.0 全量回归（36 dict 声明首次生效） | T1 | `just check` EXIT=0 |
-| §3.0 零 WARN（scoped：shenbi-native + fixtures） | T1/T2 | structlog capture asserts in both test files |
+| §3.0 零 WARN（scoped：shenbi-native + fixtures） | T1/T2 | spy-based WARN asserts in test_dispatch_layerb_live.py (both T1 escape-hatch-negative and T2 zero-WARN cases) |
 | §3 power_system fields 声明 + lint 样本接线 | T2 | `uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -k power_system -v`; `uv run python scripts/lint_contract_fields.py` exit 0 |
 | §3 字节度量（合成 fixture 58,113B → 27,807B kept（4-field, 47.8%）；spec §7 的 15,500B 为历史真实文件口径，测试用合成 fixture 同断言形态） | T2 | measurement test asserts ratio band via baseline subtraction |
 | §3 G4 契约面无副作用 | T2 | `uv run shenbi-validate G4 shenbi-review-group-factual "$(pwd)/tests/fixtures/world-power-system-example.md"` |
-| §4 loader extractor 旁路 + closed registry + 互斥 | T3 | `uv run pytest tests/unit/contracts/test_loader_extractors.py -v` |
+| §4 loader extractor 旁路 + closed registry + 互斥 | T3 | `uv run pytest tests/unit/contract/test_loader_extractors.py -v` |
 | §4 dispatcher 三分支（happy/None/失败） | T4 | `uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -k volume -v` |
 | §4 字节度量（26,334B → ≤2KB） | T4 | measurement test asserts |
 | §4 G4 契约面无副作用 | T4 | `uv run shenbi-validate G4 shenbi-chapter-planning "$(pwd)/tests/fixtures/chapter-plan-example.md"` |
@@ -419,8 +419,9 @@ def _write_skill(root: Path, name: str, reads_yaml: str) -> None:
         "\n  writes: [audits/chapter-N-x.md]\n  updates: []\n---\n# body\n",
         encoding="utf-8",
     )  # --- delimiters REQUIRED (loader.read_frontmatter_contract rejects text
-        # not starting with '---'; without them the mutex test false-passes
-        # because ShenbiError.__str__ renders the skill-name kwarg)
+        # not starting with '---'; without them test_unknown_extractor_name_
+        # fails_loud false-passes: ShenbiError.__str__ renders the skill-name
+        # kwarg, and "shenbi-test-bad-extractor" matches match="extractor")
 
 
 EXTRACTOR_READS = "    - {file: outline/volume_map.md, extractor: volume_chapter}\n"
