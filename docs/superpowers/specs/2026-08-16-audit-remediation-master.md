@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design（索引长期保留 per §5；§8 记账 pass Done — PR #147, 2026-09-03 · §6.4 同步 pass Done — PR #172（C27-C35 回标，2026-09-07） · C14/C16/C37 回标 pass Done — 2026-09-08（C14 #52 PR #183 / C16 #54 PR #174 / C37 #51 PR #179） · C15-C18/C37 回标 + C19 速览补录与 ledger 回写 13 行 + F750/F0-06 归宿 #66 pass Done — 2026-09-11 · C25 回写 pass Done — 2026-09-17） | **Severity:** 🔴 P0（总纲）| **方法:** 聚类→spec 映射与依赖排序
+> **Date:** 2026-08-16 | **Status:** Design（索引长期保留 per §5；§8 记账 pass Done — PR #147, 2026-09-03 · §6.4 同步 pass Done — PR #172（C27-C35 回标，2026-09-07） · C14/C16/C37 回标 pass Done — 2026-09-08（C14 #52 PR #183 / C16 #54 PR #174 / C37 #51 PR #179） · C15-C18/C37 回标 + C19 速览补录与 ledger 回写 13 行 + F750/F0-06 归宿 #66 pass Done — 2026-09-11 · C25 回写 pass Done — 2026-09-17 · C26 回写 pass Done — 2026-09-17，37 簇全部闭簇） | **Severity:** 🔴 P0（总纲）| **方法:** 聚类→spec 映射与依赖排序
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 总纲（master）| **依赖:** phase4-clustering.md（37 簇唯一权威输入）| **范围:** 全部 37 簇修复 spec 的优先级矩阵、依赖顺序、量级与既有 spec 关系 | **核心洞察:** 774 条 findings 的修复不是 774 个动作，是 37 个根因收口；跨簇依赖（写路径先于读方对账、审计谓词先于失败分类、计量先于成本报告）决定合入顺序，否则修复互踩
 
 # 2026-08-15 审计修复总纲（audit-remediation-master）
@@ -58,7 +58,7 @@
 | C8 | 状态/词表多源 | 24 | B | enums.py 收编 + lint 补洞（是 C1/C29 的词表输入，实际执行宜提前） |
 | C15 | 关键零覆盖 | 12 | B | 补测 + 覆盖率 per-module 底线（依赖 C14/C16 先治断言与 fixture） |
 
-状态速览（2026-09-17，C25 回写 pass）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）11 簇全部关闭（C32 Rejected、余 10 Done，PR #149-#179）；批次 B 已关闭 C14（#52，PR #183）、C15（#53，PR #189）、C16（#54，PR #174）、C17（#55，PR #191）、C18（#56，PR #194）、C19（#57，PR #198，T4-only）、C20（#58，PR #202）、C21（#59，PR #204）、C22（#60，PR #207）、C23（#61，PR #210）、C24（#62，PR #214）、C25（#63，PR #217）——余 C26（#64）1 簇。承接关系以 §7 为准。
+状态速览（2026-09-17，C26 回写 pass）：批次 A（C1-C13）13 簇全部 Done（PR #107-#145）；批次 C（C27-C37）11 簇全部关闭（C32 Rejected、余 10 Done，PR #149-#179）；批次 B（C14-C26）13 簇全部关闭——C14（#52，PR #183）、C15（#53，PR #189）、C16（#54，PR #174）、C17（#55，PR #191）、C18（#56，PR #194）、C19（#57，PR #198，T4-only）、C20（#58，PR #202）、C21（#59，PR #204）、C22（#60，PR #207）、C23（#61，PR #210）、C24（#62，PR #214）、C25（#63，PR #217）、C26（#64，PR #220）。**37 簇全部闭簇（36 Done + C32 Rejected）**。承接关系以 §7 为准。
 
 ## 3. 跨簇依赖顺序（关键链）
 
@@ -149,11 +149,11 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C19 ✅ Done (PR #198 · spec #57 · T4-only，失效面随 #26 路径 3 消解) | 快照子系统半迁移 | 12 | P1 | archive/2026-08-16-audit-snapshot-unify-fix.md | B | M | — |
 | C20 ✅ Done (PR #202 · spec #58) | 技能契约声明面断裂 | 21 | P1 | archive/2026-08-16-audit-skill-contract-declaration-fix-Done-PR202.md | B | M | — |
 | C21 ✅ Done (PR #204 · spec #59) | 注册/触发路由漂移 | 12 | P1 | archive/2026-08-16-audit-skill-routing-deprecated-fix-Done-PR204.md | B | S-M | — |
-| C22 | 平行登记表无对账 | 29 | P1 | audit-registry-reconcile-fix.md | B | M | ✅ Done (#60, PR #207) |
-| C23 | 文档机械漂移 | 46 | P1 | audit-docs-mechanical-drift-fix.md | B | M | — |
-| C24 | 文档语义矛盾 | 56 | P2 | audit-docs-semantic-conflicts-fix.md | B | M | ✅ Done (#62, PR #214)——45 条裁决批量清零（驳斥剔 10+F1024 归 #66）；DOT/契约/术语/INDEX 体系/配置注释五面 |
+| C22 ✅ Done (PR #207 · spec #60) | 平行登记表无对账 | 29 | P1 | archive/2026-08-16-audit-registry-reconcile-fix-Done-PR207.md | B | M | — |
+| C23 ✅ Done (PR #210 · spec #61) | 文档机械漂移 | 46 | P1 | archive/2026-08-16-audit-docs-mechanical-drift-fix.md | B | M | — |
+| C24 ✅ Done (PR #214 · spec #62；驳斥剔 10 + F1024 归 #66，45 条裁决批量清零——DOT/契约/术语/INDEX 体系/配置注释五面) | 文档语义矛盾 | 56 | P2 | archive/2026-08-16-audit-docs-semantic-conflicts-fix.md | B | M | — |
 | C25 ✅ Done (PR #217 · spec #63；REWRITE 剔 3 成员 F1007/F1011/F1015，有效 24→22，见 §8) | CI/just 双向手工同步 | 24 | P1 | archive/2026-08-16-audit-ci-just-sync-fix-Done-PR217.md | B | M | — |
-| C26 | shell/just 注入误用 | 11 | P1 | audit-shell-injection-fix.md | B | S | — |
+| C26 ✅ Done (PR #220 · spec #64) | shell/just 注入误用 | 11 | P1 | archive/2026-08-16-audit-shell-injection-Done-PR220.md | B | S | — |
 | C27 ✅ Done (PR #149) | 供应链审计盲区 | 9 | P1 | archive/2026-08-16-c27-supply-chain-audit-design.md | C | S-M | — |
 | C28 ✅ Done (PR #153 + #154) | 性能反模式 | 13 | P1 | archive/2026-08-16-c28-perf-antipatterns-design.md | C | M | C10 |
 | C29 ✅ Done (PR #156) | 截断/采样静默 | 8 | P2 | archive/2026-08-16-c29-truncation-observability-design.md | C | S-M | 最小实证闸门 |
@@ -166,7 +166,7 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C36 ✅ Done (PR #176) | print 违禁散点 | 3 | P1 | archive/2026-09-07-spec50-c36-print-purity-Done-PR176.md | C | S | — |
 | C37 ✅ Done (PR #179 + #180 · spec #51) | 死代码零执法 | 43 | P1 | archive/2026-09-07-spec51-c37-dead-code-Done-PR179.md | C | L | C3/C7/C19/C28 裁决 |
 
-列校验：条数列合计 = 774；P0 行 7（C1/C3/C4/C10/C11/C16/C32）合计 191；P2 行 4（C8/C15/C24/C29）合计 100；P1 行 26 合计 483——与 §1 总览一致。C26 文件名为 `2026-08-16-audit-shell-injection-fix.md`（批次 B 登记为 INDEX #64，占位消除）。
+列校验：条数列合计 = 774；P0 行 7（C1/C3/C4/C10/C11/C16/C32）合计 191；P2 行 4（C8/C15/C24/C29）合计 100；P1 行 26 合计 483——与 §1 总览一致。C26 spec 归档于 `archive/2026-08-16-audit-shell-injection-Done-PR220.md`（2026-08-16 落盘实名 `audit-shell-injection-fix.md`，批次 B 曾登记为 INDEX #64，已随归档删行）。
 
 ## 8. 记账执行清单（2026-09-03 修订新增 · master 维护 pass）
 
@@ -191,3 +191,5 @@ Deviation（F750 归宿悬空，2026-09-08 本 pass）：spec54（C16）设计�
 补录（C19 ledger 回写，2026-09-11 本 pass）：spec #57（C19）Done（PR #198）与归档（PR #199）均未回写 ledger——本 pass 补做 13 行（12 成员 + F1154 唯一归属条），分派依据 = spec #57 归档 T4-only 修订头/验收/已知残留段。
 
 回写（C25 ledger 回写 pass，2026-09-17）：spec #63（C25）Done（PR #217）与归档（PR #218）均未回写 master 矩阵与 ledger——本 pass 补做：§7 C25 行 Done 标注 + §2.3 速览刷新（余 C26 一簇）；08-15 ledger 22 有效成员关闭（21 行 closed (C25 spec #63, PR #217)，含状态列 verified 的 F1001/F1003；F957 归属 #217 非 #210——test_docs_accuracy.py 全量 sweep + 多 token codespan 均在 d120a444 内）+ 3 剔除成员按实际归宿关闭（F1007 commit 1a10dfab、F1011 C21 spec #59 PR #204、F1015 C8 spec #34 PR #129）；08-14 ledger F1207 行（C25 簇员但立案在 08-14 轮）同步关闭。逐条归宿核验 = fresh-context 驳斥子 agent（22/22 实锤，无仍可复现缺陷）+ 协调者抽验。
+
+回写（C26 ledger 回写 pass，2026-09-17）：spec #64（C26）Done（PR #220）与归档（PR #221）均未回写 master 矩阵与 ledger——本 pass 补做：§7 C26 行 Done 标注 + §2.3 速览刷新（**37 簇全部闭簇**）；08-15 ledger 11 成员全部关闭（closed (C26 spec #64, PR #220)，含状态列 verified 的 F1031——对齐 C25 F1001/F1003 先例；T1205 行附范围注记：python3 -c 消除范围 = run_pipeline.sh，tests/lock-tool-hashes.sh、test-gates.sh 的同模式字面量插值系脚本内部常量（非用户输入的弱威胁面），留 shellcheck 防线）。08-14 轮同 ID 行（F902/F1013/F1014）为跨轮撞号的不同 findings，不在本簇回写面。逐条归宿核验 = fresh-context 驳斥子 agent（11/11 实锤：缺陷形态全消失、修复形态全存在、回归测试齐）+ 协调者抽验（justfile `{{` 仅头注释、run_pipeline.sh `python3 -c`/`grep -o` 零命中、step_index 仅只读打印）。
