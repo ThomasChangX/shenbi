@@ -1,6 +1,6 @@
 # Spec 执行索引
 
-> **最后更新**：2026-09-17（#64 C26 shell/just 注入簇 Done PR #220、spec/plan 已归档；37 簇全部闭簇，master #40 待 C26 回写记账 pass；现序 #40→#6→#65→#66）
+> **最后更新**：2026-09-17（master #40 C26 回写记账 pass 完成：37 簇全部闭簇（36 Done + C32 Rejected）；正文残留的 #64 条目已清（PR #221 漏删修正）；现序 #40→#6→#65→#66）
 > **活跃 spec 数**：4
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
@@ -14,16 +14,9 @@
 
 - **文件**：`2026-08-16-audit-remediation-master.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（总纲；supersede #17 的 catalog 角色）
-- **状态**：Design（记账 pass Done PR #147；§6.4 矩阵同步 pass Done PR #172；C14/C16/C37 回标 pass 2026-09-08——C14 #52 PR #183、C16 #54 PR #174、C37 #51 PR #179；C15-C18/C37 回标 + C19 速览补录与 ledger 回写 13 行 + F750/F0-06 归宿 #66 pass 2026-09-11；C25 回写 pass 2026-09-17；索引长期保留） | **优先级**：🔴 P0（总纲）
+- **状态**：Design（记账 pass Done PR #147；§6.4 矩阵同步 pass Done PR #172；C14/C16/C37 回标 pass 2026-09-08——C14 #52 PR #183、C16 #54 PR #174、C37 #51 PR #179；C15-C18/C37 回标 + C19 速览补录与 ledger 回写 13 行 + F750/F0-06 归宿 #66 pass 2026-09-11；C25 回写 pass 2026-09-17；C26 回写 pass 2026-09-17——37 簇全部闭簇；索引长期保留） | **优先级**：🔴 P0（总纲）
 - **内容**：phase4 37 簇修复优先级矩阵（P0×7 簇=191 条 / P1×26 簇=483 / P2×4 簇=100，纯 M 簇 0 个）、跨簇依赖链（C32→C33→成本类、C3+C34→C1 验收、C10→C28/C33、C19#26→C37 解冻、C16→C14→C15）、量级汇总（L×7/M×22/S-M×8，3 泳道 6-9 周墙钟）、与既有 23 活跃 spec 的 supersede/解散/保留关系表、回写协议（737 条 merged）
 
-### #64 · 审计修复 C26：shell/just 包装层注入（P1）
-
-- **文件**：`2026-08-16-audit-shell-injection-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C26，11 条）
-- **状态**：Design | **优先级**：🟠 P1
-- **内容**：F1031（verified）just 全 recipe 参数无引用插值——自然语言 prompt 含 ;/$() 即任意命令（AGENTS.md 标准入口即攻击面）→ positional-arguments 唯一模式（`set shell := ["bash","-cu"]` + recipe 体 `"$N"`/`"${@:N}"`）+ PATH-stub 六类注入样本矩阵回归；F002 run_pipeline.sh 自动 approve ESCALATION + 直改 step_index → **裁决 B：降级 smoke 工具**（自动 approve 全删，ESCALATION 一律停人工 checkpoint；白名单 A 已否决）；F1013/T1205 python3 -c 拼接实证可执行任意 Python → heredoc argv 传参 + JSON 解析；README 示例实测（F902/F1030）；shellcheck-py mirror 净新增覆盖全 *.sh（2026-09-17 修订）
-- **对应 plan**：✅ ready（`2026-09-17-c26-shell-injection-fix.md`）
 ### #6 · Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置
 
 - **文件**：`2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design.md`
