@@ -178,7 +178,7 @@ skill 作者把"教学示例"和"每次执行的指令"混在同一文件；没�
 | pacing-design | 三线比例 + 场景类型完整节 :84-110（869 B） | EXACT 节标题输出模板（:122 起）+ `### 4. 单调性检测阈值`（:111-121 运行时检测指令） | **验收下限：净降 ≥280 字符且 est ≥130**（plan 审查实测：锚块含必需 H3 标题 237B，净 ~632B/370 字符/est 146——原 723B 系不含标题的 146B 引用行预算，轮 8 后随 plan 修订） | 创世 1 次/项目（genesis.py:67）+ 手动 re-dispatch（triggers.py 无自动触发） | 实施 |
 | state-settling | （交叉验证示例行 :241-246 实测 734 B；门禁模板 :177-226 本身全是占位符骨架） | :231-232 明示"必须输出跨文件交叉验证表"——输出契约；门禁骨架 :172-226 同为输出物 | 净省 588 B（734−146）——**超阈值** | 每章 1 次（CHAPTER_STEPS） | **SKIP（定性裁决）**——非阈值口径：动无 G4 安全网的输出契约展示模板，588B 边际收益不值格式漂移静默风险（轮 7 修正口径） |
 
-**口径（轮 6 终裁）**：收益按 **per-dispatch 净省**计（扣 146B 强制引用行）。**实施集终版 2 skill（chapter-pattern/pacing）行和 ~1.46 KB**（一次性口径）；稳态每章净省 ≈ chapter-pattern/6 ≈ **~0.12 KB/章**，pacing 按项目一次性贡献。**resonance/arc-payoff 预裁 SKIP（阈值口径：净省 262-375B / 523B−146B=377B 均 <500B）；state-settling SKIP（定性裁决：净省 588B 超阈值，但动无 G4 安全网的输出契约模板，588B 边际收益不值格式漂移风险）**——五文件的重段主体是 checker/机器/输出契约结构，可外置的教学填充值占比极小；这是 finding 3.10 前提的部分驳斥：重 ≠ 可外置。**净省 <500B 的 skill 一律跳过，无豁免**。IDE 路径（无 provider cache，字节全价）下上述节省全额兑现。诚实结论：T_C 的残余价值为边际（一次性 ~1.5KB + 稳态 ~0.12KB/章），本 pass 的主要交付是 T_A（字节稳定回归测试）+ T_D（IDE system/user 分离，plan 阶段 CLI 验证）+ 本节完整分解证据；T_C 两个边际 skill 的实施以"净省 ≥500B 规则内达标"为据，逐 skill 可独立回滚。
+**口径（轮 6 终裁）**：收益按 **per-dispatch 净省**计（扣 146B 强制引用行）。**实施集终版 2 skill（chapter-pattern/pacing）一次性行和 ~1.3 KB**（落地实测 689B + 623B；plan 前估算 1.46KB 系不含标题锚的引用行预算）；稳态每章净省 ≈ chapter-pattern/6 ≈ **~0.12 KB/章**，pacing 按项目一次性贡献。**resonance/arc-payoff 预裁 SKIP（阈值口径：净省 262-375B / 523B−146B=377B 均 <500B）；state-settling SKIP（定性裁决：净省 588B 超阈值，但动无 G4 安全网的输出契约模板，588B 边际收益不值格式漂移风险）**——五文件的重段主体是 checker/机器/输出契约结构，可外置的教学填充值占比极小；这是 finding 3.10 前提的部分驳斥：重 ≠ 可外置。**净省 <500B 的 skill 一律跳过，无豁免**。IDE 路径（无 provider cache，字节全价）下上述节省全额兑现。诚实结论：T_C 的残余价值为边际（一次性 ~1.5KB + 稳态 ~0.12KB/章），本 pass 的主要交付是 T_A（字节稳定回归测试）+ T_D（IDE system/user 分离，plan 阶段 CLI 验证）+ 本节完整分解证据；T_C 两个边际 skill 的实施以"净省 ≥500B 规则内达标"为据，逐 skill 可独立回滚。
 
 ### 3.6 质量影响
 
@@ -223,7 +223,7 @@ skill 作者把"教学示例"和"每次执行的指令"混在同一文件；没�
 
 ### 3.9 回滚预案（Revised 2026-09-17 轮 2）
 
-每个 skill 的 body 瘦身是**独立可回滚**的。回滚触发：(a) 该 skill 的验收净降低于 §3.5 下限且裁决跳过失败；(b) `just check` 因该 skill 的改动变红且不可修；(c) 后续 audit-run 显示格式遵循度退化。回滚动作：git revert 该 skill 的瘦身 commit，外置文件与引用行一并移除。**不强求全量成功**——按 §3.5 表（轮 6 终裁），实施集 2 skill（chapter-pattern/pacing）行和 ~1.46KB（一次性），稳态 ~0.12KB/章；SKIP 三者：resonance/arc-payoff 阈值口径（净省 262-375B / 377B < 500B），state-settling 定性裁决（588B 超阈值但风险收益不值）——口径三分，见 §3.5 表。
+每个 skill 的 body 瘦身是**独立可回滚**的。回滚触发：(a) 该 skill 的验收净降低于 §3.5 下限且裁决跳过失败；(b) `just check` 因该 skill 的改动变红且不可修；(c) 后续 audit-run 显示格式遵循度退化。回滚动作：git revert 该 skill 的瘦身 commit，外置文件与引用行一并移除。**不强求全量成功**——按 §3.5 表（轮 6 终裁），实施集 2 skill（chapter-pattern/pacing）一次性行和 ~1.3KB（落地 689B+623B），稳态 ~0.12KB/章；SKIP 三者：resonance/arc-payoff 阈值口径（净省 262-375B / 377B < 500B），state-settling 定性裁决（588B 超阈值但风险收益不值）——口径三分，见 §3.5 表。
 
 ---
 
@@ -256,7 +256,7 @@ PR #39（P0+P1 + TokenLedger 度量前提）—— 已合并
 |---|---|---|---|
 | ~~同章同 read-only truth 文件 read_text 次数~~ | — | ~~baseline~~ | ~~每章 1 次（T_B）~~ **行随 T_B 降级作废** |
 | 同 skill 同文件两次 `_build_skill_prompt` 的 system_prompt 字节相等 | T1 离线 | 未测 | 相等（T_A 回归测试） |
-| 参与瘦身 skill 的 system prompt 字节净降 | T1 离线（测试内构建；**基线以剥离 autogen 块后的 system prompt 为准**——即 `_build_skill_prompt` 实际产出与 `estimate_prompt_tokens` 实际度量的口径，原始文件字节仅作参考） | 原始文件字节 14,829/13,799/12,322/12,191/11,338；剥离后基线在 plan/实施时测定并固化为测试常量 | 各达 §3.5 表净省下限（实施集终版 2 skill 行和 ~1.46KB；resonance/arc-payoff 阈值口径 + state-settling 定性裁决，SKIP 并记录） |
+| 参与瘦身 skill 的 system prompt 字节净降 | T1 离线（测试内构建；**基线以剥离 autogen 块后的 system prompt 为准**——即 `_build_skill_prompt` 实际产出与 `estimate_prompt_tokens` 实际度量的口径，原始文件字节仅作参考） | 原始文件字节 14,829/13,799/12,322/12,191/11,338；剥离后基线在 plan/实施时测定并固化为测试常量 | 各达 §3.5 表净省下限（实施集终版 2 skill 一次性 ~1.3KB 落地；resonance/arc-payoff 阈值口径 + state-settling 定性裁决，SKIP 并记录） |
 | 实施集 skill system prompt 的 estimate_prompt_tokens 差 | T1 离线纯函数 | baseline 同上 | 下降，数值进验收证据（T_C） |
 | 一章 round 的 `cost/token-ledger.jsonl` 总 prompt_tokens | 真实 run（本 pass 不触发，核心原则 8） | IDE 路径有 estimated=True 下界行 | T_C 合并后的真实章节收益由后续 audit-run 验证，非本 pass 验收面 |
 | `just check`（含 G4 全 skills 不变性） | T1 只读 CLI | PASS | PASS（G4 checker 不读 SKILL.md body，本 pass 零 checker 变更；任何 lint FAIL 即回滚对应 skill 的 body 瘦身） |

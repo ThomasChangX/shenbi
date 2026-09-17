@@ -28,9 +28,9 @@ def _system_prompt(skill: str, tmp_path: Path) -> str:
 def test_chapter_pattern_slimmed(tmp_path: Path) -> None:
     system = _system_prompt("shenbi-chapter-pattern", tmp_path)
 
-    # net char drop: removed 627 chars, anchor block 104 chars (plan-review simulated)
+    # net char drop: plan-review simulated 526; landed 526 (removed 626, anchor ~101)
     assert PRE_LEN_CHAPTER_PATTERN - len(system) >= 450
-    # estimated-token drop (simulated 159, threshold with margin)
+    # estimated-token drop: landed 161
     assert estimate_prompt_tokens(system) <= PRE_EST_CHAPTER_PATTERN - 140
 
     # externalized file exists + bare-filename reference line in body
@@ -51,9 +51,9 @@ def test_chapter_pattern_slimmed(tmp_path: Path) -> None:
 def test_pacing_design_slimmed(tmp_path: Path) -> None:
     system = _system_prompt("shenbi-pacing-design", tmp_path)
 
-    # net char drop: removed 481 chars, pointer block 111 chars (plan-review simulated)
+    # net char drop: landed 367 (removed ~480, pointer ~113)
     assert PRE_LEN_PACING - len(system) >= 280
-    # estimated-token drop (simulated 146, threshold with margin)
+    # estimated-token drop: landed 144
     assert estimate_prompt_tokens(system) <= PRE_EST_PACING - 130
 
     ref = SKILLS_DIR / "shenbi-pacing-design" / "pacing-design-reference.md"
