@@ -1,7 +1,7 @@
 # Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置
 
 > **Date:** 2026-08-02
-> **Status:** Design（**Revised 2026-09-17** · 两轮修订：①价值门复核——§1 降级为不实施（审计波部分已被归档 spec #42/PR #153 的 C28 R1 字节等价读抑制实现，剩余非审计链缺口为纯磁盘 I/O，按本 spec 铁律 1 度量将归零）；②阶段 3 设计审查——§3.7 重设计为「body 瘦身 + 外置参考文件（运行时不注入）」，废弃 `dispatched_examples` 分发机制（无注入点/每章一次 dispatch 收益归零/重试负向交互三处致命），并补 lint 豁免与离线度量口径。§2/度量前提复核存活；全文行号按 main@4eedf14d 刷新）
+> **Status:** Design（**Revised 2026-09-17** · 三轮修订：①价值门复核——§1 降级为不实施（审计波部分已被归档 spec #42/PR #153 的 C28 R1 字节等价读抑制实现，剩余非审计链缺口为纯磁盘 I/O，按本 spec 铁律 1 度量将归零）；②阶段 3 设计审查轮 1——§3.7 重设计为「body 瘦身 + 外置参考文件（运行时不注入）」，废弃 `dispatched_examples` 分发机制；③轮 2——per-skill 实测重基线（总量现实 ~4-6.5KB 非 15-25KB，§3.5 表）、外置边界规则（输出契约永不外置）、不可触碰不变量清单、G4 验收行撤除（checker 不读 body）、引用行强制 + 裸文件名。§2/度量前提复核存活；全文行号按 main@4eedf14d 刷新）
 > **Severity:** 🟡 Medium（效率优化，非阻塞；单项收益需 G4 全量验证，且 P2 的度量前提——TokenLedger 接线——已由 PR #39 落地）
 > **方法:** [`systematic-debugging`](archive/2026-07-19-06-llm-context-engineering-design.md) skill 四阶段（Root Cause → Pattern → Hypothesis → Implementation）
 > **系列:** Token 效率全栈 audit（效率优化轮，承接已归档总纲 [`archive/2026-08-01-pipeline-read-write-consistency-audit-design.md`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §6.3 P2 五项中的三项；另两项——shared_context serial 接线（3.2）、world_summarizer 落地（2.3 #8）——见 §0.2 分工）
@@ -29,7 +29,7 @@
 |---|---|---|---|
 | 3.3 | 跨 dispatch 文件 read_text 无缓存 | ~~本 spec §1~~（**Revised 2026-09-17 降级不实施**：审计波已归 #42/PR#153，剩余缺口纯 I/O 无 token 收益，见 §1 复核注记） | Cluster C 核心，cache 层设计（已裁决） |
 | 3.9 | SKILL.md 全文每次 dispatch 重发 + IDE-CLI 绕 provider cache | **本 spec §2** | system/user 分离 + 前缀稳定 |
-| 3.10 | 5 个 >10K SKILL.md 内嵌重示例 | **本 spec §3** | 示例外置到 fixture |
+| 3.10 | 5 个 >10K SKILL.md 内嵌重示例 | **本 spec §3** | 示例外置为维护者参考文档（Revised 2026-09-17：运行时不注入，非"按需 read"） |
 | 3.2 | SharedAuditContext 漏接 serial audit_layer | **延后，并入子 spec #5**（输出侧 F9 审计交叉冗余同路径） | serial 审计波是输出侧审计冗余的同源问题；合并修避免两 spec 改同一函数 |
 | 2.3 #8/#9 | world_summarizer.py + skills/_shared/ 未实现 | **延后，独立小 spec 或并入本 spec §3** | world_summarizer 与 §3 示例外置共用 `_shared/` 基建；若 §3 落地则 #8/#9 自然解决一半 |
 
@@ -82,7 +82,7 @@ repo 有 6+（实测 20）skill 同章既读又写 truth 文件（drift-guidance
 
 **替代方案（更保守，推荐首版）:** 缓存**只覆盖 read-only truth 文件**——即排除任何在 producer 自身 `writes:`/`updates:` 中的文件。`world_rules.md` / `character_matrix.md`（state-settling 写但章内其他 dispatch 读的是章首版）等明确"章首快照语义"的文件入缓存；`pending_hooks.md` / `current_state.md`（章内会被 append/update）不入缓存。**这避免了失效语义的复杂性，代价是少缓存几个高 churn 文件。**
 
-### 1.8 验证（需 TokenLedger + G4）
+### 1.8 验证（**已随 T_B 降级作废，2026-09-17 · 防误采用横幅**——下表为历史设计，勿据此实施）
 
 | 标准 | 当前（PR #39 后） | 目标 |
 |---|---|---|
@@ -97,7 +97,7 @@ repo 有 6+（实测 20）skill 同章既读又写 truth 文件（drift-guidance
 
 ### 2.1 症状
 
-同一 skill 在一章内被多次 dispatch 时，其 ~3-15KB 的 SKILL.md 每次都作为 system prompt 全量发送。最大的 5 个（Revised 2026-09-17 复测）：`review-resonance` 14,829 字节 / `review-arc-payoff` 13,799 / `state-settling` 12,322 / `chapter-pattern` 12,191 / `pacing-design` 11,338（PR #39 核实原值 13,987/13,354/11,582/11,089/10,996，全部微增；每章被发 N 次）。
+同一 skill 在一章内被多次 dispatch 时，其 ~3-15KB 的 SKILL.md 每次都作为 system prompt 全量发送。最大的 5 个（Revised 2026-09-17 复测）：`review-resonance` 14,829 字节 / `review-arc-payoff` 13,799 / `state-settling` 12,322 / `chapter-pattern` 12,191 / `pacing-design` 11,338（PR #39 核实原值 13,987/13,354/11,582/11,089/10,996，全部微增；主链每章一次、审计波每章一次、arc-payoff 按弧触发——见 §3.5 修订后的放大系数口径）。
 
 ### 2.2 证据（PR #39 后行号）
 
@@ -161,15 +161,25 @@ zcode --help | grep -i system
 
 ### 3.3 根因
 
-skill 作者把"教学示例"和"每次执行的指令"混在同一文件；没有"按需 read 的 fixture" vs "必发的指令"分离。
+skill 作者把"教学示例"和"每次执行的指令"混在同一文件；没有"面向维护者的参考文档"与"必发的指令/输出契约"分离（Revised 2026-09-17：措辞随重设计更新——外置物是运行时不注入的参考文档，非"按需 read 的 fixture"）。
 
 ### 3.4 分类
 
 冗余待去重（示例对已熟练的执行是参考，不是每次必读）。
 
-### 3.5 浪费量
+### 3.5 浪费量（Revised 2026-09-17 轮 2 · per-skill 实测重基线）
 
-5 skill × ~3-5KB 可外置示例 ≈ ~15-25KB system prompt 冗余，× N dispatch 放大。
+阶段 3 轮 2 实测各段字节数后，原"5 skill × ~3-5KB ≈ ~15-25KB"系高估（把输出契约段误计为可外置）。**per-skill 可外置上限（实测段字节 → 保留骨架后净省估计）**：
+
+| skill | 可外置段（实测字节） | 输出契约段（保留 inline） | 净省估计 |
+|---|---|---|---|
+| review-resonance | 填满分样例报告 :124-180（2,704 B）→ 留维度定义 + 空骨架 | — | ~1.2-1.7 KB |
+| review-arc-payoff | 样例报告 :118-135（1,051 B）→ 留空骨架 | — | ~0.6-0.8 KB |
+| chapter-pattern | 熵逐步算例 :296-332（887 B） | 13×13 矩阵（在输出模板内，模型须复现） | ~0.5-0.7 KB |
+| pacing-design | 三线比例教学表 + 场景类型参考段（~:85-110，~1-2 KB） | 输出格式 EXACT 节标题模板（:120+，g4_pacing_design 校验对象） | ~0.8-1.5 KB |
+| state-settling | 跨文件一致性填满模板 :233-253（1,185 B，若定性为教学参考） | 人工审批门禁骨架 :172-226（1,699 B，技能输出物，G4 无安全网——压缩风险>收益则跳过） | ~0.6-0.9 KB |
+
+**总量现实估计 ~4-6.5 KB/章**（主链 skill 每章 dispatch 一次、审计波每章一次、arc-payoff 按弧触发——放大系数 ≈1，非原估算的 ×N）。低于原 15-25KB，但为无条件每次 dispatch 净省、零生产代码改动、逐 skill 可回滚。**净省估计 <500B 的 skill 可裁决跳过**（记录进 spec-deviations），不强求 5/5。
 
 ### 3.6 质量影响
 
@@ -181,34 +191,40 @@ skill 作者把"教学示例"和"每次执行的指令"混在同一文件；没�
 
 **新设计：无条件 body 瘦身——每次 dispatch 的 system prompt 都变小，收益不依赖章内 dispatch 次数。**
 
-**目录基建:** 建 `skills/_shared/`（同时解决 2.3 #9 的基建半边）。外置示例是面向 skill 作者/维护者的参考文档，运行时**不注入**（对齐 `anti-ai-reference.md` 先例与 `lint_contract_prose.py:63` 的既有裁决"捆绑参考文件，dispatcher 不注入"）。配套改动：`tools/lint_registry_reconcile.py` `_r1_skill_closure`（:307）跳过 `_` 前缀目录——否则 `_shared` 入 live 集触发 R1 missing-live 假阳性。
+**目录基建:** 建 `skills/_shared/`（同时解决 2.3 #9 的基建半边）。外置示例是面向 skill 作者/维护者的参考文档，运行时**不注入**（对齐 `anti-ai-reference.md` 先例与 `lint_contract_prose.py:63` 的既有裁决"捆绑参考文件，dispatcher 不注入"）。配套改动：`tools/lint_registry_reconcile.py` `_r1_skill_closure`（:307）跳过 `_` 前缀目录——否则 `_shared` 入 live 集触发 R1 missing-live 假阳性。**目录不变量（轮 2 M4）：`skills/_` 前缀目录内永不放置 `SKILL.md`**（多个枚举面以 `*/SKILL.md` glob 或 `.exists()` 判定 skill 身份：registry.py:75、gates/shared.py:390、各 lint——放置即破坏该不变量）。
 
-**外置判定（逐 skill，body 保留什么/外置什么）:**
-- `chapter-pattern`: 13×13 矩阵 + 熵逐步算例外置到 `skills/_shared/chapter-pattern-reference.md`；body 保留模式名清单 + "何时参考哪种模式"的决策指令 + 输出格式模板。
-- `review-resonance`: 填满分的样例评分报告外置到 `skills/_shared/review-resonance-examples.md`；body 保留评分维度定义 + 输出格式模板（空骨架，非填好样例）。
-- `review-arc-payoff`: 同上 → `skills/_shared/review-arc-payoff-examples.md`。
-- `pacing-design`: 目标比值表 + 节奏原则模板同理 → `skills/_shared/pacing-design-reference.md`。
-- `state-settling`: ≈55 行人工审批门禁长模板压缩到 ~15 行骨架（07-18 §4.4 row 5 原案）或外置 `skills/_shared/state-settling-gate-template.md`（逐 skill 落地时定）。
+**外置边界规则（阶段 3 轮 2 I2 · 铁律级）:** **绝不外置模型必须在输出中复现的内容**——输出模板、固定矩阵/表头、checker 校验的 EXACT 节标题（pacing-design :120+ 段、chapter-pattern 13×13 矩阵、state-settling 门禁文档骨架均属此类，保留 inline）。**只外置填满的教学示例、演示算例、参考速查表**。原 §3.7 初稿把矩阵/节奏模板列入外置对象系误判，已纠正。
 
-**body 引用行的诚实表述（若引用）:** 只写"完整算例/样例见仓库 `skills/_shared/<file>`（面向维护者的参考，运行时不注入）"——禁止"本章已提供"类对无记忆新会话的伪陈述。引用一律**裸文件名形态**（满足 `lint_contract_prose.py:186` 的 `"/" not in cref` 约束；`skills_root.glob(f"*/{base}")` 可命中 `_shared/` 下文件）。
+**不可触碰不变量（阶段 3 轮 2 I4 · 瘦身时一律保留）:** DOT flowchart（五文件各 1 处）、`## Anti-Rationalization` 表（chapter-pattern:378 / review-resonance:225 / review-arc-payoff:179 / pacing-design:288 / state-settling:255）、硬门/铁律段、Route 表、decisions sidecar 的 body 声明段（state-settling frontmatter :17 + :281+ 附近）、frontmatter 契约（reads/writes/writes/decisions）。
+
+**外置判定（Revised 轮 2 · 按 §3.5 表逐 skill）:**
+- `review-resonance`: 填满分样例评分报告外置到 `skills/_shared/review-resonance-examples.md`；body 保留评分维度定义 + 空骨架输出模板。
+- `review-arc-payoff`: 样例报告外置到 `skills/_shared/review-arc-payoff-examples.md`；body 保留空骨架。
+- `chapter-pattern`: **矩阵保留 inline**（输出契约）；熵逐步算例外置到 `skills/_shared/chapter-pattern-reference.md`。
+- `pacing-design`: **EXACT 节标题输出模板保留 inline**；三线比例教学表 + 场景类型参考段外置到 `skills/_shared/pacing-design-reference.md`。
+- `state-settling`: **门禁骨架保留 inline**（技能输出物且无 G4 安全网）；跨文件一致性填满模板（:233-253）定性为教学参考则外置到 `skills/_shared/state-settling-consistency-template.md`，定性为输出契约则本 skill 跳过（落地时裁决，净省 <500B 亦可跳过）。
+
+**引用行为（阶段 3 轮 2 I6 · 强制）:** 每个创建的 `_shared/` 文件**必须**在对应 skill body 中有引用行（无引用的外置文件 = dead wire，R1 的 skill-bundle 分支恰会对裸文件名引用做存在性检查，构成机械防护）。引用行用**裸文件名**且诚实表述，如："完整样例见共享参考 `review-resonance-examples.md`（面向维护者的参考文档，运行时不注入；输出格式以本文件模板为准）"——禁止斜杠路径（`lint_contract_prose.py:186` 的 `"/" not in cref` 约束）与"本章已提供"类伪陈述。
+
+**G4 重试路径的取舍（阶段 3 轮 2 I5 · 有意接受）:** 无条件瘦身下，G4 失败重试 dispatch（chapter_loop:3038-3047）同样失去示例——原设计逻辑③的顾虑对新设计同样成立。裁决：**接受，不加重试注入代码**。理由：重试 prompt 自带纠正反馈（G4 失败明细是比样例更强的格式信号）+ body 保留空骨架模板；维持本 pass 零 `src/shenbi/` 生产代码改动的爆炸半径。若后续 audit-run 显示重试通过率退化，回滚对应 skill 或另行立项重试注入。
 
 **度量（铁律 1 的离线表达，核心原则 8）:** 改前/改后对 5 skill 各在测试内真实构建 `_build_skill_prompt`，对 system_prompt 用 `estimate_prompt_tokens`（`src/shenbi/cost/estimate.py` 纯函数）计差——不触发真实 dispatch。
 
 **逐 skill rollout 步骤:** 每完成一个 skill 的瘦身即跑该 skill 的 G4 校验 + 全量 `just check`（防 R2 decl→body 证据因删段断裂，见 §3.9 回滚）。
 
-### 3.8 验证（Revised 2026-09-17 · 全离线；真实 dispatch 面的格式遵循度验证归 audit-run/T1 generative 机制，本 pass 不做——核心原则 8 + F947）
+### 3.8 验证（Revised 2026-09-17 轮 2 · 全离线；G4 行撤除——checker 不读 SKILL.md body，对 body 瘦身零信号，且 tests/fixtures 无这 5 skill 产物（G0.9 禁手造），格式遵循度归后续 audit-run）
 
 | 标准 | tier | 方式 | 当前 | 目标 |
 |---|---|---|---|---|
-| 5 skill system prompt 字节数 | T1 | 离线：测试内构建 `_build_skill_prompt` 直接量 | 14,829 / 13,799 / 12,322 / 12,191 / 11,338 B | 各降 ~3-5KB |
-| 5 skill system prompt 的 estimate_prompt_tokens 差 | T1 | 离线纯函数（`src/shenbi/cost/estimate.py`） | baseline 同上 | 下降，数值进验收证据 |
-| `shenbi-validate G4 <skill>` × 5 | T1 | 只读 CLI | PASS | PASS（瘦身 body 后仍过；**注**：chapter-pattern 不在 G4_CHECKER_SKILLS——仅 generic 校验，证据弱一档，已知不对称） |
-| `just check` 全量（含 lint_registry_reconcile R1 / lint_contract_prose） | T1 | just | PASS | PASS（`_shared` `_` 前缀豁免后不红） |
-| 运行时格式遵循度（真实 dispatch） | — | 本 pass 不做 | n/a | 归后续 audit-run 验证（G0.9 真实产物回流 fixtures） |
+| 参与瘦身的各 skill system prompt 字节净降 | T1 | 离线：测试内构建 `_build_skill_prompt` 直接量 | 见 §3.5 表实测段字节 | **≥ §3.5 各行净省估计下限**；低于下限的 skill 按规则跳过并记录 |
+| system prompt 的 estimate_prompt_tokens 差 | T1 | 离线纯函数（`src/shenbi/cost/estimate.py:55`） | baseline 同上 | 下降，数值进验收证据 |
+| `just check` 全量（含 lint_registry_reconcile R1 / lint_contract_prose R1+R2） | T1 | just | PASS | PASS（`_shared` `_` 前缀豁免 + 裸文件名引用 + 不变量保全后不红） |
+| `_shared` 引用存在性 | T1 | 由 R1 skill-bundle 分支机械保障 | n/a | 每个新建 `_shared/` 文件在对应 body 有裸文件名引用（I6） |
+| 运行时格式遵循度（真实 dispatch） | — | 本 pass 不做（核心原则 8 + F947） | n/a | 归后续 audit-run 验证（G0.9 真实产物回流 fixtures）；若退化按 §3.9 回滚 |
 
-### 3.9 回滚预案（Revised 2026-09-17）
+### 3.9 回滚预案（Revised 2026-09-17 轮 2）
 
-每个 skill 的 body 瘦身是**独立可回滚**的。若某 skill 瘦身后的 G4 校验或 `just check` FAIL，立即恢复该 skill 的内嵌示例（git revert 该 skill 的改动），外置文件保留但不引用。**不强求 5 个全成功——成功率即便 3/5 也是 ~9-15KB/章收益。**
+每个 skill 的 body 瘦身是**独立可回滚**的。回滚触发：(a) 该 skill 的验收净降低于 §3.5 下限且裁决跳过失败；(b) `just check` 因该 skill 的改动变红且不可修；(c) 后续 audit-run 显示格式遵循度退化。回滚动作：git revert 该 skill 的瘦身 commit，外置文件与引用行一并移除。**不强求 5 个全成功**——按 §3.5 表，3/5 成功 ≈ ~2.6-4KB/章净省；净省 <500B 的 skill 一开始就跳过更划算。
 
 ---
 
@@ -241,10 +257,10 @@ PR #39（P0+P1 + TokenLedger 度量前提）—— 已合并
 |---|---|---|---|
 | ~~同章同 read-only truth 文件 read_text 次数~~ | — | ~~baseline~~ | ~~每章 1 次（T_B）~~ **行随 T_B 降级作废** |
 | 同 skill 同文件两次 `_build_skill_prompt` 的 system_prompt 字节相等 | T1 离线 | 未测 | 相等（T_A 回归测试） |
-| 5 skill system prompt 字节数 | T1 离线（测试内构建） | 14,829 / 13,799 / 12,322 / 12,191 / 11,338 B | 各降 ~3-5KB（T_C） |
+| 5 skill system prompt 字节数 | T1 离线（测试内构建） | 14,829 / 13,799 / 12,322 / 12,191 / 11,338 B | 参与瘦身的 skill 各达 §3.5 表净省下限（总量现实 ~4-6.5KB；<500B 净省的 skill 跳过并记录） |
 | 5 skill system prompt 的 estimate_prompt_tokens 差 | T1 离线纯函数 | baseline 同上 | 下降，数值进验收证据（T_C） |
 | 一章 round 的 `cost/token-ledger.jsonl` 总 prompt_tokens | 真实 run（本 pass 不触发，核心原则 8） | IDE 路径有 estimated=True 下界行 | T_C 合并后的真实章节收益由后续 audit-run 验证，非本 pass 验收面 |
-| G4 5 skill + `just check` | T1 只读 CLI | PASS | PASS（任何一项 FAIL 即回滚该 skill 的 body 瘦身） |
+| `just check`（含 G4 全 skills 不变性） | T1 只读 CLI | PASS | PASS（G4 checker 不读 SKILL.md body，本 pass 零 checker 变更；任何 lint FAIL 即回滚对应 skill 的 body 瘦身） |
 
 ---
 
