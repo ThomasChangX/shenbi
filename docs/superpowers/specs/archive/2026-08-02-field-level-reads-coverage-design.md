@@ -1,10 +1,10 @@
 # 字段级 reads 覆盖率：三大 truth 文件的精准切片
 
 > **Date:** 2026-08-02
-> **Status:** Design (Revised 2026-09-18 — SDD #65 价值门 REWRITE：Layer B dispatch 死线修复前置；消费面重推（context-composing 退出主链）；volume_map 提取器改选 `_shared` 族；铁律 1 落证改三方交集；度量全面离线化。修订证据见本 spec 各节 file:line)
+> **Status:** Done (PR #227 · 2026-09-18) — was Design (Revised 2026-09-18 — SDD #65 价值门 REWRITE：Layer B dispatch 死线修复前置；消费面重推（context-composing 退出主链）；volume_map 提取器改选 `_shared` 族；铁律 1 落证改三方交集；度量全面离线化。修订证据见本 spec 各节 file:line)
 > **Severity:** 🟡 Medium（P1 契约一致 + 效率混合；浪费量大但字段名匹配有准确性风险）
-> **方法:** [`systematic-debugging`](archive/2026-07-19-06-llm-context-engineering-design.md) skill 四阶段（Root Cause → Pattern → Hypothesis → Implementation）
-> **系列:** Token 效率全栈 audit（契约层补漏，承接已归档总纲 [`archive/2026-08-01-pipeline-read-write-consistency-audit-design.md`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §3.7 + §6.2 P1 第二项；PR #39 plan T8 延后项；spec #28 R2 显式接力——其归档文本 :48「token 面优化归 spec #65 的 extractor 方案」）
+> **方法:** [`systematic-debugging`](2026-07-19-06-llm-context-engineering-design.md) skill 四阶段（Root Cause → Pattern → Hypothesis → Implementation）
+> **系列:** Token 效率全栈 audit（契约层补漏，承接已归档总纲 [`archive/2026-08-01-pipeline-read-write-consistency-audit-design.md`](2026-08-01-pipeline-read-write-consistency-audit-design.md) §3.7 + §6.2 P1 第二项；PR #39 plan T8 延后项；spec #28 R2 显式接力——其归档文本 :48「token 面优化归 spec #65 的 extractor 方案」）
 > **依赖:** 已归档总纲（§3.7 finding、§6.2 P1 分级）；`src/shenbi/contracts/fields.py` `filter_to_fields`（:113）；`src/shenbi/contracts/loader.py` `_validate` reads 归一化（:211-218）+ `read_fields` 旁路（:52/:205/:217）；`src/shenbi/pipeline/dispatch_helper.py` `_build_skill_prompt` read 循环（:601/:668-702）；`src/shenbi/pipeline/context_assemble.py` `_load_volume_context`（:207）+ `src/shenbi/pipeline/_shared.py` 提取器族；`skills/shenbi-{review-group-factual,chapter-planning}/SKILL.md`；git 历史真实产物（`git show d120a444^:novel-output/xinghuo-ranqiong/...`，生产树已按 spec #63 T1504 出库）
 > **范围:** 本 spec 只审 **字段级 reads 过滤（Layer B）的覆盖率提升 + 其 dispatch 死线修复**——为 power_system.md / volume_map.md 在现行消费方的 reads 声明精确切片，使 dispatcher 只发相关 section 而非全文。**不审** P0 纯浪费（PR #39 已清）、不审 cache/示例外置（P2 spec #6 已 Done，其 cache 裁决不实施）、不审采样/模型/重试（#3）、不审输出侧（#5）、不审确定性替换（#4）、chapter-N.md 显式不管（§2.3）。
 > **Purpose:** 把总纲 §3.7 从"发现+提议"推进到"可实施"。原 spec 假设 Layer B 机制已工作、只需声明 fields——价值门驳斥证明该假设不成立（§1.5 死线）：fields 声明在 dispatch 路径从未生效。本 spec 修订后 = 死线修复（机制）+ 消费面切片（调优）两层。
