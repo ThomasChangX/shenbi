@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-09-17（spec #6 Token 效率 P2 Done——PR #223（实施：T_A 字节稳定测试 + T_C chapter-pattern/pacing 外置）+ PR #224（评审修正）；T_B 缓存/T_D IDE 分离/三 skill 外置经价值门与阶段 3 八轮审查裁决不实施，证据随 spec 归档。现序 #40→#65→#66）
-> **活跃 spec 数**：3
+> **活跃 spec 数**：2
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -16,17 +16,6 @@
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（总纲；supersede #17 的 catalog 角色）
 - **状态**：Design（记账 pass Done PR #147；§6.4 矩阵同步 pass Done PR #172；C14/C16/C37 回标 pass 2026-09-08——C14 #52 PR #183、C16 #54 PR #174、C37 #51 PR #179；C15-C18/C37 回标 + C19 速览补录与 ledger 回写 13 行 + F750/F0-06 归宿 #66 pass 2026-09-11；C25 回写 pass 2026-09-17；C26 回写 pass 2026-09-17——37 簇全部闭簇；索引长期保留） | **优先级**：🔴 P0（总纲）
 - **内容**：phase4 37 簇修复优先级矩阵（P0×7 簇=191 条 / P1×26 簇=483 / P2×4 簇=100，纯 M 簇 0 个）、跨簇依赖链（C32→C33→成本类、C3+C34→C1 验收、C10→C28/C33、C19#26→C37 解冻、C16→C14→C15）、量级汇总（L×7/M×22/S-M×8，3 泳道 6-9 周墙钟）、与既有 23 活跃 spec 的 supersede/解散/保留关系表、回写协议（737 条 merged）
-
-### #65 · 字段级 reads 覆盖率：三大 truth 文件的精准切片
-
-- **文件**：`2026-08-02-field-level-reads-coverage-design.md`
-- **系列**：Token 效率全栈 audit（契约层补漏，承接已归档总纲 §3.7 + §6.2 P1 第二项；PR #39 plan T8 延后项——原延后理由"字段名需真实 round 输出验证"已由 `novel-output/` 真实 round header 解决）
-- **状态**：Design (Revised 2026-09-18) — 实施中（分支 fix/spec65-layerb-deadwire-fields-extractor）
-- **优先级**：🟡 Medium（P1 契约一致 + 效率；浪费量大但字段名匹配有准确性风险）
-- **方法**：`systematic-debugging` 四阶段
-- **依赖**：已归档总纲 §3.7/§6.2；PR #39/#114/#153 已合并；`contracts/fields.py` `filter_to_fields`；`contracts/loader.py` read_fields 旁路；`pipeline/_shared.py` 提取器族；`skills/shenbi-{review-group-factual,chapter-planning}/SKILL.md`；git 历史真实产物（`git show d120a444^:novel-output/...`，生产树已出库）
-- **对应 plan**：✅ `plans/2026-09-18-spec65-layerb-deadwire-fields-extractor.md`
-- **内容**：解决 PR #39 T8 延后项（2026-09-18 价值门 REWRITE 修订）。三层——(0) §3.0 dispatch read 循环 Layer B 先天死线修复（loader 归一化 vs dict 分支断裂，行为复现实证）；(1) `power_system.md`（生产者模板 8 header 安全集）：review-group-factual 声明 fields（力量天花板/代价机制/跨级战斗参考/能力边界），28.8KB→15.5KB；(2) `volume_map.md`（动态卷标题）：`extractor:` 契约字段接 `_shared` 族提取器（closed registry + 失败全文兜底 WARN），chapter-planning 26.3KB 全文→卷上下文切片（KR 块+张力曲线+章节点+跨卷桥）；(3) `chapter-N.md` 显式不管（剩余读者是审计对象本身）。审计修复 #28 为接线前置（其「接线已正确」声明经驳斥不成立）。
 
 ### #66 · 遗留微修批：F750 集成测试真实 fixture 化 + F0-06 python 版本三元统一
 

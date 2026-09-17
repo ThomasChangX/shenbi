@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-18（spec #65 plan 创建 ✅ ready）
-> **活跃 plan 数**：1 | **已归档**：119（见 `archive/`）
+> **最后更新**：2026-09-18（spec #65 plan Done 并归档——PR #227）
+> **活跃 plan 数**：0 | **已归档**：120（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- `2026-09-18-spec65-layerb-deadwire-fields-extractor.md` — spec #65 字段级 reads：Layer B 死线修复 + power_system fields + volume_map extractor（4 tasks 全 infra）✅ ready
+（无）
 
 ## 待执行的 spec → plan 映射
 
