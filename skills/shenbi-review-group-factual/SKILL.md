@@ -9,7 +9,12 @@ contract:
     - truth/current_state.md
     - truth/chapter_summaries.md
     - world/rules.md
-    - world/power_system.md
+    - file: world/power_system.md
+      fields:
+        - 力量天花板
+        - 代价机制
+        - 跨级战斗参考
+        - 能力边界
     - world/locations.md
     - world/story_bible.md
     - genre-config.json

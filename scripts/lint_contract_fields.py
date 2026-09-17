@@ -83,6 +83,9 @@ EXAMPLE_FIXTURES: dict[str, list[Path] | None] = {
     ],
     # Mirrored production sample (G0.11 hash-checked via g0.MIRROR_MAP).
     "outline/volume_map.md": [FIXTURES_DIR / "volume-map-xinghuo.md"],
+    # Synthetic sample (spec #54 C16) carrying the full producer template-8
+    # header set (spec #65 §3.2 — without this entry the declaration vacuous-skips).
+    "world/power_system.md": [FIXTURES_DIR / "world-power-system-example.md"],
 }
 
 

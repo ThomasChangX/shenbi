@@ -57,6 +57,7 @@ from shenbi.logging import get_logger
 from shenbi.env_policy import build_child_env
 from shenbi.contracts.injection import wrap_untrusted_source
 from shenbi.exceptions import DispatchWriteFailureError, ShenbiError, TruthFileParseError
+from shenbi.pipeline._shared import load_volume_context  # spec #65 §4 (leaf module, no cycle)
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
@@ -664,15 +665,18 @@ def _build_skill_prompt(
     # but chapter is None (genesis mode) — such reads are skipped rather than
     # raising. With a chapter, resolve_chapter_path does a bounded N/NNN replace.
     raw_inputs: dict[str, str] = {}
-    reads: list[Any] = contract.get("reads", [])
-    for read_path_entry in reads:
-        if isinstance(read_path_entry, dict):
-            # Layer B: field-level read
-            read_path: str = read_path_entry.get("file", "")
-            fields: list[str] = read_path_entry.get("fields", [])
-        else:
-            read_path = read_path_entry
-            fields = []
+    reads: list[str] = contract.get("reads", [])
+    # Layer B: loader normalizes dict-form reads into plain strings and
+    # diverts fields to the read_fields sidecar (loader.py _validate). The
+    # old isinstance(dict) branch never fired on post-load_contract reads
+    # (spec #65 §1.5 dead-wire); the sidecar keyed by the PRE-RESOLUTION
+    # contract path is the authoritative fields carrier (same source as
+    # _collect_declared_truth_fields).
+    read_fields: dict[str, list[str]] = contract.get("read_fields", {})
+    read_extractors: dict[str, str] = contract.get("read_extractors", {})
+    for read_path in reads:
+        fields: list[str] = read_fields.get(read_path, [])
+        extractor: str | None = read_extractors.get(read_path)
 
         # Resolve placeholders before glob expansion (ctx-aware, spec #6
         # R4b): resolve_or_skip_ctx routes arc/stratum/volume families via
@@ -695,6 +699,45 @@ def _build_skill_prompt(
                     content = full_path.read_text(encoding="utf-8")
                 except Exception:
                     content = f"[binary or unreadable: {full_path}]"
+            if extractor == "volume_chapter" and chapter is not None:
+                # spec #65 §4. extractor face routes volume_map through the
+                # _shared family; chapter=None (genesis / manual no-chapter
+                # dispatch) falls through to full text (§4.3). Extraction
+                # failure -> full-text fallback + WARN (never a silent drop).
+                extraction_error: Exception | None = None
+                try:
+                    extracted = load_volume_context(project_dir, chapter)
+                except Exception as exc:
+                    extraction_error = exc
+                    extracted = ""
+                if extracted:
+                    content = extracted
+                elif extraction_error is not None:
+                    # Parity with the loop's own read guard above: an
+                    # unreadable map degrades to sentinel/full text + WARN,
+                    # never raises out of the prompt builder (final-review I2).
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(extraction_error),
+                    )
+                else:
+                    # Resolved-empty extraction (no chapter node / no volume
+                    # boundaries): full-text fallback, single WARN (PR #227).
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                    )
+            elif extractor is not None and extractor != "volume_chapter":
+                # Defense-in-depth: loader's closed registry rejects unknown
+                # names at load, so this is unreachable today — guard keeps a
+                # future registry expansion from silently degrading to full
+                # text (spec #65 §4.2 fail-loud discipline).
+                log.warning("extractor_unrouted_fulltext", extractor=extractor, path=str(full_path))
             if fields:
                 content, _matched = filter_to_fields(content, fields, str(full_path))
             # 10a: Strip META blocks for non-drafting skills (save 16-31% input)

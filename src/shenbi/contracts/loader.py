@@ -50,6 +50,7 @@ class Contract(TypedDict):
     writes: list[str]
     updates: list[str]
     read_fields: dict[str, list[str]]
+    read_extractors: dict[str, str]
     write_semantics: dict[str, dict[str, Any]]
 
 
@@ -69,22 +70,48 @@ def _skill_path(skill: str) -> Path:
     return SKILLS / skill / "SKILL.md"
 
 
-def _normalize_read_item(item: Any) -> tuple[str, list[str] | None]:
-    """Normalize a reads entry into (path, fields-or-None).
+#: Closed registry of read extractor names (spec #65 §4.2). Unknown names
+#: fail loudly at load (never silently degrade to full text).
+READ_EXTRACTORS: frozenset[str] = frozenset({"volume_chapter"})
 
-    Accepts a plain string or a dict ``{file, fields?}``. Dict-form lets a skill
-    annotate which fields of a truth file it consumes (R1 forward-compat).
+
+def _normalize_read_item(item: Any) -> tuple[str, list[str] | None, str | None]:
+    """Normalize a reads entry into (path, fields-or-None, extractor-or-None).
+
+    Accepts a plain string or a dict ``{file, fields?}`` / ``{file,
+    extractor?}``. Dict-form lets a skill annotate which fields of a truth
+    file it consumes (R1 forward-compat) or name a dynamic-header extractor
+    (spec #65 §4.2 — ``fields`` and ``extractor`` are mutually exclusive;
+    extractor names resolve against the closed READ_EXTRACTORS registry).
     """
     if isinstance(item, str):
-        return item, None
+        return item, None, None
     if isinstance(item, dict) and "file" in item:
         fields = item.get("fields")
+        extractor = item.get("extractor")
+        if fields is not None and extractor is not None:
+            raise ContractError(
+                "contract.reads[] fields and extractor are mutually exclusive",
+                field="reads",
+            )
         if fields is not None and not (
             isinstance(fields, list) and all(isinstance(x, str) for x in fields)
         ):
             raise ContractError("contract.reads[].fields must be list[str]", field="reads")
-        return str(item["file"]), fields
-    raise ContractError("contract.reads[] must be str or {file, fields?}", field="reads")
+        if extractor is not None:
+            if not isinstance(extractor, str):
+                raise ContractError(
+                    "contract.reads[].extractor must be str", field="reads", extractor=extractor
+                )
+            if extractor not in READ_EXTRACTORS:
+                raise ContractError(
+                    "contract.reads[].extractor unknown",
+                    field="reads",
+                    extractor=extractor,
+                    allowed=sorted(READ_EXTRACTORS),
+                )
+        return str(item["file"]), fields, extractor
+    raise ContractError("contract.reads[] must be str or {file, fields?/extractor?}", field="reads")
 
 
 def _normalize_write_item(item: Any, field: str, skill: str) -> tuple[str, dict[str, Any]]:
@@ -203,6 +230,7 @@ def _validate(raw: dict[str, Any], skill: str, registry: TruthFilesRegistry) -> 
 
     validated: dict[str, list[str]] = {}
     read_fields: dict[str, list[str]] = {}
+    read_extractors: dict[str, str] = {}
     write_semantics: dict[str, dict[str, Any]] = {}
     for field in ("reads", "writes", "updates"):
         val = raw.get(field)
@@ -211,10 +239,12 @@ def _validate(raw: dict[str, Any], skill: str, registry: TruthFilesRegistry) -> 
         if field == "reads":
             paths: list[str] = []
             for item in val:
-                path, fields = _normalize_read_item(item)
+                path, fields, extractor = _normalize_read_item(item)
                 paths.append(path)
                 if fields is not None:
                     read_fields[path] = fields
+                if extractor is not None:
+                    read_extractors[path] = extractor
             collected: list[str] = paths
         else:
             collected = []
@@ -235,6 +265,7 @@ def _validate(raw: dict[str, Any], skill: str, registry: TruthFilesRegistry) -> 
         "writes": validated["writes"],
         "updates": validated["updates"],
         "read_fields": read_fields,
+        "read_extractors": read_extractors,
         "write_semantics": write_semantics,
     }
 

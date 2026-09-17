@@ -24,10 +24,7 @@ from typing import Any
 
 from shenbi.logging import get_logger
 from shenbi.pipeline._shared import (  # pyright: ignore[reportPrivateUsage]
-    _resolve_volume_at_runtime,
-    bridges_for_chapter,
-    read_bridges,
-    read_chapter_node,
+    load_volume_context as _load_volume_context,
 )
 from shenbi.pipeline.truth_index import (
     build_index,
@@ -202,63 +199,6 @@ def _route_c(project_dir: Path) -> list[dict[str, Any]]:
 # Volume boundaries are parsed at runtime from volume_map.md via
 # _shared.read_volume_boundaries() -- NEVER hard-coded. Hard-coding
 # ('Volume 1', (1, 15)) duplicates the map and will diverge.
-
-
-def _load_volume_context(project_dir: Path, chapter: int) -> str:
-    """Extract current volume context from volume_map.md for the given chapter.
-
-    Returns a markdown string containing:
-    - Current volume Objective
-    - Current chapter's node role and content description
-    - Pending cross-volume bridges approaching activation
-    """
-    vm_path = project_dir / "outline" / "volume_map.md"
-    if not vm_path.exists():
-        return ""
-
-    volume_map_text = vm_path.read_text(encoding="utf-8")
-
-    # Determine current volume at runtime (NEVER hard-code boundaries)
-    resolved = _resolve_volume_at_runtime(project_dir, chapter)
-    if resolved is None:
-        return ""
-    current_volume = resolved[0]
-
-    parts: list[str] = []
-    parts.append("## Current Volume Context (from volume_map.md)\n")
-
-    # Extract volume heading line (includes volume number and title)
-    vol_heading_pattern = re.compile(
-        rf"## ({re.escape(current_volume)}[^\n]*)\n",
-    )
-    vol_heading_match = vol_heading_pattern.search(volume_map_text)
-    if vol_heading_match:
-        parts.append(f"**Volume:** {vol_heading_match.group(1).strip()}\n")
-
-    # Extract volume objective
-    vol_pattern = re.compile(
-        rf"## {re.escape(current_volume)}.*?\n(?:\*\*Objective[：:]\*\*|\*\*Objective\*\*\s*[：:])\s*(.+?)(?=\n##|\n###|\Z)",
-        re.DOTALL,
-    )  # bilingual: English `**Objective:**` and Chinese `**Objective**:` (spec #6 R6)
-    vol_match = vol_pattern.search(volume_map_text)
-    if vol_match:
-        parts.append(f"**Volume Objective:** {vol_match.group(1).strip()}\n")
-
-    # Extract chapter node info (shared extractor, spec #6 R6 — Chinese rows,
-    # aggregated bridges; bare | N | rows no longer match bridge-table garbage)
-    node = read_chapter_node(volume_map_text, chapter)
-    if node:
-        parts.append(f"**Chapter Role:** {node['role']}")
-        parts.append(f"**Expected Content:** {node['content']}\n")
-
-    # Extract pending cross-volume bridges (ALL sections, sequel rows excluded)
-    pending_bridges = bridges_for_chapter(read_bridges(volume_map_text), chapter)
-    if pending_bridges:
-        parts.append("**Pending Cross-Volume Bridges:**")
-        parts.extend(f"- {s}" for s in pending_bridges)
-        parts.append("")
-
-    return "\n".join(parts)
 
 
 def rerank_results(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
