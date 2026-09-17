@@ -23,7 +23,7 @@
 
 - **行为复现证据**（2026-09-18，离线直调 `_build_skill_prompt('shenbi-chapter-planning', ...)`，零 LLM）：chapter-planning 声明了 `truth/chapter_summaries.md` fields `[已完成章节]`，未声明的 `## OTHER_STUFF` section 仍完整进入 user_prompt；structlog 零 `field_filter_*` 事件。
 - **历史**：dict 分支 2026-07-20 引入（dd1fc629，PR #19），晚于 loader 归一化（2026-06-22）——**先天死线，非回归**。
-- **波及面**：AGENTS.md「The dispatcher filters file content to only declared fields」声明失效；spec #28 归档文本 :14「T1/F224 管线过滤接线已正确处理且测试覆盖」声称不成立（`tests/unit/pipeline/test_field_filtering.py:8` 自明只直测纯函数、不测 dispatch 循环）。
+- **波及面**：AGENTS.md「The dispatcher filters file content to only declared fields」声明失效；spec #28 归档文本 :14「T1/F224 管线过滤接线已正确处理且测试覆盖」声称不成立（`tests/unit/pipeline/test_field_filtering.py:1-7` 自明只直测纯函数、不测 dispatch 循环）。
 - **fields 的唯一真实消费**：`read_fields` 旁路 → `_collect_declared_truth_fields`（`dispatch_helper.py:1685`，genesis 模板播种）——声明不是死的，但 dispatch 过滤这半边是死的。
 
 **推论：本 spec §3 的任何 fields 声明，若不先修死线，都是运行时 no-op。死线修复是 §3/§4 的共同前置（§3.0）。**
@@ -45,7 +45,7 @@
 
 ### 1.3 浪费量（修订口径）
 
-每章主链浪费 ≈ power_system 全文 ×1（review-group-factual 审计，~28.8KB）+ volume_map 全文 ×1（chapter-planning，~26.3KB）+ 本章全文 × 审计技能数（chapter-N 面，非本 spec）。power_system + volume_map 两项合计 ~55KB/章可削减至 ~10-14KB。genesis 阶段另有 5 个 skill 全文读 volume_map（§4 兜底语义保留）。原 spec「三大文件 ~86KB/章、累计 200-400KB/章」口径基于 drafting 全文读前章的旧主链，已失效。
+每章主链浪费 ≈ power_system 全文 ×1（review-group-factual 审计，~28.8KB）+ volume_map 全文 ×1（chapter-planning，~26.3KB）+ 本章全文 × 审计技能数（chapter-N 面，非本 spec）。power_system + volume_map 两项合计 ~55KB/章可削减至 ~16-17.5KB（§3.1 4-field 实测 15,500B + §4 卷节点 500B-2KB；子集终值 plan 定稿后联动重算，§7 同）。genesis 阶段另有 5 个 skill 全文读 volume_map（string 读不经 extractor，§4.3）。原 spec「三大文件 ~86KB/章、累计 200-400KB/章」口径基于 drafting 全文读前章的旧主链，已失效。
 
 ---
 
@@ -55,7 +55,7 @@
 
 git 历史真实文件（`git show d120a444^:novel-output/xinghuo-ranqiong/outline/volume_map.md`，26,334B）的 `## ` header 为卷标题（`## 第一卷：觉醒之火（第1-15章）`…`## 汇总`），每本书不同——不能用固定 field 名匹配。
 
-**结论（修订）：** volume_map 不适合 `fields:` 过滤（原判断存活），接入点 = 通用 read 路径的**提取器**（§4）。且提取器**不复用**原 spec 点名的 `_extract_volume_chapter`（`pipeline/audit_context_cache.py:125`）——它是 C28 R2 drop 后的零消费者死输出（`ctx.volume_context` 全仓零消费，:103-104 注释自证；仅 tests/unit/pipeline/test_c15_wave_and_context_branches.py:87-94 对死字段直测）。正确抽象已存在且活跃：`context_assemble.py:207` `_load_volume_context` + `_shared.py` 提取器族（运行时卷边界 `read_volume_boundaries`、`_resolve_volume_at_runtime`、章节点、跨卷桥），测试 5+2 个（test_context_assemble.py:289-316、test_cn_extract.py:61-105）。
+**结论（修订）：** volume_map 不适合 `fields:` 过滤（原判断存活），接入点 = 通用 read 路径的**提取器**（§4）。且提取器**不复用**原 spec 点名的 `_extract_volume_chapter`（`pipeline/audit_context_cache.py:125`）——它是 C28 R2 drop 后的零消费者死输出（`ctx.volume_context` 零下游消费，:103-104 注释自证；仅 tests/unit/pipeline/test_c15_wave_and_context_branches.py:87-94 对死字段直测）。正确抽象已存在且活跃：`context_assemble.py:207` `_load_volume_context` + `_shared.py` 提取器族（运行时卷边界 `read_volume_boundaries`、`_resolve_volume_at_runtime`、章节点、跨卷桥），测试 5+2 个（test_context_assemble.py:289-316、test_cn_extract.py:61-105）。
 
 ### 2.2 风险 B：power_system 的 section header 稳定集 = 生产者模板 8 个（修订）
 
@@ -98,7 +98,7 @@ chapter-N.md 正文是连续 prose，无 `## ` section。其 drafting 主链浪�
 ### 3.2 验证（离线化修订）
 
 - 字段名对照安全集（§2.2 模板 8 个）——plan 实施时 grep 生产者模板 + git 历史真实文件字节匹配确认（`filter_to_fields` 的 NFKC 归一化处理全角/空白差异，header 文本本身须对得上）。
-- **lint 样本接线（防漂移）**：`scripts/lint_contract_fields.py` 的 `EXAMPLE_FIXTURES`（:53-76）现无 `world/power_system.md` 条目——不补则新声明零样本 vacuous skip、三方落证沦为一次性人工检查。实施时加 `"world/power_system.md": [FIXTURES_DIR / "world-power-system-example.md"]`（该 fixture 含模板 8 个 header 全集，生产者模板改名将直接 lint 红）。
+- **lint 样本接线（防漂移）**：`scripts/lint_contract_fields.py` 的 `EXAMPLE_FIXTURES`（:53-86）现无 `world/power_system.md` 条目——不补则新声明零样本 vacuous skip、三方落证沦为一次性人工检查。实施时加 `"world/power_system.md": [FIXTURES_DIR / "world-power-system-example.md"]`（该 fixture 含模板 8 个 header 全集，生产者模板改名将直接 lint 红）。
 - 逃逸门验证改离线：直调 `filter_to_fields`（或修死后直调 `_build_skill_prompt`）断言零 `field_filter_missing_fields` WARN——**事件名以 `fields.py:79-84` 实现为准**（原 spec 写的 `field_not_found` 不存在）。
 - G4 对 review-group-factual 仍 PASS（G4 不校验 reads 面——驳斥 B7 核实；跑 G4 确认契约变更无副作用。注意 G4 PASS **不构成**内容充分性证据——它只证契约面无副作用）。
 
