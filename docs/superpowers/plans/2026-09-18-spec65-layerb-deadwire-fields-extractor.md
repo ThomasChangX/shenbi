@@ -17,7 +17,11 @@
 - Conventional commits with explicit pathspec (`git add <files>`, never `-A`).
 - After any SKILL.md frontmatter change: `just generate` must produce an empty diff (three-source sync); `just lint-contracts` green.
 - Baseline: re-baseline `just check` pass count at execution time (spec §7).
-- Test file placement: dispatch-loop behavior tests → `tests/unit/pipeline/test_dispatch_layerb_live.py` (new); loader extractor tests → `tests/unit/contracts/test_loader_extractors.py` (new).
+- Test file placement: dispatch-loop behavior tests → `tests/unit/pipeline/test_dispatch_layerb_live.py` (new; deviation from spec §3.0's literal mention of test_field_filtering.py — that file is pure-function scoped by its own docstring, new dispatch-loop cases get a dedicated file; logged in spec-deviations); loader extractor tests → `tests/unit/contract/test_loader_extractors.py` (create; note the directory is `tests/unit/contract/` SINGULAR, existing home of test_dict_reads.py).
+- All new test files carry `pytestmark = pytest.mark.unit` (pyproject markers: unit/integration/property/benchmark/slow/last; `just test` selects `-m unit`).
+- structlog in this repo writes via `PrintLoggerFactory(file=sys.stderr)` (logging.py:52) — stdlib logging handlers CANNOT capture events. WARN assertions use the repo's spy pattern (tests/unit/contracts/test_fields.py:71-83): monkeypatch `log.warning` on the emitting module. `field_filter_missing_fields` is emitted from `shenbi.contracts.fields`'s module logger; `extractor_failed_fulltext` from `shenbi.pipeline.dispatch_helper`'s.
+- AGENTS.md Layer B face: after T1 the existing AGENTS.md claim ("The dispatcher filters file content...") becomes TRUE — no AGENTS.md edit needed; listed here per spec §6.2.
+- 36-declaration blast radius (spec §6.1 duty): at-risk set = `truth/current_state.md` family (chapter-planning + review-continuity declare [系统演化阶段, 参数当前位置, 进行中的情节线]; zero overlap with chapter-025 snapshot lineage, 3/3 with xinghuo sample — miss → escape-hatch fulltext, correct behavior per spec §8.2 lineage exemption). T1 Step 5's full regression is the enforcement; no repo test today dispatches chapter-planning against a foreign-lineage current_state (verified by grep at plan time).
 
 ## Actual Signatures (copied from source at plan time)
 
@@ -71,11 +75,11 @@ def estimate_prompt_tokens(text: str) -> int  # :49
 | §3.0 零 WARN（scoped：shenbi-native + fixtures） | T1/T2 | structlog capture asserts in both test files |
 | §3 power_system fields 声明 + lint 样本接线 | T2 | `uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -k power_system -v`; `uv run python scripts/lint_contract_fields.py` exit 0 |
 | §3 字节度量（28,808B → 15,500B on 历史真实文件拷贝） | T2 | measurement test asserts kept-bytes < full-bytes and ratio band |
-| §3 G4 契约面无副作用 | T2 | `just gate G4 shenbi-review-group-factual <fixture files>` |
+| §3 G4 契约面无副作用 | T2 | `uv run shenbi-validate G4 shenbi-review-group-factual "$(pwd)/tests/fixtures/world-power-system-example.md"` |
 | §4 loader extractor 旁路 + closed registry + 互斥 | T3 | `uv run pytest tests/unit/contracts/test_loader_extractors.py -v` |
 | §4 dispatcher 三分支（happy/None/失败） | T4 | `uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -k volume -v` |
 | §4 字节度量（26,334B → ≤2KB） | T4 | measurement test asserts |
-| §4 G4 契约面无副作用 | T4 | `just gate G4 shenbi-chapter-planning <fixture files>` |
+| §4 G4 契约面无副作用 | T4 | `uv run shenbi-validate G4 shenbi-chapter-planning "$(pwd)/tests/fixtures/chapter-plan-example.md"` |
 | 全部 | all | `just check` EXIT=0 + `just generate` diff empty |
 
 ---
@@ -101,41 +105,51 @@ Unlike tests/unit/pipeline/test_field_filtering.py (pure-function tests),
 these exercise the REAL _build_skill_prompt read loop end-to-end: the
 loader-normalized reads + read_fields sidecar must actually filter content
 before it reaches user_prompt. G0.9: inputs are assembled from real
-fixture products (snapshots/chapter-025 tree + real fixture files).
+fixture products (real fixture file contents; trivial declared-header
+seeding only).
 """
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 
 import pytest
 
+from shenbi.contracts import fields as fields_mod
+from shenbi.pipeline import dispatch_helper as dh
 from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+
+pytestmark = pytest.mark.unit
 
 
 @pytest.fixture()
-def capture_warns():
-    """Collect structlog-rendered warning records."""
-    records: list[str] = []
+def warn_spy(monkeypatch: pytest.MonkeyPatch) -> dict[str, list[str]]:
+    """Spy WARN events on both emitting module loggers (repo structlog
+    writes via PrintLoggerFactory — stdlib handlers see nothing; this is
+    the tests/unit/contracts/test_fields.py:71-83 pattern applied to both
+    emitters: fields module -> field_filter_missing_fields; dispatch_helper
+    -> extractor_failed_fulltext)."""
+    events: dict[str, list[str]] = {"fields": [], "dispatch": []}
 
-    class _Capture(logging.Handler):
-        def emit(self, record: logging.LogRecord) -> None:
-            records.append(record.getMessage())
+    def _spy(bucket: list[str], orig):
+        def inner(event: str, **kw: object) -> None:
+            bucket.append(event)
+            orig(event, **kw)
 
-    logger = logging.getLogger("shenbi")
-    handler = _Capture(level=logging.WARNING)
-    logger.addHandler(handler)
-    try:
-        yield records
-    finally:
-        logger.removeHandler(handler)
+        return inner
+
+    monkeypatch.setattr(
+        fields_mod.log, "warning", _spy(events["fields"], fields_mod.log.warning)
+    )
+    monkeypatch.setattr(
+        dh.log, "warning", _spy(events["dispatch"], dh.log.warning)
+    )
+    return events
 
 
 @pytest.fixture()
 def project_tree(tmp_path: Path) -> Path:
     """Minimal shenbi-chapter-planning read set, real fixture content."""
-    snap = Path("tests/fixtures/snapshots/chapter-025")
     (tmp_path / "truth").mkdir()
     (tmp_path / "outline").mkdir()
     # truth/chapter_summaries.md: chapter-planning declares fields [已完成章节]
@@ -174,7 +188,7 @@ def test_declared_fields_filter_in_dispatch_loop(project_tree: Path) -> None:
 
 
 def test_escape_hatch_warns_and_fulltext_on_missing_field(
-    project_tree: Path, capture_warns: list[str]
+    project_tree: Path, warn_spy: dict[str, list[str]]
 ) -> None:
     # Sabotage: remove a declared field's header -> escape hatch must fire
     (project_tree / "truth" / "pending_hooks.md").write_text(
@@ -183,7 +197,7 @@ def test_escape_hatch_warns_and_fulltext_on_missing_field(
     _, user_prompt, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
-    assert "field_filter_missing_fields" in " ".join(capture_warns)
+    assert "field_filter_missing_fields" in warn_spy["fields"]
     # Full-text fallback: undeclared section present
     assert "别的节" in user_prompt
 
@@ -285,9 +299,12 @@ def factual_tree(tmp_path: Path) -> Path:
 
 
 def test_power_system_fields_filter_in_dispatch(
-    factual_tree: Path, capture_warns: list[str]
+    factual_tree: Path, warn_spy: dict[str, list[str]]
 ) -> None:
-    full_len = len(POWER_SYSTEM_FIXTURE.read_text(encoding="utf-8").encode("utf-8"))
+    from shenbi.cost.estimate import estimate_prompt_tokens
+
+    ps_full = POWER_SYSTEM_FIXTURE.read_text(encoding="utf-8")
+    full_len = len(ps_full.encode("utf-8"))
     assert full_len > 50_000  # fixture sanity (synthetic sample, 58,113B)
     _, user_prompt, _ = _build_skill_prompt(
         "shenbi-review-group-factual", factual_tree, "audit ch26", chapter=26
@@ -296,7 +313,16 @@ def test_power_system_fields_filter_in_dispatch(
     assert "力量天花板" in user_prompt and "代价机制" in user_prompt
     assert "等级表" not in user_prompt  # undeclared section (appears only at fixture :38)
     # All four declared fields matched -> escape hatch silent
-    assert "field_filter_missing_fields" not in " ".join(capture_warns), capture_warns
+    assert warn_spy["fields"] == [], warn_spy["fields"]
+    # Spec §7 byte metric: isolate the power_system CONTRIBUTION by
+    # subtracting a no-power_system baseline prompt.
+    (factual_tree / "world" / "power_system.md").unlink()
+    _, baseline, _ = _build_skill_prompt(
+        "shenbi-review-group-factual", factual_tree, "audit ch26", chapter=26
+    )
+    contribution = len(user_prompt.encode("utf-8")) - len(baseline.encode("utf-8"))
+    assert 4_000 < contribution < full_len * 0.75  # deep cut, bounded below
+    assert estimate_prompt_tokens(user_prompt) < estimate_prompt_tokens(baseline + ps_full)
 ```
 
 Red state pre-commit: before the SKILL.md change lands, `assert "等级表" not in user_prompt` fails (full text — declaration not yet made). That is the intended TDD red.
@@ -342,9 +368,9 @@ Run:
 uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -v
 uv run python scripts/lint_contract_fields.py && echo LINT_OK
 just generate && git diff --exit-code && echo GEN_DIFF_EMPTY
-uv run python -m shenbi validate G4 shenbi-review-group-factual tests/fixtures/world-power-system-example.md
+uv run shenbi-validate G4 shenbi-review-group-factual "$(pwd)/tests/fixtures/world-power-system-example.md"
 ```
-Expected: tests pass; LINT_OK; GEN_DIFF_EMPTY; G4 PASS. (If G4 CLI form differs, use `just gate G4 shenbi-review-group-factual tests/fixtures/world-power-system-example.md`.)
+Expected: tests pass; LINT_OK; GEN_DIFF_EMPTY; G4 PASS. (No `python -m shenbi` — the package has no `__main__.py`; entry point is `shenbi-validate`. `resolve_input_path` needs an ABSOLUTE path when no round_dir is given — hence `$(pwd)`.) The review-group-factual route uses the generic G4 checker; probe-verified to PASS on the power fixture (it carries frontmatter).
 
 - [ ] **Step 6: Commit**
 
@@ -359,49 +385,85 @@ git commit -m "feat(spec65): review-group-factual power_system fields (template-
 
 **Files:**
 - Modify: `src/shenbi/contracts/loader.py:46-53` (Contract TypedDict), `:72-87` (_normalize_read_item), `:191-239` (_validate)
-- Test: `tests/unit/contracts/test_loader_extractors.py` (create)
+- Test: `tests/unit/contract/test_loader_extractors.py` (create — directory `tests/unit/contract/` SINGULAR)
 
 **Interfaces:**
 - Produces: `Contract.read_extractors: dict[str, str]` (path → extractor name); `READ_EXTRACTORS: frozenset[str] = frozenset({"volume_chapter"})` registry constant in loader.py; `ContractError` on unknown extractor name or fields+extractor co-declaration.
 
 - [ ] **Step 1: Write failing tests**
 
-Create `tests/unit/contracts/test_loader_extractors.py`:
+Create `tests/unit/contract/test_loader_extractors.py` using the STAGED-SKILL pattern from `tests/unit/contract/test_dict_reads.py:14-29` (`_write_skill` + `monkeypatch.setattr("shenbi.contracts.loader.SKILLS", tmp_path / "skills")`). NEVER place throwaway skills under `tests/fixtures/` (G0.9 reserves it for real products):
 
 ```python
 """Loader extractor sidecar tests (spec #65 §4.2): closed registry,
-fields/extractor mutex, sidecar normalization."""
+fields/extractor mutex, sidecar normalization. Staged-skill pattern from
+tests/unit/contract/test_dict_reads.py."""
 
 from __future__ import annotations
+
+from pathlib import Path
 
 import pytest
 
 from shenbi.contracts.loader import ContractError, load_contract
 
-
-def test_volume_map_extractor_lands_in_sidecar() -> None:
-    contract = load_contract("shenbi-chapter-planning")
-    assert contract["reads"] == [r for r in contract["reads"]]  # all strings
-    assert contract["read_extractors"]["outline/volume_map.md"] == "volume_chapter"
+pytestmark = pytest.mark.unit
 
 
-def test_unknown_extractor_name_fails_loud() -> None:
-    with pytest.raises(ContractError, match="unknown extractor"):
-        load_contract("shenbi-test-bad-extractor")  # created by test fixture below
+def _write_skill(root: Path, name: str, reads_yaml: str) -> None:
+    skills = root / "skills"
+    d = skills / name
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "SKILL.md").write_text(
+        f"name: {name}\ncontract:\n  kind: report\n  reads:\n{reads_yaml}"
+        "\n  writes: [audits/chapter-N-x.md]\n  updates: []\n",
+        encoding="utf-8",
+    )
 
 
-def test_fields_and_extractor_mutex() -> None:
+EXTRACTOR_READS = "    - {file: outline/volume_map.md, extractor: volume_chapter}\n"
+
+
+def test_extractor_lands_in_sidecar(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _write_skill(tmp_path, "shenbi-test-extractor", EXTRACTOR_READS)
+    monkeypatch.setattr("shenbi.contracts.loader.SKILLS", tmp_path / "skills")
+    c = load_contract("shenbi-test-extractor")
+    assert all(isinstance(r, str) for r in c["reads"])
+    assert c["read_extractors"] == {"outline/volume_map.md": "volume_chapter"}
+    assert c["read_fields"] == {}
+
+
+def test_unknown_extractor_name_fails_loud(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write_skill(
+        tmp_path,
+        "shenbi-test-bad-extractor",
+        "    - {file: outline/volume_map.md, extractor: volume_chapters}\n",  # typo
+    )
+    monkeypatch.setattr("shenbi.contracts.loader.SKILLS", tmp_path / "skills")
+    with pytest.raises(ContractError, match="extractor"):
+        load_contract("shenbi-test-bad-extractor")
+
+
+def test_fields_and_extractor_mutex(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write_skill(
+        tmp_path,
+        "shenbi-test-bad-mutex",
+        "    - {file: outline/volume_map.md, fields: [汇总], extractor: volume_chapter}\n",
+    )
+    monkeypatch.setattr("shenbi.contracts.loader.SKILLS", tmp_path / "skills")
     with pytest.raises(ContractError, match="mutually exclusive"):
         load_contract("shenbi-test-bad-mutex")
 ```
 
-For the two error-path tests, create throwaway fixture skills in `tests/fixtures/contracts/bad-extractor/SKILL.md` and `bad-mutex/SKILL.md` (test setup copies them into a temp skills dir — follow the existing loader test pattern in `tests/unit/contracts/` for how invalid-contract skills are staged; if that pattern writes temp SKILL.md files directly, use it verbatim). The bad-extractor contract declares `- file: outline/volume_map.md\n  extractor: volume_chapters` (typo'd name); bad-mutex declares both `fields: [汇总]` and `extractor: volume_chapter`.
-
-NOTE: `load_contract` resolves via `_skill_path` under the repo `skills/` dir — check how existing loader error tests stage such skills (e.g. `tests/unit/contracts/test_loader.py` invalid-contract cases) and reuse that staging mechanism exactly. If no staging mechanism exists (tests only use real skills), write the two error cases against `_validate` directly with a raw contract dict + a real registry — `_validate({"kind": "artifact", "reads": [{"file": "outline/volume_map.md", "extractor": "nope"}], "writes": [], "updates": []}, skill="x", registry=load_registry())`.
+(The real chapter-planning `extractor:` declaration lands in T4 — T3's green state is fully self-contained via staged skills, no dependency on T4's SKILL.md edit.)
 
 - [ ] **Step 2: Run to verify red**
 
-Run: `uv run pytest tests/unit/contracts/test_loader_extractors.py -v`
+Run: `uv run pytest tests/unit/contract/test_loader_extractors.py -v`
 Expected: FAIL (`read_extractors` KeyError — sidecar doesn't exist yet).
 
 - [ ] **Step 3: Implement the sidecar**
@@ -462,13 +524,13 @@ Also add `read_extractors` to any exhaustive Contract constructions in loader.py
 
 - [ ] **Step 4: Verify green + regression**
 
-Run: `uv run pytest tests/unit/contracts/ -v && uv run pytest tests/ -x -q 2>&1 | tail -3`
+Run: `uv run pytest tests/unit/contract/test_loader_extractors.py -v && uv run pytest tests/ -x -q 2>&1 | tail -3`
 Expected: all pass (no existing skill declares extractor yet — pure additive).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/shenbi/contracts/loader.py tests/unit/contracts/test_loader_extractors.py
+git add src/shenbi/contracts/loader.py tests/unit/contract/test_loader_extractors.py
 git commit -m "feat(spec65): loader read_extractors sidecar — closed registry + fields/extractor mutex (§4.2)"
 ```
 
@@ -492,9 +554,11 @@ Append to `tests/unit/pipeline/test_dispatch_layerb_live.py`:
 
 ```python
 def test_volume_extractor_happy_path(project_tree: Path) -> None:
-    full = len(
-        (project_tree / "outline" / "volume_map.md").read_text(encoding="utf-8").encode("utf-8")
-    )
+    from shenbi.cost.estimate import estimate_prompt_tokens
+
+    vm_text = (project_tree / "outline" / "volume_map.md").read_text(encoding="utf-8")
+    full = len(vm_text.encode("utf-8"))
+    assert full > 26_000
     _, user_prompt, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
@@ -502,12 +566,18 @@ def test_volume_extractor_happy_path(project_tree: Path) -> None:
     # distinctive volume TITLES (not 第N卷 numerals — bridge rows mention those).
     assert "铁与火" in user_prompt      # current volume 2 title survived
     assert "觉醒之火" not in user_prompt  # volume 1 title filtered away
-    kept = len(user_prompt.encode("utf-8"))
-    assert full > 26_000 and kept < full  # massive reduction happened
+    # Spec §4.4/§7 byte metric: volume_map contribution must drop to the
+    # ~500B-2KB band. Isolate by no-volume_map baseline subtraction.
+    (project_tree / "outline" / "volume_map.md").unlink()
+    _, baseline, _ = _build_skill_prompt(
+        "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
+    )
+    contribution = len(user_prompt.encode("utf-8")) - len(baseline.encode("utf-8"))
+    assert 300 < contribution <= 2_048  # spec target band (500B-2KB, CJK-tolerant floor)
+    assert estimate_prompt_tokens(user_prompt) < estimate_prompt_tokens(baseline + vm_text)
 
 
 def test_volume_extractor_chapter_none_fulltext(project_tree: Path) -> None:
-    vm = (project_tree / "outline" / "volume_map.md").read_text(encoding="utf-8")
     _, user_prompt, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "no chapter", chapter=None
     )
@@ -515,15 +585,25 @@ def test_volume_extractor_chapter_none_fulltext(project_tree: Path) -> None:
 
 
 def test_volume_extractor_failure_fulltext_and_warn(
-    project_tree: Path, capture_warns: list[str]
+    project_tree: Path, warn_spy: dict[str, list[str]]
 ) -> None:
     # Existing file, unresolvable chapter -> full text + named WARN (no silent drop)
     _, user_prompt, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch9999", chapter=9999
     )
     assert "第一卷" in user_prompt  # full-text fallback
-    assert "extractor_failed_fulltext" in " ".join(capture_warns)
+    assert "extractor_failed_fulltext" in warn_spy["dispatch"]
+
+
+def test_real_chapter_planning_contract_has_extractor() -> None:
+    # T3's sidecar wired to the REAL skill contract (lands with Step 5 below)
+    from shenbi.contracts.loader import load_contract
+
+    c = load_contract("shenbi-chapter-planning")
+    assert c["read_extractors"]["outline/volume_map.md"] == "volume_chapter"
 ```
+
+NOTE (accepted redundancy): `load_volume_context` re-reads volume_map.md from disk (once inside itself, once inside `_resolve_volume_at_runtime` via `read_volume_boundaries`) on top of the loop's own read — three reads per dispatch. Idempotent, read-only, µs-scale on an OS page cache; accepted now, a text-parameter refactor is a future optimization (spec-deviations note).
 
 - [ ] **Step 2: Run to verify red**
 
@@ -532,13 +612,13 @@ Expected: happy-path FAIL (full text — no extractor branch yet); failure-WARN 
 
 - [ ] **Step 3: Move `_load_volume_context` to `_shared.py` (pure move)**
 
-All of the function's dependencies (`_resolve_volume_at_runtime`, `read_chapter_node`, `read_bridges`, `bridges_for_chapter` at _shared.py:261) ALREADY live in `_shared.py`; every regex it uses is function-local. Cut `_load_volume_context` (context_assemble.py:207-262) and paste into `_shared.py` as public `load_volume_context` (docstring unchanged; add "spec #65 §4: dispatcher extractor face"). In context_assemble.py, it already imports `bridges_for_chapter` from `_shared` (:28) — replace the removed definition with:
+All of the function's dependencies (`_resolve_volume_at_runtime`, `read_chapter_node`, `read_bridges`, `bridges_for_chapter` at _shared.py:261) ALREADY live in `_shared.py`; every regex it uses is function-local. Cut `_load_volume_context` (context_assemble.py:207-262) and paste into `_shared.py` as public `load_volume_context` (docstring unchanged; add "spec #65 §4: dispatcher extractor face"). **Add `load_volume_context` to `_shared.__all__`** (:22-37, the module maintains it explicitly). In context_assemble.py, replace BOTH the removed definition AND the now-dead 4-name `_shared` import block (:27-30 imports `_resolve_volume_at_runtime`, `bridges_for_chapter`, `read_bridges`, `read_chapter_node` — used ONLY inside the removed function; leaving them = ruff F401 = `just check` red) with:
 
 ```python
 from shenbi.pipeline._shared import load_volume_context as _load_volume_context
 ```
 
-(merge into the existing `_shared` import block; all existing tests importing `_load_volume_context` from context_assemble keep working untouched — verified: tests/unit/pipeline/test_context_assemble.py:20 and tests/pipeline/test_cn_extract.py:75/96 import it from context_assemble.)
+(verify with `grep -n "_resolve_volume_at_runtime\|bridges_for_chapter\|read_bridges\|read_chapter_node" src/shenbi/pipeline/context_assemble.py` — zero remaining uses expected. All existing tests importing `_load_volume_context` from context_assemble keep working untouched — verified: tests/unit/pipeline/test_context_assemble.py:20 and tests/pipeline/test_cn_extract.py:75/96 import it from context_assemble; `context_assemble.__all__` (:402) stays valid via the alias.)
 
 - [ ] **Step 4: Wire the dispatcher extractor branch**
 
@@ -586,10 +666,12 @@ uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -v
 uv run pytest tests/pipeline/test_cn_extract.py tests/unit/pipeline/test_context_assemble.py -v  # moved-function parity
 uv run python scripts/lint_contract_fields.py && echo LINT_OK
 just generate && git diff --exit-code && echo GEN_DIFF_EMPTY
-just gate G4 shenbi-chapter-planning tests/fixtures/volume-map-xinghuo.md
+uv run shenbi-validate G4 shenbi-chapter-planning "$(pwd)/tests/fixtures/chapter-plan-example.md"
 just check
 ```
 Expected: all green; G4 PASS; GEN_DIFF_EMPTY; just check EXIT=0.
+
+(G4 input is a REAL chapter-plan product — `tests/fixtures/chapter-plan-example.md` — because `g4_chapter_planning` checks 8 numbered `## N.` sections + a `chapter_role` token; feeding it a volume map is a category error. Absolute path required: `resolve_input_path` raises on relative paths without a round_dir. No `python -m shenbi` form — package has no `__main__.py`.)
 
 - [ ] **Step 7: Commit**
 
