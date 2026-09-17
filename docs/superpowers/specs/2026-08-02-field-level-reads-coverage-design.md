@@ -123,13 +123,13 @@ chapter-N.md 正文是连续 prose，无 `## ` section。其 drafting 主链浪�
   extractor: volume_chapter
 ```
 
-dispatcher 按 extractor 名调提取函数（volume_chapter → `_shared` 族的按章卷上下文形态）。**提取实现统一到 `_shared` 族**（与 context_assemble 同源、已有测试），不复活 `_extract_volume_chapter`（审计侧死代码，见 §2.1）。组合函数的家（下沉 `_shared.py` 新函数 vs 从 dispatcher 调 `context_assemble` 的现成形态）由 plan 阶段定——倾向下沉 `_shared`（leaf 模块章程），避免 dispatcher 反向 import context_assemble。触面（驳斥 B7 核实清单）：`contracts/loader.py` `_normalize_read_item`（:72-87，今日静默丢弃未知键——须让 `extractor:` 进旁路，如 `read_extractors`，与 `read_fields` 同模式）+ `_validate`（:204-239）+ dispatch read 循环 + `scripts/lint_contract_fields.py`（:53-86，识别「有 extractor 无 fields」合法形态）+ Contract TypedDict（:52）。**G4 不在触面**（gates/g4 零 reads 校验）；`sync_contracts`/`lint_contract_prose` 消费归一化 string 不受影响（前提：loader 保持归一化）。
+dispatcher 按 extractor 名调提取函数（volume_chapter → `_shared` 族的按章卷上下文形态）。**提取实现统一到 `_shared` 族**（与 context_assemble 同源、已有测试），不复活 `_extract_volume_chapter`（审计侧死代码，见 §2.1）。组合函数的家（下沉 `_shared.py` 新函数 vs 从 dispatcher 调 `context_assemble` 的现成形态）由 plan 阶段定——倾向下沉 `_shared`（leaf 模块章程），避免 dispatcher 反向 import context_assemble。触面（驳斥 B7 核实清单）：`contracts/loader.py` `_normalize_read_item`（:72-87，今日静默丢弃未知键——须让 `extractor:` 进旁路，如 `read_extractors`，与 `read_fields` 同模式）+ `_validate`（:204-239）+ dispatch read 循环 + `scripts/lint_contract_fields.py`（:53-86——**可能零代码改动**：`_check_read_item` 对 falsy fields 已早退，extractor-only 条目自然通过；plan 验证而非预算改动）+ Contract TypedDict（:52）。**G4 不在触面**（gates/g4 零 reads 校验）；`sync_contracts`/`lint_contract_prose` 消费归一化 string 不受影响（前提：loader 保持归一化）。
 
-**失败语义（新增，防新死线）**：`extractor:` 的逃逸门与 `fields:` 对齐——提取失败（文件缺失/解析不出卷边界/chapter 超界）→ **全文兜底 + 命名 WARN**（如 `extractor_failed_fulltext`），禁止静默空串替换（`_load_volume_context` 在 context_assemble 家里返回 `""` 是良性的——那里有其他 route 补位；dispatcher read 槽位没有，静默空串 = 丢全部卷上下文的新死线）。**`fields` 与 `extractor` 同条目互斥**（loader 对两者并存抛 `ContractError`——语义冲突，无合理并存）。**extractor 名 fail-loud**：closed registry（首个成员 `volume_chapter`），未知名在 `load_contract` 即抛 `ContractError`（对齐 `contract.kind` 校验形态 loader.py:194-202）——否则拼错名静默降级全文，永无信号。
+**失败语义（新增，防新死线）**：`extractor:` 的逃逸门与 `fields:` 对齐——**提取失败（文件存在但解析不出卷边界/chapter 超界/提取结果为空）→ 全文兜底 + 命名 WARN**（如 `extractor_failed_fulltext`），禁止静默空串替换（`_load_volume_context` 在 context_assemble 家里返回 `""` 是良性的——那里有其他 route 补位；dispatcher read 槽位没有，静默空串 = 丢全部卷上下文的新死线）。**文件缺失是另一分支非本 spec 面**：字面 read 文件缺失今日即被 `_resolve_read_with_fallback`（:476-489）解析为空列表静默跳过槽位——保持既有行为，不并入提取失败。**`fields` 与 `extractor` 同条目互斥**（loader 对两者并存抛 `ContractError`——语义冲突，无合理并存）。**extractor 名 fail-loud**：closed registry（首个成员 `volume_chapter`），未知名在 `load_contract` 即抛 `ContractError`（对齐 `contract.kind` 校验形态 loader.py:194-202）——否则拼错名静默降级全文，永无信号。
 
 ### 4.3 范围与兜底（修订）
 
-- 实施范围：**chapter-planning**（主链 step 2，每章一次 ~26.3KB → ~500B-2KB）。genesis 5 读者保留全文兜底（chapter=None → 不提取，全文发送；`resolve_chapter_path` 对无占位符路径原样放行，genesis.py:276 chapter=None 是既成语义）。
+- 实施范围：**chapter-planning**（主链 step 2，每章一次 ~26.3KB → ~500B-2KB）。genesis 5 读者是 string 读、不经 extractor（无兜底问题，保持全文）。`chapter=None` 分支保护的是**无章号的手动/CLI dispatch**（如用户对 planning 无章号调用）——不提取，全文发送（`resolve_chapter_path` 对无占位符路径原样放行，genesis.py:276 chapter=None 是既成语义）。
 - volume_map 其余 string 读者本 spec 不动（字面活读者 = 10 − chapter-planning − deprecated foreshadowing-plant = 8 个：foreshadowing-lifecycle/pacing-design/plot-thread-weaver/review-arc-payoff/score-volume/sequel-writing/volume-outlining/book-spine-init）——单 spec 原子性，扩面待 chapter-planning 效果验证后另行处置。
 
 ### 4.4 验证（离线化修订）
@@ -161,9 +161,11 @@ dispatcher 按 extractor 名调提取函数（volume_chapter → `_shared` 族�
 
 | finding | 修复 | 风险 | 验证 |
 |---------|------|------|------|
-| §3.0 dispatch 死线 | read 循环改查 `read_fields` 旁路 | 中（机制层，触全部 dict-form reads 的行为——从 no-op 变生效；36 条既有 dict 声明将首次真实过滤，须全量回归 + 逃逸门零 WARN 核查） | 行为断言 + 全量回归 + 零 WARN |
+| §3.0 dispatch 死线 | read 循环改查 `read_fields` 旁路 | 中（机制层，触全部 dict-form reads 的行为——从 no-op 变生效；36 条既有 dict 声明将首次真实过滤，须全量回归 + 零 WARN 核查（scope 见下）） | 行为断言 + 全量回归 + 零 WARN（scoped） |
 | §3 power_system fields | review-group-factual 声明 fields（模板 8 个内） | 低（field 不匹配有 WARN 逃逸门 + 全文兜底） | 零 WARN + G4 PASS + 离线字节下降 |
 | §4 volume_map extractor | `extractor:` 契约字段接 `_shared` 族（chapter-planning） | 中（契约 schema 扩展：loader 旁路 + 互斥/fail-loud 校验 + lint 识别；提取器复用已测实现） | 三分支断言（happy + 两兜底） + G4 PASS + 离线字节下降 |
+
+**§3.0 零 WARN 断言语料 scope**：shenbi-native 谱系（genesis 模板按声明并集播种 header，`_collect_declared_truth_fields` → `_init_truth_templates`）+ `tests/fixtures/` 树。**已知 at-risk 集（plan 阶段必须枚举核对全部 36 条声明）**：`truth/current_state.md` 家族——chapter-planning 与 review-continuity 声明 `[系统演化阶段, 参数当前位置, 进行中的情节线]`，与 chapter-025 生产快照（`主角状态/当前世界局势/活跃线索`，零交集）不符、与 truth-current_state.md 仅 1/3 命中、与 xinghuo 样本 3/3 命中——历史 lineage 树上死线修复后会触发逃逸门（全文兜底是正确行为，不算缺陷，铁律 2 谱系 scope 同理）；其余 34 条声明经 lint any-match 复核全样本命中。**契约改动再生成面**：改 2 个 SKILL.md frontmatter 后跑 `just generate` 验证 deps.json/docs 生成物 diff 空（归一化 string 不变，预期零 diff；三源纪律 checklist 项）。
 
 ### 6.2 显式不做
 
@@ -182,10 +184,10 @@ dispatcher 按 extractor 名调提取函数（volume_chapter → `_shared` 族�
 | dispatch 循环字段过滤 | 死线（§1.5） | 行为生效 | `_build_skill_prompt` 直调断言（fixtures 树） |
 | power_system.md 发送体积（review-group-factual） | ~28.8KB 全文 | 15.5KB（4-field 子集实测 54%；子集终值 plan 定稿后联动重算） | 直调字节 + estimate_prompt_tokens |
 | volume_map.md 发送体积（chapter-planning） | ~26.3KB 全文 | ~500B-2KB（当前卷节点） | 直调字节 |
-| `field_filter_missing_fields` WARN（声明 field 全匹配） | 未测（死线下恒零事件——假绿） | 0（修复后真实过滤下仍零） | 直调 + structlog 捕获断言 |
-| `extractor_failed_fulltext` WARN | 机制不存在 | 仅在提取失败用例中出现（happy path 零） | 双兜底分支行为断言（§4.4） |
+| `field_filter_missing_fields` WARN | 未测（死线下恒零事件——假绿） | 0（修复后真实过滤下仍零；**scope = shenbi-native 谱系 + fixtures 树**，历史 lineage 的 current_state 家族除外——§6.1 at-risk 集，全文兜底为正确行为） | 直调 + structlog 捕获断言 |
+| `extractor_failed_fulltext` WARN | 机制不存在 | 仅在提取失败用例中出现（happy path 零；文件缺失走既有静默跳过分支，§4.2） | 双兜底分支行为断言（§4.4） |
 | G4（review-group-factual / chapter-planning） | PASS | PASS（契约面无副作用；非充分性证据） | `just gate G4` |
-| 全量回归 | 4470 passed 基线 | 全绿（死线修复后 36 条既有 dict 声明首次生效） | `just check` |
+| 全量回归 | 4470 passed 基线（执行时以当期 `just check` 重基线） | 全绿（死线修复后 36 条既有 dict 声明首次生效） | `just check` |
 
 （原表「TokenLedger prompt_tokens 下降」改离线直调口径——真实 dispatch 违反核心原则 8；原「`>5KB reads` 字段级覆盖率 ≥30%」删除——生产树已出库、口径无定义语料不可算，且声明覆盖率在死线下是虚荣指标。）
 
@@ -194,7 +196,7 @@ dispatcher 按 extractor 名调提取函数（volume_chapter → `_shared` 族�
 ## 8. 铁律（修订）
 
 1. **字段名必须落证安全集。** fields 声明限制在生产者模板 8 个 header 内（power-system SKILL.md:120-185 硬编码）；落证 = 模板 ∩ git 历史真实文件（`git show d120a444^:novel-output/xinghuo-ranqiong/world/power_system.md`）∩ 消费方 body 需求三方对比。不可从 skill body 概念名直接当 header 键（body 是依据不是字节键；「与世界观核心主题的关系」类无背书 header 不入集）。
-2. **逃逸门 WARN 即缺陷（事件名更正；谱系 scope）。** `filter_to_fields` field 不匹配返回全文 + `field_filter_missing_fields` WARN——实施后离线断言零该事件。**死线修复前「零 WARN」是假绿**（过滤不发生当然无事件）——§3.0 必须先行并单独验收。**scope**：本铁律以 power-system 谱系（genesis 生产路径）为基准；导入路径（world-extraction 反向提取，其模板维度名 等级名/进阶条件/能力边界/顶端/代价 与 power-system 8 header 不同名）生产的 power_system.md 不在 fields 声明适用面——导入项目显式 out of scope（其声明 miss → 逃逸门全文兜底是正确行为，不算缺陷）。
+2. **逃逸门 WARN 即缺陷（事件名更正；谱系 scope）。** `filter_to_fields` field 不匹配返回全文 + `field_filter_missing_fields` WARN——实施后离线断言零该事件（scope = shenbi-native 谱系 + fixtures 树，§6.1）。**死线修复前「零 WARN」是假绿**（过滤不发生当然无事件）——§3.0 必须先行并单独验收。**谱系豁免**：genesis 模板按声明并集播种 header，shenbi-native 项目声明天然匹配；**导入路径（world-extraction）与历史 lineage（如 chapter-025 快照形态的 current_state）不在 fields 声明适用面**——其 miss → 逃逸门全文兜底是正确行为，不算缺陷。
 3. **volume_map 不用 fields 用 extractor，提取器统一 `_shared` 族。** 动态 header 文件不可假装能字段过滤；提取实现与 context_assemble 同源（已测），不复活审计侧死代码。
 4. **新机制必须有逃逸门 + fail-loud（防新死线）。** `extractor:` 失败 → 全文兜底 + 命名 WARN（禁静默空串）；未知名/与 fields 并存 → load 时 `ContractError`。本 spec 存在的意义是杀静默降级——新机制自身不得重蹈。
 
