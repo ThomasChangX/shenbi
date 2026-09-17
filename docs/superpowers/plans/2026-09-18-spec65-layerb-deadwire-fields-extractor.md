@@ -74,7 +74,7 @@ def estimate_prompt_tokens(text: str) -> int  # :49
 | §3.0 全量回归（36 dict 声明首次生效） | T1 | `just check` EXIT=0 |
 | §3.0 零 WARN（scoped：shenbi-native + fixtures） | T1/T2 | structlog capture asserts in both test files |
 | §3 power_system fields 声明 + lint 样本接线 | T2 | `uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -k power_system -v`; `uv run python scripts/lint_contract_fields.py` exit 0 |
-| §3 字节度量（28,808B → 15,500B on 历史真实文件拷贝） | T2 | measurement test asserts kept-bytes < full-bytes and ratio band |
+| §3 字节度量（合成 fixture 58,113B → 27,807B kept（4-field, 47.8%）；spec §7 的 15,500B 为历史真实文件口径，测试用合成 fixture 同断言形态） | T2 | measurement test asserts ratio band via baseline subtraction |
 | §3 G4 契约面无副作用 | T2 | `uv run shenbi-validate G4 shenbi-review-group-factual "$(pwd)/tests/fixtures/world-power-system-example.md"` |
 | §4 loader extractor 旁路 + closed registry + 互斥 | T3 | `uv run pytest tests/unit/contracts/test_loader_extractors.py -v` |
 | §4 dispatcher 三分支（happy/None/失败） | T4 | `uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -k volume -v` |
@@ -415,10 +415,12 @@ def _write_skill(root: Path, name: str, reads_yaml: str) -> None:
     d = skills / name
     d.mkdir(parents=True, exist_ok=True)
     (d / "SKILL.md").write_text(
-        f"name: {name}\ncontract:\n  kind: report\n  reads:\n{reads_yaml}"
-        "\n  writes: [audits/chapter-N-x.md]\n  updates: []\n",
+        f"---\nname: {name}\ncontract:\n  kind: report\n  reads:\n{reads_yaml}"
+        "\n  writes: [audits/chapter-N-x.md]\n  updates: []\n---\n# body\n",
         encoding="utf-8",
-    )
+    )  # --- delimiters REQUIRED (loader.read_frontmatter_contract rejects text
+        # not starting with '---'; without them the mutex test false-passes
+        # because ShenbiError.__str__ renders the skill-name kwarg)
 
 
 EXTRACTOR_READS = "    - {file: outline/volume_map.md, extractor: volume_chapter}\n"
@@ -553,7 +555,9 @@ git commit -m "feat(spec65): loader read_extractors sidecar — closed registry 
 Append to `tests/unit/pipeline/test_dispatch_layerb_live.py`:
 
 ```python
-def test_volume_extractor_happy_path(project_tree: Path) -> None:
+def test_volume_extractor_happy_path(
+    project_tree: Path, warn_spy: dict[str, list[str]]
+) -> None:
     from shenbi.cost.estimate import estimate_prompt_tokens
 
     vm_text = (project_tree / "outline" / "volume_map.md").read_text(encoding="utf-8")
@@ -566,6 +570,9 @@ def test_volume_extractor_happy_path(project_tree: Path) -> None:
     # distinctive volume TITLES (not 第N卷 numerals — bridge rows mention those).
     assert "铁与火" in user_prompt      # current volume 2 title survived
     assert "觉醒之火" not in user_prompt  # volume 1 title filtered away
+    # Spec §7: extractor_failed_fulltext appears ONLY in the failure case —
+    # the happy path must be WARN-free.
+    assert "extractor_failed_fulltext" not in warn_spy["dispatch"]
     # Spec §4.4/§7 byte metric: volume_map contribution must drop to the
     # ~500B-2KB band. Isolate by no-volume_map baseline subtraction.
     (project_tree / "outline" / "volume_map.md").unlink()
