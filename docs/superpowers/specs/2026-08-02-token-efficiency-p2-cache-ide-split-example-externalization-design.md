@@ -174,8 +174,8 @@ skill 作者把"教学示例"和"每次执行的指令"混在同一文件；没�
 |---|---|---|---|---|---|
 | review-resonance | （诚实分解后 408-521 B：维度行填充值 :131-134 + 门判定示例 :139-140 ± 结果行 :126——其中 :126 的三合法结果枚举属结构非教学值） | 六列表头 :129（g4 `_DETAIL_COLS`）+ 列名注记 :136 + verdict 围栏规范 :142-149（`match_verdict_scoped`）+ `calibration:`/`anchors:` 块 :155-162（spec #33 T1b 框架消费）+ `### 共鸣短板` append-only 写语义 :151-153（drift-guidance 依赖）+ trend 追加块 :167-176（drift CLI 契约，含 :175 填充行）+ 声明行 :121 + 记录语义 :178 | **净省 262-375 B**（408-521 B − 146B 引用行） | 每章 1 次（CHAPTER_STEPS） | **预裁 SKIP（轮 6 C1 终裁，阈值口径）**——净省 <500B；与 arc-payoff 同阈值口径（state-settling 为定性裁决，见其行） |
 | review-arc-payoff | （填充值实测 523 B） | 示例块 :121-159 整体为 checker 锚定结构（`_DETAIL_COLS`、5 维度行、门判定/子底线）；R2 声明行 :118-119 | **净省 377 B**（523−146） | 每卷/弧 1 次（closure.py:88 / triggers.py:245；audit_layer:109 章触发已禁用） | **预裁 SKIP**（轮 4 C2，阈值口径） |
-| chapter-pattern | 熵公式段 + 逐步算例 :296-332（887 B） | 13×13 矩阵（输出模板内）+ 熵评级阈值 :334 + 输入文档化要求 :344+（helper_injection 已代算熵值，公式段属教学） | **净省 ~741 B**（887B − 146B 引用行） | 每 6 章 1 次（audit_layer:111）+ closure | 实施 |
-| pacing-design | 三线比例 + 场景类型完整节 :84-110（869 B） | EXACT 节标题输出模板（:122 起）+ `### 4. 单调性检测阈值`（:111-121 运行时检测指令） | **净省 ~723 B**（869B − 146B 引用行） | 创世 1 次/项目（genesis.py:67）+ 手动 re-dispatch（triggers.py 无自动触发） | 实施 |
+| chapter-pattern | 熵公式段 + 逐步算例 :296-332（887 B） | 13×13 矩阵（输出模板内）+ 熵评级阈值 :334 + 输入文档化要求 :344+（helper_injection 已代算熵值，公式段属教学） | **验收下限：净降 ≥450 字符且 est ≥140**（plan 审查实测：锚块含必需 H2 标题 198B，净 ~689B/523 字符/est 159——原 741B 系不含标题的 146B 引用行预算，轮 8 后随 plan 修订） | 每 6 章 1 次（audit_layer:111）+ closure | 实施 |
+| pacing-design | 三线比例 + 场景类型完整节 :84-110（869 B） | EXACT 节标题输出模板（:122 起）+ `### 4. 单调性检测阈值`（:111-121 运行时检测指令） | **验收下限：净降 ≥280 字符且 est ≥130**（plan 审查实测：锚块含必需 H3 标题 237B，净 ~632B/370 字符/est 146——原 723B 系不含标题的 146B 引用行预算，轮 8 后随 plan 修订） | 创世 1 次/项目（genesis.py:67）+ 手动 re-dispatch（triggers.py 无自动触发） | 实施 |
 | state-settling | （交叉验证示例行 :241-246 实测 734 B；门禁模板 :177-226 本身全是占位符骨架） | :231-232 明示"必须输出跨文件交叉验证表"——输出契约；门禁骨架 :172-226 同为输出物 | 净省 588 B（734−146）——**超阈值** | 每章 1 次（CHAPTER_STEPS） | **SKIP（定性裁决）**——非阈值口径：动无 G4 安全网的输出契约展示模板，588B 边际收益不值格式漂移静默风险（轮 7 修正口径） |
 
 **口径（轮 6 终裁）**：收益按 **per-dispatch 净省**计（扣 146B 强制引用行）。**实施集终版 2 skill（chapter-pattern/pacing）行和 ~1.46 KB**（一次性口径）；稳态每章净省 ≈ chapter-pattern/6 ≈ **~0.12 KB/章**，pacing 按项目一次性贡献。**resonance/arc-payoff 预裁 SKIP（阈值口径：净省 262-375B / 523B−146B=377B 均 <500B）；state-settling SKIP（定性裁决：净省 588B 超阈值，但动无 G4 安全网的输出契约模板，588B 边际收益不值格式漂移风险）**——五文件的重段主体是 checker/机器/输出契约结构，可外置的教学填充值占比极小；这是 finding 3.10 前提的部分驳斥：重 ≠ 可外置。**净省 <500B 的 skill 一律跳过，无豁免**。IDE 路径（无 provider cache，字节全价）下上述节省全额兑现。诚实结论：T_C 的残余价值为边际（一次性 ~1.5KB + 稳态 ~0.12KB/章），本 pass 的主要交付是 T_A（字节稳定回归测试）+ T_D（IDE system/user 分离，plan 阶段 CLI 验证）+ 本节完整分解证据；T_C 两个边际 skill 的实施以"净省 ≥500B 规则内达标"为据，逐 skill 可独立回滚。
@@ -215,7 +215,7 @@ skill 作者把"教学示例"和"每次执行的指令"混在同一文件；没�
 
 | 标准 | tier | 方式 | 当前 | 目标 |
 |---|---|---|---|---|
-| 参与瘦身的各 skill system prompt 字节净降 | T1 | 离线：测试内构建 `_build_skill_prompt` 直接量 | 见 §3.5 表实测段字节 | **≥ §3.5 各行净省估计下限**；低于下限的 skill 按规则跳过并记录 |
+| 参与瘦身的各 skill system prompt 净降 | T1 | 离线：测试内构建 `_build_skill_prompt`，字符数 + estimate_prompt_tokens 双口径（字节换算记录进验收证据） | 见 §3.5 表 | **≥ §3.5 各行验收下限（chapter-pattern ≥450 字符且 est ≥140；pacing ≥280 字符且 est ≥130）**；低于下限的 skill 按规则跳过并记录 |
 | system prompt 的 estimate_prompt_tokens 差 | T1 | 离线纯函数（`src/shenbi/cost/estimate.py:49`） | baseline 同上 | 下降，数值进验收证据 |
 | `just check` 全量（含 contract-prose R1+R2 / registry-reconcile R1） | T1 | just | PASS | PASS（自有目录方案零豁免零测试改动 + 裸文件名引用 + 不变量保全） |
 | 外置文件引用存在性 | T1 | 由 contract-prose R1 skill-bundle 分支机械保障 | n/a | 每个新建外置文件在对应 skill body 有裸文件名引用 |

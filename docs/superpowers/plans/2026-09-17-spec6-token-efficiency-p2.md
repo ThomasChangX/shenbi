@@ -4,14 +4,14 @@
 
 **Goal:** 落地 spec #6 阶段 3 终裁范围——T_A system prompt 字节稳定回归测试 + T_C 两个 skill（chapter-pattern / pacing-design）教学段外置瘦身；T_B（缓存）与 T_D（IDE 分离强形态）已裁决不实施（T_D：codex CLI 无 `--system-prompt` flag，openai/codex#11588 仍为 open feature request，本机无真 CLI 可实测）。
 
-**Architecture:** 全部改动为「测试 + SKILL.md body 编辑 + 各 skill 目录内新增维护者参考文件」。零 `src/shenbi/` 生产代码改动（dispatcher 只注入 `SKILL.md`，同目录其他文件天然不注入——`anti-ai-reference.md`/`era-reference.md` 双先例）。外置文件以裸文件名在 body 引用（`lint_contract_prose.py:186` branch-b 的 `skills_root.glob(f"*/{base}")` 存在性检查构成 dead-link 机械防护）。验收全离线：测试内构建 `_build_skill_prompt` 量 system prompt 字符数 + `estimate_prompt_tokens` 估算 token。
+**Architecture:** 全部改动为「测试 + SKILL.md body 编辑 + 各 skill 目录内新增维护者参考文件」。零 `src/shenbi/` 生产代码改动（dispatcher 只注入 `SKILL.md`，同目录其他文件天然不注入——`anti-ai-reference.md`/`era-reference.md`/`truth-files-reference.md` 三先例）。外置文件以裸文件名在 body 引用（`lint_contract_prose.py:186` branch-b 的 `skills_root.glob(f"*/{base}")` 存在性检查构成 dead-link 机械防护）。验收全离线：测试内构建 `_build_skill_prompt` 量 system prompt 字符数 + `estimate_prompt_tokens` 估算 token。
 
 **Tech Stack:** pytest（tests/pipeline/ 层，T1）、`shenbi.pipeline.dispatch_helper._build_skill_prompt`、`shenbi.cost.estimate.estimate_prompt_tokens`、`just check`。
 
 ## Global Constraints
 
 - **环境**：本机 `/usr/bin/git` 被 Xcode license 拦截——git 一律用 `/Library/Developer/CommandLineTools/usr/bin/git`，命令前缀 `PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH`；测试走 `uv run pytest`（与 CI `uv run --frozen` 同构）。
-- **度量单位**：测试断言用**字符数**（`len()`，与 `_build_skill_prompt` 产出一致）与 `estimate_prompt_tokens`；spec §3.5 的 887B/869B 是**字节**口径（UTF-8），两套单位不可混用——验收证据里同时记录。
+- **度量单位**：测试断言用**字符数**（`len()`，与 `_build_skill_prompt` 产出一致）与 `estimate_prompt_tokens`；字节换算记录进验收证据。spec §3.5 的原 741B/723B 净省估算按 146B 引用行预算（不含必需的 H2/H3 标题锚）——plan 审查实测锚块 198B/237B，spec 下限已随 plan 修订为字符/est 双口径（≥450/≥140 与 ≥280/≥130）。
 - **Pre-slim 基线常量**（2026-09-17 于 branch f64d13c5 实测，已固化进测试）：chapter-pattern system prompt = 7,629 字符 / 2,681 估算 token；pacing-design = 6,829 字符 / 2,511 估算 token。
 - **不可触碰不变量**（spec §3.7）：DOT flowchart、`## Anti-Rationalization` 表、frontmatter 契约、输出契约段（chapter-pattern 的 13×13 矩阵 / `### 熵评级阈值` / `### 熵计算公式输入文档化要求`；pacing 的 `## 输出格式` EXACT 模板与 `### 单调性检测阈值`）。
 - **引用行**：裸文件名（禁斜杠路径）、诚实表述（禁"本章已提供"类伪陈述）。
@@ -45,7 +45,7 @@ from pathlib import Path
 
 import pytest
 
-from shenbi.pipeline.dispatch_helper import _build_skill_prompt, _strip_autogen_blocks
+from shenbi.pipeline.dispatch_helper import _build_skill_prompt
 
 STABILITY_SKILLS = (
     "shenbi-chapter-pattern",
@@ -60,22 +60,13 @@ def test_system_prompt_byte_stable_across_calls(tmp_path: Path, skill: str) -> N
     sys2, _, _ = _build_skill_prompt(skill, tmp_path, "prompt B", 2)
     assert sys1 == sys2
 
-
-def test_strip_autogen_blocks_deterministic() -> None:
-    text = (
-        "# Skill\n\n"
-        "<!-- AUTO-GENERATED from frontmatter — do not edit -->\n"
-        "## 数据契约\nX\n<!-- END AUTO-GENERATED -->\n\n"
-        "<!-- AUTO-CHECK-START -->\nY\n<!-- AUTO-CHECK-END -->\n\n"
-        "Body\n"
-    )
-    assert _strip_autogen_blocks(text) == _strip_autogen_blocks(text)
 ```
+（strip 确定性由参数化字节稳定测试传递性覆盖，不设同义反复的单测——plan 审查 M3）
 
 - [ ] **Step 2: 跑测试确认通过**
 
 Run: `PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH uv run pytest tests/pipeline/test_dispatch_helper_system_stability.py -v`
-Expected: 4 passed（当前实现已字节稳定——本测试是固化护栏，非修 bug，故直接绿）
+Expected: 3 passed（当前实现已字节稳定——本测试是固化护栏，非修 bug，故直接绿）
 
 - [ ] **Step 3: just check 全量**
 
@@ -91,8 +82,7 @@ $G commit -m "test: spec6 T_A — system prompt byte-stability regression
 
 Fixes the implicit contract that consecutive _build_skill_prompt calls
 yield byte-identical system prompts (provider prompt-cache prefix
-stability on the API path). Covers three heavy skills plus direct
-_strip_autogen_blocks determinism."
+stability on the API path). Covers three heavy skills."
 ```
 
 ---
@@ -100,7 +90,7 @@ _strip_autogen_blocks determinism."
 ### Task 2: T_C-1 — chapter-pattern 熵教学段外置
 
 **Files:**
-- Modify: `skills/shenbi-chapter-pattern/SKILL.md:296-332`（删 `## 熵计算公式` 的公式+算例子段，换锚点节；`:333` 起的 `### 熵评级阈值` 与 `:344+` 文档化要求**不动**）
+- Modify: `skills/shenbi-chapter-pattern/SKILL.md:296-332`（删 `## 熵计算公式` 的公式+算例子段，换锚点节；`:334` 起的 `### 熵评级阈值` 与 `:344+` 文档化要求**逐字不动**——:333 为空行，保留锚点块与 `### 熵评级阈值` 之间恰好一个空行）
 - Create: `skills/shenbi-chapter-pattern/chapter-pattern-reference.md`（被移内容的 verbatim 归档 + 维护者注记头）
 - Create: `tests/pipeline/test_spec6_prompt_slimming.py`
 
@@ -139,10 +129,10 @@ def _system_prompt(skill: str, tmp_path: Path) -> str:
 def test_chapter_pattern_slimmed(tmp_path: Path) -> None:
     system = _system_prompt("shenbi-chapter-pattern", tmp_path)
 
-    # net char drop: removed segment 627 chars, added anchor+ref ~105
+    # net char drop: removed 627 chars, anchor block 104 chars (plan-review simulated)
     assert PRE_LEN_CHAPTER_PATTERN - len(system) >= 450
-    # estimated-token drop (CJK-heavy: ~0.7 token/char)
-    assert estimate_prompt_tokens(system) <= PRE_EST_CHAPTER_PATTERN - 150
+    # estimated-token drop (simulated 159, threshold with margin)
+    assert estimate_prompt_tokens(system) <= PRE_EST_CHAPTER_PATTERN - 140
 
     # externalized file exists + bare-filename reference line in body
     ref = SKILLS_DIR / "shenbi-chapter-pattern" / "chapter-pattern-reference.md"
@@ -217,9 +207,9 @@ H = -(0.3×log₂(0.3) + 0.2×log₂(0.2) + 0.2×log₂(0.2) + 0.1×log₂(0.1) 
 - [ ] **Step 4: 编辑 SKILL.md** —— 将 `:296-332`（从 `## 熵计算公式` 行到 `### 计算示例` 代码块收尾的 ```` ``` ```` 行，即 `### 熵评级阈值` 之前的全部内容）替换为：
 
 ````markdown
-## 熵计算（评级与输入文档化）
+## 熵计算
 
-完整香农熵公式与逐步算例见维护者参考 `chapter-pattern-reference.md`（本 skill 目录内，运行时不注入；熵计算结果由框架 Helper Precompute 代算，熵评级阈值与输入文档化要求见下两节）。
+香农熵公式与算例见维护者参考 `chapter-pattern-reference.md`（运行时不注入；计算由 Helper Precompute 代算，评级阈值与文档化要求见下）。
 ````
 
 `### 熵评级阈值` 起的全部后续内容**逐字不动**（`## 模式转移矩阵` 等更早内容也不动）。
@@ -229,23 +219,28 @@ H = -(0.3×log₂(0.3) + 0.2×log₂(0.2) + 0.2×log₂(0.2) + 0.1×log₂(0.1) 
 Run: `PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH uv run pytest tests/pipeline/test_spec6_prompt_slimming.py tests/pipeline/test_dispatch_helper_system_stability.py -v`
 Expected: all passed
 
-- [ ] **Step 6: just check 全量（contract-prose R1/R2 + registry R1 是本改动的实际防护面）**
+- [ ] **Step 6: 暂存后 just check 全量（contract-prose R1/R2 + registry R1 是实际防护面）**
 
-Run: `PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH just check`
+justfile 的幂等 diff 门（`git diff --exit-code -- ... skills/ ...`）比较工作树与索引——**必须先暂存**三个文件再跑 check，否则未暂存的 SKILL.md 编辑会让该门误红（plan 审查 I2）：
+
+```bash
+G=/Library/Developer/CommandLineTools/usr/bin/git
+$G add skills/shenbi-chapter-pattern/SKILL.md skills/shenbi-chapter-pattern/chapter-pattern-reference.md tests/pipeline/test_spec6_prompt_slimming.py
+PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH just check
+```
 Expected: EXIT=0
 
 - [ ] **Step 7: Commit**
 
 ```bash
 G=/Library/Developer/CommandLineTools/usr/bin/git
-$G add skills/shenbi-chapter-pattern/SKILL.md skills/shenbi-chapter-pattern/chapter-pattern-reference.md tests/pipeline/test_spec6_prompt_slimming.py
 $G commit -m "perf: spec6 T_C — externalize chapter-pattern entropy teaching block
 
 Move Shannon-entropy formula + worked example (627 chars) to maintainer
 reference chapter-pattern-reference.md (never injected at runtime,
 anti-ai-reference.md precedent); keep entropy rating thresholds and
 input-documentation requirements inline (runtime invariants). Net
-system-prompt drop asserted >=450 chars / >=150 est-tokens offline."
+system-prompt drop asserted >=450 chars / >=140 est-tokens offline."
 ```
 
 ---
@@ -253,7 +248,7 @@ system-prompt drop asserted >=450 chars / >=150 est-tokens offline."
 ### Task 3: T_C-2 — pacing-design 教学节外置
 
 **Files:**
-- Modify: `skills/shenbi-pacing-design/SKILL.md:84-110`（删 `### 2. 三线比例` 与 `### 3. 场景类型` 两教学节，换指针节；`### 4. 单调性检测阈值` 改号为 `### 3.`，内容逐字不动；`## 输出格式` 起全部不动）
+- Modify: `skills/shenbi-pacing-design/SKILL.md:84-110`（删 `### 2. 三线比例` 与 `### 3. 场景类型` 两教学节（含 :110 空行），换指针节，指针节与 `### 4.` 之间保留恰好一个空行；`### 4. 单调性检测阈值` 改号为 `### 3.`，内容逐字不动；`## 输出格式` 起全部不动）
 - Create: `skills/shenbi-pacing-design/pacing-design-reference.md`
 - Modify: `tests/pipeline/test_spec6_prompt_slimming.py`（追加 pacing 用例）
 
@@ -271,9 +266,10 @@ PRE_EST_PACING = 2511
 def test_pacing_design_slimmed(tmp_path: Path) -> None:
     system = _system_prompt("shenbi-pacing-design", tmp_path)
 
-    # net char drop: removed sections 481 chars, added pointer ~135
+    # net char drop: removed 481 chars, pointer block 111 chars (plan-review simulated)
     assert PRE_LEN_PACING - len(system) >= 280
-    assert estimate_prompt_tokens(system) <= PRE_EST_PACING - 100
+    # estimated-token drop (simulated 146, threshold with margin)
+    assert estimate_prompt_tokens(system) <= PRE_EST_PACING - 130
 
     ref = SKILLS_DIR / "shenbi-pacing-design" / "pacing-design-reference.md"
     assert ref.is_file()
@@ -338,7 +334,7 @@ Expected: `test_pacing_design_slimmed` FAIL（drop = 0），`test_chapter_patter
 ````markdown
 ### 2. 三线比例与场景类型
 
-完整定义、典型比例与场景类型标志见维护者参考 `pacing-design-reference.md`（本 skill 目录内，运行时不注入）；三线语义另见本文件硬规则第 2/3 条，输出骨架以内含 EXACT 模板为准。
+完整定义、典型比例与场景类型标志见维护者参考 `pacing-design-reference.md`（运行时不注入；三线/场景规则见本文件硬规则，输出骨架以内含 EXACT 模板为准）。
 ````
 
 并将紧随其后的 `### 4. 单调性检测阈值` 行改为 `### 3. 单调性检测阈值`（仅改号，正文逐字不动）。其余内容（`### 1. 四拍循环`、`## 输出格式` 起）**全部不动**。
@@ -348,23 +344,28 @@ Expected: `test_pacing_design_slimmed` FAIL（drop = 0），`test_chapter_patter
 Run: `PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH uv run pytest tests/pipeline/test_spec6_prompt_slimming.py tests/pipeline/test_dispatch_helper_system_stability.py -v`
 Expected: all passed
 
-- [ ] **Step 6: just check 全量**
+- [ ] **Step 6: 暂存后 just check 全量**
 
-Run: `PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH just check`
+（同 Task 2 Step 6 理由——先暂存再 check，避免幂等 diff 门误红）
+
+```bash
+G=/Library/Developer/CommandLineTools/usr/bin/git
+$G add skills/shenbi-pacing-design/SKILL.md skills/shenbi-pacing-design/pacing-design-reference.md tests/pipeline/test_spec6_prompt_slimming.py
+PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH just check
+```
 Expected: EXIT=0
 
 - [ ] **Step 7: Commit**
 
 ```bash
 G=/Library/Developer/CommandLineTools/usr/bin/git
-$G add skills/shenbi-pacing-design/SKILL.md skills/shenbi-pacing-design/pacing-design-reference.md tests/pipeline/test_spec6_prompt_slimming.py
 $G commit -m "perf: spec6 T_C — externalize pacing-design teaching sections
 
 Move three-line-ratio and scene-type teaching tables (481 chars) to
 maintainer reference pacing-design-reference.md (never injected; output
 template self-contained with EXACT skeleton + target ratio tables);
 renumber monotonicity threshold section. Net system-prompt drop
-asserted >=280 chars / >=100 est-tokens offline."
+asserted >=280 chars / >=130 est-tokens offline."
 ```
 
 ---
