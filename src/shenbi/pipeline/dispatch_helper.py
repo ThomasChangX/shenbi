@@ -664,7 +664,7 @@ def _build_skill_prompt(
     # but chapter is None (genesis mode) — such reads are skipped rather than
     # raising. With a chapter, resolve_chapter_path does a bounded N/NNN replace.
     raw_inputs: dict[str, str] = {}
-    reads: list[Any] = contract.get("reads", [])
+    reads: list[str] = contract.get("reads", [])
     # Layer B: loader normalizes dict-form reads into plain strings and
     # diverts fields to the read_fields sidecar (loader.py _validate). The
     # old isinstance(dict) branch never fired on post-load_contract reads

@@ -16,10 +16,12 @@ settings.load_profile(os.environ.get("HYPOTHESIS_PROFILE", "dev"))
 # Session-start default: route ALL framework logs to stderr. structlog's
 # library-default state is PrintLogger -> stdout with logger caching, so a
 # module-level lazy proxy that first fires before any configure_logging()
-# call binds to stdout permanently — polluting capsys-based stdout JSON
-# assertions in an order-sensitive way under pytest-randomly (observed as
-# the test_phase_runner.TestCmdPostSkill.test_blocks_when_g4_fails flake;
-# configuring here makes every proxy bind to the stderr factory instead).
+# call writes to stdout — until the first configure_logging() call, which
+# under a random order may never happen before the asserting test. That
+# pollutes capsys-based stdout JSON assertions order-sensitively under
+# pytest-randomly (observed as the test_phase_runner.TestCmdPostSkill
+# test_blocks_when_g4_fails flake; configuring here routes every proxy to
+# the stderr factory from session start).
 from shenbi.logging import configure_logging  # noqa: E402
 
 configure_logging()

@@ -63,7 +63,7 @@ def project_tree(tmp_path: Path) -> Path:
         "## 系统演化阶段\n\n中期。\n\n## 参数当前位置\n\n第3卷。\n\n## 进行中的情节线\n\n主线。\n",
         encoding="utf-8",
     )
-    (tmp_path / "outline" / "story_frame.md").write_text("frame", encoding="utf-8")
+    (tmp_path / "outline" / "story_frame.md").write_text("STORY_FRAME_MARKER", encoding="utf-8")
     (tmp_path / "truth" / "current_focus.md").write_text("focus", encoding="utf-8")
     (tmp_path / "truth" / "author_intent.md").write_text("intent", encoding="utf-8")
     (tmp_path / "truth" / "pending_hooks.md").write_text(
@@ -73,7 +73,9 @@ def project_tree(tmp_path: Path) -> Path:
     return tmp_path
 
 
-def test_declared_fields_filter_in_dispatch_loop(project_tree: Path) -> None:
+def test_declared_fields_filter_in_dispatch_loop(
+    project_tree: Path, warn_spy: dict[str, list[str]]
+) -> None:
     _, user_prompt, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
@@ -81,6 +83,8 @@ def test_declared_fields_filter_in_dispatch_loop(project_tree: Path) -> None:
     assert "已完成章节" in user_prompt
     # Undeclared section of the same file must NOT reach the prompt
     assert "XYZZY_LEAK_MARKER" not in user_prompt
+    # No dispatch-module WARN on this clean path (extractor events arrive in T4)
+    assert warn_spy["dispatch"] == []
 
 
 def test_escape_hatch_warns_and_fulltext_on_missing_field(
@@ -103,4 +107,5 @@ def test_string_reads_unfiltered(project_tree: Path) -> None:
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
     # outline/story_frame.md is a string read -> full content present
-    assert "frame" in user_prompt
+    # (marker chosen to differ from the input key itself)
+    assert "STORY_FRAME_MARKER" in user_prompt
