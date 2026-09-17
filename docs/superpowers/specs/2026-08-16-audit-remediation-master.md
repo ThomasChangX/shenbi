@@ -149,9 +149,9 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C19 ✅ Done (PR #198 · spec #57 · T4-only，失效面随 #26 路径 3 消解) | 快照子系统半迁移 | 12 | P1 | archive/2026-08-16-audit-snapshot-unify-fix.md | B | M | — |
 | C20 ✅ Done (PR #202 · spec #58) | 技能契约声明面断裂 | 21 | P1 | archive/2026-08-16-audit-skill-contract-declaration-fix-Done-PR202.md | B | M | — |
 | C21 ✅ Done (PR #204 · spec #59) | 注册/触发路由漂移 | 12 | P1 | archive/2026-08-16-audit-skill-routing-deprecated-fix-Done-PR204.md | B | S-M | — |
-| C22 | 平行登记表无对账 | 29 | P1 | audit-registry-reconcile-fix.md | B | M | ✅ Done (#60, PR #207) |
-| C23 | 文档机械漂移 | 46 | P1 | audit-docs-mechanical-drift-fix.md | B | M | — |
-| C24 | 文档语义矛盾 | 56 | P2 | audit-docs-semantic-conflicts-fix.md | B | M | ✅ Done (#62, PR #214)——45 条裁决批量清零（驳斥剔 10+F1024 归 #66）；DOT/契约/术语/INDEX 体系/配置注释五面 |
+| C22 ✅ Done (PR #207 · spec #60) | 平行登记表无对账 | 29 | P1 | archive/2026-08-16-audit-registry-reconcile-fix-Done-PR207.md | B | M | — |
+| C23 ✅ Done (PR #210 · spec #61) | 文档机械漂移 | 46 | P1 | archive/2026-08-16-audit-docs-mechanical-drift-fix.md | B | M | — |
+| C24 ✅ Done (PR #214 · spec #62；驳斥剔 10 + F1024 归 #66，45 条裁决批量清零——DOT/契约/术语/INDEX 体系/配置注释五面) | 文档语义矛盾 | 56 | P2 | archive/2026-08-16-audit-docs-semantic-conflicts-fix.md | B | M | — |
 | C25 ✅ Done (PR #217 · spec #63；REWRITE 剔 3 成员 F1007/F1011/F1015，有效 24→22，见 §8) | CI/just 双向手工同步 | 24 | P1 | archive/2026-08-16-audit-ci-just-sync-fix-Done-PR217.md | B | M | — |
 | C26 ✅ Done (PR #220 · spec #64) | shell/just 注入误用 | 11 | P1 | archive/2026-08-16-audit-shell-injection-Done-PR220.md | B | S | — |
 | C27 ✅ Done (PR #149) | 供应链审计盲区 | 9 | P1 | archive/2026-08-16-c27-supply-chain-audit-design.md | C | S-M | — |
@@ -166,7 +166,7 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C36 ✅ Done (PR #176) | print 违禁散点 | 3 | P1 | archive/2026-09-07-spec50-c36-print-purity-Done-PR176.md | C | S | — |
 | C37 ✅ Done (PR #179 + #180 · spec #51) | 死代码零执法 | 43 | P1 | archive/2026-09-07-spec51-c37-dead-code-Done-PR179.md | C | L | C3/C7/C19/C28 裁决 |
 
-列校验：条数列合计 = 774；P0 行 7（C1/C3/C4/C10/C11/C16/C32）合计 191；P2 行 4（C8/C15/C24/C29）合计 100；P1 行 26 合计 483——与 §1 总览一致。C26 文件名为 `2026-08-16-audit-shell-injection-fix.md`（批次 B 登记为 INDEX #64，占位消除）。
+列校验：条数列合计 = 774；P0 行 7（C1/C3/C4/C10/C11/C16/C32）合计 191；P2 行 4（C8/C15/C24/C29）合计 100；P1 行 26 合计 483——与 §1 总览一致。C26 spec 归档于 `archive/2026-08-16-audit-shell-injection-Done-PR220.md`（2026-08-16 落盘实名 `audit-shell-injection-fix.md`，批次 B 曾登记为 INDEX #64，已随归档删行）。
 
 ## 8. 记账执行清单（2026-09-03 修订新增 · master 维护 pass）
 
