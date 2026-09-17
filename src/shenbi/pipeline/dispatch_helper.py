@@ -665,14 +665,15 @@ def _build_skill_prompt(
     # raising. With a chapter, resolve_chapter_path does a bounded N/NNN replace.
     raw_inputs: dict[str, str] = {}
     reads: list[Any] = contract.get("reads", [])
-    for read_path_entry in reads:
-        if isinstance(read_path_entry, dict):
-            # Layer B: field-level read
-            read_path: str = read_path_entry.get("file", "")
-            fields: list[str] = read_path_entry.get("fields", [])
-        else:
-            read_path = read_path_entry
-            fields = []
+    # Layer B: loader normalizes dict-form reads into plain strings and
+    # diverts fields to the read_fields sidecar (loader.py _validate). The
+    # old isinstance(dict) branch never fired on post-load_contract reads
+    # (spec #65 §1.5 dead-wire); the sidecar keyed by the PRE-RESOLUTION
+    # contract path is the authoritative fields carrier (same source as
+    # _collect_declared_truth_fields).
+    read_fields: dict[str, list[str]] = contract.get("read_fields", {})
+    for read_path in reads:
+        fields: list[str] = read_fields.get(read_path, [])
 
         # Resolve placeholders before glob expansion (ctx-aware, spec #6
         # R4b): resolve_or_skip_ctx routes arc/stratum/volume families via
