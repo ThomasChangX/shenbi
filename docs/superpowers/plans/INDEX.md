@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-17（spec #6 plan ready——T_A 字节稳定测试 + T_C 两 skill 外置；spec #64 C26 plan Done——PR #220）
-> **活跃 plan 数**：1 | **已归档**：118（见 `archive/`）
+> **最后更新**：2026-09-17（spec #6 plan Done 并归档——PR #223/#224）
+> **活跃 plan 数**：0 | **已归档**：119（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- `2026-09-17-spec6-token-efficiency-p2.md` ✅ ready —— spec #6 终版范围（T_A + T_C chapter-pattern/pacing；T_B/T_D 已裁决不实施），阶段 3 八轮审查后
+（无）
 
 ## 待执行的 spec → plan 映射
 
