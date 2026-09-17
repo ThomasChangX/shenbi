@@ -19,7 +19,7 @@
 - Baseline: re-baseline `just check` pass count at execution time (spec §7).
 - Test file placement: dispatch-loop behavior tests → `tests/unit/pipeline/test_dispatch_layerb_live.py` (new; deviation from spec §3.0's literal mention of test_field_filtering.py — that file is pure-function scoped by its own docstring, new dispatch-loop cases get a dedicated file; logged in spec-deviations); loader extractor tests → `tests/unit/contract/test_loader_extractors.py` (create; note the directory is `tests/unit/contract/` SINGULAR, existing home of test_dict_reads.py).
 - All new test files carry `pytestmark = pytest.mark.unit` (pyproject markers: unit/integration/property/benchmark/slow/last; `just test` selects `-m unit`).
-- structlog in this repo writes via `PrintLoggerFactory(file=sys.stderr)` (logging.py:52) — stdlib logging handlers CANNOT capture events. WARN assertions use the repo's spy pattern (tests/unit/contracts/test_fields.py:71-83): monkeypatch `log.warning` on the emitting module. `field_filter_missing_fields` is emitted from `shenbi.contracts.fields`'s module logger; `extractor_failed_fulltext` from `shenbi.pipeline.dispatch_helper`'s.
+- structlog in this repo writes via `PrintLoggerFactory(file=sys.stderr)` (logging.py:51) — stdlib logging handlers CANNOT capture events. WARN assertions use the repo's spy pattern (tests/unit/contracts/test_fields.py:71-83): monkeypatch `log.warning` on the emitting module. `field_filter_missing_fields` is emitted from `shenbi.contracts.fields`'s module logger; `extractor_failed_fulltext` from `shenbi.pipeline.dispatch_helper`'s.
 - AGENTS.md Layer B face: after T1 the existing AGENTS.md claim ("The dispatcher filters file content...") becomes TRUE — no AGENTS.md edit needed; listed here per spec §6.2.
 - 36-declaration blast radius (spec §6.1 duty): at-risk set = `truth/current_state.md` family (chapter-planning + review-continuity declare [系统演化阶段, 参数当前位置, 进行中的情节线]; zero overlap with chapter-025 snapshot lineage, 3/3 with xinghuo sample — miss → escape-hatch fulltext, correct behavior per spec §8.2 lineage exemption). T1 Step 5's full regression is the enforcement; no repo test today dispatches chapter-planning against a foreign-lineage current_state (verified by grep at plan time).
 
@@ -626,7 +626,7 @@ All of the function's dependencies (`_resolve_volume_at_runtime`, `read_chapter_
 from shenbi.pipeline._shared import load_volume_context as _load_volume_context
 ```
 
-(verify with `grep -n "_resolve_volume_at_runtime\|bridges_for_chapter\|read_bridges\|read_chapter_node" src/shenbi/pipeline/context_assemble.py` — zero remaining uses expected. All existing tests importing `_load_volume_context` from context_assemble keep working untouched — verified: tests/unit/pipeline/test_context_assemble.py:20 and tests/pipeline/test_cn_extract.py:75/96 import it from context_assemble; `context_assemble.__all__` (:402) stays valid via the alias.)
+(verify with `grep -n "_resolve_volume_at_runtime\|bridges_for_chapter\|read_bridges\|read_chapter_node" src/shenbi/pipeline/context_assemble.py` — zero remaining uses expected. All existing tests importing `_load_volume_context` from context_assemble keep working untouched — verified: tests/unit/pipeline/test_context_assemble.py:20 and tests/pipeline/test_cn_extract.py:75/96 import it from context_assemble; `context_assemble.__all__` (:396-407) stays valid via the alias.)
 
 - [ ] **Step 4: Wire the dispatcher extractor branch**
 
