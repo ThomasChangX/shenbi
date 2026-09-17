@@ -20,7 +20,7 @@
 ### #6 · Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置
 
 - **文件**：`2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design.md`
-- **系列**：Token 效率全栈 audit（P2 效率优化轮，承接已归档总纲 §6.3 P2 五项中的 3.3/3.9/3.10；3.2 归 #4（输出侧浪费），2.3 #8/#9 视 §3 而定）
+- **系列**：Token 效率全栈 audit（P2 效率优化轮，承接已归档总纲 §6.3 P2 五项中的 3.3/3.9/3.10；3.2 归已归档的输出侧浪费子 spec；2.3 #8/#9 已裁决延后独立立项——2026-09-17 轮 4 同步）
 - **状态**：Design（**Revised 2026-09-17** · SDD 阶段 3 四轮审查修订：T_B 缓存降级不实施——审计波已归 #42/PR#153，剩余纯 I/O；§3 重设计为无条件 body 瘦身——示例外置到各 skill 自有目录（先例 anti-ai-reference.md），运行时不注入，废弃 dispatched_examples 与 `skills/_shared/`；arc-payoff 预裁 SKIP）
 - **优先级**：🟡 Medium（效率优化，非阻塞；度量前提 TokenLedger 已由 PR #39 落地；每项需 G4 全量验证 + 准备回滚）
 - **方法**：`systematic-debugging` 四阶段
