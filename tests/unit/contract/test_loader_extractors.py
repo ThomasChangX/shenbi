@@ -47,7 +47,7 @@ def test_unknown_extractor_name_fails_loud(tmp_path: Path, monkeypatch: pytest.M
         "    - {file: outline/volume_map.md, extractor: volume_chapters}\n",  # typo
     )
     monkeypatch.setattr("shenbi.contracts.loader.SKILLS", tmp_path / "skills")
-    with pytest.raises(ContractError, match="extractor"):
+    with pytest.raises(ContractError, match="extractor unknown"):
         load_contract("shenbi-test-bad-extractor")
 
 

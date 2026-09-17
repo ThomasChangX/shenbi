@@ -99,7 +99,11 @@ def _normalize_read_item(item: Any) -> tuple[str, list[str] | None, str | None]:
         ):
             raise ContractError("contract.reads[].fields must be list[str]", field="reads")
         if extractor is not None:
-            if not isinstance(extractor, str) or extractor not in READ_EXTRACTORS:
+            if not isinstance(extractor, str):
+                raise ContractError(
+                    "contract.reads[].extractor must be str", field="reads", extractor=extractor
+                )
+            if extractor not in READ_EXTRACTORS:
                 raise ContractError(
                     "contract.reads[].extractor unknown",
                     field="reads",
