@@ -21,7 +21,7 @@
 
 - **文件**：`2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design.md`
 - **系列**：Token 效率全栈 audit（P2 效率优化轮，承接已归档总纲 §6.3 P2 五项中的 3.3/3.9/3.10；3.2 归已归档的输出侧浪费子 spec；2.3 #8/#9 已裁决延后独立立项——2026-09-17 轮 4 同步）
-- **状态**：Design（**Revised 2026-09-17** · SDD 阶段 3 八轮审查修订：T_B 缓存降级不实施——审计波已归 #42/PR#153，剩余纯 I/O；§3 重设计为无条件 body 瘦身——外置到各 skill 自有目录（先例 anti-ai-reference.md），运行时不注入，废弃 dispatched_examples 与 `skills/_shared/`；resonance/arc-payoff 阈值口径 SKIP（净省 <500B）+ state-settling 定性裁决 SKIP（588B 超阈值但无 G4 安全网输出契约风险不值）——重段主体为 checker/机器/输出契约结构——**实施集终版 2 skill（chapter-pattern/pacing），一次性 ~1.3KB 落地、稳态 ~0.12KB/章；pass 主交付 = T_A 字节稳定测试 + T_D IDE 分离（CLI 门控）+ 分解证据**）
+- **状态**：Design（**Revised 2026-09-17** · SDD 阶段 3 八轮审查修订：T_B 缓存降级不实施——审计波已归 #42/PR#153，剩余纯 I/O；§3 重设计为无条件 body 瘦身——外置到各 skill 自有目录（先例 anti-ai-reference.md），运行时不注入，废弃 dispatched_examples 与 `skills/_shared/`；resonance/arc-payoff 阈值口径 SKIP（净省 <500B）+ state-settling 定性裁决 SKIP（588B 超阈值但无 G4 安全网输出契约风险不值）——重段主体为 checker/机器/输出契约结构——**实施集终版 2 skill（chapter-pattern/pacing），一次性 ~1.3KB 落地、稳态 ~0.12KB/章；pass 主交付 = T_A 字节稳定测试（已实施）+ T_D 裁决记录（**未实施**——CLI 无 system flag 放弃）+ 分解证据**）
 - **优先级**：🟡 Medium（效率优化，非阻塞；度量前提 TokenLedger 已由 PR #39 落地；格式遵循度验证归 audit-run，逐项准备回滚）
 - **方法**：`systematic-debugging` 四阶段
 - **依赖**：已归档总纲（Cluster C 重复传输根因簇、§3.3/§3.9/§3.10 findings）；**PR #39**（TokenLedger API 路径接线 = 全部收益的度量前提；`_strip_autogen_blocks` = system 字节稳定前置）；`src/shenbi/pipeline/{dispatch_helper,audit_context_cache,chapter_loop}.py`；skills/shenbi-{chapter-pattern,review-resonance,review-arc-payoff,pacing-design,state-settling}/SKILL.md
