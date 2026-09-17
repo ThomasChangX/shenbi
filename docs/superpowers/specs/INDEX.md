@@ -21,12 +21,12 @@
 
 - **文件**：`2026-08-02-field-level-reads-coverage-design.md`
 - **系列**：Token 效率全栈 audit（契约层补漏，承接已归档总纲 §3.7 + §6.2 P1 第二项；PR #39 plan T8 延后项——原延后理由"字段名需真实 round 输出验证"已由 `novel-output/` 真实 round header 解决）
-- **状态**：Design
+- **状态**：Design (Revised 2026-09-18) — 实施中（分支 fix/spec65-layerb-deadwire-fields-extractor）
 - **优先级**：🟡 Medium（P1 契约一致 + 效率；浪费量大但字段名匹配有准确性风险）
 - **方法**：`systematic-debugging` 四阶段
-- **依赖**：已归档总纲 §3.7/§6.2；`contracts/fields.py` `filter_to_fields`；`audit_context_cache.py` `_extract_volume_chapter`；`skills/shenbi-{chapter-planning,context-composing,review-world-rules}/SKILL.md`；真实 round header（`novel-output/*/world/power_system.md` + `outline/volume_map.md`）
+- **依赖**：已归档总纲 §3.7/§6.2；PR #39/#114/#153 已合并；`contracts/fields.py` `filter_to_fields`；`contracts/loader.py` read_fields 旁路；`pipeline/_shared.py` 提取器族；`skills/shenbi-{review-group-factual,chapter-planning}/SKILL.md`；git 历史真实产物（`git show d120a444^:novel-output/...`，生产树已出库）
 - **对应 plan**：✅ `plans/2026-09-18-spec65-layerb-deadwire-fields-extractor.md`
-- **内容**：解决 PR #39 T8 延后项。三大文件分类处置——(1) `power_system.md`（固定 header）：review-world-rules + context-composing 声明 fields（能力边界/代价机制/力量天花板 等），~28.8KB→~8-12KB；(2) `volume_map.md`（动态卷标题，不可 fields）：把已有 `_extract_volume_chapter` 提取器接入通用 read 路径（选项 A：新 `extractor:` 契约字段），~26.3KB→~500B-2KB；(3) `chapter-N.md`（连续 prose 无 section）：**显式不本 spec 管**，归 P2 spec #6 cache + 确定性替换 #4 snapshot。逃逸门 WARN 即缺陷（field 声明必须字节匹配真实 header）。审计修复 #28（字段过滤死线/escape-hatch 修复）为接线前置。
+- **内容**：解决 PR #39 T8 延后项（2026-09-18 价值门 REWRITE 修订）。三层——(0) §3.0 dispatch read 循环 Layer B 先天死线修复（loader 归一化 vs dict 分支断裂，行为复现实证）；(1) `power_system.md`（生产者模板 8 header 安全集）：review-group-factual 声明 fields（力量天花板/代价机制/跨级战斗参考/能力边界），28.8KB→15.5KB；(2) `volume_map.md`（动态卷标题）：`extractor:` 契约字段接 `_shared` 族提取器（closed registry + 失败全文兜底 WARN），chapter-planning 26.3KB 全文→卷上下文切片（KR 块+张力曲线+章节点+跨卷桥）；(3) `chapter-N.md` 显式不管（剩余读者是审计对象本身）。审计修复 #28 为接线前置（其「接线已正确」声明经驳斥不成立）。
 
 ### #66 · 遗留微修批：F750 集成测试真实 fixture 化 + F0-06 python 版本三元统一
 

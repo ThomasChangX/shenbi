@@ -216,3 +216,34 @@ def test_real_chapter_planning_contract_has_extractor() -> None:
 
     c = load_contract("shenbi-chapter-planning")
     assert c["read_extractors"]["outline/volume_map.md"] == "volume_chapter"
+
+
+def test_volume_extractor_carries_kr_and_tension(project_tree: Path) -> None:
+    """Final-review I1: the extractor must carry the CURRENT chapter's KR
+    block and the volume tension table (chapter-planning's priority chain
+    names 卷纲 Key Result as a source — volume_map.md:90-166).
+    """
+    _, user_prompt, _ = _build_skill_prompt(
+        "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
+    )
+    # ch26 falls in vol-2 KR3 (第26章-第30章): its block must survive…
+    assert "KR3: 梵天遗产发现与盟友建立" in user_prompt
+    # …other KR blocks must not leak
+    assert "KR1: 根据地雏形建立" not in user_prompt
+    # the volume tension table is volume-level planning context: full table
+    assert "卷内张力曲线" in user_prompt
+
+
+def test_volume_extractor_survives_unreadable_map(
+    project_tree: Path, warn_spy: dict[str, list[str]]
+) -> None:
+    """Final-review I2: a binary/unreadable volume_map must degrade to the
+    sentinel/full-text path with a WARN — never raise out of the prompt
+    builder (parity with the loop's own except-Exception read guard).
+    """
+    (project_tree / "outline" / "volume_map.md").write_bytes(b"\xff\xfe\x00binary")
+    _, user_prompt, _ = _build_skill_prompt(
+        "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
+    )
+    assert "binary or unreadable" in user_prompt or "第一卷" in user_prompt
+    assert "extractor_failed_fulltext" in warn_spy["dispatch"]

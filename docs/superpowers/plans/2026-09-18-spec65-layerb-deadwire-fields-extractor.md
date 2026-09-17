@@ -611,6 +611,15 @@ def test_real_chapter_planning_contract_has_extractor() -> None:
     assert c["read_extractors"]["outline/volume_map.md"] == "volume_chapter"
 ```
 
+**Sufficiency adjudication (spec §4.4/§5 duty, discharged at final review):**
+the chapter-planning input face after extraction carries — current KR block
+(章节范围 spans the chapter; the body's priority chain names 卷纲 Key Result as
+a source, so the extractor was extended to carry it, final-review I1) + volume
+tension-curve table (卷内张力曲线) + volume Objective + current chapter node +
+pending bridges (extractor slice); N+1 continuity via the Task-13 skeleton's
+section 6; N-1 continuity via `truth/chapter_summaries.md` (已完成章节 field,
+already declared). Recorded in spec-deviations ### T4.
+
 NOTE (accepted redundancy): `load_volume_context` re-reads volume_map.md from disk (once inside itself, once inside `_resolve_volume_at_runtime` via `read_volume_boundaries`) on top of the loop's own read — three reads per dispatch. Idempotent, read-only, µs-scale on an OS page cache; accepted now, a text-parameter refactor is a future optimization (spec-deviations note).
 
 - [ ] **Step 2: Run to verify red**

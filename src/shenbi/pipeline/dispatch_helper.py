@@ -704,7 +704,13 @@ def _build_skill_prompt(
                 # _shared family; chapter=None (genesis / manual no-chapter
                 # dispatch) falls through to full text (§4.3). Extraction
                 # failure -> full-text fallback + WARN (never a silent drop).
-                extracted = load_volume_context(project_dir, chapter)
+                try:
+                    extracted = load_volume_context(project_dir, chapter)
+                except Exception:
+                    # Parity with the loop's own read guard above: an
+                    # unreadable map degrades to sentinel/full text + WARN,
+                    # never raises out of the prompt builder (final-review I2).
+                    extracted = ""
                 if extracted:
                     content = extracted
                 else:

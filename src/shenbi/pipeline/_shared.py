@@ -285,6 +285,9 @@ def load_volume_context(project_dir: Path, chapter: int) -> str:
 
     Returns a markdown string containing:
     - Current volume Objective
+    - The volume's tension-curve table (卷内张力曲线, volume-level pacing context)
+    - The CURRENT chapter's enclosing KR block (final-review I1: the
+      chapter-planning priority chain names 卷纲 Key Result as a source)
     - Current chapter's node role and content description
     - Pending cross-volume bridges approaching activation
     """
@@ -319,6 +322,34 @@ def load_volume_context(project_dir: Path, chapter: int) -> str:
     vol_match = vol_pattern.search(volume_map_text)
     if vol_match:
         parts.append(f"**Volume Objective:** {vol_match.group(1).strip()}\n")
+
+    # Current volume's section text (scopes KR/tension extraction to THIS
+    # volume so other volumes' blocks never leak in).
+    vol_section_match = re.search(
+        rf"## {re.escape(current_volume)}.*?(?=\n## |\Z)", volume_map_text, re.DOTALL
+    )
+    vol_section = vol_section_match.group(0) if vol_section_match else ""
+
+    # Volume tension-curve table: volume-level pacing context for planning.
+    if vol_section:
+        tension_match = re.search(r"### 卷内张力曲线\n.*?(?=\n### |\Z)", vol_section, re.DOTALL)
+        if tension_match:
+            parts.append(tension_match.group(0).strip() + "\n")
+
+    # Current chapter's enclosing KR block (章节范围 spans the chapter).
+    for kr_match in re.finditer(
+        r"(#### KR\d+[^\n]*\n)(.*?)(?=\n#### KR|\n### |\Z)", vol_section, re.DOTALL
+    ):
+        rng = _ACT_RANGE_RE.search(kr_match.group(2))
+        if rng:
+            lo = int(rng.group(1))
+            hi = int(rng.group(2)) if rng.group(2) else lo
+            if lo <= chapter <= hi:
+                parts.append("**Current KR:**")
+                parts.append(kr_match.group(1).strip())
+                parts.append(kr_match.group(2).strip())
+                parts.append("")
+                break
 
     # Extract chapter node info (shared extractor, spec #6 R6 — Chinese rows,
     # aggregated bridges; bare | N | rows no longer match bridge-table garbage)
