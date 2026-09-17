@@ -28,6 +28,7 @@ __all__ = [
     "_read_cn_volume_boundaries",
     "_resolve_volume_at_runtime",
     "bridges_for_chapter",
+    "load_volume_context",
     "read_bridges",
     "read_chapter_node",
     "read_total_chapters",
@@ -277,3 +278,60 @@ def _volume_display_name(text: str, index: int) -> str | None:
         # name — strip it.
         return re.sub(r"[（(][^）)]*[）)]\s*$", "", raw).strip()
     return None
+
+
+def load_volume_context(project_dir: Path, chapter: int) -> str:
+    """Extract current volume context from volume_map.md for the given chapter (spec #65 §4: dispatcher extractor face).
+
+    Returns a markdown string containing:
+    - Current volume Objective
+    - Current chapter's node role and content description
+    - Pending cross-volume bridges approaching activation
+    """
+    vm_path = project_dir / "outline" / "volume_map.md"
+    if not vm_path.exists():
+        return ""
+
+    volume_map_text = vm_path.read_text(encoding="utf-8")
+
+    # Determine current volume at runtime (NEVER hard-code boundaries)
+    resolved = _resolve_volume_at_runtime(project_dir, chapter)
+    if resolved is None:
+        return ""
+    current_volume = resolved[0]
+
+    parts: list[str] = []
+    parts.append("## Current Volume Context (from volume_map.md)\n")
+
+    # Extract volume heading line (includes volume number and title)
+    vol_heading_pattern = re.compile(
+        rf"## ({re.escape(current_volume)}[^\n]*)\n",
+    )
+    vol_heading_match = vol_heading_pattern.search(volume_map_text)
+    if vol_heading_match:
+        parts.append(f"**Volume:** {vol_heading_match.group(1).strip()}\n")
+
+    # Extract volume objective
+    vol_pattern = re.compile(
+        rf"## {re.escape(current_volume)}.*?\n(?:\*\*Objective[：:]\*\*|\*\*Objective\*\*\s*[：:])\s*(.+?)(?=\n##|\n###|\Z)",
+        re.DOTALL,
+    )  # bilingual: English `**Objective:**` and Chinese `**Objective**:` (spec #6 R6)
+    vol_match = vol_pattern.search(volume_map_text)
+    if vol_match:
+        parts.append(f"**Volume Objective:** {vol_match.group(1).strip()}\n")
+
+    # Extract chapter node info (shared extractor, spec #6 R6 — Chinese rows,
+    # aggregated bridges; bare | N | rows no longer match bridge-table garbage)
+    node = read_chapter_node(volume_map_text, chapter)
+    if node:
+        parts.append(f"**Chapter Role:** {node['role']}")
+        parts.append(f"**Expected Content:** {node['content']}\n")
+
+    # Extract pending cross-volume bridges (ALL sections, sequel rows excluded)
+    pending_bridges = bridges_for_chapter(read_bridges(volume_map_text), chapter)
+    if pending_bridges:
+        parts.append("**Pending Cross-Volume Bridges:**")
+        parts.extend(f"- {s}" for s in pending_bridges)
+        parts.append("")
+
+    return "\n".join(parts)

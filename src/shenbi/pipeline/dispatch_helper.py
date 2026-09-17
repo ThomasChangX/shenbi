@@ -57,6 +57,7 @@ from shenbi.logging import get_logger
 from shenbi.env_policy import build_child_env
 from shenbi.contracts.injection import wrap_untrusted_source
 from shenbi.exceptions import DispatchWriteFailureError, ShenbiError, TruthFileParseError
+from shenbi.pipeline._shared import load_volume_context  # spec #65 §4 (leaf module, no cycle)
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
@@ -672,8 +673,10 @@ def _build_skill_prompt(
     # contract path is the authoritative fields carrier (same source as
     # _collect_declared_truth_fields).
     read_fields: dict[str, list[str]] = contract.get("read_fields", {})
+    read_extractors: dict[str, str] = contract.get("read_extractors", {})
     for read_path in reads:
         fields: list[str] = read_fields.get(read_path, [])
+        extractor: str | None = read_extractors.get(read_path)
 
         # Resolve placeholders before glob expansion (ctx-aware, spec #6
         # R4b): resolve_or_skip_ctx routes arc/stratum/volume families via
@@ -696,6 +699,21 @@ def _build_skill_prompt(
                     content = full_path.read_text(encoding="utf-8")
                 except Exception:
                     content = f"[binary or unreadable: {full_path}]"
+            if extractor == "volume_chapter" and chapter is not None:
+                # spec #65 §4. extractor face routes volume_map through the
+                # _shared family; chapter=None (genesis / manual no-chapter
+                # dispatch) falls through to full text (§4.3). Extraction
+                # failure -> full-text fallback + WARN (never a silent drop).
+                extracted = load_volume_context(project_dir, chapter)
+                if extracted:
+                    content = extracted
+                else:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                    )
             if fields:
                 content, _matched = filter_to_fields(content, fields, str(full_path))
             # 10a: Strip META blocks for non-drafting skills (save 16-31% input)

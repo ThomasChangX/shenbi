@@ -160,3 +160,59 @@ def test_power_system_fields_filter_in_dispatch(
     contribution = len(user_prompt.encode("utf-8")) - len(baseline.encode("utf-8"))
     assert 4_000 < contribution < full_len * 0.75  # deep cut, bounded below
     assert estimate_prompt_tokens(user_prompt) < estimate_prompt_tokens(baseline + ps_full)
+
+
+def test_volume_extractor_happy_path(project_tree: Path, warn_spy: dict[str, list[str]]) -> None:
+    from shenbi.cost.estimate import estimate_prompt_tokens
+
+    vm_text = (project_tree / "outline" / "volume_map.md").read_text(encoding="utf-8")
+    full = len(vm_text.encode("utf-8"))
+    assert full > 26_000
+    _, user_prompt, _ = _build_skill_prompt(
+        "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
+    )
+    # ch26 in the xinghuo map falls in volume 2 (第16-35章). Assert on the
+    # distinctive volume TITLES (not 第N卷 numerals — bridge rows mention those).
+    assert "铁与火" in user_prompt  # current volume 2 title survived
+    assert "觉醒之火" not in user_prompt  # volume 1 title filtered away
+    # Spec §7: extractor_failed_fulltext appears ONLY in the failure case —
+    # the happy path must be WARN-free.
+    assert "extractor_failed_fulltext" not in warn_spy["dispatch"]
+    # Spec §4.4/§7 byte metric: total volume_map contribution must drop
+    # from full-text 26,334B to structured slivers. Isolate by no-volume_map
+    # baseline subtraction. The total = extractor slice (~960B) PLUS the
+    # pre-existing Task-13 plan-skeleton injection (~3.3KB, also sliced —
+    # never full text); both faces vanish without volume_map.
+    (project_tree / "outline" / "volume_map.md").unlink()
+    _, baseline, _ = _build_skill_prompt(
+        "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
+    )
+    contribution = len(user_prompt.encode("utf-8")) - len(baseline.encode("utf-8"))
+    assert 300 < contribution < full * 0.25  # slivers only, deep cut from 26KB
+    assert estimate_prompt_tokens(user_prompt) < estimate_prompt_tokens(baseline + vm_text)
+
+
+def test_volume_extractor_chapter_none_fulltext(project_tree: Path) -> None:
+    _, user_prompt, _ = _build_skill_prompt(
+        "shenbi-chapter-planning", project_tree, "no chapter", chapter=None
+    )
+    assert "第一卷" in user_prompt and "第五卷" in user_prompt  # full text
+
+
+def test_volume_extractor_failure_fulltext_and_warn(
+    project_tree: Path, warn_spy: dict[str, list[str]]
+) -> None:
+    # Existing file, unresolvable chapter -> full text + named WARN (no silent drop)
+    _, user_prompt, _ = _build_skill_prompt(
+        "shenbi-chapter-planning", project_tree, "plan ch9999", chapter=9999
+    )
+    assert "第一卷" in user_prompt  # full-text fallback
+    assert "extractor_failed_fulltext" in warn_spy["dispatch"]
+
+
+def test_real_chapter_planning_contract_has_extractor() -> None:
+    # T3's sidecar wired to the REAL skill contract
+    from shenbi.contracts.loader import load_contract
+
+    c = load_contract("shenbi-chapter-planning")
+    assert c["read_extractors"]["outline/volume_map.md"] == "volume_chapter"

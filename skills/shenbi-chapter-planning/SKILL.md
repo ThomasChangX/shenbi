@@ -18,7 +18,8 @@ contract:
   - file: truth/chapter_summaries.md
     fields:
     - 已完成章节
-  - outline/volume_map.md
+  - file: outline/volume_map.md
+    extractor: volume_chapter
   - outline/story_frame.md
   - truth/current_focus.md
   - truth/author_intent.md
