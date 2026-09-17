@@ -714,6 +714,12 @@ def _build_skill_prompt(
                         path=str(full_path),
                         chapter=chapter,
                     )
+            elif extractor is not None and extractor != "volume_chapter":
+                # Defense-in-depth: loader's closed registry rejects unknown
+                # names at load, so this is unreachable today — guard keeps a
+                # future registry expansion from silently degrading to full
+                # text (spec #65 §4.2 fail-loud discipline).
+                log.warning("extractor_unrouted_fulltext", extractor=extractor, path=str(full_path))
             if fields:
                 content, _matched = filter_to_fields(content, fields, str(full_path))
             # 10a: Strip META blocks for non-drafting skills (save 16-31% input)
