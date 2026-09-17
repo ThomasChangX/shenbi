@@ -706,10 +706,17 @@ def _build_skill_prompt(
                 # failure -> full-text fallback + WARN (never a silent drop).
                 try:
                     extracted = load_volume_context(project_dir, chapter)
-                except Exception:
+                except Exception as exc:
                     # Parity with the loop's own read guard above: an
                     # unreadable map degrades to sentinel/full text + WARN,
                     # never raises out of the prompt builder (final-review I2).
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
                     extracted = ""
                 if extracted:
                     content = extracted

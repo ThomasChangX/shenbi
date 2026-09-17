@@ -337,19 +337,28 @@ def load_volume_context(project_dir: Path, chapter: int) -> str:
             parts.append(tension_match.group(0).strip() + "\n")
 
     # Current chapter's enclosing KR block (章节范围 spans the chapter).
+    # Full form 第26章 - 第30章 first (final-review r2-A: the first 章
+    # defeats _ACT_RANGE_RE's optional group, which only serves the compact
+    # bridge form 第26-28章), then the compact/single-chapter fallback.
+    kr_full_range_re = re.compile(r"第\s*(\d+)\s*章\s*[-\u2013\u2014~\u301c]\s*第\s*(\d+)\s*章")
     for kr_match in re.finditer(
         r"(#### KR\d+[^\n]*\n)(.*?)(?=\n#### KR|\n### |\Z)", vol_section, re.DOTALL
     ):
-        rng = _ACT_RANGE_RE.search(kr_match.group(2))
-        if rng:
-            lo = int(rng.group(1))
-            hi = int(rng.group(2)) if rng.group(2) else lo
-            if lo <= chapter <= hi:
-                parts.append("**Current KR:**")
-                parts.append(kr_match.group(1).strip())
-                parts.append(kr_match.group(2).strip())
-                parts.append("")
-                break
+        full = kr_full_range_re.search(kr_match.group(2))
+        compact = _ACT_RANGE_RE.search(kr_match.group(2))
+        if full:
+            lo, hi = int(full.group(1)), int(full.group(2))
+        elif compact:
+            lo = int(compact.group(1))
+            hi = int(compact.group(2)) if compact.group(2) else lo
+        else:
+            continue
+        if lo <= chapter <= hi:
+            parts.append("**Current KR:**")
+            parts.append(kr_match.group(1).strip())
+            parts.append(kr_match.group(2).strip())
+            parts.append("")
+            break
 
     # Extract chapter node info (shared extractor, spec #6 R6 — Chinese rows,
     # aggregated bridges; bare | N | rows no longer match bridge-table garbage)

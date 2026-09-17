@@ -247,3 +247,16 @@ def test_volume_extractor_survives_unreadable_map(
     )
     assert "binary or unreadable" in user_prompt or "第一卷" in user_prompt
     assert "extractor_failed_fulltext" in warn_spy["dispatch"]
+
+
+@pytest.mark.parametrize("chapter", [27, 30])  # mid-range and range-end of KR3 (26-30)
+def test_volume_extractor_kr_covers_full_range(project_tree: Path, chapter: int) -> None:
+    """Final-review r2-A: the KR block must be carried for EVERY chapter in
+    its 章节范围, not just the range-start chapter (full form 第26章 - 第30章
+    defeated the compact-range regex).
+    """
+    _, user_prompt, _ = _build_skill_prompt(
+        "shenbi-chapter-planning", project_tree, f"plan ch{chapter}", chapter=chapter
+    )
+    assert "KR3: 梵天遗产发现与盟友建立" in user_prompt
+    assert "KR2: 首次主动进攻与师徒信任建立" not in user_prompt
