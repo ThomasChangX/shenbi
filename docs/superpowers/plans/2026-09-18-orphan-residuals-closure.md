@@ -105,7 +105,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 PROJECT_DIR = REPO_ROOT
 ```
 
-3b. `run_g2` argv 去掉 `str(PROJECT_DIR),`（原 :140-152）：
+3b. `run_g2` argv 去掉 `str(PROJECT_DIR),`（原 :139-150）：
 ```python
     return run_subprocess_json(
         [
@@ -184,10 +184,10 @@ Expected: **PASS**
 (the legacy route snapshots the framework repo root instead,
 F519, out of scope here)
 ```
-新：
+新（**不含 "F519"/"framework repo root" 字样**——验收 grep 对本文件零命中，引证只走 spec #67）：
 ```
 (the legacy CLI route snapshots its ``round_dir`` —
-the same write-tree semantics, F519/F513 fixed by spec #67)
+the same write-tree semantics, fixed by spec #67)
 ```
 
 - [ ] **Step 7: 刷新 _tool_hashes（deps.json）**
@@ -245,11 +245,12 @@ git commit -m "fix(dispatcher): F519/F513 legacy route snapshot root = round_dir
         # context assembly merged into one deterministic step (spec #67)
 ```
 1c. 删除 `_run_context_curation` 整函数（:1547-1576，从 `def _run_context_curation` 到 post-check `log.error` 块尾）。
-1d. 调用点（:2986-2989）：
+1d. 调用点（:2986-2989，删除注释行 + 调用行）：
 ```python
     if step.calls_context_assembly:
         _run_context_assembly(project_dir, chapter)
 ```
+（被删两行：`# Also run deterministic curation — replaces context-composing LLM call` 与 `_run_context_curation(project_dir, chapter)`。）
 1e. :3001-3003：
 ```python
     # context-composing replaced by deterministic assembly in step 4 (spec #67)
@@ -285,7 +286,7 @@ git commit -m "fix(dispatcher): F519/F513 legacy route snapshot root = round_dir
 
 - [ ] **Step 3: review_checklist.py 本地化 ENDING_PATTERNS**
 
-3a. 删除 :25 import 行 `from shenbi.pipeline.context_curation import ENDING_PATTERNS`，在 imports 之后加（逐字复制自 context_curation.py:51-58）：
+3a. **原位替换** :25 import 行 `from shenbi.pipeline.context_curation import ENDING_PATTERNS` 为本地定义块（逐字复制自 context_curation.py:51-58）：
 ```python
 # Ending diversity classification patterns (§2.1; spec #67: localized here —
 # sole surviving consumer after the curated-layer removal).
