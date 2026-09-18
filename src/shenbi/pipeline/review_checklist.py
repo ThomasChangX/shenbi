@@ -22,10 +22,19 @@ from typing import Any
 
 
 from shenbi.logging import get_logger
-from shenbi.pipeline.context_curation import ENDING_PATTERNS
 from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
+
+# Ending diversity classification patterns (§2.1; spec #67: localized here —
+# sole surviving consumer after the curated-layer removal).
+ENDING_PATTERNS: dict[str, str] = {
+    "cliffhanger": r"(突然|猛然|就在此时|一声|眼前一|[？?]$)",
+    "hook": r"(但|然而|却|不过|还[有存]|等待|尚未|不知)",
+    "resolution": r"(终于|最后|就这样|[。！]$)",
+    "reflection": r"(回想|想起|原来|或许|也许|大概)",
+    "transition": r"(第二天|次日|翌日|接下来|之后|随后)",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -467,11 +476,11 @@ def _extract_hook_deliverables(
 def _get_recent_ending_types(project_dir: Path, chapter: int) -> list[str]:
     """Get ending types from the last 3 chapters' final paragraphs.
 
-    Classifies endings using regex patterns (same as context_curation.py).
+    Classifies endings using regex patterns (ENDING_PATTERNS, defined above).
     Returns list of ending type strings (e.g., ['cliffhanger', 'hook',
     'resolution']). Gracefully handles missing chapters.
     """
-    # Ending classification patterns (imported from context_curation.py).
+    # Ending classification patterns (ENDING_PATTERNS, defined above).
 
     if chapter < 4:
         return []  # Not enough chapters for diversity check (need 3 prior chapters).
@@ -636,6 +645,7 @@ def _load_world_rules_brief(project_dir: Path) -> str:
 
 __all__ = [
     "DYNAMIC_FIELDS",
+    "ENDING_PATTERNS",
     "STATIC_FIELDS",
     "ReviewChecklist",
     "_build_checklist",

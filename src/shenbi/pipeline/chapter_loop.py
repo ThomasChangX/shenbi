@@ -159,7 +159,7 @@ CHAPTER_STEPS: list[ChapterStep] = [
         uses_staging=True,
         output_path="plans/chapter-N-plan.md",
     ),
-    # Step 3: Context prepare (deterministic, merged context-assemble + curation)
+    # Step 3: Context prepare (deterministic context-assemble)
     ChapterStep(
         3,
         "pipeline-context-prepare",
@@ -279,7 +279,7 @@ STEP_NAME_MIGRATIONS: dict[int, dict[str, str | None]] = {
         "shenbi-foreshadowing-plant": "shenbi-foreshadowing-lifecycle",
         "shenbi-foreshadowing-track": "shenbi-foreshadowing-lifecycle",
         "shenbi-foreshadowing-recall": "shenbi-foreshadowing-lifecycle",
-        # context assembly + curation merged into one deterministic step
+        # context assembly merged into one deterministic step (spec #67)
         "pipeline-context-assemble": "pipeline-context-prepare",
         "shenbi-context-composing": "pipeline-context-prepare",
         # MERGE-2: serial auditors folded into review-group-* — no 1:1
@@ -1542,36 +1542,6 @@ def _write_minimal_context_fallback(project_dir: Path, chapter: int) -> None:
     out = project_dir / "context" / f"chapter-{chapter}-context.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     safe_write(out, body)
-
-
-def _run_context_curation(project_dir: Path, chapter: int) -> None:
-    """Run deterministic context curation and PERSIST it (Gap 2 fix).
-
-    Replaces the ``shenbi-context-composing`` LLM call (step 5) with
-    deterministic Python operations: 9-section structuring, ending diversity
-    check, and hook debt briefing generation.
-
-    Closing spec §3.1 Gap 2: the previous body called ``curate_context`` and
-    only logged the result length — the curated string was computed and then
-    DISCARDED, never written to disk. This version persists the curated
-    9-section document via :func:`safe_write` and post-checks the file.
-    """
-    from shenbi.pipeline.context_curation import curate_context
-    from shenbi.safe_write import safe_write
-
-    curated_path = project_dir / "context" / f"chapter-{chapter}-curated.md"
-    try:
-        curated = curate_context(project_dir, chapter)
-        curated_path.parent.mkdir(parents=True, exist_ok=True)
-        safe_write(curated_path, curated)  # FIX: actually persist (was discarded)
-        log.info("context_curated", chapter=chapter, length=len(curated), output=str(curated_path))
-    except Exception as e:
-        log.warning("context_curation_failed", chapter=chapter, error=str(e), exc_info=True)
-
-    # Post-check: curation failures are non-fatal, but surface a hard error if
-    # the output is unexpectedly absent after a non-throwing run.
-    if not curated_path.exists():
-        log.error("context_curation_no_output", chapter=chapter)
 
 
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
@@ -2982,11 +2952,9 @@ def _run_chapter_step_impl(
         _mark_staged_for_checkpoint(project_dir, settling_step, chapter)
         return True
 
-    # Context assembly (step 4): materialize package before chapter-drafting.
+    # Context assembly (step 3): materialize package before chapter-drafting.
     if step.calls_context_assembly:
         _run_context_assembly(project_dir, chapter)
-        # Also run deterministic curation — replaces context-composing LLM call
-        _run_context_curation(project_dir, chapter)
 
     # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
     if step.skill.startswith("pipeline-"):
@@ -2998,9 +2966,9 @@ def _run_chapter_step_impl(
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
-    # context-composing replaced by deterministic curation in step 4
+    # context-composing replaced by deterministic assembly in step 3 (spec #67)
     if step.skill == "shenbi-context-composing":
-        log.info("context_composing_replaced_by_curation", chapter=chapter)
+        log.info("context_composing_replaced_by_assembly", chapter=chapter)
         state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
