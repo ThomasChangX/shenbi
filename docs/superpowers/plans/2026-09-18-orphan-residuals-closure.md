@@ -98,9 +98,9 @@ Expected: **FAIL** — `assert 0 == 2`（越权写发生在 tmp_path=round_dir�
 
 - [ ] **Step 3: 实施 executor.py 修改**
 
-3a. 删除常量块（:30-32）：
+3a. 删除常量块（:31-32 两行，保留前后空行结构）：
 ```python
-# 删除以下两行（保留前后空行结构）：
+# 删除以下两行：
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROJECT_DIR = REPO_ROOT
 ```
@@ -137,10 +137,10 @@ Snapshot root is PROJECT_DIR (framework
 repo root — F519); the API/IDE wrapper roots at the pipeline project dir
 where those routes actually write.
 ```
-新：
+新（不含 F 编号——与 dispatch_helper 同规，防未来扩域 grep 自噬）：
 ```
 Snapshot root is round_dir (the dispatched write
-tree — F519/F513 fixed by spec #67); codex executes with ``-C round_dir``,
+tree, fixed by spec #67); codex executes with ``-C round_dir``,
 so skill writes land there. The API/IDE wrapper roots at the pipeline
 project dir with the same write-tree semantics.
 ```
@@ -227,7 +227,7 @@ git commit -m "fix(dispatcher): F519/F513 legacy route snapshot root = round_dir
 - Modify: `src/shenbi/pipeline/truth_readers.py:33`、`src/shenbi/records/writer.py:5-7`、`src/shenbi/gates/g4/context_composing.py:77-78`（docstring/注释）
 - Modify: `pyproject.toml:150`（BLE001 豁免行删除）
 - Delete: `tests/unit/pipeline/test_context_curation.py`
-- Modify: `tests/unit/pipeline/test_context_persistence.py`（删 2 个 curated 测试）、`tests/unit/pipeline/test_truth_readers.py:114-115`（docstring）
+- Modify: `tests/unit/pipeline/test_context_persistence.py`（删 2 个 curated 测试）、`tests/unit/pipeline/test_truth_readers.py:114-115`（docstring）、`tests/unit/pipeline/test_skill_integration.py:189`（类 docstring 措辞）
 - 生成物: `tests/tiers/deps.json`（仅经 `just generate`）
 
 **Interfaces:**
@@ -286,7 +286,7 @@ git commit -m "fix(dispatcher): F519/F513 legacy route snapshot root = round_dir
 
 - [ ] **Step 3: review_checklist.py 本地化 ENDING_PATTERNS**
 
-3a. **原位替换** :25 import 行 `from shenbi.pipeline.context_curation import ENDING_PATTERNS` 为本地定义块（逐字复制自 context_curation.py:51-58）：
+3a. **删除** :25 import 行 `from shenbi.pipeline.context_curation import ENDING_PATTERNS`（E402 预防：不在 import 区插定义块）；在 `log = get_logger(__name__)`（:28）**之后**的模块常量区加本地定义（逐字复制自 context_curation.py:51-58）：
 ```python
 # Ending diversity classification patterns (§2.1; spec #67: localized here —
 # sole surviving consumer after the curated-layer removal).
@@ -300,7 +300,8 @@ ENDING_PATTERNS: dict[str, str] = {
 ```
 3b. :470 `Classifies endings using regex patterns (same as context_curation.py).` → `Classifies endings using regex patterns (ENDING_PATTERNS, defined above).`
 3c. :474 `# Ending classification patterns (imported from context_curation.py).` → `# Ending classification patterns (ENDING_PATTERNS, defined above).`
-3d. `__all__` 在 `"DYNAMIC_FIELDS",` 后插入 `"ENDING_PATTERNS",`。
+3d. `tests/unit/pipeline/test_skill_integration.py:189` 类 docstring：`"""W4T6b: pipeline-mode curation of the pre-assembled context package."""` → `"""W4T6b: pipeline-mode consumption of the pre-assembled context package."""`（无功能依赖，术语卫生）。
+3e. `__all__` 在 `"DYNAMIC_FIELDS",` 后插入 `"ENDING_PATTERNS",`。
 
 - [ ] **Step 4: 三处 docstring/注释 + pyproject**
 
@@ -331,7 +332,7 @@ git rm src/shenbi/pipeline/context_curation.py
 bash tests/lock-tool-hashes.sh
 just generate
 git diff --stat tests/tiers/deps.json
-# 期待：_tool_hashes 面 ~7 行 hash 更新 + context_curation.py 条目移除；
+# 期待：_tool_hashes 面 6 行 hash 更新 + context_curation.py 条目移除（共 7 行 diff）；
 # expected_outputs 面零变化（本 task 不改 SKILL 契约）
 ```
 
@@ -351,7 +352,7 @@ just generate && git diff --exit-code tests/tiers/deps.json && echo GEN-IDEMPOTE
 - [ ] **Step 8: Commit**（显式列文件——git rm 已暂存模块删除，此处补列其余）
 
 ```bash
-git add src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/cli.py src/shenbi/pipeline/review_checklist.py src/shenbi/pipeline/truth_readers.py src/shenbi/records/writer.py src/shenbi/gates/g4/context_composing.py pyproject.toml tests/unit/pipeline/test_context_persistence.py tests/unit/pipeline/test_truth_readers.py tests/tiers/deps.json
+git add src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/cli.py src/shenbi/pipeline/review_checklist.py src/shenbi/pipeline/truth_readers.py src/shenbi/records/writer.py src/shenbi/gates/g4/context_composing.py pyproject.toml tests/unit/pipeline/test_context_persistence.py tests/unit/pipeline/test_truth_readers.py tests/unit/pipeline/test_skill_integration.py tests/tiers/deps.json
 git commit -m "refactor(pipeline): remove zero-consumer curated layer (F311, spec #67 face 2) — ENDING_PATTERNS relocated to review_checklist"
 ```
 （test_context_curation.py 的删除由 `git rm` 暂存——注意对**已 tracked 文件**的删除用 `git rm tests/unit/pipeline/test_context_curation.py`。）
