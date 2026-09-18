@@ -19,7 +19,10 @@ dependencies = [
     "tenacity>=8.0.0",
 ]
 [project.optional-dependencies]
-embeddings = ["sentence-transformers>=5.7.0", "numpy>=1.26.0"]
+# numpy 封顶 <2.5：2.5.0 面向 python>=3.12 且其 stubs 用 PEP 695 语法，
+# 在 F0-06 统一的 mypy 3.11 检查基准下不可解析（CI 3.12 leg 实炸）；
+# 3.11 下限项目消费 2.5+ 也与 requires-python 语义相悖。
+embeddings = ["sentence-transformers>=5.7.0", "numpy>=1.26.0,<2.5"]
 
 [dependency-groups]
 dev = [

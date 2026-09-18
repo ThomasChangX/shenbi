@@ -1,5 +1,5 @@
 > **Date:** 2026-09-11 | **Status:** Design · **Revised 2026-09-18**（SDD #66 价值门 REWRITE——素材源出库重定向 git 历史、truth 载体处方单块化、chapter_summaries frontmatter 裁决、locations 复用既有件；驳斥审查证据见当批 progress）| **Severity:** 🟡 P2（两 finding 均 P2 · 微修 S 量级）| **方法:** 机械替换 + 配置统一（无需 systematic-debugging——两 finding 根因与修复路径均已定案）
-> **系列:** 2026-08-15 审计轮遗留收口（非 37 簇成员——F750 原属 C16 边界争议条被 spec #54 设计审查 deferred 出局、候选归宿 C15/C17 双亡；08-14 轮 F0-06 无簇 squarely 承接；归宿由 spec #40 master 维护 pass 2026-09-11 裁决登记）| **依赖:** F750 素材源 = git 历史 `d120a444^:novel-output/xinghuo-ranqiong/`（生产树已出库 PR #217；九件内容自 dd1fc629 2026-07-20 未变，与 2026-09-11 核实时点逐字节相同）+ tests/fixtures/ 既有 synthetic-sample 回退面；F0-06 无依赖 | **范围:** tests/integration/test_gate_cli.py 单文件 + pyproject.toml 一处配置值（mypy :379）+ fixtures 新增 upstream-copy 引入
+> **系列:** 2026-08-15 审计轮遗留收口（非 37 簇成员——F750 原属 C16 边界争议条被 spec #54 设计审查 deferred 出局、候选归宿 C15/C17 双亡；08-14 轮 F0-06 无簇 squarely 承接；归宿由 spec #40 master 维护 pass 2026-09-11 裁决登记）| **依赖:** F750 素材源 = git 历史 `d120a444^:novel-output/xinghuo-ranqiong/`（生产树已出库 PR #217；九件内容自 dd1fc629 2026-07-20 未变，与 2026-09-11 核实时点逐字节相同）+ tests/fixtures/ 既有 synthetic-sample 回退面；F0-06 无依赖 | **范围:** tests/integration/test_gate_cli.py 单文件 + pyproject.toml 两处（mypy :379 配置值 + embeddings extra numpy 封顶——见 §2 伴生裁决）+ fixtures 新增 upstream-copy 引入
 
 # 遗留微修批：F750 集成测试真实 fixture 化 + F0-06 python 版本三元统一
 
@@ -84,6 +84,8 @@
 **根因**（08-14 ledger F0-06）：`requires-python = ">=3.11"`（:8）vs mypy `python_version = "3.12"`（:379）vs basedpyright `pythonVersion = "3.11"`（:398）——类型检查语义基准漂移（3.11 vs 3.12 语法/API 差异可能漏报/误报）。2026-09-18 复核：三处行号零漂移、值未变；src/ 静态扫描零 PEP 695 泛型、零 `type X =` 别名、零 3.12+ stdlib API——降基准无新增报错风险。
 
 **裁决（spec 内定稿）**：统一为 **3.11**（对齐 requires-python 下限——工具链按支持下限校验是保守面；升 3.12 会放宽 requires-python 语义，超出微修边界）。即 mypy :379 `"3.12"` → `"3.11"`；basedpyright :398 已是 3.11 不动；:8 不动。
+
+**伴生裁决（2026-09-18 实施 PR CI 发现，numpy 封顶）**：统一后 CI 3.12 leg 实炸——uv.lock 按解释器分裂解析 numpy（<3.12→2.4.6、≥3.12→2.5.0），numpy 2.5.0 面向 python≥3.12 且其 stubs 用 PEP 695 语法，在 3.11 检查基准下 `Type statement is only supported in Python 3.12 and greater` 解析失败（本地 `uv run --python 3.12 mypy src/shenbi/` 精确复现）。修复 = embeddings extra `numpy>=1.26.0` → `numpy>=1.26.0,<2.5`（统一解析 2.4.6）：依赖维度的同类下限对齐——3.11 下限项目消费 2.5+ 本就与 requires-python 语义相悖。mypy per-module `follow_imports=skip` override 实测**无法**阻止 stub 解析期报错（弃用，不留死配置）。
 
 **验收：**
 - `grep -n "python_version\|pythonVersion\|requires-python" pyproject.toml` 三处一致于 3.11 基准（:8 为下限 `>=3.11`，:379/:398 为字面 `"3.11"`）
