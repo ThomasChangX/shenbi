@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-18（spec #66 plan Done 并归档——PR #230）
-> **活跃 plan 数**：0 | **已归档**：121（见 `archive/`）
+> **最后更新**：2026-09-18（spec #40 收官 pass plan Done 并随 PR 归档）
+> **活跃 plan 数**：0 | **已归档**：122（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -37,6 +37,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 最近归档项：
 
+- `2026-09-18-spec40-master-closure.md`（SDD #40 收官 pass：ledger 回写补齐 44 行 + spec #67 登记 + 总纲归档）
 - `2026-09-17-c26-shell-injection-fix.md`（SDD #64 C26 shell/just 包装层注入，PR #220）
 - `2026-09-13-c25-ci-just-sync.md`（SDD #63 C25 CI/just 双向同步漂移，PR #217）
 - `2026-09-07-c37-dead-code-enforcement.md`（SDD #51 C37 死代码清理与零接线执法，PR #179 + review 修复 #180）

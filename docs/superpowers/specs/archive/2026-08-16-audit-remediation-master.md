@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design（索引长期保留 per §5；§8 记账 pass Done — PR #147, 2026-09-03 · §6.4 同步 pass Done — PR #172（C27-C35 回标，2026-09-07） · C14/C16/C37 回标 pass Done — 2026-09-08（C14 #52 PR #183 / C16 #54 PR #174 / C37 #51 PR #179） · C15-C18/C37 回标 + C19 速览补录与 ledger 回写 13 行 + F750/F0-06 归宿 #66 pass Done — 2026-09-11 · C25 回写 pass Done — 2026-09-17 · C26 回写 pass Done — 2026-09-17，37 簇全部闭簇） | **Severity:** 🔴 P0（总纲）| **方法:** 聚类→spec 映射与依赖排序
+> **Date:** 2026-08-16 | **Status:** Done（曾长期保留为 37 簇索引 per §5「直到全部簇关闭」；§8 记账 pass Done — PR #147, 2026-09-03 · §6.4 同步 pass Done — PR #172（C27-C35 回标，2026-09-07） · C14/C16/C37 回标 pass Done — 2026-09-08（C14 #52 PR #183 / C16 #54 PR #174 / C37 #51 PR #179） · C15-C18/C37 回标 + C19 速览补录与 ledger 回写 13 行 + F750/F0-06 归宿 #66 pass Done — 2026-09-11 · C25 回写 pass Done — 2026-09-17 · C26 回写 pass Done — 2026-09-17，37 簇全部闭簇 · 收官 pass Done — 2026-09-18（回写补齐 44 行 + F519 假注记纠偏 + 孤儿裁决登记 #67，保留条件到期，随 PR #233 归档） | **Severity:** 🔴 P0（总纲）| **方法:** 聚类→spec 映射与依赖排序
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 总纲（master）| **依赖:** phase4-clustering.md（37 簇唯一权威输入）| **范围:** 全部 37 簇修复 spec 的优先级矩阵、依赖顺序、量级与既有 spec 关系 | **核心洞察:** 774 条 findings 的修复不是 774 个动作，是 37 个根因收口；跨簇依赖（写路径先于读方对账、审计谓词先于失败分类、计量先于成本报告）决定合入顺序，否则修复互踩
 
 # 2026-08-15 审计修复总纲（audit-remediation-master）
@@ -124,6 +124,8 @@
 
 ## 7. 附录·37 簇全矩阵（机械推导自 phase4 簇总表，按簇号升序）
 
+> 归档注记（2026-09-18）：本文件自 specs/ 移入 specs/archive/；下文 archive/<name> 引用为作者时点相对路径，基名不变仍可检索。
+
 spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1 周。前置列仅列硬依赖（验收期依赖见 §3）。
 
 | 簇 | 根因短语 | 条数 | 最高严重度 | spec 文件（2026-08-16-） | 批次 | 量级 | 硬前置 |
@@ -193,3 +195,12 @@ Deviation（F750 归宿悬空，2026-09-08 本 pass）：spec54（C16）设计�
 回写（C25 ledger 回写 pass，2026-09-17）：spec #63（C25）Done（PR #217）与归档（PR #218）均未回写 master 矩阵与 ledger——本 pass 补做：§7 C25 行 Done 标注 + §2.3 速览刷新（余 C26 一簇）；08-15 ledger 22 有效成员关闭（21 行 closed (C25 spec #63, PR #217)，含状态列 verified 的 F1001/F1003；F957 归属 #217 非 #210——test_docs_accuracy.py 全量 sweep + 多 token codespan 均在 d120a444 内）+ 3 剔除成员按实际归宿关闭（F1007 commit 1a10dfab、F1011 C21 spec #59 PR #204、F1015 C8 spec #34 PR #129）；08-14 ledger F1207 行（C25 簇员但立案在 08-14 轮）同步关闭。逐条归宿核验 = fresh-context 驳斥子 agent（22/22 实锤，无仍可复现缺陷）+ 协调者抽验。
 
 回写（C26 ledger 回写 pass，2026-09-17）：spec #64（C26）Done（PR #220）与归档（PR #221）均未回写 master 矩阵与 ledger——本 pass 补做：§7 C26 行 Done 标注 + §2.3 速览刷新（**37 簇全部闭簇**）；08-15 ledger 11 成员全部关闭（closed (C26 spec #64, PR #220)，含状态列 verified 的 F1031——对齐 C25 F1001/F1003 先例；T1205 行附范围注记：python3 -c 消除范围 = run_pipeline.sh，tests/lock-tool-hashes.sh、test-gates.sh 的同模式字面量插值系脚本内部常量（非用户输入的弱威胁面），留 shellcheck 防线）。08-14 轮同 ID 行（F902/F1013/F1014）为跨轮撞号的不同 findings，不在本簇回写面。逐条归宿核验 = fresh-context 驳斥子 agent（11/11 实锤：缺陷形态全消失、修复形态全存在、回归测试齐）+ 协调者抽验（justfile `{{` 仅头注释、run_pipeline.sh `python3 -c`/`grep -o` 零命中、step_index 仅只读打印）。
+
+## 9. 收官记录（2026-09-18 · 收官 pass）
+
+- **回写补齐**：08-15 侧 37 行处置——34 关闭（30 簇行 + G601-G604）+ 3 改注（F519 纠偏 2026-09-07 假注记、F311/T1108 re-homed #67）；F401/F408 接受 out-of-cluster 终态不编辑。08-14 侧 T12-01~06 六行镜像关闭（#22/#45/#64 让渡链）+ F513 re-homed #67（状态 specced 至 #67 实施后关闭）。合计 44 行编辑
+- **出界声明**：08-14 F1204/F1205 为已关闭 08-15 findings 的同面跨轮重复立案（F1204=T12-03 面、F1205=F002-0815 面），frozen-run 政策不出本 pass 回写面；08-14 F415 行号漂移面已由 #42 R4 吸收（08-15 F415 孪生已关），同政策出界
+- **孤儿清单映射**：legacy CLI 路由快照根（F519/F513 同面，executor.py PROJECT_DIR=REPO_ROOT + 掩蔽测试）→ spec #67；F311 curated 零消费者 → spec #67（wire-or-remove 裁决）；T1108 离线可执行模式 → spec #67（设计裁决）；T1608 save_state 增量化 → deviation（#44 Done 终态全量写，增量收益未裁决——产品裁决后另立）；C28 token 架构（审计波 29% 冗余输入）→ deviation（同前，#42 R1 出账）
+- **终态约定**：08-15 ledger 关闭字样之外存留 = 3 行 re-homed open（F519/F311/T1108）+ 17 行 C18 `merged (spec #56 PR #194)` 记法 + 2 行 out-of-cluster 终态（F401/F408）；T1601 关闭后 08-15 零 bare verified。注：T1002 行为全角括号 `closed（顺带修复）` 记法——在 ASCII `closed (` grep 口径下呈第 23 行「存留」，语义实已关闭（PR #42 顺带修复），非本 pass 处置面
+- **#67 登记**：本 pass 仅登记不实施（先例：2026-09-11 维护 pass 登记 #66）
+- **文件名引用处置**：本总纲文件名现存引用 6 处（4 归档 plan + final-report.md + 本 pass plan 随本 PR 归档），均 append-only 历史引用，基名可寻不改写（#228 先例）
