@@ -74,7 +74,7 @@ def g4_context_composing(
 
         # Required layer-based section titles (P1-P7) OR pipeline route-based
         # format (route-a:, route-b:, route-c:) from pipeline-context-assemble.
-        # In pipeline mode, context-composing curates the pre-assembled output
+        # In pipeline mode, context-composing consumes the pre-assembled output
         # rather than generating P1-P7 from scratch.
         has_p_format = all(s in content for s in REQUIRED_SECTIONS)
         has_route_format = bool(re.search(r"## route-[abc]:", content))

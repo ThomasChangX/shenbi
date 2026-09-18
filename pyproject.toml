@@ -147,7 +147,6 @@ convention = "google"
 "src/shenbi/pipeline/chapter_loop.py" = ["BLE001"]
 "src/shenbi/pipeline/cli.py" = ["BLE001"]
 "src/shenbi/pipeline/context_assemble.py" = ["BLE001"]
-"src/shenbi/pipeline/context_curation.py" = ["BLE001"]
 "src/shenbi/pipeline/crash_recovery.py" = ["BLE001"]
 "src/shenbi/pipeline/dispatch_helper.py" = ["BLE001"]
 "src/shenbi/pipeline/parallel_dispatch.py" = ["BLE001"]

@@ -1039,12 +1039,12 @@ def cmd_chapters(args: argparse.Namespace) -> int:
 
 
 def cmd_backfill_context(args: argparse.Namespace) -> int:
-    """Re-run deterministic context assembly + curation for a chapter range.
+    """Re-run deterministic context assembly for a chapter range.
 
     These are deterministic Python functions and can be re-executed safely to
     close coverage gaps for already-generated chapters. Uses the real
-    assemble_context(project_dir, plan_path) / write_context_file / curate_context
-    signatures (spec §3.1 backfill).
+    assemble_context(project_dir, plan_path) / write_context_file signatures
+    (spec §3.1 backfill; curated layer removed by spec #67).
     """
     project_path = Path(args.project_dir)
 
@@ -1066,18 +1066,12 @@ def cmd_backfill_context(args: argparse.Namespace) -> int:
 
 def _backfill_range(project_path: Path, chapter_range: range) -> int:
     from shenbi.pipeline.context_assemble import assemble_context, write_context_file
-    from shenbi.pipeline.context_curation import curate_context
-    from shenbi.safe_write import safe_write
 
     for ch in chapter_range:
         try:
             plan_path = f"plans/chapter-{ch}-plan.md"
             pkg = assemble_context(project_path, plan_path)
             write_context_file(project_path, ch, pkg)  # safe_write inside
-            curated = curate_context(project_path, ch)
-            curated_path = project_path / "context" / f"chapter-{ch}-curated.md"
-            curated_path.parent.mkdir(parents=True, exist_ok=True)
-            safe_write(curated_path, curated)
             echo(f"  Backfilled context for chapter {ch}")
         except Exception as e:
             echo(f"  FAILED chapter {ch}: {e}", err=True)

@@ -12,7 +12,7 @@ contract frontmatter). The tests pin two things:
 A final class, :class:`TestCrossSkillConsistency`, checks that the new contract
 edges line up across skills and with the pipeline's materialization targets
 (e.g. ``context/chapter-N-context.md`` is the pipeline-assembled package that
-``shenbi-chapter-drafting`` reads and ``shenbi-context-composing`` curates).
+``shenbi-chapter-drafting`` reads and ``shenbi-context-composing`` consumes).
 """
 
 from __future__ import annotations
@@ -186,7 +186,7 @@ class TestStyleLearningBootstrap:
 
 
 class TestContextComposingPipelineMode:
-    """W4T6b: pipeline-mode curation of the pre-assembled context package."""
+    """W4T6b: pipeline-mode consumption of the pre-assembled context package."""
 
     def test_pipeline_integration_section_present(self) -> None:
         text = _skill_text("shenbi-context-composing")
@@ -236,7 +236,7 @@ class TestCrossSkillConsistency:
 
     def test_context_package_consumers_agree(self) -> None:
         # the pipeline materializes context/chapter-N-context.md (chapter_loop
-        # output_path); chapter-drafting reads it, context-composing curates it.
+        # output_path); chapter-drafting reads it, context-composing consumes it.
         drafting = _read_paths("shenbi-chapter-drafting")
         composing_text = _skill_text("shenbi-context-composing")
         assert self.CONTEXT_PACKAGE in drafting

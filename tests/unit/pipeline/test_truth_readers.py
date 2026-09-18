@@ -111,7 +111,7 @@ def test_missing_file_returns_empty(tmp_path: Path) -> None:
     ],
 )
 def test_g67_consumes_same_records(consumer: str, expected: set[str]) -> None:
-    """All three consumers (context_curation / G6.7 / truth_index) go through
+    """All consumers (G6.7 / truth_index / chapter_loop) go through
     read_pending_hooks — verified here via one consumer path.
     """
     if consumer == "g67":
