@@ -18,7 +18,8 @@ repos:
             structlog>=24.1.0,
             pyyaml>=6.0.1,
             types-PyYAML>=6.0.12,
-            numpy>=1.26.0,
+            "numpy>=1.26.0,<2.5",
+            "httpx>=0.27,<1.0",
             openai>=2.44.0,
             tenacity>=8.0.0,
           ]
