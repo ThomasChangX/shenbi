@@ -4,7 +4,7 @@
 
 **Goal:** 补齐 2026-08-15/08-14 两份 findings-ledger 的回写缺口（44 行编辑：08-15 侧 37 行 + 08-14 侧 7 行）、登记孤儿残留微修 spec #67、终稿归档审计修复总纲（spec #40）——37 簇修复计划的收官。
 
-**Architecture:** 纯 docs 变更、单 PR（Task 0 登记 commit + 四个 task commit + PR 号定稿 commit）。T1/T2 用确定性 python 脚本改写 ledger 行（按行 ID 定位、状态单元格改写或追加 `→` 列，映射表钉死新注记全文）；T3 登记 #67（spec 文件 + INDEX 行）；T4 总纲终稿（§8 收官记录 + §7 归档前注 + 头部 sunset）+ 双库归档移动 + INDEX/plans-INDEX 终态。所有注记文案以归档簇 spec 的回写/出账/驳斥修订节为权威源逐字转录。
+**Architecture:** 纯 docs 变更、单 PR（Task 0 登记 commit + 四个 task commit + PR 号定稿 commit）。T1/T2 用确定性 python 脚本改写 ledger 行（按行 ID 定位、状态单元格改写或追加 `→` 列，映射表钉死新注记全文）；T3 登记 #67（spec 文件 + INDEX 行）；T4 总纲终稿（§9 收官记录 + §7 归档前注 + 头部 sunset）+ 双库归档移动 + INDEX/plans-INDEX 终态。所有注记文案以归档簇 spec 的回写/出账/驳斥修订节为权威源逐字转录。
 
 **Tech Stack:** bash + python3（stdlib only，与仓库工具同构）；验证走 `just`/`uv run`。
 
@@ -16,7 +16,7 @@
 - 08-14 ledger 属 frozen run（run 级 row_columns/pipe_escape 豁免）——lint 不覆盖本 pass 的 08-14 编辑，grep 判据承担验证负担
 - ledger 只改状态列与追加注记列，**不改证据列/标题列/严重度列**（#42 出账协议「ledger 只改状态列与注记」）
 - 编号 append-only：#67 = 现有最大号 66 + 1；INDEX 删 #40 行不重排
-- 本 plan 文件与 #67 spec 正文引用总纲一律用「spec #40 总纲」措辞——除 Task 4 内部命令外**不得出现总纲裸文件名**（防额外引用 locus）
+- 本 plan 文件与 #67 spec 正文引用总纲一律用「spec #40 总纲」措辞——除 Task 4 内部外**不得出现总纲裸文件名**（防额外引用 locus）
 - 禁 `git add -A`/`git add .`；所有 commit 显式列文件路径；conventional commits 前缀 `docs:`
 - 分支：`chore/spec40-master-closure`；全程零真实 dispatch
 
@@ -82,7 +82,7 @@
 
 ### Task 0: 计划登记（前置——否则 Task 4 的 `git mv` 对未跟踪文件报错）
 
-- [x] **Step 1: Commit 本 plan + plans/INDEX.md 登记**（commit 8a79f182）
+- [x] **Step 1: Commit 本 plan + plans/INDEX.md 登记**（commit 21e7c9d1）
 
 ```bash
 git add docs/superpowers/plans/2026-09-18-spec40-master-closure.md docs/superpowers/plans/INDEX.md
@@ -177,7 +177,7 @@ grep -E '^\| F513 ' $L14 | grep -c 'spec #67'  # 期望 1
 **Interfaces:** Consumes: T1-T3 终态。Produces: 活跃队列仅 #67；归档核验基线。
 
 - [ ] **Step 1: 总纲三处编辑**
-  - 头部 Status 链尾追加：` · 收官 pass Done — 2026-09-18（37 簇全闭 + 回写补齐 43 行 + 孤儿裁决登记 #67；§5「直到全部簇关闭」保留条件到期，随本 PR 归档）`
+  - 头部 Status 链尾追加：` · 收官 pass Done — 2026-09-18（37 簇全闭 + 回写补齐 44 行 + 孤儿裁决登记 #67；§5「直到全部簇关闭」保留条件到期，随本 PR 归档）`
   - §7 节首（`spec 文件名为 2026-08-16 落盘实名` 行前）插入：`> 归档注记（2026-09-18）：本文件自 specs/ 移入 specs/archive/；下文 archive/<name> 引用为作者时点相对路径，基名不变仍可检索。`
   - 文件末尾新增 `## 9. 收官记录（2026-09-18 · 收官 pass）`：回写补齐清单（08-15 侧 37 行处置：34 关闭（30 簇行 + G×4）+ 3 改注（F519 纠偏/F311/T1108 re-home）；F401/F408 接受 out-of-cluster 终态不编辑；08-14 侧 T12×6 镜像关闭 + F513 re-home + F1204/F1205 frozen-run 出界声明一句——合计 44 行编辑；08-14 F415 行号漂移面已由 #42 R4 吸收（08-15 F415 孪生已关），frozen-run 政策不出回写面）；孤儿清单映射（legacy 快照根→#67、curated 零消费者→#67、T1108→#67、T1608 增量化→deviation 可复活、C28 token 架构→deviation（产品裁决后另立 spec））；终态约定（08-15 非 closed 字样行 = 3 re-homed open + 17 C18 merged 记法 + 2 out-of-cluster 终态；零 bare verified）；#67 登记声明（仅登记不实施，先例 2026-09-11 登记 #66）；文件名引用处置（6 处 append-only 历史引用：4 归档 plan + final-report.md + 本 pass plan（随本 PR 归档），基名可寻不改写）
 - [ ] **Step 2: 归档移动**
@@ -197,7 +197,7 @@ just audit-lint                                   # 绿
 just check                                        # EXIT=0（含 docs workflow 面 mkdocs --strict）
 ```
 
-（基线实测 2026-09-18：pass 前 6 处 = 4 旧归档 plan + final-report + 活跃 INDEX #40 行；pass 后仍 6 处，组成换为本 plan（随 PR 归档）替换 INDEX 行。总纲自身零自引。）
+（基线实测 2026-09-18：pass 前 7 处 = 4 旧归档 plan + final-report + 活跃 INDEX #40 行 + 本 plan 自身（Task 0 已跟踪）；pass 后仍 6 处，组成换为本 plan（随 PR 归档）替换 INDEX 行。总纲自身零自引。）
 - [ ] **Step 5: Commit + PR 流**——commit `docs(archive): spec #40 master closure done — 37-cluster program complete, ledger backfilled, spec #67 registered`（显式列全部涉及文件）；PR 描述含价值裁决摘要 + spec-deviations 全文 + ledger 摘要；`gh pr create` 取得 PR 号后，追加一个小 commit 将总纲头部 Status 链尾的「随本 PR 归档」补为「随 PR #N 归档」再 push（CI 重跑）
 - [ ] **Step 6: 产出 audit-T4.md**
 
@@ -205,7 +205,7 @@ just check                                        # EXIT=0（含 docs workflow �
 
 | 验收 | Task | 命令 |
 |---|---|---|
-| 08-15 回写补齐（35 行全处置） | T1 | Step 3 三 grep（0/0/3）+ closed 增量 +34 |
+| 08-15 回写补齐（37 行编辑全处置） | T1 | Step 3 三 grep（0/0/3）+ closed 增量 +34 |
 | 08-14 跨轮卫生（T12×6 + F513） | T2 | Step 3 逐行 grep |
 | #67 登记且仅登记 | T3 | count_active_specs==2（中间态）+ INDEX grep |
 | 总纲终稿归档 + 活跃队列正确 | T4 | count_active_specs==1 + git grep locus 集合 + just check EXIT=0 |

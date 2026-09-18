@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **2026-09-18-spec40-master-closure.md** — spec #40 审计修复总纲收官 pass（✅ ready）：08-15/08-14 ledger 回写补齐 43 行、spec #67 孤儿残留登记、总纲终稿归档
+- **2026-09-18-spec40-master-closure.md** — spec #40 审计修复总纲收官 pass（✅ ready）：08-15/08-14 ledger 回写补齐 44 行、spec #67 孤儿残留登记、总纲终稿归档
 
 ## 待执行的 spec → plan 映射
 
