@@ -10,7 +10,7 @@
 
 ## 1. F519/F513 · legacy CLI 路由写审计快照根错位
 
-- **证据**：`src/shenbi/dispatcher/executor.py:31-32`（`PROJECT_DIR = REPO_ROOT`）、`:309`/`:334`（`snapshot_tree(PROJECT_DIR, watch)`）；legacy 路由仍被 `dispatcher/cli.py:11` 引用；`tests/unit/dispatcher/test_executor_audit.py:18`/`:42` 以 `monkeypatch.setattr(ex, "PROJECT_DIR", tmp_path)` 掩蔽该根错位。生产面（`dispatch_helper` Tier B wrapper）已正确以派发项目目录为根——残留面限 legacy 回退路由
+- **证据**：`src/shenbi/dispatcher/executor.py:31-32`（`PROJECT_DIR = REPO_ROOT`）、`:309`/`:334`（`snapshot_tree(PROJECT_DIR, watch)`）；legacy 路由仍被 `src/shenbi/dispatcher/cli.py:11` 引用；`tests/unit/dispatcher/test_executor_audit.py:18`/`:42` 以 `monkeypatch.setattr(ex, "PROJECT_DIR", tmp_path)` 掩蔽该根错位。生产面（`dispatch_helper` Tier B wrapper）已正确以派发项目目录为根——残留面限 legacy 回退路由
 - **沿革**：08-14 F513（P1）→ C32 边界注记指向 spec #46 收口 → #46 Rejected → 08-15 F519 复查仍开 → 2026-09-07 #48 价值门误注「已修」（仅验生产面）→ 收官 pass 纠偏并 re-home 本 spec
 - **修复方向**：legacy 路由快照根对齐派发项目目录（与生产面同语义）；揭除测试掩蔽
 - **验收（可执行）**：`uv run pytest tests/unit/dispatcher/ -q` 全绿；新增/改写断言不 monkeypatch `PROJECT_DIR` 也能以项目目录为快照根；`grep -n "PROJECT_DIR = REPO_ROOT" src/shenbi/dispatcher/executor.py` 零命中（或附裁决注记的等价形态）
