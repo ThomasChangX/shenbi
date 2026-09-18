@@ -24,8 +24,8 @@
 - **状态**：Design | **优先级**：🟡 P2（两 finding 均 P2 · 微修 S 量级）
 - **方法**：机械替换 + 配置统一（两 finding 根因与修复路径均已定案，无需 systematic-debugging）
 - **依赖**：F750 素材源 = git 历史 `d120a444^:novel-output/xinghuo-ranqiong/`（生产树已出库 PR #217；内容自 2026-07-20 未变）+ synthetic-sample 回退面，映射表见 spec；F0-06 无依赖
-- **内容**：(1) F750：test_gate_cli.py `_make_worldbuilding_project`（:27-97）手工捏造换 fixture 拷贝（首选 novel-output upstream-copy 引入、载体双形态，映射表见 spec），仅保留目录组装逻辑；(2) F0-06：pyproject python 版本三元统一为 3.11（mypy :379 改值，其余两处已符）
-- **对应 plan**：❌ 未写
+- **内容**：(1) F750：test_gate_cli.py `_make_worldbuilding_project`（:27-97）手工捏造换 fixture 拷贝（首选 git 历史 d120a444^ upstream-copy 引入、载体三形态——单块合并/前置单块/sidecar、chapter_summaries frontmatter 重建裁决，映射表见 spec），仅保留目录组装逻辑；(2) F0-06：pyproject python 版本三元统一为 3.11（mypy :379 改值，其余两处已符）
+- **对应 plan**：✅ `plans/2026-09-18-spec66-f750-fixture-real-f006-pyver.md`
 
 ---
 

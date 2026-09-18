@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-18（spec #65 plan Done 并归档——PR #227）
-> **活跃 plan 数**：0 | **已归档**：120（见 `archive/`）
+> **最后更新**：2026-09-18（spec #66 plan 创建 ✅ ready——F750 真实 fixture 化 + F0-06 三元统一）
+> **活跃 plan 数**：1 | **已归档**：120（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无）
+- **2026-09-18-spec66-f750-fixture-real-f006-pyver.md** — spec #66（遗留微修批）：T1 xinghuo-ranqiong upstream-copy fixture 树（三类载体 + 守卫测试）/ T2 gate CLI 集成测试目录组装化 / T3 mypy python_version 3.11 统一 · 状态 ✅ ready
 
 ## 待执行的 spec → plan 映射
 
