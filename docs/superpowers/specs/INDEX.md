@@ -1,6 +1,6 @@
 # Spec 执行索引
 
-> **最后更新**：2026-09-18（spec #66 遗留微修批 Done——PR #229（价值门 REWRITE：素材源重定向 git 历史 d120a444、truth 载体单块化、chapter_summaries 重建裁决）+ PR #230（实施：F750 真实 fixture 化 + F0-06 三元统一 + numpy <2.5 封顶伴生裁决）；F750/F0-06 两 ledger 行回写 closed。现序 #40——活跃队列仅剩总纲（37 簇全闭簇、索引长期保留），无待执行项）
+> **最后更新**：2026-09-18（spec #66 遗留微修批 Done——PR #229（价值门 REWRITE：素材源重定向 git 历史 d120a444^、truth 载体单块化、chapter_summaries 重建裁决）+ PR #230（实施：F750 真实 fixture 化 + F0-06 三元统一 + numpy <2.5 封顶伴生裁决）；F750/F0-06 两 ledger 行回写 closed。现序 #40——活跃队列仅剩总纲（37 簇全闭簇、索引长期保留），无待执行项）
 > **活跃 spec 数**：1
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
