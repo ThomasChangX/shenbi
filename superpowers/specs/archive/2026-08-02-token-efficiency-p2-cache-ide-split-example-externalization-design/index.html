@@ -1,0 +1,1936 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#token-p2-dispatch-ide-cli-system-user-skillmd" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. 分工与决策原则
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0. 分工与决策原则">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#01-01-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.1 决策原则（继承总纲 §0.1，本 spec 强化度量要求）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#02-p2-63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.2 P2 五项归属（总纲 §6.3 的完整处置）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-finding-33-dispatch-cluster-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Finding 3.3 — 跨 dispatch 文件缓存层（Cluster C 核心）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Finding 3.3 — 跨 dispatch 文件缓存层（Cluster C 核心）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 症状
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-pr-39" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 证据（PR #39 后行号）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 根因
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 分类
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-tokenledger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.5 浪费量（需 TokenLedger 实证）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.6 质量影响
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#17-content-hash-per-chapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.7 修复方案：content-hash 失效的 per-chapter 文件缓存
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#18-t_b-2026-09-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.8 验证（已随 T_B 降级作废，2026-09-17 · 防误采用横幅——下表为历史设计，勿据此实施）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-finding-39-ide-cli-systemuser-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Finding 3.9 — IDE-CLI system/user 分离 + system 前缀稳定
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Finding 3.9 — IDE-CLI system/user 分离 + system 前缀稳定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 症状
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-pr-39" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 证据（PR #39 后行号）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 根因
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 分类
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 浪费量
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 质量影响
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-stretch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7 修复方案：双形态（默认 + stretch）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-revised-2026-09-17-provideride-cache-hit-rate-g4-skills-pass-01-dispatch-audit-run-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.8 验证（Revised 2026-09-17 · 表中 provider/IDE cache hit rate 与"G4 全 skills"三行属历史设计——本 pass 验收一律离线纯函数口径（§0.1），真实 dispatch 面归后续 audit-run；权威验收表见 §5）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-finding-310-skillmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Finding 3.10 — 重 SKILL.md 内嵌示例外置
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Finding 3.10 — 重 SKILL.md 内嵌示例外置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 症状
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 证据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 根因
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 分类
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-revised-2026-09-17-3-per-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 浪费量（Revised 2026-09-17 轮 3 · per-skill 实测重基线 + 频率表）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 质量影响
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-revised-2026-09-17-3-body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 修复方案（Revised 2026-09-17 · 阶段 3 设计审查后重设计）：body 瘦身 + 外置参考文件（运行时不注入）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#38-revised-2026-09-17-2-g4-checker-skillmd-body-body-testsfixtures-5-skill-g09-audit-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8 验证（Revised 2026-09-17 轮 2 · 全离线；G4 行撤除——checker 不读 SKILL.md body，对 body 瘦身零信号，且 tests/fixtures 无这 5 skill 产物（G0.9 禁手造），格式遵循度归后续 audit-run）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#39-revised-2026-09-17-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9 回滚预案（Revised 2026-09-17 轮 2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 实施顺序与依赖
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-revised-2026-09-17-t_b-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 验证标准（Revised 2026-09-17 · T_B 降级传导 + tier/离线切分）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-3-p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 铁律（3 条，P2 专属）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 与已归档总纲 + 兄弟子 spec 的关系
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 依赖关系图
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="token-p2-dispatch-ide-cli-system-user-skillmd">Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-08-02
+<strong>Status:</strong> Done (PR #223 · post-merge review fixes PR #224 · 2026-09-17)（原 Design，<strong>Revised 2026-09-17</strong> · 八轮修订：①价值门复核——§1 降级为不实施（审计波部分已被归档 spec #42/PR #153 的 C28 R1 字节等价读抑制实现，剩余非审计链缺口为纯磁盘 I/O，按本 spec 铁律 1 度量将归零）；②阶段 3 轮 1——§3.7 重设计为「body 瘦身 + 外置参考文件（运行时不注入）」，废弃 <code>dispatched_examples</code>；③轮 2——per-skill 实测重基线、外置边界规则（输出契约永不外置）、不可触碰不变量清单、G4 验收行撤除、引用行强制；④轮 3——存储改判 skill 自有目录（<code>_shared/</code> 被 test_skill_name_validation + YAGNI 双重证伪，零豁免零测试改动）、per-dispatch 频率口径；⑤轮 4——范围声明改继承集口径（当时计 11 个 &gt;10KB，轮 7 修正确为 12；范围外最大候选 foreshadowing-lifecycle 剥离后实为第三——resonance/arc-payoff 居前且两者终版 SKIP 不裁）、arc-payoff 预裁 SKIP（示例块整体为 checker 锚定结构，净省 &lt;500B）、resonance/pacing 范围对齐节边界、INDEX #6 注册卡同步；⑥轮 5——resonance 分解为仅填充值外置（机器契约结构 :129/:136/:142-149/:155-162/:169-176 全留，净省 ~0.4-0.6KB）、state-settling 预裁 SKIP（:231-232 强制输出 → 契约）——§3.6 对齐 G4 撤除裁决、T_D 补离线断言；⑦轮 6——resonance 诚实分解（408-521B，扣 146B 引用行净 262-375B）后阈值口径终裁 SKIP；⑧轮 7-8——state-settling 改定性裁决口径（734B/净 588B 超阈值，风险收益不值）、数字残留清除（262-433→262-375、572→523、11→12）、SKIP 三者口径三分统一，引用行成本修正为实测 146B，chapter-pattern/pacing 净省按此重算（~741B/~723B）——<strong>实施集终版 2 skill，一次性 ~1.3KB 落地（689B+623B）、稳态 ~0.12KB/章；T_C 残余价值边际，pass 主交付 = T_A 实施 + T_D 裁决记录（</strong>T_D 本体未实施<strong>——codex CLI 无 <code>--system-prompt</code> flag，强形态放弃，见 §2.7）+ 分解证据</strong>。§2/度量前提复核存活；全文行号按 main@4eedf14d 刷新）
+<strong>Severity:</strong> 🟡 Medium（效率优化，非阻塞；格式遵循度验证归 audit-run（G4 checker 不读 SKILL.md body，零信号——轮 2 裁决），且 P2 的度量前提——TokenLedger 接线——已由 PR #39 落地）
+<strong>方法:</strong> <a href="../2026-07-19-06-llm-context-engineering-design/"><code>systematic-debugging</code></a> skill 四阶段（Root Cause → Pattern → Hypothesis → Implementation）
+<strong>系列:</strong> Token 效率全栈 audit（效率优化轮，承接已归档总纲 <a href="../2026-08-01-pipeline-read-write-consistency-audit-design/"><code>archive/2026-08-01-pipeline-read-write-consistency-audit-design.md</code></a> §6.3 P2 五项中的三项；另两项——shared_context serial 接线（3.2）、world_summarizer 落地（2.3 #8）——见 §0.2 分工）
+<strong>依赖:</strong> 已归档总纲 spec（同目录 2026-08-01-pipeline-read-write-consistency-audit-design.md：决策原则、Cluster C 重复传输根因簇、§3.3/§3.9/§3.10 findings）；PR #39（TokenLedger API 路径接线 §3.1，是本 spec 全部收益的度量前提）；<code>src/shenbi/pipeline/{dispatch_helper,audit_context_cache,chapter_loop}.py</code>；<code>skills/shenbi-{chapter-pattern,review-resonance,review-arc-payoff,pacing-design,state-settling}/SKILL.md</code>
+<strong>前置已完成（PR #39）:</strong>
+- ✅ TokenLedger.record() 已接 API 路径（<code>_record_token_usage</code> → <code>_log_token_usage</code> → <code>TokenLedger</code>），<code>cost/token-ledger.jsonl</code> 一章 round 后非空——<strong>本 spec 所有"prompt_tokens 下降"的可量化验证依赖此</strong>
+- ✅ <code>_log_token_usage</code> 双形处理（bare Usage + response wrapper），streaming 路径不再静默早退
+- ⚠️ IDE-CLI 路径精确用量仍未记录（codex exec stdout 是 prose）——但 C10 起有 <code>estimated=True</code> 下界行兜底（见 §0.1 度量口径，Revised 2026-09-17）
+<strong>范围:</strong> 本 spec 只审 <strong>P2 效率优化</strong>——跨 dispatch 的重复传输（Cluster C）的缓存层、IDE-CLI 路径绕过 provider prompt cache、重 SKILL.md 内嵌示例的按需外置。<strong>不审</strong> P0 纯浪费（PR #39 已清）、不审 P1 契约一致（PR #39 已清）、不审采样/模型/重试（见子 spec #3 推理控制）、不审输出侧浪费（见子 spec #5）、不审确定性替换（见子 spec #4）。
+<strong>Purpose:</strong> 把总纲 §6.3 P2 五项中的三项（3.3 / 3.9 / 3.10）从"设计提议"推进到"可实施 plan"——各自定位根因、给出最小可行实现、标注 G4 回归风险与验证路径。P2 的本质是"动 prompt/调用结构本身"，与 P0/P1（删已有浪费）不同：<strong>每一项都可能影响输出质量，必须准备回滚；运行时格式遵循度验证归 audit-run（G4 checker 不读 SKILL.md body，零信号——Revised 2026-09-17 轮 2 裁决）</strong>。</p>
+</blockquote>
+<hr />
+<h2 id="0">0. 分工与决策原则</h2>
+<h3 id="01-01-spec">0.1 决策原则（继承总纲 §0.1，本 spec 强化度量要求）</h3>
+<p>质量 &gt; token &gt; 速度，但不应有浪费。<strong>G4/gate 仍是唯一质量裁判</strong>，但 P2 加一条：<strong>任何 prompt/调用结构改动，必须用 PR #39 接好的 TokenLedger 度量"改前 vs 改后"的 prompt_tokens 差值</strong>——无度量 = 不可证收益 = 不合并。</p>
+<p><strong>度量口径（Revised 2026-09-17）:</strong> IDE-CLI 路径自 C10（spec #36 T5/F796）起每次 dispatch 落一条 <code>estimated=True</code> 下界行（<code>_record_estimate_row</code>，dispatch_helper :1799 def / :2559 调用，覆盖 system+user 拼接全文）——字节级削减在 IDE 路径已可按<strong>下界口径</strong>度量。精确 completion 用量仍需 API 路径或 codex <code>--json</code> usage-report（子 spec #3 域）。本 spec 的验收度量一律用离线纯函数 <code>estimate_prompt_tokens</code>（<code>src/shenbi/cost/estimate.py</code>）对构建出的 prompt 求值，不触发真实 dispatch（核心原则 8）。</p>
+<h3 id="02-p2-63">0.2 P2 五项归属（总纲 §6.3 的完整处置）</h3>
+<table>
+<thead>
+<tr>
+<th>总纲 finding</th>
+<th>内容</th>
+<th>归属</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.3</td>
+<td>跨 dispatch 文件 read_text 无缓存</td>
+<td>~~本 spec §1~~（<strong>Revised 2026-09-17 降级不实施</strong>：审计波已归 #42/PR#153，剩余缺口纯 I/O 无 token 收益，见 §1 复核注记）</td>
+<td>Cluster C 核心，cache 层设计（已裁决）</td>
+</tr>
+<tr>
+<td>3.9</td>
+<td>SKILL.md 全文每次 dispatch 重发 + IDE-CLI 绕 provider cache</td>
+<td><strong>本 spec §2</strong></td>
+<td>system/user 分离 + 前缀稳定</td>
+</tr>
+<tr>
+<td>3.10</td>
+<td>5 个 &gt;10K SKILL.md 内嵌重示例</td>
+<td><strong>本 spec §3</strong></td>
+<td>示例外置为维护者参考文档（Revised 2026-09-17：运行时不注入，非"按需 read"）</td>
+</tr>
+<tr>
+<td>3.2</td>
+<td>SharedAuditContext 漏接 serial audit_layer</td>
+<td><strong>延后，并入子 spec #5</strong>（输出侧 F9 审计交叉冗余同路径）</td>
+<td>serial 审计波是输出侧审计冗余的同源问题；合并修避免两 spec 改同一函数</td>
+</tr>
+<tr>
+<td>2.3 #8/#9</td>
+<td>world_summarizer.py + skills/_shared/ 未实现</td>
+<td><strong>延后，独立小 spec</strong>（Revised 2026-09-17 轮 3：§3 改用 skill 自有目录，不建 <code>_shared/</code>——5 个外置文件无一共享，基建推迟到真实共享消费者出现）</td>
+<td>world_summarizer 与共享基建另行立项</td>
+</tr>
+</tbody>
+</table>
+<p><strong>本 spec 聚焦 3.3 / 3.9 / 3.10 三项</strong>。3.2 归子 spec #5；2.3 #8/#9 延后独立立项（轮 3 裁决）。</p>
+<hr />
+<h2 id="1-finding-33-dispatch-cluster-c">1. Finding 3.3 — 跨 dispatch 文件缓存层（Cluster C 核心）</h2>
+<blockquote>
+<p><strong>Revised 2026-09-17（价值门复核 · 降级为不实施）</strong>：本节所述"无跨调用缓存"在审计波已不成立——归档 spec #42/PR #153 的 C28 R1 落地了 <code>SharedAuditContext.raw_files</code> 字节等价读抑制（覆盖 chapter-N / world/rules / character_matrix / style_profile / pending_hooks 五文件，<code>_build_skill_prompt</code> :690 命中检查，章界于审计波起点整建）。剩余缺口（非审计主链 step 1-8 / revision / audit_layer / genesis / closure / triggers 不注入 shared_context，chapter_summaries / current_state 不在 raw_files）为<strong>纯磁盘 I/O 去重</strong>——缓存命中在 <code>filter_to_fields</code>（:699）之前且字节等价，<strong>不减少 prompt 发送字节</strong>；§1.5 的 token 浪费估算与 §1.8 的 prompt_tokens 下降行系错位归因（真实的输入侧 token 削减归 Layer B 字段过滤（spec #65）与本 spec §3 示例外置）。按本 spec 铁律 1（无度量 = 不可证收益 = 不合并），T_B 不实施。高 churn truth 文件的"每章发送一次"语义是另一种更高风险的设计（改每 dispatch 的 prompt 内容），不在本 spec 范围。</p>
+</blockquote>
+<h3 id="11">1.1 症状</h3>
+<p>同一 truth 文件在一章内被 5-8 个 dispatch 重复 <code>read_text</code> 并全文发给 LLM。<code>truth/pending_hooks.md</code> 被 22 个 skill 声明为 read，<code>chapter_summaries.md</code> 16 个，<code>character_matrix.md</code> 12 个（grep <code>skills/shenbi-*/SKILL.md</code> 计数，含 producer 自身契约）；单章链 planning→context→drafting→revision→state-settling 内 <code>pending_hooks</code> 至少读 3 次。</p>
+<h3 id="12-pr-39">1.2 证据（PR #39 后行号）</h3>
+<ul>
+<li><code>dispatch_helper.py</code> <code>_build_skill_prompt</code> 的 read 循环：每次调用都 <code>content = full_path.read_text(encoding="utf-8")</code>（<code>_input_key</code> 调用点之上），无跨调用缓存。</li>
+<li>对比：<code>_load_executor_config</code> / <code>_load_genre_config_cached</code> 是显式缓存的（module-level dict）。</li>
+<li><code>SharedAuditContext</code>（<code>audit_context_cache.py</code>）是"本章已发文件集"的<strong>局部实现</strong>，但只覆盖 parallel 审计波的 4 个 truth 文件（world_rules / character_matrix / style_profile / pending_hooks），且只注入、不缓存非审计 dispatch。</li>
+</ul>
+<h3 id="13">1.3 根因</h3>
+<p>dispatcher 把每次 dispatch 视为独立无状态调用，没有"本章已发送文件集"的概念。<code>SharedAuditContext</code> 是这个概念的正确抽象，但作用域被限定在审计场景。</p>
+<h3 id="14">1.4 分类</h3>
+<p>冗余待去重（provider 端 prompt caching 在 API 路径能部分兜底；IDE-CLI 路径完全不兜底——见 §2）。</p>
+<h3 id="15-tokenledger">1.5 浪费量（需 TokenLedger 实证）</h3>
+<p>估算：单章 ~5-8 个非审计 dispatch × ~30-60KB truth 集合 = ~150-480KB 重发/章。<strong>PR #39 后可用 TokenLedger 精确度量</strong>（改前跑一章记 baseline，改后跑同章对比）。</p>
+<h3 id="16">1.6 质量影响</h3>
+<p>无（重复内容不影响输出）——<strong>这是 P2 中唯一"真零质量风险"的项</strong>，理论可直接做。但缓存失效语义（§1.7）若错会引入 stale-read 正确性 bug。</p>
+<h3 id="17-content-hash-per-chapter">1.7 修复方案：content-hash 失效的 per-chapter 文件缓存</h3>
+<p><strong>核心设计:</strong> 在 pipeline state 上挂一个 <code>chapter_file_cache: dict[str, str]</code>（key = <code>_input_key</code> 相对路径，value = 文件内容切片）。<code>_build_skill_prompt</code> 的 read 循环命中缓存则用缓存切片，未命中则 <code>read_text</code> + 入缓存。</p>
+<p><strong>失效语义（总纲 Phase-2 C2 修复——content-hash，非 write-event）:</strong></p>
+<p>repo 有 6+（实测 20）skill 同章既读又写 truth 文件（drift-guidance / foreshadowing-recall / memory-distill / state-settling 写 <code>pending_hooks</code> 后被下章 planning 读 等）。"写后失效"过宽（mid-chapter 对未变内容重读）或过窄（stale-read）。<strong>正确语义:</strong></p>
+<ul>
+<li>缓存不变式：<code>chapter_file_cache[k]</code> 反映文件 <code>k</code> 在<strong>本章 planning phase 的内容</strong>（章首快照）。</li>
+<li>失效当且仅当：post-write bytes ≠ cached bytes（content-hash 比对）。</li>
+<li>具体：每个 skill dispatch 完成后，检查其 <code>writes:</code>/<code>updates:</code> 契约中的 truth 文件；若磁盘当前内容 hash ≠ 缓存 hash，则 evict 该 key（下一 dispatch 重新 read）。</li>
+<li>不做"写事件即失效"——因为同章内某 skill 写 <code>pending_hooks</code> 后，后续 skill 读到的是<strong>新内容</strong>，这恰恰是正确行为（不是 stale），不该 evict。</li>
+</ul>
+<p><strong>替代方案（更保守，推荐首版）:</strong> 缓存<strong>只覆盖 read-only truth 文件</strong>——即排除任何在 producer 自身 <code>writes:</code>/<code>updates:</code> 中的文件。<code>world_rules.md</code> / <code>character_matrix.md</code>（state-settling 写但章内其他 dispatch 读的是章首版）等明确"章首快照语义"的文件入缓存；<code>pending_hooks.md</code> / <code>current_state.md</code>（章内会被 append/update）不入缓存。<strong>这避免了失效语义的复杂性，代价是少缓存几个高 churn 文件。</strong></p>
+<h3 id="18-t_b-2026-09-17">1.8 验证（<strong>已随 T_B 降级作废，2026-09-17 · 防误采用横幅</strong>——下表为历史设计，勿据此实施）</h3>
+<table>
+<thead>
+<tr>
+<th>标准</th>
+<th>当前（PR #39 后）</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>同章同文件 read_text 次数</td>
+<td>baseline（TokenLedger 可间接推算）</td>
+<td>下降（read-only truth 文件每章 1 次）</td>
+</tr>
+<tr>
+<td><code>cost/token-ledger.jsonl</code> prompt_tokens（同章 baseline vs 改后）</td>
+<td>baseline</td>
+<td>下降 ≥150KB/章估算值的对应 token</td>
+</tr>
+<tr>
+<td>G4 全 skills</td>
+<td>PASS</td>
+<td>PASS（质量铁律不退让；FAIL 即回滚）</td>
+</tr>
+<tr>
+<td>read→write→read 序列（stale 验证）</td>
+<td>n/a</td>
+<td>不返回 stale slice（若用保守方案则 N/A——high-churn 文件不入缓存）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-finding-39-ide-cli-systemuser-system">2. Finding 3.9 — IDE-CLI system/user 分离 + system 前缀稳定</h2>
+<h3 id="21">2.1 症状</h3>
+<p>同一 skill 在一章内被多次 dispatch 时，其 SKILL.md 每次都作为 system prompt 全量发送。<strong>本 spec 的 5 个目标文件是 finding 3.10 的继承集（2026-08-01 审计时的最大五文件；Revised 2026-09-17 轮 4 口径修正）</strong>：<code>review-resonance</code> 14,829 字节 / <code>review-arc-payoff</code> 13,799 / <code>state-settling</code> 12,322 / <code>chapter-pattern</code> 12,191 / <code>pacing-design</code> 11,338（PR #39 核实原值 13,987/13,354/11,582/11,089/10,996）。<strong>范围外注记（诚实披露）</strong>：截至 2026-09-17 全仓已有 12 个 SKILL.md &gt;10KB，其中 <code>foreshadowing-lifecycle</code>（13,292 B 原始，剥离后 12,828 B，现为全仓剥离后第三——resonance 14,373 / arc-payoff 13,350 居前，且两者终版均 SKIP 不裁）每章 dispatch、<code>review-group-character</code>（12,100）、<code>genre-config</code>（11,416）均晚于 08-01 审计诞生或长大——<strong>不在本 spec 范围</strong>（核心原则 7 单 spec 原子性：范围随 finding 3.10 继承，不随体积漂移扩张；后续候选另行立项/记 master 台账）。各目标频率见 §3.5 表。</p>
+<h3 id="22-pr-39">2.2 证据（PR #39 后行号）</h3>
+<ul>
+<li><code>dispatch_helper.py</code> <code>_build_skill_prompt</code>: <code>system_prompt = _strip_autogen_blocks(skill_file.read_text(...))</code>（PR #39 已剥离 auto-gen 块，但 SKILL.md body 本身仍每次重读重发）。</li>
+<li><strong>IDE-CLI 路径绕过 provider cache:</strong> <code>_dispatch_via_ide</code>（<code>dispatch_helper.py</code> def :2449，Revised 2026-09-17 行号）把 <code>full_prompt = f"{system_prompt}\n\n{user_prompt}"</code>（:2495）拼成单 stdin 字符串，<code>subprocess.run(cmd, input=full_prompt, ...)</code>（:2505-2507）。provider prompt cache 要求 system 与 user 分离、system 前缀字节稳定——拼接成单字符串完全绕过。</li>
+<li><code>_find_ide_cli</code>（:2428）构造 <code>codex exec --skip-git-repo-check -c sandbox_permissions=workspace-write -C {dir} -</code>——<strong>无 <code>--system</code> flag</strong>，stdin 是唯一输入通道。</li>
+</ul>
+<h3 id="23">2.3 根因</h3>
+<p>dispatcher 把 system prompt 当"每次重新组装的字符串"，而非"跨调用稳定的可缓存前缀"。</p>
+<h3 id="24">2.4 分类</h3>
+<p>冗余待去重（API 路径靠 provider cache 部分兜底；IDE-CLI 路径完全不兜底）。</p>
+<h3 id="25">2.5 浪费量</h3>
+<p>review 类一章 ~13 个器 × 6-14KB（Revised 2026-09-17 复测口径：多数 review SKILL.md 6-9KB，最大两器 ~14KB）——量级 ~100-170KB/章（API 路径有 cache 抵消大半；IDE-CLI 路径全损）。</p>
+<h3 id="26">2.6 质量影响</h3>
+<p>无。</p>
+<h3 id="27-stretch">2.7 修复方案：双形态（默认 + stretch）</h3>
+<p><strong>默认形态（必做，低风险）:</strong> 保证 system prompt 跨 dispatch <strong>字节稳定</strong>——同一 skill 同一章内多次 dispatch 时，<code>_strip_autogen_blocks</code> 的输出应确定性（无时间戳/随机）。当前实现已满足（read_text + 确定性 regex sub），但需加一个回归测试固化"同 skill 同文件两次 _build_skill_prompt 的 system_prompt 字节相等"。这使 API 路径的 provider cache 命中率最大化。</p>
+<p><strong>强形态（stretch，需 CLI 能力验证）:</strong> IDE-CLI 路径 system/user 分离——<strong>前提是 codex/zcode CLI 支持 system 参数</strong>。plan 阶段必须先验证：</p>
+<div class="highlight"><pre><span></span><code>codex exec --help | grep -i system     # 是否有 --system / --system-prompt flag
+zcode --help | grep -i system
+</code></pre></div>
+<ul>
+<li><strong>若支持:</strong> <code>_find_ide_cli</code> 构造命令时加 system flag，<code>subprocess.run</code> 用 <code>input=user_prompt</code>（stdin 只走 user），system 走 flag。<strong>离线断言（轮 5 M10）</strong>：配套测试断言构造出的 cmd 确实经 flag 路由 system 内容（而非仍拼接进 stdin）——强形态的验证不靠人眼。</li>
+<li><strong>若不支持:</strong> 强形态放弃；只做默认形态（system 前缀稳定），IDE 路径仍拼接但至少为未来 codex <code>--json</code> / system 支持预留接口。<strong>不可强行 hack（如把 system 塞进 codex 的 config 文件）——维护成本高于收益。</strong></li>
+</ul>
+<h3 id="28-revised-2026-09-17-provideride-cache-hit-rate-g4-skills-pass-01-dispatch-audit-run-5">2.8 验证（Revised 2026-09-17 · 表中 provider/IDE cache hit rate 与"G4 全 skills"三行属历史设计——本 pass 验收一律离线纯函数口径（§0.1），真实 dispatch 面归后续 audit-run；权威验收表见 §5）</h3>
+<table>
+<thead>
+<tr>
+<th>标准</th>
+<th>当前</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>同 skill 同章两次 dispatch 的 system_prompt 字节相等</td>
+<td>未测（应是 True）</td>
+<td>回归测试固化（T_A，离线）</td>
+</tr>
+<tr>
+<td>API 路径 provider cache hit rate</td>
+<td>未度量</td>
+<td>本 pass 不度量（需真实 dispatch；后续 audit-run）</td>
+</tr>
+<tr>
+<td>IDE 路径 prompt cache hit rate</td>
+<td>0（单 stdin）</td>
+<td>若 CLI 支持 system flag 则架构上可达；否则维持 0 + 记录为已知限制</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-finding-310-skillmd">3. Finding 3.10 — 重 SKILL.md 内嵌示例外置</h2>
+<h3 id="31">3.1 症状</h3>
+<p>最大的 5 个 SKILL.md 把参考矩阵、算例、样例报告全嵌在 body 里，每次 dispatch 全发。<code>chapter-pattern</code> 含 13×13 模式转移矩阵 + Shannon 熵逐步算例 + 多输出模板；<code>review-resonance</code>/<code>review-arc-payoff</code> 各恰 1 个填满分的样例评分报告（Revised 轮 4 复测，原记 ~6 个系高估）；<code>state-settling</code> ≈55 行人工审批门禁模板（Revised 2026-09-17 复测行数，原记 65 行）。</p>
+<h3 id="32">3.2 证据</h3>
+<ul>
+<li><code>shenbi-chapter-pattern/SKILL.md</code>: 13×13 矩阵（模式：引入/升级/转折/揭示/决战/沉淀/日常/训练/探索/阴谋/逃亡/回忆/总结）+ 熵算例（<code>H = -Σp·log₂p</code> 逐步计算）。</li>
+<li><code>shenbi-state-settling/SKILL.md</code>: <code>:172</code> 起"人工审批门禁"模板（格式段约 :177 起，审批签名行 :226，Revised 2026-09-17 行号，≈55 行）。</li>
+<li><code>skills/_shared/</code> 目录至 2026-09-17 仍不存在（审计时代证据：finding 2.3 #9 未落地；Revised 轮 4 注：本 spec 已改用 skill 自有目录方案，不再创建 <code>_shared/</code>——见 §3.7 目录裁决）。</li>
+<li><code>world_summarizer.py</code> <strong>仍不存在</strong>（2.3 #8 未落地）；<code>audit_context_cache.py:118-122</code> 的 <code>_summarize_if_large</code> 仍是截断式（截断时追加 <code>[TRUNCATED n/m]</code> 披露行；调用点 :77/:83——Revised 2026-09-17 行号）。</li>
+</ul>
+<h3 id="33">3.3 根因</h3>
+<p>skill 作者把"教学示例"和"每次执行的指令"混在同一文件；没有"面向维护者的参考文档"与"必发的指令/输出契约"分离（Revised 2026-09-17：措辞随重设计更新——外置物是运行时不注入的参考文档，非"按需 read 的 fixture"）。</p>
+<h3 id="34">3.4 分类</h3>
+<p>冗余待去重（示例对已熟练的执行是参考，不是每次必读）。</p>
+<h3 id="35-revised-2026-09-17-3-per-skill">3.5 浪费量（Revised 2026-09-17 轮 3 · per-skill 实测重基线 + 频率表）</h3>
+<p>阶段 3 实测各段字节数后，原"5 skill × ~3-5KB ≈ ~15-25KB"系高估（把输出契约段误计为可外置）。<strong>per-skill 可外置上限（实测段字节 → 保留骨架后净省估计）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>skill</th>
+<th>可外置段（实测字节）</th>
+<th>机器契约/输出契约段（保留 inline）</th>
+<th>净省估计</th>
+<th>dispatch 频率</th>
+<th>裁决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>review-resonance</td>
+<td>（诚实分解后 408-521 B：维度行填充值 :131-134 + 门判定示例 :139-140 ± 结果行 :126——其中 :126 的三合法结果枚举属结构非教学值）</td>
+<td>六列表头 :129（g4 <code>_DETAIL_COLS</code>）+ 列名注记 :136 + verdict 围栏规范 :142-149（<code>match_verdict_scoped</code>）+ <code>calibration:</code>/<code>anchors:</code> 块 :155-162（spec #33 T1b 框架消费）+ <code>### 共鸣短板</code> append-only 写语义 :151-153（drift-guidance 依赖）+ trend 追加块 :167-176（drift CLI 契约，含 :175 填充行）+ 声明行 :121 + 记录语义 :178</td>
+<td><strong>净省 262-375 B</strong>（408-521 B − 146B 引用行）</td>
+<td>每章 1 次（CHAPTER_STEPS）</td>
+<td><strong>预裁 SKIP（轮 6 C1 终裁，阈值口径）</strong>——净省 &lt;500B；与 arc-payoff 同阈值口径（state-settling 为定性裁决，见其行）</td>
+</tr>
+<tr>
+<td>review-arc-payoff</td>
+<td>（填充值实测 523 B）</td>
+<td>示例块 :121-159 整体为 checker 锚定结构（<code>_DETAIL_COLS</code>、5 维度行、门判定/子底线）；R2 声明行 :118-119</td>
+<td><strong>净省 377 B</strong>（523−146）</td>
+<td>每卷/弧 1 次（closure.py:88 / triggers.py:245；audit_layer:109 章触发已禁用）</td>
+<td><strong>预裁 SKIP</strong>（轮 4 C2，阈值口径）</td>
+</tr>
+<tr>
+<td>chapter-pattern</td>
+<td>熵公式段 + 逐步算例 :296-332（887 B）</td>
+<td>13×13 矩阵（输出模板内）+ 熵评级阈值 :334 + 输入文档化要求 :344+（helper_injection 已代算熵值，公式段属教学）</td>
+<td><strong>验收下限：净降 ≥450 字符且 est ≥140</strong>（plan 审查实测：锚块含必需 H2 标题 198B，净 ~689B/523 字符/est 159——原 741B 系不含标题的 146B 引用行预算，轮 8 后随 plan 修订）</td>
+<td>每 6 章 1 次（audit_layer:111）+ closure</td>
+<td>实施</td>
+</tr>
+<tr>
+<td>pacing-design</td>
+<td>三线比例 + 场景类型完整节 :84-110（869 B）</td>
+<td>EXACT 节标题输出模板（:122 起）+ <code>### 4. 单调性检测阈值</code>（:111-121 运行时检测指令）</td>
+<td><strong>验收下限：净降 ≥280 字符且 est ≥130</strong>（plan 审查实测：锚块含必需 H3 标题 237B，净 ~632B/370 字符/est 146——原 723B 系不含标题的 146B 引用行预算，轮 8 后随 plan 修订）</td>
+<td>创世 1 次/项目（genesis.py:67）+ 手动 re-dispatch（triggers.py 无自动触发）</td>
+<td>实施</td>
+</tr>
+<tr>
+<td>state-settling</td>
+<td>（交叉验证示例行 :241-246 实测 734 B；门禁模板 :177-226 本身全是占位符骨架）</td>
+<td>:231-232 明示"必须输出跨文件交叉验证表"——输出契约；门禁骨架 :172-226 同为输出物</td>
+<td>净省 588 B（734−146）——<strong>超阈值</strong></td>
+<td>每章 1 次（CHAPTER_STEPS）</td>
+<td><strong>SKIP（定性裁决）</strong>——非阈值口径：动无 G4 安全网的输出契约展示模板，588B 边际收益不值格式漂移静默风险（轮 7 修正口径）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>口径（轮 6 终裁）</strong>：收益按 <strong>per-dispatch 净省</strong>计（扣 146B 强制引用行）。<strong>实施集终版 2 skill（chapter-pattern/pacing）一次性行和 ~1.3 KB</strong>（落地实测 689B + 623B；plan 前估算 1.46KB 系不含标题锚的引用行预算）；稳态每章净省 ≈ chapter-pattern/6 ≈ <strong>~0.12 KB/章</strong>，pacing 按项目一次性贡献。<strong>resonance/arc-payoff 预裁 SKIP（阈值口径：净省 262-375B / 523B−146B=377B 均 &lt;500B）；state-settling SKIP（定性裁决：净省 588B 超阈值，但动无 G4 安全网的输出契约模板，588B 边际收益不值格式漂移风险）</strong>——五文件的重段主体是 checker/机器/输出契约结构，可外置的教学填充值占比极小；这是 finding 3.10 前提的部分驳斥：重 ≠ 可外置。<strong>净省 &lt;500B 的 skill 一律跳过，无豁免</strong>。IDE 路径（无 provider cache，字节全价）下上述节省全额兑现。诚实结论：T_C 的残余价值为边际（一次性 ~1.3KB + 稳态 ~0.12KB/章），本 pass 的主要交付是 T_A（字节稳定回归测试）+ T_D（IDE system/user 分离，plan 阶段 CLI 验证）+ 本节完整分解证据；T_C 两个边际 skill 的实施以"净省 ≥500B 规则内达标"为据，逐 skill 可独立回滚。</p>
+<h3 id="36">3.6 质量影响</h3>
+<p><strong>低-中（P2 中风险最高的一项）:</strong> 删填充值可能影响首次执行的格式遵循度。Revised 2026-09-17：G4 checker 不读 SKILL.md body（零信号），格式遵循度验证归后续 audit-run（§3.8）；本 pass 的机械防护 = 结构全留（骨架含全部 checker 锚定标记）+ 逐 skill 回滚。</p>
+<h3 id="37-revised-2026-09-17-3-body">3.7 修复方案（Revised 2026-09-17 · 阶段 3 设计审查后重设计）：body 瘦身 + 外置参考文件（运行时不注入）</h3>
+<blockquote>
+<p><strong>重设计理由（阶段 3 audit 轮 1 C1/C3/I4/I5）</strong>：原"首次带、后续引用"分发策略（<code>dispatched_examples</code> per-chapter state）三处致命：① <code>_build_skill_prompt</code>（:601）无 state 参数、两条路径调用点（:2168/:2478）不传 state——照字面实现只能是模块级可变全局（章界重置 / pause-resume 泄漏 / ThreadPool 并发竞态 / 10+ 调用方兼容全未定义）；② 主链每 skill 每章恰一次（chapter_loop:3056 CHAPTER_STEPS 循环），同章重复 dispatch 的真实来源主要是 G4 失败重试（:3038-3047 纠正反馈注入；另有审计阻塞修订循环 :3225-3258 与 resonance 重评上限（其 SKILL.md:117 最多 2 次重评）——轮 4 M5 补正）——首发全量示例、收益只在第二次以后 ≈ 零收益搬家；③ 重试恰是模型最需要格式示范的时刻（刚在结构校验上失败），此时撤示例是负向交互，且"本章首次 dispatch 已提供"对每次都是全新对话的模型实例是伪陈述。</p>
+</blockquote>
+<p><strong>新设计：无条件 body 瘦身——每次 dispatch 的 system prompt 都变小，收益不依赖章内 dispatch 次数。</strong></p>
+<p><strong>目录裁决（Revised 2026-09-17 轮 3 C1+I1 · 放弃 <code>_shared/</code>，改用 skill 自有目录）:</strong> 原"建 <code>skills/_shared/</code>"方案被证伪：① <code>tests/unit/contracts/test_skill_name_validation.py:28-32</code> 枚举 skills/ 全部子目录（仅 <code>is_dir()</code> 过滤）验名，<code>_shared</code> 不合 <code>^[a-z0-9][a-z0-9-]*$</code>（<code>contracts/loader.py:58</code>）→ just check 必红；② 5 个外置文件无一跨 skill 共享，<code>_shared/</code> 是为推迟的消费者（world_summarizer #8/#9）预建的投机基建（YAGNI）。<strong>改用 skill 自有目录</strong>——对齐双先例 <code>skills/shenbi-chapter-drafting/anti-ai-reference.md</code>、<code>skills/shenbi-review-era/era-reference.md</code>：外置文件如 <code>skills/shenbi-review-resonance/review-resonance-examples.md</code>，dispatcher 只注入 <code>SKILL.md</code> 不注入同目录其他文件，裸文件名引用同样命中 <code>lint_contract_prose.py:186</code> branch-b 的 <code>skills_root.glob(f"*/{base}")</code> 存在性检查（dead-link 防护等价）。<strong>不需要</strong> lint_registry_reconcile 豁免、<strong>不需要</strong>目录不变量、<strong>不需要</strong>改任何测试。<code>_shared/</code> 基建推迟到真实共享消费者落地时（2.3 #8/#9 的基建半边随之外置——不再由本 spec 解决）。</p>
+<p><strong>外置边界规则（阶段 3 轮 2 I2 · 铁律级）:</strong> <strong>绝不外置模型必须在输出中复现的内容</strong>——输出模板、固定矩阵/表头、checker 校验的 EXACT 节标题（pacing-design :120+ 段、chapter-pattern 13×13 矩阵、state-settling 门禁文档骨架均属此类，保留 inline）。<strong>只外置填满的教学示例、演示算例、参考速查表</strong>。原 §3.7 初稿把矩阵/节奏模板列入外置对象系误判，已纠正。</p>
+<p><strong>不可触碰不变量（阶段 3 轮 2 I4 · 瘦身时一律保留）:</strong> DOT flowchart（五文件各 1 处）、<code>## Anti-Rationalization</code> 表（chapter-pattern:378 / review-resonance:225 / review-arc-payoff:179 / pacing-design:288 / state-settling:255）、硬门/铁律段、Route 表、decisions sidecar 的 body 声明段（state-settling frontmatter :17 + :281+ 附近）、frontmatter 契约（reads/writes/updates + decisions 声明）。</p>
+<p><strong>外置判定（Revised 轮 4 · 按 §3.5 表逐 skill，文件放各自 skill 目录）:</strong>
+- <code>review-resonance</code>: <strong>预裁 SKIP（轮 6 C1 终裁，阈值口径）</strong>——诚实分解（维度行填充值 + 门判定示例 ± 结果行）后净省 262-375B &lt; 500B，与 arc-payoff 同阈值口径；样例块主体为机器契约结构（表头/围栏/calibration 块/trend 契约/写语义 :151-153），教学填充值占比极小。
+- <code>review-arc-payoff</code>: <strong>预裁 SKIP（轮 4 C2）</strong>——示例块 :121-159 整体为 checker 锚定结构（g4/review_arc_payoff.py 要求输出复现 <code>_DETAIL_COLS</code> 六列表头、5 维度行名、门判定/伏笔兑现子底线），可外置的填充值实测 523 B，净 377B &lt;500B 跳过阈值；:118-119 的"审计报告写出至 <code>audits/volume-N-payoff.md</code>："是 declared write 目标的唯一 body 证据，本就不可动。
+- <code>chapter-pattern</code>: <strong>矩阵保留 inline</strong>（输出契约）；熵计算公式段 + 逐步算例（:296-332）外置到 <code>skills/shenbi-chapter-pattern/chapter-pattern-reference.md</code>；<strong><code>### 熵评级阈值</code>（:333）与 <code>### 熵计算公式输入文档化要求</code>（:344+）运行时必需，保留 inline</strong>（框架已由 helper_injection.py:162-168 确定性代算熵值——公式段属教学）。
+- <code>pacing-design</code>: <strong>EXACT 节标题输出模板（:122 起 <code>## 输出格式</code>）与 <code>### 4 单调性检测阈值</code>（:111-121，运行时检测指令）保留 inline</strong>；三线比例 + 场景类型完整节（:84-110，869 B）外置到 <code>skills/shenbi-pacing-design/pacing-design-reference.md</code>。
+- <code>state-settling</code>: <strong>SKIP（定性裁决，轮 7 修正口径）</strong>——:231-232 明示"必须输出跨文件交叉验证表"，:233-253 为该输出契约的展示模板；交叉验证示例行实测 734B、净省 588B <strong>超</strong>阈值——但动一个无 G4 安全网的输出契约模板、为 588B 承担格式漂移静默风险不值（裁决依据与 arc-payoff 的阈值口径不同，结论一致）。</p>
+<p><strong>引用行为（阶段 3 轮 2 I6 · 强制）:</strong> 每个新建外置文件<strong>必须</strong>在对应 skill body 中有引用行（无引用的外置文件 = dead wire；contract-prose R1 的 skill-bundle 分支会对裸文件名引用做存在性检查，构成机械防护）。引用行用<strong>裸文件名</strong>且诚实表述，如："完整样例见维护者参考 <code>review-resonance-examples.md</code>（本 skill 目录内，运行时不注入；输出格式以本文件模板为准）"——禁止斜杠路径（<code>lint_contract_prose.py:186</code> 的 <code>"/" not in cref</code> 约束）与"本章已提供"类伪陈述。</p>
+<p><strong>G4 重试路径的取舍（阶段 3 轮 2 I5 · 有意接受）:</strong> 无条件瘦身下，G4 失败重试 dispatch（chapter_loop:3038-3047）同样失去示例——原设计逻辑③的顾虑对新设计同样成立。裁决：<strong>接受，不加重试注入代码</strong>。理由：重试 prompt 自带纠正反馈（G4 失败明细是比样例更强的格式信号）+ body 保留空骨架模板；维持本 pass 零 <code>src/shenbi/</code> 生产代码改动的爆炸半径。若后续 audit-run 显示重试通过率退化，回滚对应 skill 或另行立项重试注入。</p>
+<p><strong>度量（铁律 1 的离线表达，核心原则 8）:</strong> 改前/改后对实施集 skill（终版 2 个 + SKIP 三者的分解证据）在测试内真实构建 <code>_build_skill_prompt</code>，对 system_prompt 用 <code>estimate_prompt_tokens</code>（<code>src/shenbi/cost/estimate.py</code> 纯函数）计差——不触发真实 dispatch。</p>
+<p><strong>逐 skill rollout 步骤:</strong> 每完成一个 skill 的瘦身即跑全量 <code>just check</code>（contract-prose R2 的 decl→body 证据检查是实际防护面；G4 checker 不读 SKILL.md body，无信号，见 §3.8）。</p>
+<h3 id="38-revised-2026-09-17-2-g4-checker-skillmd-body-body-testsfixtures-5-skill-g09-audit-run">3.8 验证（Revised 2026-09-17 轮 2 · 全离线；G4 行撤除——checker 不读 SKILL.md body，对 body 瘦身零信号，且 tests/fixtures 无这 5 skill 产物（G0.9 禁手造），格式遵循度归后续 audit-run）</h3>
+<table>
+<thead>
+<tr>
+<th>标准</th>
+<th>tier</th>
+<th>方式</th>
+<th>当前</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>参与瘦身的各 skill system prompt 净降</td>
+<td>T1</td>
+<td>离线：测试内构建 <code>_build_skill_prompt</code>，字符数 + estimate_prompt_tokens 双口径（字节换算记录进验收证据）</td>
+<td>见 §3.5 表</td>
+<td><strong>≥ §3.5 各行验收下限（chapter-pattern ≥450 字符且 est ≥140；pacing ≥280 字符且 est ≥130）</strong>；低于下限的 skill 按规则跳过并记录</td>
+</tr>
+<tr>
+<td>system prompt 的 estimate_prompt_tokens 差</td>
+<td>T1</td>
+<td>离线纯函数（<code>src/shenbi/cost/estimate.py:49</code>）</td>
+<td>baseline 同上</td>
+<td>下降，数值进验收证据</td>
+</tr>
+<tr>
+<td><code>just check</code> 全量（含 contract-prose R1+R2 / registry-reconcile R1）</td>
+<td>T1</td>
+<td>just</td>
+<td>PASS</td>
+<td>PASS（自有目录方案零豁免零测试改动 + 裸文件名引用 + 不变量保全）</td>
+</tr>
+<tr>
+<td>外置文件引用存在性</td>
+<td>T1</td>
+<td>由 contract-prose R1 skill-bundle 分支机械保障</td>
+<td>n/a</td>
+<td>每个新建外置文件在对应 skill body 有裸文件名引用</td>
+</tr>
+<tr>
+<td>运行时格式遵循度（真实 dispatch）</td>
+<td>—</td>
+<td>本 pass 不做（核心原则 8 + F947）</td>
+<td>n/a</td>
+<td>归后续 audit-run 验证（G0.9 真实产物回流 fixtures）；若退化按 §3.9 回滚</td>
+</tr>
+</tbody>
+</table>
+<h3 id="39-revised-2026-09-17-2">3.9 回滚预案（Revised 2026-09-17 轮 2）</h3>
+<p>每个 skill 的 body 瘦身是<strong>独立可回滚</strong>的。回滚触发：(a) 该 skill 的验收净降低于 §3.5 下限且裁决跳过失败；(b) <code>just check</code> 因该 skill 的改动变红且不可修；(c) 后续 audit-run 显示格式遵循度退化。回滚动作：git revert 该 skill 的瘦身 commit，外置文件与引用行一并移除。<strong>不强求全量成功</strong>——按 §3.5 表（轮 6 终裁），实施集 2 skill（chapter-pattern/pacing）一次性行和 ~1.3KB（落地 689B+623B），稳态 ~0.12KB/章；SKIP 三者：resonance/arc-payoff 阈值口径（净省 262-375B / 377B &lt; 500B），state-settling 定性裁决（588B 超阈值但风险收益不值）——口径三分，见 §3.5 表。</p>
+<hr />
+<h2 id="4">4. 实施顺序与依赖</h2>
+<div class="highlight"><pre><span></span><code>PR #39（P0+P1 + TokenLedger 度量前提）—— 已合并
+        │
+        ▼
+本 spec 的 plan（按风险升序）:
+        ├─ T_A  §2 默认形态（system 字节稳定回归测试）         风险: 极低
+        ├─ T_B  §1 保守缓存（read-only truth 文件 only）        ~~降级不实施（Revised 2026-09-17：审计波已被 #42/PR#153 实现；剩余缺口纯 I/O 无 token 收益，铁律 1 度量归零）~~
+        ├─ T_C  §3 示例外置（逐 skill，可回滚）                 风险: 中（格式漂移，audit-run 验证；G4 对 body 零信号）
+        └─ T_D  §2 强形态（IDE system/user 分离，需 CLI 验证）  风险: 中（依赖 CLI 能力）
+</code></pre></div>
+<p><strong>顺序理由:</strong>
+- T_A 先（纯回归测试，零代码行为改变，固化当前隐式契约）。
+- ~~T_B 次（保守缓存无失效语义，收益最稳）。~~（Revised 2026-09-17：降级不实施，理由见 §1 复核注记）
+- T_C 再次（逐 skill 可回滚，风险可控）。
+- T_D 最后（依赖外部 CLI 能力验证，可能 stretch 放弃）。</p>
+<p><strong>与子 spec #5（输出侧）的协同:</strong> ~~若 #5 先落地 shared_context serial 接线（3.2），则 §1 的缓存层与之共享"per-chapter state"基建~~（Revised 2026-09-17：§1 已降级，无缓存层可共享；仅当未来重裁 T_B 时才需与 #5 协调 state 基建。）</p>
+<hr />
+<h2 id="5-revised-2026-09-17-t_b-tier">5. 验证标准（Revised 2026-09-17 · T_B 降级传导 + tier/离线切分）</h2>
+<table>
+<thead>
+<tr>
+<th>标准</th>
+<th>tier / 方式</th>
+<th>当前</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>~~同章同 read-only truth 文件 read_text 次数~~</td>
+<td>—</td>
+<td>~~baseline~~</td>
+<td>~~每章 1 次（T_B）~~ <strong>行随 T_B 降级作废</strong></td>
+</tr>
+<tr>
+<td>同 skill 同文件两次 <code>_build_skill_prompt</code> 的 system_prompt 字节相等</td>
+<td>T1 离线</td>
+<td>未测</td>
+<td>相等（T_A 回归测试）</td>
+</tr>
+<tr>
+<td>参与瘦身 skill 的 system prompt 字节净降</td>
+<td>T1 离线（测试内构建；<strong>基线以剥离 autogen 块后的 system prompt 为准</strong>——即 <code>_build_skill_prompt</code> 实际产出与 <code>estimate_prompt_tokens</code> 实际度量的口径，原始文件字节仅作参考）</td>
+<td>原始文件字节 14,829/13,799/12,322/12,191/11,338；剥离后基线在 plan/实施时测定并固化为测试常量</td>
+<td>各达 §3.5 表净省下限（实施集终版 2 skill 一次性 ~1.3KB 落地；resonance/arc-payoff 阈值口径 + state-settling 定性裁决，SKIP 并记录）</td>
+</tr>
+<tr>
+<td>实施集 skill system prompt 的 estimate_prompt_tokens 差</td>
+<td>T1 离线纯函数</td>
+<td>baseline 同上</td>
+<td>下降，数值进验收证据（T_C）</td>
+</tr>
+<tr>
+<td>一章 round 的 <code>cost/token-ledger.jsonl</code> 总 prompt_tokens</td>
+<td>真实 run（本 pass 不触发，核心原则 8）</td>
+<td>IDE 路径有 estimated=True 下界行</td>
+<td>T_C 合并后的真实章节收益由后续 audit-run 验证，非本 pass 验收面</td>
+</tr>
+<tr>
+<td><code>just check</code>（含 G4 全 skills 不变性）</td>
+<td>T1 只读 CLI</td>
+<td>PASS</td>
+<td>PASS（G4 checker 不读 SKILL.md body，本 pass 零 checker 变更；任何 lint FAIL 即回滚对应 skill 的 body 瘦身）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-3-p2">6. 铁律（3 条，P2 专属）</h2>
+<ol>
+<li><strong>度量先于优化。</strong> P2 每一项的收益必须用可复现的度量表达"改前 vs 改后"（本 pass 用 <code>estimate_prompt_tokens</code> 离线纯函数 + TokenLedger 的 estimated 下界行口径，见 §0.1）。无度量的"应该更快"不合并。IDE 路径的下界口径须在验证报告中显式声明。</li>
+<li><strong>G4 FAIL 即回滚，无例外。</strong> P2 是"动 prompt/调用结构"，与 P0/P1（删已有浪费）不同——每一项都可能影响输出质量。T_C 的逐 skill body 瘦身必须独立可回滚（Revised 2026-09-17：T_B 已降级，原缓存失效条款随废）。</li>
+<li><strong>不造未验证的抽象。</strong> ~~§1 的 cache 层首版用保守方案（read-only truth only），不先搞 content-hash 失效引擎（YAGNI）。~~（T_B 降级随废）§2 的 IDE system/user 分离若 CLI 不支持就不做，不强 hack。</li>
+</ol>
+<hr />
+<h2 id="7-spec">7. 与已归档总纲 + 兄弟子 spec 的关系</h2>
+<ul>
+<li><strong>承接总纲 §6.3 P2:</strong> 本 spec 把 3.3/3.9/3.10 三项从"提议"推进到"可实施"。3.2 归子 spec #5，2.3 #8/#9 视 §3 实施而定。</li>
+<li><strong>依赖 PR #39:</strong> TokenLedger 接线是全部度量的前提；~~<code>_input_key</code> 相对路径键是 §1 缓存 key 的基础~~（Revised 2026-09-17：§1 已降级，此依赖随废）；<code>_strip_autogen_blocks</code> 是 §2 system 字节稳定的前置（已剥离 auto-gen 块）。</li>
+<li><strong>不重复审:</strong> 采样/模型/重试 → 子 spec #3；输出侧浪费 → 子 spec #5；确定性替换 → 子 spec #4。本 spec 只管"输入侧的重复传输 + system prompt 结构 + 示例体重"。</li>
+</ul>
+<hr />
+<h2 id="8">8. 依赖关系图</h2>
+<div class="highlight"><pre><span></span><code>PR #39（P0+P1 + TokenLedger）  已合并
+        │
+        ├─ ~~§1 (3.3 缓存层)~~ ── Revised 2026-09-17 降级不实施（归档 #42/PR#153 已覆盖审计波；剩余纯 I/O）
+        ├─ §2 (3.9 IDE 分离) ── 依赖: _strip_autogen_blocks (PR #39) + CLI 能力验证
+        └─ §3 (3.10 示例外置) ── 依赖: skill 自有目录外置（先例 anti-ai-reference.md）+ contract-prose 裸文件名引用 + just check
+                │
+                ▼
+        T_A（§2 默认形态测试）→ T_C（§3 body 瘦身，逐 skill 可回滚）→ T_D（§2 强形态，CLI 门控）──► 归档本 spec
+</code></pre></div>
+<p>本 spec 是 <strong>design，不实施</strong>。P2 各项实施前需另写 plan 并批准。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

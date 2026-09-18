@@ -1,0 +1,1480 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-07-spec50-c36-print-purity/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #50 C36 print-purity Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #50 C36 print-purity Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-07-spec50-c36-print-purity.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-07-spec50-c36-print-purity/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #50 C36 print-purity Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-07-spec50-c36-print-purity.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-50-c36-print-purity-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #50 C36 print-purity Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-task-1-cli_utilsecho-t1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task ### Task 1: cli_utils.echo() + T1 测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-task-2-6-print" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task ### Task 2: 6 处 print 迁移
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-task-3-ruff-t20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task ### Task 3: ruff T20 执法 + 豁免成文
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-task-4-task-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task ### Task 4### Task 4
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec → task → 验证命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-50-c36-print-purity-implementation-plan">Spec #50 C36 print-purity Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 消灭 src/shenbi 的 6 处 <code>print()</code>（迁入 <code>cli_utils.echo</code>/<code>emit_json</code>），AGENTS.md/logging.md 成文三类输出通道裁决，ruff T20 执法（src/shenbi 零豁免）。</p>
+<p><strong>Architecture:</strong> 复用既有 <code>src/shenbi/cli_utils.py</code>（已含 <code>emit_json</code>）：新增 <code>echo(msg, *, err=False)</code> 人面文本函数（write+flush+BrokenPipe 语义对齐 emit_json，不用 print）。机器 JSON 两处迁 <code>emit_json</code>，人面四处迁 <code>echo</code>。lint 用 ruff 内建 T20 + 框架外 per-file-ignores，零新清单行。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, ruff (T20/flake8-print), pytest capsys, structlog（不动）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><code>src/shenbi/</code> 内 <code>print(</code> 零命中（剔除 <code>_text_fingerprint</code> 3 处子串误报后）——ruff T201/T203 在 src/shenbi 零 per-file-ignores</li>
+<li>机器 JSON 契约：<code>escalation/check.py</code> 字节级不变（emit_json 同为 ensure_ascii=False）；<code>foreshadowing_recall/recall.py</code> 有意从 <code>\uXXXX</code> 转义变为非转义 UTF-8（JSON 语义等价，零活消费方）</li>
+<li>stderr 语义：<code>cost/report.py:135</code> 与 <code>pipeline/cli.py:1067</code> 保持 stderr（<code>err=True</code>）</li>
+<li>structlog 仍是唯一日志通道；echo/emit_json 只管 CLI 输出面，不改日志</li>
+<li>验证一律 <code>just</code>/<code>uv run</code>（与 CI <code>uv run --frozen</code> 同构）</li>
+<li>Conventional commits；所有 commit 显式列文件路径（禁 <code>git add -A</code>）</li>
+</ul>
+<hr />
+<h3 id="task-task-1-cli_utilsecho-t1">Task ### Task 1: <code>cli_utils.echo()</code> + T1 测试</h3>
+<p><strong>复杂度: infra</strong>（公共模块，8 个既有消费方所在文件）· <strong>test_kind: tdd_red_green</strong> · <strong>层级: T1</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/cli_utils.py</code>（在 <code>emit_json</code> 后追加）
+- Create: <code>tests/unit/test_cli_utils.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>echo(msg: str, *, err: bool = False) -&gt; None</code>——写 <code>msg + "\n"</code> 到 stdout（默认）或 stderr（err=True），flush，<code>BrokenPipeError → SystemExit(0)</code>（与 <code>emit_json(data: Any) -&gt; None</code> 完全同语义）</p>
+<ul>
+<li>[x] <strong>Step 1: 写失败测试</strong> <code>tests/unit/test_cli_utils.py</code></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;T1 tests for cli_utils output channels (spec #50 / C36).&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">echo</span><span class="p">,</span> <span class="n">emit_json</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_echo_writes_stdout_with_newline</span><span class="p">(</span><span class="n">capsys</span><span class="p">):</span>
+    <span class="n">echo</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
+    <span class="n">captured</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">captured</span><span class="o">.</span><span class="n">out</span> <span class="o">==</span> <span class="s2">&quot;hello</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">assert</span> <span class="n">captured</span><span class="o">.</span><span class="n">err</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_echo_err_writes_stderr</span><span class="p">(</span><span class="n">capsys</span><span class="p">):</span>
+    <span class="n">echo</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">captured</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">captured</span><span class="o">.</span><span class="n">out</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">captured</span><span class="o">.</span><span class="n">err</span> <span class="o">==</span> <span class="s2">&quot;boom</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_emit_json_non_escaped_utf8</span><span class="p">(</span><span class="n">capsys</span><span class="p">):</span>
+    <span class="n">emit_json</span><span class="p">([{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;中文&quot;</span><span class="p">}])</span>
+    <span class="n">captured</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">captured</span><span class="o">.</span><span class="n">out</span> <span class="o">==</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;中文&quot;</span><span class="p">}],</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_echo_broken_pipe_exits_clean</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">_Closed</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">BrokenPipeError</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;stdout&quot;</span><span class="p">,</span> <span class="n">_Closed</span><span class="p">())</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">echo</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">exc</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="mi">0</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_cli_utils.py -v</code>
+Expected: FAIL（<code>ImportError: cannot import name 'echo'</code>）</p>
+<ul>
+<li>[x] <strong>Step 3: 最小实现</strong>（<code>src/shenbi/cli_utils.py</code> 追加，并更新模块 docstring 通道分工句）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">echo</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a human-facing message to stdout (or stderr with err=True).</span>
+
+<span class="sd">    Mirrors emit_json&#39;s durability semantics: flush, and a closed pipe</span>
+<span class="sd">    (e.g. piped into head) exits cleanly rather than tracebacking.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="k">if</span> <span class="n">err</span> <span class="k">else</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">BrokenPipeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_cli_utils.py -v</code>
+Expected: 4 passed</p>
+<ul>
+<li>[x] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/cli_utils.py<span class="w"> </span>tests/unit/test_cli_utils.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add cli_utils.echo for human-facing output (spec #50 R1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-task-2-6-print">Task ### Task 2: 6 处 print 迁移</h3>
+<p><strong>复杂度: infra</strong>（<code>pipeline/cli.py</code> 属 infra 模块）· <strong>test_kind: characterization</strong>（行为保持：stdout/stderr 流向与 JSON 负载不变）· <strong>层级: T1</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/cost/report.py:135,137</code>
+- Modify: <code>src/shenbi/pipeline/cli.py:1065,1067</code>
+- Modify: <code>src/shenbi/skill_utils/escalation/check.py:164-168</code>
+- Modify: <code>src/shenbi/skill_utils/foreshadowing_recall/recall.py:61</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 的 <code>echo(msg, *, err=False)</code>；既有 <code>emit_json(data)</code></p>
+<ul>
+<li>[x] <strong>Step 1: cost/report.py</strong>（先加 import <code>from shenbi.cli_utils import echo</code>，删除已不再使用的 <code>import sys</code> 仅当无其他 sys 用途——该文件 main 里只有这两处 print 用 sys，grep 确认）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># :135 原: print(f&quot;error: project dir not found: {args.project_dir}&quot;, file=sys.stderr)</span>
+<span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;error: project dir not found: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">project_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># :137 原: print(render_report(args.project_dir))</span>
+<span class="n">echo</span><span class="p">(</span><span class="n">render_report</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">project_dir</span><span class="p">))</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 2: pipeline/cli.py</strong>（backfill 循环内；既有 <code>from shenbi.cli_utils import emit_json</code>（cli.py:30）合并为 <code>from shenbi.cli_utils import echo, emit_json</code>）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># :1065 原: print(f&quot;  Backfilled context for chapter {ch}&quot;)</span>
+<span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Backfilled context for chapter </span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># :1067 原: print(f&quot;  FAILED chapter {ch}: {e}&quot;, file=sys.stderr)</span>
+<span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  FAILED chapter </span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 3: escalation/check.py</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># 文件头 import 区：删除 import json（迁移后该文件唯一 json 用点消失，F401 会红），加 from shenbi.cli_utils import emit_json</span>
+<span class="c1"># 原 print(json.dumps([...], ensure_ascii=False)) 整块替换：</span>
+<span class="n">emit_json</span><span class="p">([{</span><span class="s2">&quot;trigger&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">trigger</span><span class="p">,</span> <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">detail</span><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">])</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 4: foreshadowing_recall/recall.py</strong>（import 区加 <code>from shenbi.cli_utils import emit_json</code>；该文件 <code>json.loads</code> 仍在用，<code>import json</code> 保留）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># 原: print(json.dumps(overdue))</span>
+<span class="n">emit_json</span><span class="p">(</span><span class="n">overdue</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 5: 流向/负载表征测试</strong>（追加到 <code>tests/unit/test_cli_utils.py</code>）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_report_main_error_stderr</span><span class="p">(</span><span class="n">capsys</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost</span><span class="w"> </span><span class="kn">import</span> <span class="n">report</span>
+
+    <span class="n">code</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">main</span><span class="p">([</span><span class="s2">&quot;report&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;nope&quot;</span><span class="p">)])</span>
+    <span class="n">captured</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="n">captured</span><span class="o">.</span><span class="n">out</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">captured</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;error: project dir not found:&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_recall_main_json_payload</span><span class="p">(</span><span class="n">capsys</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.foreshadowing_recall</span><span class="w"> </span><span class="kn">import</span> <span class="n">recall</span>
+
+    <span class="n">argv</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;prog&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--hooks-json&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;[{&quot;id&quot;: &quot;h1&quot;, &quot;last_reinforced&quot;: 1, &quot;max_distance&quot;: 2}]&#39;</span><span class="p">,</span>
+        <span class="s2">&quot;--current-chapter&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;10&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;argv&quot;</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span>
+    <span class="n">recall</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+    <span class="n">captured</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">captured</span><span class="o">.</span><span class="n">out</span> <span class="o">==</span> <span class="s1">&#39;[&quot;h1&quot;]</span><span class="se">\n</span><span class="s1">&#39;</span>
+</code></pre></div>
+<p>（fixture 须含 <code>max_distance</code> 字段——<code>recall_overdue_hooks</code> 跳过缺该字段的 hook；测试意图是「stdout == json.dumps(overdue) + 换行」契约形态。）</p>
+<ul>
+<li>[x] <strong>Step 6: 运行测试 + 相关回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_cli_utils.py tests/unit/skill_utils/test_foreshadowing_recall.py tests/unit/skill_utils -q</code>
+Expected: all passed</p>
+<ul>
+<li>[x] <strong>Step 7: 全局扫描零命中</strong></li>
+</ul>
+<p>Run: <code>git grep -n "print(" -- 'src/shenbi/' | grep -v _text_fingerprint</code>
+Expected: 空输出（exit 1）</p>
+<ul>
+<li>[x] <strong>Step 8: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/cost/report.py<span class="w"> </span>src/shenbi/pipeline/cli.py<span class="w"> </span>src/shenbi/skill_utils/escalation/check.py<span class="w"> </span>src/shenbi/skill_utils/foreshadowing_recall/recall.py<span class="w"> </span>tests/unit/test_cli_utils.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: migrate 6 print sites to cli_utils.echo/emit_json (spec #50 R2, C36)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-task-3-ruff-t20">Task ### Task 3: ruff T20 执法 + 豁免成文</h3>
+<p><strong>复杂度: infra</strong>（lint 配置全局生效）· <strong>test_kind: regression_guard</strong> · <strong>层级: T1（负例验证）</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code>（<code>[tool.ruff.lint]</code> select 与 <code>[tool.ruff.lint.per-file-ignores]</code>）
+- Modify: <code>AGENTS.md</code>（Python Conventions 节一句）
+- Modify: <code>docs/framework/logging.md</code>（三类通道裁决正文）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无（独立于 T1/T2 代码面，但依赖 T2 完成后 src/shenbi 才能零豁免全绿）</p>
+<ul>
+<li>[x] <strong>Step 1: pyproject.toml</strong></li>
+</ul>
+<p><code>[tool.ruff.lint]</code> 的 <code>select</code> 列表追加 <code>"T20"</code>（保持字母序位置按现有列表风格）。<code>[tool.ruff.lint.per-file-ignores]</code> 追加两条 + 合并一条：</p>
+<div class="highlight"><pre><span></span><code><span class="s2">&quot;tools/**&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;T201&quot;</span><span class="p">]</span>
+<span class="s2">&quot;scripts/**&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;T201&quot;</span><span class="p">]</span>
+<span class="c1"># 既有 &quot;tests/**&quot; = [&quot;BLE001&quot;] 改为（其上方解释 BLE001 的注释行一并补 T201 语义）：</span>
+<span class="s2">&quot;tests/**&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;BLE001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;T201&quot;</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 2: 验证存量全绿</strong></li>
+</ul>
+<p>Run: <code>uv run ruff check .</code>
+Expected: 无 T20 相关错误（src/shenbi 零命中；tools/scripts/tests 豁免生效）</p>
+<ul>
+<li>[x] <strong>Step 3: 负例验证（加临时 print → 红 → 还原）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;print(&quot;x&quot;)&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>src/shenbi/paths.py
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>src/shenbi/paths.py<span class="w">   </span><span class="c1"># Expected: FAIL T201</span>
+git<span class="w"> </span>stash<span class="w"> </span>push<span class="w"> </span>--<span class="w"> </span>src/shenbi/paths.py<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>stash<span class="w"> </span>pop<span class="w">   </span><span class="c1"># 还原（不销毁任何既有本地改动）</span>
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>src/shenbi/paths.py<span class="w">   </span><span class="c1"># Expected: PASS</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 4: AGENTS.md Python Conventions 句替换</strong></li>
+</ul>
+<p>原句（该节末尾）："No <code>print()</code> in framework code; use structlog."
+替换为："No <code>print()</code> in framework code (enforced by ruff T20, zero exemptions in <code>src/shenbi/</code>); user-facing text goes through <code>shenbi.cli_utils.echo</code> (<code>err=True</code> for stderr), machine-readable CLI stdout through <code>shenbi.cli_utils.emit_json</code> or direct <code>sys.stdout.write</code>; use structlog for logging."</p>
+<ul>
+<li>
+<p>[x] <strong>Step 5: docs/framework/logging.md 扩充</strong>（保留既有指向 <code>../api/logging.md</code> 的链接，追加「输出通道裁决」节：structlog 日志 / cli_utils.echo 人面 / cli_utils.emit_json 或 sys.stdout.write 机器 stdout 三类，附 ruff T20 执法说明与框架外豁免清单）</p>
+</li>
+<li>
+<p>[x] <strong>Step 6: docs/api/logging.md 一致性核查</strong>（若该文提及 print 政策则同步；仅核查，无则零改动）</p>
+</li>
+</ul>
+<p>Run: <code>grep -n "print" docs/api/logging.md</code></p>
+<ul>
+<li>[x] <strong>Step 7: 全量门禁</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: 全绿（含 ruff/format/mypy/basedpyright/两段 pytest）</p>
+<ul>
+<li>[x] <strong>Step 8: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml<span class="w"> </span>AGENTS.md<span class="w"> </span>docs/framework/logging.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: enforce ruff T20 print ban with 3-channel output ruling (spec #50 R1+R3, C36)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-task-4-task-4">Task ### Task 4### Task 4</h3>
+<p><strong>复杂度: leaf</strong>（机械文本编辑）· <strong>test_kind: regression_guard</strong>（git diff 审查）· <strong>层级: docs</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md</code>（D102/F324/F616 三行）</p>
+<p><strong>Interfaces:</strong> 无代码接口。</p>
+<ul>
+<li>[x] <strong>Step 1: 三行状态 <code>open</code> → <code>closed (C-36 spec #50, PR #N)</code></strong>（N = 本 PR 号，出 PR 后、合并前回填；对齐既有 F605/F627/F606 关闭行格式。顺手修正 D102 行内「2 处误报」→「3 处（chapter_drafting.py:133,141,320）」，不改证据列历史行号——仅注记现行行号已漂移）</li>
+<li>[x] <strong>Step 2: <code>just audit-lint</code> 全绿</strong>（spec #49 审计产物 lint）</li>
+</ul>
+<p>Run: <code>just audit-lint</code>
+Expected: exit 0</p>
+<ul>
+<li>[x] <strong>Step 3: Commit</strong>（与 PR 号回填同 commit）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(ledger): close D102/F324/F616 via C36 spec #50&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="spec-task">验收覆盖表（spec → task → 验证命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1 规则文本合入（AGENTS.md + logging.md）</td>
+<td>T3 S4-5</td>
+<td><code>git diff main -- AGENTS.md docs/framework/logging.md</code> 非空且含三通道句</td>
+</tr>
+<tr>
+<td>R1 src/shenbi grep 零命中</td>
+<td>T2 S7</td>
+<td><code>git grep -n "print(" -- 'src/shenbi/' \| grep -v _text_fingerprint</code> 空</td>
+</tr>
+<tr>
+<td>R2 pytest console 用例</td>
+<td>T1 S1 / T2 S5</td>
+<td><code>uv run pytest tests/unit/test_cli_utils.py -q</code> 全绿</td>
+</tr>
+<tr>
+<td>R2 INDEX 行号同步</td>
+<td>（已在阶段 3 完成 commit e12fdf45）</td>
+<td><code>grep report.py:135 docs/superpowers/specs/INDEX.md</code> 命中</td>
+</tr>
+<tr>
+<td>R3 负例 FAIL / 豁免 PASS</td>
+<td>T3 S2-3</td>
+<td>负例输出粘贴 progress.md</td>
+</tr>
+<tr>
+<td>簇级 just check 全绿</td>
+<td>T3 S6</td>
+<td><code>just check</code> 完整输出粘贴 progress.md</td>
+</tr>
+<tr>
+<td>G3.4 独立评分</td>
+<td>不适用（无 LLM 产物评分场景；spec 验收全部为机械可验证命令）</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

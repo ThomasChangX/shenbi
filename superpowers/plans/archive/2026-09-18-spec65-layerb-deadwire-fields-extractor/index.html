@@ -1,0 +1,1892 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-18-spec65-layerb-deadwire-fields-extractor/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #65 Layer B Dead-Wire Fix + power_system Fields + volume_map Extractor Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #65 Layer B Dead-Wire Fix + power_system Fields + volume_map Extractor Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-18-spec65-layerb-deadwire-fields-extractor.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-18-spec65-layerb-deadwire-fields-extractor/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #65 Layer B Dead-Wire Fix + power_system Fields + volume_map Extractor Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-18-spec65-layerb-deadwire-fields-extractor.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-65-layer-b-dead-wire-fix-power_system-fields-volume_map-extractor-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #65 Layer B Dead-Wire Fix + power_system Fields + volume_map Extractor Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#actual-signatures-copied-from-source-at-plan-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actual Signatures (copied from source at plan time)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acceptance-coverage-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance Coverage Table
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Acceptance Coverage Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-fix-the-dispatch-loop-dead-wire-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Fix the dispatch-loop dead-wire (§3.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-power_systemmd-fields-for-review-group-factual-lint-sample-wiring-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: power_system.md fields for review-group-factual + lint sample wiring (§3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-loader-extractor-sidecar-closed-registry-mutex-42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: loader extractor: sidecar — closed registry, mutex (§4.2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-dispatcher-extractor-wiring-_shared-sink-chapter-planning-contract-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: dispatcher extractor wiring + _shared sink + chapter-planning contract (§4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-plan-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Post-plan registration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review-done-at-plan-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review (done at plan time)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-65-layer-b-dead-wire-fix-power_system-fields-volume_map-extractor-implementation-plan">Spec #65 Layer B Dead-Wire Fix + power_system Fields + volume_map Extractor Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Make Layer B field filtering actually work in the dispatch read loop (fix the congenital dead-wire), declare power_system.md fields for its single live consumer, and add an <code>extractor:</code> contract field routing volume_map.md through the <code>_shared</code> extractor family for chapter-planning.</p>
+<p><strong>Architecture:</strong> Three-layer change: (1) <code>_build_skill_prompt</code>'s read loop consults the <code>read_fields</code> sidecar (keyed by pre-resolution contract path) instead of a never-firing <code>isinstance(dict)</code> branch; (2) loader gains a parallel <code>read_extractors</code> sidecar with a fail-loud closed registry and fields/extractor mutual exclusion; (3) the extractor face reuses <code>context_assemble._load_volume_context</code> by sinking it to <code>_shared.py</code> (leaf module) — dispatcher calls it, failure falls back to full text + WARN.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pytest, structlog, YAML frontmatter contracts; repo gates via <code>just</code> (uv-run parity with CI).</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>All 4 tasks are <strong>infra</strong> (pipeline core + contract schema) → coordinator implements personally; every task still gets a fresh-context audit (<code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>).</li>
+<li>Zero real LLM dispatch for verification (core principle 8 / F947): all acceptance = direct <code>_build_skill_prompt</code> calls on fixture-assembled trees, <code>filter_to_fields</code> direct calls, <code>just</code> gate commands.</li>
+<li>Tests only reference <code>tests/fixtures/</code> real products (G0.9); fixture copies hash-identical (G0.11).</li>
+<li>No <code>print()</code> in <code>src/shenbi/</code> (ruff T20); structlog only; gate checkers pure/idempotent.</li>
+<li>Conventional commits with explicit pathspec (<code>git add &lt;files&gt;</code>, never <code>-A</code>).</li>
+<li>After any SKILL.md frontmatter change: <code>just generate</code> must produce an empty diff (three-source sync); <code>just lint-contracts</code> green.</li>
+<li>Baseline: re-baseline <code>just check</code> pass count at execution time (spec §7).</li>
+<li>Test file placement: dispatch-loop behavior tests → <code>tests/unit/pipeline/test_dispatch_layerb_live.py</code> (new; deviation from spec §3.0's literal mention of test_field_filtering.py — that file is pure-function scoped by its own docstring, new dispatch-loop cases get a dedicated file; logged in spec-deviations); loader extractor tests → <code>tests/unit/contract/test_loader_extractors.py</code> (create; note the directory is <code>tests/unit/contract/</code> SINGULAR, existing home of test_dict_reads.py).</li>
+<li>All new test files carry <code>pytestmark = pytest.mark.unit</code> (pyproject markers: unit/integration/property/benchmark/slow/last; <code>just test</code> selects <code>-m unit</code>).</li>
+<li>structlog in this repo writes via <code>PrintLoggerFactory(file=sys.stderr)</code> (logging.py:51) — stdlib logging handlers CANNOT capture events. WARN assertions use the repo's spy pattern (tests/unit/contracts/test_fields.py:71-83): monkeypatch <code>log.warning</code> on the emitting module. <code>field_filter_missing_fields</code> is emitted from <code>shenbi.contracts.fields</code>'s module logger; <code>extractor_failed_fulltext</code> from <code>shenbi.pipeline.dispatch_helper</code>'s.</li>
+<li>AGENTS.md Layer B face: after T1 the existing AGENTS.md claim ("The dispatcher filters file content...") becomes TRUE — no AGENTS.md edit needed; listed here per spec §6.2.</li>
+<li>36-declaration blast radius (spec §6.1 duty): at-risk set = <code>truth/current_state.md</code> family (chapter-planning + review-continuity declare [系统演化阶段, 参数当前位置, 进行中的情节线]; zero overlap with chapter-025 snapshot lineage, 3/3 with xinghuo sample — miss → escape-hatch fulltext, correct behavior per spec §8.2 lineage exemption). T1 Step 5's full regression is the enforcement; no repo test today dispatches chapter-planning against a foreign-lineage current_state (verified by grep at plan time).</li>
+</ul>
+<h2 id="actual-signatures-copied-from-source-at-plan-time">Actual Signatures (copied from source at plan time)</h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/loader.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_read_item</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>  <span class="c1"># :72-87</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">registry</span><span class="p">:</span> <span class="n">TruthFilesRegistry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Contract</span>  <span class="c1"># :191-239</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_contract</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Contract</span>  <span class="c1"># :242-249</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Contract</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>  <span class="c1"># :46-53</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">OutputKind</span>
+    <span class="n">reads</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">writes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">updates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">read_fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="n">write_semantics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+
+<span class="c1"># src/shenbi/pipeline/dispatch_helper.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_skill_prompt</span><span class="p">(</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">uses_staging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">shared_context</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">json_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">path_context</span><span class="p">:</span> <span class="n">PathContext</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">outputs_override</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>  <span class="c1"># :601-611</span>
+<span class="c1"># read loop: :666-702; contract = load_contract(skill) at :643;</span>
+<span class="c1"># reads: list[Any] = contract.get(&quot;reads&quot;, []) at :667</span>
+<span class="c1"># dict branch :669-675 (dead); resolve_or_skip_ctx :680; _resolve_read_with_fallback :684</span>
+<span class="c1"># cache hit :690-697; if fields: filter_to_fields :698-699; _strip_meta_for_non_drafting :701</span>
+
+<span class="c1"># src/shenbi/contracts/fields.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_to_fields</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span>  <span class="c1"># :113</span>
+
+<span class="c1"># src/shenbi/pipeline/context_assemble.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_volume_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>  <span class="c1"># :207 (moves to _shared in T4)</span>
+
+<span class="c1"># src/shenbi/pipeline/_shared.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_volume_boundaries</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>  <span class="c1"># :88</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_volume_at_runtime</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>  <span class="c1"># :167</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_chapter_node</span><span class="p">(</span><span class="n">volume_map_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>  <span class="c1"># :211</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_bridges</span><span class="p">(</span><span class="n">volume_map_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BridgeRow</span><span class="p">]</span>  <span class="c1"># :234</span>
+
+<span class="c1"># src/shenbi/cost/estimate.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">estimate_prompt_tokens</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>  <span class="c1"># :49</span>
+</code></pre></div>
+<h2 id="acceptance-coverage-table">Acceptance Coverage Table</h2>
+<table>
+<thead>
+<tr>
+<th>Spec acceptance</th>
+<th>Task</th>
+<th>Executable verification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>§3.0 dispatch 循环字段过滤行为生效</td>
+<td>T1</td>
+<td><code>uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -v</code> (behavior asserts)</td>
+</tr>
+<tr>
+<td>§3.0 全量回归（36 dict 声明首次生效）</td>
+<td>T1</td>
+<td><code>just check</code> EXIT=0</td>
+</tr>
+<tr>
+<td>§3.0 零 WARN（scoped：shenbi-native + fixtures）</td>
+<td>T1/T2</td>
+<td>spy-based WARN asserts in test_dispatch_layerb_live.py (both T1 escape-hatch-negative and T2 zero-WARN cases)</td>
+</tr>
+<tr>
+<td>§3 power_system fields 声明 + lint 样本接线</td>
+<td>T2</td>
+<td><code>uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -k power_system -v</code>; <code>uv run python scripts/lint_contract_fields.py</code> exit 0</td>
+</tr>
+<tr>
+<td>§3 字节度量（合成 fixture 58,113B → 27,807B kept（4-field, 47.8%）；spec §7 的 15,500B 为历史真实文件口径，测试用合成 fixture 同断言形态）</td>
+<td>T2</td>
+<td>measurement test asserts ratio band via baseline subtraction</td>
+</tr>
+<tr>
+<td>§3 G4 契约面无副作用</td>
+<td>T2</td>
+<td><code>uv run shenbi-validate G4 shenbi-review-group-factual "$(pwd)/tests/fixtures/world-power-system-example.md"</code></td>
+</tr>
+<tr>
+<td>§4 loader extractor 旁路 + closed registry + 互斥</td>
+<td>T3</td>
+<td><code>uv run pytest tests/unit/contract/test_loader_extractors.py -v</code></td>
+</tr>
+<tr>
+<td>§4 dispatcher 三分支（happy/None/失败）</td>
+<td>T4</td>
+<td><code>uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -k volume -v</code></td>
+</tr>
+<tr>
+<td>§4 字节度量（26,334B → ≤2KB）</td>
+<td>T4</td>
+<td>measurement test asserts</td>
+</tr>
+<tr>
+<td>§4 G4 契约面无副作用</td>
+<td>T4</td>
+<td><code>uv run shenbi-validate G4 shenbi-chapter-planning "$(pwd)/tests/fixtures/chapter-plan-example.md"</code></td>
+</tr>
+<tr>
+<td>全部</td>
+<td>all</td>
+<td><code>just check</code> EXIT=0 + <code>just generate</code> diff empty</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-fix-the-dispatch-loop-dead-wire-30">Task 1: Fix the dispatch-loop dead-wire (§3.0)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:666-702</code> (read loop)
+- Test: <code>tests/unit/pipeline/test_dispatch_layerb_live.py</code> (create)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>load_contract</code> → <code>Contract.read_fields: dict[str, list[str]]</code> (existing, loader.py:52)
+- Produces: read loop behavior — declared fields on a read path now filter at dispatch time. No new public symbols.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests (dispatch-loop level, fixtures-driven)</strong></li>
+</ul>
+<p>Create <code>tests/unit/pipeline/test_dispatch_layerb_live.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Dispatch-loop Layer B behavior tests (spec #65 §3.0).</span>
+
+<span class="sd">Unlike tests/unit/pipeline/test_field_filtering.py (pure-function tests),</span>
+<span class="sd">these exercise the REAL _build_skill_prompt read loop end-to-end: the</span>
+<span class="sd">loader-normalized reads + read_fields sidecar must actually filter content</span>
+<span class="sd">before it reaches user_prompt. G0.9: inputs are assembled from real</span>
+<span class="sd">fixture products (real fixture file contents; trivial declared-header</span>
+<span class="sd">seeding only).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">fields</span> <span class="k">as</span> <span class="n">fields_mod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_helper</span> <span class="k">as</span> <span class="n">dh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_build_skill_prompt</span>
+
+<span class="n">pytestmark</span> <span class="o">=</span> <span class="n">pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">warn_spy</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spy WARN events on both emitting module loggers (repo structlog</span>
+<span class="sd">    writes via PrintLoggerFactory — stdlib handlers see nothing; this is</span>
+<span class="sd">    the tests/unit/contracts/test_fields.py:71-83 pattern applied to both</span>
+<span class="sd">    emitters: fields module -&gt; field_filter_missing_fields; dispatch_helper</span>
+<span class="sd">    -&gt; extractor_failed_fulltext).&quot;&quot;&quot;</span>
+    <span class="n">events</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;dispatch&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_spy</span><span class="p">(</span><span class="n">bucket</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">orig</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">inner</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bucket</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+            <span class="n">orig</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">inner</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="n">fields_mod</span><span class="o">.</span><span class="n">log</span><span class="p">,</span> <span class="s2">&quot;warning&quot;</span><span class="p">,</span> <span class="n">_spy</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="s2">&quot;fields&quot;</span><span class="p">],</span> <span class="n">fields_mod</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="n">dh</span><span class="o">.</span><span class="n">log</span><span class="p">,</span> <span class="s2">&quot;warning&quot;</span><span class="p">,</span> <span class="n">_spy</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="s2">&quot;dispatch&quot;</span><span class="p">],</span> <span class="n">dh</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">events</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">project_tree</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal shenbi-chapter-planning read set, real fixture content.&quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;outline&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="c1"># truth/chapter_summaries.md: chapter-planning declares fields [已完成章节]</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter_summaries.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;## 已完成章节</span><span class="se">\n\n</span><span class="s2">第1章：占位。</span><span class="se">\n\n</span><span class="s2">## OTHER_STUFF</span><span class="se">\n\n</span><span class="s2">XYZZY_LEAK_MARKER 不该进 prompt。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># outline/volume_map.md from the G0.11 production mirror</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;outline&quot;</span> <span class="o">/</span> <span class="s2">&quot;volume_map.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/volume-map-xinghuo.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># truth/current_state.md: shenbi-native seeded lineage (declared fields all present)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;## 系统演化阶段</span><span class="se">\n\n</span><span class="s2">中期。</span><span class="se">\n\n</span><span class="s2">## 参数当前位置</span><span class="se">\n\n</span><span class="s2">第3卷。</span><span class="se">\n\n</span><span class="s2">## 进行中的情节线</span><span class="se">\n\n</span><span class="s2">主线。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;outline&quot;</span> <span class="o">/</span> <span class="s2">&quot;story_frame.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;current_focus.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;focus&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;author_intent.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;intent&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;## 活跃伏笔</span><span class="se">\n\n</span><span class="s2">A。</span><span class="se">\n\n</span><span class="s2">## 伏笔统计</span><span class="se">\n\n</span><span class="s2">2 条。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;novel.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tmp_path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_declared_fields_filter_in_dispatch_loop</span><span class="p">(</span><span class="n">project_tree</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-chapter-planning&quot;</span><span class="p">,</span> <span class="n">project_tree</span><span class="p">,</span> <span class="s2">&quot;plan ch26&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">26</span>
+    <span class="p">)</span>
+    <span class="c1"># Declared section survives</span>
+    <span class="k">assert</span> <span class="s2">&quot;已完成章节&quot;</span> <span class="ow">in</span> <span class="n">user_prompt</span>
+    <span class="c1"># Undeclared section of the same file must NOT reach the prompt</span>
+    <span class="k">assert</span> <span class="s2">&quot;XYZZY_LEAK_MARKER&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_prompt</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_escape_hatch_warns_and_fulltext_on_missing_field</span><span class="p">(</span>
+    <span class="n">project_tree</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">warn_spy</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Sabotage: remove a declared field&#39;s header -&gt; escape hatch must fire</span>
+    <span class="p">(</span><span class="n">project_tree</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;## 别的节</span><span class="se">\n\n</span><span class="s2">无声明节。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-chapter-planning&quot;</span><span class="p">,</span> <span class="n">project_tree</span><span class="p">,</span> <span class="s2">&quot;plan ch26&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">26</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;field_filter_missing_fields&quot;</span> <span class="ow">in</span> <span class="n">warn_spy</span><span class="p">[</span><span class="s2">&quot;fields&quot;</span><span class="p">]</span>
+    <span class="c1"># Full-text fallback: undeclared section present</span>
+    <span class="k">assert</span> <span class="s2">&quot;别的节&quot;</span> <span class="ow">in</span> <span class="n">user_prompt</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_string_reads_unfiltered</span><span class="p">(</span><span class="n">project_tree</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-chapter-planning&quot;</span><span class="p">,</span> <span class="n">project_tree</span><span class="p">,</span> <span class="s2">&quot;plan ch26&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">26</span>
+    <span class="p">)</span>
+    <span class="c1"># outline/story_frame.md is a string read -&gt; full content present</span>
+    <span class="k">assert</span> <span class="s2">&quot;frame&quot;</span> <span class="ow">in</span> <span class="n">user_prompt</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run to verify they fail (dead-wire)</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -v</code>
+Expected: <code>test_declared_fields_filter_in_dispatch_loop</code> FAILS (<code>XYZZY_LEAK_MARKER</code> leaks); escape-hatch test FAILS (no WARN fired). This is the dead-wire red.</p>
+<ul>
+<li>[ ] <strong>Step 3: Implement the sidecar lookup</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/dispatch_helper.py</code>, replace the read-loop entry (:666-675):</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">raw_inputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">reads</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="c1"># Layer B: loader normalizes dict-form reads into plain strings and</span>
+    <span class="c1"># diverts fields to the read_fields sidecar (loader.py _validate).</span>
+    <span class="c1"># The old isinstance(dict) branch never fired (spec #65 §1.5 dead-wire);</span>
+    <span class="c1"># the sidecar keyed by the PRE-RESOLUTION contract path is the</span>
+    <span class="c1"># authoritative fields carrier (same source as</span>
+    <span class="c1"># _collect_declared_truth_fields).</span>
+    <span class="n">read_fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;read_fields&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">for</span> <span class="n">read_path</span> <span class="ow">in</span> <span class="n">reads</span><span class="p">:</span>
+        <span class="n">fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">read_path</span><span class="p">,</span> <span class="p">[])</span>
+</code></pre></div>
+<p>(Delete the <code>if isinstance(read_path_entry, dict):</code> / <code>else:</code> branches; <code>read_path: str = read_path_entry</code> line and the dict branch both go. Keep everything from <code>resolved = resolve_or_skip_ctx(...)</code> (:680) onward unchanged — the <code>if fields:</code> at :698 now receives real fields.)</p>
+<ul>
+<li>[ ] <strong>Step 4: Run tests to verify green</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -v</code>
+Expected: 3 passed.</p>
+<ul>
+<li>[ ] <strong>Step 5: Full regression (36 existing dict declarations go live)</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/ -x -q 2&gt;&amp;1 | tail -5</code>
+Expected: all pass. If any existing test depended on unfiltered behavior of a declared-fields file, fix that test's fixture to carry the declared headers (shenbi-native lineage semantics) — do NOT weaken the filter.</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_layerb_live.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(spec65): dispatch read loop consults read_fields sidecar — Layer B dead-wire repaired (§3.0)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-power_systemmd-fields-for-review-group-factual-lint-sample-wiring-3">Task 2: power_system.md fields for review-group-factual + lint sample wiring (§3)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-review-group-factual/SKILL.md</code> (reads block, frontmatter only)
+- Modify: <code>scripts/lint_contract_fields.py:53-86</code> (EXAMPLE_FIXTURES entry)
+- Test: <code>tests/unit/pipeline/test_dispatch_layerb_live.py</code> (append)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: T1 sidecar lookup (fields now live at dispatch).
+- Produces: <code>world/power_system.md</code> dict-form read with fields <code>[力量天花板, 代价机制, 跨级战斗参考, 能力边界]</code> on shenbi-review-group-factual.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing measurement + zero-WARN tests</strong></li>
+</ul>
+<p>Append to <code>tests/unit/pipeline/test_dispatch_layerb_live.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">POWER_SYSTEM_FIXTURE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/world-power-system-example.md&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">factual_tree</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;review-group-factual read set with real power_system fixture content.&quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="n">POWER_SYSTEM_FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;power_system.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;rules&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;locations.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;loc&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;story_bible.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;bible&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;## 主角状态</span><span class="se">\n\n</span><span class="s2">甲。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter_summaries.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;## 已完成章节</span><span class="se">\n\n</span><span class="s2">1。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-26.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;# 第26章</span><span class="se">\n\n</span><span class="s2">正文。&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tmp_path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_power_system_fields_filter_in_dispatch</span><span class="p">(</span>
+    <span class="n">factual_tree</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">warn_spy</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.estimate</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate_prompt_tokens</span>
+
+    <span class="n">ps_full</span> <span class="o">=</span> <span class="n">POWER_SYSTEM_FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">full_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ps_full</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">full_len</span> <span class="o">&gt;</span> <span class="mi">50_000</span>  <span class="c1"># fixture sanity (synthetic sample, 58,113B)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-review-group-factual&quot;</span><span class="p">,</span> <span class="n">factual_tree</span><span class="p">,</span> <span class="s2">&quot;audit ch26&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">26</span>
+    <span class="p">)</span>
+    <span class="c1"># Declared sections survive, undeclared filtered away</span>
+    <span class="k">assert</span> <span class="s2">&quot;力量天花板&quot;</span> <span class="ow">in</span> <span class="n">user_prompt</span> <span class="ow">and</span> <span class="s2">&quot;代价机制&quot;</span> <span class="ow">in</span> <span class="n">user_prompt</span>
+    <span class="k">assert</span> <span class="s2">&quot;等级表&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_prompt</span>  <span class="c1"># undeclared section (appears only at fixture :38)</span>
+    <span class="c1"># All four declared fields matched -&gt; escape hatch silent</span>
+    <span class="k">assert</span> <span class="n">warn_spy</span><span class="p">[</span><span class="s2">&quot;fields&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[],</span> <span class="n">warn_spy</span><span class="p">[</span><span class="s2">&quot;fields&quot;</span><span class="p">]</span>
+    <span class="c1"># Spec §7 byte metric: isolate the power_system CONTRIBUTION by</span>
+    <span class="c1"># subtracting a no-power_system baseline prompt.</span>
+    <span class="p">(</span><span class="n">factual_tree</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;power_system.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">baseline</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-review-group-factual&quot;</span><span class="p">,</span> <span class="n">factual_tree</span><span class="p">,</span> <span class="s2">&quot;audit ch26&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">26</span>
+    <span class="p">)</span>
+    <span class="n">contribution</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">user_prompt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">baseline</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="mi">4_000</span> <span class="o">&lt;</span> <span class="n">contribution</span> <span class="o">&lt;</span> <span class="n">full_len</span> <span class="o">*</span> <span class="mf">0.75</span>  <span class="c1"># deep cut, bounded below</span>
+    <span class="k">assert</span> <span class="n">estimate_prompt_tokens</span><span class="p">(</span><span class="n">user_prompt</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">estimate_prompt_tokens</span><span class="p">(</span><span class="n">baseline</span> <span class="o">+</span> <span class="n">ps_full</span><span class="p">)</span>
+</code></pre></div>
+<p>Red state pre-commit: before the SKILL.md change lands, <code>assert "等级表" not in user_prompt</code> fails (full text — declaration not yet made). That is the intended TDD red.</p>
+<ul>
+<li>[ ] <strong>Step 2: Run to verify red</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -k power_system -v</code>
+Expected: FAIL (等级表 present — declaration not yet made).</p>
+<ul>
+<li>[ ] <strong>Step 3: Declare the fields in the skill contract</strong></li>
+</ul>
+<p>In <code>skills/shenbi-review-group-factual/SKILL.md</code> frontmatter, change:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">world/power_system.md</span>
+</code></pre></div>
+<p>to:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">world/power_system.md</span>
+<span class="w">      </span><span class="nt">fields</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">力量天花板</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">代价机制</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">跨级战斗参考</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">能力边界</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Wire the lint sample</strong></li>
+</ul>
+<p>In <code>scripts/lint_contract_fields.py</code> EXAMPLE_FIXTURES (after the volume_map entry):</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># Mirrored synthetic sample carrying the full producer template-8 header</span>
+    <span class="c1"># set (spec #65 §3.2 — without this entry the new declaration vacuous-skips).</span>
+    <span class="s2">&quot;world/power_system.md&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">FIXTURES_DIR</span> <span class="o">/</span> <span class="s2">&quot;world-power-system-example.md&quot;</span><span class="p">],</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Verify green + lint + G4 + generate</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/pipeline/test_dispatch_layerb_live.py<span class="w"> </span>-v
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>scripts/lint_contract_fields.py<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>LINT_OK
+just<span class="w"> </span>generate<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>diff<span class="w"> </span>--exit-code<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>GEN_DIFF_EMPTY
+uv<span class="w"> </span>run<span class="w"> </span>shenbi-validate<span class="w"> </span>G4<span class="w"> </span>shenbi-review-group-factual<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/tests/fixtures/world-power-system-example.md&quot;</span>
+</code></pre></div>
+Expected: tests pass; LINT_OK; GEN_DIFF_EMPTY; G4 PASS. (No <code>python -m shenbi</code> — the package has no <code>__main__.py</code>; entry point is <code>shenbi-validate</code>. <code>resolve_input_path</code> needs an ABSOLUTE path when no round_dir is given — hence <code>$(pwd)</code>.) The review-group-factual route uses the generic G4 checker; probe-verified to PASS on the power fixture (it carries frontmatter).</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-review-group-factual/SKILL.md<span class="w"> </span>scripts/lint_contract_fields.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_layerb_live.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(spec65): review-group-factual power_system fields (template-8 subset) + lint sample wiring (§3)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-loader-extractor-sidecar-closed-registry-mutex-42">Task 3: loader <code>extractor:</code> sidecar — closed registry, mutex (§4.2)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/loader.py:46-53</code> (Contract TypedDict), <code>:72-87</code> (_normalize_read_item), <code>:191-239</code> (_validate)
+- Test: <code>tests/unit/contract/test_loader_extractors.py</code> (create — directory <code>tests/unit/contract/</code> SINGULAR)</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>Contract.read_extractors: dict[str, str]</code> (path → extractor name); <code>READ_EXTRACTORS: frozenset[str] = frozenset({"volume_chapter"})</code> registry constant in loader.py; <code>ContractError</code> on unknown extractor name or fields+extractor co-declaration.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests</strong></li>
+</ul>
+<p>Create <code>tests/unit/contract/test_loader_extractors.py</code> using the STAGED-SKILL pattern from <code>tests/unit/contract/test_dict_reads.py:14-29</code> (<code>_write_skill</code> + <code>monkeypatch.setattr("shenbi.contracts.loader.SKILLS", tmp_path / "skills")</code>). NEVER place throwaway skills under <code>tests/fixtures/</code> (G0.9 reserves it for real products):</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Loader extractor sidecar tests (spec #65 §4.2): closed registry,</span>
+<span class="sd">fields/extractor mutex, sidecar normalization. Staged-skill pattern from</span>
+<span class="sd">tests/unit/contract/test_dict_reads.py.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContractError</span><span class="p">,</span> <span class="n">load_contract</span>
+
+<span class="n">pytestmark</span> <span class="o">=</span> <span class="n">pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_skill</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reads_yaml</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">skills</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">skills</span> <span class="o">/</span> <span class="n">name</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">name: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">contract:</span><span class="se">\n</span><span class="s2">  kind: report</span><span class="se">\n</span><span class="s2">  reads:</span><span class="se">\n</span><span class="si">{</span><span class="n">reads_yaml</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  writes: [audits/chapter-N-x.md]</span><span class="se">\n</span><span class="s2">  updates: []</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2"># body</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>  <span class="c1"># --- delimiters REQUIRED (loader.read_frontmatter_contract rejects text</span>
+        <span class="c1"># not starting with &#39;---&#39;; without them test_unknown_extractor_name_</span>
+        <span class="c1"># fails_loud false-passes: ShenbiError.__str__ renders the skill-name</span>
+        <span class="c1"># kwarg, and &quot;shenbi-test-bad-extractor&quot; matches match=&quot;extractor&quot;)</span>
+
+
+<span class="n">EXTRACTOR_READS</span> <span class="o">=</span> <span class="s2">&quot;    - {file: outline/volume_map.md, extractor: volume_chapter}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_extractor_lands_in_sidecar</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_write_skill</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;shenbi-test-extractor&quot;</span><span class="p">,</span> <span class="n">EXTRACTOR_READS</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.contracts.loader.SKILLS&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">load_contract</span><span class="p">(</span><span class="s2">&quot;shenbi-test-extractor&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;reads&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;read_extractors&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;outline/volume_map.md&quot;</span><span class="p">:</span> <span class="s2">&quot;volume_chapter&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;read_fields&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">{}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_extractor_name_fails_loud</span><span class="p">(</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_write_skill</span><span class="p">(</span>
+        <span class="n">tmp_path</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-test-bad-extractor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;    - {file: outline/volume_map.md, extractor: volume_chapters}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="c1"># typo</span>
+    <span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.contracts.loader.SKILLS&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">ContractError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;extractor&quot;</span><span class="p">):</span>
+        <span class="n">load_contract</span><span class="p">(</span><span class="s2">&quot;shenbi-test-bad-extractor&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_fields_and_extractor_mutex</span><span class="p">(</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_write_skill</span><span class="p">(</span>
+        <span class="n">tmp_path</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-test-bad-mutex&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;    - {file: outline/volume_map.md, fields: [汇总], extractor: volume_chapter}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.contracts.loader.SKILLS&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">ContractError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;mutually exclusive&quot;</span><span class="p">):</span>
+        <span class="n">load_contract</span><span class="p">(</span><span class="s2">&quot;shenbi-test-bad-mutex&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>(The real chapter-planning <code>extractor:</code> declaration lands in T4 — T3's green state is fully self-contained via staged skills, no dependency on T4's SKILL.md edit.)</p>
+<ul>
+<li>[ ] <strong>Step 2: Run to verify red</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contract/test_loader_extractors.py -v</code>
+Expected: FAIL (<code>read_extractors</code> KeyError — sidecar doesn't exist yet).</p>
+<ul>
+<li>[ ] <strong>Step 3: Implement the sidecar</strong></li>
+</ul>
+<p>In <code>src/shenbi/contracts/loader.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">#: Closed registry of read extractor names (spec #65 §4.2). Unknown names</span>
+<span class="c1">#: fail loudly at load (never silently degrade to full text).</span>
+<span class="n">READ_EXTRACTORS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;volume_chapter&quot;</span><span class="p">})</span>
+</code></pre></div>
+<p><code>_normalize_read_item</code> returns <code>tuple[str, list[str] | None, str | None]</code> — third element is extractor name:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_normalize_read_item</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">item</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;file&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fields&quot;</span><span class="p">)</span>
+        <span class="n">extractor</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extractor&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">extractor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span>
+                <span class="s2">&quot;contract.reads[] fields and extractor are mutually exclusive&quot;</span><span class="p">,</span>
+                <span class="n">field</span><span class="o">=</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="s2">&quot;contract.reads[].fields must be list[str]&quot;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;reads&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">extractor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extractor</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">extractor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">READ_EXTRACTORS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span>
+                    <span class="s2">&quot;contract.reads[].extractor unknown&quot;</span><span class="p">,</span>
+                    <span class="n">field</span><span class="o">=</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span>
+                    <span class="n">extractor</span><span class="o">=</span><span class="n">extractor</span><span class="p">,</span>
+                    <span class="n">allowed</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">READ_EXTRACTORS</span><span class="p">),</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]),</span> <span class="n">fields</span><span class="p">,</span> <span class="n">extractor</span>
+    <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="s2">&quot;contract.reads[] must be str or {file, fields?}&quot;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;reads&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Contract TypedDict gains <code>read_extractors: dict[str, str]</code>; <code>_validate</code> builds it alongside <code>read_fields</code>:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">read_extractors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># in the reads branch:</span>
+                <span class="n">path</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">extractor</span> <span class="o">=</span> <span class="n">_normalize_read_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">read_fields</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span>
+                <span class="k">if</span> <span class="n">extractor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">read_extractors</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">extractor</span>
+    <span class="c1"># and the return dict gains: &quot;read_extractors&quot;: read_extractors,</span>
+</code></pre></div>
+<p>Also add <code>read_extractors</code> to any exhaustive Contract constructions in loader.py itself (grep <code>read_fields</code> for construction sites).</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify green + regression</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contract/test_loader_extractors.py -v &amp;&amp; uv run pytest tests/ -x -q 2&gt;&amp;1 | tail -3</code>
+Expected: all pass (no existing skill declares extractor yet — pure additive).</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/loader.py<span class="w"> </span>tests/unit/contract/test_loader_extractors.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(spec65): loader read_extractors sidecar — closed registry + fields/extractor mutex (§4.2)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-dispatcher-extractor-wiring-_shared-sink-chapter-planning-contract-4">Task 4: dispatcher extractor wiring + <code>_shared</code> sink + chapter-planning contract (§4)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/context_assemble.py</code> (move <code>_load_volume_context</code> out), <code>src/shenbi/pipeline/_shared.py</code> (receive it, public name <code>load_volume_context</code>)
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (extractor branch in read loop)
+- Modify: <code>skills/shenbi-chapter-planning/SKILL.md</code> (volume_map entry gains <code>extractor: volume_chapter</code>)
+- Test: <code>tests/unit/pipeline/test_dispatch_layerb_live.py</code> (append)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: T3 <code>read_extractors</code> sidecar + <code>READ_EXTRACTORS</code>; <code>_shared</code> family (<code>_resolve_volume_at_runtime</code>, <code>read_chapter_node</code>, <code>read_bridges</code>).
+- Produces: <code>_shared.load_volume_context(project_dir: Path, chapter: int) -&gt; str</code> (moved verbatim from context_assemble, same behavior); dispatcher branch: extractor declared + chapter set → call it; <code>""</code> result → full text + WARN <code>extractor_failed_fulltext</code>; chapter None → skip extraction (full text).</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests (three branches + measurement)</strong></li>
+</ul>
+<p>Append to <code>tests/unit/pipeline/test_dispatch_layerb_live.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_volume_extractor_happy_path</span><span class="p">(</span>
+    <span class="n">project_tree</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">warn_spy</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.estimate</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate_prompt_tokens</span>
+
+    <span class="n">vm_text</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_tree</span> <span class="o">/</span> <span class="s2">&quot;outline&quot;</span> <span class="o">/</span> <span class="s2">&quot;volume_map.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">full</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vm_text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">full</span> <span class="o">&gt;</span> <span class="mi">26_000</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-chapter-planning&quot;</span><span class="p">,</span> <span class="n">project_tree</span><span class="p">,</span> <span class="s2">&quot;plan ch26&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">26</span>
+    <span class="p">)</span>
+    <span class="c1"># ch26 in the xinghuo map falls in volume 2 (第16-35章). Assert on the</span>
+    <span class="c1"># distinctive volume TITLES (not 第N卷 numerals — bridge rows mention those).</span>
+    <span class="k">assert</span> <span class="s2">&quot;铁与火&quot;</span> <span class="ow">in</span> <span class="n">user_prompt</span>      <span class="c1"># current volume 2 title survived</span>
+    <span class="k">assert</span> <span class="s2">&quot;觉醒之火&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_prompt</span>  <span class="c1"># volume 1 title filtered away</span>
+    <span class="c1"># Spec §7: extractor_failed_fulltext appears ONLY in the failure case —</span>
+    <span class="c1"># the happy path must be WARN-free.</span>
+    <span class="k">assert</span> <span class="s2">&quot;extractor_failed_fulltext&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">warn_spy</span><span class="p">[</span><span class="s2">&quot;dispatch&quot;</span><span class="p">]</span>
+    <span class="c1"># Spec §4.4/§7 byte metric: volume_map contribution must drop to the</span>
+    <span class="c1"># ~500B-2KB band. Isolate by no-volume_map baseline subtraction.</span>
+    <span class="p">(</span><span class="n">project_tree</span> <span class="o">/</span> <span class="s2">&quot;outline&quot;</span> <span class="o">/</span> <span class="s2">&quot;volume_map.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">baseline</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-chapter-planning&quot;</span><span class="p">,</span> <span class="n">project_tree</span><span class="p">,</span> <span class="s2">&quot;plan ch26&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">26</span>
+    <span class="p">)</span>
+    <span class="n">contribution</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">user_prompt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">baseline</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="mi">300</span> <span class="o">&lt;</span> <span class="n">contribution</span> <span class="o">&lt;=</span> <span class="mi">2_048</span>  <span class="c1"># spec target band (500B-2KB, CJK-tolerant floor)</span>
+    <span class="k">assert</span> <span class="n">estimate_prompt_tokens</span><span class="p">(</span><span class="n">user_prompt</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">estimate_prompt_tokens</span><span class="p">(</span><span class="n">baseline</span> <span class="o">+</span> <span class="n">vm_text</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_volume_extractor_chapter_none_fulltext</span><span class="p">(</span><span class="n">project_tree</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-chapter-planning&quot;</span><span class="p">,</span> <span class="n">project_tree</span><span class="p">,</span> <span class="s2">&quot;no chapter&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;第一卷&quot;</span> <span class="ow">in</span> <span class="n">user_prompt</span> <span class="ow">and</span> <span class="s2">&quot;第五卷&quot;</span> <span class="ow">in</span> <span class="n">user_prompt</span>  <span class="c1"># full text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_volume_extractor_failure_fulltext_and_warn</span><span class="p">(</span>
+    <span class="n">project_tree</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">warn_spy</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Existing file, unresolvable chapter -&gt; full text + named WARN (no silent drop)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-chapter-planning&quot;</span><span class="p">,</span> <span class="n">project_tree</span><span class="p">,</span> <span class="s2">&quot;plan ch9999&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">9999</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;第一卷&quot;</span> <span class="ow">in</span> <span class="n">user_prompt</span>  <span class="c1"># full-text fallback</span>
+    <span class="k">assert</span> <span class="s2">&quot;extractor_failed_fulltext&quot;</span> <span class="ow">in</span> <span class="n">warn_spy</span><span class="p">[</span><span class="s2">&quot;dispatch&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_real_chapter_planning_contract_has_extractor</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># T3&#39;s sidecar wired to the REAL skill contract (lands with Step 5 below)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_contract</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">load_contract</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-planning&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;read_extractors&quot;</span><span class="p">][</span><span class="s2">&quot;outline/volume_map.md&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;volume_chapter&quot;</span>
+</code></pre></div>
+<p><strong>Sufficiency adjudication (spec §4.4/§5 duty, discharged at final review):</strong>
+the chapter-planning input face after extraction carries — current KR block
+(章节范围 spans the chapter; the body's priority chain names 卷纲 Key Result as
+a source, so the extractor was extended to carry it, final-review I1) + volume
+tension-curve table (卷内张力曲线) + volume Objective + current chapter node +
+pending bridges (extractor slice); N+1 continuity via the Task-13 skeleton's
+section 6; N-1 continuity via <code>truth/chapter_summaries.md</code> (已完成章节 field,
+already declared). Recorded in spec-deviations ### T4.</p>
+<p>NOTE (accepted redundancy): <code>load_volume_context</code> re-reads volume_map.md from disk (once inside itself, once inside <code>_resolve_volume_at_runtime</code> via <code>read_volume_boundaries</code>) on top of the loop's own read — three reads per dispatch. Idempotent, read-only, µs-scale on an OS page cache; accepted now, a text-parameter refactor is a future optimization (spec-deviations note).</p>
+<ul>
+<li>[ ] <strong>Step 2: Run to verify red</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -k volume -v</code>
+Expected: happy-path FAIL (full text — no extractor branch yet); failure-WARN test FAIL (no WARN).</p>
+<ul>
+<li>[ ] <strong>Step 3: Move <code>_load_volume_context</code> to <code>_shared.py</code> (pure move)</strong></li>
+</ul>
+<p>All of the function's dependencies (<code>_resolve_volume_at_runtime</code>, <code>read_chapter_node</code>, <code>read_bridges</code>, <code>bridges_for_chapter</code> at _shared.py:261) ALREADY live in <code>_shared.py</code>; every regex it uses is function-local. Cut <code>_load_volume_context</code> (context_assemble.py:207-262) and paste into <code>_shared.py</code> as public <code>load_volume_context</code> (docstring unchanged; add "spec #65 §4: dispatcher extractor face"). <strong>Add <code>load_volume_context</code> to <code>_shared.__all__</code></strong> (:22-37, the module maintains it explicitly). In context_assemble.py, replace BOTH the removed definition AND the now-dead 4-name <code>_shared</code> import block (:27-30 imports <code>_resolve_volume_at_runtime</code>, <code>bridges_for_chapter</code>, <code>read_bridges</code>, <code>read_chapter_node</code> — used ONLY inside the removed function; leaving them = ruff F401 = <code>just check</code> red) with:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline._shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_volume_context</span> <span class="k">as</span> <span class="n">_load_volume_context</span>
+</code></pre></div>
+<p>(verify with <code>grep -n "_resolve_volume_at_runtime\|bridges_for_chapter\|read_bridges\|read_chapter_node" src/shenbi/pipeline/context_assemble.py</code> — zero remaining uses expected. All existing tests importing <code>_load_volume_context</code> from context_assemble keep working untouched — verified: tests/unit/pipeline/test_context_assemble.py:20 and tests/pipeline/test_cn_extract.py:75/96 import it from context_assemble; <code>context_assemble.__all__</code> (:396-407) stays valid via the alias.)</p>
+<ul>
+<li>[ ] <strong>Step 4: Wire the dispatcher extractor branch</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/dispatch_helper.py</code> read loop, after the sidecar lookup from T1 and before <code>if fields:</code> (:698):</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">read_extractors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;read_extractors&quot;</span><span class="p">,</span> <span class="p">{})</span>
+</code></pre></div>
+<p>(move outside the loop, next to read_fields) and inside the loop, after content is obtained (post :697), before the fields filter:</p>
+<div class="highlight"><pre><span></span><code>            <span class="n">extractor</span> <span class="o">=</span> <span class="n">read_extractors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">read_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">extractor</span> <span class="o">==</span> <span class="s2">&quot;volume_chapter&quot;</span> <span class="ow">and</span> <span class="n">chapter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline._shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_volume_context</span>
+
+                <span class="n">extracted</span> <span class="o">=</span> <span class="n">load_volume_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">extracted</span><span class="p">:</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">extracted</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;extractor_failed_fulltext&quot;</span><span class="p">,</span>
+                        <span class="n">extractor</span><span class="o">=</span><span class="n">extractor</span><span class="p">,</span>
+                        <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">),</span>
+                        <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                    <span class="p">)</span>
+</code></pre></div>
+<p>(<code>project_dir</code> is the loop's enclosing parameter — pass it directly; the extractor entry's contract key (<code>outline/volume_map.md</code>) already scopes which reads can hit this branch, and <code>chapter is None</code> (genesis/manual no-chapter dispatch) falls through to full text per spec §4.3. Move the lazy import to module top if import cycles allow — <code>_shared</code> is a leaf, so a top-level import is expected to work; verify with <code>uv run pytest tests/unit/pipeline/test_dispatch_layerb_live.py -x</code>.)</p>
+<ul>
+<li>[ ] <strong>Step 5: Declare the extractor in the skill contract</strong></li>
+</ul>
+<p>In <code>skills/shenbi-chapter-planning/SKILL.md</code> frontmatter, change <code>- outline/volume_map.md</code> to:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">outline/volume_map.md</span>
+<span class="w">    </span><span class="nt">extractor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">volume_chapter</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: Verify green + lint + G4 + generate + full check</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/pipeline/test_dispatch_layerb_live.py<span class="w"> </span>-v
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/pipeline/test_cn_extract.py<span class="w"> </span>tests/unit/pipeline/test_context_assemble.py<span class="w"> </span>-v<span class="w">  </span><span class="c1"># moved-function parity</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>scripts/lint_contract_fields.py<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>LINT_OK
+just<span class="w"> </span>generate<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>diff<span class="w"> </span>--exit-code<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>GEN_DIFF_EMPTY
+uv<span class="w"> </span>run<span class="w"> </span>shenbi-validate<span class="w"> </span>G4<span class="w"> </span>shenbi-chapter-planning<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/tests/fixtures/chapter-plan-example.md&quot;</span>
+just<span class="w"> </span>check
+</code></pre></div>
+Expected: all green; G4 PASS; GEN_DIFF_EMPTY; just check EXIT=0.</p>
+<p>(G4 input is a REAL chapter-plan product — <code>tests/fixtures/chapter-plan-example.md</code> — because <code>g4_chapter_planning</code> checks 8 numbered <code>## N.</code> sections + a <code>chapter_role</code> token; feeding it a volume map is a category error. Absolute path required: <code>resolve_input_path</code> raises on relative paths without a round_dir. No <code>python -m shenbi</code> form — package has no <code>__main__.py</code>.)</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/_shared.py<span class="w"> </span>src/shenbi/pipeline/context_assemble.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>skills/shenbi-chapter-planning/SKILL.md<span class="w"> </span>tests/unit/pipeline/test_dispatch_layerb_live.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(spec65): volume_map extractor wiring — _shared sink + dispatcher branch + chapter-planning contract (§4)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="post-plan-registration">Post-plan registration</h2>
+<ul>
+<li>Register in <code>docs/superpowers/plans/INDEX.md</code> as <code>✅ ready</code>.</li>
+</ul>
+<h2 id="self-review-done-at-plan-time">Self-Review (done at plan time)</h2>
+<ul>
+<li>Spec coverage: §3.0→T1, §3→T2, §4.2 loader→T3, §4 dispatcher/contract→T4; acceptance table maps every §7 row; offline-only verification throughout (F947 satisfied).</li>
+<li>No placeholders: every step carries code or exact commands; the one open decision the spec delegates to plan (extractor composition home) is resolved as a pure move to <code>_shared.py</code> with verified dependency closure.</li>
+<li>Type consistency: <code>_normalize_read_item</code> 3-tuple change is contained to loader.py (grep all callers at implementation); <code>read_extractors</code> key/name types consistent T3→T4; <code>load_volume_context</code> signature unchanged by the move.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
