@@ -51,9 +51,9 @@
 回退面（不变）：既有 synthetic-sample fixtures（world-*-example.md、truth-current_state.md 等载体已标注者）可作拷贝源——结构真实但分布非真实，须在测试注记其局限；三个无载体 truth fixture（character_matrix/emotional_arcs/chapter_summaries）引用前须先补载体或以 upstream-copy 真实产物替代。
 
 **验收：**
-- `grep -n "Content here\|这是一个宏大而复杂的世界" tests/integration/test_gate_cli.py` 零命中（捏造文本清除）
+- `grep -n "Content here\|这是一个宏大而复杂的世界\|name: Test\|天机城" tests/integration/test_gate_cli.py` 零命中（捏造文本清除——模式覆盖 helper 全部自造字符串面：占位/世界观句/角色 frontmatter/地点名）
 - `uv run pytest tests/integration/test_gate_cli.py -v` 全绿（G4 PASS 路径在 fixture 拷贝下仍 PASS）
-- 新增 fixtures 载体合规且 g0_purity 不新增违规：truth 类为**单块合并式** frontmatter（`provenance: upstream-copy` 与原键同块；g0_purity `load_provenance` 对 `.md` 只读 frontmatter——sidecar 对 `.md` 无效）、无 frontmatter `.md` 为前置单块、novel.json 为 `.provenance.json` sidecar；验证命令（**真树断言**——test_g0_purity*.py 为 tmp_path 合成树，对本声明 vacuous）`uv run python -c "from pathlib import Path; from shenbi.gates.g0_purity import load_provenance; ps=[p for p in Path('tests/fixtures/xinghuo-ranqiong').rglob('*') if p.is_file() and p.suffix in ('.md','.json') and not p.name.endswith('.provenance.json')]; assert ps and all(load_provenance(p) for p in ps), ps"`（后缀白名单防杂散文件如 .DS_Store 误炸断言） 通过；**基线注记**：main 现存 G0.19 既有 +2 违规（tests/fixtures/production-config/genre-config.json、tests/fixtures/write-audit-glob/genre-config.json 无载体）——与本改动无关，勿误判回归、不在本 spec 范围；回退路径的 synthetic-sample 引用在测试内注记局限
+- 新增 fixtures 载体合规且 g0_purity 不新增违规：truth 类为**单块合并式** frontmatter（`provenance: upstream-copy` 与原键同块；g0_purity `load_provenance` 对 `.md` 只读 frontmatter——sidecar 对 `.md` 无效）、无 frontmatter `.md` 为前置单块、novel.json 为 `.provenance.json` sidecar；验证命令（**真树断言**——test_g0_purity*.py 为 tmp_path 合成树，对本声明 vacuous）`uv run python -c "from pathlib import Path; from shenbi.gates.g0_purity import load_provenance; ps=[p for p in Path('tests/fixtures/xinghuo-ranqiong').rglob('*') if p.is_file() and p.suffix in ('.md','.json') and not p.name.endswith('.provenance.json')]; assert ps and all(load_provenance(p) for p in ps), ps"`（后缀白名单防杂散文件如 .DS_Store 误炸断言；本条与下条 python -c 命令均以 repo 根为 CWD——相对路径约定） 通过；**基线注记**：main 现存 G0.19 既有 +2 违规（tests/fixtures/production-config/genre-config.json、tests/fixtures/write-audit-glob/genre-config.json 无载体）——与本改动无关，勿误判回归、不在本 spec 范围；回退路径的 synthetic-sample 引用在测试内注记局限
 - 新增 fixture 与 `git show d120a444^:...` 取回内容的保真度可执行验证（payload 逐字节一致；偏离仅限处方内载体操作——chapter_summaries 重建 frontmatter 为其中唯一 frontmatter 级新造，truth 三件与 protagonist 为原键 + 2 合并键、story_bible/rules 为前置块、novel.json 本体不变）。**空行约定**：前置块/重建块与 payload 间空一行（对齐 locations.md 先例）；验证命令的 `body()` 剥载体时对缝部空行稳健（lstrip，空行 0/1 均过）：
   ```
   uv run python -c "
@@ -86,7 +86,7 @@
 **裁决（spec 内定稿）**：统一为 **3.11**（对齐 requires-python 下限——工具链按支持下限校验是保守面；升 3.12 会放宽 requires-python 语义，超出微修边界）。即 mypy :379 `"3.12"` → `"3.11"`；basedpyright :398 已是 3.11 不动；:8 不动。
 
 **验收：**
-- `grep -n "python_version\|pythonVersion\|requires-python" pyproject.toml` 三处值一致（3.11 口径）
+- `grep -n "python_version\|pythonVersion\|requires-python" pyproject.toml` 三处一致于 3.11 基准（:8 为下限 `>=3.11`，:379/:398 为字面 `"3.11"`）
 - `just check` 全绿（mypy/basedpyright 在 3.11 基准下无新报错）
 
 ## 边界
