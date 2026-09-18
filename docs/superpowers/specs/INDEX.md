@@ -1,6 +1,6 @@
 # Spec 执行索引
 
-> **最后更新**：2026-09-17（spec #6 Token 效率 P2 Done——PR #223（实施：T_A 字节稳定测试 + T_C chapter-pattern/pacing 外置）+ PR #224（评审修正）；T_B 缓存/T_D IDE 分离/三 skill 外置经价值门与阶段 3 八轮审查裁决不实施，证据随 spec 归档。现序 #40→#65→#66）
+> **最后更新**：2026-09-18（spec #65 Done PR #227+#228；spec #66 价值门 REWRITE——素材源重定向 git 历史 d120a444^（novel-output 已出库 PR #217）、truth 载体单块化处方、chapter_summaries frontmatter 重建裁决。现序 #40→#66）
 > **活跃 spec 数**：2
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
@@ -23,7 +23,7 @@
 - **系列**：2026-08-15 审计轮遗留收口（非 37 簇成员——F750 原簇 C16 边界争议条 deferred 出局、候选归宿 C15/C17 双亡；08-14 轮 F0-06 无簇承接；归宿由 spec #40 master 维护 pass 2026-09-11 裁决）
 - **状态**：Design | **优先级**：🟡 P2（两 finding 均 P2 · 微修 S 量级）
 - **方法**：机械替换 + 配置统一（两 finding 根因与修复路径均已定案，无需 systematic-debugging）
-- **依赖**：F750 素材源在盘（novel-output/xinghuo-ranqiong/ 真实产物全套 + fixtures 既有 upstream-copy/synthetic-sample 面，映射表见 spec）；F0-06 无依赖
+- **依赖**：F750 素材源 = git 历史 `d120a444^:novel-output/xinghuo-ranqiong/`（生产树已出库 PR #217；内容自 2026-07-20 未变）+ synthetic-sample 回退面，映射表见 spec；F0-06 无依赖
 - **内容**：(1) F750：test_gate_cli.py `_make_worldbuilding_project`（:27-97）手工捏造换 fixture 拷贝（首选 novel-output upstream-copy 引入、载体双形态，映射表见 spec），仅保留目录组装逻辑；(2) F0-06：pyproject python 版本三元统一为 3.11（mypy :379 改值，其余两处已符）
 - **对应 plan**：❌ 未写
 
