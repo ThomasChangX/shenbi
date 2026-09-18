@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-18（spec #67 孤儿残留收口 plan 创建（✅ ready））
-> **活跃 plan 数**：1 | **已归档**：122（见 `archive/`）
+> **最后更新**：2026-09-18（spec #67 plan Done 随 PR #234 归档；补归档 spec #29 Revised 遗留 plan——Copilot PR #235 线程指出）
+> **活跃 plan 数**：0 | **已归档**：124（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,12 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-### 2026-09-18-orphan-residuals-closure（spec #67 · ✅ ready）
-
-- **对应 spec**：`../specs/2026-09-18-orphan-residuals-closure.md`（🟠 P1）
-- **内容**：三 task——T1 F519/F513 legacy 快照根=round_dir（tdd_red_green）；T2 F311 curated 层 remove 22 处/6 文件 + ENDING_PATTERNS 迁移（regression_guard）；T3 T1108 不做裁决 + ledger 四行回写（audit-lint）
-- **全 infra**：协调者亲自实现，逐 task audit-T<N>.md
-
+（无）
 
 ## 待执行的 spec → plan 映射
 
