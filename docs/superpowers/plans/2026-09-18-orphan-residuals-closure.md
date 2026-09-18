@@ -224,7 +224,7 @@ git commit -m "fix(dispatcher): F519/F513 legacy route snapshot root = round_dir
 - Modify: `src/shenbi/pipeline/chapter_loop.py`（:162、:282 注释；:1547-1576 `_run_context_curation`；:2988-2989 调用；:3001-3003 注释+事件）
 - Modify: `src/shenbi/pipeline/cli.py`（:1042/:1046 docstring；:1069-1070 import；:1077-1080 写入）
 - Modify: `src/shenbi/pipeline/review_checklist.py`（:25 import→本地定义；:470/:474 注释；`__all__` 补列）
-- Modify: `src/shenbi/pipeline/truth_readers.py:33`、`src/shenbi/records/writer.py:5-7`、`src/shenbi/gates/g4/context_composing.py:77-78`（docstring/注释）
+- Modify: `src/shenbi/pipeline/truth_readers.py:33`、`src/shenbi/records/writer.py:5-6`、`src/shenbi/gates/g4/context_composing.py:77-78`（docstring/注释）
 - Modify: `pyproject.toml:150`（BLE001 豁免行删除）
 - Delete: `tests/unit/pipeline/test_context_curation.py`
 - Modify: `tests/unit/pipeline/test_context_persistence.py`（删 2 个 curated 测试）、`tests/unit/pipeline/test_truth_readers.py:114-115`（docstring）、`tests/unit/pipeline/test_skill_integration.py:189`（类 docstring 措辞）
@@ -335,7 +335,7 @@ git rm src/shenbi/pipeline/context_curation.py
 bash tests/lock-tool-hashes.sh
 just generate
 git diff --stat tests/tiers/deps.json
-# 期待：_tool_hashes 面 6 行 hash 更新 + context_curation.py 条目移除（共 7 行 diff）；
+# 期待：_tool_hashes 面 6 条目更新 + context_curation.py 条目移除（git diff --stat 约 6+/7-）；
 # expected_outputs 面零变化（本 task 不改 SKILL 契约）
 ```
 
