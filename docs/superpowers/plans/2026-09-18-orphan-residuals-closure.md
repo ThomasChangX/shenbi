@@ -14,7 +14,7 @@
 - 禁真实 LLM dispatch（核心原则 8）：所有验证走 pytest/fixtures/只读 CLI；测试仅允许 monkeypatch **函数 seam**（`dispatch`/`derive_output_files`），禁 monkeypatch 模块常量（本 plan 的面 1 即在消除该反模式）。
 - pathspec commit：`git add` 显式列文件，禁 `git add -A`。
 - 验证命令一律 `uv run` / `just`（与 CI `uv run --frozen` 同构）。
-- 生成物禁手改：`tests/tiers/deps.json` 只经 `just generate` 更新。
+- 生成物禁手改：`tests/tiers/deps.json` 双机制——`expected_outputs` 面只经 `just generate`；`_tool_hashes` 面只经 `bash tests/lock-tool-hashes.sh`（重哈希全 src/shenbi 树，G0/lint_registry_reconcile R3 以此为准——**每个改了 src/ 的 task commit 都必须随之刷新并提交**，否则中间 commit 非绿）。
 - conventional commits：`fix:` 面 1 / `refactor:` 面 2 / `docs:` 面 3。
 
 ## 复杂度与测试声明
@@ -36,7 +36,7 @@
 | 面1 测试掩蔽零命中 | T1 | `grep -rn "PROJECT_DIR" tests/unit/dispatcher/ tests/unit/audit/` |
 | 面1 dispatch_helper 孪生残留零命中 | T1 | `grep -rn "framework repo root\|F519" src/shenbi/pipeline/dispatch_helper.py` |
 | 面1 无掩蔽回归断言 | T1 | 新测试 `test_snapshot_root_is_round_dir_without_any_constant_mask` |
-| 面1/面2 `just check` 全绿 | 阶段7 | `just check` |
+| 面1/面2 `just check` 全绿 | T3（Step 3 终验） | `just check` |
 | 面2 `chapter-.*-curated` 零命中 | T2 | `grep -rn "chapter-.*-curated" src/` |
 | 面2 `curation` 零命中（22/6 全灭） | T2 | `grep -rn "curation" src/` |
 | 面2 g4 `curates` 零命中 | T2 | `grep -n "curates" src/shenbi/gates/g4/context_composing.py` |
@@ -52,8 +52,8 @@
 ### Task 1: F519/F513 · legacy 路由快照根 = round_dir
 
 **Files:**
-- Modify: `src/shenbi/dispatcher/executor.py`（:31-32 常量删除；:140-152 run_g2 argv 去 PROJECT_DIR；:309/:334 快照根；:284-294 docstring）
-- Modify: `src/shenbi/pipeline/dispatch_helper.py:2656-2662`（孪生 docstring）
+- Modify: `src/shenbi/dispatcher/executor.py`（:31-32 常量删除；:133-150 run_g2 argv 去 PROJECT_DIR；:309/:334 快照根；:287-289 docstring）
+- Modify: `src/shenbi/pipeline/dispatch_helper.py:2661-2662`（孪生 docstring）
 - Modify: `tests/unit/dispatcher/test_executor_audit.py`（揭 :18/:42 掩蔽 + 新回归测试）
 - Modify: `tests/unit/audit/test_write_audit_drift_attribution.py`（揭 :65 掩蔽 + fixture 重排）
 
@@ -129,12 +129,20 @@ PROJECT_DIR = REPO_ROOT
             post = snapshot_tree(round_dir, watch)
 ```
 
-3d. docstring（:284-294 段尾两句替换）：
-```python
-    is a subprocess is a known blind spot. Snapshot root is round_dir (the
-    dispatched write tree — F519/F513 fixed by spec #67); codex executes with
-    ``-C round_dir``, so skill writes land there. The API/IDE wrapper roots at
-    the pipeline project dir with the same write-tree semantics.
+3d. docstring 尾部**整句替换**（旧句跨 :287-289，新句如下）：
+
+旧（逐字）：
+```
+Snapshot root is PROJECT_DIR (framework
+repo root — F519); the API/IDE wrapper roots at the pipeline project dir
+where those routes actually write.
+```
+新：
+```
+Snapshot root is round_dir (the dispatched write
+tree — F519/F513 fixed by spec #67); codex executes with ``-C round_dir``,
+so skill writes land there. The API/IDE wrapper roots at the pipeline
+project dir with the same write-tree semantics.
 ```
 
 - [ ] **Step 4: 跑新测试确认通过**
@@ -169,12 +177,27 @@ Expected: **PASS**
 ```
 （删除 `root = tmp_path / "project"` 两树分离与 `monkeypatch.setattr(executor, "PROJECT_DIR", root)`；断言块不变。）
 
-- [ ] **Step 6: dispatch_helper 孪生 docstring**（:2656-2662 内一句替换）
+- [ ] **Step 6: dispatch_helper 孪生 docstring**（句跨 :2661-2662）
 
-原：`(the legacy route snapshots the framework repo root instead, F519, out of scope here)`
-新：`(the legacy CLI route snapshots its ``round_dir`` — the same write-tree semantics, F519/F513 fixed by spec #67)`
+旧（逐字）：
+```
+(the legacy route snapshots the framework repo root instead,
+F519, out of scope here)
+```
+新：
+```
+(the legacy CLI route snapshots its ``round_dir`` —
+the same write-tree semantics, F519/F513 fixed by spec #67)
+```
 
-- [ ] **Step 7: 验收命令全跑**
+- [ ] **Step 7: 刷新 _tool_hashes（deps.json）**
+
+```bash
+bash tests/lock-tool-hashes.sh
+git diff --stat tests/tiers/deps.json    # 期待恰 2 行 hash 变化（executor.py + dispatch_helper.py）
+```
+
+- [ ] **Step 8: 验收命令全跑**
 
 ```bash
 uv run pytest tests/unit/dispatcher/ tests/unit/audit/ -q          # Expected: all passed
@@ -183,14 +206,14 @@ grep -rn "PROJECT_DIR" tests/unit/dispatcher/ tests/unit/audit/    # Expected: �
 grep -rn "framework repo root\|F519" src/shenbi/pipeline/dispatch_helper.py  # Expected: 零输出
 ```
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**（显式列文件，含 deps.json）
 
 ```bash
-git add src/shenbi/dispatcher/executor.py src/shenbi/pipeline/dispatch_helper.py tests/unit/dispatcher/test_executor_audit.py tests/unit/audit/test_write_audit_drift_attribution.py
+git add src/shenbi/dispatcher/executor.py src/shenbi/pipeline/dispatch_helper.py tests/unit/dispatcher/test_executor_audit.py tests/unit/audit/test_write_audit_drift_attribution.py tests/tiers/deps.json
 git commit -m "fix(dispatcher): F519/F513 legacy route snapshot root = round_dir (spec #67 face 1)"
 ```
 
-- [ ] **Step 9: audit_loop**（scope=本 task 4 文件，sha_range=(上 commit, 本 commit)）→ `.superpowers/sdd/audit-T1.md`
+- [ ] **Step 10: audit_loop**（scope=本 task 4 文件，sha_range=(上 commit, 本 commit)）→ `.superpowers/sdd/audit-T1.md`
 
 ---
 
@@ -300,13 +323,16 @@ no second parser.
 5b. `test_context_persistence.py` 删除 `test_curated_context_written_on_curation` 与 `test_curated_context_uses_safe_write` 两函数（`tempfile`/`patch` 仍被 assembly 测试使用，import 保留）。
 5c. `test_truth_readers.py:114-115` docstring：`All three consumers (context_curation / G6.7 / truth_index)` → `All consumers (G6.7 / truth_index / chapter_loop)`
 
-- [ ] **Step 6: 删除模块 + 重生成 deps.json**
+- [ ] **Step 6: 删除模块 + 双机制刷新生成物**
 
 ```bash
 git rm src/shenbi/pipeline/context_curation.py
-just generate && git diff --stat tests/tiers/deps.json   # 期待仅 deps.json 一行 hash 变化
+bash tests/lock-tool-hashes.sh
+just generate
+git diff --stat tests/tiers/deps.json
+# 期待：_tool_hashes 面 ~7 行 hash 更新 + context_curation.py 条目移除；
+# expected_outputs 面零变化（本 task 不改 SKILL 契约）
 ```
-（若 `just generate` 报模块缺失错误 → 先检查是否还有未列引用——grep 判据在 Step 7 兜底。）
 
 - [ ] **Step 7: 验收命令全跑**
 
@@ -317,16 +343,17 @@ grep -rn "curation" src/                          # Expected: 零输出
 grep -n "curates" src/shenbi/gates/g4/context_composing.py  # Expected: 零输出
 grep -n "context_curation" pyproject.toml         # Expected: 零输出
 grep -n "ENDING_PATTERNS" src/shenbi/pipeline/review_checklist.py  # Expected: 定义+消费 ≥2 行
-just generate && git diff --exit-code tests/tiers/deps.json && echo IDEMPOTENT
+bash tests/lock-tool-hashes.sh && git diff --exit-code tests/tiers/deps.json && echo HASHES-CURRENT
+just generate && git diff --exit-code tests/tiers/deps.json && echo GEN-IDEMPOTENT
 ```
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 8: Commit**（显式列文件——git rm 已暂存模块删除，此处补列其余）
 
 ```bash
-git add -A -- src/shenbi/pipeline/ src/shenbi/records/writer.py src/shenbi/gates/g4/context_composing.py tests/unit/pipeline/ pyproject.toml tests/tiers/deps.json
+git add src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/cli.py src/shenbi/pipeline/review_checklist.py src/shenbi/pipeline/truth_readers.py src/shenbi/records/writer.py src/shenbi/gates/g4/context_composing.py pyproject.toml tests/unit/pipeline/test_context_persistence.py tests/unit/pipeline/test_truth_readers.py tests/tiers/deps.json
 git commit -m "refactor(pipeline): remove zero-consumer curated layer (F311, spec #67 face 2) — ENDING_PATTERNS relocated to review_checklist"
 ```
-（`-A -- <pathspec>` 限定路径内含删除；等效显式列举，避免误纳用户未提交改动。）
+（test_context_curation.py 的删除由 `git rm` 暂存——注意对**已 tracked 文件**的删除用 `git rm tests/unit/pipeline/test_context_curation.py`。）
 
 - [ ] **Step 9: audit_loop**（scope=本 task 改动文件集，sha_range=(上 commit, 本 commit)）→ `.superpowers/sdd/audit-T2.md`
 
@@ -350,21 +377,27 @@ git commit -m "refactor(pipeline): remove zero-consumer curated layer (F311, spe
 - [ ] **Step 2: lint 验证**
 
 Run: `just audit-lint`
-Expected: **PASS**（08-14/08-15/c18-cleanup 三 run 全绿；bare-open 计数消化 2 行、bare-verified 不变）
+Expected: **PASS**（08-14/08-15/c18-cleanup 三 run 全绿）
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 3: 全量门禁（本 plan 终验，self-contained）**
+
+Run: `just check`
+Expected: **EXIT=0**（两段 pytest + 全 lint 面 + R3 哈希一致性——T1/T2 已各自刷新 _tool_hashes，此处必须绿）
+
+- [ ] **Step 4: Commit**
 
 ```bash
 git add docs/superpowers/audit-runs/2026-08-15/findings-ledger.md docs/superpowers/audit-runs/2026-08-14/findings-ledger.md
 git commit -m "docs(audit): close F519/F311/T1108/F513 ledger rows (spec #67 three-face closure)"
 ```
 
-- [ ] **Step 4: audit_loop**（scope=2 ledger 文件，sha_range=(上 commit, 本 commit)）→ `.superpowers/sdd/audit-T3.md`
+- [ ] **Step 5: audit_loop**（scope=2 ledger 文件，sha_range=(上 commit, 本 commit)）→ `.superpowers/sdd/audit-T3.md`
 
 ---
 
 ## Self-Review 记录
 
-1. **Spec coverage**：面 1（Task 1 全部验收项）/ 面 2（Task 2 全清单 22 处映射）/ 面 3 + 边界 ledger 回写（Task 3）——spec 三面 + 边界节全覆盖；spec 头 Status/INDEX 更新属阶段 12 归档动作，不在本 plan。
+1. **Spec coverage**：面 1（Task 1 全部验收项）/ 面 2（Task 2 全清单 22 处映射）/ 面 3 + 边界 ledger 回写（Task 3）——spec 三面 + 边界节全覆盖；spec 头 Status/INDEX 更新属 SDD 归档动作（阶段 12），不在本 plan。
 2. **Placeholder scan**：无 TBD/TODO；所有代码步骤含完整代码；所有命令含期望输出。
 3. **Type consistency**：`dispatch_with_write_audit` 签名不变；`ENDING_PATTERNS: dict[str, str]` 类型随迁；`gate_G2` 第 5 参省略与 cli.py `arg(3, None)` 一致。
+4. **Plan 审查轮 1 修正（2026-09-18）**：deps.json 双机制（lock-tool-hashes.sh 刷 _tool_hashes——T1/T2 各自随 commit 刷新；just generate 管 expected_outputs）；T1 Step 3d 改整句替换（旧句 :287-289 逐字）；T2 Step 8 显式列文件；T3 增 Step 3 `just check` 终验；引用行号校准（:31-32/:133-150/:2661-2662）。
