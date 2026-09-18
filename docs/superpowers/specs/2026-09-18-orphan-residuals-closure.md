@@ -42,7 +42,7 @@
   - 测试：删 `tests/unit/pipeline/test_context_curation.py`；`test_context_persistence.py` 去 curated 两测（:61-102，保留 assembly 持久化测）；`test_truth_readers.py:114` docstring 三消费者措辞校对（改后仍三方：G6.7/truth_index/chapter_loop）
   - 生成物：`tests/tiers/deps.json` 经 `just generate` 重生成（禁手改；模块删除后先 generate 再跑验收 grep）
   - docs/superpowers/{plans,specs}/archive/ 与 docs/superpowers/audit-runs/ 历史件引用**不动**（append-only 先例；audit-runs 为不可变审计史）
-- **验收（可执行）**：`grep -rn "chapter-.*-curated" src/` 零命中；**`grep -rn "curation" src/` 零命中**（单一权威判据——涵盖 curate_context/context_curation 引用与全部措辞残留：已对 main HEAD 全枚举核验现存 22 处 / 6 文件（truth_readers、chapter_loop、context_curation 模块本体、review_checklist、pipeline/cli、records/writer），全部在清单项内灭亡）；`grep -n "context_curation" pyproject.toml` 零命中；`grep -n "ENDING_PATTERNS" src/shenbi/pipeline/review_checklist.py` 本地定义 + 消费双命中；`uv run pytest tests/unit/pipeline/ tests/unit/records/ tests/unit/gates/ -q` 全绿；`just generate` 幂等 diff 为空；`just check` 全绿（ruff F401 面机械覆盖）
+- **验收（可执行）**：`grep -rn "chapter-.*-curated" src/` 零命中；**`grep -rn "curation" src/` 零命中**（单一权威判据——涵盖 curate_context/context_curation 引用与 curation 词面残留：已对 main HEAD 全枚举核验现存 22 处 / 6 文件（truth_readers、chapter_loop、context_curation 模块本体、review_checklist、pipeline/cli、records/writer），全部在清单项内灭亡；范围注记：context_assemble.py「curated context package」与 sync_contracts.py「curated expected_outputs」为通用英语形容词、非本层残留，不在判据内）；`grep -n "curates" src/shenbi/gates/g4/context_composing.py` 零命中（:77 注释改写定向判据）；`grep -n "context_curation" pyproject.toml` 零命中；`grep -n "ENDING_PATTERNS" src/shenbi/pipeline/review_checklist.py` 本地定义 + 消费双命中；`uv run pytest tests/unit/pipeline/ tests/unit/records/ tests/unit/gates/ -q` 全绿；`just generate` 幂等 diff 为空；`just check` 全绿（ruff F401 面机械覆盖）
 
 ## 3. T1108 · 离线可执行模式 — 裁决：**不做**
 
