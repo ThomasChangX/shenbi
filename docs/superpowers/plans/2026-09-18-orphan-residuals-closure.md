@@ -69,8 +69,8 @@ def test_snapshot_root_is_round_dir_without_any_constant_mask(
 ) -> None:
     """F519/F513 回归（spec #67 面 1）：不 monkeypatch 任何模块常量，快照根必须是 round_dir。
 
-    修复前：快照根 = 框架仓库根（PROJECT_DIR = REPO_ROOT），round_dir 树内的
-    越权写不被观察 → rc=0 假阴性。修复后：rc=2 GATE_FAIL。
+    修复前：快照根 = 框架仓库根模块常量（已随本修复整体删除），round_dir
+    树内的越权写不被观察 → rc=0 假阴性。修复后：rc=2 GATE_FAIL。
     """
     monkeypatch.setattr(
         ex,
@@ -261,7 +261,7 @@ git commit -m "fix(dispatcher): F519/F513 legacy route snapshot root = round_dir
 
 - [ ] **Step 2: pipeline/cli.py backfill 面**
 
-2a. docstring（:1042-1047）：
+2a. docstring（:1042-1048）：
 ```python
     """Re-run deterministic context assembly for a chapter range.
 
@@ -277,7 +277,7 @@ git commit -m "fix(dispatcher): F519/F513 legacy route snapshot root = round_dir
     from shenbi.safe_write import safe_write
 ```
 （`write_context_file` 内部自带 safe_write；二者仅 curated 写使用——F401 预防。）
-2c. 循环体（:1076-1080）：
+2c. 循环体（:1077-1080 删 curated 四行）：
 ```python
             pkg = assemble_context(project_path, plan_path)
             write_context_file(project_path, ch, pkg)  # safe_write inside
@@ -300,7 +300,10 @@ ENDING_PATTERNS: dict[str, str] = {
 ```
 3b. :470 `Classifies endings using regex patterns (same as context_curation.py).` → `Classifies endings using regex patterns (ENDING_PATTERNS, defined above).`
 3c. :474 `# Ending classification patterns (imported from context_curation.py).` → `# Ending classification patterns (ENDING_PATTERNS, defined above).`
-3d. `tests/unit/pipeline/test_skill_integration.py:189` 类 docstring：`"""W4T6b: pipeline-mode curation of the pre-assembled context package."""` → `"""W4T6b: pipeline-mode consumption of the pre-assembled context package."""`（无功能依赖，术语卫生）。
+3d. `tests/unit/pipeline/test_skill_integration.py` 三处「curates」措辞同步（无功能依赖，术语卫生）：
+   - :15 `…reads and ``shenbi-context-composing`` curates).` → `…reads and ``shenbi-context-composing`` consumes).`
+   - :189 `"""W4T6b: pipeline-mode curation of the pre-assembled context package."""` → `"""W4T6b: pipeline-mode consumption of the pre-assembled context package."""`
+   - :239 `# …chapter-drafting reads it, context-composing curates it.` → `# …chapter-drafting reads it, context-composing consumes it.`
 3e. `__all__` 在 `"DYNAMIC_FIELDS",` 后插入 `"ENDING_PATTERNS",`。
 
 - [ ] **Step 4: 三处 docstring/注释 + pyproject**
@@ -311,7 +314,7 @@ All downstream readers (gates/g6 G6.7, truth_index body source,
 chapter_loop conditional-resolve) MUST go through :func:`read_pending_hooks` —
 no second parser.
 ```
-4b. `records/writer.py:5-7` 首条读者列举：
+4b. `records/writer.py:5-6` 首条读者列举：
 ```python
   1. YAML frontmatter ``hooks`` list — read by pipeline/review_checklist.py,
      truth_readers.read_pending_hooks (via chapter_loop._check_conditional_resolve);
@@ -336,7 +339,7 @@ git diff --stat tests/tiers/deps.json
 # expected_outputs 面零变化（本 task 不改 SKILL 契约）
 ```
 
-- [ ] **Step 7: 验收命令全跑**
+- [ ] **Step 7: 验收命令全跑（幂等检查除外——见 Step 9）**
 
 ```bash
 uv run pytest tests/unit/pipeline/ tests/unit/records/ tests/unit/gates/ -q   # Expected: all passed
@@ -345,8 +348,6 @@ grep -rn "curation" src/                          # Expected: 零输出
 grep -n "curates" src/shenbi/gates/g4/context_composing.py  # Expected: 零输出
 grep -n "context_curation" pyproject.toml         # Expected: 零输出
 grep -n "ENDING_PATTERNS" src/shenbi/pipeline/review_checklist.py  # Expected: 定义+消费 ≥2 行
-bash tests/lock-tool-hashes.sh && git diff --exit-code tests/tiers/deps.json && echo HASHES-CURRENT
-just generate && git diff --exit-code tests/tiers/deps.json && echo GEN-IDEMPOTENT
 ```
 
 - [ ] **Step 8: Commit**（显式列文件——git rm 已暂存模块删除，此处补列其余）
@@ -357,7 +358,15 @@ git commit -m "refactor(pipeline): remove zero-consumer curated layer (F311, spe
 ```
 （test_context_curation.py 的删除由 `git rm` 暂存——注意对**已 tracked 文件**的删除用 `git rm tests/unit/pipeline/test_context_curation.py`。）
 
-- [ ] **Step 9: audit_loop**（scope=本 task 改动文件集，sha_range=(上 commit, 本 commit)）→ `.superpowers/sdd/audit-T2.md`
+- [ ] **Step 9: 幂等检查（commit 后跑——deps.json 已入库，diff 须为空）**
+
+```bash
+bash tests/lock-tool-hashes.sh && git diff --exit-code tests/tiers/deps.json && echo HASHES-CURRENT
+just generate && git diff --exit-code tests/tiers/deps.json && echo GEN-IDEMPOTENT
+```
+Expected: 两行 echo 都出现（重跑双机制后工作树零漂移）
+
+- [ ] **Step 10: audit_loop**（scope=本 task 改动文件集，sha_range=(上 commit, 本 commit)）→ `.superpowers/sdd/audit-T2.md`
 
 ---
 
