@@ -56,13 +56,9 @@ def test_zero_write_dispatch_returns_rc0(tmp_path: Path, monkeypatch: pytest.Mon
     """
     from shenbi.dispatcher import executor
 
-    root = tmp_path / "project"
-    (root / "truth").mkdir(parents=True)
-    (root / "truth" / "pending_hooks.md").write_text(_DRIFTED, encoding="utf-8")
     round_dir = tmp_path / "round"
-    round_dir.mkdir()
-
-    monkeypatch.setattr(executor, "PROJECT_DIR", root)
+    (round_dir / "truth").mkdir(parents=True)
+    (round_dir / "truth" / "pending_hooks.md").write_text(_DRIFTED, encoding="utf-8")
 
     def _zero_write_dispatch(*_args: object, **_kwargs: object) -> int:
         return 0  # dispatch 成功且不写任何文件 → pre == post

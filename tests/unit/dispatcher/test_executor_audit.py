@@ -15,7 +15,6 @@ def _cfg() -> dict[str, object]:
 def test_audit_passes_on_allowed_genre_key_change(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(ex, "PROJECT_DIR", tmp_path)  # type: ignore[attr-defined]
     monkeypatch.setattr(
         ex,
         "derive_output_files",
@@ -39,7 +38,6 @@ def test_audit_passes_on_allowed_genre_key_change(
 def test_audit_blocks_on_undeclared_genre_key(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(ex, "PROJECT_DIR", tmp_path)  # type: ignore[attr-defined]
     monkeypatch.setattr(
         ex,
         "derive_output_files",
@@ -65,3 +63,30 @@ def test_dispatch_primitive_still_present() -> None:
     """现有 dispatch 原语保留，未破坏。"""
     assert callable(ex.dispatch)
     assert callable(ex.dispatch_with_write_audit)
+
+
+def test_snapshot_root_is_round_dir_without_any_constant_mask(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """F519/F513 回归（spec #67 面 1）：不 monkeypatch 任何模块常量，快照根必须是 round_dir。
+
+    修复前：快照根 = 框架仓库根模块常量（已随本修复整体删除），round_dir
+    树内的越权写不被观察 → rc=0 假阴性。修复后：rc=2 GATE_FAIL。
+    """
+    monkeypatch.setattr(
+        ex,
+        "derive_output_files",
+        lambda s, chapter=None, round_dir=None, ctx=None: ["genre-config.json"],
+    )
+    cfg = tmp_path / "genre-config.json"
+    cfg.write_text(json.dumps(_cfg()), encoding="utf-8")
+
+    def forbidden(skill: str, tt: str, rd: Path, prompt: str) -> int:
+        d = json.loads(cfg.read_text(encoding="utf-8"))
+        d["title"] = "x"  # genre-config 真实 9 键之外 → 越权
+        cfg.write_text(json.dumps(d), encoding="utf-8")
+        return 0
+
+    monkeypatch.setattr(ex, "dispatch", forbidden)
+    rc = ex.dispatch_with_write_audit("shenbi-genre-config", "generative", tmp_path, "p")
+    assert rc == 2  # round_dir 树内的越权写必须被观察 → GATE_FAIL

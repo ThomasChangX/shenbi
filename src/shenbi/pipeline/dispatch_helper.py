@@ -2658,8 +2658,8 @@ def _with_write_audit(
     (the legacy CLI route's auditor): pre snapshot(declared write surface) ->
     dispatch -> post snapshot -> audit -> ledger record. The snapshot root is
     the pipeline project dir — the root ``_write_parsed_outputs`` actually
-    writes to (the legacy route snapshots the framework repo root instead,
-    F519, out of scope here). With ``uses_staging=True`` the watch face is
+    writes to (the legacy CLI route snapshots its ``round_dir`` —
+    the same write-tree semantics, fixed by spec #67). With ``uses_staging=True`` the watch face is
     extended to ``staging/<declared>`` and staged snapshot keys are folded
     back onto the declared relpath before auditing (spec #29 R1).
 

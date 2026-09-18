@@ -28,9 +28,6 @@ from shenbi.process_guard import run_subprocess_json
 
 log = get_logger(__name__)
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-PROJECT_DIR = REPO_ROOT
-
 # Cached set of truth files; lazily built from truth-files.yaml concepts.
 _truth_files_cache: set[str] | None = None
 
@@ -145,7 +142,6 @@ def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any
             output_files,
             file_type,
             str(round_dir),
-            str(PROJECT_DIR),
         ]
     )
 
@@ -284,9 +280,10 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     record. Returns 0 = shippable; 2 = GATE_FAIL (write overreach or drift),
     blocked before tier advance. The write side uses FS snapshot diff, feasible
     for all dispatch modes incl. codex subprocesses; read provenance in a
-    subprocess is a known blind spot. Snapshot root is PROJECT_DIR (framework
-    repo root — F519); the API/IDE wrapper roots at the pipeline project dir
-    where those routes actually write.
+    subprocess is a known blind spot. Snapshot root is round_dir (the dispatched write
+    tree, fixed by spec #67); codex executes with ``-C round_dir``,
+    so skill writes land there. The API/IDE wrapper roots at the pipeline
+    project dir with the same write-tree semantics.
     """
     from shenbi.audit.record import record_audit_outcome
     from shenbi.audit.snapshot import snapshot_tree
@@ -306,7 +303,7 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
             log.warning("chapter_ambiguous_in_prompt", skill=skill)
             chapter = None
     watch = _audit_watch_paths(skill, chapter, ctx=path_ctx)
-    pre = snapshot_tree(PROJECT_DIR, watch)
+    pre = snapshot_tree(round_dir, watch)
     # Franklin Important: if dispatch() crashes mid-write, still run the post-snapshot
     # + audit so write overreach is caught even on failure paths.
     rc: int = -1
@@ -331,7 +328,7 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
         # broken chain is an infra error that fails the dispatch (rc=2) while
         # the original exception still propagates.
         try:
-            post = snapshot_tree(PROJECT_DIR, watch)
+            post = snapshot_tree(round_dir, watch)
             result = audit_writes(skill, pre, post, chapter=chapter, ctx=path_ctx)
             audit_ok = record_audit_outcome(round_dir, skill, result)
         except Exception as audit_exc:
