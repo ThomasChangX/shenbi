@@ -46,7 +46,7 @@
 
 **不可直接复用 truth-current_state-xinghuo.md 于 truth/**：其为双块形态，拷入 project 后 yload 读第一块（provenance/source）→ G4 FAIL；须按单块合并式新立 fixture。该既有件的 ~8 处消费面（4 文件：tests/unit/contracts/test_fields.py、scripts/lint_contract_fields.py、2 个 bug-hunt scenario）不受本 spec 影响。
 
-**高敏感点注记（实施约束）**：真品 locations=5（压 3-5 上界）、rules=10（压 1-10 上界且靠 heading 豁免分支）、story_bible=4 节（压 ≥4 下界）——均为边界压线，实施时**不得对 payload 做任何内容扰动**（仅允许上述载体层操作），否则 G4 PASS 崩溃。
+**高敏感点注记（实施约束）**：真品 locations=5（压 3-5 上界）、rules=10（压 1-10 上界且靠 heading 豁免分支）、story_bible=4 节（压 ≥4 下界）——均为边界压线，实施时**不得对 payload 做任何内容扰动**（仅允许上述载体层操作），否则 G4 PASS 崩溃。另注：chapter_summaries 真品尾部含生产 LLM 残留（未闭合 ``` 围栏 + 英文收尾语）——body verbatim 铁律下如实保留，G4 truth 检查纯 frontmatter 无碍；未来消费方若将其当干净 truth 范例（字数测试/格式 lint）须知悉。
 
 回退面（不变）：既有 synthetic-sample fixtures（world-*-example.md、truth-current_state.md 等载体已标注者）可作拷贝源——结构真实但分布非真实，须在测试注记其局限；三个无载体 truth fixture（character_matrix/emotional_arcs/chapter_summaries）引用前须先补载体或以 upstream-copy 真实产物替代。
 

@@ -60,7 +60,7 @@ shutil.copy2(src: Path | str, dst: Path | str) -> Path
 - Consumes: `shenbi.gates.g0_purity.load_provenance`（既有）
 - Produces: fixture 树路径约定 `tests/fixtures/xinghuo-ranqiong/<原项目相对路径>`（Task 2 的组装循环依赖此布局）；守卫测试 `test_xinghuo_fixture_tree_complete_with_carriers`
 
-- [ ] **Step 1: 写守卫测试（先红）**
+- [x] **Step 1: 写守卫测试（先红）**
 
 创建 `tests/unit/gates/test_xinghuo_fixture_tree.py`（对齐 test_g0_purity.py 风格：future annotations、`@pytest.mark.unit`、line-length ≤100）：
 
@@ -109,12 +109,12 @@ def test_xinghuo_fixture_tree_complete_with_carriers() -> None:
         assert load_provenance(FIXTURE_ROOT / rel) == "upstream-copy", rel
 ```
 
-- [ ] **Step 2: 跑测试确认红**
+- [x] **Step 2: 跑测试确认红**
 
 Run: `uv run pytest tests/unit/gates/test_xinghuo_fixture_tree.py -v`
 Expected: FAIL（`files == EXPECTED_FILES` 断言失败——树不存在，files 为空集）
 
-- [ ] **Step 3: 生成 fixture 树**
+- [x] **Step 3: 生成 fixture 树**
 
 以下命令逐条在 repo 根跑（前置单块/合并块用 python 注入；`<CARRIER>` 行见下）：
 
@@ -176,12 +176,12 @@ sys.stdout.write(block + src)
 " > tests/fixtures/xinghuo-ranqiong/truth/chapter_summaries.md
 ```
 
-- [ ] **Step 4: 跑守卫测试确认绿**
+- [x] **Step 4: 跑守卫测试确认绿**
 
 Run: `uv run pytest tests/unit/gates/test_xinghuo_fixture_tree.py -v`
 Expected: PASS（1 passed）
 
-- [ ] **Step 5: 跑 spec AC#3（载体真树断言）**
+- [x] **Step 5: 跑 spec AC#3（载体真树断言）**
 
 Run（repo 根）:
 ```bash
@@ -189,7 +189,7 @@ uv run python -c "from pathlib import Path; from shenbi.gates.g0_purity import l
 ```
 Expected: 无输出、exit 0
 
-- [ ] **Step 6: 跑 spec AC#4（字节保真一次性验证，全克隆）**
+- [x] **Step 6: 跑 spec AC#4（字节保真一次性验证，全克隆）**
 
 Run（repo 根；spec 验收节命令的功能等价形式——注释省略）:
 ```bash
@@ -216,12 +216,12 @@ sys.exit(0 if ok else 1)"
 ```
 Expected: 8 行 `body-bytes: True`（7 个循环 .md + 1 行 locations 既有件；novel.json 走 json 分支静默比较无输出行）、exit 0
 
-- [ ] **Step 7: 体积抽查（防意外截断）**
+- [x] **Step 7: 体积抽查（防意外截断）**
 
 Run: `find tests/fixtures/xinghuo-ranqiong -type f -name '*.md' -o -type f -name '*.json' | xargs wc -c | sort -k2`
 Expected（payload + 实测载体增量，审查者 verbatim 复算）：story_bible = 10,218、rules = 4,456、current_state = 10,504、character_matrix = 3,926、emotional_arcs = 4,779、chapter_summaries = 6,277、protagonist = 8,192、novel.json = 830（sidecar 另计）
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add tests/fixtures/xinghuo-ranqiong tests/unit/gates/test_xinghuo_fixture_tree.py
@@ -237,12 +237,12 @@ git commit -m "feat(spec66): xinghuo-ranqiong upstream-copy fixture tree + carri
 - Consumes: Task 1 的 `tests/fixtures/xinghuo-ranqiong/` 树 + 既有 `tests/fixtures/genre-config-example.json`、`tests/fixtures/world/locations/locations.md`
 - Produces: 不变——`_make_worldbuilding_project(self, base_dir) -> str`（返回 `base/world/story_bible.md` 路径供 G4 file 参数）；仅内部实现换
 
-- [ ] **Step 1: 改写 helper（characterization——现有测试就是规格，先跑基线）**
+- [x] **Step 1: 改写 helper（characterization——现有测试就是规格，先跑基线）**
 
 Run: `uv run pytest tests/integration/test_gate_cli.py -v`
 Expected: **19 passed**（基线绿——改动是输入替换不是行为变更）
 
-- [ ] **Step 2: 替换 :27-97 函数体**
+- [x] **Step 2: 替换 :27-97 函数体**
 
 在模块头 `TESTS = Path(__file__).resolve().parent.parent`（:12）之后加：
 
@@ -293,17 +293,17 @@ XINGHUO = FIXTURES / "xinghuo-ranqiong"
 
 注意：`json` import 仍被文件其余测试使用（基线 :108 起的 marker/scoring/phase 类）——保留；`shutil` 已在 :6 import。
 
-- [ ] **Step 3: 跑集成测试确认仍绿（spec AC#2）**
+- [x] **Step 3: 跑集成测试确认仍绿（spec AC#2）**
 
 Run: `uv run pytest tests/integration/test_gate_cli.py -v`
 Expected: **19 passed**（关键：`test_g4_pass_writes_marker` PASS——真品过 G4）
 
-- [ ] **Step 4: 跑 spec AC#1（捏造文本清除）**
+- [x] **Step 4: 跑 spec AC#1（捏造文本清除）**
 
 Run: `grep -n "Content here\|这是一个宏大而复杂的世界\|name: Test\|天机城" tests/integration/test_gate_cli.py`
 Expected: 零命中、exit 1
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add tests/integration/test_gate_cli.py
@@ -319,21 +319,21 @@ git commit -m "fix(spec66): gate CLI integration test uses real-product fixtures
 - Consumes: 无
 - Produces: 无（配置值）
 
-- [ ] **Step 1: 改值**
+- [x] **Step 1: 改值**
 
 `pyproject.toml` `[tool.mypy]` 段 `python_version = "3.12"` → `python_version = "3.11"`（仅此一处）。
 
-- [ ] **Step 2: 跑 spec 验收 grep**
+- [x] **Step 2: 跑 spec 验收 grep**
 
 Run: `grep -n "python_version\|pythonVersion\|requires-python" pyproject.toml`
 Expected: 三行——`:8:requires-python = ">=3.11"`、`:379:python_version = "3.11"`、`:398:pythonVersion = "3.11"`（3.11 基准一致）
 
-- [ ] **Step 3: uv lock 校验（pyproject 已改，按 SDD 阶段 7 规则必跑）**
+- [x] **Step 3: uv lock 校验（pyproject 已改，按 SDD 阶段 7 规则必跑）**
 
 Run: `uv lock --check`
 Expected: exit 0（非依赖区改动，锁无漂移）
 
-- [ ] **Step 4: 快速门禁（mypy/basedpyright 面 + 新守卫测试 + 全量 just check——覆盖 F0-06 AC#2）**
+- [x] **Step 4: 快速门禁（mypy/basedpyright 面 + 新守卫测试 + 全量 just check——覆盖 F0-06 AC#2）**
 
 Run: `uv run mypy src/shenbi/ && uv run basedpyright && uv run pytest tests/unit/gates/test_xinghuo_fixture_tree.py tests/integration/test_gate_cli.py -v`
 Expected: mypy `Success: no issues found in 193 source files`；basedpyright `0 errors`；**20 passed**（1 守卫 + 19 集成）
@@ -341,7 +341,7 @@ Expected: mypy `Success: no issues found in 193 source files`；basedpyright `0 
 Run: `just check`
 Expected: **EXIT=0**（全 lint 面 + ruff format + mypy 3.11 + basedpyright + 两段 pytest——F0-06 AC#2 在 plan 内闭环，不待阶段 7）
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add pyproject.toml
