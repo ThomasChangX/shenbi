@@ -96,7 +96,7 @@ git commit -m "docs(plans): register spec #40 closure-pass plan (backfill + spec
 
 **Interfaces:** Consumes: 逐行注记映射表（08-15 节）。Produces: 终态 grep 基线（bare-open==0 / bare-verified==0 / `spec #67` 计数==3）。
 
-- [ ] **Step 1: 预检基线**
+- [x] **Step 1: 预检基线**
 
 ```bash
 L15=docs/superpowers/audit-runs/2026-08-15/findings-ledger.md
@@ -106,11 +106,11 @@ grep -c 'spec #67' $L15         # 期望 0
 grep -c 'closed (' $L15         # 期望 721
 ```
 
-- [ ] **Step 2: 执行改写脚本（heredoc，映射表字面源）**
+- [x] **Step 2: 执行改写脚本（heredoc，映射表字面源）**
 
 python3 脚本逐行处理：按 `^\| <ID> ` 定位行；「改写」= 用映射表新注记替换状态单元格（保留行内其余列原样）；「替换追加列」= 将既有 `→ out-of-cluster…` 追加列文本整段替换为新文本；「状态列收窄 + 追加列」= 先替换状态单元格、再在行尾追加 ` | <新注记>`。脚本断言：每个目标 ID 恰好命中 1 行、改后行含新注记子串、列数变化按动作断言精确值：改写=0、追加列=+1、F519 替换=0（split('|') 长度差逐行校验）。37 个 ID 全部处理或 assert 失败。
 
-- [ ] **Step 3: 终态验证**
+- [x] **Step 3: 终态验证**
 
 ```bash
 grep -cE '\| open \| *$' $L15    # 期望 0
@@ -120,14 +120,14 @@ grep -c 'closed (' $L15          # 期望较基线 +34（30 改写 + F311/T1108 
 just audit-lint  # 期望绿（08-15 面在豁免清单内仍受 row_columns 规则约束）
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs/superpowers/audit-runs/2026-08-15/findings-ledger.md
 git commit -m "docs(ledger): backfill 08-15 closure notes — C28/C29/C24/G rows + F519 correction + F311/T1108 re-home (spec #40 closure pass)"
 ```
 
-- [ ] **Step 5: 产出 `.superpowers/sdd/audit-T1.md`**（fresh-context 重审，见执行协议）
+- [x] **Step 5: 产出 `.superpowers/sdd/audit-T1.md`**（fresh-context 重审，见执行协议）
 
 ### Task 2: 08-14 ledger 跨轮卫生（T12×6 镜像关闭 + F513 re-home）
 
@@ -136,9 +136,9 @@ git commit -m "docs(ledger): backfill 08-15 closure notes — C28/C29/C24/G rows
 
 **Interfaces:** Consumes: 映射表 08-14 节。Produces: 08-14 T12-xx 零无注记基线。
 
-- [ ] **Step 1: 预检** `grep -cE '^\| T12-0[1-6] ' docs/superpowers/audit-runs/2026-08-14/findings-ledger.md` == 6，六行状态均裸 `verified`；F513 行 `specced` 裸。
-- [ ] **Step 2: 执行改写脚本**（同 T1 机制；T12 六行状态列改写、F513 状态保持 + 行尾追加 ` | → re-homed …`）
-- [ ] **Step 3: 终态验证**
+- [x] **Step 1: 预检** `grep -cE '^\| T12-0[1-6] ' docs/superpowers/audit-runs/2026-08-14/findings-ledger.md` == 6，六行状态均裸 `verified`；F513 行 `specced` 裸。
+- [x] **Step 2: 执行改写脚本**（同 T1 机制；T12 六行状态列改写、F513 状态保持 + 行尾追加 ` | → re-homed …`）
+- [x] **Step 3: 终态验证**
 
 ```bash
 L14=docs/superpowers/audit-runs/2026-08-14/findings-ledger.md
@@ -146,8 +146,8 @@ for id in T12-01 T12-02 T12-03 T12-04 T12-05 T12-06; do grep -E "^\| $id " $L14 
 grep -E '^\| F513 ' $L14 | grep -c 'spec #67'  # 期望 1
 ```
 
-- [ ] **Step 4: Commit** `docs(ledger): mirror-close 08-14 T12-01~06 via #22/#45/#64 chains + re-home F513 to spec #67 (frozen-run hygiene, spec #40 closure pass)`（显式列文件）
-- [ ] **Step 5: 产出 audit-T2.md**
+- [x] **Step 4: Commit** `docs(ledger): mirror-close 08-14 T12-01~06 via #22/#45/#64 chains + re-home F513 to spec #67 (frozen-run hygiene, spec #40 closure pass)`（显式列文件）
+- [x] **Step 5: 产出 audit-T2.md**
 
 ### Task 3: 登记 spec #67（孤儿残留收口）
 
@@ -157,15 +157,15 @@ grep -E '^\| F513 ' $L14 | grep -c 'spec #67'  # 期望 1
 
 **Interfaces:** Produces: INDEX 活跃含 #67（与 #40 并存，活跃数暂 2——T4 删 #40 后回到 1）。
 
-- [ ] **Step 1: 写 #67 spec 文件**——头部（Date: 2026-09-18 | Status: Design | Severity: 🟠 P1（最高面 F513 P1）| 方法: 孤儿残留收口 | 系列: 2026-08-15 审计修复 · spec #40 收官 pass 登记 | 依赖: 无 | 范围: legacy CLI 写审计快照根、curated 层零消费者、离线可执行模式 | 核心洞察: 三个被已闭 spec 循环移交或被 Rejected spec 遗留的残留面）+ 三节内容（每节：finding 证据 file:line、修复方向、可执行验收）：
+- [x] **Step 1: 写 #67 spec 文件**——头部（Date: 2026-09-18 | Status: Design | Severity: 🟠 P1（最高面 F513 P1）| 方法: 孤儿残留收口 | 系列: 2026-08-15 审计修复 · spec #40 收官 pass 登记 | 依赖: 无 | 范围: legacy CLI 写审计快照根、curated 层零消费者、离线可执行模式 | 核心洞察: 三个被已闭 spec 循环移交或被 Rejected spec 遗留的残留面）+ 三节内容（每节：finding 证据 file:line、修复方向、可执行验收）：
   - **F519/F513 legacy 路由快照根**：证据 `src/shenbi/dispatcher/executor.py:31-32`（`PROJECT_DIR = REPO_ROOT`）、`:309/:334`（`snapshot_tree(PROJECT_DIR, …)`）、`dispatcher/cli.py:11` legacy import、`tests/unit/dispatcher/test_executor_audit.py:18/:42` monkeypatch 掩蔽；方向 = 快照根对齐派发项目目录（生产面 dispatch_helper Tier B wrapper 已正确的语义）+ 揭掩蔽测试；验收 = `uv run pytest tests/unit/dispatcher/ -q` 绿 + 新断言不 monkeypatch PROJECT_DIR 也能定位项目根
   - **F311 curated 零消费者**：证据 `chapter_loop.py:1562`、`cli.py:1078-1080` 只写不读（grep 全仓零读方）；方向 = wire（context assembly 消费）或 remove（连写方一并清理）二选一裁决；验收 = 裁决落 spec 修订 + 对应接线/删除的回归测试
   - **T1108 离线可执行模式**：设计裁决项（internal 硬拒无 LLM、replay 非派发 stub）；方向 = 裁决做/不做/DEFER；验收 = 裁决记录 + 若做则离线 stub 的 T1 测试
   - 正文引用总纲一律「spec #40 收官 pass」措辞（无裸文件名）
-- [ ] **Step 2: INDEX 登记**——`### #67 · 孤儿残留收口（F519/F513 + F311 + T1108）` 节（文件/系列/状态 Design/优先级 🟠 P1/方法/依赖 无/内容 三行摘要）插入 #40 节之后；头部「活跃 spec 数」1→2、最后更新行追加登记注记
-- [ ] **Step 3: 验证** `uv run python tools/count_active_specs.py` 期望输出活跃 2 一致；`grep -c '2026-09-18-orphan-residuals-closure' docs/superpowers/specs/INDEX.md` == 1
-- [ ] **Step 4: Commit** `docs(specs): register spec #67 orphan-residuals closure (F519/F513 + F311 + T1108) — spec #40 closure pass registration)`（显式列两文件）
-- [ ] **Step 5: 产出 audit-T3.md**
+- [x] **Step 2: INDEX 登记**——`### #67 · 孤儿残留收口（F519/F513 + F311 + T1108）` 节（文件/系列/状态 Design/优先级 🟠 P1/方法/依赖 无/内容 三行摘要）插入 #40 节之后；头部「活跃 spec 数」1→2、最后更新行追加登记注记
+- [x] **Step 3: 验证** `uv run python tools/count_active_specs.py` 期望输出活跃 2 一致；`grep -c '2026-09-18-orphan-residuals-closure' docs/superpowers/specs/INDEX.md` == 1
+- [x] **Step 4: Commit** `docs(specs): register spec #67 orphan-residuals closure (F519/F513 + F311 + T1108) — spec #40 closure pass registration)`（显式列两文件）
+- [x] **Step 5: 产出 audit-T3.md**
 
 ### Task 4: 总纲终稿 + 双库归档 + INDEX 终态
 
@@ -176,19 +176,19 @@ grep -E '^\| F513 ' $L14 | grep -c 'spec #67'  # 期望 1
 
 **Interfaces:** Consumes: T1-T3 终态。Produces: 活跃队列仅 #67；归档核验基线。
 
-- [ ] **Step 1: 总纲三处编辑**
+- [x] **Step 1: 总纲三处编辑**
   - 头部 Status 链尾追加：` · 收官 pass Done — 2026-09-18（37 簇全闭 + 回写补齐 44 行 + 孤儿裁决登记 #67；§5「直到全部簇关闭」保留条件到期，随本 PR 归档）`
   - §7 节首（`spec 文件名为 2026-08-16 落盘实名` 行前）插入：`> 归档注记（2026-09-18）：本文件自 specs/ 移入 specs/archive/；下文 archive/<name> 引用为作者时点相对路径，基名不变仍可检索。`
   - 文件末尾新增 `## 9. 收官记录（2026-09-18 · 收官 pass）`：回写补齐清单（08-15 侧 37 行处置：34 关闭（30 簇行 + G×4）+ 3 改注（F519 纠偏/F311/T1108 re-home）；F401/F408 接受 out-of-cluster 终态不编辑；08-14 侧 T12×6 镜像关闭 + F513 re-home + F1204/F1205 frozen-run 出界声明一句——合计 44 行编辑；08-14 F415 行号漂移面已由 #42 R4 吸收（08-15 F415 孪生已关），frozen-run 政策不出回写面）；孤儿清单映射（legacy 快照根→#67、curated 零消费者→#67、T1108→#67、T1608 增量化→deviation 可复活、C28 token 架构→deviation（产品裁决后另立 spec））；终态约定（08-15 非 closed 字样行 = 3 re-homed open + 17 C18 merged 记法 + 2 out-of-cluster 终态；零 bare verified）；#67 登记声明（仅登记不实施，先例 2026-09-11 登记 #66）；文件名引用处置（6 处 append-only 历史引用：4 归档 plan + final-report.md + 本 pass plan（随本 PR 归档），基名可寻不改写）
-- [ ] **Step 2: 归档移动**
+- [x] **Step 2: 归档移动**
 
 ```bash
 git mv docs/superpowers/specs/2026-08-16-audit-remediation-master.md docs/superpowers/specs/archive/2026-08-16-audit-remediation-master.md
 git mv docs/superpowers/plans/2026-09-18-spec40-master-closure.md docs/superpowers/plans/archive/2026-09-18-spec40-master-closure.md
 ```
 
-- [ ] **Step 3: INDEX 终态**——specs/INDEX.md：删 #40 整节；头部活跃 2→1、最后更新改写（收官注记 + 现序 #67）。plans/INDEX.md：头部活跃（此时无活跃 plan——本 plan 随 PR 归档）与已归档 121→122、最近归档项追加本 plan。
-- [ ] **Step 4: 全量验证（阶段 7 前置 + 验收覆盖）**
+- [x] **Step 3: INDEX 终态**——specs/INDEX.md：删 #40 整节；头部活跃 2→1、最后更新改写（收官注记 + 现序 #67）。plans/INDEX.md：头部活跃（此时无活跃 plan——本 plan 随 PR 归档）与已归档 121→122、最近归档项追加本 plan。
+- [x] **Step 4: 全量验证（阶段 7 前置 + 验收覆盖）**
 
 ```bash
 uv run python tools/count_active_specs.py        # 期望 1（#67）
@@ -198,8 +198,8 @@ just check                                        # EXIT=0（含 docs workflow �
 ```
 
 （基线实测 2026-09-18：pass 前 7 处 = 4 旧归档 plan + final-report + 活跃 INDEX #40 行 + 本 plan 自身（Task 0 已跟踪）；pass 后仍 6 处，组成换为本 plan（随 PR 归档）替换 INDEX 行。总纲自身零自引。）
-- [ ] **Step 5: Commit + PR 流**——commit `docs(archive): spec #40 master closure done — 37-cluster program complete, ledger backfilled, spec #67 registered`（显式列全部涉及文件）；PR 描述含价值裁决摘要 + spec-deviations 全文 + ledger 摘要；`gh pr create` 取得 PR 号后，追加一个小 commit 将总纲头部 Status 链尾的「随本 PR 归档」补为「随 PR #N 归档」再 push（CI 重跑）
-- [ ] **Step 6: 产出 audit-T4.md**
+- [x] **Step 5: Commit + PR 流**——commit `docs(archive): spec #40 master closure done — 37-cluster program complete, ledger backfilled, spec #67 registered`（显式列全部涉及文件）；PR 描述含价值裁决摘要 + spec-deviations 全文 + ledger 摘要；`gh pr create` 取得 PR 号后，追加一个小 commit 将总纲头部 Status 链尾的「随本 PR 归档」补为「随 PR #N 归档」再 push（CI 重跑）
+- [x] **Step 6: 产出 audit-T4.md**
 
 ## 验收覆盖表（spec/设计验收 → task → 验证命令）
 

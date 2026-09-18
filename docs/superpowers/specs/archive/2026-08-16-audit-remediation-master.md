@@ -201,6 +201,6 @@ Deviation（F750 归宿悬空，2026-09-08 本 pass）：spec54（C16）设计�
 - **回写补齐**：08-15 侧 37 行处置——34 关闭（30 簇行 + G601-G604）+ 3 改注（F519 纠偏 2026-09-07 假注记、F311/T1108 re-homed #67）；F401/F408 接受 out-of-cluster 终态不编辑。08-14 侧 T12-01~06 六行镜像关闭（#22/#45/#64 让渡链）+ F513 re-homed #67（状态 specced 至 #67 实施后关闭）。合计 44 行编辑
 - **出界声明**：08-14 F1204/F1205 为已关闭 08-15 findings 的同面跨轮重复立案（F1204=T12-03 面、F1205=F002-0815 面），frozen-run 政策不出本 pass 回写面；08-14 F415 行号漂移面已由 #42 R4 吸收（08-15 F415 孪生已关），同政策出界
 - **孤儿清单映射**：legacy CLI 路由快照根（F519/F513 同面，executor.py PROJECT_DIR=REPO_ROOT + 掩蔽测试）→ spec #67；F311 curated 零消费者 → spec #67（wire-or-remove 裁决）；T1108 离线可执行模式 → spec #67（设计裁决）；T1608 save_state 增量化 → deviation（#44 Done 终态全量写，增量收益未裁决——产品裁决后另立）；C28 token 架构（审计波 29% 冗余输入）→ deviation（同前，#42 R1 出账）
-- **终态约定**：08-15 ledger 关闭字样之外存留 = 3 行 re-homed open（F519/F311/T1108）+ 17 行 C18 `merged (spec #56 PR #194)` 记法 + 2 行 out-of-cluster 终态（F401/F408）；T1601 关闭后 08-15 零 bare verified
+- **终态约定**：08-15 ledger 关闭字样之外存留 = 3 行 re-homed open（F519/F311/T1108）+ 17 行 C18 `merged (spec #56 PR #194)` 记法 + 2 行 out-of-cluster 终态（F401/F408）；T1601 关闭后 08-15 零 bare verified。注：T1002 行为全角括号 `closed（顺带修复）` 记法——在 ASCII `closed (` grep 口径下呈第 23 行「存留」，语义实已关闭（PR #42 顺带修复），非本 pass 处置面
 - **#67 登记**：本 pass 仅登记不实施（先例：2026-09-11 维护 pass 登记 #66）
 - **文件名引用处置**：本总纲文件名现存引用 6 处（4 归档 plan + final-report.md + 本 pass plan 随本 PR 归档），均 append-only 历史引用，基名可寻不改写（#228 先例）
