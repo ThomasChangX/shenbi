@@ -5,7 +5,7 @@
 
 ## 1. F750：test_gate_cli.py 捏造项目换真实 fixture 拷贝
 
-**根因**（转述自 Z7-b:154，2026-09-18 复核逐字成立）：`_make_worldbuilding_project`（:27-97）手写 novel.json/story_bible/rules/locations/truth 模板（占位文本 "Content here."），本测试是完整 skill 产出形态的场景（PASS 路径的 story_bible 结构即被测语义的一部分），不属 G0.9 豁免类别（gate 内部输入/接线单测豁免先例见 test_g4_directory.py:4-7、test_trigger_context.py:3-5）；手写中文占位过 gate 的方式可能与真实产物分布不同（bullet 密度、字数）。
+**根因**（转述自 Z7-b:154，2026-09-18 复核逐字成立）：`_make_worldbuilding_project`（:27-97）手写 novel.json/story_bible/rules/locations/truth 模板（占位文本 "Content here."），本测试是完整 skill 产出形态的场景（PASS 路径的 story_bible 结构即被测语义的一部分），不属 G0.9 豁免类别（gate 内部输入/接线单测豁免先例见 tests/pipeline/test_g4_directory.py:4-7、test_trigger_context.py:3-5）；手写中文占位过 gate 的方式可能与真实产物分布不同（bullet 密度、字数）。
 
 **素材现状（2026-09-18 修订——原「全套真实产物在 novel-output/xinghuo-ranqiong/ 在盘」已失效）**：
 
@@ -21,7 +21,7 @@
 
 | 形态 | 适用 | 构成 | 依据 |
 |---|---|---|---|
-| **单块合并式** | 自带 frontmatter 的 .md（truth 三件 + protagonist——真品头有 name/role 等 15+ 键实测） | provenance/source 两键**并入**原 frontmatter 成单块；body verbatim | yload（gates/shared.py:95-96 `split("---",3)` 取 parts[1]）只解析第一块——双块形态（truth-current_state-xinghuo.md 先例）下 G4 truth 检查读到 provenance 块、缺 type/category/status → FAIL；单块合并同时满足 load_provenance（g0_purity.py:76-79 首块内搜索）与 yload |
+| **单块合并式** | 自带 frontmatter 的 .md（truth 三件 + protagonist——真品头有 name/role 等 12 键实测） | provenance/source 两键**并入**原 frontmatter 成单块；body verbatim | yload（gates/shared.py:95-96 `split("---",3)` 取 parts[1]）只解析第一块——双块形态（truth-current_state-xinghuo.md 先例）下 G4 truth 检查读到 provenance 块、缺 type/category/status → FAIL；单块合并同时满足 load_provenance（g0_purity.py:76-79 首块内搜索）与 yload |
 | **前置单块** | 无 frontmatter 的 .md（story_bible/rules——正文直起 `# 世界观圣经`/`# 世界铁律`） | 顶部前置 provenance 块（4 行 + 1 空行）；payload verbatim | world/locations/locations.md 既有 real-output 先例；G4 对 world 面纯正则检查（节数/bullet 密度/规则数），前置块不扰动（bullet 密度分母增大只会更低） |
 | **sidecar** | novel.json | `novel.json.provenance.json`（**全文件名 + 后缀**——load_provenance g0_purity.py:84 取 `<完整文件名>.provenance.json`，非去扩展名；先例 genre-config-example.json.provenance.json） | genre-config-example.json 先例；G4 jload 读 payload 本体 |
 
@@ -53,23 +53,29 @@
 **验收：**
 - `grep -n "Content here\|这是一个宏大而复杂的世界" tests/integration/test_gate_cli.py` 零命中（捏造文本清除）
 - `uv run pytest tests/integration/test_gate_cli.py -v` 全绿（G4 PASS 路径在 fixture 拷贝下仍 PASS）
-- 新增 fixtures 载体合规且 g0_purity 不新增违规：truth 类为**单块合并式** frontmatter（`provenance: upstream-copy` 与原键同块；g0_purity `load_provenance` 对 `.md` 只读 frontmatter——sidecar 对 `.md` 无效）、无 frontmatter `.md` 为前置单块、novel.json 为 `.provenance.json` sidecar；验证命令（**真树断言**——test_g0_purity*.py 为 tmp_path 合成树，对本声明 vacuous）`uv run python -c "from pathlib import Path; from shenbi.gates.g0_purity import load_provenance; ps=[p for p in Path('tests/fixtures/xinghuo-ranqiong').rglob('*') if p.is_file() and not p.name.endswith('.provenance.json')]; assert ps and all(load_provenance(p) for p in ps), ps"` 通过；**基线注记**：main 现存 G0.19 既有 +2 违规（tests/fixtures/production-config/genre-config.json、tests/fixtures/write-audit-glob/genre-config.json 无载体）——与本改动无关，勿误判回归、不在本 spec 范围；回退路径的 synthetic-sample 引用在测试内注记局限
-- 新增 fixture 与 `git show d120a444^:...` 取回内容的保真度可执行验证（payload 逐字节一致；偏离仅限处方内载体操作——chapter_summaries 重建 frontmatter 为其中唯一 frontmatter 级新造，truth 三组为原键 + 2 合并键、story_bible/rules 为前置块、novel.json 本体不变）：
+- 新增 fixtures 载体合规且 g0_purity 不新增违规：truth 类为**单块合并式** frontmatter（`provenance: upstream-copy` 与原键同块；g0_purity `load_provenance` 对 `.md` 只读 frontmatter——sidecar 对 `.md` 无效）、无 frontmatter `.md` 为前置单块、novel.json 为 `.provenance.json` sidecar；验证命令（**真树断言**——test_g0_purity*.py 为 tmp_path 合成树，对本声明 vacuous）`uv run python -c "from pathlib import Path; from shenbi.gates.g0_purity import load_provenance; ps=[p for p in Path('tests/fixtures/xinghuo-ranqiong').rglob('*') if p.is_file() and p.suffix in ('.md','.json') and not p.name.endswith('.provenance.json')]; assert ps and all(load_provenance(p) for p in ps), ps"`（后缀白名单防杂散文件如 .DS_Store 误炸断言） 通过；**基线注记**：main 现存 G0.19 既有 +2 违规（tests/fixtures/production-config/genre-config.json、tests/fixtures/write-audit-glob/genre-config.json 无载体）——与本改动无关，勿误判回归、不在本 spec 范围；回退路径的 synthetic-sample 引用在测试内注记局限
+- 新增 fixture 与 `git show d120a444^:...` 取回内容的保真度可执行验证（payload 逐字节一致；偏离仅限处方内载体操作——chapter_summaries 重建 frontmatter 为其中唯一 frontmatter 级新造，truth 三件与 protagonist 为原键 + 2 合并键、story_bible/rules 为前置块、novel.json 本体不变）。**空行约定**：前置块/重建块与 payload 间空一行（对齐 locations.md 先例）；验证命令的 `body()` 剥载体时对缝部空行稳健（lstrip，空行 0/1 均过）：
   ```
   uv run python -c "
   import re, subprocess, sys
   from pathlib import Path
   def body(t):
-      m = re.match(r'^---\r?\n.*?\r?\n---\r?\n?', t, re.DOTALL)
-      return t[m.end():] if m else t
+      m = re.match(r'^---\r?\n.*?\r?\n---\r?\n', t, re.DOTALL)
+      return t[m.end():].lstrip('\r\n') if m else t
   ok = True
   for rel in ['world/story_bible.md','world/rules.md','truth/current_state.md','truth/character_matrix.md','truth/emotional_arcs.md','truth/chapter_summaries.md','characters/protagonist.md','novel.json']:
       fx = Path('tests/fixtures/xinghuo-ranqiong', rel).read_text(encoding='utf-8')
       src = subprocess.run(['git','show',f'd120a444^:novel-output/xinghuo-ranqiong/{rel}'],capture_output=True,text=True,encoding='utf-8').stdout
       if rel.endswith('.json'):
           ok &= fx == src; continue
-      ok &= body(fx) == body(src) or (rel=='truth/chapter_summaries.md' and body(fx)==src)
-      print(rel, 'body-bytes:', body(fx)==body(src) if rel!='truth/chapter_summaries.md' else body(fx)==src)
+      same = body(fx) == body(src)  # chapter_summaries 源无 frontmatter，body(src)==src，同一比较即 body 级
+      print(rel, 'body-bytes:', same)
+      ok &= same
+  # 既有复用件 locations 的 payload 锁（前置块 4 行 + 空行，剥后应等于 git 源）
+  fx = Path('tests/fixtures/world/locations/locations.md').read_text(encoding='utf-8')
+  src = subprocess.run(['git','show','d120a444^:novel-output/xinghuo-ranqiong/world/locations.md'],capture_output=True,text=True,encoding='utf-8').stdout
+  print('world/locations.md (existing fixture) body-bytes:', body(fx) == body(src))
+  ok &= body(fx) == body(src)
   sys.exit(0 if ok else 1)"
   ```
 
