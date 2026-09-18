@@ -191,7 +191,7 @@ Expected: 无输出、exit 0
 
 - [ ] **Step 6: 跑 spec AC#4（字节保真一次性验证，全克隆）**
 
-Run（repo 根；spec 验收节原文命令）:
+Run（repo 根；spec 验收节命令的功能等价形式——注释省略）:
 ```bash
 uv run python -c "
 import re, subprocess, sys
@@ -357,7 +357,7 @@ git commit -m "chore(spec66): unify mypy python_version to 3.11 floor (F0-06 T3)
 | F750 AC#1 捏造文本零命中 | T2 Step 4 | `grep -n "Content here\|这是一个宏大而复杂的世界\|name: Test\|天机城" tests/integration/test_gate_cli.py` → exit 1 |
 | F750 AC#2 集成全绿 | T2 Step 3 | `uv run pytest tests/integration/test_gate_cli.py -v` → 19 passed |
 | F750 AC#3 载体合规真树断言 | T1 Step 5 | AC#3 python -c → exit 0（守卫测试 T1 Step 4 为永久化） |
-| F750 AC#4 字节保真 | T1 Step 6 | AC#4 python -c → 9×True + exit 0 |
+| F750 AC#4 字节保真 | T1 Step 6 | AC#4 python -c（功能等价）→ 8 行 body-bytes True + novel.json 静默字节一致 + exit 0 |
 | F0-06 AC#1 三处一致 | T3 Step 2 | grep 三行 3.11 基准 |
 | F0-06 AC#2 just check 全绿 | T3 Step 4（阶段 7 复跑） | `just check` → EXIT=0（含 mypy 3.11/basedpyright/两段 pytest/全 lint 面） |
 
