@@ -2952,7 +2952,7 @@ def _run_chapter_step_impl(
         _mark_staged_for_checkpoint(project_dir, settling_step, chapter)
         return True
 
-    # Context assembly (step 4): materialize package before chapter-drafting.
+    # Context assembly (step 3): materialize package before chapter-drafting.
     if step.calls_context_assembly:
         _run_context_assembly(project_dir, chapter)
 
@@ -2966,7 +2966,7 @@ def _run_chapter_step_impl(
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
-    # context-composing replaced by deterministic assembly in step 4 (spec #67)
+    # context-composing replaced by deterministic assembly in step 3 (spec #67)
     if step.skill == "shenbi-context-composing":
         log.info("context_composing_replaced_by_assembly", chapter=chapter)
         state.add_step_done(chapter, step.skill)
