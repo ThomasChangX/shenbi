@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-18（spec #66 plan Done 并归档——PR #230）
-> **活跃 plan 数**：0 | **已归档**：121（见 `archive/`）
+> **最后更新**：2026-09-18（spec #40 收官 pass plan 创建——ledger 回写补齐 + #67 登记 + 总纲归档）
+> **活跃 plan 数**：1 | **已归档**：121（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无）
+- **2026-09-18-spec40-master-closure.md** — spec #40 审计修复总纲收官 pass（✅ ready）：08-15/08-14 ledger 回写补齐 43 行、spec #67 孤儿残留登记、总纲终稿归档
 
 ## 待执行的 spec → plan 映射
 
