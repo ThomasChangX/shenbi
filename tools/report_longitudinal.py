@@ -10,8 +10,17 @@ on missing data).
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
+
+from shenbi.gates.shared import word_count_md
+from shenbi.pipeline.chapter_loop import committed_chapter_anchor
+from shenbi.skill_utils.drift_detection.compute_drift import (
+    DriftFinding,
+    detect_chapter_drift,
+)
 
 SCHEMA_ID = "shenbi-longitudinal-verdict-v1"
 TREND_FILENAME = "resonance_trend.md"
@@ -114,3 +123,284 @@ def segment_chapters(n_done: int) -> dict[str, list[int]]:
         out[name] = list(range(start, start + ln))
         start += ln
     return out
+
+
+# ---------------------------------------------------------------------------
+# Verdict core (spec #68 §1) — decision order: data-error → completeness → quality
+# ---------------------------------------------------------------------------
+
+VOLUME_RATIO_FLOOR = 0.95
+RESONANCE_CHAPTER_FLOOR = 85.0
+RESONANCE_MEAN_FLOOR = 90.0
+BACK_DROP_MAX = 5.0
+BACK_ESCALATION_FACTOR = 2
+MIN_SAMPLES_SIGMA = 6  # detect_chapter_drift 的 min_samples_sigma 缺省——
+# 章数低于此值 mean-2σ 检测不触发，同时段分辨率最低（spec §1 报告注明）
+
+
+def load_state_dict(project_dir: Path) -> dict[str, Any]:
+    """Load pipeline-state.json as plain dict (data-error face: exit 2)."""
+    path = project_dir / STATE_FILENAME
+    if not path.exists():
+        raise LongitudinalDataError(f"{path}: pipeline-state.json missing")
+    try:
+        state = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise LongitudinalDataError(f"{path}: broken JSON ({exc})") from exc
+    if not isinstance(state, dict):
+        raise LongitudinalDataError(f"{path}: not a JSON object")
+    return state
+
+
+def load_novel_json(project_dir: Path) -> dict[str, Any]:
+    """Load novel.json as plain dict (data-error face: exit 2)."""
+    path = project_dir / "novel.json"
+    if not path.exists():
+        raise LongitudinalDataError(f"{path}: novel.json missing")
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise LongitudinalDataError(f"{path}: broken JSON ({exc})") from exc
+    if not isinstance(data, dict):
+        raise LongitudinalDataError(f"{path}: not a JSON object")
+    return data
+
+
+@dataclass(frozen=True)
+class ChapterVerdict:
+    """Per-chapter terminal health row with three-input-face fail reasons."""
+
+    chapter: int
+    present: bool
+    status: str | None
+    audit_retry_count: int | None
+    resonance: float | None
+    cjk_chars: int
+    fail_reasons: tuple[str, ...]
+
+
+def chapter_verdicts(
+    project_dir: Path, n_done: int, rows: dict[int, ResonanceRow], state: dict[str, Any]
+) -> list[ChapterVerdict]:
+    """Per-chapter terminal health with three-input-face fail-closed semantics."""
+    raw_states = (state.get("chapter_loop") or {}).get("chapter_states") or {}
+    out: list[ChapterVerdict] = []
+    for ch in range(1, n_done + 1):
+        reasons: list[str] = []
+        path = project_dir / "chapters" / f"chapter-{ch}.md"
+        present = path.exists()
+        cjk = word_count_md(path) if present else 0
+        if not present:
+            reasons.append(f"chapter-{ch}.md main file missing (0-word false-pass guard)")
+        cs = raw_states.get(str(ch))
+        status = cs.get("status") if isinstance(cs, dict) else None
+        retry = cs.get("audit_retry_count") if isinstance(cs, dict) else None
+        if cs is None:
+            reasons.append(f"chapter_states missing key str({ch}) (mid-range hole)")
+        else:
+            if status != "complete":
+                reasons.append(f"status={status!r} != 'complete'")
+            if not isinstance(retry, int) or retry != 0:
+                reasons.append(f"audit_retry_count={retry!r} != 0 (v1 strict)")
+        row = rows.get(ch)
+        if row is None:
+            reasons.append(f"resonance row {ch} missing/non-numeric (fail-closed)")
+        out.append(
+            ChapterVerdict(
+                chapter=ch,
+                present=present,
+                status=status,
+                audit_retry_count=retry,
+                resonance=row.overall if row else None,
+                cjk_chars=cjk,
+                fail_reasons=tuple(reasons),
+            )
+        )
+    return out
+
+
+def escalation_counts_by_segment(
+    checkpoint_history: list[dict[str, Any]], segments: dict[str, list[int]]
+) -> dict[str, int]:
+    """Count ESCALATION events per segment.
+
+    chapter=None entries are excluded from segments and counted under
+    'unattributed' (disclosure face). Type contract is authoritative
+    (list[dict[str, Any]] — no redundant isinstance; malformed state is the
+    exit-2 face upstream).
+    """
+    counts: dict[str, int] = dict.fromkeys(("front", "mid", "back"), 0)
+    counts["unattributed"] = 0
+    member = {ch: name for name, chs in segments.items() for ch in chs}
+    for entry in checkpoint_history:
+        if entry.get("type") != "escalation":
+            continue
+        ch = entry.get("chapter")
+        if isinstance(ch, int) and ch in member:
+            counts[member[ch]] += 1
+        else:
+            counts["unattributed"] += 1
+    return counts
+
+
+def drift_gate(rows: dict[int, ResonanceRow], n_done: int) -> list[DriftFinding]:
+    """Reuse compute_drift.detect_chapter_drift on the overall series.
+
+    Authoritative semantics live in the imported function; this wrapper only
+    feeds it. Series and exclude indices derive from the SAME filtered
+    enumeration so a gapped series never misaligns excluded flags.
+    """
+    present = [ch for ch in range(1, n_done + 1) if ch in rows]
+    series = [rows[ch].overall for ch in present]
+    exclude = {i for i, ch in enumerate(present) if rows[ch].excluded}
+    return detect_chapter_drift(series, dim="overall", exclude_indices=exclude or None)
+
+
+def _mean(xs: list[float]) -> float | None:
+    """Mean of a non-empty float list, else None."""
+    return sum(xs) / len(xs) if xs else None
+
+
+def _completeness(
+    n_done: int, n_target: int, verdicts: list[ChapterVerdict]
+) -> tuple[list[str], list[str]]:
+    """Completeness face (exit-1): N shortfall + per-chapter fail reasons."""
+    reasons: list[str] = []
+    disclosures: list[str] = []
+    if n_done < n_target:
+        reasons.append(f"N_done={n_done} < N_target={n_target} (incomplete run / lost chapters)")
+    if n_done > n_target:
+        disclosures.append(f"N_done={n_done} > N_target={n_target} (anchor/metadata drift)")
+    for v in verdicts:
+        reasons.extend(f"ch{v.chapter}: {r}" for r in v.fail_reasons)
+    return reasons, disclosures
+
+
+def _quality_reasons(verdicts: list[ChapterVerdict], target_wc: int) -> list[str]:
+    """Quality conditions 1-2 residuals: volume floor + resonance floors."""
+    reasons: list[str] = []
+    cjk_total = sum(v.cjk_chars for v in verdicts)
+    if cjk_total < target_wc * VOLUME_RATIO_FLOOR:
+        reasons.append(f"volume {cjk_total} < {target_wc}x95%")
+    scored = [v.resonance for v in verdicts if v.resonance is not None]
+    mean = _mean(scored)
+    reasons.extend(
+        f"ch{v.chapter}: resonance {v.resonance} < {RESONANCE_CHAPTER_FLOOR}"
+        for v in verdicts
+        if v.resonance is not None and v.resonance < RESONANCE_CHAPTER_FLOOR
+    )
+    if mean is not None and mean < RESONANCE_MEAN_FLOOR:
+        reasons.append(f"resonance mean {mean:.1f} < {RESONANCE_MEAN_FLOOR}")
+    return reasons
+
+
+def _trend_block(
+    segments: dict[str, list[int]],
+    verdicts: list[ChapterVerdict],
+    checkpoint_history: list[dict[str, Any]],
+    rows: dict[int, ResonanceRow],
+    n_done: int,
+) -> tuple[list[str], list[str], dict[str, Any], list[DriftFinding]]:
+    """Quality condition 3: segment means/drop, escalation cap, drift gate.
+
+    Returns (reasons, disclosures, block, findings); findings feed the
+    report's drift_findings key.
+    """
+    reasons: list[str] = []
+    disclosures: list[str] = []
+    seg_means: dict[str, float | None] = {}
+    for name, chs in segments.items():
+        vals: list[float] = []
+        for ch in chs:
+            row = verdicts[ch - 1]
+            if row.resonance is not None:
+                vals.append(row.resonance)
+        seg_means[name] = _mean(vals)
+    back_drop = None
+    if seg_means["front"] is not None and seg_means["back"] is not None:
+        back_drop = seg_means["front"] - seg_means["back"]
+        if back_drop > BACK_DROP_MAX:
+            reasons.append(f"后段降幅 {back_drop:.1f} > {BACK_DROP_MAX}")
+    esc = escalation_counts_by_segment(checkpoint_history, segments)
+    if esc["back"] > esc["front"] * BACK_ESCALATION_FACTOR:
+        reasons.append(f"后段 escalation 计数 {esc['back']} > 前段 {esc['front']}x2")
+    if esc["unattributed"]:
+        disclosures.append(f"{esc['unattributed']} escalation 事件 chapter=None，排除出分段计数")
+    findings = drift_gate(rows, n_done)
+    reasons.extend(f"drift[{f.kind.value}] {f.dim}: {f.detail}" for f in findings)
+    member = {ch: name for name, chs in segments.items() for ch in chs}
+    ckpt_counts: dict[str, int] = {"front": 0, "mid": 0, "back": 0}
+    for entry in checkpoint_history:
+        ch = entry.get("chapter")
+        if entry.get("type") != "escalation" and isinstance(ch, int) and ch in member:
+            ckpt_counts[member[ch]] += 1
+    block: dict[str, Any] = {
+        "segment_resonance_means": seg_means,
+        "back_drop_vs_front": round(back_drop, 2) if back_drop is not None else None,
+        "escalation_counts": esc,
+        "checkpoint_counts": ckpt_counts,
+    }
+    return reasons, disclosures, block, findings
+
+
+def evaluate(project_dir: Path) -> dict[str, Any]:
+    """Full longitudinal verdict; LongitudinalDataError → exit 2 (caller maps)."""
+    target_wc, n_target = parse_novel_targets(load_novel_json(project_dir))
+    rows = parse_resonance_trend(project_dir / "truth" / TREND_FILENAME)
+    state = load_state_dict(project_dir)
+    n_done = committed_chapter_anchor(project_dir)
+    segments = segment_chapters(n_done)  # raises on n_done < 3
+    verdicts = chapter_verdicts(project_dir, n_done, rows, state)
+
+    reasons, disclosures = _completeness(n_done, n_target, verdicts)
+    reasons += _quality_reasons(verdicts, target_wc)
+    trend_reasons, trend_disc, trend_block, findings = _trend_block(
+        segments, verdicts, state.get("checkpoint_history") or [], rows, n_done
+    )
+    reasons += trend_reasons
+    disclosures += trend_disc
+
+    pending = state.get("pending_checkpoint") or {}
+    if isinstance(pending, dict) and pending.get("type") not in (None, "none"):
+        disclosures.append(f"pending_checkpoint={pending.get('type')} (未裁决，不入判据)")
+    if n_done < MIN_SAMPLES_SIGMA:
+        disclosures.append(
+            f"N={n_done} < {MIN_SAMPLES_SIGMA}：mean-2σ 检测不触发、每段最多 "
+            f"{(n_done + 2) // 3} 章——分辨率最低（canary 退化情形，spec §1 报告注明）"
+        )
+
+    verdict = "fail" if reasons else "pass"
+    cjk_total = sum(v.cjk_chars for v in verdicts)
+    ratio = cjk_total / target_wc if target_wc else 0.0
+    return {
+        "schema": SCHEMA_ID,
+        "verdict": verdict,
+        "exit_code": 1 if verdict == "fail" else 0,
+        "reasons": reasons,
+        "disclosures": disclosures,
+        "n_target": n_target,
+        "n_done": n_done,
+        "segments": segments,
+        "volume": {
+            "target_word_count": target_wc,
+            "cjk_total": cjk_total,
+            "ratio": round(ratio, 4),
+        },
+        "per_chapter": [
+            {
+                "chapter": v.chapter,
+                "present": v.present,
+                "status": v.status,
+                "audit_retry_count": v.audit_retry_count,
+                "resonance": v.resonance,
+                "cjk_chars": v.cjk_chars,
+                "fail_reasons": list(v.fail_reasons),
+            }
+            for v in verdicts
+        ],
+        "trend": trend_block,
+        "drift_findings": [
+            {"kind": f.kind.value, "dim": f.dim, "detail": f.detail} for f in findings
+        ],
+        "pending_checkpoint": pending or None,
+    }
