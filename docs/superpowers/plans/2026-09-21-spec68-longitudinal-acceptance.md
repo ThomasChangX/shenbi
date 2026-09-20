@@ -23,7 +23,9 @@
 - **verdict JSON schema**：`shenbi-longitudinal-verdict-v1`（本 plan 定稿字段集）——spec §1/§2
 - **T201 豁免**：`pyproject.toml:130` `"tools/**" = ["T201"]`——工具可用 print；但 basedpyright 经测试 import 拉入 strict 面——类型注解必须完整
 - **e2e-canary 不进 `just check`**（不触发付费派发）；e2e-report 用 shebang 形式保三态传播——spec §5
-- **conventional commits** + pathspec 显式列文件（禁 `git add -A`）
+- **conventional commits** + pathspec 显式列文件（禁 `git add -A`）；每次 commit 前跑 `just fix`（ruff format --check 在 just check 内，超 100 列或格式漂移会红）
+- **justfile 契约（spec #64 C26/F1031）**：参数化 recipe **禁止**把 `{{param}}` 插进 shell 行（just 在 shell 解析前做文本替换，`$()`/反引号会执行）——一律用位置参数 `"$1"`（`set positional-arguments := true` 已开）；shebang 形式 + `exec` 保三态 exit 传播
+- **injection 矩阵**：新增参数化 recipe 必须登记 `tests/test_justfile_injection.py` 的 `EXPECTED_CALLS`（`test_matrix_covers_every_parameterized_recipe` 守卫，漏登即 just check 红）
 
 ## 阶段 4 必填字段（v6 SDD 协议）
 
@@ -126,8 +128,12 @@ write_truth_file insert_markdown_row）；契约表头是 SKILL.md:174 定义的
 """
 from __future__ import annotations
 
-import pytest
+import json
 from pathlib import Path
+
+import pytest
+
+pytestmark = pytest.mark.unit
 
 TREND_HEADER = (
     "| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报 "
@@ -264,13 +270,6 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from shenbi.cost.ledger import TokenLedger
-from shenbi.gates.shared import word_count_md
-from shenbi.pipeline.audit_aggregate import FindingUnit, extract_finding_units
-from shenbi.pipeline.chapter_loop import build_resonance_trend_row, committed_chapter_anchor
-from shenbi.pipeline.machine import load_state
-from shenbi.skill_utils.drift_detection.compute_drift import DriftFinding, detect_chapter_drift
-
 SCHEMA_ID = "shenbi-longitudinal-verdict-v1"
 TREND_FILENAME = "resonance_trend.md"
 STATE_FILENAME = "pipeline-state.json"
@@ -370,7 +369,7 @@ def segment_chapters(n_done: int) -> dict[str, list[int]]:
     return out
 ```
 
-（`from shenbi...` 六个 import 中本 task 实际只用 `build_resonance_trend_row` 无——测试用它；文件头一次性带上全部 import 供后续 task 使用，避免反复改头。`zip(("front","mid","back"), lengths)` 长度对齐。）
+（**import 分期**：T1 仅 stdlib——解析层零 shenbi 依赖；T2 追加 `from shenbi.gates.shared import word_count_md`、`from shenbi.pipeline.chapter_loop import committed_chapter_anchor`、`from shenbi.skill_utils.drift_detection.compute_drift import DriftFinding, detect_chapter_drift`；T3 追加 `from shenbi.pipeline.audit_aggregate import FindingUnit, extract_finding_units`；T4 追加 `from datetime import datetime` 与 `from shenbi.cost.ledger import TokenLedger`。**终态零未用 import**（ruff F401 在 just check 内）——`build_resonance_trend_row`/`write_truth_file` 只在测试文件 import。）
 
 - [ ] **Step 4: 跑测试确认通过**
 
@@ -393,12 +392,14 @@ git commit -m "feat(tools): report_longitudinal parsing layer (spec #68 T1)"
 - Test: `tests/unit/test_report_longitudinal.py`（追加 TestEvaluate* 类）
 
 **Interfaces:**
-- Consumes: T1 的 `LongitudinalDataError`/`parse_novel_targets`/`parse_resonance_trend`/`segment_chapters`/`ResonanceRow`；`committed_chapter_anchor`/`word_count_md`/`detect_chapter_drift`/`load_state`
+- Consumes: T1 的 `LongitudinalDataError`/`parse_novel_targets`/`parse_resonance_trend`/`segment_chapters`/`ResonanceRow`；`committed_chapter_anchor`/`word_count_md`/`detect_chapter_drift`（本 task 起加 import，见 T1 import 分期注）
 - Produces:
+  - `def load_state_dict(project_dir: Path) -> dict`——pipeline-state.json 纯 json 面（缺失/坏 JSON/非 dict → LongitudinalDataError；不用 `machine.load_state` 强类型面，判层只消费 dict）
+  - `def load_novel_json(project_dir: Path) -> dict`——novel.json json 面（缺失/坏 JSON → LongitudinalDataError）
   - `@dataclass(frozen=True) class ChapterVerdict`——`chapter: int`、`present: bool`、`status: str | None`、`audit_retry_count: int | None`、`resonance: float | None`、`cjk_chars: int`、`fail_reasons: tuple[str, ...]`
   - `def chapter_verdicts(project_dir: Path, n_done: int, rows: dict[int, ResonanceRow], state: dict) -> list[ChapterVerdict]`——三输入面 fail-closed（缺文件/缺键/缺行 → fail_reasons 记录）
   - `def escalation_counts_by_segment(checkpoint_history: list[dict], segments: dict[str, list[int]]) -> dict[str, int]`——`type == "escalation"` 且 `chapter` 为 int 且在段内才计数；`chapter=None` 计入返回值特殊键 `"unattributed"`（披露用）
-  - `def drift_gate(rows: dict[int, ResonanceRow], n_done: int) -> list[DriftFinding]`——overall 序列（1..n_done 顺序）喂 `detect_chapter_drift`，`excluded` 章 index 进 `exclude_indices`
+  - `def drift_gate(rows: dict[int, ResonanceRow], n_done: int) -> list[DriftFinding]`——overall 序列喂 `detect_chapter_drift`；**series 与 exclude 索引同源枚举**（缺行章跳过时两者用同一个过滤后序列推导，防索引错位）
   - `def evaluate(project_dir: Path) -> dict`——判定顺序钉死：①parse_novel_targets/parse_resonance_trend/load_state（任一 LongitudinalDataError 上抛）；②`n_done < 3` 上抛；③逐章 fail-closed + `N_done < N_target` → fail；④质量三条件；返回完整 report dict（schema 见 Step 3）
 
 - [ ] **Step 1: 写失败测试**（追加到 `tests/unit/test_report_longitudinal.py`；构造 helper `_mk_project` 用真实写方）
@@ -408,7 +409,9 @@ def _mk_project(tmp_path: Path, *, chapters: list[int], scores: dict[int, int],
                 target=200000, total=3, cjk_per_ch=30000,
                 statuses: dict[int, str] | None = None,
                 escalations: list[dict] | None = None) -> Path:
-    """Real-producer construction (G0.9): safe_write novel.json, real trend rows,
+    """Real-producer construction (G0.9): novel.json via plain write_text
+    (unit tmp_path face; production writer is safe_write at cli.py:482 — the
+    json content contract is identical), real trend rows,
     real state machine save, chapter files with prose + meta sections."""
     from shenbi.pipeline.machine import save_state
     from shenbi.pipeline.state import ChapterState, ChapterStatus, PipelineState
@@ -437,10 +440,8 @@ def _mk_project(tmp_path: Path, *, chapters: list[int], scores: dict[int, int],
 
 class TestChapterVerdicts:
     def test_healthy_chapters(self, tmp_path):
-        from tools.report_longitudinal import chapter_verdicts, load_state_dict
+        from tools.report_longitudinal import chapter_verdicts, load_state_dict, parse_resonance_trend
         _mk_project(tmp_path, chapters=[1, 2, 3], scores={1: 92, 2: 90, 3: 88})
-        rows = None  # filled below
-        from tools.report_longitudinal import parse_resonance_trend
         rows = parse_resonance_trend(tmp_path / "truth" / "resonance_trend.md")
         state = load_state_dict(tmp_path)
         verdicts = chapter_verdicts(tmp_path, 3, rows, state)
@@ -672,10 +673,12 @@ def escalation_counts_by_segment(
 
 def drift_gate(rows: dict[int, ResonanceRow], n_done: int) -> list[DriftFinding]:
     """Reuse compute_drift.detect_chapter_drift on the overall series (authoritative
-    semantics live in the imported function — this wrapper only feeds it)."""
-    series = [rows[ch].overall for ch in range(1, n_done + 1) if ch in rows]
-    exclude = {i for i, ch in enumerate(range(1, n_done + 1))
-               if ch in rows and rows[ch].excluded}
+    semantics live in the imported function — this wrapper only feeds it).
+    Series and exclude indices derive from the SAME filtered enumeration, so
+    a gapped series never misaligns excluded flags."""
+    present = [ch for ch in range(1, n_done + 1) if ch in rows]
+    series = [rows[ch].overall for ch in present]
+    exclude = {i for i, ch in enumerate(present) if rows[ch].excluded}
     return detect_chapter_drift(series, dim="overall", exclude_indices=exclude or None)
 
 
@@ -764,7 +767,7 @@ def evaluate(project_dir: Path) -> dict:
     }
 ```
 
-（`lambda` in dict comprehension 换成具名内部函数 `_mean(xs)` 更清晰——实现时用后者；`load_state` import 删除（未用，改 `load_state_dict` 纯 json 面——`machine.load_state` 返回强类型对象，而判层只需 dict 面；保留 json 直读避免 Strat 漂移）。**实现注意**：`from shenbi.pipeline.machine import load_state` 从文件头 import 列表中移除。）
+（`lambda` in dict comprehension 换成具名内部函数 `_mean(xs)` 更清晰——实现时用后者。）
 
 - [ ] **Step 4: 跑测试确认通过**
 
@@ -792,7 +795,7 @@ git commit -m "feat(tools): report_longitudinal verdict core (spec #68 T2)"
   - `TAXONOMY_RULES: dict[str, re.Pattern[str]]`——8 类（连续性断裂/人物漂移/世界规则违反/伏笔丢失/风格衰减/重复/节奏崩溃/敏感性）中文关键字正则
   - `SUBSYSTEM_ROUTES: dict[str, str]`——类别 → 嫌疑子系统
   - `def merge_units(reports: list[tuple[str, str]]) -> list[FindingUnit]`——raw glob 报告集 → `(severity, text)` 键去重 + reporters 并集（~10 行 glue，同 `write_audit_aggregate` :150-171 语义，无写操作）
-  - `def load_audit_units(project_dir: Path, chapter: int) -> tuple[list[FindingUnit], str]`——返回 `(units, source)`，source ∈ `"raw"` | `"aggregate"` | `"none"`；raw glob `chapter-N-*.md` 优先；空则 aggregate（按 `## <SEV> Findings` H2 分节格式解析——`extract_finding_units` 对该格式零命中不可用）；都没有 → `([], "none")`（coverage 披露面）
+  - `def load_audit_units(project_dir: Path, chapter: int) -> tuple[list[FindingUnit], str]`——返回 `(units, source)`，source ∈ `"raw"` | `"aggregate"` | `"none"`；raw glob `chapter-N-*.md` 优先但**排除 `chapter-N-resonance.md`**（`_RESONANCE_NAME_RE` 同语义——resonance 报告不是失败发现，混入即污染热力图，spec §2 理由③）；空则 aggregate（按 `## <SEV> Findings` H2 分节格式解析，遇 `## Resonance 报告` H2 即止）；都没有 → `([], "none")`（coverage 披露面）
   - `def classify(units: list[FindingUnit]) -> tuple[dict[str, int], int]`——返回 `(category_counts, unclassified_count)`
 
 - [ ] **Step 1: 写失败测试**（`tests/unit/test_report_longitudinal_taxonomy.py` 新建）
@@ -802,6 +805,10 @@ git commit -m "feat(tools): report_longitudinal verdict core (spec #68 T2)"
 from __future__ import annotations
 
 from pathlib import Path
+
+import pytest
+
+pytestmark = pytest.mark.unit
 
 FIXTURES = Path(__file__).resolve().parent.parent / "fixtures"
 AUDIT_SEEDS = [
@@ -864,13 +871,25 @@ class TestLoadAuditUnits:
         units, source = load_audit_units(tmp_path, 1)
         assert source == "raw" and len(units) == 1
 
-    def test_aggregate_fallback_parsed_by_h2_sections(self, tmp_path):
+    def test_resonance_report_excluded_from_raw_glob(self, tmp_path):
+        """resonance 报告不是失败发现——混入即污染热力图（spec §2 理由③）。"""
+        from tools.report_longitudinal import load_audit_units
+        audits = tmp_path / "audits"
+        audits.mkdir()
+        (audits / "chapter-1-resonance.md").write_text(
+            "## 共振评估\n\n- [WARNING] 共振分 78：人物弧线落地不足\n", encoding="utf-8")
+        units, source = load_audit_units(tmp_path, 1)
+        assert source == "none" and units == []
+
+    def test_aggregate_fallback_stops_at_resonance_h2(self, tmp_path):
         from tools.report_longitudinal import load_audit_units
         audits = tmp_path / "audits"
         audits.mkdir()
         (audits / "chapter-1.aggregate.md").write_text(
             "# Chapter 1 — Audit Aggregate\n\n## CRITICAL Findings (1)\n\n"
-            "- 人物语气与既定性格不符，对话脱离人设\n  - 报告方: chapter-1-character.md\n",
+            "- 人物语气与既定性格不符，对话脱离人设\n\n"
+            "## Resonance 报告（逐字保留）\n\n### chapter-1-resonance.md\n\n"
+            "## WARNING Findings (2)\n\n- 嵌入正文里的伪 H2 分节\n",
             encoding="utf-8")
         units, source = load_audit_units(tmp_path, 1)
         assert source == "aggregate" and len(units) == 1
@@ -917,7 +936,7 @@ SUBSYSTEM_ROUTES: dict[str, str] = {
 }
 
 RAW_GLOB_RE = re.compile(r"^chapter-(\d+)-.+\.md$")
-AGG_RE = re.compile(r"^chapter-(\d+)\.aggregate\.md$")
+RESONANCE_NAME_RE = re.compile(r"^chapter-\d+-resonance\.md$")  # _RESONANCE_NAME_RE 同语义
 
 
 def merge_units(reports: list[tuple[str, str]]) -> list[FindingUnit]:
@@ -941,7 +960,9 @@ def merge_units(reports: list[tuple[str, str]]) -> list[FindingUnit]:
 
 def _parse_aggregate_sections(content: str) -> list[FindingUnit]:
     """Parse aggregate's own render format: `## <SEV> Findings (n)` H2 sections
-    with severity-stripped bullets (extract_finding_units returns zero on it)."""
+    with severity-stripped bullets (extract_finding_units returns zero on it).
+    Stops at the verbatim-resonance H2 — embedded report bodies may contain
+    their own `## ` lines that would flip severity state."""
     units: list[FindingUnit] = []
     sev: str | None = None
     for line in content.splitlines():
@@ -949,7 +970,7 @@ def _parse_aggregate_sections(content: str) -> list[FindingUnit]:
         if m:
             sev = m.group(1)
             continue
-        if line.startswith("## "):
+        if line.startswith("## "):  # any other H2 (incl. Resonance 报告) ends the section
             sev = None
             continue
         s = line.strip()
@@ -961,7 +982,8 @@ def _parse_aggregate_sections(content: str) -> list[FindingUnit]:
 def load_audit_units(project_dir: Path, chapter: int) -> tuple[list[FindingUnit], str]:
     audits = project_dir / "audits"
     raw = sorted(
-        p for p in audits.glob(f"chapter-{chapter}-*.md") if RAW_GLOB_RE.match(p.name)
+        p for p in audits.glob(f"chapter-{chapter}-*.md")
+        if RAW_GLOB_RE.match(p.name) and not RESONANCE_NAME_RE.match(p.name)
     ) if audits.is_dir() else []
     if raw:
         return merge_units([(p.name, p.read_text(encoding="utf-8")) for p in raw]), "raw"
@@ -1020,6 +1042,10 @@ from __future__ import annotations
 from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
+import pytest
+
+pytestmark = pytest.mark.unit
+
 
 def _record(tmp_path: Path, chapter: int, *, cost=0.01, minutes=0, attempt=1):
     from shenbi.cost.ledger import TokenLedger
@@ -1040,15 +1066,15 @@ def _record(tmp_path: Path, chapter: int, *, cost=0.01, minutes=0, attempt=1):
 class TestLedgerStats:
     def test_per_chapter_aggregation_and_wallclock(self, tmp_path):
         from tools.report_longitudinal import ledger_stats
-        _record(tmp_path, 1, cost=0.01, minutes=0)
-        _record(tmp_path, 1, cost=0.02, minutes=30)
+        _record(tmp_path, 1, cost=0.01, minutes=0, attempt=1)
+        _record(tmp_path, 1, cost=0.02, minutes=30, attempt=2)
         _record(tmp_path, 2, cost=0.03, minutes=90)
         stats = ledger_stats(tmp_path, [1, 2], {1: 10000, 2: 20000})
         by_ch = {e["chapter"]: e for e in stats["per_chapter"]}
         assert by_ch[1]["cost_usd"] == 0.03
         assert by_ch[1]["wall_clock_s"] == 1800.0
         assert by_ch[2]["cost_per_10k"] == pytest_approx(0.015)
-        assert by_ch[1]["attempts"] == 2
+        assert by_ch[1]["attempts"] == 2  # max(attempt) 语义（spec §1「attempt 聚合」）
         assert stats["skipped_rows"] == 0 and stats["chapters_covered"] == 2
 
     def test_skipped_rows_disclosed(self, tmp_path):
@@ -1083,6 +1109,17 @@ class TestTruthGrowth:
             {"file": e["file"], "bytes": e["bytes"]} for e in out["current"]
         )
         assert "快照" in out["note"] or "snapshot" in out["note"]
+
+    def test_real_fixture_truth_face(self, tmp_path):
+        """spec 验收：chapter-025 真实产物提供 truth 面基准——真实尺寸可读且非空。"""
+        import shutil
+        from tools.report_longitudinal import truth_growth
+        src = Path(__file__).resolve().parent.parent / "fixtures" / "snapshots" / "chapter-025" / "truth"
+        shutil.copytree(src, tmp_path / "truth")
+        out = truth_growth(tmp_path)
+        assert {e["file"] for e in out["current"]} >= {
+            "current_state.md", "character_matrix.md", "pending_hooks.md"}
+        assert all(e["bytes"] > 0 for e in out["current"])
 ```
 
 （`_record` 的时间回写注释解释了为何仍算真实写方路径：行由 `TokenLedger.record` 追加、仅 timestamp/cost 字段回写为受控值——与 `iter_records` 兼容契约一致。）
@@ -1241,7 +1278,7 @@ git commit -m "feat(tools): report_longitudinal observations + coverage (spec #6
 
 ```python
 class TestCliEndToEnd:
-    def test_pass_project_writes_both_reports_exit0(self, tmp_path, monkeypatch, capsys):
+    def test_pass_project_writes_both_reports_exit0(self, tmp_path):
         from tests.unit.test_report_longitudinal import _mk_project
         from tools.report_longitudinal import main
         _mk_project(tmp_path, chapters=[1, 2, 3], scores={1: 92, 2: 91, 3: 90},
@@ -1398,16 +1435,17 @@ git commit -m "feat(tools): report_longitudinal rendering + CLI exit tri-state (
 
 ---
 
-### Task 6: justfile 接线 + plans INDEX 登记 + 终验
+### Task 6: justfile 接线 + injection 矩阵登记 + 终验
 
 **Files:**
-- Modify: `justfile`（追加两个 recipe）
-- Modify: `docs/superpowers/plans/INDEX.md`（登记本 plan ✅ ready → 执行后状态由阶段 5 更新）
+- Modify: `justfile`（追加两个 recipe——`"$1"` 位置参数，禁 `{{param}}` 插值，spec #64 C26 契约）
+- Modify: `tests/test_justfile_injection.py`（`EXPECTED_CALLS` 登记 `e2e-report`——`test_matrix_covers_every_parameterized_recipe` 守卫漏登即红）
+- Modify: `docs/superpowers/plans/INDEX.md`（**已随 plan 创建 commit 登记**——本 task 仅核对在场，不重复登记）
 - Test: `tests/unit/test_report_longitudinal_report.py`（追加 recipe 语义断言）
 
 **Interfaces:**
 - Consumes: T5 `main` exit 三态
-- Produces: `just e2e-report <dir>`（shebang 形式，exec 保三态传播）；`just e2e-canary`（文档化语义，不进 just check）
+- Produces: `just e2e-report <dir>`（shebang 形式 + `exec` + `"$1"` 保三态传播）；`just e2e-canary`（文档化语义，不进 just check）
 
 - [ ] **Step 1: 写失败测试**（追加）
 
@@ -1440,10 +1478,11 @@ Expected: FAIL（justfile 无 e2e recipe）
 ```make
 # Longitudinal acceptance report: exit 0 pass / 1 fail / 2 data error (spec #68).
 # Shebang form so the tool's tri-state exit code propagates (linewise may collapse 2→1).
+# "$1" positional — NEVER {{dir}} interpolation (recipe covenant, spec #64 C26/F1031).
 e2e-report dir:
     #!/usr/bin/env bash
     set -euo pipefail
-    exec uv run python tools/report_longitudinal.py "{{dir}}"
+    exec uv run python tools/report_longitudinal.py "$1"
 
 # Canary fast loop: 3-chapter/3000-word seed through run_pipeline.sh.
 # Stops at first checkpoint (exit 3) — NEVER auto-approves; resolve manually with
@@ -1470,6 +1509,12 @@ plans/INDEX.md 登记（该文件活跃 plan 列表）：
 
 （以 plans/INDEX.md 现行格式为准插入对应列。）
 
+**injection 矩阵登记**（`tests/test_justfile_injection.py`）：在 `EXPECTED_CALLS` dict 中追加条目。该测试经 `make_uv_stub` 拦截 `uv`（shebang recipe 的 `exec uv run` 走 PATH 解析同样被截）——sample 目录无需存在、无副作用，载荷用于验证 argv 逐字传递：
+
+```python
+    "e2e-report": [["/tmp/d; touch pwned"]],
+```
+
 - [ ] **Step 4: 跑测试 + 手工验证三态传播**
 
 Run: `uv run pytest tests/unit/test_report_longitudinal_report.py -q && uv run pytest tests/unit/test_report_longitudinal.py tests/unit/test_report_longitudinal_taxonomy.py -q`
@@ -1490,16 +1535,26 @@ Expected: stderr 含 `resonance_trend.md missing`，`exit=2`
 ```bash
 just check
 # EXIT=0 后：
-git add justfile docs/superpowers/plans/INDEX.md tests/unit/test_report_longitudinal_report.py
+git add justfile tests/test_justfile_injection.py tests/unit/test_report_longitudinal_report.py
 git commit -m "feat(justfile): e2e-report/e2e-canary recipes (spec #68 T6)"
 ```
 
 ---
 
-## Self-Review（写 plan 后自查记录）
+## Self-Review（写 plan 后自查 + 阶段 5 轮 1 修复记录）
 
-1. **Spec 覆盖**：§1 三条件→T2；§1 边界语义全部→T1（分段/缺行）+T2（三面 fail-closed/N/顺序/exit 面）；§2 输入面五条→T1（resonance 解析/表头）+T2（state/novel）+T3（audits raw 优先）；§3→T3；§4→T4（截断观测按 spec 边界不做——复活条件在 spec）；§5→T6；§6 登记→已在注册 commit 落地；验收五条→验收覆盖表。**无缺口**。
-2. **Placeholder 扫描**：T5 render_markdown 的三段表行有「压缩写法」注释并声明落地以直白拼接为准——非 placeholder（语义完整）；T6 Step 3 的 plans/INDEX 格式「以现行格式为准」——落地时核对现文件列名。其余步骤均含完整代码。
+1. **Spec 覆盖**：§1 三条件→T2；§1 边界语义全部→T1（分段/缺行）+T2（三面 fail-closed/N/顺序/exit 面）；§2 输入面五条→T1（resonance 解析/表头）+T2（state/novel）+T3（audits raw 优先 + resonance 排除）；§3→T3；§4→T4（截断观测按 spec 边界不做——复活条件在 spec；chapter-025 truth 面→T4 `test_real_fixture_truth_face`）；§5→T6；§6 登记→已在注册 commit 落地；验收五条→验收覆盖表。**无缺口**（spec 验收第 3 条残留「分段余数归后段」短语与钉死规则 ㊲ 字面冲突——spec 正文边界语义为权威，plan 按㊲ 实现）。
+2. **Placeholder 扫描**：T5 render_markdown 的三段表行有「压缩写法」注释并声明落地以直白拼接为准——非 placeholder（语义完整）；T6 plans/INDEX 改为「核对在场」（plan 创建 commit 已登记）。其余步骤均含完整代码。
 3. **类型一致性**：`ResonanceRow.overall: float`（T1）↔ T2 `chapter_verdicts` 消费 `rows: dict[int, ResonanceRow]` ✓；`ChapterVerdict` 字段 ↔ T4 `cjk_by_ch` 消费 `.cjk_chars` ✓；`load_audit_units -> tuple[list[FindingUnit], str]` ↔ T4 消费 ✓；`main(argv) -> int` ↔ T6 justfile exec ✓。
 4. **G3.4/F947**：N/A / 合规（声明在前）。
 5. **执行方式**：全部 leaf、协调者亲自实现（单模型现实 + 语义钉死密集）；每 task commit 后 fresh-context 全量重审 → `.superpowers/sdd/audit-T<N>.md`，无 audit-T<N>.md 不得开始 T<N+1>。
+
+### 阶段 5 轮 1 修复（3C/3I/8M · 2026-09-21）
+
+- **C1**：T6 Files/Step 补 `tests/test_justfile_injection.py` `EXPECTED_CALLS` 登记（`"e2e-report": [["/tmp/d; touch pwned"]]`，uv stub 拦截机制核实）——否则 `test_matrix_covers_every_parameterized_recipe` 必红
+- **C2**：recipe 体 `"$1"` 位置参数替代 `"{{dir}}"` 插值（justfile 头部契约注释核实——spec #64 C26/F1031）
+- **C3**：import 分期重构——T1 仅 stdlib、逐 task 追加、终态零未用 import（`build_resonance_trend_row` 只进测试文件；原「一次性带全 import」会 F401 红 just check）
+- **I4**：T1 测试头补 `import json`（`_mk_project` 用 `json.dumps`）
+- **I5**：attempts 语义钉死 max(attempt)——测试第二笔 `attempt=2` + 断言 2 + 注释
+- **I6**：raw glob 排除 `chapter-N-resonance.md`（`RESONANCE_NAME_RE` 同 `_RESONANCE_NAME_RE` 语义）+ 两测试（排除断言 + aggregate 回退遇 Resonance H2 即止 M15）
+- M7 INDEX 不重复登记；M8 Produces 补 `load_state_dict`/`load_novel_json`、`coverage_block` 删除（inline 组装）；M9 drift_gate series/exclude 同源枚举；M11 死代码清理（`rows = None`/未用 fixture 参数/AGG_RE）+ 三测试文件 `pytestmark = pytest.mark.unit`；M12 chapter-025 真实 fixture 面 `test_real_fixture_truth_face`；M13 `_mk_project` docstring 改 plain write_text 说明；M14 Global Constraints 补 `just fix` 门；spec 验收残留短语注记（Self-Review 1）
