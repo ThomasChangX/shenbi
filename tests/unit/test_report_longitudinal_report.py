@@ -142,6 +142,13 @@ class TestEvaluateIntegration:
         report = evaluate(tmp_path)
         assert set(report) >= {"taxonomy", "scalability", "coverage"}
         assert report["coverage"]["resonance_rows"] == [3, 3]
+        # 分子与分母同口径：未提交章的 trend 行不计入（防 >100% 披露）
+        _write_extra = tmp_path / "truth" / "resonance_trend.md"
+        with _write_extra.open("a", encoding="utf-8") as fh:
+            fh.write("| 9 | 高潮 | 22 | 20 | 22 | 18 | 90 | high |  |\n")
+        from tools.report_longitudinal import evaluate as _ev
+
+        assert _ev(tmp_path)["coverage"]["resonance_rows"] == [3, 3]
         assert report["coverage"]["audits_chapters"] == [0, 3]  # audits/ 不存在 → none
         assert report["coverage"]["ledger_chapters"] == [0, 3]
         assert report["taxonomy"]["audit_sources"] == {"raw": 0, "aggregate": 0, "none": 3}

@@ -438,7 +438,7 @@ def evaluate(project_dir: Path) -> dict[str, Any]:
             "truth_growth": truth_growth(project_dir),
         },
         "coverage": {
-            "resonance_rows": [len(rows), n_done],
+            "resonance_rows": [sum(1 for ch in range(1, n_done + 1) if ch in rows), n_done],
             "audits_chapters": [n_done - audit_sources["none"], n_done],
             "ledger_chapters": [led["chapters_covered"], n_done],
             "ledger_skipped_rows": led["skipped_rows"],
