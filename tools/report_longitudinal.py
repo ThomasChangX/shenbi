@@ -713,9 +713,9 @@ def render_markdown(report: dict[str, Any]) -> str:
         ]
         for e in scal:
             cpk = f"{e['cost_per_10k']:.6f}" if e["cost_per_10k"] is not None else "-"
+            wall = f"{e['wall_clock_s']}" if e["wall_clock_s"] is not None else "-"
             lines.append(
-                f"| {e['chapter']} | {e['cost_usd']:.4f} | {e['wall_clock_s']} | "
-                f"{cpk} | {e['attempts']} |"
+                f"| {e['chapter']} | {e['cost_usd']:.4f} | {wall} | {cpk} | {e['attempts']} |"
             )
     lines += [
         "",

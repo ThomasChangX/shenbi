@@ -217,3 +217,4 @@ class TestCliEndToEnd:
         (tmp_path / "novel.json").write_text("{ broken", encoding="utf-8")
         assert main([str(tmp_path)]) == 2
         assert "novel.json" in capsys.readouterr().err
+        assert not (tmp_path / "metrics").exists()  # data-error 不写盘（fail-closed）
