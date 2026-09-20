@@ -293,19 +293,20 @@ on missing data).
 """
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from pathlib import Path
 
 SCHEMA_ID = "shenbi-longitudinal-verdict-v1"
 TREND_FILENAME = "resonance_trend.md"
 STATE_FILENAME = "pipeline-state.json"
+MIN_SEGMENTS = 3  # 前/中/后三段各至少 1 章（canary N=3 为退化下界）
 
 
 class LongitudinalDataError(Exception):
     """Verdict-critical input missing/malformed → exit 2 (fail-closed)."""
 
     def __init__(self, reason: str) -> None:
+        """Carry the machine-readable reason alongside the message."""
         super().__init__(reason)
         self.reason = reason
 
@@ -385,7 +386,7 @@ def parse_resonance_trend(path: Path) -> dict[int, ResonanceRow]:
 
 def segment_chapters(n_done: int) -> dict[str, list[int]]:
     """Enumerated partition: r=0→(f,f,f), r=1→(f,f,c), r=2→(f,c,c)."""
-    if n_done < 3:
+    if n_done < MIN_SEGMENTS:
         raise LongitudinalDataError(f"insufficient chapters: {n_done}")
     f, r = divmod(n_done, 3)
     c = f + (1 if r else 0)
@@ -407,23 +408,23 @@ def segment_chapters(n_done: int) -> dict[str, list[int]]:
     "RUF001", "RUF002", "RUF003",
 ]
 "tests/unit/test_report_longitudinal.py" = [
-    "D103", "D101", "D102", "D205", "D415", "PLR2004",
+    "D103", "D101", "D102", "D205", "D209", "D403", "D415", "PLR2004",
     "RUF001", "RUF002", "RUF003",
 ]
 "tests/unit/test_report_longitudinal_taxonomy.py" = [
-    "D103", "D101", "D102", "D205", "D415", "PLR2004",
+    "D103", "D101", "D102", "D205", "D209", "D403", "D415", "PLR2004",
     "RUF001", "RUF002", "RUF003",
 ]
 "tests/unit/test_report_longitudinal_report.py" = [
-    "D103", "D101", "D102", "D205", "D415", "PLR2004",
+    "D103", "D101", "D102", "D205", "D209", "D403", "D415", "PLR2004",
     "RUF001", "RUF002", "RUF003",
 ]
 ```
 
 - [ ] **Step 4: 跑测试确认通过 + lint 面**
 
-Run: `uv run pytest tests/unit/test_report_longitudinal.py -q && uv run ruff check tools/report_longitudinal.py tests/unit/test_report_longitudinal.py && just fix`
-Expected: 全 PASS + ruff 零发现 + just fix 无 diff
+Run: `uv run pytest tests/unit/test_report_longitudinal.py -q && uv run ruff check tools/report_longitudinal.py tests/unit/test_report_longitudinal.py && just fix && git diff --stat`
+Expected: 全 PASS + ruff 零发现；`just fix` 产生的格式重排随本 task commit 落盘（重排后再跑 `uv run ruff format --check tools/report_longitudinal.py` 应无 diff）
 
 - [ ] **Step 5: Commit**
 
@@ -457,10 +458,14 @@ git commit -m "feat(tools): report_longitudinal parsing layer (spec #68 T1)"
 def _mk_project(tmp_path: Path, *, chapters: list[int], scores: dict[int, int],
                 target: int = 200000, total: int = 3, cjk_per_ch: int = 30000,
                 statuses: dict[int, str] | None = None,
-                escalations: list[dict] | None = None) -> Path:
-    """Real-producer construction (G0.9): novel.json via plain write_text
-    (unit tmp_path face; production writer is safe_write at cli.py:482 — the
-    json content contract is identical), real trend rows, real state save."""
+                escalations: list[dict[str, Any]] | None = None) -> Path:
+    """Real-producer construction (G0.9): novel.json via plain write_text.
+
+    Unit tmp_path face; production writer is safe_write at cli.py:482 — the
+    json content contract is identical), real trend rows, real state save.
+    """
+    from typing import Any
+
     from shenbi.pipeline.machine import save_state
     from shenbi.pipeline.state import ChapterState, ChapterStatus, PipelineState
 
@@ -601,18 +606,20 @@ class TestEvaluate:
         assert report["verdict"] == "fail" and any("降幅" in r for r in report["reasons"])
 
     def test_back_escalation_cap_fails_trend(self, tmp_path):
-        """后段 escalation 计数 > 前段×2 → fail（checkpoint_history 主源）。"""
+        """零基线语义：前段 0 → cap=0，后段任一 escalation 即 fail；
+        chapter=None 事件排除出分段计数并披露（checkpoint_history 主源）。"""
         from tools.report_longitudinal import evaluate
 
         _mk_project(tmp_path, chapters=[1, 2, 3], scores={1: 92, 2: 91, 3: 90},
                     target=84000, cjk_per_ch=28000,
                     escalations=[
-                        {"type": "escalation", "chapter": 1, "decision": "approve"},
                         {"type": "escalation", "chapter": 3, "decision": "approve"},
-                        {"type": "escalation", "chapter": 3, "decision": "reject"},
+                        {"type": "escalation", "chapter": None, "decision": "modify"},
                     ])
         report = evaluate(tmp_path)
         assert any("escalation" in r for r in report["reasons"])
+        assert any("chapter=None" in d for d in report["disclosures"])
+        assert any("canary 退化情形" in d for d in report["disclosures"])  # N=3 < 6 注记
 
     def test_n_done_below_target_fails(self, tmp_path):
         from tools.report_longitudinal import evaluate
@@ -757,13 +764,18 @@ def chapter_verdicts(
 def escalation_counts_by_segment(
     checkpoint_history: list[dict[str, Any]], segments: dict[str, list[int]]
 ) -> dict[str, int]:
-    """Count ESCALATION events per segment; chapter=None ones are excluded
-    from segments and counted under 'unattributed' (disclosure face)."""
+    """Count ESCALATION events per segment.
+
+    chapter=None entries are excluded from segments and counted under
+    'unattributed' (disclosure face). Type contract is authoritative
+    (list[dict[str, Any]] — no redundant isinstance; malformed state is the
+    exit-2 face upstream).
+    """
     counts: dict[str, int] = {name: 0 for name in ("front", "mid", "back")}
     counts["unattributed"] = 0
     member = {ch: name for name, chs in segments.items() for ch in chs}
     for entry in checkpoint_history:
-        if not isinstance(entry, dict) or entry.get("type") != "escalation":
+        if entry.get("type") != "escalation":
             continue
         ch = entry.get("chapter")
         if isinstance(ch, int) and ch in member:
@@ -774,10 +786,12 @@ def escalation_counts_by_segment(
 
 
 def drift_gate(rows: dict[int, ResonanceRow], n_done: int) -> list[DriftFinding]:
-    """Reuse compute_drift.detect_chapter_drift on the overall series
-    (authoritative semantics live in the imported function). Series and
-    exclude indices derive from the SAME filtered enumeration so a gapped
-    series never misaligns excluded flags."""
+    """Reuse compute_drift.detect_chapter_drift on the overall series.
+
+    Authoritative semantics live in the imported function; this wrapper only
+    feeds it. Series and exclude indices derive from the SAME filtered
+    enumeration so a gapped series never misaligns excluded flags.
+    """
     present = [ch for ch in range(1, n_done + 1) if ch in rows]
     series = [rows[ch].overall for ch in present]
     exclude = {i for i, ch in enumerate(present) if rows[ch].excluded}
@@ -828,17 +842,22 @@ def _trend_block(
     checkpoint_history: list[dict[str, Any]],
     rows: dict[int, ResonanceRow],
     n_done: int,
-) -> tuple[list[str], list[str], dict[str, Any]]:
-    """Quality condition 3: segment means/drop, escalation cap, drift gate."""
+) -> tuple[list[str], list[str], dict[str, Any], list[DriftFinding]]:
+    """Quality condition 3: segment means/drop, escalation cap, drift gate.
+
+    Returns (reasons, disclosures, block, findings) — findings feed the
+    report's drift_findings key (T2 起即四元组，T4 不再改签名).
+    """
     reasons: list[str] = []
     disclosures: list[str] = []
-    seg_means = {
-        name: _mean([
-            verdicts[ch - 1].resonance for ch in chs
-            if verdicts[ch - 1].resonance is not None
-        ])
-        for name, chs in segments.items()
-    }
+    seg_means: dict[str, float | None] = {}
+    for name, chs in segments.items():
+        vals: list[float] = []
+        for ch in chs:
+            row = verdicts[ch - 1]
+            if row.resonance is not None:
+                vals.append(row.resonance)
+        seg_means[name] = _mean(vals)
     back_drop = None
     if seg_means["front"] is not None and seg_means["back"] is not None:
         back_drop = seg_means["front"] - seg_means["back"]
@@ -851,12 +870,19 @@ def _trend_block(
         disclosures.append(f"{esc['unattributed']} escalation 事件 chapter=None，排除出分段计数")
     findings = drift_gate(rows, n_done)
     reasons.extend(f"drift[{f.kind.value}] {f.dim}: {f.detail}" for f in findings)
+    member = {ch: name for name, chs in segments.items() for ch in chs}
+    ckpt_counts: dict[str, int] = {"front": 0, "mid": 0, "back": 0}
+    for entry in checkpoint_history:
+        ch = entry.get("chapter")
+        if isinstance(ch, int) and ch in member:
+            ckpt_counts[member[ch]] += 1
     block: dict[str, Any] = {
         "segment_resonance_means": seg_means,
         "back_drop_vs_front": round(back_drop, 2) if back_drop is not None else None,
         "escalation_counts": esc,
+        "checkpoint_counts": ckpt_counts,
     }
-    return reasons, disclosures, block
+    return reasons, disclosures, block, findings
 
 
 def evaluate(project_dir: Path) -> dict[str, Any]:
@@ -870,7 +896,7 @@ def evaluate(project_dir: Path) -> dict[str, Any]:
 
     reasons, disclosures = _completeness(n_done, n_target, verdicts)
     reasons += _quality_reasons(verdicts, target_wc)
-    trend_reasons, trend_disc, trend_block = _trend_block(
+    trend_reasons, trend_disc, trend_block, findings = _trend_block(
         segments, verdicts, state.get("checkpoint_history") or [], rows, n_done)
     reasons += trend_reasons
     disclosures += trend_disc
@@ -878,6 +904,10 @@ def evaluate(project_dir: Path) -> dict[str, Any]:
     pending = state.get("pending_checkpoint") or {}
     if isinstance(pending, dict) and pending.get("type") not in (None, "none"):
         disclosures.append(f"pending_checkpoint={pending.get('type')} (未裁决，不入判据)")
+    if n_done < 6:
+        disclosures.append(
+            f"N={n_done} < 6：mean-2σ 检测不触发、每段最多 "
+            f"{(n_done + 2) // 3} 章——分辨率最低（canary 退化情形，spec §1 报告注明）")
 
     verdict = "fail" if reasons else "pass"
     cjk_total = sum(v.cjk_chars for v in verdicts)
@@ -905,17 +935,19 @@ def evaluate(project_dir: Path) -> dict[str, Any]:
             for v in verdicts
         ],
         "trend": trend_block,
-        "drift_findings": [],
+        "drift_findings": [
+            {"kind": f.kind.value, "dim": f.dim, "detail": f.detail} for f in findings
+        ],
         "pending_checkpoint": pending or None,
     }
 ```
 
-（`drift_findings` 在 T4 并网时由 `_trend_block` 的 findings 回填——本 task 先置空列表占位，T4 改为从 trend_block 提取；**实现注意**：`_trend_block` 已产出 findings，T4 只需 `"drift_findings": [{"kind": f.kind.value, "dim": f.dim, "detail": f.detail} for f in findings]`——把 findings 并入 `_trend_block` 返回值第四元组更干净，T4 落地时以四元组形式改写并同步测试。）
+（`drift_findings` 自 T2 起即为真实值——`_trend_block` 四元组直接喂。T4 只追加观测三键，不改本签名。）
 
 - [ ] **Step 4: 跑测试确认通过 + lint 面**
 
 Run: `uv run pytest tests/unit/test_report_longitudinal.py -q && uv run ruff check tools/report_longitudinal.py && just fix`
-Expected: 全 PASS + ruff 零发现 + just fix 无 diff
+Expected: 全 PASS + ruff 零发现；`just fix` 产生的格式重排随本 task commit 落盘（重排后 ruff format --check 无 diff）
 
 - [ ] **Step 5: Commit**
 
@@ -929,7 +961,7 @@ git commit -m "feat(tools): report_longitudinal verdict core (spec #68 T2)"
 ### Task 3: 失败分类学——映射表、audits 输入（raw 优先 + aggregate 回退）
 
 **Files:**
-- Modify: `tools/report_longitudinal.py`（追加分类学节；文件头追加 `from shenbi.pipeline.audit_aggregate import FindingUnit, extract_finding_units`）
+- Modify: `tools/report_longitudinal.py`（追加分类学节；文件头追加 `import re` 与 `from shenbi.pipeline.audit_aggregate import FindingUnit, extract_finding_units`——`re` 首个使用点在本 task 的 TAXONOMY_RULES/Raw 正则，T1 不 import）
 - Create: `tests/unit/test_report_longitudinal_taxonomy.py`
 
 **Interfaces:**
@@ -1103,8 +1135,10 @@ RESONANCE_NAME_RE = re.compile(r"^chapter-\d+-resonance\.md$")  # _RESONANCE_NAM
 
 
 def merge_units(reports: list[tuple[str, str]]) -> list[FindingUnit]:
-    """Same semantics as write_audit_aggregate's inlined loop (:150-171) —
-    (severity, text) key dedup + reporters union — without the write."""
+    """Same semantics as write_audit_aggregate's inlined loop (:150-171).
+
+    (severity, text) key dedup + reporters union — without the write.
+    """
     merged: dict[tuple[str, str], FindingUnit] = {}
     for name, content in reports:
         units, _ctx = extract_finding_units(name, content)
@@ -1124,8 +1158,11 @@ def merge_units(reports: list[tuple[str, str]]) -> list[FindingUnit]:
 def _parse_aggregate_sections(content: str) -> list[FindingUnit]:
     """Parse aggregate's own render format: `## <SEV> Findings (n)` H2
     sections with severity-stripped bullets (extract_finding_units returns
-    zero on it). Breaks at the FIRST non-severity H2 — verbatim resonance
-    bodies may contain their own `## ` lines that would re-arm severity."""
+    zero on it).
+
+    Breaks at the FIRST non-severity H2 — verbatim resonance bodies may
+    contain their own `## ` lines that would re-arm severity.
+    """
     units: list[FindingUnit] = []
     sev: str | None = None
     for line in content.splitlines():
@@ -1173,7 +1210,7 @@ def classify(units: list[FindingUnit]) -> tuple[dict[str, int], int]:
 - [ ] **Step 4: 跑测试确认通过 + lint 面**
 
 Run: `uv run pytest tests/unit/test_report_longitudinal_taxonomy.py -q && uv run ruff check tools/report_longitudinal.py && just fix`
-Expected: PASS + ruff 零发现 + just fix 无 diff
+Expected: PASS + ruff 零发现；`just fix` 产生的格式重排随本 task commit 落盘（重排后 ruff format --check 无 diff）
 
 - [ ] **Step 5: Commit**
 
@@ -1187,7 +1224,7 @@ git commit -m "feat(tools): report_longitudinal failure taxonomy (spec #68 T3)"
 ### Task 4: 观测面——ledger 按章聚合、truth 增长、coverage 披露、taxonomy 并网
 
 **Files:**
-- Modify: `tools/report_longitudinal.py`（追加观测节 + `evaluate`/`_trend_block` 并网扩展；文件头追加 `from datetime import datetime` 与 `from shenbi.cost.ledger import TokenLedger`）
+- Modify: `tools/report_longitudinal.py`（追加观测节 + `evaluate` 并网扩展；文件头追加 `from datetime import datetime` 与 `from shenbi.cost.ledger import TokenLedger`——`_trend_block` 自 T2 起即四元组，本 task 不改其签名）
 - Create: `tests/unit/test_report_longitudinal_report.py`
 
 **Interfaces:**
@@ -1195,7 +1232,7 @@ git commit -m "feat(tools): report_longitudinal failure taxonomy (spec #68 T3)"
 - Produces:
   - `def ledger_stats(project_dir: Path, chapters: list[int], cjk_by_ch: dict[int, int]) -> dict[str, Any]`——`{"per_chapter": [...], "skipped_rows": int, "chapters_covered": int}`；skipped_rows = 非空行数 − yield 数；wall_clock = 章内首末 timestamp 差；attempts = max(attempt)
   - `def truth_growth(project_dir: Path) -> dict[str, Any]`——`{"current": [...], "snapshots": [...], "note": str}`（条件性 + 覆盖度注记）
-  - `evaluate()` 返回 dict 定稿追加 `coverage`/`taxonomy`/`scalability`/`drift_findings` 四键（`_trend_block` 扩为四元组返回，findings 一并带出）
+  - `evaluate()` 返回 dict 定稿追加 `coverage`/`taxonomy`/`scalability` 三键（`drift_findings` 自 T2 已在）
 
 - [ ] **Step 1: 写失败测试**（`tests/unit/test_report_longitudinal_report.py` 新建）
 
@@ -1298,7 +1335,7 @@ class TestTruthGrowth:
 Run: `uv run pytest tests/unit/test_report_longitudinal_report.py -q`
 Expected: FAIL（`ImportError: ledger_stats`）
 
-- [ ] **Step 3: 实现**（追加到 `tools/report_longitudinal.py`；`_trend_block` 改四元组 `(reasons, disclosures, block, findings)`、`evaluate` 组装观测三键后统一 return）
+- [ ] **Step 3: 实现**（追加到 `tools/report_longitudinal.py`；`evaluate` 组装观测三键后统一 return）
 
 ```python
 # ---------------------------------------------------------------------------
@@ -1353,8 +1390,11 @@ def ledger_stats(project_dir: Path, chapters: list[int], cjk_by_ch: dict[int, in
 
 
 def truth_growth(project_dir: Path) -> dict[str, Any]:
-    """Truth-file sizes now + snapshot faces when present (conditional: the
-    automatic snapshot was removed by spec #26 path 3 — coverage disclosed)."""
+    """Truth-file sizes now + snapshot faces when present.
+
+    Conditional: the automatic snapshot was removed by spec #26 path 3 —
+    coverage disclosed.
+    """
     truth = project_dir / "truth"
     current = (
         [{"file": p.name, "bytes": p.stat().st_size} for p in sorted(truth.glob("*.md"))]
@@ -1373,7 +1413,7 @@ def truth_growth(project_dir: Path) -> dict[str, Any]:
     return {"current": current, "snapshots": snapshot_files, "note": note}
 ```
 
-`evaluate()` 末段替换为（观测 + taxonomy 并网；`_trend_block` 返回值扩为四元组）：
+`evaluate()` 末段替换为（观测 + taxonomy 并网）：
 
 ```python
     # observations + coverage + taxonomy 并网（T4）
@@ -1396,10 +1436,7 @@ def truth_growth(project_dir: Path) -> dict[str, Any]:
     verdict = "fail" if reasons else "pass"
     ...
     return {
-        ...(既有键)...,
-        "drift_findings": [
-            {"kind": f.kind.value, "dim": f.dim, "detail": f.detail} for f in findings
-        ],
+        ...(既有键 — 含 T2 已落的 drift_findings)...,
         "taxonomy": {
             "heatmap": [
                 {"chapter": ch, "category": cat, "count": n}
@@ -1426,7 +1463,7 @@ def truth_growth(project_dir: Path) -> dict[str, Any]:
 - [ ] **Step 4: 跑测试确认通过 + T2 回归 + lint 面**
 
 Run: `uv run pytest tests/unit/test_report_longitudinal_report.py tests/unit/test_report_longitudinal.py -q && uv run ruff check tools/report_longitudinal.py && just fix`
-Expected: PASS + ruff 零发现 + just fix 无 diff
+Expected: PASS + ruff 零发现；`just fix` 产生的格式重排随本 task commit 落盘（重排后 ruff format --check 无 diff）
 
 - [ ] **Step 5: Commit**
 
@@ -1564,12 +1601,12 @@ def render_markdown(report: dict[str, Any]) -> str:
             "", "## 扩展性（每章）", "",
             "| 章 | 成本$ | 墙钟s | 万字成本$ | 派发尝试 |", "|---|---|---|---|---|",
         ]
-        lines += [
-            f"| {e['chapter']} | {e['cost_usd']:.4f} | {e['wall_clock_s']} | "
-            f"{e['cost_per_10k'] if e['cost_per_10k'] is not None else '-'} | "
-            f"{e['attempts']} |"
-            for e in scal
-        ]
+        for e in scal:
+            cpk = f"{e['cost_per_10k']:.6f}" if e["cost_per_10k"] is not None else "-"
+            lines.append(
+                f"| {e['chapter']} | {e['cost_usd']:.4f} | {e['wall_clock_s']} | "
+                f"{cpk} | {e['attempts']} |"
+            )
     lines += [
         "", f"> schema: {report['schema']}; 真相增长: "
         f"{report['scalability']['truth_growth']['note']}",
@@ -1615,7 +1652,7 @@ if __name__ == "__main__":
 - [ ] **Step 4: 跑测试确认通过 + lint 面**
 
 Run: `uv run pytest tests/unit/test_report_longitudinal_report.py -q && uv run ruff check tools/report_longitudinal.py && just fix`
-Expected: PASS + ruff 零发现 + just fix 无 diff
+Expected: PASS + ruff 零发现；`just fix` 产生的格式重排随本 task commit 落盘（重排后 ruff format --check 无 diff）
 
 - [ ] **Step 5: Commit**
 
@@ -1748,3 +1785,11 @@ git commit -m "feat(justfile): e2e-report/e2e-canary recipes (spec #68 T6)"
 - C6 lint/type 面：pyproject per-file-ignores 四条登记进 T1 Files（RUF001-003 同 contracts/ 先例 + 测试 D 豁免同 tests/unit/audit/ 先例）；全部公共函数/类 docstring；泛型参数化；`zip(strict=True)`；`pytest.approx` 替代手搓 helper（PLW1641 消除）；`evaluate` 拆 `_completeness`/`_quality_reasons`/`_trend_block` 三 helper（PLR0912/0915 面）；E501 长行拆分；每 task Step 4 加 ruff/just-fix 验证
 - I1 nonnumeric 测试随 C2 修复变得有效（补 `2 in rows` 断言）
 - M：render_markdown 压缩三元组改完整四列行；`_mean` 参数注解；escalations 参数经 evaluate 级测试行使（`test_back_escalation_cap_fails_trend`）；canary rc 保留 + 提示可达；Produces 签名统一 `dict[str, Any]`
+
+### 阶段 5 轮 3 修复（3C/1I/5M · 2026-09-21 · 组装实测 56/57 过）
+
+- C1 escalation-cap 测试改零基线变体（删 ch1 条目——原 fixture 2>2 恒 False 永不触发；零基线同时覆盖 spec 零基线语义 + chapter=None 披露断言 + N=3 退化注记断言）
+- C2 ruff 面代码修复优先（对齐 tools/** 现行无 D 豁免先例）：`MIN_SEGMENTS` 常量（PLR2004）、`__init__` docstring（D107）、多行 docstring 摘要后空行（D205×5）、`import re` 移至 T3（F401 时间陷阱——T1 的 just fix 会剥掉它而 T3 用到）；测试 per-file-ignores 补 D209/D403（测试目录 D 豁免集既有先例）；Step 4 期望改「格式重排随 commit 落盘」
+- C3 basedpyright：`escalations: list[dict[str, Any]]`（测试局部 `from typing import Any`）、删冗余 isinstance（类型契约权威）、`seg_means` 显式循环 + `row` 绑定（收窄 float | None）
+- I1 `n_done < 6` 退化注记进 disclosures（canary 分辨率最低，spec §1 报告注明）+ 断言
+- M：`checkpoint_counts` 按段计数补齐（spec §4 分段 checkpoint/escalation 计数）、`_trend_block` 自 T2 即四元组（消 T4 占位漂移）、cost_per_10k 渲染 `:.6f`
