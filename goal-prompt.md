@@ -1,6 +1,7 @@
 ## 目标
 
 > **历史快照（2026-06-13 目标冻结版）**，现状以 `AGENTS.md` / `docs/superpowers/specs/INDEX.md` 为准；下列计数为 2026-09-13 现势校正。
+> **2026-09-21**：验收层已由 spec #68（`docs/superpowers/specs/2026-09-21-poc-e2e-longitudinal-acceptance.md`）接替——纵向判据 / 失败分类学 / 扩展性观测以该 spec 为准；本文件的 T1/T2/T3 执行协议与三不原则继续有效。
 
 从 `command-to-give.md` 的执行协议出发，推进 Shenbi 三层测试框架全量执行+T1+T2+T3，产出基于 `outline-example.md`（星火燃穹）的真实完整的 20 万字小说文件。
 
