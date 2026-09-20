@@ -218,3 +218,21 @@ class TestCliEndToEnd:
         assert main([str(tmp_path)]) == 2
         assert "novel.json" in capsys.readouterr().err
         assert not (tmp_path / "metrics").exists()  # data-error 不写盘（fail-closed）
+
+
+class TestJustfileRecipes:
+    """recipe 在场 + 语义三要素 + check 不调用。"""
+
+    def test_e2e_recipes_present_and_semantics_documented(self):
+        justfile = Path(__file__).resolve().parent.parent.parent / "justfile"
+        text = justfile.read_text(encoding="utf-8")
+        assert "e2e-report" in text and "e2e-canary" in text
+        assert "#!/usr/bin/env bash" in text.split("e2e-report")[1][:200]  # shebang 形式
+        canary_block = text.split("e2e-canary")[1][:900]
+        assert "checkpoint" in canary_block and "pipeline-review" in canary_block
+
+    def test_check_does_not_invoke_e2e(self):
+        justfile = Path(__file__).resolve().parent.parent.parent / "justfile"
+        text = justfile.read_text(encoding="utf-8")
+        check_block = text.split("\ncheck:")[1].split("\n\n")[0] if "\ncheck:" in text else ""
+        assert "e2e-report" not in check_block and "e2e-canary" not in check_block
