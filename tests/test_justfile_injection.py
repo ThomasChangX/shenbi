@@ -104,6 +104,7 @@ EXPECTED_CALLS: dict[str, list[list[str]]] = {
         ["/tmp/d", "approve", "needs work; fix it"],
     ],
     "pipeline-resume": [["/tmp/dir $(touch pwned-cmdsub)"]],
+    "e2e-report": [["/tmp/d; touch pwned"]],
 }
 
 

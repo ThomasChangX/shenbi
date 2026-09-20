@@ -150,3 +150,26 @@ pipeline-review project_dir decision feedback="":
 # Resume pipeline execution
 pipeline-resume project_dir:
     uv run pipeline resume "$1"
+
+# Longitudinal acceptance report: exit 0 pass / 1 fail / 2 data error (spec #68).
+# Shebang form so the tool's tri-state exit code propagates (linewise may collapse 2→1).
+# "$1" positional — NEVER {{dir}} interpolation (recipe covenant, spec #64 C26/F1031).
+e2e-report dir:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    exec uv run python tools/report_longitudinal.py "$1"
+
+# Canary fast loop: 3-chapter/3000-word seed through run_pipeline.sh.
+# Stops at first checkpoint (exit 3) — NEVER auto-approves; resolve manually with
+# `just pipeline-review <dir> <decision>` then re-run. NOT in `just check` (paid dispatch).
+# Expected retry noise: seed ~1000 words/chapter < G4 floor 3000/chapter — every chapter
+# walks the G4 fail→corrective-retry→auto-continue path (doubled drafting dispatch cost).
+e2e-canary:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    dir="novel-canary-$(date +%Y%m%d-%H%M%S)"
+    uv run pipeline init tests/fixtures/canary-3-chapter-seed.md --project-dir "$dir"
+    rc=0
+    ./run_pipeline.sh "$dir" || rc=$?
+    echo "run_pipeline.sh exited $rc — if 3 (blocked checkpoint), run 'just pipeline-review $dir <decision>' then re-run e2e-canary"
+    exit "$rc"
