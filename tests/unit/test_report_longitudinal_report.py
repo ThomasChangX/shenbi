@@ -155,3 +155,65 @@ class TestEvaluateIntegration:
         assert report["taxonomy"]["unclassified"] == 0
         assert report["verdict"] == "pass" and report["exit_code"] == 0
         assert report["reasons"] == []
+
+
+class TestCliEndToEnd:
+    """CLI 三态 + 双报告落盘。"""
+
+    def test_pass_project_writes_both_reports_exit0(self, tmp_path):
+        from tests.unit.test_report_longitudinal import _mk_project
+        from tools.report_longitudinal import main
+
+        _mk_project(
+            tmp_path,
+            chapters=[1, 2, 3],
+            scores={1: 92, 2: 91, 3: 90},
+            target=84000,
+            cjk_per_ch=28000,
+        )
+        rc = main([str(tmp_path)])
+        assert rc == 0
+        md = tmp_path / "metrics" / "longitudinal-report.md"
+        js = tmp_path / "metrics" / "longitudinal-report.json"
+        assert md.exists() and js.exists()
+        data = json.loads(js.read_text(encoding="utf-8"))
+        assert data["schema"] == "shenbi-longitudinal-verdict-v1"
+        assert data["verdict"] == "pass" and data["exit_code"] == 0
+        assert set(data) >= {
+            "verdict",
+            "exit_code",
+            "reasons",
+            "disclosures",
+            "n_target",
+            "n_done",
+            "segments",
+            "volume",
+            "per_chapter",
+            "trend",
+            "drift_findings",
+            "coverage",
+            "taxonomy",
+            "scalability",
+            "pending_checkpoint",
+        }
+        assert "责任子系统" in md.read_text(encoding="utf-8")
+
+    def test_fail_exit1(self, tmp_path):
+        from tests.unit.test_report_longitudinal import _mk_project
+        from tools.report_longitudinal import main
+
+        _mk_project(
+            tmp_path,
+            chapters=[1, 2, 3],
+            scores={1: 95, 2: 80, 3: 79},
+            target=84000,
+            cjk_per_ch=28000,
+        )
+        assert main([str(tmp_path)]) == 1
+
+    def test_data_error_exit2(self, tmp_path, capsys):
+        from tools.report_longitudinal import main
+
+        (tmp_path / "novel.json").write_text("{ broken", encoding="utf-8")
+        assert main([str(tmp_path)]) == 2
+        assert "novel.json" in capsys.readouterr().err

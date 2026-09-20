@@ -10,8 +10,10 @@ on missing data).
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -641,3 +643,117 @@ def truth_growth(project_dir: Path) -> dict[str, Any]:
         else f"快照面覆盖 {len(snapshot_files)} 个 truth 文件"
     )
     return {"current": current, "snapshots": snapshot_files, "note": note}
+
+
+# ---------------------------------------------------------------------------
+# Rendering + CLI (spec #68 §1 判定输出 / §2 输出)
+# ---------------------------------------------------------------------------
+
+
+def render_markdown(report: dict[str, Any]) -> str:
+    """Human-readable report: curves, heatmap, routing, coverage, reasons."""
+    t = report["trend"]
+    seg_span = {name: (f"{v[0]}–{v[-1]}" if v else "-") for name, v in report["segments"].items()}
+    lines = [
+        "# Longitudinal Report",
+        "",
+        f"- **verdict**: {report['verdict']} (exit {report['exit_code']})",
+        f"- **N**: target={report['n_target']} done={report['n_done']}",
+        f"- **保量**: {report['volume']['cjk_total']} / "
+        f"{report['volume']['target_word_count']} (ratio {report['volume']['ratio']:.3f})",
+        "",
+        "## 三段曲线",
+        "",
+        "| 段 | 章节 | resonance 均值 | escalation 计数 |",
+        "|---|---|---|---|",
+    ]
+    for name in ("front", "mid", "back"):
+        m = t["segment_resonance_means"].get(name)
+        mean_cell = f"{m:.1f}" if m is not None else "-"
+        lines.append(
+            f"| {name} | {seg_span[name]} | {mean_cell} | {t['escalation_counts'].get(name, 0)} |"
+        )
+    lines += ["", "## 类别×章节热力图", ""]
+    if report["taxonomy"]["heatmap"]:
+        lines += ["| 章节 | 类别 | 计数 |", "|---|---|---|"]
+        lines += [
+            f"| {e['chapter']} | {e['category']} | {e['count']} |"
+            for e in report["taxonomy"]["heatmap"]
+        ]
+    else:
+        lines.append("（无分类命中）")
+    lines += ["", f"未分类发现: {report['taxonomy']['unclassified']}", "", "## 责任子系统路由", ""]
+    lines += [f"- {cat} → {route}" for cat, route in report["taxonomy"]["routing"].items()]
+    cov = report["coverage"]
+    lines += [
+        "",
+        "## Coverage 披露",
+        "",
+        f"- resonance 行数: {cov['resonance_rows'][0]}/{cov['resonance_rows'][1]}",
+        f"- audits 章覆盖: {cov['audits_chapters'][0]}/{cov['audits_chapters'][1]}"
+        f"（raw={report['taxonomy']['audit_sources']['raw']}, "
+        f"aggregate 回退={report['taxonomy']['audit_sources']['aggregate']}, "
+        f"无={report['taxonomy']['audit_sources']['none']}）",
+        f"- ledger 章覆盖: {cov['ledger_chapters'][0]}/{cov['ledger_chapters'][1]}"
+        f"（跳行 {cov['ledger_skipped_rows']}）",
+        f"- 分类命中: {cov['classified'][0]}/{cov['classified'][1]}",
+    ]
+    if report["reasons"]:
+        lines += ["", "## Fail 原因", ""] + [f"- {r}" for r in report["reasons"]]
+    if report["disclosures"]:
+        lines += ["", "## 披露", ""] + [f"- {d}" for d in report["disclosures"]]
+    scal = report["scalability"]["per_chapter"]
+    if scal:
+        lines += [
+            "",
+            "## 扩展性（每章）",
+            "",
+            "| 章 | 成本$ | 墙钟s | 万字成本$ | 派发尝试 |",
+            "|---|---|---|---|---|",
+        ]
+        for e in scal:
+            cpk = f"{e['cost_per_10k']:.6f}" if e["cost_per_10k"] is not None else "-"
+            lines.append(
+                f"| {e['chapter']} | {e['cost_usd']:.4f} | {e['wall_clock_s']} | "
+                f"{cpk} | {e['attempts']} |"
+            )
+    lines += [
+        "",
+        f"> schema: {report['schema']}; 真相增长: {report['scalability']['truth_growth']['note']}",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def write_reports(project_dir: Path, report: dict[str, Any]) -> tuple[Path, Path]:
+    """Write metrics/longitudinal-report.{md,json} under the project dir."""
+    metrics = project_dir / "metrics"
+    metrics.mkdir(parents=True, exist_ok=True)
+    md = metrics / "longitudinal-report.md"
+    js = metrics / "longitudinal-report.json"
+    js.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    md.write_text(render_markdown(report), encoding="utf-8")
+    return md, js
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI entry: exit 0 pass / 1 fail / 2 data error."""
+    parser = argparse.ArgumentParser(description="Longitudinal acceptance report (spec #68)")
+    parser.add_argument("project_dir", type=Path)
+    args = parser.parse_args(argv)
+    try:
+        report = evaluate(args.project_dir)
+    except LongitudinalDataError as exc:
+        print(f"data error: {exc.reason}", file=sys.stderr)
+        return 2
+    write_reports(args.project_dir, report)
+    print(
+        f"verdict: {report['verdict']} ({report['exit_code']}) — "
+        f"{args.project_dir / 'metrics' / 'longitudinal-report.json'}"
+    )
+    for r in report["reasons"]:
+        print(f"  fail: {r}")
+    return report["exit_code"]
+
+
+if __name__ == "__main__":
+    sys.exit(main())
