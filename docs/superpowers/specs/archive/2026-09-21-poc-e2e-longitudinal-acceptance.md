@@ -1,4 +1,4 @@
-> **Date:** 2026-09-21 | **Status:** Design（Revised 2026-09-21 · 价值门两轮驳斥 + 设计审查五轮收敛） | **Severity:** 🟠 P1 | **方法:** 零 LLM 确定性工程——tools/ 只读判读层，`src/shenbi/` 运行时零改动
+> **Date:** 2026-09-21 | **Status:** Done (PR #237)（Revised 2026-09-21 · 价值门两轮驳斥 + 设计审查五轮收敛） | **Severity:** 🟠 P1 | **方法:** 零 LLM 确定性工程——tools/ 只读判读层，`src/shenbi/` 运行时零改动
 > **系列:** POC E2E 验收层（源自 goal-prompt.md 2026-09-21 复盘） | **依赖:** 无（数据源均已落盘，见 §2） | **范围:** 纵向验收判据、`tools/report_longitudinal.py`、失败分类学映射、扩展性观测、justfile e2e recipe、INDEX/goal-prompt 登记 | **核心洞察:** 采集层已齐且**部分判读已有**——逐章审计、逐章 resonance 权威序列（`truth/resonance_trend.md`）、运行时漂移检测（`compute_drift.py`）、逐派发 TokenLedger 都在写盘/在跑——缺的是**验收判定层**：把数据变成 exit-code verdict 的纵向判据 + 失败分类学 + 扩展性观测；现行验收（`tests/tiers/acceptance.json` = `{"t1":94,"t2":94,"t3":94}`）是快照式层均分，对「开头好、中后期劣化」的长度依赖型失效无验收级判别力（运行时漂移引导 ≠ 验收判定）
 
 # POC E2E 纵向验收（poc-e2e-longitudinal-acceptance）
