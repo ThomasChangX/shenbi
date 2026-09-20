@@ -13,9 +13,11 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from shenbi.cost.ledger import TokenLedger
 from shenbi.gates.shared import word_count_md
 from shenbi.pipeline.audit_aggregate import FindingUnit, extract_finding_units
 from shenbi.pipeline.chapter_loop import committed_chapter_anchor
@@ -518,3 +520,85 @@ def classify(units: list[FindingUnit]) -> tuple[dict[str, int], int]:
         else:
             unclassified += 1
     return counts, unclassified
+
+
+def ledger_stats(
+    project_dir: Path, chapters: list[int], cjk_by_ch: dict[int, int]
+) -> dict[str, Any]:
+    """Per-chapter cost/wall-clock/attempts from cost/token-ledger.jsonl.
+
+    skipped_rows = non-blank lines minus yielded records — iter_records
+    silently drops corrupt/malformed rows; intra-chapter row loss is
+    invisible to chapter coverage, so it is disclosed separately.
+    """
+    path = project_dir / "cost" / "token-ledger.jsonl"
+    per: dict[int, dict[str, Any]] = {}
+    covered: set[int] = set()
+    skipped = 0
+    if path.exists():
+        non_blank = sum(1 for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip())
+        yielded = 0
+        for rec in TokenLedger(project_dir).iter_records():
+            yielded += 1
+            e = per.setdefault(
+                rec.chapter,
+                {"cost": 0.0, "first": rec.timestamp, "last": rec.timestamp, "attempts": 0},
+            )
+            e["cost"] += rec.estimated_cost_usd
+            e["first"] = min(e["first"], rec.timestamp)
+            e["last"] = max(e["last"], rec.timestamp)
+            e["attempts"] = max(e["attempts"], rec.attempt)
+            covered.add(rec.chapter)
+        skipped = non_blank - yielded
+    out: list[dict[str, Any]] = []
+    for ch in chapters:
+        e = per.get(ch)
+        if not e:
+            continue
+        cjk = cjk_by_ch.get(ch, 0)
+        try:
+            wall = (
+                datetime.fromisoformat(e["last"]) - datetime.fromisoformat(e["first"])
+            ).total_seconds()
+        except (ValueError, TypeError):
+            wall = None
+        out.append(
+            {
+                "chapter": ch,
+                "cost_usd": round(e["cost"], 6),
+                "wall_clock_s": wall,
+                "cjk_chars": cjk,
+                "cost_per_10k": round(e["cost"] / (cjk / 10000), 8) if cjk else None,
+                "attempts": e["attempts"],
+            }
+        )
+    return {"per_chapter": out, "skipped_rows": skipped, "chapters_covered": len(covered)}
+
+
+def truth_growth(project_dir: Path) -> dict[str, Any]:
+    """Truth-file sizes now + snapshot faces when present.
+
+    Conditional: the automatic snapshot was removed by spec #26 path 3 —
+    coverage disclosed.
+    """
+    truth = project_dir / "truth"
+    current = (
+        [{"file": p.name, "bytes": p.stat().st_size} for p in sorted(truth.glob("*.md"))]
+        if truth.is_dir()
+        else []
+    )
+    snaps = project_dir / "snapshots"
+    snapshot_files = (
+        [
+            {"snapshot": p.name, "bytes": p.stat().st_size}
+            for p in sorted(snaps.rglob("truth/*.md"))[:200]
+        ]
+        if snaps.is_dir()
+        else []
+    )
+    note = (
+        "逐章历史快照由条件技能步骤写，不保证逐章落盘（spec #26 path 3）——按实际存在面输出"
+        if not snapshot_files
+        else f"快照面覆盖 {len(snapshot_files)} 个 truth 文件"
+    )
+    return {"current": current, "snapshots": snapshot_files, "note": note}
