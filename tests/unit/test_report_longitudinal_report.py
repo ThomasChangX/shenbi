@@ -105,3 +105,46 @@ class TestTruthGrowth:
             "pending_hooks.md",
         }
         assert all(e["bytes"] > 0 for e in out["current"])
+
+
+class TestTruthGrowthSnapshots:
+    """快照在场分支：条目带快照身份（相对路径）+ 覆盖注记。"""
+
+    def test_snapshot_entries_carry_identity(self, tmp_path):
+        from tools.report_longitudinal import truth_growth
+
+        for snap in ("chapter-001", "chapter-002"):
+            d = tmp_path / "snapshots" / snap / "truth"
+            d.mkdir(parents=True)
+            (d / "current_state.md").write_text("# 状态\n" + "x" * 100, encoding="utf-8")
+        out = truth_growth(tmp_path)
+        assert {e["snapshot"] for e in out["snapshots"]} == {
+            "snapshots/chapter-001/truth/current_state.md",
+            "snapshots/chapter-002/truth/current_state.md",
+        }
+        assert "快照面覆盖 2" in out["note"]
+
+
+class TestEvaluateIntegration:
+    """T4 并网：三键在场 + 判定面与 T2 字节不变。"""
+
+    def test_observation_keys_present_and_verdict_untouched(self, tmp_path):
+        from tests.unit.test_report_longitudinal import _mk_project
+        from tools.report_longitudinal import evaluate
+
+        _mk_project(
+            tmp_path,
+            chapters=[1, 2, 3],
+            scores={1: 92, 2: 91, 3: 90},
+            target=84000,
+            cjk_per_ch=28000,
+        )
+        report = evaluate(tmp_path)
+        assert set(report) >= {"taxonomy", "scalability", "coverage"}
+        assert report["coverage"]["resonance_rows"] == [3, 3]
+        assert report["coverage"]["audits_chapters"] == [0, 3]  # audits/ 不存在 → none
+        assert report["coverage"]["ledger_chapters"] == [0, 3]
+        assert report["taxonomy"]["audit_sources"] == {"raw": 0, "aggregate": 0, "none": 3}
+        assert report["taxonomy"]["unclassified"] == 0
+        assert report["verdict"] == "pass" and report["exit_code"] == 0
+        assert report["reasons"] == []

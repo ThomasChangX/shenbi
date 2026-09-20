@@ -373,6 +373,24 @@ def evaluate(project_dir: Path) -> dict[str, Any]:
             f"{(n_done + 2) // 3} 章——分辨率最低（canary 退化情形，spec §1 报告注明）"
         )
 
+    # observations + coverage + taxonomy 并网（T4）
+    chapters_list = list(range(1, n_done + 1))
+    cjk_by_ch = {v.chapter: v.cjk_chars for v in verdicts}
+    audit_sources = {"raw": 0, "aggregate": 0, "none": 0}
+    heatmap: dict[tuple[int, str], int] = {}
+    unclassified_total = 0
+    classified_total = 0
+    for v in verdicts:
+        units, source = load_audit_units(project_dir, v.chapter)
+        audit_sources[source] += 1
+        counts, uncl = classify(units)
+        unclassified_total += uncl
+        classified_total += sum(counts.values())
+        for cat, n in counts.items():
+            if n:
+                heatmap[(v.chapter, cat)] = n
+    led = ledger_stats(project_dir, chapters_list, cjk_by_ch)
+
     verdict = "fail" if reasons else "pass"
     cjk_total = sum(v.cjk_chars for v in verdicts)
     ratio = cjk_total / target_wc if target_wc else 0.0
@@ -406,6 +424,26 @@ def evaluate(project_dir: Path) -> dict[str, Any]:
         "drift_findings": [
             {"kind": f.kind.value, "dim": f.dim, "detail": f.detail} for f in findings
         ],
+        "taxonomy": {
+            "heatmap": [
+                {"chapter": ch, "category": cat, "count": n}
+                for (ch, cat), n in sorted(heatmap.items())
+            ],
+            "unclassified": unclassified_total,
+            "routing": SUBSYSTEM_ROUTES,
+            "audit_sources": audit_sources,
+        },
+        "scalability": {
+            "per_chapter": led["per_chapter"],
+            "truth_growth": truth_growth(project_dir),
+        },
+        "coverage": {
+            "resonance_rows": [len(rows), n_done],
+            "audits_chapters": [n_done - audit_sources["none"], n_done],
+            "ledger_chapters": [led["chapters_covered"], n_done],
+            "ledger_skipped_rows": led["skipped_rows"],
+            "classified": [classified_total, classified_total + unclassified_total],
+        },
         "pending_checkpoint": pending or None,
     }
 
@@ -550,6 +588,7 @@ def ledger_stats(
             e["attempts"] = max(e["attempts"], rec.attempt)
             covered.add(rec.chapter)
         skipped = non_blank - yielded
+    covered &= set(chapters)
     out: list[dict[str, Any]] = []
     for ch in chapters:
         e = per.get(ch)
@@ -590,7 +629,7 @@ def truth_growth(project_dir: Path) -> dict[str, Any]:
     snaps = project_dir / "snapshots"
     snapshot_files = (
         [
-            {"snapshot": p.name, "bytes": p.stat().st_size}
+            {"snapshot": str(p.relative_to(project_dir)), "bytes": p.stat().st_size}
             for p in sorted(snaps.rglob("truth/*.md"))[:200]
         ]
         if snaps.is_dir()
