@@ -155,6 +155,18 @@ def load_state_dict(project_dir: Path) -> dict[str, Any]:
         raise LongitudinalDataError(f"{path}: broken JSON ({exc})") from exc
     if not isinstance(state, dict):
         raise LongitudinalDataError(f"{path}: not a JSON object")
+    loop = state.get("chapter_loop")
+    if loop is not None and not isinstance(loop, dict):
+        raise LongitudinalDataError(f"{path}: chapter_loop is not an object")
+    states = (loop or {}).get("chapter_states")
+    if states is not None and not isinstance(states, dict):
+        raise LongitudinalDataError(f"{path}: chapter_states is not an object")
+    hist = state.get("checkpoint_history")
+    if hist is not None and not isinstance(hist, list):
+        raise LongitudinalDataError(f"{path}: checkpoint_history is not a list")
+    pending = state.get("pending_checkpoint")
+    if pending is not None and not isinstance(pending, dict):
+        raise LongitudinalDataError(f"{path}: pending_checkpoint is not an object")
     return state
 
 

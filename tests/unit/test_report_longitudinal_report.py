@@ -236,3 +236,30 @@ class TestJustfileRecipes:
         text = justfile.read_text(encoding="utf-8")
         check_block = text.split("\ncheck:")[1].split("\n\n")[0] if "\ncheck:" in text else ""
         assert "e2e-report" not in check_block and "e2e-canary" not in check_block
+
+
+class TestMalformedStateFacesExit2:
+    """PR #237 Copilot：malformed state 结构 → exit-2 而非 AttributeError 崩溃。"""
+
+    def test_chapter_loop_non_dict_is_data_error(self, tmp_path):
+        from tools.report_longitudinal import LongitudinalDataError, load_state_dict
+
+        (tmp_path / "pipeline-state.json").write_text('{"chapter_loop": "oops"}', encoding="utf-8")
+        with pytest.raises(LongitudinalDataError, match="chapter_loop"):
+            load_state_dict(tmp_path)
+
+    def test_checkpoint_history_non_list_is_data_error(self, tmp_path):
+        from tools.report_longitudinal import LongitudinalDataError, load_state_dict
+
+        (tmp_path / "pipeline-state.json").write_text('{"checkpoint_history": 7}', encoding="utf-8")
+        with pytest.raises(LongitudinalDataError, match="checkpoint_history"):
+            load_state_dict(tmp_path)
+
+    def test_cli_maps_malformed_state_to_exit2(self, tmp_path):
+        from tools.report_longitudinal import main
+
+        (tmp_path / "novel.json").write_text(
+            '{"target_word_count": 3000, "total_chapters": 3}', encoding="utf-8"
+        )
+        (tmp_path / "pipeline-state.json").write_text('{"chapter_loop": []}', encoding="utf-8")
+        assert main([str(tmp_path)]) == 2
