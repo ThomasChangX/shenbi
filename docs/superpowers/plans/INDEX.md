@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-21（spec #68 plan 创建 ✅ ready——POC E2E 纵向验收判读层，6 task）
-> **活跃 plan 数**：1 | **已归档**：124（见 `archive/`）
+> **最后更新**：2026-09-21（spec #68 plan Done 随 PR #237 归档——6 task 全执行，125 份归档）
+> **活跃 plan 数**：0 | **已归档**：125（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,11 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-### 2026-09-21 · spec68-longitudinal-acceptance
-
-- **文件**：`2026-09-21-spec68-longitudinal-acceptance.md`
-- **spec**：#68（POC E2E 纵向验收） | **状态**：✅ ready | **task 数**：6（解析层/判定核心/分类学/观测/CLI/justfile 接线）
-- **方法**：零 LLM 确定性工程——`tools/report_longitudinal.py` 单文件 + 三测试文件 + justfile recipe；零 `src/shenbi/` 修改
+（无）
 
 ## 待执行的 spec → plan 映射
 
