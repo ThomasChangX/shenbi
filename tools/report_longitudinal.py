@@ -11,11 +11,13 @@ on missing data).
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from shenbi.gates.shared import word_count_md
+from shenbi.pipeline.audit_aggregate import FindingUnit, extract_finding_units
 from shenbi.pipeline.chapter_loop import committed_chapter_anchor
 from shenbi.skill_utils.drift_detection.compute_drift import (
     DriftFinding,
@@ -404,3 +406,115 @@ def evaluate(project_dir: Path) -> dict[str, Any]:
         ],
         "pending_checkpoint": pending or None,
     }
+
+
+# ---------------------------------------------------------------------------
+# Failure taxonomy (spec #68 §3) — deterministic keyword mapping, raw-glob priority
+# ---------------------------------------------------------------------------
+
+TAXONOMY_RULES: dict[str, re.Pattern[str]] = {
+    "连续性断裂": re.compile(r"连续性|前后矛盾|与前文|时间线|断裂|不一致"),
+    "人物漂移": re.compile(r"人物|人设|性格|语气|角色.*(不符|漂移|崩)|OOC"),
+    "世界规则违反": re.compile(r"世界观|设定.*(违反|冲突)|规则|体系|灵能.*(矛盾|冲突)"),
+    "伏笔丢失": re.compile(r"伏笔|铺垫.*(丢|断)|呼应.*缺失|回收"),
+    "风格衰减": re.compile(r"风格|文笔|笔力|语言.*(退化|衰减)|了字密度|句式"),
+    "重复": re.compile(r"重复|冗余|雷同|复用.*过度"),
+    "节奏崩溃": re.compile(r"节奏|拖沓|仓促|结构.*失衡|密度"),
+    "敏感性": re.compile(r"敏感|安全|合规|暴力|未成年"),
+}
+
+SUBSYSTEM_ROUTES: dict[str, str] = {
+    "连续性断裂": "state-settling + shenbi-review-consistency",
+    "人物漂移": "truth-sync(character_matrix) + shenbi-review-character",
+    "世界规则违反": "truth-sync(world) + shenbi-review-worldbuilding",
+    "伏笔丢失": "foreshadowing-track + shenbi-review-foreshadowing",
+    "风格衰减": "style-learning + shenbi-review-style",
+    "重复": "context-assemble + shenbi-review-repetition",
+    "节奏崩溃": "context-assemble + shenbi-review-pacing",
+    "敏感性": "shenbi-review-safety",
+}
+
+RAW_GLOB_RE = re.compile(r"^chapter-(\d+)-.+\.md$")
+RESONANCE_NAME_RE = re.compile(r"^chapter-\d+-resonance\.md$")  # _RESONANCE_NAME_RE 同语义
+
+
+def merge_units(reports: list[tuple[str, str]]) -> list[FindingUnit]:
+    """Same semantics as write_audit_aggregate's inlined loop (:150-171).
+
+    (severity, text) key dedup + reporters union — without the write.
+    """
+    merged: dict[tuple[str, str], FindingUnit] = {}
+    for name, content in reports:
+        units, _ctx = extract_finding_units(name, content)
+        for u in units:
+            key = (u.severity, u.text)
+            if key in merged:
+                prev = merged[key]
+                merged[key] = FindingUnit(
+                    u.severity,
+                    u.text,
+                    tuple(dict.fromkeys([*prev.reporters, *u.reporters])),
+                )
+            else:
+                merged[key] = u
+    return list(merged.values())
+
+
+def _parse_aggregate_sections(content: str) -> list[FindingUnit]:
+    """Parse the aggregate render format into finding units.
+
+    Sections are `## <SEV> Findings (n)` H2 blocks with severity-stripped
+    bullets (extract_finding_units returns zero on this format). Breaks at
+    the FIRST non-severity H2 — verbatim resonance bodies may contain their
+    own `## ` lines that would re-arm severity.
+    """
+    units: list[FindingUnit] = []
+    sev: str | None = None
+    for line in content.splitlines():
+        m = re.match(r"^## (BLOCKING|CRITICAL|WARNING|ERROR) Findings", line)
+        if m:
+            sev = m.group(1)
+            continue
+        if line.startswith("## "):
+            break  # Resonance 报告/报告上下文等非 severity 分节：终止解析
+        s = line.strip()
+        if sev and s.startswith("- ") and not s.startswith("- 报告方"):
+            units.append(FindingUnit(sev, s.lstrip("- ").strip(), ("aggregate",)))
+    return units
+
+
+def load_audit_units(project_dir: Path, chapter: int) -> tuple[list[FindingUnit], str]:
+    """Load audit findings for one chapter.
+
+    Raw reviewer glob first (resonance reports excluded), aggregate only as
+    empty-glob fallback.
+    """
+    audits = project_dir / "audits"
+    raw = (
+        sorted(
+            p
+            for p in audits.glob(f"chapter-{chapter}-*.md")
+            if RAW_GLOB_RE.match(p.name) and not RESONANCE_NAME_RE.match(p.name)
+        )
+        if audits.is_dir()
+        else []
+    )
+    if raw:
+        return merge_units([(p.name, p.read_text(encoding="utf-8")) for p in raw]), "raw"
+    agg = audits / f"chapter-{chapter}.aggregate.md"
+    if agg.exists():
+        return _parse_aggregate_sections(agg.read_text(encoding="utf-8")), "aggregate"
+    return [], "none"
+
+
+def classify(units: list[FindingUnit]) -> tuple[dict[str, int], int]:
+    """Map finding texts to categories (first-match v1); count unclassified."""
+    counts = dict.fromkeys(TAXONOMY_RULES, 0)
+    unclassified = 0
+    for u in units:
+        hits = [cat for cat, pat in TAXONOMY_RULES.items() if pat.search(u.text)]
+        if hits:
+            counts[hits[0]] += 1  # first-match v1 (rule order = priority)
+        else:
+            unclassified += 1
+    return counts, unclassified
