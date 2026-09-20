@@ -15,8 +15,8 @@
 - **文件**：`2026-09-21-poc-e2e-longitudinal-acceptance.md`
 - **系列**：POC E2E 验收层（源自 goal-prompt.md 2026-09-21 复盘）
 - **状态**：Design | **优先级**：🟠 P1 | **方法**：零 LLM 确定性工程（tools/ 只读判读层，`src/shenbi/` 运行时零改动）
-- **依赖**：无（audit aggregate / resonance trend / TokenLedger 三路数据源均已落盘）
-- **内容**：纵向验收判据 v1（保量 95% + 逐章下限 + 前/中/后趋势条件，第一跑后校准）、`tools/report_longitudinal.py`（纯解析双报告 + verdict exit code）、失败分类学关键字映射（类别×章节热力图 + 责任子系统路由表）、扩展性观测（每万字成本/墙钟、真相文件增长曲线、上下文截断计数）、`just e2e-report` / `just e2e-canary` 接线；v1 不挂 G7 硬门、不动 acceptance.json 层均分
+- **依赖**：无（数据源均已落盘，见 spec §2）
+- **内容**：纵向验收判据 v1（保量 95% + 逐章下限 + 前/中/后趋势条件，第一跑后校准）、`tools/report_longitudinal.py`（纯解析双报告 + verdict exit code 三态）、失败分类学关键字映射（类别×章节热力图 + 责任子系统路由表）、扩展性观测（每万字成本/墙钟、真相文件增长曲线；截断观测 v1 不含）、`just e2e-report` / `just e2e-canary` 接线；v1 不挂 G7 硬门、不动 acceptance.json 层均分
 
 ---
 
