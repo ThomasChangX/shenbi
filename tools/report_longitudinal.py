@@ -287,7 +287,7 @@ def _quality_reasons(verdicts: list[ChapterVerdict], target_wc: int) -> list[str
     reasons: list[str] = []
     cjk_total = sum(v.cjk_chars for v in verdicts)
     if cjk_total < target_wc * VOLUME_RATIO_FLOOR:
-        reasons.append(f"volume {cjk_total} < {target_wc}x95%")
+        reasons.append(f"volume {cjk_total} < {target_wc}x{int(VOLUME_RATIO_FLOOR * 100)}%")
     scored = [v.resonance for v in verdicts if v.resonance is not None]
     mean = _mean(scored)
     reasons.extend(
@@ -329,7 +329,9 @@ def _trend_block(
             reasons.append(f"后段降幅 {back_drop:.1f} > {BACK_DROP_MAX}")
     esc = escalation_counts_by_segment(checkpoint_history, segments)
     if esc["back"] > esc["front"] * BACK_ESCALATION_FACTOR:
-        reasons.append(f"后段 escalation 计数 {esc['back']} > 前段 {esc['front']}x2")
+        reasons.append(
+            f"后段 escalation 计数 {esc['back']} > 前段 {esc['front']}x{BACK_ESCALATION_FACTOR}"
+        )
     if esc["unattributed"]:
         disclosures.append(f"{esc['unattributed']} escalation 事件 chapter=None，排除出分段计数")
     findings = drift_gate(rows, n_done)
@@ -745,11 +747,13 @@ def main(argv: list[str] | None = None) -> int:
     except LongitudinalDataError as exc:
         print(f"data error: {exc.reason}", file=sys.stderr)
         return 2
-    write_reports(args.project_dir, report)
-    print(
-        f"verdict: {report['verdict']} ({report['exit_code']}) — "
-        f"{args.project_dir / 'metrics' / 'longitudinal-report.json'}"
-    )
+    except (OSError, UnicodeDecodeError) as exc:
+        # 损坏（非缺失/空）的观测面文件：traceback 会与 fail 的 exit 1 撞码——
+        # 归一到 data error 2，令三态契约完备（仍不假通过）。
+        print(f"data error: unreadable input artifact: {exc}", file=sys.stderr)
+        return 2
+    _, js = write_reports(args.project_dir, report)
+    print(f"verdict: {report['verdict']} ({report['exit_code']}) — {js}")
     for r in report["reasons"]:
         print(f"  fail: {r}")
     return report["exit_code"]
