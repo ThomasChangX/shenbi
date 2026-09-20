@@ -12,6 +12,8 @@
   - 价值门第二轮：⑥合并复用措辞订正（可复用件 = `extract_finding_units`，回退自写同语义 glue；`write_audit_aggregate` 是写操作不得调用）；⑦resonance_trend 表头前置条件成文；⑧escalation 重置交互 + 增长曲线条件性设计注记
   - 设计审查轮 1（1C/4I/5M 全修）：⑨**截断观测移除**（Critical——截断事件仅 structlog WARN 走 stderr 零持久化，`dispatch_helper.py:311/:787/:795` + `logging.py:52`，按原措辞是 dead-wire；v1 不含，复活条件见 §4）；⑩漂移检测归属订正（`detect_chapter_drift` 仅单调 ≥3 + mean-2σ 两检测，「卷下滑」在 `detect_volume_drift` 消费 `arc_payoff_trend.md`——v1 verdict 只纳前者）；⑪判据边界语义五条钉死（N 来源/分段规则/缺行 fail-closed/频率主源/漂移域，见 §1）；⑫工具自带 `{N}` 键行解析器（`parse_trend` 丢章节键不复用）；⑬exit code 2 = data error；⑭保量字数口径钉死；⑮报告 coverage 披露；⑯「可进 CI」措辞改人工 POC 消费者
   - 设计审查轮 2（0C/3I/5M 全修）：⑰chapter_states 缺章同 fail-closed（中段空洞 `committed_chapter_anchor` 取最大号不暴露）；⑱exit 2 输入面按 verdict 关键输入（novel.json/state/resonance）与观测面输入（ledger/快照→coverage 披露）枚举钉死；⑲pending_checkpoint 非 NONE 披露不计数 + `chapter=None` 事件排除披露；⑳CJK 区间计数口径钉死（U+4E00–U+9FFF，`_check_word_count_bounds` 同口径）；㉑双解析器引用订正（escalation_bridge 为 `parse_resonance_scores`）；㉒漂移转述补「累降 ≥3 分」+ 权威语义归属声明；㉓escalation 零基线注记；㉔canary 目录交接注记
+  - 设计审查轮 3（0C/1I/5M 全修）：㉕保量口径改 `word_count_md`（G4 地板自身口径——剥元节防 ~15% 虚高侵蚀 5% 余量）；㉖重复 `{N}` 键 exit 2；㉗N_done>N_target 披露不 fail + total_chapters=0 同 key 缺失；㉘ledger attempt 不可重置信号入披露；㉙canary 预期重试噪音注记；㉚verdict schema 版本标识留 plan
+  - 设计审查轮 4（0C/2I/5M 全修）：㉛**审计发现输入统一 raw glob 优先**（aggregate 三重缺陷：修订前陈旧性污染责任路由、渲染格式与 `extract_finding_units` 不兼容直跑零命中、内嵌 resonance 正文——aggregate 仅 raw glob 为空时回退且 coverage 标注）；㉜chapter 主文件缺失 fail-closed（第三输入面对称，防 0 字假通过）；㉝「四条件」改「三条件+一项披露」；㉞判定顺序钉死（data-error 先于完整性 fail 先于质量条件）；㉟「频率」残留改「计数」；㊱coverage 补 audits 章覆盖率（审查者 M5 引用线号自误——`AGGREGATE_SUFFIX` 实在 :31，spec 原值正确不改）
 - 与既有裁决的一致性：spec #67 §3 T1108（离线可执行模式不做）不受影响——本 spec 的报告工具只读已落盘产物，无派发、无 LLM、无新生产面，与「认可的离线技术 = 只读面 + PATH-stub」先例同族
 
 ## 0. 问题定义
@@ -24,7 +26,7 @@ goal-prompt.md（2026-06-13 冻结的历史快照，正文 append-only 不改）
 
 ## 1. 纵向验收判据（v1 初值，第一跑后校准）
 
-判定对象：一个 pipeline 项目目录（`pipeline init` 产物）。四条件全部满足 = pass：
+判定对象：一个 pipeline 项目目录（`pipeline init` 产物）。**三条件全部满足 = pass**（另有一项不可重置信号披露，不进判据）：
 
 - **保量**：`chapters/chapter-1..N.md` 正文总字数 ≥ 目标字数 × 95%。目标字数读 `novel.json`（seed 解析落盘）；**字数口径**：`word_count_md`（gates/shared.py:107——G4 地板自身口径：剥 frontmatter/代码块/`PRE_WRITE_CHECK`/`POST_WRITE_SELF_CHECK` 等元节后 CJK 计数；裸全文计数会被元节抬高 ~15%，对 5% 余量是实质侵蚀），仅精确 `chapter-N.md` 主文件计入（`committed_chapter_anchor` 同口径——pre-rev/快照/label 副本不计，chapter_loop.py:329-343 先例）。
 - **保质·逐章终态健康**：`pipeline-state.json` 每章 `chapter_states[N]`（键 = `str(N)`）：`status` 为 `complete`（`ChapterStatus`，state.py:97）且 `audit_retry_count` == 0（v1 从严；首跑校准）；每章 resonance 总分 ≥85 且全程均值 ≥90（读 `truth/resonance_trend.md`，见 §2 表头前置条件）。**重置交互注记**：resolve ESCALATION checkpoint 会清零受影响章的 `audit_retry_count`/`revision_count`（machine.py:119-137）——「==0」可被人因 approve 后置满足，escalation 事件只在 `checkpoint_history` 留痕，故趋势条件以 `checkpoint_history` 为主源（见下）。
@@ -36,8 +38,8 @@ goal-prompt.md（2026-06-13 冻结的历史快照，正文 append-only 不改）
 
 - **N 的来源**：目标章数 `N_target` = `novel.json` 的 `total_chapters`（volume-outlining 后写入，cli.py:481）；完成锚点 `N_done` = `chapters/` 精确 `chapter-N.md` 最大号（`committed_chapter_anchor` 口径）。`N_done < N_target` → verdict fail 并披露差额（运行未完成或丢章）；`N_done > N_target` → 披露不 fail（锚点与元数据漂移，人工判读）；`total_chapters` 缺键或值为 0 → exit 2（同 key 缺失处理）。分段与逐章判据作用于 `1..N_done`。
 - **分段规则**：三段等分，余数归后段（前段 = `ceil` 外较小段、后段 = `ceil` 段——即 `len(seg_i) ∈ {floor(N/3), ceil(N/3)}`，多出的章归后段）；`N_done < 3` → exit 2 data error（reason: insufficient chapters）——canary N=3 为每段 1 章的退化情形，判据语义成立但分辨率最低，报告注明。
-- **resonance 缺行 / chapter_states 缺章 fail-closed**：`1..N_done` 中任一章在 `resonance_trend.md` 无 `{N}` 行、或 overall 单元格非数值（`pending`/`-`）、或在 `chapter_states` 无 `str(N)` 键（中段空洞——`committed_chapter_anchor` 取最大号不暴露洞）→ 该章判 fail（exit 1，明细披露缺章）。**重复 `{N}` 键**（两写方结构性去重后理论上仅 malformed 键形可致）→ exit 2 data error。
-- **趋势频率**：escalation 频率 = `checkpoint_history` 中 `type == "escalation"` 事件按所在段计数（条目含 type/chapter/decision/resolved_at，machine.py:110-118）；revision/audit_retry 计数器仅披露。
+- **resonance 缺行 / chapter_states 缺章 / chapter 主文件缺失 fail-closed（三输入面对称）**：`1..N_done` 中任一章在 `resonance_trend.md` 无 `{N}` 行、或 overall 单元格非数值（`pending`/`-`）、或在 `chapter_states` 无 `str(N)` 键（中段空洞——`committed_chapter_anchor` 取最大号不暴露洞）、或 `chapter-N.md` 主文件缺失（缺章静默贡献 0 字可令 98.3% ≥ 95% 假通过）→ 该章判 fail（exit 1，明细披露缺章）。**重复 `{N}` 键**（两写方结构性去重后理论上仅 malformed 键形可致）→ exit 2 data error。
+- **趋势计数**：escalation 计数 = `checkpoint_history` 中 `type == "escalation"` 事件按所在段计数（条目含 type/chapter/decision/resolved_at，machine.py:110-118）；revision/audit_retry 计数器仅披露。**判定顺序钉死**：data-error 检查（exit 2 面）先于完整性 fail（`N_done < N_target` / 缺章缺行，exit 1），最后判质量条件（保量/趋势）——`N_done < 3` 归 data-error 先行短路。
 
 阈值全部是 v1 初值：第一次真实 20 万字跑的数据落盘后校准，修订记入本 spec 的 deviation 注记，不静默改。
 
@@ -47,9 +49,9 @@ goal-prompt.md（2026-06-13 冻结的历史快照，正文 append-only 不改）
   - resonance 逐章分：`truth/resonance_trend.md`——框架自维护的权威序列（chapter_loop.py:1856-1873 每章 insert-only 落盘，`build_resonance_trend_row` 9 列、`{N}` 键去重）。**工具自带按 `{N}` 键的行解析器**产出 `(chapter, overall)` 对——不复用 `parse_trend`（compute_drift.py:164，丢章节键、静默跳过非数值行）与 `parse_resonance_scores`（escalation_bridge.py:8-25，同丢章节键），二者仅作列布局参考。不重读 `audits/chapter-N-resonance.md` 散文件（重复基建，两套序列可能不一致）。**表头前置条件**：契约表头 `skills/shenbi-review-resonance/SKILL.md:174` 下 `overall` 恰在第 7 列；表头只由 skill 首写，框架两条写方（chapter_loop insert 路径 / confidence_calibration 回退）均不写——工具对「文件缺失/存在但无表头/零数据行」**exit 2 显式报错**（禁止静默零分通过）。
   - 漂移检测：复用 `compute_drift.detect_chapter_drift` 纯函数（import，不重实现；输入 = 工具自身解析器的 overall 序列，`human_overridden` 列真值作 `exclude_indices`）。
   - 章节终态：`pipeline-state.json`（`chapter_states`：status/resonance_score/revision_count/audit_retry_count；`checkpoint_history`；写方 `machine.py`）。
-  - 审计发现文本（失败分类学输入）：`audits/` 逐章审计报告——`chapter-N.aggregate.md` 存在则直接消费；不存在则对 raw glob `chapter-N-*.md` 复用 `extract_finding_units` 纯件 + 自写 ~10 行同语义合并 glue（`(severity, text)` 键去重、reporters 并集——合并循环内联在 `write_audit_aggregate` :150-171 无可分离纯函数，且它是写操作、只读判读层不得调用）（aggregate 是修订前工件：仅 chapter_loop.py:3021 revision 派发前 / :3220 audit-blocking 重试两处生成，**不保证逐章存在**；audit_aggregate.py:31 的 DOT 后缀设计保证 aggregate 不自匹配 raw glob）。
+  - 审计发现文本（失败分类学输入）：**统一从 raw glob `chapter-N-*.md` 消费**——复用 `extract_finding_units` 纯件 + 自写 ~10 行同语义合并 glue（`(severity, text)` 键去重、reporters 并集——合并循环内联在 `write_audit_aggregate` :150-171 无可分离纯函数，且它是写操作、只读判读层不得调用；DOT 后缀 `audit_aggregate.py:31` 保证 aggregate 不自匹配 raw glob）。理由：①`chapter-N.aggregate.md` 是修订前工件（仅 chapter_loop.py:3021/:3220 两处生成，终审计重写 raw 报告但**不重生成** aggregate——按它分类会把已修复的 pre-revision 失败混进热力图，恰污染中后期章的责任路由）；②aggregate 渲染格式（severity 在 `## <SEV> Findings` H2、bullet 裸文本）与 `extract_finding_units` 的行内 severity 要求不兼容，直跑零命中；③aggregate 内嵌 resonance 逐字正文，raw 路径经 `_RESONANCE_NAME_RE`（audit_aggregate.py:47）结构性排除。**aggregate 仅在 raw glob 为空时作回退源**（此时按 aggregate 自身 H2 分节格式解析，回退在 coverage 披露中标注）。
   - cost ledger：`cost/token-ledger.jsonl`（`TokenLedger.record` 带 chapter 字段 + ISO 时间戳，按章对齐；墙钟 = 按章 timestamp min/max 差）。
-- **输出**：`metrics/longitudinal-report.md`（人读：曲线表 + 类别×章节热力图 + 责任子系统路由）+ `metrics/longitudinal-report.json`（机读 verdict + coverage 披露：resonance 行数/章数比、ledger 章覆盖率、失败分类命中率/未分类占比——任一 <100% 显式披露，防静默数据缺口）。
+- **输出**：`metrics/longitudinal-report.md`（人读：曲线表 + 类别×章节热力图 + 责任子系统路由）+ `metrics/longitudinal-report.json`（机读 verdict + coverage 披露：resonance 行数/章数比、audits 章覆盖率、ledger 章覆盖率、失败分类命中率/未分类占比——任一 <100% 显式披露，防静默数据缺口）。
 - **风格约束**：照 `audit_aggregate.py` 先例——纯解析、零 LLM、幂等、无副作用；放 `tools/`（同 `lint_audit_run.py` 先例；pyproject `"tools/**" = ["T201"]` 豁免 no-print、coverage floors 零 tools 键——注意 basedpyright 经测试 import 将其拉入 strict 类型检查面，属常规成本）。
 - **关系**：`cost/report.py` 的 `render_report`/`write_report` 保留不动（其 `_try_avg_g3_score` 是均分口径）；本工具是纵向口径的独立消费者，不共享判定逻辑。
 
@@ -65,7 +67,7 @@ goal-prompt.md（2026-06-13 冻结的历史快照，正文 append-only 不改）
 
 - 每万字成本与墙钟（TokenLedger 按章聚合，`dispatch_helper.py:55` 已 import 使用；墙钟 = 章内首末记录 timestamp 差）
 - 真相文件大小随章节增长曲线（`truth/` 各文件尺寸按章）。**条件性注记**：框架自动 truth 快照已按 spec #26 path 3 移除，快照由条件技能步骤写——逐章历史序列不保证落盘，观测按实际存在的快照面输出并披露覆盖度
-- 分段 checkpoint/escalation 频率（`checkpoint_history` 主源）
+- 分段 checkpoint/escalation 计数（`checkpoint_history` 主源）
 
 这些是对「千万字可行性」外推的依据，交付优先级排在小说文件本身之前。
 
