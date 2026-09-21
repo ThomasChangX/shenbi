@@ -93,11 +93,12 @@ def test_gates_import_thresholds_as_fallback() -> None:
 # src/shenbi/contracts/thresholds.py
 """门阈值单一源（spec 支柱二）。所有数值阈值集中此处；门 import 具名常量，
 ruff 禁裸魔法数。值以 spec 为准：>=94 tier 推进、>=90 单测通过、100 收敛。"""
+
 from __future__ import annotations
 
-T1_PASS: int = 94   # T1 tier advancement threshold (acceptance.json fallback)
-T2_PASS: int = 94   # T2 phase advancement threshold
-T3_PASS: int = 94   # T3 pipeline advancement threshold
+T1_PASS: int = 94  # T1 tier advancement threshold (acceptance.json fallback)
+T2_PASS: int = 94  # T2 phase advancement threshold
+T3_PASS: int = 94  # T3 pipeline advancement threshold
 TEST_PASS: int = 90  # individual test pass threshold
 CONVERGENCE: int = 100  # convergence target
 ```
@@ -157,7 +158,9 @@ def test_derive_file_type_returns_truth_for_foreshadowing_resolve() -> None:
 
 
 @pytest.mark.unit
-def test_derive_file_type_returns_report_for_report_kind_skill(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_derive_file_type_returns_report_for_report_kind_skill(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """REPORT OutputKind -> 'report'."""
     from shenbi.contract import OutputKind
     import shenbi.dispatcher.executor as exec_mod
@@ -177,7 +180,9 @@ def test_derive_file_type_returns_report_for_report_kind_skill(monkeypatch: pyte
 
 
 @pytest.mark.unit
-def test_derive_file_type_returns_chapter_for_ephemeral_skill(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_derive_file_type_returns_chapter_for_ephemeral_skill(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """EPHEMERAL has no persisted output -> default 'chapter' (G2 skipped upstream)."""
     from shenbi.contract import OutputKind
     import shenbi.dispatcher.executor as exec_mod
@@ -402,7 +407,9 @@ git commit -m "fix(g6): G6.12 use cjk.find_terms for embedded CJK sensitive-word
 
 ```python
 @pytest.mark.unit
-def test_g6_returns_fail_not_crash_when_deps_json_malformed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_g6_returns_fail_not_crash_when_deps_json_malformed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Malformed deps.json -> G6 returns FAIL JSON, never raises."""
     import shenbi.gates.g6 as g6_mod
 
@@ -420,7 +427,9 @@ def test_g6_returns_fail_not_crash_when_deps_json_malformed(tmp_path: Path, monk
 
 ```python
 @pytest.mark.unit
-def test_g5_returns_fail_not_crash_when_deps_json_malformed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_g5_returns_fail_not_crash_when_deps_json_malformed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Malformed deps.json -> G5 returns FAIL JSON, never raises."""
     import shenbi.gates.g5 as g5_mod
 
@@ -591,17 +600,13 @@ git commit -m "refactor(g1): extract pure compute_backup_targets (purity step to
 ```
 替换为：
 ```python
-    # G7 is now pure: audit_warnings are returned in the gate JSON, NOT written
-    # to summary.json (spec: gates must not have write side-effects).
-    audit_check = next(
-        (chk for chk in result["checks"] if chk.get("id") == "G7.AUDIT"), None
-    )
-    assert audit_check is not None
-    assert audit_check.get("audit_warnings")
-    # summary.json must be untouched by the gate
-    assert "audit_warnings" not in json.loads(
-        (round_dir / "summary.json").read_text(encoding="utf-8")
-    )
+# G7 is now pure: audit_warnings are returned in the gate JSON, NOT written
+# to summary.json (spec: gates must not have write side-effects).
+audit_check = next((chk for chk in result["checks"] if chk.get("id") == "G7.AUDIT"), None)
+assert audit_check is not None
+assert audit_check.get("audit_warnings")
+# summary.json must be untouched by the gate
+assert "audit_warnings" not in json.loads((round_dir / "summary.json").read_text(encoding="utf-8"))
 ```
 （函数顶部的 `g715_warns` 断言保持不变。）
 
@@ -706,29 +711,28 @@ def known_skill_names() -> set[str]:
     """
     if not SKILLS.exists():
         return set()
-    return {
-        d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists()
-    }
+    return {d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists()}
 ```
 - [ ] **Step 4: Implement G0.15** — 在 `src/shenbi/gates/g0.py` 的 `gate_G0` 末尾（G0.14 之后、`return passed("G0", checks)` 之前）加：
 ```python
-    # G0.15 — gate registry single-source consistency (judgement 5 precursor).
-    # G4_CHECKER_SKILLS must reference only real skills. Catches drift across
-    # the gate registries.
-    from shenbi.contracts.registry import known_skill_names
+# G0.15 — gate registry single-source consistency (judgement 5 precursor).
+# G4_CHECKER_SKILLS must reference only real skills. Catches drift across
+# the gate registries.
+from shenbi.contracts.registry import known_skill_names
 
-    known = known_skill_names()
-    g4_drift = sorted(G4_CHECKER_SKILLS - known)
-    if g4_drift:
-        return fail(
-            "G0",
-            checks + [{"id": "G0.15", "s": "FAIL", "r": f"G4 checker skills not in skill set: {g4_drift}"}],
-            "round_creation",
-            [f"G0.15: G4_CHECKER_SKILLS drifted from skills/ — remove {g4_drift}"],
-        )
-    checks.append(
-        {"id": "G0.15", "s": "PASS", "note": "gate registries derive from single skill source"}
+known = known_skill_names()
+g4_drift = sorted(G4_CHECKER_SKILLS - known)
+if g4_drift:
+    return fail(
+        "G0",
+        checks
+        + [{"id": "G0.15", "s": "FAIL", "r": f"G4 checker skills not in skill set: {g4_drift}"}],
+        "round_creation",
+        [f"G0.15: G4_CHECKER_SKILLS drifted from skills/ — remove {g4_drift}"],
     )
+checks.append(
+    {"id": "G0.15", "s": "PASS", "note": "gate registries derive from single skill source"}
+)
 ```
 （`G4_CHECKER_SKILLS` 已在 g0.py:27 import。）
 - [ ] **Step 5: Run → passes** — `uv run pytest tests/unit/gates/test_g0.py -q` → 全绿，无 regression。

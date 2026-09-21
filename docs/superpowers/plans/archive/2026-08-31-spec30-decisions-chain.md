@@ -88,23 +88,28 @@ EOF
 ```python
 # tests/test_g2_decisions_partition.py
 """T101: decisions-双产物技能的 .md 主产物不得绕过 G2 章节检查。"""
+
 import json
 from pathlib import Path
 from shenbi.gates.g2 import gate_G2
 
 FIX = Path(__file__).parent / "fixtures" / "decisions"
 
+
 def _res(files, ftype="decisions"):
     return json.loads(gate_G2([str(f) for f in files], ftype))
+
 
 def test_md_gets_chapter_checks_under_decisions_type():
     r = _res([FIX / "chapter-too-short.md"])
     # FAIL 条目落 "must_fix"（shared.py fail() 结构，阶段 5 审查 I4 已核实）
     assert any(c.get("id") == "G2.6" and c.get("s") == "FAIL" for c in r["checks"] + r["must_fix"])
 
+
 def test_json_still_gets_decisions_branch():
     r = _res([FIX / "valid-chapter-decisions.json"])
     assert any(c.get("id") == "G2.dec" and c.get("s") == "PASS" for c in r["checks"])
+
 
 def test_dual_product_round_violating_chapter_fails():
     """验收 2 前半：含违规章节的双产物 round，G2 对 .md FAIL。"""
@@ -159,41 +164,54 @@ Run: `uv run pytest tests/test_g2_decisions_partition.py -v`（PASS）&& `uv run
 
 ```python
 """F434: chapter-drafting 双产物 step 的 decisions sidecar 必须进 G4 文件列表。"""
+
 from pathlib import Path
 from shenbi.pipeline.chapter_loop import _resolve_g4_files
 
+
 def _mk_step(**kw):  # 真实 ChapterStep dataclass，字段以 chapter_loop 定义为准
     from shenbi.pipeline.chapter_loop import ChapterStep
-    base = dict(output_path="chapters/chapter-{chapter}.md",
-                skill="shenbi-chapter-drafting", uses_staging=False)
+
+    base = dict(
+        output_path="chapters/chapter-{chapter}.md",
+        skill="shenbi-chapter-drafting",
+        uses_staging=False,
+    )
     base.update(kw)
     return ChapterStep(**base)  # 缺省字段以 dataclass 默认值补齐，实现前核对构造签名
 
+
 def test_decisions_sidecar_in_g4_files(tmp_path):
-    ch = tmp_path / "chapters"; ch.mkdir()
+    ch = tmp_path / "chapters"
+    ch.mkdir()
     (ch / "chapter-2.md").write_text("# 第二章\n正文" * 50)
     (ch / "chapter-2-decisions.json").write_text('{"$schema": "shenbi-decisions-v1"}')
     files = _resolve_g4_files(tmp_path, _mk_step(), chapter=2)
     assert any(str(f).endswith("chapters/chapter-2-decisions.json") for f in files)
     assert any(str(f).endswith("chapters/chapter-2.md") for f in files)
 
+
 def test_state_settling_glob_not_short_circuited(tmp_path):
     """C2 回归：契约扩展不得短路 state-settling 的 staging/truth/*.md glob。"""
-    st = tmp_path / "staging" / "truth"; st.mkdir(parents=True)
+    st = tmp_path / "staging" / "truth"
+    st.mkdir(parents=True)
     (st / "current_state.md").write_text("x")
     (tmp_path / "staging" / "truth" / "state-settling-decisions.json").write_text("{}")
     step = _mk_step(output_path="", skill="shenbi-state-settling", uses_staging=True)
     files = _resolve_g4_files(tmp_path, step, chapter=2)
-    assert any("current_state.md" in str(f) for f in files)          # .md 不丢
+    assert any("current_state.md" in str(f) for f in files)  # .md 不丢
     assert any("state-settling-decisions.json" in str(f) for f in files)  # sidecar 追加
+
 
 def test_revision_and_nonchapter_sidecars(tmp_path):
     """I2：chapter-revision / genre-config sidecar 的追加行为不破坏复合分区。"""
-    ch = tmp_path / "chapters"; ch.mkdir()
+    ch = tmp_path / "chapters"
+    ch.mkdir()
     (ch / "chapter-3-revision.md").write_text("y")
     (ch / "chapter-3-revision-decisions.json").write_text("{}")
-    step = _mk_step(output_path="chapters/chapter-{chapter}-revision.md",
-                    skill="shenbi-chapter-revision")
+    step = _mk_step(
+        output_path="chapters/chapter-{chapter}-revision.md", skill="shenbi-chapter-revision"
+    )
     files = _resolve_g4_files(tmp_path, step, chapter=3)
     assert any("revision-decisions.json" in str(f) for f in files)
 ```
@@ -213,17 +231,17 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
     # BEFORE sidecar expansion so contract expansion can't short-circuit it)
     if step.uses_staging and "state-settling" in step.skill:
         from shenbi.pipeline.checkpoint import STAGING_DIR
+
         staging_truth = project_dir / STAGING_DIR / "truth"
         if staging_truth.exists():
-            files.extend(
-                f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md")
-            )
+            files.extend(f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md"))
 
     # F434: contract-declared decisions sidecars join the G4 file list so
     # G4.dec actually runs for dual-product skills instead of SKIP. Existence-
     # gated to avoid spurious FAILs; composite G4 re-partitions by suffix.
     try:
         from shenbi.contracts import load_contract, ContractError
+
         c = load_contract(step.skill)
     except (ContractError, ImportError):
         c = None
@@ -233,6 +251,7 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
                 continue
             resolved = resolve_chapter_path(out, chapter)
             from shenbi.pipeline.checkpoint import STAGING_DIR
+
             cand = f"{STAGING_DIR}/{resolved}" if step.uses_staging else resolved
             if (project_dir / cand).exists() and cand not in files:
                 files.append(cand)
@@ -261,13 +280,15 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
 
 ```python
 """T104 前半：同一损坏 decisions.json，G2 与 G4 判定必须一致。"""
+
 from shenbi.gates.g2 import gate_G2
 # G4 判定入口以 decisions_validator 现有导出为准（run/validate 函数签名实现前核对）
 
+
 def test_trailing_json_g2_g4_agree(fixture_path):
     g2 = json.loads(gate_G2([str(fixture_path)], "decisions"))
-    g4 = _run_g4_decisions(fixture_path)   # 以真实入口替换
-    assert _verdict(g2) == _verdict(g4)    # 两者都 FAIL 且 reason 类别相同
+    g4 = _run_g4_decisions(fixture_path)  # 以真实入口替换
+    assert _verdict(g2) == _verdict(g4)  # 两者都 FAIL 且 reason 类别相同
 ```
 
 - [ ] **Step 2: FAIL 确认** → **Step 3: 实现**（G4 读侧改为与 g2 相同的 `raw_decode` 首对象提取 + `count('"$schema"')>1` 拼接检测，恢复出的对象仍须过 `DecisionsDoc.model_validate`；提取失败/拼接 → FAIL 带诊断，绝不放行）→ **Step 4: PASS + `pytest -k "decisions" -x -q` 回归** → **Step 5: Commit + audit-T3.md**（`fix: G4.dec read side adopts G2 raw_decode recovery policy (spec #30 T3/T6, T104)`）

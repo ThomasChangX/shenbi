@@ -304,12 +304,14 @@ thresholds.
 Metric: test_function_count / framework_loc
 Target: ≥ 0.10 (i.e., ≥ 1 test function per 10 LOC of framework code)
 """
+
 import ast
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FRAMEWORK_DIR = REPO_ROOT / "src" / "shenbi"
 TEST_DIRS = [REPO_ROOT / "tests" / sub for sub in ("unit", "integration", "property", "benchmark")]
+
 
 def count_framework_loc() -> int:
     """Count non-blank, non-comment Python LOC in src/shenbi/."""
@@ -320,6 +322,7 @@ def count_framework_loc() -> int:
             if stripped and not stripped.startswith("#"):
                 total += 1
     return total
+
 
 def count_test_functions() -> int:
     """Count `def test_*` functions across all test directories."""
@@ -333,6 +336,7 @@ def count_test_functions() -> int:
                 if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
                     total += 1
     return total
+
 
 def test_density_meets_minimum():
     framework_loc = count_framework_loc()

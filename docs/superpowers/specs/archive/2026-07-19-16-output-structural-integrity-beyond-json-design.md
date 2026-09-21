@@ -108,8 +108,8 @@ LEAKAGE_PATTERNS = [
 ]
 
 # --- Audit completeness markers ---
-VERDICT_MARKERS = ['判定', '结论', 'verdict', '通过', '阻断', 'PASS', 'BLOCK']
-PREAMBLE_MARKERS = ['现在执行', 'inputs confirmed', 'now executing', '开始审计']
+VERDICT_MARKERS = ["判定", "结论", "verdict", "通过", "阻断", "PASS", "BLOCK"]
+PREAMBLE_MARKERS = ["现在执行", "inputs confirmed", "now executing", "开始审计"]
 ```
 
 ### 3.2 Write-Failure Detection (false-positive safe)
@@ -164,7 +164,7 @@ def check_prose_leakage(path: Path) -> list[str]:
 
     # Check for unfinished ending
     last_500 = text[-500:].strip()
-    if last_500 and last_500[-1] in ':,；：，':
+    if last_500 and last_500[-1] in ":,；：，":
         issues.append(
             f"G4.pi.unfinished_ending:{path.name} — "
             f"file ends with '{last_500[-20:]}' — truncated mid-thought"
@@ -178,7 +178,7 @@ def check_markdown_fence_balance(path: Path) -> list[str]:
     issues = []
     text = path.read_text(encoding="utf-8")
 
-    fence_count = text.count('```')
+    fence_count = text.count("```")
     if fence_count % 2 != 0:
         issues.append(
             f"G4.pi.fence_imbalance:{path.name} — "
@@ -197,21 +197,16 @@ def check_audit_completeness(path: Path) -> list[str]:
     # Minimum size check — real audits are > 500 bytes
     if len(text) < 200:
         issues.append(
-            f"G4.ac.too_short:{path.name} — "
-            f"audit file is {len(text)} bytes, likely aborted stub"
+            f"G4.ac.too_short:{path.name} — audit file is {len(text)} bytes, likely aborted stub"
         )
 
     has_verdict = any(marker in text for marker in VERDICT_MARKERS)
     if not has_verdict:
         issues.append(
-            f"G4.ac.no_verdict:{path.name} — "
-            f"audit file contains no verdict/conclusion marker"
+            f"G4.ac.no_verdict:{path.name} — audit file contains no verdict/conclusion marker"
         )
 
-    has_only_preamble = (
-        any(marker in text for marker in PREAMBLE_MARKERS)
-        and not has_verdict
-    )
+    has_only_preamble = any(marker in text for marker in PREAMBLE_MARKERS) and not has_verdict
     if has_only_preamble:
         issues.append(
             f"G4.ac.aborted_stub:{path.name} — "
@@ -229,11 +224,11 @@ def check_audit_line_refs(path: Path, chapter_path: Path) -> list[str]:
     if not chapter_path.exists():
         return issues  # Chapter missing is handled elsewhere
 
-    chapter_lines = chapter_path.read_text(encoding="utf-8").split('\n')
+    chapter_lines = chapter_path.read_text(encoding="utf-8").split("\n")
     max_line = len(chapter_lines)
 
     # Find all line references like "L29-31" or "L41"
-    line_refs = re.findall(r'L(\d+)(?:-(\d+))?', audit_text)
+    line_refs = re.findall(r"L(\d+)(?:-(\d+))?", audit_text)
     for start_str, end_str in line_refs:
         start = int(start_str)
         end = int(end_str) if end_str else start
@@ -258,8 +253,7 @@ for full_path, content in parsed_outputs:
     # 1. WRITE-FAILURE DETECTION (pre-write, blocks the write)
     is_failure, signature = detect_write_failure(content)
     if is_failure:
-        logger.error("dispatch_write_failure_detected",
-                     path=str(full_path), signature=signature)
+        logger.error("dispatch_write_failure_detected", path=str(full_path), signature=signature)
         raise DispatchWriteFailureError(
             f"LLM reported write failure for {full_path}: '{signature}'. "
             f"The output is a diagnostic message, not file content. "

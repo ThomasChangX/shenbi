@@ -77,34 +77,67 @@ from shenbi.skill_utils.revision_routing.route import route_revision
 
 @pytest.mark.unit
 def test_pure_craft_issues_route_to_spot_fix() -> None:
-    diagnosis = {"issues": [
-        {"category": "craft", "id": "craft-ai-tell-L23", "evidence": "ch5.md L23", "severity": "CRITICAL"},
-    ]}
+    diagnosis = {
+        "issues": [
+            {
+                "category": "craft",
+                "id": "craft-ai-tell-L23",
+                "evidence": "ch5.md L23",
+                "severity": "CRITICAL",
+            },
+        ]
+    }
     assert route_revision(diagnosis) == "spot-fix"
 
 
 @pytest.mark.unit
 def test_unmet_blocking_goal_routes_to_regenerate() -> None:
-    diagnosis = {"issues": [
-        {"category": "unmet_goal", "id": "goal-H01-advance", "evidence": "ch5.md", "severity": "BLOCKING"},
-    ]}
+    diagnosis = {
+        "issues": [
+            {
+                "category": "unmet_goal",
+                "id": "goal-H01-advance",
+                "evidence": "ch5.md",
+                "severity": "BLOCKING",
+            },
+        ]
+    }
     assert route_revision(diagnosis) == "regenerate"
 
 
 @pytest.mark.unit
 def test_unmet_blocking_plus_craft_routes_to_constrained_regenerate() -> None:
-    diagnosis = {"issues": [
-        {"category": "unmet_goal", "id": "goal-H01-advance", "evidence": "ch5.md", "severity": "BLOCKING"},
-        {"category": "craft", "id": "craft-fatigue-L40", "evidence": "ch5.md L40", "severity": "MINOR"},
-    ]}
+    diagnosis = {
+        "issues": [
+            {
+                "category": "unmet_goal",
+                "id": "goal-H01-advance",
+                "evidence": "ch5.md",
+                "severity": "BLOCKING",
+            },
+            {
+                "category": "craft",
+                "id": "craft-fatigue-L40",
+                "evidence": "ch5.md L40",
+                "severity": "MINOR",
+            },
+        ]
+    }
     assert route_revision(diagnosis) == "constrained-regenerate"
 
 
 @pytest.mark.unit
 def test_unmet_non_blocking_goal_routes_to_spot_fix() -> None:
-    diagnosis = {"issues": [
-        {"category": "unmet_goal", "id": "goal-soft", "evidence": "ch5.md", "severity": "MINOR"},
-    ]}
+    diagnosis = {
+        "issues": [
+            {
+                "category": "unmet_goal",
+                "id": "goal-soft",
+                "evidence": "ch5.md",
+                "severity": "MINOR",
+            },
+        ]
+    }
     assert route_revision(diagnosis) == "spot-fix"
 
 
@@ -162,8 +195,7 @@ def route_revision(diagnosis: dict) -> str:
     """
     issues = diagnosis.get("issues", [])
     has_unmet_blocking = any(
-        i.get("category") == "unmet_goal" and i.get("severity") == "BLOCKING"
-        for i in issues
+        i.get("category") == "unmet_goal" and i.get("severity") == "BLOCKING" for i in issues
     )
     has_craft = any(i.get("category") == "craft" for i in issues)
     if has_unmet_blocking and has_craft:
@@ -184,7 +216,10 @@ import sys
 
 def main() -> None:
     import argparse
-    parser = argparse.ArgumentParser(prog="revision_routing", description="Route a diagnosis to revision mode (spec §5.2).")
+
+    parser = argparse.ArgumentParser(
+        prog="revision_routing", description="Route a diagnosis to revision mode (spec §5.2)."
+    )
     parser.add_argument("--diagnosis", required=True, help="JSON diagnosis string.")
     args = parser.parse_args()
     diagnosis = json.loads(args.diagnosis)
@@ -449,8 +484,6 @@ Expected: FAIL with `ImportError: cannot import name 'check_scorer_agreement'`
 Append to `src/shenbi/scoring.py` before `def main()`:
 
 ```python
-
-
 def check_scorer_agreement(
     scores_a: dict[int, Any], scores_b: dict[int, Any], threshold: float = 5.0
 ) -> dict[str, Any]:
@@ -495,6 +528,7 @@ def flag_score_collapse(scores: dict[int, Any]) -> dict[str, Any]:
         signals.append("all_identical")
 
     from collections import Counter
+
     counts = Counter(values)
     most_common_val, most_common_n = counts.most_common(1)[0]
     if most_common_n / len(values) > 0.6 and len(values) >= 3:
@@ -733,53 +767,71 @@ def check_escalation(
 
     if detect_score_decline(resonance_scores, window, slope_threshold):
         recent = resonance_scores[-window:]
-        signals.append(EscalationSignal(
-            trigger="score_decline",
-            detail=f"linear regression slope on last {window} scores < {slope_threshold}: {recent}",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="score_decline",
+                detail=f"linear regression slope on last {window} scores < {slope_threshold}: {recent}",
+            )
+        )
 
     if sensitivity_blocking:
-        signals.append(EscalationSignal(
-            trigger="sensitivity_blocking",
-            detail="sensitivity audit reported BLOCKING severity",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="sensitivity_blocking",
+                detail="sensitivity audit reported BLOCKING severity",
+            )
+        )
 
     if not volume_objective_met:
-        signals.append(EscalationSignal(
-            trigger="volume_objective_missed",
-            detail="volume Objective not achieved (score-volume binary check)",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="volume_objective_missed",
+                detail="volume Objective not achieved (score-volume binary check)",
+            )
+        )
 
     if regeneration_attempts >= regen_loop_limit:
-        signals.append(EscalationSignal(
-            trigger="regeneration_loop_exhausted",
-            detail=f"same goal unmet after {regeneration_attempts} regeneration attempts (limit {regen_loop_limit})",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="regeneration_loop_exhausted",
+                detail=f"same goal unmet after {regeneration_attempts} regeneration attempts (limit {regen_loop_limit})",
+            )
+        )
 
     if arc_score is not None and arc_score < arc_threshold:
-        signals.append(EscalationSignal(
-            trigger="arc_score_below_threshold",
-            detail=f"arc score {arc_score} < {arc_threshold} (spec §6.2)",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="arc_score_below_threshold",
+                detail=f"arc score {arc_score} < {arc_threshold} (spec §6.2)",
+            )
+        )
 
     if stratum_axis_drift:
-        signals.append(EscalationSignal(
-            trigger="stratum_axis_drift",
-            detail="protagonist arc drifted from declared ending (score-stratum detected, spec §6.2)",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="stratum_axis_drift",
+                detail="protagonist arc drifted from declared ending (score-stratum detected, spec §6.2)",
+            )
+        )
 
     return signals
 
 
 def main() -> None:
     """CLI: print escalation signals as JSON."""
-    parser = argparse.ArgumentParser(prog="escalation", description="Detect human-escalation triggers (spec §6.2).")
+    parser = argparse.ArgumentParser(
+        prog="escalation", description="Detect human-escalation triggers (spec §6.2)."
+    )
     parser.add_argument("--resonance-scores", required=True, help="Comma-separated overall scores.")
     parser.add_argument("--sensitivity-blocking", default="false", help="true/false.")
     parser.add_argument("--volume-objective-met", default="true", help="true/false.")
     parser.add_argument("--regeneration-attempts", type=int, default=0)
-    parser.add_argument("--arc-score", type=float, default=None, help="Latest arc score (spec §6.2 trigger)")
-    parser.add_argument("--stratum-axis-drift", default="false", help="true/false (spec §6.2 trigger)")
+    parser.add_argument(
+        "--arc-score", type=float, default=None, help="Latest arc score (spec §6.2 trigger)"
+    )
+    parser.add_argument(
+        "--stratum-axis-drift", default="false", help="true/false (spec §6.2 trigger)"
+    )
     args = parser.parse_args()
 
     scores = [float(x) for x in args.resonance_scores.split(",")]
@@ -791,7 +843,11 @@ def main() -> None:
         arc_score=args.arc_score,
         stratum_axis_drift=args.stratum_axis_drift.lower() == "true",
     )
-    print(json.dumps([{"trigger": s.trigger, "detail": s.detail} for s in signals], ensure_ascii=False))
+    print(
+        json.dumps(
+            [{"trigger": s.trigger, "detail": s.detail} for s in signals], ensure_ascii=False
+        )
+    )
 ```
 
 ```python
@@ -956,7 +1012,9 @@ def recall_overdue_hooks(hooks: list[dict], current_chapter: int) -> list[str]:
 
 def main() -> None:
     """CLI: print overdue hook IDs as JSON."""
-    parser = argparse.ArgumentParser(prog="foreshadowing_recall", description="Filter overdue hooks (spec §3.6).")
+    parser = argparse.ArgumentParser(
+        prog="foreshadowing_recall", description="Filter overdue hooks (spec §3.6)."
+    )
     parser.add_argument("--hooks-json", required=True, help="JSON array of hook dicts.")
     parser.add_argument("--current-chapter", type=int, required=True)
     args = parser.parse_args()

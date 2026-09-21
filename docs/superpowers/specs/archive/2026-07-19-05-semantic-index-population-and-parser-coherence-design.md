@@ -77,6 +77,7 @@ For every parser/indexer, create a test that verifies it extracts ≥1 entity fr
 ```python
 # tests/unit/pipeline/test_truth_index_population.py
 
+
 def test_truth_index_extracts_hooks_from_fixture():
     """Verify truth_index extracts hooks from a known-good pending_hooks.md."""
     project_dir = create_test_project_with_hooks()
@@ -87,14 +88,13 @@ def test_truth_index_extracts_hooks_from_fixture():
         "Verify the hook extraction pattern matches the actual pending_hooks.md format."
     )
 
+
 def test_truth_index_extracts_rules_from_fixture():
     """Verify truth_index extracts rules from a known-good rules.md."""
     project_dir = create_test_project_with_rules()
     index = build_index(project_dir)
 
-    assert len(index.rules) > 0, (
-        "truth_index extracted zero rules — parser format mismatch."
-    )
+    assert len(index.rules) > 0, "truth_index extracted zero rules — parser format mismatch."
 ```
 
 ### 3.2 Fix the truth_index.py Rule Parser (`_RULE_RE`)
@@ -108,15 +108,14 @@ Replace it with a multi-format rule parser that accepts Chinese ordinals (`## �
 
 ```python
 # truth_index.py — replaces the single numeric-only _RULE_RE
-_RULE_HEADING_RE = re.compile(
-    r"^##\s+规则\s*[：:.]?\s*([一二三四五六七八九十\d]+)[:：]?\s*(.+)$"
-)
+_RULE_HEADING_RE = re.compile(r"^##\s+规则\s*[：:.]?\s*([一二三四五六七八九十\d]+)[:：]?\s*(.+)$")
 _RULE_NUMERIC_RE = re.compile(r"^##\s+(R?\d+)[:.]?\s*(.+)$")
+
 
 def _parse_rules(rules_text: str) -> list[tuple[str, str]]:
     """Parse worldbuilding rule headings. Supports both formats:
-       - Chinese ordinals: ## 规则一：能量守恒
-       - Numeric IDs:      ## 1: / ## R1:
+    - Chinese ordinals: ## 规则一：能量守恒
+    - Numeric IDs:      ## 1: / ## R1:
     """
     rules = []
     for line in rules_text.splitlines():
@@ -136,6 +135,7 @@ The `truth_index.py:_index_hooks()` (line 123) reads the frontmatter `hooks` lis
 
 ```python
 # truth_index.py — extend _index_hooks() to parse BOTH sources
+
 
 def _index_hooks(project_dir: Path) -> dict[str, dict]:
     """Index hooks from pending_hooks.md.
@@ -192,7 +192,7 @@ def build_index(project_dir: Path) -> TruthIndex:
                 file=str(hooks_file),
                 size=hooks_file.stat().st_size,
                 msg="pending_hooks.md exists with content but index extracted zero hooks — "
-                    "parser format mismatch likely"
+                "parser format mismatch likely",
             )
 
     rules_file = project_dir / "world" / "rules.md"
@@ -203,7 +203,7 @@ def build_index(project_dir: Path) -> TruthIndex:
                 file=str(rules_file),
                 size=rules_file.stat().st_size,
                 msg="rules.md exists with content but index extracted zero rules — "
-                    "parser format mismatch likely"
+                "parser format mismatch likely",
             )
 
     return index

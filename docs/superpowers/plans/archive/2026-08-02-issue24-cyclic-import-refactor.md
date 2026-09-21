@@ -145,9 +145,7 @@ def read_volume_boundaries(project_dir: Path | str) -> set[int]:
     return boundaries
 
 
-def _resolve_volume_at_runtime(
-    project_dir: Path, chapter: int
-) -> tuple[str, int, int] | None:
+def _resolve_volume_at_runtime(project_dir: Path, chapter: int) -> tuple[str, int, int] | None:
     """Resolve (volume_name, ch_start, ch_end) for a chapter at runtime.
 
     Parses volume_map.md via read_volume_boundaries() which

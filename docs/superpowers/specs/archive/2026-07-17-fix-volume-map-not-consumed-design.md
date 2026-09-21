@@ -69,6 +69,7 @@ volume_map 不是"建议"——它是 Genesis 阶段最大的产出（由 4 个 
 ```python
 # context_assemble.py: Route C 扩展
 
+
 def _load_volume_context(project_dir: Path, chapter: int) -> str:
     """从 volume_map 提取当前章节所在的卷级上下文。
 
@@ -78,13 +79,16 @@ def _load_volume_context(project_dir: Path, chapter: int) -> str:
     - 当前章节在 volume_map 中的预期内容
     - 下一个跨卷桥接的预期激活章
     """
-    volume_map = (project_dir / 'outline' / 'volume_map.md').read_text()
+    volume_map = (project_dir / "outline" / "volume_map.md").read_text()
 
     # 确定当前卷
     current_volume = None
     for vol_name, (ch_start, ch_end) in [
-        ('第一卷', (1, 15)), ('第二卷', (16, 35)),
-        ('第三卷', (36, 55)), ('第四卷', (56, 75)), ('第五卷', (76, 100))
+        ("第一卷", (1, 15)),
+        ("第二卷", (16, 35)),
+        ("第三卷", (36, 55)),
+        ("第四卷", (56, 75)),
+        ("第五卷", (76, 100)),
     ]:
         if ch_start <= chapter <= ch_end:
             current_volume = vol_name
@@ -106,17 +110,17 @@ def _load_volume_context(project_dir: Path, chapter: int) -> str:
     return f"""## 卷级蓝图（来自 volume_map.md）
 
 ### 当前卷目标
-{vol_section['objective']}
+{vol_section["objective"]}
 
 ### 本章在卷中的位置
-- 节点角色：{chapter_node['role']}
-- 预期内容：{chapter_node['desc']}
+- 节点角色：{chapter_node["role"]}
+- 预期内容：{chapter_node["desc"]}
 
 ### 即将激活的跨卷桥接
 {pending_bridges}
 
 ### 卷张力曲线
-{vol_section['tension_curve']}
+{vol_section["tension_curve"]}
 """
 ```
 
@@ -127,12 +131,13 @@ def _load_volume_context(project_dir: Path, chapter: int) -> str:
 ```python
 # chapter_loop.py: run_chapter_step 中，drafting G4 通过后
 
+
 def _check_volume_map_alignment(project_dir, chapter, chapter_text):
     """验证章节内容是否与 volume_map 的预期对齐。
 
     非 HARD 门禁——仅 WARN。蓝图是指导性的，允许创造性偏离。
     """
-    volume_map = (project_dir / 'outline' / 'volume_map.md').read_text()
+    volume_map = (project_dir / "outline" / "volume_map.md").read_text()
     node = extract_chapter_node(volume_map, chapter)
 
     if not node:
@@ -141,7 +146,7 @@ def _check_volume_map_alignment(project_dir, chapter, chapter_text):
     issues = []
 
     # 1. 关键术语存在性检查
-    key_terms = extract_key_terms(node['desc'])
+    key_terms = extract_key_terms(node["desc"])
     missing_terms = [t for t in key_terms if t not in chapter_text]
     if len(missing_terms) > len(key_terms) * 0.7:
         issues.append(
@@ -167,14 +172,11 @@ def _check_volume_map_alignment(project_dir, chapter, chapter_text):
 ```python
 # dispatch_helper.py:_build_skill_prompt 中
 
-if skill_name == 'shenbi-chapter-planning':
+if skill_name == "shenbi-chapter-planning":
     chapter = extract_chapter_from_context(context)
     vol_context = _load_volume_context(project_dir, chapter)
     # 注入到 system prompt 的上下文部分
-    system_prompt = system_prompt.replace(
-        '{VOLUME_CONTEXT}',
-        vol_context
-    )
+    system_prompt = system_prompt.replace("{VOLUME_CONTEXT}", vol_context)
 ```
 
 ### 2.4 跨卷桥接追踪器
@@ -235,7 +237,7 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
     1. 填充占位符部分
     2. 润色确定性部分的措辞
     """
-    vm = (project_dir / 'outline' / 'volume_map.md').read_text()
+    vm = (project_dir / "outline" / "volume_map.md").read_text()
     node = extract_chapter_node(vm, chapter)
     vol_ctx = extract_volume_context(vm, chapter)
     bridges = extract_pending_bridges(vm, chapter)
@@ -244,18 +246,18 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
     return f"""## 1. 当前任务
 
 > 确定性骨架（来自 volume_map.md）：
-> 本章是 {vol_ctx['kr_name']} 的 **{node['role']}章**。
-> 核心任务：{node['desc']}
-> 卷目标：{vol_ctx['objective']}
+> 本章是 {vol_ctx["kr_name"]} 的 **{node["role"]}章**。
+> 核心任务：{node["desc"]}
+> 卷目标：{vol_ctx["objective"]}
 
 [LLM: 将上述骨架翻译为具体的章节任务描述，2-4句话。保持卷目标在视野内。]
 
 ## 2. 读者此刻在等什么
 
 [LLM: 基于以下信息推断读者期望：
-- 本章在张力曲线中的位置：{vol_ctx['tension_phase']}
+- 本章在张力曲线中的位置：{vol_ctx["tension_phase"]}
 - 前一章节点角色：{_get_prev_node_role(vm, chapter)}
-- 当前章节点角色：{node['role']}
+- 当前章节点角色：{node["role"]}
 请写出制造期待和延迟期待两部分。]
 
 ## 3. 该兑现的 / 暂不掀的
@@ -267,7 +269,7 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
 
 ## 4. 日常/过渡承担什么任务
 
-> 确定性骨架：本章节点角色为 **{node['role']}**
+> 确定性骨架：本章节点角色为 **{node["role"]}**
 > - 开篇章：建立新情境，引入新人物/新冲突
 > - 承接章：深化已有冲突，推进人物关系
 > - 转折章：制造不可逆改变，打破现状
@@ -282,8 +284,8 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
 ## 6. 章尾必须发生的改变
 
 > 确定性骨架：
-> - 当前章节点：{node['role']} — {node['desc']}
-> - 下一章节点：{next_node['role']} — {next_node['desc']}
+> - 当前章节点：{node["role"]} — {node["desc"]}
+> - 下一章节点：{next_node["role"]} — {next_node["desc"]}
 > - 从当前到下一章的必须改变方向：{_infer_change_direction(node, next_node)}
 
 [LLM: 将改变方向细化为具体的、可验证的改变项。≥1 项。]
@@ -298,7 +300,7 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
 ## 8. 不要做
 
 > 确定性骨架（来自卷级约束）：
-> - 本章不得跨越卷边界（卷{vol_ctx['vol_num']}：Ch{vol_ctx['ch_start']}-{vol_ctx['ch_end']}）
+> - 本章不得跨越卷边界（卷{vol_ctx["vol_num"]}：Ch{vol_ctx["ch_start"]}-{vol_ctx["ch_end"]}）
 > - 本章不得引入卷外人物
 
 [LLM: 补充章级禁忌——基于前章的疲劳词分析和 AI 陷阱模式。]

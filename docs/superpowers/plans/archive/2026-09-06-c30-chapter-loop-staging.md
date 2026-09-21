@@ -88,13 +88,19 @@ def dispatch_reviews_parallel(...)   # :150，无中途保存点（F377）
 
 ```python
 """C30 R1 staging lifecycle: checkpoint-preservation predicate + MODIFY discard."""
+
 import shutil
 from pathlib import Path
 import pytest
 from shenbi.pipeline.checkpoint import (
-    clear_staging, commit_staging, discard_staging,
-    mark_staging_checkpointed, staging_checkpointed_targets, staging_path,
+    clear_staging,
+    commit_staging,
+    discard_staging,
+    mark_staging_checkpointed,
+    staging_checkpointed_targets,
+    staging_path,
 )
+
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
@@ -104,33 +110,42 @@ def project(tmp_path: Path) -> Path:
     (plan / "chapter-1-plan.md").write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
     (tmp_path / "staging" / "plans" / "chapter-1-plan-decisions.json").write_text(
         Path("tests/fixtures/decisions/valid-chapter-decisions.json").read_text(encoding="utf-8"),
-        encoding="utf-8")   # 真实 decisions 产物（G0.9），不手写
+        encoding="utf-8",
+    )  # 真实 decisions 产物（G0.9），不手写
     return tmp_path
+
 
 def test_uncheckpointed_staging_cleared_emergency(project):
     clear_staging(project, preserve_checkpointed=True)
-    assert not staging_path(project, "plans/chapter-1-plan.md").exists()   # 从未进入 checkpoint → 清
+    assert not staging_path(project, "plans/chapter-1-plan.md").exists()  # 从未进入 checkpoint → 清
+
 
 def test_checkpointed_staging_survives_emergency(project):
     targets = ["plans/chapter-1-plan.md", "plans/chapter-1-plan-decisions.json"]
     mark_staging_checkpointed(project, targets)
     clear_staging(project, preserve_checkpointed=True)
-    assert staging_path(project, "plans/chapter-1-plan.md").exists()       # 已进入 checkpoint → 保留
+    assert staging_path(project, "plans/chapter-1-plan.md").exists()  # 已进入 checkpoint → 保留
     assert staging_checkpointed_targets(project) == set(targets)
+
 
 def test_marker_survives_new_process_simulated_crash(project):
     # 谓词跨进程：重载 meta（新进程视角）后标记仍在
     mark_staging_checkpointed(project, ["plans/chapter-1-plan.md"])
     assert staging_checkpointed_targets(project) == {"plans/chapter-1-plan.md"}
 
+
 def test_reject_clears_everything_including_checkpointed(project):
     mark_staging_checkpointed(project, ["plans/chapter-1-plan.md"])
-    clear_staging(project)   # 显式决策路径不保留
-    assert not (project / "staging").exists()   # 整目录移除（含 .staging-meta.json），非"只删文件留目录"
+    clear_staging(project)  # 显式决策路径不保留
+    assert not (
+        project / "staging"
+    ).exists()  # 整目录移除（含 .staging-meta.json），非"只删文件留目录"
+
 
 def test_discard_staging_logs_and_clears(project):
     discard_staging(project, reason="modify")
     assert not (project / "staging").exists()
+
 
 def test_commit_removes_checkpoint_marker(project):
     mark_staging_checkpointed(project, ["plans/chapter-1-plan.md"])
@@ -191,16 +206,23 @@ def test_anchor_clamps_uncommitted_chapter(tmp_path):
     for n in (1, 2, 3):
         (tmp_path / "chapters").mkdir(exist_ok=True)
         (tmp_path / "chapters" / f"chapter-{n}.md").write_text(f"# 第{n}章\n", encoding="utf-8")
-    cl = ChapterLoopStateData(current_chapter=6, step_index=0)   # 「当前章零进展」判据 = cl.chapter_states.get("6") 无 steps_done（ChapterState 才有该字段）
+    cl = ChapterLoopStateData(
+        current_chapter=6, step_index=0
+    )  # 「当前章零进展」判据 = cl.chapter_states.get("6") 无 steps_done（ChapterState 才有该字段）
     _clamp_resume_cursor(cl, tmp_path)
-    assert cl.current_chapter == 4   # 锚=已提交 3，恢复从 4 续，不回 1 也不越 6 静默覆盖
+    assert cl.current_chapter == 4  # 锚=已提交 3，恢复从 4 续，不回 1 也不越 6 静默覆盖
+
 
 def test_anchor_noop_when_mid_committed_chapter(tmp_path):
     # 已提交章内的修订中断（当前章 steps_done 有内容）不动游标
-    cl = ChapterLoopStateData(current_chapter=3, step_index=2,
-                              chapter_states={"3": ChapterState(steps_done=["shenbi-chapter-drafting"])})
+    cl = ChapterLoopStateData(
+        current_chapter=3,
+        step_index=2,
+        chapter_states={"3": ChapterState(steps_done=["shenbi-chapter-drafting"])},
+    )
     _clamp_resume_cursor(cl, tmp_path)
     assert cl.current_chapter == 3
+
 
 def test_steps_done_migration_v1_to_v2():
     migrated, changed = migrate_steps_done(["shenbi-foreshadowing-plant"])
@@ -238,25 +260,38 @@ def test_steps_done_migration_v1_to_v2():
 ```python
 def test_step2_does_not_call_assembly():
     step2 = CHAPTER_STEPS[0 + 1]  # step_num 2
-    assert step2.calls_context_assembly is False     # T1602：plan 不存在时不得装配
+    assert step2.calls_context_assembly is False  # T1602：plan 不存在时不得装配
+
+
 def test_step3_calls_assembly_with_plan_guard():
     step3 = CHAPTER_STEPS[2]
-    assert step3.calls_context_assembly is True      # 装配移至 step-3 首入口
+    assert step3.calls_context_assembly is True  # 装配移至 step-3 首入口
+
+
 def test_foreshadowing_idx_derived_not_literal():
     import re
+
     src = Path("src/shenbi/pipeline/chapter_loop.py").read_text(encoding="utf-8")
-    assert not re.search(r"_FORESHADOWING_LIFECYCLE_IDX\s*=\s*6\b", src)   # 字面量清零（含空格变体）
+    assert not re.search(r"_FORESHADOWING_LIFECYCLE_IDX\s*=\s*6\b", src)  # 字面量清零（含空格变体）
+
+
 def test_assembly_guard_skips_when_plan_missing(tmp_path, monkeypatch):
     calls = []
-    monkeypatch.setattr("shenbi.pipeline.context_assemble.assemble_context",
-                        lambda *a, **k: calls.append(1) or (_ for _ in ()).throw(AssertionError("must not assemble")))
+    monkeypatch.setattr(
+        "shenbi.pipeline.context_assemble.assemble_context",
+        lambda *a, **k: (
+            calls.append(1) or (_ for _ in ()).throw(AssertionError("must not assemble"))
+        ),
+    )
     # step-3 入口、plan 缺失 → 跳过装配且不写 fallback（调用计数 == 0）
     ...  # 构造 state，走装配守卫函数，断言 calls == [] 且无 context/chapter-N-context.md 生成
+
+
 def test_clear_checkpoint_none_noop():
     state = PipelineState()
     state.pending_checkpoint = CheckpointData(type=CheckpointType.NONE)
     clear_checkpoint(state, ReviewDecision.APPROVE)
-    assert state.checkpoint_history == []   # F338：NONE 不入 history
+    assert state.checkpoint_history == []  # F338：NONE 不入 history
 ```
 
 - [x] **Step 2: 确认失败**：`uv run pytest tests/pipeline/test_step3_assembly_gate.py -q --no-cov` → FAIL
@@ -289,18 +324,24 @@ def test_clear_checkpoint_none_noop():
 
 ```python
 def test_scr_cache_invalidated_on_revision(tmp_path):
-    (tmp_path / "chapters").mkdir(parents=True)   # mkdir 先于 copy
+    (tmp_path / "chapters").mkdir(parents=True)  # mkdir 先于 copy
     shutil.copy("tests/fixtures/chapter-2-draft.md", tmp_path / "chapters" / "chapter-2.md")
     first = extract_scr(tmp_path, 2)
     # 模拟修订：改写章节文件（内容不同、可能同秒）
     p = tmp_path / "chapters" / "chapter-2.md"
     p.write_text(p.read_text(encoding="utf-8") + "\n新增段落", encoding="utf-8")
     second = extract_scr(tmp_path, 2)
-    assert second.paragraph_stats != first.paragraph_stats or second.extracted_at != first.extracted_at
-def test_scr_cache_hit_when_unchanged(tmp_path):
-    ...  # 连续两次调用：第二次走缓存（monkeypatch extractor 计数为 0 或断言返回同一 extracted_at）
-def test_cache_key_uses_size_and_mtime(tmp_path):
-    ...  # 同 size 不同 mtime_ns → 失效（os.utime 显式改）
+    assert (
+        second.paragraph_stats != first.paragraph_stats or second.extracted_at != first.extracted_at
+    )
+
+
+def test_scr_cache_hit_when_unchanged(
+    tmp_path,
+): ...  # 连续两次调用：第二次走缓存（monkeypatch extractor 计数为 0 或断言返回同一 extracted_at）
+def test_cache_key_uses_size_and_mtime(
+    tmp_path,
+): ...  # 同 size 不同 mtime_ns → 失效（os.utime 显式改）
 ```
 
 - [x] **Step 2: 确认失败**：`uv run pytest tests/pipeline/test_scr_cache_invalidation.py -q --no-cov` → FAIL（现缓存恒命中）

@@ -40,7 +40,8 @@ def sanitize_json_content(content):
     # JSON 规范仅允许特定的控制字符（\n, \r, \t 等）
     # 移除其他控制字符（0x00-0x1F 除了 \n \r \t）
     import re
-    cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', content)
+
+    cleaned = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", content)
     return cleaned
 ```
 

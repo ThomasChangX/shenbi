@@ -46,6 +46,7 @@ These tests encode the *converged* state. They are RED before Task 2-4 land
 and GREEN after. They replace the manual grep-diff acceptance with machine-
 readable assertions so future drift fails `just check` itself.
 """
+
 from pathlib import Path
 import tomllib
 
@@ -61,12 +62,14 @@ class TestCISingleSource:
 
     def test_ci_has_no_direct_tool_lint_calls(self):
         import re
+
         direct = re.findall(r"uv run python (?:tools|scripts)/lint_\S+", CI)
         assert direct == [], f"ci.yml still dual-lists lints: {direct}"
 
     def test_ci_no_direct_pytest(self):
         # 唯一豁免：Hypothesis replay statistics 步骤（CI 结构语义，见 Task 3 I1 裁决）
         import re
+
         pytest_calls = re.findall(r"uv run pytest[^\n]*", CI)
         non_exempt = [c for c in pytest_calls if "tests/property" not in c]
         assert non_exempt == [], f"ci.yml still runs pytest outside just check: {non_exempt}"
@@ -354,13 +357,10 @@ pipeline.log
 
 ```python
 GENERATED_OR_EXEMPT = {
-    "docs/skills",             # just generate 产物（sync-contracts 生成 skill 页）
-    "docs/superpowers",        # 工作态文档（archive/audit-runs 历史冻结）
+    "docs/skills",  # just generate 产物（sync-contracts 生成 skill 页）
+    "docs/superpowers",  # 工作态文档（archive/audit-runs 历史冻结）
 }
-DOCS_TO_CHECK = sorted(
-    str(p.relative_to(REPO_ROOT))
-    for p in REPO_ROOT.glob("*.md")
-) + sorted(
+DOCS_TO_CHECK = sorted(str(p.relative_to(REPO_ROOT)) for p in REPO_ROOT.glob("*.md")) + sorted(
     str(p.relative_to(REPO_ROOT))
     for p in (REPO_ROOT / "docs").rglob("*.md")
     if not any(str(p).startswith(str(REPO_ROOT / e)) for e in GENERATED_OR_EXEMPT)

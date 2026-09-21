@@ -26,9 +26,13 @@
 
 ```python
 # 当前实现：全量文件复制
-for pattern in ['truth/*.md', 'chapters/chapter-{NNN}.md',
-                'plans/chapter-{N}-plan.md', 'style/style_profile.md',
-                'characters/*.md']:
+for pattern in [
+    "truth/*.md",
+    "chapters/chapter-{NNN}.md",
+    "plans/chapter-{N}-plan.md",
+    "style/style_profile.md",
+    "characters/*.md",
+]:
     for f in project_dir.glob(pattern):
         content = f.read_text()
         snapshot_text += f"\n## {f.relative_to(project_dir)}\n\n{content}\n"
@@ -58,51 +62,52 @@ for pattern in ['truth/*.md', 'chapters/chapter-{NNN}.md',
 ```python
 # chapter_loop.py:903-960 重构
 
+
 def _snapshot_chapter_files(project_dir, state, force=False, label=None):
     """生成轻量级快照：仅存储文件哈希 + truth 文件内容。
 
     章节正文和审计报告通过哈希引用——不从磁盘复制。
     """
     chapter = state.chapter_loop.current_chapter
-    timestamp = datetime.now().strftime('%Y%m%dT%H%M%S')
+    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
 
     manifest = {
-        'chapter': chapter,
-        'timestamp': timestamp,
-        'label': label,
-        'files': {},
-        'truth_snapshot': {}
+        "chapter": chapter,
+        "timestamp": timestamp,
+        "label": label,
+        "files": {},
+        "truth_snapshot": {},
     }
 
     # 1. 对可恢复文件仅存储哈希（不复制内容）
     for pattern_key, pattern in [
-        ('chapter', f'chapters/chapter-{chapter:03d}.md'),
-        ('plan', f'plans/chapter-{chapter}-plan.md'),
+        ("chapter", f"chapters/chapter-{chapter:03d}.md"),
+        ("plan", f"plans/chapter-{chapter}-plan.md"),
     ]:
         f = project_dir / pattern
         if f.exists():
-            manifest['files'][pattern_key] = {
-                'path': pattern,
-                'sha256': hashlib.sha256(f.read_bytes()).hexdigest(),
-                'size': f.stat().st_size
+            manifest["files"][pattern_key] = {
+                "path": pattern,
+                "sha256": hashlib.sha256(f.read_bytes()).hexdigest(),
+                "size": f.stat().st_size,
             }
 
     # 2. 对审计文件：记录存在性和哈希（不复制内容）
-    manifest['audit_files'] = {}
-    for af in sorted((project_dir / 'audits').glob(f'chapter-{chapter}-*.md')):
-        manifest['audit_files'][af.name] = {
-            'sha256': hashlib.sha256(af.read_bytes()).hexdigest(),
-            'size': af.stat().st_size
+    manifest["audit_files"] = {}
+    for af in sorted((project_dir / "audits").glob(f"chapter-{chapter}-*.md")):
+        manifest["audit_files"][af.name] = {
+            "sha256": hashlib.sha256(af.read_bytes()).hexdigest(),
+            "size": af.stat().st_size,
         }
 
     # 3. truth 文件：保存完整内容（唯一需要在回滚时恢复的易变状态）
-    for tf in sorted((project_dir / 'truth').glob('*.md')):
-        manifest['truth_snapshot'][tf.name] = tf.read_text()
+    for tf in sorted((project_dir / "truth").glob("*.md")):
+        manifest["truth_snapshot"][tf.name] = tf.read_text()
 
     # 4. 写入轻量级 manifest
-    snapshot_dir = project_dir / 'snapshots'
+    snapshot_dir = project_dir / "snapshots"
     snapshot_dir.mkdir(parents=True, exist_ok=True)
-    manifest_path = snapshot_dir / f'chapter-{chapter:03d}-{timestamp}.json'
+    manifest_path = snapshot_dir / f"chapter-{chapter:03d}-{timestamp}.json"
     safe_write(manifest_path, json.dumps(manifest, ensure_ascii=False, indent=2))
 ```
 
@@ -115,18 +120,22 @@ def restore_from_snapshot(project_dir, snapshot_path):
     manifest = json.loads(snapshot_path.read_text())
 
     # 1. 恢复 truth 文件（从快照内容）
-    for name, content in manifest['truth_snapshot'].items():
-        safe_write(project_dir / 'truth' / name, content)
+    for name, content in manifest["truth_snapshot"].items():
+        safe_write(project_dir / "truth" / name, content)
 
     # 2. 章节和审计文件通过哈希验证——如果当前文件哈希不匹配，说明被修改过
     #    但通常不需要恢复（它们在快照后未被修改）
-    for key, info in manifest['files'].items():
-        current = project_dir / info['path']
+    for key, info in manifest["files"].items():
+        current = project_dir / info["path"]
         if current.exists():
             current_hash = hashlib.sha256(current.read_bytes()).hexdigest()
-            if current_hash != info['sha256']:
-                logger.warning("snapshot_mismatch", file=info['path'],
-                               snapshot_hash=info['sha256'], current_hash=current_hash)
+            if current_hash != info["sha256"]:
+                logger.warning(
+                    "snapshot_mismatch",
+                    file=info["path"],
+                    snapshot_hash=info["sha256"],
+                    current_hash=current_hash,
+                )
 ```
 
 ---

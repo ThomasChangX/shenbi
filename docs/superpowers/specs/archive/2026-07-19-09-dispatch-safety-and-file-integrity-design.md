@@ -144,12 +144,14 @@ All snapshots are ~300KB+ while chapter files are ~20-40KB. Snapshots include co
 ```python
 # Before dispatching revision, back up the current chapter prose
 import shutil
+
 chapter_path = project_dir / f"chapters/chapter-{state.current_chapter}.md"
 backup_path = project_dir / f"chapters/chapter-{state.current_chapter}-pre-rev.md"
 if chapter_path.exists():
     shutil.copy2(chapter_path, backup_path)
-    logger.info("pre_revision_backup", chapter=state.current_chapter,
-                size=chapter_path.stat().st_size)
+    logger.info(
+        "pre_revision_backup", chapter=state.current_chapter, size=chapter_path.stat().st_size
+    )
 ```
 
 This ensures that even if the revision skill overwrites the chapter body, the original prose is recoverable from the `-pre-rev.md` backup.
@@ -165,16 +167,23 @@ This ensures that even if the revision skill overwrites the chapter body, the or
 # NOTE: PurePath.match does not handle multi-segment patterns reliably;
 # use parent.name + name checks instead.
 from pathlib import Path
+
 full_path = Path(path)
-if (full_path.parent.name == "chapters"
-        and full_path.name.startswith("chapter-")
-        and full_path.name.endswith(".md")
-        and not full_path.name.endswith("-pre-rev.md")):
+if (
+    full_path.parent.name == "chapters"
+    and full_path.name.startswith("chapter-")
+    and full_path.name.endswith(".md")
+    and not full_path.name.endswith("-pre-rev.md")
+):
     if full_path.exists():
         original_size = full_path.stat().st_size
         if len(content) < original_size * 0.2:
-            logger.warning("revision_content_too_small", path=str(path),
-                           original=original_size, new=len(content))
+            logger.warning(
+                "revision_content_too_small",
+                path=str(path),
+                original=original_size,
+                new=len(content),
+            )
             continue  # Skip overwrite, preserve original
 ```
 
@@ -236,13 +245,14 @@ if state.chapter_loop.current_chapter == 1 and state.chapter_loop.step_index == 
 ```python
 import atexit
 
+
 def _emergency_snapshot(project_dir: Path, state: PipelineState) -> None:
     """Save current chapter state on abnormal termination."""
     try:
-        _snapshot_chapter_files(project_dir, state.chapter_loop.current_chapter,
-                                label="emergency")
+        _snapshot_chapter_files(project_dir, state.chapter_loop.current_chapter, label="emergency")
     except Exception:
         pass  # Best-effort, never crash the crash handler
+
 
 atexit.register(_emergency_snapshot, project_dir, state)
 ```
@@ -256,10 +266,9 @@ Add a minimum content check for chapter body files before including them in snap
 ```python
 # In _snapshot_chapter_files, before writing snapshot
 text = chapter_path.read_text()
-chinese_chars = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
+chinese_chars = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
 if chinese_chars < 500:
-    logger.warning("snapshot_suspect_content", chapter=chapter,
-                   chinese_chars=chinese_chars)
+    logger.warning("snapshot_suspect_content", chapter=chapter, chinese_chars=chinese_chars)
     # Still save snapshot, but mark metadata as suspect
 ```
 
@@ -299,12 +308,12 @@ os.chmod(lockfile, 0o644)
 
 ```python
 # Compare budget field with previous chapter's decisions
-prev_decisions = project_dir / f"chapters/chapter-{chapter-1}-decisions.json"
+prev_decisions = project_dir / f"chapters/chapter-{chapter - 1}-decisions.json"
 curr_decisions = project_dir / f"chapters/chapter-{chapter}-decisions.json"
 if prev_decisions.exists() and curr_decisions.exists():
     prev_data = json.loads(prev_decisions.read_text())
     curr_data = json.loads(curr_decisions.read_text())
-    if prev_data.get('budget') == curr_data.get('budget'):
+    if prev_data.get("budget") == curr_data.get("budget"):
         issues.append("G4.dec.budget_unchanged: adjacent chapter budgets are identical")
 ```
 
