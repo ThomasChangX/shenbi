@@ -177,10 +177,12 @@ After updating `pending_hooks.md`, also check `truth/bridge_tracker.md`:
 **bridge_tracker 写纪律（append_dedup，key=bridge_id）**：向 `truth/bridge_tracker.md` 输出**本卷触及的桥一行一条**（首列=Bridge ID，勿输出其他桥的行/表头/标题——派发写路径按首列键合并，重跑同桥只替换该行）。
 ## Output Format
 
+**pending_hooks 写纪律（append_dedup，key=hook_id）**：向 `truth/pending_hooks.md` 只输出**本章有状态变化的钩子**——改动行的总览行 + 对应 `### MH/CP-NNN` 详情段；新植钩子照常全量登记。**禁止重写未变化的钩子、表头、标题、frontmatter**（派发写路径按 hook_id 键合并）。每钩子详情段 ≤15 行，正文证据以 `chapters/chapter-N.md L行号` 引用代替原文抄录。整池重写会随钩子池规模增长撑爆输出上限，属不合格输出。
+
 ```
 ### FILE: truth/pending_hooks.md
 
-[Updated pending_hooks content including all lifecycle changes]
+[仅本章有状态变化的钩子：改动总览行 + ### 详情段（新植钩子全量登记），append_dedup by hook_id]
 
 ### FILE: audits/chapter-N-foreshadowing.md
 
