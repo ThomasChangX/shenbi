@@ -113,3 +113,22 @@ def test_parameter_agent_match_is_token_level() -> None:
     assert _validate_character_matrix(body_ok) == []
     body_agent = "---\nfm\n---\n\n| 冷 | 参数代理 | 活跃 | 无 | 第1章 |\n"
     assert _validate_character_matrix(body_agent) != []
+
+
+@pytest.mark.unit
+def test_json_manifest_envelope_recovery() -> None:
+    """A {"files":[...]} manifest envelope (model deviation from the taught
+    ### FILE: form) parses instead of failing with zero files (canary
+    closure round, 2026-09-28). Validated against the real forensic dump.
+    """
+    from shenbi.pipeline.dispatch_helper import _parse_structured_output
+
+    raw = '```json\n{"files":[{"path":"world/factions.md","content":"# F"}]}\n```'
+    out = _parse_structured_output(raw)
+    assert [f.path for f in out.files] == ["world/factions.md"]
+    assert out.files[0].content == "# F"
+    # taught envelope still wins when present
+    out2 = _parse_structured_output("### FILE: a.md\nhello\n")
+    assert [f.path for f in out2.files] == ["a.md"]
+    # garbage stays empty (no false recovery)
+    assert _parse_structured_output("no files here").files == []

@@ -1097,13 +1097,43 @@ def sanitize_json_content(content: str) -> str:
 def _parse_structured_output(raw_content: str) -> SkillOutput:
     """Parse LLM response via JSON mode (Pydantic).
 
-    Falls back to ### FILE: regex parsing for CLI backend.
+    Falls back to ### FILE: regex parsing for CLI backend, then to a
+    JSON-manifest envelope ({"files":[{"path","content"}]}) — the prompt
+    teaches the ### FILE: envelope with "CRITICAL" emphasis, yet models
+    occasionally emit the manifest form anyway; its payload is valid, so
+    converting it beats failing the dispatch with zero files written
+    (canary closure faction-builder round, 2026-09-28).
     """
     try:
         return SkillOutput.model_validate_json(raw_content)
     except (ValidationError, json.JSONDecodeError):
-        # Fallback: regex parse ### FILE: markers
-        return _parse_file_markers(raw_content)
+        pass
+    marker_parsed = _parse_file_markers(raw_content)
+    if marker_parsed.files:
+        return marker_parsed
+    brace = raw_content.find("{")
+    if brace >= 0:
+        candidate = raw_content[brace:]
+        try:
+            data = json.loads(candidate)
+        except json.JSONDecodeError:
+            try:
+                data, _end = json.JSONDecoder().raw_decode(candidate)
+            except json.JSONDecodeError:
+                return marker_parsed
+        if isinstance(data, dict) and isinstance(data.get("files"), list):
+            files = [
+                FileOutput(path=str(f["path"]), content=str(f["content"]))
+                for f in data["files"]
+                if isinstance(f, dict) and "path" in f and "content" in f
+            ]
+            if files:
+                log.warning(
+                    "dispatch_json_manifest_envelope_recovered",
+                    files=len(files),
+                )
+                return SkillOutput(files=files)
+    return marker_parsed
 
 
 def _parse_file_markers(raw_content: str) -> SkillOutput:
