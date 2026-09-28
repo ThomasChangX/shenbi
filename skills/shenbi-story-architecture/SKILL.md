@@ -5,6 +5,7 @@ description: Use when designing the overall story structure, creating story fram
 contract:
   kind: artifact
   reads:
+  - novel.json
   - world/story_bible.md
   - characters/**/*.md
   writes:
@@ -26,7 +27,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** world/story_bible.md, characters/**/*.md
+- **Reads:** novel.json, world/story_bible.md, characters/**/*.md
 - **Writes:** outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md
 - **Updates:** none
 
@@ -57,6 +58,7 @@ digraph story_architecture {
 2. **OKR 递归分解** — 全书 Objective → 每卷 Key Results → planner 据此分解章节任务
 3. **核心冲突三层** — surface（表面矛盾）、personal（主角个人困境）、deep（主题层面的终极问题）
 4. **散文骨架** — 输出散文段落，不是条目列表
+5. **章数预算硬约束** — 全书章数与卷数由 `novel.json` 的 `target_word_count` 预算决定，不得自由发挥：`总章数 = ceil(target_word_count ÷ 每章目标字数)`（每章字数取 genre-config 的 `chapter_word.default`，缺省 1000-1500），`卷数 = clamp(round(总章数 ÷ 每卷章数), 1, 5)`（每卷 20-30 章；总章数不足一卷时强制单卷）。短篇/金丝雀种子（如 3000 字）= 3 章单卷，禁止套用长篇多卷模板。volume_map.md 的卷划分骨架与最大章界必须落在此预算内（框架按 volume_map 最大章界回写 `total_chapters`）。
 
 ## 核心冲突三层
 
@@ -135,3 +137,4 @@ deep_conflict: "主题问题"
 | "网文不需要这么复杂的结构" | 读者看不出来 ≠ 读者感觉不到。好的结构是"不知不觉被吸引" |
 | "大纲会限制 spontaneity" | 大纲是轨道，不是牢笼。轨道让速度有意义 |
 | "卷纲太细了，后面会改的" | 改大纲的代价 << 改50章正文的代价 |
+| "小种子也按标准五卷史诗规划显得专业" | 3000 字种子规划 120 章 = chapter loop 按错误目标跑、逐章派发全部爆量。预算是硬约束不是建议 |
