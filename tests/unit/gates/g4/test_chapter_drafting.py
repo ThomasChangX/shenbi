@@ -251,3 +251,41 @@ def test_hook_ids_inside_ledger_section_enforced(tmp_path) -> None:
     chapter.write_text("正文没有出现任何钩子编号。\n", encoding="utf-8")
     issues = check_hook_fulfillment(plan, chapter)
     assert any("MH-003" in i for i in issues)
+
+
+# ---------------------------------------------------------------------------
+# Windowed visual-scene measure (canary escalation #13): web-novel prose
+# uses 50-100 CJK paragraphs — a single-paragraph >=100 measure never fires
+# on the style the SKILL itself teaches.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_visual_scene_window_two_short_paragraphs_pass(tmp_path: Path) -> None:
+    """Two consecutive short visual paragraphs (99 + 40 CJK) satisfy the
+    windowed measure — the exact canary shape (99-CJK rift description
+    one char short of the legacy single-paragraph threshold).
+    """
+    p1 = "不是光。" + "他看见那道白从地面切进空气里。" * 8  # ~99 CJK, vn=True
+    p2 = "他往后退了半步，伸手去抓门框，指尖碰到的是湿的木头。" * 1  # vn=True
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{p1}\n\n{p2}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert result["status"] != "FAIL" or not any("no_visual_scene" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_visual_scene_pure_introspection_still_fails(tmp_path: Path) -> None:
+    """Long introspective paragraphs without visual verbs or dialogue still
+    fail — the window does not hollow out the check.
+    """
+    p1 = "他想起许多关于过去的细节。" * 10  # >=100 CJK, no vn, no di
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{p1}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+    mf = _must_fix(result)
+
+    assert any("G4.cd.no_visual_scene" in m for m in mf)

@@ -351,16 +351,31 @@ def g4_chapter_drafting(
         # of this list (canary escalation #12, 2026-09-28).
         content_for_prose = META_BLOCK_RE.sub("", content)
         paragraphs = [p.strip() for p in content_for_prose.split("\n\n") if p.strip()]
-        visual_p_count = 0
+        # Visual-scene check is WINDOWED (canary escalation #13): web-novel
+        # prose uses 50-100 CJK paragraphs, so a single-paragraph >=100
+        # measure is a granularity mismatch with the very style the SKILL
+        # teaches. A window of 1-3 consecutive body paragraphs counts when
+        # its combined CJK >= 100 and at least 2 paragraphs in it carry
+        # visual-narrative verbs or dialogue (size-1 windows keep the legacy
+        # >=1 requirement — long-paragraph styles see no regression).
+        body_paragraphs: list[tuple[bool, bool, int]] = []  # (has_vn, has_di, cjk)
         for p in paragraphs:
             if p.startswith("#") or p.startswith("##") or p.startswith(">") or p.startswith("---"):
                 continue
             cjk_in_p = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", p))
             has_vn = bool(re.search(r"(走|跑|推|拉|抓|坐|站|躺|倒|看|听|触|发现|看到|听到)", p))
             has_di = bool(re.search(r"[「\u201c].*?[」\u201d]", p))
-            if cjk_in_p >= 100 and (has_vn or has_di):
-                visual_p_count += 1
-        if visual_p_count < 1:
+            body_paragraphs.append((has_vn, has_di, cjk_in_p))
+        visual_windows = 0
+        for size in (1, 2, 3):
+            for i in range(len(body_paragraphs) - size + 1):
+                window = body_paragraphs[i : i + size]
+                if sum(w[2] for w in window) < 100:
+                    continue
+                needed = 1 if size == 1 else 2
+                if sum(1 for w in window if w[0] or w[1]) >= needed:
+                    visual_windows += 1
+        if visual_windows < 1:
             mf.append(f"G4.cd.no_visual_scene:{fp}")
         else:
             c.append(
@@ -368,7 +383,7 @@ def g4_chapter_drafting(
                     "id": "G4.cd.scene_concreteness",
                     "file": fp,
                     "s": GateStatus.PASS,
-                    "visual_paragraphs": visual_p_count,
+                    "visual_windows": visual_windows,
                 }
             )
 
