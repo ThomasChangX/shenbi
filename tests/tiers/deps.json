@@ -354,7 +354,7 @@
     "src/shenbi/contracts/schemas/decisions.py": "sha256:61fd9f2c505aa743a01a27581f5c0190cc3807cc2b40b3aeba782aadd39639c8",
     "src/shenbi/contracts/schemas/__init__.py": "sha256:8400b820b83361a05fd08920d415e03b3d81bc1228319d4f5770e0de6654e280",
     "src/shenbi/contracts/schemas/adapt.py": "sha256:21d483efc73d3afc03878842c4c1b9d4f48b6362bbc76d391910bbf9effafa9e",
-    "src/shenbi/contracts/skills/pacing_design.py": "sha256:331639621ab8c3dfce5d2f55edbca7392c21552d96d83eda7342bbf28e71aa1b",
+    "src/shenbi/contracts/skills/pacing_design.py": "sha256:60288f7d1f0f5b09b1f3787a37972a6112c8bc0794b7b4e4aca3ca79820431ba",
     "src/shenbi/contracts/skills/score_arc.py": "sha256:c60dd677b77d96865fbb1f5f60374a14415d3f658f678f3b51a47b1b379db0b0",
     "src/shenbi/contracts/skills/_scoring_base.py": "sha256:2fd7e3ed6909238455ef94021de04d71f13c45a3760b1d555200e82f6818f177",
     "src/shenbi/contracts/skills/genre_config.py": "sha256:a2b2d1cd9fdd14a6e581cd2ef4d84d251c48c64354b56e501b43b53f99f16a61",
