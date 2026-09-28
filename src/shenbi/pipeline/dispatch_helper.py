@@ -2189,6 +2189,31 @@ def _call_llm_streaming_with_retry(
 # ---------------------------------------------------------------------------
 
 
+def _persist_failed_write_output(
+    project_dir: Path, skill: str, output_text: str, reason: str
+) -> None:
+    """Forensic persistence of the raw LLM output when the write phase fails.
+
+    Canary escalation #16/#17 forensics gap: a dispatch whose LLM call
+    succeeded but whose parse/write phase failed left NO artifact — no trace
+    event (success trace only fires on the success return), no raw output —
+    so the root cause was undiagnosable from the project dir. The dump is
+    best-effort: a persistence failure never masks the dispatch failure.
+    """
+    try:
+        diag_dir = project_dir / "diagnostics"
+        diag_dir.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+        safe_write(
+            diag_dir / f"failed-write-{skill}-{ts}.md",
+            f"<!-- write-phase failure: {reason} -->\n{output_text}",
+            allowed_roots=(project_dir,),
+        )
+        log.warning("failed_write_output_persisted", skill=skill, reason=reason[:120])
+    except Exception:
+        log.warning("failed_write_output_persist_failed", skill=skill)
+
+
 def _dispatch_via_api(
     skill: str,
     project_dir: Path,
@@ -2460,6 +2485,9 @@ def _dispatch_via_api(
             skill=skill,
             signature=exc.signature,
         )
+        _persist_failed_write_output(
+            project_dir, skill, output_text, f"write_failure:{exc.signature}"
+        )
         return DispatchResult(False, -1, "", build_retry_feedback(exc))
     except TruthFileParseError as exc:
         # Corrupt existing truth file met an append_dedup upsert: fail loud at
@@ -2467,10 +2495,12 @@ def _dispatch_via_api(
         # LLM call cannot fix the file — the failure surfaces to the chapter
         # loop's failure handling (retry budget -> checkpoint for human repair).
         log.error("truth_upsert_parse_failed", skill=skill, error=str(exc))
+        _persist_failed_write_output(project_dir, skill, output_text, f"truth_parse:{exc}")
         return DispatchResult(
             False, -1, "", f"truth file upsert aborted (existing file corrupt): {exc}"
         )
     if not written:
+        _persist_failed_write_output(project_dir, skill, output_text, "no_files_parsed")
         return DispatchResult(False, -1, "", "No output files written")
 
     missing = [p for p in output_paths if "*" not in p and not (project_dir / p).exists()]
