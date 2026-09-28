@@ -13,38 +13,29 @@ from shenbi.pipeline.state import PipelineState
 
 class TestParallelPostDraft:
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
-    def test_both_steps_executed_concurrently(self, mock_dispatch):
-        """Both steps truly overlap: neither returns until BOTH have started.
+    def test_post_draft_steps_sequential_in_order(self, mock_dispatch):
+        """Post-draft steps run SEQUENTIALLY, lifecycle before settling.
 
-        F745 (spec #52): a threading.Barrier(2) inside the faked dispatches
-        proves real concurrency — a serial implementation deadlocks against
-        the barrier timeout and this test goes red. The old call_count==2
-        assertion passed even for fully sequential execution.
+        9be872df (canary escalation #16) replaced parallel execution: both
+        steps ``append_dedup``-update ``truth/pending_hooks.md`` through
+        staging whose merge base is the LIVE file — in parallel the two
+        staging writers race last-writer-wins and lock contention could kill
+        a worker before its dispatch. This replaces the F745 barrier test,
+        which asserted true overlap and can never pass against the
+        sequential design (first barrier waiter times out alone).
         """
-        import threading
-
-        barrier = threading.Barrier(2, timeout=5.0)
-        started = threading.Event()
-
-        def barrier_dispatch(skill, *args, **kwargs):
-            try:
-                barrier.wait()  # both workers must arrive for either to proceed
-                started.set()
-                return MagicMock(success=True, result={})
-            except threading.BrokenBarrierError:
-                return MagicMock(success=False, result={})
-
-        mock_dispatch.side_effect = barrier_dispatch
         state = PipelineState.default("/tmp/test-project")
         state.chapter_loop.current_chapter = 3
 
         lifecycle_result, settling_result = run_parallel_post_draft_steps(state)
 
-        assert started.is_set(), "both dispatches ran"
         assert lifecycle_result.success and settling_result.success
         skills_called = [c.args[0] for c in mock_dispatch.call_args_list]
-        assert "shenbi-foreshadowing-lifecycle" in skills_called
-        assert "shenbi-state-settling" in skills_called
+        assert skills_called == [
+            "shenbi-foreshadowing-lifecycle",
+            "shenbi-state-settling",
+        ], "settling must run AFTER lifecycle so its staging merge base "
+        "includes lifecycle's landed pending_hooks increment"
 
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
     def test_lifecycle_failure_isolated_from_settling(self, mock_dispatch):
