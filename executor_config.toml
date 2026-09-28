@@ -28,6 +28,11 @@ temperature = 0.1
 
 [overrides."shenbi-foreshadowing-lifecycle"]
 temperature = 0.5
+# Canary escalation #15: write-discipline alone insufficient (whole-pool
+# rewrite despite SKILL rule) — combined headroom so truncated merges stop
+# silently dropping trailing hooks; monitor completion_tokens, revisit if
+# sustained >30K.
+max_tokens = 49152
 
 # Spec §2.1 P0: score-* (most deterministic task) + discriminative review queue.
 # Evaluative queue (texture/reader-pull/highpoint/pacing/long-span/motivation/
