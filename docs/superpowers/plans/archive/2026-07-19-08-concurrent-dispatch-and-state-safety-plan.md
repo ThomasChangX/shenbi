@@ -36,6 +36,7 @@
 ```python
 # tests/unit/pipeline/test_truth_io.py
 """Tests for thread-safe truth file writes (spec §3.2)."""
+
 from __future__ import annotations
 
 import threading
@@ -102,7 +103,8 @@ class TestConcurrentUpsertNoLostRows:
             assert f"row-{k}" in content, f"row for {k} was lost"
         # Exactly 8 data rows (discount heading/blank lines).
         data_lines = [
-            ln for ln in content.splitlines()
+            ln
+            for ln in content.splitlines()
             if ln.strip().startswith("- ") or ln.strip().startswith("| ")
         ]
         assert len(data_lines) == 8, f"expected 8 rows, got {len(data_lines)}: {data_lines}"
@@ -155,6 +157,7 @@ threads can each read the prior content and the second writer's merge loses
 the first writer's row (spec §2.2 lost-update race). The per-path lock
 serializes the whole read-merge-write transaction.
 """
+
 from __future__ import annotations
 
 import threading
@@ -300,6 +303,7 @@ lose updates. 8-thread contention test verifies no lost rows."
 ```python
 # tests/unit/pipeline/test_state_concurrency.py
 """Tests for thread-safe PipelineState mutations (spec §3.3)."""
+
 from __future__ import annotations
 
 import threading
@@ -325,9 +329,7 @@ class TestInstanceLock:
     def test_lock_is_not_class_attribute(self):
         """Lock lives on the instance, not on the class."""
         s = _fresh_state()
-        assert "_lock" not in type(s).__dict__, (
-            "_lock must not be defined on the class"
-        )
+        assert "_lock" not in type(s).__dict__, "_lock must not be defined on the class"
 
     def test_lock_is_a_threading_lock(self):
         import threading
@@ -353,9 +355,7 @@ class TestConcurrentAddStepDone:
                 f.result()
 
         cs = s.chapter_loop.chapter_states["1"]
-        assert sorted(cs.steps_done) == sorted(steps), (
-            f"lost entries: got {sorted(cs.steps_done)}"
-        )
+        assert sorted(cs.steps_done) == sorted(steps), f"lost entries: got {sorted(cs.steps_done)}"
 
     def test_add_step_done_is_idempotent(self):
         s = _fresh_state()
@@ -408,52 +408,56 @@ from dataclasses import dataclass, field
 Then add `_lock` as the LAST field on `PipelineState` (after `config`), so existing field order / positional construction is unaffected. Insert before `@classmethod def default`:
 
 ```python
-    config: PipelineConfig = field(default_factory=PipelineConfig)
-    # Instance-level lock guarding concurrent mutations to mutable fields
-    # (steps_done append, audit_results/retry_counts dict update). MUST be an
-    # instance attribute (spec §3.3): a class-level lock would serialize
-    # across unrelated PipelineState objects. Excluded from to_dict via the
-    # explicit field list there (not a data field).
-    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
+config: PipelineConfig = field(default_factory=PipelineConfig)
+# Instance-level lock guarding concurrent mutations to mutable fields
+# (steps_done append, audit_results/retry_counts dict update). MUST be an
+# instance attribute (spec §3.3): a class-level lock would serialize
+# across unrelated PipelineState objects. Excluded from to_dict via the
+# explicit field list there (not a data field).
+_lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
 
-    def add_step_done(self, chapter: int, step: str) -> None:
-        """Thread-safe append to chapter_states[chapter].steps_done (idempotent).
 
-        Replaces the non-thread-safe _record_step_done() in chapter_loop.py.
-        After this lands, remove the old _record_step_done and update all call sites.
-        """
-        key = str(chapter)
-        with self._lock:
-            cs = self.chapter_loop.chapter_states.get(key)
-            if cs is None:
-                cs = ChapterState()
-                self.chapter_loop.chapter_states[key] = cs
-            if step not in cs.steps_done:
-                cs.steps_done.append(step)
+def add_step_done(self, chapter: int, step: str) -> None:
+    """Thread-safe append to chapter_states[chapter].steps_done (idempotent).
 
-    def add_audit_result(self, chapter: int, result_key: str, value: Any) -> None:
-        """Thread-safe update to chapter_states[chapter].audit_results."""
-        key = str(chapter)
-        with self._lock:
-            cs = self.chapter_loop.chapter_states.get(key)
-            if cs is None:
-                cs = ChapterState()
-                self.chapter_loop.chapter_states[key] = cs
-            cs.audit_results[result_key] = value
+    Replaces the non-thread-safe _record_step_done() in chapter_loop.py.
+    After this lands, remove the old _record_step_done and update all call sites.
+    """
+    key = str(chapter)
+    with self._lock:
+        cs = self.chapter_loop.chapter_states.get(key)
+        if cs is None:
+            cs = ChapterState()
+            self.chapter_loop.chapter_states[key] = cs
+        if step not in cs.steps_done:
+            cs.steps_done.append(step)
 
-    def increment_retry(self, chapter: int, skill: str) -> int:
-        """Thread-safe increment of retry_counts; returns the new count."""
-        rk = f"ch{chapter}-{skill}"
-        with self._lock:
-            count = self.chapter_loop.retry_counts.get(rk, 0) + 1
-            self.chapter_loop.retry_counts[rk] = count
-            return count
 
-    def reset_retry(self, chapter: int, skill: str) -> None:
-        """Thread-safe clear of retry_counts[chN-skill]."""
-        rk = f"ch{chapter}-{skill}"
-        with self._lock:
-            self.chapter_loop.retry_counts.pop(rk, None)
+def add_audit_result(self, chapter: int, result_key: str, value: Any) -> None:
+    """Thread-safe update to chapter_states[chapter].audit_results."""
+    key = str(chapter)
+    with self._lock:
+        cs = self.chapter_loop.chapter_states.get(key)
+        if cs is None:
+            cs = ChapterState()
+            self.chapter_loop.chapter_states[key] = cs
+        cs.audit_results[result_key] = value
+
+
+def increment_retry(self, chapter: int, skill: str) -> int:
+    """Thread-safe increment of retry_counts; returns the new count."""
+    rk = f"ch{chapter}-{skill}"
+    with self._lock:
+        count = self.chapter_loop.retry_counts.get(rk, 0) + 1
+        self.chapter_loop.retry_counts[rk] = count
+        return count
+
+
+def reset_retry(self, chapter: int, skill: str) -> None:
+    """Thread-safe clear of retry_counts[chN-skill]."""
+    rk = f"ch{chapter}-{skill}"
+    with self._lock:
+        self.chapter_loop.retry_counts.pop(rk, None)
 ```
 
 Note: `to_dict` already enumerates fields explicitly (it does not dump `_lock`), and `from_dict`/`from_json` ignore unknown keys, so adding `_lock` does not break state-file round-trips. `compare=False` keeps equality checks (used in tests) from comparing lock identity.
@@ -498,6 +502,7 @@ compare=False keeps equality checks lock-identity-independent."
 ```python
 # tests/unit/pipeline/test_parallel_dispatch_safety.py
 """Tests for WRITE_SAFETY classification in parallel dispatch (spec §3.1, §3.4)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -535,10 +540,7 @@ class TestClassification:
 
     def test_unknown_skill_defaults_to_write_shared(self):
         # Conservative: unknown skills must NOT be parallelized.
-        assert (
-            classify_skill_write_safety("shenbi-something-new")
-            == WRITE_SAFETY.WRITE_SHARED
-        )
+        assert classify_skill_write_safety("shenbi-something-new") == WRITE_SAFETY.WRITE_SHARED
 
 
 class TestParallelDispatchBoundary:
@@ -594,6 +596,7 @@ any skill not classified READ_ONLY_AUDIT must run serially, so a future
 expansion (e.g. Spec 6) cannot silently place a write-capable skill on the
 concurrent path and race on truth files / shared state (spec §2.1-2.3).
 """
+
 from __future__ import annotations
 
 from enum import StrEnum

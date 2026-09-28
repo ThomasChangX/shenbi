@@ -94,6 +94,7 @@ Run: `uv run pytest tests/unit/test_process_guard.py -x -q` → Expected: FAIL(M
 (T1b 按 g5.py 守卫惯例逐点处理)。永不 raise——超时/坏 JSON/OS 错误一律结构化
 返回,携带 stdout/stderr 尾部上下文供诊断。
 """
+
 from __future__ import annotations
 
 import json

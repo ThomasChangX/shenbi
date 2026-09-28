@@ -131,13 +131,15 @@ The fix is organized into three layers of defense for JSON output integrity, plu
 
 ```python
 # In _write_parsed_outputs, before safe_write(full_path, content)
-if full_path.suffix == '.json':
+if full_path.suffix == ".json":
     from pydantic import ValidationError  # MUST import at module level or here
+
     try:
         parsed = json.loads(content)
         # Additional: validate shenbi-decisions-v1 schema
-        if isinstance(parsed, dict) and parsed.get('$schema') == 'shenbi-decisions-v1':
+        if isinstance(parsed, dict) and parsed.get("$schema") == "shenbi-decisions-v1":
             from shenbi.contracts.schemas.decisions import DecisionsDoc
+
             DecisionsDoc.model_validate(parsed)
     except (json.JSONDecodeError, ValidationError) as e:
         logger.error("decisions_json_invalid", path=str(full_path), error=str(e))
@@ -145,8 +147,12 @@ if full_path.suffix == '.json':
         try:
             decoder = json.JSONDecoder()
             clean_data, end_pos = decoder.raw_decode(content)
-            logger.warning("decisions_json_truncated", path=str(full_path),
-                           original_len=len(content), cleaned_len=end_pos)
+            logger.warning(
+                "decisions_json_truncated",
+                path=str(full_path),
+                original_len=len(content),
+                cleaned_len=end_pos,
+            )
             content = json.dumps(clean_data, ensure_ascii=False, indent=2)
         except json.JSONDecodeError:
             raise ValueError(f"Decisions JSON invalid and unrecoverable: {e}")
@@ -183,7 +189,8 @@ def sanitize_json_content(content: str) -> str:
     Removes all other control characters in range 0x00-0x1F except those three.
     """
     import re
-    cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', content)
+
+    cleaned = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", content)
     return cleaned
 ```
 
@@ -219,7 +226,7 @@ def g4_chapter_revision(files: list[Path], rd: Path, project_dir: Path, repo_roo
     """
     issues = []
     for f in files:
-        if f.suffix != '.json' or 'revision' not in f.name:
+        if f.suffix != ".json" or "revision" not in f.name:
             continue
         try:
             data = json.loads(f.read_text(encoding="utf-8"))
@@ -229,16 +236,17 @@ def g4_chapter_revision(files: list[Path], rd: Path, project_dir: Path, repo_roo
 
         # The DecisionsDoc schema has selections + adjustments.
         # For revision: adjustments represent the actual revision actions.
-        adjustments = data.get('adjustments', [])
+        adjustments = data.get("adjustments", [])
 
         # HARD: if no adjustments, the revision mode must be documented
         if not adjustments:
             # Check if selections document a no-op/skip decision
-            selections = data.get('selections', [])
+            selections = data.get("selections", [])
             has_skip_selection = any(
-                'no_revision' in str(s.get('target', '')).lower() or
-                'skip' in str(s.get('target', '')).lower()
-                for s in selections if isinstance(s, dict)
+                "no_revision" in str(s.get("target", "")).lower()
+                or "skip" in str(s.get("target", "")).lower()
+                for s in selections
+                if isinstance(s, dict)
             )
             if not has_skip_selection:
                 issues.append(
@@ -249,7 +257,7 @@ def g4_chapter_revision(files: list[Path], rd: Path, project_dir: Path, repo_roo
         # HARD: each adjustment must have substantive rationale (>= 20 chars)
         for i, adj in enumerate(adjustments):
             if isinstance(adj, dict):
-                rationale = str(adj.get('rationale', ''))
+                rationale = str(adj.get("rationale", ""))
                 if len(rationale) < 20:
                     issues.append(
                         f"G4.rev.adjustment_{i}_thin_rationale:{f.name} -- "
@@ -264,14 +272,16 @@ def g4_chapter_revision(files: list[Path], rd: Path, project_dir: Path, repo_roo
 Corrected return statement at the end of the function:
 
 ```python
-    # Return a JSON result string matching the G4 checker protocol.
-    # make_composite_checker (decisions_validator.py:87) does
-    # json.loads(existing_result) and expects {"status","checks","must_fix"}.
-    return json.dumps({
+# Return a JSON result string matching the G4 checker protocol.
+# make_composite_checker (decisions_validator.py:87) does
+# json.loads(existing_result) and expects {"status","checks","must_fix"}.
+return json.dumps(
+    {
         "status": "PASS" if not issues else "HARD_FAIL",
         "checks": issues,
         "must_fix": issues,
-    })
+    }
+)
 ```
 
 **Integration with existing g4_decisions:** Use `make_composite_checker(g4_decisions, g4_chapter_revision)` at `generic.py:237` — this runs both the JSON syntax/schema check AND the revision-content check. The composite checker partitions files by extension (`.json` → both checkers).
@@ -317,6 +327,7 @@ rev_path = project_dir / f"chapters/chapter-{chapter}-revision-decisions.json"
 if not rev_path.exists():
     # Minimal DecisionsDoc-compliant file for no-revision routes
     from datetime import datetime, timezone
+
     min_decisions = {
         "$schema": "shenbi-decisions-v1",
         "skill": "shenbi-chapter-revision",
@@ -356,10 +367,10 @@ G4_FORMAT_EXAMPLES = {
         "注意：冒号可用半角 : 或全角 ：，'判定' 后冒号前可有空格"
     ),
     "G4.rr.evidence": (
-        "证据列每行必须包含文件和行号引用，格式：\n"
-        "chapter-N.md L45-52 > \"引用原文\""
+        '证据列每行必须包含文件和行号引用，格式：\nchapter-N.md L45-52 > "引用原文"'
     ),
 }
+
 
 def _enrich_g4_feedback(failures: list[str]) -> str:
     """Build enriched retry feedback with format examples for each failed check."""
@@ -391,13 +402,13 @@ Add tolerance for the 2 genuine gaps:
 # Current (line 64): r'判定\s*[:：]\s*(\S+)' — already handles : and ：, ## prefix, etc.
 # Only 2 genuine gaps remain:
 VERDICT_SUPPLEMENT_PATTERNS = [
-    r'\*\*判定\*\*\s*[:：]\s*(\S+)',           # markdown bold
-    r'Verdict\s*[:：]\s*(\S+)',                # English prefix
+    r"\*\*判定\*\*\s*[:：]\s*(\S+)",  # markdown bold
+    r"Verdict\s*[:：]\s*(\S+)",  # English prefix
 ]
 
 verdict = None
 # Try existing pattern first (line 64)
-verdict_match = re.search(r'判定\s*[:：]\s*(\S+)', content)
+verdict_match = re.search(r"判定\s*[:：]\s*(\S+)", content)
 if not verdict_match:
     # Fall back to supplement patterns
     for pattern in VERDICT_SUPPLEMENT_PATTERNS:

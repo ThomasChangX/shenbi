@@ -39,6 +39,7 @@ import pytest
 from pathlib import Path
 from shenbi.pipeline.context_assemble import _load_volume_context, BUDGET_BY_ROLE
 
+
 @pytest.fixture
 def project_with_volume_map(tmp_path: Path) -> Path:
     outline_dir = tmp_path / "outline"
@@ -87,7 +88,9 @@ def test_load_volume_context_includes_chapter_node(project_with_volume_map: Path
     assert "opening" in result.lower()
 
 
-def test_load_volume_context_returns_bridge_info_when_near_activation(project_with_volume_map: Path):
+def test_load_volume_context_returns_bridge_info_when_near_activation(
+    project_with_volume_map: Path,
+):
     result = _load_volume_context(project_with_volume_map, chapter=25)
     assert "V1-B1" in result
     assert "Brahmi inscription" in result
@@ -122,6 +125,7 @@ import re as _re_module
 # Shared constant — defined here in context_assemble.py to avoid circular imports.
 # plan_skeleton.py imports from context_assemble (one-way dependency only).
 _BRIDGE_ACTIVATION_WINDOW = 3
+
 
 # Canonical definition — plan_skeleton.py imports from here
 def _resolve_volume_at_runtime(project_dir: Path, chapter: int) -> tuple[str, int, int] | None:
@@ -222,6 +226,7 @@ Inject the volume context as a Route C dict entry so it flows through the existi
 # (source/weight/text/id); rerank_results + the section-building loop convert
 # them to ContextSection(source/priority/text/category/estimated_tokens).
 import re as _re_chapter
+
 _chapter_match = _re_chapter.search(r"chapter-(\d+)", chapter_plan_path)
 _chapter_num = int(_chapter_match.group(1)) if _chapter_match else 0
 volume_ctx = _load_volume_context(project_dir, _chapter_num)
@@ -354,7 +359,11 @@ def test_skeleton_marks_prefilled_sections_as_editable_context(project_with_volu
     """
     skeleton = generate_plan_skeleton(project_with_volume_map, chapter=1)
     # Must include the editable-context instruction in Chinese or English
-    assert "以下为参考骨架" in skeleton or "EDITABLE CONTEXT" in skeleton or "adjust as needed" in skeleton.lower()
+    assert (
+        "以下为参考骨架" in skeleton
+        or "EDITABLE CONTEXT" in skeleton
+        or "adjust as needed" in skeleton.lower()
+    )
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -532,7 +541,7 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
 
     # Section 8: Don't Do (partial)
     if chapter_node:
-        role = chapter_node['role']
+        role = chapter_node["role"]
         if role == "opening":
             section_8 = (
                 f"[LLM] Avoid: rushing exposition, introducing too many characters. "
@@ -544,7 +553,9 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
                 f"that won't pay off soon. This is a closing chapter - deliver resolution."
             )
         else:
-            section_8 = f"[LLM] List 3-5 things to avoid in this chapter. Consider volume boundaries."
+            section_8 = (
+                f"[LLM] List 3-5 things to avoid in this chapter. Consider volume boundaries."
+            )
     else:
         section_8 = "[LLM] List 3-5 things to avoid in this chapter."
 
@@ -667,7 +678,9 @@ def test_alignment_check_passes_when_key_terms_present(project_with_volume_map_a
     with patch("shenbi.pipeline.chapter_loop.log") as mock_log:
         _check_volume_map_alignment(project_with_volume_map_and_chapter, chapter=1)
         # Should not warn when terms match
-        warn_calls = [c for c in mock_log.warning.call_args_list if "volume_map_alignment" in str(c)]
+        warn_calls = [
+            c for c in mock_log.warning.call_args_list if "volume_map_alignment" in str(c)
+        ]
         assert len(warn_calls) == 0
 
 
@@ -678,7 +691,9 @@ def test_alignment_check_warns_when_key_terms_missing(project_with_volume_map_an
     with patch("shenbi.pipeline.chapter_loop.log") as mock_log:
         _check_volume_map_alignment(project_with_volume_map_and_chapter, chapter=1)
         mock_log.warning.assert_any_call(
-            "volume_map_alignment", chapter=1, missing_terms=["Lin Feng", "awakens", "cultivate", "elder"]
+            "volume_map_alignment",
+            chapter=1,
+            missing_terms=["Lin Feng", "awakens", "cultivate", "elder"],
         )
 
 
@@ -689,7 +704,9 @@ def test_alignment_check_skips_when_no_volume_map(project_with_volume_map_and_ch
 
     with patch("shenbi.pipeline.chapter_loop.log") as mock_log:
         _check_volume_map_alignment(project_with_volume_map_and_chapter, chapter=1)
-        warn_calls = [c for c in mock_log.warning.call_args_list if "volume_map_alignment" in str(c)]
+        warn_calls = [
+            c for c in mock_log.warning.call_args_list if "volume_map_alignment" in str(c)
+        ]
         assert len(warn_calls) == 0
 ```
 
@@ -704,6 +721,7 @@ Add to `src/shenbi/pipeline/chapter_loop.py`:
 
 ```python
 import re as _re
+
 
 def _check_volume_map_alignment(project_dir: Path, chapter: int) -> None:
     """WARN-level check: compare volume_map chapter node terms against chapter text.
@@ -769,7 +787,21 @@ def _extract_key_terms(text: str) -> list[str]:
     Returns Chinese words (2+ chars) and English words (3+ chars),
     skipping common stop words.
     """
-    stop_words = {"the", "and", "in", "of", "to", "a", "is", "for", "with", "this", "that", "from", "be"}
+    stop_words = {
+        "the",
+        "and",
+        "in",
+        "of",
+        "to",
+        "a",
+        "is",
+        "for",
+        "with",
+        "this",
+        "that",
+        "from",
+        "be",
+    }
     terms: list[str] = []
 
     # English words 3+ chars
@@ -836,7 +868,9 @@ import pytest
 from pathlib import Path
 
 
-BRIDGE_TRACKER_HEADER = "| Bridge ID | Content | Expected Activation Ch | Actual Activation Ch | Status |"
+BRIDGE_TRACKER_HEADER = (
+    "| Bridge ID | Content | Expected Activation Ch | Actual Activation Ch | Status |"
+)
 
 
 def test_bridge_tracker_template_has_correct_structure():
@@ -976,20 +1010,26 @@ def test_resolve_wildcard_creates_directory_for_concrete_path(tmp_path: Path):
 
 def test_resolve_wildcard_matches_pattern(tmp_path: Path):
     """Wildcard pattern should match concrete paths."""
-    assert _resolve_wildcard_path(
-        "characters/major/*.md",
-        str(tmp_path / "characters" / "major" / "chen-weimin.md"),
-        base_dir=tmp_path,
-    ) is True
+    assert (
+        _resolve_wildcard_path(
+            "characters/major/*.md",
+            str(tmp_path / "characters" / "major" / "chen-weimin.md"),
+            base_dir=tmp_path,
+        )
+        is True
+    )
 
 
 def test_resolve_wildcard_rejects_non_matching_path(tmp_path: Path):
     """Concrete path must match the wildcard pattern."""
-    assert _resolve_wildcard_path(
-        "characters/major/*.md",
-        str(tmp_path / "characters" / "protagonist.md"),
-        base_dir=tmp_path,
-    ) is False
+    assert (
+        _resolve_wildcard_path(
+            "characters/major/*.md",
+            str(tmp_path / "characters" / "protagonist.md"),
+            base_dir=tmp_path,
+        )
+        is False
+    )
 
 
 def test_resolve_wildcard_with_minor_characters(tmp_path: Path):
@@ -1006,6 +1046,7 @@ def test_wildcard_pattern_to_regex():
     """Internal: pattern conversion."""
     import re
     from shenbi.pipeline.dispatch_helper import _wildcard_to_regex
+
     pattern = _wildcard_to_regex("characters/major/*.md")
     regex = re.compile(pattern)
     assert regex.match("characters/major/chen-weimin.md")
@@ -1136,30 +1177,40 @@ from pathlib import Path
 
 
 def test_skill_md_has_four_explicit_phases():
-    skill_path = Path(__file__).resolve().parents[3] / "skills" / "shenbi-character-design" / "SKILL.md"
+    skill_path = (
+        Path(__file__).resolve().parents[3] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
     content = skill_path.read_text(encoding="utf-8")
-    assert "Phase 1:" in content or "阶段一" in content or "第一阶段" in content  # Chinese or English
+    assert (
+        "Phase 1:" in content or "阶段一" in content or "第一阶段" in content
+    )  # Chinese or English
     assert "Phase 2:" in content
     assert "Phase 3:" in content
     assert "Phase 4:" in content
 
 
 def test_skill_md_has_iron_law_for_named_characters():
-    skill_path = Path(__file__).resolve().parents[3] / "skills" / "shenbi-character-design" / "SKILL.md"
+    skill_path = (
+        Path(__file__).resolve().parents[3] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
     content = skill_path.read_text(encoding="utf-8")
     assert "every character" in content.lower() or "iron law" in content.lower()
     assert "chapter_outline" in content or "three_act" in content
 
 
 def test_skill_md_declares_major_and_minor_writes():
-    skill_path = Path(__file__).resolve().parents[3] / "skills" / "shenbi-character-design" / "SKILL.md"
+    skill_path = (
+        Path(__file__).resolve().parents[3] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
     content = skill_path.read_text(encoding="utf-8")
     assert "characters/major/" in content
     assert "characters/minor/" in content
 
 
 def test_skill_md_includes_archetype_sources_requirement():
-    skill_path = Path(__file__).resolve().parents[3] / "skills" / "shenbi-character-design" / "SKILL.md"
+    skill_path = (
+        Path(__file__).resolve().parents[3] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
     content = skill_path.read_text(encoding="utf-8")
     assert "archetype_sources" in content
     assert "historical" in content.lower() or "archetype" in content.lower()
@@ -1404,6 +1455,7 @@ def test_g4_character_design_major_count_pass(project_with_characters: Path):
     ]
     result = g4_character_design(fps, rd=str(project_with_characters))
     import json
+
     data = json.loads(result)
     assert data["status"] == "PASS"
 
@@ -1425,6 +1477,7 @@ def test_g4_character_design_minor_count_pass(project_with_characters: Path):
     ]
     result = g4_character_design(fps, rd=str(project_with_characters))
     import json
+
     data = json.loads(result)
 
     # Verify G4.cd.minor_chars check exists (NEW, threshold >= 2) and passes
@@ -1448,6 +1501,7 @@ def test_g4_character_design_fails_when_too_few_major(tmp_path: Path):
     fps: list[str] = []
     result = g4_character_design(fps, rd=str(tmp_path))
     import json
+
     data = json.loads(result)
     assert data["status"] == "FAIL"
     assert any("G4.cd.major_chars" in f for f in data.get("failures", []))
@@ -1463,44 +1517,44 @@ Expected: FAIL (existing G4.cd.major_chars threshold is >= 2, needs raising to >
 Modify `src/shenbi/gates/g4/character_design.py`. The existing `G4.cd.major_chars` check (lines 118-136) currently PASSes at >= 2 files. Raise its threshold to >= 3, and ADD the new `G4.cd.minor_chars` check. The check IDs MUST stay in the `G4.cd.*` namespace (do NOT rename to `G4.char.*`):
 
 ```python
-        # G4.cd.major_chars (EXISTING -- raise threshold from >=2 to >=3):
-        # characters/major/ must have >= 3 .md files
-        major_dir = rp.read("characters/major")
-        if major_dir.exists():
-            major_files = list(major_dir.glob("*.md"))
-            if len(major_files) >= 3:
-                c.append({
-                    "id": "G4.cd.major_chars",
-                    "s": "PASS",
-                    "count": len(major_files),
-                })
-            elif len(major_files) >= 1:
-                mf.append(
-                    f"G4.cd.major_chars:need_3_got_{len(major_files)}"
-                )
-            else:
-                mf.append("G4.cd.major_chars:need_3_got_0")
-        else:
-            mf.append("G4.cd.major_chars:directory_missing")
+# G4.cd.major_chars (EXISTING -- raise threshold from >=2 to >=3):
+# characters/major/ must have >= 3 .md files
+major_dir = rp.read("characters/major")
+if major_dir.exists():
+    major_files = list(major_dir.glob("*.md"))
+    if len(major_files) >= 3:
+        c.append(
+            {
+                "id": "G4.cd.major_chars",
+                "s": "PASS",
+                "count": len(major_files),
+            }
+        )
+    elif len(major_files) >= 1:
+        mf.append(f"G4.cd.major_chars:need_3_got_{len(major_files)}")
+    else:
+        mf.append("G4.cd.major_chars:need_3_got_0")
+else:
+    mf.append("G4.cd.major_chars:directory_missing")
 
-        # G4.cd.minor_chars (NEW): characters/minor/ must have >= 2 .md files
-        minor_dir = rp.read("characters/minor")
-        if minor_dir.exists():
-            minor_files = list(minor_dir.glob("*.md"))
-            if len(minor_files) >= 2:
-                c.append({
-                    "id": "G4.cd.minor_chars",
-                    "s": "PASS",
-                    "count": len(minor_files),
-                })
-            elif len(minor_files) >= 1:
-                mf.append(
-                    f"G4.cd.minor_chars:need_2_got_{len(minor_files)}"
-                )
-            else:
-                mf.append("G4.cd.minor_chars:need_2_got_0")
-        else:
-            mf.append("G4.cd.minor_chars:directory_missing")
+# G4.cd.minor_chars (NEW): characters/minor/ must have >= 2 .md files
+minor_dir = rp.read("characters/minor")
+if minor_dir.exists():
+    minor_files = list(minor_dir.glob("*.md"))
+    if len(minor_files) >= 2:
+        c.append(
+            {
+                "id": "G4.cd.minor_chars",
+                "s": "PASS",
+                "count": len(minor_files),
+            }
+        )
+    elif len(minor_files) >= 1:
+        mf.append(f"G4.cd.minor_chars:need_2_got_{len(minor_files)}")
+    else:
+        mf.append("G4.cd.minor_chars:need_2_got_0")
+else:
+    mf.append("G4.cd.minor_chars:directory_missing")
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -1606,12 +1660,14 @@ archetype_sources:
 """)
 
     from shenbi.gates.g4.character_design import g4_character_design
+
     fps = [
         str(tmp_path / "characters" / "protagonist.md"),
         str(tmp_path / "characters" / "relationships.md"),
     ]
     result = g4_character_design(fps, rd=str(tmp_path))
     import json
+
     data = json.loads(result)
 
     archetype_checks = [c for c in data.get("checks", []) if "archetype" in c.get("id", "").lower()]
@@ -1695,16 +1751,20 @@ voice_profile:
 """)
 
     from shenbi.gates.g4.character_design import g4_character_design
+
     fps = [
         str(tmp_path / "characters" / "protagonist.md"),
         str(tmp_path / "characters" / "relationships.md"),
     ]
     result = g4_character_design(fps, rd=str(tmp_path))
     import json
+
     data = json.loads(result)
     assert data["status"] == "FAIL"
     failures = data.get("failures", [])
-    assert any("archetype" in f.lower() for f in failures), f"No archetype failure found in {failures}"
+    assert any("archetype" in f.lower() for f in failures), (
+        f"No archetype failure found in {failures}"
+    )
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -1717,19 +1777,19 @@ Expected: FAIL (archetype check not implemented or no check found)
 Add to `src/shenbi/gates/g4/character_design.py`, after the major/minor count checks:
 
 ```python
-        # G4.cd.archetype: validate archetype_sources in major character files
-        major_dir = rp.read("characters/major")
-        if major_dir.exists():
-            for mf_path in sorted(major_dir.glob("*.md")):
-                _validate_archetype(mf_path, c, [])
+# G4.cd.archetype: validate archetype_sources in major character files
+major_dir = rp.read("characters/major")
+if major_dir.exists():
+    for mf_path in sorted(major_dir.glob("*.md")):
+        _validate_archetype(mf_path, c, [])
 
-        # Also check protagonist for archetype
-        for fp in (fps or []):
-            pf = resolve_input_path(fp, rd)
-            if pf.suffix == ".md" and "protagonist" in str(fp):
-                archetype_issues = _validate_archetype(pf, c, [])
-                mf.extend(archetype_issues)
-                break
+# Also check protagonist for archetype
+for fp in fps or []:
+    pf = resolve_input_path(fp, rd)
+    if pf.suffix == ".md" and "protagonist" in str(fp):
+        archetype_issues = _validate_archetype(pf, c, [])
+        mf.extend(archetype_issues)
+        break
 ```
 
 And add the `_validate_archetype` function:
@@ -1767,8 +1827,18 @@ def _validate_archetype(
             local_failures.append(f"{prefix}.name:too_short_or_missing")
             continue
 
-        abstract_terms = ["elder", "mentor", "warrior", "sage", "hero", "villain",
-                          "trickster", "maiden", "crone", "everyman"]
+        abstract_terms = [
+            "elder",
+            "mentor",
+            "warrior",
+            "sage",
+            "hero",
+            "villain",
+            "trickster",
+            "maiden",
+            "crone",
+            "everyman",
+        ]
         if name.lower() in abstract_terms:
             local_failures.append(f"{prefix}.name:abstract_type_not_historical_figure")
 
@@ -1794,14 +1864,16 @@ def _validate_archetype(
             )
 
         if not local_failures:
-            checks.append({
-                "id": f"G4.cd.archetype.{char_name}",
-                "s": "PASS",
-                "archetype_name": name,
-                "borrowed_count": len(borrowed),
-                "discarded_count": len(discarded),
-                "rationale_chars": len(rationale),
-            })
+            checks.append(
+                {
+                    "id": f"G4.cd.archetype.{char_name}",
+                    "s": "PASS",
+                    "archetype_name": name,
+                    "borrowed_count": len(borrowed),
+                    "discarded_count": len(discarded),
+                    "rationale_chars": len(rationale),
+                }
+            )
 
     return local_failures
 ```
@@ -1854,13 +1926,17 @@ def test_character_matrix_template_has_slug_column():
 
 
 def test_state_settling_skill_mentions_character_matrix():
-    skill_path = Path(__file__).resolve().parents[3] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    skill_path = (
+        Path(__file__).resolve().parents[3] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    )
     content = skill_path.read_text(encoding="utf-8")
     assert "character_matrix" in content
 
 
 def test_state_settling_skill_mentions_arc_log():
-    skill_path = Path(__file__).resolve().parents[3] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    skill_path = (
+        Path(__file__).resolve().parents[3] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    )
     content = skill_path.read_text(encoding="utf-8")
     assert "arc_log" in content
 ```
@@ -2111,7 +2187,9 @@ from pathlib import Path
 
 
 def test_chapter_drafting_skill_has_meta_warning_block():
-    skill_path = Path(__file__).resolve().parents[3] / "skills" / "shenbi-chapter-drafting" / "SKILL.md"
+    skill_path = (
+        Path(__file__).resolve().parents[3] / "skills" / "shenbi-chapter-drafting" / "SKILL.md"
+    )
     content = skill_path.read_text(encoding="utf-8")
     assert "WARNING" in content or "IMPORTANT" in content
     assert "META" in content
@@ -2260,9 +2338,7 @@ def _check_meta_ratio(
     content = file_path.read_text(encoding="utf-8")
     total_chars = len(content)
 
-    meta_chars = sum(
-        len(m.group(0)) for m in _META_RE.finditer(content)
-    )
+    meta_chars = sum(len(m.group(0)) for m in _META_RE.finditer(content))
 
     if total_chars == 0:
         return checks, failures
@@ -2270,18 +2346,18 @@ def _check_meta_ratio(
     ratio = meta_chars / total_chars
 
     if meta_chars > 0:
-        checks.append({
-            "id": "G2.meta_ratio",
-            "s": "WARN" if ratio > 0.5 else "PASS",
-            "ratio": f"{ratio:.1%}",
-            "meta_chars": meta_chars,
-            "total_chars": total_chars,
-        })
+        checks.append(
+            {
+                "id": "G2.meta_ratio",
+                "s": "WARN" if ratio > 0.5 else "PASS",
+                "ratio": f"{ratio:.1%}",
+                "meta_chars": meta_chars,
+                "total_chars": total_chars,
+            }
+        )
 
         if ratio > 0.5:
-            failures.append(
-                f"G2.meta_ratio:{ratio:.1%}_meta_exceeds_50%_threshold"
-            )
+            failures.append(f"G2.meta_ratio:{ratio:.1%}_meta_exceeds_50%_threshold")
 
     return checks, failures
 ```
@@ -2395,6 +2471,7 @@ if skill_name == "shenbi-chapter-planning" and chapter is not None:
     vm_path = project_dir / "outline" / "volume_map.md"
     if vm_path.exists():
         from shenbi.pipeline.plan_skeleton import generate_plan_skeleton
+
         skeleton = generate_plan_skeleton(project_dir, chapter)
         # Inject skeleton before the skill's own prompt
         prompt_parts = [

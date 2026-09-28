@@ -163,7 +163,9 @@ def run_gate(gate: str, args: list[str]) -> dict[str, Any]:
 def run_gate(gate: str, args: list[str]) -> dict[str, Any]:
     r = subprocess.run(
         [sys.executable, "-m", "shenbi.gates.cli", gate] + args,
-        capture_output=True, text=True, timeout=60,
+        capture_output=True,
+        text=True,
+        timeout=60,
     )
     try:
         return cast(dict[str, Any], json.loads(r.stdout))
@@ -192,7 +194,8 @@ def run_gate(gate: str, args: list[str]) -> dict[str, Any]:
 # codex.py:82-89（当前）
 result = subprocess.run(
     ["uv", "run", "shenbi-progress", "mark-done", skill, ...],  # ← 未注册
-    capture_output=True, text=True,
+    capture_output=True,
+    text=True,
 )
 ```
 
@@ -220,10 +223,12 @@ result = subprocess.run(
 # cli.py:784-798（当前）
 def cmd_rollback(args: argparse.Namespace) -> int:
     ...
-    emit_json({
-        "status": "not_implemented",
-        "message": "Rollback requires snapshot integration (Wave 3/4)",
-    })
+    emit_json(
+        {
+            "status": "not_implemented",
+            "message": "Rollback requires snapshot integration (Wave 3/4)",
+        }
+    )
     return 0  # ← 返回 0（成功）更具误导性
 ```
 
@@ -252,6 +257,7 @@ def cmd_rollback(args: argparse.Namespace) -> int:
 # executor.py:237-240（当前，死代码）
 if mode == "codex-api":
     from shenbi.dispatcher.modes.codex_api import dispatch_codex_api
+
     return dispatch_codex_api(...)  # ← 永不执行
 ```
 
@@ -382,6 +388,7 @@ matches = re.findall(pattern, response, re.DOTALL)
        path: str
        content: str
 
+
    class SkillOutput(BaseModel):
        files: list[FileOutput]
        # 可选：decisions sidecar（Layer A）
@@ -391,9 +398,11 @@ matches = re.findall(pattern, response, re.DOTALL)
 2. **API 调用启用 JSON mode：**
    ```python
    response = client.chat.completions.create(
-       model=model, messages=messages,
+       model=model,
+       messages=messages,
        response_format={"type": "json_object"},  # ← 强制 JSON
-       temperature=temp, max_tokens=max_tok,
+       temperature=temp,
+       max_tokens=max_tok,
    )
    output = SkillOutput.model_validate_json(response.choices[0].message.content)
    ```
@@ -421,6 +430,7 @@ matches = re.findall(pattern, response, re.DOTALL)
 
 ```python
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter, retry_if_exception_type
+
 
 @retry(
     stop=stop_after_attempt(3),  # 对齐 error_handler.MAX_DISPATCH_RETRIES=2（共 3 次）
@@ -460,7 +470,10 @@ def _call_llm_streaming(client, model, messages, early_stop_patterns=None, **kwa
     collected = []
     stop_reason = None
     stream = client.chat.completions.create(
-        model=model, messages=messages, stream=True, **kwargs,
+        model=model,
+        messages=messages,
+        stream=True,
+        **kwargs,
     )
     for chunk in stream:
         delta = chunk.choices[0].delta.content or ""
@@ -529,6 +542,7 @@ def _load_executor_config() -> dict:
     if config_path.exists():
         return tomllib.loads(config_path.read_text(encoding="utf-8"))
     return {"default": {"temperature": 0.7, "max_tokens": 16384}}
+
 
 def _get_skill_params(skill: str) -> tuple[float, str, int]:
     config = _load_executor_config()
@@ -644,6 +658,7 @@ def _get_skill_params(skill: str) -> tuple[float, str, int]:
 # fields.py
 import unicodedata
 
+
 def _normalize_ws(text: str) -> str:
     # 折叠 ASCII 空白 + 全角空格
     text = text.replace("\u3000", " ")
@@ -653,6 +668,7 @@ def _normalize_ws(text: str) -> str:
     text = unicodedata.normalize("NFKC", text)
     # 折叠连续空白
     import re
+
     text = re.sub(r"\s+", " ", text).strip()
     return text
 ```
@@ -680,8 +696,10 @@ def _normalize_ws(text: str) -> str:
 # decisions.py
 Severity = Literal["low", "medium", "high"]
 
+
 class Selection(BaseModel):
     severity: Severity = "low"  # 统一用 Severity
+
 
 class Adjustment(BaseModel):
     severity: Severity  # 从 str 改为 Severity
@@ -709,6 +727,7 @@ class Adjustment(BaseModel):
 1. **`scoring.classify` 改用 `TEST_PASS`：**
    ```python
    from shenbi.contracts.thresholds import TEST_PASS
+
 
    def classify(score: float | int) -> ScoreClassification:
        if score >= TEST_PASS:  # 90，而非硬编码
@@ -847,7 +866,9 @@ c.append(shared.unimplemented("G7.2", "skill-traces check not yet implemented"))
 """CI 检查：所有 import 必须对应 export，所有 export 必须有 import。
 消灭死代码（定义了不用）和悬空引用（用了未定义）。
 """
+
 import ast, pathlib
+
 
 def check_module(py_file):
     tree = ast.parse(py_file.read_text())

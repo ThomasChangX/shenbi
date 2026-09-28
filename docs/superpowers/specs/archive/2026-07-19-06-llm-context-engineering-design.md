@@ -163,11 +163,13 @@ But `_build_skill_prompt` L146: `full_path = project_dir / resolved` passes lite
 **Fix:** `_resolve_read_path` with `glob.glob()` expansion, sorted by mtime (newest first), capped at 50 files. Industry practice: LangChain `DirectoryLoader` -- glob patterns should be expanded at context build time with priority-ordered budget constraints.
 
 ```python
-def _resolve_read_path(project_dir: Path, read_path: str, chapter: int | None) -> list[tuple[str, str]]:
+def _resolve_read_path(
+    project_dir: Path, read_path: str, chapter: int | None
+) -> list[tuple[str, str]]:
     resolved = resolve_or_skip(read_path, chapter)
     if resolved is None:
         return []
-    if '*' in resolved or '?' in resolved:
+    if "*" in resolved or "?" in resolved:
         pattern = str(project_dir / resolved)
         matches = sorted(globmod.glob(pattern, recursive=True))
         if not matches:
@@ -181,7 +183,11 @@ def _resolve_read_path(project_dir: Path, read_path: str, chapter: int | None) -
             results.append((rel, m_path))
         return results
     full_path = project_dir / resolved
-    return [(resolved, str(full_path))] if full_path.exists() else [(resolved, f"[file not found: {resolved}]")]
+    return (
+        [(resolved, str(full_path))]
+        if full_path.exists()
+        else [(resolved, f"[file not found: {resolved}]")]
+    )
 ```
 
 ### Bug 2: Code Fence Nesting Conflicts
@@ -199,7 +205,7 @@ for fname, content in input_texts.items():
     # Escape the actual closing tag wrapper ('</document>', not '</doc>')
     # to prevent content from prematurely closing the outer wrapper.
     # Better: escape all '<' in content to '\u003c' to prevent any tag injection.
-    safe_content = content.replace('<', '\u003c')
+    safe_content = content.replace("<", "\u003c")
     user_parts.append(f'<document name="{fname}">\n{safe_content}\n</document>')
 ```
 
@@ -219,17 +225,17 @@ def _safe_truncate(text: str, limit: int, label: str = "") -> str:
         return text
     truncated = text[:limit]
     # Backtrack to last complete paragraph
-    last_para = truncated.rfind('\n\n')
+    last_para = truncated.rfind("\n\n")
     if last_para > limit * 0.7:
         truncated = truncated[:last_para]
     elif limit > 500:
-        for sent_end in ['。\n', '.\n', '！\n', '?\n', '？\n']:
+        for sent_end in ["。\n", ".\n", "！\n", "?\n", "？\n"]:
             last_sent = truncated.rfind(sent_end)
             if last_sent > limit * 0.5:
-                truncated = truncated[:last_sent + 1]
+                truncated = truncated[: last_sent + 1]
                 break
     removed = len(text) - len(truncated)
-    truncated += f"\n\n[Truncation indicator: {removed} characters ({removed//4} tokens) omitted. Original file: {label}]"
+    truncated += f"\n\n[Truncation indicator: {removed} characters ({removed // 4} tokens) omitted. Original file: {label}]"
     return truncated
 ```
 
@@ -278,17 +284,17 @@ def _safe_truncate(text: str, limit: int, label: str = "") -> str:
 
 ```python
 _FILE_PRIORITY_WEIGHTS = {
-    'plan': 1.0,           # Chapter plan -- highest priority
-    'chapter': 0.9,        # Chapter body
-    'volume_map': 0.8,     # Volume outline
-    'story_frame': 0.7,    # Story framework
-    'current_state': 0.6,  # Current state
-    'pending_hooks': 0.6,  # Foreshadowing hooks
-    'character': 0.5,      # Character data
-    'style': 0.4,          # Style profile
-    'audit_drift': 0.4,    # Drift audit
-    'world': 0.3,          # World setting (reference)
-    'default': 0.5,
+    "plan": 1.0,  # Chapter plan -- highest priority
+    "chapter": 0.9,  # Chapter body
+    "volume_map": 0.8,  # Volume outline
+    "story_frame": 0.7,  # Story framework
+    "current_state": 0.6,  # Current state
+    "pending_hooks": 0.6,  # Foreshadowing hooks
+    "character": 0.5,  # Character data
+    "style": 0.4,  # Style profile
+    "audit_drift": 0.4,  # Drift audit
+    "world": 0.3,  # World setting (reference)
+    "default": 0.5,
 }
 ```
 
@@ -348,12 +354,20 @@ Budget is allocated proportionally by weight. Minimum 500 chars per file; maximu
 
 **Implementation:** In `chapter_loop.py:_run_audits`:
 ```python
-CORE_AUDITS = ['continuity', 'character', 'world-rules', 'pacing']
+CORE_AUDITS = ["continuity", "character", "world-rules", "pacing"]
 # memo-compliance ALWAYS runs (scoring requires it) — do NOT cascade-skip it.
 # resonance ALWAYS runs (scoring requires it) — do NOT cascade-skip it.
-ALWAYS_RUN = {'memo-compliance', 'resonance'}
-CASCADABLE_AUDITS = ['dialogue', 'motivation', 'sensitivity', 'foreshadowing',
-                     'pov', 'anti-ai', 'texture', 'reader-pull']
+ALWAYS_RUN = {"memo-compliance", "resonance"}
+CASCADABLE_AUDITS = [
+    "dialogue",
+    "motivation",
+    "sensitivity",
+    "foreshadowing",
+    "pov",
+    "anti-ai",
+    "texture",
+    "reader-pull",
+]
 ```
 **Cascade trigger (N-chapter-streak heuristic):** Skip cascaded audits when the previous N=3 chapters' corresponding cascaded audits ALL passed with zero HARD failures. This is a simple, verifiable heuristic that does not require a confidence score — there is no "confidence >90%" signal available from the audit results. `memo-compliance` and `resonance` always run regardless of the cascade (scoring requires them), so they are excluded from `CASCADABLE_AUDITS`. **Up to 80K tokens saved per chapter** (8 cascaded audits x ~10K tokens each, vs. 9 when memo-compliance was wrongly included).
 

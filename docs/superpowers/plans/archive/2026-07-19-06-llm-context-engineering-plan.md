@@ -40,6 +40,7 @@ import tempfile
 from pathlib import Path
 from shenbi.pipeline.dispatch_helper import _resolve_read_path
 
+
 def test_glob_wildcard_expands():
     with tempfile.TemporaryDirectory() as tmp:
         project_dir = Path(tmp)
@@ -53,6 +54,7 @@ def test_glob_wildcard_expands():
         names = {p.name for p in paths}
         assert names == {"protagonist.md", "antagonist.md"}
 
+
 def test_glob_non_wildcard_returns_single():
     with tempfile.TemporaryDirectory() as tmp:
         project_dir = Path(tmp)
@@ -62,6 +64,7 @@ def test_glob_non_wildcard_returns_single():
         paths = _resolve_read_path(project_dir, "test.md")
         assert len(paths) == 1
         assert paths[0].name == "test.md"
+
 
 def test_glob_missing_returns_empty():
     with tempfile.TemporaryDirectory() as tmp:
@@ -80,6 +83,7 @@ Expected: FAIL (function not defined or doesn't expand glob)
 ```python
 # In src/shenbi/pipeline/dispatch_helper.py:
 import glob as glob_module
+
 
 def _resolve_read_path(project_dir: Path, read_path: str) -> list[Path]:
     """Resolve a read path, expanding glob patterns if present.
@@ -167,7 +171,8 @@ def test_prompt_uses_xml_tags_not_nested_fences():
         # We verify the output format by checking _build_skill_prompt output
         # Create minimal contract
         system_prompt, user_prompt, _ = _build_skill_prompt(
-            "test-skill", project_dir, "test prompt", chapter=None)
+            "test-skill", project_dir, "test prompt", chapter=None
+        )
 
         # Must NOT contain nested ``` inside ```
         assert "<document" in user_prompt, "Expected <document> tags"
@@ -231,6 +236,7 @@ from shenbi.pipeline.audit_context_cache import (
     build_shared_audit_context,
 )
 
+
 def test_build_shared_context_extracts_chapter_fields():
     with tempfile.TemporaryDirectory() as tmp:
         project_dir = Path(tmp)
@@ -278,6 +284,7 @@ log = structlog.get_logger()
 @dataclass
 class SharedAuditContext:
     """Pre-extracted context shared across all audit calls for a single chapter."""
+
     chapter_text: str = ""
     chapter_summary: str = ""
     world_rules: str = ""
@@ -288,9 +295,18 @@ class SharedAuditContext:
 
     @property
     def estimated_tokens(self) -> int:
-        total = sum(len(v) for v in [self.chapter_text, self.chapter_summary,
-                 self.world_rules, self.character_list, self.style_profile,
-                 self.volume_context, self.pending_hooks])
+        total = sum(
+            len(v)
+            for v in [
+                self.chapter_text,
+                self.chapter_summary,
+                self.world_rules,
+                self.character_list,
+                self.style_profile,
+                self.volume_context,
+                self.pending_hooks,
+            ]
+        )
         return total // 3  # rough token estimate
 
 
@@ -325,8 +341,7 @@ def build_shared_audit_context(project_dir: Path, chapter: int) -> SharedAuditCo
         raw = volume_map_file.read_text(encoding="utf-8")
         ctx.volume_context = _extract_volume_chapter(raw, chapter)
 
-    log.info("shared_audit_context_built", chapter=chapter,
-             estimated_tokens=ctx.estimated_tokens)
+    log.info("shared_audit_context_built", chapter=chapter, estimated_tokens=ctx.estimated_tokens)
     return ctx
 
 
@@ -387,12 +402,13 @@ git commit -m "feat: add shared audit context cache to reduce repeated file I/O"
 # tests/pipeline/test_budgeted_truncate.py
 from shenbi.pipeline.dispatch_helper import _FILE_PRIORITY_WEIGHTS, _budgeted_truncate
 
+
 def test_budgeted_truncate_preserves_high_priority():
     texts = {
-        "chapter-current.md": "A" * 30000,   # HIGH priority
-        "world_rules.md": "B" * 10000,        # HIGH priority
-        "style_profile.md": "C" * 5000,       # MEDIUM priority
-        "archive_notes.md": "D" * 20000,      # LOW priority
+        "chapter-current.md": "A" * 30000,  # HIGH priority
+        "world_rules.md": "B" * 10000,  # HIGH priority
+        "style_profile.md": "C" * 5000,  # MEDIUM priority
+        "archive_notes.md": "D" * 20000,  # LOW priority
     }
     budget = 20000  # chars
 
@@ -404,8 +420,11 @@ def test_budgeted_truncate_preserves_high_priority():
     # Total should be within budget
     assert total <= budget * 1.1  # 10% tolerance
 
+
 def test_priority_weights_exist_for_all_keys():
-    assert "chapter-current.md" in _FILE_PRIORITY_WEIGHTS or "chapter" in str(_FILE_PRIORITY_WEIGHTS)
+    assert "chapter-current.md" in _FILE_PRIORITY_WEIGHTS or "chapter" in str(
+        _FILE_PRIORITY_WEIGHTS
+    )
     assert isinstance(_FILE_PRIORITY_WEIGHTS, dict)
     assert len(_FILE_PRIORITY_WEIGHTS) >= 5
 ```
@@ -526,6 +545,7 @@ git commit -m "feat: add priority-driven context budget allocation"
 # tests/pipeline/test_audit_cascading.py
 from shenbi.pipeline.dispatch_helper import _inject_instruction_hierarchy
 
+
 def test_instruction_hierarchy_has_three_tiers():
     prompt = "Review the chapter for issues."
     result = _inject_instruction_hierarchy(prompt)
@@ -607,6 +627,7 @@ Expected: FAIL
 ```python
 # In src/shenbi/pipeline/dispatch_helper.py:
 
+
 def _inject_instruction_hierarchy(prompt: str) -> str:
     """Add 3-tier instruction hierarchy to prompt (Anthropic Context Engineering pattern)."""
     header = """## Instruction Hierarchy
@@ -644,8 +665,14 @@ CORE_AUDITS = ["continuity", "character", "world-rules", "pacing"]
 ALWAYS_RUN = {"memo-compliance", "resonance"}
 
 CASCADABLE_AUDITS = [
-    "dialogue", "motivation", "sensitivity", "foreshadowing",
-    "pov", "anti-ai", "texture", "reader-pull",
+    "dialogue",
+    "motivation",
+    "sensitivity",
+    "foreshadowing",
+    "pov",
+    "anti-ai",
+    "texture",
+    "reader-pull",
 ]
 
 CASCADE_STREAK_LENGTH = 3  # N=3
@@ -765,8 +792,9 @@ git commit -m "feat: N=3 chapter streak audit cascade + 3-tier instruction hiera
       else:
           # Under budget: still enforce the per-file cap.
           input_texts = {
-              fname: (text[:_INPUT_MAX_CHARS_PER_FILE]
-                      if len(text) > _INPUT_MAX_CHARS_PER_FILE else text)
+              fname: (
+                  text[:_INPUT_MAX_CHARS_PER_FILE] if len(text) > _INPUT_MAX_CHARS_PER_FILE else text
+              )
               for fname, text in raw_inputs.items()
           }
   ```
@@ -811,7 +839,7 @@ git commit -m "feat: N=3 chapter streak audit cascade + 3-tier instruction hiera
           project_dir=project_dir,
           prompt=f"Execute {skill} for chapter {chapter}.",
           output_path=f"audits/chapter-{chapter}-{audit_suffix(skill)}.md",
-          shared_context=shared_ctx,   # <-- NEW
+          shared_context=shared_ctx,  # <-- NEW
       )
       for skill in core_skills
   ]
@@ -840,7 +868,7 @@ git commit -m "feat: N=3 chapter streak audit cascade + 3-tier instruction hiera
       }
       for fname, cached in _INJECT_FROM_CACHE.items():
           if cached:
-              input_texts[fname] = cached   # skip the raw read for this file
+              input_texts[fname] = cached  # skip the raw read for this file
   ```
 
   Add a test asserting that across the two audit waves (13 auditors),
@@ -867,12 +895,14 @@ git commit -m "feat: N=3 chapter streak audit cascade + 3-tier instruction hiera
   # expects: [{"<skill>": {"passed": bool, "hard_failures": int}}, ...].
   audit_history = _get_audit_history(state, chapter)
 
+
   def _keep_task(task: ReviewTask) -> bool:
-      skill_short = _audit_short_name(task.skill)   # "shenbi-review-dialogue" -> "dialogue"
+      skill_short = _audit_short_name(task.skill)  # "shenbi-review-dialogue" -> "dialogue"
       if _should_skip_audit(skill_short, audit_history):
           log.info("audit_cascade_skipped", chapter=chapter, skill=task.skill)
           return False
       return True
+
 
   core_tasks = [t for t in core_tasks if _keep_task(t)]
   genre_tasks = [t for t in genre_tasks if _keep_task(t)]
@@ -904,13 +934,16 @@ def _get_audit_history(state, current_chapter: int) -> list[dict]:
             continue
         for audit_key, audit_result in ch_state.audit_results.items():
             if isinstance(audit_result, dict):
-                results.append({
-                    "skill": audit_key,
-                    "chapter": ch_num,
-                    "passed": audit_result.get("passed", False),
-                    "issues": audit_result.get("issues", []),
-                })
+                results.append(
+                    {
+                        "skill": audit_key,
+                        "chapter": ch_num,
+                        "passed": audit_result.get("passed", False),
+                        "issues": audit_result.get("issues", []),
+                    }
+                )
     return results
+
 
 def _audit_short_name(skill_name: str) -> str:
     """Map full skill name to short audit dimension name.

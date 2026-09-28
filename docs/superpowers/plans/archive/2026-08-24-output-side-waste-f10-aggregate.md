@@ -76,6 +76,7 @@ Deviation notes（记 spec-deviations.md）：
 
 ```python
 """T1 tests for the F10 audit aggregation layer (spec §5.1a)."""
+
 from pathlib import Path
 
 from shenbi.pipeline.audit_aggregate import (
@@ -160,9 +161,7 @@ def test_write_audit_aggregate_end_to_end(tmp_path: Path):
     write_audit_aggregate(tmp_path, 1)
     assert out.read_text(encoding="utf-8") == first
     # 点分隔：聚合文件不被 chapter-1-*.md glob 匹配
-    assert all(
-        p.name != "chapter-1.aggregate.md" for p in audit_dir.glob("chapter-1-*.md")
-    )
+    assert all(p.name != "chapter-1.aggregate.md" for p in audit_dir.glob("chapter-1-*.md"))
 
 
 def test_write_returns_none_when_no_reports(tmp_path: Path):
@@ -246,9 +245,7 @@ def _severity_of(line: str) -> str | None:
     return m.group(1).upper() if m else None
 
 
-def extract_finding_units(
-    report_name: str, content: str
-) -> tuple[list[FindingUnit], list[str]]:
+def extract_finding_units(report_name: str, content: str) -> tuple[list[FindingUnit], list[str]]:
     """Split *content* into finding units and preserved context lines.
 
     A finding unit is a markdown list item or table row that carries a
@@ -383,6 +380,7 @@ git commit -m "feat: deterministic audit aggregation module for pre-revision ded
 
 ```python
 """Wiring tests: aggregate is refreshed before every revision dispatch."""
+
 from pathlib import Path
 
 import pytest
@@ -427,8 +425,7 @@ def test_generic_step_writes_aggregate_before_revision_dispatch(
     state.chapter_loop.current_chapter = 1
     # 定位 Step 16（shenbi-chapter-revision）
     idx = next(
-        i for i, s in enumerate(chapter_loop.CHAPTER_STEPS)
-        if s.skill == "shenbi-chapter-revision"
+        i for i, s in enumerate(chapter_loop.CHAPTER_STEPS) if s.skill == "shenbi-chapter-revision"
     )
     state.chapter_loop.step_index = idx
     # 派发后的 G4/步进处理在 tmp_path 下可能走重试/checkpoint 分支——
@@ -502,6 +499,7 @@ git commit -m "feat: refresh audit aggregate at both revision dispatch sites (sp
 
 ```python
 """Fallback tests: missing aggregate read fails open to the raw glob pre-G1."""
+
 from pathlib import Path
 
 import fnmatch
@@ -517,9 +515,7 @@ def test_missing_aggregate_falls_back_to_raw_glob(tmp_path: Path):
     (audit_dir / "chapter-1-consistency.md").write_text(
         FIX.read_text(encoding="utf-8"), encoding="utf-8"
     )
-    paths = _resolve_read_with_fallback(
-        tmp_path, "audits/chapter-1.aggregate.md"
-    )
+    paths = _resolve_read_with_fallback(tmp_path, "audits/chapter-1.aggregate.md")
     # 回退注入 raw glob 的全部匹配
     assert [p.name for p in paths] == ["chapter-1-consistency.md"]
 
@@ -528,9 +524,7 @@ def test_present_aggregate_is_used_directly(tmp_path: Path):
     audit_dir = tmp_path / "audits"
     audit_dir.mkdir()
     (audit_dir / "chapter-1.aggregate.md").write_text("# agg\n", encoding="utf-8")
-    paths = _resolve_read_with_fallback(
-        tmp_path, "audits/chapter-1.aggregate.md"
-    )
+    paths = _resolve_read_with_fallback(tmp_path, "audits/chapter-1.aggregate.md")
     assert [p.name for p in paths] == ["chapter-1.aggregate.md"]
 
 
@@ -539,9 +533,9 @@ def test_aggregate_registered_as_optional_read():
     # 必须覆盖聚合 read——否则 G1.1 对缺失 declared read 硬 FAIL，
     # reads-loop 回退在 executor 路径上永远走不到
     patterns = OPTIONAL_READS.get("shenbi-chapter-revision", [])
-    assert any(
-        fnmatch.fnmatch("chapter-1.aggregate.md", pat) for pat in patterns
-    ), f"aggregate not optional for G1: {patterns}"
+    assert any(fnmatch.fnmatch("chapter-1.aggregate.md", pat) for pat in patterns), (
+        f"aggregate not optional for G1: {patterns}"
+    )
 ```
 
 - [ ] **Step 2: 跑测试确认失败**（`_resolve_read_with_fallback` 不存在）
@@ -569,9 +563,7 @@ def _resolve_read_with_fallback(project_dir: Path, read_path: str) -> list[Path]
             "audit_aggregate_missing_fallback_raw_glob",
             read_path=read_path,
         )
-        return _resolve_read_path(
-            project_dir, f"audits/chapter-{m.group(1)}-*.md"
-        )
+        return _resolve_read_path(project_dir, f"audits/chapter-{m.group(1)}-*.md")
     return []
 ```
 
@@ -653,6 +645,7 @@ git commit -m "feat: switch chapter-revision reads to aggregate + pre-G1 fallbac
 
 ```python
 """Acceptance tests for spec #4 §6 (F10)."""
+
 from pathlib import Path
 
 from shenbi.pipeline.audit_aggregate import write_audit_aggregate
@@ -665,9 +658,7 @@ def test_revision_input_bytes_drop_with_overlap(tmp_path: Path):
     audit_dir.mkdir()
     for name in ("chapter-1-consistency.md", "chapter-1-character.md"):
         (audit_dir / name).write_text(FIX.read_text(encoding="utf-8"), encoding="utf-8")
-    raw_bytes = sum(
-        p.stat().st_size for p in audit_dir.glob("chapter-1-*.md")
-    )
+    raw_bytes = sum(p.stat().st_size for p in audit_dir.glob("chapter-1-*.md"))
     out = write_audit_aggregate(tmp_path, 1)
     assert out is not None
     assert out.stat().st_size < 0.5 * raw_bytes  # 双份重叠 → 显著下降

@@ -38,6 +38,7 @@
 ```python
 # tests/unit/pipeline/test_retry_budget.py
 """Tests for the durable retry_budget_consumed counter (spec §3.1)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -171,8 +172,8 @@ In `PipelineState.to_dict`, inside the `"chapter_loop": {...}` dict, add after `
 In `PipelineState.from_dict`, in the `ChapterLoopStateData(...)` construction, add after `retry_counts=`:
 
 ```python
-                retry_counts=cl_data.get("retry_counts", {}),
-                retry_budget_consumed=cl_data.get("retry_budget_consumed", {}),
+retry_counts = (cl_data.get("retry_counts", {}),)
+retry_budget_consumed = (cl_data.get("retry_budget_consumed", {}),)
 ```
 
 Then wire the increment + enforcement in `chapter_loop.py`. Add the import at the top of the file (with the other shenbi imports):
@@ -192,28 +193,27 @@ Modify `_handle_failure` to increment the durable counter and enforce the limit.
 to:
 
 ```python
-    key = _retry_key(chapter, step.skill)
-    count = state.chapter_loop.retry_counts.get(key, 0) + 1
-    state.chapter_loop.retry_counts[key] = count
+key = _retry_key(chapter, step.skill)
+count = state.chapter_loop.retry_counts.get(key, 0) + 1
+state.chapter_loop.retry_counts[key] = count
 
-    # Durable budget (spec §3.1): NOT cleared by _reset_retries, so crash-resume
-    # can enforce max_audit_retries even after a successful retry.
-    consumed = state.chapter_loop.retry_budget_consumed.get(key, 0) + 1
-    state.chapter_loop.retry_budget_consumed[key] = consumed
-    if consumed > state.config.max_audit_retries:
-        log.error(
-            "retry_budget_exhausted",
-            chapter=chapter,
-            skill=step.skill,
-            consumed=consumed,
-            max=state.config.max_audit_retries,
-        )
-        raise RetryExhaustedError(
-            f"Retry budget ({state.config.max_audit_retries}) exhausted for {key} "
-            f"(consumed {consumed})"
-        )
+# Durable budget (spec §3.1): NOT cleared by _reset_retries, so crash-resume
+# can enforce max_audit_retries even after a successful retry.
+consumed = state.chapter_loop.retry_budget_consumed.get(key, 0) + 1
+state.chapter_loop.retry_budget_consumed[key] = consumed
+if consumed > state.config.max_audit_retries:
+    log.error(
+        "retry_budget_exhausted",
+        chapter=chapter,
+        skill=step.skill,
+        consumed=consumed,
+        max=state.config.max_audit_retries,
+    )
+    raise RetryExhaustedError(
+        f"Retry budget ({state.config.max_audit_retries}) exhausted for {key} (consumed {consumed})"
+    )
 
-    from shenbi.pipeline.error_handler import handle_dispatch_failure
+from shenbi.pipeline.error_handler import handle_dispatch_failure
 ```
 
 For the G4 hard-fail direct-increment path (lines 1321-1339), change:
@@ -301,6 +301,7 @@ additive (loads with default {} from old files)."
 ```python
 # tests/unit/pipeline/test_revision_count.py
 """Tests that revision_count is incremented on revision routing (spec §3.2)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -439,6 +440,7 @@ revision-decisions files on disk."
 ```python
 # tests/unit/pipeline/test_last_snapshot.py
 """Tests that last_snapshot is set after snapshot creation (spec §3.3)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -612,6 +614,7 @@ state. Previously last_snapshot was always {} despite 51 snapshots on disk."
 ```python
 # tests/unit/pipeline/test_state_heal.py
 """Tests for _heal_state_counters on resume (spec §3.4)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -641,9 +644,7 @@ def test_heals_revision_count_from_disk(tmp_path: Path):
     s = PipelineState.default(project_dir=str(tmp_path))
     from shenbi.pipeline.state import ChapterState
 
-    s.chapter_loop.chapter_states = {
-        "3": ChapterState(revision_count=0, status="pending")
-    }
+    s.chapter_loop.chapter_states = {"3": ChapterState(revision_count=0, status="pending")}
     # Put a revision-decisions file on disk.
     (tmp_path / "chapters").mkdir(parents=True)
     (tmp_path / "chapters" / "chapter-3-revision-decisions.json").write_text("{}", encoding="utf-8")
@@ -689,6 +690,7 @@ stale or empty. _heal_state_counters cross-checks each against disk reality
 and repairs conservatively (never undercount consumed retry budget). Every
 heal action is logged and returned as a description string for auditability.
 """
+
 from __future__ import annotations
 
 import re
@@ -748,7 +750,9 @@ def _heal_revision_counts(state: PipelineState, project_dir: Path) -> list[str]:
                 disk_value=disk_count,
                 note="disk_count undercounts: revision-decisions file is overwritten per round",
             )
-            actions.append(f"revision_count_healed:ch{chapter_num}:{cs.revision_count}->{disk_count}")
+            actions.append(
+                f"revision_count_healed:ch{chapter_num}:{cs.revision_count}->{disk_count}"
+            )
             # Use max() so we don't lose the in-memory count if it's higher than the disk floor.
             cs.revision_count = max(cs.revision_count, disk_count)
     return actions
@@ -768,7 +772,9 @@ def _heal_last_snapshot(state: PipelineState, project_dir: Path) -> list[str]:
     state.last_snapshot = {
         "chapter": _extract_chapter_from_snapshot_name(latest.name),
         "path": str(latest.relative_to(project_dir)),
-        "timestamp": datetime.fromtimestamp(latest.stat().st_mtime, tz=timezone.utc).strftime("%Y%m%dT%H%M%S"),
+        "timestamp": datetime.fromtimestamp(latest.stat().st_mtime, tz=timezone.utc).strftime(
+            "%Y%m%dT%H%M%S"
+        ),
     }
     log.info("last_snapshot_healed", path=str(latest))
     return [f"last_snapshot_healed:{state.last_snapshot['path']}"]

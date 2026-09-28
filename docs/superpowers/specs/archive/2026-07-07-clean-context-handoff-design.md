@@ -181,21 +181,21 @@ DECISIONS_SCHEMA_VERSION = "shenbi-decisions-v1"
 
 VALID_BASIS = {
     "adjacent_to_target_chapter",  # routine: chapters near target
-    "arc_relevance",               # routine: related to current arc
-    "volume_scope",                # routine: within current volume
-    "manual_override",             # anomaly: human/skill explicitly overrode routine
+    "arc_relevance",  # routine: related to current arc
+    "volume_scope",  # routine: within current volume
+    "manual_override",  # anomaly: human/skill explicitly overrode routine
 }
 
 VALID_SEVERITY = {
-    "low",     # default for routine decisions — rationale forbidden
-    "high",    # high-stakes routine decision — rationale required (P2.5 escape hatch)
+    "low",  # default for routine decisions — rationale forbidden
+    "high",  # high-stakes routine decision — rationale required (P2.5 escape hatch)
 }
 
 VALID_HANDLING = {
-    "compensate_via_pacing",       # drift absorbed by pacing adjustment
-    "explicit_callout",            # drift surfaced explicitly in text
-    "defer_to_next_chapter",       # drift deferred to next chapter
-    "ignore",                      # drift below threshold, no action
+    "compensate_via_pacing",  # drift absorbed by pacing adjustment
+    "explicit_callout",  # drift surfaced explicitly in text
+    "defer_to_next_chapter",  # drift deferred to next chapter
+    "ignore",  # drift below threshold, no action
 }
 
 VALID_TRIM = {"none", "oldest_first", "lowest_relevance", "manual"}
@@ -264,7 +264,7 @@ for read_path in contract.get("reads", []):
 **After (Layer B — real filtering)**:
 ```python
 # dispatch_helper.py:151 (modified)
-fields_map = contract.get("read_fields", {})   # ← NEW: consume the stored field map
+fields_map = contract.get("read_fields", {})  # ← NEW: consume the stored field map
 for read_path in contract.get("reads", []):
     resolved = _resolve_path(read_path, chapter)
     full_path = project_dir / resolved
@@ -274,8 +274,9 @@ for read_path in contract.get("reads", []):
     text = full_path.read_text(encoding="utf-8")
     fields = fields_map.get(resolved) or fields_map.get(read_path)
     if fields:
-        text = _filter_to_fields(text, fields, resolved)   # ← NEW: real filtering
+        text = _filter_to_fields(text, fields, resolved)  # ← NEW: real filtering
     raw_inputs[resolved] = text
+
 
 def _filter_to_fields(text: str, fields: list[str], path: str) -> str:
     """Return only the declared fields from a file.
@@ -324,6 +325,7 @@ This enables automated lint: scan truth file's actual headings/keys, compare to 
 
 ```python
 # src/shenbi/gates/g1.py — new soft check (runs before dispatch)
+
 
 def check_fields_exist(skill: str, inputs: list[str], fields_map: dict) -> list[str]:
     """WARN (not FAIL) if declared fields not found in input files.
@@ -390,9 +392,8 @@ New `kind: decisions` at registry level (contract.kind stays `artifact`; the reg
 ```python
 def _decisions_file_set() -> set[str]:
     """Files listed as kind='decisions' in truth-files.yaml."""
-    return {
-        name for name, kind in bootstrap_registry().items() if kind == "decisions"
-    }
+    return {name for name, kind in bootstrap_registry().items() if kind == "decisions"}
+
 
 def derive_file_type(skill: str) -> str:
     """Derive G2 FILE_TYPE from the contract layer."""
@@ -408,8 +409,8 @@ def derive_file_type(skill: str) -> str:
     outputs = {*c["writes"], *c["updates"]}
     if outputs & _truth_file_set():
         return "truth"
-    if outputs & _decisions_file_set():     # NEW
-        return "decisions"                   # NEW
+    if outputs & _decisions_file_set():  # NEW
+        return "decisions"  # NEW
     return "chapter"
 ```
 
@@ -431,14 +432,19 @@ if file_type == "decisions":
             continue
         # G2.dec.2 — schema version
         if data.get("$schema") != "shenbi-decisions-v1":
-            mf.append({"id": "G2.dec.2", "file": fp, "s": "FAIL",
-                       "r": f"schema version mismatch: {data.get('$schema')}"})
+            mf.append(
+                {
+                    "id": "G2.dec.2",
+                    "file": fp,
+                    "s": "FAIL",
+                    "r": f"schema version mismatch: {data.get('$schema')}",
+                }
+            )
         # G2.dec.3 — required keys
         required = {"skill", "chapter", "selections", "produced_at"}
         missing = required - data.keys()
         if missing:
-            mf.append({"id": "G2.dec.3", "file": fp, "s": "FAIL",
-                       "r": f"missing keys: {missing}"})
+            mf.append({"id": "G2.dec.3", "file": fp, "s": "FAIL", "r": f"missing keys: {missing}"})
         else:
             checks.append({"id": "G2.dec", "file": fp, "s": "PASS"})
         continue  # skip G2.6/G2.7 word count — critical for JSON files
@@ -466,9 +472,13 @@ output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
 
 # after (option a — chapter threaded through):
 from shenbi.dispatcher.executor import derive_output_files
+
 # chapter passed in from caller, or extracted from pipeline state
-output_files = [p for p in derive_output_files(skill, chapter, Path(round_dir))
-                 if Path(p).exists() and Path(p).stat().st_size > 0]
+output_files = [
+    p
+    for p in derive_output_files(skill, chapter, Path(round_dir))
+    if Path(p).exists() and Path(p).stat().st_size > 0
+]
 ```
 
 **Why this is better than rglob expansion**:
@@ -519,7 +529,7 @@ Referenced by both G4 validation logic and skill authors.
 ```python
 # phase_runner.py:153 (current — the bug)
 g2 = run_gate("G2", [",".join(output_files), "chapter", str(round_dir)])
-                              # ^^^^^^^^^^ hardcoded — bypasses derive_file_type
+# ^^^^^^^^^^ hardcoded — bypasses derive_file_type
 ```
 
 This means M3 (`derive_file_type` returns `"decisions"`) and M4 (G2 decisions branch) are **completely ineffective on the T2/T3 dispatch path** — phase_runner always passes `"chapter"`, so G2 never enters the decisions branch. Only the T1 dispatch path (`executor.py`) calls `derive_file_type` correctly.
@@ -529,6 +539,7 @@ This means M3 (`derive_file_type` returns `"decisions"`) and M4 (G2 decisions br
 ```python
 # phase_runner.py:153 (after)
 from shenbi.dispatcher.executor import derive_file_type
+
 file_type = derive_file_type(skill)
 g2 = run_gate("G2", [",".join(output_files), file_type, str(round_dir)])
 ```

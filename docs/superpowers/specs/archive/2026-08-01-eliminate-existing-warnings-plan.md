@@ -115,6 +115,7 @@ CI security.yml 用 uv sync --frozen --group dev 后 audit；pre-push
 
 单源读取 shenbi.gates.g0.MIRROR_MAP（spec Task 2.3），避免与 gate 两处定义漂移。
 """
+
 import hashlib
 import sys
 from pathlib import Path

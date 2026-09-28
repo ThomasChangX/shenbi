@@ -57,7 +57,9 @@ def test_modify_rolls_back_step_index_via_cmd_review(tmp_path, monkeypatch):
     state.chapter_loop.current_chapter = 3
     state.chapter_loop.step_index = 5
     save_state(project, state)
-    set_checkpoint(state, CheckpointType.CHAPTER_MEMO, chapter=3, artifact="plans/chapter-3-plan.md")
+    set_checkpoint(
+        state, CheckpointType.CHAPTER_MEMO, chapter=3, artifact="plans/chapter-3-plan.md"
+    )
     save_state(project, state)
 
     monkeypatch.setattr(pipeline_cli, "_queue_re_dispatches", lambda *a, **k: None)
@@ -66,7 +68,9 @@ def test_modify_rolls_back_step_index_via_cmd_review(tmp_path, monkeypatch):
     feedback.write_text("Fix the pacing in section 3", encoding="utf-8")
 
     args = argparse.Namespace(
-        project_dir=str(project), decision=ReviewDecision.MODIFY.value, feedback=str(feedback),
+        project_dir=str(project),
+        decision=ReviewDecision.MODIFY.value,
+        feedback=str(feedback),
     )
     rc = pipeline_cli.cmd_review(args)
 

@@ -35,6 +35,7 @@ Create `tests/test_integrity.py`:
 ```python
 #!/usr/bin/env python3
 """Tests for test integrity hardening: gate markers, phase-runner, scoring enforcement."""
+
 import json
 import os
 import tempfile
@@ -53,9 +54,12 @@ PROJECT = TESTS.parent
 def run_py(script, args):
     """Run a Python script, return (exit_code, stdout, stderr)."""
     import subprocess
+
     r = subprocess.run(
         [sys.executable, script] + args,
-        capture_output=True, text=True, timeout=30,
+        capture_output=True,
+        text=True,
+        timeout=30,
     )
     return r.returncode, r.stdout, r.stderr
 
@@ -75,16 +79,22 @@ class TestGateMarkers(unittest.TestCase):
         # Create a minimal valid output for shenbi-worldbuilding
         proj = self.round_dir / "project-output"
         proj.mkdir()
-        (proj / "novel.json").write_text(json.dumps({
-            "title": "Test", "genre": "fantasy", "language": "zh", "target_words": 50000
-        }))
-        (proj / "genre-config.json").write_text(json.dumps({
-            "chapter_word": {"default": 3000}
-        }))
+        (proj / "novel.json").write_text(
+            json.dumps(
+                {"title": "Test", "genre": "fantasy", "language": "zh", "target_words": 50000}
+            )
+        )
+        (proj / "genre-config.json").write_text(json.dumps({"chapter_word": {"default": 3000}}))
         world = proj / "world"
         world.mkdir()
-        for name in ["story_bible.md", "rules.md", "locations.md", "power_system.md",
-                     "factions.md", "faction-relations.md"]:
+        for name in [
+            "story_bible.md",
+            "rules.md",
+            "locations.md",
+            "power_system.md",
+            "factions.md",
+            "faction-relations.md",
+        ]:
             (world / name).write_text("# " + name + "\n\nSome content here.")
         chars = proj / "characters"
         chars.mkdir()
@@ -92,30 +102,51 @@ class TestGateMarkers(unittest.TestCase):
         (chars / "relationships.md").write_text("# Relationships\n\n- Test")
         truth = proj / "truth"
         truth.mkdir()
-        for name in ["current_state.md", "character_matrix.md", "emotional_arcs.md", "chapter_summaries.md"]:
+        for name in [
+            "current_state.md",
+            "character_matrix.md",
+            "emotional_arcs.md",
+            "chapter_summaries.md",
+        ]:
             (truth / name).write_text(f"# {name}\n\nstatus: active\n\nContent.")
 
         files = str(proj / "novel.json")
-        rc, stdout, stderr = run_py(VG, [
-            "G4", "shenbi-worldbuilding", files, str(self.round_dir),
-        ])
+        rc, stdout, stderr = run_py(
+            VG,
+            [
+                "G4",
+                "shenbi-worldbuilding",
+                files,
+                str(self.round_dir),
+            ],
+        )
         result = json.loads(stdout)
         if result["status"] == "PASS":
-            marker_path = self.round_dir / "gate-markers" / "G4-shenbi-worldbuilding-generative.json"
+            marker_path = (
+                self.round_dir / "gate-markers" / "G4-shenbi-worldbuilding-generative.json"
+            )
             self.assertTrue(marker_path.exists(), "G4 PASS should write a marker file")
             marker = json.loads(marker_path.read_text())
             self.assertEqual(marker["status"], "PASS")
             self.assertIn("files_checked", marker)
         else:
             # If gate fails for test data reasons, that's OK — just verify no marker written
-            marker_path = self.round_dir / "gate-markers" / "G4-shenbi-worldbuilding-generative.json"
+            marker_path = (
+                self.round_dir / "gate-markers" / "G4-shenbi-worldbuilding-generative.json"
+            )
             self.assertFalse(marker_path.exists(), "G4 FAIL should NOT write a marker file")
 
     def test_g4_fail_no_marker(self):
         """G4 FAIL should not write a marker file."""
-        rc, stdout, stderr = run_py(VG, [
-            "G4", "shenbi-worldbuilding", "/nonexistent/file.md", str(self.round_dir),
-        ])
+        rc, stdout, stderr = run_py(
+            VG,
+            [
+                "G4",
+                "shenbi-worldbuilding",
+                "/nonexistent/file.md",
+                str(self.round_dir),
+            ],
+        )
         # Gate should fail with nonexistent file
         marker_dir = self.round_dir / "gate-markers"
         markers = list(marker_dir.iterdir()) if marker_dir.exists() else []
@@ -123,9 +154,14 @@ class TestGateMarkers(unittest.TestCase):
 
     def test_g4_no_round_dir_no_marker(self):
         """G4 PASS without round_dir should not write marker (backward compat)."""
-        rc, stdout, stderr = run_py(VG, [
-            "G4", "shenbi-worldbuilding", "/nonexistent/file.md",
-        ])
+        rc, stdout, stderr = run_py(
+            VG,
+            [
+                "G4",
+                "shenbi-worldbuilding",
+                "/nonexistent/file.md",
+            ],
+        )
         # No round_dir provided — no marker directory should be created
         marker_dir = self.round_dir / "gate-markers"
         # Marker dir exists from setUp, but should have nothing new
@@ -141,9 +177,15 @@ class TestGateMarkers(unittest.TestCase):
         f = proj / "test.md"
         f.write_text("---\ntitle: Test\n---\n\nContent with enough words.")
         # G2 does not write markers, so this is a negative test
-        rc, stdout, stderr = run_py(VG, [
-            "G2", str(f), "chapter", str(self.round_dir),
-        ])
+        rc, stdout, stderr = run_py(
+            VG,
+            [
+                "G2",
+                str(f),
+                "chapter",
+                str(self.round_dir),
+            ],
+        )
         markers = list((self.round_dir / "gate-markers").iterdir())
         self.assertEqual(len(markers), 0, "G2 should not write markers")
 
@@ -268,9 +310,7 @@ class TestScoringMarkers(unittest.TestCase):
         rubric_dir.mkdir(exist_ok=True)
         rubric = rubric_dir / "rubric.md"
         rubric.write_text(
-            "| # | Dimension | Weight |\n"
-            "|---|-----------|--------|\n"
-            "| 1 | Quality   | 100%   |\n"
+            "| # | Dimension | Weight |\n|---|-----------|--------|\n| 1 | Quality   | 100%   |\n"
         )
         return str(rubric)
 
@@ -280,9 +320,7 @@ class TestScoringMarkers(unittest.TestCase):
         rubric_dir.mkdir(parents=True, exist_ok=True)
         rubric = rubric_dir / "rubric.md"
         rubric.write_text(
-            "| # | Dimension | Weight |\n"
-            "|---|-----------|--------|\n"
-            "| 1 | Quality   | 100%   |\n"
+            "| # | Dimension | Weight |\n|---|-----------|--------|\n| 1 | Quality   | 100%   |\n"
         )
         return str(rubric)
 
@@ -318,9 +356,17 @@ class TestScoringMarkers(unittest.TestCase):
         """Missing gate marker should cause exit code 3."""
         rubric = self._make_t1_rubric("shenbi-worldbuilding")
         scores = self._make_scores()
-        rc, stdout, stderr = run_py(SC, [
-            rubric, scores, "--test-type", "generative", "--round-dir", str(self.round_dir),
-        ])
+        rc, stdout, stderr = run_py(
+            SC,
+            [
+                rubric,
+                scores,
+                "--test-type",
+                "generative",
+                "--round-dir",
+                str(self.round_dir),
+            ],
+        )
         self.assertEqual(rc, 3, f"Should exit 3 for missing marker. stdout: {stdout}")
 
     def test_present_marker_succeeds(self):
@@ -328,9 +374,17 @@ class TestScoringMarkers(unittest.TestCase):
         rubric = self._make_t1_rubric("shenbi-worldbuilding")
         scores = self._make_scores()
         self._make_marker("G4", "shenbi-worldbuilding", "generative")
-        rc, stdout, stderr = run_py(SC, [
-            rubric, scores, "--test-type", "generative", "--round-dir", str(self.round_dir),
-        ])
+        rc, stdout, stderr = run_py(
+            SC,
+            [
+                rubric,
+                scores,
+                "--test-type",
+                "generative",
+                "--round-dir",
+                str(self.round_dir),
+            ],
+        )
         self.assertEqual(rc, 0, f"Should succeed with marker present. stdout: {stdout}")
 ```
 
@@ -405,18 +459,18 @@ Remove the duplicate `round_dir` parsing in the tier=T1 block (lines 208-211 of 
 After the dimension filtering by test_type (around line 223, after `dimensions = filter_dimensions_by_test_type(...)`), add the marker check:
 
 ```python
-    # Gate marker enforcement
-    if round_dir and test_type:
-        missing = check_gate_markers(rubric_path, test_type, round_dir)
-        if missing:
-            err = {
-                "status": "MARKER_MISSING",
-                "missing_markers": missing,
-                "message": f"Required gate markers not found: {', '.join(missing)}. "
-                           f"Run gates (G4/G6) with --round-dir before scoring.",
-            }
-            print(json.dumps(err, indent=2, ensure_ascii=False))
-            sys.exit(3)
+# Gate marker enforcement
+if round_dir and test_type:
+    missing = check_gate_markers(rubric_path, test_type, round_dir)
+    if missing:
+        err = {
+            "status": "MARKER_MISSING",
+            "missing_markers": missing,
+            "message": f"Required gate markers not found: {', '.join(missing)}. "
+            f"Run gates (G4/G6) with --round-dir before scoring.",
+        }
+        print(json.dumps(err, indent=2, ensure_ascii=False))
+        sys.exit(3)
 ```
 
 - [ ] **Step 4: Run tests to verify marker enforcement**
@@ -473,9 +527,11 @@ class TestPhaseRunner(unittest.TestCase):
     def _make_marker(self, gate, target, test_type="generative"):
         """Create a gate marker file."""
         marker = {
-            "gate": gate, "status": "PASS",
+            "gate": gate,
+            "status": "PASS",
             "timestamp": "2026-06-13T00:00:00+00:00",
-            "checks": [], "files_checked": [],
+            "checks": [],
+            "files_checked": [],
         }
         (self.round_dir / "gate-markers" / f"{gate}-{target}-{test_type}.json").write_text(
             json.dumps(marker)
@@ -491,11 +547,17 @@ class TestPhaseRunner(unittest.TestCase):
     def test_start_creates_state_file(self):
         """start command should create a phase state file."""
         self._make_summary()
-        rc, stdout, stderr = run_py(PR, [
-            "start", "genesis",
-            "--round-dir", str(self.round_dir),
-            "--project-dir", str(self.round_dir / "project-output"),
-        ])
+        rc, stdout, stderr = run_py(
+            PR,
+            [
+                "start",
+                "genesis",
+                "--round-dir",
+                str(self.round_dir),
+                "--project-dir",
+                str(self.round_dir / "project-output"),
+            ],
+        )
         state_file = self.round_dir / "phase-state" / "genesis.json"
         self.assertTrue(state_file.exists(), "start should create state file")
         state = json.loads(state_file.read_text())
@@ -505,14 +567,29 @@ class TestPhaseRunner(unittest.TestCase):
         """post-skill should append a step to the state file."""
         self._make_summary()
         # Start the phase first
-        run_py(PR, ["start", "genesis",
-                     "--round-dir", str(self.round_dir),
-                     "--project-dir", str(self.round_dir / "project-output")])
-        rc, stdout, stderr = run_py(PR, [
-            "post-skill", "genesis", "shenbi-worldbuilding",
-            "--round-dir", str(self.round_dir),
-            "--project-dir", str(self.round_dir / "project-output"),
-        ])
+        run_py(
+            PR,
+            [
+                "start",
+                "genesis",
+                "--round-dir",
+                str(self.round_dir),
+                "--project-dir",
+                str(self.round_dir / "project-output"),
+            ],
+        )
+        rc, stdout, stderr = run_py(
+            PR,
+            [
+                "post-skill",
+                "genesis",
+                "shenbi-worldbuilding",
+                "--round-dir",
+                str(self.round_dir),
+                "--project-dir",
+                str(self.round_dir / "project-output"),
+            ],
+        )
         state_file = self.round_dir / "phase-state" / "genesis.json"
         state = json.loads(state_file.read_text())
         steps = [s for s in state["steps"] if s["action"] == "post-skill"]
@@ -522,28 +599,56 @@ class TestPhaseRunner(unittest.TestCase):
     def test_finalize_sets_state(self):
         """finalize should set state to finalized."""
         self._make_summary()
-        run_py(PR, ["start", "genesis",
-                     "--round-dir", str(self.round_dir),
-                     "--project-dir", str(self.round_dir / "project-output")])
+        run_py(
+            PR,
+            [
+                "start",
+                "genesis",
+                "--round-dir",
+                str(self.round_dir),
+                "--project-dir",
+                str(self.round_dir / "project-output"),
+            ],
+        )
         # Mark all skills as done
         deps = json.loads((TESTS / "tiers" / "deps.json").read_text())
         for skill in deps["t2-phases"]["genesis"]["prerequisites"]:
             self._make_marker("G4", skill, "generative")
-            run_py(PR, ["post-skill", "genesis", skill,
-                         "--round-dir", str(self.round_dir),
-                         "--project-dir", str(self.round_dir / "project-output")])
+            run_py(
+                PR,
+                [
+                    "post-skill",
+                    "genesis",
+                    skill,
+                    "--round-dir",
+                    str(self.round_dir),
+                    "--project-dir",
+                    str(self.round_dir / "project-output"),
+                ],
+            )
         # Create expected outputs so pre-score passes
         proj = self.round_dir / "project-output"
         (proj / "novel.json").write_text("{}")
         (proj / "genre-config.json").write_text("{}")
         for d in ["world", "characters/major", "characters/minor", "truth"]:
             (proj / d).mkdir(parents=True, exist_ok=True)
-        for name in ["story_bible.md", "rules.md", "locations.md", "power_system.md",
-                     "factions.md", "faction-relations.md"]:
+        for name in [
+            "story_bible.md",
+            "rules.md",
+            "locations.md",
+            "power_system.md",
+            "factions.md",
+            "faction-relations.md",
+        ]:
             (proj / "world" / name).write_text("# content\n")
         (proj / "characters" / "protagonist.md").write_text("# content\n")
         (proj / "characters" / "relationships.md").write_text("# content\n")
-        for name in ["current_state.md", "character_matrix.md", "emotional_arcs.md", "chapter_summaries.md"]:
+        for name in [
+            "current_state.md",
+            "character_matrix.md",
+            "emotional_arcs.md",
+            "chapter_summaries.md",
+        ]:
             (proj / "truth" / name).write_text("# content\n")
         # Pre-score (transitions to skills_done)
         run_py(PR, ["pre-score", "genesis", "--round-dir", str(self.round_dir)])
@@ -551,11 +656,17 @@ class TestPhaseRunner(unittest.TestCase):
         scores_file = self._make_scores_file("genesis")
         run_py(PR, ["post-score", "genesis", scores_file, "--round-dir", str(self.round_dir)])
         # Finalize
-        rc, stdout, stderr = run_py(PR, [
-            "finalize", "genesis",
-            "--round-dir", str(self.round_dir),
-            "--project-dir", str(self.round_dir / "project-output"),
-        ])
+        rc, stdout, stderr = run_py(
+            PR,
+            [
+                "finalize",
+                "genesis",
+                "--round-dir",
+                str(self.round_dir),
+                "--project-dir",
+                str(self.round_dir / "project-output"),
+            ],
+        )
         state_file = self.round_dir / "phase-state" / "genesis.json"
         state = json.loads(state_file.read_text())
         self.assertEqual(state["state"], "finalized")
@@ -563,23 +674,43 @@ class TestPhaseRunner(unittest.TestCase):
     def test_wrong_order_rejected(self):
         """Commands with wrong preconditions should fail."""
         self._make_summary()
-        rc, stdout, stderr = run_py(PR, [
-            "finalize", "genesis",
-            "--round-dir", str(self.round_dir),
-            "--project-dir", str(self.round_dir / "project-output"),
-        ])
+        rc, stdout, stderr = run_py(
+            PR,
+            [
+                "finalize",
+                "genesis",
+                "--round-dir",
+                str(self.round_dir),
+                "--project-dir",
+                str(self.round_dir / "project-output"),
+            ],
+        )
         self.assertNotEqual(rc, 0, "finalize before start should fail")
 
     def test_pre_score_rejects_missing_markers(self):
         """pre-score should fail if not all skills have gate markers."""
         self._make_summary()
-        run_py(PR, ["start", "genesis",
-                     "--round-dir", str(self.round_dir),
-                     "--project-dir", str(self.round_dir / "project-output")])
+        run_py(
+            PR,
+            [
+                "start",
+                "genesis",
+                "--round-dir",
+                str(self.round_dir),
+                "--project-dir",
+                str(self.round_dir / "project-output"),
+            ],
+        )
         # Don't create any markers — pre-score should fail
-        rc, stdout, stderr = run_py(PR, [
-            "pre-score", "genesis", "--round-dir", str(self.round_dir),
-        ])
+        rc, stdout, stderr = run_py(
+            PR,
+            [
+                "pre-score",
+                "genesis",
+                "--round-dir",
+                str(self.round_dir),
+            ],
+        )
         self.assertNotEqual(rc, 0, "pre-score without markers should fail")
 ```
 
@@ -605,6 +736,7 @@ Usage:
     phase-runner.py post-score <phase> <scores-file> --round-dir <dir>
     phase-runner.py finalize <phase> --round-dir <dir> --project-dir <dir>
 """
+
 import json
 import subprocess
 import sys
@@ -642,7 +774,9 @@ def run_gate(gate, args):
     vg = str(TESTS / "validate-gate.py")
     r = subprocess.run(
         [sys.executable, vg, gate] + args,
-        capture_output=True, text=True, timeout=60,
+        capture_output=True,
+        text=True,
+        timeout=60,
     )
     try:
         return json.loads(r.stdout)
@@ -653,10 +787,14 @@ def run_gate(gate, args):
 def require_state(state, expected, action):
     """Exit with error if state is not one of the expected states."""
     if state["state"] not in expected:
-        print(json.dumps({
-            "error": f"Cannot {action}: state is '{state['state']}', expected {expected}",
-            "phase": state["phase"],
-        }))
+        print(
+            json.dumps(
+                {
+                    "error": f"Cannot {action}: state is '{state['state']}', expected {expected}",
+                    "phase": state["phase"],
+                }
+            )
+        )
         sys.exit(1)
 
 
@@ -709,7 +847,11 @@ def cmd_post_skill(phase, skill, round_dir, project_dir):
     if g4_status == "FAIL":
         print(json.dumps({"status": "blocked", "phase": phase, "skill": skill, "g4": g4}))
         sys.exit(1)
-    print(json.dumps({"status": "ok", "phase": phase, "skill": skill, "g2": g2_status, "g4": g4_status}))
+    print(
+        json.dumps(
+            {"status": "ok", "phase": phase, "skill": skill, "g2": g2_status, "g4": g4_status}
+        )
+    )
 
 
 def cmd_pre_score(phase, round_dir):
@@ -724,11 +866,15 @@ def cmd_pre_score(phase, round_dir):
         if not marker.exists():
             missing.append(skill)
     if missing:
-        print(json.dumps({
-            "status": "blocked",
-            "phase": phase,
-            "missing_markers": [f"G4-{s}-generative" for s in missing],
-        }))
+        print(
+            json.dumps(
+                {
+                    "status": "blocked",
+                    "phase": phase,
+                    "missing_markers": [f"G4-{s}-generative" for s in missing],
+                }
+            )
+        )
         sys.exit(1)
     # Check expected outputs exist
     proj_dir = Path(round_dir) / "project-output"
@@ -750,7 +896,15 @@ def cmd_post_score(phase, scores_file, round_dir):
     state = load_state(round_dir, phase)
     require_state(state, ["skills_done"], "post-score")
     if not Path(scores_file).exists():
-        print(json.dumps({"status": "error", "phase": phase, "message": f"Scores file not found: {scores_file}"}))
+        print(
+            json.dumps(
+                {
+                    "status": "error",
+                    "phase": phase,
+                    "message": f"Scores file not found: {scores_file}",
+                }
+            )
+        )
         sys.exit(1)
     scores_data = json.loads(Path(scores_file).read_text(encoding="utf-8"))
     step = {
@@ -784,7 +938,11 @@ def cmd_finalize(phase, round_dir, project_dir):
     marker_dir = Path(round_dir) / "gate-markers"
     for skill in deps.get("t2-phases", {}).get(phase, {}).get("prerequisites", []):
         if not (marker_dir / f"G4-{skill}-generative.json").exists():
-            print(json.dumps({"status": "error", "phase": phase, "missing_marker": f"G4-{skill}-generative"}))
+            print(
+                json.dumps(
+                    {"status": "error", "phase": phase, "missing_marker": f"G4-{skill}-generative"}
+                )
+            )
             sys.exit(1)
     state["state"] = "finalized"
     state["steps"].append(step)
@@ -889,7 +1047,8 @@ class TestG7AuditChecks(unittest.TestCase):
 
     def _make_marker(self, gate, target, test_type="generative", files_checked=None, status="PASS"):
         marker = {
-            "gate": gate, "status": status,
+            "gate": gate,
+            "status": status,
             "timestamp": "2026-06-13T00:00:00+00:00",
             "checks": [],
             "files_checked": files_checked or [],
@@ -913,8 +1072,9 @@ class TestG7AuditChecks(unittest.TestCase):
     def test_g713_gate_rerun_mismatch(self):
         """G7.13 should detect when a marker says PASS but re-run fails."""
         # Create a marker claiming PASS for a nonexistent file
-        self._make_marker("G4", "shenbi-worldbuilding", "generative",
-                          files_checked=["/nonexistent/file.md"])
+        self._make_marker(
+            "G4", "shenbi-worldbuilding", "generative", files_checked=["/nonexistent/file.md"]
+        )
         rc, stdout, stderr = run_py(VG, ["G7", str(self.round_dir)])
         result = json.loads(stdout)
         # G7 should fail because the gate re-run on nonexistent files won't match PASS
@@ -924,9 +1084,15 @@ class TestG7AuditChecks(unittest.TestCase):
     def test_g714_timeline_violation(self):
         """G7.14 should detect score files older than gate markers."""
         import time
+
         # Create gate marker (newer)
-        marker = {"gate": "G4", "status": "PASS", "timestamp": "2026-06-13T12:00:00Z",
-                  "checks": [], "files_checked": []}
+        marker = {
+            "gate": "G4",
+            "status": "PASS",
+            "timestamp": "2026-06-13T12:00:00Z",
+            "checks": [],
+            "files_checked": [],
+        }
         (self.round_dir / "gate-markers" / "G4-shenbi-worldbuilding-generative.json").write_text(
             json.dumps(marker)
         )
@@ -940,6 +1106,7 @@ class TestG7AuditChecks(unittest.TestCase):
         score_path.write_text(json.dumps({"1": 95}))
         # Make score file older
         import os
+
         old_time = marker_path.stat().st_mtime - 100
         os.utime(score_path, (old_time, old_time))
 
@@ -975,144 +1142,150 @@ Expected: Tests may pass or fail depending on current G7 behavior. The new check
 Add these checks at the end of `gate_G7()`, before the final `if mf:` / `return` block (before line 3352). Insert after the G7.8 deferred check:
 
 ```python
-    # G7.13 — Gate re-run verification
-    marker_dir = rd / "gate-markers"
-    if marker_dir.exists():
-        for mf_path in sorted(marker_dir.glob("*.json")):
-            try:
-                marker = jload(str(mf_path))
-                if marker.get("status") != "PASS":
-                    continue
-                # Parse marker filename: G4-<target>-<test_type>.json or G6-<target>-<test_type>.json
-                # target may contain dashes (e.g., shenbi-worldbuilding), so parse by known prefixes
-                stem = mf_path.stem
-                gate_id, target, test_type = None, None, None
-                for prefix in ("G4-", "G6-"):
-                    if stem.startswith(prefix):
-                        gate_id = prefix.rstrip("-")
-                        rest = stem[len(prefix):]
-                        # Strip known test_type suffixes from end
-                        for tt in ("-generative", "-bug-hunt", "-clean"):
-                            if rest.endswith(tt):
-                                target = rest[:-len(tt)]
-                                test_type = tt[1:]
-                                break
-                        break
-                if not gate_id or not target:
-                    continue
-                files_checked = marker.get("files_checked", [])
-                if gate_id == "G4":
-                    rerun = json.loads(gate_G4(target, test_type, files_checked, str(rd)))
-                    if rerun.get("status") == "FAIL":
-                        mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
-                elif gate_id == "G6":
-                    proj_dir = str(rd / "project-output")
-                    rerun = json.loads(gate_G6(pipeline_name=target, round_dir=str(rd), project_dir=proj_dir))
-                    if rerun.get("status") == "FAIL":
-                        mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
-            except Exception as e:
-                mf.append(f"G7.13:{mf_path.stem}:rerun_error:{e}")
-        if not any(x.startswith("G7.13:") for x in mf):
-            c.append({"id": "G7.13", "s": "PASS", "note": "all markers verified by re-run"})
-    else:
-        c.append({"id": "G7.13", "s": "SKIP", "r": "no gate-markers directory"})
-
-    # G7.14 — Score timeline consistency
-    timeline_warnings = []
-    for reports_dir_name in ["t1-reports", "t2-reports", "t3-reports"]:
-        reports_dir = rd / reports_dir_name
-        if not reports_dir.exists():
-            continue
-        for score_file in reports_dir.glob("*-scores.json"):
-            try:
-                score_mtime = score_file.stat().st_mtime
-                # Check against gate markers
-                if marker_dir.exists():
-                    for marker_file in marker_dir.glob("*.json"):
-                        if marker_file.stat().st_mtime > score_mtime:
-                            timeline_warnings.append(
-                                f"G7.14:{score_file.name}:older_than_{marker_file.name}"
-                            )
+# G7.13 — Gate re-run verification
+marker_dir = rd / "gate-markers"
+if marker_dir.exists():
+    for mf_path in sorted(marker_dir.glob("*.json")):
+        try:
+            marker = jload(str(mf_path))
+            if marker.get("status") != "PASS":
+                continue
+            # Parse marker filename: G4-<target>-<test_type>.json or G6-<target>-<test_type>.json
+            # target may contain dashes (e.g., shenbi-worldbuilding), so parse by known prefixes
+            stem = mf_path.stem
+            gate_id, target, test_type = None, None, None
+            for prefix in ("G4-", "G6-"):
+                if stem.startswith(prefix):
+                    gate_id = prefix.rstrip("-")
+                    rest = stem[len(prefix) :]
+                    # Strip known test_type suffixes from end
+                    for tt in ("-generative", "-bug-hunt", "-clean"):
+                        if rest.endswith(tt):
+                            target = rest[: -len(tt)]
+                            test_type = tt[1:]
                             break
-            except OSError:
-                pass
-    if timeline_warnings:
-        # Non-blocking — add to audit_warnings in summary later
-        for tw in timeline_warnings:
-            c.append({"id": "G7.14", "s": "WARN", "detail": tw})
-    else:
-        c.append({"id": "G7.14", "s": "PASS", "note": "timeline consistent"})
+                    break
+            if not gate_id or not target:
+                continue
+            files_checked = marker.get("files_checked", [])
+            if gate_id == "G4":
+                rerun = json.loads(gate_G4(target, test_type, files_checked, str(rd)))
+                if rerun.get("status") == "FAIL":
+                    mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
+            elif gate_id == "G6":
+                proj_dir = str(rd / "project-output")
+                rerun = json.loads(
+                    gate_G6(pipeline_name=target, round_dir=str(rd), project_dir=proj_dir)
+                )
+                if rerun.get("status") == "FAIL":
+                    mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
+        except Exception as e:
+            mf.append(f"G7.13:{mf_path.stem}:rerun_error:{e}")
+    if not any(x.startswith("G7.13:") for x in mf):
+        c.append({"id": "G7.13", "s": "PASS", "note": "all markers verified by re-run"})
+else:
+    c.append({"id": "G7.13", "s": "SKIP", "r": "no gate-markers directory"})
 
-    # G7.15 — Score pattern suspiciousness
-    pattern_warnings = []
-    for reports_dir_name in ["t1-reports", "t2-reports", "t3-reports"]:
-        reports_dir = rd / reports_dir_name
-        if not reports_dir.exists():
-            continue
-        score_vectors = {}  # tuple -> list of skill names
-        for score_file in reports_dir.glob("*-generative-scores.json"):
-            try:
-                data = jload(str(score_file))
-                if isinstance(data, dict):
-                    vec = tuple(sorted((k, v) for k, v in data.items() if k.lstrip("-").isdigit()))
-                    if vec not in score_vectors:
-                        score_vectors[vec] = []
-                    score_vectors[vec].append(score_file.stem)
-            except Exception:
-                pass
-        for vec, names in score_vectors.items():
-            if len(names) >= 3:
-                pattern_warnings.append({
+# G7.14 — Score timeline consistency
+timeline_warnings = []
+for reports_dir_name in ["t1-reports", "t2-reports", "t3-reports"]:
+    reports_dir = rd / reports_dir_name
+    if not reports_dir.exists():
+        continue
+    for score_file in reports_dir.glob("*-scores.json"):
+        try:
+            score_mtime = score_file.stat().st_mtime
+            # Check against gate markers
+            if marker_dir.exists():
+                for marker_file in marker_dir.glob("*.json"):
+                    if marker_file.stat().st_mtime > score_mtime:
+                        timeline_warnings.append(
+                            f"G7.14:{score_file.name}:older_than_{marker_file.name}"
+                        )
+                        break
+        except OSError:
+            pass
+if timeline_warnings:
+    # Non-blocking — add to audit_warnings in summary later
+    for tw in timeline_warnings:
+        c.append({"id": "G7.14", "s": "WARN", "detail": tw})
+else:
+    c.append({"id": "G7.14", "s": "PASS", "note": "timeline consistent"})
+
+# G7.15 — Score pattern suspiciousness
+pattern_warnings = []
+for reports_dir_name in ["t1-reports", "t2-reports", "t3-reports"]:
+    reports_dir = rd / reports_dir_name
+    if not reports_dir.exists():
+        continue
+    score_vectors = {}  # tuple -> list of skill names
+    for score_file in reports_dir.glob("*-generative-scores.json"):
+        try:
+            data = jload(str(score_file))
+            if isinstance(data, dict):
+                vec = tuple(sorted((k, v) for k, v in data.items() if k.lstrip("-").isdigit()))
+                if vec not in score_vectors:
+                    score_vectors[vec] = []
+                score_vectors[vec].append(score_file.stem)
+        except Exception:
+            pass
+    for vec, names in score_vectors.items():
+        if len(names) >= 3:
+            pattern_warnings.append(
+                {
                     "type": "DUPLICATE_PATTERN",
                     "severity": "warn",
                     "message": f"{len(names)} skills share identical score vector in {reports_dir_name}",
-                })
-    if pattern_warnings:
-        for pw in pattern_warnings:
-            c.append({"id": "G7.15", "s": "WARN", **pw})
-    else:
-        c.append({"id": "G7.15", "s": "PASS", "note": "no duplicate patterns"})
+                }
+            )
+if pattern_warnings:
+    for pw in pattern_warnings:
+        c.append({"id": "G7.15", "s": "WARN", **pw})
+else:
+    c.append({"id": "G7.15", "s": "PASS", "note": "no duplicate patterns"})
 
-    # G7.16 — Phase state verification
-    if summary_path.exists():
-        try:
-            s = jload(str(summary_path))
-            # T2 phase state
-            for phase_name in s.get("t2_scores", {}):
-                ps_file = rd / "phase-state" / f"{phase_name}.json"
-                if not ps_file.exists():
-                    mf.append(f"G7.16:phase:{phase_name}:no_state_file")
-                else:
-                    ps = jload(str(ps_file))
-                    if ps.get("state") != "finalized":
-                        mf.append(f"G7.16:phase:{phase_name}:state={ps.get('state')}")
-            # T3 gate markers
-            for pipe_name in s.get("t3_scores", {}):
-                gm = rd / "gate-markers" / f"G6-{pipe_name}.json"
-                if not gm.exists():
-                    mf.append(f"G7.16:pipeline:{pipe_name}:no_G6_marker")
-            if not any(x.startswith("G7.16:") for x in mf):
-                c.append({"id": "G7.16", "s": "PASS", "note": "phase state and gate markers verified"})
-        except (json.JSONDecodeError, OSError):
-            pass
+# G7.16 — Phase state verification
+if summary_path.exists():
+    try:
+        s = jload(str(summary_path))
+        # T2 phase state
+        for phase_name in s.get("t2_scores", {}):
+            ps_file = rd / "phase-state" / f"{phase_name}.json"
+            if not ps_file.exists():
+                mf.append(f"G7.16:phase:{phase_name}:no_state_file")
+            else:
+                ps = jload(str(ps_file))
+                if ps.get("state") != "finalized":
+                    mf.append(f"G7.16:phase:{phase_name}:state={ps.get('state')}")
+        # T3 gate markers
+        for pipe_name in s.get("t3_scores", {}):
+            gm = rd / "gate-markers" / f"G6-{pipe_name}.json"
+            if not gm.exists():
+                mf.append(f"G7.16:pipeline:{pipe_name}:no_G6_marker")
+        if not any(x.startswith("G7.16:") for x in mf):
+            c.append({"id": "G7.16", "s": "PASS", "note": "phase state and gate markers verified"})
+    except (json.JSONDecodeError, OSError):
+        pass
 
-    # Write audit_warnings to summary.json
-    audit_warnings = []
-    for check in c:
-        if check.get("s") == "WARN" and check.get("id") in ("G7.14", "G7.15"):
-            audit_warnings.append({
+# Write audit_warnings to summary.json
+audit_warnings = []
+for check in c:
+    if check.get("s") == "WARN" and check.get("id") in ("G7.14", "G7.15"):
+        audit_warnings.append(
+            {
                 "type": check.get("type", check["id"]),
                 "severity": check.get("severity", "warn"),
                 "message": check.get("message", check.get("detail", "")),
-            })
-    if audit_warnings and summary_path.exists():
-        try:
-            s = jload(str(summary_path))
-            s["audit_warnings"] = audit_warnings
-            with open(str(summary_path), "w") as f:
-                json.dump(s, f, indent=2, ensure_ascii=False)
-        except Exception:
-            pass
+            }
+        )
+if audit_warnings and summary_path.exists():
+    try:
+        s = jload(str(summary_path))
+        s["audit_warnings"] = audit_warnings
+        with open(str(summary_path), "w") as f:
+            json.dump(s, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
 ```
 
 - [ ] **Step 4: Run tests to verify G7 audit checks**
@@ -1215,8 +1388,14 @@ class TestIntegration(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp(prefix="integration_test_")
         self.round_dir = Path(self.tmpdir) / "round-integration"
         self.round_dir.mkdir()
-        for d in ["gate-markers", "t1-reports", "t2-reports", "t3-reports",
-                  "phase-state", "project-output"]:
+        for d in [
+            "gate-markers",
+            "t1-reports",
+            "t2-reports",
+            "t3-reports",
+            "phase-state",
+            "project-output",
+        ]:
             (self.round_dir / d).mkdir()
 
     def tearDown(self):
@@ -1235,27 +1414,43 @@ class TestIntegration(unittest.TestCase):
         scores_path.write_text(json.dumps({"1": 95}))
 
         # Without marker → exit 3
-        rc, out, err = run_py(SC, [
-            str(rubric), str(scores_path),
-            "--test-type", "generative", "--round-dir", str(self.round_dir),
-        ])
+        rc, out, err = run_py(
+            SC,
+            [
+                str(rubric),
+                str(scores_path),
+                "--test-type",
+                "generative",
+                "--round-dir",
+                str(self.round_dir),
+            ],
+        )
         self.assertEqual(rc, 3)
 
         # Write marker
         marker = {
-            "gate": "G4", "status": "PASS",
+            "gate": "G4",
+            "status": "PASS",
             "timestamp": "2026-06-13T00:00:00Z",
-            "checks": [], "files_checked": ["/some/file.md"],
+            "checks": [],
+            "files_checked": ["/some/file.md"],
         }
         (self.round_dir / "gate-markers" / "G4-shenbi-worldbuilding-generative.json").write_text(
             json.dumps(marker)
         )
 
         # With marker → exit 0
-        rc, out, err = run_py(SC, [
-            str(rubric), str(scores_path),
-            "--test-type", "generative", "--round-dir", str(self.round_dir),
-        ])
+        rc, out, err = run_py(
+            SC,
+            [
+                str(rubric),
+                str(scores_path),
+                "--test-type",
+                "generative",
+                "--round-dir",
+                str(self.round_dir),
+            ],
+        )
         self.assertEqual(rc, 0)
 
     def test_g7_detects_phase_without_finalized_state(self):
@@ -1275,8 +1470,10 @@ class TestIntegration(unittest.TestCase):
         result = json.loads(out)
         self.assertEqual(result["status"], "FAIL")
         must_fix = result.get("must_fix", [])
-        self.assertTrue(any("G7.16" in m and "genesis" in m for m in must_fix),
-                        f"Expected G7.16 phase state violation, got: {must_fix}")
+        self.assertTrue(
+            any("G7.16" in m and "genesis" in m for m in must_fix),
+            f"Expected G7.16 phase state violation, got: {must_fix}",
+        )
 ```
 
 - [ ] **Step 2: Run integration tests**

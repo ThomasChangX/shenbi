@@ -138,12 +138,8 @@ def warn_spy(monkeypatch: pytest.MonkeyPatch) -> dict[str, list[str]]:
 
         return inner
 
-    monkeypatch.setattr(
-        fields_mod.log, "warning", _spy(events["fields"], fields_mod.log.warning)
-    )
-    monkeypatch.setattr(
-        dh.log, "warning", _spy(events["dispatch"], dh.log.warning)
-    )
+    monkeypatch.setattr(fields_mod.log, "warning", _spy(events["fields"], fields_mod.log.warning))
+    monkeypatch.setattr(dh.log, "warning", _spy(events["dispatch"], dh.log.warning))
     return events
 
 
@@ -285,15 +281,11 @@ def factual_tree(tmp_path: Path) -> Path:
     (tmp_path / "world" / "rules.md").write_text("rules", encoding="utf-8")
     (tmp_path / "world" / "locations.md").write_text("loc", encoding="utf-8")
     (tmp_path / "world" / "story_bible.md").write_text("bible", encoding="utf-8")
-    (tmp_path / "truth" / "current_state.md").write_text(
-        "## 主角状态\n\n甲。\n", encoding="utf-8"
-    )
+    (tmp_path / "truth" / "current_state.md").write_text("## 主角状态\n\n甲。\n", encoding="utf-8")
     (tmp_path / "truth" / "chapter_summaries.md").write_text(
         "## 已完成章节\n\n1。\n", encoding="utf-8"
     )
-    (tmp_path / "chapters" / "chapter-26.md").write_text(
-        "# 第26章\n\n正文。", encoding="utf-8"
-    )
+    (tmp_path / "chapters" / "chapter-26.md").write_text("# 第26章\n\n正文。", encoding="utf-8")
     (tmp_path / "genre-config.json").write_text("{}", encoding="utf-8")
     return tmp_path
 
@@ -419,9 +411,9 @@ def _write_skill(root: Path, name: str, reads_yaml: str) -> None:
         "\n  writes: [audits/chapter-N-x.md]\n  updates: []\n---\n# body\n",
         encoding="utf-8",
     )  # --- delimiters REQUIRED (loader.read_frontmatter_contract rejects text
-        # not starting with '---'; without them test_unknown_extractor_name_
-        # fails_loud false-passes: ShenbiError.__str__ renders the skill-name
-        # kwarg, and "shenbi-test-bad-extractor" matches match="extractor")
+    # not starting with '---'; without them test_unknown_extractor_name_
+    # fails_loud false-passes: ShenbiError.__str__ renders the skill-name
+    # kwarg, and "shenbi-test-bad-extractor" matches match="extractor")
 
 
 EXTRACTOR_READS = "    - {file: outline/volume_map.md, extractor: volume_chapter}\n"
@@ -436,9 +428,7 @@ def test_extractor_lands_in_sidecar(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     assert c["read_fields"] == {}
 
 
-def test_unknown_extractor_name_fails_loud(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_unknown_extractor_name_fails_loud(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     _write_skill(
         tmp_path,
         "shenbi-test-bad-extractor",
@@ -449,9 +439,7 @@ def test_unknown_extractor_name_fails_loud(
         load_contract("shenbi-test-bad-extractor")
 
 
-def test_fields_and_extractor_mutex(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_fields_and_extractor_mutex(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     _write_skill(
         tmp_path,
         "shenbi-test-bad-mutex",
@@ -556,9 +544,7 @@ git commit -m "feat(spec65): loader read_extractors sidecar — closed registry 
 Append to `tests/unit/pipeline/test_dispatch_layerb_live.py`:
 
 ```python
-def test_volume_extractor_happy_path(
-    project_tree: Path, warn_spy: dict[str, list[str]]
-) -> None:
+def test_volume_extractor_happy_path(project_tree: Path, warn_spy: dict[str, list[str]]) -> None:
     from shenbi.cost.estimate import estimate_prompt_tokens
 
     vm_text = (project_tree / "outline" / "volume_map.md").read_text(encoding="utf-8")
@@ -569,7 +555,7 @@ def test_volume_extractor_happy_path(
     )
     # ch26 in the xinghuo map falls in volume 2 (第16-35章). Assert on the
     # distinctive volume TITLES (not 第N卷 numerals — bridge rows mention those).
-    assert "铁与火" in user_prompt      # current volume 2 title survived
+    assert "铁与火" in user_prompt  # current volume 2 title survived
     assert "觉醒之火" not in user_prompt  # volume 1 title filtered away
     # Spec §7: extractor_failed_fulltext appears ONLY in the failure case —
     # the happy path must be WARN-free.

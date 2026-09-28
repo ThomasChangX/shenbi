@@ -144,11 +144,10 @@ EXPECTED_CALLS: dict[str, list[list[str]]] = {
     "test-file": [["tests/test x.py"]],
     "audit-lint": [["--help"]],
     "gate": [["G0"], ["G0; touch pwned"]],
-    "dispatch": [
-        ["shenbi-x", "generative", "/tmp/r", "p; touch pwned-by-just-recipe"]
-    ],
+    "dispatch": [["shenbi-x", "generative", "/tmp/r", "p; touch pwned-by-just-recipe"]],
     "pipeline-init": [
-        ["seed.md"], ["seed.md", "/tmp/dir with space", "--auto"],
+        ["seed.md"],
+        ["seed.md", "/tmp/dir with space", "--auto"],
     ],
     "pipeline-status": [["/tmp/dir; touch pwned"]],
     "pipeline-review": [
@@ -414,7 +413,11 @@ def test_escalation_blocked_stops_without_approve_or_state_write(tmp_path: Path)
     assert proc.returncode == 3
     assert "manual review required" in proc.stdout
     # F002: no `pipeline review` invocation ever issued...
-    calls = (tmp_path / "uv.args").read_text(encoding="utf-8") if (tmp_path / "uv.args").exists() else ""
+    calls = (
+        (tmp_path / "uv.args").read_text(encoding="utf-8")
+        if (tmp_path / "uv.args").exists()
+        else ""
+    )
     assert "review" not in calls, "auto-approve survived"
     # ...and no state JSON mutation (step_index bump / retry clear gone).
     assert state.read_text(encoding="utf-8") == before
@@ -424,7 +427,11 @@ def test_escalation_blocked_stops_without_approve_or_state_write(tmp_path: Path)
 def test_error_with_gate_words_is_fatal_not_approved(tmp_path: Path) -> None:
     proc = _run_script(tmp_path, str(tmp_path / "proj2"), CANNED_ERROR)
     assert proc.returncode == 1
-    calls = (tmp_path / "uv.args").read_text(encoding="utf-8") if (tmp_path / "uv.args").exists() else ""
+    calls = (
+        (tmp_path / "uv.args").read_text(encoding="utf-8")
+        if (tmp_path / "uv.args").exists()
+        else ""
+    )
     assert "review" not in calls, "F1014 over-broad grep still auto-approving"
 ```
 

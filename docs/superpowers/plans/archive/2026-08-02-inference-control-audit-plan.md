@@ -46,6 +46,7 @@
 
 ```python
 """Tests for finish_reason detection in _call_llm_streaming (spec §2.9)."""
+
 from __future__ import annotations
 
 from types import SimpleNamespace
@@ -65,11 +66,13 @@ def _make_chunk(content: str | None = None, finish_reason: str | None = None, us
 def test_finish_reason_length_captured():
     """When the final chunk has finish_reason='length', it must be returned."""
     client = MagicMock()
-    client.chat.completions.create.return_value = iter([
-        _make_chunk(content="Hello "),
-        _make_chunk(content="world"),
-        _make_chunk(content=None, finish_reason="length"),
-    ])
+    client.chat.completions.create.return_value = iter(
+        [
+            _make_chunk(content="Hello "),
+            _make_chunk(content="world"),
+            _make_chunk(content=None, finish_reason="length"),
+        ]
+    )
     result, stop_reason, usage, finish_reason = _call_llm_streaming(
         client, "test-model", [{"role": "user", "content": "hi"}]
     )
@@ -80,10 +83,12 @@ def test_finish_reason_length_captured():
 def test_finish_reason_stop_captured():
     """Normal completion has finish_reason='stop'."""
     client = MagicMock()
-    client.chat.completions.create.return_value = iter([
-        _make_chunk(content="Done"),
-        _make_chunk(content=None, finish_reason="stop"),
-    ])
+    client.chat.completions.create.return_value = iter(
+        [
+            _make_chunk(content="Done"),
+            _make_chunk(content=None, finish_reason="stop"),
+        ]
+    )
     result, stop_reason, usage, finish_reason = _call_llm_streaming(
         client, "test-model", [{"role": "user", "content": "hi"}]
     )
@@ -93,10 +98,12 @@ def test_finish_reason_stop_captured():
 def test_finish_reason_content_filter_captured():
     """content_filter finish_reason must be surfaced (spec §5.1 C2)."""
     client = MagicMock()
-    client.chat.completions.create.return_value = iter([
-        _make_chunk(content="some "),
-        _make_chunk(content=None, finish_reason="content_filter"),
-    ])
+    client.chat.completions.create.return_value = iter(
+        [
+            _make_chunk(content="some "),
+            _make_chunk(content=None, finish_reason="content_filter"),
+        ]
+    )
     result, stop_reason, usage, finish_reason = _call_llm_streaming(
         client, "test-model", [{"role": "user", "content": "hi"}]
     )
@@ -106,9 +113,11 @@ def test_finish_reason_content_filter_captured():
 def test_finish_reason_none_when_no_choices():
     """When chunks have no choices, finish_reason stays None."""
     client = MagicMock()
-    client.chat.completions.create.return_value = iter([
-        SimpleNamespace(choices=[], usage=None),
-    ])
+    client.chat.completions.create.return_value = iter(
+        [
+            SimpleNamespace(choices=[], usage=None),
+        ]
+    )
     result, stop_reason, usage, finish_reason = _call_llm_streaming(
         client, "test-model", [{"role": "user", "content": "hi"}]
     )
@@ -287,6 +296,7 @@ _call_llm_streaming_with_retry and _dispatch_via_api updated to unpack."
 
 ```python
 """Tests for finish_reason-driven cap-raise and content_filter hard-fail (spec §5.1)."""
+
 from __future__ import annotations
 
 from unittest.mock import patch, MagicMock
@@ -455,6 +465,53 @@ _MODEL_OUTPUT_CEILING = 65536
 Modify `_dispatch_via_api` streaming section (`dispatch_helper.py:1514-1533`):
 
 ```python
+try:
+    output_text, stop_reason, usage, finish_reason = _call_llm_streaming_with_retry(
+        client,
+        model,
+        [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=_get_skill_temperature(skill),
+        max_tokens=_get_skill_max_tokens(skill),
+        timeout=api_timeout,
+    )
+except Exception as exc:
+    _handle_timeout_gracefully(skill, chapter)
+    log.error("api_call_failed", skill=skill, error=str(exc))
+    return DispatchResult(False, -1, "", f"API call failed: {exc}")
+
+# Spec §5.1: finish_reason-driven cap-raise (outside tenacity @retry).
+if finish_reason == "content_filter":
+    log.error("content_filter_blocked", skill=skill)
+    return DispatchResult(False, -1, "", "content_filter: output blocked by provider safety filter")
+
+if finish_reason == "length":
+    original_cap = _get_skill_max_tokens(skill)
+    raised_cap = min(original_cap * 2, int(_MODEL_OUTPUT_CEILING * 0.9))
+    if raised_cap <= original_cap:
+        # Cap already at ceiling — can't raise further.
+        log.error(
+            "length_truncation_at_ceiling",
+            skill=skill,
+            cap=original_cap,
+            ceiling=_MODEL_OUTPUT_CEILING,
+        )
+        return DispatchResult(
+            False,
+            -1,
+            "",
+            f"length_truncation: output exceeded max_tokens={original_cap} and cap "
+            f"is at model ceiling {_MODEL_OUTPUT_CEILING}. Chapter too long — "
+            f"consider splitting (spec §2.9 fail-fast).",
+        )
+    log.warning(
+        "length_truncation_cap_raise",
+        skill=skill,
+        original_cap=original_cap,
+        raised_cap=raised_cap,
+    )
     try:
         output_text, stop_reason, usage, finish_reason = _call_llm_streaming_with_retry(
             client,
@@ -464,7 +521,7 @@ Modify `_dispatch_via_api` streaming section (`dispatch_helper.py:1514-1533`):
                 {"role": "user", "content": user_prompt},
             ],
             temperature=_get_skill_temperature(skill),
-            max_tokens=_get_skill_max_tokens(skill),
+            max_tokens=raised_cap,
             timeout=api_timeout,
         )
     except Exception as exc:
@@ -472,74 +529,33 @@ Modify `_dispatch_via_api` streaming section (`dispatch_helper.py:1514-1533`):
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
 
-    # Spec §5.1: finish_reason-driven cap-raise (outside tenacity @retry).
-    if finish_reason == "content_filter":
-        log.error("content_filter_blocked", skill=skill)
-        return DispatchResult(False, -1, "", "content_filter: output blocked by provider safety filter")
-
+    # After cap-raise, if STILL length → fail-fast (spec §5.1: max 1 resend).
     if finish_reason == "length":
-        original_cap = _get_skill_max_tokens(skill)
-        raised_cap = min(original_cap * 2, int(_MODEL_OUTPUT_CEILING * 0.9))
-        if raised_cap <= original_cap:
-            # Cap already at ceiling — can't raise further.
-            log.error(
-                "length_truncation_at_ceiling",
-                skill=skill,
-                cap=original_cap,
-                ceiling=_MODEL_OUTPUT_CEILING,
-            )
-            return DispatchResult(
-                False, -1, "",
-                f"length_truncation: output exceeded max_tokens={original_cap} and cap "
-                f"is at model ceiling {_MODEL_OUTPUT_CEILING}. Chapter too long — "
-                f"consider splitting (spec §2.9 fail-fast).",
-            )
-        log.warning(
-            "length_truncation_cap_raise",
+        log.error(
+            "length_truncation_persistent",
             skill=skill,
-            original_cap=original_cap,
             raised_cap=raised_cap,
         )
-        try:
-            output_text, stop_reason, usage, finish_reason = _call_llm_streaming_with_retry(
-                client,
-                model,
-                [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                temperature=_get_skill_temperature(skill),
-                max_tokens=raised_cap,
-                timeout=api_timeout,
-            )
-        except Exception as exc:
-            _handle_timeout_gracefully(skill, chapter)
-            log.error("api_call_failed", skill=skill, error=str(exc))
-            return DispatchResult(False, -1, "", f"API call failed: {exc}")
-
-        # After cap-raise, if STILL length → fail-fast (spec §5.1: max 1 resend).
-        if finish_reason == "length":
-            log.error(
-                "length_truncation_persistent",
-                skill=skill,
-                raised_cap=raised_cap,
-            )
-            return DispatchResult(
-                False, -1, "",
-                f"length_truncation: output still exceeds raised cap={raised_cap}. "
-                f"Chapter too long for model output limit — consider splitting.",
-            )
-        if finish_reason == "content_filter":
-            log.error("content_filter_blocked_after_cap_raise", skill=skill)
-            return DispatchResult(
-                False, -1, "",
-                "content_filter: output blocked by provider safety filter (after cap-raise)",
-            )
-    # If we reach here (no length/content_filter, or cap-raise succeeded with
-    # finish_reason="stop"), output_text is valid — fall through to the existing
-    # _parse_structured_output / _write_parsed_outputs block at dispatch_helper.py:1542+.
-    # No code change needed in that downstream block — it uses the (possibly
-    # reassigned) output_text variable naturally.
+        return DispatchResult(
+            False,
+            -1,
+            "",
+            f"length_truncation: output still exceeds raised cap={raised_cap}. "
+            f"Chapter too long for model output limit — consider splitting.",
+        )
+    if finish_reason == "content_filter":
+        log.error("content_filter_blocked_after_cap_raise", skill=skill)
+        return DispatchResult(
+            False,
+            -1,
+            "",
+            "content_filter: output blocked by provider safety filter (after cap-raise)",
+        )
+# If we reach here (no length/content_filter, or cap-raise succeeded with
+# finish_reason="stop"), output_text is valid — fall through to the existing
+# _parse_structured_output / _write_parsed_outputs block at dispatch_helper.py:1542+.
+# No code change needed in that downstream block — it uses the (possibly
+# reassigned) output_text variable naturally.
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -583,6 +599,7 @@ _MODEL_OUTPUT_CEILING=32768 constant bounds cap-raise (C1 fix)."
 
 ```python
 """Tests for executor_config.toml drafting max_tokens (spec §2.2)."""
+
 from __future__ import annotations
 
 import tomllib
@@ -823,6 +840,7 @@ source of truth — 18 occurrences corrected + prices + test name."
 
 ```python
 """Tests for parallel_dispatch backoff jitter (spec §5.3)."""
+
 from __future__ import annotations
 
 from shenbi.pipeline.parallel_dispatch import RETRY_JITTER, RETRY_BACKOFF_BASE
@@ -890,6 +908,7 @@ is same-magnitude. Token bucket dropped (YAGNI for 4 workers, spec §5.3)."
 
 ```python
 """Tests for pricing.py fail-loud on unknown model (spec §5.2 I3)."""
+
 from __future__ import annotations
 
 import pytest
@@ -964,8 +983,8 @@ The existing test `tests/unit/cost/test_pricing.py:73-78` `test_unknown_model_fa
 Modify `src/shenbi/cost/ledger.py:62`:
 
 ```python
-            total_tokens=int(usage.get("total_tokens", 0)),
-            estimated_cost_usd=_safe_estimate_cost(usage, resolved),
+total_tokens = (int(usage.get("total_tokens", 0)),)
+estimated_cost_usd = (_safe_estimate_cost(usage, resolved),)
 ```
 
 Add helper function before the `TokenLedger` class (or at module top after imports):

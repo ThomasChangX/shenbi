@@ -48,12 +48,18 @@
 
 ```python
 """G5_CHECKER_GLOBS is module-level and importable (spec #60 T0a-1)."""
+
 from shenbi.gates.g5 import G5_CHECKER_GLOBS
 
 
 def test_globs_module_level_importable():
     assert isinstance(G5_CHECKER_GLOBS, dict)
-    assert G5_CHECKER_GLOBS["shenbi-worldbuilding"] == ["novel.json", "genre-config.json", "world/*.md", "truth/*.md"]
+    assert G5_CHECKER_GLOBS["shenbi-worldbuilding"] == [
+        "novel.json",
+        "genre-config.json",
+        "world/*.md",
+        "truth/*.md",
+    ]
 
 
 def test_globs_entry_count_baseline():
@@ -107,6 +113,7 @@ git commit -m "refactor: hoist G5_CHECKER_GLOBS to module level (spec60 T0a-1, b
 
 ```python
 """build_checkers() factory + declarative wiring facts (spec #60 T0a-2 / F1017)."""
+
 from shenbi.gates.g4.generic import G4_CHECKER_KEYS, G4_DECISIONS_WIRED, build_checkers
 
 
@@ -117,11 +124,18 @@ def test_build_checkers_returns_thirty():
 
 
 def test_decisions_wired_is_eight():
-    assert G4_DECISIONS_WIRED == frozenset({
-        "shenbi-chapter-drafting", "shenbi-chapter-planning", "shenbi-context-composing",
-        "shenbi-genre-config", "shenbi-chapter-revision", "shenbi-short-drafting",
-        "shenbi-state-settling", "shenbi-market-radar",
-    })
+    assert G4_DECISIONS_WIRED == frozenset(
+        {
+            "shenbi-chapter-drafting",
+            "shenbi-chapter-planning",
+            "shenbi-context-composing",
+            "shenbi-genre-config",
+            "shenbi-chapter-revision",
+            "shenbi-short-drafting",
+            "shenbi-state-settling",
+            "shenbi-market-radar",
+        }
+    )
 
 
 def test_wired_subset_of_checkers():
@@ -136,11 +150,18 @@ Expected: FAIL `ImportError`
 - [ ] **Step 3: 提取工厂**——generic.py：把 `gate_G4` 体内 `from shenbi.gates.g4.decisions_validator import ...` 起到 `register_score_checkers(checkers)` 止的整块构造，移入新模块级函数。**late imports 原样保留在工厂体内**（循环导入规避 + spawn 成本，见 cli.py T1604 记录）：
 
 ```python
-G4_DECISIONS_WIRED: frozenset[str] = frozenset({
-    "shenbi-chapter-drafting", "shenbi-chapter-planning", "shenbi-context-composing",
-    "shenbi-genre-config", "shenbi-chapter-revision", "shenbi-short-drafting",
-    "shenbi-state-settling", "shenbi-market-radar",
-})
+G4_DECISIONS_WIRED: frozenset[str] = frozenset(
+    {
+        "shenbi-chapter-drafting",
+        "shenbi-chapter-planning",
+        "shenbi-context-composing",
+        "shenbi-genre-config",
+        "shenbi-chapter-revision",
+        "shenbi-short-drafting",
+        "shenbi-state-settling",
+        "shenbi-market-radar",
+    }
+)
 
 
 def build_checkers() -> dict[str, Callable[..., object]]:
@@ -157,7 +178,11 @@ def build_checkers() -> dict[str, Callable[..., object]]:
 
     def comp(base: Callable[..., object], name: str, pred=None) -> Callable[..., object]:
         wired.add(name)
-        return make_composite_checker(base, g4_decisions) if pred is None else make_composite_checker(base, g4_decisions, pred)
+        return (
+            make_composite_checker(base, g4_decisions)
+            if pred is None
+            else make_composite_checker(base, g4_decisions, pred)
+        )
 
     checkers: dict[str, Callable[..., object]] = {
         # 原字典 27 条照搬；make_composite_checker 两参处改 comp(x, "<同名>")；
@@ -176,10 +201,12 @@ def build_checkers() -> dict[str, Callable[..., object]]:
 模块顶部（late-import-free 区域）加：
 
 ```python
-G4_CHECKER_KEYS: frozenset[str] = frozenset({
-    # 27 个静态键照搬自 checkers 字面量 + 3 个 score 键（scoring_sections 的
-    # shenbi-score-arc / shenbi-score-stratum / shenbi-score-volume）
-})
+G4_CHECKER_KEYS: frozenset[str] = frozenset(
+    {
+        # 27 个静态键照搬自 checkers 字面量 + 3 个 score 键（scoring_sections 的
+        # shenbi-score-arc / shenbi-score-stratum / shenbi-score-volume）
+    }
+)
 ```
 
 并在 `build_checkers()` 的 assert 后追加 `assert set(checkers) == G4_CHECKER_KEYS`。`gate_G4` 体内改为 `checkers = build_checkers()`。
@@ -227,18 +254,24 @@ git commit -m "refactor: build_checkers() factory + G4_DECISIONS_WIRED/G4_CHECKE
 ```python
 # tests/unit/contracts/test_dag_key_unified.py
 """dag_key unified to patterns-first (spec #60 T0b)."""
+
 import pytest
 
 from shenbi.contracts.graph import dag_key, normalize_to_glob
-from shenbi.contracts import load_registry  # 实际定义在 contracts/loader.py:112，经 shenbi.contracts 重导出
+from shenbi.contracts import (
+    load_registry,
+)  # 实际定义在 contracts/loader.py:112，经 shenbi.contracts 重导出
 
 
-@pytest.mark.parametrize("path", [
-    "truth/arcs/arc-N.md",
-    "audits/chapter-N-anti-ai.md",
-    "truth/pending_hooks.md",
-    "world/power_system.md",
-])
+@pytest.mark.parametrize(
+    "path",
+    [
+        "truth/arcs/arc-N.md",
+        "audits/chapter-N-anti-ai.md",
+        "truth/pending_hooks.md",
+        "world/power_system.md",
+    ],
+)
 def test_dag_key_equals_normalize(path):
     reg = load_registry()
     assert dag_key(path, reg) == normalize_to_glob(path, reg)
@@ -253,6 +286,7 @@ def test_divergence_example_gone():
 ```python
 # tests/unit/gates/test_g5_missing_glob.py
 """F432: checker-having prereq missing glob => FAIL marker, not *.md sweep (spec #60 R5)."""
+
 import json
 
 from shenbi.gates.g5 import gate_G5
@@ -262,7 +296,9 @@ def _phase_with_missing_glob(tmp_path, monkeypatch, deps_dict):
     deps = tmp_path / "tiers" / "deps.json"
     deps.parent.mkdir(parents=True)
     deps.write_text(json.dumps(deps_dict), encoding="utf-8")
-    monkeypatch.setattr("shenbi.gates.g5.TESTS", tmp_path.parent.parent / "tests" if False else tmp_path.parent)
+    monkeypatch.setattr(
+        "shenbi.gates.g5.TESTS", tmp_path.parent.parent / "tests" if False else tmp_path.parent
+    )
     # 以 gate_G5 实际读取路径为准（grep g5.py TESTS 定义后对齐 monkeypatch 目标）
 
 
@@ -312,7 +348,9 @@ def dag_key(path: str, registry: TruthFilesRegistry) -> str:
 - [ ] **Step 5: G5 FAIL marker**——g5.py G5.5 循环内，替换 `globs = G5_CHECKER_GLOBS.get(pr, ["*.md"])`：
 
 ```python
-from shenbi.gates.g4.generic import G4_CHECKER_KEYS  # 模块顶（纯 frozenset，无循环风险；若 CI 红则降为函数内 late import）
+from shenbi.gates.g4.generic import (
+    G4_CHECKER_KEYS,
+)  # 模块顶（纯 frozenset，无循环风险；若 CI 红则降为函数内 late import）
 
 # 循环内：
 if pr in G5_CHECKER_GLOBS:
@@ -355,6 +393,7 @@ git commit -m "fix: unify canonicalizer patterns-first (T0b) + retire dependency
 ```python
 # tests/unit/test_lint_registry_reconcile.py
 """lint_registry_reconcile R1/R5 faces (spec #60 T1)."""
+
 import json
 import shutil
 from pathlib import Path
@@ -369,12 +408,20 @@ def repo_copy(tmp_path: Path) -> Path:
     """Copy the minimal registry set into a temp repo root."""
     src = Path(__file__).resolve().parents[2]
     dst = tmp_path / "repo"
-    for rel in ["plugins/master.json", "tests/tiers/deps.json", "docs/skills/index.md",
-                "docs/framework/truth-files.yaml", "AGENTS.md",
-                "src/shenbi/gates/g5.py", "src/shenbi/gates/shared.py",
-                "src/shenbi/gates/g4/generic.py", "src/shenbi/contracts/registry.py",
-                "src/shenbi/gates/cli.py",  # SHORT_MAP import face needs the module itself (plan r3 I1)
-                "src/shenbi/__init__.py", "src/shenbi/gates/__init__.py"]:  # regular-package precedence (plan r1 I4)
+    for rel in [
+        "plugins/master.json",
+        "tests/tiers/deps.json",
+        "docs/skills/index.md",
+        "docs/framework/truth-files.yaml",
+        "AGENTS.md",
+        "src/shenbi/gates/g5.py",
+        "src/shenbi/gates/shared.py",
+        "src/shenbi/gates/g4/generic.py",
+        "src/shenbi/contracts/registry.py",
+        "src/shenbi/gates/cli.py",  # SHORT_MAP import face needs the module itself (plan r3 I1)
+        "src/shenbi/__init__.py",
+        "src/shenbi/gates/__init__.py",
+    ]:  # regular-package precedence (plan r1 I4)
         (dst / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src / rel, dst / rel)
     shutil.copytree(src / "skills", dst / "skills")
@@ -385,10 +432,15 @@ def test_clean_repo_zero_violations(repo_copy):
     # NOTE: this test stays RED from Task 4 until Tasks 6-11 land (the copy carries
     # the born-red inventory). It is finally green at Task 14. Do NOT data-fix inside Task 4.
     # score-×3 pipeline-internal exemption (Task 9 ruling) is passed here too:
-    assert lint_registry_reconcile(
-        repo_copy,
-        allow_missing=frozenset({"shenbi-score-arc", "shenbi-score-stratum", "shenbi-score-volume"}),
-    ) == []
+    assert (
+        lint_registry_reconcile(
+            repo_copy,
+            allow_missing=frozenset(
+                {"shenbi-score-arc", "shenbi-score-stratum", "shenbi-score-volume"}
+            ),
+        )
+        == []
+    )
 
 
 def test_master_json_deprecated_route_fails(repo_copy):
@@ -408,6 +460,7 @@ def test_short_map_deletion_fails(repo_copy):
     p = repo_copy / "src" / "shenbi" / "gates" / "cli.py"
     p.parent.mkdir(parents=True, exist_ok=True)
     import re as _re
+
     orig = (Path(__file__).resolve().parents[2] / "src/shenbi/gates/cli.py").read_text()
     p.write_text(_re.sub(r'"chapter-drafting": "shenbi-chapter-drafting",\n', "", orig, count=1))
     vios = lint_registry_reconcile(repo_copy)
@@ -432,6 +485,7 @@ R1 skill closure (per-face invariants in spec), R2 word-list closure,
 R3 hash freshness, R5 glob validity. R4 is delete-first (no lint rule).
 Exit 1 on any FAIL-level violation; WARNs go to stderr and don't count.
 """
+
 from __future__ import annotations
 
 import argparse

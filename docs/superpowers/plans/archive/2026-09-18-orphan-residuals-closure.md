@@ -160,20 +160,22 @@ Expected: **PASS**
 
 5b. `tests/unit/audit/test_write_audit_drift_attribution.py` `test_zero_write_dispatch_returns_rc0`（:51-80）重排 fixture——被观察文件移入派发 round_dir 树：
 ```python
-    from shenbi.dispatcher import executor
+from shenbi.dispatcher import executor
 
-    round_dir = tmp_path / "round"
-    (round_dir / "truth").mkdir(parents=True)
-    (round_dir / "truth" / "pending_hooks.md").write_text(_DRIFTED, encoding="utf-8")
+round_dir = tmp_path / "round"
+(round_dir / "truth").mkdir(parents=True)
+(round_dir / "truth" / "pending_hooks.md").write_text(_DRIFTED, encoding="utf-8")
 
-    def _zero_write_dispatch(*_args: object, **_kwargs: object) -> int:
-        return 0  # dispatch 成功且不写任何文件 → pre == post
 
-    monkeypatch.setattr(executor, "dispatch", _zero_write_dispatch)
+def _zero_write_dispatch(*_args: object, **_kwargs: object) -> int:
+    return 0  # dispatch 成功且不写任何文件 → pre == post
 
-    rc = executor.dispatch_with_write_audit(
-        "shenbi-state-settling", "generative", round_dir, "no chapter marker"
-    )
+
+monkeypatch.setattr(executor, "dispatch", _zero_write_dispatch)
+
+rc = executor.dispatch_with_write_audit(
+    "shenbi-state-settling", "generative", round_dir, "no chapter marker"
+)
 ```
 （删除 `root = tmp_path / "project"` 两树分离与 `monkeypatch.setattr(executor, "PROJECT_DIR", root)`；断言块不变。）
 

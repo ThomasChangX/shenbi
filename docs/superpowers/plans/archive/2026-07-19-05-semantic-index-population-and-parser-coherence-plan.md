@@ -96,8 +96,7 @@ class TestChineseOrdinalRules:
         )
         idx = build_index(p)
         assert len(idx.rules) == 2, (
-            f"expected 2 Chinese-ordinal rules, got {len(idx.rules)} "
-            f"(keys={list(idx.rules)})"
+            f"expected 2 Chinese-ordinal rules, got {len(idx.rules)} (keys={list(idx.rules)})"
         )
         # The ID captured is the ordinal (一 / 二).
         assert "一" in idx.rules
@@ -115,9 +114,7 @@ class TestChineseOrdinalRules:
 
     def test_mixed_numeric_and_chinese_ordinals(self, tmp_path):
         p = _make_project(tmp_path)
-        (p / "world" / "rules.md").write_text(
-            "## 规则一：守恒\n## R2: Dragons\n", encoding="utf-8"
-        )
+        (p / "world" / "rules.md").write_text("## 规则一：守恒\n## R2: Dragons\n", encoding="utf-8")
         idx = build_index(p)
         assert len(idx.rules) == 2
 
@@ -265,8 +262,7 @@ class TestDualSourceHooks:
         )
         idx = build_index(p)
         assert len(idx.hooks) >= 4, (
-            f"expected >=4 body hooks, got {len(idx.hooks)} "
-            f"(keys={sorted(idx.hooks)})"
+            f"expected >=4 body hooks, got {len(idx.hooks)} (keys={sorted(idx.hooks)})"
         )
         assert "P0-4" in idx.hooks
         assert "P0-9" in idx.hooks
@@ -298,8 +294,7 @@ class TestDualSourceHooks:
     def test_no_duplicate_when_id_in_both_sources(self, tmp_path):
         p = _make_project(tmp_path)
         (p / "truth" / "pending_hooks.md").write_text(
-            "---\nhooks:\n  - id: P0-4\n    content: fm\n---\n"
-            "### P0-4 body mention\n",
+            "---\nhooks:\n  - id: P0-4\n    content: fm\n---\n### P0-4 body mention\n",
             encoding="utf-8",
         )
         idx = build_index(p)
@@ -441,9 +436,7 @@ class TestPopulationAssertion:
 
     def test_no_warning_when_index_populated(self, tmp_path, caplog):
         p = _make_project(tmp_path)
-        (p / "world" / "rules.md").write_text(
-            "## 规则一：守恒\n" + "正文。" * 50, encoding="utf-8"
-        )
+        (p / "world" / "rules.md").write_text("## 规则一：守恒\n" + "正文。" * 50, encoding="utf-8")
         with caplog.at_level("WARNING"):
             idx = build_index(p)
         assert len(idx.rules) == 1
@@ -568,22 +561,14 @@ def test_worldbuilding_regex_counts_chinese_ordinals():
     # Mirror the in-gate pattern verbatim (if the gate changes, this test
     # forces the author to update it deliberately).
     pattern = r"## 规则\s*[：:.]?\s*[一二三四五六七八九十\d]+"
-    sample = (
-        "## 规则一：守恒\n"
-        "## 规则二：知识\n"
-        "## 规则三：时间\n"
-        "## 规则十：闭环\n"
-    )
+    sample = "## 规则一：守恒\n## 规则二：知识\n## 规则三：时间\n## 规则十：闭环\n"
     assert len(re.findall(pattern, sample)) == 4
 
 
 def test_worldbuilding_uses_max_of_heading_and_numbered():
     """Read the actual source and assert the max(heading_rules, numbered_rules)
     expression is present (spec §2.2)."""
-    src = (
-        pytest.importorskip("shenbi.gates.g4.worldbuilding")
-        .__file__
-    )
+    src = pytest.importorskip("shenbi.gates.g4.worldbuilding").__file__
     text = open(src, encoding="utf-8").read()  # noqa: SIM115
     assert "heading_rules" in text
     assert "numbered_rules" in text
