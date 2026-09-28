@@ -686,6 +686,13 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
         "adjustments[].handling 仅限 compensate_via_pacing / explicit_callout / "
         "defer_to_next_chapter / ignore"
     ),
+    "G4.dec.value_error": (
+        "P2.5 rationale 规则（二选一）：\n"
+        "routine 常规取舍 → severity 用 low，禁附 rationale；\n"
+        "确需 medium/high 或 manual_override → 必附 ≤100 字 rationale，例如：\n"
+        '"severity": "medium", "rationale": "跳过 arc2 因其回收章在第 3 章之后，'
+        '本卷范围内无推进点。"'
+    ),
 }
 
 
