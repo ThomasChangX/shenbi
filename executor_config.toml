@@ -74,3 +74,10 @@ temperature = 0.15
 
 [overrides."shenbi-review-dialogue"]
 temperature = 0.15
+
+[overrides."shenbi-review-long-span"]
+# Canary closure: whole-book long-span review exceeds the 16384->32768
+# cap-raise ladder intermittently (length fail-fast while the streamed
+# artifact itself passes G4) — headroom mirrors the lifecycle precedent.
+temperature = 0.2
+max_tokens = 49152
