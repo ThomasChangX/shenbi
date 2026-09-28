@@ -2444,28 +2444,29 @@ _FORESHADOWING_LIFECYCLE_IDX = next(
 
 
 def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
-    """Execute foreshadowing-lifecycle and state-settling in parallel.
-
-    Reuses the ThreadPoolExecutor + Future pattern already proven by
-    parallel_dispatch.dispatch_reviews_parallel() for the audit waves.
-    Worker threads return DispatchResult objects; the main thread merges
-    them sequentially to PipelineState (single-writer / actor-model).
+    """Execute foreshadowing-lifecycle then state-settling SEQUENTIALLY.
 
     Both steps depend on drafting completion. Their file sets are NOT
     disjoint: both contracts declare ``append_dedup`` updates to
     ``truth/pending_hooks.md`` (lifecycle's only output; one of
     state-settling's six), and both run with ``uses_staging=True`` while the
-    staging merge base is always the LIVE truth file — so the two staging
-    writers race last-writer-wins on pending_hooks and the first writer's
-    increment is lost from staging (known issue, fixed direction is per-file
-    serialization or chained staging merge; see spec T3 input N1 in
-    ``docs/superpowers/specs/2026-08-16-audit-truth-upsert-wiring-fix.md``).
+    staging merge base is always the LIVE truth file — run in parallel, the
+    two staging writers race last-writer-wins on pending_hooks (first
+    writer's increment lost) and the lock contention can kill a worker
+    BEFORE its dispatch (canary escalation #16: settling died pre-dispatch,
+    no stack, while every actual settling dispatch succeeded).
+
+    Sequential execution is the documented minimal fix direction
+    ("per-file serialization"; spec T3 input N1 in
+    ``docs/superpowers/specs/2026-08-16-audit-truth-upsert-wiring-fix.md``):
+    settling's staging merge base then includes lifecycle's landed
+    pending_hooks increment. The formal spec keeps the parallelism-restoring
+    path (fine-grained locking / chained staging merge) and the pre-dispatch
+    death root cause (no stack trace was recorded). Costs ~1 min/chapter.
 
     Returns:
         Tuple of (lifecycle_result, settling_result) DispatchResult objects.
     """
-    import concurrent.futures
-
     from shenbi.pipeline.state import _merge_step_result  # pyright: ignore[reportPrivateUsage]
 
     project_dir = Path(state.project_dir)
@@ -2484,24 +2485,18 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
     lifecycle_prompt = _build_prompt(lifecycle_step)
     settling_prompt = _build_prompt(settling_step)
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        lifecycle_future = executor.submit(
-            dispatch_skill,
-            lifecycle_step.skill,
-            project_dir,
-            lifecycle_prompt,
-            uses_staging=lifecycle_step.uses_staging,
-        )
-        settling_future = executor.submit(
-            dispatch_skill,
-            settling_step.skill,
-            project_dir,
-            settling_prompt,
-            uses_staging=settling_step.uses_staging,
-        )
-
-        lifecycle_result = lifecycle_future.result()
-        settling_result = settling_future.result()
+    lifecycle_result = dispatch_skill(
+        lifecycle_step.skill,
+        project_dir,
+        lifecycle_prompt,
+        uses_staging=lifecycle_step.uses_staging,
+    )
+    settling_result = dispatch_skill(
+        settling_step.skill,
+        project_dir,
+        settling_prompt,
+        uses_staging=settling_step.uses_staging,
+    )
 
     # Single-writer: merge results on the main thread ONLY.
     _merge_step_result(state, lifecycle_result)
@@ -2857,10 +2852,11 @@ def _run_chapter_step_impl(
 
     # ── Parallel post-draft dispatch (Task 6) ────────────────────────────
     # When the foreshadowing-lifecycle step is reached, execute it and
-    # state-settling in parallel. Both are LLM skills that write to
-    # disjoint files (pending_hooks.md vs truth/*.md) with zero data
-    # conflict. Workers call dispatch_skill; the main thread handles G4,
-    # step recording, and advancing (single-writer pattern).
+    # then state-settling SEQUENTIALLY (canary escalation #16). Their write
+    # sets overlap on truth/pending_hooks.md (both append_dedup) — the old
+    # parallel form raced last-writer-wins on staging merges and could kill
+    # a worker before its dispatch. The main thread handles G4, step
+    # recording, and advancing (single-writer pattern).
     if step_idx == _FORESHADOWING_LIFECYCLE_IDX:
         lifecycle_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX]
         settling_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX + 1]
