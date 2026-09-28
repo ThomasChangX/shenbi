@@ -16,6 +16,8 @@ from shenbi.gates.shared import (
     passed,
     read_genre_config,
     resolve_input_path,
+    strip_narrative_body,
+    total_chars_md_text,
     word_count_md,
 )
 from shenbi.logging import get_logger
@@ -246,7 +248,11 @@ def g4_chapter_drafting(
             c.append({"id": "G4.post_check", "file": fp, "s": GateStatus.PASS})
 
         # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
-        tc = count_transition_words(content)
+        # Count on the narrative body only (probe escalation #4): the raw
+        # content includes the framework-mandated PRE_WRITE_CHECK checklist,
+        # which itself enumerates transition words — the gate was counting
+        # its own checklist (6 of 8 hits on probe chapter 1).
+        tc = count_transition_words(strip_narrative_body(content))
         max_t = max(5, wc // 1000)
         if tc > max_t:
             mf.append(f"G4.transition:{fp}:{tc}>{max_t}")
@@ -306,11 +312,23 @@ def g4_chapter_drafting(
         else:
             c.append({"id": "G4.meta", "file": fp, "s": GateStatus.PASS})
 
-        # Word count ≥ floor (3000)
-        if wc < CHAPTER_WORD_FLOOR:
-            mf.append(f"G4.word_count:{fp}:{wc}<{CHAPTER_WORD_FLOOR}")
+        # Word count ≥ floor (3000), on the TOTAL non-whitespace 口径 (probe
+        # escalation #4): the memo layer plans length in total chars (~3400),
+        # so a CJK-only floor demanded ≈3565 total — plan-compliant chapters
+        # structurally failed (production fixture ch36/37/39/41 all 27xx-CJK).
+        total = total_chars_md_text(content)
+        if total < CHAPTER_WORD_FLOOR:
+            mf.append(f"G4.word_count:{fp}:{total}<{CHAPTER_WORD_FLOOR}")
         else:
-            c.append({"id": "G4.word_count", "file": fp, "s": GateStatus.PASS, "wc": wc})
+            c.append(
+                {
+                    "id": "G4.word_count",
+                    "file": fp,
+                    "s": GateStatus.PASS,
+                    "wc": wc,
+                    "total": total,
+                }
+            )
 
         # G4.cd.content_uniqueness: check this chapter against all other chapters
         if rd:
@@ -387,20 +405,32 @@ def g4_chapter_drafting(
                 }
             )
 
-        # G4.cd.chapter_end_hook: last paragraph contains unresolved tension
+        # G4.cd.chapter_end_hook: unresolved tension in the closing beat.
+        # WINDOWED over the last 5 narrative paragraphs (probe escalation #4):
+        # web-novel chapters close with a stylistic beat (image/action) whose
+        # tension lands one to four paragraphs earlier — a single-paragraph
+        # window never saw it (the probe's hook sat at paragraph -5 with an
+        # explicit 不知 hit while the final image paragraph was clean).
         if paragraphs:
-            last_p = paragraphs[-1]
-            if not last_p.startswith("##") and not last_p.startswith(">"):
-                cjk_last = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", last_p))
-                if cjk_last >= 30:
-                    has_q = bool(re.search(r"[？?]", last_p))
-                    has_t = bool(
-                        re.search(r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待)", last_p)
-                    )
-                    if not (has_q or has_t):
-                        mf.append(f"G4.cd.no_hook:{fp}")
-                    else:
-                        c.append({"id": "G4.cd.chapter_end_hook", "file": fp, "s": GateStatus.PASS})
+            hook_window = [
+                p for p in paragraphs[-5:] if not p.startswith(("#", "##", ">", "---", "- [ ]"))
+            ]
+            hook_hit = False
+            hook_checked_any = False
+            for p in hook_window:
+                cjk_p = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", p))
+                if cjk_p < 30:
+                    continue
+                hook_checked_any = True
+                has_q = bool(re.search(r"[？?]", p))
+                has_t = bool(re.search(r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待)", p))
+                if has_q or has_t:
+                    hook_hit = True
+                    break
+            if hook_checked_any and not hook_hit:
+                mf.append(f"G4.cd.no_hook:{fp}")
+            elif hook_checked_any:
+                c.append({"id": "G4.cd.chapter_end_hook", "file": fp, "s": GateStatus.PASS})
 
         # G4.cd.protagonist_presence: protagonist appears >= threshold times
         protagonist_names = _load_protagonist_names(str(project_root)) if project_dir else []

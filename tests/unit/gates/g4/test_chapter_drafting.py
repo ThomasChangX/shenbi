@@ -289,3 +289,102 @@ def test_visual_scene_pure_introspection_still_fails(tmp_path: Path) -> None:
     mf = _must_fix(result)
 
     assert any("G4.cd.no_visual_scene" in m for m in mf)
+
+
+# ---------------------------------------------------------------------------
+# Probe escalation #4 (novel-xinghuo-probe, 2026-09-28): three 口径 defects —
+# transition count included the framework's own PRE_WRITE_CHECK checklist,
+# the word floor was CJK-only against a memo layer that plans in total chars,
+# and the end-hook window saw only the final (stylistic beat) paragraph.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_transition_words_in_meta_sections_not_counted(tmp_path: Path) -> None:
+    """PRE/POST check blocks enumerate transition words themselves — counting
+    raw content made the gate count its own checklist (probe ch1: 8 raw,
+    2 real). The count must run on the stripped narrative body.
+    """
+    body = "他沿着矿道走了很久没有说话也没有停下来的意思只是继续往前走去。" * 20
+    meta = (
+        "## PRE_WRITE_CHECK\n"
+        "- 转折词预算: 此时/突然/终于/于是/然 各计一次\n\n"
+        "## POST_WRITE_SELF_CHECK\n"
+        "- 转折词密度: 0（此时 突然 终于 于是 然 虽然然而当然自然忽然）\n"
+    )
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{meta}", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.transition" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_word_floor_passes_on_total_chars_when_cjk_short(tmp_path: Path) -> None:
+    """A plan-compliant chapter (~2860 CJK + punctuation ≈ 3400 total) must
+    pass the 3000 floor on the total 口径 — CJK-only demanded ≈3565 total and
+    no plan-compliant chapter could ever pass (production ch36/37/39/41).
+    """
+    # ~2940 CJK + 420 full-width punctuation = ~3360 total
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 140
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n## PRE_WRITE_CHECK\n- 预算\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.word_count" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_word_floor_still_fails_genuinely_short_chapter(tmp_path: Path) -> None:
+    """The total 口径 must not hollow out the floor: a chapter far below 3000
+    total chars still fails.
+    """
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text("# 章节\n\n他回到了家中。\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert any("G4.word_count" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_end_hook_window_catches_tension_in_closing_beat(tmp_path: Path) -> None:
+    """Stylistic web-novel closure: tension lands a few paragraphs before the
+    final image paragraph (probe ch1: explicit 不知 at -5, clean image at -1).
+    The window of 5 must accept it.
+    """
+    tension = "他不知道那个数是从哪儿冒出来的，说不清，像有人替他把一本账翻到了底。" * 2
+    beats = "\n\n".join(["他张了张嘴。", '"二十四。"他说。', "灯花爆了一下。", "他吹灭了灯。"])
+    closing = "黑暗里，那串木牌在腰间轻轻响了一声，又一声，没了动静。"
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 30
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{tension}\n\n{beats}\n\n{closing}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_end_hook_window_still_fails_flat_ending(tmp_path: Path) -> None:
+    """Non-vacuous control: five closing paragraphs with no question or
+    tension marker in any of them still fail the windowed hook check.
+    """
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 140
+    flat = "\n\n".join(
+        [
+            "他回到了家中坐下来，安安静静地吃了一碗温热的饭食，洗净了手上的尘土。",
+            "他躺到草席上面，闭上了眼睛，听着屋顶上面细碎的风声过了一阵。",
+            "第二日清晨的钟声敲响之前，他睡得很沉，一个梦也没有做成。",
+            "他醒来之后收拾好衣物，跟着众人一道走到矿道入口处排队。",
+            "这一天平淡无奇地过去了，同之前的许多个日子一模一样。",
+        ]
+    )
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{flat}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert any("G4.cd.no_hook" in m for m in _must_fix(result))

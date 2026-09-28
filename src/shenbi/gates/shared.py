@@ -111,10 +111,14 @@ def word_count_md(fp: str | Path) -> int:
     return word_count_md_text(Path(fp).read_text(encoding="utf-8"))
 
 
-def word_count_md_text(content: str) -> int:
-    """Content-based variant of :func:`word_count_md` (C28 R1: callers that
-    already hold the chapter bytes — e.g. the shared audit context — must not
-    re-read the file just to count).
+def strip_narrative_body(content: str) -> str:
+    """Strip YAML frontmatter, code blocks, and non-narrative meta sections.
+
+    Single construction site for the "chapter body" 口径 (probe escalation
+    #4, 2026-09-28): ``word_count_md``, the G4 transition-word count, and the
+    chapter word floor must all measure the SAME body — a transition count on
+    raw content counted the framework-mandated PRE_WRITE_CHECK checklist
+    itself (6 of 8 hits on the probe's chapter 1).
     """
     c = content
     # Strip YAML frontmatter
@@ -133,8 +137,28 @@ def word_count_md_text(content: str) -> int:
     ]:
         c = re.sub(tag, "", c, flags=re.DOTALL)
     # Also strip HTML comment wrappers (<!--META-BEGIN-->...<!--META-END-->)
-    c = META_BLOCK_RE.sub("", c)
-    return len(re.findall(r"[一-鿿]", c))
+    return META_BLOCK_RE.sub("", c)
+
+
+def word_count_md_text(content: str) -> int:
+    """Content-based variant of :func:`word_count_md` (C28 R1: callers that
+    already hold the chapter bytes — e.g. the shared audit context — must not
+    re-read the file just to count).
+    """
+    return len(re.findall(r"[一-鿿]", strip_narrative_body(content)))
+
+
+def total_chars_md_text(content: str) -> int:
+    """Non-whitespace character count of the narrative body (all scripts and
+    punctuation, meta stripped).
+
+    The chapter word FLOOR runs on this 口径 (probe escalation #4): the memo
+    layer plans chapter length in TOTAL characters (~3400), so a CJK-only
+    floor of 3000 demanded ≈3565 total chars — plan-compliant chapters
+    structurally could not pass (production fixture: ch36/37/39/41 all
+    27xx-CJK fails while plan-compliant).
+    """
+    return len(re.sub(r"\s", "", strip_narrative_body(content)))
 
 
 def parse_decisions_payload(
