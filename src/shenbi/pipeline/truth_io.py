@@ -516,7 +516,15 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
     """
     new_cells = split_table_cells(new_row)
     if new_cells is None:
-        # Not a table row — no key to dedup on; append (data-preserving).
+        # Not a table row — no key to dedup on; append (data-preserving),
+        # unless an identical section already exists: parallel/alternating
+        # writers re-emitting the same heading block (probe escalation #14:
+        # three same-headed "### MH-NNN" ch3 sections accumulated across
+        # state-settling/foreshadowing runs) is a duplicate, not new data.
+        first_line = next((l for l in new_row.split("\n") if l.strip()), "")
+        if first_line and any(l.strip() == first_line for l in existing.split("\n")):
+            log.warning("truth_block_upsert_duplicate_skipped", key_name=key_name)
+            return existing
         log.warning("truth_table_upsert_non_table_row", key_name=key_name)
         return existing.rstrip() + "\n" + new_row
     key_col = _key_column(existing, key_name)
@@ -541,16 +549,35 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
     structural = _structural_table_lines(lines)
     result_lines: list[str] = []
     replaced = False
+    matched = False
     for i, line in enumerate(lines):
         if not structural[i] and line.lstrip().startswith("|"):
             cells = split_table_cells(line)
             if cells is not None and key_col < len(cells) and cells[key_col] == new_key:
-                if not replaced:
+                matched = True
+                # Shape guard (probe escalation #14): replace only when the
+                # new row matches the old width or strictly ENRICHES it
+                # (same cells + appended ones). A different-shape rewrite
+                # (8-col registry row replaced by a 10-col status row)
+                # corrupts the table — keep the old row; the update also
+                # lives in the increment's detail sections.
+                same_shape = len(cells) == len(new_cells)
+                enrichment = len(new_cells) > len(cells) and new_cells[: len(cells)] == cells
+                if not replaced and (same_shape or enrichment):
                     result_lines.append(new_row)  # replace at the row's position
                     replaced = True
-                continue  # duplicate rows with the same key are dropped
+                elif not replaced:
+                    log.warning(
+                        "truth_table_upsert_row_shape_mismatch_skipped",
+                        key_name=key_name,
+                        old_cols=len(cells),
+                        new_cols=len(new_cells),
+                    )
+                    result_lines.append(line)
+                # duplicate rows with the same key are dropped
+                continue
         result_lines.append(line)
-    if not replaced:
+    if not matched:
         insert_at = _key_table_tail(lines, key_name)
         if insert_at is not None:
             result_lines.insert(insert_at, new_row)

@@ -570,3 +570,41 @@ def test_upsert_new_key_row_inserts_into_keys_table() -> None:
     assert lines.index(new_row) < lines.index("## Genesis 备注"), (
         "new row must land inside the hook table, not after trailing prose"
     )
+
+
+def test_upsert_duplicate_section_block_is_skipped() -> None:
+    """Probe escalation #14: alternating state-settling/foreshadowing writers
+    re-emitted the same-headed "### MH-NNN" section per run — three duplicate
+    ch3 blocks accumulated. A block whose first line already exists is a
+    duplicate, not new data.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = "| Hook ID | 状态 |\n|---|---|\n| MH-001 | 已种植 |\n"
+    block = "### MH-001｜静海回响\n- lifecycle_state: RELEVANT\n- 本章推进: 外部命名\n"
+    once = upsert_markdown_row(existing, block, "hook_id")
+    twice = upsert_markdown_row(once, block, "hook_id")
+    assert once.count("### MH-001｜静海回响") == 1
+    assert twice == once, "re-emitted same-headed block must not duplicate"
+    assert twice.count("### MH-001｜静海回响") == 1
+
+
+def test_upsert_shape_mismatch_row_keeps_existing() -> None:
+    """Probe escalation #14: an 8-column registry row replaced by a 10-column
+    status row corrupts the table. Shape-mismatched rewrites are skipped;
+    same-width and append-only enrichments still replace in place.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = "| Hook ID | 内容 | 状态 |\n|---|---|---|\n| MH-001 | 账感即接口 | 已种植 |\n"
+    # different shape, cells rewritten -> keep old row
+    bad = "| MH-001 | 账感即接口 | RELEVANT | 第3章 | 0.85 | RISING | 30 | 60 | X | Y |"
+    result = upsert_markdown_row(existing, bad, "hook_id")
+    assert "| MH-001 | 账感即接口 | 已种植 |" in result
+    assert "RELEVANT" not in result
+
+    # append-only enrichment -> replaces in place
+    enrich = "| MH-001 | 账感即接口 | 已种植 | last_reinforced: 第3章 |"
+    result2 = upsert_markdown_row(existing, enrich, "hook_id")
+    assert enrich in result2
+    assert result2.count("| MH-001") == 1
