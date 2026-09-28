@@ -49,16 +49,19 @@ def _load_staging_meta(project_dir: Path) -> dict[str, dict[str, str]]:
 
 
 def _merge_staged_rows_keyed(staged_text: str, live_text: str, key_field: str) -> str:
-    """Live-priority row merge of a staged snapshot into the live file.
+    """Staged-priority row merge of a staged snapshot into the live file.
 
     The staged file is a snapshot (live baseline at stage time + this
-    chapter's increments). At commit time the LIVE file is the authority:
-    rows whose key exists in live keep the live version (a row written to
-    live after staging — e.g. the resonance step — must not be clobbered by
-    the older staged copy); staged rows whose key is MISSING from live are
-    appended. This is the commit-side half of the SDD #21 R3 fix: a plain
-    whole-file replace here re-introduced last-writer-wins between the
-    staging window and the commit.
+    chapter's increments) that the checkpoint review APPROVED — it is the
+    authoritative record. Staged rows therefore WIN over same-key live rows
+    (probe session 2026-09-28: live-priority silently dropped every row
+    UPDATE, so last_reinforced/state enrichments never reached live while
+    new rows landed — MH-004's approved downgrade vanished the same way).
+    Live rows whose key is MISSING from staged (written to live after
+    staging, e.g. by the resonance step) are appended, so nothing is lost
+    in either direction. This is the commit-side half of the SDD #21 R3
+    fix: a plain whole-file replace here re-introduced last-writer-wins
+    between the staging window and the commit.
     """
     from shenbi.pipeline.truth_io import (
         is_separator_row,
@@ -67,8 +70,8 @@ def _merge_staged_rows_keyed(staged_text: str, live_text: str, key_field: str) -
         upsert_markdown_row,
     )
 
-    merged = live_text
-    for line in staged_text.split("\n"):
+    merged = staged_text
+    for line in live_text.split("\n"):
         cells = split_table_cells(line)
         if cells is None or is_separator_row(cells):
             continue
