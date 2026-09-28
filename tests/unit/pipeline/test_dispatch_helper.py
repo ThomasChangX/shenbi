@@ -27,6 +27,21 @@ PATCH = "shenbi.pipeline.dispatch_helper.subprocess.run"
 IDE_CLI_PATCH = "shenbi.pipeline.dispatch_helper._find_ide_cli"
 
 
+@pytest.fixture(autouse=True)
+def _force_legacy_cli_path(monkeypatch: pytest.MonkeyPatch):
+    """Force the legacy subprocess CLI path these tests mock.
+
+    ``dispatch_skill`` routes to a REAL API dispatch when
+    ``SHENBI_LLM_API_KEY`` is in the environment (probe session 2026-09-28:
+    ``just`` recipes auto-load ``.env``, so the key is present for every
+    local run) — the API path bypasses the mocked ``subprocess.run``
+    entirely, leaving ``mock_run.call_args`` None, AND issues real paid LLM
+    calls from inside unit tests. Deleting the key restores hermetic
+    behavior regardless of the developer's shell/env state.
+    """
+    monkeypatch.delenv("SHENBI_LLM_API_KEY", raising=False)
+
+
 class TestDispatchSkill:
     @patch(PATCH)
     def test_calls_subprocess(self, mock_run, tmp_path):
