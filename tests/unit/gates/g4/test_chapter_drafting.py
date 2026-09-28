@@ -388,3 +388,37 @@ def test_end_hook_window_still_fails_flat_ending(tmp_path: Path) -> None:
     result = _run([str(ch)])
 
     assert any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_word_floor_reads_genre_config_chapter_word_default(tmp_path: Path) -> None:
+    """Probe escalation #9: the floor must come from genre-config
+    chapter_word.default — the same number G0.3/G6 use for chapter-count
+    math. A 1500-default plan (134 chapters from 200k) structurally cannot
+    satisfy the hardcoded 3000 constant: every memo-faithful chapter failed.
+    """
+    gc = tmp_path / "genre-config.json"
+    gc.write_text('{"chapter_word": {"default": 1500}}', encoding="utf-8")
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 80  # ~1920 total
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n## PRE_WRITE_CHECK\n- 预算\n", encoding="utf-8")
+
+    result = _run([str(ch)], str(tmp_path))
+
+    assert not any("G4.word_count" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_word_floor_config_value_is_enforced(tmp_path: Path) -> None:
+    """The config floor is a real floor: a chapter below the configured
+    default still fails (non-vacuous control for the config read).
+    """
+    gc = tmp_path / "genre-config.json"
+    gc.write_text('{"chapter_word": {"default": 2900}}', encoding="utf-8")
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 80  # ~1920 total < 2900
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n## PRE_WRITE_CHECK\n- 预算\n", encoding="utf-8")
+
+    result = _run([str(ch)], str(tmp_path))
+
+    assert any("G4.word_count" in m for m in _must_fix(result))

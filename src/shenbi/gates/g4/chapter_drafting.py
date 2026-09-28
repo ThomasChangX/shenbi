@@ -7,10 +7,10 @@ import re
 from pathlib import Path
 
 from shenbi.gates.shared import (
-    CHAPTER_WORD_FLOOR,
     FATIGUE_BASE,
     META_BLOCK_RE,
     META_NARRATIVE,
+    chapter_word_floor,
     count_transition_words,
     fail,
     passed,
@@ -316,9 +316,14 @@ def g4_chapter_drafting(
         # escalation #4): the memo layer plans length in total chars (~3400),
         # so a CJK-only floor demanded ≈3565 total — plan-compliant chapters
         # structurally failed (production fixture ch36/37/39/41 all 27xx-CJK).
+        # The floor VALUE comes from genre-config chapter_word.default (probe
+        # escalation #9): G0.3/G6 already derive chapter-count math from it —
+        # a 1500-default plan (134 chapters from 200k) can never satisfy a
+        # hardcoded 3000 floor.
+        word_floor = chapter_word_floor(str(project_root))
         total = total_chars_md_text(content)
-        if total < CHAPTER_WORD_FLOOR:
-            mf.append(f"G4.word_count:{fp}:{total}<{CHAPTER_WORD_FLOOR}")
+        if total < word_floor:
+            mf.append(f"G4.word_count:{fp}:{total}<{word_floor}")
         else:
             c.append(
                 {
@@ -327,6 +332,7 @@ def g4_chapter_drafting(
                     "s": GateStatus.PASS,
                     "wc": wc,
                     "total": total,
+                    "floor": word_floor,
                 }
             )
 

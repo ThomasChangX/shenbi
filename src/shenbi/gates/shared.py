@@ -104,6 +104,31 @@ def yload(p: str | Path) -> dict[str, Any]:
     return data
 
 
+def chapter_word_floor(project_dir: str | Path | None) -> int:
+    """Per-chapter word floor from the project's genre-config (single source).
+
+    genre-config.json ``chapter_word.default`` is the same value G0.3 and G6
+    already use for chapter-count math (expected = ceil(target / default)).
+    The drafting/output gates must floor against the SAME number — the
+    hardcoded 3000 constant demanded twice the plan in projects whose volume
+    map was built on the 1500 default (probe escalation #9: every chapter
+    structurally failed the floor while following its memo's 1500-char plan).
+    Falls back to :data:`CHAPTER_WORD_FLOOR` when the config or key is absent.
+    """
+    if not project_dir:
+        return CHAPTER_WORD_FLOOR
+    gc_path = Path(project_dir) / "genre-config.json"
+    try:
+        data = jload(str(gc_path))
+    except (json.JSONDecodeError, OSError, ValueError):
+        return CHAPTER_WORD_FLOOR
+    default = data.get("chapter_word", {}).get("default")
+    try:
+        return int(default) if default else CHAPTER_WORD_FLOOR
+    except (TypeError, ValueError):
+        return CHAPTER_WORD_FLOOR
+
+
 def word_count_md(fp: str | Path) -> int:
     """Count Chinese characters in Markdown body (excluding frontmatter,
     code blocks, and meta sections).

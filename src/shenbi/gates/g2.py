@@ -24,6 +24,7 @@ from shenbi.gates.shared import (
     CHAPTER_WORD_CEILING,
     CHAPTER_WORD_FLOOR,
     bak_path,
+    chapter_word_floor,
     fail,
     jload,
     parse_decisions_payload,
@@ -187,14 +188,18 @@ def gate_G2(
         if eff_type == "chapter":
             wc = word_count_md(p)  # spec #48 C34/F456: resolved path, not raw fp
 
-            # G2.6 — word count >= floor
-            if wc < CHAPTER_WORD_FLOOR:
+            # G2.6 — word count >= floor. Same config source as G0.3/G6 math
+            # (probe escalation #9): genre-config chapter_word.default, NOT a
+            # hardcoded constant — a 1500-default plan structurally cannot
+            # satisfy a 3000 floor. The G2.7 ceiling keeps the constant form.
+            word_floor = chapter_word_floor(project_dir)
+            if wc < word_floor:
                 mf.append(
                     {
                         "id": "G2.6",
                         "file": fp,
                         "s": GateStatus.FAIL,
-                        "expected": f">= {CHAPTER_WORD_FLOOR}",
+                        "expected": f">= {word_floor}",
                         "actual": wc,
                         "resolution": "run length-normalizing --mode expand",
                     }
