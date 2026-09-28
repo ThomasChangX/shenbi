@@ -1334,8 +1334,11 @@ def _increment_units(content: str) -> list[str]:
     embedded newlines and pipes. Contiguous NON-table lines (section-style
     entries: heading + prose) are grouped into one block unit — they carry no
     key cell, so the primitive appends them verbatim (data-preserving
-    fallback, symmetric with the T703 never-drop policy). Blank-only spans
-    yield no unit.
+    fallback, symmetric with the T703 never-drop policy). Blocks break at
+    markdown HEADING boundaries (probe escalation #16): a multi-section
+    increment grouped as one block dedups only on its FIRST heading, so a
+    re-emitted duplicate section deeper in the block slips through. Blank-only
+    spans yield no unit.
     """
     from shenbi.pipeline.truth_io import split_table_cells
 
@@ -1351,6 +1354,9 @@ def _increment_units(content: str) -> list[str]:
         if split_table_cells(line) is not None:
             _flush()
             units.append(line)
+        elif line.lstrip().startswith("#"):
+            _flush()  # heading boundary: sections dedup independently
+            block.append(line)
         else:
             block.append(line)
     _flush()

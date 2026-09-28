@@ -608,3 +608,28 @@ def test_upsert_shape_mismatch_row_keeps_existing() -> None:
     result2 = upsert_markdown_row(existing, enrich, "hook_id")
     assert enrich in result2
     assert result2.count("| MH-001") == 1
+
+
+def test_increment_units_split_at_heading_boundaries() -> None:
+    """Probe escalation #16: a multi-section increment grouped as ONE block
+    dedups only on its first heading — a re-emitted duplicate section deeper
+    in the block slipped past the block-level dedup. Sections must become
+    independent units.
+    """
+    from shenbi.pipeline.dispatch_helper import _increment_units
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    increment = (
+        "## 第3章 状态变化\n\n总述行。\n\n"
+        "### MH-001｜静海回响\n- lifecycle_state: RELEVANT\n\n"
+        "### MH-005｜名字的保存方式\n- lifecycle_state: RELEVANT\n"
+    )
+    units = _increment_units(increment)
+    assert any(u.startswith("### MH-001｜") for u in units), "sections must be separate units"
+    assert any(u.startswith("### MH-005｜") for u in units)
+
+    # duplicate section deeper in a later block is skipped by first-line dedup
+    base = "## 第3章 状态变化\n\n总述行。\n\n### MH-001｜静海回响\n- lifecycle_state: RELEVANT\n"
+    dup_block = "### MH-001｜静海回响\n- lifecycle_state: RELEVANT（重复）\n"
+    result = upsert_markdown_row(base, dup_block, "hook_id")
+    assert result.count("### MH-001｜静海回响") == 1
