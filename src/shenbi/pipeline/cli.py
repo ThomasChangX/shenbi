@@ -680,6 +680,22 @@ def cmd_review(args: argparse.Namespace) -> int:
                 _apply_reject_redo(state, cp, feedback=feedback)  # acts on the cp snapshot
             clear_checkpoint(state, decision)
 
+            # Genesis-phase escalation: route feedback into the step's
+            # corrective-feedback slot. Genesis re-dispatch reads
+            # genesis.retry_feedback (genesis.py), NOT chapter_loop's
+            # modify_feedback — without this, reviewer feedback on a genesis
+            # escalation is a dead wire (canary escalation, 2026-09-28).
+            if (
+                feedback
+                and cp.type == CheckpointType.ESCALATION
+                and state.phase == PipelinePhase.GENESIS
+            ):
+                from shenbi.pipeline.genesis import GENESIS_STEPS
+
+                idx = state.genesis.current_step
+                if 0 <= idx < len(GENESIS_STEPS):
+                    state.genesis.retry_feedback[GENESIS_STEPS[idx].skill] = feedback
+
             # G4: On modify, queue re-dispatches for derived truth files
             # (spec section 9.2: truth-sync propagation after human edit).
             if decision == ReviewDecision.MODIFY:

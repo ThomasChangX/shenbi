@@ -242,6 +242,45 @@ class TestReviewCommand:
         assert state.checkpoint_history[-1]["feedback"] == "needs more tension in act 2"
         assert state.checkpoint_history[-1]["decision"] == "modify"
 
+    def test_review_genesis_escalation_feedback_rides_retry_slot(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Modify feedback on a genesis escalation lands in genesis.retry_feedback.
+
+        Genesis re-dispatch consumes genesis.retry_feedback (not chapter
+        loop's modify_feedback) as corrective feedback — routing it anywhere
+        else is a dead wire (canary escalation, 2026-09-28).
+        """
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+
+        state = load_state(project_dir)
+        state.genesis.current_step = 0  # step 1 = shenbi-worldbuilding
+        state.genesis.retry_counts["shenbi-worldbuilding"] = 3
+        state.genesis.retry_feedback["shenbi-worldbuilding"] = "G4 check failed: stale"
+        set_checkpoint(
+            state, CheckpointType.ESCALATION, artifact="audits/escalation-genesis-report.md"
+        )
+        save_state(project_dir, state)
+
+        feedback_file = tmp_path / "notes.txt"
+        feedback_file.write_text(
+            "rules.md 用 ## 规则一： 标题；locations.md 用 ## 地点： 标题", encoding="utf-8"
+        )
+
+        rc, _ = _run(
+            ["review", str(project_dir), "modify", "--feedback", str(feedback_file)],
+            monkeypatch,
+        )
+
+        assert rc == 0
+        state = load_state(project_dir)
+        assert state.pending_checkpoint.type == CheckpointType.NONE
+        assert (
+            state.genesis.retry_feedback["shenbi-worldbuilding"]
+            == "rules.md 用 ## 规则一： 标题；locations.md 用 ## 地点： 标题"
+        )
+        assert state.genesis.retry_counts == {}  # escalation resolve resets budget
+
     def test_review_approve_commits_staging(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:

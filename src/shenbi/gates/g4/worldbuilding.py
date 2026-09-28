@@ -91,8 +91,12 @@ def g4_worldbuilding(
     rules_path = rp.read("world/rules.md")
     if rules_path.exists():
         rc = rules_path.read_text(encoding="utf-8")
-        # Support both Chinese and Arabic numerals
-        heading_rules = len(re.findall(r"## 规则\s*[：:.]?\s*[一二三四五六七八九十\d]+", rc))
+        # Support both Chinese and Arabic numerals; 铁律 is the SKILL.md
+        # contract's own term for these entries (L62/L66) — a compliant
+        # output using it must not count as zero (canary escalation, 2026-09-28)
+        heading_rules = len(
+            re.findall(r"## (?:规则|铁律)\s*[：:.]?\s*[一二三四五六七八九十\d]+", rc)
+        )
         numbered_rules = len(re.findall(r"^\d+\.\s+\*\*", rc, re.MULTILINE))
         rule_count = max(heading_rules, numbered_rules)
         # For numbered list format, testable check is skipped (list items have no sections)
@@ -132,6 +136,12 @@ def g4_worldbuilding(
         # Prefer numbered headings (## 1., ## 2., etc.) over 地点 keyword matches,
         # because sub-sections may also contain 地点 in their headings
         loc_count = numbered_loc if numbered_loc > 0 else location_headings
+        if loc_count == 0:
+            # Contract-vocabulary fallback: SKILL.md never mandates a heading
+            # keyword for locations.md, so compliant outputs use bare-name H2
+            # sections (## 灰烬渡口). Count all H2s — the 3-5 range below still
+            # bounds structural abuse (canary escalation, 2026-09-28).
+            loc_count = len(re.findall(r"^##\s+\S+", loc_text, re.MULTILINE))
         if loc_count < 3 or loc_count > 5:
             mf.append(f"G4.locations.count:{loc_count}")
         else:

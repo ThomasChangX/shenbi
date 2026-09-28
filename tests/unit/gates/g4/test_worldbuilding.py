@@ -241,3 +241,61 @@ def test_fails_when_truth_template_missing_field(tmp_path: Path) -> None:
     )
     result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert any("G4.truth.current_state.md.missing_status" in mf for mf in result["must_fix"])
+
+
+# ---------------------------------------------------------------------------
+# Contract-vocabulary acceptance (canary escalation 2026-09-28): SKILL.md's
+# own terms (铁律, bare-name location H2s) must satisfy the count checks.
+# ---------------------------------------------------------------------------
+
+
+def _swap_rules_locations(project_dir: Path, rules_body: str, locations_body: str) -> None:
+    (project_dir / "world" / "rules.md").write_text(rules_body, encoding="utf-8")
+    (project_dir / "world" / "locations.md").write_text(locations_body, encoding="utf-8")
+
+
+@pytest.mark.unit
+def test_passes_with_tielu_heading_rules_and_bare_name_locations(tmp_path: Path) -> None:
+    """铁律-numbered rule headings + bare-name location H2s count correctly.
+
+    This is the exact shape the canary produced (10 铁律, 5 bare-name
+    locations) that the keyword-only regexes counted as 0.
+    """
+    project_dir, marker = _full_valid_project(tmp_path)
+    _swap_rules_locations(
+        project_dir,
+        "# 世界铁律\n\n## 铁律一：等价支付律\n任何超常效果都必须支付。\n\n"
+        "## 铁律二：自动清算律\n账册不接受指定支付物。\n",
+        "# 地点图谱\n\n## 灰烬渡口\n河海贸易城邦。\n\n## 白垩塔\n议会所在。\n\n## 钟城\n教团圣地。\n",
+    )
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
+    assert result["status"] == "PASS"
+    rules_check = next(ch for ch in result["checks"] if ch["id"] == "G4.rules")
+    assert rules_check["count"] == 2
+    locs_check = next(ch for ch in result["checks"] if ch["id"] == "G4.locations")
+    assert locs_check["count"] == 3
+
+
+@pytest.mark.unit
+def test_tielu_rule_count_over_10_still_fails(tmp_path: Path) -> None:
+    """铁律 headings beyond the 1-10 range still fail the count check."""
+    project_dir, marker = _full_valid_project(tmp_path)
+    cn = "一二三四五六七八九十"
+    rules = (
+        "# 世界铁律\n\n"
+        + "".join(f"## 铁律{cn[i]}：律{i}\n内容。\n\n" for i in range(10))
+        + "## 铁律十一：溢出\n内容。\n"
+    )
+    _swap_rules_locations(project_dir, rules, "# L\n\n## A\nx\n\n## B\ny\n\n## C\nz\n")
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
+    assert any("G4.rules.count:11" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_bare_h2_locations_out_of_range_still_fails(tmp_path: Path) -> None:
+    """Bare-name H2 fallback respects the 3-5 bound (6 sections -> count:6)."""
+    project_dir, marker = _full_valid_project(tmp_path)
+    locations = "# 地点图谱\n\n" + "".join(f"## 地点{i}\n描述。\n\n" for i in range(6))
+    _swap_rules_locations(project_dir, "# R\n\n## 规则一：律\n内容。\n", locations)
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
+    assert any("G4.locations.count:6" in mf for mf in result["must_fix"])
