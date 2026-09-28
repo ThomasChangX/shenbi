@@ -9,6 +9,7 @@ from pathlib import Path
 from shenbi.gates.shared import (
     CHAPTER_WORD_FLOOR,
     FATIGUE_BASE,
+    META_BLOCK_RE,
     META_NARRATIVE,
     count_transition_words,
     fail,
@@ -344,7 +345,12 @@ def g4_chapter_drafting(
 
         # G4.cd.scene_concreteness: at least 1 paragraph of >=100 CJK chars of visual narrative
         # (Web novel style uses short paragraphs — lowered from 200 to 100)
-        paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
+        # Strip META blocks first (word_count_md's own口径): the trailing
+        # POST_WRITE_SELF_CHECK checklist otherwise becomes the "last
+        # paragraph" for the end-hook check below and pollutes both consumers
+        # of this list (canary escalation #12, 2026-09-28).
+        content_for_prose = META_BLOCK_RE.sub("", content)
+        paragraphs = [p.strip() for p in content_for_prose.split("\n\n") if p.strip()]
         visual_p_count = 0
         for p in paragraphs:
             if p.startswith("#") or p.startswith("##") or p.startswith(">") or p.startswith("---"):

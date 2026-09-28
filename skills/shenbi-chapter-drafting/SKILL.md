@@ -161,9 +161,34 @@ PRE_WRITE_CHECK:
 
 ## decisions sidecar 必填字段
 
-每次执行后**必须写出** `chapters/chapter-N-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+每次执行后**必须写出** `chapters/chapter-N-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件必须是纯 JSON：首字符即 `{`，禁止 markdown 标题、围栏代码块或任何前后缀文字。** 必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）
 - `produced_at`: ISO-8601 时间戳
 - `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
+
+**字段级规格（G4 逐项强校验，形态错误即闸门失败）**：
+- `selections[]`: `target`（**str，必填**，被选取的文件路径——路径放这里，不放 selected）、`selected`（**list[str]**，条目名列表——禁止写成字符串）、`basis`（**仅限四枚举之一**：`adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`——禁止自造值）、`severity`（`low`/`medium`/`high`）、`omitted`（list[str]）
+- `adjustments[]`: `issue_id`（str，必填）、`severity`、`handling`（**仅限四枚举之一**：`compensate_via_pacing` / `explicit_callout` / `defer_to_next_chapter` / `ignore`——禁止自造值）、`rationale`（必填，≤100 字）
+
+**可仿写示例**：
+
+```json
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 1,
+  "produced_at": "2026-09-28T12:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-1-plan.md",
+      "selected": ["scene-1", "hook-open"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": []
+}
+```
