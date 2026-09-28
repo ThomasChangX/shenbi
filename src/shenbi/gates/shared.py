@@ -167,6 +167,39 @@ def parse_decisions_payload(
         try:
             clean, end_pos = json.JSONDecoder().raw_decode(content)
         except json.JSONDecodeError:
+            # Leading-prefix recovery (canary escalation #10): models wrap
+            # pure-JSON sidecars with a markdown title/fence header —
+            # `# Chapter 1:` then valid JSON. Re-decode from the first `{`.
+            # Bounded: the recovered object still faces full schema + P2.5
+            # validation by the caller, and the recovery is logged.
+            brace = content.find("{")
+            if brace > 0 and "\n" in content[:brace]:
+                try:
+                    clean, end_pos = json.JSONDecoder().raw_decode(content[brace:])
+                except json.JSONDecodeError:
+                    return None, [
+                        {
+                            "id": f"{prefix}.1",
+                            "file": file,
+                            "s": GateStatus.FAIL,
+                            "r": "invalid JSON",
+                        }
+                    ]
+                log.warning(
+                    "decisions_json_leading_prefix_recovered",
+                    file=file,
+                    skipped_prefix=content[:brace][:80],
+                )
+                if not isinstance(clean, dict):
+                    return None, [
+                        {
+                            "id": f"{prefix}.1",
+                            "file": file,
+                            "s": GateStatus.FAIL,
+                            "r": f"recovered non-object JSON: {type(clean).__name__}",
+                        }
+                    ]
+                return clean, []
             return None, [
                 {"id": f"{prefix}.1", "file": file, "s": GateStatus.FAIL, "r": "invalid JSON"}
             ]

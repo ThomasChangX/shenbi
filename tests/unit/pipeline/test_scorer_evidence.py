@@ -84,3 +84,19 @@ def test_unreadable_progress_recovers_with_warning(tmp_path: Path) -> None:
     )
     progress = json.loads((tmp_path / "progress.json").read_text(encoding="utf-8"))
     assert progress["current_scorer_agent"] == "genesis-dispatch:shenbi-foundation-review"
+
+
+@pytest.mark.unit
+def test_audit_classification_is_directory_scoped() -> None:
+    """Plans are not audits: chapter-NN-<dim> NAME shape must not trigger
+    audit-verdict checks outside audits/ (canary escalation #9).
+    """
+    from shenbi.pipeline.dispatch_helper import _is_audit_file
+
+    assert _is_audit_file("audits/chapter-8-foreshadowing.md") is True
+    assert _is_audit_file("staging/audits/chapter-51-anti-ai.md") is True
+    assert _is_audit_file("audits/chapter-8.aggregate.md") is False
+    assert _is_audit_file("plans/chapter-1-plan.md") is False
+    assert _is_audit_file("staging/plans/chapter-1-plan.md") is False
+    assert _is_audit_file("staging/plans/chapter-1-plan-decisions.json") is False
+    assert _is_audit_file("chapters/chapter-1.md") is False

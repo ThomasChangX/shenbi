@@ -1027,9 +1027,26 @@ def _validate_json_output(content: str, path: Path) -> str:
     decoder = json.JSONDecoder()
     try:
         clean_data, end_pos = decoder.raw_decode(content)
-    except json.JSONDecodeError as e:
-        log.error("decisions_json_unrecoverable", path=str(path), error=str(e))
-        raise ValueError(f"Decisions JSON invalid and unrecoverable for {path}: {e}") from e
+    except json.JSONDecodeError:
+        # Leading-prefix recovery (canary escalation #10): markdown title /
+        # fence header before the JSON body. Mirrors gates/shared.py's
+        # parse_decisions_payload policy — both sides must accept the same
+        # shapes or the gate passes what the dispatch side then rejects.
+        brace = content.find("{")
+        if brace > 0 and "\n" in content[:brace]:
+            try:
+                clean_data, end_pos = decoder.raw_decode(content[brace:])
+                log.warning(
+                    "decisions_json_leading_prefix_recovered",
+                    path=str(path),
+                    skipped_prefix=content[:brace][:80],
+                )
+            except json.JSONDecodeError as e:
+                log.error("decisions_json_unrecoverable", path=str(path), error=str(e))
+                raise ValueError(f"Decisions JSON invalid and unrecoverable for {path}: {e}") from e
+        else:
+            log.error("decisions_json_unrecoverable", path=str(path))
+            raise ValueError(f"Decisions JSON invalid and unrecoverable for {path}") from None
 
     # Tightened recovery: a shenbi-decisions-v1 object must pass schema +
     # required-field completeness before being accepted. This prevents
@@ -1209,14 +1226,20 @@ def ensure_chapter_header(content: str, chapter_num: int) -> str:
     return f"# Chapter {chapter_num}:\n\n" + content
 
 
-def _is_audit_file(name: str) -> bool:
-    """True iff *name* looks like an audit report (``chapter-NN-<dim>.md``).
+def _is_audit_file(path: str) -> bool:
+    """True iff *path* is an audit report under ``audits/`` (``chapter-NN-<dim>.md``).
 
-    Matches the production layout: audit reports are ``chapter-NN-<dimension>.md``
-    (e.g. ``chapter-8-foreshadowing.md``, ``chapter-51-anti-ai.md``). A bare
-    ``chapter-NN.md`` (the prose file) is NOT an audit.
+    Classification is directory-scoped, not bare-name: ``plans/chapter-1-plan.md``
+    and ``plans/chapter-1-plan-decisions.json`` match the ``chapter-NN-<dim>``
+    name shape but are planning artifacts, not audits — demanding verdict
+    markers in them fail-closed the chapter-planning gate forever (canary
+    escalation #9, 2026-09-28). A bare ``chapter-NN.md`` (the prose file) is
+    NOT an audit either.
     """
-    stem = Path(name).stem
+    rel = str(path).removeprefix("staging/")
+    if not rel.startswith("audits/"):
+        return False
+    stem = Path(rel).stem
     # The framework-written aggregate (chapter-N.aggregate.md) is NOT an
     # LLM audit report (spec #4 F10).
     if stem.endswith(".aggregate"):
@@ -1605,7 +1628,7 @@ def _write_parsed_outputs(
             # write path (before the post-snapshot, so write-audit sees the
             # final contract-compliant content).
             _m = _CHAPTER_NUM_RE.match(Path(rel_path).stem)
-            if _m and not _is_audit_file(Path(rel_path).name):
+            if _m and not _is_audit_file(rel_path):
                 content = ensure_chapter_header(content, int(_m.group(1)))
             safe_write(full_path, content, allowed_roots=(project_root,))
             written.append(rel_path)
@@ -1614,8 +1637,10 @@ def _write_parsed_outputs(
         # 3-6. POST-WRITE INTEGRITY (fixed order; collect all issues).
         issues: list[str] = []
         name = full_path.name
-        is_chapter = _CHAPTER_NUM_RE.match(Path(name).stem) is not None and not _is_audit_file(name)
-        is_audit = _is_audit_file(name)
+        is_chapter = _CHAPTER_NUM_RE.match(Path(name).stem) is not None and not _is_audit_file(
+            rel_path
+        )
+        is_audit = _is_audit_file(rel_path)
 
         if is_chapter:
             issues += check_prose_leakage(full_path)
