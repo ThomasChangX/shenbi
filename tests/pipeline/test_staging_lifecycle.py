@@ -123,3 +123,31 @@ def test_approve_chain_sidecar_reaches_committed_truth(project: Path) -> None:
 
     assert (project / "plans" / "chapter-1-plan.md").exists()
     assert (project / "plans" / "chapter-1-plan-decisions.json").exists()
+
+
+def test_per_chapter_approve_commits_pending_truth_staging(tmp_path, monkeypatch):
+    """Probe session 2026-09-28: a state-settling redo after a rejected
+    STATE_SETTLE checkpoint does not re-raise the settle checkpoint, so its
+    staged truth rides until the PER_CHAPTER review — whose approve cleared
+    staging WITHOUT committing, destroying the chapter's increments. The
+    per-chapter approve must commit staged truth exactly like a settle
+    approve.
+    """
+    from shenbi.pipeline.checkpoint import STAGING_DIR, staging_path
+    from shenbi.pipeline.cli import _commit_staging_for_checkpoint
+    from shenbi.pipeline.state import CheckpointData, CheckpointType
+
+    staging_truth = tmp_path / STAGING_DIR / "truth"
+    staging_truth.mkdir(parents=True)
+    staged = staging_path(tmp_path, "truth/chapter_summaries.md")
+    staged.write_text("| 第 2 章 | staged summary row |", encoding="utf-8")
+
+    cp = CheckpointData(
+        type=CheckpointType.PER_CHAPTER, chapter=2, artifact=None, context=None, options=[]
+    )
+    _commit_staging_for_checkpoint(tmp_path, cp)
+
+    committed = tmp_path / "truth" / "chapter_summaries.md"
+    assert committed.exists(), "per-chapter approve must commit pending truth staging"
+    assert "staged summary row" in committed.read_text(encoding="utf-8")
+    assert not (tmp_path / STAGING_DIR).exists(), "staging cleared after commit"

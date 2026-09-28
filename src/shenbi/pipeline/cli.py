@@ -363,9 +363,15 @@ def _emit_orchestration_result(state: PipelineState) -> None:
 def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> None:
     """Commit staging files for checkpoint-gated skills (spec section 2.7).
 
-    Only CHAPTER_MEMO and STATE_SETTLE checkpoints have staging files.
-    Each target is committed individually so a missing file for one type
-    does not block the other. The staging directory is cleared afterwards.
+    CHAPTER_MEMO and STATE_SETTLE checkpoints own their staging files
+    directly; PER_CHAPTER must also commit any truth staging still pending —
+    a state-settling redo after a rejected STATE_SETTLE checkpoint does not
+    re-raise the settle checkpoint, so its staged truth rides until the
+    per-chapter review. Unconditionally clearing without committing (probe
+    session 2026-09-28) destroyed chapter 1's increments on its per-chapter
+    approve. Each target is committed individually so a missing file for one
+    type does not block the other. The staging directory is cleared
+    afterwards.
     """
     from shenbi.pipeline.checkpoint import commit_staging
     from shenbi.pipeline.chapter_loop import staged_decisions_targets
@@ -376,7 +382,7 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
         # audit-T5 C1: contract-declared sidecar joins the same commit batch,
         # otherwise clear_staging below silently destroys it.
         targets += staged_decisions_targets(project_dir, "shenbi-chapter-planning", chapter)
-    elif cp.type == CheckpointType.STATE_SETTLE:
+    elif cp.type in (CheckpointType.STATE_SETTLE, CheckpointType.PER_CHAPTER):
         # I3: glob all staged truth files rather than hardcoding one.
         from shenbi.pipeline.checkpoint import STAGING_DIR
 
