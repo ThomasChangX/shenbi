@@ -280,9 +280,35 @@ After updating character state, update `truth/character_matrix.md`:
 
 ## decisions sidecar 必填字段
 
-每次执行后**必须写出** `truth/state-settling-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+每次执行后**必须写出** `truth/state-settling-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件必须是纯 JSON：首字符即 `{`，禁止 markdown 标题、围栏代码块或任何前后缀文字。** 必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）
 - `produced_at`: ISO-8601 时间戳
 - `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
+
+**字段级规格（G4 逐项强校验，形态错误即闸门失败）**：
+- `selections[]`: `target`（**str，必填**，被选取的文件路径）、`selected`（**list[str]**，条目名列表）、`basis`（**仅限四枚举之一**：`adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`）、`severity`（`low`/`medium`/`high`）、`omitted`（list[str]）——**禁止自造字段**（id/type/decision/evidence 等一律不入）
+- `adjustments[]`: `issue_id`（str，必填）、`severity`、`handling`（**仅限四枚举之一**：`compensate_via_pacing` / `explicit_callout` / `defer_to_next_chapter` / `ignore`）、`rationale`（必填，≤100 字）——**禁止自造字段**（id/description 等一律不入）
+- 顶层只允许 `$schema`/`skill`/`chapter`/`produced_at`/`selections`/`adjustments`/`budget`——`consistency_check`、`human_approval_gate` 等自造顶层键一律禁止
+
+**可仿写示例**：
+
+```json
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-state-settling",
+  "chapter": 1,
+  "produced_at": "2026-09-28T12:00:00Z",
+  "selections": [
+    {
+      "target": "truth/current_state.md",
+      "selected": ["sys-stage-1", "position-ash-crossing"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": []
+}
+```

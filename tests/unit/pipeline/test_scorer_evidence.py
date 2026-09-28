@@ -100,3 +100,16 @@ def test_audit_classification_is_directory_scoped() -> None:
     assert _is_audit_file("staging/plans/chapter-1-plan.md") is False
     assert _is_audit_file("staging/plans/chapter-1-plan-decisions.json") is False
     assert _is_audit_file("chapters/chapter-1.md") is False
+
+
+@pytest.mark.unit
+def test_parameter_agent_match_is_token_level() -> None:
+    """Descriptors containing a blacklisted char (冷静) don't trip the
+    parameter-agent check; a standalone agent name does (canary ch1).
+    """
+    from shenbi.gates.g4.state_settling import _validate_character_matrix
+
+    body_ok = "---\nfm\n---\n\n| 老头 | 登记人 | 存活 | 冷静、讳莫如深 | 起点 |\n"
+    assert _validate_character_matrix(body_ok) == []
+    body_agent = "---\nfm\n---\n\n| 冷 | 参数代理 | 活跃 | 无 | 第1章 |\n"
+    assert _validate_character_matrix(body_agent) != []

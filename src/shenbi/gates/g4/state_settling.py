@@ -45,12 +45,17 @@ def _validate_character_matrix(
             def_section = def_parts[1].split("\n## ", 1)[0]
 
     for agent in agents:
-        if agent in body:
+        # Token-level match: a parameter agent is a standalone NAME (its own
+        # cell/word), not a substring of ordinary vocabulary — "冷" as an
+        # agent must not fire on descriptors like "冷静" (canary ch1: 老头's
+        # personality column tripped the bare-substring blacklist).
+        agent_re = re.compile(rf"(?<![\u4e00-\u9fff]){re.escape(agent)}(?![\u4e00-\u9fff])")
+        if agent_re.search(body):
             # Check if agent appears in per-chapter state sections (not 角色定义)
             state_sections = body
             if def_section:
                 state_sections = body.replace(def_section, "")
-            if agent in state_sections:
+            if agent_re.search(state_sections):
                 issues.append(f"G4.ss.parameter_agent_in_character_matrix: {agent}")
 
     return issues
