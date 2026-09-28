@@ -2939,6 +2939,51 @@ def run_gate_g4(
     return result
 
 
+def record_scorer_evidence(
+    project_dir: Path | str,
+    scorer_route: str,
+    generator_routes: dict[str, str],
+    extra_progress: dict[str, Any] | None = None,
+) -> None:
+    """Persist scoring-independence evidence for the G3.4 fail-closed check.
+
+    The API dispatch path previously had NO writer for
+    ``progress.json:current_scorer_agent`` anywhere in the codebase, so
+    every ``requires_independent_agent`` step (genesis step 17 and the
+    chapter-loop review skills) deterministically failed G3 regardless of
+    output quality (canary escalation #5, 2026-09-28).
+
+    Read-merge-write, never wholesale replace — chapter-phase progress
+    keys must survive genesis-phase updates (F630 merge semantics).
+    Callers must pass real progress fields via *extra_progress* so the
+    file is never a scorer-only shell (F1309).
+    """
+    progress_path = Path(project_dir) / "progress.json"
+    data: dict[str, Any] = {}
+    if progress_path.exists():
+        try:
+            loaded = json.loads(progress_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                data = loaded
+        except (json.JSONDecodeError, OSError):
+            log.warning("progress_json_unreadable_scorer_merge", path=str(progress_path))
+    data["current_scorer_agent"] = scorer_route
+    trace = data.get("agent_trace")
+    if not isinstance(trace, dict):
+        trace = {}
+    trace.update(generator_routes)
+    data["agent_trace"] = trace
+    if extra_progress:
+        data.update(extra_progress)
+    safe_write(progress_path, json.dumps(data, indent=2, ensure_ascii=False))
+    log.info(
+        "scorer_evidence_recorded",
+        scorer=scorer_route,
+        generators=len(generator_routes),
+        path=str(progress_path),
+    )
+
+
 def run_gate_g3(
     skill: str,
     round_dir: Path | str,

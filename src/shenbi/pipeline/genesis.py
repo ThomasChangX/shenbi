@@ -386,6 +386,22 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # G3: scoring independence for requires_independent_agent skills (step 17).
     if requires_independent(step.skill):
+        # G3.4 is fail-closed on progress.json scorer evidence — record it
+        # BEFORE the gate runs. Each genesis dispatch is a distinct
+        # fresh-context agent, so per-dispatch route ids are the honest
+        # independence claim (canary escalation #5 dead-wire repair).
+        from shenbi.pipeline.dispatch_helper import record_scorer_evidence
+
+        record_scorer_evidence(
+            project_dir,
+            scorer_route=f"genesis-dispatch:{step.skill}",
+            generator_routes={s: f"genesis-dispatch:{s}" for s in state.genesis.skills_done},
+            extra_progress={
+                "phase": state.phase.value,
+                "genesis_current_step": step.step_num,
+                "genesis_completed_skills": list(state.genesis.skills_done),
+            },
+        )
         g3 = run_gate_g3(step.skill, project_dir)
         if not _gate_passed(g3):
             log.error("genesis_g3_failed", step=step.step_num, skill=step.skill, g3=g3)
