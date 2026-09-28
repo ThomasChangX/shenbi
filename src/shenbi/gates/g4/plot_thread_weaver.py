@@ -36,16 +36,40 @@ def g4_plot_thread_weaver(
         mf.append("G4.thread.not_found")
     else:
         content = tm.read_text(encoding="utf-8")
-        # A线/B线/C线
-        lines_found = []
-        for label in ["A 长线", "B 中线", "C 短线"]:
-            if label in content:
-                lines_found.append(label)
-        # '## A' style: line-anchored heading match — bare substring tests hit
-        # prose mentions like "方案 ## A 备选" (F486).
-        for short in ["A", "B", "C"]:
-            if re.search(rf"^##\s+{short}\b", content, re.MULTILINE):
-                lines_found.append(f"## {short}")
+        # A/B/C three-tier line presence. Union match: the SKILL.md
+        # contract's own vocabulary (铁律 2-4 and the classification
+        # headings teach "A 线（长线）"; the summary block teaches
+        # "**A 线数**"; the overview table's ID column is `A1/A2/...`) PLUS
+        # the legacy literals for backward compatibility. Contract-faithful
+        # output must pass (canary escalation #4, 2026-09-28).
+        tier_patterns = {
+            "A": [
+                r"A 长线",
+                r"^##\s+A\b",
+                r"^#{2,3}\s*A\s*线",
+                r"\*\*A\s*线数\*\*",
+                r"^\|\s*A\d",
+            ],
+            "B": [
+                r"B 中线",
+                r"^##\s+B\b",
+                r"^#{2,3}\s*B\s*线",
+                r"\*\*B\s*线数\*\*",
+                r"^\|\s*B\d",
+            ],
+            "C": [
+                r"C 短线",
+                r"^##\s+C\b",
+                r"^#{2,3}\s*C\s*线",
+                r"\*\*C\s*线数\*\*",
+                r"^\|\s*C\d",
+            ],
+        }
+        lines_found = [
+            tier
+            for tier, patterns in tier_patterns.items()
+            if any(re.search(p, content, re.MULTILINE) for p in patterns)
+        ]
         if not lines_found:
             mf.append("G4.pt.lines:missing_A/B/C")
         else:
