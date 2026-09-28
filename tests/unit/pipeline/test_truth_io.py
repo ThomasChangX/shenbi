@@ -491,3 +491,82 @@ def test_insert_mode_rejects_dict_data(tmp_path: Path) -> None:
         write_truth_file(
             tmp_path, "trend.md", {"chapter": 1}, mode="insert_markdown_row", key_field="chapter"
         )
+
+
+# ---------------------------------------------------------------------------
+# Probe escalation #5/#6 (novel-xinghuo-probe, 2026-09-28): the state-settling
+# increment merge corrupted truth/pending_hooks.md twice. The skill re-emits a
+# per-chapter status table whose HEADER's first cell is "Hook ID" — the upsert
+# keyed-matched that header against the live 8-column registry header and
+# deleted it, and replaced rows were relocated to EOF, dangling after the
+# Genesis notes prose.
+# ---------------------------------------------------------------------------
+
+
+def test_upsert_header_shaped_increment_row_is_skipped() -> None:
+    """An increment row whose key cell IS the key field name (a re-emitted
+    table header) must never delete the live header or append a ragged copy.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "---\ntype: truth\n---\n\n# 伏笔池\n\n"
+        "## 伏笔总览\n\n"
+        "| Hook ID | 内容 | type | dimension | 埋设章 | 预期激活 | 计划回收 | 状态 |\n"
+        "|---|---|---|---|---|---|---|---|\n"
+        "| MH-001 | 账感即接口 | GENUINE | INFORMATION | 第1章 | 第10章 | 第120章 | 已种植 |\n"
+        "| MH-002 | 名单真相 | GENUINE | INFORMATION | 第5章 | 第113章 | 第131章 | 已种植 |\n"
+    )
+    increment_header = "| Hook ID | 操作 | 推进方式 | 沉默章数 |"
+    result = upsert_markdown_row(existing, increment_header, "hook_id")
+    assert result == existing, "header-shaped increment rows must be a no-op"
+    assert result.count("| Hook ID") == 1
+
+
+def test_upsert_replaces_row_in_place_not_at_eof() -> None:
+    """A keyed replacement lands at the replaced row's position — the old
+    primitive moved it to EOF, dangling after trailing prose sections.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "| Hook ID | 内容 | 状态 |\n"
+        "|---|---|---|\n"
+        "| MH-001 | 账感即接口 | 待种植 |\n"
+        "| MH-002 | 名单真相 | 待种植 |\n"
+        "\n## Genesis 备注\n\n- 全书 32 条总登记。\n"
+    )
+    updated = "| MH-001 | 账感即接口 | 已种植（第1章，subtlety 0.85） |"
+    result = upsert_markdown_row(existing, updated, "hook_id")
+    lines = result.split("\n")
+    assert updated in lines
+    assert lines.index(updated) < lines.index("## Genesis 备注"), "row must stay in its table"
+    assert result.count("| MH-001") == 1, "no duplicate of the replaced row"
+    assert "- 全书 32 条总登记。" in result
+
+
+def test_upsert_new_key_row_inserts_into_keys_table() -> None:
+    """A new-key row joins the table carrying the key column instead of
+    dangling at EOF after prose (and after OTHER tables it does not belong to).
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "## 格式约定\n\n"
+        "| 项 | 说明 |\n"
+        "|---|---|\n"
+        "| 状态 | 五值枚举 |\n"
+        "\n## 伏笔总览（共 32 条）\n\n"
+        "| Hook ID | 内容 | 状态 |\n"
+        "|---|---|---|\n"
+        "| MH-001 | 账感即接口 | 已种植 |\n"
+        "\n## Genesis 备注\n\n- 备注\n"
+    )
+    new_row = "| MH-002 | 名单真相 | 已种植 |"
+    result = upsert_markdown_row(existing, new_row, "hook_id")
+    lines = result.split("\n")
+    assert new_row in lines
+    assert lines.index(new_row) > lines.index("| MH-001 | 账感即接口 | 已种植 |")
+    assert lines.index(new_row) < lines.index("## Genesis 备注"), (
+        "new row must land inside the hook table, not after trailing prose"
+    )

@@ -452,16 +452,67 @@ def _key_column(existing: str, key_name: str) -> int:
     return 0
 
 
+def _structural_table_lines(lines: list[str]) -> list[bool]:
+    """Flag structural table lines: separator rows and header rows.
+
+    A header row is a pipe row whose NEXT pipe row is a separator (markdown
+    table convention). Headers and separators define table structure — they
+    must never be removed or matched as data by the upsert (probe escalation
+    #6: an increment re-emitting a ``| Hook ID | ... |`` header deleted the
+    live 8-column registry header, leaving the table unparseable).
+    """
+    flags = [False] * len(lines)
+    pipe_indices = [i for i, line in enumerate(lines) if split_table_cells(line) is not None]
+    for pos, i in enumerate(pipe_indices):
+        cells = split_table_cells(lines[i])
+        if cells is not None and _is_separator_row(cells):
+            flags[i] = True
+            continue
+        nxt = pipe_indices[pos + 1] if pos + 1 < len(pipe_indices) else None
+        if nxt is not None:
+            next_cells = split_table_cells(lines[nxt])
+            if next_cells is not None and _is_separator_row(next_cells):
+                flags[i] = True
+    return flags
+
+
+def _key_table_tail(lines: list[str], key_name: str) -> int | None:
+    """Line index just past the last row of the table whose header carries
+    *key_name* — the in-table insertion point for a new-key row.
+
+    None when no table's header matches (callers fall back to EOF append).
+    """
+    structural = _structural_table_lines(lines)
+    for i, line in enumerate(lines):
+        if not structural[i] or _is_separator_row(split_table_cells(line) or []):
+            continue
+        cells = split_table_cells(line) or []
+        if any(c and _norm_cell(c) == _norm_cell(key_name) for c in cells):
+            tail = i
+            for j in range(i + 1, len(lines)):
+                if split_table_cells(lines[j]) is not None:
+                    tail = j
+                else:
+                    break
+            return tail + 1
+    return None
+
+
 def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
     """Dedup a markdown table row by whole-cell key-column value (T702/T713).
 
     The key is the FULL text of the key cell (first cell by default, or the
     column whose header matches *key_name*), never a whitespace token. Rows
-    whose key cell equals the new row's key are replaced by the new row;
-    everything else (frontmatter, headers, separator rows, prose, rows with
-    a different key) is preserved verbatim. A non-table *new_row* — or one
-    with no usable natural key — is appended without dedup so no data is
-    silently dropped (data-preserving fallback, symmetric with T703).
+    whose key cell equals the new row's key are replaced by the new row
+    IN PLACE — the pre-probe-#6 primitive removed the matched row and
+    appended the replacement at EOF, so every update relocated its row out
+    of the table and dangled it after trailing prose. Everything else
+    (frontmatter, headers, separator rows, prose, rows with a different key)
+    is preserved verbatim; header-shaped increment rows are skipped (a
+    re-emitted ``| Hook ID | ... |`` header used to delete the live header).
+    A non-table *new_row* — or one with no usable natural key — is appended
+    without dedup so no data is silently dropped (data-preserving fallback,
+    symmetric with T703).
     """
     new_cells = split_table_cells(new_row)
     if new_cells is None:
@@ -479,18 +530,32 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
         # letting all empty-key rows annihilate each other.
         log.warning("truth_table_upsert_empty_key", key_name=key_name)
         return existing.rstrip() + "\n" + new_row
+    if _norm_cell(new_key) == _norm_cell(key_name):
+        # The increment re-emitted this table's HEADER row. Headers are
+        # structural: upserting one would delete the live header (key match)
+        # and append a ragged copy at the tail (probe escalation #6).
+        log.warning("truth_table_upsert_header_row_skipped", key_name=key_name)
+        return existing
 
+    lines = existing.split("\n")
+    structural = _structural_table_lines(lines)
     result_lines: list[str] = []
-    for line in existing.split("\n"):
-        if line.lstrip().startswith("|"):
+    replaced = False
+    for i, line in enumerate(lines):
+        if not structural[i] and line.lstrip().startswith("|"):
             cells = split_table_cells(line)
-            if cells is None or _is_separator_row(cells):
-                result_lines.append(line)  # separator rows are never data
-                continue
-            if key_col < len(cells) and cells[key_col] == new_key:
-                continue  # replaced by the new row appended below
+            if cells is not None and key_col < len(cells) and cells[key_col] == new_key:
+                if not replaced:
+                    result_lines.append(new_row)  # replace at the row's position
+                    replaced = True
+                continue  # duplicate rows with the same key are dropped
         result_lines.append(line)
-    result_lines.append(new_row)
+    if not replaced:
+        insert_at = _key_table_tail(lines, key_name)
+        if insert_at is not None:
+            result_lines.insert(insert_at, new_row)
+        else:
+            result_lines.append(new_row)  # no keyed table — EOF fallback
     return "\n".join(result_lines)
 
 

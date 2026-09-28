@@ -321,10 +321,19 @@ class TestLoopContinuesFromRealPriorState:
 
         # Every real prior-state file is preserved under the chapter 2 write —
         # a whole-file staging commit would have replaced them with the bare
-        # chapter 2 increment (F1104 data loss on real data).
+        # chapter 2 increment (F1104 data loss on real data). Row-level
+        # preservation: the keyed upsert inserts new-key rows INTO the key's
+        # table (probe escalation #6 — EOF appends dangled rows outside the
+        # table), so the prior content is no longer a contiguous substring;
+        # every prior line must still be present verbatim.
         for rel, pre in seeded.items():
             post = (tmp_project / rel).read_text(encoding="utf-8")
-            assert pre.strip() in post, f"{rel}: real chapter-1 content lost on chapter 2 write"
+            pre_lines = [line for line in pre.split("\n") if line.strip()]
+            post_lines = set(post.split("\n"))
+            missing = [line for line in pre_lines if line not in post_lines]
+            assert not missing, (
+                f"{rel}: real chapter-1 content lost on chapter 2 write: {missing[:3]}"
+            )
 
         summaries = (tmp_project / "truth" / "chapter_summaries.md").read_text(encoding="utf-8")
         assert "第1章：毕业即失业与穿越即负债" in summaries
