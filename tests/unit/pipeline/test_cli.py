@@ -103,6 +103,29 @@ class TestInitCommand:
         assert rc == 0
         assert json.loads(out)["total_chapters"] == "unknown"
 
+    def test_init_scaffolds_core_truth_dirs(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Init creates the core dirs `_verify_truth_integrity` demands on resume.
+
+        The integrity check runs on EVERY resume — including the first one,
+        before any genesis step has written anything — so a fresh project
+        without these dirs deadlocks init→resume (F325 fail-fast wiring).
+        """
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(sample_seed_content, encoding="utf-8")
+        project_dir = tmp_path / "novel"
+
+        rc, _ = _run(["init", str(seed_file), "--project-dir", str(project_dir)], monkeypatch)
+
+        assert rc == 0
+        from shenbi.pipeline.cli import _verify_truth_integrity
+        from shenbi.pipeline.state import PipelinePhase
+
+        state = load_state(project_dir)
+        assert state.phase == PipelinePhase.GENESIS
+        assert _verify_truth_integrity(state, project_dir) == []
+
     def test_init_auto_flag_disables_review_checkpoints(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:

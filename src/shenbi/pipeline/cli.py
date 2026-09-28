@@ -476,6 +476,13 @@ def _cmd_init_locked(
 
     project_dir.mkdir(parents=True, exist_ok=True)
 
+    # Scaffold the core truth dirs upfront: `_verify_truth_integrity`
+    # requires them to exist on EVERY resume — including the first one,
+    # before any genesis step has lazily created them via its writers.
+    # Without this, init→resume deadlocks on the F325 fail-fast wiring.
+    for core_dir in ("truth", "characters", "outline", "world"):
+        (project_dir / core_dir).mkdir(exist_ok=True)
+
     seed_data = parse_seed(args.seed_file)
 
     # Write novel.json (seed metadata; total_chapters set later by volume-outlining).
