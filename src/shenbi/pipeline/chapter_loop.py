@@ -674,6 +674,18 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
         'chapter-N.md L45-52 > "引用原文"\n'
         "至少一行包含 Lnn 或 line nn 格式的行号引用。"
     ),
+    "G4.dec.list_type": (
+        "decisions sidecar 的 selections[].selected 必须是字符串数组，例如：\n"
+        '"selected": ["arc1", "beat_2"]\n'
+        "（禁止写成单个字符串；完整形态见 SKILL.md「decisions sidecar 必填字段」的示例 JSON）"
+    ),
+    "G4.dec.literal_error": (
+        "decisions sidecar 的枚举字段禁止自造值：\n"
+        "selections[].basis 仅限 adjacent_to_target_chapter / arc_relevance / "
+        "volume_scope / manual_override；\n"
+        "adjustments[].handling 仅限 compensate_via_pacing / explicit_callout / "
+        "defer_to_next_chapter / ignore"
+    ),
 }
 
 
