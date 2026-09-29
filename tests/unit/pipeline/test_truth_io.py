@@ -633,3 +633,47 @@ def test_increment_units_split_at_heading_boundaries() -> None:
     dup_block = "### MH-001｜静海回响\n- lifecycle_state: RELEVANT（重复）\n"
     result = upsert_markdown_row(base, dup_block, "hook_id")
     assert result.count("### MH-001｜静海回响") == 1
+
+
+def test_increment_units_drop_separator_rows() -> None:
+    """Probe esc (resonance 碎表 root cause): a skill increment carries its
+    own table HEADER + SEPARATOR + row. The separator unit was upserted as
+    if it were data — old code appended it at EOF (fragment-table look),
+    current code inserts it mid-table. Separators are structural, never
+    data: the existing table already has one.
+    """
+    import shutil
+    import tempfile
+    from pathlib import Path
+
+    from shenbi.pipeline.dispatch_helper import _route_append_dedup_write
+
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        (tmp / "truth").mkdir()
+        live = tmp / "truth" / "resonance_trend.md"
+        live.write_text(
+            "---\ntype: truth\n---\n\n"
+            "| chapter | role | overall |\n|---|---|---|\n"
+            "| 1 | 过渡 | 83 |\n| 13 | 推进 | 88 |\n",
+            encoding="utf-8",
+        )
+        increment = "| chapter | role | overall |\n|---|---|---|\n| 14 | 推进 | 89 |\n"
+        _route_append_dedup_write(tmp, "truth/resonance_trend.md", increment, key_field="chapter")
+        out = live.read_text(encoding="utf-8")
+        lines = [l for l in out.split("\n") if l.strip().startswith("|")]
+        separators = [
+            l
+            for l in lines
+            if all(
+                __import__("re").fullmatch(r":?-{3,}:?", c.strip())
+                for c in l.strip().strip("|").split("|")
+                if c.strip()
+            )
+        ]
+        assert len(separators) == 1, f"exactly one separator expected, got {len(separators)}"
+        assert any(l.startswith("| 14 |") for l in lines)
+        # row 14 must sit INSIDE the table (after row 13, before EOF prose)
+        assert lines.index("| 14 | 推进 | 89 |") > lines.index("| 13 | 推进 | 88 |")
+    finally:
+        shutil.rmtree(tmp)

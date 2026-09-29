@@ -1363,8 +1363,11 @@ def _increment_units(content: str) -> list[str]:
         block.clear()
 
     for line in content.split("\n"):
-        if split_table_cells(line) is not None:
+        cells = split_table_cells(line)
+        if cells is not None:
             _flush()
+            if cells and all(re.fullmatch(r":?-{3,}:?", c) for c in cells if c):
+                continue  # separator rows are structural, never data units
             units.append(line)
         elif line.lstrip().startswith("#"):
             _flush()  # heading boundary: sections dedup independently
