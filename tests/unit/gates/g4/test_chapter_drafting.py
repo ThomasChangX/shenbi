@@ -439,3 +439,23 @@ def test_visual_scene_micro_paragraph_style_passes(tmp_path: Path) -> None:
     result = _run([str(ch)])
 
     assert not any("no_visual_scene" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_end_hook_concealment_tension_counts(tmp_path: Path) -> None:
+    """Probe escalation #38: concealment closures ("他没说……") are unresolved
+    tension — the regex family lacked the 没说/瞒/藏 markers and the stylistic
+    ending (no question marks anywhere) structurally failed the hook check.
+    """
+    tension = "他没说自己先读到了那个数，也没说那一格他认得，压在盐引底下写得很小。" * 2
+    beats = "\n\n".join(
+        ["「没怎么。」", "火盆里的炭褪了一层红。", "他抬头看了一眼铜盘。", "袖口的炭条往里按了按。"]
+    )
+    closing = "那一格，占了。"
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 30
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{tension}\n\n{beats}\n\n{closing}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.cd.no_hook" in m for m in _must_fix(result))

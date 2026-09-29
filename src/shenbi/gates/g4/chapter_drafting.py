@@ -435,7 +435,9 @@ def g4_chapter_drafting(
                     continue
                 hook_checked_any = True
                 has_q = bool(re.search(r"[？?]", p))
-                has_t = bool(re.search(r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待)", p))
+                has_t = bool(
+                    re.search(r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|瞒|藏)", p)
+                )
                 if has_q or has_t:
                     hook_hit = True
                     break
