@@ -211,3 +211,41 @@ def test_parallel_worker_exception_persists_stack(tmp_path, monkeypatch):
     content = dumps[0].read_text(encoding="utf-8")
     assert "Traceback" in content or "runtime" in content.lower()
     assert results and not results[0].success
+
+
+class TestParallelRetryFeedbackWire:
+    """Fixcheck escalation ch1 (2026-09-29): the parallel post-draft path ran
+    blind retries — its G4 failure site stored no retry_feedback and its
+    prompt builder injected none, so state-settling restructured
+    character_matrix 3x (matrix_structure line_collapse) and escalated.
+    """
+
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_retry_prompt_carries_g4_corrective_feedback(self, mock_dispatch):
+        state = PipelineState.default("/tmp/test-project")
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.retry_feedback["ch1-shenbi-state-settling"] = (
+            "G4.ss.matrix_structure:character_matrix.md:line_collapse:staged=22<live*0.9=73"
+        )
+
+        run_parallel_post_draft_steps(state)
+
+        settling_call = mock_dispatch.call_args_list[1]
+        settling_prompt = settling_call.args[2]
+        assert "CORRECTIVE FEEDBACK" in settling_prompt
+        assert "matrix_structure" in settling_prompt
+        # the lifecycle prompt must NOT carry the settling feedback
+        lifecycle_prompt = mock_dispatch.call_args_list[0].args[2]
+        assert "matrix_structure" not in lifecycle_prompt
+
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_modify_feedback_injected_and_consumed_once(self, mock_dispatch):
+        state = PipelineState.default("/tmp/test-project")
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.modify_feedback = "改用送灯回铺收尾"
+
+        run_parallel_post_draft_steps(state)
+
+        prompts = [c.args[2] for c in mock_dispatch.call_args_list]
+        assert sum("Human review feedback" in p for p in prompts) == 1
+        assert state.chapter_loop.modify_feedback is None

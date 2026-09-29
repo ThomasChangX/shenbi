@@ -749,6 +749,31 @@ def _enrich_g4_feedback(failures: list[str]) -> str:
     return "\n".join(lines)
 
 
+def _append_feedback_injections(prompt: str, state: PipelineState, chapter: int, skill: str) -> str:
+    """One-shot MODIFY feedback + prior-attempt G4 corrective feedback.
+
+    Shared by the serial dispatch path and the parallel post-draft prompt
+    builder (fixcheck escalation ch1 2026-09-29: the parallel builder
+    claimed to "mirror the serial path" but injected neither, so
+    state-settling retries ran blind and restructured character_matrix 3x).
+    """
+    if state.chapter_loop.modify_feedback:
+        prompt += (
+            f"\n\nHuman review feedback (incorporate these changes): "
+            f"{state.chapter_loop.modify_feedback}"
+        )
+        state.chapter_loop.modify_feedback = None
+    prev_g4_feedback = state.chapter_loop.retry_feedback.get(_retry_key(chapter, skill))
+    if prev_g4_feedback:
+        prompt += (
+            f"\n\n## CORRECTIVE FEEDBACK (prior attempt failed G4 validation)\n"
+            f"Your previous output failed the structural check:\n"
+            f"```\n{prev_g4_feedback}\n```\n"
+            f"Fix these issues in your new output."
+        )
+    return prompt
+
+
 # ---------------------------------------------------------------------------
 # Drift escalation exception
 # ---------------------------------------------------------------------------
@@ -2507,7 +2532,7 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
         prompt = f"Execute {step.skill} for chapter {chapter}. Project dir: {project_dir}"
         if step.uses_staging:
             prompt += " Write output to staging/ directory."
-        return prompt
+        return _append_feedback_injections(prompt, state, chapter, step.skill)
 
     lifecycle_prompt = _build_prompt(lifecycle_step)
     settling_prompt = _build_prompt(settling_step)
@@ -2948,6 +2973,12 @@ def _run_chapter_step_impl(
                     chapter=chapter,
                     skill=pstep.skill,
                 )
+                # Fixcheck escalation ch1: store the must_fix for the retry
+                # prompt (the serial audit-wave site does this; this site
+                # previously left retry_feedback empty, so retries ran blind).
+                state.chapter_loop.retry_feedback[_retry_key(chapter, pstep.skill)] = (
+                    _enrich_g4_feedback(list(g4.get("must_fix", [])))
+                )
                 # C33 R4 (F365 residual): G4 failure escalates through the
                 # failure handler instead of marking the step done anyway.
                 # No pre-charge at this site (unlike the audit-wave G4
@@ -3052,24 +3083,10 @@ def _run_chapter_step_impl(
     if step.uses_staging:
         prompt += " Write output to staging/ directory."
 
-    # Inject MODIFY feedback if present (one-shot consumption)
-    if state.chapter_loop.modify_feedback:
-        prompt += (
-            f"\n\nHuman review feedback (incorporate these changes): "
-            f"{state.chapter_loop.modify_feedback}"
-        )
-        state.chapter_loop.modify_feedback = None
-
-    # Inject prior G4 failure details as corrective feedback on retry
+    # One-shot MODIFY feedback + prior-attempt G4 corrective feedback
+    # (shared with the parallel post-draft builder — see helper docstring).
+    prompt = _append_feedback_injections(prompt, state, chapter, step.skill)
     retry_key = _retry_key(chapter, step.skill)
-    prev_g4_feedback = state.chapter_loop.retry_feedback.get(retry_key)
-    if prev_g4_feedback:
-        prompt += (
-            f"\n\n## CORRECTIVE FEEDBACK (prior attempt failed G4 validation)\n"
-            f"Your previous output failed the structural check:\n"
-            f"```\n{prev_g4_feedback}\n```\n"
-            f"Fix these issues in your new output."
-        )
 
     # F10 (spec §5.1a): refresh the audit aggregate right before revision
     # is dispatched — the revision skill reads the aggregate, not the raw
