@@ -460,7 +460,10 @@ def _resolve_read_path(project_dir: Path, read_path: str) -> list[Path]:
     """
     if "*" in read_path or "?" in read_path or "[" in read_path:
         pattern = str(project_dir / read_path)
-        matches = glob_module.glob(pattern)
+        # recursive=True (probe, 3 recurrence sites): without it '**'
+        # degrades to '*' and 'dir/**/*.md' misses the TOP-LEVEL files —
+        # protagonist.md/relationships.md were invisible to foundation-review
+        matches = glob_module.glob(pattern, recursive=True)
         return [Path(m) for m in sorted(matches)]
     full_path = project_dir / read_path
     if full_path.exists():

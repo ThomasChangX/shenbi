@@ -425,6 +425,19 @@
       "shenbi-intent-management"
     ]
   },
+  "characters/relationships.md": {
+    "reads": [
+      "shenbi-chapter-planning",
+      "shenbi-relationship-map"
+    ],
+    "writes": [
+      "shenbi-character-design",
+      "shenbi-character-extraction"
+    ],
+    "updates": [
+      "shenbi-relationship-map"
+    ]
+  },
   "plans/chapter-N-plan-decisions.json": {
     "reads": [],
     "writes": [
@@ -527,18 +540,6 @@
       "shenbi-character-extraction"
     ],
     "updates": []
-  },
-  "characters/relationships.md": {
-    "reads": [
-      "shenbi-relationship-map"
-    ],
-    "writes": [
-      "shenbi-character-design",
-      "shenbi-character-extraction"
-    ],
-    "updates": [
-      "shenbi-relationship-map"
-    ]
   },
   "import/analysis/02_characters.md": {
     "reads": [

@@ -1017,3 +1017,27 @@ def test_chapter_header_not_injected_into_json_sidecars(tmp_path: Path) -> None:
         skill="shenbi-chapter-drafting",
     )
     assert (tmp_path / main).read_text(encoding="utf-8").startswith("# Chapter 8:")
+
+
+def test_glob_read_expansion_matches_top_level_files(tmp_path: Path) -> None:
+    """Probe recurrence (3 sites): 'characters/**/*.md' ran through glob()
+    WITHOUT recursive=True, where '**' degrades to '*' — nested major/minor
+    files matched but the TOP-LEVEL protagonist.md and relationships.md
+    were invisible (foundation-review assessed majors it never saw the
+    protagonist; chapter-planning contradicted relationship anchors).
+    """
+    from shenbi.pipeline.dispatch_helper import _resolve_read_path
+
+    for rel in (
+        "characters/protagonist.md",
+        "characters/relationships.md",
+        "characters/major/severin-kail.md",
+        "characters/minor/a-duo.md",
+    ):
+        f = tmp_path / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text("x", encoding="utf-8")
+
+    resolved = _resolve_read_path(tmp_path, "characters/**/*.md")
+    names = {p.name for p in resolved}
+    assert {"protagonist.md", "relationships.md", "severin-kail.md", "a-duo.md"} <= names
