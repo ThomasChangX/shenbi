@@ -386,7 +386,7 @@
     "src/shenbi/gates/g4/plot_thread_weaver.py": "sha256:9e82e840c4d6217d7673526935909bfa40db4fc2209f45f2469ca7215a2a786a",
     "src/shenbi/gates/g4/power_system.py": "sha256:958b4e39677c17171bcc48fe25be656a6a6760e9fcdfdd3a19ae72a1f8f53a4d",
     "src/shenbi/gates/g4/volume_outlining.py": "sha256:3e35ef56c381f63fa2d79706cde1b742814ed60c967fe0e03791d9b77ef21396",
-    "src/shenbi/gates/g4/review_arc_payoff.py": "sha256:eb817dff3b0f9506b728bc4f14bed072636d85b2605f6563a3490519f82230c9",
+    "src/shenbi/gates/g4/review_arc_payoff.py": "sha256:3cd375b03301d7a324410fdb454dd96f6892f903f382e6b46bba6dc479546892",
     "src/shenbi/gates/g4/context_composing.py": "sha256:e5e182c878c2f4b920baf3bf832ced9a9c57e17fec431e55dad18c4e09213d65",
     "src/shenbi/gates/g4/verdict_fence.py": "sha256:0087409c8859d4b7082e18507b6be02967a018b9ed34bab31e7758633abced84",
     "src/shenbi/gates/g4/chapter_planning.py": "sha256:c2068d5f5ea03199cbb2026d20ee0be324764bd184455b74951ef3904dad0327",
