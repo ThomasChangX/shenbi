@@ -25,6 +25,19 @@ def test_drafting_max_tokens_raised():
     )
 
 
+def test_faction_builder_has_headroom():
+    """Faction-builder's single create_or_overwrite file rides the output cap
+    (fixcheck 2026-09-29 escalation #2: 3 cycles pinned at 32766-32767; probe
+    2026-09-28 squeaked through at 30516). Override must clear the raised cap.
+    """
+    config = _load_config()
+    faction = config["overrides"].get("shenbi-faction-builder", {})
+    assert faction.get("max_tokens", 0) > 32768, (
+        "shenbi-faction-builder needs max_tokens headroom above the 32768 "
+        "runtime raise (persistent length truncation, 3 dispatch failures)"
+    )
+
+
 def test_score_skills_have_low_temperature():
     """All 3 score-* skills must have temperature ≤0.2 (spec §2.1 P0)."""
     config = _load_config()

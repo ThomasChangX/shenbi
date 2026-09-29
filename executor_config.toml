@@ -22,6 +22,14 @@ temperature = 0.6
 # exactly 16384/32768 = cap values). Parity with drafting's 32768.
 max_tokens = 32768
 
+[overrides."shenbi-faction-builder"]
+temperature = 0.7
+# Fixcheck escalation #2 (2026-09-29): the single create_or_overwrite
+# world/factions.md rides the output cap — 3 dispatch cycles pinned at
+# 32766-32767 under the 32768 runtime raise (probe 2026-09-28 only fit by
+# luck at 30516). API accepts 49152 (probe lifecycle completed 41625).
+max_tokens = 49152
+
 [overrides."shenbi-review-continuity"]
 temperature = 0.2
 
