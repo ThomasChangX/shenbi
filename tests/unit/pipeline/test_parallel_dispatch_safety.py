@@ -276,7 +276,7 @@ class TestSerialDispatchFailureParity:
 
         captured: list[DispatchResult] = []
 
-        def _capture(results: list[DispatchResult], chapter: int) -> str:
+        def _capture(results: list[DispatchResult], chapter: int, **kwargs) -> str:
             captured.extend(results)
             return (
                 "# Chapter 1 — Consolidated Review Results\n\n"
