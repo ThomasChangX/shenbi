@@ -1112,3 +1112,64 @@ class TestRetryFeedbackRetired:
 
         src = inspect.getsource(chapter_loop)
         assert "retry_feedback.pop" in src, "chapter_loop must retire feedback on pass"
+
+
+class TestEscalationReportDetails:
+    """Canary/probe defects: (1) the escalation dispatch carried only a
+    one-line summary — the reviewer subagent reported 'gate 失败明细未随调
+    用传入' while the details sat unused in retry_feedback; (2) when the
+    escalation dispatch failed or skipped its write, the checkpoint reviewer
+    read a STALE prior report (升级报告未覆写) or none at all (probe ch3).
+    dispatch_escalation must forward the failure details and guarantee a
+    fresh artifact via a machine fallback report.
+    """
+
+    def test_dispatch_escalation_forwards_details(self, tmp_path, monkeypatch):
+        import shenbi.pipeline.revision_router as rr
+
+        captured = {}
+
+        def fake_dispatch(skill, project_dir, prompt, **kwargs):
+            captured["prompt"] = prompt
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+
+            return DispatchResult(True, 0, "{}", "")
+
+        monkeypatch.setattr(rr, "dispatch_skill", fake_dispatch)
+        rr.dispatch_escalation(
+            tmp_path,
+            7,
+            context="Chapter 7 step 4 failed after 3 gate attempts",
+            details="G4.word_count:chapters/chapter-7.md:1821<3000; G4.cd.no_hook",
+        )
+        assert "G4.word_count" in captured["prompt"], "failure details must reach the reviewer"
+        assert "no_hook" in captured["prompt"]
+
+    def test_dispatch_escalation_writes_fallback_when_artifact_stale(self, tmp_path, monkeypatch):
+        import time
+
+        import shenbi.pipeline.revision_router as rr
+
+        # stale pre-existing report + dispatch that "succeeds" without writing
+        report = tmp_path / "audits" / "escalation-7-report.md"
+        report.parent.mkdir(parents=True)
+        report.write_text("# 旧报告（上一次 escalation 的陈旧分析）", encoding="utf-8")
+        old_mtime = report.stat().st_mtime
+        time.sleep(0.05)
+
+        def fake_dispatch(skill, project_dir, prompt, **kwargs):
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+
+            return DispatchResult(True, 0, "{}", "")
+
+        monkeypatch.setattr(rr, "dispatch_skill", fake_dispatch)
+        rr.dispatch_escalation(
+            tmp_path,
+            7,
+            context="Chapter 7 step 4 failed after 3 gate attempts",
+            details="G4.word_count: 1821<3000",
+        )
+        text = report.read_text(encoding="utf-8")
+        assert "旧报告" not in text, "stale report must be overwritten"
+        assert "G4.word_count" in text, "fallback must carry the failure details"
+        assert report.stat().st_mtime > old_mtime

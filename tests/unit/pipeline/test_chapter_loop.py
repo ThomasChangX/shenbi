@@ -993,7 +993,7 @@ class TestEscalationWiring:
             call_order.append(("dispatch", skill))
             return type("R", (), {"success": False, "returncode": 1, "stderr": ""})()
 
-        def fake_dispatch_escalation(project_dir, chapter, context=""):
+        def fake_dispatch_escalation(project_dir, chapter, context="", details=None):
             call_order.append(("escalation", chapter))
             return True
 

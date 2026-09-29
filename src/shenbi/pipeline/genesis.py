@@ -262,6 +262,7 @@ def _handle_failure(
         project_dir,
         None,  # genesis has no chapter context — N-paths filtered
         context=f"Genesis step {step_num} ({skill}) failed after {count} {failure} attempts",
+        details=state.genesis.retry_feedback.get(skill),
     )
     log.error(
         "genesis_step_escalation",

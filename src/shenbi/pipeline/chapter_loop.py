@@ -1027,6 +1027,8 @@ def _escalate_step_failure(
         project_dir,
         chapter,
         context=f"Chapter {chapter} step {step.step_num} ({step.skill}) failed after {count} {failure} attempts",
+        details=state.chapter_loop.retry_feedback.get(_retry_key(chapter, step.skill))
+        or state.chapter_loop.retry_feedback.get(f"ch{chapter}-{step.skill}"),
     )
     log.error(
         "chapter_step_escalation",

@@ -154,7 +154,12 @@ def decide_revision(
     return RevisionDecision.REVISION
 
 
-def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: str = "") -> bool:
+def dispatch_escalation(
+    project_dir: Path | str,
+    chapter: int | None,
+    context: str = "",
+    details: str | None = None,
+) -> bool:
     """Dispatch ``shenbi-escalation-review`` for *chapter* (spec §6.3).
 
     The escalation-review skill compiles resonance trends and audit scores
@@ -163,6 +168,14 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
 
     *chapter* may be ``None`` during genesis when there is no chapter context
     (N-placeholder paths are filtered by the executor).
+
+    *details* carries the concrete per-attempt failure record (the enriched
+    G4 must-fix feedback from retry state). Canary/probe defect: the reviewer
+    subagent reported "gate 失败明细未随调用传入" while the details sat unused
+    in retry_feedback. When the dispatch fails OR leaves the report artifact
+    stale (canary defect 升级报告未覆写: a second escalation kept the prior
+    report's analysis), a minimal machine-generated report carrying *details*
+    is written so the checkpoint reviewer never reads a stale analysis.
     """
     chapter_label = f"chapter {chapter}" if chapter is not None else "genesis (no chapter)"
     prompt = (
@@ -171,7 +184,16 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
     )
     if context:
         prompt += f" Context: {context}"
+    if details:
+        prompt += f"\n\n## FAILURE DETAILS (per-attempt gate record from retry state)\n{details}"
     path_ctx = None
+    _pd = Path(project_dir)
+    artifact = (
+        _pd / "audits" / "escalation-genesis-report.md"
+        if chapter is None
+        else _pd / "audits" / f"escalation-{chapter}-report.md"
+    )
+    pre_mtime = artifact.stat().st_mtime if artifact.exists() else None
     if chapter is None:
         # Genesis escalation (spec #6 F3B5): book-level sentinel resolves
         # audits/escalation-N-report.md to the genesis artifact name.
@@ -186,6 +208,38 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
         )
     else:
         log.info("escalation_dispatched", chapter=chapter)
+    # Freshness guarantee: a successful dispatch that did not refresh the
+    # artifact (skill write skipped / stale echo) is indistinguishable from
+    # a failed one for the human reviewer — fall back to a machine report.
+    post_mtime = artifact.stat().st_mtime if artifact.exists() else None
+    if post_mtime is None or post_mtime == pre_mtime:
+        log.warning(
+            "escalation_report_stale_machine_fallback",
+            chapter=chapter,
+            artifact=str(artifact),
+        )
+        try:
+            from datetime import UTC, datetime
+
+            from shenbi.safe_write import safe_write
+
+            artifact.parent.mkdir(parents=True, exist_ok=True)
+            safe_write(
+                artifact,
+                (
+                    f"# 升级审查报告（机器兜底生成）\n\n"
+                    f"**触发上下文**: {context or 'n/a'}\n"
+                    f"**生成时间**: {datetime.now(UTC).isoformat()}\n\n"
+                    f"## 失败明细（来自重试状态的逐次 gate 记录）\n\n"
+                    f"{details or '（无明细传入——见 pipeline 日志）'}\n\n"
+                    f"> 注：escalation-review 技能派发"
+                    f"{'失败' if not result.success else '未刷新报告'}，"
+                    f"本报告为框架兜底，供检查点裁决使用；技能成功重跑后将覆写。\n"
+                ).encode(),
+                allowed_roots=(_pd,),
+            )
+        except OSError as exc:
+            log.error("escalation_fallback_report_failed", chapter=chapter, error=str(exc))
     return result.success
 
 
