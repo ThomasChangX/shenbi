@@ -178,3 +178,36 @@ class TestConsolidateAttribution:
         summary = consolidate_review_results([r], 5, skills=["shenbi-review-continuity"])
         assert "continuity break" in summary
         assert "shenbi-review-continuity" in summary
+
+
+def test_parallel_worker_exception_persists_stack(tmp_path, monkeypatch):
+    """Canary #16 + probe recurrence '派发前死亡无栈迹': a worker exception
+    was logged as error=str(exc) with NO stack — the death was undiagnosable
+    from the project dir. The stack must be persisted to diagnostics/.
+    """
+    from shenbi.pipeline.parallel_dispatch import ReviewTask, dispatch_reviews_parallel
+
+    def boom(client, model, messages, **kwargs):
+        raise RuntimeError("pre-dispatch lock contention death")
+
+    # route through the API path so _call_llm_streaming_with_retry is used
+    monkeypatch.setattr("shenbi.pipeline.dispatch_helper._call_llm_streaming_with_retry", boom)
+    monkeypatch.setattr("shenbi.pipeline.dispatch_helper._dispatch_via_api", boom)
+    monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
+
+    task = ReviewTask(
+        skill="shenbi-review-pacing",
+        project_dir=tmp_path,
+        prompt="x",
+        output_path="audits/chapter-1-pacing.md",
+    )
+    # force retries to 1 for speed
+    import shenbi.pipeline.parallel_dispatch as pd
+
+    monkeypatch.setattr(pd, "MAX_RETRIES", 0)
+    results = dispatch_reviews_parallel([task])
+    dumps = list((tmp_path / "diagnostics").glob("worker-death-*.md"))
+    assert dumps, "worker death must persist a stack dump"
+    content = dumps[0].read_text(encoding="utf-8")
+    assert "Traceback" in content or "runtime" in content.lower()
+    assert results and not results[0].success

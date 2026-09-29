@@ -126,12 +126,33 @@ def _dispatch_with_retry(
                     )
                     return result
         except Exception as exc:
+            # Canary #16 + probe recurrence '派发前死亡无栈迹': error=str(exc)
+            # alone left the death undiagnosable — persist the full stack.
+            import traceback as _tb
+
+            stack = _tb.format_exc()
             log.error(
                 "parallel_dispatch_exception",
                 skill=task.skill,
                 attempt=attempt + 1,
                 error=str(exc),
+                stack=stack[-2000:],
             )
+            try:
+                from datetime import UTC, datetime
+
+                from shenbi.safe_write import safe_write
+
+                diag = task.project_dir / "diagnostics"
+                diag.mkdir(parents=True, exist_ok=True)
+                ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+                safe_write(
+                    diag / f"worker-death-{task.skill}-{ts}.md",
+                    f"<!-- worker exception: {exc} -->\n\n```\n{stack}\n```\n".encode(),
+                    allowed_roots=(task.project_dir,),
+                )
+            except OSError:
+                log.error("worker_death_dump_failed", skill=task.skill)
             if attempt >= MAX_RETRIES:
                 return DispatchResult(False, -1, "", f"All retries exhausted: {exc}")
 

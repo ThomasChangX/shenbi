@@ -1041,3 +1041,18 @@ def test_glob_read_expansion_matches_top_level_files(tmp_path: Path) -> None:
     resolved = _resolve_read_path(tmp_path, "characters/**/*.md")
     names = {p.name for p in resolved}
     assert {"protagonist.md", "relationships.md", "severin-kail.md", "a-duo.md"} <= names
+
+
+def test_write_audit_discloses_zero_change_vacuous_pass():
+    """Probe defect (write-audit 空真通过): a dispatch whose watched files did
+    not change at all still recorded AUDIT_PASS with zero signal — the dead
+    settle dispatch was invisible. The audit result must disclose which files
+    actually CHANGED, and a zero-change audit must warn.
+    """
+    import inspect
+
+    from shenbi.audit import write_audit
+
+    src = inspect.getsource(write_audit.audit_writes)
+    assert "changed_files" in src, "audit result must carry changed_files"
+    assert "write_audit_no_changes" in src, "zero-change audit must warn loudly"

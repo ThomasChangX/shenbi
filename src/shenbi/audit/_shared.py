@@ -33,6 +33,10 @@ class AuditResult:
     violations: tuple[str, ...]
     drift: tuple[str, ...]
     checked_files: tuple[str, ...]
+    #: files whose content actually changed in this dispatch window — a
+    #: zero-change pass is VACUOUS (probe: dead settle dispatch audited stale
+    #: files green); consumers need the distinction made visible.
+    changed_files: tuple[str, ...] = ()
 
 
 def derive_output_files(
