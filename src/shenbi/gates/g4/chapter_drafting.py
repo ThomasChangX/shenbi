@@ -373,7 +373,13 @@ def g4_chapter_drafting(
         # POST_WRITE_SELF_CHECK checklist otherwise becomes the "last
         # paragraph" for the end-hook check below and pollutes both consumers
         # of this list (canary escalation #12, 2026-09-28).
-        content_for_prose = META_BLOCK_RE.sub("", content)
+        # HOOK-BEGIN/END ledger blocks are machine markup like META (probe
+        # escalation #39): left in, the markup line became the "last
+        # paragraph" and short-circuited the end-hook window.
+        content_for_prose = re.sub(
+            r"<!--HOOK-BEGIN-->.*?<!--HOOK-END-->", "", content, flags=re.DOTALL
+        )
+        content_for_prose = META_BLOCK_RE.sub("", content_for_prose)
         paragraphs = [p.strip() for p in content_for_prose.split("\n\n") if p.strip()]
         # Visual-scene check is WINDOWED (canary escalation #13): web-novel
         # prose uses 50-100 CJK paragraphs, so a single-paragraph >=100

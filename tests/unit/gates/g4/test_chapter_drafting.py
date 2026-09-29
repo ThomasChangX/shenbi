@@ -459,3 +459,21 @@ def test_end_hook_concealment_tension_counts(tmp_path: Path) -> None:
     result = _run([str(ch)])
 
     assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_hook_ledger_markup_not_prose(tmp_path: Path) -> None:
+    """Probe escalation #39: <!--HOOK-BEGIN--> ledger blocks are machine
+    markup — left in the prose paragraph list, the markup line became the
+    "last paragraph" and short-circuited the end-hook window.
+    """
+    para = "他沿着矿道往前走，看了看手里的名册，又放回怀里。"
+    body = "\n\n".join([para] * 20)  # micro-normal mix, none with tension
+    beats = "\n\n".join(["「多少。」", "林渡没答。", "他抬手把指针拨回一格。"])
+    ledger = "<!--HOOK-BEGIN-->\nhook_id: MH-005\n章尾钩子: 机器标记\n<!--HOOK-END-->"
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{beats}\n\n{ledger}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
