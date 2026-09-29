@@ -422,3 +422,20 @@ def test_word_floor_config_value_is_enforced(tmp_path: Path) -> None:
     result = _run([str(ch)], str(tmp_path))
 
     assert any("G4.word_count" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_visual_scene_micro_paragraph_style_passes(tmp_path: Path) -> None:
+    """Probe escalation #37: extreme micro-paragraph prose (~13 CJK/para)
+    never reaches 100 CJK inside a 3-paragraph window — the visual-scene
+    check structurally could not fire on that style. Windows up to 8 keep
+    the mass requirement and scale the density requirement.
+    """
+    p = "他沿着矿道慢慢走到门边看了很久。"  # 15 CJK, vn=True
+    body = "\n\n".join([p] * 12)  # ~180 CJK, ~15/para micro style
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("no_visual_scene" in m for m in _must_fix(result))

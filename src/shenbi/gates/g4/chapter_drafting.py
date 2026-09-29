@@ -391,14 +391,20 @@ def g4_chapter_drafting(
             has_di = bool(re.search(r"[「\u201c].*?[」\u201d]", p))
             body_paragraphs.append((has_vn, has_di, cjk_in_p))
         visual_windows = 0
-        for size in (1, 2, 3):
+        # Window sizes up to 8 (probe escalation #37): extreme micro-paragraph
+        # web-novel prose averages ~13 CJK/paragraph — a 3-paragraph window
+        # never reaches the 100-CJK threshold, so the check structurally
+        # could not fire on that style. Larger windows keep the ≥100-CJK
+        # mass requirement and scale the vn/dialogue density with size.
+        for size in (1, 2, 3, 5, 8):
             for i in range(len(body_paragraphs) - size + 1):
                 window = body_paragraphs[i : i + size]
                 if sum(w[2] for w in window) < 100:
                     continue
-                needed = 1 if size == 1 else 2
+                needed = {1: 1, 2: 2, 3: 2, 5: 3, 8: 4}[size]
                 if sum(1 for w in window if w[0] or w[1]) >= needed:
                     visual_windows += 1
+                    break  # one qualifying window per size is enough
         if visual_windows < 1:
             mf.append(f"G4.cd.no_visual_scene:{fp}")
         else:
