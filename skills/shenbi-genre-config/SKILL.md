@@ -44,7 +44,7 @@ contract:
 
 # 题材配置管理
 
-**职责边界**：worldbuilding 创建 `genre-config.json` 的初始 stub（仅含题材/语言/基本审计维度）。本 skill 负责细化为完整配置：疲劳词列表、节奏规则、章节类型、审计维度激活、自定义禁忌词。如果 `genre-config.json` 已由 worldbuilding 创建，本 skill 读取并细化；如果不存在，本 skill 创建。
+**职责边界**：worldbuilding 创建 `genre-config.json` 的初始 stub（仅含题材/语言/基本审计维度）。本 skill 负责细化为完整配置：疲劳词列表、节奏规则、章节类型、审计维度激活、自定义禁忌词、每章字数基线（chapter_word，章数数学与字数地板的同源值）。如果 `genre-config.json` 已由 worldbuilding 创建，本 skill 读取并细化；如果不存在，本 skill 创建。
 
 管理 `genre-config.json`。负责疲劳词、节奏规则、章节类型、审计维度、自定义规则。
 
@@ -105,6 +105,12 @@ digraph genre_config {
     "battle": { "maxConsecutive": 2, "warningThreshold": 3 },
     "dialogue": { "maxConsecutive": 3, "warningThreshold": 4 },
     "...": "..."
+  },
+  "chapter_word": {
+    "default": 1700,
+    "min": 1300,
+    "max": 4500,
+    "note": "每章目标字数（total_chars 口径）。这是章数数学的唯一基线：G0.3 用 ceil(target_word_count / default) 推章数，G4/G2 的每章字数地板读同一值——缺省 1500 会令按规划写作的章节结构性撞 3000 硬编码地板（探针实测：134 章基线折合 ~1250 CJK/章低于保量线 1418 当量）。从 novel.json 的 target_word_count 与期望章幅共同推导，保量校验：default × 0.95 ≥ target/总章数。"
   },
   "auditDimensions": {
     "antiAi": true,

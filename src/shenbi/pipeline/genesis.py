@@ -356,6 +356,11 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # G4: skill-specific structural validation (every step).
     g4 = run_gate_g4(step.skill, [step.output_path], project_dir)
+    if _gate_passed(g4):
+        # Canary defect 'retry_feedback 永不清': stale corrective feedback
+        # from a PRIOR failure stayed injected into every later dispatch
+        # prompt for the same skill. A pass retires it.
+        state.genesis.retry_feedback.pop(step.skill, None)
     if not _gate_passed(g4):
         log.warning(
             "genesis_g4_failed",

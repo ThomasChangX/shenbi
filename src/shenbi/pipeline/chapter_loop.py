@@ -3131,6 +3131,10 @@ def _run_chapter_step_impl(
     # G4: skill-specific structural validation (every dispatched step).
     g4_files = _resolve_g4_files(project_dir, step, chapter)
     g4 = run_gate_g4(step.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
+    if _gate_passed(g4):
+        # Canary defect 'retry_feedback 永不清': stale corrective feedback
+        # from a prior failure stayed injected into every later dispatch.
+        state.chapter_loop.retry_feedback.pop(retry_key, None)
     if not _gate_passed(g4):
         must_fix = g4.get("must_fix", [])
         hard_fails, soft_fails, warn_fails = _classify_g4_failures(must_fix)

@@ -1087,3 +1087,28 @@ class TestReDispatchRetryCap:
         monkeypatch.setattr("shenbi.pipeline.dispatch_helper.dispatch_skill", ok)
         _execute_pending_re_dispatches(state, tmp_path)
         assert not state.pending_re_dispatches
+
+
+class TestRetryFeedbackRetired:
+    """Canary defect 'retry_feedback 永不清': stale corrective feedback from
+    a prior G4 failure stayed injected into every later dispatch prompt for
+    the same skill (probe: ch1 drafting feedback still attached to later
+    chapters' retry_feedback state). A pass must retire it.
+    """
+
+    def test_genesis_pass_pops_feedback(self):
+        import inspect
+
+        from shenbi.pipeline import genesis
+        from shenbi.pipeline.genesis import run_genesis_step  # noqa: F401  (import check)
+
+        src = inspect.getsource(genesis)
+        assert "retry_feedback.pop" in src, "genesis must retire feedback on pass"
+
+    def test_chapter_loop_pass_pops_feedback(self):
+        import inspect
+
+        from shenbi.pipeline import chapter_loop
+
+        src = inspect.getsource(chapter_loop)
+        assert "retry_feedback.pop" in src, "chapter_loop must retire feedback on pass"
