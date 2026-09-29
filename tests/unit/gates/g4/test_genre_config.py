@@ -144,6 +144,31 @@ def test_trope_inventory_optional(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
+def test_accepts_chapter_word_top_level_key(tmp_path: Path) -> None:
+    """Genesis escalation regression (fixcheck 2026-09-29): the skill template
+    (3bfc4a3b) mandates a top-level chapter_word block that G0.3/G2/G4/G6 all
+    read — the keyset authority must accept it.
+    """
+    cfg = _real_config()
+    cfg["chapter_word"] = {"default": 1700, "min": 1300, "max": 4500}
+    gc = _write_gc(tmp_path, cfg)
+    r = _result(g4_genre_config([gc]))
+    assert r["status"] == "PASS"
+
+
+@pytest.mark.unit
+def test_chapter_word_optional(tmp_path: Path) -> None:
+    """Pre-3bfc4a3b real outputs (all current fixtures) lack chapter_word and
+    must stay valid; readers fall back to CHAPTER_WORD_FLOOR.
+    """
+    cfg = _real_config()
+    cfg.pop("chapter_word", None)
+    gc = _write_gc(tmp_path, cfg)
+    r = _result(g4_genre_config([gc]))
+    assert r["status"] == "PASS"
+
+
+@pytest.mark.unit
 def test_real_fixture_still_valid(tmp_path: Path) -> None:
     gc = _write_gc(tmp_path, _real_config())
     r = _result(g4_genre_config([gc]))
@@ -155,7 +180,7 @@ def test_keyset_authority_is_ownership() -> None:
     from shenbi.contracts.ownership import GENRE_KEYS
     from shenbi.contracts.skills.genre_config import _REQUIRED_TOP_KEYS
 
-    assert set(_REQUIRED_TOP_KEYS) == GENRE_KEYS - {"tropeInventory"}
+    assert set(_REQUIRED_TOP_KEYS) == GENRE_KEYS - {"tropeInventory", "chapter_word"}
 
 
 @pytest.mark.c13_regression

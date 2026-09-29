@@ -301,13 +301,13 @@ cp genre-config.json genre-config.json.bak
 | customRules | array | 否 | 每项含 id/description/enforcement/example，enforcement ∈ {warning, blocking} |
 | approval | object | 是 | **REQUIRED**。含 reviewer/decision/date，decision ∈ {approved, rejected}。缺失即不合格 |
 
-**顶层字段**：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval）+ 1 可选（tropeInventory）。
+**顶层字段**：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval）+ 2 可选（tropeInventory、chapter_word——后者为章数数学/字数地板的同源基线块，见上文模板；缺省时框架回退硬编码地板）。
 
 ### 可自动检查的计数规则
 
 | 检查项 | 规则 | 不合格条件 |
 |--------|------|----------|
-| 顶层键集 | 8 必填 + 可选 tropeInventory，不得有未知键 | 缺必填键或出现未知键 |
+| 顶层键集 | 8 必填 + 可选 tropeInventory/chapter_word，不得有未知键 | 缺必填键或出现未知键 |
 | approval 字段存在 | 必须 | 缺失 |
 | approval.decision | approved 或 rejected | 其他值 |
 | 禁用词数 | ≤ 50 | > 50 |
