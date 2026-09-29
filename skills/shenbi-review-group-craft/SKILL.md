@@ -125,8 +125,8 @@ This dimension supersedes the deprecated `shenbi-review-texture` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [流水账/说教]：[具体改写方向]
-- [WARNING] [段落] [段长/功能]：[具体修改方案]
+- [BLOCKING/CRITICAL] [段落] [流水账/说教]：[具体改写方向]
+- [MINOR] [段落] [段长/功能]：[具体修改方案]
 ```
 
 ---
@@ -191,8 +191,8 @@ This dimension supersedes the deprecated `shenbi-review-reader-pull` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [位置] [钩子/悬念/期待问题]：[修复方案]
-- [WARNING] [段落块] [牵引点缺失]：[补足方案]
+- [BLOCKING/CRITICAL] [位置] [钩子/悬念/期待问题]：[修复方案]
+- [MINOR] [段落块] [牵引点缺失]：[补足方案]
 ```
 
 ---
@@ -248,7 +248,7 @@ Execute checks in order. 第 1/4/5 项已由框架在派发 prompt 的「审查�
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [段落] [问题描述]：[修复方案]
 ```
 
 ## 缺陷证据格式

@@ -486,7 +486,12 @@ CASCADE_STREAK_LENGTH = 3  # N=3
 CASCADE_REVERIFY_GAP = 5
 
 _BLOCKING_MARKER_RE = re.compile(
-    r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|CRITICAL|FAIL)\b)|(?:\|\s*\*\*BLOCKING\*\*)",
+    r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|CRITICAL|FAIL)\b)"
+    r"|(?:\|\s*\*\*BLOCKING\*\*)"
+    # fixcheck ch1: bracketed template labels (enums form + legacy [ERROR]
+    # hard tier) must count toward per-skill hard_failures — the cascade
+    # streak logic and wave retry budget both consume this marker.
+    r"|(?:^\s*-\s*\[(?:BLOCKING|CRITICAL|ERROR)\])",
     re.M,
 )
 

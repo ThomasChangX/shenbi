@@ -132,8 +132,8 @@ digraph review_highpoint {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [高潮问题]：[修复方案]
-- [WARNING] [段落] [虚化/反转不完整]：[补足方案]
+- [BLOCKING/CRITICAL] [段落] [高潮问题]：[修复方案]
+- [MINOR] [段落] [虚化/反转不完整]：[补足方案]
 ```
 
 ## Anti-Rationalization

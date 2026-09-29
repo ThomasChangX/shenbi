@@ -302,11 +302,18 @@ def consolidate_review_results(
         from pathlib import Path as _Path
 
         audit_dir = _Path(project_dir) / "audits"
+        # Fixcheck ch1 (2026-09-29): the severity vocabulary drifted between
+        # the templates ('- [ERROR]' hard tier) and the sensors (BLOCKING/
+        # CRITICAL literals) — bracketed labels are now sensed alongside the
+        # enums forms so real hard findings cannot vanish into a zero summary.
         blocking_re = _re.compile(
-            r"\*\*BLOCKING\*\*|(?:severity|严重度)\*{0,2}\W{0,6}BLOCKING\b", _re.IGNORECASE
+            r"\*\*BLOCKING\*\*|(?:severity|严重度)\*{0,2}\W{0,6}BLOCKING\b|^\s*-\s*\[BLOCKING\]",
+            _re.IGNORECASE | _re.M,
         )
         critical_re = _re.compile(
-            r"\*\*CRITICAL\*\*|(?:severity|严重度)\*{0,2}\W{0,6}CRITICAL\b", _re.IGNORECASE
+            r"\*\*CRITICAL\*\*|(?:severity|严重度)\*{0,2}\W{0,6}CRITICAL\b"
+            r"|^\s*-\s*\[(?:CRITICAL|ERROR)\]",
+            _re.IGNORECASE | _re.M,
         )
         for audit_file in sorted(audit_dir.glob(f"chapter-{chapter}-*.md")):
             content = audit_file.read_text(encoding="utf-8")

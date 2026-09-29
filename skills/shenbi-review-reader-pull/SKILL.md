@@ -159,8 +159,8 @@ digraph review_reader_pull {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [位置] [钩子/悬念/期待问题]：[修复方案]
-- [WARNING] [段落块] [牵引点缺失]：[补足方案]
+- [BLOCKING/CRITICAL] [位置] [钩子/悬念/期待问题]：[修复方案]
+- [MINOR] [段落块] [牵引点缺失]：[补足方案]
 ```
 
 ## Anti-Rationalization

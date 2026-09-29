@@ -106,7 +106,7 @@ digraph review_sensitivity {
 ### 评分: 通过/不通过
 
 ### 建议修复
-- [ERROR] 第X段 [敏感词/违规类型]：[具体替换或删除方案]
+- [BLOCKING/CRITICAL] 第X段 [敏感词/违规类型]：[具体替换或删除方案]
 ```
 
 ## Anti-Rationalization

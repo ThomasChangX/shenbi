@@ -145,8 +145,8 @@ digraph review_long_span {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [重复 n-gram]：[改写建议]
-- [WARNING] [位置] [意象/句式/漂移]：[修复方案]
+- [BLOCKING/CRITICAL] [段落] [重复 n-gram]：[改写建议]
+- [MINOR] [位置] [意象/句式/漂移]：[修复方案]
 ```
 
 ## Anti-Rationalization

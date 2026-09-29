@@ -107,8 +107,8 @@ This dimension supersedes the deprecated `shenbi-review-memo-compliance` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落位置] [备忘段引用] [问题描述]：[修复方案]
-- [WARNING] [段落位置] [备忘段引用] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [段落位置] [备忘段引用] [问题描述]：[修复方案]
+- [MINOR] [段落位置] [备忘段引用] [问题描述]：[修复方案]
 ```
 
 ---
@@ -169,8 +169,8 @@ This dimension supersedes the deprecated `shenbi-review-foreshadowing` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [伏笔ID] [问题类型]：[修复方案]
-- [WARNING] [伏笔ID] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [伏笔ID] [问题类型]：[修复方案]
+- [MINOR] [伏笔ID] [问题描述]：[修复方案]
 ```
 
 ## 缺陷证据格式

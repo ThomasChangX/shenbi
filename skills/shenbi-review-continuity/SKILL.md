@@ -150,7 +150,7 @@ Report any arithmetic discrepancy with:
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [具体段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [具体段落] [问题描述]：[修复方案]
 ```
 
 ## Anti-Rationalization

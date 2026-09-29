@@ -151,8 +151,8 @@ digraph review_dialogue {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [角色] [声音偏差]：[修复方案]
-- [WARNING] [段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [段落] [角色] [声音偏差]：[修复方案]
+- [MINOR] [段落] [问题描述]：[修复方案]
 ```
 
 ## Anti-Rationalization

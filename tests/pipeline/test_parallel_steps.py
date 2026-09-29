@@ -249,3 +249,58 @@ class TestParallelRetryFeedbackWire:
         prompts = [c.args[2] for c in mock_dispatch.call_args_list]
         assert sum("Human review feedback" in p for p in prompts) == 1
         assert state.chapter_loop.modify_feedback is None
+
+
+class TestSeverityVocabularySensing:
+    """Fixcheck ch1 (2026-09-29): audit skills emitted the template's
+    ``- [ERROR]`` labels while every sensor matched only BLOCKING/CRITICAL —
+    the summary reported a false zero and revision routing never fired.
+    Sensors must see both the enums vocabulary and the legacy [ERROR] form,
+    and skill templates must not reintroduce the drifted labels.
+    """
+
+    def test_consolidate_senses_bracket_and_error_labels(self, tmp_path):
+        from unittest.mock import MagicMock
+
+        from shenbi.pipeline.parallel_dispatch import consolidate_review_results
+
+        (tmp_path / "audits").mkdir()
+        (tmp_path / "audits" / "chapter-3-continuity.md").write_text(
+            "# Continuity\n\n### 建议修复\n"
+            "- [BLOCKING] L155 算术矛盾：改价码。\n"
+            "- [ERROR] L200 地点分叉：以正文为准。\n",
+            encoding="utf-8",
+        )
+        r = MagicMock()
+        r.success = True
+        r.stdout = ""
+        summary = consolidate_review_results(
+            [r], 3, skills=["shenbi-review-continuity"], project_dir=tmp_path
+        )
+        assert "shenbi-review-continuity" in summary
+        assert "算术矛盾" in summary, "[BLOCKING] bracket form must be sensed"
+        assert "地点分叉" in summary, "legacy [ERROR] label must be sensed"
+
+    def test_cascade_marker_re_senses_bracket_and_error(self):
+        from shenbi.pipeline.chapter_loop import _BLOCKING_MARKER_RE
+
+        assert _BLOCKING_MARKER_RE.search("- [BLOCKING] L10 问题：修\n")
+        assert _BLOCKING_MARKER_RE.search("- [ERROR] L20 问题：修\n")
+        assert _BLOCKING_MARKER_RE.search("- [CRITICAL] L30 问题：修\n")
+        assert not _BLOCKING_MARKER_RE.search("- [MINOR] L40 建议：润色\n")
+
+    def test_review_skill_templates_use_enums_vocabulary(self):
+        """Regression guard: no review skill template may emit [ERROR] /
+        [WARNING] labels — the sensing chain matches the enums vocabulary
+        (BLOCKING/CRITICAL/MINOR) plus the legacy [ERROR] alias only.
+        """
+        import re
+        from pathlib import Path
+
+        root = Path(__file__).resolve().parents[2] / "skills"
+        drifted = []
+        for skill_md in sorted(root.glob("shenbi-review-*/SKILL.md")):
+            for lineno, line in enumerate(skill_md.read_text(encoding="utf-8").splitlines(), 1):
+                if re.search(r"-\s*\[(?:ERROR|WARNING)\]", line):
+                    drifted.append(f"{skill_md.relative_to(root)}:{lineno}")
+        assert not drifted, f"drifted severity labels in templates: {drifted}"

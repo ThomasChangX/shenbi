@@ -102,7 +102,7 @@ digraph review_anti_ai {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] 第3段破折号：将"他深吸一口气——这不可能" → "他深吸一口气。这不可能。"
+- [BLOCKING/CRITICAL] 第3段破折号：将"他深吸一口气——这不可能" → "他深吸一口气。这不可能。"
 ```
 
 ## Anti-Rationalization

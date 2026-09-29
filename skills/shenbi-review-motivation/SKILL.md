@@ -138,8 +138,8 @@ digraph review_motivation {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [角色] [动机缺失/不可信]：[具体补足方案]
-- [WARNING] [段落] [行为链缺失]：[补足哪个环节]
+- [BLOCKING/CRITICAL] [段落] [角色] [动机缺失/不可信]：[具体补足方案]
+- [MINOR] [段落] [行为链缺失]：[补足哪个环节]
 ```
 
 ## Anti-Rationalization

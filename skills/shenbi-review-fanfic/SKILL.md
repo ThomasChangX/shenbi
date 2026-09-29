@@ -141,8 +141,8 @@ digraph review_fanfic {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [模式严格度] [问题描述]：[修复方案]
-- [WARNING] [段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [段落] [模式严格度] [问题描述]：[修复方案]
+- [MINOR] [段落] [问题描述]：[修复方案]
 ```
 
 ## Anti-Rationalization

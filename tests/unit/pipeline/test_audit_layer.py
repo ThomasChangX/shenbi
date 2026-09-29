@@ -223,6 +223,27 @@ class TestRunAuditLayer:
 
     @patch(PATCH_G4)
     @patch(PATCH_DISPATCH)
+    def test_error_bracket_label_sets_blocking(self, mock_disp, mock_g4, tmp_project: Path):
+        """Fixcheck ch1: legacy template '- [ERROR]' findings are the hard
+        tier — audit_layer must route them into blocking_found like literal
+        BLOCKING (the sensing chain previously matched only the enums
+        vocabulary, so drifted [ERROR] audits never triggered revision).
+        """
+        mock_disp.return_value = DispatchResult(True, 0, "ok", "")
+        mock_g4.return_value = {"status": "PASS"}
+        audit_dir = tmp_project / AUDIT_DIR
+        audit_dir.mkdir()
+        (audit_dir / "chapter-2-era.md").write_text(
+            "# Era\n\n### 建议修复\n- [ERROR] L155 时代错位：改称谓。\n",
+            encoding="utf-8",
+        )
+        gc = {"auditDimensions": {"era": True}}
+        result = run_audit_layer(tmp_project, 2, gc)
+        assert result.blocking_found is True
+        assert result.issues[0]["severity"] == "BLOCKING"
+
+    @patch(PATCH_G4)
+    @patch(PATCH_DISPATCH)
     def test_dispatch_failure_records_blocking(self, mock_disp, mock_g4, tmp_project: Path):
         mock_disp.return_value = DispatchResult(False, 1, "", "dispatch error")
         gc = {"audit_dimensions": {"era": True, "texture": False}}

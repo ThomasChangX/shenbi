@@ -17,6 +17,7 @@ BLOCKING-severity findings short-circuit into revision; the caller checks
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from collections.abc import Callable, Mapping
@@ -30,6 +31,11 @@ log = get_logger(__name__)
 
 #: Sub-directory under a project where audit reports are written.
 AUDIT_DIR = "audits"
+
+#: Legacy hard-tier label from the review templates (fixcheck ch1): the
+#: bracketed ``- [ERROR]`` finding line. Matched as a structured bracket
+#: label only, so prose that merely mentions "ERROR" does not trip it.
+_ERROR_LABEL_RE = re.compile(r"^\s*-\s*\[ERROR\]", re.M)
 
 # ---------------------------------------------------------------------------
 # Genre-circle activation matrix (spec section 6.2)
@@ -230,6 +236,13 @@ def run_audit_layer(
             if "CRITICAL" in content:
                 result.critical_found = True
                 result.issues.append(_issue(skill, chapter, "CRITICAL", "content", rel_path))
+            # Fixcheck ch1 (2026-09-29): the review templates' legacy hard
+            # tier is the bracketed '- [ERROR]' label — drifted outputs carry
+            # real hard findings that never hit the BLOCKING/CRITICAL match
+            # and silently skipped revision routing (false-zero summary).
+            if _ERROR_LABEL_RE.search(content):
+                result.blocking_found = True
+                result.issues.append(_issue(skill, chapter, "BLOCKING", "content", rel_path))
 
     return result
 

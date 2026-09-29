@@ -148,8 +148,8 @@ digraph review_texture {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [流水账/说教]：[具体改写方向]
-- [WARNING] [段落] [段长/功能]：[具体修改方案]
+- [BLOCKING/CRITICAL] [段落] [流水账/说教]：[具体改写方向]
+- [MINOR] [段落] [段长/功能]：[具体修改方案]
 ```
 
 ## Anti-Rationalization

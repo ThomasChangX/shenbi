@@ -124,7 +124,7 @@ For each chapter, verify:
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [具体段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [具体段落] [问题描述]：[修复方案]
 ```
 
 ---
@@ -180,7 +180,7 @@ This dimension supersedes the deprecated `shenbi-review-world-rules` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [冲突类型] [规则引用]：[修复方案]
+- [BLOCKING/CRITICAL] [段落] [冲突类型] [规则引用]：[修复方案]
 ```
 
 ---
@@ -227,7 +227,7 @@ This dimension supersedes the deprecated `shenbi-review-pacing` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [WARNING] [具体章节] [问题描述]：[修复方案]
+- [MINOR] [具体章节] [问题描述]：[修复方案]
 ```
 
 ## 缺陷证据格式
