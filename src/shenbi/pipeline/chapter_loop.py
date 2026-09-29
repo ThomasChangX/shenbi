@@ -477,13 +477,25 @@ CASCADABLE_AUDITS = [
 
 CASCADE_STREAK_LENGTH = 3  # N=3
 
+#: Re-verification gap (probe session 2026-09-29): a cascade skip appends no
+#: new audit history, so the trailing-3-passes streak FROZE after its first
+#: trigger and the audit went permanently blind (probe: four review groups +
+#: sensitivity skipped from ch4 to ch15 with zero evidence left for G7).
+#: After this many chapters past the streak's newest record the audit RUNS
+#: once to refresh the evidence.
+CASCADE_REVERIFY_GAP = 5
+
 _BLOCKING_MARKER_RE = re.compile(
     r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|CRITICAL|FAIL)\b)|(?:\|\s*\*\*BLOCKING\*\*)",
     re.M,
 )
 
 
-def _should_skip_audit(skill: str, audit_history: list[dict[str, Any]]) -> bool:
+def _should_skip_audit(
+    skill: str,
+    audit_history: list[dict[str, Any]],
+    current_chapter: int | None = None,
+) -> bool:
     """N-chapter-streak cascade heuristic (Spec 8 Fix 8).
 
     Skip `skill` only when ALL of the following hold:
@@ -491,12 +503,17 @@ def _should_skip_audit(skill: str, audit_history: list[dict[str, Any]]) -> bool:
       2. We have at least N=3 chapters of history for `skill`.
       3. Each of the trailing N=3 entries for `skill` passed with zero HARD
          failures.
+      4. The streak is FRESH: when ``current_chapter`` is given, the newest
+         record is no more than :data:`CASCADE_REVERIFY_GAP` chapters back —
+         a stale streak (probe: frozen at ch3 forever) forces one real run.
 
     Args:
         skill: audit skill short-name (e.g. "dialogue", "continuity").
         audit_history: flat per-skill records from _get_audit_history,
             most-recent-last: {"skill": str, "chapter": int, "passed": bool,
             "hard_failures": int}.
+        current_chapter: the chapter about to be audited; None skips the
+            freshness check (legacy callers).
 
     Returns:
         True if the audit may be cascade-skipped this chapter.
@@ -523,6 +540,14 @@ def _should_skip_audit(skill: str, audit_history: list[dict[str, Any]]) -> bool:
             return False  # Did not pass → break streak
         if result.get("hard_failures", 0) > 0:
             return False  # Any HARD failure → break streak
+
+    # Staleness guard: skipped audits append no history, so an old streak
+    # would otherwise satisfy the skip condition forever. Force a real run
+    # once the newest evidence is older than the re-verification gap.
+    if current_chapter is not None:
+        newest = max((c for c in recent_chapters if isinstance(c, int)), default=None)
+        if newest is not None and current_chapter - newest > CASCADE_REVERIFY_GAP:
+            return False
 
     return True  # N=3 streak of zero-HARD-failure passes → cascade-skip
 
@@ -2687,10 +2712,13 @@ def _run_chapter_step_impl(
         # Load per-skill audit history for cascade filtering (Task 6 Step 3).
         audit_history = _get_audit_history(state, chapter)
 
+        cascade_skipped: list[str] = []
+
         def _keep_task(task: ReviewTask) -> bool:
             skill_short = _audit_short_name(task.skill)
-            if _should_skip_audit(skill_short, audit_history):
+            if _should_skip_audit(skill_short, audit_history, current_chapter=chapter):
                 log.info("audit_cascade_skipped", chapter=chapter, skill=task.skill)
+                cascade_skipped.append(task.skill)
                 return False
             return True
 
@@ -2742,6 +2770,12 @@ def _run_chapter_step_impl(
         ]
         # Filter cascaded audits for genre wave too
         genre_tasks = [t for t in genre_tasks if _keep_task(t)]
+
+        # Persist the skip list (probe session: steps_done recorded skipped
+        # audits as if they ran — operators and adjudicators read a
+        # "persistence gap" into what was a cascade skip).
+        if cascade_skipped:
+            state.add_audit_result(chapter, "cascade_skipped", sorted(set(cascade_skipped)))
         genre_wave, genre_serial = _partition_review_wave(genre_tasks)
 
         genre_wave = _filter_completed_audit_tasks(genre_wave)
