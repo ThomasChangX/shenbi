@@ -1679,7 +1679,10 @@ def _write_parsed_outputs(
             # write path (before the post-snapshot, so write-audit sees the
             # final contract-compliant content).
             _m = _CHAPTER_NUM_RE.match(Path(rel_path).stem)
-            if _m and not _is_audit_file(rel_path):
+            # header is a chapter-PROSE contract (G2.13): .md only — the
+            # stem regex also matched chapter-N-decisions.json and prepend-
+            # ed '# Chapter N:' to pure-JSON sidecars (probe, 3+ recurrences)
+            if _m and not _is_audit_file(rel_path) and full_path.suffix == ".md":
                 content = ensure_chapter_header(content, int(_m.group(1)))
             safe_write(full_path, content, allowed_roots=(project_root,))
             written.append(rel_path)

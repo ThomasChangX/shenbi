@@ -984,3 +984,36 @@ def test_wildcard_write_accepts_normal_filename(tmp_path):
     )
     assert written == ["import/canon/alice.md"]
     assert (tmp_path / "import/canon/alice.md").read_text(encoding="utf-8") == "ok"
+
+
+def test_chapter_header_not_injected_into_json_sidecars(tmp_path: Path) -> None:
+    """Probe session (chronic, 3+ recurrences): _CHAPTER_NUM_RE matched the
+    STEM of chapter-N-decisions.json too, so the markdown contract header
+    '# Chapter N:' was prepended to JSON sidecars — every sidecar then
+    needed the raw_decode recovery branch and strict parsers failed. The
+    header is a chapter-PROSE contract (G2.13); it belongs to .md only.
+    """
+    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+    sidecar = "chapters/chapter-8-decisions.json"
+    payload = '{"$schema": "shenbi-decisions-v1", "skill": "x", "chapter": 8}'
+    written = _write_parsed_outputs(
+        response=f"### FILE: {sidecar}\n{payload}\n",
+        output_paths=[sidecar],
+        project_dir=tmp_path,
+        skill="shenbi-state-settling",
+    )
+    assert sidecar in written
+    text = (tmp_path / sidecar).read_text(encoding="utf-8")
+    assert text.lstrip().startswith("{"), "sidecar must stay pure JSON"
+    assert "# Chapter" not in text
+
+    # control: the .md main artifact still gets the contract header
+    main = "chapters/chapter-8.md"
+    _write_parsed_outputs(
+        response=f"### FILE: {main}\n正文\n",
+        output_paths=[main],
+        project_dir=tmp_path,
+        skill="shenbi-chapter-drafting",
+    )
+    assert (tmp_path / main).read_text(encoding="utf-8").startswith("# Chapter 8:")
