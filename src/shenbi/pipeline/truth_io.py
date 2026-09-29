@@ -498,6 +498,37 @@ def _key_table_tail(lines: list[str], key_name: str) -> int | None:
     return None
 
 
+def _replace_section(existing: str, section: str) -> str | None:
+    """Replace the same-heading section in *existing* with *section*.
+
+    The section span runs from the identical heading line to the next
+    heading of the same or higher level (or EOF). Returns None when no
+    matching heading exists (caller falls back to append).
+    """
+    lines = existing.split("\n")
+    heading = next((l for l in section.split("\n") if l.strip()), "")
+    if not heading:
+        return None
+    level = len(heading) - len(heading.lstrip("#"))
+    for i, line in enumerate(lines):
+        if line.strip() != heading:
+            continue
+        end = len(lines)
+        for j in range(i + 1, len(lines)):
+            stripped = lines[j].lstrip()
+            if stripped.startswith("#"):
+                lvl = len(stripped) - len(stripped.lstrip("#"))
+                if lvl <= level:
+                    end = j
+                    break
+        # keep surrounding blank-line rhythm: replace the span, ensure a
+        # single blank separator before the next heading
+        new_lines = lines[:i] + section.split("\n") + lines[end:]
+        out = "\n".join(new_lines)
+        return re.sub(r"\n{3,}", "\n\n", out)
+    return None
+
+
 def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
     """Dedup a markdown table row by whole-cell key-column value (T702/T713).
 
@@ -516,13 +547,21 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
     """
     new_cells = split_table_cells(new_row)
     if new_cells is None:
-        # Not a table row — no key to dedup on; append (data-preserving),
-        # unless an identical section already exists: parallel/alternating
-        # writers re-emitting the same heading block (probe escalation #14:
-        # three same-headed "### MH-NNN" ch3 sections accumulated across
-        # state-settling/foreshadowing runs) is a duplicate, not new data.
+        # Not a table row — no key to dedup on. HEADED sections use REPLACE
+        # semantics (probe, twice bitten: the first block-dedup version
+        # skipped re-emitted same-heading sections whole, so approved
+        # section updates could never reach live through the commit merge —
+        # an empty shell that landed first blocked every later filled
+        # version). Heading-less prose keeps the append/skip fallback.
         first_line = next((l for l in new_row.split("\n") if l.strip()), "")
-        if first_line and any(l.strip() == first_line for l in existing.split("\n")):
+        if not first_line:
+            return existing
+        if first_line.lstrip().startswith("#"):
+            replaced_section = _replace_section(existing, new_row)
+            if replaced_section is not None:
+                return replaced_section
+            return existing.rstrip() + "\n" + new_row
+        if any(l.strip() == first_line for l in existing.split("\n")):
             log.warning("truth_block_upsert_duplicate_skipped", key_name=key_name)
             return existing
         log.warning("truth_table_upsert_non_table_row", key_name=key_name)

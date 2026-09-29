@@ -677,3 +677,38 @@ def test_increment_units_drop_separator_rows() -> None:
         assert lines.index("| 14 | 推进 | 89 |") > lines.index("| 13 | 推进 | 88 |")
     finally:
         shutil.rmtree(tmp)
+
+
+def test_upsert_section_replace_semantics() -> None:
+    """Probe defect (twice bitten): a re-emitted same-heading section was
+    SKIPPED whole by the block dedup — approved section updates could never
+    reach live through the commit merge (the empty-shell heading that
+    landed first blocked every later filled version). Headed blocks now
+    REPLACE the existing same-heading section: dedup (no accumulation) and
+    update propagation in one semantics.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "## 伏笔详情\n\n"
+        "### MH-001｜静海回响\n- lifecycle_state: PLANTED\n- 旧证据\n\n"
+        "### MH-005｜名字\n- lifecycle_state: PLANTED\n"
+    )
+    updated = "### MH-001｜静海回响\n- lifecycle_state: RELEVANT\n- 新证据（第 9 章）"
+    result = upsert_markdown_row(existing, updated, "hook_id")
+
+    assert result.count("### MH-001｜静海回响") == 1
+    assert "RELEVANT" in result and "新证据" in result, "updated section must replace the old"
+    assert "PLANTED｜旧证据" not in result and "旧证据" not in result, "old body must not linger"
+    assert "### MH-005" in result, "sibling section untouched"
+
+
+def test_upsert_heading_less_block_keeps_dedup_behavior() -> None:
+    """Heading-less prose blocks keep the append-if-missing / skip-if-present
+    fallback — replace semantics apply ONLY to headed sections.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = "## 备注\n\n- 第一条\n"
+    result = upsert_markdown_row(existing, "- 第一条", "hook_id")
+    assert result.count("- 第一条") == 1
