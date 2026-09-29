@@ -30,6 +30,14 @@ temperature = 0.7
 # luck at 30516). API accepts 49152 (probe lifecycle completed 41625).
 max_tokens = 49152
 
+[overrides."shenbi-state-settling"]
+temperature = 0.7
+# Fixcheck ch1 escalation (2026-09-29): the six-file staging write set with a
+# live-base character_matrix rebuild pins the 32768 raise (completion 32771);
+# natural six-file output is 12-25K, the rebuild instruction pushes past 32K.
+# Same headroom tier as foreshadowing-lifecycle (overlapping truth writes).
+max_tokens = 49152
+
 [overrides."shenbi-review-continuity"]
 temperature = 0.2
 

@@ -67,3 +67,16 @@ def test_discriminative_review_queue_has_low_temperature():
         assert skill in overrides, f"{skill} missing temperature override"
         temp = overrides[skill]["temperature"]
         assert temp <= 0.2, f"{skill} temperature={temp} should be ≤0.2"
+
+
+def test_state_settling_has_headroom():
+    """Fixcheck ch1 (2026-09-29): the full six-file staging write set with a
+    live-base character_matrix rebuild pins the 32768 raise (completion 32771)
+    — the settle redo needs the same headroom tier as lifecycle.
+    """
+    config = _load_config()
+    settle = config["overrides"].get("shenbi-state-settling", {})
+    assert settle.get("max_tokens", 0) > 32768, (
+        "shenbi-state-settling needs max_tokens headroom above the 32768 "
+        "runtime raise (persistent length truncation on full rebuild)"
+    )
