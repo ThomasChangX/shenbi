@@ -253,7 +253,7 @@
     "src/shenbi/pipeline/_shared.py": "sha256:aa39f20793e3e5c99b176450c499a74101b71c28e96d22d175597507735c14a3",
     "src/shenbi/pipeline/revision_router.py": "sha256:4112af33a77e122b2bd0e1d3b432ab6d1734f94a4c7e2c0e362f8953c4eec2c2",
     "src/shenbi/pipeline/review_checklist.py": "sha256:b5af600cd94343ccde7c4e6f7c3cb533095bbe67fc304d912316ed3badabb756",
-    "src/shenbi/pipeline/machine.py": "sha256:958335f845fdada936a516d5b6f6b2805c71a5612e975a8cf36a051021027eb0",
+    "src/shenbi/pipeline/machine.py": "sha256:0e560643679741e0e9a43758e359003ac94baf6fc25a220ec846bf0da1c619d6",
     "src/shenbi/pipeline/scr_extractor.py": "sha256:b08ba0c2a27c5f3169a91ad963c1a33449858e347e55753e4cb50b529ed7b68e",
     "src/shenbi/pipeline/cli.py": "sha256:13f82f2da7f98ee7ce404cb99b4dc0fb509f40e52f781a2037a4b1d903f86e69",
     "src/shenbi/pipeline/transitions.py": "sha256:6bd867425af01222a64e997992439c8a0de054e37c61c042007fcc2aa8ab2e24",

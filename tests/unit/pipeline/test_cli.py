@@ -1173,3 +1173,33 @@ class TestEscalationReportDetails:
         assert "旧报告" not in text, "stale report must be overwritten"
         assert "G4.word_count" in text, "fallback must carry the failure details"
         assert report.stat().st_mtime > old_mtime
+
+
+class TestEscalationBudgetReset:
+    """Canary defect 预算黏性, probe-hardened evidence (ch9 drafting
+    'consumed 4/5'): ESCALATION resolution cleared retry_counts but NOT
+    retry_budget_consumed — after an approve, the step got fresh attempt
+    counters while the durable budget tripped 'Retry budget exhausted'
+    on the FIRST new failure (consumed already past max).
+    """
+
+    def test_escalation_resolution_clears_scoped_budget(self):
+        from shenbi.pipeline.machine import clear_checkpoint, set_checkpoint
+        from shenbi.pipeline.state import (
+            CheckpointType,
+            PipelineState,
+            ReviewDecision,
+        )
+
+        state = PipelineState.default("/tmp/x")
+        state.chapter_loop.retry_budget_consumed["ch9-shenbi-chapter-drafting"] = 3
+        state.chapter_loop.retry_budget_consumed["ch8-shenbi-chapter-drafting"] = 1
+        set_checkpoint(state, CheckpointType.ESCALATION, chapter=9)
+        clear_checkpoint(state, ReviewDecision.APPROVE)
+
+        assert "ch9-shenbi-chapter-drafting" not in state.chapter_loop.retry_budget_consumed, (
+            "escalation resolution must reset the affected chapter's budget"
+        )
+        assert "ch8-shenbi-chapter-drafting" in state.chapter_loop.retry_budget_consumed, (
+            "other chapters' budgets are scoped, not cleared"
+        )
