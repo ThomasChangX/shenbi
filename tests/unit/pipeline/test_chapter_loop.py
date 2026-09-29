@@ -608,10 +608,14 @@ class TestRevisionRoutingIntegration:
             return_value=kwargs.get("route", RevisionRoute.NO_REVISION),
         )
 
-        started = {}
-        for key, p in patches.items():
-            started[key] = p.start()
-        return started
+        # Return the PATCH objects (not p.start()'s MagicMocks): calling
+        # .stop() on a MagicMock silently no-ops (auto-created stub), so the
+        # patches leaked across tests — first exposed by
+        # TestConsolidateAttribution receiving this class's patched
+        # consolidate_review_results. Callers needing the mock use
+        # patches["disp"].mock? No — keep a started-mock sidecar.
+        patches["_mocks"] = {key: p.start() for key, p in patches.items()}
+        return patches  # real patch objects (stoppable); started mocks under "_mocks"
 
     def test_clean_audits_skip_revision(self, tmp_path):
         """No blocking issues -> step 15 (chapter-revision) is skipped."""
@@ -633,7 +637,8 @@ class TestRevisionRoutingIntegration:
             assert "shenbi-chapter-revision" in cs.steps_done
         finally:
             for p in mocks.values():
-                p.stop()
+                if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
+                    p.stop()
 
     def test_blocking_audits_route_revision(self, tmp_path):
         """Blocking audit issues -> step 15 (chapter-revision) dispatches."""
@@ -658,11 +663,12 @@ class TestRevisionRoutingIntegration:
             cs = state.chapter_loop.chapter_states["1"]
             assert cs.audit_results.get("revision_route") == RevisionRoute.REGENERATE.value
             # Verify dispatch was called for revision
-            called_skills = [c[0][0] for c in mocks["disp"].call_args_list]
+            called_skills = [c[0][0] for c in mocks["_mocks"]["disp"].call_args_list]
             assert "shenbi-chapter-revision" in called_skills
         finally:
             for p in mocks.values():
-                p.stop()
+                if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
+                    p.stop()
 
     def test_revision_route_stored_in_chapter_state(self, tmp_path):
         """The revision route is persisted on the chapter's audit_results."""
@@ -680,7 +686,8 @@ class TestRevisionRoutingIntegration:
             assert cs.audit_results.get("revision_route") == RevisionRoute.SPOT_FIX.value
         finally:
             for p in mocks.values():
-                p.stop()
+                if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
+                    p.stop()
 
     @patch("shenbi.pipeline.chapter_loop.check_resonance", return_value=True)
     def test_check_resonance_wired_after_review(self, mock_cr, tmp_path):
@@ -697,7 +704,8 @@ class TestRevisionRoutingIntegration:
             assert args[1] == state.config.resonance_global_floor
         finally:
             for p in mocks.values():
-                p.stop()
+                if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
+                    p.stop()
 
     def test_clean_audits_complete_chapter_without_revision(self, tmp_path):
         """Clean audits skip revision but still complete the chapter.
@@ -720,11 +728,12 @@ class TestRevisionRoutingIntegration:
             assert state.chapter_loop.current_chapter == 2
             assert state.chapter_loop.step_index == 0
 
-            called_skills = [c[0][0] for c in mocks["disp"].call_args_list]
+            called_skills = [c[0][0] for c in mocks["_mocks"]["disp"].call_args_list]
             assert "shenbi-chapter-revision" not in called_skills
         finally:
             for p in mocks.values():
-                p.stop()
+                if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
+                    p.stop()
 
 
 # ---------------------------------------------------------------------------

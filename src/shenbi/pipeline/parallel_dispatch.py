@@ -228,6 +228,9 @@ def dispatch_reviews_parallel(
 def consolidate_review_results(
     results: list[DispatchResult],
     chapter: int,
+    skills: list[str] | None = None,
+    project_dir: Any = None,
+    cascade_skipped: list[str] | None = None,
 ) -> str:
     """Aggregate review results into a consolidated summary.
 
@@ -237,12 +240,23 @@ def consolidate_review_results(
     Args:
         results: List of DispatchResult from dispatched reviews.
         chapter: Chapter number being reviewed.
+        skills: Skill names aligned with *results* (attribution replaces the
+            anonymous "Review #N" labels).
+        project_dir: Project root — when given, the audits/chapter-N-*.md
+            FILES are scanned for severity markers (the actual artifacts;
+            stdout is routinely empty).
+        cascade_skipped: Skills skipped by the N-streak cascade this chapter
+            (disclosed in the summary).
 
     Returns:
         Markdown-formatted consolidation summary.
     """
+    skills = skills if skills is not None else []
     blocking_lines: list[str] = []
     critical_lines: list[str] = []
+
+    def _label(i: int) -> str:
+        return skills[i] if i < len(skills) else f"Review #{i + 1}"
 
     for i, result in enumerate(results):
         if not result.success:
@@ -253,9 +267,55 @@ def consolidate_review_results(
                 continue
             upper = stripped.upper()
             if upper.startswith("BLOCKING"):
-                blocking_lines.append(f"- Review #{i + 1}: {stripped}")
+                blocking_lines.append(f"- {_label(i)}: {stripped}")
             elif upper.startswith("CRITICAL"):
-                critical_lines.append(f"- Review #{i + 1}: {stripped}")
+                critical_lines.append(f"- {_label(i)}: {stripped}")
+
+    # The review artifacts are the audits/chapter-N-*.md FILES — result
+    # stdout is routinely empty, and canary's 漏并 7/13 + the probe's
+    # vacuous zero-findings both traced to scanning stdout only. Scan the
+    # files with the severity regexes (same semantics as the router).
+    if project_dir is not None:
+        import re as _re
+
+        from pathlib import Path as _Path
+
+        audit_dir = _Path(project_dir) / "audits"
+        blocking_re = _re.compile(
+            r"\*\*BLOCKING\*\*|(?:severity|严重度)\*{0,2}\W{0,6}BLOCKING\b", _re.IGNORECASE
+        )
+        critical_re = _re.compile(
+            r"\*\*CRITICAL\*\*|(?:severity|严重度)\*{0,2}\W{0,6}CRITICAL\b", _re.IGNORECASE
+        )
+        for audit_file in sorted(audit_dir.glob(f"chapter-{chapter}-*.md")):
+            content = audit_file.read_text(encoding="utf-8")
+            hit = None
+            if blocking_re.search(content):
+                hit = "BLOCKING"
+            elif critical_re.search(content):
+                hit = "CRITICAL"
+            if hit:
+                lines_ = content.splitlines()
+                idx = next(
+                    (j for j, l in enumerate(lines_) if l.strip() and hit in l.upper()),
+                    None,
+                )
+                line = lines_[idx].strip() if idx is not None else audit_file.name
+                # finding prose: first non-empty line after the marker that is
+                # not itself a severity marker or a heading
+                for l in lines_[(idx + 1) if idx is not None else 0 :]:
+                    t = l.strip()
+                    if t and not t.startswith(("#", "```")) and hit not in t.upper():
+                        line = f"{line} — {t}"
+                        break
+                owner = audit_file.name
+                for sk in skills:
+                    short = sk.replace("shenbi-review-", "")
+                    if short and short in audit_file.name:
+                        owner = sk
+                        break
+                entry = f"- {owner} ({audit_file.name}): {line}"
+                (blocking_lines if hit == "BLOCKING" else critical_lines).append(entry)
 
     failed_count = sum(1 for r in results if not r.success)
     success_count = sum(1 for r in results if r.success)
@@ -268,6 +328,13 @@ def consolidate_review_results(
         f"- **Failed**: {failed_count}",
         f"- **BLOCKING Issues**: {len(blocking_lines)}",
         f"- **CRITICAL Issues**: {len(critical_lines)}",
+    ]
+    if cascade_skipped:
+        parts.append(
+            f"- **cascade-skipped** (N-streak heuristic, re-verified every few chapters): "
+            f"{', '.join(cascade_skipped)}"
+        )
+    parts += [
         "",
     ]
 

@@ -127,3 +127,54 @@ class TestParallelPostDraft:
         assert merge_thread_ids and all(tid == main_id for tid in merge_thread_ids), (
             "state merges must happen on the calling thread only (single-writer)"
         )
+
+
+class TestConsolidateAttribution:
+    """Canary 聚合器漏并 + probe vacuous zero-findings: the consolidator
+    scanned only result.stdout — the actual review artifacts are the
+    audits/chapter-N-*.md FILES, whose stdout is usually empty, so BLOCKING
+    findings in the files never reached the summary; results were anonymous
+    ('Review #3'); cascade-skipped audits were undisclosed.
+    """
+
+    def test_consolidate_reads_audit_files_and_names_skills(self, tmp_path):
+        from shenbi.pipeline.parallel_dispatch import consolidate_review_results
+
+        (tmp_path / "audits").mkdir()
+        # a review whose stdout is EMPTY but whose audit FILE carries BLOCKING
+        (tmp_path / "audits" / "chapter-5-pacing.md").write_text(
+            "# Pacing review\n\n**严重度**: BLOCKING\n\n第 5 章节奏崩溃。\n",
+            encoding="utf-8",
+        )
+
+        from unittest.mock import MagicMock
+
+        r = MagicMock()
+        r.success = True
+        r.stdout = ""
+
+        summary = consolidate_review_results(
+            [r],
+            5,
+            skills=["shenbi-review-pacing"],
+            project_dir=tmp_path,
+            cascade_skipped=["shenbi-review-group-craft"],
+        )
+        assert "shenbi-review-pacing" in summary, "issues must be attributable to a skill"
+        assert "BLOCKING" in summary and "节奏崩溃" in summary, (
+            "audit-file findings must reach the summary even with empty stdout"
+        )
+        assert "cascade-skipped" in summary, "skipped audits must be disclosed"
+
+    def test_consolidate_stdout_still_scanned(self):
+        from unittest.mock import MagicMock
+
+        from shenbi.pipeline.parallel_dispatch import consolidate_review_results
+
+        r = MagicMock()
+        r.success = True
+        r.stdout = "BLOCKING continuity break at L40"
+
+        summary = consolidate_review_results([r], 5, skills=["shenbi-review-continuity"])
+        assert "continuity break" in summary
+        assert "shenbi-review-continuity" in summary

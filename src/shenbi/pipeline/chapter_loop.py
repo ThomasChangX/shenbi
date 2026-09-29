@@ -2802,7 +2802,13 @@ def _run_chapter_step_impl(
         ):
             if str(rec["g3"].get("status", "")) != "PASS":
                 log.warning("parallel_wave_g3_failed", chapter=chapter, skill=rec["skill"])
-        consolidated = consolidate_review_results(all_results, chapter)
+        consolidated = consolidate_review_results(
+            all_results,
+            chapter,
+            skills=[t.skill for t in core_tasks + genre_tasks],
+            project_dir=project_dir,
+            cascade_skipped=sorted(set(cascade_skipped)) or None,
+        )
         summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
         safe_write(summary_path, consolidated)
 
