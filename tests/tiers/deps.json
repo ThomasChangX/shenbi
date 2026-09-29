@@ -255,7 +255,7 @@
     "src/shenbi/pipeline/review_checklist.py": "sha256:b5af600cd94343ccde7c4e6f7c3cb533095bbe67fc304d912316ed3badabb756",
     "src/shenbi/pipeline/machine.py": "sha256:0e560643679741e0e9a43758e359003ac94baf6fc25a220ec846bf0da1c619d6",
     "src/shenbi/pipeline/scr_extractor.py": "sha256:b08ba0c2a27c5f3169a91ad963c1a33449858e347e55753e4cb50b529ed7b68e",
-    "src/shenbi/pipeline/cli.py": "sha256:13f82f2da7f98ee7ce404cb99b4dc0fb509f40e52f781a2037a4b1d903f86e69",
+    "src/shenbi/pipeline/cli.py": "sha256:6d3ad91e2d9d666d5e10b9c6b4a356d9b27ce316790de0df5801854839d30405",
     "src/shenbi/pipeline/transitions.py": "sha256:6bd867425af01222a64e997992439c8a0de054e37c61c042007fcc2aa8ab2e24",
     "src/shenbi/pipeline/truth_io.py": "sha256:5ccba6dbb8a788af15ed7d8be6b300ab6202e9aab82790f221683632000c4bf1",
     "src/shenbi/pipeline/error_handler.py": "sha256:439336eeabae164f9619fcbd74ce9e3a9f6aa4cf317504755c49066cd35ac9cb",

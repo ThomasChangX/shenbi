@@ -624,6 +624,23 @@ def _reset_retry_budget(state: PipelineState, cp: CheckpointData) -> None:
             cs.revision_count = 0
 
 
+def _rollback_genesis_step(state: PipelineState) -> None:
+    """GENESIS_COMPLETE redo: cursor back one step AND un-mark that step's skill.
+
+    A stale skills_done entry makes the re-dispatch's G3.4 scorer evidence
+    collide with its own generator route (fixcheck escalation 2026-09-29:
+    step-17 re-run recorded scorer == generator, deterministic 3/3 fail).
+    """
+    from shenbi.pipeline.genesis import GENESIS_STEPS
+
+    idx = state.genesis.current_step - 1
+    if 0 <= idx < len(GENESIS_STEPS):
+        skill = GENESIS_STEPS[idx].skill
+        if skill in state.genesis.skills_done:
+            state.genesis.skills_done.remove(skill)
+    state.genesis.current_step = max(0, state.genesis.current_step - 1)
+
+
 def _apply_reject_redo(
     state: PipelineState, cp: CheckpointData, feedback: str | None = None
 ) -> None:
@@ -636,7 +653,7 @@ def _apply_reject_redo(
     elif cp.type == CheckpointType.STATE_SETTLE:
         state.chapter_loop.step_index = 7
     elif cp.type == CheckpointType.GENESIS_COMPLETE:
-        state.genesis.current_step = max(0, state.genesis.current_step - 1)
+        _rollback_genesis_step(state)
         state.genesis.retry_counts.clear()
     elif cp.type == CheckpointType.VOLUME_BOUNDARY:
         state.chapter_loop.step_index = 0  # next() re-runs the trigger fan-out
@@ -733,7 +750,7 @@ def cmd_review(args: argparse.Namespace) -> int:
                 elif cp.type == CheckpointType.STATE_SETTLE:
                     state.chapter_loop.step_index = 7  # CHAPTER_STEPS[7] = state-settling
                 elif cp.type == CheckpointType.GENESIS_COMPLETE:
-                    state.genesis.current_step = max(0, state.genesis.current_step - 1)
+                    _rollback_genesis_step(state)
 
                 # Store feedback for the next dispatch
                 if feedback:

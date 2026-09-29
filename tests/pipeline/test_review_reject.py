@@ -20,6 +20,27 @@ def test_reject_genesis_complete_rolls_back_cursor():
     assert state.genesis.current_step == 16
 
 
+def test_genesis_complete_rollback_unmarks_redo_skill():
+    """Fixcheck escalation (2026-09-29): rolling the cursor back without
+    un-marking the step's skill left it in genesis.skills_done, so the step-17
+    re-dispatch recorded the scorer route as also a generator route and G3.4
+    (scorer == generator) failed deterministically 3/3.
+    """
+    from shenbi.pipeline.cli import _apply_reject_redo
+
+    state = _state()
+    state.genesis.current_step = 17
+    state.genesis.skills_done = [
+        "shenbi-worldbuilding",
+        "shenbi-foundation-review",
+    ]
+    set_checkpoint(state, CheckpointType.GENESIS_COMPLETE)
+    _apply_reject_redo(state, state.pending_checkpoint)
+    assert state.genesis.current_step == 16
+    assert "shenbi-foundation-review" not in state.genesis.skills_done
+    assert "shenbi-worldbuilding" in state.genesis.skills_done  # others intact
+
+
 def test_modify_per_chapter_also_queues_revision():
     """PER_CHAPTER MODIFY also queues chapter-revision (desirable semantics)."""
     from shenbi.pipeline.cli import _queue_re_dispatches
