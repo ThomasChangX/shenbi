@@ -340,3 +340,63 @@ def test_passes_on_real_produced_at(tmp_path: Path) -> None:
 
     result = _run([str(dec)], str(tmp_path))
     assert not any("G4.ss.produced_at" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_when_staged_matrix_replaces_sections_same_size(tmp_path: Path) -> None:
+    """Fixcheck ch1/ch2: a same-size-or-bigger FORMAT REPLACEMENT passes the
+    0.9x line check while dropping every live section — the settle writer
+    restructured the matrix into a self-invented schema three times. The
+    staged file must preserve the live H2 section set (appends allowed).
+    """
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        "---\ntype: truth\n---\n\n## 一、角色交互总表\n\n"
+        + "\n".join(f"角色对 {i}" for i in range(23))
+        + "\n\n## 三、信息边界矩阵（权威）\n\n"
+        + "\n".join(f"边界 {i}" for i in range(23))
+        + "\n\n## 四、待追踪的信息差清单\n\n"
+        + "\n".join(f"信息差 {i}" for i in range(11)),
+        encoding="utf-8",
+    )
+    # replacement schema: MORE lines than live, zero live sections
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        "---\ntype: truth\n---\n\n## 角色定义\n\n"
+        + "\n".join(f"定义 {i}" for i in range(40))
+        + "\n\n## 状态追踪表\n\n"
+        + "\n".join(f"状态 {i}" for i in range(40)),
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+    assert result["status"] == "FAIL"
+    assert any("G4.ss.matrix_structure" in m and "sections_dropped" in m for m in mf)
+
+
+@pytest.mark.unit
+def test_passes_when_staged_matrix_keeps_sections_and_appends(tmp_path: Path) -> None:
+    """Superset semantics: live sections verbatim + a new appended section
+    (e.g. the ch1-approved 逐章角色状态) must pass.
+    """
+    body = "\n".join(f"行 {i}" for i in range(60))
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        f"---\ntype: truth\n---\n\n## 二、角色交互总表\n\n{body}\n\n## 三、信息边界矩阵（权威）\n\nR1..R28\n",
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        f"---\ntype: truth\n---\n\n## 二、角色交互总表\n\n{body}\n增量行\n\n"
+        "## 三、信息边界矩阵（权威）\n\nR1..R28 + 本章差\n\n"
+        "## 五、逐章角色状态\n\n本章行×3\n",
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", []))

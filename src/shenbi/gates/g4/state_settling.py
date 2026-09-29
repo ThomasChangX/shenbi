@@ -26,12 +26,31 @@ def _live_sibling(pf: Path) -> Path | None:
     return live if live.exists() else None
 
 
+def _h2_headings(text: str) -> set[str]:
+    """Section titles (H2, leading #'s and numbering stripped for compare)."""
+    out: set[str] = set()
+    for line in text.split("\n"):
+        m = re.match(r"^##\s+(.*)$", line.strip())
+        if m:
+            title = re.sub(r"^[一二三四五六七八九十\d]+[、.．]\s*", "", m.group(1).strip())
+            if title:
+                out.add(title)
+    return out
+
+
 def _check_matrix_structure(pf: Path) -> list[str]:
     """Structural-preservation guard for a STAGED character_matrix (probe
     session 2026-09-29: 12 template regenerations collapsed the live 100+
     line matrix — R1-R28 信息边界 and all Re-sync history deleted — while
     the gate PASSed vacuously). An increment must keep the live body mass,
     the 信息边界 section, and every Re-sync heading.
+
+    Fixcheck ch1/ch2 (2026-09-29): line count alone cannot catch a
+    same-size-or-bigger FORMAT REPLACEMENT — the settle writer restructured
+    the matrix into a self-invented schema three times (121/140-line files
+    passing the 0.9x line check while dropping every live section). A
+    staged increment must therefore preserve the live H2 section set
+    verbatim; new appended sections are allowed, live sections are not.
     """
     live = _live_sibling(pf)
     if live is None:
@@ -55,6 +74,13 @@ def _check_matrix_structure(pf: Path) -> list[str]:
         issues.append(
             f"G4.ss.matrix_structure:{pf}:resync_history_dropped:"
             f"staged={staged_resync}<live={live_resync}"
+        )
+    dropped = _h2_headings(live_text) - _h2_headings(staged_text)
+    if dropped:
+        issues.append(
+            f"G4.ss.matrix_structure:{pf}:sections_dropped:"
+            f"{sorted(dropped)} (format replacement — keep every live section, "
+            f"append new ones)"
         )
     return issues
 
