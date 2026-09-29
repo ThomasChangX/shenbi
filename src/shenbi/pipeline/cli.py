@@ -102,10 +102,22 @@ def _queue_re_dispatches(
             log.info("re_dispatch_queued", skill=skill, checkpoint=cp.type.value)
 
 
+#: Re-dispatch retry cap (probe session 2026-09-29): a failed entry used to
+#: stay in pending_re_dispatches forever and re-fired on EVERY resume — one
+#: length-truncated chapter-revision burned 73 LLM calls / 2.3M tokens
+#: (24.7% of probe cost). After this many attempts the entry is dropped with
+#: an error log (the checkpoint trail keeps the feedback for human action).
+RE_DISPATCH_RETRY_CAP = 3
+
+
 def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> bool:
     """Execute all pending re-dispatches from state.
 
     Returns True if any re-dispatch was executed (caller may want to re-persist).
+    Failed entries accumulate an ``attempts`` count and are DROPPED (error
+    log) after :data:`RE_DISPATCH_RETRY_CAP` tries — an infinite silent
+    retry loop is how a single truncated revision became a 73-call money
+    pit (probe session, Stage 2 friction).
     """
     if not state.pending_re_dispatches:
         return False
@@ -142,6 +154,16 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
         if result.success:
             log.info("re_dispatch_ok", skill=skill)
         else:
+            entry["attempts"] = int(entry.get("attempts", 0)) + 1
+            if entry["attempts"] >= RE_DISPATCH_RETRY_CAP:
+                log.error(
+                    "re_dispatch_retry_cap_exceeded",
+                    skill=skill,
+                    chapter=ch,
+                    attempts=entry["attempts"],
+                    last_error=result.stderr[:200],
+                )
+                continue  # drop the entry — the checkpoint trail keeps the feedback
             log.warning("re_dispatch_failed", skill=skill, stderr=result.stderr[:200])
             remaining.append(entry)
 

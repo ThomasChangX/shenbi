@@ -16,6 +16,11 @@ max_tokens = 32768
 
 [overrides."shenbi-chapter-revision"]
 temperature = 0.6
+# Probe session 2026-09-29: revision outputs the COMPLETE revised chapter
+# (same output shape as drafting) but had NO max_tokens override — the 16384
+# default truncated every expansion (73 calls, completion tokens pinned at
+# exactly 16384/32768 = cap values). Parity with drafting's 32768.
+max_tokens = 32768
 
 [overrides."shenbi-review-continuity"]
 temperature = 0.2

@@ -1001,3 +1001,89 @@ class TestResumeFailFastOnMissingTruth:
         assert not called["later"], "fail-fast must abort BEFORE later resume steps"
         out = capsys.readouterr()
         assert "truth" in (out.out + out.err)
+
+
+class TestReDispatchRetryCap:
+    """Probe session 2026-09-29 (Stage 2 friction): a failed re-dispatch
+    entry stayed in pending_re_dispatches forever and was retried on EVERY
+    resume — one length-truncated chapter-revision burned 73 LLM calls /
+    2.3M tokens (24.7% of probe cost). Entries must carry an attempt count
+    and be dropped (with a loud log) after the cap instead of retrying
+    indefinitely.
+    """
+
+    def test_failed_entry_dropped_after_retry_cap(self, tmp_path, monkeypatch):
+        from shenbi.pipeline.cli import RE_DISPATCH_RETRY_CAP, _execute_pending_re_dispatches
+        from shenbi.pipeline.state import PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.pending_re_dispatches = [
+            {
+                "skill": "shenbi-chapter-revision",
+                "checkpoint_type": "per-chapter",
+                "chapter": 8,
+                "feedback": "expand",
+            }
+        ]
+
+        calls = []
+
+        def always_fail(skill, project_dir, prompt, **kwargs):
+            calls.append(skill)
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+
+            return DispatchResult(False, -1, "", "length_truncation_persistent")
+
+        monkeypatch.setattr("shenbi.pipeline.dispatch_helper.dispatch_skill", always_fail)
+
+        # drive the executor across "resumes" until the cap exhausts
+        for _ in range(RE_DISPATCH_RETRY_CAP + 2):
+            _execute_pending_re_dispatches(state, tmp_path)
+
+        assert not state.pending_re_dispatches, "entry must be dropped after the retry cap"
+        assert len(calls) == RE_DISPATCH_RETRY_CAP, "exactly cap-many dispatch attempts"
+
+    def test_attempt_counter_increments_on_failure(self, tmp_path, monkeypatch):
+        from shenbi.pipeline.cli import _execute_pending_re_dispatches
+        from shenbi.pipeline.state import PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.pending_re_dispatches = [
+            {
+                "skill": "shenbi-chapter-revision",
+                "checkpoint_type": "per-chapter",
+                "chapter": 8,
+            }
+        ]
+
+        def always_fail(skill, project_dir, prompt, **kwargs):
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+
+            return DispatchResult(False, -1, "", "boom")
+
+        monkeypatch.setattr("shenbi.pipeline.dispatch_helper.dispatch_skill", always_fail)
+        _execute_pending_re_dispatches(state, tmp_path)
+        assert state.pending_re_dispatches[0]["attempts"] == 1
+
+    def test_success_clears_entry(self, tmp_path, monkeypatch):
+        from shenbi.pipeline.cli import _execute_pending_re_dispatches
+        from shenbi.pipeline.state import PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.pending_re_dispatches = [
+            {
+                "skill": "shenbi-chapter-revision",
+                "checkpoint_type": "per-chapter",
+                "chapter": 8,
+                "attempts": 1,
+            }
+        ]
+
+        def ok(skill, project_dir, prompt, **kwargs):
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+
+            return DispatchResult(True, 0, "{}", "")
+
+        monkeypatch.setattr("shenbi.pipeline.dispatch_helper.dispatch_skill", ok)
+        _execute_pending_re_dispatches(state, tmp_path)
+        assert not state.pending_re_dispatches
