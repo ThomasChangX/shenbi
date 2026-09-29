@@ -190,3 +190,153 @@ def test_state_settling_skill_mentions_arc_log():
     # F870 (spec #58): the out-of-contract protagonist.md write instruction
     # is removed — arc progression lands in character_matrix only.
     assert "append an `arc_log` entry" not in content
+
+
+# ---------------------------------------------------------------------------
+# Probe session 2026-09-29 (Stage 2 friction): character_matrix template
+# regeneration burned 12 settle cycles (live 100+ lines collapsed to 24-40
+# line templates — 信息边界 R1-R28 and all Re-sync history deleted) while
+# G4 PASSed vacuously; produced_at was fabricated four times (12:00:00Z
+# placeholders, a future-dated 2026-10-04) with zero capture.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_fails_when_staged_matrix_collapses_vs_live(tmp_path: Path) -> None:
+    """A staged character_matrix with <90% of the live file's non-empty
+    lines is a template regeneration, not an increment — fail loud.
+    """
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        "---\ntype: truth\n---\n\n## 角色定义\n\n角色行×12\n\n## 信息边界\n\nR1-R28\n\n## 第3章 Re-sync\n"
+        + "\n".join(f"行 {i}" for i in range(120)),
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        "---\ntype: truth\n---\n\n## 角色\n\n角色行×3\n\n## 本章新知\n", encoding="utf-8"
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+
+    assert result["status"] == "FAIL"
+    assert any("G4.ss.matrix_structure" in m and "line_collapse" in m for m in mf)
+
+
+@pytest.mark.unit
+def test_fails_when_staged_matrix_drops_boundary_or_resync(tmp_path: Path) -> None:
+    """Same line count but the 信息边界 section or Re-sync history vanished
+    — structure loss the line-count ratio alone cannot see.
+    """
+    body = "\n".join(f"行 {i}" for i in range(80))
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        f"---\ntype: truth\n---\n\n## 角色定义\n\n{body}\n\n## 信息边界\n\nR1..R28\n\n## 第3章 Re-sync 记录\n\n## 第4章 Re-sync 记录\n",
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        f"---\ntype: truth\n---\n\n## 角色定义\n\n{body}\n\n## 本章增量\n\nR1..R28 压缩为一段散文填充行数。\n",
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+
+    assert any("G4.ss.matrix_structure" in m and "boundary" in m for m in mf)
+    assert any("G4.ss.matrix_structure" in m and "resync" in m for m in mf)
+
+
+@pytest.mark.unit
+def test_passes_when_staged_matrix_is_structural_increment(tmp_path: Path) -> None:
+    """Live + new chapter rows + one more Re-sync heading passes."""
+    body = "\n".join(f"行 {i}" for i in range(80))
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        f"---\ntype: truth\n---\n\n## 角色定义\n\n{body}\n\n## 信息边界\n\nR1..R28\n\n## 第3章 Re-sync 记录\n",
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        f"---\ntype: truth\n---\n\n## 角色定义\n\n{body}\n新章角色行\n\n## 信息边界\n\nR1..R28\n\n## 第3章 Re-sync 记录\n\n## 第4章 Re-sync 记录\n",
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_on_placeholder_produced_at(tmp_path: Path) -> None:
+    """12:00:00Z / 00:00:00Z whole-hour placeholders are the four-times
+    fabricated form — fail loud.
+    """
+    dec = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
+    dec.parent.mkdir(parents=True)
+    dec.write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 5,
+                "produced_at": "2026-09-28T12:00:00Z",
+                "selections": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run([str(dec)], str(tmp_path))
+    assert any("G4.ss.produced_at" in m and "placeholder" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_on_future_produced_at(tmp_path: Path) -> None:
+    """A produced_at in the future (probe: 2026-10-04 while running
+    2026-09-28) is fabricated.
+    """
+    dec = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
+    dec.parent.mkdir(parents=True)
+    dec.write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 5,
+                "produced_at": "2099-01-01T01:02:03Z",
+                "selections": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run([str(dec)], str(tmp_path))
+    assert any("G4.ss.produced_at" in m and "future" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_passes_on_real_produced_at(tmp_path: Path) -> None:
+    dec = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
+    dec.parent.mkdir(parents=True)
+    dec.write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 5,
+                "produced_at": "2026-09-29T05:37:46Z",
+                "selections": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run([str(dec)], str(tmp_path))
+    assert not any("G4.ss.produced_at" in m for m in result.get("must_fix", []))

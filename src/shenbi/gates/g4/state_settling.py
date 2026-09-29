@@ -3,6 +3,9 @@
 from __future__ import annotations
 from shenbi.status import GateStatus
 from typing import Any
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+import json
 import re
 
 from shenbi.gates.shared import (
@@ -13,6 +16,77 @@ from shenbi.gates.shared import (
 
 # Known parameter-agent identifiers that must NOT appear in character_matrix
 _PARAMETER_AGENT_NAMES = {"冷", "光", "安静", "缺口", "在场于", "参数", "槽位"}
+
+
+def _live_sibling(pf: Path) -> Path | None:
+    """The committed (non-staging) sibling of a staged truth file, or None."""
+    if "staging" not in pf.parts:
+        return None
+    live = Path(*[p for p in pf.parts if p != "staging"])
+    return live if live.exists() else None
+
+
+def _check_matrix_structure(pf: Path) -> list[str]:
+    """Structural-preservation guard for a STAGED character_matrix (probe
+    session 2026-09-29: 12 template regenerations collapsed the live 100+
+    line matrix — R1-R28 信息边界 and all Re-sync history deleted — while
+    the gate PASSed vacuously). An increment must keep the live body mass,
+    the 信息边界 section, and every Re-sync heading.
+    """
+    live = _live_sibling(pf)
+    if live is None:
+        return []
+    issues: list[str] = []
+    staged_text = pf.read_text(encoding="utf-8")
+    live_text = live.read_text(encoding="utf-8")
+    staged_lines = [l for l in staged_text.split("\n") if l.strip()]
+    live_lines = [l for l in live_text.split("\n") if l.strip()]
+    if live_lines and len(staged_lines) < len(live_lines) * 0.9:
+        issues.append(
+            f"G4.ss.matrix_structure:{pf}:line_collapse:"
+            f"staged={len(staged_lines)}<live*0.9={int(len(live_lines) * 0.9)} "
+            f"(template regeneration — rebuild as live increment)"
+        )
+    if "## 信息边界" in live_text and "## 信息边界" not in staged_text:
+        issues.append(f"G4.ss.matrix_structure:{pf}:boundary_dropped")
+    live_resync = len(re.findall(r"## .*Re-sync", live_text))
+    staged_resync = len(re.findall(r"## .*Re-sync", staged_text))
+    if staged_resync < live_resync:
+        issues.append(
+            f"G4.ss.matrix_structure:{pf}:resync_history_dropped:"
+            f"staged={staged_resync}<live={live_resync}"
+        )
+    return issues
+
+
+def _check_produced_at(content: str, fp: str) -> list[str]:
+    """produced_at reality check (probe: fabricated four times — 12:00:00Z
+    placeholders, mismatched first-dispatch times, a future-dated value).
+    """
+    start = content.find("{")
+    if start < 0:
+        return []
+    try:
+        data = json.loads(content[start:])
+    except ValueError:
+        return []
+    if not isinstance(data, dict):
+        return []
+    produced = data.get("produced_at")
+    if not isinstance(produced, str) or not produced:
+        return []
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})", produced)
+    if not m:
+        return [f"G4.ss.produced_at:{fp}:unparseable:{produced}"]
+    if m.group(5) == "00" and m.group(6) == "00":
+        return [f"G4.ss.produced_at:{fp}:placeholder:{produced}"]
+    try:
+        ts = datetime.fromisoformat(produced.replace("Z", "+00:00"))
+    except ValueError:
+        return [f"G4.ss.produced_at:{fp}:unparseable:{produced}"]
+    if ts > datetime.now(UTC) + timedelta(minutes=5):
+        return [f"G4.ss.produced_at:{fp}:future:{produced}"]
+    return []
 
 
 def _validate_character_matrix(
@@ -112,6 +186,13 @@ def g4_state_settling(
             matrix_issues = _validate_character_matrix(content)
             if matrix_issues:
                 mf.extend(matrix_issues)
+
+            # Structural preservation vs the live sibling (probe session
+            # 2026-09-29: template regeneration was invisible to the gate).
+            mf.extend(_check_matrix_structure(pf))
+
+        if "state-settling-decisions" in str(fp):
+            mf.extend(_check_produced_at(content, fp))
 
         if "chapter_summaries" in str(fp):
             if not re.search(r"#{1,4}\s*第\d+章", content):
