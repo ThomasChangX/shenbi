@@ -599,7 +599,8 @@
       "shenbi-review-dialogue",
       "shenbi-review-group-character",
       "shenbi-review-motivation",
-      "shenbi-review-pov"
+      "shenbi-review-pov",
+      "shenbi-state-settling"
     ],
     "writes": [
       "shenbi-state-settling"

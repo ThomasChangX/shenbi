@@ -26,31 +26,67 @@ def _live_sibling(pf: Path) -> Path | None:
     return live if live.exists() else None
 
 
-def _h2_headings(text: str) -> set[str]:
-    """Section titles (H2, leading #'s and numbering stripped for compare)."""
-    out: set[str] = set()
+def _content_stream(text: str) -> list[str]:
+    """Content-bearing lines: every non-empty line except the frontmatter
+    block, table rows (``|`` — upsertable by key), and ``>`` annotation
+    lines (volatile counts/notes). These three are the only legitimate
+    mutation surfaces of a settle increment; everything else is base mass.
+    """
+    out: list[str] = []
+    in_fm = False
+    first = True
     for line in text.split("\n"):
-        m = re.match(r"^##\s+(.*)$", line.strip())
-        if m:
-            title = re.sub(r"^[一二三四五六七八九十\d]+[、.．]\s*", "", m.group(1).strip())
-            if title:
-                out.add(title)
+        s = line.strip()
+        if not s:
+            continue
+        if first:
+            first = False
+            if s == "---":
+                in_fm = True
+                continue
+        if in_fm:
+            if s == "---":
+                in_fm = False
+            continue
+        if s.startswith("|") or s.startswith(">"):
+            continue
+        out.append(s)
     return out
 
 
-def _check_matrix_structure(pf: Path) -> list[str]:
-    """Structural-preservation guard for a STAGED character_matrix (probe
-    session 2026-09-29: 12 template regenerations collapsed the live 100+
-    line matrix — R1-R28 信息边界 and all Re-sync history deleted — while
-    the gate PASSed vacuously). An increment must keep the live body mass,
-    the 信息边界 section, and every Re-sync heading.
+def _dropped_content_lines(live_text: str, staged_text: str, samples: int = 3) -> list[str]:
+    """Live content lines that do not survive (in order) in the staged file.
 
-    Fixcheck ch1/ch2 (2026-09-29): line count alone cannot catch a
-    same-size-or-bigger FORMAT REPLACEMENT — the settle writer restructured
-    the matrix into a self-invented schema three times (121/140-line files
-    passing the 0.9x line check while dropping every live section). A
-    staged increment must therefore preserve the live H2 section set
-    verbatim; new appended sections are allowed, live sections are not.
+    Order-preserving subsequence check: a settle increment may append and
+    upsert, but live prose/headings/bullets must appear in the staged file
+    in their original order. Reordering is a format replacement.
+    """
+    live_stream = _content_stream(live_text)
+    staged_iter = iter(_content_stream(staged_text))
+    missing: list[str] = []
+    for line in live_stream:
+        if any(s == line for s in staged_iter):
+            continue
+        missing.append(line)
+    total = len(missing)
+    if not total:
+        return []
+    shown = [m[:24] + ("…" if len(m) > 24 else "") for m in missing[:samples]]
+    return [f"content_dropped:{total}行 e.g. {shown}"]
+
+
+def _check_matrix_structure(pf: Path) -> list[str]:
+    """Content-preservation guard for a STAGED character_matrix.
+
+    Fixcheck probe (2026-09-29): seven consecutive settle rewrites failed
+    as template regenerations — line collapse, format replacement,
+    same-size replacement, heading-preserving content swap — and each
+    structural tightening was bypassed by the next variant. Root cause:
+    the settle contract did not declare ``truth/character_matrix.md`` as a
+    read, so the writer never saw the base it was told to preserve (fixed
+    at the contract; this check is the mechanical enforcement of the
+    adjudicated acceptance standard). Apart from frontmatter, table rows
+    and ``>`` annotations, every live content line must survive in order.
     """
     live = _live_sibling(pf)
     if live is None:
@@ -66,22 +102,11 @@ def _check_matrix_structure(pf: Path) -> list[str]:
             f"staged={len(staged_lines)}<live*0.9={int(len(live_lines) * 0.9)} "
             f"(template regeneration — rebuild as live increment)"
         )
-    if "## 信息边界" in live_text and "## 信息边界" not in staged_text:
-        issues.append(f"G4.ss.matrix_structure:{pf}:boundary_dropped")
-    live_resync = len(re.findall(r"## .*Re-sync", live_text))
-    staged_resync = len(re.findall(r"## .*Re-sync", staged_text))
-    if staged_resync < live_resync:
-        issues.append(
-            f"G4.ss.matrix_structure:{pf}:resync_history_dropped:"
-            f"staged={staged_resync}<live={live_resync}"
-        )
-    dropped = _h2_headings(live_text) - _h2_headings(staged_text)
-    if dropped:
-        issues.append(
-            f"G4.ss.matrix_structure:{pf}:sections_dropped:"
-            f"{sorted(dropped)} (format replacement — keep every live section, "
-            f"append new ones)"
-        )
+    issues.extend(
+        f"G4.ss.matrix_structure:{pf}:{detail} "
+        "(format replacement — reproduce the live base verbatim, then append)"
+        for detail in _dropped_content_lines(live_text, staged_text)
+    )
     return issues
 
 

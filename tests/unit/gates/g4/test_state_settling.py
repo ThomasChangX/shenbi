@@ -248,8 +248,7 @@ def test_fails_when_staged_matrix_drops_boundary_or_resync(tmp_path: Path) -> No
     result = _run([str(staged)], str(tmp_path))
     mf = result.get("must_fix", [])
 
-    assert any("G4.ss.matrix_structure" in m and "boundary" in m for m in mf)
-    assert any("G4.ss.matrix_structure" in m and "resync" in m for m in mf)
+    assert any("G4.ss.matrix_structure" in m and "content_dropped" in m for m in mf)
 
 
 @pytest.mark.unit
@@ -374,7 +373,7 @@ def test_fails_when_staged_matrix_replaces_sections_same_size(tmp_path: Path) ->
     result = _run([str(staged)], str(tmp_path))
     mf = result.get("must_fix", [])
     assert result["status"] == "FAIL"
-    assert any("G4.ss.matrix_structure" in m and "sections_dropped" in m for m in mf)
+    assert any("G4.ss.matrix_structure" in m and "content_dropped" in m for m in mf)
 
 
 @pytest.mark.unit
@@ -386,17 +385,86 @@ def test_passes_when_staged_matrix_keeps_sections_and_appends(tmp_path: Path) ->
     live = tmp_path / "truth" / "character_matrix.md"
     live.parent.mkdir(parents=True, exist_ok=True)
     live.write_text(
-        f"---\ntype: truth\n---\n\n## 二、角色交互总表\n\n{body}\n\n## 三、信息边界矩阵（权威）\n\nR1..R28\n",
+        "---\ntype: truth\n---\n\n## 二、角色交互总表\n\n"
+        f"{body}\n\n## 三、信息边界矩阵（权威）\n\n"
+        "| 边界 | 状态 |\n|---|---|\n| R1..R28 | 已核 |\n",
         encoding="utf-8",
     )
     staged = tmp_path / "staging" / "truth" / "character_matrix.md"
     staged.parent.mkdir(parents=True)
     staged.write_text(
-        f"---\ntype: truth\n---\n\n## 二、角色交互总表\n\n{body}\n增量行\n\n"
-        "## 三、信息边界矩阵（权威）\n\nR1..R28 + 本章差\n\n"
+        "---\ntype: truth\n---\n\n## 二、角色交互总表\n\n"
+        f"{body}\n增量行\n\n## 三、信息边界矩阵（权威）\n\n"
+        "| 边界 | 状态 |\n|---|---|\n| R1..R28 | 已核+本章差 |\n| R29 | 新增 |\n\n"
         "## 五、逐章角色状态\n\n本章行×3\n",
         encoding="utf-8",
     )
 
     result = _run([str(staged)], str(tmp_path))
     assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_when_staged_matrix_swaps_prose_under_kept_headings(tmp_path: Path) -> None:
+    """Fixcheck ch3 failure #4: the H2-superset check was bypassed by
+    KEEPING every live heading while rewriting the prose under them. The
+    content guard must require live prose/bullet lines to survive, not
+    just the headings.
+    """
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        "---\ntype: truth\n---\n\n## 一、格式约定\n\n"
+        "以角色对为单位记录。\n- 同一对角色只保留一条记录。\n- 信任度与最近互动章节均为全书口径。\n\n"
+        "## 四、待追踪的信息差清单\n\n条目见下表。",
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        "---\ntype: truth\n---\n\n## 一、格式约定\n\n"
+        "以角色为中心记录。\n- 每个角色一张卡。\n- 状态字段全集见模板。\n\n"
+        "## 四、待追踪的信息差清单\n\n条目改由角色卡承载。",
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+    assert result["status"] == "FAIL"
+    assert any("G4.ss.matrix_structure" in m and "content_dropped" in m for m in mf)
+
+
+@pytest.mark.unit
+def test_passes_when_staged_matrix_upserts_rows_and_touches_volatile_lines(tmp_path: Path) -> None:
+    """Legitimate increment: table-row upsert (same key, updated cells),
+    appended rows/sections, refreshed frontmatter timestamps and a
+    rewritten `>` annotation line (清单计数) must all pass the guard.
+    """
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        "---\ntype: truth\nproduced_at: 2026-09-29T10:00:00Z\n---\n\n"
+        "# 角色交互矩阵\n\n## 二、角色交互总表\n\n"
+        "| 角色对 | 关系性质 | 信任度 |\n|---|---|---|\n"
+        "| 陆昭-柯小满 | 陌生 | 1 |\n| 陆昭-阿水 | 跟班 | 2 |\n\n"
+        "## 四、待追踪的信息差清单\n\n> 本清单共 11 条。\n\n"
+        "| # | 信息差 |\n|---|---|\n| 1 | 铁盒抄本 |\n",
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        "---\ntype: truth\nproduced_at: 2026-09-29T20:15:30Z\n---\n\n"
+        "# 角色交互矩阵\n\n## 二、角色交互总表\n\n"
+        "| 角色对 | 关系性质 | 信任度 |\n|---|---|---|\n"
+        "| 陆昭-柯小满 | 师生/识才 | 3 |\n| 陆昭-阿水 | 跟班 | 2 |\n\n"
+        "## 四、待追踪的信息差清单\n\n> 本清单共 12 条。\n\n"
+        "| # | 信息差 |\n|---|---|\n| 1 | 铁盒抄本 |\n| 12 | 新增条目 |\n\n"
+        "## 第2章状态增量\n\n- 陆昭识出柯小满的题眼\n",
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", [])), result.get(
+        "must_fix", []
+    )
