@@ -419,6 +419,18 @@ def _norm_cell(cell: str) -> str:
     return re.sub(r"[\s_-]+", "", cell.lower())
 
 
+def _norm_key(cell: str) -> str:
+    """Key-cell IDENTITY for row dedup: whitespace-insensitive only.
+
+    Fixcheck ch3: two settle attempts emitted the same chapter key with
+    different spacing (``第 3 章`` vs ``第3章``); exact-string comparison
+    treated them as distinct keys and both rows landed in the same table.
+    Header-COLUMN matching keeps the broader :func:`_norm_cell` form
+    (case/dash-insensitive); row-key identity stays conservative here.
+    """
+    return re.sub(r"\s+", "", cell)
+
+
 def _is_separator_row(cells: list[str]) -> bool:
     """True for a markdown table separator row (``| --- | :---: |``)."""
     return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c) for c in cells)
@@ -592,7 +604,11 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
     for i, line in enumerate(lines):
         if not structural[i] and line.lstrip().startswith("|"):
             cells = split_table_cells(line)
-            if cells is not None and key_col < len(cells) and cells[key_col] == new_key:
+            if (
+                cells is not None
+                and key_col < len(cells)
+                and _norm_key(cells[key_col]) == _norm_key(new_key)
+            ):
                 matched = True
                 # Shape guard (probe escalation #14): replace only when the
                 # new row matches the old width or strictly ENRICHES it
@@ -646,7 +662,7 @@ def has_markdown_row(existing: str, new_row: str, key_name: str) -> bool:
         cells = split_table_cells(line)
         if cells is None or _is_separator_row(cells):
             continue
-        if key_col < len(cells) and cells[key_col] == new_key:
+        if key_col < len(cells) and _norm_key(cells[key_col]) == _norm_key(new_key):
             return True
     return False
 

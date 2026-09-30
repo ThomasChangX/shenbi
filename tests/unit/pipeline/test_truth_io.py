@@ -712,3 +712,45 @@ def test_upsert_heading_less_block_keeps_dedup_behavior() -> None:
     existing = "## 备注\n\n- 第一条\n"
     result = upsert_markdown_row(existing, "- 第一条", "hook_id")
     assert result.count("- 第一条") == 1
+
+
+@pytest.mark.unit
+def test_upsert_markdown_row_key_match_is_whitespace_insensitive():
+    """Fixcheck ch3: two settle attempts emitted the same chapter key with
+    different spacing (``第 3 章`` vs ``第3章``); the exact-string key
+    compare treated them as distinct keys and both rows landed. Key
+    identity must be whitespace-normalized — a re-run of the same chapter
+    replaces that chapter's row (re-runs are safe, per the skill contract).
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        truth_dir = project_dir / "truth"
+        truth_dir.mkdir()
+        target = truth_dir / "chapter_summaries.md"
+        target.write_text("| 章号 | 摘要 |\n|---|---|\n| 第 3 章 | 首次结算 |\n", encoding="utf-8")
+
+        new = "| 第3章 | 修订后结算 |"
+        write_truth_file(
+            project_dir,
+            "chapter_summaries.md",
+            new,
+            mode="upsert_markdown_row",
+            key_field="章号",
+        )
+
+        result = target.read_text(encoding="utf-8")
+        assert "修订后结算" in result
+        assert "首次结算" not in result, "same chapter key must replace, not duplicate"
+        assert result.count("| 第 3 章 |") + result.count("| 第3章 |") == 1
+
+
+@pytest.mark.unit
+def test_has_markdown_row_key_match_is_whitespace_insensitive():
+    """insert_markdown_row's existence probe must use the same normalized
+    key semantics as the upsert (SDD #21 R1 symmetry).
+    """
+    from shenbi.pipeline.truth_io import has_markdown_row
+
+    existing = "| 章号 | 摘要 |\n|---|---|\n| 第 3 章 | 首次结算 |\n"
+    assert has_markdown_row(existing, "| 第3章 | x |", "章号") is True
+    assert has_markdown_row(existing, "| 第 4 章 | x |", "章号") is False
