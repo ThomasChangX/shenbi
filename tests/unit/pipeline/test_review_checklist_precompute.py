@@ -81,3 +81,35 @@ def test_transition_budget_g4_boundary_alignment(tmp_path: Path) -> None:
         wc = word_count_md(chapters / f"chapter-{n}.md")
         assert cl.transition_budget == max(5, wc // 1000)
         assert cl.transition_budget >= 5
+
+
+def test_precompute_strips_meta_blocks_before_counting(tmp_path: Path) -> None:
+    """Fixcheck ch2: the drafting spec MANDATES that PRE_WRITE_CHECK lists
+    the banned words themselves — counting ai_marker_hits / transitions on
+    raw content made every spec-compliant chapter self-report 4 hits
+    (chapter-2-anti-ai ERROR'd on hits that existed only in the META
+    block). The precompute must use the same chapter-body 口径 as
+    word_count_md (strip_narrative_body).
+    """
+    chapters = tmp_path / "chapters"
+    chapters.mkdir()
+    (chapters / "chapter-2.md").write_text(
+        "<!--META-BEGIN-->\n## PRE_WRITE_CHECK\n\n"
+        "AI味重点防范: 严避禁用清单（心中暗道/不由得/不禁/眼中闪过一丝等）\n"
+        "<!--META-END-->\n\n"
+        "# 第二章\n\n正文两段，干净的散文。突然转折自然。\n\n第二段继续。\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "genre-config.json").write_text(
+        json.dumps(
+            {"fatigueWords": {"禁用": ["心中暗道", "不由得", "不禁", "眼中闪过一丝"]}},
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    cl = generate_review_checklist(tmp_path, 2)
+
+    assert cl.ai_marker_hits == {}, cl.ai_marker_hits
+    # the prose's own transition word still counts
+    assert cl.transition_count == 1, cl.transition_count

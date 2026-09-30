@@ -286,7 +286,11 @@ def _deterministic_precompute(
     is ``word_count_md`` (same as G4, gates/shared) — NOT the legacy
     all-characters estimate.
     """
-    from shenbi.gates.shared import count_transition_words, word_count_md_text
+    from shenbi.gates.shared import (
+        count_transition_words,
+        strip_narrative_body,
+        word_count_md_text,
+    )
     from shenbi.skill_utils.style_learning.compute_stats import segment_paragraphs
 
     ch_path = project_dir / "chapters" / f"chapter-{chapter}.md"
@@ -300,15 +304,22 @@ def _deterministic_precompute(
         except OSError as exc:
             log.warning("review_precompute_read_failed", chapter=chapter, error=str(exc))
             content, wc = "", 0
+    # Chapter-body 口径 for every prose-derived counter (fixcheck ch2: the
+    # drafting spec mandates PRE_WRITE_CHECK lists the banned words
+    # themselves — counting markers/transitions on raw content made every
+    # spec-compliant chapter self-report 4 BLOCKING hits that existed only
+    # in the META block). word_count_md_text already strips internally;
+    # wc stays on its own helper for the G4-aligned denominator.
+    body = strip_narrative_body(content) if content else ""
     transition_budget = max(5, wc // 1000)
-    transition_count = count_transition_words(content) if content else 0
+    transition_count = count_transition_words(body) if body else 0
     blacklist = _extract_ai_blacklist(genre_config)
     # Per-word counts: the per-chapter rule is ≤1 occurrence per word, so a
     # single aggregate total cannot drive the judgment (spec #33 T3 audit C3).
     ai_marker_hits = (
-        {word: content.count(word) for word in blacklist if content.count(word)} if content else {}
+        {word: body.count(word) for word in blacklist if body.count(word)} if body else {}
     )
-    paragraphs = segment_paragraphs(content) if content else []
+    paragraphs = segment_paragraphs(body) if body else []
     lengths = [para["chars"] for para in paragraphs if para.get("chars")]
     if len(lengths) >= 2:
         mean = sum(lengths) / len(lengths)
