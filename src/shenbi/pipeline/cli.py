@@ -71,6 +71,12 @@ DERIVED_TRUTH_MAP: dict[str, list[tuple[str, str]]] = {
     # edit to the review artifact should propagate the same way).
     CheckpointType.PER_CHAPTER.value: [
         ("shenbi-chapter-revision", "Revise rejected chapter with feedback"),
+        # Fixcheck P2 (2026-09-29): without a settle re-run after the
+        # revision, truth files keep the PRE-revision draft's settlement
+        # forever (ch1/ch2 truth rode placeholders while revised chapters
+        # advanced). Order matters: revision lands first, settle then reads
+        # the revised chapters/chapter-N.md.
+        ("shenbi-state-settling", "Re-settle truth files after the revised chapter"),
     ],
 }
 
@@ -150,9 +156,28 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
         if fb:  # conditional: MODIFY-queued entries have no feedback (never render None)
             prompt += f"\n\nHuman review feedback (incorporate these changes): {fb}"
 
-        result = dispatch_skill(skill, project_dir, prompt)
+        # Staging-gated skills (state-settling writes truth through
+        # staging/) must re-dispatch through their gated write path too —
+        # a live-direct write would bypass the STATE_SETTLE review.
+        from shenbi.pipeline.chapter_loop import CHAPTER_STEPS  # pyright: ignore[reportPrivateUsage]
+
+        uses_staging = any(s.skill == skill and s.uses_staging for s in CHAPTER_STEPS)
+        result = dispatch_skill(skill, project_dir, prompt, uses_staging=uses_staging)
         if result.success:
             log.info("re_dispatch_ok", skill=skill)
+            if skill == "shenbi-state-settling" and ch is not None:
+                # The re-settled increments ride staging — re-raise the
+                # settle checkpoint so the human reviews them (approve
+                # commits; the orchestrate loop returns on the checkpoint).
+                set_checkpoint(
+                    state,
+                    CheckpointType.STATE_SETTLE,
+                    chapter=ch,
+                    context=(
+                        f"Re-settlement after chapter {ch} revision — review "
+                        "the staged truth increments before the chapter closes"
+                    ),
+                )
         else:
             entry["attempts"] = int(entry.get("attempts", 0)) + 1
             if entry["attempts"] >= RE_DISPATCH_RETRY_CAP:
@@ -220,6 +245,8 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
             # Execute any pending re-dispatches queued by modify decisions (G4).
             if _execute_pending_re_dispatches(state, project_dir):
                 save_state(project_dir, state)
+                if is_at_checkpoint(state):
+                    return  # settle re-dispatch raised a review checkpoint
 
             phase = state.phase
 

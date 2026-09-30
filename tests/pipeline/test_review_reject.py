@@ -263,3 +263,53 @@ def test_cmd_review_chapter_escalation_reject_feedback_is_wired(tmp_path, monkey
         state.chapter_loop.retry_feedback.get("ch3-shenbi-state-settling")
         == "重做指令：逐字保留 live 基底"
     ), state.chapter_loop.retry_feedback
+
+
+def test_per_chapter_reject_queues_settle_redispatch_with_staging(tmp_path, monkeypatch):
+    """Fixcheck P2: PER_CHAPTER reject/modify queued ONLY chapter-revision —
+    the truth files were settled from the PRE-revision draft and nothing
+    ever re-settled them (ch1/ch2 truth rode placeholders while the revised
+    chapters advanced). The queue now carries state-settling after the
+    revision; staging-gated skills dispatch with uses_staging=True and a
+    successful settle re-dispatch re-raises STATE_SETTLE so the human
+    reviews the re-settled increments (approve commits staging).
+    """
+    from shenbi.pipeline import cli as cli_mod
+    from shenbi.pipeline.state import PipelinePhase
+
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    state = PipelineState.default(str(proj))
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 2
+    set_checkpoint(state, CheckpointType.PER_CHAPTER, chapter=2)
+
+    # reject queues the re-dispatch set (revision THEN settle)
+    cli_mod._queue_re_dispatches(state, state.pending_checkpoint, feedback="重写指令")
+    skills = [e["skill"] for e in state.pending_re_dispatches]
+    assert skills == ["shenbi-chapter-revision", "shenbi-state-settling"], skills
+
+    calls: list[tuple[str, bool]] = []
+
+    class _OK:
+        success = True
+        returncode = 0
+        stdout = ""
+        stderr = ""
+
+    def _fake_dispatch(skill, project_dir, prompt, **kwargs):
+        calls.append((skill, bool(kwargs.get("uses_staging"))))
+        return _OK()
+
+    monkeypatch.setattr("shenbi.pipeline.dispatch_helper.dispatch_skill", _fake_dispatch)
+
+    ran = cli_mod._execute_pending_re_dispatches(state, tmp_path)
+    assert ran is True
+    assert calls == [
+        ("shenbi-chapter-revision", False),
+        ("shenbi-state-settling", True),
+    ], calls
+    cp = state.pending_checkpoint
+    assert cp is not None and cp.type == CheckpointType.STATE_SETTLE, cp
+    assert cp.chapter == 2
+    assert state.pending_re_dispatches == []  # both consumed
