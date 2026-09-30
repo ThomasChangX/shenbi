@@ -8,9 +8,10 @@ Design invariants (spec §5.1a):
 - the aggregate filename uses a DOT separator so it never matches the
   ``chapter-N-*.md`` glob consumed by revision_router / drift-guidance;
 - the file never starts with ``---`` (G1.3 frontmatter parsing);
-- lossless: every severity-bearing finding unit (BLOCKING/CRITICAL/WARNING/
-  ERROR in any surface form) from the raw reports is present in the
-  aggregate, merged only on exact (severity, text) key;
+- lossless: every ANCHORED severity-bearing finding unit (BLOCKING/CRITICAL/
+  MINOR/WARNING/ERROR as bracket/bold/cell/inline-key marker) from the raw
+  reports is present in the aggregate, merged only on exact (severity, text)
+  key; the consolidator's own review-summary is excluded (downstream echo);
 - resonance reports (chapter-N-resonance.md) are preserved verbatim in
   full — their dedicated read is deleted from the revision contract, so
   the aggregate is their only path into the revision skill.
@@ -30,11 +31,36 @@ log = get_logger(__name__)
 
 AGGREGATE_SUFFIX = ".aggregate.md"
 
-#: Severity value matched anywhere in a finding entry line (bolded marker
-#: ``**BLOCKING**``, bracketed ``**[WARNING]**``, severity-key form, or a
-#: bare table-cell value like ``| warning |`` — the real production form in
-#: tests/fixtures/audit-report-example.md). Single capture group.
-_SEVERITY_RE = re.compile(r"\b(BLOCKING|CRITICAL|WARNING|ERROR)\b", re.IGNORECASE)
+#: Severity vocabulary shared by every anchored marker form. MINOR joined
+#: when the 21 review templates migrated to the enums vocabulary
+#: (BLOCKING/CRITICAL/MINOR brackets — commit b748f048).
+_SEV_WORDS = r"BLOCKING|CRITICAL|MINOR|WARNING|ERROR"
+#: Anchored finding markers (fixcheck ch2: the former bare ``\bWORD\b``
+#: IGNORECASE sensor counted the review-summary's counter lines
+#: (``- **BLOCKING Issues**: 2``), its per-report echoes, severity LABEL
+#: lines (``- **严重度**: CRITICAL``), a lowercase PASS row
+#: (``…，blocking）：…PASS。``), and fix-suggestion prose mentioning
+#: "CRITICAL 1" — aggregate said BLOCKING Findings(6) while the truth was
+#: 2). A finding entry line must carry one of these MARKER shapes; a bare
+#: severity word in prose is never a finding.
+_BRACKET_RE = re.compile(rf"^\s*-\s*\[({_SEV_WORDS})\]")
+_BOLD_RE = re.compile(rf"\*\*({_SEV_WORDS})\*\*")
+#: Table-cell value (``| ERROR |``; case-insensitive for the legacy
+#: lowercase ``| warning |`` production form — a cell is pipe-delimited,
+#: prose parentheticals are not).
+_CELL_RE = re.compile(rf"(?:^|\|)\s*({_SEV_WORDS})\s*(?:\||$)", re.IGNORECASE)
+#: Inline severity key with leading content (``…：severity: CRITICAL``).
+_KEY_RE = re.compile(
+    rf"(?:\*\*)?\s*(?:severity|严重度)\s*(?:\*\*)?\s*[：:]\s*({_SEV_WORDS})\b", re.IGNORECASE
+)
+#: Severity LABEL lines carry nothing but the key (``- **严重度**: CRITICAL``)
+#: — metadata of the finding stated on the line above, never a finding.
+_LABEL_ONLY_RE = re.compile(
+    r"^[\s\-*|]*(?:\*\*)?\s*(?:severity|严重度)\s*(?:\*\*)?\s*[：:]", re.IGNORECASE
+)
+#: Non-entry lines (headings, prose) that merely MENTION a severity word
+#: degrade to verbatim context — lossless preservation, never a unit.
+_BARE_SEV_RE = re.compile(rf"\b({_SEV_WORDS})\b")
 #: Table rows filled with em-dashes are empty placeholders, not findings.
 _PLACEHOLDER_ROW_RE = re.compile(r"^\|[\s—\-|]*\|$")
 #: Context lines worth preserving verbatim (result / score / target headers).
@@ -45,6 +71,10 @@ _CONTEXT_RE = re.compile(r"^(\*\*(结果|审计目标文件|章节)\*\*|###\s*�
 _METADATA_LEAD_RE = re.compile(r"^\|?\s*\**\s*(结果|评分)", re.IGNORECASE)
 #: Resonance reports are preserved verbatim in full (spec §5.1a).
 _RESONANCE_NAME_RE = re.compile(r"^chapter-\d+-resonance\.md$")
+#: The consolidator's own summary is downstream of the same raw reports in
+#: the glob — including it double-counts every finding via its counter and
+#: echo lines (fixcheck ch2: 3 of the 6 phantom BLOCKING units came from it).
+_SUMMARY_NAME_RE = re.compile(r"^chapter-\d+-review-summary\.md$")
 
 
 @dataclass(frozen=True)
@@ -64,19 +94,26 @@ def _normalize(line: str) -> str:
     return re.sub(r"\s+", " ", line.strip())
 
 
-def _severity_of(line: str) -> str | None:
-    m = _SEVERITY_RE.search(line)
-    return m.group(1).upper() if m else None
+def _severity_of(line: str) -> tuple[str, re.Pattern[str]] | None:
+    """First anchored marker match on *line*: (severity, matched pattern)."""
+    for pat in (_BRACKET_RE, _BOLD_RE, _CELL_RE, _KEY_RE):
+        m = pat.search(line)
+        if m:
+            return m.group(1).upper(), pat
+    return None
 
 
 def extract_finding_units(report_name: str, content: str) -> tuple[list[FindingUnit], list[str]]:
     """Split *content* into finding units and preserved context lines.
 
-    A finding unit is a markdown list item or table row that carries a
-    BLOCKING/CRITICAL/WARNING/ERROR severity value (any surface form).
-    Placeholder rows (all em-dashes) never produce units. Lines that carry
-    a severity word but are NOT entries (headings, prose paragraphs), or
-    that lead with metadata (结果/评分), degrade to verbatim context —
+    A finding unit is a markdown list item or table row that carries an
+    ANCHORED severity marker: bracket (``- [BLOCKING] …``), bold-wrapped
+    word (``**CRITICAL**``), pipe-delimited table cell (``| ERROR |``), or
+    an inline severity key with leading content (``- P5 对白信息倾倒: severity: CRITICAL``).
+    A severity LABEL line (``- **严重度**: CRITICAL`` — metadata of the
+    finding stated above it) degrades to context. Placeholder rows (all
+    em-dashes) never produce units. Non-entry lines that merely mention a
+    severity word (headings, prose) degrade to verbatim context —
     conservative preservation, never silent loss.
     """
     units: list[FindingUnit] = []
@@ -85,14 +122,22 @@ def extract_finding_units(report_name: str, content: str) -> tuple[list[FindingU
         stripped = line.strip()
         if not stripped or _PLACEHOLDER_ROW_RE.match(stripped):
             continue
-        sev = _severity_of(stripped)
         if _CONTEXT_RE.match(stripped) or _METADATA_LEAD_RE.match(stripped):
             context.append(stripped)
-        elif stripped.startswith(("- ", "* ", "|")) and sev:
-            text = _normalize(_SEVERITY_RE.sub("", stripped).strip("-*| "))
-            units.append(FindingUnit(sev, text, (report_name,)))
-        elif sev:
-            # Severity-bearing but not a list/table entry — keep verbatim
+            continue
+        hit = _severity_of(stripped) if stripped.startswith(("- ", "* ", "|")) else None
+        if hit is not None:
+            sev, pat = hit
+            if pat is _KEY_RE and _LABEL_ONLY_RE.match(stripped):
+                context.append(stripped)
+                continue
+            text = _normalize(pat.sub("", stripped, count=1).strip("-*| "))
+            if text:
+                units.append(FindingUnit(sev, text, (report_name,)))
+            else:
+                context.append(stripped)
+        elif _BARE_SEV_RE.search(stripped):
+            # Severity mentioned but not an anchored entry — keep verbatim
             # rather than dropping (lossless invariant over tidy output).
             context.append(stripped)
     return units, context
@@ -108,7 +153,7 @@ def render_aggregate(
     parts.append(f"- **来源报告数**: {len(context) + len(resonance_bodies or {})}")
     parts.append(f"- **去重后缺陷条目**: {len(units)}")
     parts.append("")
-    for sev in ("BLOCKING", "CRITICAL", "WARNING", "ERROR"):
+    for sev in ("BLOCKING", "CRITICAL", "MINOR", "WARNING", "ERROR"):
         sev_units = [u for u in units if u.severity == sev]
         if not sev_units:
             continue
@@ -154,6 +199,8 @@ def write_audit_aggregate(project_dir: Path | str, chapter: int) -> Path | None:
     context: dict[str, list[str]] = {}
     resonance_bodies: dict[str, str] = {}
     for report in raw:
+        if _SUMMARY_NAME_RE.match(report.name):
+            continue  # downstream of the same raw reports — double counts
         content = report.read_text(encoding="utf-8")
         if _RESONANCE_NAME_RE.match(report.name):
             resonance_bodies[report.name] = content
