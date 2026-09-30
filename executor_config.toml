@@ -38,6 +38,16 @@ temperature = 0.7
 # Same headroom tier as foreshadowing-lifecycle (overlapping truth writes).
 max_tokens = 49152
 
+[overrides."shenbi-character-design"]
+temperature = 0.7
+# Probe2 genesis escalation #1 (2026-09-30): the four-phase single-call write
+# set (protagonist + 3 major + 2 minor + relationships) pins the 32768 raise —
+# attempt 1 finished Phase 1 only (protagonist ~16K completion tokens,
+# relationships.md quarantined as declared-but-missing), attempts 2-3 persistent
+# truncation at 32767/32769. Same single-call multi-output tier as
+# faction-builder / state-settling (API accepts 49152).
+max_tokens = 49152
+
 [overrides."shenbi-review-group-character"]
 temperature = 0.15
 # Fixcheck ch2 (2026-09-29): the four-dimension single-call audit

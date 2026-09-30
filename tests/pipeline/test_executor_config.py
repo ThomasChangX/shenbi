@@ -94,3 +94,19 @@ def test_group_character_has_headroom():
         "shenbi-review-group-character needs max_tokens headroom above the "
         "32768 runtime raise (four full reports in one dispatch)"
     )
+
+
+def test_character_design_has_headroom():
+    """Probe2 genesis escalation #1 (2026-09-30): the four-phase single-call
+    write set (protagonist + 3 major + 2 minor + relationships) pins the
+    32768 raise — attempt 1 stopped after Phase 1 (protagonist-only output,
+    relationships.md quarantined as declared-but-missing), attempts 2-3
+    persistent length truncation at 32767/32769. Same single-call
+    multi-output class as faction-builder / state-settling.
+    """
+    config = _load_config()
+    cd = config["overrides"].get("shenbi-character-design", {})
+    assert cd.get("max_tokens", 0) > 32768, (
+        "shenbi-character-design needs max_tokens headroom above the 32768 "
+        "runtime raise (six files across four phases in one dispatch)"
+    )
