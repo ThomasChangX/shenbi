@@ -54,15 +54,42 @@ def _content_stream(text: str) -> list[str]:
     return out
 
 
-def _dropped_content_lines(live_text: str, staged_text: str, samples: int = 3) -> list[str]:
+#: pending_hooks per-hook bullets that legitimately mutate every chapter —
+#: lifecycle transitions, evidence citations, and notes. Everything else in a
+#: hook block (headings, type/埋设/trigger_condition/resolve_condition/
+#: subtlety/depends_on) is base mass and must survive settles verbatim.
+_HOOKS_VOLATILE_RE = re.compile(r"^- (?:lifecycle_state|证据|notes|last_reinforced)\s*[:：]")
+
+#: The MH detail blocks combine stable and volatile fields on one line
+#: (``- type: … ｜ dimension: … ｜ lifecycle_state: …``); a legitimate
+#: lifecycle transition mutates that line. Normalize the volatile VALUE to a
+#: sentinel so the stable parts stay comparable while transitions pass.
+_HOOKS_LIFECYCLE_VALUE_RE = re.compile(r"lifecycle_state\s*[:：][^｜]*")
+
+
+def _hooks_content_stream(text: str) -> list[str]:
+    """Content stream for pending_hooks with volatile-field exemption."""
+    out: list[str] = []
+    for line in _content_stream(text):
+        s = line.strip()
+        if _HOOKS_VOLATILE_RE.match(s):
+            continue
+        out.append(_HOOKS_LIFECYCLE_VALUE_RE.sub("lifecycle_state:~", line))
+    return out
+
+
+def _dropped_content_lines(
+    live_text: str, staged_text: str, samples: int = 3, hooks: bool = False
+) -> list[str]:
     """Live content lines that do not survive (in order) in the staged file.
 
     Order-preserving subsequence check: a settle increment may append and
     upsert, but live prose/headings/bullets must appear in the staged file
     in their original order. Reordering is a format replacement.
     """
-    live_stream = _content_stream(live_text)
-    staged_iter = iter(_content_stream(staged_text))
+    stream_fn = _hooks_content_stream if hooks else _content_stream
+    live_stream = stream_fn(live_text)
+    staged_iter = iter(stream_fn(staged_text))
     missing: list[str] = []
     for line in live_stream:
         if any(s == line for s in staged_iter):
@@ -73,6 +100,24 @@ def _dropped_content_lines(live_text: str, staged_text: str, samples: int = 3) -
         return []
     shown = [m[:24] + ("…" if len(m) > 24 else "") for m in missing[:samples]]
     return [f"content_dropped:{total}行 e.g. {shown}"]
+
+
+def _check_escape_corruption(pf: Path, live_text: str, staged_text: str) -> list[str]:
+    """Flag ``>`` annotation lines HTML-escaped to ``&gt;`` in the staged copy.
+
+    Probe2 ch2 settle: seven matrix base annotations arrived as ``&gt; …`` —
+    the content survives but the blockquote semantics are destroyed, and the
+    escaped form evades the ``>``-exempt content stream. Escaping is never a
+    legitimate settle mutation: flag whenever the staged copy introduces
+    ``&gt;`` sequences absent from the live base.
+    """
+    if "&gt;" in staged_text and "&gt;" not in live_text:
+        count = staged_text.count("&gt;")
+        return [
+            f"G4.ss.escape_corruption:{pf}: {count} 处 「>」被转义为「&gt;」"
+            "（注解行格式损毁——以 live 原样保全）"
+        ]
+    return []
 
 
 def _check_matrix_structure(pf: Path) -> list[str]:
@@ -100,13 +145,49 @@ def _check_matrix_structure(pf: Path) -> list[str]:
         issues.append(
             f"G4.ss.matrix_structure:{pf}:line_collapse:"
             f"staged={len(staged_lines)}<live*0.9={int(len(live_lines) * 0.9)} "
-            f"(template regeneration — rebuild as live increment)"
+            "(template regeneration — rebuild as live increment)"
         )
     issues.extend(
         f"G4.ss.matrix_structure:{pf}:{detail} "
         "(format replacement — reproduce the live base verbatim, then append)"
         for detail in _dropped_content_lines(live_text, staged_text)
     )
+    issues.extend(_check_escape_corruption(pf, live_text, staged_text))
+    return issues
+
+
+def _check_hooks_structure(pf: Path) -> list[str]:
+    """Content-preservation guard for a STAGED pending_hooks.
+
+    Probe2 ch1/ch2 settles (2026-10-01): the settle writer damaged
+    truth/pending_hooks.md twice — seed-row column overwrites (table rows,
+    still the documented same-key blind spot), dropped MH detail lines
+    (type/埋设/trigger/resolve/depends_on), and overwritten per-chapter
+    increment sections — while G4 passed both times because the guard only
+    ran on character_matrix. Same enforcement as the matrix guard, with the
+    hooks file's legitimately volatile bullets (lifecycle_state/证据/notes)
+    exempted alongside the three generic mutation surfaces.
+    """
+    live = _live_sibling(pf)
+    if live is None:
+        return []
+    issues: list[str] = []
+    staged_text = pf.read_text(encoding="utf-8")
+    live_text = live.read_text(encoding="utf-8")
+    staged_lines = [l for l in staged_text.split("\n") if l.strip()]
+    live_lines = [l for l in live_text.split("\n") if l.strip()]
+    if live_lines and len(staged_lines) < len(live_lines) * 0.9:
+        issues.append(
+            f"G4.ss.hooks_structure:{pf}:line_collapse:"
+            f"staged={len(staged_lines)}<live*0.9={int(len(live_lines) * 0.9)} "
+            "(base mass lost — rebuild as live increment)"
+        )
+    issues.extend(
+        f"G4.ss.hooks_structure:{pf}:{detail} "
+        "(hook base lines dropped — reproduce the live base verbatim, then append)"
+        for detail in _dropped_content_lines(live_text, staged_text, hooks=True)
+    )
+    issues.extend(_check_escape_corruption(pf, live_text, staged_text))
     return issues
 
 
@@ -292,6 +373,10 @@ def g4_state_settling(
                 mf.append(f"G4.ss.no_hook_state:{fp}")
             else:
                 c.append({"id": "G4.ss.pending_hooks", "file": fp, "s": GateStatus.PASS})
+            # Structural preservation vs the live sibling (probe2 ch1/ch2:
+            # the settle writer damaged pending_hooks twice under a
+            # token-only check — see _check_hooks_structure).
+            mf.extend(_check_hooks_structure(pf))
 
     if not fps:
         c.append({"id": "G4.ss", "s": GateStatus.SKIP, "r": "no files"})
