@@ -466,6 +466,14 @@ def _resolve_read_path(project_dir: Path, read_path: str) -> list[Path]:
         matches = glob_module.glob(pattern, recursive=True)
         return [Path(m) for m in sorted(matches)]
     full_path = project_dir / read_path
+    if full_path.is_dir():
+        # Directory-form read (e.g. ``benchmarks/anchors/``) means "every
+        # markdown file inside", sorted. Returning the directory itself made
+        # read_text raise IsADirectoryError and the prompt carry a
+        # ``[binary or unreadable]`` sentinel — the anchor false-unavailable
+        # (fixcheck: resonance reported anchor_calibration unavailable for
+        # two consecutive chapters while AC-001.md sat readable on disk).
+        return sorted(full_path.glob("*.md"))
     if full_path.exists():
         return [full_path]
     return []
