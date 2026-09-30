@@ -225,3 +225,41 @@ def test_reject_volume_boundary_rearms_trigger_fanout():
     set_checkpoint(state, CheckpointType.VOLUME_BOUNDARY, chapter=55)
     _apply_reject_redo(state, state.pending_checkpoint)
     assert state.chapter_loop.step_index == 0
+
+
+def test_cmd_review_chapter_escalation_reject_feedback_is_wired(tmp_path, monkeypatch):
+    """GAP-a (fixcheck ch1, 17:17 evidence): a chapter-phase ESCALATION
+    reject's 1385-char repair feedback never entered any 17:22-17:33
+    re-dispatch prompt — the routing block was gated on phase == GENESIS
+    and _apply_reject_redo only resets budgets. The feedback must land in
+    chapter_loop.retry_feedback[chN-skill] for the failing step
+    (step_index points at the un-completed step); the redo dispatch
+    injects it via _append_feedback_injections.
+    """
+    import argparse
+
+    from shenbi.pipeline import cli as cli_mod
+    from shenbi.pipeline.state import PipelinePhase
+
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    state = PipelineState.default(str(proj))
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 3
+    state.chapter_loop.step_index = 7  # CHAPTER_STEPS[7] = state-settling
+    set_checkpoint(state, CheckpointType.ESCALATION, chapter=3)
+
+    monkeypatch.setattr(cli_mod, "load_state", lambda pd: state)
+    monkeypatch.setattr(cli_mod, "save_state", lambda pd, st: None)
+    monkeypatch.setattr(cli_mod, "emit_json", lambda payload: None)
+
+    fb = tmp_path / "fb.md"
+    fb.write_text("重做指令：逐字保留 live 基底", encoding="utf-8")
+    args = argparse.Namespace(decision="reject", feedback=str(fb), project_dir=str(proj))
+
+    rc = cli_mod.cmd_review(args)
+    assert rc in (0, None)
+    assert (
+        state.chapter_loop.retry_feedback.get("ch3-shenbi-state-settling")
+        == "重做指令：逐字保留 live 基底"
+    ), state.chapter_loop.retry_feedback

@@ -741,6 +741,26 @@ def cmd_review(args: argparse.Namespace) -> int:
                 if 0 <= idx < len(GENESIS_STEPS):
                     state.genesis.retry_feedback[GENESIS_STEPS[idx].skill] = feedback
 
+            # GAP-a (fixcheck ch1, 17:17 evidence): the routing above is
+            # genesis-gated, so a chapter-phase ESCALATION reject's feedback
+            # never reached any re-dispatch prompt (a 1385-char repair
+            # instruction was silently dropped while the 17:22-17:33 retries
+            # ran blind). Route it into the failing step's corrective slot —
+            # step_index still points at the un-completed step, and the redo
+            # dispatch injects the slot via _append_feedback_injections.
+            if (
+                feedback
+                and cp.type == CheckpointType.ESCALATION
+                and state.phase == PipelinePhase.CHAPTER_LOOP
+                and cp.chapter is not None
+            ):
+                from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
+
+                idx = state.chapter_loop.step_index
+                if 0 <= idx < len(CHAPTER_STEPS):
+                    skill = CHAPTER_STEPS[idx].skill
+                    state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{skill}"] = feedback
+
             # G4: On modify, queue re-dispatches for derived truth files
             # (spec section 9.2: truth-sync propagation after human edit).
             if decision == ReviewDecision.MODIFY:
