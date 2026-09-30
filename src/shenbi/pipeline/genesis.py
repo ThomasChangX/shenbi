@@ -194,21 +194,40 @@ def _update_route_b(
         log.info("route_b_embeds_updated", skill=skill, embedded=embedded)
 
 
-def _advance(state: PipelineState, step_idx: int) -> bool:
+def _advance(state: PipelineState, step_idx: int, project_dir: Path | str | None = None) -> bool:
     """Bump the genesis cursor and set the completion checkpoint if done.
 
     Shared by the success path and the optional-skip path. Returns ``True``
     when genesis has finished (all steps consumed), ``False`` when at least
-    one step remains.
+    one step remains. At completion, the chapter-count reconciliation
+    (fixcheck P1: five derivation sources with no comparison point —
+    ceil(target/default) vs novel.json vs three frontmatters silently
+    diverged 100-vs-50) runs deterministically and any mismatch leads the
+    checkpoint context as MUST-FIX: GENESIS_COMPLETE already gates entry
+    to the chapter loop, so the reviewer gets machine evidence instead of
+    hoping the foundation-review LLM catches the arithmetic.
     """
     state.genesis.current_step = step_idx + 1
     if state.genesis.current_step >= len(GENESIS_STEPS):
         state.genesis.state = GenesisState.CHECKPOINT_PENDING
+        context = "Review all genesis outputs before entering chapter loop."
+        if project_dir is not None:
+            from shenbi.pipeline._shared import reconcile_chapter_counts
+
+            issues = reconcile_chapter_counts(Path(project_dir))
+            if issues:
+                log.error("genesis_chapter_count_reconcile_failed", issues=issues)
+                context = (
+                    "MUST-FIX 章数对账不一致（进入章节循环前必须消解）: "
+                    + "；".join(issues)
+                    + " ｜ "
+                    + context
+                )
         set_checkpoint(
             state,
             CheckpointType.GENESIS_COMPLETE,
             artifact="foundation/review_report.md",
-            context="Review all genesis outputs before entering chapter loop.",
+            context=context,
         )
         return True
     return False
@@ -239,7 +258,7 @@ def _handle_failure(
     if step.optional:
         log.warning("optional_step_skipped", skill=step.skill, step=step.step_num)
         state.genesis.retry_counts.pop(step.skill, None)
-        return _advance(state, _step_index(step))
+        return _advance(state, _step_index(step), project_dir)
 
     skill = step.skill
     step_num = step.step_num
@@ -420,4 +439,4 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
         genesis_finalize_volume_map(project_dir)
     state.genesis.retry_counts.pop(step.skill, None)
     mark_skill_done(state, step.skill)
-    return _advance(state, step_idx)
+    return _advance(state, step_idx, project_dir)

@@ -165,6 +165,63 @@ def update_total_chapters(project_dir: Path) -> int:
     return new_total
 
 
+def reconcile_chapter_counts(project_dir: Path) -> list[str]:
+    """Cross-check the chapter-count derivations before the chapter loop.
+
+    Fixcheck P1 (2026-09-29): ceil(200000/2000)=100 (genre-config math)
+    silently coexisted with novel.json / volume_map / book_spine /
+    rhythm_principles all saying 50. G0.3 emits its expected-chapters as
+    PASS metadata only and nothing in the pipeline invokes it; steps 7/13
+    write their own frontmatter counts after novel.json is fixed at step
+    6, with no comparison point anywhere. novel.json is the read authority
+    for book closure, so disagreement there is the fatal class (a stale
+    low value fires premature book closure).
+
+    Sources compared against novel.json.total_chapters: the frontmatter
+    ``total_chapters`` of outline/volume_map.md, outline/rhythm_principles.md,
+    truth/book_spine.md, and the G0.3 arithmetic
+    ceil(target_word_count / genre-config chapter_word.default). Missing
+    files are tolerated (call contexts before genesis completion).
+    """
+    try:
+        data = json.loads((project_dir / "novel.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    total = data.get("total_chapters")
+    if not isinstance(total, int) or total <= 0:
+        return []
+    issues: list[str] = []
+
+    for rel in ("outline/volume_map.md", "outline/rhythm_principles.md", "truth/book_spine.md"):
+        try:
+            m = re.search(
+                r"^total_chapters:\s*(\d+)\s*$",
+                (project_dir / rel).read_text(encoding="utf-8"),
+                re.MULTILINE,
+            )
+        except OSError:
+            continue
+        if m and int(m.group(1)) != total:
+            issues.append(f"{rel}: total_chapters={m.group(1)} != novel.json={total}")
+
+    target = data.get("target_word_count")
+    if isinstance(target, int) and target > 0:
+        try:
+            gc = json.loads((project_dir / "genre-config.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            gc = {}
+        default = gc.get("chapter_word", {}).get("default") if isinstance(gc, dict) else None
+        if isinstance(default, int) and default > 0:
+            expected = -(-target // default)
+            if expected != total:
+                issues.append(
+                    f"genre-config 章数数学: ceil({target}/{default})={expected}"
+                    f" != novel.json={total} (chapter_word.default 与规划章数互斥，"
+                    "G2/G4 字数地板将读同一 default)"
+                )
+    return issues
+
+
 def _resolve_volume_at_runtime(project_dir: Path, chapter: int) -> tuple[str, int, int] | None:
     """Resolve (volume_name, ch_start, ch_end) for a chapter at runtime.
 
