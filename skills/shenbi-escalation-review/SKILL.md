@@ -75,7 +75,11 @@ digraph escalation_review {
 [触发条件的完整数据]
 
 ### 决策选项
+（选项必须匹配失败类别——不得照抄示例清单：容量类失败给容量类选项，内容类失败给修订类选项）
 1. 接受现状，继续自动批
 2. 回滚到第N章快照，手动修订
 3. 手动修订当前产出
+4. 输出容量类（completion tokens 顶格 / length_truncation / 单次多文件超限）：
+   提高该技能的 executor 输出上限（executor_config.toml overrides，参考
+   faction-builder/state-settling 的 49152 先例）或拆分派发后重跑
 ```

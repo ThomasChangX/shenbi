@@ -2269,9 +2269,21 @@ def _persist_failed_write_output(
         diag_dir = project_dir / "diagnostics"
         diag_dir.mkdir(parents=True, exist_ok=True)
         ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+        body = (
+            output_text
+            if output_text.strip()
+            else (
+                "(empty output — the LLM returned no parseable file blocks; "
+                "check the prompt's output-format instructions and the finish_reason)"
+            )
+        )
         safe_write(
             diag_dir / f"failed-write-{skill}-{ts}.md",
-            f"<!-- write-phase failure: {reason} -->\n{output_text}",
+            (
+                f"<!-- write-phase failure: {reason} -->\n"
+                f"<!-- skill: {skill} | captured: {ts}Z | "
+                f"output_chars: {len(output_text)} -->\n{body}"
+            ),
             allowed_roots=(project_dir,),
         )
         log.warning("failed_write_output_persisted", skill=skill, reason=reason[:120])

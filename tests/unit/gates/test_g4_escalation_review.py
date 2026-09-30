@@ -28,3 +28,19 @@ def test_escalation_review_fails_missing_section():
         result = g4_escalation_review([f.name])
     os.unlink(f.name)
     assert '"status": "FAIL"' in result
+
+
+def test_skill_option_library_covers_executor_capacity_class():
+    """Fixcheck P3: every capacity-class escalation (faction-builder,
+    state-settling, group-character — completion pinned at cap values) was
+    answered with the hard-coded redo/rollback example options because the
+    template's example list had no capacity option; the right answer
+    (executor headroom override / split dispatch) never surfaced.
+    """
+    from pathlib import Path
+
+    text = Path("skills/shenbi-escalation-review/SKILL.md").read_text(encoding="utf-8")
+    assert "输出容量类" in text
+    assert "length_truncation" in text
+    assert "executor_config.toml" in text
+    assert "选项必须匹配失败类别" in text

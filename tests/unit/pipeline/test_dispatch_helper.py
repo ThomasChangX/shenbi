@@ -1056,3 +1056,21 @@ def test_write_audit_discloses_zero_change_vacuous_pass():
     src = inspect.getsource(write_audit.audit_writes)
     assert "changed_files" in src, "audit result must carry changed_files"
     assert "write_audit_no_changes" in src, "zero-change audit must warn loudly"
+
+
+@pytest.mark.unit
+def test_persist_failed_write_dump_carries_forensic_header(tmp_path: Path) -> None:
+    """Fixcheck forensics gap: the genre-config failure dump carried ONLY
+    '<!-- write-phase failure: no_files_parsed -->' with an empty body —
+    no skill, no capture time, no note that the output was empty, leaving
+    the failure undiagnosable from the project dir.
+    """
+    from shenbi.pipeline.dispatch_helper import _persist_failed_write_output
+
+    _persist_failed_write_output(tmp_path, "shenbi-genre-config", "", "no_files_parsed")
+    dumps = list((tmp_path / "diagnostics").glob("failed-write-shenbi-genre-config-*.md"))
+    assert len(dumps) == 1
+    text = dumps[0].read_text(encoding="utf-8")
+    assert "skill: shenbi-genre-config" in text
+    assert "output_chars: 0" in text
+    assert "empty output" in text
