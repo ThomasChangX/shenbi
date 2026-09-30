@@ -110,3 +110,17 @@ def test_character_design_has_headroom():
         "shenbi-character-design needs max_tokens headroom above the 32768 "
         "runtime raise (six files across four phases in one dispatch)"
     )
+
+
+def test_plot_thread_weaver_has_headroom():
+    """Probe2 genesis escalation #2 (2026-09-30): the single-file thread_map
+    write pins the 32768 raise — 3 dispatch cycles persistent-truncated at
+    32761/32770 (output_length=0, zero content evidence, thread_map.md never
+    landed). Same pinned-cap signature as faction-builder / character-design.
+    """
+    config = _load_config()
+    ptw = config["overrides"].get("shenbi-plot-thread-weaver", {})
+    assert ptw.get("max_tokens", 0) > 32768, (
+        "shenbi-plot-thread-weaver needs max_tokens headroom above the 32768 "
+        "runtime raise (single-file thread map rides the output cap)"
+    )

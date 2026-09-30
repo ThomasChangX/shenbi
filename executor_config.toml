@@ -48,6 +48,14 @@ temperature = 0.7
 # faction-builder / state-settling (API accepts 49152).
 max_tokens = 49152
 
+[overrides."shenbi-plot-thread-weaver"]
+temperature = 0.7
+# Probe2 genesis escalation #2 (2026-09-30): the single-file
+# outline/thread_map.md write pins the 32768 raise — 3 dispatch cycles
+# persistent-truncated at 32761/32770 (output_length=0, thread_map.md never
+# landed). Same pinned-cap signature as faction-builder / character-design.
+max_tokens = 49152
+
 [overrides."shenbi-review-group-character"]
 temperature = 0.15
 # Fixcheck ch2 (2026-09-29): the four-dimension single-call audit
