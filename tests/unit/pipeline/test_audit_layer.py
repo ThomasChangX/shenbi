@@ -429,3 +429,33 @@ class TestRoutingDeprecationExit:
         # core dims: filtered, carried by group fixed steps (CHAPTER_STEPS 9-14)
         assert "shenbi-review-world-rules" not in active
         assert "shenbi-review-sensitivity" not in active  # F905: fixed step 14 is the sole source
+
+
+@pytest.mark.unit
+def test_audit_report_paths_derived_from_contract_writes():
+    """Fixcheck ch2: grouped audit skills declare their real outputs in the
+    contract (shenbi-review-group-character writes character/dialogue/
+    motivation/pov), but the wave tracked the convention phantom
+    audits/chapter-2-group-character.md — a path no skill ever writes. It
+    was recorded into audit_reports unvalidated while the character
+    dimension failed with zero coverage on disk.
+    """
+    from shenbi.pipeline.audit_layer import audit_report_paths
+
+    paths = audit_report_paths(2, "shenbi-review-group-character")
+    assert paths == [
+        "audits/chapter-2-character.md",
+        "audits/chapter-2-dialogue.md",
+        "audits/chapter-2-motivation.md",
+        "audits/chapter-2-pov.md",
+    ], paths
+
+
+@pytest.mark.unit
+def test_audit_report_paths_falls_back_to_convention():
+    from shenbi.pipeline.audit_layer import audit_relative_path, audit_report_paths
+
+    # single-file reviewer: convention path unchanged
+    assert audit_report_paths(3, "shenbi-review-anti-ai") == [
+        audit_relative_path(3, "shenbi-review-anti-ai")
+    ]

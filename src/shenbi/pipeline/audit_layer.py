@@ -181,6 +181,31 @@ def audit_relative_path(chapter: int, skill: str) -> str:
     return f"{AUDIT_DIR}/chapter-{chapter}-{audit_suffix(skill)}.md"
 
 
+def audit_report_paths(chapter: int, skill: str) -> list[str]:
+    """All expected audit-report paths for *skill* on *chapter*.
+
+    Single-dimension reviewers keep the convention path; grouped skills
+    (shenbi-review-group-character writes character/dialogue/motivation/pov)
+    declare their real outputs in the contract. The convention-only path for
+    a group (``audits/chapter-N-group-character.md``) is a phantom no skill
+    ever writes — fixcheck ch2 recorded it into audit_reports unvalidated
+    while the character dimension failed with zero coverage on disk.
+    """
+    from shenbi.contracts.loader import ContractError, load_contract
+    from shenbi.contracts.paths import resolve_chapter_path
+
+    try:
+        writes = load_contract(skill).get("writes", [])
+    except ContractError:
+        writes = []
+    paths: list[str] = []
+    for rel in writes:  # loader normalizes dict-form writes to plain paths
+        resolved = resolve_chapter_path(str(rel), chapter)
+        if resolved.startswith(f"{AUDIT_DIR}/"):
+            paths.append(resolved)
+    return paths or [audit_relative_path(chapter, skill)]
+
+
 def _gate_passed(result: dict[str, object]) -> bool:
     """True iff a gate result dict reports PASS (handles str and GateStatus)."""
     return str(result.get("status", "")) == GateStatus.PASS

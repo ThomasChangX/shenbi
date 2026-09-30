@@ -80,3 +80,17 @@ def test_state_settling_has_headroom():
         "shenbi-state-settling needs max_tokens headroom above the 32768 "
         "runtime raise (persistent length truncation on full rebuild)"
     )
+
+
+def test_group_character_has_headroom():
+    """Fixcheck ch2 (2026-09-29): the four-dimension single-call audit
+    exceeded the 32768 raised cap (completion pinned 16383/32768/32769
+    across 3 retries — persistent truncation, zero reports on disk, whole
+    character dimension unaudited).
+    """
+    config = _load_config()
+    grp = config["overrides"].get("shenbi-review-group-character", {})
+    assert grp.get("max_tokens", 0) > 32768, (
+        "shenbi-review-group-character needs max_tokens headroom above the "
+        "32768 runtime raise (four full reports in one dispatch)"
+    )

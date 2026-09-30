@@ -45,7 +45,11 @@ class ReviewTask:
         skill: The review skill name (e.g. 'shenbi-review-anti-ai').
         project_dir: Project root directory.
         prompt: The review prompt to dispatch.
-        output_path: Expected output file path (for tracking).
+        output_path: Primary expected output file path (for tracking).
+        output_paths: ALL expected output files, contract-derived. Grouped
+            skills write several per-dimension reports (fixcheck ch2: the
+            convention single path was a phantom no skill ever writes).
+            ``all_output_paths()`` is the accessor every consumer uses.
         shared_context: Optional SharedAuditContext with pre-extracted fields
             (world_rules, character_list, style_profile, pending_hooks) shared
             across all audit calls for a single chapter.
@@ -55,11 +59,16 @@ class ReviewTask:
     project_dir: Path
     prompt: str
     output_path: str
+    output_paths: list[str] | None = None
     shared_context: Any = None
     #: C33 R4 (F363, spec #47): attempts used (1 = first try). Set by
     #: _dispatch_with_retry; aggregated into retry_budget_consumed at wave
     #: completion by the main thread (_charge_wave_retries in chapter_loop).
     attempts: int = 0
+
+    def all_output_paths(self) -> list[str]:
+        """Every expected output path (primary + contract extras)."""
+        return self.output_paths if self.output_paths else [self.output_path]
 
 
 def _dispatch_with_retry(

@@ -349,7 +349,7 @@ def _filter_completed_audit_tasks(tasks: list[ReviewTask]) -> list[ReviewTask]:
     After a mid-wave crash, re-entry replays only the unfinished segment —
     skills that already wrote their audit report are not re-dispatched.
     """
-    return [t for t in tasks if not (t.project_dir / t.output_path).exists()]
+    return [t for t in tasks if not all((t.project_dir / p).exists() for p in t.all_output_paths())]
 
 
 def _wave_savepoint(
@@ -2725,6 +2725,7 @@ def _run_chapter_step_impl(
         )
         from shenbi.pipeline.audit_layer import (
             audit_relative_path,
+            audit_report_paths,
             audit_suffix,
             get_active_genre_audits,
         )
@@ -2766,6 +2767,10 @@ def _run_chapter_step_impl(
                 project_dir=project_dir,
                 prompt=f"Execute {skill} for chapter {chapter}. Project dir: {project_dir}",
                 output_path=f"audits/chapter-{chapter}-{audit_suffix(skill)}.md",
+                # contract-derived writes (grouped skills produce several
+                # per-dimension reports; the convention single path is a
+                # phantom for them — fixcheck ch2 audit_reports evidence)
+                output_paths=audit_report_paths(chapter, skill),
                 shared_context=shared_ctx,
             )
             for skill in core_skills
@@ -2796,6 +2801,7 @@ def _run_chapter_step_impl(
                 project_dir=project_dir,
                 prompt=f"Execute {skill} audit for chapter {chapter}.",
                 output_path=audit_relative_path(chapter, skill),
+                output_paths=audit_report_paths(chapter, skill),
                 shared_context=shared_ctx,
             )
             for skill in genre_skills
@@ -2842,9 +2848,22 @@ def _run_chapter_step_impl(
         summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
         safe_write(summary_path, consolidated)
 
-        # Record all review steps as done and advance past them
+        # Record review steps as done and advance past them — EXCEPT those
+        # whose dispatch failed (fixcheck ch2: the character group failed on
+        # persistent length truncation, was marked done anyway, and resume
+        # never re-dispatched it — a whole audit dimension vanished silently
+        # while the chapter proceeded to checkpoint).
+        _failed_audit_skills = {
+            task.skill
+            for task, result in zip(
+                core_wave + core_serial + genre_wave + genre_serial,
+                core_results + genre_results,
+                strict=True,
+            )
+            if not result.success
+        }
         for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
-            if i < len(CHAPTER_STEPS):
+            if i < len(CHAPTER_STEPS) and CHAPTER_STEPS[i].skill not in _failed_audit_skills:
                 state.add_step_done(chapter, CHAPTER_STEPS[i].skill)
 
         state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1
@@ -2860,11 +2879,14 @@ def _run_chapter_step_impl(
         # from an empty result list and would under-report BLOCKING — derive
         # from the durable artifacts of the FULL task set instead.
         cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated or any(
-            "## BLOCKING Issues" in (project_dir / task.output_path).read_text(encoding="utf-8")
+            "## BLOCKING Issues" in (project_dir / p).read_text(encoding="utf-8")
             for task in core_tasks + genre_tasks
-            if (project_dir / task.output_path).exists()
+            for p in task.all_output_paths()
+            if (project_dir / p).exists()
         )
-        cs.audit_results["audit_reports"] = [t.output_path for t in core_tasks + genre_tasks]
+        cs.audit_results["audit_reports"] = [
+            p for t in core_tasks + genre_tasks for p in t.all_output_paths()
+        ]
         # Per-skill history entries (F341/F726, spec #27 T5): the cascade
         # (_should_skip_audit/_get_audit_history) consumes exactly this shape.
         # hard_failures counts BLOCKING/CRITICAL markers in the audit report
@@ -2889,13 +2911,14 @@ def _run_chapter_step_impl(
             strict=True,
         ):
             short = _audit_short_name(task.skill)
-            report = project_dir / task.output_path
             hard = 0
-            if report.exists():
-                try:
-                    hard = len(blocking_re.findall(report.read_text(encoding="utf-8")))
-                except OSError:
-                    log.warning("audit_report_unreadable", path=str(report))
+            for rel in task.all_output_paths():
+                report = project_dir / rel
+                if report.exists():
+                    try:
+                        hard += len(blocking_re.findall(report.read_text(encoding="utf-8")))
+                    except OSError:
+                        log.warning("audit_report_unreadable", path=str(report))
             cs.audit_results[short] = {
                 "passed": bool(result.success) and hard == 0,
                 "hard_failures": hard,

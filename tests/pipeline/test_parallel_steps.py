@@ -304,3 +304,80 @@ class TestSeverityVocabularySensing:
                 if re.search(r"-\s*\[(?:ERROR|WARNING)\]", line):
                     drifted.append(f"{skill_md.relative_to(root)}:{lineno}")
         assert not drifted, f"drifted severity labels in templates: {drifted}"
+
+
+def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, monkeypatch):
+    """Fixcheck ch2 zero-coverage silence: the character audit group's
+    dispatch failed (length truncation, 3 retries exhausted), yet the wave
+    completion marked its step done (resume never re-dispatches) and
+    audit_reports pointed at the phantom audits/chapter-2-group-character.md.
+    A failed audit must stay un-done for crash-resume replay, and the
+    recorded paths must be the skill's real contract writes.
+    """
+    from types import SimpleNamespace
+    from unittest.mock import patch
+
+    import pytest  # noqa: F401  (marker below)
+
+    from shenbi.pipeline import chapter_loop as cl
+    from shenbi.pipeline.state import PipelineState
+
+    (tmp_path / "audits").mkdir()
+    (tmp_path / "genre-config.json").write_text("{}", encoding="utf-8")
+
+    GROUP = "shenbi-review-group-character"
+
+    class _R:
+        def __init__(self, ok: bool) -> None:
+            self.success = ok
+            self.returncode = 0 if ok else -1
+            self.stdout = ""
+            self.stderr = "length_truncation: output still exceeds raised cap"
+
+    def _results_for(tasks):
+        return [_R(t.skill != GROUP) for t in tasks]
+
+    state = PipelineState()
+    state.project_dir = str(tmp_path)
+    state.chapter_loop.current_chapter = 2
+    idx = cl._FIRST_AUDIT_IDX
+    state.chapter_loop.step_index = idx
+
+    with (
+        patch(
+            "shenbi.pipeline.audit_context_cache.build_shared_audit_context",
+            return_value=SimpleNamespace(
+                estimated_tokens=0,
+                raw_files={},
+                world_rules="",
+                character_list="",
+                style_profile="",
+                pending_hooks="",
+            ),
+        ),
+        patch("shenbi.pipeline.audit_layer.get_active_genre_audits", return_value=[]),
+        patch(
+            "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
+            side_effect=lambda tasks, on_task_complete=None: _results_for(tasks),
+        ),
+        patch.object(
+            cl, "_dispatch_serial_reviews", side_effect=lambda tasks, pd: _results_for(tasks)
+        ),
+        patch.object(cl, "_parse_and_persist_resonance"),
+        patch.object(cl, "_route_revision_after_resonance"),
+    ):
+        cl.run_chapter_step(state, tmp_path)
+
+    cs = state.chapter_loop.chapter_states.get("2")
+    assert cs is not None
+    # 1. the failed group is NOT marked done (crash-resume can replay it)
+    assert GROUP not in cs.steps_done, cs.steps_done
+    # successful audit skills still are
+    assert "shenbi-review-group-factual" in cs.steps_done
+    # 2. audit_reports carries the four real contract writes, not the phantom
+    reports = cs.audit_results.get("audit_reports", [])
+    assert "audits/chapter-2-group-character.md" not in reports, reports
+    assert "audits/chapter-2-character.md" in reports, reports
+    assert "audits/chapter-2-pov.md" in reports, reports
+    # 3. per-skill failure disclosed as before
+    assert cs.audit_results.get("group-character", {}).get("passed") is False

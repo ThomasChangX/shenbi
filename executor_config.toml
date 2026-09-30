@@ -38,6 +38,16 @@ temperature = 0.7
 # Same headroom tier as foreshadowing-lifecycle (overlapping truth writes).
 max_tokens = 49152
 
+[overrides."shenbi-review-group-character"]
+temperature = 0.15
+# Fixcheck ch2 (2026-09-29): the four-dimension single-call audit
+# (character/dialogue/motivation/pov reports in one dispatch) exceeded the
+# 32768 raised cap — completion pinned 16383/32768/32769 across 3 retries,
+# length_truncation_persistent, zero reports on disk. ch1 fit inside the
+# default; ch2's longer chapter did not. Same headroom tier as the other
+# single-call multi-output skills.
+max_tokens = 49152
+
 [overrides."shenbi-review-continuity"]
 temperature = 0.2
 
