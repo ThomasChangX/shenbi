@@ -199,10 +199,13 @@ def _dropped_hook_rows(live_text: str, staged_text: str) -> list[str]:
         elif _row_stable_cells(s) != _row_stable_cells(staged_row):
             issues.append(
                 f"hook_row_stable_columns_rewritten:{key} "
-                "(planning columns are genesis-fixed — re-emit the row at the "
-                "SAME column width with every cell verbatim from the live "
-                "file, changing ONLY the final status cell; per-chapter "
-                "reinforcement data belongs in the hook section's bullets)"
+                "(registry rows are not chapter increments — a state-settling "
+                "output must OMIT them entirely (the status column belongs "
+                "to foreshadowing-track); a lifecycle writer updating the "
+                "status must re-emit every stable cell VERBATIM from the "
+                "live row, changing ONLY the final status cell. Either way, "
+                "per-chapter reinforcement data belongs in the hook "
+                "section's colon bullets, never in registry columns)"
             )
     return issues
 

@@ -5,6 +5,8 @@ description: Use when your human partner wants to set or update their creative i
 contract:
   kind: artifact
   reads:
+  - novel.json
+  - outline/story_frame.md
   - truth/author_intent.md
   - truth/audit_drift.md
   writes: []
@@ -24,7 +26,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/author_intent.md, truth/audit_drift.md
+- **Reads:** novel.json, outline/story_frame.md, truth/author_intent.md, truth/audit_drift.md
 - **Writes:** none
 - **Updates:** truth/author_intent.md, truth/current_focus.md
 
@@ -54,6 +56,7 @@ digraph intent_management {
 1. **author_intent 由人类口述，AI 整理** — AI 不得替作者做创作决策
 2. **current_focus 每次 chapter-planning 前必须更新** — 不更新 = 章节备忘脱离关注点
 3. **drift guidance 必须自动合并到 current_focus** — 纠偏遗漏 = 问题在下一章重复出现
+4. **意图必须锚定本书，无从编造** — auto 模式（genesis 期无人类口述、author_intent 尚为占位符）推演长期意图时，只能从 `novel.json` 与 `outline/story_frame.md` 提炼主题与方向：写出的 long_term_goals/narrative_principles 必须与 story_frame 的世界观、主角、核心冲突同书同故事。禁止从项目目录名、书名等只言片语虚构另一部作品（probe6 教训：占位符推演产出了一部深空探测小说，污染了此后每章的优先级链输入）
 
 ## 文件格式
 

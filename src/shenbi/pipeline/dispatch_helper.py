@@ -1357,21 +1357,42 @@ def _increment_units(content: str) -> list[str]:
     embedded newlines and pipes. Contiguous NON-table lines (section-style
     entries: heading + prose) are grouped into one block unit — they carry no
     key cell, so the primitive appends them verbatim (data-preserving
-    fallback, symmetric with the T703 never-drop policy). Blocks break at
-    markdown HEADING boundaries (probe escalation #16): a multi-section
-    increment grouped as one block dedups only on its FIRST heading, so a
-    re-emitted duplicate section deeper in the block slips through. Blank-only
+    fallback, symmetric with the T703 never-drop policy). Blank-only
     spans yield no unit.
+
+    Heading boundaries are SIBLING-LEVEL (probe6 ch2, 2026-10-01): a block
+    anchored at ``##`` or deeper swallows subsequent DEEPER NON-hook
+    headings, so a contract-shaped ``## 第N章状态增量`` section stays ONE
+    atomic unit. Breaking at every heading shredded the chapter section into
+    independently-routed ``###`` sub-sections — and a same-named sub-section
+    (``### 陈砚``, the protagonist recurs every chapter) hit
+    ``_replace_section`` across chapters, overwriting the previous chapter's
+    state under its own heading. Deterministic from ch2 onward (ch1's empty
+    base masked it). Two guards keep prior fixes intact:
+
+    * Hook-keyed headings (``### MH-xxx`` etc.) ALWAYS break — escalation
+      #16: hooks deeper in a block must dedup on their own hook id, not the
+      parent's heading.
+    * ``#``-anchored blocks do NOT swallow ``##`` sections — a re-emitted
+      document title must not become a span-to-EOF replacement unit (a
+      partial title-led output would otherwise drop the whole live file).
     """
-    from shenbi.pipeline.truth_io import split_table_cells
+    from shenbi.pipeline.truth_io import is_hook_heading, split_table_cells
+
+    def _heading_level(line: str) -> int:
+        stripped = line.lstrip()
+        return len(stripped) - len(stripped.lstrip("#"))
 
     units: list[str] = []
     block: list[str] = []
+    block_level: int | None = None
 
     def _flush() -> None:
         if any(line.strip() for line in block):
             units.append("\n".join(block).strip("\n"))
         block.clear()
+        nonlocal block_level
+        block_level = None
 
     for line in content.split("\n"):
         cells = split_table_cells(line)
@@ -1381,7 +1402,16 @@ def _increment_units(content: str) -> list[str]:
                 continue  # separator rows are structural, never data units
             units.append(line)
         elif line.lstrip().startswith("#"):
-            _flush()  # heading boundary: sections dedup independently
+            level = _heading_level(line)
+            joins = (
+                block_level is not None
+                and block_level >= 2  # h1 blocks never swallow (span-to-EOF guard)
+                and level > block_level  # deeper heading
+                and not is_hook_heading(line)  # hooks always break (#16)
+            )
+            if not joins:
+                _flush()
+                block_level = level
             block.append(line)
         else:
             block.append(line)

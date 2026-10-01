@@ -740,6 +740,26 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
         '"selected": ["arc1", "beat_2"]\n'
         "（禁止写成单个字符串；完整形态见 SKILL.md「decisions sidecar 必填字段」的示例 JSON）"
     ),
+    "G4.ss.matrix_structure": (
+        "character_matrix 增量合法形态（只发本章增量，勿复现全档——历史章"
+        "增量节与历史交互行由合并层保全）：\n"
+        "| 陈砚 | 监工 | 被点方 ↔ 点人方 | 第 2 章 |\n"
+        "## 第 2 章状态增量\n"
+        "### 陈砚 ／ 主角\n- Current Location: 灰脊城洗矿棚丙区\n"
+        "（交互行按 角色A,角色B 复合键追加，不同角色行共存不替换；增量节"
+        "为一个完整 ## 块、子节随块整体提交；主角当前状态只落在本章增量"
+        "节内，绝不改写或吸收历史章增量节）"
+    ),
+    "G4.ss.hooks_structure": (
+        "pending_hooks 增量合法形态（colon bullet only，母钩总览表行一律"
+        "不输出）：\n"
+        "### MH-001｜粗纸小册子\n"
+        "- last_reinforced: 第 2 章\n"
+        "- 证据: 第 2 章（chapters/chapter-2.md L…）：…\n"
+        "（lifecycle_state 复合行不发——plant/resolution 段是 genesis 固定"
+        "内容；type/trigger_condition/resolve_condition/depends_on 等稳定行"
+        "不发；累积字段 证据/notes 重述完整历史）"
+    ),
     "G4.dec.missing": (
         "decisions sidecar 缺必填字段——selections 条目必填 target / selected / "
         "basis（severity / omitted 有默认值），adjustments 条目必填 issue_id / "

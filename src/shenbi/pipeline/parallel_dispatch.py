@@ -315,12 +315,18 @@ def consolidate_review_results(
         # the templates ('- [ERROR]' hard tier) and the sensors (BLOCKING/
         # CRITICAL literals) — bracketed labels are now sensed alongside the
         # enums forms so real hard findings cannot vanish into a zero summary.
+        # probe6 ch1: same enum-list guard as revision_router's severity
+        # sensors — a FORMAT DOCUMENTATION legend (``4. **严重度**：BLOCKING
+        # / CRITICAL / MINOR``) must not open a ``## BLOCKING Issues``
+        # section in the summary.
+        _enum_tail = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
         blocking_re = _re.compile(
-            r"\*\*BLOCKING\*\*|(?:severity|严重度)\*{0,2}\W{0,6}BLOCKING\b|^\s*-\s*\[BLOCKING\]",
+            rf"\*\*BLOCKING\*\*|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b{_enum_tail}"
+            r"|^\s*-\s*\[BLOCKING\]",
             _re.IGNORECASE | _re.M,
         )
         critical_re = _re.compile(
-            r"\*\*CRITICAL\*\*|(?:severity|严重度)\*{0,2}\W{0,6}CRITICAL\b"
+            rf"\*\*CRITICAL\*\*|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_enum_tail}"
             r"|^\s*-\s*\[(?:CRITICAL|ERROR)\]",
             _re.IGNORECASE | _re.M,
         )

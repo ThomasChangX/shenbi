@@ -295,6 +295,17 @@ _BULLET_ROW_RE = re.compile(r"^\s*-\s*(?P<key>.+?)\s*:(?P<rest>.*)$")
 #: lines on attempt1, then a 49152-token whole-file retry on attempt2).
 _HOOK_HEADING_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-\d{3})\b")
 
+
+def is_hook_heading(text: str) -> bool:
+    """True when *text* is a hook-keyed heading (``### MH-001 · …``).
+
+    Public seam over :data:`_HOOK_HEADING_RE` for cross-module consumers
+    (dispatch_helper's increment splitter must keep hook sections
+    independently routed — escalation #16).
+    """
+    return _HOOK_HEADING_RE.match(text.strip()) is not None
+
+
 _COLON_BULLET_RE = re.compile(r"^-\s*([^:：\s][^:：]*)\s*[:：]")
 
 

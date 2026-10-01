@@ -80,16 +80,23 @@ DEFAULT_RESONANCE_FLOOR = 50
 # (``**BLOCKING**``), the English severity-key form (``severity: BLOCKING``,
 # ``**Severity**: BLOCKING``), and the CJK production form that all audit
 # skills actually emit (``**严重度**: BLOCKING``, ``严重度: BLOCKING``).
+# probe6 ch1 (2026-10-01): the value position alone is not enough — an
+# audit's FORMAT DOCUMENTATION legend (``4. **严重度**：BLOCKING / CRITICAL /
+# MINOR``, verbatim from a production sensitivity report) matched the key
+# form and routed a phantom regenerate. A value inside an ENUM LIST is never
+# a finding: the negative lookahead rejects it when further severity words
+# are enumerated after it.
+_SEV_ENUM_TAIL = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
 _SEVERITY_BLOCKING_RE = re.compile(
     r"\*\*BLOCKING\*\*"  # bolded marker: **BLOCKING**
     # severity key (English "severity" or CJK "严重度"): "severity: BLOCKING",
     # "**严重度**: BLOCKING". The optional \*{0,2} lets the key itself be bolded.
-    r"|(?:severity|严重度)\*{0,2}\W{0,6}BLOCKING\b",
+    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b{_SEV_ENUM_TAIL}",
     re.IGNORECASE,
 )
 _SEVERITY_CRITICAL_RE = re.compile(
-    r"\*\*CRITICAL\*\*"
-    r"|(?:severity|严重度)\*{0,2}\W{0,6}CRITICAL\b",
+    rf"\*\*CRITICAL\*\*"
+    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_SEV_ENUM_TAIL}",
     re.IGNORECASE,
 )
 

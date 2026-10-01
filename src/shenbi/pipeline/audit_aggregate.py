@@ -50,8 +50,14 @@ _BOLD_RE = re.compile(rf"\*\*({_SEV_WORDS})\*\*")
 #: prose parentheticals are not).
 _CELL_RE = re.compile(rf"(?:^|\|)\s*({_SEV_WORDS})\s*(?:\||$)", re.IGNORECASE)
 #: Inline severity key with leading content (``…：severity: CRITICAL``).
+# probe6 ch1: a FORMAT DOCUMENTATION legend (``4. **严重度**：BLOCKING /
+# CRITICAL / MINOR``, numbered list so _LABEL_ONLY_RE does not catch it) is
+# not a finding — reject values that continue an enum list (same guard as
+# revision_router / parallel_dispatch severity sensors).
+_ENUM_TAIL = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
 _KEY_RE = re.compile(
-    rf"(?:\*\*)?\s*(?:severity|严重度)\s*(?:\*\*)?\s*[：:]\s*({_SEV_WORDS})\b", re.IGNORECASE
+    rf"(?:\*\*)?\s*(?:severity|严重度)\s*(?:\*\*)?\s*[：:]\s*({_SEV_WORDS})\b{_ENUM_TAIL}",
+    re.IGNORECASE,
 )
 #: Severity LABEL lines carry nothing but the key (``- **严重度**: CRITICAL``)
 #: — metadata of the finding stated on the line above, never a finding.

@@ -610,6 +610,99 @@ def test_upsert_shape_mismatch_row_keeps_existing() -> None:
     assert result2.count("| MH-001") == 1
 
 
+def test_increment_units_chapter_section_swallows_subsections() -> None:
+    """probe6 ch2 (2026-10-01): the settle contract prescribes ``one
+    ## 第N章状态增量 section block (heading + its rows/prose)``, but the
+    splitter broke at EVERY heading — the ``###`` children became
+    independent units, and a same-named child (``### 陈砚``, the protagonist
+    recurs every chapter) hit ``_replace_section`` across chapters,
+    overwriting the PREVIOUS chapter's state under its heading. Deterministic
+    from ch2 onward. A ``##``-anchored block must swallow its deeper
+    NON-hook sub-headings so the chapter section stays atomic.
+    """
+    from shenbi.pipeline.dispatch_helper import _increment_units
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    live = (
+        "---\ntype: truth\n---\n\n# 角色交互矩阵\n\n"
+        "| 角色A | 角色B | 关系状态 | 章节 |\n|---|---|---|---|\n"
+        "| 陈砚 | 矿监 | 被登记方 | 第 1 章 |\n"
+        "| 陈砚 | 白袍人 | 受予者 | 第 1 章 |\n"
+        "## 第 1 章状态增量\n"
+        "### 陈砚 ／ 丙字七三二九（主角）\n"
+        "- 公开身份: 矿工，编号「丙字七三二九」\n"
+        "- Current Location: 七号矿洞坑口\n"
+        "- Last Updated Ch: 第 1 章\n"
+    )
+    increment = (
+        "| 陈砚 | 监工 | 被点方 | 第 2 章 |\n"
+        "## 第 2 章状态增量\n"
+        "### 陈砚 ／ 丙字七三二九（主角）\n"
+        "- 公开身份: 洗矿棚丙区矿工，编号「丙字七三二九」\n"
+        "- Current Location: 灰脊城洗矿棚丙区\n"
+        "- Last Updated Ch: 第 2 章\n"
+        "### 柳氏\n- 公开身份: 丙区名册代管者\n"
+    )
+    units = _increment_units(increment)
+    # The chapter section is ONE atomic unit (heading + both sub-sections).
+    chapter_units = [u for u in units if u.startswith("## 第 2 章状态增量")]
+    assert len(chapter_units) == 1
+    assert "### 陈砚" in chapter_units[0] and "### 柳氏" in chapter_units[0]
+
+    merged = live
+    for unit in units:
+        merged = upsert_markdown_row(merged, unit, "角色A,角色B")
+
+    # ch1 section survives VERBATIM (no cross-chapter replacement)...
+    assert "- 公开身份: 矿工，编号「丙字七三二九」" in merged
+    assert "## 第 1 章状态增量" in merged and "## 第 2 章状态增量" in merged
+    # ...interaction rows accumulate (composite keys never collapse)...
+    for pair in ("| 陈砚 | 矿监 |", "| 陈砚 | 白袍人 |", "| 陈砚 | 监工 |"):
+        assert pair in merged
+    # ...and the ch2 protagonist state lands under the ch2 section only.
+    assert merged.count("- 公开身份: 洗矿棚丙区矿工") == 1
+    ch2_span = merged.split("## 第 2 章状态增量")[1]
+    assert "洗矿棚丙区矿工" in ch2_span
+
+
+def test_increment_units_hook_sections_stay_independent_under_parent() -> None:
+    """Escalation #16 regression guard under the sibling-level rule: hook
+    sections (``### MH-xxx``) must remain independent units even when the
+    increment carries a parent ``##`` heading — the hook bullet merge keys
+    on the hook id, a swallowed hook section would dedup on the parent.
+    """
+    from shenbi.pipeline.dispatch_helper import _increment_units
+
+    increment = (
+        "## 第3章 状态变化\n\n总述行。\n\n"
+        "### MH-001｜静海回响\n- last_reinforced: 第3章\n\n"
+        "### MH-005｜名字的保存方式\n- last_reinforced: 第3章\n"
+    )
+    units = _increment_units(increment)
+    assert any(u.startswith("### MH-001｜") for u in units)
+    assert any(u.startswith("### MH-005｜") for u in units)
+    # the parent ## heading did NOT swallow them
+    parent = [u for u in units if u.startswith("## 第3章")]
+    assert len(parent) == 1
+    assert "MH-001" not in parent[0]
+
+
+def test_increment_units_h1_block_does_not_swallow_h2() -> None:
+    """A re-emitted document title (``# 角色交互矩阵``) must not anchor a
+    whole-file replacement unit: swallowing ``##`` sections under an h1
+    block would make partial title-led outputs destructive (span-to-EOF
+    replace). h1 blocks stay atomic at their own level only.
+    """
+    from shenbi.pipeline.dispatch_helper import _increment_units
+
+    increment = "# 角色交互矩阵\n\n> 占位说明\n\n## 第 1 章状态增量\n### 陈砚\n- x: 1\n"
+    units = _increment_units(increment)
+    assert any(u.startswith("# 角色交互矩阵") for u in units)
+    assert any(u.startswith("## 第 1 章状态增量") for u in units)
+    title_unit = next(u for u in units if u.startswith("# 角色交互矩阵"))
+    assert "第 1 章状态增量" not in title_unit
+
+
 def test_increment_units_split_at_heading_boundaries() -> None:
     """Probe escalation #16: a multi-section increment grouped as ONE block
     dedups only on its first heading — a re-emitted duplicate section deeper

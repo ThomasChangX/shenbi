@@ -71,7 +71,7 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
   - `truth/pending_hooks.md` — per-hook FIELD updates as colon bullets under the hook's own heading (key: `hook_id`) — see "pending_hooks 增量格式" below
 
 - **append_dedup file（增量合并，复合键）**:
-  - `truth/character_matrix.md` — output ONLY the current chapter's increment: (a) changed rows of the 交互总表 (key: `角色A,角色B` composite — a row per pair that actually interacted this chapter, same column layout as the live table) and (b) one `## 第N章状态增量` section block (heading + its rows/prose). NEVER reproduce the whole file, other chapters' rows, the 信任度初值 sections, or the frontmatter — the pipeline merges your increment against the live base by key and G4 verifies base preservation (probe2 2026-10-01: the whole-file rewrite contract made settle output grow O(chapters) and blow the model output cap — two settles silently dropped base mass to fit).
+  - `truth/character_matrix.md` — output ONLY the current chapter's increment: (a) changed rows of the 交互总表 (key: `角色A,角色B` composite — a row per pair that actually interacted this chapter, same column layout as the live table) and (b) one `## 第N章状态增量` section block (heading + its rows/prose). NEVER reproduce the whole file, other chapters' rows, the 信任度初值 sections, or the frontmatter — the pipeline merges your increment against the live base by key and G4 verifies base preservation (probe2 2026-10-01: the whole-file rewrite contract made settle output grow O(chapters) and blow the model output cap — two settles silently dropped base mass to fit). The increment section is ONE atomic `##` block carrying all its `###` subsections — the protagonist's current state lives ONLY inside this chapter's block (probe6 ch2: folding the protagonist's updated state into a previous chapter's subsection, retitling/absorbing history sections, or replacing old interaction rows are all restructure damage — G4 rejects them; append, never replace).
 
 **Row format:** a markdown table row whose FIRST cell is the chapter key (`第N章` or `N`), e.g. `| 第 5 章 | 主角进入内门；灵石 -20；线索：考核完成 |`. The pipeline's `write_truth_file()` merges by that key cell — re-running the same chapter replaces that chapter's row only (re-runs are safe), and rows for other chapters are preserved. Do NOT reproduce other chapters' rows in your output, and do NOT output headings/frontmatter for append_dedup files — output only the new row(s). `pending_hooks.md` does NOT use table rows in your output — use the per-hook bullet format below.
 
@@ -86,6 +86,7 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
 ```
 
 - 只发被更新字段的 **colon bullet**（`- 字段名: 值`）。程序按字段名**原位合并**进 live 区块——你无需也不得重发该 hook 的稳定行（`type`/`plant_ch`/`trigger_condition`/`resolve_condition`/`subtlety` 参数组合行/`depends_on`）。重发或改写它们会被 G4 拒绝。
+- `lifecycle_state` 复合行同样**不得重发或改写**（probe6 ch1：改写丢 `resolution` 段＝毁掉回收登记）——其中的 `plant`/`resolution` 段是 genesis 固定内容，生命周期迁移归 foreshadowing-track；本章强化只发独立 `- last_reinforced: 第N章` bullet，绝不把该字段塞进复合行。
 - `subtlety`/`cultivation_interval`/`max_distance` 是 genesis 固定参数（守卫锁定），本 skill 与任何章级流程都**不更新**它们。
 - 累积型字段（`证据`/`notes`）更新时必须重述完整历史（读 live 现值 + 追加本章条目），合并是同名字段整行替换。
 - 标题可照抄 hook 编号（`### MH-001 · …`）——程序按编号定位区块；标题文字略有出入也能命中，但请尽量照抄。
