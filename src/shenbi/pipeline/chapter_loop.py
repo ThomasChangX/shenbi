@@ -1189,24 +1189,33 @@ def _run_post_draft_extract(state: PipelineState, chapter: int) -> None:
         log.debug("post_draft_extract_failed", chapter=chapter, exc_info=True)
 
 
-def _check_word_count_bounds(chapter_text: str) -> list[str]:
-    """G4 word count bounds check.
+def _check_word_count_bounds(chapter_text: str, project_dir: Path | None = None) -> list[str]:
+    """Chapter word count bounds check (WARN-only observability).
 
-    Counts Chinese characters (CJK Unified Ideographs U+4E00-U+9FFF).
-    WARN when below 4000 or above 15000 characters.
+    Bounds come from the project's genre-config ``chapter_word`` min/max
+    (probe3 P1: this checker ran its own 4000/15000 regime while the G4
+    drafting gate floored on the config default — under a 1700-default genre
+    every chapter WARNed below 4000). Falls back to the legacy constants
+    when the config is absent.
 
     Args:
         chapter_text: The full chapter prose text.
+        project_dir: Project root carrying genre-config.json (optional).
 
     Returns:
         List of issue strings (empty if within bounds).
     """
+    from shenbi.gates.shared import chapter_word_min_max
+
     issues: list[str] = []
+    mn, mx = chapter_word_min_max(project_dir)
+    floor = mn if mn is not None else 4000
+    ceiling = mx if mx is not None else 15000
     chinese_chars = sum(1 for c in chapter_text if "\u4e00" <= c <= "\u9fff")
-    if chinese_chars < 4000:
-        issues.append(f"G4.word_count:below_floor -- {chinese_chars} chars (min 4000)")
-    if chinese_chars > 15000:
-        issues.append(f"G4.word_count:above_ceiling -- {chinese_chars} chars (max 15000)")
+    if chinese_chars < floor:
+        issues.append(f"G4.word_count:below_floor -- {chinese_chars} chars (min {floor})")
+    if chinese_chars > ceiling:
+        issues.append(f"G4.word_count:above_ceiling -- {chinese_chars} chars (max {ceiling})")
     return issues
 
 
@@ -3427,7 +3436,7 @@ def _run_chapter_step_impl(
         chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
         if chapter_path.exists():
             chapter_text = chapter_path.read_text(encoding="utf-8")
-            wc_issues = _check_word_count_bounds(chapter_text)
+            wc_issues = _check_word_count_bounds(chapter_text, project_dir=project_dir)
             for issue in wc_issues:
                 log.warning("word_count_bounds", chapter=chapter, issue=issue)
 

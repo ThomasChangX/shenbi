@@ -129,6 +129,35 @@ def chapter_word_floor(project_dir: str | Path | None) -> int:
         return CHAPTER_WORD_FLOOR
 
 
+def chapter_word_min_max(project_dir: str | Path | None) -> tuple[int | None, int | None]:
+    """Per-chapter (min, max) bounds from genre-config ``chapter_word``.
+
+    Same single source as :func:`chapter_word_floor` (probe3 P1: the
+    chapter-loop WARN bounds and the length-normalizing ceiling ran on their
+    own hardcoded 4000/15000 and 3000/10000 regimes while the drafting gate
+    already floored on the config). ``(None, None)`` when absent — callers
+    keep their legacy constants so no-config behavior is unchanged.
+    """
+    if not project_dir:
+        return (None, None)
+    gc_path = Path(project_dir) / "genre-config.json"
+    try:
+        data = jload(str(gc_path))
+    except (json.JSONDecodeError, OSError, ValueError):
+        return (None, None)
+    cw = data.get("chapter_word", {})
+    if not isinstance(cw, dict):
+        return (None, None)
+
+    def _int_or_none(v: object) -> int | None:
+        try:
+            return int(v) if isinstance(v, (int, float, str)) and v else None
+        except (TypeError, ValueError):
+            return None
+
+    return (_int_or_none(cw.get("min")), _int_or_none(cw.get("max")))
+
+
 def word_count_md(fp: str | Path) -> int:
     """Count Chinese characters in Markdown body (excluding frontmatter,
     code blocks, and meta sections).

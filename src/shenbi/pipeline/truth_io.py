@@ -288,6 +288,99 @@ def ensure_table_header(filename: str, content: str) -> str:
 
 _BULLET_ROW_RE = re.compile(r"^\s*-\s*(?P<key>.+?)\s*:(?P<rest>.*)$")
 
+#: Hook-detail headings (``### MH-001 · …``) mark sections whose only
+#: legitimate mutations are named-field bullet updates (probe3 P0: the only
+#: merge primitive for headed sections was whole-section replacement, which
+#: made the LLM responsible for verbatim base reproduction — 189 dropped
+#: lines on attempt1, then a 49152-token whole-file retry on attempt2).
+_HOOK_HEADING_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-\d{3})\b")
+
+_COLON_BULLET_RE = re.compile(r"^-\s*([^:：\s][^:：]*)\s*[:：]")
+
+
+def _hook_section_bullet_merge(existing: str, unit: str) -> str | None:
+    """Patch a hook section's named fields in place; None when inapplicable.
+
+    Applicable when the unit's first non-empty line is a hook heading and
+    every other non-empty line is a ``- name: value`` colon bullet — a pure
+    field update. Each bullet replaces the section's first same-name bullet
+    in place; names absent from the live section insert after its last
+    bullet. Stable lines are never re-emitted, so they cannot be dropped or
+    rewritten by construction. Section location: exact heading line first,
+    else same heading level + hook id (a paraphrased title after the id
+    still targets the live block instead of appending a duplicate section).
+    Accumulating fields (证据/notes) must restate their full history in the
+    increment — the writer's contract duty, not the merge's.
+    """
+    unit_lines = unit.split("\n")
+    h_idx = next((i for i, l in enumerate(unit_lines) if l.strip()), None)
+    if h_idx is None:
+        return None
+    heading = unit_lines[h_idx].strip()
+    hm = _HOOK_HEADING_RE.match(heading)
+    if not hm:
+        return None
+    level = len(hm.group(1))
+    hook_id = hm.group(2)
+    fields: list[tuple[str, str]] = []
+    for line in unit_lines[h_idx + 1 :]:
+        s = line.strip()
+        if not s:
+            continue
+        fm = _COLON_BULLET_RE.match(s)
+        if not fm:
+            return None  # free-form content = section rewrite — legacy replace
+        fields.append((fm.group(1).strip(), line.rstrip()))
+    if not fields:
+        return None
+
+    lines = existing.split("\n")
+    target: int | None = None
+    for i, line in enumerate(lines):
+        s = line.strip()
+        if not s.startswith("#"):
+            continue
+        if s == heading:
+            target = i
+            break
+        tm = _HOOK_HEADING_RE.match(s)
+        if tm and len(tm.group(1)) == level and tm.group(2) == hook_id:
+            target = i
+            break
+    if target is None:
+        return None  # unknown hook — caller appends the whole unit
+
+    end = len(lines)
+    for j in range(target + 1, len(lines)):
+        s = lines[j].lstrip()
+        if s.startswith("#"):
+            lvl = len(s) - len(s.lstrip("#"))
+            if lvl <= level:
+                end = j
+                break
+
+    used = [False] * len(fields)
+    for fi, (name, newline) in enumerate(fields):
+        for j in range(target + 1, end):
+            s = lines[j].strip()
+            if not s.startswith("-"):
+                continue
+            fm = _COLON_BULLET_RE.match(s)
+            if fm and fm.group(1).strip() == name:
+                lines[j] = newline
+                used[fi] = True
+                break
+    bullet_positions = [j for j in range(target + 1, end) if lines[j].strip().startswith("-")]
+    insert_at = bullet_positions[-1] + 1 if bullet_positions else target + 1
+    for fi, (name, newline) in enumerate(fields):
+        if not used[fi]:
+            lines.insert(insert_at, newline)
+            insert_at += 1
+    out = "\n".join(lines)
+    if not out.endswith("\n"):
+        out += "\n"
+    return out
+
 
 def _render_bullet_row(new_data: dict[str, Any], key_field: str) -> str:
     """Render a dict row as the ``- {key}: {k=v ...}`` bullet format."""
@@ -616,6 +709,10 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
         if not first_line:
             return existing
         if first_line.lstrip().startswith("#"):
+            merged = _hook_section_bullet_merge(existing, new_row)
+            if merged is not None:
+                log.info("truth_hook_section_fields_patched", key_name=key_name)
+                return merged
             replaced_section = _replace_section(existing, new_row)
             if replaced_section is not None:
                 return replaced_section

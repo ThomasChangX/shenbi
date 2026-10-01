@@ -1661,8 +1661,18 @@ def _write_parsed_outputs(
         try:
             content = _validate_json_output(content, full_path)
         except ValueError as e:
+            # Nothing is persisted (the raise precedes the write) — the
+            # fail-loud intent holds. But the failure must reach the retry
+            # classifier as a budgeted write failure, not pierce the
+            # dispatch boundary as a bare ValueError and crash the process
+            # without consuming the attempt (probe3: genre-config first
+            # run, exit 1, attempt3 left unconsumed).
             log.error("output_validation_failed", path=rel_path, error=str(e))
-            raise  # Pipeline must stop rather than persist corrupt data
+            raise DispatchWriteFailureError(
+                f"Decisions JSON output invalid and unrecoverable for {rel_path}: {e}. "
+                "Re-emit the complete, schema-valid JSON object with no wrapping prose.",
+                signature="decisions_json_unrecoverable",
+            ) from e
 
         should_block, reason = _check_content_size_guard(project_dir, rel_path, content)
         if should_block:

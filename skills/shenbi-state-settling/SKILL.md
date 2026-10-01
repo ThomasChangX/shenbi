@@ -68,12 +68,29 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
   - `truth/emotional_arcs.md` — one row for the current chapter's emotional arc (key: `chapter`)
   - `truth/subplot_board.md` — one row for the current chapter's thread status (key: `chapter`)
   - `truth/chapter_summaries.md` — one row summarizing the current chapter (key: `chapter`)
-  - `truth/pending_hooks.md` — one row per hook touched this chapter, first column `Hook ID` (key: `hook_id`)
+  - `truth/pending_hooks.md` — per-hook FIELD updates as colon bullets under the hook's own heading (key: `hook_id`) — see "pending_hooks 增量格式" below
 
 - **append_dedup file（增量合并，复合键）**:
   - `truth/character_matrix.md` — output ONLY the current chapter's increment: (a) changed rows of the 交互总表 (key: `角色A,角色B` composite — a row per pair that actually interacted this chapter, same column layout as the live table) and (b) one `## 第N章状态增量` section block (heading + its rows/prose). NEVER reproduce the whole file, other chapters' rows, the 信任度初值 sections, or the frontmatter — the pipeline merges your increment against the live base by key and G4 verifies base preservation (probe2 2026-10-01: the whole-file rewrite contract made settle output grow O(chapters) and blow the model output cap — two settles silently dropped base mass to fit).
 
-**Row format:** a markdown table row whose FIRST cell is the chapter key (`第N章` or `N`), e.g. `| 第 5 章 | 主角进入内门；灵石 -20；线索：考核完成 |`. For `pending_hooks.md`, output rows in the 活跃伏笔 table format with `Hook ID` in the first column. The pipeline's `write_truth_file()` merges by that key cell — re-running the same chapter replaces that chapter's row only (re-runs are safe), and rows for other chapters are preserved. Do NOT reproduce other chapters' rows in your output, and do NOT output headings/frontmatter for append_dedup files — output only the new row(s).
+**Row format:** a markdown table row whose FIRST cell is the chapter key (`第N章` or `N`), e.g. `| 第 5 章 | 主角进入内门；灵石 -20；线索：考核完成 |`. The pipeline's `write_truth_file()` merges by that key cell — re-running the same chapter replaces that chapter's row only (re-runs are safe), and rows for other chapters are preserved. Do NOT reproduce other chapters' rows in your output, and do NOT output headings/frontmatter for append_dedup files — output only the new row(s). `pending_hooks.md` does NOT use table rows in your output — use the per-hook bullet format below.
+
+### pending_hooks 增量格式（CRITICAL）
+
+对每个本章触及的**既有** hook，只输出该 hook 的字段更新块：
+
+```markdown
+### MH-001 · <标题逐字照抄 live 文件的该 hook 标题>
+
+- last_reinforced: <本章章号>
+```
+
+- 只发被更新字段的 **colon bullet**（`- 字段名: 值`）。程序按字段名**原位合并**进 live 区块——你无需也不得重发该 hook 的稳定行（`type`/`plant_ch`/`trigger_condition`/`resolve_condition`/`subtlety` 参数组合行/`depends_on`）。重发或改写它们会被 G4 拒绝。
+- `subtlety`/`cultivation_interval`/`max_distance` 是 genesis 固定参数（守卫锁定），本 skill 与任何章级流程都**不更新**它们。
+- 累积型字段（`证据`/`notes`）更新时必须重述完整历史（读 live 现值 + 追加本章条目），合并是同名字段整行替换。
+- 标题可照抄 hook 编号（`### MH-001 · …`）——程序按编号定位区块；标题文字略有出入也能命中，但请尽量照抄。
+- **新** hook（本章新埋设，live 中不存在）才输出完整新区块（标题 + 全部字段 bullet）。
+- **主钩总览表行一律不要输出**：本 skill 不推进生命周期（PLANTED→RELEVANT→…），状态列由 foreshadowing-track 以同宽度行原位更新。
 
 ### `character_matrix.md` Write-Protection Rule
 
@@ -161,7 +178,7 @@ digraph state_settling {
 | 摘要 | `truth/chapter_summaries.md` (追加) | append_dedup (key: chapter) |
 
 > **pending_hooks 字段分工（持久边界，非仅 Phase 1）**：`truth/pending_hooks.md` 有 4 个写者，按字段划分——
-> - **state-settling（本 skill）**：只更新 `last_reinforced` 和 `subtlety` 字段（记录"本章是否提及/加强"），**不**推进生命周期状态（PLANTED→RELEVANT→TRIGGERED→RESOLVED）。
+> - **state-settling（本 skill）**：只更新 `last_reinforced` 字段（记录"本章是否提及/加强"），并可增补 `证据`/`notes` 累积 bullet（重述完整历史）；**不**推进生命周期状态（PLANTED→RELEVANT→TRIGGERED→RESOLVED），**不**更新 `subtlety` 参数（genesis 固定，守卫锁定）。
 > - **foreshadowing-track**：唯一推进 hook 生命周期状态的 skill（需文本证据验证）。
 > - **foreshadowing-plant**：追加新 hook（PLANTED）。
 > - **foreshadowing-resolve**：兑现处理（TRIGGERED→RESOLVED）。

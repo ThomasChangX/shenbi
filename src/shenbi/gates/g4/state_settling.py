@@ -149,7 +149,9 @@ def _check_matrix_structure(pf: Path) -> list[str]:
         )
     issues.extend(
         f"G4.ss.matrix_structure:{pf}:{detail} "
-        "(format replacement — reproduce the live base verbatim, then append)"
+        "(format replacement — re-emit ONLY this chapter's increment: the "
+        "new/changed keyed rows plus this chapter's increment section; do "
+        "NOT reproduce or re-emit other sections of the live file)"
         for detail in _dropped_content_lines(live_text, staged_text)
     )
     issues.extend(_check_escape_corruption(pf, live_text, staged_text))
@@ -189,12 +191,18 @@ def _dropped_hook_rows(live_text: str, staged_text: str) -> list[str]:
         key = m.group(1)
         staged_row = staged_rows.get(key)
         if staged_row is None:
-            issues.append(f"hook_row_dropped:{key}")
+            issues.append(
+                f"hook_row_dropped:{key} "
+                "(the registry row vanished — keep registry rows untouched "
+                "except the final status cell)"
+            )
         elif _row_stable_cells(s) != _row_stable_cells(staged_row):
             issues.append(
                 f"hook_row_stable_columns_rewritten:{key} "
-                "(planning columns are genesis-fixed — per-chapter changes "
-                "belong in detail blocks, not the seed/overview rows)"
+                "(planning columns are genesis-fixed — re-emit the row at the "
+                "SAME column width with every cell verbatim from the live "
+                "file, changing ONLY the final status cell; per-chapter "
+                "reinforcement data belongs in the hook section's bullets)"
             )
     return issues
 
@@ -227,9 +235,17 @@ def _check_hooks_structure(pf: Path) -> list[str]:
         )
     issues.extend(
         f"G4.ss.hooks_structure:{pf}:{detail} "
-        "(hook base lines dropped — reproduce the live base verbatim, then append)"
+        "(hook base lines dropped — re-emit ONLY the affected hook's section "
+        "as named-field colon bullets (e.g. `- last_reinforced: N`); the "
+        "program merges them into the live block in place — never re-emit "
+        "the hook's stable lines: type/plant_ch/trigger_condition/"
+        "resolve_condition/subtlety/depends_on)"
         for detail in _dropped_content_lines(live_text, staged_text, hooks=True)
-        + _dropped_hook_rows(live_text, staged_text)
+    )
+    # Hook-row findings carry their own row-scoped remediation text.
+    issues.extend(
+        f"G4.ss.hooks_structure:{pf}:{detail}"
+        for detail in _dropped_hook_rows(live_text, staged_text)
     )
     issues.extend(_check_escape_corruption(pf, live_text, staged_text))
     return issues

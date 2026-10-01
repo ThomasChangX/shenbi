@@ -19,6 +19,7 @@ The orchestrator is stateless itself: it mutates the passed-in
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -324,6 +325,70 @@ def genesis_finalize_volume_map(project_dir: Path) -> int:
     return total
 
 
+def _sync_spine_total(project_dir: Path) -> None:
+    """Sync spine-init's ``total_chapters: 0`` placeholder (probe3 P2-R).
+
+    spine-init's template ships the legitimate pending_intent placeholder
+    even though novel.json's total was deterministically fixed at step 6 —
+    so every new project's genesis-complete reconciliation fired a false
+    MUST-FIX that only a routine human edit (0→N) could clear. Only the 0
+    placeholder is patched (same R2 spirit as the volume-map fixation
+    hook); a non-zero divergent value is left for the gate to catch, and
+    the status vocabulary stays memory-distill's.
+    """
+    spine = project_dir / "truth" / "book_spine.md"
+    novel = project_dir / "novel.json"
+    if not spine.exists() or not novel.exists():
+        return
+    try:
+        total = json.loads(novel.read_text(encoding="utf-8")).get("total_chapters")
+    except (OSError, ValueError):
+        return
+    if not isinstance(total, int) or total <= 0:
+        return
+    text = spine.read_text(encoding="utf-8")
+    patched, n = re.subn(
+        r"^total_chapters:\s*0\s*$",
+        f"total_chapters: {total}",
+        text,
+        flags=re.MULTILINE,
+    )
+    if n:
+        safe_write(spine, patched.encode("utf-8"))
+        log.info("genesis_spine_total_synced", total_chapters=total)
+
+
+def _genesis_sidecar_paths(skill: str, output_path: str | None) -> list[str]:
+    """Contract-declared decisions sidecars for a genesis step (spec #30 T2
+    parity with the chapter loop, probe3 P2-R).
+
+    probe3: genre-config-decisions.json was doubly invisible at genesis —
+    ``outputs_override`` narrowed the model's instruction to the step's main
+    artifact (so the sidecar was never even requested), and the chapter
+    loop's sidecar expansion is existence-gated (so its absence never
+    reached G4). Genesis includes the skill's static decisions sidecars in
+    BOTH the instruction and the G4 file list; chapter-templated paths are
+    excluded (genesis has no chapter context).
+    """
+    if not output_path:
+        return []
+    sidecars: list[str] = []
+    try:
+        from shenbi.contracts import load_contract
+
+        contract = load_contract(skill)
+    except Exception as e:  # noqa: BLE001 — contract issues surface in G0
+        log.warning("genesis_sidecar_contract_unavailable", skill=skill, error=str(e))
+        return []
+    for out in contract.get("writes", []):
+        name = Path(out).name
+        if "decisions" not in name or "{" in out or "chapter" in name:
+            continue
+        if out not in sidecars:
+            sidecars.append(out)
+    return sidecars
+
+
 def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     """Execute the next genesis step.
 
@@ -359,6 +424,8 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     step_ctx = (
         PathContext(anchor=1) if step.skill == "shenbi-anchor-curate" else None
     )  # F380 (spec #6): AC-NNN -> AC-001.md genesis sentinel, conditional on this step
+    sidecars = _genesis_sidecar_paths(step.skill, step.output_path)
+    outputs_override = ([step.output_path] + sidecars) if step.output_path else None
     result = dispatch_skill(
         step.skill,
         project_dir,
@@ -367,7 +434,9 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
         # Stage-8 review I1: the GenesisStep's declared output IS the genesis
         # output set — keeps per-chapter-mode contract writes (lifecycle's
         # bridge_tracker) out of the genesis "Files to create" instruction.
-        outputs_override=[step.output_path] if step.output_path else None,
+        # Static decisions sidecars stay IN (spec #30 T2; probe3: excluding
+        # them meant the sidecar was never requested and never produced).
+        outputs_override=outputs_override,
     )
     if not result.success:
         log.error("genesis_dispatch_failed", step=step.step_num, skill=step.skill)
@@ -379,8 +448,11 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
             log.error("genesis_dispatch_rc", skill=step.skill, rc=result.returncode)
         return _handle_failure(state, step, "dispatch", project_dir)
 
-    # G4: skill-specific structural validation (every step).
-    g4 = run_gate_g4(step.skill, [step.output_path], project_dir)
+    # G4: skill-specific structural validation (every step). Sidecars join
+    # the file list UNCONDITIONALLY (not existence-gated) so a never-produced
+    # sidecar surfaces as not_found instead of staying invisible.
+    g4_files = ([step.output_path] + sidecars) if step.output_path else []
+    g4 = run_gate_g4(step.skill, g4_files, project_dir)
     if _gate_passed(g4):
         # Canary defect 'retry_feedback 永不清': stale corrective feedback
         # from a PRIOR failure stayed injected into every later dispatch
@@ -398,8 +470,20 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
         state.genesis.retry_feedback[step.skill] = (
             f"G4 check failed: {must_fix}\nFull result: {json.dumps(g4, default=str)}"
         )
-        # Auto mode: retry once, then continue regardless
+        # Auto mode: retry once, then continue regardless — EXCEPT a missing
+        # declared artifact (not_found): advancing skills_done without a
+        # contract-declared write is silent data loss (probe3:
+        # genre-config-decisions.json), so it consumes the retry budget and
+        # escalates like any hard failure.
         if state.config.per_chapter_review_enabled:
+            return _handle_failure(state, step, "gate", project_dir)
+        if any("not_found" in str(item) for item in must_fix):
+            log.error(
+                "genesis_g4_not_found_no_auto_continue",
+                step=step.step_num,
+                skill=step.skill,
+                must_fix=must_fix,
+            )
             return _handle_failure(state, step, "gate", project_dir)
         count = state.genesis.retry_counts.get(step.skill, 0) + 1
         state.genesis.retry_counts[step.skill] = count
@@ -442,6 +526,8 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
         _update_indexes(project_dir, step.skill)
     if step.skill == "shenbi-volume-outlining":  # step 6: volume map landed (R2)
         genesis_finalize_volume_map(project_dir)
+    if step.skill == "shenbi-book-spine-init":  # probe3 P2-R: placeholder 0 → real total
+        _sync_spine_total(project_dir)
     state.genesis.retry_counts.pop(step.skill, None)
     mark_skill_done(state, step.skill)
     return _advance(state, step_idx, project_dir)

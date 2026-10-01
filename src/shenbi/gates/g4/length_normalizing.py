@@ -5,6 +5,9 @@ from shenbi.status import GateStatus
 from typing import Any
 
 from shenbi.gates.shared import (
+    CHAPTER_WORD_CEILING,
+    chapter_word_floor,
+    chapter_word_min_max,
     fail,
     passed,
     resolve_input_path,
@@ -18,13 +21,18 @@ def g4_length_normalizing(
     project_dir: str | None = None,  # threaded by 15a, consumed by 15b
     repo_root: str | None = None,  # threaded by 15a, consumed by 15b
 ) -> str:
-    """Length normalizing: checks per new SKILL.md thresholds.
-    - 3000-10000 range: report only, no chapter body → skip word count check
-    - <3000 expansion: chapter body ≥ 3000 words
-    - >10000 compression: chapter body ≥ 3000 AND ≥ 25% original
+    """Length normalizing: per-chapter bounds from genre-config chapter_word
+    (probe3 P1 unification — the drafting gate already floors on the same
+    config's default; a 1700-default genre cannot demand 3000 from the
+    normalizer while accepting 1700 from the drafter). Fallbacks keep the
+    legacy 3000/10000 constants when the config is absent.
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
+
+    floor = chapter_word_floor(project_dir)
+    _mn, mx = chapter_word_min_max(project_dir)
+    ceiling = mx if mx else CHAPTER_WORD_CEILING
 
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
@@ -59,10 +67,10 @@ def g4_length_normalizing(
             continue
 
         # Expansion or compression was applied — enforce word count
-        if wc < 3000:
-            mf.append(f"G4.ln.below_floor:{fp}:{wc}<3000")
-        elif wc > 10000:
-            mf.append(f"G4.ln.above_ceiling:{fp}:{wc}>10000")
+        if wc < floor:
+            mf.append(f"G4.ln.below_floor:{fp}:{wc}<{floor}")
+        elif wc > ceiling:
+            mf.append(f"G4.ln.above_ceiling:{fp}:{wc}>{ceiling}")
         else:
             c.append({"id": "G4.ln.word_count", "file": fp, "s": GateStatus.PASS, "wc": wc})
 
