@@ -354,11 +354,50 @@ cp genre-config.json genre-config.json.bak
 | "审计全开" | 全开 = 误报率上升 + 审计耗时 = 写作流程被淹没 |
 | "自定义规则随便加" | 自定义规则 = 项目级硬约束；滥用 = 规则相互冲突 |
 
-## decisions sidecar 必填字段
+## decisions sidecar 必填字段（字段级闭集 —— G4.dec 逐字段校验，多余/缺失/自造值即 FAIL）
 
-每次执行后**必须写出** `genre-config-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+每次执行后**必须写出** `genre-config-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。
+
+### 顶层：仅此六键，禁止自造（probe4/pro5 实测曾多出 conflict_check/apply/approval 而被拒）
+
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
-- `chapter`: 章节号（非章节产物用 `null`）
-- `produced_at`: ISO-8601 时间戳
-- `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
+- `chapter`: 非章节产物用 `null`
+- `produced_at`: 本轮 ISO-8601 时间戳
+- `selections`: 数组（本 skill 必填）
+- `adjustments`: 数组（无真实 threshold override / drift 冲突时用 `[]`——合法且诚实，禁止为凑数伪造条目）
+
+### selections[] 条目：仅此六字段（extra: forbid）
+
+- `target`: 字符串（如 `"genre-config.json#chapter_word"`）
+- `selected`: **字符串数组**（禁止写成单个字符串）
+- `basis`: 仅四枚举字面值之一 `adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`
+- `severity`: `low` / `medium` / `high`
+- `omitted`: 字符串数组（缺省 `[]`）
+- `rationale`: **≤100 字**（中文按字符计）；仅 `manual_override` 或 `medium`/`high` 必附，routine+low 禁附
+
+### adjustments[] 条目：仅此四字段（extra: forbid）
+
+- `issue_id`: 字符串
+- `severity`: `low` / `medium` / `high`（必填）
+- `handling`: 仅四枚举字面值之一 `compensate_via_pacing` / `explicit_callout` / `defer_to_next_chapter` / `ignore`（**禁止自由文本**）
+- `rationale`: 必填、非空、**≤100 字**——说明性长文禁入 handling/rationale，写入主文件 approval 审批区块
+
+### 完整合法示例（结构照抄，数值换成本轮实际取值）
+
+```json
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-genre-config",
+  "chapter": null,
+  "produced_at": "<本轮时间戳>",
+  "selections": [
+    {"target": "genre-config.json#chapter_word", "selected": ["default=<本轮值>", "min=<本轮值>", "max=<本轮值>"], "basis": "volume_scope", "severity": "medium", "omitted": [], "rationale": "对齐 G0.3 章数数学：ceil(target/default)=总章数，与 G2/G4 每章字数地板同源；保量校验通过。（≤100 字）"}
+  ],
+  "adjustments": []
+}
+```
+
+### 主文件 genre-config.json 键集（write-audit 越权红线）
+
+顶层仅十键（camelCase）：`version` / `updated` / `fatigueWords` / `pacing` / `chapterTypes` / `auditDimensions` / `customRules` / `tropeInventory` / `chapter_word` / `approval`。修改变更走既有键内更新，**不得自造顶层键、不得改键名大小写风格**；变更说明长文写入 `approval` 审批区块，不进 sidecar。
