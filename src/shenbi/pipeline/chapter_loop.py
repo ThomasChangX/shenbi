@@ -680,6 +680,37 @@ def _extract_check_id(must_fix_item: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+# Canonical complete legal decisions-sidecar example shared by the G4.dec
+# schema-shape feedback entries (probe4/5: `missing`/`extra_forbidden`
+# dominated the genre-config must_fix list but only hit the generic
+# fallback line; `literal_error` listed enums without a filled-in example).
+# Kept schema-valid by tests/unit/pipeline/test_g4_feedback.py
+# (test_dec_example_json_is_schema_valid).
+_DEC_SIDECAR_EXAMPLE = (
+    "{\n"
+    '  "$schema": "shenbi-decisions-v1",\n'
+    '  "skill": "shenbi-genre-config",\n'
+    '  "produced_at": "2026-10-01T00:00:00Z",\n'
+    '  "selections": [\n'
+    "    {\n"
+    '      "target": "genre-config.json:fatigueWords",\n'
+    '      "selected": ["禁用词3个", "慎用词5个"],\n'
+    '      "basis": "arc_relevance",\n'
+    '      "severity": "low",\n'
+    '      "omitted": []\n'
+    "    }\n"
+    "  ],\n"
+    '  "adjustments": [\n'
+    "    {\n"
+    '      "issue_id": "drift_001",\n'
+    '      "severity": "medium",\n'
+    '      "handling": "compensate_via_pacing",\n'
+    '      "rationale": "对白密度偏离基准，经第3章节奏补偿吸收。"\n'
+    "    }\n"
+    "  ]\n"
+    "}"
+)
+
 G4_FORMAT_EXAMPLES: dict[str, str] = {
     "G4.rr.detail_table": (
         "评分明细表格式：\n"
@@ -709,12 +740,26 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
         '"selected": ["arc1", "beat_2"]\n'
         "（禁止写成单个字符串；完整形态见 SKILL.md「decisions sidecar 必填字段」的示例 JSON）"
     ),
+    "G4.dec.missing": (
+        "decisions sidecar 缺必填字段——selections 条目必填 target / selected / "
+        "basis（severity / omitted 有默认值），adjustments 条目必填 issue_id / "
+        "severity / handling / rationale。完整合法示例：\n" + _DEC_SIDECAR_EXAMPLE
+    ),
+    "G4.dec.extra_forbidden": (
+        "decisions sidecar 字段闭集之外的自造键一律删除——顶层只允许 $schema / skill / "
+        "chapter / produced_at / selections / adjustments / budget；selections[] 条目"
+        "只允许 target / selected / basis / severity / omitted / rationale；"
+        "adjustments[] 条目只允许 issue_id / severity / handling / rationale。"
+        "完整合法示例：\n" + _DEC_SIDECAR_EXAMPLE
+    ),
     "G4.dec.literal_error": (
         "decisions sidecar 的枚举字段禁止自造值：\n"
         "selections[].basis 仅限 adjacent_to_target_chapter / arc_relevance / "
         "volume_scope / manual_override；\n"
         "adjustments[].handling 仅限 compensate_via_pacing / explicit_callout / "
-        "defer_to_next_chapter / ignore"
+        "defer_to_next_chapter / ignore；\n"
+        "severity 仅限 low / medium / high。完整合法示例（枚举字段已填真实合法值）：\n"
+        + _DEC_SIDECAR_EXAMPLE
     ),
     "G4.dec.value_error": (
         "P2.5 rationale 规则（二选一）：\n"

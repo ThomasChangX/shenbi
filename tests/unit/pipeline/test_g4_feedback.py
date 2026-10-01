@@ -1,6 +1,6 @@
 """Tests for enriched G4 retry feedback."""
 
-from shenbi.pipeline.chapter_loop import _enrich_g4_feedback
+from shenbi.pipeline.chapter_loop import G4_FORMAT_EXAMPLES, _enrich_g4_feedback
 
 
 def test_enrich_adds_format_example_for_known_check():
@@ -49,3 +49,84 @@ def test_enrich_handles_multiple_failures():
 
     assert "校准门判定" in result
     assert "文件和行号" in result or "chapter-N.md" in result
+
+
+# ---------------------------------------------------------------------------
+# G4.dec schema-shape failures (probe4/5: missing/extra_forbidden dominated
+# the genre-config must_fix list and only received the generic fallback line)
+# ---------------------------------------------------------------------------
+
+GENERIC_FALLBACK = "(请重新生成此检查的输出以达到标准格式)"
+
+
+def test_enrich_dec_missing_has_complete_legal_example():
+    """G4.dec.missing gets a complete legal selections/adjustments example,
+    not the generic fallback.
+    """
+    failures = [
+        "G4.dec.missing:genre-config-decisions.json:selections.0.selected: Field required",
+        "G4.dec.missing:genre-config-decisions.json:adjustments.0.issue_id: Field required",
+    ]
+    result = _enrich_g4_feedback(failures)
+
+    assert GENERIC_FALLBACK not in result
+    # Complete legal entry shape (not just an enum list)
+    assert '"target":' in result
+    assert '"selected": [' in result
+    assert '"basis":' in result
+    assert '"issue_id":' in result
+    assert '"handling":' in result
+
+
+def test_enrich_dec_extra_forbidden_has_closed_set_example():
+    """G4.dec.extra_forbidden names the closed field sets so the model can
+    drop invented keys.
+    """
+    failures = [
+        "G4.dec.extra_forbidden:x-decisions.json:selections.0.id: Extra inputs are not permitted",
+    ]
+    result = _enrich_g4_feedback(failures)
+
+    assert GENERIC_FALLBACK not in result
+    assert "只允许" in result or "仅允许" in result or "闭集" in result
+    # The example must itself be closed-set clean (no invented keys inside it)
+
+
+def test_enrich_dec_literal_error_has_complete_legal_example():
+    """G4.dec.literal_error ships a complete legal entry with real enum
+    values filled in, not just the enum list.
+    """
+    failures = [
+        "G4.dec.literal_error:x-decisions.json:selections.0.basis: Input should be "
+        "'adjacent_to_target_chapter', 'arc_relevance', 'volume_scope' or 'manual_override'",
+    ]
+    result = _enrich_g4_feedback(failures)
+
+    assert '"basis": "arc_relevance"' in result or '"basis": "volume_scope"' in result
+
+
+def test_dec_example_json_is_schema_valid():
+    """The embedded G4.dec example must parse and validate against the
+    shenbi-decisions-v1 pydantic schema (keeps feedback honest as the
+    schema evolves).
+    """
+    import json
+
+    from shenbi.contracts.schemas.decisions import DecisionsDoc
+
+    for check_id in ("G4.dec.missing", "G4.dec.extra_forbidden", "G4.dec.literal_error"):
+        text = G4_FORMAT_EXAMPLES[check_id]
+        # Extract the fenced/inline JSON object (first '{' ... matching brace)
+        start = text.index("{")
+        depth = 0
+        end = start
+        for i, ch in enumerate(text[start:], start):
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
+        payload = json.loads(text[start:end])
+        DecisionsDoc.model_validate(payload)

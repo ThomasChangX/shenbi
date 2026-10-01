@@ -403,6 +403,16 @@
       "shenbi-state-settling"
     ]
   },
+  "outline/thread_map.md": {
+    "reads": [
+      "shenbi-chapter-planning",
+      "shenbi-sequel-writing"
+    ],
+    "writes": [],
+    "updates": [
+      "shenbi-plot-thread-weaver"
+    ]
+  },
   "truth/current_focus.md": {
     "reads": [
       "shenbi-chapter-planning"
@@ -816,15 +826,6 @@
     ],
     "updates": [
       "shenbi-pacing-design"
-    ]
-  },
-  "outline/thread_map.md": {
-    "reads": [
-      "shenbi-sequel-writing"
-    ],
-    "writes": [],
-    "updates": [
-      "shenbi-plot-thread-weaver"
     ]
   },
   "world/power_system.md": {

@@ -20,6 +20,10 @@ contract:
     - 已完成章节
   - file: outline/volume_map.md
     extractor: volume_chapter
+  - file: outline/thread_map.md
+    fields:
+    - 章节线索推进表
+    - 线索详情
   - outline/story_frame.md
   - truth/current_focus.md
   - truth/author_intent.md
@@ -47,7 +51,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md
+- **Reads:** novel.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md
 - **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json
 - **Updates:** none
 
@@ -74,7 +78,8 @@ HARD-GATE: 不得在没有章节备忘的情况下起草正文。
 ```dot
 digraph chapter_planning {
     "Read truth files" -> "Read volume_map (current volume)";
-    "Read volume_map (current volume)" -> "Locate outline node for this chapter";
+    "Read volume_map (current volume)" -> "Check thread_map line progression";
+    "Check thread_map line progression" -> "Locate outline node for this chapter";
     "Locate outline node for this chapter" -> "Derive goal (priority chain)";
     "Derive goal (priority chain)" -> "Collect hook debts [Phase 3]";
     "Collect hook debts [Phase 3]" -> "Read recent 2 chapter summaries";
@@ -108,7 +113,7 @@ digraph chapter_planning {
    - 未注明优先级来源的备忘视为不完整
    - 首行必须声明 `chapter_role`（合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫），驱动 review-resonance 校准阈值（spec §5.1）
 2. **读者此刻在等什么** — 制造/延迟/兑现读者期待
-3. **该兑现的 / 暂不掀的** — 伏笔兑现清单 + 压住不掀的底牌
+3. **该兑现的 / 暂不掀的** — 伏笔兑现清单 + 压住不掀的底牌；对照 thread_map 的「章节线索推进表」与「线索详情」：本章区间内主推/副推线索的推进点必须逐一落实（含 P0 线在本章区间的首次露面约束），落不进备忘的推进点视为备忘不完整
 4. **日常/过渡承担什么任务** — 非冲突段落的功能映射
 5. **关键抉择过三连问** — Why / Interest / Persona
 6. **章尾必须发生的改变** — 1-3条具体改变（信息/关系/物理/权力）
