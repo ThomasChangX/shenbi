@@ -1189,6 +1189,28 @@ def _run_post_draft_extract(state: PipelineState, chapter: int) -> None:
         log.debug("post_draft_extract_failed", chapter=chapter, exc_info=True)
 
 
+def _audit_routed_settle_redispatch_entry(chapter: int) -> dict[str, object]:
+    """Queue entry for the post-revision settle re-dispatch.
+
+    checkpoint_type MUST be ``CheckpointType.PER_CHAPTER.value`` — the
+    queue consumer resolves DERIVED_TRUTH_MAP by the enum value
+    ("per-chapter", hyphenated). probe4 ch1: a hand-typed "per_chapter"
+    missed the map key and the entry was dropped as unknown_type, so the
+    post-revision settle silently never ran (live truth kept pre-revision
+    facts; criterion E broken at its execution half).
+    """
+    return {
+        "skill": "shenbi-state-settling",
+        "checkpoint_type": CheckpointType.PER_CHAPTER.value,
+        "chapter": chapter,
+        "feedback": (
+            f"Re-settle after chapter {chapter}'s audit-routed "
+            "revision: the live truth files still carry the "
+            "PRE-revision settlement."
+        ),
+    }
+
+
 def _check_word_count_bounds(chapter_text: str, project_dir: Path | None = None) -> list[str]:
     """Chapter word count bounds check (WARN-only observability).
 
@@ -3407,18 +3429,7 @@ def _run_chapter_step_impl(
             d.get("skill") == "shenbi-state-settling" and d.get("chapter") == chapter
             for d in state.pending_re_dispatches
         ):
-            state.pending_re_dispatches.append(
-                {
-                    "skill": "shenbi-state-settling",
-                    "checkpoint_type": "per_chapter",
-                    "chapter": chapter,
-                    "feedback": (
-                        f"Re-settle after chapter {chapter}'s audit-routed "
-                        "revision: the live truth files still carry the "
-                        "PRE-revision settlement."
-                    ),
-                }
-            )
+            state.pending_re_dispatches.append(_audit_routed_settle_redispatch_entry(chapter))
             log.info(
                 "re_dispatch_queued",
                 skill="shenbi-state-settling",

@@ -1245,7 +1245,7 @@ class TestAuditRoutedRevisionQueuesResettle:
             if d.get("skill") == "shenbi-state-settling" and d.get("chapter") == 1
         ]
         assert entries, "audit-routed revision did not queue a settle re-dispatch"
-        assert entries[0]["checkpoint_type"] == "per_chapter"
+        assert entries[0]["checkpoint_type"] == CheckpointType.PER_CHAPTER.value
 
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
     @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
@@ -1263,7 +1263,7 @@ class TestAuditRoutedRevisionQueuesResettle:
         state.pending_re_dispatches.append(
             {
                 "skill": "shenbi-state-settling",
-                "checkpoint_type": "per_chapter",
+                "checkpoint_type": CheckpointType.PER_CHAPTER.value,
                 "chapter": 1,
                 "feedback": "already queued",
             }
