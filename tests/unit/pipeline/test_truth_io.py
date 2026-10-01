@@ -754,3 +754,59 @@ def test_has_markdown_row_key_match_is_whitespace_insensitive():
     existing = "| 章号 | 摘要 |\n|---|---|\n| 第 3 章 | 首次结算 |\n"
     assert has_markdown_row(existing, "| 第3章 | x |", "章号") is True
     assert has_markdown_row(existing, "| 第 4 章 | x |", "章号") is False
+
+
+def test_composite_key_field_upserts_on_column_tuple():
+    """Probe2 settle capacity fix: the 交互矩阵 keys rows on (角色A, 角色B) —
+    a single-column key on 角色A would collapse every row sharing the same
+    first character into one. Comma-separated key_field selects a column
+    TUPLE; rows match only when every key column matches.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        (project_dir / "truth").mkdir()
+        target = project_dir / "truth" / "character_matrix.md"
+        existing = (
+            "## 一、信任度矩阵\n\n"
+            "| 角色A | 角色B | 关系类型 | 信任度(0-10) | 最近变化章节 |\n"
+            "|-------|-------|----------|--------------|--------------|\n"
+            "| 陆见星 | 柳箩 | 镜子 | 7 | 第1章 |\n"
+            "| 陆见星 | 韩老栓 | 试探 | 5 | 第1章 |\n"
+            "| 陆见星 | 纪听澜 | 对手 | 2 | 第1章 |\n"
+        )
+        target.write_text(existing)
+
+        # Update ONLY the 柳箩 row; the other two 陆见星 rows must survive.
+        new = "| 陆见星 | 柳箩 | 镜子·协作 | 8 | 第2章 |"
+        write_truth_file(
+            project_dir,
+            "character_matrix.md",
+            new,
+            mode="upsert_markdown_row",
+            key_field="角色A,角色B",
+        )
+
+        result = target.read_text()
+        assert "镜子·协作" in result  # updated in place
+        assert "| 陆见星 | 韩老栓 | 试探 | 5 | 第1章 |" in result
+        assert "| 陆见星 | 纪听澜 | 对手 | 2 | 第1章 |" in result
+        assert result.count("| 陆见星 | 柳箩") == 1  # replaced, not duplicated
+
+
+def test_composite_key_falls_back_to_first_column_when_headers_absent():
+    """A table whose header names none of the composite key columns (e.g. the
+    信息边界表 keyed on 角色对) falls back to the first column — single-key
+    semantics preserved for mixed-table increments.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "| 角色对 | 信息状态 |\n|--------|----------|\n"
+        "| 陆见星–柳箩 | ASYMMETRIC |\n| 陆见星–韩老栓 | ASYMMETRIC |\n"
+    )
+    merged = upsert_markdown_row(
+        existing, "| 陆见星–柳箩 | MUTUAL_SECRET（第2章起） |", "角色A,角色B"
+    )
+    assert "MUTUAL_SECRET" in merged
+    assert "| 陆见星–韩老栓 | ASYMMETRIC |" in merged
+    assert merged.count("陆见星–柳箩") == 1

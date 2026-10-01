@@ -436,16 +436,26 @@ def _is_separator_row(cells: list[str]) -> bool:
     return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c) for c in cells)
 
 
-def _key_column(existing: str, key_name: str) -> int:
-    """Locate the key column index: header cell matching *key_name*, else 0.
+def _key_columns(existing: str, key_spec: str) -> list[int]:
+    """Locate the key column indices for a single OR composite key spec.
 
-    Only the FIRST table row counts as a header candidate, and only when it
-    is followed by a separator row (markdown table convention). This stops a
-    data row that merely *contains* the key word from redirecting the key
-    column. If no header matches, the first column is the key (T713:
-    ``key_field`` used to be decorative for str rows — now it positions the
-    column).
+    Single-name specs keep the historical single-column semantics (T713:
+    header-cell match positions the key column; first column otherwise; only
+    the first table line is a header candidate, and only when followed by a
+    separator row — a data row that merely *contains* the key word must not
+    redirect the key column).
+
+    Probe2 settle capacity fix: the character_matrix 交互表 keys rows on the
+    (角色A, 角色B) TUPLE — a single-column key on 角色A would collapse every
+    row sharing the same first character. A comma-separated *key_spec*
+    (``"角色A,角色B"``) selects all named columns; the row key is the cell
+    tuple. Rule: only the FIRST table line is a header candidate (same
+    convention as the historical single-name lookup); when EVERY named column matches the
+    header, those positions are the key; otherwise the spec degrades to the
+    first column — so mixed-table increments (e.g. the 信息边界表 keyed on
+    角色对) keep single-column semantics.
     """
+    names = [n for n in (part.strip() for part in key_spec.split(",")) if n]
     lines = existing.split("\n")
     for idx, line in enumerate(lines):
         cells = split_table_cells(line)
@@ -456,12 +466,17 @@ def _key_column(existing: str, key_name: str) -> int:
             None,
         )
         if next_cells is not None and not _is_separator_row(next_cells):
-            return 0  # first table line is a data row, not a header
-        for i, cell in enumerate(cells):
-            if cell and _norm_cell(cell) == _norm_cell(key_name):
-                return i
-        break  # only the first table line is a header candidate
-    return 0
+            return [0]  # first table line is a data row, not a header
+        positions: list[int] = []
+        for name in names:
+            for i, cell in enumerate(cells):
+                if cell and _norm_cell(cell) == _norm_cell(name):
+                    positions.append(i)
+                    break
+            else:
+                return [0]  # a named column is absent — degrade to first column
+        return positions if positions else [0]
+    return [0]
 
 
 def _structural_table_lines(lines: list[str]) -> list[bool]:
@@ -578,18 +593,27 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
             return existing
         log.warning("truth_table_upsert_non_table_row", key_name=key_name)
         return existing.rstrip() + "\n" + new_row
-    key_col = _key_column(existing, key_name)
-    if key_col >= len(new_cells):
-        # New row lacks the key column — no natural key; append without dedup.
+    key_cols = _key_columns(existing, key_name)
+    key_col = key_cols[0]
+    if any(c >= len(new_cells) for c in key_cols):
+        # New row lacks a key column — no natural key; append without dedup.
         log.warning("truth_table_upsert_row_missing_key_column", key_name=key_name, column=key_col)
         return existing.rstrip() + "\n" + new_row
-    new_key = new_cells[key_col]
-    if not new_key:
-        # Empty key cell = no natural key; append without dedup rather than
-        # letting all empty-key rows annihilate each other.
+    new_key_cells = [new_cells[c] for c in key_cols]
+    if not any(cell.strip() for cell in new_key_cells):
+        # Empty key cell(s) = no natural key; append without dedup rather
+        # than letting all empty-key rows annihilate each other.
         log.warning("truth_table_upsert_empty_key", key_name=key_name)
         return existing.rstrip() + "\n" + new_row
-    if _norm_cell(new_key) == _norm_cell(key_name):
+    header_cells = (
+        [key_name.split(",", maxsplit=1)[0].strip()]
+        if len(key_cols) == 1
+        else [n.strip() for n in key_name.split(",")]
+    )
+    if len(header_cells) == len(new_key_cells) and all(
+        _norm_cell(nc) == _norm_cell(hc)
+        for nc, hc in zip(new_key_cells, header_cells, strict=False)
+    ):
         # The increment re-emitted this table's HEADER row. Headers are
         # structural: upserting one would delete the live header (key match)
         # and append a ragged copy at the tail (probe escalation #6).
@@ -606,8 +630,9 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
             cells = split_table_cells(line)
             if (
                 cells is not None
-                and key_col < len(cells)
-                and _norm_key(cells[key_col]) == _norm_key(new_key)
+                and all(c < len(cells) for c in key_cols)
+                and _norm_key("×".join(cells[c] for c in key_cols))
+                == _norm_key("×".join(new_key_cells))
             ):
                 matched = True
                 # Shape guard (probe escalation #14): replace only when the
@@ -652,17 +677,19 @@ def has_markdown_row(existing: str, new_row: str, key_name: str) -> bool:
     new_cells = split_table_cells(new_row)
     if new_cells is None:
         return False
-    key_col = _key_column(existing, key_name)
-    if key_col >= len(new_cells):
+    key_cols = _key_columns(existing, key_name)
+    if any(c >= len(new_cells) for c in key_cols):
         return False
-    new_key = new_cells[key_col]
-    if not new_key:
+    new_key = "×".join(new_cells[c] for c in key_cols)
+    if not new_key.strip("× "):
         return False
     for line in existing.split("\n"):
         cells = split_table_cells(line)
         if cells is None or _is_separator_row(cells):
             continue
-        if key_col < len(cells) and _norm_key(cells[key_col]) == _norm_key(new_key):
+        if all(c < len(cells) for c in key_cols) and _norm_key(
+            "×".join(cells[c] for c in key_cols)
+        ) == _norm_key(new_key):
             return True
     return False
 

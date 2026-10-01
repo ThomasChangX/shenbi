@@ -13,8 +13,6 @@ contract:
     - truth/pending_hooks.md
     - truth/chapter_summaries.md
   writes:
-    - file: truth/character_matrix.md
-      mode: create_or_overwrite
     - file: truth/state-settling-decisions.json
       mode: create_or_overwrite
   updates:
@@ -36,6 +34,9 @@ contract:
     - file: truth/chapter_summaries.md
       mode: append_dedup
       key: chapter
+    - file: truth/character_matrix.md
+      mode: append_dedup
+      key: 角色A,角色B
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -48,8 +49,8 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
-- **Writes:** truth/character_matrix.md, truth/state-settling-decisions.json
-- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
+- **Writes:** truth/state-settling-decisions.json
+- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/character_matrix.md
 
 <!-- END AUTO-GENERATED -->
 
@@ -69,8 +70,8 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
   - `truth/chapter_summaries.md` — one row summarizing the current chapter (key: `chapter`)
   - `truth/pending_hooks.md` — one row per hook touched this chapter, first column `Hook ID` (key: `hook_id`)
 
-- **whole-file write** (output the ENTIRE file content):
-  - `truth/character_matrix.md` — declared `mode: create_or_overwrite`, but the ENTIRE output MUST be: the live file you read above, reproduced verbatim, plus ONLY (a) one appended `## 第N章状态增量` section and (b) upserted rows (same key) in the 交互总表／信息边界矩阵 for pairs that actually interacted this chapter. Never rename/restructure sections, never drop live content — G4 rejects any staged version that loses live content lines (fixcheck 2026-09-29: seven consecutive blind rewrites were rejected this way).
+- **append_dedup file（增量合并，复合键）**:
+  - `truth/character_matrix.md` — output ONLY the current chapter's increment: (a) changed rows of the 交互总表 (key: `角色A,角色B` composite — a row per pair that actually interacted this chapter, same column layout as the live table) and (b) one `## 第N章状态增量` section block (heading + its rows/prose). NEVER reproduce the whole file, other chapters' rows, the 信任度初值 sections, or the frontmatter — the pipeline merges your increment against the live base by key and G4 verifies base preservation (probe2 2026-10-01: the whole-file rewrite contract made settle output grow O(chapters) and blow the model output cap — two settles silently dropped base mass to fit).
 
 **Row format:** a markdown table row whose FIRST cell is the chapter key (`第N章` or `N`), e.g. `| 第 5 章 | 主角进入内门；灵石 -20；线索：考核完成 |`. For `pending_hooks.md`, output rows in the 活跃伏笔 table format with `Hook ID` in the first column. The pipeline's `write_truth_file()` merges by that key cell — re-running the same chapter replaces that chapter's row only (re-runs are safe), and rows for other chapters are preserved. Do NOT reproduce other chapters' rows in your output, and do NOT output headings/frontmatter for append_dedup files — output only the new row(s).
 
@@ -152,7 +153,7 @@ digraph state_settling {
 |---------|-----------|---------|
 | 位置 | `truth/current_state.md` | append_dedup (key: chapter) |
 | 资源 | `truth/particle_ledger.md` | append_dedup (key: chapter) |
-| 关系 | `truth/character_matrix.md` | create_or_overwrite（基底保全：逐字复现 live 基底＋仅追加增量／原键位更新行） |
+| 关系 | `truth/character_matrix.md` | append_dedup（复合键 角色A,角色B：仅输出本章变更行＋第N章增量节，程序按键合并到 live 基底） |
 | 情绪 | `truth/emotional_arcs.md` | append_dedup (key: chapter) |
 | 信息 | `truth/character_matrix.md` (信息边界) | create_or_overwrite（基底保全：逐字复现 live 基底＋仅追加增量／原键位更新行） |
 | 线索 | `truth/subplot_board.md` [Phase 4] | append_dedup (key: chapter) |

@@ -602,11 +602,10 @@
       "shenbi-review-pov",
       "shenbi-state-settling"
     ],
-    "writes": [
-      "shenbi-state-settling"
-    ],
+    "writes": [],
     "updates": [
-      "shenbi-relationship-map"
+      "shenbi-relationship-map",
+      "shenbi-state-settling"
     ]
   },
   "chapters/chapter-{N-3}.md": {
