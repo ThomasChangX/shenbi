@@ -8,6 +8,7 @@ contract:
   - novel.json
   - world/story_bible.md
   - characters/**/*.md
+  - genre-config.json
   writes:
   - file: outline/story_frame.md
     mode: create_or_overwrite
@@ -27,7 +28,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, world/story_bible.md, characters/**/*.md
+- **Reads:** novel.json, world/story_bible.md, characters/**/*.md, genre-config.json
 - **Writes:** outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md
 - **Updates:** none
 
@@ -36,6 +37,8 @@ contract:
 # 故事架构
 
 HARD-GATE: 故事框架必须在世界观和角色完成后才能开始。
+**章数基线（硬约束）**：`genre-config.json` 的 `chapter_word.default` 是章数数学唯一基线——总章数 = target_word_count ÷ default 向上取整。`outline/volume_map.md` 与 `outline/rhythm_principles.md` 的 frontmatter **必须**含 `total_chapters: <N>` 行（N 按上述数学推导），genesis-complete 的五方对账 gate 会核对该行；缺失该行会被显式报为对账盲区（probe2 2026-10-01：本技能曾因读不到 genre-config 而独立推导出 135 章，与基线 67 章失配，靠对账 gate 拦截后才人工重对齐）。
+
 **职责边界**：本 skill 创建 `outline/story_frame.md`、`outline/volume_map.md`、`outline/rhythm_principles.md` 的**骨架**（整体哲学 + 比例粗设 + 卷划分）。后续细化由专项 skill 负责——`outline/rhythm_principles.md` 详化为完整节奏规则见 `shenbi-pacing-design`；`outline/volume_map.md` 单卷细化见 `shenbi-volume-outlining`。
 
 ## 流程
@@ -58,7 +61,7 @@ digraph story_architecture {
 2. **OKR 递归分解** — 全书 Objective → 每卷 Key Results → planner 据此分解章节任务
 3. **核心冲突三层** — surface（表面矛盾）、personal（主角个人困境）、deep（主题层面的终极问题）
 4. **散文骨架** — 输出散文段落，不是条目列表
-5. **章数预算硬约束** — 全书章数与卷数由 `novel.json` 的 `target_word_count` 预算决定，不得自由发挥：`总章数 = ceil(target_word_count ÷ 每章目标字数)`（每章字数取 genre-config 的 `chapter_word.default`，缺省 1000-1500），`卷数 = clamp(round(总章数 ÷ 每卷章数), 1, 5)`（每卷 20-30 章；总章数不足一卷时强制单卷）。短篇/金丝雀种子（如 3000 字）= 3 章单卷，禁止套用长篇多卷模板。volume_map.md 的卷划分骨架与最大章界必须落在此预算内（框架按 volume_map 最大章界回写 `total_chapters`）。
+5. **章数预算硬约束** — 全书章数与卷数由 `novel.json` 的 `target_word_count` 预算决定，不得自由发挥：`总章数 = ceil(target_word_count ÷ 每章目标字数)`（每章字数**必须**取 `genre-config.json` 的 `chapter_word.default`——该文件已在本技能 reads 中；**不设数值缺省**，读不到该文件即属派发配置错误，停下报告而不是自造默认。probe2 2026-10-01：旧版「缺省 1000-1500」+ reads 缺文件 → 独立推导 135 章，与基线 67 失配，靠对账 gate 拦截），`卷数 = clamp(round(总章数 ÷ 每卷章数), 1, 5)`（每卷章数按总章数均分，总章数不足一卷时强制单卷）。短篇/金丝雀种子（如 3000 字）= 3 章单卷，禁止套用长篇多卷模板。volume_map.md 的卷划分骨架与最大章界必须落在此预算内，且 frontmatter 必须写 `total_chapters: <N>`（N=本铁律推导值；框架按 volume_map 最大章界回写 `total_chapters`，五方对账 gate 核对该行）。
 
 ## 核心冲突三层
 

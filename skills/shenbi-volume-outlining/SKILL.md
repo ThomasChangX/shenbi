@@ -10,6 +10,7 @@ contract:
   - outline/story_frame.md
   - outline/volume_map.md
   - truth/author_intent.md
+  - genre-config.json
   writes: []
   updates:
   - file: outline/volume_map.md
@@ -31,7 +32,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, outline/story_frame.md, outline/volume_map.md, truth/author_intent.md
+- **Reads:** novel.json, outline/story_frame.md, outline/volume_map.md, truth/author_intent.md, genre-config.json
 - **Writes:** none
 - **Updates:** outline/volume_map.md
 
@@ -42,7 +43,7 @@ contract:
 设计单卷的整体结构。负责卷目标、卷内节奏原则、卷内张力曲线、跨卷衔接。
 **职责边界**：`outline/volume_map.md` 的卷划分骨架由 `shenbi-story-architecture` 创建，本 skill 负责**单卷细化**（卷目标、章级目标、卷内张力曲线、跨卷衔接）。如果 `volume_map.md` 已存在（story-architecture 创建），本 skill 读取并细化对应卷；如果不存在且收到人工纠正反馈（范围修正类），按反馈直接重建对应卷；两者皆无时报错并提示先运行 story-architecture。
 
-**章数预算硬约束**：细化不得超出 `novel.json` 的 `target_word_count` 预算（总章数 = ceil(target_word_count ÷ 每章目标字数)，见 `shenbi-story-architecture` 铁律 5）。短篇/金丝雀（如 3000 字 = 3 章单卷）细化时 KR/张力曲线按实际章数压缩，禁止为凑结构发明不存在的章节。
+**章数预算硬约束**：细化不得超出 `novel.json` 的 `target_word_count` 预算（总章数 = ceil(target_word_count ÷ genre-config `chapter_word.default`——该文件已在本技能 reads 中，必须读取；见 `shenbi-story-architecture` 铁律 5）。短篇/金丝雀（如 3000 字 = 3 章单卷）细化时 KR/张力曲线按实际章数压缩，禁止为凑结构发明不存在的章节。更新 `outline/volume_map.md` 时必须保全/写入 frontmatter 的 `total_chapters: <N>` 行（五方对账 gate 核对该行；缺失会被显式报为对账盲区）。
 
 ## 流程
 

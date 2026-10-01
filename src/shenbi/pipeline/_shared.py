@@ -203,6 +203,14 @@ def reconcile_chapter_counts(project_dir: Path) -> list[str]:
             continue
         if m and int(m.group(1)) != total:
             issues.append(f"{rel}: total_chapters={m.group(1)} != novel.json={total}")
+        elif not m:
+            # Probe2: a shipped-but-headerless file silently removed the
+            # party from the reconciliation (the gate degraded to three-way
+            # with no signal). Surface the blind spot itself.
+            issues.append(
+                f"{rel}: frontmatter total_chapters line missing — this party "
+                "is unverifiable (reconciliation blind spot)"
+            )
 
     target = data.get("target_word_count")
     if isinstance(target, int) and target > 0:
@@ -432,3 +440,45 @@ def load_volume_context(project_dir: Path, chapter: int) -> str:
         parts.append("")
 
     return "\n".join(parts)
+
+
+def reconcile_first_appearances(project_dir: Path) -> list[str]:
+    """Cross-check ``first_appearance_chapter`` across character cards and
+    the relationships index.
+
+    Probe2 (2026-10-01): seven characters' first appearances disagreed
+    across card frontmatter / relationships index / volume_map anchors and
+    only manual alignment fixed them before the chapter loop. The
+    cards↔index pair is mechanically checkable (slug-keyed rows, numeric
+    values); volume_map anchors stay prose-level and remain human-review
+    territory. Cards are the per-character authority; index rows must agree.
+    Missing values are skipped (pre-relationship-map projects).
+    """
+    rel_path = project_dir / "characters" / "relationships.md"
+    if not rel_path.exists():
+        return []
+    cards: dict[str, int] = {}
+    top = project_dir / "characters"
+    for card in [*top.glob("*.md"), *top.glob("major/*.md"), *top.glob("minor/*.md")]:
+        try:
+            m = re.search(
+                r"^first_appearance_chapter:\s*(\d+)\s*$",
+                card.read_text(encoding="utf-8"),
+                re.MULTILINE,
+            )
+        except OSError:
+            continue
+        if m:
+            cards[card.stem] = int(m.group(1))
+    issues: list[str] = []
+    for line in rel_path.read_text(encoding="utf-8").splitlines():
+        cells = [c.strip() for c in line.split("|")[1:-1]]
+        if len(cells) < 5 or cells[1] not in cards:
+            continue
+        m = re.fullmatch(r"第\s*(\d+)\s*章", cells[-1])
+        if m and int(m.group(1)) != cards[cells[1]]:
+            issues.append(
+                f"{cells[1]}: 角色卡 first_appearance_chapter={cards[cells[1]]} "
+                f"!= relationships 索引 第{m.group(1)}章（以角色卡为准对齐）"
+            )
+    return issues
