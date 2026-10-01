@@ -51,6 +51,20 @@ def test_enrich_handles_multiple_failures():
     assert "文件和行号" in result or "chapter-N.md" in result
 
 
+def test_enrich_word_count_has_actionable_example():
+    """G4.word_count (probe7 ch1: three attempts at 1767<2000 all ran on the
+    generic fallback) gets concrete expansion guidance: the total-chars
+    口径 and in-scene expansion direction, not format boilerplate.
+    """
+    failures = ["G4.word_count:chapters/chapter-1.md:1767<2000"]
+    result = _enrich_g4_feedback(failures)
+
+    assert GENERIC_FALLBACK not in result
+    assert "字符" in result
+    # expansion direction: enrich existing scenes, not padding/new scenes
+    assert "扩" in result
+
+
 # ---------------------------------------------------------------------------
 # G4.dec schema-shape failures (probe4/5: missing/extra_forbidden dominated
 # the genre-config must_fix list and only received the generic fallback line)

@@ -740,6 +740,12 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
         '"selected": ["arc1", "beat_2"]\n'
         "（禁止写成单个字符串；完整形态见 SKILL.md「decisions sidecar 必填字段」的示例 JSON）"
     ),
+    "G4.word_count": (
+        "章节正文字数不足。口径：正文 total 字符数（去空白、含标点，剥 META 块）；"
+        "地板值 = genre-config chapter_word.default。扩写方向：在既有场景内扩"
+        "感官细节、对白往返与动作过程，补足缺口（如缺口 233 字 ≈ 1-2 个段落"
+        "的密度），不新增场景、不注水重复、不改情节节拍。"
+    ),
     "G4.ss.matrix_structure": (
         "character_matrix 增量合法形态（只发本章增量，勿复现全档——历史章"
         "增量节与历史交互行由合并层保全）：\n"
