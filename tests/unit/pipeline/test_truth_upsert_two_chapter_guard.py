@@ -65,11 +65,16 @@ _SEPARATOR_ROW_RE = re.compile(r"^\|(\s*:?-{3,}:?\s*\|)+$")
 
 
 def _data_rows(path: Path) -> list[str]:
-    """Markdown TABLE data rows in *path* (``|``-delimited, separators excluded)."""
+    """Markdown TABLE data rows in *path* (``|``-delimited, separators and
+    header rows excluded — the resonance_trend bootstrap header (probe2 fix)
+    is structural, not data).
+    """
     return [
         line.strip()
         for line in path.read_text(encoding="utf-8").split("\n")
-        if line.strip().startswith("|") and not _SEPARATOR_ROW_RE.match(line.strip())
+        if line.strip().startswith("|")
+        and not _SEPARATOR_ROW_RE.match(line.strip())
+        and not line.strip().startswith("| chapter |")
     ]
 
 

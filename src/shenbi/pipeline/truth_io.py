@@ -212,7 +212,9 @@ def write_truth_file(
             if isinstance(new_data, dict):
                 _upsert_markdown_bullet(path, filename, new_data, key_field)
             elif isinstance(new_data, str):
-                existing = path.read_text(encoding="utf-8") if path.exists() else ""
+                existing = ensure_table_header(
+                    filename, path.read_text(encoding="utf-8") if path.exists() else ""
+                )
                 merged = upsert_markdown_row(existing, new_data, key_field or "chapter")
                 safe_write(path, merged)
                 log.info("truth_file_markdown_row_upserted", file=filename)
@@ -231,7 +233,9 @@ def write_truth_file(
             # confidence) written moments earlier in the same chapter.
             if not isinstance(new_data, str):
                 raise ValueError("insert_markdown_row requires str new_data")
-            existing = path.read_text(encoding="utf-8") if path.exists() else ""
+            existing = ensure_table_header(
+                filename, path.read_text(encoding="utf-8") if path.exists() else ""
+            )
             if has_markdown_row(existing, new_data, key_field or "chapter"):
                 log.info(
                     "truth_file_markdown_row_insert_skipped", file=filename, key_field=key_field
@@ -252,6 +256,34 @@ def write_truth_file(
             yaml_content = _serialize_yaml_records(merged_records, filename)
             safe_write(path, yaml_content)
             log.info("truth_file_yaml_upserted", file=filename)
+
+
+#: Contract headers bootstrapped when a cumulative table file is CREATED by
+#: the keyed upsert path. Probe2: the first resonance_trend row landed on an
+#: empty base, producing a headerless file the longitudinal reader rejects
+#: ("contract header row missing") — both writers (skill increment and the
+#: framework's post-review persistence) route through the upsert, so the
+#: create-path is the single bootstrap point.
+_TABLE_HEADER_BOOTSTRAP: dict[str, str] = {
+    "resonance_trend.md": (
+        "| chapter | 类型 | 子项1 | 子项2 | 子项3 | 子项4 | overall | 档位 | human_overridden |"
+    ),
+}
+
+
+def ensure_table_header(filename: str, content: str) -> str:
+    """Prepend the file's contract header when *content* starts with a bare
+    data row (file creation) and a header is registered for *filename*.
+    """
+    header = _TABLE_HEADER_BOOTSTRAP.get(filename)
+    if not header:
+        return content
+    if not content.strip():
+        return header + "\n|---|---|---|---|---|---|---|---|---|"
+    first = next((line for line in content.split("\n") if line.strip()), "")
+    if first.lstrip().startswith("|") and "chapter" not in first and "---" not in first:
+        return header + "\n|---|---|---|---|---|---|---|---|---|\n" + content
+    return content
 
 
 _BULLET_ROW_RE = re.compile(r"^\s*-\s*(?P<key>.+?)\s*:(?P<rest>.*)$")

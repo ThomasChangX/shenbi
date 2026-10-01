@@ -810,3 +810,39 @@ def test_composite_key_falls_back_to_first_column_when_headers_absent():
     assert "MUTUAL_SECRET" in merged
     assert "| 陆见星–韩老栓 | ASYMMETRIC |" in merged
     assert merged.count("陆见星–柳箩") == 1
+
+
+def test_resonance_trend_bootstrap_header_on_create():
+    """Probe2: the first trend row created a headerless file — the keyed
+    upsert appended to an empty base, and the longitudinal reader requires
+    a `chapter`+`overall` header row (the probe run had to be hand-repaired
+    before e2e-report could parse it). Creating the file through the upsert
+    path must bootstrap the contract header.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        (project_dir / "truth").mkdir()
+        write_truth_file(
+            project_dir,
+            "resonance_trend.md",
+            "| 1 | - | - | - | - | - | 84 | mid |  |",
+            mode="insert_markdown_row",
+            key_field="chapter",
+        )
+        text = (project_dir / "truth" / "resonance_trend.md").read_text(encoding="utf-8")
+        lines = [l for l in text.splitlines() if l.strip()]
+        assert lines[0].startswith("| chapter |")
+        assert "overall" in lines[0]
+        assert any(l.startswith("| 1 |") for l in lines)
+
+        # A second row must not duplicate the header
+        write_truth_file(
+            project_dir,
+            "resonance_trend.md",
+            "| 2 | - | - | - | - | - | 83 | mid |  |",
+            mode="insert_markdown_row",
+            key_field="chapter",
+        )
+        text = (project_dir / "truth" / "resonance_trend.md").read_text(encoding="utf-8")
+        assert text.count("| chapter |") == 1
+        assert "| 1 |" in text and "| 2 |" in text

@@ -134,3 +134,38 @@ class TestEscapeCorruption:
         result = json.loads(raw)
         assert result["status"] == "FAIL"
         assert any("escape_corruption" in m for m in result["must_fix"]), result["must_fix"]
+
+
+class TestHookRowStableColumnPreservation:
+    """Probe2 ch1/ch2: H-001/H-005 SEED rows had their stable planning
+    columns (伏笔内容/埋设位置/计划回收) replaced with per-chapter
+    reinforcement notes while the status column stayed plausible — the
+    whole-row table exemption made this G4-invisible twice. Same-key rows
+    may legitimately change ONLY the final (status) column.
+    """
+
+    def test_seed_row_stable_columns_rewritten_fails(self, tmp_path):
+        staged = _LIVE_HOOKS.replace(
+            "| H-001 | 童谣 | 第一至三章 | 中后段 | 未回收 |",
+            "| H-001 | 童谣 | 第 1 章：棚外孩童哼唱 | 未回收 | last_reinforced=第 1 章 |",
+        )
+        status, mf = _run(_project(tmp_path, _LIVE_HOOKS, staged))
+        assert status == "FAIL"
+        assert any("hook_row" in m and "H-001" in m for m in mf), mf
+
+    def test_seed_row_status_column_update_passes(self, tmp_path):
+        staged = _LIVE_HOOKS.replace(
+            "| H-001 | 童谣 | 第一至三章 | 中后段 | 未回收 |",
+            "| H-001 | 童谣 | 第一至三章 | 中后段 | 已回收 |",
+        )
+        status, mf = _run(_project(tmp_path, _LIVE_HOOKS, staged))
+        assert status == "PASS", mf
+
+    def test_mh_overview_row_rewritten_fails(self, tmp_path):
+        staged = _LIVE_HOOKS.replace(
+            "| MH-001 | GENUINE | CHARACTER | 石镐 | 第7章 | 第50章 | PLANTED |",
+            "| MH-001 | GENUINE | CHARACTER | 石镐的腿伤 | 第1卷第7-8章 | 第5卷第50章 | RELEVANT |",
+        )
+        status, mf = _run(_project(tmp_path, _LIVE_HOOKS, staged))
+        assert status == "FAIL"
+        assert any("hook_row" in m and "MH-001" in m for m in mf), mf

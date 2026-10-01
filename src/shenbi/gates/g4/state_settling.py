@@ -156,6 +156,49 @@ def _check_matrix_structure(pf: Path) -> list[str]:
     return issues
 
 
+_HOOK_ROW_KEY_RE = re.compile(r"^\|\s*(H-\d{3}|MH-\d{3})\s*\|")
+
+
+def _row_stable_cells(row: str) -> tuple[str, ...]:
+    """All table cells except the LAST (status) column, whitespace-normalized."""
+    cells = [c.strip() for c in row.split("|")[1:-1]]
+    return tuple(cells[:-1])
+
+
+def _dropped_hook_rows(live_text: str, staged_text: str) -> list[str]:
+    """Keyed hook rows (H-*/MH-*) whose STABLE planning columns were
+    rewritten or which vanished outright.
+
+    Probe2 ch1/ch2: the H-001/H-005 seed rows had 埋设位置/计划回收
+    replaced with per-chapter reinforcement notes while the status column
+    stayed plausible — the whole-row table exemption made this G4-invisible
+    twice. Same-key rows may legitimately change ONLY the final status
+    column; per-chapter reinforcements belong in the detail blocks.
+    """
+    staged_rows: dict[str, str] = {}
+    for line in staged_text.split("\n"):
+        m = _HOOK_ROW_KEY_RE.match(line.strip())
+        if m:
+            staged_rows.setdefault(m.group(1), line.strip())
+    issues: list[str] = []
+    for line in live_text.split("\n"):
+        s = line.strip()
+        m = _HOOK_ROW_KEY_RE.match(s)
+        if not m:
+            continue
+        key = m.group(1)
+        staged_row = staged_rows.get(key)
+        if staged_row is None:
+            issues.append(f"hook_row_dropped:{key}")
+        elif _row_stable_cells(s) != _row_stable_cells(staged_row):
+            issues.append(
+                f"hook_row_stable_columns_rewritten:{key} "
+                "(planning columns are genesis-fixed — per-chapter changes "
+                "belong in detail blocks, not the seed/overview rows)"
+            )
+    return issues
+
+
 def _check_hooks_structure(pf: Path) -> list[str]:
     """Content-preservation guard for a STAGED pending_hooks.
 
@@ -186,6 +229,7 @@ def _check_hooks_structure(pf: Path) -> list[str]:
         f"G4.ss.hooks_structure:{pf}:{detail} "
         "(hook base lines dropped — reproduce the live base verbatim, then append)"
         for detail in _dropped_content_lines(live_text, staged_text, hooks=True)
+        + _dropped_hook_rows(live_text, staged_text)
     )
     issues.extend(_check_escape_corruption(pf, live_text, staged_text))
     return issues
