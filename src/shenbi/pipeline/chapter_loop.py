@@ -1059,6 +1059,7 @@ def _escalate_step_failure(
         context=f"Chapter {chapter} step {step.step_num} ({step.skill}) failed after {count} {failure} attempts",
         details=state.chapter_loop.retry_feedback.get(_retry_key(chapter, step.skill))
         or state.chapter_loop.retry_feedback.get(f"ch{chapter}-{step.skill}"),
+        failing_skill=step.skill,
     )
     log.error(
         "chapter_step_escalation",
@@ -3386,6 +3387,36 @@ def _run_chapter_step_impl(
     # After chapter-revision step succeeds, ensure decisions file exists
     if "chapter-revision" in step.skill:
         _ensure_revision_decisions_exists(project_dir, chapter, state, log)
+        # Probe2 matrix-D gap: an audit-routed (step-15) revision changed the
+        # chapter AFTER settle, but nothing queued a re-settlement — truth
+        # files kept the PRE-revision draft's facts until a checkpoint-routed
+        # revision (a27ccf4e's PER_CHAPTER DERIVED_TRUTH_MAP entries)
+        # happened to fire. Queue the same settle re-dispatch here; the
+        # orchestration loop-top executes it (staging-gated, re-raises
+        # STATE_SETTLE) before the next chapter starts.
+        if not any(
+            d.get("skill") == "shenbi-state-settling" and d.get("chapter") == chapter
+            for d in state.pending_re_dispatches
+        ):
+            state.pending_re_dispatches.append(
+                {
+                    "skill": "shenbi-state-settling",
+                    "checkpoint_type": "per_chapter",
+                    "chapter": chapter,
+                    "feedback": (
+                        f"Re-settle after chapter {chapter}'s audit-routed "
+                        "revision: the live truth files still carry the "
+                        "PRE-revision settlement."
+                    ),
+                }
+            )
+            log.info(
+                "re_dispatch_queued",
+                skill="shenbi-state-settling",
+                checkpoint="per_chapter",
+                chapter=chapter,
+                reason="audit_routed_revision",
+            )
 
     # Post-drafting G4 quality checks (title, hook fulfillment, etc.)
     if "chapter-drafting" in step.skill:

@@ -212,9 +212,13 @@ def _advance(state: PipelineState, step_idx: int, project_dir: Path | str | None
         state.genesis.state = GenesisState.CHECKPOINT_PENDING
         context = "Review all genesis outputs before entering chapter loop."
         if project_dir is not None:
-            from shenbi.pipeline._shared import reconcile_chapter_counts
+            from shenbi.pipeline._shared import (
+                reconcile_chapter_counts,
+                reconcile_first_appearances,
+            )
 
             issues = reconcile_chapter_counts(Path(project_dir))
+            issues.extend(reconcile_first_appearances(Path(project_dir)))
             if issues:
                 log.error("genesis_chapter_count_reconcile_failed", issues=issues)
                 context = (
@@ -282,6 +286,7 @@ def _handle_failure(
         None,  # genesis has no chapter context — N-paths filtered
         context=f"Genesis step {step_num} ({skill}) failed after {count} {failure} attempts",
         details=state.genesis.retry_feedback.get(skill),
+        failing_skill=skill,
     )
     log.error(
         "genesis_step_escalation",

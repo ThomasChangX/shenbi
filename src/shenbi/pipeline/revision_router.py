@@ -159,6 +159,7 @@ def dispatch_escalation(
     chapter: int | None,
     context: str = "",
     details: str | None = None,
+    failing_skill: str | None = None,
 ) -> bool:
     """Dispatch ``shenbi-escalation-review`` for *chapter* (spec §6.3).
 
@@ -184,6 +185,30 @@ def dispatch_escalation(
     )
     if context:
         prompt += f" Context: {context}"
+    if failing_skill:
+        # Probe2: both genesis escalation reports rendered THIS report
+        # skill's own reads (trend files, N/A at genesis) in the 升级上下文
+        # reads table instead of the FAILING skill's contract reads —
+        # adjudicators had to correct the table by hand. Provide the
+        # failing skill's contract reads WITH availability so the report
+        # renders machine-truth, not its own context.
+        from shenbi.contracts import ContractError, load_contract
+
+        try:
+            contract = load_contract(failing_skill)
+            lines = []
+            for rel in contract.get("reads", []):
+                resolved = str(rel).replace("chapter-N", "N") if chapter is None else str(rel)
+                probe = Path(project_dir) / resolved
+                lines.append(f"- {resolved} — {'AVAILABLE' if probe.exists() else 'MISSING'}")
+            if lines:
+                prompt += (
+                    "\n\n## FAILING SKILL CONTRACT READS (machine-provided — the "
+                    "升级上下文 reads table MUST render THIS list with these "
+                    "availability states, NOT this report skill's own reads)\n" + "\n".join(lines)
+                )
+        except ContractError:
+            log.warning("escalation_failing_skill_contract_unavailable", skill=failing_skill)
     if details:
         prompt += f"\n\n## FAILURE DETAILS (per-attempt gate record from retry state)\n{details}"
     path_ctx = None

@@ -74,6 +74,8 @@ digraph escalation_review {
 ### 升级上下文
 [触发条件的完整数据]
 
+reads 表规则：若派发输入含「FAILING SKILL CONTRACT READS（machine-provided）」清单，升级上下文的 reads/输入可用性表**必须**逐条渲染该清单（含 AVAILABLE/MISSING 状态），**不得**罗列本报告技能自己的 reads——汇总的是失败技能的上下文，不是你自己的（probe2 2026-10-01：两份 genesis 升级报告都列成了本技能的趋势文件清单，全部 N/A，裁决人被迫手工纠偏）。
+
 ### 决策选项
 （选项必须匹配失败类别——不得照抄示例清单：容量类失败给容量类选项，内容类失败给修订类选项）
 1. 接受现状，继续自动批

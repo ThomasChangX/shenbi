@@ -1002,7 +1002,9 @@ class TestEscalationWiring:
             call_order.append(("dispatch", skill))
             return type("R", (), {"success": False, "returncode": 1, "stderr": ""})()
 
-        def fake_dispatch_escalation(project_dir, chapter, context="", details=None):
+        def fake_dispatch_escalation(
+            project_dir, chapter, context="", details=None, failing_skill=None
+        ):
             call_order.append(("escalation", chapter))
             return True
 
@@ -1213,3 +1215,96 @@ class TestAnyAuditHasFindings:
             tmp_path, "chapter-3-pacing.md", "本次审计未出现 FAIL 情况，一切正常。\n"
         )
         assert _any_audit_has_findings(state) is False
+
+
+class TestAuditRoutedRevisionQueuesResettle:
+    """Probe2 matrix-D gap: an audit-routed (step-15) revision changed the
+    chapter AFTER settle, but nothing queued a re-settlement — truth files
+    kept the PRE-revision draft's facts (only the checkpoint-routed path,
+    a27ccf4e's PER_CHAPTER DERIVED_TRUTH_MAP entries, re-settled). The
+    revision step's success path must queue the same settle re-dispatch.
+    """
+
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    def test_revision_success_queues_settle_redispatch(self, mock_g4, mock_disp, tmp_path):
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 14  # step 15 = chapter-revision
+        audits = tmp_path / "audits"
+        audits.mkdir(exist_ok=True)
+        (audits / "chapter-1-anti-ai.md").write_text(
+            "- [BLOCKING] test finding\n", encoding="utf-8"
+        )
+        run_chapter_step(state, tmp_path)
+        entries = [
+            d
+            for d in state.pending_re_dispatches
+            if d.get("skill") == "shenbi-state-settling" and d.get("chapter") == 1
+        ]
+        assert entries, "audit-routed revision did not queue a settle re-dispatch"
+        assert entries[0]["checkpoint_type"] == "per_chapter"
+
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    def test_queue_is_deduped(self, mock_g4, mock_disp, tmp_path):
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 14
+        audits = tmp_path / "audits"
+        audits.mkdir(exist_ok=True)
+        (audits / "chapter-1-anti-ai.md").write_text(
+            "- [BLOCKING] test finding\n", encoding="utf-8"
+        )
+        state.pending_re_dispatches.append(
+            {
+                "skill": "shenbi-state-settling",
+                "checkpoint_type": "per_chapter",
+                "chapter": 1,
+                "feedback": "already queued",
+            }
+        )
+        run_chapter_step(state, tmp_path)
+        entries = [
+            d
+            for d in state.pending_re_dispatches
+            if d.get("skill") == "shenbi-state-settling" and d.get("chapter") == 1
+        ]
+        assert len(entries) == 1
+
+
+class TestEscalationInjectsFailingSkillReads:
+    """Probe2: escalation reports rendered the REPORT skill's own reads
+    instead of the failing skill's contract reads. dispatch_escalation now
+    injects the machine-provided availability list when failing_skill is
+    passed.
+    """
+
+    @patch("shenbi.pipeline.revision_router.dispatch_skill")
+    def test_failing_skill_reads_ride_the_prompt(self, mock_disp, tmp_path):
+        from shenbi.pipeline.revision_router import dispatch_escalation
+
+        mock_disp.return_value = DispatchResult(False, 1, "", "boom")
+        (tmp_path / "novel.json").write_text("{}", encoding="utf-8")
+        dispatch_escalation(
+            tmp_path,
+            None,
+            context="Genesis step 3 (x) failed",
+            failing_skill="shenbi-worldbuilding",
+        )
+        prompt = mock_disp.call_args[0][2]
+        assert "FAILING SKILL CONTRACT READS" in prompt
+        assert "novel.json — AVAILABLE" in prompt
+
+    @patch("shenbi.pipeline.revision_router.dispatch_skill")
+    def test_no_failing_skill_keeps_prompt_plain(self, mock_disp, tmp_path):
+        from shenbi.pipeline.revision_router import dispatch_escalation
+
+        mock_disp.return_value = DispatchResult(False, 1, "", "boom")
+        dispatch_escalation(tmp_path, 5, context="revision cap exceeded")
+        prompt = mock_disp.call_args[0][2]
+        assert "FAILING SKILL CONTRACT READS" not in prompt
