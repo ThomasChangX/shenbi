@@ -939,3 +939,40 @@ def test_resonance_trend_bootstrap_header_on_create():
         text = (project_dir / "truth" / "resonance_trend.md").read_text(encoding="utf-8")
         assert text.count("| chapter |") == 1
         assert "| 1 |" in text and "| 2 |" in text
+
+
+def test_bridge_tracker_bootstrap_header_on_create():
+    """probe17 ch1 step 7 (adjudication #006): the compliant rows-only first
+    write of truth/bridge_tracker.md lands on an empty base — without a
+    registered contract header the file is created headerless and the
+    bridge-id key column resolution has nothing to anchor to (kernel-of-truth
+    wart the adjudicator flagged, resonance_trend probe2 precedent). The
+    create-path must bootstrap the 8-column bridge header.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        (project_dir / "truth").mkdir()
+        write_truth_file(
+            project_dir,
+            "bridge_tracker.md",
+            "| BR-02 | 腕骨星痕与常九的不安 | 信息 | 第二卷 | 27-34 | PENDING | — | 第1章种植 |",
+            mode="insert_markdown_row",
+            key_field="bridge_id",
+        )
+        text = (project_dir / "truth" / "bridge_tracker.md").read_text(encoding="utf-8")
+        lines = [l for l in text.splitlines() if l.strip()]
+        assert lines[0].startswith("| Bridge ID |")
+        assert "实际激活章" in lines[0]
+        assert any(l.startswith("| BR-02 |") for l in lines)
+
+        # A second bridge row must not duplicate the header
+        write_truth_file(
+            project_dir,
+            "bridge_tracker.md",
+            "| BR-05 | 报表亏空破口 | 事件 | 第二卷 | 35 | PENDING | — | 第19章种植 |",
+            mode="insert_markdown_row",
+            key_field="bridge_id",
+        )
+        text2 = (project_dir / "truth" / "bridge_tracker.md").read_text(encoding="utf-8")
+        assert text2.count("| Bridge ID |") == 1
+        assert "| BR-05 |" in text2

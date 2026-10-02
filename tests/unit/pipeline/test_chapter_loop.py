@@ -1308,3 +1308,53 @@ class TestEscalationInjectsFailingSkillReads:
         dispatch_escalation(tmp_path, 5, context="revision cap exceeded")
         prompt = mock_disp.call_args[0][2]
         assert "FAILING SKILL CONTRACT READS" not in prompt
+
+
+class TestParallelPostDraftFailureFeedback:
+    """probe17 ch1 step 7 (adjudication /tmp/probe17-adjudication-006.md): the
+    parallel post-draft dispatch-failure branch dropped the guard's pointed
+    stderr — retries 2-3 re-ran the ORIGINAL prompt verbatim (identical
+    outputs, blind-retry signature) while the serial branch and the parallel
+    G4 branch both route corrective feedback. The increment-shape guard's
+    teaching message never reached the model; the escalation was
+    misattributed to a shape contradiction. Both parallel slots (lifecycle +
+    settling) must route stderr into the corrective slot.
+    """
+
+    def _state_at_lifecycle(self, tmp_path):
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 6  # foreshadowing-lifecycle (step 7)
+        return state
+
+    def test_lifecycle_dispatch_failure_routes_stderr(self, tmp_path):
+        state = self._state_at_lifecycle(tmp_path)
+        guard_msg = "输出未落盘——append_dedup 增量包含整档脚手架……合法形态：表格行增量"
+        with (
+            patch(
+                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                return_value=(
+                    DispatchResult(False, -1, "", guard_msg),
+                    DispatchResult(True, 0, "{}", ""),
+                ),
+            ),
+        ):
+            run_chapter_step(state, tmp_path)
+        fb = state.chapter_loop.retry_feedback.get("ch1-shenbi-foreshadowing-lifecycle")
+        assert fb is not None and guard_msg in fb, state.chapter_loop.retry_feedback
+
+    def test_settling_dispatch_failure_routes_stderr(self, tmp_path):
+        state = self._state_at_lifecycle(tmp_path)
+        guard_msg = "settle 增量被拒：请只发本章增量行"
+        with (
+            patch(
+                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                return_value=(
+                    DispatchResult(True, 0, "{}", ""),
+                    DispatchResult(False, -1, "", guard_msg),
+                ),
+            ),
+        ):
+            run_chapter_step(state, tmp_path)
+        fb = state.chapter_loop.retry_feedback.get("ch1-shenbi-state-settling")
+        assert fb is not None and guard_msg in fb, state.chapter_loop.retry_feedback

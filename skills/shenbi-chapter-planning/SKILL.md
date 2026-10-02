@@ -6,6 +6,9 @@ contract:
   kind: artifact
   reads:
   - novel.json
+  - file: genre-config.json
+    fields:
+    - chapter_word
   - file: truth/current_state.md
     fields:
     - 系统演化阶段
@@ -54,7 +57,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md, foundation/review_report.md
+- **Reads:** novel.json, genre-config.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md, foundation/review_report.md
 - **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json
 - **Updates:** none
 

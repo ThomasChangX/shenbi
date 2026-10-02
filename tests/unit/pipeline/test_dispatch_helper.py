@@ -1166,3 +1166,40 @@ class TestFrameworkOwnedWriteGuard:
             skill="shenbi-genre-config",
         )
         assert (tmp_path / "genre-config.json").exists()
+
+
+def test_chapter_header_not_injected_into_plans(tmp_path: Path) -> None:
+    """probe17 adjudication #005 (#28): the injector's stem-prefix predicate
+    matched plans/chapter-N-plan.md, prepending '# Chapter N:' to chapter
+    memos on EVERY generation since 2026-08-30 — the skill's ban on that
+    line was unenforceable (write-path idempotent normalizer re-added it
+    after every compliant model output; probe2/3/4/6/13/14/15/17 artifacts
+    all carry the injected signature). The header is a chapter-PROSE
+    contract: scope to chapters/chapter-N.md exactly.
+    """
+    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+    plan = "plans/chapter-1-plan.md"
+    _write_parsed_outputs(
+        response=f"### FILE: {plan}\n# 第1章 章节备忘\n\n## 1. 当前任务\n",
+        output_paths=[plan],
+        project_dir=tmp_path,
+        skill="shenbi-chapter-planning",
+    )
+    text = (tmp_path / plan).read_text(encoding="utf-8")
+    assert text.startswith("# 第1章 章节备忘"), text[:60]
+    assert "# Chapter" not in text
+
+
+def test_chapter_header_still_injected_into_prose(tmp_path: Path) -> None:
+    """Control for #28: the prose normalization itself stays (G2.13 contract)."""
+    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+    main = "chapters/chapter-2.md"
+    _write_parsed_outputs(
+        response=f"### FILE: {main}\n正文，无头。\n",
+        output_paths=[main],
+        project_dir=tmp_path,
+        skill="shenbi-chapter-drafting",
+    )
+    assert (tmp_path / main).read_text(encoding="utf-8").startswith("# Chapter 2:")

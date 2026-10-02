@@ -3077,6 +3077,15 @@ def _run_chapter_step_impl(
         if not settling_result.success:
             from shenbi.pipeline.error_handler import handle_state_settle_failure
 
+            if getattr(settling_result, "stderr", ""):
+                # probe17 ch1 step 8 (adjudication #006): parallel-branch
+                # parity with the serial dispatch-failure site — without this
+                # the guard's pointed rejection message never reached the
+                # retrying model and re-dispatches ran the original prompt
+                # verbatim (blind-retry signature).
+                state.chapter_loop.retry_feedback[_retry_key(chapter, settling_step.skill)] = (
+                    f"上一次派发失败（输出未落盘）：{settling_result.stderr}"
+                )
             handle_state_settle_failure(state, chapter)
             log.error(
                 "chapter_state_settle_failed",
@@ -3093,6 +3102,15 @@ def _run_chapter_step_impl(
                 step=lifecycle_step.step_num,
                 skill=lifecycle_step.skill,
             )
+            if getattr(lifecycle_result, "stderr", ""):
+                # probe17 ch1 step 7 (adjudication #006): same parity fix —
+                # the serial site routes stderr into the corrective slot the
+                # re-dispatch injects; this site dropped it, so the
+                # increment-shape guard's teaching feedback was lost and all
+                # three attempts emitted identical non-compliant shapes.
+                state.chapter_loop.retry_feedback[_retry_key(chapter, lifecycle_step.skill)] = (
+                    f"上一次派发失败（输出未落盘）：{lifecycle_result.stderr}"
+                )
             return _handle_failure(
                 state,
                 lifecycle_step,

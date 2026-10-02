@@ -1303,6 +1303,30 @@ def _check_content_size_guard(
 from shenbi.gates.shared import CHAPTER_NUM_RE as _CHAPTER_NUM_RE  # 单源（z11 F1301）
 from shenbi.gates.shared import CHAPTER_HEADER_RE
 
+#: Exact prose-file stem: ``chapter-N`` — no -plan/-revision/-decisions
+#: suffixes (the shared CHAPTER_NUM_RE is a stem-PREFIX match and also hits
+#: every suffixed sibling).
+_CHAPTER_PROSE_STEM_RE = re.compile(r"chapter-\d+")
+
+
+def _is_chapter_prose_write(rel_path: str) -> bool:
+    """True iff *rel_path* is a chapter PROSE file (``chapters/chapter-N.md``).
+
+    #28 (probe17 adjudication #005): the prose contract header and the
+    prose-leakage/fence checks belong to chapter prose ONLY — the previous
+    stem-prefix predicate ran them on plans (injecting ``# Chapter N:`` into
+    every chapter memo) and other chapter-N-*.md siblings. Predicate
+    mirrors tools/oneoff/insert_chapter_headers.py: parent ``chapters/`` +
+    stem fullmatch ``chapter-N`` + ``.md``.
+    """
+    rel = rel_path.removeprefix("staging/")
+    p = Path(rel)
+    return (
+        p.suffix == ".md"
+        and p.parent == Path("chapters")
+        and _CHAPTER_PROSE_STEM_RE.fullmatch(p.stem) is not None
+    )
+
 
 def ensure_chapter_header(content: str, chapter_num: int) -> str:
     """Insert the contract ``# Chapter N:`` header if missing. Idempotent.
@@ -1882,24 +1906,25 @@ def _write_parsed_outputs(
             )
         else:
             # z11 R1a (F1301): normalize the contract header on the chapter
-            # write path (before the post-snapshot, so write-audit sees the
-            # final contract-compliant content).
-            _m = _CHAPTER_NUM_RE.match(Path(rel_path).stem)
-            # header is a chapter-PROSE contract (G2.13): .md only — the
-            # stem regex also matched chapter-N-decisions.json and prepend-
-            # ed '# Chapter N:' to pure-JSON sidecars (probe, 3+ recurrences)
-            if _m and not _is_audit_file(rel_path) and full_path.suffix == ".md":
-                content = ensure_chapter_header(content, int(_m.group(1)))
+            # PROSE write path (before the post-snapshot, so write-audit sees
+            # the final contract-compliant content). #28 (probe17 adjudication
+            # #005): the old stem-PREFIX predicate also matched
+            # plans/chapter-N-plan.md — the injector prepended '# Chapter N:'
+            # to every chapter memo since 2026-08-30, making the skill's ban
+            # on that line unenforceable (idempotent normalizer re-added it
+            # after each compliant model output; eight probes' artifacts
+            # carry the signature). Prose = chapters/chapter-N.md exactly.
+            if _is_chapter_prose_write(rel_path):
+                content = ensure_chapter_header(content, int(Path(rel_path).stem.split("-")[1]))
             safe_write(full_path, content, allowed_roots=(project_root,))
             written.append(rel_path)
             log.info("output_written", path=rel_path, size=len(content), mode=mode_meta.get("mode"))
 
         # 3-6. POST-WRITE INTEGRITY (fixed order; collect all issues).
         issues: list[str] = []
-        name = full_path.name
-        is_chapter = _CHAPTER_NUM_RE.match(Path(name).stem) is not None and not _is_audit_file(
-            rel_path
-        )
+        # #28: prose-leakage/fence checks share the injector's prose
+        # predicate — the stem-prefix match ran them on plans too.
+        is_chapter = _is_chapter_prose_write(rel_path)
         is_audit = _is_audit_file(rel_path)
 
         if is_chapter:

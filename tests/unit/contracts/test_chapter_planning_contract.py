@@ -39,3 +39,16 @@ def test_thread_map_fields_match_producer_skeleton() -> None:
     assert "推进点" in result
     assert "总览内容" not in result
     assert "检查内容" not in result
+
+
+def test_chapter_planning_reads_genre_config_chapter_word() -> None:
+    """Batch #12 #26 (probe17 adjudication #003): the memo template demands
+    the genre-config chapter_word.default value verbatim, but genre-config
+    was absent from the contract reads — the model was never shown the file,
+    so the value could only arrive by luck (probe14/15) or adjudication
+    (probe17, which then mis-attributed it to the model). The read must be
+    declared at field level.
+    """
+    contract = load_contract("shenbi-chapter-planning")
+    assert "genre-config.json" in contract["reads"], contract["reads"]
+    assert contract["read_fields"]["genre-config.json"] == ["chapter_word"]

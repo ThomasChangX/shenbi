@@ -180,10 +180,10 @@ After updating `pending_hooks.md`, also check `truth/bridge_tracker.md`:
 1. Read current chapter text
 2. For each bridge in PENDING state: if chapter contains bridge key terms (character name, item name, event description), mark ACTIVATED with current chapter number as Actual Activation Ch
 3. If a bridge was expected to activate by this chapter but has not, mark DEFERRED with a note
-4. Write updated `bridge_tracker.md` back to disk
+4. Emit this chapter's bridge rows as the append_dedup increment below (never rewrite the file)
 
 
-**bridge_tracker 写纪律（append_dedup，key=bridge_id）**：向 `truth/bridge_tracker.md` 输出**本卷触及的桥一行一条**（首列=Bridge ID，勿输出其他桥的行/表头/标题——派发写路径按首列键合并，重跑同桥只替换该行）。
+**bridge_tracker 写纪律（append_dedup，key=bridge_id）**：向 `truth/bridge_tracker.md` 输出**本卷触及的桥一行一条**，行形态为 8 列（首列=Bridge ID）：`| BR-xx | 钩子内容 | 类型 | 带入卷 | 预期激活章 | 当前状态 | 实际激活章 | 备注 |`。勿输出其他桥的行、表头或标题——派发写路径按首列键合并（重跑同桥只替换该行），**文件不存在时也只发行**：表头由框架在创建时自动引导（probe17 裁决 #006）。
 ## Output Format
 
 **pending_hooks 写纪律（append_dedup，key=hook_id）**：向 `truth/pending_hooks.md` 只输出**本章有状态变化的钩子**——改动行的总览行 + 对应 `### MH/CP-NNN` 详情段；新植钩子照常全量登记。**禁止重写未变化的钩子、表头、标题、frontmatter**（派发写路径按 hook_id 键合并）。每钩子详情段 ≤15 行，正文证据以 `chapters/chapter-N.md L行号` 引用代替原文抄录。整池重写会随钩子池规模增长撑爆输出上限，属不合格输出。

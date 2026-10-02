@@ -319,6 +319,22 @@ def gate_G2(
                 )
             else:
                 project = pm.group(1)
+                # #28 (probe17 adjudication #005): the header/META contract
+                # is chapter-PROSE. The stem-PREFIX predicate also demanded
+                # '# Chapter N:' from plans/chapter-N-plan.md — production
+                # plans passed ONLY via the write-path injector's line
+                # (scoping that injector makes them FAIL here). Non-prose
+                # chapter-N-*.md artifacts SKIP instead.
+                if not re.fullmatch(r"chapter-\d+", p.stem):
+                    checks.append(
+                        {
+                            "id": "G2.13",
+                            "file": fp,
+                            "s": GateStatus.SKIP,
+                            "r": "not a chapter prose artifact",
+                        }
+                    )
+                    continue
                 m = CHAPTER_NUM_RE.match(p.stem)
                 first_line = content.lstrip().split("\n", 1)[0]
                 header_ok = bool(CHAPTER_HEADER_RE.match(first_line)) if m else True

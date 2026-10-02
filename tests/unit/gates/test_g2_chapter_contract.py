@@ -54,3 +54,22 @@ def test_g2_chapter_contract_skips_non_novel_rounds(tmp_path: Path) -> None:
     result = json.loads(gate_G2(str(f), "chapter"))
     g213 = next(c for c in result["checks"] if c["id"] == "G2.13")
     assert g213["s"] == "SKIP"
+
+
+def test_g2_chapter_contract_skips_plan_artifacts(tmp_path: Path) -> None:
+    """probe17 adjudication #005 (#28 pairing): scoping the write-path
+    injector away from plans makes the written memo start with its Chinese
+    heading — G2.13's stem-prefix predicate would then hard-FAIL production
+    plans ("missing '# Chapter N:' header") in novel-output layouts, where
+    they pass today only via the injected line. The header/META contract is
+    chapter-PROSE: non-prose chapter-N-*.md artifacts get a SKIP.
+    """
+    proj = tmp_path / "novel-output" / "xinghuo-ranqiong" / "plans"
+    proj.mkdir(parents=True)
+    f = proj / "chapter-1-plan.md"
+    f.write_text("# 第1章 章节备忘\n\n## 1. 当前任务\n", encoding="utf-8")
+    result = json.loads(gate_G2(str(f), "chapter"))
+    # not a FAIL: the plan must not be demanded an English prose header
+    assert not any("G2.13" in x for x in result.get("must_fix", []))
+    g213 = [c for c in result["checks"] if c["id"] == "G2.13"]
+    assert g213 and g213[0]["s"] == "SKIP", result["checks"]

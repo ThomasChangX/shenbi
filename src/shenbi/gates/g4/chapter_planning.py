@@ -49,6 +49,19 @@ def g4_chapter_planning(
         else:
             mf.append(f"G4.cp.missing_chapter_role:{fp}")
 
+        # #27 (probe17 adjudications #003→#005): the '# Chapter N:' English
+        # heading is contract-banned; the write-path injector kept re-adding
+        # it after compliant model output (#28 scoped the injector), so the
+        # gate now enforces the ban machine-side on the written artifact.
+        _eng = re.search(r"^#\s*Chapter\s*\d+\s*:?", content, re.MULTILINE)
+        if _eng:
+            mf.append(
+                f"G4.cp.english_heading:{fp}:「{_eng.group(0)}」"
+                "（删除该英文标题行——文件必须以「# 第N章 章节备忘」中文标题行开头）"
+            )
+        else:
+            c.append({"id": "G4.cp.english_heading", "file": fp, "s": GateStatus.PASS})
+
         # Golden-3 rules based on chapter number N — quality bonus, not hard gate.
         # Only fails if golden content is completely missing AND sections are also
         # incomplete. Warnings are more appropriate for automated pipelines.

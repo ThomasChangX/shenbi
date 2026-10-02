@@ -111,3 +111,34 @@ def test_passes_when_all_conditions_met(tmp_path: Path) -> None:
     f.write_text(content, encoding="utf-8")
     result = _run([str(f)])
     assert result["status"] == "PASS"
+
+
+def test_g4_cp_hard_fails_english_chapter_heading_residue(tmp_path):
+    """#27 (probe17 adjudications #003→#005): the '# Chapter N:' English
+    heading is banned by the skill contract; two prose re-pins failed to
+    eliminate it because the write-path injector was RE-ADDING it after
+    every compliant model output (#28 fixed the injector). With written
+    plans now equal to model output, the gate enforces the ban machine-side
+    — no third prose re-pin.
+    """
+    import json
+
+    from shenbi.gates.g4.chapter_planning import g4_chapter_planning
+
+    body = "# 第1章 章节备忘\n\n## 1. 当前任务\nchapter_role: 过渡/铺垫\n"
+    for i in range(2, 9):
+        body += f"\n## {i}. 段落{i}内容。\n"
+
+    clean = tmp_path / "plans"
+    clean.mkdir()
+    f1 = clean / "chapter-1-plan.md"
+    f1.write_text(body, encoding="utf-8")
+    ok = json.loads(g4_chapter_planning([str(f1)], rd=str(tmp_path)))
+    assert not any("english_heading" in m for m in ok.get("must_fix", []))
+
+    dirty = tmp_path / "plans2"
+    dirty.mkdir()
+    f2 = dirty / "chapter-1-plan.md"
+    f2.write_text("# Chapter 1:\n\n" + body, encoding="utf-8")
+    bad = json.loads(g4_chapter_planning([str(f2)], rd=str(tmp_path)))
+    assert any("G4.cp.english_heading" in m for m in bad.get("must_fix", [])), bad.get("must_fix")

@@ -268,21 +268,36 @@ _TABLE_HEADER_BOOTSTRAP: dict[str, str] = {
     "resonance_trend.md": (
         "| chapter | 类型 | 子项1 | 子项2 | 子项3 | 子项4 | overall | 档位 | human_overridden |"
     ),
+    # probe17 ch1 step 7 (adjudication #006): bridge_tracker's sanctioned
+    # first write is rows-only (the skill's write discipline forbids emitting
+    # headers/titles) — the create-path bootstraps the 8-column contract
+    # header the tracking procedure needs (状态/实际激活章/备注 columns).
+    "bridge_tracker.md": (
+        "| Bridge ID | 钩子内容 | 类型 | 带入卷 | 预期激活章 | 当前状态 | 实际激活章 | 备注 |"
+    ),
 }
 
 
 def ensure_table_header(filename: str, content: str) -> str:
     """Prepend the file's contract header when *content* starts with a bare
     data row (file creation) and a header is registered for *filename*.
+
+    probe17 #32: the pre-existing discriminator ("chapter" not in the first
+    line) was resonance-specific — any other registered header re-prepended
+    on every call. Header-present (exact match anywhere) short-circuits, and
+    the separator row is derived from the header's own column count.
     """
     header = _TABLE_HEADER_BOOTSTRAP.get(filename)
     if not header:
         return content
+    separator = "|" + "---|" * (header.count("|") - 1)
     if not content.strip():
-        return header + "\n|---|---|---|---|---|---|---|---|---|"
+        return header + "\n" + separator
+    if header in content:
+        return content  # already bootstrapped
     first = next((line for line in content.split("\n") if line.strip()), "")
     if first.lstrip().startswith("|") and "chapter" not in first and "---" not in first:
-        return header + "\n|---|---|---|---|---|---|---|---|---|\n" + content
+        return header + "\n" + separator + "\n" + content
     return content
 
 
