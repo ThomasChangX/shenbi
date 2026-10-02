@@ -1511,7 +1511,7 @@ _INCREMENT_BANNED_FORMS_HINT = (
 )
 
 
-def _validate_increment_package(content: str, *, key_field: str) -> None:
+def _validate_increment_package(content: str, *, key_field: str, base_text: str = "") -> None:
     """Reject whole-file scaffold in an append_dedup truth increment.
 
     Universal bans (every append_dedup truth target): a frontmatter block,
@@ -1521,7 +1521,19 @@ def _validate_increment_package(content: str, *, key_field: str) -> None:
     ``## 详情`` scaffold is always a base-destroying unit. Chapter-keyed
     targets keep the contract-sanctioned ``## 第N章状态增量`` increment
     section (character_matrix).
+
+    First-write exemption (probe16 adjudication #001): for hook_id targets
+    whose base carries NO hook rows and NO hook headings, the whole-file
+    form is the sanctioned CREATION shape — the genesis registry contract
+    mandates the ``## 总览`` EXACT table, which no increment-only form can
+    produce. The ban protects existing hook content; nothing to protect,
+    nothing to ban.
     """
+    if key_field == "hook_id":
+        from shenbi.pipeline.truth_io import base_has_hook_content
+
+        if not base_has_hook_content(base_text):
+            return
     violations: list[str] = []
     stripped = content.lstrip()
     if stripped.startswith("---"):
@@ -1598,7 +1610,19 @@ def _route_append_dedup_write(
     from shenbi.pipeline.truth_io import path_lock, upsert_markdown_row, write_truth_file
 
     if rel_path.startswith(_STAGING_TRUTH_PREFIX) or rel_path.startswith(_TRUTH_DIR_PREFIX):
-        _validate_increment_package(content, key_field=key_field)
+        # Best-effort pre-guard read of the merge base (staging-chained,
+        # unlocked — the locked merge below re-resolves; a stale read at
+        # worst skips/keeps a ban whose target the merge re-checks by key).
+        base_text: str = ""
+        if rel_path.startswith(_STAGING_TRUTH_PREFIX):
+            staged_base = project_dir / rel_path
+            live_base = project_dir / "truth" / rel_path[len(_STAGING_TRUTH_PREFIX) :]
+            src = staged_base if staged_base.exists() else live_base
+        else:
+            src = project_dir / rel_path
+        if src.exists():
+            base_text = src.read_text(encoding="utf-8")
+        _validate_increment_package(content, key_field=key_field, base_text=base_text)
 
     units = _increment_units(content)
 
@@ -2762,7 +2786,11 @@ def _dispatch_via_api(
         # Whole-file scaffold in an append_dedup increment — rejected BEFORE
         # any merge write (probe15). str(exc) is the pointed retry feedback
         # naming the banned forms and the sanctioned increment shape.
+        # probe16 adjudication #001: the raw output MUST be persisted — both
+        # rejected attempts' text was unrecoverable, leaving the escalation
+        # report to reconstruct facts from rejection records alone.
         log.error("increment_shape_rejected", skill=skill, detail=str(exc)[:300])
+        _persist_failed_write_output(project_dir, skill, output_text, "increment_shape")
         return DispatchResult(False, -1, "", str(exc))
     except TruthFileParseError as exc:
         # Corrupt existing truth file met an append_dedup upsert: fail loud at
@@ -2917,8 +2945,10 @@ def _dispatch_via_ide(
         return DispatchResult(False, -1, "", build_retry_feedback(exc))
     except IncrementShapeError as exc:
         # Same policy as the API route: whole-file scaffold in an
-        # append_dedup increment, rejected pre-merge with pointed feedback.
+        # append_dedup increment, rejected pre-merge with pointed feedback,
+        # raw output persisted for forensics (probe16 adjudication #001).
         log.error("increment_shape_rejected", skill=skill, detail=str(exc)[:300])
+        _persist_failed_write_output(project_dir, skill, r.stdout, "increment_shape")
         return DispatchResult(False, -1, "", str(exc))
     except TruthFileParseError as exc:
         # Same policy as the API route: corrupt existing truth file -> failed

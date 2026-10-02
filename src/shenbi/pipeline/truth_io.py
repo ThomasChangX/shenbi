@@ -328,6 +328,31 @@ def is_hook_heading(text: str) -> bool:
     return _HOOK_HEADING_RE.match(text.strip()) is not None
 
 
+#: A registry table row whose first cell starts with a hook id (live form
+#: ``| MH01（名） | … |`` or legacy ``| MH-001 | … |``).
+_HOOK_ROW_IN_TABLE_RE = re.compile(r"^\|\s*(?:MH|H|CP)-?\d{1,4}(?=[\s（(｜|]|$)")
+
+
+def base_has_hook_content(text: str) -> bool:
+    """True when *text* already carries keyed hook content.
+
+    Registry table rows or hook-keyed detail headings — the content the
+    dispatch-side scaffold guard exists to protect from whole-file
+    replacement (probe15). A base with NONE of it is a first-write target
+    where the whole-file form is the sanctioned creation shape (genesis
+    registry first-write, probe16 adjudication #001: the foreshadowing
+    skill's genesis contract mandates the ``## 总览`` EXACT table, which no
+    increment-only form can ever produce).
+    """
+    for line in text.split("\n"):
+        s = line.strip()
+        if _HOOK_ROW_IN_TABLE_RE.match(s):
+            return True
+        if s.startswith("#") and is_hook_heading(s):
+            return True
+    return False
+
+
 _COLON_BULLET_RE = re.compile(r"^-\s*([^:：\s][^:：]*)\s*[:：]")
 
 
