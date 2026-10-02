@@ -82,6 +82,20 @@ def g4_worldbuilding(
             mf.append(f"G4.sb.sections:found_{len(sections)}_need_4")
         if bullet_density > 0.05:
             mf.append(f"G4.sb.bullet_density:{bullet_density:.1%}")
+        # Batch #10 #18 (probe15: four adjudication rounds over year anchors
+        # restated inconsistently across four world files): the 世界史时间线
+        # table is the single source of absolute year anchors. WARN, not
+        # must-fix — the section is enforced through the SKILL template and
+        # the foundation-review chronology cross-check; the WARN surfaces a
+        # missing table without breaking pre-existing compliant fixtures.
+        if "## 世界史时间线" not in content:
+            c.append(
+                {
+                    "id": "G4.sb.timeline",
+                    "s": GateStatus.WARN,
+                    "r": "世界史时间线单源表缺失——绝对年代锚无唯一登记处（见 story_bible 模板）",
+                }
+            )
         if len(sections) >= 4 and bullet_density <= 0.05:
             c.append({"id": "G4.sb", "s": GateStatus.PASS, "sections": len(sections)})
     else:

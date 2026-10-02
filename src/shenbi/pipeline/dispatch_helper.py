@@ -56,7 +56,12 @@ from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
 from shenbi.env_policy import build_child_env
 from shenbi.contracts.injection import wrap_untrusted_source
-from shenbi.exceptions import DispatchWriteFailureError, ShenbiError, TruthFileParseError
+from shenbi.exceptions import (
+    DispatchWriteFailureError,
+    IncrementShapeError,
+    ShenbiError,
+    TruthFileParseError,
+)
 from shenbi.pipeline._shared import load_volume_context  # spec #65 §4 (leaf module, no cycle)
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
@@ -1490,6 +1495,63 @@ def _update_staging_meta(project_dir: Path, rel_path: str, key_field: str) -> No
         safe_write(meta_path, json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8"))
 
 
+#: Batch #10 #20 (probe15 ch1 settle, 3× G4.ss → escalation): the settle
+#: writer's pending_hooks package re-emitted the whole-file scaffold on top
+#: of correct per-hook bullet blocks. The keyed-upsert merge cannot treat
+#: that scaffold non-destructively — the H1-led unit hit section-replacement
+#: semantics whose span runs to EOF and destroyed the live base (204 base
+#: lines dropped); the ``## 详情`` heading-only unit would replace the entire
+#: detail section with an empty shell. G4 caught the damage only post-merge
+#: and the retry feedback never named the banned forms, so no attempt could
+#: converge. The guard rejects such packages machine-side, pre-merge, with
+#: feedback naming both the banned forms and the sanctioned increment shape.
+_INCREMENT_BANNED_FORMS_HINT = (
+    "frontmatter（--- 块）／一级标题（# 开头行，含「# 伏笔池」类文件标题）"
+    "{extra}。程序按键原位合并增量——重发脚手架会替换/摧毁 live 基座。"
+)
+
+
+def _validate_increment_package(content: str, *, key_field: str) -> None:
+    """Reject whole-file scaffold in an append_dedup truth increment.
+
+    Universal bans (every append_dedup truth target): a frontmatter block,
+    any H1 line. Hook-keyed targets (``key: hook_id``) additionally ban
+    ``##`` headings — their sanctioned increments are per-hook ``###`` field
+    blocks (plus full new-hook ``###`` sections); a re-emitted ``## 总览`` /
+    ``## 详情`` scaffold is always a base-destroying unit. Chapter-keyed
+    targets keep the contract-sanctioned ``## 第N章状态增量`` increment
+    section (character_matrix).
+    """
+    violations: list[str] = []
+    stripped = content.lstrip()
+    if stripped.startswith("---"):
+        violations.append("frontmatter（--- 块）")
+    lines = content.split("\n")
+    h1 = [l.strip() for l in lines if re.match(r"^#\s", l)]
+    if h1:
+        violations.append(f"一级标题（{h1[0][:24]}）")
+    extra = ""
+    if key_field == "hook_id":
+        h2 = [l.strip() for l in lines if re.match(r"^##\s", l)]
+        if h2:
+            violations.append(f"二级标题（{h2[0][:24]}）")
+        extra = "／二级标题（## 开头行，含「## 总览」「## 详情」）"
+    if not violations:
+        return
+
+    sanctioned = (
+        "既有钩：`### MHxx（标题照抄 live 该钩标题）` + colon bullet 字段块"
+        "（如 `- last_reinforced: 第 N 章`）；新钩：完整 `###` 新区块"
+        if key_field == "hook_id"
+        else "表格行增量（按 key 列合并）＋（character_matrix）`## 第N章状态增量` 原子区块"
+    )
+    raise IncrementShapeError(
+        f"输出未落盘——append_dedup（key: {key_field}）增量包含整档脚手架："
+        f"{'、'.join(violations)}。合法增量形态：{sanctioned}。"
+        f"绝不输出{_INCREMENT_BANNED_FORMS_HINT.format(extra=extra)}"
+    )
+
+
 def _route_append_dedup_write(
     project_dir: Path, rel_path: str, content: str, *, key_field: str
 ) -> None:
@@ -1517,6 +1579,13 @@ def _route_append_dedup_write(
       fall back to the legacy whole-file write with a WARN.
 
     Raises:
+        IncrementShapeError: the package re-emits whole-file scaffold
+            (frontmatter / H1 /, for hook-keyed targets, ``##`` headings)
+            for a ``truth/`` increment target — rejected BEFORE any merge
+            write, because the merge primitives cannot treat scaffold
+            non-destructively (probe15: an H1-led unit's section replacement
+            spanned to EOF and destroyed the live pending_hooks base).
+            ``str(exc)`` is the pointed retry feedback.
         TruthFileParseError: not raised by the CURRENT wiring — both routes
             above go through the pure-string ``upsert_markdown_row`` path,
             which never parses existing files as YAML (only ``upsert_yaml``
@@ -1527,6 +1596,9 @@ def _route_append_dedup_write(
             wiring, not a live path today.
     """
     from shenbi.pipeline.truth_io import path_lock, upsert_markdown_row, write_truth_file
+
+    if rel_path.startswith(_STAGING_TRUTH_PREFIX) or rel_path.startswith(_TRUTH_DIR_PREFIX):
+        _validate_increment_package(content, key_field=key_field)
 
     units = _increment_units(content)
 
@@ -2686,6 +2758,12 @@ def _dispatch_via_api(
             project_dir, skill, output_text, f"write_failure:{exc.signature}"
         )
         return DispatchResult(False, -1, "", build_retry_feedback(exc))
+    except IncrementShapeError as exc:
+        # Whole-file scaffold in an append_dedup increment — rejected BEFORE
+        # any merge write (probe15). str(exc) is the pointed retry feedback
+        # naming the banned forms and the sanctioned increment shape.
+        log.error("increment_shape_rejected", skill=skill, detail=str(exc)[:300])
+        return DispatchResult(False, -1, "", str(exc))
     except TruthFileParseError as exc:
         # Corrupt existing truth file met an append_dedup upsert: fail loud at
         # the dispatch layer (failed result, no process crash). Retrying the
@@ -2837,6 +2915,11 @@ def _dispatch_via_ide(
             signature=exc.signature,
         )
         return DispatchResult(False, -1, "", build_retry_feedback(exc))
+    except IncrementShapeError as exc:
+        # Same policy as the API route: whole-file scaffold in an
+        # append_dedup increment, rejected pre-merge with pointed feedback.
+        log.error("increment_shape_rejected", skill=skill, detail=str(exc)[:300])
+        return DispatchResult(False, -1, "", str(exc))
     except TruthFileParseError as exc:
         # Same policy as the API route: corrupt existing truth file -> failed
         # dispatch result, not a process crash (see _dispatch_via_api).

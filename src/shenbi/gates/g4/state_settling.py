@@ -158,47 +158,111 @@ def _check_matrix_structure(pf: Path) -> list[str]:
     return issues
 
 
-_HOOK_ROW_KEY_RE = re.compile(r"^\|\s*(H-\d{3}|MH-\d{3})\s*\|")
+#: Registry rows are keyed by their hook id wherever it starts the first
+#: cell — the genesis live form ``| MH01（钩子名） | … |`` (id + name in one
+#: cell, no hyphen) as well as legacy ``| MH-001 | … |`` (probe15 batch #10:
+#: the hyphen-only family made this guard silently inert for live-form
+#: tables). The lookahead requires a cell terminator so prose like
+#: ``MH02编年`` never keys.
+_HOOK_ROW_KEY_RE = re.compile(r"^\|\s*((?:MH|H|CP)-?\d{1,4})(?=[\s（(｜|]|$)")
+
+_SEPARATOR_ROW_RE = re.compile(r"^[\s:\-|]+$")
+_LIFECYCLE_HEADER_RE = re.compile(r"生命周期|状态")
 
 
-def _row_stable_cells(row: str) -> tuple[str, ...]:
-    """All table cells except the LAST (status) column, whitespace-normalized."""
+def _canon_hook_id(raw: str) -> str:
+    """``MH-001`` ≡ ``MH01`` — mirrors truth_io.canon_hook_id (imported at
+    call sites to keep the gates↔pipeline import direction cycle-free).
+    """
+    from shenbi.pipeline.truth_io import canon_hook_id
+
+    return canon_hook_id(raw)
+
+
+def _row_stable_cells(row: str, exempt: int | None = None) -> tuple[str, ...]:
+    """All table cells except the LAST (status) column — and except *exempt*,
+    the header-named lifecycle column — whitespace-normalized.
+    """
     cells = [c.strip() for c in row.split("|")[1:-1]]
+    if exempt is not None and 0 <= exempt < len(cells):
+        cells = cells[:exempt] + cells[exempt + 1 :]
     return tuple(cells[:-1])
 
 
+def _live_lifecycle_columns(live_text: str) -> dict[int, int]:
+    """Map each live data-row line index → its table's lifecycle column.
+
+    probe15's genesis 总览 table carries the lifecycle in column 2 of 8
+    (``| MH01(名) | PLANTED | … |``); the last-cell-only exemption would
+    flag every legitimate lifecycle bump (foreshadowing-track re-emits the
+    changed row, lifecycle cell updated) as a stable-column rewrite. The
+    column is located by the table header cell naming 当前生命周期/状态 —
+    the same header key the truth-index parser keys on. Header detection
+    does NOT require a separator row: the genesis template emits header
+    directly above data rows.
+    """
+    lines = live_text.split("\n")
+    out: dict[int, int] = {}
+    exempt: int | None = None
+    for i, line in enumerate(lines):
+        s = line.strip()
+        if not s.startswith("|"):
+            exempt = None  # left the table — the next table re-derives its own header
+            continue
+        cells = [c.strip() for c in s.split("|")[1:-1]]
+        header_idx = next(
+            (
+                j
+                for j, cell in enumerate(cells)
+                if _LIFECYCLE_HEADER_RE.search(cell) and len(cell) <= 8
+            ),
+            None,
+        )
+        if header_idx is not None:
+            exempt = header_idx
+            continue
+        if exempt is not None:
+            out[i] = exempt
+    return out
+
+
 def _dropped_hook_rows(live_text: str, staged_text: str) -> list[str]:
-    """Keyed hook rows (H-*/MH-*) whose STABLE planning columns were
-    rewritten or which vanished outright.
+    """Keyed hook rows (H-*/MH-*/CP-*, any id form) whose STABLE planning
+    columns were rewritten or which vanished outright.
 
     Probe2 ch1/ch2: the H-001/H-005 seed rows had 埋设位置/计划回收
     replaced with per-chapter reinforcement notes while the status column
     stayed plausible — the whole-row table exemption made this G4-invisible
-    twice. Same-key rows may legitimately change ONLY the final status
-    column; per-chapter reinforcements belong in the detail blocks.
+    twice. Same-key rows may legitimately change ONLY the status column
+    (plus the header-named lifecycle column); per-chapter reinforcements
+    belong in the detail blocks.
     """
     staged_rows: dict[str, str] = {}
     for line in staged_text.split("\n"):
         m = _HOOK_ROW_KEY_RE.match(line.strip())
         if m:
-            staged_rows.setdefault(m.group(1), line.strip())
+            staged_rows.setdefault(_canon_hook_id(m.group(1)), line.strip())
+    live_lines = live_text.split("\n")
+    exempt_cols = _live_lifecycle_columns(live_text)
     issues: list[str] = []
-    for line in live_text.split("\n"):
+    for i, line in enumerate(live_lines):
         s = line.strip()
         m = _HOOK_ROW_KEY_RE.match(s)
         if not m:
             continue
-        key = m.group(1)
+        key = _canon_hook_id(m.group(1))
         staged_row = staged_rows.get(key)
         if staged_row is None:
             issues.append(
-                f"hook_row_dropped:{key} "
+                f"hook_row_dropped:{m.group(1)} "
                 "(the registry row vanished — keep registry rows untouched "
                 "except the final status cell)"
             )
-        elif _row_stable_cells(s) != _row_stable_cells(staged_row):
+        elif _row_stable_cells(s, exempt_cols.get(i)) != _row_stable_cells(
+            staged_row, exempt_cols.get(i)
+        ):
             issues.append(
-                f"hook_row_stable_columns_rewritten:{key} "
+                f"hook_row_stable_columns_rewritten:{m.group(1)} "
                 "(registry rows are not chapter increments — a state-settling "
                 "output must OMIT them entirely (the status column belongs "
                 "to foreshadowing-track); a lifecycle writer updating the "

@@ -82,6 +82,7 @@ digraph foundation_review {
 3. **核心冲突 < 15 = 自动不通过** — 无论其他维度多高
 4. **只审核已生成的内容** — 不为缺失的内容假设分数
 5. **每个扣分必须附带具体改进建议** — 不让人类合作者猜测如何改进
+6. **分值与结论联动（零 [ERROR] 才可「通过」）** — 报告存在任一 [ERROR] 行（P0 级缺陷）时，「结果」必须为「不通过 (XX分)」，且含 ERROR 的维度得分必须压低到使总分 < 80——分数是缺陷的函数，不得一边列 P0 一边给通过结论（probe15：90 分「通过」的报告同时携带两条 P0 年份互斥，创世检查点无法据此把关）
 
 ## 审核清单
 
@@ -92,7 +93,7 @@ digraph foundation_review {
 2. 读完 `characters/`（主角档案 + 主要配角 + 关系矩阵）
 3. 读完 `outline/story_frame.md`（故事框架 / 三幕结构 / 主线节拍）
 4. 按 6 个维度逐项打分（每维度单独读，再写分数）
-5. 世界一致性逐事件对章号：power_system 章节里程碑表、relationships 演化轨迹与待兑现表、locations 功能事件表、factions 历史关键事件，逐一与 `outline/volume_map.md` 对表；story_frame 无章号层，不得作为章号对照源接受（probe8：power_system 曾以「story_frame 章节里程碑」作假自证）；发现两套以上互斥编年即世界一致性维度判不通过
+5. 世界一致性逐事件对章号：power_system 章节里程碑表、relationships 演化轨迹与待兑现表、locations 功能事件表、factions 历史关键事件，逐一与 `outline/volume_map.md` 对表；story_frame 无章号层，不得作为章号对照源接受（probe8：power_system 曾以「story_frame 章节里程碑」作假自证）；发现两套以上互斥编年即世界一致性维度判不通过。**年份锚单源核对**：若 `world/story_bible.md` 含「世界史时间线」表，所有跨文件的绝对年数必须逐一对到该表（其余文件复述年数即计 ERROR——同一锚两套年数必互斥）；无该表则先报 ERROR（年代锚无单源登记处）
 6. 案由事件时序核验：各章「案由/事件」所引用的事件必须**不晚于该章发生**且有人物动线支撑——「章号锚点全对但事件集体不可能」（probe14：第3章案由引用第11章塌方、而主角第6章才首次下矿）不被对表捕获，须逐案由核对首提及事件的时间位置与相关人物的入场/到场章
 7. 汇总总分，对照铁律判断通过/不通过
 
@@ -214,11 +215,11 @@ digraph foundation_review {
 
 | 评分项 | 满分 | 得分 | 证据引用 | 裁判理由 |
 |--------|------|------|---------|---------|
-| 套路依赖度（核心节拍对照 genre-config.tropeInventory，命中数 ≤ overuse_threshold） | 5 | X | [文件:段落] | [≤1句] |
+| 套路依赖度（单条 trope 的 signatures 命中次数 ≤ overuse_threshold，逐条计数） | 5 | X | [文件:段落] | [≤1句] |
 | 反转/新颖度（核心设定存在 ≥1 处对题材套路的颠覆或新颖组合） | 5 | X | [文件:段落] | [≤1句] |
 | **小计** | **10** | **XX** | | |
 
-**评分程序：** 读取 `genre-config.json` 的 `tropeInventory`，将 `outline/story_frame.md` 的弧节拍对照每个套路的 `signatures`；命中数 > `overuse_threshold` → 套路依赖度扣分，并列出命中的节拍 + `rewrite_hint`。
+**评分程序：** 读取 `genre-config.json` 的 `tropeInventory`，将 `outline/story_frame.md` 的弧节拍对照每个套路的 `signatures`；**违规的唯一口径是「单条 trope」的 signatures 命中次数 > `overuse_threshold`（per-trope 计数）**——「出现了多少条 trope 类型」不是违规口径（类型可以全部出现而每条命中都很低，probe15 曾在同一报告里两处口径互斥）。命中超阈 → 套路依赖度扣分，缺陷表逐条列出：trope 名 + 命中次数 + 命中的节拍/文件段落 + `rewrite_hint` 指名改哪个文件哪个小节（无定位的「至少改写一处」建议只会让修订循环空转）。维度明细与缺陷表必须用同一份计数。
 
 ### 总评
 

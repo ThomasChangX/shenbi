@@ -169,3 +169,67 @@ class TestHookRowStableColumnPreservation:
         status, mf = _run(_project(tmp_path, _LIVE_HOOKS, staged))
         assert status == "FAIL"
         assert any("hook_row" in m and "MH-001" in m for m in mf), mf
+
+
+#: probe15 live shape — genesis template writes the hook id and name in ONE
+#: first cell (``MH01（名）``, no hyphen). ``_HOOK_ROW_KEY_RE`` accepted only
+#: ``MH-\\d{3}``, so the hook-row guard was silently INERT for this entire
+#: probe family: dropped/rewritten registry rows passed G4 unseen (batch #10
+#: item 21 — the row guard must see the live form too).
+_LIVE_HOOKS_PROBE15 = """---
+type: truth
+category: state
+status: initialized
+---
+
+# 伏笔池
+
+## 总览
+| Hook ID（钩子名） | 当前生命周期 | 种植章 | 兑现章（卷） | 类型 | 微妙度 | max_distance(14) | 升级曲线 |
+| MH01（米缸底下的三份抄本与星槎台铭文） | PLANTED | 7 | 85（五卷） | ITEM | 0.5 | 14 | STAIRCASE |
+| MH02（星火残梦与那句听不清的话） | PLANTED | 1 | 98（五卷） | INFORMATION | 0.6 | 14 | RISING |
+
+## 详情
+
+### MH01（米缸底下的三份抄本与星槎台铭文）
+
+- hook_id: MH01
+- type: ITEM
+- plant_ch: 7
+- notes: 创世登记
+
+### MH02（星火残梦与那句听不清的话）
+
+- hook_id: MH02
+- type: INFORMATION
+- plant_ch: 1
+- notes: 创世登记
+"""
+
+
+class TestHookRowGuardLiveForm:
+    def test_live_form_row_drop_flagged(self, tmp_path):
+        staged = _LIVE_HOOKS_PROBE15.replace(
+            "| MH01（米缸底下的三份抄本与星槎台铭文） | PLANTED | 7 | 85（五卷） | ITEM | 0.5 | 14 | STAIRCASE |\n",
+            "",
+        )
+        status, mf = _run(_project(tmp_path, _LIVE_HOOKS_PROBE15, staged))
+        assert status == "FAIL"
+        assert any("hook_row_dropped:MH01" in m for m in mf), mf
+
+    def test_live_form_row_stable_columns_rewritten_flagged(self, tmp_path):
+        staged = _LIVE_HOOKS_PROBE15.replace(
+            "| MH02（星火残梦与那句听不清的话） | PLANTED | 1 | 98（五卷） | INFORMATION | 0.6 | 14 | RISING |",
+            "| MH02（星火残梦） | PLANTED | 1 | 98（五卷） | INFORMATION | 0.6 | 14 | RISING |",
+        )
+        status, mf = _run(_project(tmp_path, _LIVE_HOOKS_PROBE15, staged))
+        assert status == "FAIL"
+        assert any("hook_row_stable_columns_rewritten:MH02" in m for m in mf), mf
+
+    def test_live_form_row_status_column_update_passes(self, tmp_path):
+        staged = _LIVE_HOOKS_PROBE15.replace(
+            "| MH02（星火残梦与那句听不清的话） | PLANTED | 1 | 98（五卷） | INFORMATION | 0.6 | 14 | RISING |",
+            "| MH02（星火残梦与那句听不清的话） | RELEVANT | 1 | 98（五卷） | INFORMATION | 0.6 | 14 | RISING |",
+        )
+        status, mf = _run(_project(tmp_path, _LIVE_HOOKS_PROBE15, staged))
+        assert status == "PASS", mf

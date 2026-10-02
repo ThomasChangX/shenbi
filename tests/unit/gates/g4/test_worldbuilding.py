@@ -299,3 +299,44 @@ def test_bare_h2_locations_out_of_range_still_fails(tmp_path: Path) -> None:
     _swap_rules_locations(project_dir, "# R\n\n## 规则一：律\n内容。\n", locations)
     result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert any("G4.locations.count:6" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_story_bible_missing_timeline_gets_warn_not_fail(tmp_path: Path) -> None:
+    """Batch #10 #18: a story_bible without the 世界史时间线 single-source
+    table yields a WARN (G4.sb.timeline), not a must-fix — the section
+    becomes required through the SKILL template and the foundation-review
+    chronology cross-check; the gate surfaces its absence without breaking
+    pre-existing compliant fixtures.
+    """
+    project_dir, marker = _full_valid_project(tmp_path)
+    (project_dir / "world" / "story_bible.md").write_text(
+        "# Bible\n\n## 世界观\n散文式描述世界观细节内容。\n\n"
+        "## 历史\n散文式描述历史背景内容。\n\n"
+        "## 魔法\n散文式描述魔法体系内容。\n\n"
+        "## 社会\n散文式描述社会结构内容。\n",
+        encoding="utf-8",
+    )
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
+    assert result["status"] == "PASS"
+    assert result.get("must_fix", []) == []
+    checks = result.get("checks", [])
+    assert any(c.get("id") == "G4.sb.timeline" and c.get("s") == "WARN" for c in checks), checks
+
+
+@pytest.mark.unit
+def test_story_bible_with_timeline_no_warn(tmp_path: Path) -> None:
+    project_dir, marker = _full_valid_project(tmp_path)
+    (project_dir / "world" / "story_bible.md").write_text(
+        "# Bible\n\n## 世界观\n散文式描述世界观细节内容。\n\n"
+        "## 历史\n散文式描述历史背景内容。\n\n"
+        "## 魔法\n散文式描述魔法体系内容。\n\n"
+        "## 社会\n散文式描述社会结构内容。\n\n"
+        "## 世界史时间线\n\n| 锚名 | 距今 | 事件 | 关联 |\n|---|---|---|---|\n"
+        "| 净场 | 110 年前 | 教廷特使清剿 | 铁律会 |\n",
+        encoding="utf-8",
+    )
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
+    assert result["status"] == "PASS"
+    checks = result.get("checks", [])
+    assert not any(c.get("id") == "G4.sb.timeline" for c in checks), checks

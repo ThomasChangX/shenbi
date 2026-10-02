@@ -92,6 +92,19 @@ class DispatchWriteFailureError(DispatcherError):
         self.signature = signature
 
 
+class IncrementShapeError(DispatcherError):
+    """An append_dedup increment package carried whole-file scaffold.
+
+    Raised by the dispatch write path BEFORE any merge write when a
+    truth-increment target's package re-emits structural scaffold
+    (frontmatter / H1 /, for hook-keyed targets, ``##`` headings) — content
+    the keyed-upsert merge cannot treat non-destructively (probe15: the
+    H1-led unit's section replacement destroyed the live pending_hooks base,
+    3x G4 rejects). ``str(exc)`` is the pointed retry feedback naming the
+    banned forms and the sanctioned increment shapes.
+    """
+
+
 class SubAgentTimeoutError(DispatcherError):
     """Sub-agent timed out."""
 

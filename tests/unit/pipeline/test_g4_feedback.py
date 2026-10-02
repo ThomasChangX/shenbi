@@ -157,3 +157,20 @@ def test_dec_example_json_is_schema_valid():
                     break
         payload = json.loads(text[start:end])
         DecisionsDoc.model_validate(payload)
+
+
+def test_hooks_structure_example_uses_live_form_and_names_banned_scaffold():
+    """Batch #10 #21/#22: the hooks_structure example must show the LIVE
+    (genesis template) heading form ``### MHxx(名)`` — the old example's
+    ``### MH-001|粗纸小册子`` matched neither the live file nor what models
+    naturally copy, teaching a third unusable format — and must name the
+    banned whole-file scaffold forms explicitly (frontmatter / # / ## /
+    总览表行), which the probe15 retry feedback never did.
+    """
+    text = G4_FORMAT_EXAMPLES["G4.ss.hooks_structure"]
+    assert "### MH" in text and "（" in text, "live-form heading example required"
+    assert "MH-001｜" not in text, "stale gate-only form must not be taught"
+    for banned in ("frontmatter", "## 总览"):
+        assert banned in text
+    # the sanctioned increment shape stays front and center
+    assert "- last_reinforced" in text

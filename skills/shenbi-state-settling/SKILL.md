@@ -77,10 +77,10 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
 
 ### pending_hooks 增量格式（CRITICAL）
 
-对每个本章触及的**既有** hook，只输出该 hook 的字段更新块：
+对每个本章触及的**既有** hook，只输出该 hook 的字段更新块（编号与标题**逐字照抄 live 文件原样**——live 是 `### MH02（星火残梦与那句听不清的话）` 这样的形态就照抄这个形态）：
 
 ```markdown
-### MH-001 · <标题逐字照抄 live 文件的该 hook 标题>
+### MH02（标题逐字照抄 live 文件的该 hook 标题）
 
 - last_reinforced: <本章章号>
 ```
@@ -89,9 +89,10 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
 - `lifecycle_state` 复合行同样**不得重发或改写**（probe6 ch1：改写丢 `resolution` 段＝毁掉回收登记）——其中的 `plant`/`resolution` 段是 genesis 固定内容，生命周期迁移归 foreshadowing-track；本章强化只发独立 `- last_reinforced: 第N章` bullet，绝不把该字段塞进复合行。
 - `subtlety`/`cultivation_interval`/`max_distance` 是 genesis 固定参数（守卫锁定），本 skill 与任何章级流程都**不更新**它们。
 - 累积型字段（`证据`/`notes`）更新时必须重述完整历史（读 live 现值 + 追加本章条目），合并是同名字段整行替换。
-- 标题可照抄 hook 编号（`### MH-001 · …`）——程序按编号定位区块；标题文字略有出入也能命中，但请尽量照抄。
+- 编号与标题照抄 live 原样（连字符有无均可，程序按编号规范匹配定位区块）；标题文字略有出入也能命中，但请尽量照抄。
 - **新** hook（本章新埋设，live 中不存在）才输出完整新区块（标题 + 全部字段 bullet）。
 - **主钩总览表行一律不要输出**：本 skill 不推进生命周期（PLANTED→RELEVANT→…），状态列由 foreshadowing-track 以同宽度行原位更新。
+- **绝不输出 frontmatter（`---` 块）、一级标题（`#`）、二级标题（`##`，含「## 总览」「## 详情」）**：本文件的合法增量只有上面的 `###` hook 区块；重发脚手架标题会让程序按同名区块替换语义毁掉 live 基座（probe15 三连拒根因之一）。
 
 ### `character_matrix.md` Write-Protection Rule
 
@@ -207,7 +208,7 @@ digraph state_settling {
 | 第 1 章 | <一行本章线索状态> |
 
 ### FILE: truth/pending_hooks.md
-### MH09 · <标题照抄 live 文件该 hook 标题>
+### MH09（<标题照抄 live 文件该 hook 标题>）
 
 - last_reinforced: 1
 

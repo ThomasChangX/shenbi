@@ -288,16 +288,38 @@ def ensure_table_header(filename: str, content: str) -> str:
 
 _BULLET_ROW_RE = re.compile(r"^\s*-\s*(?P<key>.+?)\s*:(?P<rest>.*)$")
 
-#: Hook-detail headings (``### MH-001 · …``) mark sections whose only
-#: legitimate mutations are named-field bullet updates (probe3 P0: the only
-#: merge primitive for headed sections was whole-section replacement, which
-#: made the LLM responsible for verbatim base reproduction — 189 dropped
-#: lines on attempt1, then a 49152-token whole-file retry on attempt2).
-_HOOK_HEADING_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-\d{3})\b")
+#: Hook-detail headings (``### MH01（名）`` / ``### MH-001 · 名``) mark
+#: sections whose only legitimate mutations are named-field bullet updates
+#: (probe3 P0: the only merge primitive for headed sections was whole-section
+#: replacement, which made the LLM responsible for verbatim base
+#: reproduction — 189 dropped lines on attempt1, then a 49152-token
+#: whole-file retry on attempt2).
+#:
+#: probe15 (batch #10): the family MUST accept the genesis template's live
+#: form ``MH02（钩子名）`` (no hyphen, id + name in one heading) — machinery
+#: that rejects the framework's own pinned template form is a defect, and
+#: the hyphen-only regex made the field-level merge unreachable for every
+#: probe output (splitter grouped whole ``## 详情`` blocks into one unit;
+#: scaffold headings fell to destructive section replacement).
+_HOOK_HEADING_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-?\d{1,4})\b")
+
+
+def canon_hook_id(raw: str) -> str:
+    """Canonical hook id: ``MH-001`` ≡ ``MH01`` ≡ ``mh1``.
+
+    Family letters uppercased, hyphen dropped, leading zeros stripped, so
+    live-form (genesis template), gate-example, and legacy heading keys all
+    address the same hook. Non-family ids (``CH1-L1`` local hooks) pass
+    through uppercased.
+    """
+    m = re.fullmatch(r"([A-Za-z]+)-?0*(\d+)", raw.strip())
+    if not m:
+        return raw.strip().upper()
+    return f"{m.group(1).upper()}{m.group(2)}"
 
 
 def is_hook_heading(text: str) -> bool:
-    """True when *text* is a hook-keyed heading (``### MH-001 · …``).
+    """True when *text* is a hook-keyed heading (``### MH01(名)``).
 
     Public seam over :data:`_HOOK_HEADING_RE` for cross-module consumers
     (dispatch_helper's increment splitter must keep hook sections
@@ -332,7 +354,7 @@ def _hook_section_bullet_merge(existing: str, unit: str) -> str | None:
     if not hm:
         return None
     level = len(hm.group(1))
-    hook_id = hm.group(2)
+    hook_id = canon_hook_id(hm.group(2))
     fields: list[tuple[str, str]] = []
     for line in unit_lines[h_idx + 1 :]:
         s = line.strip()
@@ -355,7 +377,7 @@ def _hook_section_bullet_merge(existing: str, unit: str) -> str | None:
             target = i
             break
         tm = _HOOK_HEADING_RE.match(s)
-        if tm and len(tm.group(1)) == level and tm.group(2) == hook_id:
+        if tm and len(tm.group(1)) == level and canon_hook_id(tm.group(2)) == hook_id:
             target = i
             break
     if target is None:

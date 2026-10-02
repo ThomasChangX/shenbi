@@ -765,14 +765,18 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
         "节内，绝不改写或吸收历史章增量节）"
     ),
     "G4.ss.hooks_structure": (
-        "pending_hooks 增量合法形态（colon bullet only，母钩总览表行一律"
-        "不输出）：\n"
-        "### MH-001｜粗纸小册子\n"
+        "pending_hooks 增量合法形态（colon bullet only，编号与标题照抄 live 原样，"
+        "如 `### MH02（星火残梦与那句听不清的话）`）：\n"
+        "### MH02（标题照抄 live 该钩标题）\n"
         "- last_reinforced: 第 2 章\n"
         "- 证据: 第 2 章（chapters/chapter-2.md L…）：…\n"
-        "（lifecycle_state 复合行不发——plant/resolution 段是 genesis 固定"
-        "内容；type/trigger_condition/resolve_condition/depends_on 等稳定行"
-        "不发；累积字段 证据/notes 重述完整历史）"
+        "（新钩才输出完整 `###` 新区块；lifecycle_state 复合行不发——plant/"
+        "resolution 段是 genesis 固定内容；type/trigger_condition/"
+        "resolve_condition/depends_on 等稳定行不发；累积字段 证据/notes 重述"
+        "完整历史）\n"
+        "绝不输出 frontmatter／一级标题（#）／二级标题（##，含「## 总览」"
+        "「## 详情」）／母钩总览表行——程序按编号原位合并 colon bullet，"
+        "重发脚手架或表行会替换/毁掉 live 基座。"
     ),
     "G4.dec.missing": (
         "decisions sidecar 缺必填字段——selections 条目必填 target / selected / "
