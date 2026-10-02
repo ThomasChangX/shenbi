@@ -468,6 +468,12 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
             log.error(
                 "genesis_dispatch_stderr", skill=step.skill, stderr_preview=result.stderr[:2000]
             )
+            # probe14 #2: dispatch failures (parse/quarantine) retried blind —
+            # the stderr now carries the missing-path signature + expected
+            # ### FILE format, so route it into the corrective slot.
+            state.genesis.retry_feedback[step.skill] = (
+                f"上一次派发失败（输出未落盘）：{result.stderr}"
+            )
         if hasattr(result, "returncode"):
             log.error("genesis_dispatch_rc", skill=step.skill, rc=result.returncode)
         return _handle_failure(state, step, "dispatch", project_dir)

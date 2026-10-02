@@ -3281,6 +3281,14 @@ def _run_chapter_step_impl(
             step=step.step_num,
             skill=step.skill,
         )
+        if getattr(result, "stderr", ""):
+            # probe14 #2 parity with genesis: dispatch failures (parse/
+            # quarantine) retried blind — the stderr carries the missing-path
+            # signature + expected ### FILE format; route it into the
+            # corrective slot the re-dispatch injects.
+            state.chapter_loop.retry_feedback[retry_key] = (
+                f"上一次派发失败（输出未落盘）：{result.stderr}"
+            )
         return _handle_failure(
             state,
             step,

@@ -28,6 +28,9 @@ contract:
   - truth/current_focus.md
   - truth/author_intent.md
   - characters/relationships.md
+  - file: foundation/review_report.md
+    fields:
+    - 建议修复
   writes:
   - file: plans/chapter-N-plan.md
     mode: create_or_overwrite
@@ -51,7 +54,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md
+- **Reads:** novel.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md, foundation/review_report.md
 - **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json
 - **Updates:** none
 
@@ -130,7 +133,7 @@ digraph chapter_planning {
 
 ## Hook 账本硬规则
 
-> **Phase 1 限制**: 在 foreshadowing-plant/track/resolve 实现前（Phase 3），`pending_hooks.md` 不存在或为空伏笔池。本章节 hook 账规则在 Phase 1 为**占位声明**——规划器输出 hook 账各段为占位符，context-composing 跳过 P3 伏笔简报，state-settling 不推进 hook 状态。Phase 3 引入伏笔系统后，以下规则从占位升级为可执行。
+> **Phase 1 限制（条件分支，按伏笔池实况二选一，禁止两者混出）**: 若 `truth/pending_hooks.md` 不存在或伏笔池为空（Phase 1），hook 账各段输出占位符、context-composing 跳过 P3 伏笔简报、state-settling 不推进 hook 状态。**若伏笔池非空（创世已跑 foreshadowing-lifecycle，池中有 MH 钩），本说明不适用且禁止输出——hook 账必须按池实况逐钩填写，严禁输出「尚未实现/占位声明」类字样**（probe14 ch1：池有 14 钩仍照抄占位声明，属虚假自证）。
 
 - `pressured` 或 `near_payoff` 状态且沉默 ≥5 章的 hook 必须 advance 或 resolve
 - `core_hook=true` 且过期 >10 章升级为 critical
@@ -169,6 +172,8 @@ chapter_role: 高潮
 
 > 合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫
 
+**目标字数**: [genre-config.json 的 chapter_word.default 值，原样数字]（= chapter_word.default；drafting 篇幅契约铁律与本行同源，缺失即断链）
+
 **优先级来源**: [外部指令 / 局部覆盖 / 卷纲 Key Result / current_focus / author_intent]
 
 **冲突说明**: [若高层级指令与低层级冲突，说明为何选择当前层级。无冲突则填"无"]
@@ -178,9 +183,9 @@ chapter_role: 高潮
 - [动作 2]
 ```
 
-**不合格条件**: 未注明优先级来源。
+**不合格条件**: 未注明优先级来源；段1 缺「**目标字数**」行（probe13/probe14 两探针均靠裁决补行）。
 
-> 注：未声明 `chapter_role` 或使用非合法值，视为不合格（G4.cp.missing_chapter_role）。
+> 注：未声明 `chapter_role` 或使用非合法值，视为不合格（G4.cp.missing_chapter_role）。文件必须以中文章节备忘标题行开头（如 `# 第N章 章节备忘`），禁止输出 `# Chapter N:` 形式的孤立英文标题行（probe13/14 均现此残留）。
 
 ### 段 2 模板：读者此刻在等什么
 
@@ -282,7 +287,7 @@ chapter_role: 高潮
 
 ## decisions sidecar 必填字段
 
-每次执行后**必须写出** `plans/chapter-N-plan-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件必须是纯 JSON：首字符即 `{`，禁止 markdown 标题、围栏代码块或任何前后缀文字。** 必填字段：
+每次执行后**必须写出** `plans/chapter-N-plan-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件的 ### FILE 块内容必须是纯 JSON（块内首字符即 `{`，禁止 markdown 标题与围栏代码块）；`### FILE:` 标记行本身照常输出，且不得以「纯 JSON」为由省略 plan 文件块或同响应中的其他文件块。** 必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）

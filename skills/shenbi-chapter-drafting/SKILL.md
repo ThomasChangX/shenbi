@@ -164,7 +164,7 @@ PRE_WRITE_CHECK:
 
 ## decisions sidecar 必填字段
 
-每次执行后**必须写出** `chapters/chapter-N-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件必须是纯 JSON：首字符即 `{`，禁止 markdown 标题、围栏代码块或任何前后缀文字。** 必填字段：
+每次执行后**必须写出** `chapters/chapter-N-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件的 ### FILE 块内容必须是纯 JSON（块内首字符即 `{`，禁止 markdown 标题与围栏代码块）；`### FILE:` 标记行本身照常输出，且不得以「纯 JSON」为由省略章节文件块。** 必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）

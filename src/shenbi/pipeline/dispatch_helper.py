@@ -1160,13 +1160,23 @@ def _parse_structured_output(raw_content: str) -> SkillOutput:
     brace = raw_content.find("{")
     if brace >= 0:
         candidate = raw_content[brace:]
+        # strict=False accepts literal control chars (raw newlines etc.)
+        # inside strings — probe14 step 12: a 39KB envelope with legal
+        # structure but RFC-illegal string interiors died on strict parsing
+        # across 3 dispatches while the full artifact sat in quarantine.
+        data: object | None = None
         try:
             data = json.loads(candidate)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, ValueError):
             try:
-                data, _end = json.JSONDecoder().raw_decode(candidate)
-            except json.JSONDecodeError:
-                return marker_parsed
+                data = json.loads(candidate, strict=False)
+            except (json.JSONDecodeError, ValueError):
+                try:
+                    data = json.JSONDecoder(strict=False).raw_decode(candidate)[0]
+                except (json.JSONDecodeError, ValueError):
+                    data = None
+        if data is None:
+            return marker_parsed
         if isinstance(data, dict) and isinstance(data.get("files"), list):
             files = [
                 FileOutput(path=str(f["path"]), content=str(f["content"]))
@@ -1605,6 +1615,31 @@ def _is_truncated_file_output(response: str) -> bool:
         return False
     last = markers[-1]
     return response[last.end() :].strip() == ""
+
+
+def _no_files_stderr(
+    output_paths: list[str],
+    parsed_dict: dict[str, str],
+    outputs_override: list[str] | None,
+) -> str:
+    """Actionable failure text for a zero-file dispatch (probe14 #2).
+
+    The old bare ``No output files written`` carried nothing actionable —
+    genesis step 12 retried blind three times on a format miss while the
+    quarantine reason named the exact missing paths. Callers route this into
+    the corrective-feedback slot so the retry knows what to fix.
+    """
+    declared = [p for p in (outputs_override or output_paths) if "*" not in p]
+    if parsed_dict:
+        missing = [p for p in declared if p not in parsed_dict]
+        reason = f"以下声明路径没有对应的 ### FILE 块：{'、'.join(missing) or '（全部）'}"
+    else:
+        reason = '输出中没有任何 ### FILE 块（裸 JSON 或 {"files":[...]} 信封未通过解析）'
+    return (
+        f"输出未落盘——{reason}。期望格式：每个声明路径一个「### FILE: <相对路径>」块，"
+        "标记独占一行、内容随其后；全部声明路径逐块输出（decisions sidecar 也须带 "
+        "### FILE: 头，其块内为纯 JSON）；禁止块外文字。"
+    )
 
 
 def _write_parsed_outputs(
@@ -2663,7 +2698,9 @@ def _dispatch_via_api(
         )
     if not written:
         _persist_failed_write_output(project_dir, skill, output_text, "no_files_parsed")
-        return DispatchResult(False, -1, "", "No output files written")
+        return DispatchResult(
+            False, -1, "", _no_files_stderr(output_paths, parsed_dict, outputs_override)
+        )
 
     missing = [p for p in output_paths if "*" not in p and not (project_dir / p).exists()]
     if missing:
@@ -2808,7 +2845,13 @@ def _dispatch_via_ide(
             False, -1, "", f"truth file upsert aborted (existing file corrupt): {exc}"
         )
     if not written:
-        return DispatchResult(False, -1, "", "No output files written")
+        ide_parsed = _parse_file_markers(r.stdout).files
+        return DispatchResult(
+            False,
+            -1,
+            "",
+            _no_files_stderr(output_paths, {f.path: f.content for f in ide_parsed}, None),
+        )
 
     missing = [p for p in output_paths if "*" not in p and not (project_dir / p).exists()]
     if missing:

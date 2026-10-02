@@ -15,6 +15,7 @@ Decision tree (spec §6.3)::
 
 from __future__ import annotations
 
+import glob as glob_module
 import re
 from enum import StrEnum
 from pathlib import Path
@@ -208,6 +209,16 @@ def dispatch_escalation(
             from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
 
             optional_patterns = OPTIONAL_READS.get(failing_skill, [])
+
+            # probe14: reads that are the skill's OWN contract writes/updates
+            # legitimately don't exist before its first dispatch — rendering
+            # them MISSING demanded "products exist before the producer".
+            def _entry_file(entry: object) -> str:
+                return str(entry.get("file", "")) if isinstance(entry, dict) else str(entry)
+
+            produces = {_entry_file(w) for w in contract.get("writes", [])} | {
+                _entry_file(u) for u in contract.get("updates", [])
+            }
             lines = []
             for rel in contract.get("reads", []):
                 if chapter is None:
@@ -220,12 +231,21 @@ def dispatch_escalation(
                 probe = Path(project_dir) / resolved
                 if probe.exists():
                     avail = "AVAILABLE"
+                elif resolved in produces:
+                    avail = "本技能产物（派发前不存在属预期）"
                 elif any(fnmatch(resolved, pat) for pat in optional_patterns):
                     # probe9: reads produced only in user-routable mode (the
                     # deterministic context step never writes them) rendered
                     # as MISSING and misled adjudicators into crowning them
                     # root-cause suspects.
                     avail = "OPTIONAL (absent by design in pipeline mode)"
+                elif "*" in resolved and glob_module.glob(
+                    str(Path(project_dir) / resolved), recursive=True
+                ):
+                    # probe14: glob-form reads (characters/*.md) probed with a
+                    # literal .exists() are always False — expand the glob;
+                    # matches mean the read IS available in expanded form.
+                    avail = "AVAILABLE (glob-expanded)"
                 else:
                     avail = "MISSING"
                 lines.append(f"- {resolved} — {avail}")

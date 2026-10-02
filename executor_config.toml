@@ -48,6 +48,15 @@ temperature = 0.7
 # faction-builder / state-settling (API accepts 49152).
 max_tokens = 49152
 
+[overrides."shenbi-relationship-map"]
+temperature = 0.7
+# probe14 genesis step 12 (2026-10-02): relationships.md + character_matrix in
+# one call pins the 16384 default — truncation at 16384 forced the 32768 raise,
+# and the continuation drifted into a {"files":[...]} JSON envelope that strict
+# parsing rejected (3 quarantines, zero files). Same single-call multi-output
+# tier as character-design / plot-thread-weaver (API accepts 49152).
+max_tokens = 49152
+
 [overrides."shenbi-plot-thread-weaver"]
 temperature = 0.7
 # Probe2 genesis escalation #2 (2026-09-30): the single-file

@@ -122,10 +122,12 @@ def _parse_tables(body: str) -> dict[str, dict[str, Any]]:
 
         if "当前生命周期" in joined:
             # Presentation table — cross-check state source + content label.
-            for j in range(i + 2, len(lines)):  # skip separator row
+            for j in range(i + 1, len(lines)):  # separator rows skipped in-loop
                 row = _cells(lines[j])
-                if row is None or _is_separator(row):
+                if row is None:
                     break
+                if _is_separator(row):
+                    continue
                 if len(row) < 2:
                     continue
                 hid = _hook_id(row[0])
@@ -144,10 +146,12 @@ def _parse_tables(body: str) -> dict[str, dict[str, Any]]:
             # Hook ID | 操作 | 前状态 | 后状态 | 文本位置; locate by header.
             op_idx = next((k for k, h in enumerate(header) if "操作" in h), None)
             post_idx = next((k for k, h in enumerate(header) if "后状态" in h), None)
-            for j in range(i + 2, len(lines)):
+            for j in range(i + 1, len(lines)):
                 row = _cells(lines[j])
-                if row is None or _is_separator(row):
+                if row is None:
                     break
+                if _is_separator(row):
+                    continue
                 hid = _hook_id(row[0]) if row else None
                 if hid is None or post_idx is None or post_idx >= len(row):
                     continue
@@ -162,10 +166,12 @@ def _parse_tables(body: str) -> dict[str, dict[str, Any]]:
 
         if "last_reinforced" in joined or "间隔" in joined:
             # Interval table — Hook ID | last_reinforced推定 | 本章 | 间隔 | 状态.
-            for j in range(i + 2, len(lines)):
+            for j in range(i + 1, len(lines)):
                 row = _cells(lines[j])
-                if row is None or _is_separator(row):
+                if row is None:
                     break
+                if _is_separator(row):
+                    continue
                 hid = _hook_id(row[0]) if row else None
                 if hid is None or len(row) < 2:
                     continue
@@ -191,10 +197,12 @@ def _parse_tables(body: str) -> dict[str, dict[str, Any]]:
                 m = re.search(r"max_distance\s*[（(]\s*(\d+)\s*[）)]", header[md_idx])
                 if m:
                     header_md = int(m.group(1))
-            for j in range(i + 2, len(lines)):
+            for j in range(i + 1, len(lines)):
                 row = _cells(lines[j])
-                if row is None or _is_separator(row):
+                if row is None:
                     break
+                if _is_separator(row):
+                    continue
                 hid = _hook_id(row[0]) if row else None
                 if hid is None:
                     continue

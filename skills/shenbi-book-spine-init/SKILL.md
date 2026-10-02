@@ -10,6 +10,7 @@ contract:
   - novel.json
   - characters/protagonist.md
   - world/rules.md
+  - truth/pending_hooks.md
   writes:
   - file: truth/book_spine.md
     mode: create_or_overwrite
@@ -25,7 +26,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** outline/story_frame.md, outline/volume_map.md, novel.json, characters/protagonist.md, world/rules.md
+- **Reads:** outline/story_frame.md, outline/volume_map.md, novel.json, characters/protagonist.md, world/rules.md, truth/pending_hooks.md
 - **Writes:** truth/book_spine.md
 - **Updates:** none
 
@@ -53,7 +54,7 @@ digraph book_spine_init {
 
 1. **不读 author_intent.md** — 创世层末尾 author_intent 尚未由 intent-management 填充。书脊的 themes 从 novel.json 读取，author_intent 字段初始化为空，标记 `status: pending_intent`。memory-distill 在后续卷/大弧边界滚动合并 author_intent。
 2. **声明值只初始化不臆造** — 核心冲突/themes/主角弧终点从 story_frame.md + novel.json 真实继承，不臆造。
-3. **master hooks 从 volume_map 提取** — 跨卷级别的钩子（卷尾实体钩子的跨卷延续线）作为 master hooks 初始入库。
+3. **master hooks 从 volume_map 提取，编号继承伏笔池** — 跨卷级别的钩子（卷尾实体钩子的跨卷延续线）作为 master hooks 初始入库。**MH 编号必须逐钩继承 `truth/pending_hooks.md` 伏笔池的既有编号（同一钩子同号，池里没有的不占 MH 号）**——两套独立编号必在逐章循环断链（probe14：11 个共享编号全部指向不同钩子，靠人工重排救回）。
 4. **status: pending_intent 是合法初始态** — 第一卷定稿后由 memory-distill 合并 author_intent 并改 status 为 active。
 
 ## 输出格式
@@ -85,8 +86,9 @@ status: pending_intent
 - arc_ending: "[从 protagonist.md arc_ending]"
 - 当前进度: 0%
 
-## 主线钩子（master hooks，从 volume_map 跨卷钩子提取）
-- MH01: [内容] | 状态: PLANTED | 最后推进章: — | 声明兑现卷: [从 volume_map]
+## 主线钩子（master hooks，从 volume_map 跨卷钩子提取；MH 编号与 truth/pending_hooks.md 伏笔池逐钩一致）
+
+- MH01: [内容——与伏笔池同号钩子同指] | 状态: PLANTED | 最后推进章: — | 声明兑现卷: [从 volume_map]
 - MH02: [内容] | 状态: PLANTED | 最后推进章: — | 声明兑现卷: [从 volume_map]
 
 ## 世界铁律滚动快照（从 world/rules.md 同步前5条）

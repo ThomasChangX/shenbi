@@ -132,3 +132,43 @@ def test_json_manifest_envelope_recovery() -> None:
     assert [f.path for f in out2.files] == ["a.md"]
     # garbage stays empty (no false recovery)
     assert _parse_structured_output("no files here").files == []
+
+
+@pytest.mark.unit
+def test_json_manifest_envelope_recovers_control_chars() -> None:
+    """probe14 genesis step 12 (2026-10-02): the model shipped a 39KB
+    {"files":[...]} envelope whose content strings carry RAW newlines/
+    control chars — RFC-illegal, so strict json.loads AND raw_decode both
+    died with "Invalid control character" and 3 dispatches quarantined with
+    zero files while the full artifact sat in quarantine. strict=False
+    (literal control chars accepted inside strings) recovers it verbatim.
+    Fixture = the real quarantine dump (G0.9).
+    """
+    from pathlib import Path
+
+    from shenbi.pipeline.dispatch_helper import _parse_structured_output
+
+    fixture = (
+        Path(__file__).parents[2] / "fixtures" / "relationship-map-json-envelope-probe14.md"
+    ).read_text(encoding="utf-8")
+    # strip the quarantine wrapper's own header line
+    raw = fixture[fixture.find("{") :]
+    out = _parse_structured_output(raw)
+    assert [f.path for f in out.files] == [
+        "characters/relationships.md",
+        "truth/character_matrix.md",
+    ]
+    assert "关系图谱" in out.files[0].content
+
+
+@pytest.mark.unit
+def test_json_manifest_envelope_recovers_with_trailing_junk() -> None:
+    """Trailing text after the envelope must not block strict=False recovery
+    (raw_decode takes the first complete object).
+    """
+    from shenbi.pipeline.dispatch_helper import _parse_structured_output
+
+    raw = '{"files":[{"path":"a.md","content":"line1\nline2"}]}\n以上输出完成。'
+    out = _parse_structured_output(raw)
+    assert [f.path for f in out.files] == ["a.md"]
+    assert out.files[0].content == "line1\nline2"

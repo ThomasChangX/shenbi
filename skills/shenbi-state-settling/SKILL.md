@@ -189,6 +189,40 @@ digraph state_settling {
 
 ## 输出格式
 
+### 输出信封（CRITICAL——先读此节再读门禁文档）
+
+整个响应**必须是连续的 `### FILE:` 块序列**：每个派发指令声明的落盘路径一块、一块不可省（含本 skill 的 decisions sidecar，置于最后一块），块外不得有任何文字。块内内容按上文 Update Mode Rules——append_dedup 目标只放本章增量（行/colon bullet），**绝不整文件重发**。以第 1 章为例（下示为契约路径；pipeline 派发指令会带 `staging/` 前缀，以派发指令为准）：
+
+```markdown
+### FILE: truth/current_state.md
+| 第 1 章 | <一行本章快照> |
+
+### FILE: truth/particle_ledger.md
+| 第 1 章 | <一行本章资源收支> |
+
+### FILE: truth/emotional_arcs.md
+| 第 1 章 | <一行本章情绪弧> |
+
+### FILE: truth/subplot_board.md
+| 第 1 章 | <一行本章线索状态> |
+
+### FILE: truth/pending_hooks.md
+### MH09 · <标题照抄 live 文件该 hook 标题>
+
+- last_reinforced: 1
+
+### FILE: truth/chapter_summaries.md
+| 第 1 章 | <一行本章摘要> |
+
+### FILE: truth/character_matrix.md
+<本章发生交互的交互总表行（复合键）＋ 一个 `## 第1章状态增量` 原子区块>
+
+### FILE: truth/state-settling-decisions.json
+{"$schema": "shenbi-decisions-v1", "skill": "shenbi-state-settling", ...}
+```
+
+禁止两种坍缩形态（probe14 ch1 三连败实录）：①裸 sidecar JSON——整个响应只剩一块 JSON、无任何 `### FILE:` 头；②`{"files":[...]}` JSON 信封——多行中文无法合法转义，必被整包拒收。
+
 ### 人工审批门禁
 
 每次状态结算完成后，必须输出以下门禁文档供 human partner 逐项审批：
@@ -300,7 +334,7 @@ After updating character state, update `truth/character_matrix.md`:
 
 ## decisions sidecar 必填字段
 
-每次执行后**必须写出** `truth/state-settling-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件必须是纯 JSON：首字符即 `{`，禁止 markdown 标题、围栏代码块或任何前后缀文字。** 必填字段：
+每次执行后**必须写出** `truth/state-settling-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件的 ### FILE 块内容必须是纯 JSON（块内首字符即 `{`，禁止 markdown 标题与围栏代码块）；`### FILE:` 标记行本身照常输出，且不得以「纯 JSON」为由省略其余 7 个 truth 文件块（probe14 ch1：模型按「禁止任何前后缀文字」字面执行，把整个响应坍缩成裸 sidecar，8 落盘目标全数隔离）。** 必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）

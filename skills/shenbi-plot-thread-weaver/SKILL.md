@@ -126,6 +126,11 @@ digraph plot_thread_weaver {
 **文件级校验**: 输出若非此路径即为不合格。
 
 ```markdown
+---
+total_chapters: X
+updated_at: YYYY-MM-DD
+---
+
 # 线索地图
 
 **更新时间**: YYYY-MM-DD
