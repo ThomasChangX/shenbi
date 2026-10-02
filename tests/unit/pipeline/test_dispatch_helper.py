@@ -1130,3 +1130,39 @@ class TestGenesisQuarantineValidationSet:
         )
         quarantine = tmp_path / "_quarantine"
         assert quarantine.exists() and list(quarantine.glob("*"))
+
+
+class TestFrameworkOwnedWriteGuard:
+    """probe10 (2026-10-02, P0): worldbuilding's USER-mode contract still
+    declares create_or_overwrite on novel.json/genre-config.json; its
+    pipeline output block clobbered init's seed-parsed novel.json (title/
+    total_chapters wiped mid-genesis). LLM parsed outputs must never
+    overwrite framework-owned artifacts.
+    """
+
+    def test_novel_json_block_is_blocked_not_written(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        resp = (
+            "### FILE: novel.json\n"
+            '{"title": "LLM-invented"}\n'
+            "### FILE: world/story_bible.md\n\nbible\n"
+        )
+        _write_parsed_outputs(resp, ["novel.json", "world/story_bible.md"], tmp_path)
+        assert not (tmp_path / "novel.json").exists()
+        assert (tmp_path / "world" / "story_bible.md").exists()
+
+    def test_genre_config_writable_only_by_owner_skill(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        resp = '### FILE: genre-config.json\n{"version": "1.0"}\n'
+        _write_parsed_outputs(resp, ["genre-config.json"], tmp_path, skill="shenbi-worldbuilding")
+        assert not (tmp_path / "genre-config.json").exists()
+
+        _write_parsed_outputs(
+            resp,
+            ["genre-config.json"],
+            tmp_path,
+            skill="shenbi-genre-config",
+        )
+        assert (tmp_path / "genre-config.json").exists()

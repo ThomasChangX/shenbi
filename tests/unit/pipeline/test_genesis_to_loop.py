@@ -29,7 +29,7 @@ import pytest
 
 from shenbi.pipeline.cli import main
 from shenbi.pipeline.dispatch_helper import DispatchResult
-from shenbi.pipeline.genesis import GENESIS_STEPS
+from shenbi.pipeline.genesis import GENESIS_STEPS, run_genesis_step
 from shenbi.pipeline.machine import load_state
 from shenbi.pipeline.state import (
     CheckpointType,
@@ -267,3 +267,19 @@ class TestScopedRedoSkipGuard:
         assert genesis_succeeds.dispatch.call_count == 1
         assert state.genesis.current_step == 5
         assert GENESIS_STEPS[4].skill in state.genesis.skills_done
+
+
+class TestGenesisMultiFileOverride:
+    """probe10: outputs_override carried only story_bible for worldbuilding,
+    under-declaring its real genesis output set — the step shipped without
+    rules/locations and G4 failed 3x (rules/locations not_found).
+    """
+
+    def test_worldbuilding_prompt_lists_rules_and_locations(
+        self, seeded_project: Path, genesis_succeeds: SimpleNamespace
+    ) -> None:
+        run_genesis_step(load_state(seeded_project), seeded_project)
+        override = genesis_succeeds.dispatch.call_args.kwargs.get("outputs_override")
+        assert override is not None
+        assert "world/rules.md" in override
+        assert "world/locations.md" in override

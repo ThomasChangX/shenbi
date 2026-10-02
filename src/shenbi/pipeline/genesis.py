@@ -107,6 +107,16 @@ _INDEX_UPDATE_SKILLS: frozenset[str] = frozenset(
 )
 
 
+#: Genesis steps whose real pipeline output set exceeds the single
+#: ``output_path`` (stage-8 r2: narrowing persistence to output_path alone
+#: silently dropped legit multi-file genesis artifacts). probe10: with the
+#: quarantine validation following outputs_override, worldbuilding's prompt
+#: under-declared rules/locations and the step shipped without them.
+GENESIS_EXTRA_OUTPUTS: dict[str, list[str]] = {
+    "shenbi-worldbuilding": ["world/rules.md", "world/locations.md"],
+}
+
+
 def mark_skill_done(state: PipelineState, skill: str) -> None:
     """Record skill completion idempotently.
 
@@ -433,7 +443,8 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
         PathContext(anchor=1) if step.skill == "shenbi-anchor-curate" else None
     )  # F380 (spec #6): AC-NNN -> AC-001.md genesis sentinel, conditional on this step
     sidecars = _genesis_sidecar_paths(step.skill, step.output_path)
-    outputs_override = ([step.output_path] + sidecars) if step.output_path else None
+    extras = GENESIS_EXTRA_OUTPUTS.get(step.skill, [])
+    outputs_override = ([step.output_path] + extras + sidecars) if step.output_path else None
     result = dispatch_skill(
         step.skill,
         project_dir,

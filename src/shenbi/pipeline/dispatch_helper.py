@@ -490,6 +490,18 @@ def _resolve_read_path(project_dir: Path, read_path: str) -> list[Path]:
     return []
 
 
+#: Framework-owned artifacts an LLM parsed output must never overwrite
+#: (probe10 P0: worldbuilding's contract still declares create_or_overwrite
+#: on novel.json/genre-config.json for USER-mode scaffolding — its pipeline
+#: output block clobbered init's seed-parsed novel.json, wiping
+#: title/total_chapters mid-genesis). Value = the one skill allowed to write
+#: the path (None = framework only).
+FRAMEWORK_OWNED_WRITES: dict[str, str | None] = {
+    "novel.json": None,
+    "genre-config.json": "shenbi-genre-config",
+}
+
+
 #: F10 (spec #4 §5.1a): declared reads produced by the framework aggregate
 #: layer. When the aggregate is missing (legacy project dirs), the read
 #: fails open to the raw audit glob.
@@ -1799,6 +1811,15 @@ def _write_parsed_outputs(
             continue
         if not content.strip():
             log.warning("output_empty", path=rel_path)
+            continue
+        owner = FRAMEWORK_OWNED_WRITES.get(rel_path, "")
+        if owner != "" and owner != (skill or ""):
+            log.warning(
+                "framework_owned_write_blocked",
+                skill=skill,
+                path=rel_path,
+                owner=owner or "framework",
+            )
             continue
         # mkdir lives INSIDE _write_one (after path validation) so a rejected
         # traversal/symlink path cannot leave directories outside project_dir.
