@@ -106,6 +106,16 @@ def parse_seed(seed_path: Path | str) -> SeedData:
     # -- Basic Info -> novel.json -------------------------------------------
     basic = _extract_section(text, "Basic Info|基本信息")
     novel_json: dict[str, object] = {}
+
+    # -- H1 -> novel.json title ---------------------------------------------
+    # probe10/11: init never wrote a title, so G4.novel.missing_title only
+    # ever passed via worldbuilding's (guarded-away) LLM overwrite of the
+    # framework file — with a model-invented title. The work title is the
+    # seed's first H1, main segment before a subtitle colon.
+    h1 = re.search(r"^#\s+(.+?)\s*$", text, re.MULTILINE)
+    if h1:
+        novel_json["title"] = re.split(r"[：:]", h1.group(1), maxsplit=1)[0].strip()
+
     for item in _parse_list_items(basic):
         kv = _split_key_value(item)
         if kv is None:

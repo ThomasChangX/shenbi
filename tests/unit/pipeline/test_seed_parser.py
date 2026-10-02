@@ -136,3 +136,34 @@ class TestSplitKeyValue:
         """
         item = 'Core concept: she says"你好：世界"'
         assert _split_key_value(item) == ("Core concept", 'she says"你好：世界"')
+
+
+class TestTitleExtraction:
+    """probe10/11 (2026-10-02): init never wrote novel.json's title — the
+    seed parser has no H1 handling — so G4.novel.missing_title had only ever
+    passed because worldbuilding's LLM output was allowed to (accidentally)
+    overwrite the framework file with an invented title (probe9 shipped the
+    model-invented 星火燎原; the seed says 星火燃穹). The framework must own
+    its invariant: the title comes from the seed H1.
+    """
+
+    def test_h1_title_lands_in_novel_json(self, tmp_path):
+
+        from shenbi.pipeline.seed_parser import parse_seed
+
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 星火燃穹：位面解放战争史\n\n## 基本信息\n- 类型：架空历史\n",
+            encoding="utf-8",
+        )
+        data = parse_seed(seed)
+        assert data.novel_json.get("title") == "星火燃穹"
+
+    def test_h1_without_colon_uses_full_line(self, tmp_path):
+
+        from shenbi.pipeline.seed_parser import parse_seed
+
+        seed = tmp_path / "seed.md"
+        seed.write_text("# 一本没有副标题的书\n\n## 基本信息\n", encoding="utf-8")
+        data = parse_seed(seed)
+        assert data.novel_json.get("title") == "一本没有副标题的书"

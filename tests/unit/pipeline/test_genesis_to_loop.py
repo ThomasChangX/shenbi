@@ -283,3 +283,18 @@ class TestGenesisMultiFileOverride:
         assert override is not None
         assert "world/rules.md" in override
         assert "world/locations.md" in override
+
+
+def test_story_architecture_override_includes_skeleton_outputs(
+    seeded_project: Path, genesis_succeeds: SimpleNamespace
+) -> None:
+    """probe12: step 4 escalated 3x — G4-story-architecture requires the
+    volume_map/rhythm_principles genesis skeletons that step 6/7 later
+    overwrite, but the override only declared story_frame.
+    """
+    state = load_state(seeded_project)
+    state.genesis.current_step = 3  # 0-based: step 4 = story-architecture
+    run_genesis_step(state, seeded_project)
+    override = genesis_succeeds.dispatch.call_args.kwargs.get("outputs_override")
+    assert "outline/volume_map.md" in override
+    assert "outline/rhythm_principles.md" in override

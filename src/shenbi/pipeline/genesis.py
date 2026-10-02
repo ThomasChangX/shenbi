@@ -114,6 +114,11 @@ _INDEX_UPDATE_SKILLS: frozenset[str] = frozenset(
 #: under-declared rules/locations and the step shipped without them.
 GENESIS_EXTRA_OUTPUTS: dict[str, list[str]] = {
     "shenbi-worldbuilding": ["world/rules.md", "world/locations.md"],
+    # G4-story-architecture reads volume_map (>=1 卷 with Objective+KR) and
+    # rhythm_principles (non-empty) — both are this step's genesis skeletons,
+    # later overwritten by steps 6/7 (probe12: step 4 escalated 3x without
+    # them in the prompt/required set).
+    "shenbi-story-architecture": ["outline/volume_map.md", "outline/rhythm_principles.md"],
 }
 
 
