@@ -92,7 +92,8 @@ digraph foundation_review {
 2. 读完 `characters/`（主角档案 + 主要配角 + 关系矩阵）
 3. 读完 `outline/story_frame.md`（故事框架 / 三幕结构 / 主线节拍）
 4. 按 6 个维度逐项打分（每维度单独读，再写分数）
-5. 汇总总分，对照铁律判断通过/不通过
+5. 世界一致性逐事件对章号：power_system 章节里程碑表、relationships 演化轨迹与待兑现表、locations 功能事件表、factions 历史关键事件，逐一与 `outline/volume_map.md` 对表；story_frame 无章号层，不得作为章号对照源接受（probe8：power_system 曾以「story_frame 章节里程碑」作假自证）；发现两套以上互斥编年即世界一致性维度判不通过
+6. 汇总总分，对照铁律判断通过/不通过
 
 ## 输出格式
 

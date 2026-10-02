@@ -9,6 +9,7 @@ contract:
   - world/rules.md
   - world/locations.md
   - outline/story_frame.md
+  - outline/volume_map.md
   writes: []
   updates:
   - file: world/locations.md
@@ -24,7 +25,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, world/story_bible.md, world/rules.md, world/locations.md, outline/story_frame.md
+- **Reads:** novel.json, world/story_bible.md, world/rules.md, world/locations.md, outline/story_frame.md, outline/volume_map.md
 - **Writes:** none
 - **Updates:** world/locations.md
 
@@ -139,6 +140,8 @@ digraph location_builder {
 | 第M章 | [事件描述] | 藏匿/决战/信息/情感 |
 | 第P章 | [事件描述] | 藏匿/决战/信息/情感 |
 
+**章号铁律**：功能事件表的每一个章号必须与 `outline/volume_map.md` 的对应节点逐条对表一致——以 volume_map 为准，不得自创编年、不得发明卷纲之外的事件；终局/兑现类事件以 volume_map 终局章内容为准，不得自行设计终局手势。
+
 ### 地理位置
 
 - **相邻地点A**: [方向] [距离/行程] [地形特征]
@@ -150,6 +153,7 @@ digraph location_builder {
 |--------|------|----------|
 | 感官细节数 | ≥ 5 个独立细节 | < 5，或细节未标注感官类型 |
 | 功能事件数 | ≥ 3 个 | < 3，或缺失章节引用 |
+| 功能事件章号 | 与 outline/volume_map.md 逐条对表 | 任一事件在 volume_map 无对应节点，或章号错位 |
 | 主导感官 | 必填，五选一 | 空值或值不在允许列表中 |
 | 最近地标 | 必填 | 空值 |
 | 距离最近地标 | 必填，含数字+单位 | 空值或无数值 |

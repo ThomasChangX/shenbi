@@ -438,6 +438,10 @@ OPTIONAL_READS: dict[str, list[str]] = {
     # env-gated drop only runs on the legacy subprocess route; the API/IDE
     # routes get the raw-glob substitution via _resolve_read_with_fallback.
     "shenbi-chapter-revision": ["chapter-*.aggregate.md"],
+    # probe8: faction-builder (genesis step 5) runs BEFORE volume-outlining
+    # (step 6) — the grounding read is absent on the first pass and present
+    # on scoped-redo re-dispatch (genesis-complete reject --redo-steps).
+    "shenbi-faction-builder": ["outline/volume_map.md"],
 }
 
 _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"

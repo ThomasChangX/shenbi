@@ -11,6 +11,9 @@ contract:
   - characters/relationships.md
   - truth/character_matrix.md
   - world/factions.md
+  - novel.json
+  - outline/story_frame.md
+  - outline/volume_map.md
   writes: []
   updates:
   - file: characters/relationships.md
@@ -28,7 +31,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** characters/*.md, characters/**/*.md, characters/relationships.md, truth/character_matrix.md, world/factions.md
+- **Reads:** characters/*.md, characters/**/*.md, characters/relationships.md, truth/character_matrix.md, world/factions.md, novel.json, outline/story_frame.md, outline/volume_map.md
 - **Writes:** none
 - **Updates:** characters/relationships.md, truth/character_matrix.md
 
@@ -62,6 +65,7 @@ digraph relationship_map {
 2. **信息边界严格** — 角色 A 知道的事，B 是否知道必须在矩阵中显式记录
 3. **关系可演化** — 每个关系必须定义起点状态和预期终点状态（中间可分段）
 4. **去重原则** — 同一对角色（A,B）的同一类型关系只能有一条记录。若已存在旧记录，合并为新记录并标记旧记录为 superseded。关系演化状态变更在原记录上更新，不创建重复条目。跨文件重复（character.md + relationships.md）以 relationships.md 为权威源，character.md 中仅保留关系摘要指针
+5. **编年锚定** — 演化轨迹与「演化轨迹待兑现」表的一切事件章号以 `outline/volume_map.md` 为准，不得自创编年、不得引入卷纲之外的事件；本文件自称权威源，章号层必须与卷纲逐条一致
 
 ## 关系维度
 

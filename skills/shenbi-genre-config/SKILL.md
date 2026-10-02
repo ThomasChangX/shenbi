@@ -101,6 +101,18 @@ digraph genre_config {
     "minChaptersPerCycle": 8,
     "maxChaptersPerCycle": 15
   },
+  "tropeInventory": {
+    "overuse_threshold": 3,
+    "tropes": [
+      {
+        "name": " trope 名（如 穿越者金手指）",
+        "role": "该 trope 承担的结构职能",
+        "plan": "使用计划与代价约束",
+        "signatures": ["该 trope 的文本指纹（命中即计入使用）"],
+        "rewrite_hint": "超阈值时的改写方向"
+      }
+    ]
+  },
   "chapterTypes": {
     "battle": { "maxConsecutive": 2, "warningThreshold": 3 },
     "dialogue": { "maxConsecutive": 3, "warningThreshold": 4 },
@@ -110,7 +122,7 @@ digraph genre_config {
     "default": 1700,
     "min": 1300,
     "max": 4500,
-    "note": "每章目标字数（total_chars 口径）。这是章数数学的唯一基线：G0.3 用 ceil(target_word_count / default) 推章数，G4/G2 的每章字数地板读同一值——缺省 1500 会令按规划写作的章节结构性撞 3000 硬编码地板（探针实测：134 章基线折合 ~1250 CJK/章低于保量线 1418 当量）。从 novel.json 的 target_word_count 与期望章幅共同推导，保量校验：default × 0.95 ≥ target/总章数。"
+    "note": "每章目标字数（total_chars 口径）。这是章数数学的唯一基线：G0.3 用 ceil(target_word_count / default) 推章数，G4/G2 的每章字数地板读同一值——缺省 1500 会令按规划写作的章节结构性撞 3000 硬编码地板（探针实测：134 章基线折合 ~1250 CJK/章低于保量线 1418 当量）。从 novel.json 的 target_word_count 与期望章幅共同推导，保量校验：default × 0.95 ≥ target/总章数（总章数 = ceil(target_word_count / default)，即 novel.json total_chapters；禁止引入卷间缓冲章等任何虚增章数充当分母——probe8 实测：118+6 缓冲=124 的保量数学建立在幽灵章上）。"
   },
   "auditDimensions": {
     "antiAi": true,
@@ -301,13 +313,13 @@ cp genre-config.json genre-config.json.bak
 | customRules | array | 否 | 每项含 id/description/enforcement/example，enforcement ∈ {warning, blocking} |
 | approval | object | 是 | **REQUIRED**。含 reviewer/decision/date，decision ∈ {approved, rejected}。缺失即不合格 |
 
-**顶层字段**：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval）+ 2 可选（tropeInventory、chapter_word——后者为章数数学/字数地板的同源基线块，见上文模板；缺省时框架回退硬编码地板）。
+**顶层字段**：9 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval, **tropeInventory**——每条 trope 必含 name/role/plan/signatures/rewrite_hint，块内必含 overuse_threshold 数值；probe8 该块整体缺失，反套路维度的程序化命中检测随之断点）+ 1 可选（chapter_word——章数数学/字数地板的同源基线块，见上文模板；缺省时框架回退硬编码地板）。
 
 ### 可自动检查的计数规则
 
 | 检查项 | 规则 | 不合格条件 |
 |--------|------|----------|
-| 顶层键集 | 8 必填 + 可选 tropeInventory/chapter_word，不得有未知键 | 缺必填键或出现未知键 |
+| 顶层键集 | 9 必填（含 tropeInventory）+ 可选 chapter_word，不得有未知键 | 缺必填键或出现未知键 |
 | approval 字段存在 | 必须 | 缺失 |
 | approval.decision | approved 或 rejected | 其他值 |
 | 禁用词数 | ≤ 50 | > 50 |

@@ -205,7 +205,13 @@ def dispatch_escalation(
             contract = load_contract(failing_skill)
             lines = []
             for rel in contract.get("reads", []):
-                resolved = str(rel).replace("chapter-N", "N") if chapter is None else str(rel)
+                if chapter is None:
+                    resolved = str(rel).replace("chapter-N", "N")
+                else:
+                    # probe7 escalation report: the raw contract read kept the
+                    # literal N placeholder, probed a path that never exists,
+                    # and rendered AVAILABLE plan/context files as MISSING.
+                    resolved = str(rel).replace("chapter-N", f"chapter-{chapter}")
                 probe = Path(project_dir) / resolved
                 lines.append(f"- {resolved} — {'AVAILABLE' if probe.exists() else 'MISSING'}")
             if lines:

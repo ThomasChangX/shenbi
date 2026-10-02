@@ -215,6 +215,24 @@ class TestDispatchEscalation:
         prompt = mock_disp.call_args[0][2]
         assert "3 audit retries exhausted" in prompt
 
+    @patch(PATCH_DISPATCH_ESC)
+    def test_failing_skill_reads_resolve_chapter_placeholder(self, mock_disp, tmp_path: Path):
+        """probe7 escalation-1-report: the reads table rendered literal
+        ``plans/chapter-N-plan.md`` as MISSING while ``chapter-1-plan.md``
+        sat on disk — the N placeholder is only handled on the genesis
+        (chapter=None) branch, never substituted for a real chapter.
+        """
+        mock_disp.return_value = DispatchResult(True, 0, "ok", "")
+        (tmp_path / "plans").mkdir()
+        (tmp_path / "plans" / "chapter-3-plan.md").write_text("plan", encoding="utf-8")
+
+        dispatch_escalation(tmp_path, chapter=3, failing_skill="shenbi-chapter-drafting")
+        prompt = mock_disp.call_args[0][2]
+
+        assert "plans/chapter-3-plan.md — AVAILABLE" in prompt
+        assert "context/chapter-3-context.md — MISSING" in prompt
+        assert "chapter-N" not in prompt
+
 
 # ---------------------------------------------------------------------------
 # collect_audit_issues (scan audit reports for blocking/critical)

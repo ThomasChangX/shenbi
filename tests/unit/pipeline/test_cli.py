@@ -281,6 +281,118 @@ class TestReviewCommand:
         )
         assert state.genesis.retry_counts == {}  # escalation resolve resets budget
 
+    def test_review_genesis_complete_reject_scoped_redo(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """probe8 deadlock: the adjudicator ruled a scoped reject (redo
+        power_system/relationships/… , KEEP the authoritative outline cluster)
+        but the machinery could only roll back one step (foundation-review
+        re-run) and the feedback was a dead wire. ``--redo-steps`` expresses
+        the adjudication's redo list; un-listed done steps are skipped, not
+        regenerated.
+        """
+        from shenbi.pipeline.genesis import GENESIS_STEPS
+
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+        state = load_state(project_dir)
+        state.genesis.current_step = 17  # all 17 steps dispatched
+        state.genesis.skills_done = [s.skill for s in GENESIS_STEPS]
+        set_checkpoint(
+            state, CheckpointType.GENESIS_COMPLETE, artifact="foundation/review_report.md"
+        )
+        save_state(project_dir, state)
+
+        feedback_file = tmp_path / "ruling.md"
+        feedback_file.write_text(
+            "打回重做: world/power_system.md 重写里程碑表; characters/relationships.md 重锚 21 组",
+            encoding="utf-8",
+        )
+
+        rc, out = _run(
+            [
+                "review",
+                str(project_dir),
+                "reject",
+                "--feedback",
+                str(feedback_file),
+                "--redo-steps",
+                "2,10,12,17",
+            ],
+            monkeypatch,
+        )
+        assert rc == 0, out
+
+        state = load_state(project_dir)
+        assert state.genesis.current_step == 1  # cursor at step 2 (0-based idx 1)
+        skills = set(state.genesis.skills_done)
+        for num in (2, 10, 12, 17):
+            assert GENESIS_STEPS[num - 1].skill not in skills, f"step {num} must be re-dispatched"
+        # The authoritative outline cluster (4/6/7/8/13) stays untouched.
+        for num in (1, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16):
+            assert GENESIS_STEPS[num - 1].skill in skills, (
+                f"step {num} was ruled 保留不动 — must not be regenerated"
+            )
+        for num in (2, 10, 12, 17):
+            assert (
+                state.genesis.retry_feedback[GENESIS_STEPS[num - 1].skill]
+                == "打回重做: world/power_system.md 重写里程碑表; characters/relationships.md 重锚 21 组"
+            )
+        assert state.genesis.retry_counts == {}
+
+    def test_review_genesis_complete_reject_without_redo_steps_rolls_back_one(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Without --redo-steps the pre-existing one-step rollback stands."""
+        from shenbi.pipeline.genesis import GENESIS_STEPS
+
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+        state = load_state(project_dir)
+        state.genesis.current_step = 17
+        state.genesis.skills_done = [s.skill for s in GENESIS_STEPS]
+        set_checkpoint(
+            state, CheckpointType.GENESIS_COMPLETE, artifact="foundation/review_report.md"
+        )
+        save_state(project_dir, state)
+
+        rc, _ = _run(["review", str(project_dir), "reject"], monkeypatch)
+        assert rc == 0
+
+        state = load_state(project_dir)
+        assert state.genesis.current_step == 16
+        assert GENESIS_STEPS[16].skill not in state.genesis.skills_done
+        assert GENESIS_STEPS[0].skill in state.genesis.skills_done
+
+    def test_review_redo_steps_requires_genesis_complete_reject(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """--redo-steps is only meaningful for a genesis-complete reject; on
+        any other checkpoint it must fail BEFORE any staging side effects.
+        """
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+        state = load_state(project_dir)
+        set_checkpoint(state, CheckpointType.PER_CHAPTER, chapter=1)
+        save_state(project_dir, state)
+
+        rc, out = _run(["review", str(project_dir), "reject", "--redo-steps", "2"], monkeypatch)
+        assert rc == 1
+        state = load_state(project_dir)
+        assert state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
+
+    def test_review_redo_steps_rejects_out_of_range(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+        state = load_state(project_dir)
+        set_checkpoint(
+            state, CheckpointType.GENESIS_COMPLETE, artifact="foundation/review_report.md"
+        )
+        save_state(project_dir, state)
+
+        rc, _ = _run(["review", str(project_dir), "reject", "--redo-steps", "0,18"], monkeypatch)
+        assert rc == 1
+        state = load_state(project_dir)
+        assert state.pending_checkpoint.type == CheckpointType.GENESIS_COMPLETE
+
     def test_review_approve_commits_staging(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:

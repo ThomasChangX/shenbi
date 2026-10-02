@@ -11,6 +11,7 @@ contract:
   - characters/*.md
   - characters/**/*.md
   - outline/story_frame.md
+  - outline/volume_map.md
   writes: []
   updates:
   - file: world/factions.md
@@ -26,7 +27,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, world/story_bible.md, world/rules.md, characters/*.md, characters/**/*.md, outline/story_frame.md
+- **Reads:** novel.json, world/story_bible.md, world/rules.md, characters/*.md, characters/**/*.md, outline/story_frame.md, outline/volume_map.md
 - **Writes:** none
 - **Updates:** world/factions.md
 
@@ -148,6 +149,8 @@ digraph faction_builder {
 | [势力B] | 敌对 | 冷战 | 第M章血仇 |
 
 **关系类型约束**: 仅允许 盟友 / 竞争 / 中立 / 敌对 四种值。A 视 B 为敌则 B 必须视 A 为敌（对称性可自动检测）。
+
+**章号铁律**：本技能先于卷纲（volume-outlining）运行——首轮派发时 volume_map 尚未产出，历史关键事件一律用相对表述（卷内位置/先后次序），禁止落死章号；当上下文含 `outline/volume_map.md`（范围化重派）时，一切事件章号必须以卷纲节点为准、不得自创编年。
 
 ### 利益驱动
 

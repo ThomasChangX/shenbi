@@ -668,8 +668,33 @@ def _rollback_genesis_step(state: PipelineState) -> None:
     state.genesis.current_step = max(0, state.genesis.current_step - 1)
 
 
+def _rollback_genesis_to_steps(
+    state: PipelineState, step_nums: list[int], feedback: str | None = None
+) -> None:
+    """Scoped genesis rollback (probe8): rewind the cursor to the earliest
+    listed step, drop ONLY those skills from ``skills_done`` — un-listed
+    done steps are skipped on resume, not regenerated — and route the
+    reviewer feedback into each redo target's corrective-feedback slot so
+    the re-dispatch is not blind.
+    """
+    from shenbi.pipeline.genesis import GENESIS_STEPS
+
+    nums = set(step_nums)
+    target_idx = min(nums) - 1
+    for step in GENESIS_STEPS[target_idx:]:
+        if step.step_num in nums:
+            if step.skill in state.genesis.skills_done:
+                state.genesis.skills_done.remove(step.skill)
+            if feedback:
+                state.genesis.retry_feedback[step.skill] = feedback
+    state.genesis.current_step = target_idx
+
+
 def _apply_reject_redo(
-    state: PipelineState, cp: CheckpointData, feedback: str | None = None
+    state: PipelineState,
+    cp: CheckpointData,
+    feedback: str | None = None,
+    redo_steps: list[int] | None = None,
 ) -> None:
     """REJECT = redo the step that raised the checkpoint (spec #6 F340).
 
@@ -680,7 +705,10 @@ def _apply_reject_redo(
     elif cp.type == CheckpointType.STATE_SETTLE:
         state.chapter_loop.step_index = 7
     elif cp.type == CheckpointType.GENESIS_COMPLETE:
-        _rollback_genesis_step(state)
+        if redo_steps:
+            _rollback_genesis_to_steps(state, redo_steps, feedback)
+        else:
+            _rollback_genesis_step(state)
         state.genesis.retry_counts.clear()
     elif cp.type == CheckpointType.VOLUME_BOUNDARY:
         state.chapter_loop.step_index = 0  # next() re-runs the trigger fan-out
@@ -729,6 +757,39 @@ def cmd_review(args: argparse.Namespace) -> int:
                     return 1
                 feedback = feedback_path.read_text(encoding="utf-8")
 
+            # probe8 deadlock: scoped genesis-complete rejects need an explicit
+            # redo-step list (adjudications already enumerate it). Validated
+            # BEFORE any staging side effects, same F390 discipline.
+            redo_steps: list[int] = []
+            if getattr(args, "redo_steps", None):
+                if decision != ReviewDecision.REJECT or cp.type != CheckpointType.GENESIS_COMPLETE:
+                    emit_json(
+                        {
+                            "status": CommandStatus.ERROR,
+                            "message": "--redo-steps is only valid for a genesis-complete reject",
+                        }
+                    )
+                    return 1
+                from shenbi.pipeline.genesis import GENESIS_STEPS
+
+                try:
+                    redo_steps = sorted(
+                        {int(tok) for tok in args.redo_steps.split(",") if tok.strip()}
+                    )
+                except ValueError:
+                    redo_steps = []
+                if not redo_steps or any(n < 1 or n > len(GENESIS_STEPS) for n in redo_steps):
+                    emit_json(
+                        {
+                            "status": CommandStatus.ERROR,
+                            "message": (
+                                f"--redo-steps must be comma-separated ints in "
+                                f"1..{len(GENESIS_STEPS)}"
+                            ),
+                        }
+                    )
+                    return 1
+
             # Staging handling (spec section 2.7): approve commits staging
             # files to their final paths; reject clears staging. C30 F323:
             # MODIFY = human edits are the baseline — the old staged LLM
@@ -749,7 +810,9 @@ def cmd_review(args: argparse.Namespace) -> int:
                 clear_staging(project_dir)
 
             if decision == ReviewDecision.REJECT:
-                _apply_reject_redo(state, cp, feedback=feedback)  # acts on the cp snapshot
+                _apply_reject_redo(
+                    state, cp, feedback=feedback, redo_steps=redo_steps
+                )  # acts on the cp snapshot
             clear_checkpoint(state, decision)
 
             # Genesis-phase escalation: route feedback into the step's
@@ -1222,6 +1285,16 @@ def main(argv: list[str] | None = None) -> int:
     p_review.add_argument("project_dir", type=str)
     p_review.add_argument("decision", choices=["approve", "reject", "modify"])
     p_review.add_argument("--feedback", type=str, default=None)
+    p_review.add_argument(
+        "--redo-steps",
+        type=str,
+        default=None,
+        help=(
+            "genesis-complete reject only: comma list of genesis step numbers "
+            "to re-dispatch (scoped redo, probe8). Steps not listed stay done "
+            "and are skipped on resume."
+        ),
+    )
     p_review.set_defaults(func=cmd_review)
 
     p_resume = sub.add_parser("resume", help="Resume after checkpoint review")

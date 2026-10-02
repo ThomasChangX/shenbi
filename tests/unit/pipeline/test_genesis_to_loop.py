@@ -237,3 +237,33 @@ class TestGenesisToChapterLoopTransition:
         last = state.checkpoint_history[-1]
         assert last["type"] == "genesis-complete"
         assert last["decision"] == "approve"
+
+
+class TestScopedRedoSkipGuard:
+    """probe8 scoped redo (``--redo-steps``): the reject handler rewinds the
+    cursor over steps the adjudication ruled 保留不动. Those steps stay in
+    ``skills_done`` and must advance WITHOUT re-dispatch — only the listed
+    redo targets (removed from ``skills_done``) dispatch again.
+    """
+
+    def test_done_steps_skip_without_redispatch(
+        self, seeded_project: Path, genesis_succeeds: SimpleNamespace
+    ) -> None:
+        from shenbi.pipeline.genesis import run_genesis_step
+
+        state = load_state(seeded_project)
+        state.genesis.current_step = 0
+        # Scoped redo of step 5 only: steps 1-4 ruled 保留不动 (still done).
+        state.genesis.skills_done = [s.skill for s in GENESIS_STEPS[:4]]
+
+        # Four skip-advances over the done steps 1-4: nothing dispatches.
+        for _ in range(4):
+            assert run_genesis_step(state, seeded_project) is False
+        assert genesis_succeeds.dispatch.call_count == 0
+        assert state.genesis.current_step == 4
+
+        # Step 5 (faction-builder, not in skills_done) dispatches for real.
+        assert run_genesis_step(state, seeded_project) is False
+        assert genesis_succeeds.dispatch.call_count == 1
+        assert state.genesis.current_step == 5
+        assert GENESIS_STEPS[4].skill in state.genesis.skills_done

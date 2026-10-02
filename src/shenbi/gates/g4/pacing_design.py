@@ -4,6 +4,8 @@ Uses PacingDesign.from_markdown + model_validate instead of keyword checks.
 """
 
 from __future__ import annotations
+import re
+
 from shenbi.status import GateStatus
 
 from pathlib import Path
@@ -44,6 +46,14 @@ def g4_pacing_design(
         mf.append("G4.rhythm.not_found")
     else:
         content = rhythm_path.read_text(encoding="utf-8")
+        # probe6/7/8: three probes shipped without the machine-readable
+        # total_chapters line — the five-way reconcile went blind each time.
+        if not re.search(r"^total_chapters:\s*\d+\s*$", content, re.MULTILINE):
+            mf.append(
+                "G4.rhythm.frontmatter_total_chapters_missing: "
+                "文件首部 YAML frontmatter 必含 total_chapters（与 novel.json 一致）"
+                "与 produced_at（ISO8601）两行"
+            )
         try:
             model = PacingDesign.from_markdown(content)
             if not model.beats:

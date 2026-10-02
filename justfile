@@ -144,8 +144,14 @@ pipeline-status project_dir:
     uv run pipeline status "$1"
 
 # Submit a checkpoint review
-pipeline-review project_dir decision feedback="":
-    if [ -n "$3" ]; then uv run pipeline review "$1" "$2" --feedback "$3"; else uv run pipeline review "$1" "$2"; fi
+# redo_steps: genesis-complete scoped reject (probe8) — comma list of genesis
+# step numbers to re-dispatch, e.g. just pipeline-review <dir> reject <fb> "2,10,12,17"
+pipeline-review project_dir decision feedback="" redo_steps="":
+    #!/usr/bin/env bash
+    args=()
+    if [ -n "$3" ]; then args+=(--feedback "$3"); fi
+    if [ -n "$4" ]; then args+=(--redo-steps "$4"); fi
+    uv run pipeline review "$1" "$2" "${args[@]+"${args[@]}"}"
 
 # Resume pipeline execution
 pipeline-resume project_dir:

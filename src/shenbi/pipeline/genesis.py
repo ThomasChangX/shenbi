@@ -403,6 +403,12 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
         return True
 
     step = GENESIS_STEPS[step_idx]
+    if step.skill in state.genesis.skills_done:
+        # Scoped redo (probe8 ``--redo-steps``): the cursor was rewound over
+        # steps the adjudication ruled 保留不动 — they stay done and must
+        # advance without re-dispatch.
+        state.genesis.current_step = step_idx + 1
+        return False
     log.info("genesis_step", step=step.step_num, skill=step.skill)
 
     # Build prompt, injecting G4 failure feedback from prior attempts
@@ -414,11 +420,13 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     # Inject prior G4 failure details as corrective feedback on retry
     prev_g4_failure = state.genesis.retry_feedback.get(step.skill)
     if prev_g4_failure:
+        # The slot carries both G4 must-fix feedback and genesis-complete
+        # review-reject feedback (scoped redo, probe8) — keep the header
+        # accurate for either source.
         prompt += (
-            f"\n\n## CORRECTIVE FEEDBACK (prior attempt failed G4 validation)\n"
-            f"Your previous output failed the structural check:\n"
+            f"\n\n## CORRECTIVE FEEDBACK (prior attempt was rejected)\n"
+            f"Failure details — fix every issue they name in your new output:\n"
             f"```\n{prev_g4_failure}\n```\n"
-            f"Fix these issues in your new output."
         )
 
     step_ctx = (

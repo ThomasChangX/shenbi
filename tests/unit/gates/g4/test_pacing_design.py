@@ -75,6 +75,7 @@ def test_passes_with_complete_rhythm(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir(parents=True)
     (project_dir / "outline" / "rhythm_principles.md").write_text(
+        "---\ntotal_chapters: 100\nproduced_at: 2026-10-01T00:00:00Z\n---\n\n"
         "铺垫 25% 升级 30% 爆发 25% 余波 20%\n"
         "QUEST 40% FIRE 35% CONSTELLATION 25%\n"
         "战斗 对话 日常 探索 修炼 阴谋 逃亡 揭示\n",
@@ -84,13 +85,37 @@ def test_passes_with_complete_rhythm(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
 
 
+@pytest.mark.unit
+def test_fails_when_frontmatter_total_chapters_missing(tmp_path: Path) -> None:
+    """probe6/7/8: three probes shipped rhythm_principles without the
+    machine-readable total_chapters line — the five-way reconcile went
+    blind each time and genesis-complete blocked on a one-line miss.
+    """
+    project_dir, marker = _setup(tmp_path)
+    (project_dir / "outline").mkdir(parents=True)
+    (project_dir / "outline" / "rhythm_principles.md").write_text(
+        "铺垫 25% 升级 30% 爆发 25% 余波 20%\n"
+        "QUEST 40% FIRE 35% CONSTELLATION 25%\n"
+        "战斗 对话 日常 探索 修炼 阴谋 逃亡 揭示\n",
+        encoding="utf-8",
+    )
+    result = _result(g4_pacing_design([str(marker)]))
+    assert result["status"] == "FAIL"
+    assert any("frontmatter" in mf for mf in result.get("must_fix", []))
+
+
 # ---------------------------------------------------------------------------
 # Canonical EXACT-template table parsing (canary escalation #2, 2026-09-28):
 # the tight-only regex could not read the SKILL.md template's own table
 # shapes, so a letter-perfect template output failed G4.
 # ---------------------------------------------------------------------------
 
-_CANONICAL_RHYTHM = """# 节奏原则
+_CANONICAL_RHYTHM = """---
+total_chapters: 100
+produced_at: 2026-10-01T00:00:00Z
+---
+
+# 节奏原则
 
 ## 四拍循环
 
