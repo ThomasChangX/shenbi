@@ -53,7 +53,12 @@ _FRONTMATTER_PARTS = 3
 EXAMPLE_FIXTURES: dict[str, list[Path] | None] = {
     "plans/chapter-N-plan.md": [FIXTURES_DIR / "chapter-plan-example.md"],
     "style/style_profile.md": [FIXTURES_DIR / "style-profile-example.md"],
-    "genre-config.json": [FIXTURES_DIR / "genre-config-example.json"],
+    # probe17 real output carries the OPTIONAL chapter_word/tropeInventory
+    # blocks (the older example predates them); any-match keeps both valid.
+    "genre-config.json": [
+        FIXTURES_DIR / "genre-config-example.json",
+        FIXTURES_DIR / "genre-config-xinghuo-probe17.json",
+    ],
     "novel.json": [FIXTURES_DIR / "novel-example.json"],
     "chapters/chapter-N.md": [
         FIXTURES_DIR / "chapter-draft-example.md",
