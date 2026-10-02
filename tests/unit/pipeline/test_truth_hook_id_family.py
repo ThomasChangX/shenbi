@@ -129,3 +129,31 @@ def test_live_form_registry_row_upsert_replaces_by_canon_key():
     merged = upsert_markdown_row(live, bump, "hook_id")
     assert "RELEVANT" in merged
     assert merged.count("| MH02") == 1
+
+
+class TestBoldFieldAddressing:
+    """probe18 adjudication #005 (#35): genesis improvised a bold field
+    grammar (``- **notes**: …``) while the merge's name capture kept the
+    stars — a bold increment name-matched a differently-styled live line
+    and whole-line-replaced it. Addressing must normalize emphasis markers;
+    the REPLACED line keeps the increment's own form (content strictness
+    unchanged, G4 still gates it).
+    """
+
+    def test_bold_increment_addresses_plain_live_field(self):
+        base = (
+            "## 详情\n\n### MH01（标题）\n\n- type: ITEM\n"
+            "- notes: 第 0 章 创世登记；历史甲\n- last_reinforced: 0\n"
+        )
+        increment = "### MH01（标题）\n- **last_reinforced**: 第 1 章"
+        merged = upsert_markdown_row(base, increment, "hook_id")
+        assert "- **last_reinforced**: 第 1 章" in merged
+        assert "- last_reinforced: 0" not in merged
+        assert merged.count("last_reinforced") == 1, "no duplicate field artifact"
+
+    def test_plain_increment_addresses_bold_live_field(self):
+        base = "## 详情\n\n### MH01（标题）\n\n- **type**: ITEM\n- **last_reinforced**: 0\n"
+        increment = "### MH01（标题）\n- last_reinforced: 第 2 章"
+        merged = upsert_markdown_row(base, increment, "hook_id")
+        assert "- last_reinforced: 第 2 章" in merged
+        assert merged.count("last_reinforced") == 1

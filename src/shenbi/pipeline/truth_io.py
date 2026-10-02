@@ -371,6 +371,19 @@ def base_has_hook_content(text: str) -> bool:
 _COLON_BULLET_RE = re.compile(r"^-\s*([^:：\s][^:：]*)\s*[:：]")
 
 
+def _canon_field_name(name: str) -> str:
+    """Field ADDRESSING name: emphasis markers stripped.
+
+    probe18 adjudication #005 (#35): genesis improvised a bold grammar
+    (``- **notes**: …``) while the raw capture kept the stars — a bold
+    increment name-matched a differently-styled live line and
+    whole-line-replaced it. ``**notes**`` ≡ ``notes`` for targeting; the
+    REPLACED line keeps the increment's own form (content strictness
+    unchanged — G4 still gates the result).
+    """
+    return name.strip().strip("*").strip()
+
+
 def _hook_section_bullet_merge(existing: str, unit: str) -> str | None:
     """Patch a hook section's named fields in place; None when inapplicable.
 
@@ -403,7 +416,7 @@ def _hook_section_bullet_merge(existing: str, unit: str) -> str | None:
         fm = _COLON_BULLET_RE.match(s)
         if not fm:
             return None  # free-form content = section rewrite — legacy replace
-        fields.append((fm.group(1).strip(), line.rstrip()))
+        fields.append((_canon_field_name(fm.group(1)), line.rstrip()))
     if not fields:
         return None
 
@@ -439,7 +452,7 @@ def _hook_section_bullet_merge(existing: str, unit: str) -> str | None:
             if not s.startswith("-"):
                 continue
             fm = _COLON_BULLET_RE.match(s)
-            if fm and fm.group(1).strip() == name:
+            if fm and _canon_field_name(fm.group(1)) == name:
                 lines[j] = newline
                 used[fi] = True
                 break

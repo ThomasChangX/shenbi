@@ -166,6 +166,28 @@ Genesis phase has no chapter memo (`plans/chapter-N-plan.md`). Genesis mode extr
 
 （逐章模式的改动总览行保持同一 8 列形态，append_dedup 按 hook_id 行级合并。）
 
+**创世详情段（EXACT 格态）**：`## 详情` 下每个钩子一个 `### MHxx（钩子名）` 段，字段一律**平形单字段 bullet——一行一字段、字段名不加粗、不用 `｜` 复合行**（字段名封闭集，与合并/守卫机制同语法；probe18 裁决 #005：粗体复合语法使同名整行替换毁掉累积历史）：
+
+```markdown
+### MH01（真名禁忌与唯一一次例外）
+
+- type: RULE
+- dimension: WORLD
+- lifecycle_state: PLANTED
+- plant_chapter: 2
+- resolve_chapter: 78
+- subtlety: 0.5
+- cultivation_interval: 8
+- max_distance: 10
+- escalation_curve: STAIRCASE
+- trigger_condition: …
+- resolve_condition: …
+- depends_on: []
+- notes: …
+```
+
+（每段 ≤15 行；`last_reinforced`/`证据` 为章级增量字段，创世不输出。逐章更新的 bullet 形态见「pending_hooks 写纪律」。）
+
 Genesis mode flow:
 1. Read `outline/story_frame.md` extract three-act cross-volume promises
 2. Read `outline/volume_map.md` extract per-volume end-of-volume entity hooks

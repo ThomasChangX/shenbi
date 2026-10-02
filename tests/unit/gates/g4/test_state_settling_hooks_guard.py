@@ -233,3 +233,35 @@ class TestHookRowGuardLiveForm:
         )
         status, mf = _run(_project(tmp_path, _LIVE_HOOKS_PROBE15, staged))
         assert status == "PASS", mf
+
+
+class TestDroppedLinesPerLineTruth:
+    """probe18 adjudication #005 (#37): the order-preserving subsequence
+    check consumed the staged iterator past the first miss, reporting every
+    subsequent live line as dropped — 2 real losses surfaced as
+    "content_dropped:153行" with sample lines that were PRESENT in staging,
+    misdirecting remediation (the enriched feedback accused the model of
+    scaffold re-emission it never did). Per-line pointer semantics: a miss
+    records exactly that line; the pointer stays put for the next live
+    line.
+    """
+
+    def test_single_late_miss_reports_one_line(self):
+        from shenbi.gates.g4.state_settling import _dropped_content_lines
+
+        live = "\n".join(f"- stable{i}: v" for i in range(10))
+        staged_lines = [f"- stable{i}: v" for i in range(10)]
+        del staged_lines[8]  # one real miss late in the stream
+        staged = "\n".join(staged_lines)
+        issues = _dropped_content_lines(live, staged, hooks=True)
+        assert issues == ["content_dropped:1行 e.g. ['- stable8: v']"], issues
+
+    def test_two_scattered_misses_report_two_lines(self):
+        from shenbi.gates.g4.state_settling import _dropped_content_lines
+
+        live = "\n".join(f"- stable{i}: v" for i in range(6))
+        staged_lines = [f"- stable{i}: v" for i in range(6)]
+        del staged_lines[1]
+        del staged_lines[3]
+        issues = _dropped_content_lines(live, "\n".join(staged_lines), hooks=True)
+        assert issues and issues[0].startswith("content_dropped:2行"), issues

@@ -86,15 +86,26 @@ def _dropped_content_lines(
     Order-preserving subsequence check: a settle increment may append and
     upsert, but live prose/headings/bullets must appear in the staged file
     in their original order. Reordering is a format replacement.
+
+    Per-line pointer semantics (probe18 adjudication #005): the old
+    shared-iterator ``any()`` consumed the staged stream past the first
+    miss, cascading every subsequent live line into the count — 2 real
+    losses reported as 153, with sample lines that were present in staging.
+    A miss now records exactly that line; the pointer stays put.
     """
     stream_fn = _hooks_content_stream if hooks else _content_stream
     live_stream = stream_fn(live_text)
-    staged_iter = iter(stream_fn(staged_text))
+    staged_stream = stream_fn(staged_text)
     missing: list[str] = []
+    i = 0
     for line in live_stream:
-        if any(s == line for s in staged_iter):
-            continue
-        missing.append(line)
+        j = i
+        while j < len(staged_stream) and staged_stream[j] != line:
+            j += 1
+        if j < len(staged_stream):
+            i = j + 1  # consume the match
+        else:
+            missing.append(line)  # probe pointer stays at i for the next line
     total = len(missing)
     if not total:
         return []

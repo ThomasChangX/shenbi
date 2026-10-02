@@ -79,3 +79,21 @@ class TestFoundationReviewVerdictLinkage:
         assert "单条 trope" in body
         assert "命中次数" in body
         assert "类型" in body  # names the NON-violation unit explicitly
+
+
+class TestForeshadowingDetailGrammarPin:
+    """#36 (probe18 adjudication #005): genesis detail-block bullet grammar
+    was unpinned — four probes improvised four grammars (probe15 `type: X /
+    dimension`, probe16 Chinese field names, probe17 plain compound, probe18
+    bold compound) while merge/teaching assume plain single-field. The
+    template must pin plain one-field-per-line bullets over a closed field
+    set, same EXACT tier as the 总览 table.
+    """
+
+    def test_detail_template_pinned_plain_single_field(self):
+        body = _body("shenbi-foreshadowing-lifecycle")
+        assert "创世详情段（EXACT 格态）" in body
+        assert "一行一字段" in body
+        assert "- lifecycle_state: PLANTED" in body
+        # bans the improvised forms by name
+        assert "不加粗" in body and "复合行" in body

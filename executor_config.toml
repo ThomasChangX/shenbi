@@ -148,3 +148,13 @@ temperature = 0.15
 # artifact itself passes G4) — headroom mirrors the lifecycle precedent.
 temperature = 0.2
 max_tokens = 49152
+
+[overrides."shenbi-foundation-review"]
+temperature = 0.1
+# probe18 genesis step 17 (2026-10-02): whole-project single-call review pinned
+# the 32768 raise 3x (completion 16384/32768, output_length=0, zero files) —
+# probe17 landed the same contract at ~12K on a comparable corpus, so the driver
+# is verbosity variance at the 0.7 default, not contract growth: normalize to
+# the review-family temperature + same 49152 headroom tier as review-group-
+# character (API accepts 49152; ladder can still self-raise to 58982).
+max_tokens = 49152
