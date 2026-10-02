@@ -18,6 +18,13 @@ PRE_LEN_CHAPTER_PATTERN = 7629
 PRE_EST_CHAPTER_PATTERN = 2681
 PRE_LEN_PACING = 6829
 PRE_EST_PACING = 2511
+# probe8 fix batch (5716a195): pacing-design's mandatory frontmatter contract
+# adds 84 chars / ~34 est-tokens to the system prompt (校验规则 item 1 + the
+# template's own frontmatter block). Externalization boundary unchanged —
+# the allowance keeps this guard measuring spec §3.5 slimming, not freezing
+# prompt size against later mandatory contract elements.
+PACING_FRONTMATTER_ADD = 84
+PACING_FRONTMATTER_TOKENS = 36
 
 
 def _system_prompt(skill: str, tmp_path: Path) -> str:
@@ -52,9 +59,9 @@ def test_pacing_design_slimmed(tmp_path: Path) -> None:
     system = _system_prompt("shenbi-pacing-design", tmp_path)
 
     # net char drop: landed 367 (removed ~480, pointer ~113)
-    assert PRE_LEN_PACING - len(system) >= 280
+    assert PRE_LEN_PACING - len(system) >= 280 - PACING_FRONTMATTER_ADD
     # estimated-token drop: landed 144
-    assert estimate_prompt_tokens(system) <= PRE_EST_PACING - 130
+    assert estimate_prompt_tokens(system) <= PRE_EST_PACING - 130 + PACING_FRONTMATTER_TOKENS
 
     ref = SKILLS_DIR / "shenbi-pacing-design" / "pacing-design-reference.md"
     assert ref.is_file()

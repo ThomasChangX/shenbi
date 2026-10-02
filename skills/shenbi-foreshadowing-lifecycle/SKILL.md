@@ -47,8 +47,8 @@ HARD-GATE: Must execute after chapter drafting and state-settling. Combines reca
 digraph foreshadowing_lifecycle {
     "Chapter drafted + state settled (HARD-GATE)" -> "Genesis mode?";
     "Genesis mode?" -> "Read outline/story_frame.md + outline/volume_map.md" [label="yes (--mode genesis)"];
-    "Read outline/story_frame.md + outline/volume_map.md" -> "Extract cross-volume master hooks (MH-NNN, PLANTED)";
-    "Extract cross-volume master hooks (MH-NNN, PLANTED)" -> "Append truth/pending_hooks.md (append_dedup)";
+    "Read outline/story_frame.md + outline/volume_map.md" -> "Extract cross-volume master hooks (MH01 形态: MH+两位数字、无连字符，与 book_spine 一致, PLANTED)";
+    "Extract cross-volume master hooks (MH01 形态: MH+两位数字、无连字符，与 book_spine 一致, PLANTED)" -> "Append truth/pending_hooks.md (append_dedup)";
     "Append truth/pending_hooks.md (append_dedup)" -> "Write audits/chapter-N-foreshadowing.md";
     "Genesis mode?" -> "Phase 1: Recall (single LLM call)" [label="no"];
     "Phase 1: Recall (single LLM call)" -> "DORMANT hook: trigger_condition matches chapter context?";
@@ -122,7 +122,7 @@ For each ACTIVE hook in `pending_hooks.md`, scan the chapter body for:
 
 From the chapter plan Section 7 (Hook Ledger), identify hooks that should be
 newly planted this chapter. For each:
-1. Assign a unique hook ID (format: MH-NNN or CP-NNN or sequel-specific prefix)
+1. Assign a unique hook ID (format: MH01-style — MH + 两位数字、无连字符，必须与 `truth/book_spine.md` 的既有 MH 编号一致；或 CP-NNN or sequel-specific prefix)
 2. Define `trigger_condition` and `resolve_condition`
 3. Set initial `lifecycle_state` to PLANTED
 4. Register in `pending_hooks.md`
@@ -156,6 +156,15 @@ Genesis phase has no chapter memo (`plans/chapter-N-plan.md`). Genesis mode extr
 - **reads**: `outline/story_frame.md` + `outline/volume_map.md` (replaces chapter plan)
 - **Extract master hooks**: from volume_map cross-volume hooks, initialize as PLANTED state
 - **updates**: `truth/pending_hooks.md` via append_dedup (same as default mode); genesis does NOT touch `truth/bridge_tracker.md`
+
+**创世总览表（EXACT 格态）**：`## 总览` 表必须带以下表头与 8 列行形态（索引解析器按表头键「当前生命周期」识别，钩子名放 ID 列括号内；无表头或自创列序 = 整个钩子池对 truth 索引不可见，属不合格输出）：
+
+| Hook ID（钩子名） | 当前生命周期 | 种植章 | 兑现章（卷） | 类型 | 微妙度 | max_distance(14) | 升级曲线 |
+|------|------|------|------|------|------|------|------|
+| MH01（真名禁忌与唯一一次例外） | PLANTED | 2 | 78（四卷） | RULE | 0.5 | 10 | STAIRCASE |
+| MH02（祈桑的低语与泉水册） | PLANTED | 14 | 88（五卷） | INFORMATION | 0.6 | 8 | RISING |
+
+（逐章模式的改动总览行保持同一 8 列形态，append_dedup 按 hook_id 行级合并。）
 
 Genesis mode flow:
 1. Read `outline/story_frame.md` extract three-act cross-volume promises

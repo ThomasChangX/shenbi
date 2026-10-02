@@ -101,7 +101,7 @@ digraph pacing_design {
 输出到 `outline/rhythm_principles.md`，使用以下 EXACT 节标题。缺任意一节即为不合格。
 
 **节标题校验规则**：输出必须包含：
-1. YAML frontmatter 块（文件最顶部，首行 `---` 之前不得有空行）— 必含 `total_chapters`（与 novel.json 一致）与 `produced_at`（ISO8601）两行；缺 frontmatter 即对账五检的机器盲区（probe6/7/8 三轮同型阻塞）
+1. YAML frontmatter 块（文件最顶部）— 必含 `total_chapters`（与 novel.json 一致）与 `produced_at`（ISO8601）
 2. `# 节奏原则` — H1
 3. `## 四拍循环` — H2
 4. `## 三线比例` — H2

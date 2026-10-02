@@ -386,3 +386,28 @@ class TestCollectAuditIssues:
         issues, blocking = collect_audit_issues(tmp_project, chapter=1)
         assert issues == []
         assert blocking is False
+
+
+class TestEscalationOptionalReadsRendering:
+    """probe9: context/chapter-N-context-decisions.json is declared in
+    chapter-drafting's reads but only exists in user-routable
+    context-composing mode — the pipeline's deterministic step 3 never
+    writes it, so every escalation report rendered it MISSING (probe7's
+    adjudicator crowned it top-suspect root cause H1).
+    """
+
+    @patch(PATCH_DISPATCH_ESC)
+    def test_pipeline_absent_read_renders_optional(self, mock_disp, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+        assert "context/chapter-*-context-decisions.json" in OPTIONAL_READS.get(
+            "shenbi-chapter-drafting", []
+        )
+
+        mock_disp.return_value = DispatchResult(True, 0, "ok", "")
+        dispatch_escalation(tmp_path, chapter=2, failing_skill="shenbi-chapter-drafting")
+        prompt = mock_disp.call_args[0][2]
+        assert "- context/chapter-2-context-decisions.json — OPTIONAL" in prompt
+        assert "context/chapter-2-context-decisions.json — MISSING" not in prompt, (
+            "pipeline-absent optional read must not read as a loss"
+        )

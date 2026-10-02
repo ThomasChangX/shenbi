@@ -423,7 +423,6 @@ OPTIONAL_READS: dict[str, list[str]] = {
     "shenbi-context-composing": ["arc-*.md", "volume_summaries.md", "trend"],
     "shenbi-drift-guidance": ["arc-*.md"],
     "shenbi-chapter-planning": ["chapter-*-plan.md"],
-    "shenbi-chapter-drafting": ["chapter-*-plan.md"],
     "shenbi-escalation-review": [
         "resonance_trend.md",
         "volume-*-score.md",
@@ -442,6 +441,14 @@ OPTIONAL_READS: dict[str, list[str]] = {
     # (step 6) — the grounding read is absent on the first pass and present
     # on scoped-redo re-dispatch (genesis-complete reject --redo-steps).
     "shenbi-faction-builder": ["outline/volume_map.md"],
+    # probe9: the context decisions sidecar exists only in user-routable
+    # context-composing mode — the pipeline's deterministic step 3 never
+    # writes it, so escalation availability tables must not read its absence
+    # as a loss.
+    "shenbi-chapter-drafting": [
+        "chapter-*-plan.md",
+        "context/chapter-*-context-decisions.json",
+    ],
 }
 
 _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
@@ -1596,6 +1603,7 @@ def _write_parsed_outputs(
     *,
     skill: str | None = None,
     parsed: dict[str, str] | None = None,
+    required_paths: list[str] | None = None,
 ) -> list[str]:
     """Parse agent response and write per-file content.
 
@@ -1765,9 +1773,20 @@ def _write_parsed_outputs(
         if issues:
             _append_integrity_findings(project_dir, full_path, issues)
 
-    # Process literal contract paths
+    # Process literal contract paths. The missing-paths QUARANTINE check
+    # validates the caller-declared required set (genesis: the step's
+    # outputs_override), NOT the full persistence set — probe9 quarantined
+    # 6 genesis dispatches for chapter-mode/user-mode writes the step
+    # legitimately never produces (novel.json, bridge_tracker, …) while
+    # stage-8 r1 had already narrowed the prompt to the declared outputs.
+    # Persistence below stays full-contract (stage-8 r2 ruling).
+    check_paths = (
+        [rp for rp in required_paths if "*" not in rp and "?" not in rp]
+        if required_paths is not None
+        else literal_paths
+    )
     missing_paths: list[str] = []
-    for rel_path in literal_paths:
+    for rel_path in check_paths:
         if "*" in rel_path:
             continue
         content = parsed.get(rel_path)
@@ -2599,6 +2618,7 @@ def _dispatch_via_api(
             create_truth_templates=True,
             skill=skill,
             parsed=parsed_dict,
+            required_paths=outputs_override,
         )
     except DispatchWriteFailureError as exc:
         log.error(
@@ -2750,6 +2770,7 @@ def _dispatch_via_ide(
             project_dir,
             create_truth_templates=True,
             skill=skill,
+            required_paths=outputs_override,
         )
     except DispatchWriteFailureError as exc:
         log.error(

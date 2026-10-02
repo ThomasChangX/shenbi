@@ -1074,3 +1074,59 @@ def test_persist_failed_write_dump_carries_forensic_header(tmp_path: Path) -> No
     assert "skill: shenbi-genre-config" in text
     assert "output_chars: 0" in text
     assert "empty output" in text
+
+
+class TestGenesisQuarantineValidationSet:
+    """probe9 (2026-10-02): genesis quarantined 6x for ``declared literal
+    paths not in parsed output`` — the missing-paths validation ran against
+    the FULL contract write set (user-mode relics like novel.json /
+    truth/bridge_tracker.md that genesis mode legitimately never produces),
+    while stage-8 r1 had already narrowed the PROMPT to the GenesisStep's
+    declared outputs. The validation set must follow the override; the
+    PERSISTENCE set stays full-contract (stage-8 r2).
+    """
+
+    def test_override_narrows_quarantine_not_persistence(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        resp = "### FILE: world/story_bible.md\n\nbible\n"
+        _write_parsed_outputs(
+            resp,
+            # persistence set: full contract writes (chapter-mode file present)
+            ["world/story_bible.md", "truth/bridge_tracker.md"],
+            tmp_path,
+            skill="shenbi-foreshadowing-lifecycle",
+            # genesis validation set: the step's declared output only
+            required_paths=["world/story_bible.md"],
+        )
+        assert (tmp_path / "world" / "story_bible.md").exists()
+        assert not (tmp_path / "_quarantine").exists() or not list(
+            (tmp_path / "_quarantine").glob("*")
+        )
+
+    def test_missing_required_path_still_quarantines(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        resp = "### FILE: world/story_bible.md\n\nbible\n"
+        _write_parsed_outputs(
+            resp,
+            ["world/story_bible.md", "truth/bridge_tracker.md"],
+            tmp_path,
+            skill="shenbi-foreshadowing-lifecycle",
+            required_paths=["world/story_bible.md", "truth/bridge_tracker.md"],
+        )
+        quarantine = tmp_path / "_quarantine"
+        assert quarantine.exists() and list(quarantine.glob("*"))
+
+    def test_without_override_full_set_still_validated(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        resp = "### FILE: world/story_bible.md\n\nbible\n"
+        _write_parsed_outputs(
+            resp,
+            ["world/story_bible.md", "truth/bridge_tracker.md"],
+            tmp_path,
+            skill="shenbi-foreshadowing-lifecycle",
+        )
+        quarantine = tmp_path / "_quarantine"
+        assert quarantine.exists() and list(quarantine.glob("*"))

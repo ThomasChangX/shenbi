@@ -203,6 +203,11 @@ def dispatch_escalation(
 
         try:
             contract = load_contract(failing_skill)
+            from fnmatch import fnmatch
+
+            from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+            optional_patterns = OPTIONAL_READS.get(failing_skill, [])
             lines = []
             for rel in contract.get("reads", []):
                 if chapter is None:
@@ -213,7 +218,17 @@ def dispatch_escalation(
                     # and rendered AVAILABLE plan/context files as MISSING.
                     resolved = str(rel).replace("chapter-N", f"chapter-{chapter}")
                 probe = Path(project_dir) / resolved
-                lines.append(f"- {resolved} — {'AVAILABLE' if probe.exists() else 'MISSING'}")
+                if probe.exists():
+                    avail = "AVAILABLE"
+                elif any(fnmatch(resolved, pat) for pat in optional_patterns):
+                    # probe9: reads produced only in user-routable mode (the
+                    # deterministic context step never writes them) rendered
+                    # as MISSING and misled adjudicators into crowning them
+                    # root-cause suspects.
+                    avail = "OPTIONAL (absent by design in pipeline mode)"
+                else:
+                    avail = "MISSING"
+                lines.append(f"- {resolved} — {avail}")
             if lines:
                 prompt += (
                     "\n\n## FAILING SKILL CONTRACT READS (machine-provided — the "
