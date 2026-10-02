@@ -248,3 +248,37 @@ def test_scalar_yaml_hooks_body_fails_free_form(tmp_path: Path) -> None:
     result = _result(g4_foreshadowing_lifecycle([str(f)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.fl.no_hook_states" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_pinned_grammar_bare_digit_fields_satisfy_chapter_refs(tmp_path: Path) -> None:
+    """Batch #14 (probe19 adjudication #001): under the batch #13 pinned
+    genesis grammar, chapter data lives in bare-digit plant_chapter/
+    resolve_chapter field lines — a faithful output contains ZERO 第N章
+    literals (probe17/18 satisfied the literal only via now-banned compound
+    grammars; the check had never once been satisfied by a compliant form).
+    Either carrier satisfies.
+    """
+    import shutil
+
+    src = Path("tests/fixtures/pending-hooks-probe19.md")
+    project_dir, marker = _setup(tmp_path)
+    (project_dir / "truth").mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src, project_dir / "truth" / "pending_hooks.md")
+
+    result = _result(g4_foreshadowing_lifecycle([str(marker)], rd=str(project_dir)))
+    assert not any("chapter_refs" in mf for mf in result["must_fix"]), result["must_fix"]
+
+
+@pytest.mark.unit
+def test_field_line_branch_anchored_no_prose_false_positive(tmp_path: Path) -> None:
+    """The field-line branch is anchored — a prose mention of
+    plant_chapter without a bare integer value must NOT satisfy the check
+    (grammar-drift detection preserved: improvised field names still fail).
+    """
+    project_dir, marker = _setup(
+        tmp_path, pending="# Hooks\n操作: PLANTED\n见 plant_chapter 各字段与 resolve 计划\n"
+    )
+
+    result = _result(g4_foreshadowing_lifecycle([str(marker)], rd=str(project_dir)))
+    assert any("G4.fl.chapter_refs" in mf for mf in result["must_fix"])

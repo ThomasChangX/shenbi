@@ -364,7 +364,7 @@
     "src/shenbi/contracts/skills/score_volume.py": "sha256:915fdb2958668c6facf74de2487e2391838bfb2d1c934f253f81db0d307ff2ec",
     "src/shenbi/contracts/skills/score_stratum.py": "sha256:2ad8386ce25923912143ee3af07842829b0af50e54b35031fda8a56fc45cc569",
     "src/shenbi/gates/g4/pacing_design.py": "sha256:1942297482c4a66ee741d53684e7dc5fb4a65197a2fec4c9825ddbeaca9bce1a",
-    "src/shenbi/gates/g4/foreshadowing_lifecycle.py": "sha256:5c9b91687708be4f57a47b12714a5caec1d07ae6914c50a48f6f2479cb1d63e8",
+    "src/shenbi/gates/g4/foreshadowing_lifecycle.py": "sha256:dccc3b04b19a5908be2ff867a62bbd3de6748fa5f32019e610faf8c8dbcfc67c",
     "src/shenbi/gates/g4/decisions_validator.py": "sha256:9e840e4845a7dd453a7c70c1e2cccfcdf6a2ebb836601984c4d1908f357459f2",
     "src/shenbi/gates/g4/length_normalizing.py": "sha256:541b8e67d8ff3719e304fd446361102309a192344e51e45b975f607d2b74072b",
     "src/shenbi/gates/g4/faction_builder.py": "sha256:e7484273e70c38e7238a6175dd08ad0550abd913b35bed322b7ee3d50d35d5d0",
