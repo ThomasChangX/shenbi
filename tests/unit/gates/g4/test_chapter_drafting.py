@@ -391,6 +391,81 @@ def test_end_hook_window_still_fails_flat_ending(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
+def test_end_hook_micro_paragraph_keyword_below_threshold_counts(tmp_path: Path) -> None:
+    """probe13 regression (2026-10-02): micro-paragraph closures put the
+    tension beats below the old per-paragraph >=30 CJK floor — the keyword
+    paragraph (缝还亮着, 29 CJK) and the real hook (name column empty, 24
+    CJK) were both skipped while the only checked paragraph was a neutral
+    image (pound slips, exactly 30 CJK). The mass threshold must live on
+    the merged window — escalation #37 gave the visual-scene check the same
+    treatment for this style.
+    """
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 30
+    neutral = "棚柱上钉着一叠磅单，纸角一层压一层。最上面那张被风掀起来，又落下去。"
+    seam = "天暗了。缝还亮着。一道不合的口子，从东边斜到西边，白天漏灰，夜里漏光。"
+    namecol = "他记得那一页的最后一栏。写名字的地方空着，只有六个数。"
+    tail = "\n\n".join(
+        [
+            neutral,
+            seam,
+            namecol,
+            "料堆底下那点热一直没断，从石板缝里往上走，走得慢。",
+            "他把牌子塞回掌心，合上手。",
+        ]
+    )
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{tail}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_end_hook_probe13_real_draft_passes_hook_check(tmp_path: Path) -> None:
+    """The real probe13 ch1 draft (tests/fixtures/chapter-1-probe13-draft.md,
+    real skill output per G0.9) carries its tension in 24-29 CJK closers —
+    its G4.cd.no_hook firing was the false positive that helped trip the
+    probe's in-probe breaker.
+    """
+    src = Path(__file__).parents[3] / "fixtures" / "chapter-1-probe13-draft.md"
+    ch = tmp_path / "chapter-1.md"
+    ch.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_no_hook_failure_carries_window_diagnostics(tmp_path: Path) -> None:
+    """A genuine no_hook miss must carry window diagnostics in the failure
+    string (merged char count + excerpt) — probe13's retry feedback showed
+    only the generic fallback, leaving the model nothing to act on across
+    3 attempts.
+    """
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 140
+    flat = "\n\n".join(
+        [
+            "他回到了家中坐下来，安安静静地吃了一碗温热的饭食，洗净了手上的尘土。",
+            "他躺到草席上面，闭上了眼睛，听着屋顶上面细碎的风声过了一阵。",
+            "第二日清晨的钟声敲响之前，他睡得很沉，一个梦也没有做成。",
+            "他醒来之后收拾好衣物，跟着众人一道走到矿道入口处排队。",
+            "这一天平淡无奇地过去了，同之前的许多个日子一模一样。",
+        ]
+    )
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{flat}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    no_hook = next(m for m in _must_fix(result) if "G4.cd.no_hook" in m)
+    assert "张力词" in no_hook
+    assert "窗口" in no_hook
+    assert "「" in no_hook  # window excerpt marker
+
+
+@pytest.mark.unit
 def test_word_floor_reads_genre_config_chapter_word_default(tmp_path: Path) -> None:
     """Probe escalation #9: the floor must come from genre-config
     chapter_word.default — the same number G0.3/G6 use for chapter-count

@@ -65,6 +65,19 @@ def test_enrich_word_count_has_actionable_example():
     assert "扩" in result
 
 
+def test_enrich_no_hook_has_window_caliber():
+    """G4.cd.no_hook (probe13 ch1: three attempts all ran on the generic
+    fallback) gets the merged-window caliber and a rewrite direction, not
+    format boilerplate.
+    """
+    failures = ["G4.cd.no_hook:chapters/chapter-1.md:96字合并窗口未检出疑问句/张力词"]
+    result = _enrich_g4_feedback(failures)
+
+    assert GENERIC_FALLBACK not in result
+    assert "章尾" in result
+    assert "张力词" in result
+
+
 # ---------------------------------------------------------------------------
 # G4.dec schema-shape failures (probe4/5: missing/extra_forbidden dominated
 # the genre-config must_fix list and only received the generic fallback line)

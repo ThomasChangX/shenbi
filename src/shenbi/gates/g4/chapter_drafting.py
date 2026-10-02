@@ -424,33 +424,48 @@ def g4_chapter_drafting(
             )
 
         # G4.cd.chapter_end_hook: unresolved tension in the closing beat.
-        # WINDOWED over the last 5 narrative paragraphs (probe escalation #4):
-        # web-novel chapters close with a stylistic beat (image/action) whose
-        # tension lands one to four paragraphs earlier — a single-paragraph
-        # window never saw it (the probe's hook sat at paragraph -5 with an
-        # explicit 不知 hit while the final image paragraph was clean).
+        # WINDOWED over the last 8 narrative paragraphs (probe escalation
+        # #4 opened the window to 5 because tension lands a few paragraphs
+        # before the final image beat; the merged-mass rewrite below needs
+        # the scene check's 8-cap (escalation #37) so stylistic closers at
+        # -6 stay inside). The >=30 CJK mass threshold lives on the MERGED
+        # window, not per paragraph (probe13, 2026-10-02): micro-paragraph
+        # closers put every tension beat below a per-paragraph floor
+        # (keyword paragraph at 29, real hook at 24 CJK) while the only
+        # checked paragraph was a neutral image — escalation #37 gave the
+        # visual-scene check the same windowed-mass treatment for this
+        # style. A window lighter than 30 CJK total stays unchecked.
+        # 没答 joins the 没说/瞒/藏 concealment family (escalation #38):
+        # asked-and-not-answered is unresolved tension.
         if paragraphs:
             hook_window = [
-                p for p in paragraphs[-5:] if not p.startswith(("#", "##", ">", "---", "- [ ]"))
+                p for p in paragraphs[-8:] if not p.startswith(("#", "##", ">", "---", "- [ ]"))
             ]
-            hook_hit = False
-            hook_checked_any = False
-            for p in hook_window:
-                cjk_p = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", p))
-                if cjk_p < 30:
-                    continue
-                hook_checked_any = True
-                has_q = bool(re.search(r"[？?]", p))
+            window_text = "".join(hook_window)
+            window_cjk = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", window_text))
+            if window_cjk >= 30:
+                has_q = bool(re.search(r"[？?]", window_text))
                 has_t = bool(
-                    re.search(r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|瞒|藏)", p)
+                    re.search(
+                        r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏)",
+                        window_text,
+                    )
                 )
                 if has_q or has_t:
-                    hook_hit = True
-                    break
-            if hook_checked_any and not hook_hit:
-                mf.append(f"G4.cd.no_hook:{fp}")
-            elif hook_checked_any:
-                c.append({"id": "G4.cd.chapter_end_hook", "file": fp, "s": GateStatus.PASS})
+                    c.append(
+                        {
+                            "id": "G4.cd.chapter_end_hook",
+                            "file": fp,
+                            "s": GateStatus.PASS,
+                            "window_cjk": window_cjk,
+                        }
+                    )
+                else:
+                    excerpt = window_text[:30]
+                    mf.append(
+                        f"G4.cd.no_hook:{fp}:{window_cjk}字合并窗口未检出疑问句/张力词；"
+                        f"窗口开头「{excerpt}」"
+                    )
 
         # G4.cd.protagonist_presence: protagonist appears >= threshold times
         protagonist_names = _load_protagonist_names(str(project_root)) if project_dir else []

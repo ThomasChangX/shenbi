@@ -53,6 +53,18 @@ def test_chapter_drafting_pins_scene_budgeting() -> None:
     assert "场景" in body and "预算" in body
 
 
+def test_chapter_drafting_pins_per_paragraph_counting() -> None:
+    """probe13 (3rd recurrence, human-ruled fix 2026-10-02): the batch-#5
+    single-number self-count line ran ~15% high (claimed 1950, actual 1686)
+    — a gestalt estimate, not a count. The POST template must demand
+    per-paragraph tallies that sum to the total.
+    """
+    body = _body("shenbi-chapter-drafting")
+    assert "逐段" in body
+    assert "合计" in body
+    assert "禁止整段估数" in body
+
+
 # ---------------------------------------------------------------------------
 # 5d — genesis 总览表 parseable registration (truth-index always-empty hooks)
 # ---------------------------------------------------------------------------
