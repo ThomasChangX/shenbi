@@ -25,7 +25,7 @@ def project_dir(tmp_path: Path) -> Path:
 
 
 def _build_style_prompt(project_dir: Path) -> str:
-    system, user, _outputs = _build_skill_prompt(
+    system, user, _outputs, _ = _build_skill_prompt(
         skill="shenbi-style-learning",
         project_dir=project_dir,
         prompt="generate style profile",
@@ -69,7 +69,7 @@ def test_disabled_config_malformed_value_warns(
 
 
 def test_other_skills_untouched(project_dir: Path) -> None:
-    system, user, _outputs = _build_skill_prompt(
+    system, user, _outputs, _ = _build_skill_prompt(
         skill="shenbi-worldbuilding",
         project_dir=project_dir,
         prompt="generate worldbuilding",

@@ -275,6 +275,21 @@ _TABLE_HEADER_BOOTSTRAP: dict[str, str] = {
     "bridge_tracker.md": (
         "| Bridge ID | 钩子内容 | 类型 | 带入卷 | 预期激活章 | 当前状态 | 实际激活章 | 备注 |"
     ),
+    # batch #15 #44/#38: five single-table keyed files whose first rows-only
+    # write can land on a missing/shell base (probe20: settle's rows-only
+    # first write chained onto a status:initialized template). Headers pinned
+    # to the writers' contract forms; emotional_arcs (dual-table) and
+    # character_matrix (genesis-filled) are deliberately absent, and
+    # audit_drift is YAML-form owned by a create_or_overwrite merger.
+    "current_state.md": "| 章节 | 位置 | 时间锚 | 主角处境 | 势力态势 | 待处理压力 |",
+    "particle_ledger.md": "| 章节 | 变动项 | 收支 | 来源／用途 | 余额或备注 |",
+    "subplot_board.md": "| 章节 | 支线 | 起始章 | 当前阶段 | 下一节点 |",
+    "chapter_summaries.md": (
+        "| 章节 | 一句话事件 | 出场角色 | 推进的支线 | 新增／回收伏笔 | 结尾钩子 |"
+    ),
+    "arc_payoff_trend.md": (
+        "| volume | 弧情感交付 | 伏笔兑现质量 | 线索收束 | 期待债务结算 | 角色弧推进 | overall | confidence | human_overridden |"
+    ),
 }
 
 
@@ -366,6 +381,86 @@ def base_has_hook_content(text: str) -> bool:
         if s.startswith("#") and is_hook_heading(s):
             return True
     return False
+
+
+#: A cell/body that is pure template placeholder — not data (#44).
+_SHELL_CELL_PLACEHOLDER_RE = re.compile(r"[（(]?\s*(?:待填充|暂无|TODO|TBD)\s*[）)]?")
+#: A whole line that ANNOUNCES itself as placeholder scaffolding
+#: (``（待填充：...说明...）`` guidance notes included).
+_SHELL_LINE_PLACEHOLDER_RE = re.compile(r"^\s*[（(]?(?:待填充|暂无)\b")
+#: Headings whose body is instructional prose, never data.
+_INSTRUCTIONAL_HEADING_RE = re.compile(r"格式约定|使用说明|填写说明|字段说明|^说明$")
+#: Table rows made only of structure (header/separator) carry no data.
+_TABLE_SEPARATOR_LINE_RE = re.compile(r"^[\s:|\-]+$")
+
+
+def base_is_shell(text: str) -> bool:
+    """True when *text* carries no real data worth protecting (batch #15 #44).
+
+    probe20 (adjudication /tmp/probe20-adjudication-008.md): after the
+    escalation-reject staging wipe, chapter-keyed truth bases were
+    ``status: initialized`` templates while the re-dispatch feedback
+    described a settled world — the model's whole-file creation was its only
+    rational output, and a guard with no first-write exemption rejected it
+    into a byte-identical retry death. SHELL means "nothing to protect":
+    every line classifies as ignorable scaffolding (blank, frontmatter,
+    heading, quote, structural table rows, placeholder cells/lines,
+    instructional-section prose under 格式约定/说明 headings) or as REAL
+    data (any data-table row, hook detail heading, data bullet, prose
+    outside instructional sections). All-scaffolding = the whole-file
+    creation form is sanctioned there.
+    """
+    if not text or not text.strip():
+        return True
+    lines = text.split("\n")
+    i = 0
+    n = len(lines)
+    # Skip a LEADING frontmatter block (fenced key/value pairs, no data).
+    while i < n and not lines[i].strip():
+        i += 1
+    if i < n and lines[i].strip() == "---":
+        i += 1
+        while i < n and lines[i].strip() != "---":
+            i += 1
+        i += 1  # past the closing fence (or EOF)
+
+    instructional = False
+    for idx in range(i, n):
+        line = lines[idx].strip()
+        if not line:
+            continue
+        if line.startswith("#"):
+            if _HOOK_HEADING_RE.match(line):
+                return False  # a hook detail heading IS keyed content
+            title = line.lstrip("#").strip()
+            instructional = _INSTRUCTIONAL_HEADING_RE.search(title) is not None
+            continue
+        if line.startswith(">"):
+            continue  # guidance quote
+        if line.startswith("|"):
+            if _TABLE_SEPARATOR_LINE_RE.fullmatch(line):
+                continue
+            # A table row directly above a separator row is the HEADER row —
+            # structure, not data.
+            nxt = idx + 1
+            while nxt < n and not lines[nxt].strip():
+                nxt += 1
+            if nxt < n and _TABLE_SEPARATOR_LINE_RE.fullmatch(lines[nxt].strip()):
+                continue
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            if any(c and not _SHELL_CELL_PLACEHOLDER_RE.fullmatch(c) for c in cells):
+                return False  # a real data cell
+            continue
+        if line.startswith("-"):
+            body = line.lstrip("-").strip()
+            if _SHELL_LINE_PLACEHOLDER_RE.match(body) or _SHELL_CELL_PLACEHOLDER_RE.fullmatch(body):
+                continue
+            return False  # a data bullet
+        # Prose
+        if instructional or _SHELL_LINE_PLACEHOLDER_RE.match(line):
+            continue
+        return False
+    return True
 
 
 _COLON_BULLET_RE = re.compile(r"^-\s*([^:：\s][^:：]*)\s*[:：]")

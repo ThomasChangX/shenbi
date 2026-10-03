@@ -213,6 +213,42 @@ def discard_staging(project_dir: Path | str, reason: str) -> None:
     clear_staging(project_dir)
 
 
+def discard_staging_targets(project_dir: Path | str, targets: list[str], reason: str) -> None:
+    """Discard SPECIFIC staged targets, leaving other checkpoints' staging.
+
+    batch #15 #39 (probe20): an escalation reject ran the unconditional
+    ``clear_staging`` and destroyed the reviewed settle increments still in
+    ``staging/truth/`` — every later writer then merged against shell bases
+    while feedback described a settled world. A review decision touches only
+    the products its own checkpoint type owns; this is the scoped sibling of
+    :func:`discard_staging` (targets use the commit-path form, e.g.
+    ``truth/<file>`` / ``plans/<file>``).
+    """
+    project_dir = Path(project_dir)
+    staging_dir = project_dir / STAGING_DIR
+    if not staging_dir.exists():
+        log.debug("staging_discard_noop", reason="staging dir does not exist")
+        return
+    removed: list[str] = []
+    for target in targets:
+        p = staging_dir / target
+        if p.is_file():
+            p.unlink()
+            removed.append(target)
+    if removed:
+        meta = _load_staging_meta(project_dir)
+        if any(meta.pop(t, None) is not None for t in targets):
+            meta_path = staging_dir / ".staging-meta.json"
+            if meta:
+                safe_write(
+                    meta_path, json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8")
+                )
+            elif meta_path.exists():
+                meta_path.unlink()
+        _prune_empty_dirs(project_dir, staging_dir)
+    log.info("staging_targets_discarded", reason=reason, targets=removed)
+
+
 def clear_staging(project_dir: Path | str, *, preserve_checkpointed: bool = False) -> None:
     """Remove staging files (used on review reject / modify discard).
 

@@ -22,6 +22,6 @@ STABILITY_SKILLS = (
 
 @pytest.mark.parametrize("skill", STABILITY_SKILLS)
 def test_system_prompt_byte_stable_across_calls(tmp_path: Path, skill: str) -> None:
-    sys1, _, _ = _build_skill_prompt(skill, tmp_path, "prompt A", 1)
-    sys2, _, _ = _build_skill_prompt(skill, tmp_path, "prompt B", 2)
+    sys1, _, _, _ = _build_skill_prompt(skill, tmp_path, "prompt A", 1)
+    sys2, _, _, _ = _build_skill_prompt(skill, tmp_path, "prompt B", 2)
     assert sys1.encode("utf-8") == sys2.encode("utf-8")

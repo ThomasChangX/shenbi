@@ -182,3 +182,49 @@ def check_audit_line_refs(path: Path, chapter_path: Path) -> list[str]:
                 f"different version of the chapter."
             )
     return issues
+
+
+#: batch #15 #33: raw absolute-year forms (Chinese numerals or digits) that
+#: only the worldbuilding anchor registry (world/story_bible.md 世界史时间线)
+#: may carry — every other genesis producer references anchors BY NAME or
+#: with relative phrasing. probe15: four layers of mutually exclusive year
+#: numbers burned four genesis adjudication rounds.
+_YEAR_NUMERAL = r"[一两二三四五六七八九十百千万零零○0-9]+"
+RAW_YEAR_RE = re.compile(_YEAR_NUMERAL + r"\s*年(?:前|后|来)")
+
+#: Zones that legitimately carry absolute years and are exempt from the scan:
+#: the anchor registry's own home file, the reviewer report (quotes),
+#: benchmark anchors, style zone, and snapshots.
+_YEAR_SCAN_EXEMPT_PARTS: tuple[str, ...] = (
+    "story_bible",
+    "foundation/",
+    "benchmarks/",
+    "style/",
+    "snapshots/",
+)
+
+
+def check_year_anchors(path: Path) -> list[str]:
+    """Flag raw absolute-year forms in a producer output (#33).
+
+    Returns ``G4.ys.raw_year:<file> — L<n>:「<match>」…`` findings with line
+    citations; exempt zones return empty. The sanctioned forms are anchor
+    NAMES from world/story_bible.md's 世界史时间线 or relative phrasing
+    (「净场之后」); the retry feedback teaches exactly that.
+    """
+    rel = str(path)
+    if any(part in rel for part in _YEAR_SCAN_EXEMPT_PARTS):
+        return []
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return []
+    findings: list[str] = []
+    for ln, line in enumerate(text.split("\n"), 1):
+        for m in RAW_YEAR_RE.finditer(line):
+            findings.append(
+                f"G4.ys.raw_year:{path.name} — L{ln}:「{m.group(0)}」"
+                "——绝对年数只登记于 world/story_bible.md 世界史时间线；"
+                "引用锚名或相对表述"
+            )
+    return findings

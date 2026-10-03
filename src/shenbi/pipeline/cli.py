@@ -76,7 +76,16 @@ DERIVED_TRUTH_MAP: dict[str, list[tuple[str, str]]] = {
         # forever (ch1/ch2 truth rode placeholders while revised chapters
         # advanced). Order matters: revision lands first, settle then reads
         # the revised chapters/chapter-N.md.
-        ("shenbi-state-settling", "Re-settle truth files after the revised chapter"),
+        # batch #15 #41 (probe20 adjudication #004D): the revision shifts
+        # chapter lines ~10-20 — the re-settle MUST re-anchor every
+        # 证据/evidence line reference to the POST-revision chapter text,
+        # not reuse the pre-revision citations riding in staging.
+        (
+            "shenbi-state-settling",
+            "Re-settle truth files after the revised chapter — every evidence/证据 "
+            "line reference (chapter-N.md Lnn) must be re-located against the "
+            "POST-revision chapter text; never reuse pre-revision line numbers",
+        ),
     ],
 }
 
@@ -131,6 +140,7 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
     from shenbi.pipeline.dispatch_helper import dispatch_skill
 
     remaining: list[dict[str, Any]] = []
+    dropped: list[dict[str, Any]] = []
     for entry in state.pending_re_dispatches:
         skill = entry.get("skill", "")
         ch = entry.get("chapter")
@@ -180,6 +190,14 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
                 )
         else:
             entry["attempts"] = int(entry.get("attempts", 0)) + 1
+            # #45 (probe20): attempt-N stderr rides into the entry's feedback
+            # so attempt N+1's prompt carries corrective signal — the queue
+            # path used to retry byte-identically (15270/15270 tokens, 3
+            # deterministic rejections). #30 wired the chapter_loop dispatch
+            # sites only; this is the family fix.
+            stderr_note = f"上次派发失败（输出未落盘）：{result.stderr[:2000]}"
+            prev_fb = entry.get("feedback")
+            entry["feedback"] = f"{prev_fb}\n\n{stderr_note}" if prev_fb else stderr_note
             if entry["attempts"] >= RE_DISPATCH_RETRY_CAP:
                 log.error(
                     "re_dispatch_retry_cap_exceeded",
@@ -188,11 +206,33 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
                     attempts=entry["attempts"],
                     last_error=result.stderr[:200],
                 )
-                continue  # drop the entry — the checkpoint trail keeps the feedback
+                dropped.append(entry)  # checkpoint trail keeps the feedback
+                continue
             log.warning("re_dispatch_failed", skill=skill, stderr=result.stderr[:200])
             remaining.append(entry)
 
     state.pending_re_dispatches = remaining
+    if remaining or dropped:
+        # #46 (probe20): a queue that cannot drain BLOCKS chapter advancement
+        # by raising a human checkpoint — the orchestrate loop used to roll
+        # into the next chapter while failures rode along (ch2 planned on
+        # empty templates). Failures dominate a concurrent settle re-raise:
+        # the settle checkpoint re-fires once the queue drains clean.
+        stuck = [
+            f"{e.get('skill')}@ch{e.get('chapter')}(attempts={e.get('attempts')})"
+            for e in [*remaining, *dropped]
+        ]
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            chapter=dropped[0].get("chapter") if dropped else remaining[0].get("chapter"),
+            context=(
+                "重派队列未能排空——仍失败或已达重试上限："
+                + "、".join(stuck)
+                + "。最近失败原因已并入各条目反馈；approve 后将带反馈重试，"
+                "持续失败需人工裁决。"
+            ),
+        )
     return True
 
 
@@ -246,7 +286,7 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
             if _execute_pending_re_dispatches(state, project_dir):
                 save_state(project_dir, state)
                 if is_at_checkpoint(state):
-                    return  # settle re-dispatch raised a review checkpoint
+                    return  # settle re-raise or #46 queue-drain escalation
 
             phase = state.phase
 
@@ -409,6 +449,48 @@ def _emit_orchestration_result(state: PipelineState) -> None:
         emit_json({"status": CommandStatus.OK, "phase": state.phase.value})
 
 
+def _checkpoint_staging_targets(project_dir: Path, cp: CheckpointData) -> list[str]:
+    """Staging targets a checkpoint OWNS — the single map both approve
+    (commit) and reject (scoped discard, #39) act on, so the two decisions
+    can never diverge on what belongs to this checkpoint.
+    """
+    from shenbi.pipeline.chapter_loop import staged_decisions_targets
+
+    if cp.type == CheckpointType.CHAPTER_MEMO:
+        chapter = cp.chapter or 1
+        targets = [f"plans/chapter-{chapter}-plan.md"]
+        # audit-T5 C1: contract-declared sidecar joins the same batch.
+        targets += staged_decisions_targets(project_dir, "shenbi-chapter-planning", chapter)
+    elif cp.type in (CheckpointType.STATE_SETTLE, CheckpointType.PER_CHAPTER):
+        # I3: glob all staged truth files rather than hardcoding one.
+        from shenbi.pipeline.checkpoint import STAGING_DIR
+
+        staging_truth = project_dir / STAGING_DIR / "truth"
+        if staging_truth.is_dir():
+            targets = [f"truth/{p.name}" for p in sorted(staging_truth.glob("*.md"))]
+        else:
+            targets = []
+        targets += staged_decisions_targets(project_dir, "shenbi-state-settling", cp.chapter)
+    else:
+        return []
+    return targets
+
+
+def _reject_staging_scoped(project_dir: Path, cp: CheckpointData) -> None:
+    """#39: discard the checkpoint's OWN staged products on reject.
+
+    Other checkpoints' staging (e.g. settle increments during an
+    escalation reject) survives — see :func:`_checkpoint_staging_targets`.
+    """
+    from shenbi.pipeline.checkpoint import discard_staging_targets
+
+    targets = _checkpoint_staging_targets(project_dir, cp)
+    if not targets:
+        log.info("reject_staging_scope_none", checkpoint=cp.type.value)
+        return
+    discard_staging_targets(project_dir, targets, reason=f"reject:{cp.type.value}")
+
+
 def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> None:
     """Commit staging files for checkpoint-gated skills (spec section 2.7).
 
@@ -438,8 +520,15 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
         staging_truth = project_dir / STAGING_DIR / "truth"
         if staging_truth.is_dir():
             targets = [f"truth/{p.name}" for p in sorted(staging_truth.glob("*.md"))]
+            if cp.type == CheckpointType.PER_CHAPTER and not targets:
+                # #39 observability: a per-chapter approve normally commits
+                # staged truth; finding none after a settle ran is the smoke
+                # of a silent-loss wipe.
+                log.warning("per_chapter_no_staged_truth", chapter=cp.chapter)
         else:
             targets = []
+            if cp.type == CheckpointType.PER_CHAPTER:
+                log.warning("per_chapter_no_staged_truth", chapter=cp.chapter)
         targets += staged_decisions_targets(project_dir, "shenbi-state-settling", cp.chapter)
     else:
         return
@@ -805,9 +894,15 @@ def cmd_review(args: argparse.Namespace) -> int:
 
                 discard_staging(project_dir, reason="modify_baseline_human_edit")
             elif decision == ReviewDecision.REJECT:
-                from shenbi.pipeline.checkpoint import clear_staging
-
-                clear_staging(project_dir)
+                # #39 (probe20): a reject discards ONLY the products its own
+                # checkpoint type owns (the same target set approve commits,
+                # mirrored in _reject_staging_scoped). Checkpoint types that
+                # own no staging (escalation, genesis-*, volume-boundary,
+                # book-closure) clear NOTHING — the old unconditional
+                # clear_staging destroyed the reviewed settle increments on
+                # an escalation reject and every later writer merged against
+                # shell bases.
+                _reject_staging_scoped(project_dir, cp)
 
             if decision == ReviewDecision.REJECT:
                 _apply_reject_redo(

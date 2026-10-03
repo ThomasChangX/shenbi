@@ -60,3 +60,13 @@ def test_checkpoint_type_value_is_hyphenated() -> None:
     must derive from the enum, not hand-type the snake_case form.
     """
     assert CheckpointType.PER_CHAPTER.value == "per-chapter"
+
+
+def test_settle_redispatch_suffix_mandates_line_ref_relocation() -> None:
+    """Batch #15 #41 (probe20 adjudication #004D): the revision shifts
+    chapter lines ~10-20 — the re-settle prompt must mandate re-anchoring
+    evidence line refs against the POST-revision text.
+    """
+    suffixes = dict(DERIVED_TRUTH_MAP[CheckpointType.PER_CHAPTER.value])
+    assert "line reference" in suffixes["shenbi-state-settling"]
+    assert "POST-revision" in suffixes["shenbi-state-settling"]

@@ -24,11 +24,15 @@ PRE_EST_PACING = 2511
 # the allowance keeps this guard measuring spec §3.5 slimming, not freezing
 # prompt size against later mandatory contract elements.
 PACING_FRONTMATTER_ADD = 84
+#: batch #15 #33: sanctioned year-anchor clause (one blockquote) appended to
+#: the SKILL body — net-slimming budget consumed by contract, not bloat.
+PACING_ANCHOR_CLAUSE_ADD = 84
+PACING_ANCHOR_CLAUSE_TOKENS = 40
 PACING_FRONTMATTER_TOKENS = 36
 
 
 def _system_prompt(skill: str, tmp_path: Path) -> str:
-    system, _, _ = _build_skill_prompt(skill, tmp_path, "measure", 1)
+    system, _, _, _ = _build_skill_prompt(skill, tmp_path, "measure", 1)
     return system
 
 
@@ -59,9 +63,12 @@ def test_pacing_design_slimmed(tmp_path: Path) -> None:
     system = _system_prompt("shenbi-pacing-design", tmp_path)
 
     # net char drop: landed 367 (removed ~480, pointer ~113)
-    assert PRE_LEN_PACING - len(system) >= 280 - PACING_FRONTMATTER_ADD
+    assert PRE_LEN_PACING - len(system) >= 280 - PACING_FRONTMATTER_ADD - PACING_ANCHOR_CLAUSE_ADD
     # estimated-token drop: landed 144
-    assert estimate_prompt_tokens(system) <= PRE_EST_PACING - 130 + PACING_FRONTMATTER_TOKENS
+    assert (
+        estimate_prompt_tokens(system)
+        <= PRE_EST_PACING - 130 + PACING_FRONTMATTER_TOKENS + PACING_ANCHOR_CLAUSE_TOKENS
+    )
 
     ref = SKILLS_DIR / "shenbi-pacing-design" / "pacing-design-reference.md"
     assert ref.is_file()

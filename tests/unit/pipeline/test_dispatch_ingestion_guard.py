@@ -24,6 +24,7 @@ import pytest
 
 from shenbi.exceptions import IncrementShapeError
 from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+from shenbi.pipeline.truth_io import _TABLE_HEADER_BOOTSTRAP
 
 _LIVE_HOOKS = """---
 type: truth
@@ -223,14 +224,17 @@ class TestFirstWriteExemption:
             _write(project, _WHOLE_FILE_FORM)
 
     def test_chapter_key_targets_never_exempt(self, tmp_path):
-        """Chapter-keyed files keep the unconditional guard — their writers'
-        contracts are increment-only in every phase (no genesis whole-file
-        writer targets them).
+        """FILLED chapter-keyed bases keep the unconditional guard — their
+        writers' contracts are increment-only (probe15 destruction vector).
+
+        (The SHELL-base half of the old contract was reversed by batch #15
+        #44: see TestShellFirstWriteCreationRoute below.)
         """
         project = tmp_path
         (project / "truth").mkdir(parents=True)
         (project / "truth" / "character_matrix.md").write_text(
-            "# 角色矩阵\n\n（待填充）\n", encoding="utf-8"
+            "# 角色矩阵\n## 交互总表\n| 角色A | 角色B | 关系 |\n| 苏烬 | 石九 | 盟友 |\n",
+            encoding="utf-8",
         )
         with pytest.raises(IncrementShapeError):
             _write(
@@ -238,3 +242,223 @@ class TestFirstWriteExemption:
                 "# 角色矩阵\n## 第 1 章状态增量\n### 苏烬\n- 位置: 赤锈谷\n",
                 rel="staging/truth/character_matrix.md",
             )
+
+
+#: probe20 regression (adjudication /tmp/probe20-adjudication-008.md): the
+#: two diagnostics/failed-write-shenbi-state-settling-20261003T01*.md dumps.
+#: After the escalation-reject staging wipe, truth bases were
+#: status:initialized templates (quote + （待填充） sections, zero data) while
+#: the re-dispatch feedback described a settled world. The model's whole-file
+#: creation was its only rational output; the chapter-key guard rejected it
+#: twice and the queue retried byte-identical. #44: a SHELL base sanctions the
+#: creation form — routed as a base-replacing creation write, never fed into
+#: the keyed-upsert merge.
+_SHELL_STATE_BASE = """---
+type: truth
+category: state
+status: initialized
+generated_at: 2026-10-02T22:55:40Z
+---
+
+# 当前世界状态
+
+> 此文件由 state-settling 首次运行时填充实际数据。
+
+## 时间锚
+
+（待填充）
+
+## 势力态势
+
+（待填充）
+"""
+
+_CREATION_FORM_STATE = """---
+type: truth
+category: state
+status: filled
+generated_at: 2026-10-03T01:31:49Z
+---
+
+# 当前世界状态
+
+| 章节 | 位置 | 时间锚 | 主角处境 | 势力态势 | 待处理压力 |
+|------|------|--------|---------|---------|-----------|
+| 第1章 | 三号采灵场井下 | 落潮夜 | 瞒报老刘 | 查点丁口 | 老刘之死 |
+"""
+
+
+class TestShellFirstWriteCreationRoute:
+    def test_shell_base_creation_form_routed_as_creation_not_merge(self, tmp_path):
+        """probe20's exact package must LAND: staged file equals the package
+        verbatim (creation replaces the shell), live base untouched, and the
+        result is indistinguishable from what a clean first-write produces.
+        """
+        project = tmp_path
+        (project / "truth").mkdir(parents=True)
+        (project / "truth" / "current_state.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
+        out = _write_parsed_outputs(
+            response=f"### FILE: staging/truth/current_state.md\n{_CREATION_FORM_STATE}\n",
+            output_paths=["staging/truth/current_state.md"],
+            project_dir=project,
+            skill="shenbi-state-settling",
+        )
+        assert "staging/truth/current_state.md" in out
+        staged = (project / "staging" / "truth" / "current_state.md").read_text(encoding="utf-8")
+        assert staged.rstrip("\n") == _CREATION_FORM_STATE.rstrip("\n"), (
+            "creation route writes the package verbatim (parser normalizes the trailing newline)"
+        )
+        live = (project / "truth" / "current_state.md").read_text(encoding="utf-8")
+        assert live == _SHELL_STATE_BASE, "live base untouched until checkpoint commit"
+
+    def test_live_path_shell_creation_also_routed(self, tmp_path):
+        project = tmp_path
+        (project / "truth").mkdir(parents=True)
+        (project / "truth" / "current_state.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
+        out = _write_parsed_outputs(
+            response=f"### FILE: truth/current_state.md\n{_CREATION_FORM_STATE}\n",
+            output_paths=["truth/current_state.md"],
+            project_dir=project,
+            skill="shenbi-review-resonance",
+        )
+        assert "truth/current_state.md" in out
+        live = (project / "truth" / "current_state.md").read_text(encoding="utf-8")
+        assert "| 第1章 |" in live
+
+    def test_rows_only_on_shell_base_keeps_merge_path(self, tmp_path):
+        """The exemption ADDS the creation route; rows-only increments on a
+        shell base keep the existing keyed merge (probe18/19/20 first-settle
+        behavior). On a MISSING base the staging create path bootstraps the
+        contract header (#38); on a section-template shell the row simply
+        lands at the merge position — the banner (#47) is what steers the
+        model to the creation form for template shells.
+        """
+        project = tmp_path
+        (project / "truth").mkdir(parents=True)
+        # Missing base: bootstrap + row merge.
+        row = "| 第1章 | 三号采灵场井下 | 落潮夜 | 瞒报老刘 | 查点丁口 | 老刘之死 |"
+        out = _write(project, row, rel="staging/truth/current_state.md")
+        assert "staging/truth/current_state.md" in out
+        staged = (project / "staging" / "truth" / "current_state.md").read_text(encoding="utf-8")
+        assert row in staged
+        assert _TABLE_HEADER_BOOTSTRAP["current_state.md"] in staged, (
+            "staging-branch create path must bootstrap the contract header (#38)"
+        )
+        # Section-template shell: row lands through the keyed merge.
+        project2 = tmp_path / "p2"
+        (project2 / "truth").mkdir(parents=True)
+        (project2 / "truth" / "current_state.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
+        out2 = _write(project2, row, rel="staging/truth/current_state.md")
+        assert "staging/truth/current_state.md" in out2
+        staged2 = (project2 / "staging" / "truth" / "current_state.md").read_text(encoding="utf-8")
+        assert row in staged2
+        assert "## 时间锚" in staged2, "template sections ride through the merge"
+
+    def test_filled_live_base_blocks_staging_creation_defense(self, tmp_path):
+        """#39-family defense: a shell STAGED base over a FILLED live base is
+        an abnormal divergence — the creation route must refuse (it would
+        silently replace live data at commit) and name both states.
+        """
+        project = tmp_path
+        staged = project / "staging" / "truth"
+        staged.mkdir(parents=True)
+        (staged / "current_state.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
+        (project / "truth").mkdir(parents=True)
+        (project / "truth" / "current_state.md").write_text(_CREATION_FORM_STATE, encoding="utf-8")
+        with pytest.raises(IncrementShapeError) as ei:
+            _write(project, _CREATION_FORM_STATE, rel="staging/truth/current_state.md")
+        assert "FILLED" in str(ei.value)
+
+
+class TestSplitPackageBaseStateFeedback:
+    def test_rejection_names_per_target_base_states(self, tmp_path):
+        """A multi-target skill whose package is rejected on a FILLED target
+        must tell the model WHICH targets are shells (creation sanctioned)
+        and which are filled (rows-only) — the probe20 deadlock was feedback
+        describing a world the bases did not carry.
+        """
+        project = tmp_path
+        (project / "truth").mkdir(parents=True)
+        (project / "truth" / "current_state.md").write_text(_CREATION_FORM_STATE, encoding="utf-8")
+        (project / "truth" / "particle_ledger.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
+        with pytest.raises(IncrementShapeError) as ei:
+            _write(project, _CREATION_FORM_STATE, rel="staging/truth/current_state.md")
+        msg = str(ei.value)
+        assert "truth/current_state.md=FILLED" in msg
+        assert "truth/particle_ledger.md=SHELL" in msg
+
+
+class TestStagingBranchHeaderBootstrap:
+    def test_resonance_trend_first_row_via_staging_gets_header(self, tmp_path):
+        """#38: the staging merge branch must call ensure_table_header — the
+        live write path bootstrapped (probe2) but staged first writes landed
+        headerless until commit. resonance_trend belongs to the
+        review-resonance contract (its dispatch is not staging-gated; the
+        router's staging branch still applies when the path is staged).
+        """
+        project = tmp_path
+        (project / "truth").mkdir(parents=True)
+        row = "| 1 | L1 | L2 | L3 | L4 | L5 | 82 | 良好 | false |"
+        out = _write_parsed_outputs(
+            response=f"### FILE: staging/truth/resonance_trend.md\n{row}\n",
+            output_paths=["staging/truth/resonance_trend.md"],
+            project_dir=project,
+            skill="shenbi-review-resonance",
+        )
+        assert "staging/truth/resonance_trend.md" in out
+        staged = (project / "staging" / "truth" / "resonance_trend.md").read_text(encoding="utf-8")
+        assert _TABLE_HEADER_BOOTSTRAP["resonance_trend.md"] in staged
+
+
+class TestBaseStateBanner:
+    """#47: the dispatch prompt carries a machine-computed per-target base
+    state banner — the model knows the sanctioned form BEFORE emitting, so
+    feedback and guard can never again contradict each other.
+    """
+
+    def test_settle_prompt_carries_per_target_base_states(self, tmp_path):
+        from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+
+        project = tmp_path
+        (project / "truth").mkdir(parents=True)
+        (project / "truth" / "current_state.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
+        (project / "truth" / "particle_ledger.md").write_text(
+            _CREATION_FORM_STATE, encoding="utf-8"
+        )
+        _sys_p, user_p, _paths, _ = _build_skill_prompt(
+            "shenbi-state-settling",
+            project,
+            "settle chapter 1",
+            chapter=1,
+            uses_staging=True,
+        )
+        assert "基座态" in user_p
+        assert "truth/current_state.md" in user_p and "SHELL" in user_p
+        assert "truth/particle_ledger.md" in user_p and "FILLED" in user_p
+
+
+class TestDispatchTraceReadsManifest:
+    """#34: the DISPATCH trace persists WHAT the LLM saw per read — mode
+    (full/fields), declared fields, filter match — so a post-mortem can
+    tell a filtered-read miss from a full-text escape-hatch fallback.
+    """
+
+    def test_builder_returns_manifest_with_field_modes(self, tmp_path):
+        from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+
+        project = tmp_path
+        (project / "truth").mkdir(parents=True)
+        (project / "truth" / "current_state.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
+        _s, _u, _p, manifest = _build_skill_prompt(
+            "shenbi-state-settling",
+            project,
+            "settle chapter 1",
+            chapter=1,
+            uses_staging=True,
+        )
+        by_path = {m["path"]: m for m in manifest}
+        assert any("current_state" in p for p in by_path), "injected read must be manifested"
+        cur = next(m for p, m in by_path.items() if "current_state" in p)
+        assert cur["mode"] in ("full", "fields")
+        if cur["mode"] == "fields":
+            assert "fields" in cur and "matched_all" in cur

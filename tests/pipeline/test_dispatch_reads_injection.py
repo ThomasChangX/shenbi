@@ -102,7 +102,7 @@ def test_required_inputs_injected(tmp_path: Path, skill, files, expected, absent
             Path("tests/fixtures/genre-config-example.json").read_text(encoding="utf-8"),
             encoding="utf-8",
         )
-    _, user_prompt, _ = _build_skill_prompt(
+    _, user_prompt, _, _ = _build_skill_prompt(
         skill=skill,
         project_dir=tmp_path,
         prompt="chapter 5",
@@ -120,7 +120,7 @@ def test_lifecycle_prompt_reachable(tmp_path):
 
     step9 = next(s for s in GENESIS_STEPS if s.step_num == 9)
     assert step9.skill == "shenbi-foreshadowing-lifecycle"
-    system_prompt, user_prompt, output_paths = _build_skill_prompt(
+    system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
         skill=step9.skill,
         project_dir=tmp_path,
         prompt="genesis",
@@ -135,7 +135,7 @@ def test_genesis_outputs_override_excludes_per_chapter_writes(tmp_path):
     """Stage-8 review I1 pin: genesis dispatch output set is the GenesisStep's
     declared output — lifecycle's bridge_tracker/audits must NOT appear.
     """
-    system_prompt, user_prompt, output_paths = _build_skill_prompt(
+    system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
         skill="shenbi-foreshadowing-lifecycle",
         project_dir=tmp_path,
         prompt="genesis",
@@ -154,7 +154,7 @@ def test_staging_prompt_lists_prefixed_paths(tmp_path):
     """Stage-8 r3 C-1 pin: staged prompts list staging/-prefixed paths so the
     prompt instruction and the persistence lookup keys stay identical.
     """
-    _, user_prompt, output_paths = _build_skill_prompt(
+    _, user_prompt, output_paths, _ = _build_skill_prompt(
         skill="shenbi-chapter-planning",
         project_dir=tmp_path,
         prompt="plan chapter 5",

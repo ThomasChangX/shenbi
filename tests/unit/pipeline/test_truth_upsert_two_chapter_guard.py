@@ -66,8 +66,8 @@ _SEPARATOR_ROW_RE = re.compile(r"^\|(\s*:?-{3,}:?\s*\|)+$")
 
 def _data_rows(path: Path) -> list[str]:
     """Markdown TABLE data rows in *path* (``|``-delimited, separators and
-    header rows excluded — the resonance_trend bootstrap header (probe2 fix)
-    is structural, not data).
+    header rows excluded — bootstrap headers (probe2 resonance_trend; batch
+    #15 #44/#38 five single-table keyed files) are structural, not data).
     """
     return [
         line.strip()
@@ -75,6 +75,9 @@ def _data_rows(path: Path) -> list[str]:
         if line.strip().startswith("|")
         and not _SEPARATOR_ROW_RE.match(line.strip())
         and not line.strip().startswith("| chapter |")
+        and not line.strip().startswith("| 章节 |")
+        and not line.strip().startswith("| volume |")
+        and not line.strip().startswith("| Bridge ID |")
     ]
 
 

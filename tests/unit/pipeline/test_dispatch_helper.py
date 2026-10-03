@@ -287,7 +287,7 @@ class TestMultiFileOutputFormat:
             lambda s: mock_contract,
         )
 
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
             "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
         )
 
@@ -312,7 +312,7 @@ class TestMultiFileOutputFormat:
             lambda s: mock_contract,
         )
 
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
             "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
         )
 
@@ -784,7 +784,7 @@ class TestPlanSkeletonInjection:
         )
 
         # ---- Act: call the REAL _build_skill_prompt ----
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
             skill="shenbi-chapter-planning",
             project_dir=tmp_path,
             prompt="plan chapter 1",

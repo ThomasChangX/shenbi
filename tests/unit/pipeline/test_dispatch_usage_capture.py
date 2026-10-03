@@ -31,7 +31,7 @@ class TestUsageCapture:
             patch("openai.OpenAI") as mock_openai,
             patch(
                 "shenbi.pipeline.dispatch_helper._build_skill_prompt",
-                return_value=("sys", "user", ["chapters/chapter-1.md"]),
+                return_value=("sys", "user", ["chapters/chapter-1.md"], []),
             ),
         ):
             mock_openai.return_value.chat.completions.create.return_value = fake_stream
@@ -50,7 +50,7 @@ class TestUsageCapture:
             patch("openai.OpenAI") as mock_openai,
             patch(
                 "shenbi.pipeline.dispatch_helper._build_skill_prompt",
-                return_value=("sys", "user", ["chapters/chapter-1.md"]),
+                return_value=("sys", "user", ["chapters/chapter-1.md"], []),
             ),
         ):
             mock_openai.return_value.chat.completions.create.return_value = fake_stream

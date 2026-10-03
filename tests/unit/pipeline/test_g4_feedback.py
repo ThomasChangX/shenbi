@@ -174,3 +174,27 @@ def test_hooks_structure_example_uses_live_form_and_names_banned_scaffold():
         assert banned in text
     # the sanctioned increment shape stays front and center
     assert "- last_reinforced" in text
+
+
+def test_enrich_normalizes_indexed_check_ids_to_N():
+    """Batch #15 #42 (probe20): check IDs like ``G4.rev.adjustment_7_thin_rationale``
+    never matched a static example key — the digit index made the lookup miss
+    on every indexed finding, so those retries got only the generic line.
+    """
+    fb = _enrich_g4_feedback(
+        ["G4.rev.adjustment_7_thin_rationale:chapter-1-revision-decisions.json -- rationale 8 < 20"]
+    )
+    assert "期望格式" in fb, "indexed check id must resolve to its _N example"
+    assert "rationale" in fb
+
+
+def test_examples_cover_ac_and_rev_families():
+    """#42: the observed-but-uncovered families must carry examples — an
+    audit-completeness no_verdict retry and a revision thin-rationale retry
+    both need the sanctioned shape taught in the feedback.
+    """
+    for key in ("G4.ac.no_verdict", "G4.rev.adjustment_N_thin_rationale"):
+        assert key in G4_FORMAT_EXAMPLES, f"{key} missing from G4_FORMAT_EXAMPLES"
+        assert len(G4_FORMAT_EXAMPLES[key]) > 40
+    ac_text = G4_FORMAT_EXAMPLES["G4.ac.no_verdict"]
+    assert "**判定**" in ac_text, "must teach the 判定-labeled verdict line (#43 pairing)"

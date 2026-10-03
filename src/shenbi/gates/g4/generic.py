@@ -495,6 +495,31 @@ def build_checkers() -> dict[str, Any]:
     return checkers
 
 
+#: batch #15 #33: genesis content producers whose outputs must reference
+#: years via world/story_bible.md 世界史时间线 anchor NAMES (or relative
+#: phrasing), never raw absolute years. Derived from GENESIS_STEPS minus the
+#: non-narrative steps (genre-config / style-learning / anchor-curate /
+#: foundation-review). Kept as a literal frozenset so the lint face stays
+#: import-cheap; tests reconcile it against GENESIS_STEPS.
+_YEAR_ANCHOR_SKILLS: frozenset[str] = frozenset(
+    {
+        "shenbi-worldbuilding",
+        "shenbi-character-design",
+        "shenbi-story-architecture",
+        "shenbi-faction-builder",
+        "shenbi-volume-outlining",
+        "shenbi-pacing-design",
+        "shenbi-plot-thread-weaver",
+        "shenbi-foreshadowing-lifecycle",
+        "shenbi-power-system",
+        "shenbi-location-builder",
+        "shenbi-relationship-map",
+        "shenbi-book-spine-init",
+        "shenbi-intent-management",
+    }
+)
+
+
 def gate_G4(
     skill_name: str,
     test_type: str,
@@ -526,6 +551,34 @@ def gate_G4(
             pwi = g4_post_write_integrity(Path(project_dir), chapter=chapter_num)
             if pwi["checks"]:
                 result = _merge_pwi_into_result(result, pwi)
+
+    # batch #15 #33: year-anchor single-source scan for the 13 genesis
+    # producers. Outline files' projections are FLAGGED (WARN); every other
+    # producer output with a raw absolute year FAILS — probe15's four-layer
+    # mutually-exclusive year numbers must never re-form.
+    if skill_name in _YEAR_ANCHOR_SKILLS:
+        must_fix: list[str] = []
+        warns: list[dict[str, Any]] = []
+        for fp in file_paths:
+            p = Path(fp)
+            if not p.exists():
+                continue
+            from shenbi.pipeline.llm_output_integrity import check_year_anchors
+
+            for finding in check_year_anchors(p):
+                if "outline" in p.parts or (p.suffix == ".md" and "outline" in str(p)):
+                    warns.append(
+                        {"id": "G4.ys.outline_projection", "s": GateStatus.WARN, "f": finding}
+                    )
+                else:
+                    must_fix.append(finding)
+        if must_fix or warns:
+            ys = {
+                "status": GateStatus.FAIL if must_fix else GateStatus.WARN,
+                "checks": warns,
+                "must_fix": must_fix,
+            }
+            result = _merge_pwi_into_result(result, ys)
 
     return result
 

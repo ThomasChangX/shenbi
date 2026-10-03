@@ -806,6 +806,44 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
         '"severity": "medium", "rationale": "跳过 arc2 因其回收章在第 3 章之后，'
         '本卷范围内无推进点。"'
     ),
+    # batch #15 #42 (probe20): families the enricher never covered — an
+    # audit-completeness retry ran with only the generic line while the fix
+    # was a one-line verdict relabel (#43 pairing: the label must be 判定,
+    # which VERDICT_MARKERS and verdict_fence's legacy patterns both adopt).
+    "G4.ac.no_verdict": (
+        "审计文件缺少判定标记。报告必须携带明确的判定行：\n"
+        "**判定**: 通过 / 有瑕疵 / 不通过\n"
+        "（标签用「判定」，不用「结果」——围栏/完整性检查按 判定/结论/verdict/"
+        "通过/阻断/PASS/BLOCK 采纳；有瑕疵前先给一句可操作的修复指向）"
+    ),
+    "G4.ac.too_short": (
+        "审计文件字节过短（疑似中途截断的存根）。重发完整审计：证据逐条"
+        '带文件+行号引用（chapter-N.md L45-52 > "引用原文"），判定行收尾。'
+    ),
+    "G4.ac.aborted_stub": (
+        "审计文件只有执行前言、没有结果。重发完整审计：逐维度证据 + 判定行"
+        "（**判定**: 通过 / 有瑕疵 / 不通过）收尾。"
+    ),
+    "G4.rev.adjustment_N_thin_rationale": (
+        "adjustments[].rationale 过薄（<20 字）。rationale 必须说清：发现了"
+        "什么问题、为何这样修、修向哪个验收面，例如：\n"
+        '"rationale": "第2章结尾张力拍缺未解悬置，按备忘段2期待改写为灯座'
+        '刻痕被察觉而未说破，修复 G4.cd.no_hook 且不新增场景。"'
+    ),
+    "G4.ys.raw_year": (
+        "输出含裸绝对年数。绝对年数唯一登记处 = world/story_bible.md 的"
+        "「世界史时间线」表；本文件涉及年代只写锚名（照抄该表第一列）或"
+        "相对表述（如「净场之后」），删除全部「X 年/年前/年来」形态。"
+    ),
+    "G4.ys.outline_projection": (
+        "卷纲/节奏文件中的年代投影改写为锚名+相对序（如「黑脊矿难锚之后"
+        "第 2 卷」），不写裸年数；确需跨卷时间跨度时引锚名差值表述。"
+    ),
+    "G4.rev.empty_adjustments_no_skip": (
+        "adjustments 为空时，selections 必须显式记录 no-op/跳过及其依据"
+        "（target + selected=[] + basis 说明为何本章无需修订）——空 adjustments "
+        "而无说明 = 修订未执行。"
+    ),
 }
 
 
@@ -826,6 +864,10 @@ def _enrich_g4_feedback(failures: list[str]) -> str:
     for f in failures:
         # Extract check ID prefix (e.g., "G4.rr.verdict" from "G4.rr.verdict:file:reason")
         check_prefix = f.split(":")[0] if ":" in f else f
+        # batch #15 #42 (probe20): indexed check IDs (adjustment_7_thin_rationale,
+        # sel_3_missing_basis) never matched a static key — normalize the digit
+        # index to _N so the family example resolves.
+        check_prefix = re.sub(r"_\d+", "_N", check_prefix)
         lines.append(f"- **{f}**")
         if check_prefix in G4_FORMAT_EXAMPLES:
             lines.append("  期望格式：")

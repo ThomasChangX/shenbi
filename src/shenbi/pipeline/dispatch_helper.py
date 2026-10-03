@@ -648,7 +648,7 @@ def _build_skill_prompt(
     json_mode: bool = False,
     path_context: PathContext | None = None,
     outputs_override: list[str] | None = None,
-) -> tuple[str, str, list[str]]:
+) -> tuple[str, str, list[str], list[dict[str, Any]]]:
     """Build a complete execution prompt for a skill.
 
     Returns (system_prompt, user_prompt, output_paths) where:
@@ -704,6 +704,12 @@ def _build_skill_prompt(
     # but chapter is None (genesis mode) — such reads are skipped rather than
     # raising. With a chapter, resolve_chapter_path does a bounded N/NNN replace.
     raw_inputs: dict[str, str] = {}
+    # batch #15 #34 (probe20): the DISPATCH trace must persist WHAT the LLM
+    # actually saw per read — field-filtered reads record their declared
+    # fields and whether the filter matched, so a later miss can be told
+    # apart from a full-text fallback (the escape hatch returns the whole
+    # file + WARN; without the manifest the trace cannot distinguish them).
+    reads_manifest: list[dict[str, Any]] = []
     reads: list[str] = contract.get("reads", [])
     # Layer B: loader normalizes dict-form reads into plain strings and
     # diverts fields to the read_fields sidecar (loader.py _validate). The
@@ -779,6 +785,23 @@ def _build_skill_prompt(
                 log.warning("extractor_unrouted_fulltext", extractor=extractor, path=str(full_path))
             if fields:
                 content, _matched = filter_to_fields(content, fields, str(full_path))
+                reads_manifest.append(
+                    {
+                        "path": key,
+                        "mode": "fields",
+                        "fields": fields,
+                        "matched_all": bool(_matched),
+                    }
+                )
+            else:
+                reads_manifest.append(
+                    {
+                        "path": key,
+                        "mode": "full",
+                        "matched_all": True,
+                        **({"extractor": extractor} if extractor else {}),
+                    }
+                )
             # 10a: Strip META blocks for non-drafting skills (save 16-31% input)
             content = _strip_meta_for_non_drafting(skill, content)
             raw_inputs[key] = content
@@ -944,6 +967,22 @@ def _build_skill_prompt(
     for p in prompt_outputs:
         if "*" not in p:
             user_parts.append(f"- {p}")
+    # #47 (probe20): machine-computed per-target base states, injected BEFORE
+    # the model emits — it knows which targets are shells (creation form
+    # sanctioned) and which are filled (rows-only), so retry feedback and
+    # the ingestion guard can never again demand contradictory forms.
+    # Under outputs_override (genesis narrowing) the banner narrows with it:
+    # per-chapter-only targets (bridge_tracker) must not surface in a
+    # genesis dispatch that will not write them.
+    _ad_semantics = contract.get("write_semantics", {})
+    if outputs_override is not None:
+        _allowed = {p.removeprefix("staging/") for p in outputs_override}
+        _ad_semantics = {t: m for t, m in _ad_semantics.items() if str(t) in _allowed}
+    _ad_states = _append_dedup_base_state_lines(project_dir, _ad_semantics, staging=uses_staging)
+    if _ad_states:
+        user_parts.append("\n## 逐目标基座态（机器计算——以此为准，优先于任何旧反馈）")
+        for s in _ad_states:
+            user_parts.append(f"- {s}")
     if len(output_paths) > 1:  # note follows persistence reality (r3 I-2)
         user_parts.append(
             "\nNote: This skill produces multiple files. "
@@ -1023,7 +1062,7 @@ def _build_skill_prompt(
         except Exception as e:
             log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
 
-    return system_prompt, user_prompt, output_paths
+    return system_prompt, user_prompt, output_paths, reads_manifest
 
 
 def _is_review_skill(skill: str) -> bool:
@@ -1546,18 +1585,18 @@ def _validate_increment_package(content: str, *, key_field: str, base_text: str 
     targets keep the contract-sanctioned ``## 第N章状态增量`` increment
     section (character_matrix).
 
-    First-write exemption (probe16 adjudication #001): for hook_id targets
-    whose base carries NO hook rows and NO hook headings, the whole-file
-    form is the sanctioned CREATION shape — the genesis registry contract
-    mandates the ``## 总览`` EXACT table, which no increment-only form can
-    produce. The ban protects existing hook content; nothing to protect,
-    nothing to ban.
+    First-write exemption, generalized (batch #15 #44; probe16 adjudication
+    #001 for hook targets, probe20 adjudication #008 for every target): a
+    base that is a SHELL (:func:`truth_io.base_is_shell` — template
+    placeholders/quotes/headings only, zero real data) has nothing for the
+    scaffold ban to protect. The whole-file form there is the sanctioned
+    CREATION shape; the caller routes it as a base-replacing creation write
+    instead of feeding it to the keyed-upsert merge.
     """
-    if key_field == "hook_id":
-        from shenbi.pipeline.truth_io import base_has_hook_content
+    from shenbi.pipeline.truth_io import base_is_shell
 
-        if not base_has_hook_content(base_text):
-            return
+    if base_is_shell(base_text):
+        return
     violations: list[str] = []
     stripped = content.lstrip()
     if stripped.startswith("---"):
@@ -1586,6 +1625,54 @@ def _validate_increment_package(content: str, *, key_field: str, base_text: str 
         f"{'、'.join(violations)}。合法增量形态：{sanctioned}。"
         f"绝不输出{_INCREMENT_BANNED_FORMS_HINT.format(extra=extra)}"
     )
+
+
+def _append_dedup_base_state_lines(
+    project_dir: Path, semantics: dict[str, dict[str, Any]], *, staging: bool
+) -> list[str]:
+    """Machine-computed per-target base states for append_dedup targets.
+
+    batch #15 #44/#47 (probe20 deadlock): rejection feedback describing a
+    world the bases do not carry is how a recoverable data loss became a
+    probe death — every message about an append_dedup target must name the
+    target's ACTUAL base state. SHELL (template/missing) sanctions the
+    whole-file creation form; FILLED allows rows/field increments only.
+    Base resolution mirrors the router: staged-if-exists-else-live for
+    staging-gated dispatches.
+    """
+    from shenbi.pipeline.truth_io import base_is_shell
+
+    lines: list[str] = []
+    for target, meta in sorted(semantics.items()):
+        if meta.get("mode") != "append_dedup":
+            continue
+        rel = str(target)
+        if not rel.startswith("truth/"):
+            continue
+        staged = project_dir / "staging" / rel
+        live = project_dir / rel
+        src = staged if (staging and staged.exists()) else live
+        if src.exists() and not base_is_shell(src.read_text(encoding="utf-8")):
+            lines.append(f"{rel}=FILLED（已有数据：只允许行/字段增量，禁止整档重发）")
+        else:
+            lines.append(f"{rel}=SHELL（空壳/缺失首写：整档创建形态合法）")
+    return lines
+
+
+def _is_creation_form(content: str, *, key_field: str) -> bool:
+    """True when *content* carries whole-file creation markers (#44).
+
+    A leading frontmatter block, any H1 line, or (hook-keyed targets) any
+    ``##`` scaffold heading — the forms the shell-first-write exemption
+    routes as a base-replacing creation instead of a keyed merge.
+    """
+    stripped = content.lstrip()
+    if stripped.startswith("---"):
+        return True
+    lines = content.split("\n")
+    if any(re.match(r"^#\s", ln) for ln in lines):
+        return True
+    return key_field == "hook_id" and any(re.match(r"^##\s", ln) for ln in lines)
 
 
 def _route_append_dedup_write(
@@ -1631,7 +1718,13 @@ def _route_append_dedup_write(
             DispatchResult) stays as defense for a future ``upsert_yaml``
             wiring, not a live path today.
     """
-    from shenbi.pipeline.truth_io import path_lock, upsert_markdown_row, write_truth_file
+    from shenbi.pipeline.truth_io import (
+        base_is_shell,
+        ensure_table_header,
+        path_lock,
+        upsert_markdown_row,
+        write_truth_file,
+    )
 
     if rel_path.startswith(_STAGING_TRUTH_PREFIX) or rel_path.startswith(_TRUTH_DIR_PREFIX):
         # Best-effort pre-guard read of the merge base (staging-chained,
@@ -1646,7 +1739,55 @@ def _route_append_dedup_write(
             src = project_dir / rel_path
         if src.exists():
             base_text = src.read_text(encoding="utf-8")
+        shell_base = base_is_shell(base_text)
         _validate_increment_package(content, key_field=key_field, base_text=base_text)
+
+        if shell_base and _is_creation_form(content, key_field=key_field):
+            # #44: SHELL base + whole-file form = sanctioned CREATION. Route
+            # as a base-replacing creation write — NEVER into the keyed
+            # upsert, whose section-replacement semantics is the probe15
+            # destruction vector. The shell decision is re-checked under the
+            # path lock so a concurrent first writer cannot be clobbered.
+            if rel_path.startswith(_STAGING_TRUTH_PREFIX):
+                filename = rel_path[len(_STAGING_TRUTH_PREFIX) :]
+                staged = project_dir / rel_path
+                live_path = project_dir / "truth" / filename
+                staged.parent.mkdir(parents=True, exist_ok=True)
+                with path_lock(staged):
+                    base = (
+                        staged.read_text(encoding="utf-8")
+                        if staged.exists()
+                        else (live_path.read_text(encoding="utf-8") if live_path.exists() else "")
+                    )
+                    if not base_is_shell(base):
+                        raise IncrementShapeError(
+                            f"输出未落盘——{rel_path} 的基座在创建写入前已被并发填充"
+                            "（非空壳）：改发按键增量（行/字段），不得整档替换。"
+                        )
+                    # #39-family defense: a shell STAGED base over a FILLED
+                    # live base is an abnormal divergence — committing the
+                    # creation would silently replace live data. A probe20
+                    # rerun must die HERE, loudly, not at the next chapter.
+                    live_text = live_path.read_text(encoding="utf-8") if live_path.exists() else ""
+                    if live_text and not base_is_shell(live_text):
+                        raise IncrementShapeError(
+                            f"输出未落盘——{rel_path} 的 live 基座已含数据（FILLED）而"
+                            " staging 侧是空壳：禁止以创建形态覆盖 live 数据。"
+                            "改发按键增量（行/字段）。"
+                        )
+                    safe_write(staged, content)
+                    _update_staging_meta(project_dir, rel_path, key_field)
+                log.info(
+                    "truth_shell_first_write",
+                    path=rel_path,
+                    key=key_field,
+                    mode="creation_staging",
+                )
+                return
+            filename = rel_path[len(_TRUTH_DIR_PREFIX) :]
+            write_truth_file(project_dir, filename, content, mode="replace")
+            log.info("truth_shell_first_write", path=rel_path, key=key_field, mode="creation")
+            return
 
     units = _increment_units(content)
 
@@ -1673,6 +1814,10 @@ def _route_append_dedup_write(
                 base = staged.read_text(encoding="utf-8")
             else:
                 base = live_path.read_text(encoding="utf-8") if live_path.exists() else ""
+            # #38: the live write path bootstraps contract headers on file
+            # creation (probe2); the staging merge must do the same or a
+            # staged first write lands headerless until commit.
+            base = ensure_table_header(filename, base)
             merged = base
             for unit in units:
                 merged = upsert_markdown_row(merged, unit, key_field)
@@ -1895,7 +2040,18 @@ def _write_parsed_outputs(
         if mode_meta.get("mode") == "append_dedup":
             # Routed merge (C3 T2): upsert by key, never a whole-file rewrite.
             key_field = str(mode_meta.get("key") or "chapter")
-            _route_append_dedup_write(project_dir, rel_path, content, key_field=key_field)
+            try:
+                _route_append_dedup_write(project_dir, rel_path, content, key_field=key_field)
+            except IncrementShapeError as exc:
+                # #44 split-package feedback: name WHICH targets are shells
+                # (creation sanctioned) and which are filled (rows-only) —
+                # a multi-target retry must never fight its own bases.
+                states = _append_dedup_base_state_lines(
+                    project_dir, semantics, staging=rel_path.startswith("staging/")
+                )
+                if states:
+                    raise IncrementShapeError(f"{exc}\n[逐目标基座态] {'；'.join(states)}") from exc
+                raise
             written.append(rel_path)
             log.info(
                 "output_written",
@@ -2255,6 +2411,7 @@ def _emit_dispatch_trace(
     *,
     success: bool,
     failure_class: FailureClass | None = None,
+    reads_manifest: list[dict[str, Any]] | None = None,
 ) -> None:
     """C10 spec #36 T7 (F1116): DISPATCH trace event with finish_reason.
 
@@ -2282,6 +2439,11 @@ def _emit_dispatch_trace(
         }
         if failure_class is not None:
             payload["failure_class"] = failure_class.value
+        if reads_manifest is not None:
+            # batch #15 #34: what the LLM actually saw per read (mode/fields/
+            # matched) — distinguishes a filtered read miss from a full-text
+            # escape-hatch fallback during post-mortems.
+            payload["reads"] = reads_manifest
         TraceWriter(Path(project_dir)).append(
             actor="dispatch_helper",
             actor_role="SYSTEM",
@@ -2575,7 +2737,7 @@ def _dispatch_via_api(
             log.warning("chapter_ambiguous_in_prompt", skill=skill)
             chapter = None
     try:
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, reads_manifest = _build_skill_prompt(
             skill,
             project_dir,
             prompt,
@@ -2639,6 +2801,7 @@ def _dispatch_via_api(
             usage_acc.get("attempts", 1),
             success=False,
             failure_class=classify_dispatch_failure(exc=exc),
+            reads_manifest=reads_manifest,
         )
         _handle_timeout_gracefully(skill, chapter)
         log.error("api_call_timeout", skill=skill)
@@ -2655,6 +2818,7 @@ def _dispatch_via_api(
             usage_acc.get("attempts", 1),
             success=False,
             failure_class=classify_dispatch_failure(exc=exc),
+            reads_manifest=reads_manifest,
         )
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
@@ -2704,6 +2868,7 @@ def _dispatch_via_api(
             usage_acc.get("attempts", 1),
             success=False,
             failure_class=FailureClass.DETERMINISTIC_CONTENT,
+            reads_manifest=reads_manifest,
         )
         log.error("content_filter_blocked", skill=skill)
         return DispatchResult(
@@ -2849,6 +3014,7 @@ def _dispatch_via_api(
         usage is None,
         usage_acc.get("attempts", 1),
         success=True,
+        reads_manifest=reads_manifest,
     )
     return DispatchResult(True, 0, output_text, "")
 
@@ -2903,7 +3069,9 @@ def _dispatch_via_ide(
             log.warning("chapter_ambiguous_in_prompt", skill=skill)
             chapter = None
     try:
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        # IDE face has no DISPATCH trace emit (subprocess outcome path);
+        # reads_manifest is API-face only — hence the throwaway name.
+        system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
             skill,
             project_dir,
             prompt,

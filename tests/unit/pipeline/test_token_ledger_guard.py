@@ -67,7 +67,7 @@ def _dispatch_with_fake_client(
         patch("openai.OpenAI") as mock_openai,
         patch(
             "shenbi.pipeline.dispatch_helper._build_skill_prompt",
-            return_value=("sys", "user", [output_rel]),
+            return_value=("sys", "user", [output_rel], []),
         ),
     ):
         mock_openai.return_value.chat.completions.create.return_value = fake_stream
@@ -162,7 +162,7 @@ class TestLedgerFailSafe:
             patch("openai.OpenAI") as mock_openai,
             patch(
                 "shenbi.pipeline.dispatch_helper._build_skill_prompt",
-                return_value=("sys", "user", ["chapters/chapter-1.md"]),
+                return_value=("sys", "user", ["chapters/chapter-1.md"], []),
             ),
             patch(
                 "shenbi.pipeline.dispatch_helper.TokenLedger.record",
