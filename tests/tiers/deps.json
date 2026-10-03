@@ -371,7 +371,7 @@
     "src/shenbi/gates/g4/generic.py": "sha256:2af3ad673771e0b578ac3863691b6f472e466c2f40ae764b92d8d8e74fb18920",
     "src/shenbi/gates/g4/anti_detect.py": "sha256:b59f0785be529628637116176cb9018c52810036155578dab54c3b631afbc571",
     "src/shenbi/gates/g4/location_builder.py": "sha256:502fdf4c3fb0f2ce75a5b910fd6205b1b23b904870939e1c32475a71350ae219",
-    "src/shenbi/gates/g4/state_settling.py": "sha256:ebc75f6fdcfafb23f7765dfd80b8a35a0585ea1fd304ec639189409300b580c2",
+    "src/shenbi/gates/g4/state_settling.py": "sha256:4f15c1f710732f03b13cbf288bf0dbbf17b4a877a2f2bee764b990eeedd7a84b",
     "src/shenbi/gates/g4/genre_config.py": "sha256:20f865b40453cbfec7d16ecd08c0b9362eb271f0d9a87ed443706b66fe4826bd",
     "src/shenbi/gates/g4/__init__.py": "sha256:96fdf90381de16605e3f7dcfa362ed7b91eb35b6f84761a41a97fac5975c17a9",
     "src/shenbi/gates/g4/memory_distill.py": "sha256:e46e38f11d38798a84dba84e325de5040618ef7f07739b5608289df590844157",

@@ -558,3 +558,41 @@ def test_passes_when_selections_cover_all_staged_targets(tmp_path: Path) -> None
     assert not any("selections_uncovered" in m for m in result.get("must_fix", [])), result.get(
         "must_fix", []
     )
+
+
+@pytest.mark.unit
+def test_selections_coverage_ignores_co_writer_staged_files(tmp_path: Path) -> None:
+    """#52 scope fix (probe22 adjudication #005): the obligation set is the
+    skill's OWN contract targets, not every file in the shared staging dir —
+    foreshadowing-lifecycle's bridge_tracker.md rides the same staging/truth
+    glob into the settle G4 file list, and demanding the SETTLE sidecar
+    declare it is a false positive (declaring it would be the false report;
+    the feedback loop is mathematically unsatisfiable — 3 deterministic
+    escalation deaths in probe22 ch1).
+    """
+    fps = _staged_settle_project(tmp_path, declared=_SSC_TARGETS)
+    co_writer = tmp_path / "staging" / "truth" / "bridge_tracker.md"
+    co_writer.write_text("| bridge_id | 章节 |\n|---|---|\n| BR-01 | 第 1 章 |\n", encoding="utf-8")
+    fps.append("staging/truth/bridge_tracker.md")
+
+    result = _run(fps, str(tmp_path))
+    assert not any("selections_uncovered" in m for m in result.get("must_fix", [])), result.get(
+        "must_fix", []
+    )
+
+
+@pytest.mark.unit
+def test_selections_coverage_still_catches_own_undeclared_target(tmp_path: Path) -> None:
+    """The narrowed scope must still catch the probe21 #008 shape: one of the
+    skill's OWN contract targets staged but undeclared.
+    """
+    half = _SSC_TARGETS[:4]  # declare 4 of 7
+    fps = _staged_settle_project(tmp_path, declared=half)
+    co_writer = tmp_path / "staging" / "truth" / "bridge_tracker.md"
+    co_writer.write_text("| bridge_id | 章节 |\n|---|---|\n", encoding="utf-8")
+    fps.append("staging/truth/bridge_tracker.md")
+
+    result = _run(fps, str(tmp_path))
+    uncovered = [m for m in result.get("must_fix", []) if "selections_uncovered" in m]
+    assert len(uncovered) == 3, uncovered  # the 3 undeclared OWN targets
+    assert not any("bridge_tracker" in m for m in uncovered)

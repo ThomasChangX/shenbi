@@ -411,6 +411,15 @@ def _check_selections_coverage(fps: list[str], rd: str | None) -> list[str]:
     rejected re-settlement declared 1/7 while touching seven files, hiding
     the ledger key-collapse from the review surface.
 
+    Scope (probe22 adjudication #005): the obligation set is the skill's OWN
+    contract targets, NOT every file under staging/truth —
+    foreshadowing-lifecycle stages bridge_tracker.md into the same shared
+    directory and the settle G4 file list globs it; demanding the settle
+    sidecar declare a file its contract does not own is a false positive
+    (declaring it would be the false report) and the retry loop becomes
+    mathematically unsatisfiable — three deterministic escalation deaths in
+    probe22 ch1. Cross-skill trespass stays owned by write-audit.
+
     The composite partition routes the sidecar to g4_decisions, so the
     sibling is located by convention: staging/truth/state-settling-decisions
     .json next to the staged truth targets. Parse/schema failures of the
@@ -419,6 +428,12 @@ def _check_selections_coverage(fps: list[str], rd: str | None) -> list[str]:
     staged = [fp.replace("\\", "/") for fp in fps if "staging/truth" in fp.replace("\\", "/")]
     if not staged:
         return []
+    from shenbi.contracts import ContractError, load_contract
+
+    try:
+        own_targets = set(load_contract("shenbi-state-settling")["write_semantics"])
+    except (ContractError, KeyError):
+        own_targets = set()  # contract unavailable → keep the full staged-set obligation
     sidecar = resolve_input_path(staged[0], rd).parent / "state-settling-decisions.json"
     if not sidecar.exists():
         return []
@@ -435,7 +450,13 @@ def _check_selections_coverage(fps: list[str], rd: str | None) -> list[str]:
         if isinstance(s, dict)
     }
     missing = sorted(
-        {fp.removeprefix("staging/") for fp in staged if fp.endswith(".md")} - declared
+        {
+            fp.removeprefix("staging/")
+            for fp in staged
+            if fp.endswith(".md")
+            and (not own_targets or fp.removeprefix("staging/") in own_targets)
+        }
+        - declared
     )
     return [
         f"G4.ss.selections_uncovered:{m}"
