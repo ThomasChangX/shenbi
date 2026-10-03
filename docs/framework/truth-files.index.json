@@ -762,7 +762,9 @@
     "updates": []
   },
   "audits/chapter-N-foreshadowing.md": {
-    "reads": [],
+    "reads": [
+      "shenbi-state-settling"
+    ],
     "writes": [
       "shenbi-foreshadowing-lifecycle",
       "shenbi-review-foreshadowing",

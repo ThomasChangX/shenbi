@@ -12,6 +12,7 @@ contract:
     - truth/subplot_board.md
     - truth/pending_hooks.md
     - truth/chapter_summaries.md
+    - audits/chapter-N-foreshadowing.md
   writes:
     - file: truth/state-settling-decisions.json
       mode: create_or_overwrite
@@ -48,7 +49,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
+- **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, audits/chapter-N-foreshadowing.md
 - **Writes:** truth/state-settling-decisions.json
 - **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/character_matrix.md
 
@@ -75,7 +76,20 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
 
 **Row format:** a markdown table row whose FIRST cell is the chapter key (`第N章` or `N`), e.g. `| 第 5 章 | 主角进入内门；灵石 -20；线索：考核完成 |`. The pipeline's `write_truth_file()` merges by that key cell — re-running the same chapter replaces that chapter's row only (re-runs are safe), and rows for other chapters are preserved. Do NOT reproduce other chapters' rows in your output, and do NOT output headings/frontmatter for append_dedup files — output only the new row(s). `pending_hooks.md` does NOT use table rows in your output — use the per-hook bullet format below.
 
+**各表行形态（表头由程序在首写时引导，列序必须照此）**：
+
+| 目标 | 列序（第一列=章节键） |
+|------|----------------------|
+| `truth/current_state.md` | 章节｜位置｜时间锚｜主角处境｜势力态势｜待处理压力 |
+| `truth/particle_ledger.md` | 章节｜变动项｜收支｜来源／用途｜余额或备注 |
+| `truth/subplot_board.md` | 章节｜支线｜起始章｜当前阶段｜下一节点 |
+| `truth/chapter_summaries.md` | 章节｜一句话事件｜出场角色｜推进的支线｜新增／回收伏笔｜结尾钩子 |
+
+（基座为空壳/缺失时程序已声明「整档创建形态合法」——此时可输出带表头的完整表格，列序同上；基座已含数据时只发本章行。）
+
 ### pending_hooks 增量格式（CRITICAL）
+
+**证据核对（probe20 MH12 教训）**：本章钩子增量的唯一确证来源是 `audits/chapter-N-foreshadowing.md`（step 7 审计）——它列出的「本章实际触及的钩子」之外的钩子一律不发增量；审计证据里没有的强化/触发不得自行推断。你的 `- 证据:` 引用与该审计对不上 = 结算与审计互相矛盾，G4 会拒。
 
 对每个本章触及的**既有** hook，只输出该 hook 的字段更新块（编号与标题**逐字照抄 live 文件原样**——live 是 `### MH02（星火残梦与那句听不清的话）` 这样的形态就照抄这个形态）：
 

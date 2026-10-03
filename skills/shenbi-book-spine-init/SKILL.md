@@ -103,3 +103,8 @@ status: pending_intent
 | "author_intent 还没填，书脊先空着" | themes 从 novel.json 来，不是 author_intent；空书脊 = context-composing 无上级目标 = 每章漂移 |
 | "书脊以后再补" | 没有书脊的 context-composing P2 为空 = 第一卷就开始上下文不足 |
 | "master hooks 等埋了伏笔再说" | 跨卷钩子在 volume_map 已声明，必须初始入库追踪 |
+
+
+## 年代锚纪律
+
+绝对年数（「X 年/年前」「N 年来」形态，含阿拉伯数字）只登记于 `world/story_bible.md` 的「世界史时间线」表。本 skill 的输出涉及年代时只写**锚名**或相对表述（如「净场之后」「旧历末年」），不写裸年数——G4.ys 机械扫描会把裸年数判为不合格（probe15：四层年数互斥耗掉四轮创世裁决）。

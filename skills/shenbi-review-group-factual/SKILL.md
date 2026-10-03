@@ -105,7 +105,7 @@ For each chapter, verify:
 ## 连续性审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 时间线
 | 标记 | 位置 | 推断时间 | 上一章末尾时间 | 状态 |
@@ -155,7 +155,7 @@ This dimension supersedes the deprecated `shenbi-review-world-rules` skill.
 ## 世界规则审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 设定冲突
 | 段落 | 本章陈述 | 世界规则 | 冲突类型 | 严重度 |
@@ -212,7 +212,7 @@ This dimension supersedes the deprecated `shenbi-review-pacing` skill.
 
 **章节**: 第N章
 **本章类型**: QUEST
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 近5章类型序列
 | 章节 | 类型 | 蓄压/爆发状态 |

@@ -309,3 +309,8 @@ Each defect/finding report must follow four-element format:
 4. **Severity** -- BLOCKING | CRITICAL | MINOR
 
 Missing any element invalidates the defect report.
+
+
+## 年代锚纪律
+
+绝对年数（「X 年/年前」「N 年来」形态，含阿拉伯数字）只登记于 `world/story_bible.md` 的「世界史时间线」表。本 skill 的输出涉及年代时只写**锚名**或相对表述（如「净场之后」「旧历末年」），不写裸年数——G4.ys 机械扫描会把裸年数判为不合格（probe15：四层年数互斥耗掉四轮创世裁决）。

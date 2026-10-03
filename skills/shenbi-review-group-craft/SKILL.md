@@ -94,7 +94,7 @@ This dimension supersedes the deprecated `shenbi-review-texture` skill.
 ## 写作质感审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 流水账检测
 | 段落范围 | 流水账特征 | 严重度 |
@@ -160,7 +160,7 @@ This dimension supersedes the deprecated `shenbi-review-reader-pull` skill.
 ## 读者牵引力审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 开头钩子
 - 钩子类型: ...
@@ -236,7 +236,7 @@ Execute checks in order. 第 1/4/5 项已由框架在派发 prompt 的「审查�
 
 **章节**: 第N章
 **字数**: XXXX
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 检查结果
 | # | 检查项 | 结果 | 详情 |

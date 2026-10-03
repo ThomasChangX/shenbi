@@ -108,7 +108,7 @@ digraph shenbi_score_volume {
 ```markdown
 ## 卷级评分报告
 
-**结果**: 通过 (XX/100) / 阻断
+**判定**: 通过 (XX/100) / 阻断
 
 ### Route C 目标达成
 | 检查项 | 类型 | 结果 | 证据 |

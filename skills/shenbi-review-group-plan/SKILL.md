@@ -90,7 +90,7 @@ This dimension supersedes the deprecated `shenbi-review-memo-compliance` skill.
 ## 章节备忘合规审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 备忘兑现度
 | 备忘段 | 承诺 | 兑现状态 | 严重度 |
@@ -145,7 +145,7 @@ This dimension supersedes the deprecated `shenbi-review-foreshadowing` skill.
 ## 伏笔一致性审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 伏笔池状态
 | 伏笔ID | 状态 | 兑现期 | 本章操作 | 严重度 |
