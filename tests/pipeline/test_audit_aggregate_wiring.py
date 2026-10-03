@@ -40,6 +40,9 @@ def test_generic_step_writes_aggregate_before_revision_dispatch(
         return _Result()
 
     monkeypatch.setattr(chapter_loop, "dispatch_skill", _fake_dispatch)
+    # #51: revision consumes the chapter draft — model a drafted chapter
+    (tmp_path / "chapters").mkdir(exist_ok=True)
+    (tmp_path / "chapters" / "chapter-1.md").write_text("# Chapter 1\n正文\n", encoding="utf-8")
     state = PipelineState()
     state.project_dir = str(tmp_path)
     state.chapter_loop.current_chapter = 1

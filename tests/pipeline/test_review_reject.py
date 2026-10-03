@@ -282,6 +282,11 @@ def test_per_chapter_reject_queues_settle_redispatch_with_staging(tmp_path, monk
     state = PipelineState.default(str(proj))
     state.phase = PipelinePhase.CHAPTER_LOOP
     state.chapter_loop.current_chapter = 2
+    # #51 precondition: the queued revision+settle re-dispatches consume the
+    # chapter draft — the executor below runs against tmp_path, so the draft
+    # lives there
+    (tmp_path / "chapters").mkdir(exist_ok=True)
+    (tmp_path / "chapters" / "chapter-2.md").write_text("# Chapter 2\n正文\n", encoding="utf-8")
     set_checkpoint(state, CheckpointType.PER_CHAPTER, chapter=2)
 
     # reject queues the re-dispatch set (revision THEN settle)

@@ -468,3 +468,93 @@ def test_passes_when_staged_matrix_upserts_rows_and_touches_volatile_lines(tmp_p
     assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", [])), result.get(
         "must_fix", []
     )
+
+
+# ---------------------------------------------------------------------------
+# #52 (probe21 adjudication #008): selections-coverage reconciliation
+# ---------------------------------------------------------------------------
+_SSC_TARGETS = (
+    "current_state",
+    "particle_ledger",
+    "emotional_arcs",
+    "subplot_board",
+    "pending_hooks",
+    "chapter_summaries",
+    "character_matrix",
+)
+
+
+def _staged_settle_project(tmp_path: Path, declared: tuple[str, ...]) -> list[str]:
+    """Staging/truth with the probe21 seven-target set + a sidecar whose
+    selections declare only *declared* targets (by filename).
+    """
+    staging = tmp_path / "staging" / "truth"
+    staging.mkdir(parents=True, exist_ok=True)
+    fps: list[str] = []
+    for name in _SSC_TARGETS:
+        f = staging / f"{name}.md"
+        content = "# x\n"
+        if name == "current_state":
+            content = "## 位置\n南仓\n"
+        elif name == "chapter_summaries" or name == "emotional_arcs":
+            content = "## 第 1 章\n摘要\n"
+        elif name == "particle_ledger":
+            content = (
+                "## 资源账本\n| 章节 | 变动项 | 收支 |\n|---|---|---|\n| 第 1 章 | 灰木牌 | +1 |\n"
+            )
+        elif name == "character_matrix":
+            content = "## 角色\n主角\n"
+        elif name == "pending_hooks":
+            content = "## 钩子\n- lifecycle_state: PLANTED\n"
+        f.write_text(content, encoding="utf-8")
+        fps.append(f"staging/truth/{f.name}")
+    selections = [
+        {
+            "target": f"truth/{name}.md",
+            "selected": ["x"],
+            "basis": "adjacent_to_target_chapter",
+            "severity": "low",
+            "omitted": [],
+        }
+        for name in declared
+    ]
+    (staging / "state-settling-decisions.json").write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 1,
+                "produced_at": "2026-10-03T07:11:22Z",
+                "selections": selections,
+                "adjustments": [],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    return fps
+
+
+@pytest.mark.unit
+def test_fails_when_selections_under_report_staged_targets(tmp_path: Path) -> None:
+    """probe21 #008 shape: sidecar declared 1/7 while seven files were staged
+    — the review surface could not see what the settle touched.
+    """
+    fps = _staged_settle_project(tmp_path, declared=("pending_hooks",))
+    result = _run(fps, str(tmp_path))
+    mf = result.get("must_fix", [])
+    assert result["status"] == "FAIL"
+    uncovered = [m for m in mf if "selections_uncovered" in m]
+    assert len(uncovered) == 6, mf
+    assert any("particle_ledger" in m for m in uncovered)
+    assert not any("pending_hooks" in m for m in uncovered)  # declared → covered
+
+
+@pytest.mark.unit
+def test_passes_when_selections_cover_all_staged_targets(tmp_path: Path) -> None:
+    """probe21 #006 standard: 7/7 coverage — no findings."""
+    fps = _staged_settle_project(tmp_path, declared=_SSC_TARGETS)
+    result = _run(fps, str(tmp_path))
+    assert not any("selections_uncovered" in m for m in result.get("must_fix", [])), result.get(
+        "must_fix", []
+    )

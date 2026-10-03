@@ -101,9 +101,20 @@ def test_declared_increment_routes_through_keyed_upsert(
     """Two increments (two chapter-like keys) then a re-dispatch of one key:
     the routed keyed upsert keeps history and dedups per key; the legacy
     whole-file write loses the first increment on the second dispatch.
+
+    Row shape follows the DECLARED key arity (#50): composite-key targets
+    (章节,变动项 / 章节,支线 / 角色A,角色B) carry a stable second key cell —
+    a re-merge varies a payload cell, never a key cell (probe21's re-settle
+    rows kept 变动项 constant across attempts).
     """
-    first = "| t6-key-one | first increment |"
-    second = "| t6-key-two | second increment |"
+    if "," in key:
+        first = "| t6-key-one | t6-item-one | first increment |"
+        second = "| t6-key-two | t6-item-two | second increment |"
+        revised = "| t6-key-two | t6-item-two | revised increment |"
+    else:
+        first = "| t6-key-one | first increment |"
+        second = "| t6-key-two | second increment |"
+        revised = "| t6-key-two | revised increment |"
     for row in (first, second):
         written = _write_parsed_outputs(
             response=f"### FILE: {path}\n{row}\n",
@@ -123,7 +134,7 @@ def test_declared_increment_routes_through_keyed_upsert(
     # Re-dispatching the SAME key replaces its row in place — crash-retry
     # safety — and never duplicates it or disturbs the other key's row.
     _write_parsed_outputs(
-        response=f"### FILE: {path}\n| t6-key-two | revised increment |\n",
+        response=f"### FILE: {path}\n{revised}\n",
         output_paths=[path],
         project_dir=tmp_path,
         skill=skill,

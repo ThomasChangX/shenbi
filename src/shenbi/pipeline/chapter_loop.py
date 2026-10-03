@@ -262,6 +262,13 @@ CHAPTER_STEPS: list[ChapterStep] = [
     ),
 ]
 
+#: #51 (probe21 adjudication #009): LLM steps that DERIVE their output from
+#: the chapter draft. Their dispatch is precheck-gated on the draft existing —
+#: see the ghost-chain guard in ``_run_chapter_step_impl``.
+_DRAFT_CONSUMING_SKILLS = frozenset(
+    {"shenbi-foreshadowing-lifecycle", "shenbi-state-settling", "shenbi-chapter-revision"}
+)
+
 # ---------------------------------------------------------------------------
 # Step-table versioning (C30 R2, F797): old-generation steps_done entries
 # migrate on resume so a stale step name never silently misaligns the
@@ -2064,6 +2071,44 @@ def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
     log.info("pre_revision_backup_created", chapter=chapter, size=chapter_path.stat().st_size)
 
 
+#: probe21 adjudication #009 附记: the review-resonance verdict vocabulary's
+#: non-blocking-but-unresolved outcome. A pending verdict means the hard gate
+#: could NOT evaluate (e.g. its inputs were absent) — never a pass.
+_RESONANCE_PENDING_RE = re.compile(r"resonance_pending|待人机复核")
+
+
+def _resonance_report_pending(report_path: Path) -> bool:
+    """Verdict-scoped pending detection: prefer the verdict fence, fall back
+    to whole text.
+    """
+    if not report_path.exists():
+        return False
+    text = report_path.read_text(encoding="utf-8")
+    from shenbi.gates.g4.verdict_fence import extract_fence
+
+    fence = extract_fence(text)
+    return bool(_RESONANCE_PENDING_RE.search(fence if fence is not None else text))
+
+
+def _wave_audit_entry(
+    task_success: bool, hard: int, report_paths: list[str], project_dir: Path
+) -> dict[str, Any]:
+    """The parallel wave's per-audit ``audit_results`` entry.
+
+    probe21 #009 附记: a resonance report whose verdict is 待人机复核 is
+    PENDING, not passed — the ghost ch2 recorded passed=True while the
+    report itself said the hard gate could not evaluate.
+    """
+    entry: dict[str, Any] = {"passed": task_success and hard == 0, "hard_failures": hard}
+    if task_success and hard == 0:
+        for rel in report_paths:
+            if "resonance" in rel and _resonance_report_pending(project_dir / rel):
+                entry["passed"] = False
+                entry["resonance_pending"] = True
+                break
+    return entry
+
+
 def _parse_and_persist_resonance(
     state: PipelineState, project_dir: Path, chapter: int, *, source: str
 ) -> None:
@@ -2085,6 +2130,12 @@ def _parse_and_persist_resonance(
         score=cs.resonance_score,
         source=source,
     )
+    # probe21 #009 附记: a pending verdict is an explicit unresolved state —
+    # recorded, never adopted as a pass (the ghost ch2 recorded passed=True
+    # while the report itself said the hard gate could not evaluate).
+    if cs.resonance_score is None and _resonance_report_pending(report_path):
+        cs.audit_results["resonance_pending"] = True
+        log.warning("resonance_pending_recorded", chapter=chapter, report=str(report_path))
 
     # Persist to resonance_trend.md as a MARKDOWN TABLE ROW (not YAML).
     # Reuse the parsed overall int — do NOT re-parse.
@@ -2194,6 +2245,22 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
         issue_count=len(issues),
         blocking=blocking,
     )
+
+    # probe21 #009 附记: an unevaluatable hard gate must block the chapter's
+    # silent completion — raise ESCALATION for adjudication AFTER the route is
+    # recorded (post-approve flow stays consistent, no audit-wave re-run).
+    if cs.audit_results.get("resonance_pending"):
+        log.error("resonance_pending_escalated", chapter=chapter)
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            chapter=chapter,
+            context=(
+                f"chapter {chapter} resonance 硬门待人机复核（resonance_pending）——"
+                "评分未评估（评估输入缺失或无法解析），章节不得静默过关；"
+                "请人工核查评估输入后裁决。"
+            ),
+        )
 
 
 def _is_revision_skipped(state: PipelineState, chapter: int) -> bool:
@@ -2871,6 +2938,34 @@ def _run_chapter_step_impl(
         # Register emergency handler ONCE (installs signal handlers + atexit backstop)
         register_emergency_handlers(project_dir, state)
 
+    # ── #51 ghost-chain guard: draft-existence invariant ─────────────────
+    # The draft-consuming LLM writers (foreshadowing-lifecycle, state-settling,
+    # chapter-revision) derive truth from chapters/chapter-N.md — dispatching
+    # them for an un-drafted chapter FABRICATES truth (probe21: a cursor bug
+    # sent ch2 into settle with no chapter-2.md; the poisoned rows propagated
+    # into every later file). Refuse BEFORE any dispatch: no fabrication
+    # attempt, no cost, human adjudicates via the escalation.
+    if step.skill in _DRAFT_CONSUMING_SKILLS:
+        draft = project_dir / "chapters" / f"chapter-{chapter}.md"
+        if not draft.exists():
+            log.error(
+                "chapter_draft_missing_precheck",
+                chapter=chapter,
+                skill=step.skill,
+                expected=str(draft),
+            )
+            set_checkpoint(
+                state,
+                CheckpointType.ESCALATION,
+                chapter=chapter,
+                context=(
+                    f"chapters/chapter-{chapter}.md 不存在，而步骤 {step.step_num}"
+                    f"（{step.skill}）以该草稿为输入——禁止对未起草章节结算/伏笔/修订"
+                    "（幽灵链防护 #51）。请人工核查章游标与起草步骤后重试。"
+                ),
+            )
+            return True
+
     # ── Parallel review dispatch (Task 7) ──────────────────────────────
     # When the first audit step is reached, dispatch all core-circle and
     # genre-circle reviews in two parallel waves instead of serial steps.
@@ -3076,10 +3171,9 @@ def _run_chapter_step_impl(
                         hard += len(blocking_re.findall(report.read_text(encoding="utf-8")))
                     except OSError:
                         log.warning("audit_report_unreadable", path=str(report))
-            cs.audit_results[short] = {
-                "passed": bool(result.success) and hard == 0,
-                "hard_failures": hard,
-            }
+            cs.audit_results[short] = _wave_audit_entry(
+                bool(result.success), hard, list(task.all_output_paths()), project_dir
+            )
 
         # F304: parse the resonance score from the serially-dispatched
         # review-resonance report (file exists at this point) and persist the

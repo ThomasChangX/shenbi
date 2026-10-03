@@ -108,8 +108,16 @@ def route_chapter_revision(issues: list[dict[str, Any]], blocking: bool) -> Revi
     Reuses the existing ``route_revision`` logic from
     ``shenbi.skill_utils.revision_routing.route``. Returns
     :attr:`RevisionRoute.NO_REVISION` when *issues* is empty.
+
+    probe21 adjudication #009 附记: ``blocking=True`` DISABLES the
+    NO_REVISION route — an empty *issues* list with blocking evidence means
+    the issue structure was unparseable, not that the chapter is clean; the
+    ghost chain completed a chapter this way. SPOT_FIX is the floor.
     """
     if not issues:
+        if blocking:
+            log.warning("blocking_forces_revision_route", issue_count=0)
+            return RevisionRoute.SPOT_FIX
         return RevisionRoute.NO_REVISION
     from shenbi.skill_utils.revision_routing.route import RevisionMode, route_revision
 

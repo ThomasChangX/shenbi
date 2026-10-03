@@ -39,6 +39,7 @@ from shenbi.pipeline.state import (
     PipelineState,
 )
 from shenbi.pipeline.truth_embed import embed_and_store, is_embed_available
+from shenbi.pipeline.truth_io import split_table_cells
 from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
@@ -120,6 +121,141 @@ GENESIS_EXTRA_OUTPUTS: dict[str, list[str]] = {
     # them in the prompt/required set).
     "shenbi-story-architecture": ["outline/volume_map.md", "outline/rhythm_principles.md"],
 }
+
+
+#: #48/#49 (probe21 genesis whack-a-mole): a scoped redo re-dispatched with
+#: only the reviewer feedback honored the explicit bindings but SHUFFLED every
+#: unbound layer (canon → anchor names → 规则五 semantics → 规则1-4 numbering +
+#: anchor table; four review rounds). The redo prompt now carries a
+#: machine-extracted structure binding of the current on-disk baseline so
+#: everything the feedback does not explicitly change is frozen; the
+#: genesis-complete raise diffs the frozen snapshot against the regenerated
+#: files and reports drift in the checkpoint context.
+_BINDING_HEADING_RE = re.compile(r"^#{1,6}\s+\S")
+_BINDING_SEPARATOR_CELL_RE = re.compile(r":?-{3,}:?")
+_BINDING_MAX_LINES = 120
+_BINDING_MAX_CHARS = 8000
+
+BINDING_FREEZE_HEADER = (
+    "[重做结构绑定（机器提取自当前盘上基线）——除反馈明确要求修改者外，"
+    "以下标题/表头/键值必须逐字保留，不得重编号、改名、增删]"
+)
+
+
+def _structure_binding_lines(text: str) -> list[str]:
+    """Structure-level binding lines: headings verbatim, table headers
+    verbatim, and each data row's FIRST cell (its key value — anchor names,
+    canon terms, volume titles). Prose and frontmatter are not bound (the
+    semantic layer is the feedback's job, not the freeze's).
+    """
+    lines = text.split("\n")
+    start = 0
+    if lines and lines[0].strip() == "---":
+        for i in range(1, len(lines)):
+            if lines[i].strip() == "---":
+                start = i + 1
+                break
+    pipe_rows = [i for i in range(start, len(lines)) if lines[i].lstrip().startswith("|")]
+    bindings: list[str] = []
+    for i in range(start, len(lines)):
+        line = lines[i]
+        if _BINDING_HEADING_RE.match(line):
+            bindings.append(line.strip())
+            continue
+        if i not in pipe_rows:
+            continue
+        cells = split_table_cells(line)
+        if cells is None:
+            continue
+        if cells and all(_BINDING_SEPARATOR_CELL_RE.fullmatch(c) for c in cells if c):
+            continue  # separator rows are structural filler
+        nxt = next((j for j in pipe_rows if j > i), None)
+        nxt_cells = split_table_cells(lines[nxt]) if nxt is not None else None
+        if (
+            nxt_cells is not None
+            and nxt_cells
+            and all(_BINDING_SEPARATOR_CELL_RE.fullmatch(c) for c in nxt_cells if c)
+        ):
+            bindings.append(line.strip())  # table header — frozen verbatim
+        elif cells and cells[0].strip():
+            bindings.append(f"· {cells[0].strip()}")  # row identity (key value)
+    return bindings
+
+
+def extract_structure_bindings(project_dir: Path, skill: str) -> str:
+    """Snapshot the regen target set's structure bindings (headings, table
+    headers, first-column key values) for *skill*'s scoped redo.
+    """
+    step = next((s for s in GENESIS_STEPS if s.skill == skill), None)
+    if step is None:
+        return ""
+    rels: list[str] = (
+        [step.output_path, *GENESIS_EXTRA_OUTPUTS.get(skill, [])]
+        if step.output_path
+        else list(GENESIS_EXTRA_OUTPUTS.get(skill, []))
+    )
+    parts: list[str] = []
+    total = 0
+    for rel in rels:
+        if not rel:
+            continue
+        paths = (
+            sorted(project_dir.glob(rel))
+            if any(ch in rel for ch in "*?")
+            else ([project_dir / rel] if (project_dir / rel).exists() else [])
+        )
+        for path in paths:
+            try:
+                text = path.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            blines = _structure_binding_lines(text)[:_BINDING_MAX_LINES]
+            if not blines:
+                continue
+            block = f"{rel}:\n" + "\n".join(f"  {b}" for b in blines)
+            if total + len(block) > _BINDING_MAX_CHARS:
+                log.info("genesis_binding_capped", skill=skill, file=rel)
+                continue
+            total += len(block)
+            parts.append(block)
+    return "\n\n".join(parts)
+
+
+def binding_drift_report(state: PipelineState, project_dir: Path) -> str:
+    """#49: diff each redo skill's frozen binding snapshot against the
+    REGENERATED files. Structural drift (renamed rules, shuffled anchors,
+    renumbering) is reported for the reviewer — the machine cannot tell a
+    feedback-sanctioned rename from an unsanctioned shuffle, so this is
+    evidence, not a verdict.
+    """
+    if not state.genesis.frozen_bindings:
+        return ""
+    notes: list[str] = []
+    for skill, frozen in state.genesis.frozen_bindings.items():
+        current = extract_structure_bindings(project_dir, skill)
+        if not current:
+            continue  # vanished target — G4 not_found owns that signal
+        frozen_lines = [
+            l.strip() for l in frozen.split("\n") if l.strip() and not l.strip().endswith(":")
+        ]
+        current_lines = [
+            l.strip() for l in current.split("\n") if l.strip() and not l.strip().endswith(":")
+        ]
+        current_set = set(current_lines)
+        frozen_set = set(frozen_lines)
+        missing = [l for l in frozen_lines if l not in current_set][:10]
+        added = [l for l in current_lines if l not in frozen_set][:10]
+        if missing or added:
+            bits: list[str] = []
+            if missing:
+                bits.append("丢失「" + "」「".join(missing) + "」")
+            if added:
+                bits.append("新增「" + "」「".join(added) + "」")
+            notes.append(f"{skill}: " + "；".join(bits))
+    if not notes:
+        log.info("genesis_binding_held", skills=sorted(state.genesis.frozen_bindings))
+        return ""
+    return "[结构绑定漂移—人工核对反馈是否明确要求这些变更] " + "；".join(notes)
 
 
 def mark_skill_done(state: PipelineState, skill: str) -> None:
@@ -243,6 +379,15 @@ def _advance(state: PipelineState, step_idx: int, project_dir: Path | str | None
                     + " ｜ "
                     + context
                 )
+        # #49: scoped-redo binding drift leads the reviewer's evidence —
+        # renames/renumbering the feedback did not sanction surface here
+        # instead of via a hand diff (probe21: four rounds to converge).
+        if project_dir is not None and state.genesis.frozen_bindings:
+            drift = binding_drift_report(state, Path(project_dir))
+            if drift:
+                log.error("genesis_binding_drift_detected")
+                context = drift + " ｜ " + context
+            state.genesis.frozen_bindings = {}  # consumed at raise
         set_checkpoint(
             state,
             CheckpointType.GENESIS_COMPLETE,

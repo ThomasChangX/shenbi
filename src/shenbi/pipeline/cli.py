@@ -31,6 +31,7 @@ from shenbi.cli_utils import echo, emit_json
 from shenbi.logging import configure_logging, get_logger
 from shenbi.pipeline.filelock_utils import ReadLock, WriteLock
 from shenbi.pipeline.chapter_loop import chapter_sort_key
+from shenbi.pipeline.dispatch_helper import run_gate_g4
 from shenbi.pipeline.machine import (
     clear_checkpoint,
     is_at_checkpoint,
@@ -49,7 +50,7 @@ from shenbi.pipeline.state import (
     ReviewDecision,
 )
 from shenbi.safe_write import safe_write
-from shenbi.status import CommandStatus
+from shenbi.status import CommandStatus, GateStatus
 
 
 # Orchestration loop: phase dispatch, trigger checks, closure transition
@@ -90,6 +91,69 @@ DERIVED_TRUTH_MAP: dict[str, list[tuple[str, str]]] = {
 }
 
 
+#: #53 (probe21 adjudication #009): a REJECT/MODIFY of an OLDER chapter's
+#: chapter-scoped checkpoint must never rewind the chapter-loop step cursor —
+#: the stale ch1 STATE_SETTLE reject set ``step_index=7`` while the loop sat
+#: at ch2, sending the un-drafted chapter into settle→audit→revision (ghost
+#: chain, fabricated truth). The redo belongs to the checkpoint's OWN chapter
+#: and rides the re-dispatch queue — the same vehicle the audit-routed
+#: re-settlement uses — re-raising the checkpoint for that chapter.
+_REDO_RE_DISPATCH: dict[str, tuple[str, str]] = {
+    CheckpointType.STATE_SETTLE.value: (
+        "shenbi-state-settling",
+        "Re-settle truth files for this chapter incorporating the review "
+        "feedback; re-locate every evidence/证据 line reference against the "
+        "current chapter text",
+    ),
+    CheckpointType.CHAPTER_MEMO.value: (
+        "shenbi-chapter-planning",
+        "Re-plan this chapter incorporating the review feedback",
+    ),
+}
+
+
+def _chapter_mismatch(state: PipelineState, cp: CheckpointData) -> bool:
+    """True when a chapter-scoped checkpoint is reviewed after the loop's
+    cursor has moved past its chapter (probe21: ch1 settle reviewed at ch2).
+    """
+    return (
+        state.phase == PipelinePhase.CHAPTER_LOOP
+        and cp.chapter is not None
+        and cp.chapter != state.chapter_loop.current_chapter
+    )
+
+
+def _defer_redo_to_re_dispatch_queue(
+    state: PipelineState, cp: CheckpointData, feedback: str | None = None
+) -> None:
+    """Queue the checkpoint's OWN-chapter redo instead of rewinding the
+    step cursor (#53). The entry is chapter-tagged, so the executor's
+    dispatch prompt and the re-raised checkpoint both target the
+    checkpoint's chapter, never the chapter the loop currently sits on.
+    """
+    skill, _suffix = _REDO_RE_DISPATCH[cp.type.value]
+    already = any(
+        d.get("skill") == skill and d.get("chapter") == cp.chapter
+        for d in state.pending_re_dispatches
+    )
+    if not already:
+        state.pending_re_dispatches.append(
+            {
+                "skill": skill,
+                "checkpoint_type": cp.type.value,
+                "chapter": cp.chapter,
+                "feedback": feedback,
+            }
+        )
+    log.warning(
+        "chapter_redo_deferred_to_re_dispatch",
+        checkpoint=cp.type.value,
+        checkpoint_chapter=cp.chapter,
+        current_chapter=state.chapter_loop.current_chapter,
+        skill=skill,
+    )
+
+
 def _queue_re_dispatches(
     state: PipelineState, cp: CheckpointData, feedback: str | None = None
 ) -> None:
@@ -125,6 +189,42 @@ def _queue_re_dispatches(
 RE_DISPATCH_RETRY_CAP = 3
 
 
+#: #51 (probe21 adjudication #009): re-dispatch targets whose input is the
+#: chapter DRAFT — they fabricate derived truth when the draft is absent, so
+#: the executor prechecks existence and refuses to dispatch.
+_DRAFT_CONSUMING_RE_DISPATCH_SKILLS = frozenset(
+    {"shenbi-state-settling", "shenbi-foreshadowing-lifecycle", "shenbi-chapter-revision"}
+)
+
+
+def _re_dispatch_g4_must_fix(
+    project_dir: Path, skill: str, chapter: int | None
+) -> list[str] | None:
+    """#51: structural-gate re-run for a successful re-dispatch.
+
+    Returns the must_fix list on G4 failure, ``None`` when the output passed
+    (or the skill has no chapter-loop structural profile / no files to check —
+    the in-loop G4 owns those paths). The re-dispatch path used to re-raise
+    review checkpoints over UNVALIDATED staging; the ghost chain's fabricated
+    ch2 truth never met a structural gate.
+    """
+    from shenbi.pipeline.chapter_loop import (
+        _resolve_g4_files,  # pyright: ignore[reportPrivateUsage]
+        CHAPTER_STEPS,
+    )
+
+    step = next((s for s in CHAPTER_STEPS if s.skill == skill), None)
+    if step is None:
+        return None
+    g4_files = _resolve_g4_files(project_dir, step, chapter or 0)
+    if not g4_files:
+        return None
+    g4 = run_gate_g4(skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
+    if str(g4.get("status")) == GateStatus.PASS:
+        return None
+    return list(g4.get("must_fix", []))
+
+
 def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> bool:
     """Execute all pending re-dispatches from state.
 
@@ -147,7 +247,8 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
         # Skip entries for checkpoint types no longer in DERIVED_TRUTH_MAP
         # (stale state from a previous pipeline version).
         prompt_suffix_lookup = DERIVED_TRUTH_MAP.get(entry.get("checkpoint_type", ""), [])
-        if not prompt_suffix_lookup:
+        redo_entry = _REDO_RE_DISPATCH.get(entry.get("checkpoint_type", ""))
+        if not prompt_suffix_lookup and redo_entry is None:
             log.warning(
                 "re_dispatch_unknown_type",
                 checkpoint_type=entry.get("checkpoint_type", ""),
@@ -159,6 +260,10 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
             if s == skill:
                 prompt_suffix = p
                 break
+        if not prompt_suffix and redo_entry is not None and redo_entry[0] == skill:
+            # #53 mismatch-deferred redo entries carry their own instruction
+            # (their skill is not a DERIVED_TRUTH_MAP propagation member).
+            prompt_suffix = redo_entry[1]
         prompt = prompt_suffix
         if ch:
             prompt = f"[Chapter {ch}] {prompt_suffix}"
@@ -172,8 +277,45 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
         from shenbi.pipeline.chapter_loop import CHAPTER_STEPS  # pyright: ignore[reportPrivateUsage]
 
         uses_staging = any(s.skill == skill and s.uses_staging for s in CHAPTER_STEPS)
+
+        # #51 ghost-chain guard: never dispatch a draft-consuming writer for
+        # a chapter whose chapters/chapter-N.md does not exist — the dispatch
+        # would fabricate derived truth from nothing (probe21: a settle
+        # re-run on the un-drafted ch2 poisoned every later truth file).
+        if skill in _DRAFT_CONSUMING_RE_DISPATCH_SKILLS and ch is not None:
+            draft = project_dir / "chapters" / f"chapter-{ch}.md"
+            if not draft.exists():
+                log.error("re_dispatch_draft_missing", skill=skill, chapter=ch, expected=str(draft))
+                entry["blocked_reason"] = (
+                    f"{skill}@ch{ch}: chapters/chapter-{ch}.md 不存在——"
+                    "禁止对未起草章节重派（幽灵链防护 #51），需人工回卷游标后重试"
+                )
+                dropped.append(entry)
+                continue
+
         result = dispatch_skill(skill, project_dir, prompt, uses_staging=uses_staging)
         if result.success:
+            g4_must_fix = _re_dispatch_g4_must_fix(project_dir, skill, ch)
+            if g4_must_fix is not None:
+                # #51: failed structural gate consumes an attempt with the
+                # must-fix wired forward — never re-raise a review checkpoint
+                # over unvalidated staging.
+                entry["attempts"] = int(entry.get("attempts", 0)) + 1
+                g4_note = f"上次重派输出未过 G4 结构门：{g4_must_fix}"
+                prev_fb = entry.get("feedback")
+                entry["feedback"] = f"{prev_fb}\n\n{g4_note}" if prev_fb else g4_note
+                log.error(
+                    "re_dispatch_g4_failed",
+                    skill=skill,
+                    chapter=ch,
+                    attempts=entry["attempts"],
+                    must_fix=str(g4_must_fix)[:300],
+                )
+                if entry["attempts"] >= RE_DISPATCH_RETRY_CAP:
+                    dropped.append(entry)
+                    continue
+                remaining.append(entry)
+                continue
             log.info("re_dispatch_ok", skill=skill)
             if skill == "shenbi-state-settling" and ch is not None:
                 # The re-settled increments ride staging — re-raise the
@@ -186,6 +328,19 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
                     context=(
                         f"Re-settlement after chapter {ch} revision — review "
                         "the staged truth increments before the chapter closes"
+                    ),
+                )
+            elif skill == "shenbi-chapter-planning" and ch is not None:
+                # #53 mismatch-deferred memo redo: the re-planned memo rides
+                # staging — without re-raising CHAPTER_MEMO it would be
+                # orphaned with no commit gate.
+                set_checkpoint(
+                    state,
+                    CheckpointType.CHAPTER_MEMO,
+                    chapter=ch,
+                    context=(
+                        f"Re-planned chapter {ch} after a review redo — review "
+                        "the staged chapter plan before the chapter resumes"
                     ),
                 )
         else:
@@ -222,16 +377,22 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
             f"{e.get('skill')}@ch{e.get('chapter')}(attempts={e.get('attempts')})"
             for e in [*remaining, *dropped]
         ]
+        reasons = [
+            str(e.get("blocked_reason")) for e in [*remaining, *dropped] if e.get("blocked_reason")
+        ]
+        context = (
+            "重派队列未能排空——仍失败或已达重试上限："
+            + "、".join(stuck)
+            + "。最近失败原因已并入各条目反馈；approve 后将带反馈重试，"
+            "持续失败需人工裁决。"
+        )
+        if reasons:
+            context += " 阻断原因：" + "；".join(reasons)
         set_checkpoint(
             state,
             CheckpointType.ESCALATION,
             chapter=dropped[0].get("chapter") if dropped else remaining[0].get("chapter"),
-            context=(
-                "重派队列未能排空——仍失败或已达重试上限："
-                + "、".join(stuck)
-                + "。最近失败原因已并入各条目反馈；approve 后将带反馈重试，"
-                "持续失败需人工裁决。"
-            ),
+            context=context,
         )
     return True
 
@@ -765,16 +926,34 @@ def _rollback_genesis_to_steps(
     done steps are skipped on resume, not regenerated — and route the
     reviewer feedback into each redo target's corrective-feedback slot so
     the re-dispatch is not blind.
+
+    #48 (probe21): the slot also carries a machine-extracted STRUCTURE
+    BINDING of the redo target's current on-disk baseline — a feedback-bound
+    regen shuffled every unbound layer (anchors, rule numbering) and needed
+    four review rounds to converge. The snapshot is stored on
+    ``frozen_bindings`` for the genesis-complete drift report (#49).
     """
-    from shenbi.pipeline.genesis import GENESIS_STEPS
+    from shenbi.pipeline.genesis import (
+        BINDING_FREEZE_HEADER,
+        GENESIS_STEPS,
+        extract_structure_bindings,
+    )
 
     nums = set(step_nums)
     target_idx = min(nums) - 1
+    project_dir = Path(state.project_dir) if state.project_dir else None
     for step in GENESIS_STEPS[target_idx:]:
         if step.step_num in nums:
             if step.skill in state.genesis.skills_done:
                 state.genesis.skills_done.remove(step.skill)
-            if feedback:
+            binding = extract_structure_bindings(project_dir, step.skill) if project_dir else ""
+            if binding:
+                state.genesis.frozen_bindings[step.skill] = binding
+                binding_block = f"{BINDING_FREEZE_HEADER}\n{binding}"
+                state.genesis.retry_feedback[step.skill] = (
+                    f"{feedback}\n\n{binding_block}" if feedback else binding_block
+                )
+            elif feedback:
                 state.genesis.retry_feedback[step.skill] = feedback
     state.genesis.current_step = target_idx
 
@@ -790,9 +969,15 @@ def _apply_reject_redo(
     Full CheckpointType coverage; BOOK_CLOSURE keeps its existing transition.
     """
     if cp.type == CheckpointType.CHAPTER_MEMO:
-        state.chapter_loop.step_index = 1
+        if _chapter_mismatch(state, cp):
+            _defer_redo_to_re_dispatch_queue(state, cp, feedback)
+        else:
+            state.chapter_loop.step_index = 1
     elif cp.type == CheckpointType.STATE_SETTLE:
-        state.chapter_loop.step_index = 7
+        if _chapter_mismatch(state, cp):
+            _defer_redo_to_re_dispatch_queue(state, cp, feedback)
+        else:
+            state.chapter_loop.step_index = 7
     elif cp.type == CheckpointType.GENESIS_COMPLETE:
         if redo_steps:
             _rollback_genesis_to_steps(state, redo_steps, feedback)
@@ -800,7 +985,19 @@ def _apply_reject_redo(
             _rollback_genesis_step(state)
         state.genesis.retry_counts.clear()
     elif cp.type == CheckpointType.VOLUME_BOUNDARY:
-        state.chapter_loop.step_index = 0  # next() re-runs the trigger fan-out
+        if _chapter_mismatch(state, cp):
+            # The step-0 rewind is positional: on resume the trigger fan-out
+            # re-runs at the CURRENT chapter top — at a mismatch that would
+            # fan out the wrong chapter (#53 family). Freeze the cursor; the
+            # boundary decision must be re-made by human rewind, not by a
+            # cursor the checkpoint does not own.
+            log.warning(
+                "volume_boundary_redo_deferred",
+                checkpoint_chapter=cp.chapter,
+                current_chapter=state.chapter_loop.current_chapter,
+            )
+        else:
+            state.chapter_loop.step_index = 0  # next() re-runs the trigger fan-out
     elif cp.type == CheckpointType.PER_CHAPTER:
         # Redo the chapter REVISION (not the whole chapter — see the
         # DERIVED_TRUTH_MAP note) with the reject feedback attached.
@@ -949,11 +1146,20 @@ def cmd_review(args: argparse.Namespace) -> int:
             # G4: On modify, queue re-dispatches for derived truth files
             # (spec section 9.2: truth-sync propagation after human edit).
             if decision == ReviewDecision.MODIFY:
-                # Roll back step cursor so resume re-dispatches the skill
+                # Roll back step cursor so resume re-dispatches the skill.
+                # #53: at a chapter mismatch the rewind is DEFERRED to the
+                # re-dispatch queue (same guard as _apply_reject_redo) — the
+                # cursor belongs to the chapter the loop sits on.
                 if cp.type == CheckpointType.CHAPTER_MEMO:
-                    state.chapter_loop.step_index = 1  # CHAPTER_STEPS[1] = chapter-planning
+                    if _chapter_mismatch(state, cp):
+                        _defer_redo_to_re_dispatch_queue(state, cp, feedback)
+                    else:
+                        state.chapter_loop.step_index = 1  # CHAPTER_STEPS[1] = chapter-planning
                 elif cp.type == CheckpointType.STATE_SETTLE:
-                    state.chapter_loop.step_index = 7  # CHAPTER_STEPS[7] = state-settling
+                    if _chapter_mismatch(state, cp):
+                        _defer_redo_to_re_dispatch_queue(state, cp, feedback)
+                    else:
+                        state.chapter_loop.step_index = 7  # CHAPTER_STEPS[7] = state-settling
                 elif cp.type == CheckpointType.GENESIS_COMPLETE:
                     _rollback_genesis_step(state)
 

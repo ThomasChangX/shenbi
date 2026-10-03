@@ -30,6 +30,7 @@ from shenbi.pipeline.state import (
     CheckpointType,
     PipelineState,
 )
+from tests.unit.pipeline.conftest import write_chapter_drafts
 
 
 @pytest.fixture(autouse=True)
@@ -291,6 +292,7 @@ class TestChapterCompletion:
         """Last step (chapter-revision, index 14) completes the chapter."""
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 14  # last step (chapter-revision)
@@ -305,6 +307,7 @@ class TestChapterCompletion:
     ):
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 14  # last step (chapter-revision)
@@ -318,6 +321,7 @@ class TestChapterCompletion:
     def test_completion_no_checkpoint_when_disabled(self, mock_g4, mock_disp, tmp_path):
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 14  # last step (chapter-revision)
@@ -522,6 +526,7 @@ class TestConditionalResolveIntegration:
         dispatch which runs both lifecycle and settling together.
         """
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 6  # foreshadowing-lifecycle (step 7)
@@ -621,6 +626,7 @@ class TestRevisionRoutingIntegration:
         """No blocking issues -> step 15 (chapter-revision) is skipped."""
         mocks = self._setup_parallel_audit_mocks(tmp_path, route=RevisionRoute.NO_REVISION)
         try:
+            write_chapter_drafts(tmp_path, (1,))
             state = PipelineState.default(str(tmp_path))
             state.chapter_loop.current_chapter = 1
             state.chapter_loop.step_index = _FIRST_AUDIT_IDX  # index 8
@@ -647,6 +653,7 @@ class TestRevisionRoutingIntegration:
             tmp_path, issues=issues, blocking=True, route=RevisionRoute.REGENERATE
         )
         try:
+            write_chapter_drafts(tmp_path, (1,))
             state = PipelineState.default(str(tmp_path))
             state.chapter_loop.current_chapter = 1
             state.chapter_loop.step_index = _FIRST_AUDIT_IDX
@@ -713,6 +720,7 @@ class TestRevisionRoutingIntegration:
         """
         mocks = self._setup_parallel_audit_mocks(tmp_path, route=RevisionRoute.NO_REVISION)
         try:
+            write_chapter_drafts(tmp_path, (1,))
             state = PipelineState.default(str(tmp_path))
             state.chapter_loop.current_chapter = 1
             state.config.max_revision_retries = 3
@@ -924,6 +932,7 @@ class TestStateSettleFailureWiring:
         from shenbi.pipeline.chapter_loop import run_chapter_step
         from shenbi.pipeline.state import CheckpointType, PipelinePhase, PipelineState
 
+        write_chapter_drafts(tmp_path, (3,))
         state = PipelineState.default(str(tmp_path))
         state.phase = PipelinePhase.CHAPTER_LOOP
         state.chapter_loop.current_chapter = 3
@@ -1230,6 +1239,7 @@ class TestAuditRoutedRevisionQueuesResettle:
     def test_revision_success_queues_settle_redispatch(self, mock_g4, mock_disp, tmp_path):
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 14  # step 15 = chapter-revision
@@ -1252,6 +1262,7 @@ class TestAuditRoutedRevisionQueuesResettle:
     def test_queue_is_deduped(self, mock_g4, mock_disp, tmp_path):
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 14
@@ -1322,6 +1333,7 @@ class TestParallelPostDraftFailureFeedback:
     """
 
     def _state_at_lifecycle(self, tmp_path):
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 6  # foreshadowing-lifecycle (step 7)

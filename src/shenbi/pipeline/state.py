@@ -92,6 +92,11 @@ class GenesisStateData:
     skills_done: list[str] = field(default_factory=list)
     retry_counts: dict[str, int] = field(default_factory=dict)
     retry_feedback: dict[str, str] = field(default_factory=dict)
+    #: #48/#49: per-skill structure-binding snapshots (headings, table
+    #: headers, first-column key values) taken at scoped-redo rollback. The
+    #: genesis-complete raise diffs them against the regenerated files and
+    #: puts the drift report in the checkpoint context, then consumes them.
+    frozen_bindings: dict[str, str] = field(default_factory=dict)
 
 
 class ChapterStatus(StrEnum):
@@ -289,6 +294,7 @@ class PipelineState:
                 "skills_done": self.genesis.skills_done,
                 "retry_counts": self.genesis.retry_counts,
                 "retry_feedback": self.genesis.retry_feedback,
+                "frozen_bindings": self.genesis.frozen_bindings,
             },
             "chapter_loop": {
                 "current_chapter": self.chapter_loop.current_chapter,
@@ -380,6 +386,7 @@ class PipelineState:
                 skills_done=gen_data.get("skills_done", []),
                 retry_counts=gen_data.get("retry_counts", {}),
                 retry_feedback=gen_data.get("retry_feedback", {}),
+                frozen_bindings=gen_data.get("frozen_bindings", {}),
             ),
             chapter_loop=ChapterLoopStateData(
                 current_chapter=cl_data.get("current_chapter", 0),

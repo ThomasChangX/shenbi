@@ -340,6 +340,9 @@ class TestLifecycleFailureRouting:
         from shenbi.pipeline.state import PipelineState
 
         handle_failure = MagicMock(return_value=True)
+        from tests.unit.pipeline.conftest import write_chapter_drafts
+
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 6
@@ -374,6 +377,9 @@ class TestLifecycleFailureRouting:
         from shenbi.pipeline.state import PipelineState
 
         handle_failure = MagicMock(return_value=True)
+        from tests.unit.pipeline.conftest import write_chapter_drafts
+
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 6

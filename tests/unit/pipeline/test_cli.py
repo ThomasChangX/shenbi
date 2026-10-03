@@ -1127,7 +1127,9 @@ class TestReDispatchRetryCap:
     def test_failed_entry_dropped_after_retry_cap(self, tmp_path, monkeypatch):
         from shenbi.pipeline.cli import RE_DISPATCH_RETRY_CAP, _execute_pending_re_dispatches
         from shenbi.pipeline.state import PipelineState
+        from tests.unit.pipeline.conftest import write_chapter_drafts
 
+        write_chapter_drafts(tmp_path, (8,))
         state = PipelineState.default(str(tmp_path))
         state.pending_re_dispatches = [
             {
@@ -1158,7 +1160,9 @@ class TestReDispatchRetryCap:
     def test_attempt_counter_increments_on_failure(self, tmp_path, monkeypatch):
         from shenbi.pipeline.cli import _execute_pending_re_dispatches
         from shenbi.pipeline.state import PipelineState
+        from tests.unit.pipeline.conftest import write_chapter_drafts
 
+        write_chapter_drafts(tmp_path, (8,))
         state = PipelineState.default(str(tmp_path))
         state.pending_re_dispatches = [
             {

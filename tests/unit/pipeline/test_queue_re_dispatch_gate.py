@@ -33,6 +33,10 @@ def _entry() -> dict[str, Any]:
 def _state(tmp_path: Path) -> PipelineState:
     state = PipelineState.default(str(tmp_path))
     state.pending_re_dispatches = [_entry()]
+    # #51 precondition: a settle re-dispatch targets a chapter whose draft
+    # exists (the draft precheck refuses to dispatch without it)
+    (tmp_path / "chapters").mkdir(exist_ok=True)
+    (tmp_path / "chapters" / "chapter-1.md").write_text("# Chapter 1\n正文\n", encoding="utf-8")
     return state
 
 
@@ -111,9 +115,17 @@ class TestQueueDrainSuccessGate:
         """
         state = _state(tmp_path)
         state.pending_re_dispatches[0]["skill"] = "shenbi-chapter-revision"
-        with patch(
-            "shenbi.pipeline.dispatch_helper.dispatch_skill",
-            return_value=DispatchResult(True, 0, "", ""),
+        # SUT is the queue mechanics — the revision's structural gate is
+        # faked green (real G4.rev behavior is owned by the G4 suites)
+        with (
+            patch(
+                "shenbi.pipeline.dispatch_helper.dispatch_skill",
+                return_value=DispatchResult(True, 0, "", ""),
+            ),
+            patch(
+                "shenbi.pipeline.cli.run_gate_g4",
+                return_value={"status": "PASS", "must_fix": []},
+            ),
         ):
             _execute_pending_re_dispatches(state, tmp_path)
         assert state.pending_re_dispatches == []

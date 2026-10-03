@@ -41,6 +41,9 @@ def test_audit_routed_entry_checkpoint_type_hits_derived_truth_map() -> None:
 
 
 def test_queued_settle_redispatch_executes_not_dropped(tmp_path: Path) -> None:
+    from tests.unit.pipeline.conftest import write_chapter_drafts
+
+    write_chapter_drafts(tmp_path, (1,))
     state = PipelineState.default(str(tmp_path))
     state.pending_re_dispatches = [_entry()]
 

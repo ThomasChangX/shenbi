@@ -405,6 +405,45 @@ def _validate_character_matrix(
     return issues
 
 
+def _check_selections_coverage(fps: list[str], rd: str | None) -> list[str]:
+    """#52 (probe21 adjudication #008): every staged truth target this settle
+    emitted must be DECLARED in the decisions sidecar's selections — the
+    rejected re-settlement declared 1/7 while touching seven files, hiding
+    the ledger key-collapse from the review surface.
+
+    The composite partition routes the sidecar to g4_decisions, so the
+    sibling is located by convention: staging/truth/state-settling-decisions
+    .json next to the staged truth targets. Parse/schema failures of the
+    sidecar stay owned by g4_decisions.
+    """
+    staged = [fp.replace("\\", "/") for fp in fps if "staging/truth" in fp.replace("\\", "/")]
+    if not staged:
+        return []
+    sidecar = resolve_input_path(staged[0], rd).parent / "state-settling-decisions.json"
+    if not sidecar.exists():
+        return []
+    from shenbi.gates.shared import parse_decisions_payload
+
+    data, failures = parse_decisions_payload(
+        sidecar.read_text(encoding="utf-8"), str(sidecar), "G4.ss"
+    )
+    if failures or not isinstance(data, dict):
+        return []
+    declared = {
+        str(s.get("target", "")).replace("\\", "/").removeprefix("staging/")
+        for s in data.get("selections") or []
+        if isinstance(s, dict)
+    }
+    missing = sorted(
+        {fp.removeprefix("staging/") for fp in staged if fp.endswith(".md")} - declared
+    )
+    return [
+        f"G4.ss.selections_uncovered:{m}"
+        "（sidecar selections 未申报该实际产出目标——补齐全部触达目标的申报）"
+        for m in missing
+    ]
+
+
 def g4_state_settling(
     fps: list[str],
     rd: str | None = None,
@@ -518,6 +557,8 @@ def g4_state_settling(
 
     if not fps:
         c.append({"id": "G4.ss", "s": GateStatus.SKIP, "r": "no files"})
+
+    mf.extend(_check_selections_coverage(fps, rd))
 
     if mf:
         return fail("G4-state-settling", c, "scoring", mf)
