@@ -221,10 +221,10 @@ def _live_lifecycle_columns(live_text: str) -> dict[int, int]:
     lines = live_text.split("\n")
     out: dict[int, int] = {}
     exempt: int | None = None
+    seen_header: int | None = None
     for i, line in enumerate(lines):
         s = line.strip()
         if not s.startswith("|"):
-            exempt = None  # left the table — the next table re-derives its own header
             continue
         cells = [c.strip() for c in s.split("|")[1:-1]]
         header_idx = next(
@@ -237,7 +237,14 @@ def _live_lifecycle_columns(live_text: str) -> dict[int, int]:
         )
         if header_idx is not None:
             exempt = header_idx
+            seen_header = header_idx
             continue
+        if exempt is None and seen_header is not None and _HOOK_ROW_KEY_RE.match(s):
+            # #25-1 (probe25): the lifecycle appends new hook rows AFTER the
+            # ### detail sections — a headerless continuation of the pool's
+            # single registry table. Any hook-keyed row belongs to that table
+            # and inherits its lifecycle column.
+            exempt = seen_header
         if exempt is not None:
             out[i] = exempt
     return out

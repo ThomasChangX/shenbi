@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from shenbi.gates.g4.state_settling import _dropped_content_lines
+from shenbi.gates.g4.state_settling import _dropped_content_lines, _dropped_hook_rows
 from shenbi.pipeline.llm_output_integrity import check_audit_completeness
 
 
@@ -73,3 +73,40 @@ def test_real_content_loss_still_flagged() -> None:
     staged = "# 角色交互矩阵\n\n## 信任度初值\n\n- 沈烬 → 扁担汉子: 初建（由拒到托）\n"
     issues = _dropped_content_lines(live, staged)
     assert issues and "content_dropped" in issues[0]
+
+
+#: #25-1 (probe25 adjudication #006): the lifecycle's ch1 write appended the
+#: CP-001/CP-002 registry rows AFTER the ### detail sections — a headerless
+#: continuation region. `_live_lifecycle_columns` scopes its exemption to
+#: rows directly under a detected header, so the CP rows' lifecycle cell
+#: (PLANTED→RELEVANT, a legitimate step-7 transition) read as a stable-column
+#: rewrite on the settle's G4 — three identical failures, one escalation.
+def test_hook_rows_in_headerless_continuation_table_exempt() -> None:
+    live = (
+        "| Hook ID（钩子名） | 当前生命周期 | 种植章 | 兑现章（卷） | 类型 | 微妙度 | max_distance(14) | 升级曲线 |\n"
+        "|------|------|------|------|------|------|------|------|\n"
+        "| MH02（穹顶裂缝在变宽） | PLANTED | 1 | 96（五卷） | EVENT | 0.5 | 14 | RISING |\n"
+        "\n"
+        "### MH02（穹顶裂缝在变宽）\n\n"
+        "- type: EVENT\n"
+        "- lifecycle_state: PLANTED\n"
+        "\n"
+        "| CP-001（无主之名） | PLANTED | 1 | 100（五卷） | SYMBOLIC | 0.7 | 14 | STAIRCASE |\n"
+    )
+    staged = live.replace("| CP-001（无主之名） | PLANTED |", "| CP-001（无主之名） | RELEVANT |")
+    assert _dropped_hook_rows(live, staged) == []
+
+
+def test_stable_column_rewrite_still_flagged_in_continuation_table() -> None:
+    live = (
+        "| Hook ID（钩子名） | 当前生命周期 | 种植章 | 兑现章（卷） | 类型 | 微妙度 | max_distance(14) | 升级曲线 |\n"
+        "|------|------|------|------|------|------|------|------|\n"
+        "| MH02（穹顶裂缝在变宽） | PLANTED | 1 | 96（五卷） | EVENT | 0.5 | 14 | RISING |\n"
+        "\n"
+        "### MH02（穹顶裂缝在变宽）\n"
+        "| CP-001（无主之名） | PLANTED | 1 | 100（五卷） | SYMBOLIC | 0.7 | 14 | STAIRCASE |\n"
+    )
+    # 兑现章 (a genuinely stable planning column) rewritten → must fire
+    staged = live.replace("100（五卷）", "90（四卷）")
+    issues = _dropped_hook_rows(live, staged)
+    assert issues and "hook_row_stable_columns_rewritten" in issues[0]
