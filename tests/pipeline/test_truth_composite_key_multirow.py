@@ -270,29 +270,44 @@ def test_dual_table_new_key_row_stays_in_its_own_table():
     assert lines[row_idx + 1].startswith("| 角色 | 已知 | 未知 |")
 
 
-def test_dual_table_three_col_row_stops_before_foreign_rows():
-    """A 3-col row (keyed 角色) must land inside the 3-col table. In the
-    probe23 corrupted shape, 5-col rows FOLLOW the 3-col region (L26-27);
-    the arity-blind walk ran past them and appended after those foreign
-    rows. The walk must stop at the first row whose width differs.
+def test_dual_table_three_col_row_stops_before_foreign_table():
+    """A 3-col row (keyed 角色) must land inside the 3-col table. When a
+    well-formed 5-col table FOLLOWS the 3-col region, the arity-blind walk
+    ran through its header/sep/rows and appended after them; the walk stops
+    at the foreign table's RUN (header + rows of another arity).
     """
     base = (
         "# 角色关系矩阵\n\n"
-        "| 角色A | 角色B | 关系性质 | 本章交互 | 变化 |\n"
-        "|-------|-------|----------|----------|------|\n"
-        "| 坠落者 | 老柴 | 雇工·记账 | 记满四十行流水 | 雇佣坐实 |\n"
         "| 角色 | 已知 | 未知 |\n"
         "|---|---|---|\n"
         "| 坠落者 | 无册者可于姓名栏填「零」 | 自身姓名与来历 |\n"
+        "| 角色A | 角色B | 关系性质 | 本章交互 | 变化 |\n"
+        "|-------|-------|----------|----------|------|\n"
         "| 坠落者 | 韩七娘 | 施粥·受雇 | 递粥验能 | 陌路 → 受雇 |\n"
     )
     row = "| 老柴 | 主角记背流水之能 | 主角来历 |"
     merged = upsert_markdown_row(base, row, "角色")
     lines = merged.split("\n")
     row_idx = next(i for i, l in enumerate(lines) if l.startswith("| 老柴 |"))
-    # directly after the last 3-col row, BEFORE the trailing 5-col row
+    # inside the 3-col table, BEFORE the 5-col table's header
     assert lines[row_idx - 1].startswith("| 坠落者 | 无册者")
-    assert lines[row_idx + 1].startswith("| 坠落者 | 韩七娘 |")
+    assert lines[row_idx + 1].startswith("| 角色A | 角色B |")
+
+
+def test_lone_ragged_row_does_not_end_the_table():
+    """A single row narrower than its header is a ragged row of the SAME
+    table (pre-bootstrap corpus shape), not a boundary — a new-key row must
+    still append AFTER it, preserving chapter order.
+    """
+    base = (
+        "| 章节 | 位置 | 时间锚 | 主角处境 | 势力态势 | 待处理压力 |\n"
+        "|---|---|---|---|---|---|\n"
+        "| 第 1 章 | 巷子 | 灰雨第三日 | 无档之身 | 册籍三分 |\n"
+    )
+    row = "| 第 2 章 | 码头 | 灰雨第四日 | 记账换饭 | 互助会 |"
+    merged = upsert_markdown_row(base, row, "章节")
+    lines = merged.split("\n")
+    assert lines.index("| 第 1 章 | 巷子 | 灰雨第三日 | 无档之身 | 册籍三分 |") < lines.index(row)
 
 
 def test_dual_table_ragged_row_does_not_split_header_from_separator():

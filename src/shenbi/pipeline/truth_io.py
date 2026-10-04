@@ -841,21 +841,34 @@ def _key_table_tail(lines: list[str], key_name: str) -> int | None:
             # 5-col 交互表 and a 3-col 信息边界表 adjacent with no blank
             # line, and new 5-col rows walked THROUGH the 3-col region
             # (truth/character_matrix.md L26-29 interleave). The table ends
-            # where a non-separator row's arity differs from its header's;
-            # separator rows pass unconditionally so a new row can never
-            # split a header from its (possibly ragged) separator.
+            # where a RUN of different-arity rows begins (the other table's
+            # header + its rows); a LONE different-arity row is a ragged row
+            # of THIS table (resonance_trend rows under a wider bootstrap
+            # header) and does not end it. Separator rows pass unconditionally
+            # so a new row can never split a header from its separator.
             arity = len(cells)
             tail = i
-            for j in range(i + 1, len(lines)):
+            j = i + 1
+            while j < len(lines):
                 row_cells = split_table_cells(lines[j])
                 if row_cells is None:
                     break
                 if _is_separator_row(row_cells):
                     tail = j
+                    j += 1
                     continue
                 if len(row_cells) != arity:
-                    break
+                    nxt = next(
+                        (split_table_cells(lines[k]) for k in range(j + 1, len(lines))),
+                        None,
+                    )
+                    if nxt is not None and len(nxt) == len(row_cells):
+                        break  # a different-arity RUN — the next table
+                    tail = j  # lone ragged row — still this table's row
+                    j += 1
+                    continue
                 tail = j
+                j += 1
             return tail + 1
     return None
 
