@@ -203,3 +203,45 @@ def test_router_real_inline_key_value_still_blocks(tmp_path: Path) -> None:
     issues, blocking = collect_audit_issues(tmp_path, 1)
     assert blocking is True
     assert issues and issues[0]["severity"] == "BLOCKING"
+
+
+#: #18-7 (probe24 adjudication #004): the ROUTER's severity regexes never
+#: gained the bracket vocabulary — the wave marker and the consolidator see
+#: ``- [CRITICAL]``/``- [BLOCKING]`` (fixcheck ch1) but collect_audit_issues
+#: returned zero issues for two real bracket-form CRITICAL craft findings,
+#: and a chapter that should have routed spot-fix completed as no-revision
+#: (probe24 live: router sees [] while the summary reports CRITICAL: 2).
+def test_router_sees_bracket_critical(tmp_path: Path) -> None:
+    d = tmp_path / "audits"
+    d.mkdir()
+    (d / "chapter-1-texture.md").write_text(
+        "# 质感审查\n\n- [CRITICAL] L18-L176 全章短段占比约 40%：合并相邻短段。\n",
+        encoding="utf-8",
+    )
+    issues, blocking = collect_audit_issues(tmp_path, 1)
+    assert blocking is False
+    assert issues and issues[0]["severity"] == "CRITICAL"
+
+
+def test_router_sees_bracket_blocking(tmp_path: Path) -> None:
+    d = tmp_path / "audits"
+    d.mkdir()
+    (d / "chapter-1-continuity.md").write_text(
+        "# 连续性\n\n- [BLOCKING] L12 时间锚矛盾：改价码后与工簿对不上。\n",
+        encoding="utf-8",
+    )
+    issues, blocking = collect_audit_issues(tmp_path, 1)
+    assert blocking is True
+    assert issues and issues[0]["severity"] == "BLOCKING"
+
+
+def test_router_bracket_zero_declaration_still_ignored(tmp_path: Path) -> None:
+    """The F-5 negation tail carries over to the router's bracket forms."""
+    d = tmp_path / "audits"
+    d.mkdir()
+    (d / "chapter-1-sensitivity.md").write_text(
+        "# 敏感性\n\n- [BLOCKING] 无\n- [CRITICAL] 无\n", encoding="utf-8"
+    )
+    issues, blocking = collect_audit_issues(tmp_path, 1)
+    assert issues == []
+    assert blocking is False

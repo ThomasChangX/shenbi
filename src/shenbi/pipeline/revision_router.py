@@ -124,13 +124,21 @@ _SEVERITY_BLOCKING_RE = re.compile(
     r"\*\*BLOCKING\*\*"  # bolded marker: **BLOCKING**
     # severity key (English "severity" or CJK "严重度"): "severity: BLOCKING",
     # "**严重度**: BLOCKING". The optional \*{0,2} lets the key itself be bolded.
-    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}",
-    re.IGNORECASE,
+    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
+    # #18-7 (probe24): the bracket vocabulary — every other sensor (wave
+    # marker, consolidator) sees ``- [BLOCKING]``; the router never did, so
+    # bracket-form findings routed as no-revision. F-5 negation tail carries
+    # over (``- [BLOCKING] 无`` stays a zero-declaration).
+    rf"|^\s*-\s*\[BLOCKING\]{NEGATION_PAYLOAD_TAIL}",
+    re.IGNORECASE | re.M,
 )
 _SEVERITY_CRITICAL_RE = re.compile(
     rf"\*\*CRITICAL\*\*"
-    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}",
-    re.IGNORECASE,
+    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
+    # #18-7: same bracket vocabulary, both tiers ([ERROR] is the legacy
+    # hard-tier label per the fixcheck severity-vocabulary reconciliation).
+    rf"|^\s*-\s*\[(?:CRITICAL|ERROR)\]{NEGATION_PAYLOAD_TAIL}",
+    re.IGNORECASE | re.M,
 )
 
 
