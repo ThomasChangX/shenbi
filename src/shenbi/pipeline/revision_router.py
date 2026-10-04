@@ -120,8 +120,12 @@ def is_negation_payload(text: str) -> bool:
 QUOTED_VALUE_TAIL = r'(?!\*{0,2}")'
 
 
+# #18-9 (probe24): the bold form is CASE-SENSITIVE — real declarations are
+# uppercase (``**BLOCKING**``); a lowercase bold ``**blocking**`` is a rule
+# TIER label (``| rule-003 | **blocking** | PASS |``), not a finding. The
+# key/bracket forms keep IGNORECASE.
 _SEVERITY_BLOCKING_RE = re.compile(
-    r"\*\*BLOCKING\*\*"  # bolded marker: **BLOCKING**
+    r"(?-i:\*\*BLOCKING\*\*)"  # bolded marker: **BLOCKING** (uppercase only)
     # severity key (English "severity" or CJK "严重度"): "severity: BLOCKING",
     # "**严重度**: BLOCKING". The optional \*{0,2} lets the key itself be bolded.
     rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
@@ -133,7 +137,7 @@ _SEVERITY_BLOCKING_RE = re.compile(
     re.IGNORECASE | re.M,
 )
 _SEVERITY_CRITICAL_RE = re.compile(
-    rf"\*\*CRITICAL\*\*"
+    rf"(?-i:\*\*CRITICAL\*\*)"
     rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
     # #18-7: same bracket vocabulary, both tiers ([ERROR] is the legacy
     # hard-tier label per the fixcheck severity-vocabulary reconciliation).

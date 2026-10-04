@@ -245,3 +245,53 @@ def test_router_bracket_zero_declaration_still_ignored(tmp_path: Path) -> None:
     issues, blocking = collect_audit_issues(tmp_path, 1)
     assert issues == []
     assert blocking is False
+
+
+#: #18-9 (probe24 adjudication #013): the sensitivity report's rule table
+#: labels each rule's TIER in a cell — ``| rule-003（…） | **blocking** | PASS |``
+#: (rule is blocking-class, verdict PASS) — and the IGNORECASE bold-marker
+#: form read the lowercase class label as a live BLOCKING finding. The whole
+#: probe's sensitivity verdict ("BLOCKING 缺陷：0") inverted. Bold severity
+#: DECLARATIONS are uppercase; lowercase bold = a class label, not a finding.
+RULE_TIER_TABLE = (
+    "# 敏感性审查\n\n"
+    "| 规则 | 级别 | 判定 | 说明 |\n"
+    "|------|------|------|------|\n"
+    "| rule-003（禁美化殖民主义） | **blocking** | PASS | 未作任何美化 |\n"
+    "- **BLOCKING 缺陷：0；CRITICAL 缺陷：0；MINOR 缺陷：0**\n"
+)
+
+
+def test_router_lowercase_bold_tier_label_is_not_blocking(tmp_path: Path) -> None:
+    d = tmp_path / "audits"
+    d.mkdir()
+    (d / "chapter-3-sensitivity.md").write_text(RULE_TIER_TABLE, encoding="utf-8")
+    issues, blocking = collect_audit_issues(tmp_path, 3)
+    assert issues == []
+    assert blocking is False
+
+
+def test_router_uppercase_bold_still_blocks(tmp_path: Path) -> None:
+    d = tmp_path / "audits"
+    d.mkdir()
+    (d / "chapter-3-continuity.md").write_text(
+        "# 审查\n\n| 位置 | 严重度 | 说明 |\n|---|---|---|\n| L12 | **BLOCKING** | 时间锚矛盾 |\n",
+        encoding="utf-8",
+    )
+    issues, blocking = collect_audit_issues(tmp_path, 3)
+    assert blocking is True
+
+
+def test_consolidator_lowercase_bold_tier_counts_zero(tmp_path: Path) -> None:
+    d = tmp_path / "audits"
+    d.mkdir()
+    (d / "chapter-3-sensitivity.md").write_text(RULE_TIER_TABLE, encoding="utf-8")
+    out = consolidate_review_results([], 3, skills=[], project_dir=tmp_path)
+    assert "- **BLOCKING Issues**: 0" in out
+
+
+def test_wave_marker_lowercase_bold_tier_is_not_hard_failure() -> None:
+    from shenbi.pipeline.chapter_loop import _BLOCKING_MARKER_RE
+
+    assert _BLOCKING_MARKER_RE.search(RULE_TIER_TABLE) is None
+    assert _BLOCKING_MARKER_RE.search("| L12 | **BLOCKING** | 时间锚矛盾 |\n")

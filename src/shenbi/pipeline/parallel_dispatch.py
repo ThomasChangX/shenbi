@@ -342,13 +342,13 @@ def consolidate_review_results(
         from shenbi.pipeline.revision_router import NEGATION_PAYLOAD_TAIL, QUOTED_VALUE_TAIL
 
         blocking_re = _re.compile(
-            rf"\*\*BLOCKING\*\*|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b"
+            rf"(?-i:\*\*BLOCKING\*\*)|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b"
             rf"{_enum_tail}{QUOTED_VALUE_TAIL}"
             rf"|^\s*-\s*\[BLOCKING\]{NEGATION_PAYLOAD_TAIL}",
             _re.IGNORECASE | _re.M,
         )
         critical_re = _re.compile(
-            rf"\*\*CRITICAL\*\*|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b"
+            rf"(?-i:\*\*CRITICAL\*\*)|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b"
             rf"{_enum_tail}{QUOTED_VALUE_TAIL}"
             rf"|^\s*-\s*\[(?:CRITICAL|ERROR)\]{NEGATION_PAYLOAD_TAIL}",
             _re.IGNORECASE | _re.M,
