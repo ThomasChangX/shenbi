@@ -328,3 +328,61 @@ def test_dual_table_ragged_row_does_not_split_header_from_separator():
     sep_idx = lines.index("|---|")
     row_idx = lines.index("| 第 2 章 | 码头 |")
     assert header_idx < sep_idx < row_idx
+
+
+#: #18-6 (probe24 adjudication #003): the two composite-key files stayed out
+#: of _TABLE_HEADER_BOOTSTRAP ("deliberately absent" predates #50/F-4), so on
+#: an initialized shell (zero pipe rows) the first rows-only settle write
+#: landed HEADERLESS — and the header is the composite-key ACTIVATION
+#: condition: _key_columns silently degrades 章节,角色 / 角色A,角色B to first-
+#: column, collapsing same-chapter multi-row writes. probe24 live:
+#: emotional_arcs.md data row dangling after the 待填充 prose; character_matrix
+#: 交互 row under a bare ## 交互总表 heading with no header row.
+_INIT_SHELL_EMOTIONAL = (
+    "---\ntype: truth\ncategory: character\nstatus: initialized\n---\n\n"
+    "# 角色情感弧线\n\n"
+    "（待填充：每个主要角色的情感起点、当前阶段、目标终点与转变触发点。）\n"
+)
+_INIT_SHELL_MATRIX = (
+    "---\ntype: truth\ncategory: character\nstatus: initialized\n---\n\n"
+    "# 角色交互矩阵\n\n"
+    "（待填充：角色两两关系、信任度、信息不对等、当前张力。）\n"
+    "## 交互总表\n"
+)
+
+
+def test_staging_route_bootstraps_emotional_arcs_header(tmp_path: Path):
+    from shenbi.pipeline.truth_io import _TABLE_HEADER_BOOTSTRAP
+
+    live = tmp_path / "truth" / "emotional_arcs.md"
+    live.parent.mkdir(parents=True)
+    live.write_text(_INIT_SHELL_EMOTIONAL, encoding="utf-8")
+    _route_append_dedup_write(
+        tmp_path,
+        "staging/truth/emotional_arcs.md",
+        "| 第 1 章 | 沈烬 | 落点 · 身份归零（起点） | 以刻瓦记账自我确认 | 「不算数」判定 |",
+        key_field="章节,角色",
+    )
+    staged = (tmp_path / "staging" / "truth" / "emotional_arcs.md").read_text(encoding="utf-8")
+    registered = _TABLE_HEADER_BOOTSTRAP["emotional_arcs.md"]
+    assert registered in staged
+    assert staged.index(registered) < staged.index("| 第 1 章 | 沈烬 |")
+
+
+def test_staging_route_bootstraps_character_matrix_header(tmp_path: Path):
+    from shenbi.pipeline.truth_io import _TABLE_HEADER_BOOTSTRAP
+
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True)
+    live.write_text(_INIT_SHELL_MATRIX, encoding="utf-8")
+    _route_append_dedup_write(
+        tmp_path,
+        "staging/truth/character_matrix.md",
+        "| 沈烬 | 挑担汉子 | 记账者 ↔ 雇主 | 初建（低） | 汉子知两兄弟被扣的实情 |\n"
+        "## 第1章状态增量\n\n### 沈烬\n- 当前状态: 存活\n",
+        key_field="角色A,角色B",
+    )
+    staged = (tmp_path / "staging" / "truth" / "character_matrix.md").read_text(encoding="utf-8")
+    registered = _TABLE_HEADER_BOOTSTRAP["character_matrix.md"]
+    assert registered in staged
+    assert staged.index(registered) < staged.index("| 沈烬 | 挑担汉子 |")

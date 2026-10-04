@@ -278,9 +278,13 @@ _TABLE_HEADER_BOOTSTRAP: dict[str, str] = {
     # batch #15 #44/#38: five single-table keyed files whose first rows-only
     # write can land on a missing/shell base (probe20: settle's rows-only
     # first write chained onto a status:initialized template). Headers pinned
-    # to the writers' contract forms; emotional_arcs (dual-table) and
-    # character_matrix (genesis-filled) are deliberately absent, and
-    # audit_drift is YAML-form owned by a create_or_overwrite merger.
+    # to the writers' contract forms. #18-6 (probe24): the composite-key
+    # files join the map — their contract keys (#50 角色A,角色B / F-4 章节,角色)
+    # only ACTIVATE via the header (_key_columns degrades to first-column on
+    # a headerless shell, collapsing same-chapter multi-row writes), and the
+    # shells delegate table creation to settle while the increment discipline
+    # says rows-only. audit_drift stays out (YAML-form owned by a
+    # create_or_overwrite merger).
     "current_state.md": "| 章节 | 位置 | 时间锚 | 主角处境 | 势力态势 | 待处理压力 |",
     "particle_ledger.md": "| 章节 | 变动项 | 收支 | 来源／用途 | 余额或备注 |",
     "subplot_board.md": "| 章节 | 支线 | 起始章 | 当前阶段 | 下一节点 |",
@@ -290,6 +294,10 @@ _TABLE_HEADER_BOOTSTRAP: dict[str, str] = {
     "arc_payoff_trend.md": (
         "| volume | 弧情感交付 | 伏笔兑现质量 | 线索收束 | 期待债务结算 | 角色弧推进 | overall | confidence | human_overridden |"
     ),
+    "emotional_arcs.md": "| 章节 | 角色 | 本章情感弧线 |",
+    # character_matrix is dual-table (交互总表 + 信息边界 sections); the
+    # keyed 交互总表 header is the one the append_dedup contract targets.
+    "character_matrix.md": "| 角色A | 角色B | 关系性质 | 本章交互 | 变化 |",
 }
 
 

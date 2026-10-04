@@ -137,11 +137,15 @@ class TestSingleTableBootstraps:
         "arc_payoff_trend.md": None,  # column count pinned by header itself
     }
 
-    def test_five_single_table_files_registered(self):
+    def test_single_table_and_composite_files_registered(self):
         for name in self.EXPECTED:
             assert name in _TABLE_HEADER_BOOTSTRAP, f"{name} must have a bootstrap header"
-        assert "emotional_arcs.md" not in _TABLE_HEADER_BOOTSTRAP
-        assert "character_matrix.md" not in _TABLE_HEADER_BOOTSTRAP
+        # #18-6 (probe24): the composite-key files joined the map — their
+        # contract keys only activate via the header, and a headerless first
+        # write degrades 章节,角色/角色A,角色B to first-column. audit_drift
+        # stays out (YAML-form owned by a create_or_overwrite merger).
+        assert "emotional_arcs.md" in _TABLE_HEADER_BOOTSTRAP
+        assert "character_matrix.md" in _TABLE_HEADER_BOOTSTRAP
         assert "audit_drift.md" not in _TABLE_HEADER_BOOTSTRAP
 
     def test_bootstrap_prepends_header_and_separator_on_bare_row(self):
