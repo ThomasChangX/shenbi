@@ -25,7 +25,7 @@ contract:
       key: 章节,变动项
     - file: truth/emotional_arcs.md
       mode: append_dedup
-      key: chapter
+      key: 章节,角色
     - file: truth/subplot_board.md
       mode: append_dedup
       key: 章节,支线
@@ -66,7 +66,7 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
 - **append_dedup files** (cumulative — output ONLY the current chapter's row(s), NEVER the entire file):
   - `truth/current_state.md` — one row for the current chapter's snapshot (key: `chapter`)
   - `truth/particle_ledger.md` — one row PER 变动项 for the current chapter (composite key: `章节,变动项` — a chapter may legitimately carry several rows; never merge them into one)
-  - `truth/emotional_arcs.md` — one row for the current chapter's emotional arc (key: `chapter`)
+  - `truth/emotional_arcs.md` — one row PER 角色 whose arc progresses this chapter (composite key: `章节,角色` — several arcs may legitimately advance in one chapter; never merge them into one)
   - `truth/subplot_board.md` — one row PER 支线 touched this chapter (composite key: `章节,支线` — several subplots may advance in one chapter)
   - `truth/chapter_summaries.md` — one row summarizing the current chapter (key: `chapter`)
   - `truth/pending_hooks.md` — per-hook FIELD updates as colon bullets under the hook's own heading (key: `hook_id`) — see "pending_hooks 增量格式" below
@@ -187,7 +187,7 @@ digraph state_settling {
 | 位置 | `truth/current_state.md` | append_dedup (key: chapter) |
 | 资源 | `truth/particle_ledger.md` | append_dedup (复合键 章节,变动项：本章每个变动项一行) |
 | 关系 | `truth/character_matrix.md` | append_dedup（复合键 角色A,角色B：仅输出本章变更行＋第N章增量节，程序按键合并到 live 基底） |
-| 情绪 | `truth/emotional_arcs.md` | append_dedup (key: chapter) |
+| 情绪 | `truth/emotional_arcs.md` | append_dedup (复合键 章节,角色：本章每个弧线推进的角色一行) |
 | 信息 | `truth/character_matrix.md` (信息边界) | create_or_overwrite（基底保全：逐字复现 live 基底＋仅追加增量／原键位更新行） |
 | 线索 | `truth/subplot_board.md` [Phase 4] | append_dedup (复合键 章节,支线：本章每条支线一行) |
 | 伏笔 | `truth/pending_hooks.md` | append_dedup (key: hook_id) |
@@ -216,7 +216,7 @@ digraph state_settling {
 | 第 1 章 | <一行本章资源收支> |
 
 ### FILE: truth/emotional_arcs.md
-| 第 1 章 | <一行本章情绪弧> |
+| 第 1 章 | 岑落 | <一行该角色本章情绪弧> |
 
 ### FILE: truth/subplot_board.md
 | 第 1 章 | <一行本章线索状态> |
