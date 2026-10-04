@@ -141,6 +141,14 @@ def check_audit_completeness(path: Path) -> list[str]:
     issues: list[str] = []
     text = path.read_text(encoding="utf-8")
 
+    # #18-8a (probe24): the foreshadowing-LIFECYCLE step writes its tracking
+    # report to ``audits/chapter-N-foreshadowing.md`` — a lifecycle report,
+    # not an audit verdict document. Demanding 判定 from it journaled a
+    # permanent G4.ac.no_verdict that re-failed every later dispatch of the
+    # chapter through the sticky findings journal.
+    if text.lstrip().startswith("# Foreshadowing Lifecycle Report"):
+        return []
+
     if len(text) < _AUDIT_MIN_BYTES:
         issues.append(
             f"G4.ac.too_short:{path.name} — audit file is {len(text)} bytes, likely aborted stub"

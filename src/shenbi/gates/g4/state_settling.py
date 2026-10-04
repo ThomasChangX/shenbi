@@ -78,6 +78,12 @@ def _hooks_content_stream(text: str) -> list[str]:
     return out
 
 
+#: Initialized shells carry ``（待填充…）`` placeholder prose inside section
+#: spans; the contract's first-fill (full-table escape) legitimately consumes
+#: them via section replacement. #18-8b (probe24): not base mass.
+_PLACEHOLDER_LINE_RE = re.compile(r"^（待填充")
+
+
 def _dropped_content_lines(
     live_text: str, staged_text: str, samples: int = 3, hooks: bool = False
 ) -> list[str]:
@@ -94,7 +100,7 @@ def _dropped_content_lines(
     A miss now records exactly that line; the pointer stays put.
     """
     stream_fn = _hooks_content_stream if hooks else _content_stream
-    live_stream = stream_fn(live_text)
+    live_stream = [l for l in stream_fn(live_text) if not _PLACEHOLDER_LINE_RE.match(l.strip())]
     staged_stream = stream_fn(staged_text)
     missing: list[str] = []
     i = 0
