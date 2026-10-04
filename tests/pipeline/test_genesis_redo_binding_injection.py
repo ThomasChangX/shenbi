@@ -188,3 +188,102 @@ def test_frozen_bindings_serialize_round_trip(tmp_path):
         "shenbi-worldbuilding": "## 规则一",
         "shenbi-character-design": "林渡",
     }
+
+
+#: Write-side drift guard (probe22 adjudication #002 P0-1 / #003 P3-4): the
+#: prompt-side binding freeze was IGNORED by a full rewrite — the unsanctioned
+#: canon swap landed at step 1 and steps 2-17 all dispatched on the wrong
+#: base, the drift surfacing only at genesis-complete after a false
+#: foundation-review verification. The machine cannot judge sanctioned vs
+#: unsanctioned renames, so the guard must STOP, not verdict: raise the
+#: genesis-complete checkpoint immediately with the drift leading the context,
+#: frozen bindings intact.
+def _redo_state(proj: Path) -> PipelineState:
+    state = PipelineState.default(str(proj))
+    state.genesis = GenesisStateData(
+        state=GenesisState.PENDING,
+        current_step=0,
+        skills_done=[],
+    )
+    state.genesis.frozen_bindings["shenbi-worldbuilding"] = genesis_mod.extract_structure_bindings(
+        proj, "shenbi-worldbuilding"
+    )
+    return state
+
+
+def _mock_genesis_dispatch(monkeypatch, rules_text: str):
+    from types import SimpleNamespace
+
+    def _fake_dispatch(skill, project_dir, prompt, **kw):
+        if skill == "shenbi-worldbuilding":
+            (Path(project_dir) / "world" / "rules.md").write_text(rules_text, encoding="utf-8")
+        return SimpleNamespace(success=True, stderr="", returncode=0)
+
+    monkeypatch.setattr(genesis_mod, "dispatch_skill", _fake_dispatch)
+    monkeypatch.setattr(
+        genesis_mod,
+        "run_gate_g4",
+        lambda *a, **k: {"status": "PASS", "must_fix": [], "warnings": []},
+    )
+
+
+def test_redo_step_drift_stops_cycle_with_checkpoint(tmp_path, monkeypatch):
+    proj = _proj(tmp_path)
+    state = _redo_state(proj)
+    _mock_genesis_dispatch(
+        monkeypatch, RULES_MD.replace("## 规则二：灵能守恒", "## 规则二：灵量守恒")
+    )
+
+    stopped = genesis_mod.run_genesis_step(state, proj)
+
+    assert stopped is True  # checkpoint reached — remaining steps NOT dispatched
+    assert state.pending_checkpoint.type == CheckpointType.GENESIS_COMPLETE
+    ctx = state.pending_checkpoint.context or ""
+    assert "灵量守恒" in ctx and "漂移" in ctx
+    assert "shenbi-worldbuilding" in state.genesis.frozen_bindings  # freeze NOT consumed
+    assert "shenbi-worldbuilding" in state.genesis.skills_done
+    assert state.genesis.current_step == len(genesis_mod.GENESIS_STEPS)
+
+
+def test_redo_step_structure_held_advances_silently(tmp_path, monkeypatch):
+    proj = _proj(tmp_path)
+    state = _redo_state(proj)
+    _mock_genesis_dispatch(monkeypatch, RULES_MD)  # structure held
+
+    stopped = genesis_mod.run_genesis_step(state, proj)
+
+    assert stopped is False
+    assert state.genesis.current_step == 1
+    assert state.pending_checkpoint.type == CheckpointType.NONE
+    assert "shenbi-worldbuilding" in state.genesis.skills_done
+
+
+def test_rollback_retains_original_freeze_and_drops_uncontested(tmp_path):
+    """Rejecting the drift checkpoint with a redo list is the reviewer's
+    verdict vocabulary: listed steps are re-dispatched against the ORIGINAL
+    freeze (first-freeze-wins — the drifted output on disk must not crown
+    itself the new baseline); UNLISTED frozen skills are uncontested and
+    their freezes are consumed.
+    """
+    from shenbi.pipeline.cli import _rollback_genesis_to_steps
+
+    proj = _proj(tmp_path)
+    state = _state_with_project(proj)
+    state.genesis.frozen_bindings = {
+        "shenbi-worldbuilding": genesis_mod.extract_structure_bindings(
+            proj, "shenbi-worldbuilding"
+        ),
+        "shenbi-character-design": genesis_mod.extract_structure_bindings(
+            proj, "shenbi-character-design"
+        ),
+    }
+    (proj / "world" / "rules.md").write_text(
+        RULES_MD.replace("## 规则一：灵脉有竭", "## 规则一：灵潮有竭"), encoding="utf-8"
+    )
+
+    _rollback_genesis_to_steps(state, [1], feedback="修正")
+
+    frozen = state.genesis.frozen_bindings["shenbi-worldbuilding"]
+    assert "灵潮有竭" not in frozen  # original freeze retained, drifted disk NOT crowned
+    assert "灵潮有竭" not in state.genesis.retry_feedback["shenbi-worldbuilding"]
+    assert "shenbi-character-design" not in state.genesis.frozen_bindings  # uncontested → dropped

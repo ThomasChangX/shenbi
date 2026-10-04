@@ -184,10 +184,34 @@ def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
     Only drafting and revision skills need META blocks.
     All other skills (auditors, state-settling, etc.) receive stripped text.
     Saves 16-31% input per non-drafting call.
+
+    F-6 (probe22 adjudication #006 P2-2): the strip used to REMOVE the
+    block's lines outright, so the served view was shorter than the physical
+    file and every ``chapters/chapter-N.md Lxx`` anchor cited by settle and
+    the audit wave carried a constant block-size offset (+11/12) — the
+    revision step then received fix instructions pointing at wrong spans.
+    The replacement below is COORDINATE-PRESERVING: each removed physical
+    line becomes an inert ``<!--META Ln-->`` placeholder, so view line N ==
+    physical line N and citations need no arithmetic (phrase quotes stay
+    byte-clean — prose lines are untouched).
     """
     if skill_name in ("shenbi-chapter-drafting", "shenbi-chapter-revision"):
         return text
-    return _META_PATTERN.sub("", text)
+    if "<!--META-BEGIN-->" not in text:
+        return text
+    out: list[str] = []
+    pos = 0
+    for m in _META_PATTERN.finditer(text):
+        out.append(text[pos : m.start()])
+        start_line = text.count("\n", 0, m.start()) + 1
+        block_lines = m.group(0).count("\n") + 1
+        # the match carries (block_lines - 1) internal newlines and no
+        # trailing one — the following text supplies it, so the chunk joins
+        # with "\n" only.
+        out.append("\n".join(f"<!--META L{start_line + i}-->" for i in range(block_lines)))
+        pos = m.end()
+    out.append(text[pos:])
+    return "".join(out)
 
 
 # Sentinels for the auto-generated body blocks (spec §3.8). These are kept in
@@ -731,6 +755,20 @@ def _build_skill_prompt(
             continue  # unresolvable placeholder (genesis) — skip this read
 
         resolved_paths = _resolve_read_with_fallback(project_dir, resolved)
+        if uses_staging and "*" not in resolved:
+            # F-3 (probe22 adjudication #009 F-3): a checkpoint-gated writer
+            # must read the SAME staging world it writes into — its declared
+            # audit/truth inputs from earlier same-chapter writers exist only
+            # under ``staging/`` until commit (the foreshadowing audit landed
+            # in staging/audits/ 78s before settle dispatched; the live-only
+            # resolution silently dropped the declared read and settle
+            # invented reinforcements with no authority file). Mirror
+            # _append_dedup_base_state_lines' staging-first base rule:
+            # staged if it exists, else live.
+            staged_twin = project_dir / "staging" / resolved
+            if staged_twin.is_file():
+                resolved_paths = [staged_twin]
+                log.info("read_served_from_staging_twin", read_path=resolved)
         for full_path in resolved_paths:
             key = _input_key(full_path, project_dir)
             # C28 R1 read suppression: consult the shared raw-bytes table
@@ -1719,6 +1757,7 @@ def _route_append_dedup_write(
             wiring, not a live path today.
     """
     from shenbi.pipeline.truth_io import (
+        _TABLE_HEADER_BOOTSTRAP,  # pyright: ignore[reportPrivateUsage]
         base_is_shell,
         ensure_table_header,
         path_lock,
@@ -1818,8 +1857,18 @@ def _route_append_dedup_write(
             # creation (probe2); the staging merge must do the same or a
             # staged first write lands headerless until commit.
             base = ensure_table_header(filename, base)
+            registered_header = _TABLE_HEADER_BOOTSTRAP.get(filename)
             merged = base
             for unit in units:
+                # #38 extension (probe22 adjudication #006 F-1): chapter-keyed
+                # files declare the ENGLISH key (``chapter``) while the model
+                # re-emits the CHINESE contract header, which upsert's
+                # header detection cannot recognize — it landed at EOF as a
+                # stranded row. The header is program-owned (bootstrap wrote
+                # it); a unit identical to the registered header is dropped.
+                if registered_header and unit.strip() == registered_header:
+                    log.info("truth_increment_reemitted_header_dropped", path=rel_path)
+                    continue
                 merged = upsert_markdown_row(merged, unit, key_field)
             safe_write(staged, merged)
             _update_staging_meta(project_dir, rel_path, key_field)

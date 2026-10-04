@@ -946,6 +946,19 @@ def _rollback_genesis_to_steps(
         if step.step_num in nums:
             if step.skill in state.genesis.skills_done:
                 state.genesis.skills_done.remove(step.skill)
+            if step.skill in state.genesis.frozen_bindings:
+                # Drift guard (probe22 adjudication #002): the on-disk baseline
+                # of a CONTESTED redo step is the drifted output — re-extracting
+                # would crown it the new freeze. First freeze wins; the
+                # corrective block re-injects the ORIGINAL snapshot.
+                log.info("genesis_binding_freeze_retained", skill=step.skill)
+                binding_block = (
+                    f"{BINDING_FREEZE_HEADER}\n{state.genesis.frozen_bindings[step.skill]}"
+                )
+                state.genesis.retry_feedback[step.skill] = (
+                    f"{feedback}\n\n{binding_block}" if feedback else binding_block
+                )
+                continue
             binding = extract_structure_bindings(project_dir, step.skill) if project_dir else ""
             if binding:
                 state.genesis.frozen_bindings[step.skill] = binding
@@ -955,6 +968,13 @@ def _rollback_genesis_to_steps(
                 )
             elif feedback:
                 state.genesis.retry_feedback[step.skill] = feedback
+        # Unlisted frozen skills are UNCONTESTED: the reviewer's redo list
+        # ruling leaves their current output standing, so keeping the freeze
+        # would re-report the (now accepted) drift at the next
+        # genesis-complete raise.
+        elif step.skill in state.genesis.frozen_bindings:
+            state.genesis.frozen_bindings.pop(step.skill, None)
+            log.info("genesis_binding_freeze_consumed_uncontested", skill=step.skill)
     state.genesis.current_step = target_idx
 
 

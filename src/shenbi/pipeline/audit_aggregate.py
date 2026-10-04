@@ -24,7 +24,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from shenbi.logging import get_logger
-from shenbi.pipeline.revision_router import AUDIT_DIR
+from shenbi.pipeline.revision_router import AUDIT_DIR, is_negation_payload
 from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
@@ -138,6 +138,11 @@ def extract_finding_units(report_name: str, content: str) -> tuple[list[FindingU
                 context.append(stripped)
                 continue
             text = _normalize(pat.sub("", stripped, count=1).strip("-*| "))
+            # F-5 (probe22): ``- [BLOCKING] 无`` is the report declaring it
+            # has NO findings — a zero-declaration is context, never a unit.
+            if is_negation_payload(text):
+                context.append(stripped)
+                continue
             if text:
                 units.append(FindingUnit(sev, text, (report_name,)))
             else:

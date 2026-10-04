@@ -157,6 +157,24 @@ class TestSingleTableBootstraps:
         content = _FILLED_CURRENT_STATE
         assert ensure_table_header("current_state.md", content) == content
 
+    def test_bootstrap_appends_header_on_frontmatter_stub_base(self):
+        """#38 extension (probe22 adjudication #006 P1-2): a frontmatter stub
+        base (``---`` first line, zero pipe rows) triggered NEITHER bootstrap
+        branch — the first write chained data rows onto a headerless shell
+        and _key_columns silently degraded composite keys to first-column.
+        Headers are the composite-key ACTIVATION condition: on a table-less
+        shell the contract header must be appended where the rows will land
+        (EOF).
+        """
+        out = ensure_table_header("subplot_board.md", _SHELL_CURRENT_STATE)
+        header = _TABLE_HEADER_BOOTSTRAP["subplot_board.md"]
+        lines = out.rstrip("\n").split("\n")
+        assert lines[-2] == header
+        assert lines[-1] == "|" + "---|" * (header.count("|") - 1)
+        assert _SHELL_CURRENT_STATE.rstrip() in out  # shell preserved verbatim
+        # idempotent: the second write sees the header and changes nothing
+        assert ensure_table_header("subplot_board.md", out) == out
+
     def test_registered_headers_start_with_key_column(self):
         """The key column must be first for the keyed upsert to address rows."""
         for name in self.EXPECTED:

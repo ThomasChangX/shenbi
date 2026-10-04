@@ -320,14 +320,18 @@ def consolidate_review_results(
         # / CRITICAL / MINOR``) must not open a ``## BLOCKING Issues``
         # section in the summary.
         _enum_tail = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
+        # F-5 (probe22): bracket forms must not count a zero-declaration
+        # line (``- [BLOCKING] 无``) as a finding — shared negation tail.
+        from shenbi.pipeline.revision_router import NEGATION_PAYLOAD_TAIL
+
         blocking_re = _re.compile(
             rf"\*\*BLOCKING\*\*|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b{_enum_tail}"
-            r"|^\s*-\s*\[BLOCKING\]",
+            rf"|^\s*-\s*\[BLOCKING\]{NEGATION_PAYLOAD_TAIL}",
             _re.IGNORECASE | _re.M,
         )
         critical_re = _re.compile(
             rf"\*\*CRITICAL\*\*|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_enum_tail}"
-            r"|^\s*-\s*\[(?:CRITICAL|ERROR)\]",
+            rf"|^\s*-\s*\[(?:CRITICAL|ERROR)\]{NEGATION_PAYLOAD_TAIL}",
             _re.IGNORECASE | _re.M,
         )
         for audit_file in sorted(audit_dir.glob(f"chapter-{chapter}-*.md")):

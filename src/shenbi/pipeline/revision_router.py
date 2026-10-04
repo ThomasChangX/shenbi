@@ -88,6 +88,27 @@ DEFAULT_RESONANCE_FLOOR = 50
 # a finding: the negative lookahead rejects it when further severity words
 # are enumerated after it.
 _SEV_ENUM_TAIL = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
+
+#: F-5 (probe22 adjudication #010): the audit templates declare ZERO findings
+#: as ``- [BLOCKING] 无`` — bracketed-marker sensors counted the declaration
+#: itself as a finding (review-summary "BLOCKING Issues: 1", wave audit
+#: hard_failures=2, pipeline-state blocking_found=true). A bracketed marker
+#: whose payload is EXACTLY a negation word is a zero-declaration, never a
+#: finding; a real finding like 「无法解析的引用」 keeps going past the word,
+#: so the end anchor leaves it live. Shared by every bracket-form sensor
+#: (parallel_dispatch consolidator, chapter_loop wave marker) and by the
+#: aggregate's payload check (:func:`is_negation_payload`).
+_NEGATION_WORDS = r"(?:(?:无|暂无|没有)|(?i:none|n/?a)|0)"
+NEGATION_PAYLOAD_TAIL = rf"(?!\s*{_NEGATION_WORDS}\s*[。.!！]?\s*$)"
+
+
+def is_negation_payload(text: str) -> bool:
+    """True when a severity marker's payload is a pure zero-declaration
+    (``无`` / ``none`` / ``N/A`` …) rather than finding prose.
+    """
+    return re.fullmatch(rf"{_NEGATION_WORDS}\s*[。.!！]?", text.strip(), re.IGNORECASE) is not None
+
+
 _SEVERITY_BLOCKING_RE = re.compile(
     r"\*\*BLOCKING\*\*"  # bolded marker: **BLOCKING**
     # severity key (English "severity" or CJK "严重度"): "severity: BLOCKING",

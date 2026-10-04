@@ -66,6 +66,7 @@ from shenbi.pipeline.crash_recovery import (
 )
 from shenbi.pipeline.machine import save_state, set_checkpoint
 from shenbi.pipeline.revision_router import (
+    NEGATION_PAYLOAD_TAIL,
     RevisionRoute,
     check_resonance,
     collect_audit_issues,
@@ -498,7 +499,10 @@ _BLOCKING_MARKER_RE = re.compile(
     # fixcheck ch1: bracketed template labels (enums form + legacy [ERROR]
     # hard tier) must count toward per-skill hard_failures — the cascade
     # streak logic and wave retry budget both consume this marker.
-    r"|(?:^\s*-\s*\[(?:BLOCKING|CRITICAL|ERROR)\])",
+    # F-5 (probe22): a zero-declaration line (``- [BLOCKING] 无``) is the
+    # report saying it has NO findings — end-anchored negation tail.
+    rf"|(?:^\s*-\s*\[(?:BLOCKING|CRITICAL|ERROR)\]"
+    rf"{NEGATION_PAYLOAD_TAIL})",
     re.M,
 )
 

@@ -221,6 +221,35 @@ def extract_structure_bindings(project_dir: Path, skill: str) -> str:
     return "\n\n".join(parts)
 
 
+def _skill_binding_drift(skill: str, frozen: str, project_dir: Path) -> str:
+    """Per-skill drift note for one frozen snapshot: ``skill: 丢失[...]新增[...]``
+    — empty when the structure held (or the target vanished; G4 not_found
+    owns that signal). Shared by the genesis-complete report and the
+    write-side guard in :func:`run_genesis_step`.
+    """
+    current = extract_structure_bindings(project_dir, skill)
+    if not current:
+        return ""
+    frozen_lines = [
+        l.strip() for l in frozen.split("\n") if l.strip() and not l.strip().endswith(":")
+    ]
+    current_lines = [
+        l.strip() for l in current.split("\n") if l.strip() and not l.strip().endswith(":")
+    ]
+    current_set = set(current_lines)
+    frozen_set = set(frozen_lines)
+    missing = [l for l in frozen_lines if l not in current_set][:10]
+    added = [l for l in current_lines if l not in frozen_set][:10]
+    if not missing and not added:
+        return ""
+    bits: list[str] = []
+    if missing:
+        bits.append("丢失「" + "」「".join(missing) + "」")
+    if added:
+        bits.append("新增「" + "」「".join(added) + "」")
+    return f"{skill}: " + "；".join(bits)
+
+
 def binding_drift_report(state: PipelineState, project_dir: Path) -> str:
     """#49: diff each redo skill's frozen binding snapshot against the
     REGENERATED files. Structural drift (renamed rules, shuffled anchors,
@@ -232,26 +261,9 @@ def binding_drift_report(state: PipelineState, project_dir: Path) -> str:
         return ""
     notes: list[str] = []
     for skill, frozen in state.genesis.frozen_bindings.items():
-        current = extract_structure_bindings(project_dir, skill)
-        if not current:
-            continue  # vanished target — G4 not_found owns that signal
-        frozen_lines = [
-            l.strip() for l in frozen.split("\n") if l.strip() and not l.strip().endswith(":")
-        ]
-        current_lines = [
-            l.strip() for l in current.split("\n") if l.strip() and not l.strip().endswith(":")
-        ]
-        current_set = set(current_lines)
-        frozen_set = set(frozen_lines)
-        missing = [l for l in frozen_lines if l not in current_set][:10]
-        added = [l for l in current_lines if l not in frozen_set][:10]
-        if missing or added:
-            bits: list[str] = []
-            if missing:
-                bits.append("丢失「" + "」「".join(missing) + "」")
-            if added:
-                bits.append("新增「" + "」「".join(added) + "」")
-            notes.append(f"{skill}: " + "；".join(bits))
+        note = _skill_binding_drift(skill, frozen, project_dir)
+        if note:
+            notes.append(note)
     if not notes:
         log.info("genesis_binding_held", skills=sorted(state.genesis.frozen_bindings))
         return ""
@@ -705,4 +717,49 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
         _sync_spine_total(project_dir)
     state.genesis.retry_counts.pop(step.skill, None)
     mark_skill_done(state, step.skill)
+    # #49 write-side guard (probe22 adjudication #002 P0-1 / #003 P3-4): a
+    # redone step whose output drifts from its frozen structure bindings must
+    # not let the cycle continue silently — probe22's unsanctioned canon swap
+    # landed at step 1 and steps 2-17 all dispatched on the wrong base before
+    # the genesis-complete report surfaced it. The machine cannot judge a
+    # feedback-sanctioned rename from an unsanctioned shuffle, so it STOPS
+    # instead of verdicting: raise the checkpoint NOW with the drift leading
+    # the context and the freeze intact — the reject redo list then decides
+    # (listed step = contested, re-dispatched against the ORIGINAL freeze;
+    # unlisted frozen skill = drift ruled sanctioned, freeze consumed).
+    frozen = state.genesis.frozen_bindings.get(step.skill)
+    if frozen:
+        drift = _skill_binding_drift(step.skill, frozen, project_dir)
+        if drift:
+            log.error("genesis_redo_step_binding_drift", step=step.step_num, skill=step.skill)
+            remaining = [
+                s.step_num
+                for s in GENESIS_STEPS[step_idx + 1 :]
+                if s.skill not in state.genesis.skills_done
+            ]
+            if remaining:
+                verdict = (
+                    f"漂移若为反馈明示授权：reject 并附 --redo-steps "
+                    f"{','.join(map(str, remaining))} 续跑其余步骤（未列出即认可本步现状）；"
+                    f"若为越权改写：reject 并附 --redo-steps {step.step_num} 与修正反馈"
+                )
+            else:
+                verdict = (
+                    "漂移若为反馈明示授权（其余步骤均已完结）：approve 进入章节循环；"
+                    "若为越权改写：reject 并附 --redo-steps "
+                    f"{step.step_num} 与修正反馈"
+                )
+            state.genesis.current_step = len(GENESIS_STEPS)
+            state.genesis.state = GenesisState.CHECKPOINT_PENDING
+            set_checkpoint(
+                state,
+                CheckpointType.GENESIS_COMPLETE,
+                artifact="foundation/review_report.md",
+                context=(
+                    f"[重做步骤 {step.step_num}（{step.skill}）结构绑定漂移——本步已停，"
+                    f"后续步骤未派发] {drift} ｜ {verdict} ｜ "
+                    f"Review all genesis outputs before entering chapter loop."
+                ),
+            )
+            return True
     return _advance(state, step_idx, project_dir)

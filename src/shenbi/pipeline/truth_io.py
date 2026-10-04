@@ -310,6 +310,14 @@ def ensure_table_header(filename: str, content: str) -> str:
         return header + "\n" + separator
     if header in content:
         return content  # already bootstrapped
+    # #38 extension (probe22 adjudication #006 P1-2): a frontmatter stub base
+    # (``---`` first line, zero pipe rows) matched neither branch above, so
+    # the first rows-only write chained onto a headerless shell and
+    # _key_columns silently degraded composite keys to first-column. Headers
+    # are the composite-key ACTIVATION condition — on a table-less base,
+    # append the contract table where the rows will land (EOF).
+    if all(split_table_cells(line) is None for line in content.split("\n")):
+        return content.rstrip() + "\n\n" + header + "\n" + separator
     first = next((line for line in content.split("\n") if line.strip()), "")
     if first.lstrip().startswith("|") and "chapter" not in first and "---" not in first:
         return header + "\n" + separator + "\n" + content
@@ -813,14 +821,21 @@ def _key_table_tail(lines: list[str], key_name: str) -> int | None:
     """Line index just past the last row of the table whose header carries
     *key_name* — the in-table insertion point for a new-key row.
 
+    Composite specs (``"角色A,角色B"``) match by the SAME all-names rule as
+    :func:`_key_columns`: every named column must be present in the header.
+    F-1 (probe22 adjudication #009 R4): the tail lookup compared the WHOLE
+    comma spec against single header cells, never matched, and a new-key row
+    stranded at EOF instead of joining its table.
+
     None when no table's header matches (callers fall back to EOF append).
     """
+    names = [n for n in (part.strip() for part in key_name.split(",")) if n]
     structural = _structural_table_lines(lines)
     for i, line in enumerate(lines):
         if not structural[i] or _is_separator_row(split_table_cells(line) or []):
             continue
         cells = split_table_cells(line) or []
-        if any(c and _norm_cell(c) == _norm_cell(key_name) for c in cells):
+        if all(any(c and _norm_cell(c) == _norm_cell(n) for c in cells) for n in names):
             tail = i
             for j in range(i + 1, len(lines)):
                 if split_table_cells(lines[j]) is not None:

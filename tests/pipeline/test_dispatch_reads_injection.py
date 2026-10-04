@@ -164,3 +164,68 @@ def test_staging_prompt_lists_prefixed_paths(tmp_path):
     assert output_paths and all(p.startswith("staging/") for p in output_paths)
     listed = [ln[2:] for ln in user_prompt.splitlines() if ln.startswith("- ") and "/" in ln]
     assert any(p.startswith("staging/") for p in listed), listed
+
+
+#: F-3 (probe22 adjudication #009 F-3 / #010): settle's contract declares
+#: ``audits/chapter-N-foreshadowing.md`` as its sole reinforcement authority
+#: (「唯一确证来源」), but the lifecycle audit lands in ``staging/audits/``
+#: 78 seconds before settle dispatches — read resolution only saw live
+#: paths, the declared read silently resolved to nothing, and settle
+#: invented MH02/MH09 reinforcements from prose. A checkpoint-gated writer
+#: must read the SAME staging world it writes into.
+AUDIT_MARK = "# lifecycle audit: MH04 advance; MH02 defer（沉默 1 章）\n"
+
+
+def test_staging_gated_dispatch_serves_staging_twin_read(tmp_path: Path):
+    (tmp_path / "staging" / "audits").mkdir(parents=True)
+    (tmp_path / "staging" / "audits" / "chapter-2-foreshadowing.md").write_text(
+        AUDIT_MARK, encoding="utf-8"
+    )
+    _, user_prompt, _, _ = _build_skill_prompt(
+        skill="shenbi-state-settling",
+        project_dir=tmp_path,
+        prompt="settle chapter 2",
+        chapter=2,
+        uses_staging=True,
+    )
+    assert "staging/audits/chapter-2-foreshadowing.md" in user_prompt
+    assert "MH02 defer" in user_prompt
+
+
+def test_staging_twin_preferred_over_stale_live(tmp_path: Path):
+    """Mirror of _append_dedup_base_state_lines' base rule: staged if it
+    exists, else live — the staged twin is THIS chapter's state, the live
+    copy is the previous chapter's committed state.
+    """
+    live = tmp_path / "audits" / "chapter-2-foreshadowing.md"
+    live.parent.mkdir(parents=True)
+    live.write_text("# stale ch1-committed copy\n", encoding="utf-8")
+    staged = tmp_path / "staging" / "audits" / "chapter-2-foreshadowing.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(AUDIT_MARK, encoding="utf-8")
+    _, user_prompt, _, _ = _build_skill_prompt(
+        skill="shenbi-state-settling",
+        project_dir=tmp_path,
+        prompt="settle chapter 2",
+        chapter=2,
+        uses_staging=True,
+    )
+    assert "MH02 defer" in user_prompt
+    assert "stale ch1-committed copy" not in user_prompt
+
+
+def test_non_staging_dispatch_keeps_live_only_reads(tmp_path: Path):
+    """Without uses_staging the twin must NOT appear — non-gated dispatches
+    keep their live-only read semantics.
+    """
+    staged = tmp_path / "staging" / "audits" / "chapter-2-foreshadowing.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(AUDIT_MARK, encoding="utf-8")
+    _, user_prompt, _, _ = _build_skill_prompt(
+        skill="shenbi-state-settling",
+        project_dir=tmp_path,
+        prompt="settle chapter 2",
+        chapter=2,
+        uses_staging=False,
+    )
+    assert "staging/audits/chapter-2-foreshadowing.md" not in user_prompt

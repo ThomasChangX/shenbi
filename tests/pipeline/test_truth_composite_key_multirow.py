@@ -48,9 +48,42 @@ def test_contract_declares_composite_keys_for_multirow_targets():
     semantics = load_contract("shenbi-state-settling").get("write_semantics", {})
     assert semantics["truth/particle_ledger.md"]["key"] == "章节,变动项"
     assert semantics["truth/subplot_board.md"]["key"] == "章节,支线"
+    # F-4 (probe22 adjudication #009 P2-2): ch2 progressed BOTH cenluo's and
+    # zhongbo's arcs; the row identity is (章节, 角色) — the header's own
+    # identity column — not chapter. key=chapter could hold only ONE row and
+    # the other arc's row was lost while the sidecar declared both.
+    assert semantics["truth/emotional_arcs.md"]["key"] == "章节,角色"
     # single-row-per-chapter targets keep the simple chapter key
     assert semantics["truth/current_state.md"]["key"] == "chapter"
     assert semantics["truth/chapter_summaries.md"]["key"] == "chapter"
+
+
+def test_emotional_arcs_dual_arc_rows_coexist():
+    """F-4 acceptance: a chapter with two progressing arcs keeps both rows —
+    real probe22 ch2 rows (岑落 + 钟伯).
+    """
+    base = (
+        "# 情绪弧线\n\n"
+        "| 章节 | 角色 | 起始情绪 | 转折事件 | 章末情绪 |\n"
+        "|---|---|---|---|---|\n"
+        "| 第 1 章 | 岑落 | 灰雨里麻木而克制的日常 | 西三巷两客者被销名 | 沉默的承担 |\n"
+    )
+    ch2_cenluo = (
+        "| 第 2 章 | 岑落 | 沉静的日常 | 钟伯请抄「自离」三份、收存抄本与撕页 | "
+        "沉静中生出戒备——「笔也招人」之诫入耳 |"
+    )
+    ch2_zhongbo = (
+        "| 第 2 章 | 钟伯 | 失子后的隐忍 | 请岑落照原样抄三份，一份焚给亡者 | "
+        "稍得依托，临别以「笔招人」相警 |"
+    )
+    merged = base
+    for row in (ch2_cenluo, ch2_zhongbo):
+        merged = upsert_markdown_row(merged, row, "章节,角色")
+    data_rows = [l for l in merged.split("\n") if l.startswith("| 第 2 章")]
+    assert len(data_rows) == 2, f"second arc row annihilated: {merged!r}"
+    assert ch2_cenluo in merged and ch2_zhongbo in merged
+    # the ch1 row is untouched
+    assert merged.count("| 第 1 章 |") == 1
 
 
 def test_ledger_remerge_preserves_same_chapter_multi_rows():
@@ -81,6 +114,103 @@ def test_subplot_remerge_preserves_same_chapter_rows():
         merged = upsert_markdown_row(merged, line, "章节,支线")
     data_rows = [l for l in merged.split("\n") if l.startswith("| 第")]
     assert len(data_rows) == 2, f"same-chapter rows annihilated: {len(data_rows)} left"
+
+
+#: Real probe22 ch2 rows (novel-xinghuo-probe22/truth/character_matrix.md) —
+#: the 交互表 keys on the (角色A, 角色B) tuple; a NEW pair in a later chapter
+#: must land INSIDE that table, not strand at EOF (F-1).
+MATRIX_HEADER = "| 角色A | 角色B | 关系定位 | 秘密 | 触发事件 | 信任度 |\n|---|---|---|---|---|---|"
+
+MATRIX_ROW_CH1 = "| 岑落 | 管事 | 无档者×册籍执掌者 | 无 | 点工销名，客者不计伤亡 | 持平 |"
+MATRIX_ROW_CH2 = (
+    "| 岑落 | 钟伯 | 无档写字人×失子矿工（受托与请托） | 岑落第三本账记「来处」，未启 | "
+    "请抄「自离」页三份，一份托存、一份焚给亡者 | 相托 |"
+)
+
+MATRIX_STATE_BLOCK = (
+    "## 第1章状态增量\n\n### 岑落\n\n- 当前状态: 存活，栖身矿场窄檐\n- 最后更新章: 1\n"
+)
+
+
+def test_new_composite_key_row_inserts_into_its_table_not_eof():
+    """F-1 (probe22 adjudication #009 R4): a new (角色A, 角色B) pair arrived
+    while trailing state sections occupied EOF — _key_table_tail compared the
+    WHOLE spec 「角色A,角色B」 against single header cells, matched nothing,
+    and the row stranded after the 第1章状态增量 block until a human review
+    moved it back into the table.
+    """
+    existing = MATRIX_HEADER + "\n" + MATRIX_ROW_CH1 + "\n" + MATRIX_STATE_BLOCK
+    merged = upsert_markdown_row(existing, MATRIX_ROW_CH2, "角色A,角色B")
+    lines = merged.split("\n")
+
+    row_idx = lines.index(MATRIX_ROW_CH2)
+    ch1_idx = lines.index(MATRIX_ROW_CH1)
+    heading_idx = lines.index("## 第1章状态增量")
+    assert ch1_idx < row_idx < heading_idx, (
+        f"new interaction pair stranded outside its table (row at {row_idx}, "
+        f"heading at {heading_idx}): {lines}"
+    )
+    assert lines[-1].strip() != MATRIX_ROW_CH2  # not EOF-appended
+
+
+_STUB_SUBPLOT_BASE = """---
+type: truth
+category: subplot
+status: initialized
+---
+
+> 此文件由 state-settling 首次运行时填充实际数据。
+
+## 待填充
+
+- 各支线当前阶段与下一节点
+"""
+
+
+def test_staging_merge_activates_composite_keys_on_stub_base(tmp_path: Path):
+    """probe22 adjudication #006 P1-2, simulated verdict: merging two
+    same-chapter subplot rows onto a headerless stub base collapsed them to
+    one (first-column degradation). With the #38 extension the bootstrap
+    appends the contract header FIRST, so the (章节, 支线) key activates and
+    both rows coexist — header above rows, no separator-less table.
+    """
+    live = tmp_path / "truth" / "subplot_board.md"
+    live.parent.mkdir(parents=True)
+    live.write_text(_STUB_SUBPLOT_BASE, encoding="utf-8")
+    _route_append_dedup_write(
+        tmp_path,
+        "staging/truth/subplot_board.md",
+        "\n".join(SUBPLOT_ROWS),
+        key_field="章节,支线",
+    )
+    staged = (tmp_path / "staging" / "truth" / "subplot_board.md").read_text(encoding="utf-8")
+    data_rows = [l for l in staged.split("\n") if l.startswith("| 第")]
+    assert len(data_rows) == 2, f"composite key inactive on stub base: {staged!r}"
+    header_idx = staged.index("| 章节 | 支线 |")
+    sep_idx = staged.index("|---")
+    first_row_idx = staged.index(data_rows[0])
+    assert header_idx < sep_idx < first_row_idx
+
+
+def test_reemitted_contract_header_dropped_on_chapter_key_file(tmp_path: Path):
+    """probe22 adjudication #006 F-1 follow-up: chapter-keyed files declare
+    the ENGLISH key (``chapter``) while the model re-emits the CHINESE
+    contract header (「章节」…), which upsert's header detection cannot
+    recognize — the row stranded at EOF after the data rows. The merge owns
+    the header (bootstrap wrote it); a unit equal to the registered header
+    is dropped, never merged as data.
+    """
+    live = tmp_path / "truth" / "current_state.md"
+    live.parent.mkdir(parents=True)
+    live.write_text(_STUB_SUBPLOT_BASE, encoding="utf-8")
+    header = "| 章节 | 位置 | 时间锚 | 主角处境 | 势力态势 | 待处理压力 |"
+    increment = "| 第 1 章 | 黑脉矿场 | 灰雨第三日 | 无档之身 | 册籍三分 | 西三巷道塌方\n" + header
+    _route_append_dedup_write(
+        tmp_path, "staging/truth/current_state.md", increment, key_field="chapter"
+    )
+    staged = (tmp_path / "staging" / "truth" / "current_state.md").read_text(encoding="utf-8")
+    assert staged.count(header) == 1  # bootstrap's copy only — re-emission dropped
+    assert staged.index(header) < staged.index("| 第 1 章 |")  # header leads the table
 
 
 def test_staging_route_remerge_keeps_multi_row_ledger(tmp_path: Path):
