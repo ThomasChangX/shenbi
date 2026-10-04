@@ -287,6 +287,7 @@ chapter_role: 高潮
 | hook 账列名 | ID/操作/推进方式/沉默章数 四列 | 列名不匹配 |
 | hook 操作有效性 | 仅使用 open/advance/resolve/defer | 使用不允许值 |
 | 沉默检测 | 无 defer + 沉默 ≥ 4 章的行（或已附激活方案） | 存在僵尸伏笔 |
+| hook ID 真实性 | §7 中 `MH\d+` 编号须已在 truth/book_spine.md 或 truth/pending_hooks.md 注册（MH 命名属 genesis/lifecycle 职权；确需新钩走 CP-NNN，memo 不得自造 MH 号） | 引用未注册 MH 编号 |
 
 ## decisions sidecar 必填字段
 

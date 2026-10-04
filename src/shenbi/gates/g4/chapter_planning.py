@@ -1,6 +1,7 @@
 """G4 checker for shenbi-chapter-planning."""
 
 from __future__ import annotations
+from pathlib import Path
 from shenbi.status import GateStatus
 from typing import Any
 import re
@@ -23,6 +24,24 @@ def g4_chapter_planning(
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
+
+    # #18-2 (probe23 adjudication #007): the ch3 memo invented MH11/MH12 —
+    # book_spine caps at MH10, pending_hooks never registered them, two
+    # human reject rounds with explicit delete instructions still shipped
+    # MH11 in the approved memo. The machine gate owns hook authenticity:
+    # MH-namespace IDs are genesis-owned (lifecycle assigns CP-NNN to new
+    # plants), so every MH reference in §7 must exist in the spine or the
+    # pool. Registry files absent (phase 1) → nothing to check against.
+    registered_hooks: set[str] | None = None
+    if project_dir:
+        registry_parts: list[str] = []
+        for rel in ("truth/book_spine.md", "truth/pending_hooks.md"):
+            rf = Path(project_dir) / rel
+            if rf.is_file():
+                registry_parts.append(rf.read_text(encoding="utf-8"))
+        # both registry files absent (phase 1) → nothing to check against
+        if registry_parts:
+            registered_hooks = set(re.findall(r"MH\d+", "\n".join(registry_parts)))
 
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
@@ -118,6 +137,28 @@ def g4_chapter_planning(
             c.append(
                 {"id": "G4.cp.s7_hook_ops", "file": fp, "s": GateStatus.PASS, "ops": found_ops}
             )
+
+        # #18-2: MH-namespace hook authenticity (registry read once above).
+        if registered_hooks is None:
+            c.append(
+                {
+                    "id": "G4.cp.hook_refs",
+                    "file": fp,
+                    "s": GateStatus.SKIP,
+                    "r": "no book_spine/pending_hooks registry (phase 1)",
+                }
+            )
+        else:
+            refs = list(dict.fromkeys(re.findall(r"MH\d+", s7_text)))
+            unknown = [r for r in refs if r not in registered_hooks]
+            if unknown:
+                mf.append(
+                    f"G4.cp.hook_refs:{fp}:引用未注册钩子「{'、'.join(unknown)}」"
+                    "（book_spine/pending_hooks 无此 MH 编号——新钩属 genesis/lifecycle "
+                    "职权，memo 不得自造 MH 号；确需新钩请走 CP-NNN 或先注册再引用）"
+                )
+            else:
+                c.append({"id": "G4.cp.hook_refs", "file": fp, "s": GateStatus.PASS})
 
         # Defer-silence rule (SKILL.md section 7 可自动检查规则; spec #9 R2):
         # rows with 操作=defer and 沉默章数 >= 4 require an 激活方案 or ABANDON

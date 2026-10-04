@@ -109,16 +109,27 @@ def is_negation_payload(text: str) -> bool:
     return re.fullmatch(rf"{_NEGATION_WORDS}\s*[。.!！]?", text.strip(), re.IGNORECASE) is not None
 
 
+#: #18-1 (probe23 adjudication #004): the resonance report quotes its own
+#: output-contract JSON inside prose — ``{"category": "unmet_goal", "severity":
+#: "BLOCKING"}`` on a line that literally says the route is NOT triggered — and
+#: the key-form sensors read the quoted value as a live declaration. probe23
+#: ch1 routed to full regeneration on this phantom alone (both extracted
+#: issues were it and its review-summary echo). A severity word immediately
+#: followed by a closing quote is a quoted VALUE inside a literal, never a
+#: declaration; real reports declare bare values (``severity: BLOCKING``).
+QUOTED_VALUE_TAIL = r'(?!\*{0,2}")'
+
+
 _SEVERITY_BLOCKING_RE = re.compile(
     r"\*\*BLOCKING\*\*"  # bolded marker: **BLOCKING**
     # severity key (English "severity" or CJK "严重度"): "severity: BLOCKING",
     # "**严重度**: BLOCKING". The optional \*{0,2} lets the key itself be bolded.
-    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b{_SEV_ENUM_TAIL}",
+    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}",
     re.IGNORECASE,
 )
 _SEVERITY_CRITICAL_RE = re.compile(
     rf"\*\*CRITICAL\*\*"
-    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_SEV_ENUM_TAIL}",
+    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}",
     re.IGNORECASE,
 )
 

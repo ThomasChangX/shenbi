@@ -236,3 +236,80 @@ def test_staging_route_remerge_keeps_multi_row_ledger(tmp_path: Path):
     for row in PROBE21_LEDGER_ROWS:
         assert row in staged
     assert not staged_rows[-1].startswith("| 第 2 章")  # no fabricated next chapter
+
+
+#: #18-3 (probe23): character_matrix carries TWO tables in one file — the
+#: 5-col 交互表 (keyed 角色A,角色B) and the 3-col 信息边界表 (keyed 角色) —
+#: adjacent with no blank line. The tail walk in _key_table_tail treated ANY
+#: consecutive pipe row as "still in the matched table": ch2's new 5-col rows
+#: walked THROUGH the 3-col region and landed after the 3-col rows (probe23
+#: truth/character_matrix.md L26-27), and later 3-col rows landed after those
+#: 5-col rows (L28-29) — one interleaved blob instead of two tables.
+_DUAL_TABLE_BASE = (
+    "---\ntype: truth\ncategory: character\n---\n\n"
+    "# 角色关系矩阵\n\n"
+    "| 角色A | 角色B | 关系性质 | 本章交互 | 变化 |\n"
+    "|-------|-------|----------|----------|------|\n"
+    "| 坠落者 | 老柴 | 雇工·记账 | 记满四十行流水，得一碗冷饭 | 雇佣坐实 |\n"
+    "| 角色 | 已知 | 未知 |\n"
+    "| 坠落者 | 无册者可于姓名栏填「零」 | 自身姓名与来历 |\n"
+)
+
+
+def test_dual_table_new_key_row_stays_in_its_own_table():
+    """A new-key 5-col row must join the 5-col table, not walk through the
+    adjacent 3-col table's region.
+    """
+    row = "| 坠落者 | 韩七娘 | 施粥·受雇 | 递粥验能，末栏添钩 | 陌路 → 受雇 |"
+    merged = upsert_markdown_row(_DUAL_TABLE_BASE, row, "角色A,角色B")
+    lines = merged.split("\n")
+    row_idx = next(i for i, l in enumerate(lines) if "韩七娘" in l)
+    # directly after the last 5-col row; the 3-col header must NOT precede it
+    # inside the inserted row's table region
+    assert lines[row_idx - 1].startswith("| 坠落者 | 老柴 |")
+    assert lines[row_idx + 1].startswith("| 角色 | 已知 | 未知 |")
+
+
+def test_dual_table_three_col_row_stops_before_foreign_rows():
+    """A 3-col row (keyed 角色) must land inside the 3-col table. In the
+    probe23 corrupted shape, 5-col rows FOLLOW the 3-col region (L26-27);
+    the arity-blind walk ran past them and appended after those foreign
+    rows. The walk must stop at the first row whose width differs.
+    """
+    base = (
+        "# 角色关系矩阵\n\n"
+        "| 角色A | 角色B | 关系性质 | 本章交互 | 变化 |\n"
+        "|-------|-------|----------|----------|------|\n"
+        "| 坠落者 | 老柴 | 雇工·记账 | 记满四十行流水 | 雇佣坐实 |\n"
+        "| 角色 | 已知 | 未知 |\n"
+        "|---|---|---|\n"
+        "| 坠落者 | 无册者可于姓名栏填「零」 | 自身姓名与来历 |\n"
+        "| 坠落者 | 韩七娘 | 施粥·受雇 | 递粥验能 | 陌路 → 受雇 |\n"
+    )
+    row = "| 老柴 | 主角记背流水之能 | 主角来历 |"
+    merged = upsert_markdown_row(base, row, "角色")
+    lines = merged.split("\n")
+    row_idx = next(i for i, l in enumerate(lines) if l.startswith("| 老柴 |"))
+    # directly after the last 3-col row, BEFORE the trailing 5-col row
+    assert lines[row_idx - 1].startswith("| 坠落者 | 无册者")
+    assert lines[row_idx + 1].startswith("| 坠落者 | 韩七娘 |")
+
+
+def test_dual_table_ragged_row_does_not_split_header_from_separator():
+    """A separator whose arity differs from its header must stay attached:
+    the walk passes separator rows unconditionally so a new row can never
+    land BETWEEN a header and its separator.
+    """
+    base = (
+        "# 账本\n\n"
+        "| 章节 | 位置 |\n"
+        "|---|\n"  # ragged separator (1 cell vs 2 header cells)
+        "| 第 1 章 | 巷子 |\n"
+    )
+    row = "| 第 2 章 | 码头 |"
+    merged = upsert_markdown_row(base, row, "章节")
+    lines = merged.split("\n")
+    header_idx = lines.index("| 章节 | 位置 |")
+    sep_idx = lines.index("|---|")
+    row_idx = lines.index("| 第 2 章 | 码头 |")
+    assert header_idx < sep_idx < row_idx

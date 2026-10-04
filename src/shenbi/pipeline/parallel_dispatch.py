@@ -90,6 +90,7 @@ def _dispatch_with_retry(
     """
     for attempt in range(MAX_RETRIES + 1):
         task.attempts = attempt + 1
+        result: DispatchResult | None = None
         try:
             with semaphore:
                 log.info(
@@ -167,6 +168,19 @@ def _dispatch_with_retry(
 
         # Backoff before retry (skip after last attempt)
         if attempt < MAX_RETRIES:
+            # #18-5 (probe23 ch2): the loop re-sent the IDENTICAL prompt, so
+            # the shape guard's pointed teaching stderr never reached the
+            # model and all three attempts emitted the same whole-file
+            # scaffold (~107k completion tokens, review-summary increment
+            # lost). The dispatch layer already designs result.stderr as
+            # retry feedback (build_retry_feedback / str(IncrementShapeError))
+            # — deliver it into the next attempt's prompt.
+            if result is not None and result.stderr and result.stderr[:2000] not in task.prompt:
+                task.prompt = (
+                    f"{task.prompt}\n\n## CORRECTIVE FEEDBACK (prior attempt rejected, "
+                    f"output not landed)\n```\n{result.stderr[:2000]}\n```\n"
+                    f"修正上述被拒原因后再输出；不要重复被拒形式。"
+                )
             delay = RETRY_BACKOFF_BASE**attempt + random.uniform(0, RETRY_JITTER)
             log.debug(
                 "parallel_dispatch_backoff",
@@ -322,15 +336,20 @@ def consolidate_review_results(
         _enum_tail = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
         # F-5 (probe22): bracket forms must not count a zero-declaration
         # line (``- [BLOCKING] 无``) as a finding — shared negation tail.
-        from shenbi.pipeline.revision_router import NEGATION_PAYLOAD_TAIL
+        # #18-1 (probe23): key forms must not count a severity value quoted
+        # inside a JSON template literal (``"severity": "BLOCKING"``) —
+        # shared quoted-value tail from the router's sensors.
+        from shenbi.pipeline.revision_router import NEGATION_PAYLOAD_TAIL, QUOTED_VALUE_TAIL
 
         blocking_re = _re.compile(
-            rf"\*\*BLOCKING\*\*|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b{_enum_tail}"
+            rf"\*\*BLOCKING\*\*|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b"
+            rf"{_enum_tail}{QUOTED_VALUE_TAIL}"
             rf"|^\s*-\s*\[BLOCKING\]{NEGATION_PAYLOAD_TAIL}",
             _re.IGNORECASE | _re.M,
         )
         critical_re = _re.compile(
-            rf"\*\*CRITICAL\*\*|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_enum_tail}"
+            rf"\*\*CRITICAL\*\*|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b"
+            rf"{_enum_tail}{QUOTED_VALUE_TAIL}"
             rf"|^\s*-\s*\[(?:CRITICAL|ERROR)\]{NEGATION_PAYLOAD_TAIL}",
             _re.IGNORECASE | _re.M,
         )

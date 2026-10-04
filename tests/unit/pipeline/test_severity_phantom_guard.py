@@ -145,3 +145,61 @@ def test_aggregate_zero_declaration_is_context_not_unit() -> None:
     units, context = extract_finding_units("chapter-2-sensitivity.md", ZERO_DECL_AUDIT)
     assert units == []
     assert "- [BLOCKING] 无" in context  # preserved verbatim, never silent loss
+
+
+#: #18-1 (probe23 adjudication #004): the resonance report quotes its own
+#: output-contract JSON inside prose — verbatim from novel-xinghuo-probe23/
+#: audits/chapter-1-resonance.md L42. The line literally says the template is
+#: NOT triggered (「本三项均就位，不触发重生路由」), but the key-form sensors
+#: matched ``"severity": "BLOCKING"`` and routed the clean chapter to full
+#: regeneration — both routed issues were this one phantom (the review-summary
+#: echo of it), replayed live against the probe corpus.
+JSON_TEMPLATE_AUDIT = (
+    "# 共鸣审查\n\n"
+    "## 6. 重生路由三要素\n\n"
+    '任一项「未达成」才输出 `{"category": "unmet_goal", "severity": "BLOCKING"}`；'
+    "本三项均就位，不触发重生路由。\n"
+)
+
+
+def test_router_json_template_value_is_not_blocking(tmp_path: Path) -> None:
+    d = tmp_path / "audits"
+    d.mkdir()
+    (d / "chapter-1-resonance.md").write_text(JSON_TEMPLATE_AUDIT, encoding="utf-8")
+    issues, blocking = collect_audit_issues(tmp_path, 1)
+    assert issues == []
+    assert blocking is False
+
+
+def test_router_json_template_critical_is_not_critical(tmp_path: Path) -> None:
+    d = tmp_path / "audits"
+    d.mkdir()
+    (d / "chapter-1-craft.md").write_text(
+        '# 审查\n输出 `{"severity": "CRITICAL"}` 前须先复核证据。\n', encoding="utf-8"
+    )
+    issues, blocking = collect_audit_issues(tmp_path, 1)
+    assert issues == []
+    assert blocking is False
+
+
+def test_consolidator_json_template_value_counts_zero(tmp_path: Path) -> None:
+    d = tmp_path / "audits"
+    d.mkdir()
+    (d / "chapter-1-resonance.md").write_text(JSON_TEMPLATE_AUDIT, encoding="utf-8")
+    out = consolidate_review_results([], 1, skills=[], project_dir=tmp_path)
+    assert "- **BLOCKING Issues**: 0" in out
+    assert "## BLOCKING Issues" not in out
+
+
+def test_router_real_inline_key_value_still_blocks(tmp_path: Path) -> None:
+    """The quote guard only rejects a value inside quotation marks; the bare
+    inline declaration the templates actually emit stays live.
+    """
+    d = tmp_path / "audits"
+    d.mkdir()
+    (d / "chapter-1-continuity.md").write_text(
+        "# 审查\n- 时间锚矛盾: severity: BLOCKING\n", encoding="utf-8"
+    )
+    issues, blocking = collect_audit_issues(tmp_path, 1)
+    assert blocking is True
+    assert issues and issues[0]["severity"] == "BLOCKING"

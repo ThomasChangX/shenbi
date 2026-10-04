@@ -836,12 +836,26 @@ def _key_table_tail(lines: list[str], key_name: str) -> int | None:
             continue
         cells = split_table_cells(line) or []
         if all(any(c and _norm_cell(c) == _norm_cell(n) for c in cells) for n in names):
+            # #18-3 (probe23): the tail walk used to treat ANY consecutive
+            # pipe row as "still in this table" — character_matrix carries a
+            # 5-col 交互表 and a 3-col 信息边界表 adjacent with no blank
+            # line, and new 5-col rows walked THROUGH the 3-col region
+            # (truth/character_matrix.md L26-29 interleave). The table ends
+            # where a non-separator row's arity differs from its header's;
+            # separator rows pass unconditionally so a new row can never
+            # split a header from its (possibly ragged) separator.
+            arity = len(cells)
             tail = i
             for j in range(i + 1, len(lines)):
-                if split_table_cells(lines[j]) is not None:
-                    tail = j
-                else:
+                row_cells = split_table_cells(lines[j])
+                if row_cells is None:
                     break
+                if _is_separator_row(row_cells):
+                    tail = j
+                    continue
+                if len(row_cells) != arity:
+                    break
+                tail = j
             return tail + 1
     return None
 

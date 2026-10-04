@@ -3268,6 +3268,12 @@ def _run_chapter_step_impl(
             g4 = run_gate_g4(
                 pstep.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop"
             )
+            if _gate_passed(g4):
+                # #18-4 (probe23): mirror the serial site's canary pop — a
+                # PASSED retry must clear its corrective feedback, or the
+                # audit-routed re-settle re-injects selections_uncovered
+                # demands into a dispatch whose issues were already fixed.
+                state.chapter_loop.retry_feedback.pop(_retry_key(chapter, pstep.skill), None)
             if not _gate_passed(g4):
                 log.warning(
                     "parallel_post_draft_g4_failed",

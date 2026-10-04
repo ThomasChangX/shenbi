@@ -381,3 +381,71 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
     assert "audits/chapter-2-pov.md" in reports, reports
     # 3. per-skill failure disclosed as before
     assert cs.audit_results.get("group-character", {}).get("passed") is False
+
+
+class TestParallelG4PassClearsFeedback:
+    """#18-4 (probe23): the parallel post-draft G4 loop cleared nothing on
+    PASS — ch1 state-settling's selections_uncovered feedback stayed in
+    ``retry_feedback`` after the retry passed, and the audit-routed re-settle
+    path (ba1a13d8) re-injects stale feedback into a dispatch whose issues
+    were already fixed. The serial per-step site has popped on pass since the
+    canary fix (chapter_loop G4 pass branch); the parallel site must mirror it.
+    """
+
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_pass_pops_retry_feedback_for_both_steps(self, mock_dispatch, mock_g4, tmp_path):
+        import shenbi.pipeline.chapter_loop as cl
+
+        mock_g4.return_value = {"status": "PASS"}
+        mock_dispatch.return_value = MagicMock(success=True, returncode=0, stdout="", stderr="")
+
+        (tmp_path / "chapters").mkdir()
+        (tmp_path / "chapters" / "chapter-1.md").write_text("# 第1章\n", encoding="utf-8")
+        (tmp_path / "staging" / "truth").mkdir(parents=True)
+        (tmp_path / "staging" / "truth" / "current_state.md").write_text(
+            "| 章节 | 位置 |\n|---|---|\n| 1 | x |\n", encoding="utf-8"
+        )
+
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = cl._FORESHADOWING_LIFECYCLE_IDX
+        state.chapter_loop.retry_feedback["ch1-shenbi-state-settling"] = (
+            "G4.ss.selections_uncovered:truth/current_state.md（stale）"
+        )
+        state.chapter_loop.retry_feedback["ch1-shenbi-foreshadowing-lifecycle"] = (
+            "G4.fl.something:stale"
+        )
+
+        cl.run_chapter_step(state, tmp_path)
+
+        # the flow must have REACHED the parallel G4 loop (not short-circuited)
+        assert mock_g4.call_count == 2
+        assert "ch1-shenbi-state-settling" not in state.chapter_loop.retry_feedback
+        assert "ch1-shenbi-foreshadowing-lifecycle" not in state.chapter_loop.retry_feedback
+
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_fail_keeps_feedback_for_retry(self, mock_dispatch, mock_g4, tmp_path):
+        import shenbi.pipeline.chapter_loop as cl
+
+        mock_g4.return_value = {
+            "status": "FAIL",
+            "must_fix": ["G4.ss.selections_uncovered:truth/current_state.md（x）"],
+        }
+        mock_dispatch.return_value = MagicMock(success=True, returncode=0, stdout="", stderr="")
+
+        (tmp_path / "chapters").mkdir()
+        (tmp_path / "chapters" / "chapter-1.md").write_text("# 第1章\n", encoding="utf-8")
+        (tmp_path / "staging" / "truth").mkdir(parents=True)
+        (tmp_path / "staging" / "truth" / "current_state.md").write_text("x", encoding="utf-8")
+
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = cl._FORESHADOWING_LIFECYCLE_IDX
+
+        cl.run_chapter_step(state, tmp_path)
+
+        # the loop validates lifecycle first and returns at the first FAIL —
+        # the failing step's feedback stays queued for its retry
+        assert "ch1-shenbi-foreshadowing-lifecycle" in state.chapter_loop.retry_feedback
