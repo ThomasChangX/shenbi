@@ -806,3 +806,77 @@ def test_state_settling_skill_append_constraint_in_prominent_location():
         f"binding language. Searched patterns: {binding_patterns}, "
         f"found: {found}, body_start={body_start}"
     )
+
+
+@pytest.mark.unit
+def test_re_settle_replacing_own_chapter_block_passes_matrix_structure(tmp_path: Path) -> None:
+    """probe31 ch2 escalation (2 identical G4 fails, attempts=1/2): an
+    audit-routed re-settle ATOMICALLY REPLACES the current chapter's own
+    ``## 第N章状态增量`` block — that block is the keyed-upsert unit the
+    merge layer owns, not base mass. Bullets inside it may legitimately
+    change; G4 must not flag them as content_dropped (the deterministic
+    deadlock: every re-settle that touched its own block died at G4).
+    """
+    live_body = (
+        "# 角色交互矩阵\n\n## 角色定义\n\n- 叶昭: 主角\n\n"
+        "## 交互总表\n\n| 角色A | 角色B |\n|---|---|\n"
+        "| 叶昭 | 原主 | 附身 |\n\n"
+        "## 第1章状态增量\n\n### 叶昭\n\n"
+        "- 当前状态: 存活（苏醒）\n- 身体状态: 手背新伤\n\n"
+        "## 第2章状态增量\n\n### 叶昭\n\n"
+        "- 当前状态: 存活（窑场落籍）\n"
+        "- 身体状态: 手背斜切新伤（结半痂）；搬柴袍褂湿透又干\n\n"
+        "## 第3章状态增量\n\n### 桑迟\n\n- 当前状态: 登场\n"
+    )
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(f"---\ntype: truth\n---\n\n{live_body}", encoding="utf-8")
+
+    staged_body = live_body.replace(
+        "- 身体状态: 手背斜切新伤（结半痂）；搬柴袍褂湿透又干",
+        "- 身体状态: 手背斜切新伤（结半痂）；搬柴褂子湿透又干（L66）",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(f"---\ntype: truth\n---\n\n{staged_body}", encoding="utf-8")
+
+    sidecar = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
+    sidecar.write_text(json.dumps({"chapter": 2}), encoding="utf-8")
+
+    result = _run([str(staged)], str(tmp_path))
+    assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", [])), result.get(
+        "must_fix"
+    )
+
+
+@pytest.mark.unit
+def test_re_settle_still_flags_foreign_chapter_block_rewrites(tmp_path: Path) -> None:
+    """Over-exemption guard: with sidecar chapter=2, rewriting a bullet
+    inside the 第1章 block is STILL content_dropped — only the CURRENT
+    chapter's own increment block is exempt; prior chapters stay base mass.
+    """
+    live_body = (
+        "# 角色交互矩阵\n\n## 角色定义\n\n- 叶昭: 主角\n\n"
+        "## 第1章状态增量\n\n### 叶昭\n\n"
+        "- 当前状态: 存活（苏醒）\n- 身体状态: 手背新伤\n\n"
+        "## 第2章状态增量\n\n### 叶昭\n\n- 当前状态: 存活（窑场落籍）\n"
+    )
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(f"---\ntype: truth\n---\n\n{live_body}", encoding="utf-8")
+
+    staged_body = live_body.replace(
+        "- 身体状态: 手背新伤",
+        "- 身体状态: 手背新伤（L31 引注）",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(f"---\ntype: truth\n---\n\n{staged_body}", encoding="utf-8")
+
+    sidecar = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
+    sidecar.write_text(json.dumps({"chapter": 2}), encoding="utf-8")
+
+    result = _run([str(staged)], str(tmp_path))
+    assert any(
+        "G4.ss.matrix_structure" in m and "content_dropped" in m for m in result.get("must_fix", [])
+    )

@@ -1,0 +1,4 @@
+[01:48:54] [1] status=blocked phase=unknown cp=genesis-complete step=0-0
+SHENBI_STATUS:{"status":"blocked","checkpoint":"genesis-complete"}
+[01:48:54] BLOCKED at checkpoint 'genesis-complete' — manual review required.
+[01:48:54]     just pipeline-review "novel-xinghuo-probe31" <approve|reject|modify> [feedback]

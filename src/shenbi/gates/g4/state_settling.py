@@ -137,6 +137,47 @@ def _check_escape_corruption(pf: Path, live_text: str, staged_text: str) -> list
     return []
 
 
+def _current_settle_chapter(pf: Path) -> int | None:
+    """Chapter the staged settle owns, from the sibling decisions sidecar.
+
+    probe31 ch2 escalation: the audit-routed re-settle's keyed-upsert
+    ATOMICALLY REPLACES the current chapter's own increment block; without
+    chapter-awareness the matrix guard flagged the replaced bullets as
+    content_dropped and every re-settle that touched its own block died —
+    a deterministic deadlock, not model noise (2 byte-identical attempts).
+    Unparseable/absent sidecar = no exemption (conservative).
+    """
+    sidecar = pf.parent / "state-settling-decisions.json"
+    if not sidecar.exists():
+        return None
+    try:
+        payload = json.loads(sidecar.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    chapter = payload.get("chapter") if isinstance(payload, dict) else None
+    return chapter if isinstance(chapter, int) and chapter > 0 else None
+
+
+def _strip_increment_section(live_text: str, chapter: int) -> str:
+    """Drop the current chapter's own ``## 第N章状态增量`` span from the
+    live text — that block is the merge-owned upsert unit, not base mass.
+    Prior chapters' blocks stay (over-exemption guard is positional: only
+    the span between this chapter's heading and the next ``##`` heading).
+    """
+    heading_re = re.compile(rf"^##\s*第{chapter}章状态增量\s*$")
+    out: list[str] = []
+    inside = False
+    for line in live_text.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            inside = bool(heading_re.match(stripped))
+            continue
+        if inside:
+            continue
+        out.append(line)
+    return "\n".join(out)
+
+
 def _check_matrix_structure(pf: Path) -> list[str]:
     """Content-preservation guard for a STAGED character_matrix.
 
@@ -156,6 +197,11 @@ def _check_matrix_structure(pf: Path) -> list[str]:
     issues: list[str] = []
     staged_text = pf.read_text(encoding="utf-8")
     live_text = live.read_text(encoding="utf-8")
+    # The current chapter's own increment block is the keyed-upsert unit a
+    # re-settle owns (probe31 ch2); compare base mass only.
+    _chapter = _current_settle_chapter(pf)
+    if _chapter is not None:
+        live_text = _strip_increment_section(live_text, _chapter)
     staged_lines = [l for l in staged_text.split("\n") if l.strip()]
     live_lines = [l for l in live_text.split("\n") if l.strip()]
     if live_lines and len(staged_lines) < len(live_lines) * 0.9:
