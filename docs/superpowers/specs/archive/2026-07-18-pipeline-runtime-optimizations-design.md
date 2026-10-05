@@ -21,7 +21,8 @@
 ```python
 import re
 
-_META_PATTERN = re.compile(r'<!--META-BEGIN-->.*?<!--META-END-->', re.DOTALL)
+_META_PATTERN = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+
 
 def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
     """对非 drafting skill 剥离 META 块。
@@ -29,9 +30,9 @@ def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
     drafting 本身需要这些块（PRE_WRITE_CHECK 指导写作），
     但审计器和 state-settling 不需要。
     """
-    if skill_name in ('shenbi-chapter-drafting', 'shenbi-chapter-revision'):
+    if skill_name in ("shenbi-chapter-drafting", "shenbi-chapter-revision"):
         return text  # drafting 和 revision 需要完整内容
-    return _META_PATTERN.sub('', text)
+    return _META_PATTERN.sub("", text)
 ```
 
 **节省**：每个非 drafting 调用减少 16-31% 输入。
@@ -46,16 +47,17 @@ def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
 
 ```python
 # 模块级缓存：每章仅从磁盘读取一次
-_GENRE_CONFIG_CACHE: dict = {'chapter': -1, 'data': None}
+_GENRE_CONFIG_CACHE: dict = {"chapter": -1, "data": None}
+
 
 def _get_genre_config(project_dir: Path, chapter: int) -> dict:
-    if _GENRE_CONFIG_CACHE['chapter'] == chapter:
-        return _GENRE_CONFIG_CACHE['data']
+    if _GENRE_CONFIG_CACHE["chapter"] == chapter:
+        return _GENRE_CONFIG_CACHE["data"]
 
-    path = project_dir / 'genre-config.json'
+    path = project_dir / "genre-config.json"
     data = json.loads(path.read_text()) if path.exists() else {}
-    _GENRE_CONFIG_CACHE['chapter'] = chapter
-    _GENRE_CONFIG_CACHE['data'] = data
+    _GENRE_CONFIG_CACHE["chapter"] = chapter
+    _GENRE_CONFIG_CACHE["data"] = data
     return data
 ```
 
@@ -72,12 +74,14 @@ def _get_genre_config(project_dir: Path, chapter: int) -> dict:
 ```python
 # chapter_loop.py: _complete_chapter 中
 
+
 def _maybe_rebuild_truth_index(project_dir, chapter):
     """每卷边界或每 15 章重建 truth-index。"""
     # 卷边界章节：15, 35, 55, 75, 100
     volume_boundaries = _get_volume_boundaries(project_dir)
     if chapter in volume_boundaries or chapter % 15 == 0:
         from shenbi.pipeline.truth_index import build_index
+
         build_index(project_dir)
         logger.info("truth_index_rebuilt", chapter=chapter)
 ```
@@ -93,6 +97,7 @@ def _maybe_rebuild_truth_index(project_dir, chapter):
 ```python
 # state.py: save_pipeline_state
 
+
 def _compact_chapter_states(state: PipelineState, keep_last: int = 10):
     """归档已完成的章，仅保留最近 N 章在活跃状态中。"""
     cl = state.chapter_loop
@@ -107,17 +112,20 @@ def _compact_chapter_states(state: PipelineState, keep_last: int = 10):
         archive[ch] = cl.chapter_states.pop(ch)
 
     # 写入归档文件
-    archive_path = project_dir / 'pipeline-state-archive.json'
+    archive_path = project_dir / "pipeline-state-archive.json"
     existing = json.loads(archive_path.read_text()) if archive_path.exists() else {}
     existing.update(archive)
     safe_write(archive_path, json.dumps(existing, ensure_ascii=False))
+
 
 def _prune_retry_feedback(state: PipelineState, keep_last: int = 30):
     """仅保留最近 N 条 retry feedback。"""
     rf = state.chapter_loop.retry_feedback
     if len(rf) > keep_last:
         # 保留最近 N 条（按 key 中的章节号排序）
-        keys = sorted(rf.keys(), key=lambda k: int(re.findall(r'\d+', k)[0]) if re.findall(r'\d+', k) else 0)
+        keys = sorted(
+            rf.keys(), key=lambda k: int(re.findall(r"\d+", k)[0]) if re.findall(r"\d+", k) else 0
+        )
         for old_key in keys[:-keep_last]:
             del rf[old_key]
 ```
@@ -133,6 +141,7 @@ def _prune_retry_feedback(state: PipelineState, keep_last: int = 30):
 ```python
 # chapter_loop.py: _complete_chapter 中
 
+
 def _check_world_file_freshness(project_dir, chapter):
     """卷边界时检查世界文件是否需要更新。"""
     volume_boundaries = _get_volume_boundaries(project_dir)
@@ -146,17 +155,20 @@ def _check_world_file_freshness(project_dir, chapter):
     for ch in range(chapter - 10, chapter + 1):
         scr = extract_scr(project_dir, ch)
         for loc in scr.world_refs:
-            if loc['category'] == 'location':
-                new_locations.add(loc['element'])
+            if loc["category"] == "location":
+                new_locations.add(loc["element"])
 
-    locations_md = (project_dir / 'world' / 'locations.md').read_text()
+    locations_md = (project_dir / "world" / "locations.md").read_text()
     missing = [loc for loc in new_locations if loc not in locations_md]
 
     if missing:
         logger.warning("world_locations_stale", chapter=chapter, missing_locations=missing)
         # 生成人类审查提示（非阻断）
-        _append_human_review_note(project_dir, f"卷{_get_volume_number(chapter)}结束："
-                                  f"以下新地点未在 world/locations.md 中记录：{missing}")
+        _append_human_review_note(
+            project_dir,
+            f"卷{_get_volume_number(chapter)}结束："
+            f"以下新地点未在 world/locations.md 中记录：{missing}",
+        )
 ```
 
 ---

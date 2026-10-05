@@ -119,6 +119,7 @@ git commit -m "fix: C17 T2 internal-links pure-Python per-PR CI (F001/F732)"
 
 ```python
 """G0.5 — rubric weight-sum checker (T1109)."""
+
 import re
 from pathlib import Path
 import pytest
@@ -128,18 +129,25 @@ from shenbi.status import GateStatus
 def _make_rubric(tmp_path: Path, weights: list[str]) -> Path:
     rows = "\n".join(f"| {i} | dim{i} | {w} | |" for i, w in enumerate(weights, 1))
     p = tmp_path / "rubric.md"
-    p.write_text(f"# R\n## D\n| # | Dimension | Weight | Standard |\n|---|---|---|---|\n{rows}\n", encoding="utf-8")
+    p.write_text(
+        f"# R\n## D\n| # | Dimension | Weight | Standard |\n|---|---|---|---|\n{rows}\n",
+        encoding="utf-8",
+    )
     return p
 
 
-@pytest.mark.parametrize("weights,expected", [(["10%", "5%", "50%", "20%", "15%"], 100), (["50%", "40%"], 90)])
+@pytest.mark.parametrize(
+    "weights,expected", [(["10%", "5%", "50%", "20%", "15%"], 100), (["50%", "40%"], 90)]
+)
 def test_weight_sum(tmp_path, weights, expected):
     from shenbi.gates.g0 import _rubric_weight_sum
+
     assert _rubric_weight_sum(_make_rubric(tmp_path, weights)) == expected
 
 
 def test_real_rubrics_all_sum_100():
     from shenbi.gates.g0 import _rubric_weight_sum
+
     rubrics = list(Path("tests/tiers").rglob("rubric.md"))
     assert rubrics, "no rubrics found"
     for r in rubrics:

@@ -38,12 +38,19 @@ def inject_helper_precompute(skill: str, project_dir: Path, user_prompt: str) ->
     if skill in _helper_injection_disabled():
         return user_prompt
     if skill == "shenbi-style-learning":
-        texts = {p.name: p.read_text(encoding="utf-8") for p in sorted((project_dir / "chapters").glob("chapter-*.md"))}
+        texts = {
+            p.name: p.read_text(encoding="utf-8")
+            for p in sorted((project_dir / "chapters").glob("chapter-*.md"))
+        }
         if not texts:
             log.info("helper_injection_no_chapters", skill=skill)
             return user_prompt
         stats = compute_all_stats(texts)
-        block = "## Helper Precompute (style stats, deterministic)\n\n```json\n" + json.dumps(stats, ensure_ascii=False, indent=2) + "\n```\n\n以上统计已由框架预计算（compute_all_stats），直接引用，不要重算。\n\n"
+        block = (
+            "## Helper Precompute (style stats, deterministic)\n\n```json\n"
+            + json.dumps(stats, ensure_ascii=False, indent=2)
+            + "\n```\n\n以上统计已由框架预计算（compute_all_stats），直接引用，不要重算。\n\n"
+        )
         return block + user_prompt
     return user_prompt
 ```

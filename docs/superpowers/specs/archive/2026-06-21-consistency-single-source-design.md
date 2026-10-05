@@ -162,13 +162,14 @@ Contract data moves **into frontmatter** (currently frontmatter carries only
 ```python
 # src/shenbi/contract.py
 class OutputKind(StrEnum):
-    ARTIFACT  = "artifact"   # writes a durable project file → G2 file-validation (chapter/truth type)
-    REPORT    = "report"     # emits a report; if persisted, the path is in writes → G2 validates as report-type
+    ARTIFACT = "artifact"  # writes a durable project file → G2 file-validation (chapter/truth type)
+    REPORT = "report"  # emits a report; if persisted, the path is in writes → G2 validates as report-type
     EPHEMERAL = "ephemeral"  # transient guidance, no persisted artifact → output gates skip
+
 
 class Contract(TypedDict):
     kind: OutputKind
-    reads: list[str]    # canonical paths / registered patterns only; MUST resolve in registry
+    reads: list[str]  # canonical paths / registered patterns only; MUST resolve in registry
     writes: list[str]
     updates: list[str]  # files mutated in place (subset semantics: also an artifact write)
 ```
@@ -284,11 +285,25 @@ Defines and exports the canonical enums; all emit sites use them **via members, 
 bare strings**, and emit through **typed result structures** so the enum is enforced:
 
 ```python
-class GateStatus(StrEnum):    PASS, FAIL, SKIP, WARN
-class PhaseState(StrEnum):    CREATED, STARTED, SKILLS_DONE, SCORED, FINALIZED
-class CommandStatus(StrEnum): OK, BLOCKED, ERROR
-class ScoringStatus(StrEnum): OK, REJECT, MARKER_MISSING, UNIMPLEMENTED
-class ScoreClassification(StrEnum): PASS_EXCELLENT, PASS_ACCEPTABLE, CONDITIONAL, FAIL
+class GateStatus(StrEnum):
+    PASS, FAIL, SKIP, WARN
+
+
+class PhaseState(StrEnum):
+    CREATED, STARTED, SKILLS_DONE, SCORED, FINALIZED
+
+
+class CommandStatus(StrEnum):
+    OK, BLOCKED, ERROR
+
+
+class ScoringStatus(StrEnum):
+    OK, REJECT, MARKER_MISSING, UNIMPLEMENTED
+
+
+class ScoreClassification(StrEnum):
+    PASS_EXCELLENT, PASS_ACCEPTABLE, CONDITIONAL, FAIL
+
 
 class GateResult(TypedDict):
     gate: str

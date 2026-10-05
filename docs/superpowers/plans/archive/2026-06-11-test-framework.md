@@ -586,7 +586,11 @@ def load_rubric(rubric_path):
                 continue
             if stripped.startswith("## ") and in_kill_switch:
                 in_kill_switch = False
-            if in_kill_switch and ("total score = 0" in stripped.lower() or "phase = 0" in stripped.lower() or "pipeline = 0" in stripped.lower()):
+            if in_kill_switch and (
+                "total score = 0" in stripped.lower()
+                or "phase = 0" in stripped.lower()
+                or "pipeline = 0" in stripped.lower()
+            ):
                 kill_switches.append(stripped.lstrip("- ").rstrip())
             if stripped.startswith("| #") or stripped.startswith("|---"):
                 in_table = True
@@ -594,11 +598,13 @@ def load_rubric(rubric_path):
             if in_table and stripped.startswith("|"):
                 cells = [c.strip() for c in stripped.split("|")[1:-1]]
                 if len(cells) >= 3 and cells[0].isdigit():
-                    dimensions.append({
-                        "num": int(cells[0]),
-                        "name": cells[1],
-                        "weight": int(cells[2].rstrip("%")),
-                    })
+                    dimensions.append(
+                        {
+                            "num": int(cells[0]),
+                            "name": cells[1],
+                            "weight": int(cells[2].rstrip("%")),
+                        }
+                    )
             elif in_table and not stripped.startswith("|"):
                 in_table = False
     return dimensions, kill_switches
@@ -611,9 +617,7 @@ def compute_score(dimensions, scores, kill_switch_triggered=False):
     total_weight = sum(d["weight"] for d in dimensions)
     if total_weight == 0:
         return 0
-    weighted_sum = sum(
-        scores.get(d["num"], 0) * d["weight"] for d in dimensions
-    )
+    weighted_sum = sum(scores.get(d["num"], 0) * d["weight"] for d in dimensions)
     return round(weighted_sum / total_weight, 2)
 
 
@@ -631,7 +635,7 @@ def classify(score):
 def main():
     if len(sys.argv) < 3:
         print("Usage: scoring.py <rubric.md> <scores.json> [--kill-switch]")
-        print("  scores.json format: {\"1\": 100, \"2\": 95, \"3\": 80, ...}")
+        print('  scores.json format: {"1": 100, "2": 95, "3": 80, ...}')
         print("  --kill-switch: force final score to 0 (any kill switch triggered)")
         print("  Or: scoring.py <rubric.md> --interactive")
         sys.exit(1)
@@ -686,8 +690,12 @@ def main():
     final = compute_score(dimensions, scores, kill_switch_triggered)
     result = {
         "dimensions": [
-            {"num": d["num"], "name": d["name"], "weight": d["weight"],
-             "score": scores.get(d["num"], 0)}
+            {
+                "num": d["num"],
+                "name": d["name"],
+                "weight": d["weight"],
+                "score": scores.get(d["num"], 0),
+            }
             for d in dimensions
         ],
         "kill_switch_triggered": kill_switch_triggered,
@@ -1736,9 +1744,11 @@ def main():
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
 
-    print(f"Round summary updated: {bands['pass_excellent']} PASS (excellent), "
-          f"{bands['pass_acceptable']} PASS (acceptable), "
-          f"{bands['conditional']} CONDITIONAL, {bands['fail']} FAIL")
+    print(
+        f"Round summary updated: {bands['pass_excellent']} PASS (excellent), "
+        f"{bands['pass_acceptable']} PASS (acceptable), "
+        f"{bands['conditional']} CONDITIONAL, {bands['fail']} FAIL"
+    )
 
 
 if __name__ == "__main__":

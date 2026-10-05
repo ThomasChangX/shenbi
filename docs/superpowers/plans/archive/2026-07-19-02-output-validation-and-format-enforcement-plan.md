@@ -48,6 +48,7 @@
 The dominant corruption pattern (verified by filesystem audit) is a valid
 JSON object followed by trailing markdown — NOT multi-JSON concatenation.
 """
+
 import json
 import tempfile
 from pathlib import Path
@@ -84,7 +85,8 @@ def test_validate_json_recovers_decisions_with_complete_schema():
         "produced_at": "2026-07-19T00:00:00+00:00",
     }
     content = json.dumps(valid_decisions, ensure_ascii=False) + (
-        "\n\n---\n\n**两项 G4 失败修复摘要：**\n1. 修正转折词。\n")
+        "\n\n---\n\n**两项 G4 失败修复摘要：**\n1. 修正转折词。\n"
+    )
     result = _validate_json_output(content, Path("chapter-5-decisions.json"))
     parsed = json.loads(result)
     assert parsed["$schema"] == "shenbi-decisions-v1"
@@ -100,8 +102,12 @@ def test_validate_json_recovers_revision_decisions_adjustments():
         "chapter": 5,
         "selections": [],
         "adjustments": [
-            {"issue_id": "resonance.sentiment", "severity": "high",
-             "handling": "explicit_callout", "rationale": "Dialogue lacked emotional grounding in scene."}
+            {
+                "issue_id": "resonance.sentiment",
+                "severity": "high",
+                "handling": "explicit_callout",
+                "rationale": "Dialogue lacked emotional grounding in scene.",
+            }
         ],
         "produced_at": "2026-07-19T00:00:00+00:00",
     }
@@ -200,9 +206,7 @@ def _validate_json_output(content: str, path: Path) -> str:
         clean_data, end_pos = decoder.raw_decode(content)
     except json.JSONDecodeError as e:
         log.error("decisions_json_unrecoverable", path=str(path), error=str(e))
-        raise ValueError(
-            f"Decisions JSON invalid and unrecoverable for {path}: {e}"
-        ) from e
+        raise ValueError(f"Decisions JSON invalid and unrecoverable for {path}: {e}") from e
 
     # Tightened recovery: a shenbi-decisions-v1 object must pass schema +
     # required-field completeness before being accepted. This prevents
@@ -210,11 +214,13 @@ def _validate_json_output(content: str, path: Path) -> str:
     if isinstance(clean_data, dict) and clean_data.get("$schema") == "shenbi-decisions-v1":
         try:
             from shenbi.contracts.schemas.decisions import DecisionsDoc
+
             DecisionsDoc.model_validate(clean_data)
         except (ValidationError, ImportError) as e:
             log.error(
                 "decisions_json_recovered_but_schema_incomplete",
-                path=str(path), error=str(e),
+                path=str(path),
+                error=str(e),
             )
             raise ValueError(
                 f"Recovered decisions JSON for {path} failed schema validation "
@@ -325,7 +331,7 @@ import re as _re
 
 # Regex matching control characters EXCEPT newline (\n), carriage return (\r),
 # and tab (\t) which are valid in JSON strings when properly escaped.
-_ILLEGAL_CTRL_RE = _re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f]')
+_ILLEGAL_CTRL_RE = _re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
 
 
 def sanitize_json_content(content: str) -> str:
@@ -420,10 +426,12 @@ def test_g2_dec4_passes_single_json():
     """G2.dec.4 passes when only one JSON object is present."""
     with tempfile.TemporaryDirectory() as tmp:
         decisions_json = Path(tmp) / "chapter-5-decisions.json"
-        content = json.dumps({
-            "$schema": "shenbi-decisions-v1",
-            "skill": "chapter-drafting",
-        })
+        content = json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "chapter-drafting",
+            }
+        )
         decisions_json.write_text(content)
 
         result = gate_G2([str(decisions_json)], file_type="decisions")
@@ -449,12 +457,14 @@ In `src/shenbi/gates/g2.py`, in the `gate_G2` function, inside the `file_type ==
 # after data = json.loads(content), the line above would raise before the
 # check is ever reached, making the check dead code.
 if content.count('"$schema"') > 1:
-    mf.append({
-        "id": "G2.dec.4",
-        "file": fp,
-        "s": "FAIL",
-        "r": f"multiple JSON objects concatenated ({content.count(chr(34) + '$schema' + chr(34))} schemas found)",
-    })
+    mf.append(
+        {
+            "id": "G2.dec.4",
+            "file": fp,
+            "s": "FAIL",
+            "r": f"multiple JSON objects concatenated ({content.count(chr(34) + '$schema' + chr(34))} schemas found)",
+        }
+    )
     continue  # skip the json.loads() below for this file — it would raise
 
 # Now safe to parse a (single-object) decisions JSON:
@@ -499,6 +509,7 @@ Revision decisions conform to DecisionsDoc: selections + adjustments arrays
 (NOT a changes array). The checker validates adjustment content semantics
 within that schema and returns a JSON result string for make_composite_checker.
 """
+
 import json
 import tempfile
 from pathlib import Path
@@ -521,27 +532,31 @@ def test_valid_spot_fix_revision_passes():
     """Spot-fix with non-empty adjustments (each rationale >= 20 chars) passes."""
     with tempfile.TemporaryDirectory() as tmp:
         d = Path(tmp)
-        path = _write_json(d, "chapter-5-revision-decisions.json", {
-            "$schema": "shenbi-decisions-v1",
-            "skill": "shenbi-chapter-revision",
-            "chapter": 5,
-            "selections": [],
-            "adjustments": [
-                {
-                    "issue_id": "resonance.sentiment",
-                    "severity": "high",
-                    "handling": "explicit_callout",
-                    "rationale": "Replace parameterized prose with human sensory scene.",
-                },
-                {
-                    "issue_id": "resonance.immersion",
-                    "severity": "medium",
-                    "handling": "explicit_callout",
-                    "rationale": "Remove system-term enumeration, add dialogue setup.",
-                },
-            ],
-            "produced_at": "2026-07-19T00:00:00+00:00",
-        })
+        path = _write_json(
+            d,
+            "chapter-5-revision-decisions.json",
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-chapter-revision",
+                "chapter": 5,
+                "selections": [],
+                "adjustments": [
+                    {
+                        "issue_id": "resonance.sentiment",
+                        "severity": "high",
+                        "handling": "explicit_callout",
+                        "rationale": "Replace parameterized prose with human sensory scene.",
+                    },
+                    {
+                        "issue_id": "resonance.immersion",
+                        "severity": "medium",
+                        "handling": "explicit_callout",
+                        "rationale": "Remove system-term enumeration, add dialogue setup.",
+                    },
+                ],
+                "produced_at": "2026-07-19T00:00:00+00:00",
+            },
+        )
 
         result = g4_chapter_revision([str(path)])
         parsed = _parse_result(result)
@@ -553,17 +568,26 @@ def test_valid_no_op_revision_passes():
     """No-op with empty adjustments but a documented skip in selections passes."""
     with tempfile.TemporaryDirectory() as tmp:
         d = Path(tmp)
-        path = _write_json(d, "chapter-5-revision-decisions.json", {
-            "$schema": "shenbi-decisions-v1",
-            "skill": "shenbi-chapter-revision",
-            "chapter": 5,
-            "selections": [
-                {"target": "no_revision_needed", "selected": [],
-                 "basis": "arc_relevance", "severity": "low", "omitted": []}
-            ],
-            "adjustments": [],
-            "produced_at": "2026-07-19T00:00:00+00:00",
-        })
+        path = _write_json(
+            d,
+            "chapter-5-revision-decisions.json",
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-chapter-revision",
+                "chapter": 5,
+                "selections": [
+                    {
+                        "target": "no_revision_needed",
+                        "selected": [],
+                        "basis": "arc_relevance",
+                        "severity": "low",
+                        "omitted": [],
+                    }
+                ],
+                "adjustments": [],
+                "produced_at": "2026-07-19T00:00:00+00:00",
+            },
+        )
 
         result = g4_chapter_revision([str(path)])
         parsed = _parse_result(result)
@@ -574,14 +598,18 @@ def test_empty_adjustments_without_skip_documentation_fails():
     """Empty adjustments with no skip selection in selections is HARD FAIL."""
     with tempfile.TemporaryDirectory() as tmp:
         d = Path(tmp)
-        path = _write_json(d, "chapter-5-revision-decisions.json", {
-            "$schema": "shenbi-decisions-v1",
-            "skill": "shenbi-chapter-revision",
-            "chapter": 5,
-            "selections": [],
-            "adjustments": [],
-            "produced_at": "2026-07-19T00:00:00+00:00",
-        })
+        path = _write_json(
+            d,
+            "chapter-5-revision-decisions.json",
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-chapter-revision",
+                "chapter": 5,
+                "selections": [],
+                "adjustments": [],
+                "produced_at": "2026-07-19T00:00:00+00:00",
+            },
+        )
 
         result = g4_chapter_revision([str(path)])
         parsed = _parse_result(result)
@@ -593,17 +621,25 @@ def test_adjustment_with_thin_rationale_fails():
     """An adjustment whose rationale is < 20 chars is a HARD FAIL."""
     with tempfile.TemporaryDirectory() as tmp:
         d = Path(tmp)
-        path = _write_json(d, "chapter-5-revision-decisions.json", {
-            "$schema": "shenbi-decisions-v1",
-            "skill": "shenbi-chapter-revision",
-            "chapter": 5,
-            "selections": [],
-            "adjustments": [
-                {"issue_id": "x", "severity": "high",
-                 "handling": "compensate_via_pacing", "rationale": "too short"},
-            ],
-            "produced_at": "2026-07-19T00:00:00+00:00",
-        })
+        path = _write_json(
+            d,
+            "chapter-5-revision-decisions.json",
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-chapter-revision",
+                "chapter": 5,
+                "selections": [],
+                "adjustments": [
+                    {
+                        "issue_id": "x",
+                        "severity": "high",
+                        "handling": "compensate_via_pacing",
+                        "rationale": "too short",
+                    },
+                ],
+                "produced_at": "2026-07-19T00:00:00+00:00",
+            },
+        )
 
         result = g4_chapter_revision([str(path)])
         parsed = _parse_result(result)
@@ -628,11 +664,18 @@ def test_result_is_json_string_compatible_with_composite_checker():
     """Return value is a JSON string parseable into {status, checks, must_fix}."""
     with tempfile.TemporaryDirectory() as tmp:
         d = Path(tmp)
-        path = _write_json(d, "chapter-5-revision-decisions.json", {
-            "$schema": "shenbi-decisions-v1", "skill": "shenbi-chapter-revision",
-            "chapter": 5, "selections": [], "adjustments": [],
-            "produced_at": "2026-07-19T00:00:00+00:00",
-        })
+        path = _write_json(
+            d,
+            "chapter-5-revision-decisions.json",
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-chapter-revision",
+                "chapter": 5,
+                "selections": [],
+                "adjustments": [],
+                "produced_at": "2026-07-19T00:00:00+00:00",
+            },
+        )
         result = g4_chapter_revision([str(path)])
         # make_composite_checker (decisions_validator.py:87) does json.loads(existing_result)
         parsed = json.loads(result)
@@ -658,6 +701,7 @@ Returns a JSON result string matching the G4 checker protocol:
 make_composite_checker (decisions_validator.py:87) does
 json.loads(existing_result) and expects {"status", "checks", "must_fix"}.
 """
+
 from __future__ import annotations
 
 import json
@@ -710,7 +754,8 @@ def g4_chapter_revision(
         if not adjustments:
             selections = data.get("selections", [])
             has_skip_selection = any(
-                isinstance(s, dict) and (
+                isinstance(s, dict)
+                and (
                     "no_revision" in str(s.get("target", "")).lower()
                     or "skip" in str(s.get("target", "")).lower()
                     or "skip" in str(s.get("basis", "")).lower()
@@ -738,11 +783,14 @@ def g4_chapter_revision(
     # Return a JSON result string matching the G4 checker protocol.
     # make_composite_checker (decisions_validator.py:87) does
     # json.loads(existing_result) and expects {"status","checks","must_fix"}.
-    return json.dumps({
-        "status": "PASS" if not issues else "HARD_FAIL",
-        "checks": issues,
-        "must_fix": issues,
-    }, ensure_ascii=False)
+    return json.dumps(
+        {
+            "status": "PASS" if not issues else "HARD_FAIL",
+            "checks": issues,
+            "must_fix": issues,
+        },
+        ensure_ascii=False,
+    )
 ```
 
 Then integrate in `src/shenbi/gates/g4/generic.py:237`. The existing routing sends `shenbi-chapter-revision` to `g4_decisions` only. Replace it with a composite checker so BOTH the JSON syntax/schema check AND the revision-content check run:
@@ -795,6 +843,7 @@ The fallback must conform to DecisionsDoc (extra="forbid"): $schema, skill,
 chapter, selections, adjustments, produced_at. It must NOT use route/changes/
 rationale keys.
 """
+
 import json
 import tempfile
 from pathlib import Path
@@ -824,7 +873,8 @@ def test_fallback_generates_decisionsdoc_compliant_file_when_missing():
         assert isinstance(data["selections"], list)
         assert any(
             "no_revision" in str(s.get("target", "")).lower()
-            for s in data["selections"] if isinstance(s, dict)
+            for s in data["selections"]
+            if isinstance(s, dict)
         )
         # Must NOT contain forbidden keys
         assert "route" not in data
@@ -845,8 +895,12 @@ def test_fallback_does_not_overwrite_existing():
             "chapter": 5,
             "selections": [],
             "adjustments": [
-                {"issue_id": "x", "severity": "high",
-                 "handling": "explicit_callout", "rationale": "Fix the dialogue pacing in scene."}
+                {
+                    "issue_id": "x",
+                    "severity": "high",
+                    "handling": "explicit_callout",
+                    "rationale": "Fix the dialogue pacing in scene.",
+                }
             ],
             "produced_at": "2026-07-19T00:00:00+00:00",
         }
@@ -863,6 +917,7 @@ def test_fallback_does_not_overwrite_existing():
 def test_fallback_only_creates_when_revision_was_routed():
     """Fallback only creates when revision routing was recorded in state."""
     from shenbi.pipeline.chapter_loop import _is_revision_routed
+
     assert _is_revision_routed(route="no_revision") is True
     assert _is_revision_routed(route="spot_fix") is True
     assert _is_revision_routed(route=None) is False
@@ -887,7 +942,10 @@ def _is_revision_routed(route: str | None) -> bool:
 
 
 def _ensure_revision_decisions_exists(
-    project_dir: Path, chapter: int, state=None, log=None,
+    project_dir: Path,
+    chapter: int,
+    state=None,
+    log=None,
 ) -> None:
     """Write a minimal revision decisions file if one does not exist.
 
@@ -970,6 +1028,7 @@ git commit -m "feat: ensure every revision route writes a DecisionsDoc-compliant
 
 ```python
 """Tests for enriched G4 retry feedback."""
+
 from shenbi.pipeline.chapter_loop import _enrich_g4_feedback
 
 
@@ -1037,7 +1096,7 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
         "评分明细表格式：\n"
         "| 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |\n"
         "|------|------|------|--------|------|----------|\n"
-        "| 情感落地 | 25 | 30 | 高 | chapter-N.md L45-52 > \"...\" | ... |\n"
+        '| 情感落地 | 25 | 30 | 高 | chapter-N.md L45-52 > "..." | ... |\n'
         "注意：六列必须完整，不可缺列。"
     ),
     "G4.rr.verdict": (
@@ -1047,7 +1106,7 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
     ),
     "G4.rr.evidence": (
         "证据列每行必须包含文件和行号引用，格式：\n"
-        "chapter-N.md L45-52 > \"引用原文\"\n"
+        'chapter-N.md L45-52 > "引用原文"\n'
         "至少一行包含 Lnn 或 line nn 格式的行号引用。"
     ),
 }
@@ -1192,8 +1251,8 @@ _EXISTING_VERDICT_RE = _re.compile(r"判定\s*[:：]\s*(\S+)")
 #   1. **判定**: 通过  (markdown bold wrapping breaks the 判定 prefix match)
 #   2. Verdict: <token>  (English verdict prefix)
 _GAP_VERDICT_PATTERNS = [
-    _re.compile(r"\*\*判定\*\*\s*[:：]\s*(\S+)"),   # markdown bold
-    _re.compile(r"Verdict\s*[:：]\s*(\S+)"),        # English prefix
+    _re.compile(r"\*\*判定\*\*\s*[:：]\s*(\S+)"),  # markdown bold
+    _re.compile(r"Verdict\s*[:：]\s*(\S+)"),  # English prefix
 ]
 
 

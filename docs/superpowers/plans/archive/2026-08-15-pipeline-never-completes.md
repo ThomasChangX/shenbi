@@ -77,6 +77,7 @@ MIRROR_MAP: dict[str, str] = {
 
 fixture 是生产 volume_map.md 的精确副本（G0.9 真实产物，G0.11 MIRROR_MAP 镜像）。
 """
+
 import shutil
 from pathlib import Path
 
@@ -144,9 +145,7 @@ Expected: FAIL — 模块级 ImportError 使 4 个测试整批失败（`_read_cn
 # volume-level range line `**章节范围**: 第A章 - 第M章（共K章）`. KR-level lines
 # are list-dash-prefixed (`- **章节范围**`) and excluded by the line-start anchor;
 # the `| 段 | 章节范围 |` tension-table column never matches the bolded pattern.
-_CN_VOL_HEAD_RE = re.compile(
-    r"^##\s*第[0-9一二三四五六七八九十百]+卷\s*[：:]", re.MULTILINE
-)
+_CN_VOL_HEAD_RE = re.compile(r"^##\s*第[0-9一二三四五六七八九十百]+卷\s*[：:]", re.MULTILINE)
 _CN_VOL_RANGE_LINE_RE = re.compile(
     r"^\*\*章节范围\*\*.*?第\s*(\d+)\s*章\s*[-–—~～]\s*第\s*(\d+)\s*章",
     re.MULTILINE,
@@ -158,7 +157,7 @@ def _read_cn_volume_boundaries(text: str) -> set[int]:
     line-start `**章节范围**` range line counts (its end chapter M)."""
     boundaries: set[int] = set()
     for m in _CN_VOL_HEAD_RE.finditer(text):
-        section = text[m.end():]
+        section = text[m.end() :]
         nxt = _CN_VOL_HEAD_RE.search(section)
         if nxt:
             section = section[: nxt.start()]
@@ -215,6 +214,7 @@ git commit -m "fix: parse Chinese volume-map boundaries volume-scoped (F324) —
 
 mid-book heal 验收（spec R2-ii）：56 章 total=None 项目在守卫前 heal。
 """
+
 import json
 import shutil
 from pathlib import Path
@@ -285,6 +285,7 @@ Expected: FAIL — ImportError（`update_total_chapters`/`genesis_finalize_volum
 ```python
 # _shared.py 追加（imports 加 json；docstring 改「stdlib + safe_write leaf module」）：
 
+
 def update_total_chapters(project_dir: Path) -> int:
     """Recompute novel.json.total_chapters := max(read_volume_boundaries()).
 
@@ -322,6 +323,7 @@ def update_total_chapters(project_dir: Path) -> int:
 ```python
 # genesis.py 模块级新增（imports 区之后）：
 
+
 def genesis_finalize_volume_map(project_dir: Path) -> int:
     """Deterministic total_chapters固化 hook (spec #6 R2): runs at genesis
     step-6 success — no LLM involvement, no later step rewrites volume_map."""
@@ -350,6 +352,7 @@ def genesis_finalize_volume_map(project_dir: Path) -> int:
 ```python
 # cli.py _update_total_chapters(:147) 函数体收敛为委托（签名/返回不变）：
 
+
 def _update_total_chapters(project_dir: Path) -> int:
     """Delegate to _shared.update_total_chapters (single source, spec #6 R2)."""
     from shenbi.pipeline._shared import update_total_chapters
@@ -361,6 +364,7 @@ def _update_total_chapters(project_dir: Path) -> int:
 # triggers.py :376-395 _update_total_chapters(state) 收敛为委托；删除
 # _count_total_chapters(:363-373)（先 grep：`grep -rn "_count_total_chapters" src/ tests/`
 # 确认零其他调用方，有则一并改委托）：
+
 
 def _update_total_chapters(state: PipelineState) -> None:
     """Delegate to _shared.update_total_chapters (single source, spec #6 R2)."""
@@ -403,6 +407,7 @@ def test_heal_wired_in_orchestrate(monkeypatch, tmp_path):
 
     class _Noop:
         book_closure = False
+
         def any_triggered(self):
             return False
 
@@ -459,6 +464,7 @@ git commit -m "fix: unify total_chapters to max(boundaries) with genesis hook + 
 ```python
 # tests/pipeline/test_path_context.py
 """R4a: per-family N 占位语义表 + [path-context] 行（F245/F373 处置面）。"""
+
 import pytest
 
 from shenbi.contracts.paths import (
@@ -480,19 +486,28 @@ def test_arc_family_uses_arc_not_chapter():
 
 def test_stratum_and_volume_families():
     ctx = build_trigger_context(55, {15, 35, 55, 75, 100})
-    assert resolve_contract_path("audits/stratum-N-score.md", 55, ctx) == "audits/stratum-1-score.md"  # 55//36
-    assert resolve_contract_path("audits/volume-N-score.md", 55, ctx) == "audits/volume-3-score.md"  # count(≤55)
+    assert (
+        resolve_contract_path("audits/stratum-N-score.md", 55, ctx) == "audits/stratum-1-score.md"
+    )  # 55//36
+    assert (
+        resolve_contract_path("audits/volume-N-score.md", 55, ctx) == "audits/volume-3-score.md"
+    )  # count(≤55)
 
 
 def test_volume_count_is_not_len_boundaries():
     """mid-book 不等价 len(boundaries)（只在 ch100 相等）。"""
     ctx = build_trigger_context(56, {15, 35, 55, 75, 100})
-    assert resolve_contract_path("audits/volume-N-payoff.md", 56, ctx) == "audits/volume-3-payoff.md"
+    assert (
+        resolve_contract_path("audits/volume-N-payoff.md", 56, ctx) == "audits/volume-3-payoff.md"
+    )
 
 
 def test_chapter_family_and_bare_n_fallback():
     ctx = PathContext(chapter=100)
-    assert resolve_contract_path("audits/chapter-N-long-span.md", 100, ctx) == "audits/chapter-100-long-span.md"
+    assert (
+        resolve_contract_path("audits/chapter-N-long-span.md", 100, ctx)
+        == "audits/chapter-100-long-span.md"
+    )
     assert resolve_contract_path("snapshots/chapter-NNN/", 100, ctx) == "snapshots/chapter-100/"
 
 
@@ -521,7 +536,10 @@ def test_parse_absent_returns_none():
 def test_str_sentinels():
     """F3B5/F380：escalation 书级哨兵、anchor 零填充。"""
     ctx = PathContext(escalation="genesis")
-    assert resolve_contract_path("audits/escalation-N-report.md", None, ctx) == "audits/escalation-genesis-report.md"
+    assert (
+        resolve_contract_path("audits/escalation-N-report.md", None, ctx)
+        == "audits/escalation-genesis-report.md"
+    )
     ctx2 = PathContext(anchor=1)
     assert resolve_contract_path("truth/anchors/AC-NNN.md", None, ctx2) == "truth/anchors/AC-001.md"
 ```
@@ -569,7 +587,7 @@ def parse_path_context(prompt: str) -> PathContext | None:
         if not s.startswith(PATH_CONTEXT_PREFIX):
             continue
         kv: dict[str, int | str] = {}
-        for tok in s[len(PATH_CONTEXT_PREFIX):].split():
+        for tok in s[len(PATH_CONTEXT_PREFIX) :].split():
             if "=" in tok:
                 k, v = tok.split("=", 1)
                 if k in _CTX_KEYS:
@@ -609,7 +627,9 @@ def resolve_contract_path(path: str, chapter: int | None, ctx: PathContext | Non
     return resolve_chapter_path(path, chapter)
 
 
-def resolve_or_skip_ctx(path: str, chapter: int | None, ctx: PathContext | None = None) -> str | None:
+def resolve_or_skip_ctx(
+    path: str, chapter: int | None, ctx: PathContext | None = None
+) -> str | None:
     try:
         return resolve_contract_path(path, chapter, ctx)
     except UnresolvedPathError:
@@ -656,6 +676,7 @@ git commit -m "fix: per-family N-placeholder resolution table + [path-context] c
 monkeypatch 捕获 dispatch prompt 与 G4 files——接线单测（非 skill 场景，
 G0.9 不适用；fixtures 指真实 skill 产物输入）。
 """
+
 import shutil
 from pathlib import Path
 
@@ -735,10 +756,10 @@ def test_trigger_flow_prompt_lists_arc5_paths(tmp_path, monkeypatch):
 
     proj = _mk_project(tmp_path)
     ctx = build_trigger_context(60, read_volume_boundaries(proj))
-    prompt = f"Execute shenbi-score-arc for chapter 60. Project dir: {proj}\n{format_path_context(ctx)}"
-    system, user, outs = _build_skill_prompt(
-        "shenbi-score-arc", proj, prompt, 60, path_context=ctx
+    prompt = (
+        f"Execute shenbi-score-arc for chapter 60. Project dir: {proj}\n{format_path_context(ctx)}"
     )
+    system, user, outs = _build_skill_prompt("shenbi-score-arc", proj, prompt, 60, path_context=ctx)
     assert "audits/arc-5-score.md" in outs
     assert "arc-60" not in user
     assert "truth/arcs/arc-5.md" in user  # 读路径同样经 ctx（I5）
@@ -910,6 +931,7 @@ ls tests/fixtures/snapshot-dir | wc -l   # == 2（测试只用 [:2]/[0]，不搬
 ```python
 # tests/pipeline/test_g4_directory.py
 """R3: G4 目录参数化校验（F371）——snapshot 类查 manifest，characters/ 不查。"""
+
 import json
 import shutil
 from pathlib import Path
@@ -942,7 +964,9 @@ def test_snapshot_dir_without_manifest_fails(tmp_path):
     shutil.copy(sorted(_SNAP_FIXTURE.glob("*.md"))[0], d / "snap.md")
     r = _result(g4_generic_generative([str(d)]))
     assert r["status"] == "FAIL"
-    assert any("manifest_missing" in m for m in r["must_fix"])  # fail() 实际键（gates/shared.py:125-135）
+    assert any(
+        "manifest_missing" in m for m in r["must_fix"]
+    )  # fail() 实际键（gates/shared.py:125-135）
 
 
 def test_characters_dir_no_manifest_required(tmp_path):
@@ -1022,6 +1046,7 @@ Expected: FAIL — 目录走 `read_text` → `read_error`；`_closure_snapshot_d
 # closure.py 新增 helper + _resolve_closure_g4_path 接入（模块头部 import
 # PathContext from shenbi.contracts.paths）：
 
+
 def _closure_snapshot_dir(project_dir: Path) -> str:
     """Final-chapter snapshot dir, NNN resolved from novel.json total (spec #6 R3)."""
     from shenbi.contracts.paths import PathContext, resolve_contract_path
@@ -1099,6 +1124,7 @@ git commit -m "fix: parameterized G4 directory checker + contract-aligned closur
 ```python
 # tests/pipeline/test_closure_context.py
 """R5: closure per-step 显式上下文（F379/F313）+ genesis 哨兵（F3B5/F380）。"""
+
 import json
 import shutil
 from pathlib import Path
@@ -1120,7 +1146,9 @@ def _mk_project(tmp_path: Path) -> Path:
 def test_closure_step_contexts(tmp_path):
     proj = _mk_project(tmp_path)
     by_num = {s.step_num: s for s in CLOSURE_STEPS}
-    assert _closure_step_context(by_num[2], proj) == PathContext(chapter=100, arc=8)  # 100//12，覆写为预期
+    assert _closure_step_context(by_num[2], proj) == PathContext(
+        chapter=100, arc=8
+    )  # 100//12，覆写为预期
     assert _closure_step_context(by_num[4], proj) == PathContext(chapter=100, volume=5)
     assert _closure_step_context(by_num[5], proj) == PathContext(chapter=100, volume=5)
     assert _closure_step_context(by_num[6], proj) == PathContext(chapter=100)  # F313：章号非卷号
@@ -1141,7 +1169,9 @@ def test_closure_prompt_build_all_steps(tmp_path):
     proj = _mk_project(tmp_path)
     for step in CLOSURE_STEPS:
         ctx = _closure_step_context(step, proj)
-        prompt = f"Execute {step.skill} for book closure (step {step.step_num}). Project dir: {proj}"
+        prompt = (
+            f"Execute {step.skill} for book closure (step {step.step_num}). Project dir: {proj}"
+        )
         system, user, outs = _build_skill_prompt(
             step.skill, proj, prompt, ctx.chapter if ctx else None, path_context=ctx
         )
@@ -1154,7 +1184,9 @@ def test_escalation_genesis_sentinel(tmp_path):
     from shenbi.contracts.paths import resolve_contract_path
 
     assert (
-        resolve_contract_path("audits/escalation-N-report.md", None, PathContext(escalation="genesis"))
+        resolve_contract_path(
+            "audits/escalation-N-report.md", None, PathContext(escalation="genesis")
+        )
         == "audits/escalation-genesis-report.md"
     )
 
@@ -1181,6 +1213,7 @@ Expected: FAIL — `_closure_step_context` 不存在；step 2/4/5/6/10 prompt-bu
 ```python
 # dispatch_helper.py dispatch_skill（:1791）签名追加 + 行注入：
 
+
 def dispatch_skill(
     skill: str,
     project_dir: Path | str,
@@ -1206,6 +1239,7 @@ def dispatch_skill(
 
 ```python
 # closure.py per-step ctx builder + 派发接入：
+
 
 def _closure_step_context(step: ClosureStep, project_dir: Path) -> PathContext | None:
     """Per-step closure context (spec #6 R5): 2→final arc, 4/5→volume,
@@ -1240,6 +1274,7 @@ def _closure_step_context(step: ClosureStep, project_dir: Path) -> PathContext |
 ```python
 # revision_router.py dispatch_escalation（:143）—— chapter=None 时注入哨兵：
 
+
 def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: str = "") -> bool:
     ...
     path_ctx = None
@@ -1254,6 +1289,7 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
 ```python
 # 接线级测试（追加到 tests/pipeline/test_closure_context.py）：
 
+
 def test_escalation_genesis_wiring(tmp_path, monkeypatch):
     """F3B5 接线：chapter=None 的 escalation 派发传 genesis 哨兵 ctx（行注入在
     dispatch_skill 入口——mock 断言 kwarg 侧，非 prompt 侧）。"""
@@ -1261,9 +1297,11 @@ def test_escalation_genesis_wiring(tmp_path, monkeypatch):
     from shenbi.pipeline import revision_router as rr
 
     captured = {}
+
     def fake(skill, pd, prompt, **kw):
         captured.update(kw)
         return type("R", (), {"success": True})()
+
     monkeypatch.setattr(rr, "dispatch_skill", fake)
     assert rr.dispatch_escalation(tmp_path, None, "ctx") is True
     assert captured.get("path_context") == PathContext(escalation="genesis")
@@ -1276,15 +1314,21 @@ def test_anchor_curate_wiring(tmp_path, monkeypatch):
     from shenbi.pipeline.state import PipelineState
 
     captured: list[tuple[str, dict]] = []
+
     def fake(skill, pd, prompt, **kw):
         captured.append((skill, kw))
         return type("R", (), {"success": True})()
+
     monkeypatch.setattr(gs, "dispatch_skill", fake)
     monkeypatch.setattr(gs, "run_gate_g4", lambda *a, **k: {"status": "PASS"})
-    monkeypatch.setattr(gs, "_update_indexes", lambda *a, **k: None)  # anchor-curate 在 _INDEX_UPDATE_SKILLS（genesis.py:103）
+    monkeypatch.setattr(
+        gs, "_update_indexes", lambda *a, **k: None
+    )  # anchor-curate 在 _INDEX_UPDATE_SKILLS（genesis.py:103）
 
     state = PipelineState.default(str(tmp_path))
-    state.genesis.current_step = 15  # 0 基游标：GENESIS_STEPS[15] = step 16 anchor-curate（genesis.py:77-79, :279-283）
+    state.genesis.current_step = (
+        15  # 0 基游标：GENESIS_STEPS[15] = step 16 anchor-curate（genesis.py:77-79, :279-283）
+    )
     gs.run_genesis_step(state, tmp_path)
     anchor_calls = [kw for skill, kw in captured if skill == "shenbi-anchor-curate"]
     assert anchor_calls and anchor_calls[0].get("path_context") == PathContext(anchor=1)
@@ -1294,7 +1338,9 @@ def test_anchor_curate_wiring(tmp_path, monkeypatch):
     state2.genesis.current_step = 14  # 相邻非 anchor 步（step 15）
     gs.run_genesis_step(state2, tmp_path)
     non_anchor = [kw for skill, kw in captured if skill != "shenbi-anchor-curate"]
-    assert non_anchor and all(kw.get("path_context") is None for kw in non_anchor)  # 条件注入，非全局拼接
+    assert non_anchor and all(
+        kw.get("path_context") is None for kw in non_anchor
+    )  # 条件注入，非全局拼接
 ```
 
 （anchor 测试的驱动入口以 genesis.py step 16 派发结构为准——若为内联 dispatch 则提取 `_dispatch_genesis_step(step, project_dir)` 后测；**注入必须条件化于 anchor-curate 步骤**，不得全局拼进每个 genesis prompt。）
@@ -1344,6 +1390,7 @@ git commit -m "fix: explicit per-step closure path context + genesis sentinels (
 ```python
 # tests/pipeline/test_cn_extract.py
 """R6: 中文节点/桥接/卷上下文（spec #6 修复方向 6）——真实 fixture 驱动。"""
+
 from pathlib import Path
 
 from shenbi.pipeline._shared import (
@@ -1369,8 +1416,8 @@ def test_bridges_aggregate_all_five_sections():
     """验收：聚合全部 5 个 跨卷桥接 段（非只第一卷）。"""
     bridges = read_bridges(TEXT)
     activations = {b.activation for b in bridges if b.activation}
-    assert 36 in activations   # vol-2 表
-    assert 26 in activations   # vol-1 表
+    assert 36 in activations  # vol-2 表
+    assert 26 in activations  # vol-1 表
 
 
 def test_vol1_bridge_surfaces_at_26_vol2_at_36_not_30():
@@ -1379,11 +1426,13 @@ def test_vol1_bridge_surfaces_at_26_vol2_at_36_not_30():
     at30 = bridges_for_chapter(b, 30)
     at36 = bridges_for_chapter(b, 36)
     at40 = bridges_for_chapter(b, 40)
-    assert any("梵天铭文" in s for s in at26)      # vol-1 行（激活 26-28 → min 26，紧凑区间）
+    assert any("梵天铭文" in s for s in at26)  # vol-1 行（激活 26-28 → min 26，紧凑区间）
     # vol-2 段真实行（volume_map.md:165-168）：操纵战争的铁证（激活36）/科恩·怀特曼（37）/札记（46-48）/反攻反击（36-38）
-    assert not any("操纵战争的铁证" in s or "科恩·怀特曼" in s for s in at30)  # @30 不出现（30 < 36-3）
-    assert any("操纵战争的铁证" in s for s in at36)   # @36 出现
-    assert any("科恩·怀特曼" in s for s in at40)      # @40 出现（40 ≥ 37-3）
+    assert not any(
+        "操纵战争的铁证" in s or "科恩·怀特曼" in s for s in at30
+    )  # @30 不出现（30 < 36-3）
+    assert any("操纵战争的铁证" in s for s in at36)  # @36 出现
+    assert any("科恩·怀特曼" in s for s in at40)  # @40 出现（40 ≥ 37-3）
 
 
 def test_sequel_rows_excluded():
@@ -1519,11 +1568,14 @@ def bridges_for_chapter(
 # _shared.py 辅助（read_volume_boundaries 需把 text 传出——重构为内部 _read_text 后共用，
 # 或 _volume_display_name 重新读文件；取重读，保持签名稳定）：
 
+
 def _volume_display_name(text: str, index: int) -> str | None:
     heads = list(_CN_VOL_HEAD_RE.finditer(text))
     if 0 < index <= len(heads):
         line_end = text.find("\n", heads[index - 1].start())
-        raw = text[heads[index - 1].start() : line_end].lstrip("#").strip()  # 不假设 "## " 精确 3 字符
+        raw = (
+            text[heads[index - 1].start() : line_end].lstrip("#").strip()
+        )  # 不假设 "## " 精确 3 字符
         # `（第A-B章）` 后缀是生产巧合非卷名——剥掉（plan 审查 I8）
         return re.sub(r"[（(][^）)]*[）)]\s*$", "", raw).strip()
     return None
@@ -1582,6 +1634,7 @@ git commit -m "fix: shared Chinese node/bridge/volume-context extraction, three 
 ```python
 # tests/pipeline/test_review_reject.py
 """F340/F341/F304: REJECT 重做语义 + 并行 staging 提交 + 预算耗尽 checkpoint。"""
+
 import pytest
 
 from shenbi.exceptions import RetryExhaustedError
@@ -1728,6 +1781,7 @@ DERIVED_TRUTH_MAP: dict[str, list[tuple[str, str]]] = {
 
 # cli.py 新增模块级（cmd_review 前）：
 
+
 def _reset_retry_budget(state: PipelineState, cp) -> None:
     """REJECT-redo: reset the producing step's retry counters (F340) —
     otherwise ESCALATION redo re-exhausts immediately."""
@@ -1798,7 +1852,9 @@ def test_cmd_review_reject_wired(tmp_path, monkeypatch):
     set_checkpoint(state, CheckpointType.GENESIS_COMPLETE)
 
     saved = {}
-    monkeypatch.setattr(cli_mod, "save_state", lambda pd, st: saved.setdefault("step", st.genesis.current_step))
+    monkeypatch.setattr(
+        cli_mod, "save_state", lambda pd, st: saved.setdefault("step", st.genesis.current_step)
+    )
     monkeypatch.setattr(cli_mod, "emit_json", lambda payload: None)
     monkeypatch.setattr(cli_mod, "load_state", lambda pd: state)
     # args/argparse 以 cmd_review 实际入口驱动（decision="reject"）；断言：
@@ -1833,6 +1889,7 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
 
 ```python
 # chapter_loop.py 并行分支（2690-2715）—— set_checkpoint 前插全守卫体（提取函数）：
+
 
 def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int) -> bool:
     """--auto parallel post-draft settling (F341): mirror the serial branch's

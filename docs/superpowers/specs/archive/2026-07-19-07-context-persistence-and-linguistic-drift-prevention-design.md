@@ -188,8 +188,11 @@ def _audit_context_coverage(project_dir: Path, state: PipelineState) -> dict:
             missing.append(ch)
 
     if missing:
-        logger.warning("context_coverage_gap", missing_chapters=missing,
-                       gap_ratio=f"{len(missing)}/{state.chapter_loop.current_chapter - 1}")
+        logger.warning(
+            "context_coverage_gap",
+            missing_chapters=missing,
+            gap_ratio=f"{len(missing)}/{state.chapter_loop.current_chapter - 1}",
+        )
 
     return {"missing": missing, "total": state.chapter_loop.current_chapter - 1}
 ```
@@ -218,8 +221,8 @@ from difflib import SequenceMatcher
 
 # System terms that indicate parametric/prose degradation
 SYSTEM_TERMS = re.compile(
-    r'(参数|系统|格式串|历法|槽位|帧序列|阈值|在场于|'
-    r'知道.{0,10}在|Phase\s+\d|MH-\d+|P[012]\.\d+)'
+    r"(参数|系统|格式串|历法|槽位|帧序列|阈值|在场于|"
+    r"知道.{0,10}在|Phase\s+\d|MH-\d+|P[012]\.\d+)"
 )
 
 # **Important:** `SYSTEM_TERMS` and the `pattern_density` fingerprints
@@ -232,6 +235,7 @@ SYSTEM_TERMS = re.compile(
 # frequency diverges >3σ from baseline. This catches novel-specific
 # degradation patterns without hardcoding.
 
+
 def compute_linguistic_metrics(chapter_text: str) -> dict:
     """Compute linguistic metrics for a chapter's prose text.
 
@@ -241,21 +245,17 @@ def compute_linguistic_metrics(chapter_text: str) -> dict:
 
     metrics = {
         # 1. System term density -- parametric language indicator
-        'system_term_density': len(SYSTEM_TERMS.findall(chapter_text)) / text_len * 1000,
-
+        "system_term_density": len(SYSTEM_TERMS.findall(chapter_text)) / text_len * 1000,
         # 2. Em-dash density -- enumeration separator in degraded prose
-        'em_dash_density': chapter_text.count('——') / text_len * 1000,
-
+        "em_dash_density": chapter_text.count("——") / text_len * 1000,
         # 3. Short-sentence chain density -- consecutive <=15 char sentences
-        'short_sentence_chain_density': _short_chain_chars(chapter_text) / text_len * 1000,
-
+        "short_sentence_chain_density": _short_chain_chars(chapter_text) / text_len * 1000,
         # 4. Pattern density -- "冷在"/"冷知道"句式 fingerprint of degradation
-        'pattern_density': (
-            chapter_text.count('冷在') + chapter_text.count('冷知道')
-        ) / text_len * 1000,
-
+        "pattern_density": (chapter_text.count("冷在") + chapter_text.count("冷知道"))
+        / text_len
+        * 1000,
         # 5. Dialogue density -- quotation mark frequency, proxy for natural conversation
-        'dialogue_density': chapter_text.count('"') / text_len * 1000,
+        "dialogue_density": chapter_text.count('"') / text_len * 1000,
     }
 
     return metrics
@@ -263,7 +263,7 @@ def compute_linguistic_metrics(chapter_text: str) -> dict:
 
 def _short_chain_chars(text: str) -> int:
     """Count characters in chains of 5+ consecutive short sentences (<=15 chars)."""
-    short_sents = re.findall(r'(?:[^。]{1,15}。){5,}', text)
+    short_sents = re.findall(r"(?:[^。]{1,15}。){5,}", text)
     return sum(len(s) for s in short_sents)
 
 
@@ -282,9 +282,9 @@ def compute_linguistic_drift(chapter_text: str, baseline: dict) -> dict:
     max_deviation = max(deviations.values()) if deviations else 0.0
 
     return {
-        'metrics': metrics,
-        'deviations': deviations,
-        'max_deviation': max_deviation,
+        "metrics": metrics,
+        "deviations": deviations,
+        "max_deviation": max_deviation,
     }
 ```
 
@@ -306,10 +306,10 @@ def check_linguistic_drift_trigger(chapter_text: str, baseline_metrics: dict) ->
     """
     result = compute_linguistic_drift(chapter_text, baseline_metrics)
 
-    if result['max_deviation'] <= 5.0:  # 500% threshold
+    if result["max_deviation"] <= 5.0:  # 500% threshold
         return False, "normal"
 
-    density = result['metrics']['system_term_density']
+    density = result["metrics"]["system_term_density"]
 
     if density > 100:
         return True, "ESCALATE"
@@ -383,8 +383,9 @@ def establish_linguistic_baseline(project_dir: Path, state: PipelineState) -> di
 **Location:** `linguistic_drift.py` (new function), triggered before chapter planning
 
 ```python
-def check_opening_similarity(prev_chapter_text: str, current_chapter_text: str,
-                              threshold: float = 0.6, chars: int = 300) -> str | None:
+def check_opening_similarity(
+    prev_chapter_text: str, current_chapter_text: str, threshold: float = 0.6, chars: int = 300
+) -> str | None:
     """Check if chapter openings are too similar.
 
     Returns warning string if similarity exceeds threshold, None otherwise.
@@ -407,8 +408,9 @@ def check_opening_similarity(prev_chapter_text: str, current_chapter_text: str,
 **Location:** `linguistic_drift.py` (new function), integrated into drift detection pipeline
 
 ```python
-def check_window_redundancy(chapter_texts: list[str], window_size: int = 4,
-                             threshold: float = 0.35) -> str | None:
+def check_window_redundancy(
+    chapter_texts: list[str], window_size: int = 4, threshold: float = 0.35
+) -> str | None:
     """Detect content looping within a sliding window of chapters.
 
     Returns warning string if max pairwise similarity in window exceeds threshold.

@@ -51,8 +51,7 @@ def test_document_attr_escaped(tmp_path):
     )
 
     assert (
-        '<document name="source_canon/x&quot; onload=&quot;1.md&lt;document&gt;">'
-        in user_prompt
+        '<document name="source_canon/x&quot; onload=&quot;1.md&lt;document&gt;">' in user_prompt
     ), "attribute value must be entity-escaped"
     assert '<document name="source_canon/a&amp;b.md">' in user_prompt
     assert 'name="source_canon/x" onload' not in user_prompt
@@ -74,10 +73,7 @@ def _escape_attr(value: str) -> str:
     """T12-01: escape a filename for use inside a double-quoted XML-ish
     attribute value. '&' first so entity output is not double-escaped."""
     return (
-        value.replace("&", "&amp;")
-        .replace('"', "&quot;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
+        value.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
     )
 ```
 
@@ -117,8 +113,10 @@ def test_wildcard_write_rejects_quote_filename(tmp_path: Path) -> None:
     parsed = {'import/canon/x" auto="1.md': "evil"}
     with pytest.raises(DispatchWriteFailureError):
         _write_parsed_outputs(
-            response="", output_paths=["import/canon/*.md"],
-            project_dir=tmp_path, parsed=parsed,
+            response="",
+            output_paths=["import/canon/*.md"],
+            project_dir=tmp_path,
+            parsed=parsed,
         )
     # FAIL 不落盘、无 mkdir 残留
     assert not (tmp_path / "import").exists()
@@ -127,8 +125,10 @@ def test_wildcard_write_rejects_quote_filename(tmp_path: Path) -> None:
 def test_wildcard_write_accepts_normal_filename(tmp_path: Path) -> None:
     parsed = {"import/canon/alice.md": "ok"}
     written = _write_parsed_outputs(
-        response="", output_paths=["import/canon/*.md"],
-        project_dir=tmp_path, parsed=parsed,
+        response="",
+        output_paths=["import/canon/*.md"],
+        project_dir=tmp_path,
+        parsed=parsed,
     )
     assert written == ["import/canon/alice.md"]
     assert (tmp_path / "import/canon/alice.md").read_text(encoding="utf-8") == "ok"
@@ -146,13 +146,13 @@ Expected: rejects_quote FAIL（当前 `[^/]*` 放行并落盘）；accepts_norma
 wildcard 循环（`for rel_path, content in parsed.items():` 内、`skip` 检查后、`_resolve_all_wildcards` 调用前）插入：
 
 ```python
-        if FORBIDDEN_FILENAME_RE.search(rel_path):
-            log.error("wildcard_filename_rejected", path=rel_path, skill=skill)
-            raise DispatchWriteFailureError(
-                f"wildcard write rejected: filename contains forbidden "
-                f"characters (\" < > control): {rel_path!r}",
-                signature="forbidden_filename",
-            )
+if FORBIDDEN_FILENAME_RE.search(rel_path):
+    log.error("wildcard_filename_rejected", path=rel_path, skill=skill)
+    raise DispatchWriteFailureError(
+        f"wildcard write rejected: filename contains forbidden "
+        f'characters (" < > control): {rel_path!r}',
+        signature="forbidden_filename",
+    )
 ```
 
 模块级加 `FORBIDDEN_FILENAME_RE = re.compile(r'["<>[\x00-\x1f\\]')`。
@@ -181,6 +181,7 @@ Expected: 全 PASS
 """T12-03 (round-exec.sh half, spec #22 R2): malicious directory names must
 fail loudly, never execute shell/python payloads. Pre-populated
 summary.json/meta.json keep --validate from failing early (vacuity guard)."""
+
 import json
 import subprocess
 from pathlib import Path
@@ -204,7 +205,7 @@ REACHABLE = [f"x') and __import__('os').system('{PWN}') and ('1"]
 # pre-fix 按设计即通过（payload 不可达），post-fix 亦通过，仅作回归锚
 DEFENSE_IN_DEPTH = [
     "x') or __import__('os').system('id') and ('",
-    'x"d',          # spec 样本保真：双引号（单引号 python 字面量内为惰性）
+    'x"d',  # spec 样本保真：双引号（单引号 python 字面量内为惰性）
     "x$(touch y)",
     "x`touch z`",
 ]
@@ -224,7 +225,9 @@ def test_validate_rejects_malicious_dirname(tmp_path: Path, name: str) -> None:
 
     proc = subprocess.run(
         ["bash", str(REPO_ROOT / "tests" / "round-exec.sh"), "--validate", str(round_dir)],
-        capture_output=True, text=True, timeout=30,
+        capture_output=True,
+        text=True,
+        timeout=30,
     )
     # 防空洞：subprocess 不设 cwd（repo root 下跑），payload 经 $PWD 展开
     # 到 repo root；退出非零来自 --validate 真实检查（目录空），
@@ -312,6 +315,7 @@ create 模式（progress.json/.token-hashes.json argv 化改动）无 CI 覆盖�
 ```python
 """T12-06 (spec #22 R3): skill-name lexical validation at all three join
 points + generate.py output containment."""
+
 from pathlib import Path
 
 import pytest
@@ -343,8 +347,11 @@ def test_all_repo_skills_pass() -> None:
 def test_generate_output_containment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     import shenbi.plugins.generate as gen
 
-    master = {"platforms": {"evil": {"format": "codex-cli", "output": "../../etc/pwned.json",
-                                     "skills": []}}}
+    master = {
+        "platforms": {
+            "evil": {"format": "codex-cli", "output": "../../etc/pwned.json", "skills": []}
+        }
+    }
     monkeypatch.setattr(gen, "load_master", lambda: master)
     with pytest.raises(ValueError):
         gen.generate_all()
@@ -382,29 +389,34 @@ def _skill_path(skill: str) -> Path:
 
 `dispatch_helper.py:599` 前加：
 ```python
-    from shenbi.contracts.legacy import validate_skill_name
-    validate_skill_name(skill)
+from shenbi.contracts.legacy import validate_skill_name
+
+validate_skill_name(skill)
 ```
 （若循环依赖：`grep -n "from shenbi.contracts" src/shenbi/pipeline/dispatch_helper.py` 已有 contracts import 则同路追加；否则把校验逻辑下沉 shared 模块——但 legacy.py 不 import pipeline，方向安全。）
 
 `phase_runner.py` `cmd_pre_skill` 内 :150 前：
 ```python
-    try:
-        validate_skill_name(skill)  # import 放文件顶部，与现有 contracts import 合并
-    except ContractError:
-        emit_json({"status": CommandStatus.ERROR, "phase": phase, "skill": skill,
-                   "message": f"invalid skill name: {skill!r}"})
-        sys.exit(1)
+try:
+    validate_skill_name(skill)  # import 放文件顶部，与现有 contracts import 合并
+except ContractError:
+    emit_json(
+        {
+            "status": CommandStatus.ERROR,
+            "phase": phase,
+            "skill": skill,
+            "message": f"invalid skill name: {skill!r}",
+        }
+    )
+    sys.exit(1)
 ```
 （import 放文件顶部函数外，与现有 import 风格一致。）
 
 `generate.py:67` 后：
 ```python
-        output_path = REPO_ROOT / config["output"]
-        if not output_path.resolve().is_relative_to(REPO_ROOT.resolve()):
-            raise ValueError(
-                f"platform {platform_name!r} output escapes repo root: {config['output']!r}"
-            )
+output_path = REPO_ROOT / config["output"]
+if not output_path.resolve().is_relative_to(REPO_ROOT.resolve()):
+    raise ValueError(f"platform {platform_name!r} output escapes repo root: {config['output']!r}")
 ```
 
 - [ ] **Step 4: 跑测试确认通过 + 三调用方回归**

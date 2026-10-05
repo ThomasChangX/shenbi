@@ -277,8 +277,7 @@ Phase 1 内的依赖链:
    if audit_result.blocking_found:
        while cs.audit_retry_count < state.config.max_audit_retries:
            cs.audit_retry_count += 1
-           log.info("audit_blocking_revision", chapter=chapter,
-                    retry=cs.audit_retry_count)
+           log.info("audit_blocking_revision", chapter=chapter, retry=cs.audit_retry_count)
            # Dispatch chapter-revision
            result = dispatch_skill("shenbi-chapter-revision", project_dir, prompt)
            if not result.success:
@@ -290,9 +289,14 @@ Phase 1 内的依赖链:
        if audit_result.blocking_found:
            # Max retries exhausted -> escalation (A4)
            from shenbi.pipeline.revision_router import dispatch_escalation
+
            dispatch_escalation(project_dir, chapter)
-           set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter,
-                          artifact=f"audits/escalation-{chapter}-report.md")
+           set_checkpoint(
+               state,
+               CheckpointType.ESCALATION,
+               chapter=chapter,
+               artifact=f"audits/escalation-{chapter}-report.md",
+           )
            return True  # checkpoint raised
    ```
    This approach calls `run_audit_layer` directly after revision, avoiding the

@@ -42,6 +42,7 @@
 
 ```python
 """Tests for truth_io.py — key-based upsert truth file writer (dual format)."""
+
 import tempfile
 from pathlib import Path
 
@@ -57,8 +58,9 @@ def test_replace_mode_overwrites_existing():
         target = truth_dir / "current_state.md"
         target.write_text("## Chapter 1 state\nold data")
 
-        write_truth_file(project_dir, "current_state.md",
-                         "## Chapter 2 state\nnew data", mode="replace")
+        write_truth_file(
+            project_dir, "current_state.md", "## Chapter 2 state\nnew data", mode="replace"
+        )
 
         result = target.read_text()
         assert "Chapter 2 state" in result
@@ -76,8 +78,9 @@ def test_upsert_markdown_row_appends_new_key_and_preserves_existing():
         target.write_text(existing)
 
         new = "| Ch2 | - | - | - | - | 58 | medium |"
-        write_truth_file(project_dir, "resonance_trend.md", new,
-                         mode="upsert_markdown_row", key_field="chapter")
+        write_truth_file(
+            project_dir, "resonance_trend.md", new, mode="upsert_markdown_row", key_field="chapter"
+        )
 
         result = target.read_text()
         assert "Ch1" in result
@@ -96,9 +99,13 @@ def test_upsert_markdown_row_dedups_on_key_not_substring():
 
         # New row for SAME key (Ch1) with DIFFERENT prose — substring would fail,
         # key-based upsert must replace the row in place.
-        write_truth_file(project_dir, "resonance_trend.md",
-                         "| Ch1 | - | - | - | - | 62 | high |",
-                         mode="upsert_markdown_row", key_field="chapter")
+        write_truth_file(
+            project_dir,
+            "resonance_trend.md",
+            "| Ch1 | - | - | - | - | 62 | high |",
+            mode="upsert_markdown_row",
+            key_field="chapter",
+        )
 
         result = target.read_text()
         # Exactly one Ch1 row, with the new value (62), not duplicated
@@ -114,9 +121,13 @@ def test_upsert_markdown_row_creates_file_if_missing():
         truth_dir = project_dir / "truth"
         truth_dir.mkdir(parents=True)
 
-        write_truth_file(project_dir, "resonance_trend.md",
-                         "| Ch1 | - | - | - | - | 60 | high |",
-                         mode="upsert_markdown_row", key_field="chapter")
+        write_truth_file(
+            project_dir,
+            "resonance_trend.md",
+            "| Ch1 | - | - | - | - | 60 | high |",
+            mode="upsert_markdown_row",
+            key_field="chapter",
+        )
 
         target = truth_dir / "resonance_trend.md"
         assert target.exists()
@@ -130,11 +141,17 @@ def test_upsert_markdown_row_preserves_headers_and_prose():
         truth_dir = project_dir / "truth"
         truth_dir.mkdir()
         target = truth_dir / "audit_drift.md"
-        target.write_text("---\nupdate_mode: upsert_markdown_row\n---\n\n# Audit Drift\n\n## Notes\nSome prose.\n")
+        target.write_text(
+            "---\nupdate_mode: upsert_markdown_row\n---\n\n# Audit Drift\n\n## Notes\nSome prose.\n"
+        )
 
-        write_truth_file(project_dir, "audit_drift.md",
-                         "| Ch1 | finding |",
-                         mode="upsert_markdown_row", key_field="chapter")
+        write_truth_file(
+            project_dir,
+            "audit_drift.md",
+            "| Ch1 | finding |",
+            mode="upsert_markdown_row",
+            key_field="chapter",
+        )
 
         result = target.read_text()
         assert "# Audit Drift" in result
@@ -152,10 +169,10 @@ def test_upsert_yaml_dedups_records_by_key_field():
         # Existing YAML-fronted file with one hook record
         target.write_text("---\nhooks:\n  - id: MH-001\n    state: PLANTED\n---\n\nbody\n")
 
-        new_records = [{"id": "MH-001", "state": "TRIGGERED"},
-                       {"id": "MH-002", "state": "PLANTED"}]
-        write_truth_file(project_dir, "pending_hooks.md", new_records,
-                         mode="upsert_yaml", key_field="id")
+        new_records = [{"id": "MH-001", "state": "TRIGGERED"}, {"id": "MH-002", "state": "PLANTED"}]
+        write_truth_file(
+            project_dir, "pending_hooks.md", new_records, mode="upsert_yaml", key_field="id"
+        )
 
         result = target.read_text()
         # MH-001 replaced (not duplicated), MH-002 added
@@ -173,8 +190,9 @@ def test_write_preserves_utf8_chinese_characters():
         target = truth_dir / "current_state.md"
         target.write_text("## 主角状态\n林烽在边城")
 
-        write_truth_file(project_dir, "current_state.md",
-                         "## 主角状态\n林烽离开边城", mode="replace")
+        write_truth_file(
+            project_dir, "current_state.md", "## 主角状态\n林烽离开边城", mode="replace"
+        )
 
         result = target.read_text()
         assert "林烽离开边城" in result
@@ -206,6 +224,7 @@ dedup by stable key, merge, write back).
 
 Thread safety: in-process threading.Lock keyed by path (not fcntl.flock).
 """
+
 from __future__ import annotations
 
 import re
@@ -236,7 +255,7 @@ def write_truth_file(
     filename: str,
     new_data: str | list[dict],  # str for markdown_table mode, list[dict] for yaml
     *,
-    mode: str = "replace",       # replace | upsert_yaml | upsert_markdown_row
+    mode: str = "replace",  # replace | upsert_yaml | upsert_markdown_row
     key_field: str | None = None,
 ) -> None:
     """Write to a truth file, respecting update_mode.
@@ -257,8 +276,7 @@ def write_truth_file(
     """
     if mode not in ("replace", "upsert_yaml", "upsert_markdown_row"):
         raise ValueError(
-            f"Unknown mode '{mode}'; expected 'replace', 'upsert_yaml', "
-            f"or 'upsert_markdown_row'"
+            f"Unknown mode '{mode}'; expected 'replace', 'upsert_yaml', or 'upsert_markdown_row'"
         )
 
     truth_dir = project_dir / "truth"
@@ -326,6 +344,7 @@ def _read_yaml_records(path: Path) -> list[dict]:
         return []
     try:
         import yaml
+
         text = path.read_text(encoding="utf-8")
         if text.startswith("---"):
             parts = text.split("---", 2)
@@ -366,6 +385,7 @@ def _upsert_by_key(existing: list[dict], new_records: list[dict], key_field: str
 def _serialize_yaml_records(records: list[dict], filename: str) -> str:
     """Serialize records back into the YAML-frontmatter + markdown-body format."""
     import yaml
+
     yaml_key = "hooks" if "hook" in filename else "records"
     fm = {yaml_key: records}
     front = yaml.safe_dump(fm, allow_unicode=True, sort_keys=False).strip()
@@ -403,17 +423,20 @@ git commit -m "feat: add write_truth_file() with key-based dual-format upsert"
 ```python
 # Append to tests/unit/pipeline/test_truth_io.py
 
+
 def test_init_templates_include_update_mode_frontmatter():
     """Truth file templates include update_mode in YAML frontmatter."""
     with tempfile.TemporaryDirectory() as tmp:
         project_dir = Path(tmp)
         from shenbi.pipeline.dispatch_helper import _init_truth_templates
+
         _init_truth_templates(project_dir)
 
         # Cumulative markdown-table files must have update_mode: upsert_markdown_row
         resonance = (project_dir / "truth" / "resonance_trend.md").read_text()
         assert "update_mode: upsert_markdown_row" in resonance, (
-            "resonance_trend should be upsert_markdown_row-mode")
+            "resonance_trend should be upsert_markdown_row-mode"
+        )
 
         # Snapshot files must have update_mode: replace
         current = (project_dir / "truth" / "current_state.md").read_text()
@@ -582,6 +605,7 @@ Verifies the persisted row matches the format parse_resonance_scores
 lines starting with "|", split on "|", requires >=7 cells, reads cells[6]
 (7th column) as the overall score.
 """
+
 import re
 import tempfile
 from pathlib import Path
@@ -632,9 +656,13 @@ def test_persist_via_write_truth_file_round_trips_through_reader():
         project_dir = Path(tmp)
         (project_dir / "truth").mkdir()
 
-        write_truth_file(project_dir, "resonance_trend.md",
-                         _build_resonance_trend_row(chapter=7, overall=88),
-                         mode="upsert_markdown_row", key_field="chapter")
+        write_truth_file(
+            project_dir,
+            "resonance_trend.md",
+            _build_resonance_trend_row(chapter=7, overall=88),
+            mode="upsert_markdown_row",
+            key_field="chapter",
+        )
 
         text = (project_dir / "truth" / "resonance_trend.md").read_text()
         scores = []
@@ -657,12 +685,20 @@ def test_re_persist_same_chapter_replaces_row_in_place():
         project_dir = Path(tmp)
         (project_dir / "truth").mkdir()
 
-        write_truth_file(project_dir, "resonance_trend.md",
-                         _build_resonance_trend_row(chapter=9, overall=60),
-                         mode="upsert_markdown_row", key_field="chapter")
-        write_truth_file(project_dir, "resonance_trend.md",
-                         _build_resonance_trend_row(chapter=9, overall=65),
-                         mode="upsert_markdown_row", key_field="chapter")
+        write_truth_file(
+            project_dir,
+            "resonance_trend.md",
+            _build_resonance_trend_row(chapter=9, overall=60),
+            mode="upsert_markdown_row",
+            key_field="chapter",
+        )
+        write_truth_file(
+            project_dir,
+            "resonance_trend.md",
+            _build_resonance_trend_row(chapter=9, overall=65),
+            mode="upsert_markdown_row",
+            key_field="chapter",
+        )
 
         text = (project_dir / "truth" / "resonance_trend.md").read_text()
         assert text.count("| Ch9") == 1
@@ -710,9 +746,12 @@ Then wire the persistence into the chapter loop. After `cs.resonance_score` is a
 overall = cs.resonance_score  # int | None
 if overall is not None:
     from shenbi.pipeline.truth_io import write_truth_file
+
     trend_row = _build_resonance_trend_row(chapter, overall)
     write_truth_file(
-        project_dir, "resonance_trend.md", trend_row,
+        project_dir,
+        "resonance_trend.md",
+        trend_row,
         mode="upsert_markdown_row",
         key_field="chapter",  # dedup on first column (Ch{N})
     )
@@ -756,6 +795,7 @@ The real bug is NOT a missing trigger — the trigger fires but the result is no
 
 ```python
 """Tests for style-learning self-heal and failure visibility in triggers.py."""
+
 import re
 import tempfile
 from pathlib import Path
@@ -949,6 +989,7 @@ git commit -m "fix: add style-learning self-heal and trigger failure visibility 
 ```python
 # Add to tests/unit/gates/g4/test_chapter_drafting.py (or create if not exists)
 
+
 def test_protagonist_presence_check_detects_absence():
     """G4.cd.protagonist_presence fails when protagonist appears < 3 times."""
     from shenbi.gates.g4.chapter_drafting import _check_protagonist_presence
@@ -990,7 +1031,9 @@ update_mode: replace
 - 冷: 参数化存在
 - 光: 格式层出现
 """
-    issues = _validate_character_matrix(content, known_parameter_agents=["冷", "光", "安静", "缺口"])
+    issues = _validate_character_matrix(
+        content, known_parameter_agents=["冷", "光", "安静", "缺口"]
+    )
     assert len(issues) > 0
     assert "parameter_agent" in issues[0].lower()
 ```
@@ -1022,7 +1065,9 @@ def _check_protagonist_presence(
     """
     total = sum(text.count(name) for name in protagonist_names)
     if total < threshold:
-        return [f"G4.cd.protagonist_absent: protagonist appears {total} times (threshold: {threshold})"]
+        return [
+            f"G4.cd.protagonist_absent: protagonist appears {total} times (threshold: {threshold})"
+        ]
     return []
 
 
@@ -1035,6 +1080,7 @@ issues.extend(_check_protagonist_presence(content, protagonist_names))
 def _load_protagonist_names(project_dir: str) -> list[str]:
     """Load protagonist names from character design files."""
     from pathlib import Path
+
     names = []
     chars_dir = Path(project_dir) / "characters"
     if not chars_dir.exists():
@@ -1044,6 +1090,7 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
         text = protag.read_text(encoding="utf-8")
         import re
         import yaml
+
         # Try frontmatter name first
         match = re.search(r"^name:\s*(.+)$", text, re.MULTILINE)
         if match:
@@ -1115,9 +1162,7 @@ def _validate_character_matrix(
             if def_section:
                 state_sections = body.replace(def_section, "")
             if agent in state_sections:
-                issues.append(
-                    f"G4.ss.parameter_agent_in_character_matrix: {agent}"
-                )
+                issues.append(f"G4.ss.parameter_agent_in_character_matrix: {agent}")
 
     return issues
 
@@ -1162,6 +1207,7 @@ git commit -m "feat: add protagonist presence G4 check and character_matrix writ
 ```python
 # tests/unit/pipeline/test_audit_count.py
 """Tests for direction-aware filesystem-verified audit counting."""
+
 import tempfile
 from pathlib import Path
 
@@ -1176,8 +1222,15 @@ def test_count_audits_on_disk_correct_count():
         audit_dir.mkdir(parents=True)
 
         # Create 7 audit files for chapter 5
-        for name in ["resonance", "drift", "quality", "foreshadowing",
-                      "hook", "character", "pacing"]:
+        for name in [
+            "resonance",
+            "drift",
+            "quality",
+            "foreshadowing",
+            "hook",
+            "character",
+            "pacing",
+        ]:
             (audit_dir / f"chapter-5-{name}.md").write_text("# audit")
 
         count = _count_audits_on_disk(project_dir, chapter=5)
@@ -1220,15 +1273,15 @@ def test_count_audits_on_disk_does_not_count_other_chapters():
 def test_reconcile_self_heals_when_disk_has_more():
     """When disk has MORE audits than recorded, self-heal the count."""
     result = _reconcile_audit_count(recorded=3, actual=7)
-    assert result.new_count == 7        # self-healed up
-    assert result.anomaly is False      # not an anomaly — safe direction
+    assert result.new_count == 7  # self-healed up
+    assert result.anomaly is False  # not an anomaly — safe direction
 
 
 def test_reconcile_flags_error_when_disk_has_fewer():
     """When disk has FEWER audits than recorded, flag anomaly — do NOT overwrite."""
     result = _reconcile_audit_count(recorded=7, actual=3)
-    assert result.new_count == 7        # NOT overwritten — preserved as-is
-    assert result.anomaly is True       # flagged for investigation
+    assert result.new_count == 7  # NOT overwritten — preserved as-is
+    assert result.anomaly is True  # flagged for investigation
 
 
 def test_reconcile_no_change_when_matching():
@@ -1254,6 +1307,7 @@ from dataclasses import dataclass
 @dataclass
 class AuditCountReconciliation:
     """Result of reconciling a recorded audit count against the filesystem."""
+
     new_count: int
     anomaly: bool
 
@@ -1325,10 +1379,16 @@ In `src/shenbi/pipeline/audit_layer.py`, register the missing audit keys into th
 # core-circle model semantically, add a sibling set instead and ensure both
 # are included wherever the total audit-type count is computed.
 _CORE_CIRCLE_KEYS = {
-    "antiAi", "character", "pacing", "continuity",
-    "foreshadowing", "memoCompliance", "pov",
+    "antiAi",
+    "character",
+    "pacing",
+    "continuity",
+    "foreshadowing",
+    "memoCompliance",
+    "pov",
     # Newly registered (previously missing — spec §3.7):
-    "resonance", "review-summary",
+    "resonance",
+    "review-summary",
 }
 ```
 

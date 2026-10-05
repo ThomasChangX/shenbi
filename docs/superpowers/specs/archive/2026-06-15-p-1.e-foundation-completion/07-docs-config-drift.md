@@ -256,8 +256,10 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
+
 def load_master() -> dict:
     return json.loads((REPO_ROOT / "plugins" / "master.json").read_text())
+
 
 def gen_claude(master: dict) -> dict:
     return {
@@ -268,6 +270,7 @@ def gen_claude(master: dict) -> dict:
         "skills": master["skills"],
     }
 
+
 def gen_codex(master: dict) -> dict:
     # Codex format differs slightly
     return {
@@ -276,18 +279,21 @@ def gen_codex(master: dict) -> dict:
         "skills": master["skills"],
     }
 
+
 def gen_cursor(master: dict) -> dict:
     # Cursor format
     ...
 
+
 def gen_opencode(master: dict) -> str:
     # OpenCode uses JavaScript
     return f"""module.exports = {{
-  name: "{master['name']}",
-  version: "{master['version']}",
-  skills: {json.dumps(master['skills'])}
+  name: "{master["name"]}",
+  version: "{master["version"]}",
+  skills: {json.dumps(master["skills"])}
 }};
 """
+
 
 def main() -> int:
     master = load_master()
@@ -300,6 +306,7 @@ def main() -> int:
             ...
         # etc.
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
@@ -355,14 +362,18 @@ DOCS_TO_CHECK = [
 
 CODESPAN_PATTERN = re.compile(r"`([^`]+\.\w+)`")
 
+
 def extract_paths_from_doc(doc_path: Path) -> list[Path]:
     text = doc_path.read_text()
     paths = []
     for match in CODESPAN_PATTERN.finditer(text):
         candidate = match.group(1)
-        if "/" in candidate or candidate.endswith((".py", ".md", ".yaml", ".yml", ".toml", ".json", ".sh")):
+        if "/" in candidate or candidate.endswith(
+            (".py", ".md", ".yaml", ".yml", ".toml", ".json", ".sh")
+        ):
             paths.append(REPO_ROOT / candidate)
     return paths
+
 
 def test_docs_reference_existing_files():
     missing = []
@@ -372,7 +383,9 @@ def test_docs_reference_existing_files():
             continue
         for referenced in extract_paths_from_doc(path):
             if not referenced.exists():
-                missing.append(f"{doc}: references `{referenced.relative_to(REPO_ROOT)}` which does not exist")
+                missing.append(
+                    f"{doc}: references `{referenced.relative_to(REPO_ROOT)}` which does not exist"
+                )
     assert not missing, "Documentation references missing files:\n" + "\n".join(missing)
 ```
 

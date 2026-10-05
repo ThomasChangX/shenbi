@@ -92,11 +92,10 @@ def _state_with_soft_fail_window(chapters: list[int]) -> PipelineState:
 class TestCheckSoftFailEscalation:
     def test_below_threshold_does_not_dispatch(self, tmp_path):
         state = _state_with_soft_fail_window([10, 11])  # 2 occurrences < threshold 3
-        with patch(
-            "shenbi.pipeline.chapter_loop.check_escalation"
-        ) as mock_check, patch(
-            "shenbi.pipeline.chapter_loop.dispatch_escalation"
-        ) as mock_disp:
+        with (
+            patch("shenbi.pipeline.chapter_loop.check_escalation") as mock_check,
+            patch("shenbi.pipeline.chapter_loop.dispatch_escalation") as mock_disp,
+        ):
             _check_soft_fail_escalation(state, tmp_path, chapter=12)
         mock_check.assert_not_called()
         mock_disp.assert_not_called()
@@ -107,12 +106,13 @@ class TestCheckSoftFailEscalation:
         # check_escalation returns a non-empty signal list.
         from shenbi.skill_utils.escalation.check import EscalationSignal
 
-        with patch(
-            "shenbi.pipeline.chapter_loop.check_escalation",
-            return_value=[EscalationSignal(trigger="score_decline", detail="x")],
-        ) as mock_check, patch(
-            "shenbi.pipeline.chapter_loop.dispatch_escalation"
-        ) as mock_disp:
+        with (
+            patch(
+                "shenbi.pipeline.chapter_loop.check_escalation",
+                return_value=[EscalationSignal(trigger="score_decline", detail="x")],
+            ) as mock_check,
+            patch("shenbi.pipeline.chapter_loop.dispatch_escalation") as mock_disp,
+        ):
             _check_soft_fail_escalation(state, tmp_path, chapter=12)
         mock_check.assert_called_once()
         # Verify the real signature was used.
@@ -125,11 +125,10 @@ class TestCheckSoftFailEscalation:
 
     def test_over_threshold_no_dispatch_when_no_signals(self, tmp_path):
         state = _state_with_soft_fail_window([9, 10, 11, 12])
-        with patch(
-            "shenbi.pipeline.chapter_loop.check_escalation", return_value=[]
-        ) as mock_check, patch(
-            "shenbi.pipeline.chapter_loop.dispatch_escalation"
-        ) as mock_disp:
+        with (
+            patch("shenbi.pipeline.chapter_loop.check_escalation", return_value=[]) as mock_check,
+            patch("shenbi.pipeline.chapter_loop.dispatch_escalation") as mock_disp,
+        ):
             _check_soft_fail_escalation(state, tmp_path, chapter=12)
         mock_check.assert_called_once()
         mock_disp.assert_not_called()
@@ -139,11 +138,12 @@ class TestCheckSoftFailEscalation:
         _get_recent_resonance_scores helper (window 5 to match the escalation
         default)."""
         state = _state_with_soft_fail_window([9, 10, 11, 12])
-        with patch(
-            "shenbi.pipeline.chapter_loop._get_recent_resonance_scores",
-            return_value=[90, 85, 80, 75, 70],
-        ) as mock_scores, patch(
-            "shenbi.pipeline.chapter_loop.check_escalation", return_value=[]
+        with (
+            patch(
+                "shenbi.pipeline.chapter_loop._get_recent_resonance_scores",
+                return_value=[90, 85, 80, 75, 70],
+            ) as mock_scores,
+            patch("shenbi.pipeline.chapter_loop.check_escalation", return_value=[]),
         ):
             _check_soft_fail_escalation(state, tmp_path, chapter=12)
         mock_scores.assert_called_once_with(tmp_path, 12, window=5)
@@ -167,9 +167,7 @@ from shenbi.skill_utils.escalation.check import check_escalation
 Add the helper function. Place it just above the G4-handling block that contains the `if should_escalate:` (around line 1300), so it is in scope:
 
 ```python
-def _check_soft_fail_escalation(
-    state: PipelineState, project_dir: Path, chapter: int
-) -> None:
+def _check_soft_fail_escalation(state: PipelineState, project_dir: Path, chapter: int) -> None:
     """Consume soft-fail-tracker escalation and route to check_escalation.
 
     Spec 22 E32: the trackers detected transition/fatigue drift but the signal
@@ -300,8 +298,8 @@ git commit -m "fix(chapter_loop): wire soft-fail trackers to check_escalation co
 
 **Context:** The current logic:
 ```python
-keep_from = max(all_chapters) - retention     # e.g. 56 - 50 = 6
-to_prune = [ch for ch in all_chapters if ch < keep_from]   # prunes 1..5, keeps 6..56 = 51
+keep_from = max(all_chapters) - retention  # e.g. 56 - 50 = 6
+to_prune = [ch for ch in all_chapters if ch < keep_from]  # prunes 1..5, keeps 6..56 = 51
 ```
 keeps `retention + 1` chapters. The fix keeps exactly `retention` by pruning `all_chapters[:-retention]` (all but the last `retention`). This is robust to gaps in chapter numbering and does not depend on `max()`. A post-prune guard re-checks the manifest and logs `snapshot_prune_failed` if it still overshoots (e.g. a concurrent writer added snapshots between the prune and the guard).
 
@@ -334,9 +332,7 @@ def _write_manifest(project_dir: Path, chapters: dict[str, list[str]]) -> None:
 
 
 def _chapter_count(project_dir: Path) -> int:
-    manifest = json.loads(
-        (project_dir / "snapshots" / "manifest.json").read_text(encoding="utf-8")
-    )
+    manifest = json.loads((project_dir / "snapshots" / "manifest.json").read_text(encoding="utf-8"))
     return len(manifest.get("chapters", {}))
 
 
@@ -403,8 +399,7 @@ class TestPruneBoundary:
         """Retention counts CHAPTERS, not the numeric range — gaps must not
         cause over-pruning."""
         chapters = {
-            str(n): [f"chapter-{n:03d}-t.md"]
-            for n in [1, 2, 3, 10, 20, 30, 40, 50, 60, 70]
+            str(n): [f"chapter-{n:03d}-t.md"] for n in [1, 2, 3, 10, 20, 30, 40, 50, 60, 70]
         }
         _write_manifest(tmp_path, chapters)
         monkeypatch.setattr(

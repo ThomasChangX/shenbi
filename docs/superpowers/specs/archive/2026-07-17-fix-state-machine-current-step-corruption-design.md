@@ -76,7 +76,7 @@ def _advance(state, project_dir, chapter_loop):
 ```python
 class ChapterLoopStateData:
     current_chapter: int = 1
-    current_step: str = ""       # 默认为空字符串
+    current_step: str = ""  # 默认为空字符串
     step_index: int = 0
     chapter_states: dict = {}
     retry_counts: dict = {}
@@ -137,11 +137,15 @@ def _validate_state_consistency(state: PipelineState) -> list[str]:
     cl = state.chapter_loop
 
     if cl.step_index > 0 and not cl.current_step:
-        issues.append(f"Chapter {cl.current_chapter}: step_index={cl.step_index} but current_step is empty")
+        issues.append(
+            f"Chapter {cl.current_chapter}: step_index={cl.step_index} but current_step is empty"
+        )
         _heal_current_step(state)
 
     if cl.current_step == "chapter_complete" and cl.step_index < len(CHAPTER_STEPS):
-        issues.append(f"Chapter {cl.current_chapter}: marked complete but step_index={cl.step_index} < {len(CHAPTER_STEPS)}")
+        issues.append(
+            f"Chapter {cl.current_chapter}: marked complete but step_index={cl.step_index} < {len(CHAPTER_STEPS)}"
+        )
 
     return issues
 ```

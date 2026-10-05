@@ -70,20 +70,20 @@ Four helper functions are created within the tasks that use them. Signatures and
 1. `_checkpoint_to_step_number(cp: CheckpointData) -> int` — Task 7. Maps checkpoint type to genesis step number for modify re-dispatch:
    ```python
    _CHECKPOINT_STEP_MAP = {
-       CheckpointType.GENESIS_COMPLETE: 1,      # restart genesis
-       CheckpointType.CHAPTER_MEMO: 2,          # re-run chapter-planning
-       CheckpointType.STATE_SETTLE: 5,          # re-run state-settling
-       CheckpointType.PER_CHAPTER: 1,           # restart chapter
-       CheckpointType.VOLUME_BOUNDARY: 1,       # restart chapter
+       CheckpointType.GENESIS_COMPLETE: 1,  # restart genesis
+       CheckpointType.CHAPTER_MEMO: 2,  # re-run chapter-planning
+       CheckpointType.STATE_SETTLE: 5,  # re-run state-settling
+       CheckpointType.PER_CHAPTER: 1,  # restart chapter
+       CheckpointType.VOLUME_BOUNDARY: 1,  # restart chapter
    }
    ```
 
 2. `_checkpoint_to_step_index(cp: CheckpointData) -> int` — Task 7. Maps checkpoint type to CHAPTER_STEPS 0-based index:
    ```python
    _CHECKPOINT_INDEX_MAP = {
-       CheckpointType.CHAPTER_MEMO: 1,    # index of chapter-planning
-       CheckpointType.STATE_SETTLE: 6,    # index of state-settling
-       CheckpointType.PER_CHAPTER: 0,     # restart from first
+       CheckpointType.CHAPTER_MEMO: 1,  # index of chapter-planning
+       CheckpointType.STATE_SETTLE: 6,  # index of state-settling
+       CheckpointType.PER_CHAPTER: 0,  # restart from first
    }
    ```
 
@@ -111,6 +111,7 @@ Dependency chain: Task 1 → Task 2 → Task 3 → Task 4. Tasks 5-8 independent
 
 ```python
 # tests/unit/pipeline/test_audit_layer.py — add to existing file
+
 
 class TestGenreActivationMatrixRealFormat:
     """Tests that the activation matrix matches real genre-config.json format."""
@@ -269,6 +270,7 @@ Also update `to_dict` and `from_dict` for ChapterState to serialize this field.
 ```python
 # tests/unit/pipeline/test_chapter_loop.py — add class
 
+
 class TestAuditLayerWiring:
     """Tests that audit layer is called and BLOCKING findings trigger revision loop."""
 
@@ -324,7 +326,9 @@ if step.is_audit and step_idx == _LAST_AUDIT_IDX:
     # Store audit results for revision routing
     cs = state.chapter_loop.chapter_states[str(chapter)]
     cs.audit_results["blocking_found"] = audit_result.blocking_found
-    cs.audit_results["issues"] = [i.model_dump() if hasattr(i, "model_dump") else i for i in audit_result.issues]
+    cs.audit_results["issues"] = [
+        i.model_dump() if hasattr(i, "model_dump") else i for i in audit_result.issues
+    ]
 
     if audit_result.blocking_found:
         # Inline revision loop (spec A8): audit steps precede revision
@@ -332,11 +336,11 @@ if step.is_audit and step_idx == _LAST_AUDIT_IDX:
         # audits again. Loop inline instead.
         while cs.audit_retry_count < state.config.max_audit_retries:
             cs.audit_retry_count += 1
-            log.info("audit_blocking_revision", chapter=chapter,
-                     retry=cs.audit_retry_count)
+            log.info("audit_blocking_revision", chapter=chapter, retry=cs.audit_retry_count)
             rev_result = dispatch_skill(
-                "shenbi-chapter-revision", project_dir,
-                f"Revise chapter {chapter}. Project dir: {project_dir}"
+                "shenbi-chapter-revision",
+                project_dir,
+                f"Revise chapter {chapter}. Project dir: {project_dir}",
             )
             if not rev_result.success:
                 break
@@ -345,9 +349,14 @@ if step.is_audit and step_idx == _LAST_AUDIT_IDX:
                 break
         if audit_result.blocking_found:
             from shenbi.pipeline.revision_router import dispatch_escalation
+
             dispatch_escalation(project_dir, chapter)
-            set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter,
-                          artifact=f"audits/escalation-{chapter}-report.md")
+            set_checkpoint(
+                state,
+                CheckpointType.ESCALATION,
+                chapter=chapter,
+                artifact=f"audits/escalation-{chapter}-report.md",
+            )
             return True  # checkpoint raised
 ```
 
@@ -391,6 +400,7 @@ class TestScoringFailureWiring:
         """review-resonance returncode=3 → run G4 then re-dispatch."""
         pass
 
+
 # Test that state-settling failure marks settling_failed
 class TestStateSettleFailureWiring:
     def test_state_settle_failure_marks_settling_failed(self):
@@ -408,6 +418,7 @@ if "review-resonance" in step.skill:
     result = dispatch_skill(...)  # existing
     if not result.success or result.returncode in (2, 3):
         from shenbi.pipeline.error_handler import handle_scoring_failure
+
         should_retry = handle_scoring_failure(state, result.returncode)
         if should_retry:
             # Re-dispatch (exit code 2 or 3)
@@ -424,6 +435,7 @@ if "state-settling" in step.skill:
     result = dispatch_skill(...)
     if not result.success:
         from shenbi.pipeline.error_handler import handle_state_settle_failure
+
         handle_state_settle_failure(state, chapter)
         return True  # checkpoint set, pause for human
 ```
@@ -462,9 +474,14 @@ In `_handle_failure` functions (genesis, chapter_loop, closure), when `handle_di
 if not handle_dispatch_failure(state, skill, attempt):
     # A4: Dispatch escalation-review before checkpoint
     from shenbi.pipeline.revision_router import dispatch_escalation
+
     dispatch_escalation(project_dir, chapter)  # signature: (project_dir, chapter, context="")
-    set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter,
-                   artifact=f"audits/escalation-{chapter}-report.md")
+    set_checkpoint(
+        state,
+        CheckpointType.ESCALATION,
+        chapter=chapter,
+        artifact=f"audits/escalation-{chapter}-report.md",
+    )
     return True
 ```
 
@@ -542,6 +559,7 @@ def test_resonance_score_extracted_from_report(tmp_path):
     score = _parse_resonance_score(report)
     assert score == 72
 
+
 def test_resonance_score_none_on_missing_file(tmp_path):
     assert _parse_resonance_score(tmp_path / "nonexistent.md") is None
 ```
@@ -553,6 +571,7 @@ _RESONANCE_PATTERNS = [
     re.compile(r"共振分数[:\s]*(\d+)"),
     re.compile(r"resonance[_\s]*score[:\s]*(\d+)", re.IGNORECASE),
 ]
+
 
 def _parse_resonance_score(report_path: Path) -> int | None:
     if not report_path.exists():
@@ -567,7 +586,9 @@ def _parse_resonance_score(report_path: Path) -> int | None:
 
 Call it after review-resonance dispatch completes successfully:
 ```python
-cs.resonance_score = _parse_resonance_score(project_dir / "audits" / f"chapter-{chapter}-resonance.md")
+cs.resonance_score = _parse_resonance_score(
+    project_dir / "audits" / f"chapter-{chapter}-resonance.md"
+)
 ```
 
 - [ ] **Step 3: Run tests, commit**
@@ -613,6 +634,7 @@ def test_modify_does_not_commit_staging(tmp_path):
     # Assert state.modify_pending_step set to checkpoint step
     pass
 
+
 def test_modify_feedback_injected_into_dispatch(tmp_path, monkeypatch):
     """On resume after modify, feedback is injected into dispatch prompt."""
     pass
@@ -627,6 +649,7 @@ if decision == ReviewDecision.APPROVE:
 elif decision == ReviewDecision.MODIFY:
     # A6: Do NOT commit staging. Clear it, set modify_pending.
     from shenbi.pipeline.checkpoint import clear_staging
+
     clear_staging(project_dir)
     state.modify_feedback = feedback
     state.modify_pending_step = _checkpoint_to_step_number(cp)
@@ -721,6 +744,7 @@ def test_route_b_store_closed_on_exception(monkeypatch):
     """Even if search_cosine raises, store.close() is called."""
     pass
 
+
 # E2: clear_checkpoint idempotent
 def test_clear_checkpoint_already_none_is_noop():
     state = PipelineState.default("/tmp")
@@ -729,10 +753,12 @@ def test_clear_checkpoint_already_none_is_noop():
     # Should NOT append to history
     assert len(state.checkpoint_history) == 0
 
+
 # E3: feedback file not found
 def test_feedback_file_not_found_returns_error(tmp_path):
     """Missing feedback file returns error envelope, not traceback."""
     pass
+
 
 # E5: sorted returns
 def test_extract_entities_sorted():
@@ -766,7 +792,9 @@ if args.feedback:
     try:
         feedback = Path(args.feedback).read_text(encoding="utf-8")
     except FileNotFoundError:
-        emit_json({"status": CommandStatus.ERROR, "message": f"feedback file not found: {args.feedback}"})
+        emit_json(
+            {"status": CommandStatus.ERROR, "message": f"feedback file not found: {args.feedback}"}
+        )
         return 1
 ```
 
@@ -799,6 +827,7 @@ git commit -m "fix: SQLite leak + clear_checkpoint guard + feedback error + sort
 def test_rollback_returns_nonzero_for_stub(tmp_path):
     """Rollback stub returns exit code 1 (not 0)."""
     pass
+
 
 def test_rollback_validates_project_exists(tmp_path):
     """Rollback on missing project returns error."""
@@ -844,6 +873,7 @@ def test_optional_reads_filtered_before_dispatch():
     """Reads containing N template or marked optional are filtered if not present."""
     pass
 
+
 def test_requires_independent_fail_closed_on_contract_error():
     """When contract read fails, requires_independent returns True (fail-closed)."""
     pass
@@ -879,6 +909,7 @@ def test_resume_checksum_mismatch_triggers_truth_sync(tmp_path):
     """Resume with corrupted truth files triggers truth-sync warning."""
     pass
 
+
 def test_reject_resets_step_index(tmp_path):
     """Reject checkpoint resets step_index to redo the step."""
     pass
@@ -894,8 +925,7 @@ if state.last_snapshot and "checksums" in state.last_snapshot:
         state.needs_truth_sync = True
         state.needs_truth_sync_files = mismatches
         save_state(project_dir, state)
-        emit_json({"status": "blocked", "message": "truth_sync_needed",
-                   "files": mismatches})
+        emit_json({"status": "blocked", "message": "truth_sync_needed", "files": mismatches})
         return 1
 ```
 
@@ -960,6 +990,7 @@ class TestCLISmokeTests:
     def test_context_assemble_main_smoke(self, tmp_path):
         from shenbi.pipeline.context_assemble import main
         # call main([...]), assert exit 0
+
 
 class TestDispatchChainIntegration:
     def test_dispatch_skill_returns_success(self, tmp_path):
