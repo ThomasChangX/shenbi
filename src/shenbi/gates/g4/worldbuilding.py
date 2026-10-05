@@ -96,6 +96,37 @@ def g4_worldbuilding(
                     "r": "世界史时间线单源表缺失——绝对年代锚无唯一登记处（见 story_bible 模板）",
                 }
             )
+        # Batch #21 (probe26 ch1 / probe28 ch1 表外复述年数 P1 复现两次):
+        # the timeline table is the ONLY place absolute years may appear.
+        # Prose sections (段 1-4) MUST use anchor names or relative phrases
+        # (e.g., 净场之后, 铁笼纪元); restating years like "三百年前" or
+        # "百年" violates the single-source discipline and creates
+        # cross-file year contradictions (probe15: 4 rounds burned on this).
+        if "## 世界史时间线" in content:
+            prose_body = content.split("## 世界史时间线", 1)[0]
+            # Strip code fences to avoid false positives inside examples
+            prose_body = re.sub(r"```[\s\S]*?```", "", prose_body)
+            # Match Chinese bare-year phrases: N 年前 / N 年 / 数百年前 / 百年 / 数十年
+            # Standalone tokens; require adjacent CJK boundary so 冷静 won't trip on 年.
+            bare_year_re = re.compile(
+                r"(?<![一二三四五六七八九十百千万亿零〇\d])"
+                r"(?:约\s*)?"
+                r"([一二三四五六七八九十百千万亿零〇\d]+|数|半|若干)\s*年"
+                r"(?:前|之(?:前|后)|来|之(?:久|内))?"
+                r"(?![一二三四五六七八九十百千万亿零〇\d年月日号时\])])"
+            )
+            matches = list(bare_year_re.finditer(prose_body))
+            for m in matches:
+                line_start = prose_body.rfind("\n", 0, m.start()) + 1
+                line_end = prose_body.find("\n", m.end())
+                if line_end == -1:
+                    line_end = len(prose_body)
+                line = prose_body[line_start:line_end].strip()
+                mf.append(
+                    f"G4.sb.prose_bare_year:{line[:80]}"
+                    "（story_bible.md 散文段不得复述绝对年数；年代锚单源登记于"
+                    "「## 世界史时间线」表，其余段只能用锚名或相对表述）"
+                )
         if len(sections) >= 4 and bullet_density <= 0.05:
             c.append({"id": "G4.sb", "s": GateStatus.PASS, "sections": len(sections)})
     else:

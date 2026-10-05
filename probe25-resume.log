@@ -1,0 +1,39 @@
+uv run pipeline resume "$1"
+[2m2026-10-05T03:29:27.914399Z[0m [[32m[1mdebug    [0m] [1mwrite_lock_acquired           [0m [36mlockfile[0m=[35mnovel-xinghuo-probe25/pipeline-state.json.lockfile[0m
+[2m2026-10-05T03:29:27.914937Z[0m [[32m[1mdebug    [0m] [1mstate_loaded                  [0m [36mphase[0m=[35mchapter-loop[0m [36mproject_dir[0m=[35mnovel-xinghuo-probe25[0m
+[2m2026-10-05T03:29:27.915424Z[0m [[33m[1mwarning  [0m] [1mrevision_count_healed         [0m [36mchapter[0m=[35m5[0m [36mdisk_value[0m=[35m1[0m [36mnote[0m=[35m'disk_count undercounts: revision-decisions file is overwritten per round'[0m [36mstate_value[0m=[35m0[0m
+[2m2026-10-05T03:29:27.916675Z[0m [[32m[1mdebug    [0m] [1mstate_saved                   [0m [36mphase[0m=[35mchapter-loop[0m [36mproject_dir[0m=[35mnovel-xinghuo-probe25[0m
+[2m2026-10-05T03:29:27.916874Z[0m [[32m[1minfo     [0m] [1mtruth_integrity_check_passed  [0m
+[2m2026-10-05T03:29:27.917702Z[0m [[32m[1mdebug    [0m] [1mstate_saved                   [0m [36mphase[0m=[35mchapter-loop[0m [36mproject_dir[0m=[35mnovel-xinghuo-probe25[0m
+[2m2026-10-05T03:29:27.926292Z[0m [[32m[1minfo     [0m] [1mchapter_step                  [0m [36mchapter[0m=[35m6[0m [36mskill[0m=[35mpipeline-volume-align[0m [36mstep[0m=[35m1[0m
+[2m2026-10-05T03:29:27.926376Z[0m [[32m[1minfo     [0m] [1mstep_timing                   [0m [36mchapter[0m=[35m6[0m [36melapsed_seconds[0m=[35m0.0[0m [36mstep[0m=[35mpipeline-volume-align[0m
+[2m2026-10-05T03:29:27.927363Z[0m [[32m[1mdebug    [0m] [1mstate_saved                   [0m [36mphase[0m=[35mchapter-loop[0m [36mproject_dir[0m=[35mnovel-xinghuo-probe25[0m
+[2m2026-10-05T03:29:27.927411Z[0m [[32m[1minfo     [0m] [1mchapter_step                  [0m [36mchapter[0m=[35m6[0m [36mskill[0m=[35mshenbi-chapter-planning[0m [36mstep[0m=[35m2[0m
+[2m2026-10-05T03:29:28.301990Z[0m [[33m[1mwarning  [0m] [1mfield_filter_missing_fields   [0m [36mavailable[0m=[35m[][0m [36mmatched[0m=[35m[][0m [36mmissing[0m=[35m['系统演化阶段', '参数当前位置', '进行中的情节线'][0m
+[2m2026-10-05T03:29:28.302320Z[0m [[33m[1mwarning  [0m] [1mfield_filter_missing_fields   [0m [36mavailable[0m=[35m['总览', '详情'][0m [36mmatched[0m=[35m[][0m [36mmissing[0m=[35m['活跃伏笔', '伏笔统计'][0m
+[2m2026-10-05T03:29:28.302446Z[0m [[33m[1mwarning  [0m] [1mfield_filter_missing_fields   [0m [36mavailable[0m=[35m[][0m [36mmatched[0m=[35m[][0m [36mmissing[0m=[35m['已完成章节'][0m
+[2m2026-10-05T03:29:28.304913Z[0m [[33m[1mwarning  [0m] [1mfield_filter_missing_fields   [0m [36mavailable[0m=[35m['线索总览表', '线索详情', '章节线索推进表（按 KR/张力段聚合）', '约束检查表', '空白检测', '跨卷衔接', '汇总'][0m [36mmatched[0m=[35m['线索详情'][0m [36mmissing[0m=[35m['章节线索推进表'][0m
+[2m2026-10-05T03:29:28.306201Z[0m [[33m[1mwarning  [0m] [1mfield_filter_missing_fields   [0m [36mavailable[0m=[35m['基础设定审核报告', '基础设定审核评分工作表'][0m [36mmatched[0m=[35m[][0m [36mmissing[0m=[35m['建议修复'][0m
+[2m2026-10-05T03:29:28.336929Z[0m [[32m[1minfo     [0m] [1mapi_dispatch_start            [0m [36mchapter[0m=[35m6[0m [36mmodel[0m=[35mdeepseek-v4-flash[0m [36mskill[0m=[35mshenbi-chapter-planning[0m
+[2m2026-10-05T03:30:37.134277Z[0m [[33m[1mwarning  [0m] [1mlength_truncation_detected    [0m [36mmodel[0m=[35mdeepseek-v4-flash[0m
+[2m2026-10-05T03:30:37.135190Z[0m [[32m[1minfo     [0m] [1mapi_dispatch_complete         [0m [36mmodel[0m=[35mdeepseek-v4-flash[0m [36moutput_length[0m=[35m1639[0m [36mskill[0m=[35mshenbi-chapter-planning[0m
+[2m2026-10-05T03:30:37.135385Z[0m [[32m[1minfo     [0m] [1mllm_token_usage               [0m [36mcompletion_tokens[0m=[35m16384[0m [36mprompt_tokens[0m=[35m33255[0m [36mskill[0m=[35mshenbi-chapter-planning[0m [36mtotal_tokens[0m=[35m49639[0m
+[2m2026-10-05T03:30:37.138834Z[0m [[33m[1mwarning  [0m] [1mlength_truncation_cap_raise   [0m [36moriginal_cap[0m=[35m16384[0m [36mraised_cap[0m=[35m32768[0m [36mskill[0m=[35mshenbi-chapter-planning[0m
+[2m2026-10-05T03:31:44.485080Z[0m [[32m[1minfo     [0m] [1mllm_token_usage               [0m [36mcompletion_tokens[0m=[35m17026[0m [36mprompt_tokens[0m=[35m33255[0m [36mskill[0m=[35mshenbi-chapter-planning[0m [36mtotal_tokens[0m=[35m50281[0m
+[2m2026-10-05T03:31:44.495156Z[0m [[32m[1minfo     [0m] [1moutput_written                [0m [36mmode[0m=[35mNone[0m [36mpath[0m=[35mstaging/plans/chapter-6-plan.md[0m [36msize[0m=[35m2499[0m
+[2m2026-10-05T03:31:44.496590Z[0m [[32m[1minfo     [0m] [1moutput_written                [0m [36mmode[0m=[35mNone[0m [36mpath[0m=[35mstaging/plans/chapter-6-plan-decisions.json[0m [36msize[0m=[35m1104[0m
+[2m2026-10-05T03:31:44.708276Z[0m [[32m[1mdebug    [0m] [1mgate_result_recorded          [0m [36mchapter[0m=[35m6[0m [36mgate[0m=[35mG4[0m [36mphase[0m=[35mchapter_loop[0m [36mskill[0m=[35mshenbi-chapter-planning[0m
+[2m2026-10-05T03:31:44.711283Z[0m [[32m[1minfo     [0m] [1mstaging_marked_checkpointed   [0m [36mcount[0m=[35m2[0m
+[2m2026-10-05T03:31:44.711338Z[0m [[32m[1minfo     [0m] [1mstep_timing                   [0m [36mchapter[0m=[35m6[0m [36melapsed_seconds[0m=[35m136.8[0m [36mstep[0m=[35mshenbi-chapter-planning[0m
+[2m2026-10-05T03:31:44.711968Z[0m [[32m[1mdebug    [0m] [1mstate_saved                   [0m [36mphase[0m=[35mchapter-loop[0m [36mproject_dir[0m=[35mnovel-xinghuo-probe25[0m
+[2m2026-10-05T03:31:44.712009Z[0m [[32m[1mdebug    [0m] [1mwrite_lock_released           [0m [36mlockfile[0m=[35mnovel-xinghuo-probe25/pipeline-state.json.lockfile[0m
+{"status": "blocked", "checkpoint": "chapter-memo", "artifact": "plans/chapter-6-plan.md"}
+[2m2026-10-05T03:31:44.712124Z[0m [[32m[1minfo     [0m] [1memergency_cleanup_started     [0m
+[2m2026-10-05T03:31:44.712193Z[0m [[32m[1mdebug    [0m] [1mwrite_lock_acquired           [0m [36mlockfile[0m=[35mnovel-xinghuo-probe25/pipeline-state.json.lockfile[0m
+[2m2026-10-05T03:31:44.712429Z[0m [[32m[1mdebug    [0m] [1mstate_loaded                  [0m [36mphase[0m=[35mchapter-loop[0m [36mproject_dir[0m=[35mnovel-xinghuo-probe25[0m
+[2m2026-10-05T03:31:44.712969Z[0m [[32m[1mdebug    [0m] [1mstate_saved                   [0m [36mphase[0m=[35mchapter-loop[0m [36mproject_dir[0m=[35mnovel-xinghuo-probe25[0m
+[2m2026-10-05T03:31:44.712998Z[0m [[32m[1mdebug    [0m] [1mwrite_lock_released           [0m [36mlockfile[0m=[35mnovel-xinghuo-probe25/pipeline-state.json.lockfile[0m
+[2m2026-10-05T03:31:44.713019Z[0m [[32m[1minfo     [0m] [1mpipeline_state_saved          [0m
+[2m2026-10-05T03:31:44.713052Z[0m [[32m[1minfo     [0m] [1memergency_snapshot_created    [0m
+[2m2026-10-05T03:31:44.713499Z[0m [[32m[1minfo     [0m] [1mstaging_cleared_preserving_checkpointed[0m [36mpreserved[0m=[35m2[0m [36mremoved[0m=[35m0[0m
+[2m2026-10-05T03:31:44.713524Z[0m [[32m[1minfo     [0m] [1mstaging_cleared_preserving_checkpointed[0m

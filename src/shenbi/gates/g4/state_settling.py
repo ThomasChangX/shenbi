@@ -381,6 +381,16 @@ def _validate_character_matrix(
     Parameter agents (冷, 光, 安静, etc.) must be written to
     ``particle_ledger.md``, not to ``character_matrix.md``.
 
+    Detection policy (probe27 #019 root-cause fix): the bare agent name is
+    a common Chinese word (缺口=deficit, 安静=quiet, 冷=cold, etc.) that
+    appears freely in narrative prose. A parameter agent is only flagged
+    when introduced with the explicit ``_param:`` tag prefix in the
+    character_matrix content. The bare-token match alone is too noisy.
+
+    Phrase-level match: a parameter agent occurrence is ``_param:<agent>``
+    anywhere in the per-chapter state sections (outside 角色定义). Bare
+    occurrences are tolerated as common Chinese vocabulary.
+
     Returns:
         List of issue strings (empty if valid).
     """
@@ -401,19 +411,19 @@ def _validate_character_matrix(
         if len(def_parts) > 1:
             def_section = def_parts[1].split("\n## ", 1)[0]
 
+    state_sections = body
+    if def_section:
+        state_sections = body.replace(def_section, "")
+
     for agent in agents:
-        # Token-level match: a parameter agent is a standalone NAME (its own
-        # cell/word), not a substring of ordinary vocabulary — "冷" as an
-        # agent must not fire on descriptors like "冷静" (canary ch1: 老头's
-        # personality column tripped the bare-substring blacklist).
-        agent_re = re.compile(rf"(?<![\u4e00-\u9fff]){re.escape(agent)}(?![\u4e00-\u9fff])")
-        if agent_re.search(body):
-            # Check if agent appears in per-chapter state sections (not 角色定义)
-            state_sections = body
-            if def_section:
-                state_sections = body.replace(def_section, "")
-            if agent_re.search(state_sections):
-                issues.append(f"G4.ss.parameter_agent_in_character_matrix: {agent}")
+        # Phrase-level match: only flag if the agent is introduced with the
+        # explicit `_param:` tag prefix. Bare occurrences of these words
+        # are tolerated as common Chinese vocabulary (缺口=deficit, 冷=cold,
+        # 安静=quiet, 光=light).
+        agent_escaped = re.escape(agent)
+        param_re = re.compile(rf"_param\s*[:：]\s*{agent_escaped}")
+        if param_re.search(state_sections):
+            issues.append(f"G4.ss.parameter_agent_in_character_matrix: {agent}")
 
     return issues
 

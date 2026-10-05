@@ -8,7 +8,7 @@ Two deterministic false positives blocked the probe24 ch1 re-dispatch queue:
   completeness check treated it as an audit verdict document, journaled
   ``G4.ac.no_verdict``, and the G4 replay re-failed every later dispatch
   against the sticky journal entry.
-* #18-8b — the initialized shells carry 「待填充」 placeholder prose
+* #18-8b — the initialized shells carry `[待填充]` placeholder prose
   inside section spans; the model's contract-sanctioned first-fill
   (full-table escape) consumed the placeholder via _replace_section, and
   the base-preservation guard flagged the consumption as content_dropped.

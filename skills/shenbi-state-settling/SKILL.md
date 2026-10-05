@@ -59,6 +59,17 @@ contract:
 
 HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settling 的章节视为未完成——后续章节的 chapter-planning 读到的 truth files 是过时的，导致全书状态漂移。
 
+### 铁律 0：所有 update 文件 ABSOLUTELY NEVER modify 现有行（Batch #22 强化）
+
+**对 `truth/character_matrix.md` 等全部 `mode: append_dedup` 目标文件**：
+
+1. **ABSOLUTELY NEVER modify 现有 rows**——任何对已有「## 第N章状态增量」section 或「交互总表」已有行的文本重写（如扩展 `- 当前位置: ...` 内容、合并活跃关系等），都触发 G4.ss.matrix_structure content_dropped（attempts=3 耗尽后 approve 仍失败，详见 probe29 ch4）。
+2. **append-only 输出**：本 chapter 的增量必须以全新 `## 第N章状态增量` 块的形式插入（或对应 append_dedup 键的全新 row），**绝不要 touch 任何之前的 section 或 row**。
+3. **若需更新已有行**——重写整个 chapter 状态块到对应新 chapter 块，旧块保留原样（这是 append_dedup 的 key-merge 语义；旧 chapter 不被覆盖）。
+4. **live 文件的当前内容已在你的 reads 里**——你的任务只发增量，不发「live 现状的副本 + 你的改动」。
+
+违反铁律 0 = G4.ss.matrix_structure FAIL + state-settling attempts=3 耗尽 → 章节卡死。**本铁律自 probe29 ch4 验证后固化（sessions 23-24）。**
+
 ### Truth File Update Mode Rules (CRITICAL)
 
 **All six `updates:` targets in this skill's contract are declared `mode: append_dedup` — the pipeline's dispatch write path merges your output into those files BY KEY. You must NEVER output the whole file content for them.**
@@ -356,6 +367,8 @@ After updating character state, update `truth/character_matrix.md`:
 - `produced_at`: ISO-8601 时间戳
 - `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
 
+> **铁律：selections[] 必须覆盖所有 update 目标文件**——G4 `state_settling._check_selections_coverage` 校验 sidecar 的 `selections[].target` 必须含 frontmatter `updates:` 声明的全部文件。batch #21 (probe28 ch4 selections_uncovered 复现) 后固化：每条 update 路径必须有对应 selections 条目（`basis: adjacent_to_target_chapter`、`severity: low`、`omitted: []`），缺失则触发 `selections_uncovered` 硬 FAIL。
+
 **字段级规格（G4 逐项强校验，形态错误即闸门失败）**：
 - `selections[]`: `target`（**str，必填**，被选取的文件路径）、`selected`（**list[str]**，条目名列表）、`basis`（**仅限四枚举之一**：`adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`）、`severity`（`low`/`medium`/`high`）、`omitted`（list[str]）——**禁止自造字段**（id/type/decision/evidence 等一律不入）
 - `adjustments[]`: `issue_id`（str，必填）、`severity`、`handling`（**仅限四枚举之一**：`compensate_via_pacing` / `explicit_callout` / `defer_to_next_chapter` / `ignore`）、`rationale`（必填，≤100 字）——**禁止自造字段**（id/description 等一律不入）
@@ -370,13 +383,13 @@ After updating character state, update `truth/character_matrix.md`:
   "chapter": 1,
   "produced_at": "2026-09-28T12:00:00Z",
   "selections": [
-    {
-      "target": "truth/current_state.md",
-      "selected": ["sys-stage-1", "position-ash-crossing"],
-      "basis": "adjacent_to_target_chapter",
-      "severity": "low",
-      "omitted": []
-    }
+    {"target": "truth/current_state.md", "selected": ["sys-stage-1", "position-ash-crossing"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/character_matrix.md", "selected": ["主角"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/particle_ledger.md", "selected": ["灰木牌"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/emotional_arcs.md", "selected": ["主角-第 1 章"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/subplot_board.md", "selected": ["A1-第 1 章"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/pending_hooks.md", "selected": ["MH01"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/chapter_summaries.md", "selected": ["第 1 章"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []}
   ],
   "adjustments": []
 }

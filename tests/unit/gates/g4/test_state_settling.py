@@ -13,7 +13,7 @@ from typing import Any
 
 import pytest
 
-from shenbi.gates.g4.state_settling import g4_state_settling
+from shenbi.gates.g4.state_settling import _validate_character_matrix, g4_state_settling
 
 
 def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
@@ -134,9 +134,14 @@ def test_passes_when_particle_ledger_has_particle_section(tmp_path: Path) -> Non
 
 @pytest.mark.unit
 def test_state_settling_character_matrix_protection():
-    """state_settling prevents parameter agent names in character_matrix."""
-    from shenbi.gates.g4.state_settling import _validate_character_matrix
+    """state_settling prevents parameter agent names in character_matrix.
 
+    Phrase-level detection (probe27 #019 fix): parameter agents must be
+    tagged with the explicit `_param:` prefix when introduced in
+    character_matrix. Bare agent-name words are tolerated as common Chinese
+    vocabulary. The fixture uses the `_param:` tag to exercise the
+    genuine-leak path.
+    """
     content = """---
 update_mode: replace
 ---
@@ -148,14 +153,74 @@ update_mode: replace
 - 陈为民: 配角
 
 ## Ch50 State
-- 冷: 参数化存在
-- 光: 格式层出现
+- _param:冷: 参数化存在
+- _param:光: 格式层出现
 """
     issues = _validate_character_matrix(
         content, known_parameter_agents={"冷", "光", "安静", "缺口"}
     )
     assert len(issues) > 0
     assert "parameter_agent" in issues[0].lower()
+
+
+def test_character_matrix_common_word_quekou_is_not_a_parameter_agent():
+    """probe27 #019: '缺口' (deficit/gap) is a common Chinese word used freely
+    in accounting prose; the G4 gate must NOT treat every standalone
+    occurrence as a parameter agent leak.
+
+    Phrase-level detection: a parameter agent is only flagged when introduced
+    with the explicit `_param:` prefix (the LLM is now expected to use that
+    prefix when introducing a parameter role name in character_matrix).
+    """
+    content = """---
+update_mode: replace
+---
+
+# Character Matrix
+
+## 角色定义
+- 林烽: 主角
+- 陈为民: 配角
+
+## Ch5 State
+- 端木泠: 出场——以盐引、灵能、数目核账的人；缺口「得去别处对」
+- 最近更新章: 5
+"""
+    issues = _validate_character_matrix(
+        content, known_parameter_agents={"冷", "光", "安静", "缺口"}
+    )
+    # '缺口' is a common Chinese word (deficit/shortage) used in accounting
+    # context here — must NOT be flagged unless introduced with `_param:` prefix.
+    assert issues == [], (
+        f"Common-word '缺口' (deficit) must not be flagged as parameter agent "
+        f"without the `_param:` tag prefix. Got issues: {issues}"
+    )
+
+
+def test_character_matrix_param_agent_with_prefix_still_flagged():
+    """A parameter agent with the `_param:` tag prefix MUST still be flagged
+    when introduced outside the 角色定义 section — phrase-level only filters
+    out the common-word false positives, not legitimate tagged uses.
+    """
+    content = """---
+update_mode: replace
+---
+
+# Character Matrix
+
+## 角色定义
+- 林烽: 主角
+
+## Ch5 State
+- _param:缺口: 参数化存在
+- 最近更新章: 5
+"""
+    issues = _validate_character_matrix(
+        content, known_parameter_agents={"冷", "光", "安静", "缺口"}
+    )
+    assert len(issues) > 0
+    assert "parameter_agent" in issues[0].lower()
+    assert "缺口" in issues[0]
 
 
 # ── Task 9: Character Matrix Template & arc_log ──────────────────────────
@@ -596,3 +661,148 @@ def test_selections_coverage_still_catches_own_undeclared_target(tmp_path: Path)
     uncovered = [m for m in result.get("must_fix", []) if "selections_uncovered" in m]
     assert len(uncovered) == 3, uncovered  # the 3 undeclared OWN targets
     assert not any("bridge_tracker" in m for m in uncovered)
+
+
+@pytest.mark.unit
+def test_state_settling_skill_declares_selections_must_cover_all_update_targets():
+    """Batch #21 fix (probe28 ch4 selections_uncovered recurrence): the
+    state-settling SKILL.md must explicitly require selections[] to cover
+    EVERY update target declared in the frontmatter writes/updates.
+
+    probe28: state-settling's example sidecar only listed ONE selection
+    (current_state.md), causing G4.ss.selections_uncovered to fail on the
+    4 undeclared update targets (chapter_summaries / emotional_arcs /
+    particle_ledger / subplot_board). The contract must be unambiguous.
+    """
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+
+    # Must contain an explicit declaration that selections must cover all
+    # update targets declared in the frontmatter contract.
+    expected_patterns = [
+        "selections",
+        "all",
+        "update",
+        "writes",
+    ]
+    found = [p for p in expected_patterns if p.lower() in content.lower()]
+    assert found, (
+        "state-settling SKILL.md must explicitly require selections to "
+        "cover all update targets. Found none of the unambiguous patterns."
+    )
+
+    # Must contain an explicit "selections must include" or
+    # "selections must cover" or equivalent binding language.
+    import re as _re
+
+    binding_patterns = [
+        r"selections?[^.]*(?:must|should|必)[^.]*(?:cover|include|contain|含|覆盖)[^.]*(?:all|每个|全部)[^.]*(?:update|write|target|触达|目标)",
+        r"(?:all|每个|全部)[^.]*(?:update|write|target)[^.]*(?:必须|must|必)[^.]*(?:含|cover|申报)",
+    ]
+    found_binding = any(
+        _re.search(p, content, _re.IGNORECASE | _re.DOTALL) for p in binding_patterns
+    )
+    assert found_binding, (
+        "state-settling SKILL.md must contain explicit binding language "
+        "requiring selections[] to cover ALL update targets. None of the "
+        "binding patterns matched."
+    )
+
+
+@pytest.mark.unit
+def test_state_settling_skill_declares_character_matrix_append_only():
+    """Batch #22 fix (probe29 ch4 matrix_structure content_dropped): the
+    state-settling SKILL.md must contain EXPLICIT binding language that
+    character_matrix.md uses append-only semantics — output ONLY this
+    chapter's increment rows, NEVER modify or rewrite existing rows.
+
+    probe29 ch4: state-settling's re-emit rewrote live rows (e.g.,
+    `- 当前位置: 九面采掘队·工棚 (白日在护坡下稽查登记点)`),
+    triggering G4.ss.matrix_structure content_dropped with attempts=3
+    exhausted. The contract must be unambiguous: append, never replace.
+    """
+    import re as _re
+
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+
+    # Must contain an explicit "append" / "append-only" / "append_dedup"
+    # declaration that EXPLICITLY forbids modifying existing rows.
+    found_patterns = []
+    if _re.search(
+        r"append\s*[_-]?only|append_dedup|append\s*,?\s*never\s+replace", content, _re.IGNORECASE
+    ):
+        found_patterns.append("append-only declaration")
+    if _re.search(
+        r"never\s+(?:modify|rewrite|replace|reproduce)\s+existing\s+rows?", content, _re.IGNORECASE
+    ):
+        found_patterns.append("never modify existing rows")
+    if _re.search(
+        r"do\s+not\s+(?:modify|rewrite|replace)\s+(?:existing|the)\s+rows?", content, _re.IGNORECASE
+    ):
+        found_patterns.append("do not modify existing rows")
+    if _re.search(r"output\s+only\s+(?:the\s+)?(?:current\s+)?chapter", content, _re.IGNORECASE):
+        found_patterns.append("output only current chapter")
+
+    assert len(found_patterns) >= 2, (
+        f"state-settling SKILL.md must contain explicit append-only / "
+        f"never-replace-existing-rows binding language for character_matrix. "
+        f"Found: {found_patterns}"
+    )
+
+
+@pytest.mark.unit
+def test_state_settling_skill_append_constraint_in_prominent_location():
+    """Batch #22 fix (probe29 ch4 matrix_structure content_dropped): the
+    state-settling SKILL.md must place the character_matrix append-only
+    HARD CONSTRAINT in a PROMINENT location (within first 100 lines of
+    body, BEFORE the Truth File Update Mode Rules details), with very
+    explicit "ABSOLUTELY NEVER modify" language.
+
+    The detailed rule at line 75 is buried inside a bullet list and is
+    ignored by the LLM (probe29 ch4). A higher-prominence HARD CONSTRAINT
+    block at the top of the file is needed to make the rule unmissable.
+    """
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    lines = content.split("\n")
+
+    # Find the first 100 body lines (after frontmatter and auto-gen blocks)
+    # where the constraint should appear with explicit "NEVER modify existing
+    # rows" binding language.
+    body_start = 0
+    in_fm = False
+    for i, line in enumerate(lines):
+        if line.strip() == "---":
+            if not in_fm:
+                in_fm = True
+                continue
+            in_fm = False
+            body_start = i + 1
+            break
+
+    search_window = "\n".join(lines[body_start : body_start + 100])
+
+    import re as _re
+
+    # Must contain explicit binding language about NOT modifying existing
+    # rows in the FIRST 100 lines after frontmatter.
+    binding_patterns = [
+        r"ABSOLUTELY\s+NEVER\s+modify",
+        r"NEVER\s+(?:modify|rewrite|replace)\s+(?:the\s+)?(?:existing|live)\s+rows?",
+        r"hard\s*[-_ ]?\s*rule.*append",
+        r"append\s*[-_ ]?\s*only",
+    ]
+    found = [p for p in binding_patterns if _re.search(p, search_window, _re.IGNORECASE)]
+    assert found, (
+        f"state-settling SKILL.md must place character_matrix append-only "
+        f"HARD CONSTRAINT in the first 100 lines of body with explicit "
+        f"binding language. Searched patterns: {binding_patterns}, "
+        f"found: {found}, body_start={body_start}"
+    )

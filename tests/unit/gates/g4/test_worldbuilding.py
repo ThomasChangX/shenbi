@@ -340,3 +340,57 @@ def test_story_bible_with_timeline_no_warn(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
     checks = result.get("checks", [])
     assert not any(c.get("id") == "G4.sb.timeline" for c in checks), checks
+
+
+@pytest.mark.unit
+def test_story_bible_prose_bare_year_is_fail(tmp_path: Path) -> None:
+    """Batch #21 fix (probe26 ch1 / probe28 ch1 表外复述年数): the
+    story_bible.md prose sections MUST NOT contain bare year patterns
+    like "九年前" / "百年" — only the timeline table may carry years.
+
+    Probe26 ch1 genesis + probe28 ch1 genesis both surfaced this pattern
+    twice each as P0 — too high a frequency to keep ignoring. The gate
+    now treats bare-year restatement in prose as FAIL (was WARN pre-batch #21).
+    """
+    import json as _json
+
+    from shenbi.gates.g4.worldbuilding import g4_worldbuilding
+
+    rp = tmp_path
+    (rp / "novel.json").write_text(
+        _json.dumps({"title": "X", "genre": ["a"], "language": "zh", "target_words": 100000}),
+        encoding="utf-8",
+    )
+    (rp / "genre-config.json").write_text("{}", encoding="utf-8")
+
+    # Has the timeline table but ALSO has bare year in prose (the bad case).
+    sb_content = """# 世界观圣经
+
+## 第一段：天地法则
+风从西边来。
+
+## 第二段：社会格局
+宗主国视共燃为渎灵的异端，约三百年前以「割穹之约」将其变成殖民地，约一百二十年前又以种姓法把燧洲人整体压入灰烬之列。
+
+## 世界史时间线（年代锚单源表）
+
+| 锚名 | 距今 | 事件 |
+|------|------|------|
+| 割穹之约 | 约 300 年前 | 殖民地 |
+
+## 第三段：历史纵深
+裂穹之变那年的故事。
+
+## 第四段：暗流涌动
+铁笼矿难那年塌了。
+"""
+    (rp / "world").mkdir(parents=True, exist_ok=True)
+    (rp / "world" / "story_bible.md").write_text(sb_content, encoding="utf-8")
+    (rp / "world" / "rules.md").write_text("## 规则一\n可测试标准：x=y\n", encoding="utf-8")
+    (rp / "world" / "locations.md").write_text("## 地点 1\n- 描述\n", encoding="utf-8")
+
+    result = _json.loads(g4_worldbuilding([], str(rp)))
+    must_fix = result.get("must_fix", [])
+    assert any("sb.prose_bare_year" in m for m in must_fix), (
+        f"Bare year in story_bible.md prose must FAIL. must_fix={must_fix}"
+    )

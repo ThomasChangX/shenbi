@@ -103,16 +103,24 @@ def test_audit_classification_is_directory_scoped() -> None:
 
 
 @pytest.mark.unit
-def test_parameter_agent_match_is_token_level() -> None:
-    """Descriptors containing a blacklisted char (冷静) don't trip the
-    parameter-agent check; a standalone agent name does (canary ch1).
+def test_parameter_agent_match_is_phrase_level() -> None:
+    """Phrase-level detection (probe27 #019 fix): parameter agents must be
+    tagged with the explicit `_param:` prefix to be flagged.
+
+    Bare agent-name words (冷静 containing 冷) and bare agent names
+    (冷 in a table row) are tolerated as common Chinese vocabulary.
+    Only `_param:<agent>` form is flagged.
     """
     from shenbi.gates.g4.state_settling import _validate_character_matrix
 
     body_ok = "---\nfm\n---\n\n| 老头 | 登记人 | 存活 | 冷静、讳莫如深 | 起点 |\n"
     assert _validate_character_matrix(body_ok) == []
-    body_agent = "---\nfm\n---\n\n| 冷 | 参数代理 | 活跃 | 无 | 第1章 |\n"
-    assert _validate_character_matrix(body_agent) != []
+    body_bare = "---\nfm\n---\n\n| 冷 | 参数代理 | 活跃 | 无 | 第1章 |\n"
+    # Bare agent name in a table cell is tolerated (common Chinese word).
+    assert _validate_character_matrix(body_bare) == []
+    body_tagged = "---\nfm\n---\n\n| _param:冷 | 参数代理 | 活跃 | 无 | 第1章 |\n"
+    # Tagged with `_param:` prefix IS flagged.
+    assert _validate_character_matrix(body_tagged) != []
 
 
 @pytest.mark.unit

@@ -1021,6 +1021,22 @@ def _build_skill_prompt(
         user_parts.append("\n## 逐目标基座态（机器计算——以此为准，优先于任何旧反馈）")
         for s in _ad_states:
             user_parts.append(f"- {s}")
+    # Batch #23 (probe30 ch4 matrix_structure content_dropped): SKILL.md
+    # 铁律 0 alone did not survive high write-pressure chapters — the model
+    # rewrote existing rows when many increments landed at once. The
+    # append-only constraint must also sit in the USER prompt, adjacent to
+    # the output instructions where emission actually happens.
+    if skill == "shenbi-state-settling":
+        user_parts.append(
+            "\n## CRITICAL — APPEND-ONLY HARD CONSTRAINT\n"
+            "Your output to truth/character_matrix.md MUST be a new "
+            "`## 第N章状态增量` block only — this target is append-only.\n"
+            "DO NOT modify existing rows; NEVER modify or extend any existing "
+            "row or any earlier `## 第N章状态增量` section. The dispatcher "
+            "merges by key and preserves existing rows for you — re-emitting "
+            "live rows triggers G4.ss.matrix_structure content_dropped and "
+            "burns the chapter's retry budget."
+        )
     if len(output_paths) > 1:  # note follows persistence reality (r3 I-2)
         user_parts.append(
             "\nNote: This skill produces multiple files. "
