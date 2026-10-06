@@ -298,6 +298,16 @@ _TABLE_HEADER_BOOTSTRAP: dict[str, str] = {
     # character_matrix is dual-table (交互总表 + 信息边界 sections); the
     # keyed 交互总表 header is the one the append_dedup contract targets.
     "character_matrix.md": "| 角色A | 角色B | 关系性质 | 本章交互 | 变化 |",
+    # Batch #27 (probe32 ch2 settle 4-attempt deadlock): pending_hooks was
+    # the ONLY keyed truth table without a bootstrap header — genesis wrote
+    # the hook registry onto the shell base as bare headerless rows, which
+    # disabled the G4 lifecycle-column exemption (header-keyed) and framed
+    # the foreshadowing-track's legal PLANTED→RELEVANT bump as a settle
+    # stable-column rewrite. 8-column form = the lifecycle writer's own
+    # contract shape (skills/shenbi-foreshadowing-lifecycle).
+    "pending_hooks.md": (
+        "| Hook ID（钩子名） | 当前生命周期 | 种植章 | 兑现章（卷） | 类型 | 微妙度 | max_distance | 升级曲线 |"
+    ),
 }
 
 

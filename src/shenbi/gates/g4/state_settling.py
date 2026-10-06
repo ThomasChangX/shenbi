@@ -232,6 +232,14 @@ _HOOK_ROW_KEY_RE = re.compile(r"^\|\s*((?:MH|H|CP)-?\d{1,4})(?=[\s（(｜|]|$)")
 _SEPARATOR_ROW_RE = re.compile(r"^[\s:\-|]+$")
 _LIFECYCLE_HEADER_RE = re.compile(r"生命周期|状态")
 
+#: Batch #27 (probe32 ch2): the foreshadowing-track's legal state chain
+#: (skills/shenbi-foreshadowing-lifecycle SKILL.md — sole driver of hook
+#: lifecycle state). Disjoint from the type vocabulary (ITEM/CHARACTER/
+#: EVENT/INFORMATION/RULE/…) and the escalation-curve vocabulary
+#: (RISING/STAIRCASE/…), so a column whose every hook-row value lands in
+#: this set is unambiguously the lifecycle column.
+_LIFECYCLE_VOCAB = {"PLANTED", "RELEVANT", "TRIGGERED", "RESOLVED"}
+
 
 def _canon_hook_id(raw: str) -> str:
     """``MH-001`` ≡ ``MH01`` — mirrors truth_io.canon_hook_id (imported at
@@ -293,6 +301,31 @@ def _live_lifecycle_columns(live_text: str) -> dict[int, int]:
             exempt = seen_header
         if exempt is not None:
             out[i] = exempt
+    if not out:
+        # Batch #27 (probe32 ch2 4-attempt settle deadlock): a genesis live
+        # registry can be entirely HEADERLESS (shell base, no bootstrap —
+        # pending_hooks had no _TABLE_HEADER_BOOTSTRAP entry), leaving every
+        # hook row without an exemption and framing the lifecycle writer's
+        # legal PLANTED→RELEVANT bump as a settle-side stable rewrite.
+        # Fallback: locate the lifecycle column by value vocabulary — the
+        # column whose every hook-row cell is a known lifecycle state.
+        hook_rows = [
+            [c.strip() for c in line.strip().split("|")[1:-1]]
+            for line in lines
+            if _HOOK_ROW_KEY_RE.match(line.strip())
+        ]
+        if hook_rows:
+            width = min(len(cells) for cells in hook_rows)
+            for j in range(width):
+                if all(cells[j].upper() in _LIFECYCLE_VOCAB for cells in hook_rows):
+                    out.update(
+                        {
+                            i: j
+                            for i, line in enumerate(lines)
+                            if _HOOK_ROW_KEY_RE.match(line.strip())
+                        }
+                    )
+                    break
     return out
 
 

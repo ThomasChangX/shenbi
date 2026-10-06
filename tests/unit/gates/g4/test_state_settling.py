@@ -880,3 +880,78 @@ def test_re_settle_still_flags_foreign_chapter_block_rewrites(tmp_path: Path) ->
     assert any(
         "G4.ss.matrix_structure" in m and "content_dropped" in m for m in result.get("must_fix", [])
     )
+
+
+_HEADERLESS_HOOKS_LIVE = """---
+type: truth
+---
+
+# 伏笔追踪
+
+（尚无章节级伏笔数据）
+| MH01（旧木牌：正面是账，背面是字） | PLANTED | 1 | 115（五卷） | ITEM | 0.5 | 14 | STAIRCASE |
+| MH02（烬婆婆被押上运矿车） | PLANTED | 12 | 106（五卷） | CHARACTER | 0.45 | 12 | RISING |
+
+### MH01（旧木牌：正面是账，背面是字）
+
+- type: ITEM
+- lifecycle_state: PLANTED
+"""
+
+
+@pytest.mark.unit
+def test_hook_row_lifecycle_bump_on_headerless_table_not_flagged(tmp_path: Path) -> None:
+    """Batch #27 (probe32 ch2 settle 4-attempt deadlock): a genesis live
+    pending_hooks registry table can be HEADERLESS (the shell base never
+    got a bootstrap header), which made _live_lifecycle_columns return no
+    exemption — the foreshadowing-track's LEGAL lifecycle bump
+    (PLANTED→RELEVANT) then landed in the settle gate as
+    hook_row_stable_columns_rewritten and settled 4x for a crime it did
+    not commit. Without a header the lifecycle column must be located by
+    value-vocabulary inference (all hook rows' cells ∈ PLANTED/RELEVANT/
+    TRIGGERED/RESOLVED).
+    """
+    live = tmp_path / "truth" / "pending_hooks.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(_HEADERLESS_HOOKS_LIVE, encoding="utf-8")
+
+    staged_body = _HEADERLESS_HOOKS_LIVE.replace(
+        "| MH01（旧木牌：正面是账，背面是字） | PLANTED |",
+        "| MH01（旧木牌：正面是账，背面是字） | RELEVANT |",
+    ).replace(
+        "- lifecycle_state: PLANTED\n",
+        "- lifecycle_state: PLANTED\n- last_reinforced: 第 2 章\n- 证据: 第 2 章（L38）：红笔划过牌缘\n",
+    )
+    staged = tmp_path / "staging" / "truth" / "pending_hooks.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(staged_body, encoding="utf-8")
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+    assert not any("hook_row_stable_columns_rewritten" in m for m in mf), (
+        f"A lifecycle-only status bump on a headerless registry table is the "
+        f"foreshadowing-track's legal write — must not be flagged. must_fix={mf}"
+    )
+
+
+@pytest.mark.unit
+def test_hook_row_real_stable_rewrite_on_headerless_table_still_flagged(tmp_path: Path) -> None:
+    """Regression lock for the batch #27 value-inference fallback: a REAL
+    stable-column rewrite (subtlety 0.5→0.8) on a headerless table must
+    still FAIL — the fallback exempts the lifecycle column only, not the
+    rest of the row.
+    """
+    live = tmp_path / "truth" / "pending_hooks.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(_HEADERLESS_HOOKS_LIVE, encoding="utf-8")
+
+    staged_body = _HEADERLESS_HOOKS_LIVE.replace("| ITEM | 0.5 | 14 |", "| ITEM | 0.8 | 14 |")
+    staged = tmp_path / "staging" / "truth" / "pending_hooks.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(staged_body, encoding="utf-8")
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+    assert any("hook_row_stable_columns_rewritten" in m for m in mf), (
+        f"A subtlety rewrite is a stable-column violation even on a headerless table. must_fix={mf}"
+    )

@@ -186,3 +186,29 @@ class TestSingleTableBootstraps:
             assert first_cell in ("章节", "chapter", "volume", "Bridge ID"), (
                 f"{name}: key column must lead the pinned header (got {first_cell!r})"
             )
+
+
+class TestPendingHooksHeaderBootstrap:
+    """Batch #27 (probe32 ch2 settle 4-attempt deadlock): pending_hooks.md
+    was the ONLY keyed truth table without a bootstrap header — genesis
+    wrote the hook registry onto the shell base as bare headerless rows,
+    which then made the G4 lifecycle-column exemption header-dependent
+    logic return nothing and framed the foreshadowing-track's legal
+    PLANTED→RELEVANT bump as a settle-side stable rewrite.
+    """
+
+    def test_pending_hooks_registered_with_lifecycle_header(self):
+        assert "pending_hooks.md" in _TABLE_HEADER_BOOTSTRAP
+        header = _TABLE_HEADER_BOOTSTRAP["pending_hooks.md"]
+        # The lifecycle column must be locatable by name (生命周期/状态) so
+        # the G4 exemption keys on it for header-carrying registries.
+        assert "生命周期" in header or "状态" in header
+
+    def test_bootstrap_prepends_on_bare_hook_row(self):
+        header = _TABLE_HEADER_BOOTSTRAP["pending_hooks.md"]
+        out = ensure_table_header(
+            "pending_hooks.md",
+            "| MH01（旧木牌） | PLANTED | 1 | 115（五卷） | ITEM | 0.5 | 14 | STAIRCASE |",
+        )
+        assert out.split("\n")[0] == header
+        assert "| MH01（旧木牌） |" in out
