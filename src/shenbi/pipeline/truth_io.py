@@ -522,6 +522,17 @@ def hooks_stable_fields_hint() -> str:
     return "/".join(HOOKS_STABLE_FIELDS)
 
 
+def table_header_registered(filename: str) -> bool:
+    """Whether a truth target's keyed form is a registered table file.
+
+    Phase3 esc#2: the user-prompt increment contract renders per-target
+    sanctioned forms and must not reach into the registry dict directly
+    (strict typecheck owns the private boundary); table-registered targets
+    get the table-row form, everything else the section-increment form.
+    """
+    return filename in _TABLE_HEADER_BOOTSTRAP
+
+
 def _canon_field_name(name: str) -> str:
     """Field ADDRESSING name: emphasis markers stripped.
 

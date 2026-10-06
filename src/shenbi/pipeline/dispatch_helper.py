@@ -958,6 +958,13 @@ def _build_skill_prompt(
         "",
     ]
 
+    # Phase3 esc#2: for append_dedup targets the COMPLETE-file rule below is
+    # an active contra-instruction — the score-arc writer obeyed it verbatim
+    # (echoed the whole live base) and the guard rejected the dispatch.
+    _has_ad_target = any(
+        str(m.get("mode")) == "append_dedup" for m in contract.get("write_semantics", {}).values()
+    )
+
     if json_mode:
         user_parts.extend(
             [
@@ -980,6 +987,11 @@ def _build_skill_prompt(
                 "",
             ]
         )
+        if _has_ad_target:
+            user_parts.append(
+                "- EXCEPT append_dedup targets (see 逐目标基座态 below): emit ONLY the "
+                "increment — new rows/sections — never the complete file"
+            )
     else:
         user_parts.extend(
             [
@@ -1021,6 +1033,45 @@ def _build_skill_prompt(
         user_parts.append("\n## 逐目标基座态（机器计算——以此为准，优先于任何旧反馈）")
         for s in _ad_states:
             user_parts.append(f"- {s}")
+    # Phase3 esc#2 (ch12 score-arc → escalation): the base-states banner
+    # names the states, but the only full shape contracts sat in the two
+    # state-settling blocks below — every OTHER append_dedup writer
+    # (triggered score/resonance/consolidation skills) met the ingestion
+    # guard's IncrementShapeError cold, and the json_mode "COMPLETE file
+    # content" line is an active contra-instruction for these targets. Same
+    # pre-emission pattern as #23/#26: the sanctioned form belongs in the
+    # USER prompt, rendered from the same single source the guard uses.
+    # state-settling keeps its two specialized blocks (mutually exclusive,
+    # so settle prompts stay byte-stable).
+    if skill != "shenbi-state-settling":
+        _filled_targets = [
+            (rel, key)
+            for rel, key, state in _append_dedup_base_states(
+                project_dir, _ad_semantics, staging=uses_staging
+            )
+            if state == "FILLED"
+        ]
+        if any(key == "hook_id" for _rel, key in _filled_targets):
+            user_parts.append(_hooks_increment_shape_injection())
+        _keyed = [(rel, key) for rel, key in _filled_targets if key and key != "hook_id"]
+        if _keyed:
+            from shenbi.pipeline.truth_io import table_header_registered
+
+            user_parts.append(
+                "\n## CRITICAL — append_dedup 目标：只输出增量\n"
+                "上列 FILLED 目标由程序按键原位合并——每个目标只输出本章新增内容；"
+                "绝不重发 frontmatter、`#`/`##` 文件标题、既有分节或既有表行"
+                "（摄取守卫会在落盘前拒绝整档重发，整次派发作废）："
+            )
+            for rel, key in _keyed:
+                basename = rel.rsplit("/", 1)[-1]
+                if table_header_registered(basename):
+                    form = "表格行增量（按 key 列合并；不重发表头/分隔行）"
+                    if basename == "character_matrix.md":
+                        form += "＋`## 第N章状态增量` 原子区块"
+                else:
+                    form = "新增 `### 第N章` 分节区块增量（沿用 live 既有分节，不重发既有分节）"
+                user_parts.append(f"- {rel}（key: {key}）：{form}")
     # Batch #23 (probe30 ch4 matrix_structure content_dropped): SKILL.md
     # 铁律 0 alone did not survive high write-pressure chapters — the model
     # rewrote existing rows when many increments landed at once. The
@@ -1641,6 +1692,26 @@ _INCREMENT_BANNED_FORMS_HINT = (
 )
 
 
+def _sanctioned_forms_hint(key: str) -> str:
+    """Legal increment form for a keyed truth target, single-sourced.
+
+    Consumed by BOTH the IncrementShapeError remediation text and the
+    user-prompt injection (phase3 esc#2): when the guard's text and the
+    prompt's text are rendered apart they drift — esc#1's stable-set lists
+    and esc#2's whole missing injection are the same lesson.
+    """
+    if key == "hook_id":
+        from shenbi.pipeline.truth_io import hooks_stable_fields_hint
+
+        return (
+            "既有钩：`### MHxx（标题照抄 live 该钩标题）` + colon bullet 字段块"
+            "（如 `- last_reinforced: 第 N 章`；证据/notes 须重述全史后追加，"
+            f"禁改稳定行 {hooks_stable_fields_hint()}）；"
+            "新钩：完整 `###` 新区块"
+        )
+    return "表格行增量（按 key 列合并）＋（character_matrix）`## 第N章状态增量` 原子区块"
+
+
 def _hooks_increment_shape_injection() -> str:
     """User-prompt block teaching the pending_hooks increment contract.
 
@@ -1718,17 +1789,7 @@ def _validate_increment_package(content: str, *, key_field: str, base_text: str 
     if not violations:
         return
 
-    if key_field == "hook_id":
-        from shenbi.pipeline.truth_io import hooks_stable_fields_hint
-
-        sanctioned = (
-            "既有钩：`### MHxx（标题照抄 live 该钩标题）` + colon bullet 字段块"
-            "（如 `- last_reinforced: 第 N 章`；证据/notes 须重述全史后追加，"
-            f"禁改稳定行 {hooks_stable_fields_hint()}）；"
-            "新钩：完整 `###` 新区块"
-        )
-    else:
-        sanctioned = "表格行增量（按 key 列合并）＋（character_matrix）`## 第N章状态增量` 原子区块"
+    sanctioned = _sanctioned_forms_hint(key_field)
     raise IncrementShapeError(
         f"输出未落盘——append_dedup（key: {key_field}）增量包含整档脚手架："
         f"{'、'.join(violations)}。合法增量形态：{sanctioned}。"
@@ -1736,10 +1797,10 @@ def _validate_increment_package(content: str, *, key_field: str, base_text: str 
     )
 
 
-def _append_dedup_base_state_lines(
+def _append_dedup_base_states(
     project_dir: Path, semantics: dict[str, dict[str, Any]], *, staging: bool
-) -> list[str]:
-    """Machine-computed per-target base states for append_dedup targets.
+) -> list[tuple[str, str, str]]:
+    """Machine-computed ``(rel, key, state)`` for append_dedup truth targets.
 
     batch #15 #44/#47 (probe20 deadlock): rejection feedback describing a
     world the bases do not carry is how a recoverable data loss became a
@@ -1751,7 +1812,7 @@ def _append_dedup_base_state_lines(
     """
     from shenbi.pipeline.truth_io import base_is_shell
 
-    lines: list[str] = []
+    states: list[tuple[str, str, str]] = []
     for target, meta in sorted(semantics.items()):
         if meta.get("mode") != "append_dedup":
             continue
@@ -1761,11 +1822,21 @@ def _append_dedup_base_state_lines(
         staged = project_dir / "staging" / rel
         live = project_dir / rel
         src = staged if (staging and staged.exists()) else live
-        if src.exists() and not base_is_shell(src.read_text(encoding="utf-8")):
-            lines.append(f"{rel}=FILLED（已有数据：只允许行/字段增量，禁止整档重发）")
-        else:
-            lines.append(f"{rel}=SHELL（空壳/缺失首写：整档创建形态合法）")
-    return lines
+        filled = src.exists() and not base_is_shell(src.read_text(encoding="utf-8"))
+        states.append((rel, str(meta.get("key") or ""), "FILLED" if filled else "SHELL"))
+    return states
+
+
+def _append_dedup_base_state_lines(
+    project_dir: Path, semantics: dict[str, dict[str, Any]], *, staging: bool
+) -> list[str]:
+    """Rendered per-target base states (banner form of the tuple source)."""
+    return [
+        f"{rel}={state}（已有数据：只允许行/字段增量，禁止整档重发）"
+        if state == "FILLED"
+        else f"{rel}={state}（空壳/缺失首写：整档创建形态合法）"
+        for rel, _key, state in _append_dedup_base_states(project_dir, semantics, staging=staging)
+    ]
 
 
 def _is_creation_form(content: str, *, key_field: str) -> bool:
