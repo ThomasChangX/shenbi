@@ -13,6 +13,7 @@ from shenbi.gates.shared import (
     passed,
     resolve_input_path,
 )
+from shenbi.pipeline.truth_io import HOOKS_VOLATILE_FIELDS, hooks_stable_fields_hint
 
 # Known parameter-agent identifiers that must NOT appear in character_matrix
 _PARAMETER_AGENT_NAMES = {"冷", "光", "安静", "缺口", "在场于", "参数", "槽位"}
@@ -55,10 +56,13 @@ def _content_stream(text: str) -> list[str]:
 
 
 #: pending_hooks per-hook bullets that legitimately mutate every chapter —
-#: lifecycle transitions, evidence citations, and notes. Everything else in a
-#: hook block (headings, type/埋设/trigger_condition/resolve_condition/
-#: subtlety/depends_on) is base mass and must survive settles verbatim.
-_HOOKS_VOLATILE_RE = re.compile(r"^- (?:lifecycle_state|证据|notes|last_reinforced)\s*[:：]")
+#: rendered from the shared HOOKS_VOLATILE_FIELDS contract (truth_io) so
+#: the gate exemption and the prompt-side ban list can never drift apart
+#: again (phase3 esc#1: they had). Everything else in a hook block is base
+#: mass and must survive settles verbatim.
+_HOOKS_VOLATILE_RE = re.compile(
+    r"^- (?:" + "|".join(re.escape(f) for f in HOOKS_VOLATILE_FIELDS) + r")\s*[:：]"
+)
 
 #: The MH detail blocks combine stable and volatile fields on one line
 #: (``- type: … ｜ dimension: … ｜ lifecycle_state: …``); a legitimate
@@ -98,10 +102,28 @@ def _dropped_content_lines(
     miss, cascading every subsequent live line into the count — 2 real
     losses reported as 153, with sample lines that were present in staging.
     A miss now records exactly that line; the pointer stays put.
+
+    hooks=True compares per ``### MHxx`` section (phase3 esc#1): generic
+    same-value stable lines (``- plant_chapter: 2``) are indistinguishable
+    across sections, and the flat order-preserving scan let a rewritten
+    line match a LATER hook's same-value line, jumping the pointer a
+    section ahead — 6 real violations inflated to 65 reported, with
+    samples the model had never touched (un-actionable feedback, three
+    burned attempts). Section scoping restores line identity.
     """
-    stream_fn = _hooks_content_stream if hooks else _content_stream
-    live_stream = [l for l in stream_fn(live_text) if not _PLACEHOLDER_LINE_RE.match(l.strip())]
-    staged_stream = stream_fn(staged_text)
+    if hooks:
+        return _dropped_hook_section_lines(live_text, staged_text, samples)
+    return _format_drops(
+        _seq_drops(
+            [l for l in _content_stream(live_text) if not _PLACEHOLDER_LINE_RE.match(l.strip())],
+            _content_stream(staged_text),
+        ),
+        samples,
+    )
+
+
+def _seq_drops(live_stream: list[str], staged_stream: list[str]) -> list[str]:
+    """Order-preserving scan with non-consuming miss (probe18 #005)."""
     missing: list[str] = []
     i = 0
     for line in live_stream:
@@ -112,6 +134,50 @@ def _dropped_content_lines(
             i = j + 1  # consume the match
         else:
             missing.append(line)  # probe pointer stays at i for the next line
+    return missing
+
+
+def _split_hook_sections(stream: list[str]) -> dict[str, list[str]]:
+    """Partition a hooks content stream keyed by ``###`` section heading.
+
+    Lines before the first ``###`` (frontmatter-stripped headings, prose)
+    form the ``""`` preamble section. Duplicate headings keep their lines
+    merged — only content preservation matters here, not uniqueness.
+    """
+    sections: dict[str, list[str]] = {"": []}
+    key = ""
+    for line in stream:
+        if line.lstrip().startswith("### "):
+            key = line.strip()
+            sections.setdefault(key, [])
+            continue
+        sections[key].append(line)
+    return sections
+
+
+def _dropped_hook_section_lines(live_text: str, staged_text: str, samples: int) -> list[str]:
+    """Section-scoped dropped-line report for pending_hooks (phase3 esc#1)."""
+    live_secs = _split_hook_sections(_hooks_content_stream(live_text))
+    staged_secs = _split_hook_sections(_hooks_content_stream(staged_text))
+    missing: list[str] = []
+    for key, live_lines in live_secs.items():
+        if not live_lines and not key:
+            continue
+        staged_lines = staged_secs.get(key)
+        if staged_lines is None:
+            missing.extend(live_lines)  # the whole hook block vanished
+            continue
+        missing.extend(
+            [
+                l
+                for l in _seq_drops(live_lines, staged_lines)
+                if not _PLACEHOLDER_LINE_RE.match(l.strip())
+            ]
+        )
+    return _format_drops(missing, samples)
+
+
+def _format_drops(missing: list[str], samples: int) -> list[str]:
     total = len(missing)
     if not total:
         return []
@@ -408,8 +474,7 @@ def _check_hooks_structure(pf: Path) -> list[str]:
         "(hook base lines dropped — re-emit ONLY the affected hook's section "
         "as named-field colon bullets (e.g. `- last_reinforced: N`); the "
         "program merges them into the live block in place — never re-emit "
-        "the hook's stable lines: type/plant_ch/trigger_condition/"
-        "resolve_condition/subtlety/depends_on)"
+        f"the hook's stable lines: {hooks_stable_fields_hint()})"
         for detail in _dropped_content_lines(live_text, staged_text, hooks=True)
     )
     # Hook-row findings carry their own row-scoped remediation text.

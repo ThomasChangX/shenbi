@@ -1046,22 +1046,10 @@ def _build_skill_prompt(
         # Same pre-emission pattern as the matrix block above: the shape
         # contract must sit in the USER prompt, not only in post-hoc gate
         # feedback (the model keeps re-emitting its own idea of the file).
-        user_parts.append(
-            "\n## CRITICAL — pending_hooks.md INCREMENT SHAPE (hooks)\n"
-            "To advance an EXISTING hook in truth/pending_hooks.md, output "
-            "ONLY colon bullets — the dispatcher merges them into the live "
-            "`### MHxx` section (title copied verbatim from live):\n"
-            "- last_reinforced: 第 N 章\n"
-            "- 证据: …\n"
-            "NEVER rewrite or re-emit a registry overview table row "
-            "(`| MHxx… |`) — the lifecycle/status stable column is owned by "
-            "the foreshadowing-track, not you; rewriting it triggers "
-            "G4.ss.hooks_structure hook_row_stable_columns_rewritten.\n"
-            "NEVER re-emit frontmatter, `#`/`##` headings, or stable detail "
-            "lines (type/trigger_condition/resolve_condition/depends_on).\n"
-            "ONLY a brand-NEW hook may get a full new `### MHxx` section; "
-            "cumulative fields (证据/notes) must restate the full history."
-        )
+        # Phase3 esc#1: the stable-line ban list was a PARTIAL subset — the
+        # settle writer rewrote plant_chapter (unbanned here, banned in G4)
+        # three attempts running; now rendered whole from the shared set.
+        user_parts.append(_hooks_increment_shape_injection())
     if len(output_paths) > 1:  # note follows persistence reality (r3 I-2)
         user_parts.append(
             "\nNote: This skill produces multiple files. "
@@ -1653,6 +1641,43 @@ _INCREMENT_BANNED_FORMS_HINT = (
 )
 
 
+def _hooks_increment_shape_injection() -> str:
+    """User-prompt block teaching the pending_hooks increment contract.
+
+    Batch #26 put the shape contract in the user prompt (post-hoc gate
+    feedback alone did not converge); phase3 esc#1 completed it — the
+    stable-line ban now renders the FULL shared set (the old list omitted
+    plant_chapter/resolve_chapter/subtlety and the writer rewrote exactly
+    plant_chapter, three attempts running), and the cumulative clause now
+    defines "restate" (the old wording let the writer REPLACE notes with
+    only the new sentence — silent history loss, invisible to G4 which
+    exempts notes).
+    """
+    from shenbi.pipeline.truth_io import hooks_stable_fields_hint
+
+    stable = hooks_stable_fields_hint()
+    return (
+        "\n## CRITICAL — pending_hooks.md INCREMENT SHAPE (hooks)\n"
+        "To advance an EXISTING hook in truth/pending_hooks.md, output "
+        "ONLY colon bullets — the dispatcher merges them into the live "
+        "`### MHxx` section (title copied verbatim from live):\n"
+        "- last_reinforced: 第 N 章\n"
+        "- 证据: …\n"
+        "NEVER rewrite or re-emit a registry overview table row "
+        "(`| MHxx… |`) — the lifecycle/status stable column is owned by "
+        "the foreshadowing-track, not you; rewriting it triggers "
+        "G4.ss.hooks_structure hook_row_stable_columns_rewritten.\n"
+        "NEVER re-emit frontmatter, `#`/`##` headings, or stable detail "
+        f"lines ({stable}) — re-emitting one REPLACES the live value, "
+        "which G4 reports as base content dropped.\n"
+        "ONLY a brand-NEW hook may get a full new `### MHxx` section.\n"
+        "Cumulative fields are 证据/notes ONLY, and cumulative means "
+        "RESTATE the live content IN FULL then APPEND this chapter's "
+        "addition — replacing notes with only the new sentence is silent "
+        "history loss."
+    )
+
+
 def _validate_increment_package(content: str, *, key_field: str, base_text: str = "") -> None:
     """Reject whole-file scaffold in an append_dedup truth increment.
 
@@ -1693,12 +1718,17 @@ def _validate_increment_package(content: str, *, key_field: str, base_text: str 
     if not violations:
         return
 
-    sanctioned = (
-        "既有钩：`### MHxx（标题照抄 live 该钩标题）` + colon bullet 字段块"
-        "（如 `- last_reinforced: 第 N 章`）；新钩：完整 `###` 新区块"
-        if key_field == "hook_id"
-        else "表格行增量（按 key 列合并）＋（character_matrix）`## 第N章状态增量` 原子区块"
-    )
+    if key_field == "hook_id":
+        from shenbi.pipeline.truth_io import hooks_stable_fields_hint
+
+        sanctioned = (
+            "既有钩：`### MHxx（标题照抄 live 该钩标题）` + colon bullet 字段块"
+            "（如 `- last_reinforced: 第 N 章`；证据/notes 须重述全史后追加，"
+            f"禁改稳定行 {hooks_stable_fields_hint()}）；"
+            "新钩：完整 `###` 新区块"
+        )
+    else:
+        sanctioned = "表格行增量（按 key 列合并）＋（character_matrix）`## 第N章状态增量` 原子区块"
     raise IncrementShapeError(
         f"输出未落盘——append_dedup（key: {key_field}）增量包含整档脚手架："
         f"{'、'.join(violations)}。合法增量形态：{sanctioned}。"

@@ -491,6 +491,36 @@ def base_is_shell(text: str) -> bool:
 
 _COLON_BULLET_RE = re.compile(r"^-\s*([^:：\s][^:：]*)\s*[:：]")
 
+#: pending_hooks per-hook bullets that legitimately mutate every chapter.
+#: Single source of the hooks increment contract: the G4 checker's volatile
+#: exemption, the dispatch prompt injection, and the settle
+#: IncrementShapeError remediation text all render from these tuples.
+#: phase3 escalation #1 (novel-xinghuo-phase3 ch1): the three sites had
+#: drifted apart — no site's text banned ``plant_chapter`` and the settle
+#: writer rewrote exactly that, three attempts in a row.
+HOOKS_VOLATILE_FIELDS: tuple[str, ...] = ("lifecycle_state", "证据", "notes", "last_reinforced")
+
+#: Every other named field in a hook detail block is base mass: stable
+#: across settles, owned by the genesis/foreshadowing-track writer.
+HOOKS_STABLE_FIELDS: tuple[str, ...] = (
+    "type",
+    "dimension",
+    "plant_chapter",
+    "resolve_chapter",
+    "subtlety",
+    "cultivation_interval",
+    "max_distance",
+    "escalation_curve",
+    "trigger_condition",
+    "resolve_condition",
+    "depends_on",
+)
+
+
+def hooks_stable_fields_hint() -> str:
+    """Slash-joined stable field names for the contract texts."""
+    return "/".join(HOOKS_STABLE_FIELDS)
+
 
 def _canon_field_name(name: str) -> str:
     """Field ADDRESSING name: emphasis markers stripped.
