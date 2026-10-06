@@ -108,10 +108,14 @@ def g4_worldbuilding(
             prose_body = re.sub(r"```[\s\S]*?```", "", prose_body)
             # Match Chinese bare-year phrases: N 年前 / N 年 / 数百年前 / 百年 / 数十年
             # Standalone tokens; require adjacent CJK boundary so 冷静 won't trip on 年.
+            # probe32 genesis escalation: the |数|半|若干 value branches matched
+            # magnitude-LESS relatives (数年之后/半年/若干年后 = 几年后) and
+            # deadlocked genesis on a false positive; magnitude-bearing forms
+            # (数十年/数百年/若干百年) still match via 十/百 in the class below.
             bare_year_re = re.compile(
                 r"(?<![一二三四五六七八九十百千万亿零〇\d])"
                 r"(?:约\s*)?"
-                r"([一二三四五六七八九十百千万亿零〇\d]+|数|半|若干)\s*年"
+                r"([一二三四五六七八九十百千万亿零〇\d]+)\s*年"
                 r"(?:前|之(?:前|后)|来|之(?:久|内))?"
                 r"(?![一二三四五六七八九十百千万亿零〇\d年月日号时\])])"
             )

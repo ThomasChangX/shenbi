@@ -394,3 +394,106 @@ def test_story_bible_prose_bare_year_is_fail(tmp_path: Path) -> None:
     assert any("sb.prose_bare_year" in m for m in must_fix), (
         f"Bare year in story_bible.md prose must FAIL. must_fix={must_fix}"
     )
+
+
+@pytest.mark.unit
+def test_story_bible_relative_few_years_not_flagged(tmp_path: Path) -> None:
+    """probe32 genesis escalation (3 gate attempts burned):「数年之后」/
+    「半年」/「若干年后」are RELATIVE phrases (= 几年后), not absolute-year
+    restatements — the bare-year regex must not flag them. The old
+    ``|数|半|若干`` value branches existed to catch 数十年/数百年/若干百年,
+    but those already match via the magnitude numeral (十/百) in the main
+    character class, so the branches' only net effect was this false
+    positive that deadlocked genesis.
+    """
+    import json as _json
+
+    from shenbi.gates.g4.worldbuilding import g4_worldbuilding
+
+    rp = tmp_path
+    (rp / "novel.json").write_text(
+        _json.dumps({"title": "X", "genre": ["a"], "language": "zh", "target_words": 100000}),
+        encoding="utf-8",
+    )
+    (rp / "genre-config.json").write_text("{}", encoding="utf-8")
+
+    sb_content = """# 世界观圣经
+
+## 第一段：天地法则
+风从西边来。
+
+## 第二段：社会格局
+「铁穹城公约」签订后，帝国与九姓暂时划定了海岸分界。数年之后，新秩序军崛起；其间虽有半年僵持、若干年后又起波澜，皆是相对表述。
+
+## 世界史时间线（年代锚单源表）
+
+| 锚名 | 距今 | 事件 |
+|------|------|------|
+| 铁穹城公约 | 约八十年前 | 划界 |
+
+## 第三段：历史纵深
+裂穹之变那年的故事。
+
+## 第四段：暗流涌动
+铁笼矿难那年塌了。
+"""
+    (rp / "world").mkdir(parents=True, exist_ok=True)
+    (rp / "world" / "story_bible.md").write_text(sb_content, encoding="utf-8")
+    (rp / "world" / "rules.md").write_text("## 规则一\n可测试标准：x=y\n", encoding="utf-8")
+    (rp / "world" / "locations.md").write_text("## 地点 1\n- 描述\n", encoding="utf-8")
+
+    result = _json.loads(g4_worldbuilding([], str(rp)))
+    must_fix = result.get("must_fix", [])
+    assert not any("sb.prose_bare_year" in m for m in must_fix), (
+        f"Relative few-years phrases must not be flagged. must_fix={must_fix}"
+    )
+
+
+@pytest.mark.unit
+def test_story_bible_fuzzy_magnitude_years_still_flagged(tmp_path: Path) -> None:
+    """Regression lock for the probe32 fix: magnitude-bearing fuzzy years
+    (数十年 / 数百年前 / 若干百年) approximate absolute year anchors and
+    MUST stay FAIL-worthy in prose even after the |数|半|若干 branches are
+    removed — they match via 十/百 in the main character class.
+    """
+    import json as _json
+
+    from shenbi.gates.g4.worldbuilding import g4_worldbuilding
+
+    rp = tmp_path
+    (rp / "novel.json").write_text(
+        _json.dumps({"title": "X", "genre": ["a"], "language": "zh", "target_words": 100000}),
+        encoding="utf-8",
+    )
+    (rp / "genre-config.json").write_text("{}", encoding="utf-8")
+
+    sb_content = """# 世界观圣经
+
+## 第一段：天地法则
+风从西边来。
+
+## 第二段：社会格局
+旧世家数十年前就开始布局；数百年前的旧约早已作废，若干百年的积怨一并清算。
+
+## 世界史时间线（年代锚单源表）
+
+| 锚名 | 距今 | 事件 |
+|------|------|------|
+| 旧约 | 约三百年前 | 作废 |
+
+## 第三段：历史纵深
+裂穹之变那年的故事。
+
+## 第四段：暗流涌动
+铁笼矿难那年塌了。
+"""
+    (rp / "world").mkdir(parents=True, exist_ok=True)
+    (rp / "world" / "story_bible.md").write_text(sb_content, encoding="utf-8")
+    (rp / "world" / "rules.md").write_text("## 规则一\n可测试标准：x=y\n", encoding="utf-8")
+    (rp / "world" / "locations.md").write_text("## 地点 1\n- 描述\n", encoding="utf-8")
+
+    result = _json.loads(g4_worldbuilding([], str(rp)))
+    must_fix = result.get("must_fix", [])
+    assert any("sb.prose_bare_year" in m for m in must_fix), (
+        f"Magnitude-bearing fuzzy years must FAIL. must_fix={must_fix}"
+    )
