@@ -1037,6 +1037,31 @@ def _build_skill_prompt(
             "live rows triggers G4.ss.matrix_structure content_dropped and "
             "burns the chapter's retry budget."
         )
+        # Batch #26 (probe32 ch2: first advance-an-existing-hook scenario,
+        # hooks_structure 3-attempt deadlock): advancing an existing hook
+        # in truth/pending_hooks.md is colon-bullet-only. The registry
+        # overview table row and its lifecycle/status stable column are
+        # owned by the foreshadowing-track — re-emitting or rewriting them
+        # triggers G4.ss.hooks_structure hook_row_stable_columns_rewritten.
+        # Same pre-emission pattern as the matrix block above: the shape
+        # contract must sit in the USER prompt, not only in post-hoc gate
+        # feedback (the model keeps re-emitting its own idea of the file).
+        user_parts.append(
+            "\n## CRITICAL — pending_hooks.md INCREMENT SHAPE (hooks)\n"
+            "To advance an EXISTING hook in truth/pending_hooks.md, output "
+            "ONLY colon bullets — the dispatcher merges them into the live "
+            "`### MHxx` section (title copied verbatim from live):\n"
+            "- last_reinforced: 第 N 章\n"
+            "- 证据: …\n"
+            "NEVER rewrite or re-emit a registry overview table row "
+            "(`| MHxx… |`) — the lifecycle/status stable column is owned by "
+            "the foreshadowing-track, not you; rewriting it triggers "
+            "G4.ss.hooks_structure hook_row_stable_columns_rewritten.\n"
+            "NEVER re-emit frontmatter, `#`/`##` headings, or stable detail "
+            "lines (type/trigger_condition/resolve_condition/depends_on).\n"
+            "ONLY a brand-NEW hook may get a full new `### MHxx` section; "
+            "cumulative fields (证据/notes) must restate the full history."
+        )
     if len(output_paths) > 1:  # note follows persistence reality (r3 I-2)
         user_parts.append(
             "\nNote: This skill produces multiple files. "

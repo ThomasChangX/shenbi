@@ -81,3 +81,59 @@ def test_state_settling_prompt_injects_append_only_hard_constraint(tmp_path: Pat
         f"block for character_matrix.md append-only behavior. "
         f"Found only {len(matched)} of required patterns: {matched}"
     )
+
+
+def test_state_settling_prompt_injects_hooks_colon_bullet_constraint(tmp_path: Path):
+    """Batch #26 fix (probe32 ch2 hooks_structure 3-attempt deadlock):
+    the dispatch user_prompt for shenbi-state-settling MUST contain an
+    explicit hard-constraint block for truth/pending_hooks.md — advancing
+    an existing hook is colon-bullet-only (``- last_reinforced:`` /
+    ``- 证据:``), NEVER a rewrite of the registry overview table row.
+
+    probe32 ch2 was the FIRST advance-an-existing-hook scenario: the LLM
+    read "MH01 advance" in the chapter plan and rewrote MH01's registry
+    row status column (PLANTED → RELEVANT), failing G4.ss.hooks_structure
+    hook_row_stable_columns_rewritten 3x — the corrective feedback fired
+    but the model kept re-emitting its own idea of the file. Same shape
+    as batch #23 (character_matrix): pre-emission contract in the prompt,
+    not post-hoc gate feedback alone.
+    """
+    # Minimal project scaffold: only the SKILL.md file is needed.
+    project_dir = tmp_path
+    skill_md = project_dir / "skills" / "shenbi-state-settling" / "SKILL.md"
+    skill_md.parent.mkdir(parents=True, exist_ok=True)
+    skill_md.write_text(
+        "---\nname: shenbi-state-settling\n"
+        'description: "state-settling"\n'
+        "contract:\n  kind: artifact\n  reads: []\n  writes: []\n  updates: []\n"
+        "---\n\n# Test SKILL\n",
+        encoding="utf-8",
+    )
+
+    _, user_prompt, _, _ = _build_skill_prompt(
+        "shenbi-state-settling",
+        project_dir,
+        prompt="Execute state-settling for chapter 2.",
+        chapter=2,
+        uses_staging=False,
+        json_mode=True,
+    )
+
+    import re as _re
+
+    must_have_patterns = [
+        r"pending_hooks\.md",
+        r"colon[\s-]?bullet",
+        r"last_reinforced",
+        r"registry|总览表",
+        r"stable\s+column|稳定列",
+        r"hooks_structure",
+    ]
+    matched = [
+        p for p in must_have_patterns if _re.search(p, user_prompt, _re.IGNORECASE | _re.DOTALL)
+    ]
+    assert len(matched) >= 4, (
+        f"state-settling user_prompt must inject an explicit hard-constraint "
+        f"block for pending_hooks.md colon-bullet-only hook advancement. "
+        f"Found only {len(matched)} of required patterns: {matched}"
+    )
