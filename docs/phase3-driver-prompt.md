@@ -14,7 +14,7 @@
 ## 运行参数
 
 - **项目目录**：`novel-xinghuo-phase3`（seed 与 probe 系列相同：`tests/fixtures/outline-example.md`，novel.json = 星火燃穹，C30 对齐）
-- **目标**：跑到 book-closure（约 118 章 / 5 卷 ≈ 20 万字），或累计正文字数 ≥20 万字，先到者
+- **目标**：跑到 book-closure（约 118 章 / 5 卷 ≈ 20 万字），或累计正文字数 ≥20 万字，先到者。**口径规则**：章均实际 ~1570 字（挂账观察项 #7），book-closure 先到时全程约 18-19 万字——收尾报告与 longitudinal 数据一律按 `chapters/*.md` 实测字数如实报告，不得宣称"20 万字达标"；字数缺口本身记为 pacing 观察数据
 - **成本预算**：软顶 $25（按 probe33 速率估算全程 ~$15-18；每卷边界 ~$3 检查点）；硬顶 $30 触发即停并报告
 - **时长预期**：~30 分钟/章（含裁决周转），全程 50-70 小时——**必然跨多个 session**，按"多 session 续跑协议"操作
 
@@ -58,10 +58,31 @@ runner 在每个 checkpoint 处退出（blocked）；提交裁决后重启 runne
 - 干净的 chapter-memo / state-settle / per-chapter（0 BLOCKING/CRITICAL、settle 零重试、结构检查零、代词合法）
 - 裁决书仍要落盘（保持审计链完整），格式可为三行：checkpoint、核对结论（引 2-3 个机器证据）、决策 approve
 
-裁决书模板：`/tmp/phase3-adjudication-NNN.md`（NNN 全程递增），提交：
+Tier 2 证据取数（每次裁决前必跑；任一非零或本章有 retry → 升 Tier 1）。`pipeline-resume.log` 跨重启追加，用行号游标只看上次裁决之后的新增段：
+```bash
+D=novel-xinghuo-phase3; mkdir -p $D/adjudications
+python3 -c "
+import json
+s = json.load(open('$D/pipeline-state.json'))
+cp = s.get('pending_checkpoint', {})
+print('checkpoint:', cp.get('type'), '| chapter:', cp.get('chapter'))
+print('context:', (cp.get('context') or '')[:160])
+cur = cp.get('chapter')
+rb = s.get('chapter_loop', {}).get('retry_budget_consumed', {})
+print('retry_budget(本章):', {k: v for k, v in rb.items() if cur and k.startswith(f'ch{cur}-')})
+"
+L=$(wc -l < $D/pipeline-resume.log); C=$(cat $D/adjudications/.log-cursor 2>/dev/null || echo 0)
+tail -n +$((C+1)) $D/pipeline-resume.log > /tmp/phase3-newlog.txt
+grep -cE "BLOCKING|CRITICAL" /tmp/phase3-newlog.txt                    # 期望 0
+grep -c "matrix_structure\|hooks_structure" /tmp/phase3-newlog.txt    # 期望 0
+# 代词无机器门：人工抽查 staging 正文主角代词（知识库 #3，已发布前章为事实源）
+```
+
+裁决书模板：`novel-xinghuo-phase3/adjudications/adjudication-NNN.md`（NNN 全程递增；放项目目录内而非 /tmp——跨 session / 机器重启不丢，且已被 /novel-*/ gitignore 覆盖），提交：
 ```bash
 export SHENBI_LLM_API_KEY=$(grep -oE '^SHENBI_LLM_API_KEY=.*' .env | cut -d= -f2-)
-just pipeline-review novel-xinghuo-phase3 <approve|modify|reject> /tmp/phase3-adjudication-NNN.md
+just pipeline-review novel-xinghuo-phase3 <approve|modify|reject> novel-xinghuo-phase3/adjudications/adjudication-NNN.md
+wc -l < novel-xinghuo-phase3/pipeline-resume.log > novel-xinghuo-phase3/adjudications/.log-cursor   # 决策提交后推进游标
 nohup ./run_pipeline.sh novel-xinghuo-phase3 > /tmp/phase3-runK.log 2>&1 & disown
 ```
 
@@ -99,12 +120,12 @@ nohup ./run_pipeline.sh novel-xinghuo-phase3 > /tmp/phase3-runK.log 2>&1 & disow
 
 - **每卷边界**（~22 章）做一次 Tier 1 全量裁决 + 数据节追加 + 成本检查（>$3/卷预期时先分析再继续）。
 - **中止条件**：硬顶 $30；或同一框架缺陷 3 次修复仍复发（质疑架构，停下写报告）；或连续 3 章 escalate 同一根因。
-- **多 session 续跑**：新 session 重读本 prompt + memory 索引即可接管；状态全在 `novel-xinghuo-phase3/pipeline-state.json`（pending checkpoint 即断点）；重启 runner 前先 `pgrep -f run_pipeline` 清残留；裁决书序号接续上一 session 的最大值。
+- **多 session 续跑**：新 session 重读本 prompt + memory 索引即可接管；状态全在 `novel-xinghuo-phase3/pipeline-state.json`（pending checkpoint 即断点）；重启 runner 前先 `pgrep -f run_pipeline` 清残留；裁决书序号接续项目内最大值（`ls novel-xinghuo-phase3/adjudications/ | grep -oE '[0-9]+' | sort -n | tail -1`）——裁决书与 `.log-cursor` 都在项目目录内，跨 session/重启不丢；若意外缺失，裁决内容可从 pipeline-state.json 的 checkpoint trail 重建对账。
 - runner 进程不随 session 存活的问题：始终用 `nohup … & disown`，启动后 `pgrep` 验证。
 
 ## 收尾（book-closure 或中止后）
 
-1. 终验扫描：总派发/总成本/章数/字数/双 structure 计数/escalation 分类统计/hook 终态对账。
+1. 终验扫描：总派发/总成本/章数/实测字数（`wc -m chapters/*.md` 汇总，非目标宣称值）/双 structure 计数/escalation 分类统计/hook 终态对账。
 2. 写 session memory（含 Phase 3 纵向数据结论 + 遗留观察项）+ MEMORY.md 索引行。
 3. 最终报告：GO/NO-GO for 千万字目标 + 纵向判据缺口是否补齐（对照 memory `goal-prompt-smoke-assessment` 所列：纵向判据/失败分类/扩展性数据）。
 4. 不要提交 novel-*/ 与 /tmp 产物（已 gitignore）；只提交框架修复与文档。
