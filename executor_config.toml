@@ -48,6 +48,16 @@ temperature = 0.7
 # reaches the 58982 ceiling.
 max_tokens = 32768
 
+[overrides."shenbi-drift-guidance"]
+temperature = 0.7
+# Phase3 esc#3d (ch23 volume boundary): drift-guidance is audit_drift.md's
+# single-writer merger — its sanctioned output IS the whole-file rewrite, and
+# the live base reached 75KB by ch23 (grows ~1.5KB/chapter). Pins the 32768
+# raise. Settling tier (49152) now; the file outgrows any fixed cap around
+# ch60+ — compaction/archival is the long-run answer (phase3 observation
+# ledger, settle-prompt token growth finding).
+max_tokens = 49152
+
 [overrides."shenbi-character-design"]
 temperature = 0.7
 # Probe2 genesis escalation #1 (2026-09-30): the four-phase single-call write
