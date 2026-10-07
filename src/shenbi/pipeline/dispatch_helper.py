@@ -3047,6 +3047,49 @@ def _dispatch_via_api(
             attempt=int(usage_acc.get("attempts", 1)),
         )
 
+    # Phase3 esc#4 (ch28 settle): empty content channel with BILLED completion
+    # tokens is a provider-side transient (the completion rides a reasoning
+    # channel and the content stream comes back zero bytes — same signature
+    # hit review-group-character at a 67K prompt and self-healed on retry;
+    # settle's zero-retry policy turned a $0.02 transient into an escalation).
+    # One same-dispatch resend, mirroring the cap-raise topology (spec §5.1:
+    # retries outside tenacity, max 1 resend). A GENUINELY empty response
+    # (zero completion tokens) is a different failure and keeps this path off.
+    if (
+        not output_text.strip()
+        and usage is not None
+        and int(getattr(usage, "completion_tokens", 0) or 0) > 0
+    ):
+        log.warning(
+            "empty_content_with_billed_completion",
+            skill=skill,
+            completion=int(getattr(usage, "completion_tokens", 0) or 0),
+        )
+        try:
+            output_text, stop_reason, usage, finish_reason = _call_llm_streaming_with_retry(
+                client,
+                model,
+                [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=_get_skill_temperature(skill),
+                max_tokens=_get_skill_max_tokens(skill),
+                timeout=api_timeout,
+                usage_acc=usage_acc,
+            )
+        except Exception as exc:
+            log.error("api_call_failed", skill=skill, error=str(exc))
+            return DispatchResult(False, -1, "", f"API call failed: {exc}")
+        if usage is not None:
+            _log_token_usage(
+                usage,
+                skill,
+                chapter=chapter,
+                project_dir=project_dir,
+                attempt=int(usage_acc.get("attempts", 1)),
+            )
+
     # Spec §5.1: finish_reason-driven cap-raise (outside tenacity @retry).
     if finish_reason == "content_filter":
         _emit_dispatch_trace(
