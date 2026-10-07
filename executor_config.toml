@@ -38,6 +38,16 @@ temperature = 0.7
 # Same headroom tier as foreshadowing-lifecycle (overlapping truth writes).
 max_tokens = 49152
 
+[overrides."shenbi-memory-distill"]
+temperature = 0.7
+# Phase3 esc#3c (ch23, first-ever volume boundary): L5 spine review pins the
+# 32768 raise twice (completion exactly 32767/32768; prompt only 51.6K) — the
+# boundary-mode write set (book_spine full rewrite + book_strata append +
+# arc-end synthesis in one JSON envelope) legitimately needs drafting-tier
+# headroom. Same tier as the other whole-file truth writers; the raise then
+# reaches the 58982 ceiling.
+max_tokens = 32768
+
 [overrides."shenbi-character-design"]
 temperature = 0.7
 # Probe2 genesis escalation #1 (2026-09-30): the four-phase single-call write
