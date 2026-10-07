@@ -58,6 +58,14 @@ temperature = 0.7
 # ledger, settle-prompt token growth finding).
 max_tokens = 49152
 
+[overrides."shenbi-volume-consolidation"]
+temperature = 0.7
+# Phase3 esc#5 (ch47 volume-2 boundary): L3 rewrites truth/volume_summaries.md
+# whole-file and the product grows one volume per boundary (vol-1 fit at
+# 11726 via cap-raise; vol-2 pinned 32768). Same whole-file truth-writer tier
+# as memory-distill; raise then reaches the 58982 ceiling.
+max_tokens = 32768
+
 [overrides."shenbi-character-design"]
 temperature = 0.7
 # Probe2 genesis escalation #1 (2026-09-30): the four-phase single-call write
