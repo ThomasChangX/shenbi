@@ -7,7 +7,9 @@ contract:
   reads:
   - truth/pending_hooks.md
   - truth/chapter_summaries.md
-  writes: []
+  writes:
+  - file: audits/volume-N-foreshadowing.md
+    mode: create_or_overwrite
   updates:
   - file: truth/pending_hooks.md
     mode: append_dedup
@@ -35,7 +37,7 @@ contract:
 ## 数据契约
 
 - **Reads:** truth/pending_hooks.md, truth/chapter_summaries.md
-- **Writes:** none
+- **Writes:** audits/volume-N-foreshadowing.md
 - **Updates:** truth/pending_hooks.md
 
 <!-- END AUTO-GENERATED -->
@@ -98,9 +100,12 @@ CP = hook_power × time_since_plant × escalation_factor
 
 ## 输出格式
 
-输出必须包含以下两个部分。缺任意部分 = 不合格。
+输出必须包含**两个文件**，缺任一文件 = 不合格：
 
-### 第一部分：伏笔兑现报告
+① `audits/volume-N-foreshadowing.md`（整档创建）：完整伏笔兑现报告——含下述「伏笔兑现报告」与「兑现汇总」两节（铁律 5 的 CP 公式与参数在工作表内展示）。
+② `truth/pending_hooks.md` **增量**：仅 `### MHxx（标题照抄 live 该钩标题）` + colon bullet 字段块（新钩为完整 `###` 新区块）——兑现/强化/新植的钩状态推进只落这里，不进报告。本章确无任何钩状态推进时，在报告①「兑现汇总」节记录原因，②可省略；有推进而漏写② = 状态静默丢失 = 不合格。
+
+### 报告文件（①）：伏笔兑现报告
 
 ```markdown
 ## 伏笔兑现报告
@@ -161,7 +166,7 @@ CP = hook_power × time_since_plant × escalation_factor
 | hook-003 | PLANTED | 12 | 继续培育 |
 ```
 
-### 第二部分：兑现汇总
+### 报告文件（①）末节：兑现汇总
 
 ```markdown
 ## 兑现汇总（第N章 / 第M卷）
@@ -187,6 +192,18 @@ CP = hook_power × time_since_plant × escalation_factor
 - hook-003 → 继续培育，下章可触发
 - hook-005 → 已超期，必须 TRIGGER 或 EXPIRE
 ```
+
+### 文件②模板：truth/pending_hooks.md 增量
+
+```markdown
+### FILE: truth/pending_hooks.md
+### MH07（阿石留下的绳结与结绳之册）
+- lifecycle_state: RELEVANT
+- last_reinforced: 第 23 章
+- 证据: …（重述 live 全史后追加本章内容，不整段替换）
+```
+
+既有钩只发 colon bullet（lifecycle_state/last_reinforced/证据/notes）；新钩为完整 `###` 新区块。绝不输出 frontmatter、`#`/`##` 文件标题、registry 总览表行（`| MHxx… |`）或任何稳定行——重发即被摄取守卫拒收、整次派发作废。
 
 ### 可自动检查的计数规则
 

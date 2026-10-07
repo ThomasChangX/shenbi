@@ -98,7 +98,19 @@ digraph foreshadowing_plant {
 
 ## 输出格式
 
-### 追加到 `truth/pending_hooks.md` 的 YAML frontmatter `hooks` 数组
+**逐章模式（live `truth/pending_hooks.md` 已有数据时）只发增量**：新钩为完整 `### MHxx（标题）` 新区块 + colon bullet 字段块，既有钩只发 `### MHxx（标题照抄 live）` + colon bullet（lifecycle_state/last_reinforced/证据/notes）；绝不输出 frontmatter、`#`/`##` 文件标题或 registry 总览表行——重发即被摄取守卫拒收、整次派发作废。下述 YAML 数组形态仅适用于 genesis 首写（基座为空壳时整档创建合法）。
+
+### 追加到 `truth/pending_hooks.md` 的 YAML frontmatter `hooks` 数组（genesis 首写形态）
+
+```markdown
+### FILE: truth/pending_hooks.md
+### MHxx（新钩标题）
+- lifecycle_state: PLANTED
+- plant_chapter: 5
+- last_reinforced: 5
+```
+
+genesis 首写时逐钩完整字段（YAML 形态）：
 
 ```yaml
 - id: hook-004

@@ -779,6 +779,13 @@
     ],
     "updates": []
   },
+  "audits/volume-N-foreshadowing.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-foreshadowing-resolve"
+    ],
+    "updates": []
+  },
   "world/*.md": {
     "reads": [
       "shenbi-foundation-review",

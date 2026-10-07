@@ -80,3 +80,33 @@ def test_book_spine_reads_pending_hooks_pool() -> None:
     body = _body("shenbi-book-spine-init")
     assert "- truth/pending_hooks.md" in body
     assert "逐钩继承" in body
+
+
+def test_foreshadowing_resolve_binds_report_to_audits_file() -> None:
+    """phase3 esc#3 (ch23, first-ever volume boundary): the output template
+    taught an H2-led report as the content of truth/pending_hooks.md — the
+    only writable target, whose ingestion guard bans exactly that scaffold.
+    No ≤5-chapter probe ever reached the boundary, so the contradiction
+    survived every probe. The template must bind the report to an audits
+    file and teach the hooks increment form for the truth target.
+    """
+    body = _body("shenbi-foreshadowing-resolve")
+    assert "audits/volume-N-foreshadowing.md" in body
+    # the truth target is taught as increments, not as the report file
+    assert "### FILE: truth/pending_hooks.md" in body
+    assert "### MHxx" in body
+
+
+def test_hook_keyed_writers_teach_increment_form() -> None:
+    """Generalized esc#3 scan: every skill with an append_dedup hook_id
+    target must teach the ``### MHxx`` increment form in its output
+    template — a template that never shows the sanctioned form loses to
+    its own boilerplate (esc#1/esc#2/esc#3, three members of one family).
+    """
+    import re
+
+    for skill_md in sorted(_SKILLS.glob("*/SKILL.md")):
+        text = skill_md.read_text(encoding="utf-8")
+        if not re.search(r"mode:\s*append_dedup\s*\n\s*key:\s*hook_id", text):
+            continue
+        assert re.search(r"### MH(xx|\d+)", text), skill_md.parent.name

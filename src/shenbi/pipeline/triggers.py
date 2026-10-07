@@ -230,9 +230,12 @@ TRIGGER_STEPS: list[TriggerStep] = [
         category="style_learning",
     ),
     # Volume-boundary skills (section 6.4 volume block + 6.5 expansion).
+    # phase3 esc#3: the step's product is the audits report (the truth-side
+    # hook updates ride as increments alongside); pointing G4 at the report
+    # matches the score/payoff siblings' convention.
     TriggerStep(
         skill="shenbi-foreshadowing-resolve",
-        output_path="truth/pending_hooks.md",
+        output_path="audits/volume-N-foreshadowing.md",
         category="volume_boundary",
     ),
     TriggerStep(
