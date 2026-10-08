@@ -13,6 +13,11 @@ what the dispatched skill actually needs for ONE chapter:
   union the chapter's foreshadowing audit). Fallback contract: return ``""`` on
   anything unexpected and the dispatch loop serves full text + WARN — never
   a silent drop (spec #65 §4.3 discipline).
+- ``hooks_inventory_scoped`` (pending_hooks): the volume-boundary resolve
+  variant — grounding comes from the file itself (总览 rows whose 当前生命周
+  期 is TRIGGERED), not from chapter plan/audit naming. Same head shape
+  (frontmatter + 总览 full + ``## 详情``) so the inventory keeps the whole
+  lifecycle table while only TRIGGERED detail sections ride along.
 - ``recent_increments`` (chapter-keyed cumulative tables/ledgers): preamble
   (frontmatter/title/table header) + the last N chapter units, disclosed by
   an omission sentinel.
@@ -122,6 +127,77 @@ def extract_hooks_audit_scoped(project_dir: Path, chapter: int | None, content: 
         f"> [extractor:hooks_audit_scoped] 详情已按本章 plan/audit 点名裁剪："
         f"保留 {len(kept)} 段，省略 {len(omitted)} 段（{omitted_list}）——"
         f"未点名钩子的完整生命周期见上方总览表。\n"
+    )
+    return head + "\n" + sentinel + "".join(kept).rstrip() + "\n"
+
+
+def _triggered_hook_ids(content: str) -> set[str]:
+    """Hook ids whose 总览 lifecycle cell reads TRIGGERED (empty on any
+    missing/misordered section shape — the caller treats that as fallback).
+    """
+    m_ov = re.search(r"^##\s*总览\s*$", content, re.MULTILINE)
+    m_det = re.search(r"^##\s*详情\s*$", content, re.MULTILINE)
+    if m_ov is None or m_det is None or m_ov.start() >= m_det.start():
+        return set()
+    from shenbi.pipeline.truth_io import canon_hook_id
+
+    ids: set[str] = set()
+    for line in content[m_ov.end() : m_det.start()].splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) < 2:
+            continue
+        idm = _GROUNDING_ID_RE.search(cells[0])
+        if idm is not None and cells[1] == "TRIGGERED":
+            ids.add(canon_hook_id(f"{idm.group(1)}{idm.group(2)}"))
+    return ids
+
+
+def extract_hooks_inventory_scoped(content: str) -> str:
+    """Slice pending_hooks for the volume-boundary resolve inventory.
+
+    Same output shape as :func:`extract_hooks_audit_scoped` (frontmatter +
+    总览 full + ``## 详情`` + kept sections + omission sentinel) but the
+    grounding set is intrinsic: the hooks the 总览 itself marks TRIGGERED —
+    the resolve candidates. Returns ``""`` when there is nothing to resolve
+    (no TRIGGERED rows) or the shape is unexpected — the dispatch loop then
+    serves the full file with a WARN (extractor failure must degrade
+    loudly, never silently).
+    """
+    from shenbi.pipeline.truth_io import canon_hook_id
+
+    m = re.search(r"^##\s*详情\s*$", content, re.MULTILINE)
+    if m is None:
+        return ""
+    triggered = _triggered_hook_ids(content)
+    if not triggered:
+        return ""
+
+    head = content[: m.end()]
+    body = content[m.end() :]
+
+    starts = [hm for hm in _DETAIL_HEADING_RE.finditer(body)]
+    if not starts:
+        return ""
+
+    kept: list[str] = []
+    omitted: list[str] = []
+    for i, hm in enumerate(starts):
+        end = starts[i + 1].start() if i + 1 < len(starts) else len(body)
+        section = body[hm.start() : end]
+        if canon_hook_id(hm.group(1)) in triggered:
+            kept.append(section)
+        else:
+            omitted.append(hm.group(1))
+    if not kept:
+        return ""
+
+    omitted_list = "、".join(omitted[:_MAX_SENTINEL_UNITS])
+    if len(omitted) > _MAX_SENTINEL_UNITS:
+        omitted_list += f" 等 {len(omitted)} 段"
+    sentinel = (
+        f"> [extractor:hooks_inventory_scoped] 详情已按 TRIGGERED 清点裁剪："
+        f"保留 {len(kept)} 段，省略 {len(omitted)} 段（{omitted_list}）——"
+        f"未触发钩子的完整生命周期见上方总览表。\n"
     )
     return head + "\n" + sentinel + "".join(kept).rstrip() + "\n"
 

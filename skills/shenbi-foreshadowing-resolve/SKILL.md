@@ -5,8 +5,16 @@ description: Use when foreshadowing hooks reach TRIGGERED state and need resolut
 contract:
   kind: artifact
   reads:
-  - truth/pending_hooks.md
-  - truth/chapter_summaries.md
+  # T0 (session30): the boundary inventory was a full-pool read; the pool
+  # outgrew the 32K single-file cap and the head clip blinded mid-pool
+  # TRIGGERED rows. Slices keep the 总览 table full (authoritative
+  # lifecycle surface) + TRIGGERED detail sections; 卷级摘要承接中段视野
+  # (模式同 settle). Full history stays in the truth files.
+  - file: truth/pending_hooks.md
+    extractor: hooks_inventory_scoped
+  - file: truth/chapter_summaries.md
+    extractor: recent_increments
+  - truth/volume_summaries.md
   writes:
   - file: audits/volume-N-foreshadowing.md
     mode: create_or_overwrite
@@ -36,7 +44,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/pending_hooks.md, truth/chapter_summaries.md
+- **Reads:** truth/pending_hooks.md, truth/chapter_summaries.md, truth/volume_summaries.md
 - **Writes:** audits/volume-N-foreshadowing.md
 - **Updates:** truth/pending_hooks.md
 

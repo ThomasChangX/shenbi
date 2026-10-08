@@ -66,6 +66,7 @@ from shenbi.pipeline._shared import load_volume_context  # spec #65 §4 (leaf mo
 from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 096) — leaf module
     chapter_scoped_head_tail,
     extract_hooks_audit_scoped,
+    extract_hooks_inventory_scoped,
     extract_recent_increments,
     has_chapter_units,
 )
@@ -861,6 +862,32 @@ def _build_skill_prompt(
                                 path=str(full_path),
                                 chapter=chapter,
                             )
+            elif extractor == "hooks_inventory_scoped":
+                # T0 (session30): the volume-boundary resolve inventory —
+                # 总览 full + TRIGGERED-marked detail sections (grounding is
+                # intrinsic to the pool file, so no chapter/grounding guard).
+                # "" -> full text + WARN (never a silent drop), same §4.3
+                # discipline as the Plan A family.
+                try:
+                    extracted = extract_hooks_inventory_scoped(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
             elif extractor == "recent_increments":
                 # Plan A: chapter-keyed cumulative tables serve head + last
                 # units with an omission sentinel. "" (unexpected shape,

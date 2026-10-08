@@ -129,6 +129,46 @@ def test_hooks_audit_scoped_genesis_chapter_none_returns_empty(tmp_path: Path) -
     assert extract_hooks_audit_scoped(project, None, _PENDING_HOOKS) == ""
 
 
+def _pool_with_triggered() -> str:
+    """Same pool with MH02 flipped to TRIGGERED (volume-boundary shape)."""
+    return _PENDING_HOOKS.replace("| MH02（灵誓） | PLANTED |", "| MH02（灵誓） | TRIGGERED |")
+
+
+def test_hooks_inventory_scoped_keeps_overview_and_triggered_details() -> None:
+    from shenbi.pipeline.read_extractors import extract_hooks_inventory_scoped
+
+    out = extract_hooks_inventory_scoped(_pool_with_triggered())
+
+    # 总览 full — every hook's lifecycle row survives the slice (the
+    # inventory's authoritative surface)
+    assert "MH01（灵印） | RELEVANT" in out
+    assert "MH02（灵誓） | TRIGGERED" in out
+    assert "CP-001（册末空格） | RESOLVED" in out
+    # TRIGGERED detail section kept (the resolve candidates)
+    assert "### MH02（灵誓）" in out
+    assert "第38章议桌落成" in out
+    # non-TRIGGERED details dropped, with a disclosure sentinel
+    assert "### MH01（灵印）" not in out
+    assert "### CP-001（册末空格）" not in out
+    assert "省略" in out and "MH01" in out and "CP-001" in out
+
+
+def test_hooks_inventory_scoped_no_triggered_returns_empty() -> None:
+    from shenbi.pipeline.read_extractors import extract_hooks_inventory_scoped
+
+    assert extract_hooks_inventory_scoped(_PENDING_HOOKS) == ""
+
+
+def test_hooks_inventory_scoped_malformed_shape_returns_empty() -> None:
+    from shenbi.pipeline.read_extractors import extract_hooks_inventory_scoped
+
+    no_overview = _pool_with_triggered().replace("## 总览", "## 池", 1)
+    assert extract_hooks_inventory_scoped(no_overview) == ""
+    no_details = _pool_with_triggered().replace("## 详情", "## 细", 1)
+    assert extract_hooks_inventory_scoped(no_details) == ""
+    assert extract_hooks_inventory_scoped("prose only\nno shape at all\n") == ""
+
+
 def test_recent_increments_table_form_keeps_head_and_last_rows() -> None:
     rows = "\n".join(
         f"| 第 {n} 章 | 第{n}章事件{'长' * 20} | 出场 | 支线 | 伏笔 | 钩子 |" for n in range(1, 11)
@@ -193,7 +233,10 @@ def test_read_extractor_registry_closed_and_extended() -> None:
     from shenbi.contracts.loader import READ_EXTRACTORS
 
     assert (
-        frozenset({"volume_chapter", "hooks_audit_scoped", "recent_increments"}) == READ_EXTRACTORS
+        frozenset(
+            {"volume_chapter", "hooks_audit_scoped", "recent_increments", "hooks_inventory_scoped"}
+        )
+        == READ_EXTRACTORS
     )
 
 
@@ -220,6 +263,66 @@ def test_real_lifecycle_contract_wires_hooks_extractor() -> None:
 
     c = load_contract("shenbi-foreshadowing-lifecycle")
     assert c["read_extractors"]["truth/pending_hooks.md"] == "hooks_audit_scoped"
+
+
+def test_real_resolve_contract_wires_inventory_extractor() -> None:
+    from shenbi.contracts.loader import load_contract
+
+    c = load_contract("shenbi-foreshadowing-resolve")
+    ex = c["read_extractors"]
+    assert ex["truth/pending_hooks.md"] == "hooks_inventory_scoped"
+    assert ex["truth/chapter_summaries.md"] == "recent_increments"
+    # 卷级摘要补读: compact mid-range context the slices lose (模式同 settle)
+    assert "truth/volume_summaries.md" in c["reads"]
+
+
+def _resolve_project(tmp_path: Path) -> Path:
+    """Resolve-shaped synthetic project: pool with a TRIGGERED hook + the
+    cumulative summaries the boundary inventory also reads.
+    """
+    (tmp_path / "truth").mkdir()
+    (tmp_path / "truth" / "pending_hooks.md").write_text(_pool_with_triggered(), encoding="utf-8")
+    rows = "\n".join(f"| 第 {n} 章 | 第{n}章事件{'长' * 20} |" for n in range(1, 30))
+    (tmp_path / "truth" / "chapter_summaries.md").write_text(
+        "---\ntype: truth\n---\n\n# 逐章摘要\n\n| 章节 | 事件 |\n|---|---|\n" + rows + "\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "truth" / "volume_summaries.md").write_text(
+        "---\ntype: truth\n---\n\n# 卷级摘要\n\n## 第2卷: 卷名 (第24-46章)\n\n卷二摘要。\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "novel.json").write_text("{}", encoding="utf-8")
+    return tmp_path
+
+
+def test_dispatch_loop_serves_sliced_resolve_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from shenbi.pipeline import dispatch_helper as dh
+    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+
+    project = _resolve_project(tmp_path)
+    warned: list[str] = []
+
+    def _spy(event: str, **kw: object) -> None:
+        warned.append(event)
+
+    monkeypatch.setattr(dh.log, "warning", _spy)
+
+    _, user_prompt, _, _ = _build_skill_prompt(
+        "shenbi-foreshadowing-resolve", project, "resolve 卷三清点", chapter=69
+    )
+
+    # pending_hooks: 总览 full + TRIGGERED detail only, sentinel travels
+    assert "### MH02（灵誓）" in user_prompt
+    assert "第4章断脉塌方首次显形" not in user_prompt
+    assert "hooks_inventory_scoped" in user_prompt
+    # volume_summaries 补读 arrives whole
+    assert "卷级摘要" in user_prompt
+    # chapter_summaries: only the last-3 rows survive
+    assert "第 29 章" in user_prompt and "第 5 章" not in user_prompt
+    # happy path is WARN-free (spec §7)
+    assert "extractor_failed_fulltext" not in warned
 
 
 def _settle_project(tmp_path: Path) -> Path:

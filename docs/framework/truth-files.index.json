@@ -601,6 +601,7 @@
   "truth/volume_summaries.md": {
     "reads": [
       "shenbi-context-composing",
+      "shenbi-foreshadowing-resolve",
       "shenbi-memory-distill",
       "shenbi-score-arc",
       "shenbi-score-volume",

@@ -75,8 +75,11 @@ def _skill_path(skill: str) -> Path:
 #: (adjudication 096): hooks_audit_scoped / recent_increments slice the
 #: unboundedly-growing cumulative truth tables — implementations and the
 #: closed-shape contracts live in pipeline/read_extractors.py.
+#: hooks_inventory_scoped (session30 T0): the volume-boundary resolve
+#: variant — 总览 full + TRIGGERED-marked detail sections (pool 121KB
+#: blinded the mid-pool rows the full read served at 32K head-clip).
 READ_EXTRACTORS: frozenset[str] = frozenset(
-    {"volume_chapter", "hooks_audit_scoped", "recent_increments"}
+    {"volume_chapter", "hooks_audit_scoped", "recent_increments", "hooks_inventory_scoped"}
 )
 
 
