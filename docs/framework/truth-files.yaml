@@ -62,6 +62,7 @@ concepts:
   # audits (one concept covers all 18 dims via the glob below)
   - {name: audits/chapter-N-<dim>.md, kind: report}  # parametric: N, <dim>
   - {name: audits/volume-N-payoff.md, kind: report}  # parametric: N
+  - {name: audits/volume-N-foreshadowing.md, kind: report}  # parametric: N, esc#1
   - {name: audits/arc-N-score.md, kind: report}     # parametric: N (Wave 3)
   - {name: audits/volume-N-score.md, kind: report}  # parametric: N (Wave 3)
   - {name: audits/stratum-N-score.md, kind: report}  # parametric: N (Wave 3)
@@ -133,6 +134,7 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: snapshots/chapter-N-emergency.md, glob: snapshots/chapter-*-emergency.md}
   - {parametric: audits/chapter-N-<dim>.md, glob: audits/chapter-*.md}
   - {parametric: audits/volume-N-payoff.md, glob: audits/volume-*.md}
+  - {parametric: audits/volume-N-foreshadowing.md, glob: audits/volume-*-foreshadowing.md}
   - {parametric: audits/arc-N-score.md, glob: audits/arc-*-score.md}
   - {parametric: audits/volume-N-score.md, glob: audits/volume-*-score.md}
   - {parametric: audits/stratum-N-score.md, glob: audits/stratum-*-score.md}
