@@ -11,9 +11,9 @@
 继续 Phase 3 长跑至 book-closure（118 章），同时**按优先级处理已知框架项与观察项**。核心纪律不变：长程数据采集优先于进度、修根因不修表象、防过度施工（观察项只记录不动手）。
 
 前置状态（已达成，勿重复验证）：
-- **59/118 章闭环在望**（ch58 全链一次过：resonance 89、审计零问题；ch59 drafting 经裁决 195 第 4 次定向重跑过闸后已进入自动循环）。卷一 87 / 卷二 88 / payoff 81×2 / CP 399RED→57YELLOW；累计 ≈20 万字符、~$11（实测见 `cost/token-ledger.jsonl`）
+- **59/118 章闭环在望**（ch58 全链一次过：resonance 89、审计零问题；ch59 drafting 经裁决 195 定向重跑过闸、settle 经裁决 196 approve，现停于 ch59 per-chapter 收束 checkpoint——放行即进 ch60）。卷一 87 / 卷二 88 / payoff 81×2 / CP 399RED→57YELLOW；累计 ≈20 万字符、~$11（实测见 `cost/token-ledger.jsonl`）
 - **session29 三批根因修复已落地**（`2738c376` Plan A 读侧切片 / `15202d0d` 触发型 feedback 死线+进度记忆 / `490496e7` frontmatter 程序不变量；`just check` exit 0）。实测 settle prompt 104K→64K tokens（-38%）
-- 裁决书至 **195**（序号接续规则见下）；memory 最新条目 `poc-e2e-session29-plan-a-landing.md`
+- 裁决书至 **196**（序号接续规则见下，以引导序列实拉为准）；memory 最新条目 `poc-e2e-session29-plan-a-landing.md`
 
 ## 新 session 引导序列（先跑这个，再看任务清单）
 
@@ -26,7 +26,7 @@ cp = s.get('pending_checkpoint', {})
 print('pending:', cp.get('type'), '| chapter:', cp.get('chapter'), '|', (cp.get('context') or '')[:120])
 print('cursor chapter:', s.get('chapter_loop', {}).get('current_chapter'), '| step:', s.get('chapter_loop', {}).get('step_index'))
 "
-ls novel-xinghuo-phase3/adjudications/ | grep -oE '^[0-9]+' | sort -n | tail -1   # 裁决序号接续
+ls novel-xinghuo-phase3/adjudications/ | grep -oE '[0-9]+' | sort -n | tail -1   # 裁决序号接续（文件名字母开头，正则勿加 ^ 锚定——加了会空输出）
 C=$(cat novel-xinghuo-phase3/adjudications/.log-cursor); tail -n +$((C+1)) novel-xinghuo-phase3/pipeline-resume.log | grep -vE debug | tail -20   # 上次裁决后新日志（注意：tail -n 不是 -c）
 ```
 
@@ -38,11 +38,11 @@ C=$(cat novel-xinghuo-phase3/adjudications/.log-cursor); tail -n +$((C+1)) novel
 
 ### T0 — resolve 读切片（**ch70 卷三界前必做**，唯一硬前置）
 
-问题：卷界触发 `shenbi-foreshadowing-resolve` 全池清点，其 pending_hooks 读是全量（当时刻意不切——它是审计者），但池已 115KB > 32K 单文件帽 → 头尾残篇、中间 TRIGGERED 钩失明 → 清点盲区 + 编造风险。**下次卷界（ch70/71）即触发。**
+问题：卷界触发 `shenbi-foreshadowing-resolve` 全池清点，其 pending_hooks 读是全量（当时刻意不切——它是审计者），但池已 121KB（2026-10-08 实测，续涨中）> 32K 单文件帽 → 头尾残篇、中间 TRIGGERED 钩失明 → 清点盲区 + 编造风险。**下次卷界（ch70/71）即触发。**
 
 修法（复用 Plan A 骨架，小改动）：
 1. `src/shenbi/pipeline/read_extractors.py` 新增 `extract_hooks_inventory_scoped(content) -> str`：解析 `## 总览` 表的「当前生命周期」列，grounding 集 = **TRIGGERED** 行的钩 ID；输出 = frontmatter + 总览全量 + 该集详情段 + 省略哨兵。异常形态（无总览/无详情/无 TRIGGERED）→ `""`（全量回退 + WARN，纪律同现有 extractor）
-2. `contracts/loader.py` READ_EXTRACTORS 注册 `hooks_inventory_scoped`；`dispatch_helper.py` 读循环加路由分支（照抄 `hooks_audit_scoped` 分支形态）
+2. `contracts/loader.py` READ_EXTRACTORS 注册 `hooks_inventory_scoped`；`src/shenbi/pipeline/dispatch_helper.py` 读循环加路由分支（照抄 `hooks_audit_scoped` 分支形态；注意该文件在 `pipeline/` 下，不在 `dispatcher/` 下）
 3. 契约：`skills/shenbi-foreshadowing-resolve/SKILL.md` reads 改 dict-form——`truth/pending_hooks.md → hooks_inventory_scoped`、`truth/chapter_summaries.md → recent_increments`、补读 `truth/volume_summaries.md`（卷级摘要承接中段视野，模式同 settle）
 4. TDD：TRIGGERED 行 grounding / 无 TRIGGERED 回退 / 总览畸形回退 / dispatch 循环集成（哨兵入 prompt、WARN-free happy path）
 5. `uv run python -m shenbi.sync_contracts` 再生 AUTO 块 → 宽面回归 → `just check` → 提交（conventional commit）
@@ -84,10 +84,12 @@ C=$(cat novel-xinghuo-phase3/adjudications/.log-cursor); tail -n +$((C+1)) novel
 
 ## 收束（session 结束时）
 
-1. 纵向台账 `phase3-longitudinal.md` 追加本 session 节（数据点/修复批/观察项变化）
+1. 纵向台账 `novel-xinghuo-phase3/phase3-longitudinal.md` 追加本 session 节（数据点/修复批/观察项变化）。台账在项目目录内且被 gitignore 覆盖——**勿在 docs/ 或仓库根新建同名文件**（会分裂台账）
 2. 写 session memory + MEMORY.md 索引行（含：断点章号、pending 状态、下一 session 首任务）
 3. runner 处置：若跨长间隙，留跑（nohup 已脱离 session）；若停于 checkpoint，记录裁决序号与游标即可断点续接
 
 ---
 
 *生成于 2026-10-08，session29 收束。基线证据：裁决 191-195、纵向台账 session29 节、四提交（2738c376/15202d0d/490496e7/28550997）。*
+
+*2026-10-08 校订（同日评审轮）：① 序号接续命令去 `^` 锚定（原正则匹配字母开头文件名恒空输出）；② 纵向台账/dispatch_helper 路径写全；③ 基线刷新——裁决至 196（ch59 settle approve）、断点=ch59 per-chapter 收束 checkpoint、钩池 121KB。*
