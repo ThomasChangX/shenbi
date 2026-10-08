@@ -124,3 +124,41 @@ def test_plot_thread_weaver_has_headroom():
         "shenbi-plot-thread-weaver needs max_tokens headroom above the 32768 "
         "runtime raise (single-file thread map rides the output cap)"
     )
+
+
+def test_empty_output_family_disables_thinking():
+    """Evaluative queue + chapter-planning carry thinking="disabled"
+    (session30 调试②: reasoning channel consumes the completion budget —
+    90+ dispatches pinned at exactly max_tokens with empty content; 152
+    empties wasted 3.06M completion + 6.46M prompt tokens ≈18% of run cost.
+    Official switch: extra_body {"thinking": {"type": "disabled"}}).
+    """
+    config = _load_config()
+    overrides = config.get("overrides", {})
+    for skill in (
+        "shenbi-chapter-planning",  # 55% empty rate
+        "shenbi-review-resonance",  # 44%
+        "shenbi-review-group-factual",  # 76%
+        "shenbi-review-group-plan",  # 72%
+        "shenbi-review-group-character",
+        "shenbi-review-group-craft",
+        "shenbi-score-arc",
+    ):
+        assert overrides.get(skill, {}).get("thinking") == "disabled", (
+            f"{skill} must set thinking=disabled (empty-output family)"
+        )
+
+
+def test_creative_writers_keep_provider_default_thinking():
+    """Creative/synthesis writers stay on the provider default — mid-run
+    behavior freeze (quality risk outweighs empty cost at their 7-25%
+    rates; revisit with post-rollout data).
+    """
+    config = _load_config()
+    overrides = config.get("overrides", {})
+    for skill in (
+        "shenbi-chapter-drafting",
+        "shenbi-state-settling",
+        "shenbi-foreshadowing-lifecycle",
+    ):
+        assert overrides.get(skill, {}).get("thinking", "enabled") != "disabled", skill

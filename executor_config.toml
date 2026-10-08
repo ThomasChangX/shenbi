@@ -39,6 +39,7 @@ temperature = 0.7
 max_tokens = 49152
 
 [overrides."shenbi-memory-distill"]
+thinking = "disabled"
 temperature = 0.7
 # Phase3 esc#3c (ch23, first-ever volume boundary): L5 spine review pins the
 # 32768 raise twice (completion exactly 32767/32768; prompt only 51.6K) — the
@@ -103,6 +104,7 @@ temperature = 0.7
 max_tokens = 49152
 
 [overrides."shenbi-review-group-character"]
+thinking = "disabled"
 temperature = 0.15
 # Fixcheck ch2 (2026-09-29): the four-dimension single-call audit
 # (character/dialogue/motivation/pov reports in one dispatch) exceeded the
@@ -113,12 +115,15 @@ temperature = 0.15
 max_tokens = 49152
 
 [overrides."shenbi-review-continuity"]
+thinking = "disabled"
 temperature = 0.2
 
 [overrides."shenbi-review-anti-ai"]
+thinking = "disabled"
 temperature = 0.15
 
 [overrides."shenbi-review-resonance"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-foreshadowing-lifecycle"]
@@ -135,42 +140,55 @@ max_tokens = 49152
 # group-factual/group-plan/foreshadowing) deferred to plan-stage decision.
 
 [overrides."shenbi-score-arc"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-score-stratum"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-score-volume"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-memo-compliance"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-world-rules"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-arc-payoff"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-pov"]
+thinking = "disabled"
 temperature = 0.15
 
 [overrides."shenbi-review-era"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-fanfic"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-sensitivity"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-spinoff"]
+thinking = "disabled"
 temperature = 0.15
 
 [overrides."shenbi-review-dialogue"]
+thinking = "disabled"
 temperature = 0.15
 
 [overrides."shenbi-review-long-span"]
+thinking = "disabled"
 # Canary closure: whole-book long-span review exceeds the 16384->32768
 # cap-raise ladder intermittently (length fail-fast while the streamed
 # artifact itself passes G4) — headroom mirrors the lifecycle precedent.
@@ -178,6 +196,7 @@ temperature = 0.2
 max_tokens = 49152
 
 [overrides."shenbi-foundation-review"]
+thinking = "disabled"
 temperature = 0.1
 # probe18 genesis step 17 (2026-10-02): whole-project single-call review pinned
 # the 32768 raise 3x (completion 16384/32768, output_length=0, zero files) —
@@ -186,3 +205,24 @@ temperature = 0.1
 # the review-family temperature + same 49152 headroom tier as review-group-
 # character (API accepts 49152; ladder can still self-raise to 58982).
 max_tokens = 49152
+
+# Session30 调试② (2026-10-08): deepseek thinking mode (default on, effort high)
+# draws its reasoning on the same completion budget — when it consumes all of
+# max_tokens the content channel returns empty (90+ dispatches pinned at exactly
+# the cap with output_length=0; 152 empties = 3.06M completion + 6.46M prompt
+# tokens, ~18% of run cost). The evaluative queue + planning run with thinking
+# disabled (official switch, api-docs.deepseek.com/guides/thinking_mode);
+# creative/synthesis writers keep the provider default — mid-run behavior
+# freeze, revisit with post-rollout data.
+
+[overrides."shenbi-chapter-planning"]
+thinking = "disabled"
+
+[overrides."shenbi-review-group-craft"]
+thinking = "disabled"
+
+[overrides."shenbi-review-group-factual"]
+thinking = "disabled"
+
+[overrides."shenbi-review-group-plan"]
+thinking = "disabled"

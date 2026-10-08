@@ -274,6 +274,37 @@ def _get_skill_max_tokens(skill_name: str) -> int:
     return int(config.get("default", {}).get("max_tokens", 16384))
 
 
+#: Valid executor_config ``thinking`` values — anything else stays on the
+#: provider default (never half-guess an API param).
+_THINKING_VALUES = ("disabled", "low")
+
+
+def _get_skill_thinking(skill_name: str) -> str | None:
+    """Thinking-mode override for a skill from executor_config.toml.
+
+    deepseek's chat-completions API runs thinking mode by default (effort
+    high) and the reasoning channel draws on the same completion budget —
+    when it consumes all of max_tokens the content channel returns empty
+    (session30 调试②: 90+ dispatches pinned at exactly the cap with
+    output_length=0). ``disabled`` / ``low`` map onto the official API
+    switches via :func:`_thinking_kwargs`; absent -> provider default.
+    """
+    config = _load_executor_config()
+    overrides = config.get("overrides", {})
+    section = overrides.get(skill_name) or config.get("default", {})
+    value = section.get("thinking")
+    return value if value in _THINKING_VALUES else None
+
+
+def _thinking_kwargs(thinking: str | None) -> dict[str, Any]:
+    """Map the config value onto official API kwargs (no-ops on None)."""
+    if thinking == "disabled":
+        return {"extra_body": {"thinking": {"type": "disabled"}}}
+    if thinking == "low":
+        return {"reasoning_effort": "low"}
+    return {}
+
+
 _INPUT_MAX_CHARS_PER_FILE = 32000  # hard cap per input file (~8K tokens)
 _INPUT_MAX_CHARS_TOTAL = 128000  # total input budget (~32K tokens)
 
@@ -3076,6 +3107,7 @@ def _dispatch_via_api(
             max_tokens=_get_skill_max_tokens(skill),
             timeout=api_timeout,
             usage_acc=usage_acc,
+            **_thinking_kwargs(_get_skill_thinking(skill)),
         )
     except httpx.TimeoutException as exc:
         # Exception-TYPED timeout routing — message sniffing breaks silently
@@ -3176,6 +3208,7 @@ def _dispatch_via_api(
                 max_tokens=_get_skill_max_tokens(skill),
                 timeout=api_timeout,
                 usage_acc=usage_acc,
+                **_thinking_kwargs(_get_skill_thinking(skill)),
             )
         except Exception as exc:
             log.error("api_call_failed", skill=skill, error=str(exc))
