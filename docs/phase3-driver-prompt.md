@@ -92,7 +92,7 @@ nohup ./run_pipeline.sh novel-xinghuo-phase3 > /tmp/phase3-runK.log 2>&1 & disow
 
 1. **modify 契约**（cli.py C30 audit-T1 I2）：`modify` 会 discard staging 并重派发——手改 staging 副本必被丢弃。人工修订必须：落 **live/committed 路径**（正文在 `chapters/chapter-N.md`）提交 modify；或把修订指令写进 **feedback 文件**走 modify_feedback（重派发 prompt 会注入，模型会在重生成中并入并在产物里显式记录）。
 2. **重派发行为**：chapter-memo modify → 回拨重跑 chapter-planning；per-chapter modify → 触发 re-settle（#45）；escalation approve → 重置重试计数并重派失败步骤。
-3. **代词纪律**：设定文件双写「她/他」是模板形态；正文代词以**已发布前章为事实源**（本 seed 历史上是阿烬/顾烬=他）。单写「她」只能指女性角色；发现指主角的单写漂移 = P1，走 per-chapter modify 手改 live 正文 + truth 同步（替换前先做同句双代词消歧）。
+3. **代词纪律**：设定文件双写「她/他」是模板形态；正文代词以**已发布前章为事实源**（本 seed 主角阿烬为**女性**——protagonist.md 通篇以「她」定义、已发布章同口径；旧括注「阿烬/顾烬=他」系探针期残留，「顾烬」全项目 0 次出现，裁决 197 核实清理）。单写「她」只能指女性角色；发现指主角的单写漂移 = P1，走 per-chapter modify 手改 live 正文 + truth 同步（替换前先做同句双代词消歧）。
 4. **hook 账核对**：计划 hook 账只能引用 pending_hooks 已注册的 MH 系列（操作 open/advance/defer/resolve）；`CP-` 等未注册前缀 = 自造 hook（P2，modify 删除）；advance 的机器表达 = registry 行合法迁移（PLANTED→RELEVANT→…）+ detail 段 colon bullet（last_reinforced/证据完整重述）。
 5. **settle 验证点**：sidecar `state-settling-decisions.json` 的 chapter 与当前章一致；matrix 增量块数 = 已收束章数；`matrix_structure`/`hooks_structure` 在 resume log 中零出现（全程监控）。
 6. **已知 transient（勿立项）**：settle 偶发 `output_length=0`（模型把补全预算耗在推理通道、正文空、no_files_parsed 隔离）——**重派一次即愈**；仅当 ≥2 次复现才按 systematic-debugging 立项查 json_mode/reasoning 配置。
