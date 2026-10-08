@@ -604,6 +604,7 @@
       "shenbi-memory-distill",
       "shenbi-score-arc",
       "shenbi-score-volume",
+      "shenbi-state-settling",
       "shenbi-volume-consolidation"
     ],
     "writes": [

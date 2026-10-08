@@ -6,7 +6,10 @@ contract:
   reads:
     - {file: plans/chapter-N-plan.md, fields: [7. 本章 hook 账]}
     - {file: chapters/chapter-N.md}
-    - {file: truth/pending_hooks.md}
+    # Plan A (adjudication 096): 总览 full + only this chapter's plan-named
+    # detail sections (the audit does not exist yet — lifecycle WRITES it);
+    # sentinel discloses the omitted detail sections.
+    - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
     - {file: truth/bridge_tracker.md}
     - outline/volume_map.md
     - outline/story_frame.md

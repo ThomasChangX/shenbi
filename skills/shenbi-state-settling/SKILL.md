@@ -6,12 +6,16 @@ contract:
   reads:
     - chapters/chapter-N.md
     - truth/character_matrix.md
-    - truth/current_state.md
-    - truth/particle_ledger.md
-    - truth/emotional_arcs.md
-    - truth/subplot_board.md
-    - truth/pending_hooks.md
-    - truth/chapter_summaries.md
+    # Plan A (adjudication 096): cumulative chapter-keyed tables grow without
+    # bound — extractors serve head + recent units; the omitted middle is
+    # disclosed by an in-text sentinel. Full history stays in the files.
+    - {file: truth/current_state.md, extractor: recent_increments}
+    - {file: truth/particle_ledger.md, extractor: recent_increments}
+    - {file: truth/emotional_arcs.md, extractor: recent_increments}
+    - {file: truth/subplot_board.md, extractor: recent_increments}
+    - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
+    - {file: truth/chapter_summaries.md, extractor: recent_increments}
+    - truth/volume_summaries.md
     - audits/chapter-N-foreshadowing.md
   writes:
     - file: truth/state-settling-decisions.json
@@ -49,7 +53,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, audits/chapter-N-foreshadowing.md
+- **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/volume_summaries.md, audits/chapter-N-foreshadowing.md
 - **Writes:** truth/state-settling-decisions.json
 - **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/character_matrix.md
 

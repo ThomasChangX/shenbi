@@ -63,6 +63,12 @@ from shenbi.exceptions import (
     TruthFileParseError,
 )
 from shenbi.pipeline._shared import load_volume_context  # spec #65 §4 (leaf module, no cycle)
+from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 096) — leaf module
+    chapter_scoped_head_tail,
+    extract_hooks_audit_scoped,
+    extract_recent_increments,
+    has_chapter_units,
+)
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
@@ -335,13 +341,21 @@ class TruncateRecord:
 
 
 def _cap_single(text: str, fname: str) -> str:
-    """Apply the per-file cap with a cap-proof sentinel + WARN (F361 under-budget path)."""
+    """Apply the per-file cap with a cap-proof sentinel + WARN (F361 under-budget path).
+
+    Plan A (adjudication 096): chapter-keyed cumulative tables cut
+    head+tail (newest units survive — settle's recency need) instead of the
+    head-only clip that orphaned rows mid-table (the ch58 input-残篇 root).
+    """
     log.warning(
         "input_truncated",
         file=fname,
         original_len=len(text),
         kept_len=_INPUT_MAX_CHARS_PER_FILE,
     )
+    scoped = chapter_scoped_head_tail(text, _INPUT_MAX_CHARS_PER_FILE)
+    if scoped is not None:
+        return scoped
     return (
         text[:_INPUT_MAX_CHARS_PER_FILE]
         + f"\n\n[TRUNCATED {_INPUT_MAX_CHARS_PER_FILE}/{len(text)} chars]"
@@ -380,13 +394,18 @@ def _budgeted_truncate(
             kept[name] += give
             surplus -= give
     # Pass 3: build outputs — sentinel appended AFTER the cap slice (F361: it can
-    # never be clipped by _INPUT_MAX_CHARS_PER_FILE)
+    # never be clipped by _INPUT_MAX_CHARS_PER_FILE). Plan A: chapter-keyed
+    # files cut head+tail (newest units survive) instead of head-only.
     result: dict[str, str] = {}
     records: list[TruncateRecord] = []
     for name, content in input_texts.items():
         k = kept[name]
         if k < len(content):
-            result[name] = content[:k] + f"\n\n[TRUNCATED {k}/{len(content)} chars]"
+            scoped = chapter_scoped_head_tail(content, k)
+            if scoped is not None:
+                result[name] = scoped
+            else:
+                result[name] = content[:k] + f"\n\n[TRUNCATED {k}/{len(content)} chars]"
             records.append(
                 TruncateRecord(file=name, original_len=len(content), kept_len=k, offset=0)
             )
@@ -815,7 +834,60 @@ def _build_skill_prompt(
                         path=str(full_path),
                         chapter=chapter,
                     )
-            elif extractor is not None and extractor != "volume_chapter":
+            elif extractor == "hooks_audit_scoped":
+                # Plan A (adjudication 096): slice pending_hooks to 总览
+                # full + this chapter's plan/audit-named detail sections.
+                # chapter=None (genesis) keeps the full-pool view — same §4.3
+                # fallthrough discipline as volume_chapter. "" -> full text
+                # + WARN (never a silent drop).
+                if chapter is not None:
+                    try:
+                        extracted = extract_hooks_audit_scoped(project_dir, chapter, content)
+                    except Exception as exc:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                            error=str(exc),
+                        )
+                    else:
+                        if extracted:
+                            content = extracted
+                        else:
+                            log.warning(
+                                "extractor_failed_fulltext",
+                                extractor=extractor,
+                                path=str(full_path),
+                                chapter=chapter,
+                            )
+            elif extractor == "recent_increments":
+                # Plan A: chapter-keyed cumulative tables serve head + last
+                # units with an omission sentinel. "" (unexpected shape,
+                # fewer units than keep) -> full text, WARN only on the
+                # shape-with-more-units failure; under-keep is a no-op by
+                # design (nothing to omit).
+                try:
+                    extracted = extract_recent_increments(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    elif has_chapter_units(content):
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor is not None:
                 # Defense-in-depth: loader's closed registry rejects unknown
                 # names at load, so this is unreachable today — guard keeps a
                 # future registry expansion from silently degrading to full

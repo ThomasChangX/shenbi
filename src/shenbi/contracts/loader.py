@@ -71,8 +71,13 @@ def _skill_path(skill: str) -> Path:
 
 
 #: Closed registry of read extractor names (spec #65 §4.2). Unknown names
-#: fail loudly at load (never silently degrade to full text).
-READ_EXTRACTORS: frozenset[str] = frozenset({"volume_chapter"})
+#: fail loudly at load (never silently degrade to full text). Plan A
+#: (adjudication 096): hooks_audit_scoped / recent_increments slice the
+#: unboundedly-growing cumulative truth tables — implementations and the
+#: closed-shape contracts live in pipeline/read_extractors.py.
+READ_EXTRACTORS: frozenset[str] = frozenset(
+    {"volume_chapter", "hooks_audit_scoped", "recent_increments"}
+)
 
 
 def _normalize_read_item(item: Any) -> tuple[str, list[str] | None, str | None]:
