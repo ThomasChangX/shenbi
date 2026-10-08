@@ -174,6 +174,10 @@ PRE_WRITE_CHECK:
 - `chapter`: 章节号（非章节产物用 `null`）
 - `produced_at`: ISO-8601 时间戳
 - `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
+**P2.5 二分支自查（写每条 selection 前过一遍，G4 逐项强校验）**：
+- 常规取舍 → `"severity": "low"` 且**不写** rationale 键；
+- 有实重取舍（驱动 adjustments／响应漂移滑点／卷级口径裁剪）→ `"severity": "medium"` + **必写** ≤100 字 rationale（说清取了什么、为何这个分量）；
+- 两种禁组（各实证 3 试被闸）：`low`+rationale、`medium`+无 rationale。
 
 **字段级规格（G4 逐项强校验，形态错误即闸门失败）**：
 - `selections[]`: `target`（**str，必填**，被选取的文件路径——路径放这里，不放 selected）、`selected`（**list[str]**，条目名列表——禁止写成字符串）、`basis`（**仅限四枚举之一**：`adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`——禁止自造值）、`severity`（`low`/`medium`/`high`）、`omitted`（list[str]）

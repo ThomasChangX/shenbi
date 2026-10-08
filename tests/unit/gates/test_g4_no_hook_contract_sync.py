@@ -77,3 +77,17 @@ def test_planning_memo_template_requires_tension_beat_field() -> None:
     # direction comes from upstream planning, not drafting improvisation.
     assert "章尾张力拍" in text
     assert "未答之问" in text and "未说破之瞒" in text and "未合拢之缝" in text
+
+
+def test_p25_two_branch_self_check_in_writer_contracts() -> None:
+    """P2.5 family class fix (adjudication 238): ch70 planning (low+rationale)
+    and ch72 drafting (medium w/o rationale) each burned 3 gate attempts + a
+    Tier 1 escalation while the rule sat compressed in one dense line. Both
+    writer contracts now carry the operationalized two-branch self-check
+    naming both empirically-fatal combos.
+    """
+    for skill in (_DRAFTING_SKILL, _PLANNING_SKILL):
+        text = skill.read_text(encoding="utf-8")
+        assert "P2.5 二分支自查" in text, skill
+        assert "low" in text and "不写" in text  # branch 1: low, no rationale key
+        assert "medium" in text and "必写" in text  # branch 2: medium, rationale required
