@@ -443,3 +443,28 @@ def test_budgeted_truncate_keeps_tail_units_for_chapter_keyed_files() -> None:
     assert "第 30 章" in out  # newest unit survives (settle needs recency)
     assert "TRUNCATED" in out
     assert records and records[0].file == "truth/x.md"
+
+
+def test_hooks_inventory_scoped_appends_lifecycle_anchor_digest() -> None:
+    """T0 follow-up (adjudication 233 watch 1): the vol-3 boundary CP
+    worksheet had 9/10 time_since_plant values unanchored (overview carries
+    no last_reinforced column; non-TRIGGERED details are sliced away — one
+    row even matched the SKILL template example verbatim). The slice now
+    appends a PRECOMPUTED per-hook anchor digest so the resolve never
+    improvises the parameter.
+    """
+    from shenbi.pipeline.read_extractors import extract_hooks_inventory_scoped
+
+    pool = _pool_with_triggered().replace(
+        "### MH01（灵印）\n\n- lifecycle_state: RELEVANT",
+        "### MH01（灵印）\n\n- lifecycle_state: RELEVANT\n- last_reinforced: 第 62 章",
+        1,
+    )
+
+    out = extract_hooks_inventory_scoped(pool)
+
+    assert "生命周期锚点" in out
+    assert "MH01: plant 4 | last_reinforced 62" in out  # parsed from details
+    assert "边界章 − last_reinforced" in out  # the pinned CP 口径 travels with the digest
+    # hooks WITHOUT a last_reinforced field surface as 未强化 (never silently dropped)
+    assert "MH02: plant 38 | last_reinforced 未强化" in out

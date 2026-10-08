@@ -181,15 +181,45 @@ def extract_hooks_inventory_scoped(content: str) -> str:
 
     kept: list[str] = []
     omitted: list[str] = []
+    plant_by_id: dict[str, str] = {}
+    lr_by_id: dict[str, str] = {}
+    section_ids: list[tuple[str, str]] = []
     for i, hm in enumerate(starts):
         end = starts[i + 1].start() if i + 1 < len(starts) else len(body)
         section = body[hm.start() : end]
-        if canon_hook_id(hm.group(1)) in triggered:
+        sec_id = canon_hook_id(hm.group(1))
+        section_ids.append((hm.group(1), sec_id))
+        pm = re.search(r"- plant_chapter:\s*(\d+)", section)
+        if pm is not None:
+            plant_by_id[sec_id] = pm.group(1)
+        lrm = re.search(r"- last_reinforced:\s*第?\s*(\d+)\s*章", section)
+        lr_by_id[sec_id] = lrm.group(1) if lrm is not None else "未强化"
+        if sec_id in triggered:
             kept.append(section)
         else:
             omitted.append(hm.group(1))
     if not kept:
         return ""
+    # T0 follow-up (adjudication 233 watch 1): plant chapters from the
+    # overview's 种植章 column for hooks whose detail omits the field.
+    m_ov = re.search(r"^##\s*总览\s*$", content, re.MULTILINE)
+    if m_ov is not None and m_ov.start() < m.start():
+        for line in content[m_ov.end() : m.start()].splitlines():
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) < 3:
+                continue
+            idm = _GROUNDING_ID_RE.search(cells[0])
+            if idm is not None:
+                plant_by_id.setdefault(canon_hook_id(f"{idm.group(1)}{idm.group(2)}"), cells[2])
+    anchor_lines = [
+        f"- {display}: plant {plant_by_id.get(sec_id, '?')} | last_reinforced {lr_by_id.get(sec_id, '未强化')}"
+        for display, sec_id in section_ids
+    ]
+    digest = (
+        "\n### 生命周期锚点（extractor 附；CP 口径：time_since_plant = 边界章 − last_reinforced）\n\n"
+        + "\n".join(anchor_lines)
+        + "\n\n"
+    )
 
     omitted_list = "、".join(omitted[:_MAX_SENTINEL_UNITS])
     if len(omitted) > _MAX_SENTINEL_UNITS:
@@ -199,7 +229,7 @@ def extract_hooks_inventory_scoped(content: str) -> str:
         f"保留 {len(kept)} 段，省略 {len(omitted)} 段（{omitted_list}）——"
         f"未触发钩子的完整生命周期见上方总览表。\n"
     )
-    return head + "\n" + sentinel + "".join(kept).rstrip() + "\n"
+    return head + "\n" + sentinel + digest + "".join(kept).rstrip() + "\n"
 
 
 def _slice_table_units(content: str, keep: int) -> str | None:

@@ -88,7 +88,7 @@ CP = hook_power × time_since_plant × escalation_factor
 | 参数 | 说明 | 取值范围 |
 |------|------|---------|
 | hook_power | 伏笔基础威力（core_hook=10, main=5, side=2） | 1-10 |
-| time_since_plant | 自埋设以来的沉默章数 | ≥1 |
+| time_since_plant | 沉默章数，**口径固定 = 边界章 − last_reinforced**（切片读在详情前附「生命周期锚点」摘要，逐钩给出 plant/last_reinforced 预计算值；未强化钩以种植章起算）——禁止沿用示例值或自行估数 | ≥0 |
 | escalation_factor | 兑现方式放大系数（FULL_PAYOFF=1.0, PARTIAL_PAYOFF=0.7, TWIST_PAYOFF=0.8, FLAT_PAYOFF=0.3） | 0-1.0 |
 
 计算示例（输出中必须展示）:

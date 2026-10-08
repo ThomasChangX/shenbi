@@ -247,7 +247,7 @@
     "src/shenbi/pipeline/audit_layer.py": "sha256:8b7ed26b4bd8f99ee686e00e11ec6df6ccccff00f111cedc26e653ef97fed7e6",
     "src/shenbi/pipeline/product_contracts.py": "sha256:117f2712457c726c456f13e84ad3f4e3977858e6477cad7d2b59a3077c752636",
     "src/shenbi/pipeline/__init__.py": "sha256:b1f794bfbec44a459a03359ebb25cba2660a62018b99fe68a3045196256af13b",
-    "src/shenbi/pipeline/read_extractors.py": "sha256:9d6d1a0be6783a09c8fff8101442ff7d6020936fe74cf85abdebb509dd6a1974",
+    "src/shenbi/pipeline/read_extractors.py": "sha256:c5aa785f9790ee3f1b7f0a7a339e015f9a01b2fd39dde2ad61b12f900af84139",
     "src/shenbi/pipeline/audit_context_cache.py": "sha256:6518c5193abf4314e6db973fb5b19651a38251e7b39cc49b2216c5e287030f89",
     "src/shenbi/pipeline/truth_index.py": "sha256:e769b1b442fd38b21772bd0d04e466d7ba1c27f85da5ad80966222ed0b0435a6",
     "src/shenbi/pipeline/truth_embed.py": "sha256:d3c61ba07d5ac7663ada662c471555559f84c78c43ba14ea5f7deb028962bcd3",
