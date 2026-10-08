@@ -923,9 +923,12 @@ def test_resonance_trend_bootstrap_header_on_create():
             key_field="chapter",
         )
         text = (project_dir / "truth" / "resonance_trend.md").read_text(encoding="utf-8")
+        # Frontmatter-guarantee invariant (phase3 P2): created truth files
+        # carry the canonical block FIRST; the bootstrap header follows.
+        assert text.startswith("---\n")
         lines = [l for l in text.splitlines() if l.strip()]
-        assert lines[0].startswith("| chapter |")
-        assert "overall" in lines[0]
+        assert any(l.startswith("| chapter |") for l in lines)
+        assert any("overall" in l and l.startswith("| chapter |") for l in lines)
         assert any(l.startswith("| 1 |") for l in lines)
 
         # A second row must not duplicate the header
@@ -960,9 +963,12 @@ def test_bridge_tracker_bootstrap_header_on_create():
             key_field="bridge_id",
         )
         text = (project_dir / "truth" / "bridge_tracker.md").read_text(encoding="utf-8")
+        # Frontmatter-guarantee invariant (phase3 P2): canonical block first,
+        # bootstrap header after.
+        assert text.startswith("---\n")
         lines = [l for l in text.splitlines() if l.strip()]
-        assert lines[0].startswith("| Bridge ID |")
-        assert "实际激活章" in lines[0]
+        assert any(l.startswith("| Bridge ID |") for l in lines)
+        assert any("实际激活章" in l and l.startswith("| Bridge ID |") for l in lines)
         assert any(l.startswith("| BR-02 |") for l in lines)
 
         # A second bridge row must not duplicate the header

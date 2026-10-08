@@ -64,11 +64,19 @@ def _merge_staged_rows_keyed(staged_text: str, live_text: str, key_field: str) -
     between the staging window and the commit.
     """
     from shenbi.pipeline.truth_io import (
-        is_separator_row,
         has_markdown_row,
+        is_separator_row,
         split_table_cells,
         upsert_markdown_row,
     )
+
+    # Adjudication 004 surface: the staged snapshot is the merge SUBJECT —
+    # when it lacks frontmatter but live carries one, the commit must not
+    # silently drop it (staged character_matrix lost live's block this way).
+    if not staged_text.lstrip().startswith("---") and live_text.lstrip().startswith("---"):
+        fm_end = live_text.find("\n---", 4)
+        if fm_end != -1:
+            staged_text = live_text[: fm_end + 4] + "\n\n" + staged_text.lstrip("\n")
 
     merged = staged_text
     for line in live_text.split("\n"):

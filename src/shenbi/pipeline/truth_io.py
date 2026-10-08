@@ -201,10 +201,13 @@ def write_truth_file(
                 # the repr was unreadable prose and unparseable on re-read.
                 bullets = "\n".join(f"- {k}: {v}" for k, v in new_data.items())
                 body = f"# {filename.removesuffix('.md')}\n\n{bullets}\n"
-                safe_write(path, body.encode("utf-8"))
+                safe_write(path, ensure_truth_frontmatter(filename, body).encode("utf-8"))
             else:
                 content = new_data if isinstance(new_data, str) else str(new_data)
-                safe_write(path, content)
+                # Creation forms are LLM-authored and may omit frontmatter —
+                # presence is a program invariant (adjudication 004 surface).
+                content = ensure_truth_frontmatter(filename, content)
+                safe_write(path, content.encode("utf-8"))
             log.info("truth_file_written", path=str(path), mode=mode)
             return
 
@@ -258,6 +261,27 @@ def write_truth_file(
             log.info("truth_file_yaml_upserted", file=filename)
 
 
+#: Canonical truth-file frontmatter — the program-side scaffolding guarantee
+#: (phase3 second recurrence: adjudication 004 staged character_matrix lost
+#: live's frontmatter at the keyed-merge commit, and the calibration writer
+#: created resonance_anchors.md as a bare headerless table for 57 chapters).
+#: Presence of A frontmatter block is the invariant; richer shells keep
+#: their own (category/status/generated_at) untouched.
+_TRUTH_FRONTMATTER = "---\ntype: truth\ncategory: state\nstatus: filled\n---\n"
+
+
+def ensure_truth_frontmatter(filename: str, content: str) -> str:
+    """Prepend the canonical truth frontmatter when *content* lacks one.
+
+    Single helper behind every truth-file creation surface (keyed upsert
+    create-path, staging merge base, whole-file replace/creation forms) —
+    frontmatter presence is a program invariant, never the LLM's job.
+    """
+    if content.lstrip().startswith("---"):
+        return content
+    return _TRUTH_FRONTMATTER + content
+
+
 #: Contract headers bootstrapped when a cumulative table file is CREATED by
 #: the keyed upsert path. Probe2: the first resonance_trend row landed on an
 #: empty base, producing a headerless file the longitudinal reader rejects
@@ -275,6 +299,10 @@ _TABLE_HEADER_BOOTSTRAP: dict[str, str] = {
     "bridge_tracker.md": (
         "| Bridge ID | 钩子内容 | 类型 | 带入卷 | 预期激活章 | 当前状态 | 实际激活章 | 备注 |"
     ),
+    # Framework's own post-review persistence (confidence_calibration):
+    # anchor outcome rows land via insert_markdown_row on a missing base —
+    # unregistered meant 57 chapters of bare headerless rows (phase3).
+    "resonance_anchors.md": "| chapter | high_conf_anchors | correct |",
     # batch #15 #44/#38: five single-table keyed files whose first rows-only
     # write can land on a missing/shell base (probe20: settle's rows-only
     # first write chained onto a status:initialized template). Headers pinned
@@ -321,6 +349,11 @@ def ensure_table_header(filename: str, content: str) -> str:
     the separator row is derived from the header's own column count.
     """
     header = _TABLE_HEADER_BOOTSTRAP.get(filename)
+    # Frontmatter guarantee runs BEFORE the registered-header early-out:
+    # unregistered truth files (resonance_anchors incident) must still gain
+    # the canonical block on creation.
+    if not content.lstrip().startswith("---"):
+        content = ensure_truth_frontmatter(filename, content)
     if not header:
         return content
     separator = "|" + "---|" * (header.count("|") - 1)
@@ -336,9 +369,19 @@ def ensure_table_header(filename: str, content: str) -> str:
     # append the contract table where the rows will land (EOF).
     if all(split_table_cells(line) is None for line in content.split("\n")):
         return content.rstrip() + "\n\n" + header + "\n" + separator
-    first = next((line for line in content.split("\n") if line.strip()), "")
+    # Bare-first-row detection must see past a leading frontmatter block —
+    # the block is scaffolding, not the first data line (a frontmatter-carrying
+    # headerless base is the repair form: rows exist, header missing). The
+    # header lands AFTER the block, keeping frontmatter first.
+    fm_block, body = "", content
+    if body.startswith("---"):
+        close = body.find("\n---", 3)
+        if close != -1:
+            fm_block = body[: close + 4] + "\n"
+            body = body[close + 4 :].lstrip("\n")
+    first = next((line for line in body.split("\n") if line.strip()), "")
     if first.lstrip().startswith("|") and "chapter" not in first and "---" not in first:
-        return header + "\n" + separator + "\n" + content
+        return fm_block + header + "\n" + separator + "\n" + body
     return content
 
 

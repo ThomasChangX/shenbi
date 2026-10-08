@@ -153,8 +153,12 @@ class TestSingleTableBootstraps:
         out = ensure_table_header(
             "current_state.md", "| 第1章 | 井下 | 落潮夜 | 瞒报 | 查点 | 压力 |"
         )
-        assert out.split("\n")[0] == header
-        assert out.split("\n")[1] == "|" + "---|" * (header.count("|") - 1)
+        # Frontmatter guarantee (phase3 P2): the canonical block lands first,
+        # the bootstrap header right after.
+        lines = out.split("\n")
+        assert lines[0] == "---"
+        assert header in lines
+        assert lines[lines.index(header) + 1] == "|" + "---|" * (header.count("|") - 1)
         assert "| 第1章 |" in out
 
     def test_bootstrap_idempotent_when_header_present(self):
@@ -210,5 +214,7 @@ class TestPendingHooksHeaderBootstrap:
             "pending_hooks.md",
             "| MH01（旧木牌） | PLANTED | 1 | 115（五卷） | ITEM | 0.5 | 14 | STAIRCASE |",
         )
-        assert out.split("\n")[0] == header
+        lines = out.split("\n")
+        assert lines[0] == "---"
+        assert header in lines
         assert "| MH01（旧木牌） |" in out
