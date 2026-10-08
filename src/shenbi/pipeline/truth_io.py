@@ -998,6 +998,18 @@ def _replace_section(existing: str, section: str) -> str | None:
                 if lvl <= level:
                     end = j
                     break
+        # Observability (session30 调试①): wholesale replacement is the
+        # designed compaction route for re-emitted sections, but a large
+        # shrink was silent — the ch60 pool dropped 43% with no log line to
+        # tell designed compaction from data loss.
+        old_span = "\n".join(lines[i:end])
+        if len(section) < len(old_span) // 2:
+            log.warning(
+                "truth_section_replace_shrank",
+                heading=heading[:60],
+                old_len=len(old_span),
+                new_len=len(section),
+            )
         # keep surrounding blank-line rhythm: replace the span, ensure a
         # single blank separator before the next heading
         new_lines = lines[:i] + section.split("\n") + lines[end:]

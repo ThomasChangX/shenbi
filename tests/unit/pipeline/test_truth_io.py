@@ -982,3 +982,36 @@ def test_bridge_tracker_bootstrap_header_on_create():
         text2 = (project_dir / "truth" / "bridge_tracker.md").read_text(encoding="utf-8")
         assert text2.count("| Bridge ID |") == 1
         assert "| BR-05 |" in text2
+
+
+def test_section_replace_large_shrink_warns(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A wholesale section replacement that shrinks the span below half must
+    WARN (session30 调试①: the ch60 pool compaction dropped 43% with zero log
+    output — designed compaction was indistinguishable from data loss until
+    an hour of log archaeology). Compaction is designed; invisibility is not
+    (degrade-loudly discipline, spec #65 §4.3 kin).
+    """
+    from shenbi.pipeline import truth_io
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "### MH01（灵印）\n\n"
+        + "\n".join(f"- 证据: 第{n}章 某次强化的完整重述。{'长' * 40}" for n in range(4, 50))
+        + "\n\n### MH02（灵誓）\n\n- lifecycle_state: PLANTED\n"
+    )
+    # free-form line forces the replace path (bullet-merge rejects non-bullets)
+    condensed = "### MH01（灵印）\n\n- lifecycle_state: RELEVANT\n最新一章的完整重述。\n"
+    warned: list[str] = []
+
+    def _spy(event: str, **kw: object) -> None:
+        warned.append(event)
+
+    monkeypatch.setattr(truth_io.log, "warning", _spy)
+
+    out = upsert_markdown_row(existing, condensed, "hook_id")
+
+    assert "### MH02（灵誓）" in out, "sibling section untouched"
+    assert "最新一章的完整重述。" in out, "replacement landed"
+    assert "truth_section_replace_shrank" in warned
