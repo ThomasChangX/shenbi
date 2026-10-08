@@ -750,3 +750,86 @@ def test_trigger_steps_have_no_deprecated():
     dead = deprecated_skill_names(Path(__file__).resolve().parents[3] / "skills")
     routed = [s.skill for s in TRIGGER_STEPS if s.skill in dead]
     assert not routed
+
+
+class TestTriggerFanoutResumeMemory:
+    """Phase3 (adjudication 191 observation): run_triggered_skills had no
+    step-progress memory — a mid-fanout failure re-dispatched every
+    already-passed step on resume (L2 waste), and reviewer feedback never
+    entered the re-dispatch prompt (dead route).
+    """
+
+    @pytest.fixture(autouse=True)
+    def _progress_for_g3(self, tmp_path):
+        (tmp_path / "progress.json").write_text(
+            json.dumps(
+                {
+                    "current_scorer_agent": "fixture-scorer",
+                    "agent_trace": {"shenbi-score-arc": "fixture-generator"},
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    def test_completed_steps_skipped_on_resume(self, mock_g4, mock_disp, tmp_path):
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        result = TriggerResult(l2_distill=True, score_arc=True, style_learning=True)
+        steps = get_trigger_steps(result)
+        # chapter 12 first pass: step 1 passed, step 2 failed
+        state.trigger_steps_done = [f"12:{steps[0].skill}"]
+        mock_disp.side_effect = [
+            DispatchResult(False, 1, "", "boom"),
+        ]
+        run_triggered_skills(state, tmp_path, 12, result)
+        # resume: step 1 skipped, step 2 re-dispatched
+        mock_disp.side_effect = None
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        run_triggered_skills(state, tmp_path, 12, result)
+        dispatched = [c.args[0] for c in mock_disp.call_args_list]
+        assert dispatched.count(steps[0].skill) == 0  # skipped, not re-run
+        assert steps[1].skill in dispatched
+        assert steps[2].skill in dispatched
+
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    def test_done_list_cleared_when_fanout_completes(self, mock_g4, mock_disp, tmp_path):
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        state.trigger_steps_done = ["12:stale-entry", "11:old-chapter"]
+        result = TriggerResult(l2_distill=True)
+        run_triggered_skills(state, tmp_path, 12, result)
+        assert state.trigger_steps_done == ["11:old-chapter"]
+
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    def test_queued_feedback_overrides_done_memory(self, mock_g4, mock_disp, tmp_path):
+        """Reviewer feedback on a passed step means redo it — a done entry
+        must not swallow a feedback-carrying re-dispatch.
+        """
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        result = TriggerResult(l2_distill=True)
+        steps = get_trigger_steps(result)
+        state.trigger_steps_done = [f"12:{steps[0].skill}"]
+        state.chapter_loop.retry_feedback[f"ch12-{steps[0].skill}"] = "人工：重做此步"
+        run_triggered_skills(state, tmp_path, 12, result)
+        dispatched = [c.args[0] for c in mock_disp.call_args_list]
+        assert steps[0].skill in dispatched
+
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    def test_reviewer_feedback_enters_redispatch_prompt(self, mock_g4, mock_disp, tmp_path):
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.retry_feedback["ch12-shenbi-memory-distill"] = "L2 蒸馏补：断链修复指引"
+        result = TriggerResult(l2_distill=True)
+        run_triggered_skills(state, tmp_path, 12, result)
+        prompt = mock_disp.call_args_list[0].args[2]
+        assert "断链修复指引" in prompt

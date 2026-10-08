@@ -1158,10 +1158,21 @@ def cmd_review(args: argparse.Namespace) -> int:
             ):
                 from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
 
-                idx = state.chapter_loop.step_index
-                if 0 <= idx < len(CHAPTER_STEPS):
-                    skill = CHAPTER_STEPS[idx].skill
-                    state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{skill}"] = feedback
+                # Phase3 dead-route fix (adjudication 191 observation): a
+                # TRIGGERED-skill failure raises ESCALATION while the loop
+                # sits at next-chapter step_index=0 — CHAPTER_STEPS[0] is the
+                # deterministic pipeline-volume-align, which never consumes
+                # retry_feedback. When last_trigger_failure matches this
+                # checkpoint's chapter, the feedback belongs to THAT skill;
+                # run_triggered_skills injects it into the re-dispatch.
+                trig = state.last_trigger_failure or {}
+                if trig.get("chapter") == cp.chapter and trig.get("skill"):
+                    state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{trig['skill']}"] = feedback
+                else:
+                    idx = state.chapter_loop.step_index
+                    if 0 <= idx < len(CHAPTER_STEPS):
+                        skill = CHAPTER_STEPS[idx].skill
+                        state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{skill}"] = feedback
 
             # G4: On modify, queue re-dispatches for derived truth files
             # (spec section 9.2: truth-sync propagation after human edit).

@@ -318,3 +318,49 @@ def test_per_chapter_reject_queues_settle_redispatch_with_staging(tmp_path, monk
     assert cp is not None and cp.type == CheckpointType.STATE_SETTLE, cp
     assert cp.chapter == 2
     assert state.pending_re_dispatches == []  # both consumed
+
+
+def test_cmd_review_triggered_escalation_feedback_routes_to_failing_skill(tmp_path, monkeypatch):
+    """Phase3 volume-boundary dead route: a TRIGGERED skill failure raises
+    ESCALATION while the loop sits at next-chapter step_index=0, so GAP-a's
+    CHAPTER_STEPS[step_index] lookup pinned every reviewer feedback to
+    pipeline-volume-align — a deterministic step that never consumes
+    retry_feedback. The feedback must route to state.last_trigger_failure's
+    skill instead (esc#5: consolidation, adjudication 191 observation item).
+    """
+    import argparse
+
+    from shenbi.pipeline import cli as cli_mod
+    from shenbi.pipeline.state import PipelinePhase
+
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    state = PipelineState.default(str(proj))
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 48
+    state.chapter_loop.step_index = 0  # the trigger block runs at step_index 0
+    set_checkpoint(state, CheckpointType.ESCALATION, chapter=47)
+    state.last_trigger_failure = {
+        "chapter": 47,
+        "skill": "shenbi-volume-consolidation",
+        "mode": "L3",
+        "stage": "g4",
+        "timestamp": "2026-10-08T00:00:00Z",
+    }
+
+    monkeypatch.setattr(cli_mod, "load_state", lambda pd: state)
+    monkeypatch.setattr(cli_mod, "save_state", lambda pd, st: None)
+    monkeypatch.setattr(cli_mod, "emit_json", lambda payload: None)
+
+    fb = tmp_path / "fb.md"
+    fb.write_text("重跑说明：consolidation 头寸按裁决 156 收窄", encoding="utf-8")
+    args = argparse.Namespace(decision="approve", feedback=str(fb), project_dir=str(proj))
+
+    rc = cli_mod.cmd_review(args)
+    assert rc in (0, None)
+    assert (
+        state.chapter_loop.retry_feedback.get("ch47-shenbi-volume-consolidation")
+        == "重跑说明：consolidation 头寸按裁决 156 收窄"
+    ), state.chapter_loop.retry_feedback
+    # the bogus step_index-0 alias must NOT be written (dead-route symptom)
+    assert "ch47-pipeline-volume-align" not in state.chapter_loop.retry_feedback

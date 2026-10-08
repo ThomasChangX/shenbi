@@ -570,6 +570,20 @@ def run_triggered_skills(
     ctx_line = format_path_context(ctx)
 
     for step in steps:
+        # Phase3 fan-out resume memory (adjudication 191): steps that already
+        # passed in this fan-out are skipped on re-entry — a mid-fanout
+        # failure used to re-dispatch every earlier step (L2 waste). Queued
+        # reviewer feedback overrides the memory: feedback on a step means
+        # the human wants it redone.
+        done_key = f"{chapter}:{step.skill}"
+        prior_feedback = state.chapter_loop.retry_feedback.get(f"ch{chapter}-{step.skill}")
+        if done_key in state.trigger_steps_done and not prior_feedback:
+            log.info(
+                "trigger_step_skipped_done",
+                chapter=chapter,
+                skill=step.skill,
+            )
+            continue
         is_gc_update = step.category == "genre_config_update"
         gc_snapshot: str | None = None
         if is_gc_update:
@@ -583,6 +597,15 @@ def run_triggered_skills(
             # Machine-generated prefix; the executing LLM sees it as an echo of
             # the Files-to-create list (spec #6 R4b visibility ruling).
             prompt = f"{prompt}\n{ctx_line}"
+        if prior_feedback:
+            # Reviewer/escalation feedback routed for THIS skill must reach
+            # the re-dispatch prompt (the GAP-a fix lands it in
+            # chapter_loop.retry_feedback; without injection here the
+            # re-run was blind — phase3 esc#5 evidence).
+            prompt = (
+                f"{prompt}\n\nPrior attempt corrective feedback "
+                f"(incorporate these changes):\n```\n{prior_feedback}\n```"
+            )
 
         disp = dispatch_skill(step.skill, project_dir, prompt)
         if not disp.success:
@@ -700,12 +723,24 @@ def run_triggered_skills(
                 }
                 return False
 
+        if done_key not in state.trigger_steps_done:
+            state.trigger_steps_done.append(done_key)
+        if prior_feedback:
+            # Feedback consumed by a passing re-dispatch — a later re-entry
+            # must not re-inject stale instructions.
+            state.chapter_loop.retry_feedback.pop(f"ch{chapter}-{step.skill}", None)
         log.info(
             "trigger_step_done",
             chapter=chapter,
             skill=step.skill,
             mode=step.mode,
         )
+
+    # Fan-out complete: this chapter's progress memory is obsolete (a fresh
+    # trigger run at a later boundary re-arms from scratch).
+    state.trigger_steps_done = [
+        e for e in state.trigger_steps_done if not e.startswith(f"{chapter}:")
+    ]
 
     # After volume boundary expansion: recompute total_chapters from volume_map
     if result.volume_boundary:
