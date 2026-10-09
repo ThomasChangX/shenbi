@@ -226,3 +226,12 @@ thinking = "disabled"
 
 [overrides."shenbi-review-group-plan"]
 thinking = "disabled"
+
+[overrides."shenbi-foreshadowing-resolve"]
+temperature = 0.7
+# Vol-4 boundary (ch94, adjudication 308): the resolve audit outgrew the
+# 16384->32768 runtime raise (length_truncation on the CP worksheet x
+# full-hook inventory at 94 chapters + anchor digest). Whole-audit writer
+# tier — same 49152 headroom as the other boundary whole-file writers
+# (faction-builder/state-settling precedents; API accepts 49152).
+max_tokens = 49152
