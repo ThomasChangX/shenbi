@@ -304,7 +304,7 @@ chapter_role: 高潮
 **P2.5 二分支自查（写每条 selection 前过一遍，G4 逐项强校验）**：
 - 常规取舍 → `"severity": "low"` 且**不写** rationale 键；
 - 有实重取舍（驱动 adjustments／响应漂移滑点／卷级口径裁剪）→ `"severity": "medium"` + **必写** ≤100 字 rationale（说清取了什么、为何这个分量）；
-- 两种禁组（各实证 3 试被闸）：`low`+rationale、`medium`+无 rationale。
+- 两种禁组（各实证 3 试被闸）：`low`+rationale、`medium`+无 rationale；rationale **写完数字数 ≤90 字留余量**（Python len 计、中文每字 1 含标点——ch92 实证贴边计数失误 3 试被闸）。
 
 **字段级规格（G4 逐项强校验，形态错误即闸门失败）**：
 - `selections[]`: `target`（str，被选取的文件路径）、`selected`（**list[str]**，如 `["arc1","beat_2"]`——禁止写成字符串）、`basis`（**仅限四枚举之一**：`adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`——禁止自造值）、`severity`（`low`/`medium`/`high`）、`omitted`（list[str]）

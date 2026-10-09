@@ -91,3 +91,14 @@ def test_p25_two_branch_self_check_in_writer_contracts() -> None:
         assert "P2.5 二分支自查" in text, skill
         assert "low" in text and "不写" in text  # branch 1: low, no rationale key
         assert "medium" in text and "必写" in text  # branch 2: medium, rationale required
+
+
+def test_p25_self_check_carries_counting_instruction() -> None:
+    """ch92 (adjudication 298): the auto-correct feedback was injected on all
+    three attempts — the model miscounts characters at the boundary, not
+    misunderstands the rule. The self-check now carries an explicit
+    count-after-writing instruction with headroom.
+    """
+    for skill in (_DRAFTING_SKILL, _PLANNING_SKILL):
+        text = skill.read_text(encoding="utf-8")
+        assert "≤90 字留余量" in text, skill
