@@ -119,10 +119,10 @@ digraph genre_config {
     "...": "..."
   },
   "chapter_word": {
-    "default": 1700,
-    "min": 1300,
+    "default": 2200,
+    "min": 2000,
     "max": 4500,
-    "note": "每章目标字数（total_chars 口径）。这是章数数学的唯一基线：G0.3 用 ceil(target_word_count / default) 推章数，G4/G2 的每章字数地板读同一值——缺省 1500 会令按规划写作的章节结构性撞 3000 硬编码地板（探针实测：134 章基线折合 ~1250 CJK/章低于保量线 1418 当量）。从 novel.json 的 target_word_count 与期望章幅共同推导，保量校验：default × 0.95 ≥ target/总章数（总章数 = ceil(target_word_count / default)，即 novel.json total_chapters；禁止引入卷间缓冲章等任何虚增章数充当分母——probe8 实测：118+6 缓冲=124 的保量数学建立在幽灵章上）。"
+    "note": "每章目标字数（total_chars 口径）。行业标准对齐（2026-10 检索）：起点主流单章 2000-3000 字、2000 最流行、3000 为大神/老作者档；番茄推荐 2000-2200 字且红线「不能低于两千字」。default=2200 取番茄推荐带上沿、起点主流带内（QQ 作家专区指南「2000-5000 合适、2500 理想」的保守侧），使 0.95×2200=2090 的写作地板高于 min=2000 的平台红线（语义保序：地板 ≥ 救济线）；max=4500 对应起点大章 4000-5000 档，供战役/高潮章使用。这是章数数学的唯一基线：G0.3 用 ceil(target_word_count / default) 推章数，G4/G2 的每章字数地板读同一值——缺省会令按规划写作的章节结构性撞 3000 硬编码地板（探针实测：134 章基线折合 ~1250 CJK/章低于保量线 1418 当量）。从 novel.json 的 target_word_count 与期望章幅共同推导，保量校验：default × 0.95 ≥ target/总章数（总章数 = ceil(target_word_count / default)，即 novel.json total_chapters；禁止引入卷间缓冲章等任何虚增章数充当分母——probe8 实测：118+6 缓冲=124 的保量数学建立在幽灵章上）。"
   },
   "auditDimensions": {
     "antiAi": true,
