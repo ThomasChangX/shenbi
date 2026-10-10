@@ -129,6 +129,7 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
         "context/chapter-1-context.md",
         "context/chapter-1-context-decisions.json",
         "style/style_profile.md",
+        "style/style_directives.md",
         "genre-config.json",
         "truth/audit_drift.md",
     ]
