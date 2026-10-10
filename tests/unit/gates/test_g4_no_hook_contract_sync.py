@@ -102,3 +102,16 @@ def test_p25_self_check_carries_counting_instruction() -> None:
     for skill in (_DRAFTING_SKILL, _PLANNING_SKILL):
         text = skill.read_text(encoding="utf-8")
         assert "≤90 字留余量" in text, skill
+
+
+def test_paragraph_floor_in_drafting_contract() -> None:
+    """Paragraph-floor class fix (adjudications 371/375): two consecutive
+    chapters burned 3 gate attempts each on G4.cd.no_visual_scene — extreme
+    micro-paragraphing (median 6-7 chars/para, no 8-para window reaching 100
+    CJK) driven by over-executing the anti-monologue directive. The floor now
+    lives in the primary contract + a calibrated POST_WRITE self-check.
+    """
+    text = _DRAFTING_SKILL.read_text(encoding="utf-8")
+    assert "段落质量下限" in text
+    assert "≥100" in text and "带对白/动作的段 ≥4" in text
+    assert "成段窗口（G4.cd 视觉场景口径）" in text  # self-check calibrated
