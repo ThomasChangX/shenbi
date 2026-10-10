@@ -788,6 +788,12 @@ def _cmd_init_locked(
     for core_dir in ("truth", "characters", "outline", "world"):
         (project_dir / core_dir).mkdir(exist_ok=True)
 
+    # Session31 Q1: seed the universal style TARGET so the channel is never a
+    # blank-page problem (write-if-absent; never clobbers a user edit).
+    from shenbi.pipeline.style_seed import seed_style_directives
+
+    seed_style_directives(project_dir)
+
     seed_data = parse_seed(args.seed_file)
 
     # Write novel.json (seed metadata; total_chapters set later by volume-outlining).
