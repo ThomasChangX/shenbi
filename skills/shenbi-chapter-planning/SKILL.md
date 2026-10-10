@@ -172,6 +172,10 @@ chapter_role: 高潮
 
 > 合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫
 
+chapter_type: battle
+
+> 选填。内容型取 `genre-config.json → chapterTypes` 词表（battle/dialogue/political_intrigue/training 等）；drafting 的章型调制以此行 + chapter_role 为键（见 drafting 创作原则 7）。缺省 = 仅按 chapter_role 调制。
+
 **目标字数**: [genre-config.json 的 chapter_word.default 值，原样数字]（= chapter_word.default；drafting 篇幅契约铁律与本行同源，缺失即断链）
 
 **优先级来源**: [外部指令 / 局部覆盖 / 卷纲 Key Result / current_focus / author_intent]

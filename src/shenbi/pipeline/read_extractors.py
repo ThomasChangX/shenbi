@@ -170,6 +170,11 @@ def extract_hooks_overview(content: str) -> str:
     is not these consumers' concern. Returns ``""`` on an unexpected shape —
     the dispatch loop then serves the full file with a WARN (extractor
     failure must degrade loudly, never silently).
+
+    A compact tombstone index rides along: archived hooks (GO② pool_archive)
+    have no overview row and no live section — without the index, planning
+    could not see that the id ever existed and might re-plant a semantic
+    duplicate (session31 self-review defect).
     """
     m_ov = re.search(r"^##\s*总览\s*$", content, re.MULTILINE)
     m_det = re.search(r"^##\s*详情\s*$", content, re.MULTILINE)
@@ -181,7 +186,26 @@ def extract_hooks_overview(content: str) -> str:
         f"总览表每行即该钩生命周期的权威摘要（当前生命周期/种植章/兑现章），"
         f"证据史与字段明细见 truth/pending_hooks.md 本体。\n"
     )
-    return content[: m_det.end()] + "\n" + sentinel
+    body = content[m_det.end() :]
+    tombstones: list[str] = []
+    starts = [hm for hm in _DETAIL_HEADING_RE.finditer(body)]
+    for i, hm in enumerate(starts):
+        end = starts[i + 1].start() if i + 1 < len(starts) else len(body)
+        section = body[hm.start() : end]
+        if "archived_to" in section:
+            state = re.search(r"- lifecycle_state:\s*(\S+)", section)
+            rc = re.search(r"- resolve_chapter:\s*(\d+)", section)
+            tombstones.append(
+                f"- {hm.group(1)}: {state.group(1) if state else 'RESOLVED'}"
+                f"@{rc.group(1) if rc else '?'} → truth/pending_hooks_archive.md"
+            )
+    index = ""
+    if tombstones:
+        index = (
+            "\n### 已归档钩索引（extractor 附——这些 id 已终态归档，"
+            "不得重复种植同语义钩）\n\n" + "\n".join(tombstones) + "\n"
+        )
+    return content[: m_det.end()] + "\n" + sentinel + index
 
 
 def extract_hooks_inventory_scoped(content: str) -> str:

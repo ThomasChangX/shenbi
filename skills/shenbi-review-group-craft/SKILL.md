@@ -36,6 +36,8 @@ contract:
 
 # Grouped Audit: Writing Craft
 
+> 手法评估须对照备忘段 1 声明的 chapter_role / chapter_type：高潮章的碎段密集与过渡章的长句意象是章型恰当，不是缺陷；跨章型一刀切的均匀节奏才是问题。
+
 This skill performs three independent writing-craft audits in a **single LLM call**. Each dimension produces an independent audit report section using the standard defect evidence format. All three reports are written to their respective audit files.
 
 > **Dispatch note:** This is a MERGE-2 grouped auditor. It dispatches as a parallel wave via `dispatch_reviews_parallel` in `src/shenbi/pipeline/parallel_dispatch.py` (invoked by the parallel audit wave dispatch in `src/shenbi/pipeline/chapter_loop.py`), preserving the existing two-wave parallel dispatch model. Do NOT run the three dimensions serially.

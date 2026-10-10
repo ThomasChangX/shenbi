@@ -516,3 +516,29 @@ def test_hooks_overview_malformed_shape_returns_empty() -> None:
 
     assert extract_hooks_overview("## 总览\n\n无详情段文件\n") == ""
     assert extract_hooks_overview("### MH01（灵印）\n- lifecycle_state: PLANTED\n") == ""
+
+
+def test_hooks_overview_carries_archived_tombstone_index() -> None:
+    """GO2 x GO3 interaction defect (session31 self-review): pool_archive
+    moves terminal sections to tombstones + drops overview rows, while
+    hooks_overview serves ONLY the overview table — so archived hook ids
+    became invisible to chapter planning, which could re-plant a semantic
+    duplicate. The slice now appends a compact tombstone index so planning
+    keeps seeing every id that ever existed.
+    """
+    from shenbi.pipeline.read_extractors import extract_hooks_overview
+
+    pool = _PENDING_HOOKS.replace(
+        "### CP-001（册末空格）\n\n- lifecycle_state: RESOLVED\n",
+        "### CP-001（册末空格）\n\n- lifecycle_state: RESOLVED\n"
+        "- resolve_chapter: 17\n- archived_to: truth/pending_hooks_archive.md\n",
+        1,
+    )
+    out = extract_hooks_overview(pool)
+
+    assert "已归档钩索引" in out
+    assert "CP-001" in out, "archived id stays planning-visible"
+    assert "RESOLVED" in out and "17" in out
+    # live hooks unaffected: the index lists tombstones only
+    idx_block = out.split("已归档钩索引", 1)[1]
+    assert "MH01" not in idx_block, "non-tombstoned hooks stay out of the index"

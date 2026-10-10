@@ -7,7 +7,10 @@ requires_independent_agent: true
 contract:
   kind: report
   reads:
-  - chapters/*.md
+  # session31 缺陷修正：原 chapters/*.md 是全书 glob（118 章时已靠输入预算
+  # 静默截断；每卷 40-60 章方案下必破裂）——卷级 payoff 审计的数据面是
+  # 逐章摘要（chapter_summaries 每章一行，有界增长），非整卷原文。
+  - truth/chapter_summaries.md
   - outline/volume_map.md
   - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - truth/resonance_trend.md
@@ -34,7 +37,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/*.md, outline/volume_map.md, truth/pending_hooks.md, truth/resonance_trend.md, truth/audit_drift.md, truth/arc_payoff_trend.md
+- **Reads:** truth/chapter_summaries.md, outline/volume_map.md, truth/pending_hooks.md, truth/resonance_trend.md, truth/audit_drift.md, truth/arc_payoff_trend.md
 - **Writes:** audits/volume-N-payoff.md
 - **Updates:** truth/audit_drift.md, truth/arc_payoff_trend.md
 

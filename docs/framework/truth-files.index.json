@@ -359,7 +359,6 @@
     "reads": [
       "shenbi-chapter-pattern",
       "shenbi-character-extraction",
-      "shenbi-review-arc-payoff",
       "shenbi-review-long-span",
       "shenbi-short-packaging",
       "shenbi-style-learning",
@@ -377,6 +376,7 @@
       "shenbi-foreshadowing-track",
       "shenbi-foundation-review",
       "shenbi-memory-distill",
+      "shenbi-review-arc-payoff",
       "shenbi-review-continuity",
       "shenbi-review-group-factual",
       "shenbi-review-pacing",
