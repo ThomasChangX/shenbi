@@ -76,10 +76,19 @@ def _skill_path(skill: str) -> Path:
 #: unboundedly-growing cumulative truth tables — implementations and the
 #: closed-shape contracts live in pipeline/read_extractors.py.
 #: hooks_inventory_scoped (session30 T0): the volume-boundary resolve
-#: variant — 总览 full + TRIGGERED-marked detail sections (pool 121KB
-#: blinded the mid-pool rows the full read served at 32K head-clip).
+#: variant — 总览 full + TRIGGERED/PARTIAL candidate detail sections (pool
+#: 121KB blinded the mid-pool rows the full read served at 32K head-clip).
+#: hooks_overview (session31 GO③): 总览 table only for the boundary chain
+#: and planning/composing consumers — the detail evidence bulk is not their
+#: concern.
 READ_EXTRACTORS: frozenset[str] = frozenset(
-    {"volume_chapter", "hooks_audit_scoped", "recent_increments", "hooks_inventory_scoped"}
+    {
+        "volume_chapter",
+        "hooks_audit_scoped",
+        "recent_increments",
+        "hooks_inventory_scoped",
+        "hooks_overview",
+    }
 )
 
 

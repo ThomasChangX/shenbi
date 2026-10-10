@@ -67,6 +67,7 @@ from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 09
     chapter_scoped_head_tail,
     extract_hooks_audit_scoped,
     extract_hooks_inventory_scoped,
+    extract_hooks_overview,
     extract_recent_increments,
     has_chapter_units,
 )
@@ -528,6 +529,9 @@ OPTIONAL_READS: dict[str, list[str]] = {
     "shenbi-chapter-drafting": [
         "chapter-*-plan.md",
         "context/chapter-*-context-decisions.json",
+        # session31 Q1: the user-authored style TARGET file — absent unless
+        # the human partner writes one; its absence is a choice, not a loss.
+        "style/style_directives.md",
     ],
 }
 
@@ -895,12 +899,37 @@ def _build_skill_prompt(
                             )
             elif extractor == "hooks_inventory_scoped":
                 # T0 (session30): the volume-boundary resolve inventory —
-                # 总览 full + TRIGGERED-marked detail sections (grounding is
-                # intrinsic to the pool file, so no chapter/grounding guard).
-                # "" -> full text + WARN (never a silent drop), same §4.3
-                # discipline as the Plan A family.
+                # 总览 full + TRIGGERED/PARTIAL candidate detail sections
+                # (grounding is intrinsic to the pool file, so no
+                # chapter/grounding guard). "" -> full text + WARN (never a
+                # silent drop), same §4.3 discipline as the Plan A family.
                 try:
                     extracted = extract_hooks_inventory_scoped(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor == "hooks_overview":
+                # GO③ (session31): overview-only consumers (planning /
+                # composing / boundary chain) — 总览 table + disclosed
+                # detail omission. "" -> full text + WARN (never a silent
+                # drop), same §4.3 discipline as the Plan A family.
+                try:
+                    extracted = extract_hooks_overview(content)
                 except Exception as exc:
                     log.warning(
                         "extractor_failed_fulltext",

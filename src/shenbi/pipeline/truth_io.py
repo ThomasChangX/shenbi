@@ -402,6 +402,12 @@ _BULLET_ROW_RE = re.compile(r"^\s*-\s*(?P<key>.+?)\s*:(?P<rest>.*)$")
 #: scaffold headings fell to destructive section replacement).
 _HOOK_HEADING_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-?\d{1,4})\b")
 
+#: Any hook heading line, for scanning a whole file's hook sections.
+_HOOK_HEADING_BLOCK_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-?\d{1,4})\b", re.MULTILINE)
+
+#: A hook id embedded in a table cell (``| MH01（名） | …``).
+_HOOK_ID_CELL_RE = re.compile(r"(?<![A-Za-z0-9-])(MH|CP)-?(\d{1,4})(?!\d)")
+
 
 def canon_hook_id(raw: str) -> str:
     """Canonical hook id: ``MH-001`` ≡ ``MH01`` ≡ ``mh1``.
@@ -671,6 +677,181 @@ def _hook_section_bullet_merge(existing: str, unit: str) -> str | None:
     if not out.endswith("\n"):
         out += "\n"
     return out
+
+
+#: Detail-section field → 总览 column key (header cell normalized by cutting
+#: at the first full/half-width paren, lowercased). The overview table is a
+#: DERIVED mirror of the detail sections — see :func:`sync_pool_overview_rows`.
+_POOL_ROW_FIELD_COLS: dict[str, str] = {
+    "lifecycle_state": "当前生命周期",
+    "plant_chapter": "种植章",
+    "resolve_chapter": "兑现章",
+    "type": "类型",
+    "subtlety": "微妙度",
+    "max_distance": "max_distance",
+    "escalation_curve": "升级曲线",
+}
+
+
+def _pool_col_key(header: str) -> str:
+    """Normalize an overview header cell to its matching key."""
+    h = header.strip()
+    for cut in ("（", "("):
+        idx = h.find(cut)
+        if idx != -1:
+            h = h[:idx]
+    return h.strip().lower()
+
+
+def _hook_section_field_values(text: str, hook_id: str) -> tuple[str, dict[str, str]] | None:
+    """The section heading display text + latest colon-bullet fields of
+    *hook_id*'s ``###`` section (first bullet per name), or None when the
+    section is absent. Same section-location rule as
+    :func:`_hook_section_bullet_merge` (exact heading, else heading level +
+    hook id).
+    """
+    lines = text.split("\n")
+    target: int | None = None
+    level = 0
+    heading = ""
+    for i, line in enumerate(lines):
+        s = line.strip()
+        if not s.startswith("#"):
+            continue
+        hm = _HOOK_HEADING_RE.match(s)
+        if not hm:
+            continue
+        if canon_hook_id(hm.group(2)) == hook_id:
+            target = i
+            level = len(hm.group(1))
+            heading = s
+            break
+    if target is None:
+        return None
+    end = len(lines)
+    for j in range(target + 1, len(lines)):
+        s = lines[j].lstrip()
+        if s.startswith("#"):
+            lvl = len(s) - len(s.lstrip("#"))
+            if lvl <= level:
+                end = j
+                break
+    fields: dict[str, str] = {}
+    for line in lines[target + 1 : end]:
+        s = line.strip()
+        fm = _COLON_BULLET_RE.match(s)
+        if fm:
+            fields.setdefault(_canon_field_name(fm.group(1)), s[fm.end() :].strip())
+    return heading, fields
+
+
+def sync_pool_overview_rows(existing: str, hook_ids: set[str] | None = None) -> str:
+    """Reconcile pending_hooks 总览 rows from the hook detail sections.
+
+    GO① root fix (phase3 终报: the overview table froze ch15-36): track/
+    resolve/settling are contract-forbidden from emitting overview rows
+    (anti-whole-pool-rewrite) and lifecycle only covers its own chapter's
+    hooks, so detail sections advanced while their overview rows silently
+    went stale — and post-genesis planted hooks never got rows at all. This
+    makes the merge layer derive the row mechanically whenever a hook
+    section lands: the table becomes a derived mirror, with no LLM writer
+    discipline load-bearing for the two representations staying in sync.
+
+    *hook_ids* scopes the reconciliation (the merge path passes the one hook
+    it just landed); ``None`` reconciles every section — the repair-tool
+    entry. Sections without a row get one appended to the 总览 table; rows
+    are never deleted here (orphan-row reporting belongs to the pool lint).
+    The 兑现章 cell keeps an existing volume suffix (``107(五卷)``) when the
+    numeric part already matches the derived resolve chapter. No-op (returns
+    *existing*) when the file has no ``## 总览`` table or no header row.
+    """
+    m_ov = re.search(r"^##\s*总览\s*$", existing, re.MULTILINE)
+    if m_ov is None:
+        return existing
+    m_det = re.search(r"^##\s*\S", existing[m_ov.end() :], re.MULTILINE)
+    ov_end = m_ov.end() + (m_det.start() if m_det is not None else len(existing[m_ov.end() :]))
+    ov_lines = existing[m_ov.end() : ov_end].split("\n")
+
+    header_idx = next((i for i, l in enumerate(ov_lines) if l.strip().startswith("|")), None)
+    if header_idx is None:
+        return existing
+    header_cells = split_table_cells(ov_lines[header_idx])
+    if header_cells is None:
+        return existing
+    col_by_field: dict[str, int] = {}
+    for fi, want in _POOL_ROW_FIELD_COLS.items():
+        col_idx = next((i for i, c in enumerate(header_cells) if _pool_col_key(c) == want), None)
+        if col_idx is not None:
+            col_by_field[fi] = col_idx
+    if not col_by_field:
+        return existing
+
+    sections: list[tuple[str, dict[str, str]]] = []
+    for hm in _HOOK_HEADING_BLOCK_RE.finditer(existing):
+        hid = canon_hook_id(hm.group(2))
+        if hook_ids is not None and hid not in hook_ids:
+            continue
+        parsed = _hook_section_field_values(existing, hid)
+        if parsed is None:
+            continue
+        sections.append(parsed)
+    if not sections:
+        return existing
+
+    changed = False
+    for heading, fields in sections:
+        hid = canon_hook_id(_HOOK_HEADING_RE.match(heading).group(2))  # type: ignore[union-attr]
+        row_idx: int | None = None
+        row_cells: list[str] | None = None
+        for i in range(header_idx + 1, len(ov_lines)):
+            line = ov_lines[i].strip()
+            if not line.startswith("|"):
+                continue
+            cells = split_table_cells(line)
+            if cells is None or not cells:
+                continue
+            idm = _HOOK_ID_CELL_RE.search(cells[0])
+            if idm is not None and canon_hook_id(f"{idm.group(1)}{idm.group(2)}") == hid:
+                if _is_separator_row(cells):
+                    continue
+                row_idx = i
+                row_cells = list(cells)
+                break
+        new_cells = row_cells if row_cells is not None else ["-"] * len(header_cells)
+        while len(new_cells) < len(header_cells):
+            new_cells.append("-")
+        if row_cells is None:
+            new_cells[0] = heading.lstrip("#").strip()
+        for fi, col in col_by_field.items():
+            if fi not in fields:
+                continue
+            val = fields[fi]
+            old = new_cells[col].strip() if new_cells[col].strip() else "-"
+            if fi == "resolve_chapter" and old != "-":
+                num = old.split("（", 1)[0].split("(", 1)[0].strip()
+                if num == val and ("（" in old or "(" in old):
+                    val = old  # numeric part already matches — keep （卷） suffix
+            new_cells[col] = val
+        new_row = "| " + " | ".join(c.strip() for c in new_cells) + " |"
+        if row_idx is not None:
+            if ov_lines[row_idx].strip() != new_row:
+                ov_lines[row_idx] = new_row
+                changed = True
+        else:
+            last_row = max(
+                (
+                    i
+                    for i in range(header_idx + 1, len(ov_lines))
+                    if ov_lines[i].strip().startswith("|")
+                ),
+                default=header_idx,
+            )
+            ov_lines.insert(last_row + 1, new_row)
+            changed = True
+    if not changed:
+        return existing
+    log.info("truth_pool_overview_row_derived", hooks=len(sections))
+    return existing[: m_ov.end()] + "\n".join(ov_lines) + existing[ov_end:]
 
 
 def _render_bullet_row(new_data: dict[str, Any], key_field: str) -> str:
@@ -1049,11 +1230,20 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
             merged = _hook_section_bullet_merge(existing, new_row)
             if merged is not None:
                 log.info("truth_hook_section_fields_patched", key_name=key_name)
-                return merged
-            replaced_section = _replace_section(existing, new_row)
-            if replaced_section is not None:
-                return replaced_section
-            return existing.rstrip() + "\n" + new_row
+            if merged is None:
+                replaced_section = _replace_section(existing, new_row)
+                if replaced_section is not None:
+                    merged = replaced_section
+            if merged is None:
+                merged = existing.rstrip() + "\n" + new_row
+            # GO① derivation-on-write: a landed hook section mechanically
+            # reflects into its 总览 row (only the hook-keyed pool target —
+            # generic headed sections in other truth files stay untouched).
+            if key_name == "hook_id":
+                hm = _HOOK_HEADING_RE.match(first_line.strip())
+                if hm is not None:
+                    merged = sync_pool_overview_rows(merged, {canon_hook_id(hm.group(2))})
+            return merged
         if any(l.strip() == first_line for l in existing.split("\n")):
             log.warning("truth_block_upsert_duplicate_skipped", key_name=key_name)
             return existing

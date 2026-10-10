@@ -1015,3 +1015,85 @@ def test_section_replace_large_shrink_warns(
     assert "### MH02（灵誓）" in out, "sibling section untouched"
     assert "最新一章的完整重述。" in out, "replacement landed"
     assert "truth_section_replace_shrank" in warned
+
+
+class TestPoolOverviewDerivation:
+    """GO① root fix (phase3 终报): the pending_hooks 总览 table froze ch15-36
+    because track/resolve/settling are contract-forbidden from emitting
+    overview rows (anti-whole-pool-rewrite) while lifecycle only covers its
+    own chapter's hooks — and post-genesis planted hooks (CP-004..009) never
+    got rows at all. Derivation-on-write: when a hook detail section lands,
+    the merge layer mechanically reflects its stable fields into the 总览
+    row, making the table a derived mirror instead of a second writer
+    discipline.
+    """
+
+    BASE = (
+        "---\ntype: truth\n---\n\n# 伏笔池\n\n## 总览\n\n"
+        "| Hook ID（钩书名） | 当前生命周期 | 种植章 | 兑现章（卷） | 类型 | 微妙度 | max_distance(14) | 升级曲线 |\n"
+        "|------|------|------|------|------|------|------|------|\n"
+        "| MH01（灵印） | PLANTED | 4 |  | MYSTERY | 0.5 | 10 | STAIRCASE |\n"
+        "\n## 详情\n\n### MH01（灵印）\n\n"
+        "- type: MYSTERY\n- lifecycle_state: PLANTED\n- plant_chapter: 4\n"
+        "- subtlety: 0.5\n- max_distance: 10\n- escalation_curve: STAIRCASE\n"
+    )
+
+    def test_detail_field_patch_reflects_into_overview_row(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### MH01（灵印）\n- lifecycle_state: RESOLVED\n- resolve_chapter: 104\n",
+            "hook_id",
+        )
+        row = next(l for l in out.splitlines() if l.startswith("| MH01"))
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert cells[1] == "RESOLVED"
+        assert cells[3] == "104"
+
+    def test_new_hook_section_appends_derived_overview_row(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### CP-010（码头的新账）\n- type: ITEM\n- lifecycle_state: PLANTED\n"
+            "- plant_chapter: 60\n- subtlety: 0.4\n- max_distance: 12\n"
+            "- escalation_curve: RISING\n",
+            "hook_id",
+        )
+        rows = [l for l in out.splitlines() if l.startswith("| CP-010")]
+        assert len(rows) == 1, "derived row appended exactly once"
+        cells = [c.strip() for c in rows[0].strip().strip("|").split("|")]
+        assert cells[0] == "CP-010（码头的新账）"
+        assert cells[1] == "PLANTED"
+        assert cells[2] == "60"
+        assert cells[3] == "-"
+        assert cells[4] == "ITEM"
+
+    def test_resolve_chapter_preserves_volume_suffix(self) -> None:
+        base = self.BASE.replace(
+            "| MH01（灵印） | PLANTED | 4 |  | MYSTERY",
+            "| MH01（灵印） | TRIGGERED | 4 | 107（五卷） | MYSTERY",
+        ).replace("- lifecycle_state: PLANTED", "- lifecycle_state: TRIGGERED")
+        out = upsert_markdown_row(
+            base,
+            "### MH01（灵印）\n- lifecycle_state: RESOLVED\n- resolve_chapter: 107\n",
+            "hook_id",
+        )
+        row = next(l for l in out.splitlines() if l.startswith("| MH01"))
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert cells[3] == "107（五卷）"
+
+    def test_missing_overview_section_is_safe_noop(self) -> None:
+        base = "### MH01（灵印）\n\n- lifecycle_state: PLANTED\n"
+        out = upsert_markdown_row(
+            base, "### MH01（灵印）\n- lifecycle_state: RELEVANT\n", "hook_id"
+        )
+        assert "- lifecycle_state: RELEVANT" in out
+        assert out.count("## 总览") == 0
+
+    def test_non_hook_key_skips_derivation(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### MH01（灵印）\n- lifecycle_state: RESOLVED\n",
+            "some_other_key",
+        )
+        assert "RESOLVED" in out  # section patched
+        row = next(l for l in out.splitlines() if l.startswith("| MH01"))
+        assert "PLANTED" in row  # row untouched for non-hook keys

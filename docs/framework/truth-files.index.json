@@ -321,6 +321,13 @@
     ],
     "updates": []
   },
+  "style/style_directives.md": {
+    "reads": [
+      "shenbi-chapter-drafting"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "truth/audit_drift.md": {
     "reads": [
       "shenbi-chapter-drafting",

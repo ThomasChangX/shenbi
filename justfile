@@ -89,6 +89,14 @@ lint-routing:
 audit-lint *args:
     uv run python tools/lint_audit_run.py "$@"
 
+# Pool two-table reconciliation: pending_hooks overview rows vs detail sections (GO①)
+pool-lint *args:
+    uv run python tools/lint_truth_pool.py "$@"
+
+# Pool evidence rolling archival: RESOLVED sections past the window -> archive (GO②)
+pool-archive *args:
+    uv run python -m shenbi.pipeline.pool_archive "$@"
+
 # Lint contract.reads fields vs truth file headings/keys (spec B.5)
 lint-contract-fields:
 	uv run python scripts/lint_contract_fields.py

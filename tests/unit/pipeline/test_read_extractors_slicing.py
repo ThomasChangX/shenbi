@@ -234,7 +234,13 @@ def test_read_extractor_registry_closed_and_extended() -> None:
 
     assert (
         frozenset(
-            {"volume_chapter", "hooks_audit_scoped", "recent_increments", "hooks_inventory_scoped"}
+            {
+                "volume_chapter",
+                "hooks_audit_scoped",
+                "recent_increments",
+                "hooks_inventory_scoped",
+                "hooks_overview",
+            }
         )
         == READ_EXTRACTORS
     )
@@ -468,3 +474,45 @@ def test_hooks_inventory_scoped_appends_lifecycle_anchor_digest() -> None:
     assert "边界章 − last_reinforced" in out  # the pinned CP 口径 travels with the digest
     # hooks WITHOUT a last_reinforced field surface as 未强化 (never silently dropped)
     assert "MH02: plant 38 | last_reinforced 未强化" in out
+
+
+def test_hooks_inventory_scoped_partial_rows_are_candidates() -> None:
+    """GO① widening (phase3 终报): PARTIAL hooks (CP-005/CP-007 shape) carry
+    an open payoff disposition at volume boundaries — the resolve audit
+    could not see them because the candidate set was TRIGGERED-only, and the
+    ch94 dispositions only landed via a driver modify. PARTIAL rows' detail
+    sections now ride along.
+    """
+    from shenbi.pipeline.read_extractors import extract_hooks_inventory_scoped
+
+    pool = _PENDING_HOOKS.replace(
+        "| CP-001（册末空格） | RESOLVED |", "| CP-001（册末空格） | PARTIAL |"
+    )
+    out = extract_hooks_inventory_scoped(pool)
+
+    assert "### CP-001（册末空格）" in out, "PARTIAL detail section is a boundary candidate"
+    assert "TRIGGERED/PARTIAL" in out, "sentinel discloses the widened candidate rule"
+
+
+def test_hooks_overview_slices_details_with_sentinel() -> None:
+    """GO③: overview-only consumers (planning/composing/boundary chain) get
+    the lifecycle table without the detail evidence bulk (94KB at ch118 —
+    the file had outgrown every full read it served).
+    """
+    from shenbi.pipeline.read_extractors import extract_hooks_overview
+
+    out = extract_hooks_overview(_PENDING_HOOKS)
+
+    assert "| MH01（灵印） | RELEVANT |" in out
+    assert "## 详情" in out
+    assert "### MH01（灵印）" not in out, "detail sections omitted"
+    assert "hooks_overview" in out and "省略" in out, "omission disclosed"
+    # frontmatter survives (frontmatter presence is a program invariant)
+    assert out.startswith("---\n")
+
+
+def test_hooks_overview_malformed_shape_returns_empty() -> None:
+    from shenbi.pipeline.read_extractors import extract_hooks_overview
+
+    assert extract_hooks_overview("## 总览\n\n无详情段文件\n") == ""
+    assert extract_hooks_overview("### MH01（灵印）\n- lifecycle_state: PLANTED\n") == ""

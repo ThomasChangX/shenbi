@@ -66,8 +66,15 @@ def project_tree(tmp_path: Path) -> Path:
     (tmp_path / "outline" / "story_frame.md").write_text("STORY_FRAME_MARKER", encoding="utf-8")
     (tmp_path / "truth" / "current_focus.md").write_text("focus", encoding="utf-8")
     (tmp_path / "truth" / "author_intent.md").write_text("intent", encoding="utf-8")
+    # truth/pending_hooks.md: chapter-planning rides the hooks_overview
+    # extractor (GO③) — real live shape (frontmatter + 总览 + 详情).
     (tmp_path / "truth" / "pending_hooks.md").write_text(
-        "## 活跃伏笔\n\nA。\n\n## 伏笔统计\n\n2 条。\n", encoding="utf-8"
+        "---\ntype: truth\n---\n\n# 伏笔池\n\n## 总览\n\n"
+        "| Hook ID（钩子名） | 当前生命周期 | 种植章 | 兑现章（卷） | 类型 | 微妙度 | max_distance(14) | 升级曲线 |\n"
+        "|------|------|------|------|------|------|------|------|\n"
+        "| MH01（灵印） | RELEVANT | 4 |  | MYSTERY | 0.5 | 10 | STAIRCASE |\n"
+        "\n## 详情\n\n### MH01（灵印）\n\n- lifecycle_state: RELEVANT\n",
+        encoding="utf-8",
     )
     (tmp_path / "novel.json").write_text("{}", encoding="utf-8")
     return tmp_path
@@ -90,15 +97,17 @@ def test_declared_fields_filter_in_dispatch_loop(
 def test_escape_hatch_warns_and_fulltext_on_missing_field(
     project_tree: Path, warn_spy: dict[str, list[str]]
 ) -> None:
-    # Sabotage: remove a declared field's header -> escape hatch must fire
+    # Sabotage: break the pool's extractor shape (no 总览/详情) -> the
+    # hooks_overview slice must degrade loudly: WARN + full-text fallback,
+    # never a silent drop (spec #65 §4.3 discipline).
     (project_tree / "truth" / "pending_hooks.md").write_text(
         "## 别的节\n\n无声明节。\n", encoding="utf-8"
     )
     _, user_prompt, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
-    assert "field_filter_missing_fields" in warn_spy["fields"]
-    # Full-text fallback: undeclared section present
+    assert "extractor_failed_fulltext" in warn_spy["dispatch"]
+    # Full-text fallback: the malformed file rides along whole
     assert "别的节" in user_prompt
 
 

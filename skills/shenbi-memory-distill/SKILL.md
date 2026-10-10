@@ -8,7 +8,7 @@ contract:
   reads:
   - truth/chapter_summaries.md
   - truth/volume_summaries.md
-  - truth/pending_hooks.md
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - truth/character_matrix.md
   - truth/author_intent.md
   - truth/book_spine.md

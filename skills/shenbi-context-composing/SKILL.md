@@ -34,10 +34,7 @@ contract:
   - file: truth/chapter_summaries.md
     fields:
     - 已完成章节
-  - file: truth/pending_hooks.md
-    fields:
-    - 活跃伏笔
-    - 伏笔统计
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - truth/audit_drift.md
   - world/rules.md
   - truth/character_matrix.md

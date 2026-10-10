@@ -8,7 +8,7 @@ contract:
     - chapters/chapter-N.md
     - genre-config.json
     - plans/chapter-N-plan.md
-    - truth/pending_hooks.md
+    - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
   writes:
     - file: audits/chapter-N-texture.md
       mode: create_or_overwrite

@@ -7,7 +7,7 @@ contract:
   reads:
     - chapters/chapter-N.md
     - plans/chapter-N-plan.md
-    - truth/pending_hooks.md
+    - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
     - truth/subplot_board.md
   writes:
     - file: audits/chapter-N-memo-compliance.md

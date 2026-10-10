@@ -35,6 +35,8 @@ Use entry points (not `python3 tests/X.py`):
 - `just check` — Run all CI checks locally
 - `just test` — Fast unit tests only
 - `just audit-lint` — Audit-run artifact lint: ledger rows, count reconciliation, cross-round carryover (spec #49)
+- `just pool-lint <dir>` — Pool two-table reconciliation: pending_hooks overview rows vs detail sections (`--repair` re-derives stale rows)
+- `just pool-archive <dir> --resolved-through <ch>` — Pool evidence rolling archival: RESOLVED sections past the window move to `truth/pending_hooks_archive.md`
 - `shenbi-validate G0 <seed>` — Gate 0: environment check
 - `shenbi-validate G2 <files> <type>` — Gate 2: output validation
 - `shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural check

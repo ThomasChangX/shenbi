@@ -9,11 +9,7 @@ contract:
   reads:
   - chapters/*.md
   - outline/volume_map.md
-  - file: truth/pending_hooks.md
-    fields:
-    - 活跃伏笔
-    - 伏笔统计
-    - 伏笔时间线
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - truth/resonance_trend.md
   - truth/audit_drift.md
   - truth/arc_payoff_trend.md

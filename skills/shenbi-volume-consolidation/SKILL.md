@@ -8,7 +8,7 @@ contract:
   - chapters/chapter-N.md
   - truth/volume_summaries.md
   - truth/chapter_summaries.md
-  - truth/pending_hooks.md
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
   writes:
   - file: truth/volume_summaries.md
     mode: create_or_overwrite

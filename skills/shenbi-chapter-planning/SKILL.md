@@ -14,10 +14,7 @@ contract:
     - 系统演化阶段
     - 参数当前位置
     - 进行中的情节线
-  - file: truth/pending_hooks.md
-    fields:
-    - 活跃伏笔
-    - 伏笔统计
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - file: truth/chapter_summaries.md
     fields:
     - 已完成章节

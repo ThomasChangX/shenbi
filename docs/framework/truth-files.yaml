@@ -29,6 +29,7 @@ concepts:
   # truth
   - {name: truth/current_state.md, kind: truth}
   - {name: truth/pending_hooks.md, kind: truth}
+  - {name: truth/pending_hooks_archive.md, kind: truth, producer: pipeline}
   - {name: truth/chapter_summaries.md, kind: truth}
   - {name: truth/character_matrix.md, kind: truth}
   - {name: truth/emotional_arcs.md, kind: truth}
@@ -59,6 +60,7 @@ concepts:
   - {name: truth/state-settling-decisions.json, kind: decisions}          # state-settling decisions
   # style
   - {name: style/style_profile.md, kind: style}
+  - {name: style/style_directives.md, kind: style, producer: external}
   # audits (one concept covers all 18 dims via the glob below)
   - {name: audits/chapter-N-<dim>.md, kind: report}  # parametric: N, <dim>
   - {name: audits/volume-N-payoff.md, kind: report}  # parametric: N
