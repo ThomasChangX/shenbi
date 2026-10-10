@@ -1725,6 +1725,24 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
 _TRUTH_DIR_PREFIX = "truth/"
 _STAGING_TRUTH_PREFIX = "staging/truth/"
 
+#: A1 (千万字卷层批): outline ledger targets under keyed-merge. These
+#: volume-boundary writers used to declare create_or_overwrite — whole-file
+#: rewrites that pin the output cap as the ledgers grow (~10KB/volume).
+#: Explicit allowlist, NOT a blanket outline/ prefix: story_frame /
+#: rhythm_principles / chapter_patterns are genesis-static whole-file
+#: artifacts and keep their original semantics.
+_KEYED_OUTLINE_TARGETS: dict[str, str] = {
+    "outline/volume_map.md": "volume",
+    "outline/thread_map.md": "thread",
+}
+
+
+def _now_iso() -> str:
+    """UTC ISO-8601 stamp for the mechanical frontmatter touch."""
+    from datetime import UTC, datetime
+
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
 
 def _increment_units(content: str) -> list[str]:
     """Split a dispatched append_dedup increment into upsert units.
@@ -1908,7 +1926,9 @@ def _hooks_increment_shape_injection() -> str:
     )
 
 
-def _validate_increment_package(content: str, *, key_field: str, base_text: str = "") -> None:
+def _validate_increment_package(
+    content: str, *, key_field: str, base_text: str = "", outline_units: bool = False
+) -> None:
     """Reject whole-file scaffold in an append_dedup truth increment.
 
     Universal bans (every append_dedup truth target): a frontmatter block,
@@ -1945,10 +1965,26 @@ def _validate_increment_package(content: str, *, key_field: str, base_text: str 
         if h2:
             violations.append(f"二级标题（{h2[0][:24]}）")
         extra = "／二级标题（## 开头行，含「## 总览」「## 详情」）"
+    if outline_units:
+        # A1: every unit must be a keyed section (## 第N卷 / ### 线索ID) —
+        # bare prose would append at EOF and corrupt the ledger shape.
+        from shenbi.pipeline.truth_io import _OUTLINE_SECTION_KEY_RE  # pyright: ignore[reportPrivateUsage]
+
+        for unit in _increment_units(content):
+            first = next((l for l in unit.split("\n") if l.strip()), "")
+            if _OUTLINE_SECTION_KEY_RE.match(first.strip()) is None:
+                violations.append(f"非卷区段单元（{first.strip()[:24]}）")
+                break
     if not violations:
         return
 
-    sanctioned = _sanctioned_forms_hint(key_field)
+    if outline_units:
+        sanctioned = (
+            "卷区段增量（`## 第N卷：<标题>` 整段，按卷号定位合并；标题变化合法）"
+            "＋线索区段增量（`### <线索ID>: <名称>` 整段，按 ID 定位）"
+        )
+    else:
+        sanctioned = _sanctioned_forms_hint(key_field)
     raise IncrementShapeError(
         f"输出未落盘——append_dedup（key: {key_field}）增量包含整档脚手架："
         f"{'、'.join(violations)}。合法增量形态：{sanctioned}。"
@@ -2192,6 +2228,35 @@ def _route_append_dedup_write(
                 mode="upsert_markdown_row",
                 key_field=key_field,
             )
+        return
+
+    outline_key = _KEYED_OUTLINE_TARGETS.get(rel_path)
+    if outline_key is not None:
+        # A1: live keyed-merge for the outline ledgers (boundary writers are
+        # not checkpoint-gated — no staging twin). Per-unit upsert under the
+        # per-path lock; the frontmatter updated_at (no longer carried by
+        # section increments) is touched mechanically on merge.
+        from shenbi.pipeline.truth_io import path_lock, touch_frontmatter_updated_at
+
+        target = project_dir / rel_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        base_text = target.read_text(encoding="utf-8") if target.exists() else ""
+        _validate_increment_package(
+            content, key_field=outline_key, base_text=base_text, outline_units=True
+        )
+        with path_lock(target):
+            base = base_text
+            merged = base
+            for unit in units:
+                merged = upsert_markdown_row(merged, unit, outline_key)
+            merged = touch_frontmatter_updated_at(merged, _now_iso())
+            safe_write(target, merged.encode("utf-8"))
+        log.info(
+            "outline_increment_merged",
+            path=rel_path,
+            key=outline_key,
+            units=len(units),
+        )
         return
 
     log.warning(

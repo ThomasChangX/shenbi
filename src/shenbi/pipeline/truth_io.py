@@ -408,6 +408,80 @@ _HOOK_HEADING_BLOCK_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-?\d{1,4})\b", re.
 #: A hook id embedded in a table cell (``| MH01（名） | …``).
 _HOOK_ID_CELL_RE = re.compile(r"(?<![A-Za-z0-9-])(MH|CP)-?(\d{1,4})(?!\d)")
 
+#: Outline-ledger section locator: heading level + 编号 token — ``## 第N卷：…``
+#: (volume_map) and ``### A1: …`` (thread_map). Locating by token, not the
+#: full heading line, keeps a RETITLED section replacing its old span instead
+#: of appending a duplicate (the exact-match ``_replace_section`` seam).
+_OUTLINE_SECTION_KEY_RE = re.compile(
+    r"^(#{2,6})\s+(第[一二三四五六七八九十百千\d]+卷|[A-Za-z]+\d+)\b"
+)
+
+
+def _replace_outline_section(existing: str, section: str) -> str | None:
+    """Replace the section matched by heading level + 编号 token (or None).
+
+    Same span/shrink/rhythm semantics as :func:`_replace_section`, but the
+    locator is the token (``第N卷`` / thread id), so a retitled heading
+    still targets its own section. None when *section* carries no outline
+    locator or no live section matches (caller falls back).
+    """
+    first_line = next((l for l in section.split("\n") if l.strip()), "")
+    km = _OUTLINE_SECTION_KEY_RE.match(first_line.strip())
+    if km is None:
+        return None
+    level = len(km.group(1))
+    token = km.group(2)
+    lines = existing.split("\n")
+    for i, line in enumerate(lines):
+        lm = _OUTLINE_SECTION_KEY_RE.match(line.strip())
+        if lm is None or len(lm.group(1)) != level or lm.group(2) != token:
+            continue
+        end = len(lines)
+        for j in range(i + 1, len(lines)):
+            stripped = lines[j].lstrip()
+            if stripped.startswith("#"):
+                lvl = len(stripped) - len(stripped.lstrip("#"))
+                if lvl <= level:
+                    end = j
+                    break
+        old_span = "\n".join(lines[i:end])
+        if len(section) < len(old_span) // 2:
+            log.warning(
+                "truth_section_replace_shrank",
+                heading=line.strip()[:60],
+                old_len=len(old_span),
+                new_len=len(section),
+            )
+        new_lines = lines[:i] + section.split("\n") + lines[end:]
+        out = "\n".join(new_lines)
+        return re.sub(r"\n{3,}", "\n\n", out)
+    return None
+
+
+def touch_frontmatter_updated_at(text: str, iso_now: str) -> str:
+    """Rewrite the frontmatter ``updated_at`` line (mechanical maintenance).
+
+    Section-increment writers no longer emit frontmatter (scaffold is
+    rejected) — the merge layer keeps the timestamp current instead, the
+    same derivation discipline as the pool overview rows. No-op without a
+    frontmatter or without an existing ``updated_at`` key (never invents
+    frontmatter structure).
+    """
+    m = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
+    if m is None:
+        return text
+    fm, body = m.group(1), text[m.end() :]
+    if not re.search(r"^updated_at\s*[:：]", fm, re.MULTILINE):
+        return text
+    fm = re.sub(
+        r"^(updated_at\s*[:：]\s*).*$",
+        rf'\g<1>"{iso_now}"',
+        fm,
+        count=1,
+        flags=re.MULTILINE,
+    )
+    return f"---\n{fm}\n---\n{body}"
+
 
 def canon_hook_id(raw: str) -> str:
     """Canonical hook id: ``MH-001`` ≡ ``MH01`` ≡ ``mh1``.
@@ -1230,6 +1304,10 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
             merged = _hook_section_bullet_merge(existing, new_row)
             if merged is not None:
                 log.info("truth_hook_section_fields_patched", key_name=key_name)
+            if merged is None:
+                # Outline ledgers (volume_map / thread_map): locate by
+                # heading level + 编号 token — retitles replace, not append.
+                merged = _replace_outline_section(existing, new_row)
             if merged is None:
                 replaced_section = _replace_section(existing, new_row)
                 if replaced_section is not None:

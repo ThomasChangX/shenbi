@@ -61,31 +61,36 @@ _PAIRS = _declared_append_dedup_pairs()
 
 
 def test_declared_surface_snapshot_count() -> None:
-    """Explicit snapshot of the declared surface: 19 (skill, path) pairs —
+    """Explicit snapshot of the declared surface: 21 (skill, path) pairs —
     17 as of the C3 T6 guard (10 skills; state-settling owns 6 targets) + 1
     from spec #58 C20 (foreshadowing-lifecycle bridge_tracker, F825) + 1
     from the probe2 settle capacity fix (state-settling character_matrix,
     composite key 角色A,角色B — the whole-file rewrite contract made settle
-    output grow O(chapters) past the model output cap). This is the
-    anti-silent-shrink tripwire — the parametrized guard below adapts to
-    any future growth automatically, but a REMOVED declaration must surface
-    here so it cannot pass unnoticed. Updating this number is the explicit
-    action.
+    output grow O(chapters) past the model output cap) + 2 from the A1
+    千万字卷层批 (volume-outlining volume_map / plot-thread-weaver
+    thread_map — whole-file rewrites pinned the output cap as the ledgers
+    grew ~10KB/volume). This is the anti-silent-shrink tripwire — the
+    parametrized guard below adapts to any future growth automatically, but
+    a REMOVED declaration must surface here so it cannot pass unnoticed.
+    Updating this number is the explicit action.
     """
-    assert len(_PAIRS) == 19, (
+    assert len(_PAIRS) == 21, (
         "declared append_dedup surface changed — if intentional, update the "
         f"snapshot (currently {len(_PAIRS)} pairs: {_PAIRS})"
     )
 
 
 def test_every_declared_target_is_truth_routed() -> None:
-    """Structural precondition: append_dedup only routes under ``truth/`` —
-    any declaration outside it would silently fall back to the legacy
-    whole-file write (data loss with a declared dedup contract).
+    """Structural precondition: append_dedup routes under ``truth/`` or the
+    A1 keyed-outline allowlist — any declaration outside BOTH would silently
+    fall back to the legacy whole-file write (data loss with a declared
+    dedup contract).
     """
+    from shenbi.pipeline.dispatch_helper import _KEYED_OUTLINE_TARGETS
+
     for skill, path, _key in _PAIRS:
-        assert path.startswith("truth/"), (
-            f"{skill} declares append_dedup outside truth/: {path} "
+        assert path.startswith("truth/") or path in _KEYED_OUTLINE_TARGETS, (
+            f"{skill} declares append_dedup with no merge route: {path} "
             "(unroutable — falls back to whole-file write)"
         )
 
@@ -107,7 +112,17 @@ def test_declared_increment_routes_through_keyed_upsert(
     a re-merge varies a payload cell, never a key cell (probe21's re-settle
     rows kept 变动项 constant across attempts).
     """
-    if "," in key:
+    if path == "outline/volume_map.md":
+        # A1 form: keyed volume sections, located by 第N卷 token (retitles
+        # replace in place — same invariants as the table-row pairs below).
+        first = "## 第一卷：t6-key-one\n\n- first increment"
+        second = "## 第二卷：t6-key-two\n\n- second increment"
+        revised = "## 第二卷：t6-key-two·修订\n\n- revised increment"
+    elif path == "outline/thread_map.md":
+        first = "### T1: t6-key-one\n\n- first increment"
+        second = "### T2: t6-key-two\n\n- second increment"
+        revised = "### T2: t6-key-two 修订\n\n- revised increment"
+    elif "," in key:
         first = "| t6-key-one | t6-item-one | first increment |"
         second = "| t6-key-two | t6-item-two | second increment |"
         revised = "| t6-key-two | t6-item-two | revised increment |"

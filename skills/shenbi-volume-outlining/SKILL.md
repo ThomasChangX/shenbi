@@ -14,7 +14,8 @@ contract:
   writes: []
   updates:
   - file: outline/volume_map.md
-    mode: create_or_overwrite
+    mode: append_dedup
+    key: volume
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -37,6 +38,8 @@ contract:
 - **Updates:** outline/volume_map.md
 
 <!-- END AUTO-GENERATED -->
+
+> **volume_map 写纪律（append_dedup，key=volume，A1 千万字卷层批）**：只发**本界有变化的卷区段**——`## 第N卷：<标题>` 整段（含 Objective/KR/章节节点表/张力曲线/跨卷桥接的全部变化内容）；新卷为完整新区段。**禁止重发** frontmatter、`#` 一级标题、骨架序言、未变化的卷区段——重发即被摄取守卫拒收、整次派发作废（整档重写会随卷数增长撑爆输出上限）。区段定位按「第N卷」编号，标题变化合法（同编号即替换）。
 
 # 分卷大纲
 

@@ -13,7 +13,8 @@ contract:
   writes: []
   updates:
   - file: outline/thread_map.md
-    mode: create_or_overwrite
+    mode: append_dedup
+    key: thread
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -30,6 +31,8 @@ contract:
 - **Updates:** outline/thread_map.md
 
 <!-- END AUTO-GENERATED -->
+
+> **thread_map 写纪律（append_dedup，key=thread，A1 千万字卷层批）**：只发**本界有变化的线索区段**——`### <线索ID>: <名称>` 整段（状态/跨度/交叉点/高潮窗口/当前进度等变化内容）；总览表状态列以线索区段内的 `- **状态**:` bullet 为权威记载（B 批将落地合并层机械回写；当前写者须同步维护总览行）。**禁止重发** frontmatter、`#`/`##` 标题、总览表、推进表、未变化的线索区段——重发即被摄取守卫拒收、整次派发作废。区段定位按线索 ID，名称变化合法（同 ID 即替换）。
 
 # 剧情线索编织
 
