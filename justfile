@@ -101,6 +101,10 @@ pool-archive *args:
 ledger-archive *args:
     uv run python -m shenbi.pipeline.ledger_archive "$@"
 
+# Volume budget guardrails: re-budget pending / ±3 drift / 保量 floor (--apply = deterministic writeback, C 批)
+volume-budget *args:
+    uv run python -m shenbi.pipeline.volume_budget "$@"
+
 # Lint contract.reads fields vs truth file headings/keys (spec B.5)
 lint-contract-fields:
 	uv run python scripts/lint_contract_fields.py

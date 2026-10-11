@@ -65,10 +65,19 @@ _CN_VOL_RANGE_LINE_RE = re.compile(
     re.MULTILINE,
 )
 
+# C 批: the machine-readable heading span (``## 第一卷：名（第 1-23 章）``) —
+# the 卷界锚规则's canonical shape; accepted as a boundary source when a
+# volume section carries no 章节范围 line.
+_CN_VOL_HEAD_SPAN_RE = re.compile(
+    r"^##\s*第[0-9一二三四五六七八九十百]+卷\s*[：:][^\n（(]*[（(]第\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*第?\s*(\d+)\s*章[）)]",
+    re.MULTILINE,
+)
+
 
 def _read_cn_volume_boundaries(text: str) -> set[int]:
-    """Volume-scoped Chinese parse: per ``## 第N卷:`` section, only the first
-    line-start ``**章节范围**`` range line counts (its end chapter M).
+    """Volume-scoped Chinese parse: per ``## 第N卷:`` section, the heading's
+    machine-readable paren span (C 批 canonical) or the first line-start
+    ``**章节范围**`` range line counts (its end chapter M).
 
     Volume header requires the colon; sections are cut at the next ``##``-level
     header so trailing summary sections cannot donate a stray range line to
@@ -83,6 +92,12 @@ def _read_cn_volume_boundaries(text: str) -> set[int]:
         rm = _CN_VOL_RANGE_LINE_RE.search(section)
         if rm:
             boundaries.add(int(rm.group(2)))
+            continue
+        line_end = text.find("\n", m.start())
+        heading_line = text[m.start() :] if line_end == -1 else text[m.start() : line_end]
+        hm = _CN_VOL_HEAD_SPAN_RE.match(heading_line)
+        if hm:
+            boundaries.add(int(hm.group(2)))
     return boundaries
 
 

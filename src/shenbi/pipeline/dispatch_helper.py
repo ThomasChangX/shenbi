@@ -2284,6 +2284,9 @@ def _route_append_dedup_write(
         # not checkpoint-gated — no staging twin). Per-unit upsert under the
         # per-path lock; the frontmatter updated_at (no longer carried by
         # section increments) is touched mechanically on merge.
+        # C 批 (volume_map only): the 卷界锚规则 rejects a new volume that
+        # does not start at live max boundary + 1 BEFORE any write; the
+        # skeleton (total_chapters + 卷界 preamble line) is derived after.
         from shenbi.pipeline.truth_io import path_lock, touch_frontmatter_updated_at
 
         target = project_dir / rel_path
@@ -2292,12 +2295,22 @@ def _route_append_dedup_write(
         _validate_increment_package(
             content, key_field=outline_key, base_text=base_text, outline_units=True
         )
+        if rel_path == "outline/volume_map.md":
+            from shenbi.pipeline.volume_budget import check_new_volume_anchor
+
+            anchor_error = check_new_volume_anchor(base_text, content)
+            if anchor_error is not None:
+                raise IncrementShapeError(anchor_error)
         with path_lock(target):
             base = base_text
             merged = base
             for unit in units:
                 merged = upsert_markdown_row(merged, unit, outline_key)
             merged = touch_frontmatter_updated_at(merged, _now_iso())
+            if rel_path == "outline/volume_map.md":
+                from shenbi.pipeline.volume_budget import sync_volume_skeleton
+
+                merged = sync_volume_skeleton(merged)
             safe_write(target, merged.encode("utf-8"))
         log.info(
             "outline_increment_merged",

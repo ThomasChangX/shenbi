@@ -38,6 +38,7 @@ Use entry points (not `python3 tests/X.py`):
 - `just pool-lint <dir>` — Pool + thread two-table reconciliation: pending_hooks overview rows vs detail sections, thread_map 线索总览表 vs 线索详情 (`--repair` re-derives stale rows)
 - `just pool-archive <dir> --resolved-through <ch>` — Pool evidence rolling archival: RESOLVED sections past the window move to `truth/pending_hooks_archive.md`
 - `just ledger-archive <dir> --resolved-through <ch>` — Both evidence ledgers (pool + thread_map) rolling archival in one command (B 批)
+- `just volume-budget <dir> [--apply]` — Volume budget guardrails: re-budget pending / per-volume ±3 drift / 保量 floor; `--apply` performs deterministic total_chapters + skeleton writeback (C 批)
 - `shenbi-validate G0 <seed>` — Gate 0: environment check
 - `shenbi-validate G2 <files> <type>` — Gate 2: output validation
 - `shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural check

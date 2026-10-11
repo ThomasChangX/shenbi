@@ -39,14 +39,14 @@ contract:
 
 <!-- END AUTO-GENERATED -->
 
-> **volume_map 写纪律（append_dedup，key=volume，A1 千万字卷层批）**：只发**本界有变化的卷区段**——`## 第N卷：<标题>` 整段（含 Objective/KR/章节节点表/张力曲线/跨卷桥接的全部变化内容）；新卷为完整新区段。**禁止重发** frontmatter、`#` 一级标题、骨架序言、未变化的卷区段——重发即被摄取守卫拒收、整次派发作废（整档重写会随卷数增长撑爆输出上限）。区段定位按「第N卷」编号，标题变化合法（同编号即替换）。
+> **volume_map 写纪律（append_dedup，key=volume，A1/C 批千万字卷层）**：只发**本界有变化的卷区段**——`## 第N卷：<标题>（第 a-b 章）` 整段（含 Objective/KR/章节节点表/张力曲线/跨卷桥接的全部变化内容）；新卷为完整新区段，且**必须满足卷界锚规则**：新卷起始章 a = live 最大章界 + 1、标题带机器可读章界「（第 a-b 章）」——错号或缺括号章界会被摄取守卫整次拒收。**禁止重发** frontmatter、`#` 一级标题、骨架序言、未变化的卷区段——重发即被摄取守卫拒收、整次派发作废（整档重写会随卷数增长撑爆输出上限）。frontmatter `total_chapters` 与骨架序言「卷界」行由合并层自卷区段机械派生（C 批已落地），写者不维护。区段定位按「第N卷」编号，标题变化合法（同编号即替换）。
 
 # 分卷大纲
 
 设计单卷的整体结构。负责卷目标、卷内节奏原则、卷内张力曲线、跨卷衔接。
 **职责边界**：`outline/volume_map.md` 的卷划分骨架由 `shenbi-story-architecture` 创建，本 skill 负责**单卷细化**（卷目标、章级目标、卷内张力曲线、跨卷衔接）。如果 `volume_map.md` 已存在（story-architecture 创建），本 skill 读取并细化对应卷；如果不存在且收到人工纠正反馈（范围修正类），按反馈直接重建对应卷；两者皆无时报错并提示先运行 story-architecture。
 
-**章数预算硬约束**：细化不得超出 `novel.json` 的 `target_word_count` 预算（总章数 = ceil(target_word_count ÷ genre-config `chapter_word.default`——该文件已在本技能 reads 中，必须读取；见 `shenbi-story-architecture` 铁律 5）。短篇/金丝雀（如 3000 字 = 3 章单卷）细化时 KR/张力曲线按实际章数压缩，禁止为凑结构发明不存在的章节。更新 `outline/volume_map.md` 时必须保全/写入 frontmatter 的 `total_chapters: <N>` 行（五方对账 gate 核对该行；缺失会被显式报为对账盲区）。
+**章数预算硬约束**：细化不得超出 `novel.json` 的 `target_word_count` 预算（总章数 = ceil(target_word_count ÷ genre-config `chapter_word.default`——该文件已在本技能 reads 中，必须读取；见 `shenbi-story-architecture` 铁律 5）。短篇/金丝雀（如 3000 字 = 3 章单卷）细化时 KR/张力曲线按实际章数压缩，禁止为凑结构发明不存在的章节。frontmatter 的 `total_chapters: <N>` 行由合并层自卷区段机械派生（C 批骨架序言派生；五方对账 gate 仍核对该行）。
 
 ## 流程
 

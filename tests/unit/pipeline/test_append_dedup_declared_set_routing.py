@@ -115,9 +115,11 @@ def test_declared_increment_routes_through_keyed_upsert(
     if path == "outline/volume_map.md":
         # A1 form: keyed volume sections, located by 第N卷 token (retitles
         # replace in place — same invariants as the table-row pairs below).
-        first = "## 第一卷：t6-key-one\n\n- first increment"
-        second = "## 第二卷：t6-key-two\n\n- second increment"
-        revised = "## 第二卷：t6-key-two·修订\n\n- revised increment"
+        # C 批: headings carry the machine-readable paren span (卷界锚规则 —
+        # new volumes must start at live max boundary + 1).
+        first = "## 第一卷：t6-key-one（第 1-8 章）\n\n- first increment"
+        second = "## 第二卷：t6-key-two（第 9-16 章）\n\n- second increment"
+        revised = "## 第二卷：t6-key-two·修订（第 9-16 章）\n\n- revised increment"
     elif path == "outline/thread_map.md":
         first = "### T1: t6-key-one\n\n- first increment"
         second = "### T2: t6-key-two\n\n- second increment"
