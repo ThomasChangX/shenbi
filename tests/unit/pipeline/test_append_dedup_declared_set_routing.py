@@ -61,7 +61,7 @@ _PAIRS = _declared_append_dedup_pairs()
 
 
 def test_declared_surface_snapshot_count() -> None:
-    """Explicit snapshot of the declared surface: 21 (skill, path) pairs —
+    """Explicit snapshot of the declared surface: 24 (skill, path) pairs —
     17 as of the C3 T6 guard (10 skills; state-settling owns 6 targets) + 1
     from spec #58 C20 (foreshadowing-lifecycle bridge_tracker, F825) + 1
     from the probe2 settle capacity fix (state-settling character_matrix,
@@ -69,12 +69,14 @@ def test_declared_surface_snapshot_count() -> None:
     output grow O(chapters) past the model output cap) + 2 from the A1
     千万字卷层批 (volume-outlining volume_map / plot-thread-weaver
     thread_map — whole-file rewrites pinned the output cap as the ledgers
-    grew ~10KB/volume). This is the anti-silent-shrink tripwire — the
-    parametrized guard below adapts to any future growth automatically, but
-    a REMOVED declaration must surface here so it cannot pass unnoticed.
-    Updating this number is the explicit action.
+    grew ~10KB/volume) + 3 from the A2 section-ledger 批 (location-builder
+    locations / relationship-map relationships + character_matrix — the
+    ~50-volume whole-file rewrite walls). This is the anti-silent-shrink
+    tripwire — the parametrized guard below adapts to any future growth
+    automatically, but a REMOVED declaration must surface here so it
+    cannot pass unnoticed. Updating this number is the explicit action.
     """
-    assert len(_PAIRS) == 21, (
+    assert len(_PAIRS) == 24, (
         "declared append_dedup surface changed — if intentional, update the "
         f"snapshot (currently {len(_PAIRS)} pairs: {_PAIRS})"
     )
@@ -124,6 +126,14 @@ def test_declared_increment_routes_through_keyed_upsert(
         first = "### T1: t6-key-one\n\n- first increment"
         second = "### T2: t6-key-two\n\n- second increment"
         revised = "### T2: t6-key-two 修订\n\n- revised increment"
+    elif path == "world/locations.md":
+        first = "## 地点：t6-key-one\n\n- first increment"
+        second = "## 地点：t6-key-two\n\n- second increment"
+        revised = "## 地点：t6-key-two\n\n- revised increment"
+    elif path == "characters/relationships.md":
+        first = "## 关系对：t6-key-one - t6-char-b\n\n**矩阵格**: first increment"
+        second = "## 关系对：t6-key-two - t6-char-d\n\n**矩阵格**: second increment"
+        revised = "## 关系对：t6-key-two - t6-char-d\n\n**矩阵格**: revised increment"
     elif "," in key:
         first = "| t6-key-one | t6-item-one | first increment |"
         second = "| t6-key-two | t6-item-two | second increment |"

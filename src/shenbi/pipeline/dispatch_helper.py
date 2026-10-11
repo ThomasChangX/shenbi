@@ -1752,16 +1752,51 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
 _TRUTH_DIR_PREFIX = "truth/"
 _STAGING_TRUTH_PREFIX = "staging/truth/"
 
-#: A1 (千万字卷层批): outline ledger targets under keyed-merge. These
+#: A1 (千万字卷层批): keyed-merge outline/ledger targets. These
 #: volume-boundary writers used to declare create_or_overwrite — whole-file
 #: rewrites that pin the output cap as the ledgers grow (~10KB/volume).
-#: Explicit allowlist, NOT a blanket outline/ prefix: story_frame /
+#: Explicit allowlist, NOT a blanket prefix: story_frame /
 #: rhythm_principles / chapter_patterns are genesis-static whole-file
 #: artifacts and keep their original semantics.
+#: A2 批: world/locations.md (``## 地点：X`` entries, ~49KB at 118 ch) and
+#: characters/relationships.md (``## 关系对：A - B`` sections, 44KB) join the
+#: channel — their increments are WHOLE ``##`` sections (split at section
+#: boundaries, NOT by ``_increment_units``: an embedded 功能事件 table would
+#: shred into row units the shape guard must reject).
 _KEYED_OUTLINE_TARGETS: dict[str, str] = {
     "outline/volume_map.md": "volume",
     "outline/thread_map.md": "thread",
+    "world/locations.md": "location",
+    "characters/relationships.md": "relation",
 }
+
+#: Targets whose increments are split at ``##`` section boundaries (A2).
+_SECTION_LEDGER_TARGETS = frozenset({"world/locations.md", "characters/relationships.md"})
+
+
+def _section_ledger_units(content: str) -> list[str]:
+    """Split an increment into ``##``-anchored whole sections (A2).
+
+    Every unit starts at a level-2 heading and runs to the next one —
+    embedded ``###`` subsections and tables stay INSIDE the section (the
+    generic ``_increment_units`` would shred an embedded 功能事件/矩阵 table
+    into standalone row units). Non-blank content before the first ``##``
+    becomes its own leading unit so the shape guard can reject it loudly
+    instead of silently dropping it.
+    """
+    units: list[str] = []
+    current: list[str] = []
+    for line in content.split("\n"):
+        if re.match(r"^##\s+\S", line):
+            if any(l.strip() for l in current):
+                units.append("\n".join(current).strip("\n"))
+            current = [line]
+        else:
+            current.append(line)
+    if any(l.strip() for l in current):
+        units.append("\n".join(current).strip("\n"))
+    return units
+
 
 #: B 批: a 章节线索推进表 interval row cell (``103-110（五卷 KR2）``) —
 #: the thread ledger's second sanctioned unit form (new-volume pacing rows
@@ -1960,7 +1995,12 @@ def _hooks_increment_shape_injection() -> str:
 
 
 def _validate_increment_package(
-    content: str, *, key_field: str, base_text: str = "", outline_units: bool = False
+    content: str,
+    *,
+    key_field: str,
+    base_text: str = "",
+    outline_units: bool = False,
+    section_ledger: bool = False,
 ) -> None:
     """Reject whole-file scaffold in an append_dedup truth increment.
 
@@ -1971,6 +2011,10 @@ def _validate_increment_package(
     ``## 详情`` scaffold is always a base-destroying unit. Chapter-keyed
     targets keep the contract-sanctioned ``## 第N章状态增量`` increment
     section (character_matrix).
+
+    *section_ledger* (A2) switches the per-unit iteration to
+    :func:`_section_ledger_units` — locations/relationships increments are
+    whole ``##`` sections whose embedded tables must stay atomic.
 
     First-write exemption, generalized (batch #15 #44; probe16 adjudication
     #001 for hook targets, probe20 adjudication #008 for every target): a
@@ -2007,7 +2051,7 @@ def _validate_increment_package(
         from shenbi.pipeline.truth_io import split_table_cells
         from shenbi.pipeline.truth_io import _OUTLINE_SECTION_KEY_RE  # pyright: ignore[reportPrivateUsage]
 
-        for unit in _increment_units(content):
+        for unit in _section_ledger_units(content) if section_ledger else _increment_units(content):
             first = next((l for l in unit.split("\n") if l.strip()), "")
             fs = first.strip()
             if _OUTLINE_SECTION_KEY_RE.match(fs) is not None:
@@ -2025,7 +2069,14 @@ def _validate_increment_package(
     if not violations:
         return
 
-    if outline_units:
+    if section_ledger:
+        sanctioned = (
+            "地点区段增量（`## 地点：<名>` 整段，按地点名定位合并，段内表格原子保留）"
+            "＋关系对区段增量（`## 关系对：A - B` 整段，含 `**矩阵格**: <短标签>` 行——"
+            "关系矩阵表由合并层机械派生，绝不输出）"
+            "＋扩容复核区段（`## 第N章扩容复核（…）`，按章号定位）"
+        )
+    elif outline_units:
         sanctioned = (
             "卷区段增量（`## 第N卷：<标题>` 整段，按卷号定位合并；标题变化合法）"
             "＋线索区段增量（`### <线索ID>: <名称>` 整段，按 ID 定位）"
@@ -2287,13 +2338,19 @@ def _route_append_dedup_write(
         # C 批 (volume_map only): the 卷界锚规则 rejects a new volume that
         # does not start at live max boundary + 1 BEFORE any write; the
         # skeleton (total_chapters + 卷界 preamble line) is derived after.
+        # A2: locations/relationships increments split at ``##`` section
+        # boundaries (embedded tables stay atomic), not by _increment_units.
         from shenbi.pipeline.truth_io import path_lock, touch_frontmatter_updated_at
 
         target = project_dir / rel_path
         target.parent.mkdir(parents=True, exist_ok=True)
         base_text = target.read_text(encoding="utf-8") if target.exists() else ""
         _validate_increment_package(
-            content, key_field=outline_key, base_text=base_text, outline_units=True
+            content,
+            key_field=outline_key,
+            base_text=base_text,
+            outline_units=True,
+            section_ledger=rel_path in _SECTION_LEDGER_TARGETS,
         )
         if rel_path == "outline/volume_map.md":
             from shenbi.pipeline.volume_budget import check_new_volume_anchor
@@ -2301,10 +2358,15 @@ def _route_append_dedup_write(
             anchor_error = check_new_volume_anchor(base_text, content)
             if anchor_error is not None:
                 raise IncrementShapeError(anchor_error)
+        section_units = (
+            _section_ledger_units(content)
+            if rel_path in _SECTION_LEDGER_TARGETS
+            else _increment_units(content)
+        )
         with path_lock(target):
             base = base_text
             merged = base
-            for unit in units:
+            for unit in section_units:
                 merged = upsert_markdown_row(merged, unit, outline_key)
             merged = touch_frontmatter_updated_at(merged, _now_iso())
             if rel_path == "outline/volume_map.md":

@@ -17,9 +17,11 @@ contract:
   writes: []
   updates:
   - file: characters/relationships.md
-    mode: create_or_overwrite
+    mode: append_dedup
+    key: relation
   - file: truth/character_matrix.md
-    mode: create_or_overwrite
+    mode: append_dedup
+    key: 角色A,角色B
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -36,6 +38,8 @@ contract:
 - **Updates:** characters/relationships.md, truth/character_matrix.md
 
 <!-- END AUTO-GENERATED -->
+
+> **relationships 写纪律（append_dedup，A2 千万字卷层批）**：`characters/relationships.md` 只发**本界有变化的区段**——`## 关系对：A - B` 整段（类型/利益根基/信息边界/演化等；每段必含 `**矩阵格**: <短标签>` 行，关系矩阵表由合并层从该行机械派生，**绝不输出矩阵表**）＋扩容复核区段 `## 第N章扩容复核（…）`（按章号定位，每界一段）。**禁止重发** frontmatter、`#` 一级标题、`## 关系矩阵` 段、序言引言、未变化区段。`truth/character_matrix.md` 只发**交互总表行增量**（`| 角色A | 角色B | 关系 | 最近交互 | 最近变化 |`，复合键 角色A,角色B 原位合并；最近交互/最近变化须重述全史后追加）。
 
 # 关系图谱
 

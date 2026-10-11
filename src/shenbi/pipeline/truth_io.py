@@ -412,8 +412,17 @@ _HOOK_ID_CELL_RE = re.compile(r"(?<![A-Za-z0-9-])(MH|CP)-?(\d{1,4})(?!\d)")
 #: (volume_map) and ``### A1: …`` (thread_map). Locating by token, not the
 #: full heading line, keeps a RETITLED section replacing its old span instead
 #: of appending a duplicate (the exact-match ``_replace_section`` seam).
+#: A2 批: ``地点：X`` / ``关系对：A - B`` (whole-token = prefix + name, unique
+#: per entry) and the append-only boundary-review sections
+#: ``第N章扩容复核``.
 _OUTLINE_SECTION_KEY_RE = re.compile(
-    r"^(#{2,6})\s+(第[一二三四五六七八九十百千\d]+卷|[A-Za-z]+\d+)\b"
+    r"^(#{2,6})\s+("
+    r"第[一二三四五六七八九十百千\d]+卷"  # volume_map
+    r"|[A-Za-z]+\d+"  # thread_map ids
+    r"|第\d+章扩容复核"  # relationships boundary reviews
+    r"|地点：.+"  # locations entries
+    r"|关系对：.+"  # relationships pair sections
+    r")\b"
 )
 
 #: Thread-ledger detail-section heading (``### A1: 名称``). Same group
@@ -1098,6 +1107,96 @@ def sync_thread_overview_rows(existing: str, thread_ids: set[str] | None = None)
     return existing[: m_ov.end()] + "\n".join(ov_lines) + existing[ov_end:]
 
 
+#: A2 批: the relationships ledger's second representation. The 关系矩阵
+#: table is a DERIVED 2D mirror of the ``## 关系对：A - B`` sections — each
+#: pair section carries a ``**矩阵格**: <短标签>`` line and the merge layer
+#: reflects it into both (A,B) and (B,A) cells, appending rows/columns for
+#: characters the matrix has not seen. The writer never emits the matrix
+#: (an embedded-table section cannot ride the keyed-merge unit channel
+#: without shredding — the derivation makes that emission unnecessary).
+_RELATION_MATRIX_HEAD_RE = re.compile(r"^##\s*关系矩阵.*$", re.MULTILINE)
+_RELATION_PAIR_HEAD_RE = re.compile(
+    r"^##\s*关系对[:：]\s*(.+?)\s*[-–—~～]\s*(.+?)\s*$", re.MULTILINE
+)
+_MATRIX_CELL_FIELD_RE = re.compile(
+    r"^[-*]?\s*\*{0,2}矩阵格\*{0,2}\s*[:：]\s*(.+?)\s*$", re.MULTILINE
+)
+
+
+def sync_relationship_matrix(existing: str) -> str:
+    """Reconcile the 关系矩阵 table from the 关系对 sections' 矩阵格 fields.
+
+    GO① derivation mirrored onto the relationships ledger (A2 批): landing a
+    pair section mechanically updates its two matrix cells; new characters
+    grow the table by one row and one column (default ``无``, diagonal
+    ``—`` — the live genesis conventions). No-op without a ``## 关系矩阵``
+    table or without any 矩阵格 fields (the matrix is never invented, and
+    untouched cells are preserved byte-for-byte).
+    """
+    m_head = _RELATION_MATRIX_HEAD_RE.search(existing)
+    if m_head is None:
+        return existing
+    nxt = re.search(r"^##\s", existing[m_head.end() :], re.MULTILINE)
+    span = existing[
+        m_head.end() : m_head.end() + (nxt.start() if nxt else len(existing[m_head.end() :]))
+    ]
+    lines = span.split("\n")
+    tbl_idx = [i for i, l in enumerate(lines) if l.strip().startswith("|")]
+    if not tbl_idx:
+        return existing
+    header_cells = split_table_cells(lines[tbl_idx[0]])
+    if not header_cells or _pool_col_key(header_cells[0]) != "角色":
+        return existing
+    cols = [c.strip() for c in header_cells[1:]]
+    rows: list[list[str]] = []
+    for i in tbl_idx[1:]:
+        cells = split_table_cells(lines[i])
+        if cells is None or _is_separator_row(cells):
+            continue
+        rows.append([c.strip() for c in cells])
+
+    updates: dict[tuple[str, str], str] = {}
+    for pm in _RELATION_PAIR_HEAD_RE.finditer(existing):
+        a, b = pm.group(1), pm.group(2)
+        pn = re.search(r"^##\s", existing[pm.end() :], re.MULTILINE)
+        pspan = existing[pm.end() : pm.end() + (pn.start() if pn else len(existing[pm.end() :]))]
+        cm = _MATRIX_CELL_FIELD_RE.search(pspan)
+        if cm is not None:
+            updates[(a, b)] = cm.group(1)
+    if not updates:
+        return existing
+
+    col_index = {c: i for i, c in enumerate(cols)}
+    row_index = {r[0]: i for i, r in enumerate(rows)}
+    for a, b in updates:
+        for name in (a, b):
+            if name not in col_index:
+                col_index[name] = len(cols)
+                cols.append(name)
+                for r in rows:
+                    r.append("无")
+            if name not in row_index:
+                row_index[name] = len(rows)
+                rows.append([name] + ["无"] * len(cols))
+                rows[row_index[name]][col_index[name] + 1] = "—"
+    for (a, b), v in updates.items():
+        if a in row_index and b in col_index:
+            rows[row_index[a]][col_index[b] + 1] = v
+        if b in row_index and a in col_index:
+            rows[row_index[b]][col_index[a] + 1] = v
+
+    out_lines = lines[: tbl_idx[0]]
+    out_lines.append("| " + " | ".join([header_cells[0]] + cols) + " |")
+    out_lines.append("|" + "---|" * (len(cols) + 1))
+    for r in rows:
+        padded = r + ["无"] * (len(cols) + 1 - len(r))
+        out_lines.append("| " + " | ".join(padded) + " |")
+    out_lines.extend(lines[tbl_idx[-1] + 1 :])
+    log.info("relation_matrix_derived", pairs=len(updates))
+    span_end = m_head.end() + len(span)
+    return existing[: m_head.end()] + "\n".join(out_lines) + existing[span_end:]
+
+
 def _render_bullet_row(new_data: dict[str, Any], key_field: str) -> str:
     """Render a dict row as the ``- {key}: {k=v ...}`` bullet format."""
     key_val = str(new_data.get(key_field, ""))
@@ -1497,6 +1596,9 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
                 tm = _THREAD_HEADING_RE.match(first_line.strip())
                 if tm is not None:
                     merged = sync_thread_overview_rows(merged, {tm.group(2).strip()})
+            # A2 批: a landed 关系对 section reflects into the 关系矩阵.
+            if key_name == "relation":
+                merged = sync_relationship_matrix(merged)
             return merged
         if any(l.strip() == first_line for l in existing.split("\n")):
             log.warning("truth_block_upsert_duplicate_skipped", key_name=key_name)

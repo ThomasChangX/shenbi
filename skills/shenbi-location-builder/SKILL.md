@@ -13,7 +13,8 @@ contract:
   writes: []
   updates:
   - file: world/locations.md
-    mode: create_or_overwrite
+    mode: append_dedup
+    key: location
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -30,6 +31,8 @@ contract:
 - **Updates:** world/locations.md
 
 <!-- END AUTO-GENERATED -->
+
+> **locations 写纪律（append_dedup，key=location，A2 千万字卷层批）**：只发**本界有变化的地点区段**——`## 地点：<名>` 整段（六节结构：空间布局/感官锚点/时间光色/功能事件/地理位置；段内表格随整段原子合并，功能事件表须重述全史后追加）。新地点为完整新区段。**禁止重发** frontmatter、`#` 一级标题、`## 核心地点` 段、序言引言、未变化的地点区段——重发即被摄取守卫拒收、整次派发作废（整档重写会随卷数增长撑爆输出上限，~50 卷撞墙）。区段定位按「地点：<名>」全名，名称变化即新地点（改名须人工处理）。
 
 # 地点构建
 
