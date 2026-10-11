@@ -1770,8 +1770,13 @@ _KEYED_OUTLINE_TARGETS: dict[str, str] = {
     "characters/relationships.md": "relation",
 }
 
-#: Targets whose increments are split at ``##`` section boundaries (A2).
-_SECTION_LEDGER_TARGETS = frozenset({"world/locations.md", "characters/relationships.md"})
+#: Targets whose increments are split at ``##`` section boundaries (A2;
+#: volume_map joined after the rebudget drill — its sections carry KR
+#: 章节节点 tables that the generic row splitter shredded into
+#: non-section units the shape guard must reject).
+_SECTION_LEDGER_TARGETS = frozenset(
+    {"outline/volume_map.md", "world/locations.md", "characters/relationships.md"}
+)
 
 
 def _section_ledger_units(content: str) -> list[str]:

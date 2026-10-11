@@ -118,6 +118,11 @@ def test_thread_archive_moves_resolved_sections_verbatim(tmp_path: Path) -> None
     assert "### C2: 拦船验牌" in arc
     assert "### C3" not in arc
 
+    # rebudget-drill find: the LAST archived entry's span must NOT swallow
+    # the sections after 线索详情 — 推进表 and friends must survive.
+    assert "## 章节线索推进表" in live
+    assert "| 1-8（一卷 KR1） | A1 | 开局 |" in live
+
 
 def test_thread_archive_is_idempotent(tmp_path: Path) -> None:
     project = _project(tmp_path)

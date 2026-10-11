@@ -331,3 +331,30 @@ def test_thread_section_increment_derives_overview_row_via_dispatch(tmp_path: Pa
     cells = [c.strip() for c in row.strip().strip("|").split("|")]
     assert cells[0] == "B7" and cells[1] == "新开的商路"
     assert cells[5] == "50" and cells[6] == "80" and cells[7] == "PLANTED"
+
+
+def test_volume_section_with_kr_table_survives_dispatch_splitter(tmp_path: Path) -> None:
+    """Rebudget-drill find: a real volume section carries KR 章节节点 TABLES —
+    the generic row splitter shredded them into non-section units the shape
+    guard rejected (every real boundary dispatch would have failed). The
+    volume_map now splits at ``##`` boundaries like the other section
+    ledgers, so embedded tables stay atomic.
+    """
+    _outline_project(tmp_path)
+    _write_parsed_outputs(
+        response=(
+            "### FILE: outline/volume_map.md\n"
+            "## 第三卷：潮汛（第 48-71 章）\n\n**Objective**: 卷三目标。\n\n"
+            "**章节范围**: 第48章 - 第71章（共 24 章）\n\n"
+            "#### KR1: 骨架\n\n- **章节节点**:\n\n"
+            "| 章节 | 节点角色 | 具体定位 |\n|------|---------|---------|\n"
+            "| 第48章 | 开篇 | 到场 |\n| 第49章 | 承接 | 立足 |\n"
+        ),
+        output_paths=["outline/volume_map.md"],
+        project_dir=tmp_path,
+        skill="shenbi-volume-outlining",
+    )
+    merged = (tmp_path / "outline" / "volume_map.md").read_text(encoding="utf-8")
+    assert "## 第三卷：潮汛（第 48-71 章）" in merged
+    assert "| 第48章 | 开篇 | 到场 |" in merged, "KR table lands inside the section"
+    assert "| 第1章 |" not in merged, "earlier volumes untouched"

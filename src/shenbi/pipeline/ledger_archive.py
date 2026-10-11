@@ -28,6 +28,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from shenbi.pipeline.truth_io import parse_thread_span, path_lock
+from shenbi.pipeline.truth_io import _THREAD_ID_CELL_RE  # pyright: ignore[reportPrivateUsage]
+from shenbi.pipeline.truth_io import _THREAD_ID_TOKEN  # pyright: ignore[reportPrivateUsage]
 from shenbi.safe_write import safe_write
 
 
@@ -101,8 +103,10 @@ THREAD_SPEC = LedgerSpec(
     archive_title="线索地图",
     overview_heading="线索总览表",
     details_heading="线索详情",
-    section_heading_re=re.compile(r"^(#{2,6})\s+([ABC]\d{1,3})(?![0-9])", re.MULTILINE),
-    row_id_re=re.compile(r"(?<![A-Za-z0-9-])([ABC]\d{1,3})(?![0-9A-Za-z])"),
+    section_heading_re=re.compile(
+        rf"^(#{{2,6}})\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])", re.MULTILINE
+    ),
+    row_id_re=_THREAD_ID_CELL_RE,
     state_field="状态",
     span_field="跨度",
     canon=lambda raw: raw.strip(),
@@ -160,11 +164,27 @@ def archive_ledger(project_dir: Path, resolved_through: int, spec: LedgerSpec) -
             "拒绝在异常布局上归档（degrade loudly）。"
         )
 
-    # Section spans in the details body (heading → next same-or-higher heading).
+    # Section spans BOUNDED to the details section (``## <details>`` up to
+    # the next ``##`` heading) — entries live there. The unbounded scan made
+    # the LAST entry's span swallow every trailing section (推进表/约束检查
+    # 表…) and the tombstone splice destroyed them (rebudget-drill find on
+    # the live-shaped rig).
+    m_det = re.search(rf"^##\s*{spec.details_heading}\s*$", live, re.MULTILINE)
+    assert m_det is not None  # guaranteed by the shape check above
+    det_body_start = m_det.end()
+    det_after = live[det_body_start:]
+    m_det_next = re.search(r"^##\s+\S", det_after, re.MULTILINE)
+    det_body_end = det_body_start + (
+        m_det_next.start() if m_det_next is not None else len(det_after)
+    )
     sections: list[tuple[str, str, int, int]] = []  # (id, heading_line, start, end)
-    starts = [hm for hm in spec.section_heading_re.finditer(live)]
+    starts = [
+        hm
+        for hm in spec.section_heading_re.finditer(live)
+        if det_body_start <= hm.start() < det_body_end
+    ]
     for i, hm in enumerate(starts):
-        end = starts[i + 1].start() if i + 1 < len(starts) else len(live)
+        end = starts[i + 1].start() if i + 1 < len(starts) else det_body_end
         line_end = live.find("\n", hm.start())
         heading = live[hm.start() : line_end if line_end != -1 else end].rstrip()
         sections.append((spec.canon(hm.group(2)), heading, hm.start(), end))

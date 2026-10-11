@@ -425,15 +425,45 @@ _OUTLINE_SECTION_KEY_RE = re.compile(
     r")\b"
 )
 
+#: Thread id token — SINGLE SOURCE for the derivation, the read extractor,
+#: the archival spec, and the lint (rebudget-drill find + review #4: the
+#: locator/validator charset is ``[A-Za-z]+\d`` while the derivation only
+#: accepted ``[ABC]``, so an off-tier id merged but silently skipped its
+#: 总览行). The SKILL still mandates the A/B/C tiers; this is shape
+#: tolerance, not tier policy.
+_THREAD_ID_TOKEN = r"[A-Za-z]+\d{1,3}"
+
 #: Thread-ledger detail-section heading (``### A1: 名称``). Same group
 #: layout as the hook family: group(2) = the thread id token.
-_THREAD_HEADING_RE = re.compile(r"^(#{2,6})\s+([ABC]\d{1,3})(?![0-9A-Za-z])")
+_THREAD_HEADING_RE = re.compile(rf"^(#{{2,6}})\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])")
 
 #: Any thread heading line, for scanning a whole file's thread sections.
-_THREAD_HEADING_BLOCK_RE = re.compile(r"^(#{2,6})\s+([ABC]\d{1,3})(?![0-9A-Za-z])", re.MULTILINE)
+_THREAD_HEADING_BLOCK_RE = re.compile(
+    rf"^(#{{2,6}})\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])", re.MULTILINE
+)
 
 #: A thread id embedded in a table cell's first column (``| A1 | …``).
-_THREAD_ID_CELL_RE = re.compile(r"(?<![A-Za-z0-9-])([ABC]\d{1,3})(?![0-9A-Za-z])")
+_THREAD_ID_CELL_RE = re.compile(rf"(?<![A-Za-z0-9-])({_THREAD_ID_TOKEN})(?![0-9A-Za-z])")
+
+
+def _append_thread_section(existing: str, section: str) -> str:
+    """Append a NEW thread section inside ``## 线索详情`` (not at EOF).
+
+    The details section is bounded by the next ``##`` heading; a new thread
+    section appended at EOF lands after the trailing validator sections
+    (推进表/约束检查表), where the details-bounded threads_overview slice
+    would never serve it. Degrades to the EOF append without a 线索详情
+    heading (never invents structure).
+    """
+    m_det = re.search(r"^##\s*线索详情\s*$", existing, re.MULTILINE)
+    if m_det is None:
+        return existing.rstrip() + "\n" + section
+    after = existing[m_det.end() :]
+    m_next = re.search(r"^##\s+\S", after, re.MULTILINE)
+    insert_at = m_det.end() + (m_next.start() if m_next is not None else len(after))
+    head = existing[:insert_at].rstrip()
+    tail = existing[insert_at:]
+    return head + "\n\n" + section.rstrip("\n") + "\n" + tail
 
 
 def parse_thread_span(value: str) -> tuple[str, str]:
@@ -1585,7 +1615,14 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
                 if replaced_section is not None:
                     merged = replaced_section
             if merged is None:
-                merged = existing.rstrip() + "\n" + new_row
+                if key_name == "thread":
+                    # A NEW thread section belongs INSIDE ``## 线索详情`` —
+                    # the EOF append landed it after the trailing validator
+                    # sections, where the details-bounded threads_overview
+                    # slice would never serve it (rebudget-drill find).
+                    merged = _append_thread_section(existing, new_row)
+                else:
+                    merged = existing.rstrip() + "\n" + new_row
             # GO① derivation-on-write: a landed hook section mechanically
             # reflects into its 总览 row (only the hook-keyed pool target —
             # generic headed sections in other truth files stay untouched).

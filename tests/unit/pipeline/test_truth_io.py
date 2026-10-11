@@ -1191,3 +1191,40 @@ total_chapters: 118
         out = upsert_markdown_row(base, "### A1: 名\n- **状态**: PAYING_OFF\n", "thread")
         assert "- **状态**: PAYING_OFF" in out
         assert "线索总览表" not in out
+
+    def test_off_tier_thread_id_still_derives(self) -> None:
+        r"""Rebudget-drill find: the locator/validator charset is
+        ``[A-Za-z]+\d`` while the derivation only accepted ``[ABC]`` — an
+        off-tier id (``D1``) merged but silently skipped its 总览行. The
+        id charset is now single-sourced and tolerant.
+        """
+        out = upsert_markdown_row(
+            self.BASE,
+            "### D1: 溢出梯队的新线\n\n- **状态**: PLANTED\n- **跨度**: 第50章 - 第80章\n- **优先级**: P2\n",
+            "thread",
+        )
+        row = next(l for l in out.splitlines() if l.startswith("| D1 |"))
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert cells[0] == "D1" and cells[1] == "溢出梯队的新线"
+        assert cells[5] == "50" and cells[6] == "80" and cells[7] == "PLANTED"
+
+    def test_new_thread_section_lands_inside_details(self) -> None:
+        """Rebudget-drill find: the EOF append landed a NEW thread section
+        after the trailing validator sections, outside ``## 线索详情`` —
+        the details-bounded threads_overview slice never served it.
+        """
+        base = (
+            self.BASE
+            + "\n---\n\n## 章节线索推进表\n\n| 章节区间 | 主推 |\n|---|---|\n| 1-8（一卷 KR1） | A1 |\n"
+        )
+        out = upsert_markdown_row(
+            base,
+            "### C4: 新开的短线\n\n- **状态**: PLANTED\n- **跨度**: 第50章 - 第60章\n",
+            "thread",
+        )
+        i_det = out.index("## 线索详情")
+        i_c4 = out.index("### C4: 新开的短线")
+        i_plan = out.index("## 章节线索推进表")
+        assert i_det < i_c4 < i_plan, "new section lands inside 线索详情"
+        row = next(l for l in out.splitlines() if l.startswith("| C4 |"))
+        assert "PLANTED" in row

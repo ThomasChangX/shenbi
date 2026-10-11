@@ -364,7 +364,15 @@ def extract_recent_increments(content: str, *, keep: int = 3) -> str:
 
 #: Thread-ledger detail-section heading inside ``## 线索详情``
 #: (``### A1: 灵印·私修引灵与《灵律》残句``).
-_THREAD_DETAIL_HEADING_RE = re.compile(r"^#{2,6}\s+([ABC]\d{1,3})(?![0-9A-Za-z])", re.MULTILINE)
+def _thread_detail_heading_re() -> re.Pattern[str]:
+    """Thread-ledger detail heading (``### A1: 名``), single-group — the
+    id rides group(1) exactly like the local regex it replaced. Charset
+    from truth_io's single source (import-cycle-safe lazy resolution).
+    """
+    from shenbi.pipeline.truth_io import _THREAD_ID_TOKEN  # pyright: ignore[reportPrivateUsage]
+
+    return re.compile(rf"^#{{2,6}}\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])", re.MULTILINE)
+
 
 #: A 章节线索推进表 interval row: ``| 1-8（一卷 KR1） | A1 | … |``.
 _THREAD_INTERVAL_ROW_RE = re.compile(r"^\|\s*(\d+)\s*-\s*(\d+)\s*[（(]")
@@ -404,7 +412,7 @@ def extract_threads_overview(content: str, chapter: int | None = None) -> str:
     )
     body = content[m_det.end() : details_end]
 
-    starts = [hm for hm in _THREAD_DETAIL_HEADING_RE.finditer(body)]
+    starts = [hm for hm in _thread_detail_heading_re().finditer(body)]
     kept: list[str] = []
     omitted: list[str] = []
     tombstones: list[str] = []
