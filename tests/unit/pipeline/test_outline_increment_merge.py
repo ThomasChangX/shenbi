@@ -232,6 +232,14 @@ updated_at: "2026-10-10T03:43:56Z"
 |---------|------|------|------|
 | 1-8（一卷 KR1） | A1 | C1 | 开局 |
 | 9-16（一卷 KR2） | A2 | B3 | 追索收紧 |
+
+---
+
+## 约束检查表
+
+| 卷 | 线程ID | 违规Y/N |
+|----|--------|---------|
+| 1 | A1 | N |
 """
 
 
@@ -262,6 +270,9 @@ def test_thread_interval_row_increment_merges_in_place(tmp_path: Path) -> None:
     assert "修订后的追索收紧" in merged
     assert "| 17-23（一卷 KR3） |" in merged, "new interval row appended"
     assert "| 1-8（一卷 KR1） | A1 | C1 | 开局 |" in merged, "sibling rows untouched"
+    assert merged.index("| 17-23（一卷 KR3） |") < merged.index("## 约束检查表"), (
+        "new interval row lands INSIDE the 推进表, not stranded at EOF (review Critical #1)"
+    )
     assert "updated_at" in merged, "frontmatter mechanically touched"
     assert "### A1: 灵印" in merged, "detail sections untouched by row increments"
 

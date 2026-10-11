@@ -242,3 +242,32 @@ def test_replay_skeleton_derivation_on_live_volume_map() -> None:
     text = live.read_text(encoding="utf-8")
     assert parse_volume_spans(text), "live map carries paren spans"
     assert sync_volume_skeleton(text) == text
+
+
+def test_anchor_rule_chains_multi_volume_increment() -> None:
+    """Review Important #3(a): a re-budget may land SEVERAL new volumes in
+    one dispatch — each chains at its predecessor's end + 1.
+    """
+    inc = (
+        "## 第三卷：潮汛（第 48-71 章）\n\n**Objective**: 三。\n\n"
+        "## 第四卷：海堑（第 72-95 章）\n\n**Objective**: 四。\n"
+    )
+    assert check_new_volume_anchor(_VOLUME_MAP, inc) is None
+    broken = inc.replace("第 72-95 章", "第 70-95 章")
+    err = check_new_volume_anchor(_VOLUME_MAP, broken)
+    assert err is not None and "第 72 章起卷" in err
+
+
+def test_anchor_rule_respects_respanned_tail_volume() -> None:
+    """Review Important #3(b): re-spanning the LAST existing volume (a
+    replaced section, unconstrained) moves the effective boundary the new
+    volume must anchor at.
+    """
+    inc = (
+        "## 第二卷：入港（第 24-60 章）\n\n**Objective**: 改。\n\n"
+        "## 第三卷：潮汛（第 61-84 章）\n\n**Objective**: 三。\n"
+    )
+    assert check_new_volume_anchor(_VOLUME_MAP, inc) is None
+    wrong = inc.replace("第 61-84 章", "第 48-84 章")
+    err = check_new_volume_anchor(_VOLUME_MAP, wrong)
+    assert err is not None and "第 61 章起卷" in err and "第 60 章" in err

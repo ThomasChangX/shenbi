@@ -213,11 +213,42 @@ def _thread_row_map(text: str) -> dict[str, list[str]]:
     return rows
 
 
+def _thread_cols(cells: list[str]) -> tuple[int, int]:
+    """Column indices by HEADER NAME.
+
+    Same resolution as sync_thread_overview_rows, so the lint and the
+    repair never disagree on a reordered table (review #7). Genesis order
+    fallback: 6/7.
+    """
+    by_name = {c.strip().lower(): i for i, c in enumerate(cells)}
+    return by_name.get("终点章", _T_COL_RESOLVE), by_name.get("状态", _T_COL_LIFECYCLE)
+
+
+_T_COL_RESOLVE = 6
+
+
 def lint_thread(text: str) -> list[Finding]:
     """Reconcile the thread ledger's two representations (B 批)."""
     findings: list[Finding] = []
     sections = _thread_section_map(text)
     rows = _thread_row_map(text)
+
+    # Header row (first table line) carries the column names.
+    header_cells: list[str] = []
+    m_ov = re.search(r"^##\s*线索总览表\s*$", text, re.MULTILINE)
+    if m_ov is not None:
+        for line in text[m_ov.end() :].splitlines():
+            if line.strip().startswith("|"):
+                header_cells = _cells(line)
+                break
+    col_resolve, col_lifecycle = (
+        _thread_cols(header_cells)
+        if header_cells
+        else (
+            _T_COL_RESOLVE,
+            _T_COL_LIFECYCLE,
+        )
+    )
 
     for tid, fields in sections.items():
         if "archived_to" in fields:
@@ -231,22 +262,22 @@ def lint_thread(text: str) -> list[Finding]:
             continue
         cells = rows[tid]
         state = fields.get("状态")
-        if state and cells[_T_COL_LIFECYCLE] and cells[_T_COL_LIFECYCLE] != state:
+        if state and cells[col_lifecycle] and cells[col_lifecycle] != state:
             findings.append(
                 Finding(
                     "row_state_mismatch",
                     tid,
-                    f"状态 row={cells[_T_COL_LIFECYCLE]!r} vs section={state!r}",
+                    f"状态 row={cells[col_lifecycle]!r} vs section={state!r}",
                 )
             )
         sec_end = parse_thread_span(fields.get("跨度", ""))[1]
-        row_end = cells[_T_COL_RESOLVE].strip() if len(cells) > _T_COL_RESOLVE else ""
+        row_end = cells[col_resolve].strip() if len(cells) > col_resolve else ""
         if sec_end and row_end and row_end != sec_end:
             findings.append(
                 Finding(
                     "row_state_mismatch",
                     tid,
-                    f"终点章 row={cells[_T_COL_RESOLVE]!r} vs section={fields.get('跨度')!r}",
+                    f"终点章 row={cells[col_resolve]!r} vs section={fields.get('跨度')!r}",
                 )
             )
 

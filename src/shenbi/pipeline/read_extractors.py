@@ -364,7 +364,7 @@ def extract_recent_increments(content: str, *, keep: int = 3) -> str:
 
 #: Thread-ledger detail-section heading inside ``## 线索详情``
 #: (``### A1: 灵印·私修引灵与《灵律》残句``).
-_THREAD_DETAIL_HEADING_RE = re.compile(r"^###\s+([ABC]\d{1,3})(?![0-9A-Za-z])", re.MULTILINE)
+_THREAD_DETAIL_HEADING_RE = re.compile(r"^#{2,6}\s+([ABC]\d{1,3})(?![0-9A-Za-z])", re.MULTILINE)
 
 #: A 章节线索推进表 interval row: ``| 1-8（一卷 KR1） | A1 | … |``.
 _THREAD_INTERVAL_ROW_RE = re.compile(r"^\|\s*(\d+)\s*-\s*(\d+)\s*[（(]")
@@ -425,9 +425,9 @@ def extract_threads_overview(content: str, chapter: int | None = None) -> str:
 
     n_total = len(starts)
     sentinel = (
-        f"> [extractor:threads_overview] 线索详情 {n_total} 段：保留活跃 {len(kept)} 段，"
-        f"省略 {len(omitted)} 段（终态/已归档）——各线当前状态见上方线索总览表，"
-        f"完整交叉点与高潮窗口史见 outline/thread_map.md 本体。\n"
+        f"> [extractor:threads_overview] 线索详情 {n_total} 段：活跃 {len(kept)} 段、"
+        f"终态省略 {len(omitted)} 段、已归档 {len(tombstones)} 段（索引见下）——"
+        f"各线当前状态见上方线索总览表，完整交叉点与高潮窗口史见 outline/thread_map.md 本体。\n"
     )
     index = ""
     if tombstones:

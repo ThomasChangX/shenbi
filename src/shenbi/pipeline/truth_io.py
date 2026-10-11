@@ -1116,7 +1116,7 @@ def sync_thread_overview_rows(existing: str, thread_ids: set[str] | None = None)
 #: without shredding — the derivation makes that emission unnecessary).
 _RELATION_MATRIX_HEAD_RE = re.compile(r"^##\s*关系矩阵.*$", re.MULTILINE)
 _RELATION_PAIR_HEAD_RE = re.compile(
-    r"^##\s*关系对[:：]\s*(.+?)\s*[-–—~～]\s*(.+?)\s*$", re.MULTILINE
+    r"^#{2,6}\s*关系对[:：]\s*(.+?)\s*[-–—~～]\s*(.+?)\s*$", re.MULTILINE
 )
 _MATRIX_CELL_FIELD_RE = re.compile(
     r"^[-*]?\s*\*{0,2}矩阵格\*{0,2}\s*[:：]\s*(.+?)\s*$", re.MULTILINE
@@ -1192,9 +1192,12 @@ def sync_relationship_matrix(existing: str) -> str:
         padded = r + ["无"] * (len(cols) + 1 - len(r))
         out_lines.append("| " + " | ".join(padded) + " |")
     out_lines.extend(lines[tbl_idx[-1] + 1 :])
+    new_block = "\n".join(out_lines)
+    if new_block == span:
+        return existing  # cells already current — no rewrite (review #9)
     log.info("relation_matrix_derived", pairs=len(updates))
     span_end = m_head.end() + len(span)
-    return existing[: m_head.end()] + "\n".join(out_lines) + existing[span_end:]
+    return existing[: m_head.end()] + new_block + existing[span_end:]
 
 
 def _render_bullet_row(new_data: dict[str, Any], key_field: str) -> str:

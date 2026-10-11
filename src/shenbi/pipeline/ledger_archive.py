@@ -112,7 +112,7 @@ THREAD_SPEC = LedgerSpec(
 
 
 def _section_fields(spec: LedgerSpec, section: str) -> dict[str, str]:
-    """Latest colon-bullet fields of a section, emphasis markers stripped."""
+    """First-per-name colon-bullet fields of a section, emphasis markers stripped."""
     fields: dict[str, str] = {}
     pat = re.compile(
         r"^-\s+\*{0,2}("
@@ -169,7 +169,9 @@ def archive_ledger(project_dir: Path, resolved_through: int, spec: LedgerSpec) -
         heading = live[hm.start() : line_end if line_end != -1 else end].rstrip()
         sections.append((spec.canon(hm.group(2)), heading, hm.start(), end))
 
-    to_archive: list[tuple[str, str, str, str]] = []  # (id, heading, section_text, end)
+    to_archive: list[
+        tuple[str, str, str, str, int, int]
+    ] = []  # (id, heading, text, end, start, span_end)
     for hid, heading, start, end in sections:
         text = live[start:end]
         fields = _section_fields(spec, text)
@@ -180,24 +182,29 @@ def archive_ledger(project_dir: Path, resolved_through: int, spec: LedgerSpec) -
         rend = _resolve_end(spec, fields)
         if not rend.isdigit() or int(rend) > resolved_through:
             continue
-        to_archive.append((hid, heading, text.rstrip() + "\n", rend))
+        to_archive.append((hid, heading, text.rstrip() + "\n", rend, start, end))
 
     if not to_archive:
         return []
 
-    archived_ids = [hid for hid, _, _, _ in to_archive]
+    archived_ids = [hid for hid, *_ in to_archive]
 
     # 1) Live ledger: tombstone each archived section, drop its overview row.
+    # Splice by the EXACT computed span (descending so earlier spans stay
+    # valid) — the historical replace-by-text silently missed when the last
+    # section had no trailing newline (rstripped form not a substring),
+    # leaving the row dropped but NO tombstone: every later run re-archived
+    # the same section into the archive (review Important #2).
     out = live
-    for hid, heading, text, rend in to_archive:
+    for hid, heading, text, rend, start, end in sorted(to_archive, key=lambda x: -x[4]):
         fields = _section_fields(spec, text)
         tombstone = (
             f"{heading}\n\n"
             f"{spec.state_bullet('RESOLVED')}\n"
             f"{spec.span_bullet(fields.get(spec.span_field, '-'), rend)}\n"
-            f"- archived_to: {spec.archive_rel}\n"
+            f"- archived_to: {spec.archive_rel}\n\n"
         )
-        out = out.replace(text, tombstone, 1)
+        out = out[:start] + tombstone + out[end:]
     lines = out.split("\n")
     out = "\n".join(
         line
@@ -236,7 +243,7 @@ def archive_ledger(project_dir: Path, resolved_through: int, spec: LedgerSpec) -
             base += "\n"
         safe_write(
             archive_path,
-            (base + "\n" + "".join(text for _, _, text, _ in to_archive)).encode("utf-8"),
+            (base + "\n" + "".join(text for _, _, text, *_ in to_archive)).encode("utf-8"),
         )
 
     return archived_ids

@@ -16,6 +16,7 @@ from pathlib import Path
 import pytest
 
 from shenbi.pipeline.ledger_archive import (
+    POOL_SPEC,
     THREAD_SPEC,
     archive_all,
     archive_ledger,
@@ -172,3 +173,32 @@ def test_cli_archives_both_ledgers(tmp_path: Path, capsys: pytest.CaptureFixture
     out = capsys.readouterr().out
     assert "truth/pending_hooks.md: archived 1: MH1" in out
     assert "outline/thread_map.md: archived 2: C1, C2" in out
+
+
+def test_archive_last_section_without_trailing_newline(tmp_path: Path) -> None:
+    """Review Important #2: the historical replace-by-text silently missed
+    when the final archived section had no trailing newline — the row was
+    dropped but NO tombstone landed, and every later run re-archived the
+    same section into the archive. Span splicing is newline-shape-proof.
+    """
+    project = _project(tmp_path)
+    pool = project / "truth" / "pending_hooks.md"
+    pool.parent.mkdir(parents=True, exist_ok=True)
+    # terminal hook, file ends WITHOUT trailing newline
+    pool.write_text(
+        "---\ntype: truth\n---\n\n# 伏笔池\n\n## 总览\n\n| Hook ID（钩子名） | 当前生命周期 |\n"
+        "| MH09（回声） | RESOLVED |\n\n## 详情\n\n### MH09（回声）\n\n"
+        "- lifecycle_state: RESOLVED\n- resolve_chapter: 30",
+        encoding="utf-8",
+    )
+
+    first = archive_ledger(project, 40, POOL_SPEC)
+    second = archive_ledger(project, 40, POOL_SPEC)
+
+    assert first == ["MH9"]
+    assert second == [], "tombstone landed — idempotent on re-run"
+    live = pool.read_text(encoding="utf-8")
+    assert "- archived_to: truth/pending_hooks_archive.md" in live
+    assert "| MH09" not in live
+    arc = (project / "truth" / "pending_hooks_archive.md").read_text(encoding="utf-8")
+    assert arc.count("### MH09（回声）") == 1, "no duplicate archive entries"

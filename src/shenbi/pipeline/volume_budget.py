@@ -86,15 +86,25 @@ def check_new_volume_anchor(base_text: str, increment_text: str) -> str | None:
     """Anchor-rule verdict for a volume_map increment; None = passes.
 
     Every NEW volume section (token absent from the base) must carry a
-    machine-readable span and start at live max boundary + 1. REPLACED
-    volumes (same token) are unconstrained here — mid-book span adjustments
-    are the drift guardrails' concern, not the merge's.
+    machine-readable span and CHAIN: the first at the effective max
+    boundary + 1, each next at its predecessor's end + 1. The effective
+    max counts base spans with same-token spans OVERRIDDEN by the increment
+    (a re-spanned tail volume legitimately moves the boundary), so a
+    multi-volume re-budget lands in ONE dispatch. REPLACED volumes are
+    otherwise unconstrained here — mid-book span adjustments are the drift
+    guardrails' concern, not the merge's.
     """
     base_spans = parse_volume_spans(base_text)
     base_tokens = {s.token for s in base_spans}
-    base_max = max((s.end for s in base_spans), default=0)
+    inc_spans = parse_volume_spans(increment_text)
 
-    new_spans = [s for s in parse_volume_spans(increment_text) if s.token not in base_tokens]
+    effective: dict[str, VolumeSpan] = {s.token: s for s in base_spans}
+    for s in inc_spans:
+        if s.token in effective:
+            effective[s.token] = s
+    eff_max = max((s.end for s in effective.values()), default=0)
+
+    new_spans = sorted((s for s in inc_spans if s.token not in base_tokens), key=lambda s: s.start)
     # New heading tokens WITHOUT a machine-readable span are unauditable
     # (five-way reconciliation + this rule both read the paren range).
     all_tokens = {
@@ -111,12 +121,14 @@ def check_new_volume_anchor(base_text: str, increment_text: str) -> str | None:
             "「(第 a-b 章)」，锚规则与五方对账均无法读取。"
             "合法形态：`## 第N卷：<标题>(第 a-b 章)`。"
         )
+    expected_start = eff_max + 1
     for s in new_spans:
-        if s.start != base_max + 1:
+        if s.start != expected_start:
             return (
                 f"输出未落盘——卷界锚规则：新卷 {s.token} 起始为第 {s.start} 章，"
-                f"live 最大章界为第 {base_max} 章，必须从第 {base_max + 1} 章起卷。"
+                f"须从第 {expected_start} 章起卷（有效最大章界为第 {eff_max} 章）。"
             )
+        expected_start = s.end + 1
     return None
 
 

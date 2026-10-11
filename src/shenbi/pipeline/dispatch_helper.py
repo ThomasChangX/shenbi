@@ -2367,7 +2367,23 @@ def _route_append_dedup_write(
             base = base_text
             merged = base
             for unit in section_units:
-                merged = upsert_markdown_row(merged, unit, outline_key)
+                unit_key = outline_key
+                if outline_key == "thread":
+                    # Review Critical #1: interval rows must anchor INSIDE the
+                    # 章节线索推进表 — keying on its header's first column
+                    # makes _key_table_tail find that table (the bare "thread"
+                    # spec matches no header, so a NEW interval row stranded
+                    # at EOF, invisible to the windowed extractor).
+                    from shenbi.pipeline.truth_io import split_table_cells
+
+                    cells = split_table_cells(unit)
+                    if (
+                        cells is not None
+                        and cells
+                        and _OUTLINE_INTERVAL_CELL_RE.match(cells[0].strip()) is not None
+                    ):
+                        unit_key = "章节区间"
+                merged = upsert_markdown_row(merged, unit, unit_key)
             merged = touch_frontmatter_updated_at(merged, _now_iso())
             if rel_path == "outline/volume_map.md":
                 from shenbi.pipeline.volume_budget import sync_volume_skeleton
@@ -2378,7 +2394,7 @@ def _route_append_dedup_write(
             "outline_increment_merged",
             path=rel_path,
             key=outline_key,
-            units=len(units),
+            units=len(section_units),
         )
         return
 
