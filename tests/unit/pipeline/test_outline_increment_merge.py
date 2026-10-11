@@ -199,3 +199,124 @@ def test_replay_differential_on_live_thread_map() -> None:
     assert merged.count("### A1: ") == 1, "no duplicate thread section"
     assert "重放差分" in merged
     assert "### A2: " in merged, "sibling threads untouched"
+
+
+# --- B 批: 推进表区间行 + 总览行禁区 ------------------------------------------
+
+_THREAD_LEDGER = """---
+total_chapters: 118
+updated_at: "2026-10-10T03:43:56Z"
+---
+
+# 线索地图
+
+## 线索总览表
+
+| ID | 名称 | 优先级 | 类型 | max_gap | 起始章 | 终点章 | 状态 |
+|----|------|--------|------|---------|--------|--------|------|
+| A1 | 灵印 | P0 | 长线 | 2 | 1 | 118 | RELEVANT |
+
+## 线索详情
+
+### A1: 灵印
+
+- **状态**: RELEVANT
+- **跨度**: 第1章 - 第118章
+- **优先级**: P0
+
+---
+
+## 章节线索推进表
+
+| 章节区间 | 主推 | 副推 | 备注 |
+|---------|------|------|------|
+| 1-8（一卷 KR1） | A1 | C1 | 开局 |
+| 9-16（一卷 KR2） | A2 | B3 | 追索收紧 |
+"""
+
+
+def _thread_project(tmp_path: Path) -> Path:
+    (tmp_path / "outline").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "outline" / "thread_map.md").write_text(_THREAD_LEDGER, encoding="utf-8")
+    return tmp_path
+
+
+def test_thread_interval_row_increment_merges_in_place(tmp_path: Path) -> None:
+    """B 批: the weaver's sanctioned second form — re-emitting an existing
+    interval row replaces it in place (dedup on the interval cell); a NEW
+    volume's interval row lands in the table without disturbing siblings.
+    """
+    _thread_project(tmp_path)
+    _write_parsed_outputs(
+        response=(
+            "### FILE: outline/thread_map.md\n"
+            "| 9-16（一卷 KR2） | A2 | B3、B5 | 修订后的追索收紧 |\n"
+            "| 17-23（一卷 KR3） | A1 | C1 | 顶罪与清算 |\n"
+        ),
+        output_paths=["outline/thread_map.md"],
+        project_dir=tmp_path,
+        skill="shenbi-plot-thread-weaver",
+    )
+    merged = (tmp_path / "outline" / "thread_map.md").read_text(encoding="utf-8")
+    assert merged.count("| 9-16（一卷 KR2） |") == 1, "existing interval replaced, not duplicated"
+    assert "修订后的追索收紧" in merged
+    assert "| 17-23（一卷 KR3） |" in merged, "new interval row appended"
+    assert "| 1-8（一卷 KR1） | A1 | C1 | 开局 |" in merged, "sibling rows untouched"
+    assert "updated_at" in merged, "frontmatter mechanically touched"
+    assert "### A1: 灵印" in merged, "detail sections untouched by row increments"
+
+
+def test_thread_overview_row_increment_still_rejected(tmp_path: Path) -> None:
+    """The 线索总览表 row is derivation-owned — a writer-emitted overview
+    row must be rejected (it would bypass the mechanical mirror the merge
+    layer applies from the detail section).
+    """
+    _thread_project(tmp_path)
+    before = (tmp_path / "outline" / "thread_map.md").read_text(encoding="utf-8")
+    with pytest.raises(IncrementShapeError):
+        _write_parsed_outputs(
+            response=(
+                "### FILE: outline/thread_map.md\n"
+                "| B7 | 新开的商路 | P1 | 中线 | 4 | 50 | 80 | PLANTED |\n"
+            ),
+            output_paths=["outline/thread_map.md"],
+            project_dir=tmp_path,
+            skill="shenbi-plot-thread-weaver",
+        )
+    assert (tmp_path / "outline" / "thread_map.md").read_text(encoding="utf-8") == before
+
+
+def test_volume_target_rejects_interval_row(tmp_path: Path) -> None:
+    """The interval-row allowance is key-gated to the thread ledger — the
+    same row form in a volume_map increment stays a shape violation.
+    """
+    _outline_project(tmp_path)
+    with pytest.raises(IncrementShapeError):
+        _write_parsed_outputs(
+            response=("### FILE: outline/volume_map.md\n| 24-31（二卷 KR1） | A1 | 落脚 |\n"),
+            output_paths=["outline/volume_map.md"],
+            project_dir=tmp_path,
+            skill="shenbi-volume-outlining",
+        )
+
+
+def test_thread_section_increment_derives_overview_row_via_dispatch(tmp_path: Path) -> None:
+    """End-to-end derivation: a dispatched thread section lands through the
+    keyed merge and its 线索总览表 row appears mechanically.
+    """
+    _thread_project(tmp_path)
+    _write_parsed_outputs(
+        response=(
+            "### FILE: outline/thread_map.md\n"
+            "### B7: 新开的商路\n\n- **状态**: PLANTED\n- **跨度**: 第50章 - 第80章\n"
+            "- **优先级**: P1\n- **max_gap**: 4\n"
+        ),
+        output_paths=["outline/thread_map.md"],
+        project_dir=tmp_path,
+        skill="shenbi-plot-thread-weaver",
+    )
+    merged = (tmp_path / "outline" / "thread_map.md").read_text(encoding="utf-8")
+    row = next(l for l in merged.splitlines() if l.startswith("| B7"))
+    cells = [c.strip() for c in row.strip().strip("|").split("|")]
+    assert cells[0] == "B7" and cells[1] == "新开的商路"
+    assert cells[5] == "50" and cells[6] == "80" and cells[7] == "PLANTED"

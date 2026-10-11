@@ -362,6 +362,138 @@ def extract_recent_increments(content: str, *, keep: int = 3) -> str:
     return sliced
 
 
+#: Thread-ledger detail-section heading inside ``## 线索详情``
+#: (``### A1: 灵印·私修引灵与《灵律》残句``).
+_THREAD_DETAIL_HEADING_RE = re.compile(r"^###\s+([ABC]\d{1,3})(?![0-9A-Za-z])", re.MULTILINE)
+
+#: A 章节线索推进表 interval row: ``| 1-8（一卷 KR1） | A1 | … |``.
+_THREAD_INTERVAL_ROW_RE = re.compile(r"^\|\s*(\d+)\s*-\s*(\d+)\s*[（(]")
+
+
+def extract_threads_overview(content: str, chapter: int | None = None) -> str:
+    """Slice outline/thread_map.md to what one chapter's consumers need.
+
+    B 批 (千万字读面): the thread ledger grows without bound — every volume
+    adds interval rows and every weave grows the 交叉点/高潮窗口 history.
+    The slice serves:
+
+    - frontmatter + preamble + the FULL 线索总览表 (every live thread's
+      compact authoritative row — archival keeps it bounded);
+    - ACTIVE detail sections only (``- **状态**:`` ≠ RESOLVED, no
+      ``archived_to`` tombstone) with a disclosed omission sentinel;
+    - a tombstone index of archived threads (same anti-re-plant contract
+      as the pool's 已归档钩索引);
+    - the 章节线索推进表 windowed to the current chapter's interval ± 1
+      (chapter=None keeps it whole — the genesis weaver);
+    - NOT the 约束检查表/空白检测/跨卷衔接/线索编织汇总 validator snapshots.
+
+    Returns ``""`` on an unexpected shape, or when *chapter* lies outside
+    every planned interval (re-budget seam — the consumer needs the whole
+    file) — the dispatch loop then serves full text + WARN (extractor
+    failure must degrade loudly, never silently).
+    """
+    m_ov = re.search(r"^##\s*线索总览表\s*$", content, re.MULTILINE)
+    m_det = re.search(r"^##\s*线索详情\s*$", content, re.MULTILINE)
+    if m_ov is None or m_det is None or m_ov.start() >= m_det.start():
+        return ""
+    m_plan = re.search(r"^##\s*章节线索推进表\s*$", content, re.MULTILINE)
+
+    head = content[: m_det.end()]
+    details_end = (
+        m_plan.start() if (m_plan is not None and m_plan.start() > m_det.end()) else len(content)
+    )
+    body = content[m_det.end() : details_end]
+
+    starts = [hm for hm in _THREAD_DETAIL_HEADING_RE.finditer(body)]
+    kept: list[str] = []
+    omitted: list[str] = []
+    tombstones: list[str] = []
+    for i, hm in enumerate(starts):
+        end = starts[i + 1].start() if i + 1 < len(starts) else len(body)
+        section = body[hm.start() : end]
+        if "archived_to" in section:
+            sm = re.search(r"-\s+\*{0,2}状态\*{0,2}\s*[:：]\s*(\S+)", section)
+            tombstones.append(
+                f"- {hm.group(1)}: {sm.group(1) if sm else 'RESOLVED'} → outline/thread_map_archive.md"
+            )
+            continue
+        sm = re.search(r"-\s+\*{0,2}状态\*{0,2}\s*[:：]\s*(\S+)", section)
+        if sm is not None and sm.group(1) == "RESOLVED":
+            omitted.append(hm.group(1))
+        else:
+            kept.append(section)
+
+    n_total = len(starts)
+    sentinel = (
+        f"> [extractor:threads_overview] 线索详情 {n_total} 段：保留活跃 {len(kept)} 段，"
+        f"省略 {len(omitted)} 段（终态/已归档）——各线当前状态见上方线索总览表，"
+        f"完整交叉点与高潮窗口史见 outline/thread_map.md 本体。\n"
+    )
+    index = ""
+    if tombstones:
+        index = (
+            "\n### 已归档线索索引（extractor 附——这些 ID 已终态归档，"
+            "不得重复开辟同语义线）\n\n" + "\n".join(tombstones) + "\n"
+        )
+    out = head + "\n" + sentinel + index + "".join(kept).rstrip() + "\n"
+
+    if m_plan is not None:
+        plan_line_end = content.find("\n", m_plan.start())
+        rest = content[plan_line_end + 1 :]
+        m_trail = re.search(r"^##\s+\S", rest, re.MULTILINE)
+        plan_body = rest[: m_trail.start()] if m_trail is not None else rest
+        trailing_head = rest[m_trail.start() :] if m_trail is not None else ""
+        plan_windowed = _window_interval_rows(plan_body, chapter)
+        if plan_windowed is None:
+            return ""
+        out += "\n" + content[m_plan.start() : plan_line_end] + "\n" + plan_windowed
+        if trailing_head:
+            out += (
+                "\n> [extractor:threads_overview] 约束检查表/空白检测/跨卷衔接/"
+                "线索编织汇总 为编织器校验快照，已省略——见 outline/thread_map.md 本体。\n"
+            )
+    return out
+
+
+def _window_interval_rows(plan_body: str, chapter: int | None) -> str | None:
+    """Keep the interval row containing *chapter* ± 1 neighbor; None = degrade.
+
+    Non-interval lines (the table header/separator, the blockquote note)
+    always ride along. ``chapter=None`` keeps every interval row (genesis).
+    A chapter inside NO interval is a re-budget seam — None makes the
+    caller fall back to the whole file (loud, never a silent mis-slice).
+    """
+    lines = plan_body.split("\n")
+    interval_idx = [i for i, l in enumerate(lines) if _THREAD_INTERVAL_ROW_RE.match(l.strip())]
+    keep: set[int] = set()
+    if chapter is None:
+        return plan_body  # genesis weaver — every planned interval rides along
+    anchor: int | None = None
+    for pos, i in enumerate(interval_idx):
+        m = _THREAD_INTERVAL_ROW_RE.match(lines[i].strip())
+        if m is not None and int(m.group(1)) <= chapter <= int(m.group(2)):
+            anchor = pos
+            break
+    if anchor is None:
+        return None
+    for pos in (anchor - 1, anchor, anchor + 1):
+        if 0 <= pos < len(interval_idx):
+            keep.add(interval_idx[pos])
+    out_lines: list[str] = []
+    omitted = len(interval_idx) - len(keep)
+    for i, line in enumerate(lines):
+        if i in interval_idx and i not in keep:
+            if omitted and out_lines and out_lines[-1] != "":
+                out_lines.append(
+                    f"> …已按当前章窗口裁剪：保留 {len(keep)}/{len(interval_idx)} 个区间行，"
+                    f"省略 {omitted} 行——完整推进表见 outline/thread_map.md 本体。"
+                )
+                omitted = 0  # one sentinel, placed at the first cut
+            continue
+        out_lines.append(line)
+    return "\n".join(out_lines)
+
+
 def chapter_scoped_head_tail(text: str, budget: int) -> str | None:
     """Budget-truncation backstop for chapter-keyed files: keep the head
     block plus as many TAIL units as *budget* allows (at least one), cut the

@@ -24,6 +24,7 @@ concepts:
   - {name: outline/volume_map.md, kind: outline}
   - {name: outline/rhythm_principles.md, kind: outline}
   - {name: outline/thread_map.md, kind: outline}
+  - {name: outline/thread_map_archive.md, kind: outline, producer: pipeline}
   - {name: outline/chapter_patterns.md, kind: outline}
   - {name: outline/short_story_map.md, kind: outline}
   # truth

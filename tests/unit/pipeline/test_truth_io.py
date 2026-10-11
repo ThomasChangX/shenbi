@@ -1097,3 +1097,97 @@ class TestPoolOverviewDerivation:
         assert "RESOLVED" in out  # section patched
         row = next(l for l in out.splitlines() if l.startswith("| MH01"))
         assert "PLANTED" in row  # row untouched for non-hook keys
+
+
+class TestThreadOverviewDerivation:
+    """B 批: the GO① derivation mirrored onto outline/thread_map.md — a
+    landed ``### <ID>: <名称>`` section mechanically reflects into its
+    线索总览表 row (状态/优先级/max_gap from bullets, 起始章/终点章 from the
+    跨度 bullet, 名称 from the heading on creation). The weaver's increment
+    contract never touches overview rows.
+    """
+
+    BASE = """---
+total_chapters: 118
+---
+
+# 线索地图
+
+## 线索总览表
+
+| ID | 名称 | 优先级 | 类型 | max_gap | 起始章 | 终点章 | 状态 |
+|----|------|--------|------|---------|--------|--------|------|
+| A1 | 灵印与残句 | P0 | 长线 | 2 | 1 | 118 | RELEVANT |
+| C1 | 册上多报的名字 | P2 | 短线 | 8 | 3 | 40 | RELEVANT |
+
+## 线索详情
+
+### A1: 灵印与《灵律》残句
+
+- **状态**: RELEVANT
+- **跨度**: 第1章 - 第118章
+- **优先级**: P0
+- **max_gap**: 2
+
+### C1: 册上多报的名字
+
+- **状态**: RELEVANT
+- **跨度**: 第3章 - 第40章
+- **优先级**: P2
+- **max_gap**: 8
+"""
+
+    def test_section_update_reflects_into_overview_row(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### C1: 册上多报的名字\n\n- **状态**: RESOLVED\n- **跨度**: 第3章 - 第17章\n- **优先级**: P2\n- **max_gap**: 8\n",
+            "thread",
+        )
+        row = next(l for l in out.splitlines() if l.startswith("| C1"))
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert cells[7] == "RESOLVED"
+        assert cells[5] == "3" and cells[6] == "17"
+
+    def test_new_thread_section_appends_derived_overview_row(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### B7: 新开的商路\n\n- **状态**: PLANTED\n- **跨度**: 第50章 - 第80章\n- **优先级**: P1\n- **max_gap**: 4\n",
+            "thread",
+        )
+        row = next(l for l in out.splitlines() if l.startswith("| B7"))
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert cells[0] == "B7"
+        assert cells[1] == "新开的商路"
+        assert cells[2] == "P1"
+        assert cells[5] == "50" and cells[6] == "80"
+        assert cells[7] == "PLANTED"
+
+    def test_tombstoned_section_never_resurrects_a_row(self) -> None:
+        from shenbi.pipeline.truth_io import sync_thread_overview_rows
+
+        base = self.BASE.replace(
+            "- **状态**: RELEVANT\n- **跨度**: 第3章 - 第40章",
+            "- **状态**: RESOLVED\n- **跨度**: 第3章 - 第17章\n- archived_to: outline/thread_map_archive.md",
+        ).replace("| C1 | 册上多报的名字 | P2 | 短线 | 8 | 3 | 40 | RELEVANT |", "")
+
+        out = sync_thread_overview_rows(base)
+
+        assert "| C1 |" not in out, "archived thread must not regain a row"
+
+    def test_retitle_updates_name_cell_only_via_derivation(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### C1: 册上多报的那个名字（改题）\n\n- **状态**: RELEVANT\n- **跨度**: 第3章 - 第40章\n- **优先级**: P2\n- **max_gap**: 8\n",
+            "thread",
+        )
+        assert "### C1: 册上多报的那个名字（改题）" in out
+        assert "### C1: 册上多报的名字" not in out, "old heading replaced, not duplicated"
+        # existing row keeps its 名称 cell (creation-only field)
+        row = next(l for l in out.splitlines() if l.startswith("| C1"))
+        assert "册上多报的名字" in row
+
+    def test_missing_overview_table_is_safe_noop(self) -> None:
+        base = "### A1: 名\n\n- **状态**: RELEVANT\n"
+        out = upsert_markdown_row(base, "### A1: 名\n- **状态**: PAYING_OFF\n", "thread")
+        assert "- **状态**: PAYING_OFF" in out
+        assert "线索总览表" not in out

@@ -38,7 +38,7 @@ from __future__ import annotations
 import re
 import threading
 from contextlib import contextmanager
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from pathlib import Path
 from typing import Any
 
@@ -416,6 +416,38 @@ _OUTLINE_SECTION_KEY_RE = re.compile(
     r"^(#{2,6})\s+(第[一二三四五六七八九十百千\d]+卷|[A-Za-z]+\d+)\b"
 )
 
+#: Thread-ledger detail-section heading (``### A1: 名称``). Same group
+#: layout as the hook family: group(2) = the thread id token.
+_THREAD_HEADING_RE = re.compile(r"^(#{2,6})\s+([ABC]\d{1,3})(?![0-9A-Za-z])")
+
+#: Any thread heading line, for scanning a whole file's thread sections.
+_THREAD_HEADING_BLOCK_RE = re.compile(r"^(#{2,6})\s+([ABC]\d{1,3})(?![0-9A-Za-z])", re.MULTILINE)
+
+#: A thread id embedded in a table cell's first column (``| A1 | …``).
+_THREAD_ID_CELL_RE = re.compile(r"(?<![A-Za-z0-9-])([ABC]\d{1,3})(?![0-9A-Za-z])")
+
+
+def parse_thread_span(value: str) -> tuple[str, str]:
+    """``第27章 - 第109章`` -> ("27", "109"); no chapter number -> ("", "").
+
+    Shared by the 总览 row derivation and the ledger archival (B 批): the
+    thread ledger's resolve chapter is the END of the 跨度 bullet. An
+    OPEN-ENDED span (``第5章 - 全书末`` — the part after the separator has
+    no chapter number) parses to ("", "") so neither the derivation nor
+    the archival ever guesses at an end the text does not state.
+    """
+    parts = re.split(r"[-–—~～至]", value, maxsplit=1)
+    if len(parts) == 2:
+        nums_start = re.findall(r"\d+", parts[0])
+        nums_end = re.findall(r"\d+", parts[1])
+        if not nums_end:
+            return "", ""
+        return (nums_start[0] if nums_start else ""), nums_end[0]
+    nums = re.findall(r"\d+", value)
+    if not nums:
+        return "", ""
+    return nums[0], nums[-1]
+
 
 def _replace_outline_section(existing: str, section: str) -> str | None:
     """Replace the section matched by heading level + 编号 token (or None).
@@ -777,12 +809,14 @@ def _pool_col_key(header: str) -> str:
     return h.strip().lower()
 
 
-def _hook_section_field_values(text: str, hook_id: str) -> tuple[str, dict[str, str]] | None:
+def _named_section_fields(
+    text: str, heading_re: re.Pattern[str], canon: Callable[[str], str], entry_id: str
+) -> tuple[str, dict[str, str]] | None:
     """The section heading display text + latest colon-bullet fields of
-    *hook_id*'s ``###`` section (first bullet per name), or None when the
-    section is absent. Same section-location rule as
+    *entry_id*'s section (first bullet per name), or None when the section
+    is absent. Same section-location rule as
     :func:`_hook_section_bullet_merge` (exact heading, else heading level +
-    hook id).
+    id token via *canon*).
     """
     lines = text.split("\n")
     target: int | None = None
@@ -792,10 +826,10 @@ def _hook_section_field_values(text: str, hook_id: str) -> tuple[str, dict[str, 
         s = line.strip()
         if not s.startswith("#"):
             continue
-        hm = _HOOK_HEADING_RE.match(s)
+        hm = heading_re.match(s)
         if not hm:
             continue
-        if canon_hook_id(hm.group(2)) == hook_id:
+        if canon(hm.group(2)) == entry_id:
             target = i
             level = len(hm.group(1))
             heading = s
@@ -817,6 +851,16 @@ def _hook_section_field_values(text: str, hook_id: str) -> tuple[str, dict[str, 
         if fm:
             fields.setdefault(_canon_field_name(fm.group(1)), s[fm.end() :].strip())
     return heading, fields
+
+
+def _hook_section_field_values(text: str, hook_id: str) -> tuple[str, dict[str, str]] | None:
+    """Hook-section variant of :func:`_named_section_fields`."""
+    return _named_section_fields(text, _HOOK_HEADING_RE, canon_hook_id, hook_id)
+
+
+def _thread_section_field_values(text: str, thread_id: str) -> tuple[str, dict[str, str]] | None:
+    """Thread-section variant of :func:`_named_section_fields` (id as-is)."""
+    return _named_section_fields(text, _THREAD_HEADING_RE, lambda s: s.strip(), thread_id)
 
 
 def sync_pool_overview_rows(existing: str, hook_ids: set[str] | None = None) -> str:
@@ -925,6 +969,132 @@ def sync_pool_overview_rows(existing: str, hook_ids: set[str] | None = None) -> 
     if not changed:
         return existing
     log.info("truth_pool_overview_row_derived", hooks=len(sections))
+    return existing[: m_ov.end()] + "\n".join(ov_lines) + existing[ov_end:]
+
+
+#: Thread 总览 column derivation (B 批): detail-section field → 线索总览表
+#: column key. 起始章/终点章 derive from the 跨度 bullet via
+#: :func:`parse_thread_span`; 名称 comes from the heading (creation only);
+#: 类型 has no section source (overview-only taxonomy) and is left as-is.
+_THREAD_ROW_FIELD_COLS: dict[str, str] = {
+    "状态": "状态",
+    "优先级": "优先级",
+    "max_gap": "max_gap",
+}
+
+
+def sync_thread_overview_rows(existing: str, thread_ids: set[str] | None = None) -> str:
+    """Reconcile thread_map 线索总览表 rows from the thread detail sections.
+
+    B 批, the GO① derivation mirrored onto the thread ledger: the weaver's
+    increments are ``### <ID>: <名称>`` sections, and the overview row is a
+    DERIVED mirror — no LLM writer discipline is load-bearing for the two
+    representations staying in sync (the pool's ch15-36 overview freeze is
+    the design precedent this prevents).
+
+    *thread_ids* scopes the reconciliation (the merge path passes the one
+    thread it just landed); ``None`` reconciles every section — the
+    repair-tool entry. Sections carrying an ``archived_to`` tombstone bullet
+    NEVER resurrect a row (ledger_archive owns the archived ids). Rows are
+    never deleted here (orphan-row reporting belongs to the truth-pool
+    lint). No-op (returns *existing*) without a ``## 线索总览表`` table or
+    header row.
+    """
+    m_ov = re.search(r"^##\s*线索总览表\s*$", existing, re.MULTILINE)
+    if m_ov is None:
+        return existing
+    m_det = re.search(r"^##\s*\S", existing[m_ov.end() :], re.MULTILINE)
+    ov_end = m_ov.end() + (m_det.start() if m_det is not None else len(existing[m_ov.end() :]))
+    ov_lines = existing[m_ov.end() : ov_end].split("\n")
+
+    header_idx = next((i for i, l in enumerate(ov_lines) if l.strip().startswith("|")), None)
+    if header_idx is None:
+        return existing
+    header_cells = split_table_cells(ov_lines[header_idx])
+    if header_cells is None:
+        return existing
+    col_by_field: dict[str, int] = {}
+    for fi, want in _THREAD_ROW_FIELD_COLS.items():
+        col_idx = next((i for i, c in enumerate(header_cells) if _pool_col_key(c) == want), None)
+        if col_idx is not None:
+            col_by_field[fi] = col_idx
+    col_start = next((i for i, c in enumerate(header_cells) if _pool_col_key(c) == "起始章"), None)
+    col_end = next((i for i, c in enumerate(header_cells) if _pool_col_key(c) == "终点章"), None)
+    col_name = next((i for i, c in enumerate(header_cells) if _pool_col_key(c) == "名称"), None)
+    if not col_by_field:
+        return existing
+
+    sections: list[tuple[str, dict[str, str]]] = []
+    for tm in _THREAD_HEADING_BLOCK_RE.finditer(existing):
+        tid = tm.group(2).strip()
+        if thread_ids is not None and tid not in thread_ids:
+            continue
+        parsed = _thread_section_field_values(existing, tid)
+        if parsed is None:
+            continue
+        sections.append(parsed)
+    if not sections:
+        return existing
+
+    changed = False
+    for heading, fields in sections:
+        hm = _THREAD_HEADING_RE.match(heading)
+        if hm is None:
+            continue
+        tid = hm.group(2).strip()
+        if "archived_to" in fields:
+            continue
+        row_idx: int | None = None
+        row_cells: list[str] | None = None
+        for i in range(header_idx + 1, len(ov_lines)):
+            line = ov_lines[i].strip()
+            if not line.startswith("|"):
+                continue
+            cells = split_table_cells(line)
+            if cells is None or not cells:
+                continue
+            idm = _THREAD_ID_CELL_RE.search(cells[0])
+            if idm is not None and idm.group(1) == tid:
+                if _is_separator_row(cells):
+                    continue
+                row_idx = i
+                row_cells = list(cells)
+                break
+        new_cells = row_cells if row_cells is not None else ["-"] * len(header_cells)
+        while len(new_cells) < len(header_cells):
+            new_cells.append("-")
+        if row_cells is None:
+            new_cells[0] = tid
+            if col_name is not None:
+                hm_name = re.split(r"[:：]", heading.lstrip("#").strip(), maxsplit=1)
+                new_cells[col_name] = hm_name[1].strip() if len(hm_name) > 1 else "-"
+        for fi, col in col_by_field.items():
+            if fi in fields:
+                new_cells[col] = fields[fi]
+        start, end = parse_thread_span(fields.get("跨度", ""))
+        if start and col_start is not None:
+            new_cells[col_start] = start
+        if end and col_end is not None:
+            new_cells[col_end] = end
+        new_row = "| " + " | ".join(c.strip() for c in new_cells) + " |"
+        if row_idx is not None:
+            if ov_lines[row_idx].strip() != new_row:
+                ov_lines[row_idx] = new_row
+                changed = True
+        else:
+            last_row = max(
+                (
+                    i
+                    for i in range(header_idx + 1, len(ov_lines))
+                    if ov_lines[i].strip().startswith("|")
+                ),
+                default=header_idx,
+            )
+            ov_lines.insert(last_row + 1, new_row)
+            changed = True
+    if not changed:
+        return existing
+    log.info("thread_overview_row_derived", threads=len(sections))
     return existing[: m_ov.end()] + "\n".join(ov_lines) + existing[ov_end:]
 
 
@@ -1321,6 +1491,12 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
                 hm = _HOOK_HEADING_RE.match(first_line.strip())
                 if hm is not None:
                     merged = sync_pool_overview_rows(merged, {canon_hook_id(hm.group(2))})
+            # B 批: the same derivation for the thread ledger — a landed
+            # ``### <ID>: <名称>`` section reflects into its 线索总览表 row.
+            if key_name == "thread":
+                tm = _THREAD_HEADING_RE.match(first_line.strip())
+                if tm is not None:
+                    merged = sync_thread_overview_rows(merged, {tm.group(2).strip()})
             return merged
         if any(l.strip() == first_line for l in existing.split("\n")):
             log.warning("truth_block_upsert_duplicate_skipped", key_name=key_name)

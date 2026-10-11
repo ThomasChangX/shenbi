@@ -9,7 +9,8 @@ contract:
   - outline/story_frame.md
   - outline/volume_map.md
   - outline/rhythm_principles.md
-  - truth/pending_hooks.md
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
+  - {file: outline/thread_map.md, extractor: threads_overview}
   writes: []
   updates:
   - file: outline/thread_map.md
@@ -26,13 +27,13 @@ contract:
 
 ## 数据契约
 
-- **Reads:** outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md, truth/pending_hooks.md
+- **Reads:** outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md, truth/pending_hooks.md, outline/thread_map.md
 - **Writes:** none
 - **Updates:** outline/thread_map.md
 
 <!-- END AUTO-GENERATED -->
 
-> **thread_map 写纪律（append_dedup，key=thread，A1 千万字卷层批）**：只发**本界有变化的线索区段**——`### <线索ID>: <名称>` 整段（状态/跨度/交叉点/高潮窗口/当前进度等变化内容）；总览表状态列以线索区段内的 `- **状态**:` bullet 为权威记载（B 批将落地合并层机械回写；当前写者须同步维护总览行）。**禁止重发** frontmatter、`#`/`##` 标题、总览表、推进表、未变化的线索区段——重发即被摄取守卫拒收、整次派发作废。区段定位按线索 ID，名称变化合法（同 ID 即替换）。
+> **thread_map 写纪律（append_dedup，key=thread，A1/B 批千万字卷层）**：只发**本界有变化的单元**——①线索区段 `### <线索ID>: <名称>` 整段（状态/跨度/交叉点/高潮窗口/当前进度等，累积字段重述全史后追加）；②新增卷的推进表区间行 `| N-M（卷 KRn） | 主推 | … |`（首格照抄 live 既有区间写法）。**总览表行由合并层从线索区段机械派生（B 批已落地）——绝不输出总览表行**。**禁止重发** frontmatter、`#`/`##` 标题、总览表、约束检查表/空白检测/跨卷衔接段、未变化的单元——重发即被摄取守卫拒收、整次派发作废。区段定位按线索 ID，名称变化合法（同 ID 即替换）。
 
 # 剧情线索编织
 

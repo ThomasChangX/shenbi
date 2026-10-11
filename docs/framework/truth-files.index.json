@@ -423,6 +423,7 @@
   "outline/thread_map.md": {
     "reads": [
       "shenbi-chapter-planning",
+      "shenbi-plot-thread-weaver",
       "shenbi-sequel-writing"
     ],
     "writes": [],

@@ -35,8 +35,9 @@ Use entry points (not `python3 tests/X.py`):
 - `just check` — Run all CI checks locally
 - `just test` — Fast unit tests only
 - `just audit-lint` — Audit-run artifact lint: ledger rows, count reconciliation, cross-round carryover (spec #49)
-- `just pool-lint <dir>` — Pool two-table reconciliation: pending_hooks overview rows vs detail sections (`--repair` re-derives stale rows)
+- `just pool-lint <dir>` — Pool + thread two-table reconciliation: pending_hooks overview rows vs detail sections, thread_map 线索总览表 vs 线索详情 (`--repair` re-derives stale rows)
 - `just pool-archive <dir> --resolved-through <ch>` — Pool evidence rolling archival: RESOLVED sections past the window move to `truth/pending_hooks_archive.md`
+- `just ledger-archive <dir> --resolved-through <ch>` — Both evidence ledgers (pool + thread_map) rolling archival in one command (B 批)
 - `shenbi-validate G0 <seed>` — Gate 0: environment check
 - `shenbi-validate G2 <files> <type>` — Gate 2: output validation
 - `shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural check

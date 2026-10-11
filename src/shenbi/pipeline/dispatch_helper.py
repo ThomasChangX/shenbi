@@ -69,6 +69,7 @@ from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 09
     extract_hooks_inventory_scoped,
     extract_hooks_overview,
     extract_recent_increments,
+    extract_threads_overview,
     has_chapter_units,
 )
 from shenbi.pipeline.llm_output_integrity import (
@@ -948,6 +949,32 @@ def _build_skill_prompt(
                             path=str(full_path),
                             chapter=chapter,
                         )
+            elif extractor == "threads_overview":
+                # B 批 (千万字读面): thread_map windowed to 总览表 + active
+                # detail sections + the chapter's 推进表 interval ± 1.
+                # "" (unexpected shape / chapter outside every planned
+                # interval) -> full text + WARN (never a silent drop), same
+                # §4.3 discipline as the Plan A family.
+                try:
+                    extracted = extract_threads_overview(content, chapter)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
             elif extractor == "recent_increments":
                 # Plan A: chapter-keyed cumulative tables serve head + last
                 # units with an omission sentinel. "" (unexpected shape,
@@ -1736,6 +1763,12 @@ _KEYED_OUTLINE_TARGETS: dict[str, str] = {
     "outline/thread_map.md": "thread",
 }
 
+#: B 批: a 章节线索推进表 interval row cell (``103-110（五卷 KR2）``) —
+#: the thread ledger's second sanctioned unit form (new-volume pacing rows
+#: dedup on the interval cell; the 总览表 row stays BANNED — derivation
+#: owns it).
+_OUTLINE_INTERVAL_CELL_RE = re.compile(r"^\d+\s*-\s*\d+\s*[（(]")
+
 
 def _now_iso() -> str:
     """UTC ISO-8601 stamp for the mechanical frontmatter touch."""
@@ -1968,13 +2001,27 @@ def _validate_increment_package(
     if outline_units:
         # A1: every unit must be a keyed section (## 第N卷 / ### 线索ID) —
         # bare prose would append at EOF and corrupt the ledger shape.
+        # B 批: the thread ledger additionally sanctions single 推进表
+        # interval rows (``| N-M（卷 KRn） | … |``) — the volume_map has no
+        # such table, so the allowance is key-gated to "thread".
+        from shenbi.pipeline.truth_io import split_table_cells
         from shenbi.pipeline.truth_io import _OUTLINE_SECTION_KEY_RE  # pyright: ignore[reportPrivateUsage]
 
         for unit in _increment_units(content):
             first = next((l for l in unit.split("\n") if l.strip()), "")
-            if _OUTLINE_SECTION_KEY_RE.match(first.strip()) is None:
-                violations.append(f"非卷区段单元（{first.strip()[:24]}）")
-                break
+            fs = first.strip()
+            if _OUTLINE_SECTION_KEY_RE.match(fs) is not None:
+                continue
+            cells = split_table_cells(unit)
+            if (
+                key_field == "thread"
+                and cells is not None
+                and cells
+                and _OUTLINE_INTERVAL_CELL_RE.match(cells[0].strip()) is not None
+            ):
+                continue
+            violations.append(f"非卷区段单元（{fs[:24]}）")
+            break
     if not violations:
         return
 
@@ -1982,6 +2029,7 @@ def _validate_increment_package(
         sanctioned = (
             "卷区段增量（`## 第N卷：<标题>` 整段，按卷号定位合并；标题变化合法）"
             "＋线索区段增量（`### <线索ID>: <名称>` 整段，按 ID 定位）"
+            "＋（thread 账本）推进表区间行（`| N-M（卷 KRn） | … |`，按区间格定位）"
         )
     else:
         sanctioned = _sanctioned_forms_hint(key_field)

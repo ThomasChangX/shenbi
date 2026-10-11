@@ -1,25 +1,26 @@
-"""Pool two-table reconciliation lint (GO①, phase3 终报条件①).
+"""Pool/thread two-table reconciliation lint (GO①, phase3 终报条件①; B 批扩展).
 
-``truth/pending_hooks.md`` carries TWO representations of every hook — the
-总览 table row and the ``### <id>`` detail section — with independent
-writer disciplines and (before the derivation-on-write fix) no invariant
-enforcement: the phase3 overview silently froze ch15-36 while details kept
-advancing, and the drift was only discovered by hand at book closure
-(ch118, debt overstated 1.8×).
+``truth/pending_hooks.md`` and ``outline/thread_map.md`` each carry TWO
+representations of every entry — the overview table row and the ``### <id>``
+detail section — with independent writer disciplines and (before the
+derivation-on-write fix) no invariant enforcement: the phase3 overview
+silently froze ch15-36 while details kept advancing, and the drift was only
+discovered by hand at book closure (ch118, debt overstated 1.8×).
 
 Checks (findings print as a table; exit 1 when any remain):
-- ``section_without_row``  — detail section with no 总览 row (repairable)
-- ``row_state_mismatch``   — 总览 当前生命周期/种植章/兑现章 disagrees with the
+- ``section_without_row``  — detail section with no overview row (repairable)
+- ``row_state_mismatch``   — overview lifecycle/resolve disagrees with the
                              detail section's fields (repairable)
-- ``row_without_section``  — 总览 row with no detail section (report-only)
-- ``planted_with_resolve`` — lifecycle PLANTED but 兑现章 non-empty: a
+- ``row_without_section``  — overview row with no detail section (report-only)
+- ``planted_with_resolve`` — pool: lifecycle PLANTED but 兑现章 non-empty: a
                              contradiction needing evidence-based disposition,
                              NOT auto-repair (the CP-006/MH10 shape)
 - ``tombstone_has_row``    — archived tombstone section still holds a live row
 
-``--repair`` runs :func:`shenbi.pipeline.truth_io.sync_pool_overview_rows`
-(the same derivation the merge layer now applies on every hook-section
-landing) over the whole file, fixing the repairable classes.
+``--repair`` runs the same derivation the merge layer applies on every
+section landing (:func:`sync_pool_overview_rows` /
+:func:`sync_thread_overview_rows`) over the whole file(s), fixing the
+repairable classes.
 
 CLI: ``uv run python tools/lint_truth_pool.py <project_dir> [--repair]``
 """
@@ -32,7 +33,12 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from shenbi.pipeline.truth_io import canon_hook_id, sync_pool_overview_rows
+from shenbi.pipeline.truth_io import (
+    canon_hook_id,
+    parse_thread_span,
+    sync_pool_overview_rows,
+    sync_thread_overview_rows,
+)
 
 _HOOK_ID_RE = re.compile(r"(?<![A-Za-z0-9-])(MH|CP)-?(\d{1,4})(?!\d)")
 _FIELD_RE = re.compile(
@@ -43,6 +49,13 @@ _FIELD_RE = re.compile(
 #: 3=兑现章（卷）.
 _COL_LIFECYCLE = 1
 _COL_RESOLVE = 3
+
+_THREAD_ID_RE = re.compile(r"(?<![A-Za-z0-9-])([ABC]\d{1,3})(?![0-9A-Za-z])")
+_THREAD_FIELD_RE = re.compile(r"^-\s+\*{0,2}(状态|跨度|archived_to)\*{0,2}\s*[:：]\s*(.*)$")
+#: thread_map overview column indices (genesis EXACT-table contract):
+#: 6=终点章, 7=状态.
+_T_COL_RESOLVE = 6
+_T_COL_LIFECYCLE = 7
 
 
 @dataclass(frozen=True)
@@ -160,8 +173,91 @@ def lint_pool(text: str) -> list[Finding]:
     return findings
 
 
+def _thread_section_map(text: str) -> dict[str, dict[str, str]]:
+    """thread_id → parsed bullets of its ``###`` section (B 批)."""
+    sections: dict[str, dict[str, str]] = {}
+    current: str | None = None
+    for line in text.splitlines():
+        hm = re.match(r"^#{2,6}\s+([ABC]\d{1,3})(?![0-9A-Za-z])", line.strip())
+        if hm:
+            current = hm.group(1)
+            sections.setdefault(current, {})
+            continue
+        if current is None:
+            continue
+        fm = _THREAD_FIELD_RE.match(line.strip())
+        if fm:
+            sections[current].setdefault(fm.group(1), fm.group(2).strip())
+    return sections
+
+
+def _thread_row_map(text: str) -> dict[str, list[str]]:
+    """thread_id → 线索总览表 row cells."""
+    rows: dict[str, list[str]] = {}
+    m_ov = re.search(r"^##\s*线索总览表\s*$", text, re.MULTILINE)
+    if m_ov is None:
+        return rows
+    rest = text[m_ov.end() :]
+    m_next = re.search(r"^##\s+\S", rest, re.MULTILINE)
+    body = rest[: m_next.start()] if m_next is not None else rest
+    for line in body.splitlines():
+        s = line.strip()
+        if not s.startswith("|"):
+            continue
+        cells = _cells(s)
+        if len(cells) <= _T_COL_LIFECYCLE or cells[0].strip().upper() == "ID":
+            continue
+        idm = _THREAD_ID_RE.search(cells[0])
+        if idm is not None:
+            rows.setdefault(idm.group(1), cells)
+    return rows
+
+
+def lint_thread(text: str) -> list[Finding]:
+    """Reconcile the thread ledger's two representations (B 批)."""
+    findings: list[Finding] = []
+    sections = _thread_section_map(text)
+    rows = _thread_row_map(text)
+
+    for tid, fields in sections.items():
+        if "archived_to" in fields:
+            if tid in rows:
+                findings.append(
+                    Finding("tombstone_has_row", tid, "archived tombstone still holds a live row")
+                )
+            continue
+        if tid not in rows:
+            findings.append(Finding("section_without_row", tid, "detail section has no 总览表 row"))
+            continue
+        cells = rows[tid]
+        state = fields.get("状态")
+        if state and cells[_T_COL_LIFECYCLE] and cells[_T_COL_LIFECYCLE] != state:
+            findings.append(
+                Finding(
+                    "row_state_mismatch",
+                    tid,
+                    f"状态 row={cells[_T_COL_LIFECYCLE]!r} vs section={state!r}",
+                )
+            )
+        sec_end = parse_thread_span(fields.get("跨度", ""))[1]
+        row_end = cells[_T_COL_RESOLVE].strip() if len(cells) > _T_COL_RESOLVE else ""
+        if sec_end and row_end and row_end != sec_end:
+            findings.append(
+                Finding(
+                    "row_state_mismatch",
+                    tid,
+                    f"终点章 row={cells[_T_COL_RESOLVE]!r} vs section={fields.get('跨度')!r}",
+                )
+            )
+
+    for tid in rows:
+        if tid not in sections:
+            findings.append(Finding("row_without_section", tid, "overview row has no section"))
+    return findings
+
+
 def main(argv: list[str] | None = None) -> int:
-    """CLI entry: lint (and optionally repair) a project's pool."""
+    """CLI entry: lint (and optionally repair) a project's ledgers."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("project_dir", type=str)
     parser.add_argument(
@@ -169,7 +265,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    pool_path = Path(args.project_dir) / "truth" / "pending_hooks.md"
+    project = Path(args.project_dir)
+    pool_path = project / "truth" / "pending_hooks.md"
     if not pool_path.is_file():
         sys.stdout.write(f"FAIL: {pool_path} not found\n")
         return 2
@@ -180,11 +277,24 @@ def main(argv: list[str] | None = None) -> int:
         repaired = sync_pool_overview_rows(text)
         if repaired != text:
             pool_path.write_text(repaired, encoding="utf-8")
-            sys.stdout.write("repaired: overview rows re-derived from sections\n")
+            sys.stdout.write("repaired: pool overview rows re-derived from sections\n")
         findings = lint_pool(repaired)
 
+    thread_path = project / "outline" / "thread_map.md"
+    thread_findings: list[Finding] = []
+    if thread_path.is_file():
+        ttext = thread_path.read_text(encoding="utf-8")
+        thread_findings = lint_thread(ttext)
+        if thread_findings and args.repair:
+            trepaired = sync_thread_overview_rows(ttext)
+            if trepaired != ttext:
+                thread_path.write_text(trepaired, encoding="utf-8")
+                sys.stdout.write("repaired: thread overview rows re-derived from sections\n")
+            thread_findings = lint_thread(trepaired)
+
+    findings += thread_findings
     if not findings:
-        sys.stdout.write("OK: pool two-table reconciliation clean\n")
+        sys.stdout.write("OK: pool + thread two-table reconciliation clean\n")
         return 0
     for f in findings:
         sys.stdout.write(f"FAIL [{f.check}] {f.hook}: {f.message}\n")

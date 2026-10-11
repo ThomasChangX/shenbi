@@ -16,9 +16,14 @@ THREAD_MAP_FIELDS = ["章节线索推进表", "线索详情"]
 
 
 def test_chapter_planning_reads_thread_map_field_level() -> None:
+    """B 批: the fields-form read graduated to the ``threads_overview``
+    extractor — the windowed slice (总览表 full + active details + the
+    chapter's 推进表 interval ± 1) replaces raw field filtering, which fed
+    the whole 线索详情 history into every dispatch at 千万字 scale.
+    """
     contract = load_contract("shenbi-chapter-planning")
     assert "outline/thread_map.md" in contract["reads"]
-    assert contract["read_fields"]["outline/thread_map.md"] == THREAD_MAP_FIELDS
+    assert contract["read_extractors"]["outline/thread_map.md"] == "threads_overview"
 
 
 def test_thread_map_fields_match_producer_skeleton() -> None:

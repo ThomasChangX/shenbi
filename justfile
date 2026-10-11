@@ -97,6 +97,10 @@ pool-lint *args:
 pool-archive *args:
     uv run python -m shenbi.pipeline.pool_archive "$@"
 
+# Both evidence ledgers (pool + thread_map) rolling archival in one command (B 批)
+ledger-archive *args:
+    uv run python -m shenbi.pipeline.ledger_archive "$@"
+
 # Lint contract.reads fields vs truth file headings/keys (spec B.5)
 lint-contract-fields:
 	uv run python scripts/lint_contract_fields.py

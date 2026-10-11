@@ -81,6 +81,9 @@ def _skill_path(skill: str) -> Path:
 #: hooks_overview (session31 GO③): 总览 table only for the boundary chain
 #: and planning/composing consumers — the detail evidence bulk is not their
 #: concern.
+#: threads_overview (session31 B 批): thread_map windowed to 线索总览表 +
+#: active detail sections + the current chapter's 推进表 interval ± 1 —
+#: the ledger grows per volume/weave at 千万字 scale.
 READ_EXTRACTORS: frozenset[str] = frozenset(
     {
         "volume_chapter",
@@ -88,6 +91,7 @@ READ_EXTRACTORS: frozenset[str] = frozenset(
         "recent_increments",
         "hooks_inventory_scoped",
         "hooks_overview",
+        "threads_overview",
     }
 )
 

@@ -240,6 +240,7 @@ def test_read_extractor_registry_closed_and_extended() -> None:
                 "recent_increments",
                 "hooks_inventory_scoped",
                 "hooks_overview",
+                "threads_overview",
             }
         )
         == READ_EXTRACTORS
@@ -542,3 +543,148 @@ def test_hooks_overview_carries_archived_tombstone_index() -> None:
     # live hooks unaffected: the index lists tombstones only
     idx_block = out.split("已归档钩索引", 1)[1]
     assert "MH01" not in idx_block, "non-tombstoned hooks stay out of the index"
+
+
+# --- threads_overview (B 批: thread_map windowed read) -----------------------
+
+_THREAD_MAP = """---
+total_chapters: 118
+updated_at: "2026-10-10T03:43:56Z"
+---
+
+# 线索地图
+
+**全书预计**: 118 章
+
+---
+
+## 线索总览表
+
+| ID | 名称 | 优先级 | 类型 | max_gap | 起始章 | 终点章 | 状态 |
+|----|------|--------|------|---------|--------|--------|------|
+| A1 | 灵印与《灵律》残句 | P0 | 长线 | 2 | 1 | 118 | RELEVANT |
+| B1 | 断魂水道同源 | P1 | 中线 | 4 | 27 | 109 | PAYING_OFF |
+| C1 | 册上多报的名字 | P2 | 短线 | 8 | 3 | 17 | RESOLVED |
+
+---
+
+## 线索详情
+
+### A1: 灵印与《灵律》残句
+
+- **状态**: RELEVANT
+- **跨度**: 第1章 - 第118章
+- **优先级**: P0
+- **备注**: 全书主脉。
+
+### B1: 断魂水道同源
+
+- **状态**: PAYING_OFF
+- **跨度**: 第27章 - 第109章
+- **优先级**: P1
+
+### C1: 册上多报的名字
+
+- **状态**: RESOLVED
+- **跨度**: 第3章 - 第17章
+- **优先级**: P2
+
+### C2: 拦船验牌
+
+- **状态**: RESOLVED
+- **跨度**: 第4章 - 第13章
+- **优先级**: P2
+- archived_to: outline/thread_map_archive.md
+
+---
+
+## 章节线索推进表
+
+| 章节区间 | 主推 | 副推 | 备注 |
+|---------|------|------|------|
+| 1-8（一卷 KR1） | A1 | C1 | 开局 |
+| 9-16（一卷 KR2） | A2 | B3 | 追索收紧 |
+| 17-23（一卷 KR3） | A1 | C1 | 顶罪与清算 |
+| 24-31（二卷 KR1） | A1 | B1 | 落脚 |
+| 32-39（二卷 KR2） | A1 | B2 | 公开示范 |
+| 95-102（五卷 KR1） | A2 | B1 | 终局对撞 |
+
+---
+
+## 约束检查表
+
+| 卷 | 线程ID | 违规Y/N |
+|----|--------|---------|
+| 1 | A1 | N |
+
+## 线索编织汇总
+
+**写入文件**: `outline/thread_map.md`
+"""
+
+
+def test_threads_overview_slices_to_active_details_plus_window() -> None:
+    """B 批: planning/weaver get the 总览表 FULL + active sections + the
+    chapter's 推进表 interval ± 1 — RESOLVED details and validator
+    snapshots are omitted with disclosure.
+    """
+    from shenbi.pipeline.read_extractors import extract_threads_overview
+
+    out = extract_threads_overview(_THREAD_MAP, 5)
+
+    assert out.startswith("---\n"), "frontmatter survives"
+    assert "| A1 | 灵印与《灵律》残句 |" in out, "总览表 rides along full"
+    assert "### A1: 灵印与《灵律》残句" in out, "active section kept"
+    assert "### B1: 断魂水道同源" in out
+    assert "### C1: 册上多报的名字" not in out, "RESOLVED detail omitted"
+    assert "已归档线索索引" in out and "C2" in out, "tombstone index present"
+    assert "1-8（一卷 KR1）" in out, "anchor interval kept"
+    assert "9-16（一卷 KR2）" in out, "neighbor interval kept"
+    assert "17-23（一卷 KR3）" not in out, "far intervals cut"
+    assert "95-102（五卷 KR1）" not in out
+    assert "窗口裁剪" in out and "threads_overview" in out, "omission disclosed"
+    assert "## 约束检查表" not in out, "validator snapshot omitted"
+    assert "| 卷 | 线程ID" not in out
+    assert "## 线索编织汇总" not in out
+    assert "校验快照" in out, "trailing omission disclosed by name"
+
+
+def test_threads_overview_chapter_none_keeps_all_intervals() -> None:
+    """Genesis weaver (chapter=None): every planned interval rides along."""
+    from shenbi.pipeline.read_extractors import extract_threads_overview
+
+    out = extract_threads_overview(_THREAD_MAP, None)
+
+    assert "1-8（一卷 KR1）" in out
+    assert "95-102（五卷 KR1）" in out
+
+
+def test_threads_overview_chapter_outside_planned_intervals_degrades() -> None:
+    """A chapter inside NO interval is a re-budget seam — the whole file
+    must be served ("" -> full text + WARN), never a silently mis-cut slice.
+    """
+    from shenbi.pipeline.read_extractors import extract_threads_overview
+
+    assert extract_threads_overview(_THREAD_MAP, 500) == ""
+
+
+def test_threads_overview_malformed_shape_returns_empty() -> None:
+    from shenbi.pipeline.read_extractors import extract_threads_overview
+
+    assert extract_threads_overview("## 线索详情\n\n无总览表\n") == ""
+    assert extract_threads_overview("# 线索地图\n\n只有总览\n") == ""
+
+
+def test_real_planning_contract_wires_threads_extractor() -> None:
+    from shenbi.contracts.loader import load_contract
+
+    c = load_contract("shenbi-chapter-planning")
+    assert c["read_extractors"]["outline/thread_map.md"] == "threads_overview"
+
+
+def test_real_weaver_contract_wires_threads_and_hooks_extractors() -> None:
+    from shenbi.contracts.loader import load_contract
+
+    c = load_contract("shenbi-plot-thread-weaver")
+    assert c["read_extractors"]["outline/thread_map.md"] == "threads_overview"
+    assert c["read_extractors"]["truth/pending_hooks.md"] == "hooks_overview"

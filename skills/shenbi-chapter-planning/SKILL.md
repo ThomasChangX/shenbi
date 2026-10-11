@@ -20,10 +20,7 @@ contract:
     - 已完成章节
   - file: outline/volume_map.md
     extractor: volume_chapter
-  - file: outline/thread_map.md
-    fields:
-    - 章节线索推进表
-    - 线索详情
+  - {file: outline/thread_map.md, extractor: threads_overview}
   - outline/story_frame.md
   - truth/current_focus.md
   - truth/author_intent.md
