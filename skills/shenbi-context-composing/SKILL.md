@@ -37,7 +37,7 @@ contract:
   - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - truth/audit_drift.md
   - world/rules.md
-  - truth/character_matrix.md
+  - {file: truth/character_matrix.md, extractor: recent_increments}
   - style/style_profile.md
   - chapters/chapter-{N-3}.md
   - chapters/chapter-{N-2}.md

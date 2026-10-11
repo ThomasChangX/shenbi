@@ -68,7 +68,9 @@ from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 09
     extract_hooks_audit_scoped,
     extract_hooks_inventory_scoped,
     extract_hooks_overview,
+    extract_locations_overview,
     extract_recent_increments,
+    extract_relationships_overview,
     extract_threads_overview,
     has_chapter_units,
 )
@@ -957,6 +959,56 @@ def _build_skill_prompt(
                 # §4.3 discipline as the Plan A family.
                 try:
                     extracted = extract_threads_overview(content, chapter)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor == "relationships_overview":
+                # 挂账清偿 (千万字读面): relationships.md windowed to 矩阵 +
+                # 待兑现 + latest 扩容复核 + pairs with bounded 演化轨迹.
+                # "" (unexpected shape) -> full text + WARN (never a silent
+                # drop), same §4.3 discipline as the Plan A family.
+                try:
+                    extracted = extract_relationships_overview(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor == "locations_overview":
+                # 挂账清偿 (千万字读面): locations.md windowed to identity
+                # headers + 地理位置 + recent 功能事件 rows. "" (unexpected
+                # shape) -> full text + WARN (never a silent drop), same §4.3
+                # discipline as the Plan A family.
+                try:
+                    extracted = extract_locations_overview(content)
                 except Exception as exc:
                     log.warning(
                         "extractor_failed_fulltext",

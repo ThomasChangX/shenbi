@@ -20,6 +20,7 @@ Six TDD points from the esc#4 opinion §2.2:
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import pytest
@@ -241,6 +242,8 @@ def test_read_extractor_registry_closed_and_extended() -> None:
                 "hooks_inventory_scoped",
                 "hooks_overview",
                 "threads_overview",
+                "relationships_overview",
+                "locations_overview",
             }
         )
         == READ_EXTRACTORS
@@ -688,3 +691,325 @@ def test_real_weaver_contract_wires_threads_and_hooks_extractors() -> None:
     c = load_contract("shenbi-plot-thread-weaver")
     assert c["read_extractors"]["outline/thread_map.md"] == "threads_overview"
     assert c["read_extractors"]["truth/pending_hooks.md"] == "hooks_overview"
+
+
+# --- relationships_overview / locations_overview (千万字读面挂账清偿) ---------
+
+
+_RELATIONSHIPS = """---
+total_chapters: 118
+---
+
+# 关系图谱
+
+## 关系矩阵（角色 × 角色）
+
+|  | 阿烬 | 阿石 |
+|---|---|---|
+| 阿烬 | — | 养育 |
+| 阿石 | 养育 | — |
+
+## 关系对：阿烬 - 阿石
+
+**类型**: 养育 / 师徒
+**利益根基**: 矿上一辈子的相守。
+**阵营关系**: 同阵营
+**信息边界**: ASYMMETRIC
+**起始状态**: 第1章——他把她当自家孩子。
+**演化轨迹**:
+- 第4章: 他看见她指腹的暗痕，不点破。
+- 第8章: 他第一次替她遮掩。
+- 第18章: 他把最重的罪名认在自己名下。
+- 第23章: 她把他的绳结系在腕上。
+- 第70章: 卷终，灯绳成为结绳之册的册头。
+- 第118章: 终章，绳账册头的那一结未解。
+**预期终态**: 破裂（遗志）
+
+---
+
+## 关系对：阿石 - 阿鹭
+
+**类型**: 看顾
+**起始状态**: 第1章——看顾。
+**演化轨迹**:
+- 第19章: 阿石被押走。
+**预期终态**: 破裂
+
+---
+
+## 第47章扩容复核（卷二卷终）
+
+**复核结论**: 不新增角色。
+
+---
+
+## 第118章扩容复核（卷五收束段）
+
+**复核结论**: 收束段不新增角色。
+
+---
+
+## 关系图谱更新汇总
+
+### 关系对统计
+
+- 总关系对: 2
+
+### 演化轨迹待兑现
+
+| 关系对 | 起始 | 当前 | 预期终态 | 章节跨度 |
+|--------|------|------|---------|---------|
+| 阿烬-阿石 | 养育 | 册头一结未解 | 破裂 | 第1-118章 |
+
+### 编年一致性检查
+
+- 一致。
+"""
+
+
+def test_relationships_overview_windows_trajectory_and_old_reviews() -> None:
+    """挂账 A: planning gets 矩阵 + 待兑现 + LATEST 扩容复核 + every pair
+    with its 演化轨迹 bounded to the recent bullets — pair texture fields
+    (信息边界/利益根基/预期终态) survive whole, older volume-boundary
+    reviews and per-pair deep history are omitted with disclosure.
+    """
+    from shenbi.pipeline.read_extractors import extract_relationships_overview
+
+    out = extract_relationships_overview(_RELATIONSHIPS)
+
+    assert out.startswith("---\n"), "frontmatter survives"
+    assert "## 关系矩阵（角色 × 角色）" in out and "| 养育 |" in out
+    assert "## 关系对：阿烬 - 阿石" in out and "## 关系对：阿石 - 阿鹭" in out
+    assert "**信息边界**: ASYMMETRIC" in out, "pair fields ride along whole"
+    assert "**预期终态**: 破裂（遗志）" in out
+    assert "- 第70章:" in out and "- 第118章:" in out, "recent trajectory kept"
+    assert "- 第4章:" not in out and "- 第8章:" not in out, "old trajectory cut"
+    assert "- 第19章: 阿石被押走。" in out, "short trajectory untouched"
+    assert "## 第118章扩容复核" in out, "latest volume review kept"
+    assert "## 第47章扩容复核" not in out, "older volume review omitted"
+    assert "第47章扩容复核" in out, "dropped review named in the sentinel"
+    assert "### 演化轨迹待兑现" in out, "pending-payoff table kept"
+    assert "### 编年一致性检查" not in out, "validator snapshot omitted"
+    assert "relationships_overview" in out and "裁剪" in out, "omission disclosed"
+
+
+def test_relationships_overview_malformed_shape_returns_empty() -> None:
+    from shenbi.pipeline.read_extractors import extract_relationships_overview
+
+    assert extract_relationships_overview("# 空文件\n\n正文。\n") == ""
+    assert extract_relationships_overview("") == ""
+
+
+_LOCATIONS = """---
+total_chapters: 118
+---
+
+# 地点图谱
+
+## 核心地点（承接世界观构建，描述原文保留）
+
+- 哑脉山系：全书地理骨架。
+
+## 地点：哑脉采掘场
+
+**类型**: 矿场
+**功能定位**: 起点
+**最近地标**: 黑脉渊
+**距离最近地标**: 约一百八十里
+**行程时间**: 步行约三日
+
+### 空间布局
+
+主矿道沿枯脉走向东西铺开，宽处两人并行。矿工的下处是贴着山根搭的窝棚。
+
+### 感官锚点
+
+深脉里凿石的回声一顿一顿，像有谁在地底敲门。
+
+### 时间光色
+
+清晨，井口那方天光灰白。
+
+### 功能事件
+
+| 章节 | 事件 | 功能类型 |
+|------|------|---------|
+| 第1章 | 递灯、背筐、分口粮 | 情感 |
+| 第2章 | 按编号登记口粮 | 信息 |
+| 第7章 | 编号被挪进未结案一栏 | 信息 |
+| 第18章 | 阿石认下最重罪名 | 情感 |
+| 第21章 | 断脉深处第一次听见对面喊话 | 转折 |
+| 第23章 | 卷终，阿烬离岸 | 情感 |
+
+&gt; **近脉附注（地脉私塾）**：渠老在哑脉近脉改建的地脉私塾，不另立条目。
+
+### 地理位置
+
+- **相邻地点A**: 黑脉渊（东北, 约一百八十里, 步行约三日）
+- **相邻地点B**: 苍麓城（东南, 约二百五十里, 车马约四日）
+
+---
+
+## 地点：哑口夜渡
+
+**类型**: 渡口
+**功能定位**: 中转
+
+### 空间布局
+
+一条乌篷船横在断口两岸。
+
+### 地理位置
+
+- **相邻地点A**: 哑脉采掘场（西北, 约六十里, 步行约一日）
+"""
+
+
+def test_locations_overview_keeps_headers_geography_recent_events() -> None:
+    """挂账 C: location-builder keeps every location's identity header +
+    地理位置 (cross-location consistency) + 功能事件 recent rows; the prose
+    texture subsections (布局/锚点/光色) are omitted with disclosure.
+    """
+    from shenbi.pipeline.read_extractors import extract_locations_overview
+
+    out = extract_locations_overview(_LOCATIONS)
+
+    assert out.startswith("---\n"), "frontmatter survives"
+    assert "## 核心地点" in out and "哑脉山系" in out, "core preamble kept"
+    assert "## 地点：哑脉采掘场" in out and "## 地点：哑口夜渡" in out
+    assert "**最近地标**: 黑脉渊" in out and "**行程时间**: 步行约三日" in out
+    assert "### 地理位置" in out and "相邻地点B" in out
+    assert "| 第23章 | 卷终，阿烬离岸 | 情感 |" in out, "recent event rows kept"
+    assert "| 第1章 | 递灯、背筐、分口粮 | 情感 |" not in out, "old event rows cut"
+    assert "近脉附注" in out, "free-form note survives"
+    assert "主矿道沿枯脉走向东西铺开" not in out, "布局 prose omitted"
+    assert "凿石的回声" not in out, "锚点 prose omitted"
+    assert "井口那方天光灰白" not in out, "光色 prose omitted"
+    assert "locations_overview" in out and "裁剪" in out, "omission disclosed"
+
+
+def test_locations_overview_malformed_shape_returns_empty() -> None:
+    from shenbi.pipeline.read_extractors import extract_locations_overview
+
+    assert extract_locations_overview("# 地点图谱\n\n尚无地点。\n") == ""
+    assert extract_locations_overview("") == ""
+
+
+# --- Live differentials (B 批 lesson: synthetic fixtures miss real shapes) ---
+
+
+def _live_snapshot(rel: str) -> str:
+    return (
+        Path(__file__).resolve().parents[2] / "fixtures" / "snapshots" / "chapter-118" / rel
+    ).read_text(encoding="utf-8")
+
+
+def test_relationships_overview_live_differential() -> None:
+    from shenbi.pipeline.read_extractors import extract_relationships_overview
+
+    live = _live_snapshot("characters/relationships.md")
+    out = extract_relationships_overview(live)
+
+    assert out and len(out) < len(live), "window is strictly smaller"
+    assert "## 关系矩阵" in out
+    assert "### 演化轨迹待兑现" in out
+    assert "## 第118章扩容复核" in out
+    assert live.count("## 关系对：") == out.count("## 关系对："), "every pair visible"
+    assert "## 第47章扩容复核" not in out
+    assert "relationships_overview" in out
+
+
+def test_locations_overview_live_differential() -> None:
+    from shenbi.pipeline.read_extractors import extract_locations_overview
+
+    live = _live_snapshot("world/locations.md")
+    out = extract_locations_overview(live)
+
+    assert out and len(out) < len(live), "window is strictly smaller"
+    assert live.count("## 地点：") == out.count("## 地点："), "every location visible"
+    assert out.count("### 地理位置") == live.count("### 地理位置")
+    assert "### 功能事件" in out
+    assert "### 空间布局" not in out
+    assert "locations_overview" in out
+
+
+def test_recent_increments_live_matrix_differential() -> None:
+    """挂账 B: character_matrix (per-chapter 状态增量 growth) reuses the
+    recent_increments machinery — 交互总表/信息边界 head + last 3 increments.
+    """
+    from shenbi.pipeline.read_extractors import extract_recent_increments
+
+    live = _live_snapshot("truth/character_matrix.md")
+    out = extract_recent_increments(live)
+
+    assert out and len(out) < len(live)
+    assert "## 交互总表" in out and "## 信息边界" in out
+    assert "## 第118章状态增量" in out
+    assert "## 第110章状态增量" not in out, "old increments cut"
+    assert "recent_increments" in out, "omission disclosed"
+
+
+def test_real_planning_contract_wires_relationships_extractor() -> None:
+    from shenbi.contracts.loader import load_contract
+
+    c = load_contract("shenbi-chapter-planning")
+    assert c["read_extractors"]["characters/relationships.md"] == "relationships_overview"
+
+
+def test_real_location_builder_contract_wires_locations_extractor() -> None:
+    from shenbi.contracts.loader import load_contract
+
+    c = load_contract("shenbi-location-builder")
+    assert c["read_extractors"]["world/locations.md"] == "locations_overview"
+
+
+def test_real_composing_contract_wires_matrix_extractor() -> None:
+    from shenbi.contracts.loader import load_contract
+
+    c = load_contract("shenbi-context-composing")
+    assert c["read_extractors"]["truth/character_matrix.md"] == "recent_increments"
+
+
+def test_dispatch_loop_serves_windowed_reference_ledgers(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Dispatch face (live 118-chapter shapes): the three reference-ledger
+    reads arrive windowed through _build_skill_prompt, WARN-free — the
+    wiring is not contract-declaration-only.
+    """
+    from shenbi.pipeline import dispatch_helper as dh
+    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+
+    snap = Path(__file__).resolve().parents[2] / "fixtures" / "snapshots" / "chapter-118"
+    for sub in ("world", "characters", "truth"):
+        (tmp_path / sub).mkdir()
+    shutil.copy(snap / "world" / "locations.md", tmp_path / "world" / "locations.md")
+    shutil.copy(
+        snap / "characters" / "relationships.md", tmp_path / "characters" / "relationships.md"
+    )
+    shutil.copy(snap / "truth" / "character_matrix.md", tmp_path / "truth" / "character_matrix.md")
+    (tmp_path / "novel.json").write_text("{}", encoding="utf-8")
+
+    warned: list[str] = []
+    monkeypatch.setattr(dh.log, "warning", lambda event, **kw: warned.append(event))
+
+    _, plan_prompt, _, _ = _build_skill_prompt(
+        "shenbi-chapter-planning", tmp_path, "规划第118章", chapter=118
+    )
+    assert "relationships_overview" in plan_prompt, "windowed serve disclosed"
+    assert "## 第47章扩容复核" not in plan_prompt, "old volume review sliced out"
+
+    _, loc_prompt, _, _ = _build_skill_prompt(
+        "shenbi-location-builder", tmp_path, "设计新地点", chapter=None
+    )
+    assert "locations_overview" in loc_prompt
+    assert "### 空间布局" not in loc_prompt, "prose texture sliced out"
+
+    _, ctx_prompt, _, _ = _build_skill_prompt(
+        "shenbi-context-composing", tmp_path, "组态第118章", chapter=118
+    )
+    assert "recent_increments" in ctx_prompt
+    assert "## 交互总表" in ctx_prompt, "current-state table rides along"
+    assert "## 第110章状态增量" not in ctx_prompt, "old increments sliced out"
+
+    assert "extractor_failed_fulltext" not in warned

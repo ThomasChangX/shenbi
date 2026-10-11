@@ -542,3 +542,171 @@ def chapter_scoped_head_tail(text: str, budget: int) -> str | None:
         f"kept head block + last {kept_n}/{total} chapter units, middle cut]\n"
     )
     return preamble + sentinel + kept
+
+
+#: 千万字读面挂账 (session31 B/C/A2 post): the reference ledgers stop being
+#: fed whole into per-chapter / per-volume prompts once they outgrow the
+#: context budget. Same slicing discipline as the Plan A family.
+_PAIR_SECTION_RE = re.compile(r"^##\s+关系对：.+$", re.MULTILINE)
+_REVIEW_SECTION_RE = re.compile(r"^##\s+第\s*(\d+)\s*章扩容复核", re.MULTILINE)
+#: A trajectory bullet: ``- 第4章: …`` / ``- 第114-117章: …`` (single line).
+_TRAJECTORY_BULLET_RE = re.compile(r"^-\s*第[\d\s\-–、,，至]+章[：:]")
+
+
+def _bound_pair_trajectory(section: str, keep: int) -> tuple[str, int]:
+    """Keep the last *keep* chapter bullets of a 关系对's 演化轨迹 (line-atomic)."""
+    lines = section.splitlines(keepends=True)
+    bullets = [i for i, line in enumerate(lines) if _TRAJECTORY_BULLET_RE.match(line)]
+    if len(bullets) <= keep:
+        return section, 0
+    drop = set(bullets[: len(bullets) - keep])
+    out = "".join(line for i, line in enumerate(lines) if i not in drop)
+    return out, len(drop)
+
+
+def extract_relationships_overview(content: str, *, keep: int = 3) -> str:
+    """Slice characters/relationships.md to what chapter planning needs.
+
+    The ledger grows two ways at 千万字 scale: every pair's 演化轨迹 gains a
+    bullet per weave, and every volume boundary appends an 扩容复核 snapshot.
+    The slice keeps:
+
+    - frontmatter/preamble and the FULL 关系矩阵 (derived compact graph);
+    - every ``## 关系对`` section with its bounded fields whole
+      (类型/利益根基/信息边界/起始状态/预期终态) and 演化轨迹 cut to the
+      last *keep* chapter bullets;
+    - ONLY the latest ``## 第N章扩容复核`` (the current cast inventory);
+    - the 关系图谱更新汇总 minus its 编年一致性检查 validator snapshot.
+
+    Returns ``""`` on an unexpected shape — the dispatch loop then serves
+    full text + WARN (extractor failure must degrade loudly, never silently).
+    """
+    if not _PAIR_SECTION_RE.search(content) and "## 关系矩阵" not in content:
+        return ""
+    review_starts = list(_REVIEW_SECTION_RE.finditer(content))
+    latest_review_start = (
+        max(review_starts, key=lambda m: int(m.group(1))).start() if review_starts else -1
+    )
+
+    sections = list(re.finditer(r"^##\s+\S", content, re.MULTILINE))
+    out_parts: list[str] = [content[: sections[0].start()] if sections else content]
+    disclosed: list[str] = []
+    cut_bullets = 0
+    dropped_reviews: list[str] = []
+
+    for i, sm in enumerate(sections):
+        end = sections[i + 1].start() if i + 1 < len(sections) else len(content)
+        section = content[sm.start() : end]
+        rm = _REVIEW_SECTION_RE.match(section)
+        if rm is not None:
+            if sm.start() != latest_review_start:
+                dropped_reviews.append(f"第{rm.group(1)}章扩容复核")
+                continue
+        if _PAIR_SECTION_RE.match(section):
+            bounded, dropped = _bound_pair_trajectory(section, keep)
+            cut_bullets += dropped
+            section = bounded
+        elif section.startswith("## 关系图谱更新汇总"):
+            cm = re.search(r"^###\s+编年一致性检查\s*$", section, re.MULTILINE)
+            if cm is not None:
+                nxt = re.search(r"^#{1,3}\s+\S|^##\s+\S", section[cm.end() :], re.MULTILINE)
+                section = section[: cm.start()] + (section[cm.end() + nxt.start() :] if nxt else "")
+                disclosed.append("编年一致性检查快照")
+        out_parts.append(section)
+
+    if cut_bullets:
+        disclosed.insert(0, f"各关系对「演化轨迹」保留最近 {keep} 条")
+    if dropped_reviews:
+        listed = "、".join(dropped_reviews[:_MAX_SENTINEL_UNITS])
+        if len(dropped_reviews) > _MAX_SENTINEL_UNITS:
+            listed += f" 等 {len(dropped_reviews)} 份"
+        disclosed.append(f"旧扩容复核（{listed}）")
+    sentinel = (
+        "> [extractor:relationships_overview] 已裁剪："
+        + "；".join(disclosed)
+        + "——完整关系史见 characters/relationships.md 本体。\n"
+    )
+    return out_parts[0].rstrip("\n") + "\n\n" + sentinel + "".join(out_parts[1:]).lstrip("\n")
+
+
+_LOCATION_SECTION_RE = re.compile(r"^##\s+地点：.+$", re.MULTILINE)
+_LOCATION_PROSE_SUBS = ("### 空间布局", "### 感官锚点", "### 时间光色")
+
+
+def _bound_event_rows(section: str, keep: int) -> tuple[str, int]:
+    """Keep the last *keep* data rows of a location's 功能事件 table (header
+    and separator always ride along; non-table lines after the heading —
+    e.g. the ``&gt;`` free-form notes in live files — are untouched).
+    """
+    lines = section.splitlines(keepends=True)
+    try:
+        h = next(i for i, line in enumerate(lines) if line.strip() == "### 功能事件")
+    except StopIteration:
+        return section, 0
+    table_start = None
+    for i in range(h + 1, len(lines)):
+        if lines[i].lstrip().startswith("|"):
+            table_start = i
+            break
+        if lines[i].strip():
+            return section, 0  # prose before any table — not our shape
+    if table_start is None:
+        return section, 0
+    table_end = table_start
+    for i in range(table_start + 1, len(lines)):
+        if lines[i].lstrip().startswith("|"):
+            table_end = i
+        else:
+            break
+    data_start = table_start + 2  # header + separator
+    n_rows = table_end - data_start + 1
+    if n_rows <= keep:
+        return section, 0
+    drop = set(range(data_start, table_end + 1 - keep))
+    out = "".join(line for i, line in enumerate(lines) if i not in drop)
+    return out, n_rows - keep
+
+
+def extract_locations_overview(content: str, *, keep: int = 5) -> str:
+    """Slice world/locations.md to what location-builder needs.
+
+    The ledger grows per location (功能事件 gains a row per chapter that
+    uses the place) and per volume (new locations). The slice keeps every
+    location visible — identity header (类型/功能定位/最近地标/距离/行程时间,
+    the cross-location consistency fields), the 地理位置 subsection, free-form
+    notes, and the 功能事件 table's last *keep* rows; the prose texture
+    subsections (空间布局/感官锚点/时间光色) are omitted with disclosure.
+
+    Returns ``""`` on an unexpected shape — the dispatch loop then serves
+    full text + WARN (extractor failure must degrade loudly, never silently).
+    """
+    if not _LOCATION_SECTION_RE.search(content):
+        return ""
+    sections = list(re.finditer(r"^##\s+\S", content, re.MULTILINE))
+    out_parts: list[str] = [content[: sections[0].start()]]
+    cut_rows = 0
+
+    for i, sm in enumerate(sections):
+        end = sections[i + 1].start() if i + 1 < len(sections) else len(content)
+        section = content[sm.start() : end]
+        if not _LOCATION_SECTION_RE.match(section):
+            out_parts.append(section)
+            continue
+        bounded, dropped = _bound_event_rows(section, keep)
+        cut_rows += dropped
+        section = bounded
+        for sub in _LOCATION_PROSE_SUBS:
+            sm2 = re.search(rf"^{re.escape(sub)}\s*$", section, re.MULTILINE)
+            if sm2 is None:
+                continue
+            nxt = re.search(r"^###\s+\S", section[sm2.end() :], re.MULTILINE)
+            section = section[: sm2.start()] + (section[sm2.end() + nxt.start() :] if nxt else "")
+        out_parts.append(section)
+
+    sentinel = (
+        f"> [extractor:locations_overview] 已裁剪：每地点保留识别字段+地理位置"
+        f"+功能事件最近 {keep} 行，省略 空间布局/感官锚点/时间光色 散文"
+        + (f"及更早功能事件行 {cut_rows} 行" if cut_rows else "")
+        + "——全文见 world/locations.md 本体。\n"
+    )
+    return out_parts[0].rstrip("\n") + "\n\n" + sentinel + "".join(out_parts[1:]).lstrip("\n")

@@ -84,6 +84,10 @@ def _skill_path(skill: str) -> Path:
 #: threads_overview (session31 B 批): thread_map windowed to 线索总览表 +
 #: active detail sections + the current chapter's 推进表 interval ± 1 —
 #: the ledger grows per volume/weave at 千万字 scale.
+#: relationships_overview / locations_overview (session31 挂账清偿): the
+#: reference ledgers windowed for their per-chapter / per-volume readers —
+#: pair 演化轨迹 recent bullets + latest 扩容复核 + 矩阵/待兑现; location
+#: identity headers + 地理位置 + recent 功能事件 rows.
 READ_EXTRACTORS: frozenset[str] = frozenset(
     {
         "volume_chapter",
@@ -92,6 +96,8 @@ READ_EXTRACTORS: frozenset[str] = frozenset(
         "hooks_inventory_scoped",
         "hooks_overview",
         "threads_overview",
+        "relationships_overview",
+        "locations_overview",
     }
 )
 

@@ -24,7 +24,7 @@ contract:
   - outline/story_frame.md
   - truth/current_focus.md
   - truth/author_intent.md
-  - characters/relationships.md
+  - {file: characters/relationships.md, extractor: relationships_overview}
   - file: foundation/review_report.md
     fields:
     - 建议修复

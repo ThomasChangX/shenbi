@@ -7,7 +7,7 @@ contract:
   - novel.json
   - world/story_bible.md
   - world/rules.md
-  - world/locations.md
+  - {file: world/locations.md, extractor: locations_overview}
   - outline/story_frame.md
   - outline/volume_map.md
   writes: []
