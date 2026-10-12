@@ -114,9 +114,7 @@ Expected: FAIL（`chapter-{N-3}` 原样返回/不抛 UnresolvedPathError——�
 # form only (prose's paren form `(N-3)` is lint-side canonicalized, never a
 # declared read). Base value: ctx family value (ctx route, F207 semantics —
 # None/str-sentinel raises) or chapter (no-ctx route).
-_FAMILY_N_OFFSET = re.compile(
-    r"(?<=[-/])(arc|stratum|volume|chapter|escalation)-\{N([+-]\d+)\}"
-)
+_FAMILY_N_OFFSET = re.compile(r"(?<=[-/])(arc|stratum|volume|chapter|escalation)-\{N([+-]\d+)\}")
 
 
 def _offset_sub(path: str, base: int) -> str:
@@ -126,15 +124,13 @@ def _offset_sub(path: str, base: int) -> str:
 `resolve_contract_path` 的 `if ctx is not None:` 块内、`_FAMILY_N.search` 之前插入：
 
 ```python
-        if _FAMILY_N_OFFSET.search(path):
-            for fm in _FAMILY_N_OFFSET.finditer(path):
-                base = getattr(ctx, fm.group(1))
-                if not isinstance(base, int):
-                    # F207 语义沿用：家族值缺失/str sentinel 无算术基 → 显式错
-                    raise UnresolvedPathError(path)
-                path = path.replace(
-                    fm.group(0), f"{fm.group(1)}-{base + int(fm.group(2))}"
-                )
+if _FAMILY_N_OFFSET.search(path):
+    for fm in _FAMILY_N_OFFSET.finditer(path):
+        base = getattr(ctx, fm.group(1))
+        if not isinstance(base, int):
+            # F207 语义沿用：家族值缺失/str sentinel 无算术基 → 显式错
+            raise UnresolvedPathError(path)
+        path = path.replace(fm.group(0), f"{fm.group(1)}-{base + int(fm.group(2))}")
 ```
 
 （单一循环：per-family base 校验 + 逐处替换。）
@@ -191,7 +187,11 @@ git commit -m "feat: relative-offset placeholder chapter-{N-k} in contract paths
 ALLOWLIST: tuple[tuple[str, str, str], ...] = (
     # (category, "skill:pattern"(fnmatch，* 通配), reason)
     ("skill-bundle", "*:anti-ai-reference.md", "捆绑参考文件，dispatcher 不注入（T1.1 裁决 b）"),
-    ("anti-example", "shenbi-context-composing:chapters/chapter-*.md", "anti-rationalization 反例行，非真实读依赖"),
+    (
+        "anti-example",
+        "shenbi-context-composing:chapters/chapter-*.md",
+        "anti-rationalization 反例行，非真实读依赖",
+    ),
     # 基线期按实况增补，每条附一行理由；known-limitation 注记见 docstring
 )
 ```
@@ -234,6 +234,7 @@ reads+writes+updates, so a READ reference that only matches a WRITE
 declaration passes — the F836 regression shape is covered instead by the
 behavioral dispatch assertions (tests/pipeline/test_dispatch_reads_injection.py).
 """
+
 from __future__ import annotations
 import fnmatch, re, sys
 from pathlib import Path
@@ -248,11 +249,16 @@ from tools.lint_contracts import META_SKILLS
 
 _OFFSET_N = re.compile(r"[({]N[+-]\d+[)}]")
 
+
 def _canonical(path: str) -> str: ...
-def _body_refs(body: str) -> set[str]: ...          # 路径/glob/裸 .md 提取
+def _body_refs(body: str) -> set[str]: ...  # 路径/glob/裸 .md 提取
 def _covered(ref: str, declared: list[str], skill_dir: Path, registry) -> bool: ...  # 六级匹配
-def find_violations(contracts, skills_root: Path, registry) -> tuple[list[tuple[str, str, str]], list[tuple[str, str]]]:
+def find_violations(
+    contracts, skills_root: Path, registry
+) -> tuple[list[tuple[str, str, str]], list[tuple[str, str]]]:
     """Returns (r1_violations [(skill, ref, rule)], r2_violations [(skill, target)])."""
+
+
 def main(argv: list[str] | None = None) -> int: ...  # --fail / --list-exempt
 ```
 
@@ -529,23 +535,39 @@ CASES = [
     # (skill, files to place, expected injected keys, keys that must be ABSENT)
     (
         "shenbi-book-spine-init",  # F803
-        ["characters/protagonist.md", "world/rules.md", "outline/story_frame.md",
-         "outline/volume_map.md", "novel.json"],
+        [
+            "characters/protagonist.md",
+            "world/rules.md",
+            "outline/story_frame.md",
+            "outline/volume_map.md",
+            "novel.json",
+        ],
         ["characters/protagonist.md", "world/rules.md"],
         [],
     ),
     (
         "shenbi-character-design",  # F809
-        ["world/story_bible.md", "world/rules.md", "outline/chapter_outline.md",
-         "outline/three_act.md", "characters/major/alice.md"],
+        [
+            "world/story_bible.md",
+            "world/rules.md",
+            "outline/chapter_outline.md",
+            "outline/three_act.md",
+            "characters/major/alice.md",
+        ],
         ["outline/chapter_outline.md", "outline/three_act.md", "characters/major/alice.md"],
         [],
     ),
     (
         "shenbi-context-composing",  # F811: near-chapter in, current-chapter out
-        ["truth/pending_hooks.md", "truth/chapter_summaries.md",
-         "truth/volume_summaries.md", "chapters/chapter-2.md", "chapters/chapter-3.md",
-         "chapters/chapter-4.md", "chapters/chapter-5.md"],
+        [
+            "truth/pending_hooks.md",
+            "truth/chapter_summaries.md",
+            "truth/volume_summaries.md",
+            "chapters/chapter-2.md",
+            "chapters/chapter-3.md",
+            "chapters/chapter-4.md",
+            "chapters/chapter-5.md",
+        ],
         ["chapters/chapter-2.md", "chapters/chapter-3.md", "chapters/chapter-4.md"],
         ["chapters/chapter-5.md"],  # N=5: 组装时不存在，不得注入
     ),
@@ -557,9 +579,15 @@ CASES = [
     ),
     (
         "shenbi-memory-distill",  # F836: L5 inputs no longer filtered out
-        ["truth/chapter_summaries.md", "truth/pending_hooks.md", "truth/character_matrix.md",
-         "truth/volume_summaries.md", "truth/author_intent.md", "truth/book_spine.md",
-         "world/rules.md"],
+        [
+            "truth/chapter_summaries.md",
+            "truth/pending_hooks.md",
+            "truth/character_matrix.md",
+            "truth/volume_summaries.md",
+            "truth/author_intent.md",
+            "truth/book_spine.md",
+            "world/rules.md",
+        ],
         ["truth/author_intent.md", "truth/book_spine.md", "world/rules.md"],
         [],
     ),
@@ -583,7 +611,10 @@ def test_required_inputs_injected(tmp_path, skill, files, expected, absent):
         tb.parent.mkdir(parents=True, exist_ok=True)
         tb.write_text(MARK, encoding="utf-8")
     _, user_prompt, _ = _build_skill_prompt(
-        skill=skill, project_dir=tmp_path, prompt="chapter 5", chapter=5,
+        skill=skill,
+        project_dir=tmp_path,
+        prompt="chapter 5",
+        chapter=5,
     )
     for key in expected:
         assert key in user_prompt, f"{skill}: expected input not injected: {key}"

@@ -34,7 +34,7 @@
 ```python
 def _record_step_done(state, chapter, skill_name):
     ch_state = state.chapter_loop.chapter_states.setdefault(str(chapter), {})
-    steps = ch_state.setdefault('steps_done', [])
+    steps = ch_state.setdefault("steps_done", [])
     if skill_name not in steps:
         steps.append(skill_name)
     # ❌ 未发射 trace 事件
@@ -54,6 +54,7 @@ def _record_step_done(state, chapter, skill_name):
 
     # 新增：发射 trace 事件
     from shenbi.trace.writer import write_event
+
     write_event(
         project_dir,
         event_type="MARK_DONE",
@@ -73,6 +74,7 @@ def _record_step_done(state, chapter, skill_name):
 # pipeline 暂停/终止时
 
 from shenbi.trace.materialize import materialize_progress
+
 
 def _maybe_update_progress(project_dir, force=False, steps_since_last=0):
     if force or steps_since_last >= 5:

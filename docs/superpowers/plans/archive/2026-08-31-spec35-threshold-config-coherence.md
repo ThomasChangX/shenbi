@@ -81,6 +81,7 @@ class ScoreClassification(StrEnum):
 # scoring.py classify 替换为（顶部 import 已有 TEST_PASS，补两个）
 from shenbi.contracts.thresholds import CONDITIONAL_MIN, MARGINAL_MIN, TEST_PASS
 
+
 def classify(score: float | int) -> ScoreClassification:
     if score >= TEST_PASS:
         return ScoreClassification.PASS
@@ -154,8 +155,10 @@ from shenbi.contracts.skills.genre_config import GenreConfig
 
 FIXTURE = Path("tests/fixtures/genre-config-example.json")
 
+
 def _real_config() -> dict:
     return json.loads(FIXTURE.read_text(encoding="utf-8"))
+
 
 def test_approval_required():
     cfg = _real_config()
@@ -166,11 +169,13 @@ def test_approval_required():
     with pytest.raises(ValueError, match="approval"):
         GenreConfig.model_validate(cfg)
 
+
 def test_keyset_bounded():
     cfg = _real_config()
     cfg["rogueKey"] = 1
     with pytest.raises(ValueError, match="rogueKey"):
         GenreConfig.model_validate(cfg)
+
 
 def test_eight_required_keys_present():
     cfg = _real_config()
@@ -178,15 +183,19 @@ def test_eight_required_keys_present():
     with pytest.raises(ValueError):
         GenreConfig.model_validate(cfg)
 
+
 def test_trope_inventory_optional():
     cfg = _real_config()
     cfg.pop("tropeInventory")
     assert GenreConfig.model_validate(cfg)
 
+
 def test_keyset_authority_is_ownership():
     from shenbi.contracts.ownership import _GENRE_KEYS
     from shenbi.contracts.skills import genre_config as gc
+
     assert set(gc._REQUIRED_TOP_KEYS) == _GENRE_KEYS - {"tropeInventory"}
+
 
 def test_real_fixture_still_valid():
     assert GenreConfig.model_validate(_real_config())
@@ -256,6 +265,7 @@ SKILL.md（shenbi-genre-config）：
 import pytest
 from shenbi.contracts.skills.pacing_design import PacingDesign
 
+
 def _base(const_ratio: float) -> dict:
     return {
         "beats": {"铺垫": 25, "升级": 30, "爆发": 25, "余波": 20},
@@ -263,8 +273,9 @@ def _base(const_ratio: float) -> dict:
         "scene_types": [f"s{i}" for i in range(8)],
     }
 
+
 def test_constellation_hard_band_covers_kaijuan():
-    assert PacingDesign.model_validate(_base(38))   # 开卷 30-40 合法
+    assert PacingDesign.model_validate(_base(38))  # 开卷 30-40 合法
     assert PacingDesign.model_validate(_base(15))
     assert PacingDesign.model_validate(_base(40))
     with pytest.raises(ValueError, match=r"\[15, 40\]"):
@@ -327,13 +338,16 @@ def test_constellation_hard_band_covers_kaijuan():
 ```python
 from shenbi.gates.g4.chapter_drafting import _load_protagonist_names
 
+
 def test_no_protagonist_data_returns_empty(tmp_path):
     assert _load_protagonist_names(str(tmp_path)) == []
+
 
 def test_no_hardcoded_fallback_names():
     # F443: 框架默认值不得携带项目专属主角名
     import inspect
     from shenbi.gates.g4 import chapter_drafting
+
     assert "林烽" not in inspect.getsource(chapter_drafting)
 ```
 
@@ -368,23 +382,48 @@ def test_no_hardcoded_fallback_names():
 import json, subprocess, sys
 from pathlib import Path
 
+
 def test_lint_warns_on_mismatch(tmp_path, monkeypatch):
     root = Path(__file__).resolve().parents[3]
     allow = tmp_path / "a.json"
-    allow.write_text(json.dumps({"entries": [{
-        "skill": "shenbi-pacing-design", "pattern": "CONSTELLATION",
-        "file": "skills/shenbi-pacing-design/SKILL.md",
-        "checker": "src/shenbi/contracts/skills/pacing_design.py",
-        "bounds": [999, 1000]}]}), encoding="utf-8")
-    r = subprocess.run([sys.executable, str(root / "tools/lint_threshold_reconciliation.py"),
-                        "--allowlist", str(allow)], capture_output=True, text=True)
-    assert r.returncode == 0            # WARN-only
+    allow.write_text(
+        json.dumps(
+            {
+                "entries": [
+                    {
+                        "skill": "shenbi-pacing-design",
+                        "pattern": "CONSTELLATION",
+                        "file": "skills/shenbi-pacing-design/SKILL.md",
+                        "checker": "src/shenbi/contracts/skills/pacing_design.py",
+                        "bounds": [999, 1000],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    r = subprocess.run(
+        [
+            sys.executable,
+            str(root / "tools/lint_threshold_reconciliation.py"),
+            "--allowlist",
+            str(allow),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 0  # WARN-only
     assert "WARN" in r.stdout
+
 
 def test_lint_clean_on_repo_allowlist():
     root = Path(__file__).resolve().parents[3]
-    r = subprocess.run([sys.executable, str(root / "tools/lint_threshold_reconciliation.py")],
-                       capture_output=True, text=True, cwd=root)
+    r = subprocess.run(
+        [sys.executable, str(root / "tools/lint_threshold_reconciliation.py")],
+        capture_output=True,
+        text=True,
+        cwd=root,
+    )
     assert r.returncode == 0
 ```
 

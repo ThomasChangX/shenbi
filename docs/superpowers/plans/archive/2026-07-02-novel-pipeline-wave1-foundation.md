@@ -355,10 +355,13 @@ class PipelineState:
                 "current_step": self.chapter_loop.current_step,
                 "step_index": self.chapter_loop.step_index,
                 "chapter_states": {
-                    k: {"steps_done": v.steps_done, "status": v.status,
+                    k: {
+                        "steps_done": v.steps_done,
+                        "status": v.status,
                         "resonance_score": v.resonance_score,
                         "audit_results": v.audit_results,
-                        "revision_count": v.revision_count}
+                        "revision_count": v.revision_count,
+                    }
                     for k, v in self.chapter_loop.chapter_states.items()
                 },
                 "per_chapter_review_enabled": self.chapter_loop.per_chapter_review_enabled,
@@ -442,10 +445,9 @@ class PipelineState:
             checkpoint_history=data.get("checkpoint_history", []),
             last_snapshot=data.get("last_snapshot", {}),
             closure_step=data.get("closure_step", 0),
-            config=PipelineConfig(**{
-                k: v for k, v in cfg_data.items()
-                if k in PipelineConfig.__dataclass_fields__
-            }),
+            config=PipelineConfig(
+                **{k: v for k, v in cfg_data.items() if k in PipelineConfig.__dataclass_fields__}
+            ),
         )
 
     @classmethod
@@ -531,6 +533,7 @@ class TestLoadSave:
         save_state(tmp_project, state)
         content = (tmp_project / "pipeline-state.json").read_text()
         import json
+
         # Should be valid JSON (atomic write ensures no partial)
         json.loads(content)
 
@@ -647,12 +650,14 @@ def set_checkpoint(
 def clear_checkpoint(state: PipelineState, decision: ReviewDecision) -> None:
     """Clear the pending checkpoint and record it in history."""
     cp = state.pending_checkpoint
-    state.checkpoint_history.append({
-        "type": cp.type.value,
-        "chapter": cp.chapter,
-        "decision": decision.value,
-        "resolved_at": _now_iso(),
-    })
+    state.checkpoint_history.append(
+        {
+            "type": cp.type.value,
+            "chapter": cp.chapter,
+            "decision": decision.value,
+            "resolved_at": _now_iso(),
+        }
+    )
     state.pending_checkpoint = CheckpointData(type=CheckpointType.NONE)
 
 
@@ -767,8 +772,10 @@ For Windows compatibility, add a platform guard at the top of `filelock_utils.py
 
 ```python
 import sys
+
 if sys.platform != "win32":
     import fcntl  # POSIX advisory locking
+
     _HAS_FCNTL = True
 else:
     _HAS_FCNTL = False
@@ -811,6 +818,7 @@ class WriteLock:
 
     def __enter__(self) -> WriteLock:
         import fcntl, os, time
+
         self._fd = os.open(str(self._lockfile), os.O_CREAT | os.O_RDONLY)
         deadline = time.monotonic() + self._timeout
         while True:
@@ -825,6 +833,7 @@ class WriteLock:
 
     def __exit__(self, *args: object) -> None:
         import fcntl, os
+
         if self._fd is not None:
             fcntl.flock(self._fd, fcntl.LOCK_UN)
             os.close(self._fd)
@@ -839,7 +848,9 @@ class ReadLock:
     """
 
     def __init__(self, project_dir: Path | str, timeout: float = 30.0) -> None:
-        self._lockfile = Path(project_dir) / "pipeline-state.json.lockfile"  # SAME file as WriteLock
+        self._lockfile = (
+            Path(project_dir) / "pipeline-state.json.lockfile"
+        )  # SAME file as WriteLock
         self._lockfile.parent.mkdir(parents=True, exist_ok=True)
         self._timeout = timeout
         self._fd: int | None = None
@@ -847,7 +858,10 @@ class ReadLock:
     def __enter__(self) -> ReadLock:
         import fcntl
         import time
-        self._fd = __import__("os").open(str(self._lockfile), __import__("os").O_CREAT | __import__("os").O_RDONLY)
+
+        self._fd = __import__("os").open(
+            str(self._lockfile), __import__("os").O_CREAT | __import__("os").O_RDONLY
+        )
         deadline = time.monotonic() + self._timeout
         while True:
             try:
@@ -861,6 +875,7 @@ class ReadLock:
 
     def __exit__(self, *args: object) -> None:
         import fcntl
+
         if self._fd is not None:
             fcntl.flock(self._fd, fcntl.LOCK_UN)
             __import__("os").close(self._fd)
@@ -999,6 +1014,7 @@ from shenbi.logging import get_logger
 
 log = get_logger(__name__)
 
+
 @dataclass
 class SeedData:
     """Parsed seed file data."""
@@ -1010,7 +1026,7 @@ class SeedData:
 
 def _extract_section(text: str, section_name: str) -> str:
     """Extract content under a ## or ### heading until the next heading of same or higher level."""
-    pattern = rf"^#{1,3}\s+{re.escape(section_name)}\s*$"
+    pattern = rf"^#{1, 3}\s+{re.escape(section_name)}\s*$"
     match = re.search(pattern, text, re.MULTILINE)
     if not match:
         return ""
@@ -1424,7 +1440,13 @@ from shenbi.pipeline.machine import (
     save_state,
 )
 from shenbi.pipeline.seed_parser import parse_seed
-from shenbi.pipeline.state import CheckpointType, GenesisState, PipelinePhase, PipelineState, ReviewDecision
+from shenbi.pipeline.state import (
+    CheckpointType,
+    GenesisState,
+    PipelinePhase,
+    PipelineState,
+    ReviewDecision,
+)
 
 log = get_logger(__name__)
 
@@ -1468,12 +1490,14 @@ def cmd_init(args: argparse.Namespace) -> int:
     with WriteLock(project_dir):
         save_state(project_dir, state)
 
-    emit_json({
-        "status": "ok",
-        "project_dir": str(project_dir),
-        "novel_json": str(novel_json_path),
-        "total_chapters": seed_data.novel_json.get("total_chapters", "unknown"),
-    })
+    emit_json(
+        {
+            "status": "ok",
+            "project_dir": str(project_dir),
+            "novel_json": str(novel_json_path),
+            "total_chapters": seed_data.novel_json.get("total_chapters", "unknown"),
+        }
+    )
     return 0
 
 
@@ -1528,11 +1552,13 @@ def cmd_review(args: argparse.Namespace) -> int:
 
     save_state(project_dir, state)
 
-    emit_json({
-        "status": "ok",
-        "decision": decision.value,
-        "checkpoint_type": state.checkpoint_history[-1]["type"],
-    })
+    emit_json(
+        {
+            "status": "ok",
+            "decision": decision.value,
+            "checkpoint_type": state.checkpoint_history[-1]["type"],
+        }
+    )
     return 0
 
 
@@ -1548,19 +1574,23 @@ def cmd_next(args: argparse.Namespace) -> int:
         return 1
 
     if is_at_checkpoint(state):
-        emit_json({
-            "status": "blocked",
-            "message": "pending checkpoint requires review",
-            "checkpoint": state.pending_checkpoint.type.value,
-        })
+        emit_json(
+            {
+                "status": "blocked",
+                "message": "pending checkpoint requires review",
+                "checkpoint": state.pending_checkpoint.type.value,
+            }
+        )
         return 1
 
     # Wave 3 will replace this with actual orchestration
-    emit_json({
-        "status": "not_implemented",
-        "message": "Orchestrators not yet implemented (Wave 3). State machine is ready.",
-        "phase": state.phase.value,
-    })
+    emit_json(
+        {
+            "status": "not_implemented",
+            "message": "Orchestrators not yet implemented (Wave 3). State machine is ready.",
+            "phase": state.phase.value,
+        }
+    )
     return 0
 
 
@@ -1582,27 +1612,33 @@ def cmd_chapters(args: argparse.Namespace) -> int:
 
     chapters = []
     for ch_num_str, ch_state in sorted(state.chapter_loop.chapter_states.items()):
-        chapters.append({
-            "chapter": int(ch_num_str),
-            "status": ch_state.status,
-            "resonance_score": ch_state.resonance_score,
-            "revision_count": ch_state.revision_count,
-        })
+        chapters.append(
+            {
+                "chapter": int(ch_num_str),
+                "status": ch_state.status,
+                "resonance_score": ch_state.resonance_score,
+                "revision_count": ch_state.revision_count,
+            }
+        )
 
-    emit_json({
-        "current_chapter": state.chapter_loop.current_chapter,
-        "chapters": chapters,
-    })
+    emit_json(
+        {
+            "current_chapter": state.chapter_loop.current_chapter,
+            "chapters": chapters,
+        }
+    )
     return 0
 
 
 def cmd_rollback(args: argparse.Namespace) -> int:
     """Rollback to a chapter snapshot. Placeholder — needs snapshot integration (Wave 3)."""
     project_dir = Path(args.project_dir)
-    emit_json({
-        "status": "not_implemented",
-        "message": "Rollback requires snapshot integration (Wave 3/4)",
-    })
+    emit_json(
+        {
+            "status": "not_implemented",
+            "message": "Rollback requires snapshot integration (Wave 3/4)",
+        }
+    )
     return 0
 
 

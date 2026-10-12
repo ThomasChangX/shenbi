@@ -56,6 +56,7 @@
 ```python
 # tests/unit/test_gates_cli_import_cost.py
 """T1604: gates.cli top-level import must stay under 50ms (importtime cumulative)."""
+
 import subprocess
 import sys
 
@@ -104,6 +105,7 @@ def _gate_G0() -> Callable[..., Any]:
 
     return gate_G0
 
+
 # ...（g1-g7、g_dispatch、g_reconcile、g_transition 同构 11 个 loader）
 
 
@@ -121,7 +123,7 @@ main() 内：`configure_logging()`/`emit_json`/`PROJECT`/`write_gate_marker`/`Ga
 
 ```python
 # src/shenbi/text/cjk.py
-_TOKENIZER: Any = None      # lazy: jieba import costs ~105ms and only G6 path needs it
+_TOKENIZER: Any = None  # lazy: jieba import costs ~105ms and only G6 path needs it
 _POSEG: Any = None
 _TOKENIZER_LOCK = threading.Lock()
 
@@ -237,8 +239,9 @@ def test_init_truth_templates_shortcircuits_when_all_exist(
         (truth / fn).write_text("---\nupdate_mode: replace\n---\n", encoding="utf-8")
 
     calls = {"n": 0}
-    monkeypatch.setattr(dh, "_collect_declared_truth_fields",
-                        lambda: calls.__setitem__("n", calls["n"] + 1) or {})
+    monkeypatch.setattr(
+        dh, "_collect_declared_truth_fields", lambda: calls.__setitem__("n", calls["n"] + 1) or {}
+    )
     dh._init_truth_templates(tmp_path)
     assert calls["n"] == 0
 ```
@@ -329,6 +332,7 @@ git commit -m "perf: spec42 C28 R2a registry (mtime_ns,size) cache + truth templ
 ```python
 # tests/unit/pipeline/test_truth_embed_singleton.py
 """T1603/F328: shared model singleton, TTL negative cache, defensive concurrency."""
+
 import threading
 from types import SimpleNamespace
 
@@ -476,25 +480,38 @@ def _assemble_project(tmp_path: Path) -> Path:
         (tmp_path / sub).mkdir(parents=True, exist_ok=True)
     for src in sorted((_FIX / "multi-chapter-example").glob("chapter-*.md")):
         shutil.copy(src, tmp_path / "chapters" / src.name)
-    shutil.copy(_FIX / "snapshots/chapter-025/truth/character_matrix.md", tmp_path / "truth/character_matrix.md")
-    shutil.copy(_FIX / "snapshots/chapter-025/truth/pending_hooks.md", tmp_path / "truth/pending_hooks.md")
+    shutil.copy(
+        _FIX / "snapshots/chapter-025/truth/character_matrix.md",
+        tmp_path / "truth/character_matrix.md",
+    )
+    shutil.copy(
+        _FIX / "snapshots/chapter-025/truth/pending_hooks.md", tmp_path / "truth/pending_hooks.md"
+    )
     shutil.copy(_FIX / "world-rules-example.md", tmp_path / "world/rules.md")
     shutil.copy(_FIX / "style-profile-example.md", tmp_path / "style/style_profile.md")
     return tmp_path
 
 
 AUDIT_SKILLS = [  # the 6-skill wave (CHAPTER_STEPS is_audit)
-    "shenbi-review-group-factual", "shenbi-review-group-character",
-    "shenbi-review-group-craft", "shenbi-review-group-plan",
-    "shenbi-review-resonance", "shenbi-review-sensitivity",
+    "shenbi-review-group-factual",
+    "shenbi-review-group-character",
+    "shenbi-review-group-craft",
+    "shenbi-review-group-plan",
+    "shenbi-review-resonance",
+    "shenbi-review-sensitivity",
 ]
 
 
 def test_raw_files_hold_full_content(tmp_path: Path) -> None:
     project = _assemble_project(tmp_path)
     ctx = build_shared_audit_context(project, 3)
-    for rel in ["chapters/chapter-3.md", "world/rules.md", "truth/character_matrix.md",
-                "style/style_profile.md", "truth/pending_hooks.md"]:
+    for rel in [
+        "chapters/chapter-3.md",
+        "world/rules.md",
+        "truth/character_matrix.md",
+        "style/style_profile.md",
+        "truth/pending_hooks.md",
+    ]:
         assert ctx.raw_files[rel] == (project / rel).read_text(encoding="utf-8")
         assert not ctx.raw_files[rel].endswith("]\n") or "truncated" not in ctx.raw_files[rel]
 
@@ -519,21 +536,28 @@ def test_chapter_read_count_is_one(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     monkeypatch.setattr(Path, "read_text", counting_read)
     ctx = build_shared_audit_context(project, 3)  # the ONE legitimate read
     for skill in AUDIT_SKILLS:
-        _build_skill_prompt(skill=skill, project_dir=project, prompt="审计本章",
-                            chapter=3, shared_context=ctx)
+        _build_skill_prompt(
+            skill=skill, project_dir=project, prompt="审计本章", chapter=3, shared_context=ctx
+        )
     assert counter["n"] == 1  # was 9 (6 contract + 3 checklist cold path)
 
 
 def test_byte_equality_switch_on_off(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     project = _assemble_project(tmp_path)
     ctx_on = build_shared_audit_context(project, 3)
-    prompts_on = [_build_skill_prompt(skill=s, project_dir=project, prompt="审计本章",
-                                      chapter=3, shared_context=ctx_on)
-                  for s in AUDIT_SKILLS]
+    prompts_on = [
+        _build_skill_prompt(
+            skill=s, project_dir=project, prompt="审计本章", chapter=3, shared_context=ctx_on
+        )
+        for s in AUDIT_SKILLS
+    ]
     ctx_off = replace(ctx_on, raw_files={})  # suppression OFF (path fixes stay)
-    prompts_off = [_build_skill_prompt(skill=s, project_dir=project, prompt="审计本章",
-                                       chapter=3, shared_context=ctx_off)
-                   for s in AUDIT_SKILLS]
+    prompts_off = [
+        _build_skill_prompt(
+            skill=s, project_dir=project, prompt="审计本章", chapter=3, shared_context=ctx_off
+        )
+        for s in AUDIT_SKILLS
+    ]
     assert prompts_on == prompts_off
 ```
 
@@ -568,8 +592,8 @@ def _rel(path: Path, project_dir: Path) -> str:
 def build_shared_audit_context(project_dir: Path, chapter: int) -> SharedAuditContext:
     ctx = SharedAuditContext()
     candidates = [
-        project_dir / "chapters" / f"chapter-{chapter}.md",   # was :03d dead key
-        project_dir / "world" / "rules.md",                    # was truth/ dead
+        project_dir / "chapters" / f"chapter-{chapter}.md",  # was :03d dead key
+        project_dir / "world" / "rules.md",  # was truth/ dead
         project_dir / "truth" / "character_matrix.md",
         project_dir / "style" / "style_profile.md",
         project_dir / "truth" / "pending_hooks.md",
@@ -637,6 +661,7 @@ git commit -m "perf: spec42 C28 R1 raw-files read suppression (9->1 reads) + 4-s
 ```python
 # tests/unit/pipeline/test_chapter_titles.py
 """T1609: bounded-prefix title reads + meta-first no-op fix (both extractors)."""
+
 from shenbi.pipeline.chapter_loop import _extract_chapter_title, _load_previous_titles
 
 
@@ -699,7 +724,7 @@ def test_title_lookup_reads_at_most_4kb_per_file(
     monkeypatch.setattr(Path, "open", bounded_open)
     _load_previous_titles(tmp_path, 8)
     assert read_bytes["n"] <= 4096 * 7  # 7 previous chapters, <=4KB each
-    #（spec 载 N=56/112/224；此处 n=8 断言每文件 ≤4KB 的等价单文件界——N 规模在
+    # （spec 载 N=56/112/224；此处 n=8 断言每文件 ≤4KB 的等价单文件界——N 规模在
     #  T7 基线与 T5 语料测试覆盖，语义相同）
 ```
 
@@ -786,12 +811,15 @@ git commit -m "perf: spec42 C28 R3a bounded-prefix title reads + dual extractor 
 # tests/gates/g4/test_content_uniqueness_cache.py
 """F415-0815: content_uniqueness fingerprint cache — second in-process pass
 reads each chapter once (cache hits N-1)."""
+
 from pathlib import Path
 
 from tests.pipeline.helpers.c28_corpus import expand_chapter_corpus
 
 
-def test_second_pass_reads_each_chapter_once(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_second_pass_reads_each_chapter_once(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     from shenbi.gates.g4 import chapter_drafting as cd
 
     expand_chapter_corpus(Path("tests/fixtures/multi-chapter-example"), tmp_path, n=8)
@@ -821,12 +849,15 @@ def test_second_pass_reads_each_chapter_once(tmp_path: Path, monkeypatch: pytest
 本测试 spy read_text 计数做红灯判别（现状 199 次读——首次 append 无文件可读，append 后 0 次）。
 注：locked_transact 的写路径经 tempfile+os.replace，不走 Path.write_text——
 不能用 write_text 计数判别（那是绿前绿后的假测试）。"""
+
 import json
 
 from shenbi.pipeline.dispatch_helper import _append_integrity_findings
 
 
-def test_append_output_matches_and_reads_constant(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_append_output_matches_and_reads_constant(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     target = tmp_path / "chapters" / "chapter-1.md"
     target.parent.mkdir()
     target.write_text("x", encoding="utf-8")
@@ -844,7 +875,8 @@ def test_append_output_matches_and_reads_constant(tmp_path: Path, monkeypatch: p
         _append_integrity_findings(tmp_path, target, [f"issue-{i}"])
     assert reads["n"] == 0  # was 200: locked_transact re-read the whole file per append
     reference = "".join(
-        json.dumps({"file": "chapters/chapter-1.md", "finding": f"issue-{i}"}, ensure_ascii=False) + "\n"
+        json.dumps({"file": "chapters/chapter-1.md", "finding": f"issue-{i}"}, ensure_ascii=False)
+        + "\n"
         for i in range(200)
     )
     assert out.read_text(encoding="utf-8") == reference  # 逐字节一致 vs 直接构造参照
@@ -894,7 +926,9 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
     """
     import os
 
-    from shenbi.safe_write import acquire_write_lock as _acquire_lock  # 公开别名（safe_write.py:184），跨实例写者同一锁域
+    from shenbi.safe_write import (
+        acquire_write_lock as _acquire_lock,
+    )  # 公开别名（safe_write.py:184），跨实例写者同一锁域
 
     m = _CHAPTER_NUM_RE.search(file_path.stem)
     num = m.group(1) if m else "unknown"
@@ -910,7 +944,9 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
     )
     lock_fd, lockfile = _acquire_lock(out)  # 与 locked_transact 同一锁序
     try:
-        with out.open("a", encoding="utf-8") as f:  # write-audit-exempt: true-append under flock (T1610, O(k) vs O(k^2))
+        with out.open(
+            "a", encoding="utf-8"
+        ) as f:  # write-audit-exempt: true-append under flock (T1610, O(k) vs O(k^2))
             f.write(payload)
     finally:
         os.close(lock_fd)
@@ -952,6 +988,7 @@ git commit -m "perf: spec42 C28 R3b fingerprint mtime cache + integrity true-app
 ```python
 # tests/benchmark/test_c28_baselines.py
 """C28 防回归基线三条：registry 解析 / 门禁冷启动 / 标题有界读取（spec 簇级验收）。"""
+
 import subprocess
 import sys
 import time
@@ -972,9 +1009,7 @@ def test_registry_parse_baseline(benchmark: Any) -> None:
 def test_gate_cold_start_baseline(benchmark: Any) -> None:
     def _cold_import_ms() -> float:
         t0 = time.perf_counter()
-        subprocess.run(
-            [sys.executable, "-c", "from shenbi.gates import cli"], check=True
-        )
+        subprocess.run([sys.executable, "-c", "from shenbi.gates import cli"], check=True)
         return (time.perf_counter() - t0) * 1000
 
     benchmark(_cold_import_ms)

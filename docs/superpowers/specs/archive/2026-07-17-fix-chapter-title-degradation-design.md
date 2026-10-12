@@ -34,11 +34,13 @@ Ch40 违反规则：标题为 `第40章`（SKILL.md:125 禁止标题含章节号
 
 ```python
 # 检查标题规则
-if re.search(r'第\d+章', title):
+if re.search(r"第\d+章", title):
     issues.append("G4.cd.title:contains_chapter_number")
 if title in previous_titles:
     issues.append(f"G4.cd.title:duplicate_of_ch{previous_titles[title]}")
-if re.search(r'(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|周[一二三四五六日])', title):
+if re.search(
+    r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|周[一二三四五六日])", title
+):
     issues.append("G4.cd.title:day_label_instead_of_thematic_name")  # WARN 非 HARD
 ```
 

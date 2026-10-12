@@ -51,6 +51,7 @@ Create `tests/pipeline/test_dispatch_helper_keys.py`:
 
 ```python
 """Tests for input-key form in _build_skill_prompt (spec §3.4 + C1 regression guard)."""
+
 from pathlib import Path
 
 from shenbi.pipeline.dispatch_helper import _input_key
@@ -114,23 +115,31 @@ Change `src/shenbi/pipeline/dispatch_helper.py:544`:
 The injection block (`dispatch_helper.py:548-560`) currently hardcodes basename keys. Update each cached field to use the relative-path form via `_input_key`. The cached values correspond to known truth files, so construct the keys from `project_dir`:
 
 ```python
-    # Inject cached fields from shared_context so auditors skip re-reading
-    # those files from disk (Task 6 Step 2 wiring). Keys must match the
-    # disk-read path's _input_key form (spec §6.1 C1) — basename before was
-    # coincidentally consistent; now both use relative paths explicitly.
-    if shared_context is not None:
-        _INJECT_FROM_CACHE: dict[str, str] = {}
-        if getattr(shared_context, "world_rules", ""):
-            _INJECT_FROM_CACHE[_input_key(project_dir / "truth" / "world_rules.md", project_dir)] = shared_context.world_rules
-        if getattr(shared_context, "character_list", ""):
-            _INJECT_FROM_CACHE[_input_key(project_dir / "truth" / "character_matrix.md", project_dir)] = shared_context.character_list
-        if getattr(shared_context, "style_profile", ""):
-            _INJECT_FROM_CACHE[_input_key(project_dir / "truth" / "style_profile.md", project_dir)] = shared_context.style_profile
-        if getattr(shared_context, "pending_hooks", ""):
-            _INJECT_FROM_CACHE[_input_key(project_dir / "truth" / "pending_hooks.md", project_dir)] = shared_context.pending_hooks
-        for fname, cached in _INJECT_FROM_CACHE.items():
-            if cached and fname not in raw_inputs:
-                raw_inputs[fname] = cached
+# Inject cached fields from shared_context so auditors skip re-reading
+# those files from disk (Task 6 Step 2 wiring). Keys must match the
+# disk-read path's _input_key form (spec §6.1 C1) — basename before was
+# coincidentally consistent; now both use relative paths explicitly.
+if shared_context is not None:
+    _INJECT_FROM_CACHE: dict[str, str] = {}
+    if getattr(shared_context, "world_rules", ""):
+        _INJECT_FROM_CACHE[_input_key(project_dir / "truth" / "world_rules.md", project_dir)] = (
+            shared_context.world_rules
+        )
+    if getattr(shared_context, "character_list", ""):
+        _INJECT_FROM_CACHE[
+            _input_key(project_dir / "truth" / "character_matrix.md", project_dir)
+        ] = shared_context.character_list
+    if getattr(shared_context, "style_profile", ""):
+        _INJECT_FROM_CACHE[_input_key(project_dir / "truth" / "style_profile.md", project_dir)] = (
+            shared_context.style_profile
+        )
+    if getattr(shared_context, "pending_hooks", ""):
+        _INJECT_FROM_CACHE[_input_key(project_dir / "truth" / "pending_hooks.md", project_dir)] = (
+            shared_context.pending_hooks
+        )
+    for fname, cached in _INJECT_FROM_CACHE.items():
+        if cached and fname not in raw_inputs:
+            raw_inputs[fname] = cached
 ```
 Note the added `and fname not in raw_inputs` guard: if the disk-read loop already populated the file (fresh content), do NOT overwrite with the (possibly stale) cached slice.
 
@@ -233,6 +242,7 @@ Create `tests/pipeline/test_dispatch_helper_ledger.py`:
 
 ```python
 """Tests for TokenLedger wire-up in the dispatch path (spec §3.1 dead-wire fix)."""
+
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -384,12 +394,16 @@ The IDE-CLI subprocess (`codex exec`) does not return structured token usage in 
 **Insertion point (IMPORTANT — `_dispatch_via_ide` has 8 return points):** insert immediately before the SUCCESS-path return at line ~1599 (`return DispatchResult(True, 0, r.stdout, r.stderr)`), which comes AFTER the `missing` outputs check. Do NOT insert before the early-exit error returns (PromptBuildFailure :1544, no-CLI :1548, timeout :1566, FileNotFound :1569, non-zero-rc :1573, write-failure :1591, no-files-written :1593) — those don't represent successful dispatches.
 
 ```python
-    # Spec §3.1 / I6: the IDE-CLI path does not report structured token usage
-    # (codex exec stdout is prose, not a usage object). state is threaded so a
-    # future codex --json or zcode usage-report feature can record here.
-    if state is not None:
-        log.info("ide_dispatch_uninstrumented_tokens", skill=skill, hint="IDE path cannot record usage; ledger row skipped")
-    return DispatchResult(True, 0, r.stdout, r.stderr)
+# Spec §3.1 / I6: the IDE-CLI path does not report structured token usage
+# (codex exec stdout is prose, not a usage object). state is threaded so a
+# future codex --json or zcode usage-report feature can record here.
+if state is not None:
+    log.info(
+        "ide_dispatch_uninstrumented_tokens",
+        skill=skill,
+        hint="IDE path cannot record usage; ledger row skipped",
+    )
+return DispatchResult(True, 0, r.stdout, r.stderr)
 ```
 
 - [ ] **Step 7: Run tests**
@@ -556,6 +570,7 @@ Create `tests/pipeline/test_dispatch_helper_autogen_strip.py`:
 
 ```python
 """Tests for auto-gen block stripping from LLM system prompt (spec §3.8)."""
+
 from shenbi.pipeline.dispatch_helper import _strip_autogen_blocks
 
 
@@ -757,11 +772,17 @@ def test_dead_decisions_sidecar_flags_synthetic_dead(tmp_path):
     from tools.lint_repo_consistency import _is_dead_decisions_sidecar
 
     # A dict-form write (the actual repo form: {file: ..., mode: ...}).
-    synthetic_write = {"file": "plans/chapter-N-totally-dead-decisions.json", "mode": "create_or_overwrite"}
+    synthetic_write = {
+        "file": "plans/chapter-N-totally-dead-decisions.json",
+        "mode": "create_or_overwrite",
+    }
     all_reads: set[str] = set()  # no skill reads it
     g4_skills: set[str] = set()  # not G4-validated
     code_blob: str = ""  # no code references (param type is str, not set — basedpyright strict)
-    assert _is_dead_decisions_sidecar(synthetic_write, "shenbi-fake", all_reads, g4_skills, code_blob) is True
+    assert (
+        _is_dead_decisions_sidecar(synthetic_write, "shenbi-fake", all_reads, g4_skills, code_blob)
+        is True
+    )
 
 
 def test_dead_decisions_sidecar_spares_g4_validated():
@@ -772,7 +793,12 @@ def test_dead_decisions_sidecar_spares_g4_validated():
     all_reads: set[str] = set()
     g4_skills = {"shenbi-chapter-revision"}  # G4 g4_decisions validates it
     code_blob: str = ""  # param type is str (basedpyright strict)
-    assert _is_dead_decisions_sidecar(write, "shenbi-chapter-revision", all_reads, g4_skills, code_blob) is False
+    assert (
+        _is_dead_decisions_sidecar(
+            write, "shenbi-chapter-revision", all_reads, g4_skills, code_blob
+        )
+        is False
+    )
 ```
 
 - [ ] **Step 3: Run tests to verify they fail**
@@ -796,11 +822,13 @@ import yaml
 # Skills whose decisions.json is structurally validated by G4 g4_decisions
 # (these are NOT dead even with no skill reads: — G4 consumes their schema).
 # Verified against src/shenbi/gates/g4/generic.py checkers dict.
-_G4_DECISIONS_SKILLS = frozenset({
-    "shenbi-market-radar",
-    "shenbi-chapter-revision",
-    "shenbi-short-drafting",
-})
+_G4_DECISIONS_SKILLS = frozenset(
+    {
+        "shenbi-market-radar",
+        "shenbi-chapter-revision",
+        "shenbi-short-drafting",
+    }
+)
 
 # A SKILL.md with frontmatter splits into [pre, frontmatter, body] on "---".
 _FRONTMATTER_DELIM = "---"
@@ -886,7 +914,7 @@ def find_dead_decisions_sidecars() -> list[str]:
     all_reads: set[str] = set()
     for fm in frontmatters.values():
         contract = fm.get("contract") or {}
-        for r in (contract.get("reads") or []):
+        for r in contract.get("reads") or []:
             p = _write_path(r)
             if p:
                 all_reads.add(p)
@@ -895,7 +923,7 @@ def find_dead_decisions_sidecars() -> list[str]:
     vios: list[str] = []
     for skill, fm in frontmatters.items():
         contract = fm.get("contract") or {}
-        for w in (contract.get("writes") or []):
+        for w in contract.get("writes") or []:
             if _is_dead_decisions_sidecar(w, skill, all_reads, _G4_DECISIONS_SKILLS, code_blob):
                 path = _write_path(w) or "?"
                 vios.append(f"dead-decisions-sidecar: {skill}: {path}")

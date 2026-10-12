@@ -50,6 +50,7 @@ Run: `grep -rn "input_over_budget_applying_priority_truncation\|\[\.\.\. truncat
 ```python
 # tests/pipeline/test_budgeted_truncate.py 追加（同时改写既有 2 个调用方测试为 tuple 解包；import 处补 `_INPUT_MAX_CHARS_TOTAL, _INPUT_MAX_CHARS_PER_FILE`）
 
+
 def test_marker_survives_per_file_cap():
     """F361: 标记必须在 cap 切片之后追加，不可被 32K cap 切掉。"""
     huge = "A" * 60000  # allocation 会 > 32000 的超长文件
@@ -59,11 +60,12 @@ def test_marker_survives_per_file_cap():
     assert "[TRUNCATED " in out
     assert len(records) == 1 and records[0].original_len == 60000
 
+
 def test_budget_surplus_redistributed():
     """F330: 短文件余量回补给被截断文件，且不越过 per-file cap。"""
     texts = {
-        "chapter-N.md": "X" * 40000,      # HIGH，配额 16667 会被截
-        "archive-notes.md": "Y" * 1000,   # LOW，配额 3333 只用 1000 → 余量 2333
+        "chapter-N.md": "X" * 40000,  # HIGH，配额 16667 会被截
+        "archive-notes.md": "Y" * 1000,  # LOW，配额 3333 只用 1000 → 余量 2333
     }
     out, records = _budgeted_truncate(texts, 20000)
     kept = records[0].kept_len
@@ -71,6 +73,7 @@ def test_budget_surplus_redistributed():
     assert kept > 17000
     # 回补不得越过 cap
     assert len(out["chapter-N.md"]) <= _INPUT_MAX_CHARS_PER_FILE + 64  # +标记长度余量
+
 
 def test_no_truncation_no_records():
     texts = {"a.md": "short"}
@@ -88,7 +91,9 @@ Expected: 新测试 FAIL（返回值仍是 dict、无标记存活保证）
 - [ ] **Step 3: 实现**
 
 ```python
-def _budgeted_truncate(input_texts: dict[str, str], budget: int) -> tuple[dict[str, str], list[TruncateRecord]]:
+def _budgeted_truncate(
+    input_texts: dict[str, str], budget: int
+) -> tuple[dict[str, str], list[TruncateRecord]]:
     if not input_texts:
         return {}, []
     weights = {name: _get_priority(name) for name in input_texts}
@@ -114,7 +119,9 @@ def _budgeted_truncate(input_texts: dict[str, str], budget: int) -> tuple[dict[s
         k = kept[name]
         if k < len(content):
             result[name] = content[:k] + f"\n\n[TRUNCATED {k}/{len(content)} chars]"
-            records.append(TruncateRecord(file=name, original_len=len(content), kept_len=k, offset=0))
+            records.append(
+                TruncateRecord(file=name, original_len=len(content), kept_len=k, offset=0)
+            )
         else:
             result[name] = content
     return result, records
@@ -123,7 +130,9 @@ def _budgeted_truncate(input_texts: dict[str, str], budget: int) -> tuple[dict[s
 1. 超预算路径 `:728`：`input_texts, trunc_records = _budgeted_truncate(...)`，随后
    ```python
    for rec in trunc_records:
-       log.warning("input_truncated", file=rec.file, original_len=rec.original_len, kept_len=rec.kept_len)
+       log.warning(
+           "input_truncated", file=rec.file, original_len=rec.original_len, kept_len=rec.kept_len
+       )
    ```
 2. **欠预算路径 `:733-741`（F361 主形态——per-file cap 静默截断）**：dict comprehension 改为循环，超过 `_INPUT_MAX_CHARS_PER_FILE` 的文件走同一标记格式 + 同一 `input_truncated` WARN（抽一个模块内小 helper `_cap_single(text: str, fname: str) -> str` 复用标记与 log）。
 摘除 `:314` 行过时的 `# pyright: ignore[reportUnusedFunction]`。audit_context_cache.py:97 改为：
@@ -216,6 +225,7 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
   def chapter_sort_key(name_or_num: str | Path) -> tuple[int, str]:
       """`chapter-10.md` / `10` / Path → (10, 原字符串)；非数字稳定排后。"""
       import re
+
       s = str(name_or_num)
       m = re.search(r"(\d+)", s)
       return (int(m.group(1)), s) if m else (10**9, s)

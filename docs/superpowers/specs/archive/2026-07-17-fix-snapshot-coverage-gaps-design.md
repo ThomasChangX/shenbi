@@ -20,8 +20,15 @@
 
 `chapter_loop.py:242-247`（step 19）：
 ```python
-ChapterStep(step_num=19, skill="shenbi-snapshot-manage", name="Snapshot",
-            is_audit=False, output_path="snapshots/chapter-NNN.md"),
+(
+    ChapterStep(
+        step_num=19,
+        skill="shenbi-snapshot-manage",
+        name="Snapshot",
+        is_audit=False,
+        output_path="snapshots/chapter-NNN.md",
+    ),
+)
 ```
 
 `_snapshot_chapter_files`（`chapter_loop.py:903-960`）由 `_should_run_step`（line 977-1001）拦截，直接执行确定性快照（不使用 LLM）。
@@ -51,12 +58,14 @@ if state.chapter_loop.current_chapter == 1 and state.chapter_loop.step_index == 
 ```python
 import atexit
 
+
 def _emergency_snapshot(project_dir, state):
     """在异常终止时保存当前章节状态。"""
     try:
         _snapshot_chapter_files(project_dir, state, label="emergency")
     except Exception:
         pass
+
 
 atexit.register(_emergency_snapshot, project_dir, state)
 ```
@@ -68,10 +77,9 @@ atexit.register(_emergency_snapshot, project_dir, state)
 ```python
 # 如果章节文件内容疑似元输出（<500 中文字符），标记快照为 suspect
 text = chapter_path.read_text()
-chinese_chars = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
+chinese_chars = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
 if chinese_chars < 500:
-    logger.warning("snapshot_suspect_content", chapter=chapter,
-                   chinese_chars=chinese_chars)
+    logger.warning("snapshot_suspect_content", chapter=chapter, chinese_chars=chinese_chars)
     # 仍然保存快照，但标记元数据
 ```
 

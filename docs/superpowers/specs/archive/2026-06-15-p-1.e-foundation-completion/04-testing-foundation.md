@@ -272,6 +272,7 @@ tests/unit/gates/
 from shenbi.gates.shared import jload, yload
 from shenbi.gates.g4.worldbuilding import g4_worldbuilding
 
+
 def test_g4_worldbuilding_valid_output(tmp_project_dir):
     # Set up minimal valid worldbuilding output
     ...
