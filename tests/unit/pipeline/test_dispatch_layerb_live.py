@@ -48,9 +48,18 @@ def project_tree(tmp_path: Path) -> Path:
     """Minimal shenbi-chapter-planning read set, real fixture content."""
     (tmp_path / "truth").mkdir()
     (tmp_path / "outline").mkdir()
-    # truth/chapter_summaries.md: chapter-planning declares fields [已完成章节]
+    # truth/chapter_summaries.md: chapter-planning rides the
+    # recent_increments extractor — REAL shape (chapter-keyed table). The
+    # leak marker sits in a middle row: head + last-3 window must cut it.
     (tmp_path / "truth" / "chapter_summaries.md").write_text(
-        "## 已完成章节\n\n第1章：占位。\n\n## OTHER_STUFF\n\nXYZZY_LEAK_MARKER 不该进 prompt。\n",
+        "---\ntype: truth\n---\n\n# 逐章摘要\n\n"
+        "| 章节 | 一句话事件 |\n|---|---|\n"
+        "| 第 1 章 | 首章占位。 |\n"
+        "| 第 2 章 | XYZZY_LEAK_MARKER 不该进 prompt。 |\n"
+        "| 第 3 章 | 中段。 |\n"
+        "| 第 4 章 | 中段。 |\n"
+        "| 第 5 章 | 近章。 |\n"
+        "| 第 6 章 | 最新章。 |\n",
         encoding="utf-8",
     )
     # outline/volume_map.md from the G0.11 production mirror
@@ -86,10 +95,12 @@ def test_declared_fields_filter_in_dispatch_loop(
     _, user_prompt, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
-    # Declared section survives
-    assert "已完成章节" in user_prompt
-    # Undeclared section of the same file must NOT reach the prompt
+    # Recent window survives (preamble + last-3 rows)
+    assert "第 6 章" in user_prompt
+    assert "第 4 章" in user_prompt
+    # Rows outside the window must NOT reach the prompt
     assert "XYZZY_LEAK_MARKER" not in user_prompt
+    assert "第 1 章" not in user_prompt
     # No dispatch-module WARN on this clean path (extractor events arrive in T4)
     assert warn_spy["dispatch"] == []
 

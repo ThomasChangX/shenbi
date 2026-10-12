@@ -13,14 +13,10 @@ contract:
     - 8. 不要做
   - file: truth/book_spine.md
     fields:
-    - 核心冲突三层
-    - 主线钩子
-    - 世界铁律快照
-  - file: truth/book_strata.md
-    fields:
-    - 本弧主题推进
-    - 跨弧伏笔账
-    - 未解决悬置
+    - "核心冲突三层（声明值，从 story_frame.md 继承）"
+    - "主线钩子（master hooks，从 volume_map 跨卷钩子提取；MH 编号与 truth/pending_hooks.md 伏笔池逐钩一致；状态与最后推进章为数据值）"
+    - "世界铁律滚动快照（从 world/rules.md 同步前5条）"
+  - {file: truth/book_strata.md, extractor: book_strata_current}
   - file: truth/volume_summaries.md
     fields:
     - 卷目标达成
@@ -31,9 +27,7 @@ contract:
     - 弧内事件链
     - 弧内伏笔兑现/推进
     - 未解决悬置
-  - file: truth/chapter_summaries.md
-    fields:
-    - 已完成章节
+  - {file: truth/chapter_summaries.md, extractor: recent_increments}
   - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - truth/audit_drift.md
   - world/rules.md

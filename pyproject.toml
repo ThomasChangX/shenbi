@@ -250,6 +250,9 @@ convention = "google"
     "D103", "D101", "D102", "D205", "D209", "D403", "D415", "PLR2004",
     "RUF001", "RUF002", "RUF003",
 ]
+# P0 读面失配批: reality-lock 与提取器测试的中文文档串用全角标点（RUF001-003）。
+"tests/unit/pipeline/test_read_extractors_slicing.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/pipeline/test_read_contract_reality_lock.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/dispatcher/*.py" = [
     "D103", "D101", "D102", "D205", "D415", "E402",
     "I001", "F401", "F841", "PLR2004",

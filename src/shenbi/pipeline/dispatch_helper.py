@@ -65,6 +65,7 @@ from shenbi.exceptions import (
 from shenbi.pipeline._shared import load_volume_context  # spec #65 §4 (leaf module, no cycle)
 from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 096) — leaf module
     chapter_scoped_head_tail,
+    extract_book_strata_current,
     extract_hooks_audit_scoped,
     extract_hooks_inventory_scoped,
     extract_hooks_overview,
@@ -1009,6 +1010,31 @@ def _build_skill_prompt(
                 # discipline as the Plan A family.
                 try:
                     extracted = extract_locations_overview(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor == "book_strata_current":
+                # P0 读面失配批: book_strata 按弧 H1 追加，H2 字段读
+                # first-wins 永远只服务第 1 弧（陈旧）——提取器取当前
+                # （末）弧块。"" (unexpected shape) -> full text + WARN
+                # (never a silent drop), same §4.3 discipline.
+                try:
+                    extracted = extract_book_strata_current(content)
                 except Exception as exc:
                     log.warning(
                         "extractor_failed_fulltext",

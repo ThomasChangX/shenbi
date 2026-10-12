@@ -11,9 +11,7 @@ contract:
     fields:
     - pacing
     - chapterTypes
-  - file: truth/chapter_summaries.md
-    fields:
-    - 已完成章节
+  - {file: truth/chapter_summaries.md, extractor: recent_increments}
   writes:
   - file: audits/chapter-N-pacing.md
     mode: create_or_overwrite

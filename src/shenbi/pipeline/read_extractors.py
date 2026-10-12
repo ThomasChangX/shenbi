@@ -362,6 +362,26 @@ def extract_recent_increments(content: str, *, keep: int = 3) -> str:
     return sliced
 
 
+def extract_book_strata_current(content: str) -> str:
+    """Return the last ``# 第N大弧合成`` block of the per-arc strata ledger.
+
+    book_strata.md appends one H1 arc block per 大弧; consumers need the
+    CURRENT arc, but H2 field reads are first-wins (F264) so they would
+    forever serve arc 1 even when the declared fields match. ``""`` when no
+    H1 block exists (full-text fallback at the caller, §4.3 discipline).
+    """
+    h1_matches = list(re.finditer(r"^#\s+\S", content, re.MULTILINE))
+    if not h1_matches:
+        return ""
+    first, last = h1_matches[0], h1_matches[-1]
+    sentinel = (
+        "> [extractor:book_strata_current] 已裁剪：仅保留当前（末）大弧块，"
+        "更早弧块见 truth/book_strata.md 本体。\n"
+    )
+    head = content[: first.start()].rstrip("\n")
+    return f"{head}\n\n{sentinel}\n{content[last.start() :].rstrip()}\n"
+
+
 #: Thread-ledger detail-section heading inside ``## 线索详情``
 #: (``### A1: 灵印·私修引灵与《灵律》残句``).
 def _thread_detail_heading_re() -> re.Pattern[str]:

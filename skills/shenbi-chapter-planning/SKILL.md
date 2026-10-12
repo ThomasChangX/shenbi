@@ -9,15 +9,9 @@ contract:
   - file: genre-config.json
     fields:
     - chapter_word
-  - file: truth/current_state.md
-    fields:
-    - 系统演化阶段
-    - 参数当前位置
-    - 进行中的情节线
+  - {file: truth/current_state.md, extractor: recent_increments}
   - {file: truth/pending_hooks.md, extractor: hooks_overview}
-  - file: truth/chapter_summaries.md
-    fields:
-    - 已完成章节
+  - {file: truth/chapter_summaries.md, extractor: recent_increments}
   - file: outline/volume_map.md
     extractor: volume_chapter
   - {file: outline/thread_map.md, extractor: threads_overview}

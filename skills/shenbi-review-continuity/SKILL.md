@@ -7,14 +7,8 @@ contract:
   kind: report
   reads:
   - chapters/chapter-N.md
-  - file: truth/current_state.md
-    fields:
-    - 系统演化阶段
-    - 参数当前位置
-    - 进行中的情节线
-  - file: truth/chapter_summaries.md
-    fields:
-    - 已完成章节
+  - {file: truth/current_state.md, extractor: recent_increments}
+  - {file: truth/chapter_summaries.md, extractor: recent_increments}
   - world/rules.md
   writes:
   - file: audits/chapter-N-continuity.md

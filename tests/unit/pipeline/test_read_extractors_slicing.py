@@ -227,6 +227,33 @@ def test_budget_truncation_non_chapter_file_returns_none() -> None:
     assert chapter_scoped_head_tail("prose only\n" * 500, budget=100) is None
 
 
+# --- book_strata_current (P0 读面失配批) ------------------------------------
+
+
+def test_book_strata_current_returns_last_arc_block() -> None:
+    """弧账本按 ``# 第N大弧合成`` H1 逐弧追加；字段读走 H2 first-wins
+    永远只拿到第 1 弧（陈旧）。提取器返回末弧（当前弧）整块。
+    """
+    from shenbi.pipeline.read_extractors import extract_book_strata_current
+
+    content = (
+        "---\ntype: truth\n---\n\n"
+        "# 第1大弧合成\n\n## 弧范围\n\n1-30 章\n\n## 本弧主题推进\n\n旧弧主题\n\n"
+        "# 第2大弧合成\n\n## 弧范围\n\n31-60 章\n\n## 本弧主题推进\n\n当前弧主题\n"
+    )
+    view = extract_book_strata_current(content)
+    assert "第2大弧合成" in view
+    assert "当前弧主题" in view
+    assert "第1大弧" not in view
+
+
+def test_book_strata_current_no_h1_returns_empty() -> None:
+    """非预期形状（无 H1 弧块）→ ""（派发侧回退全文件 + WARN，§4.3）。"""
+    from shenbi.pipeline.read_extractors import extract_book_strata_current
+
+    assert extract_book_strata_current("## 只有 H2\n\n无弧块") == ""
+
+
 # --- Wiring (registry / dispatch loop / budget truncation) ------------------
 
 
@@ -244,6 +271,7 @@ def test_read_extractor_registry_closed_and_extended() -> None:
                 "threads_overview",
                 "relationships_overview",
                 "locations_overview",
+                "book_strata_current",
             }
         )
         == READ_EXTRACTORS

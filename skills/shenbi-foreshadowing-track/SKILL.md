@@ -5,8 +5,8 @@ contract:
   kind: artifact
   reads:
     - chapters/chapter-N.md
-    - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔时间线]}
-    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
+    - {file: truth/pending_hooks.md, extractor: hooks_overview}
+    - {file: truth/chapter_summaries.md, extractor: recent_increments}
   writes:
     - file: truth/bridge_tracker.md
       mode: create_or_overwrite

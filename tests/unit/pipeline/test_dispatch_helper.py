@@ -336,15 +336,16 @@ class TestTruthTemplates:
         ):
             assert (truth / name).exists()
 
-    def test_current_state_has_declared_h2_stubs(self, tmp_path):
+    def test_current_state_no_h2_stubs_table_file(self, tmp_path):
         from shenbi.pipeline.dispatch_helper import _init_truth_templates
 
         _init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "current_state.md").read_text(encoding="utf-8")
-        # chapter-planning/review-continuity declare these 3 fields.
-        assert "## 系统演化阶段" in body
-        assert "## 参数当前位置" in body
-        assert "## 进行中的情节线" in body
+        # P0 读面失配批: chapter-planning/review-continuity switched to the
+        # recent_increments extractor (phase3 trace: the 系统演化阶段 field set
+        # matched reality 0/158 — the writer produces a chapter-keyed table).
+        # Same no-stub semantics as character_matrix.md.
+        assert "## " not in body
         assert "# Current State" in body
 
     def test_character_matrix_template_created(self, tmp_path):
@@ -358,12 +359,14 @@ class TestTruthTemplates:
         assert "update_mode: replace" in body
         assert "# Character Matrix" in body
 
-    def test_chapter_summaries_has_declared_h2(self, tmp_path):
+    def test_chapter_summaries_no_h2_stubs_table_file(self, tmp_path):
         from shenbi.pipeline.dispatch_helper import _init_truth_templates
 
         _init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "chapter_summaries.md").read_text(encoding="utf-8")
-        assert "## 已完成章节" in body
+        # P0 读面失配批: consumers ride recent_increments (table form); no
+        # consumer declares fields on this file anymore.
+        assert "## " not in body
 
     def test_yaml_frontmatter_present(self, tmp_path):
         from shenbi.pipeline.dispatch_helper import _init_truth_templates

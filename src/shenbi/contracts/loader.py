@@ -88,6 +88,9 @@ def _skill_path(skill: str) -> Path:
 #: reference ledgers windowed for their per-chapter / per-volume readers —
 #: pair 演化轨迹 recent bullets + latest 扩容复核 + 矩阵/待兑现; location
 #: identity headers + 地理位置 + recent 功能事件 rows.
+#: book_strata_current (P0 读面失配批): the strata ledger appends one
+#: ``# 第N大弧合成`` H1 block per arc — H2 field reads are first-wins and
+#: would forever serve arc 1; this extractor serves the current (last) arc.
 READ_EXTRACTORS: frozenset[str] = frozenset(
     {
         "volume_chapter",
@@ -98,6 +101,7 @@ READ_EXTRACTORS: frozenset[str] = frozenset(
         "threads_overview",
         "relationships_overview",
         "locations_overview",
+        "book_strata_current",
     }
 )
 

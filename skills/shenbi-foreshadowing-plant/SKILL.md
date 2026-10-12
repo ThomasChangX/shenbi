@@ -11,11 +11,7 @@ contract:
     - 7. 本章 hook 账
   - outline/story_frame.md
   - outline/volume_map.md
-  - file: truth/pending_hooks.md
-    fields:
-    - 活跃伏笔
-    - 伏笔统计
-    - 伏笔时间线
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - file: genre-config.json
     fields:
     - chapterTypes
