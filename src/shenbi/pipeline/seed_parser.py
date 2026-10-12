@@ -95,6 +95,64 @@ def _split_key_value(item: str) -> tuple[str, str] | None:
     return item[:pos].strip(), item[pos + 1 :].strip()
 
 
+#: Sections every structurally-valid seed must carry (non-empty), with the
+#: bilingual heading alternatives from the section map above. Missing or
+#: empty sections produce empty genesis context — the run then silently
+#: degrades instead of failing (the AI-tool-edited-outline risk this guards).
+REQUIRED_SECTIONS: tuple[tuple[str, str], ...] = (
+    ("Basic Info", "Basic Info|基本信息"),
+    ("Protagonist", "Protagonist|主角设定|主角"),
+    ("World Rules", "World Rules|世界观设定|世界规则|World Setting"),
+    ("Forces", "Forces|势力/组织|势力|组织|Factions"),
+    ("Core Conflict", "Core Conflict|核心冲突"),
+    ("Plot Lines", "Plot Lines|情节线"),
+    ("Chapter Outline", "Chapter Outline|章节大纲"),
+    ("Three-Act Structure", "Three-Act Structure|三幕结构"),
+    ("Narrative Techniques", "Narrative Techniques|叙事技巧"),
+)
+
+
+def validate_seed(seed_path: Path | str) -> list[str]:
+    """Structural validation for seed files. Returns ALL problems found.
+
+    Guards against AI-tool edits that silently restructure the outline:
+    every required section present and non-empty, an H1 title, and at
+    least one parseable ``- key: value`` item under Basic Info. An empty
+    return means structurally sound (semantic quality is out of scope).
+    """
+    seed_path = Path(seed_path)
+    if not seed_path.exists():
+        return [f"seed file not found: {seed_path}"]
+    text = seed_path.read_text(encoding="utf-8")
+
+    errors: list[str] = []
+    if not re.search(r"^#\s+\S", text, re.MULTILINE):
+        errors.append("缺少一级标题（# 书名）——novel.json title 的唯一来源")
+
+    for label, alternatives in REQUIRED_SECTIONS:
+        body = _extract_section(text, alternatives)
+        if not body.strip():
+            errors.append(f"必需节缺失或为空：{label}（可接受标题：{alternatives}）")
+
+    basic = _extract_section(text, "Basic Info|基本信息")
+    if basic.strip() and not any(
+        _split_key_value(item) is not None for item in _parse_list_items(basic)
+    ):
+        errors.append("Basic Info 无任何可解析的 `- key: value` 列表项")
+
+    conflict = _extract_section(text, "Core Conflict|核心冲突")
+    if conflict.strip():
+        keys = [(_split_key_value(i) or ("", ""))[0] for i in _parse_list_items(conflict)]
+        if not any("surface" in k.lower() or "表层" in k for k in keys):
+            errors.append("Core Conflict 缺表层冲突（surface_conflict/表层）")
+        if not any("personal" in k.lower() or "个人" in k for k in keys):
+            errors.append("Core Conflict 缺个人冲突（personal_conflict/个人）")
+        if not any("deep" in k.lower() or "深层" in k for k in keys):
+            errors.append("Core Conflict 缺深层冲突（deep_conflict/深层）")
+
+    return errors
+
+
 def parse_seed(seed_path: Path | str) -> SeedData:
     """Parse a seed file into SeedData. Raises FileNotFoundError if missing."""
     seed_path = Path(seed_path)
@@ -129,6 +187,18 @@ def parse_seed(seed_path: Path | str) -> SeedData:
             novel_json["era"] = value
         elif key_norm in ("core_concept", "核心概念"):
             novel_json["core_concept"] = value
+        elif key_norm in (
+            "target_total_chapters",
+            "目标章节数",
+            "目标总章数",
+            "总章数",
+        ):
+            # T3: authoritative chapter-count override. When present,
+            # volume-outlining uses this instead of deriving
+            # ceil(target_word_count / chapter_word.default).
+            nums = re.findall(r"\d+", value)
+            if nums:
+                novel_json["target_total_chapters"] = int(nums[0])
         elif key_norm in ("target_word_count", "目标字数"):
             nums = re.findall(r"\d+", value)
             if nums:
@@ -136,8 +206,10 @@ def parse_seed(seed_path: Path | str) -> SeedData:
         elif key_norm in ("ending_direction", "故事结局方向", "结局"):
             novel_json["ending_direction"] = value
 
-    # total_chapters is NOT set here -- volume-outlining (genesis step 6)
-    # computes it. See spec section 4.2.
+    # total_chapters (volume_map frontmatter) is NOT set here -- volume-outlining
+    # (genesis step 6) computes it. See spec section 4.2. The optional
+    # ``target_total_chapters`` parsed above is an authoritative override for
+    # that derivation, not the volume_map field itself.
     novel_json["golden_opening_chapters"] = 3
     novel_json["language"] = "zh"
 

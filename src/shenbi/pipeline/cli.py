@@ -722,6 +722,22 @@ def cmd_init(args: argparse.Namespace) -> int:
     ``exists`` so the caller can simply ``resume`` rather than picking a new
     directory name.
     """
+    # T2: structural validation BEFORE any lock/scaffold — an AI-tool-edited
+    # outline that dropped/renamed sections fails fast with the full problem
+    # list instead of silently degrading genesis context.
+    from shenbi.pipeline.seed_parser import validate_seed
+
+    seed_errors = validate_seed(args.seed_file)
+    if seed_errors:
+        emit_json(
+            {
+                "status": CommandStatus.ERROR,
+                "message": "seed 结构校验未过（AI 改写 outline 后请先 just seed-validate）",
+                "errors": seed_errors,
+            }
+        )
+        return 1
+
     project_dir = (
         Path(args.project_dir)
         if args.project_dir
@@ -795,6 +811,10 @@ def _cmd_init_locked(
     seed_style_directives(project_dir)
 
     seed_data = parse_seed(args.seed_file)
+
+    # T3: CLI override wins over the seed-declared 目标章节数.
+    if getattr(args, "target_chapters", None):
+        seed_data.novel_json["target_total_chapters"] = int(args.target_chapters)
 
     # Write novel.json (seed metadata; total_chapters set later by volume-outlining).
     novel_json_path = project_dir / "novel.json"
@@ -1604,6 +1624,12 @@ def main(argv: list[str] | None = None) -> int:
     p_init = sub.add_parser("init", help="Initialize novel project from seed file")
     p_init.add_argument("seed_file", type=str, help="Path to seed file")
     p_init.add_argument("--project-dir", type=str, default=None)
+    p_init.add_argument(
+        "--target-chapters",
+        type=int,
+        default=None,
+        help="Authoritative total chapter count (overrides seed-declared 目标章节数; volume-outlining derives volume structure from it instead of target_word_count)",
+    )
     p_init.add_argument(
         "--auto",
         action="store_true",

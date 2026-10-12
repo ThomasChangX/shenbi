@@ -1319,3 +1319,65 @@ class TestEscalationBudgetReset:
         assert "ch8-shenbi-chapter-drafting" in state.chapter_loop.retry_budget_consumed, (
             "other chapters' budgets are scoped, not cleared"
         )
+
+
+class TestInitSeedGuardAndTargetChapters:
+    """T2/T3: seed 结构校验前置失败 + 目标章节数双通道（seed 字段 / CLI 旗标）。"""
+
+    def test_init_rejects_structurally_broken_seed(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        broken = sample_seed_content.replace("## Three-Act Structure\n", "## 三幕\n")
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(broken, encoding="utf-8")
+        project_dir = tmp_path / "novel"
+
+        rc, out = _run(["init", str(seed_file), "--project-dir", str(project_dir)], monkeypatch)
+
+        assert rc == 1
+        payload = json.loads(out)
+        assert payload["status"] == "error"
+        assert any("三幕" in e for e in payload["errors"])
+        assert not project_dir.exists()  # fail fast，不留半成品
+
+    def test_init_seed_declared_target_lands(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        seeded = sample_seed_content.replace(
+            "- Target word count: 200000", "- Target word count: 200000\n- 目标章节数：300"
+        )
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(seeded, encoding="utf-8")
+        project_dir = tmp_path / "novel"
+
+        rc, _ = _run(["init", str(seed_file), "--project-dir", str(project_dir)], monkeypatch)
+
+        assert rc == 0
+        novel = json.loads((project_dir / "novel.json").read_text(encoding="utf-8"))
+        assert novel["target_total_chapters"] == 300
+
+    def test_init_target_chapters_flag_overrides_seed(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        seeded = sample_seed_content.replace(
+            "- Target word count: 200000", "- Target word count: 200000\n- 目标章节数：300"
+        )
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(seeded, encoding="utf-8")
+        project_dir = tmp_path / "novel"
+
+        rc, _ = _run(
+            [
+                "init",
+                str(seed_file),
+                "--project-dir",
+                str(project_dir),
+                "--target-chapters",
+                "450",
+            ],
+            monkeypatch,
+        )
+
+        assert rc == 0
+        novel = json.loads((project_dir / "novel.json").read_text(encoding="utf-8"))
+        assert novel["target_total_chapters"] == 450

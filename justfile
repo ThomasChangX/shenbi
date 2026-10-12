@@ -155,6 +155,14 @@ changelog:
 pipeline-init seed project_dir="" *args:
     if [ -n "$2" ]; then uv run pipeline init "$1" --project-dir "$2" "${@:3}"; else uv run pipeline init "$1" "${@:3}"; fi
 
+# Validate seed outline structure (run after ANY AI-tool edit of outline-example.md)
+seed-validate seed="outline-example.md":
+    @uv run python tools/seed_validate.py "$1"
+
+# Regenerate the tests/fixtures outline mirror after editing the root seed
+seed-sync:
+    @uv run python tools/seed_sync.py
+
 # Check pipeline status
 pipeline-status project_dir:
     uv run pipeline status "$1"

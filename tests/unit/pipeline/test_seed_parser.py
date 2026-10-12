@@ -167,3 +167,95 @@ class TestTitleExtraction:
         seed.write_text("# 一本没有副标题的书\n\n## 基本信息\n", encoding="utf-8")
         data = parse_seed(seed)
         assert data.novel_json.get("title") == "一本没有副标题的书"
+
+
+class TestTargetTotalChapters:
+    """T3: seed「目标章节数」→ novel.json.target_total_chapters（权威覆盖）。"""
+
+    def test_zh_key_parsed(self, tmp_path):
+        from shenbi.pipeline.seed_parser import parse_seed
+
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 类型：测试\n- 目标章节数：450\n",
+            encoding="utf-8",
+        )
+        data = parse_seed(seed)
+        assert data.novel_json.get("target_total_chapters") == 450
+
+    def test_zh_alt_and_inline_unit_parsed(self, tmp_path):
+        from shenbi.pipeline.seed_parser import parse_seed
+
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 目标总章数: 约 500 章\n",
+            encoding="utf-8",
+        )
+        data = parse_seed(seed)
+        assert data.novel_json.get("target_total_chapters") == 500
+
+    def test_absent_means_no_override(self, tmp_path):
+        from shenbi.pipeline.seed_parser import parse_seed
+
+        seed = tmp_path / "seed.md"
+        seed.write_text("# 书\n\n## 基本信息\n- 类型：测试\n", encoding="utf-8")
+        data = parse_seed(seed)
+        assert "target_total_chapters" not in data.novel_json
+
+
+class TestValidateSeed:
+    """T2: AI-tool-edit 防错——结构校验一次性报全量问题。"""
+
+    @pytest.fixture()
+    def valid_seed_text(self) -> str:
+        return (
+            "# 测试书\n\n"
+            "## 基本信息\n- 类型：测试\n- 目标章节数：450\n\n"
+            "## 主角设定\n内容\n\n## 世界观设定\n内容\n\n"
+            "## 势力/组织\n内容\n\n"
+            "## 核心冲突\n- 表层冲突：A\n- 个人冲突：B\n- 深层冲突：C\n\n"
+            "## 情节线\n内容\n\n## 章节大纲\n内容\n\n"
+            "## 三幕结构\n内容\n\n## 叙事技巧\n- 主题：测试\n"
+        )
+
+    def test_valid_seed_passes(self, tmp_path, valid_seed_text):
+        from shenbi.pipeline.seed_parser import validate_seed
+
+        seed = tmp_path / "seed.md"
+        seed.write_text(valid_seed_text, encoding="utf-8")
+        assert validate_seed(seed) == []
+
+    def test_missing_sections_all_reported(self, tmp_path, valid_seed_text):
+        from shenbi.pipeline.seed_parser import validate_seed
+
+        broken = valid_seed_text.replace("## 三幕结构\n内容\n\n", "").replace(
+            "## 叙事技巧\n- 主题：测试\n", ""
+        )
+        seed = tmp_path / "seed.md"
+        seed.write_text(broken, encoding="utf-8")
+        errors = validate_seed(seed)
+        assert any("三幕" in e for e in errors)
+        assert any("叙事技巧" in e for e in errors)
+
+    def test_missing_h1_reported(self, tmp_path, valid_seed_text):
+        from shenbi.pipeline.seed_parser import validate_seed
+
+        broken = valid_seed_text.replace("# 测试书\n\n", "", 1)
+        seed = tmp_path / "seed.md"
+        seed.write_text(broken, encoding="utf-8")
+        errors = validate_seed(seed)
+        assert any("一级标题" in e for e in errors)
+
+    def test_english_headings_accepted(self, tmp_path):
+        from shenbi.pipeline.seed_parser import validate_seed
+
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# Book\n\n## Basic Info\n- Genre: test\n\n## Protagonist\nx\n\n"
+            "## World Rules\nx\n\n## Forces\nx\n\n"
+            "## Core Conflict\n- surface: a\n- personal: b\n- deep: c\n\n"
+            "## Plot Lines\nx\n\n## Chapter Outline\nx\n\n"
+            "## Three-Act Structure\nx\n\n## Narrative Techniques\n- theme: x\n",
+            encoding="utf-8",
+        )
+        assert validate_seed(seed) == []

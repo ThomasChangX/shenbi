@@ -46,6 +46,8 @@ contract:
 设计单卷的整体结构。负责卷目标、卷内节奏原则、卷内张力曲线、跨卷衔接。
 **职责边界**：`outline/volume_map.md` 的卷划分骨架由 `shenbi-story-architecture` 创建，本 skill 负责**单卷细化**（卷目标、章级目标、卷内张力曲线、跨卷衔接）。如果 `volume_map.md` 已存在（story-architecture 创建），本 skill 读取并细化对应卷；如果不存在且收到人工纠正反馈（范围修正类），按反馈直接重建对应卷；两者皆无时报错并提示先运行 story-architecture。
 
+**总章数权威优先级**：若 `novel.json` 声明 `target_total_chapters`，则以该值为唯一权威总章数（seed「目标章节数」或 `pipeline init --target-chapters` 传入），本节 ceil 推导与字数预算退为参考、不得反推覆盖；卷结构照常由该总章数按卷界锚规则切分。
+
 **章数预算硬约束**：细化不得超出 `novel.json` 的 `target_word_count` 预算（总章数 = ceil(target_word_count ÷ genre-config `chapter_word.default`——该文件已在本技能 reads 中，必须读取；见 `shenbi-story-architecture` 铁律 5）。短篇/金丝雀（如 3000 字 = 3 章单卷）细化时 KR/张力曲线按实际章数压缩，禁止为凑结构发明不存在的章节。frontmatter 的 `total_chapters: <N>` 行由合并层自卷区段机械派生（C 批骨架序言派生；五方对账 gate 仍核对该行）。
 
 ## 流程

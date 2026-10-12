@@ -97,6 +97,7 @@ EXPECTED_CALLS: dict[str, list[list[str]]] = {
     "pool-archive": [["--help"]],
     "ledger-archive": [["--help"]],
     "volume-budget": [["--help"]],
+    "seed-validate": [["seed; touch pwned"]],
     "gate": [["G0"], ["G0; touch pwned"]],
     "dispatch": [["shenbi-x", "generative", "/tmp/r", "p; touch pwned-by-just-recipe"]],
     "pipeline-init": [

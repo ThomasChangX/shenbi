@@ -56,6 +56,15 @@ def sample_seed_content() -> str:
 - Rule 1: Magic exists
 - Rule 2: Dragons are real
 
+## Forces
+- Kingdom army: defenders of the realm
+
+## Plot Lines
+- Main: hero's rise
+
+## Chapter Outline
+- Ch1: discovery
+
 ## Core Conflict
 - Surface: Kingdom at war
 - Personal: Hero seeks revenge
