@@ -351,8 +351,14 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         checks.append({"id": "G0.1", "s": GateStatus.SKIP, "r": "no seed file provided"})
         return passed("G0", checks)
 
-    # G0.2 — target_words extraction
-    m = re.search(r"目标字数[：:]\s*(\d+)", content)
+    # G0.2 — target_words extraction (spec #69 T4: anchor to the Basic Info
+    # section first so prose elsewhere can't shadow the declared value;
+    # fall back to full text for section-less legacy seeds).
+    from shenbi.pipeline.seed_parser import extract_section
+
+    basic = extract_section(content, "Basic Info|基本信息")
+    domain = basic if basic.strip() else content
+    m = re.search(r"目标字数[：:]\s*(\d+)", domain)
     if not m or int(m.group(1)) <= 0:
         return fail(
             "G0",

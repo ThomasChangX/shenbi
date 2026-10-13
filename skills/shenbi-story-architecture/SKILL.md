@@ -6,6 +6,11 @@ contract:
   kind: artifact
   reads:
   - novel.json
+  - genesis-context/three_act.md
+  - genesis-context/plot_lines.md
+  - genesis-context/surface_conflict.md
+  - genesis-context/personal_conflict.md
+  - genesis-context/deep_conflict.md
   - world/story_bible.md
   - characters/**/*.md
   - genre-config.json
@@ -28,13 +33,15 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, world/story_bible.md, characters/**/*.md, genre-config.json
+- **Reads:** novel.json, genesis-context/three_act.md, genesis-context/plot_lines.md, genesis-context/surface_conflict.md, genesis-context/personal_conflict.md, genesis-context/deep_conflict.md, world/story_bible.md, characters/**/*.md, genre-config.json
 - **Writes:** outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
 
 # 故事架构
+
+**Seed 片段（genesis-context/）**：`genesis-context/three_act.md`、`genesis-context/plot_lines.md` 与三个冲突片段（`genesis-context/surface_conflict.md`/`genesis-context/personal_conflict.md`/`genesis-context/deep_conflict.md`）是人类伙伴 seed 原文的逐字片段（人类原始意向输入）。权威序：上游已产出 truth > seed 片段；冲突时以上游为准，若据此调整须在本技能产出文件内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
 
 HARD-GATE: 故事框架必须在世界观和角色完成后才能开始。
 **章数基线（硬约束）**：`genre-config.json` 的 `chapter_word.default` 是章数数学唯一基线——总章数 = target_word_count ÷ default 向上取整。`outline/volume_map.md` 与 `outline/rhythm_principles.md` 的 frontmatter **必须**含 `total_chapters: <N>` 行（N 按上述数学推导），genesis-complete 的五方对账 gate 会核对该行；缺失该行会被显式报为对账盲区（probe2 2026-10-01：本技能曾因读不到 genre-config 而独立推导出 135 章，与基线 67 章失配，靠对账 gate 拦截后才人工重对齐）。

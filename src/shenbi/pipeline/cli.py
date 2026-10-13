@@ -831,10 +831,12 @@ def _cmd_init_locked(
             json.dumps(genre_config, indent=2, ensure_ascii=False),
         )
 
-    # Persist each genesis-context section as its own prompt fragment.
-    # NOTE (F886, C37 triage defer): write-only — these fragments have zero
-    # readers repo-wide as of 2026-09-07; seed-content flow restoration awaits
-    # a product ruling, tracked in the c37-triage defer row.
+    # Persist each genesis-context section as its own prompt fragment. Since
+    # spec #69 these are consumed: the five genesis skills declare the
+    # fragment paths in their contract reads (worldbuilding /
+    # character-design / story-architecture / faction-builder /
+    # volume-outlining) — see the genesis-context globs entry in
+    # truth-files.yaml.
     ctx_dir = project_dir / "genesis-context"
     for key, value in seed_data.genesis_context.items():
         if value:

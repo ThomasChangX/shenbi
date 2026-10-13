@@ -24,7 +24,7 @@
 | F346 | snapshot_retention 死配置旋钮 | tests/unit/pipeline/test_state.py:130 | already-fixed | — | 随 #26 移除，测试已断言不存在 |
 | F356 | SharedAuditContext.chapter_summary 零填充零读取 | src/shenbi/pipeline/audit_context_cache.py:21,39 | delete | T3 | 模块本体已接线，仅删死字段 |
 | F366 | %5 物化节拍永不触发 | src/shenbi/pipeline/chapter_loop.py:1050-1053 | already-fixed | — | #37 F630 裁决 b 移除 |
-| F368 | retry_feedback 永不清理（清理逻辑在死 compact 内） | src/shenbi/pipeline/chapter_loop.py:3154,3269 | defer | T6 注记 | C33 已落全局预算语义；清理时机需产品裁决，复活条件=C33 后续复审 |
+| F368 | retry_feedback 永不清理（清理逻辑在死 compact 内） | src/shenbi/pipeline/chapter_loop.py:3154,3269 | closed (spec #69 T5) | T6 注记 | C33 已落全局预算语义；成功即清已由 probe23 #18-4 与 canary pop 落地（:3276/:3477），残余=章节关闭清扫，随 spec #69 T5 closed |
 | F378 | _validate_state_consistency 死线+注释谎称 cli.py 调用 | src/shenbi/pipeline/state.py:521 | delete | T2 | 直测随删 |
 | F427 | 三个复制粘贴 checker | src/shenbi/gates/g4/score_arc.py + score_stratum.py + score_volume.py | delete | T4 | 合一 g4_scoring_sections（原 3 文件删除） |
 | F471 | ProgressDoc/SummaryDoc 零使用 | src/shenbi/contracts/schemas/state.py:19,25 | delete | T3 | |
@@ -41,7 +41,7 @@
 | F642 | text 半数导出零消费（PUNCTUATION_TOKENS 除外——count_punctuation 消费 .items()；Token/_get_tokenizers 随 tokenize 级联删） | src/shenbi/text（count_words/tokenize/Token） | delete | T3 | 保 count_punctuation + PUNCTUATION_TOKENS + find_terms |
 | F706 | g4/conftest 两死 fixture | tests/unit/gates/g4/conftest.py:13,27 | delete | T4 | grep 确认零引用后删 |
 | F793 | 死函数被直测模式（_should_run_recall 已删、_should_run_drift 仍在） | src/shenbi/pipeline/chapter_loop.py:1774 + tests/unit/pipeline/test_adaptive_triggers.py:16 | delete | T3 | 模式治理整体移交 C14（R4/T6） |
-| F886 | genesis-context/*.md 写后零消费 | src/shenbi/pipeline/cli.py:497-500 | defer | T2 注记 | 种子断流是产品缺陷非卫生问题；写点注释如实标注，内容恢复待产品裁决/后续 spec |
+| F886 | genesis-context/*.md 写后零消费 | src/shenbi/pipeline/cli.py:497-500 | closed (spec #69) | T2 注记 | 种子断流是产品缺陷非卫生问题；写点注释如实标注，内容恢复待产品裁决/后续 spec——seed 内容流恢复已随 spec #69 落地（genesis 五技能 reads 接线） |
 | F903 | G0.13 工具哈希承诺静默失效 | src/shenbi/gates/g0.py:188-226 | already-fixed | — | #54/C16 以 G0.14 落地执法 |
 | F1027 | lint_status_strings 死参/CWD 面 | tools/lint_status_strings.py:165,168 | already-fixed | — | #34 已修复 |
 | T301 | check_fields_exist 零生产调用仅直测 | src/shenbi/gates/g1.py:106 + tests/unit/gates/test_g1_fields.py | delete | T4 | |
@@ -50,7 +50,7 @@
 | T1612 | _genre_config_cache 死缓存（每章仅一击、仅测试调用） | src/shenbi/pipeline/dispatch_helper.py:220-226 | delete | T3 | 与 F343 同点一并删 |
 
 ## 桶计数（核对）
-already-fixed 13（F243/F319/F321/F346/F366/F512/F611/F633/F634/F635/F636/F903/F1027——F633-636 计 4 行）+ delete 27 + wire 1（F325）+ defer 2（F368/F886）= 43 ✓
+already-fixed 13（F243/F319/F321/F346/F366/F512/F611/F633/F634/F635/F636/F903/F1027——F633-636 计 4 行）+ delete 27 + wire 1（F325）+ defer 2（F368/F886——后随 spec #69 T5/T1 执行 closed，见各行）= 43 ✓
 （执行中改行须同步本表与 spec-deviations；commit 9bbc862b 消息中 "12 already-fixed" 为笔误，实为 13）
 
 ## R3 执法首跑表外新发现（deviation 补登）

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 import pytest
 
 from shenbi.gates.shared import PROJECT
@@ -259,3 +261,106 @@ class TestValidateSeed:
             encoding="utf-8",
         )
         assert validate_seed(seed) == []
+
+
+class TestSupportingSection:
+    """spec #69 T2: 配角设定 optional section."""
+
+    def test_supporting_section_parsed(self, tmp_path):
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n\n"
+            "## 配角设定\n- 阿萱：女主挚友，药庐传人\n\n## 主角设定\n- 名字: 测试\n",
+            encoding="utf-8",
+        )
+        data = parse_seed(seed)
+        assert "阿萱" in data.genesis_context["supporting"]
+
+    def test_supporting_section_absent_defaults_empty(self, tmp_path):
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n\n## 主角设定\n- 名字: 测试\n",
+            encoding="utf-8",
+        )
+        data = parse_seed(seed)
+        assert data.genesis_context["supporting"] == ""
+
+
+class TestRichSeedSoftBounds:
+    """spec §3.4: 丰富软约束锚点——各节 < 32K、十节合计 < ~100K（测试内字面量，
+    G0.9 先例 conftest.sample_seed_content；不落 tests/fixtures/）。
+    """
+
+    RICH_SECTIONS: ClassVar[dict[str, str]] = {
+        "基本信息": "- 类型: 玄幻\n- 目标字数: 2000000\n- 目标章节数: 600\n",
+        "主角设定": "- 测试主角 " * 200 + "\n",
+        "配角设定": "- 测试配角 " * 100 + "\n",
+        "世界观设定": "- 测试规则 " * 400 + "\n",
+        "势力/组织": "- 测试势力 " * 200 + "\n",
+        "核心冲突": "- 表层冲突: 测试\n- 个人冲突: 测试\n- 深层冲突: 测试\n",
+        "情节线": "- 测试情节线 " * 200 + "\n",
+        "章节大纲": "- 第1章 测试 " * 200 + "\n",
+        "三幕结构": "- 第一幕 测试 " * 100 + "\n",
+        "叙事技巧": "- 展示讲述比: 0.6\n",
+    }
+
+    def test_rich_seed_within_soft_bounds(self, tmp_path):
+        body = "\n".join(f"## {h}\n{c}" for h, c in self.RICH_SECTIONS.items())
+        seed = tmp_path / "seed.md"
+        seed.write_text(f"# 丰富测试书\n\n{body}\n", encoding="utf-8")
+        data = parse_seed(seed)
+        fragments = {k: v for k, v in data.genesis_context.items() if v}
+        assert len(fragments) == 10  # 十节全产出（含 supporting）
+        for name, text in fragments.items():
+            assert len(text) < 32000, name
+        assert sum(len(t) for t in fragments.values()) < 100000
+
+
+class TestDroppedKeyWarning:
+    """Spec #69 T3: non-whitelist keys surface once via seed_key_dropped.
+
+    structlog binds stderr (PrintLoggerFactory(sys.stderr)) -- caplog CANNOT
+    capture it; capsys must (precedent:
+    tests/unit/pipeline/test_dispatch_skill_write_audit.py:281-292).
+    """
+
+    @staticmethod
+    def _configure() -> None:
+        from shenbi.logging import configure_logging
+
+        configure_logging()
+
+    def test_basic_info_unknown_key_warns(self, tmp_path, capsys):
+        self._configure()
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n- 灵感来源: 某剧\n",
+            encoding="utf-8",
+        )
+        parse_seed(seed)
+        err = capsys.readouterr().err
+        assert err.count("seed_key_dropped") == 1  # 一次汇总, 不逐键刷屏
+        assert "灵感来源" in err
+
+    def test_narrative_unknown_key_warns(self, tmp_path, capsys):
+        self._configure()
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n\n"
+            "## 叙事技巧\n- 展示讲述比: 0.6\n- 叙事人称: 第一人称\n",
+            encoding="utf-8",
+        )
+        parse_seed(seed)
+        err = capsys.readouterr().err
+        assert err.count("seed_key_dropped") == 1
+        assert "叙事人称" in err
+
+    def test_all_whitelisted_no_warning(self, tmp_path, capsys):
+        self._configure()
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n\n## 叙事技巧\n- 展示讲述比: 0.6\n",
+            encoding="utf-8",
+        )
+        parse_seed(seed)
+        assert "seed_key_dropped" not in capsys.readouterr().err
