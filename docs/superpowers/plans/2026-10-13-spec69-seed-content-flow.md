@@ -28,7 +28,7 @@
 | §3.1 `just check` 全绿 | T9 | `just check` → EXIT=0 |
 | §3.2 G5 delta 钉死 | T9 | `uv run pytest tests/unit/gates/test_g5.py -k genesis_context -v`（新测试断言四对+spillover）+ `uv run python -c`（gate_G5 直跑，genesis 相 missing 键集合比对）|
 | §3.3 T0/T1 契约+组装测试 | T1/T2 | `uv run pytest tests/pipeline/test_dispatch_reads_injection.py -v` |
-| §3.3 T2 配角节 | T3 | `uv run pytest tests/unit/pipeline/test_seed_parser.py -k supporting tests/unit/pipeline/test_e2e.py -k supporting -v` |
+| §3.3 T2 配角节 | T3 | `uv run pytest tests/unit/pipeline/test_seed_parser.py -k "Supporting or RichSeed" -v`；`uv run pytest tests/unit/pipeline/test_e2e.py -k "supporting or rich_seed" -v`（两条分跑）|
 | §3.3 T3 丢弃键 WARN | T4 | `uv run pytest tests/unit/pipeline/test_seed_parser.py -k dropped -v` |
 | §3.3 T4 G0.2 节锚定 | T5 | `uv run pytest tests/unit/gates/test_g0.py -k "target_words or basic_info" -v` |
 | §3.3 T5 两测 | T6 | `uv run pytest tests/unit/pipeline/test_chapter_close_retry_sweep.py -v` |
@@ -546,9 +546,15 @@ git commit -m "feat(pipeline): spec69 T3——seed 非白名单键 seed_key_drop
 
 - [ ] **Step 1: 写失败测试**
 
-`tests/unit/gates/test_g0.py` TestG02 类（:29 起）追加：
+`tests/unit/gates/test_g0.py` 在 `TestG0ErrorPaths` 类（:137 起，`test_g02_*` 既有用例所在）之后新增 `TestG02` 类：
 
 ```python
+from shenbi.status import GateStatus
+
+
+class TestG02:
+    """spec #69 T4: G0.2 目标字数基本信息节锚定。"""
+
     def test_g02_takes_basic_info_value_over_earlier_decoy(self, tmp_path: Path) -> None:
         """spec #69 T4: 正文他节先出现「目标字数：」时 G0.2 仍取基本信息节值。"""
         seed = tmp_path / "seed.md"
@@ -575,7 +581,7 @@ git commit -m "feat(pipeline): spec69 T3——seed 非白名单键 seed_key_drop
         assert g02["target_words"] == 800000
 ```
 
-（`gate_G0(seed_file, round_dir) -> str` 返回 JSON 字符串——用 test_g0.py:14-15 既有 `_result_dict`（json.loads）解包；`GateStatus` 自 `shenbi.status` import，StrEnum 与 JSON 串比较成立）
+（`gate_G0(seed_file, round_dir) -> str` 返回 JSON 字符串——用 test_g0.py:14-15 既有 `_result_dict`（json.loads）解包；`GateStatus` 已在代码块顶部 import，StrEnum 与 JSON 串比较成立）
 
 - [ ] **Step 2: 确认失败**
 
