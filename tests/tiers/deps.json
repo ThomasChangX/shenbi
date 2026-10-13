@@ -242,7 +242,7 @@
     "src/shenbi/pipeline/triggers.py": "sha256:641e4cfeb7a73193b7558d25a704c1e6fa438390a50523dcc258891f42743538",
     "src/shenbi/pipeline/checkpoint.py": "sha256:d4cb9897b74d2fbfa33b3c9cc89022b202f376d92f53ae61130ec1a9eed0ef5d",
     "src/shenbi/pipeline/style_seed.py": "sha256:36c557e43b7156bca4ade4d963800b28e42ea481c3ebfcd99ce6426b7e2de38c",
-    "src/shenbi/pipeline/chapter_loop.py": "sha256:6ec2e17435729e8575ba4f97f169d4e0568167afe494ac5ee079e95545f974ff",
+    "src/shenbi/pipeline/chapter_loop.py": "sha256:f0b14f5d058fd325cabd7921edc21d1d3c86ffdc2b0c734a54445d23f6e387a8",
     "src/shenbi/pipeline/pool_archive.py": "sha256:03ef8aeb6d7705d9fcccf7fba6a11b17a4c6dc9dca953dbeeadf341832b6e149",
     "src/shenbi/pipeline/truth_readers.py": "sha256:b903069cf4022897fead7589e723e2ab719cebf2e0eca0aeecf1d06be76c99a7",
     "src/shenbi/pipeline/plan_skeleton.py": "sha256:6728ceb04cd05f46d3c939a234c7017c1f84edf1884958ddfca95217b32c3f1e",

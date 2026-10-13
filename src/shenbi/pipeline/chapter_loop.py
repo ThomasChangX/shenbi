@@ -1483,6 +1483,13 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
         state.chapter_loop.chapter_states[key] = cs
     cs.status = ChapterStatus.COMPLETE
 
+    # F368 residual (spec #69 T5): chapter-close sweep — a finished chapter's
+    # corrective feedback must not leak into later dispatch cycles. The dash
+    # terminator in _retry_key scopes the prefix (ch1- never matches ch10-).
+    prefix = f"ch{chapter}-"
+    for stale in [k for k in state.chapter_loop.retry_feedback if k.startswith(prefix)]:
+        state.chapter_loop.retry_feedback.pop(stale)
+
     # 10e: Check world file freshness at volume boundaries
     _check_world_file_freshness(project_dir, chapter)
 
