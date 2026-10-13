@@ -42,6 +42,7 @@ def test_complete_chapter_renders_report(tmp_path, monkeypatch):
             step_index=0,
             current_step="",
             per_chapter_review_enabled=False,
+            retry_feedback={},
         ),
     )
     with (

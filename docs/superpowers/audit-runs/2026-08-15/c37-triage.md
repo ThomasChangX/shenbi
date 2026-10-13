@@ -24,7 +24,7 @@
 | F346 | snapshot_retention 死配置旋钮 | tests/unit/pipeline/test_state.py:130 | already-fixed | — | 随 #26 移除，测试已断言不存在 |
 | F356 | SharedAuditContext.chapter_summary 零填充零读取 | src/shenbi/pipeline/audit_context_cache.py:21,39 | delete | T3 | 模块本体已接线，仅删死字段 |
 | F366 | %5 物化节拍永不触发 | src/shenbi/pipeline/chapter_loop.py:1050-1053 | already-fixed | — | #37 F630 裁决 b 移除 |
-| F368 | retry_feedback 永不清理（清理逻辑在死 compact 内） | src/shenbi/pipeline/chapter_loop.py:3154,3269 | defer | T6 注记 | C33 已落全局预算语义；清理时机需产品裁决，复活条件=C33 后续复审 |
+| F368 | retry_feedback 永不清理（清理逻辑在死 compact 内） | src/shenbi/pipeline/chapter_loop.py:3154,3269 | closed (spec #69 T5) | T6 注记 | C33 已落全局预算语义；成功即清已由 probe23 #18-4 与 canary pop 落地（:3276/:3477），残余=章节关闭清扫，随 spec #69 T5 closed |
 | F378 | _validate_state_consistency 死线+注释谎称 cli.py 调用 | src/shenbi/pipeline/state.py:521 | delete | T2 | 直测随删 |
 | F427 | 三个复制粘贴 checker | src/shenbi/gates/g4/score_arc.py + score_stratum.py + score_volume.py | delete | T4 | 合一 g4_scoring_sections（原 3 文件删除） |
 | F471 | ProgressDoc/SummaryDoc 零使用 | src/shenbi/contracts/schemas/state.py:19,25 | delete | T3 | |
