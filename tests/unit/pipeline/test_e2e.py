@@ -103,6 +103,60 @@ class TestWave1E2E:
         assert (project_dir / "genre-config.json").exists()
         assert (project_dir / "genesis-context").is_dir()
 
+    def test_init_writes_supporting_fragment(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Spec #69 T2: 配角设定节 -> genesis-context/supporting.md 写盘, 缺省不写."""
+        seed_file = tmp_path / "seed.md"
+        with_supporting = sample_seed_content + "\n## 配角设定\n- 阿萱：女主挚友\n"
+        seed_file.write_text(with_supporting, encoding="utf-8")
+        project_dir = tmp_path / "novel-a"
+        main(["init", str(seed_file), "--project-dir", str(project_dir)])
+        supporting = project_dir / "genesis-context" / "supporting.md"
+        assert supporting.exists()
+        assert "阿萱" in supporting.read_text(encoding="utf-8")
+
+        seed_file2 = tmp_path / "seed2.md"
+        seed_file2.write_text(sample_seed_content, encoding="utf-8")
+        project_dir2 = tmp_path / "novel-b"
+        main(["init", str(seed_file2), "--project-dir", str(project_dir2)])
+        assert not (project_dir2 / "genesis-context" / "supporting.md").exists()
+
+    def test_init_writes_all_fragments_from_rich_seed(self, tmp_path: Path) -> None:
+        """Spec 3.4: 丰富版 seed 经真实 init 写方断言十片段全部写盘
+        (测试内字面量, G0.9 先例 sample_seed_content, 不落 tests/fixtures/).
+        """
+        sections = [
+            ("基本信息", "- 类型: 玄幻\n- 目标字数: 2000000\n"),
+            ("主角设定", "- 测试主角 " * 200 + "\n"),
+            ("配角设定", "- 测试配角 " * 100 + "\n"),
+            ("世界观设定", "- 测试规则 " * 400 + "\n"),
+            ("势力/组织", "- 测试势力 " * 200 + "\n"),
+            ("核心冲突", "- 表层冲突: 测试\n- 个人冲突: 测试\n- 深层冲突: 测试\n"),
+            ("情节线", "- 测试情节线 " * 200 + "\n"),
+            ("章节大纲", "- 第1章 测试 " * 200 + "\n"),
+            ("三幕结构", "- 第一幕 测试 " * 100 + "\n"),
+            ("叙事技巧", "- 展示讲述比: 0.6\n"),
+        ]
+        body = "\n".join(f"## {h}\n{c}" for h, c in sections)
+        seed_file = tmp_path / "rich-seed.md"
+        seed_file.write_text(f"# 丰富测试书\n\n{body}\n", encoding="utf-8")
+        project_dir = tmp_path / "novel-rich"
+        main(["init", str(seed_file), "--project-dir", str(project_dir)])
+        for name in (
+            "protagonist",
+            "supporting",
+            "world_rules",
+            "forces",
+            "surface_conflict",
+            "personal_conflict",
+            "deep_conflict",
+            "plot_lines",
+            "chapter_outline",
+            "three_act",
+        ):
+            assert (project_dir / "genesis-context" / f"{name}.md").exists(), name
+
     def test_full_checkpoint_review_cycle(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
