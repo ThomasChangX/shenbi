@@ -432,3 +432,16 @@ class TestG02:
         g02 = next(c for c in result["checks"] if c["id"] == "G0.2")
         assert g02["s"] == GateStatus.PASS
         assert g02["target_words"] == 800000
+
+    def test_g02_fails_when_section_lacks_target_words(self, tmp_path: Path) -> None:
+        """Third edge (spec 2 T4): Basic Info present but lacks the key while
+        another section carries it -> G0.2 stays FAIL (no widening back to
+        full-text when the section exists).
+        """
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 类型: 玄幻\n\n## 主角设定\n- 目标字数：800000\n",
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        assert "G0.2" in result.get("must_fix", [])
