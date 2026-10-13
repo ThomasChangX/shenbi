@@ -29,14 +29,19 @@ CASES = [
         "shenbi-character-design",  # F809 — nested placement: the dispatcher's
         # stdlib glob has no recursive=True, so `**` is single-level
         # (characters/<dir>/*.md), matching characters/major/alice.md.
+        # spec #69 T0: outline/ orphan reads re-anchored to genesis-context/.
         [
             "world/story_bible.md",
             "world/rules.md",
-            "outline/chapter_outline.md",
-            "outline/three_act.md",
+            "genesis-context/chapter_outline.md",
+            "genesis-context/three_act.md",
             "characters/major/alice.md",
         ],
-        ["outline/chapter_outline.md", "outline/three_act.md", "characters/major/alice.md"],
+        [
+            "genesis-context/chapter_outline.md",
+            "genesis-context/three_act.md",
+            "characters/major/alice.md",
+        ],
         [],
     ),
     (
