@@ -42,7 +42,8 @@ CASES = [
             "genesis-context/three_act.md",
             "characters/major/alice.md",
         ],
-        [],
+        # T0 re-pin: the retired outline/ orphan paths must NOT be injected.
+        ["outline/chapter_outline.md", "outline/three_act.md"],
     ),
     (
         "shenbi-context-composing",  # F811: near-chapter in, current out
