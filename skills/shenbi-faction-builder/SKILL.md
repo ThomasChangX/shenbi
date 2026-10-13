@@ -6,6 +6,7 @@ contract:
   kind: artifact
   reads:
   - novel.json
+  - genesis-context/forces.md
   - world/story_bible.md
   - world/rules.md
   - characters/*.md
@@ -27,13 +28,15 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, world/story_bible.md, world/rules.md, characters/*.md, characters/**/*.md, outline/story_frame.md, outline/volume_map.md
+- **Reads:** novel.json, genesis-context/forces.md, world/story_bible.md, world/rules.md, characters/*.md, characters/**/*.md, outline/story_frame.md, outline/volume_map.md
 - **Writes:** none
 - **Updates:** world/factions.md
 
 <!-- END AUTO-GENERATED -->
 
 # 势力构建
+
+**Seed 片段（genesis-context/）**：`genesis-context/forces.md` 是人类伙伴 seed 势力/组织节的逐字片段（人类原始意向输入）。权威序：上游已产出 truth > seed 片段；冲突时以上游为准，若据此调整须在本技能产出文件内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
 
 设计小说中的势力组织。负责层级结构、内部矛盾、跨势力动态、利益驱动行为。
 **职责边界**：`world/factions.md` 如由 `shenbi-worldbuilding` 创建则含初始势力；本 skill 负责后续**追加/扩展**具体势力（append，不重写已有势力）。反向场景（从已有手稿提取势力）用 `shenbi-world-extraction`。

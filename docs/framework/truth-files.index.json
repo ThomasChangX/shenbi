@@ -524,14 +524,16 @@
   },
   "genesis-context/chapter_outline.md": {
     "reads": [
-      "shenbi-character-design"
+      "shenbi-character-design",
+      "shenbi-volume-outlining"
     ],
     "writes": [],
     "updates": []
   },
   "genesis-context/three_act.md": {
     "reads": [
-      "shenbi-character-design"
+      "shenbi-character-design",
+      "shenbi-story-architecture"
     ],
     "writes": [],
     "updates": []
@@ -748,6 +750,13 @@
     "writes": [
       "shenbi-escalation-review"
     ],
+    "updates": []
+  },
+  "genesis-context/forces.md": {
+    "reads": [
+      "shenbi-faction-builder"
+    ],
+    "writes": [],
     "updates": []
   },
   "world/factions.md": {
@@ -1145,6 +1154,34 @@
     ],
     "updates": []
   },
+  "genesis-context/plot_lines.md": {
+    "reads": [
+      "shenbi-story-architecture"
+    ],
+    "writes": [],
+    "updates": []
+  },
+  "genesis-context/surface_conflict.md": {
+    "reads": [
+      "shenbi-story-architecture"
+    ],
+    "writes": [],
+    "updates": []
+  },
+  "genesis-context/personal_conflict.md": {
+    "reads": [
+      "shenbi-story-architecture"
+    ],
+    "writes": [],
+    "updates": []
+  },
+  "genesis-context/deep_conflict.md": {
+    "reads": [
+      "shenbi-story-architecture"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "chapters/chapter-*.md": {
     "reads": [
       "shenbi-truth-sync"
@@ -1155,6 +1192,13 @@
   "import/analysis/03_world.md": {
     "reads": [
       "shenbi-world-extraction"
+    ],
+    "writes": [],
+    "updates": []
+  },
+  "genesis-context/world_rules.md": {
+    "reads": [
+      "shenbi-worldbuilding"
     ],
     "writes": [],
     "updates": []

@@ -119,6 +119,102 @@ def test_required_inputs_injected(tmp_path: Path, skill, files, expected, absent
         assert key not in user_prompt, f"{skill}: must NOT be injected: {key}"
 
 
+#: spec #69 T1: genesis-context fragments wired into the five genesis skills.
+GENESIS_FRAGMENT_CASES = [
+    # (skill, staged fragment files, expected-injected subset)
+    (
+        "shenbi-worldbuilding",
+        ["genesis-context/world_rules.md", "novel.json"],
+        ["genesis-context/world_rules.md"],
+    ),
+    (
+        "shenbi-story-architecture",
+        [
+            "genesis-context/three_act.md",
+            "genesis-context/plot_lines.md",
+            "genesis-context/surface_conflict.md",
+            "genesis-context/personal_conflict.md",
+            "genesis-context/deep_conflict.md",
+            "novel.json",
+        ],
+        [
+            "genesis-context/three_act.md",
+            "genesis-context/plot_lines.md",
+            "genesis-context/surface_conflict.md",
+            "genesis-context/personal_conflict.md",
+            "genesis-context/deep_conflict.md",
+        ],
+    ),
+    (
+        "shenbi-faction-builder",
+        ["genesis-context/forces.md", "novel.json"],
+        ["genesis-context/forces.md"],
+    ),
+    (
+        "shenbi-volume-outlining",
+        ["genesis-context/chapter_outline.md", "novel.json"],
+        ["genesis-context/chapter_outline.md"],
+    ),
+]
+
+
+@pytest.mark.parametrize("skill,files,expected", GENESIS_FRAGMENT_CASES)
+def test_genesis_fragment_injected(tmp_path: Path, skill, files, expected):
+    for rel in files:
+        p = tmp_path / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(MARK, encoding="utf-8")
+    _, user_prompt, _, reads_manifest = _build_skill_prompt(
+        skill=skill, project_dir=tmp_path, prompt="genesis", chapter=None
+    )
+    for key in expected:
+        assert key in user_prompt, f"{skill}: expected fragment not injected: {key}"
+        # spec §3.3 reads_manifest face: injection is recorded (4th return;
+        # entries carry {"path": key, "mode": "full", ...}).
+        assert any(e.get("path") == key for e in reads_manifest), (
+            f"{skill}: {key} missing from reads_manifest"
+        )
+
+
+@pytest.mark.parametrize(
+    "skill,fragment",
+    [
+        ("shenbi-worldbuilding", "genesis-context/world_rules.md"),
+        ("shenbi-character-design", "genesis-context/chapter_outline.md"),
+        ("shenbi-character-design", "genesis-context/three_act.md"),
+        ("shenbi-story-architecture", "genesis-context/three_act.md"),
+        ("shenbi-story-architecture", "genesis-context/plot_lines.md"),
+        ("shenbi-story-architecture", "genesis-context/surface_conflict.md"),
+        ("shenbi-story-architecture", "genesis-context/personal_conflict.md"),
+        ("shenbi-story-architecture", "genesis-context/deep_conflict.md"),
+        ("shenbi-faction-builder", "genesis-context/forces.md"),
+        ("shenbi-volume-outlining", "genesis-context/chapter_outline.md"),
+    ],
+)
+def test_genesis_fragment_declared(skill, fragment):
+    """Spec §3.3 T0/T1: contract-load face asserts the fragment path in reads."""
+    from shenbi.contracts.loader import load_contract
+
+    assert fragment in load_contract(skill)["reads"]
+
+
+def test_genesis_fragments_optional_legacy_project(tmp_path: Path):
+    """Spec §1 missing-file semantics: no fragments staged (USER-mode legacy)
+    -> prompt assembles fine, no fragment keys, no failure.
+    """
+    for skill in (
+        "shenbi-worldbuilding",
+        "shenbi-character-design",
+        "shenbi-story-architecture",
+        "shenbi-faction-builder",
+        "shenbi-volume-outlining",
+    ):
+        _, user_prompt, _, _ = _build_skill_prompt(
+            skill=skill, project_dir=tmp_path, prompt="genesis", chapter=None
+        )
+        assert "genesis-context/" not in user_prompt
+
+
 def test_lifecycle_prompt_reachable(tmp_path):
     """Acceptance 5 (spec #59, F947 offline): GENESIS_STEPS step-9 successor assembles a prompt."""
     from shenbi.pipeline.genesis import GENESIS_STEPS
