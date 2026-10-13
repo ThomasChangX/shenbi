@@ -151,6 +151,16 @@ GENESIS_FRAGMENT_CASES = [
         ["genesis-context/forces.md"],
     ),
     (
+        "shenbi-character-design",
+        [
+            "genesis-context/protagonist.md",
+            "genesis-context/chapter_outline.md",
+            "genesis-context/three_act.md",
+            "world/story_bible.md",
+        ],
+        ["genesis-context/protagonist.md"],
+    ),
+    (
         "shenbi-volume-outlining",
         ["genesis-context/chapter_outline.md", "novel.json"],
         ["genesis-context/chapter_outline.md"],
@@ -180,6 +190,7 @@ def test_genesis_fragment_injected(tmp_path: Path, skill, files, expected):
     "skill,fragment",
     [
         ("shenbi-worldbuilding", "genesis-context/world_rules.md"),
+        ("shenbi-character-design", "genesis-context/protagonist.md"),
         ("shenbi-character-design", "genesis-context/chapter_outline.md"),
         ("shenbi-character-design", "genesis-context/three_act.md"),
         ("shenbi-story-architecture", "genesis-context/three_act.md"),
