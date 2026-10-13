@@ -6,6 +6,7 @@ contract:
   kind: artifact
   reads:
   - novel.json
+  - genesis-context/world_rules.md
   writes:
   - file: novel.json
     mode: create_or_overwrite
@@ -31,13 +32,15 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json
+- **Reads:** novel.json, genesis-context/world_rules.md
 - **Writes:** novel.json, genre-config.json, world/story_bible.md, world/rules.md, world/locations.md, truth/*.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
 
 # 世界观构建
+
+**Seed 片段（genesis-context/）**：`genesis-context/world_rules.md` 是人类伙伴 seed 世界观设定节的逐字片段（人类原始意向输入）。权威序：上游已产出 truth > seed 片段；冲突时以上游为准，若据此调整须在本技能产出文件内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
 
 HARD-GATE: 在世界观未完成并获得人类合作者批准前，不得进入角色设计或故事框架阶段。
 

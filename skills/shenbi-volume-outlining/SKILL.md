@@ -7,6 +7,7 @@ contract:
   kind: artifact
   reads:
   - novel.json
+  - genesis-context/chapter_outline.md
   - outline/story_frame.md
   - outline/volume_map.md
   - truth/author_intent.md
@@ -33,7 +34,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, outline/story_frame.md, outline/volume_map.md, truth/author_intent.md, genre-config.json
+- **Reads:** novel.json, genesis-context/chapter_outline.md, outline/story_frame.md, outline/volume_map.md, truth/author_intent.md, genre-config.json
 - **Writes:** none
 - **Updates:** outline/volume_map.md
 
@@ -42,6 +43,8 @@ contract:
 > **volume_map 写纪律（append_dedup，key=volume，A1/C 批千万字卷层）**：只发**本界有变化的卷区段**——`## 第N卷：<标题>（第 a-b 章）` 整段（含 Objective/KR/章节节点表/张力曲线/跨卷桥接的全部变化内容）；新卷为完整新区段，且**必须满足卷界锚规则**：新卷起始章 a = live 最大章界 + 1、标题带机器可读章界「（第 a-b 章）」——错号或缺括号章界会被摄取守卫整次拒收。**禁止重发** frontmatter、`#` 一级标题、骨架序言、未变化的卷区段——重发即被摄取守卫拒收、整次派发作废（整档重写会随卷数增长撑爆输出上限）。frontmatter `total_chapters` 与骨架序言「卷界」行由合并层自卷区段机械派生（C 批已落地），写者不维护。区段定位按「第N卷」编号，标题变化合法（同编号即替换）。
 
 # 分卷大纲
+
+**Seed 片段（genesis-context/）**：`genesis-context/chapter_outline.md` 是人类伙伴 seed 章节大纲节的逐字片段（人类原始意向输入，只覆盖开篇）。权威序：上游已产出 truth > seed 片段；冲突时以上游为准，若据此调整须在本技能产出文件内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。章节大纲节散文中的卷数偏好为软约束；`outline/volume_map.md` 为结构权威。
 
 设计单卷的整体结构。负责卷目标、卷内节奏原则、卷内张力曲线、跨卷衔接。
 **职责边界**：`outline/volume_map.md` 的卷划分骨架由 `shenbi-story-architecture` 创建，本 skill 负责**单卷细化**（卷目标、章级目标、卷内张力曲线、跨卷衔接）。如果 `volume_map.md` 已存在（story-architecture 创建），本 skill 读取并细化对应卷；如果不存在且收到人工纠正反馈（范围修正类），按反馈直接重建对应卷；两者皆无时报错并提示先运行 story-architecture。
