@@ -100,7 +100,7 @@
 ## 3. 验收标准
 
 1. `just check` 全绿（含 G0.16 契约面、G0.5b rubric-SKILL 一致面、lint_registry_reconcile R1/R2、lint_contract_graph closure、reality-lock CI、fixture mirror 锁）
-2. **G5 实跑 delta 钉死**（修正 4 改写 · v2.1 订正 pair 源 · v2.4 订正子门形态）：fixture 项目上经 `shenbi-validate G5`（无 round 面）跑 G5——**只盯 G5.2 delta**：新增 missing 键**恰为** `genesis-context/*.md`：genesis phase 恰四对（power-system→faction-builder、location-builder→character-design、relationship-map→story-architecture、story-architecture→volume-outlining，pair 源 = deps.json prerequisites 非 GENESIS_STEPS）+ architecture phase spillover 一对（story-architecture→volume-outlining），无其他新增（genesis baseline 26→30 可复算）；G5.1/G5.4 无 round 跳过、G5.3 因传 project_dir 实跑（极简 fixture 零发现形态）；这些 WARN 为 pipeline 产物无技能写方的预期形态，非 spurious
+2. **G5 实跑 delta 钉死**（修正 4 改写 · v2.1 订正 pair 源 · 执行期实测订正 26→29）：fixture 项目上经 `shenbi-validate G5`（无 round 面）跑 G5——**只盯 G5.2 delta**：新增 missing 键**恰为** `genesis-context/*.md`：genesis phase 恰四对（power-system→faction-builder、location-builder→character-design、relationship-map→story-architecture、story-architecture→volume-outlining，pair 源 = deps.json prerequisites 非 GENESIS_STEPS）+ architecture phase spillover 一对（story-architecture→volume-outlining），无其他新增；总 missing 实测 **26→29**（原稿预测 30 漏计 T0 交互：character-design 孤儿键 `outline/*.md` 退役使 location-builder→character-design 对为键置换非净增，26−1+4=29——载荷面四对+键名精确成立）；G5.1/G5.4 无 round 跳过、G5.3 因传 project_dir 实跑（极简 fixture 零发现形态）；这些 WARN 为 pipeline 产物无技能写方的预期形态，非 spurious
 3. 单测清单：
    - T0/T1：契约加载面断言 reads 含目标片段路径；派发组装测试——片段文件存在时对应 genesis 技能 prompt 含其内容、`reads_manifest` 记录注入，文件缺失时 prompt 不含且不失败（复用 dispatch 组装测试基建）
    - T2：seed 含 `## 配角设定` → `genesis-context/supporting.md` 写盘；缺省不写
