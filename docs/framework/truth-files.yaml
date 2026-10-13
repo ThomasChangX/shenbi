@@ -100,8 +100,6 @@ concepts:
   - {name: import/analysis/02_characters.md, kind: import, producer: skill}
   - {name: import/analysis/03_world.md, kind: import, producer: skill}
   - {name: import/analysis/04_plot.md, kind: import, producer: skill}
-  - {name: outline/chapter_outline.md, kind: outline, producer: skill}
-  - {name: outline/three_act.md, kind: outline, producer: skill}
   - {name: snapshots/chapter-NNN/manifest.json, kind: snapshot, producer: skill}
   - {name: progress.json, kind: config, producer: pipeline}
   - {name: config-change-log.jsonl, kind: config, producer: pipeline}
@@ -183,6 +181,7 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: audits/arc-*-score.md}
   - {pattern: audits/volume-*-score.md}
   - {pattern: audits/stratum-*-score.md}
+  - {pattern: genesis-context/*.md}  # spec #69: seed fragments
 
 # Resolved synonym decisions (the audit's D1 drift surfaces):
 #   style/style_profile.md  is canonical; deps.json's legacy

@@ -522,14 +522,14 @@
     ],
     "updates": []
   },
-  "outline/chapter_outline.md": {
+  "genesis-context/chapter_outline.md": {
     "reads": [
       "shenbi-character-design"
     ],
     "writes": [],
     "updates": []
   },
-  "outline/three_act.md": {
+  "genesis-context/three_act.md": {
     "reads": [
       "shenbi-character-design"
     ],
