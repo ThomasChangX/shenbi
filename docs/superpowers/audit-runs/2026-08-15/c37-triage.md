@@ -41,7 +41,7 @@
 | F642 | text 半数导出零消费（PUNCTUATION_TOKENS 除外——count_punctuation 消费 .items()；Token/_get_tokenizers 随 tokenize 级联删） | src/shenbi/text（count_words/tokenize/Token） | delete | T3 | 保 count_punctuation + PUNCTUATION_TOKENS + find_terms |
 | F706 | g4/conftest 两死 fixture | tests/unit/gates/g4/conftest.py:13,27 | delete | T4 | grep 确认零引用后删 |
 | F793 | 死函数被直测模式（_should_run_recall 已删、_should_run_drift 仍在） | src/shenbi/pipeline/chapter_loop.py:1774 + tests/unit/pipeline/test_adaptive_triggers.py:16 | delete | T3 | 模式治理整体移交 C14（R4/T6） |
-| F886 | genesis-context/*.md 写后零消费 | src/shenbi/pipeline/cli.py:497-500 | defer | T2 注记 | 种子断流是产品缺陷非卫生问题；写点注释如实标注，内容恢复待产品裁决/后续 spec |
+| F886 | genesis-context/*.md 写后零消费 | src/shenbi/pipeline/cli.py:497-500 | closed (spec #69) | T2 注记 | 种子断流是产品缺陷非卫生问题；写点注释如实标注，内容恢复待产品裁决/后续 spec——seed 内容流恢复已随 spec #69 落地（genesis 五技能 reads 接线） |
 | F903 | G0.13 工具哈希承诺静默失效 | src/shenbi/gates/g0.py:188-226 | already-fixed | — | #54/C16 以 G0.14 落地执法 |
 | F1027 | lint_status_strings 死参/CWD 面 | tools/lint_status_strings.py:165,168 | already-fixed | — | #34 已修复 |
 | T301 | check_fields_exist 零生产调用仅直测 | src/shenbi/gates/g1.py:106 + tests/unit/gates/test_g1_fields.py | delete | T4 | |
