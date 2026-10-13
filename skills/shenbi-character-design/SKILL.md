@@ -7,6 +7,7 @@ contract:
   reads:
   - world/story_bible.md
   - world/rules.md
+  - genesis-context/protagonist.md
   - genesis-context/chapter_outline.md
   - genesis-context/three_act.md
   - characters/*.md
@@ -32,7 +33,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** world/story_bible.md, world/rules.md, genesis-context/chapter_outline.md, genesis-context/three_act.md, characters/*.md, characters/**/*.md
+- **Reads:** world/story_bible.md, world/rules.md, genesis-context/protagonist.md, genesis-context/chapter_outline.md, genesis-context/three_act.md, characters/*.md, characters/**/*.md
 - **Writes:** characters/protagonist.md, characters/major/*.md, characters/minor/*.md, characters/relationships.md
 - **Updates:** none
 
@@ -40,7 +41,7 @@ contract:
 
 # Character Design Protocol
 
-**Seed 片段（genesis-context/）**：`genesis-context/chapter_outline.md` 与 `genesis-context/three_act.md` 是人类伙伴 seed 原文（开篇章纲/三幕结构节）的逐字片段。权威序：上游 truth（story_bible/rules 等）> seed 片段；冲突时以上游为准，若据此调整须在产出档案内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
+**Seed 片段（genesis-context/）**：`genesis-context/protagonist.md`、`genesis-context/chapter_outline.md` 与 `genesis-context/three_act.md` 是人类伙伴 seed 原文（主角设定/开篇章纲/三幕结构节）的逐字片段。权威序：上游 truth（story_bible/rules 等）> seed 片段；冲突时以上游为准，若据此调整须在产出档案内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
 
 You must complete ALL FOUR phases in order. Each phase produces specific files.
 No phase is optional. No character explicitly named in `genesis-context/chapter_outline.md`
