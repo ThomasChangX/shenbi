@@ -231,6 +231,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
     # -- Section raw text -> genesis context --------------------------------
     genesis_context: dict[str, str] = {
         "protagonist": _extract_section(text, "Protagonist|主角设定|主角"),
+        "supporting": _extract_section(text, "Supporting Cast|配角设定|配角"),
         "world_rules": _extract_section(text, "World Rules|世界观设定|世界规则|World Setting"),
         "forces": _extract_section(text, "Forces|势力/组织|势力|组织|Factions"),
         "surface_conflict": "",

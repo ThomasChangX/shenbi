@@ -529,6 +529,13 @@
     "writes": [],
     "updates": []
   },
+  "genesis-context/supporting.md": {
+    "reads": [
+      "shenbi-character-design"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "genesis-context/chapter_outline.md": {
     "reads": [
       "shenbi-character-design",

@@ -8,6 +8,7 @@ contract:
   - world/story_bible.md
   - world/rules.md
   - genesis-context/protagonist.md
+  - genesis-context/supporting.md
   - genesis-context/chapter_outline.md
   - genesis-context/three_act.md
   - characters/*.md
@@ -33,7 +34,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** world/story_bible.md, world/rules.md, genesis-context/protagonist.md, genesis-context/chapter_outline.md, genesis-context/three_act.md, characters/*.md, characters/**/*.md
+- **Reads:** world/story_bible.md, world/rules.md, genesis-context/protagonist.md, genesis-context/supporting.md, genesis-context/chapter_outline.md, genesis-context/three_act.md, characters/*.md, characters/**/*.md
 - **Writes:** characters/protagonist.md, characters/major/*.md, characters/minor/*.md, characters/relationships.md
 - **Updates:** none
 
@@ -41,11 +42,12 @@ contract:
 
 # Character Design Protocol
 
-**Seed 片段（genesis-context/）**：`genesis-context/protagonist.md`、`genesis-context/chapter_outline.md` 与 `genesis-context/three_act.md` 是人类伙伴 seed 原文（主角设定/开篇章纲/三幕结构节）的逐字片段。权威序：上游 truth（story_bible/rules 等）> seed 片段；冲突时以上游为准，若据此调整须在产出档案内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
+**Seed 片段（genesis-context/）**：`genesis-context/protagonist.md`、`genesis-context/supporting.md`（配角节，可选）、`genesis-context/chapter_outline.md` 与 `genesis-context/three_act.md` 是人类伙伴 seed 原文（主角设定/配角设定/开篇章纲/三幕结构节）的逐字片段。权威序：上游 truth（story_bible/rules 等）> seed 片段；冲突时以上游为准，若据此调整须在产出档案内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
 
 You must complete ALL FOUR phases in order. Each phase produces specific files.
-No phase is optional. No character explicitly named in `genesis-context/chapter_outline.md`
-or `genesis-context/three_act.md` may be omitted.
+No phase is optional. No character explicitly named in `genesis-context/chapter_outline.md`,
+`genesis-context/three_act.md`, or `genesis-context/supporting.md` (when the
+optional 配角设定 section is present) may be omitted.
 
 **职责边界**：本 skill **正向创建**角色档案（新小说，从 story_bible/story_frame 设计角色）。`shenbi-character-extraction` **反向提取**角色档案（已有手稿，从章节分析反推）。两者都写 `characters/*.md`，但方向相反——新小说用本 skill，导入已有作品用 extraction。
 
@@ -203,7 +205,8 @@ Generate >= 3 relationship pairs. Include protagonist with each major character.
 Before declaring completion, verify:
 1. Every character explicitly named in `genesis-context/chapter_outline.md` has a
    corresponding archive in either `characters/major/` or `characters/minor/`
-2. Every character explicitly named in `genesis-context/three_act.md` has an archive
+2. Every character explicitly named in `genesis-context/three_act.md` or
+   `genesis-context/supporting.md` (when present) has an archive
 3. `characters/major/` contains >= 3 `.md` files
 4. `characters/minor/` contains >= 2 `.md` files
 5. Every archive includes `archetype_sources` with >= 1 historical archetype,
