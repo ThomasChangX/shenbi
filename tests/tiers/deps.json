@@ -355,7 +355,6 @@
     "src/shenbi/contracts/schemas/deps.py": "sha256:bacb32607236851cd2f47dae94ee063e7aceb062119e1f13be54e279cbf6b464",
     "src/shenbi/contracts/schemas/hooks.py": "sha256:7b3a9f6ac3e7a51c15cbe1e7d538d394aeba2e7d92c301516b12242f929eec10",
     "src/shenbi/contracts/schemas/registry.py": "sha256:461c7402734a7495589a56c5c3679037c6efd693553b63c269f6a2ce8583bbc2",
-    "src/shenbi/contracts/schemas/novel.py": "sha256:9cce5585c9a83390a7ca3a079f984a1472b79ceac8b054f3ac6ea0ad1294b806",
     "src/shenbi/contracts/schemas/decisions.py": "sha256:61fd9f2c505aa743a01a27581f5c0190cc3807cc2b40b3aeba782aadd39639c8",
     "src/shenbi/contracts/schemas/__init__.py": "sha256:8400b820b83361a05fd08920d415e03b3d81bc1228319d4f5770e0de6654e280",
     "src/shenbi/contracts/schemas/adapt.py": "sha256:21d483efc73d3afc03878842c4c1b9d4f48b6362bbc76d391910bbf9effafa9e",
