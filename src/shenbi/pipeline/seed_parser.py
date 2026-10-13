@@ -164,6 +164,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
     # -- Basic Info -> novel.json -------------------------------------------
     basic = _extract_section(text, "Basic Info|基本信息")
     novel_json: dict[str, object] = {}
+    dropped_basic: list[str] = []
 
     # -- H1 -> novel.json title ---------------------------------------------
     # probe10/11: init never wrote a title, so G4.novel.missing_title only
@@ -205,6 +206,11 @@ def parse_seed(seed_path: Path | str) -> SeedData:
                 novel_json["target_word_count"] = int(nums[0])
         elif key_norm in ("ending_direction", "故事结局方向", "结局"):
             novel_json["ending_direction"] = value
+        else:
+            dropped_basic.append(key)
+    if dropped_basic:
+        # spec #69 T3: surface silently-dropped seed keys once per section.
+        log.warning("seed_key_dropped", section="Basic Info|基本信息", keys=dropped_basic)
 
     # total_chapters (volume_map frontmatter) is NOT set here -- volume-outlining
     # (genesis step 6) computes it. See spec section 4.2. The optional
@@ -216,6 +222,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
     # -- Narrative Techniques -> genre-config -------------------------------
     narrative = _extract_section(text, "Narrative Techniques|叙事技巧")
     genre_config: dict[str, object] = {}
+    dropped_narrative: list[str] = []
     for item in _parse_list_items(narrative):
         kv = _split_key_value(item)
         if kv is None:
@@ -227,6 +234,13 @@ def parse_seed(seed_path: Path | str) -> SeedData:
             genre_config["show_tell_ratio"] = value
         elif "theme" in key_norm or "主题" in key:
             genre_config["deep_themes"] = value
+        else:
+            dropped_narrative.append(key)
+    if dropped_narrative:
+        # spec #69 T3: surface silently-dropped seed keys once per section.
+        log.warning(
+            "seed_key_dropped", section="Narrative Techniques|叙事技巧", keys=dropped_narrative
+        )
 
     # -- Section raw text -> genesis context --------------------------------
     genesis_context: dict[str, str] = {
