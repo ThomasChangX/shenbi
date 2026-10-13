@@ -1,4 +1,4 @@
-> **Date:** 2026-10-13 | **Status:** Active（待执行）· Revised 2026-10-13（SDD 价值门两轮驳斥修正，v2.1） | **Severity:** 🟠 P1（F886 为 P1 verified） | **方法:** 契约声明式接线为主（reads 声明 + `sync_contracts.py` 再生成 + SKILL 正文同步），框架代码改动限 `seed_parser.py` / `g0.py` / `chapter_loop.py` 三处小面 + `truth-files.yaml` globs 段一行加法 | **系列:** 种子传递性（源自 2026-10-12/13 outline-example.md 大幅丰富前置审计会话，两轮批判性审核后定稿；第三轮 SDD 驳斥修正接线形态） | **依赖:** 无 | **范围:** F886 genesis 种子断流恢复、character-design 孤儿 reads 修正、配角可选节、丢弃键 WARN、G0.2 字数锚定、F368 残余收尾、NovelConfig 死 schema 删除、4.3 六项裁决固化 | **核心洞察:** 接线意图已半存在于仓库——character-design 契约已声明两条孤儿 reads（`outline/chapter_outline.md`/`outline/three_act.md`，全仓零写方）、`docs/framework/truth-files.yaml:91` 已注册 `genesis-context/*.md, kind: context, producer: pipeline`；缺的是写读两端路径对齐、五个 genesis 技能的 reads 补全、与注册表 globs 段一行（loader `resolves()` 对具体片段路径的硬前提，见 §1 修正 1）。两轮批判审核撤回三处过度工程候选（book-spine-init 双权威 / 疲劳词与每章字数 seed 键 / basic_info 死片段），净方案 = 纯接线 + 四项小清偿，零新框架机制
+> **Date:** 2026-10-13 | **Status:** Active（待执行）· Revised 2026-10-13（SDD 价值门两轮驳斥 + 设计审查一轮，v2.2） | **Severity:** 🟠 P1（F886 为 P1 verified） | **方法:** 契约声明式接线为主（reads 声明 + `sync_contracts.py` 再生成 + SKILL 正文同步），框架代码改动限 `seed_parser.py` / `g0.py` / `chapter_loop.py` 三处小面 + `cli.py` 注释改写一处 + `truth-files.yaml` globs 段一行加法（v2.2 订正改动面声明） | **系列:** 种子传递性（源自 2026-10-12/13 outline-example.md 大幅丰富前置审计会话，两轮批判性审核后定稿；第三轮 SDD 驳斥修正接线形态） | **依赖:** 无 | **范围:** F886 genesis 种子断流恢复、character-design 孤儿 reads 修正、配角可选节、丢弃键 WARN、G0.2 字数锚定、F368 残余收尾、NovelConfig 死 schema 删除、4.3 六项裁决固化 | **核心洞察:** 接线意图已半存在于仓库——character-design 契约已声明两条孤儿 reads（`outline/chapter_outline.md`/`outline/three_act.md`，全仓零写方）、`docs/framework/truth-files.yaml:91` 已注册 `genesis-context/*.md, kind: context, producer: pipeline`；缺的是写读两端路径对齐、五个 genesis 技能的 reads 补全、与注册表 globs 段一行（loader `resolves()` 对具体片段路径的硬前提，见 §1 修正 1）。两轮批判审核撤回三处过度工程候选（book-spine-init 双权威 / 疲劳词与每章字数 seed 键 / basic_info 死片段），净方案 = 纯接线 + 四项小清偿，零新框架机制
 
 # seed 内容流恢复与传递性收尾（spec69-seed-content-flow）
 
@@ -31,10 +31,10 @@
 
 - **机制**：复用契约 `reads:` 声明式通道。`genesis-context/*.md` 已是注册表登记的 pipeline-produced context（`docs/framework/truth-files.yaml:91` concepts 逐字条目）；**具体片段路径（如 `genesis-context/world_rules.md`）要过 loader `resolves()` 强制（`contracts/loader.py:285-291`），须在 truth-files.yaml globs 段加一行 `- {pattern: genesis-context/*.md}`**（修正 1，与 `outline/*.md` glob + 具体概念并存的先例同构）。加法后：loader fnmatch 通过 ✓、`dag_key` 规范化到 glob 键命中 lint_contract_graph pipeline 豁免（`tools/lint_contract_graph.py:64/:73-74`）✓、dispatch 按具体路径精准注入（不做全目录 glob 展开）✓。
 - **接线范围 = 仅 genesis 技能**：worldbuilding（step 1）/ character-design（step 3）/ story-architecture（step 4）/ faction-builder（step 5）/ volume-outlining（step 6）。**不接章节循环技能**——长跑中 truth 文件是权威，seed 章纲只覆盖开篇；**book-spine-init 不接**（撤回 1：story_frame 单源）。
-- **缺文件语义**：片段不存在（USER-mode 老项目 / 配角节缺省）→ `_resolve_read_path` 返回空 → 静默跳过（`dispatch_helper.py:574-597` + reads loop 零迭代，无 WARN 无报错），零迁移成本。
-- **权威序**：genesis 链内，上游已产出 truth > seed 原文片段。seed 片段定位 = 人类伙伴原始意向输入；与上游 truth 冲突时以上游为准，如技能据此做调整须在 decisions.json 记 adjustment（各接线技能正文加一句）。
-- **截断事实**：接线后片段走既有 `_budgeted_truncate`——`_INPUT_MAX_CHARS_PER_FILE = 32000` 字符/文件硬帽（超限截断 + WARN + TruncateRecord 披露，C29 R1）；优先级按文件名关键词既有分配：`chapter_outline.md` 含 "chapter" → HIGH（1.0）、`world_rules.md` → 0.8、其余 → default 0.5。**对用户丰富行为的软约束：单节 < 32K 字符**。
-- **G5.2 影响注记（修正 4 · v2.1 按实际 pair 源订正）**：G5.2 adjacent-pair 的 pair 源 = `deps.json t2-phases.<phase>.prerequisites` 顺序（`gates/g5.py:95`），**非 GENESIS_STEPS 执行顺序**。接线后新 missing 键 `genesis-context/*.md`（`dag_key` 收敛，与片段数无关）：genesis phase 恰四对——power-system→faction-builder、location-builder→character-design、relationship-map→story-architecture、story-architecture→volume-outlining（worldbuilding 为 prereqs[0] 无上游不查）；architecture phase spillover 一对——story-architecture→volume-outlining。baseline genesis 单相 26 条 → 30 条（可复算）。pipeline 产物无技能写方为预期形态；G5 仅 CLI/测试面（`gates/cli.py:197`）不进生产循环。**不改 g5.py**（零新框架机制纪律；pipeline 豁免若未来要做属独立 spec）。
+- **缺文件语义**：片段不存在（USER-mode 老项目 / 配角节缺省）→ `_resolve_read_path`（`dispatch_helper.py:554-578`）返回空 → 静默跳过（reads loop 零迭代，无 WARN 无报错），零迁移成本。
+- **权威序**：genesis 链内，上游已产出 truth > seed 原文片段。seed 片段定位 = 人类伙伴原始意向输入；与上游 truth 冲突时以上游为准，如技能据此做调整，**在其既有产物文件内以显式小节披露**（如「seed 意向与 truth 冲突的处理记录」，含调整理由一句）——各接线技能正文加一句（v2.2 修正：五技能均未声明 `*-decisions.json` sidecar，原「记 decisions.json」指契约外写点 = dead-wire，会撞 write-safety；为五技能补 sidecar 声明属扩面、与零新框架机制矛盾，显式不做）。
+- **截断事实**：接线后片段走既有 `_budgeted_truncate`（`dispatch_helper.py:402-451`）——`_INPUT_MAX_CHARS_PER_FILE = 32000` 字符/文件硬帽 + **`_INPUT_MAX_CHARS_TOTAL = 128000` 总预算**（超限时按 `_FILE_PRIORITY_WEIGHTS` 权重**等比分配**再二次再分配，:1148-1156 调用点）：`chapter_outline.md` 含 "chapter" → 1.0、`world_rules.md` → 0.8、其余片段（protagonist/supporting/three_act/plot_lines/三冲突/forces）→ default 0.5。**软约束（v2.2 修正：总量面）**：单节 < 32K 且 **genesis 九节合计建议 < ~100K 字符**（为 novel.json/story_bible/characters 等共注入输入留余量）——极端超限时 0.5 权重片段被等比切开（WARN + TruncateRecord 披露），核心冲突三层恰在此暴露面；**裁决：不为冲突片段提权重**（`_FILE_PRIORITY_WEIGHTS` 加法与零新框架机制冲突；取舍 = 极端丰富下冲突设定受披露性截断，属可接受——防后人当 bug 修）。
+- **G5.2 影响注记（修正 4 · v2.1 按实际 pair 源订正）**：G5.2 adjacent-pair 的 pair 源 = `deps.json t2-phases.<phase>.prerequisites` 顺序（`gates/g5.py:95` 取数、:126-160 相邻对循环），**非 GENESIS_STEPS 执行顺序**。接线后新 missing 键 `genesis-context/*.md`（`dag_key` 收敛，与片段数无关）：genesis phase 恰四对——power-system→faction-builder、location-builder→character-design、relationship-map→story-architecture、story-architecture→volume-outlining（worldbuilding 为 prereqs[0] 无上游不查）；architecture phase spillover 一对——story-architecture→volume-outlining。baseline genesis 单相 26 条 → 30 条（可复算）。pipeline 产物无技能写方为预期形态；G5 仅 CLI/测试面（`gates/cli.py:197`）不进生产循环。**不改 g5.py**（零新框架机制纪律；pipeline 豁免若未来要做属独立 spec）。
 - **R3 工具哈希再锁（v2.1 新增）**：`deps.json:_tool_hashes` 活锁恰覆盖本 spec 全部三个框架文件（seed_parser/g0/chapter_loop）——T2/T3/T4/T5 任一改动后须 `bash tests/lock-tool-hashes.sh` 再锁（`sync_contracts` 不再锁此段），否则 `just check` R3 面必 FAIL。
 - **conflict 三层不写入 novel.json**（裁决）：novel.json 是 framework-owned 文件（`FRAMEWORK_OWNED_WRITES`，`dispatch_helper.py:587-590`），不为传递扩 schema；冲突经 story-architecture 消化进 story_frame 后自然到达 book-spine。
 
@@ -99,20 +99,21 @@
 ## 3. 验收标准
 
 1. `just check` 全绿（含 G0.16 契约面、G0.5b rubric-SKILL 一致面、lint_registry_reconcile R1/R2、lint_contract_graph closure、reality-lock CI、fixture mirror 锁）
-2. **G5 实跑 delta 钉死**（修正 4 改写 · v2.1 订正 pair 源）：fixture 项目上跑 G5——G5.2 新增 missing 键**恰为** `genesis-context/*.md`：genesis phase 恰四对（power-system→faction-builder、location-builder→character-design、relationship-map→story-architecture、story-architecture→volume-outlining，pair 源 = deps.json prerequisites 非 GENESIS_STEPS）+ architecture phase spillover 一对（story-architecture→volume-outlining），无其他新增（genesis baseline 26→30 可复算）；这些 WARN 为 pipeline 产物无技能写方的预期形态，非 spurious
+2. **G5 实跑 delta 钉死**（修正 4 改写 · v2.1 订正 pair 源）：fixture 项目上经 `shenbi-validate G5`（无 round 面，G5.1/5.3/5.4 跳过形态）跑 G5——G5.2 新增 missing 键**恰为** `genesis-context/*.md`：genesis phase 恰四对（power-system→faction-builder、location-builder→character-design、relationship-map→story-architecture、story-architecture→volume-outlining，pair 源 = deps.json prerequisites 非 GENESIS_STEPS）+ architecture phase spillover 一对（story-architecture→volume-outlining），无其他新增（genesis baseline 26→30 可复算）；这些 WARN 为 pipeline 产物无技能写方的预期形态，非 spurious
 3. 单测清单：
    - T0/T1：契约加载面断言 reads 含目标片段路径；派发组装测试——片段文件存在时对应 genesis 技能 prompt 含其内容、`reads_manifest` 记录注入，文件缺失时 prompt 不含且不失败（复用 dispatch 组装测试基建）
    - T2：seed 含 `## 配角设定` → `genesis-context/supporting.md` 写盘；缺省不写
    - T3：非白名单键触发 `seed_key_dropped` WARN（caplog 断言）
    - T4：正文他处先出现「目标字数：」字样时 G0.2 仍取基本信息节值
    - T5：两测（见 T5.3）
-   - T6：全仓 grep NovelConfig 零命中
+   - T6：代码面 grep NovelConfig 零命中（`grep -r NovelConfig --include='*.py' src/ tests/ tools/`；spec 自身与 docs/归档的历史引用不阻碍——append-only）
 4. **丰富版 seed fixture 化验收 + 实弹探针降级为交付后人工步骤**（修正 4）：SDD 内验收（核心原则 8 禁真实 dispatch 取证，spec68 裁决先例——e2e-canary 人工触发、不进 just check、独立于 SDD 证据链）：
    - **丰富版 seed 以测试内字面量 / tmp_path 构造**（v2.1 消歧：不落 `tests/fixtures/`——先例 `tests/unit/pipeline/conftest.py` `sample_seed_content`；`tests/fixtures/` 镜像丰富属 §3.6 交付后动作），各节 < 32K 字符断言 = 「丰富软约束」实测锚点；经真实 `parse_seed`/init 写方（tmp_path，G0.9）断言全部片段写盘
    - 派发组装断言：worldbuilding/story-architecture 的 reads_manifest 含 world_rules/three_act/三冲突、prompt 含片段内容、无截断 WARN（dispatch 组装测试基建 `test_dispatch_reads_injection.py` 同族，离线 F947）
-   - **交付后人工探针（非 SDD 验收项）**：用户以 e2e-canary 形态跑 1 章探针（注意 run_pipeline.sh 语义 = 完整 genesis 链 + 章循环到 checkpoint，成本非「1 章」字面）；探针 seed 模板随 spec 交付
-5. **挂账闭合**：c37-triage F886 行 closed（注 spec #69）；F368 行按 T5.2 更新；`cli.py:834-841` 注释改写（「write-only 零消费者」谎称面清除，spec #51 Step2 注释的后续收尾）；findings-ledger 登记本 spec 对应行
-6. **顺序注记**：本 spec 验收后才执行 `outline-example.md` 大幅丰富 + fixture 镜像同步（provenance 头保留，G0.18 强制）；丰富后跑 `test_seed_parser.py` 真实断言面确认既有键值未被改写
+   - **交付后人工探针（非 SDD 验收项）**：用户以 e2e-canary 形态跑 1 章探针（注意 run_pipeline.sh 语义 = 完整 genesis 链 + 章循环到 checkpoint，成本非「1 章」字面）；观测清单含「无 `input_over_budget` 类截断 WARN」（v2.2：总预算超限观测项，见 §1 截断事实）；探针 seed 模板随 spec 交付
+5. **T7 验收（v2.2 补）**：4.3 六项裁决逐项含做/不做 + 理由（对照归档设计 spec 4.3 六项：风格参考文件路径/参考作品路径/关键配角草图/卷数偏好/题材疲劳词/每章目标字数）；`docs/getting-started/first-novel.md` 核对结果记录（预期：无 4.3 失真表述，空操作——审查者已预 grep，plan 阶段复核）
+6. **挂账闭合**：c37-triage F886 行 closed（注 spec #69）；F368 行按 T5.2 更新；`cli.py:834-841` 注释改写（「write-only 零消费者」谎称面清除，spec #51 Step2 注释的后续收尾）；findings-ledger 登记本 spec 对应行
+7. **顺序注记**：本 spec 验收后才执行 `outline-example.md` 大幅丰富 + fixture 镜像同步（provenance 头保留，G0.18 强制）；丰富后跑 `test_seed_parser.py` 真实断言面确认既有键值未被改写
 
 ## 4. 执行顺序与依赖
 
