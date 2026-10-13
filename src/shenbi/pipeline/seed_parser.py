@@ -44,7 +44,7 @@ class SeedData:
     genesis_context: dict[str, str] = field(default_factory=dict)
 
 
-def _extract_section(text: str, section_name: str) -> str:
+def extract_section(text: str, section_name: str) -> str:
     """Extract body under a heading until the next heading of same/higher level.
 
     section_name is a pipe-separated list of accepted heading texts
@@ -130,17 +130,17 @@ def validate_seed(seed_path: Path | str) -> list[str]:
         errors.append("缺少一级标题（# 书名）——novel.json title 的唯一来源")
 
     for label, alternatives in REQUIRED_SECTIONS:
-        body = _extract_section(text, alternatives)
+        body = extract_section(text, alternatives)
         if not body.strip():
             errors.append(f"必需节缺失或为空：{label}（可接受标题：{alternatives}）")
 
-    basic = _extract_section(text, "Basic Info|基本信息")
+    basic = extract_section(text, "Basic Info|基本信息")
     if basic.strip() and not any(
         _split_key_value(item) is not None for item in _parse_list_items(basic)
     ):
         errors.append("Basic Info 无任何可解析的 `- key: value` 列表项")
 
-    conflict = _extract_section(text, "Core Conflict|核心冲突")
+    conflict = extract_section(text, "Core Conflict|核心冲突")
     if conflict.strip():
         keys = [(_split_key_value(i) or ("", ""))[0] for i in _parse_list_items(conflict)]
         if not any("surface" in k.lower() or "表层" in k for k in keys):
@@ -162,7 +162,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
     text = seed_path.read_text(encoding="utf-8")
 
     # -- Basic Info -> novel.json -------------------------------------------
-    basic = _extract_section(text, "Basic Info|基本信息")
+    basic = extract_section(text, "Basic Info|基本信息")
     novel_json: dict[str, object] = {}
     dropped_basic: list[str] = []
 
@@ -220,7 +220,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
     novel_json["language"] = "zh"
 
     # -- Narrative Techniques -> genre-config -------------------------------
-    narrative = _extract_section(text, "Narrative Techniques|叙事技巧")
+    narrative = extract_section(text, "Narrative Techniques|叙事技巧")
     genre_config: dict[str, object] = {}
     dropped_narrative: list[str] = []
     for item in _parse_list_items(narrative):
@@ -244,20 +244,20 @@ def parse_seed(seed_path: Path | str) -> SeedData:
 
     # -- Section raw text -> genesis context --------------------------------
     genesis_context: dict[str, str] = {
-        "protagonist": _extract_section(text, "Protagonist|主角设定|主角"),
-        "supporting": _extract_section(text, "Supporting Cast|配角设定|配角"),
-        "world_rules": _extract_section(text, "World Rules|世界观设定|世界规则|World Setting"),
-        "forces": _extract_section(text, "Forces|势力/组织|势力|组织|Factions"),
+        "protagonist": extract_section(text, "Protagonist|主角设定|主角"),
+        "supporting": extract_section(text, "Supporting Cast|配角设定|配角"),
+        "world_rules": extract_section(text, "World Rules|世界观设定|世界规则|World Setting"),
+        "forces": extract_section(text, "Forces|势力/组织|势力|组织|Factions"),
         "surface_conflict": "",
         "personal_conflict": "",
         "deep_conflict": "",
-        "plot_lines": _extract_section(text, "Plot Lines|情节线"),
-        "chapter_outline": _extract_section(text, "Chapter Outline|章节大纲"),
-        "three_act": _extract_section(text, "Three-Act Structure|三幕结构"),
+        "plot_lines": extract_section(text, "Plot Lines|情节线"),
+        "chapter_outline": extract_section(text, "Chapter Outline|章节大纲"),
+        "three_act": extract_section(text, "Three-Act Structure|三幕结构"),
     }
 
     # -- Core Conflict: three layers ----------------------------------------
-    conflict = _extract_section(text, "Core Conflict|核心冲突")
+    conflict = extract_section(text, "Core Conflict|核心冲突")
     for item in _parse_list_items(conflict):
         kv = _split_key_value(item)
         if kv is None:
