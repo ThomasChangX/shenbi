@@ -314,3 +314,53 @@ class TestRichSeedSoftBounds:
         for name, text in fragments.items():
             assert len(text) < 32000, name
         assert sum(len(t) for t in fragments.values()) < 100000
+
+
+class TestDroppedKeyWarning:
+    """Spec #69 T3: non-whitelist keys surface once via seed_key_dropped.
+
+    structlog binds stderr (PrintLoggerFactory(sys.stderr)) -- caplog CANNOT
+    capture it; capsys must (precedent:
+    tests/unit/pipeline/test_dispatch_skill_write_audit.py:281-292).
+    """
+
+    @staticmethod
+    def _configure() -> None:
+        from shenbi.logging import configure_logging
+
+        configure_logging()
+
+    def test_basic_info_unknown_key_warns(self, tmp_path, capsys):
+        self._configure()
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n- 灵感来源: 某剧\n",
+            encoding="utf-8",
+        )
+        parse_seed(seed)
+        err = capsys.readouterr().err
+        assert err.count("seed_key_dropped") == 1  # 一次汇总, 不逐键刷屏
+        assert "灵感来源" in err
+
+    def test_narrative_unknown_key_warns(self, tmp_path, capsys):
+        self._configure()
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n\n"
+            "## 叙事技巧\n- 展示讲述比: 0.6\n- 叙事人称: 第一人称\n",
+            encoding="utf-8",
+        )
+        parse_seed(seed)
+        err = capsys.readouterr().err
+        assert err.count("seed_key_dropped") == 1
+        assert "叙事人称" in err
+
+    def test_all_whitelisted_no_warning(self, tmp_path, capsys):
+        self._configure()
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n\n## 叙事技巧\n- 展示讲述比: 0.6\n",
+            encoding="utf-8",
+        )
+        parse_seed(seed)
+        assert "seed_key_dropped" not in capsys.readouterr().err

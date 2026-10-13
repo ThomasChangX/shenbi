@@ -263,7 +263,7 @@
     "src/shenbi/pipeline/ledger_archive.py": "sha256:2a413220ea4a6f712a84f322f89d5f15be1a9a549e4bedb2c1baa3dc163a78b0",
     "src/shenbi/pipeline/truth_io.py": "sha256:ca17532084c94f6fd9bec56de130f9a456fbffae95cc78afd2bd247228ee9b89",
     "src/shenbi/pipeline/error_handler.py": "sha256:439336eeabae164f9619fcbd74ce9e3a9f6aa4cf317504755c49066cd35ac9cb",
-    "src/shenbi/pipeline/seed_parser.py": "sha256:c22e8b2ed4e621f18061743633779022cfc6b141d814792f7cd38348b48ce18a",
+    "src/shenbi/pipeline/seed_parser.py": "sha256:c05e4580b585774413d484ca4b5443d40b36717681beca6d3ad4a8d9136365bb",
     "src/shenbi/pipeline/state_heal.py": "sha256:f912928485866364c782514b66b18ae83ac594375066c5014b4b14d4c14ebb44",
     "src/shenbi/pipeline/dispatch_helper.py": "sha256:1e89e13176b7985db5201adc36de994d8f0823507c862b1b3a0dbd1668b8af4b",
     "src/shenbi/pipeline/audit_aggregate.py": "sha256:e93c4b94ab62f615da80d1aa990fddcad3b216766284381ea4f1bb3b4fd4fd50",
