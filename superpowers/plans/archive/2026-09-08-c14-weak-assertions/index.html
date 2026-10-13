@@ -1,0 +1,1506 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-08-c14-weak-assertions/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>C14 弱断言/自证测试修复 Implementation Plan（spec #52） - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="C14 弱断言/自证测试修复 Implementation Plan（spec #52） - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-08-c14-weak-assertions.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-08-c14-weak-assertions/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="C14 弱断言/自证测试修复 Implementation Plan（spec #52） - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-08-c14-weak-assertions.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#c14-implementation-planspec-52" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              C14 弱断言/自证测试修复 Implementation Plan（spec #52）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-t1-p1-f704f701f702f728f729" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: T1 P1 五连修复——自证壳重写（F704/F701/F702/F728/F729）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-t2a-p2-f703f705f712f713f719" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: T2a P2 批量改写之一（F703/F705/F712/F713/F719）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-t2b-p2-f731f733f734f735f743f744f739f740" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: T2b P2 批量改写之二（F731/F733/F734/F735/F743/F744/F739/F740）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-m-f715f716f718f745f746f747f748" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: M 级批量清理（F715/F716/F718/F745/F746/F747/F748）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-t3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: T3 红灯验证 + 验收证据汇总
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec 验收 → task → 验证命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="c14-implementation-planspec-52">C14 弱断言/自证测试修复 Implementation Plan（spec #52）</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 把 spec #52（C14）的 25 条存活弱断言/自证测试全部改写为真实生产行为断言，生产代码零改动（红灯验证的临时破坏不落库）。</p>
+<p><strong>Architecture:</strong> 全部改动限于 tests/。五个 P1 自证壳改为走生产入口（<code>cmd_review</code> / <code>run_chapter_step</code>+monkeypatch <code>dispatch_skill</code> 捕获 prompt / <code>_build_skill_prompt</code> / <code>_input_key</code> 期望键集 pin / <code>_acquire_lock</code> 真实互斥）；P2/M 批量按 finding 逐条机械改写；末 task 跑红灯验证与验收证据。</p>
+<p><strong>Tech Stack:</strong> pytest（markers: unit/integration/property/last）、hypothesis、monkeypatch、tmp_path、caplog。运行一律 <code>uv run pytest</code>（与 CI <code>uv run --frozen</code> 同构）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>生产代码零改动（src/shenbi/ 不动；红灯验证临时改→还原，不 commit）</li>
+<li>每条改写后的断言必须满足：真实输入 → 真实生产调用 → 对真实输出断言</li>
+<li>skip 数不增（基线 526）；<code>pytest -n auto -m "not last"</code> 全绿</li>
+<li>并发类测试用 barrier/event 确定性同步，禁 sleep</li>
+<li>fixture 只能引用 tests/fixtures/ 真实产物（G0.9）</li>
+<li>commit 用 conventional commits，显式列文件路径（禁 git add -A）</li>
+<li>每 task commit 后产出 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>（fresh-context 全量重审）</li>
+</ul>
+<hr />
+<h3 id="task-1-t1-p1-f704f701f702f728f729">Task 1: T1 P1 五连修复——自证壳重写（F704/F701/F702/F728/F729）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tests/unit/pipeline/test_cli.py:815-862</code>（F704 两站点）
+- Modify: <code>tests/unit/test_safe_write.py:62-100</code>（F701）
+- Modify: <code>tests/unit/test_scoring.py:435-444</code>（F702）
+- Modify: <code>tests/pipeline/test_audit_context_cache.py:45-79</code>（F728）
+- Modify: <code>tests/pipeline/test_dispatch_helper_keys.py</code>（F729）</p>
+<p><strong>Interfaces:</strong>
+- Consumes（生产，零改动）:
+  - <code>src/shenbi/pipeline/cli.py:617</code> <code>def cmd_review(args: argparse.Namespace) -&gt; int</code>（MODIFY 回滚映射在 :678-686）
+  - <code>src/shenbi/pipeline/chapter_loop.py:2615</code> <code>def run_chapter_step(state: PipelineState, project_dir: Path | str) -&gt; bool</code>（反馈注入块 :3033-3039）；<code>dispatch_skill</code> 从 <code>shenbi.pipeline.chapter_loop</code> 名字空间 monkeypatch（已 import 于 :58）
+  - <code>src/shenbi/pipeline/machine.py:69/90</code> <code>set_checkpoint</code> / <code>clear_checkpoint(state, decision)</code>
+  - <code>src/shenbi/safe_write.py:113</code> <code>def _acquire_lock(path: Path) -&gt; tuple[int, Path | None]</code>
+  - <code>src/shenbi/scoring.py:240-256</code> <code>compute_score(dimensions, scores, kill_switch_triggered=False)</code>——<code>weight_mismatch</code> warning 于 total_weight != 100 且非 0 时触发（structlog → configure_logging 后 stderr，capsys 捕获）
+  - <code>src/shenbi/pipeline/dispatch_helper.py:588</code> <code>def _input_key(full_path: Path, project_dir: Path) -&gt; str</code>、<code>:603</code> <code>def _build_skill_prompt(skill, project_dir, prompt, chapter, uses_staging=False, shared_context=None, json_mode=False, path_context=None) -&gt; tuple[str, str, list[str]]</code></p>
+<ul>
+<li>[ ] <strong>Step 1: F704 step 回滚站点重写</strong></li>
+</ul>
+<p>删除 <code>test_cli.py:815-830</code>（<code>test_modify_rolls_back_step_index</code> 类站点，"Simulate MODIFY: step_index should roll back to 1" 测试体内自映射 step_index），替换为走 <code>cmd_review</code> 生产路径。<strong>关键</strong>：状态文件名是 <code>pipeline-state.json</code>（machine.py:23 <code>STATE_FILENAME</code>），且 <code>cmd_review</code> 内部 <code>load_state</code> 得到自己的 state 副本——断言必须打在 <strong>重新 load 的 state</strong> 上，不得用测试本地旧对象（否则假通过）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_modify_rolls_back_step_index_via_cmd_review</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;MODIFY decision rolls back step cursor through the production review path.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli</span> <span class="k">as</span> <span class="n">pipeline_cli</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_state</span><span class="p">,</span> <span class="n">save_state</span><span class="p">,</span> <span class="n">set_checkpoint</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckpointType</span><span class="p">,</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">ReviewDecision</span>
+
+    <span class="n">project</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;proj&quot;</span>
+    <span class="p">(</span><span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">project</span><span class="p">))</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">step_index</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">save_state</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+    <span class="n">set_checkpoint</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">CheckpointType</span><span class="o">.</span><span class="n">CHAPTER_MEMO</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">artifact</span><span class="o">=</span><span class="s2">&quot;plans/chapter-3-plan.md&quot;</span><span class="p">)</span>
+    <span class="n">save_state</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">pipeline_cli</span><span class="p">,</span> <span class="s2">&quot;_queue_re_dispatches&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">feedback</span> <span class="o">=</span> <span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;feedback.md&quot;</span>
+    <span class="n">feedback</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;Fix the pacing in section 3&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">(</span>
+        <span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="n">decision</span><span class="o">=</span><span class="n">ReviewDecision</span><span class="o">.</span><span class="n">MODIFY</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">feedback</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">rc</span> <span class="o">=</span> <span class="n">pipeline_cli</span><span class="o">.</span><span class="n">cmd_review</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="n">reloaded</span> <span class="o">=</span> <span class="n">load_state</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>  <span class="c1"># cmd_review 保存的是它自己的副本——必须重载</span>
+    <span class="k">assert</span> <span class="n">reloaded</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">step_index</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># CHAPTER_STEPS[1] = chapter-planning</span>
+    <span class="k">assert</span> <span class="n">reloaded</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">modify_feedback</span> <span class="o">==</span> <span class="s2">&quot;Fix the pacing in section 3&quot;</span>
+</code></pre></div>
+<p>注：review parser 字段为 <code>project_dir</code>（positional）/ <code>decision</code>（choices）/ <code>--feedback</code>（cli.py:1111-1113）——Namespace 字段名以 parser 定义为准核对。MODIFY 分支的 in-function import <code>discard_staging</code> 对无 staging 的 tmp 项目可容忍（<code>_load_staging_meta</code> 处理缺失），不需 monkeypatch。回滚映射为 CHAPTER_MEMO→1、STATE_SETTLE→<strong>7</strong>（cli.py:678-686；旧测试自模拟的 6 本身就是错的——pinned-bug 风险点，若暴露真差异按 finding 立案）。</p>
+<ul>
+<li>[ ] <strong>Step 2: F704 prompt 注入站点重写</strong></li>
+</ul>
+<p>删除 <code>test_cli.py:832-862</code>（<code>test_modify_injects_feedback_into_dispatch_prompt</code>，"Simulate dispatch prompt construction"），替换为：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_modify_injects_feedback_into_dispatch_prompt</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedback stored in modify_feedback reaches the real dispatch prompt (one-shot).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">chapter_loop</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineState</span>
+
+    <span class="n">captured</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">FakeResult</span><span class="p">:</span>  <span class="c1"># dispatch_skill 返回 SkillResult 形（success/returncode/stderr 等）</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">returncode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">stderr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">stdout</span> <span class="o">=</span> <span class="s2">&quot;ok&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fake_dispatch</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># signature 对齐 dispatch_skill</span>
+        <span class="n">captured</span><span class="p">[</span><span class="s2">&quot;skill&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">skill</span>
+        <span class="n">captured</span><span class="p">[</span><span class="s2">&quot;prompt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prompt</span>
+        <span class="k">return</span> <span class="n">FakeResult</span><span class="p">()</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">chapter_loop</span><span class="p">,</span> <span class="s2">&quot;dispatch_skill&quot;</span><span class="p">,</span> <span class="n">fake_dispatch</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">step_index</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># chapter-planning，dispatched step</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">modify_feedback</span> <span class="o">=</span> <span class="s2">&quot;Fix the pacing in section 3&quot;</span>
+
+    <span class="n">chapter_loop</span><span class="o">.</span><span class="n">run_chapter_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="s2">&quot;Fix the pacing in section 3&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">captured</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">modify_feedback</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># one-shot consumption</span>
+</code></pre></div>
+<p>注：<code>run_chapter_step</code> 在 dispatch 后立即读 <code>result.success/.returncode/.stderr</code>（chapter_loop.py:3061+），fake 必须返回 SkillResult 形对象（如上 FakeResult）。若 chapter-planning 因 tmp_path 无产物在 G4 处失败，monkeypatch 该 step 的 G4 入口（最小面）并记 deviation。</p>
+<ul>
+<li>[ ] <strong>Step 3: F701 lockfile 互斥重写</strong></li>
+</ul>
+<p><code>test_safe_write.py:62-100</code> 的两个 chmod 同义反复测试改为真实 <code>_acquire_lock</code> 互斥验证：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_lockfile_mutual_exclusion_via_acquire_lock</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Second _acquire_lock on a held O_EXCL lockfile blocks until release.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">_acquire_lock</span>
+
+    <span class="n">target</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;data.json&quot;</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">fd1</span><span class="p">,</span> <span class="n">lock1</span> <span class="o">=</span> <span class="n">_acquire_lock</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">fd1</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">try_second</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fd2</span><span class="p">,</span> <span class="n">lock2</span> <span class="o">=</span> <span class="n">_acquire_lock</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="s2">&quot;second&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">fd2</span><span class="p">,</span> <span class="n">lock2</span><span class="p">)</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lock2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">lock2</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - record for assertion</span>
+            <span class="n">results</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exc</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">try_second</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># daemon：失败路径 flock 无超时，防套件挂死</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="c1"># 先释放锁，再断言（断言失败时不应留下持锁线程阻塞解释器关闭）</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lock1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lock1</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># 释放后再等线程退出，消除 release→assert 间唤醒窗口</span>
+    <span class="c1"># 在持锁窗口内，第二个获取不得成功返回（此刻 results 只反映持锁窗口内的事实：</span>
+    <span class="c1"># 记录于 release 前由 try_second 写入——将下面断言改为在 release 前快照）</span>
+    <span class="k">assert</span> <span class="s2">&quot;second&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">results</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mutual exclusion broken: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;second&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="err">```</span>
+
+<span class="n">保留</span><span class="o">/</span><span class="n">补一条权限断言测试</span><span class="err">——</span><span class="o">**</span><span class="n">POSIX</span> <span class="n">下</span> <span class="err">`</span><span class="n">_acquire_lock</span><span class="err">`</span> <span class="n">走</span> <span class="n">flock</span> <span class="n">分支不产</span> <span class="n">lockfile</span><span class="o">**</span><span class="err">，</span><span class="n">须强制</span> <span class="n">O_EXCL</span> <span class="n">fallback</span><span class="err">（</span><span class="n">monkeypatch</span> <span class="err">`</span><span class="n">fcntl</span><span class="err">`</span> <span class="n">导入失败</span><span class="err">，</span><span class="n">同文件已有先例</span> <span class="err">`</span><span class="n">test_safe_write_lockfile_fallback_cleanup_posix</span><span class="err">`），</span><span class="n">在</span> <span class="n">fallback</span> <span class="n">产出</span> <span class="n">lockfile</span> <span class="n">后断言</span> <span class="err">`</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mode</span> <span class="o">&amp;</span> <span class="mo">0o777</span> <span class="o">==</span> <span class="mo">0o600</span><span class="err">`，</span><span class="n">删除</span> <span class="n">raw</span> <span class="err">`</span><span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="err">`</span><span class="o">+</span><span class="err">`</span><span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="err">`</span> <span class="n">自建</span> <span class="n">lockfile</span> <span class="n">的同义反复体</span><span class="err">。</span>
+
+<span class="o">-</span> <span class="p">[</span> <span class="p">]</span> <span class="o">**</span><span class="n">Step</span> <span class="mi">4</span><span class="p">:</span> <span class="n">F702</span> <span class="n">weight_mismatch</span> <span class="n">双向断言</span><span class="o">**</span>
+
+<span class="err">`</span><span class="n">test_scoring</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">435</span><span class="o">-</span><span class="mi">444</span><span class="err">`</span> <span class="n">删</span> <span class="err">`</span><span class="ow">or</span> <span class="kc">True</span><span class="err">`。</span><span class="o">**</span><span class="n">注意</span><span class="err">：</span><span class="n">scoring</span> <span class="n">用</span> <span class="n">structlog</span><span class="err">，</span><span class="n">且</span> <span class="n">pytest</span> <span class="n">下</span> <span class="n">conftest</span> <span class="n">恢复</span> <span class="n">structlog</span> <span class="n">默认配置</span><span class="err">（</span><span class="n">默认打</span> <span class="n">stdout</span><span class="err">）——</span><span class="n">须先</span> <span class="err">`</span><span class="n">configure_logging</span><span class="p">()</span><span class="err">`</span> <span class="n">绑定</span> <span class="n">stderr</span> <span class="n">再断言</span><span class="o">**</span><span class="err">（</span><span class="n">conftest</span> <span class="n">fixture</span> <span class="n">会在</span> <span class="n">teardown</span> <span class="n">恢复</span><span class="err">，</span><span class="n">安全</span><span class="err">）：</span>
+
+<span class="err">```</span><span class="n">python</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_weight_mismatch_warns_and_clean_input_silent</span><span class="p">(</span><span class="n">capsys</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;total_weight != 100 warns on stderr; == 100 stays silent — both pinned.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_logging</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.scoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_score</span>
+
+    <span class="n">configure_logging</span><span class="p">()</span>  <span class="c1"># PrintLoggerFactory(file=sys.stderr)；conftest teardown 恢复</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;num&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;num&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}]</span>  <span class="c1"># 110 != 100</span>
+    <span class="n">compute_score</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">100</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="s2">&quot;weight_mismatch&quot;</span> <span class="ow">in</span> <span class="n">capsys</span><span class="o">.</span><span class="n">read_outerr</span><span class="p">()</span><span class="o">.</span><span class="n">err</span>
+
+    <span class="n">dims_ok</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;num&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;num&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">}]</span>  <span class="c1"># == 100</span>
+    <span class="n">compute_score</span><span class="p">(</span><span class="n">dims_ok</span><span class="p">,</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">100</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="s2">&quot;weight_mismatch&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">capsys</span><span class="o">.</span><span class="n">read_outerr</span><span class="p">()</span><span class="o">.</span><span class="n">err</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: F728 注入块自证壳清除</strong></li>
+</ul>
+<p><code>test_audit_context_cache.py:45-79</code> "Simulate the injection logic from _build_skill_prompt" 块删除，改为直接调 <code>_build_skill_prompt(shared_context=ctx)</code> 并断言 user_prompt 含注入字段、auditor 不需重读（对齐 <code>tests/unit/pipeline/test_dispatch_helper_read_suppression.py</code> 的真实 ctx 构造方式——复用其 fixture/构造代码，不新建 mock）。</p>
+<ul>
+<li>[ ] <strong>Step 6: F729 期望键集 pin</strong></li>
+</ul>
+<p><code>test_dispatch_helper_keys.py:38-40</code> 恒真守卫改为硬编码期望列表 <strong>并驱动真实注入块</strong>（<code>_build_skill_prompt(shared_context=ctx)</code>，ctx 用 <code>build_shared_audit_context</code> 或复用 <code>tests/unit/pipeline/test_dispatch_helper_read_suppression.py</code> 的真实构造）：</p>
+<div class="highlight"><pre><span></span><code><span class="n">EXPECTED_INJECTION_KEYS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;world/rules.md&quot;</span><span class="p">,</span>             <span class="c1"># C28 R1 (F312): canonical, 旧 truth/ 键是 phantom</span>
+    <span class="s2">&quot;truth/character_matrix.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">,</span>     <span class="c1"># C28 R1 (F312): canonical</span>
+    <span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_injection_block_keys_are_pinned</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tests.unit.pipeline.test_dispatch_helper_read_suppression</span><span class="w"> </span><span class="kn">import</span> <span class="o">&lt;</span><span class="n">ctx</span> <span class="n">构造</span> <span class="n">helper</span><span class="o">&gt;</span>
+
+    <span class="n">ctx</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">真实</span> <span class="n">SharedAuditContext</span> <span class="n">构造</span><span class="err">（</span><span class="n">复用</span> <span class="n">read_suppression</span> <span class="n">测试的写法</span><span class="err">）</span><span class="o">&gt;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="o">&lt;</span><span class="n">chapter</span><span class="o">-</span><span class="n">planning</span> <span class="n">skill</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;do it&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">shared_context</span><span class="o">=</span><span class="n">ctx</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">EXPECTED_INJECTION_KEYS</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;injection key drifted: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>生产注入键源为 dispatch_helper.py:707-727 <code>_INJECT_FROM_CACHE</code>（<code>world/rules.md</code>、<code>truth/character_matrix.md</code>、<code>style/style_profile.md</code>、<code>truth/pending_hooks.md</code>）——期望列表必须与该处对齐，<code>_INJECT_FROM_CACHE</code> 键漂移即红。<code>_input_key</code> 本体的相对路径语义另以 <code>assert _input_key(tmp_path / rel, tmp_path) == rel</code> 保持覆盖。</p>
+<ul>
+<li>[ ] <strong>Step 7: 运行本文件测试</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_cli.py tests/unit/test_safe_write.py tests/unit/test_scoring.py tests/pipeline/test_audit_context_cache.py tests/pipeline/test_dispatch_helper_keys.py -q</code>
+Expected: 全 PASS，无新增 skip。</p>
+<ul>
+<li>[ ] <strong>Step 8: Commit + audit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/pipeline/test_cli.py<span class="w"> </span>tests/unit/test_safe_write.py<span class="w"> </span>tests/unit/test_scoring.py<span class="w"> </span>tests/pipeline/test_audit_context_cache.py<span class="w"> </span>tests/pipeline/test_dispatch_helper_keys.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: C14 T1 — rewrite five self-proving shells to production-path assertions (F704/F701/F702/F728/F729)&quot;</span>
+</code></pre></div>
+<p>产出 <code>.superpowers/sdd/audit-T1.md</code>（fresh-context 重审）后方可进 Task 2。</p>
+<hr />
+<h3 id="task-2-t2a-p2-f703f705f712f713f719">Task 2: T2a P2 批量改写之一（F703/F705/F712/F713/F719）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tests/unit/pipeline/test_review_checklist.py:207-209</code>（F703）
+- Modify: <code>tests/unit/test_scoring.py:517-556</code>（F705）
+- Modify: <code>tests/unit/pipeline/test_bridge_tracker.py:13-24</code>、<code>tests/unit/gates/g4/test_state_settling.py:166-167</code>（F712）
+- Modify: <code>tests/unit/gates/test_g6.py:637-640</code>（F713）
+- Modify: <code>tests/unit/pipeline/test_field_filtering.py</code>（F719）</p>
+<ul>
+<li>[ ] <strong>F703</strong>：<code>assert len(result) &gt;= 0</code> → <code>assert result == ["H001"]</code>（注释已声明只返回 H001；以实际 <code>_extract_hook_deliverables</code> 行为核对后 pin 精确值）</li>
+<li>[ ] <strong>F705</strong>：改写真实 <code>tests/tiers/deps.json</code> 的测试体整体换 <code>tmp_path</code> 复制（<code>shutil.copy</code> 源文件到 tmp）后操作；断言加"源文件未变"校验（<code>git status</code> 干净由验收 5 兜底）</li>
+<li>[ ] <strong>F712</strong>：两文件共 3 处 <code>pytest.skip("... not yet created")</code> 死守卫删除，直接执行；若执行暴露真失败按 pinned-bug 政策立案不回退</li>
+<li>[ ] <strong>F713</strong>：<code>if g610 is not None: assert ...</code> → <code>assert g610 is not None, "D16 check must exist"; assert g610["s"] != "SKIP"</code>（检查缺失即 FAIL）</li>
+<li>[ ] <strong>F719</strong>：docstring/测试名改为如实描述 <code>filter_to_fields</code> 本体单测（删"dispatch_helper read loop delegates"虚假集成声称），文件头注释同步</li>
+<li>[ ] 运行：<code>uv run pytest tests/unit/pipeline/test_review_checklist.py tests/unit/test_scoring.py tests/unit/pipeline/test_bridge_tracker.py tests/unit/gates/g4/test_state_settling.py tests/unit/gates/test_g6.py tests/unit/pipeline/test_field_filtering.py -q</code> → 全 PASS，skip 数较改前下降</li>
+<li>[ ] Commit <code>test: C14 T2a — concrete-value assertions, tmp_path isolation, dead-skip removal (F703/F705/F712/F713/F719)</code>（显式列 6 文件）→ 产出 audit-T2.md</li>
+</ul>
+<hr />
+<h3 id="task-3-t2b-p2-f731f733f734f735f743f744f739f740">Task 3: T2b P2 批量改写之二（F731/F733/F734/F735/F743/F744/F739/F740）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tests/integration/test_docs_accuracy.py:64,85,94,102</code>（F731）
+- Modify: <code>tests/gates/test_gate_manifest.py:15</code>（F733）
+- Modify: <code>tests/integration/test_gate_cli.py:469-471</code>（F734）
+- Modify: <code>tests/pipeline/test_crash_recovery.py:144-159</code>（F735）
+- Modify: <code>tests/unit/pipeline/test_state_heal.py</code>（F743）
+- Modify: <code>tests/pipeline/test_budgeted_truncate.py:31</code>（F744）
+- Modify: <code>tests/pressure-tests/prompts/snapshot-skip-pressure.md</code>（F739）
+- Modify: <code>tests/pressure-tests/prompts/audit-skipping-pressure.md</code>（F740）</p>
+<ul>
+<li>[ ] <strong>F731</strong>：3 处死 skip 删除直接执行；:64 条件 skip 核对条件真伪后处置（真条件保留并注明）</li>
+<li>[ ] <strong>F733</strong>：<code>@pytest.mark.last</code> 错标移除（该测试应入快测套件）；历史 list 分支补一条真实行为测试（构造 list 形态 gate result 走 <code>record_and_retrieve</code>，断言等价）——若分支确为死代码则记 deviation 移交（不删生产）</li>
+<li>[ ] <strong>F734</strong>：<code>assertIn(state["state"], ["scored","finalized"])</code> → pin 单一期望值（以 <code>cmd_finalize</code> 生产语义核对：finalize 后 state 应为确定值）</li>
+<li>[ ] <strong>F735</strong>：TestEmergencyCleanup 两测试补真实断言（cleanup 后 staging 目录清空/隔离区内容落位）；删除对生产从不调用的 <code>state.save</code> side_effect 幻设</li>
+<li>[ ] <strong>F743</strong>：补 <code>current_step == CHAPTER_STEPS[step_index]</code> 一致性校验测试（真实 heal 路径：构造错位 state → heal → 断言对齐）；夹具错位索引修正</li>
+<li>[ ] <strong>F744</strong>：<code>"chapter" in str(...)</code> 近恒真 → pin 精确键/结构断言（截断测试已由 #43 覆盖，只处理恒真面）</li>
+<li>[ ] <strong>F739/F740</strong>：提示词文本与 <code>src/shenbi/audit/snapshot.py</code> 记录级差分语义、<code>chapter_loop.py:461 CASCADABLE_AUDITS</code> 级联语义对齐改写（删"完整副本/全 33 维必跑"表述，改为差分/可级联真实语义）</li>
+<li>[ ] 运行：<code>uv run pytest tests/integration/test_docs_accuracy.py tests/gates/test_gate_manifest.py tests/integration/test_gate_cli.py tests/pipeline/test_crash_recovery.py tests/unit/pipeline/test_state_heal.py tests/pipeline/test_budgeted_truncate.py -q</code> → 全 PASS；skip 数不增</li>
+<li>[ ] Commit <code>test: C14 T2b — dead skips, marker fix, pinned states, heal consistency, prompt semantics (F731/F733-F735/F743/F744/F739/F740)</code> → 产出 audit-T3.md</li>
+</ul>
+<hr />
+<h3 id="task-4-m-f715f716f718f745f746f747f748">Task 4: M 级批量清理（F715/F716/F718/F745/F746/F747/F748）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tests/unit/test_plugins_generate.py:53-72</code>（F715）
+- Modify: 8 站点（F716，清单见 spec :50）
+- Modify: <code>tests/unit/test_phase_runner_property.py:48-52</code>（F718）
+- Modify: <code>tests/pipeline/test_parallel_steps.py:16-25,89-92</code>（F745）
+- Modify: <code>tests/pipeline/test_title_gate_integration.py:38-46,201-218</code>（F746）
+- Modify: <code>tests/property/contracts/test_registry_consistency.py:42-45</code>（F747）
+- Modify: <code>tests/pipeline/test_audit_cascading.py</code>（F748）</p>
+<ul>
+<li>[ ] <strong>F715</strong>：MASTER_PATH 手工保存/恢复改 <code>monkeypatch.setattr(gen_mod, "MASTER_PATH", tmp_copy)</code>（异常安全由 monkeypatch 保证）+ 名实对齐</li>
+<li>[ ] <strong>F716</strong>：7 站点逐一收紧（spec 标"8 存活"中 test_g2.py 站点已消失，实际处置 7 处）——每处改单一确定状态断言或注明 "gate must complete, not raise" 显式意图（test_g5.py:221、cost/test_report.py:34、test_parallel_dispatch.py:82、test_context_curation.py:30、test_scoring_anti_collapse.py:98-99、test_phase_runner.py:869-870、test_g0.py:215-216；F767 站点不碰）</li>
+<li>[ ] <strong>F718</strong>：<code>seed</code> 形参真实 <code>st.seed(...)</code> draw 或删形参（<code>data.draw</code> 或直接去参）</li>
+<li>[ ] <strong>F745</strong>：<code>executed_concurrently</code> 用 <code>threading.Barrier(2)</code> 在 fake dispatch 内交错验证真并发（两线程都到 barrier 才放行，超时即 FAIL）；single-writer 守卫优先行为验证（并发两写 → 串行化结果一致），否定性主张保留文本级则注明论证</li>
+<li>[ ] <strong>F746</strong>：<code>test_returns_empty_for_missing_file</code> 改名 <code>test_raises_for_missing_file</code>；short title 测试补过 <code>_run_g4_checks</code> 真实 gate 断言</li>
+<li>[ ] <strong>F747</strong>：<code>@given(st.data())</code> 改真实 draw（<code>data.draw(st.sampled_from(...))</code> 进入断言）或删装饰器</li>
+<li>[ ] <strong>F748</strong>：删"Wait, 1 from ch1..."困惑注释；补 unknown-skill（不在任何清单）分支真实测试</li>
+<li>[ ] 运行：<code>uv run pytest tests/unit/test_plugins_generate.py tests/unit/gates/test_g5.py tests/unit/cost/test_report.py tests/unit/pipeline/test_parallel_dispatch.py tests/unit/pipeline/test_context_curation.py tests/unit/test_scoring_anti_collapse.py tests/unit/test_phase_runner.py tests/unit/gates/test_g0.py tests/unit/test_phase_runner_property.py tests/pipeline/test_parallel_steps.py tests/pipeline/test_title_gate_integration.py tests/property/contracts/test_registry_consistency.py tests/pipeline/test_audit_cascading.py -q</code> → 全 PASS</li>
+<li>[ ] Commit <code>test: C14 T4 — M-tier cleanup: fixture safety, tightened assertions, real draws, barrier concurrency (F715/F716/F718/F745-F748)</code> → 产出 audit-T4.md</li>
+</ul>
+<hr />
+<h3 id="task-5-t3">Task 5: T3 红灯验证 + 验收证据汇总</h3>
+<p><strong>Files:</strong> 无新改动（临时破坏→还原，不落库；证据进 PR 描述与 progress.md）</p>
+<ul>
+<li>[ ] 对 T1-T4 触及的每个测试文件执行 1 处"破坏生产 → 红 → 还原"（如：compute_score 改 warning 为 silent → F702 测试红；_input_key 改返回 basename → F729 红；cmd_review 回滚映射改错值 → F704 红）。每处记录：破坏点、变红测试、还原确认（<code>git diff src/</code> 空）</li>
+<li>[ ] 验收命令逐条跑并记录：</li>
+<li><code>grep -rn "or True" tests/ --include="*.py"</code> → 仅 allowlist 1 命中</li>
+<li><code>grep -rn "assert len(.*) &gt;= 0" tests/</code> → 零命中</li>
+<li><code>grep -n "from shenbi\|import shenbi" tests/pipeline/test_audit_context_cache.py tests/unit/pipeline/test_cli.py</code> → 非空 + 人工复查无重实现块</li>
+<li><code>uv run pytest -n auto -m "not last"</code> 全绿 + <code>just test</code> 全绿，skip 数 == 526（基线持平或更低）</li>
+<li>F705 修复后测试运行前后 <code>git status</code> 干净</li>
+<li><code>uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py tests/pipeline/test_audit_context_cache.py --cov=src/shenbi/pipeline/dispatch_helper --cov-report=term</code> 中注入块行（dispatch_helper.py:707-727）覆盖 &gt;0（验收 6）</li>
+<li>[ ] Commit（如有 meta 记录文件；否则零 commit，证据直接进 progress.md）→ 产出 audit-T5.md</li>
+</ul>
+<hr />
+<h2 id="spec-task">验收覆盖表（spec 验收 → task → 验证命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. or True / &gt;=0 grep</td>
+<td>T1(F702)/T2a(F703)+T5</td>
+<td>grep 命令输出</td>
+</tr>
+<tr>
+<td>2. 无重实现块 + import</td>
+<td>T1(F704/F728)+T5</td>
+<td>grep + 人工复查</td>
+</tr>
+<tr>
+<td>3. 红灯验证记录</td>
+<td>T5</td>
+<td>PR 描述</td>
+</tr>
+<tr>
+<td>4. 全绿无新 skip</td>
+<td>T5</td>
+<td>pytest 摘要</td>
+</tr>
+<tr>
+<td>5. deps.json 不被改写</td>
+<td>T2a(F705)+T5</td>
+<td>git status</td>
+</tr>
+<tr>
+<td>6. 注入块覆盖不回退</td>
+<td>T1(F728)+T5</td>
+<td><code>--cov=src/shenbi/pipeline/dispatch_helper</code> 注入块行 :707-727 覆盖 &gt;0</td>
+</tr>
+<tr>
+<td>7. 直测对象生产可达</td>
+<td>T1-T4</td>
+<td>basedpyright 门（just check 内含）</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
