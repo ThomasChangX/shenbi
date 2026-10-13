@@ -16,7 +16,7 @@
 - **系列**：种子传递性（源自 2026-10-12/13 outline-example.md 大幅丰富前置审计会话）
 - **状态**：Active（待执行）
 - **优先级**：🟠 P1（F886 为 P1 verified）
-- **方法**：契约声明式接线（reads 声明 + sync_contracts 再生成 + SKILL 正文同步 + truth-files.yaml globs 段一行加法）；框架代码改动限 seed_parser/g0/chapter_loop 三处小面 + cli.py 注释一处
+- **方法**：契约声明式接线（reads 声明 + sync_contracts 再生成 + SKILL 正文同步 + truth-files.yaml globs 一行加法/concepts 两行删除）；框架代码改动 = seed_parser/g0/chapter_loop 三处小面 + cli.py 注释一处 + novel.py 删除（T6）
 - **依赖**：无
 - **内容**：T0 character-design 孤儿 reads 修正（先行件）→ T1 genesis-context 五技能接线（worldbuilding/character-design/story-architecture/faction-builder/volume-outlining）→ T2 配角可选节 → T3 丢弃键 WARN → T4 G0.2 字数锚定 → T5 F368 章节关闭清扫三小件 → T6 NovelConfig 删除（spec #27 F240 执行）→ T7 4.3 六项裁决固化（3 做 3 不做含理由）
 - **对应 plan**：未建（spec §2 任务粒度可直接起 plan）
