@@ -76,8 +76,8 @@
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `uv run pytest tests/pipeline/test_dispatch_reads_injection.py -k character_design -v`
-Expected: FAIL（`expected input not injected: genesis-context/chapter_outline.md`——契约 reads 仍指 outline/ 旧路径）
+Run: `uv run pytest tests/pipeline/test_dispatch_reads_injection.py -k "character-design" -v`
+Expected: FAIL（`expected input not injected: genesis-context/chapter_outline.md`——契约 reads 仍指 outline/ 旧路径；`-k` 用连字符形态匹配 parametrize id）
 
 - [ ] **Step 3: 实施最小改动**
 
@@ -188,11 +188,16 @@ def test_genesis_fragment_injected(tmp_path: Path, skill, files, expected):
         p = tmp_path / rel
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(MARK, encoding="utf-8")
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, reads_manifest = _build_skill_prompt(
         skill=skill, project_dir=tmp_path, prompt="genesis", chapter=None
     )
     for key in expected:
         assert key in user_prompt, f"{skill}: expected fragment not injected: {key}"
+        # spec §3.3 reads_manifest 面: injection is recorded (dispatch_helper
+        # 4th return; entries carry {"path": key, "mode": "full", ...}).
+        assert any(e.get("path") == key for e in reads_manifest), (
+            f"{skill}: {key} missing from reads_manifest"
+        )
 
 
 @pytest.mark.parametrize(
@@ -360,12 +365,39 @@ class TestRichSeedSoftBounds:
         project_dir2 = tmp_path / "novel-b"
         main(["init", str(seed_file2), "--project-dir", str(project_dir2)])
         assert not (project_dir2 / "genesis-context" / "supporting.md").exists()
+
+    def test_init_writes_all_fragments_from_rich_seed(self, tmp_path: Path) -> None:
+        """spec §3.4 后半: 丰富版 seed 经真实 init 写方断言十片段全部写盘
+        （测试内字面量，G0.9 先例 sample_seed_content；不落 tests/fixtures/）。"""
+        sections = [
+            ("基本信息", "- 类型: 玄幻\n- 目标字数: 2000000\n"),
+            ("主角设定", "- 测试主角 " * 200 + "\n"),
+            ("配角设定", "- 测试配角 " * 100 + "\n"),
+            ("世界观设定", "- 测试规则 " * 400 + "\n"),
+            ("势力/组织", "- 测试势力 " * 200 + "\n"),
+            ("核心冲突", "- 表层冲突: 测试\n- 个人冲突: 测试\n- 深层冲突: 测试\n"),
+            ("情节线", "- 测试情节线 " * 200 + "\n"),
+            ("章节大纲", "- 第1章 测试 " * 200 + "\n"),
+            ("三幕结构", "- 第一幕 测试 " * 100 + "\n"),
+            ("叙事技巧", "- 展示讲述比: 0.6\n"),
+        ]
+        body = "\n".join(f"## {h}\n{c}" for h, c in sections)
+        seed_file = tmp_path / "rich-seed.md"
+        seed_file.write_text(f"# 丰富测试书\n\n{body}\n", encoding="utf-8")
+        project_dir = tmp_path / "novel-rich"
+        main(["init", str(seed_file), "--project-dir", str(project_dir)])
+        for name in (
+            "protagonist", "supporting", "world_rules", "forces",
+            "surface_conflict", "personal_conflict", "deep_conflict",
+            "plot_lines", "chapter_outline", "three_act",
+        ):
+            assert (project_dir / "genesis-context" / f"{name}.md").exists(), name
 ```
 
 - [ ] **Step 2: 确认失败**
 
-Run: `uv run pytest tests/unit/pipeline/test_seed_parser.py -k "supporting or rich_seed" tests/unit/pipeline/test_e2e.py -k supporting -v`
-Expected: FAIL（KeyError/无 supporting 键 / 文件不存在）
+Run: `uv run pytest tests/unit/pipeline/test_seed_parser.py -k "Supporting or RichSeed" -v && uv run pytest tests/unit/pipeline/test_e2e.py -k "supporting or rich_seed" -v`
+Expected: FAIL（KeyError/无 supporting 键 / 9!=10 / 文件不存在——两命令分跑，`-k` 不跨文件共享）
 
 - [ ] **Step 3: 最小实现**
 
@@ -407,45 +439,56 @@ git commit -m "feat(pipeline): spec69 T2——配角可选节解析 + supporting
 
 ```python
 class TestDroppedKeyWarning:
-    """spec #69 T3: non-whitelist keys surface once via seed_key_dropped."""
+    """spec #69 T3: non-whitelist keys surface once via seed_key_dropped.
 
-    def test_basic_info_unknown_key_warns(self, tmp_path, caplog):
+    structlog binds stderr (PrintLoggerFactory(sys.stderr)) — caplog CANNOT
+    capture it; capsys must (precedent: tests/unit/pipeline/
+    test_dispatch_skill_write_audit.py:281-292, 明文「caplog 捕不到 structlog，
+    必须 capsys」)."""
+
+    @staticmethod
+    def _configure() -> None:
+        from shenbi.logging import configure_logging
+
+        configure_logging()
+
+    def test_basic_info_unknown_key_warns(self, tmp_path, capsys):
+        self._configure()
         seed = tmp_path / "seed.md"
         seed.write_text(
             "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n- 灵感来源: 某剧\n",
             encoding="utf-8",
         )
-        with caplog.at_level("WARNING"):
-            parse_seed(seed)
-        events = [r for r in caplog.records if r.event == "seed_key_dropped"]
-        assert len(events) == 1
-        assert "灵感来源" in events[0].keys
+        parse_seed(seed)
+        err = capsys.readouterr().err
+        assert err.count("seed_key_dropped") == 1  # 一次汇总，不逐键刷屏
+        assert "灵感来源" in err
 
-    def test_narrative_unknown_key_warns(self, tmp_path, caplog):
+    def test_narrative_unknown_key_warns(self, tmp_path, capsys):
+        self._configure()
         seed = tmp_path / "seed.md"
         seed.write_text(
             "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n\n"
             "## 叙事技巧\n- 展示讲述比: 0.6\n- 叙事人称: 第一人称\n",
             encoding="utf-8",
         )
-        with caplog.at_level("WARNING"):
-            parse_seed(seed)
-        events = [r for r in caplog.records if r.event == "seed_key_dropped"]
-        assert len(events) == 1
-        assert "叙事人称" in events[0].keys
+        parse_seed(seed)
+        err = capsys.readouterr().err
+        assert err.count("seed_key_dropped") == 1
+        assert "叙事人称" in err
 
-    def test_all_whitelisted_no_warning(self, tmp_path, caplog):
+    def test_all_whitelisted_no_warning(self, tmp_path, capsys):
+        self._configure()
         seed = tmp_path / "seed.md"
         seed.write_text(
             "# 书\n\n## 基本信息\n- 类型: 玄幻\n- 目标字数: 1000000\n\n## 叙事技巧\n- 展示讲述比: 0.6\n",
             encoding="utf-8",
         )
-        with caplog.at_level("WARNING"):
-            parse_seed(seed)
-        assert not [r for r in caplog.records if r.event == "seed_key_dropped"]
+        parse_seed(seed)
+        assert "seed_key_dropped" not in capsys.readouterr().err
 ```
 
-（caplog 断言 structlog 事件名/字段按本仓既有 caplog 用例的取法对齐——执行时若 structlog record 字段名不同，以 `getattr(r, "event", r.msg)` 形式适配）
+（capsys + 测试内 `configure_logging()` 照抄 test_dispatch_skill_write_audit.py:279-293 先例——structlog PrintLoggerFactory 直写 stderr，caplog 结构性不可用）
 
 - [ ] **Step 2: 确认失败**
 
@@ -514,9 +557,9 @@ git commit -m "feat(pipeline): spec69 T3——seed 非白名单键 seed_key_drop
             "## 基本信息\n- 类型: 玄幻\n- 目标字数: 1200000\n",
             encoding="utf-8",
         )
-        result = gate_G0(seed_file=seed)
+        result = _result_dict(gate_G0(seed_file=str(seed)))
         g02 = next(c for c in result["checks"] if c["id"] == "G0.2")
-        assert g02["s"] == GateStatus.PASS
+        assert g02["s"] == GateStatus.PASS  # StrEnum == JSON 串 "PASS"
         assert g02["target_words"] == 1200000
 
     def test_g02_falls_back_to_fulltext_when_section_absent(self, tmp_path: Path) -> None:
@@ -526,17 +569,18 @@ git commit -m "feat(pipeline): spec69 T3——seed 非白名单键 seed_key_drop
             "# 书\n\n## 主角设定\n- 目标字数：800000\n",
             encoding="utf-8",
         )
-        result = gate_G0(seed_file=seed)
+        result = _result_dict(gate_G0(seed_file=str(seed)))
         g02 = next(c for c in result["checks"] if c["id"] == "G0.2")
         assert g02["s"] == GateStatus.PASS
         assert g02["target_words"] == 800000
 ```
 
-（`gate_G0` 调用形态按 test_g0.py 既有用例对齐——若签名不同以现文件为准）
+（`gate_G0(seed_file, round_dir) -> str` 返回 JSON 字符串——用 test_g0.py:14-15 既有 `_result_dict`（json.loads）解包；`GateStatus` 自 `shenbi.status` import，StrEnum 与 JSON 串比较成立）
 
 - [ ] **Step 2: 确认失败**
 
-Run: `uv run pytest tests/unit/gates/test_g0.py -k "decoy or falls_back" -v` → 第一测 FAIL（取到 500）
+Run: `uv run pytest tests/unit/gates/test_g0.py -k "g02_takes_basic_info_value_over_earlier_decoy or g02_falls_back_to_fulltext_when_section_absent" -v`
+Expected: 第一测 FAIL（`assert 500 == 1200000`——G0.2 取到全文首匹配 500）；第二测 PASS（legacy 回退行为保持）
 
 - [ ] **Step 3: 最小实现**
 
@@ -779,29 +823,47 @@ GENESIS_CTX_TARGET_PAIRS = {
 class TestGenesisContextDelta:
     """spec #69 §3.2: G5.2 delta 钉死——新 missing 键恰为 genesis-context/*.md，
     genesis 相恰四对 + architecture 相 spillover 一对，无其他波及。pair 源 =
-    deps.json prerequisites（非 GENESIS_STEPS）。"""
+    deps.json prerequisites（非 GENESIS_STEPS）。gate_G5 返回 JSON 串，
+    以 test_g5.py:14 同款 json.loads 解包。"""
 
     @pytest.mark.parametrize("phase,target_pairs", [
         ("genesis", GENESIS_CTX_TARGET_PAIRS),
         ("architecture", {("shenbi-story-architecture", "shenbi-volume-outlining")}),
     ])
     def test_delta_is_exactly_target_pairs(self, tmp_path, phase, target_pairs):
-        result = gate_G5(phase_name=phase, round_dir=None, project_dir=tmp_path)
+        result = json.loads(gate_G5(phase_name=phase, round_dir=None, project_dir=tmp_path))
         g52 = [c for c in result["checks"] if c.get("id") == "G5.2"]
         hit = {
-            tuple(p.split("->"))
+            tuple(c["pair"].split("->"))
             for c in g52
             if "genesis-context/*.md" in c.get("missing", [])
         }
         assert hit == target_pairs
 ```
 
-（若 gate_G5 无 round 时 checks 结构不同，按 g5.py 实际返回形态适配断言取法）
-
 - [ ] **Step 2: 跑测试**（T1-T2 已落地，此为验收钉死——预期直接 PASS；若 FAIL 说明接线面与 delta 预测不符，回查）
 
-Run: `uv run pytest tests/unit/gates/test_g5.py -k genesis_context -v`
-Expected: PASS ×2
+Run: `uv run pytest tests/unit/gates/test_g5.py -k TestGenesisContextDelta -v`
+Expected: 接线落地后 PASS ×2；执行前（现状）RED——`hit == set()` ≠ target_pairs
+
+- [ ] **Step 2b: gate_G5 直跑取证（progress.md 验收证据用）**
+
+```bash
+uv run python -c "
+import json, tempfile
+from shenbi.gates.g5 import gate_G5
+with tempfile.TemporaryDirectory() as td:
+    r = json.loads(gate_G5(phase_name='genesis', round_dir=None, project_dir=td))
+pairs = sorted(
+    c['pair'] for c in r['checks']
+    if c.get('id') == 'G5.2' and 'genesis-context/*.md' in c.get('missing', [])
+)
+n_missing = sum(len(c.get('missing', [])) for c in r['checks'] if c.get('id') == 'G5.2')
+print('genesis-context pairs:', pairs)
+print('genesis phase total missing keys:', n_missing)
+"
+```
+Expected（接线后）：pairs 恰四对（power-system→faction-builder / location-builder→character-design / relationship-map→story-architecture / story-architecture→volume-outlining）；total missing = 30（baseline 26 + 4）
 
 - [ ] **Step 3: 终锁 + just check**
 
@@ -822,6 +884,15 @@ git commit -m "test(gates): spec69 §3.2——G5.2 genesis-context delta 钉死�
 
 ## Self-Review 结论
 
-1. **Spec coverage**：§2 T0→Task 1、T1→Task 2、T2→Task 3、T3→Task 4、T4→Task 5、T5→Task 6、T6→Task 7、T7+§3.6→Task 8、§3.1/§3.2→Task 9、§3.4 前半→Task 3（丰富锚点）、后半（人工探针）= 交付后用户动作不入 plan、§3.7 = 交付后动作。§1 全部机制约束（globs 加法/缺文件语义/权威序句/截断事实/R3 再锁）逐条落在对应 task。无缺口。
-2. **Placeholder scan**：无 TBD/「适当处理」类占位；所有代码步骤给出实际代码；唯一留白 = 「按既有用例对齐调用形态」两处（gate_G0/gate_G5 调用签名以现文件为准）——这是对既有测试基建的对齐指令非占位，执行者为协调者本人（infra 不分派）。
-3. **Type consistency**：`genesis_context["supporting"]`（Task 3 产 / Task 3 测消费）；`seed_key_dropped` 事件名 Task 4 产测一致；`_extract_section` 签名（Task 5 消费 = seed_parser 现签名）；retry 键形 Task 6 测试与 `_retry_key` 现实现一致。
+1. **Spec coverage**：§2 T0→Task 1、T1→Task 2、T2→Task 3、T3→Task 4、T4→Task 5、T5→Task 6、T6→Task 7、T7+§3.6→Task 8、§3.1/§3.2→Task 9、§3.4 前半→Task 3（丰富锚点 + 十片段 init 写盘）、后半（人工探针）= 交付后用户动作不入 plan、§3.7 = 交付后动作。§1 全部机制约束（globs 加法/缺文件语义/权威序句/截断事实/R3 再锁）逐条落在对应 task。无缺口。
+2. **Placeholder scan**：无 TBD/「适当处理」类占位；所有代码步骤给出实际代码。
+3. **Type consistency**：`genesis_context["supporting"]`（Task 3 产 / Task 3 测消费）；`seed_key_dropped` 事件名 Task 4 产测一致；`_extract_section` 签名（Task 5 消费 = seed_parser 现签名）；retry 键形 Task 6 测试与 `_retry_key` 现实现一致；`_build_skill_prompt` 四元组第四位 = `reads_manifest`（Task 2 断言消费）。
+
+## 已裁决偏离（Plan 审查轮 1 修复记录 · 2026-10-13）
+
+- **C1 修复**：Task 4 测试机制从 caplog 改为 capsys + 测试内 `configure_logging()`（structlog PrintLoggerFactory 直写 stderr，caplog 结构性不可用——先例 test_dispatch_skill_write_audit.py:281-292；spec §3.3 T3 的「caplog 断言」措辞本身有误，plan 以代码级正确形态为准）
+- **I1 修复**：Task 5/9 测试经 `_result_dict`/`json.loads` 解包 gate 的 JSON 字符串返回（gate_G0 -> str、gate_G5 -> str）+ `GateStatus` 显式 import（StrEnum == JSON 串成立）
+- **I2 修复**：`-k` 选择器钉正（`character-design` 连字符形态 / `TestGenesisContextDelta` 类名 / 两测全名）
+- **I3 修复**：Task 2 注入测试补 reads_manifest 第四返回值断言（spec §3.3 三要素闭合）
+- **M1 修复**：Task 3 Step 2 双 `-k` 拆两条命令；**M3 修复**：Task 9 补 Step 2b gate_G5 直跑取证；**M4 修复**：Task 3 补 `test_init_writes_all_fragments_from_rich_seed`（十片段写盘）
+- **M2 已裁决偏离（显式记录）**：spec T5.3 字面两测（「失败→重试→成功→键消失；章节关闭→该章全部键消失」）中第一测的功能面由既有元测试 test_cli.py:1222/:1230（源码断言 `retry_feedback.pop` 在两站点）代理 + Task 6 关闭兜底清扫测试覆盖键生命周期闭合；理由：成功即清（probe23 #18-4/canary pop）已落地且被钉住，本 task 的增量是关闭清扫。**M5 已裁决**：rich_seed 各节 1-2K 远离 32K/100K 边界——锚点目的是「软约束可表达」非截断回归检测（截断在 dispatch 层，属 Task 2 组装测试面之外、交付后探针观测项）
