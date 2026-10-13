@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-21（spec #68 plan Done 随 PR #237 归档——6 task 全执行，125 份归档）
-> **活跃 plan 数**：0 | **已归档**：125（见 `archive/`）
+> **最后更新**：2026-10-13（spec #69 plan 创建——9 task 接线 + 收口，✅ ready）
+> **活跃 plan 数**：1 | **已归档**：125（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无）
+- [2026-10-13-spec69-seed-content-flow.md](2026-10-13-spec69-seed-content-flow.md) ✅ ready — spec #69 seed 内容流恢复（9 task：T0 孤儿路径/注册表、T1 五技能接线、T2 配角节、T3 丢弃键、T4 G0.2 锚定、T5 F368 清扫、T6 NovelConfig 删除、T7+挂账文档、T9 G5 delta+收口）
 
 ## 待执行的 spec → plan 映射
 
