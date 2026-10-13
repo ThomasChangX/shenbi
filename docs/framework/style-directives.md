@@ -17,7 +17,7 @@
 ## 2. 位置与作用域
 
 - 路径：`<小说项目目录>/style/style_directives.md`（每本小说独立）
-- **可选文件，但不再是空白页问题**：`pipeline-init` 自动播种一份可用的**通用默认模板**（[src/shenbi/pipeline/style_seed.py](../../src/shenbi/pipeline/style_seed.py) 的 `DEFAULT_STYLE_DIRECTIVES`——商业网文均衡带：叙述句 10-20 字、长短交替、对白占比 35-55%，与全部硬闸兼容）。已有项目可随时手动创建；播种只写缺失文件，永不覆盖你的修改
+- **可选文件，但不再是空白页问题**：`pipeline-init` 自动播种一份可用的**通用默认模板**（`src/shenbi/pipeline/style_seed.py` 的 `DEFAULT_STYLE_DIRECTIVES`——商业网文均衡带：叙述句 10-20 字、长短交替、对白占比 35-55%，与全部硬闸兼容）。已有项目可随时手动创建；播种只写缺失文件，永不覆盖你的修改
 - 写者：只有你（人类合作者）。`shenbi-style-learning` 铁律 5 明文永不读写该文件——滚动画像不会覆盖或"纠正"你的目标
 - 修改时机：随时。下一次 drafting 派发即读到新版本（无缓存）；删除整文件 = 回退纯测量画像
 
