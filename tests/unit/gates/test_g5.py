@@ -239,3 +239,36 @@ def test_g5_returns_fail_not_crash_when_deps_json_malformed(
     round_dir.mkdir()
     result = json.loads(gate_G5("some-phase", str(round_dir), str(tmp_path)))
     assert result["status"] == "FAIL"
+
+
+GENESIS_CTX_TARGET_PAIRS = {
+    ("shenbi-power-system", "shenbi-faction-builder"),
+    ("shenbi-location-builder", "shenbi-character-design"),
+    ("shenbi-relationship-map", "shenbi-story-architecture"),
+    ("shenbi-story-architecture", "shenbi-volume-outlining"),
+}
+
+
+class TestGenesisContextDelta:
+    """Spec #69 3.2: G5.2 delta pinned -- new missing keys are exactly
+    genesis-context/*.md, on exactly four genesis-phase adjacent pairs plus
+    one architecture-phase spillover pair. Pair source = deps.json
+    prerequisites (NOT GENESIS_STEPS execution order).
+    """
+
+    @pytest.mark.parametrize(
+        "phase,target_pairs",
+        [
+            ("genesis", GENESIS_CTX_TARGET_PAIRS),
+            ("architecture", {("shenbi-story-architecture", "shenbi-volume-outlining")}),
+        ],
+    )
+    def test_delta_is_exactly_target_pairs(self, tmp_path, phase, target_pairs):
+        result = _result_dict(gate_G5(phase_name=phase, round_dir=None, project_dir=tmp_path))
+        g52 = [c for c in result["checks"] if c.get("id") == "G5.2"]
+        hit = {
+            tuple(c["pair"].split("->"))
+            for c in g52
+            if "genesis-context/*.md" in c.get("missing", [])
+        }
+        assert hit == target_pairs
