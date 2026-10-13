@@ -15,6 +15,7 @@ Decision tree (spec §6.3)::
 
 from __future__ import annotations
 
+import glob as glob_module
 import re
 from enum import StrEnum
 from pathlib import Path
@@ -80,17 +81,68 @@ DEFAULT_RESONANCE_FLOOR = 50
 # (``**BLOCKING**``), the English severity-key form (``severity: BLOCKING``,
 # ``**Severity**: BLOCKING``), and the CJK production form that all audit
 # skills actually emit (``**严重度**: BLOCKING``, ``严重度: BLOCKING``).
+# probe6 ch1 (2026-10-01): the value position alone is not enough — an
+# audit's FORMAT DOCUMENTATION legend (``4. **严重度**：BLOCKING / CRITICAL /
+# MINOR``, verbatim from a production sensitivity report) matched the key
+# form and routed a phantom regenerate. A value inside an ENUM LIST is never
+# a finding: the negative lookahead rejects it when further severity words
+# are enumerated after it.
+_SEV_ENUM_TAIL = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
+
+#: F-5 (probe22 adjudication #010): the audit templates declare ZERO findings
+#: as ``- [BLOCKING] 无`` — bracketed-marker sensors counted the declaration
+#: itself as a finding (review-summary "BLOCKING Issues: 1", wave audit
+#: hard_failures=2, pipeline-state blocking_found=true). A bracketed marker
+#: whose payload is EXACTLY a negation word is a zero-declaration, never a
+#: finding; a real finding like 「无法解析的引用」 keeps going past the word,
+#: so the end anchor leaves it live. Shared by every bracket-form sensor
+#: (parallel_dispatch consolidator, chapter_loop wave marker) and by the
+#: aggregate's payload check (:func:`is_negation_payload`).
+_NEGATION_WORDS = r"(?:(?:无|暂无|没有)|(?i:none|n/?a)|0)"
+NEGATION_PAYLOAD_TAIL = rf"(?!\s*{_NEGATION_WORDS}\s*[。.!！]?\s*$)"
+
+
+def is_negation_payload(text: str) -> bool:
+    """True when a severity marker's payload is a pure zero-declaration
+    (``无`` / ``none`` / ``N/A`` …) rather than finding prose.
+    """
+    return re.fullmatch(rf"{_NEGATION_WORDS}\s*[。.!！]?", text.strip(), re.IGNORECASE) is not None
+
+
+#: #18-1 (probe23 adjudication #004): the resonance report quotes its own
+#: output-contract JSON inside prose — ``{"category": "unmet_goal", "severity":
+#: "BLOCKING"}`` on a line that literally says the route is NOT triggered — and
+#: the key-form sensors read the quoted value as a live declaration. probe23
+#: ch1 routed to full regeneration on this phantom alone (both extracted
+#: issues were it and its review-summary echo). A severity word immediately
+#: followed by a closing quote is a quoted VALUE inside a literal, never a
+#: declaration; real reports declare bare values (``severity: BLOCKING``).
+QUOTED_VALUE_TAIL = r'(?!\*{0,2}")'
+
+
+# #18-9 (probe24): the bold form is CASE-SENSITIVE — real declarations are
+# uppercase (``**BLOCKING**``); a lowercase bold ``**blocking**`` is a rule
+# TIER label (``| rule-003 | **blocking** | PASS |``), not a finding. The
+# key/bracket forms keep IGNORECASE.
 _SEVERITY_BLOCKING_RE = re.compile(
-    r"\*\*BLOCKING\*\*"  # bolded marker: **BLOCKING**
+    r"(?-i:\*\*BLOCKING\*\*)"  # bolded marker: **BLOCKING** (uppercase only)
     # severity key (English "severity" or CJK "严重度"): "severity: BLOCKING",
     # "**严重度**: BLOCKING". The optional \*{0,2} lets the key itself be bolded.
-    r"|(?:severity|严重度)\*{0,2}\W{0,6}BLOCKING\b",
-    re.IGNORECASE,
+    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
+    # #18-7 (probe24): the bracket vocabulary — every other sensor (wave
+    # marker, consolidator) sees ``- [BLOCKING]``; the router never did, so
+    # bracket-form findings routed as no-revision. F-5 negation tail carries
+    # over (``- [BLOCKING] 无`` stays a zero-declaration).
+    rf"|^\s*-\s*\[BLOCKING\]{NEGATION_PAYLOAD_TAIL}",
+    re.IGNORECASE | re.M,
 )
 _SEVERITY_CRITICAL_RE = re.compile(
-    r"\*\*CRITICAL\*\*"
-    r"|(?:severity|严重度)\*{0,2}\W{0,6}CRITICAL\b",
-    re.IGNORECASE,
+    rf"(?-i:\*\*CRITICAL\*\*)"
+    rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
+    # #18-7: same bracket vocabulary, both tiers ([ERROR] is the legacy
+    # hard-tier label per the fixcheck severity-vocabulary reconciliation).
+    rf"|^\s*-\s*\[(?:CRITICAL|ERROR)\]{NEGATION_PAYLOAD_TAIL}",
+    re.IGNORECASE | re.M,
 )
 
 
@@ -100,8 +152,16 @@ def route_chapter_revision(issues: list[dict[str, Any]], blocking: bool) -> Revi
     Reuses the existing ``route_revision`` logic from
     ``shenbi.skill_utils.revision_routing.route``. Returns
     :attr:`RevisionRoute.NO_REVISION` when *issues* is empty.
+
+    probe21 adjudication #009 附记: ``blocking=True`` DISABLES the
+    NO_REVISION route — an empty *issues* list with blocking evidence means
+    the issue structure was unparseable, not that the chapter is clean; the
+    ghost chain completed a chapter this way. SPOT_FIX is the floor.
     """
     if not issues:
+        if blocking:
+            log.warning("blocking_forces_revision_route", issue_count=0)
+            return RevisionRoute.SPOT_FIX
         return RevisionRoute.NO_REVISION
     from shenbi.skill_utils.revision_routing.route import RevisionMode, route_revision
 
@@ -154,7 +214,13 @@ def decide_revision(
     return RevisionDecision.REVISION
 
 
-def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: str = "") -> bool:
+def dispatch_escalation(
+    project_dir: Path | str,
+    chapter: int | None,
+    context: str = "",
+    details: str | None = None,
+    failing_skill: str | None = None,
+) -> bool:
     """Dispatch ``shenbi-escalation-review`` for *chapter* (spec §6.3).
 
     The escalation-review skill compiles resonance trends and audit scores
@@ -163,6 +229,14 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
 
     *chapter* may be ``None`` during genesis when there is no chapter context
     (N-placeholder paths are filtered by the executor).
+
+    *details* carries the concrete per-attempt failure record (the enriched
+    G4 must-fix feedback from retry state). Canary/probe defect: the reviewer
+    subagent reported "gate 失败明细未随调用传入" while the details sat unused
+    in retry_feedback. When the dispatch fails OR leaves the report artifact
+    stale (canary defect 升级报告未覆写: a second escalation kept the prior
+    report's analysis), a minimal machine-generated report carrying *details*
+    is written so the checkpoint reviewer never reads a stale analysis.
     """
     chapter_label = f"chapter {chapter}" if chapter is not None else "genesis (no chapter)"
     prompt = (
@@ -171,7 +245,80 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
     )
     if context:
         prompt += f" Context: {context}"
+    if failing_skill:
+        # Probe2: both genesis escalation reports rendered THIS report
+        # skill's own reads (trend files, N/A at genesis) in the 升级上下文
+        # reads table instead of the FAILING skill's contract reads —
+        # adjudicators had to correct the table by hand. Provide the
+        # failing skill's contract reads WITH availability so the report
+        # renders machine-truth, not its own context.
+        from shenbi.contracts import ContractError, load_contract
+
+        try:
+            contract = load_contract(failing_skill)
+            from fnmatch import fnmatch
+
+            from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+            optional_patterns = OPTIONAL_READS.get(failing_skill, [])
+
+            # probe14: reads that are the skill's OWN contract writes/updates
+            # legitimately don't exist before its first dispatch — rendering
+            # them MISSING demanded "products exist before the producer".
+            def _entry_file(entry: object) -> str:
+                return str(entry.get("file", "")) if isinstance(entry, dict) else str(entry)
+
+            produces = {_entry_file(w) for w in contract.get("writes", [])} | {
+                _entry_file(u) for u in contract.get("updates", [])
+            }
+            lines = []
+            for rel in contract.get("reads", []):
+                if chapter is None:
+                    resolved = str(rel).replace("chapter-N", "N")
+                else:
+                    # probe7 escalation report: the raw contract read kept the
+                    # literal N placeholder, probed a path that never exists,
+                    # and rendered AVAILABLE plan/context files as MISSING.
+                    resolved = str(rel).replace("chapter-N", f"chapter-{chapter}")
+                probe = Path(project_dir) / resolved
+                if probe.exists():
+                    avail = "AVAILABLE"
+                elif resolved in produces:
+                    avail = "本技能产物（派发前不存在属预期）"
+                elif any(fnmatch(resolved, pat) for pat in optional_patterns):
+                    # probe9: reads produced only in user-routable mode (the
+                    # deterministic context step never writes them) rendered
+                    # as MISSING and misled adjudicators into crowning them
+                    # root-cause suspects.
+                    avail = "OPTIONAL (absent by design in pipeline mode)"
+                elif "*" in resolved and glob_module.glob(
+                    str(Path(project_dir) / resolved), recursive=True
+                ):
+                    # probe14: glob-form reads (characters/*.md) probed with a
+                    # literal .exists() are always False — expand the glob;
+                    # matches mean the read IS available in expanded form.
+                    avail = "AVAILABLE (glob-expanded)"
+                else:
+                    avail = "MISSING"
+                lines.append(f"- {resolved} — {avail}")
+            if lines:
+                prompt += (
+                    "\n\n## FAILING SKILL CONTRACT READS (machine-provided — the "
+                    "升级上下文 reads table MUST render THIS list with these "
+                    "availability states, NOT this report skill's own reads)\n" + "\n".join(lines)
+                )
+        except ContractError:
+            log.warning("escalation_failing_skill_contract_unavailable", skill=failing_skill)
+    if details:
+        prompt += f"\n\n## FAILURE DETAILS (per-attempt gate record from retry state)\n{details}"
     path_ctx = None
+    _pd = Path(project_dir)
+    artifact = (
+        _pd / "audits" / "escalation-genesis-report.md"
+        if chapter is None
+        else _pd / "audits" / f"escalation-{chapter}-report.md"
+    )
+    pre_mtime = artifact.stat().st_mtime if artifact.exists() else None
     if chapter is None:
         # Genesis escalation (spec #6 F3B5): book-level sentinel resolves
         # audits/escalation-N-report.md to the genesis artifact name.
@@ -186,6 +333,38 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
         )
     else:
         log.info("escalation_dispatched", chapter=chapter)
+    # Freshness guarantee: a successful dispatch that did not refresh the
+    # artifact (skill write skipped / stale echo) is indistinguishable from
+    # a failed one for the human reviewer — fall back to a machine report.
+    post_mtime = artifact.stat().st_mtime if artifact.exists() else None
+    if post_mtime is None or post_mtime == pre_mtime:
+        log.warning(
+            "escalation_report_stale_machine_fallback",
+            chapter=chapter,
+            artifact=str(artifact),
+        )
+        try:
+            from datetime import UTC, datetime
+
+            from shenbi.safe_write import safe_write
+
+            artifact.parent.mkdir(parents=True, exist_ok=True)
+            safe_write(
+                artifact,
+                (
+                    f"# 升级审查报告（机器兜底生成）\n\n"
+                    f"**触发上下文**: {context or 'n/a'}\n"
+                    f"**生成时间**: {datetime.now(UTC).isoformat()}\n\n"
+                    f"## 失败明细（来自重试状态的逐次 gate 记录）\n\n"
+                    f"{details or '（无明细传入——见 pipeline 日志）'}\n\n"
+                    f"> 注：escalation-review 技能派发"
+                    f"{'失败' if not result.success else '未刷新报告'}，"
+                    f"本报告为框架兜底，供检查点裁决使用；技能成功重跑后将覆写。\n"
+                ).encode(),
+                allowed_roots=(_pd,),
+            )
+        except OSError as exc:
+            log.error("escalation_fallback_report_failed", chapter=chapter, error=str(exc))
     return result.success
 
 

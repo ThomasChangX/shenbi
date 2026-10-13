@@ -16,18 +16,123 @@ max_tokens = 32768
 
 [overrides."shenbi-chapter-revision"]
 temperature = 0.6
+# Probe session 2026-09-29: revision outputs the COMPLETE revised chapter
+# (same output shape as drafting) but had NO max_tokens override — the 16384
+# default truncated every expansion (73 calls, completion tokens pinned at
+# exactly 16384/32768 = cap values). Parity with drafting's 32768.
+max_tokens = 32768
+
+[overrides."shenbi-faction-builder"]
+temperature = 0.7
+# Fixcheck escalation #2 (2026-09-29): the single create_or_overwrite
+# world/factions.md rides the output cap — 3 dispatch cycles pinned at
+# 32766-32767 under the 32768 runtime raise (probe 2026-09-28 only fit by
+# luck at 30516). API accepts 49152 (probe lifecycle completed 41625).
+max_tokens = 49152
+
+[overrides."shenbi-state-settling"]
+temperature = 0.7
+# Fixcheck ch1 escalation (2026-09-29): the six-file staging write set with a
+# live-base character_matrix rebuild pins the 32768 raise (completion 32771);
+# natural six-file output is 12-25K, the rebuild instruction pushes past 32K.
+# Same headroom tier as foreshadowing-lifecycle (overlapping truth writes).
+max_tokens = 49152
+
+[overrides."shenbi-memory-distill"]
+thinking = "disabled"
+temperature = 0.7
+# Phase3 esc#3c (ch23, first-ever volume boundary): L5 spine review pins the
+# 32768 raise twice (completion exactly 32767/32768; prompt only 51.6K) — the
+# boundary-mode write set (book_spine full rewrite + book_strata append +
+# arc-end synthesis in one JSON envelope) legitimately needs drafting-tier
+# headroom. Same tier as the other whole-file truth writers; the raise then
+# reaches the 58982 ceiling.
+max_tokens = 32768
+
+[overrides."shenbi-drift-guidance"]
+temperature = 0.7
+# Phase3 esc#3d (ch23 volume boundary): drift-guidance is audit_drift.md's
+# single-writer merger — its sanctioned output IS the whole-file rewrite, and
+# the live base reached 75KB by ch23 (grows ~1.5KB/chapter). Pins the 32768
+# raise. Settling tier (49152) now; the file outgrows any fixed cap around
+# ch60+ — compaction/archival is the long-run answer (phase3 observation
+# ledger, settle-prompt token growth finding).
+max_tokens = 49152
+
+[overrides."shenbi-volume-consolidation"]
+temperature = 0.7
+# Phase3 esc#5 (ch47 volume-2 boundary): L3 rewrites truth/volume_summaries.md
+# whole-file and the product grows one volume per boundary (vol-1 fit at
+# 11726 via cap-raise; vol-2 pinned 32768). Same whole-file truth-writer tier
+# as memory-distill; raise then reaches the 58982 ceiling.
+max_tokens = 32768
+
+[overrides."shenbi-character-design"]
+temperature = 0.7
+# Probe2 genesis escalation #1 (2026-09-30): the four-phase single-call write
+# set (protagonist + 3 major + 2 minor + relationships) pins the 32768 raise —
+# attempt 1 finished Phase 1 only (protagonist ~16K completion tokens,
+# relationships.md quarantined as declared-but-missing), attempts 2-3 persistent
+# truncation at 32767/32769. Same single-call multi-output tier as
+# faction-builder / state-settling (API accepts 49152).
+max_tokens = 49152
+
+[overrides."shenbi-relationship-map"]
+temperature = 0.7
+# probe14 genesis step 12 (2026-10-02): relationships.md + character_matrix in
+# one call pins the 16384 default — truncation at 16384 forced the 32768 raise,
+# and the continuation drifted into a {"files":[...]} JSON envelope that strict
+# parsing rejected (3 quarantines, zero files). Same single-call multi-output
+# tier as character-design / plot-thread-weaver (API accepts 49152).
+max_tokens = 49152
+
+[overrides."shenbi-location-builder"]
+temperature = 0.7
+# probe15 genesis step 3 (2026-10-02): the single-call world/locations.md write
+# (9+ locations × 6 mandated subsections + 跨地点一致性锚定) needed one feedback
+# re-dispatch to complete — first-pass outputs trimmed subsection bodies near
+# the 16384 default. Same single-call multi-output tier as faction-builder
+# (API accepts 49152).
+max_tokens = 49152
+
+[overrides."shenbi-plot-thread-weaver"]
+temperature = 0.7
+# Probe2 genesis escalation #2 (2026-09-30): the single-file
+# outline/thread_map.md write pins the 32768 raise — 3 dispatch cycles
+# persistent-truncated at 32761/32770 (output_length=0, thread_map.md never
+# landed). Same pinned-cap signature as faction-builder / character-design.
+max_tokens = 49152
+
+[overrides."shenbi-review-group-character"]
+thinking = "disabled"
+temperature = 0.15
+# Fixcheck ch2 (2026-09-29): the four-dimension single-call audit
+# (character/dialogue/motivation/pov reports in one dispatch) exceeded the
+# 32768 raised cap — completion pinned 16383/32768/32769 across 3 retries,
+# length_truncation_persistent, zero reports on disk. ch1 fit inside the
+# default; ch2's longer chapter did not. Same headroom tier as the other
+# single-call multi-output skills.
+max_tokens = 49152
 
 [overrides."shenbi-review-continuity"]
+thinking = "disabled"
 temperature = 0.2
 
 [overrides."shenbi-review-anti-ai"]
+thinking = "disabled"
 temperature = 0.15
 
 [overrides."shenbi-review-resonance"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-foreshadowing-lifecycle"]
 temperature = 0.5
+# Canary escalation #15: write-discipline alone insufficient (whole-pool
+# rewrite despite SKILL rule) — combined headroom so truncated merges stop
+# silently dropping trailing hooks; monitor completion_tokens, revisit if
+# sustained >30K.
+max_tokens = 49152
 
 # Spec §2.1 P0: score-* (most deterministic task) + discriminative review queue.
 # Evaluative queue (texture/reader-pull/highpoint/pacing/long-span/motivation/
@@ -35,37 +140,98 @@ temperature = 0.5
 # group-factual/group-plan/foreshadowing) deferred to plan-stage decision.
 
 [overrides."shenbi-score-arc"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-score-stratum"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-score-volume"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-memo-compliance"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-world-rules"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-arc-payoff"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-pov"]
+thinking = "disabled"
 temperature = 0.15
 
 [overrides."shenbi-review-era"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-fanfic"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-sensitivity"]
+thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-spinoff"]
+thinking = "disabled"
 temperature = 0.15
 
 [overrides."shenbi-review-dialogue"]
+thinking = "disabled"
 temperature = 0.15
+
+[overrides."shenbi-review-long-span"]
+thinking = "disabled"
+# Canary closure: whole-book long-span review exceeds the 16384->32768
+# cap-raise ladder intermittently (length fail-fast while the streamed
+# artifact itself passes G4) — headroom mirrors the lifecycle precedent.
+temperature = 0.2
+max_tokens = 49152
+
+[overrides."shenbi-foundation-review"]
+thinking = "disabled"
+temperature = 0.1
+# probe18 genesis step 17 (2026-10-02): whole-project single-call review pinned
+# the 32768 raise 3x (completion 16384/32768, output_length=0, zero files) —
+# probe17 landed the same contract at ~12K on a comparable corpus, so the driver
+# is verbosity variance at the 0.7 default, not contract growth: normalize to
+# the review-family temperature + same 49152 headroom tier as review-group-
+# character (API accepts 49152; ladder can still self-raise to 58982).
+max_tokens = 49152
+
+# Session30 调试② (2026-10-08): deepseek thinking mode (default on, effort high)
+# draws its reasoning on the same completion budget — when it consumes all of
+# max_tokens the content channel returns empty (90+ dispatches pinned at exactly
+# the cap with output_length=0; 152 empties = 3.06M completion + 6.46M prompt
+# tokens, ~18% of run cost). The evaluative queue + planning run with thinking
+# disabled (official switch, api-docs.deepseek.com/guides/thinking_mode);
+# creative/synthesis writers keep the provider default — mid-run behavior
+# freeze, revisit with post-rollout data.
+
+[overrides."shenbi-chapter-planning"]
+thinking = "disabled"
+
+[overrides."shenbi-review-group-craft"]
+thinking = "disabled"
+
+[overrides."shenbi-review-group-factual"]
+thinking = "disabled"
+
+[overrides."shenbi-review-group-plan"]
+thinking = "disabled"
+
+[overrides."shenbi-foreshadowing-resolve"]
+temperature = 0.7
+# Vol-4 boundary (ch94, adjudication 308): the resolve audit outgrew the
+# 16384->32768 runtime raise (length_truncation on the CP worksheet x
+# full-hook inventory at 94 chapters + anchor digest). Whole-audit writer
+# tier — same 49152 headroom as the other boundary whole-file writers
+# (faction-builder/state-settling precedents; API accepts 49152).
+max_tokens = 49152

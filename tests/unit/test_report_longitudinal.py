@@ -93,7 +93,15 @@ class TestParseResonanceTrend:
     def test_no_header_raises(self, tmp_path):
         from tools.report_longitudinal import LongitudinalDataError, parse_resonance_trend
 
-        trend = _write_trend(tmp_path, [(1, 92)], header="not a table")
+        # Directly constructed: since the #38 extension the real write path
+        # BOOTSTRAPS the contract header onto a headerless/shell base, so a
+        # headerless trend can only arise outside the framework write path
+        # (hand edits, partial restores) — exactly what this parser guard is
+        # for. Going through _write_trend here would self-heal the header.
+        truth = tmp_path / "truth"
+        truth.mkdir(parents=True)
+        trend = truth / "resonance_trend.md"
+        trend.write_text("not a table\n| 第 1 章 | 92 |\n", encoding="utf-8")
         with pytest.raises(LongitudinalDataError):
             parse_resonance_trend(trend)
 

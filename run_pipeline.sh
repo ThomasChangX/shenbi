@@ -43,7 +43,7 @@ LOOP=0
 while [ "$LOOP" -lt "$MAX_LOOPS" ]; do
     LOOP=$((LOOP + 1))
 
-    OUTPUT=$(uv run pipeline resume "$PROJECT_DIR" 2>&1) || true
+    OUTPUT=$(uv run pipeline resume "$PROJECT_DIR" 2>&1 | tee -a "$PROJECT_DIR/pipeline-resume.log") || true
     STATUS=$(printf '%s\n' "$OUTPUT" | get_field status)
     CP=$(printf '%s\n' "$OUTPUT" | get_field checkpoint)
     PHASE=$(printf '%s\n' "$OUTPUT" | get_field phase)

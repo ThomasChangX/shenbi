@@ -1,6 +1,6 @@
 """Tests for enriched G4 retry feedback."""
 
-from shenbi.pipeline.chapter_loop import _enrich_g4_feedback
+from shenbi.pipeline.chapter_loop import G4_FORMAT_EXAMPLES, _enrich_g4_feedback
 
 
 def test_enrich_adds_format_example_for_known_check():
@@ -49,3 +49,152 @@ def test_enrich_handles_multiple_failures():
 
     assert "校准门判定" in result
     assert "文件和行号" in result or "chapter-N.md" in result
+
+
+def test_enrich_word_count_has_actionable_example():
+    """G4.word_count (probe7 ch1: three attempts at 1767<2000 all ran on the
+    generic fallback) gets concrete expansion guidance: the total-chars
+    口径 and in-scene expansion direction, not format boilerplate.
+    """
+    failures = ["G4.word_count:chapters/chapter-1.md:1767<2000"]
+    result = _enrich_g4_feedback(failures)
+
+    assert GENERIC_FALLBACK not in result
+    assert "字符" in result
+    # expansion direction: enrich existing scenes, not padding/new scenes
+    assert "扩" in result
+
+
+def test_enrich_no_hook_has_window_caliber():
+    """G4.cd.no_hook (probe13 ch1: three attempts all ran on the generic
+    fallback) gets the merged-window caliber and a rewrite direction, not
+    format boilerplate.
+    """
+    failures = ["G4.cd.no_hook:chapters/chapter-1.md:96字合并窗口未检出疑问句/张力词"]
+    result = _enrich_g4_feedback(failures)
+
+    assert GENERIC_FALLBACK not in result
+    assert "章尾" in result
+    assert "张力词" in result
+
+
+# ---------------------------------------------------------------------------
+# G4.dec schema-shape failures (probe4/5: missing/extra_forbidden dominated
+# the genre-config must_fix list and only received the generic fallback line)
+# ---------------------------------------------------------------------------
+
+GENERIC_FALLBACK = "(请重新生成此检查的输出以达到标准格式)"
+
+
+def test_enrich_dec_missing_has_complete_legal_example():
+    """G4.dec.missing gets a complete legal selections/adjustments example,
+    not the generic fallback.
+    """
+    failures = [
+        "G4.dec.missing:genre-config-decisions.json:selections.0.selected: Field required",
+        "G4.dec.missing:genre-config-decisions.json:adjustments.0.issue_id: Field required",
+    ]
+    result = _enrich_g4_feedback(failures)
+
+    assert GENERIC_FALLBACK not in result
+    # Complete legal entry shape (not just an enum list)
+    assert '"target":' in result
+    assert '"selected": [' in result
+    assert '"basis":' in result
+    assert '"issue_id":' in result
+    assert '"handling":' in result
+
+
+def test_enrich_dec_extra_forbidden_has_closed_set_example():
+    """G4.dec.extra_forbidden names the closed field sets so the model can
+    drop invented keys.
+    """
+    failures = [
+        "G4.dec.extra_forbidden:x-decisions.json:selections.0.id: Extra inputs are not permitted",
+    ]
+    result = _enrich_g4_feedback(failures)
+
+    assert GENERIC_FALLBACK not in result
+    assert "只允许" in result or "仅允许" in result or "闭集" in result
+    # The example must itself be closed-set clean (no invented keys inside it)
+
+
+def test_enrich_dec_literal_error_has_complete_legal_example():
+    """G4.dec.literal_error ships a complete legal entry with real enum
+    values filled in, not just the enum list.
+    """
+    failures = [
+        "G4.dec.literal_error:x-decisions.json:selections.0.basis: Input should be "
+        "'adjacent_to_target_chapter', 'arc_relevance', 'volume_scope' or 'manual_override'",
+    ]
+    result = _enrich_g4_feedback(failures)
+
+    assert '"basis": "arc_relevance"' in result or '"basis": "volume_scope"' in result
+
+
+def test_dec_example_json_is_schema_valid():
+    """The embedded G4.dec example must parse and validate against the
+    shenbi-decisions-v1 pydantic schema (keeps feedback honest as the
+    schema evolves).
+    """
+    import json
+
+    from shenbi.contracts.schemas.decisions import DecisionsDoc
+
+    for check_id in ("G4.dec.missing", "G4.dec.extra_forbidden", "G4.dec.literal_error"):
+        text = G4_FORMAT_EXAMPLES[check_id]
+        # Extract the fenced/inline JSON object (first '{' ... matching brace)
+        start = text.index("{")
+        depth = 0
+        end = start
+        for i, ch in enumerate(text[start:], start):
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
+        payload = json.loads(text[start:end])
+        DecisionsDoc.model_validate(payload)
+
+
+def test_hooks_structure_example_uses_live_form_and_names_banned_scaffold():
+    """Batch #10 #21/#22: the hooks_structure example must show the LIVE
+    (genesis template) heading form ``### MHxx(名)`` — the old example's
+    ``### MH-001|粗纸小册子`` matched neither the live file nor what models
+    naturally copy, teaching a third unusable format — and must name the
+    banned whole-file scaffold forms explicitly (frontmatter / # / ## /
+    总览表行), which the probe15 retry feedback never did.
+    """
+    text = G4_FORMAT_EXAMPLES["G4.ss.hooks_structure"]
+    assert "### MH" in text and "（" in text, "live-form heading example required"
+    assert "MH-001｜" not in text, "stale gate-only form must not be taught"
+    for banned in ("frontmatter", "## 总览"):
+        assert banned in text
+    # the sanctioned increment shape stays front and center
+    assert "- last_reinforced" in text
+
+
+def test_enrich_normalizes_indexed_check_ids_to_N():
+    """Batch #15 #42 (probe20): check IDs like ``G4.rev.adjustment_7_thin_rationale``
+    never matched a static example key — the digit index made the lookup miss
+    on every indexed finding, so those retries got only the generic line.
+    """
+    fb = _enrich_g4_feedback(
+        ["G4.rev.adjustment_7_thin_rationale:chapter-1-revision-decisions.json -- rationale 8 < 20"]
+    )
+    assert "期望格式" in fb, "indexed check id must resolve to its _N example"
+    assert "rationale" in fb
+
+
+def test_examples_cover_ac_and_rev_families():
+    """#42: the observed-but-uncovered families must carry examples — an
+    audit-completeness no_verdict retry and a revision thin-rationale retry
+    both need the sanctioned shape taught in the feedback.
+    """
+    for key in ("G4.ac.no_verdict", "G4.rev.adjustment_N_thin_rationale"):
+        assert key in G4_FORMAT_EXAMPLES, f"{key} missing from G4_FORMAT_EXAMPLES"
+        assert len(G4_FORMAT_EXAMPLES[key]) > 40
+    ac_text = G4_FORMAT_EXAMPLES["G4.ac.no_verdict"]
+    assert "**判定**" in ac_text, "must teach the 判定-labeled verdict line (#43 pairing)"

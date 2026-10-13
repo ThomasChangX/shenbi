@@ -103,3 +103,65 @@ def test_write_audit_aggregate_end_to_end(tmp_path: Path):
 
 def test_write_returns_none_when_no_reports(tmp_path: Path):
     assert write_audit_aggregate(tmp_path, 1) is None
+
+
+def test_fixcheck_ch2_debris_not_counted_and_summary_excluded(tmp_path: Path):
+    """Fixcheck ch2 (adjudication #14-7): the aggregate said BLOCKING
+    Findings(6) while the truth was 2 — the bare-word IGNORECASE regex
+    counted the review-summary's counter lines and per-report echoes
+    (double counting: the summary is downstream of the same raw reports),
+    severity LABEL lines (``- **严重度**: CRITICAL``), a lowercase PASS
+    row, and fix-suggestion prose mentioning "CRITICAL 1". The sensor now
+    accepts only anchored marker forms, and the summary is excluded from
+    the glob.
+    """
+    audit_dir = tmp_path / "audits"
+    audit_dir.mkdir()
+    (audit_dir / "chapter-2-anti-ai.md").write_text(
+        "| 5 | AI 标记词 | ERROR | ai_marker_hits = 4：心中暗道×1（框架预计算口径） |\n"
+        "- **严重度**: CRITICAL\n"
+        "- [BLOCKING] 全章禁用词 4 处：按 fatigueWords.替换建议逐词落地。\n",
+        encoding="utf-8",
+    )
+    (audit_dir / "chapter-2-world-rules.md").write_text(
+        "- [BLOCKING] 阁楼拆页段战力天花板越界：二选一修复。\n- **严重度**: WARNING\n",
+        encoding="utf-8",
+    )
+    (audit_dir / "chapter-2-sensitivity.md").write_text(
+        "- 现代词汇分层（genre-config rule-001，blocking）：公开对话均未出现网络流行语。PASS。\n",
+        encoding="utf-8",
+    )
+    (audit_dir / "chapter-2-foreshadowing.md").write_text(
+        "- [CRITICAL] MH-001 铁盒：正文缺「烫」与重量的一笔。\n"
+        "  - **修复方案**：要么在正文补上一笔（see 备忘合规报告 CRITICAL 1 的 (a)）。\n",
+        encoding="utf-8",
+    )
+    (audit_dir / "chapter-2-review-summary.md").write_text(
+        "- **BLOCKING Issues**: 2\n- **CRITICAL Issues**: 2\n"
+        "- chapter-2-anti-ai.md (chapter-2-anti-ai.md): - [BLOCKING] 全章禁用词 4 处…\n",
+        encoding="utf-8",
+    )
+
+    out = write_audit_aggregate(tmp_path, 2)
+    assert out is not None
+    body = out.read_text(encoding="utf-8")
+
+    def _count(sev: str) -> int:
+        import re as _re
+
+        m = _re.search(rf"## {sev} Findings \((\d+)\)", body)
+        return int(m.group(1)) if m else 0
+
+    assert _count("BLOCKING") == 2, body  # the two bracket findings, not 6
+    assert _count("CRITICAL") == 1, body  # bracket only — no label/prose/echo
+    assert _count("ERROR") == 1, body  # four-element table cell (real form)
+    # the summary contributed nothing (no counters, no echo double-count)
+    assert "Issues**" not in body and "chapter-2-anti-ai.md (chapter-2-anti-ai.md)" not in body
+    # the real finding appears exactly once
+    assert body.count("全章禁用词 4 处") == 1, body
+    # PASS row is dropped entirely (lowercase prose, no anchored marker)
+    assert "PASS。" not in body
+    # fix-suggestion prose degrades to verbatim CONTEXT (lossless), never a
+    # finding — the counts above already prove it produced no unit
+    findings_part = body.split("## 报告上下文")[0]
+    assert "CRITICAL 1 的 (a)" not in findings_part

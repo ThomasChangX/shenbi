@@ -12,6 +12,8 @@ import fnmatch
 
 import structlog
 
+log = structlog.get_logger(__name__)
+
 from shenbi.audit._shared import AuditResult
 from shenbi.audit.snapshot import compute_file_change, parametric_globs
 from shenbi.contracts.ownership import check_write_ownership, get_ownership
@@ -75,9 +77,12 @@ def audit_writes(
     declared = _declared_patterns(skill, chapter, ctx)
     globs = parametric_globs()
     checked: list[str] = []
+    changed: list[str] = []
     for rel in sorted(set(pre) | set(post)):
         change = compute_file_change(rel, pre.get(rel), post.get(rel))
         checked.append(rel)
+        if change.status != "unchanged":
+            changed.append(rel)
         # cross-section drift（markdown truth：YAML vs 派生表）。归属判据 =
         # pre/post 快照 diff（F516）：仅本次 dispatch 实际写过的文件
         # （added/modified）才做 drift 归属——unchanged 文件携带的 drift 是
@@ -100,9 +105,14 @@ def audit_writes(
         if get_ownership(skill, rel) is None:
             if not _matches_declared(rel, declared, globs):
                 violations.append(f"未声明写入: {rel}（不在 {skill} 契约 writes/updates）")
+    if not changed:
+        # 空真通过 must be visible (probe: the dead settle dispatch audited
+        # stale files green while every expected output was missing).
+        log.warning("write_audit_no_changes", skill=skill, checked=len(checked))
     return AuditResult(
         skill=skill,
         violations=tuple(violations),
         drift=tuple(drift_issues),
         checked_files=tuple(checked),
+        changed_files=tuple(changed),
     )

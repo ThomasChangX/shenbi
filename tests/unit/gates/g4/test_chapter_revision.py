@@ -143,6 +143,78 @@ def test_adjustment_with_thin_rationale_fails():
         assert any("thin_rationale" in m for m in parsed["must_fix"])
 
 
+def test_adjustment_missing_rationale_field_fails():
+    """Adjustment with NO rationale field at all is a HARD FAIL (P2.5 spec #30 §rationale).
+
+    probe26 #011 / probe27 #005: LLM skipped rationale for low-severity
+    adjustments twice. Hard contract = every adjustments[] entry must have a
+    rationale string ≥20 chars regardless of severity.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        path = _write_json(
+            d,
+            "chapter-5-revision-decisions.json",
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-chapter-revision",
+                "chapter": 5,
+                "selections": [],
+                "adjustments": [
+                    {
+                        "issue_id": "defer_x",
+                        "severity": "low",
+                        "handling": "defer_to_later_chapter",
+                        # rationale field entirely absent
+                    },
+                ],
+                "produced_at": "2026-07-19T00:00:00+00:00",
+            },
+        )
+
+        result = g4_chapter_revision([str(path)])
+        parsed = _parse_result(result)
+        assert parsed["status"] == "FAIL"
+        assert any("thin_rationale" in m for m in parsed["must_fix"])
+
+
+def test_skill_md_declares_all_adjustments_need_rationale():
+    """The chapter-revision SKILL.md must explicitly state the hard constraint
+    that every adjustments[] entry requires rationale (≥20 chars, ≤100 chars).
+
+    probe27 systematic-debugging: the SKILL.md wording "routine+low 禁附"
+    is ambiguous and was read by the LLM as "no rationale for low" — twice
+    reproduced a P1. The contract must be unambiguous.
+    """
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-chapter-revision" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+
+    # Must contain an explicit declaration: every adjustment requires rationale
+    assert "adjustments" in content.lower()
+    # Phrase patterns that unambiguously assert the hard constraint:
+    expected_patterns = [
+        "all adjustments",
+        "every adjustment",
+        "adjustments[",
+    ]
+    found = [p for p in expected_patterns if p.lower() in content.lower()]
+    assert found, (
+        "SKILL.md must explicitly state that all adjustments require a rationale. "
+        "Found none of the unambiguous patterns: "
+        f"{expected_patterns}"
+    )
+
+    # Must state the rationale length bounds (>=20, <=100 chars)
+    import re as _re
+
+    has_min = bool(_re.search(r"≥\s*20|>=?\s*20|minimum\s*20|至少\s*20", content))
+    has_max = bool(_re.search(r"≤\s*100|<=?\s*100|maximum\s*100|至多\s*100", content))
+    assert has_min, "SKILL.md must state rationale minimum length (≥20 chars)"
+    assert has_max, "SKILL.md must state rationale maximum length (≤100 chars)"
+
+
 def test_invalid_json_fails():
     """JSON syntax error in revision output is reported (g4_decisions also catches it)."""
     with tempfile.TemporaryDirectory() as tmp:

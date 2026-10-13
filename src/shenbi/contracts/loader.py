@@ -71,8 +71,39 @@ def _skill_path(skill: str) -> Path:
 
 
 #: Closed registry of read extractor names (spec #65 §4.2). Unknown names
-#: fail loudly at load (never silently degrade to full text).
-READ_EXTRACTORS: frozenset[str] = frozenset({"volume_chapter"})
+#: fail loudly at load (never silently degrade to full text). Plan A
+#: (adjudication 096): hooks_audit_scoped / recent_increments slice the
+#: unboundedly-growing cumulative truth tables — implementations and the
+#: closed-shape contracts live in pipeline/read_extractors.py.
+#: hooks_inventory_scoped (session30 T0): the volume-boundary resolve
+#: variant — 总览 full + TRIGGERED/PARTIAL candidate detail sections (pool
+#: 121KB blinded the mid-pool rows the full read served at 32K head-clip).
+#: hooks_overview (session31 GO③): 总览 table only for the boundary chain
+#: and planning/composing consumers — the detail evidence bulk is not their
+#: concern.
+#: threads_overview (session31 B 批): thread_map windowed to 线索总览表 +
+#: active detail sections + the current chapter's 推进表 interval ± 1 —
+#: the ledger grows per volume/weave at 千万字 scale.
+#: relationships_overview / locations_overview (session31 挂账清偿): the
+#: reference ledgers windowed for their per-chapter / per-volume readers —
+#: pair 演化轨迹 recent bullets + latest 扩容复核 + 矩阵/待兑现; location
+#: identity headers + 地理位置 + recent 功能事件 rows.
+#: book_strata_current (P0 读面失配批): the strata ledger appends one
+#: ``# 第N大弧合成`` H1 block per arc — H2 field reads are first-wins and
+#: would forever serve arc 1; this extractor serves the current (last) arc.
+READ_EXTRACTORS: frozenset[str] = frozenset(
+    {
+        "volume_chapter",
+        "hooks_audit_scoped",
+        "recent_increments",
+        "hooks_inventory_scoped",
+        "hooks_overview",
+        "threads_overview",
+        "relationships_overview",
+        "locations_overview",
+        "book_strata_current",
+    }
+)
 
 
 def _normalize_read_item(item: Any) -> tuple[str, list[str] | None, str | None]:

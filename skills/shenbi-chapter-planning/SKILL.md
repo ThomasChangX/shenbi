@@ -6,23 +6,22 @@ contract:
   kind: artifact
   reads:
   - novel.json
-  - file: truth/current_state.md
+  - file: genre-config.json
     fields:
-    - 系统演化阶段
-    - 参数当前位置
-    - 进行中的情节线
-  - file: truth/pending_hooks.md
-    fields:
-    - 活跃伏笔
-    - 伏笔统计
-  - file: truth/chapter_summaries.md
-    fields:
-    - 已完成章节
+    - chapter_word
+  - {file: truth/current_state.md, extractor: recent_increments}
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
+  - {file: truth/chapter_summaries.md, extractor: recent_increments}
   - file: outline/volume_map.md
     extractor: volume_chapter
+  - {file: outline/thread_map.md, extractor: threads_overview}
   - outline/story_frame.md
   - truth/current_focus.md
   - truth/author_intent.md
+  - {file: characters/relationships.md, extractor: relationships_overview}
+  - file: foundation/review_report.md
+    fields:
+    - 建议修复
   writes:
   - file: plans/chapter-N-plan.md
     mode: create_or_overwrite
@@ -46,7 +45,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md
+- **Reads:** novel.json, genre-config.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md, foundation/review_report.md
 - **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json
 - **Updates:** none
 
@@ -73,7 +72,8 @@ HARD-GATE: 不得在没有章节备忘的情况下起草正文。
 ```dot
 digraph chapter_planning {
     "Read truth files" -> "Read volume_map (current volume)";
-    "Read volume_map (current volume)" -> "Locate outline node for this chapter";
+    "Read volume_map (current volume)" -> "Check thread_map line progression";
+    "Check thread_map line progression" -> "Locate outline node for this chapter";
     "Locate outline node for this chapter" -> "Derive goal (priority chain)";
     "Derive goal (priority chain)" -> "Collect hook debts [Phase 3]";
     "Collect hook debts [Phase 3]" -> "Read recent 2 chapter summaries";
@@ -107,7 +107,7 @@ digraph chapter_planning {
    - 未注明优先级来源的备忘视为不完整
    - 首行必须声明 `chapter_role`（合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫），驱动 review-resonance 校准阈值（spec §5.1）
 2. **读者此刻在等什么** — 制造/延迟/兑现读者期待
-3. **该兑现的 / 暂不掀的** — 伏笔兑现清单 + 压住不掀的底牌
+3. **该兑现的 / 暂不掀的** — 伏笔兑现清单 + 压住不掀的底牌；对照 thread_map 的「章节线索推进表」与「线索详情」：本章区间内主推/副推线索的推进点必须逐一落实（含 P0 线在本章区间的首次露面约束），落不进备忘的推进点视为备忘不完整
 4. **日常/过渡承担什么任务** — 非冲突段落的功能映射
 5. **关键抉择过三连问** — Why / Interest / Persona
 6. **章尾必须发生的改变** — 1-3条具体改变（信息/关系/物理/权力）
@@ -124,7 +124,7 @@ digraph chapter_planning {
 
 ## Hook 账本硬规则
 
-> **Phase 1 限制**: 在 foreshadowing-plant/track/resolve 实现前（Phase 3），`pending_hooks.md` 不存在或为空伏笔池。本章节 hook 账规则在 Phase 1 为**占位声明**——规划器输出 hook 账各段为占位符，context-composing 跳过 P3 伏笔简报，state-settling 不推进 hook 状态。Phase 3 引入伏笔系统后，以下规则从占位升级为可执行。
+> **Phase 1 限制（条件分支，按伏笔池实况二选一，禁止两者混出）**: 若 `truth/pending_hooks.md` 不存在或伏笔池为空（Phase 1），hook 账各段输出占位符、context-composing 跳过 P3 伏笔简报、state-settling 不推进 hook 状态。**若伏笔池非空（创世已跑 foreshadowing-lifecycle，池中有 MH 钩），本说明不适用且禁止输出——hook 账必须按池实况逐钩填写，严禁输出「尚未实现/占位声明」类字样**（probe14 ch1：池有 14 钩仍照抄占位声明，属虚假自证）。
 
 - `pressured` 或 `near_payoff` 状态且沉默 ≥5 章的 hook 必须 advance 或 resolve
 - `core_hook=true` 且过期 >10 章升级为 critical
@@ -163,6 +163,12 @@ chapter_role: 高潮
 
 > 合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫
 
+chapter_type: battle
+
+> 选填。内容型取 `genre-config.json → chapterTypes` 词表（battle/dialogue/political_intrigue/training 等）；drafting 的章型调制以此行 + chapter_role 为键（见 drafting 创作原则 7）。缺省 = 仅按 chapter_role 调制。
+
+**目标字数**: [genre-config.json 的 chapter_word.default 值，原样数字]（= chapter_word.default；drafting 篇幅契约铁律与本行同源，缺失即断链）
+
 **优先级来源**: [外部指令 / 局部覆盖 / 卷纲 Key Result / current_focus / author_intent]
 
 **冲突说明**: [若高层级指令与低层级冲突，说明为何选择当前层级。无冲突则填"无"]
@@ -172,9 +178,9 @@ chapter_role: 高潮
 - [动作 2]
 ```
 
-**不合格条件**: 未注明优先级来源。
+**不合格条件**: 未注明优先级来源；段1 缺「**目标字数**」行（probe13/probe14 两探针均靠裁决补行）。
 
-> 注：未声明 `chapter_role` 或使用非合法值，视为不合格（G4.cp.missing_chapter_role）。
+> 注：未声明 `chapter_role` 或使用非合法值，视为不合格（G4.cp.missing_chapter_role）。文件必须以中文章节备忘标题行开头（如 `# 第N章 章节备忘`），禁止输出 `# Chapter N:` 形式的孤立英文标题行（probe13/14 均现此残留）。
 
 ### 段 2 模板：读者此刻在等什么
 
@@ -225,6 +231,10 @@ chapter_role: 高潮
 
 - [改变 1]: [类型: 信息/关系/物理/权力] [具体变化]
 - [改变 2]: [类型: 信息/关系/物理/权力] [具体变化]
+
+**必填一行（章尾张力拍——drafting PRE_WRITE_CHECK 与 G4.cd 硬闸的上游对接口径，裁决 199 落地）**：
+
+- 章尾张力拍: [未答之问／未说破之瞒／未合拢之缝 + 具体指向对象（谁/什么，指向须具体到可写进收束拍）]
 ```
 
 **可自动检查规则**：章号 > 3 时，至少 1 条改变的类型在 {信息, 关系, 物理, 权力} 中且非空。
@@ -273,12 +283,42 @@ chapter_role: 高潮
 | hook 账列名 | ID/操作/推进方式/沉默章数 四列 | 列名不匹配 |
 | hook 操作有效性 | 仅使用 open/advance/resolve/defer | 使用不允许值 |
 | 沉默检测 | 无 defer + 沉默 ≥ 4 章的行（或已附激活方案） | 存在僵尸伏笔 |
+| hook ID 真实性 | §7 中 `MH\d+` 编号须已在 truth/book_spine.md 或 truth/pending_hooks.md 注册（MH 命名属 genesis/lifecycle 职权；确需新钩走 CP-NNN，memo 不得自造 MH 号） | 引用未注册 MH 编号 |
 
 ## decisions sidecar 必填字段
 
-每次执行后**必须写出** `plans/chapter-N-plan-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+每次执行后**必须写出** `plans/chapter-N-plan-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件的 ### FILE 块内容必须是纯 JSON（块内首字符即 `{`，禁止 markdown 标题与围栏代码块）；`### FILE:` 标记行本身照常输出，且不得以「纯 JSON」为由省略 plan 文件块或同响应中的其他文件块。** 必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）
 - `produced_at`: ISO-8601 时间戳
 - `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
+**P2.5 二分支自查（写每条 selection 前过一遍，G4 逐项强校验）**：
+- 常规取舍 → `"severity": "low"` 且**不写** rationale 键；
+- 有实重取舍（驱动 adjustments／响应漂移滑点／卷级口径裁剪）→ `"severity": "medium"` + **必写** ≤100 字 rationale（说清取了什么、为何这个分量）；
+- 两种禁组（各实证 3 试被闸）：`low`+rationale、`medium`+无 rationale；rationale **写完数字数 ≤90 字留余量**（Python len 计、中文每字 1 含标点——ch92 实证贴边计数失误 3 试被闸）。
+
+**字段级规格（G4 逐项强校验，形态错误即闸门失败）**：
+- `selections[]`: `target`（str，被选取的文件路径）、`selected`（**list[str]**，如 `["arc1","beat_2"]`——禁止写成字符串）、`basis`（**仅限四枚举之一**：`adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`——禁止自造值）、`severity`（`low`/`medium`/`high`）、`omitted`（list[str]）
+- `adjustments[]`: `issue_id`（str）、`severity`、`handling`（**仅限四枚举之一**：`compensate_via_pacing` / `explicit_callout` / `defer_to_next_chapter` / `ignore`——禁止自造值）、`rationale`（必填，≤100 字）
+
+**可仿写示例**：
+
+```json
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 1,
+  "produced_at": "2026-09-28T12:00:00Z",
+  "selections": [
+    {
+      "target": "outline/volume_map.md",
+      "selected": ["arc1", "beat_2"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": []
+}
+```

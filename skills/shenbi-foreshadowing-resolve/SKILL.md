@@ -5,9 +5,19 @@ description: Use when foreshadowing hooks reach TRIGGERED state and need resolut
 contract:
   kind: artifact
   reads:
-  - truth/pending_hooks.md
-  - truth/chapter_summaries.md
-  writes: []
+  # T0 (session30): the boundary inventory was a full-pool read; the pool
+  # outgrew the 32K single-file cap and the head clip blinded mid-pool
+  # TRIGGERED rows. Slices keep the 总览 table full (authoritative
+  # lifecycle surface) + TRIGGERED detail sections; 卷级摘要承接中段视野
+  # (模式同 settle). Full history stays in the truth files.
+  - file: truth/pending_hooks.md
+    extractor: hooks_inventory_scoped
+  - file: truth/chapter_summaries.md
+    extractor: recent_increments
+  - truth/volume_summaries.md
+  writes:
+  - file: audits/volume-N-foreshadowing.md
+    mode: create_or_overwrite
   updates:
   - file: truth/pending_hooks.md
     mode: append_dedup
@@ -34,8 +44,8 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/pending_hooks.md, truth/chapter_summaries.md
-- **Writes:** none
+- **Reads:** truth/pending_hooks.md, truth/chapter_summaries.md, truth/volume_summaries.md
+- **Writes:** audits/volume-N-foreshadowing.md
 - **Updates:** truth/pending_hooks.md
 
 <!-- END AUTO-GENERATED -->
@@ -78,7 +88,7 @@ CP = hook_power × time_since_plant × escalation_factor
 | 参数 | 说明 | 取值范围 |
 |------|------|---------|
 | hook_power | 伏笔基础威力（core_hook=10, main=5, side=2） | 1-10 |
-| time_since_plant | 自埋设以来的沉默章数 | ≥1 |
+| time_since_plant | 沉默章数，**口径固定 = 边界章 − last_reinforced**（切片读在详情前附「生命周期锚点」摘要，逐钩给出 plant/last_reinforced 预计算值；未强化钩以种植章起算）——禁止沿用示例值或自行估数 | ≥0 |
 | escalation_factor | 兑现方式放大系数（FULL_PAYOFF=1.0, PARTIAL_PAYOFF=0.7, TWIST_PAYOFF=0.8, FLAT_PAYOFF=0.3） | 0-1.0 |
 
 计算示例（输出中必须展示）:
@@ -98,9 +108,14 @@ CP = hook_power × time_since_plant × escalation_factor
 
 ## 输出格式
 
-输出必须包含以下两个部分。缺任意部分 = 不合格。
+输出必须包含**两个文件**，缺任一文件 = 不合格：
 
-### 第一部分：伏笔兑现报告
+① `audits/volume-N-foreshadowing.md`（整档创建）：完整伏笔兑现报告——含下述「伏笔兑现报告」与「兑现汇总」两节（铁律 5 的 CP 公式与参数在工作表内展示）。
+② `truth/pending_hooks.md` **增量（选择式——防输出容量墙）**：形态为 `### MHxx（标题照抄 live 该钩标题）` + colon bullet 字段块；只含本章确有状态推进的钩，每个钩只写**变化的字段**——lifecycle_state / last_reinforced 单独成 bullet 即可，不带动 证据/notes；仅当本章为该钩新增证据或注记时才写 证据/notes bullet（此时按合并契约重述该字段 live 全史后追加本章内容）。未推进的钩一律不出现（其 last_reinforced 已由逐章 settle 记录）。新钩为完整 `### MHxx` 新区块。兑现/强化/新植的钩状态推进只落这里，不进报告。本章确无任何钩状态推进时，在报告①「兑现汇总」节记录原因，②可省略；有推进而漏写② = 状态静默丢失 = 不合格。
+
+**输出预算纪律**：报告①的表一行一钩、字段紧凑；文件②只发变化字段。全钩全字段重述会使整包输出超出模型输出上限被截断作废（ch23 卷界两次实测 32K+ tokens 触顶）——被明确禁止。
+
+### 报告文件（①）：伏笔兑现报告
 
 ```markdown
 ## 伏笔兑现报告
@@ -161,7 +176,7 @@ CP = hook_power × time_since_plant × escalation_factor
 | hook-003 | PLANTED | 12 | 继续培育 |
 ```
 
-### 第二部分：兑现汇总
+### 报告文件（①）末节：兑现汇总
 
 ```markdown
 ## 兑现汇总（第N章 / 第M卷）
@@ -187,6 +202,18 @@ CP = hook_power × time_since_plant × escalation_factor
 - hook-003 → 继续培育，下章可触发
 - hook-005 → 已超期，必须 TRIGGER 或 EXPIRE
 ```
+
+### 文件②模板：truth/pending_hooks.md 增量
+
+```markdown
+### FILE: truth/pending_hooks.md
+### MH07（阿石留下的绳结与结绳之册）
+- lifecycle_state: RELEVANT
+- last_reinforced: 第 23 章
+- 证据: …（仅当本章新增证据时写此 bullet：重述 live 全史后追加本章内容）
+```
+
+既有钩只发 colon bullet（lifecycle_state/last_reinforced/证据/notes）；新钩为完整 `###` 新区块。绝不输出 frontmatter、`#`/`##` 文件标题、registry 总览表行（`| MHxx… |`）或任何稳定行——重发即被摄取守卫拒收、整次派发作废。
 
 ### 可自动检查的计数规则
 

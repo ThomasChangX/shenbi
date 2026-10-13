@@ -129,15 +129,16 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
         "context/chapter-1-context.md",
         "context/chapter-1-context-decisions.json",
         "style/style_profile.md",
+        "style/style_directives.md",
         "genre-config.json",
         "truth/audit_drift.md",
     ]
-    # shenbi-state-settling: writes character_matrix + decisions sidecar, plus
-    # updates=7 truth files (all fold into outputs; character_matrix appears in
-    # both writes and updates). The sidecar was once removed as a dead output;
-    # spec #30 T2/T106 re-declared it — G4.dec now consumes it.
+    # shenbi-state-settling: writes the decisions sidecar plus updates=7
+    # truth files (character_matrix moved from writes to updates in the
+    # probe2 settle capacity fix — the increment merge replaced the
+    # whole-file rewrite contract). The sidecar was once removed as a dead
+    # output; spec #30 T2/T106 re-declared it — G4.dec now consumes it.
     assert derive_output_files("shenbi-state-settling") == [
-        "truth/character_matrix.md",
         "truth/state-settling-decisions.json",
         "truth/current_state.md",
         "truth/particle_ledger.md",
@@ -145,6 +146,7 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
         "truth/subplot_board.md",
         "truth/pending_hooks.md",
         "truth/chapter_summaries.md",
+        "truth/character_matrix.md",
     ]
 
 

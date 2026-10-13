@@ -93,6 +93,11 @@ EXPECTED_CALLS: dict[str, list[list[str]]] = {
     "test-all": [["-q"]],
     "test-file": [["tests/test x.py"]],
     "audit-lint": [["--help"]],
+    "pool-lint": [["--help"]],
+    "pool-archive": [["--help"]],
+    "ledger-archive": [["--help"]],
+    "volume-budget": [["--help"]],
+    "seed-validate": [["seed; touch pwned"]],
     "gate": [["G0"], ["G0; touch pwned"]],
     "dispatch": [["shenbi-x", "generative", "/tmp/r", "p; touch pwned-by-just-recipe"]],
     "pipeline-init": [

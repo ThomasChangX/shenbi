@@ -104,6 +104,60 @@ def yload(p: str | Path) -> dict[str, Any]:
     return data
 
 
+def chapter_word_floor(project_dir: str | Path | None) -> int:
+    """Per-chapter word floor from the project's genre-config (single source).
+
+    genre-config.json ``chapter_word.default`` is the same value G0.3 and G6
+    already use for chapter-count math (expected = ceil(target / default)).
+    The drafting/output gates must floor against the SAME number — the
+    hardcoded 3000 constant demanded twice the plan in projects whose volume
+    map was built on the 1500 default (probe escalation #9: every chapter
+    structurally failed the floor while following its memo's 1500-char plan).
+    Falls back to :data:`CHAPTER_WORD_FLOOR` when the config or key is absent.
+    """
+    if not project_dir:
+        return CHAPTER_WORD_FLOOR
+    gc_path = Path(project_dir) / "genre-config.json"
+    try:
+        data = jload(str(gc_path))
+    except (json.JSONDecodeError, OSError, ValueError):
+        return CHAPTER_WORD_FLOOR
+    default = data.get("chapter_word", {}).get("default")
+    try:
+        return int(default) if default else CHAPTER_WORD_FLOOR
+    except (TypeError, ValueError):
+        return CHAPTER_WORD_FLOOR
+
+
+def chapter_word_min_max(project_dir: str | Path | None) -> tuple[int | None, int | None]:
+    """Per-chapter (min, max) bounds from genre-config ``chapter_word``.
+
+    Same single source as :func:`chapter_word_floor` (probe3 P1: the
+    chapter-loop WARN bounds and the length-normalizing ceiling ran on their
+    own hardcoded 4000/15000 and 3000/10000 regimes while the drafting gate
+    already floored on the config). ``(None, None)`` when absent — callers
+    keep their legacy constants so no-config behavior is unchanged.
+    """
+    if not project_dir:
+        return (None, None)
+    gc_path = Path(project_dir) / "genre-config.json"
+    try:
+        data = jload(str(gc_path))
+    except (json.JSONDecodeError, OSError, ValueError):
+        return (None, None)
+    cw = data.get("chapter_word", {})
+    if not isinstance(cw, dict):
+        return (None, None)
+
+    def _int_or_none(v: object) -> int | None:
+        try:
+            return int(v) if isinstance(v, (int, float, str)) and v else None
+        except (TypeError, ValueError):
+            return None
+
+    return (_int_or_none(cw.get("min")), _int_or_none(cw.get("max")))
+
+
 def word_count_md(fp: str | Path) -> int:
     """Count Chinese characters in Markdown body (excluding frontmatter,
     code blocks, and meta sections).
@@ -111,10 +165,14 @@ def word_count_md(fp: str | Path) -> int:
     return word_count_md_text(Path(fp).read_text(encoding="utf-8"))
 
 
-def word_count_md_text(content: str) -> int:
-    """Content-based variant of :func:`word_count_md` (C28 R1: callers that
-    already hold the chapter bytes — e.g. the shared audit context — must not
-    re-read the file just to count).
+def strip_narrative_body(content: str) -> str:
+    """Strip YAML frontmatter, code blocks, and non-narrative meta sections.
+
+    Single construction site for the "chapter body" 口径 (probe escalation
+    #4, 2026-09-28): ``word_count_md``, the G4 transition-word count, and the
+    chapter word floor must all measure the SAME body — a transition count on
+    raw content counted the framework-mandated PRE_WRITE_CHECK checklist
+    itself (6 of 8 hits on the probe's chapter 1).
     """
     c = content
     # Strip YAML frontmatter
@@ -133,8 +191,28 @@ def word_count_md_text(content: str) -> int:
     ]:
         c = re.sub(tag, "", c, flags=re.DOTALL)
     # Also strip HTML comment wrappers (<!--META-BEGIN-->...<!--META-END-->)
-    c = META_BLOCK_RE.sub("", c)
-    return len(re.findall(r"[一-鿿]", c))
+    return META_BLOCK_RE.sub("", c)
+
+
+def word_count_md_text(content: str) -> int:
+    """Content-based variant of :func:`word_count_md` (C28 R1: callers that
+    already hold the chapter bytes — e.g. the shared audit context — must not
+    re-read the file just to count).
+    """
+    return len(re.findall(r"[一-鿿]", strip_narrative_body(content)))
+
+
+def total_chars_md_text(content: str) -> int:
+    """Non-whitespace character count of the narrative body (all scripts and
+    punctuation, meta stripped).
+
+    The chapter word FLOOR runs on this 口径 (probe escalation #4): the memo
+    layer plans chapter length in TOTAL characters (~3400), so a CJK-only
+    floor of 3000 demanded ≈3565 total chars — plan-compliant chapters
+    structurally could not pass (production fixture: ch36/37/39/41 all
+    27xx-CJK fails while plan-compliant).
+    """
+    return len(re.sub(r"\s", "", strip_narrative_body(content)))
 
 
 def parse_decisions_payload(
@@ -167,6 +245,39 @@ def parse_decisions_payload(
         try:
             clean, end_pos = json.JSONDecoder().raw_decode(content)
         except json.JSONDecodeError:
+            # Leading-prefix recovery (canary escalation #10): models wrap
+            # pure-JSON sidecars with a markdown title/fence header —
+            # `# Chapter 1:` then valid JSON. Re-decode from the first `{`.
+            # Bounded: the recovered object still faces full schema + P2.5
+            # validation by the caller, and the recovery is logged.
+            brace = content.find("{")
+            if brace > 0 and "\n" in content[:brace]:
+                try:
+                    clean, end_pos = json.JSONDecoder().raw_decode(content[brace:])
+                except json.JSONDecodeError:
+                    return None, [
+                        {
+                            "id": f"{prefix}.1",
+                            "file": file,
+                            "s": GateStatus.FAIL,
+                            "r": "invalid JSON",
+                        }
+                    ]
+                log.warning(
+                    "decisions_json_leading_prefix_recovered",
+                    file=file,
+                    skipped_prefix=content[:brace][:80],
+                )
+                if not isinstance(clean, dict):
+                    return None, [
+                        {
+                            "id": f"{prefix}.1",
+                            "file": file,
+                            "s": GateStatus.FAIL,
+                            "r": f"recovered non-object JSON: {type(clean).__name__}",
+                        }
+                    ]
+                return clean, []
             return None, [
                 {"id": f"{prefix}.1", "file": file, "s": GateStatus.FAIL, "r": "invalid JSON"}
             ]

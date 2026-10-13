@@ -11,12 +11,17 @@ contract:
   - characters/relationships.md
   - truth/character_matrix.md
   - world/factions.md
+  - novel.json
+  - outline/story_frame.md
+  - outline/volume_map.md
   writes: []
   updates:
   - file: characters/relationships.md
-    mode: create_or_overwrite
+    mode: append_dedup
+    key: relation
   - file: truth/character_matrix.md
-    mode: create_or_overwrite
+    mode: append_dedup
+    key: 角色A,角色B
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -28,11 +33,13 @@ contract:
 
 ## 数据契约
 
-- **Reads:** characters/*.md, characters/**/*.md, characters/relationships.md, truth/character_matrix.md, world/factions.md
+- **Reads:** characters/*.md, characters/**/*.md, characters/relationships.md, truth/character_matrix.md, world/factions.md, novel.json, outline/story_frame.md, outline/volume_map.md
 - **Writes:** none
 - **Updates:** characters/relationships.md, truth/character_matrix.md
 
 <!-- END AUTO-GENERATED -->
+
+> **relationships 写纪律（append_dedup，A2 千万字卷层批）**：`characters/relationships.md` 只发**本界有变化的区段**——`## 关系对：A - B` 整段（类型/利益根基/信息边界/演化等；每段必含 `**矩阵格**: <短标签>` 行，关系矩阵表由合并层从该行机械派生，**绝不输出矩阵表**）＋扩容复核区段 `## 第N章扩容复核（…）`（按章号定位，每界一段）。**禁止重发** frontmatter、`#` 一级标题、`## 关系矩阵` 段、序言引言、未变化区段。`truth/character_matrix.md` 只发**交互总表行增量**（`| 角色A | 角色B | 关系 | 最近交互 | 最近变化 |`，复合键 角色A,角色B 原位合并；最近交互/最近变化须重述全史后追加）。
 
 # 关系图谱
 
@@ -62,6 +69,7 @@ digraph relationship_map {
 2. **信息边界严格** — 角色 A 知道的事，B 是否知道必须在矩阵中显式记录
 3. **关系可演化** — 每个关系必须定义起点状态和预期终点状态（中间可分段）
 4. **去重原则** — 同一对角色（A,B）的同一类型关系只能有一条记录。若已存在旧记录，合并为新记录并标记旧记录为 superseded。关系演化状态变更在原记录上更新，不创建重复条目。跨文件重复（character.md + relationships.md）以 relationships.md 为权威源，character.md 中仅保留关系摘要指针
+5. **编年锚定** — 演化轨迹与「演化轨迹待兑现」表的一切事件章号以 `outline/volume_map.md` 为准，不得自创编年、不得引入卷纲之外的事件；本文件自称权威源，章号层必须与卷纲逐条一致
 
 ## 关系维度
 
@@ -170,3 +178,8 @@ digraph relationship_map {
 | "信息边界读者不会注意" | 信息差是戏剧张力的核心来源，读者不察觉但感受得到 |
 | "利益链太功利了，文学需要纯粹的情感" | 利益和情感不冲突，最深的关系往往两者兼具 |
 | "关系演化太麻烦，先写主线" | 关系无演化 = 角色扁平 = 200章后人物失温 |
+
+
+## 年代锚纪律
+
+绝对年数（「X 年/年前」「N 年来」形态，含阿拉伯数字）只登记于 `world/story_bible.md` 的「世界史时间线」表。本 skill 的输出涉及年代时只写**锚名**或相对表述（如「净场之后」「旧历末年」），不写裸年数——G4.ys 机械扫描会把裸年数判为不合格（probe15：四层年数互斥耗掉四轮创世裁决）。

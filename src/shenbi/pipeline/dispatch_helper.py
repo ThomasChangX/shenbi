@@ -56,8 +56,25 @@ from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
 from shenbi.env_policy import build_child_env
 from shenbi.contracts.injection import wrap_untrusted_source
-from shenbi.exceptions import DispatchWriteFailureError, ShenbiError, TruthFileParseError
+from shenbi.exceptions import (
+    DispatchWriteFailureError,
+    IncrementShapeError,
+    ShenbiError,
+    TruthFileParseError,
+)
 from shenbi.pipeline._shared import load_volume_context  # spec #65 §4 (leaf module, no cycle)
+from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 096) — leaf module
+    chapter_scoped_head_tail,
+    extract_book_strata_current,
+    extract_hooks_audit_scoped,
+    extract_hooks_inventory_scoped,
+    extract_hooks_overview,
+    extract_locations_overview,
+    extract_recent_increments,
+    extract_relationships_overview,
+    extract_threads_overview,
+    has_chapter_units,
+)
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
@@ -179,10 +196,34 @@ def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
     Only drafting and revision skills need META blocks.
     All other skills (auditors, state-settling, etc.) receive stripped text.
     Saves 16-31% input per non-drafting call.
+
+    F-6 (probe22 adjudication #006 P2-2): the strip used to REMOVE the
+    block's lines outright, so the served view was shorter than the physical
+    file and every ``chapters/chapter-N.md Lxx`` anchor cited by settle and
+    the audit wave carried a constant block-size offset (+11/12) — the
+    revision step then received fix instructions pointing at wrong spans.
+    The replacement below is COORDINATE-PRESERVING: each removed physical
+    line becomes an inert ``<!--META Ln-->`` placeholder, so view line N ==
+    physical line N and citations need no arithmetic (phrase quotes stay
+    byte-clean — prose lines are untouched).
     """
     if skill_name in ("shenbi-chapter-drafting", "shenbi-chapter-revision"):
         return text
-    return _META_PATTERN.sub("", text)
+    if "<!--META-BEGIN-->" not in text:
+        return text
+    out: list[str] = []
+    pos = 0
+    for m in _META_PATTERN.finditer(text):
+        out.append(text[pos : m.start()])
+        start_line = text.count("\n", 0, m.start()) + 1
+        block_lines = m.group(0).count("\n") + 1
+        # the match carries (block_lines - 1) internal newlines and no
+        # trailing one — the following text supplies it, so the chunk joins
+        # with "\n" only.
+        out.append("\n".join(f"<!--META L{start_line + i}-->" for i in range(block_lines)))
+        pos = m.end()
+    out.append(text[pos:])
+    return "".join(out)
 
 
 # Sentinels for the auto-generated body blocks (spec §3.8). These are kept in
@@ -236,6 +277,37 @@ def _get_skill_max_tokens(skill_name: str) -> int:
             )
         )
     return int(config.get("default", {}).get("max_tokens", 16384))
+
+
+#: Valid executor_config ``thinking`` values — anything else stays on the
+#: provider default (never half-guess an API param).
+_THINKING_VALUES = ("disabled", "low")
+
+
+def _get_skill_thinking(skill_name: str) -> str | None:
+    """Thinking-mode override for a skill from executor_config.toml.
+
+    deepseek's chat-completions API runs thinking mode by default (effort
+    high) and the reasoning channel draws on the same completion budget —
+    when it consumes all of max_tokens the content channel returns empty
+    (session30 调试②: 90+ dispatches pinned at exactly the cap with
+    output_length=0). ``disabled`` / ``low`` map onto the official API
+    switches via :func:`_thinking_kwargs`; absent -> provider default.
+    """
+    config = _load_executor_config()
+    overrides = config.get("overrides", {})
+    section = overrides.get(skill_name) or config.get("default", {})
+    value = section.get("thinking")
+    return value if value in _THINKING_VALUES else None
+
+
+def _thinking_kwargs(thinking: str | None) -> dict[str, Any]:
+    """Map the config value onto official API kwargs (no-ops on None)."""
+    if thinking == "disabled":
+        return {"extra_body": {"thinking": {"type": "disabled"}}}
+    if thinking == "low":
+        return {"reasoning_effort": "low"}
+    return {}
 
 
 _INPUT_MAX_CHARS_PER_FILE = 32000  # hard cap per input file (~8K tokens)
@@ -306,13 +378,21 @@ class TruncateRecord:
 
 
 def _cap_single(text: str, fname: str) -> str:
-    """Apply the per-file cap with a cap-proof sentinel + WARN (F361 under-budget path)."""
+    """Apply the per-file cap with a cap-proof sentinel + WARN (F361 under-budget path).
+
+    Plan A (adjudication 096): chapter-keyed cumulative tables cut
+    head+tail (newest units survive — settle's recency need) instead of the
+    head-only clip that orphaned rows mid-table (the ch58 input-残篇 root).
+    """
     log.warning(
         "input_truncated",
         file=fname,
         original_len=len(text),
         kept_len=_INPUT_MAX_CHARS_PER_FILE,
     )
+    scoped = chapter_scoped_head_tail(text, _INPUT_MAX_CHARS_PER_FILE)
+    if scoped is not None:
+        return scoped
     return (
         text[:_INPUT_MAX_CHARS_PER_FILE]
         + f"\n\n[TRUNCATED {_INPUT_MAX_CHARS_PER_FILE}/{len(text)} chars]"
@@ -351,13 +431,18 @@ def _budgeted_truncate(
             kept[name] += give
             surplus -= give
     # Pass 3: build outputs — sentinel appended AFTER the cap slice (F361: it can
-    # never be clipped by _INPUT_MAX_CHARS_PER_FILE)
+    # never be clipped by _INPUT_MAX_CHARS_PER_FILE). Plan A: chapter-keyed
+    # files cut head+tail (newest units survive) instead of head-only.
     result: dict[str, str] = {}
     records: list[TruncateRecord] = []
     for name, content in input_texts.items():
         k = kept[name]
         if k < len(content):
-            result[name] = content[:k] + f"\n\n[TRUNCATED {k}/{len(content)} chars]"
+            scoped = chapter_scoped_head_tail(content, k)
+            if scoped is not None:
+                result[name] = scoped
+            else:
+                result[name] = content[:k] + f"\n\n[TRUNCATED {k}/{len(content)} chars]"
             records.append(
                 TruncateRecord(file=name, original_len=len(content), kept_len=k, offset=0)
             )
@@ -423,7 +508,6 @@ OPTIONAL_READS: dict[str, list[str]] = {
     "shenbi-context-composing": ["arc-*.md", "volume_summaries.md", "trend"],
     "shenbi-drift-guidance": ["arc-*.md"],
     "shenbi-chapter-planning": ["chapter-*-plan.md"],
-    "shenbi-chapter-drafting": ["chapter-*-plan.md"],
     "shenbi-escalation-review": [
         "resonance_trend.md",
         "volume-*-score.md",
@@ -438,6 +522,21 @@ OPTIONAL_READS: dict[str, list[str]] = {
     # env-gated drop only runs on the legacy subprocess route; the API/IDE
     # routes get the raw-glob substitution via _resolve_read_with_fallback.
     "shenbi-chapter-revision": ["chapter-*.aggregate.md"],
+    # probe8: faction-builder (genesis step 5) runs BEFORE volume-outlining
+    # (step 6) — the grounding read is absent on the first pass and present
+    # on scoped-redo re-dispatch (genesis-complete reject --redo-steps).
+    "shenbi-faction-builder": ["outline/volume_map.md"],
+    # probe9: the context decisions sidecar exists only in user-routable
+    # context-composing mode — the pipeline's deterministic step 3 never
+    # writes it, so escalation availability tables must not read its absence
+    # as a loss.
+    "shenbi-chapter-drafting": [
+        "chapter-*-plan.md",
+        "context/chapter-*-context-decisions.json",
+        # session31 Q1: the user-authored style TARGET file — absent unless
+        # the human partner writes one; its absence is a choice, not a loss.
+        "style/style_directives.md",
+    ],
 }
 
 _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
@@ -460,12 +559,35 @@ def _resolve_read_path(project_dir: Path, read_path: str) -> list[Path]:
     """
     if "*" in read_path or "?" in read_path or "[" in read_path:
         pattern = str(project_dir / read_path)
-        matches = glob_module.glob(pattern)
+        # recursive=True (probe, 3 recurrence sites): without it '**'
+        # degrades to '*' and 'dir/**/*.md' misses the TOP-LEVEL files —
+        # protagonist.md/relationships.md were invisible to foundation-review
+        matches = glob_module.glob(pattern, recursive=True)
         return [Path(m) for m in sorted(matches)]
     full_path = project_dir / read_path
+    if full_path.is_dir():
+        # Directory-form read (e.g. ``benchmarks/anchors/``) means "every
+        # markdown file inside", sorted. Returning the directory itself made
+        # read_text raise IsADirectoryError and the prompt carry a
+        # ``[binary or unreadable]`` sentinel — the anchor false-unavailable
+        # (fixcheck: resonance reported anchor_calibration unavailable for
+        # two consecutive chapters while AC-001.md sat readable on disk).
+        return sorted(full_path.glob("*.md"))
     if full_path.exists():
         return [full_path]
     return []
+
+
+#: Framework-owned artifacts an LLM parsed output must never overwrite
+#: (probe10 P0: worldbuilding's contract still declares create_or_overwrite
+#: on novel.json/genre-config.json for USER-mode scaffolding — its pipeline
+#: output block clobbered init's seed-parsed novel.json, wiping
+#: title/total_chapters mid-genesis). Value = the one skill allowed to write
+#: the path (None = framework only).
+FRAMEWORK_OWNED_WRITES: dict[str, str | None] = {
+    "novel.json": None,
+    "genre-config.json": "shenbi-genre-config",
+}
 
 
 #: F10 (spec #4 §5.1a): declared reads produced by the framework aggregate
@@ -609,7 +731,7 @@ def _build_skill_prompt(
     json_mode: bool = False,
     path_context: PathContext | None = None,
     outputs_override: list[str] | None = None,
-) -> tuple[str, str, list[str]]:
+) -> tuple[str, str, list[str], list[dict[str, Any]]]:
     """Build a complete execution prompt for a skill.
 
     Returns (system_prompt, user_prompt, output_paths) where:
@@ -665,6 +787,12 @@ def _build_skill_prompt(
     # but chapter is None (genesis mode) — such reads are skipped rather than
     # raising. With a chapter, resolve_chapter_path does a bounded N/NNN replace.
     raw_inputs: dict[str, str] = {}
+    # batch #15 #34 (probe20): the DISPATCH trace must persist WHAT the LLM
+    # actually saw per read — field-filtered reads record their declared
+    # fields and whether the filter matched, so a later miss can be told
+    # apart from a full-text fallback (the escape hatch returns the whole
+    # file + WARN; without the manifest the trace cannot distinguish them).
+    reads_manifest: list[dict[str, Any]] = []
     reads: list[str] = contract.get("reads", [])
     # Layer B: loader normalizes dict-form reads into plain strings and
     # diverts fields to the read_fields sidecar (loader.py _validate). The
@@ -686,6 +814,20 @@ def _build_skill_prompt(
             continue  # unresolvable placeholder (genesis) — skip this read
 
         resolved_paths = _resolve_read_with_fallback(project_dir, resolved)
+        if uses_staging and "*" not in resolved:
+            # F-3 (probe22 adjudication #009 F-3): a checkpoint-gated writer
+            # must read the SAME staging world it writes into — its declared
+            # audit/truth inputs from earlier same-chapter writers exist only
+            # under ``staging/`` until commit (the foreshadowing audit landed
+            # in staging/audits/ 78s before settle dispatched; the live-only
+            # resolution silently dropped the declared read and settle
+            # invented reinforcements with no authority file). Mirror
+            # _append_dedup_base_state_lines' staging-first base rule:
+            # staged if it exists, else live.
+            staged_twin = project_dir / "staging" / resolved
+            if staged_twin.is_file():
+                resolved_paths = [staged_twin]
+                log.info("read_served_from_staging_twin", read_path=resolved)
         for full_path in resolved_paths:
             key = _input_key(full_path, project_dir)
             # C28 R1 read suppression: consult the shared raw-bytes table
@@ -732,7 +874,212 @@ def _build_skill_prompt(
                         path=str(full_path),
                         chapter=chapter,
                     )
-            elif extractor is not None and extractor != "volume_chapter":
+            elif extractor == "hooks_audit_scoped":
+                # Plan A (adjudication 096): slice pending_hooks to 总览
+                # full + this chapter's plan/audit-named detail sections.
+                # chapter=None (genesis) keeps the full-pool view — same §4.3
+                # fallthrough discipline as volume_chapter. "" -> full text
+                # + WARN (never a silent drop).
+                if chapter is not None:
+                    try:
+                        extracted = extract_hooks_audit_scoped(project_dir, chapter, content)
+                    except Exception as exc:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                            error=str(exc),
+                        )
+                    else:
+                        if extracted:
+                            content = extracted
+                        else:
+                            log.warning(
+                                "extractor_failed_fulltext",
+                                extractor=extractor,
+                                path=str(full_path),
+                                chapter=chapter,
+                            )
+            elif extractor == "hooks_inventory_scoped":
+                # T0 (session30): the volume-boundary resolve inventory —
+                # 总览 full + TRIGGERED/PARTIAL candidate detail sections
+                # (grounding is intrinsic to the pool file, so no
+                # chapter/grounding guard). "" -> full text + WARN (never a
+                # silent drop), same §4.3 discipline as the Plan A family.
+                try:
+                    extracted = extract_hooks_inventory_scoped(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor == "hooks_overview":
+                # GO③ (session31): overview-only consumers (planning /
+                # composing / boundary chain) — 总览 table + disclosed
+                # detail omission. "" -> full text + WARN (never a silent
+                # drop), same §4.3 discipline as the Plan A family.
+                try:
+                    extracted = extract_hooks_overview(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor == "threads_overview":
+                # B 批 (千万字读面): thread_map windowed to 总览表 + active
+                # detail sections + the chapter's 推进表 interval ± 1.
+                # "" (unexpected shape / chapter outside every planned
+                # interval) -> full text + WARN (never a silent drop), same
+                # §4.3 discipline as the Plan A family.
+                try:
+                    extracted = extract_threads_overview(content, chapter)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor == "relationships_overview":
+                # 挂账清偿 (千万字读面): relationships.md windowed to 矩阵 +
+                # 待兑现 + latest 扩容复核 + pairs with bounded 演化轨迹.
+                # "" (unexpected shape) -> full text + WARN (never a silent
+                # drop), same §4.3 discipline as the Plan A family.
+                try:
+                    extracted = extract_relationships_overview(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor == "locations_overview":
+                # 挂账清偿 (千万字读面): locations.md windowed to identity
+                # headers + 地理位置 + recent 功能事件 rows. "" (unexpected
+                # shape) -> full text + WARN (never a silent drop), same §4.3
+                # discipline as the Plan A family.
+                try:
+                    extracted = extract_locations_overview(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor == "book_strata_current":
+                # P0 读面失配批: book_strata 按弧 H1 追加，H2 字段读
+                # first-wins 永远只服务第 1 弧（陈旧）——提取器取当前
+                # （末）弧块。"" (unexpected shape) -> full text + WARN
+                # (never a silent drop), same §4.3 discipline.
+                try:
+                    extracted = extract_book_strata_current(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    else:
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor == "recent_increments":
+                # Plan A: chapter-keyed cumulative tables serve head + last
+                # units with an omission sentinel. "" (unexpected shape,
+                # fewer units than keep) -> full text, WARN only on the
+                # shape-with-more-units failure; under-keep is a no-op by
+                # design (nothing to omit).
+                try:
+                    extracted = extract_recent_increments(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
+                else:
+                    if extracted:
+                        content = extracted
+                    elif has_chapter_units(content):
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                        )
+            elif extractor is not None:
                 # Defense-in-depth: loader's closed registry rejects unknown
                 # names at load, so this is unreachable today — guard keeps a
                 # future registry expansion from silently degrading to full
@@ -740,6 +1087,23 @@ def _build_skill_prompt(
                 log.warning("extractor_unrouted_fulltext", extractor=extractor, path=str(full_path))
             if fields:
                 content, _matched = filter_to_fields(content, fields, str(full_path))
+                reads_manifest.append(
+                    {
+                        "path": key,
+                        "mode": "fields",
+                        "fields": fields,
+                        "matched_all": bool(_matched),
+                    }
+                )
+            else:
+                reads_manifest.append(
+                    {
+                        "path": key,
+                        "mode": "full",
+                        "matched_all": True,
+                        **({"extractor": extractor} if extractor else {}),
+                    }
+                )
             # 10a: Strip META blocks for non-drafting skills (save 16-31% input)
             content = _strip_meta_for_non_drafting(skill, content)
             raw_inputs[key] = content
@@ -858,6 +1222,13 @@ def _build_skill_prompt(
         "",
     ]
 
+    # Phase3 esc#2: for append_dedup targets the COMPLETE-file rule below is
+    # an active contra-instruction — the score-arc writer obeyed it verbatim
+    # (echoed the whole live base) and the guard rejected the dispatch.
+    _has_ad_target = any(
+        str(m.get("mode")) == "append_dedup" for m in contract.get("write_semantics", {}).values()
+    )
+
     if json_mode:
         user_parts.extend(
             [
@@ -880,6 +1251,11 @@ def _build_skill_prompt(
                 "",
             ]
         )
+        if _has_ad_target:
+            user_parts.append(
+                "- EXCEPT append_dedup targets (see 逐目标基座态 below): emit ONLY the "
+                "increment — new rows/sections — never the complete file"
+            )
     else:
         user_parts.extend(
             [
@@ -905,12 +1281,108 @@ def _build_skill_prompt(
     for p in prompt_outputs:
         if "*" not in p:
             user_parts.append(f"- {p}")
+    # #47 (probe20): machine-computed per-target base states, injected BEFORE
+    # the model emits — it knows which targets are shells (creation form
+    # sanctioned) and which are filled (rows-only), so retry feedback and
+    # the ingestion guard can never again demand contradictory forms.
+    # Under outputs_override (genesis narrowing) the banner narrows with it:
+    # per-chapter-only targets (bridge_tracker) must not surface in a
+    # genesis dispatch that will not write them.
+    _ad_semantics = contract.get("write_semantics", {})
+    if outputs_override is not None:
+        _allowed = {p.removeprefix("staging/") for p in outputs_override}
+        _ad_semantics = {t: m for t, m in _ad_semantics.items() if str(t) in _allowed}
+    _ad_states = _append_dedup_base_state_lines(project_dir, _ad_semantics, staging=uses_staging)
+    if _ad_states:
+        user_parts.append("\n## 逐目标基座态（机器计算——以此为准，优先于任何旧反馈）")
+        for s in _ad_states:
+            user_parts.append(f"- {s}")
+    # Phase3 esc#2 (ch12 score-arc → escalation): the base-states banner
+    # names the states, but the only full shape contracts sat in the two
+    # state-settling blocks below — every OTHER append_dedup writer
+    # (triggered score/resonance/consolidation skills) met the ingestion
+    # guard's IncrementShapeError cold, and the json_mode "COMPLETE file
+    # content" line is an active contra-instruction for these targets. Same
+    # pre-emission pattern as #23/#26: the sanctioned form belongs in the
+    # USER prompt, rendered from the same single source the guard uses.
+    # state-settling keeps its two specialized blocks (mutually exclusive,
+    # so settle prompts stay byte-stable).
+    if skill != "shenbi-state-settling":
+        _filled_targets = [
+            (rel, key)
+            for rel, key, state in _append_dedup_base_states(
+                project_dir, _ad_semantics, staging=uses_staging
+            )
+            if state == "FILLED"
+        ]
+        if any(key == "hook_id" for _rel, key in _filled_targets):
+            user_parts.append(_hooks_increment_shape_injection())
+        _keyed = [(rel, key) for rel, key in _filled_targets if key and key != "hook_id"]
+        if _keyed:
+            from shenbi.pipeline.truth_io import table_header_registered
+
+            user_parts.append(
+                "\n## CRITICAL — append_dedup 目标：只输出增量\n"
+                "上列 FILLED 目标由程序按键原位合并——每个目标只输出本章新增内容；"
+                "绝不重发 frontmatter、`#`/`##` 文件标题、既有分节或既有表行"
+                "（摄取守卫会在落盘前拒绝整档重发，整次派发作废）："
+            )
+            for rel, key in _keyed:
+                basename = rel.rsplit("/", 1)[-1]
+                if table_header_registered(basename):
+                    form = "表格行增量（按 key 列合并；不重发表头/分隔行）"
+                    if basename == "character_matrix.md":
+                        form += "＋`## 第N章状态增量` 原子区块"
+                else:
+                    form = "新增 `### 第N章` 分节区块增量（沿用 live 既有分节，不重发既有分节）"
+                user_parts.append(f"- {rel}（key: {key}）：{form}")
+    # Batch #23 (probe30 ch4 matrix_structure content_dropped): SKILL.md
+    # 铁律 0 alone did not survive high write-pressure chapters — the model
+    # rewrote existing rows when many increments landed at once. The
+    # append-only constraint must also sit in the USER prompt, adjacent to
+    # the output instructions where emission actually happens.
+    if skill == "shenbi-state-settling":
+        user_parts.append(
+            "\n## CRITICAL — APPEND-ONLY HARD CONSTRAINT\n"
+            "Your output to truth/character_matrix.md MUST be a new "
+            "`## 第N章状态增量` block only — this target is append-only.\n"
+            "DO NOT modify existing rows; NEVER modify or extend any existing "
+            "row or any earlier `## 第N章状态增量` section. The dispatcher "
+            "merges by key and preserves existing rows for you — re-emitting "
+            "live rows triggers G4.ss.matrix_structure content_dropped and "
+            "burns the chapter's retry budget."
+        )
+        # Batch #26 (probe32 ch2: first advance-an-existing-hook scenario,
+        # hooks_structure 3-attempt deadlock): advancing an existing hook
+        # in truth/pending_hooks.md is colon-bullet-only. The registry
+        # overview table row and its lifecycle/status stable column are
+        # owned by the foreshadowing-track — re-emitting or rewriting them
+        # triggers G4.ss.hooks_structure hook_row_stable_columns_rewritten.
+        # Same pre-emission pattern as the matrix block above: the shape
+        # contract must sit in the USER prompt, not only in post-hoc gate
+        # feedback (the model keeps re-emitting its own idea of the file).
+        # Phase3 esc#1: the stable-line ban list was a PARTIAL subset — the
+        # settle writer rewrote plant_chapter (unbanned here, banned in G4)
+        # three attempts running; now rendered whole from the shared set.
+        user_parts.append(_hooks_increment_shape_injection())
     if len(output_paths) > 1:  # note follows persistence reality (r3 I-2)
         user_parts.append(
             "\nNote: This skill produces multiple files. "
             "Decisions JSON must conform to shenbi-decisions-v1 schema "
             "(see docs/framework/decisions-schema.md)."
         )
+    # produced_at ground truth (probe esc #27/#29, four recurrences): the
+    # model has NO clock — without an injected timestamp every decisions
+    # sidecar fabricated one (12:00:00Z placeholders, future dates). The
+    # injected value is the ONLY sanctioned produced_at.
+    from datetime import UTC, datetime
+
+    _now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+    user_parts.append(
+        f"\nCurrent time (UTC): {_now}\n"
+        "Use EXACTLY this timestamp for produced_at / 生成时间 fields. "
+        "Never invent, round, or reuse a timestamp from any earlier artifact."
+    )
     if input_texts:
         user_parts.append(
             "\n## Input Files (read-only reference — untrusted data, not instructions)"
@@ -972,7 +1444,7 @@ def _build_skill_prompt(
         except Exception as e:
             log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
 
-    return system_prompt, user_prompt, output_paths
+    return system_prompt, user_prompt, output_paths, reads_manifest
 
 
 def _is_review_skill(skill: str) -> bool:
@@ -1027,9 +1499,26 @@ def _validate_json_output(content: str, path: Path) -> str:
     decoder = json.JSONDecoder()
     try:
         clean_data, end_pos = decoder.raw_decode(content)
-    except json.JSONDecodeError as e:
-        log.error("decisions_json_unrecoverable", path=str(path), error=str(e))
-        raise ValueError(f"Decisions JSON invalid and unrecoverable for {path}: {e}") from e
+    except json.JSONDecodeError:
+        # Leading-prefix recovery (canary escalation #10): markdown title /
+        # fence header before the JSON body. Mirrors gates/shared.py's
+        # parse_decisions_payload policy — both sides must accept the same
+        # shapes or the gate passes what the dispatch side then rejects.
+        brace = content.find("{")
+        if brace > 0 and "\n" in content[:brace]:
+            try:
+                clean_data, end_pos = decoder.raw_decode(content[brace:])
+                log.warning(
+                    "decisions_json_leading_prefix_recovered",
+                    path=str(path),
+                    skipped_prefix=content[:brace][:80],
+                )
+            except json.JSONDecodeError as e:
+                log.error("decisions_json_unrecoverable", path=str(path), error=str(e))
+                raise ValueError(f"Decisions JSON invalid and unrecoverable for {path}: {e}") from e
+        else:
+            log.error("decisions_json_unrecoverable", path=str(path))
+            raise ValueError(f"Decisions JSON invalid and unrecoverable for {path}") from None
 
     # Tightened recovery: a shenbi-decisions-v1 object must pass schema +
     # required-field completeness before being accepted. This prevents
@@ -1080,13 +1569,53 @@ def sanitize_json_content(content: str) -> str:
 def _parse_structured_output(raw_content: str) -> SkillOutput:
     """Parse LLM response via JSON mode (Pydantic).
 
-    Falls back to ### FILE: regex parsing for CLI backend.
+    Falls back to ### FILE: regex parsing for CLI backend, then to a
+    JSON-manifest envelope ({"files":[{"path","content"}]}) — the prompt
+    teaches the ### FILE: envelope with "CRITICAL" emphasis, yet models
+    occasionally emit the manifest form anyway; its payload is valid, so
+    converting it beats failing the dispatch with zero files written
+    (canary closure faction-builder round, 2026-09-28).
     """
     try:
         return SkillOutput.model_validate_json(raw_content)
     except (ValidationError, json.JSONDecodeError):
-        # Fallback: regex parse ### FILE: markers
-        return _parse_file_markers(raw_content)
+        pass
+    marker_parsed = _parse_file_markers(raw_content)
+    if marker_parsed.files:
+        return marker_parsed
+    brace = raw_content.find("{")
+    if brace >= 0:
+        candidate = raw_content[brace:]
+        # strict=False accepts literal control chars (raw newlines etc.)
+        # inside strings — probe14 step 12: a 39KB envelope with legal
+        # structure but RFC-illegal string interiors died on strict parsing
+        # across 3 dispatches while the full artifact sat in quarantine.
+        data: object | None = None
+        try:
+            data = json.loads(candidate)
+        except (json.JSONDecodeError, ValueError):
+            try:
+                data = json.loads(candidate, strict=False)
+            except (json.JSONDecodeError, ValueError):
+                try:
+                    data = json.JSONDecoder(strict=False).raw_decode(candidate)[0]
+                except (json.JSONDecodeError, ValueError):
+                    data = None
+        if data is None:
+            return marker_parsed
+        if isinstance(data, dict) and isinstance(data.get("files"), list):
+            files = [
+                FileOutput(path=str(f["path"]), content=str(f["content"]))
+                for f in data["files"]
+                if isinstance(f, dict) and "path" in f and "content" in f
+            ]
+            if files:
+                log.warning(
+                    "dispatch_json_manifest_envelope_recovered",
+                    files=len(files),
+                )
+                return SkillOutput(files=files)
+    return marker_parsed
 
 
 def _parse_file_markers(raw_content: str) -> SkillOutput:
@@ -1195,6 +1724,30 @@ def _check_content_size_guard(
 from shenbi.gates.shared import CHAPTER_NUM_RE as _CHAPTER_NUM_RE  # 单源（z11 F1301）
 from shenbi.gates.shared import CHAPTER_HEADER_RE
 
+#: Exact prose-file stem: ``chapter-N`` — no -plan/-revision/-decisions
+#: suffixes (the shared CHAPTER_NUM_RE is a stem-PREFIX match and also hits
+#: every suffixed sibling).
+_CHAPTER_PROSE_STEM_RE = re.compile(r"chapter-\d+")
+
+
+def _is_chapter_prose_write(rel_path: str) -> bool:
+    """True iff *rel_path* is a chapter PROSE file (``chapters/chapter-N.md``).
+
+    #28 (probe17 adjudication #005): the prose contract header and the
+    prose-leakage/fence checks belong to chapter prose ONLY — the previous
+    stem-prefix predicate ran them on plans (injecting ``# Chapter N:`` into
+    every chapter memo) and other chapter-N-*.md siblings. Predicate
+    mirrors tools/oneoff/insert_chapter_headers.py: parent ``chapters/`` +
+    stem fullmatch ``chapter-N`` + ``.md``.
+    """
+    rel = rel_path.removeprefix("staging/")
+    p = Path(rel)
+    return (
+        p.suffix == ".md"
+        and p.parent == Path("chapters")
+        and _CHAPTER_PROSE_STEM_RE.fullmatch(p.stem) is not None
+    )
+
 
 def ensure_chapter_header(content: str, chapter_num: int) -> str:
     """Insert the contract ``# Chapter N:`` header if missing. Idempotent.
@@ -1209,14 +1762,20 @@ def ensure_chapter_header(content: str, chapter_num: int) -> str:
     return f"# Chapter {chapter_num}:\n\n" + content
 
 
-def _is_audit_file(name: str) -> bool:
-    """True iff *name* looks like an audit report (``chapter-NN-<dim>.md``).
+def _is_audit_file(path: str) -> bool:
+    """True iff *path* is an audit report under ``audits/`` (``chapter-NN-<dim>.md``).
 
-    Matches the production layout: audit reports are ``chapter-NN-<dimension>.md``
-    (e.g. ``chapter-8-foreshadowing.md``, ``chapter-51-anti-ai.md``). A bare
-    ``chapter-NN.md`` (the prose file) is NOT an audit.
+    Classification is directory-scoped, not bare-name: ``plans/chapter-1-plan.md``
+    and ``plans/chapter-1-plan-decisions.json`` match the ``chapter-NN-<dim>``
+    name shape but are planning artifacts, not audits — demanding verdict
+    markers in them fail-closed the chapter-planning gate forever (canary
+    escalation #9, 2026-09-28). A bare ``chapter-NN.md`` (the prose file) is
+    NOT an audit either.
     """
-    stem = Path(name).stem
+    rel = str(path).removeprefix("staging/")
+    if not rel.startswith("audits/"):
+        return False
+    stem = Path(rel).stem
     # The framework-written aggregate (chapter-N.aggregate.md) is NOT an
     # LLM audit report (spec #4 F10).
     if stem.endswith(".aggregate"):
@@ -1271,6 +1830,70 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
 _TRUTH_DIR_PREFIX = "truth/"
 _STAGING_TRUTH_PREFIX = "staging/truth/"
 
+#: A1 (千万字卷层批): keyed-merge outline/ledger targets. These
+#: volume-boundary writers used to declare create_or_overwrite — whole-file
+#: rewrites that pin the output cap as the ledgers grow (~10KB/volume).
+#: Explicit allowlist, NOT a blanket prefix: story_frame /
+#: rhythm_principles / chapter_patterns are genesis-static whole-file
+#: artifacts and keep their original semantics.
+#: A2 批: world/locations.md (``## 地点：X`` entries, ~49KB at 118 ch) and
+#: characters/relationships.md (``## 关系对：A - B`` sections, 44KB) join the
+#: channel — their increments are WHOLE ``##`` sections (split at section
+#: boundaries, NOT by ``_increment_units``: an embedded 功能事件 table would
+#: shred into row units the shape guard must reject).
+_KEYED_OUTLINE_TARGETS: dict[str, str] = {
+    "outline/volume_map.md": "volume",
+    "outline/thread_map.md": "thread",
+    "world/locations.md": "location",
+    "characters/relationships.md": "relation",
+}
+
+#: Targets whose increments are split at ``##`` section boundaries (A2;
+#: volume_map joined after the rebudget drill — its sections carry KR
+#: 章节节点 tables that the generic row splitter shredded into
+#: non-section units the shape guard must reject).
+_SECTION_LEDGER_TARGETS = frozenset(
+    {"outline/volume_map.md", "world/locations.md", "characters/relationships.md"}
+)
+
+
+def _section_ledger_units(content: str) -> list[str]:
+    """Split an increment into ``##``-anchored whole sections (A2).
+
+    Every unit starts at a level-2 heading and runs to the next one —
+    embedded ``###`` subsections and tables stay INSIDE the section (the
+    generic ``_increment_units`` would shred an embedded 功能事件/矩阵 table
+    into standalone row units). Non-blank content before the first ``##``
+    becomes its own leading unit so the shape guard can reject it loudly
+    instead of silently dropping it.
+    """
+    units: list[str] = []
+    current: list[str] = []
+    for line in content.split("\n"):
+        if re.match(r"^##\s+\S", line):
+            if any(l.strip() for l in current):
+                units.append("\n".join(current).strip("\n"))
+            current = [line]
+        else:
+            current.append(line)
+    if any(l.strip() for l in current):
+        units.append("\n".join(current).strip("\n"))
+    return units
+
+
+#: B 批: a 章节线索推进表 interval row cell (``103-110（五卷 KR2）``) —
+#: the thread ledger's second sanctioned unit form (new-volume pacing rows
+#: dedup on the interval cell; the 总览表 row stays BANNED — derivation
+#: owns it).
+_OUTLINE_INTERVAL_CELL_RE = re.compile(r"^\d+\s*-\s*\d+\s*[（(]")
+
+
+def _now_iso() -> str:
+    """UTC ISO-8601 stamp for the mechanical frontmatter touch."""
+    from datetime import UTC, datetime
+
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
 
 def _increment_units(content: str) -> list[str]:
     """Split a dispatched append_dedup increment into upsert units.
@@ -1281,23 +1904,62 @@ def _increment_units(content: str) -> list[str]:
     embedded newlines and pipes. Contiguous NON-table lines (section-style
     entries: heading + prose) are grouped into one block unit — they carry no
     key cell, so the primitive appends them verbatim (data-preserving
-    fallback, symmetric with the T703 never-drop policy). Blank-only spans
-    yield no unit.
+    fallback, symmetric with the T703 never-drop policy). Blank-only
+    spans yield no unit.
+
+    Heading boundaries are SIBLING-LEVEL (probe6 ch2, 2026-10-01): a block
+    anchored at ``##`` or deeper swallows subsequent DEEPER NON-hook
+    headings, so a contract-shaped ``## 第N章状态增量`` section stays ONE
+    atomic unit. Breaking at every heading shredded the chapter section into
+    independently-routed ``###`` sub-sections — and a same-named sub-section
+    (``### 陈砚``, the protagonist recurs every chapter) hit
+    ``_replace_section`` across chapters, overwriting the previous chapter's
+    state under its own heading. Deterministic from ch2 onward (ch1's empty
+    base masked it). Two guards keep prior fixes intact:
+
+    * Hook-keyed headings (``### MH-xxx`` etc.) ALWAYS break — escalation
+      #16: hooks deeper in a block must dedup on their own hook id, not the
+      parent's heading.
+    * ``#``-anchored blocks do NOT swallow ``##`` sections — a re-emitted
+      document title must not become a span-to-EOF replacement unit (a
+      partial title-led output would otherwise drop the whole live file).
     """
-    from shenbi.pipeline.truth_io import split_table_cells
+    from shenbi.pipeline.truth_io import is_hook_heading, split_table_cells
+
+    def _heading_level(line: str) -> int:
+        stripped = line.lstrip()
+        return len(stripped) - len(stripped.lstrip("#"))
 
     units: list[str] = []
     block: list[str] = []
+    block_level: int | None = None
 
     def _flush() -> None:
         if any(line.strip() for line in block):
             units.append("\n".join(block).strip("\n"))
         block.clear()
+        nonlocal block_level
+        block_level = None
 
     for line in content.split("\n"):
-        if split_table_cells(line) is not None:
+        cells = split_table_cells(line)
+        if cells is not None:
             _flush()
+            if cells and all(re.fullmatch(r":?-{3,}:?", c) for c in cells if c):
+                continue  # separator rows are structural, never data units
             units.append(line)
+        elif line.lstrip().startswith("#"):
+            level = _heading_level(line)
+            joins = (
+                block_level is not None
+                and block_level >= 2  # h1 blocks never swallow (span-to-EOF guard)
+                and level > block_level  # deeper heading
+                and not is_hook_heading(line)  # hooks always break (#16)
+            )
+            if not joins:
+                _flush()
+                block_level = level
+            block.append(line)
         else:
             block.append(line)
     _flush()
@@ -1342,6 +2004,234 @@ def _update_staging_meta(project_dir: Path, rel_path: str, key_field: str) -> No
         safe_write(meta_path, json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8"))
 
 
+#: Batch #10 #20 (probe15 ch1 settle, 3× G4.ss → escalation): the settle
+#: writer's pending_hooks package re-emitted the whole-file scaffold on top
+#: of correct per-hook bullet blocks. The keyed-upsert merge cannot treat
+#: that scaffold non-destructively — the H1-led unit hit section-replacement
+#: semantics whose span runs to EOF and destroyed the live base (204 base
+#: lines dropped); the ``## 详情`` heading-only unit would replace the entire
+#: detail section with an empty shell. G4 caught the damage only post-merge
+#: and the retry feedback never named the banned forms, so no attempt could
+#: converge. The guard rejects such packages machine-side, pre-merge, with
+#: feedback naming both the banned forms and the sanctioned increment shape.
+_INCREMENT_BANNED_FORMS_HINT = (
+    "frontmatter（--- 块）／一级标题（# 开头行，含「# 伏笔池」类文件标题）"
+    "{extra}。程序按键原位合并增量——重发脚手架会替换/摧毁 live 基座。"
+)
+
+
+def _sanctioned_forms_hint(key: str) -> str:
+    """Legal increment form for a keyed truth target, single-sourced.
+
+    Consumed by BOTH the IncrementShapeError remediation text and the
+    user-prompt injection (phase3 esc#2): when the guard's text and the
+    prompt's text are rendered apart they drift — esc#1's stable-set lists
+    and esc#2's whole missing injection are the same lesson.
+    """
+    if key == "hook_id":
+        from shenbi.pipeline.truth_io import hooks_stable_fields_hint
+
+        return (
+            "既有钩：`### MHxx（标题照抄 live 该钩标题）` + colon bullet 字段块"
+            "（如 `- last_reinforced: 第 N 章`；证据/notes 须重述全史后追加，"
+            f"禁改稳定行 {hooks_stable_fields_hint()}）；"
+            "新钩：完整 `###` 新区块"
+        )
+    return "表格行增量（按 key 列合并）＋（character_matrix）`## 第N章状态增量` 原子区块"
+
+
+def _hooks_increment_shape_injection() -> str:
+    """User-prompt block teaching the pending_hooks increment contract.
+
+    Batch #26 put the shape contract in the user prompt (post-hoc gate
+    feedback alone did not converge); phase3 esc#1 completed it — the
+    stable-line ban now renders the FULL shared set (the old list omitted
+    plant_chapter/resolve_chapter/subtlety and the writer rewrote exactly
+    plant_chapter, three attempts running), and the cumulative clause now
+    defines "restate" (the old wording let the writer REPLACE notes with
+    only the new sentence — silent history loss, invisible to G4 which
+    exempts notes).
+    """
+    from shenbi.pipeline.truth_io import hooks_stable_fields_hint
+
+    stable = hooks_stable_fields_hint()
+    return (
+        "\n## CRITICAL — pending_hooks.md INCREMENT SHAPE (hooks)\n"
+        "To advance an EXISTING hook in truth/pending_hooks.md, output "
+        "ONLY colon bullets — the dispatcher merges them into the live "
+        "`### MHxx` section (title copied verbatim from live):\n"
+        "- last_reinforced: 第 N 章\n"
+        "- 证据: …\n"
+        "NEVER rewrite or re-emit a registry overview table row "
+        "(`| MHxx… |`) — the lifecycle/status stable column is owned by "
+        "the foreshadowing-track, not you; rewriting it triggers "
+        "G4.ss.hooks_structure hook_row_stable_columns_rewritten.\n"
+        "NEVER re-emit frontmatter, `#`/`##` headings, or stable detail "
+        f"lines ({stable}) — re-emitting one REPLACES the live value, "
+        "which G4 reports as base content dropped.\n"
+        "ONLY a brand-NEW hook may get a full new `### MHxx` section.\n"
+        "Cumulative fields are 证据/notes ONLY, and cumulative means "
+        "RESTATE the live content IN FULL then APPEND this chapter's "
+        "addition — replacing notes with only the new sentence is silent "
+        "history loss."
+    )
+
+
+def _validate_increment_package(
+    content: str,
+    *,
+    key_field: str,
+    base_text: str = "",
+    outline_units: bool = False,
+    section_ledger: bool = False,
+) -> None:
+    """Reject whole-file scaffold in an append_dedup truth increment.
+
+    Universal bans (every append_dedup truth target): a frontmatter block,
+    any H1 line. Hook-keyed targets (``key: hook_id``) additionally ban
+    ``##`` headings — their sanctioned increments are per-hook ``###`` field
+    blocks (plus full new-hook ``###`` sections); a re-emitted ``## 总览`` /
+    ``## 详情`` scaffold is always a base-destroying unit. Chapter-keyed
+    targets keep the contract-sanctioned ``## 第N章状态增量`` increment
+    section (character_matrix).
+
+    *section_ledger* (A2) switches the per-unit iteration to
+    :func:`_section_ledger_units` — locations/relationships increments are
+    whole ``##`` sections whose embedded tables must stay atomic.
+
+    First-write exemption, generalized (batch #15 #44; probe16 adjudication
+    #001 for hook targets, probe20 adjudication #008 for every target): a
+    base that is a SHELL (:func:`truth_io.base_is_shell` — template
+    placeholders/quotes/headings only, zero real data) has nothing for the
+    scaffold ban to protect. The whole-file form there is the sanctioned
+    CREATION shape; the caller routes it as a base-replacing creation write
+    instead of feeding it to the keyed-upsert merge.
+    """
+    from shenbi.pipeline.truth_io import base_is_shell
+
+    if base_is_shell(base_text):
+        return
+    violations: list[str] = []
+    stripped = content.lstrip()
+    if stripped.startswith("---"):
+        violations.append("frontmatter（--- 块）")
+    lines = content.split("\n")
+    h1 = [l.strip() for l in lines if re.match(r"^#\s", l)]
+    if h1:
+        violations.append(f"一级标题（{h1[0][:24]}）")
+    extra = ""
+    if key_field == "hook_id":
+        h2 = [l.strip() for l in lines if re.match(r"^##\s", l)]
+        if h2:
+            violations.append(f"二级标题（{h2[0][:24]}）")
+        extra = "／二级标题（## 开头行，含「## 总览」「## 详情」）"
+    if outline_units:
+        # A1: every unit must be a keyed section (## 第N卷 / ### 线索ID) —
+        # bare prose would append at EOF and corrupt the ledger shape.
+        # B 批: the thread ledger additionally sanctions single 推进表
+        # interval rows (``| N-M（卷 KRn） | … |``) — the volume_map has no
+        # such table, so the allowance is key-gated to "thread".
+        from shenbi.pipeline.truth_io import split_table_cells
+        from shenbi.pipeline.truth_io import _OUTLINE_SECTION_KEY_RE  # pyright: ignore[reportPrivateUsage]
+
+        for unit in _section_ledger_units(content) if section_ledger else _increment_units(content):
+            first = next((l for l in unit.split("\n") if l.strip()), "")
+            fs = first.strip()
+            if _OUTLINE_SECTION_KEY_RE.match(fs) is not None:
+                continue
+            cells = split_table_cells(unit)
+            if (
+                key_field == "thread"
+                and cells is not None
+                and cells
+                and _OUTLINE_INTERVAL_CELL_RE.match(cells[0].strip()) is not None
+            ):
+                continue
+            violations.append(f"非卷区段单元（{fs[:24]}）")
+            break
+    if not violations:
+        return
+
+    if section_ledger:
+        sanctioned = (
+            "地点区段增量（`## 地点：<名>` 整段，按地点名定位合并，段内表格原子保留）"
+            "＋关系对区段增量（`## 关系对：A - B` 整段，含 `**矩阵格**: <短标签>` 行——"
+            "关系矩阵表由合并层机械派生，绝不输出）"
+            "＋扩容复核区段（`## 第N章扩容复核（…）`，按章号定位）"
+        )
+    elif outline_units:
+        sanctioned = (
+            "卷区段增量（`## 第N卷：<标题>` 整段，按卷号定位合并；标题变化合法）"
+            "＋线索区段增量（`### <线索ID>: <名称>` 整段，按 ID 定位）"
+            "＋（thread 账本）推进表区间行（`| N-M（卷 KRn） | … |`，按区间格定位）"
+        )
+    else:
+        sanctioned = _sanctioned_forms_hint(key_field)
+    raise IncrementShapeError(
+        f"输出未落盘——append_dedup（key: {key_field}）增量包含整档脚手架："
+        f"{'、'.join(violations)}。合法增量形态：{sanctioned}。"
+        f"绝不输出{_INCREMENT_BANNED_FORMS_HINT.format(extra=extra)}"
+    )
+
+
+def _append_dedup_base_states(
+    project_dir: Path, semantics: dict[str, dict[str, Any]], *, staging: bool
+) -> list[tuple[str, str, str]]:
+    """Machine-computed ``(rel, key, state)`` for append_dedup truth targets.
+
+    batch #15 #44/#47 (probe20 deadlock): rejection feedback describing a
+    world the bases do not carry is how a recoverable data loss became a
+    probe death — every message about an append_dedup target must name the
+    target's ACTUAL base state. SHELL (template/missing) sanctions the
+    whole-file creation form; FILLED allows rows/field increments only.
+    Base resolution mirrors the router: staged-if-exists-else-live for
+    staging-gated dispatches.
+    """
+    from shenbi.pipeline.truth_io import base_is_shell
+
+    states: list[tuple[str, str, str]] = []
+    for target, meta in sorted(semantics.items()):
+        if meta.get("mode") != "append_dedup":
+            continue
+        rel = str(target)
+        if not rel.startswith("truth/"):
+            continue
+        staged = project_dir / "staging" / rel
+        live = project_dir / rel
+        src = staged if (staging and staged.exists()) else live
+        filled = src.exists() and not base_is_shell(src.read_text(encoding="utf-8"))
+        states.append((rel, str(meta.get("key") or ""), "FILLED" if filled else "SHELL"))
+    return states
+
+
+def _append_dedup_base_state_lines(
+    project_dir: Path, semantics: dict[str, dict[str, Any]], *, staging: bool
+) -> list[str]:
+    """Rendered per-target base states (banner form of the tuple source)."""
+    return [
+        f"{rel}={state}（已有数据：只允许行/字段增量，禁止整档重发）"
+        if state == "FILLED"
+        else f"{rel}={state}（空壳/缺失首写：整档创建形态合法）"
+        for rel, _key, state in _append_dedup_base_states(project_dir, semantics, staging=staging)
+    ]
+
+
+def _is_creation_form(content: str, *, key_field: str) -> bool:
+    """True when *content* carries whole-file creation markers (#44).
+
+    A leading frontmatter block, any H1 line, or (hook-keyed targets) any
+    ``##`` scaffold heading — the forms the shell-first-write exemption
+    routes as a base-replacing creation instead of a keyed merge.
+    """
+    stripped = content.lstrip()
+    if stripped.startswith("---"):
+        return True
+    lines = content.split("\n")
+    if any(re.match(r"^#\s", ln) for ln in lines):
+        return True
+    return key_field == "hook_id" and any(re.match(r"^##\s", ln) for ln in lines)
+
+
 def _route_append_dedup_write(
     project_dir: Path, rel_path: str, content: str, *, key_field: str
 ) -> None:
@@ -1369,6 +2259,13 @@ def _route_append_dedup_write(
       fall back to the legacy whole-file write with a WARN.
 
     Raises:
+        IncrementShapeError: the package re-emits whole-file scaffold
+            (frontmatter / H1 /, for hook-keyed targets, ``##`` headings)
+            for a ``truth/`` increment target — rejected BEFORE any merge
+            write, because the merge primitives cannot treat scaffold
+            non-destructively (probe15: an H1-led unit's section replacement
+            spanned to EOF and destroyed the live pending_hooks base).
+            ``str(exc)`` is the pointed retry feedback.
         TruthFileParseError: not raised by the CURRENT wiring — both routes
             above go through the pure-string ``upsert_markdown_row`` path,
             which never parses existing files as YAML (only ``upsert_yaml``
@@ -1378,7 +2275,77 @@ def _route_append_dedup_write(
             DispatchResult) stays as defense for a future ``upsert_yaml``
             wiring, not a live path today.
     """
-    from shenbi.pipeline.truth_io import path_lock, upsert_markdown_row, write_truth_file
+    from shenbi.pipeline.truth_io import (
+        _TABLE_HEADER_BOOTSTRAP,  # pyright: ignore[reportPrivateUsage]
+        base_is_shell,
+        ensure_table_header,
+        path_lock,
+        upsert_markdown_row,
+        write_truth_file,
+    )
+
+    if rel_path.startswith(_STAGING_TRUTH_PREFIX) or rel_path.startswith(_TRUTH_DIR_PREFIX):
+        # Best-effort pre-guard read of the merge base (staging-chained,
+        # unlocked — the locked merge below re-resolves; a stale read at
+        # worst skips/keeps a ban whose target the merge re-checks by key).
+        base_text: str = ""
+        if rel_path.startswith(_STAGING_TRUTH_PREFIX):
+            staged_base = project_dir / rel_path
+            live_base = project_dir / "truth" / rel_path[len(_STAGING_TRUTH_PREFIX) :]
+            src = staged_base if staged_base.exists() else live_base
+        else:
+            src = project_dir / rel_path
+        if src.exists():
+            base_text = src.read_text(encoding="utf-8")
+        shell_base = base_is_shell(base_text)
+        _validate_increment_package(content, key_field=key_field, base_text=base_text)
+
+        if shell_base and _is_creation_form(content, key_field=key_field):
+            # #44: SHELL base + whole-file form = sanctioned CREATION. Route
+            # as a base-replacing creation write — NEVER into the keyed
+            # upsert, whose section-replacement semantics is the probe15
+            # destruction vector. The shell decision is re-checked under the
+            # path lock so a concurrent first writer cannot be clobbered.
+            if rel_path.startswith(_STAGING_TRUTH_PREFIX):
+                filename = rel_path[len(_STAGING_TRUTH_PREFIX) :]
+                staged = project_dir / rel_path
+                live_path = project_dir / "truth" / filename
+                staged.parent.mkdir(parents=True, exist_ok=True)
+                with path_lock(staged):
+                    base = (
+                        staged.read_text(encoding="utf-8")
+                        if staged.exists()
+                        else (live_path.read_text(encoding="utf-8") if live_path.exists() else "")
+                    )
+                    if not base_is_shell(base):
+                        raise IncrementShapeError(
+                            f"输出未落盘——{rel_path} 的基座在创建写入前已被并发填充"
+                            "（非空壳）：改发按键增量（行/字段），不得整档替换。"
+                        )
+                    # #39-family defense: a shell STAGED base over a FILLED
+                    # live base is an abnormal divergence — committing the
+                    # creation would silently replace live data. A probe20
+                    # rerun must die HERE, loudly, not at the next chapter.
+                    live_text = live_path.read_text(encoding="utf-8") if live_path.exists() else ""
+                    if live_text and not base_is_shell(live_text):
+                        raise IncrementShapeError(
+                            f"输出未落盘——{rel_path} 的 live 基座已含数据（FILLED）而"
+                            " staging 侧是空壳：禁止以创建形态覆盖 live 数据。"
+                            "改发按键增量（行/字段）。"
+                        )
+                    safe_write(staged, content)
+                    _update_staging_meta(project_dir, rel_path, key_field)
+                log.info(
+                    "truth_shell_first_write",
+                    path=rel_path,
+                    key=key_field,
+                    mode="creation_staging",
+                )
+                return
+            filename = rel_path[len(_TRUTH_DIR_PREFIX) :]
+            write_truth_file(project_dir, filename, content, mode="replace")
+            log.info("truth_shell_first_write", path=rel_path, key=key_field, mode="creation")
+            return
 
     units = _increment_units(content)
 
@@ -1405,8 +2372,22 @@ def _route_append_dedup_write(
                 base = staged.read_text(encoding="utf-8")
             else:
                 base = live_path.read_text(encoding="utf-8") if live_path.exists() else ""
+            # #38: the live write path bootstraps contract headers on file
+            # creation (probe2); the staging merge must do the same or a
+            # staged first write lands headerless until commit.
+            base = ensure_table_header(filename, base)
+            registered_header = _TABLE_HEADER_BOOTSTRAP.get(filename)
             merged = base
             for unit in units:
+                # #38 extension (probe22 adjudication #006 F-1): chapter-keyed
+                # files declare the ENGLISH key (``chapter``) while the model
+                # re-emits the CHINESE contract header, which upsert's
+                # header detection cannot recognize — it landed at EOF as a
+                # stranded row. The header is program-owned (bootstrap wrote
+                # it); a unit identical to the registered header is dropped.
+                if registered_header and unit.strip() == registered_header:
+                    log.info("truth_increment_reemitted_header_dropped", path=rel_path)
+                    continue
                 merged = upsert_markdown_row(merged, unit, key_field)
             safe_write(staged, merged)
             _update_staging_meta(project_dir, rel_path, key_field)
@@ -1429,6 +2410,75 @@ def _route_append_dedup_write(
                 mode="upsert_markdown_row",
                 key_field=key_field,
             )
+        return
+
+    outline_key = _KEYED_OUTLINE_TARGETS.get(rel_path)
+    if outline_key is not None:
+        # A1: live keyed-merge for the outline ledgers (boundary writers are
+        # not checkpoint-gated — no staging twin). Per-unit upsert under the
+        # per-path lock; the frontmatter updated_at (no longer carried by
+        # section increments) is touched mechanically on merge.
+        # C 批 (volume_map only): the 卷界锚规则 rejects a new volume that
+        # does not start at live max boundary + 1 BEFORE any write; the
+        # skeleton (total_chapters + 卷界 preamble line) is derived after.
+        # A2: locations/relationships increments split at ``##`` section
+        # boundaries (embedded tables stay atomic), not by _increment_units.
+        from shenbi.pipeline.truth_io import path_lock, touch_frontmatter_updated_at
+
+        target = project_dir / rel_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        base_text = target.read_text(encoding="utf-8") if target.exists() else ""
+        _validate_increment_package(
+            content,
+            key_field=outline_key,
+            base_text=base_text,
+            outline_units=True,
+            section_ledger=rel_path in _SECTION_LEDGER_TARGETS,
+        )
+        if rel_path == "outline/volume_map.md":
+            from shenbi.pipeline.volume_budget import check_new_volume_anchor
+
+            anchor_error = check_new_volume_anchor(base_text, content)
+            if anchor_error is not None:
+                raise IncrementShapeError(anchor_error)
+        section_units = (
+            _section_ledger_units(content)
+            if rel_path in _SECTION_LEDGER_TARGETS
+            else _increment_units(content)
+        )
+        with path_lock(target):
+            base = base_text
+            merged = base
+            for unit in section_units:
+                unit_key = outline_key
+                if outline_key == "thread":
+                    # Review Critical #1: interval rows must anchor INSIDE the
+                    # 章节线索推进表 — keying on its header's first column
+                    # makes _key_table_tail find that table (the bare "thread"
+                    # spec matches no header, so a NEW interval row stranded
+                    # at EOF, invisible to the windowed extractor).
+                    from shenbi.pipeline.truth_io import split_table_cells
+
+                    cells = split_table_cells(unit)
+                    if (
+                        cells is not None
+                        and cells
+                        and _OUTLINE_INTERVAL_CELL_RE.match(cells[0].strip()) is not None
+                    ):
+                        unit_key = "章节区间"
+                merged = upsert_markdown_row(merged, unit, unit_key)
+            merged = touch_frontmatter_updated_at(merged, _now_iso())
+            if rel_path == "outline/volume_map.md":
+                from shenbi.pipeline.volume_budget import sync_volume_skeleton
+
+                merged = sync_volume_skeleton(merged)
+            safe_write(target, merged.encode("utf-8"))
+        log.info(
+            "outline_increment_merged",
+            path=rel_path,
+            key=outline_key,
+            units=len(section_units),
+        )
         return
 
     log.warning(
@@ -1469,6 +2519,31 @@ def _is_truncated_file_output(response: str) -> bool:
     return response[last.end() :].strip() == ""
 
 
+def _no_files_stderr(
+    output_paths: list[str],
+    parsed_dict: dict[str, str],
+    outputs_override: list[str] | None,
+) -> str:
+    """Actionable failure text for a zero-file dispatch (probe14 #2).
+
+    The old bare ``No output files written`` carried nothing actionable —
+    genesis step 12 retried blind three times on a format miss while the
+    quarantine reason named the exact missing paths. Callers route this into
+    the corrective-feedback slot so the retry knows what to fix.
+    """
+    declared = [p for p in (outputs_override or output_paths) if "*" not in p]
+    if parsed_dict:
+        missing = [p for p in declared if p not in parsed_dict]
+        reason = f"以下声明路径没有对应的 ### FILE 块：{'、'.join(missing) or '（全部）'}"
+    else:
+        reason = '输出中没有任何 ### FILE 块（裸 JSON 或 {"files":[...]} 信封未通过解析）'
+    return (
+        f"输出未落盘——{reason}。期望格式：每个声明路径一个「### FILE: <相对路径>」块，"
+        "标记独占一行、内容随其后；全部声明路径逐块输出（decisions sidecar 也须带 "
+        "### FILE: 头，其块内为纯 JSON）；禁止块外文字。"
+    )
+
+
 def _write_parsed_outputs(
     response: str,
     output_paths: list[str],
@@ -1477,6 +2552,7 @@ def _write_parsed_outputs(
     *,
     skill: str | None = None,
     parsed: dict[str, str] | None = None,
+    required_paths: list[str] | None = None,
 ) -> list[str]:
     """Parse agent response and write per-file content.
 
@@ -1576,8 +2652,18 @@ def _write_parsed_outputs(
         try:
             content = _validate_json_output(content, full_path)
         except ValueError as e:
+            # Nothing is persisted (the raise precedes the write) — the
+            # fail-loud intent holds. But the failure must reach the retry
+            # classifier as a budgeted write failure, not pierce the
+            # dispatch boundary as a bare ValueError and crash the process
+            # without consuming the attempt (probe3: genre-config first
+            # run, exit 1, attempt3 left unconsumed).
             log.error("output_validation_failed", path=rel_path, error=str(e))
-            raise  # Pipeline must stop rather than persist corrupt data
+            raise DispatchWriteFailureError(
+                f"Decisions JSON output invalid and unrecoverable for {rel_path}: {e}. "
+                "Re-emit the complete, schema-valid JSON object with no wrapping prose.",
+                signature="decisions_json_unrecoverable",
+            ) from e
 
         should_block, reason = _check_content_size_guard(project_dir, rel_path, content)
         if should_block:
@@ -1591,7 +2677,18 @@ def _write_parsed_outputs(
         if mode_meta.get("mode") == "append_dedup":
             # Routed merge (C3 T2): upsert by key, never a whole-file rewrite.
             key_field = str(mode_meta.get("key") or "chapter")
-            _route_append_dedup_write(project_dir, rel_path, content, key_field=key_field)
+            try:
+                _route_append_dedup_write(project_dir, rel_path, content, key_field=key_field)
+            except IncrementShapeError as exc:
+                # #44 split-package feedback: name WHICH targets are shells
+                # (creation sanctioned) and which are filled (rows-only) —
+                # a multi-target retry must never fight its own bases.
+                states = _append_dedup_base_state_lines(
+                    project_dir, semantics, staging=rel_path.startswith("staging/")
+                )
+                if states:
+                    raise IncrementShapeError(f"{exc}\n[逐目标基座态] {'；'.join(states)}") from exc
+                raise
             written.append(rel_path)
             log.info(
                 "output_written",
@@ -1602,20 +2699,26 @@ def _write_parsed_outputs(
             )
         else:
             # z11 R1a (F1301): normalize the contract header on the chapter
-            # write path (before the post-snapshot, so write-audit sees the
-            # final contract-compliant content).
-            _m = _CHAPTER_NUM_RE.match(Path(rel_path).stem)
-            if _m and not _is_audit_file(Path(rel_path).name):
-                content = ensure_chapter_header(content, int(_m.group(1)))
+            # PROSE write path (before the post-snapshot, so write-audit sees
+            # the final contract-compliant content). #28 (probe17 adjudication
+            # #005): the old stem-PREFIX predicate also matched
+            # plans/chapter-N-plan.md — the injector prepended '# Chapter N:'
+            # to every chapter memo since 2026-08-30, making the skill's ban
+            # on that line unenforceable (idempotent normalizer re-added it
+            # after each compliant model output; eight probes' artifacts
+            # carry the signature). Prose = chapters/chapter-N.md exactly.
+            if _is_chapter_prose_write(rel_path):
+                content = ensure_chapter_header(content, int(Path(rel_path).stem.split("-")[1]))
             safe_write(full_path, content, allowed_roots=(project_root,))
             written.append(rel_path)
             log.info("output_written", path=rel_path, size=len(content), mode=mode_meta.get("mode"))
 
         # 3-6. POST-WRITE INTEGRITY (fixed order; collect all issues).
         issues: list[str] = []
-        name = full_path.name
-        is_chapter = _CHAPTER_NUM_RE.match(Path(name).stem) is not None and not _is_audit_file(name)
-        is_audit = _is_audit_file(name)
+        # #28: prose-leakage/fence checks share the injector's prose
+        # predicate — the stem-prefix match ran them on plans too.
+        is_chapter = _is_chapter_prose_write(rel_path)
+        is_audit = _is_audit_file(rel_path)
 
         if is_chapter:
             issues += check_prose_leakage(full_path)
@@ -1631,9 +2734,20 @@ def _write_parsed_outputs(
         if issues:
             _append_integrity_findings(project_dir, full_path, issues)
 
-    # Process literal contract paths
+    # Process literal contract paths. The missing-paths QUARANTINE check
+    # validates the caller-declared required set (genesis: the step's
+    # outputs_override), NOT the full persistence set — probe9 quarantined
+    # 6 genesis dispatches for chapter-mode/user-mode writes the step
+    # legitimately never produces (novel.json, bridge_tracker, …) while
+    # stage-8 r1 had already narrowed the prompt to the declared outputs.
+    # Persistence below stays full-contract (stage-8 r2 ruling).
+    check_paths = (
+        [rp for rp in required_paths if "*" not in rp and "?" not in rp]
+        if required_paths is not None
+        else literal_paths
+    )
     missing_paths: list[str] = []
-    for rel_path in literal_paths:
+    for rel_path in check_paths:
         if "*" in rel_path:
             continue
         content = parsed.get(rel_path)
@@ -1646,6 +2760,15 @@ def _write_parsed_outputs(
             continue
         if not content.strip():
             log.warning("output_empty", path=rel_path)
+            continue
+        owner = FRAMEWORK_OWNED_WRITES.get(rel_path, "")
+        if owner != "" and owner != (skill or ""):
+            log.warning(
+                "framework_owned_write_blocked",
+                skill=skill,
+                path=rel_path,
+                owner=owner or "framework",
+            )
             continue
         # mkdir lives INSIDE _write_one (after path validation) so a rejected
         # traversal/symlink path cannot leave directories outside project_dir.
@@ -1925,6 +3048,7 @@ def _emit_dispatch_trace(
     *,
     success: bool,
     failure_class: FailureClass | None = None,
+    reads_manifest: list[dict[str, Any]] | None = None,
 ) -> None:
     """C10 spec #36 T7 (F1116): DISPATCH trace event with finish_reason.
 
@@ -1952,6 +3076,11 @@ def _emit_dispatch_trace(
         }
         if failure_class is not None:
             payload["failure_class"] = failure_class.value
+        if reads_manifest is not None:
+            # batch #15 #34: what the LLM actually saw per read (mode/fields/
+            # matched) — distinguishes a filtered read miss from a full-text
+            # escape-hatch fallback during post-mortems.
+            payload["reads"] = reads_manifest
         TraceWriter(Path(project_dir)).append(
             actor="dispatch_helper",
             actor_role="SYSTEM",
@@ -2164,6 +3293,43 @@ def _call_llm_streaming_with_retry(
 # ---------------------------------------------------------------------------
 
 
+def _persist_failed_write_output(
+    project_dir: Path, skill: str, output_text: str, reason: str
+) -> None:
+    """Forensic persistence of the raw LLM output when the write phase fails.
+
+    Canary escalation #16/#17 forensics gap: a dispatch whose LLM call
+    succeeded but whose parse/write phase failed left NO artifact — no trace
+    event (success trace only fires on the success return), no raw output —
+    so the root cause was undiagnosable from the project dir. The dump is
+    best-effort: a persistence failure never masks the dispatch failure.
+    """
+    try:
+        diag_dir = project_dir / "diagnostics"
+        diag_dir.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+        body = (
+            output_text
+            if output_text.strip()
+            else (
+                "(empty output — the LLM returned no parseable file blocks; "
+                "check the prompt's output-format instructions and the finish_reason)"
+            )
+        )
+        safe_write(
+            diag_dir / f"failed-write-{skill}-{ts}.md",
+            (
+                f"<!-- write-phase failure: {reason} -->\n"
+                f"<!-- skill: {skill} | captured: {ts}Z | "
+                f"output_chars: {len(output_text)} -->\n{body}"
+            ),
+            allowed_roots=(project_dir,),
+        )
+        log.warning("failed_write_output_persisted", skill=skill, reason=reason[:120])
+    except Exception:
+        log.warning("failed_write_output_persist_failed", skill=skill)
+
+
 def _dispatch_via_api(
     skill: str,
     project_dir: Path,
@@ -2208,7 +3374,7 @@ def _dispatch_via_api(
             log.warning("chapter_ambiguous_in_prompt", skill=skill)
             chapter = None
     try:
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, reads_manifest = _build_skill_prompt(
             skill,
             project_dir,
             prompt,
@@ -2257,6 +3423,7 @@ def _dispatch_via_api(
             max_tokens=_get_skill_max_tokens(skill),
             timeout=api_timeout,
             usage_acc=usage_acc,
+            **_thinking_kwargs(_get_skill_thinking(skill)),
         )
     except httpx.TimeoutException as exc:
         # Exception-TYPED timeout routing — message sniffing breaks silently
@@ -2272,6 +3439,7 @@ def _dispatch_via_api(
             usage_acc.get("attempts", 1),
             success=False,
             failure_class=classify_dispatch_failure(exc=exc),
+            reads_manifest=reads_manifest,
         )
         _handle_timeout_gracefully(skill, chapter)
         log.error("api_call_timeout", skill=skill)
@@ -2288,6 +3456,7 @@ def _dispatch_via_api(
             usage_acc.get("attempts", 1),
             success=False,
             failure_class=classify_dispatch_failure(exc=exc),
+            reads_manifest=reads_manifest,
         )
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
@@ -2325,6 +3494,50 @@ def _dispatch_via_api(
             attempt=int(usage_acc.get("attempts", 1)),
         )
 
+    # Phase3 esc#4 (ch28 settle): empty content channel with BILLED completion
+    # tokens is a provider-side transient (the completion rides a reasoning
+    # channel and the content stream comes back zero bytes — same signature
+    # hit review-group-character at a 67K prompt and self-healed on retry;
+    # settle's zero-retry policy turned a $0.02 transient into an escalation).
+    # One same-dispatch resend, mirroring the cap-raise topology (spec §5.1:
+    # retries outside tenacity, max 1 resend). A GENUINELY empty response
+    # (zero completion tokens) is a different failure and keeps this path off.
+    if (
+        not output_text.strip()
+        and usage is not None
+        and int(getattr(usage, "completion_tokens", 0) or 0) > 0
+    ):
+        log.warning(
+            "empty_content_with_billed_completion",
+            skill=skill,
+            completion=int(getattr(usage, "completion_tokens", 0) or 0),
+        )
+        try:
+            output_text, stop_reason, usage, finish_reason = _call_llm_streaming_with_retry(
+                client,
+                model,
+                [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=_get_skill_temperature(skill),
+                max_tokens=_get_skill_max_tokens(skill),
+                timeout=api_timeout,
+                usage_acc=usage_acc,
+                **_thinking_kwargs(_get_skill_thinking(skill)),
+            )
+        except Exception as exc:
+            log.error("api_call_failed", skill=skill, error=str(exc))
+            return DispatchResult(False, -1, "", f"API call failed: {exc}")
+        if usage is not None:
+            _log_token_usage(
+                usage,
+                skill,
+                chapter=chapter,
+                project_dir=project_dir,
+                attempt=int(usage_acc.get("attempts", 1)),
+            )
+
     # Spec §5.1: finish_reason-driven cap-raise (outside tenacity @retry).
     if finish_reason == "content_filter":
         _emit_dispatch_trace(
@@ -2337,6 +3550,7 @@ def _dispatch_via_api(
             usage_acc.get("attempts", 1),
             success=False,
             failure_class=FailureClass.DETERMINISTIC_CONTENT,
+            reads_manifest=reads_manifest,
         )
         log.error("content_filter_blocked", skill=skill)
         return DispatchResult(
@@ -2428,6 +3642,7 @@ def _dispatch_via_api(
             create_truth_templates=True,
             skill=skill,
             parsed=parsed_dict,
+            required_paths=outputs_override,
         )
     except DispatchWriteFailureError as exc:
         log.error(
@@ -2435,18 +3650,35 @@ def _dispatch_via_api(
             skill=skill,
             signature=exc.signature,
         )
+        _persist_failed_write_output(
+            project_dir, skill, output_text, f"write_failure:{exc.signature}"
+        )
         return DispatchResult(False, -1, "", build_retry_feedback(exc))
+    except IncrementShapeError as exc:
+        # Whole-file scaffold in an append_dedup increment — rejected BEFORE
+        # any merge write (probe15). str(exc) is the pointed retry feedback
+        # naming the banned forms and the sanctioned increment shape.
+        # probe16 adjudication #001: the raw output MUST be persisted — both
+        # rejected attempts' text was unrecoverable, leaving the escalation
+        # report to reconstruct facts from rejection records alone.
+        log.error("increment_shape_rejected", skill=skill, detail=str(exc)[:300])
+        _persist_failed_write_output(project_dir, skill, output_text, "increment_shape")
+        return DispatchResult(False, -1, "", str(exc))
     except TruthFileParseError as exc:
         # Corrupt existing truth file met an append_dedup upsert: fail loud at
         # the dispatch layer (failed result, no process crash). Retrying the
         # LLM call cannot fix the file — the failure surfaces to the chapter
         # loop's failure handling (retry budget -> checkpoint for human repair).
         log.error("truth_upsert_parse_failed", skill=skill, error=str(exc))
+        _persist_failed_write_output(project_dir, skill, output_text, f"truth_parse:{exc}")
         return DispatchResult(
             False, -1, "", f"truth file upsert aborted (existing file corrupt): {exc}"
         )
     if not written:
-        return DispatchResult(False, -1, "", "No output files written")
+        _persist_failed_write_output(project_dir, skill, output_text, "no_files_parsed")
+        return DispatchResult(
+            False, -1, "", _no_files_stderr(output_paths, parsed_dict, outputs_override)
+        )
 
     missing = [p for p in output_paths if "*" not in p and not (project_dir / p).exists()]
     if missing:
@@ -2464,6 +3696,7 @@ def _dispatch_via_api(
         usage is None,
         usage_acc.get("attempts", 1),
         success=True,
+        reads_manifest=reads_manifest,
     )
     return DispatchResult(True, 0, output_text, "")
 
@@ -2518,7 +3751,9 @@ def _dispatch_via_ide(
             log.warning("chapter_ambiguous_in_prompt", skill=skill)
             chapter = None
     try:
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        # IDE face has no DISPATCH trace emit (subprocess outcome path);
+        # reads_manifest is API-face only — hence the throwaway name.
+        system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
             skill,
             project_dir,
             prompt,
@@ -2574,6 +3809,7 @@ def _dispatch_via_ide(
             project_dir,
             create_truth_templates=True,
             skill=skill,
+            required_paths=outputs_override,
         )
     except DispatchWriteFailureError as exc:
         log.error(
@@ -2582,6 +3818,13 @@ def _dispatch_via_ide(
             signature=exc.signature,
         )
         return DispatchResult(False, -1, "", build_retry_feedback(exc))
+    except IncrementShapeError as exc:
+        # Same policy as the API route: whole-file scaffold in an
+        # append_dedup increment, rejected pre-merge with pointed feedback,
+        # raw output persisted for forensics (probe16 adjudication #001).
+        log.error("increment_shape_rejected", skill=skill, detail=str(exc)[:300])
+        _persist_failed_write_output(project_dir, skill, r.stdout, "increment_shape")
+        return DispatchResult(False, -1, "", str(exc))
     except TruthFileParseError as exc:
         # Same policy as the API route: corrupt existing truth file -> failed
         # dispatch result, not a process crash (see _dispatch_via_api).
@@ -2590,7 +3833,13 @@ def _dispatch_via_ide(
             False, -1, "", f"truth file upsert aborted (existing file corrupt): {exc}"
         )
     if not written:
-        return DispatchResult(False, -1, "", "No output files written")
+        ide_parsed = _parse_file_markers(r.stdout).files
+        return DispatchResult(
+            False,
+            -1,
+            "",
+            _no_files_stderr(output_paths, {f.path: f.content for f in ide_parsed}, None),
+        )
 
     missing = [p for p in output_paths if "*" not in p and not (project_dir / p).exists()]
     if missing:
@@ -2937,6 +4186,51 @@ def run_gate_g4(
     if chapter is not None and phase is not None:
         _record_gate_manifest(Path(project_dir), phase, chapter, skill, "G4", result)
     return result
+
+
+def record_scorer_evidence(
+    project_dir: Path | str,
+    scorer_route: str,
+    generator_routes: dict[str, str],
+    extra_progress: dict[str, Any] | None = None,
+) -> None:
+    """Persist scoring-independence evidence for the G3.4 fail-closed check.
+
+    The API dispatch path previously had NO writer for
+    ``progress.json:current_scorer_agent`` anywhere in the codebase, so
+    every ``requires_independent_agent`` step (genesis step 17 and the
+    chapter-loop review skills) deterministically failed G3 regardless of
+    output quality (canary escalation #5, 2026-09-28).
+
+    Read-merge-write, never wholesale replace — chapter-phase progress
+    keys must survive genesis-phase updates (F630 merge semantics).
+    Callers must pass real progress fields via *extra_progress* so the
+    file is never a scorer-only shell (F1309).
+    """
+    progress_path = Path(project_dir) / "progress.json"
+    data: dict[str, Any] = {}
+    if progress_path.exists():
+        try:
+            loaded = json.loads(progress_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                data = loaded
+        except (json.JSONDecodeError, OSError):
+            log.warning("progress_json_unreadable_scorer_merge", path=str(progress_path))
+    data["current_scorer_agent"] = scorer_route
+    trace = data.get("agent_trace")
+    if not isinstance(trace, dict):
+        trace = {}
+    trace.update(generator_routes)
+    data["agent_trace"] = trace
+    if extra_progress:
+        data.update(extra_progress)
+    safe_write(progress_path, json.dumps(data, indent=2, ensure_ascii=False))
+    log.info(
+        "scorer_evidence_recorded",
+        scorer=scorer_route,
+        generators=len(generator_routes),
+        path=str(progress_path),
+    )
 
 
 def run_gate_g3(

@@ -160,3 +160,53 @@ def test_unknown_skill_never_skipped():
         for i in range(1, 4)
     ]
     assert _should_skip_audit("mystery-audit", passing_history) is False
+
+
+# ---------------------------------------------------------------------------
+# Probe session 2026-09-29 (Stage 2 friction): the cascade froze PERMANENTLY
+# after its first trigger — skipped audits append no new history, so the
+# trailing-3-passes streak never refreshes and the audit goes blind from ch4
+# to the end of the book (134-chapter scale: no audit evidence for G7). A
+# re-verification gap forces one real run every CASCADE_REVERIFY_GAP skipped
+# chapters, refreshing the streak.
+
+
+def test_streak_skip_still_applies_within_reverify_gap():
+    from shenbi.pipeline.chapter_loop import _should_skip_audit
+
+    history = [
+        {"skill": "dialogue", "chapter": 1, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": 2, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": 3, "passed": True, "hard_failures": 0},
+    ]
+    # current ch4: first skip — within the gap
+    assert _should_skip_audit("dialogue", history, current_chapter=4) is True
+
+
+def test_stale_streak_forces_rerun_after_reverify_gap():
+    from shenbi.pipeline.chapter_loop import CASCADE_REVERIFY_GAP, _should_skip_audit
+
+    history = [
+        {"skill": "dialogue", "chapter": 1, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": 2, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": 3, "passed": True, "hard_failures": 0},
+    ]
+    # The streak's newest record is ch3; after CASCADE_REVERIFY_GAP skipped
+    # chapters the audit must RUN again to refresh the evidence.
+    stale_ch = 3 + CASCADE_REVERIFY_GAP + 1
+    assert _should_skip_audit("dialogue", history, current_chapter=stale_ch) is False
+
+
+def test_fresh_streak_from_recent_chapter_still_skips():
+    from shenbi.pipeline.chapter_loop import CASCADE_REVERIFY_GAP, _should_skip_audit
+
+    base = 10
+    history = [
+        {"skill": "dialogue", "chapter": base - 2, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": base - 1, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": base, "passed": True, "hard_failures": 0},
+    ]
+    assert _should_skip_audit("dialogue", history, current_chapter=base + 2) is True
+    assert (
+        _should_skip_audit("dialogue", history, current_chapter=base + CASCADE_REVERIFY_GAP) is True
+    )

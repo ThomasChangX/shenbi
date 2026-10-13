@@ -111,3 +111,118 @@ def test_passes_when_all_conditions_met(tmp_path: Path) -> None:
     f.write_text(content, encoding="utf-8")
     result = _run([str(f)])
     assert result["status"] == "PASS"
+
+
+def test_g4_cp_hard_fails_english_chapter_heading_residue(tmp_path):
+    """#27 (probe17 adjudications #003→#005): the '# Chapter N:' English
+    heading is banned by the skill contract; two prose re-pins failed to
+    eliminate it because the write-path injector was RE-ADDING it after
+    every compliant model output (#28 fixed the injector). With written
+    plans now equal to model output, the gate enforces the ban machine-side
+    — no third prose re-pin.
+    """
+    import json
+
+    from shenbi.gates.g4.chapter_planning import g4_chapter_planning
+
+    body = "# 第1章 章节备忘\n\n## 1. 当前任务\nchapter_role: 过渡/铺垫\n"
+    for i in range(2, 9):
+        body += f"\n## {i}. 段落{i}内容。\n"
+
+    clean = tmp_path / "plans"
+    clean.mkdir()
+    f1 = clean / "chapter-1-plan.md"
+    f1.write_text(body, encoding="utf-8")
+    ok = json.loads(g4_chapter_planning([str(f1)], rd=str(tmp_path)))
+    assert not any("english_heading" in m for m in ok.get("must_fix", []))
+
+    dirty = tmp_path / "plans2"
+    dirty.mkdir()
+    f2 = dirty / "chapter-1-plan.md"
+    f2.write_text("# Chapter 1:\n\n" + body, encoding="utf-8")
+    bad = json.loads(g4_chapter_planning([str(f2)], rd=str(tmp_path)))
+    assert any("G4.cp.english_heading" in m for m in bad.get("must_fix", [])), bad.get("must_fix")
+
+
+#: #18-2 (probe23 adjudication #007): the ch3 memo invented MH11/MH12 —
+#: book_spine caps at MH10 and pending_hooks never registered them. Two
+#: human reject rounds carried explicit delete instructions; the retry memo
+#: still shipped MH11 and the approve missed it. The machine gate owns hook
+#: authenticity: every MH-prefixed ID in §7 must exist in the spine or the
+#: pool; genuinely new plants go through the lifecycle's CP-NNN namespace.
+def _plan_with_hooks(hook_rows: str) -> str:
+    sections = "\n".join(f"## {i}. Section {i}\ncontent\n" for i in range(1, 7))
+    return (
+        "# 第3章 章节备忘\n\n" + sections + "\n## 7. Section 7\n\n"
+        "| ID | 操作 | 推进方式 | 沉默章数 |\n"
+        "|----|------|---------|---------|\n" + hook_rows + "\n## 8. Section 8\ncontent\n"
+    )
+
+
+_SPINE = "# 书脊\n\n## 主线钩子\n\n- MH01: 铜牌的纹（ITEM）\n- MH07: 「零」的那一栏（CHARACTER）\n"
+_POOL = (
+    "---\ntype: truth\n---\n\n# 伏笔池\n\n"
+    "| Hook ID（钩子名） | 当前生命周期 |\n"
+    "|------|------|\n"
+    "| MH01（铜牌的纹） | RELEVANT |\n"
+    "| MH07（「零」的那一栏） | RELEVANT |\n"
+)
+
+
+@pytest.mark.unit
+def test_fails_on_unregistered_mh_hook(tmp_path: Path) -> None:
+    (tmp_path / "truth").mkdir()
+    (tmp_path / "truth" / "book_spine.md").write_text(_SPINE, encoding="utf-8")
+    (tmp_path / "truth" / "pending_hooks.md").write_text(_POOL, encoding="utf-8")
+    f = tmp_path / "chapter-003-plan.md"
+    f.write_text(
+        _plan_with_hooks("| MH01 | advance | 停顿一息 | 0 |\n| MH11 | open | 新植 | — |\n"),
+        encoding="utf-8",
+    )
+    result = json.loads(g4_chapter_planning([str(f)], project_dir=str(tmp_path)))
+    assert result["status"] == "FAIL"
+    assert any("G4.cp.hook_refs" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_passes_on_registered_mh_hooks(tmp_path: Path) -> None:
+    (tmp_path / "truth").mkdir()
+    (tmp_path / "truth" / "book_spine.md").write_text(_SPINE, encoding="utf-8")
+    (tmp_path / "truth" / "pending_hooks.md").write_text(_POOL, encoding="utf-8")
+    f = tmp_path / "chapter-002-plan.md"
+    f.write_text(
+        _plan_with_hooks(
+            "| MH07 | open | 主角自称「零」 | — |\n| MH01 | advance | 停顿一息 | 0 |\n"
+        ),
+        encoding="utf-8",
+    )
+    result = json.loads(g4_chapter_planning([str(f)], project_dir=str(tmp_path)))
+    assert any(c["id"] == "G4.cp.hook_refs" and c["s"] == "PASS" for c in result["checks"])
+
+
+@pytest.mark.unit
+def test_cp_namespace_hooks_are_not_gated(tmp_path: Path) -> None:
+    """New plants use the lifecycle's CP-NNN namespace — outside the MH
+    registry check (SKILL.md flowchart: Assign ID at plant time).
+    """
+    (tmp_path / "truth").mkdir()
+    (tmp_path / "truth" / "book_spine.md").write_text(_SPINE, encoding="utf-8")
+    (tmp_path / "truth" / "pending_hooks.md").write_text(_POOL, encoding="utf-8")
+    f = tmp_path / "chapter-004-plan.md"
+    f.write_text(
+        _plan_with_hooks("| MH01 | advance | 停顿一息 | 0 |\n| CP-001 | open | 新植 | — |\n"),
+        encoding="utf-8",
+    )
+    result = json.loads(g4_chapter_planning([str(f)], project_dir=str(tmp_path)))
+    assert not any("G4.cp.hook_refs" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_skips_when_registry_files_absent(tmp_path: Path) -> None:
+    """Phase 1: neither the spine nor the pool exists — nothing to check
+    against (SKILL.md L139 phase-1 placeholder branch).
+    """
+    f = tmp_path / "chapter-001-plan.md"
+    f.write_text(_plan_with_hooks("| MH01 | advance | 停顿一息 | 0 |\n"), encoding="utf-8")
+    result = json.loads(g4_chapter_planning([str(f)], project_dir=str(tmp_path)))
+    assert any(c["id"] == "G4.cp.hook_refs" and c["s"] == "SKIP" for c in result["checks"])

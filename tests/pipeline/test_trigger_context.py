@@ -85,7 +85,9 @@ def test_trigger_flow_prompt_lists_arc5_paths(tmp_path):
     prompt = (
         f"Execute shenbi-score-arc for chapter 60. Project dir: {proj}\n{format_path_context(ctx)}"
     )
-    system, user, outs = _build_skill_prompt("shenbi-score-arc", proj, prompt, 60, path_context=ctx)
+    system, user, outs, _ = _build_skill_prompt(
+        "shenbi-score-arc", proj, prompt, 60, path_context=ctx
+    )
     assert "audits/arc-5-score.md" in outs
     assert "arc-60" not in user
     assert "truth/arcs/arc-5.md" in user  # reads loop also ctx-routed

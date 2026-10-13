@@ -28,7 +28,11 @@ _DETAIL_COLS = ("维度", "得分", "满分", "置信度", "证据", "裁判理�
 _DIMS = ("弧情感交付", "伏笔兑现质量", "线索收束", "期待债务结算", "角色弧推进")
 
 # Accepted 门判定 verdicts (spec §6.4: pass -> 放行, block -> 阻断+处方).
-_VERDICTS = ("放行", "阻断")
+# 暂缓 (canary defect, dormant semantic): an arc whose payoff window extends
+# beyond the current volume is NOT yet judgeable — the honest report form was
+# structurally rejected (no_valid_verdict), forcing escalations for correct
+# output. 暂缓 passes (non-blocking) and is disclosed in the check record.
+_VERDICTS = ("放行", "阻断", "暂缓")
 
 # The 伏笔兑现质量 sub-floor: the report's 门判定 section must evaluate it
 # against the §6.4 floor of 15 (e.g. "伏笔兑现质量 18 ≥ 子地板 15 ✓").

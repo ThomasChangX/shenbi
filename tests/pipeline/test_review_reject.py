@@ -20,6 +20,27 @@ def test_reject_genesis_complete_rolls_back_cursor():
     assert state.genesis.current_step == 16
 
 
+def test_genesis_complete_rollback_unmarks_redo_skill():
+    """Fixcheck escalation (2026-09-29): rolling the cursor back without
+    un-marking the step's skill left it in genesis.skills_done, so the step-17
+    re-dispatch recorded the scorer route as also a generator route and G3.4
+    (scorer == generator) failed deterministically 3/3.
+    """
+    from shenbi.pipeline.cli import _apply_reject_redo
+
+    state = _state()
+    state.genesis.current_step = 17
+    state.genesis.skills_done = [
+        "shenbi-worldbuilding",
+        "shenbi-foundation-review",
+    ]
+    set_checkpoint(state, CheckpointType.GENESIS_COMPLETE)
+    _apply_reject_redo(state, state.pending_checkpoint)
+    assert state.genesis.current_step == 16
+    assert "shenbi-foundation-review" not in state.genesis.skills_done
+    assert "shenbi-worldbuilding" in state.genesis.skills_done  # others intact
+
+
 def test_modify_per_chapter_also_queues_revision():
     """PER_CHAPTER MODIFY also queues chapter-revision (desirable semantics)."""
     from shenbi.pipeline.cli import _queue_re_dispatches
@@ -204,3 +225,142 @@ def test_reject_volume_boundary_rearms_trigger_fanout():
     set_checkpoint(state, CheckpointType.VOLUME_BOUNDARY, chapter=55)
     _apply_reject_redo(state, state.pending_checkpoint)
     assert state.chapter_loop.step_index == 0
+
+
+def test_cmd_review_chapter_escalation_reject_feedback_is_wired(tmp_path, monkeypatch):
+    """GAP-a (fixcheck ch1, 17:17 evidence): a chapter-phase ESCALATION
+    reject's 1385-char repair feedback never entered any 17:22-17:33
+    re-dispatch prompt — the routing block was gated on phase == GENESIS
+    and _apply_reject_redo only resets budgets. The feedback must land in
+    chapter_loop.retry_feedback[chN-skill] for the failing step
+    (step_index points at the un-completed step); the redo dispatch
+    injects it via _append_feedback_injections.
+    """
+    import argparse
+
+    from shenbi.pipeline import cli as cli_mod
+    from shenbi.pipeline.state import PipelinePhase
+
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    state = PipelineState.default(str(proj))
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 3
+    state.chapter_loop.step_index = 7  # CHAPTER_STEPS[7] = state-settling
+    set_checkpoint(state, CheckpointType.ESCALATION, chapter=3)
+
+    monkeypatch.setattr(cli_mod, "load_state", lambda pd: state)
+    monkeypatch.setattr(cli_mod, "save_state", lambda pd, st: None)
+    monkeypatch.setattr(cli_mod, "emit_json", lambda payload: None)
+
+    fb = tmp_path / "fb.md"
+    fb.write_text("重做指令：逐字保留 live 基底", encoding="utf-8")
+    args = argparse.Namespace(decision="reject", feedback=str(fb), project_dir=str(proj))
+
+    rc = cli_mod.cmd_review(args)
+    assert rc in (0, None)
+    assert (
+        state.chapter_loop.retry_feedback.get("ch3-shenbi-state-settling")
+        == "重做指令：逐字保留 live 基底"
+    ), state.chapter_loop.retry_feedback
+
+
+def test_per_chapter_reject_queues_settle_redispatch_with_staging(tmp_path, monkeypatch):
+    """Fixcheck P2: PER_CHAPTER reject/modify queued ONLY chapter-revision —
+    the truth files were settled from the PRE-revision draft and nothing
+    ever re-settled them (ch1/ch2 truth rode placeholders while the revised
+    chapters advanced). The queue now carries state-settling after the
+    revision; staging-gated skills dispatch with uses_staging=True and a
+    successful settle re-dispatch re-raises STATE_SETTLE so the human
+    reviews the re-settled increments (approve commits staging).
+    """
+    from shenbi.pipeline import cli as cli_mod
+    from shenbi.pipeline.state import PipelinePhase
+
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    state = PipelineState.default(str(proj))
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 2
+    # #51 precondition: the queued revision+settle re-dispatches consume the
+    # chapter draft — the executor below runs against tmp_path, so the draft
+    # lives there
+    (tmp_path / "chapters").mkdir(exist_ok=True)
+    (tmp_path / "chapters" / "chapter-2.md").write_text("# Chapter 2\n正文\n", encoding="utf-8")
+    set_checkpoint(state, CheckpointType.PER_CHAPTER, chapter=2)
+
+    # reject queues the re-dispatch set (revision THEN settle)
+    cli_mod._queue_re_dispatches(state, state.pending_checkpoint, feedback="重写指令")
+    skills = [e["skill"] for e in state.pending_re_dispatches]
+    assert skills == ["shenbi-chapter-revision", "shenbi-state-settling"], skills
+
+    calls: list[tuple[str, bool]] = []
+
+    class _OK:
+        success = True
+        returncode = 0
+        stdout = ""
+        stderr = ""
+
+    def _fake_dispatch(skill, project_dir, prompt, **kwargs):
+        calls.append((skill, bool(kwargs.get("uses_staging"))))
+        return _OK()
+
+    monkeypatch.setattr("shenbi.pipeline.dispatch_helper.dispatch_skill", _fake_dispatch)
+
+    ran = cli_mod._execute_pending_re_dispatches(state, tmp_path)
+    assert ran is True
+    assert calls == [
+        ("shenbi-chapter-revision", False),
+        ("shenbi-state-settling", True),
+    ], calls
+    cp = state.pending_checkpoint
+    assert cp is not None and cp.type == CheckpointType.STATE_SETTLE, cp
+    assert cp.chapter == 2
+    assert state.pending_re_dispatches == []  # both consumed
+
+
+def test_cmd_review_triggered_escalation_feedback_routes_to_failing_skill(tmp_path, monkeypatch):
+    """Phase3 volume-boundary dead route: a TRIGGERED skill failure raises
+    ESCALATION while the loop sits at next-chapter step_index=0, so GAP-a's
+    CHAPTER_STEPS[step_index] lookup pinned every reviewer feedback to
+    pipeline-volume-align — a deterministic step that never consumes
+    retry_feedback. The feedback must route to state.last_trigger_failure's
+    skill instead (esc#5: consolidation, adjudication 191 observation item).
+    """
+    import argparse
+
+    from shenbi.pipeline import cli as cli_mod
+    from shenbi.pipeline.state import PipelinePhase
+
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    state = PipelineState.default(str(proj))
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 48
+    state.chapter_loop.step_index = 0  # the trigger block runs at step_index 0
+    set_checkpoint(state, CheckpointType.ESCALATION, chapter=47)
+    state.last_trigger_failure = {
+        "chapter": 47,
+        "skill": "shenbi-volume-consolidation",
+        "mode": "L3",
+        "stage": "g4",
+        "timestamp": "2026-10-08T00:00:00Z",
+    }
+
+    monkeypatch.setattr(cli_mod, "load_state", lambda pd: state)
+    monkeypatch.setattr(cli_mod, "save_state", lambda pd, st: None)
+    monkeypatch.setattr(cli_mod, "emit_json", lambda payload: None)
+
+    fb = tmp_path / "fb.md"
+    fb.write_text("重跑说明：consolidation 头寸按裁决 156 收窄", encoding="utf-8")
+    args = argparse.Namespace(decision="approve", feedback=str(fb), project_dir=str(proj))
+
+    rc = cli_mod.cmd_review(args)
+    assert rc in (0, None)
+    assert (
+        state.chapter_loop.retry_feedback.get("ch47-shenbi-volume-consolidation")
+        == "重跑说明：consolidation 头寸按裁决 156 收窄"
+    ), state.chapter_loop.retry_feedback
+    # the bogus step_index-0 alias must NOT be written (dead-route symptom)
+    assert "ch47-pipeline-volume-align" not in state.chapter_loop.retry_feedback

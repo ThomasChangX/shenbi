@@ -30,6 +30,7 @@ from shenbi.pipeline.state import (
     CheckpointType,
     PipelineState,
 )
+from tests.unit.pipeline.conftest import write_chapter_drafts
 
 
 @pytest.fixture(autouse=True)
@@ -291,6 +292,7 @@ class TestChapterCompletion:
         """Last step (chapter-revision, index 14) completes the chapter."""
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 14  # last step (chapter-revision)
@@ -305,6 +307,7 @@ class TestChapterCompletion:
     ):
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 14  # last step (chapter-revision)
@@ -318,6 +321,7 @@ class TestChapterCompletion:
     def test_completion_no_checkpoint_when_disabled(self, mock_g4, mock_disp, tmp_path):
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 14  # last step (chapter-revision)
@@ -522,6 +526,7 @@ class TestConditionalResolveIntegration:
         dispatch which runs both lifecycle and settling together.
         """
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 6  # foreshadowing-lifecycle (step 7)
@@ -608,15 +613,20 @@ class TestRevisionRoutingIntegration:
             return_value=kwargs.get("route", RevisionRoute.NO_REVISION),
         )
 
-        started = {}
-        for key, p in patches.items():
-            started[key] = p.start()
-        return started
+        # Return the PATCH objects (not p.start()'s MagicMocks): calling
+        # .stop() on a MagicMock silently no-ops (auto-created stub), so the
+        # patches leaked across tests — first exposed by
+        # TestConsolidateAttribution receiving this class's patched
+        # consolidate_review_results. Callers needing the mock use
+        # patches["disp"].mock? No — keep a started-mock sidecar.
+        patches["_mocks"] = {key: p.start() for key, p in patches.items()}
+        return patches  # real patch objects (stoppable); started mocks under "_mocks"
 
     def test_clean_audits_skip_revision(self, tmp_path):
         """No blocking issues -> step 15 (chapter-revision) is skipped."""
         mocks = self._setup_parallel_audit_mocks(tmp_path, route=RevisionRoute.NO_REVISION)
         try:
+            write_chapter_drafts(tmp_path, (1,))
             state = PipelineState.default(str(tmp_path))
             state.chapter_loop.current_chapter = 1
             state.chapter_loop.step_index = _FIRST_AUDIT_IDX  # index 8
@@ -633,7 +643,8 @@ class TestRevisionRoutingIntegration:
             assert "shenbi-chapter-revision" in cs.steps_done
         finally:
             for p in mocks.values():
-                p.stop()
+                if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
+                    p.stop()
 
     def test_blocking_audits_route_revision(self, tmp_path):
         """Blocking audit issues -> step 15 (chapter-revision) dispatches."""
@@ -642,6 +653,7 @@ class TestRevisionRoutingIntegration:
             tmp_path, issues=issues, blocking=True, route=RevisionRoute.REGENERATE
         )
         try:
+            write_chapter_drafts(tmp_path, (1,))
             state = PipelineState.default(str(tmp_path))
             state.chapter_loop.current_chapter = 1
             state.chapter_loop.step_index = _FIRST_AUDIT_IDX
@@ -658,11 +670,12 @@ class TestRevisionRoutingIntegration:
             cs = state.chapter_loop.chapter_states["1"]
             assert cs.audit_results.get("revision_route") == RevisionRoute.REGENERATE.value
             # Verify dispatch was called for revision
-            called_skills = [c[0][0] for c in mocks["disp"].call_args_list]
+            called_skills = [c[0][0] for c in mocks["_mocks"]["disp"].call_args_list]
             assert "shenbi-chapter-revision" in called_skills
         finally:
             for p in mocks.values():
-                p.stop()
+                if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
+                    p.stop()
 
     def test_revision_route_stored_in_chapter_state(self, tmp_path):
         """The revision route is persisted on the chapter's audit_results."""
@@ -680,7 +693,8 @@ class TestRevisionRoutingIntegration:
             assert cs.audit_results.get("revision_route") == RevisionRoute.SPOT_FIX.value
         finally:
             for p in mocks.values():
-                p.stop()
+                if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
+                    p.stop()
 
     @patch("shenbi.pipeline.chapter_loop.check_resonance", return_value=True)
     def test_check_resonance_wired_after_review(self, mock_cr, tmp_path):
@@ -697,7 +711,8 @@ class TestRevisionRoutingIntegration:
             assert args[1] == state.config.resonance_global_floor
         finally:
             for p in mocks.values():
-                p.stop()
+                if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
+                    p.stop()
 
     def test_clean_audits_complete_chapter_without_revision(self, tmp_path):
         """Clean audits skip revision but still complete the chapter.
@@ -705,6 +720,7 @@ class TestRevisionRoutingIntegration:
         """
         mocks = self._setup_parallel_audit_mocks(tmp_path, route=RevisionRoute.NO_REVISION)
         try:
+            write_chapter_drafts(tmp_path, (1,))
             state = PipelineState.default(str(tmp_path))
             state.chapter_loop.current_chapter = 1
             state.config.max_revision_retries = 3
@@ -720,11 +736,12 @@ class TestRevisionRoutingIntegration:
             assert state.chapter_loop.current_chapter == 2
             assert state.chapter_loop.step_index == 0
 
-            called_skills = [c[0][0] for c in mocks["disp"].call_args_list]
+            called_skills = [c[0][0] for c in mocks["_mocks"]["disp"].call_args_list]
             assert "shenbi-chapter-revision" not in called_skills
         finally:
             for p in mocks.values():
-                p.stop()
+                if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
+                    p.stop()
 
 
 # ---------------------------------------------------------------------------
@@ -915,6 +932,7 @@ class TestStateSettleFailureWiring:
         from shenbi.pipeline.chapter_loop import run_chapter_step
         from shenbi.pipeline.state import CheckpointType, PipelinePhase, PipelineState
 
+        write_chapter_drafts(tmp_path, (3,))
         state = PipelineState.default(str(tmp_path))
         state.phase = PipelinePhase.CHAPTER_LOOP
         state.chapter_loop.current_chapter = 3
@@ -993,7 +1011,9 @@ class TestEscalationWiring:
             call_order.append(("dispatch", skill))
             return type("R", (), {"success": False, "returncode": 1, "stderr": ""})()
 
-        def fake_dispatch_escalation(project_dir, chapter, context=""):
+        def fake_dispatch_escalation(
+            project_dir, chapter, context="", details=None, failing_skill=None
+        ):
             call_order.append(("escalation", chapter))
             return True
 
@@ -1204,3 +1224,149 @@ class TestAnyAuditHasFindings:
             tmp_path, "chapter-3-pacing.md", "本次审计未出现 FAIL 情况，一切正常。\n"
         )
         assert _any_audit_has_findings(state) is False
+
+
+class TestAuditRoutedRevisionQueuesResettle:
+    """Probe2 matrix-D gap: an audit-routed (step-15) revision changed the
+    chapter AFTER settle, but nothing queued a re-settlement — truth files
+    kept the PRE-revision draft's facts (only the checkpoint-routed path,
+    a27ccf4e's PER_CHAPTER DERIVED_TRUTH_MAP entries, re-settled). The
+    revision step's success path must queue the same settle re-dispatch.
+    """
+
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    def test_revision_success_queues_settle_redispatch(self, mock_g4, mock_disp, tmp_path):
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        write_chapter_drafts(tmp_path, (1,))
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 14  # step 15 = chapter-revision
+        audits = tmp_path / "audits"
+        audits.mkdir(exist_ok=True)
+        (audits / "chapter-1-anti-ai.md").write_text(
+            "- [BLOCKING] test finding\n", encoding="utf-8"
+        )
+        run_chapter_step(state, tmp_path)
+        entries = [
+            d
+            for d in state.pending_re_dispatches
+            if d.get("skill") == "shenbi-state-settling" and d.get("chapter") == 1
+        ]
+        assert entries, "audit-routed revision did not queue a settle re-dispatch"
+        assert entries[0]["checkpoint_type"] == CheckpointType.PER_CHAPTER.value
+
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    def test_queue_is_deduped(self, mock_g4, mock_disp, tmp_path):
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        write_chapter_drafts(tmp_path, (1,))
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 14
+        audits = tmp_path / "audits"
+        audits.mkdir(exist_ok=True)
+        (audits / "chapter-1-anti-ai.md").write_text(
+            "- [BLOCKING] test finding\n", encoding="utf-8"
+        )
+        state.pending_re_dispatches.append(
+            {
+                "skill": "shenbi-state-settling",
+                "checkpoint_type": CheckpointType.PER_CHAPTER.value,
+                "chapter": 1,
+                "feedback": "already queued",
+            }
+        )
+        run_chapter_step(state, tmp_path)
+        entries = [
+            d
+            for d in state.pending_re_dispatches
+            if d.get("skill") == "shenbi-state-settling" and d.get("chapter") == 1
+        ]
+        assert len(entries) == 1
+
+
+class TestEscalationInjectsFailingSkillReads:
+    """Probe2: escalation reports rendered the REPORT skill's own reads
+    instead of the failing skill's contract reads. dispatch_escalation now
+    injects the machine-provided availability list when failing_skill is
+    passed.
+    """
+
+    @patch("shenbi.pipeline.revision_router.dispatch_skill")
+    def test_failing_skill_reads_ride_the_prompt(self, mock_disp, tmp_path):
+        from shenbi.pipeline.revision_router import dispatch_escalation
+
+        mock_disp.return_value = DispatchResult(False, 1, "", "boom")
+        (tmp_path / "novel.json").write_text("{}", encoding="utf-8")
+        dispatch_escalation(
+            tmp_path,
+            None,
+            context="Genesis step 3 (x) failed",
+            failing_skill="shenbi-worldbuilding",
+        )
+        prompt = mock_disp.call_args[0][2]
+        assert "FAILING SKILL CONTRACT READS" in prompt
+        assert "novel.json — AVAILABLE" in prompt
+
+    @patch("shenbi.pipeline.revision_router.dispatch_skill")
+    def test_no_failing_skill_keeps_prompt_plain(self, mock_disp, tmp_path):
+        from shenbi.pipeline.revision_router import dispatch_escalation
+
+        mock_disp.return_value = DispatchResult(False, 1, "", "boom")
+        dispatch_escalation(tmp_path, 5, context="revision cap exceeded")
+        prompt = mock_disp.call_args[0][2]
+        assert "FAILING SKILL CONTRACT READS" not in prompt
+
+
+class TestParallelPostDraftFailureFeedback:
+    """probe17 ch1 step 7 (adjudication /tmp/probe17-adjudication-006.md): the
+    parallel post-draft dispatch-failure branch dropped the guard's pointed
+    stderr — retries 2-3 re-ran the ORIGINAL prompt verbatim (identical
+    outputs, blind-retry signature) while the serial branch and the parallel
+    G4 branch both route corrective feedback. The increment-shape guard's
+    teaching message never reached the model; the escalation was
+    misattributed to a shape contradiction. Both parallel slots (lifecycle +
+    settling) must route stderr into the corrective slot.
+    """
+
+    def _state_at_lifecycle(self, tmp_path):
+        write_chapter_drafts(tmp_path, (1,))
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 6  # foreshadowing-lifecycle (step 7)
+        return state
+
+    def test_lifecycle_dispatch_failure_routes_stderr(self, tmp_path):
+        state = self._state_at_lifecycle(tmp_path)
+        guard_msg = "输出未落盘——append_dedup 增量包含整档脚手架……合法形态：表格行增量"
+        with (
+            patch(
+                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                return_value=(
+                    DispatchResult(False, -1, "", guard_msg),
+                    DispatchResult(True, 0, "{}", ""),
+                ),
+            ),
+        ):
+            run_chapter_step(state, tmp_path)
+        fb = state.chapter_loop.retry_feedback.get("ch1-shenbi-foreshadowing-lifecycle")
+        assert fb is not None and guard_msg in fb, state.chapter_loop.retry_feedback
+
+    def test_settling_dispatch_failure_routes_stderr(self, tmp_path):
+        state = self._state_at_lifecycle(tmp_path)
+        guard_msg = "settle 增量被拒：请只发本章增量行"
+        with (
+            patch(
+                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                return_value=(
+                    DispatchResult(True, 0, "{}", ""),
+                    DispatchResult(False, -1, "", guard_msg),
+                ),
+            ),
+        ):
+            run_chapter_step(state, tmp_path)
+        fb = state.chapter_loop.retry_feedback.get("ch1-shenbi-state-settling")
+        assert fb is not None and guard_msg in fb, state.chapter_loop.retry_feedback

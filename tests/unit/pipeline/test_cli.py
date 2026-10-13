@@ -103,6 +103,29 @@ class TestInitCommand:
         assert rc == 0
         assert json.loads(out)["total_chapters"] == "unknown"
 
+    def test_init_scaffolds_core_truth_dirs(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Init creates the core dirs `_verify_truth_integrity` demands on resume.
+
+        The integrity check runs on EVERY resume — including the first one,
+        before any genesis step has written anything — so a fresh project
+        without these dirs deadlocks init→resume (F325 fail-fast wiring).
+        """
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(sample_seed_content, encoding="utf-8")
+        project_dir = tmp_path / "novel"
+
+        rc, _ = _run(["init", str(seed_file), "--project-dir", str(project_dir)], monkeypatch)
+
+        assert rc == 0
+        from shenbi.pipeline.cli import _verify_truth_integrity
+        from shenbi.pipeline.state import PipelinePhase
+
+        state = load_state(project_dir)
+        assert state.phase == PipelinePhase.GENESIS
+        assert _verify_truth_integrity(state, project_dir) == []
+
     def test_init_auto_flag_disables_review_checkpoints(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -218,6 +241,157 @@ class TestReviewCommand:
         state = load_state(project_dir)
         assert state.checkpoint_history[-1]["feedback"] == "needs more tension in act 2"
         assert state.checkpoint_history[-1]["decision"] == "modify"
+
+    def test_review_genesis_escalation_feedback_rides_retry_slot(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Modify feedback on a genesis escalation lands in genesis.retry_feedback.
+
+        Genesis re-dispatch consumes genesis.retry_feedback (not chapter
+        loop's modify_feedback) as corrective feedback — routing it anywhere
+        else is a dead wire (canary escalation, 2026-09-28).
+        """
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+
+        state = load_state(project_dir)
+        state.genesis.current_step = 0  # step 1 = shenbi-worldbuilding
+        state.genesis.retry_counts["shenbi-worldbuilding"] = 3
+        state.genesis.retry_feedback["shenbi-worldbuilding"] = "G4 check failed: stale"
+        set_checkpoint(
+            state, CheckpointType.ESCALATION, artifact="audits/escalation-genesis-report.md"
+        )
+        save_state(project_dir, state)
+
+        feedback_file = tmp_path / "notes.txt"
+        feedback_file.write_text(
+            "rules.md 用 ## 规则一： 标题；locations.md 用 ## 地点： 标题", encoding="utf-8"
+        )
+
+        rc, _ = _run(
+            ["review", str(project_dir), "modify", "--feedback", str(feedback_file)],
+            monkeypatch,
+        )
+
+        assert rc == 0
+        state = load_state(project_dir)
+        assert state.pending_checkpoint.type == CheckpointType.NONE
+        assert (
+            state.genesis.retry_feedback["shenbi-worldbuilding"]
+            == "rules.md 用 ## 规则一： 标题；locations.md 用 ## 地点： 标题"
+        )
+        assert state.genesis.retry_counts == {}  # escalation resolve resets budget
+
+    def test_review_genesis_complete_reject_scoped_redo(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """probe8 deadlock: the adjudicator ruled a scoped reject (redo
+        power_system/relationships/… , KEEP the authoritative outline cluster)
+        but the machinery could only roll back one step (foundation-review
+        re-run) and the feedback was a dead wire. ``--redo-steps`` expresses
+        the adjudication's redo list; un-listed done steps are skipped, not
+        regenerated.
+        """
+        from shenbi.pipeline.genesis import GENESIS_STEPS
+
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+        state = load_state(project_dir)
+        state.genesis.current_step = 17  # all 17 steps dispatched
+        state.genesis.skills_done = [s.skill for s in GENESIS_STEPS]
+        set_checkpoint(
+            state, CheckpointType.GENESIS_COMPLETE, artifact="foundation/review_report.md"
+        )
+        save_state(project_dir, state)
+
+        feedback_file = tmp_path / "ruling.md"
+        feedback_file.write_text(
+            "打回重做: world/power_system.md 重写里程碑表; characters/relationships.md 重锚 21 组",
+            encoding="utf-8",
+        )
+
+        rc, out = _run(
+            [
+                "review",
+                str(project_dir),
+                "reject",
+                "--feedback",
+                str(feedback_file),
+                "--redo-steps",
+                "2,10,12,17",
+            ],
+            monkeypatch,
+        )
+        assert rc == 0, out
+
+        state = load_state(project_dir)
+        assert state.genesis.current_step == 1  # cursor at step 2 (0-based idx 1)
+        skills = set(state.genesis.skills_done)
+        for num in (2, 10, 12, 17):
+            assert GENESIS_STEPS[num - 1].skill not in skills, f"step {num} must be re-dispatched"
+        # The authoritative outline cluster (4/6/7/8/13) stays untouched.
+        for num in (1, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16):
+            assert GENESIS_STEPS[num - 1].skill in skills, (
+                f"step {num} was ruled 保留不动 — must not be regenerated"
+            )
+        for num in (2, 10, 12, 17):
+            assert (
+                state.genesis.retry_feedback[GENESIS_STEPS[num - 1].skill]
+                == "打回重做: world/power_system.md 重写里程碑表; characters/relationships.md 重锚 21 组"
+            )
+        assert state.genesis.retry_counts == {}
+
+    def test_review_genesis_complete_reject_without_redo_steps_rolls_back_one(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Without --redo-steps the pre-existing one-step rollback stands."""
+        from shenbi.pipeline.genesis import GENESIS_STEPS
+
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+        state = load_state(project_dir)
+        state.genesis.current_step = 17
+        state.genesis.skills_done = [s.skill for s in GENESIS_STEPS]
+        set_checkpoint(
+            state, CheckpointType.GENESIS_COMPLETE, artifact="foundation/review_report.md"
+        )
+        save_state(project_dir, state)
+
+        rc, _ = _run(["review", str(project_dir), "reject"], monkeypatch)
+        assert rc == 0
+
+        state = load_state(project_dir)
+        assert state.genesis.current_step == 16
+        assert GENESIS_STEPS[16].skill not in state.genesis.skills_done
+        assert GENESIS_STEPS[0].skill in state.genesis.skills_done
+
+    def test_review_redo_steps_requires_genesis_complete_reject(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """--redo-steps is only meaningful for a genesis-complete reject; on
+        any other checkpoint it must fail BEFORE any staging side effects.
+        """
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+        state = load_state(project_dir)
+        set_checkpoint(state, CheckpointType.PER_CHAPTER, chapter=1)
+        save_state(project_dir, state)
+
+        rc, out = _run(["review", str(project_dir), "reject", "--redo-steps", "2"], monkeypatch)
+        assert rc == 1
+        state = load_state(project_dir)
+        assert state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
+
+    def test_review_redo_steps_rejects_out_of_range(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+        state = load_state(project_dir)
+        set_checkpoint(
+            state, CheckpointType.GENESIS_COMPLETE, artifact="foundation/review_report.md"
+        )
+        save_state(project_dir, state)
+
+        rc, _ = _run(["review", str(project_dir), "reject", "--redo-steps", "0,18"], monkeypatch)
+        assert rc == 1
+        state = load_state(project_dir)
+        assert state.pending_checkpoint.type == CheckpointType.GENESIS_COMPLETE
 
     def test_review_approve_commits_staging(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
@@ -939,3 +1113,271 @@ class TestResumeFailFastOnMissingTruth:
         assert not called["later"], "fail-fast must abort BEFORE later resume steps"
         out = capsys.readouterr()
         assert "truth" in (out.out + out.err)
+
+
+class TestReDispatchRetryCap:
+    """Probe session 2026-09-29 (Stage 2 friction): a failed re-dispatch
+    entry stayed in pending_re_dispatches forever and was retried on EVERY
+    resume — one length-truncated chapter-revision burned 73 LLM calls /
+    2.3M tokens (24.7% of probe cost). Entries must carry an attempt count
+    and be dropped (with a loud log) after the cap instead of retrying
+    indefinitely.
+    """
+
+    def test_failed_entry_dropped_after_retry_cap(self, tmp_path, monkeypatch):
+        from shenbi.pipeline.cli import RE_DISPATCH_RETRY_CAP, _execute_pending_re_dispatches
+        from shenbi.pipeline.state import PipelineState
+        from tests.unit.pipeline.conftest import write_chapter_drafts
+
+        write_chapter_drafts(tmp_path, (8,))
+        state = PipelineState.default(str(tmp_path))
+        state.pending_re_dispatches = [
+            {
+                "skill": "shenbi-chapter-revision",
+                "checkpoint_type": "per-chapter",
+                "chapter": 8,
+                "feedback": "expand",
+            }
+        ]
+
+        calls = []
+
+        def always_fail(skill, project_dir, prompt, **kwargs):
+            calls.append(skill)
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+
+            return DispatchResult(False, -1, "", "length_truncation_persistent")
+
+        monkeypatch.setattr("shenbi.pipeline.dispatch_helper.dispatch_skill", always_fail)
+
+        # drive the executor across "resumes" until the cap exhausts
+        for _ in range(RE_DISPATCH_RETRY_CAP + 2):
+            _execute_pending_re_dispatches(state, tmp_path)
+
+        assert not state.pending_re_dispatches, "entry must be dropped after the retry cap"
+        assert len(calls) == RE_DISPATCH_RETRY_CAP, "exactly cap-many dispatch attempts"
+
+    def test_attempt_counter_increments_on_failure(self, tmp_path, monkeypatch):
+        from shenbi.pipeline.cli import _execute_pending_re_dispatches
+        from shenbi.pipeline.state import PipelineState
+        from tests.unit.pipeline.conftest import write_chapter_drafts
+
+        write_chapter_drafts(tmp_path, (8,))
+        state = PipelineState.default(str(tmp_path))
+        state.pending_re_dispatches = [
+            {
+                "skill": "shenbi-chapter-revision",
+                "checkpoint_type": "per-chapter",
+                "chapter": 8,
+            }
+        ]
+
+        def always_fail(skill, project_dir, prompt, **kwargs):
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+
+            return DispatchResult(False, -1, "", "boom")
+
+        monkeypatch.setattr("shenbi.pipeline.dispatch_helper.dispatch_skill", always_fail)
+        _execute_pending_re_dispatches(state, tmp_path)
+        assert state.pending_re_dispatches[0]["attempts"] == 1
+
+    def test_success_clears_entry(self, tmp_path, monkeypatch):
+        from shenbi.pipeline.cli import _execute_pending_re_dispatches
+        from shenbi.pipeline.state import PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.pending_re_dispatches = [
+            {
+                "skill": "shenbi-chapter-revision",
+                "checkpoint_type": "per-chapter",
+                "chapter": 8,
+                "attempts": 1,
+            }
+        ]
+
+        def ok(skill, project_dir, prompt, **kwargs):
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+
+            return DispatchResult(True, 0, "{}", "")
+
+        monkeypatch.setattr("shenbi.pipeline.dispatch_helper.dispatch_skill", ok)
+        _execute_pending_re_dispatches(state, tmp_path)
+        assert not state.pending_re_dispatches
+
+
+class TestRetryFeedbackRetired:
+    """Canary defect 'retry_feedback 永不清': stale corrective feedback from
+    a prior G4 failure stayed injected into every later dispatch prompt for
+    the same skill (probe: ch1 drafting feedback still attached to later
+    chapters' retry_feedback state). A pass must retire it.
+    """
+
+    def test_genesis_pass_pops_feedback(self):
+        import inspect
+
+        from shenbi.pipeline import genesis
+        from shenbi.pipeline.genesis import run_genesis_step  # noqa: F401  (import check)
+
+        src = inspect.getsource(genesis)
+        assert "retry_feedback.pop" in src, "genesis must retire feedback on pass"
+
+    def test_chapter_loop_pass_pops_feedback(self):
+        import inspect
+
+        from shenbi.pipeline import chapter_loop
+
+        src = inspect.getsource(chapter_loop)
+        assert "retry_feedback.pop" in src, "chapter_loop must retire feedback on pass"
+
+
+class TestEscalationReportDetails:
+    """Canary/probe defects: (1) the escalation dispatch carried only a
+    one-line summary — the reviewer subagent reported 'gate 失败明细未随调
+    用传入' while the details sat unused in retry_feedback; (2) when the
+    escalation dispatch failed or skipped its write, the checkpoint reviewer
+    read a STALE prior report (升级报告未覆写) or none at all (probe ch3).
+    dispatch_escalation must forward the failure details and guarantee a
+    fresh artifact via a machine fallback report.
+    """
+
+    def test_dispatch_escalation_forwards_details(self, tmp_path, monkeypatch):
+        import shenbi.pipeline.revision_router as rr
+
+        captured = {}
+
+        def fake_dispatch(skill, project_dir, prompt, **kwargs):
+            captured["prompt"] = prompt
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+
+            return DispatchResult(True, 0, "{}", "")
+
+        monkeypatch.setattr(rr, "dispatch_skill", fake_dispatch)
+        rr.dispatch_escalation(
+            tmp_path,
+            7,
+            context="Chapter 7 step 4 failed after 3 gate attempts",
+            details="G4.word_count:chapters/chapter-7.md:1821<3000; G4.cd.no_hook",
+        )
+        assert "G4.word_count" in captured["prompt"], "failure details must reach the reviewer"
+        assert "no_hook" in captured["prompt"]
+
+    def test_dispatch_escalation_writes_fallback_when_artifact_stale(self, tmp_path, monkeypatch):
+        import time
+
+        import shenbi.pipeline.revision_router as rr
+
+        # stale pre-existing report + dispatch that "succeeds" without writing
+        report = tmp_path / "audits" / "escalation-7-report.md"
+        report.parent.mkdir(parents=True)
+        report.write_text("# 旧报告（上一次 escalation 的陈旧分析）", encoding="utf-8")
+        old_mtime = report.stat().st_mtime
+        time.sleep(0.05)
+
+        def fake_dispatch(skill, project_dir, prompt, **kwargs):
+            from shenbi.pipeline.dispatch_helper import DispatchResult
+
+            return DispatchResult(True, 0, "{}", "")
+
+        monkeypatch.setattr(rr, "dispatch_skill", fake_dispatch)
+        rr.dispatch_escalation(
+            tmp_path,
+            7,
+            context="Chapter 7 step 4 failed after 3 gate attempts",
+            details="G4.word_count: 1821<3000",
+        )
+        text = report.read_text(encoding="utf-8")
+        assert "旧报告" not in text, "stale report must be overwritten"
+        assert "G4.word_count" in text, "fallback must carry the failure details"
+        assert report.stat().st_mtime > old_mtime
+
+
+class TestEscalationBudgetReset:
+    """Canary defect 预算黏性, probe-hardened evidence (ch9 drafting
+    'consumed 4/5'): ESCALATION resolution cleared retry_counts but NOT
+    retry_budget_consumed — after an approve, the step got fresh attempt
+    counters while the durable budget tripped 'Retry budget exhausted'
+    on the FIRST new failure (consumed already past max).
+    """
+
+    def test_escalation_resolution_clears_scoped_budget(self):
+        from shenbi.pipeline.machine import clear_checkpoint, set_checkpoint
+        from shenbi.pipeline.state import (
+            CheckpointType,
+            PipelineState,
+            ReviewDecision,
+        )
+
+        state = PipelineState.default("/tmp/x")
+        state.chapter_loop.retry_budget_consumed["ch9-shenbi-chapter-drafting"] = 3
+        state.chapter_loop.retry_budget_consumed["ch8-shenbi-chapter-drafting"] = 1
+        set_checkpoint(state, CheckpointType.ESCALATION, chapter=9)
+        clear_checkpoint(state, ReviewDecision.APPROVE)
+
+        assert "ch9-shenbi-chapter-drafting" not in state.chapter_loop.retry_budget_consumed, (
+            "escalation resolution must reset the affected chapter's budget"
+        )
+        assert "ch8-shenbi-chapter-drafting" in state.chapter_loop.retry_budget_consumed, (
+            "other chapters' budgets are scoped, not cleared"
+        )
+
+
+class TestInitSeedGuardAndTargetChapters:
+    """T2/T3: seed 结构校验前置失败 + 目标章节数双通道（seed 字段 / CLI 旗标）。"""
+
+    def test_init_rejects_structurally_broken_seed(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        broken = sample_seed_content.replace("## Three-Act Structure\n", "## 三幕\n")
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(broken, encoding="utf-8")
+        project_dir = tmp_path / "novel"
+
+        rc, out = _run(["init", str(seed_file), "--project-dir", str(project_dir)], monkeypatch)
+
+        assert rc == 1
+        payload = json.loads(out)
+        assert payload["status"] == "error"
+        assert any("三幕" in e for e in payload["errors"])
+        assert not project_dir.exists()  # fail fast，不留半成品
+
+    def test_init_seed_declared_target_lands(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        seeded = sample_seed_content.replace(
+            "- Target word count: 200000", "- Target word count: 200000\n- 目标章节数：300"
+        )
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(seeded, encoding="utf-8")
+        project_dir = tmp_path / "novel"
+
+        rc, _ = _run(["init", str(seed_file), "--project-dir", str(project_dir)], monkeypatch)
+
+        assert rc == 0
+        novel = json.loads((project_dir / "novel.json").read_text(encoding="utf-8"))
+        assert novel["target_total_chapters"] == 300
+
+    def test_init_target_chapters_flag_overrides_seed(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        seeded = sample_seed_content.replace(
+            "- Target word count: 200000", "- Target word count: 200000\n- 目标章节数：300"
+        )
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(seeded, encoding="utf-8")
+        project_dir = tmp_path / "novel"
+
+        rc, _ = _run(
+            [
+                "init",
+                str(seed_file),
+                "--project-dir",
+                str(project_dir),
+                "--target-chapters",
+                "450",
+            ],
+            monkeypatch,
+        )
+
+        assert rc == 0
+        novel = json.loads((project_dir / "novel.json").read_text(encoding="utf-8"))
+        assert novel["target_total_chapters"] == 450

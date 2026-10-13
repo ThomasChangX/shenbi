@@ -8,7 +8,7 @@ contract:
     - chapters/chapter-N.md
     - genre-config.json
     - plans/chapter-N-plan.md
-    - truth/pending_hooks.md
+    - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
   writes:
     - file: audits/chapter-N-texture.md
       mode: create_or_overwrite
@@ -35,6 +35,8 @@ contract:
 <!-- END AUTO-GENERATED -->
 
 # Grouped Audit: Writing Craft
+
+> 手法评估须对照备忘段 1 声明的 chapter_role / chapter_type：高潮章的碎段密集与过渡章的长句意象是章型恰当，不是缺陷；跨章型一刀切的均匀节奏才是问题。
 
 This skill performs three independent writing-craft audits in a **single LLM call**. Each dimension produces an independent audit report section using the standard defect evidence format. All three reports are written to their respective audit files.
 
@@ -94,7 +96,7 @@ This dimension supersedes the deprecated `shenbi-review-texture` skill.
 ## 写作质感审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 流水账检测
 | 段落范围 | 流水账特征 | 严重度 |
@@ -125,8 +127,8 @@ This dimension supersedes the deprecated `shenbi-review-texture` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [流水账/说教]：[具体改写方向]
-- [WARNING] [段落] [段长/功能]：[具体修改方案]
+- [BLOCKING/CRITICAL] [段落] [流水账/说教]：[具体改写方向]
+- [MINOR] [段落] [段长/功能]：[具体修改方案]
 ```
 
 ---
@@ -160,7 +162,7 @@ This dimension supersedes the deprecated `shenbi-review-reader-pull` skill.
 ## 读者牵引力审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 开头钩子
 - 钩子类型: ...
@@ -191,8 +193,8 @@ This dimension supersedes the deprecated `shenbi-review-reader-pull` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [位置] [钩子/悬念/期待问题]：[修复方案]
-- [WARNING] [段落块] [牵引点缺失]：[补足方案]
+- [BLOCKING/CRITICAL] [位置] [钩子/悬念/期待问题]：[修复方案]
+- [MINOR] [段落块] [牵引点缺失]：[补足方案]
 ```
 
 ---
@@ -236,7 +238,7 @@ Execute checks in order. 第 1/4/5 项已由框架在派发 prompt 的「审查�
 
 **章节**: 第N章
 **字数**: XXXX
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 检查结果
 | # | 检查项 | 结果 | 详情 |
@@ -248,7 +250,7 @@ Execute checks in order. 第 1/4/5 项已由框架在派发 prompt 的「审查�
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [段落] [问题描述]：[修复方案]
 ```
 
 ## 缺陷证据格式

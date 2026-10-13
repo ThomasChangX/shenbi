@@ -35,3 +35,26 @@ def test_glob_missing_returns_empty():
         project_dir = Path(tmp)
         paths = _resolve_read_path(project_dir, "nonexistent/*.md")
         assert paths == []
+
+
+def test_directory_read_expands_to_sorted_md_children():
+    """Fixcheck anchor false-unavailable: shenbi-review-resonance declares
+    ``benchmarks/anchors/`` (directory form) as a read. The resolver
+    returned the DIRECTORY itself, read_text raised IsADirectoryError, and
+    the prompt carried a ``[binary or unreadable: ...]`` sentinel — the
+    skill then honestly reported anchor_calibration: unavailable for two
+    consecutive chapters while AC-001.md sat readable on disk. A directory
+    read means "every markdown file inside", sorted.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        anchors = project_dir / "benchmarks" / "anchors"
+        anchors.mkdir(parents=True)
+        (anchors / "AC-002.md").write_text("anchor 2", encoding="utf-8")
+        (anchors / "AC-001.md").write_text("anchor 1", encoding="utf-8")
+        (anchors / "notes.txt").write_text("not markdown", encoding="utf-8")
+
+        paths = _resolve_read_path(project_dir, "benchmarks/anchors/")
+
+        assert [p.name for p in paths] == ["AC-001.md", "AC-002.md"], paths
+        assert all(p.is_file() for p in paths)

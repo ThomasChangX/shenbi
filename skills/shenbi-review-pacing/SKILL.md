@@ -11,9 +11,7 @@ contract:
     fields:
     - pacing
     - chapterTypes
-  - file: truth/chapter_summaries.md
-    fields:
-    - 已完成章节
+  - {file: truth/chapter_summaries.md, extractor: recent_increments}
   writes:
   - file: audits/chapter-N-pacing.md
     mode: create_or_overwrite
@@ -112,7 +110,7 @@ digraph review_pacing {
 
 **章节**: 第N章
 **本章类型**: QUEST
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 近5章类型序列
 | 章节 | 类型 | 蓄压/爆发状态 |
@@ -128,7 +126,7 @@ digraph review_pacing {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [WARNING] [具体章节] [问题描述]：[修复方案]
+- [MINOR] [具体章节] [问题描述]：[修复方案]
 ```
 
 ## Anti-Rationalization

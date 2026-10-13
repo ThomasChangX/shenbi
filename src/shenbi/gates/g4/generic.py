@@ -207,15 +207,77 @@ _POST_WRITE_FAIL_PREFIXES = (
 )
 
 
+def _revalidate_finding(project_dir: Path, file_field: str, finding: str) -> bool:
+    """Check a persisted post-write finding against current disk state.
+
+    Probe2 escalation-1 (2026-09-30): findings are append-only and were
+    consumed verbatim — a transient finding from a truncated staging write
+    (later rewritten complete and settled) permanently poisoned every later
+    G4 composite for that chapter. Revalidation locates the file (raw path,
+    then the de-staged twin for settled staging writes) and re-runs the
+    mapped check; a finding survives only when it still reproduces. Read-side
+    only — the findings file keeps its append-only log semantics.
+
+    Unknown finding prefixes cannot be re-mapped; they are kept
+    conservatively (fail-closed rather than pardoning a future class).
+    """
+    target: Path | None = None
+    raw = project_dir / file_field
+    if raw.exists():
+        target = raw
+    elif file_field.startswith("staging/"):
+        destaged = project_dir / file_field[len("staging/") :]
+        if destaged.exists():
+            target = destaged
+    if target is None:
+        log.warning("pwi_finding_stale_file_gone", finding=finding, file=file_field)
+        return False
+
+    from shenbi.pipeline.llm_output_integrity import (
+        check_audit_completeness,
+        check_audit_line_refs,
+        check_markdown_fence_balance,
+        check_prose_leakage,
+    )
+
+    if finding.startswith("G4.ac."):
+        emitted = check_audit_completeness(target)
+    elif finding.startswith(("G4.pi.model_leakage", "G4.pi.unfinished_ending")):
+        emitted = check_prose_leakage(target)
+    elif finding.startswith("G4.pi.fence_imbalance"):
+        emitted = check_markdown_fence_balance(target)
+    elif finding.startswith("G4.av."):
+        m = re.search(r"chapter-(\d+)", target.name)
+        chapter_path = project_dir / "chapters" / f"chapter-{m.group(1)}.md" if m else None
+        if chapter_path is None or not chapter_path.exists():
+            log.warning("pwi_finding_stale_chapter_gone", finding=finding, file=file_field)
+            return False
+        emitted = check_audit_line_refs(target, chapter_path)
+    else:
+        return True
+
+    token = finding.split(" — ", maxsplit=1)[0]
+    if any(e.split(" — ", maxsplit=1)[0] == token for e in emitted):
+        return True
+    log.warning("pwi_finding_stale_not_reproduced", finding=finding, file=file_field)
+    return False
+
+
 def g4_post_write_integrity(project_dir: Path, *, chapter: int) -> dict[str, Any]:
     """G4 checker: consume persisted post-write integrity findings.
 
     Reads ``audits/.integrity-findings-<chapter>.jsonl`` (written by
     ``_write_parsed_outputs``) and maps each finding to a G4 check with the
-    severity from spec §3.6. Returns a dict ``{"status", "checks"}``.
+    severity from spec §3.6. Findings that no longer reproduce against
+    current disk state are dropped (see :func:`_revalidate_finding`). Returns
+    a dict ``{"status", "checks", "must_fix"}`` — reproduced FAIL-class
+    findings ride ``must_fix`` so retry feedback can cite them (probe2
+    escalation-1: an FAIL-with-empty-must_fix composite degrades into the
+    ``G4.generic_failure`` conservative default, which no retry can fix).
     """
     findings_path = project_dir / "audits" / f".integrity-findings-{chapter}.jsonl"
     checks: list[dict[str, Any]] = []
+    must_fix: list[str] = []
     has_fail = False
     has_warn = False
     if findings_path.exists():
@@ -227,6 +289,9 @@ def g4_post_write_integrity(project_dir: Path, *, chapter: int) -> dict[str, Any
             except json.JSONDecodeError:
                 continue
             finding = str(entry.get("finding", ""))
+            file_field = str(entry.get("file", ""))
+            if not _revalidate_finding(project_dir, file_field, finding):
+                continue
             is_fail = any(finding.startswith(p) for p in _POST_WRITE_FAIL_PREFIXES)
             # fence_imbalance is the only WARN.
             if finding.startswith("G4.pi.fence_imbalance"):
@@ -235,10 +300,12 @@ def g4_post_write_integrity(project_dir: Path, *, chapter: int) -> dict[str, Any
             checks.append(
                 {"id": check_id, "s": GateStatus.FAIL if is_fail else GateStatus.WARN, "r": finding}
             )
+            if is_fail:
+                must_fix.append(finding)
             has_fail = has_fail or is_fail
             has_warn = has_warn or (not is_fail)
     status = GateStatus.FAIL if has_fail else (GateStatus.WARN if has_warn else GateStatus.PASS)
-    return {"status": status, "checks": checks}
+    return {"status": status, "checks": checks, "must_fix": must_fix}
 
 
 def _chapter_number_from_paths(file_paths: list[str]) -> int | None:
@@ -260,6 +327,13 @@ def _merge_pwi_into_result(result_str: str, pwi: dict[str, Any]) -> str:
     result_data.setdefault("checks", [])
     existing_checks: list[dict[str, Any]] = result_data["checks"]
     existing_checks.extend(pwi["checks"])
+
+    # Reproduced FAIL-class findings must ride must_fix (probe2 escalation-1):
+    # an FAIL composite with empty must_fix degrades into the
+    # G4.generic_failure conservative default, which no retry can target.
+    result_data.setdefault("must_fix", [])
+    if isinstance(result_data["must_fix"], list):
+        result_data["must_fix"].extend(pwi.get("must_fix", []))
 
     # Elevate status: FAIL > WARN > PASS
     current = result_data.get("status", GateStatus.PASS)
@@ -421,6 +495,31 @@ def build_checkers() -> dict[str, Any]:
     return checkers
 
 
+#: batch #15 #33: genesis content producers whose outputs must reference
+#: years via world/story_bible.md 世界史时间线 anchor NAMES (or relative
+#: phrasing), never raw absolute years. Derived from GENESIS_STEPS minus the
+#: non-narrative steps (genre-config / style-learning / anchor-curate /
+#: foundation-review). Kept as a literal frozenset so the lint face stays
+#: import-cheap; tests reconcile it against GENESIS_STEPS.
+_YEAR_ANCHOR_SKILLS: frozenset[str] = frozenset(
+    {
+        "shenbi-worldbuilding",
+        "shenbi-character-design",
+        "shenbi-story-architecture",
+        "shenbi-faction-builder",
+        "shenbi-volume-outlining",
+        "shenbi-pacing-design",
+        "shenbi-plot-thread-weaver",
+        "shenbi-foreshadowing-lifecycle",
+        "shenbi-power-system",
+        "shenbi-location-builder",
+        "shenbi-relationship-map",
+        "shenbi-book-spine-init",
+        "shenbi-intent-management",
+    }
+)
+
+
 def gate_G4(
     skill_name: str,
     test_type: str,
@@ -452,6 +551,34 @@ def gate_G4(
             pwi = g4_post_write_integrity(Path(project_dir), chapter=chapter_num)
             if pwi["checks"]:
                 result = _merge_pwi_into_result(result, pwi)
+
+    # batch #15 #33: year-anchor single-source scan for the 13 genesis
+    # producers. Outline files' projections are FLAGGED (WARN); every other
+    # producer output with a raw absolute year FAILS — probe15's four-layer
+    # mutually-exclusive year numbers must never re-form.
+    if skill_name in _YEAR_ANCHOR_SKILLS:
+        must_fix: list[str] = []
+        warns: list[dict[str, Any]] = []
+        for fp in file_paths:
+            p = Path(fp)
+            if not p.exists():
+                continue
+            from shenbi.pipeline.llm_output_integrity import check_year_anchors
+
+            for finding in check_year_anchors(p):
+                if "outline" in p.parts or (p.suffix == ".md" and "outline" in str(p)):
+                    warns.append(
+                        {"id": "G4.ys.outline_projection", "s": GateStatus.WARN, "f": finding}
+                    )
+                else:
+                    must_fix.append(finding)
+        if must_fix or warns:
+            ys = {
+                "status": GateStatus.FAIL if must_fix else GateStatus.WARN,
+                "checks": warns,
+                "must_fix": must_fix,
+            }
+            result = _merge_pwi_into_result(result, ys)
 
     return result
 

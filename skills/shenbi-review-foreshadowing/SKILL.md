@@ -91,7 +91,7 @@ digraph review_foreshadowing {
 ## 伏笔审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 培育间隔
 | Hook ID | 上次强化 | 本章 | 间隔 | 阈值 | 状态 |
@@ -120,8 +120,8 @@ digraph review_foreshadowing {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [具体 Hook ID / 段落] [问题描述]：[修复方案]
-- [WARNING] [具体 Hook ID / 段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [具体 Hook ID / 段落] [问题描述]：[修复方案]
+- [MINOR] [具体 Hook ID / 段落] [问题描述]：[修复方案]
 ```
 
 ## 大规模伏笔召回（spec §11.9）

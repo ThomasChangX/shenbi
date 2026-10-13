@@ -6,9 +6,12 @@ requires_independent_agent: true
 contract:
   kind: report
   reads:
-  - file: chapters/chapter-N.md
-    fields:
-    - POST_WRITE_SELF_CHECK
+  # Full-file read on purpose: the iron rule below (must read the completed
+  # prose; no prose -> no score) requires the whole chapter. A dict-form
+  # fields: [POST_WRITE_SELF_CHECK] read filtered the prose out of the
+  # dispatch payload and forced resonance_pending on every chapter (canary
+  # closure block, R1 2026-09-28).
+  - chapters/chapter-N.md
   - file: plans/chapter-N-plan.md
     fields:
     - 1. 当前任务
@@ -123,7 +126,7 @@ digraph review_resonance {
 ```markdown
 ## 共鸣评分报告
 
-**章节**: 第N章 | **计划角色**: 高潮 | **结果**: 通过 (82/100) / 阻断 (XX/100) / 待人机复核
+**章节**: 第N章 | **计划角色**: 高潮 | **判定**: 通过 (82/100) / 阻断 (XX/100) / 待人机复核
 
 ### 评分明细
 | 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |

@@ -27,6 +27,21 @@ PATCH = "shenbi.pipeline.dispatch_helper.subprocess.run"
 IDE_CLI_PATCH = "shenbi.pipeline.dispatch_helper._find_ide_cli"
 
 
+@pytest.fixture(autouse=True)
+def _force_legacy_cli_path(monkeypatch: pytest.MonkeyPatch):
+    """Force the legacy subprocess CLI path these tests mock.
+
+    ``dispatch_skill`` routes to a REAL API dispatch when
+    ``SHENBI_LLM_API_KEY`` is in the environment (probe session 2026-09-28:
+    ``just`` recipes auto-load ``.env``, so the key is present for every
+    local run) — the API path bypasses the mocked ``subprocess.run``
+    entirely, leaving ``mock_run.call_args`` None, AND issues real paid LLM
+    calls from inside unit tests. Deleting the key restores hermetic
+    behavior regardless of the developer's shell/env state.
+    """
+    monkeypatch.delenv("SHENBI_LLM_API_KEY", raising=False)
+
+
 class TestDispatchSkill:
     @patch(PATCH)
     def test_calls_subprocess(self, mock_run, tmp_path):
@@ -272,7 +287,7 @@ class TestMultiFileOutputFormat:
             lambda s: mock_contract,
         )
 
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
             "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
         )
 
@@ -297,7 +312,7 @@ class TestMultiFileOutputFormat:
             lambda s: mock_contract,
         )
 
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
             "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
         )
 
@@ -321,15 +336,16 @@ class TestTruthTemplates:
         ):
             assert (truth / name).exists()
 
-    def test_current_state_has_declared_h2_stubs(self, tmp_path):
+    def test_current_state_no_h2_stubs_table_file(self, tmp_path):
         from shenbi.pipeline.dispatch_helper import _init_truth_templates
 
         _init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "current_state.md").read_text(encoding="utf-8")
-        # chapter-planning/review-continuity declare these 3 fields.
-        assert "## 系统演化阶段" in body
-        assert "## 参数当前位置" in body
-        assert "## 进行中的情节线" in body
+        # P0 读面失配批: chapter-planning/review-continuity switched to the
+        # recent_increments extractor (phase3 trace: the 系统演化阶段 field set
+        # matched reality 0/158 — the writer produces a chapter-keyed table).
+        # Same no-stub semantics as character_matrix.md.
+        assert "## " not in body
         assert "# Current State" in body
 
     def test_character_matrix_template_created(self, tmp_path):
@@ -343,12 +359,14 @@ class TestTruthTemplates:
         assert "update_mode: replace" in body
         assert "# Character Matrix" in body
 
-    def test_chapter_summaries_has_declared_h2(self, tmp_path):
+    def test_chapter_summaries_no_h2_stubs_table_file(self, tmp_path):
         from shenbi.pipeline.dispatch_helper import _init_truth_templates
 
         _init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "chapter_summaries.md").read_text(encoding="utf-8")
-        assert "## 已完成章节" in body
+        # P0 读面失配批: consumers ride recent_increments (table form); no
+        # consumer declares fields on this file anymore.
+        assert "## " not in body
 
     def test_yaml_frontmatter_present(self, tmp_path):
         from shenbi.pipeline.dispatch_helper import _init_truth_templates
@@ -769,7 +787,7 @@ class TestPlanSkeletonInjection:
         )
 
         # ---- Act: call the REAL _build_skill_prompt ----
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
             skill="shenbi-chapter-planning",
             project_dir=tmp_path,
             prompt="plan chapter 1",
@@ -969,3 +987,222 @@ def test_wildcard_write_accepts_normal_filename(tmp_path):
     )
     assert written == ["import/canon/alice.md"]
     assert (tmp_path / "import/canon/alice.md").read_text(encoding="utf-8") == "ok"
+
+
+def test_chapter_header_not_injected_into_json_sidecars(tmp_path: Path) -> None:
+    """Probe session (chronic, 3+ recurrences): _CHAPTER_NUM_RE matched the
+    STEM of chapter-N-decisions.json too, so the markdown contract header
+    '# Chapter N:' was prepended to JSON sidecars — every sidecar then
+    needed the raw_decode recovery branch and strict parsers failed. The
+    header is a chapter-PROSE contract (G2.13); it belongs to .md only.
+    """
+    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+    sidecar = "chapters/chapter-8-decisions.json"
+    payload = '{"$schema": "shenbi-decisions-v1", "skill": "x", "chapter": 8}'
+    written = _write_parsed_outputs(
+        response=f"### FILE: {sidecar}\n{payload}\n",
+        output_paths=[sidecar],
+        project_dir=tmp_path,
+        skill="shenbi-state-settling",
+    )
+    assert sidecar in written
+    text = (tmp_path / sidecar).read_text(encoding="utf-8")
+    assert text.lstrip().startswith("{"), "sidecar must stay pure JSON"
+    assert "# Chapter" not in text
+
+    # control: the .md main artifact still gets the contract header
+    main = "chapters/chapter-8.md"
+    _write_parsed_outputs(
+        response=f"### FILE: {main}\n正文\n",
+        output_paths=[main],
+        project_dir=tmp_path,
+        skill="shenbi-chapter-drafting",
+    )
+    assert (tmp_path / main).read_text(encoding="utf-8").startswith("# Chapter 8:")
+
+
+def test_glob_read_expansion_matches_top_level_files(tmp_path: Path) -> None:
+    """Probe recurrence (3 sites): 'characters/**/*.md' ran through glob()
+    WITHOUT recursive=True, where '**' degrades to '*' — nested major/minor
+    files matched but the TOP-LEVEL protagonist.md and relationships.md
+    were invisible (foundation-review assessed majors it never saw the
+    protagonist; chapter-planning contradicted relationship anchors).
+    """
+    from shenbi.pipeline.dispatch_helper import _resolve_read_path
+
+    for rel in (
+        "characters/protagonist.md",
+        "characters/relationships.md",
+        "characters/major/severin-kail.md",
+        "characters/minor/a-duo.md",
+    ):
+        f = tmp_path / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text("x", encoding="utf-8")
+
+    resolved = _resolve_read_path(tmp_path, "characters/**/*.md")
+    names = {p.name for p in resolved}
+    assert {"protagonist.md", "relationships.md", "severin-kail.md", "a-duo.md"} <= names
+
+
+def test_write_audit_discloses_zero_change_vacuous_pass():
+    """Probe defect (write-audit 空真通过): a dispatch whose watched files did
+    not change at all still recorded AUDIT_PASS with zero signal — the dead
+    settle dispatch was invisible. The audit result must disclose which files
+    actually CHANGED, and a zero-change audit must warn.
+    """
+    import inspect
+
+    from shenbi.audit import write_audit
+
+    src = inspect.getsource(write_audit.audit_writes)
+    assert "changed_files" in src, "audit result must carry changed_files"
+    assert "write_audit_no_changes" in src, "zero-change audit must warn loudly"
+
+
+@pytest.mark.unit
+def test_persist_failed_write_dump_carries_forensic_header(tmp_path: Path) -> None:
+    """Fixcheck forensics gap: the genre-config failure dump carried ONLY
+    '<!-- write-phase failure: no_files_parsed -->' with an empty body —
+    no skill, no capture time, no note that the output was empty, leaving
+    the failure undiagnosable from the project dir.
+    """
+    from shenbi.pipeline.dispatch_helper import _persist_failed_write_output
+
+    _persist_failed_write_output(tmp_path, "shenbi-genre-config", "", "no_files_parsed")
+    dumps = list((tmp_path / "diagnostics").glob("failed-write-shenbi-genre-config-*.md"))
+    assert len(dumps) == 1
+    text = dumps[0].read_text(encoding="utf-8")
+    assert "skill: shenbi-genre-config" in text
+    assert "output_chars: 0" in text
+    assert "empty output" in text
+
+
+class TestGenesisQuarantineValidationSet:
+    """probe9 (2026-10-02): genesis quarantined 6x for ``declared literal
+    paths not in parsed output`` — the missing-paths validation ran against
+    the FULL contract write set (user-mode relics like novel.json /
+    truth/bridge_tracker.md that genesis mode legitimately never produces),
+    while stage-8 r1 had already narrowed the PROMPT to the GenesisStep's
+    declared outputs. The validation set must follow the override; the
+    PERSISTENCE set stays full-contract (stage-8 r2).
+    """
+
+    def test_override_narrows_quarantine_not_persistence(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        resp = "### FILE: world/story_bible.md\n\nbible\n"
+        _write_parsed_outputs(
+            resp,
+            # persistence set: full contract writes (chapter-mode file present)
+            ["world/story_bible.md", "truth/bridge_tracker.md"],
+            tmp_path,
+            skill="shenbi-foreshadowing-lifecycle",
+            # genesis validation set: the step's declared output only
+            required_paths=["world/story_bible.md"],
+        )
+        assert (tmp_path / "world" / "story_bible.md").exists()
+        assert not (tmp_path / "_quarantine").exists() or not list(
+            (tmp_path / "_quarantine").glob("*")
+        )
+
+    def test_missing_required_path_still_quarantines(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        resp = "### FILE: world/story_bible.md\n\nbible\n"
+        _write_parsed_outputs(
+            resp,
+            ["world/story_bible.md", "truth/bridge_tracker.md"],
+            tmp_path,
+            skill="shenbi-foreshadowing-lifecycle",
+            required_paths=["world/story_bible.md", "truth/bridge_tracker.md"],
+        )
+        quarantine = tmp_path / "_quarantine"
+        assert quarantine.exists() and list(quarantine.glob("*"))
+
+    def test_without_override_full_set_still_validated(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        resp = "### FILE: world/story_bible.md\n\nbible\n"
+        _write_parsed_outputs(
+            resp,
+            ["world/story_bible.md", "truth/bridge_tracker.md"],
+            tmp_path,
+            skill="shenbi-foreshadowing-lifecycle",
+        )
+        quarantine = tmp_path / "_quarantine"
+        assert quarantine.exists() and list(quarantine.glob("*"))
+
+
+class TestFrameworkOwnedWriteGuard:
+    """probe10 (2026-10-02, P0): worldbuilding's USER-mode contract still
+    declares create_or_overwrite on novel.json/genre-config.json; its
+    pipeline output block clobbered init's seed-parsed novel.json (title/
+    total_chapters wiped mid-genesis). LLM parsed outputs must never
+    overwrite framework-owned artifacts.
+    """
+
+    def test_novel_json_block_is_blocked_not_written(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        resp = (
+            "### FILE: novel.json\n"
+            '{"title": "LLM-invented"}\n'
+            "### FILE: world/story_bible.md\n\nbible\n"
+        )
+        _write_parsed_outputs(resp, ["novel.json", "world/story_bible.md"], tmp_path)
+        assert not (tmp_path / "novel.json").exists()
+        assert (tmp_path / "world" / "story_bible.md").exists()
+
+    def test_genre_config_writable_only_by_owner_skill(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        resp = '### FILE: genre-config.json\n{"version": "1.0"}\n'
+        _write_parsed_outputs(resp, ["genre-config.json"], tmp_path, skill="shenbi-worldbuilding")
+        assert not (tmp_path / "genre-config.json").exists()
+
+        _write_parsed_outputs(
+            resp,
+            ["genre-config.json"],
+            tmp_path,
+            skill="shenbi-genre-config",
+        )
+        assert (tmp_path / "genre-config.json").exists()
+
+
+def test_chapter_header_not_injected_into_plans(tmp_path: Path) -> None:
+    """probe17 adjudication #005 (#28): the injector's stem-prefix predicate
+    matched plans/chapter-N-plan.md, prepending '# Chapter N:' to chapter
+    memos on EVERY generation since 2026-08-30 — the skill's ban on that
+    line was unenforceable (write-path idempotent normalizer re-added it
+    after every compliant model output; probe2/3/4/6/13/14/15/17 artifacts
+    all carry the injected signature). The header is a chapter-PROSE
+    contract: scope to chapters/chapter-N.md exactly.
+    """
+    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+    plan = "plans/chapter-1-plan.md"
+    _write_parsed_outputs(
+        response=f"### FILE: {plan}\n# 第1章 章节备忘\n\n## 1. 当前任务\n",
+        output_paths=[plan],
+        project_dir=tmp_path,
+        skill="shenbi-chapter-planning",
+    )
+    text = (tmp_path / plan).read_text(encoding="utf-8")
+    assert text.startswith("# 第1章 章节备忘"), text[:60]
+    assert "# Chapter" not in text
+
+
+def test_chapter_header_still_injected_into_prose(tmp_path: Path) -> None:
+    """Control for #28: the prose normalization itself stays (G2.13 contract)."""
+    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+    main = "chapters/chapter-2.md"
+    _write_parsed_outputs(
+        response=f"### FILE: {main}\n正文，无头。\n",
+        output_paths=[main],
+        project_dir=tmp_path,
+        skill="shenbi-chapter-drafting",
+    )
+    assert (tmp_path / main).read_text(encoding="utf-8").startswith("# Chapter 2:")

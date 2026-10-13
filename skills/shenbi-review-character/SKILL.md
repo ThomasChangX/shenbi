@@ -99,7 +99,7 @@ digraph review_character {
 ## 角色一致性审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### BDI 评估
 
@@ -129,7 +129,7 @@ digraph review_character {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [具体段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [具体段落] [问题描述]：[修复方案]
 ```
 
 ## Anti-Rationalization

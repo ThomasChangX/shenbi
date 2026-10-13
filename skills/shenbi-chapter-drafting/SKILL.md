@@ -18,6 +18,7 @@ contract:
     - 11. 综合画像
     - 6. 修辞模式
     - 9. 对白占比
+  - style/style_directives.md
   - file: genre-config.json
     fields:
     - fatigueWords
@@ -41,7 +42,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, context/chapter-N-context.md, context/chapter-N-context-decisions.json, style/style_profile.md, genre-config.json, truth/audit_drift.md
+- **Reads:** plans/chapter-N-plan.md, context/chapter-N-context.md, context/chapter-N-context-decisions.json, style/style_profile.md, style/style_directives.md, genre-config.json, truth/audit_drift.md
 - **Writes:** chapters/chapter-N.md, chapters/chapter-N-decisions.json
 - **Updates:** none
 
@@ -84,6 +85,7 @@ digraph chapter_drafting {
 4. **正文严禁分析报告式语言** — 不出现 hook_id、账本数据、元叙事
 5. **转折词密度 ≤ 1/3000字** — 然/不过/此时/突然/终于/于是
 6. **参考 anti-ai-reference.md** — 所有 AI 味检查清单在 `anti-ai-reference.md`
+7. **篇幅契约** — 目标字数 = `genre-config.json` 的 `chapter_word.default`（计划「目标字数」行同源）。G4 度量口径：正文**去空白字符数**（含标点、剥 META 块）——写作时的「感觉字数」普遍比该口径虚高 15-25%，必须按场景预算铺量：起草前把目标字数分解为场景字数预算（合计 ≥ 目标），不足时在既有场景内扩感官细节、对白往返与动作过程，不新增场景、不注水重复；POST 自检的字数必须**逐段计数合计**——按场景逐段点出每段去空白字符数，段内相加、场景相加得出总计，禁止整段估数（整段估数普遍虚高 15-25%）
 
 ## 写作自检表 (PRE_WRITE_CHECK)
 
@@ -95,6 +97,7 @@ PRE_WRITE_CHECK:
 - 要兑现的伏笔: [从备忘第3段]
 - 本章禁忌: [从备忘第8段]
 - 近3章结尾方式: [避免重复]
+- 章尾张力拍（从备忘段6「章尾张力拍」行）: [未答之问/未说破之瞒/未合拢之缝 + 指向对象]
 - AI味重点防范: [根据最近的 audit_drift]
 - 共鸣短板（读 truth/audit_drift）: [本章重点防范的体验轴短板]
 ```
@@ -103,9 +106,18 @@ PRE_WRITE_CHECK:
 
 1. **场景驱动而非叙述驱动** — 用动作和对话推进，不是内心独白
 2. **Show don't tell** — 情绪用行为表现，不直接说"他感到愤怒"
-3. **80/20 断章** — 章尾 20% 必须重新点燃好奇心
-4. **段落呼吸** — 长短交替，不让视觉节奏单调
+3. **80/20 断章** — 章尾 20% 必须重新点燃好奇心。**两条独立约束，满足前者不得抵消后者**（裁决 199 实证：为避同型结尾而改用动作/意象收束时，硬标记一并被丢）：
+   - **收束方式须变化**：勿连续以同型结尾收束（对照 PRE_WRITE_CHECK「近3章结尾方式」）——动作/意象收束是被鼓励的变化方向；
+   - **章尾张力硬标记（G4.cd 硬闸口径）**：正文末 8 个叙述段的合并窗口（≥30 汉字即检查）必须至少含一处字面疑问号（？/?）或张力词（但/然而/却/不过/还/仍/依然/尚未/未解/不知/等待/没说/没答/瞒/藏）。无论收束拍是问句、动作还是意象，张力词必须织进末 8 段本身，不得只落在窗口之外。
+4. **段落呼吸** — 长短交替，不让视觉节奏单调。**段落质量下限（G4.cd 视觉场景硬闸口径，裁决 371/375 实证两章 3 试被闸）**：微段是风格，但正文必须存在成段段落——任意连续 8 个叙述段合计峰值须 ≥100 汉字且其中带对白/动作的段 ≥4（按 style_profile 段落基线段均 ≈16 字成段，对白并为「引语＋归属＋动作拍」）；「以可见物象替代独白」不等于一句一顿、一顿一行的极限断行（ch114 实测 190 段中位 6 字、峰值 70，全窗口死闸）
 5. **对话指纹** — 角色说话必须匹配 voice_profile
+6. **文风目标带（style_directives）** — 若 `style/style_directives.md` 存在（用户手写的总体文风目标，标准结构与示例见 `docs/framework/style-directives.md`），其句长目标带/节奏/意象密度/对白叙述比等**目标**优先于 style_profile 的统计**现状**（profile 回答「现在是什么」，directives 设定「要什么」——没有 directives 时才以 profile 为参照）。**硬闸不因 directives 松动**：转折词密度、AI 标记词、fatigueWords、字数契约、段落下限一律照常执行。文件缺席 = 本条不适用，照旧按 profile 写。
+7. **章型调制（自动，无需人工逐章设定）** — 全局目标带是基带，本章章型在带内调制。调制键 = 备忘段 1 的 `chapter_role`（主）与 `chapter_type`（次，选填）：
+   - `chapter_role: 高潮/兑现` → 句长压向带下沿、动作动词密度上调、段落更碎（仍守 8 段下限）；高潮拍允许短句连排后接一句收束长句
+   - `chapter_role: 推进/转折` → 带中位节奏，转折信息落在对白缝隙与物象变化
+   - `chapter_role: 过渡/铺垫` → 句长浮向带上沿、感官意象密度上调、对白占比压向带下沿——过渡章是长句与意象的合法栖息地
+   - `chapter_type` 叠加内容向调制：battle=动觉/听觉意象优先；dialogue=对白占比浮向带上沿、归属动作拍全守；political_intrigue=静物/空间意象、信息藏于留白；training=过程细节密度上调
+   - 调制永远在 style_directives 的带内移动（带是用户目标，调制是带内重心）；五道硬闸（转折词/AI 标记词/fatigueWords/字数/段落下限）不因调制松动
 
 ## 输出格式
 
@@ -119,9 +131,11 @@ PRE_WRITE_CHECK:
 - 要兑现的伏笔: [从备忘第3段]
 - 本章禁忌: [从备忘第8段]
 - 近3章结尾方式: [避免重复]
+- 章尾张力拍（从备忘段6「章尾张力拍」行）: [未答之问/未说破之瞒/未合拢之缝 + 指向对象]
 - AI味重点防范: [根据最近的 audit_drift]
 - 共鸣短板（读 truth/audit_drift）: [本章重点防范的体验轴短板]
 - 转折词预算: ≤ [字数/3000] 个
+- 场景字数预算: [场景1 ~N字 / 场景2 ~N字 / …；合计 M 字 ≥ genre-config chapter_word.default]
 <!--META-END-->
 
 # 章节标题
@@ -132,8 +146,10 @@ PRE_WRITE_CHECK:
 ## POST_WRITE_SELF_CHECK
 
 - [ ] 转折词密度: X / Y字 = Z (≤ 1/3000)
-- [ ] 章尾好奇心点燃: [是/否]
+- [ ] 成段窗口（G4.cd 视觉场景口径）: 任意连续 8 叙述段合计峰值 = [数字] 汉字（须 ≥100 且带对白/动作段 ≥4；不足 = 先合并断行再输出，勿以极限断行替代画面）
+- [ ] 章尾张力（G4.cd 口径）: 末 8 叙述段合并窗口命中原句 = [摘录原句]（须含字面 ？/? 或张力词 但/然而/却/不过/还/仍/依然/尚未/未解/不知/等待/没说/没答/瞒/藏 之一；摘不出原句 = 未达标，先改收束拍再输出，勿以「已点燃」自述代替）
 - [ ] 无反思句/元叙事: [是/否]
+- [ ] 正文字数（逐段计数合计）: [场景1: 15+12+8+…=S1；场景2: 10+9+…=S2；…；总计 S1+S2+…=N]（逐段点数每段去空白字符数、含标点、剥本 META 块，段内相加再跨场景相加；禁止整段估数；N < 目标字数即不合格——先在既有场景内补足再输出）
 <!--META-END-->
 ```
 
@@ -161,9 +177,38 @@ PRE_WRITE_CHECK:
 
 ## decisions sidecar 必填字段
 
-每次执行后**必须写出** `chapters/chapter-N-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+每次执行后**必须写出** `chapters/chapter-N-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件的 ### FILE 块内容必须是纯 JSON（块内首字符即 `{`，禁止 markdown 标题与围栏代码块）；`### FILE:` 标记行本身照常输出，且不得以「纯 JSON」为由省略章节文件块。** 必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）
 - `produced_at`: ISO-8601 时间戳
 - `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
+**P2.5 二分支自查（写每条 selection 前过一遍，G4 逐项强校验）**：
+- 常规取舍 → `"severity": "low"` 且**不写** rationale 键；
+- 有实重取舍（驱动 adjustments／响应漂移滑点／卷级口径裁剪）→ `"severity": "medium"` + **必写** ≤100 字 rationale（说清取了什么、为何这个分量）；
+- 两种禁组（各实证 3 试被闸）：`low`+rationale、`medium`+无 rationale；rationale **写完数字数 ≤90 字留余量**（Python len 计、中文每字 1 含标点——ch92 实证贴边计数失误 3 试被闸）。
+
+**字段级规格（G4 逐项强校验，形态错误即闸门失败）**：
+- `selections[]`: `target`（**str，必填**，被选取的文件路径——路径放这里，不放 selected）、`selected`（**list[str]**，条目名列表——禁止写成字符串）、`basis`（**仅限四枚举之一**：`adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`——禁止自造值）、`severity`（`low`/`medium`/`high`）、`omitted`（list[str]）
+- `adjustments[]`: `issue_id`（str，必填）、`severity`、`handling`（**仅限四枚举之一**：`compensate_via_pacing` / `explicit_callout` / `defer_to_next_chapter` / `ignore`——禁止自造值）、`rationale`（必填，≤100 字）
+
+**可仿写示例**：
+
+```json
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 1,
+  "produced_at": "2026-09-28T12:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-1-plan.md",
+      "selected": ["scene-1", "hook-open"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": []
+}
+```

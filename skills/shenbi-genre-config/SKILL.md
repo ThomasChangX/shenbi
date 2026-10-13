@@ -44,7 +44,7 @@ contract:
 
 # 题材配置管理
 
-**职责边界**：worldbuilding 创建 `genre-config.json` 的初始 stub（仅含题材/语言/基本审计维度）。本 skill 负责细化为完整配置：疲劳词列表、节奏规则、章节类型、审计维度激活、自定义禁忌词。如果 `genre-config.json` 已由 worldbuilding 创建，本 skill 读取并细化；如果不存在，本 skill 创建。
+**职责边界**：worldbuilding 创建 `genre-config.json` 的初始 stub（仅含题材/语言/基本审计维度）。本 skill 负责细化为完整配置：疲劳词列表、节奏规则、章节类型、审计维度激活、自定义禁忌词、每章字数基线（chapter_word，章数数学与字数地板的同源值）。如果 `genre-config.json` 已由 worldbuilding 创建，本 skill 读取并细化；如果不存在，本 skill 创建。
 
 管理 `genre-config.json`。负责疲劳词、节奏规则、章节类型、审计维度、自定义规则。
 
@@ -101,10 +101,28 @@ digraph genre_config {
     "minChaptersPerCycle": 8,
     "maxChaptersPerCycle": 15
   },
+  "tropeInventory": {
+    "overuse_threshold": 3,
+    "tropes": [
+      {
+        "name": " trope 名（如 穿越者金手指）",
+        "role": "该 trope 承担的结构职能",
+        "plan": "使用计划与代价约束",
+        "signatures": ["该 trope 的文本指纹（命中即计入使用）"],
+        "rewrite_hint": "超阈值时的改写方向"
+      }
+    ]
+  },
   "chapterTypes": {
     "battle": { "maxConsecutive": 2, "warningThreshold": 3 },
     "dialogue": { "maxConsecutive": 3, "warningThreshold": 4 },
     "...": "..."
+  },
+  "chapter_word": {
+    "default": 2200,
+    "min": 2000,
+    "max": 4500,
+    "note": "每章目标字数（total_chars 口径）。行业标准对齐（2026-10 检索）：起点主流单章 2000-3000 字、2000 最流行、3000 为大神/老作者档；番茄推荐 2000-2200 字且红线「不能低于两千字」。default=2200 取番茄推荐带上沿、起点主流带内（QQ 作家专区指南「2000-5000 合适、2500 理想」的保守侧），使 0.95×2200=2090 的写作地板高于 min=2000 的平台红线（语义保序：地板 ≥ 救济线）；max=4500 对应起点大章 4000-5000 档，供战役/高潮章使用。这是章数数学的唯一基线：G0.3 用 ceil(target_word_count / default) 推章数，G4/G2 的每章字数地板读同一值——缺省会令按规划写作的章节结构性撞 3000 硬编码地板（探针实测：134 章基线折合 ~1250 CJK/章低于保量线 1418 当量）。从 novel.json 的 target_word_count 与期望章幅共同推导，保量校验：default × 0.95 ≥ target/总章数（总章数 = ceil(target_word_count / default)，即 novel.json total_chapters；禁止引入卷间缓冲章等任何虚增章数充当分母——probe8 实测：118+6 缓冲=124 的保量数学建立在幽灵章上）。"
   },
   "auditDimensions": {
     "antiAi": true,
@@ -295,13 +313,13 @@ cp genre-config.json genre-config.json.bak
 | customRules | array | 否 | 每项含 id/description/enforcement/example，enforcement ∈ {warning, blocking} |
 | approval | object | 是 | **REQUIRED**。含 reviewer/decision/date，decision ∈ {approved, rejected}。缺失即不合格 |
 
-**顶层字段**：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval）+ 1 可选（tropeInventory）。
+**顶层字段**：9 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval, **tropeInventory**——每条 trope 必含 name/role/plan/signatures/rewrite_hint，块内必含 overuse_threshold 数值；probe8 该块整体缺失，反套路维度的程序化命中检测随之断点）+ 1 可选（chapter_word——章数数学/字数地板的同源基线块，见上文模板；缺省时框架回退硬编码地板）。
 
 ### 可自动检查的计数规则
 
 | 检查项 | 规则 | 不合格条件 |
 |--------|------|----------|
-| 顶层键集 | 8 必填 + 可选 tropeInventory，不得有未知键 | 缺必填键或出现未知键 |
+| 顶层键集 | 9 必填（含 tropeInventory）+ 可选 chapter_word，不得有未知键 | 缺必填键或出现未知键 |
 | approval 字段存在 | 必须 | 缺失 |
 | approval.decision | approved 或 rejected | 其他值 |
 | 禁用词数 | ≤ 50 | > 50 |
@@ -348,11 +366,50 @@ cp genre-config.json genre-config.json.bak
 | "审计全开" | 全开 = 误报率上升 + 审计耗时 = 写作流程被淹没 |
 | "自定义规则随便加" | 自定义规则 = 项目级硬约束；滥用 = 规则相互冲突 |
 
-## decisions sidecar 必填字段
+## decisions sidecar 必填字段（字段级闭集 —— G4.dec 逐字段校验，多余/缺失/自造值即 FAIL）
 
-每次执行后**必须写出** `genre-config-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+每次执行后**必须写出** `genre-config-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。
+
+### 顶层：仅此六键，禁止自造（probe4/pro5 实测曾多出 conflict_check/apply/approval 而被拒）
+
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
-- `chapter`: 章节号（非章节产物用 `null`）
-- `produced_at`: ISO-8601 时间戳
-- `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
+- `chapter`: 非章节产物用 `null`
+- `produced_at`: 本轮 ISO-8601 时间戳
+- `selections`: 数组（本 skill 必填）
+- `adjustments`: 数组（无真实 threshold override / drift 冲突时用 `[]`——合法且诚实，禁止为凑数伪造条目）
+
+### selections[] 条目：仅此六字段（extra: forbid）
+
+- `target`: 字符串（如 `"genre-config.json#chapter_word"`）
+- `selected`: **字符串数组**（禁止写成单个字符串）
+- `basis`: 仅四枚举字面值之一 `adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`
+- `severity`: `low` / `medium` / `high`
+- `omitted`: 字符串数组（缺省 `[]`）
+- `rationale`: **≤100 字**（中文按字符计）；仅 `manual_override` 或 `medium`/`high` 必附，routine+low 禁附
+
+### adjustments[] 条目：仅此四字段（extra: forbid）
+
+- `issue_id`: 字符串
+- `severity`: `low` / `medium` / `high`（必填）
+- `handling`: 仅四枚举字面值之一 `compensate_via_pacing` / `explicit_callout` / `defer_to_next_chapter` / `ignore`（**禁止自由文本**）
+- `rationale`: 必填、非空、**≤100 字**——说明性长文禁入 handling/rationale，写入主文件 approval 审批区块
+
+### 完整合法示例（结构照抄，数值换成本轮实际取值）
+
+```json
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-genre-config",
+  "chapter": null,
+  "produced_at": "<本轮时间戳>",
+  "selections": [
+    {"target": "genre-config.json#chapter_word", "selected": ["default=<本轮值>", "min=<本轮值>", "max=<本轮值>"], "basis": "volume_scope", "severity": "medium", "omitted": [], "rationale": "对齐 G0.3 章数数学：ceil(target/default)=总章数，与 G2/G4 每章字数地板同源；保量校验通过。（≤100 字）"}
+  ],
+  "adjustments": []
+}
+```
+
+### 主文件 genre-config.json 键集（write-audit 越权红线）
+
+顶层仅十键（camelCase）：`version` / `updated` / `fatigueWords` / `pacing` / `chapterTypes` / `auditDimensions` / `customRules` / `tropeInventory` / `chapter_word` / `approval`。修改变更走既有键内更新，**不得自造顶层键、不得改键名大小写风格**；变更说明长文写入 `approval` 审批区块，不进 sidecar。

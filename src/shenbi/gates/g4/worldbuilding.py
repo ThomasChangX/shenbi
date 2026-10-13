@@ -82,6 +82,55 @@ def g4_worldbuilding(
             mf.append(f"G4.sb.sections:found_{len(sections)}_need_4")
         if bullet_density > 0.05:
             mf.append(f"G4.sb.bullet_density:{bullet_density:.1%}")
+        # Batch #10 #18 (probe15: four adjudication rounds over year anchors
+        # restated inconsistently across four world files): the 世界史时间线
+        # table is the single source of absolute year anchors. WARN, not
+        # must-fix — the section is enforced through the SKILL template and
+        # the foundation-review chronology cross-check; the WARN surfaces a
+        # missing table without breaking pre-existing compliant fixtures.
+        if "## 世界史时间线" not in content:
+            c.append(
+                {
+                    "id": "G4.sb.timeline",
+                    "s": GateStatus.WARN,
+                    "r": "世界史时间线单源表缺失——绝对年代锚无唯一登记处（见 story_bible 模板）",
+                }
+            )
+        # Batch #21 (probe26 ch1 / probe28 ch1 表外复述年数 P1 复现两次):
+        # the timeline table is the ONLY place absolute years may appear.
+        # Prose sections (段 1-4) MUST use anchor names or relative phrases
+        # (e.g., 净场之后, 铁笼纪元); restating years like "三百年前" or
+        # "百年" violates the single-source discipline and creates
+        # cross-file year contradictions (probe15: 4 rounds burned on this).
+        if "## 世界史时间线" in content:
+            prose_body = content.split("## 世界史时间线", 1)[0]
+            # Strip code fences to avoid false positives inside examples
+            prose_body = re.sub(r"```[\s\S]*?```", "", prose_body)
+            # Match Chinese bare-year phrases: N 年前 / N 年 / 数百年前 / 百年 / 数十年
+            # Standalone tokens; require adjacent CJK boundary so 冷静 won't trip on 年.
+            # probe32 genesis escalation: the |数|半|若干 value branches matched
+            # magnitude-LESS relatives (数年之后/半年/若干年后 = 几年后) and
+            # deadlocked genesis on a false positive; magnitude-bearing forms
+            # (数十年/数百年/若干百年) still match via 十/百 in the class below.
+            bare_year_re = re.compile(
+                r"(?<![一二三四五六七八九十百千万亿零〇\d])"
+                r"(?:约\s*)?"
+                r"([一二三四五六七八九十百千万亿零〇\d]+)\s*年"
+                r"(?:前|之(?:前|后)|来|之(?:久|内))?"
+                r"(?![一二三四五六七八九十百千万亿零〇\d年月日号时\])])"
+            )
+            matches = list(bare_year_re.finditer(prose_body))
+            for m in matches:
+                line_start = prose_body.rfind("\n", 0, m.start()) + 1
+                line_end = prose_body.find("\n", m.end())
+                if line_end == -1:
+                    line_end = len(prose_body)
+                line = prose_body[line_start:line_end].strip()
+                mf.append(
+                    f"G4.sb.prose_bare_year:{line[:80]}"
+                    "（story_bible.md 散文段不得复述绝对年数；年代锚单源登记于"
+                    "「## 世界史时间线」表，其余段只能用锚名或相对表述）"
+                )
         if len(sections) >= 4 and bullet_density <= 0.05:
             c.append({"id": "G4.sb", "s": GateStatus.PASS, "sections": len(sections)})
     else:
@@ -91,8 +140,12 @@ def g4_worldbuilding(
     rules_path = rp.read("world/rules.md")
     if rules_path.exists():
         rc = rules_path.read_text(encoding="utf-8")
-        # Support both Chinese and Arabic numerals
-        heading_rules = len(re.findall(r"## 规则\s*[：:.]?\s*[一二三四五六七八九十\d]+", rc))
+        # Support both Chinese and Arabic numerals; 铁律 is the SKILL.md
+        # contract's own term for these entries (L62/L66) — a compliant
+        # output using it must not count as zero (canary escalation, 2026-09-28)
+        heading_rules = len(
+            re.findall(r"## (?:规则|铁律)\s*[：:.]?\s*[一二三四五六七八九十\d]+", rc)
+        )
         numbered_rules = len(re.findall(r"^\d+\.\s+\*\*", rc, re.MULTILINE))
         rule_count = max(heading_rules, numbered_rules)
         # For numbered list format, testable check is skipped (list items have no sections)
@@ -132,6 +185,12 @@ def g4_worldbuilding(
         # Prefer numbered headings (## 1., ## 2., etc.) over 地点 keyword matches,
         # because sub-sections may also contain 地点 in their headings
         loc_count = numbered_loc if numbered_loc > 0 else location_headings
+        if loc_count == 0:
+            # Contract-vocabulary fallback: SKILL.md never mandates a heading
+            # keyword for locations.md, so compliant outputs use bare-name H2
+            # sections (## 灰烬渡口). Count all H2s — the 3-5 range below still
+            # bounds structural abuse (canary escalation, 2026-09-28).
+            loc_count = len(re.findall(r"^##\s+\S+", loc_text, re.MULTILINE))
         if loc_count < 3 or loc_count > 5:
             mf.append(f"G4.locations.count:{loc_count}")
         else:

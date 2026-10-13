@@ -116,7 +116,7 @@ digraph review_pov {
 
 **章节**: 第N章
 **POV 模式**: third-limited (本章视点角色：林轩)
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### POV 切换
 | 位置 | 从 → 到 | 过渡方式 | 严重度 |
@@ -136,8 +136,8 @@ digraph review_pov {
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [POV/信息/感官] [问题描述]：[修复方案]
-- [WARNING] [段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [段落] [POV/信息/感官] [问题描述]：[修复方案]
+- [MINOR] [段落] [问题描述]：[修复方案]
 ```
 
 ## Anti-Rationalization

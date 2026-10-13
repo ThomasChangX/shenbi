@@ -8,7 +8,7 @@ contract:
   reads:
   - truth/chapter_summaries.md
   - truth/volume_summaries.md
-  - truth/pending_hooks.md
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - truth/character_matrix.md
   - truth/author_intent.md
   - truth/book_spine.md
@@ -165,6 +165,8 @@ generated_at: YYYY-MM-DD
 - 主角弧进度：更新当前位置百分比
 - master hooks 状态：更新最后推进章、状态
 - world 铁律快照：从 world/rules.md 同步前5条
+
+**L5 输出预算纪律**：输出 = 更新后的 `truth/book_spine.md` 完整文本（live 同规模，≈8KB）＋（如适用）`truth/book_strata.md` 追加条目；复核说明 ≤10 行。**任何卷材原典、章节原文、逐章蒸馏过程的回显都不得出现在输出里**（卷界实测 32K token 输出超模型上限、整次派发截断作废）——发现自己在复述源材料即已偏题。
 
 ## Anti-Rationalization
 

@@ -38,12 +38,20 @@ def g4_location_builder(
         mf.append("G4.locations.not_found")
     else:
         content = loc_path.read_text(encoding="utf-8")
-        locations = re.findall(r"## 地点[：:]", content)
+        # Line-anchored (^-MULTILINE): probe15's self-check checklist carried
+        # the literal `## 地点：{name}` inside a non-heading line — the
+        # unanchored pattern counted it as a location (9 real → 10) and the
+        # section splitter cut the containing section at the reference, so
+        # the real span lost its tail subsections while the bogus span had
+        # no heading at all.
+        locations = re.findall(r"^## 地点[：:]", content, re.MULTILINE)
         if not locations:
             mf.append("G4.lb.no_locations")
         else:
             valid = 0
-            for match in re.finditer(r"## 地点[：:].*?\n(?=## 地点|\Z)", content, re.DOTALL):
+            for match in re.finditer(
+                r"^## 地点[：:].*?\n(?=^## 地点|\Z)", content, re.DOTALL | re.MULTILINE
+            ):
                 loc_text = match.group()
                 layout_match = re.search(
                     r"###\s*(?:\d+\.?\s*)?(?:布局描述|空间布局)\n(.*?)(?=###|\Z)",

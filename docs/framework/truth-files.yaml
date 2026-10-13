@@ -24,11 +24,13 @@ concepts:
   - {name: outline/volume_map.md, kind: outline}
   - {name: outline/rhythm_principles.md, kind: outline}
   - {name: outline/thread_map.md, kind: outline}
+  - {name: outline/thread_map_archive.md, kind: outline, producer: pipeline}
   - {name: outline/chapter_patterns.md, kind: outline}
   - {name: outline/short_story_map.md, kind: outline}
   # truth
   - {name: truth/current_state.md, kind: truth}
   - {name: truth/pending_hooks.md, kind: truth}
+  - {name: truth/pending_hooks_archive.md, kind: truth, producer: pipeline}
   - {name: truth/chapter_summaries.md, kind: truth}
   - {name: truth/character_matrix.md, kind: truth}
   - {name: truth/emotional_arcs.md, kind: truth}
@@ -59,9 +61,11 @@ concepts:
   - {name: truth/state-settling-decisions.json, kind: decisions}          # state-settling decisions
   # style
   - {name: style/style_profile.md, kind: style}
+  - {name: style/style_directives.md, kind: style, producer: external}
   # audits (one concept covers all 18 dims via the glob below)
   - {name: audits/chapter-N-<dim>.md, kind: report}  # parametric: N, <dim>
   - {name: audits/volume-N-payoff.md, kind: report}  # parametric: N
+  - {name: audits/volume-N-foreshadowing.md, kind: report}  # parametric: N, esc#1
   - {name: audits/arc-N-score.md, kind: report}     # parametric: N (Wave 3)
   - {name: audits/volume-N-score.md, kind: report}  # parametric: N (Wave 3)
   - {name: audits/stratum-N-score.md, kind: report}  # parametric: N (Wave 3)
@@ -96,8 +100,6 @@ concepts:
   - {name: import/analysis/02_characters.md, kind: import, producer: skill}
   - {name: import/analysis/03_world.md, kind: import, producer: skill}
   - {name: import/analysis/04_plot.md, kind: import, producer: skill}
-  - {name: outline/chapter_outline.md, kind: outline, producer: skill}
-  - {name: outline/three_act.md, kind: outline, producer: skill}
   - {name: snapshots/chapter-NNN/manifest.json, kind: snapshot, producer: skill}
   - {name: progress.json, kind: config, producer: pipeline}
   - {name: config-change-log.jsonl, kind: config, producer: pipeline}
@@ -133,6 +135,7 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: snapshots/chapter-N-emergency.md, glob: snapshots/chapter-*-emergency.md}
   - {parametric: audits/chapter-N-<dim>.md, glob: audits/chapter-*.md}
   - {parametric: audits/volume-N-payoff.md, glob: audits/volume-*.md}
+  - {parametric: audits/volume-N-foreshadowing.md, glob: audits/volume-*-foreshadowing.md}
   - {parametric: audits/arc-N-score.md, glob: audits/arc-*-score.md}
   - {parametric: audits/volume-N-score.md, glob: audits/volume-*-score.md}
   - {parametric: audits/stratum-N-score.md, glob: audits/stratum-*-score.md}
@@ -178,6 +181,7 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: audits/arc-*-score.md}
   - {pattern: audits/volume-*-score.md}
   - {pattern: audits/stratum-*-score.md}
+  - {pattern: genesis-context/*.md}  # spec #69: seed fragments
 
 # Resolved synonym decisions (the audit's D1 drift surfaces):
 #   style/style_profile.md  is canonical; deps.json's legacy

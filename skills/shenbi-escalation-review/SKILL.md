@@ -74,8 +74,16 @@ digraph escalation_review {
 ### 升级上下文
 [触发条件的完整数据]
 
+reads 表规则：若派发输入含「FAILING SKILL CONTRACT READS（machine-provided）」清单，升级上下文的 reads/输入可用性表**必须**逐条渲染该清单（含 AVAILABLE/MISSING 状态），**不得**罗列本报告技能自己的 reads——汇总的是失败技能的上下文，不是你自己的（probe2 2026-10-01：两份 genesis 升级报告都列成了本技能的趋势文件清单，全部 N/A，裁决人被迫手工纠偏）。
+
+失败特征归类规则：判定「前置输入缺失/依赖类」前，必须先核对派发侧机器证据——若失败技能的实际派发 prompt_tokens 非零（输入已注入）且存在 output_quarantined / no_files_parsed / length_truncation 记录，则失败在**输出侧**（格式/容量），reads 表的 MISSING 不得作为根因（probe14 step 12：glob 形态 reads 被显示层标 MISSING，报告据此误判「前置输入缺失」，三个正面选项全部建立在错误分类上）。reads 表中标「本技能产物（派发前不存在属预期）」或「AVAILABLE (glob-expanded)」的条目，一律不得计入输入缺失。
+
 ### 决策选项
+（选项必须匹配失败类别——不得照抄示例清单：容量类失败给容量类选项，内容类失败给修订类选项）
 1. 接受现状，继续自动批
 2. 回滚到第N章快照，手动修订
 3. 手动修订当前产出
+4. 输出容量类（completion tokens 顶格 / length_truncation / 单次多文件超限）：
+   提高该技能的 executor 输出上限（executor_config.toml overrides，参考
+   faction-builder/state-settling 的 49152 先例）或拆分派发后重跑
 ```

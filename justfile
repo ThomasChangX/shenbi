@@ -89,6 +89,22 @@ lint-routing:
 audit-lint *args:
     uv run python tools/lint_audit_run.py "$@"
 
+# Pool two-table reconciliation: pending_hooks overview rows vs detail sections (GO①)
+pool-lint *args:
+    uv run python tools/lint_truth_pool.py "$@"
+
+# Pool evidence rolling archival: RESOLVED sections past the window -> archive (GO②)
+pool-archive *args:
+    uv run python -m shenbi.pipeline.pool_archive "$@"
+
+# Both evidence ledgers (pool + thread_map) rolling archival in one command (B 批)
+ledger-archive *args:
+    uv run python -m shenbi.pipeline.ledger_archive "$@"
+
+# Volume budget guardrails: re-budget pending / ±3 drift / 保量 floor (--apply = deterministic writeback, C 批)
+volume-budget *args:
+    uv run python -m shenbi.pipeline.volume_budget "$@"
+
 # Lint contract.reads fields vs truth file headings/keys (spec B.5)
 lint-contract-fields:
 	uv run python scripts/lint_contract_fields.py
@@ -139,13 +155,27 @@ changelog:
 pipeline-init seed project_dir="" *args:
     if [ -n "$2" ]; then uv run pipeline init "$1" --project-dir "$2" "${@:3}"; else uv run pipeline init "$1" "${@:3}"; fi
 
+# Validate seed outline structure (run after ANY AI-tool edit of outline-example.md)
+seed-validate seed="outline-example.md":
+    @uv run python tools/seed_validate.py "$1"
+
+# Regenerate the tests/fixtures outline mirror after editing the root seed
+seed-sync:
+    @uv run python tools/seed_sync.py
+
 # Check pipeline status
 pipeline-status project_dir:
     uv run pipeline status "$1"
 
 # Submit a checkpoint review
-pipeline-review project_dir decision feedback="":
-    if [ -n "$3" ]; then uv run pipeline review "$1" "$2" --feedback "$3"; else uv run pipeline review "$1" "$2"; fi
+# redo_steps: genesis-complete scoped reject (probe8) — comma list of genesis
+# step numbers to re-dispatch, e.g. just pipeline-review <dir> reject <fb> "2,10,12,17"
+pipeline-review project_dir decision feedback="" redo_steps="":
+    #!/usr/bin/env bash
+    args=()
+    if [ -n "$3" ]; then args+=(--feedback "$3"); fi
+    if [ -n "$4" ]; then args+=(--redo-steps "$4"); fi
+    uv run pipeline review "$1" "$2" "${args[@]+"${args[@]}"}"
 
 # Resume pipeline execution
 pipeline-resume project_dir:

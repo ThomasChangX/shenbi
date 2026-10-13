@@ -92,6 +92,11 @@ class GenesisStateData:
     skills_done: list[str] = field(default_factory=list)
     retry_counts: dict[str, int] = field(default_factory=dict)
     retry_feedback: dict[str, str] = field(default_factory=dict)
+    #: #48/#49: per-skill structure-binding snapshots (headings, table
+    #: headers, first-column key values) taken at scoped-redo rollback. The
+    #: genesis-complete raise diffs them against the regenerated files and
+    #: puts the drift report in the checkpoint context, then consumes them.
+    frozen_bindings: dict[str, str] = field(default_factory=dict)
 
 
 class ChapterStatus(StrEnum):
@@ -217,6 +222,11 @@ class PipelineState:
     pending_re_dispatches: list[dict[str, Any]] = field(default_factory=list)
     config: PipelineConfig = field(default_factory=PipelineConfig)
     last_trigger_failure: dict[str, Any] | None = None  # set by run_triggered_skills on failure
+    # Trigger fan-out step progress (phase3 adjudication 191): "chN:skill"
+    # keys for steps that already PASSED in this fan-out — a mid-fanout
+    # failure re-entering run_triggered_skills skips them instead of
+    # re-dispatching (L2 waste). Cleared per chapter on fan-out completion.
+    trigger_steps_done: list[str] = field(default_factory=list)
     # Instance-level lock guarding concurrent mutations to mutable fields
     # (steps_done append, audit_results/retry_counts dict update). MUST be an
     # instance attribute (spec §3.3): a class-level lock would serialize
@@ -289,6 +299,7 @@ class PipelineState:
                 "skills_done": self.genesis.skills_done,
                 "retry_counts": self.genesis.retry_counts,
                 "retry_feedback": self.genesis.retry_feedback,
+                "frozen_bindings": self.genesis.frozen_bindings,
             },
             "chapter_loop": {
                 "current_chapter": self.chapter_loop.current_chapter,
@@ -329,6 +340,7 @@ class PipelineState:
             "closure_retry_counts": self.closure_retry_counts,
             "pending_re_dispatches": self.pending_re_dispatches,
             "last_trigger_failure": self.last_trigger_failure,
+            "trigger_steps_done": self.trigger_steps_done,
             "config": {
                 "genesis_review_required": self.config.genesis_review_required,
                 "chapter_memo_review_required": self.config.chapter_memo_review_required,
@@ -380,6 +392,7 @@ class PipelineState:
                 skills_done=gen_data.get("skills_done", []),
                 retry_counts=gen_data.get("retry_counts", {}),
                 retry_feedback=gen_data.get("retry_feedback", {}),
+                frozen_bindings=gen_data.get("frozen_bindings", {}),
             ),
             chapter_loop=ChapterLoopStateData(
                 current_chapter=cl_data.get("current_chapter", 0),
@@ -408,6 +421,7 @@ class PipelineState:
             closure_skills_done=data.get("closure_skills_done", []),
             closure_retry_counts=data.get("closure_retry_counts", {}),
             last_trigger_failure=data.get("last_trigger_failure"),
+            trigger_steps_done=data.get("trigger_steps_done", []),
             config=PipelineConfig(
                 **{k: v for k, v in cfg_data.items() if k in PipelineConfig.__dataclass_fields__}
             ),

@@ -9,11 +9,13 @@ contract:
   - outline/story_frame.md
   - outline/volume_map.md
   - outline/rhythm_principles.md
-  - truth/pending_hooks.md
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
+  - {file: outline/thread_map.md, extractor: threads_overview}
   writes: []
   updates:
   - file: outline/thread_map.md
-    mode: create_or_overwrite
+    mode: append_dedup
+    key: thread
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -25,11 +27,13 @@ contract:
 
 ## 数据契约
 
-- **Reads:** outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md, truth/pending_hooks.md
+- **Reads:** outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md, truth/pending_hooks.md, outline/thread_map.md
 - **Writes:** none
 - **Updates:** outline/thread_map.md
 
 <!-- END AUTO-GENERATED -->
+
+> **thread_map 写纪律（append_dedup，key=thread，A1/B 批千万字卷层）**：只发**本界有变化的单元**——①线索区段 `### <线索ID>: <名称>` 整段（状态/跨度/交叉点/高潮窗口/当前进度等，累积字段重述全史后追加）；②新增卷的推进表区间行 `| N-M（卷 KRn） | 主推 | … |`（首格照抄 live 既有区间写法）。**总览表行由合并层从线索区段机械派生（B 批已落地）——绝不输出总览表行**。**禁止重发** frontmatter、`#`/`##` 标题、总览表、约束检查表/空白检测/跨卷衔接段、未变化的单元——重发即被摄取守卫拒收、整次派发作废。区段定位按线索 ID，名称变化合法（同 ID 即替换）。
 
 # 剧情线索编织
 
@@ -59,6 +63,7 @@ digraph plot_thread_weaver {
 3. **B 线（中线）必有窗口** — 每条 B 线必须有时点明确的推进窗口
 4. **C 线（短线）有始有终** — C 线必须能在 N 章内完成，禁止烂尾
 5. **高潮窗口不与卷高潮冲突** — 线索高潮与卷高潮应互补而非重复占用
+6. **规模自适应粒度** — 全书章数 ≤ 40 时按逐章粒度出推进表；> 40 时逐章推进表改为按 KR/张力段分组聚合（每组给出章节区间与该组各线索的推进要点），使 thread_map 规模随章数次线性增长。逐章明细可以留到每卷开工前的卷内细化，不要求一次性全书写入
 
 ## 线索分类
 
@@ -125,6 +130,11 @@ digraph plot_thread_weaver {
 **文件级校验**: 输出若非此路径即为不合格。
 
 ```markdown
+---
+total_chapters: X
+updated_at: YYYY-MM-DD
+---
+
 # 线索地图
 
 **更新时间**: YYYY-MM-DD
@@ -248,3 +258,8 @@ digraph plot_thread_weaver {
 | "线索多了写不过来" | 线索多但 P0 少；分类管理 + 优先级就是解法 |
 | "交叉点很做作" | 真实生活就是多线交织，读者要求"看起来真实" |
 | "空白章是给读者喘息" | 喘息 = 信息密度降低 ≠ 线索零推进；可让 C 线短小推进 |
+
+
+## 年代锚纪律
+
+绝对年数（「X 年/年前」「N 年来」形态，含阿拉伯数字）只登记于 `world/story_bible.md` 的「世界史时间线」表。本 skill 的输出涉及年代时只写**锚名**或相对表述（如「净场之后」「旧历末年」），不写裸年数——G4.ys 机械扫描会把裸年数判为不合格（probe15：四层年数互斥耗掉四轮创世裁决）。

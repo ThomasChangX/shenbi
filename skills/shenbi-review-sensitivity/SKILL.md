@@ -88,7 +88,7 @@ digraph review_sensitivity {
 
 **章节**: 第N章
 **目标平台**: 起点中文网
-**结果**: 通过 / 不通过
+**判定**: 通过 / 不通过
 
 ### 平台禁忌词
 | 类型 | 检测项 | 结果 |
@@ -106,7 +106,7 @@ digraph review_sensitivity {
 ### 评分: 通过/不通过
 
 ### 建议修复
-- [ERROR] 第X段 [敏感词/违规类型]：[具体替换或删除方案]
+- [BLOCKING/CRITICAL] 第X段 [敏感词/违规类型]：[具体替换或删除方案]
 ```
 
 ## Anti-Rationalization

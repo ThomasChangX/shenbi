@@ -25,6 +25,7 @@ PIPELINE_PRODUCED = {
     "truth-index.json",
     "pipeline-state.json",
     "audits/chapter-N-review-summary.md",
+    "truth/pending_hooks_archive.md",
 }
 
 # spec #58: co-written by a skill AND the pipeline — producer must be shared.
@@ -128,6 +129,7 @@ def test_default_producer_is_skill_for_truth_concepts() -> None:
         "truth-embeddings.db",
         "truth/chapter_patterns.md",
         "truth/resonance_anchors.md",
+        "truth/pending_hooks_archive.md",
     }, f"unexpected non-skill truth producers: {sorted(c.name for c in non_skill)}"
 
 

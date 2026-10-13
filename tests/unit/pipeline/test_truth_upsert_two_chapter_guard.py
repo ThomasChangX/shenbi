@@ -65,11 +65,19 @@ _SEPARATOR_ROW_RE = re.compile(r"^\|(\s*:?-{3,}:?\s*\|)+$")
 
 
 def _data_rows(path: Path) -> list[str]:
-    """Markdown TABLE data rows in *path* (``|``-delimited, separators excluded)."""
+    """Markdown TABLE data rows in *path* (``|``-delimited, separators and
+    header rows excluded — bootstrap headers (probe2 resonance_trend; batch
+    #15 #44/#38 five single-table keyed files) are structural, not data).
+    """
     return [
         line.strip()
         for line in path.read_text(encoding="utf-8").split("\n")
-        if line.strip().startswith("|") and not _SEPARATOR_ROW_RE.match(line.strip())
+        if line.strip().startswith("|")
+        and not _SEPARATOR_ROW_RE.match(line.strip())
+        and not line.strip().startswith("| chapter |")
+        and not line.strip().startswith("| 章节 |")
+        and not line.strip().startswith("| volume |")
+        and not line.strip().startswith("| Bridge ID |")
     ]
 
 
@@ -99,7 +107,7 @@ def _settle_response(chapter: int) -> str:
     """
     return (
         f"### FILE: staging/truth/character_matrix.md\n"
-        f"# 角色矩阵\n\n第 {chapter} 章出场：林烽\n\n"
+        f"## 第{chapter}章状态增量\n\n第 {chapter} 章出场：林烽\n\n"
         f"### FILE: staging/truth/current_state.md\n"
         f"| 第 {chapter} 章 | 位置{chapter}；状态增量{chapter} |\n"
         f"### FILE: staging/truth/particle_ledger.md\n"
@@ -272,10 +280,10 @@ class TestTwoChapterLoopFromFreshProject:
     ) -> None:
         """The same guard extended to the remaining row-keyed append_dedup
         targets state-settling owns (chapter_summaries is already covered by
-        the loop test above; character_matrix is create_or_overwrite and thus
-        not row-keyed): chapter 1's increment survives chapter 2's
-        settle+commit in all five row-keyed truth files (pending_hooks keyed
-        by hook id).
+        the loop test above; character_matrix is append_dedup since the
+        probe2 settle capacity fix and is covered by its own section-append
+        test below): chapter 1's increment survives chapter 2's settle+commit
+        in all five row-keyed truth files (pending_hooks keyed by hook id).
         """
         _install_fake_llm(monkeypatch, [_settle_response(1), _settle_response(2)])
         _settle_chapter(monkeypatch, tmp_project, 1)
@@ -294,6 +302,22 @@ class TestTwoChapterLoopFromFreshProject:
         hooks = (tmp_project / "truth" / "pending_hooks.md").read_text(encoding="utf-8")
         assert "hook-ch1-001" in hooks, "chapter 1 hook row lost on chapter 2 write"
         assert "hook-ch2-001" in hooks
+
+    def test_character_matrix_increment_accumulates(
+        self, tmp_project: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Probe2 settle capacity fix: character_matrix rides append_dedup —
+        each chapter's `## 第N章状态增量` section (UNIQUE heading per chapter)
+        appends; chapter 1's section survives chapter 2's settle+commit.
+        """
+        _install_fake_llm(monkeypatch, [_settle_response(1), _settle_response(2)])
+        _settle_chapter(monkeypatch, tmp_project, 1)
+        _settle_chapter(monkeypatch, tmp_project, 2)
+
+        matrix = (tmp_project / "truth" / "character_matrix.md").read_text(encoding="utf-8")
+        assert "## 第1章状态增量" in matrix, "chapter 1 increment section lost"
+        assert "## 第2章状态增量" in matrix
+        assert matrix.index("## 第1章状态增量") < matrix.index("## 第2章状态增量")
 
 
 class TestLoopContinuesFromRealPriorState:
@@ -321,10 +345,19 @@ class TestLoopContinuesFromRealPriorState:
 
         # Every real prior-state file is preserved under the chapter 2 write —
         # a whole-file staging commit would have replaced them with the bare
-        # chapter 2 increment (F1104 data loss on real data).
+        # chapter 2 increment (F1104 data loss on real data). Row-level
+        # preservation: the keyed upsert inserts new-key rows INTO the key's
+        # table (probe escalation #6 — EOF appends dangled rows outside the
+        # table), so the prior content is no longer a contiguous substring;
+        # every prior line must still be present verbatim.
         for rel, pre in seeded.items():
             post = (tmp_project / rel).read_text(encoding="utf-8")
-            assert pre.strip() in post, f"{rel}: real chapter-1 content lost on chapter 2 write"
+            pre_lines = [line for line in pre.split("\n") if line.strip()]
+            post_lines = set(post.split("\n"))
+            missing = [line for line in pre_lines if line not in post_lines]
+            assert not missing, (
+                f"{rel}: real chapter-1 content lost on chapter 2 write: {missing[:3]}"
+            )
 
         summaries = (tmp_project / "truth" / "chapter_summaries.md").read_text(encoding="utf-8")
         assert "第1章：毕业即失业与穿越即负债" in summaries

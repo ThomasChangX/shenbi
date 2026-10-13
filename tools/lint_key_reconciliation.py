@@ -127,7 +127,7 @@ READ_KEY_REGISTRY: list[ReadKey] = [
         "chapterloop/cascade-history",
         "src/shenbi/pipeline/chapter_loop.py: _should_skip_audit",
         "audit_results[<short>] = {passed, hard_failures}",
-        ["src/shenbi/pipeline/chapter_loop.py: cs.audit_results[short] = {"],
+        ["src/shenbi/pipeline/chapter_loop.py: cs.audit_results[short] = _wave_audit_entry("],
     ),
     # --- drift-guidance alert surface (T5) ---
     ReadKey(

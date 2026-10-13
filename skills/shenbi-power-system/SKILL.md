@@ -10,6 +10,7 @@ contract:
   - world/story_bible.md
   - world/rules.md
   - outline/story_frame.md
+  - outline/volume_map.md
   writes: []
   updates:
   - file: world/power_system.md
@@ -25,7 +26,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, world/story_bible.md, world/rules.md, outline/story_frame.md
+- **Reads:** novel.json, world/story_bible.md, world/rules.md, outline/story_frame.md, outline/volume_map.md
 - **Writes:** none
 - **Updates:** world/power_system.md
 
@@ -60,6 +61,7 @@ digraph power_system {
 3. **跨级差距明显** — 高一级对低一级必须有质变（不是简单"强一点"），差距可计算
 4. **主角不可独享** — 主角的力量来源/体系必须在世界范围内有先例或代价同等
 5. **能力有边界** — 每个等级必须明确"能做什么/不能做什么"，模糊的能力边界 = 后期崩盘
+6. **编年锚定** — 章节里程碑表、进阶节点等一切事件章号必须逐条锚定 `outline/volume_map.md` 的卷纲节点，以 volume_map 为准、不得自创编年；story_frame 无章号层，不得作为章号对照源引用（自检引用的对照源必须真实含章号层）
 
 ## 核心维度
 
@@ -181,7 +183,7 @@ digraph power_system {
 
 - [ ] 等级划分与 story_bible 的世界法则一致
 - [ ] 能力边界与 rules.md 的硬性规则无矛盾
-- [ ] 主角进阶路径与 outline 的章节里程碑匹配
+- [ ] 主角进阶路径的事件章号与 outline/volume_map.md 逐条对表一致（story_frame 无章号层，不得作对照源）
 ```
 
 ## Anti-Rationalization
@@ -192,3 +194,8 @@ digraph power_system {
 | "主角可以例外" | 主角例外必须有等价代价（特殊体质 = 寿命短；金手指 = 反噬） |
 | "顶端就是个概念" | 顶端的具体人数和威慑力 = 后续高潮的尺子 |
 | "代价机制是后期再想" | 无代价机制 = 升级没有戏剧张力 = 中后期必然崩盘 |
+
+
+## 年代锚纪律
+
+绝对年数（「X 年/年前」「N 年来」形态，含阿拉伯数字）只登记于 `world/story_bible.md` 的「世界史时间线」表。本 skill 的输出涉及年代时只写**锚名**或相对表述（如「净场之后」「旧历末年」），不写裸年数——G4.ys 机械扫描会把裸年数判为不合格（probe15：四层年数互斥耗掉四轮创世裁决）。

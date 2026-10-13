@@ -1,0 +1,388 @@
+"""#50 (probe21 adjudication #008): append_dedup targets that legitimately
+carry MULTIPLE rows per chapter (particle_ledger: one row per 变动项;
+subplot_board: one row per 支线) declared the single-column key ``chapter`` —
+a rows-only re-merge annihilated every same-chapter row after the first
+(the probe21 ch1 ledger's five rows would collapse to one). The true row
+identity is the (章节, 变动项/支线) tuple; the contract must declare the
+composite key so the keyed upsert replaces per-row, never per-chapter.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from shenbi.contracts import load_contract
+from shenbi.pipeline.dispatch_helper import _route_append_dedup_write
+from shenbi.pipeline.truth_io import upsert_markdown_row
+
+#: Real probe21 ch1 rows (novel-xinghuo-probe21/truth/particle_ledger.md) —
+#: five rows sharing the chapter key 「第 1 章」, distinct only by 变动项.
+PROBE21_LEDGER_ROWS = [
+    "| 第 1 章 | 灰木牌（正面烙「灰」字，边角磨钝） | +1 | 点星礼长衫依判定发放 | 灰籍身份牌，落籍终身，改不了 |",
+    "| 第 1 章 | 手背铁章印记「灰」 | +1 | 点星官以细铁章按压手背 | 墨入皮内，抹不掉，边缘发虚 |",
+    "| 第 1 章 | 口粮纸（印好格子） | +1 | 场边棚子凭牌发放 | 按周配给，需凭牌领取 |",
+    "| 第 1 章 | 钱物 | 0 | 醒来时腰上空空，无牌、无钱 | 南岸船钱约三个月工钱 |",
+    "| 第 1 章 | 南仓工账 | 起始 | 灰民被判往南仓做工 | 第一天的账，记下了 |",
+]
+
+LEDGER_HEADER = (
+    "| 章节 | 变动项 | 收支 | 来源／用途 | 余额或备注 |\n"
+    "|------|--------|------|------------|------------|"
+)
+
+SUBPLOT_ROWS = [
+    "| 第 1 章 | 灰民落籍与核销名单（MH03） | 1 | 点星礼完成，林渡落灰籍 | 核销名单逐月更新 |",
+    "| 第 1 章 | 南仓做工攒船钱、南渡南岸 | 1 | 目标确立：约三个月工钱 | 进入南仓做工并逐日记账 |",
+]
+
+SUBPLOT_HEADER = (
+    "| 章节 | 支线 | 起始章 | 当前阶段 | 下一节点 |\n|------|------|--------|----------|----------|"
+)
+
+
+def test_contract_declares_composite_keys_for_multirow_targets():
+    """The contract is the merge-key single source (dispatch reads
+    write_semantics[...]['key']); drifting back to ``chapter`` re-arms the
+    per-chapter annihilation.
+    """
+    semantics = load_contract("shenbi-state-settling").get("write_semantics", {})
+    assert semantics["truth/particle_ledger.md"]["key"] == "章节,变动项"
+    assert semantics["truth/subplot_board.md"]["key"] == "章节,支线"
+    # F-4 (probe22 adjudication #009 P2-2): ch2 progressed BOTH cenluo's and
+    # zhongbo's arcs; the row identity is (章节, 角色) — the header's own
+    # identity column — not chapter. key=chapter could hold only ONE row and
+    # the other arc's row was lost while the sidecar declared both.
+    assert semantics["truth/emotional_arcs.md"]["key"] == "章节,角色"
+    # single-row-per-chapter targets keep the simple chapter key
+    assert semantics["truth/current_state.md"]["key"] == "chapter"
+    assert semantics["truth/chapter_summaries.md"]["key"] == "chapter"
+
+
+def test_emotional_arcs_dual_arc_rows_coexist():
+    """F-4 acceptance: a chapter with two progressing arcs keeps both rows —
+    real probe22 ch2 rows (岑落 + 钟伯).
+    """
+    base = (
+        "# 情绪弧线\n\n"
+        "| 章节 | 角色 | 起始情绪 | 转折事件 | 章末情绪 |\n"
+        "|---|---|---|---|---|\n"
+        "| 第 1 章 | 岑落 | 灰雨里麻木而克制的日常 | 西三巷两客者被销名 | 沉默的承担 |\n"
+    )
+    ch2_cenluo = (
+        "| 第 2 章 | 岑落 | 沉静的日常 | 钟伯请抄「自离」三份、收存抄本与撕页 | "
+        "沉静中生出戒备——「笔也招人」之诫入耳 |"
+    )
+    ch2_zhongbo = (
+        "| 第 2 章 | 钟伯 | 失子后的隐忍 | 请岑落照原样抄三份，一份焚给亡者 | "
+        "稍得依托，临别以「笔招人」相警 |"
+    )
+    merged = base
+    for row in (ch2_cenluo, ch2_zhongbo):
+        merged = upsert_markdown_row(merged, row, "章节,角色")
+    data_rows = [l for l in merged.split("\n") if l.startswith("| 第 2 章")]
+    assert len(data_rows) == 2, f"second arc row annihilated: {merged!r}"
+    assert ch2_cenluo in merged and ch2_zhongbo in merged
+    # the ch1 row is untouched
+    assert merged.count("| 第 1 章 |") == 1
+
+
+def test_ledger_remerge_preserves_same_chapter_multi_rows():
+    """Rows-only re-merge (reject-retry, re-settlement) must replace per
+    (章节, 变动项) row — the probe21 five-row ledger survives intact and a
+    corrected row lands in place.
+    """
+    base = "# 资源账本\n\n" + LEDGER_HEADER + "\n" + "\n".join(PROBE21_LEDGER_ROWS) + "\n"
+    corrected = PROBE21_LEDGER_ROWS[0].replace("+1 | 点星礼长衫依判定发放", "+1 | 点星礼补发")
+    increment = "\n".join([corrected, *PROBE21_LEDGER_ROWS[1:]])
+
+    merged = base
+    for line in increment.split("\n"):
+        if line.strip():
+            merged = upsert_markdown_row(merged, line, "章节,变动项")
+
+    data_rows = [l for l in merged.split("\n") if l.startswith("| 第")]
+    assert len(data_rows) == 5, f"same-chapter rows annihilated: {len(data_rows)} left"
+    assert corrected in merged  # corrected row replaced its own key in place
+    for row in PROBE21_LEDGER_ROWS[1:]:
+        assert row in merged  # untouched siblings preserved verbatim
+
+
+def test_subplot_remerge_preserves_same_chapter_rows():
+    base = "# 支线进度板\n\n" + SUBPLOT_HEADER + "\n" + "\n".join(SUBPLOT_ROWS) + "\n"
+    merged = base
+    for line in SUBPLOT_ROWS:
+        merged = upsert_markdown_row(merged, line, "章节,支线")
+    data_rows = [l for l in merged.split("\n") if l.startswith("| 第")]
+    assert len(data_rows) == 2, f"same-chapter rows annihilated: {len(data_rows)} left"
+
+
+#: Real probe22 ch2 rows (novel-xinghuo-probe22/truth/character_matrix.md) —
+#: the 交互表 keys on the (角色A, 角色B) tuple; a NEW pair in a later chapter
+#: must land INSIDE that table, not strand at EOF (F-1).
+MATRIX_HEADER = "| 角色A | 角色B | 关系定位 | 秘密 | 触发事件 | 信任度 |\n|---|---|---|---|---|---|"
+
+MATRIX_ROW_CH1 = "| 岑落 | 管事 | 无档者×册籍执掌者 | 无 | 点工销名，客者不计伤亡 | 持平 |"
+MATRIX_ROW_CH2 = (
+    "| 岑落 | 钟伯 | 无档写字人×失子矿工（受托与请托） | 岑落第三本账记「来处」，未启 | "
+    "请抄「自离」页三份，一份托存、一份焚给亡者 | 相托 |"
+)
+
+MATRIX_STATE_BLOCK = (
+    "## 第1章状态增量\n\n### 岑落\n\n- 当前状态: 存活，栖身矿场窄檐\n- 最后更新章: 1\n"
+)
+
+
+def test_new_composite_key_row_inserts_into_its_table_not_eof():
+    """F-1 (probe22 adjudication #009 R4): a new (角色A, 角色B) pair arrived
+    while trailing state sections occupied EOF — _key_table_tail compared the
+    WHOLE spec 「角色A,角色B」 against single header cells, matched nothing,
+    and the row stranded after the 第1章状态增量 block until a human review
+    moved it back into the table.
+    """
+    existing = MATRIX_HEADER + "\n" + MATRIX_ROW_CH1 + "\n" + MATRIX_STATE_BLOCK
+    merged = upsert_markdown_row(existing, MATRIX_ROW_CH2, "角色A,角色B")
+    lines = merged.split("\n")
+
+    row_idx = lines.index(MATRIX_ROW_CH2)
+    ch1_idx = lines.index(MATRIX_ROW_CH1)
+    heading_idx = lines.index("## 第1章状态增量")
+    assert ch1_idx < row_idx < heading_idx, (
+        f"new interaction pair stranded outside its table (row at {row_idx}, "
+        f"heading at {heading_idx}): {lines}"
+    )
+    assert lines[-1].strip() != MATRIX_ROW_CH2  # not EOF-appended
+
+
+_STUB_SUBPLOT_BASE = """---
+type: truth
+category: subplot
+status: initialized
+---
+
+> 此文件由 state-settling 首次运行时填充实际数据。
+
+## 待填充
+
+- 各支线当前阶段与下一节点
+"""
+
+
+def test_staging_merge_activates_composite_keys_on_stub_base(tmp_path: Path):
+    """probe22 adjudication #006 P1-2, simulated verdict: merging two
+    same-chapter subplot rows onto a headerless stub base collapsed them to
+    one (first-column degradation). With the #38 extension the bootstrap
+    appends the contract header FIRST, so the (章节, 支线) key activates and
+    both rows coexist — header above rows, no separator-less table.
+    """
+    live = tmp_path / "truth" / "subplot_board.md"
+    live.parent.mkdir(parents=True)
+    live.write_text(_STUB_SUBPLOT_BASE, encoding="utf-8")
+    _route_append_dedup_write(
+        tmp_path,
+        "staging/truth/subplot_board.md",
+        "\n".join(SUBPLOT_ROWS),
+        key_field="章节,支线",
+    )
+    staged = (tmp_path / "staging" / "truth" / "subplot_board.md").read_text(encoding="utf-8")
+    data_rows = [l for l in staged.split("\n") if l.startswith("| 第")]
+    assert len(data_rows) == 2, f"composite key inactive on stub base: {staged!r}"
+    header_idx = staged.index("| 章节 | 支线 |")
+    sep_idx = staged.index("|---")
+    first_row_idx = staged.index(data_rows[0])
+    assert header_idx < sep_idx < first_row_idx
+
+
+def test_reemitted_contract_header_dropped_on_chapter_key_file(tmp_path: Path):
+    """probe22 adjudication #006 F-1 follow-up: chapter-keyed files declare
+    the ENGLISH key (``chapter``) while the model re-emits the CHINESE
+    contract header (「章节」…), which upsert's header detection cannot
+    recognize — the row stranded at EOF after the data rows. The merge owns
+    the header (bootstrap wrote it); a unit equal to the registered header
+    is dropped, never merged as data.
+    """
+    live = tmp_path / "truth" / "current_state.md"
+    live.parent.mkdir(parents=True)
+    live.write_text(_STUB_SUBPLOT_BASE, encoding="utf-8")
+    header = "| 章节 | 位置 | 时间锚 | 主角处境 | 势力态势 | 待处理压力 |"
+    increment = "| 第 1 章 | 黑脉矿场 | 灰雨第三日 | 无档之身 | 册籍三分 | 西三巷道塌方\n" + header
+    _route_append_dedup_write(
+        tmp_path, "staging/truth/current_state.md", increment, key_field="chapter"
+    )
+    staged = (tmp_path / "staging" / "truth" / "current_state.md").read_text(encoding="utf-8")
+    assert staged.count(header) == 1  # bootstrap's copy only — re-emission dropped
+    assert staged.index(header) < staged.index("| 第 1 章 |")  # header leads the table
+
+
+def test_staging_route_remerge_keeps_multi_row_ledger(tmp_path: Path):
+    """End-to-end through the dispatch write path: a FILLED live base plus a
+    rows-only re-emission must stage the SAME five rows — this is the exact
+    shape of the probe21 ch1 re-settlement that collapsed.
+    """
+    live = tmp_path / "truth" / "particle_ledger.md"
+    live.parent.mkdir(parents=True)
+    live.write_text(
+        "# 资源账本\n\n" + LEDGER_HEADER + "\n" + "\n".join(PROBE21_LEDGER_ROWS) + "\n",
+        encoding="utf-8",
+    )
+
+    increment = "\n".join(PROBE21_LEDGER_ROWS)
+    _route_append_dedup_write(
+        tmp_path, "staging/truth/particle_ledger.md", increment, key_field="章节,变动项"
+    )
+
+    staged = (tmp_path / "staging" / "truth" / "particle_ledger.md").read_text(encoding="utf-8")
+    staged_rows = [l for l in staged.split("\n") if l.startswith("| 第")]
+    assert len(staged_rows) == 5, f"staged collapse: {len(staged_rows)} rows"
+    for row in PROBE21_LEDGER_ROWS:
+        assert row in staged
+    assert not staged_rows[-1].startswith("| 第 2 章")  # no fabricated next chapter
+
+
+#: #18-3 (probe23): character_matrix carries TWO tables in one file — the
+#: 5-col 交互表 (keyed 角色A,角色B) and the 3-col 信息边界表 (keyed 角色) —
+#: adjacent with no blank line. The tail walk in _key_table_tail treated ANY
+#: consecutive pipe row as "still in the matched table": ch2's new 5-col rows
+#: walked THROUGH the 3-col region and landed after the 3-col rows (probe23
+#: truth/character_matrix.md L26-27), and later 3-col rows landed after those
+#: 5-col rows (L28-29) — one interleaved blob instead of two tables.
+_DUAL_TABLE_BASE = (
+    "---\ntype: truth\ncategory: character\n---\n\n"
+    "# 角色关系矩阵\n\n"
+    "| 角色A | 角色B | 关系性质 | 本章交互 | 变化 |\n"
+    "|-------|-------|----------|----------|------|\n"
+    "| 坠落者 | 老柴 | 雇工·记账 | 记满四十行流水，得一碗冷饭 | 雇佣坐实 |\n"
+    "| 角色 | 已知 | 未知 |\n"
+    "| 坠落者 | 无册者可于姓名栏填「零」 | 自身姓名与来历 |\n"
+)
+
+
+def test_dual_table_new_key_row_stays_in_its_own_table():
+    """A new-key 5-col row must join the 5-col table, not walk through the
+    adjacent 3-col table's region.
+    """
+    row = "| 坠落者 | 韩七娘 | 施粥·受雇 | 递粥验能，末栏添钩 | 陌路 → 受雇 |"
+    merged = upsert_markdown_row(_DUAL_TABLE_BASE, row, "角色A,角色B")
+    lines = merged.split("\n")
+    row_idx = next(i for i, l in enumerate(lines) if "韩七娘" in l)
+    # directly after the last 5-col row; the 3-col header must NOT precede it
+    # inside the inserted row's table region
+    assert lines[row_idx - 1].startswith("| 坠落者 | 老柴 |")
+    assert lines[row_idx + 1].startswith("| 角色 | 已知 | 未知 |")
+
+
+def test_dual_table_three_col_row_stops_before_foreign_table():
+    """A 3-col row (keyed 角色) must land inside the 3-col table. When a
+    well-formed 5-col table FOLLOWS the 3-col region, the arity-blind walk
+    ran through its header/sep/rows and appended after them; the walk stops
+    at the foreign table's RUN (header + rows of another arity).
+    """
+    base = (
+        "# 角色关系矩阵\n\n"
+        "| 角色 | 已知 | 未知 |\n"
+        "|---|---|---|\n"
+        "| 坠落者 | 无册者可于姓名栏填「零」 | 自身姓名与来历 |\n"
+        "| 角色A | 角色B | 关系性质 | 本章交互 | 变化 |\n"
+        "|-------|-------|----------|----------|------|\n"
+        "| 坠落者 | 韩七娘 | 施粥·受雇 | 递粥验能 | 陌路 → 受雇 |\n"
+    )
+    row = "| 老柴 | 主角记背流水之能 | 主角来历 |"
+    merged = upsert_markdown_row(base, row, "角色")
+    lines = merged.split("\n")
+    row_idx = next(i for i, l in enumerate(lines) if l.startswith("| 老柴 |"))
+    # inside the 3-col table, BEFORE the 5-col table's header
+    assert lines[row_idx - 1].startswith("| 坠落者 | 无册者")
+    assert lines[row_idx + 1].startswith("| 角色A | 角色B |")
+
+
+def test_lone_ragged_row_does_not_end_the_table():
+    """A single row narrower than its header is a ragged row of the SAME
+    table (pre-bootstrap corpus shape), not a boundary — a new-key row must
+    still append AFTER it, preserving chapter order.
+    """
+    base = (
+        "| 章节 | 位置 | 时间锚 | 主角处境 | 势力态势 | 待处理压力 |\n"
+        "|---|---|---|---|---|---|\n"
+        "| 第 1 章 | 巷子 | 灰雨第三日 | 无档之身 | 册籍三分 |\n"
+    )
+    row = "| 第 2 章 | 码头 | 灰雨第四日 | 记账换饭 | 互助会 |"
+    merged = upsert_markdown_row(base, row, "章节")
+    lines = merged.split("\n")
+    assert lines.index("| 第 1 章 | 巷子 | 灰雨第三日 | 无档之身 | 册籍三分 |") < lines.index(row)
+
+
+def test_dual_table_ragged_row_does_not_split_header_from_separator():
+    """A separator whose arity differs from its header must stay attached:
+    the walk passes separator rows unconditionally so a new row can never
+    land BETWEEN a header and its separator.
+    """
+    base = (
+        "# 账本\n\n"
+        "| 章节 | 位置 |\n"
+        "|---|\n"  # ragged separator (1 cell vs 2 header cells)
+        "| 第 1 章 | 巷子 |\n"
+    )
+    row = "| 第 2 章 | 码头 |"
+    merged = upsert_markdown_row(base, row, "章节")
+    lines = merged.split("\n")
+    header_idx = lines.index("| 章节 | 位置 |")
+    sep_idx = lines.index("|---|")
+    row_idx = lines.index("| 第 2 章 | 码头 |")
+    assert header_idx < sep_idx < row_idx
+
+
+#: #18-6 (probe24 adjudication #003): the two composite-key files stayed out
+#: of _TABLE_HEADER_BOOTSTRAP ("deliberately absent" predates #50/F-4), so on
+#: an initialized shell (zero pipe rows) the first rows-only settle write
+#: landed HEADERLESS — and the header is the composite-key ACTIVATION
+#: condition: _key_columns silently degrades 章节,角色 / 角色A,角色B to first-
+#: column, collapsing same-chapter multi-row writes. probe24 live:
+#: emotional_arcs.md data row dangling after the 待填充 prose; character_matrix
+#: 交互 row under a bare ## 交互总表 heading with no header row.
+_INIT_SHELL_EMOTIONAL = (
+    "---\ntype: truth\ncategory: character\nstatus: initialized\n---\n\n"
+    "# 角色情感弧线\n\n"
+    "（待填充：每个主要角色的情感起点、当前阶段、目标终点与转变触发点。）\n"
+)
+_INIT_SHELL_MATRIX = (
+    "---\ntype: truth\ncategory: character\nstatus: initialized\n---\n\n"
+    "# 角色交互矩阵\n\n"
+    "（待填充：角色两两关系、信任度、信息不对等、当前张力。）\n"
+    "## 交互总表\n"
+)
+
+
+def test_staging_route_bootstraps_emotional_arcs_header(tmp_path: Path):
+    from shenbi.pipeline.truth_io import _TABLE_HEADER_BOOTSTRAP
+
+    live = tmp_path / "truth" / "emotional_arcs.md"
+    live.parent.mkdir(parents=True)
+    live.write_text(_INIT_SHELL_EMOTIONAL, encoding="utf-8")
+    _route_append_dedup_write(
+        tmp_path,
+        "staging/truth/emotional_arcs.md",
+        "| 第 1 章 | 沈烬 | 落点 · 身份归零（起点） | 以刻瓦记账自我确认 | 「不算数」判定 |",
+        key_field="章节,角色",
+    )
+    staged = (tmp_path / "staging" / "truth" / "emotional_arcs.md").read_text(encoding="utf-8")
+    registered = _TABLE_HEADER_BOOTSTRAP["emotional_arcs.md"]
+    assert registered in staged
+    assert staged.index(registered) < staged.index("| 第 1 章 | 沈烬 |")
+
+
+def test_staging_route_bootstraps_character_matrix_header(tmp_path: Path):
+    from shenbi.pipeline.truth_io import _TABLE_HEADER_BOOTSTRAP
+
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True)
+    live.write_text(_INIT_SHELL_MATRIX, encoding="utf-8")
+    _route_append_dedup_write(
+        tmp_path,
+        "staging/truth/character_matrix.md",
+        "| 沈烬 | 挑担汉子 | 记账者 ↔ 雇主 | 初建（低） | 汉子知两兄弟被扣的实情 |\n"
+        "## 第1章状态增量\n\n### 沈烬\n- 当前状态: 存活\n",
+        key_field="角色A,角色B",
+    )
+    staged = (tmp_path / "staging" / "truth" / "character_matrix.md").read_text(encoding="utf-8")
+    registered = _TABLE_HEADER_BOOTSTRAP["character_matrix.md"]
+    assert registered in staged
+    assert staged.index(registered) < staged.index("| 沈烬 | 挑担汉子 |")

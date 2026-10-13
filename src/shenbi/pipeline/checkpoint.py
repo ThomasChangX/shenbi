@@ -49,26 +49,37 @@ def _load_staging_meta(project_dir: Path) -> dict[str, dict[str, str]]:
 
 
 def _merge_staged_rows_keyed(staged_text: str, live_text: str, key_field: str) -> str:
-    """Live-priority row merge of a staged snapshot into the live file.
+    """Staged-priority row merge of a staged snapshot into the live file.
 
     The staged file is a snapshot (live baseline at stage time + this
-    chapter's increments). At commit time the LIVE file is the authority:
-    rows whose key exists in live keep the live version (a row written to
-    live after staging — e.g. the resonance step — must not be clobbered by
-    the older staged copy); staged rows whose key is MISSING from live are
-    appended. This is the commit-side half of the SDD #21 R3 fix: a plain
-    whole-file replace here re-introduced last-writer-wins between the
-    staging window and the commit.
+    chapter's increments) that the checkpoint review APPROVED — it is the
+    authoritative record. Staged rows therefore WIN over same-key live rows
+    (probe session 2026-09-28: live-priority silently dropped every row
+    UPDATE, so last_reinforced/state enrichments never reached live while
+    new rows landed — MH-004's approved downgrade vanished the same way).
+    Live rows whose key is MISSING from staged (written to live after
+    staging, e.g. by the resonance step) are appended, so nothing is lost
+    in either direction. This is the commit-side half of the SDD #21 R3
+    fix: a plain whole-file replace here re-introduced last-writer-wins
+    between the staging window and the commit.
     """
     from shenbi.pipeline.truth_io import (
-        is_separator_row,
         has_markdown_row,
+        is_separator_row,
         split_table_cells,
         upsert_markdown_row,
     )
 
-    merged = live_text
-    for line in staged_text.split("\n"):
+    # Adjudication 004 surface: the staged snapshot is the merge SUBJECT —
+    # when it lacks frontmatter but live carries one, the commit must not
+    # silently drop it (staged character_matrix lost live's block this way).
+    if not staged_text.lstrip().startswith("---") and live_text.lstrip().startswith("---"):
+        fm_end = live_text.find("\n---", 4)
+        if fm_end != -1:
+            staged_text = live_text[: fm_end + 4] + "\n\n" + staged_text.lstrip("\n")
+
+    merged = staged_text
+    for line in live_text.split("\n"):
         cells = split_table_cells(line)
         if cells is None or is_separator_row(cells):
             continue
@@ -208,6 +219,42 @@ def discard_staging(project_dir: Path | str, reason: str) -> None:
     meta = _load_staging_meta(project_dir)
     log.info("staging_discarded", reason=reason, targets=sorted(meta.keys()))
     clear_staging(project_dir)
+
+
+def discard_staging_targets(project_dir: Path | str, targets: list[str], reason: str) -> None:
+    """Discard SPECIFIC staged targets, leaving other checkpoints' staging.
+
+    batch #15 #39 (probe20): an escalation reject ran the unconditional
+    ``clear_staging`` and destroyed the reviewed settle increments still in
+    ``staging/truth/`` — every later writer then merged against shell bases
+    while feedback described a settled world. A review decision touches only
+    the products its own checkpoint type owns; this is the scoped sibling of
+    :func:`discard_staging` (targets use the commit-path form, e.g.
+    ``truth/<file>`` / ``plans/<file>``).
+    """
+    project_dir = Path(project_dir)
+    staging_dir = project_dir / STAGING_DIR
+    if not staging_dir.exists():
+        log.debug("staging_discard_noop", reason="staging dir does not exist")
+        return
+    removed: list[str] = []
+    for target in targets:
+        p = staging_dir / target
+        if p.is_file():
+            p.unlink()
+            removed.append(target)
+    if removed:
+        meta = _load_staging_meta(project_dir)
+        if any(meta.pop(t, None) is not None for t in targets):
+            meta_path = staging_dir / ".staging-meta.json"
+            if meta:
+                safe_write(
+                    meta_path, json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8")
+                )
+            elif meta_path.exists():
+                meta_path.unlink()
+        _prune_empty_dirs(project_dir, staging_dir)
+    log.info("staging_targets_discarded", reason=reason, targets=removed)
 
 
 def clear_staging(project_dir: Path | str, *, preserve_checkpointed: bool = False) -> None:

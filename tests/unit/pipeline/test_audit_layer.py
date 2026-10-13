@@ -223,6 +223,27 @@ class TestRunAuditLayer:
 
     @patch(PATCH_G4)
     @patch(PATCH_DISPATCH)
+    def test_error_bracket_label_sets_blocking(self, mock_disp, mock_g4, tmp_project: Path):
+        """Fixcheck ch1: legacy template '- [ERROR]' findings are the hard
+        tier — audit_layer must route them into blocking_found like literal
+        BLOCKING (the sensing chain previously matched only the enums
+        vocabulary, so drifted [ERROR] audits never triggered revision).
+        """
+        mock_disp.return_value = DispatchResult(True, 0, "ok", "")
+        mock_g4.return_value = {"status": "PASS"}
+        audit_dir = tmp_project / AUDIT_DIR
+        audit_dir.mkdir()
+        (audit_dir / "chapter-2-era.md").write_text(
+            "# Era\n\n### 建议修复\n- [ERROR] L155 时代错位：改称谓。\n",
+            encoding="utf-8",
+        )
+        gc = {"auditDimensions": {"era": True}}
+        result = run_audit_layer(tmp_project, 2, gc)
+        assert result.blocking_found is True
+        assert result.issues[0]["severity"] == "BLOCKING"
+
+    @patch(PATCH_G4)
+    @patch(PATCH_DISPATCH)
     def test_dispatch_failure_records_blocking(self, mock_disp, mock_g4, tmp_project: Path):
         mock_disp.return_value = DispatchResult(False, 1, "", "dispatch error")
         gc = {"audit_dimensions": {"era": True, "texture": False}}
@@ -408,3 +429,33 @@ class TestRoutingDeprecationExit:
         # core dims: filtered, carried by group fixed steps (CHAPTER_STEPS 9-14)
         assert "shenbi-review-world-rules" not in active
         assert "shenbi-review-sensitivity" not in active  # F905: fixed step 14 is the sole source
+
+
+@pytest.mark.unit
+def test_audit_report_paths_derived_from_contract_writes():
+    """Fixcheck ch2: grouped audit skills declare their real outputs in the
+    contract (shenbi-review-group-character writes character/dialogue/
+    motivation/pov), but the wave tracked the convention phantom
+    audits/chapter-2-group-character.md — a path no skill ever writes. It
+    was recorded into audit_reports unvalidated while the character
+    dimension failed with zero coverage on disk.
+    """
+    from shenbi.pipeline.audit_layer import audit_report_paths
+
+    paths = audit_report_paths(2, "shenbi-review-group-character")
+    assert paths == [
+        "audits/chapter-2-character.md",
+        "audits/chapter-2-dialogue.md",
+        "audits/chapter-2-motivation.md",
+        "audits/chapter-2-pov.md",
+    ], paths
+
+
+@pytest.mark.unit
+def test_audit_report_paths_falls_back_to_convention():
+    from shenbi.pipeline.audit_layer import audit_relative_path, audit_report_paths
+
+    # single-file reviewer: convention path unchanged
+    assert audit_report_paths(3, "shenbi-review-anti-ai") == [
+        audit_relative_path(3, "shenbi-review-anti-ai")
+    ]

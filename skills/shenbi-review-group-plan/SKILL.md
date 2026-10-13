@@ -7,7 +7,7 @@ contract:
   reads:
     - chapters/chapter-N.md
     - plans/chapter-N-plan.md
-    - truth/pending_hooks.md
+    - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
     - truth/subplot_board.md
   writes:
     - file: audits/chapter-N-memo-compliance.md
@@ -90,7 +90,7 @@ This dimension supersedes the deprecated `shenbi-review-memo-compliance` skill.
 ## 章节备忘合规审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 备忘兑现度
 | 备忘段 | 承诺 | 兑现状态 | 严重度 |
@@ -107,8 +107,8 @@ This dimension supersedes the deprecated `shenbi-review-memo-compliance` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落位置] [备忘段引用] [问题描述]：[修复方案]
-- [WARNING] [段落位置] [备忘段引用] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [段落位置] [备忘段引用] [问题描述]：[修复方案]
+- [MINOR] [段落位置] [备忘段引用] [问题描述]：[修复方案]
 ```
 
 ---
@@ -145,7 +145,7 @@ This dimension supersedes the deprecated `shenbi-review-foreshadowing` skill.
 ## 伏笔一致性审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 伏笔池状态
 | 伏笔ID | 状态 | 兑现期 | 本章操作 | 严重度 |
@@ -169,8 +169,8 @@ This dimension supersedes the deprecated `shenbi-review-foreshadowing` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [伏笔ID] [问题类型]：[修复方案]
-- [WARNING] [伏笔ID] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [伏笔ID] [问题类型]：[修复方案]
+- [MINOR] [伏笔ID] [问题描述]：[修复方案]
 ```
 
 ## 缺陷证据格式

@@ -241,3 +241,259 @@ def test_fails_when_truth_template_missing_field(tmp_path: Path) -> None:
     )
     result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert any("G4.truth.current_state.md.missing_status" in mf for mf in result["must_fix"])
+
+
+# ---------------------------------------------------------------------------
+# Contract-vocabulary acceptance (canary escalation 2026-09-28): SKILL.md's
+# own terms (铁律, bare-name location H2s) must satisfy the count checks.
+# ---------------------------------------------------------------------------
+
+
+def _swap_rules_locations(project_dir: Path, rules_body: str, locations_body: str) -> None:
+    (project_dir / "world" / "rules.md").write_text(rules_body, encoding="utf-8")
+    (project_dir / "world" / "locations.md").write_text(locations_body, encoding="utf-8")
+
+
+@pytest.mark.unit
+def test_passes_with_tielu_heading_rules_and_bare_name_locations(tmp_path: Path) -> None:
+    """铁律-numbered rule headings + bare-name location H2s count correctly.
+
+    This is the exact shape the canary produced (10 铁律, 5 bare-name
+    locations) that the keyword-only regexes counted as 0.
+    """
+    project_dir, marker = _full_valid_project(tmp_path)
+    _swap_rules_locations(
+        project_dir,
+        "# 世界铁律\n\n## 铁律一：等价支付律\n任何超常效果都必须支付。\n\n"
+        "## 铁律二：自动清算律\n账册不接受指定支付物。\n",
+        "# 地点图谱\n\n## 灰烬渡口\n河海贸易城邦。\n\n## 白垩塔\n议会所在。\n\n## 钟城\n教团圣地。\n",
+    )
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
+    assert result["status"] == "PASS"
+    rules_check = next(ch for ch in result["checks"] if ch["id"] == "G4.rules")
+    assert rules_check["count"] == 2
+    locs_check = next(ch for ch in result["checks"] if ch["id"] == "G4.locations")
+    assert locs_check["count"] == 3
+
+
+@pytest.mark.unit
+def test_tielu_rule_count_over_10_still_fails(tmp_path: Path) -> None:
+    """铁律 headings beyond the 1-10 range still fail the count check."""
+    project_dir, marker = _full_valid_project(tmp_path)
+    cn = "一二三四五六七八九十"
+    rules = (
+        "# 世界铁律\n\n"
+        + "".join(f"## 铁律{cn[i]}：律{i}\n内容。\n\n" for i in range(10))
+        + "## 铁律十一：溢出\n内容。\n"
+    )
+    _swap_rules_locations(project_dir, rules, "# L\n\n## A\nx\n\n## B\ny\n\n## C\nz\n")
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
+    assert any("G4.rules.count:11" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_bare_h2_locations_out_of_range_still_fails(tmp_path: Path) -> None:
+    """Bare-name H2 fallback respects the 3-5 bound (6 sections -> count:6)."""
+    project_dir, marker = _full_valid_project(tmp_path)
+    locations = "# 地点图谱\n\n" + "".join(f"## 地点{i}\n描述。\n\n" for i in range(6))
+    _swap_rules_locations(project_dir, "# R\n\n## 规则一：律\n内容。\n", locations)
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
+    assert any("G4.locations.count:6" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_story_bible_missing_timeline_gets_warn_not_fail(tmp_path: Path) -> None:
+    """Batch #10 #18: a story_bible without the 世界史时间线 single-source
+    table yields a WARN (G4.sb.timeline), not a must-fix — the section
+    becomes required through the SKILL template and the foundation-review
+    chronology cross-check; the gate surfaces its absence without breaking
+    pre-existing compliant fixtures.
+    """
+    project_dir, marker = _full_valid_project(tmp_path)
+    (project_dir / "world" / "story_bible.md").write_text(
+        "# Bible\n\n## 世界观\n散文式描述世界观细节内容。\n\n"
+        "## 历史\n散文式描述历史背景内容。\n\n"
+        "## 魔法\n散文式描述魔法体系内容。\n\n"
+        "## 社会\n散文式描述社会结构内容。\n",
+        encoding="utf-8",
+    )
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
+    assert result["status"] == "PASS"
+    assert result.get("must_fix", []) == []
+    checks = result.get("checks", [])
+    assert any(c.get("id") == "G4.sb.timeline" and c.get("s") == "WARN" for c in checks), checks
+
+
+@pytest.mark.unit
+def test_story_bible_with_timeline_no_warn(tmp_path: Path) -> None:
+    project_dir, marker = _full_valid_project(tmp_path)
+    (project_dir / "world" / "story_bible.md").write_text(
+        "# Bible\n\n## 世界观\n散文式描述世界观细节内容。\n\n"
+        "## 历史\n散文式描述历史背景内容。\n\n"
+        "## 魔法\n散文式描述魔法体系内容。\n\n"
+        "## 社会\n散文式描述社会结构内容。\n\n"
+        "## 世界史时间线\n\n| 锚名 | 距今 | 事件 | 关联 |\n|---|---|---|---|\n"
+        "| 净场 | 110 年前 | 教廷特使清剿 | 铁律会 |\n",
+        encoding="utf-8",
+    )
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
+    assert result["status"] == "PASS"
+    checks = result.get("checks", [])
+    assert not any(c.get("id") == "G4.sb.timeline" for c in checks), checks
+
+
+@pytest.mark.unit
+def test_story_bible_prose_bare_year_is_fail(tmp_path: Path) -> None:
+    """Batch #21 fix (probe26 ch1 / probe28 ch1 表外复述年数): the
+    story_bible.md prose sections MUST NOT contain bare year patterns
+    like "九年前" / "百年" — only the timeline table may carry years.
+
+    Probe26 ch1 genesis + probe28 ch1 genesis both surfaced this pattern
+    twice each as P0 — too high a frequency to keep ignoring. The gate
+    now treats bare-year restatement in prose as FAIL (was WARN pre-batch #21).
+    """
+    import json as _json
+
+    from shenbi.gates.g4.worldbuilding import g4_worldbuilding
+
+    rp = tmp_path
+    (rp / "novel.json").write_text(
+        _json.dumps({"title": "X", "genre": ["a"], "language": "zh", "target_words": 100000}),
+        encoding="utf-8",
+    )
+    (rp / "genre-config.json").write_text("{}", encoding="utf-8")
+
+    # Has the timeline table but ALSO has bare year in prose (the bad case).
+    sb_content = """# 世界观圣经
+
+## 第一段：天地法则
+风从西边来。
+
+## 第二段：社会格局
+宗主国视共燃为渎灵的异端，约三百年前以「割穹之约」将其变成殖民地，约一百二十年前又以种姓法把燧洲人整体压入灰烬之列。
+
+## 世界史时间线（年代锚单源表）
+
+| 锚名 | 距今 | 事件 |
+|------|------|------|
+| 割穹之约 | 约 300 年前 | 殖民地 |
+
+## 第三段：历史纵深
+裂穹之变那年的故事。
+
+## 第四段：暗流涌动
+铁笼矿难那年塌了。
+"""
+    (rp / "world").mkdir(parents=True, exist_ok=True)
+    (rp / "world" / "story_bible.md").write_text(sb_content, encoding="utf-8")
+    (rp / "world" / "rules.md").write_text("## 规则一\n可测试标准：x=y\n", encoding="utf-8")
+    (rp / "world" / "locations.md").write_text("## 地点 1\n- 描述\n", encoding="utf-8")
+
+    result = _json.loads(g4_worldbuilding([], str(rp)))
+    must_fix = result.get("must_fix", [])
+    assert any("sb.prose_bare_year" in m for m in must_fix), (
+        f"Bare year in story_bible.md prose must FAIL. must_fix={must_fix}"
+    )
+
+
+@pytest.mark.unit
+def test_story_bible_relative_few_years_not_flagged(tmp_path: Path) -> None:
+    """probe32 genesis escalation (3 gate attempts burned):「数年之后」/
+    「半年」/「若干年后」are RELATIVE phrases (= 几年后), not absolute-year
+    restatements — the bare-year regex must not flag them. The old
+    ``|数|半|若干`` value branches existed to catch 数十年/数百年/若干百年,
+    but those already match via the magnitude numeral (十/百) in the main
+    character class, so the branches' only net effect was this false
+    positive that deadlocked genesis.
+    """
+    import json as _json
+
+    from shenbi.gates.g4.worldbuilding import g4_worldbuilding
+
+    rp = tmp_path
+    (rp / "novel.json").write_text(
+        _json.dumps({"title": "X", "genre": ["a"], "language": "zh", "target_words": 100000}),
+        encoding="utf-8",
+    )
+    (rp / "genre-config.json").write_text("{}", encoding="utf-8")
+
+    sb_content = """# 世界观圣经
+
+## 第一段：天地法则
+风从西边来。
+
+## 第二段：社会格局
+「铁穹城公约」签订后，帝国与九姓暂时划定了海岸分界。数年之后，新秩序军崛起；其间虽有半年僵持、若干年后又起波澜，皆是相对表述。
+
+## 世界史时间线（年代锚单源表）
+
+| 锚名 | 距今 | 事件 |
+|------|------|------|
+| 铁穹城公约 | 约八十年前 | 划界 |
+
+## 第三段：历史纵深
+裂穹之变那年的故事。
+
+## 第四段：暗流涌动
+铁笼矿难那年塌了。
+"""
+    (rp / "world").mkdir(parents=True, exist_ok=True)
+    (rp / "world" / "story_bible.md").write_text(sb_content, encoding="utf-8")
+    (rp / "world" / "rules.md").write_text("## 规则一\n可测试标准：x=y\n", encoding="utf-8")
+    (rp / "world" / "locations.md").write_text("## 地点 1\n- 描述\n", encoding="utf-8")
+
+    result = _json.loads(g4_worldbuilding([], str(rp)))
+    must_fix = result.get("must_fix", [])
+    assert not any("sb.prose_bare_year" in m for m in must_fix), (
+        f"Relative few-years phrases must not be flagged. must_fix={must_fix}"
+    )
+
+
+@pytest.mark.unit
+def test_story_bible_fuzzy_magnitude_years_still_flagged(tmp_path: Path) -> None:
+    """Regression lock for the probe32 fix: magnitude-bearing fuzzy years
+    (数十年 / 数百年前 / 若干百年) approximate absolute year anchors and
+    MUST stay FAIL-worthy in prose even after the |数|半|若干 branches are
+    removed — they match via 十/百 in the main character class.
+    """
+    import json as _json
+
+    from shenbi.gates.g4.worldbuilding import g4_worldbuilding
+
+    rp = tmp_path
+    (rp / "novel.json").write_text(
+        _json.dumps({"title": "X", "genre": ["a"], "language": "zh", "target_words": 100000}),
+        encoding="utf-8",
+    )
+    (rp / "genre-config.json").write_text("{}", encoding="utf-8")
+
+    sb_content = """# 世界观圣经
+
+## 第一段：天地法则
+风从西边来。
+
+## 第二段：社会格局
+旧世家数十年前就开始布局；数百年前的旧约早已作废，若干百年的积怨一并清算。
+
+## 世界史时间线（年代锚单源表）
+
+| 锚名 | 距今 | 事件 |
+|------|------|------|
+| 旧约 | 约三百年前 | 作废 |
+
+## 第三段：历史纵深
+裂穹之变那年的故事。
+
+## 第四段：暗流涌动
+铁笼矿难那年塌了。
+"""
+    (rp / "world").mkdir(parents=True, exist_ok=True)
+    (rp / "world" / "story_bible.md").write_text(sb_content, encoding="utf-8")
+    (rp / "world" / "rules.md").write_text("## 规则一\n可测试标准：x=y\n", encoding="utf-8")
+    (rp / "world" / "locations.md").write_text("## 地点 1\n- 描述\n", encoding="utf-8")
+
+    result = _json.loads(g4_worldbuilding([], str(rp)))
+    must_fix = result.get("must_fix", [])
+    assert any("sb.prose_bare_year" in m for m in must_fix), (
+        f"Magnitude-bearing fuzzy years must FAIL. must_fix={must_fix}"
+    )

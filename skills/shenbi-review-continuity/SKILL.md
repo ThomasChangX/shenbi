@@ -7,14 +7,8 @@ contract:
   kind: report
   reads:
   - chapters/chapter-N.md
-  - file: truth/current_state.md
-    fields:
-    - 系统演化阶段
-    - 参数当前位置
-    - 进行中的情节线
-  - file: truth/chapter_summaries.md
-    fields:
-    - 已完成章节
+  - {file: truth/current_state.md, extractor: recent_increments}
+  - {file: truth/chapter_summaries.md, extractor: recent_increments}
   - world/rules.md
   writes:
   - file: audits/chapter-N-continuity.md
@@ -131,7 +125,7 @@ Report any arithmetic discrepancy with:
 ## 连续性审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 时间线
 | 标记 | 位置 | 推断时间 | 上一章末尾时间 | 状态 |
@@ -150,7 +144,7 @@ Report any arithmetic discrepancy with:
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [具体段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [具体段落] [问题描述]：[修复方案]
 ```
 
 ## Anti-Rationalization

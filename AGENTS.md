@@ -5,13 +5,15 @@
 ```
 shenbi/
 ├── src/shenbi/             # Framework runtime code
+│   ├── pipeline/           # Pipeline engine: dispatch_helper, chapter_loop, truth_io, read_extractors, cli
+│   ├── gates/              # G0-G7 gate enforcement (g4/ holds per-skill checkers)
+│   ├── dispatcher/         # Dispatcher CLI and execution modes
+│   ├── contracts/          # Skill contract loader/registry/ownership
+│   ├── records/ trace/ cost/ audit/ config/ text/ skill_utils/  # Supporting modules
 │   ├── exceptions.py       # Typed exception hierarchy
 │   ├── logging.py          # structlog configuration
 │   ├── scoring.py          # Rubric-based 0-100 scorer
-│   ├── phase_runner.py     # T2/T3 phase state machine
-│   ├── gates/              # G0-G7 gate enforcement
-│   ├── dispatcher/         # Sub-agent dispatch
-│   └── skill_utils/        # Skill Python helpers
+│   └── phase_runner.py     # T2/T3 phase state machine
 ├── tests/                  # Test code only (unit, integration, property, benchmark)
 │   ├── fixtures/           # Real skill outputs (no mocks)
 │   └── baselines/          # Differential testing baselines
@@ -21,6 +23,7 @@ shenbi/
 ├── pyproject.toml          # PEP 621 + tool config
 ├── uv.lock                 # Locked deps with hashes
 ├── justfile                # Task runner (just check, just test, etc.)
+├── executor_config.toml    # Per-skill temperature/max_tokens (API dispatch)
 ├── AGENTS.md              # Agent entry point
 └── command-to-give.md      # Execution protocol
 ```
@@ -32,6 +35,10 @@ Use entry points (not `python3 tests/X.py`):
 - `just check` — Run all CI checks locally
 - `just test` — Fast unit tests only
 - `just audit-lint` — Audit-run artifact lint: ledger rows, count reconciliation, cross-round carryover (spec #49)
+- `just pool-lint <dir>` — Pool + thread two-table reconciliation: pending_hooks overview rows vs detail sections, thread_map 线索总览表 vs 线索详情 (`--repair` re-derives stale rows)
+- `just pool-archive <dir> --resolved-through <ch>` — Pool evidence rolling archival: RESOLVED sections past the window move to `truth/pending_hooks_archive.md`
+- `just ledger-archive <dir> --resolved-through <ch>` — Both evidence ledgers (pool + thread_map) rolling archival in one command (B 批)
+- `just volume-budget <dir> [--apply]` — Volume budget guardrails: re-budget pending / per-volume ±3 drift / 保量 floor; `--apply` performs deterministic total_chapters + skeleton writeback (C 批)
 - `shenbi-validate G0 <seed>` — Gate 0: environment check
 - `shenbi-validate G2 <files> <type>` — Gate 2: output validation
 - `shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural check

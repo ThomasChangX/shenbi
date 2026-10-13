@@ -29,7 +29,7 @@ import pytest
 
 from shenbi.pipeline.cli import main
 from shenbi.pipeline.dispatch_helper import DispatchResult
-from shenbi.pipeline.genesis import GENESIS_STEPS
+from shenbi.pipeline.genesis import GENESIS_STEPS, run_genesis_step
 from shenbi.pipeline.machine import load_state
 from shenbi.pipeline.state import (
     CheckpointType,
@@ -237,3 +237,64 @@ class TestGenesisToChapterLoopTransition:
         last = state.checkpoint_history[-1]
         assert last["type"] == "genesis-complete"
         assert last["decision"] == "approve"
+
+
+class TestScopedRedoSkipGuard:
+    """probe8 scoped redo (``--redo-steps``): the reject handler rewinds the
+    cursor over steps the adjudication ruled 保留不动. Those steps stay in
+    ``skills_done`` and must advance WITHOUT re-dispatch — only the listed
+    redo targets (removed from ``skills_done``) dispatch again.
+    """
+
+    def test_done_steps_skip_without_redispatch(
+        self, seeded_project: Path, genesis_succeeds: SimpleNamespace
+    ) -> None:
+        from shenbi.pipeline.genesis import run_genesis_step
+
+        state = load_state(seeded_project)
+        state.genesis.current_step = 0
+        # Scoped redo of step 5 only: steps 1-4 ruled 保留不动 (still done).
+        state.genesis.skills_done = [s.skill for s in GENESIS_STEPS[:4]]
+
+        # Four skip-advances over the done steps 1-4: nothing dispatches.
+        for _ in range(4):
+            assert run_genesis_step(state, seeded_project) is False
+        assert genesis_succeeds.dispatch.call_count == 0
+        assert state.genesis.current_step == 4
+
+        # Step 5 (faction-builder, not in skills_done) dispatches for real.
+        assert run_genesis_step(state, seeded_project) is False
+        assert genesis_succeeds.dispatch.call_count == 1
+        assert state.genesis.current_step == 5
+        assert GENESIS_STEPS[4].skill in state.genesis.skills_done
+
+
+class TestGenesisMultiFileOverride:
+    """probe10: outputs_override carried only story_bible for worldbuilding,
+    under-declaring its real genesis output set — the step shipped without
+    rules/locations and G4 failed 3x (rules/locations not_found).
+    """
+
+    def test_worldbuilding_prompt_lists_rules_and_locations(
+        self, seeded_project: Path, genesis_succeeds: SimpleNamespace
+    ) -> None:
+        run_genesis_step(load_state(seeded_project), seeded_project)
+        override = genesis_succeeds.dispatch.call_args.kwargs.get("outputs_override")
+        assert override is not None
+        assert "world/rules.md" in override
+        assert "world/locations.md" in override
+
+
+def test_story_architecture_override_includes_skeleton_outputs(
+    seeded_project: Path, genesis_succeeds: SimpleNamespace
+) -> None:
+    """probe12: step 4 escalated 3x — G4-story-architecture requires the
+    volume_map/rhythm_principles genesis skeletons that step 6/7 later
+    overwrite, but the override only declared story_frame.
+    """
+    state = load_state(seeded_project)
+    state.genesis.current_step = 3  # 0-based: step 4 = story-architecture
+    run_genesis_step(state, seeded_project)
+    override = genesis_succeeds.dispatch.call_args.kwargs.get("outputs_override")
+    assert "outline/volume_map.md" in override
+    assert "outline/rhythm_principles.md" in override

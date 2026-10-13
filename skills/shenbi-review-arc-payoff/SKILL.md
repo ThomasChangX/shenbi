@@ -7,13 +7,12 @@ requires_independent_agent: true
 contract:
   kind: report
   reads:
-  - chapters/*.md
+  # session31 缺陷修正：原 chapters/*.md 是全书 glob（118 章时已靠输入预算
+  # 静默截断；每卷 40-60 章方案下必破裂）——卷级 payoff 审计的数据面是
+  # 逐章摘要（chapter_summaries 每章一行，有界增长），非整卷原文。
+  - truth/chapter_summaries.md
   - outline/volume_map.md
-  - file: truth/pending_hooks.md
-    fields:
-    - 活跃伏笔
-    - 伏笔统计
-    - 伏笔时间线
+  - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - truth/resonance_trend.md
   - truth/audit_drift.md
   - truth/arc_payoff_trend.md
@@ -38,7 +37,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/*.md, outline/volume_map.md, truth/pending_hooks.md, truth/resonance_trend.md, truth/audit_drift.md, truth/arc_payoff_trend.md
+- **Reads:** truth/chapter_summaries.md, outline/volume_map.md, truth/pending_hooks.md, truth/resonance_trend.md, truth/audit_drift.md, truth/arc_payoff_trend.md
 - **Writes:** audits/volume-N-payoff.md
 - **Updates:** truth/audit_drift.md, truth/arc_payoff_trend.md
 
@@ -64,7 +63,7 @@ contract:
 
 1. **独立评分** — 本技能产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting / volume-consolidation / planning agent 不得给自己的弧打分（spec §8.1）。
 2. **锚点先行（anchor-first）** — 打分前先对照本技能的弧级锚点集（每维度高/中/低三档，spec §8.2；锚点文件路径由 dispatch 时传入，见 scenario 锚点映射）。被评弧的定位必须相对锚点可解释：高于锚点 X / 介于 X 与 Y / 低于 Y。锚点缺失 → 降置信度 + flag，**不得跳过维度**（spec §9）。
-3. **先确定性** — 评分员的 LLM 判断只产出 5 维度分数 + 自报置信度。**门阈值（overall ≥80、伏笔兑现质量 ≥15 子地板）是固定值，逐字套用，不得手算「调」**：overall 与子地板的达标判定没有任何可「凭感觉」松动空间，照 §6.4 二元裁决。
+3. **先确定性** — 评分员的 LLM 判断只产出 5 维度分数 + 自报置信度。**门阈值（overall ≥80、伏笔兑现质量 ≥15 子地板）是固定值，逐字套用，不得手算「调」**：overall 与子地板的达标判定没有任何可「凭感觉」松动空间，照 §6.4 二元裁决；唯一例外是「暂缓」：弧线兑付窗口超出当前卷界、当前不可评判时，判定写「暂缓」并注明原因与可评判章（gate 认可的第三态，非阻断）。
 4. **show-not-tell 证据** — 每个维度分数必须落到「原文/锚点文件行号 + 引述」，证兑现是挣来的还是敷衍，**禁止**用「伏笔兑现得很好」「弧线推进有力」这类无锚点的评价话术。
 5. **置信度必报** — 每个维度报 high/mid/low，overall 报 high/mid/low。**裸置信度不可信**：自报 high 但锚点命中率 < 0.8 → 校准降级为 mid（spec §8.2），降级后的置信度才用于报告置信带。
 
@@ -82,6 +81,7 @@ digraph review_arc_payoff {
     "门判定 (§6.4)" -> "判定?";
     "判定?" -> "写报告 + 追加 arc_payoff_trend 行" [label="通过: 放行下一卷"];
     "判定?" -> "报告=处方 → 卷级修订 (人机复核)" [label="阻断: 指向未交付节拍/敷衍兑现"];
+    "判定?" -> "写报告（注明原因与可评判章）" [label="暂缓: 弧线兑付窗口超出当前卷界、不可评判"];
 }
 ```
 
@@ -121,7 +121,7 @@ digraph review_arc_payoff {
 ```markdown
 ## 弧级正向质量门报告
 
-**卷号**: 第N卷 | **弧范围**: 第N-M章 | **结果**: 放行 (82/100) / 阻断 (XX/100)
+**卷号**: 第N卷 | **弧范围**: 第N-M章 | **判定**: 放行 (82/100) / 阻断 (XX/100)
 
 ### 评分明细
 | 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |

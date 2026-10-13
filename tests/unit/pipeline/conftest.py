@@ -56,6 +56,15 @@ def sample_seed_content() -> str:
 - Rule 1: Magic exists
 - Rule 2: Dragons are real
 
+## Forces
+- Kingdom army: defenders of the realm
+
+## Plot Lines
+- Main: hero's rise
+
+## Chapter Outline
+- Ch1: discovery
+
 ## Core Conflict
 - Surface: Kingdom at war
 - Personal: Hero seeks revenge
@@ -70,3 +79,14 @@ def sample_seed_content() -> str:
 - Show/Tell ratio: 70/30
 - Deep themes: courage, sacrifice
 """
+
+
+def write_chapter_drafts(project: Path, chapters: tuple[int, ...] = (1,)) -> None:
+    """#51: draft-consuming steps (settle / foreshadowing-lifecycle /
+    revision) and their re-dispatches precheck chapters/chapter-N.md — tests
+    that fake the dispatch layer must still model a DRAFTED chapter.
+    """
+    d = project / "chapters"
+    d.mkdir(parents=True, exist_ok=True)
+    for n in chapters:
+        (d / f"chapter-{n}.md").write_text(f"# Chapter {n}\n正文第{n}章\n", encoding="utf-8")

@@ -7,14 +7,17 @@ import re
 from pathlib import Path
 
 from shenbi.gates.shared import (
-    CHAPTER_WORD_FLOOR,
     FATIGUE_BASE,
+    META_BLOCK_RE,
     META_NARRATIVE,
+    chapter_word_floor,
     count_transition_words,
     fail,
     passed,
     read_genre_config,
     resolve_input_path,
+    strip_narrative_body,
+    total_chars_md_text,
     word_count_md,
 )
 from shenbi.logging import get_logger
@@ -245,7 +248,11 @@ def g4_chapter_drafting(
             c.append({"id": "G4.post_check", "file": fp, "s": GateStatus.PASS})
 
         # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
-        tc = count_transition_words(content)
+        # Count on the narrative body only (probe escalation #4): the raw
+        # content includes the framework-mandated PRE_WRITE_CHECK checklist,
+        # which itself enumerates transition words — the gate was counting
+        # its own checklist (6 of 8 hits on probe chapter 1).
+        tc = count_transition_words(strip_narrative_body(content))
         max_t = max(5, wc // 1000)
         if tc > max_t:
             mf.append(f"G4.transition:{fp}:{tc}>{max_t}")
@@ -305,11 +312,29 @@ def g4_chapter_drafting(
         else:
             c.append({"id": "G4.meta", "file": fp, "s": GateStatus.PASS})
 
-        # Word count ≥ floor (3000)
-        if wc < CHAPTER_WORD_FLOOR:
-            mf.append(f"G4.word_count:{fp}:{wc}<{CHAPTER_WORD_FLOOR}")
+        # Word count ≥ floor (3000), on the TOTAL non-whitespace 口径 (probe
+        # escalation #4): the memo layer plans length in total chars (~3400),
+        # so a CJK-only floor demanded ≈3565 total — plan-compliant chapters
+        # structurally failed (production fixture ch36/37/39/41 all 27xx-CJK).
+        # The floor VALUE comes from genre-config chapter_word.default (probe
+        # escalation #9): G0.3/G6 already derive chapter-count math from it —
+        # a 1500-default plan (134 chapters from 200k) can never satisfy a
+        # hardcoded 3000 floor.
+        word_floor = chapter_word_floor(str(project_root))
+        total = total_chars_md_text(content)
+        if total < word_floor:
+            mf.append(f"G4.word_count:{fp}:{total}<{word_floor}")
         else:
-            c.append({"id": "G4.word_count", "file": fp, "s": GateStatus.PASS, "wc": wc})
+            c.append(
+                {
+                    "id": "G4.word_count",
+                    "file": fp,
+                    "s": GateStatus.PASS,
+                    "wc": wc,
+                    "total": total,
+                    "floor": word_floor,
+                }
+            )
 
         # G4.cd.content_uniqueness: check this chapter against all other chapters
         if rd:
@@ -344,17 +369,49 @@ def g4_chapter_drafting(
 
         # G4.cd.scene_concreteness: at least 1 paragraph of >=100 CJK chars of visual narrative
         # (Web novel style uses short paragraphs — lowered from 200 to 100)
-        paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
-        visual_p_count = 0
+        # Strip META blocks first (word_count_md's own口径): the trailing
+        # POST_WRITE_SELF_CHECK checklist otherwise becomes the "last
+        # paragraph" for the end-hook check below and pollutes both consumers
+        # of this list (canary escalation #12, 2026-09-28).
+        # HOOK-BEGIN/END ledger blocks are machine markup like META (probe
+        # escalation #39): left in, the markup line became the "last
+        # paragraph" and short-circuited the end-hook window.
+        content_for_prose = re.sub(
+            r"<!--HOOK-BEGIN-->.*?<!--HOOK-END-->", "", content, flags=re.DOTALL
+        )
+        content_for_prose = META_BLOCK_RE.sub("", content_for_prose)
+        paragraphs = [p.strip() for p in content_for_prose.split("\n\n") if p.strip()]
+        # Visual-scene check is WINDOWED (canary escalation #13): web-novel
+        # prose uses 50-100 CJK paragraphs, so a single-paragraph >=100
+        # measure is a granularity mismatch with the very style the SKILL
+        # teaches. A window of 1-3 consecutive body paragraphs counts when
+        # its combined CJK >= 100 and at least 2 paragraphs in it carry
+        # visual-narrative verbs or dialogue (size-1 windows keep the legacy
+        # >=1 requirement — long-paragraph styles see no regression).
+        body_paragraphs: list[tuple[bool, bool, int]] = []  # (has_vn, has_di, cjk)
         for p in paragraphs:
             if p.startswith("#") or p.startswith("##") or p.startswith(">") or p.startswith("---"):
                 continue
             cjk_in_p = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", p))
             has_vn = bool(re.search(r"(走|跑|推|拉|抓|坐|站|躺|倒|看|听|触|发现|看到|听到)", p))
             has_di = bool(re.search(r"[「\u201c].*?[」\u201d]", p))
-            if cjk_in_p >= 100 and (has_vn or has_di):
-                visual_p_count += 1
-        if visual_p_count < 1:
+            body_paragraphs.append((has_vn, has_di, cjk_in_p))
+        visual_windows = 0
+        # Window sizes up to 8 (probe escalation #37): extreme micro-paragraph
+        # web-novel prose averages ~13 CJK/paragraph — a 3-paragraph window
+        # never reaches the 100-CJK threshold, so the check structurally
+        # could not fire on that style. Larger windows keep the ≥100-CJK
+        # mass requirement and scale the vn/dialogue density with size.
+        for size in (1, 2, 3, 5, 8):
+            for i in range(len(body_paragraphs) - size + 1):
+                window = body_paragraphs[i : i + size]
+                if sum(w[2] for w in window) < 100:
+                    continue
+                needed = {1: 1, 2: 2, 3: 2, 5: 3, 8: 4}[size]
+                if sum(1 for w in window if w[0] or w[1]) >= needed:
+                    visual_windows += 1
+                    break  # one qualifying window per size is enough
+        if visual_windows < 1:
             mf.append(f"G4.cd.no_visual_scene:{fp}")
         else:
             c.append(
@@ -362,24 +419,53 @@ def g4_chapter_drafting(
                     "id": "G4.cd.scene_concreteness",
                     "file": fp,
                     "s": GateStatus.PASS,
-                    "visual_paragraphs": visual_p_count,
+                    "visual_windows": visual_windows,
                 }
             )
 
-        # G4.cd.chapter_end_hook: last paragraph contains unresolved tension
+        # G4.cd.chapter_end_hook: unresolved tension in the closing beat.
+        # WINDOWED over the last 8 narrative paragraphs (probe escalation
+        # #4 opened the window to 5 because tension lands a few paragraphs
+        # before the final image beat; the merged-mass rewrite below needs
+        # the scene check's 8-cap (escalation #37) so stylistic closers at
+        # -6 stay inside). The >=30 CJK mass threshold lives on the MERGED
+        # window, not per paragraph (probe13, 2026-10-02): micro-paragraph
+        # closers put every tension beat below a per-paragraph floor
+        # (keyword paragraph at 29, real hook at 24 CJK) while the only
+        # checked paragraph was a neutral image — escalation #37 gave the
+        # visual-scene check the same windowed-mass treatment for this
+        # style. A window lighter than 30 CJK total stays unchecked.
+        # 没答 joins the 没说/瞒/藏 concealment family (escalation #38):
+        # asked-and-not-answered is unresolved tension.
         if paragraphs:
-            last_p = paragraphs[-1]
-            if not last_p.startswith("##") and not last_p.startswith(">"):
-                cjk_last = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", last_p))
-                if cjk_last >= 30:
-                    has_q = bool(re.search(r"[？?]", last_p))
-                    has_t = bool(
-                        re.search(r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待)", last_p)
+            hook_window = [
+                p for p in paragraphs[-8:] if not p.startswith(("#", "##", ">", "---", "- [ ]"))
+            ]
+            window_text = "".join(hook_window)
+            window_cjk = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", window_text))
+            if window_cjk >= 30:
+                has_q = bool(re.search(r"[？?]", window_text))
+                has_t = bool(
+                    re.search(
+                        r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏)",
+                        window_text,
                     )
-                    if not (has_q or has_t):
-                        mf.append(f"G4.cd.no_hook:{fp}")
-                    else:
-                        c.append({"id": "G4.cd.chapter_end_hook", "file": fp, "s": GateStatus.PASS})
+                )
+                if has_q or has_t:
+                    c.append(
+                        {
+                            "id": "G4.cd.chapter_end_hook",
+                            "file": fp,
+                            "s": GateStatus.PASS,
+                            "window_cjk": window_cjk,
+                        }
+                    )
+                else:
+                    excerpt = window_text[:30]
+                    mf.append(
+                        f"G4.cd.no_hook:{fp}:{window_cjk}字合并窗口未检出疑问句/张力词；"
+                        f"窗口开头「{excerpt}」"
+                    )
 
         # G4.cd.protagonist_presence: protagonist appears >= threshold times
         protagonist_names = _load_protagonist_names(str(project_root)) if project_dir else []

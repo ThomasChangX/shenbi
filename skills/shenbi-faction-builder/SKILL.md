@@ -6,11 +6,13 @@ contract:
   kind: artifact
   reads:
   - novel.json
+  - genesis-context/forces.md
   - world/story_bible.md
   - world/rules.md
   - characters/*.md
   - characters/**/*.md
   - outline/story_frame.md
+  - outline/volume_map.md
   writes: []
   updates:
   - file: world/factions.md
@@ -26,13 +28,15 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, world/story_bible.md, world/rules.md, characters/*.md, characters/**/*.md, outline/story_frame.md
+- **Reads:** novel.json, genesis-context/forces.md, world/story_bible.md, world/rules.md, characters/*.md, characters/**/*.md, outline/story_frame.md, outline/volume_map.md
 - **Writes:** none
 - **Updates:** world/factions.md
 
 <!-- END AUTO-GENERATED -->
 
 # 势力构建
+
+**Seed 片段（genesis-context/）**：`genesis-context/forces.md` 是人类伙伴 seed 势力/组织节的逐字片段（人类原始意向输入）。权威序：上游已产出 truth > seed 片段；冲突时以上游为准，若据此调整须在本技能产出文件内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
 
 设计小说中的势力组织。负责层级结构、内部矛盾、跨势力动态、利益驱动行为。
 **职责边界**：`world/factions.md` 如由 `shenbi-worldbuilding` 创建则含初始势力；本 skill 负责后续**追加/扩展**具体势力（append，不重写已有势力）。反向场景（从已有手稿提取势力）用 `shenbi-world-extraction`。
@@ -149,6 +153,8 @@ digraph faction_builder {
 
 **关系类型约束**: 仅允许 盟友 / 竞争 / 中立 / 敌对 四种值。A 视 B 为敌则 B 必须视 A 为敌（对称性可自动检测）。
 
+**章号铁律**：本技能先于卷纲（volume-outlining）运行——首轮派发时 volume_map 尚未产出，历史关键事件一律用相对表述（卷内位置/先后次序），禁止落死章号；当上下文含 `outline/volume_map.md`（范围化重派）时，一切事件章号必须以卷纲节点为准、不得自创编年。
+
 ### 利益驱动
 
 [200-400字散文：该势力的核心利益是什么，如何驱动其公开行为。禁止泛泛而谈——必须写明具体利益（灵石矿脉/政治地位/血脉传承等有形或无形但可验证的利益）]
@@ -224,3 +230,8 @@ digraph faction_builder {
 | "铁板一块的势力更强大" | 失真的组织让读者立刻弃书 |
 | "利益驱动太冷血" | 利益包含信仰、传承、面子等非物质形式 |
 | "势力关系后面再说" | 势力关系网 = 主角立场的坐标系，缺位 = 主角行为无落点 |
+
+
+## 年代锚纪律
+
+绝对年数（「X 年/年前」「N 年来」形态，含阿拉伯数字）只登记于 `world/story_bible.md` 的「世界史时间线」表。本 skill 的输出涉及年代时只写**锚名**或相对表述（如「净场之后」「旧历末年」），不写裸年数——G4.ys 机械扫描会把裸年数判为不合格（probe15：四层年数互斥耗掉四轮创世裁决）。

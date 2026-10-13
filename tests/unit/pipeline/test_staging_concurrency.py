@@ -84,8 +84,16 @@ def test_sidecar_records_keyed_target_and_merges(tmp_path: Path) -> None:
 
 
 def test_commit_does_not_clobber_live_rows_written_after_staging(tmp_path: Path) -> None:
-    """SDD #21 R3 commit half: a row written to LIVE after staging (e.g. the
-    resonance step) survives the commit; staged-only rows are added.
+    """SDD #21 R3 commit half, staged-priority semantics (probe session
+    2026-09-28): the checkpoint-APPROVED staged snapshot is authoritative —
+    its row updates land; live-only rows written after staging (a different
+    key, e.g. a concurrent writer) survive; one row per key after merge.
+
+    Same-key live-richer rows from a concurrent writer are an accepted
+    trade-off: the staged file is built FROM live as base and carries the
+    reviewer's approval, so its version wins. (In the current architecture
+    the non-staged concurrent writer — review-resonance — touches
+    resonance_trend/audit_drift, which are NOT settle-staged targets.)
     """
     from shenbi.pipeline.checkpoint import commit_staging
 
@@ -110,6 +118,6 @@ def test_commit_does_not_clobber_live_rows_written_after_staging(tmp_path: Path)
     commit_staging(tmp_path, ["truth/hooks.md"])
 
     text = live.read_text(encoding="utf-8")
-    assert "LIVE RICHER ROW" in text, "commit clobbered a live row with the older staged copy"
-    assert "live-only row" in text
+    assert "| k1 | staged |" in text, "approved staged row update must land"
+    assert "live-only row" in text, "live-only row written after staging must survive"
     assert text.count("| k1 |") == 1  # one row per key after merge

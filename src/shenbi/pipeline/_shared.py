@@ -65,10 +65,19 @@ _CN_VOL_RANGE_LINE_RE = re.compile(
     re.MULTILINE,
 )
 
+# C 批: the machine-readable heading span (``## 第一卷：名（第 1-23 章）``) —
+# the 卷界锚规则's canonical shape; accepted as a boundary source when a
+# volume section carries no 章节范围 line.
+_CN_VOL_HEAD_SPAN_RE = re.compile(
+    r"^##\s*第[0-9一二三四五六七八九十百]+卷\s*[：:][^\n（(]*[（(]第\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*第?\s*(\d+)\s*章[）)]",
+    re.MULTILINE,
+)
+
 
 def _read_cn_volume_boundaries(text: str) -> set[int]:
-    """Volume-scoped Chinese parse: per ``## 第N卷:`` section, only the first
-    line-start ``**章节范围**`` range line counts (its end chapter M).
+    """Volume-scoped Chinese parse: per ``## 第N卷:`` section, the heading's
+    machine-readable paren span (C 批 canonical) or the first line-start
+    ``**章节范围**`` range line counts (its end chapter M).
 
     Volume header requires the colon; sections are cut at the next ``##``-level
     header so trailing summary sections cannot donate a stray range line to
@@ -83,6 +92,12 @@ def _read_cn_volume_boundaries(text: str) -> set[int]:
         rm = _CN_VOL_RANGE_LINE_RE.search(section)
         if rm:
             boundaries.add(int(rm.group(2)))
+            continue
+        line_end = text.find("\n", m.start())
+        heading_line = text[m.start() :] if line_end == -1 else text[m.start() : line_end]
+        hm = _CN_VOL_HEAD_SPAN_RE.match(heading_line)
+        if hm:
+            boundaries.add(int(hm.group(2)))
     return boundaries
 
 
@@ -163,6 +178,71 @@ def update_total_chapters(project_dir: Path) -> int:
         get_logger(__name__).info("total_chapters_updated", total_chapters=new_total)
         safe_write(novel_path, json.dumps(data, ensure_ascii=False, indent=2))
     return new_total
+
+
+def reconcile_chapter_counts(project_dir: Path) -> list[str]:
+    """Cross-check the chapter-count derivations before the chapter loop.
+
+    Fixcheck P1 (2026-09-29): ceil(200000/2000)=100 (genre-config math)
+    silently coexisted with novel.json / volume_map / book_spine /
+    rhythm_principles all saying 50. G0.3 emits its expected-chapters as
+    PASS metadata only and nothing in the pipeline invokes it; steps 7/13
+    write their own frontmatter counts after novel.json is fixed at step
+    6, with no comparison point anywhere. novel.json is the read authority
+    for book closure, so disagreement there is the fatal class (a stale
+    low value fires premature book closure).
+
+    Sources compared against novel.json.total_chapters: the frontmatter
+    ``total_chapters`` of outline/volume_map.md, outline/rhythm_principles.md,
+    truth/book_spine.md, and the G0.3 arithmetic
+    ceil(target_word_count / genre-config chapter_word.default). Missing
+    files are tolerated (call contexts before genesis completion).
+    """
+    try:
+        data = json.loads((project_dir / "novel.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    total = data.get("total_chapters")
+    if not isinstance(total, int) or total <= 0:
+        return []
+    issues: list[str] = []
+
+    for rel in ("outline/volume_map.md", "outline/rhythm_principles.md", "truth/book_spine.md"):
+        try:
+            m = re.search(
+                r"^total_chapters:\s*(\d+)\s*$",
+                (project_dir / rel).read_text(encoding="utf-8"),
+                re.MULTILINE,
+            )
+        except OSError:
+            continue
+        if m and int(m.group(1)) != total:
+            issues.append(f"{rel}: total_chapters={m.group(1)} != novel.json={total}")
+        elif not m:
+            # Probe2: a shipped-but-headerless file silently removed the
+            # party from the reconciliation (the gate degraded to three-way
+            # with no signal). Surface the blind spot itself.
+            issues.append(
+                f"{rel}: frontmatter total_chapters line missing — this party "
+                "is unverifiable (reconciliation blind spot)"
+            )
+
+    target = data.get("target_word_count")
+    if isinstance(target, int) and target > 0:
+        try:
+            gc = json.loads((project_dir / "genre-config.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            gc = {}
+        default = gc.get("chapter_word", {}).get("default") if isinstance(gc, dict) else None
+        if isinstance(default, int) and default > 0:
+            expected = -(-target // default)
+            if expected != total:
+                issues.append(
+                    f"genre-config 章数数学: ceil({target}/{default})={expected}"
+                    f" != novel.json={total} (chapter_word.default 与规划章数互斥，"
+                    "G2/G4 字数地板将读同一 default)"
+                )
+    return issues
 
 
 def _resolve_volume_at_runtime(project_dir: Path, chapter: int) -> tuple[str, int, int] | None:
@@ -375,3 +455,45 @@ def load_volume_context(project_dir: Path, chapter: int) -> str:
         parts.append("")
 
     return "\n".join(parts)
+
+
+def reconcile_first_appearances(project_dir: Path) -> list[str]:
+    """Cross-check ``first_appearance_chapter`` across character cards and
+    the relationships index.
+
+    Probe2 (2026-10-01): seven characters' first appearances disagreed
+    across card frontmatter / relationships index / volume_map anchors and
+    only manual alignment fixed them before the chapter loop. The
+    cards↔index pair is mechanically checkable (slug-keyed rows, numeric
+    values); volume_map anchors stay prose-level and remain human-review
+    territory. Cards are the per-character authority; index rows must agree.
+    Missing values are skipped (pre-relationship-map projects).
+    """
+    rel_path = project_dir / "characters" / "relationships.md"
+    if not rel_path.exists():
+        return []
+    cards: dict[str, int] = {}
+    top = project_dir / "characters"
+    for card in [*top.glob("*.md"), *top.glob("major/*.md"), *top.glob("minor/*.md")]:
+        try:
+            m = re.search(
+                r"^first_appearance_chapter:\s*(\d+)\s*$",
+                card.read_text(encoding="utf-8"),
+                re.MULTILINE,
+            )
+        except OSError:
+            continue
+        if m:
+            cards[card.stem] = int(m.group(1))
+    issues: list[str] = []
+    for line in rel_path.read_text(encoding="utf-8").splitlines():
+        cells = [c.strip() for c in line.split("|")[1:-1]]
+        if len(cells) < 5 or cells[1] not in cards:
+            continue
+        m = re.fullmatch(r"第\s*(\d+)\s*章", cells[-1])
+        if m and int(m.group(1)) != cards[cells[1]]:
+            issues.append(
+                f"{cells[1]}: 角色卡 first_appearance_chapter={cards[cells[1]]} "
+                f"!= relationships 索引 第{m.group(1)}章（以角色卡为准对齐）"
+            )
+    return issues

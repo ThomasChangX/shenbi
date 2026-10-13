@@ -5,8 +5,8 @@ contract:
   kind: artifact
   reads:
     - chapters/chapter-N.md
-    - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔时间线]}
-    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
+    - {file: truth/pending_hooks.md, extractor: hooks_overview}
+    - {file: truth/chapter_summaries.md, extractor: recent_increments}
   writes:
     - file: truth/bridge_tracker.md
       mode: create_or_overwrite
@@ -85,9 +85,16 @@ digraph foreshadowing_track {
 
 ## 输出格式
 
-更新 `truth/pending_hooks.md` 的 YAML frontmatter。
+`truth/pending_hooks.md` **只发增量**：既有钩为 `### MHxx（标题照抄 live 该钩标题）` + colon bullet 字段块（lifecycle_state/last_reinforced/证据/notes），新钩为完整 `### MHxx` 新区块；绝不输出 frontmatter、`#`/`##` 文件标题或 registry 总览表行——重发即被摄取守卫拒收、整次派发作废。
 
-同时输出本操作的追踪报告（markdown body 追加到 file）：
+```markdown
+### FILE: truth/pending_hooks.md
+### MH02（灵誓：背誓则地脉拒其汲取）
+- lifecycle_state: TRIGGERED
+- last_reinforced: 第 N 章
+```
+
+同时输出本操作的追踪报告（markdown）：
 
 ```markdown
 ## 第N章伏笔追踪

@@ -162,4 +162,6 @@ digraph chapter_revision_loop {
 - `chapter`: 章节号（非章节产物用 `null`）
 - `produced_at`: ISO-8601 时间戳
 - `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
+
+> **铁律：所有 adjustments[].rationale 必填 ≥20 字符、≤100 字符，无视 severity 等级。** G4 `chapter_revision` 校验 `len(rationale) >= 20`，空字符串/字段缺失均触发 `thin_rationale` 硬 FAIL。低严重度（low）adjustment 不可省略 rationale——可用一句话指向 defer 目标或 accept_open 理由（如「本章无 Y 描写，留待 ch6 Y 节点补完」）。本铁律自 probe26/27 两轮复现后固化，sessions 20-21 已交叉验证。
 - `severity` 取值必须是 `low` / `medium` / `high` 三值之一（词表主域见 docs/framework/status-vocab.md#域清单 的 RevisionSeverity 行；G4 对越表值判 FAIL）；顶层 `status` 必须 ∈ `preserved|skipped|delegated|reconstructed_from_cross_source_evidence`，`mode` 必须 ∈ `spot-fix|regenerate|constrained-regenerate|reconstruction|no-revision`（G4 值域校验，spec #34）

@@ -251,3 +251,304 @@ def test_hook_ids_inside_ledger_section_enforced(tmp_path) -> None:
     chapter.write_text("正文没有出现任何钩子编号。\n", encoding="utf-8")
     issues = check_hook_fulfillment(plan, chapter)
     assert any("MH-003" in i for i in issues)
+
+
+# ---------------------------------------------------------------------------
+# Windowed visual-scene measure (canary escalation #13): web-novel prose
+# uses 50-100 CJK paragraphs — a single-paragraph >=100 measure never fires
+# on the style the SKILL itself teaches.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_visual_scene_window_two_short_paragraphs_pass(tmp_path: Path) -> None:
+    """Two consecutive short visual paragraphs (99 + 40 CJK) satisfy the
+    windowed measure — the exact canary shape (99-CJK rift description
+    one char short of the legacy single-paragraph threshold).
+    """
+    p1 = "不是光。" + "他看见那道白从地面切进空气里。" * 8  # ~99 CJK, vn=True
+    p2 = "他往后退了半步，伸手去抓门框，指尖碰到的是湿的木头。" * 1  # vn=True
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{p1}\n\n{p2}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert result["status"] != "FAIL" or not any("no_visual_scene" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_visual_scene_pure_introspection_still_fails(tmp_path: Path) -> None:
+    """Long introspective paragraphs without visual verbs or dialogue still
+    fail — the window does not hollow out the check.
+    """
+    p1 = "他想起许多关于过去的细节。" * 10  # >=100 CJK, no vn, no di
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{p1}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+    mf = _must_fix(result)
+
+    assert any("G4.cd.no_visual_scene" in m for m in mf)
+
+
+# ---------------------------------------------------------------------------
+# Probe escalation #4 (novel-xinghuo-probe, 2026-09-28): three 口径 defects —
+# transition count included the framework's own PRE_WRITE_CHECK checklist,
+# the word floor was CJK-only against a memo layer that plans in total chars,
+# and the end-hook window saw only the final (stylistic beat) paragraph.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_transition_words_in_meta_sections_not_counted(tmp_path: Path) -> None:
+    """PRE/POST check blocks enumerate transition words themselves — counting
+    raw content made the gate count its own checklist (probe ch1: 8 raw,
+    2 real). The count must run on the stripped narrative body.
+    """
+    body = "他沿着矿道走了很久没有说话也没有停下来的意思只是继续往前走去。" * 20
+    meta = (
+        "## PRE_WRITE_CHECK\n"
+        "- 转折词预算: 此时/突然/终于/于是/然 各计一次\n\n"
+        "## POST_WRITE_SELF_CHECK\n"
+        "- 转折词密度: 0（此时 突然 终于 于是 然 虽然然而当然自然忽然）\n"
+    )
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{meta}", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.transition" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_word_floor_passes_on_total_chars_when_cjk_short(tmp_path: Path) -> None:
+    """A plan-compliant chapter (~2860 CJK + punctuation ≈ 3400 total) must
+    pass the 3000 floor on the total 口径 — CJK-only demanded ≈3565 total and
+    no plan-compliant chapter could ever pass (production ch36/37/39/41).
+    """
+    # ~2940 CJK + 420 full-width punctuation = ~3360 total
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 140
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n## PRE_WRITE_CHECK\n- 预算\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.word_count" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_word_floor_still_fails_genuinely_short_chapter(tmp_path: Path) -> None:
+    """The total 口径 must not hollow out the floor: a chapter far below 3000
+    total chars still fails.
+    """
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text("# 章节\n\n他回到了家中。\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert any("G4.word_count" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_end_hook_window_catches_tension_in_closing_beat(tmp_path: Path) -> None:
+    """Stylistic web-novel closure: tension lands a few paragraphs before the
+    final image paragraph (probe ch1: explicit 不知 at -5, clean image at -1).
+    The window of 5 must accept it.
+    """
+    tension = "他不知道那个数是从哪儿冒出来的，说不清，像有人替他把一本账翻到了底。" * 2
+    beats = "\n\n".join(["他张了张嘴。", '"二十四。"他说。', "灯花爆了一下。", "他吹灭了灯。"])
+    closing = "黑暗里，那串木牌在腰间轻轻响了一声，又一声，没了动静。"
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 30
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{tension}\n\n{beats}\n\n{closing}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_end_hook_window_still_fails_flat_ending(tmp_path: Path) -> None:
+    """Non-vacuous control: five closing paragraphs with no question or
+    tension marker in any of them still fail the windowed hook check.
+    """
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 140
+    flat = "\n\n".join(
+        [
+            "他回到了家中坐下来，安安静静地吃了一碗温热的饭食，洗净了手上的尘土。",
+            "他躺到草席上面，闭上了眼睛，听着屋顶上面细碎的风声过了一阵。",
+            "第二日清晨的钟声敲响之前，他睡得很沉，一个梦也没有做成。",
+            "他醒来之后收拾好衣物，跟着众人一道走到矿道入口处排队。",
+            "这一天平淡无奇地过去了，同之前的许多个日子一模一样。",
+        ]
+    )
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{flat}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_end_hook_micro_paragraph_keyword_below_threshold_counts(tmp_path: Path) -> None:
+    """probe13 regression (2026-10-02): micro-paragraph closures put the
+    tension beats below the old per-paragraph >=30 CJK floor — the keyword
+    paragraph (缝还亮着, 29 CJK) and the real hook (name column empty, 24
+    CJK) were both skipped while the only checked paragraph was a neutral
+    image (pound slips, exactly 30 CJK). The mass threshold must live on
+    the merged window — escalation #37 gave the visual-scene check the same
+    treatment for this style.
+    """
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 30
+    neutral = "棚柱上钉着一叠磅单，纸角一层压一层。最上面那张被风掀起来，又落下去。"
+    seam = "天暗了。缝还亮着。一道不合的口子，从东边斜到西边，白天漏灰，夜里漏光。"
+    namecol = "他记得那一页的最后一栏。写名字的地方空着，只有六个数。"
+    tail = "\n\n".join(
+        [
+            neutral,
+            seam,
+            namecol,
+            "料堆底下那点热一直没断，从石板缝里往上走，走得慢。",
+            "他把牌子塞回掌心，合上手。",
+        ]
+    )
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{tail}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_end_hook_probe13_real_draft_passes_hook_check(tmp_path: Path) -> None:
+    """The real probe13 ch1 draft (tests/fixtures/chapter-1-probe13-draft.md,
+    real skill output per G0.9) carries its tension in 24-29 CJK closers —
+    its G4.cd.no_hook firing was the false positive that helped trip the
+    probe's in-probe breaker.
+    """
+    src = Path(__file__).parents[3] / "fixtures" / "chapter-1-probe13-draft.md"
+    ch = tmp_path / "chapter-1.md"
+    ch.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_no_hook_failure_carries_window_diagnostics(tmp_path: Path) -> None:
+    """A genuine no_hook miss must carry window diagnostics in the failure
+    string (merged char count + excerpt) — probe13's retry feedback showed
+    only the generic fallback, leaving the model nothing to act on across
+    3 attempts.
+    """
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 140
+    flat = "\n\n".join(
+        [
+            "他回到了家中坐下来，安安静静地吃了一碗温热的饭食，洗净了手上的尘土。",
+            "他躺到草席上面，闭上了眼睛，听着屋顶上面细碎的风声过了一阵。",
+            "第二日清晨的钟声敲响之前，他睡得很沉，一个梦也没有做成。",
+            "他醒来之后收拾好衣物，跟着众人一道走到矿道入口处排队。",
+            "这一天平淡无奇地过去了，同之前的许多个日子一模一样。",
+        ]
+    )
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{flat}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    no_hook = next(m for m in _must_fix(result) if "G4.cd.no_hook" in m)
+    assert "张力词" in no_hook
+    assert "窗口" in no_hook
+    assert "「" in no_hook  # window excerpt marker
+
+
+@pytest.mark.unit
+def test_word_floor_reads_genre_config_chapter_word_default(tmp_path: Path) -> None:
+    """Probe escalation #9: the floor must come from genre-config
+    chapter_word.default — the same number G0.3/G6 use for chapter-count
+    math. A 1500-default plan (134 chapters from 200k) structurally cannot
+    satisfy the hardcoded 3000 constant: every memo-faithful chapter failed.
+    """
+    gc = tmp_path / "genre-config.json"
+    gc.write_text('{"chapter_word": {"default": 1500}}', encoding="utf-8")
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 80  # ~1920 total
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n## PRE_WRITE_CHECK\n- 预算\n", encoding="utf-8")
+
+    result = _run([str(ch)], str(tmp_path))
+
+    assert not any("G4.word_count" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_word_floor_config_value_is_enforced(tmp_path: Path) -> None:
+    """The config floor is a real floor: a chapter below the configured
+    default still fails (non-vacuous control for the config read).
+    """
+    gc = tmp_path / "genre-config.json"
+    gc.write_text('{"chapter_word": {"default": 2900}}', encoding="utf-8")
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 80  # ~1920 total < 2900
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n## PRE_WRITE_CHECK\n- 预算\n", encoding="utf-8")
+
+    result = _run([str(ch)], str(tmp_path))
+
+    assert any("G4.word_count" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_visual_scene_micro_paragraph_style_passes(tmp_path: Path) -> None:
+    """Probe escalation #37: extreme micro-paragraph prose (~13 CJK/para)
+    never reaches 100 CJK inside a 3-paragraph window — the visual-scene
+    check structurally could not fire on that style. Windows up to 8 keep
+    the mass requirement and scale the density requirement.
+    """
+    p = "他沿着矿道慢慢走到门边看了很久。"  # 15 CJK, vn=True
+    body = "\n\n".join([p] * 12)  # ~180 CJK, ~15/para micro style
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("no_visual_scene" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_end_hook_concealment_tension_counts(tmp_path: Path) -> None:
+    """Probe escalation #38: concealment closures ("他没说……") are unresolved
+    tension — the regex family lacked the 没说/瞒/藏 markers and the stylistic
+    ending (no question marks anywhere) structurally failed the hook check.
+    """
+    tension = "他没说自己先读到了那个数，也没说那一格他认得，压在盐引底下写得很小。" * 2
+    beats = "\n\n".join(
+        ["「没怎么。」", "火盆里的炭褪了一层红。", "他抬头看了一眼铜盘。", "袖口的炭条往里按了按。"]
+    )
+    closing = "那一格，占了。"
+    body = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 30
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{tension}\n\n{beats}\n\n{closing}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_hook_ledger_markup_not_prose(tmp_path: Path) -> None:
+    """Probe escalation #39: <!--HOOK-BEGIN--> ledger blocks are machine
+    markup — left in the prose paragraph list, the markup line became the
+    "last paragraph" and short-circuited the end-hook window.
+    """
+    para = "他沿着矿道往前走，看了看手里的名册，又放回怀里。"
+    body = "\n\n".join([para] * 20)  # micro-normal mix, none with tension
+    beats = "\n\n".join(["「多少。」", "林渡没答。", "他抬手把指针拨回一格。"])
+    ledger = "<!--HOOK-BEGIN-->\nhook_id: MH-005\n章尾钩子: 机器标记\n<!--HOOK-END-->"
+    ch = tmp_path / "chapter-001.md"
+    ch.write_text(f"# 章节\n\n{body}\n\n{beats}\n\n{ledger}\n", encoding="utf-8")
+
+    result = _run([str(ch)])
+
+    assert not any("G4.cd.no_hook" in m for m in _must_fix(result))

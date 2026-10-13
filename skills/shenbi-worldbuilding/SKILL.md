@@ -6,6 +6,7 @@ contract:
   kind: artifact
   reads:
   - novel.json
+  - genesis-context/world_rules.md
   writes:
   - file: novel.json
     mode: create_or_overwrite
@@ -31,13 +32,15 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json
+- **Reads:** novel.json, genesis-context/world_rules.md
 - **Writes:** novel.json, genre-config.json, world/story_bible.md, world/rules.md, world/locations.md, truth/*.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
 
 # 世界观构建
+
+**Seed 片段（genesis-context/）**：`genesis-context/world_rules.md` 是人类伙伴 seed 世界观设定节的逐字片段（人类原始意向输入）。权威序：上游已产出 truth > seed 片段；冲突时以上游为准，若据此调整须在本技能产出文件内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
 
 HARD-GATE: 在世界观未完成并获得人类合作者批准前，不得进入角色设计或故事框架阶段。
 
@@ -98,9 +101,45 @@ digraph worldbuilding {
 ## 第三段：历史纵深
 [关键历史事件，塑造当前格局的过去]
 
+## 世界史时间线（年代锚单源表）
+
+| 锚名 | 距今 | 事件 | 关联 |
+|------|------|------|------|
+| <短锚名> | <X 年前> | <一句话事件> | <势力/地点> |
+
+> 全书所有**绝对年代锚**（「X 年前」类换算数字）**唯一登记于此表**。story_bible 其余各段、rules/locations 及后续 world 文件（factions/power_system）与 outline 引用年代时只写锚名或相对表述（如「净场之后」），**不得另立或复述年数**——两套年数必然互相矛盾（probe15：四层年份互斥耗掉四轮创世裁决）。
+
 ## 第四段：暗流涌动
 [表面平静下涌动的矛盾，为后续冲突埋种子]
 ```
+
+### rules.md 结构
+
+```markdown
+# 世界铁律
+
+## 规则一：[名称]
+[规则正文；含可测试标准或验证条件]
+
+## 规则二：[名称]
+[...最多 10 条]
+```
+
+> G4 按 `## 规则N：` 或 `## 铁律N：` 标题计数（1-10 条）。每条必须独立成节，不得只列清单不展开。
+
+### locations.md 结构
+
+```markdown
+# 地点图谱
+
+## 地点：[名称]
+[地点定位与叙事功能]
+
+## 地点：[名称]
+[...共 3-5 个核心地点]
+```
+
+> G4 按 `## 地点：`/`## N.` 关键字标题计数；裸地名 H2 分节同样接受，但必须 3-5 节。
 
 ## Anti-Rationalization
 

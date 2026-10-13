@@ -7,12 +7,14 @@ contract:
   - novel.json
   - world/story_bible.md
   - world/rules.md
-  - world/locations.md
+  - {file: world/locations.md, extractor: locations_overview}
   - outline/story_frame.md
+  - outline/volume_map.md
   writes: []
   updates:
   - file: world/locations.md
-    mode: create_or_overwrite
+    mode: append_dedup
+    key: location
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -24,11 +26,13 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, world/story_bible.md, world/rules.md, world/locations.md, outline/story_frame.md
+- **Reads:** novel.json, world/story_bible.md, world/rules.md, world/locations.md, outline/story_frame.md, outline/volume_map.md
 - **Writes:** none
 - **Updates:** world/locations.md
 
 <!-- END AUTO-GENERATED -->
+
+> **locations 写纪律（append_dedup，key=location，A2 千万字卷层批）**：只发**本界有变化的地点区段**——`## 地点：<名>` 整段（六节结构：空间布局/感官锚点/时间光色/功能事件/地理位置；段内表格随整段原子合并，功能事件表须重述全史后追加）。新地点为完整新区段。**禁止重发** frontmatter、`#` 一级标题、`## 核心地点` 段、序言引言、未变化的地点区段——重发即被摄取守卫拒收、整次派发作废（整档重写会随卷数增长撑爆输出上限，~50 卷撞墙）。区段定位按「地点：<名>」全名，名称变化即新地点（改名须人工处理）。
 
 # 地点构建
 
@@ -139,6 +143,8 @@ digraph location_builder {
 | 第M章 | [事件描述] | 藏匿/决战/信息/情感 |
 | 第P章 | [事件描述] | 藏匿/决战/信息/情感 |
 
+**章号铁律**：功能事件表的每一个章号必须与 `outline/volume_map.md` 的对应节点逐条对表一致——以 volume_map 为准，不得自创编年、不得发明卷纲之外的事件；终局/兑现类事件以 volume_map 终局章内容为准，不得自行设计终局手势。
+
 ### 地理位置
 
 - **相邻地点A**: [方向] [距离/行程] [地形特征]
@@ -150,6 +156,7 @@ digraph location_builder {
 |--------|------|----------|
 | 感官细节数 | ≥ 5 个独立细节 | < 5，或细节未标注感官类型 |
 | 功能事件数 | ≥ 3 个 | < 3，或缺失章节引用 |
+| 功能事件章号 | 与 outline/volume_map.md 逐条对表 | 任一事件在 volume_map 无对应节点，或章号错位 |
 | 主导感官 | 必填，五选一 | 空值或值不在允许列表中 |
 | 最近地标 | 必填 | 空值 |
 | 距离最近地标 | 必填，含数字+单位 | 空值或无数值 |
@@ -189,3 +196,8 @@ digraph location_builder {
 | "不需要氛围，纯功能就行" | 氛围是地点的记忆点，无氛围 = 30章后读者记不住这地方发生过什么 |
 | "跨地点一致性后面再核对" | 一旦 A→B 距离写错，所有依赖此距离的情节连锁崩塌 |
 | "功能性地点不需要散文" | 功能≠无描写。决战地尤其需要空间感 |
+
+
+## 年代锚纪律
+
+绝对年数（「X 年/年前」「N 年来」形态，含阿拉伯数字）只登记于 `world/story_bible.md` 的「世界史时间线」表。本 skill 的输出涉及年代时只写**锚名**或相对表述（如「净场之后」「旧历末年」），不写裸年数——G4.ys 机械扫描会把裸年数判为不合格（probe15：四层年数互斥耗掉四轮创世裁决）。

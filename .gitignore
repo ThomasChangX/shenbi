@@ -100,3 +100,7 @@ novel-output/
 *.lockfile
 *.lock
 coverage.json
+
+# probe resume logs (transient pipeline console captures)
+probe*-resume.log
+probe*-run*.log

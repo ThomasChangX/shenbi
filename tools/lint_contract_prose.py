@@ -88,6 +88,11 @@ ALLOWLIST: tuple[tuple[str, str, str], ...] = (
     ),
     (
         "repo-docs",
+        "shenbi-chapter-drafting:docs/framework/style-directives.md",
+        "仓库框架文档引用(style_directives 规范), 开发者/用户参考, dispatcher 不注入",
+    ),
+    (
+        "repo-docs",
         "shenbi-chapter-revision:docs/framework/status-vocab.md",
         "仓库框架文档引用, 开发者参考, dispatcher 不注入",
     ),

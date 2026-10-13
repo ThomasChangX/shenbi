@@ -5,15 +5,19 @@ contract:
   kind: artifact
   reads:
     - chapters/chapter-N.md
-    - truth/current_state.md
-    - truth/particle_ledger.md
-    - truth/emotional_arcs.md
-    - truth/subplot_board.md
-    - truth/pending_hooks.md
-    - truth/chapter_summaries.md
+    - truth/character_matrix.md
+    # Plan A (adjudication 096): cumulative chapter-keyed tables grow without
+    # bound — extractors serve head + recent units; the omitted middle is
+    # disclosed by an in-text sentinel. Full history stays in the files.
+    - {file: truth/current_state.md, extractor: recent_increments}
+    - {file: truth/particle_ledger.md, extractor: recent_increments}
+    - {file: truth/emotional_arcs.md, extractor: recent_increments}
+    - {file: truth/subplot_board.md, extractor: recent_increments}
+    - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
+    - {file: truth/chapter_summaries.md, extractor: recent_increments}
+    - truth/volume_summaries.md
+    - audits/chapter-N-foreshadowing.md
   writes:
-    - file: truth/character_matrix.md
-      mode: create_or_overwrite
     - file: truth/state-settling-decisions.json
       mode: create_or_overwrite
   updates:
@@ -22,19 +26,22 @@ contract:
       key: chapter
     - file: truth/particle_ledger.md
       mode: append_dedup
-      key: chapter
+      key: 章节,变动项
     - file: truth/emotional_arcs.md
       mode: append_dedup
-      key: chapter
+      key: 章节,角色
     - file: truth/subplot_board.md
       mode: append_dedup
-      key: chapter
+      key: 章节,支线
     - file: truth/pending_hooks.md
       mode: append_dedup
       key: hook_id
     - file: truth/chapter_summaries.md
       mode: append_dedup
       key: chapter
+    - file: truth/character_matrix.md
+      mode: append_dedup
+      key: 角色A,角色B
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -46,9 +53,9 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
-- **Writes:** truth/character_matrix.md, truth/state-settling-decisions.json
-- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
+- **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/volume_summaries.md, audits/chapter-N-foreshadowing.md
+- **Writes:** truth/state-settling-decisions.json
+- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/character_matrix.md
 
 <!-- END AUTO-GENERATED -->
 
@@ -56,22 +63,65 @@ contract:
 
 HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settling 的章节视为未完成——后续章节的 chapter-planning 读到的 truth files 是过时的，导致全书状态漂移。
 
+### 铁律 0：所有 update 文件 ABSOLUTELY NEVER modify 现有行（Batch #22 强化）
+
+**对 `truth/character_matrix.md` 等全部 `mode: append_dedup` 目标文件**：
+
+1. **ABSOLUTELY NEVER modify 现有 rows**——任何对已有「## 第N章状态增量」section 或「交互总表」已有行的文本重写（如扩展 `- 当前位置: ...` 内容、合并活跃关系等），都触发 G4.ss.matrix_structure content_dropped（attempts=3 耗尽后 approve 仍失败，详见 probe29 ch4）。
+2. **append-only 输出**：本 chapter 的增量必须以全新 `## 第N章状态增量` 块的形式插入（或对应 append_dedup 键的全新 row），**绝不要 touch 任何之前的 section 或 row**。
+3. **若需更新已有行**——重写整个 chapter 状态块到对应新 chapter 块，旧块保留原样（这是 append_dedup 的 key-merge 语义；旧 chapter 不被覆盖）。
+4. **live 文件的当前内容已在你的 reads 里**——你的任务只发增量，不发「live 现状的副本 + 你的改动」。
+
+违反铁律 0 = G4.ss.matrix_structure FAIL + state-settling attempts=3 耗尽 → 章节卡死。**本铁律自 probe29 ch4 验证后固化（sessions 23-24）。**
+
 ### Truth File Update Mode Rules (CRITICAL)
 
 **All six `updates:` targets in this skill's contract are declared `mode: append_dedup` — the pipeline's dispatch write path merges your output into those files BY KEY. You must NEVER output the whole file content for them.**
 
 - **append_dedup files** (cumulative — output ONLY the current chapter's row(s), NEVER the entire file):
   - `truth/current_state.md` — one row for the current chapter's snapshot (key: `chapter`)
-  - `truth/particle_ledger.md` — one row for the current chapter's resource changes (key: `chapter`)
-  - `truth/emotional_arcs.md` — one row for the current chapter's emotional arc (key: `chapter`)
-  - `truth/subplot_board.md` — one row for the current chapter's thread status (key: `chapter`)
+  - `truth/particle_ledger.md` — one row PER 变动项 for the current chapter (composite key: `章节,变动项` — a chapter may legitimately carry several rows; never merge them into one)
+  - `truth/emotional_arcs.md` — one row PER 角色 whose arc progresses this chapter (composite key: `章节,角色` — several arcs may legitimately advance in one chapter; never merge them into one)
+  - `truth/subplot_board.md` — one row PER 支线 touched this chapter (composite key: `章节,支线` — several subplots may advance in one chapter)
   - `truth/chapter_summaries.md` — one row summarizing the current chapter (key: `chapter`)
-  - `truth/pending_hooks.md` — one row per hook touched this chapter, first column `Hook ID` (key: `hook_id`)
+  - `truth/pending_hooks.md` — per-hook FIELD updates as colon bullets under the hook's own heading (key: `hook_id`) — see "pending_hooks 增量格式" below
 
-- **whole-file write** (output the ENTIRE file content):
-  - `truth/character_matrix.md` — declared `mode: create_or_overwrite` (see the write-protection rule below)
+- **append_dedup file（增量合并，复合键）**:
+  - `truth/character_matrix.md` — output ONLY the current chapter's increment: (a) changed rows of the 交互总表 (key: `角色A,角色B` composite — a row per pair that actually interacted this chapter, same column layout as the live table) and (b) one `## 第N章状态增量` section block (heading + its rows/prose). NEVER reproduce the whole file, other chapters' rows, the 信任度初值 sections, or the frontmatter — the pipeline merges your increment against the live base by key and G4 verifies base preservation (probe2 2026-10-01: the whole-file rewrite contract made settle output grow O(chapters) and blow the model output cap — two settles silently dropped base mass to fit). The increment section is ONE atomic `##` block carrying all its `###` subsections — the protagonist's current state lives ONLY inside this chapter's block (probe6 ch2: folding the protagonist's updated state into a previous chapter's subsection, retitling/absorbing history sections, or replacing old interaction rows are all restructure damage — G4 rejects them; append, never replace).
 
-**Row format:** a markdown table row whose FIRST cell is the chapter key (`第N章` or `N`), e.g. `| 第 5 章 | 主角进入内门；灵石 -20；线索：考核完成 |`. For `pending_hooks.md`, output rows in the 活跃伏笔 table format with `Hook ID` in the first column. The pipeline's `write_truth_file()` merges by that key cell — re-running the same chapter replaces that chapter's row only (re-runs are safe), and rows for other chapters are preserved. Do NOT reproduce other chapters' rows in your output, and do NOT output headings/frontmatter for append_dedup files — output only the new row(s).
+**Row format:** a markdown table row whose FIRST cell is the chapter key (`第N章` or `N`), e.g. `| 第 5 章 | 主角进入内门；灵石 -20；线索：考核完成 |`. The pipeline's `write_truth_file()` merges by that key cell — re-running the same chapter replaces that chapter's row only (re-runs are safe), and rows for other chapters are preserved. Do NOT reproduce other chapters' rows in your output, and do NOT output headings/frontmatter for append_dedup files — output only the new row(s). `pending_hooks.md` does NOT use table rows in your output — use the per-hook bullet format below.
+
+**各表行形态（表头由程序在首写时引导，列序必须照此）**：
+
+| 目标 | 列序（第一列=章节键） |
+|------|----------------------|
+| `truth/current_state.md` | 章节｜位置｜时间锚｜主角处境｜势力态势｜待处理压力 |
+| `truth/particle_ledger.md` | 章节｜变动项｜收支｜来源／用途｜余额或备注 |
+| `truth/subplot_board.md` | 章节｜支线｜起始章｜当前阶段｜下一节点 |
+| `truth/chapter_summaries.md` | 章节｜一句话事件｜出场角色｜推进的支线｜新增／回收伏笔｜结尾钩子 |
+
+（基座为空壳/缺失时程序已声明「整档创建形态合法」——此时可输出带表头的完整表格，列序同上；基座已含数据时只发本章行。）
+
+### pending_hooks 增量格式（CRITICAL）
+
+**证据核对（probe20 MH12 教训）**：本章钩子增量的唯一确证来源是 `audits/chapter-N-foreshadowing.md`（step 7 审计）——它列出的「本章实际触及的钩子」之外的钩子一律不发增量；审计证据里没有的强化/触发不得自行推断。你的 `- 证据:` 引用与该审计对不上 = 结算与审计互相矛盾，G4 会拒。
+
+对每个本章触及的**既有** hook，只输出该 hook 的字段更新块（编号与标题**逐字照抄 live 文件原样**——live 是 `### MH02（星火残梦与那句听不清的话）` 这样的形态就照抄这个形态）：
+
+```markdown
+### MH02（标题逐字照抄 live 文件的该 hook 标题）
+
+- last_reinforced: <本章章号>
+```
+
+- 只发被更新字段的 **colon bullet**（`- 字段名: 值`）。程序按字段名**原位合并**进 live 区块——你无需也不得重发该 hook 的稳定行（`type`/`plant_ch`/`trigger_condition`/`resolve_condition`/`subtlety` 参数组合行/`depends_on`）。重发或改写它们会被 G4 拒绝。
+- `lifecycle_state` 复合行同样**不得重发或改写**（probe6 ch1：改写丢 `resolution` 段＝毁掉回收登记）——其中的 `plant`/`resolution` 段是 genesis 固定内容，生命周期迁移归 foreshadowing-track；本章强化只发独立 `- last_reinforced: 第N章` bullet，绝不把该字段塞进复合行。
+- `subtlety`/`cultivation_interval`/`max_distance` 是 genesis 固定参数（守卫锁定），本 skill 与任何章级流程都**不更新**它们。
+- 累积型字段（`证据`/`notes`）更新时必须重述完整历史（读 live 现值 + 追加本章条目），合并是同名字段整行替换。
+- 编号与标题照抄 live 原样（连字符有无均可，程序按编号规范匹配定位区块）；标题文字略有出入也能命中，但请尽量照抄。
+- **新** hook（本章新埋设，live 中不存在）才输出完整新区块（标题 + 全部字段 bullet）。
+- **主钩总览表行一律不要输出**：本 skill 不推进生命周期（PLANTED→RELEVANT→…），状态列由 foreshadowing-track 以同宽度行原位更新。
+- **绝不输出 frontmatter（`---` 块）、一级标题（`#`）、二级标题（`##`，含「## 总览」「## 详情」）**：本文件的合法增量只有上面的 `###` hook 区块；重发脚手架标题会让程序按同名区块替换语义毁掉 live 基座（probe15 三连拒根因之一）。
 
 ### `character_matrix.md` Write-Protection Rule
 
@@ -150,16 +200,16 @@ digraph state_settling {
 | 变化类型 | 更新的文件 | 更新模式 |
 |---------|-----------|---------|
 | 位置 | `truth/current_state.md` | append_dedup (key: chapter) |
-| 资源 | `truth/particle_ledger.md` | append_dedup (key: chapter) |
-| 关系 | `truth/character_matrix.md` | create_or_overwrite（整文件） |
-| 情绪 | `truth/emotional_arcs.md` | append_dedup (key: chapter) |
-| 信息 | `truth/character_matrix.md` (信息边界) | create_or_overwrite（整文件） |
-| 线索 | `truth/subplot_board.md` [Phase 4] | append_dedup (key: chapter) |
+| 资源 | `truth/particle_ledger.md` | append_dedup (复合键 章节,变动项：本章每个变动项一行) |
+| 关系 | `truth/character_matrix.md` | append_dedup（复合键 角色A,角色B：仅输出本章变更行＋第N章增量节，程序按键合并到 live 基底） |
+| 情绪 | `truth/emotional_arcs.md` | append_dedup (复合键 章节,角色：本章每个弧线推进的角色一行) |
+| 信息 | `truth/character_matrix.md` (信息边界) | create_or_overwrite（基底保全：逐字复现 live 基底＋仅追加增量／原键位更新行） |
+| 线索 | `truth/subplot_board.md` [Phase 4] | append_dedup (复合键 章节,支线：本章每条支线一行) |
 | 伏笔 | `truth/pending_hooks.md` | append_dedup (key: hook_id) |
 | 摘要 | `truth/chapter_summaries.md` (追加) | append_dedup (key: chapter) |
 
 > **pending_hooks 字段分工（持久边界，非仅 Phase 1）**：`truth/pending_hooks.md` 有 4 个写者，按字段划分——
-> - **state-settling（本 skill）**：只更新 `last_reinforced` 和 `subtlety` 字段（记录"本章是否提及/加强"），**不**推进生命周期状态（PLANTED→RELEVANT→TRIGGERED→RESOLVED）。
+> - **state-settling（本 skill）**：只更新 `last_reinforced` 字段（记录"本章是否提及/加强"），并可增补 `证据`/`notes` 累积 bullet（重述完整历史）；**不**推进生命周期状态（PLANTED→RELEVANT→TRIGGERED→RESOLVED），**不**更新 `subtlety` 参数（genesis 固定，守卫锁定）。
 > - **foreshadowing-track**：唯一推进 hook 生命周期状态的 skill（需文本证据验证）。
 > - **foreshadowing-plant**：追加新 hook（PLANTED）。
 > - **foreshadowing-resolve**：兑现处理（TRIGGERED→RESOLVED）。
@@ -168,6 +218,40 @@ digraph state_settling {
 参考 `truth-files-reference.md` 获取完整的文件格式说明。
 
 ## 输出格式
+
+### 输出信封（CRITICAL——先读此节再读门禁文档）
+
+整个响应**必须是连续的 `### FILE:` 块序列**：每个派发指令声明的落盘路径一块、一块不可省（含本 skill 的 decisions sidecar，置于最后一块），块外不得有任何文字。块内内容按上文 Update Mode Rules——append_dedup 目标只放本章增量（行/colon bullet），**绝不整文件重发**。以第 1 章为例（下示为契约路径；pipeline 派发指令会带 `staging/` 前缀，以派发指令为准）：
+
+```markdown
+### FILE: truth/current_state.md
+| 第 1 章 | <一行本章快照> |
+
+### FILE: truth/particle_ledger.md
+| 第 1 章 | <一行本章资源收支> |
+
+### FILE: truth/emotional_arcs.md
+| 第 1 章 | 岑落 | <一行该角色本章情绪弧> |
+
+### FILE: truth/subplot_board.md
+| 第 1 章 | <一行本章线索状态> |
+
+### FILE: truth/pending_hooks.md
+### MH09（<标题照抄 live 文件该 hook 标题>）
+
+- last_reinforced: 1
+
+### FILE: truth/chapter_summaries.md
+| 第 1 章 | <一行本章摘要> |
+
+### FILE: truth/character_matrix.md
+<本章发生交互的交互总表行（复合键）＋ 一个 `## 第1章状态增量` 原子区块>
+
+### FILE: truth/state-settling-decisions.json
+{"$schema": "shenbi-decisions-v1", "skill": "shenbi-state-settling", ...}
+```
+
+禁止两种坍缩形态（probe14 ch1 三连败实录）：①裸 sidecar JSON——整个响应只剩一块 JSON、无任何 `### FILE:` 头；②`{"files":[...]}` JSON 信封——多行中文无法合法转义，必被整包拒收。
 
 ### 人工审批门禁
 
@@ -280,9 +364,37 @@ After updating character state, update `truth/character_matrix.md`:
 
 ## decisions sidecar 必填字段
 
-每次执行后**必须写出** `truth/state-settling-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+每次执行后**必须写出** `truth/state-settling-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。**该文件的 ### FILE 块内容必须是纯 JSON（块内首字符即 `{`，禁止 markdown 标题与围栏代码块）；`### FILE:` 标记行本身照常输出，且不得以「纯 JSON」为由省略其余 7 个 truth 文件块（probe14 ch1：模型按「禁止任何前后缀文字」字面执行，把整个响应坍缩成裸 sidecar，8 落盘目标全数隔离）。** 必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）
 - `produced_at`: ISO-8601 时间戳
 - `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
+
+> **铁律：selections[] 必须覆盖所有 update 目标文件**——G4 `state_settling._check_selections_coverage` 校验 sidecar 的 `selections[].target` 必须含 frontmatter `updates:` 声明的全部文件。batch #21 (probe28 ch4 selections_uncovered 复现) 后固化：每条 update 路径必须有对应 selections 条目（`basis: adjacent_to_target_chapter`、`severity: low`、`omitted: []`），缺失则触发 `selections_uncovered` 硬 FAIL。
+
+**字段级规格（G4 逐项强校验，形态错误即闸门失败）**：
+- `selections[]`: `target`（**str，必填**，被选取的文件路径）、`selected`（**list[str]**，条目名列表）、`basis`（**仅限四枚举之一**：`adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`）、`severity`（`low`/`medium`/`high`）、`omitted`（list[str]）——**禁止自造字段**（id/type/decision/evidence 等一律不入）
+- `adjustments[]`: `issue_id`（str，必填）、`severity`、`handling`（**仅限四枚举之一**：`compensate_via_pacing` / `explicit_callout` / `defer_to_next_chapter` / `ignore`）、`rationale`（必填，≤100 字）——**禁止自造字段**（id/description 等一律不入）
+- 顶层只允许 `$schema`/`skill`/`chapter`/`produced_at`/`selections`/`adjustments`/`budget`——`consistency_check`、`human_approval_gate` 等自造顶层键一律禁止
+
+**可仿写示例**：
+
+```json
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-state-settling",
+  "chapter": 1,
+  "produced_at": "2026-09-28T12:00:00Z",
+  "selections": [
+    {"target": "truth/current_state.md", "selected": ["sys-stage-1", "position-ash-crossing"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/character_matrix.md", "selected": ["主角"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/particle_ledger.md", "selected": ["灰木牌"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/emotional_arcs.md", "selected": ["主角-第 1 章"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/subplot_board.md", "selected": ["A1-第 1 章"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/pending_hooks.md", "selected": ["MH01"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
+    {"target": "truth/chapter_summaries.md", "selected": ["第 1 章"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []}
+  ],
+  "adjustments": []
+}
+```

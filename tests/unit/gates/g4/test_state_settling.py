@@ -13,7 +13,7 @@ from typing import Any
 
 import pytest
 
-from shenbi.gates.g4.state_settling import g4_state_settling
+from shenbi.gates.g4.state_settling import _validate_character_matrix, g4_state_settling
 
 
 def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
@@ -134,9 +134,14 @@ def test_passes_when_particle_ledger_has_particle_section(tmp_path: Path) -> Non
 
 @pytest.mark.unit
 def test_state_settling_character_matrix_protection():
-    """state_settling prevents parameter agent names in character_matrix."""
-    from shenbi.gates.g4.state_settling import _validate_character_matrix
+    """state_settling prevents parameter agent names in character_matrix.
 
+    Phrase-level detection (probe27 #019 fix): parameter agents must be
+    tagged with the explicit `_param:` prefix when introduced in
+    character_matrix. Bare agent-name words are tolerated as common Chinese
+    vocabulary. The fixture uses the `_param:` tag to exercise the
+    genuine-leak path.
+    """
     content = """---
 update_mode: replace
 ---
@@ -148,14 +153,74 @@ update_mode: replace
 - 陈为民: 配角
 
 ## Ch50 State
-- 冷: 参数化存在
-- 光: 格式层出现
+- _param:冷: 参数化存在
+- _param:光: 格式层出现
 """
     issues = _validate_character_matrix(
         content, known_parameter_agents={"冷", "光", "安静", "缺口"}
     )
     assert len(issues) > 0
     assert "parameter_agent" in issues[0].lower()
+
+
+def test_character_matrix_common_word_quekou_is_not_a_parameter_agent():
+    """probe27 #019: '缺口' (deficit/gap) is a common Chinese word used freely
+    in accounting prose; the G4 gate must NOT treat every standalone
+    occurrence as a parameter agent leak.
+
+    Phrase-level detection: a parameter agent is only flagged when introduced
+    with the explicit `_param:` prefix (the LLM is now expected to use that
+    prefix when introducing a parameter role name in character_matrix).
+    """
+    content = """---
+update_mode: replace
+---
+
+# Character Matrix
+
+## 角色定义
+- 林烽: 主角
+- 陈为民: 配角
+
+## Ch5 State
+- 端木泠: 出场——以盐引、灵能、数目核账的人；缺口「得去别处对」
+- 最近更新章: 5
+"""
+    issues = _validate_character_matrix(
+        content, known_parameter_agents={"冷", "光", "安静", "缺口"}
+    )
+    # '缺口' is a common Chinese word (deficit/shortage) used in accounting
+    # context here — must NOT be flagged unless introduced with `_param:` prefix.
+    assert issues == [], (
+        f"Common-word '缺口' (deficit) must not be flagged as parameter agent "
+        f"without the `_param:` tag prefix. Got issues: {issues}"
+    )
+
+
+def test_character_matrix_param_agent_with_prefix_still_flagged():
+    """A parameter agent with the `_param:` tag prefix MUST still be flagged
+    when introduced outside the 角色定义 section — phrase-level only filters
+    out the common-word false positives, not legitimate tagged uses.
+    """
+    content = """---
+update_mode: replace
+---
+
+# Character Matrix
+
+## 角色定义
+- 林烽: 主角
+
+## Ch5 State
+- _param:缺口: 参数化存在
+- 最近更新章: 5
+"""
+    issues = _validate_character_matrix(
+        content, known_parameter_agents={"冷", "光", "安静", "缺口"}
+    )
+    assert len(issues) > 0
+    assert "parameter_agent" in issues[0].lower()
+    assert "缺口" in issues[0]
 
 
 # ── Task 9: Character Matrix Template & arc_log ──────────────────────────
@@ -190,3 +255,703 @@ def test_state_settling_skill_mentions_arc_log():
     # F870 (spec #58): the out-of-contract protagonist.md write instruction
     # is removed — arc progression lands in character_matrix only.
     assert "append an `arc_log` entry" not in content
+
+
+# ---------------------------------------------------------------------------
+# Probe session 2026-09-29 (Stage 2 friction): character_matrix template
+# regeneration burned 12 settle cycles (live 100+ lines collapsed to 24-40
+# line templates — 信息边界 R1-R28 and all Re-sync history deleted) while
+# G4 PASSed vacuously; produced_at was fabricated four times (12:00:00Z
+# placeholders, a future-dated 2026-10-04) with zero capture.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_fails_when_staged_matrix_collapses_vs_live(tmp_path: Path) -> None:
+    """A staged character_matrix with <90% of the live file's non-empty
+    lines is a template regeneration, not an increment — fail loud.
+    """
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        "---\ntype: truth\n---\n\n## 角色定义\n\n角色行×12\n\n## 信息边界\n\nR1-R28\n\n## 第3章 Re-sync\n"
+        + "\n".join(f"行 {i}" for i in range(120)),
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        "---\ntype: truth\n---\n\n## 角色\n\n角色行×3\n\n## 本章新知\n", encoding="utf-8"
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+
+    assert result["status"] == "FAIL"
+    assert any("G4.ss.matrix_structure" in m and "line_collapse" in m for m in mf)
+
+
+@pytest.mark.unit
+def test_fails_when_staged_matrix_drops_boundary_or_resync(tmp_path: Path) -> None:
+    """Same line count but the 信息边界 section or Re-sync history vanished
+    — structure loss the line-count ratio alone cannot see.
+    """
+    body = "\n".join(f"行 {i}" for i in range(80))
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        f"---\ntype: truth\n---\n\n## 角色定义\n\n{body}\n\n## 信息边界\n\nR1..R28\n\n## 第3章 Re-sync 记录\n\n## 第4章 Re-sync 记录\n",
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        f"---\ntype: truth\n---\n\n## 角色定义\n\n{body}\n\n## 本章增量\n\nR1..R28 压缩为一段散文填充行数。\n",
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+
+    assert any("G4.ss.matrix_structure" in m and "content_dropped" in m for m in mf)
+
+
+@pytest.mark.unit
+def test_passes_when_staged_matrix_is_structural_increment(tmp_path: Path) -> None:
+    """Live + new chapter rows + one more Re-sync heading passes."""
+    body = "\n".join(f"行 {i}" for i in range(80))
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        f"---\ntype: truth\n---\n\n## 角色定义\n\n{body}\n\n## 信息边界\n\nR1..R28\n\n## 第3章 Re-sync 记录\n",
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        f"---\ntype: truth\n---\n\n## 角色定义\n\n{body}\n新章角色行\n\n## 信息边界\n\nR1..R28\n\n## 第3章 Re-sync 记录\n\n## 第4章 Re-sync 记录\n",
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_on_placeholder_produced_at(tmp_path: Path) -> None:
+    """12:00:00Z / 00:00:00Z whole-hour placeholders are the four-times
+    fabricated form — fail loud.
+    """
+    dec = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
+    dec.parent.mkdir(parents=True)
+    dec.write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 5,
+                "produced_at": "2026-09-28T12:00:00Z",
+                "selections": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run([str(dec)], str(tmp_path))
+    assert any("G4.ss.produced_at" in m and "placeholder" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_on_future_produced_at(tmp_path: Path) -> None:
+    """A produced_at in the future (probe: 2026-10-04 while running
+    2026-09-28) is fabricated.
+    """
+    dec = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
+    dec.parent.mkdir(parents=True)
+    dec.write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 5,
+                "produced_at": "2099-01-01T01:02:03Z",
+                "selections": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run([str(dec)], str(tmp_path))
+    assert any("G4.ss.produced_at" in m and "future" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_passes_on_real_produced_at(tmp_path: Path) -> None:
+    dec = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
+    dec.parent.mkdir(parents=True)
+    dec.write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 5,
+                "produced_at": "2026-09-29T05:37:46Z",
+                "selections": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run([str(dec)], str(tmp_path))
+    assert not any("G4.ss.produced_at" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_when_staged_matrix_replaces_sections_same_size(tmp_path: Path) -> None:
+    """Fixcheck ch1/ch2: a same-size-or-bigger FORMAT REPLACEMENT passes the
+    0.9x line check while dropping every live section — the settle writer
+    restructured the matrix into a self-invented schema three times. The
+    staged file must preserve the live H2 section set (appends allowed).
+    """
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        "---\ntype: truth\n---\n\n## 一、角色交互总表\n\n"
+        + "\n".join(f"角色对 {i}" for i in range(23))
+        + "\n\n## 三、信息边界矩阵（权威）\n\n"
+        + "\n".join(f"边界 {i}" for i in range(23))
+        + "\n\n## 四、待追踪的信息差清单\n\n"
+        + "\n".join(f"信息差 {i}" for i in range(11)),
+        encoding="utf-8",
+    )
+    # replacement schema: MORE lines than live, zero live sections
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        "---\ntype: truth\n---\n\n## 角色定义\n\n"
+        + "\n".join(f"定义 {i}" for i in range(40))
+        + "\n\n## 状态追踪表\n\n"
+        + "\n".join(f"状态 {i}" for i in range(40)),
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+    assert result["status"] == "FAIL"
+    assert any("G4.ss.matrix_structure" in m and "content_dropped" in m for m in mf)
+
+
+@pytest.mark.unit
+def test_passes_when_staged_matrix_keeps_sections_and_appends(tmp_path: Path) -> None:
+    """Superset semantics: live sections verbatim + a new appended section
+    (e.g. the ch1-approved 逐章角色状态) must pass.
+    """
+    body = "\n".join(f"行 {i}" for i in range(60))
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        "---\ntype: truth\n---\n\n## 二、角色交互总表\n\n"
+        f"{body}\n\n## 三、信息边界矩阵（权威）\n\n"
+        "| 边界 | 状态 |\n|---|---|\n| R1..R28 | 已核 |\n",
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        "---\ntype: truth\n---\n\n## 二、角色交互总表\n\n"
+        f"{body}\n增量行\n\n## 三、信息边界矩阵（权威）\n\n"
+        "| 边界 | 状态 |\n|---|---|\n| R1..R28 | 已核+本章差 |\n| R29 | 新增 |\n\n"
+        "## 五、逐章角色状态\n\n本章行×3\n",
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_when_staged_matrix_swaps_prose_under_kept_headings(tmp_path: Path) -> None:
+    """Fixcheck ch3 failure #4: the H2-superset check was bypassed by
+    KEEPING every live heading while rewriting the prose under them. The
+    content guard must require live prose/bullet lines to survive, not
+    just the headings.
+    """
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        "---\ntype: truth\n---\n\n## 一、格式约定\n\n"
+        "以角色对为单位记录。\n- 同一对角色只保留一条记录。\n- 信任度与最近互动章节均为全书口径。\n\n"
+        "## 四、待追踪的信息差清单\n\n条目见下表。",
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        "---\ntype: truth\n---\n\n## 一、格式约定\n\n"
+        "以角色为中心记录。\n- 每个角色一张卡。\n- 状态字段全集见模板。\n\n"
+        "## 四、待追踪的信息差清单\n\n条目改由角色卡承载。",
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+    assert result["status"] == "FAIL"
+    assert any("G4.ss.matrix_structure" in m and "content_dropped" in m for m in mf)
+
+
+@pytest.mark.unit
+def test_passes_when_staged_matrix_upserts_rows_and_touches_volatile_lines(tmp_path: Path) -> None:
+    """Legitimate increment: table-row upsert (same key, updated cells),
+    appended rows/sections, refreshed frontmatter timestamps and a
+    rewritten `>` annotation line (清单计数) must all pass the guard.
+    """
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(
+        "---\ntype: truth\nproduced_at: 2026-09-29T10:00:00Z\n---\n\n"
+        "# 角色交互矩阵\n\n## 二、角色交互总表\n\n"
+        "| 角色对 | 关系性质 | 信任度 |\n|---|---|---|\n"
+        "| 陆昭-柯小满 | 陌生 | 1 |\n| 陆昭-阿水 | 跟班 | 2 |\n\n"
+        "## 四、待追踪的信息差清单\n\n> 本清单共 11 条。\n\n"
+        "| # | 信息差 |\n|---|---|\n| 1 | 铁盒抄本 |\n",
+        encoding="utf-8",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(
+        "---\ntype: truth\nproduced_at: 2026-09-29T20:15:30Z\n---\n\n"
+        "# 角色交互矩阵\n\n## 二、角色交互总表\n\n"
+        "| 角色对 | 关系性质 | 信任度 |\n|---|---|---|\n"
+        "| 陆昭-柯小满 | 师生/识才 | 3 |\n| 陆昭-阿水 | 跟班 | 2 |\n\n"
+        "## 四、待追踪的信息差清单\n\n> 本清单共 12 条。\n\n"
+        "| # | 信息差 |\n|---|---|\n| 1 | 铁盒抄本 |\n| 12 | 新增条目 |\n\n"
+        "## 第2章状态增量\n\n- 陆昭识出柯小满的题眼\n",
+        encoding="utf-8",
+    )
+
+    result = _run([str(staged)], str(tmp_path))
+    assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", [])), result.get(
+        "must_fix", []
+    )
+
+
+# ---------------------------------------------------------------------------
+# #52 (probe21 adjudication #008): selections-coverage reconciliation
+# ---------------------------------------------------------------------------
+_SSC_TARGETS = (
+    "current_state",
+    "particle_ledger",
+    "emotional_arcs",
+    "subplot_board",
+    "pending_hooks",
+    "chapter_summaries",
+    "character_matrix",
+)
+
+
+def _staged_settle_project(tmp_path: Path, declared: tuple[str, ...]) -> list[str]:
+    """Staging/truth with the probe21 seven-target set + a sidecar whose
+    selections declare only *declared* targets (by filename).
+    """
+    staging = tmp_path / "staging" / "truth"
+    staging.mkdir(parents=True, exist_ok=True)
+    fps: list[str] = []
+    for name in _SSC_TARGETS:
+        f = staging / f"{name}.md"
+        content = "# x\n"
+        if name == "current_state":
+            content = "## 位置\n南仓\n"
+        elif name == "chapter_summaries" or name == "emotional_arcs":
+            content = "## 第 1 章\n摘要\n"
+        elif name == "particle_ledger":
+            content = (
+                "## 资源账本\n| 章节 | 变动项 | 收支 |\n|---|---|---|\n| 第 1 章 | 灰木牌 | +1 |\n"
+            )
+        elif name == "character_matrix":
+            content = "## 角色\n主角\n"
+        elif name == "pending_hooks":
+            content = "## 钩子\n- lifecycle_state: PLANTED\n"
+        f.write_text(content, encoding="utf-8")
+        fps.append(f"staging/truth/{f.name}")
+    selections = [
+        {
+            "target": f"truth/{name}.md",
+            "selected": ["x"],
+            "basis": "adjacent_to_target_chapter",
+            "severity": "low",
+            "omitted": [],
+        }
+        for name in declared
+    ]
+    (staging / "state-settling-decisions.json").write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 1,
+                "produced_at": "2026-10-03T07:11:22Z",
+                "selections": selections,
+                "adjustments": [],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    return fps
+
+
+@pytest.mark.unit
+def test_fails_when_selections_under_report_staged_targets(tmp_path: Path) -> None:
+    """probe21 #008 shape: sidecar declared 1/7 while seven files were staged
+    — the review surface could not see what the settle touched.
+    """
+    fps = _staged_settle_project(tmp_path, declared=("pending_hooks",))
+    result = _run(fps, str(tmp_path))
+    mf = result.get("must_fix", [])
+    assert result["status"] == "FAIL"
+    uncovered = [m for m in mf if "selections_uncovered" in m]
+    assert len(uncovered) == 6, mf
+    assert any("particle_ledger" in m for m in uncovered)
+    assert not any("pending_hooks" in m for m in uncovered)  # declared → covered
+
+
+@pytest.mark.unit
+def test_passes_when_selections_cover_all_staged_targets(tmp_path: Path) -> None:
+    """probe21 #006 standard: 7/7 coverage — no findings."""
+    fps = _staged_settle_project(tmp_path, declared=_SSC_TARGETS)
+    result = _run(fps, str(tmp_path))
+    assert not any("selections_uncovered" in m for m in result.get("must_fix", [])), result.get(
+        "must_fix", []
+    )
+
+
+@pytest.mark.unit
+def test_selections_coverage_ignores_co_writer_staged_files(tmp_path: Path) -> None:
+    """#52 scope fix (probe22 adjudication #005): the obligation set is the
+    skill's OWN contract targets, not every file in the shared staging dir —
+    foreshadowing-lifecycle's bridge_tracker.md rides the same staging/truth
+    glob into the settle G4 file list, and demanding the SETTLE sidecar
+    declare it is a false positive (declaring it would be the false report;
+    the feedback loop is mathematically unsatisfiable — 3 deterministic
+    escalation deaths in probe22 ch1).
+    """
+    fps = _staged_settle_project(tmp_path, declared=_SSC_TARGETS)
+    co_writer = tmp_path / "staging" / "truth" / "bridge_tracker.md"
+    co_writer.write_text("| bridge_id | 章节 |\n|---|---|\n| BR-01 | 第 1 章 |\n", encoding="utf-8")
+    fps.append("staging/truth/bridge_tracker.md")
+
+    result = _run(fps, str(tmp_path))
+    assert not any("selections_uncovered" in m for m in result.get("must_fix", [])), result.get(
+        "must_fix", []
+    )
+
+
+@pytest.mark.unit
+def test_selections_coverage_still_catches_own_undeclared_target(tmp_path: Path) -> None:
+    """The narrowed scope must still catch the probe21 #008 shape: one of the
+    skill's OWN contract targets staged but undeclared.
+    """
+    half = _SSC_TARGETS[:4]  # declare 4 of 7
+    fps = _staged_settle_project(tmp_path, declared=half)
+    co_writer = tmp_path / "staging" / "truth" / "bridge_tracker.md"
+    co_writer.write_text("| bridge_id | 章节 |\n|---|---|\n", encoding="utf-8")
+    fps.append("staging/truth/bridge_tracker.md")
+
+    result = _run(fps, str(tmp_path))
+    uncovered = [m for m in result.get("must_fix", []) if "selections_uncovered" in m]
+    assert len(uncovered) == 3, uncovered  # the 3 undeclared OWN targets
+    assert not any("bridge_tracker" in m for m in uncovered)
+
+
+@pytest.mark.unit
+def test_state_settling_skill_declares_selections_must_cover_all_update_targets():
+    """Batch #21 fix (probe28 ch4 selections_uncovered recurrence): the
+    state-settling SKILL.md must explicitly require selections[] to cover
+    EVERY update target declared in the frontmatter writes/updates.
+
+    probe28: state-settling's example sidecar only listed ONE selection
+    (current_state.md), causing G4.ss.selections_uncovered to fail on the
+    4 undeclared update targets (chapter_summaries / emotional_arcs /
+    particle_ledger / subplot_board). The contract must be unambiguous.
+    """
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+
+    # Must contain an explicit declaration that selections must cover all
+    # update targets declared in the frontmatter contract.
+    expected_patterns = [
+        "selections",
+        "all",
+        "update",
+        "writes",
+    ]
+    found = [p for p in expected_patterns if p.lower() in content.lower()]
+    assert found, (
+        "state-settling SKILL.md must explicitly require selections to "
+        "cover all update targets. Found none of the unambiguous patterns."
+    )
+
+    # Must contain an explicit "selections must include" or
+    # "selections must cover" or equivalent binding language.
+    import re as _re
+
+    binding_patterns = [
+        r"selections?[^.]*(?:must|should|必)[^.]*(?:cover|include|contain|含|覆盖)[^.]*(?:all|每个|全部)[^.]*(?:update|write|target|触达|目标)",
+        r"(?:all|每个|全部)[^.]*(?:update|write|target)[^.]*(?:必须|must|必)[^.]*(?:含|cover|申报)",
+    ]
+    found_binding = any(
+        _re.search(p, content, _re.IGNORECASE | _re.DOTALL) for p in binding_patterns
+    )
+    assert found_binding, (
+        "state-settling SKILL.md must contain explicit binding language "
+        "requiring selections[] to cover ALL update targets. None of the "
+        "binding patterns matched."
+    )
+
+
+@pytest.mark.unit
+def test_state_settling_skill_declares_character_matrix_append_only():
+    """Batch #22 fix (probe29 ch4 matrix_structure content_dropped): the
+    state-settling SKILL.md must contain EXPLICIT binding language that
+    character_matrix.md uses append-only semantics — output ONLY this
+    chapter's increment rows, NEVER modify or rewrite existing rows.
+
+    probe29 ch4: state-settling's re-emit rewrote live rows (e.g.,
+    `- 当前位置: 九面采掘队·工棚 (白日在护坡下稽查登记点)`),
+    triggering G4.ss.matrix_structure content_dropped with attempts=3
+    exhausted. The contract must be unambiguous: append, never replace.
+    """
+    import re as _re
+
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+
+    # Must contain an explicit "append" / "append-only" / "append_dedup"
+    # declaration that EXPLICITLY forbids modifying existing rows.
+    found_patterns = []
+    if _re.search(
+        r"append\s*[_-]?only|append_dedup|append\s*,?\s*never\s+replace", content, _re.IGNORECASE
+    ):
+        found_patterns.append("append-only declaration")
+    if _re.search(
+        r"never\s+(?:modify|rewrite|replace|reproduce)\s+existing\s+rows?", content, _re.IGNORECASE
+    ):
+        found_patterns.append("never modify existing rows")
+    if _re.search(
+        r"do\s+not\s+(?:modify|rewrite|replace)\s+(?:existing|the)\s+rows?", content, _re.IGNORECASE
+    ):
+        found_patterns.append("do not modify existing rows")
+    if _re.search(r"output\s+only\s+(?:the\s+)?(?:current\s+)?chapter", content, _re.IGNORECASE):
+        found_patterns.append("output only current chapter")
+
+    assert len(found_patterns) >= 2, (
+        f"state-settling SKILL.md must contain explicit append-only / "
+        f"never-replace-existing-rows binding language for character_matrix. "
+        f"Found: {found_patterns}"
+    )
+
+
+@pytest.mark.unit
+def test_state_settling_skill_append_constraint_in_prominent_location():
+    """Batch #22 fix (probe29 ch4 matrix_structure content_dropped): the
+    state-settling SKILL.md must place the character_matrix append-only
+    HARD CONSTRAINT in a PROMINENT location (within first 100 lines of
+    body, BEFORE the Truth File Update Mode Rules details), with very
+    explicit "ABSOLUTELY NEVER modify" language.
+
+    The detailed rule at line 75 is buried inside a bullet list and is
+    ignored by the LLM (probe29 ch4). A higher-prominence HARD CONSTRAINT
+    block at the top of the file is needed to make the rule unmissable.
+    """
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    lines = content.split("\n")
+
+    # Find the first 100 body lines (after frontmatter and auto-gen blocks)
+    # where the constraint should appear with explicit "NEVER modify existing
+    # rows" binding language.
+    body_start = 0
+    in_fm = False
+    for i, line in enumerate(lines):
+        if line.strip() == "---":
+            if not in_fm:
+                in_fm = True
+                continue
+            in_fm = False
+            body_start = i + 1
+            break
+
+    search_window = "\n".join(lines[body_start : body_start + 100])
+
+    import re as _re
+
+    # Must contain explicit binding language about NOT modifying existing
+    # rows in the FIRST 100 lines after frontmatter.
+    binding_patterns = [
+        r"ABSOLUTELY\s+NEVER\s+modify",
+        r"NEVER\s+(?:modify|rewrite|replace)\s+(?:the\s+)?(?:existing|live)\s+rows?",
+        r"hard\s*[-_ ]?\s*rule.*append",
+        r"append\s*[-_ ]?\s*only",
+    ]
+    found = [p for p in binding_patterns if _re.search(p, search_window, _re.IGNORECASE)]
+    assert found, (
+        f"state-settling SKILL.md must place character_matrix append-only "
+        f"HARD CONSTRAINT in the first 100 lines of body with explicit "
+        f"binding language. Searched patterns: {binding_patterns}, "
+        f"found: {found}, body_start={body_start}"
+    )
+
+
+@pytest.mark.unit
+def test_re_settle_replacing_own_chapter_block_passes_matrix_structure(tmp_path: Path) -> None:
+    """probe31 ch2 escalation (2 identical G4 fails, attempts=1/2): an
+    audit-routed re-settle ATOMICALLY REPLACES the current chapter's own
+    ``## 第N章状态增量`` block — that block is the keyed-upsert unit the
+    merge layer owns, not base mass. Bullets inside it may legitimately
+    change; G4 must not flag them as content_dropped (the deterministic
+    deadlock: every re-settle that touched its own block died at G4).
+    """
+    live_body = (
+        "# 角色交互矩阵\n\n## 角色定义\n\n- 叶昭: 主角\n\n"
+        "## 交互总表\n\n| 角色A | 角色B |\n|---|---|\n"
+        "| 叶昭 | 原主 | 附身 |\n\n"
+        "## 第1章状态增量\n\n### 叶昭\n\n"
+        "- 当前状态: 存活（苏醒）\n- 身体状态: 手背新伤\n\n"
+        "## 第2章状态增量\n\n### 叶昭\n\n"
+        "- 当前状态: 存活（窑场落籍）\n"
+        "- 身体状态: 手背斜切新伤（结半痂）；搬柴袍褂湿透又干\n\n"
+        "## 第3章状态增量\n\n### 桑迟\n\n- 当前状态: 登场\n"
+    )
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(f"---\ntype: truth\n---\n\n{live_body}", encoding="utf-8")
+
+    staged_body = live_body.replace(
+        "- 身体状态: 手背斜切新伤（结半痂）；搬柴袍褂湿透又干",
+        "- 身体状态: 手背斜切新伤（结半痂）；搬柴褂子湿透又干（L66）",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(f"---\ntype: truth\n---\n\n{staged_body}", encoding="utf-8")
+
+    sidecar = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
+    sidecar.write_text(json.dumps({"chapter": 2}), encoding="utf-8")
+
+    result = _run([str(staged)], str(tmp_path))
+    assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", [])), result.get(
+        "must_fix"
+    )
+
+
+@pytest.mark.unit
+def test_re_settle_still_flags_foreign_chapter_block_rewrites(tmp_path: Path) -> None:
+    """Over-exemption guard: with sidecar chapter=2, rewriting a bullet
+    inside the 第1章 block is STILL content_dropped — only the CURRENT
+    chapter's own increment block is exempt; prior chapters stay base mass.
+    """
+    live_body = (
+        "# 角色交互矩阵\n\n## 角色定义\n\n- 叶昭: 主角\n\n"
+        "## 第1章状态增量\n\n### 叶昭\n\n"
+        "- 当前状态: 存活（苏醒）\n- 身体状态: 手背新伤\n\n"
+        "## 第2章状态增量\n\n### 叶昭\n\n- 当前状态: 存活（窑场落籍）\n"
+    )
+    live = tmp_path / "truth" / "character_matrix.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(f"---\ntype: truth\n---\n\n{live_body}", encoding="utf-8")
+
+    staged_body = live_body.replace(
+        "- 身体状态: 手背新伤",
+        "- 身体状态: 手背新伤（L31 引注）",
+    )
+    staged = tmp_path / "staging" / "truth" / "character_matrix.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(f"---\ntype: truth\n---\n\n{staged_body}", encoding="utf-8")
+
+    sidecar = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
+    sidecar.write_text(json.dumps({"chapter": 2}), encoding="utf-8")
+
+    result = _run([str(staged)], str(tmp_path))
+    assert any(
+        "G4.ss.matrix_structure" in m and "content_dropped" in m for m in result.get("must_fix", [])
+    )
+
+
+_HEADERLESS_HOOKS_LIVE = """---
+type: truth
+---
+
+# 伏笔追踪
+
+（尚无章节级伏笔数据）
+| MH01（旧木牌：正面是账，背面是字） | PLANTED | 1 | 115（五卷） | ITEM | 0.5 | 14 | STAIRCASE |
+| MH02（烬婆婆被押上运矿车） | PLANTED | 12 | 106（五卷） | CHARACTER | 0.45 | 12 | RISING |
+
+### MH01（旧木牌：正面是账，背面是字）
+
+- type: ITEM
+- lifecycle_state: PLANTED
+"""
+
+
+@pytest.mark.unit
+def test_hook_row_lifecycle_bump_on_headerless_table_not_flagged(tmp_path: Path) -> None:
+    """Batch #27 (probe32 ch2 settle 4-attempt deadlock): a genesis live
+    pending_hooks registry table can be HEADERLESS (the shell base never
+    got a bootstrap header), which made _live_lifecycle_columns return no
+    exemption — the foreshadowing-track's LEGAL lifecycle bump
+    (PLANTED→RELEVANT) then landed in the settle gate as
+    hook_row_stable_columns_rewritten and settled 4x for a crime it did
+    not commit. Without a header the lifecycle column must be located by
+    value-vocabulary inference (all hook rows' cells ∈ PLANTED/RELEVANT/
+    TRIGGERED/RESOLVED).
+    """
+    live = tmp_path / "truth" / "pending_hooks.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(_HEADERLESS_HOOKS_LIVE, encoding="utf-8")
+
+    staged_body = _HEADERLESS_HOOKS_LIVE.replace(
+        "| MH01（旧木牌：正面是账，背面是字） | PLANTED |",
+        "| MH01（旧木牌：正面是账，背面是字） | RELEVANT |",
+    ).replace(
+        "- lifecycle_state: PLANTED\n",
+        "- lifecycle_state: PLANTED\n- last_reinforced: 第 2 章\n- 证据: 第 2 章（L38）：红笔划过牌缘\n",
+    )
+    staged = tmp_path / "staging" / "truth" / "pending_hooks.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(staged_body, encoding="utf-8")
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+    assert not any("hook_row_stable_columns_rewritten" in m for m in mf), (
+        f"A lifecycle-only status bump on a headerless registry table is the "
+        f"foreshadowing-track's legal write — must not be flagged. must_fix={mf}"
+    )
+
+
+@pytest.mark.unit
+def test_hook_row_real_stable_rewrite_on_headerless_table_still_flagged(tmp_path: Path) -> None:
+    """Regression lock for the batch #27 value-inference fallback: a REAL
+    stable-column rewrite (subtlety 0.5→0.8) on a headerless table must
+    still FAIL — the fallback exempts the lifecycle column only, not the
+    rest of the row.
+    """
+    live = tmp_path / "truth" / "pending_hooks.md"
+    live.parent.mkdir(parents=True, exist_ok=True)
+    live.write_text(_HEADERLESS_HOOKS_LIVE, encoding="utf-8")
+
+    staged_body = _HEADERLESS_HOOKS_LIVE.replace("| ITEM | 0.5 | 14 |", "| ITEM | 0.8 | 14 |")
+    staged = tmp_path / "staging" / "truth" / "pending_hooks.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text(staged_body, encoding="utf-8")
+
+    result = _run([str(staged)], str(tmp_path))
+    mf = result.get("must_fix", [])
+    assert any("hook_row_stable_columns_rewritten" in m for m in mf), (
+        f"A subtlety rewrite is a stable-column violation even on a headerless table. must_fix={mf}"
+    )

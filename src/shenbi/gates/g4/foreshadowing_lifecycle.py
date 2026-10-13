@@ -27,6 +27,14 @@ _STATES_RE = re.compile(
 )
 _CHANGES_RE = re.compile(r"状态.*→|操作")
 _CHAPTER_RE = re.compile(r"第\d+章")
+#: Batch #14 (probe19 adjudication #001), pairing rule per #28 precedent:
+#: the batch #13 #36 pin made bare-digit plant_chapter/resolve_chapter
+#: field lines the contract-mandated chapter carriers — a faithful output
+#: contains ZERO 第N章 literals (probe17/18 satisfied the literal only via
+#: the now-banned compound grammars; the check had never once been passed
+#: by a compliant form). Either carrier satisfies; neither → must_fix as
+#: before. Anchored so prose mentions never match.
+_CHAPTER_FIELD_RE = re.compile(r"^- (?:plant|resolve)_chapter:\s*\d+\s*$", re.MULTILINE)
 _SMOKESCREEN_EXIT_RE = re.compile(r"若|如果|除非|unless|if\b|condition", re.IGNORECASE)
 _OPS = ("plant", "reinforce", "trigger", "resolve")
 
@@ -123,10 +131,18 @@ def g4_foreshadowing_lifecycle(
         else:
             mf.append("G4.fl.no_changes")
         refs = _CHAPTER_RE.findall(content)
-        if not refs:
+        field_refs = len(_CHAPTER_FIELD_RE.findall(content))
+        if not refs and not field_refs:
             mf.append("G4.fl.chapter_refs")
         else:
-            c.append({"id": "G4.fl.chapter_refs", "s": GateStatus.PASS, "refs": len(refs)})
+            c.append(
+                {
+                    "id": "G4.fl.chapter_refs",
+                    "s": GateStatus.PASS,
+                    "refs": len(refs),
+                    "field_refs": field_refs,
+                }
+            )
 
     if not fps:
         c.append({"id": "G4.fl", "s": GateStatus.SKIP, "r": "no files"})

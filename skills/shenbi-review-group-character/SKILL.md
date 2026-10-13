@@ -98,7 +98,7 @@ This dimension supersedes the deprecated `shenbi-review-character` skill.
 ## 角色一致性审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### BDI 评估
 | 角色 | 信念 | 欲望 | 意图 | 一致性 |
@@ -124,7 +124,7 @@ This dimension supersedes the deprecated `shenbi-review-character` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [具体段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [具体段落] [问题描述]：[修复方案]
 ```
 
 ---
@@ -156,7 +156,7 @@ This dimension supersedes the deprecated `shenbi-review-dialogue` skill.
 ## 对白审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 声音匹配
 | 角色 | 句长偏差 | 词汇偏差 | 句式偏差 | 综合 | 严重度 |
@@ -181,8 +181,8 @@ This dimension supersedes the deprecated `shenbi-review-dialogue` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [角色] [声音偏差]：[修复方案]
-- [WARNING] [段落] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [段落] [角色] [声音偏差]：[修复方案]
+- [MINOR] [段落] [问题描述]：[修复方案]
 ```
 
 ---
@@ -214,7 +214,7 @@ This dimension supersedes the deprecated `shenbi-review-motivation` skill.
 ## 动机与行为链审计报告
 
 **章节**: 第N章
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### 利益驱动
 | 角色 | 行为 | 驱动类型 | 档案匹配 | 严重度 |
@@ -234,8 +234,8 @@ This dimension supersedes the deprecated `shenbi-review-motivation` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [角色] [动机缺失/不可信]：[具体补足方案]
-- [WARNING] [段落] [行为链缺失]：[补足哪个环节]
+- [BLOCKING/CRITICAL] [段落] [角色] [动机缺失/不可信]：[具体补足方案]
+- [MINOR] [段落] [行为链缺失]：[补足哪个环节]
 ```
 
 ---
@@ -268,7 +268,7 @@ This dimension supersedes the deprecated `shenbi-review-pov` skill.
 
 **章节**: 第N章
 **POV 模式**: third-limited
-**结果**: 通过 / 有瑕疵 / 不通过
+**判定**: 通过 / 有瑕疵 / 不通过
 
 ### POV 切换
 | 位置 | 从 -> 到 | 过渡方式 | 严重度 |
@@ -288,7 +288,7 @@ This dimension supersedes the deprecated `shenbi-review-pov` skill.
 ### 评分: X/100 通过
 
 ### 建议修复
-- [ERROR] [段落] [POV/信息/感官] [问题描述]：[修复方案]
+- [BLOCKING/CRITICAL] [段落] [POV/信息/感官] [问题描述]：[修复方案]
 ```
 
 ## 缺陷证据格式

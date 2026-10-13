@@ -5,6 +5,8 @@ description: Use when your human partner wants to set or update their creative i
 contract:
   kind: artifact
   reads:
+  - novel.json
+  - outline/story_frame.md
   - truth/author_intent.md
   - truth/audit_drift.md
   writes: []
@@ -24,7 +26,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/author_intent.md, truth/audit_drift.md
+- **Reads:** novel.json, outline/story_frame.md, truth/author_intent.md, truth/audit_drift.md
 - **Writes:** none
 - **Updates:** truth/author_intent.md, truth/current_focus.md
 
@@ -54,6 +56,7 @@ digraph intent_management {
 1. **author_intent 由人类口述，AI 整理** — AI 不得替作者做创作决策
 2. **current_focus 每次 chapter-planning 前必须更新** — 不更新 = 章节备忘脱离关注点
 3. **drift guidance 必须自动合并到 current_focus** — 纠偏遗漏 = 问题在下一章重复出现
+4. **意图必须锚定本书，无从编造** — auto 模式（genesis 期无人类口述、author_intent 尚为占位符）推演长期意图时，只能从 `novel.json` 与 `outline/story_frame.md` 提炼主题与方向：写出的 long_term_goals/narrative_principles 必须与 story_frame 的世界观、主角、核心冲突同书同故事。禁止从项目目录名、书名等只言片语虚构另一部作品（probe6 教训：占位符推演产出了一部深空探测小说，污染了此后每章的优先级链输入）
 
 ## 文件格式
 
@@ -157,3 +160,8 @@ status: draft
 | "我记住作者意图了，不用写" | 50章后你还能记住第3章的意图细节？ |
 | "1-3章范围太窄了" | 精确的近期关注点 > 模糊的长期规划 |
 | "drift 是 agent 推的，作者不一定认可" | drift 写入时已有人类确认；不合并 = 漏掉已确认的纠偏 |
+
+
+## 年代锚纪律
+
+绝对年数（「X 年/年前」「N 年来」形态，含阿拉伯数字）只登记于 `world/story_bible.md` 的「世界史时间线」表。本 skill 的输出涉及年代时只写**锚名**或相对表述（如「净场之后」「旧历末年」），不写裸年数——G4.ys 机械扫描会把裸年数判为不合格（probe15：四层年数互斥耗掉四轮创世裁决）。

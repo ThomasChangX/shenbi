@@ -77,6 +77,12 @@ def _run(argv: list[str], monkeypatch: pytest.MonkeyPatch) -> int:
 @pytest.fixture
 def chapter_state(tmp_path: Path) -> PipelineState:
     """PipelineState positioned at chapter 1, step 0, in chapter-loop phase."""
+    from tests.unit.pipeline.conftest import write_chapter_drafts
+
+    # #51: the draft-consuming steps (lifecycle/settle/revision) precheck
+    # chapters/chapter-1.md — dispatch is mocked, so the draft never lands
+    # via the drafting step and must exist up front.
+    write_chapter_drafts(tmp_path, (1,))
     state = PipelineState.default(str(tmp_path))
     state.phase = PipelinePhase.CHAPTER_LOOP
     state.chapter_loop.current_chapter = 1

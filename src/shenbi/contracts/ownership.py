@@ -34,12 +34,14 @@ class FileOwnership:
 
 
 # —— 参考 OWNERSHIP 条目（Tier B 审计消费；完整迁移见「支柱一续」）——
-# genre-config.json：真实 9 顶层键（fixture 亲手核对，见计划「fixture 核对」节）
+# genre-config.json：真实 10 顶层键（9 fixture 亲手核对 + chapter_word 基线
+# 块，3bfc4a3b skill 模板起为写手必产出、G0.3/G2/G4/G6 同源读取）
 GENRE_KEYS = frozenset(
     {
         "approval",
         "auditDimensions",
         "chapterTypes",
+        "chapter_word",
         "customRules",
         "fatigueWords",
         "pacing",

@@ -7,8 +7,10 @@ contract:
   reads:
   - world/story_bible.md
   - world/rules.md
-  - outline/chapter_outline.md
-  - outline/three_act.md
+  - genesis-context/protagonist.md
+  - genesis-context/supporting.md
+  - genesis-context/chapter_outline.md
+  - genesis-context/three_act.md
   - characters/*.md
   - characters/**/*.md
   writes:
@@ -32,7 +34,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** world/story_bible.md, world/rules.md, outline/chapter_outline.md, outline/three_act.md, characters/*.md, characters/**/*.md
+- **Reads:** world/story_bible.md, world/rules.md, genesis-context/protagonist.md, genesis-context/supporting.md, genesis-context/chapter_outline.md, genesis-context/three_act.md, characters/*.md, characters/**/*.md
 - **Writes:** characters/protagonist.md, characters/major/*.md, characters/minor/*.md, characters/relationships.md
 - **Updates:** none
 
@@ -40,9 +42,12 @@ contract:
 
 # Character Design Protocol
 
+**Seed 片段（genesis-context/）**：`genesis-context/protagonist.md`、`genesis-context/supporting.md`（配角节，可选）、`genesis-context/chapter_outline.md` 与 `genesis-context/three_act.md` 是人类伙伴 seed 原文（主角设定/配角设定/开篇章纲/三幕结构节）的逐字片段。权威序：上游 truth（story_bible/rules 等）> seed 片段；冲突时以上游为准，若据此调整须在产出档案内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
+
 You must complete ALL FOUR phases in order. Each phase produces specific files.
-No phase is optional. No character explicitly named in `outline/chapter_outline.md`
-or `outline/three_act.md` may be omitted.
+No phase is optional. No character explicitly named in `genesis-context/chapter_outline.md`,
+`genesis-context/three_act.md`, or `genesis-context/supporting.md` (when the
+optional 配角设定 section is present) may be omitted.
 
 **职责边界**：本 skill **正向创建**角色档案（新小说，从 story_bible/story_frame 设计角色）。`shenbi-character-extraction` **反向提取**角色档案（已有手稿，从章节分析反推）。两者都写 `characters/*.md`，但方向相反——新小说用本 skill，导入已有作品用 extraction。
 
@@ -102,8 +107,8 @@ archetype_sources:
 **Output:** `characters/major/{slug}.md` (one per major character)
 
 A character is MAJOR if they appear in >= 3 chapters with an independent arc.
-Generate one `.md` file per major character identified from chapter_outline.md
-and three_act.md.
+Generate one `.md` file per major character identified from `genesis-context/chapter_outline.md`
+and `genesis-context/three_act.md`.
 
 Each major character file must include:
 
@@ -198,9 +203,10 @@ Generate >= 3 relationship pairs. Include protagonist with each major character.
 ## IRON LAW: Character Completeness
 
 Before declaring completion, verify:
-1. Every character explicitly named in `outline/chapter_outline.md` has a
+1. Every character explicitly named in `genesis-context/chapter_outline.md` has a
    corresponding archive in either `characters/major/` or `characters/minor/`
-2. Every character explicitly named in `outline/three_act.md` has an archive
+2. Every character explicitly named in `genesis-context/three_act.md` or
+   `genesis-context/supporting.md` (when present) has an archive
 3. `characters/major/` contains >= 3 `.md` files
 4. `characters/minor/` contains >= 2 `.md` files
 5. Every archive includes `archetype_sources` with >= 1 historical archetype,
@@ -250,3 +256,8 @@ digraph character_design_expand {
 1. **只追加不修改** — 已有角色文件的任何字段不可修改
 2. **去重检查** — 新角色不得与已有角色在性格/功能上高度重叠
 3. **关系矩阵只追加行** — 不重写已有关系行
+
+
+## 年代锚纪律
+
+绝对年数（「X 年/年前」「N 年来」形态，含阿拉伯数字）只登记于 `world/story_bible.md` 的「世界史时间线」表。本 skill 的输出涉及年代时只写**锚名**或相对表述（如「净场之后」「旧历末年」），不写裸年数——G4.ys 机械扫描会把裸年数判为不合格（probe15：四层年数互斥耗掉四轮创世裁决）。

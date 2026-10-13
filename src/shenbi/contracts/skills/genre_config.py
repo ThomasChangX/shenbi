@@ -15,8 +15,11 @@ from shenbi.contracts.enums import ApprovalDecision
 from shenbi.contracts.ownership import GENRE_KEYS
 from pydantic import BaseModel, Field, model_validator
 
-# Single-source keyset authority (F214): 8 required = GENRE_KEYS minus optional tropeInventory.
-_REQUIRED_TOP_KEYS = tuple(sorted(k for k in GENRE_KEYS if k != "tropeInventory"))
+# Single-source keyset authority (F214): 8 required = GENRE_KEYS minus the
+# optional tropeInventory / chapter_word blocks (chapter_word baseline is
+# writer-mandated since 3bfc4a3b; pre-baseline real outputs lack it).
+_OPTIONAL_TOP_KEYS = frozenset({"tropeInventory", "chapter_word"})
+_REQUIRED_TOP_KEYS = tuple(sorted(k for k in GENRE_KEYS if k not in _OPTIONAL_TOP_KEYS))
 
 
 class GenreConfig(BaseModel):
@@ -31,7 +34,7 @@ class GenreConfig(BaseModel):
     6. auditDimensions count must be 5-10
     7. Every disabled auditDimension must have a customRules reason
     8. approval.decision is required (no approval = invalid config)
-    9. Top-level keyset = 8 required keys + optional tropeInventory
+    9. Top-level keyset = 8 required keys + optional tropeInventory/chapter_word
     """
 
     model_config = {"extra": "ignore"}
@@ -53,7 +56,7 @@ class GenreConfig(BaseModel):
         for key in data:
             if key not in GENRE_KEYS:
                 raise ValueError(
-                    f"unknown top-level key '{key}' (allowed: 8 required + optional tropeInventory)"
+                    f"unknown top-level key '{key}' (allowed: 8 required + optional tropeInventory/chapter_word)"
                 )
         missing = [k for k in _REQUIRED_TOP_KEYS if k not in data]
         if missing:

@@ -17,6 +17,7 @@ BLOCKING-severity findings short-circuit into revision; the caller checks
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from collections.abc import Callable, Mapping
@@ -30,6 +31,11 @@ log = get_logger(__name__)
 
 #: Sub-directory under a project where audit reports are written.
 AUDIT_DIR = "audits"
+
+#: Legacy hard-tier label from the review templates (fixcheck ch1): the
+#: bracketed ``- [ERROR]`` finding line. Matched as a structured bracket
+#: label only, so prose that merely mentions "ERROR" does not trip it.
+_ERROR_LABEL_RE = re.compile(r"^\s*-\s*\[ERROR\]", re.M)
 
 # ---------------------------------------------------------------------------
 # Genre-circle activation matrix (spec section 6.2)
@@ -175,6 +181,31 @@ def audit_relative_path(chapter: int, skill: str) -> str:
     return f"{AUDIT_DIR}/chapter-{chapter}-{audit_suffix(skill)}.md"
 
 
+def audit_report_paths(chapter: int, skill: str) -> list[str]:
+    """All expected audit-report paths for *skill* on *chapter*.
+
+    Single-dimension reviewers keep the convention path; grouped skills
+    (shenbi-review-group-character writes character/dialogue/motivation/pov)
+    declare their real outputs in the contract. The convention-only path for
+    a group (``audits/chapter-N-group-character.md``) is a phantom no skill
+    ever writes — fixcheck ch2 recorded it into audit_reports unvalidated
+    while the character dimension failed with zero coverage on disk.
+    """
+    from shenbi.contracts.loader import ContractError, load_contract
+    from shenbi.contracts.paths import resolve_chapter_path
+
+    try:
+        writes = load_contract(skill).get("writes", [])
+    except ContractError:
+        writes = []
+    paths: list[str] = []
+    for rel in writes:  # loader normalizes dict-form writes to plain paths
+        resolved = resolve_chapter_path(str(rel), chapter)
+        if resolved.startswith(f"{AUDIT_DIR}/"):
+            paths.append(resolved)
+    return paths or [audit_relative_path(chapter, skill)]
+
+
 def _gate_passed(result: dict[str, object]) -> bool:
     """True iff a gate result dict reports PASS (handles str and GateStatus)."""
     return str(result.get("status", "")) == GateStatus.PASS
@@ -230,6 +261,13 @@ def run_audit_layer(
             if "CRITICAL" in content:
                 result.critical_found = True
                 result.issues.append(_issue(skill, chapter, "CRITICAL", "content", rel_path))
+            # Fixcheck ch1 (2026-09-29): the review templates' legacy hard
+            # tier is the bracketed '- [ERROR]' label — drifted outputs carry
+            # real hard findings that never hit the BLOCKING/CRITICAL match
+            # and silently skipped revision routing (false-zero summary).
+            if _ERROR_LABEL_RE.search(content):
+                result.blocking_found = True
+                result.issues.append(_issue(skill, chapter, "BLOCKING", "content", rel_path))
 
     return result
 

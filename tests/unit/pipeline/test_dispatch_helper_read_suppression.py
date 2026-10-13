@@ -136,7 +136,21 @@ def test_chapter_read_count_is_one(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     assert counter["n"] == 1  # was 9: 6 contract reads + 3 checklist cold-path reads
 
 
-def test_byte_equality_suppression_switch(tmp_path: Path) -> None:
+def test_byte_equality_suppression_switch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # The produced_at ground-truth line ("Current time (UTC): …", probe esc
+    # #27/#29) is the ONLY wall-clock-varying byte in the prompt. Freeze the
+    # clock for this test: a second-boundary crossing between the ON and OFF
+    # phases otherwise breaks byte equality — 3 full-run appearances under
+    # loaded xdist workers (stretched phases), 0 in isolation (fast phases).
+    import datetime as datetime_module
+
+    class _FrozenDatetime(datetime_module.datetime):
+        @classmethod
+        def now(cls, tz: datetime_module.tzinfo | None = None) -> _FrozenDatetime:
+            return cls(2026, 1, 1, 0, 0, 0, tzinfo=tz)
+
+    monkeypatch.setattr(datetime_module, "datetime", _FrozenDatetime)
+
     project = _assemble_project(tmp_path)
     ctx_on = build_shared_audit_context(project, 3)
     prompts_on = [

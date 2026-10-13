@@ -491,3 +491,740 @@ def test_insert_mode_rejects_dict_data(tmp_path: Path) -> None:
         write_truth_file(
             tmp_path, "trend.md", {"chapter": 1}, mode="insert_markdown_row", key_field="chapter"
         )
+
+
+# ---------------------------------------------------------------------------
+# Probe escalation #5/#6 (novel-xinghuo-probe, 2026-09-28): the state-settling
+# increment merge corrupted truth/pending_hooks.md twice. The skill re-emits a
+# per-chapter status table whose HEADER's first cell is "Hook ID" — the upsert
+# keyed-matched that header against the live 8-column registry header and
+# deleted it, and replaced rows were relocated to EOF, dangling after the
+# Genesis notes prose.
+# ---------------------------------------------------------------------------
+
+
+def test_upsert_header_shaped_increment_row_is_skipped() -> None:
+    """An increment row whose key cell IS the key field name (a re-emitted
+    table header) must never delete the live header or append a ragged copy.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "---\ntype: truth\n---\n\n# 伏笔池\n\n"
+        "## 伏笔总览\n\n"
+        "| Hook ID | 内容 | type | dimension | 埋设章 | 预期激活 | 计划回收 | 状态 |\n"
+        "|---|---|---|---|---|---|---|---|\n"
+        "| MH-001 | 账感即接口 | GENUINE | INFORMATION | 第1章 | 第10章 | 第120章 | 已种植 |\n"
+        "| MH-002 | 名单真相 | GENUINE | INFORMATION | 第5章 | 第113章 | 第131章 | 已种植 |\n"
+    )
+    increment_header = "| Hook ID | 操作 | 推进方式 | 沉默章数 |"
+    result = upsert_markdown_row(existing, increment_header, "hook_id")
+    assert result == existing, "header-shaped increment rows must be a no-op"
+    assert result.count("| Hook ID") == 1
+
+
+def test_upsert_replaces_row_in_place_not_at_eof() -> None:
+    """A keyed replacement lands at the replaced row's position — the old
+    primitive moved it to EOF, dangling after trailing prose sections.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "| Hook ID | 内容 | 状态 |\n"
+        "|---|---|---|\n"
+        "| MH-001 | 账感即接口 | 待种植 |\n"
+        "| MH-002 | 名单真相 | 待种植 |\n"
+        "\n## Genesis 备注\n\n- 全书 32 条总登记。\n"
+    )
+    updated = "| MH-001 | 账感即接口 | 已种植（第1章，subtlety 0.85） |"
+    result = upsert_markdown_row(existing, updated, "hook_id")
+    lines = result.split("\n")
+    assert updated in lines
+    assert lines.index(updated) < lines.index("## Genesis 备注"), "row must stay in its table"
+    assert result.count("| MH-001") == 1, "no duplicate of the replaced row"
+    assert "- 全书 32 条总登记。" in result
+
+
+def test_upsert_new_key_row_inserts_into_keys_table() -> None:
+    """A new-key row joins the table carrying the key column instead of
+    dangling at EOF after prose (and after OTHER tables it does not belong to).
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "## 格式约定\n\n"
+        "| 项 | 说明 |\n"
+        "|---|---|\n"
+        "| 状态 | 五值枚举 |\n"
+        "\n## 伏笔总览（共 32 条）\n\n"
+        "| Hook ID | 内容 | 状态 |\n"
+        "|---|---|---|\n"
+        "| MH-001 | 账感即接口 | 已种植 |\n"
+        "\n## Genesis 备注\n\n- 备注\n"
+    )
+    new_row = "| MH-002 | 名单真相 | 已种植 |"
+    result = upsert_markdown_row(existing, new_row, "hook_id")
+    lines = result.split("\n")
+    assert new_row in lines
+    assert lines.index(new_row) > lines.index("| MH-001 | 账感即接口 | 已种植 |")
+    assert lines.index(new_row) < lines.index("## Genesis 备注"), (
+        "new row must land inside the hook table, not after trailing prose"
+    )
+
+
+def test_upsert_duplicate_section_block_is_skipped() -> None:
+    """Probe escalation #14: alternating state-settling/foreshadowing writers
+    re-emitted the same-headed "### MH-NNN" section per run — three duplicate
+    ch3 blocks accumulated. A block whose first line already exists is a
+    duplicate, not new data.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = "| Hook ID | 状态 |\n|---|---|\n| MH-001 | 已种植 |\n"
+    block = "### MH-001｜静海回响\n- lifecycle_state: RELEVANT\n- 本章推进: 外部命名\n"
+    once = upsert_markdown_row(existing, block, "hook_id")
+    twice = upsert_markdown_row(once, block, "hook_id")
+    assert once.count("### MH-001｜静海回响") == 1
+    assert twice == once, "re-emitted same-headed block must not duplicate"
+    assert twice.count("### MH-001｜静海回响") == 1
+
+
+def test_upsert_shape_mismatch_row_keeps_existing() -> None:
+    """Probe escalation #14: an 8-column registry row replaced by a 10-column
+    status row corrupts the table. Shape-mismatched rewrites are skipped;
+    same-width and append-only enrichments still replace in place.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = "| Hook ID | 内容 | 状态 |\n|---|---|---|\n| MH-001 | 账感即接口 | 已种植 |\n"
+    # different shape, cells rewritten -> keep old row
+    bad = "| MH-001 | 账感即接口 | RELEVANT | 第3章 | 0.85 | RISING | 30 | 60 | X | Y |"
+    result = upsert_markdown_row(existing, bad, "hook_id")
+    assert "| MH-001 | 账感即接口 | 已种植 |" in result
+    assert "RELEVANT" not in result
+
+    # append-only enrichment -> replaces in place
+    enrich = "| MH-001 | 账感即接口 | 已种植 | last_reinforced: 第3章 |"
+    result2 = upsert_markdown_row(existing, enrich, "hook_id")
+    assert enrich in result2
+    assert result2.count("| MH-001") == 1
+
+
+def test_increment_units_chapter_section_swallows_subsections() -> None:
+    """probe6 ch2 (2026-10-01): the settle contract prescribes ``one
+    ## 第N章状态增量 section block (heading + its rows/prose)``, but the
+    splitter broke at EVERY heading — the ``###`` children became
+    independent units, and a same-named child (``### 陈砚``, the protagonist
+    recurs every chapter) hit ``_replace_section`` across chapters,
+    overwriting the PREVIOUS chapter's state under its heading. Deterministic
+    from ch2 onward. A ``##``-anchored block must swallow its deeper
+    NON-hook sub-headings so the chapter section stays atomic.
+    """
+    from shenbi.pipeline.dispatch_helper import _increment_units
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    live = (
+        "---\ntype: truth\n---\n\n# 角色交互矩阵\n\n"
+        "| 角色A | 角色B | 关系状态 | 章节 |\n|---|---|---|---|\n"
+        "| 陈砚 | 矿监 | 被登记方 | 第 1 章 |\n"
+        "| 陈砚 | 白袍人 | 受予者 | 第 1 章 |\n"
+        "## 第 1 章状态增量\n"
+        "### 陈砚 ／ 丙字七三二九（主角）\n"
+        "- 公开身份: 矿工，编号「丙字七三二九」\n"
+        "- Current Location: 七号矿洞坑口\n"
+        "- Last Updated Ch: 第 1 章\n"
+    )
+    increment = (
+        "| 陈砚 | 监工 | 被点方 | 第 2 章 |\n"
+        "## 第 2 章状态增量\n"
+        "### 陈砚 ／ 丙字七三二九（主角）\n"
+        "- 公开身份: 洗矿棚丙区矿工，编号「丙字七三二九」\n"
+        "- Current Location: 灰脊城洗矿棚丙区\n"
+        "- Last Updated Ch: 第 2 章\n"
+        "### 柳氏\n- 公开身份: 丙区名册代管者\n"
+    )
+    units = _increment_units(increment)
+    # The chapter section is ONE atomic unit (heading + both sub-sections).
+    chapter_units = [u for u in units if u.startswith("## 第 2 章状态增量")]
+    assert len(chapter_units) == 1
+    assert "### 陈砚" in chapter_units[0] and "### 柳氏" in chapter_units[0]
+
+    merged = live
+    for unit in units:
+        merged = upsert_markdown_row(merged, unit, "角色A,角色B")
+
+    # ch1 section survives VERBATIM (no cross-chapter replacement)...
+    assert "- 公开身份: 矿工，编号「丙字七三二九」" in merged
+    assert "## 第 1 章状态增量" in merged and "## 第 2 章状态增量" in merged
+    # ...interaction rows accumulate (composite keys never collapse)...
+    for pair in ("| 陈砚 | 矿监 |", "| 陈砚 | 白袍人 |", "| 陈砚 | 监工 |"):
+        assert pair in merged
+    # ...and the ch2 protagonist state lands under the ch2 section only.
+    assert merged.count("- 公开身份: 洗矿棚丙区矿工") == 1
+    ch2_span = merged.split("## 第 2 章状态增量")[1]
+    assert "洗矿棚丙区矿工" in ch2_span
+
+
+def test_increment_units_hook_sections_stay_independent_under_parent() -> None:
+    """Escalation #16 regression guard under the sibling-level rule: hook
+    sections (``### MH-xxx``) must remain independent units even when the
+    increment carries a parent ``##`` heading — the hook bullet merge keys
+    on the hook id, a swallowed hook section would dedup on the parent.
+    """
+    from shenbi.pipeline.dispatch_helper import _increment_units
+
+    increment = (
+        "## 第3章 状态变化\n\n总述行。\n\n"
+        "### MH-001｜静海回响\n- last_reinforced: 第3章\n\n"
+        "### MH-005｜名字的保存方式\n- last_reinforced: 第3章\n"
+    )
+    units = _increment_units(increment)
+    assert any(u.startswith("### MH-001｜") for u in units)
+    assert any(u.startswith("### MH-005｜") for u in units)
+    # the parent ## heading did NOT swallow them
+    parent = [u for u in units if u.startswith("## 第3章")]
+    assert len(parent) == 1
+    assert "MH-001" not in parent[0]
+
+
+def test_increment_units_h1_block_does_not_swallow_h2() -> None:
+    """A re-emitted document title (``# 角色交互矩阵``) must not anchor a
+    whole-file replacement unit: swallowing ``##`` sections under an h1
+    block would make partial title-led outputs destructive (span-to-EOF
+    replace). h1 blocks stay atomic at their own level only.
+    """
+    from shenbi.pipeline.dispatch_helper import _increment_units
+
+    increment = "# 角色交互矩阵\n\n> 占位说明\n\n## 第 1 章状态增量\n### 陈砚\n- x: 1\n"
+    units = _increment_units(increment)
+    assert any(u.startswith("# 角色交互矩阵") for u in units)
+    assert any(u.startswith("## 第 1 章状态增量") for u in units)
+    title_unit = next(u for u in units if u.startswith("# 角色交互矩阵"))
+    assert "第 1 章状态增量" not in title_unit
+
+
+def test_increment_units_split_at_heading_boundaries() -> None:
+    """Probe escalation #16: a multi-section increment grouped as ONE block
+    dedups only on its first heading — a re-emitted duplicate section deeper
+    in the block slipped past the block-level dedup. Sections must become
+    independent units.
+    """
+    from shenbi.pipeline.dispatch_helper import _increment_units
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    increment = (
+        "## 第3章 状态变化\n\n总述行。\n\n"
+        "### MH-001｜静海回响\n- lifecycle_state: RELEVANT\n\n"
+        "### MH-005｜名字的保存方式\n- lifecycle_state: RELEVANT\n"
+    )
+    units = _increment_units(increment)
+    assert any(u.startswith("### MH-001｜") for u in units), "sections must be separate units"
+    assert any(u.startswith("### MH-005｜") for u in units)
+
+    # duplicate section deeper in a later block is skipped by first-line dedup
+    base = "## 第3章 状态变化\n\n总述行。\n\n### MH-001｜静海回响\n- lifecycle_state: RELEVANT\n"
+    dup_block = "### MH-001｜静海回响\n- lifecycle_state: RELEVANT（重复）\n"
+    result = upsert_markdown_row(base, dup_block, "hook_id")
+    assert result.count("### MH-001｜静海回响") == 1
+
+
+def test_increment_units_drop_separator_rows() -> None:
+    """Probe esc (resonance 碎表 root cause): a skill increment carries its
+    own table HEADER + SEPARATOR + row. The separator unit was upserted as
+    if it were data — old code appended it at EOF (fragment-table look),
+    current code inserts it mid-table. Separators are structural, never
+    data: the existing table already has one.
+    """
+    import shutil
+    import tempfile
+    from pathlib import Path
+
+    from shenbi.pipeline.dispatch_helper import _route_append_dedup_write
+
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        (tmp / "truth").mkdir()
+        live = tmp / "truth" / "resonance_trend.md"
+        live.write_text(
+            "---\ntype: truth\n---\n\n"
+            "| chapter | role | overall |\n|---|---|---|\n"
+            "| 1 | 过渡 | 83 |\n| 13 | 推进 | 88 |\n",
+            encoding="utf-8",
+        )
+        increment = "| chapter | role | overall |\n|---|---|---|\n| 14 | 推进 | 89 |\n"
+        _route_append_dedup_write(tmp, "truth/resonance_trend.md", increment, key_field="chapter")
+        out = live.read_text(encoding="utf-8")
+        lines = [l for l in out.split("\n") if l.strip().startswith("|")]
+        separators = [
+            l
+            for l in lines
+            if all(
+                __import__("re").fullmatch(r":?-{3,}:?", c.strip())
+                for c in l.strip().strip("|").split("|")
+                if c.strip()
+            )
+        ]
+        assert len(separators) == 1, f"exactly one separator expected, got {len(separators)}"
+        assert any(l.startswith("| 14 |") for l in lines)
+        # row 14 must sit INSIDE the table (after row 13, before EOF prose)
+        assert lines.index("| 14 | 推进 | 89 |") > lines.index("| 13 | 推进 | 88 |")
+    finally:
+        shutil.rmtree(tmp)
+
+
+def test_upsert_section_replace_semantics() -> None:
+    """Probe defect (twice bitten): a re-emitted same-heading section was
+    SKIPPED whole by the block dedup — approved section updates could never
+    reach live through the commit merge (the empty-shell heading that
+    landed first blocked every later filled version). Headed blocks now
+    REPLACE the existing same-heading section: dedup (no accumulation) and
+    update propagation in one semantics.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "## 伏笔详情\n\n"
+        "### MH-001｜静海回响\n- lifecycle_state: PLANTED\n- 旧证据\n\n"
+        "### MH-005｜名字\n- lifecycle_state: PLANTED\n"
+    )
+    updated = "### MH-001｜静海回响\n- lifecycle_state: RELEVANT\n- 新证据（第 9 章）"
+    result = upsert_markdown_row(existing, updated, "hook_id")
+
+    assert result.count("### MH-001｜静海回响") == 1
+    assert "RELEVANT" in result and "新证据" in result, "updated section must replace the old"
+    assert "PLANTED｜旧证据" not in result and "旧证据" not in result, "old body must not linger"
+    assert "### MH-005" in result, "sibling section untouched"
+
+
+def test_upsert_heading_less_block_keeps_dedup_behavior() -> None:
+    """Heading-less prose blocks keep the append-if-missing / skip-if-present
+    fallback — replace semantics apply ONLY to headed sections.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = "## 备注\n\n- 第一条\n"
+    result = upsert_markdown_row(existing, "- 第一条", "hook_id")
+    assert result.count("- 第一条") == 1
+
+
+@pytest.mark.unit
+def test_upsert_markdown_row_key_match_is_whitespace_insensitive():
+    """Fixcheck ch3: two settle attempts emitted the same chapter key with
+    different spacing (``第 3 章`` vs ``第3章``); the exact-string key
+    compare treated them as distinct keys and both rows landed. Key
+    identity must be whitespace-normalized — a re-run of the same chapter
+    replaces that chapter's row (re-runs are safe, per the skill contract).
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        truth_dir = project_dir / "truth"
+        truth_dir.mkdir()
+        target = truth_dir / "chapter_summaries.md"
+        target.write_text("| 章号 | 摘要 |\n|---|---|\n| 第 3 章 | 首次结算 |\n", encoding="utf-8")
+
+        new = "| 第3章 | 修订后结算 |"
+        write_truth_file(
+            project_dir,
+            "chapter_summaries.md",
+            new,
+            mode="upsert_markdown_row",
+            key_field="章号",
+        )
+
+        result = target.read_text(encoding="utf-8")
+        assert "修订后结算" in result
+        assert "首次结算" not in result, "same chapter key must replace, not duplicate"
+        assert result.count("| 第 3 章 |") + result.count("| 第3章 |") == 1
+
+
+@pytest.mark.unit
+def test_has_markdown_row_key_match_is_whitespace_insensitive():
+    """insert_markdown_row's existence probe must use the same normalized
+    key semantics as the upsert (SDD #21 R1 symmetry).
+    """
+    from shenbi.pipeline.truth_io import has_markdown_row
+
+    existing = "| 章号 | 摘要 |\n|---|---|\n| 第 3 章 | 首次结算 |\n"
+    assert has_markdown_row(existing, "| 第3章 | x |", "章号") is True
+    assert has_markdown_row(existing, "| 第 4 章 | x |", "章号") is False
+
+
+def test_composite_key_field_upserts_on_column_tuple():
+    """Probe2 settle capacity fix: the 交互矩阵 keys rows on (角色A, 角色B) —
+    a single-column key on 角色A would collapse every row sharing the same
+    first character into one. Comma-separated key_field selects a column
+    TUPLE; rows match only when every key column matches.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        (project_dir / "truth").mkdir()
+        target = project_dir / "truth" / "character_matrix.md"
+        existing = (
+            "## 一、信任度矩阵\n\n"
+            "| 角色A | 角色B | 关系类型 | 信任度(0-10) | 最近变化章节 |\n"
+            "|-------|-------|----------|--------------|--------------|\n"
+            "| 陆见星 | 柳箩 | 镜子 | 7 | 第1章 |\n"
+            "| 陆见星 | 韩老栓 | 试探 | 5 | 第1章 |\n"
+            "| 陆见星 | 纪听澜 | 对手 | 2 | 第1章 |\n"
+        )
+        target.write_text(existing)
+
+        # Update ONLY the 柳箩 row; the other two 陆见星 rows must survive.
+        new = "| 陆见星 | 柳箩 | 镜子·协作 | 8 | 第2章 |"
+        write_truth_file(
+            project_dir,
+            "character_matrix.md",
+            new,
+            mode="upsert_markdown_row",
+            key_field="角色A,角色B",
+        )
+
+        result = target.read_text()
+        assert "镜子·协作" in result  # updated in place
+        assert "| 陆见星 | 韩老栓 | 试探 | 5 | 第1章 |" in result
+        assert "| 陆见星 | 纪听澜 | 对手 | 2 | 第1章 |" in result
+        assert result.count("| 陆见星 | 柳箩") == 1  # replaced, not duplicated
+
+
+def test_composite_key_falls_back_to_first_column_when_headers_absent():
+    """A table whose header names none of the composite key columns (e.g. the
+    信息边界表 keyed on 角色对) falls back to the first column — single-key
+    semantics preserved for mixed-table increments.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "| 角色对 | 信息状态 |\n|--------|----------|\n"
+        "| 陆见星–柳箩 | ASYMMETRIC |\n| 陆见星–韩老栓 | ASYMMETRIC |\n"
+    )
+    merged = upsert_markdown_row(
+        existing, "| 陆见星–柳箩 | MUTUAL_SECRET（第2章起） |", "角色A,角色B"
+    )
+    assert "MUTUAL_SECRET" in merged
+    assert "| 陆见星–韩老栓 | ASYMMETRIC |" in merged
+    assert merged.count("陆见星–柳箩") == 1
+
+
+def test_resonance_trend_bootstrap_header_on_create():
+    """Probe2: the first trend row created a headerless file — the keyed
+    upsert appended to an empty base, and the longitudinal reader requires
+    a `chapter`+`overall` header row (the probe run had to be hand-repaired
+    before e2e-report could parse it). Creating the file through the upsert
+    path must bootstrap the contract header.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        (project_dir / "truth").mkdir()
+        write_truth_file(
+            project_dir,
+            "resonance_trend.md",
+            "| 1 | - | - | - | - | - | 84 | mid |  |",
+            mode="insert_markdown_row",
+            key_field="chapter",
+        )
+        text = (project_dir / "truth" / "resonance_trend.md").read_text(encoding="utf-8")
+        # Frontmatter-guarantee invariant (phase3 P2): created truth files
+        # carry the canonical block FIRST; the bootstrap header follows.
+        assert text.startswith("---\n")
+        lines = [l for l in text.splitlines() if l.strip()]
+        assert any(l.startswith("| chapter |") for l in lines)
+        assert any("overall" in l and l.startswith("| chapter |") for l in lines)
+        assert any(l.startswith("| 1 |") for l in lines)
+
+        # A second row must not duplicate the header
+        write_truth_file(
+            project_dir,
+            "resonance_trend.md",
+            "| 2 | - | - | - | - | - | 83 | mid |  |",
+            mode="insert_markdown_row",
+            key_field="chapter",
+        )
+        text = (project_dir / "truth" / "resonance_trend.md").read_text(encoding="utf-8")
+        assert text.count("| chapter |") == 1
+        assert "| 1 |" in text and "| 2 |" in text
+
+
+def test_bridge_tracker_bootstrap_header_on_create():
+    """probe17 ch1 step 7 (adjudication #006): the compliant rows-only first
+    write of truth/bridge_tracker.md lands on an empty base — without a
+    registered contract header the file is created headerless and the
+    bridge-id key column resolution has nothing to anchor to (kernel-of-truth
+    wart the adjudicator flagged, resonance_trend probe2 precedent). The
+    create-path must bootstrap the 8-column bridge header.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        (project_dir / "truth").mkdir()
+        write_truth_file(
+            project_dir,
+            "bridge_tracker.md",
+            "| BR-02 | 腕骨星痕与常九的不安 | 信息 | 第二卷 | 27-34 | PENDING | — | 第1章种植 |",
+            mode="insert_markdown_row",
+            key_field="bridge_id",
+        )
+        text = (project_dir / "truth" / "bridge_tracker.md").read_text(encoding="utf-8")
+        # Frontmatter-guarantee invariant (phase3 P2): canonical block first,
+        # bootstrap header after.
+        assert text.startswith("---\n")
+        lines = [l for l in text.splitlines() if l.strip()]
+        assert any(l.startswith("| Bridge ID |") for l in lines)
+        assert any("实际激活章" in l and l.startswith("| Bridge ID |") for l in lines)
+        assert any(l.startswith("| BR-02 |") for l in lines)
+
+        # A second bridge row must not duplicate the header
+        write_truth_file(
+            project_dir,
+            "bridge_tracker.md",
+            "| BR-05 | 报表亏空破口 | 事件 | 第二卷 | 35 | PENDING | — | 第19章种植 |",
+            mode="insert_markdown_row",
+            key_field="bridge_id",
+        )
+        text2 = (project_dir / "truth" / "bridge_tracker.md").read_text(encoding="utf-8")
+        assert text2.count("| Bridge ID |") == 1
+        assert "| BR-05 |" in text2
+
+
+def test_section_replace_large_shrink_warns(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A wholesale section replacement that shrinks the span below half must
+    WARN (session30 调试①: the ch60 pool compaction dropped 43% with zero log
+    output — designed compaction was indistinguishable from data loss until
+    an hour of log archaeology). Compaction is designed; invisibility is not
+    (degrade-loudly discipline, spec #65 §4.3 kin).
+    """
+    from shenbi.pipeline import truth_io
+    from shenbi.pipeline.truth_io import upsert_markdown_row
+
+    existing = (
+        "### MH01（灵印）\n\n"
+        + "\n".join(f"- 证据: 第{n}章 某次强化的完整重述。{'长' * 40}" for n in range(4, 50))
+        + "\n\n### MH02（灵誓）\n\n- lifecycle_state: PLANTED\n"
+    )
+    # free-form line forces the replace path (bullet-merge rejects non-bullets)
+    condensed = "### MH01（灵印）\n\n- lifecycle_state: RELEVANT\n最新一章的完整重述。\n"
+    warned: list[str] = []
+
+    def _spy(event: str, **kw: object) -> None:
+        warned.append(event)
+
+    monkeypatch.setattr(truth_io.log, "warning", _spy)
+
+    out = upsert_markdown_row(existing, condensed, "hook_id")
+
+    assert "### MH02（灵誓）" in out, "sibling section untouched"
+    assert "最新一章的完整重述。" in out, "replacement landed"
+    assert "truth_section_replace_shrank" in warned
+
+
+class TestPoolOverviewDerivation:
+    """GO① root fix (phase3 终报): the pending_hooks 总览 table froze ch15-36
+    because track/resolve/settling are contract-forbidden from emitting
+    overview rows (anti-whole-pool-rewrite) while lifecycle only covers its
+    own chapter's hooks — and post-genesis planted hooks (CP-004..009) never
+    got rows at all. Derivation-on-write: when a hook detail section lands,
+    the merge layer mechanically reflects its stable fields into the 总览
+    row, making the table a derived mirror instead of a second writer
+    discipline.
+    """
+
+    BASE = (
+        "---\ntype: truth\n---\n\n# 伏笔池\n\n## 总览\n\n"
+        "| Hook ID（钩书名） | 当前生命周期 | 种植章 | 兑现章（卷） | 类型 | 微妙度 | max_distance(14) | 升级曲线 |\n"
+        "|------|------|------|------|------|------|------|------|\n"
+        "| MH01（灵印） | PLANTED | 4 |  | MYSTERY | 0.5 | 10 | STAIRCASE |\n"
+        "\n## 详情\n\n### MH01（灵印）\n\n"
+        "- type: MYSTERY\n- lifecycle_state: PLANTED\n- plant_chapter: 4\n"
+        "- subtlety: 0.5\n- max_distance: 10\n- escalation_curve: STAIRCASE\n"
+    )
+
+    def test_detail_field_patch_reflects_into_overview_row(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### MH01（灵印）\n- lifecycle_state: RESOLVED\n- resolve_chapter: 104\n",
+            "hook_id",
+        )
+        row = next(l for l in out.splitlines() if l.startswith("| MH01"))
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert cells[1] == "RESOLVED"
+        assert cells[3] == "104"
+
+    def test_new_hook_section_appends_derived_overview_row(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### CP-010（码头的新账）\n- type: ITEM\n- lifecycle_state: PLANTED\n"
+            "- plant_chapter: 60\n- subtlety: 0.4\n- max_distance: 12\n"
+            "- escalation_curve: RISING\n",
+            "hook_id",
+        )
+        rows = [l for l in out.splitlines() if l.startswith("| CP-010")]
+        assert len(rows) == 1, "derived row appended exactly once"
+        cells = [c.strip() for c in rows[0].strip().strip("|").split("|")]
+        assert cells[0] == "CP-010（码头的新账）"
+        assert cells[1] == "PLANTED"
+        assert cells[2] == "60"
+        assert cells[3] == "-"
+        assert cells[4] == "ITEM"
+
+    def test_resolve_chapter_preserves_volume_suffix(self) -> None:
+        base = self.BASE.replace(
+            "| MH01（灵印） | PLANTED | 4 |  | MYSTERY",
+            "| MH01（灵印） | TRIGGERED | 4 | 107（五卷） | MYSTERY",
+        ).replace("- lifecycle_state: PLANTED", "- lifecycle_state: TRIGGERED")
+        out = upsert_markdown_row(
+            base,
+            "### MH01（灵印）\n- lifecycle_state: RESOLVED\n- resolve_chapter: 107\n",
+            "hook_id",
+        )
+        row = next(l for l in out.splitlines() if l.startswith("| MH01"))
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert cells[3] == "107（五卷）"
+
+    def test_missing_overview_section_is_safe_noop(self) -> None:
+        base = "### MH01（灵印）\n\n- lifecycle_state: PLANTED\n"
+        out = upsert_markdown_row(
+            base, "### MH01（灵印）\n- lifecycle_state: RELEVANT\n", "hook_id"
+        )
+        assert "- lifecycle_state: RELEVANT" in out
+        assert out.count("## 总览") == 0
+
+    def test_non_hook_key_skips_derivation(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### MH01（灵印）\n- lifecycle_state: RESOLVED\n",
+            "some_other_key",
+        )
+        assert "RESOLVED" in out  # section patched
+        row = next(l for l in out.splitlines() if l.startswith("| MH01"))
+        assert "PLANTED" in row  # row untouched for non-hook keys
+
+
+class TestThreadOverviewDerivation:
+    """B 批: the GO① derivation mirrored onto outline/thread_map.md — a
+    landed ``### <ID>: <名称>`` section mechanically reflects into its
+    线索总览表 row (状态/优先级/max_gap from bullets, 起始章/终点章 from the
+    跨度 bullet, 名称 from the heading on creation). The weaver's increment
+    contract never touches overview rows.
+    """
+
+    BASE = """---
+total_chapters: 118
+---
+
+# 线索地图
+
+## 线索总览表
+
+| ID | 名称 | 优先级 | 类型 | max_gap | 起始章 | 终点章 | 状态 |
+|----|------|--------|------|---------|--------|--------|------|
+| A1 | 灵印与残句 | P0 | 长线 | 2 | 1 | 118 | RELEVANT |
+| C1 | 册上多报的名字 | P2 | 短线 | 8 | 3 | 40 | RELEVANT |
+
+## 线索详情
+
+### A1: 灵印与《灵律》残句
+
+- **状态**: RELEVANT
+- **跨度**: 第1章 - 第118章
+- **优先级**: P0
+- **max_gap**: 2
+
+### C1: 册上多报的名字
+
+- **状态**: RELEVANT
+- **跨度**: 第3章 - 第40章
+- **优先级**: P2
+- **max_gap**: 8
+"""
+
+    def test_section_update_reflects_into_overview_row(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### C1: 册上多报的名字\n\n- **状态**: RESOLVED\n- **跨度**: 第3章 - 第17章\n- **优先级**: P2\n- **max_gap**: 8\n",
+            "thread",
+        )
+        row = next(l for l in out.splitlines() if l.startswith("| C1"))
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert cells[7] == "RESOLVED"
+        assert cells[5] == "3" and cells[6] == "17"
+
+    def test_new_thread_section_appends_derived_overview_row(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### B7: 新开的商路\n\n- **状态**: PLANTED\n- **跨度**: 第50章 - 第80章\n- **优先级**: P1\n- **max_gap**: 4\n",
+            "thread",
+        )
+        row = next(l for l in out.splitlines() if l.startswith("| B7"))
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert cells[0] == "B7"
+        assert cells[1] == "新开的商路"
+        assert cells[2] == "P1"
+        assert cells[5] == "50" and cells[6] == "80"
+        assert cells[7] == "PLANTED"
+
+    def test_tombstoned_section_never_resurrects_a_row(self) -> None:
+        from shenbi.pipeline.truth_io import sync_thread_overview_rows
+
+        base = self.BASE.replace(
+            "- **状态**: RELEVANT\n- **跨度**: 第3章 - 第40章",
+            "- **状态**: RESOLVED\n- **跨度**: 第3章 - 第17章\n- archived_to: outline/thread_map_archive.md",
+        ).replace("| C1 | 册上多报的名字 | P2 | 短线 | 8 | 3 | 40 | RELEVANT |", "")
+
+        out = sync_thread_overview_rows(base)
+
+        assert "| C1 |" not in out, "archived thread must not regain a row"
+
+    def test_retitle_updates_name_cell_only_via_derivation(self) -> None:
+        out = upsert_markdown_row(
+            self.BASE,
+            "### C1: 册上多报的那个名字（改题）\n\n- **状态**: RELEVANT\n- **跨度**: 第3章 - 第40章\n- **优先级**: P2\n- **max_gap**: 8\n",
+            "thread",
+        )
+        assert "### C1: 册上多报的那个名字（改题）" in out
+        assert "### C1: 册上多报的名字" not in out, "old heading replaced, not duplicated"
+        # existing row keeps its 名称 cell (creation-only field)
+        row = next(l for l in out.splitlines() if l.startswith("| C1"))
+        assert "册上多报的名字" in row
+
+    def test_missing_overview_table_is_safe_noop(self) -> None:
+        base = "### A1: 名\n\n- **状态**: RELEVANT\n"
+        out = upsert_markdown_row(base, "### A1: 名\n- **状态**: PAYING_OFF\n", "thread")
+        assert "- **状态**: PAYING_OFF" in out
+        assert "线索总览表" not in out
+
+    def test_off_tier_thread_id_still_derives(self) -> None:
+        r"""Rebudget-drill find: the locator/validator charset is
+        ``[A-Za-z]+\d`` while the derivation only accepted ``[ABC]`` — an
+        off-tier id (``D1``) merged but silently skipped its 总览行. The
+        id charset is now single-sourced and tolerant.
+        """
+        out = upsert_markdown_row(
+            self.BASE,
+            "### D1: 溢出梯队的新线\n\n- **状态**: PLANTED\n- **跨度**: 第50章 - 第80章\n- **优先级**: P2\n",
+            "thread",
+        )
+        row = next(l for l in out.splitlines() if l.startswith("| D1 |"))
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert cells[0] == "D1" and cells[1] == "溢出梯队的新线"
+        assert cells[5] == "50" and cells[6] == "80" and cells[7] == "PLANTED"
+
+    def test_new_thread_section_lands_inside_details(self) -> None:
+        """Rebudget-drill find: the EOF append landed a NEW thread section
+        after the trailing validator sections, outside ``## 线索详情`` —
+        the details-bounded threads_overview slice never served it.
+        """
+        base = (
+            self.BASE
+            + "\n---\n\n## 章节线索推进表\n\n| 章节区间 | 主推 |\n|---|---|\n| 1-8（一卷 KR1） | A1 |\n"
+        )
+        out = upsert_markdown_row(
+            base,
+            "### C4: 新开的短线\n\n- **状态**: PLANTED\n- **跨度**: 第50章 - 第60章\n",
+            "thread",
+        )
+        i_det = out.index("## 线索详情")
+        i_c4 = out.index("### C4: 新开的短线")
+        i_plan = out.index("## 章节线索推进表")
+        assert i_det < i_c4 < i_plan, "new section lands inside 线索详情"
+        row = next(l for l in out.splitlines() if l.startswith("| C4 |"))
+        assert "PLANTED" in row

@@ -124,6 +124,19 @@ def clear_checkpoint(state: PipelineState, decision: ReviewDecision) -> None:
         state.genesis.retry_counts.clear()
         state.chapter_loop.retry_counts.clear()
         state.closure_retry_counts.clear()
+        # 预算黏性 (canary defect, probe-hardened ch9 'consumed 4/5'): the
+        # durable budget must share the reset contract — clearing only
+        # retry_counts gave the step fresh attempt counters while the
+        # budget tripped 'exhausted' on the first new failure.
+        if cp.chapter is not None:
+            prefix = f"ch{cp.chapter}-"
+            state.chapter_loop.retry_budget_consumed = {
+                k: v
+                for k, v in state.chapter_loop.retry_budget_consumed.items()
+                if not k.startswith(prefix)
+            }
+        else:
+            state.chapter_loop.retry_budget_consumed.clear()
         # C33 R3 (T508, spec #47): per-chapter audit counters share the reset
         # contract. Scope rule: chapter set → clear that chapter only; None →
         # all (mirrors _reset_retry_budget prefix semantics, NOT dict clear-all).
