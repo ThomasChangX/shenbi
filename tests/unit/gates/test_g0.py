@@ -9,6 +9,7 @@ from typing import Any, cast
 import pytest
 
 from shenbi.gates.g0 import gate_G0
+from shenbi.status import GateStatus
 
 
 def _result_dict(result: str) -> dict[str, Any]:
@@ -401,3 +402,33 @@ def test_g011_flags_stale_mirror_and_ignores_frontmatter(
     checks = result.get("checks", result)
     g011 = [c for c in checks if c.get("id") == "G0.11"]
     assert g011 and "stale fixtures" in g011[0]["r"]
+
+
+@pytest.mark.unit
+class TestG02:
+    """Spec #69 T4: G0.2 target-words anchored to the Basic Info section."""
+
+    def test_g02_takes_basic_info_value_over_earlier_decoy(self, tmp_path: Path) -> None:
+        """正文他节先出现目标字数字样时 G0.2 仍取基本信息节值."""
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 世界观设定\n本系列目标字数：500 字的短篇集设定。\n\n"
+            "## 基本信息\n- 类型: 玄幻\n- 目标字数: 1200000\n",
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        g02 = next(c for c in result["checks"] if c["id"] == "G0.2")
+        assert g02["s"] == GateStatus.PASS  # StrEnum == JSON 串 "PASS"
+        assert g02["target_words"] == 1200000
+
+    def test_g02_falls_back_to_fulltext_when_section_absent(self, tmp_path: Path) -> None:
+        """Legacy 兼容: 基本信息节缺席时回退全文首匹配(现行行为保持)."""
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# 书\n\n## 主角设定\n- 目标字数：800000\n",
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        g02 = next(c for c in result["checks"] if c["id"] == "G0.2")
+        assert g02["s"] == GateStatus.PASS
+        assert g02["target_words"] == 800000
