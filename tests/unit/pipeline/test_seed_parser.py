@@ -89,11 +89,12 @@ class TestParseSeed:
         # 基本信息 -> novel.json
         assert "架空历史" in str(data.novel_json["genre"])
         assert "穿越" in str(data.novel_json["genre"])
-        assert "中世纪" in str(data.novel_json["era"])
+        assert "近世" in str(data.novel_json["era"])
         assert "穿越" in str(data.novel_json["core_concept"])
         assert (
-            data.novel_json["target_word_count"] == 200000
-        )  # F919: 20万 adjudicated (goal-prompt/concepts 2:1)
+            data.novel_json["target_word_count"] == 10000000
+        )  # 2026-10-15 re-scoped: 巨型丰富（永生主角×26世×百余战役）→ 千万字/1400章；supersedes F919 20万
+        assert data.novel_json["target_total_chapters"] == 1400  # authoritative chapter override
         assert "total_chapters" not in data.novel_json
 
         # section -> genesis context
@@ -109,7 +110,9 @@ class TestParseSeed:
 
         # 叙事技巧 -> genre-config
         assert "殖民" in str(data.genre_config.get("deep_themes", ""))
-        assert "75" in str(data.genre_config.get("show_tell_ratio", ""))
+        assert "80" in str(
+            data.genre_config.get("show_tell_ratio", "")
+        )  # 体感优先：75→80 (2026-10-15)
 
 
 class TestSplitKeyValue:
