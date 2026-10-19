@@ -59,7 +59,6 @@ def test_system_prompt_byte_stable_across_calls(tmp_path: Path, skill: str) -> N
     sys1, _, _ = _build_skill_prompt(skill, tmp_path, "prompt A", 1)
     sys2, _, _ = _build_skill_prompt(skill, tmp_path, "prompt B", 2)
     assert sys1 == sys2
-
 ```
 （strip 确定性由参数化字节稳定测试传递性覆盖，不设同义反复的单测——plan 审查 M3）
 

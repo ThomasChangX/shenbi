@@ -43,16 +43,25 @@ from __future__ import annotations
 from typing import get_args
 from shenbi.contracts.enums import ALL_ENUMS, ActorRole, CPZone, Severity, Verdict
 
+
 def test_severity_members() -> None:
-    assert set(get_args(Severity)) == {"BLOCKING","CRITICAL","MINOR"}
+    assert set(get_args(Severity)) == {"BLOCKING", "CRITICAL", "MINOR"}
+
+
 def test_verdict_members() -> None:
-    assert set(get_args(Verdict)) == {"通过","有瑕疵","不通过"}
+    assert set(get_args(Verdict)) == {"通过", "有瑕疵", "不通过"}
+
+
 def test_cpzone_members() -> None:
-    assert set(get_args(CPZone)) == {"GREEN","ORANGE","RED"}
+    assert set(get_args(CPZone)) == {"GREEN", "ORANGE", "RED"}
+
+
 def test_actor_role_members() -> None:
-    assert set(get_args(ActorRole)) == {"GENERATOR","SCORER","GATE","SKILL","HUMAN"}
+    assert set(get_args(ActorRole)) == {"GENERATOR", "SCORER", "GATE", "SKILL", "HUMAN"}
+
+
 def test_all_enums_complete() -> None:
-    assert set(ALL_ENUMS.keys()) == {"Severity","Verdict","CPZone","ActorRole"}
+    assert set(ALL_ENUMS.keys()) == {"Severity", "Verdict", "CPZone", "ActorRole"}
 ```
 
 - [ ] **Step 2: Run → fails**
@@ -70,14 +79,17 @@ def test_all_enums_complete() -> None:
 from __future__ import annotations
 from typing import Any, Literal
 
-Severity = Literal["BLOCKING","CRITICAL","MINOR"]
-Verdict = Literal["通过","有瑕疵","不通过"]
-CPZone = Literal["GREEN","ORANGE","RED"]
-ActorRole = Literal["GENERATOR","SCORER","GATE","SKILL","HUMAN"]
+Severity = Literal["BLOCKING", "CRITICAL", "MINOR"]
+Verdict = Literal["通过", "有瑕疵", "不通过"]
+CPZone = Literal["GREEN", "ORANGE", "RED"]
+ActorRole = Literal["GENERATOR", "SCORER", "GATE", "SKILL", "HUMAN"]
 
 # v2 C4: object 非 type——Literal 是 _LiteralGenericAlias 不是 type，mypy strict 拒 dict[str,type]
 ALL_ENUMS: dict[str, Any] = {
-    "Severity": Severity, "Verdict": Verdict, "CPZone": CPZone, "ActorRole": ActorRole,
+    "Severity": Severity,
+    "Verdict": Verdict,
+    "CPZone": CPZone,
+    "ActorRole": ActorRole,
 }
 ```
 
@@ -112,16 +124,23 @@ from pathlib import Path
 import pytest
 from shenbi.contracts.base import GateOutcome, PureInput
 
+
 def test_pure_input_frozen() -> None:
-    pi = PureInput(skill="x", round_dir=Path("/tmp"), raw_outputs={"a.md":"..."})
-    with pytest.raises(FrozenInstanceError): pi.skill = "y"  # type: ignore[misc]
+    pi = PureInput(skill="x", round_dir=Path("/tmp"), raw_outputs={"a.md": "..."})
+    with pytest.raises(FrozenInstanceError):
+        pi.skill = "y"  # type: ignore[misc]
+
+
 def test_gate_outcome_frozen() -> None:
     gr = GateOutcome(skill="x", status="PASS", issues=(), checks=())
-    with pytest.raises(FrozenInstanceError): gr.status = "FAIL"  # type: ignore[misc]
+    with pytest.raises(FrozenInstanceError):
+        gr.status = "FAIL"  # type: ignore[misc]
+
+
 def test_gate_outcome_factories() -> None:
     assert GateOutcome.passed("x").status == "PASS"
-    f = GateOutcome.fail("x", ["e1","e2"])
-    assert f.status == "FAIL" and f.issues == ("e1","e2")
+    f = GateOutcome.fail("x", ["e1", "e2"])
+    assert f.status == "FAIL" and f.issues == ("e1", "e2")
 ```
 
 - [ ] **Step 2: Run → fails**
@@ -134,26 +153,31 @@ GateOutcome 是纯数据，门返回它而非修改文件系统。
 
 v2: 命名为 GateOutcome 而非 GateResult，避与 shenbi.status.GateResult(TypedDict) 碰撞。
 后续支柱二门改造时统一迁移 status.GateResult→GateOutcome（Kant Minor5：实际迁移在支柱一续/支柱二深度改造时进行，本骨架只建类型）。"""
+
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
+
 @dataclass(frozen=True)
 class PureInput:
     skill: str
     round_dir: Path
-    raw_outputs: dict[str,str]
+    raw_outputs: dict[str, str]
+
 
 @dataclass(frozen=True)
 class GateOutcome:
     skill: str
-    status: Literal["PASS","FAIL","SKIP","WARN"]
-    issues: tuple[str,...] = ()
-    checks: tuple[dict[str,object],...] = ()
+    status: Literal["PASS", "FAIL", "SKIP", "WARN"]
+    issues: tuple[str, ...] = ()
+    checks: tuple[dict[str, object], ...] = ()
+
     @classmethod
     def passed(cls, skill: str) -> "GateOutcome":
         return cls(skill=skill, status="PASS")
+
     @classmethod
     def fail(cls, skill: str, issues: list[str]) -> "GateOutcome":
         return cls(skill=skill, status="FAIL", issues=tuple(issues))
@@ -205,15 +229,22 @@ git commit -m "feat(contracts): add skills/ subpackage (required before registry
 from __future__ import annotations
 from shenbi.contracts.registry import REGISTRY, bootstrap_registry, load_skill_contract
 
+
 def test_registry_empty_before_migration() -> None:
     assert REGISTRY == {}  # Task 5 后改
+
+
 def test_bootstrap_returns_vocab() -> None:
     reg = bootstrap_registry()
     assert isinstance(reg, dict) and len(reg) > 0
     # 真实 concepts 含 truth/pending_hooks.md
     assert any("pending_hooks" in k for k in reg)
+
+
 def test_load_unmigrated_returns_none() -> None:
     assert load_skill_contract("shenbi-worldbuilding") is None
+
+
 def test_load_unknown_returns_none() -> None:
     assert load_skill_contract("shenbi-does-not-exist") is None
 ```
@@ -228,6 +259,7 @@ def test_load_unknown_returns_none() -> None:
 
 v2 C1: truth-files.yaml 真实结构是 concepts/globs/patterns（非 files），
 每条 concept 是 {name, kind}。bootstrap 读 concepts。"""
+
 from __future__ import annotations
 import importlib
 import pkgutil
@@ -239,7 +271,8 @@ from shenbi.gates.shared import PROJECT
 
 _TRUTH_FILES_YAML = PROJECT / "docs" / "framework" / "truth-files.yaml"
 
-def bootstrap_registry() -> dict[str,str]:
+
+def bootstrap_registry() -> dict[str, str]:
     """从 truth-files.yaml 的 concepts 读全部文件词汇（未迁移技能用）。
 
     v2 C1: 真实结构 concepts:[{name,kind}]，非 files:[{path,kind}]。
@@ -247,27 +280,31 @@ def bootstrap_registry() -> dict[str,str]:
     if not _TRUTH_FILES_YAML.exists():
         return {}
     data = yaml.safe_load(_TRUTH_FILES_YAML.read_text(encoding="utf-8")) or {}
-    out: dict[str,str] = {}
+    out: dict[str, str] = {}
     for entry in data.get("concepts", []):  # v2: concepts 非 files
         name = entry.get("name")  # v2: name 非 path
         if name:
             out[name] = entry.get("kind", "truth")
     return out
 
-def _discover_skill_models() -> dict[str,type[BaseModel]]:
+
+def _discover_skill_models() -> dict[str, type[BaseModel]]:
     """自动发现 contracts/skills/*.py 导出的 Report 类。约定：每模块有 Report(BaseModel)。"""
     from shenbi.contracts import skills as skills_pkg  # Task 3 已建包
-    out: dict[str,type[BaseModel]] = {}
+
+    out: dict[str, type[BaseModel]] = {}
     for mod_info in pkgutil.iter_modules(skills_pkg.__path__):
         if mod_info.ispkg or mod_info.name.startswith("_"):
             continue
         mod = importlib.import_module(f"shenbi.contracts.skills.{mod_info.name}")
         report_cls = getattr(mod, "Report", None)
         if isinstance(report_cls, type) and issubclass(report_cls, BaseModel):
-            out[f"shenbi-{mod_info.name.replace('_','-')}"] = report_cls
+            out[f"shenbi-{mod_info.name.replace('_', '-')}"] = report_cls
     return out
 
-REGISTRY: dict[str,type[BaseModel]] = _discover_skill_models()
+
+REGISTRY: dict[str, type[BaseModel]] = _discover_skill_models()
+
 
 def load_skill_contract(skill: str) -> type[BaseModel] | None:
     return REGISTRY.get(skill)
@@ -302,37 +339,74 @@ from pydantic import ValidationError
 from shenbi.contracts.skills.foreshadowing_resolve import CP_THRESHOLDS, HookCP, Report
 from shenbi.contracts.registry import REGISTRY
 
+
 def test_cp_thresholds_constants() -> None:
-    assert CP_THRESHOLDS == {"GREEN_MAX":50, "RED_NOW":100, "FORCE_NEXT_CHAPTER":200}
+    assert CP_THRESHOLDS == {"GREEN_MAX": 50, "RED_NOW": 100, "FORCE_NEXT_CHAPTER": 200}
+
+
 def test_zone_computed_from_cp() -> None:
     assert HookCP(hook_id="h", cp=80, last_reinforced=1, current_chapter=10).zone == "ORANGE"
     assert HookCP(hook_id="h", cp=100, last_reinforced=1, current_chapter=10).zone == "RED"
     assert HookCP(hook_id="h", cp=49, last_reinforced=1, current_chapter=10).zone == "GREEN"
+
+
 def test_zone_ignores_hand_filled() -> None:
     """N7 + Bug 1：手填 zone=RED 被 extra=ignore 忽略，重算。"""
-    h = HookCP.model_validate({"hook_id":"h","cp":80,"zone":"RED","last_reinforced":1,"current_chapter":1})
+    h = HookCP.model_validate(
+        {"hook_id": "h", "cp": 80, "zone": "RED", "last_reinforced": 1, "current_chapter": 1}
+    )
     assert h.zone == "ORANGE"
+
+
 def test_report_rejects_inconsistent_debt() -> None:
     with pytest.raises(ValidationError):
-        Report(current_chapter=10, hooks=[HookCP(hook_id="h",cp=100,last_reinforced=1,current_chapter=10)], debt_level="GREEN")
+        Report(
+            current_chapter=10,
+            hooks=[HookCP(hook_id="h", cp=100, last_reinforced=1, current_chapter=10)],
+            debt_level="GREEN",
+        )
+
+
 def test_report_rejects_dup_hook_three_cp() -> None:
     """v2 M3: 用三个 cp 值（80/45/180）忠于 spec「三 CP」。"""
     with pytest.raises(ValidationError):
-        Report(current_chapter=10, hooks=[
-            HookCP(hook_id="h1",cp=80,last_reinforced=1,current_chapter=10),
-            HookCP(hook_id="h1",cp=45,last_reinforced=1,current_chapter=10),
-            HookCP(hook_id="h1",cp=180,last_reinforced=1,current_chapter=10),
-        ], debt_level="RED")
+        Report(
+            current_chapter=10,
+            hooks=[
+                HookCP(hook_id="h1", cp=80, last_reinforced=1, current_chapter=10),
+                HookCP(hook_id="h1", cp=45, last_reinforced=1, current_chapter=10),
+                HookCP(hook_id="h1", cp=180, last_reinforced=1, current_chapter=10),
+            ],
+            debt_level="RED",
+        )
+
+
 def test_report_accepts_valid() -> None:
-    r = Report(current_chapter=10, hooks=[HookCP(hook_id="h1",cp=80,last_reinforced=1,current_chapter=10)], debt_level="ORANGE")
+    r = Report(
+        current_chapter=10,
+        hooks=[HookCP(hook_id="h1", cp=80, last_reinforced=1, current_chapter=10)],
+        debt_level="ORANGE",
+    )
     assert r.debt_level == "ORANGE"
+
+
 def test_must_resolve_threshold() -> None:
-    assert HookCP(hook_id="h",cp=201,last_reinforced=1,current_chapter=10).must_resolve_next_chapter is True
-    assert HookCP(hook_id="h",cp=200,last_reinforced=1,current_chapter=10).must_resolve_next_chapter is False
+    assert (
+        HookCP(hook_id="h", cp=201, last_reinforced=1, current_chapter=10).must_resolve_next_chapter
+        is True
+    )
+    assert (
+        HookCP(hook_id="h", cp=200, last_reinforced=1, current_chapter=10).must_resolve_next_chapter
+        is False
+    )
+
+
 def test_must_resolve_serialized() -> None:
     """v2 M1: must_resolve 用 computed_field 才进 model_dump（支柱六文档派生需要）。"""
-    h = HookCP(hook_id="h",cp=201,last_reinforced=1,current_chapter=10)
+    h = HookCP(hook_id="h", cp=201, last_reinforced=1, current_chapter=10)
     assert h.model_dump()["must_resolve_next_chapter"] is True
+
+
 def test_registry_includes_resolve() -> None:
     assert REGISTRY["shenbi-foreshadowing-resolve"] is Report
 ```
@@ -348,11 +422,13 @@ zone/must_resolve 是 computed_field 只读派生；debt 一致性 + hook 单 cp
 model_validator 运行时校验。字段以 fixture 为准（state 非 status）。
 
 v2 M1: must_resolve_next_chapter 用 computed_field（非 @property）以进 model_dump。"""
+
 from __future__ import annotations
 from pydantic import BaseModel, Field, computed_field, model_validator
 from shenbi.contracts.enums import CPZone
 
-CP_THRESHOLDS: dict[str,int] = {"GREEN_MAX":50, "RED_NOW":100, "FORCE_NEXT_CHAPTER":200}
+CP_THRESHOLDS: dict[str, int] = {"GREEN_MAX": 50, "RED_NOW": 100, "FORCE_NEXT_CHAPTER": 200}
+
 
 class HookCP(BaseModel):
     model_config = {"extra": "ignore"}  # N7
@@ -364,14 +440,17 @@ class HookCP(BaseModel):
     @computed_field
     @property
     def zone(self) -> CPZone:
-        if self.cp >= CP_THRESHOLDS["RED_NOW"]: return "RED"
-        if self.cp >= CP_THRESHOLDS["GREEN_MAX"]: return "ORANGE"
+        if self.cp >= CP_THRESHOLDS["RED_NOW"]:
+            return "RED"
+        if self.cp >= CP_THRESHOLDS["GREEN_MAX"]:
+            return "ORANGE"
         return "GREEN"
 
     @computed_field  # v2 M1: computed_field 非 property，进 model_dump
     @property
     def must_resolve_next_chapter(self) -> bool:
         return self.cp > CP_THRESHOLDS["FORCE_NEXT_CHAPTER"]
+
 
 class Report(BaseModel):
     model_config = {"extra": "ignore"}
@@ -383,16 +462,21 @@ class Report(BaseModel):
     def _debt_consistent_with_hooks(self) -> "Report":
         max_cp = max((h.cp for h in self.hooks), default=0)
         expected: CPZone = (
-            "RED" if max_cp >= CP_THRESHOLDS["RED_NOW"]
-            else "ORANGE" if max_cp >= CP_THRESHOLDS["GREEN_MAX"] else "GREEN"
+            "RED"
+            if max_cp >= CP_THRESHOLDS["RED_NOW"]
+            else "ORANGE"
+            if max_cp >= CP_THRESHOLDS["GREEN_MAX"]
+            else "GREEN"
         )
         if self.debt_level != expected:
-            raise ValueError(f"debt_level={self.debt_level} 与 max cp={max_cp} zone={expected} 矛盾")
+            raise ValueError(
+                f"debt_level={self.debt_level} 与 max cp={max_cp} zone={expected} 矛盾"
+            )
         return self
 
     @model_validator(mode="after")
     def _hook_cp_single_value(self) -> "Report":
-        seen: dict[str,int] = {}
+        seen: dict[str, int] = {}
         for h in self.hooks:
             if h.hook_id in seen and seen[h.hook_id] != h.cp:
                 raise ValueError(f"hook {h.hook_id} 多个 cp: {seen[h.hook_id]} vs {h.cp}")
@@ -405,7 +489,10 @@ Replace `test_registry_empty_before_migration` with:
 ```python
 def test_registry_includes_migrated() -> None:
     from shenbi.contracts.skills.foreshadowing_resolve import Report
+
     assert REGISTRY["shenbi-foreshadowing-resolve"] is Report
+
+
 def test_registry_excludes_unmigrated() -> None:
     assert "shenbi-worldbuilding" not in REGISTRY
 ```
@@ -429,15 +516,23 @@ git commit -m "feat(contracts): migrate foreshadowing_resolve contract model (co
 ```python
 # src/shenbi/contracts/__init__.py
 """契约单源层（spec 支柱一）。过渡期 contract.py 从本包派生 REGISTRY。"""
+
 from __future__ import annotations
 from shenbi.contracts.base import GateOutcome, PureInput
 from shenbi.contracts.enums import ALL_ENUMS, ActorRole, CPZone, Severity, Verdict
 from shenbi.contracts.registry import REGISTRY, bootstrap_registry, load_skill_contract
 
 __all__ = [
-    "REGISTRY", "bootstrap_registry", "load_skill_contract",
-    "PureInput", "GateOutcome",
-    "Severity", "Verdict", "CPZone", "ActorRole", "ALL_ENUMS",
+    "REGISTRY",
+    "bootstrap_registry",
+    "load_skill_contract",
+    "PureInput",
+    "GateOutcome",
+    "Severity",
+    "Verdict",
+    "CPZone",
+    "ActorRole",
+    "ALL_ENUMS",
 ]
 ```
 - [ ] **Step 2: Verify imports**
@@ -467,16 +562,20 @@ def test_load_registry_still_returns_truth_files_vocab() -> None:
     """过渡期：load_registry 仍含 truth-files.yaml 全部 concepts。
     v2 C2: 迭代 reg['concepts'] 的 name，非顶层键。"""
     from shenbi.contract import load_registry
+
     reg = load_registry()
     assert isinstance(reg, dict)
     concepts = reg.get("concepts", [])
     assert any("pending_hooks" in c.get("name", "") for c in concepts)
 
+
 def test_contracts_registry_coexists_with_contract_py() -> None:
     """两源并行：contract.py（未迁移）+ contracts.REGISTRY（已迁移 foreshadowing-resolve）。"""
     from shenbi.contracts import REGISTRY
+
     assert "shenbi-foreshadowing-resolve" in REGISTRY
     from shenbi.contract import load_contract
+
     c = load_contract("shenbi-worldbuilding")  # 未迁移，走 TypedDict
     assert c is not None
 ```
@@ -503,12 +602,14 @@ from __future__ import annotations
 import subprocess, sys
 from pathlib import Path
 
+
 def test_lint_passes_on_current_contracts() -> None:
     repo = Path(__file__).resolve().parents[2]
     script = str(repo / "tools" / "lint_no_forbid_with_computed_field.py")  # v2 I4: 绝对路径
     target = str(repo / "src" / "shenbi" / "contracts")
     r = subprocess.run([sys.executable, script, target], capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
+
 
 def test_lint_catches_forbid_violation(tmp_path: Path) -> None:
     repo = Path(__file__).resolve().parents[2]
@@ -522,7 +623,8 @@ def test_lint_catches_forbid_violation(tmp_path: Path) -> None:
         "    @computed_field\n"
         "    @property\n"
         "    def y(self) -> int: return self.x\n",
-        encoding="utf-8")
+        encoding="utf-8",
+    )
     r = subprocess.run([sys.executable, script, str(tmp_path)], capture_output=True, text=True)
     assert r.returncode == 1 and "forbid" in r.stderr.lower()
 ```
@@ -536,27 +638,38 @@ def test_lint_catches_forbid_violation(tmp_path: Path) -> None:
 """N7 守护：含 @computed_field 的 Pydantic 模型不能 extra=forbid。
 用法: python tools/lint_no_forbid_with_computed_field.py <path>
 exit 0=通过；exit 1=违规。"""
+
 from __future__ import annotations
 import ast, sys
 from pathlib import Path
+
 
 def _has_computed_field(class_body: list) -> bool:
     for item in class_body:
         if isinstance(item, ast.FunctionDef):
             for dec in item.decorator_list:
-                if "computed_field" in ast.unparse(dec): return True
+                if "computed_field" in ast.unparse(dec):
+                    return True
     return False
+
 
 def _has_forbid_config(class_body: list) -> bool:
     for item in class_body:
         if isinstance(item, ast.Assign):
             for t in item.targets:
                 if isinstance(t, ast.Name) and t.id == "model_config":
-                    if "forbid" in ast.unparse(item.value): return True
+                    if "forbid" in ast.unparse(item.value):
+                        return True
         if isinstance(item, ast.AnnAssign):
-            if isinstance(item.target, ast.Name) and item.target.id == "model_config" and item.value:
-                if "forbid" in ast.unparse(item.value): return True
+            if (
+                isinstance(item.target, ast.Name)
+                and item.target.id == "model_config"
+                and item.value
+            ):
+                if "forbid" in ast.unparse(item.value):
+                    return True
     return False
+
 
 def lint_dir(root: Path) -> list[str]:
     violations: list[str] = []
@@ -565,15 +678,21 @@ def lint_dir(root: Path) -> list[str]:
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
                 if _has_computed_field(node.body) and _has_forbid_config(node.body):
-                    violations.append(f"{py}:{node.lineno}: {node.name} 含 computed_field 却设 extra=forbid (N7)")
+                    violations.append(
+                        f"{py}:{node.lineno}: {node.name} 含 computed_field 却设 extra=forbid (N7)"
+                    )
     return violations
+
 
 def main() -> int:
     if len(sys.argv) != 2:
-        print("usage: lint_no_forbid_with_computed_field.py <path>", file=sys.stderr); return 2
+        print("usage: lint_no_forbid_with_computed_field.py <path>", file=sys.stderr)
+        return 2
     vs = lint_dir(Path(sys.argv[1]))
-    for v in vs: print(v, file=sys.stderr)
+    for v in vs:
+        print(v, file=sys.stderr)
     return 1 if vs else 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

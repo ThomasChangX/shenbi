@@ -92,31 +92,42 @@ def check_skill_deps_closure(repo: Path) -> list[str]  # 双向：dirs-deps miss
 ```python
 # tests/unit/skill_utils/test_deprecated.py
 """Shared DEPRECATED-skill detection (spec #59 T1/T3 single source)."""
+
 from pathlib import Path
 from shenbi.skill_utils.deprecated import deprecated_skill_names, is_deprecated_skill
 
 REPO = Path(__file__).resolve().parents[3]
 SKILLS = REPO / "skills"
 
+
 def _mk(root: Path, name: str, body: str) -> None:
     d = root / name
     d.mkdir(parents=True)
     (d / "SKILL.md").write_text(body, encoding="utf-8")
 
+
 def test_detects_html_comment_banner(tmp_path: Path) -> None:
-    _mk(tmp_path, "shenbi-x", "---\nname: shenbi-x\n---\n<!-- DEPRECATED: Superseded by y. -->\nbody")
+    _mk(
+        tmp_path,
+        "shenbi-x",
+        "---\nname: shenbi-x\n---\n<!-- DEPRECATED: Superseded by y. -->\nbody",
+    )
     assert is_deprecated_skill(tmp_path, "shenbi-x") is True
+
 
 def test_detects_hash_banner(tmp_path: Path) -> None:
     _mk(tmp_path, "shenbi-x", "# DEPRECATED: Superseded by y.\nbody")
     assert is_deprecated_skill(tmp_path, "shenbi-x") is True
 
+
 def test_live_skill_negative(tmp_path: Path) -> None:
     _mk(tmp_path, "shenbi-x", "---\nname: shenbi-x\n---\nbody mentions DEPRECATED_CONTEXT nowhere")
     assert is_deprecated_skill(tmp_path, "shenbi-x") is False
 
+
 def test_missing_dir_is_not_deprecated(tmp_path: Path) -> None:
     assert is_deprecated_skill(tmp_path, "shenbi-ghost") is False
+
 
 def test_real_repo_baseline_15() -> None:
     # 回归钉：真仓当前 15 个 DEPRECATED（驳斥复核 2026-09-12 实况）
@@ -140,6 +151,7 @@ Expected: FAIL `ModuleNotFoundError: No module named 'shenbi.skill_utils.depreca
 Two banner forms exist in the wild (verified 2026-09-12):
 ``# DEPRECATED: ...`` and ``<!-- DEPRECATED: ... -->``.
 """
+
 from __future__ import annotations
 
 import re
@@ -174,15 +186,33 @@ Run: `uv run pytest tests/unit/skill_utils/test_deprecated.py -v` → 5 passed
 ```python
 def test_deps_closure_deprecated_exempt_and_forbidden(tmp_path: Path) -> None:
     # DEPRECATED 目录未注册 -> 不报 missing；已注册 -> 报 forbidden
-    skills = tmp_path / "skills"; skills.mkdir()
-    (skills / "shenbi-live").mkdir(); (skills / "shenbi-live" / "SKILL.md").write_text("---\n---\nbody")
-    (skills / "shenbi-dead").mkdir(); (skills / "shenbi-dead" / "SKILL.md").write_text("# DEPRECATED: gone")
-    tiers = tmp_path / "tests" / "tiers"; tiers.mkdir(parents=True)
+    skills = tmp_path / "skills"
+    skills.mkdir()
+    (skills / "shenbi-live").mkdir()
+    (skills / "shenbi-live" / "SKILL.md").write_text("---\n---\nbody")
+    (skills / "shenbi-dead").mkdir()
+    (skills / "shenbi-dead" / "SKILL.md").write_text("# DEPRECATED: gone")
+    tiers = tmp_path / "tests" / "tiers"
+    tiers.mkdir(parents=True)
     deps = tiers / "deps.json"
-    deps.write_text(json.dumps({"t2-phases": {"audit": {"prerequisites": ["shenbi-live", "shenbi-dead"], "expected_outputs": []}}}), encoding="utf-8")
+    deps.write_text(
+        json.dumps(
+            {
+                "t2-phases": {
+                    "audit": {
+                        "prerequisites": ["shenbi-live", "shenbi-dead"],
+                        "expected_outputs": [],
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
     errs = check_skill_deps_closure(tmp_path)
-    assert not any("not registered" in e for e in errs)          # 豁免方向
-    assert any("DEPRECATED skills registered" in e and "shenbi-dead" in e for e in errs)  # 禁注册方向
+    assert not any("not registered" in e for e in errs)  # 豁免方向
+    assert any(
+        "DEPRECATED skills registered" in e and "shenbi-dead" in e for e in errs
+    )  # 禁注册方向
 ```
 
 - [ ] **Step 6: 实现**——`check_skill_deps_closure` 中：
@@ -239,17 +269,20 @@ git commit -m "feat: shared DEPRECATED detection + deps closure forbid-register 
 # tests/unit/pipeline/test_genesis.py 追加
 def test_genesis_step9_is_lifecycle() -> None:
     from shenbi.pipeline.genesis import GENESIS_STEPS, _INDEX_UPDATE_SKILLS
+
     step9 = next(s for s in GENESIS_STEPS if s.step_num == 9)
     assert step9.skill == "shenbi-foreshadowing-lifecycle"
     assert step9.output_path == "truth/pending_hooks.md"
     assert "shenbi-foreshadowing-lifecycle" in _INDEX_UPDATE_SKILLS
     assert "shenbi-foreshadowing-plant" not in _INDEX_UPDATE_SKILLS
 
+
 # tests/unit/pipeline/test_triggers.py 追加
 def test_trigger_steps_have_no_deprecated() -> None:
     from pathlib import Path
     from shenbi.pipeline.triggers import TRIGGER_STEPS
     from shenbi.skill_utils.deprecated import deprecated_skill_names
+
     dead = deprecated_skill_names(Path(__file__).resolve().parents[3] / "skills")
     assert not [s.skill for s in TRIGGER_STEPS if s.skill in dead]
 ```
@@ -260,19 +293,23 @@ def test_trigger_steps_have_no_deprecated() -> None:
 
 genesis.py:70 改为：
 ```python
+(
     GenesisStep(
         9, "shenbi-foreshadowing-lifecycle", mode="genesis", output_path="truth/pending_hooks.md"
     ),
+)
 ```
 `:97`：`"shenbi-foreshadowing-plant",` → `"shenbi-foreshadowing-lifecycle",`
 triggers.py：整块删除（含上下注释行核对）：
 ```python
+(
     TriggerStep(
         skill="shenbi-foreshadowing-plant",
         mode="expand",
         output_path="truth/pending_hooks.md",
         category="volume_boundary",
     ),
+)
 ```
 （卷界伏笔扩展职责由 lifecycle 每章面承接——CHAPTER_STEPS step 7 已每章跑 lifecycle，卷界不另设触发；若审查裁决仍需卷界触发，加 `TriggerStep(skill="shenbi-foreshadowing-lifecycle", mode="expand", output_path="truth/pending_hooks.md", category="volume_boundary")` 替换，跑 `uv run pytest tests/pipeline -q` 全绿为准。）
 dispatch_helper.py OPTIONAL_READS：删 `"shenbi-foreshadowing-plant"` 与 `"shenbi-foreshadowing-track"` 两键（:424-425）；`"shenbi-context-composing"` 保留（T1.4 裁决）。
@@ -297,6 +334,7 @@ def test_lifecycle_prompt_reachable(tmp_path: Path) -> None:
     """Acceptance 5 (F947 offline): GENESIS_STEPS step-9 successor assembles a prompt."""
     from shenbi.pipeline.dispatch_helper import _build_skill_prompt
     from shenbi.pipeline.genesis import GENESIS_STEPS
+
     step9 = next(s for s in GENESIS_STEPS if s.step_num == 9)
     assert step9.skill == "shenbi-foreshadowing-lifecycle"
     system_prompt, user_prompt, output_paths = _build_skill_prompt(
@@ -334,6 +372,7 @@ git commit -m "fix: swap GENESIS_STEPS step 9 to lifecycle, drop plant trigger +
 
 ```python
 """G4 checker for shenbi-foreshadowing-lifecycle (spec #59 T3 wiring)."""
+
 from __future__ import annotations
 
 import re
@@ -443,29 +482,41 @@ git commit -m "feat: G4 lifecycle checker + registration swap across gates/contr
 ```python
 # tests/contracts/test_using_shenbi_routing.py
 """Trigger-table routing assertions (spec #59 T4; acceptance 2)."""
+
 import re
 from pathlib import Path
 
 SKILL_MD = Path(__file__).resolve().parents[2] / "skills" / "using-shenbi" / "SKILL.md"
 REPO = Path(__file__).resolve().parents[2]
 
+
 def _table_rows() -> list[str]:
     text = SKILL_MD.read_text(encoding="utf-8")
     return [ln for ln in text.splitlines() if ln.startswith("| ") and "shenbi-" in ln]
 
+
 def test_no_deprecated_routed() -> None:
     from shenbi.skill_utils.deprecated import deprecated_skill_names
+
     dead = deprecated_skill_names(REPO / "skills")
-    text = SKILL_MD.read_text(encoding="utf-8")  # 全文扫描（含 :124 默认列与 :126 Phase 列表——不只表格行）
+    text = SKILL_MD.read_text(
+        encoding="utf-8"
+    )  # 全文扫描（含 :124 默认列与 :126 Phase 列表——不只表格行）
     hits = [d for d in dead if d in text]
     assert not hits, f"DEPRECATED named in using-shenbi: {hits}"
 
+
 def test_successors_have_rows() -> None:
     rows = "\n".join(_table_rows())
-    for succ in ("shenbi-review-group-character", "shenbi-review-group-craft",
-                 "shenbi-review-group-factual", "shenbi-review-group-plan",
-                 "shenbi-foreshadowing-lifecycle"):
+    for succ in (
+        "shenbi-review-group-character",
+        "shenbi-review-group-craft",
+        "shenbi-review-group-factual",
+        "shenbi-review-group-plan",
+        "shenbi-foreshadowing-lifecycle",
+    ):
         assert succ in rows, succ
+
 
 def test_merged_phrases_survive() -> None:
     rows = "\n".join(_table_rows())
@@ -536,18 +587,21 @@ def test_matrix_routes_no_deprecated_and_no_fixed_step_dup() -> None:
     from pathlib import Path
     from shenbi.pipeline.audit_layer import GENRE_ACTIVATION_MATRIX, _CORE_CIRCLE_KEYS
     from shenbi.skill_utils.deprecated import deprecated_skill_names
+
     dead = deprecated_skill_names(Path(__file__).resolve().parents[3] / "skills")
     assert not [v for v in GENRE_ACTIVATION_MATRIX.values() if v in dead]
     for dim in ("sensitivity", "worldRules", "motivation", "dialogue", "texture", "readerPull"):
         assert dim in _CORE_CIRCLE_KEYS, dim
 
+
 def test_genre_audits_filters_core_dims() -> None:
     from shenbi.pipeline.audit_layer import get_active_genre_audits
+
     gc = {"auditDimensions": {"worldRules": True, "texture": True, "era": True}}
     active = get_active_genre_audits(gc)
     assert "shenbi-review-era" in active
     assert "shenbi-review-world-rules" not in active  # core dim: filtered, carried by group steps
-    assert "shenbi-review-sensitivity" not in active   # F905: fixed step 14 is the sole source
+    assert "shenbi-review-sensitivity" not in active  # F905: fixed step 14 is the sole source
 ```
 
 - [ ] **Step 2: 确认失败** — 两测 FAIL（矩阵现含 5 DEPRECATED 值 + sensitivity；core keys 缺六维）
@@ -608,6 +662,7 @@ git commit -m "fix: genre matrix exits 5 DEPRECATED dims + sensitivity dedup via
 ```python
 def test_desc_strengthened_two_miss_classes() -> None:
     from shenbi.gates.g0_skill_contract import _desc_has_behavioral_text as behav
+
     # class 1: non-trigger opening ("Grouped audit for ...")
     assert behav("Grouped audit for character integrity -- one call; dispatches as a wave") is True
     # class 2: "Use when X — Y" trailing functional clause
@@ -776,6 +831,7 @@ git commit -m "fix: 15 DEPRECATED bodies get retirement notices + successor poin
 ```python
 # tests/test_lint_routing_faces.py
 """Routing-face DEPRECATED reconciliation lint (spec #59 T11; acceptance 4)."""
+
 import json
 from pathlib import Path
 
@@ -783,16 +839,22 @@ from tools.lint_routing_faces import lint_routing_faces
 
 REPO = Path(__file__).resolve().parents[1]
 
+
 def test_real_repo_baseline_zero() -> None:
     assert lint_routing_faces(REPO, REPO / "skills") == []
 
+
 def test_injected_deprecated_registration_fails(tmp_path: Path) -> None:
     # 复制最小面：合成 skills 树 + deps.json 注入一个 DEPRECATED 名
-    skills = tmp_path / "skills"; skills.mkdir()
+    skills = tmp_path / "skills"
+    skills.mkdir()
     (skills / "shenbi-dead").mkdir()
     (skills / "shenbi-dead" / "SKILL.md").write_text("# DEPRECATED: gone\n", encoding="utf-8")
-    deps = tmp_path / "tests" / "tiers"; deps.mkdir(parents=True)
-    (deps / "deps.json").write_text(json.dumps({"t2-phases": {"audit": {"prerequisites": ["shenbi-dead"]}}}), encoding="utf-8")
+    deps = tmp_path / "tests" / "tiers"
+    deps.mkdir(parents=True)
+    (deps / "deps.json").write_text(
+        json.dumps({"t2-phases": {"audit": {"prerequisites": ["shenbi-dead"]}}}), encoding="utf-8"
+    )
     errs = lint_routing_faces(tmp_path, skills)
     assert any("shenbi-dead" in e for e in errs)
 ```
@@ -808,6 +870,7 @@ Faces (structural, not text-grep): deps.json string values, using-shenbi
 trigger table rows, GENESIS_STEPS, TRIGGER_STEPS, GENRE_ACTIVATION_MATRIX,
 CHAPTER_STEPS, BOUNDARY_TRIGGERS. Exit 1 on any violation.
 """
+
 from __future__ import annotations
 
 import json
@@ -832,6 +895,7 @@ def lint_routing_faces(repo: Path, skills_dir: Path) -> list[str]:
         return errs
     # 1) deps.json — any string value naming a DEPRECATED skill
     deps = json.loads((repo / "tests" / "tiers" / "deps.json").read_text(encoding="utf-8"))
+
     def _walk(node: object) -> list[str]:
         if isinstance(node, str):
             return [node]
@@ -840,6 +904,7 @@ def lint_routing_faces(repo: Path, skills_dir: Path) -> list[str]:
         if isinstance(node, dict):
             return [s for v in node.values() for s in _walk(v)]
         return []
+
     hits = sorted(set(_walk(deps)) & dead)
     if hits:
         errs.append(f"deps.json routes DEPRECATED skills: {hits}")

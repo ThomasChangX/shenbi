@@ -220,10 +220,19 @@ class TestScoringGatePath:
         # global subprocess.run instead — the function-local import binds to the
         # same shared module object.
         monkeypatch.setattr("subprocess.run", fake_run)
-        monkeypatch.setattr(scoring_mod.sys, "argv", [
-            "shenbi-score", "--gate-only", "G2", "--files", str(tmp_path / "f.md"),
-            "--type", "chapter",
-        ])
+        monkeypatch.setattr(
+            scoring_mod.sys,
+            "argv",
+            [
+                "shenbi-score",
+                "--gate-only",
+                "G2",
+                "--files",
+                str(tmp_path / "f.md"),
+                "--type",
+                "chapter",
+            ],
+        )
 
         try:
             scoring_mod.main()
@@ -267,11 +276,21 @@ class TestScoringGatePath:
         scores.write_text('{"1": 90}', encoding="utf-8")
         round_dir = tmp_path / "round"
         round_dir.mkdir()
-        monkeypatch.setattr(scoring_mod.sys, "argv", [
-            "shenbi-score", str(rubric), str(scores),
-            "--test-type", "generative", "--tier", "T1",
-            "--round-dir", str(round_dir),
-        ])
+        monkeypatch.setattr(
+            scoring_mod.sys,
+            "argv",
+            [
+                "shenbi-score",
+                str(rubric),
+                str(scores),
+                "--test-type",
+                "generative",
+                "--tier",
+                "T1",
+                "--round-dir",
+                str(round_dir),
+            ],
+        )
 
         try:
             scoring_mod.main()
@@ -410,8 +429,11 @@ class TestCodexMarkDone:
 
         with patch("shenbi.dispatcher.modes.codex.subprocess.run", side_effect=fake_run):
             rc = dispatch_codex(
-                "shenbi-worldbuilding", "generative", round_dir,
-                "test prompt", "agent-001",
+                "shenbi-worldbuilding",
+                "generative",
+                round_dir,
+                "test prompt",
+                "agent-001",
             )
 
         assert rc == 0
@@ -435,10 +457,12 @@ class TestCodexMarkDone:
 
         def fake_run(cmd, **kwargs):
             captured_cmds.append(list(cmd))
+
             class FakeResult:
                 returncode = 0
                 stdout = json.dumps({"final_score": 90})
                 stderr = ""
+
             return FakeResult()
 
         with patch("shenbi.dispatcher.modes.codex.subprocess.run", side_effect=fake_run):
@@ -477,9 +501,7 @@ with a direct `progress.json` update:
 And add this helper function above `dispatch_codex` (after the imports):
 
 ```python
-def _record_completion(
-    round_dir: Path, skill: str, test_type: str, score: float
-) -> None:
+def _record_completion(round_dir: Path, skill: str, test_type: str, score: float) -> None:
     """Record skill completion directly into progress.json.
 
     Replaces the historical ``shenbi-progress mark-done`` subprocess, which

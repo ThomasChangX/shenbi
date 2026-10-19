@@ -37,6 +37,7 @@
 - [ ] **1a. Write test:** Create `tests/pipeline/test_scr_extractor.py`
   ```python
   """Test Structured Chapter Representation (SCR) extractor."""
+
   import json
   import pytest
   from pathlib import Path
@@ -77,6 +78,7 @@
   从废料场到铁匠铺，他走了很久。每一步都像踩在刀刃上。
   """
 
+
   class TestExtractProse:
       def test_strips_meta_block(self):
           text = "<!--META-BEGIN-->...<!--META-END-->\n\n# Title\n\nBody text."
@@ -84,57 +86,63 @@
           assert "META" not in prose
           assert "Body text" in prose
 
+
   class TestExtractCharacterLocations:
       def test_finds_characters_by_dialogue(self):
           locs = _extract_character_locations(SAMPLE_CHAPTER)
-          names = {l['name'] for l in locs}
-          assert '李明' in names
+          names = {l["name"] for l in locs}
+          assert "李明" in names
 
       def test_includes_evidence_and_line_range(self):
           locs = _extract_character_locations(SAMPLE_CHAPTER)
           for loc in locs:
-              assert 'name' in loc
-              assert 'evidence' in loc
-              assert 'line_range' in loc
+              assert "name" in loc
+              assert "evidence" in loc
+              assert "line_range" in loc
+
 
   class TestExtractDialogueSegments:
       def test_extracts_dialogue_with_speaker(self):
           segs = _extract_dialogue_segments(SAMPLE_CHAPTER)
-          speakers = {s['speaker'] for s in segs}
-          assert '王铁' in speakers
+          speakers = {s["speaker"] for s in segs}
+          assert "王铁" in speakers
 
       def test_extracts_dialogue_text(self):
           segs = _extract_dialogue_segments(SAMPLE_CHAPTER)
-          texts = [s['text'] for s in segs]
-          assert any('你确定要这么做' in t for t in texts)
+          texts = [s["text"] for s in segs]
+          assert any("你确定要这么做" in t for t in texts)
+
 
   class TestExtractHookAppearances:
       def test_finds_hook_ids(self):
           hooks = _extract_hook_appearances(SAMPLE_CHAPTER)
-          ids = [h['hook_id'] for h in hooks]
-          assert 'MH-003' in ids
+          ids = [h["hook_id"] for h in hooks]
+          assert "MH-003" in ids
+
 
   class TestExtractEventTimeline:
       def test_extracts_events(self):
           events = _extract_event_timeline(SAMPLE_CHAPTER)
           assert len(events) > 0
           for e in events:
-              assert 'description' in e
-              assert 'line_range' in e
+              assert "description" in e
+              assert "line_range" in e
+
 
   class TestComputeParagraphStats:
       def test_counts_paragraphs(self):
           stats = _compute_paragraph_stats(SAMPLE_CHAPTER)
-          assert 'count' in stats
-          assert stats['count'] > 0
+          assert "count" in stats
+          assert stats["count"] > 0
+
 
   class TestSCRIntegration:
       def test_full_extraction_produces_valid_scr(self, tmp_path):
-          chapters_dir = tmp_path / 'chapters'
+          chapters_dir = tmp_path / "chapters"
           chapters_dir.mkdir()
-          (chapters_dir / 'chapter-1.md').write_text(SAMPLE_CHAPTER)
+          (chapters_dir / "chapter-1.md").write_text(SAMPLE_CHAPTER)
 
-          context_dir = tmp_path / 'context'
+          context_dir = tmp_path / "context"
           context_dir.mkdir()
 
           scr = extract_scr(tmp_path, 1)
@@ -144,26 +152,26 @@
           assert 0.0 <= scr.extraction_confidence <= 1.0
 
       def test_scr_cached_to_disk(self, tmp_path):
-          chapters_dir = tmp_path / 'chapters'
+          chapters_dir = tmp_path / "chapters"
           chapters_dir.mkdir()
-          (chapters_dir / 'chapter-2.md').write_text(SAMPLE_CHAPTER)
+          (chapters_dir / "chapter-2.md").write_text(SAMPLE_CHAPTER)
 
-          context_dir = tmp_path / 'context'
+          context_dir = tmp_path / "context"
           context_dir.mkdir()
 
           extract_scr(tmp_path, 2)
-          cache_path = context_dir / 'chapter-2-scr.json'
+          cache_path = context_dir / "chapter-2-scr.json"
           assert cache_path.exists()
 
-          cached = json.loads(cache_path.read_text(encoding='utf-8'))
-          assert cached['chapter'] == 2
+          cached = json.loads(cache_path.read_text(encoding="utf-8"))
+          assert cached["chapter"] == 2
 
       def test_cache_hit_avoids_re_extraction(self, tmp_path):
-          chapters_dir = tmp_path / 'chapters'
+          chapters_dir = tmp_path / "chapters"
           chapters_dir.mkdir()
-          (chapters_dir / 'chapter-3.md').write_text(SAMPLE_CHAPTER)
+          (chapters_dir / "chapter-3.md").write_text(SAMPLE_CHAPTER)
 
-          context_dir = tmp_path / 'context'
+          context_dir = tmp_path / "context"
           context_dir.mkdir()
 
           scr1 = extract_scr(tmp_path, 3)
@@ -183,6 +191,7 @@
   Cached to disk at context/chapter-N-scr.json.
   All downstream LLM calls consume SCR fields instead of raw chapter text.
   """
+
   from __future__ import annotations
 
   import json
@@ -225,21 +234,22 @@
 
 
   # --- META stripping ---
-  _META_RE = re.compile(r'<!--META-BEGIN-->.*?<!--META-END-->', re.DOTALL)
+  _META_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
 
 
   def extract_prose(text: str) -> str:
       """Strip META blocks and title line from chapter text."""
-      text = _META_RE.sub('', text)
+      text = _META_RE.sub("", text)
       # Remove H1 title line
-      text = re.sub(r'^#\s+.+?\n', '', text, count=1)
+      text = re.sub(r"^#\s+.+?\n", "", text, count=1)
       return text.strip()
 
 
   # --- Character name extraction ---
-  _CHAR_NAMES_RE = re.compile(r'[\u4e00-\u9fff]{2,4}')
+  _CHAR_NAMES_RE = re.compile(r"[\u4e00-\u9fff]{2,4}")
   _DIALOGUE_RE = re.compile(r'["""](.+?)["»"]')
-  _SPEAKER_RE = re.compile(r'(.+?)(?:说|道|问|答|喊|叫|低语|轻声|沉声|冷冷|缓缓|慢慢)')
+  _SPEAKER_RE = re.compile(r"(.+?)(?:说|道|问|答|喊|叫|低语|轻声|沉声|冷冷|缓缓|慢慢)")
+
 
   def _extract_character_locations(prose: str) -> list[dict]:
       """Extract character appearances from dialogue attributions and narration."""
@@ -249,19 +259,21 @@
       # Find dialogue with speaker patterns
       for match in re.finditer(r'["""](.+?)["»"]\s*(.+?)(?:说|道|问|答)', prose):
           speaker_text = match.group(2).strip()
-          speaker_match = re.search(r'[\u4e00-\u9fff]{2,3}', speaker_text)
+          speaker_match = re.search(r"[\u4e00-\u9fff]{2,3}", speaker_text)
           if speaker_match:
               name = speaker_match.group()
               if name not in seen:
                   seen.add(name)
                   pos = match.start()
-                  line_num = prose[:pos].count('\n') + 1
-                  results.append({
-                      'name': name,
-                      'location': 'dialogue_attribution',
-                      'evidence': match.group(0)[:50],
-                      'line_range': [line_num, line_num + 1],
-                  })
+                  line_num = prose[:pos].count("\n") + 1
+                  results.append(
+                      {
+                          "name": name,
+                          "location": "dialogue_attribution",
+                          "evidence": match.group(0)[:50],
+                          "line_range": [line_num, line_num + 1],
+                      }
+                  )
 
       return results
 
@@ -272,19 +284,21 @@
       for match in re.finditer(r'(?:["""])(.+?)(?:["»"])', prose):
           text = match.group(1)
           pos = match.start()
-          line_num = prose[:pos].count('\n') + 1
+          line_num = prose[:pos].count("\n") + 1
 
           # Try to find speaker from preceding context
-          before = prose[max(0, pos - 30):pos]
+          before = prose[max(0, pos - 30) : pos]
           speaker_match = _SPEAKER_RE.search(before)
-          speaker = speaker_match.group(1).strip()[-3:] if speaker_match else 'unknown'
+          speaker = speaker_match.group(1).strip()[-3:] if speaker_match else "unknown"
 
-          results.append({
-              'speaker': speaker,
-              'text': text[:100],
-              'line_range': [line_num, line_num + 1],
-              'tags': [],
-          })
+          results.append(
+              {
+                  "speaker": speaker,
+                  "text": text[:100],
+                  "line_range": [line_num, line_num + 1],
+                  "tags": [],
+              }
+          )
 
       return results
 
@@ -293,55 +307,75 @@
       """Extract event-like sentences from narrative text."""
       results = []
       # Split into sentences roughly
-      sentences = re.split(r'[。！？\n]', prose)
+      sentences = re.split(r"[。！？\n]", prose)
       line_num = 1
       for i, sent in enumerate(sentences):
           sent = sent.strip()
           if not sent or len(sent) < 4:
               continue
           # Heuristic: events often contain specific verbs
-          if re.search(r'(走|来|去|到|拿|放|看|听|说|做|打|杀|买|卖|数|算)', sent):
-              results.append({
-                  'description': sent[:80],
-                  'line_range': [line_num, line_num + 1],
-                  'characters_involved': [],
-              })
+          if re.search(r"(走|来|去|到|拿|放|看|听|说|做|打|杀|买|卖|数|算)", sent):
+              results.append(
+                  {
+                      "description": sent[:80],
+                      "line_range": [line_num, line_num + 1],
+                      "characters_involved": [],
+                  }
+              )
       return results
 
 
   def _extract_emotional_markers(prose: str) -> list[dict]:
       """Extract emotional state indicators."""
-      emotion_words = ['怒', '悲', '喜', '惧', '忧', '惊', '静', '冷', '热', '颤', '抖', '微笑', '哭泣']
+      emotion_words = [
+          "怒",
+          "悲",
+          "喜",
+          "惧",
+          "忧",
+          "惊",
+          "静",
+          "冷",
+          "热",
+          "颤",
+          "抖",
+          "微笑",
+          "哭泣",
+      ]
       results = []
       for word in emotion_words:
           for match in re.finditer(re.escape(word), prose):
               pos = match.start()
-              line_num = prose[:pos].count('\n') + 1
+              line_num = prose[:pos].count("\n") + 1
               ctx_start = max(0, pos - 10)
               ctx_end = min(len(prose), pos + 10)
-              results.append({
-                  'character': 'unknown',
-                  'emotion': word,
-                  'evidence': prose[ctx_start:ctx_end],
-                  'confidence': 0.7,
-              })
+              results.append(
+                  {
+                      "character": "unknown",
+                      "emotion": word,
+                      "evidence": prose[ctx_start:ctx_end],
+                      "confidence": 0.7,
+                  }
+              )
       return results
 
 
   def _extract_hook_appearances(prose: str) -> list[dict]:
       """Extract hook ID references from prose."""
       results = []
-      for match in re.finditer(r'([A-Z]{2,4}-\d+)', prose):
+      for match in re.finditer(r"([A-Z]{2,4}-\d+)", prose):
           hook_id = match.group(1)
           pos = match.start()
-          line_num = prose[:pos].count('\n') + 1
+          line_num = prose[:pos].count("\n") + 1
           ctx_start = max(0, pos - 30)
           ctx_end = min(len(prose), pos + 30)
-          results.append({
-              'hook_id': hook_id,
-              'line_range': [line_num, line_num + 1],
-              'context': prose[ctx_start:ctx_end],
-          })
+          results.append(
+              {
+                  "hook_id": hook_id,
+                  "line_range": [line_num, line_num + 1],
+                  "context": prose[ctx_start:ctx_end],
+              }
+          )
       return results
 
 
@@ -350,19 +384,21 @@
       results = []
       # Common world element indicators
       patterns = [
-          (r'(灵石|丹药|法器|阵法|功法)', 'cultivation'),
-          (r'(铜币|银币|金币|灵石)', 'currency'),
-          (r'(山|河|城|镇|村|谷|林|海|原)', 'location'),
+          (r"(灵石|丹药|法器|阵法|功法)", "cultivation"),
+          (r"(铜币|银币|金币|灵石)", "currency"),
+          (r"(山|河|城|镇|村|谷|林|海|原)", "location"),
       ]
       for pat, category in patterns:
           for match in re.finditer(pat, prose):
               pos = match.start()
-              line_num = prose[:pos].count('\n') + 1
-              results.append({
-                  'element': match.group(1),
-                  'category': category,
-                  'line_range': [line_num, line_num + 1],
-              })
+              line_num = prose[:pos].count("\n") + 1
+              results.append(
+                  {
+                      "element": match.group(1),
+                      "category": category,
+                      "line_range": [line_num, line_num + 1],
+                  }
+              )
       return results
 
 
@@ -370,20 +406,22 @@
       """Detect point-of-view transitions using name pattern changes."""
       results = []
       # Simplified: detect when a new character name dominates a paragraph
-      paragraphs = prose.split('\n\n')
+      paragraphs = prose.split("\n\n")
       prev_dominant = None
       for i, para in enumerate(paragraphs):
-          names = re.findall(r'[\u4e00-\u9fff]{2,3}', para)
+          names = re.findall(r"[\u4e00-\u9fff]{2,3}", para)
           if not names:
               continue
           # Most frequent name in paragraph
           dominant = Counter(names).most_common(1)[0][0]
           if prev_dominant and dominant != prev_dominant:
-              results.append({
-                  'from_pov': prev_dominant,
-                  'to_pov': dominant,
-                  'line_range': [i * 2, (i + 1) * 2],
-              })
+              results.append(
+                  {
+                      "from_pov": prev_dominant,
+                      "to_pov": dominant,
+                      "line_range": [i * 2, (i + 1) * 2],
+                  }
+              )
           prev_dominant = dominant
       return results
 
@@ -391,38 +429,41 @@
   def _extract_decision_points(prose: str) -> list[dict]:
       """Extract character decision moments."""
       results = []
-      decision_indicators = ['决定', '选择', '下定', '毅然', '最终']
+      decision_indicators = ["决定", "选择", "下定", "毅然", "最终"]
       for indicator in decision_indicators:
           for match in re.finditer(re.escape(indicator), prose):
               pos = match.start()
-              line_num = prose[:pos].count('\n') + 1
+              line_num = prose[:pos].count("\n") + 1
               ctx_start = max(0, pos - 40)
               ctx_end = min(len(prose), pos + 40)
-              results.append({
-                  'character': 'unknown',
-                  'decision': indicator,
-                  'cause_chain': '',
-                  'effect': '',
-                  'line_range': [line_num, line_num + 1],
-              })
+              results.append(
+                  {
+                      "character": "unknown",
+                      "decision": indicator,
+                      "cause_chain": "",
+                      "effect": "",
+                      "line_range": [line_num, line_num + 1],
+                  }
+              )
       return results
 
 
   def _compute_paragraph_stats(prose: str) -> dict:
       """Compute paragraph-level statistics."""
-      paragraphs = [p.strip() for p in prose.split('\n\n') if p.strip()]
+      paragraphs = [p.strip() for p in prose.split("\n\n") if p.strip()]
       lengths = [len(p) for p in paragraphs]
       dialogue_count = sum(1 for p in paragraphs if '"' in p or '"' in p or '"' in p)
 
       return {
-          'count': len(paragraphs),
-          'lengths': lengths,
-          'dialogue_density': dialogue_count / max(len(paragraphs), 1),
-          'avg_length': sum(lengths) / max(len(lengths), 1),
+          "count": len(paragraphs),
+          "lengths": lengths,
+          "dialogue_density": dialogue_count / max(len(paragraphs), 1),
+          "avg_length": sum(lengths) / max(len(lengths), 1),
       }
 
 
-  _SENSITIVE_WORDS = ['死', '杀', '血', '尸', '鬼', '魔', '妖', '毒', '咒']
+  _SENSITIVE_WORDS = ["死", "杀", "血", "尸", "鬼", "魔", "妖", "毒", "咒"]
+
 
   def _scan_sensitive_words(prose: str) -> list[dict]:
       """Scan for sensitive content words."""
@@ -430,18 +471,21 @@
       for word in _SENSITIVE_WORDS:
           for match in re.finditer(re.escape(word), prose):
               pos = match.start()
-              line_num = prose[:pos].count('\n') + 1
+              line_num = prose[:pos].count("\n") + 1
               ctx_start = max(0, pos - 15)
               ctx_end = min(len(prose), pos + 15)
-              results.append({
-                  'word': word,
-                  'line_range': [line_num, line_num + 1],
-                  'surrounding_context': prose[ctx_start:ctx_end],
-              })
+              results.append(
+                  {
+                      "word": word,
+                      "line_range": [line_num, line_num + 1],
+                      "surrounding_context": prose[ctx_start:ctx_end],
+                  }
+              )
       return results
 
 
-  _FATIGUE_WORDS = ['骤然', '仿佛', '只见', '突然', '缓缓', '微微', '深深', '轻轻', '慢慢']
+  _FATIGUE_WORDS = ["骤然", "仿佛", "只见", "突然", "缓缓", "微微", "深深", "轻轻", "慢慢"]
+
 
   def _scan_fatigue_words(prose: str) -> list[dict]:
       """Scan for AI fatigue indicator words."""
@@ -452,15 +496,18 @@
               counts[word] = counts.get(word, 0) + 1
       for word, count in counts.items():
           if count > 0:
-              results.append({
-                  'word': word,
-                  'count': count,
-                  'line_ranges': [],
-              })
+              results.append(
+                  {
+                      "word": word,
+                      "count": count,
+                      "line_ranges": [],
+                  }
+              )
       return results
 
 
-  _TRANSITION_WORDS = ['接着', '然后', '之后', '随后', '此后', '不久', '过了']
+  _TRANSITION_WORDS = ["接着", "然后", "之后", "随后", "此后", "不久", "过了"]
+
 
   def _scan_transition_markers(prose: str) -> list[dict]:
       """Scan for temporal transition markers."""
@@ -468,31 +515,33 @@
       for word in _TRANSITION_WORDS:
           for match in re.finditer(re.escape(word), prose):
               pos = match.start()
-              line_num = prose[:pos].count('\n') + 1
-              results.append({
-                  'marker': word,
-                  'line_range': [line_num, line_num + 1],
-              })
+              line_num = prose[:pos].count("\n") + 1
+              results.append(
+                  {
+                      "marker": word,
+                      "line_range": [line_num, line_num + 1],
+                  }
+              )
       return results
 
 
   def _extract_opening(prose: str) -> str:
       """Extract opening paragraph of chapter body."""
-      paragraphs = [p.strip() for p in prose.split('\n\n') if p.strip()]
-      return paragraphs[0] if paragraphs else ''
+      paragraphs = [p.strip() for p in prose.split("\n\n") if p.strip()]
+      return paragraphs[0] if paragraphs else ""
 
 
   def _extract_closing(prose: str) -> str:
       """Extract closing paragraph of chapter body."""
-      paragraphs = [p.strip() for p in prose.split('\n\n') if p.strip()]
-      return paragraphs[-1] if paragraphs else ''
+      paragraphs = [p.strip() for p in prose.split("\n\n") if p.strip()]
+      return paragraphs[-1] if paragraphs else ""
 
 
   def _extract_implicit_passages(prose: str) -> list[str]:
       """Extract passages containing emotional/relational implicit content."""
       results = []
-      indicators = ['感到', '觉得', '想起', '记得', '似乎', '好像', '也许', '或许']
-      paragraphs = prose.split('\n\n')
+      indicators = ["感到", "觉得", "想起", "记得", "似乎", "好像", "也许", "或许"]
+      paragraphs = prose.split("\n\n")
       for para in paragraphs:
           if any(ind in para for ind in indicators):
               if len(para) < 200:
@@ -509,7 +558,7 @@
 
       # Count characters covered by known patterns
       matched_chars += sum(len(m.group()) for m in re.finditer(r'["""].+?["»"]', prose))
-      matched_chars += sum(len(m.group()) for m in re.finditer(r'[\u4e00-\u9fff]{2,4}', prose))
+      matched_chars += sum(len(m.group()) for m in re.finditer(r"[\u4e00-\u9fff]{2,4}", prose))
 
       return min(0.95, matched_chars / max(total_chars, 1))
 
@@ -519,18 +568,18 @@
 
       Caches result to context/chapter-N-scr.json.
       """
-      cache_path = project_dir / 'context' / f'chapter-{chapter}-scr.json'
+      cache_path = project_dir / "context" / f"chapter-{chapter}-scr.json"
 
       # Return cached if available and fresh
       if cache_path.exists():
-          cached = json.loads(cache_path.read_text(encoding='utf-8'))
+          cached = json.loads(cache_path.read_text(encoding="utf-8"))
           return StructuredChapterRepresentation(**cached)
 
-      chapter_path = project_dir / 'chapters' / f'chapter-{chapter}.md'
+      chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
       if not chapter_path.exists():
           raise FileNotFoundError(f"Chapter file not found: {chapter_path}")
 
-      chapter_text = chapter_path.read_text(encoding='utf-8')
+      chapter_text = chapter_path.read_text(encoding="utf-8")
       prose = extract_prose(chapter_text)
 
       scr = StructuredChapterRepresentation(
@@ -551,7 +600,7 @@
           opening_paragraph=_extract_opening(prose),
           closing_paragraph=_extract_closing(prose),
           implicit_info_passages=_extract_implicit_passages(prose),
-          total_chinese_chars=sum(1 for c in prose if '\u4e00' <= c <= '\u9fff'),
+          total_chinese_chars=sum(1 for c in prose if "\u4e00" <= c <= "\u9fff"),
           extraction_confidence=_compute_confidence(prose),
       )
 
@@ -580,14 +629,20 @@
   `tests/pipeline/test_volume_align.py`:
   ```python
   """Test volume alignment checker."""
+
   import pytest
   from pathlib import Path
-  from shenbi.pipeline.volume_align import check_volume_alignment, extract_chapter_node, extract_key_terms
+  from shenbi.pipeline.volume_align import (
+      check_volume_alignment,
+      extract_chapter_node,
+      extract_key_terms,
+  )
+
 
   def test_extract_chapter_node(tmp_path):
-      outline_dir = tmp_path / 'outline'
+      outline_dir = tmp_path / "outline"
       outline_dir.mkdir(parents=True)
-      vm = outline_dir / 'volume_map.md'
+      vm = outline_dir / "volume_map.md"
       vm.write_text("""
   ## Chapter 5: The Bridge
 
@@ -599,29 +654,32 @@
   """)
       node = extract_chapter_node(vm, 5)
       assert node is not None
-      assert 'bridge' in node['desc']
+      assert "bridge" in node["desc"]
+
 
   def test_extract_key_terms():
       text = "Key terms: bridge, crossing, river, danger"
       terms = extract_key_terms(text)
-      assert 'bridge' in terms
+      assert "bridge" in terms
+
 
   def test_high_match_rate_no_warning(tmp_path):
-      outline_dir = tmp_path / 'outline'
+      outline_dir = tmp_path / "outline"
       outline_dir.mkdir(parents=True)
-      vm = outline_dir / 'volume_map.md'
+      vm = outline_dir / "volume_map.md"
       vm.write_text("## Chapter 3: Test\n\nKey terms: copper, coin, mystery")
       issues = check_volume_alignment(tmp_path, 3, "copper coin mystery in the scrapyard")
       # Should not produce warning when key terms match
-      assert not any('WARNING' in i for i in issues)
+      assert not any("WARNING" in i for i in issues)
+
 
   def test_low_match_rate_warns(tmp_path):
-      outline_dir = tmp_path / 'outline'
+      outline_dir = tmp_path / "outline"
       outline_dir.mkdir(parents=True)
-      vm = outline_dir / 'volume_map.md'
+      vm = outline_dir / "volume_map.md"
       vm.write_text("## Chapter 3: Test\n\nKey terms: copper, coin, mystery, smith")
       issues = check_volume_alignment(tmp_path, 3, "unrelated content about flowers")
-      assert any('WARNING' in i for i in issues)
+      assert any("WARNING" in i for i in issues)
   ```
 
 - [ ] **2b. Run test -- confirm FAIL.**
@@ -629,6 +687,7 @@
 - [ ] **2c. Implement** `src/shenbi/pipeline/volume_align.py`:
   ```python
   """Volume alignment checker -- deterministic pre-planning step (ADD-1)."""
+
   import re
   from pathlib import Path
 
@@ -638,38 +697,36 @@
       if not volume_map_path.exists():
           return None
 
-      text = volume_map_path.read_text(encoding='utf-8')
-      pattern = rf'##\s+Chapter\s+{chapter}[:\s]*(.+?)(?=\n##\s+Chapter|\Z)'
+      text = volume_map_path.read_text(encoding="utf-8")
+      pattern = rf"##\s+Chapter\s+{chapter}[:\s]*(.+?)(?=\n##\s+Chapter|\Z)"
       match = re.search(pattern, text, re.DOTALL)
 
       if not match:
           # Try alternate pattern: ### Chapter N
-          pattern = rf'###\s+Chapter\s+{chapter}[:\s]*(.+?)(?=\n###\s+Chapter|\Z)'
+          pattern = rf"###\s+Chapter\s+{chapter}[:\s]*(.+?)(?=\n###\s+Chapter|\Z)"
           match = re.search(pattern, text, re.DOTALL)
 
       if match:
-          return {'desc': match.group(1).strip()}
+          return {"desc": match.group(1).strip()}
       return None
 
 
   def extract_key_terms(text: str) -> list[str]:
       """Extract key terms from text."""
-      terms = re.findall(r'[\u4e00-\u9fff]{2,6}', text)
+      terms = re.findall(r"[\u4e00-\u9fff]{2,6}", text)
       return list(set(terms))
 
 
-  def check_volume_alignment(
-      project_dir: Path, chapter: int, plan_text: str
-  ) -> list[str]:
+  def check_volume_alignment(project_dir: Path, chapter: int, plan_text: str) -> list[str]:
       """Verify chapter plan aligns with volume_map. Non-blocking -- WARN only."""
-      vm_path = project_dir / 'outline' / 'volume_map.md'
+      vm_path = project_dir / "outline" / "volume_map.md"
       node = extract_chapter_node(vm_path, chapter)
 
       issues = []
       if not node:
           return issues
 
-      key_terms = extract_key_terms(node['desc'])
+      key_terms = extract_key_terms(node["desc"])
       if not key_terms:
           return issues
 
@@ -691,6 +748,7 @@
 
   Canonical location per Spec 4 §3.2: src/shenbi/skill_utils/drift_detection/
   """
+
   import json
   import re
   from pathlib import Path
@@ -700,32 +758,29 @@
 
   def _load_baseline(project_dir: Path) -> dict:
       """Load or create linguistic baseline from early chapters."""
-      baseline_path = project_dir / 'context' / 'linguistic_baseline.json'
+      baseline_path = project_dir / "context" / "linguistic_baseline.json"
       if baseline_path.exists():
-          return json.loads(baseline_path.read_text(encoding='utf-8'))
+          return json.loads(baseline_path.read_text(encoding="utf-8"))
 
       # Create baseline from early chapters
       baseline = {
-          'system_term_density': 0,
-          'em_dash_density': 0,
-          'dialogue_ratio': 0,
+          "system_term_density": 0,
+          "em_dash_density": 0,
+          "dialogue_ratio": 0,
       }
       chapters_read = 0
 
       for ch in range(1, 6):
-          ch_path = project_dir / 'chapters' / f'chapter-{ch}.md'
+          ch_path = project_dir / "chapters" / f"chapter-{ch}.md"
           if ch_path.exists():
-              text = ch_path.read_text(encoding='utf-8')
+              text = ch_path.read_text(encoding="utf-8")
               total_chars = len(text)
-              system_terms = len(re.findall(r'系统|面板|等级|技能|属性|经验', text))
-              em_dashes = text.count('——') + text.count('--')
-              dialogue_chars = sum(
-                  len(m.group())
-                  for m in re.finditer(r'["""].+?["»"]', text)
-              )
-              baseline['system_term_density'] += system_terms / max(total_chars, 1)
-              baseline['em_dash_density'] += em_dashes / max(total_chars, 1)
-              baseline['dialogue_ratio'] += dialogue_chars / max(total_chars, 1)
+              system_terms = len(re.findall(r"系统|面板|等级|技能|属性|经验", text))
+              em_dashes = text.count("——") + text.count("--")
+              dialogue_chars = sum(len(m.group()) for m in re.finditer(r'["""].+?["»"]', text))
+              baseline["system_term_density"] += system_terms / max(total_chars, 1)
+              baseline["em_dash_density"] += em_dashes / max(total_chars, 1)
+              baseline["dialogue_ratio"] += dialogue_chars / max(total_chars, 1)
               chapters_read += 1
 
       if chapters_read > 0:
@@ -738,18 +793,18 @@
 
   def check_linguistic_drift(project_dir: Path, chapter: int) -> list[str]:
       """Run linguistic drift detection. Returns WARN alerts."""
-      chapter_path = project_dir / 'chapters' / f'chapter-{chapter}.md'
+      chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
       if not chapter_path.exists():
           return []
 
-      text = chapter_path.read_text(encoding='utf-8')
+      text = chapter_path.read_text(encoding="utf-8")
       total_chars = max(len(text), 1)
       baseline = _load_baseline(project_dir)
 
       alerts = []
 
       # System term density (per mille)
-      system_terms = len(re.findall(r'系统|面板|等级|技能|属性|经验', text))
+      system_terms = len(re.findall(r"系统|面板|等级|技能|属性|经验", text))
       system_density = (system_terms / total_chars) * 1000
       if system_density > 30:
           alerts.append(
@@ -758,7 +813,7 @@
           )
 
       # Em-dash density (per mille)
-      em_dashes = text.count('——') + text.count('--')
+      em_dashes = text.count("——") + text.count("--")
       em_density = (em_dashes / total_chars) * 1000
       if em_density > 20:
           alerts.append(
@@ -768,15 +823,10 @@
 
       # Dialogue density check (>chapter 10, near zero dialogue)
       if chapter > 10:
-          dialogue_chars = sum(
-              len(m.group())
-              for m in re.finditer(r'["""].+?["»"]', text)
-          )
+          dialogue_chars = sum(len(m.group()) for m in re.finditer(r'["""].+?["»"]', text))
           dialogue_ratio = dialogue_chars / total_chars
           if dialogue_ratio < 0.01:
-              alerts.append(
-                  "Dialogue density near zero -- possible character disappearance"
-              )
+              alerts.append("Dialogue density near zero -- possible character disappearance")
 
       return alerts
   ```
@@ -788,6 +838,7 @@
   def _run_post_draft_extract(state, chapter: int) -> None:
       """Deterministic: extract SCR from freshly drafted chapter."""
       from shenbi.pipeline.scr_extractor import extract_scr
+
       extract_scr(state.project_dir, chapter)
   ```
 
@@ -1016,6 +1067,7 @@
   from dataclasses import dataclass, field
   from typing import Literal
 
+
   @dataclass
   class StepDef:
       skill: str
@@ -1028,36 +1080,44 @@
       calls_context_assembly: bool = False
       is_audit: bool = False
 
+
   CHAPTER_STEPS = [
       # Step 1: Volume alignment (deterministic, pre-planning)
       StepDef(skill="pipeline-volume-align", step_type="checkpoint"),
-
       # Step 2: Chapter planning (LLM)
-      StepDef(skill="shenbi-chapter-planning", step_type="core",
-              output_path="plans/chapter-N-plan.md", calls_context_assembly=True),
-
+      StepDef(
+          skill="shenbi-chapter-planning",
+          step_type="core",
+          output_path="plans/chapter-N-plan.md",
+          calls_context_assembly=True,
+      ),
       # Step 3: Context prepare (deterministic, merged context-assemble + curation)
-      StepDef(skill="pipeline-context-prepare", step_type="context",
-              calls_context_assembly=True, uses_staging=True),
-
+      StepDef(
+          skill="pipeline-context-prepare",
+          step_type="context",
+          calls_context_assembly=True,
+          uses_staging=True,
+      ),
       # Step 4: Chapter drafting (LLM)
-      StepDef(skill="shenbi-chapter-drafting", step_type="core",
-              output_path="chapters/chapter-N.md", checkpoint=True),
-
+      StepDef(
+          skill="shenbi-chapter-drafting",
+          step_type="core",
+          output_path="chapters/chapter-N.md",
+          checkpoint=True,
+      ),
       # Step 5: Post-draft extract (deterministic)
       StepDef(skill="pipeline-post-draft-extract", step_type="checkpoint"),
-
       # Step 6: Linguistic drift check (deterministic)
       StepDef(skill="pipeline-linguistic-drift-check", step_type="audit"),
-
       # Step 7: Foreshadowing lifecycle (LLM, MERGE-1 -- NEW skill)
-      StepDef(skill="shenbi-foreshadowing-lifecycle", step_type="core",
-              output_path="truth/pending_hooks.md", uses_staging=True),
-
+      StepDef(
+          skill="shenbi-foreshadowing-lifecycle",
+          step_type="core",
+          output_path="truth/pending_hooks.md",
+          uses_staging=True,
+      ),
       # Step 8: State settling (LLM, runs parallel to Step 7)
-      StepDef(skill="shenbi-state-settling", step_type="core",
-              uses_staging=True),
-
+      StepDef(skill="shenbi-state-settling", step_type="core", uses_staging=True),
       # Step 9-14: Grouped audits (LLM, MERGE-2 -- dispatch as parallel waves
       # via the existing parallel_dispatch.py, preserving the two-wave model)
       StepDef(skill="shenbi-review-group-factual", step_type="audit", is_audit=True),
@@ -1066,14 +1126,10 @@
       StepDef(skill="shenbi-review-group-plan", step_type="audit", is_audit=True),
       StepDef(skill="shenbi-review-resonance", step_type="audit", is_audit=True),
       StepDef(skill="shenbi-review-sensitivity", step_type="audit", is_audit=True),
-
       # Step 15: Pre-revision snapshot (deterministic)
-      StepDef(skill="pipeline-pre-revision-snapshot", step_type="checkpoint",
-              checkpoint=True),
-
+      StepDef(skill="pipeline-pre-revision-snapshot", step_type="checkpoint", checkpoint=True),
       # Step 16: Chapter revision (LLM, conditional)
-      StepDef(skill="shenbi-chapter-revision", step_type="core",
-              conditional=True, checkpoint=True),
+      StepDef(skill="shenbi-chapter-revision", step_type="core", conditional=True, checkpoint=True),
   ]
 
   # Conditional steps (not in main list, invoked only when gates open).
@@ -1111,17 +1167,17 @@
 
   def _is_volume_boundary(project_dir: Path, chapter: int) -> bool:
       """Check if chapter is at a volume boundary."""
-      vm_path = project_dir / 'outline' / 'volume_map.md'
+      vm_path = project_dir / "outline" / "volume_map.md"
       if not vm_path.exists():
           return False
-      text = vm_path.read_text(encoding='utf-8')
-      pattern = rf'##\s+Volume\s+\d+.*?\n.*?Chapter\s+{chapter}[:\s]'
+      text = vm_path.read_text(encoding="utf-8")
+      pattern = rf"##\s+Volume\s+\d+.*?\n.*?Chapter\s+{chapter}[:\s]"
       return bool(re.search(pattern, text, re.DOTALL))
 
 
   def _drift_guidance_triggered(state) -> bool:
       """Check if drift guidance should run (3+ consecutive drift alerts)."""
-      alerts = getattr(state, 'drift_alerts', [])
+      alerts = getattr(state, "drift_alerts", [])
       return len(alerts) >= 3
 
 
@@ -1129,16 +1185,27 @@
       """Check if any audit reported findings needing revision."""
       project_dir = state.project_dir
       chapter = state.chapter_loop.current_chapter
-      audit_dir = project_dir / 'audits'
+      audit_dir = project_dir / "audits"
 
-      for atype in ['continuity', 'character', 'world-rules',
-                    'pacing', 'dialogue', 'motivation', 'pov',
-                    'memo-compliance', 'foreshadowing', 'anti-ai',
-                    'texture', 'reader-pull', 'sensitivity']:
-          af = audit_dir / f'chapter-{chapter}-{atype}.md'
+      for atype in [
+          "continuity",
+          "character",
+          "world-rules",
+          "pacing",
+          "dialogue",
+          "motivation",
+          "pov",
+          "memo-compliance",
+          "foreshadowing",
+          "anti-ai",
+          "texture",
+          "reader-pull",
+          "sensitivity",
+      ]:
+          af = audit_dir / f"chapter-{chapter}-{atype}.md"
           if af.exists():
-              text = af.read_text(encoding='utf-8')
-              if 'BLOCKING' in text or 'FAIL' in text:
+              text = af.read_text(encoding="utf-8")
+              if "BLOCKING" in text or "FAIL" in text:
                   return True
       return False
   ```
@@ -1168,13 +1235,15 @@
   Uses the single-writer (actor-model) pattern: workers return dict results,
   the main thread merges. No _state_lock.
   """
+
   import pytest
   import concurrent.futures
   from unittest.mock import MagicMock, patch
   from shenbi.pipeline.chapter_loop import run_parallel_post_draft_steps
 
+
   class TestParallelPostDraft:
-      @patch('shenbi.pipeline.chapter_loop.run_chapter_step')
+      @patch("shenbi.pipeline.chapter_loop.run_chapter_step")
       def test_both_steps_executed_concurrently(self, mock_run):
           mock_run.return_value = MagicMock(success=True, result={})
           state = MagicMock()
@@ -1182,20 +1251,18 @@
           run_parallel_post_draft_steps(state)
 
           assert mock_run.call_count == 2
-          skills_called = [
-              c[0][1].skill
-              for c in mock_run.call_args_list
-          ]
-          assert 'shenbi-foreshadowing-lifecycle' in skills_called
-          assert 'shenbi-state-settling' in skills_called
+          skills_called = [c[0][1].skill for c in mock_run.call_args_list]
+          assert "shenbi-foreshadowing-lifecycle" in skills_called
+          assert "shenbi-state-settling" in skills_called
 
-      @patch('shenbi.pipeline.chapter_loop.run_chapter_step')
+      @patch("shenbi.pipeline.chapter_loop.run_chapter_step")
       def test_lifecycle_failure_isolated_from_settling(self, mock_run):
           def side_effect(state, step):
               result = MagicMock()
-              result.success = step.skill != 'shenbi-foreshadowing-lifecycle'
+              result.success = step.skill != "shenbi-foreshadowing-lifecycle"
               result.result = {}
               return result
+
           mock_run.side_effect = side_effect
           state = MagicMock()
 
@@ -1208,9 +1275,10 @@
           No _state_lock should exist -- this is the actor-model pattern."""
           import inspect
           from shenbi.pipeline import state as state_mod
+
           src = inspect.getsource(state_mod)
           # The single-writer pattern forbids a module-level _state_lock
-          assert '_state_lock' not in src, (
+          assert "_state_lock" not in src, (
               "Use single-writer (actor-model), NOT _state_lock (Spec 6 §3.4)"
           )
   ```
@@ -1220,6 +1288,7 @@
 - [ ] **6c. Implement** parallel execution in `src/shenbi/pipeline/chapter_loop.py`, reusing the existing concurrency pattern from `parallel_dispatch.py`:
   ```python
   import concurrent.futures
+
 
   def run_parallel_post_draft_steps(state) -> None:
       """Execute foreshadowing-lifecycle and state-settling in parallel.
@@ -1234,20 +1303,12 @@
       - state-settling -> 6 truth files
       Zero data conflict.
       """
-      lifecycle_step = StepDef(
-          skill="shenbi-foreshadowing-lifecycle", step_type="llm"
-      )
-      settling_step = StepDef(
-          skill="shenbi-state-settling", step_type="llm"
-      )
+      lifecycle_step = StepDef(skill="shenbi-foreshadowing-lifecycle", step_type="llm")
+      settling_step = StepDef(skill="shenbi-state-settling", step_type="llm")
 
       with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-          lifecycle_future = executor.submit(
-              run_chapter_step, state, lifecycle_step
-          )
-          settling_future = executor.submit(
-              run_chapter_step, state, settling_step
-          )
+          lifecycle_future = executor.submit(run_chapter_step, state, lifecycle_step)
+          settling_future = executor.submit(run_chapter_step, state, settling_step)
 
           lifecycle_result = lifecycle_future.result()
           settling_result = settling_future.result()
@@ -1257,12 +1318,10 @@
       _merge_step_result(state, settling_result)
 
       if not lifecycle_result.success:
-          logger.warning("foreshadowing_lifecycle_failed",
-                         chapter=state.chapter_loop.current_chapter)
+          logger.warning("foreshadowing_lifecycle_failed", chapter=state.chapter_loop.current_chapter)
 
       if not settling_result.success:
-          logger.warning("state_settling_failed",
-                         chapter=state.chapter_loop.current_chapter)
+          logger.warning("state_settling_failed", chapter=state.chapter_loop.current_chapter)
   ```
 
 - [ ] **6d. Implement** the main-thread merge helper in `src/shenbi/pipeline/state.py` (single-writer pattern -- NO `_state_lock`):
@@ -1276,7 +1335,7 @@
       # Apply result fields to state sequentially (main thread only).
       # Implementation depends on the result schema; e.g. update chapter_states,
       # retry_feedback, etc. No lock required -- this runs only on the main thread.
-      if getattr(result, 'result', None):
+      if getattr(result, "result", None):
           _apply_step_outputs(state, result.result)
   ```
 
@@ -1297,7 +1356,7 @@
   ```python
   def _log_token_usage(response, skill_name: str, state=None) -> None:
       """Log token usage from API response."""
-      if not hasattr(response, 'usage') or response.usage is None:
+      if not hasattr(response, "usage") or response.usage is None:
           return
 
       usage = response.usage
@@ -1315,22 +1374,22 @@
 
   def _record_token_usage(state, skill_name: str, usage) -> None:
       """Accumulate token usage in pipeline state."""
-      if not hasattr(state, 'token_usage'):
+      if not hasattr(state, "token_usage"):
           state.token_usage = {}
 
       if skill_name not in state.token_usage:
           state.token_usage[skill_name] = {
-              'prompt_tokens': 0,
-              'completion_tokens': 0,
-              'total_tokens': 0,
-              'calls': 0,
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0,
+              "calls": 0,
           }
 
       rec = state.token_usage[skill_name]
-      rec['prompt_tokens'] += usage.prompt_tokens
-      rec['completion_tokens'] += usage.completion_tokens
-      rec['total_tokens'] += usage.total_tokens
-      rec['calls'] += 1
+      rec["prompt_tokens"] += usage.prompt_tokens
+      rec["completion_tokens"] += usage.completion_tokens
+      rec["total_tokens"] += usage.total_tokens
+      rec["calls"] += 1
   ```
 
   Call `_log_token_usage(response, skill_name, state)` after every `client.chat.completions.create()` call.
@@ -1339,20 +1398,20 @@
   ```python
   def _print_token_summary(state) -> None:
       """Print token usage summary at end of pipeline."""
-      if not hasattr(state, 'token_usage') or not state.token_usage:
+      if not hasattr(state, "token_usage") or not state.token_usage:
           return
 
       logger.info("token_usage_summary_header", msg="Token usage by skill:")
       for skill_name, rec in sorted(state.token_usage.items()):
-          avg_prompt = rec['prompt_tokens'] / max(rec['calls'], 1)
-          avg_completion = rec['completion_tokens'] / max(rec['calls'], 1)
+          avg_prompt = rec["prompt_tokens"] / max(rec["calls"], 1)
+          avg_completion = rec["completion_tokens"] / max(rec["calls"], 1)
           logger.info(
               "token_usage_summary_row",
               skill=skill_name,
               avg_prompt_tokens=int(avg_prompt),
               avg_completion_tokens=int(avg_completion),
-              total_tokens=rec['total_tokens'],
-              calls=rec['calls'],
+              total_tokens=rec["total_tokens"],
+              calls=rec["calls"],
           )
   ```
 

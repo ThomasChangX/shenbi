@@ -78,8 +78,10 @@
 
 ```python
 def get_checklist(project_dir, chapter):
-    template = json.loads((project_dir / 'context' / 'review-checklist-template.json').read_text())
-    delta = json.loads((project_dir / 'context' / f'review-checklist-chapter-{chapter}.json').read_text())
+    template = json.loads((project_dir / "context" / "review-checklist-template.json").read_text())
+    delta = json.loads(
+        (project_dir / "context" / f"review-checklist-chapter-{chapter}.json").read_text()
+    )
     return {**template, **delta}
 ```
 
@@ -92,7 +94,7 @@ def extract_hook_deliverables(plan_path):
     plan_text = plan_path.read_text()
     s7 = extract_section(plan_text, 7)
     # 提取 open/advance/resolve 操作
-    return re.findall(r'MH-\d+.*?(open|advance|resolve)', s7)
+    return re.findall(r"MH-\d+.*?(open|advance|resolve)", s7)
 ```
 
 ### 2.3 `shenbi-context-composing` SKILL.md 更新

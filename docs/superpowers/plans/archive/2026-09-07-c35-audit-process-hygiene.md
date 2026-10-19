@@ -39,20 +39,29 @@ from pathlib import Path
 from tools.lint_audit_run import lint_run, load_exemptions, validate_exemptions, apply_exemptions
 
 GOOD = "| F1 | 标题 | error | P1 | e | r | v | i | s | d | open |"
+
+
 def test_row_columns(tmp_path):
-    d = tmp_path / "run"; d.mkdir()
+    d = tmp_path / "run"
+    d.mkdir()
     (d / "findings-ledger.md").write_text("| ID | t |\n|---|---|\n| F1 | x |\n")
     f = lint_run(d)
     assert any(x.check == "row_columns" for x in f)
 
-def test_exemption_mutes(tmp_path):
-    ...  # exemptions json 消音 row_columns:F1；剩余 findings 为空
-def test_stale_exemption_fails(tmp_path):
-    ...  # 豁免 id 无对应命中 → validate_exemptions 产出 stale-exemption FAIL
+
+def test_exemption_mutes(tmp_path): ...  # exemptions json 消音 row_columns:F1；剩余 findings 为空
+def test_stale_exemption_fails(
+    tmp_path,
+): ...  # 豁免 id 无对应命中 → validate_exemptions 产出 stale-exemption FAIL
 def test_real_0815_run_lint():
     raw = lint_run(Path("docs/superpowers/audit-runs/2026-08-15"))
     assert raw  # 豁免前原始命中非空（豁免落地前的事实 pin）
-@pytest.mark.skipif(not (Path("docs/superpowers/audit-runs/2026-08-15")/"audit-lint-exemptions.json").exists(), reason="Task 3 豁免未落地")
+
+
+@pytest.mark.skipif(
+    not (Path("docs/superpowers/audit-runs/2026-08-15") / "audit-lint-exemptions.json").exists(),
+    reason="Task 3 豁免未落地",
+)
 def test_real_0815_run_after_exemptions():
     raw = lint_run(Path("docs/superpowers/audit-runs/2026-08-15"))
     exemptions = load_exemptions(Path("docs/superpowers/audit-runs/2026-08-15"))

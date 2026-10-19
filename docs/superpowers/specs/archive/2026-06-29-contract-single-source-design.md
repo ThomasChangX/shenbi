@@ -132,19 +132,26 @@ flowchart TB
 ```python
 from pydantic import BaseModel, Field, model_validator, computed_field
 from typing import Literal
-CPZone = Literal["GREEN","ORANGE","RED"]
-CP_THRESHOLDS = {"GREEN_MAX":50,"RED_NOW":100,"FORCE_NEXT_CHAPTER":200}
+
+CPZone = Literal["GREEN", "ORANGE", "RED"]
+CP_THRESHOLDS = {"GREEN_MAX": 50, "RED_NOW": 100, "FORCE_NEXT_CHAPTER": 200}
+
+
 class HookCP(BaseModel):
     model_config = {"extra": "ignore"}
     hook_id: str
     cp: int = Field(ge=0)
+
     @computed_field
     @property
     def zone(self) -> CPZone: ...
+
+
 class ResolveReport(BaseModel):
     model_config = {"extra": "ignore"}
     hooks: list[HookCP]
-    debt_level: Literal["GREEN","ORANGE","RED"]
+    debt_level: Literal["GREEN", "ORANGE", "RED"]
+
     @model_validator(mode="after")
     def _debt_consistent(self): ...
     @model_validator(mode="after")
@@ -159,29 +166,55 @@ class ResolveReport(BaseModel):
 # contracts/ownership.py
 # 粒度由文件格式决定：JSON→field；markdown truth→record；chapter/report→file
 # 每行的字段集均经 fixture / SKILL.md 输出 schema 亲手核对（v5）
-OWNERSHIP: dict[tuple[str,str], dict] = {
+OWNERSHIP: dict[tuple[str, str], dict] = {
     # genre-config.json：v5 亲手核对 fixture 顶层键（非 novel.json，非转述）
     # 真实 9 键：approval, auditDimensions, chapterTypes, customRules,
     # fatigueWords, pacing, tropeInventory, updated, version
     # 注意：genre-config SKILL.md 声称「恰好 8 字段」但 fixture 有 9——inherited drift，记风险表
     ("shenbi-genre-config", "genre-config.json"): {
         "level": "field",
-        "write": {"approval","auditDimensions","chapterTypes","customRules",
-                  "fatigueWords","pacing","tropeInventory","updated","version"},
+        "write": {
+            "approval",
+            "auditDimensions",
+            "chapterTypes",
+            "customRules",
+            "fatigueWords",
+            "pacing",
+            "tropeInventory",
+            "updated",
+            "version",
+        },
     },
     # foundation-review 读 tropeInventory（body L204 + match_tropes.py:59）
     # 但 frontmatter reads 未声明 → under-declaration
     # 闭口见 N2-fact（迁移补全 + lint frontmatter 完整性；subprocess runtime 是已知盲点）
-    ("shenbi-foundation-review", "genre-config.json"):
-        {"level":"field", "read":{"tropeInventory"}, "write": set()},
+    ("shenbi-foundation-review", "genre-config.json"): {
+        "level": "field",
+        "read": {"tropeInventory"},
+        "write": set(),
+    },
     # pending_hooks.md：字段名 state（fixture L24 `state: PLANTED`，亲手核对）
     # 分工以 state-settling SKILL.md:110-116 权威声明（track:21 服从）为准
     ("shenbi-foreshadowing-plant", "truth/pending_hooks.md"): {
         "level": "record_create",
-        "write_keys_new_record": {"id","state","operation","type","dimension","content",
-                                  "subtlety","plant_chapter","cultivation_interval",
-                                  "last_reinforced","max_distance","escalation_curve",
-                                  "depends_on","core_hook","promoted","notes"},
+        "write_keys_new_record": {
+            "id",
+            "state",
+            "operation",
+            "type",
+            "dimension",
+            "content",
+            "subtlety",
+            "plant_chapter",
+            "cultivation_interval",
+            "last_reinforced",
+            "max_distance",
+            "escalation_curve",
+            "depends_on",
+            "core_hook",
+            "promoted",
+            "notes",
+        },
         # 字段集以 plant 输出 schema（SKILL.md:75-91）为准 + fixture 的 notes（M4 修复）
     },
     ("shenbi-foreshadowing-track", "truth/pending_hooks.md"): {
@@ -222,10 +255,10 @@ OWNERSHIP: dict[tuple[str,str], dict] = {
 
 ```python
 FORESHADOWING_TRANSITIONS = {
-    PLANTED:   ({RELEVANT},  "shenbi-foreshadowing-track"),
-    RELEVANT:  ({TRIGGERED}, "shenbi-foreshadowing-track"),
-    TRIGGERED: ({RESOLVED},  "shenbi-foreshadowing-resolve"),
-    RESOLVED:  ({ARCHIVED},  "shenbi-foreshadowing-track"),
+    PLANTED: ({RELEVANT}, "shenbi-foreshadowing-track"),
+    RELEVANT: ({TRIGGERED}, "shenbi-foreshadowing-track"),
+    TRIGGERED: ({RESOLVED}, "shenbi-foreshadowing-resolve"),
+    RESOLVED: ({ARCHIVED}, "shenbi-foreshadowing-track"),
 }
 ```
 
