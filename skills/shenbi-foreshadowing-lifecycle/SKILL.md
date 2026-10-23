@@ -120,6 +120,7 @@ For each ACTIVE hook in `pending_hooks.md`, scan the chapter body for:
 3. **core_hook = true MUST NOT be ABANDONED** -- core hook abandonment = story fracture.
 4. **Density budget overflow must be reported** -- explain which operations were deferred.
 5. **Field ownership**: This skill is the **sole driver** of hook lifecycle state (PLANTED->RELEVANT->TRIGGERED->RESOLVED). `last_reinforced`/`subtlety` fields are maintained by `shenbi-state-settling`; new hooks by this skill (Phase 3); resolution by `shenbi-foreshadowing-resolve`.
+6. **Semi-payoff before series-level resolve (假兑现垫场)** -- a core/cross-volume hook must receive at least one 假兑现 advance (appears to solve, opens deeper) within its final cultivation cycle before the true resolve. A pure defer-chain running straight into resolve = 早泄, not payoff; the seed's rule is 兑现可以推迟，不可稀释 (payoffs may be delayed, never diluted). Mark the 假兑现 form in the chapter plan's hook-ledger 推进方式 column.
 
 ### Phase 3: Plant
 

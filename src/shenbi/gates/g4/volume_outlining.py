@@ -77,6 +77,21 @@ def g4_volume_outlining(
             else:
                 c.append({"id": "G4.vo.bridge", "s": GateStatus.PASS})
 
+            # P2-6 (2026-10-23): each volume region should carry a
+            # 金句与梗位 line (quote slots / running gags / volume-end
+            # Easter egg). WARN-level so pre-existing volumes stay green;
+            # the SKILL checklist owns the instruction.
+            if re.search(r"金句|梗位|彩蛋", last_vol):
+                c.append({"id": "G4.vo.quote_line", "s": GateStatus.PASS})
+            else:
+                c.append(
+                    {
+                        "id": "G4.vo.quote_line",
+                        "s": GateStatus.WARN,
+                        "r": "volume region lacks 金句/梗位/彩蛋 line (P2-6)",
+                    }
+                )
+
     if mf:
         return fail("G4-volume-outlining", c, "scoring", mf)
     return passed("G4-volume-outlining", c)

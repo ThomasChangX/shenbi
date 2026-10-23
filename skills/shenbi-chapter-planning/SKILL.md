@@ -134,6 +134,7 @@ digraph chapter_planning {
 - `pressured` 或 `near_payoff` 状态且沉默 ≥5 章的 hook 必须 advance 或 resolve
 - `core_hook=true` 且过期 >10 章升级为 critical
 - 每章 hook 操作总量建议 ≤8（密度预算）
+- **假兑现垫场（P3-8）**: core_hook/跨卷钩在真回收前的一个培育周期内，至少安排一次「假兑现」advance——表面解决、实则更深（推进方式列注明「假兑现」）；连续 defer 直上 resolve = 早泄，review-arc-payoff 面查
 - **沉默推进铁律**: 如果存在处于沉默状态（连续 N>3 章仅执行 defer 操作）的活跃伏笔，本章必须对其中至少 1 条执行 advance（而非继续 defer）。连续 defer 超过 3 章的伏笔视为"僵尸伏笔"，应在 hook 账中标注并给出激活方案或 ABANDON 审批请求
 
 ## Anti-Rationalization
@@ -170,7 +171,7 @@ chapter_role: 高潮
 
 chapter_type: battle
 
-> 选填。内容型取 `genre-config.json → chapterTypes` 词表（battle/dialogue/political_intrigue/training 等）；drafting 的章型调制以此行 + chapter_role 为键（见 drafting 创作原则 7）。缺省 = 仅按 chapter_role 调制。
+> 选填。内容型取 `genre-config.json → chapterTypes` 词表（battle/dialogue/political_intrigue/training/memorial 等——memorial 为铭记章专用档，调制规则见 drafting 创作原则 7）；drafting 的章型调制以此行 + chapter_role 为键（见 drafting 创作原则 7）。缺省 = 仅按 chapter_role 调制。
 
 emotion_tone: 悲
 

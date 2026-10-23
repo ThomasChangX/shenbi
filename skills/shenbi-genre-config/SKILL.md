@@ -116,6 +116,7 @@ digraph genre_config {
   "chapterTypes": {
     "battle": { "maxConsecutive": 2, "warningThreshold": 3 },
     "dialogue": { "maxConsecutive": 3, "warningThreshold": 4 },
+    "memorial": { "maxConsecutive": 1, "warningThreshold": 2 },
     "...": "..."
   },
   "chapter_word": {
