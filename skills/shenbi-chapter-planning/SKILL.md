@@ -90,6 +90,7 @@ digraph chapter_planning {
 2. **目标推导必须走优先级链** — 外部指令 > 局部覆盖 > 卷纲 Key Result > current_focus > author_intent
 3. **黄金三章不降级** — 前 N 章的特殊纪律不可跳过
 4. **每个备忘必须声明 chapter_role** — 驱动 review-resonance 校准阈值（spec §5.1）
+5. **商业三声明缺一即返工** — `emotion_tone`（抑扬排程）＋ `payoff 拍`（爽点兑现声明）＋ 留存锚（前 30 章）——G4.cp 强校验；review-highpoint 按 payoff 拍验收
 
 ## 目标推导优先级链
 
@@ -121,6 +122,10 @@ digraph chapter_planning {
 - 第2章：验证主角特殊性 + 建立第一个对手
 - 第3章：第一次小高潮 + 打开大主线钩子
 - 若 N > 3: Ch4+ 延续特殊纪律，直到第 N 章后转入常规流程
+
+## 留存窗口纪律（黄金三章的延长线）
+
+前 30 章（`genre-config.json → pacing.retentionWindow`，缺省 30）为留存窗口：窗口内每份备忘的段 2 必含 `留存锚` 行（锚章写锚类型、非锚章写「非锚章」），锚点排布对齐 seed 的留存漏斗。对标教训：《诡秘之主》公认"50-60 章才渐入佳境"，靠完结期口碑续命；《炮火弧线》第 1 章即有读者流失。长跑管线没有口碑修正机会——锚在规划期，不在运气里。
 
 ## Hook 账本硬规则
 
@@ -167,6 +172,14 @@ chapter_type: battle
 
 > 选填。内容型取 `genre-config.json → chapterTypes` 词表（battle/dialogue/political_intrigue/training 等）；drafting 的章型调制以此行 + chapter_role 为键（见 drafting 创作原则 7）。缺省 = 仅按 chapter_role 调制。
 
+emotion_tone: 悲
+
+> 合法值：悲/喜/怒/惧/平（对齐 rhythm_principles「单调性检测规则」词表）。规划时读近 3 章备忘的 tone——连续 ≥3 章同基调，本章必须变调（一抑一扬），或在 payoff 拍行内写明为何不变。
+
+**payoff 拍**: [类型｜强度]
+
+> 类型对齐本卷爽点主型词表（volume_map 卷区段/genre-config）；纯蓄压章填「无＋一句理由」（合法）。强度取 小兑现/中兑现/大兑现。review-highpoint 按本声明验收蓄压-释放比；drafting PRE_WRITE_CHECK 照抄本行。
+
 **目标字数**: [genre-config.json 的 chapter_word.default 值，原样数字]（= chapter_word.default；drafting 篇幅契约铁律与本行同源，缺失即断链）
 
 **优先级来源**: [外部指令 / 局部覆盖 / 卷纲 Key Result / current_focus / author_intent]
@@ -178,7 +191,7 @@ chapter_type: battle
 - [动作 2]
 ```
 
-**不合格条件**: 未注明优先级来源；段1 缺「**目标字数**」行（probe13/probe14 两探针均靠裁决补行）。
+**不合格条件**: 未注明优先级来源；段1 缺「**目标字数**」行（probe13/probe14 两探针均靠裁决补行）；缺 `emotion_tone` 行或值非法（G4.cp.missing_emotion_tone）；缺 `payoff 拍` 行或冒号后为空（G4.cp.missing_payoff_beat）。
 
 > 注：未声明 `chapter_role` 或使用非合法值，视为不合格（G4.cp.missing_chapter_role）。文件必须以中文章节备忘标题行开头（如 `# 第N章 章节备忘`），禁止输出 `# Chapter N:` 形式的孤立英文标题行（probe13/14 均现此残留）。
 
@@ -190,6 +203,9 @@ chapter_type: battle
 **制造期待**: [本章新建的读者期待]
 **延迟期待**: [本章故意不满足的期待]
 **兑现期待**: [本章应兑现的已有期待]
+**留存锚**: [锚章类型｜非锚章]
+
+> 前 30 章（留存窗口，缺省 30）必填：锚章写锚类型（开篇双钩/宿敌定约/智识小胜/组织钩/情感锤/智力爽点/悬念入卷……对齐 seed 留存漏斗）；非锚章填「非锚章」。第 31 章起本行省略（G4.cp 对 N≤30 强校验）。
 ```
 
 ### 段 3 模板：该兑现的 / 暂不掀的
@@ -284,6 +300,9 @@ chapter_type: battle
 | hook 操作有效性 | 仅使用 open/advance/resolve/defer | 使用不允许值 |
 | 沉默检测 | 无 defer + 沉默 ≥ 4 章的行（或已附激活方案） | 存在僵尸伏笔 |
 | hook ID 真实性 | §7 中 `MH\d+` 编号须已在 truth/book_spine.md 或 truth/pending_hooks.md 注册（MH 命名属 genesis/lifecycle 职权；确需新钩走 CP-NNN，memo 不得自造 MH 号） | 引用未注册 MH 编号 |
+| emotion_tone 声明 | 段含 `emotion_tone:` + 合法值（悲/喜/怒/惧/平） | 缺失或值非法 |
+| payoff 拍声明 | 段1 含 `payoff 拍` 行且冒号后非空（「无＋理由」合法） | 缺失或空值 |
+| 留存锚声明（N≤30） | 段2 含 `留存锚` 行且冒号后非空（「非锚章」合法） | 章号 ≤30 且缺失 |
 
 ## decisions sidecar 必填字段
 

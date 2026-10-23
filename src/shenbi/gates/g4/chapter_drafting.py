@@ -447,11 +447,16 @@ def g4_chapter_drafting(
                 has_q = bool(re.search(r"[？?]", window_text))
                 has_t = bool(
                     re.search(
-                        r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏)",
+                        r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏|账|欠|谜|未完|代价)",
                         window_text,
                     )
                 )
-                if has_q or has_t:
+                # 账目钩 (P1-3, 2026-10-23): a cold ledger closer — >=2 arabic
+                # digits in the merged window (伤亡折银 4173 两…) — is a legal
+                # hook form from the seed's 章末钩七型; the digits themselves
+                # are the unresolved tension.
+                has_ledger = len(re.findall(r"\d", window_text)) >= 2
+                if has_q or has_t or has_ledger:
                     c.append(
                         {
                             "id": "G4.cd.chapter_end_hook",
@@ -463,7 +468,7 @@ def g4_chapter_drafting(
                 else:
                     excerpt = window_text[:30]
                     mf.append(
-                        f"G4.cd.no_hook:{fp}:{window_cjk}字合并窗口未检出疑问句/张力词；"
+                        f"G4.cd.no_hook:{fp}:{window_cjk}字合并窗口未检出疑问句/张力词/账目行；"
                         f"窗口开头「{excerpt}」"
                     )
 

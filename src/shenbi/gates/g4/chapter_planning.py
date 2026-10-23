@@ -111,6 +111,38 @@ def g4_chapter_planning(
                 }
             )
 
+        # P1 craft-declaration fields (2026-10-23, 诡秘/炮火 commercial-rhythm
+        # audit): §1 must declare emotion_tone (抑扬排程 — five-value
+        # vocabulary aligned with rhythm_principles monotony detection) and
+        # a payoff 拍 (爽点兑现声明; review-highpoint audits 蓄压-释放比 against
+        # it); chapters inside the retention window must declare a 留存锚
+        # line (§2). The window mirrors golden-3's hardcode; genre-config
+        # pacing.retentionWindow is the doc-level default (30).
+        if re.search(r"emotion_tone\s*[:：]\s*(悲|喜|怒|惧|平)", content):
+            c.append({"id": "G4.cp.emotion_tone", "file": fp, "s": GateStatus.PASS})
+        else:
+            mf.append(f"G4.cp.missing_emotion_tone:{fp}")
+
+        if re.search(r"\*{0,2}payoff\s*拍\*{0,2}\s*[:：]\s*\S", content):
+            c.append({"id": "G4.cp.payoff_beat", "file": fp, "s": GateStatus.PASS})
+        else:
+            mf.append(f"G4.cp.missing_payoff_beat:{fp}")
+
+        if 1 <= n <= 30:
+            if re.search(r"\*{0,2}留存锚\*{0,2}\s*[:：]\s*\S", content):
+                c.append({"id": "G4.cp.retention_anchor", "file": fp, "s": GateStatus.PASS})
+            else:
+                mf.append(f"G4.cp.missing_retention_anchor:{fp}")
+        else:
+            c.append(
+                {
+                    "id": "G4.cp.retention_anchor",
+                    "file": fp,
+                    "s": GateStatus.SKIP,
+                    "r": f"N={n}, retention window is chapters 1-30",
+                }
+            )
+
         # Section 5: 关键抉择 — quality bonus, not hard gate
         s5_match = re.search(r"## 5\..*?\n(?=## 6\.|\Z)", content, re.DOTALL)
         s5_text = s5_match.group() if s5_match else ""

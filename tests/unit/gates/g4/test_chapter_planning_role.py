@@ -33,6 +33,10 @@ def _valid_plan(role: str | None = None) -> str:
             content += "三面墙\n"
             if role:
                 content += f"chapter_role: {role}\n"
+            content += "emotion_tone: 悲\n"
+            content += "**payoff 拍**: [扮猪吃虎｜中兑现]\n"
+        elif i == 2:
+            content += "**留存锚**: [情感锤]\n"
         elif i == 5:
             content += "关键抉择\n"
         elif i == 7:
@@ -94,6 +98,10 @@ def _valid_plan_raw_role_line(raw_role_line: str) -> str:
         if i == 1:
             content += "三面墙\n"
             content += f"{raw_role_line}\n"
+            content += "emotion_tone: 悲\n"
+            content += "**payoff 拍**: [扮猪吃虎｜中兑现]\n"
+        elif i == 2:
+            content += "**留存锚**: [情感锤]\n"
         elif i == 5:
             content += "关键抉择\n"
         elif i == 7:

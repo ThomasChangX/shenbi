@@ -101,6 +101,10 @@ def test_passes_when_all_conditions_met(tmp_path: Path) -> None:
         if i == 1:
             content += "三面墙\n"
             content += "chapter_role: 高潮\n"
+            content += "emotion_tone: 悲\n"
+            content += "**payoff 拍**: [扮猪吃虎｜中兑现]\n"
+        elif i == 2:
+            content += "**留存锚**: [情感锤]\n"
         elif i == 5:
             content += "关键抉择\n"
         elif i == 7:
