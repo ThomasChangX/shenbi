@@ -135,6 +135,9 @@ convention = "google"
 # GO① pool lint: findings quote the live Chinese truth-file vocabulary
 # (当前生命周期/兑现章 headers) — fullwidth punctuation is the data, not drift.
 "tools/lint_truth_pool.py" = ["RUF001", "RUF002", "RUF003"]
+# Craft-contract backfill: the injected declaration lines ARE Chinese memo
+# prose (历史补录 markers) — same data-not-drift category as lint_truth_pool.
+"tools/plan_craft_backfill.py" = ["RUF001", "RUF002"]
 "scripts/**" = ["T201"]
 "src/shenbi/cost/report.py" = ["BLE001"]
 "src/shenbi/gates/g0.py" = ["BLE001"]

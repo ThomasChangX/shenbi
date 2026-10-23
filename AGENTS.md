@@ -64,6 +64,8 @@ Every skill is `skills/<name>/SKILL.md` with YAML frontmatter:
 
 Critical skills include DOT flowcharts for authoritative process definition and anti-rationalization tables. Use "your human partner" for the author, "truth files" for project state, "chapter memo" for the 8-section planning doc.
 
+**Contract-upgrade discipline**: a batch that adds required memo/artifact fields enforced by a hard gate is a breaking change for resumable runs — it must ship in the same batch with either a backfill/migration tool for in-flight project artifacts (see `tools/plan_craft_backfill.py` for the pattern) or an explicit "no existing artifacts affected" statement in the commit message. When the second such field lands, introduce `plan_format` versioning instead of a third bespoke tool.
+
 ### Decisions-Sidecar Artifacts
 
 Skills that produce natural-language or ephemeral outputs also produce a

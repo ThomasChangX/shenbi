@@ -121,6 +121,7 @@ nohup ./run_pipeline.sh novel-xinghuo-phase3 > /tmp/phase3-runK.log 2>&1 & disow
 - **每卷边界**（~22 章）做一次 Tier 1 全量裁决 + 数据节追加 + 成本检查（>$3/卷预期时先分析再继续）。
 - **中止条件**：硬顶 $30；或同一框架缺陷 3 次修复仍复发（质疑架构，停下写报告）；或连续 3 章 escalate 同一根因。
 - **多 session 续跑**：新 session 重读本 prompt + memory 索引即可接管；状态全在 `novel-xinghuo-phase3/pipeline-state.json`（pending checkpoint 即断点）；重启 runner 前先 `pgrep -f run_pipeline` 清残留；裁决书序号接续项目内最大值（`ls novel-xinghuo-phase3/adjudications/ | grep -oE '[0-9]+' | sort -n | tail -1`）——裁决书与 `.log-cursor` 都在项目目录内，跨 session/重启不丢；若意外缺失，裁决内容可从 pipeline-state.json 的 checkpoint trail 重建对账。
+- **跨契约升级续跑**：若暂停与续跑之间隔着「备忘必填字段 + 硬闸」类契约升级（如 2026-10-23 商业三声明批：emotion_tone / payoff 拍 / 留存锚），重启 runner 前先对项目目录跑 `uv run python tools/plan_craft_backfill.py <项目目录> --apply`（默认 dry-run，先看报告再写）——存量旧备忘缺新字段会被 G4.cp 硬闸拦下，backfill 一次性补「历史补录」标记字段（仅对新生产承重，历史章无副作用）。
 - runner 进程不随 session 存活的问题：始终用 `nohup … & disown`，启动后 `pgrep` 验证。
 
 ## 收尾（book-closure 或中止后）
