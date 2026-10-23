@@ -451,11 +451,13 @@ def g4_chapter_drafting(
                         window_text,
                     )
                 )
-                # 账目钩 (P1-3, 2026-10-23): a cold ledger closer — >=2 arabic
-                # digits in the merged window (伤亡折银 4173 两…) — is a legal
-                # hook form from the seed's 章末钩七型; the digits themselves
-                # are the unresolved tension.
-                has_ledger = len(re.findall(r"\d", window_text)) >= 2
+                # 账目钩 (P1-3, 2026-10-23): a cold ledger closer — two
+                # separate arabic digit runs in the merged window (伤亡 41
+                # 人…82 户…) — is a legal hook form from the seed's 章末钩
+                # 七型; the digits themselves are the unresolved tension.
+                # Runs, not bare chars: one stray "3" or a lone "4173" is
+                # not a ledger line (review calibration #5).
+                has_ledger = len(re.findall(r"\d+", window_text)) >= 2
                 if has_q or has_t or has_ledger:
                     c.append(
                         {

@@ -42,7 +42,7 @@ contract:
 
 ```dot
 digraph review_highpoint {
-    "Read chapter content" -> "Read plans/chapter-N-plan.md (climax declaration)";
+    "Read chapter content" -> "Read plans/chapter-N-plan.md (climax + payoff 拍 declaration)";
     "Read plans/chapter-N-plan.md" -> "Read genre-config.json (climaxKeywords + maxClimaxPerChapter)";
     "Read genre-config.json" -> "Check suppression-explosion pattern";
     "Check suppression-explosion pattern" -> "Check twist detection";

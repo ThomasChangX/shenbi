@@ -31,11 +31,16 @@ PACING_ANCHOR_CLAUSE_TOKENS = 40
 PACING_FRONTMATTER_TOKENS = 36
 #: P1 batch (2026-10-23): the legacy four-type ending vocabulary is replaced
 #: by the seed's canonical 章末钩七型 (悬念/危机/情感/反转/账目/信物/对位,
-#: 连续两章不得同型) — mandatory contract element, compressed to +34 chars
-#: after the table form was rejected by this budget. Same category as the
-#: frontmatter/anchor allowances: contract, not bloat.
-PACING_SEVEN_HOOK_ADD = 34
-PACING_SEVEN_HOOK_TOKENS = 51
+#: 连续两章不得同型) — mandatory contract element. Measured growth over the
+#: pre-batch prompt: +49 chars / +53 est-tokens (the compressed inline form),
+#: consuming the final 15c/2t accumulated slack; the constants therefore add
+#: 34/51 on top. Review fix (2026-10-23) folded in: the rule relabeled from
+#: an unenforced "可自动检查" claim to its real detection face (chapter-pattern
+#: N=2) plus the quota note for no-hook endings — +67c/+101t more, constants
+#: now 101/152. Same category as the frontmatter/anchor allowances: contract,
+#: not bloat. Zero slack remains by design.
+PACING_SEVEN_HOOK_ADD = 104
+PACING_SEVEN_HOOK_TOKENS = 157
 
 
 def _system_prompt(skill: str, tmp_path: Path) -> str:

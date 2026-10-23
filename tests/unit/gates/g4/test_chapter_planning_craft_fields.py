@@ -158,6 +158,16 @@ def test_chapter_31_without_anchor_is_skipped(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.cp.retention_anchor" and c["s"] == "SKIP" for c in result["checks"])
 
 
+@pytest.mark.unit
+def test_chapter_30_boundary_is_inclusive(tmp_path: Path) -> None:
+    """N=30 is inside the window (inclusive upper bound); the anchor is required."""
+    f = tmp_path / "chapter-030-plan.md"
+    f.write_text(_plan(anchor=None), encoding="utf-8")
+    result = _run_cp([str(f)])
+    assert result["status"] == "FAIL"
+    assert any("G4.cp.missing_retention_anchor" in mf for mf in result["must_fix"])
+
+
 # ---------------------------------------------------------------------------
 # Canonical-template guard: SKILL.md template tokens must pass the gate
 # (same regression discipline as test_chapter_planning_role.py)
@@ -177,10 +187,16 @@ def _template_lines(token: str) -> list[str]:
 
 @pytest.mark.unit
 def test_canonical_emotion_tone_template_passes(tmp_path: Path) -> None:
+    """The verbatim emotion_tone line from the SKILL.md §1 template block
+    must pass the gate (template-drift guard, same as its payoff/anchor
+    siblings).
+    """
+    tone_line = _template_lines("emotion_tone")[0]
+    assert "**" not in tone_line, "template renders emotion_tone in bold; G4 regex would not match"
     f = tmp_path / "chapter-005-plan.md"
     f.write_text(
         _plan(emotion_tone=None).replace(
-            "chapter_role: 推进\n", "chapter_role: 推进\nemotion_tone: 悲\n"
+            "chapter_role: 推进\n", f"chapter_role: 推进\n{tone_line}\n"
         ),
         encoding="utf-8",
     )

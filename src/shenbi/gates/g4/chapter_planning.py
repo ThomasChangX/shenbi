@@ -116,8 +116,7 @@ def g4_chapter_planning(
         # vocabulary aligned with rhythm_principles monotony detection) and
         # a payoff 拍 (爽点兑现声明; review-highpoint audits 蓄压-释放比 against
         # it); chapters inside the retention window must declare a 留存锚
-        # line (§2). The window mirrors golden-3's hardcode; genre-config
-        # pacing.retentionWindow is the doc-level default (30).
+        # line (§2). The window mirrors golden-3's hardcode (fixed 30).
         if re.search(r"emotion_tone\s*[:：]\s*(悲|喜|怒|惧|平)", content):
             c.append({"id": "G4.cp.emotion_tone", "file": fp, "s": GateStatus.PASS})
         else:
