@@ -2080,6 +2080,22 @@ def _hooks_increment_shape_injection() -> str:
     )
 
 
+def _strip_hr_lines(content: str) -> str:
+    """Drop standalone markdown horizontal rules from an outline increment.
+
+    vol1 genesis escalation #002: the writer model deterministically wraps
+    section increments with ``---`` rules (leading + inter-section) — the
+    phase3-era live files carried them too, so the habit has ecosystem
+    precedent and corrective feedback did not break it. Mechanical
+    normalization instead of writer discipline: a bare rule line carries
+    zero semantic content, and a REAL frontmatter block survives the strip
+    as a key:value prose residue unit that the shape guard still rejects
+    (loudly, naming the actual offending line). Applies to all four keyed
+    outline targets at the one merge entry.
+    """
+    return "\n".join(l for l in content.split("\n") if l.strip() != "---")
+
+
 def _validate_increment_package(
     content: str,
     *,
@@ -2431,6 +2447,9 @@ def _route_append_dedup_write(
         target = project_dir / rel_path
         target.parent.mkdir(parents=True, exist_ok=True)
         base_text = target.read_text(encoding="utf-8") if target.exists() else ""
+        # vol1 escalation #002: normalize cosmetic hr rules BEFORE validation
+        # and the volume-anchor check — both must judge the stripped shape.
+        content = _strip_hr_lines(content)
         _validate_increment_package(
             content,
             key_field=outline_key,

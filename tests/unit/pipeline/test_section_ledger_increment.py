@@ -138,6 +138,63 @@ def test_location_scaffold_rejected(tmp_path: Path) -> None:
     assert (tmp_path / "world" / "locations.md").read_text(encoding="utf-8") == before
 
 
+# --- vol1 genesis escalation #002: markdown 水平线机械归一化 -----------------------
+
+
+def test_location_increment_with_hr_separators_merges(tmp_path: Path) -> None:
+    """vol1 escalation #002: the model deterministically wraps section
+    increments with markdown horizontal rules (leading ``---`` +
+    inter-section ``---``) — the phase3-era live files themselves carried
+    them, so the habit has ecosystem precedent. The merge entry strips
+    standalone ``---`` lines before validation: content lands, no separator
+    junk rides into live.
+    """
+    (tmp_path / "world").mkdir(parents=True)
+    (tmp_path / "world" / "locations.md").write_text(_LOCATIONS, encoding="utf-8")
+    _write_parsed_outputs(
+        response=(
+            "### FILE: world/locations.md\n"
+            "---\n\n"
+            "## 地点：北桦镇哨卡\n\n**类型**: 哨卡\n**首次出场**: 第50章\n\n"
+            "---\n\n"
+            "## 地点：盐漠官道\n\n**类型**: 驿道\n**首次出场**: 第64章\n"
+        ),
+        output_paths=["world/locations.md"],
+        project_dir=tmp_path,
+        skill="shenbi-location-builder",
+    )
+    merged = (tmp_path / "world" / "locations.md").read_text(encoding="utf-8")
+    assert "## 地点：北桦镇哨卡" in merged and "## 地点：盐漠官道" in merged
+    assert merged.count("## 地点：哑脉采掘场") == 1, "existing entries untouched"
+    new_section_start = merged.index("## 地点：北桦镇哨卡")
+    new_section_end = merged.index("## 地点：盐漠官道")
+    assert "\n---\n" not in merged[new_section_start:], (
+        "inter-section horizontal-rule junk must not ride into live"
+    )
+
+
+def test_location_increment_real_frontmatter_still_rejected(tmp_path: Path) -> None:
+    """A REAL frontmatter block (key:value lines between two ``---`` fences)
+    survives the hr-strip as a prose residue unit — still rejected loudly,
+    now naming the actual offending line (base protection intact).
+    """
+    (tmp_path / "world").mkdir(parents=True)
+    (tmp_path / "world" / "locations.md").write_text(_LOCATIONS, encoding="utf-8")
+    before = (tmp_path / "world" / "locations.md").read_text(encoding="utf-8")
+    with pytest.raises(IncrementShapeError, match="updated_at"):
+        _write_parsed_outputs(
+            response=(
+                "### FILE: world/locations.md\n"
+                '---\nupdated_at: "2026-10-24T00:00:00Z"\n---\n\n'
+                "## 地点：北桦镇哨卡\n\n**类型**: 哨卡\n"
+            ),
+            output_paths=["world/locations.md"],
+            project_dir=tmp_path,
+            skill="shenbi-location-builder",
+        )
+    assert (tmp_path / "world" / "locations.md").read_text(encoding="utf-8") == before
+
+
 def test_relation_pair_section_updates_matrix_both_directions() -> None:
     out = upsert_markdown_row(
         _RELATIONSHIPS,
