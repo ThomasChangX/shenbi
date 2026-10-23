@@ -1884,8 +1884,11 @@ def _section_ledger_units(content: str) -> list[str]:
 #: B 批: a 章节线索推进表 interval row cell (``103-110（五卷 KR2）``) —
 #: the thread ledger's second sanctioned unit form (new-volume pacing rows
 #: dedup on the interval cell; the 总览表 row stays BANNED — derivation
-#: owns it).
-_OUTLINE_INTERVAL_CELL_RE = re.compile(r"^\d+\s*-\s*\d+\s*[（(]")
+#: owns it). vol1 genesis escalation #001: the SKILL contract says「首格
+#: 照抄 live 既有区间写法」and the creation write carries the
+#: ``第103-110章（卷 KR2·后段）`` family — both families are sanctioned
+#: (shape gate, not semantics; the optional 第/章 tokens mix freely).
+_OUTLINE_INTERVAL_CELL_RE = re.compile(r"^第?\d+\s*-\s*\d+\s*章?\s*[（(]")
 
 
 def _now_iso() -> str:

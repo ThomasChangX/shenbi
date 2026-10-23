@@ -170,4 +170,8 @@ def test_declared_increment_routes_through_keyed_upsert(
     assert "t6-key-one" in text
     assert "revised increment" in text
     assert "second increment" not in text
-    assert text.count("t6-key-two") == 1
+    # vol1 genesis escalation #001: the thread ledger's name is now also
+    # mirrored into the derived 线索总览表 row (bootstrap semantics) — the
+    # SECTION itself still appears exactly once.
+    expected = 2 if path == "outline/thread_map.md" else 1
+    assert text.count("t6-key-two") == expected
