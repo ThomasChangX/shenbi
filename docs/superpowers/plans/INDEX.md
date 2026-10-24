@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-10-24（spec #71 prose-excellence plan 创建 ✅ ready——9 task TDD；spec #70 plan Done 随 PR #243 归档）
-> **活跃 plan 数**：1 | **已归档**：127（见 `archive/`）
+> **最后更新**：2026-10-24（spec #71 prose-excellence plan Done 随 PR #246 归档——9 task TDD 全执行 + 审查收敛）
+> **活跃 plan 数**：0 | **已归档**：128（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **#71 默认文笔惊艳度（prose-excellence）** — `2026-10-24-spec71-prose-excellence.md` ✅ ready（9 task：单信源基座/compute_stats 升级/G4.cd 三 WARN/传导链机器侧/style_seed v2/drafting SKILL 面/传导链 SKILL 面/style-learning+契约闭环/破折号执法面+框架文档）
+（无——spec #71 plan 已随 PR #246 归档）
 
 ## 待执行的 spec → plan 映射
 
