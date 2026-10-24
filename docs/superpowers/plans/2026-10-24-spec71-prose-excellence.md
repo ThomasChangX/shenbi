@@ -28,6 +28,7 @@
 
 **Files:**
 - Modify: `src/shenbi/gates/shared.py`（新增 `SIMILE_MARKERS` 常量 + `QUOTE_PAIR` + `segment_sentences` + `_non_dialogue_text` + `count_similes`；**新增一行 cjk import（现状零 cjk 导入——只 import `find_quote_spans`，`dialogue_char_ratio` 是 T3 的 chapter_drafting.py 自己用的，不进 shared 以免 F401）**）
+- Modify: `pyproject.toml`（`src/shenbi/gates/*.py` 的 ruff per-file-ignores 补 `"RUF002"`——中文 docstring 标点；`src/shenbi/skill_utils/**/*.py` 已含同款先例；迁移的 segment_sentences docstring 与两个新 docstring 均触发）
 - Modify: `src/shenbi/skill_utils/style_learning/compute_stats.py:20-99`（删 `QUOTE_PAIR`/`segment_sentences` 本体，改 import + re-export）
 - Test: `tests/unit/gates/test_shared_prose_primitives.py`（新建）
 
@@ -166,6 +167,8 @@ from shenbi.gates.shared import (  # 单源别名（z11 F1301 扩展，spec #71�
 
 （`META_BLOCK_RE` 既有 import 合并进同一括号；`SENT_ENDS` 若仍被 `segment_paragraphs` 使用则保留原定义。**T2 落地时此括号再扩 `count_similes, strip_narrative_body`**——见 T2 Step 3。）
 
+`pyproject.toml` ruff per-file-ignores：找到 `src/shenbi/gates/*.py` 条目（现状含 B007/RUF001/RUF003 类），**补 `"RUF002"`**（形态对照 `src/shenbi/skill_utils/**/*.py` 的既有条目）。
+
 - [ ] **Step 4: 跑新旧测试确认全绿（迁移零行为变化）**
 
 Run: `uv run pytest tests/unit/gates/test_shared_prose_primitives.py tests/unit/skill_utils/test_compute_stats.py -v`
@@ -174,7 +177,7 @@ Expected: 全 PASS（test_compute_stats 既有用例不因迁移失败）
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/shenbi/gates/shared.py src/shenbi/skill_utils/style_learning/compute_stats.py tests/unit/gates/test_shared_prose_primitives.py
+git add src/shenbi/gates/shared.py src/shenbi/skill_utils/style_learning/compute_stats.py pyproject.toml tests/unit/gates/test_shared_prose_primitives.py
 git commit -m "feat: spec #71 T1 单信源基座——segment_sentences+QUOTE_PAIR 迁入 gates/shared + count_similes 非对白域闭集计数"
 ```
 
@@ -259,7 +262,7 @@ Expected: FAIL（KeyError: 'ge35_ratio' / 'simile' / 'per_chapter'）
 
 return dict 增 `"ge35_ratio": round(ge35 / n, 4)`。
 
-`compute_all_stats` 增（**per_chapter 的章文本剥域用 `strip_narrative_body`（裸 H2 PRE/POST 也剥——真实 fixtures 10/11 裸 H2，自检长行不得白送假奔涌句；与 `simile` 块同域**）；`combined` 现行构造不动）：
+`compute_all_stats` 增（**per_chapter 的章文本剥域用 `strip_narrative_body`（裸 H2 PRE/POST 也剥——真实 fixtures 以裸 H2 形态为主（chapter-{2,3,4,10}-draft.md 等），自检长行不得白送假奔涌句；与 `simile` 块同域**）；`combined` 现行构造不动）：
 
 ```python
     per_chapter: dict[str, dict[str, Any]] = {}
@@ -312,7 +315,7 @@ git commit -m "feat: spec #71 T2 compute_stats 奔涌率+simile 块+per_chapter 
 
 **Files:**
 - Modify: `src/shenbi/gates/g4/chapter_drafting.py`（`g4_chapter_drafting` 循环内 word_count 检查后增三 WARN 块）
-- Test: `tests/unit/gates/g4/test_chapter_drafting_prose_warn.py`（新建；先确认 `tests/unit/gates/g4/` 下既有 drafting 测试文件名——若已有 `test_chapter_drafting.py` 则增用例进该文件）
+- Test: `tests/unit/gates/g4/test_chapter_drafting.py`（**并入既有文件**——已存在；复用其 fixture/helper 形态，新用例追加）
 
 **Interfaces:**
 - Consumes: T1 `count_similes`/`segment_sentences`（from `shenbi.gates.shared`）；`cjk.dialogue_char_ratio`；`total_chars_md_text`（既有 import）
@@ -467,6 +470,16 @@ Expected: FAIL（`_warn_ids` 返回空 dict——id 不存在）
 
 - [ ] **Step 3: 实现（g4_chapter_drafting 循环内、word_count 块后新增）**
 
+（**helpers 提升到循环体之外**（`g4_chapter_drafting` 函数顶部、`for fp in fps` 之前——循环体内定义会触发 ruff B023）：
+
+```python
+    _GOLDEN_PRE_RE = re.compile(r"^\s*-\s*本章金句位\s*[:：]\s*(.*)$", re.MULTILINE)
+    _GOLDEN_POST_RE = re.compile(r"^\s*-\s*\[.\]\s*金句位\s*[:：]\s*(.+)$", re.MULTILINE)
+    _EMPTY_VALUES = frozenset({"", "无", "N/A", "待定"})
+```
+
+循环体内（word_count 块后新增）：）
+
 ```python
         # spec #71 prose-excellence WARN predicates (WARN-level: recorded in
         # checks for the pipeline manifest, never in must_fix).
@@ -522,33 +535,25 @@ Expected: FAIL（`_warn_ids` 返回空 dict——id 不存在）
                 }
             )
 
-        _golden_re = r"^\s*-\s*本章金句位\s*[:：]\s*(.*)$"
         pre_block = re.search(
             r"## PRE_WRITE_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL
         )
         post_block = re.search(
             r"## POST_WRITE_SELF_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL
         )
-        _EMPTY_VALUES = {"", "无", "N/A", "待定"}
-
-        def _golden_value_ok(raw: str) -> bool:
-            v = raw.strip().strip("[]").strip()
-            return v not in _EMPTY_VALUES
 
         golden_issues: list[str] = []
-        pre_val = None
+        pre_val: str | None = None
         if pre_block:
-            m = re.search(_golden_re, pre_block.group(0), re.MULTILINE)
+            m = _GOLDEN_PRE_RE.search(pre_block.group(0))
             if m:
                 pre_val = m.group(1)
-        if pre_val is None or not _golden_value_ok(pre_val):
+        if pre_val is None or pre_val.strip().strip("[]").strip() in _EMPTY_VALUES:
             golden_issues.append("PRE lacks non-empty 金句位 line")
         post_ok = False
         if post_block:
-            for m in re.finditer(r"^\s*-\s*\[.\]\s*金句位\s*[:：]\s*(.+)$", post_block.group(0), re.MULTILINE):
-                if m.group(1).strip():
-                    post_ok = True
-                    break
+            if _GOLDEN_POST_RE.search(post_block.group(0)):
+                post_ok = True
         if not post_ok:
             golden_issues.append("POST lacks 金句 excerpt line")
         if golden_issues:
@@ -732,7 +737,7 @@ test_style_seed.py 的 `test_seed_writes_default_when_absent` 增节断言，**�
 Run: `uv run pytest tests/unit/pipeline/test_style_seed.py -v`
 Expected: FAIL（"金句" 节不存在）
 
-- [ ] **Step 3: 实现——DEFAULT_STYLE_DIRECTIVES 替换为 spec §2 全文（逐字，从 spec 复制模板代码块内全部 44 行）+ 模块 docstring 更新**
+- [ ] **Step 3: 实现——DEFAULT_STYLE_DIRECTIVES 替换为 spec §2 模板代码块全文（逐字复制）+ 模块 docstring 更新**
 
 docstring 变更点：`session31 Q1` 叙事补 `spec #71 v2（六人共性带重锚：基带 12-25/奔涌收割配额/比喻双向带/金句三写法/母题行）`。
 
@@ -835,7 +840,7 @@ git commit -m "feat: spec #71 T7 传导链 SKILL 面——planning 备忘段 1 �
 - Modify: `skills/shenbi-style-learning/SKILL.md`（统计指标目录节 `### 1.`/`### 5.` 增两指标条目；profile 输出模板 §1 表增「≥35 字句占比」行、§6 表增「比喻密度（处/千字）」行、§10 表增「≥35 字句占比」列；铁律 2 增 anchors 例外条款；输出节增 anchors.md 产出说明 + 最小骨架；frontmatter writes 增 `style/anchors.md`）
 - Modify: `skills/shenbi-chapter-drafting/SKILL.md`（frontmatter reads 增 `style/anchors.md`——与 style-learning writes 同批，ORPHAN_READ 闭环）
 - Modify: `docs/framework/truth-files.yaml`（style 族增 `- {name: style/anchors.md, kind: style}`）
-- Modify: `executor_config.toml:9`（`temperature = 0.85` → `0.90` + 行尾注释 `# spec #71: anti-RLHF-mean-reversion（回退判据见 spec §5.2）`）
+- Modify: `executor_config.toml` drafting overrides 段（`[overrides."shenbi-chapter-drafting"]` 下 `temperature = 0.85` 行（:10，段头 :9）→ `temperature = 0.90` + 行尾注释 `# spec #71: anti-RLHF-mean-reversion（回退判据见 spec §5.2）`）
 - Test: `tests/unit/pipeline/test_executor_config.py`（新建或并入既有 config 测试——温度值断言）+ 契约面 `just generate` 幂等
 
 **Interfaces:**
