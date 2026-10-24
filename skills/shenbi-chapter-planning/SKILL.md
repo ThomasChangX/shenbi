@@ -179,6 +179,10 @@ emotion_tone: 悲
 
 **payoff 拍**: [类型｜强度]
 
+**金句位**: [对比/反差/口诀化｜落点场景]（对齐卷纲「金句、母题物象与梗位」行的排期；drafting PRE_WRITE_CHECK 照抄本行）
+
+**母题物象**: [卷纲物象 + 本章变奏]（卷纲物象每章 ≥1 次变奏复现、语境须不同；drafting PRE_WRITE_CHECK 照抄本行）
+
 > 类型对齐本卷爽点主型（volume_map 卷区段「**爽点主型**」行；该行不可得时从题材词表自填一词：扮猪吃虎/基建/经商/无间道/战争/悬疑/军旅/求生/赎罪/权谋等）；纯蓄压章填「无＋一句理由」（合法）。强度取 小兑现/中兑现/大兑现。review-highpoint 按本声明验收蓄压-释放比；drafting PRE_WRITE_CHECK 照抄本行。
 
 **目标字数**: [genre-config.json 的 chapter_word.default 值，原样数字]（= chapter_word.default；drafting 篇幅契约铁律与本行同源，缺失即断链）
