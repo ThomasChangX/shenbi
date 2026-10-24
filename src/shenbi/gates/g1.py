@@ -22,6 +22,7 @@ from shenbi.gates.shared import (
     normalize_file_paths,
     fail,
     jload,
+    optional_read_hit,
     passed,
     yload,
 )
@@ -128,7 +129,6 @@ def gate_G1(
     # literal paths so G1.1 fails clearly on missing required inputs.
     import glob as _glob
     import os as _os
-    from fnmatch import fnmatch as _fnmatch
 
     skip_raw = _os.environ.get("SHENBI_G1_SKIP_READS", "")
     skip_patterns = [p.strip() for p in skip_raw.split(",") if p.strip()] if skip_raw else []
@@ -141,8 +141,10 @@ def gate_G1(
                 for m in matches:
                     if m not in expanded_fps:
                         expanded_fps.append(m)
-            elif skip_patterns and any(_fnmatch(Path(fp).name, pat) for pat in skip_patterns):
-                # Unmatched optional glob in genesis mode; silently skip
+            elif skip_patterns and optional_read_hit(fp, skip_patterns):
+                # Unmatched optional glob in genesis mode; silently skip.
+                # Slash-form OPTIONAL_READS patterns need full-path/suffix
+                # matching (audit-T4 M-1, spec #71).
                 pass
             # Unmatched required glob; keep literal path so G1.1 fails
             elif fp not in expanded_fps:

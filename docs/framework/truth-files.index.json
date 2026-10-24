@@ -328,6 +328,15 @@
     "writes": [],
     "updates": []
   },
+  "style/anchors.md": {
+    "reads": [
+      "shenbi-chapter-drafting"
+    ],
+    "writes": [
+      "shenbi-style-learning"
+    ],
+    "updates": []
+  },
   "truth/audit_drift.md": {
     "reads": [
       "shenbi-chapter-drafting",

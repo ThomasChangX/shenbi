@@ -159,6 +159,40 @@ def test_glob_unmatched_optional_dropped(monkeypatch: pytest.MonkeyPatch, tmp_pa
 
 
 @pytest.mark.unit
+def test_glob_unmatched_optional_slash_form_dropped(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Slash-form OPTIONAL_READS patterns must match an unmatched glob on the
+    full path — basename-only fnmatch never hits them (audit-T4 M-1,
+    spec #71). The glob input expands to nothing (absolute path) and the
+    suffix match carries the exemption.
+    """
+    monkeypatch.setenv("SHENBI_G1_SKIP_READS", "style/anchor-*.md")
+    result = _result_dict(
+        gate_G1(
+            skill_name="shenbi-worldbuilding",
+            input_files=[str(tmp_path / "style" / "anchor-*.md")],
+        )
+    )
+    assert result["status"] == "PASS"
+
+
+@pytest.mark.unit
+def test_optional_read_hit_matching_forms() -> None:
+    """shared.optional_read_hit: basename / relative-literal / suffix forms."""
+    from shenbi.gates.shared import optional_read_hit
+
+    pats = ["style/anchors.md", "chapter-*-plan.md"]
+    assert optional_read_hit("anchors.md", pats) is None  # bare name is NOT in pats
+    assert optional_read_hit("style/anchors.md", pats) == "style/anchors.md"  # relative literal
+    assert (
+        optional_read_hit("/proj/round/style/anchors.md", pats) == "style/anchors.md"
+    )  # absolute via suffix
+    assert optional_read_hit("chapter-3-plan.md", pats) == "chapter-*-plan.md"  # basename glob
+    assert optional_read_hit("/proj/chapter-3-plan.md", pats) == "chapter-*-plan.md"  # suffix glob
+
+
+@pytest.mark.unit
 def test_glob_unmatched_required_surfaces_failure(tmp_path: Path) -> None:
     """Unmatched required glob (not in SHENBI_G1_SKIP_READS) must surface as G1.1."""
     result = _result_dict(

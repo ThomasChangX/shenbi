@@ -41,6 +41,25 @@ CHAPTER_NUM_RE = re.compile(r"chapter-(\d+)")
 SIMILE_MARKERS: tuple[str, ...] = ("像", "仿佛", "宛如", "宛若", "恰似", "如同", "似的")
 
 
+def optional_read_hit(path_str: str, patterns: "list[str] | tuple[str, ...]") -> str | None:
+    """Return the first OPTIONAL_READS-style pattern matching *path_str*.
+
+    Patterns carry both bare names ("anchors.md") and slash forms
+    ("style/anchors.md"); consumers pass either relative or absolute paths
+    (glob expansion yields absolute). A basename-only fnmatch never hits
+    slash forms, and a plain fnmatch never hits absolute paths against
+    relative patterns — hence basename + full-string + suffix matching
+    (audit-T4 M-1, spec #71).
+    """
+    from fnmatch import fnmatch
+
+    basename = path_str.rsplit("/", 1)[-1]
+    for pat in patterns:
+        if fnmatch(basename, pat) or fnmatch(path_str, pat) or path_str.endswith("/" + pat):
+            return pat
+    return None
+
+
 def bak_path(fp: str | Path) -> str:
     """Return the ``.bak`` sibling path for ``fp``.
 

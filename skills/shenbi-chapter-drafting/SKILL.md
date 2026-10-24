@@ -19,6 +19,7 @@ contract:
     - 6. 修辞模式
     - 9. 对白占比
   - style/style_directives.md
+  - style/anchors.md
   - file: genre-config.json
     fields:
     - fatigueWords
@@ -42,7 +43,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, context/chapter-N-context.md, context/chapter-N-context-decisions.json, style/style_profile.md, style/style_directives.md, genre-config.json, truth/audit_drift.md
+- **Reads:** plans/chapter-N-plan.md, context/chapter-N-context.md, context/chapter-N-context-decisions.json, style/style_profile.md, style/style_directives.md, style/anchors.md, genre-config.json, truth/audit_drift.md
 - **Writes:** chapters/chapter-N.md, chapters/chapter-N-decisions.json
 - **Updates:** none
 
