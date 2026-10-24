@@ -7,20 +7,22 @@ max_tokens = 16384
 
 [overrides."shenbi-chapter-drafting"]
 temperature = 0.85
-# Spec §2.2: drafting AVG output 15,787 tokens (96% of old 16384 cap).
-# Raised to 32768 to eliminate truncation. PRE-DEPLOYMENT: probe
-# `deepseek-v4-flash` with max_tokens=32768 to confirm model accepts it.
-# If model hard-limits below 32768, root cause shifts to "chapter too long"
-# (prompt-content layer, out of scope — see spec §2.9 fail-fast).
-max_tokens = 32768
+# Spec §2.2 history: 16384 → 32768 (era of ~1.6K-char chapters). vol1 probe
+# (2026-10-24, escalation #016): this seed's 7145-char floor needs 40-60K
+# completion (reasoning channel dominates) — at 32768 the first attempt
+# empties (billed 32767, content 0) 7×/3 chapters and the cap-raise pays a
+# full re-dispatch; at the 58982 raise ceiling the decisions.json tail can
+# still truncate. Base 49152 kills the empty-first-attempt family while
+# keeping one raise level of headroom to the 58982 ceiling.
+max_tokens = 49152
 
 [overrides."shenbi-chapter-revision"]
 temperature = 0.6
 # Probe session 2026-09-29: revision outputs the COMPLETE revised chapter
 # (same output shape as drafting) but had NO max_tokens override — the 16384
 # default truncated every expansion (73 calls, completion tokens pinned at
-# exactly 16384/32768 = cap values). Parity with drafting's 32768.
-max_tokens = 32768
+# exactly 16384/32768 = cap values). Parity with drafting (49152, vol1).
+max_tokens = 49152
 
 [overrides."shenbi-faction-builder"]
 temperature = 0.7
