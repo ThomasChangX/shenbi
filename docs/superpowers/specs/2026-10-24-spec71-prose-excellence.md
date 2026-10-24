@@ -3,6 +3,8 @@
 > **Date:** 2026-10-24 | **Status:** Active | **Severity:** 🔴 P0（用户点名「文笔不够惊艳」；排期用户定稿：本 spec 实现先落地，卷一 v2 全新首跑随后启动并即试点） | **方法:** 方案 B——指令层重锚 + WARN 级确定性闸 + 测量闭环升级 + 自锚定范文环 | **系列:** 文笔层 | **依赖:** 无 | **范围:** `style_seed.py` 模板重写 / `compute_stats.py` 两新指标 / G4.cd 三 WARN / 六份 SKILL 与两份框架文档 / `executor_config.toml` / truth 注册 / 单测
 
 > 2026-10-24 brainstorming 定稿。决策路径：网络调研六位公认文笔派作者（「中原五青」共识 + 树下野狐/江南——起点六人名单与 NGA 纯文笔投票交叉）提炼共性带（长短落差大/意象密度高/煽情克制/对话承载辨识度）→ 本地实证三缺失（星火 ch1 全章最长句仅 31 字、≥25 字句占比 6%——「≥16 字收束长句」伪长句定义压死天花板；比喻只有 ≤2/千字单上限且喻体俗套失控——ch5 达 5.3/千字；金句只有卷纲排期、drafting 无工艺）→ 三问定稿：①**范围 P0-P3 全包**（含破折号框架红线与温度实验）②**风格定位重锚六人共性带**（基带 10-20→12-25，非「增强不换底」）③**排期 = spec 先落地、卷一 v2 即试点**（先 A/B 探针方案否决）→ 三方案对比（A 纯指令层[漂移无闸无对账] / B 指令+WARN 闸+自锚定环 / C 外部范文注入[版权风险 + StoryScope「改风格难掩底层叙事差异」边际收益否决]）用户选定 **方案 B**。
+>
+> **Revised 2026-10-24**（SDD 阶段 0 亲验 + 阶段 1 驳斥产出七项）：① golden_slot POST 谓词与 §3 模板行格式对齐（原 `= [` 谓词对 §3 金句位行永真）；② 施工面补 `src/shenbi/pipeline/_shared.py`——planning 对 volume_map 走 extractor: volume_chapter → `load_volume_context` 白名单提取，不含卷头部元数据区金句行，只改 SKILL 文字 = dead-wire；③ simile_band 分母改非对白域（分子分母同域——原 gate 口径分母含对白 35-55%，测值系统性下移约半、带界与模板语义错位）；④ §5.1 节号订正（§6 标点密度，非 §7）；⑤ §6.1 契约面补 lint-contracts 家族 + just generate 派生物；⑥ §4.2 统计指标目录节同步面；⑦ G4.vo.quote_line 确认无需扩（regex 对扩名行仍命中）+ 闭集误计面与疲劳词张力声明。
 
 ## 1. 定位与边界
 
@@ -75,14 +77,14 @@
 
 ### 4.1 金句/母题传导链（断链闭合）
 
-- `volume-outlining`：「金句与梗位行（P2-6）」扩为「**金句、母题物象与梗位**」——每卷新增指定 1-2 个核心物象；G4.vo.quote_line WARN 检查行同步扩。
-- `chapter-planning`：备忘段 1 增两行——金句位（对齐卷纲排期）与母题物象（卷纲物象 + 本章变奏）。planning 读 volume_map 的字段级 reads 若未含该行则同步扩字段；drafting 对备忘段 1 的既有字段级 reads 已覆盖（新行在段 1 内）。
+- `volume-outlining`：「金句与梗位行（P2-6）」扩为「**金句、母题物象与梗位**」——每卷新增指定 1-2 个核心物象；G4.vo.quote_line **无需扩**（现谓词 `re.search(金句|梗位|彩蛋)` 对扩名行仍命中，volume_outlining.py:84）。
+- `chapter-planning`：备忘段 1 增两行——金句位（对齐卷纲排期）与母题物象（卷纲物象 + 本章变奏）。planning 对 volume_map 的读取走 `extractor: volume_chapter` → `load_volume_context`（`src/shenbi/pipeline/_shared.py:363`）白名单提取（卷标题/Objective/张力曲线/当前 KR 块/章节点/跨卷桥），**现不含卷头部元数据区的「金句与梗位」行——须在 `load_volume_context` 增该行提取**（卷区段内「金句、母题物象与梗位」行，含卷区段头部 `**…**:` 加粗形态），否则断链闭合无效；drafting 对备忘段 1 的既有字段级 reads 已覆盖（新行在段 1 内）。
 
 ### 4.2 测量闭环升级（`src/shenbi/skill_utils/style_learning/compute_stats.py` + style-learning SKILL）
 
 - `compute_sentence_stats` 增 **≥35 字句占比（奔涌率）**；新增 `count_similes`。
-- 比喻闭集（子串计数，非对白文本）：`像`、`仿佛`、`宛如`、`宛若`、`恰似`、`如同`、`似的`——密度 = 计数 / gate 口径字数 × 1000。**非对白文本 = 剥离引号内文字后的正文**（引号对覆盖 `「」『』""“”`）；**gate 口径字数 = `total_chars_md_text`**（G4 地板同源，含 H1 行、剥 META 块）。「像」子串匹配含「好像/就像」复合形式（认识情态「好像」的误计为接受的 WARN 级精度损失）；`仿佛` 同时受 AI 标记词 ≤1 次/章硬闸约束，两口径并存不冲突。
-- profile 模板：§1 句长分布表增「≥35 字句占比」行；§6 修辞模式表增「比喻密度（处/千字）」行。反馈环语义从「强化均衡」变为「强化落差」。
+- 比喻闭集（子串计数，非对白文本）：`像`、`仿佛`、`宛如`、`宛若`、`恰似`、`如同`、`似的`——密度 = 计数 / **非对白文本字数** × 1000。**非对白文本 = 剥离引号内文字后的正文**（引号对覆盖 `「」『』""“”`，复用 `cjk.find_quote_spans`）；**分母与分子同域**（非对白文本的非空白字符数，含 H1 行、剥 META 块）——若沿用 `total_chars_md_text`（含对白）作分母，对白占比 35-55% 下测值系统性下移约半，[2,4] 带界与 §2 模板「每千字 2-4 处」的写作者语义错位，故分母取非对白域。「像」子串匹配含「好像/就像」复合形式与名词内嵌（影像/画像/像样等）——两类误计均为接受的 WARN 级精度损失；`仿佛`/`如同`/`似乎` 计入 FATIGUE_BASE 疲劳预算（≤8/章）且 `仿佛` 另受 AI 标记词 ≤1 次/章硬闸——闭集七词中三词受限，实际可用喻词以 `像/宛如/宛若/恰似/似的` 为主，带内达标现实可行（试点观察项 6 人工抽检覆盖）。
+- profile 模板：§1 句长分布表增「≥35 字句占比」行；§6 修辞模式表增「比喻密度（处/千字）」行；SKILL 统计指标目录节（「### 1. 句长分布」/「### 5. 修辞模式」）同步增两指标条目。反馈环语义从「强化均衡」变为「强化落差」。
 
 ### 4.3 自锚定范文环 `style/anchors.md`
 
@@ -95,8 +97,8 @@
 | id | 口径（全部操作化） | 触发 |
 |---|---|---|
 | `G4.cd.surge` | 句切分与 `compute_sentence_stats` 同源（`segment_sentences`）；句长 = 非空白字符数（含标点）；叙述句 = 引号内字符占比 <50% 的句；计数章内句长 ≥35 的叙述句 | 计数 < max(1, gate 口径章字数 // 3000)（口径同 §4.2；7145 字章即 <2 处；1700 字探针章即 <1 处） |
-| `G4.cd.simile_band` | §4.2 闭集子串计数于非对白文本，密度 = 计数/千字 | 密度 ∉ [2, 4]/千字（低 = 干燥，高 = 堆砌） |
-| `G4.cd.golden_slot` | PRE_META 块含行首 `- 本章金句位: ` 且值为非空；POST_META 块含金句摘录项（行含「金句」且 `= [` 后非空） | 任一缺失 |
+| `G4.cd.simile_band` | §4.2 闭集子串计数于非对白文本，密度 = 计数 / 非对白文本字数 × 1000 | 密度 ∉ [2, 4]/千字（低 = 干燥，高 = 堆砌） |
+| `G4.cd.golden_slot` | PRE_META 块含行首 `- 本章金句位: ` 且值为非空；POST_META 块含金句摘录项（行含「金句位」且 `: [` 后至行尾非空——与 §3 模板行 `- [ ] 金句位: [原句摘录]（落位后 2 句内收）` 格式对齐） | 任一缺失 |
 
 - 俗套喻体与金句**质量**判定不进 G4（确定性闸管不了审美）——`simile_band` WARN 的 reason 文本附「俗套喻体抽检」提示，归审计裁决复核；试点期人工抽检（§6）。
 - 母题行（PRE）**不设独立 WARN**：变奏复现的判定开放性强，机器只能查行存在、价值低，且避免 WARN 泛滥；母题质量归审计面抽检。
@@ -106,7 +108,7 @@
 ### 5.1 破折号预算制（`anti-ai-reference.md` 全禁 → 预算；本 spec 即框架变更流程载体）
 
 - **每章 ≤2 处**，仅限两种用法：咏叹收束（长句末尾情绪延宕）、对话打断（话被截断）。**解释补充用法（「他深吸一口气——这不可能」类）仍然全禁**。
-- 执行面：`anti-ai-reference.md` 句式禁令表该行改写；`review-anti-ai` SKILL 检查 3 改口径——每章 >2 处 = ERROR；≤2 处但属解释补充用法 = ERROR；合法用法 ≤2 = pass。计数口径用 `cjk.py` 破折号类（`——`/`──`），style-learning §7 每千字密度本就测量，作观察项。
+- 执行面：`anti-ai-reference.md` 句式禁令表该行改写；`review-anti-ai` SKILL 检查 3 改口径——每章 >2 处 = ERROR；≤2 处但属解释补充用法 = ERROR；合法用法 ≤2 = pass。计数口径用 `cjk.py` 破折号类（`——`/`──`），style-learning 测量节「§6 标点密度」（每千字破折号数）本就测量，作观察项。
 - 依据：维基百科《AI 生成文的特征》自标破折号在中文语境为弱信号；咏叹破折号是烽火/猫腻文体核心标点。`docs/framework/style-directives.md` §4 中「解除破折号禁令须走框架变更」条款同步改写为预算制表述。
 
 ### 5.2 drafting 温度 0.85 → 0.90（`executor_config.toml`，单臂变更）
@@ -121,7 +123,7 @@
 - `compute_stats`：奔涌率/比喻密度构造输入断言（结构性用例，测试内构造——G0.9 约束的是冒充真实产物的 fixture，不约束结构性用例）。
 - G4.cd 三 WARN 三态：触发/不触发/边界（7145 字章恰 2 处 surge 达标、1 处触发；密度 2.0 与 4.0 恰在带界；PRE 行存在但值为空触发）。
 - `style_seed`：新模板内容快照断言（改既有测试）+ write-if-absent 幂等不覆写仍守。
-- 契约面：六份 SKILL 的 reads/writes 变更后 `lint_registry_reconcile` 跑通；truth-files 注册一致；PRE/POST 新行的 G4 机械检查（META 块提取复用 `gates/shared.py` 既有函数）。
+- 契约面：六份 SKILL 的 reads/writes 变更后 `lint_registry_reconcile` 跑通 + `just lint-contracts` 家族绿（ORPHAN_READ 闭环：drafting reads `style/anchors.md` 的生产者 = style-learning writes）+ `just generate` 派生物（deps.json/docs/skills）再生成幂等；truth-files 注册一致；PRE/POST 新行的 G4 机械检查（META 块提取复用 `gates/shared.py` 既有函数）。
 
 ### 6.2 试点 = 卷一 v2 全新首跑（本 spec 落地后启动）
 
@@ -152,6 +154,7 @@
 | 代码 | `src/shenbi/skill_utils/style_learning/compute_stats.py` | 奔涌率 + `count_similes`（闭集 §4.2） |
 | 代码 | `src/shenbi/gates/g4/chapter_drafting.py` | 三 WARN 谓词（§4.4，`GateStatus.WARN` 先例：`chapter_planning.py:98`） |
 | 代码 | `executor_config.toml` | drafting `temperature = 0.90` + 注释 |
+| 代码 | `src/shenbi/pipeline/_shared.py` | `load_volume_context` 增「金句、母题物象与梗位」行提取（§4.1 断链闭合的机器侧落点） |
 | SKILL | `shenbi-chapter-drafting/SKILL.md` | 原则 5/7/10 + PRE 两行 + POST 两项（§3） |
 | SKILL | `shenbi-chapter-drafting/anti-ai-reference.md` | 破折号预算行（§5.1） |
 | SKILL | `shenbi-chapter-planning/SKILL.md` | 备忘段 1 增两行 + volume_map 字段级 reads 对齐（§4.1） |
