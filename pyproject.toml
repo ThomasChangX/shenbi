@@ -139,6 +139,7 @@ convention = "google"
 # data, not drift (same category as lint_truth_pool).
 "tools/release_split.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/tools/test_release_split.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/test_shared_prose_primitives.py" = ["RUF001", "RUF002", "RUF003"]
 # Craft-contract backfill: the injected declaration lines ARE Chinese memo
 # prose (历史补录 markers) — same data-not-drift category as lint_truth_pool.
 "tools/plan_craft_backfill.py" = ["RUF001", "RUF002"]
@@ -208,7 +209,7 @@ convention = "google"
     "PLR0911", "PLR0912", "PLR0915", "PLR1714", "PLR2004",
     "PLC0415", "PLW1510", "PLW2901", "PLW0603",
     "PIE810",
-    "RUF001", "RUF003", "RUF005", "RUF059",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
     "SIM102", "SIM105",
     "C401", "C416",
     "B007",

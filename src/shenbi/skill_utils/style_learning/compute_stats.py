@@ -12,14 +12,16 @@ import sys
 import structlog
 from collections import Counter
 from pathlib import Path
-from shenbi.gates.shared import META_BLOCK_RE  # 单源别名（z11 F1301）
+from shenbi.gates.shared import (  # 单源别名（z11 F1301 扩展，spec #71）
+    META_BLOCK_RE,
+    QUOTE_PAIR as QUOTE_PAIR,  # noqa: PLC0414  # explicit re-export（basedpyright 契约），保既有 import 方
+    segment_sentences as segment_sentences,  # noqa: PLC0414
+)
 from shenbi.safe_write import safe_write
 from shenbi.text.cjk import TTR_EXCLUDED_CHARS, count_punctuation as cjk_count_punctuation
 from typing import Any
 
 SENT_ENDS = re.compile(r"[。！？；\n]")
-# F668: directional quote pairs (aligned with cjk pair counting); ASCII " toggles.
-QUOTE_PAIR = {"”": "“", "’": "‘", "」": "「", "』": "『"}
 CONNECTIVES = {
     "时间": ["然后", "接着", "之后", "忽然", "突然", "此时", "随后", "立刻", "马上"],
     "转折": ["但是", "然而", "不过", "可是", "却", "但", "只是", "偏偏"],
@@ -41,62 +43,6 @@ AI_MARKERS = [
     "不是…而是",
 ]
 TRANSITION_WORDS = ["然而", "不过", "此时", "突然", "终于", "于是", "与此同时", "与此同时"]
-
-
-def segment_sentences(text: str) -> list[tuple[str, int]]:
-    r"""Segment Chinese text into sentences. Returns list of (sentence_text, char_count).
-
-    F628: ； terminates sentences (unified with SENT_ENDS).
-    F668: sentence-final punctuation inside open quotes does not split;
-    \n splits unconditionally (escape hatch for unterminated quotes).
-    """
-    sentences: list[tuple[str, int]] = []
-    current: list[str] = []
-    quote_stack: list[str] = []
-    ascii_quote_open = False
-
-    def flush() -> None:
-        sent = "".join(current).strip()
-        if sent:
-            char_count = len(sent.replace("\n", "").replace(" ", ""))
-            if char_count > 0:
-                sentences.append((sent, char_count))
-        current.clear()
-
-    for ch in text:
-        current.append(ch)
-        quote_closed = False
-        if ch in QUOTE_PAIR.values():
-            quote_stack.append(ch)
-        elif ch in QUOTE_PAIR:
-            if quote_stack and quote_stack[-1] == QUOTE_PAIR[ch]:
-                quote_stack.pop()
-                quote_closed = True
-        elif ch == '"':
-            if ascii_quote_open:
-                quote_closed = True
-            ascii_quote_open = not ascii_quote_open
-        in_quote = bool(quote_stack) or ascii_quote_open
-        if ch == "\n" or (ch in "。！？；" and not in_quote):
-            if ch == "\n":
-                # reset quote state so an unterminated quote on one line cannot
-                # suppress splitting on later lines (Copilot review, PR #100)
-                quote_stack.clear()
-                ascii_quote_open = False
-            flush()
-        elif (
-            quote_closed
-            and not quote_stack
-            and not ascii_quote_open
-            and len(current) >= 2
-            and current[-2] in "。！？；"
-        ):
-            # F668: sentence-final punct right before the OUTERMOST closing quote
-            # ends the sentence (nested inner closes do not split the outer one)
-            flush()
-    if current:
-        flush()
-    return sentences
 
 
 def segment_paragraphs(text: str) -> list[dict[str, Any]]:
