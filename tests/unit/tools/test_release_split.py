@@ -15,8 +15,10 @@ from tools.release_split import (
     Tier,
     chinese_ordinal,
     classify_pair,
+    initial_n,
     nonws,
     parse_chapter,
+    plan_releases,
     select_chapter_files,
     tier_of,
 )
@@ -188,3 +190,136 @@ def test_chinese_ordinals() -> None:
         chinese_ordinal(0)
     with pytest.raises(ValueError):
         chinese_ordinal(100)
+
+
+def _mk_ch(paras: list[str], gate: int | None = None, h1: int = 0) -> ChapterInput:
+    """Constructed structural ChapterInput (G0.9 dual-track: 非真实产物断言)."""
+    body = sum(nonws(p) for p in paras)
+    return ChapterInput(
+        path=Path("chapter-0.md"),
+        number=0,
+        title="t",
+        gate_chars=gate if gate is not None else body + h1,
+        h1_nonws=h1,
+        paragraphs=tuple(paras),
+    )
+
+
+@pytest.mark.unit
+def test_initial_n_formula_edges() -> None:
+    fq = TIERS["fanqie"]
+    qd = TIERS["qidian"]
+    assert initial_n(1999, fq) == 1  # < 2×floor → 单更
+    assert initial_n(3999, fq) == 1  # 单更（软上限 +66% 合法形态）
+    assert initial_n(4000, fq) == 2  # 2×2000 恰可分
+    assert initial_n(4801, fq) == 2  # ceil=3 → 1600<2000 → 2
+    assert initial_n(10000, fq) == 5  # 5×2000 恰
+    assert initial_n(10001, fq) == 5
+    assert initial_n(10400, fq) == 5
+    assert initial_n(12500, fq) == 6
+    assert initial_n(7792, fq) == 3  # ch4 回退分支：ceil=4 → 1948<2000 → 3
+    assert initial_n(7200, fq) == 3  # 恰 3×2400
+    assert initial_n(2999, qd) == 1
+    assert initial_n(3000, qd) == 1  # qidian 单更恰软上限
+    assert initial_n(6001, qd) == 3  # qidian 回退分支不可达：ceil=3 → 2000.33>=2000
+
+
+@pytest.mark.unit
+def test_plan_releases_real_fixtures_fanqie() -> None:
+    """仿真定稿回归锚（spec §5 rev6）。"""
+    fq = TIERS["fanqie"]
+    expected = {
+        1: [2029, 2237, 2003, 2193],
+        2: [2322, 2746, 2966],  # 初始 n=4，选择第 2 步可行域空 → 降档 m=3
+        3: [2211, 2237, 2737],
+        4: [2224, 2581, 2972],  # §2 回退 7792→3
+        5: [2059, 2007, 2429],
+    }
+    for n, sizes in expected.items():
+        ch = parse_chapter(FIX / f"chapter-{n}.md")
+        groups, m = plan_releases(ch, initial_n(ch.gate_chars, fq), fq)
+        got = [sum(nonws(p) for p in ch.paragraphs[s:e]) for s, e in groups]
+        assert m == len(sizes), f"ch{n}: m={m} != {len(sizes)}"
+        assert got == sizes, f"ch{n}: {got} != {sizes}"
+        assert all(x >= fq.floor for x in got)
+
+
+@pytest.mark.unit
+def test_plan_releases_qidian_anchors() -> None:
+    qd = TIERS["qidian"]
+    for n in (1, 2, 3, 4, 5):  # qidian 双档带内约束全章断言
+        ch = parse_chapter(FIX / f"chapter-{n}.md")
+        groups, m = plan_releases(ch, initial_n(ch.gate_chars, qd), qd)
+        got = [sum(nonws(p) for p in ch.paragraphs[s:e]) for s, e in groups]
+        assert m == 3
+        assert all(x >= qd.floor for x in got)
+    ch1 = parse_chapter(FIX / "chapter-1.md")
+    groups, m = plan_releases(ch1, initial_n(ch1.gate_chars, qd), qd)
+    got = [sum(nonws(p) for p in ch1.paragraphs[s:e]) for s, e in groups]
+    assert (m, got) == (3, [2483, 2875, 3104])
+
+
+@pytest.mark.unit
+def test_plan_releases_razor_slack_downgrade() -> None:
+    """Razor-slack 构造：m=4 首带无候选 → 降档 4→3（真 ch2 同机制）。"""
+    fq = TIERS["fanqie"]
+    paras = ["字" * 2680, "句" * 2680, "词" * 2680]
+    ch = _mk_ch(paras, gate=8055, h1=15)  # ceil(8055/2400)=4, 8055/4=2013>=2000
+    groups, m = plan_releases(ch, initial_n(ch.gate_chars, fq), fq)
+    assert m == 3
+    sizes = [sum(nonws(p) for p in ch.paragraphs[s:e]) for s, e in groups]
+    assert sizes == [2680, 2680, 2680]
+    assert all(x >= fq.floor for x in sizes)
+
+
+@pytest.mark.unit
+def test_plan_releases_collapse_to_forced_single() -> None:
+    """构造 4500 = 1200/2100/1200：m=2 两候选皆出可行域 → 塌缩 m=1。"""
+    fq = TIERS["fanqie"]
+    ch = _mk_ch(["字" * 1200, "句" * 2100, "词" * 1200], gate=4500)
+    groups, m = plan_releases(ch, initial_n(ch.gate_chars, fq), fq)
+    assert m == 1
+    assert groups == [(0, 3)]
+
+
+@pytest.mark.unit
+def test_plan_releases_single_release_short_chapter() -> None:
+    fq = TIERS["fanqie"]
+    ch = _mk_ch(["短章" * 300], gate=1199)  # body 600 < 2×floor
+    groups, m = plan_releases(ch, initial_n(ch.gate_chars, fq), fq)
+    assert m == 1 and groups == [(0, 1)]
+
+
+@pytest.mark.unit
+def test_plan_releases_scoring_moves_cut() -> None:
+    """同窗候选打分差改变切点：窗口内三候选，张力段边界（+4）胜过 0 分与 +2 分者。"""
+    fq = TIERS["fanqie"]
+    a = "他" * 2050  # >40、不以引号开头、句号收尾基准长段（0 分）
+    t = "“会吗？”"  # (b)+(c) → +4（末字符 ” 不触发 (a)）
+    f = "灯苗矮下去又立起来。"  # (b) → +2
+    b = "词" * 2051
+    ch = _mk_ch([a, t, f, b])  # body = 2050+5+10+2051 = 4116, gate 同
+    # n=2（ceil(4116/2400)=2, 4116/2=2058>=2000）；t_1=2058, half=(15*4116)//200=308
+    # 窗口 [1750, 2366]：边界 2050(0 分)/2055(+4)/2065(+2) → 选 2055
+    groups, m = plan_releases(ch, initial_n(ch.gate_chars, fq), fq)
+    assert m == 2
+    sizes = [sum(nonws(p) for p in ch.paragraphs[s:e]) for s, e in groups]
+    assert sizes == [2055, 2061]
+    assert all(x >= fq.floor for x in sizes)
+
+
+@pytest.mark.unit
+def test_plan_releases_tie_break_earlier() -> None:
+    """窗口内两候选同分 → 取更早边界（spec §3.2 平手裁决）。"""
+    fq = TIERS["fanqie"]
+    a = "他" * 2050
+    f1 = "灯苗矮下去又立起来。"  # (b) +2
+    f2 = "火苗立起来又矮下去。"  # (b) +2——与 f1 同分
+    b = "词" * 2051
+    ch = _mk_ch([a, f1, f2, b])  # body = 2050+10+10+2051 = 4121
+    # n=2, t_1=2060.5, half=309 → 窗口 [1752, 2369]；边界 2050(0)/2060(+2)/2070(+2)
+    # 平手取更早 → 切 2060 → 更1 = 2060
+    groups, m = plan_releases(ch, initial_n(ch.gate_chars, fq), fq)
+    assert m == 2
+    sizes = [sum(nonws(p) for p in ch.paragraphs[s:e]) for s, e in groups]
+    assert sizes[0] == 2060

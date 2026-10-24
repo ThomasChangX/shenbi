@@ -203,3 +203,88 @@ def chinese_ordinal(k: int) -> str:
     if ones >= 1:
         parts.append(_CN_DIGITS[ones])
     return "".join(parts)
+
+
+def initial_n(gate_chars: int, tier: Tier) -> int:
+    """§2: size-single first, then ceil(gate/soft) with single floor fallback."""
+    if gate_chars < 2 * tier.floor:
+        return 1
+    n = -(-gate_chars // tier.soft)  # ceil
+    if gate_chars / n < tier.floor:
+        n -= 1
+    return max(n, 1)
+
+
+def _select_cut(
+    paras: tuple[str, ...],
+    prefix: list[int],
+    prev_cut_pos: int,
+    i: int,
+    m: int,
+    body: int,
+    floor: int,
+) -> int | None:
+    """Select the boundary index for cut i; None when the feasible set is empty.
+
+    Window∩feasible has candidates → max score (tie → earlier position);
+    otherwise → feasible candidate nearest to target t_i = i*body/m
+    (exact-rational cross-multiplication, tie → earlier).
+    """
+    lo = prev_cut_pos + floor
+    hi = body - floor * (m - i)
+    half = (15 * body) // (100 * m)
+    ib = i * body
+    in_win: list[tuple[int, int]] = []  # (boundary j, position)
+    feasible: list[tuple[int, int]] = []
+    for j in range(1, len(paras)):
+        p = prefix[j]
+        if lo <= p <= hi:
+            feasible.append((j, p))
+            # closed interval: p*m >= ib - half*m and p*m <= ib + half*m
+            if p * m >= ib - half * m and p * m <= ib + half * m:
+                in_win.append((j, p))
+    if not feasible:
+        return None
+    if in_win:
+        return max(
+            in_win,
+            key=lambda jp: (classify_pair(paras[jp[0] - 1], paras[jp[0]]).score, -jp[1]),
+        )[0]
+    return min(feasible, key=lambda jp: (abs(jp[1] * m - ib), jp[1]))[0]
+
+
+def plan_releases(ch: ChapterInput, n: int, tier: Tier) -> tuple[list[tuple[int, int]], int]:
+    """Constrained-window selection (spec §3.2) → paragraph-index groups + m."""
+    paras = ch.paragraphs
+    sizes = [nonws(p) for p in paras]
+    body = sum(sizes)
+    # prefix[j] = non-ws chars before boundary j (after paragraphs 0..j-1)
+    prefix: list[int] = [0]
+    for s in sizes:
+        prefix.append(prefix[-1] + s)
+
+    if n < _MIN_SPLIT or len(paras) < _MIN_SPLIT:
+        return [(0, len(paras))], 1
+
+    floor = tier.floor
+    m = n
+    while True:
+        cuts: list[int] = []  # chosen boundary indices
+        infeasible = False
+        for i in range(1, m):
+            j = _select_cut(paras, prefix, prefix[cuts[-1]] if cuts else 0, i, m, body, floor)
+            if j is None:
+                m -= 1
+                if m < _MIN_SPLIT:
+                    return [(0, len(paras))], 1
+                infeasible = True
+                break
+            cuts.append(j)
+        if not infeasible:
+            groups: list[tuple[int, int]] = []
+            start = 0
+            for c in cuts:
+                groups.append((start, c))
+                start = c
+            groups.append((start, len(paras)))
+            return groups, m
