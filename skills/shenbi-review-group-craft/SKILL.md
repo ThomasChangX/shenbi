@@ -220,7 +220,7 @@ Execute checks in order. 第 1/4/5 项已由框架在派发 prompt 的「审查�
 
 1. 段落等长检测 (Coefficient of Variation) — 读注入 `paragraph_cv`
 2. "不是...而是..."句式检测
-3. 破折号检测
+3. 破折号检测 — 预算制（spec #71）：每章 ≤2 处 `——`/`──`。仅两种合法用法：咏叹收束（长句末尾情绪延宕）、对话打断（话被截断）。>2 处 = ERROR；≤2 处但属解释补充用法（"他深吸一口气——这不可能"类）= ERROR；合法用法 ≤2 = pass
 4. 转折词密度 — 读注入 `transition_count`，对照 `transition_budget`（= G4 口径 `max(5, word_count_md//1000)`，单一阈值来源，spec #33 T3）
 5. AI 标记词 — 读注入 `ai_marker_hits`（词表见 `ai_blacklist`）
 6. 疲劳词（from `genre-config.json`，词表已注入 `fatigue_warnings`）

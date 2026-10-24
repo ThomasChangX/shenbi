@@ -70,7 +70,7 @@ digraph review_anti_ai {
 
 1. 段落等长检测 (CV)
 2. "不是…而是…"句式
-3. 破折号
+3. 破折号（预算制 spec #71：每章 ≤2 处、仅限咏叹收束/对话打断，解释补充用法全禁；reference-only——本技能已 RETIRED，活执法面在 review-group-craft 检查 3）
 4. 转折词密度
 5. AI 标记词
 6. 疲劳词（从 genre-config）
@@ -96,13 +96,13 @@ digraph review_anti_ai {
 |---|--------|------|------|
 | 1 | 段落等长 | PASS | CV=0.32 |
 | 2 | 不是…而是… | PASS | 未检测到 |
-| 3 | 破折号 | ERROR | 第3段含"——" |
+| 3 | 破折号 | ERROR | 第3段 3 处"——"（>2 预算）或属解释补充用法 |
 | ... | | | |
 
 ### 评分: X/100 通过
 
 ### 建议修复
-- [BLOCKING/CRITICAL] 第3段破折号：将"他深吸一口气——这不可能" → "他深吸一口气。这不可能。"
+- [BLOCKING/CRITICAL] 破折号预算违例（3 处 >2 或属解释补充用法）：删多余处或改句号断句；合法咏叹/打断用法 ≤2 处保留
 ```
 
 ## Anti-Rationalization
