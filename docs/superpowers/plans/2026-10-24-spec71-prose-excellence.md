@@ -27,7 +27,7 @@
 **复杂度: infra**（跨模块迁移 + 两消费方契约）· **test_kind: tdd_red_green（count_similes）+ characterization（segment_sentences 迁移行为不变）**
 
 **Files:**
-- Modify: `src/shenbi/gates/shared.py`（新增 `QUOTE_PAIR` 常量 + `segment_sentences` + `count_similes`；import 区补 `from shenbi.text.cjk import dialogue_char_ratio, find_quote_spans`——shared.py 已 import cjk 的 count_punctuation，同向扩展）
+- Modify: `src/shenbi/gates/shared.py`（新增 `SIMILE_MARKERS` 常量 + `QUOTE_PAIR` + `segment_sentences` + `_non_dialogue_text` + `count_similes`；**新增一行 cjk import（现状零 cjk 导入——只 import `find_quote_spans`，`dialogue_char_ratio` 是 T3 的 chapter_drafting.py 自己用的，不进 shared 以免 F401）**）
 - Modify: `src/shenbi/skill_utils/style_learning/compute_stats.py:20-99`（删 `QUOTE_PAIR`/`segment_sentences` 本体，改 import + re-export）
 - Test: `tests/unit/gates/test_shared_prose_primitives.py`（新建）
 
@@ -115,7 +115,7 @@ Expected: FAIL（`ImportError: cannot import name 'count_similes'`）
 `src/shenbi/gates/shared.py`（**现状零 cjk 导入**——新增一行 import）：
 
 ```python
-from shenbi.text.cjk import dialogue_char_ratio, find_quote_spans
+from shenbi.text.cjk import find_quote_spans
 ```
 
 在 `META_BLOCK_RE = ...`（:35）附近新增：
@@ -159,12 +159,12 @@ def count_similes(content: str) -> dict[str, Any]:
 ```python
 from shenbi.gates.shared import (  # 单源别名（z11 F1301 扩展，spec #71）
     META_BLOCK_RE,
-    QUOTE_PAIR,
+    QUOTE_PAIR,  # noqa: F401  # re-export 兼容：模块体不再使用，保留给既有 import 方（tests/unit/skill_utils/test_compute_stats.py:24）
     segment_sentences,
 )
 ```
 
-（`META_BLOCK_RE` 既有 import 合并进同一括号；`SENT_ENDS` 若仍被 `segment_paragraphs` 使用则保留原定义。）
+（`META_BLOCK_RE` 既有 import 合并进同一括号；`SENT_ENDS` 若仍被 `segment_paragraphs` 使用则保留原定义。**T2 落地时此括号再扩 `count_similes, strip_narrative_body`**——见 T2 Step 3。）
 
 - [ ] **Step 4: 跑新旧测试确认全绿（迁移零行为变化）**
 
@@ -279,7 +279,18 @@ return dict 增 `"ge35_ratio": round(ge35 / n, 4)`。
         }
 ```
 
-return dict 增 `"simile": count_similes(combined_raw)`（`combined_raw` = join 后未剥 META 的原文——在现行 `combined = META_BLOCK_RE.sub(...)` 之前取 `"\n\n".join(texts.values())` 的引用）与 `"per_chapter": per_chapter`。import 区补 `from shenbi.text.cjk import dialogue_char_ratio`。
+return dict 增 `"simile": count_similes(combined_raw)`（`combined_raw` = join 后未剥 META 的原文——在现行 `combined = META_BLOCK_RE.sub(...)` 之前取 `"\n\n".join(texts.values())` 的引用）与 `"per_chapter": per_chapter`。**import 面同步扩**（T1 的 gates.shared 括号加两名 + cjk 一行）：
+
+```python
+from shenbi.gates.shared import (  # 单源别名（z11 F1301 扩展，spec #71）
+    META_BLOCK_RE,
+    QUOTE_PAIR,  # noqa: F401
+    count_similes,
+    segment_sentences,
+    strip_narrative_body,
+)
+from shenbi.text.cjk import dialogue_char_ratio
+```
 
 - [ ] **Step 4: 跑测试确认通过 + 全文件回归**
 
@@ -320,6 +331,7 @@ from pathlib import Path
 import pytest
 
 from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+from shenbi.gates.shared import count_similes
 
 pytestmark = pytest.mark.unit
 
@@ -373,7 +385,7 @@ def test_surge_dialogue_sentences_excluded(tmp_path: Path) -> None:
 
 
 def test_simile_band_boundary_and_out(tmp_path: Path) -> None:
-    # 带内：filler ~278 非空白字 + 1 喻词 → per_1000 ≈ 3.5 ∈ [2,4]
+    # 带内：filler ~278 非空白字 + 1 喻词 → per_1000 ≈ 3.5 ∈ (2,4)
     filler = "他往前走，尘土在脚下起落。" * 21
     in_band = "山像伏兽。" + filler
     result = g4_chapter_drafting([str(_chapter(tmp_path, in_band))])
@@ -381,7 +393,17 @@ def test_simile_band_boundary_and_out(tmp_path: Path) -> None:
     # 低位（干燥）：0 喻词 → 0.0 < 2 → WARN
     result = g4_chapter_drafting([str(_chapter(tmp_path, filler))])
     assert _warn_ids(result).get("G4.cd.simile_band") == "WARN"
-    # 高位（堆砌）：~250 字 8 喻词 → per_1000 ≈ 32 > 4 → WARN
+    # 恰在下带界：500 非空白 + 1 喻词 → per_1000 == 2.0 → PASS（闭区间）
+    edge_low = "山像伏兽。" + "他往前走。" * 99  # 5 + 5×99 = 500 非空白
+    assert count_similes(edge_low)["per_1000"] == 2.0
+    result = g4_chapter_drafting([str(_chapter(tmp_path, edge_low))])
+    assert _warn_ids(result).get("G4.cd.simile_band") == "PASS"
+    # 恰在上带界：250 非空白 + 1 喻词 → per_1000 == 4.0 → PASS（闭区间）
+    edge_high = "山像伏兽。" + "他往前走。" * 49  # 5 + 5×49 = 250 非空白
+    assert count_similes(edge_high)["per_1000"] == 4.0
+    result = g4_chapter_drafting([str(_chapter(tmp_path, edge_high))])
+    assert _warn_ids(result).get("G4.cd.simile_band") == "PASS"
+    # 高位（堆砌）：16 喻词 / ~121 非空白 → per_1000 ≈ 132 > 4 → WARN
     piled = "山像伏兽，像伏兽中的伏兽。" * 8 + "他走了。" * 3
     result = g4_chapter_drafting([str(_chapter(tmp_path, piled))])
     assert _warn_ids(result).get("G4.cd.simile_band") == "WARN"
@@ -394,7 +416,8 @@ def test_surge_quota_two_boundary(tmp_path: Path) -> None:
         "压得很低很低，低到几乎要缩进灯座里去。"
     )
     assert len(surge.replace(" ", "")) >= 35
-    filler = "夜色沉下去，他数着更漏，一更一更地挨。" * 160  # ~6400 非空白
+    # filler 19 非空白字/句 × 320 = 6080 非空白（≥6000 → 配额 2）
+    filler = "夜色沉下去，他数着更漏，一更一更地挨。" * 320
     assert len(filler.replace(" ", "")) + len(surge) >= 6000
     two = g4_chapter_drafting([str(_chapter(tmp_path, surge + "短句。他再想。" + surge + filler))])
     assert _warn_ids(two).get("G4.cd.surge") == "PASS"  # 2 处 ≥ quota 2
@@ -700,7 +723,7 @@ test_style_seed.py 的 `test_seed_writes_default_when_absent` 增节断言，**�
     assert "10-20" not in DEFAULT_STYLE_DIRECTIVES  # v1 基带已换
 ```
 
-（先 `grep -n "10-20\|通用默认模板" tests/unit/pipeline/test_style_seed.py` 定位全部 v1 字面断言——**逐一改为 v2 对应字面**；`test_seed_never_clobbers_user_edits` 与注入路径测试逻辑不动。）
+（先 `grep -n "10-20\|通用默认模板" tests/unit/pipeline/test_style_seed.py` 定位全部 v1 字面断言——**逐一改为 v2 对应字面；改的是断言里的字面子串，断言目标（DEFAULT_STYLE_DIRECTIVES 或 user_prompt 注入证明）一律保留**——注入证明测试是 load-bearing，只换字面不删断言。）
 
 （既有 `test_seed_never_clobbers_user_edits` 的 write-if-absent 语义零改动——只有字面断言随模板更新。）
 
@@ -709,7 +732,7 @@ test_style_seed.py 的 `test_seed_writes_default_when_absent` 增节断言，**�
 Run: `uv run pytest tests/unit/pipeline/test_style_seed.py -v`
 Expected: FAIL（"金句" 节不存在）
 
-- [ ] **Step 3: 实现——DEFAULT_STYLE_DIRECTIVES 替换为 spec §2 全文（逐字，从 spec 复制模板代码块内全部 43 行）+ 模块 docstring 更新**
+- [ ] **Step 3: 实现——DEFAULT_STYLE_DIRECTIVES 替换为 spec §2 全文（逐字，从 spec 复制模板代码块内全部 44 行）+ 模块 docstring 更新**
 
 docstring 变更点：`session31 Q1` 叙事补 `spec #71 v2（六人共性带重锚：基带 12-25/奔涌收割配额/比喻双向带/金句三写法/母题行）`。
 
@@ -776,7 +799,7 @@ git commit -m "feat: spec #71 T6 drafting SKILL 原则 5/7/10 + PRE 母题金句
 **复杂度: leaf** · **test_kind: regression_guard（lint + T4 机器侧测试闭环）**
 
 **Files:**
-- Modify: `skills/shenbi-chapter-planning/SKILL.md`（备忘段 1 模板增 `**金句位**: [对比/反差/口诀化｜落点场景]`、`**母题物象**: [卷纲物象 + 本章变奏]` 两行——对齐既有 `**payoff 拍**:` 加粗行式）
+- Modify: `skills/shenbi-chapter-planning/SKILL.md`（备忘段 1 模板增 `**金句位**: [对比/反差/口诀化｜落点场景]`、`**母题物象**: [卷纲物象 + 本章变奏]` 两行——对齐既有 `**payoff 拍**:` 加粗行式；**插点：段 1 内 `**payoff 拍**` 行之后、段 2 之前**）
 - Modify: `skills/shenbi-volume-outlining/SKILL.md`（:132 `金句与梗位行` 扩名「金句、母题物象与梗位」+ 新增母题物象指定语；:157 模板行 `**金句与梗位**: [...]` → `**金句、母题物象与梗位**: [金句出场点（对齐 seed 金句库排期）｜母题物象（每卷 1-2 个核心物象 + 变奏提示）｜梗位复用｜卷末彩蛋]`；:298 自检行同步）
 
 **Interfaces:**
@@ -857,7 +880,7 @@ Run: `uv run pytest tests/unit/pipeline/test_executor_config.py -v` → Expected
 - [ ] **Step 3: 契约三源同步验证**
 
 Run: `just generate && git status --short`
-Expected: 生成物 diff（**真实路径**：`tests/tiers/deps.json` + `docs/framework/truth-files.index.json` + `docs/skills/` 下 SKILL body view——首次再生成含 anchors 键）——**确认后二次运行 diff 为空（幂等）**
+Expected: 生成物 diff（**真实路径**：`tests/tiers/deps.json` + `docs/framework/truth-files.index.json` + `skills/*/SKILL.md` body view——首次再生成含 anchors 键）——**确认后二次运行 diff 为空（幂等）**
 
 Run: `just lint-contracts && uv run python tools/lint_registry_reconcile.py`
 Expected: 双绿（ORPHAN_READ 闭环：drafting reads anchors.md ← style-learning writes；index.json concept 键 ⊆ yaml concepts）
@@ -874,7 +897,7 @@ git add skills/shenbi-style-learning/SKILL.md skills/shenbi-chapter-drafting/SKI
 git commit -m "feat: spec #71 T8 style-learning 测量面+anchors 产出 + drafting reads 契约闭环 + truth 注册 + 温度 0.90"
 ```
 
-（**生成物** `tests/tiers/deps.json`、`docs/framework/truth-files.index.json`、`docs/skills/` SKILL view 若有 diff 一并 pathspec add——它们是 `just generate` 的合法产物，勿手编。）
+（**生成物** `tests/tiers/deps.json`、`docs/framework/truth-files.index.json`、以及 `skills/*/SKILL.md` 自身的 body view 再渲染（sync_contracts `render_body_into` 直写 SKILL.md——若 diff 出现且非本 task 手改内容，一并 pathspec add）——它们是 `just generate` 的合法产物，勿手编。）
 
 ---
 
@@ -885,7 +908,7 @@ git commit -m "feat: spec #71 T8 style-learning 测量面+anchors 产出 + draft
 **Files:**
 - Modify: `skills/shenbi-review-group-craft/SKILL.md` 检查 3（`3. 破折号检测` → 预算口径全文）
 - Modify: `skills/shenbi-review-anti-ai/SKILL.md` 检查 3（同口径改写 + reference-only 注记）**+ :99 示例表行与 :105 BLOCKING 修复示例行**（全禁口径残留——同文件矛盾即照抄源）
-- Modify: `docs/framework/style-directives.md`（**§2 :20「叙述句 10-20 字」→ 12-25**；§3 标准结构小节列 v2 六节名 + **§3 内嵌示例模板体同步 v2**（12-22/≥20 收束/比喻 ≤2/对白 40-55% → 12-25/奔涌收割/2-4 双向带/35-55——或整块替换为「见 style_seed.py DEFAULT_STYLE_DIRECTIVES 播种全文」单一信源指向）；:58 破折号条款改预算制表述）
+- Modify: `docs/framework/style-directives.md`（**§2 :20「叙述句 10-20 字」→ 12-25**；§3 标准结构小节列 v2 六节名 + **§3 内嵌示例模板体整块替换为单一信源指向**：「示例全文见 `style_seed.py` 的 `DEFAULT_STYLE_DIRECTIVES`（pipeline-init 播种模板，v2）」——避免文档与播种模板双源漂移；:58 破折号条款改预算制表述）
 - Test: 全批 `just check`（阶段 7 权威门禁）
 
 **Interfaces:**
