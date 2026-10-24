@@ -772,7 +772,7 @@ def plan_releases(ch: ChapterInput, n: int, tier: Tier) -> tuple[list[tuple[int,
             return groups, m
 ```
 
-（回退分支的平手取早：`min(feasible, key=(|p·m−i·B|, p))` 第二键 `jp[1]` 升序即取更早——由可行性单调性与窗口中心性，跨中点等距对在可行域内不可达，该键为全序兜底。）
+（回退分支的平手取早：`min(feasible, key=(|p·m−i·B|, p))` 第二键 `jp[1]` 升序即取更早——等距对构造可达（body 5200 边界 2000/3200 对 t=2600），T3 补测覆盖。）
 
 - [ ] **Step 4: 跑测试确认通过 + lint**
 

@@ -323,3 +323,27 @@ def test_plan_releases_tie_break_earlier() -> None:
     assert m == 2
     sizes = [sum(nonws(p) for p in ch.paragraphs[s:e]) for s, e in groups]
     assert sizes[0] == 2060
+
+
+@pytest.mark.unit
+def test_plan_releases_fallback_nearest_when_window_empty() -> None:
+    """窗口∩可行域无候选而可行域有候选 → 距离最近者（spec §3.2 回退分支）。"""
+    fq = TIERS["fanqie"]
+    # body 5200，边界 2200/3200；t_1=2600, half=(15*5200)//200=390 → 窗口 [2210,2990] 空
+    ch = _mk_ch(["字" * 2200, "句" * 1000, "词" * 2000])
+    groups, m = plan_releases(ch, initial_n(ch.gate_chars, fq), fq)
+    assert m == 2
+    sizes = [sum(nonws(p) for p in ch.paragraphs[s:e]) for s, e in groups]
+    assert sizes == [2200, 3000]  # |2200−2600|=400 < |3200−2600|=600 → 取 2200
+
+
+@pytest.mark.unit
+def test_plan_releases_fallback_tie_takes_earlier() -> None:
+    """回退分支等距平手 → 取更早边界。"""
+    fq = TIERS["fanqie"]
+    # body 5200，边界 2000/3200 各距 t_1=2600 六百 → 平手取早 → 切 2000
+    ch = _mk_ch(["字" * 2000, "句" * 1200, "词" * 2000])
+    groups, m = plan_releases(ch, initial_n(ch.gate_chars, fq), fq)
+    assert m == 2
+    sizes = [sum(nonws(p) for p in ch.paragraphs[s:e]) for s, e in groups]
+    assert sizes == [2000, 3200]
