@@ -7,13 +7,12 @@ max_tokens = 16384
 
 [overrides."shenbi-chapter-drafting"]
 temperature = 0.85
-# Spec §2.2 history: 16384 → 32768 (era of ~1.6K-char chapters). vol1 probe
-# (2026-10-24, escalation #016): this seed's 7145-char floor needs 40-60K
-# completion (reasoning channel dominates) — at 32768 the first attempt
-# empties (billed 32767, content 0) 7×/3 chapters and the cap-raise pays a
-# full re-dispatch; at the 58982 raise ceiling the decisions.json tail can
-# still truncate. Base 49152 kills the empty-first-attempt family while
-# keeping one raise level of headroom to the 58982 ceiling.
+# vol1 probe (2026-10-24, escalation #016/#020): drafting ran on the provider
+# default (thinking effort HIGH) — the reasoning channel shares the completion
+# budget and at 7145-char chapters it alone eats 30-50K, emptying the content
+# channel 9×/4 chapters (session30 调试② same signature). "low" caps the
+# reasoning appetite; max_tokens 49152 stays (content needs ~15K regardless).
+thinking = "low"
 max_tokens = 49152
 
 [overrides."shenbi-chapter-revision"]
@@ -21,7 +20,9 @@ temperature = 0.6
 # Probe session 2026-09-29: revision outputs the COMPLETE revised chapter
 # (same output shape as drafting) but had NO max_tokens override — the 16384
 # default truncated every expansion (73 calls, completion tokens pinned at
-# exactly 16384/32768 = cap values). Parity with drafting (49152, vol1).
+# exactly 16384/32768 = cap values). Parity with drafting (49152 + thinking
+# low, vol1).
+thinking = "low"
 max_tokens = 49152
 
 [overrides."shenbi-faction-builder"]
