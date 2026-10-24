@@ -15,10 +15,16 @@ from pathlib import Path
 from shenbi.gates.shared import (  # 单源别名（z11 F1301 扩展，spec #71）
     META_BLOCK_RE,
     QUOTE_PAIR as QUOTE_PAIR,  # noqa: PLC0414  # explicit re-export（basedpyright 契约），保既有 import 方
+    count_similes,
     segment_sentences as segment_sentences,  # noqa: PLC0414
+    strip_narrative_body,
 )
 from shenbi.safe_write import safe_write
-from shenbi.text.cjk import TTR_EXCLUDED_CHARS, count_punctuation as cjk_count_punctuation
+from shenbi.text.cjk import (
+    TTR_EXCLUDED_CHARS,
+    count_punctuation as cjk_count_punctuation,
+    dialogue_char_ratio,
+)
 from typing import Any
 
 SENT_ENDS = re.compile(r"[。！？；\n]")
@@ -101,6 +107,7 @@ def compute_sentence_stats(sentences: list[tuple[str, int]]) -> dict[str, Any]:
             hist["51-80"] += 1
         else:
             hist["81+"] += 1
+    ge35 = sum(1 for l in lengths if l >= 35)
     return {
         "count": n,
         "mean": round(mean, 1),
@@ -109,6 +116,7 @@ def compute_sentence_stats(sentences: list[tuple[str, int]]) -> dict[str, Any]:
         "cv": round(cv, 3),
         **percentiles,
         "histogram": hist,
+        "ge35_ratio": round(ge35 / n, 4),
     }
 
 
@@ -324,9 +332,27 @@ def read_chapters(paths: list[str]) -> dict[str, str]:
 
 def compute_all_stats(texts: dict[str, str]) -> dict[str, Any]:
     """Run all statistical analyses on the given texts."""
-    combined = "\n\n".join(texts.values())
+    combined_raw = "\n\n".join(texts.values())
     # F634: META blocks are bookkeeping, not prose — strip before any stat.
-    combined = META_BLOCK_RE.sub("", combined)
+    # spec #71: the simile block consumes the RAW combined text (count_similes
+    # strips PRE/POST bare-H2 sections + META wrappers + quotes internally);
+    # per_chapter strips with strip_narrative_body for the same reason —
+    # real fixtures are mostly bare-H2 form and self-check lines must not
+    # pollute §10's per-chapter surge data base.
+    combined = META_BLOCK_RE.sub("", combined_raw)
+    per_chapter: dict[str, dict[str, Any]] = {}
+    for fname, raw in texts.items():
+        ch = strip_narrative_body(raw)
+        ch_sents = segment_sentences(ch)
+        lens = [c for _, c in ch_sents]
+        ch_total = len(ch.replace("\n", "").replace(" ", ""))
+        per_chapter[fname] = {
+            "total_chars": ch_total,
+            "mean_sentence_len": round(sum(lens) / len(lens), 1) if lens else 0.0,
+            "ttr": compute_ttr(ch)["global_ttr"],
+            "dialogue_ratio": round(dialogue_char_ratio(ch), 4),
+            "ge35_ratio": (round(sum(1 for l in lens if l >= 35) / len(lens), 4) if lens else 0.0),
+        }
     total_chars = len(combined.replace("\n", "").replace(" ", ""))
     sentences = segment_sentences(combined)
     paragraphs = segment_paragraphs(combined)
@@ -356,6 +382,8 @@ def compute_all_stats(texts: dict[str, str]) -> dict[str, Any]:
         "rhetoric": detect_rhetoric(combined),
         "ai_markers": count_ai_markers(combined),
         "transition_density": count_transition_words(combined),
+        "simile": count_similes(combined_raw),
+        "per_chapter": per_chapter,
     }
 
 

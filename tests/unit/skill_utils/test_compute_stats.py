@@ -574,3 +574,56 @@ def test_read_chapters_unreadable_file_warns(tmp_path: Path) -> None:
         if e.get("log_level") == "warning" and e.get("event") == "chapter_read_failed"
     ]
     assert warns and warns[0].get("path", "").endswith("chapter-002.md")
+
+
+def test_ge35_ratio_in_sentence_stats() -> None:
+    """Spec #71 T2: surge ratio in sentence stats."""
+    sents = [("短句。", 3), ("这是一条足够长的奔涌句，铺陈蓄势一路推到尽头。", 24), ("x" * 40, 40)]
+    stats = compute_sentence_stats(sents)
+    assert stats["ge35_ratio"] == round(1 / 3, 4)
+
+
+def test_compute_all_stats_simile_block() -> None:
+    """Spec #71 T2: simile block consumes count_similes (non-dialogue domain)."""
+    texts = {"chapter-1.md": "他像一棵树。山宛如伏兽。"}
+    stats = compute_all_stats(texts)
+    assert stats["simile"]["count"] == 2
+    assert stats["simile"]["per_1000"] > 0
+
+
+def test_per_chapter_mapping() -> None:
+    """§10 数据基座：多章输入 → 每章独立五列（spec #71 R4-C2）。"""
+    surge = "这是一条足够长足够长足够长的句子，铺陈蓄势一路推到三十五字以上的奔涌尽头，再补几个字。"
+    assert len(surge.replace(" ", "")) >= 35
+    texts = {
+        "chapter-1.md": "他走了。" + surge,
+        "chapter-2.md": "短。更短。对话也短。",
+    }
+    stats = compute_all_stats(texts)
+    pc = stats["per_chapter"]
+    assert set(pc) == {"chapter-1.md", "chapter-2.md"}
+    for cols in pc.values():
+        assert set(cols) == {
+            "total_chars",
+            "mean_sentence_len",
+            "ttr",
+            "dialogue_ratio",
+            "ge35_ratio",
+        }
+    assert pc["chapter-1.md"]["ge35_ratio"] > 0.0
+    assert pc["chapter-2.md"]["ge35_ratio"] == 0.0
+    assert pc["chapter-1.md"]["total_chars"] > pc["chapter-2.md"]["total_chars"]
+
+
+def test_per_chapter_ignores_meta_blocks() -> None:
+    """裸 H2 PRE/POST 节不计入章统计（与 simile 块同域——spec §4.2 主旨）。"""
+    texts = {
+        "chapter-1.md": (
+            "## PRE_WRITE_CHECK\n\n- [ ] 奔涌句: " + "长" * 40 + "\n\n"
+            "# 第1章\n\n正文短句。\n\n## POST_WRITE_SELF_CHECK\n\n- [ ] 金句位: " + "金" * 40 + "\n"
+        )
+    }
+    pc = compute_all_stats(texts)["per_chapter"]
+    # 裸 H2 自检节剥除 → 只剩正文；若只剥 META 包裹，自检行 40 字会进字数
+    assert pc["chapter-1.md"]["total_chars"] < 10
+    assert pc["chapter-1.md"]["ge35_ratio"] == 0.0  # 自检长行不得白送假奔涌句
