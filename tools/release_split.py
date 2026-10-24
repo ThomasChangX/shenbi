@@ -6,9 +6,11 @@ No LLM, no pipeline faces. 口径 reused from shenbi.gates.shared.
 
 from __future__ import annotations
 
+import hashlib
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from shenbi.gates.shared import strip_narrative_body, total_chars_md_text
 
@@ -288,3 +290,93 @@ def plan_releases(ch: ChapterInput, n: int, tier: Tier) -> tuple[list[tuple[int,
                 start = c
             groups.append((start, len(paras)))
             return groups, m
+
+
+def build_release_text(paras: tuple[str, ...] | list[str]) -> str:
+    """Paragraphs joined with a blank line + exactly one trailing newline."""
+    return "\n\n".join(paras) + "\n"
+
+
+def content_hash_of(text: str) -> str:
+    """sha256 of the release FILE bytes (UTF-8), first 16 hex chars."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+
+
+def render_title(pattern: str | None, chapter_title: str, ordinal: str | None) -> str:
+    """Default ``{章题}（{中文序数}）``; single 更 → bare title."""
+    if pattern is None:
+        return chapter_title if ordinal is None else f"{chapter_title}（{ordinal}）"
+
+    def _sub(m: re.Match[str]) -> str:
+        key = m.group(1)
+        if key == "章题":
+            return chapter_title
+        if key == "中文序数":
+            if ordinal is None:
+                raise ReleaseSplitError("单更无 {中文序数}，标题模式不可含该占位符")
+            return ordinal
+        raise ReleaseSplitError(f"--title-pattern 含未知占位符: {{{key}}}")
+
+    return _TITLE_PLACEHOLDER_RE.sub(_sub, pattern)
+
+
+def chapter_flags(gate: int, body: int, m: int) -> list[str]:
+    """§3.3 flags matrix — size rule owns all gate<4000 chapters first."""
+    if gate < _SIZE_SINGLE_GATE:
+        flags = ["single-release"]
+        if body < _HARD_FLOOR:
+            flags.append("floor-violation")
+        return flags
+    if m == 1:
+        return ["forced-single"]
+    return []
+
+
+def nonws_head_tail(text: str) -> tuple[str, str]:
+    """First/last ≤12 non-ws chars of the slice, single-line."""
+    flat = re.sub(r"\s", "", text)
+    return flat[:12], flat[-12:]
+
+
+def split_chapter(ch: ChapterInput, tier: Tier, title_pattern: str | None) -> dict[str, Any]:
+    """Per-chapter ledger entry (seq/file placeholders assigned in T5)."""
+    n = initial_n(ch.gate_chars, tier)
+    groups, m = plan_releases(ch, n, tier)
+    body = sum(nonws(p) for p in ch.paragraphs)
+    flags = chapter_flags(ch.gate_chars, body, m)
+    offset = 0
+    releases: list[dict[str, Any]] = []
+    for k, (s, e) in enumerate(groups):
+        text = build_release_text(ch.paragraphs[s:e])
+        chars = nonws(text)
+        ordinal = None if m == 1 else chinese_ordinal(k + 1)
+        # cut_quality: 更 k = its terminating cut (cut k); 末更 = imaginary
+        # end-cut (tension predicates live, scene/waist dead)
+        if e < len(ch.paragraphs):
+            sig = classify_pair(ch.paragraphs[e - 1], ch.paragraphs[e])
+        else:
+            sig = classify_pair(ch.paragraphs[e - 1], None)
+        releases.append(
+            {
+                "seq": 0,  # assigned globally in T5
+                "file": "",  # assigned globally in T5
+                "chars": chars,
+                "range": [offset, offset + chars],
+                "cut_quality": tier_of(sig),
+                "head": nonws_head_tail(text)[0],
+                "tail": nonws_head_tail(text)[1],
+                "title": render_title(title_pattern, ch.title, ordinal),
+                "content_hash": content_hash_of(text),
+                "published": False,
+                "_paras": (s, e),
+                "_text": text,
+            }
+        )
+        offset += chars
+    return {
+        "chapter": ch.number,
+        "gate_chars": ch.gate_chars,
+        "stripped_chars": ch.gate_chars - sum(r["chars"] for r in releases),
+        "flags": flags,
+        "releases": releases,
+    }

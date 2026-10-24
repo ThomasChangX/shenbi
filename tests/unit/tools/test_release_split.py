@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 import pytest
@@ -13,13 +14,18 @@ from tools.release_split import (
     CutSignals,
     ReleaseSplitError,
     Tier,
+    build_release_text,
+    chapter_flags,
     chinese_ordinal,
     classify_pair,
+    content_hash_of,
     initial_n,
     nonws,
     parse_chapter,
     plan_releases,
+    render_title,
     select_chapter_files,
+    split_chapter,
     tier_of,
 )
 
@@ -347,3 +353,66 @@ def test_plan_releases_fallback_tie_takes_earlier() -> None:
     assert m == 2
     sizes = [sum(nonws(p) for p in ch.paragraphs[s:e]) for s, e in groups]
     assert sizes == [2000, 3200]
+
+
+@pytest.mark.unit
+def test_release_text_byte_composition() -> None:
+    text = build_release_text(["第一段。", "第二段。"])
+    assert text == "第一段。\n\n第二段。\n"
+    h = content_hash_of(text)
+    assert h == hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+    assert len(h) == 16
+
+
+@pytest.mark.unit
+def test_render_title_rules() -> None:
+    assert render_title(None, "明白纸", "一") == "明白纸（一）"
+    assert render_title(None, "明白纸", None) == "明白纸"
+    assert render_title("{中文序数}·{章题}", "明白纸", "二") == "二·明白纸"
+    with pytest.raises(ReleaseSplitError, match="占位符"):
+        render_title("{foo}", "明白纸", "一")
+    with pytest.raises(ReleaseSplitError, match="中文序数"):
+        render_title("{中文序数}", "明白纸", None)  # 单更无序数
+
+
+@pytest.mark.unit
+def test_chapter_flags_matrix() -> None:
+    # size-single >= 2000 (gate < 4000)
+    assert chapter_flags(gate=3999, body=3985, m=1) == ["single-release"]
+    # size-single < 2000 → + floor-violation
+    assert chapter_flags(gate=1999, body=1985, m=1) == ["single-release", "floor-violation"]
+    # single-paragraph chapter >= 4000 → forced-single (size rule does not fire)
+    assert chapter_flags(gate=5000, body=4980, m=1) == ["forced-single"]
+    # single-paragraph < 4000 → size rule owns it
+    assert chapter_flags(gate=2500, body=2480, m=1) == ["single-release"]
+    # multi-paragraph collapsed to m=1 → forced-single
+    assert chapter_flags(gate=4500, body=4480, m=1) == ["forced-single"]
+    # partial downgrade 4→3 → no flag
+    assert chapter_flags(gate=8100, body=8080, m=3) == []
+
+
+@pytest.mark.unit
+def test_split_chapter_entry_shape() -> None:
+    fq = TIERS["fanqie"]
+    ch = parse_chapter(FIX / "chapter-1.md")
+    entry = split_chapter(ch, fq, None)
+    assert entry["chapter"] == 1
+    assert entry["gate_chars"] == 8476
+    assert entry["stripped_chars"] == 14
+    assert entry["flags"] == []
+    rels = entry["releases"]
+    assert len(rels) == 4
+    assert [r["chars"] for r in rels] == [2029, 2237, 2003, 2193]
+    assert entry["gate_chars"] - entry["stripped_chars"] == sum(r["chars"] for r in rels)
+    r0 = rels[0]
+    assert r0["range"] == [0, 2029]
+    assert r0["title"] == "明白纸（一）"
+    assert r0["published"] is False
+    assert r0["head"] and len(r0["head"]) <= 12
+    assert r0["tail"] and len(r0["tail"]) <= 12
+    # byte composition + hash consistency (file bytes == _text)
+    for r in rels:
+        s, e = r["_paras"]
+        assert r["content_hash"] == content_hash_of(build_release_text(ch.paragraphs[s:e]))
+    # cut_quality: real ch1 cuts all classify tension (spec §5 note)
+    assert all(r["cut_quality"] == "tension" for r in rels)
