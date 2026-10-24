@@ -655,9 +655,8 @@ def test_cli_freeze_non_prefix_published_set(tmp_path: Path) -> None:
     r = _run_tool(p)  # 章未变：必须 exit 0 且 published 位保持
     assert r.returncode == 0, r.stderr
     led2 = json.loads(led_path.read_text(encoding="utf-8"))
-    flags = [rl["published"] for rl in led2["chapters"][0]["releases"]]
-    assert flags == [True, False, True, True] or flags[:3] == [True, False, True]
     # 更4 原本未发布，重跑后仍未发布
+    flags = [rl["published"] for rl in led2["chapters"][0]["releases"]]
     assert flags == [True, False, True, False]
 
 
