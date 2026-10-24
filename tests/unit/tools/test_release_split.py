@@ -668,3 +668,17 @@ def test_cli_ledger_non_object_rejected(tmp_path: Path) -> None:
     (pub / "releases.json").write_text("[]", encoding="utf-8")
     r = _run_tool(p)
     assert r.returncode == 1 and "顶层非对象" in r.stderr
+
+
+@pytest.mark.unit
+def test_cli_release_file_tail_bytes_on_real_fixtures(tmp_path: Path) -> None:
+    """真实产物尾字节回归（终审 🔴）：每个发布文件恰一个尾换行，无空行 EOF。"""
+    p = _proj(tmp_path, (1, 2, 3, 4, 5))
+    assert _run_tool(p).returncode == 0
+    rel_dir = p / "publish" / "fanqie" / "releases"
+    files = sorted(rel_dir.glob("release-*.md"))
+    assert len(files) == 16
+    for f in files:
+        data = f.read_bytes()
+        assert data.endswith(b"\n"), f.name
+        assert not data.endswith(b"\n\n"), f"{f.name}: blank line at EOF"

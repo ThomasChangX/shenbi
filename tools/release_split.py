@@ -130,7 +130,10 @@ def parse_chapter(path: Path) -> ChapterInput:
     title = h1_lines[1].lstrip("#").strip()
     for h in h1_lines:
         body = body.replace(h, "", 1)
-    paras = tuple(p for p in _PARA_SPLIT_RE.split(body) if nonws(p) > 0)
+    # strip each piece: a chapter file ending in a single trailing "\n" rides
+    # that newline on the last paragraph and would double the file-final "\n"
+    # (spec §4 byte composition: exactly one trailing newline per release file)
+    paras = tuple(p.strip() for p in _PARA_SPLIT_RE.split(body) if nonws(p) > 0)
     if not paras:
         raise ReleaseSplitError(f"剥离后无正文段: {path.name}")
     return ChapterInput(
