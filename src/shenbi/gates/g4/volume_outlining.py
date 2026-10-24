@@ -48,32 +48,38 @@ def g4_volume_outlining(
         if not vol_sections:
             mf.append("G4.vo.no_volumes")
         else:
-            last_vol = vol_sections[-1].group()
+            last_match = vol_sections[-1]
+            last_vol = last_match.group()
+            # Vol1 probe escalation #2: bare ids (`G4.vo.krs:0`) misled the
+            # retrying model into refining the wrong volumes — carry the last
+            # volume's identity so re-dispatch feedback is actionable.
+            vol_head = last_vol.splitlines()[0].lstrip("# ").strip()
+            vol_head = vol_head.split("（")[0].strip() or "last_volume"
 
             # Objective (binary yes/no)
             has_obj = bool(re.search(r"\*\*Objective\*\*[：:]\s*\S", last_vol))
             if not has_obj:
-                mf.append("G4.vo.objective")
+                mf.append(f"G4.vo.objective[{vol_head}]")
             else:
                 c.append({"id": "G4.vo.objective", "s": GateStatus.PASS})
 
             # 3-5 KRs
             krs = re.findall(r"#### KR\d+", last_vol)
             if len(krs) < 3 or len(krs) > 5:
-                mf.append(f"G4.vo.krs:{len(krs)}")
+                mf.append(f"G4.vo.krs[{vol_head}]:{len(krs)}")
             else:
                 c.append({"id": "G4.vo.krs", "s": GateStatus.PASS, "count": len(krs)})
 
             # 张力曲线
             if "张力曲线" not in last_vol:
-                mf.append("G4.vo.tension_curve")
+                mf.append(f"G4.vo.tension_curve[{vol_head}]: 缺「### 卷内张力曲线」段")
             else:
                 c.append({"id": "G4.vo.tension_curve", "s": GateStatus.PASS})
 
             # >= 1 cross-volume bridge hook
             has_bridge = bool(re.search(r"跨卷|桥接|bridge", last_vol, re.IGNORECASE))
             if not has_bridge:
-                mf.append("G4.vo.bridge")
+                mf.append(f"G4.vo.bridge[{vol_head}]")
             else:
                 c.append({"id": "G4.vo.bridge", "s": GateStatus.PASS})
 
