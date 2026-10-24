@@ -8,21 +8,27 @@
 > 裁决 #001-#025、五个框架修复 1421337c/33cb0c68/a4efe32e/40324b34/2a00fa81）项目目录已废弃，
 > 本版为**重开后的全新首跑**——五修复已在 main，ch1 起即修复批全量首验。首跑段数据结论已内化为
 > 本文件的基线数字与已知边界；过程细节见 memory `poc-e2e-vol1-probe-run`。
+>
+> **v2.1（2026-10-24 spec #71 合入后）补注**：默认文笔惊艳度层（PR #246）已在 main——本跑同时
+> 是该 spec §6.2 指定的**试点载体**。文笔层全部自动接线（pipeline-init 播种文风模板 v2 /
+> drafting 温度 0.90 / SKILL v2 工艺与 PRE-POST 新行 / G4.cd 三 WARN 闸 / style/anchors.md
+> 范文环），无任何手动开关；监控侧须采集的试点协议见「spec #71 文笔面试点」节（观察项 17-22
+> ＋前 10 章 GO/NO-GO＋温度回退判据）。
 
 ## 任务定位
 
 - **种子**：`tests/fixtures/outline-example.md`（星火燃穹：千万字/1400 章/12 卷，组诗定名版——payload 与根目录 outline-example.md 逐字节镜像，G0.11 守卫）。
 - **目标**：**卷一完整闭环**——全链（genesis→卷纲→逐章 planning/drafting/settle/review）＋卷界收束（卷末章＋arc-payoff/volume-consolidation/score-volume）。
 - **卷界动态口径（铁律，首跑段实测教训）**：**收束章号以 genesis 生成的 volume_map 为准，不以 seed 的 110 章为准**。首跑段实测 volume-outlining 自主再分配卷界（卷1=ch1-90、卷2=ch91-190…，自注「差额已由上游卷界吸收」，全书总量守恒待卷界验收对账）。genesis-complete 裁决时读取 volume_map 并**把实际卷一末章号记为运行参数**，此后所有派生口径（里程碑后段观察窗/卷界段/成本时长预期）按实际卷界计算；seed 章号仅作对照记档。
-- **中期里程碑（强制，不是可选项）**：ch30「黄金三十章收官」处停一次，出**新契约中期验证报告**（观察项 1-16 阶段结论）——留存锚闸作用域恰在 N≤30，此点必须收一份完整数据再续跑。ch30 是里程碑非卷界。
-- **三重目的**：(1) 常规长跑验证（一次过率/成本/纵向数据）；(2) **新契约实弹验证**——G4.cp 三声明硬闸（emotion_tone / payoff 拍 / 留存锚）、G4.cd 账目钩词表、G4.vo 金句与爽点主型行、review-highpoint 声明验收；(3) **卷界技能族首验**——arc-payoff 五维卷评＋假兑现铁律 6、volume-consolidation、score-volume、卷末三连（铭记章→账目清算章→渡问钩）；(4) **修复批全量首验**（首跑段五修复从未在 ch1 起点的干净环境跑过——观察项 15）。
+- **中期里程碑（强制，不是可选项）**：ch30「黄金三十章收官」处停一次，出**新契约中期验证报告**（观察项 1-22 阶段结论，含文笔面前 10 章 GO/NO-GO 结论）——留存锚闸作用域恰在 N≤30，此点必须收一份完整数据再续跑。ch30 是里程碑非卷界。
+- **五重目的**：(1) 常规长跑验证（一次过率/成本/纵向数据）；(2) **新契约实弹验证**——G4.cp 三声明硬闸（emotion_tone / payoff 拍 / 留存锚）、G4.cd 账目钩词表、G4.vo 金句与爽点主型行、review-highpoint 声明验收；(3) **卷界技能族首验**——arc-payoff 五维卷评＋假兑现铁律 6、volume-consolidation、score-volume、卷末三连（铭记章→账目清算章→渡问钩）；(4) **修复批全量首验**（首跑段五修复从未在 ch1 起点的干净环境跑过——观察项 15）；(5) **spec #71 文笔层首验**——六人共性带模板 v2、金句-母题传导链、G4.cd 三 WARN 闸、anchors 范文环、温度 0.90（观察项 17-22；前 10 章文笔面 GO/NO-GO）。
 - **驱动模式**：主 agent 监督模式——runner 自跑，session 监控/分级裁决/TDD 修复/纵向采集。
 - **防剧透铁律（本探针专属 P1 级）**：卷名组诗（藏头"星火燃穹，薪火相传，一灯长明"）与"无名小调之词=组诗"是卷十二终章彩蛋——**正文、章名、任何 truth/plan/context 文件不得出现组诗全文、藏头句或"组诗"字样**。每次裁决顺带抽查；发现泄漏按 P1 处理（正文层修复，不动装置）。
 
 ## 运行参数
 
 - novel 目录：`novel-xinghuo-vol1`（全新 init；若目录已存在=残留，先确认是否重开）
-- 成本预期（90 章口径，实际以 volume_map 为准）：修复后预估 ~$0.10-0.14/章 × ~91 章 ≈ **$9-13**；首跑段基线 $1.32/143 派发（drafting 占 42%、其中 60% 是重试浪费——thinking=low 落地后重试面应坍缩）；**硬顶 $25** 维持；每 10 章成本检查点（累计 >$10 先分析再继续）
+- 成本预期（90 章口径，实际以 volume_map 为准）：修复后预估 ~$0.10-0.14/章 × ~91 章 ≈ **$9-13**；首跑段基线 $1.32/143 派发（drafting 占 42%、其中 60% 是重试浪费——thinking=low 落地后重试面应坍缩）；**硬顶 $25** 维持；每 10 章成本检查点（累计 >$10 先分析再继续；**章均 >$0.27 触发 spec #71 §5.2 温度回退判据——见观察项 21**）
 - 时长预期：~30 分钟/章 → 90 章约 **45-50 小时**，必然跨多个 session，按断点协议操作
 - 卷界段观察窗（观察项 11-14）：实际卷末章前 ~10 章起进入卷界观察态（90 章口径即 ch80-91 段）
 
@@ -116,7 +122,7 @@ nohup ./run_pipeline.sh novel-xinghuo-vol1 > /tmp/vol1-runK.log 2>&1 & disown
 4. **账目钩过闸真实性**（G4.cd has_ledger：≥2 处独立数字串）：过闸章抽样 3 章人查，看是否有"末段凑两个数字"的投机过闸。
 5. **七型钩轮换**：chapter-pattern MONOTONY_ENDING（N=2）报警率；>10% 章触发 = 词表或写作侧问题，记 P2 候选。
 6. **emotion_tone 抑扬**：连续同基调 N=4 报警率；卷一基调应随剧情下沉（围城→城破→夺名→驿站之冬）但每 3-4 章有呼吸（完颜嫂式喜剧位）。
-7. **金句落位**：卷区段「金句与梗位」行 → 章中兑现。前 5 句按 seed 排期：ch1 三句（"别人穿越送金手指，我穿越送债务。"/"预知历史的唯一用处…"/老驼"记住的事，别烂在肚里。"）＋ ch2 两句（"权贵永远先走…"/"你不是不死——你只是还会再来。"）。逐字还是化用？记档（首跑段结论：落位超 seed 设计，专业级——本跑看是否复现）。
+7. **金句落位**：卷区段「金句、母题物象与梗位」行 → 章中兑现。前 5 句按 seed 排期：ch1 三句（"别人穿越送金手指，我穿越送债务。"/"预知历史的唯一用处…"/老驼"记住的事，别烂在肚里。"）＋ ch2 两句（"权贵永远先走…"/"你不是不死——你只是还会再来。"）。逐字还是化用？记档（首跑段结论：落位超 seed 设计，专业级——本跑看是否复现）。新传导链侧（备忘→PRE→POST 命中率）见观察项 19。
 8. **悬念账本埋设**：ch2 无名小调初哼（哼调不写词）；ch3 灰烬"下辈子再见，我总会站在赢的一边"（五百年宿敌定约）。
 9. **遗物匣**：ch2 红纸包（第一件遗物）；ch16《鉴录》首批名字；ch20 帖木哥最后一班岗（站房的灯亮到天明）。
 10. **组诗防泄漏**（见铁律；首跑段全库干净，本跑维持抽查）。
@@ -126,7 +132,7 @@ nohup ./run_pipeline.sh novel-xinghuo-vol1 > /tmp/vol1-runK.log 2>&1 & disown
 11. **arc-payoff 五维卷评 + 假兑现铁律 6 首验**：卷一钩（灰烬终约/灯之谜/小调）的 resolve 判定是否走"暂缓"第三态（跨卷窗口）；core 钩无假兑现垫场时是否按敷衍计分。
 12. **中点反转落位**：卷一中点反转"预知失效：救不了城，救下了名录——金手指换了形态"应落在**卷长 45-55% 窗口**（90 章口径 ≈ ch40-50；按实际卷界换算）。落位与否记档。
 13. **卷末三连**：卷末章区间应兑现 铭记章→账目清算章→渡问钩 三连结构；卷一卷末钩子按 seed（骨哨在雪夜发烫/《鉴录》半部南去/公司先遣船测绘新航道/货单"活货"栏）。
-14. **卷级技能族实弹**：volume-consolidation、score-volume、ledger/pool 归档在卷界的执行与产物完整性；卷二卷区段（若生成）是否带「爽点主型」行与「金句与梗位」行。
+14. **卷级技能族实弹**：volume-consolidation、score-volume、ledger/pool 归档在卷界的执行与产物完整性；卷二卷区段（若生成）是否带「爽点主型」行与「金句、母题物象与梗位」行（spec #71 扩名——grep 旧名「金句与梗位」不会命中，非子串）。
 
 ## 修复批持效验证（观察项 15——五修复从未在 ch1 起点干净环境跑过）
 
@@ -142,6 +148,19 @@ nohup ./run_pipeline.sh novel-xinghuo-vol1 > /tmp/vol1-runK.log 2>&1 & disown
 - **卷界 volume-budget ±3% 强制对账**（`just volume-budget novel-xinghuo-vol1`）
 - 预警线：+9~19% 超发若持续 1400 章 → 总量 10.9-11.9M 越千万目标 9-19%——超发率不收敛写入收束报告（GO/NO-GO 判据之一），不在章层修
 
+## spec #71 文笔面试点（观察项 17-22——核心交付物之三）
+
+> 数据源钉死：`novel-xinghuo-vol1/pipeline-manifest.json` 的 `gates.chapter_loop.{N}.shenbi-chapter-drafting.G4[].result.checks[]`（record_gate_result 追加式逐章完整历史含 FAIL 章；`gate-markers/` 无章号键逐章覆写**勿用**）。jq 归集两坑：章键是字符串须 `.chapter_loop["1"]`；G4 首记为裸对象、二记起才转数组，须 `[.G4] | flatten | .[].result.checks[]` 归一。三 WARN 逐章值（surge/simile_band/golden_slot）＋比喻密度/奔涌达标均从 checks[] 取。
+
+17. **奔涌率**：每章 ≥ max(1, 正文总字//3000) 处 ≥35 字奔涌长句（manifest surge WARN 达标率为准；style_profile §1 新行为 ch12 校验点）
+18. **比喻密度入带率**：非对白域每千字 2-4 处（simile_band WARN 率；喻体取材当章场景物象是人工抽检面）
+19. **金句位命中率**：PRE 行 100% 落位＋POST 摘录 100%（golden_slot WARN 率；传导链 = 卷纲「金句、母题物象与梗位」行 → planning 备忘段 1 两行 → drafting PRE/POST）
+20. **三 WARN 收敛**：触发率随章数前高后低 = 反馈环生效；逐章 WARN 是设计内噪声不是缺陷，仅「后 10 章触发率不低于前 10 章」时记档
+21. **温度 0.90 观察**：escalation/重派率 vs 历史基线；**回退判据（spec §5.2，任一触发 → executor_config.toml 单值回 0.85 并记档，不动代码结构）**：主判据 = 章均成本 >$0.27（=1.5× 首跑段 $0.18，cost/token-ledger.jsonl 归集）；辅判据 = decisions-stub 复现率 >0.6/章（首跑段 2/5）；空正文族不计入（thinking=low 已修复）
+22. **人工抽检**（每 10 章抽 2 章）：金句无对仗堆砌模板化；奔涌句真奔涌非注水长句；母题物象变奏非复读（语境须不同）
+
+**前 10 章文笔面 GO/NO-GO（spec §6.2，ch10 处监控侧归集评估，不必停 runner）**：奔涌达标＋金句位 100%＋WARN 率收敛＋章均成本 ≤1.5× 基线＋抽检无模板化 → GO 续跑；任一不达 → 停跑归因（指令层遵从率 / 闸口径 / 温度三选一）后调参再验。
+
 ## 新契约已知边界（不要误判为缺陷）
 
 - 留存锚窗口固定 30 章（G4 硬编码；retentionWindow 配置指针是历史死键已拔除——评审决议）。
@@ -149,6 +168,8 @@ nohup ./run_pipeline.sh novel-xinghuo-vol1 > /tmp/vol1-runK.log 2>&1 & disown
 - G4.vo.quote_line 是 WARN 级不拦；「爽点主型」行缺失时 payoff 拍走题材词表回退，合法。
 - 假兑现垫场的验收主体在 arc-payoff（卷界）——章层面只记录 hook 账推进方式列的「假兑现」标注是否出现。
 - G4.cp.missing_* 若在**新产出**的备忘上高频触发（>3 章）→ 不是模型问题，是 dispatch 注入面缺口，框架 P1 走 TDD。
+- G4.cd 三 WARN（surge/simile_band/golden_slot）不拦章——触发率**前高后低收敛是设计内反馈环**（观察项 20）；planning 备忘两行（金句位/母题物象）缺失走 golden_slot WARN 兜底，不 modify。
+- `style/anchors.md`（范文环）首现于 ch12（style-learning ch%12＋卷界节奏）；ch1-11 drafting 读不到是 OPTIONAL_READS 缺席容忍（设计内），不是 reads 断链。
 
 ## 首跑段已知残留（记档未动手——勿当新缺陷重复诊断）
 
@@ -167,15 +188,15 @@ nohup ./run_pipeline.sh novel-xinghuo-vol1 > /tmp/vol1-runK.log 2>&1 & disown
 
 ## 纵向数据采集（边跑边记：novel-xinghuo-vol1/vol1-ledger.md）
 
-- 逐章行：章号/实测字数（gate 口径）/超发率/cost/tokens/一次过 or retry（含 retry 类型）/新闸拦截明细/emotion_tone/payoff 拍（类型｜强度）/章尾钩型/resonance 分/空正文计数。
-- 汇总面：全链一次过率；双 structure（matrix/hooks）零出现验证；escalation 分类统计（注意知识库 #8 误归因）；drafting 重试占比（首跑段 42%×60% 浪费——修复后应显著坍缩）；观察项 1-16 逐项结论。
+- 逐章行：章号/实测字数（gate 口径）/超发率/cost/tokens/一次过 or retry（含 retry 类型）/新闸拦截明细/emotion_tone/payoff 拍（类型｜强度）/章尾钩型/resonance 分/空正文计数/三 WARN（surge 达标｜simile 带内｜golden_slot）。
+- 汇总面：全链一次过率；双 structure（matrix/hooks）零出现验证；escalation 分类统计（注意知识库 #8 误归因）；drafting 重试占比（首跑段 42%×60% 浪费——修复后应显著坍缩）；观察项 1-22 逐项结论。
 
 ## 中止与续跑
 
 - 止损三条件（任一即停）：硬顶 $25；同一框架缺陷 3 次修复仍复发（质疑架构，写报告）；连续 3 章 escalate 同一根因。
 - **断点两种形态**：① checkpoint 停（pending_checkpoint 非 none）→ 按裁决分级处理；② 派发中死亡（pending=none）→ pipeline-state.json 的章号/step/retry 指针即断点，清残留直接重启 runner 续跑（首跑段实测形态）。
 - **多 session 续跑**：新 session 重读本 prompt + memory 索引即可接管；重启前 `pgrep -f run_pipeline` 清残留；裁决序号接续项目内最大值：`ls novel-xinghuo-vol1/adjudications/ | grep -oE '[0-9]+' | sort -n | tail -1`（**正则勿加 `^` 锚定——文件名字母开头，加了会空输出**）；裁决书与 `.log-cursor` 都在项目目录内，跨 session 不丢。
-- **跨契约升级续跑**：若暂停期间 main 落了新的「必填字段+硬闸」批，重启 runner 前先 `uv run python tools/plan_craft_backfill.py novel-xinghuo-vol1 --apply`（默认 dry-run 先看报告）。
+- **跨契约升级续跑**：若暂停期间 main 落了新的「必填字段+硬闸」批，重启 runner 前先 `uv run python tools/plan_craft_backfill.py novel-xinghuo-vol1 --apply`（默认 dry-run 先看报告；spec #71 的备忘两行是 WARN 兜底非硬闸，不属此列——且本跑为 spec 落地后全新 init，ch1 起即带新契约）。
 - 停跑时把当次 /tmp/vol1-runK.log 尾部（~200 行）cp 进 `novel-xinghuo-vol1/diagnostics/`——/tmp 跨重启不保，裁决证据链要落在项目内。
 - runner 进程不随 session 存活：始终 `nohup … & disown`，启动后 `pgrep` 验证。
 - **卷一收束后即停**：不开跑卷二——GO 与否走收束报告，卷二是下一个探针/长跑的事。
@@ -183,7 +204,7 @@ nohup ./run_pipeline.sh novel-xinghuo-vol1 > /tmp/vol1-runK.log 2>&1 & disown
 ## 收束（卷界完成后）
 
 1. 终验扫描：总派发/总成本/章数/实测字数（`wc -m`，非宣称值）/超发率与保量对账结论/双 structure 计数/escalation 分类/hook 终态对账/卷界总量守恒对账（volume-budget ±3%）。
-2. **新契约实弹验证报告**（观察项 1-10）＋**卷界面验证报告**（11-14）＋**修复批持效报告**（15）＋**保量结论**（16）。
+2. **新契约实弹验证报告**（观察项 1-10）＋**卷界面验证报告**（11-14）＋**修复批持效报告**（15）＋**保量结论**（16）＋**spec #71 文笔面试点报告**（17-22——六观察项结论、前 10 章 GO/NO-GO、温度 0.90 去留）。
 3. GO/NO-GO 建议：卷二续跑 / 修复批先行 / 契约回滚项清单。
 4. 写 session memory（含断点章号、pending 状态、下一 session 首任务）。
 
