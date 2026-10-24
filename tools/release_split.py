@@ -135,3 +135,71 @@ def parse_chapter(path: Path) -> ChapterInput:
         h1_nonws=sum(nonws(h) for h in h1_lines),
         paragraphs=paras,
     )
+
+
+@dataclass(frozen=True)
+class CutSignals:
+    """Closed-set scoring outcome for one candidate cut."""
+
+    score: int
+    tension: bool
+    scene: bool
+    waist: bool
+
+
+def classify_pair(prev: str, next_para: str | None) -> CutSignals:
+    """Score a cut between prev and next paragraphs (spec §3.2 closed rules).
+
+    ``next_para=None`` is the end-of-chapter imaginary cut: tension
+    predicates live, scene/waist predicates are dead.
+    """
+    pn = re.sub(r"\s", "", prev)
+    score = 0
+    tension = False
+    if pn and pn[-1] in _TENSION_END_CHARS:
+        score += 2
+        tension = True
+    if len(pn) <= _SHORT_OBJECT_SENTENCE_MAX:
+        score += 2
+        tension = True
+    if pn and pn[0] in _DIALOGUE_START_CHARS:
+        score += 2
+        tension = True
+    scene = False
+    waist = False
+    if next_para is not None:
+        fn = re.sub(r"\s", "", next_para)
+        if any(fn.startswith(w) for w in SCENE_TRANSITION_WORDS):
+            score += 1
+            scene = True
+        if any(pn.startswith(w) for w in SCENE_TRANSITION_WORDS):
+            score -= 2
+            waist = True
+    return CutSignals(score=score, tension=tension, scene=scene, waist=waist)
+
+
+def tier_of(sig: CutSignals) -> str:
+    """Quality tier by predicate firing (spec §3.4)."""
+    if sig.tension:
+        return "tension"
+    if sig.scene:
+        return "scene"
+    if sig.waist:
+        return "weak"
+    return "plain"
+
+
+_CN_DIGITS = "零一二三四五六七八九"
+
+
+def chinese_ordinal(k: int) -> str:
+    """1..99 → 一 … 九十九 (per-chapter release ordinal, spec §4)."""
+    if not 1 <= k <= _ORDINAL_MAX:
+        raise ValueError(f"中文序数仅支持 1-{_ORDINAL_MAX}: {k}")
+    tens, ones = divmod(k, 10)
+    parts: list[str] = []
+    if tens >= 1:
+        parts.append("十" if tens == 1 else _CN_DIGITS[tens] + "十")
+    if ones >= 1:
+        parts.append(_CN_DIGITS[ones])
+    return "".join(parts)
