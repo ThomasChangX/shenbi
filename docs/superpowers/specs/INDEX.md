@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-10-24（spec #70 立项——release-split 发布切分层，方案 A 用户定稿 + 价值门驳斥修订）
-> **活跃 spec 数**：1
+> **最后更新**：2026-10-24（spec #70 release-split Done 随 PR #243 归档——确定性发布切分层全交付）
+> **活跃 spec 数**：0
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -10,16 +10,7 @@
 
 ## 执行队列
 
-### #70 · release-split 发布切分层
-
-- 文件：`specs/2026-10-24-spec70-release-split.md`
-- 系列：发布层（方案 A：创作层不动＋发布切分层）
-- 状态：Active（2026-10-24 立项，SDD #70）
-- 优先级：🟠 P1（用户点名——设计定稿当日立项）
-- 方法：独立确定性工具（`tools/release_split.py` + just 任务 + 单测 + ch1-4 夹具；零管线改动）
-- 依赖：无
-- 内容：fanqie/qidian 双档确定性切分、张力/场景切点打分、无损分解审计对账、幂等增量 + published 冻结
-- 对应 plan：`plans/2026-10-24-spec70-release-split.md`
+（无——队头已清空，spec #70 已随 PR #243 归档）
 
 ---
 

@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-10-24（spec #70 release-split plan 创建，✅ ready 待审）
-> **活跃 plan 数**：1 | **已归档**：126（见 `archive/`）
+> **最后更新**：2026-10-24（spec #70 plan Done 随 PR #243 归档——6 task 全执行 + 审查两 Critical 闭环）
+> **活跃 plan 数**：0 | **已归档**：127（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- `2026-10-24-spec70-release-split.md` — spec #70 发布切分层：6 task（解析层→打分→约束窗口选择→账本→CLI/冻结→接线+试点）；仿真锚 ch1-5 = 13/16/15 更（2026-10-24，✅ ready）
+（无——spec #70 plan 已随 PR #243 归档）
 
 ## 待执行的 spec → plan 映射
 
