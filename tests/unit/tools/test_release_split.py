@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -416,3 +420,222 @@ def test_split_chapter_entry_shape() -> None:
         assert r["content_hash"] == content_hash_of(build_release_text(ch.paragraphs[s:e]))
     # cut_quality: real ch1 cuts all classify tension (spec §5 note)
     assert all(r["cut_quality"] == "tension" for r in rels)
+
+
+def _run_tool(project: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    """Run the tool as a subprocess (CLI exit codes under test)."""
+    return subprocess.run(
+        [sys.executable, str(REPO / "tools" / "release_split.py"), str(project), *args],
+        capture_output=True,
+        text=True,
+        cwd=REPO,
+    )
+
+
+def _proj(tmp_path: Path, chapters: tuple[int, ...] = (1, 2, 3, 4)) -> Path:
+    """Tmp project dir with real fixture chapter copies."""
+    p = tmp_path / "proj"
+    (p / "chapters").mkdir(parents=True)
+    for n in chapters:
+        shutil.copy(FIX / f"chapter-{n}.md", p / "chapters" / f"chapter-{n}.md")
+    return p
+
+
+@pytest.mark.unit
+def test_cli_first_run_fanqie_13_releases(tmp_path: Path) -> None:
+    p = _proj(tmp_path)
+    r = _run_tool(p, "--platform", "fanqie")
+    assert r.returncode == 0, r.stderr
+    ledger = json.loads((p / "publish" / "fanqie" / "releases.json").read_text(encoding="utf-8"))
+    assert ledger["schema"] == "shenbi-releases-v1"
+    assert ledger["platform"] == "fanqie"
+    total = sum(len(c["releases"]) for c in ledger["chapters"])
+    assert total == 13
+    per_ch = {c["chapter"]: len(c["releases"]) for c in ledger["chapters"]}
+    assert per_ch == {1: 4, 2: 3, 3: 3, 4: 3}
+    files = sorted((p / "publish" / "fanqie" / "releases").glob("release-*.md"))
+    assert [f.name for f in files] == [f"release-{i:04d}.md" for i in range(1, 14)]
+    seqs = [r["seq"] for c in ledger["chapters"] for r in c["releases"]]
+    assert seqs == list(range(1, 14))  # seq == file NNNN, global ascending
+    for c in ledger["chapters"]:
+        for rl in c["releases"]:
+            fp = p / "publish" / "fanqie" / "releases" / rl["file"]
+            assert rl["content_hash"] == content_hash_of(fp.read_text(encoding="utf-8"))
+
+
+@pytest.mark.unit
+def test_cli_with_ch5_16_and_qidian_isolation(tmp_path: Path) -> None:
+    p = _proj(tmp_path, (1, 2, 3, 4, 5))
+    assert _run_tool(p).returncode == 0  # default fanqie
+    fq = json.loads((p / "publish" / "fanqie" / "releases.json").read_text(encoding="utf-8"))
+    assert sum(len(c["releases"]) for c in fq["chapters"]) == 16
+    r = _run_tool(p, "--platform", "qidian")
+    assert r.returncode == 0, r.stderr
+    qd = json.loads((p / "publish" / "qidian" / "releases.json").read_text(encoding="utf-8"))
+    assert qd["platform"] == "qidian"
+    assert {c["chapter"]: len(c["releases"]) for c in qd["chapters"]} == {
+        1: 3,
+        2: 3,
+        3: 3,
+        4: 3,
+        5: 3,
+    }
+    for c in qd["chapters"]:  # qidian 双档带内约束（章级）
+        assert all(rl["chars"] >= 2000 for rl in c["releases"])
+    fq2 = json.loads((p / "publish" / "fanqie" / "releases.json").read_text(encoding="utf-8"))
+    assert fq2["platform"] == "fanqie" and sum(len(c["releases"]) for c in fq2["chapters"]) == 16
+
+
+@pytest.mark.unit
+def test_cli_idempotent_rerun_semantic(tmp_path: Path) -> None:
+    p = _proj(tmp_path)
+    assert _run_tool(p).returncode == 0
+    first = json.loads((p / "publish" / "fanqie" / "releases.json").read_text(encoding="utf-8"))
+    files1 = {
+        f.name: f.read_text(encoding="utf-8")
+        for f in (p / "publish" / "fanqie" / "releases").glob("*.md")
+    }
+    assert _run_tool(p).returncode == 0
+    second = json.loads((p / "publish" / "fanqie" / "releases.json").read_text(encoding="utf-8"))
+    files2 = {
+        f.name: f.read_text(encoding="utf-8")
+        for f in (p / "publish" / "fanqie" / "releases").glob("*.md")
+    }
+    assert files1 == files2
+    assert {k: v for k, v in first.items() if k != "generated_at"} == {
+        k: v for k, v in second.items() if k != "generated_at"
+    }
+
+
+@pytest.mark.unit
+def test_cli_freeze_content_drift_hard_error(tmp_path: Path) -> None:
+    p = _proj(tmp_path, (1, 2))
+    assert _run_tool(p).returncode == 0
+    led_path = p / "publish" / "fanqie" / "releases.json"
+    led = json.loads(led_path.read_text(encoding="utf-8"))
+    led["chapters"][0]["releases"][0]["published"] = True  # ch1 更1 冻结
+    led_path.write_text(json.dumps(led, ensure_ascii=False, indent=2), encoding="utf-8")
+    # frozen chapter re-settled → content-hash drift → hard error, no escape
+    ch1 = p / "chapters" / "chapter-1.md"
+    ch1.write_text(
+        ch1.read_text(encoding="utf-8").replace(
+            "星象局誊写所在西廊尽头",
+            "星象局誊写所在西廊尽头，多出来的一句。",  # 首段变化 → 更1 哈希必变
+        ),
+        encoding="utf-8",
+    )
+    r = _run_tool(p, "--renumber-published")
+    assert r.returncode == 1 and "哈希" in r.stderr  # 逃生口不覆盖内容漂移
+
+
+@pytest.mark.unit
+def test_cli_freeze_seq_drift_and_renumber_escape(tmp_path: Path) -> None:
+    p = _proj(tmp_path, (1, 2))
+    assert _run_tool(p).returncode == 0
+    led_path = p / "publish" / "fanqie" / "releases.json"
+    led = json.loads(led_path.read_text(encoding="utf-8"))
+    ch2_entry = next(c for c in led["chapters"] if c["chapter"] == 2)
+    ch2_entry["releases"][0]["published"] = True  # ch2 更1（seq 5）冻结
+    led_path.write_text(json.dumps(led, ensure_ascii=False, indent=2), encoding="utf-8")
+    ch1 = p / "chapters" / "chapter-1.md"
+    # 追加 7×290=2030 字 → gate 8476+2030=10506 → n=5（10506/5=2101>=2000 稳 5 更；
+    # body 10492 对 5×2000 松弛 492，真实密集段落不降档）→ ch2 顺延漂移
+    ch1.write_text(
+        ch1.read_text(encoding="utf-8") + "\n\n" + "结尾补的一段。" * 290, encoding="utf-8"
+    )
+    r = _run_tool(p)
+    assert r.returncode == 1 and "漂移" in r.stderr
+    r2 = _run_tool(p, "--renumber-published")
+    assert r2.returncode == 0, r2.stderr
+    assert "seq 5→6" in r2.stdout  # 漂移清单逐行打印（spec §4）
+    led2 = json.loads(led_path.read_text(encoding="utf-8"))
+    pub = [rl for c in led2["chapters"] for rl in c["releases"] if rl["published"]]
+    assert len(pub) == 1  # published flag preserved across renumber
+    ch1_new = next(c for c in led2["chapters"] if c["chapter"] == 1)
+    assert len(ch1_new["releases"]) == 5
+
+
+@pytest.mark.unit
+def test_cli_vanished_chapter_lifecycle(tmp_path: Path) -> None:
+    p = _proj(tmp_path, (1, 2))
+    assert _run_tool(p).returncode == 0
+    (p / "chapters" / "chapter-1.md").unlink()  # unfrozen vanish → drop + renumber
+    r = _run_tool(p)
+    assert r.returncode == 0, r.stderr
+    led = json.loads((p / "publish" / "fanqie" / "releases.json").read_text(encoding="utf-8"))
+    assert [c["chapter"] for c in led["chapters"]] == [2]
+    seqs = [rl["seq"] for c in led["chapters"] for rl in c["releases"]]
+    assert seqs == [1, 2, 3]  # 顺延重编 happy path
+    assert not (p / "publish" / "fanqie" / "releases" / "release-0004.md").exists()  # 孤儿删
+    # frozen vanish → exit 1
+    p2 = _proj(tmp_path / "p2", (1, 2))
+    assert _run_tool(p2).returncode == 0
+    lp = p2 / "publish" / "fanqie" / "releases.json"
+    led2 = json.loads(lp.read_text(encoding="utf-8"))
+    led2["chapters"][0]["releases"][0]["published"] = True
+    lp.write_text(json.dumps(led2, ensure_ascii=False, indent=2), encoding="utf-8")
+    (p2 / "chapters" / "chapter-1.md").unlink()
+    r2 = _run_tool(p2)
+    assert r2.returncode == 1 and "冻结" in r2.stderr
+
+
+@pytest.mark.unit
+def test_cli_orphan_cleanup_on_shrink(tmp_path: Path) -> None:
+    """上游章缩量（4 更→3 更）→ 未复用的旧 NNNN 文件删除、引用保留。"""
+    p = _proj(tmp_path, (1, 2))
+    assert _run_tool(p).returncode == 0  # ch1 4 更 + ch2 3 更 = release-0001..0007
+    ch1 = p / "chapters" / "chapter-1.md"
+    # 用 ch3 内容替换 ch1（gate 7200 → 3 更）→ 总 6 更，旧 0007 成孤儿
+    ch3_body = (FIX / "chapter-3.md").read_text(encoding="utf-8")
+    ch1.write_text(ch3_body, encoding="utf-8")
+    r = _run_tool(p)
+    assert r.returncode == 0, r.stderr
+    rel_dir = p / "publish" / "fanqie" / "releases"
+    assert not (rel_dir / "release-0007.md").exists()
+    assert sorted(f.name for f in rel_dir.glob("*.md")) == [
+        f"release-{i:04d}.md" for i in range(1, 7)
+    ]
+
+
+@pytest.mark.unit
+def test_cli_ledger_lifecycle_errors(tmp_path: Path) -> None:
+    p = _proj(tmp_path)
+    pub = p / "publish" / "fanqie"
+    pub.mkdir(parents=True)
+    (pub / "releases.json").write_text("{not json", encoding="utf-8")
+    r = _run_tool(p)
+    assert r.returncode == 1 and "releases" in r.stderr
+    (pub / "releases.json").write_text(json.dumps({"schema": "other-v9"}), encoding="utf-8")
+    r2 = _run_tool(p)
+    assert r2.returncode == 1
+    (pub / "releases.json").write_text(
+        json.dumps({"schema": "shenbi-releases-v1", "platform": "qidian"}), encoding="utf-8"
+    )
+    r3 = _run_tool(p)  # fanqie target vs qidian ledger
+    assert r3.returncode == 1 and "platform" in r3.stderr
+
+
+@pytest.mark.unit
+def test_cli_structural_exit_codes(tmp_path: Path) -> None:
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    r = _run_tool(empty)
+    assert r.returncode == 1 and "chapters" in r.stderr
+    r2 = subprocess.run(
+        [
+            sys.executable,
+            str(REPO / "tools" / "release_split.py"),
+            str(empty),
+            "--platform",
+            "nope",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=REPO,
+    )
+    assert r2.returncode == 2  # argparse usage error
+    no2nd = tmp_path / "p2"
+    (no2nd / "chapters").mkdir(parents=True)
+    (no2nd / "chapters" / "chapter-1.md").write_text("# Chapter 1:\n\n正文。", encoding="utf-8")
+    r3 = _run_tool(no2nd)
+    assert r3.returncode == 1 and "H1" in r3.stderr

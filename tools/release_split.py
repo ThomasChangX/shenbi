@@ -6,9 +6,13 @@ No LLM, no pipeline faces. 口径 reused from shenbi.gates.shared.
 
 from __future__ import annotations
 
+import argparse
 import hashlib
+import json
 import re
+import sys
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -380,3 +384,174 @@ def split_chapter(ch: ChapterInput, tier: Tier, title_pattern: str | None) -> di
         "flags": flags,
         "releases": releases,
     }
+
+
+def load_ledger(platform_dir: Path, platform: str) -> dict[str, Any] | None:
+    """Load + validate the existing platform ledger; None when absent."""
+    path = platform_dir / "releases.json"
+    if not path.exists():
+        return None
+    try:
+        ledger = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise ReleaseSplitError(f"releases.json 畸形 JSON: {e}") from e
+    if ledger.get("schema") != SCHEMA_ID:
+        raise ReleaseSplitError(
+            f"releases.json schema 不符: {ledger.get('schema')!r} != {SCHEMA_ID!r}"
+        )
+    if ledger.get("platform") != platform:
+        raise ReleaseSplitError(
+            f"releases.json platform 不符: {ledger.get('platform')!r} != {platform!r}"
+        )
+    return ledger
+
+
+def _validate_freeze(
+    old: dict[str, Any],
+    by_number: dict[int, dict[str, Any]],
+    renumber_published: bool,
+) -> None:
+    """Spec §4 freeze triple + vanished-chapter lifecycle; drift manifest under escape."""
+    drifts: list[str] = []
+    for cnum, oc in {c["chapter"]: c for c in old.get("chapters", [])}.items():
+        pub = [r for r in oc.get("releases", []) if r.get("published")]
+        if not pub:
+            continue  # unfrozen: vanish → drop+renumber; present → re-cut freely
+        if cnum not in by_number:
+            raise ReleaseSplitError(f"在册章 chapter-{cnum} 已消失且含冻结条目（人工账本手术）")
+        new_entry = by_number[cnum]
+        if len(new_entry["releases"]) < len(pub):
+            raise ReleaseSplitError(f"chapter-{cnum} 重切后更数少于冻结更数")
+        for k, pr in enumerate(pub):
+            nr = new_entry["releases"][k]
+            if nr["content_hash"] != pr["content_hash"]:
+                raise ReleaseSplitError(
+                    f"chapter-{cnum} 更 {k + 1} 内容哈希漂移于冻结条目（无逃生口，人工账本手术）"
+                )
+            if (nr["seq"], nr["file"]) != (pr["seq"], pr["file"]):
+                drifts.append(
+                    f"chapter-{cnum} 更 {k + 1}: "
+                    f"seq {pr['seq']}\u2192{nr['seq']} file {pr['file']}\u2192{nr['file']}"
+                )
+            nr["published"] = True
+    if drifts and not renumber_published:
+        raise ReleaseSplitError(
+            "冻结序号/路径漂移（--renumber-published 逃生口需人工确认平台侧同步改名）: "
+            + "; ".join(drifts)
+        )
+    for line in drifts:
+        print(f"renumber-published: {line}")
+
+
+def _write_products(
+    entries: list[dict[str, Any]], platform_dir: Path, platform: str
+) -> dict[str, Any]:
+    """Write releases/*.md + releases.json; orphan cleanup; return the ledger."""
+    rel_dir = platform_dir / "releases"
+    totals_rels = [r for e in entries for r in e["releases"]]
+    for e in entries:
+        for r in e["releases"]:
+            (rel_dir / r["file"]).write_text(r["_text"], encoding="utf-8")
+    referenced = {r["file"] for r in totals_rels}
+    for f in rel_dir.glob("release-*.md"):  # 孤儿清理：仅本平台 releases/
+        if f.name not in referenced:
+            f.unlink()
+    ledger: dict[str, Any] = {
+        "schema": SCHEMA_ID,
+        "platform": platform,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "chapters": [
+            {
+                "chapter": e["chapter"],
+                "gate_chars": e["gate_chars"],
+                "stripped_chars": e["stripped_chars"],
+                "flags": e["flags"],
+                "releases": [
+                    {k: v for k, v in r.items() if not k.startswith("_")} for r in e["releases"]
+                ],
+            }
+            for e in entries
+        ],
+        "totals": {
+            "releases": len(totals_rels),
+            "chars": sum(r["chars"] for r in totals_rels),
+            "min_chars": min((r["chars"] for r in totals_rels), default=0),
+            "max_chars": max((r["chars"] for r in totals_rels), default=0),
+            "cut_quality": {
+                q: sum(1 for r in totals_rels if r["cut_quality"] == q)
+                for q in ("tension", "scene", "plain", "weak")
+            },
+            "flags": {
+                f: sum(1 for e in entries if f in e["flags"])
+                for f in ("single-release", "forced-single", "floor-violation")
+            },
+        },
+    }
+    (platform_dir / "releases.json").write_text(
+        json.dumps(ledger, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    return ledger
+
+
+def run_split(
+    project_dir: Path,
+    platform: str,
+    title_pattern: str | None,
+    renumber_published: bool,
+) -> int:
+    """One idempotent split pass over the project's chapters (exit 0/1)."""
+    tier = TIERS[platform]
+    files = select_chapter_files(project_dir / "chapters")
+    chapters = [parse_chapter(f) for f in files]
+
+    platform_dir = project_dir / "publish" / platform
+    (platform_dir / "releases").mkdir(parents=True, exist_ok=True)
+    old = load_ledger(platform_dir, platform)
+
+    entries = [split_chapter(ch, tier, title_pattern) for ch in chapters]
+    by_number = {e["chapter"]: e for e in entries}
+    seq = 0
+    for e in entries:
+        for r in e["releases"]:
+            seq += 1
+            r["seq"] = seq
+            r["file"] = f"release-{seq:04d}.md"
+
+    if old is not None:
+        _validate_freeze(old, by_number, renumber_published)
+
+    ledger = _write_products(entries, platform_dir, platform)
+    t = ledger["totals"]
+    print(
+        f"release-split[{platform}]: chapters={len(entries)} "
+        f"releases={t['releases']} chars={t['chars']} "
+        f"min={t['min_chars']} max={t['max_chars']} "
+        f"quality={t['cut_quality']} flags={t['flags']}"
+    )
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI entry: argparse usage errors exit 2; ReleaseSplitError exits 1."""
+    parser = argparse.ArgumentParser(
+        prog="release-split",
+        description="发布切分层：已收束章节 → 平台档位发布更（spec #70，纯确定性）",
+    )
+    parser.add_argument("project_dir", type=Path, help="项目目录（含 chapters/）")
+    parser.add_argument("--platform", choices=sorted(TIERS), default="fanqie")
+    parser.add_argument(
+        "--title-pattern", default=None, help="更题模式（占位符 {章题}/{中文序数}）"
+    )
+    parser.add_argument("--renumber-published", action="store_true")
+    args = parser.parse_args(argv)
+    try:
+        return run_split(
+            args.project_dir, args.platform, args.title_pattern, args.renumber_published
+        )
+    except ReleaseSplitError as e:
+        print(f"release-split: {e}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
