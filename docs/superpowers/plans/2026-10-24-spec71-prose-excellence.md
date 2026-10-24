@@ -52,11 +52,15 @@ pytestmark = pytest.mark.unit
 
 
 def test_segment_sentences_migration_anchor() -> None:
-    """迁移行为锚：与 compute_stats 时代逐字一致（含 F668 引号内不切/F628 ；切分）。"""
+    """迁移行为锚：与 compute_stats 时代逐字一致（含 F668 引号内不切/F628 ；切分）。
+
+    char_count 含句末标点（非空白字符数口径）：「然后走了。」= 5。
+    """
     text = "他说「今天不错。真的。」然后走了。\n新起一行。"
     sents = segment_sentences(text)
-    # 引号内句号不切分 → 「今天不错。真的。」整体一句 + "然后走了" + "新起一行"
-    assert [c for _, c in sents] == [12, 4, 4]
+    # 引号内句号不切分 → 「今天不错。真的。」整体一句（12 非空白含引号）
+    # + "然后走了。"（5，含句号）+ "新起一行。"（5，含句号）
+    assert [c for _, c in sents] == [12, 5, 5]
 
 
 def test_segment_sentences_reexport_from_compute_stats() -> None:
@@ -108,17 +112,11 @@ Expected: FAIL（`ImportError: cannot import name 'count_similes'`）
 
 - [ ] **Step 3: 实现——迁移 + 新增**
 
-`src/shenbi/gates/shared.py`（import 区补一行）：
+`src/shenbi/gates/shared.py`（**现状零 cjk 导入**——新增一行 import）：
 
 ```python
-from shenbi.text.cjk import (
-    count_punctuation as cjk_count_punctuation,  # 既有（若有则保持原样，只增下行）
-    dialogue_char_ratio,
-    find_quote_spans,
-)
+from shenbi.text.cjk import dialogue_char_ratio, find_quote_spans
 ```
-
-（注：shared.py 若现状未 import cjk，直接新增整行 import；**以实际现状为准**，不重复 import 已有名。）
 
 在 `META_BLOCK_RE = ...`（:35）附近新增：
 
@@ -193,7 +191,7 @@ git commit -m "feat: spec #71 T1 单信源基座——segment_sentences+QUOTE_PA
 **Interfaces:**
 - Consumes: T1 的 `count_similes`/`segment_sentences`（re-export）；既有 `compute_ttr(text) -> dict`；`cjk.dialogue_char_ratio(text) -> float`
 - Produces（T8 profile 模板消费）:
-  - `compute_sentence_stats` 返回 dict 增键 `"ge35_ratio": float`（≥35 字句数 / 句总数，round 4 位；空列表时 0.0）
+  - `compute_sentence_stats` 返回 dict 增键 `"ge35_ratio": float`（≥35 字句数 / 句总数，round 4 位；空句列表时既有行为是整 dict 早退为 `{}`——ge35_ratio 随之缺席，保持既有契约不特判）
   - `compute_all_stats` 返回 dict 增两键：
     - `"simile": count_similes(combined_raw)`（**注意：喂原始 combined（META 剥除前）——count_similes 内部自剥**；F634 的 `META_BLOCK_RE.sub` 保留给其余统计）
     - `"per_chapter": {filename: {"total_chars": int, "mean_sentence_len": float, "ttr": float, "dialogue_ratio": float, "ge35_ratio": float}}`——每章独立：`total_chars` = 剥 META 后非空白；`mean_sentence_len` = 该章 segment_sentences 均长 round 1；`ttr` = `compute_ttr(章文本)["global_ttr"]`；`dialogue_ratio` = `round(dialogue_char_ratio(章文本), 4)`；`ge35_ratio` = 该章 ≥35 句占比 round 4
@@ -216,8 +214,10 @@ def test_compute_all_stats_simile_block() -> None:
 
 def test_per_chapter_mapping() -> None:
     """§10 数据基座：多章输入 → 每章独立五列（spec #71 R4-C2）。"""
+    surge = "这是一条足够长足够长足够长的句子，铺陈蓄势一路推到三十五字以上的奔涌尽头，再补几个字。"  # ≥40 非空白 ≥35
+    assert len(surge.replace(" ", "")) >= 35
     texts = {
-        "chapter-1.md": "他走了。这是一条足够长的句子吗，铺陈蓄势推到三十五字以上的奔涌尽头。",
+        "chapter-1.md": "他走了。" + surge,
         "chapter-2.md": "短。更短。对话也短。",
     }
     stats = compute_all_stats(texts)
@@ -225,15 +225,23 @@ def test_per_chapter_mapping() -> None:
     assert set(pc) == {"chapter-1.md", "chapter-2.md"}
     for cols in pc.values():
         assert set(cols) == {"total_chars", "mean_sentence_len", "ttr", "dialogue_ratio", "ge35_ratio"}
-    assert pc["chapter-1.md"]["ge35_ratio"] > pc["chapter-2.md"]["ge35_ratio"]
+    assert pc["chapter-1.md"]["ge35_ratio"] > 0.0
+    assert pc["chapter-2.md"]["ge35_ratio"] == 0.0
     assert pc["chapter-1.md"]["total_chars"] > pc["chapter-2.md"]["total_chars"]
 
 
 def test_per_chapter_ignores_meta_blocks() -> None:
-    texts = {"chapter-1.md": "<!--META-BEGIN-->\n## PRE_WRITE_CHECK\n\n- [ ] 奔涌句: " + "长" * 40 + "\n<!--META-END-->\n\n正文短句。"}
+    """裸 H2 PRE/POST 节不计入章统计（与 simile 块同域——spec §4.2 主旨）。"""
+    texts = {
+        "chapter-1.md": (
+            "## PRE_WRITE_CHECK\n\n- [ ] 奔涌句: " + "长" * 40 + "\n\n"
+            "# 第1章\n\n正文短句。\n\n## POST_WRITE_SELF_CHECK\n\n- [ ] 金句位: " + "金" * 40 + "\n"
+        )
+    }
     pc = compute_all_stats(texts)["per_chapter"]
-    # META 块不计入章字数
-    assert pc["chapter-1.md"]["total_chars"] < 50
+    # 裸 H2 自检节剥除 → 只剩正文 4 字；若只剥 META 包裹，自检行 40 字会进字数
+    assert pc["chapter-1.md"]["total_chars"] < 10
+    assert pc["chapter-1.md"]["ge35_ratio"] == 0.0  # 自检长行不得白送假奔涌句
 ```
 
 - [ ] **Step 2: 跑测试确认失败**
@@ -251,12 +259,12 @@ Expected: FAIL（KeyError: 'ge35_ratio' / 'simile' / 'per_chapter'）
 
 return dict 增 `"ge35_ratio": round(ge35 / n, 4)`。
 
-`compute_all_stats` 增（函数开头保留 `texts` 原样引用；`combined` 现行构造不动）：
+`compute_all_stats` 增（**per_chapter 的章文本剥域用 `strip_narrative_body`（裸 H2 PRE/POST 也剥——真实 fixtures 10/11 裸 H2，自检长行不得白送假奔涌句；与 `simile` 块同域**）；`combined` 现行构造不动）：
 
 ```python
     per_chapter: dict[str, dict[str, Any]] = {}
     for fname, raw in texts.items():
-        ch = META_BLOCK_RE.sub("", raw)
+        ch = strip_narrative_body(raw)
         ch_sents = segment_sentences(ch)
         lens = [c for _, c in ch_sents]
         ch_total = len(ch.replace("\n", "").replace(" ", ""))
@@ -365,14 +373,33 @@ def test_surge_dialogue_sentences_excluded(tmp_path: Path) -> None:
 
 
 def test_simile_band_boundary_and_out(tmp_path: Path) -> None:
-    # 构造非对白域密度落 [2,4]：~257 非空白字 1 处喻词 → per_1000 ≈ 3.9
-    filler = "他往前走，尘土在脚下起落。" * 21  # ~252 非空白字符
+    # 带内：filler ~278 非空白字 + 1 喻词 → per_1000 ≈ 3.5 ∈ [2,4]
+    filler = "他往前走，尘土在脚下起落。" * 21
     in_band = "山像伏兽。" + filler
     result = g4_chapter_drafting([str(_chapter(tmp_path, in_band))])
     assert _warn_ids(result).get("G4.cd.simile_band") == "PASS"
-    dry = filler  # 0 喻词 → 0.0 < 2
-    result = g4_chapter_drafting([str(_chapter(tmp_path, dry))])
+    # 低位（干燥）：0 喻词 → 0.0 < 2 → WARN
+    result = g4_chapter_drafting([str(_chapter(tmp_path, filler))])
     assert _warn_ids(result).get("G4.cd.simile_band") == "WARN"
+    # 高位（堆砌）：~250 字 8 喻词 → per_1000 ≈ 32 > 4 → WARN
+    piled = "山像伏兽，像伏兽中的伏兽。" * 8 + "他走了。" * 3
+    result = g4_chapter_drafting([str(_chapter(tmp_path, piled))])
+    assert _warn_ids(result).get("G4.cd.simile_band") == "WARN"
+
+
+def test_surge_quota_two_boundary(tmp_path: Path) -> None:
+    """spec §6.1 锚例：≥6000 字章配额 2——恰 2 处达标 / 1 处触发。"""
+    surge = (
+        "他把那盏灯从案上端起来又放下，来回三次，直到油芯里的火苗被门缝挤进来的风"
+        "压得很低很低，低到几乎要缩进灯座里去。"
+    )
+    assert len(surge.replace(" ", "")) >= 35
+    filler = "夜色沉下去，他数着更漏，一更一更地挨。" * 160  # ~6400 非空白
+    assert len(filler.replace(" ", "")) + len(surge) >= 6000
+    two = g4_chapter_drafting([str(_chapter(tmp_path, surge + "短句。他再想。" + surge + filler))])
+    assert _warn_ids(two).get("G4.cd.surge") == "PASS"  # 2 处 ≥ quota 2
+    one = g4_chapter_drafting([str(_chapter(tmp_path, surge + filler))])
+    assert _warn_ids(one).get("G4.cd.surge") == "WARN"  # 1 处 < quota 2
 
 
 def test_golden_slot_full_tates(tmp_path: Path) -> None:
@@ -427,7 +454,7 @@ Expected: FAIL（`_warn_ids` 返回空 dict——id 不存在）
             for sent, slen in sents
             if slen >= 35 and dialogue_char_ratio(sent) < 0.5
         )
-        surge_quota = max(1, total_chars_md_text(content) // 3000)
+        surge_quota = max(1, total // 3000)  # 复用 :324 已算的 total（total_chars_md_text 同值）
         if narrative_surge < surge_quota:
             c.append(
                 {
@@ -618,7 +645,7 @@ Expected: FAIL（AssertionError——提取面不含该行 / OPTIONAL_READS 无�
             parts.append(f"**金句、母题物象与梗位:** {qm_match.group(1).strip()}\n")
 ```
 
-（插入位置：Objective 提取之后、张力曲线提取之前——保持头部元数据顺序；`vol_section` 变量在现行代码 :408-411 已存在。）
+（插入位置钉死：**`vol_section` 赋值行（现行 :411）之后、张力曲线提取块（:413-417）之前**——`vol_section` 在 Objective 提取之后才定义，勿插在其前；`re` 已在模块内 import。）
 
 `dispatch_helper.py` OPTIONAL_READS drafting 列表（`"style/style_directives.md",` 行后）增：
 
@@ -656,27 +683,33 @@ git commit -m "feat: spec #71 T4 传导链机器侧——load_volume_context 增
 
 - [ ] **Step 1: 改测试（红）**
 
-test_style_seed.py 的 `test_seed_writes_default_when_absent` 增节断言：
+test_style_seed.py 的 `test_seed_writes_default_when_absent` 增节断言，**并同步改既有 v1 字面断言**（:67-68 附近的 prompt-injection 断言族）：
 
 ```python
+    # 既有 :67「叙述句目标带：10-20 字/句」断言 → v2 基带
+    # 既有 :68「文风目标（通用默认模板）」标题断言 → v2 标题（若两断言在其他测试内，同批改）
+    assert "叙述句基带：12-25 字/句" in DEFAULT_STYLE_DIRECTIVES
+    assert "文风目标（通用默认模板 v2）" in DEFAULT_STYLE_DIRECTIVES
     for section in ("节奏与句法", "意象与修辞", "金句", "对白/叙述配比"):
         assert f"## {section}" in DEFAULT_STYLE_DIRECTIVES
     # v2 重锚锚点（spec §2）
-    assert "12-25 字/句" in DEFAULT_STYLE_DIRECTIVES
     assert "奔涌长句" in DEFAULT_STYLE_DIRECTIVES
     assert "每千字 2-4 处" in DEFAULT_STYLE_DIRECTIVES
     assert "白天漏灰，夜里漏光" in DEFAULT_STYLE_DIRECTIVES
     assert "≥16 字" not in DEFAULT_STYLE_DIRECTIVES  # 伪长句定义已删
+    assert "10-20" not in DEFAULT_STYLE_DIRECTIVES  # v1 基带已换
 ```
 
-（既有 `test_seed_never_clobbers_user_edits` 与 prompt-injection 测试零改动——write-if-absent 与注入路径不因模板内容变化。）
+（先 `grep -n "10-20\|通用默认模板" tests/unit/pipeline/test_style_seed.py` 定位全部 v1 字面断言——**逐一改为 v2 对应字面**；`test_seed_never_clobbers_user_edits` 与注入路径测试逻辑不动。）
+
+（既有 `test_seed_never_clobbers_user_edits` 的 write-if-absent 语义零改动——只有字面断言随模板更新。）
 
 - [ ] **Step 2: 跑测试确认失败**
 
 Run: `uv run pytest tests/unit/pipeline/test_style_seed.py -v`
 Expected: FAIL（"金句" 节不存在）
 
-- [ ] **Step 3: 实现——DEFAULT_STYLE_DIRECTIVES 替换为 spec §2 全文（逐字，从 spec 复制模板代码块内全部 44 行）+ 模块 docstring 更新**
+- [ ] **Step 3: 实现——DEFAULT_STYLE_DIRECTIVES 替换为 spec §2 全文（逐字，从 spec 复制模板代码块内全部 43 行）+ 模块 docstring 更新**
 
 docstring 变更点：`session31 Q1` 叙事补 `spec #71 v2（六人共性带重锚：基带 12-25/奔涌收割配额/比喻双向带/金句三写法/母题行）`。
 
@@ -824,7 +857,7 @@ Run: `uv run pytest tests/unit/pipeline/test_executor_config.py -v` → Expected
 - [ ] **Step 3: 契约三源同步验证**
 
 Run: `just generate && git status --short`
-Expected: 生成物 diff（deps.json/docs/skills/index.json 首次再生成——含 anchors 键）——**确认后二次运行 diff 为空（幂等）**
+Expected: 生成物 diff（**真实路径**：`tests/tiers/deps.json` + `docs/framework/truth-files.index.json` + `docs/skills/` 下 SKILL body view——首次再生成含 anchors 键）——**确认后二次运行 diff 为空（幂等）**
 
 Run: `just lint-contracts && uv run python tools/lint_registry_reconcile.py`
 Expected: 双绿（ORPHAN_READ 闭环：drafting reads anchors.md ← style-learning writes；index.json concept 键 ⊆ yaml concepts）
@@ -841,7 +874,7 @@ git add skills/shenbi-style-learning/SKILL.md skills/shenbi-chapter-drafting/SKI
 git commit -m "feat: spec #71 T8 style-learning 测量面+anchors 产出 + drafting reads 契约闭环 + truth 注册 + 温度 0.90"
 ```
 
-（生成物 deps.json/docs/skills/index.json 若有 diff 一并 pathspec add——它们是 `just generate` 的合法产物。）
+（**生成物** `tests/tiers/deps.json`、`docs/framework/truth-files.index.json`、`docs/skills/` SKILL view 若有 diff 一并 pathspec add——它们是 `just generate` 的合法产物，勿手编。）
 
 ---
 
@@ -851,8 +884,8 @@ git commit -m "feat: spec #71 T8 style-learning 测量面+anchors 产出 + draft
 
 **Files:**
 - Modify: `skills/shenbi-review-group-craft/SKILL.md` 检查 3（`3. 破折号检测` → 预算口径全文）
-- Modify: `skills/shenbi-review-anti-ai/SKILL.md` 检查 3（同口径改写 + reference-only 注记）
-- Modify: `docs/framework/style-directives.md`（§3 模板结构同步 v2 六节；:58 破折号条款改预算制表述）
+- Modify: `skills/shenbi-review-anti-ai/SKILL.md` 检查 3（同口径改写 + reference-only 注记）**+ :99 示例表行与 :105 BLOCKING 修复示例行**（全禁口径残留——同文件矛盾即照抄源）
+- Modify: `docs/framework/style-directives.md`（**§2 :20「叙述句 10-20 字」→ 12-25**；§3 标准结构小节列 v2 六节名 + **§3 内嵌示例模板体同步 v2**（12-22/≥20 收束/比喻 ≤2/对白 40-55% → 12-25/奔涌收割/2-4 双向带/35-55——或整块替换为「见 style_seed.py DEFAULT_STYLE_DIRECTIVES 播种全文」单一信源指向）；:58 破折号条款改预算制表述）
 - Test: 全批 `just check`（阶段 7 权威门禁）
 
 **Interfaces:**
@@ -867,7 +900,7 @@ group-craft 检查 3：
 3. 破折号检测 — 预算制（spec #71）：每章 ≤2 处 `——`/`──`。仅两种合法用法：咏叹收束（长句末尾情绪延宕）、对话打断（话被截断）。>2 处 = ERROR；≤2 处但属解释补充用法（"他深吸一口气——这不可能"类）= ERROR；合法用法 ≤2 = pass
 ```
 
-review-anti-ai 检查 3 同口径 + 行尾 `(reference-only：本技能已 RETIRED，活执法面在 review-group-craft 检查 3——此文件仅存档参考)`。
+review-anti-ai 检查 3 同口径 + 行尾 `(reference-only：本技能已 RETIRED，活执法面在 review-group-craft 检查 3——此文件仅存档参考)`；:99 示例行改 `| 3 | 破折号 | ERROR | 第3段 3 处"——"（>2 预算）或解释补充用法 |`；:105 改 `[BLOCKING/CRITICAL] 破折号预算违例（3 处 >2 或属解释补充用法）：删多余处或改句号断句；合法咏叹/打断用法 ≤2 处保留`。
 
 style-directives.md：§3「标准结构」小节列 v2 六节名（节奏与句法/意象与修辞/金句/对白/叙述配比/章型微调）；:58 条款改：
 
