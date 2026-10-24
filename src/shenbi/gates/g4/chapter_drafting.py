@@ -11,16 +11,19 @@ from shenbi.gates.shared import (
     META_BLOCK_RE,
     META_NARRATIVE,
     chapter_word_floor,
+    count_similes,
     count_transition_words,
     fail,
     passed,
     read_genre_config,
     resolve_input_path,
+    segment_sentences,
     strip_narrative_body,
     total_chars_md_text,
     word_count_md,
 )
 from shenbi.logging import get_logger
+from shenbi.text.cjk import dialogue_char_ratio
 
 log = get_logger(__name__)
 
@@ -225,6 +228,12 @@ def g4_chapter_drafting(
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
+
+    # spec #71 golden-slot line predicates (compiled once, outside the loop —
+    # loop-body definitions trip ruff B023).
+    _GOLDEN_PRE_RE = re.compile(r"^\s*-\s*本章金句位\s*[:：]\s*(.*)$", re.MULTILINE)
+    _GOLDEN_POST_RE = re.compile(r"^\s*-\s*\[.\]\s*金句位\s*[:：]\s*(.+)$", re.MULTILINE)
+    _EMPTY_VALUES = frozenset({"", "无", "N/A", "待定"})
 
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
@@ -491,6 +500,89 @@ def g4_chapter_drafting(
                 mf.extend(protagonist_issues)
             else:
                 c.append({"id": "G4.cd.protagonist_presence", "file": fp, "s": GateStatus.PASS})
+
+        # spec #71 prose-excellence WARN predicates (WARN-level: recorded in
+        # checks for the pipeline manifest, never in must_fix).
+        narrative = strip_narrative_body(content)
+        sents = segment_sentences(narrative)
+        narrative_surge = sum(
+            1 for sent, slen in sents if slen >= 35 and dialogue_char_ratio(sent) < 0.5
+        )
+        surge_quota = max(1, total // 3000)
+        if narrative_surge < surge_quota:
+            c.append(
+                {
+                    "id": "G4.cd.surge",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": f"narrative surge sentences {narrative_surge} < quota {surge_quota}",
+                }
+            )
+        else:
+            c.append(
+                {
+                    "id": "G4.cd.surge",
+                    "file": fp,
+                    "s": GateStatus.PASS,
+                    "surge": narrative_surge,
+                    "quota": surge_quota,
+                }
+            )
+
+        simile_stats = count_similes(content)
+        if 2.0 <= simile_stats["per_1000"] <= 4.0:
+            c.append(
+                {
+                    "id": "G4.cd.simile_band",
+                    "file": fp,
+                    "s": GateStatus.PASS,
+                    "per_1000": simile_stats["per_1000"],
+                }
+            )
+        else:
+            c.append(
+                {
+                    "id": "G4.cd.simile_band",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": (
+                        f"simile density {simile_stats['per_1000']}/千字 outside "
+                        "[2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)"
+                    ),
+                    "per_1000": simile_stats["per_1000"],
+                }
+            )
+
+        pre_block = re.search(r"## PRE_WRITE_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL)
+        post_block = re.search(
+            r"## POST_WRITE_SELF_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL
+        )
+
+        golden_issues: list[str] = []
+        pre_val: str | None = None
+        if pre_block:
+            m = _GOLDEN_PRE_RE.search(pre_block.group(0))
+            if m:
+                pre_val = m.group(1)
+        if pre_val is None or pre_val.strip().strip("[]").strip() in _EMPTY_VALUES:
+            golden_issues.append("PRE lacks non-empty 金句位 line")
+        post_ok = False
+        if post_block:
+            if _GOLDEN_POST_RE.search(post_block.group(0)):
+                post_ok = True
+        if not post_ok:
+            golden_issues.append("POST lacks 金句 excerpt line")
+        if golden_issues:
+            c.append(
+                {
+                    "id": "G4.cd.golden_slot",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": "; ".join(golden_issues),
+                }
+            )
+        else:
+            c.append({"id": "G4.cd.golden_slot", "file": fp, "s": GateStatus.PASS})
 
     if mf:
         return fail("G4-chapter-drafting", c, "scoring", mf)

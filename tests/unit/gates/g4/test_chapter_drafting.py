@@ -552,3 +552,154 @@ def test_hook_ledger_markup_not_prose(tmp_path: Path) -> None:
     result = _run([str(ch)])
 
     assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
+
+
+# --- spec #71 T3: prose-excellence WARN predicates (three-state) ---
+
+_PRE_META = (
+    "<!--META-BEGIN-->\n## PRE_WRITE_CHECK\n\n"
+    "- 本章核心任务: x\n- 本章金句位: 对比｜渡口告别\n- 本章母题物象: 灯 + 风中残焰\n"
+    "<!--META-END-->\n\n"
+)
+_POST_META = (
+    "\n\n<!--META-BEGIN-->\n## POST_WRITE_SELF_CHECK\n\n"
+    "- [ ] 金句位: 账上得有数。账上得有过磅这一下。（落位后 2 句内收）\n"
+    "<!--META-END-->\n"
+)
+_SURGE = (
+    "他把那盏灯从案上端起来又放下，来回三次，直到油芯里的火苗被门缝挤进来的风"
+    "压得很低很低，低到几乎要缩进灯座里去。"
+)
+
+
+def _prose_chapter(tmp_path: Path, body: str, pre: str = _PRE_META, post: str = _POST_META) -> Path:
+    fp = tmp_path / "chapter-911.md"
+    fp.write_text(f"{pre}# 第911章 灯\n\n{body}{post}", encoding="utf-8")
+    return fp
+
+
+def _warn_status(result: dict[str, Any], check_id: str) -> str | None:
+    for ch in result.get("checks", []):
+        if ch.get("id") == check_id:
+            return ch.get("s")
+    return None
+
+
+@pytest.mark.unit
+def test_cd_surge_warn_when_below_quota(tmp_path: Path) -> None:
+    """0 narrative sentences >=35 chars with quota 1 -> WARN, never must_fix."""
+    result = _run([str(_prose_chapter(tmp_path, "短句。又短。再短。" * 3))])
+    assert _warn_status(result, "G4.cd.surge") == "WARN"
+    # WARN never blocks: no G4.cd.surge item may appear in must_fix even when
+    # the chapter fails other (hard) checks.
+    assert not any("G4.cd.surge" in m for m in _must_fix(result))
+
+
+@pytest.mark.unit
+def test_cd_surge_pass_when_quota_met(tmp_path: Path) -> None:
+    assert len(_SURGE.replace(" ", "")) >= 35
+    result = _run([str(_prose_chapter(tmp_path, _SURGE + "短句。" * 10))])
+    assert _warn_status(result, "G4.cd.surge") == "PASS"
+
+
+@pytest.mark.unit
+def test_cd_surge_dialogue_sentences_excluded(tmp_path: Path) -> None:
+    """Quoted sentences (dialogue ratio >=0.5) never count as narrative surge."""
+    quoted = "「" + "长" * 40 + "。」"
+    result = _run([str(_prose_chapter(tmp_path, quoted))])
+    assert _warn_status(result, "G4.cd.surge") == "WARN"
+
+
+@pytest.mark.unit
+def test_cd_surge_quota_two_boundary(tmp_path: Path) -> None:
+    """Spec §6.1 anchor: >=6000-char chapter has quota 2 — 2 pass / 1 warn."""
+    filler = "夜色沉下去，他数着更漏，一更一更地挨。" * 320  # 19*320 = 6080 non-ws
+    assert len(filler.replace(" ", "")) + len(_SURGE) >= 6000
+    two = _run([str(_prose_chapter(tmp_path, _SURGE + "短句。他再想。" + _SURGE + filler))])
+    assert _warn_status(two, "G4.cd.surge") == "PASS"
+    one = _run([str(_prose_chapter(tmp_path, _SURGE + filler))])
+    assert _warn_status(one, "G4.cd.surge") == "WARN"
+
+
+@pytest.mark.unit
+def test_cd_simile_band_three_states_and_edges(tmp_path: Path) -> None:
+    from shenbi.gates.shared import count_similes
+
+    # in-band interior: ~278 non-ws + 1 marker -> ~3.5/1000
+    filler = "他往前走，尘土在脚下起落。" * 21
+    assert (
+        _warn_status(
+            _run([str(_prose_chapter(tmp_path, "山像伏兽。" + filler))]), "G4.cd.simile_band"
+        )
+        == "PASS"
+    )
+    # low (dry): 0 markers -> 0.0 < 2 -> WARN
+    assert (
+        _warn_status(_run([str(_prose_chapter(tmp_path, filler))]), "G4.cd.simile_band") == "WARN"
+    )
+    # exact lower edge: 500 non-ws + 1 marker -> 2.0 (closed band)
+    edge_low = "山像伏兽。" + "他往前走。" * 99
+    assert count_similes(edge_low)["per_1000"] == 2.0
+    assert (
+        _warn_status(_run([str(_prose_chapter(tmp_path, edge_low))]), "G4.cd.simile_band") == "PASS"
+    )
+    # exact upper edge: 250 non-ws + 1 marker -> 4.0 (closed band)
+    edge_high = "山像伏兽。" + "他往前走。" * 49
+    assert count_similes(edge_high)["per_1000"] == 4.0
+    assert (
+        _warn_status(_run([str(_prose_chapter(tmp_path, edge_high))]), "G4.cd.simile_band")
+        == "PASS"
+    )
+    # high (pile-up): 16 markers / ~121 non-ws -> ~132 > 4 -> WARN
+    piled = "山像伏兽，像伏兽中的伏兽。" * 8 + "他走了。" * 3
+    assert _warn_status(_run([str(_prose_chapter(tmp_path, piled))]), "G4.cd.simile_band") == "WARN"
+
+
+@pytest.mark.unit
+def test_cd_golden_slot_full_states(tmp_path: Path) -> None:
+    # complete PRE/POST -> PASS
+    assert (
+        _warn_status(_run([str(_prose_chapter(tmp_path, "正文。"))]), "G4.cd.golden_slot") == "PASS"
+    )
+    # PRE value empty ([] after strip) -> WARN
+    empty_pre = _PRE_META.replace("- 本章金句位: 对比｜渡口告别", "- 本章金句位: []")
+    assert (
+        _warn_status(
+            _run([str(_prose_chapter(tmp_path, "正文。", pre=empty_pre))]), "G4.cd.golden_slot"
+        )
+        == "WARN"
+    )
+    # PRE value literally 无 -> WARN
+    none_pre = _PRE_META.replace("- 本章金句位: 对比｜渡口告别", "- 本章金句位: 无")
+    assert (
+        _warn_status(
+            _run([str(_prose_chapter(tmp_path, "正文。", pre=none_pre))]), "G4.cd.golden_slot"
+        )
+        == "WARN"
+    )
+    # fullwidth colon tolerated -> PASS
+    wide_pre = _PRE_META.replace("- 本章金句位: 对比｜渡口告别", "- 本章金句位：对比｜渡口告别")
+    assert (
+        _warn_status(
+            _run([str(_prose_chapter(tmp_path, "正文。", pre=wide_pre))]), "G4.cd.golden_slot"
+        )
+        == "PASS"
+    )
+    # POST excerpt missing -> WARN
+    assert (
+        _warn_status(_run([str(_prose_chapter(tmp_path, "正文。", post=""))]), "G4.cd.golden_slot")
+        == "WARN"
+    )
+
+
+@pytest.mark.unit
+def test_cd_golden_slot_bare_h2_forms(tmp_path: Path) -> None:
+    """Bare-H2 form (no META wrappers, real-fixture form) is equally checked."""
+    fp = tmp_path / "chapter-912.md"
+    fp.write_text(
+        "## PRE_WRITE_CHECK\n\n- 本章金句位: 对比｜灯\n\n# 第912章\n\n短句。\n\n"
+        "## POST_WRITE_SELF_CHECK\n\n- [ ] 金句位: 白天漏灰，夜里漏光。\n",
+        encoding="utf-8",
+    )
+    result = _run([str(fp)])
+    assert _warn_status(result, "G4.cd.golden_slot") == "PASS"
