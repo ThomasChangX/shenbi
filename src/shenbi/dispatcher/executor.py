@@ -184,20 +184,18 @@ def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
     if skip_raw:
         skip_patterns = [p.strip() for p in skip_raw.split(",") if p.strip()]
         if skip_patterns:
-            from fnmatch import fnmatch
+            from shenbi.gates.shared import optional_read_hit
 
             filtered: list[str] = []
             for f in input_files:
-                name = Path(f).name
-                if any(fnmatch(name, pat) for pat in skip_patterns):
-                    if not Path(f).exists():
-                        matching = [p for p in skip_patterns if fnmatch(name, p)]
-                        log.debug(
-                            "g1_skip_optional_read",
-                            file=f,
-                            pattern=matching[0] if matching else "unknown",
-                        )
-                        continue  # skip: optional file not yet produced
+                hit = optional_read_hit(f, skip_patterns)
+                if hit and not Path(f).exists():
+                    log.debug(
+                        "g1_skip_optional_read",
+                        file=f,
+                        pattern=hit,
+                    )
+                    continue  # skip: optional file not yet produced
                 filtered.append(f)
             original_count = len(input_files)
             input_files = filtered

@@ -410,6 +410,20 @@ def load_volume_context(project_dir: Path, chapter: int) -> str:
     )
     vol_section = vol_section_match.group(0) if vol_section_match else ""
 
+    # spec #71: volume-header quote/motif/gag line (金句、母题物象与梗位).
+    # Explicit extraction: the Objective regex's wide capture already carries
+    # header rows when an Objective line exists (incidental carrier, deduped
+    # below), but volumes without an Objective would lose the line without
+    # this branch. Old volume maps without the line are unaffected.
+    if vol_section:
+        qm_match = re.search(
+            r"^\*\*金句、母题物象与梗位\*\*\s*[:：]\s*(.+)$",
+            vol_section,
+            re.MULTILINE,
+        )
+        if qm_match and not any("金句、母题物象与梗位" in p for p in parts):
+            parts.append(f"**金句、母题物象与梗位:** {qm_match.group(1).strip()}\n")
+
     # Volume tension-curve table: volume-level pacing context for planning.
     if vol_section:
         tension_match = re.search(r"### 卷内张力曲线\n.*?(?=\n### |\Z)", vol_section, re.DOTALL)

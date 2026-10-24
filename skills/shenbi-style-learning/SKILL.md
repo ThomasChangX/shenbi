@@ -13,6 +13,8 @@ contract:
   writes:
   - file: style/style_profile.md
     mode: create_or_overwrite
+  - file: style/anchors.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -26,7 +28,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/*.md, import/source/*.txt, novel.json, genre-config.json
-- **Writes:** style/style_profile.md
+- **Writes:** style/style_profile.md, style/anchors.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
@@ -92,7 +94,7 @@ digraph style_bootstrap {
 ## 铁律
 
 1. **统计由脚本执行** — 所有指标由 `compute_stats.py` 计算，禁止 LLM 估算统计值。LLM 仅负责将脚本输出的 JSON 转为散文描述
-2. **统计而非评判** — 输出"是什么"，不输出"好不好"
+2. **统计而非评判** — 输出"是什么"，不输出"好不好"（**例外：anchors.md**——自锚定范文环是该技能唯一下沉到产物的评判面，选取标准半操作化见「自锚定范文环」节）
 3. **样本量要求** — 至少 10 章有效样本；不足 10 章时明确标注"样本不足"
 4. **可重现** — 相同输入必须产生相同输出（无随机性）
 5. **永不触碰 style_directives** — `style/style_directives.md` 是用户手写的总体文风**目标**（本技能的描述性画像回答「现在是什么」，directives 设定「要什么」）；本技能不读它、不写它、不得以统计现状覆盖或"纠正"它
@@ -104,6 +106,7 @@ digraph style_bootstrap {
 ```
 均值 / 中位数 / 标准差 / P25 / P50 / P75 / P95
 变异系数 = std / mean
+≥35 字句占比（奔涌率，spec #71）
 ```
 
 输出：直方图 + 关键统计量
@@ -130,7 +133,7 @@ digraph style_bootstrap {
 
 ### 5. 修辞模式
 
-通过规则模式匹配检测：
+通过规则模式匹配检测（另含闭集比喻密度计数，非对白域千字，spec #71）：
 - 对仗（A + B + A' + B' 结构）
 - 排比（连续 3+ 句同结构）
 - 反复（同一短语在邻近出现）
@@ -175,6 +178,7 @@ digraph style_bootstrap {
 | 统计量 | 值 |
 |--------|-----|
 | 均值 | N 字/句 |
+| ≥35 字句占比 | N%（奔涌率，spec #71） |
 | 中位数 | N 字/句 |
 | 标准差 | N |
 | P25 | N |
@@ -219,6 +223,7 @@ digraph style_bootstrap {
 | 对仗 | ... | N |
 | 反复 | ... | N |
 | 设问 | ... | N |
+| 比喻密度 | ... | N 处/千字（非对白域闭集计数，spec #71） |
 
 ## 7. 标点密度（每千字）
 
@@ -248,9 +253,9 @@ digraph style_bootstrap {
 
 ## 10. 各章统计
 
-| 章 | 字数 | 句长均值 | TTR | 对白占比 |
-|----|------|---------|-----|---------|
-| ... | N | N | N | N% |
+| 章 | 字数 | 句长均值 | TTR | 对白占比 | ≥35 字句占比 |
+|----|------|---------|-----|---------|--------------|
+| ... | N | N | N | N% | N% |
 
 ## 11. 综合画像
 
@@ -258,6 +263,30 @@ digraph style_bootstrap {
 
 > 注意：这是统计画像，不是优劣判断。后续写作以此为参考，但不是必须严格复制。
 ```
+
+## 自锚定范文环（style/anchors.md，spec #71）
+
+每次重测（每 12 章/卷界）从**成书章节**自选 3-5 段最佳段落写 `style/anchors.md`（整文件重写），三类各 ≥1 段：落差奔涌段（含达标奔涌句）、母题变奏段、金句段；每段 ≤300 字，注明出处章号与一句示范点指认。最小输出骨架：
+
+```markdown
+# 文风锚段（自锚定范文）
+
+## 落差奔涌段
+
+> 出处：第N章 · 示范点：一句指认
+
+[段落正文 ≤300 字]
+
+## 母题变奏段
+
+[同上形态]
+
+## 金句段
+
+[同上形态]
+```
+
+选取半操作化：奔涌段以 §10 各章 ≥35 列达标记章定位、金句段以 POST 摘录行为候选池、母题段以 PRE 母题行指向 + 回读正文定位，终选 LLM——候选池确定性保铁律 4 可重现叙事；骨架漂移由试点人工抽检兜底（不进硬闸）。drafting 以此 few-shot 自锚定（用自己最好的文字拉自己，零版权风险）；文件缺席不阻塞（首次重测前无 anchors，照 directives 写）。
 
 ## 汇总
 

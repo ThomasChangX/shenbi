@@ -6,7 +6,7 @@ temperature = 0.7
 max_tokens = 16384
 
 [overrides."shenbi-chapter-drafting"]
-temperature = 0.85
+temperature = 0.90  # spec #71: anti-RLHF-mean-reversion（回退判据见 spec §5.2）
 # vol1 probe (2026-10-24, escalation #016/#020): drafting ran on the provider
 # default (thinking effort HIGH) — the reasoning channel shares the completion
 # budget and at 7145-char chapters it alone eats 30-50K, emptying the content

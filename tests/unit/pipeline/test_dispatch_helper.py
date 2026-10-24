@@ -1206,3 +1206,12 @@ def test_chapter_header_still_injected_into_prose(tmp_path: Path) -> None:
         skill="shenbi-chapter-drafting",
     )
     assert (tmp_path / main).read_text(encoding="utf-8").startswith("# Chapter 2:")
+
+
+class TestOptionalReadsAnchors:
+    """spec #71 T4: anchors.md absence is the norm (first re-measure at ch12)."""
+
+    def test_optional_reads_includes_anchors(self) -> None:
+        from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+        assert "style/anchors.md" in OPTIONAL_READS["shenbi-chapter-drafting"]

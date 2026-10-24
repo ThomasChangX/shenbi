@@ -62,6 +62,7 @@ concepts:
   # style
   - {name: style/style_profile.md, kind: style}
   - {name: style/style_directives.md, kind: style, producer: external}
+  - {name: style/anchors.md, kind: style}
   # audits (one concept covers all 18 dims via the glob below)
   - {name: audits/chapter-N-<dim>.md, kind: report}  # parametric: N, <dim>
   - {name: audits/volume-N-payoff.md, kind: report}  # parametric: N
