@@ -225,6 +225,8 @@ _SHORT_OBJECT_SENTENCE_MAX = 40
 _ORDINAL_MAX = 99
 _HARD_FLOOR = 2000  # both tiers share this floor (spec §2)
 _SIZE_SINGLE_GATE = 2 * _HARD_FLOOR  # gate < 4000 → size-single path first
+_MIN_H1_LINES = 2
+_MIN_SPLIT = 2  # splitting needs >= 2 更 and >= 2 paragraphs
 
 CHAPTER_FILE_RE = re.compile(r"^chapter-(\d+)\.md$")
 _PARA_SPLIT_RE = re.compile(r"\n\s*\n")
@@ -300,7 +302,7 @@ def parse_chapter(path: Path) -> ChapterInput:
         raise ReleaseSplitError(f"文件名不匹配: {path.name}")
     body = strip_narrative_body(raw)
     h1_lines = [ln for ln in body.splitlines() if ln.startswith("# ")]
-    if len(h1_lines) < 2:
+    if len(h1_lines) < _MIN_H1_LINES:
         raise ReleaseSplitError(f"章文件无第二个 H1（章题提取失败）: {path.name}")
     title = h1_lines[1].lstrip("#").strip()
     for h in h1_lines:
@@ -320,7 +322,7 @@ def parse_chapter(path: Path) -> ChapterInput:
 
 - [ ] **Step 6: 跑测试确认通过 + lint**
 
-Run: `uv run pytest tests/unit/tools/test_release_split.py -v && uv run ruff check tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff format tools/release_split.py tests/unit/tools/test_release_split.py`
+Run: `uv run pytest tests/unit/tools/test_release_split.py -v && uv run ruff check --fix tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff check tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff format tools/release_split.py tests/unit/tools/test_release_split.py`
 Expected: 7 passed；ruff check 零违规；format 无改动（或改动已落盘）
 
 - [ ] **Step 7: Commit**
@@ -336,7 +338,7 @@ git commit -m "feat(release-split): T1 章解析层——strip/H1/段落切分 +
 
 **Files:**
 - Modify: `tools/release_split.py`（追加）
-- Modify: `tests/unit/tools/test_release_split.py`（顶部 import 块追加 `CutSignals, chinese_ordinal, classify_pair, tier_of`；正文追加测试）
+- Modify: `tests/unit/tools/test_release_split.py`（顶部 import 块按 isort 序插入 `CutSignals, chinese_ordinal, classify_pair, tier_of`——常量 TIERS → 类 → 函数字母序；正文追加测试）
 
 **Interfaces:**
 - Consumes: `nonws`, `SCENE_TRANSITION_WORDS`（T1）
@@ -375,15 +377,19 @@ def test_tension_predicates_stack() -> None:
 
 @pytest.mark.unit
 def test_scene_and_waist_predicates() -> None:
-    # prev 全部 >40 字防 (b) 误触：next 场景转换词开头 → +1
+    # prev 全部 >40 非空白字符防 (b) 误触（实测长度 46/56）
     sig = classify_pair(_LONG_PLAIN, "翌日清晨，城里来了消息。")
     assert (sig.score, sig.tension, sig.scene, sig.waist) == (1, False, True, False)
     # prev 以场景转换词开头 → −2 腰斩
-    sig_w = classify_pair("翌日，他独自去了城外的码头，一路没有人同行，雪把脚印埋了又起。", "码头空着。")
+    sig_w = classify_pair(
+        "翌日，他独自去了城外的码头，一路没有人同行，雪把脚印埋了又起，风从河面上刮过来，割得人脸疼。",
+        "码头空着。",
+    )
     assert (sig_w.score, sig_w.tension, sig_w.scene, sig_w.waist) == (-2, False, False, True)
     # 相邻双景开场：+1 −2 → −1（叠算净负为正确语义）
     sig_both = classify_pair(
-        "入夜，风从北门灌进来，把街上最后一张告示掀到了河里，没有人去捡。", "次日船到了。"
+        "入夜，风从北门灌进来，把街上最后一张告示掀到了河里，没有人去捡，更夫的梆子声也比平日短了半拍，像是也怕吵醒什么。",
+        "次日船到了。",
     )
     assert (sig_both.score, sig_both.scene, sig_both.waist) == (-1, True, True)
     # 词表外不认：傍晚不在 16 词闭集内
@@ -508,7 +514,7 @@ def chinese_ordinal(k: int) -> str:
 
 - [ ] **Step 4: 跑测试确认通过 + lint**
 
-Run: `uv run pytest tests/unit/tools/test_release_split.py -v && uv run ruff check tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff format tools/release_split.py tests/unit/tools/test_release_split.py`
+Run: `uv run pytest tests/unit/tools/test_release_split.py -v && uv run ruff check --fix tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff check tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff format tools/release_split.py tests/unit/tools/test_release_split.py`
 Expected: 全部 passed（T1+T2）
 
 - [ ] **Step 5: Commit**
@@ -524,7 +530,7 @@ git commit -m "feat(release-split): T2 打分谓词闭集+四档归类+中文序
 
 **Files:**
 - Modify: `tools/release_split.py`（追加）
-- Modify: `tests/unit/tools/test_release_split.py`（顶部 import 块追加 `initial_n, plan_releases`）
+- Modify: `tests/unit/tools/test_release_split.py`（顶部 import 块按 isort 序插入 `initial_n, plan_releases`）
 
 **Interfaces:**
 - Consumes: `Tier`, `classify_pair`, `CutSignals`, `nonws`（T1/T2）
@@ -607,8 +613,7 @@ def test_plan_releases_qidian_anchors() -> None:
 
 @pytest.mark.unit
 def test_plan_releases_razor_slack_downgrade() -> None:
-    """构造 razor-slack：body 8040 三巨段（边界 2680/5360）——m=4 时首带
-    [2000, 2040] 无候选 → 降档 4→3（真 ch2 同机制，此处受控验证）。"""
+    """Razor-slack 构造：m=4 首带无候选 → 降档 4→3（真 ch2 同机制）。"""
     fq = TIERS["fanqie"]
     paras = ["字" * 2680, "句" * 2680, "词" * 2680]
     ch = _mk_ch(paras, gate=8055, h1=15)  # ceil(8055/2400)=4, 8055/4=2013>=2000
@@ -664,7 +669,7 @@ def test_plan_releases_tie_break_earlier() -> None:
     f2 = "火苗立起来又矮下去。"  # (b) +2——与 f1 同分
     b = "词" * 2051
     ch = _mk_ch([a, f1, f2, b])  # body = 2050+10+10+2051 = 4121
-    # n=2, t_1=2060.5, half=309 → 窗口 [1751, 2369]；边界 2050(0)/2060(+2)/2070(+2)
+    # n=2, t_1=2060.5, half=309 → 窗口 [1752, 2369]；边界 2050(0)/2060(+2)/2070(+2)
     # 平手取更早 → 切 2060 → 更1 = 2060
     groups, m = plan_releases(ch, initial_n(ch.gate_chars, fq), fq)
     assert m == 2
@@ -740,7 +745,7 @@ def plan_releases(ch: ChapterInput, n: int, tier: Tier) -> tuple[list[tuple[int,
     for s in sizes:
         prefix.append(prefix[-1] + s)
 
-    if n < 2 or len(paras) < 2:
+    if n < _MIN_SPLIT or len(paras) < _MIN_SPLIT:
         return [(0, len(paras))], 1
 
     floor = tier.floor
@@ -752,7 +757,7 @@ def plan_releases(ch: ChapterInput, n: int, tier: Tier) -> tuple[list[tuple[int,
             j = _select_cut(paras, prefix, prefix[cuts[-1]] if cuts else 0, i, m, body, floor)
             if j is None:
                 m -= 1
-                if m < 2:
+                if m < _MIN_SPLIT:
                     return [(0, len(paras))], 1
                 infeasible = True
                 break
@@ -771,7 +776,7 @@ def plan_releases(ch: ChapterInput, n: int, tier: Tier) -> tuple[list[tuple[int,
 
 - [ ] **Step 4: 跑测试确认通过 + lint**
 
-Run: `uv run pytest tests/unit/tools/test_release_split.py -v && uv run ruff check tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff format tools/release_split.py tests/unit/tools/test_release_split.py`
+Run: `uv run pytest tests/unit/tools/test_release_split.py -v && uv run ruff check --fix tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff check tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff format tools/release_split.py tests/unit/tools/test_release_split.py`
 Expected: 全部 passed（真实夹具锚 13/16/15 的章级数字逐一命中）
 
 - [ ] **Step 5: Commit**
@@ -787,7 +792,7 @@ git commit -m "feat(release-split): T3 约束窗口选择算法——整数精�
 
 **Files:**
 - Modify: `tools/release_split.py`（追加）
-- Modify: `tests/unit/tools/test_release_split.py`（顶部 import 块追加 `build_release_text, chapter_flags, content_hash_of, render_title, split_chapter`；正文加 `import hashlib` 于顶部标准库块）
+- Modify: `tests/unit/tools/test_release_split.py`（顶部 import 块按 isort 序插入 `build_release_text, chapter_flags, content_hash_of, render_title, split_chapter`；正文加 `import hashlib` 于顶部标准库块）
 
 **Interfaces:**
 - Consumes: T1-T3 全部
@@ -892,7 +897,7 @@ def render_title(pattern: str | None, chapter_title: str, ordinal: str | None) -
     if pattern is None:
         return chapter_title if ordinal is None else f"{chapter_title}（{ordinal}）"
 
-    def _sub(m: "re.Match[str]") -> str:
+    def _sub(m: re.Match[str]) -> str:
         key = m.group(1)
         if key == "章题":
             return chapter_title
@@ -971,7 +976,7 @@ def split_chapter(ch: ChapterInput, tier: Tier, title_pattern: str | None) -> di
 
 - [ ] **Step 4: 跑测试确认通过 + lint**
 
-Run: `uv run pytest tests/unit/tools/test_release_split.py -v && uv run ruff check tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff format tools/release_split.py tests/unit/tools/test_release_split.py`
+Run: `uv run pytest tests/unit/tools/test_release_split.py -v && uv run ruff check --fix tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff check tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff format tools/release_split.py tests/unit/tools/test_release_split.py`
 Expected: 全部 passed
 
 - [ ] **Step 5: Commit**
@@ -987,7 +992,7 @@ git commit -m "feat(release-split): T4 账本条目——字节构成/content_ha
 
 **Files:**
 - Modify: `tools/release_split.py`（追加 `load_ledger`/`_validate_freeze`/`_write_products`/`run_split`/`main`）
-- Modify: `tests/unit/tools/test_release_split.py`（顶部标准库块追加 `import json/shutil/subprocess/sys`）
+- Modify: `tests/unit/tools/test_release_split.py`（顶部标准库块按 isort 序插入 `import json/shutil/subprocess/sys`）
 
 **Interfaces:**
 - Consumes: T1-T4 全部
@@ -1015,7 +1020,7 @@ def _run_tool(project: Path, *args: str) -> subprocess.CompletedProcess[str]:
 
 
 def _proj(tmp_path: Path, chapters: tuple[int, ...] = (1, 2, 3, 4)) -> Path:
-    """tmp project dir with real fixture chapter copies."""
+    """Tmp project dir with real fixture chapter copies."""
     p = tmp_path / "proj"
     (p / "chapters").mkdir(parents=True)
     for n in chapters:
@@ -1217,7 +1222,7 @@ def test_cli_structural_exit_codes(tmp_path: Path) -> None:
 - [ ] **Step 2: 跑测试确认失败**
 
 Run: `uv run pytest tests/unit/tools/test_release_split.py -v -k "cli"`
-Expected: FAIL（ImportError: load_ledger/run_split/main 未定义）
+Expected: FAIL（子进程退出非零/FileNotFoundError——工具文件尚无 CLI 入口）
 
 - [ ] **Step 3: 实现**
 
@@ -1398,8 +1403,8 @@ if __name__ == "__main__":
 
 - [ ] **Step 4: 跑测试确认通过 + lint**
 
-Run: `uv run pytest tests/unit/tools/test_release_split.py -v && uv run ruff check tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff format tools/release_split.py tests/unit/tools/test_release_split.py`
-Expected: 全部 passed（约 28 用例）
+Run: `uv run pytest tests/unit/tools/test_release_split.py -v && uv run ruff check --fix tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff check tools/release_split.py tests/unit/tools/test_release_split.py && uv run ruff format tools/release_split.py tests/unit/tools/test_release_split.py`
+Expected: 全部 passed（33 用例）
 
 - [ ] **Step 5: Commit**
 
