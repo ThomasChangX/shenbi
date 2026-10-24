@@ -639,3 +639,33 @@ def test_cli_structural_exit_codes(tmp_path: Path) -> None:
     (no2nd / "chapters" / "chapter-1.md").write_text("# Chapter 1:\n\n正文。", encoding="utf-8")
     r3 = _run_tool(no2nd)
     assert r3.returncode == 1 and "H1" in r3.stderr
+
+
+@pytest.mark.unit
+def test_cli_freeze_non_prefix_published_set(tmp_path: Path) -> None:
+    """非前缀 published 集（更1+更3 已发、更2 未发）：未改章重跑零漂移零误报。"""
+    p = _proj(tmp_path, (1,))
+    assert _run_tool(p).returncode == 0
+    led_path = p / "publish" / "fanqie" / "releases.json"
+    led = json.loads(led_path.read_text(encoding="utf-8"))
+    rels = led["chapters"][0]["releases"]
+    rels[0]["published"] = True
+    rels[2]["published"] = True  # 更2 留未发布
+    led_path.write_text(json.dumps(led, ensure_ascii=False, indent=2), encoding="utf-8")
+    r = _run_tool(p)  # 章未变：必须 exit 0 且 published 位保持
+    assert r.returncode == 0, r.stderr
+    led2 = json.loads(led_path.read_text(encoding="utf-8"))
+    flags = [rl["published"] for rl in led2["chapters"][0]["releases"]]
+    assert flags == [True, False, True, True] or flags[:3] == [True, False, True]
+    # 更4 原本未发布，重跑后仍未发布
+    assert flags == [True, False, True, False]
+
+
+@pytest.mark.unit
+def test_cli_ledger_non_object_rejected(tmp_path: Path) -> None:
+    p = _proj(tmp_path)
+    pub = p / "publish" / "fanqie"
+    pub.mkdir(parents=True)
+    (pub / "releases.json").write_text("[]", encoding="utf-8")
+    r = _run_tool(p)
+    assert r.returncode == 1 and "顶层非对象" in r.stderr

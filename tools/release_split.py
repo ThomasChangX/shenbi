@@ -395,6 +395,8 @@ def load_ledger(platform_dir: Path, platform: str) -> dict[str, Any] | None:
         ledger = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as e:
         raise ReleaseSplitError(f"releases.json 畸形 JSON: {e}") from e
+    if not isinstance(ledger, dict):
+        raise ReleaseSplitError(f"releases.json 顶层非对象: {type(ledger).__name__}")
     if ledger.get("schema") != SCHEMA_ID:
         raise ReleaseSplitError(
             f"releases.json schema 不符: {ledger.get('schema')!r} != {SCHEMA_ID!r}"
@@ -420,18 +422,22 @@ def _validate_freeze(
         if cnum not in by_number:
             raise ReleaseSplitError(f"在册章 chapter-{cnum} 已消失且含冻结条目（人工账本手术）")
         new_entry = by_number[cnum]
-        if len(new_entry["releases"]) < len(pub):
-            raise ReleaseSplitError(f"chapter-{cnum} 重切后更数少于冻结更数")
-        for k, pr in enumerate(pub):
+        # 对齐旧章完整更列表（非前缀 published 集：更1+更3 已发而更2 未发是合法形态）
+        old_rels = oc.get("releases", [])
+        for k, orl in enumerate(old_rels):
+            if not orl.get("published"):
+                continue
+            if k >= len(new_entry["releases"]):
+                raise ReleaseSplitError(f"chapter-{cnum} 重切后更数少于冻结更数")
             nr = new_entry["releases"][k]
-            if nr["content_hash"] != pr["content_hash"]:
+            if nr["content_hash"] != orl["content_hash"]:
                 raise ReleaseSplitError(
                     f"chapter-{cnum} 更 {k + 1} 内容哈希漂移于冻结条目（无逃生口，人工账本手术）"
                 )
-            if (nr["seq"], nr["file"]) != (pr["seq"], pr["file"]):
+            if (nr["seq"], nr["file"]) != (orl["seq"], orl["file"]):
                 drifts.append(
                     f"chapter-{cnum} 更 {k + 1}: "
-                    f"seq {pr['seq']}\u2192{nr['seq']} file {pr['file']}\u2192{nr['file']}"
+                    f"seq {orl['seq']}\u2192{nr['seq']} file {orl['file']}\u2192{nr['file']}"
                 )
             nr["published"] = True
     if drifts and not renumber_published:
