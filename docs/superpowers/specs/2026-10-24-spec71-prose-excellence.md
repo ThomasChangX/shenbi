@@ -4,7 +4,7 @@
 
 > 2026-10-24 brainstorming 定稿。决策路径：网络调研六位公认文笔派作者（「中原五青」共识 + 树下野狐/江南——起点六人名单与 NGA 纯文笔投票交叉）提炼共性带（长短落差大/意象密度高/煽情克制/对话承载辨识度）→ 本地实证三缺失（星火 ch1 全章最长句仅 31 字、≥25 字句占比 6%——「≥16 字收束长句」伪长句定义压死天花板；比喻只有 ≤2/千字单上限且喻体俗套失控——ch5 达 5.3/千字；金句只有卷纲排期、drafting 无工艺）→ 三问定稿：①**范围 P0-P3 全包**（含破折号框架红线与温度实验）②**风格定位重锚六人共性带**（基带 10-20→12-25，非「增强不换底」）③**排期 = spec 先落地、卷一 v2 即试点**（先 A/B 探针方案否决）→ 三方案对比（A 纯指令层[漂移无闸无对账] / B 指令+WARN 闸+自锚定环 / C 外部范文注入[版权风险 + StoryScope「改风格难掩底层叙事差异」边际收益否决]）用户选定 **方案 B**。
 >
-> **Revised 2026-10-24**（SDD 阶段 0 亲验 + 阶段 1 驳斥产出七项）：① golden_slot POST 谓词与 §3 模板行格式对齐（原 `= [` 谓词对 §3 金句位行永真）；② 施工面补 `src/shenbi/pipeline/_shared.py`——planning 对 volume_map 走 extractor: volume_chapter → `load_volume_context` 白名单提取，不含卷头部元数据区金句行，只改 SKILL 文字 = dead-wire；③ simile_band 分母改非对白域（分子分母同域——原 gate 口径分母含对白 35-55%，测值系统性下移约半、带界与模板语义错位）；④ §5.1 节号订正（§6 标点密度，非 §7）；⑤ §6.1 契约面补 lint-contracts 家族 + just generate 派生物；⑥ §4.2 统计指标目录节同步面；⑦ G4.vo.quote_line 确认无需扩（regex 对扩名行仍命中）+ 闭集误计面与疲劳词张力声明。
+> **Revised 2026-10-24**（两轮：阶段 1 驳斥七项 + 阶段 3 设计审查 R1 十一项）：① golden_slot POST 谓词与 §3 模板行对齐且不耦合方括号字面；② 施工面补 `src/shenbi/pipeline/_shared.py`（load_volume_context 增金句母题行提取——extractor 白名单不含该行，只改 SKILL = dead-wire）+ `dispatch_helper.py`（OPTIONAL_READS 增 anchors.md）+ `gates/shared.py`（segment_sentences 迁入 + count_similes 单信源）；③ simile_band 分母改非对白域（分子分母同域）；④ §5.1 节号订正（§6 标点密度）；⑤ §6.1 契约面补 lint-contracts 家族 + just generate 派生物；⑥ §4.2 统计指标目录节同步面；⑦ G4.vo.quote_line 确认无需扩；⑧ surge 计数域补剥 META（strip_narrative_body——防 POST 自检清单喂饱闸）；⑨ anchors 铁律 2 例外条款 + 半操作化选取；⑩ §6.2 数据源改 gate 结果 JSON jq 归集（无现成 WARN 聚合面）；⑪ 温度回退基线钉死数值（$0.18 主判据 + vol1 首跑段实录辅判据）。
 
 ## 1. 定位与边界
 
@@ -29,13 +29,13 @@
 
 - 叙述句基带：12-25 字/句；对白保持短促（4-12 字/句）
 - 长短落差（惊艳主引擎）：每场景 ≥1 句 ≥35 字奔涌长句（铺陈蓄势），
-  其后 3 句内落 1 句 ≤10 字收割短句；连续 4 句同量级（±5 字）= 节奏平段，须打破
+  其后 3 句内落 1 句 ≤10 字收割短句；连续 4 句两两互差 ≤5 字 = 节奏平段，须打破
 - 段落形态：段均 2-4 句；成段叙述与单行对白交替，避免连续 5 段以上同构断行
 
 ## 意象与修辞
 
 - 感官细节密度：每千字 3-5 处（触觉/听觉优先于视觉）
-- 比喻带（双向）：每千字 2-4 处，低于下限 = 干燥、高于上限 = 堆砌；
+- 比喻带（双向，叙述文字口径）：每千字 2-4 处，低于下限 = 干燥、高于上限 = 堆砌；
   喻体必须取材当章场景物象，通用喻体（月光如水／如释重负／隔层毛玻璃类）= 违规
 - 意象母题：每卷 1-2 个核心物象（卷纲「金句、母题物象与梗位」行指定），
   每章 ≥1 次变奏复现，语境须不同
@@ -82,13 +82,13 @@
 
 ### 4.2 测量闭环升级（`src/shenbi/skill_utils/style_learning/compute_stats.py` + style-learning SKILL）
 
-- `compute_sentence_stats` 增 **≥35 字句占比（奔涌率）**；新增 `count_similes`。
+- `compute_sentence_stats` 增 **≥35 字句占比（奔涌率）**；新增 `count_similes`。**单信源落点 = `gates/shared.py`**：`segment_sentences` 自 compute_stats 迁入 + `count_similes`（闭集 + `find_quote_spans` 非对白剥离）新增；compute_stats 与 G4.cd 同向导入（既有依赖方向 skill_utils→gates 不变；compute_stats re-export `segment_sentences` 保 API 兼容——gates 层零 skill_utils 导入的仓规不被打破）。
 - 比喻闭集（子串计数，非对白文本）：`像`、`仿佛`、`宛如`、`宛若`、`恰似`、`如同`、`似的`——密度 = 计数 / **非对白文本字数** × 1000。**非对白文本 = 剥离引号内文字后的正文**（引号对覆盖 `「」『』""“”`，复用 `cjk.find_quote_spans`）；**分母与分子同域**（非对白文本的非空白字符数，含 H1 行、剥 META 块）——若沿用 `total_chars_md_text`（含对白）作分母，对白占比 35-55% 下测值系统性下移约半，[2,4] 带界与 §2 模板「每千字 2-4 处」的写作者语义错位，故分母取非对白域。「像」子串匹配含「好像/就像」复合形式与名词内嵌（影像/画像/像样等）——两类误计均为接受的 WARN 级精度损失；`仿佛`/`如同`/`似乎` 计入 FATIGUE_BASE 疲劳预算（≤8/章）且 `仿佛` 另受 AI 标记词 ≤1 次/章硬闸——闭集七词中三词受限，实际可用喻词以 `像/宛如/宛若/恰似/似的` 为主，带内达标现实可行（试点观察项 6 人工抽检覆盖）。
 - profile 模板：§1 句长分布表增「≥35 字句占比」行；§6 修辞模式表增「比喻密度（处/千字）」行；SKILL 统计指标目录节（「### 1. 句长分布」/「### 5. 修辞模式」）同步增两指标条目。反馈环语义从「强化均衡」变为「强化落差」。
 
 ### 4.3 自锚定范文环 `style/anchors.md`
 
-- style-learning 每次重测（每 12 章/卷界）从**成书章节**自选 3-5 段最佳段落写 `style/anchors.md`（整文件重写），三类各 ≥1 段：落差奔涌段（含达标奔涌句）、母题变奏段、金句段；每段 ≤300 字，注明出处章号与一句示范点指认。
+- style-learning 每次重测（每 12 章/卷界）从**成书章节**自选 3-5 段最佳段落写 `style/anchors.md`（整文件重写），三类各 ≥1 段：落差奔涌段（含达标奔涌句）、母题变奏段、金句段；每段 ≤300 字，注明出处章号与一句示范点指认。**铁律 2 增 anchors 例外条款**（anchors 是该技能唯一下沉到产物的评判面）；选取半操作化：奔涌段以 §1 统计达标记章定位、金句段/母题段以 PRE/POST 摘录行为候选池，终选 LLM——候选池确定性保铁律 4 可重现叙事。few-shot 注入成本 ≈ 3-5 段 × ≤300 字 ≤1.5K tokens/章（相对 $0.18/章可忽略）。
 - drafting reads 增 `- style/anchors.md`（few-shot 自锚定——用自己最好的文字拉自己，零版权风险）。文件缺席不阻塞：创世期前 12 章无 anchors，照 directives 写；首次重测后生成。
 - truth 注册：`docs/framework/truth-files.yaml` 与 `truth-files.index.json` 增 `{name: style/anchors.md, kind: style}`（画像族文件；铁律 5 的 hands-off 只针对 `style_directives.md`，不冲突）。
 
@@ -96,9 +96,9 @@
 
 | id | 口径（全部操作化） | 触发 |
 |---|---|---|
-| `G4.cd.surge` | 句切分与 `compute_sentence_stats` 同源（`segment_sentences`）；句长 = 非空白字符数（含标点）；叙述句 = 引号内字符占比 <50% 的句；计数章内句长 ≥35 的叙述句 | 计数 < max(1, gate 口径章字数 // 3000)（口径同 §4.2；7145 字章即 <2 处；1700 字探针章即 <1 处） |
+| `G4.cd.surge` | 计数域 = `strip_narrative_body(content)`（剥 PRE/POST META 块后的叙述正文，与 G4.transition 同域——防 POST 自检清单喂饱闸，probe escalation #4 同型）；句切分与 `compute_sentence_stats` 同源（`segment_sentences`）；句长 = 非空白字符数（含标点）；叙述句 = 引号内字符占比 <50% 的句；计数章内句长 ≥35 的叙述句 | 计数 < max(1, gate 口径章字数 // 3000)（切分与 §4.2 同源；配额分母取全章口径，对白占比高的 dialogue 章配额相对叙述域偏宽——温和方向，接受；7145 字章即 <2 处；1700 字探针章即 <1 处） |
 | `G4.cd.simile_band` | §4.2 闭集子串计数于非对白文本，密度 = 计数 / 非对白文本字数 × 1000 | 密度 ∉ [2, 4]/千字（低 = 干燥，高 = 堆砌） |
-| `G4.cd.golden_slot` | PRE_META 块含行首 `- 本章金句位: ` 且值为非空；POST_META 块含金句摘录项（行含「金句位」且 `: [` 后至行尾非空——与 §3 模板行 `- [ ] 金句位: [原句摘录]（落位后 2 句内收）` 格式对齐） | 任一缺失 |
+| `G4.cd.golden_slot` | PRE_META 块含行首 `- 本章金句位: ` 且值为非空；POST_META 块含金句摘录项（行含「金句位」且冒号后至行尾非空——不耦合方括号字面，摘录带引号写法同样命中） | 任一缺失 |
 
 - 俗套喻体与金句**质量**判定不进 G4（确定性闸管不了审美）——`simile_band` WARN 的 reason 文本附「俗套喻体抽检」提示，归审计裁决复核；试点期人工抽检（§6）。
 - 母题行（PRE）**不设独立 WARN**：变奏复现的判定开放性强，机器只能查行存在、价值低，且避免 WARN 泛滥；母题质量归审计面抽检。
@@ -114,7 +114,7 @@
 ### 5.2 drafting 温度 0.85 → 0.90（`executor_config.toml`，单臂变更）
 
 - 理由：对抗 RLHF 均值回归（「意料之外的妥帖比喻」被淘汰的直接补偿旋钮）；双跑 A/B 成本一整卷不成立，卷一 v2 首跑即单臂观察，对比 vol1 首跑段历史基线（~$0.18/章、escalation 率）。
-- 回退条件：重派率/escalation 率 >1.5× 历史基线 → 回 0.85 并记档（观察项，不动代码结构）。
+- 回退条件：主判据 = 章均成本 >1.5× $0.18；辅判据 = 重派/escalation 率 >1.5× vol1 首跑段实录口径（空正文族修复前 9 次/4 章、decisions-stub 2/5 章——docs/probe-vol1-driver-prompt.md 已钉数字）→ 任一触发回 0.85 并记档（观察项，不动代码结构）。
 
 ## 6. 验证与试点
 
@@ -123,11 +123,11 @@
 - `compute_stats`：奔涌率/比喻密度构造输入断言（结构性用例，测试内构造——G0.9 约束的是冒充真实产物的 fixture，不约束结构性用例）。
 - G4.cd 三 WARN 三态：触发/不触发/边界（7145 字章恰 2 处 surge 达标、1 处触发；密度 2.0 与 4.0 恰在带界；PRE 行存在但值为空触发）。
 - `style_seed`：新模板内容快照断言（改既有测试）+ write-if-absent 幂等不覆写仍守。
-- 契约面：六份 SKILL 的 reads/writes 变更后 `lint_registry_reconcile` 跑通 + `just lint-contracts` 家族绿（ORPHAN_READ 闭环：drafting reads `style/anchors.md` 的生产者 = style-learning writes）+ `just generate` 派生物（deps.json/docs/skills）再生成幂等；truth-files 注册一致；PRE/POST 新行的 G4 机械检查（META 块提取复用 `gates/shared.py` 既有函数）。
+- 契约面：六份技能面（五 SKILL 契约 + anti-ai-reference 参考文件）的 reads/writes 变更后 `lint_registry_reconcile` 跑通 + `just lint-contracts` 家族绿（ORPHAN_READ 闭环：drafting reads `style/anchors.md` 的生产者 = style-learning writes）+ `just generate` 派生物（deps.json/docs/skills）再生成幂等；truth-files 注册一致；PRE/POST 新行的 G4 机械检查（META 块提取复用 `gates/shared.py` 既有函数）。
 
 ### 6.2 试点 = 卷一 v2 全新首跑（本 spec 落地后启动）
 
-观察项六条（数据源：G4 WARN 报告 + style_profile 重测 + 审计面 + 成本台账）：
+观察项六条（数据源：G4 gate 结果 JSON 的 checks 数组——gate-markers/ 逐章 marker 文件 jq 归集，无现成聚合面、不新增工具 + style_profile 重测 + 审计面 + 成本台账）：
 
 1. 奔涌率：0 → ≥ max(1, 字数//3000)/章（style_profile §1 新行）
 2. 比喻密度入带率（2-4/千字）
@@ -151,7 +151,9 @@
 | 层 | 文件 | 改动 |
 |---|---|---|
 | 代码 | `src/shenbi/pipeline/style_seed.py` | `DEFAULT_STYLE_DIRECTIVES` 重写（§2 全文）+ docstring 叙事更新 |
-| 代码 | `src/shenbi/skill_utils/style_learning/compute_stats.py` | 奔涌率 + `count_similes`（闭集 §4.2） |
+| 代码 | `src/shenbi/gates/shared.py` | `segment_sentences` 迁入（compute_stats re-export 保 API）+ `count_similes` 新增（§4.2 单信源落点） |
+| 代码 | `src/shenbi/skill_utils/style_learning/compute_stats.py` | 奔涌率 + `count_similes` 消费（单信源在 gates/shared.py，§4.2） |
+| 代码 | `src/shenbi/pipeline/dispatch_helper.py` | `OPTIONAL_READS["shenbi-chapter-drafting"]` 增 `style/anchors.md`（前 12 章缺席常态；probe9 先例同 style_directives.md） |
 | 代码 | `src/shenbi/gates/g4/chapter_drafting.py` | 三 WARN 谓词（§4.4，`GateStatus.WARN` 先例：`chapter_planning.py:98`） |
 | 代码 | `executor_config.toml` | drafting `temperature = 0.90` + 注释 |
 | 代码 | `src/shenbi/pipeline/_shared.py` | `load_volume_context` 增「金句、母题物象与梗位」行提取（§4.1 断链闭合的机器侧落点） |
