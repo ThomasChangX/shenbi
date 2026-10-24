@@ -105,6 +105,10 @@ ledger-archive *args:
 volume-budget *args:
     uv run python -m shenbi.pipeline.volume_budget "$@"
 
+# Release split: settled chapters -> platform-sized publish updates (spec #70)
+release-split *args:
+    uv run python tools/release_split.py "$@"
+
 # Lint contract.reads fields vs truth file headings/keys (spec B.5)
 lint-contract-fields:
 	uv run python scripts/lint_contract_fields.py

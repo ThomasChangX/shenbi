@@ -1884,8 +1884,11 @@ def _section_ledger_units(content: str) -> list[str]:
 #: B 批: a 章节线索推进表 interval row cell (``103-110（五卷 KR2）``) —
 #: the thread ledger's second sanctioned unit form (new-volume pacing rows
 #: dedup on the interval cell; the 总览表 row stays BANNED — derivation
-#: owns it).
-_OUTLINE_INTERVAL_CELL_RE = re.compile(r"^\d+\s*-\s*\d+\s*[（(]")
+#: owns it). vol1 genesis escalation #001: the SKILL contract says「首格
+#: 照抄 live 既有区间写法」and the creation write carries the
+#: ``第103-110章（卷 KR2·后段）`` family — both families are sanctioned
+#: (shape gate, not semantics; the optional 第/章 tokens mix freely).
+_OUTLINE_INTERVAL_CELL_RE = re.compile(r"^第?\d+\s*-\s*\d+\s*章?\s*[（(]")
 
 
 def _now_iso() -> str:
@@ -2075,6 +2078,22 @@ def _hooks_increment_shape_injection() -> str:
         "addition — replacing notes with only the new sentence is silent "
         "history loss."
     )
+
+
+def _strip_hr_lines(content: str) -> str:
+    """Drop standalone markdown horizontal rules from an outline increment.
+
+    vol1 genesis escalation #002: the writer model deterministically wraps
+    section increments with ``---`` rules (leading + inter-section) — the
+    phase3-era live files carried them too, so the habit has ecosystem
+    precedent and corrective feedback did not break it. Mechanical
+    normalization instead of writer discipline: a bare rule line carries
+    zero semantic content, and a REAL frontmatter block survives the strip
+    as a key:value prose residue unit that the shape guard still rejects
+    (loudly, naming the actual offending line). Applies to all four keyed
+    outline targets at the one merge entry.
+    """
+    return "\n".join(l for l in content.split("\n") if l.strip() != "---")
 
 
 def _validate_increment_package(
@@ -2428,6 +2447,9 @@ def _route_append_dedup_write(
         target = project_dir / rel_path
         target.parent.mkdir(parents=True, exist_ok=True)
         base_text = target.read_text(encoding="utf-8") if target.exists() else ""
+        # vol1 escalation #002: normalize cosmetic hr rules BEFORE validation
+        # and the volume-anchor check — both must judge the stripped shape.
+        content = _strip_hr_lines(content)
         _validate_increment_package(
             content,
             key_field=outline_key,

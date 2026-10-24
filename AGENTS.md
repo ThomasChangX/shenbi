@@ -39,6 +39,7 @@ Use entry points (not `python3 tests/X.py`):
 - `just pool-archive <dir> --resolved-through <ch>` — Pool evidence rolling archival: RESOLVED sections past the window move to `truth/pending_hooks_archive.md`
 - `just ledger-archive <dir> --resolved-through <ch>` — Both evidence ledgers (pool + thread_map) rolling archival in one command (B 批)
 - `just volume-budget <dir> [--apply]` — Volume budget guardrails: re-budget pending / per-volume ±3 drift / 保量 floor; `--apply` performs deterministic total_chapters + skeleton writeback (C 批)
+- `just release-split <dir> [--platform fanqie|qidian]` — 发布切分层：已收束章节 → 平台档位发布更（`publish/<platform>/`，spec #70）
 - `shenbi-validate G0 <seed>` — Gate 0: environment check
 - `shenbi-validate G2 <files> <type>` — Gate 2: output validation
 - `shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural check
@@ -105,7 +106,7 @@ Three-tier framework: **T1** per-skill (generative/bug-hunt/clean), **T2** phase
 
 Thresholds: **≥94** for tier advancement, **≥90** for individual test pass, **100** as convergence target. Gates G0–G7 enforce quality at every stage—no gate can be skipped. Scoring MUST use an independent subagent (G3.4); dispatcher-scored results are invalid.
 
-Fixtures under `tests/fixtures/` are exclusively real skill outputs or upstream-generated copies (G0.9 prohibits hand-crafted mocks). All test scenario inputs must reference `tests/fixtures/` paths.
+Fixtures under `tests/fixtures/` are exclusively real skill outputs or upstream-generated copies (G0.9 prohibits hand-crafted mocks). All test scenario inputs must reference `tests/fixtures/` paths. Structural unit-test cases (adversarial paragraph layouts, ledger states) may construct inputs inline or via tmp_path — G0.9 forbids fixtures impersonating real skill outputs, not constructed structural inputs.
 
 ### Commit Conventions
 

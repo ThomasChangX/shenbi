@@ -394,8 +394,11 @@ def _thread_detail_heading_re() -> re.Pattern[str]:
     return re.compile(rf"^#{{2,6}}\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])", re.MULTILINE)
 
 
-#: A 章节线索推进表 interval row: ``| 1-8（一卷 KR1） | A1 | … |``.
-_THREAD_INTERVAL_ROW_RE = re.compile(r"^\|\s*(\d+)\s*-\s*(\d+)\s*[（(]")
+#: A 章节线索推进表 interval row: ``| 1-8（一卷 KR1） | A1 | … |``. The
+#: ``第1-8章（一卷 KR1）`` family (creation-write verbatim, vol1 genesis
+#: escalation #001) is equally sanctioned — both capture groups stay the
+#: bare start/end numbers for the window arithmetic.
+_THREAD_INTERVAL_ROW_RE = re.compile(r"^\|\s*第?(\d+)\s*-\s*(\d+)\s*章?\s*[（(]")
 
 
 def extract_threads_overview(content: str, chapter: int | None = None) -> str:

@@ -333,6 +333,102 @@ def test_thread_section_increment_derives_overview_row_via_dispatch(tmp_path: Pa
     assert cells[5] == "50" and cells[6] == "80" and cells[7] == "PLANTED"
 
 
+# --- vol1 genesis escalation #001: 第N-M章 区间格族 + 总览表 bootstrap ---------------
+
+
+def test_thread_interval_row_di_prefix_family_merges(tmp_path: Path) -> None:
+    """vol1 escalation #001: the SKILL contract says「首格照抄 live 既有区间
+    写法」— the live creation write carries the ``第N-M章(卷 KRn·前段)``
+    family, so a contract-faithful increment in that family must pass the
+    shape guard AND key into the 推进表. The bare ``N-M(卷 KRn)`` family stays
+    legal (two families coexist).
+    """
+    base = _THREAD_LEDGER.replace(
+        "| 17-23（一卷 KR3） | A1 | C1 | 顶罪与清算 |",
+        "| 第17-23章（卷1 KR3） | A1 | C1 | 顶罪与清算 |",
+    )
+    (tmp_path / "outline").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "outline" / "thread_map.md").write_text(base, encoding="utf-8")
+    _write_parsed_outputs(
+        response=(
+            "### FILE: outline/thread_map.md\n"
+            "| 第17-23章（卷1 KR3） | A1 | C1 | 修订后的顶罪与清算 |\n"
+            "| 第24-31章（卷2 KR1） | B7 | A2 | 落脚 |\n"
+            "| 32-39（二卷 KR2） | A1 | B2 | 公开示范 |\n"
+        ),
+        output_paths=["outline/thread_map.md"],
+        project_dir=tmp_path,
+        skill="shenbi-plot-thread-weaver",
+    )
+    merged = (tmp_path / "outline" / "thread_map.md").read_text(encoding="utf-8")
+    assert merged.count("| 第17-23章（卷1 KR3） |") == 1, "di-prefix row replaced, not duplicated"
+    assert "修订后的顶罪与清算" in merged
+    assert "| 第24-31章（卷2 KR1） |" in merged, "new di-prefix interval row accepted"
+    assert merged.index("| 第24-31章（卷2 KR1） |") < merged.index("## 约束检查表"), (
+        "new interval row lands INSIDE the 推进表 region"
+    )
+    assert "| 32-39（二卷 KR2） |" in merged, "bare-digit legacy family still legal"
+
+
+def test_thread_section_increment_bootstraps_missing_overview_table(tmp_path: Path) -> None:
+    """vol1 escalation #001: a scaffold-less creation write (shell-exempt
+    whole-file, no ``## 线索总览表``) must not permanently break G4.pt.lines
+    — the derivation bootstraps the canonical heading + 8-column header
+    before the first thread section, then derives rows from the sections.
+    """
+    base = (
+        "### A1: 灵印\n\n"
+        "- **状态**: PLANTED\n- **跨度**: 第1章 - 第118章\n"
+        "- **优先级**: P0\n- **max_gap**: 2\n\n"
+        "| 第1-10章（卷1 KR1·前段） | A1 | C1 | 开局 |\n"
+    )
+    (tmp_path / "outline").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "outline" / "thread_map.md").write_text(base, encoding="utf-8")
+    _write_parsed_outputs(
+        response=(
+            "### FILE: outline/thread_map.md\n"
+            "### B7: 新开的商路\n\n- **状态**: PLANTED\n- **跨度**: 第50章 - 第80章\n"
+            "- **优先级**: P1\n- **max_gap**: 4\n"
+        ),
+        output_paths=["outline/thread_map.md"],
+        project_dir=tmp_path,
+        skill="shenbi-plot-thread-weaver",
+    )
+    merged = (tmp_path / "outline" / "thread_map.md").read_text(encoding="utf-8")
+    assert "## 线索总览表" in merged, "overview heading bootstrapped"
+    assert "| ID | 名称 | 优先级 | 类型 | max_gap | 起始章 | 终点章 | 状态 |" in merged, (
+        "canonical EXACT 8-column header bootstrapped"
+    )
+    import re
+
+    assert re.search(r"^\| A1 ", merged, re.MULTILINE), "A1 overview row derived"
+    row_b7 = next(l for l in merged.splitlines() if l.startswith("| B7"))
+    cells = [c.strip() for c in row_b7.strip().strip("|").split("|")]
+    assert cells[0] == "B7" and cells[5] == "50" and cells[6] == "80" and cells[7] == "PLANTED"
+    assert merged.index("## 线索总览表") < merged.index("| ID |") < merged.index("### A1"), (
+        "bootstrapped table sits between heading and first section — derived rows "
+        "land inside the table, never stranded at EOF"
+    )
+
+
+def test_thread_overview_heading_without_header_row_bootstraps_header() -> None:
+    """vol1 escalation #001 follow-up: heading present but header row
+    missing was the other silent no-op seam — same bootstrap, header only.
+    """
+    from shenbi.pipeline.truth_io import sync_thread_overview_rows
+
+    base = (
+        "## 线索总览表\n\n### A1: 灵印\n\n"
+        "- **状态**: PLANTED\n- **跨度**: 第1章 - 第118章\n- **优先级**: P0\n"
+    )
+    out = sync_thread_overview_rows(base)
+    assert "| ID | 名称 | 优先级 | 类型 | max_gap | 起始章 | 终点章 | 状态 |" in out
+    import re
+
+    assert re.search(r"^\| A1 ", out, re.MULTILINE), "row derived after header bootstrap"
+    assert out.index("| ID |") < out.index("### A1"), "row lands inside the table region"
+
+
 def test_volume_section_with_kr_table_survives_dispatch_splitter(tmp_path: Path) -> None:
     """Rebudget-drill find: a real volume section carries KR 章节节点 TABLES —
     the generic row splitter shredded them into non-section units the shape

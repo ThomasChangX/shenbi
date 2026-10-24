@@ -890,13 +890,29 @@ def _enrich_g4_feedback(failures: list[str]) -> str:
     return "\n".join(lines)
 
 
-def _append_feedback_injections(prompt: str, state: PipelineState, chapter: int, skill: str) -> str:
+def _append_feedback_injections(
+    prompt: str,
+    state: PipelineState,
+    chapter: int,
+    skill: str,
+    project_dir: Path | None = None,
+) -> str:
     """One-shot MODIFY feedback + prior-attempt G4 corrective feedback.
 
     Shared by the serial dispatch path and the parallel post-draft prompt
     builder (fixcheck escalation ch1 2026-09-29: the parallel builder
     claimed to "mirror the serial path" but injected neither, so
     state-settling retries ran blind and restructured character_matrix 3x).
+
+    vol1 escalation #024/#026: a G4.word_count retry additionally carries
+    the PERSISTED DRAFT plus an expand-don't-rewrite directive. Without the
+    base text every retry is a blind full rewrite, and with the writer's
+    self-count biased 15-25% high (drafting 铁律 7) the loop either
+    re-lands short (ch5: 6177→8269→7337 raw, degrading across escalations)
+    or ratchets past the floor once feedback says "expand" (ch1/2/4 landed
+    +9~19% gate-metric over chapter_word.default). Expansion on the exact
+    measured gap converges monotonically and keeps first-attempt passes on
+    target.
     """
     if state.chapter_loop.modify_feedback:
         prompt += (
@@ -912,6 +928,19 @@ def _append_feedback_injections(prompt: str, state: PipelineState, chapter: int,
             f"```\n{prev_g4_feedback}\n```\n"
             f"Fix these issues in your new output."
         )
+        if "G4.word_count" in prev_g4_feedback and project_dir is not None:
+            draft_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+            if draft_path.exists():
+                draft = draft_path.read_text(encoding="utf-8")
+                if draft.strip():
+                    prompt += (
+                        f"\n\n## PREVIOUS DRAFT (your prior attempt, persisted verbatim)\n"
+                        f"以这份前稿为基底**扩写**：逐字保留其全部内容与节拍，仅在既有场景内"
+                        f"增加感官细节、对白往返与动作过程，把上方实测缺口补足（gate 口径计数"
+                        f"见反馈行）。**禁止整章重写、禁止删减既有段落、禁止新增场景**——"
+                        f"重写会重新掷字数骰子，只有在前稿之上的扩写才能收敛。\n\n"
+                        f"<previous_draft>\n{draft}\n</previous_draft>"
+                    )
     return prompt
 
 
@@ -2772,7 +2801,7 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
         prompt = f"Execute {step.skill} for chapter {chapter}. Project dir: {project_dir}"
         if step.uses_staging:
             prompt += " Write output to staging/ directory."
-        return _append_feedback_injections(prompt, state, chapter, step.skill)
+        return _append_feedback_injections(prompt, state, chapter, step.skill, project_dir)
 
     lifecycle_prompt = _build_prompt(lifecycle_step)
     settling_prompt = _build_prompt(settling_step)
@@ -3399,7 +3428,7 @@ def _run_chapter_step_impl(
 
     # One-shot MODIFY feedback + prior-attempt G4 corrective feedback
     # (shared with the parallel post-draft builder — see helper docstring).
-    prompt = _append_feedback_injections(prompt, state, chapter, step.skill)
+    prompt = _append_feedback_injections(prompt, state, chapter, step.skill, project_dir)
     retry_key = _retry_key(chapter, step.skill)
 
     # F10 (spec §5.1a): refresh the audit aggregate right before revision

@@ -1021,6 +1021,49 @@ _THREAD_ROW_FIELD_COLS: dict[str, str] = {
     "max_gap": "max_gap",
 }
 
+#: vol1 genesis escalation #001: the canonical 线索总览表 header — the
+#: SKILL.md EXACT-column contract, machine-owned so the derivation can
+#: bootstrap it when a scaffold-less creation write landed sections
+#: without the table.
+_THREAD_OVERVIEW_HEADER = (
+    "| ID | 名称 | 优先级 | 类型 | max_gap | 起始章 | 终点章 | 状态 |\n"
+    "|----|------|--------|------|---------|--------|--------|------|\n"
+)
+
+
+def _bootstrap_thread_overview_scaffold(existing: str) -> str:
+    """Ensure the 线索总览表 carries its heading + canonical header row.
+
+    vol1 genesis escalation #001: the shell-exempt creation write landed
+    thread sections with NO ``## 线索总览表`` (the increment contract
+    forbids writers from emitting it — derivation owns the table), so the
+    derivation no-oped forever and G4.pt.lines had no sustainable pass
+    path (its ``| A1 …`` first-cell rows come only from this derivation;
+    the ``--repair`` tool calls the same no-op, so the repair channel was
+    structurally dead too). "No LLM writer discipline is load-bearing"
+    means the table self-heals: insert heading + header before the first
+    thread section when the heading is absent (never without sections);
+    insert the bare header when the heading exists but the table does not.
+    """
+    m_ov = re.search(r"^##\s*线索总览表\s*$", existing, re.MULTILINE)
+    if m_ov is None:
+        first = _THREAD_HEADING_BLOCK_RE.search(existing)
+        if first is None:
+            return existing
+        return (
+            existing[: first.start()].rstrip()
+            + "\n\n## 线索总览表\n\n"
+            + _THREAD_OVERVIEW_HEADER
+            + "\n"
+            + existing[first.start() :]
+        ).lstrip("\n")
+    m_det = re.search(r"^##\s*\S", existing[m_ov.end() :], re.MULTILINE)
+    ov_end = m_ov.end() + (m_det.start() if m_det is not None else len(existing[m_ov.end() :]))
+    region = existing[m_ov.end() : ov_end]
+    if next((l for l in region.split("\n") if l.strip().startswith("|")), None) is None:
+        return existing[: m_ov.end()] + "\n\n" + _THREAD_OVERVIEW_HEADER + existing[m_ov.end() :]
+    return existing
+
 
 def sync_thread_overview_rows(existing: str, thread_ids: set[str] | None = None) -> str:
     """Reconcile thread_map 线索总览表 rows from the thread detail sections.
@@ -1036,9 +1079,18 @@ def sync_thread_overview_rows(existing: str, thread_ids: set[str] | None = None)
     repair-tool entry. Sections carrying an ``archived_to`` tombstone bullet
     NEVER resurrect a row (ledger_archive owns the archived ids). Rows are
     never deleted here (orphan-row reporting belongs to the truth-pool
-    lint). No-op (returns *existing*) without a ``## 线索总览表`` table or
-    header row.
+    lint). No-op (returns *existing*) without thread sections to derive
+    from — a missing ``## 线索总览表`` table or header row is BOOTSTRAPPED
+    first (:func:`_bootstrap_thread_overview_scaffold`, vol1 genesis
+    escalation #001).
     """
+    bootstrapped = _bootstrap_thread_overview_scaffold(existing)
+    if bootstrapped != existing:
+        # Table-creation moment: mirror EVERY section's row, not just the
+        # landed one — the scope optimization assumes the table already
+        # reflects prior sections, which is false at bootstrap.
+        existing = bootstrapped
+        thread_ids = None
     m_ov = re.search(r"^##\s*线索总览表\s*$", existing, re.MULTILINE)
     if m_ov is None:
         return existing

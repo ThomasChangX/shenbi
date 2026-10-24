@@ -706,6 +706,28 @@ def test_threads_overview_malformed_shape_returns_empty() -> None:
     assert extract_threads_overview("# 线索地图\n\n只有总览\n") == ""
 
 
+def test_threads_overview_windows_di_prefix_interval_rows() -> None:
+    """vol1 escalation #001: the live thread_map's interval rows carry the
+    ``第N-M章（卷 KRn·后段）`` family (creation-write verbatim). The
+    windowing regex must recognize both that and the bare ``N-M（`` family.
+    """
+    from shenbi.pipeline.read_extractors import extract_threads_overview
+
+    content = _THREAD_MAP.replace(
+        "| 17-23（一卷 KR3） | A1 | C1 | 顶罪与清算 |",
+        "| 第17-23章（一卷 KR3） | A1 | C1 | 顶罪与清算 |",
+    ).replace(
+        "| 24-31（二卷 KR1） | A1 | B1 | 落脚 |",
+        "| 第24-31章（二卷 KR1） | A1 | B1 | 落脚 |\n| 第32-39章（二卷 KR2） | A1 | B2 | 公开示范 |",
+    )
+    out = extract_threads_overview(content, 30)
+    assert "第24-31章（二卷 KR1）" in out, "anchor di-prefix interval kept"
+    assert "第17-23章（一卷 KR3）" in out, "previous-neighbor di-prefix interval kept"
+    assert "第32-39章（二卷 KR2）" in out, "next-neighbor di-prefix interval kept"
+    assert "1-8（一卷 KR1）" not in out, "far bare-family interval still cut"
+    assert "95-102（五卷 KR1）" not in out, "far interval cut"
+
+
 def test_real_planning_contract_wires_threads_extractor() -> None:
     from shenbi.contracts.loader import load_contract
 

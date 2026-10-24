@@ -7,20 +7,23 @@ max_tokens = 16384
 
 [overrides."shenbi-chapter-drafting"]
 temperature = 0.85
-# Spec §2.2: drafting AVG output 15,787 tokens (96% of old 16384 cap).
-# Raised to 32768 to eliminate truncation. PRE-DEPLOYMENT: probe
-# `deepseek-v4-flash` with max_tokens=32768 to confirm model accepts it.
-# If model hard-limits below 32768, root cause shifts to "chapter too long"
-# (prompt-content layer, out of scope — see spec §2.9 fail-fast).
-max_tokens = 32768
+# vol1 probe (2026-10-24, escalation #016/#020): drafting ran on the provider
+# default (thinking effort HIGH) — the reasoning channel shares the completion
+# budget and at 7145-char chapters it alone eats 30-50K, emptying the content
+# channel 9×/4 chapters (session30 调试② same signature). "low" caps the
+# reasoning appetite; max_tokens 49152 stays (content needs ~15K regardless).
+thinking = "low"
+max_tokens = 49152
 
 [overrides."shenbi-chapter-revision"]
 temperature = 0.6
 # Probe session 2026-09-29: revision outputs the COMPLETE revised chapter
 # (same output shape as drafting) but had NO max_tokens override — the 16384
 # default truncated every expansion (73 calls, completion tokens pinned at
-# exactly 16384/32768 = cap values). Parity with drafting's 32768.
-max_tokens = 32768
+# exactly 16384/32768 = cap values). Parity with drafting (49152 + thinking
+# low, vol1).
+thinking = "low"
+max_tokens = 49152
 
 [overrides."shenbi-faction-builder"]
 temperature = 0.7

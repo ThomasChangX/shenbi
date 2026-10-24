@@ -13,6 +13,7 @@ from shenbi.pipeline.truth_io import (
     _path_lock,
     _read_yaml_records,
     _upsert_by_key,
+    sync_thread_overview_rows,
     upsert_markdown_row,
     write_truth_file,
 )
@@ -1186,11 +1187,23 @@ total_chapters: 118
         row = next(l for l in out.splitlines() if l.startswith("| C1"))
         assert "册上多报的名字" in row
 
-    def test_missing_overview_table_is_safe_noop(self) -> None:
+    def test_missing_overview_table_bootstraps_on_section_landing(self) -> None:
+        """vol1 genesis escalation #001: the old "missing table = safe
+        no-op" contract left a scaffold-less creation write permanently
+        without overview rows (G4.pt.lines death loop, repair tool equally
+        no-op). A landed section now bootstraps the canonical table and
+        mirrors every existing section's row.
+        """
         base = "### A1: 名\n\n- **状态**: RELEVANT\n"
         out = upsert_markdown_row(base, "### A1: 名\n- **状态**: PAYING_OFF\n", "thread")
         assert "- **状态**: PAYING_OFF" in out
-        assert "线索总览表" not in out
+        assert "## 线索总览表" in out, "table bootstrapped"
+        row = next(l for l in out.splitlines() if l.startswith("| A1 "))
+        assert "PAYING_OFF" in row
+
+    def test_missing_overview_table_without_sections_stays_noop(self) -> None:
+        out = sync_thread_overview_rows("无任何线索区段的文件。\n")
+        assert out == "无任何线索区段的文件。\n", "never invents a table without sections"
 
     def test_off_tier_thread_id_still_derives(self) -> None:
         r"""Rebudget-drill find: the locator/validator charset is
