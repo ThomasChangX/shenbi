@@ -22,9 +22,15 @@ def test_seed_writes_default_when_absent(tmp_path: Path) -> None:
     assert seed_style_directives(tmp_path) is True
     seeded = tmp_path / "style" / "style_directives.md"
     assert seeded.read_text(encoding="utf-8") == DEFAULT_STYLE_DIRECTIVES
-    # the four standard sections ride along
-    for section in ("节奏与句法", "意象与修辞", "对白/叙述配比"):
+    # the standard sections ride along (v2 adds 金句)
+    for section in ("节奏与句法", "意象与修辞", "金句", "对白/叙述配比"):
         assert f"## {section}" in DEFAULT_STYLE_DIRECTIVES
+    # v2 re-anchoring anchors (spec §2)
+    assert "奔涌长句" in DEFAULT_STYLE_DIRECTIVES
+    assert "每千字 2-4 处" in DEFAULT_STYLE_DIRECTIVES
+    assert "白天漏灰，夜里漏光。" in DEFAULT_STYLE_DIRECTIVES
+    assert "≥16 字" not in DEFAULT_STYLE_DIRECTIVES  # 伪长句定义已删
+    assert "10-20" not in DEFAULT_STYLE_DIRECTIVES  # v1 基带已换
 
 
 def test_seed_never_clobbers_user_edits(tmp_path: Path) -> None:
@@ -64,8 +70,8 @@ def test_dispatch_prompt_includes_directives_when_present(tmp_path: Path) -> Non
     _, user_prompt, _, _ = _build_skill_prompt(
         "shenbi-chapter-drafting", tmp_path, "write chapter 1", chapter=1
     )
-    assert "叙述句目标带：10-20 字/句" in user_prompt, "directives content rides into the prompt"
-    assert "文风目标（通用默认模板）" in user_prompt
+    assert "叙述句基带：12-25 字/句" in user_prompt, "directives content rides into the prompt"
+    assert "文风目标（通用默认模板 v2）" in user_prompt
 
 
 def test_dispatch_prompt_without_directives_is_unchanged_shape(tmp_path: Path) -> None:
