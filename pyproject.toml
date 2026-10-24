@@ -141,6 +141,7 @@ convention = "google"
 "tests/unit/tools/test_release_split.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/test_shared_prose_primitives.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/skill_utils/test_compute_stats.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/pipeline/test_context_assemble.py" = ["RUF001", "RUF002", "RUF003"]
 # Craft-contract backfill: the injected declaration lines ARE Chinese memo
 # prose (历史补录 markers) — same data-not-drift category as lint_truth_pool.
 "tools/plan_craft_backfill.py" = ["RUF001", "RUF002"]

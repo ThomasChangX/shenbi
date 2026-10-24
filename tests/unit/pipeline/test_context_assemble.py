@@ -315,3 +315,64 @@ def test_load_volume_context_returns_empty_for_missing_volume_map(tmp_path: Path
 def test_load_volume_context_returns_empty_for_chapter_out_of_range(project_with_volume_map: Path):
     result = _load_volume_context(project_with_volume_map, chapter=200)
     assert result == ""
+
+
+def test_load_volume_context_quote_motif_line_without_objective(tmp_path: Path) -> None:
+    """Spec #71 T4: explicit quote/motif line extraction.
+
+    Built WITHOUT an Objective line: the Objective regex's wide capture
+    happens to carry header rows when an Objective exists (incidental), so
+    only the explicit branch can surface the line here.
+    """
+    from shenbi.pipeline._shared import load_volume_context
+
+    proj = tmp_path / "proj"
+    (proj / "outline").mkdir(parents=True)
+    (proj / "outline" / "volume_map.md").write_text(
+        "## 第一卷：测试（第1-5章）\n\n"
+        "**金句、母题物象与梗位**: [金句出场点｜灯-残焰母题每卷变奏｜卷末彩蛋]\n\n"
+        "### Key Results\n#### KR1: 奠基\n\n- **章节范围**: 第1章 - 第3章\n\n"
+        "### 章节节点\n| Ch | Role | Content |\n|----|------|---------|\n"
+        "| 第1章 | opening | 灯下初醒 |\n",
+        encoding="utf-8",
+    )
+    ctx = load_volume_context(proj, 1)
+    assert "金句、母题物象与梗位" in ctx
+    assert "灯-残焰母题" in ctx
+
+
+def test_load_volume_context_quote_motif_line_deduplicated(
+    project_with_volume_map: Path,
+) -> None:
+    """Objective present: the line rides along in the Objective capture —
+    the explicit branch must not append it a second time.
+    """
+    from shenbi.pipeline._shared import load_volume_context
+
+    vm = project_with_volume_map / "outline" / "volume_map.md"
+    vm_text = vm.read_text(encoding="utf-8")
+    if "金句、母题物象与梗位" not in vm_text:
+        vm.write_text(
+            vm_text.replace(
+                "### Key Results",
+                "**金句、母题物象与梗位**: [金句出场点｜灯-残焰母题每卷变奏｜卷末彩蛋]\n\n### Key Results",
+                1,
+            ),
+            encoding="utf-8",
+        )
+    ctx = load_volume_context(project_with_volume_map, 1)
+    assert ctx.count("金句、母题物象与梗位") == 1
+
+
+def test_load_volume_context_old_volume_map_unchanged(
+    project_with_volume_map: Path,
+) -> None:
+    """旧卷纲（无该行）零破坏——行缺失时不追加空段。"""
+    from shenbi.pipeline._shared import load_volume_context
+
+    vm = project_with_volume_map / "outline" / "volume_map.md"
+    if "金句、母题物象与梗位" in vm.read_text(encoding="utf-8"):
+        pytest.skip("fixture already carries the line")
+    ctx = load_volume_context(project_with_volume_map, 1)
+    assert ctx  # 既有六分支输出不受影响
+    assert "金句、母题物象与梗位" not in ctx

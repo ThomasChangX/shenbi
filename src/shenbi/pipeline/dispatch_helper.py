@@ -536,6 +536,9 @@ OPTIONAL_READS: dict[str, list[str]] = {
         # session31 Q1: the user-authored style TARGET file — absent unless
         # the human partner writes one; its absence is a choice, not a loss.
         "style/style_directives.md",
+        # spec #71: self-anchored exemplar file — absent until the first
+        # style-learning re-measure (ch12/volume boundary) produces it.
+        "style/anchors.md",
     ],
 }
 
