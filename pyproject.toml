@@ -140,6 +140,9 @@ convention = "google"
 "tools/release_split.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/tools/test_release_split.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/test_shared_prose_primitives.py" = ["RUF001", "RUF002", "RUF003"]
+# vol1 probe escalation #1 test: CJK archetype names + fullwidth punctuation
+# are the test data (两字中文名合法性), not drift.
+"tests/unit/gates/g4/test_character_design.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/skill_utils/test_compute_stats.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/pipeline/test_context_assemble.py" = ["RUF001", "RUF002", "RUF003"]
 # Craft-contract backfill: the injected declaration lines ARE Chinese memo

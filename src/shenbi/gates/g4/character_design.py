@@ -205,9 +205,15 @@ def _validate_archetype(
     for i, source in enumerate(archetype_sources):
         prefix = f"G4.cd.archetype.{char_name}[{i}]"
 
-        # Historical figure name (must be specific, not abstract)
+        # Historical figure name (must be specific, not abstract). CJK names are
+        # commonly exactly 2 characters (苏武/甘英/冯道) — the >=3 floor targets
+        # Latin-alphabet garbage, so CJK names only require >=2.
         name = source.get("name", "")
-        if not name or not isinstance(name, str) or len(name) < 3:
+        if (
+            not name
+            or not isinstance(name, str)
+            or (len(name) < 2 if any("\u4e00" <= ch <= "\u9fff" for ch in name) else len(name) < 3)
+        ):
             local_failures.append(f"{prefix}.name:too_short_or_missing")
             continue
 

@@ -421,6 +421,69 @@ archetype_sources:
         assert ac["s"] == "PASS", f"Archetype check failed: {ac}"
 
 
+def test_archetype_two_char_cjk_name_is_not_too_short(tmp_path: Path):
+    """两字中文历史人名（苏武/甘英/冯道）是合法原型名——name 长度地板针对拉丁口径。
+
+    卷一探针 escalation #1 实弹：genesis step 3 三连败全由两字中文名触发
+    （对照周恩来/司马迁三字恰好过闸）。CJK 人名常态即两字，地板降为 >=2。
+    """
+    from shenbi.gates.g4.character_design import _validate_archetype
+
+    f = tmp_path / "lao-tuo.md"
+    f.write_text(
+        """---
+name: 老驼
+archetype_sources:
+  - name: 苏武
+    period: 西汉
+    traits_borrowed: [守节, 苦行, 信义, 孤持]
+    traits_discarded: [政治使节身份, 朝廷封赏]
+    adaptation_rationale: 苏武牧羊十九年的守节与不抵达，化为老驼在雪夜里把名录递到下一双手里的执念；
+      丢弃汉朝使节的政治使命与朝廷封赏，只留民间传递的分寸感，让持灯人成为一种传递术而非远征术，
+      他的忠诚不献给朝廷，献给下一双手。
+---
+"""
+    )
+    checks: list[dict[str, Any]] = []
+    failures = _validate_archetype(f, checks)
+    assert failures == [], f"两字中文名不应判 too_short: {failures}"
+    # 一字中文名仍拦（真中文名 >=2 字）
+    f2 = tmp_path / "sage.md"
+    f2.write_text(
+        """---
+name: 智者
+archetype_sources:
+  - name: 禹
+    period: 上古
+    traits_borrowed: [治水, 忍耐, 公而忘私]
+    traits_discarded: [君权神授]
+    adaptation_rationale: 大禹三过家门而不入的公而忘私，化为角色在灾年中舍私情的执念，丢弃上古王权的神话色彩，只留凡人肩挑江河的重量感与担当。
+---
+"""
+    )
+    checks2: list[dict[str, Any]] = []
+    failures2 = _validate_archetype(f2, checks2)
+    assert any("too_short_or_missing" in x for x in failures2), "一字中文名应仍拦"
+    # 两字拉丁名仍拦（地板对拉丁口径不变）
+    f3 = tmp_path / "west.md"
+    f3.write_text(
+        """---
+name: 西人
+archetype_sources:
+  - name: Al
+    period: 1920s
+    traits_borrowed: [charisma, nerve, luck, vision]
+    traits_discarded: [recklessness]
+    adaptation_rationale: A bootlegger's charisma and nerve adapted to the character's rise through the harbor underworld,
+      discarding the recklessness while keeping the talent for reading people and the luck of surviving four betrayals.
+---
+"""
+    )
+    checks3: list[dict[str, Any]] = []
+    failures3 = _validate_archetype(f3, checks3)
+    assert any("too_short_or_missing" in x for x in failures3), "两字拉丁名应仍拦"
+
+
 def test_archetype_validation_fails_when_traits_borrowed_insufficient(tmp_path: Path):
     major_dir = tmp_path / "characters" / "major"
     minor_dir = tmp_path / "characters" / "minor"
