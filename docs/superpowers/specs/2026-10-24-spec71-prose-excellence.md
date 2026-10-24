@@ -1,6 +1,6 @@
 # 默认文笔惊艳度（prose-excellence）设计
 
-> **Date:** 2026-10-24 | **Status:** Active | **Severity:** 🔴 P0（用户点名「文笔不够惊艳」；排期用户定稿：本 spec 实现先落地，卷一 v2 全新首跑随后启动并即试点） | **方法:** 方案 B——指令层重锚 + WARN 级确定性闸 + 测量闭环升级 + 自锚定范文环 | **系列:** 文笔层 | **依赖:** 无 | **范围:** `style_seed.py` 模板重写 / `compute_stats.py` 两新指标 / G4.cd 三 WARN / 六份 SKILL 与两份框架文档 / `executor_config.toml` / truth 注册 / 单测
+> **Date:** 2026-10-24 | **Status:** Active | **Severity:** 🔴 P0（用户点名「文笔不够惊艳」；排期用户定稿：本 spec 实现先落地，卷一 v2 全新首跑随后启动并即试点） | **方法:** 方案 B——指令层重锚 + WARN 级确定性闸 + 测量闭环升级 + 自锚定范文环 | **系列:** 文笔层 | **依赖:** 无 | **范围:** `style_seed.py` 模板重写 / `compute_stats.py` 两新指标 / G4.cd 三 WARN / 七份技能面文件（五 SKILL 契约 + 两参考文件）与两份框架文档 / `executor_config.toml` / truth 注册 / 单测
 
 > 2026-10-24 brainstorming 定稿。决策路径：网络调研六位公认文笔派作者（「中原五青」共识 + 树下野狐/江南——起点六人名单与 NGA 纯文笔投票交叉）提炼共性带（长短落差大/意象密度高/煽情克制/对话承载辨识度）→ 本地实证三缺失（星火 ch1 全章最长句仅 31 字、≥25 字句占比 6%——「≥16 字收束长句」伪长句定义压死天花板；比喻只有 ≤2/千字单上限且喻体俗套失控——ch5 达 5.3/千字；金句只有卷纲排期、drafting 无工艺）→ 三问定稿：①**范围 P0-P3 全包**（含破折号框架红线与温度实验）②**风格定位重锚六人共性带**（基带 10-20→12-25，非「增强不换底」）③**排期 = spec 先落地、卷一 v2 即试点**（先 A/B 探针方案否决）→ 三方案对比（A 纯指令层[漂移无闸无对账] / B 指令+WARN 闸+自锚定环 / C 外部范文注入[版权风险 + StoryScope「改风格难掩底层叙事差异」边际收益否决]）用户选定 **方案 B**。
 >
@@ -128,7 +128,7 @@
 
 ### 6.2 试点 = 卷一 v2 全新首跑（本 spec 落地后启动）
 
-观察项六条（数据源：**`pipeline-manifest.json` 的 `gates.chapter_loop.{N}.shenbi-chapter-drafting.G4[].result.checks[]`**——record_gate_result 追加式逐章完整历史（含 FAIL 章），gate-markers/ 无章号键逐章覆写**勿用**；无现成聚合面、不新增工具，jq 归集 + style_profile 重测 + 审计面 + 成本台账）：
+观察项六条（数据源：**`pipeline-manifest.json` 的 `gates.chapter_loop.{N}.shenbi-chapter-drafting.G4[].result.checks[]`**——record_gate_result 追加式逐章完整历史（含 FAIL 章），gate-markers/ 无章号键逐章覆写**勿用**；jq 归集注意两坑：章键是字符串须 `.chapter_loop["1"]`、首记为裸对象二记起才转数组须 `[.G4] | flatten | .[].result.checks[]` 归一；无现成聚合面、不新增工具，jq 归集 + style_profile 重测 + 审计面 + 成本台账）：
 
 1. 奔涌率：0 → ≥ max(1, 字数//3000)/章（style_profile §1 新行——profile 重测点在 ch3/ch12，前 10 章评估窗口的逐章可观测性以 manifest surge WARN 达标率为准，profile 为 ch12 校验点）
 2. 比喻密度入带率（2-4/千字）
