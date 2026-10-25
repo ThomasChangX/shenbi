@@ -1207,6 +1207,24 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
         record_gate_result(project_dir, "chapter_loop", n, "pipeline-scene-split", "G4", g4)
         if not _gate_passed(g4):
             issues.extend(f"G4.cd ch{n}: {m}" for m in g4.get("must_fix", []))
+
+    # spec #75: cross-chapter invariants — G4.xc independent manifest key
+    # (never shares G4 with G4.cd: record_gate_result is latest-wins per key).
+    from shenbi.gates.g4.cross_chapter import g4_cross_chapter
+
+    for n in chapters:
+        xc_raw = g4_cross_chapter(
+            [f"chapters/chapter-{n}.md"],
+            rd=str(project_dir),
+            project_dir=str(project_dir),
+        )
+        xc: dict[str, Any] = json.loads(xc_raw)
+        record_gate_result(project_dir, "chapter_loop", n, "pipeline-scene-split", "G4.xc", xc)
+        if xc.get("status") not in ("PASS", None):
+            issues.extend(
+                f"XC ch{n}: {m.get('r', m) if isinstance(m, dict) else m}"
+                for m in xc.get("must_fix", [])
+            )
     return issues
 
 
@@ -1256,6 +1274,28 @@ def _revalidate_revised_chapter(project_dir: Path, chapter: int) -> list[str]:
         if decls:
             mismatches = scene_hook_mismatches(decls, split_scenes(text))
             issues.extend(f"钩被改写: {m}" for m in mismatches)
+
+    # spec #75: cross-chapter revalidation, bidirectional fanout — the
+    # revised chapter N and its successor N+1 both re-check (the successor's
+    # previous-chapter baseline changed). N+1 absent on disk → skip with log.
+    from shenbi.gates.g4.cross_chapter import CrossChapterContext as _XCtx
+    from shenbi.gates.g4.cross_chapter import check_cross_chapter as _xc_check
+
+    for _n in (chapter, chapter + 1):
+        _ch = project_dir / "chapters" / f"chapter-{_n}.md"
+        if not _ch.is_file():
+            if _n != chapter:
+                log.info("xc_fanout_skip_missing", chapter=_n)
+            continue
+        _prev = project_dir / "chapters" / f"chapter-{_n - 1}.md"
+        _memo = project_dir / "plans" / f"chapter-{_n}-plan.md"
+        _xc_issues = _xc_check(
+            _ch,
+            _prev if _prev.is_file() else None,
+            _memo if _memo.is_file() else None,
+            _XCtx(project_dir=project_dir),
+        )
+        issues.extend(f"跨章复验 ch{_n}: {i}" for i in _xc_issues)
 
     # 带口径对齐 G2/G4 消费方：地板走 chapter_word_floor 回退链，
     # 天花板走 chapter_word_min_max（缺省回退并 WARN——T7 审查 I4）
