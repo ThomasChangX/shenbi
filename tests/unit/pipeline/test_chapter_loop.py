@@ -1269,7 +1269,7 @@ class TestAuditRoutedRevisionQueuesResettle:
         write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 14
+        state.chapter_loop.step_index = 15  # spec #72: revision idx
         audits = tmp_path / "audits"
         audits.mkdir(exist_ok=True)
         (audits / "chapter-1-anti-ai.md").write_text(

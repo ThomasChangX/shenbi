@@ -1,7 +1,7 @@
 """Chapter loop orchestrator: per-chapter step sequence with staging, context
 assembly, and G4 validation (spec section 6.1).
 
-The chapter loop runs 15 steps per chapter (the spec's 13-step loop expanded
+The chapter loop runs 16 steps per chapter (the spec's 13-step loop expanded
 with individual audit-circle skills; see CHAPTER_STEPS below). Steps 2 (chapter-planning) and 7
 (state-settling) write to ``staging/`` and are gated by human-review
 checkpoints. Step 4 (pipeline-context-assemble) materializes the three-route
@@ -1083,15 +1083,16 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
     if issues:
         return issues
 
-    # Promotion: chapter files (CH stripped, SCENE kept) + decisions sidecars.
-    for ch in bundle.chapters:
-        target = project_dir / "chapters" / f"chapter-{ch.number}.md"
-        safe_write(target, ch.body.encode("utf-8"))
+    # Promotion: decisions sidecars FIRST (a missing sidecar aborts before
+    # any chapter file lands — no half-promoted state), then chapter files.
     decisions = [f"chapters/chapter-{n}-decisions.json" for n in chapters]
     try:
         commit_staging(project_dir, decisions)
     except FileNotFoundError as exc:
         return [f"decisions 晋升失败: {exc}"]
+    for ch in bundle.chapters:
+        target = project_dir / "chapters" / f"chapter-{ch.number}.md"
+        safe_write(target, ch.body.encode("utf-8"))
 
     # Per-chapter terminal G4.cd + manifest records for BOTH chapters
     # (follower chapters have no drafting key by design — the split key is
@@ -1648,7 +1649,10 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
 
     write_report(project_dir)
 
-    state.chapter_loop.current_chapter = chapter + 1
+    # spec #72 3b-②: bundle-atomic cursor advance — the leader's loop ran
+    # planning/drafting/split for BOTH chapters; the follower must not re-run
+    # them (steps_done carries no skip consumer, so the cursor jumps instead).
+    state.chapter_loop.current_chapter = chapter + len(bundle_chapters(project_dir, chapter))
     state.chapter_loop.step_index = 0
     state.chapter_loop.current_step = ""
 
@@ -3509,8 +3513,6 @@ def _run_chapter_step_impl(
     if step.calls_context_assembly:
         for n in bundle_chapters(project_dir, chapter):
             _run_context_assembly(project_dir, n)
-        if chapter not in bundle_chapters(project_dir, chapter):
-            _run_context_assembly(project_dir, chapter)
 
     # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
     if step.skill.startswith("pipeline-"):
@@ -3521,6 +3523,20 @@ def _run_chapter_step_impl(
         # ── Scene split + promotion (spec #72, deterministic) ─────────────
         if step.skill == "pipeline-scene-split":
             issues = _run_scene_split_step(project_dir, chapter)
+            if not issues:
+                # R4-I2 rehang (spec 3b-⑦): the four post-draft checks run
+                # HERE — pipeline- steps return at this branch's tail and
+                # never reach the generic success tail where they used to sit.
+                for n in bundle_chapters(project_dir, chapter):
+                    _check_volume_map_alignment(project_dir, n)
+                    _run_post_draft_extract(state, n)
+                    _run_g4_checks(state, n)
+                    chapter_path = project_dir / "chapters" / f"chapter-{n}.md"
+                    if chapter_path.exists():
+                        chapter_text = chapter_path.read_text(encoding="utf-8")
+                        wc_issues = _check_word_count_bounds(chapter_text, project_dir=project_dir)
+                        for issue in wc_issues:
+                            log.warning("word_count_bounds", chapter=n, issue=issue)
             if issues:
                 log.error("scene_split_failed", chapter=chapter, issues=issues[:5])
                 drafting_step = next(
@@ -3906,23 +3922,6 @@ def _run_chapter_step_impl(
                 chapter=chapter,
                 reason="audit_routed_revision",
             )
-
-    # Post-drafting G4 quality checks (title, hook fulfillment, etc.)
-    # spec #72 R4-I2 rehang: keyed to pipeline-scene-split — the drafting step
-    # no longer produces chapters/chapter-N.md (staging bundle until split),
-    # so these four checks run at the split step, once per bundle chapter.
-    if step.skill == "pipeline-scene-split":
-        for n in bundle_chapters(project_dir, chapter):
-            _check_volume_map_alignment(project_dir, n)
-            _run_post_draft_extract(state, n)
-            _run_g4_checks(state, n)
-            # 11b: Word count bounds check
-            chapter_path = project_dir / "chapters" / f"chapter-{n}.md"
-            if chapter_path.exists():
-                chapter_text = chapter_path.read_text(encoding="utf-8")
-                wc_issues = _check_word_count_bounds(chapter_text, project_dir=project_dir)
-                for issue in wc_issues:
-                    log.warning("word_count_bounds", chapter=n, issue=issue)
 
     # Update manifest tracking for adaptive steps that just ran.
     if step.skill == "shenbi-drift-guidance":

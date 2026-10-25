@@ -18,6 +18,7 @@ from shenbi.pipeline.chapter_loop import (
     _run_scene_split_step,
     bundle_chapters,
 )
+from shenbi.pipeline.state import PipelinePhase, PipelineState, ReviewDecision
 
 
 def _w(project_dir: Path, n: int) -> None:
@@ -213,3 +214,137 @@ def test_crash_replay_idempotent(tmp_path: Path) -> None:
         assert _run_scene_split_step(tmp_path, 1) == []  # 重放
         second = (tmp_path / "chapters" / "chapter-1.md").read_bytes()
     assert first == second
+
+
+@pytest.mark.integration
+def test_two_chapter_bundle_loop_drive(tmp_path: Path) -> None:
+    """Bundle-level full loop drive: after leader ch1 completes the whole
+    step sequence, follower ch2 must NOT re-dispatch planning/drafting
+    (cursor jumps by bundle size).
+    """
+    import shenbi.pipeline.chapter_loop as cl
+    from shenbi.pipeline.dispatch_helper import DispatchResult
+
+    _project(tmp_path, ["## 第1卷 星火（第 1-4 章）"])
+    state = PipelineState.default(str(tmp_path))
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 1
+
+    dispatched: list[tuple[str, str]] = []
+    g4_files_seen: list[str] = []
+
+    def _fake_dispatch(skill, project_dir, prompt, **kw):
+        dispatched.append((skill, prompt))
+        if skill == "shenbi-chapter-planning":
+            # 双备忘 + decisions 落 staging（存在性检查面）
+            for n in (1, 2):
+                d = tmp_path / "staging" / "plans"
+                d.mkdir(parents=True, exist_ok=True)
+                (d / f"chapter-{n}-plan.md").write_text(
+                    f"# 第{n}章备忘\n\n## 1. 当前任务\n- x\n", encoding="utf-8"
+                )
+                (d / f"chapter-{n}-plan-decisions.json").write_text("{}", encoding="utf-8")
+        if skill == "shenbi-foreshadowing-lifecycle":
+            d = tmp_path / "staging" / "truth"
+            d.mkdir(parents=True, exist_ok=True)
+            (d / "pending_hooks.md").write_text("# hooks\n", encoding="utf-8")
+        if skill == "shenbi-chapter-drafting":
+            _w(Path(project_dir), 1)
+            # 双章簇：补第二章（复用 _w 的单章形态再拼一段 CH:2）
+            bundle = tmp_path / "staging" / "chapter-1-bundle.md"
+            ch2 = "\n".join(
+                [
+                    "===CH:2===",
+                    "## PRE_WRITE_CHECK",
+                    "",
+                    "- x",
+                    "",
+                    "# 第2章",
+                    "# 章题2",
+                    "",
+                    "<!--SCENE-->",
+                    "灯" * 1900,
+                    "二章钩一？",
+                    "<!--SCENE-->",
+                    "灯" * 1900,
+                    "二章钩二？",
+                    "",
+                    "## POST_WRITE_SELF_CHECK",
+                    "",
+                    "- y",
+                    "",
+                ]
+            )
+            bundle.write_text(bundle.read_text(encoding="utf-8") + "\n" + ch2, encoding="utf-8")
+            side = tmp_path / "staging" / "chapters" / "chapter-2-decisions.json"
+            side.write_text("{}", encoding="utf-8")
+        return DispatchResult(True, 0, "{}", "")
+
+    with pytest.MonkeyPatch.context() as mp:
+        import time as _time
+
+        mp.setattr(_time, "sleep", lambda *_a: None)  # retry backoff 免睡
+        mp.setattr(cl, "dispatch_skill", _fake_dispatch)
+        mp.setattr(
+            cl,
+            "run_gate_g4",
+            lambda skill, files, pd, chapter=None, phase=None: (
+                g4_files_seen.extend(files),
+                {"status": "PASS", "checks": [], "must_fix": []},
+            )[1],
+        )
+        mp.setattr(cl, "run_gate_g3", lambda *a, **kw: {"status": "PASS"})
+        mp.setattr(
+            "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
+            lambda tasks, on_task_complete=None: [DispatchResult(True, 0, "{}", "") for _ in tasks],
+        )
+        mp.setattr(
+            "shenbi.pipeline.parallel_dispatch.consolidate_review_results",
+            lambda *a, **kw: "No BLOCKING issues.",
+        )
+        mp.setattr(cl, "_any_audit_has_findings", lambda *a, **kw: False)
+        mp.setattr(cl, "_check_volume_map_alignment", lambda *a, **kw: None)
+        mp.setattr(cl, "_run_post_draft_extract", lambda *a, **kw: None)
+        mp.setattr(cl, "_run_g4_checks", lambda state, n: [])
+        mp.setattr(cl, "_run_context_assembly", lambda *a, **kw: None)
+        mp.setattr(
+            cl,
+            "run_audit_layer",
+            lambda *a, **kw: type(
+                "R", (), {"blocking_found": False, "issues": [], "audit_reports": []}
+            )(),
+        )
+        mp.setattr(cl, "_parse_and_persist_resonance", lambda *a, **kw: None)
+        mp.setattr(cl, "_route_revision_after_resonance", lambda *a, **kw: None)
+        mp.setattr(cl, "write_audit_aggregate", lambda *a, **kw: None)
+        mp.setattr(
+            "shenbi.pipeline.revision_router.dispatch_escalation",
+            lambda *a, **kw: None,
+        )
+
+        # 驱动 leader 章 1 到 chapter 完成（_advance/--auto 语义下 checkpoint 不阻塞）
+        guard = 0
+        while state.chapter_loop.current_chapter == 1 and guard < 200:
+            before = (state.chapter_loop.current_chapter, state.chapter_loop.step_index)
+            cl.run_chapter_step(state, tmp_path)
+            if before == (state.chapter_loop.current_chapter, state.chapter_loop.step_index):
+                # 卡在 checkpoint：按 approve 清掉继续（auto 模式等价）
+                if state.pending_checkpoint:
+                    from shenbi.pipeline.machine import clear_checkpoint as _cc
+
+                    _cc(state, ReviewDecision.APPROVE)
+                else:
+                    break
+            guard += 1
+
+    # 游标按束跳章：章 1 完成 → current_chapter == 3
+    assert state.chapter_loop.current_chapter == 3, state.chapter_loop.current_chapter
+    # planning/drafting 各恰一次（无 follower 重复派发）
+    planning = [d for d in dispatched if d[0] == "shenbi-chapter-planning"]
+    drafting = [d for d in dispatched if d[0] == "shenbi-chapter-drafting"]
+    assert len(planning) == 1, planning
+    assert len(drafting) == 1, drafting
+    assert "chapters 1,2" in drafting[0][1]
+    # 两章产物都在
+    for n in (1, 2):
+        assert (tmp_path / "chapters" / f"chapter-{n}.md").is_file()
