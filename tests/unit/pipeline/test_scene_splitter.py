@@ -76,13 +76,19 @@ def test_ch_marker_regex() -> None:
 
 
 def test_missing_ch_marker_raises() -> None:
+    # 纯空白无标记 → 无任何 CH 分支；有前导内容 → 前导文本分支（fail-closed）
     with pytest.raises(SceneSplitError, match="无任何"):
-        split_bundle("没有标记的文本")
+        split_bundle("   \n\n")
 
 
 def test_duplicate_and_disordered_ch_markers() -> None:
     with pytest.raises(SceneSplitError, match="重复"):
-        split_bundle("===CH:1===\n# a\n# t\n\n<!--SCENE-->\n灯" * 1 + "\n\n===CH:1===\n# a\n# t\n")
+        split_bundle(
+            "===CH:1===\n## PRE\n\n# a\n# t\n\n<!--SCENE-->\n灯" * 1
+            + "\n\n===CH:1===\n## PRE\n\n# a\n# t\n"
+        )
+    with pytest.raises(SceneSplitError, match="前导文本"):
+        split_bundle("前导噪声\n===CH:1===\n## PRE\n\n# a\n# t\n")
     with pytest.raises(SceneSplitError, match=r"升序|连续"):
         split_bundle("===CH:2===\n# a\n# t\n\n===CH:5===\n# a\n# t\n")
 
@@ -151,6 +157,12 @@ def test_pack_scenes_cross_2800_none() -> None:
     assert pack_scenes([2900], (1800, 2800)) is None
     # 收组时欠重且无法再扩 → None
     assert pack_scenes([1900, 950], (1800, 2800)) is None
+
+
+def test_pack_scenes_greedy_conservative_pinned() -> None:
+    # 贪心保守主义 pinning（I2）：[1800,900,900] 贪心 None 但存在非贪心解
+    # [[1800],[900,900]]——语义冻结，后续「优化」不得静默改变 G4.cp/v2 判定
+    assert pack_scenes([1800, 900, 900], (1800, 2800)) is None
 
 
 def test_pack_scenes_greedy_multi() -> None:

@@ -169,8 +169,13 @@ def split_bundle(bundle_text: str) -> BundleChapters:
             sections[current] = []
             order.append(current)
             continue
-        if current is not None:
-            sections[current].append(ln)
+        if current is None:
+            if ln.strip():
+                raise SceneSplitError(
+                    f"bundle 首个 ===CH:n=== 前存在前导文本（应为空/空白行）:「{ln[:30]}」"
+                )
+            continue
+        sections[current].append(ln)
     if not order:
         raise SceneSplitError("bundle 无任何 ===CH:n=== 标记")
     if order != sorted(order):
@@ -245,7 +250,10 @@ def pack_scenes(sizes: list[int], update_band: tuple[int, int]) -> list[list[int
     Groups consecutive scenes so each group's sum lands in ``update_band``.
     Deterministic — the SAME function backs the G4.cp precheck and
     release_split v2, so precheck-pass guarantees v2-pass on the same input.
-    Returns the grouping, or ``None`` when the sequence is unpackageable.
+    Returns the grouping, or ``None`` when the sequence is greedy-unpackageable
+    (CONSERVATIVE: a greedy-failing sequence may admit a non-greedy partition,
+    e.g. [1800, 900, 900] fails here though [[1800], [900, 900]] is valid —
+    such bundles take a planning re-dispatch; pinned by test).
     """
     lo, hi = update_band
     groups: list[list[int]] = []
