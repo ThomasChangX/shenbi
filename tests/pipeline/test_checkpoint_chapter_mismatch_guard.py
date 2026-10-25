@@ -74,7 +74,7 @@ def test_match_reject_still_rewinds_in_place():
     state = _chapter_state(current=3, step=9)
     set_checkpoint(state, CheckpointType.STATE_SETTLE, chapter=3)
     cli_mod._apply_reject_redo(state, state.pending_checkpoint)
-    assert state.chapter_loop.step_index == 7
+    assert state.chapter_loop.step_index == 8  # spec #72: settling idx after scene-split insert
     assert state.pending_re_dispatches == []
 
     state = _chapter_state(current=3, step=4)

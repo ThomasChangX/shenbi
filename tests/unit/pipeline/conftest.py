@@ -89,4 +89,12 @@ def write_chapter_drafts(project: Path, chapters: tuple[int, ...] = (1,)) -> Non
     d = project / "chapters"
     d.mkdir(parents=True, exist_ok=True)
     for n in chapters:
-        (d / f"chapter-{n}.md").write_text(f"# Chapter {n}\n正文第{n}章\n", encoding="utf-8")
+        # spec #72 form: PRE + double H1 + two marker-delimited scenes (the
+        # post-revision revalidation requires >=2 durable markers).
+        (d / f"chapter-{n}.md").write_text(
+            "## PRE_WRITE_CHECK\n\n- x\n\n"
+            f"# 第{n}章\n# 章题{n}\n\n"
+            "<!--SCENE-->\n" + "灯" * 1900 + f"\n{n}号钩一？\n"
+            "<!--SCENE-->\n" + "灯" * 1900 + f"\n{n}号钩二？\n\n## POST_WRITE_SELF_CHECK\n\n- y\n",
+            encoding="utf-8",
+        )

@@ -1,7 +1,7 @@
 """写所有权矩阵 + 写越权检查接口（spec 支柱四 Tier B）。
 
 粒度由文件格式决定（spec N1）：JSON→field；markdown truth→record；chapter/report→file。
-本文件含参考 OWNERSHIP 条目（genre-config.json 真实 9 顶层键 + pending_hooks.md
+本文件含参考 OWNERSHIP 条目（genre-config.json 真实 11 顶层键 + pending_hooks.md
 plant/track/resolve/state-settling 写键集），均经 tests/fixtures/ 亲手核对（v5 C1/New-A/B）。
 
 注：全量技能 OWNERSHIP 迁移是「支柱一续」（计数以 skills/ 磁盘与对账 lint 为准）；本矩阵是 Tier B 审计消费的接口 +
@@ -34,8 +34,9 @@ class FileOwnership:
 
 
 # —— 参考 OWNERSHIP 条目（Tier B 审计消费；完整迁移见「支柱一续」）——
-# genre-config.json：真实 10 顶层键（9 fixture 亲手核对 + chapter_word 基线
-# 块，3bfc4a3b skill 模板起为写手必产出、G0.3/G2/G4/G6 同源读取）
+# genre-config.json：真实 11 顶层键（9 fixture 亲手核对 + chapter_word 基线
+# 块，3bfc4a3b skill 模板起为写手必产出、G0.3/G2/G4/G6 同源读取；
+# spec #72 增 primary_platform——可选，双平台发布层缺省，release_split v2 消费）
 GENRE_KEYS = frozenset(
     {
         "approval",
@@ -45,6 +46,7 @@ GENRE_KEYS = frozenset(
         "customRules",
         "fatigueWords",
         "pacing",
+        "primary_platform",
         "tropeInventory",
         "updated",
         "version",

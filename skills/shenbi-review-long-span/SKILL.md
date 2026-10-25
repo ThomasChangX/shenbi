@@ -12,6 +12,8 @@ contract:
   writes:
   - file: audits/chapter-N-long-span.md
     mode: create_or_overwrite
+  - file: audits/chapter-{N+1}-long-span.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -25,7 +27,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, chapters/*.md, genre-config.json
-- **Writes:** audits/chapter-N-long-span.md
+- **Writes:** audits/chapter-N-long-span.md, audits/chapter-{N+1}-long-span.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

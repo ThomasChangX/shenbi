@@ -72,10 +72,10 @@ class TestChapterSteps:
         assert len(audit_skills) >= 6  # 6 domain-grouped audits (MERGE-2)
 
     def test_step_count(self):
-        assert len(CHAPTER_STEPS) == 15
+        assert len(CHAPTER_STEPS) == 16  # spec #72: +pipeline-scene-split
 
     def test_step_nums_are_sequential(self):
-        assert [s.step_num for s in CHAPTER_STEPS] == list(range(1, 16))
+        assert [s.step_num for s in CHAPTER_STEPS] == list(range(1, 17))  # spec #72: 16 steps
 
     def test_chapter_planning_has_staging(self):
         cp = next(s for s in CHAPTER_STEPS if "chapter-planning" in s.skill)
@@ -295,7 +295,7 @@ class TestChapterCompletion:
         write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 14  # last step (chapter-revision)
+        state.chapter_loop.step_index = 15  # spec #72: last step (chapter-revision)
         run_chapter_step(state, tmp_path)
         assert state.chapter_loop.current_chapter == 2
         assert state.chapter_loop.step_index == 0
@@ -310,7 +310,7 @@ class TestChapterCompletion:
         write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 14  # last step (chapter-revision)
+        state.chapter_loop.step_index = 15  # spec #72: last step (chapter-revision)
         state.chapter_loop.per_chapter_review_enabled = True
         result = run_chapter_step(state, tmp_path)
         assert result is True
@@ -324,7 +324,7 @@ class TestChapterCompletion:
         write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 14  # last step (chapter-revision)
+        state.chapter_loop.step_index = 15  # spec #72: last step (chapter-revision)
         state.chapter_loop.per_chapter_review_enabled = False
         result = run_chapter_step(state, tmp_path)
         assert result is False
@@ -515,8 +515,8 @@ class TestAuditCircleIntegration:
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}),
         ):
             run_chapter_step(state, tmp_path)
-        # Advances past all audits to _LAST_AUDIT_IDX + 1 = 14
-        assert state.chapter_loop.step_index == 14
+        # spec #72: advances past all audits to _LAST_AUDIT_IDX + 1 = 15
+        assert state.chapter_loop.step_index == 15
 
 
 class TestConditionalResolveIntegration:
@@ -529,7 +529,7 @@ class TestConditionalResolveIntegration:
         write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 6  # foreshadowing-lifecycle (step 7)
+        state.chapter_loop.step_index = 7  # spec #72: foreshadowing-lifecycle (step 8)
         # Mock run_parallel_post_draft_steps to return success for both
         with (
             patch(
@@ -539,8 +539,8 @@ class TestConditionalResolveIntegration:
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}),
         ):
             run_chapter_step(state, tmp_path)
-        # Advances past both lifecycle (6) and settling (7) to index 8
-        assert state.chapter_loop.step_index == 8
+        # spec #72: advances past lifecycle (7) and settling (8) to index 9
+        assert state.chapter_loop.step_index == 9
 
     def test_track_step_with_triggered_hooks_dispatches_resolve(self, tmp_path):
         """_check_conditional_resolve dispatches resolve when TRIGGERED hooks exist."""
@@ -914,10 +914,14 @@ class TestResolveG4Files:
             _resolve_g4_files,
         )
 
-        drafting_step = CHAPTER_STEPS[3]  # step 4: chapter-drafting
-        files = _resolve_g4_files(tmp_path, drafting_step, chapter=3)
+        # spec #72: drafting no longer carries an md output_path (staging
+        # bundle until split) — the single-file exemplar is planning.
+        drafting_step = CHAPTER_STEPS[3]
+        assert _resolve_g4_files(tmp_path, drafting_step, chapter=3) == []
+        planning_step = CHAPTER_STEPS[1]  # step 2: chapter-planning
+        files = _resolve_g4_files(tmp_path, planning_step, chapter=3)
         assert len(files) == 1
-        assert "chapter-3.md" in files[0]
+        assert "chapter-3-plan.md" in files[0]
 
 
 # ---------------------------------------------------------------------------
@@ -936,7 +940,7 @@ class TestStateSettleFailureWiring:
         state = PipelineState.default(str(tmp_path))
         state.phase = PipelinePhase.CHAPTER_LOOP
         state.chapter_loop.current_chapter = 3
-        state.chapter_loop.step_index = 6  # state-settling is index 6
+        state.chapter_loop.step_index = 8  # spec #72: settling is index 8
 
         # Mock dispatch to fail for state-settling
         monkeypatch.setattr(
@@ -1242,7 +1246,7 @@ class TestAuditRoutedRevisionQueuesResettle:
         write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 14  # step 15 = chapter-revision
+        state.chapter_loop.step_index = 15  # spec #72: step 16 = chapter-revision
         audits = tmp_path / "audits"
         audits.mkdir(exist_ok=True)
         (audits / "chapter-1-anti-ai.md").write_text(
@@ -1265,7 +1269,7 @@ class TestAuditRoutedRevisionQueuesResettle:
         write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 14
+        state.chapter_loop.step_index = 15  # spec #72: revision idx
         audits = tmp_path / "audits"
         audits.mkdir(exist_ok=True)
         (audits / "chapter-1-anti-ai.md").write_text(
@@ -1336,7 +1340,7 @@ class TestParallelPostDraftFailureFeedback:
         write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 6  # foreshadowing-lifecycle (step 7)
+        state.chapter_loop.step_index = 7  # spec #72: foreshadowing-lifecycle (step 8)
         return state
 
     def test_lifecycle_dispatch_failure_routes_stderr(self, tmp_path):

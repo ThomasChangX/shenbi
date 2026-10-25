@@ -12,7 +12,11 @@ contract:
   writes:
     - file: audits/chapter-N-memo-compliance.md
       mode: create_or_overwrite
+    - file: audits/chapter-{N+1}-memo-compliance.md
+      mode: create_or_overwrite
     - file: audits/chapter-N-foreshadowing.md
+      mode: create_or_overwrite
+    - file: audits/chapter-{N+1}-foreshadowing.md
       mode: create_or_overwrite
   updates: []
 ---
@@ -27,7 +31,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, truth/pending_hooks.md, truth/subplot_board.md
-- **Writes:** audits/chapter-N-memo-compliance.md, audits/chapter-N-foreshadowing.md
+- **Writes:** audits/chapter-N-memo-compliance.md, audits/chapter-{N+1}-memo-compliance.md, audits/chapter-N-foreshadowing.md, audits/chapter-{N+1}-foreshadowing.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

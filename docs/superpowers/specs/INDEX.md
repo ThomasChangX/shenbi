@@ -18,7 +18,7 @@
 - **优先级**：🟥 P0（地基——章数数学与生成契约，后续全部 spec 依赖）
 - **方法**：方案 C——平台章原生粒度 + 场景簇批量派发（一次派发 2 章）+ 声明式发布切分
 - **依赖**：无
-- **内容**：chapter_word 7600→3200（2800-4000 带）；primary_platform=qidian + 番茄档 1800-2800；planning 双章 bundle；drafting `===CH===`/`<!--SCENE-->` 标记契约；确定性拆分器 + scenes sidecar；G4 逐章校验扩展（字数带/场景数/收束钩声明-实际匹配）；release_split v2 声明式切分（四硬规则，启发式退役）；volume-budget 重排接线（1316→约 3125 章，卷界字数锚不动）
+- **内容**：chapter_word 7600→3200（2800-4000 带）；primary_platform=qidian + 番茄档 1800-2800；planning 双章 bundle；drafting `===CH===`/`<!--SCENE-->` 标记契约（SCENE 标记耐久化于章文件，无 sidecar）；确定性拆分器；G4 逐章校验扩展（字数带/场景数/收束钩声明-实际匹配）；release_split v2 声明式切分（四硬规则，启发式退役）；volume-budget 重排接线（1316→约 3125 章，卷界字数锚不动）
 - **对应 plan**：待 writing-plans
 
 ### #73 · 大纲引擎置换与市场参数（engine-swap）

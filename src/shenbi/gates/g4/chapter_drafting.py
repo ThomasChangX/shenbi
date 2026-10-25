@@ -21,6 +21,11 @@ from shenbi.gates.shared import (
     strip_narrative_body,
     total_chars_md_text,
     word_count_md,
+    strip_scene_markers,
+    split_scenes,
+    parse_scene_declarations,
+    scene_hook_mismatches,
+    is_scene_marker_line,
 )
 from shenbi.logging import get_logger
 from shenbi.text.cjk import dialogue_char_ratio
@@ -321,14 +326,12 @@ def g4_chapter_drafting(
         else:
             c.append({"id": "G4.meta", "file": fp, "s": GateStatus.PASS})
 
-        # Word count ≥ floor (3000), on the TOTAL non-whitespace 口径 (probe
+        # Word count ≥ floor, on the TOTAL non-whitespace 口径 (probe
         # escalation #4): the memo layer plans length in total chars (~3400),
         # so a CJK-only floor demanded ≈3565 total — plan-compliant chapters
         # structurally failed (production fixture ch36/37/39/41 all 27xx-CJK).
-        # The floor VALUE comes from genre-config chapter_word.default (probe
-        # escalation #9): G0.3/G6 already derive chapter-count math from it —
-        # a 1500-default plan (134 chapters from 200k) can never satisfy a
-        # hardcoded 3000 floor.
+        # Spec #72 口径统一: floor reads chapter_word.min (the 2800-4000
+        # band's lower edge); default stays math-only (G0.3/G6 derivations).
         word_floor = chapter_word_floor(str(project_root))
         total = total_chars_md_text(content)
         if total < word_floor:
@@ -345,13 +348,45 @@ def g4_chapter_drafting(
                 }
             )
 
+        # spec #72 G4.cd.scene_count — durable markers delimit >= 2 scenes
+        scene_markers = sum(1 for ln in content.split("\n") if is_scene_marker_line(ln))
+        if scene_markers < 2:
+            mf.append(f"G4.cd.scene_count:{fp}:{scene_markers}<2")
+        else:
+            c.append(
+                {
+                    "id": "G4.cd.scene_count",
+                    "file": fp,
+                    "s": GateStatus.PASS,
+                    "scenes": scene_markers,
+                }
+            )
+
+        # spec #72 G4.cd.scene_hook_match — declared hooks land verbatim on
+        # each scene's final line (predicate: 声明剥空白 ⊆ 场景末非空行)
+        _m_num = re.search(r"chapter-(\d+)", str(fp))
+        plan_text_src = None
+        if _m_num and (rd or project_root):
+            _plan_base = Path(rd) if rd else Path(project_root)
+            _plan_path = _plan_base / "plans" / f"chapter-{_m_num.group(1)}-plan.md"
+            if _plan_path.is_file():
+                plan_text_src = _plan_path.read_text(encoding="utf-8")
+        if plan_text_src is not None:
+            decls = parse_scene_declarations(plan_text_src)
+            if decls:
+                hook_issues = scene_hook_mismatches(decls, split_scenes(content))
+                if hook_issues:
+                    mf.append(f"G4.cd.scene_hook_match:{fp}:{';'.join(hook_issues)}")
+                else:
+                    c.append({"id": "G4.cd.scene_hook_match", "file": fp, "s": GateStatus.PASS})
+
         # G4.cd.content_uniqueness: check this chapter against all other chapters
         if rd:
             chapters_dir = Path(rd) / "project-output" / "chapters"
             if chapters_dir.exists():
                 other_chapters = list(chapters_dir.glob("chapter-*.md"))
                 if len(other_chapters) > 1:
-                    this_fingerprint = _text_fingerprint(content)
+                    this_fingerprint = _text_fingerprint(strip_scene_markers(content))
                     max_overlap = 0.0
                     for other in other_chapters:
                         if str(other) == str(pf):
@@ -389,6 +424,10 @@ def g4_chapter_drafting(
             r"<!--HOOK-BEGIN-->.*?<!--HOOK-END-->", "", content, flags=re.DOTALL
         )
         content_for_prose = META_BLOCK_RE.sub("", content_for_prose)
+        # spec #72: standalone SCENE marker lines are machine markup — keep
+        # them out of the paragraph surface (else a trailing marker becomes
+        # the "last paragraph" and pollutes the end-hook window).
+        content_for_prose = strip_scene_markers(content_for_prose)
         paragraphs = [p.strip() for p in content_for_prose.split("\n\n") if p.strip()]
         # Visual-scene check is WINDOWED (canary escalation #13): web-novel
         # prose uses 50-100 CJK paragraphs, so a single-paragraph >=100

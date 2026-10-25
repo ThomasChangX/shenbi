@@ -443,11 +443,16 @@ def test_audit_report_paths_derived_from_contract_writes():
     from shenbi.pipeline.audit_layer import audit_report_paths
 
     paths = audit_report_paths(2, "shenbi-review-group-character")
+    # spec #72 T9: {N+1} brace writes double each dim with the follower form
     assert paths == [
         "audits/chapter-2-character.md",
+        "audits/chapter-3-character.md",
         "audits/chapter-2-dialogue.md",
+        "audits/chapter-3-dialogue.md",
         "audits/chapter-2-motivation.md",
+        "audits/chapter-3-motivation.md",
         "audits/chapter-2-pov.md",
+        "audits/chapter-3-pov.md",
     ], paths
 
 

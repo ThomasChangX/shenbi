@@ -12,6 +12,8 @@ contract:
   writes:
   - file: audits/chapter-N-sensitivity.md
     mode: create_or_overwrite
+  - file: audits/chapter-{N+1}-sensitivity.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -25,7 +27,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, genre-config.json, novel.json
-- **Writes:** audits/chapter-N-sensitivity.md
+- **Writes:** audits/chapter-N-sensitivity.md, audits/chapter-{N+1}-sensitivity.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

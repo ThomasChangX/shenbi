@@ -12,6 +12,8 @@ contract:
   writes:
   - file: audits/chapter-N-era.md
     mode: create_or_overwrite
+  - file: audits/chapter-{N+1}-era.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -25,7 +27,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, genre-config.json, era-reference.md
-- **Writes:** audits/chapter-N-era.md
+- **Writes:** audits/chapter-N-era.md, audits/chapter-{N+1}-era.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

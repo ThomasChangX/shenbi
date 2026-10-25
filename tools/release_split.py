@@ -1,7 +1,17 @@
-"""spec #70 release-split: deterministic publish-layer chapter splitting.
+"""spec #72 release-split v2: declarative scene-atomic publish packing.
 
-Reads only ``chapters/chapter-N.md``; writes only ``publish/<platform>/``.
-No LLM, no pipeline faces. 口径 reused from shenbi.gates.shared.
+qidian tier: 1 chapter = 1 更 (direct, title from the 2nd H1).
+fanqie tier: durable ``<!--SCENE-->`` markers are the packing atoms —
+``pack_scenes`` (single source, gates.shared) groups adjacent scenes into
+更 of the configured ``chapter_word.fanqie_update`` band, boundaries land
+ONLY on scene edges, every 更 closes on its final scene's hook line, and
+marker lines never reach the published text. Settled window comes from
+pipeline-manifest per-chapter gate records (latest-per-key PASS + the
+``pipeline-scene-split`` key). v1 heuristics (SCENE_TRANSITION_WORDS /
+tension cuts / TIERS) retired (spec #72 施工面 6).
+Reads only ``chapters/chapter-N.md`` + ``pipeline-manifest.json`` +
+``genre-config.json``; writes only ``publish/<platform>/``. No LLM, no
+pipeline faces. 口径 reused from shenbi.gates.shared.
 """
 
 from __future__ import annotations
@@ -16,40 +26,25 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from shenbi.gates.shared import strip_narrative_body, total_chars_md_text
-
-SCHEMA_ID = "shenbi-releases-v1"
-
-# Closed scene-transition word list (spec §3.2) — the single source.
-SCENE_TRANSITION_WORDS: frozenset[str] = frozenset(
-    {
-        "翌日",
-        "次日",
-        "清晨",
-        "天亮",
-        "黄昏",
-        "入夜",
-        "夜半",
-        "午夜",
-        "到了",
-        "走进",
-        "回到",
-        "出门",
-        "动身",
-        "起程",
-        "转场",
-        "天明",
-    }
+from shenbi.gates.shared import (
+    is_scene_marker_line,
+    pack_scenes,
+    strip_narrative_body,
+    strip_scene_markers,
+    total_chars_md_text,
 )
 
-_TENSION_END_CHARS = frozenset({"？", "！"})
-_DIALOGUE_START_CHARS = frozenset({"“", "「", "『"})
-_SHORT_OBJECT_SENTENCE_MAX = 40
-_ORDINAL_MAX = 99
-_HARD_FLOOR = 2000  # both tiers share this floor (spec §2)
-_SIZE_SINGLE_GATE = 2 * _HARD_FLOOR  # gate < 4000 → size-single path first
+SCHEMA_ID = "shenbi-releases-v2"
+
+#: Platforms (v2): qidian = native 1:1; fanqie = scene-atomic packing.
+PLATFORMS = ("fanqie", "qidian")
+_DEFAULT_PLATFORM = "fanqie"
+#: Manifest key whose per-chapter presence settles a chapter (spec 施工面 6).
+_SPLIT_STEP_SKILL = "pipeline-scene-split"
+
 _MIN_H1_LINES = 2
-_MIN_SPLIT = 2  # splitting needs >= 2 更 and >= 2 paragraphs
+_ORDINAL_MAX = 99
+_SCENE_HOOK_PREVIEW = 24
 
 CHAPTER_FILE_RE = re.compile(r"^chapter-(\d+)\.md$")
 _PARA_SPLIT_RE = re.compile(r"\n\s*\n")
@@ -60,29 +55,24 @@ class ReleaseSplitError(RuntimeError):
     """Structural input / freeze / ledger-lifecycle error (exit 1)."""
 
 
-@dataclass(frozen=True)
-class Tier:
-    """Platform tier: hard floor / target / soft cap (spec §2)."""
-
-    floor: int
-    target: int
-    soft: int
-
-
-TIERS: dict[str, Tier] = {
-    "fanqie": Tier(floor=2000, target=2200, soft=2400),
-    "qidian": Tier(floor=2000, target=2700, soft=3000),
-}
-
-
 def nonws(s: str) -> int:
     """Non-whitespace char count — the spec's unified metric."""
     return len(re.sub(r"\s", "", s))
 
 
 @dataclass(frozen=True)
+class SceneText:
+    """One marker-delimited scene (durable in the chapter file)."""
+
+    index: int
+    size: int  # non-ws chars, marker excluded
+    text: str  # marker-stripped prose paragraphs
+    last_line: str  # the declared hook lands here
+
+
+@dataclass(frozen=True)
 class ChapterInput:
-    """Parsed chapter: stripped narrative + title + 口径 counts."""
+    """Parsed chapter: stripped narrative + title + scenes + 口径 counts."""
 
     path: Path
     number: int
@@ -90,6 +80,7 @@ class ChapterInput:
     gate_chars: int
     h1_nonws: int
     paragraphs: tuple[str, ...]
+    scenes: tuple[SceneText, ...]
 
 
 def select_chapter_files(chapters_dir: Path) -> list[Path]:
@@ -136,6 +127,35 @@ def parse_chapter(path: Path) -> ChapterInput:
     paras = tuple(p.strip() for p in _PARA_SPLIT_RE.split(body) if nonws(p) > 0)
     if not paras:
         raise ReleaseSplitError(f"剥离后无正文段: {path.name}")
+    # spec #72: durable markers delimit the packing atoms. Marker lines are
+    # excluded from every published text (strip_scene_markers).
+    markered = raw.splitlines()
+    # R5-M1: single-source marker predicate (the 4th consumer).
+    marker_idx = [i for i, ln in enumerate(markered) if is_scene_marker_line(ln)]
+    trailing_meta = next(
+        (
+            i
+            for i, ln in enumerate(markered)
+            if ln.startswith("## ") and (not marker_idx or i > marker_idx[-1])
+        ),
+        len(markered),
+    )
+    scenes: list[SceneText] = []
+    for k, s in enumerate(marker_idx):
+        e = marker_idx[k + 1] if k + 1 < len(marker_idx) else trailing_meta
+        seg = strip_scene_markers("\n".join(markered[s + 1 : e])).strip()
+        if not seg:
+            continue
+        seg_paras = [q for q in (x.strip() for x in _PARA_SPLIT_RE.split(seg)) if q]
+        last_line = next(ln.strip() for ln in reversed(seg.splitlines()) if ln.strip())
+        scenes.append(
+            SceneText(
+                index=k,
+                size=nonws(seg),
+                text=build_release_text(seg_paras),
+                last_line=last_line,
+            )
+        )
     return ChapterInput(
         path=path,
         number=int(m.group(1)),
@@ -143,59 +163,8 @@ def parse_chapter(path: Path) -> ChapterInput:
         gate_chars=total_chars_md_text(raw),
         h1_nonws=sum(nonws(h) for h in h1_lines),
         paragraphs=paras,
+        scenes=tuple(scenes),
     )
-
-
-@dataclass(frozen=True)
-class CutSignals:
-    """Closed-set scoring outcome for one candidate cut."""
-
-    score: int
-    tension: bool
-    scene: bool
-    waist: bool
-
-
-def classify_pair(prev: str, next_para: str | None) -> CutSignals:
-    """Score a cut between prev and next paragraphs (spec §3.2 closed rules).
-
-    ``next_para=None`` is the end-of-chapter imaginary cut: tension
-    predicates live, scene/waist predicates are dead.
-    """
-    pn = re.sub(r"\s", "", prev)
-    score = 0
-    tension = False
-    if pn and pn[-1] in _TENSION_END_CHARS:
-        score += 2
-        tension = True
-    if len(pn) <= _SHORT_OBJECT_SENTENCE_MAX:
-        score += 2
-        tension = True
-    if pn and pn[0] in _DIALOGUE_START_CHARS:
-        score += 2
-        tension = True
-    scene = False
-    waist = False
-    if next_para is not None:
-        fn = re.sub(r"\s", "", next_para)
-        if any(fn.startswith(w) for w in SCENE_TRANSITION_WORDS):
-            score += 1
-            scene = True
-        if any(pn.startswith(w) for w in SCENE_TRANSITION_WORDS):
-            score -= 2
-            waist = True
-    return CutSignals(score=score, tension=tension, scene=scene, waist=waist)
-
-
-def tier_of(sig: CutSignals) -> str:
-    """Quality tier by predicate firing (spec §3.4)."""
-    if sig.tension:
-        return "tension"
-    if sig.scene:
-        return "scene"
-    if sig.waist:
-        return "weak"
-    return "plain"
 
 
 _CN_DIGITS = "零一二三四五六七八九"
@@ -212,91 +181,6 @@ def chinese_ordinal(k: int) -> str:
     if ones >= 1:
         parts.append(_CN_DIGITS[ones])
     return "".join(parts)
-
-
-def initial_n(gate_chars: int, tier: Tier) -> int:
-    """§2: size-single first, then ceil(gate/soft) with single floor fallback."""
-    if gate_chars < 2 * tier.floor:
-        return 1
-    n = -(-gate_chars // tier.soft)  # ceil
-    if gate_chars / n < tier.floor:
-        n -= 1
-    return max(n, 1)
-
-
-def _select_cut(
-    paras: tuple[str, ...],
-    prefix: list[int],
-    prev_cut_pos: int,
-    i: int,
-    m: int,
-    body: int,
-    floor: int,
-) -> int | None:
-    """Select the boundary index for cut i; None when the feasible set is empty.
-
-    Window∩feasible has candidates → max score (tie → earlier position);
-    otherwise → feasible candidate nearest to target t_i = i*body/m
-    (exact-rational cross-multiplication, tie → earlier).
-    """
-    lo = prev_cut_pos + floor
-    hi = body - floor * (m - i)
-    half = (15 * body) // (100 * m)
-    ib = i * body
-    in_win: list[tuple[int, int]] = []  # (boundary j, position)
-    feasible: list[tuple[int, int]] = []
-    for j in range(1, len(paras)):
-        p = prefix[j]
-        if lo <= p <= hi:
-            feasible.append((j, p))
-            # closed interval: p*m >= ib - half*m and p*m <= ib + half*m
-            if p * m >= ib - half * m and p * m <= ib + half * m:
-                in_win.append((j, p))
-    if not feasible:
-        return None
-    if in_win:
-        return max(
-            in_win,
-            key=lambda jp: (classify_pair(paras[jp[0] - 1], paras[jp[0]]).score, -jp[1]),
-        )[0]
-    return min(feasible, key=lambda jp: (abs(jp[1] * m - ib), jp[1]))[0]
-
-
-def plan_releases(ch: ChapterInput, n: int, tier: Tier) -> tuple[list[tuple[int, int]], int]:
-    """Constrained-window selection (spec §3.2) → paragraph-index groups + m."""
-    paras = ch.paragraphs
-    sizes = [nonws(p) for p in paras]
-    body = sum(sizes)
-    # prefix[j] = non-ws chars before boundary j (after paragraphs 0..j-1)
-    prefix: list[int] = [0]
-    for s in sizes:
-        prefix.append(prefix[-1] + s)
-
-    if n < _MIN_SPLIT or len(paras) < _MIN_SPLIT:
-        return [(0, len(paras))], 1
-
-    floor = tier.floor
-    m = n
-    while True:
-        cuts: list[int] = []  # chosen boundary indices
-        infeasible = False
-        for i in range(1, m):
-            j = _select_cut(paras, prefix, prefix[cuts[-1]] if cuts else 0, i, m, body, floor)
-            if j is None:
-                m -= 1
-                if m < _MIN_SPLIT:
-                    return [(0, len(paras))], 1
-                infeasible = True
-                break
-            cuts.append(j)
-        if not infeasible:
-            groups: list[tuple[int, int]] = []
-            start = 0
-            for c in cuts:
-                groups.append((start, c))
-                start = c
-            groups.append((start, len(paras)))
-            return groups, m
 
 
 def build_release_text(paras: tuple[str, ...] | list[str]) -> str:
@@ -327,66 +211,166 @@ def render_title(pattern: str | None, chapter_title: str, ordinal: str | None) -
     return _TITLE_PLACEHOLDER_RE.sub(_sub, pattern)
 
 
-def chapter_flags(gate: int, body: int, m: int) -> list[str]:
-    """§3.3 flags matrix — size rule owns all gate<4000 chapters first."""
-    if gate < _SIZE_SINGLE_GATE:
-        flags = ["single-release"]
-        if body < _HARD_FLOOR:
-            flags.append("floor-violation")
-        return flags
-    if m == 1:
-        return ["forced-single"]
-    return []
-
-
 def nonws_head_tail(text: str) -> tuple[str, str]:
     """First/last ≤12 non-ws chars of the slice, single-line."""
     flat = re.sub(r"\s", "", text)
     return flat[:12], flat[-12:]
 
 
-def split_chapter(ch: ChapterInput, tier: Tier, title_pattern: str | None) -> dict[str, Any]:
-    """Per-chapter ledger entry (seq/file placeholders assigned in T5)."""
-    n = initial_n(ch.gate_chars, tier)
-    groups, m = plan_releases(ch, n, tier)
-    body = sum(nonws(p) for p in ch.paragraphs)
-    flags = chapter_flags(ch.gate_chars, body, m)
-    offset = 0
-    releases: list[dict[str, Any]] = []
-    for k, (s, e) in enumerate(groups):
-        text = build_release_text(ch.paragraphs[s:e])
-        chars = nonws(text)
-        ordinal = None if m == 1 else chinese_ordinal(k + 1)
-        # cut_quality: 更 k = its terminating cut (cut k); 末更 = imaginary
-        # end-cut (tension predicates live, scene/waist dead)
-        if e < len(ch.paragraphs):
-            sig = classify_pair(ch.paragraphs[e - 1], ch.paragraphs[e])
-        else:
-            sig = classify_pair(ch.paragraphs[e - 1], None)
-        releases.append(
-            {
-                "seq": 0,  # assigned globally in T5
-                "file": "",  # assigned globally in T5
-                "chars": chars,
-                "range": [offset, offset + chars],
-                "cut_quality": tier_of(sig),
-                "head": nonws_head_tail(text)[0],
-                "tail": nonws_head_tail(text)[1],
-                "title": render_title(title_pattern, ch.title, ordinal),
-                "content_hash": content_hash_of(text),
-                "published": False,
-                "_paras": (s, e),
-                "_text": text,
-            }
+def fanqie_update_band(project_dir: Path) -> tuple[int, int]:
+    """更带 from genre-config ``chapter_word.fanqie_update`` (hard requirement)."""
+    gc = project_dir / "genre-config.json"
+    if not gc.is_file():
+        raise ReleaseSplitError(
+            "v2 起发布切分硬依赖 genre-config.json（chapter_word.fanqie_update 更带）——缺配置"
         )
-        offset += chars
+    try:
+        data = json.loads(gc.read_text(encoding="utf-8"))
+        fq = data.get("chapter_word", {}).get("fanqie_update", {})
+        lo, hi = int(fq["min"]), int(fq["max"])
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
+        raise ReleaseSplitError(
+            f"chapter_word.fanqie_update 更带缺失/畸形（v2 硬依赖）: {e}"
+        ) from e
+    if not 0 < lo <= hi:
+        raise ReleaseSplitError(f"fanqie_update 带非法: [{lo},{hi}]")
+    return lo, hi
+
+
+def default_platform(project_dir: Path) -> str:
+    """Default platform: primary_platform key, else the v1 default fanqie."""
+    gc = project_dir / "genre-config.json"
+    if gc.is_file():
+        try:
+            v = json.loads(gc.read_text(encoding="utf-8")).get("primary_platform")
+            if v in PLATFORMS:
+                return str(v)
+        except json.JSONDecodeError:
+            pass
+    return _DEFAULT_PLATFORM
+
+
+def settled_chapters(project_dir: Path) -> set[int]:
+    """Settled chapters (spec 施工面 6).
+
+    manifest ``gates.chapter_loop`` phase; latest record per key is PASS
+    and the chapter carries a pipeline-scene-split G4 key.
+    """
+    mf = project_dir / "pipeline-manifest.json"
+    if not mf.is_file():
+        return set()
+    try:
+        data = json.loads(mf.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return set()
+    settled: set[int] = set()
+    for ch_key, skills in (data.get("gates", {}).get("chapter_loop", {}) or {}).items():
+        try:
+            n = int(ch_key)
+        except ValueError:
+            continue
+        has_split_key = False
+        ok = True
+        for skill, gates in (skills or {}).items():
+            if skill == _SPLIT_STEP_SKILL:
+                has_split_key = any("G4" in str(g) for g in (gates or {}))
+            for _gate, rec in (gates or {}).items():
+                latest = rec[-1] if isinstance(rec, list) else rec
+                status = (latest or {}).get("result", {}).get("status")
+                if status is not None and status != "PASS":
+                    ok = False
+        if ok and has_split_key:
+            settled.add(n)
+    return settled
+
+
+def split_chapter_qidian(ch: ChapterInput, title_pattern: str | None) -> dict[str, Any]:
+    """Qidian tier: 1 chapter = 1 update (direct title, markers stripped)."""
+    text = build_release_text(list(ch.paragraphs))  # 已经 strip（标记/元数据剥除）
+    chars = nonws(text)
+    releases = [
+        {
+            "seq": 0,
+            "file": "",
+            "chars": chars,
+            "range": [0, chars],
+            "cut_quality": "direct-1v1",
+            "head": nonws_head_tail(text)[0],
+            "tail": nonws_head_tail(text)[1],
+            "title": render_title(title_pattern, ch.title, None),
+            "content_hash": content_hash_of(text),
+            "published": False,
+            "_text": text,
+        }
+    ]
     return {
         "chapter": ch.number,
         "gate_chars": ch.gate_chars,
-        "stripped_chars": ch.gate_chars - sum(r["chars"] for r in releases),
-        "flags": flags,
+        "stripped_chars": ch.gate_chars - chars,
+        "flags": ["direct-1v1"],
         "releases": releases,
     }
+
+
+def split_chapters_fanqie(
+    chapters: list[ChapterInput], band: tuple[int, int], title_pattern: str | None
+) -> list[dict[str, Any]]:
+    """Fanqie tier: cross-chapter scene-stream greedy packing (one group per 更)."""
+    atoms: list[tuple[ChapterInput, SceneText]] = [(ch, sc) for ch in chapters for sc in ch.scenes]
+    if not atoms:
+        raise ReleaseSplitError("已收束章内零场景标记（fanqie 档以场景为原子）")
+    sizes = [sc.size for _ch, sc in atoms]
+    groups = pack_scenes(sizes, band)
+    if groups is None:
+        offending = ", ".join(f"{s}" for s in sizes[:12])
+        raise ReleaseSplitError(
+            f"场景序列贪心不可打包（更带 [{band[0]},{band[1]}]）——offending 场景字数: {offending}"
+        )
+    entries: dict[int, dict[str, Any]] = {}
+    i = 0
+    for group in groups:
+        members = atoms[i : i + len(group)]
+        i += len(group)
+        text = "".join(sc.text for _ch, sc in members)
+        first_ch = members[0][0]
+        ch_releases = entries.setdefault(
+            first_ch.number,
+            {
+                "chapter": first_ch.number,
+                "gate_chars": first_ch.gate_chars,
+                "stripped_chars": 0,
+                "flags": [],
+                "releases": [],
+            },
+        )
+        ch_releases["releases"].append(
+            {
+                "seq": 0,
+                "file": "",
+                "chars": sum(sc.size for _c, sc in members),
+                "range": [0, 0],
+                "cut_quality": "scene-hook",
+                "head": nonws_head_tail(text)[0],
+                "tail": members[-1][1].last_line[:_SCENE_HOOK_PREVIEW],
+                "title": "",  # 序数在更数确定后渲染（见下）
+                "content_hash": content_hash_of(text),
+                "published": False,
+                "cross_chapter": len({c.number for c, _s in members}) > 1,
+                "_text": text,
+            }
+        )
+    # 序数/标题：每章更数确定后渲染
+    for entry in entries.values():
+        m = len(entry["releases"])
+        # 找回该章的 ChapterInput 以取章题
+        ch = next(c for c in chapters if c.number == entry["chapter"])
+        for k, rel in enumerate(entry["releases"]):
+            ordinal = None if m == 1 else chinese_ordinal(k + 1)
+            rel["title"] = render_title(title_pattern, ch.title, ordinal)
+            if rel["cross_chapter"]:
+                entry["flags"].append("cross-chapter-group")
+            rel.pop("_ch_title", None)
+    return [entries[c.number] for c in chapters if c.number in entries]
 
 
 def load_ledger(platform_dir: Path, platform: str) -> dict[str, Any] | None:
@@ -488,12 +472,9 @@ def _write_products(
             "max_chars": max((r["chars"] for r in totals_rels), default=0),
             "cut_quality": {
                 q: sum(1 for r in totals_rels if r["cut_quality"] == q)
-                for q in ("tension", "scene", "plain", "weak")
+                for q in ("direct-1v1", "scene-hook")
             },
-            "flags": {
-                f: sum(1 for e in entries if f in e["flags"])
-                for f in ("single-release", "forced-single", "floor-violation")
-            },
+            "cross_chapter_groups": sum(1 for r in totals_rels if r.get("cross_chapter")),
         },
     }
     (platform_dir / "releases.json").write_text(
@@ -504,20 +485,39 @@ def _write_products(
 
 def run_split(
     project_dir: Path,
-    platform: str,
+    platform: str | None,
     title_pattern: str | None,
     renumber_published: bool,
+    through: int | None = None,
 ) -> int:
-    """One idempotent split pass over the project's chapters (exit 0/1)."""
-    tier = TIERS[platform]
-    files = select_chapter_files(project_dir / "chapters")
-    chapters = [parse_chapter(f) for f in files]
+    """One idempotent split pass over the project's SETTLED chapters (exit 0/1)."""
+    plat = platform or default_platform(project_dir)
+    settled = settled_chapters(project_dir)
+    if through is not None:
+        settled = {n for n in settled if n <= through}  # 收窄不豁免
+    # F3: filter by FILENAME chapter number BEFORE parsing — an unsettled
+    # (possibly mid-flight / malformed) chapter must not abort the run.
+    wanted = [
+        f
+        for f in select_chapter_files(project_dir / "chapters")
+        if int(CHAPTER_FILE_RE.match(f.name).group(1)) in settled
+    ]
+    chapters = [parse_chapter(f) for f in wanted]
+    if not chapters:
+        raise ReleaseSplitError(
+            "已收束章集合为空（manifest 逐章闸记录无全 PASS + scene-split 键的章）"
+        )
 
-    platform_dir = project_dir / "publish" / platform
+    if plat == "qidian":
+        entries = [split_chapter_qidian(ch, title_pattern) for ch in chapters]
+    else:
+        band = fanqie_update_band(project_dir)
+        entries = split_chapters_fanqie(chapters, band, title_pattern)
+
+    platform_dir = project_dir / "publish" / plat
     (platform_dir / "releases").mkdir(parents=True, exist_ok=True)
-    old = load_ledger(platform_dir, platform)
+    old = load_ledger(platform_dir, plat)
 
-    entries = [split_chapter(ch, tier, title_pattern) for ch in chapters]
     by_number = {e["chapter"]: e for e in entries}
     seq = 0
     for e in entries:
@@ -529,13 +529,13 @@ def run_split(
     if old is not None:
         _validate_freeze(old, by_number, renumber_published)
 
-    ledger = _write_products(entries, platform_dir, platform)
-    t = ledger["totals"]
+    ledger = _write_products(entries, platform_dir, plat)
+    t2 = ledger["totals"]
     print(
-        f"release-split[{platform}]: chapters={len(entries)} "
-        f"releases={t['releases']} chars={t['chars']} "
-        f"min={t['min_chars']} max={t['max_chars']} "
-        f"quality={t['cut_quality']} flags={t['flags']}"
+        f"release-split[{plat}]: chapters={len(entries)} "
+        f"releases={t2['releases']} chars={t2['chars']} "
+        f"min={t2['min_chars']} max={t2['max_chars']} "
+        f"quality={t2['cut_quality']} cross={t2.get('cross_chapter_groups', 0)}"
     )
     return 0
 
@@ -547,7 +547,18 @@ def main(argv: list[str] | None = None) -> int:
         description="发布切分层：已收束章节 → 平台档位发布更（spec #70，纯确定性）",
     )
     parser.add_argument("project_dir", type=Path, help="项目目录（含 chapters/）")
-    parser.add_argument("--platform", choices=sorted(TIERS), default="fanqie")
+    parser.add_argument(
+        "--platform",
+        choices=sorted(PLATFORMS),
+        default=None,
+        help="缺省读 genre-config.primary_platform（无键回退 fanqie）",
+    )
+    parser.add_argument(
+        "--through",
+        type=int,
+        default=None,
+        help="打包域上限章号（收窄不豁免：取 1..N 内仍满足已收束谓词的章）",
+    )
     parser.add_argument(
         "--title-pattern", default=None, help="更题模式（占位符 {章题}/{中文序数}）"
     )
@@ -555,7 +566,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         return run_split(
-            args.project_dir, args.platform, args.title_pattern, args.renumber_published
+            args.project_dir,
+            args.platform,
+            args.title_pattern,
+            args.renumber_published,
+            args.through,
         )
     except ReleaseSplitError as e:
         print(f"release-split: {e}", file=sys.stderr)

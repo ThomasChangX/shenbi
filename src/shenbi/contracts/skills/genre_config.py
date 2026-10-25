@@ -13,12 +13,14 @@ from typing import get_args
 
 from shenbi.contracts.enums import ApprovalDecision
 from shenbi.contracts.ownership import GENRE_KEYS
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 # Single-source keyset authority (F214): 8 required = GENRE_KEYS minus the
 # optional tropeInventory / chapter_word blocks (chapter_word baseline is
 # writer-mandated since 3bfc4a3b; pre-baseline real outputs lack it).
-_OPTIONAL_TOP_KEYS = frozenset({"tropeInventory", "chapter_word"})
+# spec #72: primary_platform is optional too — legacy/pre-#72 configs and
+# historical fixtures carry no platform declaration; consumers fall back.
+_OPTIONAL_TOP_KEYS = frozenset({"tropeInventory", "chapter_word", "primary_platform"})
 _REQUIRED_TOP_KEYS = tuple(sorted(k for k in GENRE_KEYS if k not in _OPTIONAL_TOP_KEYS))
 
 
@@ -34,7 +36,7 @@ class GenreConfig(BaseModel):
     6. auditDimensions count must be 5-10
     7. Every disabled auditDimension must have a customRules reason
     8. approval.decision is required (no approval = invalid config)
-    9. Top-level keyset = 8 required keys + optional tropeInventory/chapter_word
+    9. Top-level keyset = 8 required keys + optional tropeInventory/chapter_word/primary_platform (spec #72)
     """
 
     model_config = {"extra": "ignore"}
@@ -45,8 +47,16 @@ class GenreConfig(BaseModel):
     custom_rules: list[dict[str, Any]] = Field(default_factory=list, alias="customRules")
     fatigue_words: dict[str, Any] = Field(default_factory=dict, alias="fatigueWords")
     pacing: dict[str, Any] = Field(default_factory=dict)
+    primary_platform: str = ""  # spec #72: qidian|fanqie; "" = undeclared (legacy)
     updated: str = ""
     version: str = ""
+
+    @field_validator("primary_platform")
+    @classmethod
+    def _primary_platform_enum(cls, v: str) -> str:
+        if v and v not in {"qidian", "fanqie"}:
+            raise ValueError(f"primary_platform must be qidian|fanqie, got '{v}'")
+        return v
 
     @model_validator(mode="before")
     @classmethod
@@ -56,7 +66,7 @@ class GenreConfig(BaseModel):
         for key in data:
             if key not in GENRE_KEYS:
                 raise ValueError(
-                    f"unknown top-level key '{key}' (allowed: 8 required + optional tropeInventory/chapter_word)"
+                    f"unknown top-level key '{key}' (allowed: 8 required + optional tropeInventory/chapter_word/primary_platform)"
                 )
         missing = [k for k in _REQUIRED_TOP_KEYS if k not in data]
         if missing:

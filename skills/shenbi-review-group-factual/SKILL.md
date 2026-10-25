@@ -21,9 +21,15 @@ contract:
   writes:
     - file: audits/chapter-N-continuity.md
       mode: create_or_overwrite
+    - file: audits/chapter-{N+1}-continuity.md
+      mode: create_or_overwrite
     - file: audits/chapter-N-world-rules.md
       mode: create_or_overwrite
+    - file: audits/chapter-{N+1}-world-rules.md
+      mode: create_or_overwrite
     - file: audits/chapter-N-pacing.md
+      mode: create_or_overwrite
+    - file: audits/chapter-{N+1}-pacing.md
       mode: create_or_overwrite
   updates: []
 ---
@@ -38,7 +44,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, truth/current_state.md, truth/chapter_summaries.md, world/rules.md, world/power_system.md, world/locations.md, world/story_bible.md, genre-config.json
-- **Writes:** audits/chapter-N-continuity.md, audits/chapter-N-world-rules.md, audits/chapter-N-pacing.md
+- **Writes:** audits/chapter-N-continuity.md, audits/chapter-{N+1}-continuity.md, audits/chapter-N-world-rules.md, audits/chapter-{N+1}-world-rules.md, audits/chapter-N-pacing.md, audits/chapter-{N+1}-pacing.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

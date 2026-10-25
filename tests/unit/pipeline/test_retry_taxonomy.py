@@ -345,7 +345,7 @@ class TestLifecycleFailureRouting:
         write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 6
+        state.chapter_loop.step_index = 7  # spec #72 shift
         with (
             patch(
                 "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
@@ -382,7 +382,7 @@ class TestLifecycleFailureRouting:
         write_chapter_drafts(tmp_path, (1,))
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 6
+        state.chapter_loop.step_index = 7  # spec #72 shift
         with (
             patch(
                 "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
@@ -569,7 +569,7 @@ class TestScoringSiteZeroRetryPin:
         handle_failure = MagicMock(return_value=True)
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 12  # review-resonance scoring step
+        state.chapter_loop.step_index = 13  # spec #72 shift: review-resonance scoring step
         with (
             patch(
                 "shenbi.pipeline.chapter_loop.dispatch_skill",

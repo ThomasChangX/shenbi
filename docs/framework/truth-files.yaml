@@ -50,7 +50,9 @@ concepts:
   - {name: truth/arcs/arc-N.md, kind: truth}           # parametric: N (arc segment)
   # plans / chapters / context
   - {name: plans/chapter-N-plan.md, kind: plan}      # parametric: N
-  - {name: chapters/chapter-N.md, kind: chapter}     # parametric: N
+  - {name: staging/chapter-N-bundle.md, kind: chapter, producer: skill}  # #72 场景簇产物（拆分步消费，不晋升）
+  # #72: 拆分步晋升（drafting 产 staging 簇）
+  - {name: chapters/chapter-N.md, kind: chapter, producer: pipeline}  # parametric: N
   - {name: context/chapter-N-context.md, kind: context, producer: shared}
   - {name: context/chapter-N-context-decisions.json, kind: decisions}  # NEW: decisions sidecar
   - {name: chapters/chapter-N-decisions.json, kind: decisions}          # NEW: decisions sidecar
@@ -121,6 +123,8 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   # Curly-form relative reads (context-composing reads N-3/N-2/N-1) join the
   # same key as the producer (spec #60 T0b: patterns-first dag_key unification).
   - {parametric: "chapters/chapter-{N-3}.md", glob: chapters/chapter-*.md}
+  - {parametric: "plans/chapter-{N+1}-plan.md", glob: plans/chapter-*-plan.md}
+  - {parametric: "chapters/chapter-{N+1}-decisions.json", glob: chapters/chapter-*-decisions.json}
   - {parametric: "chapters/chapter-{N-2}.md", glob: chapters/chapter-*.md}
   - {parametric: "chapters/chapter-{N-1}.md", glob: chapters/chapter-*.md}
   # F242 (spec #60): parametric checklist/pattern-input concepts get explicit patterns
@@ -146,6 +150,7 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: short/short-N-decisions.json, glob: short/short-*-decisions.json}
 
 globs:  # declared wildcards contracts may use verbatim
+  - {pattern: staging/chapter-*-bundle.md}  # #72 场景簇产物（拆分步消费）
   - {pattern: truth/*.md}
   - {pattern: world/*.md}
   - {pattern: outline/*.md}

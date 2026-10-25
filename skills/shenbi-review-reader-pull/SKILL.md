@@ -12,6 +12,8 @@ contract:
   writes:
   - file: audits/chapter-N-reader-pull.md
     mode: create_or_overwrite
+  - file: audits/chapter-{N+1}-reader-pull.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- DEPRECATED: Superseded by shenbi-review-group-craft (2026-07-19). -->
@@ -32,7 +34,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, truth/pending_hooks.md
-- **Writes:** audits/chapter-N-reader-pull.md
+- **Writes:** audits/chapter-N-reader-pull.md, audits/chapter-{N+1}-reader-pull.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
