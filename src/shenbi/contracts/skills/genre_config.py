@@ -88,10 +88,10 @@ class GenreConfig(BaseModel):
         hg = v["hook_grading"]
         if not 1 <= hg.get("max_consecutive_micro", -1) <= 3:
             raise ValueError(f"market_params.hook_grading: max_consecutive_micro∈[1,3], got {hg}")
-        # voice_density_min / meme_quota: numeric domains land with #76;
-        # int-typed values are already enforced by the field's
-        # dict[str, dict[str, int]] type (pydantic validates before this
-        # field_validator runs) — no per-key checks here by design.
+        # voice_density_min / meme_quota: numeric domains land with #76.
+        # The field type lax-coerces bool/numeric-str to int (pydantic
+        # validates before this field_validator runs); domain checks for
+        # these two keys are deferred to #76 by design.
         return v
 
     @model_validator(mode="before")
