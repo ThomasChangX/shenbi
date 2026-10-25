@@ -70,8 +70,9 @@ class GenreConfig(BaseModel):
         - payoff_density: window∈[1,10], min>=1（接线 #78 频次窗）
         - emotion_band: window∈[1,3], min>=1（接线 #78 下限）
         - hook_grading: max_consecutive_micro∈[1,3]（接线 #78 轮换门）
-        - voice_density_min / meme_quota: 数值域随 #76 定档——本层仅
-          dict[str,int] 类型级校验（占位键名自由）
+        - voice_density_min / meme_quota / quote_type_quota: 数值域 #76 定档
+          （voice_density_min∈[0,5] / meme_quota∈[1,20] /
+          quote_type_quota∈[0,10] 可选——缺省代入在 lint 消费端）
         """
         if not v:
             return v
@@ -88,10 +89,22 @@ class GenreConfig(BaseModel):
         hg = v["hook_grading"]
         if not 1 <= hg.get("max_consecutive_micro", -1) <= 3:
             raise ValueError(f"market_params.hook_grading: max_consecutive_micro∈[1,3], got {hg}")
-        # voice_density_min / meme_quota: numeric domains land with #76.
-        # The field type lax-coerces bool/numeric-str to int (pydantic
-        # validates before this field_validator runs); domain checks for
-        # these two keys are deferred to #76 by design.
+        # spec #76 数值域定档（#73 遗留债务清偿）：
+        # - voice_density_min.min_per_chapter ∈ [0,5]
+        # - meme_quota.per_volume ∈ [1,20]
+        # - quote_type_quota.burning_per_volume ∈ [0,10]（可选键；缺省代入
+        #   属 lint 消费端——validator 保持无副作用）
+        vdm = v.get("voice_density_min")
+        if vdm is not None and not 0 <= vdm.get("min_per_chapter", -1) <= 5:
+            raise ValueError(f"market_params.voice_density_min: min_per_chapter∈[0,5], got {vdm}")
+        mq = v.get("meme_quota")
+        if mq is not None and not 1 <= mq.get("per_volume", -1) <= 20:
+            raise ValueError(f"market_params.meme_quota: per_volume∈[1,20], got {mq}")
+        qtq = v.get("quote_type_quota")
+        if qtq is not None and not 0 <= qtq.get("burning_per_volume", -1) <= 10:
+            raise ValueError(
+                f"market_params.quote_type_quota: burning_per_volume∈[0,10], got {qtq}"
+            )
         return v
 
     @model_validator(mode="before")

@@ -149,6 +149,25 @@ def g4_chapter_planning(
 
         content = pf.read_text(encoding="utf-8")
 
+        # ── spec #76 G4.cp.plan_format — 版本令牌两查分立 ──
+        # 缺席 = v1 默认（不 FAIL）；在场值 ∉ {v1,v2} = FAIL；
+        # v2 ⇒ 声口要求行存在（缺 = FAIL）。v1 无新义务（旧路径持续可跑）。
+        _pf_m = re.search(r"^plan_format[：:]\s*(\S+)\s*$", content, re.MULTILINE)
+        if _pf_m:
+            _pf_val = _pf_m.group(1)
+            if _pf_val not in ("v1", "v2"):
+                mf.append(
+                    f"G4.cp.plan_format:{fp}:invalid_token:{_pf_val} (合法值 v1/v2；缺席 = v1 默认)"
+                )
+            elif _pf_val == "v2":
+                if not re.search(r"^声口要求[：:].+$", content, re.MULTILINE):
+                    mf.append(
+                        f"G4.cp.voice_line:{fp}:v2_requires_声口要求行 "
+                        "(protagonist 口癖/句式要点——planning 从 protagonist.md voice_profile 生成)"
+                    )
+                else:
+                    c.append({"id": "G4.cp.voice_line", "file": fp, "s": GateStatus.PASS})
+
         # ── spec #75 G4.cp.declarations — 三声明行（时间锚/余额/POV）──
         # SKILL 承诺「新格式备忘缺任一行 = G4.cp FAIL」；旧格式（无场景预算
         # 块）= WARN 豁免（legacy 备忘只免声明行交叉核对，散文派生检查照跑）。

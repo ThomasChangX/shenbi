@@ -135,6 +135,7 @@ convention = "google"
 # GO① pool lint: findings quote the live Chinese truth-file vocabulary
 # (当前生命周期/兑现章 headers) — fullwidth punctuation is the data, not drift.
 "tools/lint_truth_pool.py" = ["RUF001", "RUF002", "RUF003"]
+"tools/lint_voice_meme.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #70 release-split: scene word list + fullwidth predicate chars are the
 # data, not drift (same category as lint_truth_pool).
 "tools/release_split.py" = ["RUF001", "RUF002", "RUF003"]
