@@ -29,14 +29,14 @@
 
 **Files:**
 - Modify: `novel-xinghuo-vol1/genre-config.json`（chapter_word 块 + 新子键）
-- Modify: `novel-xinghuo-vol1/novel.json:8`（target_total_chapters）
+- Modify: `novel-xinghuo-vol1/novel.json:16`（target_total_chapters）
 - Modify: `src/shenbi/contracts/ownership.py:39-52`（GENRE_KEYS + primary_platform）
 - Modify: `src/shenbi/contracts/skills/genre_config.py:21-22,45-64`（_OPTIONAL_TOP_KEYS + GenreConfig 字段）
 - Modify: `skills/shenbi-genre-config/SKILL.md:122-126`（模板）、`:317`、`:323`、`:416`（闭键集行）
 - Test: `tests/unit/contracts/test_genre_config_platform.py`（新建）
 
 **Interfaces:**
-- Produces: `GenreConfig.primary_platform: str = ""`（optional，空=未声明）；`GenreConfig.chapter_word` 保持 `dict[str, Any]`（`fanqie_update` 子键免建模）；GENRE_KEYS 含 `primary_platform`（11 键）
+- Produces: `GenreConfig.primary_platform: str = ""`（optional，空=未声明）；`chapter_word` 顶层键仅被 `_top_level_keyset` 放行、无 Pydantic 字段（`extra: ignore`，`fanqie_update` 子键免建模）；GENRE_KEYS 含 `primary_platform`（11 键）
 - Produces: 项目面常量（3200/2800/4000/1800/2800/qidian/3300）——T2/T3/T8 全部读配置，不硬编码
 
 - [ ] **Step 1: 写失败测试**
@@ -51,8 +51,9 @@ from shenbi.contracts.ownership import GENRE_KEYS
 def _base() -> dict:
     return {
         "approval": {"decision": "approved"},
-        "auditDimensions": {},
-        "chapterTypes": {},
+        # validator 下限：chapterTypes 6-10 / auditDimensions 5-10（genre_config.py:106-118）
+        "auditDimensions": {f"d{i}": True for i in range(5)},
+        "chapterTypes": {f"t{i}": True for i in range(6)},
         "customRules": [],
         "fatigueWords": {"禁用": []},
         "pacing": {},
@@ -135,9 +136,9 @@ Expected: 5 PASS
 
 - [ ] **Step 5: 既有面回归 + 提交**
 
-Run: `uv run pytest tests/unit/contracts/ -q && just lint-contracts`
-Expected: 全绿（fixture 无 primary_platform → optional 不破）。现有断言 GENRE_KEYS 键数的测试若有（grep `GENRE_KEYS` tests/）同步期望值。
-Commit: `feat(contracts): spec72 T1——primary_platform 可选键四站落地 + 项目面 3200/3300 常量`
+Run: `uv run pytest tests/unit/contracts/ tests/unit/gates/g4/test_genre_config.py -q && just lint-contracts`
+Expected: 全绿。**`tests/unit/gates/g4/test_genre_config.py:183` 断言 `_REQUIRED_TOP_KEYS == GENRE_KEYS - {"tropeInventory","chapter_word"}`——primary_platform 入 `_OPTIONAL_TOP_KEYS` 后该断言破，同批更新为减三键**。其余 GENRE_KEYS 键数断言（grep `GENRE_KEYS` tests/）同步期望值。
+Commit: `feat(contracts): spec72 T1——primary_platform 可选键四站落地 + 项目面 3200/3300 常量（无在途 artifacts 受影响：新键 optional + 存量章 §1 隔离，无 backfill 义务）`
 
 ---
 
@@ -155,8 +156,8 @@ Commit: `feat(contracts): spec72 T1——primary_platform 可选键四站落地 
 
 **Interfaces:**
 - Consumes: T1 项目面配置
-- Produces: `chapter_word_floor(project_dir) -> int`（min 回退链）；`chapter_word_min_max` 不变；G2.7 天花板 = `chapter_word_max(project_dir)`（新薄封装或直接 `chapter_word_min_max()[1]`，缺省回退 `CHAPTER_WORD_CEILING` 既有常量）
-- Produces: `strip_scene_markers(text: str) -> str`（T3 提供后被本 task 的口径消费——**实现顺序上本 task 先落 min/total_chars 切换，标记剥离在 T3 接线**；本 task 的测试输入不含标记行）
+- Produces: `chapter_word_floor(project_dir) -> int`（min 回退链）；`chapter_word_min_max` 不变；G2.7 天花板 = `chapter_word_min_max()[1]`（缺省回退 `CHAPTER_WORD_CEILING` 既有常量）
+- Produces: **`SCENE_MARKER`/`is_scene_marker_line`/`strip_scene_markers` 定义于 `src/shenbi/gates/shared.py`**（T3 的 scene_splitter 从 gates.shared import 并 re-export——层级：pipeline→gates 合法，反向禁止）；`strip_narrative_body` 与 `total_chars_md_text` **删除独占 SCENE 标记行**（全部下游计数消费方一次性继承——publish fixture 无标记行，金值不动）；T2 本 task 落地这两处剥离 + G2 站点标记排除测试（**修复 plan-R1 C2：标记剥离不留空指**）
 
 - [ ] **Step 1: 写失败测试**
 
@@ -182,7 +183,7 @@ def _chapter(tmp_path: Path, n: int, chars: int) -> Path:
     p.write_text(f"# 第{n}章：题\n\n{body}\n", encoding="utf-8")
     return p
 ```
-用例（各自独立 test）：`floor_reads_min`（cw default=3200/min=2800 → floor==2800）；`floor_fallback_default`（无 min → 3200）；`floor_fallback_constant`（无 chapter_word → 3000）；G2 四联——构造 2800/2799/4000/4001 total_chars 章，`g2_chapter_check`（或对应入口，实现时按 `g2.py` 的公开函数名）在 2800/4000 过、2799/4001 挂 G2.6/G2.7（期望消息含 `>= 2800` / `<= 4000`）；G4.ln 同带（构造归一化报告章，2800 过 / 2799 挂 `G4.ln.below_floor` / 4001 挂 `above_ceiling`）。
+用例（各自独立 test）：`floor_reads_min`（cw default=3200/min=2800 → floor==2800）；`floor_fallback_default`（无 min → 3200）；`floor_fallback_constant`（无 chapter_word → 3000）；G2 四联——构造 2800/2799/4000/4001 total_chars 章，走 `gate_G2`（`g2.py:44` 公开入口，`file_type="chapter"`）在 2800/4000 过、2799/4001 挂 G2.6/G2.7（期望消息含 `>= 2800` / `<= 4000`）；G4.ln 同带（构造归一化报告章，2800 过 / 2799 挂 `G4.ln.below_floor` / 4001 挂 `above_ceiling`）；**`marker_lines_excluded_g2`（2800 章含 2 行标记 → 按 2800 计过；2799+2 标记 → 挂——证明 G2.6 计数已剥标记）；`g4cd_same_counter_as_g2`（同章同数：G4.cd 地板读值 == G2.6 读值）；`g03_ceil_3125`（target=10M/default=3200 → `g0.py:372-393` 推导 ceil==3125）；`baoliang_inequality`（0.95×3200=3040 ≥ 10**7/3300）；`implied_total_consistent`（volume_budget `_implied_total` 复算 == 3125）——spec §4「3300 口径」三断言在此产出**。
 
 - [ ] **Step 2: 跑测试确认失败**
 
@@ -212,7 +213,8 @@ def chapter_word_floor(project_dir: str | Path | None) -> int:
 
 Run: `uv run pytest tests/unit/gates/ tests/unit/pipeline/ -q`
 既有断言更新（characterization，期望值从配置语义重推，禁改 fixture 文件）：probe17/chapter-118 快照相关地板断言（floor 现= min 值）；G2.6 CJK 口径用例。Expected: 全绿。
-Run: `uv run pytest tests/unit/tools/test_release_split.py -q`（v1 尚未动——38 用例须仍绿，floor/min_max 消费未变其行为）。
+Run: `uv run pytest tests/unit/tools/test_release_split.py -q`（v1 尚未动——38 用例须仍绿；total_chars_md_text 剥标记对无标记 publish fixture 为幂等 noop）。
+**披露（volume_budget 行为面）**：`word_default`→`chapter_word_floor` 使无配置项目的逐章保量检查从「跳过」（`:303 if word_default:` 门）变为「按 3000 常量跑」——characterization 阶段如有用例断言跳过行为，同批更新并注明。
 
 - [ ] **Step 5: 提交**
 
@@ -226,17 +228,16 @@ Run: `uv run pytest tests/unit/tools/test_release_split.py -q`（v1 尚未动—
 
 **Files:**
 - Create: `src/shenbi/pipeline/scene_splitter.py`
+- Consumes（T2 已落）: `gates/shared.py` 的 `SCENE_MARKER`/`is_scene_marker_line`/`strip_scene_markers`（re-export 保持单一信源）
 - Test: `tests/unit/pipeline/test_scene_splitter.py`（新建）
 
 **Interfaces:**
 - Produces:
 ```python
-SCENE_MARKER = "<!--SCENE-->"
+from shenbi.gates.shared import SCENE_MARKER, is_scene_marker_line, strip_scene_markers  # noqa: F401 re-export
 CH_MARKER_RE: re.Pattern[str]            # ^===CH:(\d+)===$
-def is_scene_marker_line(line: str) -> bool   # line.strip() == SCENE_MARKER
-def strip_scene_markers(text: str) -> str     # 删独占标记行
 def count_scene_markers(text: str) -> int
-def chapter_total_chars(text: str) -> int     # total_chars_md_text(strip_scene_markers(text))——不带 META 的裸口径，与 G4.cd 终验同式
+def chapter_total_chars(text: str) -> int     # total_chars_md_text()——shared 已剥标记，无需二次
 @dataclass(frozen=True)
 class SceneSpan: index: int; size: int; last_line: str   # last_line=末非空行原文
 @dataclass(frozen=True)
@@ -252,18 +253,28 @@ def pack_scenes(sizes: list[int], update_band: tuple[int, int]) -> list[list[int
     # 贪心组相邻场景：每组和∈update_band；不可打包→None（单源，G4.cp 预检与 v2 共用）
 class SceneSplitError(RuntimeError)
 ```
-- Consumes: `shenbi.gates.shared.total_chars_md_text`
+- Consumes: `shenbi.gates.shared.total_chars_md_text`（T2 后已剥标记行）
 
 - [ ] **Step 1: 写失败测试**（tmp_path 构造，G0.9 结构豁免）
 
-构造 bundle 文本 fixture 构造器（测试内 inline）：
+构造 bundle 文本 fixture 构造器（测试内 inline，完整实现非示意）：
 ```python
-def _bundle(n1: int, n2: int | None, scenes: dict[int, list[int]]) -> str:
+TITLES = {1: "首章", 2: "次章", 3: "三章", 4: "四章"}
+
+def _scene(size: int, hook: str) -> str:
+    return "灯" * size + "\n" + hook + "\n"
+
+def _bundle(n1: int, n2: int | None, scenes: dict[int, list[tuple[int, str]]]) -> str:
     parts = []
     for n in ([n1, n2] if n2 else [n1]):
-        parts.append(f"===CH:{n}===\n# 第{n}章\n# {TITLES[n]}\n\n## PRE_WRITE_CHECK\n\n- x\n\n<!--SCENE-->\n\n" )
-        # 每场景：size 个「灯」+ 末行钩原文，场景间 <!--SCENE-->
-        ...
+        seg = [f"===CH:{n}===", f"# 第{n}章", f"# {TITLES[n]}", "",
+               "## PRE_WRITE_CHECK", "", "- x", "", "<!--SCENE-->"]
+        for i, (size, hook) in enumerate(scenes[n]):
+            if i > 0:
+                seg.append("<!--SCENE-->")
+            seg.append(_scene(size, hook))
+        seg += ["", "## POST_WRITE_SELF_CHECK", "", "- y", ""]
+        parts.append("\n".join(seg))
     return "\n".join(parts)
 ```
 用例：`split_two_chapters`（双章、标记剥离 CH 保留 SCENE、title=第二 H1）；`missing_ch_marker_raises`；`scene_count_below_two`；`gray_zone_scene_1450`；`band_2799_and_2800`（chapter_total_chars 口径）；`composition_2scene_must_be_2A`（2 场景 2×1300 → 组合违例）；`pack_scenes_pairs_in_band`（[950,950]→[[950,950]]）；`pack_scenes_cross_2800_none`（[950,1950]→None）；`pack_scenes_greedy_multi`；`parse_scene_declarations_roundtrip`（`- 场景1: 1900字｜独立型｜收束钩：abc。`）。
@@ -320,7 +331,7 @@ ChapterStep(5, "pipeline-scene-split", "scene-split", step_type="checkpoint"),
 - [ ] **Step 4: 跑测试确认通过 + 回归**
 
 Run: `uv run pytest tests/pipeline/test_bundle_stepping.py tests/pipeline/test_resume_anchor.py -v` → PASS
-Run: `uv run pytest tests/pipeline/ -q`（既有步进/恢复测试若因步序号引用破裂——steps_done 按名键控应无碍；破裂处按新步序修期望）
+Run: `uv run pytest tests/pipeline/ tests/unit/pipeline/ -q`（**两目录都跑**——tests/unit/pipeline/ 13 文件引用 CHAPTER_STEPS/PIPELINE_STEPS_VERSION，步序引用破裂处按新步序修期望）
 
 - [ ] **Step 5: 提交**
 
@@ -365,7 +376,7 @@ revision SKILL updates 合同增条款：修订不得删除/挪动 `<!--SCENE-->
 
 - [ ] **Step 2: 注册同步**
 
-truth-files.yaml：`chapters/chapter-N.md` 行加 `producer: pipeline`；增 `- {name: staging/chapter-N-bundle.md, kind: chapter, producer: skill}`（staging 族既有条目形态对齐）；`patterns:` 增 `{parametric: "plans/chapter-{N+1}-plan.md", glob: plans/chapter-*-plan.md}`、`{parametric: "chapters/chapter-{N+1}-decisions.json", glob: chapters/chapter-*-decisions.json}`；`site/framework/` 镜像同步（保留 provenance 头）。
+truth-files.yaml（注意：staging 族当前零登记——本条为**新增形态**，非对齐既有，参照 `chapters/chapter-N.md` 行 :53 + `producer:` 注法）：`chapters/chapter-N.md` 行加 `producer: pipeline`；增 `- {name: staging/chapter-N-bundle.md, kind: chapter, producer: skill}`；`patterns:` 增 `{parametric: "plans/chapter-{N+1}-plan.md", glob: plans/chapter-*-plan.md}`、`{parametric: "chapters/chapter-{N+1}-decisions.json", glob: chapters/chapter-*-decisions.json}`；`site/framework/` 镜像同步（保留 provenance 头）。
 
 - [ ] **Step 3: 验证**
 
@@ -374,7 +385,7 @@ Run: `uv run python tools/lint_decisions_sources.py`（如 #72 册需登记 deci
 
 - [ ] **Step 4: 提交**
 
-`feat(skills): spec72 T5——planning/drafting 双章契约与场景预算协议 + revision 标记保护条款 + 注册三源同步`
+`feat(skills): spec72 T5——planning/drafting 双章契约与场景预算协议 + revision 标记保护条款 + 注册三源同步（无在途 artifacts 受影响：场景预算块为新增可选面、存量章 §1 隔离，G4.cp 只见新 planning 产物）`
 
 ---
 
@@ -408,14 +419,15 @@ Run: `uv run python tools/lint_decisions_sources.py`（如 #72 册需登记 deci
 **复杂度: infra** · **test_kind: tdd_red_green**
 
 **Files:**
-- Modify: `src/shenbi/pipeline/chapter_loop.py`（step15 修订完成点后插重验块；沿用既有 pre-rev 备份 :2088-2111）
-- Test: `tests/pipeline/test_revision_revalidate.py`（新建）
+- Modify: `src/shenbi/pipeline/chapter_loop.py`（修订步完成点后插重验块——**按 skill 名 `shenbi-chapter-revision` 定位**，T4 插步后其序号为 16；沿用既有 pre-rev 备份 :2088-2111）
+- Modify: `src/shenbi/gates/g6.py:74,81`（**plan-R2 C1 补载**：章节枚举排除 `*-pre-rev.md`——`triggers.py:110`/`dispatch_helper.py:1701` 先例形态；`*-decisions.json` 本就不匹配 .md glob 无需处理）
+- Test: `tests/pipeline/test_revision_revalidate.py`（新建，含 G6 排除负例）
 
 **Interfaces:**
 - Consumes: T3/T6（is_scene_marker_line/场景检查族/字数带口径）
 - Produces: `_revalidate_revised_chapter(project_dir, chapter) -> list[str]`（空=过）；非空 → 修订步按既有重派路径回派（消息携带违例清单）
 
-- [ ] **Step 1: 写失败测试**：`marker_deleted_fails`（修订后删 1 标记行 → 违例含「标记」）；`marker_reordered_fails`；`hook_line_rewritten_fails`（场景末行改写致匹配失败）；`band_drift_fails`（merge_prose 缩到 2700）；`clean_revision_passes`（仅改场景内部散文、标记/钩行/带不动）。
+- [ ] **Step 1: 写失败测试**：`marker_deleted_fails`（修订后删 1 标记行 → 违例含「标记」）；`marker_reordered_fails`；`hook_line_rewritten_fails`（场景末行改写致匹配失败）；`band_drift_fails`（merge_prose 缩到 2700）；`clean_revision_passes`（仅改场景内部散文、标记/钩行/带不动）；**`g6_excludes_pre_rev_backups`（tmp_path chapters/ 放 chapter-1.md + chapter-1-pre-rev.md → G6.1 计数 1、G6.2 无重复章号——plan-R2 C1）**。
 
 - [ ] **Step 2-4: 红绿实现**：重验 = (a) 标记行序列 diff（`[ln for ln in lines if is_scene_marker_line(ln)]` 前后等长同序 + 各场景钩行号锚不前移）vs `chapters/chapter-{n}-pre-rev.md`；(b) G4.cd 场景检查族复跑（T6 函数复用）；(c) `chapter_total_chars` ∈ band。挂 → raise/返回违例并入修订重派反馈。
 
@@ -432,8 +444,8 @@ Run: `uv run python tools/lint_decisions_sources.py`（如 #72 册需登记 deci
 - Rewrite: `tests/unit/tools/test_release_split.py`（38 → v2 套件；`tests/fixtures/publish/` 真实 fixture 仅用于仍成立的面：题提取/冻结/账本生命周期/CLI——其正文无标记，切分面用 tmp_path 构造）
 
 **Interfaces:**
-- Consumes: T3（strip_scene_markers/pack_scenes/SceneSpan 解析）、T1（primary_platform/fanqie_update 配置读取）
-- Produces: v2 行为——起点档 1 章=1 更（重题直发，双 H1 题机制不变，标记剥离）；番茄档：已收束章集合（manifest latest-per-key PASS + 每章 `pipeline-scene-split` 键，`get_gate_result` gate_manifest.py:154-169 复用）内场景序列 → `pack_scenes`（band 自 `chapter_word.fanqie_update`，缺省回退 2000-2800? **否**——缺 genre-config 时 exit 1 报缺配置）→ 更文件（每更以场景收束钩收尾、剥标记）；`--through N` = 1..N ∩ 已收束；`--platform` 缺省读 `primary_platform`（无键回退 fanqie）；不可打包 = exit 1 报 offending 清单（防御性）；SCENE_TRANSITION_WORDS/TIERS/plan_releases/classify_pair/CutSignals 退役删除
+- Consumes: T3（pack_scenes/场景段解析——标记剥离已由 T2 进 shared 计数面）、T1（primary_platform/fanqie_update 配置读取）
+- Produces: v2 行为——起点档 1 章=1 更（重题直发，双 H1 题机制不变，标记剥离）；番茄档：已收束章集合（manifest latest-per-key PASS + 每章 `pipeline-scene-split` 键，`get_gate_result` gate_manifest.py:154-169 复用）内场景序列 → `pack_scenes`（band 自 `chapter_word.fanqie_update`，**缺 genre-config 时 exit 1 报缺配置——兼容破裂披露（plan-R2 I5）：v1 从不读配置（TIERS 硬编码），v2 起配置为硬依赖；保留迁移的 CLI 面测试须为 tmp_path 项目补最小 genre-config（构造，G0.9 合法）**）→ 更文件（每更以场景收束钩收尾、剥标记）；`--through N` = 1..N ∩ 已收束；`--platform` 缺省读 `primary_platform`（无键回退 fanqie）；不可打包 = exit 1 报 offending 清单（防御性）；SCENE_TRANSITION_WORDS/TIERS/plan_releases/classify_pair/CutSignals 退役删除
 
 - [ ] **Step 1: 重写测试套件**（v2 语义用例）：`qidian_one_chapter_one_update`；`fanqie_packs_scenes_declared_hooks`（构造 3 场景章×2 已收束章 → 更全部落于场景边界、每更末行=钩原文、每更 1800-2800、跨章组更用例）；`unsettled_chapter_excluded`（manifest 有 FAIL latest / 无 split 键 → 不入打包域）；`follower_chapter_settles_via_split_key`（无 drafting 键有 split 键 → 入域）；`through_narrows_not_forces`；`platform_default_from_config`；`unpackageable_defensive_exit1`；`markers_stripped_both_tiers`；`freeze_unchanged_semantics`（既有冻结三元用例保留迁移）；`title_pattern_kept`。
 
@@ -454,14 +466,14 @@ Commit: `feat(release-split): spec72 T8——v2 声明式场景切分（已收�
 
 **Files:**
 - Modify: `src/shenbi/pipeline/chapter_loop.py:3010-3121`（两波 prompt/output_paths/savepoint）
-- Modify: 各审计 skill SKILL.md writes 增 `{N+1}` brace 报告形态 + 簇 path-context 载荷行约定（`skills/shenbi-review-*/SKILL.md`——以 `audit_report_paths` 实际消费面为准）
+- Modify: 各审计 skill SKILL.md writes 增 `{N+1}` brace 报告形态 + 簇 path-context 载荷行约定（圈定=CHAPTER_STEPS `is_audit=True` 6 核心 + `get_active_genre_audits` 动态题材集；RETIRED 迁移表内 skill 不动）
 - Test: `tests/pipeline/test_audit_cluster.py`（新建）
 
 **Interfaces:**
 - Consumes: T4 bundle 步进（bundle 章集）
-- Produces: 波派发 `ReviewTask` per skill 覆盖 bundle 两章：`prompt=f"Execute {skill} for chapters {n},{m}. Project dir: ..."`；`output_paths = audit_report_paths(n,...)+audit_report_paths(m,...)`；`_wave_savepoint` 闭包对两章各 `add_audit_result`；write-audit `AmbiguousChapterError` 路径以 path-context 载荷行（`dispatch_helper.py:3955-3972` 既有机制）承载双章
+- Produces: 波派发 `ReviewTask` per skill 覆盖 bundle 两章：`prompt=f"Execute {skill} for chapters {n},{m}. Project dir: ..."`；**output_paths = 单解析领袖章 `audit_report_paths(n, skill)`——T5 已为审计 skill writes 增 `{N+1}` brace，领袖章解析即覆盖 follower 报告路径；禁止再拼 `audit_report_paths(m)`（会产生 m+1 幻影路径——`_filter_completed_audit_tasks` 要求全部路径存在，幻影路径废掉恢复过滤，plan-R2 I6）**；`_wave_savepoint` 闭包对两章各 `add_audit_result`；write-audit `AmbiguousChapterError` 路径以 path-context 载荷行（`dispatch_helper.py:3955-3972` 既有机制）承载双章；**审计 skill 圈定推导规则（plan-R2 M14）＝CHAPTER_STEPS 中 `is_audit=True` 的 6 核心 step skill + `get_active_genre_audits(genre_gc)` 动态题材集——不 brace 扩展迁移表内 RETIRED skill**
 
-- [ ] **Step 1: 失败测试**：`cluster_prompt_covers_both`（构造 state/chapter_steps 断言派发 prompt 含两章号）；`reports_written_per_chapter`（两章报告路径都在 output_paths）；`savepoint_records_both_chapters`（on_complete 后两章 `wave_completed` 皆含该 skill）；`write_audit_accepts_cluster_declared`（构造双章声明 writes + 双报告落盘 → 无「未声明写入」）。
+- [ ] **Step 1: 失败测试**：`cluster_prompt_covers_both`（构造 state/chapter_steps 断言派发 prompt 含两章号）；`reports_written_per_chapter`（两章报告路径都在 output_paths）；**`no_phantom_paths_beyond_bundle`（output_paths 不含 m+1 及以后任何路径）**；`savepoint_records_both_chapters`（on_complete 后两章 `wave_completed` 皆含该 skill）；`write_audit_accepts_cluster_declared`（构造双章声明 writes + 双报告落盘 → 无「未声明写入」）。
 
 - [ ] **Step 2-4: 红绿实现**（审计波入口以 bundle 章集参数化；G3 记账两章各落——`_get_audit_history` 按章读取形态不变）+ 回归 `uv run pytest tests/pipeline/ -q`
 
@@ -485,7 +497,7 @@ Commit: `feat(release-split): spec72 T8——v2 声明式场景切分（已收�
   7. bundle 原子/恢复重放 → `uv run pytest tests/pipeline/test_bundle_stepping.py -v`
   8. 卷界奇偶 → 同上 singleton 用例
   9. 修订重验负例 → `uv run pytest tests/pipeline/test_revision_revalidate.py -v`
-- [ ] **Step 2: G3.4 声明**——本 spec 无 LLM 产物评分场景（全离线结构性验证），无需独立评分子 agent（spec §4 测试层级映射声明）
+- [ ] **Step 2: G3.4 声明**——本 spec 无 LLM 产物评分场景（全离线结构性验证），无需独立评分子 agent（spec §4 测试层级映射声明）；INDEX.md #72 内容字段同步已在 spec rev4 随分支落地（commit f78c3c58）——本步核对一致即可
 - [ ] **Step 3: `just check` 完整跑**（阶段 7 门禁，输出进 progress.md）
 - [ ] **Step 4: 提交** `chore(spec72): T10 验收覆盖表全跑收尾`
 
@@ -502,7 +514,7 @@ Commit: `feat(release-split): spec72 T8——v2 声明式场景切分（已收�
 | 章数预算重排幂等 | T10 | volume_budget 连跑两次 diff 一致 |
 | 2800/2799 四联 | T2 | pytest test_word_band_unified |
 | 4000/4001 天花板 | T2 | 同上 |
-| 3300 口径三断言 | T1/T2 | pytest test_genre_config_platform |
+| 3300 口径三断言（ceil=3125/保量不等式/_implied_total 复算）+ G2.6↔G4.cd 同数 | T2 | pytest test_word_band_unified（`g03_ceil_3125`/`baoliang_inequality`/`implied_total_consistent`/`g4cd_same_counter_as_g2`） |
 | bundle 原子性 crash 重放 | T4 | pytest test_bundle_stepping |
 | 卷界单章簇 | T4 | 同上 |
 | 修订重验两负例+带复检 | T7 | pytest test_revision_revalidate |
@@ -510,6 +522,7 @@ Commit: `feat(release-split): spec72 T8——v2 声明式场景切分（已收�
 
 ## Self-Review
 
-- 覆盖：spec 施工面 1(T1/T2) 2(T5/T6) 3(T5) 3b(T4/T9) 4(T3/T4) 5(T6) 6(T8) 7(T2) 8(T9) 9(T7) + 同步清单(T5) + 验收(T10) ✓
-- 无占位符：G4 入口函数名（g2 chapter 检查公开名）实现时以 `grep "^def " src/shenbi/gates/g2.py` 现场对齐——已读区段为准（G2.6/G2.7 在 `g2_chapter_check` 主循环内联，测试直接走该入口）
-- 类型一致：`SplitChapter/BundleChapters/SceneSpan/pack_scenes` 在 T3 定义、T4/T6/T8 消费同名同参 ✓
+- 覆盖：spec 施工面 1(T1/T2) 2(T5/T6) 3(T5) 3b(T4/T9) 4(T2/T3/T4) 5(T6) 6(T8) 7(T2) 8(T9) 9(T7) + 同步清单(T5/T7——G6 排除在 T7) + 验收(T10) ✓
+- 无占位符：G2 公开入口 = `gate_G2`（g2.py:44，`file_type="chapter"`）；G6 排除先例形态 `triggers.py:110`/`dispatch_helper.py:1701`
+- 类型一致：`SplitChapter/BundleChapters/SceneSpan/pack_scenes` 在 T3 定义、T4/T6/T8 消费同名同参 ✓；标记谓词/剥离单源于 `gates/shared.py`（T2 落地、T3 re-export、T6/T7/T8 消费）✓
+- plan-R2 审查修复对照：C1(G6 排除→T7)/C2(标记剥离接线→T2 shared 两函数)/I3(_base 下限)/I4(:183 断言+回归目录)/I5(v2 配置硬依赖披露)/I6(幻影路径禁拼)/I7(3300 三断言+同数用例入 T2)/M8(按 skill 名定位)/M9(novel.json:16)/M11(字段措辞)/M12(两目录回归)/M13(新增形态声明)/M14(审计圈定推导)/M15(提交声明)/M16(INDEX 已落核对)/M17(跳过→常量披露)/M18(构造器完整)
