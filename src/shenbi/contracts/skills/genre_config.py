@@ -49,7 +49,7 @@ class GenreConfig(BaseModel):
     custom_rules: list[dict[str, Any]] = Field(default_factory=list, alias="customRules")
     fatigue_words: dict[str, Any] = Field(default_factory=dict, alias="fatigueWords")
     pacing: dict[str, Any] = Field(default_factory=dict)
-    market_params: dict[str, dict[str, int]] = Field(default_factory=dict)
+    market_params: dict[str, dict[str, int | float]] = Field(default_factory=dict)
     # spec #73: optional market-parameter block — see _market_params_structure
     primary_platform: str = ""  # spec #72: qidian|fanqie; "" = undeclared (legacy)
     updated: str = ""
@@ -105,6 +105,20 @@ class GenreConfig(BaseModel):
             raise ValueError(
                 f"market_params.quote_type_quota: burning_per_volume∈[0,10], got {qtq}"
             )
+        # spec #77 styleFingerprint（嵌套可选块；plan 域表）
+        sf = v.get("styleFingerprint")
+        _SF_RANGES = {
+            "question_per_k": (1, 40),
+            "simile_share": (0.5, 1.0),
+            "simile_min_n": (1, 20),
+            "opener_run": (2, 6),
+            "opener_share": (0.2, 1.0),
+            "dialogue_min_chars": (50, 2000),
+        }
+        if sf is not None:
+            for k, (lo, hi) in _SF_RANGES.items():
+                if k in sf and not lo <= float(sf[k]) <= hi:
+                    raise ValueError(f"market_params.styleFingerprint.{k}: ∈[{lo},{hi}], got {sf}")
         return v
 
     @model_validator(mode="before")

@@ -458,7 +458,33 @@ def _run_audit_close_for_chapter(
             context=(f"Audit revision hard cap (100) reached for n {n}. Manual review required."),
         )
         return True
+    # spec #77: style fingerprints — retry-loop EXIT point (once per chapter;
+    # rows append-only into truth/audit_drift, structurally excluded from
+    # count_drift_alerts). WARN-only, never blocking.
+    from shenbi.text.style_fingerprint import fingerprints as _fp
+
+    try:
+        for _row in _fp(project_dir, n):
+            _append_style_warn(project_dir, _row)
+    except OSError as _exc:
+        log.warning("style_fingerprint_skipped", chapter=n, err=str(_exc))
     return False
+
+
+def _append_style_warn(project_dir: Path, row: str) -> None:
+    """Append one style-warn row to truth/audit_drift.md.
+
+    _append_audit precedent (compute_drift): per-path truth flock +
+    locked_transact — the write itself lives in the allowlisted
+    safe_write machinery, not a bare open() here.
+    """
+    from shenbi.pipeline.truth_io import truth_file_flock
+    from shenbi.safe_write import locked_transact
+
+    target = project_dir / "truth" / "audit_drift.md"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with truth_file_flock(target):
+        locked_transact(target, lambda raw: (raw or "") + f"- {row}\n")
 
 
 def _wave_savepoint(
