@@ -317,15 +317,18 @@ def protagonist_binding_hits(text: str, name: str, whitelist: tuple[str, ...]) -
         signals = 0
         if re.search(rf"^{esc}", sent):
             signals += 1  # 句首主语位
-        if any(v in sent for v in _INNER_VERBS):
-            signals += 1  # 内汲动词绑定
+        if any(re.search(rf"{esc}[^，。！？；]{{0,8}}{re.escape(v)}", sent) for v in _INNER_VERBS):
+            signals += (
+                1  # 内汲动词绑定（名先于动词、同小句——«他在心里记了灯的位置» 的灯是宾语不计）
+            )
         if re.search(rf"{esc}[^。！？]{{0,20}}他|他[^。！？]{{0,8}}{esc}", sent):
             signals += 1  # 同句代词共指
-        # round-2 review: «灯灭了，他坐下» —— 主语位+代词共指两弱信号不足以
-        # 定人名绑定（器物主语身边站个人是常态句式）。主角误名伤的实证
-        # 形态恒带内汲动词（在心里/记了一笔类）；绑定成立必须内汲在场，
-        # 主语位/共指只作补强。
-        if not any(v in sent for v in _INNER_VERBS):
+        # round-2/3 review: «灯灭了，他坐下» 弱信号对不定名；«他在心里记了
+        # 灯的位置» 的灯是内汲动词的宾语。主角误名伤的实证形态恒为
+        # 名+内汲动词同小句（«灯在心里记了一笔»）；绑定成立以此为准。
+        if not any(
+            re.search(rf"{esc}[^，。！？；]{{0,8}}{re.escape(v)}", sent) for v in _INNER_VERBS
+        ):
             continue
         if signals >= 2:
             hits.append(f"「{name}」主角指称绑定（信号 {signals}/3）: {sent[:24]}")
@@ -350,9 +353,10 @@ def reserved_name_hijack_hits(text: str, reserved: tuple[str, ...]) -> list[str]
         for para in text.split("\n\n"):
             for sent in _sentence_spans(para):
                 if re.search(rf"^{esc}", sent) and _standalone_count(sent, name) > 0:
-                    # round-2 review: «灯灭了。她挪椅子» —— 器物谓语句不算
-                    # 在场人物名；要求名句含人物动作动词，或同句 她 共指。
-                    _person = any(v in sent for v in _PERSON_VERBS) or "她" in sent
+                    # round-2/3 review: «灯灭了。她挪椅子» 与 «灯灭了，她没动»
+                    # 都不是在场人物名——器物谓语句（含逗号后接她）不算。
+                    # 名句须含人物动作动词；段内 她 共指作确认。
+                    _person = any(v in sent for v in _PERSON_VERBS)
                     if _person and "她" in para:
                         bound += 1
                     break
@@ -510,7 +514,8 @@ def check_cross_chapter(
     First chapter (prev_path None): skip the seam-dependent items entirely.
     """
     issues: list[str] = []
-    cur_text = chapter_path.read_text(encoding="utf-8")
+    if cur_text is None:
+        cur_text = chapter_path.read_text(encoding="utf-8")
     memo_text = memo_path.read_text(encoding="utf-8") if memo_path and memo_path.is_file() else ""
     whitelist, reserved = load_name_registry(ctx.registry_dir)
     whitelist = whitelist if ctx.registry_dir else ctx.name_whitelist
@@ -581,16 +586,34 @@ def check_cross_chapter(
         ctx.registry_dir / "prop_registry.md" if ctx.registry_dir else None
     )
     prop_decls = dict(_PROP_DECL_RE.findall(memo_text)) if memo_text else {}
-    _memo_is_new_format = "场景预算" in memo_text
+    _memo_is_new_format = re.search(r"#{2,4}\s*场景预算", memo_text) is not None
     for prop in known_props:
-        if prop in prop_decls or prop not in cur_text:
+        if prop not in cur_text:
+            continue
+        if prop in prop_decls:
+            # round-3 review: declaration is not free text — its stated
+            # hand-off origin (A→B 的 A) must sit inside the registry's
+            # recorded owner cell (the cell may carry the chain history).
+            _origin = prop_decls[prop].split("→")[0].strip()
+            if _origin and _origin not in known_props[prop]:
+                issues.append(
+                    f"物象「{prop}」声明经手起点「{_origin}」与 registry owner"
+                    f"（{known_props[prop]}）不符——正文为唯一真值源，核实后修正声明或 registry"
+                    "（修复者: settling）"
+                )
             continue
         if not _memo_is_new_format:
             continue  # legacy memo: declaration cross-check exempt (G4.cp WARNs)
+        # round-3 review: bare 还 is the adverb "still" («X还在/还有X») in
+        # top-frequency carrying prose — only DISAMBIGUATED compound markers
+        # (X给/还了/给了…) count as hand-offs; bare monosyllables survive
+        # only in the V+pronoun+prop form («还他红纸包»).
         esc_prop = re.escape(prop)
+        _markers = r"(?:递给|塞给|交给|送给|还给|还了|给了|留给|转手|递了|换了)"
         transfer_ctx = re.search(
-            rf"{esc_prop}[^。！？]{{0,6}}(?:给|递|塞|交|送|还|留给|转手)"
-            rf"|(?:给|递|塞|交|送|还)[^。！？]{{0,4}}{esc_prop}",
+            rf"{esc_prop}[^。！？，,；]{{0,4}}{_markers}"
+            rf"|{_markers}[^。！？，,；]{{0,4}}{esc_prop}"
+            rf"|(?:还|递|塞|交|送)(?:他|她|我|你|它)[^。！？，,；]{{0,3}}{esc_prop}",
             cur_text,
         )
         if transfer_ctx:
