@@ -73,6 +73,49 @@ def prev_chapter_path(chapter_path: Path) -> Path | None:
     return prev if prev.is_file() else None
 
 
+# ---------- invariant 4/5: prop chain + card attributes ----------
+
+_PROP_DECL_RE = re.compile(r"^-\s*物象[：:]\s*(.+?)\s*\|\s*(.+?)\s*$", re.MULTILINE)
+_PROP_MENTION_RE = re.compile(r"(红纸包|半张红纸|红纸|骨哨|怀表|童鞋|活字)")
+
+_CARD_ORG_RE = re.compile(r"(星象局|历法房)")
+
+
+def load_known_props(registry_path: Path | None) -> dict[str, str]:
+    """prop_registry 已知实体 → 当前 owner（缺席 → 空 dict，WARN 交叉层）。"""
+    if not registry_path or not registry_path.is_file():
+        return {}
+    out: dict[str, str] = {}
+    for ln in registry_path.read_text(encoding="utf-8").split("\n"):
+        m = re.match(r"\|\s*(红纸包|骨哨|怀表|童鞋|活字|半张红纸)\s*\|\s*([^|]+)\|", ln)
+        if m:
+            out[m.group(1)] = m.group(2).strip()
+    return out
+
+
+def load_card_attributes(card_dir: Path | None) -> dict[str, dict[str, str]]:
+    """characters/major/*.md frontmatter + prose 关键属性（性别代词/机构）。"""
+    out: dict[str, dict[str, str]] = {}
+    if not card_dir or not card_dir.is_dir():
+        return out
+    for f in sorted(card_dir.glob("*.md")):
+        text = f.read_text(encoding="utf-8")
+        prose = "\n".join(
+            ln for ln in text.split("\n") if not ln.startswith(("---", "name:", "role:", "source:"))
+        )
+        card: dict[str, str] = {}
+        card["性别代词"] = (
+            "他" if len(re.findall(r"他", prose)) > len(re.findall(r"她", prose)) else "她"
+        )
+        m = _CARD_ORG_RE.search(text)
+        card["机构"] = m.group(1) if m else ""
+        out[f.stem] = card
+    return out
+
+
+_NAME_IN_PROSE = {"小满": "xiao-man"}
+
+
 # ---------- invariant 1: POV mode (prose-derived) ----------
 
 _FIRST_PERSON = re.compile(r"^[^「”』]*?我(?![们们])", re.MULTILINE)
@@ -235,10 +278,34 @@ def check_cross_chapter(
     First chapter (prev_path None): skip the seam-dependent items entirely.
     """
     issues: list[str] = []
-    if prev_path is None:
-        return issues  # 首章：前章依赖项全跳过
-
     cur_text = chapter_path.read_text(encoding="utf-8")
+
+    # ── 不变量 5: 卡属性一致（卡 vs 正文——不依赖前章，首章亦跑）──
+    cards = load_card_attributes(
+        ctx.project_dir / "characters" / "major" if ctx.project_dir else None
+    )
+    for name, card_key in _NAME_IN_PROSE.items():
+        if name not in cur_text or card_key not in cards:
+            continue
+        card = cards[card_key]
+        # 段内共现：名字所在段落内「她」作主语起句 ≥2（跨句代词回指）
+        para_hits = 0
+        for para in cur_text.split("\n\n"):
+            if name in para:
+                para_hits += len(re.findall(r"(?:^|[。！？])\s*她", para))
+        prose_pronouns = para_hits
+        if card["性别代词"] == "他" and prose_pronouns >= 1:
+            issues.append(f"角色「{name}」正文用「她」而卡为男性代词（修复者: 卡修/settling）")
+        wrong_org = "星象局" if card["机构"] == "历法房" else None
+        if wrong_org and wrong_org in cur_text:
+            issues.append(f"机构名「{wrong_org}」与卡（{card['机构']}）不一致（修复者: 卡修）")
+        # 反向：卡机构与正文主导机构不一致（卡=星象局 而正文=历法房 N 处）
+        if card["机构"] == "星象局" and cur_text.count("历法房") >= 2:
+            issues.append("卡机构「星象局」与正文主导机构「历法房」不一致（修复者: 卡修）")
+
+    if prev_path is None:
+        return issues  # 首章：其余前章依赖项跳过（卡属性已跑）
+
     prev_text = prev_path.read_text(encoding="utf-8")
 
     # ── 不变量 1: POV 人称一致（正文推导；变更须 memo 声明）──
@@ -266,6 +333,23 @@ def check_cross_chapter(
             issues.append(
                 f"时间锚回拨: 前章末 {prev_anchor} → 本章最早锚 {back} 无 [回拨] 声明"
                 "（修复者: planning+drafting）"
+            )
+
+    # ── 不变量 4: 物象 owner 链（正文唯一真值；经手事件还原）──
+    known_props = load_known_props(
+        ctx.registry_dir / "prop_registry.md" if ctx.registry_dir else None
+    )
+    prop_decls = (
+        dict(_PROP_DECL_RE.findall(memo_path.read_text(encoding="utf-8")))
+        if memo_path and memo_path.is_file()
+        else {}
+    )
+    mentions = set(_PROP_MENTION_RE.findall(cur_text)) | set(prop_decls.keys())
+    for prop in mentions:
+        owner_declared = prop_decls.get(prop)
+        if prop in known_props and owner_declared is None:
+            issues.append(
+                f"物象「{prop}」出现但无经手声明（registry owner: {known_props[prop]}；修复者: settling）"
             )
 
     # ── 不变量 2: 主角称谓（三信号绑定；白名单外名绑定即 FAIL）──
