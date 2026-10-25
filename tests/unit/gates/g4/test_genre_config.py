@@ -184,6 +184,7 @@ def test_keyset_authority_is_ownership() -> None:
         "tropeInventory",
         "chapter_word",
         "primary_platform",  # spec #72: optional platform key
+        "market_params",  # spec #73: optional market-parameter block
     }
 
 

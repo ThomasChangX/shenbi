@@ -20,7 +20,9 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 # writer-mandated since 3bfc4a3b; pre-baseline real outputs lack it).
 # spec #72: primary_platform is optional too — legacy/pre-#72 configs and
 # historical fixtures carry no platform declaration; consumers fall back.
-_OPTIONAL_TOP_KEYS = frozenset({"tropeInventory", "chapter_word", "primary_platform"})
+_OPTIONAL_TOP_KEYS = frozenset(
+    {"tropeInventory", "chapter_word", "primary_platform", "market_params"}
+)
 _REQUIRED_TOP_KEYS = tuple(sorted(k for k in GENRE_KEYS if k not in _OPTIONAL_TOP_KEYS))
 
 
@@ -36,7 +38,7 @@ class GenreConfig(BaseModel):
     6. auditDimensions count must be 5-10
     7. Every disabled auditDimension must have a customRules reason
     8. approval.decision is required (no approval = invalid config)
-    9. Top-level keyset = 8 required keys + optional tropeInventory/chapter_word/primary_platform (spec #72)
+    9. Top-level keyset = 8 required keys + optional tropeInventory/chapter_word/primary_platform (spec #72)/market_params (spec #73)
     """
 
     model_config = {"extra": "ignore"}
@@ -47,6 +49,8 @@ class GenreConfig(BaseModel):
     custom_rules: list[dict[str, Any]] = Field(default_factory=list, alias="customRules")
     fatigue_words: dict[str, Any] = Field(default_factory=dict, alias="fatigueWords")
     pacing: dict[str, Any] = Field(default_factory=dict)
+    market_params: dict[str, dict[str, int]] = Field(default_factory=dict)
+    # spec #73: optional market-parameter block — see _market_params_structure
     primary_platform: str = ""  # spec #72: qidian|fanqie; "" = undeclared (legacy)
     updated: str = ""
     version: str = ""
@@ -58,6 +62,38 @@ class GenreConfig(BaseModel):
             raise ValueError(f"primary_platform must be qidian|fanqie, got '{v}'")
         return v
 
+    @field_validator("market_params")
+    @classmethod
+    def _market_params_structure(cls, v: dict[str, dict[str, int]]) -> dict[str, dict[str, int]]:
+        """Spec #73 三态：块缺席 PASS（可选）；块在场须三必键齐且值域合法。
+
+        - payoff_density: window∈[1,10], min>=1（接线 #78 频次窗）
+        - emotion_band: window∈[1,3], min>=1（接线 #78 下限）
+        - hook_grading: max_consecutive_micro∈[1,3]（接线 #78 轮换门）
+        - voice_density_min / meme_quota: 数值域随 #76 定档——本层仅
+          dict[str,int] 类型级校验（占位键名自由）
+        """
+        if not v:
+            return v
+        required = ("payoff_density", "emotion_band", "hook_grading")
+        for key in required:
+            if key not in v:
+                raise ValueError(f"market_params: missing sub-key '{key}'")
+        pd = v["payoff_density"]
+        if not 1 <= pd.get("window", -1) <= 10 or pd.get("min", 0) < 1:
+            raise ValueError(f"market_params.payoff_density: window∈[1,10]/min>=1, got {pd}")
+        eb = v["emotion_band"]
+        if not 1 <= eb.get("window", -1) <= 3 or eb.get("min", 0) < 1:
+            raise ValueError(f"market_params.emotion_band: window∈[1,3]/min>=1, got {eb}")
+        hg = v["hook_grading"]
+        if not 1 <= hg.get("max_consecutive_micro", -1) <= 3:
+            raise ValueError(f"market_params.hook_grading: max_consecutive_micro∈[1,3], got {hg}")
+        # voice_density_min / meme_quota: numeric domains land with #76.
+        # The field type lax-coerces bool/numeric-str to int (pydantic
+        # validates before this field_validator runs); domain checks for
+        # these two keys are deferred to #76 by design.
+        return v
+
     @model_validator(mode="before")
     @classmethod
     def _top_level_keyset(cls, data: Any) -> Any:
@@ -66,7 +102,7 @@ class GenreConfig(BaseModel):
         for key in data:
             if key not in GENRE_KEYS:
                 raise ValueError(
-                    f"unknown top-level key '{key}' (allowed: 8 required + optional tropeInventory/chapter_word/primary_platform)"
+                    f"unknown top-level key '{key}' (allowed: 8 required + optional tropeInventory/chapter_word/primary_platform/market_params)"
                 )
         missing = [k for k in _REQUIRED_TOP_KEYS if k not in data]
         if missing:

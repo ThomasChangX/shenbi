@@ -200,7 +200,7 @@ def test_api_route_blocks_undeclared_key_write(
 ) -> None:
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     _seed_genre_config(tmp_path)
-    # rogueKey 不在 genre-config 真实 9 个 OWNERSHIP write_keys 内 → 越权
+    # rogueKey 不在 genre-config 真实 12 个 OWNERSHIP write_keys 内 → 越权
     monkeypatch.setattr(
         dh, "_dispatch_via_api", _fake_api_writing(lambda c: c.update({"rogueKey": "越权"}))
     )
