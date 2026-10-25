@@ -1,6 +1,6 @@
 # Spec #73 · 大纲引擎置换与市场参数（engine-swap）
 
-> **Date:** 2026-10-25 | **Status:** Active (Revised R1 驳斥复核 schema 四站/换算/边界/所有权 + R2 设计审查重锚所有权归一/接线声明/值域边界/拍表全表/站点全清单/节序重排) | **Severity:** 🟥 P0（内容地基） | **方法:** 引擎置换——保留账单/记名/人民史观内核，激活人物卡休眠资产为机制 | **系列:** 市场适配层（novel-market-overhaul） | **依赖:** 无（与 #72/#75 并行） | **范围:** outline/story_frame.md 四引擎规则 / genre-config.json 市场参数 / outline/rhythm_principles.md 收紧
+> **Date:** 2026-10-25 | **Status**: Done (PR #249) | **Severity:** 🟥 P0（内容地基） | **方法:** 引擎置换——保留账单/记名/人民史观内核，激活人物卡休眠资产为机制 | **系列:** 市场适配层（novel-market-overhaul） | **依赖:** 无（与 #72/#75 并行） | **范围:** outline/story_frame.md 四引擎规则 / genre-config.json 市场参数 / outline/rhythm_principles.md 收紧
 
 > 源自总设计 §1（决策路径见总设计头部）。用户决策：引擎置换（非全面市场化、非只调密度）。原则：**不推翻设定，激活休眠资产**——四引擎零件已存在于人物卡（种子识衰减/怕忘记灯的脸/「攒东西的人」/贫嘴是铠甲），从修辞变机制。
 

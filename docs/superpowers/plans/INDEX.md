@@ -1,6 +1,6 @@
 # Plan 执行索引
 
-> **最后更新**：2026-10-25（spec #72 plan Done 随 PR #248 归档——10 task 全执行）
+> **最后更新**：2026-10-25（spec #73 plan Done 随 PR #249 归档）
 > **活跃 plan 数**：0 | **已归档**：128（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
