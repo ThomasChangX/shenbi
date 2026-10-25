@@ -34,9 +34,10 @@ class FileOwnership:
 
 
 # —— 参考 OWNERSHIP 条目（Tier B 审计消费；完整迁移见「支柱一续」）——
-# genre-config.json：真实 11 顶层键（9 fixture 亲手核对 + chapter_word 基线
+# genre-config.json：真实 12 顶层键（9 fixture 亲手核对 + chapter_word 基线
 # 块，3bfc4a3b skill 模板起为写手必产出、G0.3/G2/G4/G6 同源读取；
-# spec #72 增 primary_platform——可选，双平台发布层缺省，release_split v2 消费）
+# spec #72 增 primary_platform——可选，双平台发布层缺省，release_split v2 消费；
+# spec #73 增 market_params——可选市场参数块（爽点密度/情绪带/钩子分级/声口/梗位））
 GENRE_KEYS = frozenset(
     {
         "approval",
@@ -44,6 +45,7 @@ GENRE_KEYS = frozenset(
         "chapterTypes",
         "chapter_word",
         "customRules",
+        "market_params",
         "fatigueWords",
         "pacing",
         "primary_platform",

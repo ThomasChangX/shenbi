@@ -35,7 +35,7 @@ def _base() -> dict[str, object]:
 @pytest.mark.unit
 def test_primary_platform_in_genre_keys() -> None:
     assert "primary_platform" in GENRE_KEYS
-    assert len(GENRE_KEYS) == 11
+    assert len(GENRE_KEYS) == 12  # spec #73: +market_params
 
 
 @pytest.mark.unit

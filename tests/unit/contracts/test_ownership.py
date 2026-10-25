@@ -7,7 +7,7 @@ from shenbi.contracts.ownership import (
 )
 
 
-def test_genre_config_has_eleven_write_keys() -> None:
+def test_genre_config_has_twelve_write_keys() -> None:
     own = get_ownership("shenbi-genre-config", "genre-config.json")
     assert own is not None
     assert own.level == "field"
@@ -20,6 +20,7 @@ def test_genre_config_has_eleven_write_keys() -> None:
         "fatigueWords",
         "pacing",
         "primary_platform",  # spec #72: optional platform key
+        "market_params",  # spec #73: optional market-parameter block
         "tropeInventory",
         "updated",
         "version",
