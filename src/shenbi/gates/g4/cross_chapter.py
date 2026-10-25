@@ -73,6 +73,38 @@ def prev_chapter_path(chapter_path: Path) -> Path | None:
     return prev if prev.is_file() else None
 
 
+# ---------- invariant 6: asset continuity (memo balance declaration line) ----------
+
+_CN_NUM_VALS = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+_EVENT_DECL_RE = re.compile(
+    r"^-\s*事件[：:]\s*(收入|支出)\|\s*([一二三四五六七八九十百千\d]+)文\|\s*(.+?)\s*$",
+    re.MULTILINE,
+)
+_BALANCE_DECL_RE = re.compile(
+    r"^-\s*余额[：:]\s*([一二三四五六七八九十百千\d]+)文\s*$", re.MULTILINE
+)
+
+
+def _cn_amount(tok: str) -> int | None:
+    """中文金额 → int（一百九十二/十二/300）；不可解析 None。"""
+    if tok.isdigit():
+        return int(tok)
+    total, num = 0, 0
+    for ch in tok:
+        if ch in _CN_NUM_VALS:
+            num = _CN_NUM_VALS[ch]
+        elif ch == "十":
+            total += (num or 1) * 10
+            num = 0
+        elif ch == "百":
+            total += (num or 1) * 100
+            num = 0
+        elif ch == "千":
+            total += (num or 1) * 1000
+            num = 0
+    return total + num if (total or num) else None
+
+
 # ---------- invariant 4/5: prop chain + card attributes ----------
 
 _PROP_DECL_RE = re.compile(r"^-\s*物象[：:]\s*(.+?)\s*\|\s*(.+?)\s*$", re.MULTILINE)
@@ -350,6 +382,33 @@ def check_cross_chapter(
         if prop in known_props and owner_declared is None:
             issues.append(
                 f"物象「{prop}」出现但无经手声明（registry owner: {known_props[prop]}；修复者: settling）"
+            )
+
+    # ── 不变量 6: 资产连续性（memo 余额声明行主源；≥10 文跳变须事件）──
+    cur_text_full = (
+        memo_path.read_text(encoding="utf-8") if memo_path and memo_path.is_file() else ""
+    )
+    cur_bal = _BALANCE_DECL_RE.search(cur_text_full)
+    # prev 余额双源：prev memo（plans/ 下）优先，正文余额行回退
+    prev_bal = None
+    if ctx.project_dir:
+        import re as _re
+
+        _pn = _re.search(r"chapter-(\d+)", prev_path.name)
+        if _pn:
+            _pm = ctx.project_dir / "plans" / f"chapter-{int(_pn.group(1))}-plan.md"
+            if _pm.is_file():
+                prev_bal = _BALANCE_DECL_RE.search(_pm.read_text(encoding="utf-8"))
+    if prev_bal is None:
+        prev_bal = _BALANCE_DECL_RE.search(prev_text)
+    if cur_bal and prev_bal:
+        cur_amt = _cn_amount(cur_bal.group(1))
+        prev_amt = _cn_amount(prev_bal.group(1))
+        events = _EVENT_DECL_RE.findall(cur_text_full)
+        delta = (cur_amt - prev_amt) if (cur_amt is not None and prev_amt is not None) else None
+        if delta is not None and abs(delta) >= 10 and not events:
+            issues.append(
+                f"余额跳变 {prev_amt}文→{cur_amt}文（Δ{delta}）无事件声明（修复者: settling）"
             )
 
     # ── 不变量 2: 主角称谓（三信号绑定；白名单外名绑定即 FAIL）──

@@ -26,30 +26,13 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
 
     violations: list[str] = []
     timeline_sampled = False  # C29 R2 (F459): disclose G6.4's text-prefix clips
-    day_pat = re.compile(r"第\s*(\d+)\s*(?:天|日|夜)")
-    date_pat = re.compile(r"(\d+)\s*月\s*(\d+)\s*[日号]")
-    stage_pat = re.compile(r"(?:阶段|第)\s*(\d+)\s*(?:阶段|步|回合)")
-
-    timeline: list[tuple[int, int, str]] = []
+    # spec #75: timeline monotonicity branch RETIRED — its arabic-digit regexes
+    # can never match Chinese anchors (腊月初十), which is exactly how the old
+    # wounds slipped through; the registry-backed cross_chapter checker (T3)
+    # owns timeline now. info-state (future knowledge) scan below is kept.
     for ch in chapters:
-        cn_match = re.search(r"chapter-(\d+)", ch.name)
-        if not cn_match:
-            continue
-        cn = int(cn_match.group(1))
-        ct, _sampled = clip_with_disclosure(ch.read_text(encoding="utf-8"), 5000)
+        _ct, _sampled = clip_with_disclosure(ch.read_text(encoding="utf-8"), 5000)
         timeline_sampled = timeline_sampled or _sampled
-        for m in day_pat.finditer(ct):
-            timeline.append((cn, int(m.group(1)), "day"))
-        for m in date_pat.finditer(ct):
-            timeline.append((cn, int(m.group(1)) * 100 + int(m.group(2)), "date"))
-        for m in stage_pat.finditer(ct):
-            timeline.append((cn, int(m.group(1)), "stage"))
-
-    for i in range(1, len(timeline)):
-        pc, pv, pt = timeline[i - 1]
-        cc, cv, _ = timeline[i]
-        if pt == timeline[i][2] and cv < pv and cc >= pc:
-            violations.append(f"timeline_regression:ch{pc}->ch{cc}:{pv}->{cv}({pt})")
 
     # F709 (spec #39 T3): two-pass scan. Pass 1 builds intro_map from ALL
     # chapters (global earliest introduction); pass 2 checks knowledge verbs.
