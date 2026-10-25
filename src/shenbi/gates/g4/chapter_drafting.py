@@ -6,7 +6,11 @@ from typing import Any
 import re
 from pathlib import Path
 
-from shenbi.text.voice_lexicon import catchphrases_from_card, distinct_voice_signals
+from shenbi.text.voice_lexicon import (
+    DEFAULT_VOICE_DENSITY_MIN,
+    catchphrases_from_card,
+    distinct_voice_signals,
+)
 
 from shenbi.gates.shared import (
     FATIGUE_BASE,
@@ -610,9 +614,8 @@ def g4_chapter_drafting(
             if _cn:
                 _mp = Path(project_dir) / "plans" / f"chapter-{_cn.group(1)}-plan.md"
                 if _mp.is_file():
-                    _pfv = re.search(
-                        r"^plan_format[：:]\s*v2\s*$", _mp.read_text(encoding="utf-8"), re.MULTILINE
-                    )
+                    _memo_text = _mp.read_text(encoding="utf-8")
+                    _pfv = re.search(r"^plan_format[：:]\s*v2\s*$", _memo_text, re.MULTILINE)
                     _memo_v2 = _pfv is not None
         _body = narrative
         _cps: list[str] = []
@@ -626,7 +629,11 @@ def g4_chapter_drafting(
             .get("market_params", {})
             .get("voice_density_min", {})
         )
-        _vmin = int(_vdm.get("min_per_chapter", 2)) if _vdm else 2
+        _vmin = (
+            int(_vdm.get("min_per_chapter", DEFAULT_VOICE_DENSITY_MIN))
+            if _vdm
+            else DEFAULT_VOICE_DENSITY_MIN
+        )
         if _memo_v2 and _signals < _vmin:
             mf.append(
                 f"G4.cd.voice_density:{fp}:{_signals}<{_vmin} "
