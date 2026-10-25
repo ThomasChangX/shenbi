@@ -11,6 +11,7 @@ contract:
   - genre-config.json
   writes:
   - file: audits/chapter-N-long-span.md
+    mode: create_or_overwrite
   - file: audits/chapter-{N+1}-long-span.md
     mode: create_or_overwrite
   updates: []

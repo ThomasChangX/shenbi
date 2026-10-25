@@ -11,6 +11,7 @@ contract:
   - source_canon/*
   writes:
   - file: audits/chapter-N-fanfic.md
+    mode: create_or_overwrite
   - file: audits/chapter-{N+1}-fanfic.md
     mode: create_or_overwrite
   updates: []

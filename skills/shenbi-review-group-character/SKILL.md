@@ -14,15 +14,19 @@ contract:
     - genre-config.json
   writes:
     - file: audits/chapter-N-character.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-character.md
       mode: create_or_overwrite
     - file: audits/chapter-N-dialogue.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-dialogue.md
       mode: create_or_overwrite
     - file: audits/chapter-N-motivation.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-motivation.md
       mode: create_or_overwrite
     - file: audits/chapter-N-pov.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-pov.md
       mode: create_or_overwrite
   updates: []

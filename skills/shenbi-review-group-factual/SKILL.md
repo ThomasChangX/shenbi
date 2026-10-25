@@ -20,12 +20,15 @@ contract:
     - genre-config.json
   writes:
     - file: audits/chapter-N-continuity.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-continuity.md
       mode: create_or_overwrite
     - file: audits/chapter-N-world-rules.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-world-rules.md
       mode: create_or_overwrite
     - file: audits/chapter-N-pacing.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-pacing.md
       mode: create_or_overwrite
   updates: []

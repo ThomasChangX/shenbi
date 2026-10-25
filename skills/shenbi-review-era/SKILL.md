@@ -11,6 +11,7 @@ contract:
   - era-reference.md
   writes:
   - file: audits/chapter-N-era.md
+    mode: create_or_overwrite
   - file: audits/chapter-{N+1}-era.md
     mode: create_or_overwrite
   updates: []

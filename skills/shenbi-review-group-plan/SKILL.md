@@ -11,9 +11,11 @@ contract:
     - truth/subplot_board.md
   writes:
     - file: audits/chapter-N-memo-compliance.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-memo-compliance.md
       mode: create_or_overwrite
     - file: audits/chapter-N-foreshadowing.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-foreshadowing.md
       mode: create_or_overwrite
   updates: []

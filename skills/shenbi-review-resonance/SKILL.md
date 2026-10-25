@@ -24,6 +24,7 @@ contract:
   - truth/resonance_trend.md
   writes:
   - file: audits/chapter-N-resonance.md
+    mode: create_or_overwrite
   - file: audits/chapter-{N+1}-resonance.md
     mode: create_or_overwrite
   updates:

@@ -11,6 +11,7 @@ contract:
   - truth/pending_hooks.md
   writes:
   - file: audits/chapter-N-reader-pull.md
+    mode: create_or_overwrite
   - file: audits/chapter-{N+1}-reader-pull.md
     mode: create_or_overwrite
   updates: []

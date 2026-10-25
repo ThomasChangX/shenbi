@@ -11,6 +11,7 @@ contract:
   - novel.json
   writes:
   - file: audits/chapter-N-sensitivity.md
+    mode: create_or_overwrite
   - file: audits/chapter-{N+1}-sensitivity.md
     mode: create_or_overwrite
   updates: []

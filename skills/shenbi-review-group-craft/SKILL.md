@@ -11,12 +11,15 @@ contract:
     - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
   writes:
     - file: audits/chapter-N-texture.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-texture.md
       mode: create_or_overwrite
     - file: audits/chapter-N-reader-pull.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-reader-pull.md
       mode: create_or_overwrite
     - file: audits/chapter-N-anti-ai.md
+      mode: create_or_overwrite
     - file: audits/chapter-{N+1}-anti-ai.md
       mode: create_or_overwrite
   updates: []
