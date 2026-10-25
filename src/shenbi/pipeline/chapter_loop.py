@@ -1221,10 +1221,7 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
         xc: dict[str, Any] = json.loads(xc_raw)
         record_gate_result(project_dir, "chapter_loop", n, "pipeline-scene-split", "G4.xc", xc)
         if xc.get("status") not in ("PASS", None):
-            issues.extend(
-                f"XC ch{n}: {m.get('r', m) if isinstance(m, dict) else m}"
-                for m in xc.get("must_fix", [])
-            )
+            issues.extend(f"XC ch{n}: {m}" for m in xc.get("must_fix", []) if isinstance(m, str))
     return issues
 
 
@@ -1293,7 +1290,7 @@ def _revalidate_revised_chapter(project_dir: Path, chapter: int) -> list[str]:
             _ch,
             _prev if _prev.is_file() else None,
             _memo if _memo.is_file() else None,
-            _XCtx(project_dir=project_dir),
+            _XCtx(project_dir=project_dir, registry_dir=project_dir / "truth"),
         )
         issues.extend(f"跨章复验 ch{_n}: {i}" for i in _xc_issues)
 

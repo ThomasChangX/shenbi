@@ -7,6 +7,7 @@ from typing import Any
 import re
 
 from shenbi.logging import get_logger
+from shenbi.gates.g4.cross_chapter import load_memo_declarations
 from shenbi.gates.shared import (
     SCENE_INDEPENDENT_BAND,
     SCENE_PAIRED_BAND,
@@ -147,6 +148,30 @@ def g4_chapter_planning(
             continue
 
         content = pf.read_text(encoding="utf-8")
+
+        # ── spec #75 G4.cp.declarations — 三声明行（时间锚/余额/POV）──
+        # SKILL 承诺「新格式备忘缺任一行 = G4.cp FAIL」；旧格式（无场景预算
+        # 块）= WARN 豁免（legacy 备忘只免声明行交叉核对，散文派生检查照跑）。
+        _has_budget_block = re.search(r"#{2,4}\s*场景预算", content) is not None
+        if _has_budget_block:
+            _decls = load_memo_declarations(pf)
+            _missing = [k for k in ("时间锚", "余额", "POV") if k not in _decls]
+            if _missing:
+                mf.append(
+                    f"G4.cp.declarations:{fp}:missing_{'+'.join(_missing)} "
+                    "(#75 三声明行——机器消费字段，缺行使跨章不变量门降级)"
+                )
+            else:
+                c.append({"id": "G4.cp.declarations", "file": fp, "s": GateStatus.PASS})
+        else:
+            c.append(
+                {
+                    "id": "G4.cp.declarations",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": "legacy memo (no scene-budget block) — declaration cross-check exempt, prose-derived checks still run",
+                }
+            )
 
         # 8 numbered sections (## N. / ## N、 / ## N： / ## N)
         sections_found = []

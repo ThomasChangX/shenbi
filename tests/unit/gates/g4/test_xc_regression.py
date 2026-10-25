@@ -12,6 +12,7 @@ absent (WARN, not silence).
 from __future__ import annotations
 
 import json
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -166,3 +167,146 @@ def test_pure_idempotent_no_side_effects(tmp_path: Path) -> None:
     run2 = check_cross_chapter(ch_dir / "chapter-2.md", ch_dir / "chapter-1.md", None, ctx)
     assert run1 == run2
     assert _snapshot(tmp_path) == before, "gate must not mutate any input file"
+
+
+# ---------- final-review fix batch: false-positive pins + new coverage ----------
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("n", [6, 8, 9, 10])
+def test_clean_chapters_zero_naming_hits(n: int) -> None:
+    """Final-review C1 pin: non-wound chapters must produce NO 称谓违例.
+
+    The pre-fix gate fired on 灯芯/灯花/点灯 compounds and side-character
+    actions (小满/萤) — 5 spurious FAILs on 4 clean chapters.
+    """
+    wounds = _wounds(n)
+    assert not any("称谓违例" in w or "禁用名" in w for w in wounds), wounds
+
+
+@pytest.mark.unit
+def test_wound2b_ch7_reserved_name_hijack() -> None:
+    """Final-review Missing pin: ch7 井台女 carries the heroine's reserved
+    name — dialogue vocative + 她-co-ref paragraphs must trip the hijack.
+    """
+    wounds = _wounds(7)
+    assert any("禁用名" in w and "灯" in w for w in wounds), wounds
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("probe", "want"),
+    [
+        ("腊月二十九", (12, 29)),
+        ("腊月二十一", (12, 21)),
+        ("腊月三十", (12, 30)),
+        ("12月7日", (12, 7)),
+        ("过了二十九天", None),
+        ("二十两银子", None),
+    ],
+)
+def test_twenty_and_arabic_day_forms(probe: str, want: tuple[int, int] | None) -> None:
+    """Final-review C4 pin: every 二十X form previously parsed as day 2."""
+    from shenbi.gates.g4.cross_chapter import normalize_anchor
+
+    assert normalize_anchor(probe, None) == want
+
+
+@pytest.mark.unit
+def test_year_wrap_not_rollback() -> None:
+    """腊月末 → 正月 is FORWARD (year wrap), never a rollback flag."""
+    issues = _wounds(8)  # ch7 ends 腊月, ch8 opens 正月初一 — clean seam
+    assert not any("时间锚回拨" in w for w in issues), issues
+
+
+@pytest.mark.unit
+def test_mixed_pov_declarable() -> None:
+    """A declared 混称 chapter must not be an undeclarable POV dead end."""
+    from shenbi.gates.g4.cross_chapter import CrossChapterContext, check_cross_chapter
+
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        filler = "他数了一遍。" * 40
+        (d / "chapter-1.md").write_text("他推门。" + filler, encoding="utf-8")
+        mixed = filler + "我看着他，他又看我。我又看他。"
+        (d / "chapter-2.md").write_text(mixed, encoding="utf-8")
+        memo = d / "chapter-2-plan.md"
+        memo.write_text(
+            "### 场景预算与收束钩\n- 时间锚: 腊月初十\n- 余额: 十文\n- POV: 混称\n",
+            encoding="utf-8",
+        )
+        issues = check_cross_chapter(
+            d / "chapter-2.md",
+            d / "chapter-1.md",
+            memo,
+            CrossChapterContext(project_dir=d),
+        )
+        assert not any("POV" in i for i in issues), issues
+
+
+@pytest.mark.unit
+def test_event_reconciliation_mismatch_flagged() -> None:
+    """A 1-文 event declaration cannot exempt a 180-文 jump."""
+    from shenbi.gates.g4.cross_chapter import CrossChapterContext, check_cross_chapter
+
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "chapter-1.md").write_text("他推门。" + "他数了一遍。" * 40, encoding="utf-8")
+        (d / "chapter-2.md").write_text("他出门。" + "他数了一遍。" * 40, encoding="utf-8")
+        memo = d / "chapter-2-plan.md"
+        memo.write_text(
+            "### 场景预算与收束钩\n"
+            "- 时间锚: 腊月初十\n"
+            "- 余额: 一百九十文\n"
+            "- POV: 他\n"
+            "- 事件: 支出|一文|买饼\n",
+            encoding="utf-8",
+        )
+        (d / "plans").mkdir()
+        prev_memo = d / "plans" / "chapter-1-plan.md"
+        prev_memo.write_text(
+            "### 场景预算与收束钩\n- 时间锚: 腊月初九\n- 余额: 十文\n- POV: 他\n",
+            encoding="utf-8",
+        )
+        issues = check_cross_chapter(
+            d / "chapter-2.md",
+            d / "chapter-1.md",
+            memo,
+            CrossChapterContext(project_dir=d),
+        )
+        assert any("对账不符" in i for i in issues), issues
+
+
+@pytest.mark.unit
+def test_prev_gap_warns() -> None:
+    """Chapter numbering gap → XC.prev_missing WARN, seam checks skipped."""
+    import json as _json
+
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "chapter-3.md").write_text(
+            "---\nprovenance: real-output\n---\n\n他推门。腊月初十。" + "他数了一遍。" * 40,
+            encoding="utf-8",
+        )
+        result = _json.loads(g4_cross_chapter([str(d / "chapter-3.md")], rd=str(d), project_dir=td))
+        warns = [c for c in result["checks"] if c["id"] == "XC.prev_missing" and c["s"] == "WARN"]
+        assert warns, result["checks"]
+
+
+@pytest.mark.unit
+def test_relative_anchor_warns() -> None:
+    """Month names with no parseable absolute anchor → visible WARN."""
+    import json as _json
+
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "chapter-1.md").write_text(
+            "---\nprovenance: real-output\n---\n\n他推门。入了腊月，天冷得快。"
+            + "他数了一遍。" * 40,
+            encoding="utf-8",
+        )
+        result = _json.loads(g4_cross_chapter([str(d / "chapter-1.md")], rd=str(d), project_dir=td))
+        warns = [
+            c for c in result["checks"] if c["id"] == "XC.relative_anchor" and c["s"] == "WARN"
+        ]
+        assert warns, result["checks"]

@@ -53,9 +53,10 @@ def test_wound5_card_gender_org_fixture() -> None:
 @pytest.mark.unit
 def test_card_attributes_parsed() -> None:
     cards = load_card_attributes(FIX / "characters" / "major")
-    assert "xiao-man" in cards
-    assert cards["xiao-man"]["性别代词"] == "他"
-    assert cards["xiao-man"]["机构"] == "星象局"
+    # keyed by the card's name: frontmatter (the prose name), not the stem
+    assert "小满" in cards
+    assert cards["小满"]["性别代词"] == "他"
+    assert cards["小满"]["机构"] == "星象局"
 
 
 @pytest.mark.unit

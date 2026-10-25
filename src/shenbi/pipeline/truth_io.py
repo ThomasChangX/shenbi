@@ -336,6 +336,11 @@ _TABLE_HEADER_BOOTSTRAP: dict[str, str] = {
     "pending_hooks.md": (
         "| Hook ID（钩子名） | 当前生命周期 | 种植章 | 兑现章（卷） | 类型 | 微妙度 | max_distance | 升级曲线 |"
     ),
+    # spec #75 registry tables: settling's first rows-only increment can
+    # land on a missing base (unseeded project) — headerless rows would
+    # disable key-column detection and trip the G4.ss shape WARN forever.
+    "timeline.md": "| 章 | 末锚 | 备注 |",
+    "prop_registry.md": "| 实体名 | 当前owner | 经手事件 |",
 }
 
 

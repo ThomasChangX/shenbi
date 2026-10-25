@@ -746,15 +746,18 @@ def g4_state_settling(
         # #75 registry tables: shape checks only — the invariant math lives
         # in G4.xc (gates/g4/cross_chapter.py), which derives anchors/owners
         # from prose as the primary source and uses these tables as the
-        # cross-check layer.
+        # cross-check layer. Calibrated to BOTH artifact shapes the gate
+        # receives: the seeded whole file AND the rows-only append_dedup
+        # increment the dispatch discipline mandates (final-review fix —
+        # header-only checks WARNed on every legitimate increment).
         if "name_registry" in str(fp):
-            if not re.search(r"\|\s*登记名\s*\|", content):
+            if not re.search(r"\|\s*(?:登记名|代词白名单|禁用名)\s*\|", content):
                 c.append(
                     {
                         "id": "G4.ss.name_registry",
                         "file": fp,
                         "s": GateStatus.WARN,
-                        "r": "no 登记名 row — name_registry must keep the seeded | 类别 | 名 | 备注 | layout",
+                        "r": "no 称谓 row — name_registry rows are | 类别 | 名 | 备注 | (登记名/代词白名单/禁用名)",
                     }
                 )
             else:
@@ -774,13 +777,19 @@ def g4_state_settling(
                 c.append({"id": "G4.ss.timeline", "file": fp, "s": GateStatus.PASS})
 
         if "prop_registry" in str(fp):
-            if "|" not in content or "实体" not in content:
+            _rows = [
+                ln
+                for ln in content.split("\n")
+                if ln.strip().startswith("|")
+                and not re.match(r"^\|(\s*:?-{3,}:?\s*\|)+$", ln.strip())
+            ]
+            if not _rows:
                 c.append(
                     {
                         "id": "G4.ss.prop_registry",
                         "file": fp,
                         "s": GateStatus.WARN,
-                        "r": "no entity table — prop_registry rows are | 实体名 | 当前owner | 经手事件 |",
+                        "r": "no entity row — prop_registry rows are | 实体名 | 当前owner | 经手事件 |",
                     }
                 )
             else:

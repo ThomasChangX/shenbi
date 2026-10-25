@@ -30,9 +30,6 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
     # can never match Chinese anchors (腊月初十), which is exactly how the old
     # wounds slipped through; the registry-backed cross_chapter checker (T3)
     # owns timeline now. info-state (future knowledge) scan below is kept.
-    for ch in chapters:
-        _ct, _sampled = clip_with_disclosure(ch.read_text(encoding="utf-8"), 5000)
-        timeline_sampled = timeline_sampled or _sampled
 
     # F709 (spec #39 T3): two-pass scan. Pass 1 builds intro_map from ALL
     # chapters (global earliest introduction); pass 2 checks knowledge verbs.

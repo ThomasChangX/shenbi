@@ -70,8 +70,12 @@ def test_memo_declarations_parsed() -> None:
 @pytest.mark.integration
 def test_g4_entry_reports_wound1() -> None:
     """T2 onwards: ch2-vs-ch1 must surface the POV break."""
-    result = g4_cross_chapter([str(FIX / "chapters" / "chapter-2.md")], rd=str(FIX / "chapters"))
-    assert "POV" in result
+    import json as _json
+
+    result = _json.loads(
+        g4_cross_chapter([str(FIX / "chapters" / "chapter-2.md")], rd=str(FIX / "chapters"))
+    )
+    assert any("POV 人称断裂" in m for m in result.get("must_fix", [])), result.get("must_fix", [])
 
 
 @pytest.mark.unit
