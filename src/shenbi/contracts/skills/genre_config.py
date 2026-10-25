@@ -64,7 +64,9 @@ class GenreConfig(BaseModel):
 
     @field_validator("market_params")
     @classmethod
-    def _market_params_structure(cls, v: dict[str, dict[str, int]]) -> dict[str, dict[str, int]]:
+    def _market_params_structure(
+        cls, v: dict[str, dict[str, int | float]]
+    ) -> dict[str, dict[str, int | float]]:
         """Spec #73 三态：块缺席 PASS（可选）；块在场须三必键齐且值域合法。
 
         - payoff_density: window∈[1,10], min>=1（接线 #78 频次窗）
@@ -118,7 +120,9 @@ class GenreConfig(BaseModel):
         if sf is not None:
             for k, (lo, hi) in _SF_RANGES.items():
                 if k in sf and not lo <= float(sf[k]) <= hi:
-                    raise ValueError(f"market_params.styleFingerprint.{k}: ∈[{lo},{hi}], got {sf}")
+                    raise ValueError(
+                        f"market_params.styleFingerprint.{k}: ∈[{lo},{hi}], got {sf[k]}"
+                    )
         return v
 
     @model_validator(mode="before")

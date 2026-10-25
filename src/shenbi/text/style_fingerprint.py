@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from itertools import pairwise
 from pathlib import Path
 
 from shenbi.cli_utils import echo
@@ -55,7 +56,10 @@ def _thresholds(project_dir: Path) -> dict[str, float]:
         return out
     for k in DEFAULTS:
         if k in block:
-            out[k] = block[k]
+            try:
+                out[k] = float(block[k])
+            except (TypeError, ValueError):
+                continue  # 非数值（pydantic 已拦合法 config；裸读容错）
     return out
 
 
@@ -99,7 +103,7 @@ def simile_domains(body: str) -> dict[str, int]:
                 cut = max(back.rfind(p) for p in "。！？，、；") + 1
                 _classify(back[cut:])
                 continue
-            if marker == "像" and idx > 0 and body[idx - 1] in "好影画录想声照闪雕塑":
+            if marker == "像" and idx > 0 and body[idx - 1] in "好影画录想声照闪雕塑图偶虚绣蜡":
                 continue  # 复合词素（好像/影像/画像…）非比喻
             vehicle = body[idx + len(marker) : idx + len(marker) + 12]
             for i, ch in enumerate(vehicle):
@@ -147,10 +151,15 @@ def fingerprints(project_dir: Path, chapter: int) -> list[str]:
         if (per_k := question_density(b))[1] >= th["dialogue_min_chars"]
         and per_k[0] > th["question_per_k"]
     ]
-    if len(over) >= 2:
+    # 连续=章号相邻（spec §1.1——窗口内非相邻超限对不算连续）
+    _sorted_over = sorted(over)
+    _adjacent = any(b - a == 1 for a, b in pairwise(_sorted_over))
+    if _adjacent:
+        _names = ",".join(f"ch{n}" for n in _sorted_over)
+        _limit = th["question_per_k"]
         rows.append(
-            f"[style-warn:问号密度] ch{chapter} 问答体退行：连续{len(over)}章超限"
-            f"（{','.join(f'ch{n}' for n in over)}；>{th['question_per_k']:.0f}/千字）"
+            f"[style-warn:问号密度] ch{chapter} 问答体退行：连续超限"
+            f"（{_names}；>{_limit:.0f}/千字）"
         )
 
     # 2 喻体域集中度：窗口合并样本 ≥5 且单域 >70%

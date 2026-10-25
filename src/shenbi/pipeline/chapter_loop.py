@@ -466,8 +466,8 @@ def _run_audit_close_for_chapter(
     try:
         for _row in _fp(project_dir, n):
             _append_style_warn(project_dir, _row)
-    except OSError as _exc:
-        log.warning("style_fingerprint_skipped", chapter=n, err=str(_exc))
+    except Exception as _exc:
+        log.warning("style_fingerprint_skipped", chapter=n, err=repr(_exc))
     return False
 
 

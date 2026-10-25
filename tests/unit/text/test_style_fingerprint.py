@@ -26,9 +26,6 @@ def test_question_density_dialogue_domain() -> None:
 
 @pytest.mark.unit
 def test_simile_domains_punctuation_window_and_morpheme_guard() -> None:
-    body = "像一枚官印。像一层细霜。好像没事一样。影像里没有人。他像两家人挤一间屋。"
-    d = simile_domains(body)
-    # 像一枚官印 → 器物(印不在词表→其他? 印 not in 器物 words) — 用确定域断言：
     body2 = "像一张纸。像那本账。像半张饼。"
     d2 = simile_domains(body2)
     assert d2["纸账册"] == 2 and d2["粮食物"] == 1
@@ -135,3 +132,20 @@ def test_hook_appends_style_warn_rows(tmp_path: Path) -> None:
     from shenbi.pipeline.triggers import count_drift_alerts
 
     assert count_drift_alerts(text) == 0  # 结构性排除验证
+
+
+@pytest.mark.unit
+def test_counting_opener_share_warn_constructed(tmp_path: Path) -> None:
+    """指标 4：≥6 章窗内计数开篇占比超上限 → WARN（构造真阳性）。"""
+    counting = "他把米袋数了三遍。然后出门。"
+    other = "西仓的门朝北开着。风很大。"
+    chapters = {n: (counting if n != 4 else other) for n in range(1, 7)}
+    chapters[6] = counting  # 审计锚章
+    d = _mk_proj(tmp_path, chapters)
+    # pre-rev 备份不得膨胀分母
+    (d / "chapters" / "chapter-4-pre-rev.md").write_text(other, encoding="utf-8")
+    rows = fingerprints(d, 6)
+    assert any("style-warn:数数开头" in r and "5/6" in r for r in rows), rows
+    # 占比不过半不报
+    d2 = _mk_proj(tmp_path / "b", {n: (other if n % 2 else counting) for n in range(1, 7)})
+    assert not any("数数开头" in r for r in fingerprints(d2, 6))
