@@ -23,15 +23,20 @@ def test_wound4_prop_chain_fixture() -> None:
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
         (d / "chapter-1.md").write_text("他把红纸包收进袖子。", encoding="utf-8")
-        (d / "chapter-2.md").write_text("红纸包在怀里焐着。", encoding="utf-8")
+        (d / "chapter-2.md").write_text("他把红纸包塞给了老妇。", encoding="utf-8")
         (d / "truth").mkdir()
         (d / "truth" / "prop_registry.md").write_text(
             "| 实体 | owner |\n| 红纸包 | 小满→我(ch1) |\n", encoding="utf-8"
         )
+        memo = d / "chapter-2-plan.md"
+        memo.write_text(
+            "### 场景预算与收束钩\n- 时间锚: 腊月初十\n- 余额: 十文\n- POV: 他\n",
+            encoding="utf-8",
+        )
         issues = check_cross_chapter(
             d / "chapter-2.md",
             d / "chapter-1.md",
-            None,
+            memo,
             CrossChapterContext(project_dir=d, registry_dir=d / "truth"),
         )
         assert any("红纸包" in i and "经手" in i for i in issues)
@@ -84,3 +89,78 @@ def test_handled_prop_passes() -> None:
             CrossChapterContext(project_dir=d, registry_dir=d / "truth"),
         )
         assert not any("经手" in i for i in issues)
+
+
+@pytest.mark.unit
+def test_plain_mention_with_registry_is_legal(tmp_path: Path) -> None:
+    """Round-2 review: unchanged-owner mention (no hand-off) is LEGAL per
+    spec invariant 4's 或-rule — the deterministic re-dispatch loop the
+    reviewer demonstrated (every recurring-prop chapter failing from batch
+    2 onward) must not exist.
+    """
+    d = tmp_path
+    (d / "chapter-1.md").write_text("他把红纸包收进袖子。", encoding="utf-8")
+    (d / "chapter-2.md").write_text("红纸包在怀里焐着。", encoding="utf-8")
+    (d / "truth").mkdir()
+    (d / "truth" / "prop_registry.md").write_text(
+        "| 实体 | owner |\n| 红纸包 | 我 |\n", encoding="utf-8"
+    )
+    memo = d / "chapter-2-plan.md"
+    memo.write_text(
+        "### 场景预算与收束钩\n- 时间锚: 腊月初十\n- 余额: 十文\n- POV: 他\n",
+        encoding="utf-8",
+    )
+    issues = check_cross_chapter(
+        d / "chapter-2.md",
+        d / "chapter-1.md",
+        memo,
+        CrossChapterContext(project_dir=d, registry_dir=d / "truth"),
+    )
+    assert issues == [], issues
+
+
+@pytest.mark.unit
+def test_transfer_declaration_exempts(tmp_path: Path) -> None:
+    d = tmp_path
+    (d / "chapter-1.md").write_text("他把红纸包收进袖子。", encoding="utf-8")
+    (d / "chapter-2.md").write_text("他把红纸包塞给了老妇。", encoding="utf-8")
+    (d / "truth").mkdir()
+    (d / "truth" / "prop_registry.md").write_text(
+        "| 实体 | owner |\n| 红纸包 | 我 |\n", encoding="utf-8"
+    )
+    memo = d / "chapter-2-plan.md"
+    memo.write_text(
+        "### 场景预算与收束钩\n- 时间锚: 腊月初十\n- 余额: 十文\n- POV: 他\n"
+        "- 物象: 红纸包|我→老妇\n",
+        encoding="utf-8",
+    )
+    issues = check_cross_chapter(
+        d / "chapter-2.md",
+        d / "chapter-1.md",
+        memo,
+        CrossChapterContext(project_dir=d, registry_dir=d / "truth"),
+    )
+    assert issues == [], issues
+
+
+@pytest.mark.unit
+def test_legacy_memo_exempts_prop_check(tmp_path: Path) -> None:
+    """Legacy memo (no scene-budget block): declaration cross-check exempt —
+    G4.cp already WARNs on the legacy shape.
+    """
+    d = tmp_path
+    (d / "chapter-1.md").write_text("他把红纸包收进袖子。", encoding="utf-8")
+    (d / "chapter-2.md").write_text("他把红纸包塞给了老妇。", encoding="utf-8")
+    (d / "truth").mkdir()
+    (d / "truth" / "prop_registry.md").write_text(
+        "| 实体 | owner |\n| 红纸包 | 我 |\n", encoding="utf-8"
+    )
+    memo = d / "chapter-2-plan.md"
+    memo.write_text("# 旧式备忘\n", encoding="utf-8")
+    issues = check_cross_chapter(
+        d / "chapter-2.md",
+        d / "chapter-1.md",
+        memo,
+        CrossChapterContext(project_dir=d, registry_dir=d / "truth"),
+    )
+    assert issues == [], issues

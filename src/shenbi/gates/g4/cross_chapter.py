@@ -59,13 +59,13 @@ def load_name_registry(registry_dir: Path | None) -> tuple[tuple[str, ...], tupl
         m = re.match(r"\|\s*(登记名|代词白名单|禁用名)\s*\|\s*([^|]+)\|", ln)
         if not m:
             continue
-        name = m.group(2).strip()
-        if not name:
-            continue
-        if m.group(1) == "禁用名":
-            reserved.append(name)
-        else:
-            whitelist.append(name)
+        # cells may carry alternates («临, 阿临») — split on comma/、
+        names = [n.strip() for n in re.split(r"[,，、]", m.group(2)) if n.strip()]
+        for name in names:
+            if m.group(1) == "禁用名":
+                reserved.append(name)
+            else:
+                whitelist.append(name)
     return tuple(whitelist), tuple(reserved)
 
 
@@ -252,6 +252,33 @@ _INNER_VERBS = ("在心里", "暗自", "心里过了一遍", "心想", "暗想",
 # 覆盖常见复合形态；句中无可独立成词的裸名出现时该句不参与绑定计分。
 _COMPOUND_NEXT = "芯花笼盏油丝罩塔杆火光焰苗台捻座"
 _COMPOUND_PREV = "点吹挑熄提掌街宫路桌吊酒精赏张"
+# 人物动作动词（语言学常量）：名作主语且句含其中之一 → 在场人物行为，
+# 区别于器物谓语（«灯灭了» 的 灭/亮/闪 是灯自己的物理）。
+_PERSON_VERBS = (
+    "洗",
+    "接",
+    "问",
+    "答",
+    "说",
+    "回头",
+    "走",
+    "站",
+    "坐",
+    "拿",
+    "把",
+    "看",
+    "听",
+    "笑",
+    "拧",
+    "压",
+    "摞",
+    "缝",
+    "纳",
+    "扫",
+    "擦",
+    "端",
+    "递",
+)
 
 
 def _standalone_count(sent: str, name: str) -> int:
@@ -294,6 +321,12 @@ def protagonist_binding_hits(text: str, name: str, whitelist: tuple[str, ...]) -
             signals += 1  # 内汲动词绑定
         if re.search(rf"{esc}[^。！？]{{0,20}}他|他[^。！？]{{0,8}}{esc}", sent):
             signals += 1  # 同句代词共指
+        # round-2 review: «灯灭了，他坐下» —— 主语位+代词共指两弱信号不足以
+        # 定人名绑定（器物主语身边站个人是常态句式）。主角误名伤的实证
+        # 形态恒带内汲动词（在心里/记了一笔类）；绑定成立必须内汲在场，
+        # 主语位/共指只作补强。
+        if not any(v in sent for v in _INNER_VERBS):
+            continue
         if signals >= 2:
             hits.append(f"「{name}」主角指称绑定（信号 {signals}/3）: {sent[:24]}")
     return hits
@@ -317,7 +350,10 @@ def reserved_name_hijack_hits(text: str, reserved: tuple[str, ...]) -> list[str]
         for para in text.split("\n\n"):
             for sent in _sentence_spans(para):
                 if re.search(rf"^{esc}", sent) and _standalone_count(sent, name) > 0:
-                    if "她" in para:
+                    # round-2 review: «灯灭了。她挪椅子» —— 器物谓语句不算
+                    # 在场人物名；要求名句含人物动作动词，或同句 她 共指。
+                    _person = any(v in sent for v in _PERSON_VERBS) or "她" in sent
+                    if _person and "她" in para:
                         bound += 1
                     break
         if bound >= 2:
@@ -363,8 +399,6 @@ def _cn_day(tok: str) -> int | None:
         return _CN_NUMS[tok[0]] * 10
     if len(tok) == 3 and tok[:2] == "二十" and tok[2] in _CN_NUMS:
         return 20 + _CN_NUMS[tok[2]]
-    if len(tok) == 3 and tok[0] == "三十" and tok[1:] == "十":
-        return None
     return None
 
 
@@ -379,12 +413,12 @@ _DAY_GROUP = (
 _MONTHDAY_RE = re.compile(
     r"(?:(\d{1,2})月|([正腊冬]+月|十一月|十二月|一月|二月))"
     + _DAY_GROUP
-    + r"(?![天步年遍次章人条枚文块日历谱卷一二三四五六七八九十廿两倍斤页行个])"
+    + r"(?![天步年遍次章人条枚文块日历谱卷一二三四五六七八九十廿两倍斤页行个里米丈])"
 )
 # 无月锚：两字日形态（初X/十X/廿X）——单字裸数字过宽禁用
 _BARE_DAY_RE = re.compile(
     r"(初[一二三四五六七八九十]|三十[一二]?|(?:[一二]?十)[一二三四五六七八九]?|"
-    r"廿[一二三四五六七八九]?)(?![天步年遍次章人条枚文块日历谱卷一二三四五六七八九十廿两倍斤页行个])"
+    r"廿[一二三四五六七八九]?)(?![天步年遍次章人条枚文块日历谱卷一二三四五六七八九十廿两倍斤页行个里米丈])"
 )
 # 阿拉伯形态（G6.4 退役后唯一的 arabic 日期防线）：12月7日
 _ARABIC_MD_RE = re.compile(r"(\d{1,2})月(\d{1,2})[日号]")
@@ -424,34 +458,32 @@ def normalize_anchor(text: str, default_month: int | None) -> tuple[int, int] | 
 
 
 def chapter_last_anchor(text: str, default_month: int | None = None) -> tuple[int, int] | None:
-    """前章末锚（从后向前；裸日继承其更晚文本的显式月——后向携带）。
+    """前章末锚（顺序扫描取最末锚；裸日前向继承已见显式月）。
 
-    Final-review fix: inheriting the CURRENT chapter's month hint made a
-    prev-chapter bare day («…十») masquerade as the new month, turning the
-    legitimate 腊月→正月 year wrap into a same-month "rollback" (ch4/ch8
-    false positives). Own-text derivation first; default_month only as the
-    no-explicit-month-anywhere fallback.
+    Round-2 review fix: the backward carry skipped the usual narrative form
+    «腊月初五…到了初十» (bare day AFTER the explicit month statement) —
+    returning the earlier explicit anchor masked real rollbacks. A forward
+    pass with month state is the correct semantics; default_month seeds the
+    state only when the text names no month at all.
     """
-    for init in (None, default_month):
-        carry: int | None = init
-        for chunk in reversed(text.split("\n")):
-            m = _MONTHDAY_RE.search(chunk)
-            if m:
-                month = int(m.group(1)) if m.group(1) else _MONTH_ALIAS.get(m.group(2), carry)
-                day = _cn_day(m.group(3)) if month is not None else None
-                if month is not None and day is not None:
-                    return (month, day)
-                if month is not None:
-                    carry = month
-                    continue
-            b = _BARE_DAY_RE.search(chunk)
-            if b and carry is not None:
-                day = _cn_day(b.group(1))
+    carry: int | None = default_month
+    last: tuple[int, int] | None = None
+    for chunk in text.split("\n"):
+        m = _MONTHDAY_RE.search(chunk)
+        if m:
+            month = int(m.group(1)) if m.group(1) else _MONTH_ALIAS.get(m.group(2), carry)
+            if month is not None:
+                carry = month  # month state advances on EVERY explicit mention
+                day = _cn_day(m.group(3))
                 if day is not None:
-                    return (carry, day)
-        if init is None and default_month is None:
-            break
-    return None
+                    last = (month, day)
+                continue
+        b = _BARE_DAY_RE.search(chunk)
+        if b and carry is not None:
+            day = _cn_day(b.group(1))
+            if day is not None:
+                last = (carry, day)
+    return last
 
 
 def chapter_all_anchors(text: str, default_month: int | None = None) -> list[tuple[int, int]]:
@@ -471,6 +503,7 @@ def check_cross_chapter(
     prev_path: Path | None,
     memo_path: Path | None,
     ctx: CrossChapterContext,
+    cur_text: str | None = None,
 ) -> list[str]:
     """Run the six invariants; returns violation strings (empty = clean).
 
@@ -488,8 +521,14 @@ def check_cross_chapter(
     cards = load_card_attributes(
         ctx.project_dir / "characters" / "major" if ctx.project_dir else None
     )
+    # round-2 review: hoisted once (was re-globbed per card); the three
+    # sub-checks are independent of each other — none gates the others.
+    all_orgs = load_known_orgs(
+        ctx.project_dir / "characters" / "major" if ctx.project_dir else None
+    )
+    org_drift_flagged: set[tuple[str, str]] = set()
     for name, card in cards.items():
-        if name not in cur_text or not card["机构"]:
+        if name not in cur_text:
             continue
         # 段内共现：名字所在段落内「她」作主语起句 ≥1（跨句代词回指）
         para_hits = 0
@@ -498,15 +537,20 @@ def check_cross_chapter(
                 para_hits += len(re.findall(r"(?:^|[。！？])\s*她", para))
         if card["性别代词"] == "他" and para_hits >= 1:
             issues.append(f"角色「{name}」正文用「她」而卡为男性代词（修复者: 卡修/settling）")
-        # 同表其它已知机构在正文成主导（卡机构被边缘化）→ 机构漂移
-        others = load_known_orgs(
-            ctx.project_dir / "characters" / "major" if ctx.project_dir else None
-        ) - {card["机构"]}
-        for other in others:
-            if cur_text.count(other) >= 2 and cur_text.count(other) > cur_text.count(card["机构"]):
-                issues.append(
-                    f"卡机构「{card['机构']}」与正文主导机构「{other}」不一致（修复者: 卡修）"
-                )
+        # 同表其它已知机构在正文成主导（卡机构被边缘化）→ 机构漂移；
+        # 跨卡去重（多卡同漂移只报一次）
+        if card["机构"]:
+            for other in sorted(all_orgs - {card["机构"]}):
+                drift_key = (card["机构"], other)
+                if (
+                    drift_key not in org_drift_flagged
+                    and cur_text.count(other) >= 2
+                    and cur_text.count(other) > cur_text.count(card["机构"])
+                ):
+                    org_drift_flagged.add(drift_key)
+                    issues.append(
+                        f"卡机构「{card['机构']}」与正文主导机构「{other}」不一致（修复者: 卡修）"
+                    )
         # 住所轨迹（#75 不变量 5 第三面；卡字段缺席 → 不检）
         if card["住所"]:
             for para in cur_text.split("\n\n"):
@@ -529,14 +573,30 @@ def check_cross_chapter(
     issues.extend(reserved_name_hijack_hits(cur_text, reserved))
 
     # ── 不变量 4: 物象 owner 链（正文唯一真值；经手事件还原；首章亦跑）──
+    # Round-2 review fix: spec 的合法性规则是「当前持有者 = 前章末持有者 **或**
+    # 经手事件」——plain 提及（无经手）视 owner 未变，合法；只有转移语境
+    # （给/递/塞/交/送/还…）下的出现才要求 memo `- 物象:` 声明行（planning
+    # SKILL 已文档化该行的条件必写）。旧格式备忘（无场景预算块）整族豁免。
     known_props = load_known_props(
         ctx.registry_dir / "prop_registry.md" if ctx.registry_dir else None
     )
     prop_decls = dict(_PROP_DECL_RE.findall(memo_text)) if memo_text else {}
+    _memo_is_new_format = "场景预算" in memo_text
     for prop in known_props:
-        if prop in cur_text and prop not in prop_decls:
+        if prop in prop_decls or prop not in cur_text:
+            continue
+        if not _memo_is_new_format:
+            continue  # legacy memo: declaration cross-check exempt (G4.cp WARNs)
+        esc_prop = re.escape(prop)
+        transfer_ctx = re.search(
+            rf"{esc_prop}[^。！？]{{0,6}}(?:给|递|塞|交|送|还|留给|转手)"
+            rf"|(?:给|递|塞|交|送|还)[^。！？]{{0,4}}{esc_prop}",
+            cur_text,
+        )
+        if transfer_ctx:
             issues.append(
-                f"物象「{prop}」出现但无经手声明（registry owner: {known_props[prop]}；修复者: settling）"
+                f"物象「{prop}」经手语境出现但无经手声明"
+                f"（registry owner: {known_props[prop]}；修复者: settling）"
             )
 
     if prev_path is None:
@@ -629,7 +689,7 @@ def g4_cross_chapter(
         truth_dir = Path(project_dir) / "truth"
         for _rel in ("name_registry.md", "timeline.md", "prop_registry.md"):
             if not (truth_dir / _rel).is_file():
-                log.info("xc_registry_absent", table=_rel)
+                log.warning("xc_registry_absent", table=_rel)
                 c.append(
                     {
                         "id": "XC.registry",
@@ -661,7 +721,7 @@ def g4_cross_chapter(
         )
         # 编号断档：N>1 而前章缺席 → 时间锚/POV 基线丢失，降级须可见
         if prev is None and ch_num_m and int(ch_num_m.group(1)) > 1:
-            log.info("xc_prev_missing", chapter=int(ch_num_m.group(1)))
+            log.warning("xc_prev_missing", chapter=int(ch_num_m.group(1)))
             c.append(
                 {
                     "id": "XC.prev_missing",
@@ -670,12 +730,12 @@ def g4_cross_chapter(
                     "r": f"chapter-{int(ch_num_m.group(1)) - 1}.md absent — seam checks (POV/timeline) skipped for this chapter",
                 }
             )
-        issues = check_cross_chapter(ch_path, prev, memo, ctx)
-        # 相对锚：月名在场而全章无可解析锚 → 单调比较被静默跳过，须可见
         _body = ch_path.read_text(encoding="utf-8")
+        issues = check_cross_chapter(ch_path, prev, memo, ctx, cur_text=_body)
+        # 相对锚：月名在场而全章无可解析锚 → 单调比较被静默跳过，须可见
         _month_named = re.search(r"(?:正|腊|冬|十一|十二|[一二三四五六七八九十\d]{1,2})月", _body)
         if _month_named and not chapter_all_anchors(_body):
-            log.info("xc_relative_anchor", file=fp)
+            log.warning("xc_relative_anchor", file=fp)
             c.append(
                 {
                     "id": "XC.relative_anchor",

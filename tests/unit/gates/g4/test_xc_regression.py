@@ -76,11 +76,28 @@ def test_wound4_prop_chain_break(tmp_path: Path) -> None:
         "| 实体 | owner | 事件 |\n|---|---|---|\n| 红纸包 | 小满→我(ch1) | ch1 收下 |\n",
         encoding="utf-8",
     )
+    ch_dir = tmp_path / "chapters"
+    ch_dir.mkdir()
+    (ch_dir / "chapter-1.md").write_text(
+        "---\nprovenance: real-output\n---\n\n他收下红纸包。", encoding="utf-8"
+    )
+    # round-2 rule: only TRANSFER contexts demand the memo 物象 line; the
+    # wound's constructed form is a hand-off with no declaration.
+    (ch_dir / "chapter-2.md").write_text(
+        "---\nprovenance: real-output\n---\n\n他把红纸包递给了老妇。",
+        encoding="utf-8",
+    )
+    memo = tmp_path / "plans" / "chapter-2-plan.md"
+    memo.parent.mkdir()
+    memo.write_text(
+        "### 场景预算与收束钩\n- 时间锚: 腊月初十\n- 余额: 十文\n- POV: 他\n",
+        encoding="utf-8",
+    )
     issues = check_cross_chapter(
-        FIX / "chapters" / "chapter-2.md",
-        FIX / "chapters" / "chapter-1.md",
-        None,
-        CrossChapterContext(project_dir=FIX, registry_dir=truth),
+        ch_dir / "chapter-2.md",
+        ch_dir / "chapter-1.md",
+        memo,
+        CrossChapterContext(project_dir=tmp_path, registry_dir=truth),
     )
     assert any("红纸包" in w and "无经手声明" in w for w in issues), issues
 
@@ -228,7 +245,7 @@ def test_mixed_pov_declarable() -> None:
         d = Path(td)
         filler = "他数了一遍。" * 40
         (d / "chapter-1.md").write_text("他推门。" + filler, encoding="utf-8")
-        mixed = filler + "我看着他，他又看我。我又看他。"
+        mixed = "他数了一遍。" * 20 + "我看着他，他又看我。我又看他。" * 12
         (d / "chapter-2.md").write_text(mixed, encoding="utf-8")
         memo = d / "chapter-2-plan.md"
         memo.write_text(
