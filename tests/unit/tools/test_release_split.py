@@ -396,3 +396,100 @@ def test_v1_heuristics_retired() -> None:
 
     for gone in ("SCENE_TRANSITION_WORDS", "TIERS", "classify_pair", "plan_releases", "CutSignals"):
         assert not hasattr(mod, gone), gone
+
+
+# ── T8-F1 集成回归：真实拆分步产物 → settled 窗口（writer/reader 契约） ──
+
+
+@pytest.mark.integration
+def test_real_split_step_manifest_settles(tmp_path: Path) -> None:
+    """End-to-end writer→reader: run the REAL _run_scene_split_step, then
+    release_split must see both chapters settled (the T8-F1 breakage was
+    exactly this contract — hand-built manifests on both sides hid it).
+    """
+    import shenbi.pipeline.chapter_loop as cl
+
+    p = _proj(tmp_path, (1,), markered={1: [(1900, HOOK1), (1900, HOOK2)]})
+    (p / "staging").mkdir(exist_ok=True)
+    for n in (1,):
+        side = p / "staging" / "chapters" / f"chapter-{n}-decisions.json"
+        side.parent.mkdir(parents=True, exist_ok=True)
+        side.write_text("{}", encoding="utf-8")
+    bundle = ["===CH:1===", "## PRE_WRITE_CHECK", "", "- x", "", "# 第1章", "# 章题1", ""]
+    for size, hook in [(1900, HOOK1), (1900, HOOK2)]:
+        bundle += ["<!--SCENE-->", "灯" * size, hook, ""]
+    bundle += ["## POST_WRITE_SELF_CHECK", "", "- y", ""]
+    (p / "staging" / "chapter-1-bundle.md").write_text("\n".join(bundle), encoding="utf-8")
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(
+            cl,
+            "run_gate_g4",
+            lambda *a, **kw: {"status": "PASS", "checks": [], "must_fix": []},
+        )
+        assert cl._run_scene_split_step(p, 1) == []
+    mf = json.loads((p / "pipeline-manifest.json").read_text(encoding="utf-8"))
+    assert "pipeline-scene-split" in mf["gates"]["chapter_loop"]["1"]
+    r = _run_tool(p, "--platform", "fanqie")
+    assert r.returncode == 0, r.stderr
+    led = _ledger(p, "fanqie")
+    assert [c["chapter"] for c in led["chapters"]] == [1]
+
+
+# ── F5: 保留面补网（v1 迁移缩水面） ─────────────────────────────────────
+
+
+@pytest.mark.unit
+def test_freeze_seq_drift_requires_renumber(tmp_path: Path) -> None:
+    p = _proj(tmp_path, (1, 2))
+    _settle(p, (1, 2))
+    assert _run_tool(p, "--platform", "qidian").returncode == 0
+    led = _ledger(p, "qidian")
+    led["chapters"][0]["releases"][0]["published"] = True
+    led["chapters"][0]["releases"][0]["seq"] = 99  # 人为制造序号漂移
+    led["chapters"][0]["releases"][0]["file"] = "release-0099.md"
+    (p / "publish" / "qidian" / "releases.json").write_text(
+        json.dumps(led, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    r = _run_tool(p, "--platform", "qidian")
+    assert r.returncode == 1
+    assert "renumber" in r.stderr
+
+
+@pytest.mark.unit
+def test_freeze_vanished_chapter_blocks(tmp_path: Path) -> None:
+    p = _proj(tmp_path, (1, 2))
+    _settle(p, (1, 2))
+    assert _run_tool(p, "--platform", "qidian").returncode == 0
+    led = _ledger(p, "qidian")
+    led["chapters"][1]["releases"][0]["published"] = True
+    (p / "publish" / "qidian" / "releases.json").write_text(
+        json.dumps(led, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    _settle(p, (1,))  # 章 2 跌出已收束窗口（模拟状态回退）
+    (p / "chapters" / "chapter-2.md").unlink()
+    r = _run_tool(p, "--platform", "qidian")
+    assert r.returncode == 1
+    assert "消失" in r.stderr
+
+
+@pytest.mark.unit
+def test_orphan_release_cleanup(tmp_path: Path) -> None:
+    p = _proj(tmp_path, (1,))
+    _settle(p, (1,))
+    assert _run_tool(p, "--platform", "qidian").returncode == 0
+    rel_dir = p / "publish" / "qidian" / "releases"
+    orphan = rel_dir / "release-9999.md"
+    orphan.write_text("孤儿", encoding="utf-8")
+    assert _run_tool(p, "--platform", "qidian").returncode == 0
+    assert not orphan.exists()
+
+
+@pytest.mark.unit
+def test_qidian_markers_stripped(tmp_path: Path) -> None:
+    p = _proj(tmp_path, (1,), markered={1: [(1900, HOOK1), (1900, HOOK2)]})
+    _settle(p, (1,))
+    r = _run_tool(p, "--platform", "qidian")
+    assert r.returncode == 0, r.stderr
+    for f in (p / "publish" / "qidian" / "releases").glob("release-*.md"):
+        assert "<!--SCENE-->" not in f.read_text(encoding="utf-8")

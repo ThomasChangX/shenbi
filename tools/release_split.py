@@ -490,15 +490,17 @@ def run_split(
 ) -> int:
     """One idempotent split pass over the project's SETTLED chapters (exit 0/1)."""
     plat = platform or default_platform(project_dir)
-    all_files = select_chapter_files(project_dir / "chapters")
     settled = settled_chapters(project_dir)
     if through is not None:
         settled = {n for n in settled if n <= through}  # 收窄不豁免
-    chapters = (
-        [parse_chapter(f) for f in all_files if parse_chapter(f).number in settled]
-        if False
-        else [ch for ch in (parse_chapter(f) for f in all_files) if ch.number in settled]
-    )
+    # F3: filter by FILENAME chapter number BEFORE parsing — an unsettled
+    # (possibly mid-flight / malformed) chapter must not abort the run.
+    wanted = [
+        f
+        for f in select_chapter_files(project_dir / "chapters")
+        if int(CHAPTER_FILE_RE.match(f.name).group(1)) in settled
+    ]
+    chapters = [parse_chapter(f) for f in wanted]
     if not chapters:
         raise ReleaseSplitError(
             "已收束章集合为空（manifest 逐章闸记录无全 PASS + scene-split 键的章）"

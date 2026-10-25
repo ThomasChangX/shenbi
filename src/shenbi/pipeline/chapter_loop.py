@@ -1097,6 +1097,8 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
     # Per-chapter terminal G4.cd + manifest records for BOTH chapters
     # (follower chapters have no drafting key by design — the split key is
     # their generation-chain evidence; spec 施工面 6 已收束谓词).
+    from shenbi.gates.gate_manifest import record_gate_result
+
     for n in chapters:
         g4 = run_gate_g4(
             "shenbi-chapter-drafting",
@@ -1105,6 +1107,11 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
             chapter=n,
             phase="chapter_loop",
         )
+        # Also record under the split-step skill key: release_split v2's
+        # settled predicate requires a per-chapter pipeline-scene-split entry
+        # (T8-F1 writer/reader contract — without it the settled window is
+        # permanently empty on real pipeline output).
+        record_gate_result(project_dir, "chapter_loop", n, "pipeline-scene-split", "G4", g4)
         if not _gate_passed(g4):
             issues.extend(f"G4.cd ch{n}: {m}" for m in g4.get("must_fix", []))
     return issues
