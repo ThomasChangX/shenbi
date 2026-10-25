@@ -9,7 +9,7 @@
 
 - 各卷**字数预算不变**（卷一 45.6 万字），章数 = ceil(卷字数 ÷ 3200)（卷一 → ~143 章；全书 ≈3125——逐卷 ceil 之和 ≥ 全书 ceil，以工具写回为准），**以 `just volume-budget --apply` 确定性写回为准**——写回 skeleton/frontmatter/预算对账段
 - `rhythm_principles` 卷表卷一行同步重锚；`thread_map` 卷一行同步重锚
-- **过渡态政策**：volume_map 卷二+ 节点表、rhythm_principles 卷二+ 行、thread_map 卷二+ 行与线索详情、跨卷桥接表卷二侧预期激活章——均仍为旧口径锚，显式声明为已知过渡态，归各卷 outlining 时重排（非本 spec 范围，不得视为回归）；thread_map 卷一行重锚后跑 `just pool-lint novel-xinghuo-vol1`（必要时 `--repair`）保证总览-详情两表对账
+- **过渡态政策**：volume_map 卷二+ 节点表、rhythm_principles 卷二+ 行、thread_map 卷二+ 行与线索详情、跨卷桥接表卷二侧预期激活章——均仍为旧口径锚，显式声明为已知过渡态，归各卷 outlining 时重排（非本 spec 范围，不得视为回归）；thread_map 线索详情节先行规范化（C1-C13 紧凑管道格式→每行一字段——lint/sync 双解析器把整块管道串当状态值）后重锚卷一行，`--repair` 派生总览；pool-lint 验收口径 = **row_state_mismatch 清零 + findings ⊆ 已知债清单**（MH1-12 planted_with_resolve 为既有债 waiver 入 deviations——2026-10-26 基线实测 25 findings = 13 紧凑格式 + 12 planted_with_resolve，`--repair` 不消解后者，原「保证对账」假设证伪修正）
 - 验收：`just volume-budget novel-xinghuo-vol1` verdict=OK（无 `re_budget_pending`）；G0.3 expected 与 volume_map 收敛
 
 ## 1. 卷一 KR 重排（新口径几何）
@@ -57,5 +57,5 @@
 - `volume-budget --apply` 收敛（verdict=OK，无 re_budget_pending）；rhythm_principles/thread_map 卷一行重锚
 - 欲望阶梯四级名目/诉求与 story_frame.md 已交付 canon 一致（活下来→还清债立足→护住名录上的人→（立约）），20/30/30/20 band 落位在卷纲可见；四轴快照挂上卷末结算节点
 - 住所两源一致：protagonist.md 住所字段与卷纲迁移动线行互证（spec #75 已裁定「两源一致由 #74 验收」）
-- `just pool-lint novel-xinghuo-vol1` 过（thread_map 卷一行重锚后两表对账）
+- pool-lint：row_state_mismatch=0 且 findings ⊆ 已知债清单（MH1-12 waiver；exit 可为 1）+ post-repair grep 新章号存活
 - 卷一 Objective 行与 #73 引擎规则无冲突表述
