@@ -20,10 +20,11 @@ from shenbi.gates.shared import SIMILE_MARKERS, strip_narrative_body
 from shenbi.text.cjk import find_quote_spans
 from shenbi.text.voice_lexicon import OPENING_VERB_FAMILIES, SIMILE_DOMAINS
 
-#: 临时档缺省（spec #77 plan：落地时以旧九章实测分布定档；问号 12 系全文
-#: 口径换算，对白域分母上实测可能 ~2×——验收即校准工具，键可覆写）。
+#: 实测定档（spec #77 校准条款；2026-10-26 旧九章对白域实测：
+#: 25.6/23.9/5.0/13.8/20.5/22.5/1.7/18.4/26.0——P50≈20，取 20 保
+#: ch1/2/5/6/9 高密度章真阳性、ch4/8 事件章不误报；12 初档过紧致 7/9 超）。
 DEFAULTS: dict[str, float] = {
-    "question_per_k": 12,
+    "question_per_k": 20,
     "simile_share": 0.70,
     "simile_min_n": 5,
     "opener_run": 3,

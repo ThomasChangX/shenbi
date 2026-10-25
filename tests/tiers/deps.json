@@ -329,7 +329,7 @@
     "src/shenbi/text/voice_lexicon.py": "sha256:40097eb21db597ecbe09e4c5adca6b3532e1daad47d90bb6789a76c1bd567ba7",
     "src/shenbi/text/__init__.py": "sha256:c4594274aea2eb95aac941661d429ff94f16c51892b4ebf26bbc78ae49b84e33",
     "src/shenbi/text/cjk.py": "sha256:49641261c8359c7e9e0f208ae38dc01ce5b98f060c310ab2927ca99c95f23b15",
-    "src/shenbi/text/style_fingerprint.py": "sha256:b7932f07baabef2f959b64abae40745f685094c45fd75bf5e2d22502e4329f86",
+    "src/shenbi/text/style_fingerprint.py": "sha256:a10569dffcf08b3888bb0f83e741ffcebec093c64e9974a27bf091178f5e2cb0",
     "src/shenbi/skill_utils/trope_detection/__init__.py": "sha256:64d394e7f584ad7c9be7ea11ce9f69b23b9624238a703a5ebbb07a5617552db7",
     "src/shenbi/skill_utils/trope_detection/match_tropes.py": "sha256:0086848039d017d6676655da841ee81fb77f07aa58457fb005e6fde2ff0b8937",
     "src/shenbi/skill_utils/trope_detection/__main__.py": "sha256:05e621634ad5a95a301a78cb8141b12cd9e03f6644bcbf86e6c9207f024ae691",
