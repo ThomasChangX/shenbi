@@ -502,6 +502,51 @@ def chapter_all_anchors(text: str, default_month: int | None = None) -> list[tup
     return out
 
 
+def _prop_chain_steps(memo_text: str) -> dict[str, list[tuple[str, str]]]:
+    """Memo `- 物象:` lines → prop → ordered hand-off hops.
+
+    A declaration value is `A→B` (single hop) or `A→B→C` (multi-hop);
+    a bare name (`红纸包|我`) is a re-affirm, carrying no hop. Multiple
+    lines for one prop chain in declaration order (round-4 fix — the old
+    dict() collapsed same-prop lines and then failed the surviving one).
+    """
+    out: dict[str, list[tuple[str, str]]] = {}
+    for prop, val in _PROP_DECL_RE.findall(memo_text):
+        hops = [h.strip() for h in val.split("→") if h.strip()]
+        out.setdefault(prop, []).extend((hops[i], hops[i + 1]) for i in range(len(hops) - 1))
+    return out
+
+
+def _current_owner(owner_cell: str) -> str:
+    """Owner cell → current owner: chain cells take the last hop, stripped
+    of parenthetical annotations («小满→我(ch1)» → 我).
+    """
+    tail = owner_cell.rsplit("→", maxsplit=1)[-1]
+    return re.sub(r"[(（].*?[)）]", "", tail).strip()
+
+
+def _expected_prop_owner(
+    ctx: CrossChapterContext, prop: str, registry_owner: str, chapter: int | None
+) -> str:
+    """Expected hand-off origin: registry current owner advanced through
+    prior on-disk memo hops (chapter < N). The bundle follower's check runs
+    before the leader settles, so the leader's declared hop must already
+    advance the expectation (round-4 fix).
+    """
+    expected = _current_owner(registry_owner)
+    if not ctx.project_dir or not chapter or chapter <= 1:
+        return expected
+    plans_dir = ctx.project_dir / "plans"
+    for m in range(1, chapter):
+        pm = plans_dir / f"chapter-{m}-plan.md"
+        if not pm.is_file():
+            continue
+        for _origin, _new in _prop_chain_steps(pm.read_text(encoding="utf-8")).get(prop, []):
+            if _origin in expected or expected in _origin:
+                expected = _new
+    return expected
+
+
 def check_cross_chapter(
     chapter_path: Path,
     prev_path: Path | None,
@@ -578,41 +623,49 @@ def check_cross_chapter(
     issues.extend(reserved_name_hijack_hits(cur_text, reserved))
 
     # ── 不变量 4: 物象 owner 链（正文唯一真值；经手事件还原；首章亦跑）──
-    # Round-2 review fix: spec 的合法性规则是「当前持有者 = 前章末持有者 **或**
-    # 经手事件」——plain 提及（无经手）视 owner 未变，合法；只有转移语境
-    # （给/递/塞/交/送/还…）下的出现才要求 memo `- 物象:` 声明行（planning
-    # SKILL 已文档化该行的条件必写）。旧格式备忘（无场景预算块）整族豁免。
+    # Round-2 fix: spec 或-rule——plain 提及（无经手）视 owner 未变，合法；
+    # 只有转移语境要求 memo `- 物象:` 声明行。Round-3 fix: 转移标记限定成说
+    # 形态（还字副词族不入）。Round-4 fix: 期望起点 = registry 当前 owner
+    # 经由**已落盘的前章备忘**逐步推进——双章批 follower 在 leader 收束前
+    # 检查，registry 尚未滚入 leader 的经手，若不推进则 follower 的真声明
+    # 会被误杀（确定性重派死循环）。旧格式备忘（无场景预算块）整族豁免。
     known_props = load_known_props(
         ctx.registry_dir / "prop_registry.md" if ctx.registry_dir else None
     )
-    prop_decls = dict(_PROP_DECL_RE.findall(memo_text)) if memo_text else {}
     _memo_is_new_format = re.search(r"#{2,4}\s*场景预算", memo_text) is not None
+    _ch_num_m = re.search(r"chapter-(\d+)", chapter_path.name)
+    _ch_num = int(_ch_num_m.group(1)) if _ch_num_m else None
     for prop in known_props:
         if prop not in cur_text:
             continue
-        if prop in prop_decls:
-            # round-3 review: declaration is not free text — its stated
-            # hand-off origin (A→B 的 A) must sit inside the registry's
-            # recorded owner cell (the cell may carry the chain history).
-            _origin = prop_decls[prop].split("→")[0].strip()
-            if _origin and _origin not in known_props[prop]:
-                issues.append(
-                    f"物象「{prop}」声明经手起点「{_origin}」与 registry owner"
-                    f"（{known_props[prop]}）不符——正文为唯一真值源，核实后修正声明或 registry"
-                    "（修复者: settling）"
-                )
-            continue
+        steps = _prop_chain_steps(memo_text).get(prop, [])
         if not _memo_is_new_format:
             continue  # legacy memo: declaration cross-check exempt (G4.cp WARNs)
+        if steps:
+            # round-3/4: declaration is not free text — each hop's origin
+            # must match the EXPECTED owner (registry current owner advanced
+            # through prior on-disk memo hops; same-memo hops chain).
+            expected = _expected_prop_owner(ctx, prop, known_props[prop], _ch_num)
+            for _origin, _new in steps:
+                if _origin and _origin not in expected and expected not in _origin:
+                    issues.append(
+                        f"物象「{prop}」声明经手起点「{_origin}」与期望 owner"
+                        f"（{expected}；registry {known_props[prop]} + 前章备忘推进）不符"
+                        "——正文为唯一真值源，核实后修正声明或 registry（修复者: settling）"
+                    )
+                    break
+                expected = _new
+            continue
         # round-3 review: bare 还 is the adverb "still" («X还在/还有X») in
         # top-frequency carrying prose — only DISAMBIGUATED compound markers
-        # (X给/还了/给了…) count as hand-offs; bare monosyllables survive
-        # only in the V+pronoun+prop form («还他红纸包»).
+        # count as hand-offs. Round-4: metaphor/replacement readings rejected
+        # («X给了她一点底气» 隐喻授与 / «怀表换了根新表链» 配件更换).
         esc_prop = re.escape(prop)
-        _markers = r"(?:递给|塞给|交给|送给|还给|还了|给了|留给|转手|递了|换了)"
+        _markers = r"(?:递给|塞给|交给|送给|还给|还了|给了|留给|转手|递了|送了|交到|递到|递还)"
+        _not_meta = r"(?![^。！？，,；]{0,2}(?:一点|一些|许多|很多|莫大|不少|十足|根|条|副|件|层|张|块|番|支|命|个))"
         transfer_ctx = re.search(
-            rf"{esc_prop}[^。！？，,；]{{0,4}}{_markers}"
-            rf"|{_markers}[^。！？，,；]{{0,4}}{esc_prop}"
+            rf"{esc_prop}[^。！？，,；]{{0,4}}{_markers}{_not_meta}"
+            rf"|{_markers}{_not_meta}[^。！？，,；]{{0,4}}{esc_prop}"
             rf"|(?:还|递|塞|交|送)(?:他|她|我|你|它)[^。！？，,；]{{0,3}}{esc_prop}",
             cur_text,
         )
