@@ -1210,7 +1210,9 @@ def _build_skill_prompt(
     # binding earlier made the prompt/persistence keys diverge for staged
     # steps). Override values stay unprefixed — genesis never stages.
     if uses_staging:
-        output_paths = [f"staging/{p}" for p in output_paths]
+        # spec #72: idempotent prefix — contract paths already rooted at
+        # staging/ (the drafting bundle product) pass through untouched.
+        output_paths = [p if p.startswith("staging/") else f"staging/{p}" for p in output_paths]
     if not prompt_outputs:
         prompt_outputs = output_paths
 

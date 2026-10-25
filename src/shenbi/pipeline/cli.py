@@ -674,6 +674,12 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
         # audit-T5 C1: contract-declared sidecar joins the same commit batch,
         # otherwise clear_staging below silently destroys it.
         targets += staged_decisions_targets(project_dir, "shenbi-chapter-planning", chapter)
+        # spec #72: dual-memo bundle — follower memo + sidecar join the batch.
+        from shenbi.pipeline.chapter_loop import bundle_chapters
+
+        for n in bundle_chapters(project_dir, chapter)[1:]:
+            targets.append(f"plans/chapter-{n}-plan.md")
+            targets += staged_decisions_targets(project_dir, "shenbi-chapter-planning", n)
     elif cp.type in (CheckpointType.STATE_SETTLE, CheckpointType.PER_CHAPTER):
         # I3: glob all staged truth files rather than hardcoding one.
         from shenbi.pipeline.checkpoint import STAGING_DIR
@@ -1016,6 +1022,8 @@ def _apply_reject_redo(
 
     Full CheckpointType coverage; BOOK_CLOSURE keeps its existing transition.
     """
+    from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
+
     if cp.type == CheckpointType.CHAPTER_MEMO:
         if _chapter_mismatch(state, cp):
             _defer_redo_to_re_dispatch_queue(state, cp, feedback)
@@ -1025,7 +1033,11 @@ def _apply_reject_redo(
         if _chapter_mismatch(state, cp):
             _defer_redo_to_re_dispatch_queue(state, cp, feedback)
         else:
-            state.chapter_loop.step_index = 7
+            # spec #72: settling moved to table index 8 after the scene-split
+            # insertion — resolve dynamically so future inserts can't rot it.
+            state.chapter_loop.step_index = next(
+                i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-state-settling"
+            )
     elif cp.type == CheckpointType.GENESIS_COMPLETE:
         if redo_steps:
             _rollback_genesis_to_steps(state, redo_steps, feedback)
@@ -1218,7 +1230,15 @@ def cmd_review(args: argparse.Namespace) -> int:
                     if _chapter_mismatch(state, cp):
                         _defer_redo_to_re_dispatch_queue(state, cp, feedback)
                     else:
-                        state.chapter_loop.step_index = 7  # CHAPTER_STEPS[7] = state-settling
+                        from shenbi.pipeline.chapter_loop import (
+                            CHAPTER_STEPS,
+                        )
+
+                        state.chapter_loop.step_index = next(
+                            i
+                            for i, s in enumerate(CHAPTER_STEPS)
+                            if s.skill == "shenbi-state-settling"
+                        )  # spec #72: dynamic (settling at index 8 after insertion)
                 elif cp.type == CheckpointType.GENESIS_COMPLETE:
                     _rollback_genesis_step(state)
 

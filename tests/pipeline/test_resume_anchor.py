@@ -94,12 +94,13 @@ def test_migration_map_covers_no_current_names() -> None:
 
 def test_steps_version_pin() -> None:
     """Steps-table snapshot pin: any rename/reorder must bump PIPELINE_STEPS_VERSION and update the migration map plus this snapshot."""
-    assert PIPELINE_STEPS_VERSION == 2
+    assert PIPELINE_STEPS_VERSION == 3
     assert tuple(s.skill for s in CHAPTER_STEPS) == (
         "pipeline-volume-align",
         "shenbi-chapter-planning",
         "pipeline-context-prepare",
         "shenbi-chapter-drafting",
+        "pipeline-scene-split",  # spec #72: bundle split + promotion step
         "pipeline-post-draft-extract",
         "pipeline-linguistic-drift-check",
         "shenbi-foreshadowing-lifecycle",

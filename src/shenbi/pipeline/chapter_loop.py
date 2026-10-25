@@ -169,31 +169,45 @@ CHAPTER_STEPS: list[ChapterStep] = [
         calls_context_assembly=True,
         uses_staging=True,
     ),
-    # Step 4: Chapter drafting (LLM)
+    # Step 4: Chapter drafting (LLM, spec #72 scene-cluster bundle)
+    # Bundle product = staging/chapter-{N}-bundle.md (CH/SCENE markers); the
+    # split step below owns promotion to chapters/chapter-{N,N+1}.md, so this
+    # step carries NO md output_path (suffix routing must not feed the bundle
+    # to G4.cd) and validates its staging decisions sidecars only.
     ChapterStep(
         4,
         "shenbi-chapter-drafting",
         "chapter-drafting",
         step_type="core",
-        output_path="chapters/chapter-N.md",
+        uses_staging=True,
     ),
-    # Step 5: Post-draft extract (deterministic)
+    # Step 5: Scene split + promotion (deterministic, spec #72)
+    # Consumes the staging bundle → chapters/chapter-{N,N+1}.md (CH markers
+    # stripped, SCENE markers durable) + decisions promotion + per-chapter
+    # G4.cd terminal validation (manifest records BOTH chapters).
     ChapterStep(
         5,
+        "pipeline-scene-split",
+        "scene-split",
+        step_type="checkpoint",
+    ),
+    # Step 6: Post-draft extract (deterministic)
+    ChapterStep(
+        6,
         "pipeline-post-draft-extract",
         "post-draft-extract",
         step_type="checkpoint",
     ),
     # Step 6: Linguistic drift check (deterministic)
     ChapterStep(
-        6,
+        7,
         "pipeline-linguistic-drift-check",
         "linguistic-drift-check",
         step_type="checkpoint",
     ),
     # Step 7: Foreshadowing lifecycle (LLM, MERGE-1 -- single call for recall+track+plant)
     ChapterStep(
-        7,
+        8,
         "shenbi-foreshadowing-lifecycle",
         "foreshadowing-lifecycle",
         step_type="core",
@@ -202,7 +216,7 @@ CHAPTER_STEPS: list[ChapterStep] = [
     ),
     # Step 8: State settling (LLM, runs parallel to Step 7)
     ChapterStep(
-        8,
+        9,
         "shenbi-state-settling",
         "state-settling",
         step_type="core",
@@ -211,42 +225,42 @@ CHAPTER_STEPS: list[ChapterStep] = [
     # Step 9-14: Grouped audits (LLM, MERGE-2 -- dispatch as parallel waves
     # via the existing parallel_dispatch.py, preserving the two-wave model)
     ChapterStep(
-        9,
+        10,
         "shenbi-review-group-factual",
         "audit:factual",
         step_type="audit",
         is_audit=True,
     ),
     ChapterStep(
-        10,
+        11,
         "shenbi-review-group-character",
         "audit:character",
         step_type="audit",
         is_audit=True,
     ),
     ChapterStep(
-        11,
+        12,
         "shenbi-review-group-craft",
         "audit:craft",
         step_type="audit",
         is_audit=True,
     ),
     ChapterStep(
-        12,
+        13,
         "shenbi-review-group-plan",
         "audit:plan",
         step_type="audit",
         is_audit=True,
     ),
     ChapterStep(
-        13,
+        14,
         "shenbi-review-resonance",
         "review-resonance",
         step_type="audit",
         is_audit=True,
     ),
     ChapterStep(
-        14,
+        15,
         "shenbi-review-sensitivity",
         "audit:sensitivity",
         step_type="audit",
@@ -254,7 +268,7 @@ CHAPTER_STEPS: list[ChapterStep] = [
     ),
     # Step 15: Chapter revision (LLM, conditional on audit findings)
     ChapterStep(
-        15,
+        16,
         "shenbi-chapter-revision",
         "revision",
         step_type="core",
@@ -279,7 +293,11 @@ _DRAFT_CONSUMING_SKILLS = frozenset(
 # nothing and are dropped so the successor step re-runs). The version number
 # is a pin anchor for the snapshot test; migration itself is content-driven
 # (idempotent), so the runtime path does not read the number.
-PIPELINE_STEPS_VERSION = 2
+PIPELINE_STEPS_VERSION = 3
+
+# spec #72 (generation 3): inserted pipeline-scene-split after chapter-drafting
+# and renumbered successors 6-16. Pure INSERTION — no renames, so generation 3
+# carries no name mappings; steps_done is name-keyed so resume is safe.
 
 STEP_NAME_MIGRATIONS: dict[int, dict[str, str | None]] = {
     1: {
@@ -1006,6 +1024,95 @@ def _charge_wave_retries(
         state.charge_retry_budget(chapter, task.skill, retries)
 
 
+def bundle_chapters(project_dir: Path, chapter: int) -> list[int]:
+    """Bundle chapter set for the #72 scene-cluster steps.
+
+    ``[chapter, chapter + 1]`` unless chapter+1 crosses the current volume's
+    boundary (or no volume_map span covers it) — then a singleton ``[chapter]``
+    so bundles never span volumes (spec 施工面 3b-①).
+    """
+    from shenbi.pipeline.volume_budget import parse_volume_spans
+
+    vm = project_dir / "outline" / "volume_map.md"
+    if not vm.is_file():
+        return [chapter]
+    spans = parse_volume_spans(vm.read_text(encoding="utf-8"))
+    for span in spans:
+        if span.start <= chapter <= span.end:
+            if chapter + 1 <= span.end:
+                return [chapter, chapter + 1]
+            return [chapter]
+    return [chapter]
+
+
+def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
+    """pipeline-scene-split: staging bundle → chapters + per-chapter G4.cd.
+
+    Deterministic and idempotent (crash replay re-runs it from the staging
+    bundle). Returns the violation list (empty = clean); ANY violation means
+    the drafting bundle is malformed — the caller circuit-breaks back to the
+    drafting step (spec 施工面 3b-④).
+    """
+    from shenbi.gates.shared import chapter_word_min_max
+    from shenbi.pipeline.checkpoint import commit_staging
+    from shenbi.pipeline.scene_splitter import SceneSplitError, split_bundle, validate_split
+    from shenbi.safe_write import safe_write
+
+    chapters = bundle_chapters(project_dir, chapter)
+    bundle_path = project_dir / "staging" / f"chapter-{chapter}-bundle.md"
+    if not bundle_path.is_file():
+        return [f"staging 簇产物缺失: staging/chapter-{chapter}-bundle.md"]
+
+    try:
+        bundle = split_bundle(bundle_path.read_text(encoding="utf-8"))
+    except SceneSplitError as exc:
+        return [f"拆分失败: {exc}"]
+
+    if [c.number for c in bundle.chapters] != chapters:
+        return [
+            "CH 标记章号与 bundle 章集不符: "
+            f"标记 {[c.number for c in bundle.chapters]} vs 预期 {chapters}"
+        ]
+
+    mn, mx = chapter_word_min_max(project_dir)
+    band = (mn if mn is not None else 2800, mx if mx is not None else 4000)
+
+    issues: list[str] = []
+    for ch in bundle.chapters:
+        issues.extend(validate_split(ch, band))
+    if issues:
+        return issues
+
+    # Promotion: chapter files (CH stripped, SCENE kept) + decisions sidecars.
+    for ch in bundle.chapters:
+        target = project_dir / "chapters" / f"chapter-{ch.number}.md"
+        safe_write(target, ch.body.encode("utf-8"))
+    decisions = [f"chapters/chapter-{n}-decisions.json" for n in chapters]
+    try:
+        commit_staging(project_dir, decisions)
+    except FileNotFoundError as exc:
+        return [f"decisions 晋升失败: {exc}"]
+
+    # Per-chapter terminal G4.cd + manifest records for BOTH chapters
+    # (follower chapters have no drafting key by design — the split key is
+    # their generation-chain evidence; spec 施工面 6 已收束谓词).
+    for n in chapters:
+        g4 = run_gate_g4(
+            "shenbi-chapter-drafting",
+            [f"chapters/chapter-{n}.md"],
+            project_dir,
+            chapter=n,
+            phase="chapter_loop",
+        )
+        if not _gate_passed(g4):
+            issues.extend(f"G4.cd ch{n}: {m}" for m in g4.get("must_fix", []))
+    return issues
+
+
+#: Steps whose one dispatch covers the WHOLE bundle (both chapters).
+_BUNDLE_DISPATCH_SKILLS = frozenset({"shenbi-chapter-planning", "shenbi-chapter-drafting"})
+
+
 def _resolve_g4_path(project_dir: Path, step: ChapterStep, chapter: int) -> str:
     """Resolve the output file path for G4 validation.
 
@@ -1059,10 +1166,17 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
         for out in contract["writes"]:
             if "decisions" not in Path(out).name:
                 continue
-            resolved = resolve_chapter_path(out, chapter)
-            cand = f"{STAGING_DIR}/{resolved}" if step.uses_staging else resolved
-            if (project_dir / cand).exists() and cand not in files:
-                files.append(cand)
+            # spec #72: bundle-dispatch steps validate BOTH chapters' sidecars
+            g4_chapters = (
+                bundle_chapters(project_dir, chapter)
+                if step.skill in _BUNDLE_DISPATCH_SKILLS
+                else [chapter]
+            )
+            for n in g4_chapters:
+                resolved = resolve_chapter_path(out, n)
+                cand = f"{STAGING_DIR}/{resolved}" if step.uses_staging else resolved
+                if (project_dir / cand).exists() and cand not in files:
+                    files.append(cand)
 
     return files
 
@@ -1692,6 +1806,12 @@ def _advance(
 
             target = resolve_chapter_path(step.output_path, chapter)
             batch = [target] + staged_decisions_targets(project_dir, step.skill, chapter)
+            # spec #72: dual-memo bundle — the follower memo + sidecar join
+            # the same commit batch (audit-T5 silent-destroy prevention).
+            if step.skill in _BUNDLE_DISPATCH_SKILLS:
+                for n in bundle_chapters(project_dir, chapter)[1:]:
+                    batch.append(resolve_chapter_path(step.output_path, n))
+                    batch += staged_decisions_targets(project_dir, step.skill, n)
             try:
                 commit_staging(project_dir, batch)
                 log.info("staging_auto_committed", chapter=chapter, target=target)
@@ -3385,14 +3505,55 @@ def _run_chapter_step_impl(
         return True
 
     # Context assembly (step 3): materialize package before chapter-drafting.
+    # spec #72: the drafting bundle consumes BOTH chapters' context packages.
     if step.calls_context_assembly:
-        _run_context_assembly(project_dir, chapter)
+        for n in bundle_chapters(project_dir, chapter):
+            _run_context_assembly(project_dir, n)
+        if chapter not in bundle_chapters(project_dir, chapter):
+            _run_context_assembly(project_dir, chapter)
 
     # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
     if step.skill.startswith("pipeline-"):
         # ── Linguistic drift check (non-blocking, except ESCALATE) ────────
         if step.skill == "pipeline-linguistic-drift-check":
             _run_linguistic_drift_check(project_dir, chapter)
+
+        # ── Scene split + promotion (spec #72, deterministic) ─────────────
+        if step.skill == "pipeline-scene-split":
+            issues = _run_scene_split_step(project_dir, chapter)
+            if issues:
+                log.error("scene_split_failed", chapter=chapter, issues=issues[:5])
+                drafting_step = next(
+                    s for s in CHAPTER_STEPS if s.skill == "shenbi-chapter-drafting"
+                )
+                # 熔断重派 drafting（标记/带违例的修复者是 LLM 产物侧）；
+                # 失败归类确定性门（FailureClass.DETERMINISTIC_GATE 语义面）
+                state.chapter_loop.retry_feedback[_retry_key(chapter, drafting_step.skill)] = (
+                    _enrich_g4_feedback([f"pipeline-scene-split: {i}" for i in issues])
+                )
+                drafting_idx = next(
+                    i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-chapter-drafting"
+                )
+                retry_key = _retry_key(chapter, drafting_step.skill)
+                # DURABLE budget trail (retry_budget_consumed, NOT retry_counts —
+                # a successful drafting re-dispatch resets retry_counts and the
+                # rewind loop would spin forever): mirror the G4 hard-fail path.
+                consumed = state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1
+                state.chapter_loop.retry_budget_consumed[retry_key] = consumed
+                if consumed > state.config.max_audit_retries:
+                    set_checkpoint(
+                        state,
+                        CheckpointType.ESCALATION,
+                        chapter=chapter,
+                        context=(
+                            f"pipeline-scene-split 熔断重派超预算（{consumed - 1} 次）: "
+                            + "; ".join(issues[:3])
+                        ),
+                    )
+                    return True
+                state.chapter_loop.step_index = drafting_idx
+                state.chapter_loop.current_step = drafting_step.skill
+                return False
 
         state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
@@ -3423,7 +3584,21 @@ def _run_chapter_step_impl(
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
     # Build dispatch prompt (staging steps write to staging/).
-    prompt = f"Execute {step.skill} for chapter {chapter}. Project dir: {project_dir}"
+    # spec #72: planning/drafting dispatch ONCE per bundle covering both
+    # chapters (planning = two independent memos; drafting = one marked
+    # cluster product) — follower chapters skip these steps via steps_done.
+    bundle_set = (
+        bundle_chapters(project_dir, chapter)
+        if step.skill in _BUNDLE_DISPATCH_SKILLS
+        else [chapter]
+    )
+    if len(bundle_set) > 1:
+        prompt = (
+            f"Execute {step.skill} for chapters {bundle_set[0]},{bundle_set[1]} "
+            f"(ONE dispatch covering BOTH chapters). Project dir: {project_dir}"
+        )
+    else:
+        prompt = f"Execute {step.skill} for chapter {chapter}. Project dir: {project_dir}"
     if step.uses_staging:
         prompt += " Write output to staging/ directory."
 
@@ -3704,7 +3879,9 @@ def _run_chapter_step_impl(
             expected=step.output_path,
         )
         return _handle_failure(state, step, chapter, "output_missing", project_dir)
-    state.add_step_done(chapter, step.skill)
+    # spec #72: bundle-dispatch steps complete for BOTH chapters atomically
+    for n in bundle_set:
+        state.add_step_done(n, step.skill)
     _reset_retries(state, step, chapter)
 
     # After chapter-revision step succeeds, ensure decisions file exists
@@ -3731,17 +3908,21 @@ def _run_chapter_step_impl(
             )
 
     # Post-drafting G4 quality checks (title, hook fulfillment, etc.)
-    if "chapter-drafting" in step.skill:
-        _check_volume_map_alignment(project_dir, chapter)
-        _run_post_draft_extract(state, chapter)
-        _run_g4_checks(state, chapter)
-        # 11b: Word count bounds check
-        chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
-        if chapter_path.exists():
-            chapter_text = chapter_path.read_text(encoding="utf-8")
-            wc_issues = _check_word_count_bounds(chapter_text, project_dir=project_dir)
-            for issue in wc_issues:
-                log.warning("word_count_bounds", chapter=chapter, issue=issue)
+    # spec #72 R4-I2 rehang: keyed to pipeline-scene-split — the drafting step
+    # no longer produces chapters/chapter-N.md (staging bundle until split),
+    # so these four checks run at the split step, once per bundle chapter.
+    if step.skill == "pipeline-scene-split":
+        for n in bundle_chapters(project_dir, chapter):
+            _check_volume_map_alignment(project_dir, n)
+            _run_post_draft_extract(state, n)
+            _run_g4_checks(state, n)
+            # 11b: Word count bounds check
+            chapter_path = project_dir / "chapters" / f"chapter-{n}.md"
+            if chapter_path.exists():
+                chapter_text = chapter_path.read_text(encoding="utf-8")
+                wc_issues = _check_word_count_bounds(chapter_text, project_dir=project_dir)
+                for issue in wc_issues:
+                    log.warning("word_count_bounds", chapter=n, issue=issue)
 
     # Update manifest tracking for adaptive steps that just ran.
     if step.skill == "shenbi-drift-guidance":

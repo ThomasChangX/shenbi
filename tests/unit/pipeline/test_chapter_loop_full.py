@@ -51,6 +51,39 @@ _GATE_PASS = {"status": "PASS"}
 # ---------------------------------------------------------------------------
 
 
+def _write_singleton_bundle(project_dir: Path, n: int) -> None:
+    """Write a spec #72 minimal valid singleton staging bundle (test-side)."""
+    staging = Path(project_dir) / "staging"
+    staging.mkdir(parents=True, exist_ok=True)
+    hook_a = "数目又数了一遍？"
+    hook_b = "门在身后合上了，他为什么没回头？"
+    parts = [
+        f"===CH:{n}===",
+        "## PRE_WRITE_CHECK",
+        "",
+        "- x",
+        "",
+        f"# 第{n}章",
+        f"# 测试章{n}题",
+        "",
+        "<!--SCENE-->",
+        "灯" * 1900,
+        hook_a,
+        "<!--SCENE-->",
+        "灯" * 1900,
+        hook_b,
+        "",
+        "## POST_WRITE_SELF_CHECK",
+        "",
+        "- y",
+        "",
+    ]
+    (staging / f"chapter-{n}-bundle.md").write_text("\n".join(parts), encoding="utf-8")
+    side = staging / "chapters" / f"chapter-{n}-decisions.json"
+    side.parent.mkdir(parents=True, exist_ok=True)
+    side.write_text("{}", encoding="utf-8")
+
+
 def _drive_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
     """Call run_chapter_step until it returns True (checkpoint reached)."""
     while not run_chapter_step(state, project_dir):
@@ -120,10 +153,23 @@ def chapter_succeeds():
         total_tokens=10,
     )
     with ExitStack() as stack:
+
+        def _dispatch_and_stage_bundle(skill, project_dir, prompt, **_kw):
+            # spec #72: the drafting dispatch must leave a REAL staging bundle
+            # for the pipeline-scene-split step (deterministic, unmocked).
+            if skill == "shenbi-chapter-drafting":
+                from shenbi.pipeline.chapter_loop import bundle_chapters
+
+                st = _kw.get("state")
+                n = st.chapter_loop.current_chapter if st is not None else 1
+                for m in bundle_chapters(Path(project_dir), n):
+                    _write_singleton_bundle(Path(project_dir), m)
+            return DispatchResult(True, 0, "{}", "")
+
         dispatch = stack.enter_context(
             patch(
                 "shenbi.pipeline.chapter_loop.dispatch_skill",
-                return_value=DispatchResult(True, 0, "{}", ""),
+                side_effect=_dispatch_and_stage_bundle,
             )
         )
         # Serial WRITE_SHARED member (review-resonance) dispatches through the
@@ -244,8 +290,8 @@ class TestFullChapterSequence:
         clear_checkpoint(chapter_state, ReviewDecision.APPROVE)
         _drive_to_checkpoint(chapter_state, tmp_path)
         assert chapter_state.pending_checkpoint.type == CheckpointType.STATE_SETTLE
-        # After parallel dispatch of steps 7-8, step_index advances past both → 8.
-        assert chapter_state.chapter_loop.step_index == 8
+        # spec #72: after parallel dispatch of steps 8-9, step_index advances past both → 9.
+        assert chapter_state.chapter_loop.step_index == 9
         # Steps 2,4 (seg 2) + lifecycle + settling (parallel, 2 calls) = 4 dispatches.
         assert chapter_succeeds.dispatch.call_count == 4
 
@@ -269,7 +315,7 @@ class TestFullChapterSequence:
         #  revision is skipped with NO_REVISION route).
         assert chapter_succeeds.dispatch.call_count == 4
         assert chapter_succeeds.serial_disp.call_count == 1
-        assert chapter_succeeds.g4.call_count == 4
+        assert chapter_succeeds.g4.call_count == 5  # spec #72: +scene-split per-chapter G4.cd
         # G3 is not called in the parallel-dispatch audit path.
         assert chapter_succeeds.g3.call_count == 0
         # Parallel dispatch called once (wave 1).
@@ -464,7 +510,12 @@ class TestAuditCircleAndRevisionRouting:
         with (
             patch(
                 "shenbi.pipeline.chapter_loop.dispatch_skill",
-                return_value=DispatchResult(True, 0, "{}", ""),
+                side_effect=lambda skill, project_dir, prompt, **_kw: (
+                    _write_singleton_bundle(Path(project_dir), 1)
+                    if skill == "shenbi-chapter-drafting"
+                    else None,
+                    DispatchResult(True, 0, "{}", ""),
+                )[1],
             ) as mock_disp,
             # Serial review-resonance dispatches through the parallel_dispatch
             # seam inside _dispatch_with_retry (C32 R4 follow-up).
@@ -638,7 +689,12 @@ class TestCLIChapterLoop:
         with (
             patch(
                 "shenbi.pipeline.chapter_loop.dispatch_skill",
-                return_value=DispatchResult(True, 0, "{}", ""),
+                side_effect=lambda skill, project_dir, prompt, **_kw: (
+                    _write_singleton_bundle(Path(project_dir), 1)
+                    if skill == "shenbi-chapter-drafting"
+                    else None,
+                    DispatchResult(True, 0, "{}", ""),
+                )[1],
             ) as mock_disp,
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value=_GATE_PASS),
             patch("shenbi.pipeline.chapter_loop._step_output_exists", return_value=True),

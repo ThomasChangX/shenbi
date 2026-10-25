@@ -212,9 +212,10 @@ def test_reject_cursor_rollback_chapter_memo_and_state_settle():
     assert state.chapter_loop.step_index == 1
 
     set_checkpoint(state, CheckpointType.STATE_SETTLE, chapter=3)
-    state.chapter_loop.step_index = 9
+    state.chapter_loop.step_index = 10
     _apply_reject_redo(state, state.pending_checkpoint)
-    assert state.chapter_loop.step_index == 7
+    # spec #72: settling at index 8 after pipeline-scene-split insertion
+    assert state.chapter_loop.step_index == 8
 
 
 def test_reject_volume_boundary_rearms_trigger_fanout():
@@ -246,7 +247,7 @@ def test_cmd_review_chapter_escalation_reject_feedback_is_wired(tmp_path, monkey
     state = PipelineState.default(str(proj))
     state.phase = PipelinePhase.CHAPTER_LOOP
     state.chapter_loop.current_chapter = 3
-    state.chapter_loop.step_index = 7  # CHAPTER_STEPS[7] = state-settling
+    state.chapter_loop.step_index = 8  # spec #72: CHAPTER_STEPS[8] = state-settling
     set_checkpoint(state, CheckpointType.ESCALATION, chapter=3)
 
     monkeypatch.setattr(cli_mod, "load_state", lambda pd: state)

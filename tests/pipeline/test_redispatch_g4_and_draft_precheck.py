@@ -134,7 +134,7 @@ def test_inloop_settle_and_lifecycle_draft_precheck(tmp_path, monkeypatch):
 
     monkeypatch.setattr("shenbi.pipeline.chapter_loop.dispatch_skill", _must_not_dispatch)
 
-    for step_index in (6, 7):  # CHAPTER_STEPS[6]=foreshadowing, [7]=state-settling
+    for step_index in (7, 8):  # spec #72: [7]=foreshadowing, [8]=state-settling
         state = PipelineState.default(str(tmp_path))
         state.phase = PipelinePhase.CHAPTER_LOOP
         state.chapter_loop.current_chapter = 2
@@ -168,6 +168,6 @@ def test_inloop_settle_proceeds_when_draft_exists(tmp_path, monkeypatch):
     state = PipelineState.default(str(tmp_path))
     state.phase = PipelinePhase.CHAPTER_LOOP
     state.chapter_loop.current_chapter = 2
-    state.chapter_loop.step_index = 7
+    state.chapter_loop.step_index = 8  # spec #72: settling idx after scene-split insert
     cl.run_chapter_step(state, tmp_path)
     assert dispatched == ["shenbi-state-settling"]
