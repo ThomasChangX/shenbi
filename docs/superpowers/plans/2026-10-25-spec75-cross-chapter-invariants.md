@@ -26,7 +26,7 @@
 **复杂度: infra · test_kind: tdd_red_green**
 
 **Files:**
-- Create: `tests/fixtures/cross-chapter-regression/`（十章+卡+truth 三件拷贝）+ `tests/fixtures/cross-chapter-regression/MANIFEST.sha256`（G0.11——按 justfile check_fixture_mirror 形态；若 MIRROR_MAP 需登记则 tools/lint_fixture_mirror 同步）
+- Create: `tests/fixtures/cross-chapter-regression/`（十章+卡+truth 三件拷贝）+ **每文件 `<name>.provenance.json` sidecar**（G0.19 强制面——check_variant_bypass 扫全树，chapter-7/9.md 命中 variant-sibling 判据（t1 场景消费 chapter-7-example/chapter-9-example），无 provenance 即 FAIL；真实产物状态 `load_provenance` 认可形态。**禁 MIRROR_MAP 登记**——源 gitignored，CI 缺侧常驻 WARN）
 - Create: `src/shenbi/gates/g4/cross_chapter.py`（入口 `g4_cross_chapter(fps, rd, project_dir, repo_root) -> str`——签名循既有 checker；内部：章号解析/前章=N-1/首章跳过/`_load_memo_declarations`（场景预算块解析复用 #72）+`_load_prev_chapter`）
 - Test: `tests/unit/gates/g4/test_cross_chapter_skeleton.py`
 
@@ -45,17 +45,19 @@
 **Files:** Modify `cross_chapter.py`；Test `tests/unit/gates/g4/test_xc_pov_name.py`
 
 - POV：叙述人称推导（段首句「我」密度 vs 「他」密度——正则闭集我/你/他/她 + 段落级投票）；本章 vs 前章模式不一致且 memo 无 POV 变更声明 → FAIL（修复者提示 planning+drafting）
-- 称谓：白名单（ctx.name_whitelist：登记名+代词；缺省 [「临」,「他」]）+ 三信号绑定（主语位/内汲动词绑定「在心里/暗自/寻思」类/邻句代词共指）——白名单外名命中主角绑定 → FAIL；首章推导基线=首章正文
+- 称谓：白名单（ctx.name_whitelist：登记名+代词；缺省 [「临」,「他」]——#74 项 4 落地前 bootstrap 魔数，落地后由 name_registry 接管）+ 三信号绑定（主语位/内汲动词绑定「在心里/暗自/寻思」类/邻句代词共指）——白名单外名命中主角绑定 → FAIL；首章推导基线=首章正文
 - 用例：fixture ch1→ch2 人称断裂真阳性；ch4-5「灯」绑定真阳性（三信号形态）；真阴性构造（白名单内+职务称不触发）
+- 验证：`uv run pytest tests/unit/gates/g4/test_xc_pov_name.py -q`
 - 提交 `feat(gates): spec75 T2——POV 人称一致 + 称谓字典三信号绑定`
 
 ### Task 3: 不变量 3 时间锚（声明行 + 中文锚规范化 + [回拨]）+ planning SKILL 扩展
 
 **复杂度: infra · test_kind: tdd_red_green**
 
-**Files:** Modify `cross_chapter.py` + `skills/shenbi-chapter-planning/SKILL.md`（场景预算块增三声明行：时间锚/余额/POV——机器可解析格式 `- 时间锚: 腊月初十｜- 余额: 一百九十二文｜- POV: 他`，回拨 `- 时间锚: [回拨]腊月初五`）；Test `test_xc_timeline.py`
+**Files:** Modify `cross_chapter.py` + `skills/shenbi-chapter-planning/SKILL.md`（场景预算块增三声明行：时间锚/余额/POV——机器可解析格式 `- 时间锚: 腊月初十｜- 余额: 一百九十二文｜- POV: 他`，回拨 `- 时间锚: [回拨]腊月初五`）+ `skills/shenbi-chapter-drafting/SKILL.md`（正文时间锚落款同口径一行——spec 契约连锁清单 drafting 项承载）+ `src/shenbi/gates/g4/chapter_planning.py`（G4.cp 增三声明行必备校验——plan-R2-I2 的 FAIL 面）；Test `test_xc_timeline.py`
 
 - 中文锚规范化：`腊月初十`→(12,10)；`初十`（无月）→继承前锚月；相对锚（`老塾师走后第七日`）→解析失败 WARN 跳过（白名单语法外）；绝对锚单调比较，[回拨] 标记豁免
+- **声明行缺失语义（plan-R2-I2 钉死）**：新格式 memo（场景预算块在场）缺三声明行 = **FAIL**（G4.cp 必备字段扩展——防生产者漏写令门空转）；旧格式 memo（`parse_scene_declarations` 返回 [] 的既有降级判据）= WARN 跳过（与 T3「无在途受影响」声明自洽）
 - 用例：ch1 初十 vs ch2 初七真阳性；回拨标记真阴性；无月继承
 - 提交 `feat(gates): spec75 T3——时间锚单调门 + planning 三声明行扩展（无在途 artifacts 受影响：旧 memo 随 #79 quarantine 终点）`
 
@@ -68,6 +70,7 @@
 - 物象：memo 经手声明行（`- 物象: 红纸包|萤→我`）+ 正文唯一真值——本章出现 registry 已知实体而 owner 无经手事件 → FAIL（修复者 settling）；实体初见登记
 - 卡属性：性别代词（她/他）vs 卡、机构名 vs 卡（含 #74 前旧卡真阳性即「伤」）、住所 vs 卡当前住所字段（卡无字段跳过 WARN）
 - 用例：红纸包链真阳性（fixture 章+构造经手流）；小满性别真阳性（真实卡 fixture）；真阴性
+- 验证：`uv run pytest tests/unit/gates/g4/test_xc_prop_card.py -q`
 - 提交 `feat(gates): spec75 T4——物象 owner 链还原 + 卡属性一致`
 
 ### Task 5: 不变量 6 资产 + G6.4 timeline 退役
@@ -78,6 +81,7 @@
 
 - 资产：memo 余额声明行主源（本章声明 vs 前章声明±事件行——`- 事件: 收入|十二文|抄书`）；跳变 ≥10 文无事件 → FAIL；章末钩窗口（末场景）内「少一枚/消失」形态豁免
 - G6.4 timeline 退役 + 其测试用例迁移/删除
+- 验证：`uv run pytest tests/unit/gates/g4/test_xc_assets.py tests/unit/gates/test_g6_checks.py -q`（T5 退役在前 T6 接线在后——窗口期由 T8 回归集兜底，排序理由：G4.xc 键未接线前 G6.4 退役不产生执法空窗（T8 同分支内闭合）
 - 提交 `feat(gates): spec75 T5——资产连续性双源门 + G6.4 timeline 退役`
 
 ### Task 6: 接线（scene-split 步 + manifest G4.xc + 修订双向扇出 + WARN 通路）
@@ -86,8 +90,8 @@
 
 **Files:** Modify `src/shenbi/pipeline/chapter_loop.py`（`_run_scene_split_step` 内逐章调 `g4_cross_chapter` + `record_gate_result(project_dir, "chapter_loop", n, "pipeline-scene-split", "G4.xc", result)` + WARN log）+ `_revalidate_revised_chapter`（双向扇出 N/N+1）；Test `tests/pipeline/test_xc_wiring.py`
 
-- scene-split 步 G4.cd 终验后追加跨章检查；首章跳过；FAIL 进 issues 熔断链（消息携修复者）
-- 修订重验：修订章 N 复跑 cross_chapter(N) 与 cross_chapter(N+1)（后继对照）
+- scene-split 步 G4.cd 终验后追加跨章检查；首章跳过；FAIL 进 issues 熔断链（消息携修复者）；WARN=structlog（audit_drift 观察面经 settle 滚动——checker 零副作用不直写，spec 条款的实际形态记偏差）
+- 修订重验：修订章 N 复跑 cross_chapter(N) 与 cross_chapter(N+1)（后继对照；**N+1 不在盘（卷末单章簇/未拆分）→ 跳过后继复跑 + log 说明**——防 not_found 污染 G4.xc manifest）
 - 提交 `feat(pipeline): spec75 T6——scene-split 步跨章接线 + G4.xc manifest + 修订双向扇出`
 
 ### Task 7: registry 三表 + state-settling 契约 + seeding 脚本 + 契约连锁
@@ -96,7 +100,7 @@
 
 **Files:**
 - Create: `src/shenbi/pipeline/registry_seeding.py`（确定性脚本：characters/ → name_registry.md 初值；CLI `python -m shenbi.pipeline.registry_seeding <dir>`）
-- Modify: `skills/shenbi-state-settling/SKILL.md`（updates 增三表——timeline/prop append_dedup、name_registry overwrite+透传）+ `docs/framework/truth-files.yaml`（三表条目 + extractor 尾窗）+ `src/shenbi/gates/g4/state_settling.py`（三表结构校验）
+- Modify: `skills/shenbi-state-settling/SKILL.md`（updates 增三表——timeline/prop append_dedup、name_registry overwrite+透传；**reads: dict-form `extractor:` 键声明尾窗**——timeline 用 recent_increments（章号键 ✓）、prop_registry 用实体名尾窗（表内最后 K 实体段——`实体窗口` 新 extractor 或 prop 行倒序读，实现时按 READ_EXTRACTORS 闭集形态定））+ `docs/framework/truth-files.yaml`（三表条目）+ `src/shenbi/gates/g4/state_settling.py`（三表结构校验）
 - Test: seeding 单测 + G4.ss 三表用例 + cross_chapter registry 交叉校验层（数据在场时核对/缺席 WARN）
 
 - `just lint-contracts && just generate` 绿
