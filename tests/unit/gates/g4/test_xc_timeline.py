@@ -1,0 +1,70 @@
+"""spec #75 T3: timeline anchor monotonicity (prose-derived + [FLASHBACK])."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+from shenbi.gates.g4.cross_chapter import (
+    CrossChapterContext,
+    check_cross_chapter,
+    normalize_anchor,
+)
+
+FIX = Path(__file__).resolve().parents[4] / "tests/fixtures/cross-chapter-regression"
+
+
+@pytest.mark.unit
+def test_cn_anchor_normalization() -> None:
+    assert normalize_anchor("腊月初十", None) == (12, 10)
+    assert normalize_anchor("初十", 12) == (12, 10)  # 无月继承
+    assert normalize_anchor("腊月初七", None) == (12, 7)
+    assert normalize_anchor("正月十五", None) == (1, 15)
+    assert normalize_anchor("老塾师走后第七日", None) is None  # 相对锚白名单外
+
+
+@pytest.mark.integration
+def test_wound3_fixture_ch1_ch2() -> None:
+    """Wound 3: ch1 day-10 vs ch2 day-7/8 rollback without marker."""
+    issues = check_cross_chapter(
+        FIX / "chapters" / "chapter-2.md",
+        FIX / "chapters" / "chapter-1.md",
+        None,
+        CrossChapterContext(),
+    )
+    assert any("时间锚回拨" in i for i in issues)
+
+
+@pytest.mark.unit
+def test_flashback_marker_exempts() -> None:
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "chapter-1.md").write_text("他数到腊月十八才停下。", encoding="utf-8")
+        (d / "chapter-2.md").write_text("回到腊月初五那天。", encoding="utf-8")
+        memo = d / "chapter-2-plan.md"
+        memo.write_text(
+            "- 时间锚: [回拨]腊月初五\n- 余额: 12文\n- POV: 他\n"
+            "- 场景1: 1900字｜独立型｜收束钩：x\n",
+            encoding="utf-8",
+        )
+        issues = check_cross_chapter(
+            d / "chapter-2.md", d / "chapter-1.md", memo, CrossChapterContext()
+        )
+        assert not any("时间锚回拨" in i for i in issues)
+
+
+@pytest.mark.unit
+def test_monotonic_forward_passes() -> None:
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "chapter-1.md").write_text("他数到腊月初十才停下。", encoding="utf-8")
+        (d / "chapter-2.md").write_text("到了腊月十五，雪停了。", encoding="utf-8")
+        issues = check_cross_chapter(
+            d / "chapter-2.md", d / "chapter-1.md", None, CrossChapterContext()
+        )
+        assert not any("时间锚" in i for i in issues)

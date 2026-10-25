@@ -955,3 +955,51 @@ def test_hook_row_real_stable_rewrite_on_headerless_table_still_flagged(tmp_path
     assert any("hook_row_stable_columns_rewritten" in m for m in mf), (
         f"A subtlety rewrite is a stable-column violation even on a headerless table. must_fix={mf}"
     )
+
+
+@pytest.mark.unit
+def test_name_registry_shape_pass_and_warn(tmp_path: Path) -> None:
+    """#75: name_registry keeps the seeded | 类别 | 名 | 备注 | layout (登记名 row)."""
+    good = tmp_path / "name_registry.md"
+    good.write_text(
+        "# 主角称谓字典\n\n| 类别 | 名 | 备注 |\n|---|---|---|\n| 登记名 | 临 | 全卷一致 |\n",
+        encoding="utf-8",
+    )
+    result = _run([str(good)])
+    assert any(c["id"] == "G4.ss.name_registry" and c["s"] == "PASS" for c in result["checks"])
+    bad = tmp_path / "name_registry.md"
+    bad.write_text("# 字典\n\n无表格内容。\n", encoding="utf-8")
+    result = _run([str(bad)])
+    assert any(c["id"] == "G4.ss.name_registry" and c["s"] == "WARN" for c in result["checks"])
+
+
+@pytest.mark.unit
+def test_timeline_row_shape(tmp_path: Path) -> None:
+    """#75: timeline increments are | 第 N 章 | <末锚> | rows."""
+    good = tmp_path / "timeline.md"
+    good.write_text(
+        "# 时间锚\n\n| 章 | 末锚 | 备注 |\n|---|---|---|\n| 第 3 章 | 腊月初十 | 叙事锚 |\n",
+        encoding="utf-8",
+    )
+    result = _run([str(good)])
+    assert any(c["id"] == "G4.ss.timeline" and c["s"] == "PASS" for c in result["checks"])
+    bad = tmp_path / "timeline.md"
+    bad.write_text("# 时间锚\n\n散文化记录，无表格。\n", encoding="utf-8")
+    result = _run([str(bad)])
+    assert any(c["id"] == "G4.ss.timeline" and c["s"] == "WARN" for c in result["checks"])
+
+
+@pytest.mark.unit
+def test_prop_registry_row_shape(tmp_path: Path) -> None:
+    """#75: prop_registry rows are | 实体名 | 当前owner | 经手事件 |."""
+    good = tmp_path / "prop_registry.md"
+    good.write_text(
+        "# 物象登记\n\n| 实体名 | 当前owner | 经手事件 |\n|---|---|---|\n| 红纸包 | 临 | 萤→临 |\n",
+        encoding="utf-8",
+    )
+    result = _run([str(good)])
+    assert any(c["id"] == "G4.ss.prop_registry" and c["s"] == "PASS" for c in result["checks"])
+    bad = tmp_path / "prop_registry.md"
+    bad.write_text("# 物象\n\n无表。\n", encoding="utf-8")
+    result = _run([str(bad)])
+    assert any(c["id"] == "G4.ss.prop_registry" and c["s"] == "WARN" for c in result["checks"])

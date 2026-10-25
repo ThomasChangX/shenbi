@@ -116,14 +116,17 @@ def test_check_style_consistency_extracts_ranges_from_table(tmp_path: Path) -> N
 
 
 @pytest.mark.unit
-def test_check_continuity_timeline_regression_detected(tmp_path: Path) -> None:
-    """A day count that goes backward across chapters -> G6.4 timeline_regression."""
+def test_check_continuity_timeline_branch_retired(tmp_path: Path) -> None:
+    """Spec #75: timeline branch retired — arabic-digit day rollback no longer
+    reported by G6.4 (the Chinese-anchor wounds it missed are the cross_chapter
+    checker's job now).
+    """
     ch1 = tmp_path / "chapter-001.md"
     ch2 = tmp_path / "chapter-002.md"
     ch1.write_text("第5天，故事开始。\n", encoding="utf-8")
     ch2.write_text("第3天，回溯。\n", encoding="utf-8")
     checks, mf = check_continuity([ch1, ch2])
-    assert any(e.startswith("G6.4:timeline_regression") for e in mf)
+    assert not any(e.startswith("G6.4:timeline_regression") for e in mf)
 
 
 @pytest.mark.unit

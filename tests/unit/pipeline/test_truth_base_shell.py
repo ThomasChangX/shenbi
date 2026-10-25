@@ -147,6 +147,10 @@ class TestSingleTableBootstraps:
         assert "emotional_arcs.md" in _TABLE_HEADER_BOOTSTRAP
         assert "character_matrix.md" in _TABLE_HEADER_BOOTSTRAP
         assert "audit_drift.md" not in _TABLE_HEADER_BOOTSTRAP
+        # spec #75: the registry tables' first rows-only increment can land
+        # on an unseeded base — they must bootstrap like every other keyed table.
+        assert "timeline.md" in _TABLE_HEADER_BOOTSTRAP
+        assert "prop_registry.md" in _TABLE_HEADER_BOOTSTRAP
 
     def test_bootstrap_prepends_header_and_separator_on_bare_row(self):
         header = _TABLE_HEADER_BOOTSTRAP["current_state.md"]

@@ -230,3 +230,60 @@ def test_skips_when_registry_files_absent(tmp_path: Path) -> None:
     f.write_text(_plan_with_hooks("| MH01 | advance | 停顿一息 | 0 |\n"), encoding="utf-8")
     result = json.loads(g4_chapter_planning([str(f)], project_dir=str(tmp_path)))
     assert any(c["id"] == "G4.cp.hook_refs" and c["s"] == "SKIP" for c in result["checks"])
+
+
+# ---------- spec #75 G4.cp.declarations: 三声明行硬闸 ----------
+
+
+def _plan_shell(body: str) -> str:
+    """Minimal plan skeleton with all 8 numbered sections (other checks need them)."""
+    sections = "\n\n".join(f"## {i}." for i in range(1, 9))
+    return sections + "\n\n" + body
+
+
+@pytest.mark.unit
+def test_g4cp_new_format_missing_declaration_fails(tmp_path: Path) -> None:
+    """New-format memo (scene-budget block) missing any 三声明行 → FAIL."""
+    plan = tmp_path / "chapter-3-plan.md"
+    plan.write_text(
+        _plan_shell(
+            "### 场景预算与收束钩（#72 粒度契约）\n"
+            "- 场景1: 1900字｜独立型｜收束钩：x\n"
+            "- 章尾钩：y\n"
+            "- 时间锚: 腊月初十\n"
+            # 余额 + POV lines MISSING
+        ),
+        encoding="utf-8",
+    )
+    result = json.loads(g4_chapter_planning([str(plan)], rd=str(tmp_path)))
+    assert result["status"] == "FAIL"
+    assert any("G4.cp.declarations" in m and "余额" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_g4cp_new_format_complete_passes(tmp_path: Path) -> None:
+    plan = tmp_path / "chapter-3-plan.md"
+    plan.write_text(
+        _plan_shell(
+            "### 场景预算与收束钩（#72 粒度契约）\n"
+            "- 场景1: 1900字｜独立型｜收束钩：x\n"
+            "- 章尾钩：y\n"
+            "- 时间锚: 腊月初十\n"
+            "- 余额: 一百九十二文\n"
+            "- POV: 他\n"
+        ),
+        encoding="utf-8",
+    )
+    result = json.loads(g4_chapter_planning([str(plan)], rd=str(tmp_path)))
+    decl = [c for c in result["checks"] if c["id"] == "G4.cp.declarations"]
+    assert decl and decl[0]["s"] == "PASS"
+
+
+@pytest.mark.unit
+def test_g4cp_legacy_format_warns_not_fails(tmp_path: Path) -> None:
+    """Legacy memo without the scene-budget block → WARN exemption, never FAIL."""
+    plan = tmp_path / "chapter-3-plan.md"
+    plan.write_text(_plan_shell("旧式备忘，无场景预算块。\n"), encoding="utf-8")
+    result = json.loads(g4_chapter_planning([str(plan)], rd=str(tmp_path)))
+    decl = [c for c in result["checks"] if c["id"] == "G4.cp.declarations"]
+    assert decl and decl[0]["s"] == "WARN"
