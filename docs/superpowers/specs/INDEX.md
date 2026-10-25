@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-10-26（spec #74 vol1-rearrange Done 随 PR #251 归档——市场适配层 5→4）
-> **活跃 spec 数**：4
+> **最后更新**：2026-10-26（spec #76 voice-meme-wiring Done 随 PR #252 归档——市场适配层 4→3）
+> **活跃 spec 数**：3
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,17 +9,6 @@
 ---
 
 ## 执行队列
-
-### #76 · 声口与梗位执行层（voice-meme-wiring）
-
-- **文件**：`2026-10-25-spec76-voice-meme-wiring.md`
-- **系列**：市场适配层
-- **状态**：Active
-- **优先级**：🟠 P1
-- **方法**：人设卡声口 → drafting 强制段 + lint；梗位表 → 落地检查
-- **依赖**：#73
-- **内容**：贫嘴声口接线与密度 lint；梗位落地 lint（班味类卷内 ≥3 次）；对白差异化抽检（五角色口吻盲认测试）；金句静/燃双型配额
-- **对应 plan**：待 writing-plans
 
 ### #77 · 文体指纹 WARN 闸（style-fingerprint-warn）
 
