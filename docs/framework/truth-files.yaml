@@ -150,6 +150,7 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: short/short-N-decisions.json, glob: short/short-*-decisions.json}
 
 globs:  # declared wildcards contracts may use verbatim
+  - {pattern: staging/chapter-*-bundle.md}  # #72 场景簇产物（拆分步消费）
   - {pattern: truth/*.md}
   - {pattern: world/*.md}
   - {pattern: outline/*.md}
