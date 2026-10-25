@@ -1,0 +1,74 @@
+"""spec #75 T1: checker skeleton + regression fixture provenance."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+from shenbi.gates.g4.cross_chapter import (
+    CrossChapterContext,
+    check_cross_chapter,
+    g4_cross_chapter,
+    load_memo_declarations,
+    prev_chapter_path,
+)
+
+FIX = Path(__file__).resolve().parents[4] / "tests/fixtures/cross-chapter-regression"
+
+
+@pytest.mark.unit
+def test_fixture_provenance_real_output() -> None:
+    from shenbi.gates.g0_purity import load_provenance
+
+    for n in (7, 9):  # G0.19 variant-sibling 判据命中面
+        p = load_provenance(FIX / "chapters" / f"chapter-{n}.md")
+        assert p == "real-output", n
+
+
+@pytest.mark.unit
+def test_prev_chapter_n_minus_one() -> None:
+    prev = prev_chapter_path(FIX / "chapters" / "chapter-2.md")
+    assert prev is not None and prev.name == "chapter-1.md"
+    assert prev_chapter_path(FIX / "chapters" / "chapter-1.md") is None  # 首章
+    p5 = prev_chapter_path(FIX / "chapters" / "chapter-5.md")
+    assert p5 is not None and p5.name == "chapter-4.md"
+
+
+@pytest.mark.unit
+def test_first_chapter_skips_seam_items() -> None:
+    issues = check_cross_chapter(
+        FIX / "chapters" / "chapter-1.md", None, None, CrossChapterContext()
+    )
+    assert issues == []
+
+
+@pytest.mark.unit
+def test_memo_declarations_parsed() -> None:
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as td:
+        memo = Path(td) / "chapter-3-plan.md"
+        memo.write_text(
+            "### 场景预算与收束钩（#72 粒度契约）\n"
+            "- 场景1: 1900字｜独立型｜收束钩：x\n"
+            "- 时间锚: 腊月初十\n"
+            "- 余额: 一百九十二文\n"
+            "- POV: 他\n",
+            encoding="utf-8",
+        )
+        decls = load_memo_declarations(memo)
+        assert decls == {"时间锚": "腊月初十", "余额": "一百九十二文", "POV": "他"}
+        # 回拨标记
+        memo.write_text("- 时间锚: [回拨]腊月初五\n", encoding="utf-8")
+        assert load_memo_declarations(memo)["时间锚"] == "[回拨]腊月初五"
+        # 旧格式备忘 → 空 dict（legacy WARN 路径判据）
+        memo.write_text("# 旧式备忘\n", encoding="utf-8")
+        assert load_memo_declarations(memo) == {}
+
+
+@pytest.mark.integration
+def test_g4_entry_over_fixture_pair_clean_skeleton() -> None:
+    """Skeleton phase: fixture adjacent pair returns PASS (six checks empty)."""
+    result = g4_cross_chapter([str(FIX / "chapters" / "chapter-2.md")], rd=str(FIX / "chapters"))
+    assert '"status": "PASS"' in result or "PASS" in result
