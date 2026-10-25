@@ -29,6 +29,9 @@ ACCOUNTING_VERBS: tuple[str, ...] = (
 )
 
 #: 自嘲式反问收尾句式（protagonist voice_profile 形态——反问+自答/吧呢收束）。
+#: 密度下限缺省（genre-config 缺席时消费端回退——validator 不代入，无副作用）。
+DEFAULT_VOICE_DENSITY_MIN = 2
+
 _SELF_MOCK_RE = re.compile(r"[^。！？]{2,24}(吧|呢|不成|得了)[？?]\s*$", re.MULTILINE)
 
 

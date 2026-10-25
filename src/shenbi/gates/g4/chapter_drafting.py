@@ -604,8 +604,9 @@ def g4_chapter_drafting(
         # （#75 回归集/CI fixtures 全为 v1——密度 WARN、金句位旧格式 PASS）。
         _memo_v2 = False
         _mp: Path | None = None
+        _memo_text = ""
         if project_dir:
-            _cn = re.search(r"chapter-(\d+)", Path(pf).name)
+            _cn = re.search(r"chapter-(\d+)", pf.name)
             if _cn:
                 _mp = Path(project_dir) / "plans" / f"chapter-{_cn.group(1)}-plan.md"
                 if _mp.is_file():
@@ -613,7 +614,7 @@ def g4_chapter_drafting(
                         r"^plan_format[：:]\s*v2\s*$", _mp.read_text(encoding="utf-8"), re.MULTILINE
                     )
                     _memo_v2 = _pfv is not None
-        _body = strip_narrative_body(content)
+        _body = narrative
         _cps: list[str] = []
         if project_dir:
             _pcard = Path(project_dir) / "characters" / "protagonist.md"
@@ -662,12 +663,17 @@ def g4_chapter_drafting(
             if _mp is not None and _mp.is_file():
                 _mm = re.search(
                     r"^金句位[：:]\s*(静|燃)｜.*$",
-                    _mp.read_text(encoding="utf-8"),
+                    _memo_text,
                     re.MULTILINE,
                 )
                 if _mm:
                     _types.add(_mm.group(1))
-            if pre_val is not None:
+                else:
+                    # spec §1(4) 三点同步——memo 点缺席即断链（v2 备忘必含类型金句位行）
+                    _quote_type_ok = False
+            if pre_val is None or pre_val.strip() in ("", "无", "N/A", "待定"):
+                _quote_type_ok = False
+            else:
                 _qt = re.match(r"(静|燃)｜", pre_val.strip())
                 if _qt:
                     _types.add(_qt.group(1))

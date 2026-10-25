@@ -48,7 +48,10 @@ def test_genre_params_domains() -> None:
 
     from shenbi.contracts.skills.genre_config import GenreConfig
 
-    base = json.loads((Path("novel-xinghuo-vol1/genre-config.json")).read_text(encoding="utf-8"))
+    gc_path = Path(__file__).resolve().parents[3] / "novel-xinghuo-vol1/genre-config.json"
+    if not gc_path.is_file():
+        pytest.skip("project data not present")
+    base = json.loads(gc_path.read_text(encoding="utf-8"))
     mp = base["market_params"]
     # 现值合法
     GenreConfig.model_validate(base)

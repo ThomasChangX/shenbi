@@ -22,13 +22,16 @@ import sys
 from pathlib import Path
 
 from shenbi.gates.shared import strip_narrative_body
-from shenbi.text.voice_lexicon import catchphrases_from_card, distinct_voice_signals
+from shenbi.text.voice_lexicon import (
+    DEFAULT_VOICE_DENSITY_MIN,
+    catchphrases_from_card,
+    distinct_voice_signals,
+)
 
 _CN = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"]
 _QUOTE_SPAN_RE = re.compile(r"「([^」]+)」")
-_BLIND_MIN_CHARS = 4
+_BLIND_MIN_CORRECT = 4
 _MEME_SEG_RE = re.compile(r"梗位复用[：:]")
-_BURN_RE = re.compile(r"(静|燃)｜")
 
 
 def _chapter_files(project: Path, vol_start: int, vol_end: int) -> list[Path]:
@@ -38,6 +41,18 @@ def _chapter_files(project: Path, vol_start: int, vol_end: int) -> list[Path]:
         if f.is_file():
             out.append(f)
     return out
+
+
+def _volume_section(volume_map: Path, volume: int) -> str:
+    """The volume's own map section (node rows scoped per-volume)."""
+    cn = _CN[volume - 1]
+    text = volume_map.read_text(encoding="utf-8")
+    head = re.search(rf"## 第{cn}卷：", text)
+    if not head:
+        return ""
+    body = text[head.end() :]
+    nxt = re.search(r"\n## 第[一二三四五六七八九十]+卷：", body)
+    return body[: nxt.start()] if nxt else body
 
 
 def _volume_span(volume_map: Path, volume: int) -> tuple[int, int]:
@@ -102,7 +117,11 @@ def lint_chapter(project: Path, chapter: int) -> list[str]:
     if pcard.is_file():
         cps = catchphrases_from_card(pcard.read_text(encoding="utf-8"))
     signals = distinct_voice_signals(strip_narrative_body(body), cps)
-    vmin = int(_genre_params(project).get("voice_density_min", {}).get("min_per_chapter", 2))
+    vmin = int(
+        _genre_params(project)
+        .get("voice_density_min", {})
+        .get("min_per_chapter", DEFAULT_VOICE_DENSITY_MIN)
+    )
     tag = "v2" if v2 else "v1"
     if signals < vmin:
         domain = "FAIL 域(v2)" if v2 else "WARN 域(v1)"
@@ -150,16 +169,21 @@ def lint_volume(project: Path, volume: int) -> list[str]:
         if burns < burn_min:
             out.append(f"[金句] 燃句卷内 {burns}/{burn_min}（v2 分母 {len(v2_files)} 章）")
     # 登场条件化 catchphrase 窗（登场集 = 卷纲节点表名集）
-    appeared = set(re.findall(r"\|\s*第\d+章[^\n]*\|", vm.read_text(encoding="utf-8")))
+    node_rows = [
+        ln for ln in _volume_section(vm, volume).split("\n") if re.match(r"\s*\|\s*第\d+章", ln)
+    ]
     vol_text = corpus
     for card in sorted((project / "characters" / "major").glob("*.md")):
-        cps = catchphrases_from_card(card.read_text(encoding="utf-8"))
+        card_text = card.read_text(encoding="utf-8")
+        cps = catchphrases_from_card(card_text)
         if not cps:
             continue
-        # 登场判据：卡名或任一口癖在卷正文或节点行出现
-        present = any(cp in vol_text for cp in cps) or any(card.stem in line for line in appeared)
+        # 登场判据：卡 name: 域显示名在本卷节点行（stem 回退），或任一口癖在卷正文
+        nm = re.search(r"^name[：:]\s*(\S+)", card_text, re.MULTILINE)
+        display = nm.group(1) if nm else card.stem
+        present = any(display in ln for ln in node_rows) or any(cp in vol_text for cp in cps)
         if present and not any(cp in vol_text for cp in cps):
-            out.append(f"[配角声口] {card.stem} 卷内登场但口癖 0 次")
+            out.append(f"[配角声口] {display} 卷内登场但口癖 0 次")
     return out
 
 
@@ -172,6 +196,7 @@ _BLIND_CORPUS = [
     ("小满", "无标记的普通句子。", {}),
     ("混淆", "他说：先活下来再说吧。下辈子再见。", {"小满": 1, "灰烬": 1}),
     ("灯", "又一无标记句。", {}),
+    ("小满", "先活下来再说。先活下来再说。先活下来再说。下辈子再见。下辈子再见。", {}),
 ]
 _BLIND_MARKERS = {
     "小满": ["先活下来再说"],
@@ -225,7 +250,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"blind: {correct}/{total} 归属正确")
         for d in details:
             print(d)
-        return 0 if correct >= _BLIND_MIN_CHARS else 1
+        return 0 if correct >= _BLIND_MIN_CORRECT else 1
     if args.project_dir is None:
         parser.error("project_dir required")
     if args.mode == "chapter":
