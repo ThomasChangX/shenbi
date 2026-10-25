@@ -52,13 +52,6 @@ __all__ = [
 #: Chapter-boundary marker — staging bundle only, stripped on promotion.
 CH_MARKER_RE = re.compile(r"^===CH:(\d+)===$")
 
-#: Memo scene-budget declaration line (planning SKILL contract):
-#: ``- 场景1: 1900字｜独立型｜收束钩：<hook text>``
-_SCENE_DECL_RE = re.compile(
-    r"^-\s*场景(\d+):\s*(\d+)字｜(独立型|配对型)｜收束钩：(.+?)\s*$",
-    re.MULTILINE,
-)
-
 
 class SceneSplitError(RuntimeError):
     """Structural bundle failure (missing/malformed markers) — exit 1 class."""

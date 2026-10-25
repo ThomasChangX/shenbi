@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.gates.shared import (
+    is_scene_marker_line,
     pack_scenes,
     strip_narrative_body,
     strip_scene_markers,
@@ -129,7 +130,8 @@ def parse_chapter(path: Path) -> ChapterInput:
     # spec #72: durable markers delimit the packing atoms. Marker lines are
     # excluded from every published text (strip_scene_markers).
     markered = raw.splitlines()
-    marker_idx = [i for i, ln in enumerate(markered) if ln.strip() == "<!--SCENE-->"]
+    # R5-M1: single-source marker predicate (the 4th consumer).
+    marker_idx = [i for i, ln in enumerate(markered) if is_scene_marker_line(ln)]
     trailing_meta = next(
         (
             i
