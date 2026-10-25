@@ -34,8 +34,9 @@ class FileOwnership:
 
 
 # —— 参考 OWNERSHIP 条目（Tier B 审计消费；完整迁移见「支柱一续」）——
-# genre-config.json：真实 10 顶层键（9 fixture 亲手核对 + chapter_word 基线
-# 块，3bfc4a3b skill 模板起为写手必产出、G0.3/G2/G4/G6 同源读取）
+# genre-config.json：真实 11 顶层键（9 fixture 亲手核对 + chapter_word 基线
+# 块，3bfc4a3b skill 模板起为写手必产出、G0.3/G2/G4/G6 同源读取；
+# spec #72 增 primary_platform——可选，双平台发布层缺省，release_split v2 消费）
 GENRE_KEYS = frozenset(
     {
         "approval",
@@ -45,6 +46,7 @@ GENRE_KEYS = frozenset(
         "customRules",
         "fatigueWords",
         "pacing",
+        "primary_platform",
         "tropeInventory",
         "updated",
         "version",

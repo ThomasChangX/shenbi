@@ -119,11 +119,13 @@ digraph genre_config {
     "memorial": { "maxConsecutive": 1, "warningThreshold": 2 },
     "...": "..."
   },
+  "primary_platform": "qidian",
   "chapter_word": {
-    "default": 2200,
-    "min": 2000,
-    "max": 4500,
-    "note": "每章目标字数（total_chars 口径）。行业标准对齐（2026-10 检索）：起点主流单章 2000-3000 字、2000 最流行、3000 为大神/老作者档；番茄推荐 2000-2200 字且红线「不能低于两千字」。default=2200 取番茄推荐带上沿、起点主流带内（QQ 作家专区指南「2000-5000 合适、2500 理想」的保守侧），使 0.95×2200=2090 的写作地板高于 min=2000 的平台红线（语义保序：地板 ≥ 救济线）；max=4500 对应起点大章 4000-5000 档，供战役/高潮章使用。这是章数数学的唯一基线：G0.3 用 ceil(target_word_count / default) 推章数，G4/G2 的每章字数地板读同一值——缺省会令按规划写作的章节结构性撞 3000 硬编码地板（探针实测：134 章基线折合 ~1250 CJK/章低于保量线 1418 当量）。从 novel.json 的 target_word_count 与期望章幅共同推导，保量校验：default × 0.95 ≥ target/总章数（总章数 = ceil(target_word_count / default)，即 novel.json total_chapters；禁止引入卷间缓冲章等任何虚增章数充当分母——probe8 实测：118+6 缓冲=124 的保量数学建立在幽灵章上）。"
+    "default": 3200,
+    "min": 2800,
+    "max": 4000,
+    "fanqie_update": { "min": 1800, "max": 2800 },
+    "note": "每章目标字数（total_chars 口径，剥 SCENE 标记行）。#72 双平台：起点粒度原生生成（primary_platform=qidian，2800-4000 带，default=3200）；番茄发布层以场景为原子组更（fanqie_update 1800-2800，见 release_split v2）——1800 更下限为 #72 用户决策（旧检索的 2000 红线系 2200 单档时代口径，双平台决策取代）。这是章数数学的唯一基线：G0.3 用 ceil(target_word_count / default) 推章数；G2/G4 每章硬地板读 min、天花板读 max（#72 口径统一，大章概念退役——战役/审判大节拍由发布层场景组更承接）。从 novel.json 的 target_word_count 与 target_total_chapters（预算章数）共同推导，保量校验：default × 0.95 ≥ target/target_total_chapters（分母=预算章数；禁止卷间缓冲章等任何虚增章数充当分母——probe8 实测幽灵章教训）。"
   },
   "auditDimensions": {
     "antiAi": true,
@@ -314,13 +316,13 @@ cp genre-config.json genre-config.json.bak
 | customRules | array | 否 | 每项含 id/description/enforcement/example，enforcement ∈ {warning, blocking} |
 | approval | object | 是 | **REQUIRED**。含 reviewer/decision/date，decision ∈ {approved, rejected}。缺失即不合格 |
 
-**顶层字段**：9 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval, **tropeInventory**——每条 trope 必含 name/role/plan/signatures/rewrite_hint，块内必含 overuse_threshold 数值；probe8 该块整体缺失，反套路维度的程序化命中检测随之断点）+ 1 可选（chapter_word——章数数学/字数地板的同源基线块，见上文模板；缺省时框架回退硬编码地板）。
+**顶层字段**：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval——tropeInventory 为可选基线块而非必填）+ 3 可选（tropeInventory——每条 trope 必含 name/role/plan/signatures/rewrite_hint，块内必含 overuse_threshold 数值；chapter_word——章数数学/字数地板的同源基线块，见上文模板；primary_platform——#72 双平台发布层键 qidian|fanqie，缺省时消费方回退 v1 默认）。
 
 ### 可自动检查的计数规则
 
 | 检查项 | 规则 | 不合格条件 |
 |--------|------|----------|
-| 顶层键集 | 9 必填（含 tropeInventory）+ 可选 chapter_word，不得有未知键 | 缺必填键或出现未知键 |
+| 顶层键集 | 8 必填 + 可选 tropeInventory/chapter_word/primary_platform，不得有未知键 | 缺必填键或出现未知键 |
 | approval 字段存在 | 必须 | 缺失 |
 | approval.decision | approved 或 rejected | 其他值 |
 | 禁用词数 | ≤ 50 | > 50 |
@@ -413,4 +415,4 @@ cp genre-config.json genre-config.json.bak
 
 ### 主文件 genre-config.json 键集（write-audit 越权红线）
 
-顶层仅十键（camelCase）：`version` / `updated` / `fatigueWords` / `pacing` / `chapterTypes` / `auditDimensions` / `customRules` / `tropeInventory` / `chapter_word` / `approval`。修改变更走既有键内更新，**不得自造顶层键、不得改键名大小写风格**；变更说明长文写入 `approval` 审批区块，不进 sidecar。
+顶层仅十一键（camelCase）：`version` / `updated` / `fatigueWords` / `pacing` / `chapterTypes` / `auditDimensions` / `customRules` / `tropeInventory` / `chapter_word` / `primary_platform` / `approval`（后三者为可选）。修改变更走既有键内更新，**不得自造顶层键、不得改键名大小写风格**；变更说明长文写入 `approval` 审批区块，不进 sidecar。

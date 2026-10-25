@@ -13,12 +13,14 @@ from typing import get_args
 
 from shenbi.contracts.enums import ApprovalDecision
 from shenbi.contracts.ownership import GENRE_KEYS
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 # Single-source keyset authority (F214): 8 required = GENRE_KEYS minus the
 # optional tropeInventory / chapter_word blocks (chapter_word baseline is
 # writer-mandated since 3bfc4a3b; pre-baseline real outputs lack it).
-_OPTIONAL_TOP_KEYS = frozenset({"tropeInventory", "chapter_word"})
+# spec #72: primary_platform is optional too — legacy/pre-#72 configs and
+# historical fixtures carry no platform declaration; consumers fall back.
+_OPTIONAL_TOP_KEYS = frozenset({"tropeInventory", "chapter_word", "primary_platform"})
 _REQUIRED_TOP_KEYS = tuple(sorted(k for k in GENRE_KEYS if k not in _OPTIONAL_TOP_KEYS))
 
 
@@ -45,8 +47,16 @@ class GenreConfig(BaseModel):
     custom_rules: list[dict[str, Any]] = Field(default_factory=list, alias="customRules")
     fatigue_words: dict[str, Any] = Field(default_factory=dict, alias="fatigueWords")
     pacing: dict[str, Any] = Field(default_factory=dict)
+    primary_platform: str = ""  # spec #72: qidian|fanqie; "" = undeclared (legacy)
     updated: str = ""
     version: str = ""
+
+    @field_validator("primary_platform")
+    @classmethod
+    def _primary_platform_enum(cls, v: str) -> str:
+        if v and v not in {"qidian", "fanqie"}:
+            raise ValueError(f"primary_platform must be qidian|fanqie, got '{v}'")
+        return v
 
     @model_validator(mode="before")
     @classmethod

@@ -180,7 +180,11 @@ def test_keyset_authority_is_ownership() -> None:
     from shenbi.contracts.ownership import GENRE_KEYS
     from shenbi.contracts.skills.genre_config import _REQUIRED_TOP_KEYS
 
-    assert set(_REQUIRED_TOP_KEYS) == GENRE_KEYS - {"tropeInventory", "chapter_word"}
+    assert set(_REQUIRED_TOP_KEYS) == GENRE_KEYS - {
+        "tropeInventory",
+        "chapter_word",
+        "primary_platform",  # spec #72: optional platform key
+    }
 
 
 @pytest.mark.c13_regression
