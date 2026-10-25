@@ -1110,6 +1110,71 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
     return issues
 
 
+def _revalidate_revised_chapter(project_dir: Path, chapter: int) -> list[str]:
+    """Post-revision revalidation (spec 施工面 9, #72 R3-C1 new wiring).
+
+    (a) SCENE-marker line sequence diff vs the pre-rev backup — marker count/
+    order changes FAIL; (b) G4.cd scene-check family (scene count + declared
+    hook match) re-run on the revised prose; (c) word band recheck on the
+    total_chars 口径. Empty list = clean.
+    """
+    from shenbi.gates.shared import (
+        chapter_word_min_max,
+        is_scene_marker_line,
+        split_scenes,
+        total_chars_md_text,
+    )
+
+    ch = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if not ch.is_file():
+        return []
+    text = ch.read_text(encoding="utf-8")
+    issues: list[str] = []
+
+    backup = project_dir / "chapters" / f"chapter-{chapter}-pre-rev.md"
+    if backup.is_file():
+        before = [
+            ln.strip()
+            for ln in backup.read_text(encoding="utf-8").split("\n")
+            if is_scene_marker_line(ln)
+        ]
+        after = [ln.strip() for ln in text.split("\n") if is_scene_marker_line(ln)]
+        if len(before) != len(after):
+            issues.append(
+                f"场景标记数变化: 修订前 {len(before)} → 修订后 {len(after)}（标记行不得删除/新增）"
+            )
+
+    scene_markers = sum(1 for ln in text.split("\n") if is_scene_marker_line(ln))
+    if scene_markers < 2:
+        issues.append(f"场景数 {scene_markers} < 2")
+
+    plan = project_dir / "plans" / f"chapter-{chapter}-plan.md"
+    if plan.is_file():
+        from shenbi.gates.shared import parse_scene_declarations
+
+        decls = parse_scene_declarations(plan.read_text(encoding="utf-8"))
+        if decls:
+            scenes = split_scenes(text)
+            import re as _re
+
+            for k, (_num, _size, _kind, hook) in enumerate(decls):
+                want = _re.sub(r"\s", "", hook)
+                if k < len(scenes):
+                    got = _re.sub(r"\s", "", scenes[k][1])
+                    if want not in got:
+                        issues.append(f"场景{k + 1} 钩被改写: 声明「{hook[:20]}」")
+                else:
+                    issues.append(f"场景{k + 1} 声明多于实际场景数 {len(scenes)}")
+
+    mn, mx = chapter_word_min_max(project_dir)
+    wc = total_chars_md_text(text)
+    lo = mn if mn is not None else 2800
+    hi = mx if mx is not None else 4000
+    if not lo <= wc <= hi:
+        issues.append(f"字数带漂移: {wc} 不在 [{lo},{hi}]")
+    return issues
+
+
 #: Steps whose one dispatch covers the WHOLE bundle (both chapters).
 _BUNDLE_DISPATCH_SKILLS = frozenset({"shenbi-chapter-planning", "shenbi-chapter-drafting"})
 
@@ -3911,6 +3976,16 @@ def _run_chapter_step_impl(
     # After chapter-revision step succeeds, ensure decisions file exists
     if "chapter-revision" in step.skill:
         _ensure_revision_decisions_exists(project_dir, chapter, state, log)
+        # spec #72 施工面 9: post-revision revalidation (marker diff + scene
+        # checks + band) — R3-C1: the revision G4 only validates the
+        # decisions JSON; prose was never re-checked before this wiring.
+        rev_issues = _revalidate_revised_chapter(project_dir, chapter)
+        if rev_issues:
+            log.warning("revision_revalidation_failed", chapter=chapter, issues=rev_issues[:5])
+            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(
+                [f"修订重验: {i}" for i in rev_issues]
+            )
+            return _handle_failure(state, step, chapter, "g4", project_dir)
         # Probe2 matrix-D gap: an audit-routed (step-15) revision changed the
         # chapter AFTER settle, but nothing queued a re-settlement — truth
         # files kept the PRE-revision draft's facts until a checkpoint-routed

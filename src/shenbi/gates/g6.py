@@ -71,7 +71,13 @@ def gate_G6(
             chapter_sort_key,
         )  # lazy: avoid heavy import at gates top level
 
-        chapters = sorted(ch_dir.glob("chapter-*.md"), key=chapter_sort_key)
+        # spec #72 R4-I6: pre-revision backups are NOT chapters (glob hits
+        # chapter-N-pre-rev.md → G6.1 count inflation + G6.2 duplicate ids).
+        # Precedent form: triggers.py:110 / dispatch_helper.py:1701.
+        chapters = sorted(
+            (f for f in ch_dir.glob("chapter-*.md") if not f.name.endswith("-pre-rev.md")),
+            key=chapter_sort_key,
+        )
         if len(chapters) < min_chapters:
             mf.append(f"G6.1:{len(chapters)}<{min_chapters}(ceil({expected}*{min_ratio}))")
         else:
