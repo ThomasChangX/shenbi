@@ -204,6 +204,7 @@ PRE_WRITE_CHECK:
 - 常规取舍 → `"severity": "low"` 且**不写** rationale 键；
 - 有实重取舍（驱动 adjustments／响应漂移滑点／卷级口径裁剪）→ `"severity": "medium"` + **必写** ≤100 字 rationale（说清取了什么、为何这个分量）；
 - 两种禁组（各实证 3 试被闸）：`low`+rationale、`medium`+无 rationale；rationale **写完数字数 ≤90 字留余量**（Python len 计、中文每字 1 含标点——ch92 实证贴边计数失误 3 试被闸）。
+- **组合陷阱（vol1 ch1/ch6 escalation 实证，7 次/6 章）**：`basis: manual_override` **不论 severity 都必带 rationale**——「低危常规圈选但人工指定」也是 manual_override。最常见漏写形态：style 圈选（style_directives/style_profile）写 `manual_override`+`low`+无 rationale。写法：一句话说明为何手工圈选这几段（≤90 字），severity 保持 low 不变。
 
 **字段级规格（G4 逐项强校验，形态错误即闸门失败）**：
 - `selections[]`: `target`（**str，必填**，被选取的文件路径——路径放这里，不放 selected）、`selected`（**list[str]**，条目名列表——禁止写成字符串）、`basis`（**仅限四枚举之一**：`adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`——禁止自造值）、`severity`（`low`/`medium`/`high`）、`omitted`（list[str]）

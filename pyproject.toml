@@ -146,6 +146,9 @@ convention = "google"
 # vol1 probe escalation #2 test: volume headings + fullwidth punctuation are
 # the asserted gate-message data, not drift.
 "tests/unit/gates/g4/test_volume_outlining.py" = ["RUF001", "RUF002", "RUF003"]
+# vol1 probe ch6 escalation test: SKILL-guidance assertions quote the live
+# Chinese contract vocabulary — data, not drift.
+"tests/unit/gates/g4/test_chapter_drafting.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/skill_utils/test_compute_stats.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/pipeline/test_context_assemble.py" = ["RUF001", "RUF002", "RUF003"]
 # Craft-contract backfill: the injected declaration lines ARE Chinese memo

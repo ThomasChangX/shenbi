@@ -703,3 +703,17 @@ def test_cd_golden_slot_bare_h2_forms(tmp_path: Path) -> None:
     )
     result = _run([str(fp)])
     assert _warn_status(result, "G4.cd.golden_slot") == "PASS"
+
+
+def test_chapter_drafting_skill_states_manual_override_rationale_combo():
+    """vol1 probe ch1/ch6 escalation 实证：manual_override+low 组合漏写 rationale
+    （7 次/6 章）——SKILL 契约须显式写明该组合陷阱（规则行已有，示例区按
+    severity 展开反而误导）。镜像批 #20 chapter-revision 铁律固化模式。
+    """
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-chapter-drafting" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "manual_override" in content and "不论 severity" in content, (
+        "drafting SKILL.md 须含 manual_override 不论 severity 必带 rationale 的组合陷阱明示"
+    )
