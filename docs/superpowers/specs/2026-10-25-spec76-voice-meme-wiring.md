@@ -1,6 +1,6 @@
 # Spec #76 · 声口与梗位执行层（voice-meme-wiring）
 
-> **Date:** 2026-10-25（rev4 2026-10-26 阶段 3 三轮审查清偿） | **Status:** Active | **Severity:** 🟠 P1 | **方法:** 声口/梗位/金句三 lint + memo 通道注入 + 离线盲认判据 | **系列:** 市场适配层（novel-market-overhaul） | **依赖:** #73（市场参数）、#72（备忘格式通道）、#74（卷纲梗位行重锚） | **范围:** planning/drafting SKILL 声口接线 / voice_lexicon 共享词表 / lint_voice_meme 工具 / G4.cd 金句位双型 / G4.vo 梗位行结构 / genre_config 数值域定档
+> **Date:** 2026-10-25（rev4 2026-10-26 阶段 3 三轮审查清偿） | **Status:** Active | **Severity:** 🟠 P1 | **方法:** 声口/梗位/金句三 lint + memo 通道注入 + 离线盲认判据 | **系列:** 市场适配层（novel-market-overhaul） | **依赖:** #73（市场参数）、#72（备忘格式通道）、#74（卷纲梗位行重锚） | **范围:** plan_format v2 版本化 / planning+drafting SKILL 声口接线 / voice_lexicon 共享词表 / lint_voice_meme 工具 / G4.cd 金句位双型 / G4.vo 梗位行结构 / genre_config 数值域定档 / 对白差异化离线盲认 / #77 校准条款同步
 
 > 源自总设计 §3。问题依据：protagonist.md 定「贫嘴吐槽役、越惨越贫」，九章正文贫嘴声口出现 ≤4 次；volume_map 梗位「班味的内核全球统一」规划 0 落地；十余角色对白全员同腔（格言腔问答体），遮署名无法盲认；金句全是收敛型静句。
 
