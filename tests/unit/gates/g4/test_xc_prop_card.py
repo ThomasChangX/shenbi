@@ -291,9 +291,14 @@ def test_same_memo_two_lines_chain(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     ("body", "label"),
     [
-        ("红纸包给了她一点底气。", "metaphor bestowal"),
+        ("红纸包给了她一点底气。", "metaphor bestowal (quantity)"),
+        ("红纸包给了她底气。", "metaphor bestowal (bare)"),
+        ("骨哨给了他安全感。", "metaphor bestowal (safety)"),
+        ("怀表给了她温暖。", "metaphor bestowal (warmth)"),
+        ("红纸包给了他勇气。", "metaphor bestowal (courage)"),
         ("怀表换了根新表链，红纸包收好。", "accessory replacement"),
         ("红纸包换了层油纸。", "re-wrap"),
+        ("红纸包换了两斗米。", "barter residual FN (documented)"),
     ],
 )
 def test_metaphor_and_replacement_not_transfers(tmp_path: Path, body: str, label: str) -> None:
@@ -336,3 +341,39 @@ def test_object_position_inner_verb_clean() -> None:
     from shenbi.gates.g4.cross_chapter import protagonist_binding_hits
 
     assert protagonist_binding_hits("他在心里记了灯的位置。", "灯", ("临", "他")) == []
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("body", "label"),
+    [
+        ("红纸包给了张三。", "surname recipient"),
+        ("红纸包递给支书。", "title recipient"),
+        ("他把红纸包交到张寡妇手里。", "branch-1 title recipient"),
+        ("送了张婶红纸包。", "branch-2 surname recipient"),
+        ("他塞给他个暖炉。", "colloquial 个 before prop"),
+    ],
+)
+def test_real_recipient_handoffs_fire(tmp_path: Path, body: str, label: str) -> None:
+    """Round-5 review: the reject window must not sit over the recipient —
+    张三/支书/张寡妇/张婶-class walk-on recipients are real hand-offs.
+    """
+    d = tmp_path
+    (d / "truth").mkdir()
+    (d / "truth" / "prop_registry.md").write_text(
+        "| 实体 | owner |\n| 红纸包 | 我 |\n| 暖炉 | 我 |\n", encoding="utf-8"
+    )
+    (d / "chapter-1.md").write_text("他收下红纸包。", encoding="utf-8")
+    (d / "chapter-2.md").write_text(body, encoding="utf-8")
+    memo = d / "chapter-2-plan.md"
+    memo.write_text(
+        "### 场景预算与收束钩\n- 时间锚: 腊月初十\n- 余额: 十文\n- POV: 他\n",
+        encoding="utf-8",
+    )
+    issues = check_cross_chapter(
+        d / "chapter-2.md",
+        d / "chapter-1.md",
+        memo,
+        CrossChapterContext(project_dir=d, registry_dir=d / "truth"),
+    )
+    assert any("经手" in i for i in issues), f"{label}: {issues}"

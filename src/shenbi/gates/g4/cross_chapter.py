@@ -526,25 +526,25 @@ def _current_owner(owner_cell: str) -> str:
 
 
 def _expected_prop_owner(
-    ctx: CrossChapterContext, prop: str, registry_owner: str, chapter: int | None
-) -> str:
+    registry_owner: str,
+    prop: str,
+    prior_steps: dict[int, dict[str, list[tuple[str, str]]]],
+) -> tuple[str, int | None]:
     """Expected hand-off origin: registry current owner advanced through
     prior on-disk memo hops (chapter < N). The bundle follower's check runs
     before the leader settles, so the leader's declared hop must already
-    advance the expectation (round-4 fix).
+    advance the expectation (round-4 fix). Round-5: takes the pre-parsed
+    prior-memo map (each memo parsed once per check, not once per prop) and
+    returns the advancing chapter for failure-message attribution.
     """
     expected = _current_owner(registry_owner)
-    if not ctx.project_dir or not chapter or chapter <= 1:
-        return expected
-    plans_dir = ctx.project_dir / "plans"
-    for m in range(1, chapter):
-        pm = plans_dir / f"chapter-{m}-plan.md"
-        if not pm.is_file():
-            continue
-        for _origin, _new in _prop_chain_steps(pm.read_text(encoding="utf-8")).get(prop, []):
+    advanced_by: int | None = None
+    for m in sorted(prior_steps):
+        for _origin, _new in prior_steps[m].get(prop, []):
             if _origin in expected or expected in _origin:
                 expected = _new
-    return expected
+                advanced_by = m
+    return expected, advanced_by
 
 
 def check_cross_chapter(
@@ -635,34 +635,47 @@ def check_cross_chapter(
     _memo_is_new_format = re.search(r"#{2,4}\s*场景预算", memo_text) is not None
     _ch_num_m = re.search(r"chapter-(\d+)", chapter_path.name)
     _ch_num = int(_ch_num_m.group(1)) if _ch_num_m else None
+    _cur_steps = _prop_chain_steps(memo_text)  # parsed once (round-5 perf)
+    _prior_steps_map: dict[int, dict[str, list[tuple[str, str]]]] = {}
+    if ctx.project_dir and _ch_num and _ch_num > 1:
+        for _k in range(1, _ch_num):
+            _pk = ctx.project_dir / "plans" / f"chapter-{_k}-plan.md"
+            if _pk.is_file():
+                _prior_steps_map[_k] = _prop_chain_steps(_pk.read_text(encoding="utf-8"))
     for prop in known_props:
         if prop not in cur_text:
             continue
-        steps = _prop_chain_steps(memo_text).get(prop, [])
+        steps = _cur_steps.get(prop, [])
         if not _memo_is_new_format:
             continue  # legacy memo: declaration cross-check exempt (G4.cp WARNs)
         if steps:
             # round-3/4: declaration is not free text — each hop's origin
             # must match the EXPECTED owner (registry current owner advanced
             # through prior on-disk memo hops; same-memo hops chain).
-            expected = _expected_prop_owner(ctx, prop, known_props[prop], _ch_num)
+            expected, _adv_ch = _expected_prop_owner(known_props[prop], prop, _prior_steps_map)
             for _origin, _new in steps:
                 if _origin and _origin not in expected and expected not in _origin:
+                    _adv = f"，经 ch{_adv_ch} 备忘推进" if _adv_ch else ""
                     issues.append(
                         f"物象「{prop}」声明经手起点「{_origin}」与期望 owner"
-                        f"（{expected}；registry {known_props[prop]} + 前章备忘推进）不符"
+                        f"（{expected}{_adv}；registry {known_props[prop]}）不符"
                         "——正文为唯一真值源，核实后修正声明或 registry（修复者: settling）"
                     )
                     break
                 expected = _new
             continue
-        # round-3 review: bare 还 is the adverb "still" («X还在/还有X») in
-        # top-frequency carrying prose — only DISAMBIGUATED compound markers
-        # count as hand-offs. Round-4: metaphor/replacement readings rejected
-        # («X给了她一点底气» 隐喻授与 / «怀表换了根新表链» 配件更换).
+        # round-3/4/5 review: bare 还 is the adverb "still" — only
+        # DISAMBIGUATED compound markers count as hand-offs. The metaphor
+        # reject is the ABSTRACT-NOUN suffix family (气感力望意神训戒胆魂暖慰
+        # within ≤3 chars after the marker: «给了她底气/安全感/温暖/勇气»),
+        # NOT measure/quantity words — those sit over the recipient position
+        # and ate real hand-offs («给了张三»/«递给支书»/«塞给他个暖炉»).
+        # «送了命» rejected via 命; 暖 excludes the 暖炉 compound (suffix char
+        # colliding with a prop-initial char). 换了 stays OUT (replacement vs trade
+        # indistinguishable — documented residual FN, see planning SKILL).
         esc_prop = re.escape(prop)
         _markers = r"(?:递给|塞给|交给|送给|还给|还了|给了|留给|转手|递了|送了|交到|递到|递还)"
-        _not_meta = r"(?![^。！？，,；]{0,2}(?:一点|一些|许多|很多|莫大|不少|十足|根|条|副|件|层|张|块|番|支|命|个))"
+        _not_meta = r"(?![^。！？，,；]{0,4}[气感力望意神训戒胆魂暖慰命](?![炉]))"
         transfer_ctx = re.search(
             rf"{esc_prop}[^。！？，,；]{{0,4}}{_markers}{_not_meta}"
             rf"|{_markers}{_not_meta}[^。！？，,；]{{0,4}}{esc_prop}"
