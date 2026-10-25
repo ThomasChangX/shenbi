@@ -17,6 +17,12 @@ contract:
     - {file: truth/chapter_summaries.md, extractor: recent_increments}
     - truth/volume_summaries.md
     - audits/chapter-N-foreshadowing.md
+    # #75 registry tables: timeline is chapter-keyed (tail window via the
+    # same extractor); name/prop registries are entity-keyed and bounded by
+    # cast size / motif-prop count — full read, no extractor needed.
+    - {file: truth/timeline.md, extractor: recent_increments}
+    - truth/prop_registry.md
+    - truth/name_registry.md
   writes:
     - file: truth/state-settling-decisions.json
       mode: create_or_overwrite
@@ -42,6 +48,16 @@ contract:
     - file: truth/character_matrix.md
       mode: append_dedup
       key: 角色A,角色B
+    # #75 registry tables (spec #75): rolling cross-chapter invariant sources.
+    - file: truth/timeline.md
+      mode: append_dedup
+      key: 章
+    - file: truth/prop_registry.md
+      mode: append_dedup
+      key: 实体名
+    - file: truth/name_registry.md
+      mode: append_dedup
+      key: 类别
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -53,9 +69,9 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/volume_summaries.md, audits/chapter-N-foreshadowing.md
+- **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/volume_summaries.md, audits/chapter-N-foreshadowing.md, truth/timeline.md, truth/prop_registry.md, truth/name_registry.md
 - **Writes:** truth/state-settling-decisions.json
-- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/character_matrix.md
+- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/character_matrix.md, truth/timeline.md, truth/prop_registry.md, truth/name_registry.md
 
 <!-- END AUTO-GENERATED -->
 
@@ -76,7 +92,7 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
 
 ### Truth File Update Mode Rules (CRITICAL)
 
-**All six `updates:` targets in this skill's contract are declared `mode: append_dedup` — the pipeline's dispatch write path merges your output into those files BY KEY. You must NEVER output the whole file content for them.**
+**All ten `updates:` targets in this skill's contract are declared `mode: append_dedup` — the pipeline's dispatch write path merges your output into those files BY KEY. You must NEVER output the whole file content for them.**
 
 - **append_dedup files** (cumulative — output ONLY the current chapter's row(s), NEVER the entire file):
   - `truth/current_state.md` — one row for the current chapter's snapshot (key: `chapter`)
@@ -85,6 +101,11 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
   - `truth/subplot_board.md` — one row PER 支线 touched this chapter (composite key: `章节,支线` — several subplots may advance in one chapter)
   - `truth/chapter_summaries.md` — one row summarizing the current chapter (key: `chapter`)
   - `truth/pending_hooks.md` — per-hook FIELD updates as colon bullets under the hook's own heading (key: `hook_id`) — see "pending_hooks 增量格式" below
+
+- **append_dedup files（#75 registry 三表——跨章不变量的滚动数据源）**:
+  - `truth/timeline.md` — one row PER 本章时间锚点 for the current chapter: `| 第 N 章 | <本章末锚，如 腊月初十> | <备注> |` (key: `章` — first cell carries the chapter number like the other chapter-keyed tables). Narrative dates ONLY (叙事锚); do NOT log in-text book/citation dates. G4.xc compares this row against the previous chapter's row for monotonicity.
+  - `truth/prop_registry.md` — one row PER 经手/初见 物象 this chapter: `| <实体名> | <当前 owner> | <事件，如 萤→临> |` (key: `实体名` — re-emitting an existing entity's row UPDATES its owner; that is the owner-chain). Known motif props appearing WITHOUT a row here trip invariant 4 (`物象出现但无经手声明`).
+  - `truth/name_registry.md` — one row PER changed/added 称谓 entry: same 3-column layout as the seeded table `| 类别 | 名 | 备注 |` (key: `类别` — 登记名/代词白名单/禁用名 rows upsert in place). Only emit rows that actually changed; omit untouched rows.
 
 - **append_dedup file（增量合并，复合键）**:
   - `truth/character_matrix.md` — output ONLY the current chapter's increment: (a) changed rows of the 交互总表 (key: `角色A,角色B` composite — a row per pair that actually interacted this chapter, same column layout as the live table) and (b) one `## 第N章状态增量` section block (heading + its rows/prose). NEVER reproduce the whole file, other chapters' rows, the 信任度初值 sections, or the frontmatter — the pipeline merges your increment against the live base by key and G4 verifies base preservation (probe2 2026-10-01: the whole-file rewrite contract made settle output grow O(chapters) and blow the model output cap — two settles silently dropped base mass to fit). The increment section is ONE atomic `##` block carrying all its `###` subsections — the protagonist's current state lives ONLY inside this chapter's block (probe6 ch2: folding the protagonist's updated state into a previous chapter's subsection, retitling/absorbing history sections, or replacing old interaction rows are all restructure damage — G4 rejects them; append, never replace).

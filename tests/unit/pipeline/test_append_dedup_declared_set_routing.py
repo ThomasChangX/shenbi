@@ -61,7 +61,7 @@ _PAIRS = _declared_append_dedup_pairs()
 
 
 def test_declared_surface_snapshot_count() -> None:
-    """Explicit snapshot of the declared surface: 24 (skill, path) pairs —
+    """Explicit snapshot of the declared surface: 27 (skill, path) pairs —
     17 as of the C3 T6 guard (10 skills; state-settling owns 6 targets) + 1
     from spec #58 C20 (foreshadowing-lifecycle bridge_tracker, F825) + 1
     from the probe2 settle capacity fix (state-settling character_matrix,
@@ -71,12 +71,15 @@ def test_declared_surface_snapshot_count() -> None:
     thread_map — whole-file rewrites pinned the output cap as the ledgers
     grew ~10KB/volume) + 3 from the A2 section-ledger 批 (location-builder
     locations / relationship-map relationships + character_matrix — the
-    ~50-volume whole-file rewrite walls). This is the anti-silent-shrink
-    tripwire — the parametrized guard below adapts to any future growth
-    automatically, but a REMOVED declaration must surface here so it
-    cannot pass unnoticed. Updating this number is the explicit action.
+    ~50-volume whole-file rewrite walls) + 3 from spec #75 (state-settling
+    timeline / prop_registry / name_registry — the cross-chapter invariant
+    registry tables roll per chapter by key, never as whole files). This is
+    the anti-silent-shrink tripwire — the parametrized guard below adapts
+    to any future growth automatically, but a REMOVED declaration must
+    surface here so it cannot pass unnoticed. Updating this number is the
+    explicit action.
     """
-    assert len(_PAIRS) == 24, (
+    assert len(_PAIRS) == 27, (
         "declared append_dedup surface changed — if intentional, update the "
         f"snapshot (currently {len(_PAIRS)} pairs: {_PAIRS})"
     )

@@ -48,6 +48,10 @@ concepts:
   - {name: truth/book_spine.md, kind: truth}           # L5 book spine (book-spine-init)
   - {name: truth/book_strata.md, kind: truth}          # L4 strata summaries
   - {name: truth/arcs/arc-N.md, kind: truth}           # parametric: N (arc segment)
+  # #75 cross-chapter registry tables (seeded once, rolled by settling):
+  - {name: truth/name_registry.md, kind: truth, producer: pipeline}  # 称谓字典（卷层）
+  - {name: truth/timeline.md, kind: truth, producer: skill}          # 时间锚（章层键=章）
+  - {name: truth/prop_registry.md, kind: truth, producer: skill}     # 物象 owner 链（键=实体名）
   # plans / chapters / context
   - {name: plans/chapter-N-plan.md, kind: plan}      # parametric: N
   - {name: staging/chapter-N-bundle.md, kind: chapter, producer: skill}  # #72 场景簇产物（拆分步消费，不晋升）

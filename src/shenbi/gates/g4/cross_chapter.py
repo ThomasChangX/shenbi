@@ -430,6 +430,21 @@ def g4_cross_chapter(
 
     c: list[dict[str, Any]] = []
     mf: list[str] = []
+    # #75: the registry tables are a cross-check layer, never the sole
+    # truth — absence degrades to the prose-derived primary source, but the
+    # degradation must be visible (WARN check, not silence).
+    if project_dir:
+        truth_dir = Path(project_dir) / "truth"
+        for _rel in ("name_registry.md", "timeline.md", "prop_registry.md"):
+            if not (truth_dir / _rel).is_file():
+                c.append(
+                    {
+                        "id": "XC.registry",
+                        "file": f"truth/{_rel}",
+                        "s": GateStatus.WARN,
+                        "r": "registry absent — cross-check layer degraded (prose-derived primary still runs; seed via python -m shenbi.pipeline.registry_seeding)",
+                    }
+                )
     for fp in fps or []:
         ch_path = Path(fp)
         if not ch_path.is_absolute() and rd:

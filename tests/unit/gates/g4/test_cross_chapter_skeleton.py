@@ -72,3 +72,32 @@ def test_g4_entry_reports_wound1() -> None:
     """T2 onwards: ch2-vs-ch1 must surface the POV break."""
     result = g4_cross_chapter([str(FIX / "chapters" / "chapter-2.md")], rd=str(FIX / "chapters"))
     assert "POV" in result
+
+
+@pytest.mark.unit
+def test_registry_absence_degrades_to_warn() -> None:
+    """#75: registry tables absent → cross-check layer WARN (visible, not fatal)."""
+    import json as _json
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as td:
+        # chapters/ exists (ch2 vs ch1 clean pair), truth/ has NO registry tables
+        ch_dir = Path(td) / "chapters"
+        ch_dir.mkdir()
+        filler = "他" * 4 + "数了一遍。" * 30
+        (ch_dir / "chapter-1.md").write_text(
+            "---\nprovenance: real-output\n---\n\n他推门。腊月初一。" + filler, encoding="utf-8"
+        )
+        (ch_dir / "chapter-2.md").write_text(
+            "---\nprovenance: real-output\n---\n\n他出门。腊月初二。" + filler, encoding="utf-8"
+        )
+        result = _json.loads(
+            g4_cross_chapter(
+                [str(ch_dir / "chapter-2.md")],
+                rd=str(ch_dir),
+                project_dir=td,
+            )
+        )
+        warns = [c for c in result["checks"] if c["id"] == "XC.registry" and c["s"] == "WARN"]
+        assert len(warns) == 3, f"expected 3 registry WARNs, got {result['checks']}"
+        assert result["status"] == "PASS", "registry absence must degrade (WARN), not FAIL"
