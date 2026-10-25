@@ -253,7 +253,7 @@ def budget_verdict(project_dir: Path) -> BudgetVerdict:
     planned_total = max((read_volume_boundaries(project_dir)), default=0) or max(
         (s.end for s in spans), default=0
     )
-    implied, word_default = _implied_total(project_dir)
+    implied, _word_default = _implied_total(project_dir)
     findings: list[str] = []
     drifts: dict[str, int] = {}
 
@@ -300,21 +300,22 @@ def budget_verdict(project_dir: Path) -> BudgetVerdict:
                 f"volume_spillover: 已写到第 {written} 章而 {current.token} 计划止于第 {current.end} 章"
                 f"（溢出 {written - current.end} 章 > ±{_DRIFT_TOLERANCE} 容差）"
             )
-        if word_default:
-            from shenbi.gates.shared import total_chars_md_text
+        from shenbi.gates.shared import chapter_word_floor, total_chars_md_text
 
+        word_floor = chapter_word_floor(project_dir)  # spec #72: min 口径（地板随 G2/G4 统一）
+        if word_floor:
             under = 0
             for n in range(current.start, min(written, current.end) + 1):
                 ch = project_dir / "chapters" / f"chapter-{n}.md"
                 if (
                     ch.is_file()
-                    and total_chars_md_text(ch.read_text(encoding="utf-8")) < word_default
+                    and total_chars_md_text(ch.read_text(encoding="utf-8")) < word_floor
                 ):
                     under += 1
             if under:
                 findings.append(
-                    f"word_floor: {current.token} 有 {under} 章低于 chapter_word.default "
-                    f"={word_default}（G0.3 口径）——保量缺口需在再预算中计入"
+                    f"word_floor: {current.token} 有 {under} 章低于 chapter_word.min "
+                    f"={word_floor}（#72 地板口径）——保量缺口需在再预算中计入"
                 )
 
     return BudgetVerdict(

@@ -34,6 +34,24 @@ CHAPTER_WORD_CEILING = 10000
 #: normalizer (pipeline.dispatch_helper) and the gate-side check (gates.g2)
 #: — a second copy of either regex anywhere is a contract drift (z11 F1301).
 META_BLOCK_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+
+#: Scene-boundary marker contract (spec #72). SINGLE SOURCE for all four
+#: consumers — splitter / G4 scene count / revision marker-diff / release_split
+#: v2 boundary detection. Durable in final chapter files (rendering-invisible
+#: standalone comment line); stripped from every counting surface below.
+SCENE_MARKER = "<!--SCENE-->"
+
+
+def is_scene_marker_line(line: str) -> bool:
+    """Standalone SCENE marker predicate: exact match after strip()."""
+    return line.strip() == SCENE_MARKER
+
+
+def strip_scene_markers(text: str) -> str:
+    """Remove standalone SCENE marker lines (blank line left in place)."""
+    return "\n".join(ln for ln in text.split("\n") if not is_scene_marker_line(ln))
+
+
 CHAPTER_HEADER_RE = re.compile(r"^#\s+Chapter\s+\d+:", re.MULTILINE)
 CHAPTER_NUM_RE = re.compile(r"chapter-(\d+)")
 
@@ -128,15 +146,11 @@ def yload(p: str | Path) -> dict[str, Any]:
 
 
 def chapter_word_floor(project_dir: str | Path | None) -> int:
-    """Per-chapter word floor from the project's genre-config (single source).
-
-    genre-config.json ``chapter_word.default`` is the same value G0.3 and G6
-    already use for chapter-count math (expected = ceil(target / default)).
-    The drafting/output gates must floor against the SAME number — the
-    hardcoded 3000 constant demanded twice the plan in projects whose volume
-    map was built on the 1500 default (probe escalation #9: every chapter
-    structurally failed the floor while following its memo's 1500-char plan).
-    Falls back to :data:`CHAPTER_WORD_FLOOR` when the config or key is absent.
+    """Per-chapter hard floor = genre-config ``chapter_word.min`` (spec #72
+    口径统一: the band's lower edge; ``default`` stays math-only for G0.3 /
+    volume-budget / G6 chapter-count derivations). Fallback chain
+    min → default → :data:`CHAPTER_WORD_FLOOR` — a config without ``min``
+    keeps the pre-#72 default floor instead of dropping to the constant.
     """
     if not project_dir:
         return CHAPTER_WORD_FLOOR
@@ -145,11 +159,17 @@ def chapter_word_floor(project_dir: str | Path | None) -> int:
         data = jload(str(gc_path))
     except (json.JSONDecodeError, OSError, ValueError):
         return CHAPTER_WORD_FLOOR
-    default = data.get("chapter_word", {}).get("default")
-    try:
-        return int(default) if default else CHAPTER_WORD_FLOOR
-    except (TypeError, ValueError):
+    cw = data.get("chapter_word", {})
+    if not isinstance(cw, dict):
         return CHAPTER_WORD_FLOOR
+    for key in ("min", "default"):
+        value = cw.get(key)
+        try:
+            if value and int(value) > 0:
+                return int(value)
+        except (TypeError, ValueError):
+            continue
+    return CHAPTER_WORD_FLOOR
 
 
 def chapter_word_min_max(project_dir: str | Path | None) -> tuple[int | None, int | None]:
@@ -214,7 +234,10 @@ def strip_narrative_body(content: str) -> str:
     ]:
         c = re.sub(tag, "", c, flags=re.DOTALL)
     # Also strip HTML comment wrappers (<!--META-BEGIN-->...<!--META-END-->)
-    return META_BLOCK_RE.sub("", c)
+    c = META_BLOCK_RE.sub("", c)
+    # Strip standalone SCENE marker lines (spec #72): durable in chapter files
+    # for consumers that read boundaries, but never part of the narrative count.
+    return strip_scene_markers(c)
 
 
 QUOTE_PAIR = {"”": "“", "’": "‘", "」": "「", "』": "『"}

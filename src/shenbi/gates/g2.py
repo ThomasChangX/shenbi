@@ -22,14 +22,14 @@ from shenbi.contracts.schemas.decisions import DecisionsDoc
 from shenbi.gates.shared import (
     resolve_input_path,
     CHAPTER_WORD_CEILING,
-    CHAPTER_WORD_FLOOR,
     bak_path,
     chapter_word_floor,
+    chapter_word_min_max,
     fail,
     jload,
     parse_decisions_payload,
     passed,
-    word_count_md,
+    total_chars_md_text,
     yload,
 )
 
@@ -186,12 +186,14 @@ def gate_G2(
 
         # Chapter-specific checks
         if eff_type == "chapter":
-            wc = word_count_md(p)  # spec #48 C34/F456: resolved path, not raw fp
+            # spec #72 口径统一: total_chars_md_text (all scripts + punct,
+            # meta/marker-stripped) — the band 2800-4000 is a total_chars
+            # contract (genre-config note); the old CJK-only word_count_md
+            # false-red'd ~2400-CJK/2800-total chapters.
+            wc = total_chars_md_text(p.read_text(encoding="utf-8"))
 
-            # G2.6 — word count >= floor. Same config source as G0.3/G6 math
-            # (probe escalation #9): genre-config chapter_word.default, NOT a
-            # hardcoded constant — a 1500-default plan structurally cannot
-            # satisfy a 3000 floor. The G2.7 ceiling keeps the constant form.
+            # G2.6 — word count >= floor. Spec #72: floor reads
+            # chapter_word.min (the band's lower edge); default is math-only.
             word_floor = chapter_word_floor(project_dir)
             if wc < word_floor:
                 mf.append(
@@ -207,9 +209,11 @@ def gate_G2(
             else:
                 checks.append({"id": "G2.6", "file": fp, "s": GateStatus.PASS, "word_count": wc})
 
-            # G2.7 — word count ceiling
-            is_important = _is_important_chapter(fp, project_dir or "")
-            ceiling = CHAPTER_WORD_CEILING if is_important else int(CHAPTER_WORD_FLOOR * 1.5)
+            # G2.7 — word count ceiling. Spec #72: reads chapter_word.max
+            # (the band's upper edge; 大章 10000/4500 dual-tier retired —
+            # oversize beats are carried by publish-layer scene packing).
+            _mn, cfg_max = chapter_word_min_max(project_dir)
+            ceiling = cfg_max if cfg_max is not None else CHAPTER_WORD_CEILING
             if wc > ceiling:
                 mf.append(
                     {
@@ -218,7 +222,6 @@ def gate_G2(
                         "s": GateStatus.FAIL,
                         "expected": f"<= {ceiling}",
                         "actual": wc,
-                        "is_important": is_important,
                     }
                 )
             else:
@@ -228,7 +231,6 @@ def gate_G2(
                         "file": fp,
                         "s": GateStatus.PASS,
                         "ceiling": ceiling,
-                        "is_important": is_important,
                     }
                 )
 
@@ -404,37 +406,3 @@ def _check_meta_ratio(
         checks.append(check)
 
     return checks, failures
-
-
-def _is_important_chapter(fp: str, project_dir: str) -> bool:
-    """Check if a chapter is flagged as important.
-    Sources: (a) volume_map.md annotations (爆发段/高潮/卷首/卷末)
-             (b) chapter-N-plan.md section 1 '重要章' marker
-    """
-    if not project_dir:
-        return False
-    ch_num = re.search(r"chapter-(\d+)", str(fp))
-    if not ch_num:
-        return False
-    n = int(ch_num.group(1))
-
-    pd = Path(project_dir)
-
-    # (a) volume_map.md annotations
-    vm = pd / "outline" / "volume_map.md"
-    if vm.exists():
-        vm_text = vm.read_text(encoding="utf-8")
-        patterns = [rf"第{n}章.*(?:爆发|高潮|卷首|卷末|开篇|收官)"]
-        if any(re.search(p, vm_text) for p in patterns):
-            return True
-
-    # (b) chapter-N-plan.md section 1 "重要章" marker
-    plan = pd / "plans" / f"chapter-{n}-plan.md"
-    if plan.exists():
-        plan_text = plan.read_text(encoding="utf-8")
-        # Read only up to section 2 (## 2.)
-        first_section = plan_text.split("## 2.")[0] if "## 2." in plan_text else plan_text[:500]
-        if "重要章" in first_section:
-            return True
-
-    return False

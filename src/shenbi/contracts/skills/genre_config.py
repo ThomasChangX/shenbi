@@ -36,7 +36,7 @@ class GenreConfig(BaseModel):
     6. auditDimensions count must be 5-10
     7. Every disabled auditDimension must have a customRules reason
     8. approval.decision is required (no approval = invalid config)
-    9. Top-level keyset = 8 required keys + optional tropeInventory/chapter_word
+    9. Top-level keyset = 8 required keys + optional tropeInventory/chapter_word/primary_platform (spec #72)
     """
 
     model_config = {"extra": "ignore"}
@@ -66,7 +66,7 @@ class GenreConfig(BaseModel):
         for key in data:
             if key not in GENRE_KEYS:
                 raise ValueError(
-                    f"unknown top-level key '{key}' (allowed: 8 required + optional tropeInventory/chapter_word)"
+                    f"unknown top-level key '{key}' (allowed: 8 required + optional tropeInventory/chapter_word/primary_platform)"
                 )
         missing = [k for k in _REQUIRED_TOP_KEYS if k not in data]
         if missing:

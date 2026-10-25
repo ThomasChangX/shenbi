@@ -753,7 +753,7 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
     ),
     "G4.word_count": (
         "章节正文字数不足。口径：正文 total 字符数（去空白、含标点，剥 META 块）；"
-        "地板值 = genre-config chapter_word.default。扩写方向：在既有场景内扩"
+        "地板值 = genre-config chapter_word.min。扩写方向：在既有场景内扩"
         "感官细节、对白往返与动作过程，补足缺口（如缺口 233 字 ≈ 1-2 个段落"
         "的密度），不新增场景、不注水重复、不改情节节拍。"
     ),
@@ -1392,17 +1392,18 @@ def _check_word_count_bounds(chapter_text: str, project_dir: Path | None = None)
     Returns:
         List of issue strings (empty if within bounds).
     """
-    from shenbi.gates.shared import chapter_word_min_max
+    from shenbi.gates.shared import chapter_word_min_max, total_chars_md_text
 
     issues: list[str] = []
     mn, mx = chapter_word_min_max(project_dir)
     floor = mn if mn is not None else 4000
     ceiling = mx if mx is not None else 15000
-    chinese_chars = sum(1 for c in chapter_text if "\u4e00" <= c <= "\u9fff")
-    if chinese_chars < floor:
-        issues.append(f"G4.word_count:below_floor -- {chinese_chars} chars (min {floor})")
-    if chinese_chars > ceiling:
-        issues.append(f"G4.word_count:above_ceiling -- {chinese_chars} chars (max {ceiling})")
+    # spec #72 口径统一: total_chars (meta/marker-stripped), not CJK-only raw
+    wc = total_chars_md_text(chapter_text)
+    if wc < floor:
+        issues.append(f"G4.word_count:below_floor -- {wc} chars (min {floor})")
+    if wc > ceiling:
+        issues.append(f"G4.word_count:above_ceiling -- {wc} chars (max {ceiling})")
     return issues
 
 

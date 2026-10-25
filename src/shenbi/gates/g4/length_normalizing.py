@@ -11,7 +11,7 @@ from shenbi.gates.shared import (
     fail,
     passed,
     resolve_input_path,
-    word_count_md,
+    total_chars_md_text,
 )
 
 
@@ -41,7 +41,8 @@ def g4_length_normalizing(
             continue
 
         content = pf.read_text(encoding="utf-8")
-        wc = word_count_md(pf)  # F402: count on the resolved path
+        # spec #72 口径统一: total_chars (band contract), not CJK-only count
+        wc = total_chars_md_text(content)
 
         if "## 归一化报告" not in content:
             mf.append(f"G4.ln.no_report:{fp}")
