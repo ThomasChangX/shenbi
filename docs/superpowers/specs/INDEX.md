@@ -12,7 +12,7 @@
 
 ### #72 · 平台章粒度改革（chapter-granularity）
 
-- **文件**：`2026-10-25-novel-market-overhaul-design.md` §2 + §3（实现 PR 时拆出独立 spec 文件）
+- **文件**：`2026-10-25-spec72-chapter-granularity.md`
 - **系列**：市场适配层（novel-market-overhaul 首批并行）
 - **状态**：Active
 - **优先级**：🟥 P0（地基——章数数学与生成契约，后续全部 spec 依赖）
@@ -23,7 +23,7 @@
 
 ### #73 · 大纲引擎置换与市场参数（engine-swap）
 
-- **文件**：`2026-10-25-novel-market-overhaul-design.md` §1 + §3
+- **文件**：`2026-10-25-spec73-engine-swap.md`
 - **系列**：市场适配层（首批并行）
 - **状态**：Active
 - **优先级**：🟥 P0（内容地基——四引擎规则与市场参数）
@@ -34,7 +34,7 @@
 
 ### #74 · 卷一卷纲重排与角色卡修复（vol1-rearrange）
 
-- **文件**：`2026-10-25-novel-market-overhaul-design.md` §1.5 + §3
+- **文件**：`2026-10-25-spec74-vol1-rearrange.md`
 - **系列**：市场适配层
 - **状态**：Active
 - **优先级**：🔴 P0
@@ -45,7 +45,7 @@
 
 ### #75 · 跨章不变量门（cross-chapter-invariants）
 
-- **文件**：`2026-10-25-novel-market-overhaul-design.md` §3
+- **文件**：`2026-10-25-spec75-cross-chapter-invariants.md`
 - **系列**：市场适配层（首批并行，框架侧）
 - **状态**：Active
 - **优先级**：🔴 P0（防复发核心——单章审计盲区的补位）
@@ -56,7 +56,7 @@
 
 ### #76 · 声口与梗位执行层（voice-meme-wiring）
 
-- **文件**：`2026-10-25-novel-market-overhaul-design.md` §3
+- **文件**：`2026-10-25-spec76-voice-meme-wiring.md`
 - **系列**：市场适配层
 - **状态**：Active
 - **优先级**：🟠 P1
@@ -67,7 +67,7 @@
 
 ### #77 · 文体指纹 WARN 闸（style-fingerprint-warn）
 
-- **文件**：`2026-10-25-novel-market-overhaul-design.md` §3
+- **文件**：`2026-10-25-spec77-style-fingerprint-warn.md`
 - **系列**：市场适配层
 - **状态**：Active
 - **优先级**：🟡 P2
@@ -78,7 +78,7 @@
 
 ### #78 · 情感回触与爽点重量门（recall-payoff-weight）
 
-- **文件**：`2026-10-25-novel-market-overhaul-design.md` §3
+- **文件**：`2026-10-25-spec78-recall-payoff-weight.md`
 - **系列**：市场适配层
 - **状态**：Active
 - **优先级**：🟠 P1
@@ -89,7 +89,7 @@
 
 ### #79 · 重生成与验收协议（regen-acceptance）
 
-- **文件**：`2026-10-25-novel-market-overhaul-design.md` §3 + §4
+- **文件**：`2026-10-25-spec79-regen-acceptance.md`
 - **系列**：市场适配层（收口）
 - **状态**：Active
 - **优先级**：🟠 P1
