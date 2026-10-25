@@ -26,7 +26,7 @@
 **复杂度: infra · test_kind: tdd_red_green**
 
 **Files:**
-- Create: `tests/fixtures/cross-chapter-regression/`（十章+卡+truth 三件拷贝）+ **每文件 `<name>.provenance.json` sidecar**（G0.19 强制面——check_variant_bypass 扫全树，chapter-7/9.md 命中 variant-sibling 判据（t1 场景消费 chapter-7-example/chapter-9-example），无 provenance 即 FAIL；真实产物状态 `load_provenance` 认可形态。**禁 MIRROR_MAP 登记**——源 gitignored，CI 缺侧常驻 WARN）
+- Create: `tests/fixtures/cross-chapter-regression/`（十章+卡+truth 三件拷贝）+ **每 .md 文件 frontmatter `provenance: real-output` + `source: novel-xinghuo-vol1/...`**（R2-I1：`.md` 的 load_provenance 只认文件内 frontmatter——sidecar 是 non-.md 专属分支，照 sidecar 施工 T1 即红；先例 chapter-7-draft.md；frontmatter 对 checker 中性——strip_narrative_body 剥除）。**禁 MIRROR_MAP 登记**（源 gitignored CI 缺侧常驻 WARN）；**G0.11 哈希保护随禁登记显式让渡**（R2-I2：fixture 为 point-in-time 拷贝）
 - Create: `src/shenbi/gates/g4/cross_chapter.py`（入口 `g4_cross_chapter(fps, rd, project_dir, repo_root) -> str`——签名循既有 checker；内部：章号解析/前章=N-1/首章跳过/`_load_memo_declarations`（场景预算块解析复用 #72）+`_load_prev_chapter`）
 - Test: `tests/unit/gates/g4/test_cross_chapter_skeleton.py`
 
@@ -57,7 +57,7 @@
 **Files:** Modify `cross_chapter.py` + `skills/shenbi-chapter-planning/SKILL.md`（场景预算块增三声明行：时间锚/余额/POV——机器可解析格式 `- 时间锚: 腊月初十｜- 余额: 一百九十二文｜- POV: 他`，回拨 `- 时间锚: [回拨]腊月初五`）+ `skills/shenbi-chapter-drafting/SKILL.md`（正文时间锚落款同口径一行——spec 契约连锁清单 drafting 项承载）+ `src/shenbi/gates/g4/chapter_planning.py`（G4.cp 增三声明行必备校验——plan-R2-I2 的 FAIL 面）；Test `test_xc_timeline.py`
 
 - 中文锚规范化：`腊月初十`→(12,10)；`初十`（无月）→继承前锚月；相对锚（`老塾师走后第七日`）→解析失败 WARN 跳过（白名单语法外）；绝对锚单调比较，[回拨] 标记豁免
-- **声明行缺失语义（plan-R2-I2 钉死）**：新格式 memo（场景预算块在场）缺三声明行 = **FAIL**（G4.cp 必备字段扩展——防生产者漏写令门空转）；旧格式 memo（`parse_scene_declarations` 返回 [] 的既有降级判据）= WARN 跳过（与 T3「无在途受影响」声明自洽）
+- **声明行缺失语义（plan-R2-I2 钉死）**：新格式 memo（场景预算块在场）缺三声明行 = **FAIL**（G4.cp 必备字段扩展——防生产者漏写令门空转）；旧格式 memo（`parse_scene_declarations` 返回 [] 的既有降级判据）= WARN 跳过**仅豁免声明行交叉核对**——**正文派生锚的单调比较恒跑**（R2-I3：回归 fixture 章无 memo，五伤真阳性走正文派生路径）
 - 用例：ch1 初十 vs ch2 初七真阳性；回拨标记真阴性；无月继承
 - 提交 `feat(gates): spec75 T3——时间锚单调门 + planning 三声明行扩展（无在途 artifacts 受影响：旧 memo 随 #79 quarantine 终点）`
 
