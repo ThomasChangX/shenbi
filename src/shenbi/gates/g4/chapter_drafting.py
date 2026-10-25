@@ -321,14 +321,12 @@ def g4_chapter_drafting(
         else:
             c.append({"id": "G4.meta", "file": fp, "s": GateStatus.PASS})
 
-        # Word count ≥ floor (3000), on the TOTAL non-whitespace 口径 (probe
+        # Word count ≥ floor, on the TOTAL non-whitespace 口径 (probe
         # escalation #4): the memo layer plans length in total chars (~3400),
         # so a CJK-only floor demanded ≈3565 total — plan-compliant chapters
         # structurally failed (production fixture ch36/37/39/41 all 27xx-CJK).
-        # The floor VALUE comes from genre-config chapter_word.default (probe
-        # escalation #9): G0.3/G6 already derive chapter-count math from it —
-        # a 1500-default plan (134 chapters from 200k) can never satisfy a
-        # hardcoded 3000 floor.
+        # Spec #72 口径统一: floor reads chapter_word.min (the 2800-4000
+        # band's lower edge); default stays math-only (G0.3/G6 derivations).
         word_floor = chapter_word_floor(str(project_root))
         total = total_chars_md_text(content)
         if total < word_floor:

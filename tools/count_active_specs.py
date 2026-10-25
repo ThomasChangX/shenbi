@@ -17,9 +17,23 @@ SPECS_DIR = REPO_ROOT / "docs" / "superpowers" / "specs"
 INDEX = SPECS_DIR / "INDEX.md"
 
 
+#: Executable-spec filename discriminator: the queue registers specs as
+#: ``<date>-spec<N>-<slug>.md``. Series master-design documents (no ``spec``
+#: in the stem — no ``-spec`` token, e.g. ``2026-10-25-novel-market-overhaul-design.md``) live in
+#: the same directory as shared background but are NOT queue entries —
+#: counting them made the real-dir consistency check drift 9 vs 8 the day
+#: the market-overhaul design landed (pre-existing main red, repaired here).
+_SPEC_NAME_RE = re.compile(r"-spec")
+
+
 def count_active(specs_dir: Path) -> int:
-    """File-count basis: top-level .md files excluding INDEX.md."""
-    return sum(1 for p in specs_dir.glob("*.md") if p.name != "INDEX.md")
+    """File-count basis: top-level spec .md files.
+
+    INDEX.md and non-spec series design docs are excluded.
+    """
+    return sum(
+        1 for p in specs_dir.glob("*.md") if p.name != "INDEX.md" and _SPEC_NAME_RE.search(p.stem)
+    )
 
 
 def declared_count(index_text: str) -> int | None:
