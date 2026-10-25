@@ -81,16 +81,28 @@ def _check_slots(nodes: list[tuple[int, str, str]], start: int) -> list[str]:
     return out
 
 
-def _check_touches(nodes: list[tuple[int, str, str]]) -> list[str]:
-    """Touchpoint chain (回触 rows or 萤回触 markers) with gaps <= 8."""
+def _check_touches(nodes: list[tuple[int, str, str]], start: int, end: int) -> list[str]:
+    """Touchpoint chain checks: pairwise gaps, plus span coverage.
+
+    (回触 rows or 萤回触 markers): gaps <= 8 AND the chain spans the volume
+    (first touch early, last touch near the end).
+    """
     touches = [c for c, r, d in nodes if r == "回触" or "萤回触" in d]
     if len(touches) < _MIN_TOUCHES:
         return [f"touch: fewer than {_MIN_TOUCHES} touchpoint rows"]
-    return [
+    out = [
         f"touch: gap 第{a}章->第{b}章 = {b - a} > {_TOUCH_GAP_MAX}"
         for a, b in pairwise(touches)
         if b - a > _TOUCH_GAP_MAX
     ]
+    if touches[0] - start > _TOUCH_GAP_MAX:
+        out.append(f"touch: first touch 第{touches[0]}章 > {start}+{_TOUCH_GAP_MAX}")
+    if end - touches[-1] > _TOUCH_GAP_MAX:
+        out.append(
+            f"touch: last touch 第{touches[-1]}章 leaves "
+            f"{end - touches[-1]} chapters uncovered to span end"
+        )
+    return out
 
 
 def lint(project_dir: Path, volume: int, window: int) -> list[str]:
@@ -103,7 +115,7 @@ def lint(project_dir: Path, volume: int, window: int) -> list[str]:
         _check_shape(chapters, end)
         + _check_density(chapters, start, end, window)
         + _check_slots(nodes, start)
-        + _check_touches(nodes)
+        + _check_touches(nodes, start, end)
     )
 
 

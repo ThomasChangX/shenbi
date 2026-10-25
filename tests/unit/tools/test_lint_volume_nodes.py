@@ -94,3 +94,27 @@ def test_touch_gap_fails(tmp_path: Path) -> None:
 def test_monotonicity_fails(tmp_path: Path) -> None:
     rows = _BASE + _row(8, "承接", "乱序插行")
     assert any("monotonicity" in f for f in lint(_mk(tmp_path, rows), 1, 12))
+
+
+@pytest.mark.unit
+def test_touch_chain_must_span_volume(tmp_path: Path) -> None:
+    """Phase-7 review probe: an early-stopping chain must fail — first touch
+    late or last touch far from span end are both coverage violations.
+    """
+    rows = (
+        _row(1, "开篇", "双钩 智力爽◆")
+        + _row(2, "承接", "变现◆")
+        + _row(3, "承接", "x")
+        + _row(4)
+        + _row(5)
+        + _row(6)
+        + _row(7)
+        + _row(8)
+        + _row(9)
+        + _row(10, "回触", "萤回触")
+        + _row(11, "回触", "萤回触")
+        + _row(20, "收官", "四轴")
+    )
+    findings = lint(_mk(tmp_path, rows), 1, 12)
+    assert any("first touch" in f for f in findings), findings
+    assert any("uncovered" in f for f in findings), findings
