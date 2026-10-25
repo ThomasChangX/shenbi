@@ -73,6 +73,63 @@ def prev_chapter_path(chapter_path: Path) -> Path | None:
     return prev if prev.is_file() else None
 
 
+# ---------- invariant 1: POV mode (prose-derived) ----------
+
+_FIRST_PERSON = re.compile(r"^[^「”』]*?我(?![们们])", re.MULTILINE)
+_THIRD_PERSON = re.compile(r"他|她")
+
+
+def derive_pov_mode(text: str) -> str:
+    """Deterministic POV derivation: first-person vs third-person density."""
+    body = "\n".join(
+        ln for ln in text.split("\n") if not ln.startswith("#") and not ln.startswith("<!--")
+    )
+    first = len(re.findall(r"我", body))
+    third = len(_THIRD_PERSON.findall(body))
+    if first + third == 0:
+        return "unknown"
+    return "我" if first > third * 2 else ("他" if third > first * 2 else "mixed")
+
+
+# ---------- invariant 2: protagonist naming (three-signal binding) ----------
+
+# 内汲动词绑定形态（ch4:88「灯在心里过了一遍」实证）
+_INNER_VERBS = ("在心里", "暗自", "心里过了一遍", "心想", "暗想", "寻思")
+
+
+def _sentence_spans(text: str) -> list[str]:
+    parts = re.split(r"[。！？\n]", text)
+    return [s for s in (p.strip() for p in parts) if s]
+
+
+def protagonist_binding_hits(text: str, name: str, whitelist: tuple[str, ...]) -> list[str]:
+    """Three-signal binding: 主语位 / 内汲动词绑定 / 邻句代词共指 (any two).
+
+    Returns violation descriptions for occurrences where `name` binds to the
+    protagonist while sitting outside the whitelist.
+    """
+    if name in whitelist:
+        return []
+    hits: list[str] = []
+    sents = _sentence_spans(text)
+    for i, sent in enumerate(sents):
+        if name not in sent:
+            continue
+        signals = 0
+        if re.search(rf"(?:^|[。！？，；]|接着|然后|而)\s*{re.escape(name)}", sent):
+            signals += 1  # 主语位
+        if any(v in sent for v in _INNER_VERBS) and name in sent:
+            signals += 1  # 内汲动词绑定
+        window = " ".join(sents[max(0, i - 1) : i + 2])
+        if re.search(
+            rf"{re.escape(name)}[^。！？]{{0,20}}他\b|他[^。！？]{{0,8}}{re.escape(name)}", window
+        ):
+            signals += 1  # 邻句代词共指
+        if signals >= 2:
+            hits.append(f"「{name}」主角指称绑定（信号 {signals}/3）: {sent[:24]}")
+    return hits
+
+
 def check_cross_chapter(
     chapter_path: Path,
     prev_path: Path | None,
@@ -85,8 +142,28 @@ def check_cross_chapter(
     """
     issues: list[str] = []
     if prev_path is None:
-        return issues  # 首章：前章依赖项全跳过（骨架期）
-    _ = (memo_path, ctx)
+        return issues  # 首章：前章依赖项全跳过
+
+    cur_text = chapter_path.read_text(encoding="utf-8")
+    prev_text = prev_path.read_text(encoding="utf-8")
+
+    # ── 不变量 1: POV 人称一致（正文推导；变更须 memo 声明）──
+    cur_pov = derive_pov_mode(cur_text)
+    prev_pov = derive_pov_mode(prev_text)
+    decls = load_memo_declarations(memo_path) if memo_path else {}
+    declared = decls.get("POV")
+    if cur_pov != prev_pov and cur_pov != "unknown" and prev_pov != "unknown":
+        if not declared or declared != cur_pov:
+            issues.append(
+                f"POV 人称断裂: 前章 {prev_pov} → 本章 {cur_pov} 且无 POV 变更声明"
+                "（修复者: planning+drafting）"
+            )
+
+    # ── 不变量 2: 主角称谓（三信号绑定；白名单外名绑定即 FAIL）──
+    for name in ("灯", "小满", "萤"):
+        hits = protagonist_binding_hits(cur_text, name, ctx.name_whitelist)
+        if hits:
+            issues.append("称谓违例（修复者: planning+drafting）: " + "; ".join(hits[:2]))
     return issues
 
 
