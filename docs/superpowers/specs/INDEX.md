@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-10-26（spec #76 voice-meme-wiring Done 随 PR #252 归档——市场适配层 4→3）
-> **活跃 spec 数**：3
+> **最后更新**：2026-10-26（spec #77 style-fingerprint-warn Done 随 PR #253 归档——市场适配层 3→2）
+> **活跃 spec 数**：2
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,17 +9,6 @@
 ---
 
 ## 执行队列
-
-### #77 · 文体指纹 WARN 闸（style-fingerprint-warn）
-
-- **文件**：`2026-10-25-spec77-style-fingerprint-warn.md`
-- **系列**：市场适配层
-- **状态**：Active
-- **优先级**：🟡 P2
-- **方法**：四项指纹检测，WARN 级进 audit_drift（不阻断，连续 WARN 触发 #78 改向）
-- **依赖**：#73（共用声口测量基建）
-- **内容**：问号密度上限（问答体，对白域口径）；喻体域集中度；开头同构检测；数数开头频次。验收：对旧九章复跑三项全报警
-- **对应 plan**：待 writing-plans
 
 ### #78 · 情感回触与爽点重量门（recall-payoff-weight）
 
