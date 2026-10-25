@@ -177,7 +177,10 @@ def _project(tmp_path: Path, cw: dict) -> Path:
 
 
 def _chapter(tmp_path: Path, n: int, chars: int) -> Path:
-    # 构造 n 个全角字符段（total_chars 口径 = 非空白字符数）
+    # 构造 total_chars≈chars 的章（total_chars 口径 = 非空白字符数，含 H1 题行贡献——
+    # plan-R2 校准注：H1/题行贡献 ~6-8 非空白字符，chars 为正文灯数时实际 total 会略高；
+    # 实现时以 total_chars_md_text 实测校准构造参数（边界用例 2799/2800/4000/4001 需精确），
+    # 或去 H1 构造纯正文并另配 G2 必需结构。禁改期望值凑绿。
     p = tmp_path / f"chapter-{n}.md"
     body = "灯" * chars
     p.write_text(f"# 第{n}章：题\n\n{body}\n", encoding="utf-8")
@@ -331,7 +334,7 @@ ChapterStep(5, "pipeline-scene-split", "scene-split", step_type="checkpoint"),
 - [ ] **Step 4: 跑测试确认通过 + 回归**
 
 Run: `uv run pytest tests/pipeline/test_bundle_stepping.py tests/pipeline/test_resume_anchor.py -v` → PASS
-Run: `uv run pytest tests/pipeline/ tests/unit/pipeline/ -q`（**两目录都跑**——tests/unit/pipeline/ 13 文件引用 CHAPTER_STEPS/PIPELINE_STEPS_VERSION，步序引用破裂处按新步序修期望）
+Run: `uv run pytest tests/pipeline/ tests/unit/pipeline/ -q`（**两目录都跑**——两目录合计 13 文件引用 CHAPTER_STEPS/PIPELINE_STEPS_VERSION（unit 侧 6 文件），步序引用破裂处按新步序修期望）
 
 - [ ] **Step 5: 提交**
 
@@ -406,7 +409,7 @@ Run: `uv run python tools/lint_decisions_sources.py`（如 #72 册需登记 deci
 
 - [ ] **Step 2: 跑确认失败** → 新检查 id 不存在
 
-- [ ] **Step 3: 实现**：chapter_drafting.py 段面（:388-392）与 word_count/章尾窗读文本处先 `strip_scene_markers`；content_uniqueness（:354）指纹前剥标记；新两检查按 Interfaces 谓词（读 `plans/chapter-{n}-plan.md` 场景声明块 + 章文件标记段）。chapter_planning.py 增预检：解析两备忘声明；前章输入 = `chapters/chapter-{N-1}.md` 标记派生实际 sizes（N=1 跳过）；`validate` 组合约束 + `pack_scenes(prev_tail + 声明 sizes, (1800, 2800))`——None → must_fix。检查器保持纯函数幂等。
+- [ ] **Step 3: 实现**：chapter_drafting.py 段面（:388-392）与 word_count/章尾窗读文本处先 `strip_scene_markers`；content_uniqueness（:354）指纹前剥标记；新两检查按 Interfaces 谓词（读 `plans/chapter-{n}-plan.md` 场景声明块 + 章文件标记段）。chapter_planning.py 增预检：解析两备忘声明；前章输入 = `chapters/chapter-{N-1}.md` 标记派生实际 sizes（N=1 跳过）；`validate` 组合约束 + `pack_scenes(prev_tail + 声明 sizes, band)`——**band 自 `chapter_word.fanqie_update` 配置读（单源纪律，plan-R2-M3），缺省回退 (1800, 2800) 常量并 WARN**——None → must_fix。检查器保持纯函数幂等。
 
 - [ ] **Step 4: 跑通过 + 回归**（`uv run pytest tests/unit/gates/ -q`；既有 G4.cd 用例不含标记文本，剥标记为幂等 noop）
 
@@ -471,7 +474,7 @@ Commit: `feat(release-split): spec72 T8——v2 声明式场景切分（已收�
 
 **Interfaces:**
 - Consumes: T4 bundle 步进（bundle 章集）
-- Produces: 波派发 `ReviewTask` per skill 覆盖 bundle 两章：`prompt=f"Execute {skill} for chapters {n},{m}. Project dir: ..."`；**output_paths = 单解析领袖章 `audit_report_paths(n, skill)`——T5 已为审计 skill writes 增 `{N+1}` brace，领袖章解析即覆盖 follower 报告路径；禁止再拼 `audit_report_paths(m)`（会产生 m+1 幻影路径——`_filter_completed_audit_tasks` 要求全部路径存在，幻影路径废掉恢复过滤，plan-R2 I6）**；`_wave_savepoint` 闭包对两章各 `add_audit_result`；write-audit `AmbiguousChapterError` 路径以 path-context 载荷行（`dispatch_helper.py:3955-3972` 既有机制）承载双章；**审计 skill 圈定推导规则（plan-R2 M14）＝CHAPTER_STEPS 中 `is_audit=True` 的 6 核心 step skill + `get_active_genre_audits(genre_gc)` 动态题材集——不 brace 扩展迁移表内 RETIRED skill**
+- Produces: 波派发 `ReviewTask` per skill 覆盖 bundle 两章：`prompt=f"Execute {skill} for chapters {n},{m}. Project dir: ..."`；**output_paths = 单解析领袖章 `audit_report_paths(n, skill)`——本 task（T9）为审计 skill writes 增 `{N+1}` brace 后，领袖章解析即覆盖 follower 报告路径；禁止再拼 `audit_report_paths(m)`（会产生 m+1 幻影路径——`_filter_completed_audit_tasks` 要求全部路径存在，幻影路径废掉恢复过滤，plan-R2 I6）**；`_wave_savepoint` 闭包对两章各 `add_audit_result`；write-audit `AmbiguousChapterError` 路径以 path-context 载荷行（`dispatch_helper.py:3955-3972` 既有机制）承载双章；**审计 skill 圈定推导规则（plan-R2 M14）＝CHAPTER_STEPS 中 `is_audit=True` 的 6 核心 step skill + `get_active_genre_audits(genre_gc)` 动态题材集——不 brace 扩展迁移表内 RETIRED skill**
 
 - [ ] **Step 1: 失败测试**：`cluster_prompt_covers_both`（构造 state/chapter_steps 断言派发 prompt 含两章号）；`reports_written_per_chapter`（两章报告路径都在 output_paths）；**`no_phantom_paths_beyond_bundle`（output_paths 不含 m+1 及以后任何路径）**；`savepoint_records_both_chapters`（on_complete 后两章 `wave_completed` 皆含该 skill）；`write_audit_accepts_cluster_declared`（构造双章声明 writes + 双报告落盘 → 无「未声明写入」）。
 
