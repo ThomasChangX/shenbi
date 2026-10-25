@@ -16,9 +16,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from shenbi.gates.shared import (
+from shenbi.gates.shared import (  # re-export: single source (gates.shared)
+    SCENE_INDEPENDENT_BAND,
     SCENE_MARKER,
+    SCENE_PAIRED_BAND,
     is_scene_marker_line,
+    pack_scenes,
+    parse_scene_declarations,
+    split_scenes,
     strip_scene_markers,
     total_chars_md_text,
 )
@@ -39,19 +44,13 @@ __all__ = [
     "pack_scenes",
     "parse_scene_declarations",
     "split_bundle",
+    "split_scenes",
     "strip_scene_markers",
     "validate_split",
 ]
 
 #: Chapter-boundary marker — staging bundle only, stripped on promotion.
 CH_MARKER_RE = re.compile(r"^===CH:(\d+)===$")
-
-#: Scene-size domains (spec #72 施工面 2 two-type rule):
-#: 独立型 [1800, 2000] packs alone as one 更; 配对型 [900, 1400] packs in
-#: adjacent pairs. The open interval [1400, 1800) is the planning-fragile
-#: gray zone — banned, splitter-enforced.
-SCENE_INDEPENDENT_BAND = (1800, 2000)
-SCENE_PAIRED_BAND = (900, 1400)
 
 #: Memo scene-budget declaration line (planning SKILL contract):
 #: ``- 场景1: 1900字｜独立型｜收束钩：<hook text>``
@@ -103,18 +102,6 @@ def chapter_total_chars(text: str) -> int:
     ``gates.shared.total_chars_md_text`` — SCENE marker lines excluded there).
     """
     return total_chars_md_text(text)
-
-
-def parse_scene_declarations(memo_text: str) -> list[tuple[int, int, str, str]]:
-    """Declared scene budgets from a planning memo.
-
-    Returns ``[(场景序号, 字数, 型别, 钩原文), ...]``; empty list when the
-    memo carries no scene-budget block (pre-#72 memos).
-    """
-    return [
-        (int(m.group(1)), int(m.group(2)), m.group(3), m.group(4))
-        for m in _SCENE_DECL_RE.finditer(memo_text)
-    ]
 
 
 def _h1s(lines: list[str]) -> list[str]:
@@ -242,33 +229,3 @@ def validate_split(ch: SplitChapter, band: tuple[int, int]) -> list[str]:
     issues.extend(_scene_domain_violations(ch))
     issues.extend(_composition_violations(ch, band))
     return issues
-
-
-def pack_scenes(sizes: list[int], update_band: tuple[int, int]) -> list[list[int]] | None:
-    """Greedy scene-run packing for 番茄 更 (spec 施工面 6).
-
-    Groups consecutive scenes so each group's sum lands in ``update_band``.
-    Deterministic — the SAME function backs the G4.cp precheck and
-    release_split v2, so precheck-pass guarantees v2-pass on the same input.
-    Returns the grouping, or ``None`` when the sequence is greedy-unpackageable
-    (CONSERVATIVE: a greedy-failing sequence may admit a non-greedy partition,
-    e.g. [1800, 900, 900] fails here though [[1800], [900, 900]] is valid —
-    such bundles take a planning re-dispatch; pinned by test).
-    """
-    lo, hi = update_band
-    groups: list[list[int]] = []
-    current: list[int] = []
-    for size in sizes:
-        if size > hi:
-            return None  # single scene can never fit
-        if current and sum(current) + size > hi:
-            if sum(current) < lo:
-                return None  # closing under-weight with no room to extend
-            groups.append(current)
-            current = []
-        current.append(size)
-    if current:
-        if sum(current) < lo:
-            return None
-        groups.append(current)
-    return groups

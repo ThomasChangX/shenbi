@@ -52,6 +52,98 @@ def strip_scene_markers(text: str) -> str:
     return "\n".join(ln for ln in text.split("\n") if not is_scene_marker_line(ln))
 
 
+#: Scene-size domains (spec #72 two-type rule): 独立型 [1800, 2000] packs alone
+#: as one 更; 配对型 [900, 1400] packs in adjacent pairs; [1400, 1800) is the
+#: banned gray zone. Single source for planner/splitter/G4/v2.
+SCENE_INDEPENDENT_BAND = (1800, 2000)
+SCENE_PAIRED_BAND = (900, 1400)
+
+#: Memo scene-budget declaration line (planning SKILL contract):
+#: ``- 场景1: 1900字｜独立型｜收束钩：<hook text>``
+_SCENE_DECL_RE = re.compile(
+    r"^-\s*场景(\d+):\s*(\d+)字｜(独立型|配对型)｜收束钩：(.+?)\s*$",
+    re.MULTILINE,
+)
+
+
+def parse_scene_declarations(memo_text: str) -> list[tuple[int, int, str, str]]:
+    """Declared scene budgets from a planning memo (pure text parse).
+
+    Returns ``[(场景序号, 字数, 型别, 钩原文), ...]``; empty when the memo
+    carries no scene-budget block (pre-#72 memos).
+    """
+    return [
+        (int(m.group(1)), int(m.group(2)), m.group(3), m.group(4))
+        for m in _SCENE_DECL_RE.finditer(memo_text)
+    ]
+
+
+def split_scenes(text: str) -> list[tuple[int, str]]:
+    """Marker-delimited scenes of ONE chapter file: [(size, last_line), ...].
+
+    Scene k spans (marker_k, next marker | first trailing meta H2); pure
+    text split — the G4 scene checks and revision revalidation consume this
+    without needing the bundle machinery.
+    """
+    lines = text.split("\n")
+    marker_idx = [i for i, ln in enumerate(lines) if is_scene_marker_line(ln)]
+    if not marker_idx:
+        return []
+    trailing_meta = next(
+        (i for i, ln in enumerate(lines) if ln.startswith("## ") and i > marker_idx[-1]),
+        len(lines),
+    )
+    out: list[tuple[int, str]] = []
+    for k, start in enumerate(marker_idx):
+        end = marker_idx[k + 1] if k + 1 < len(marker_idx) else trailing_meta
+        seg = [ln for ln in lines[start + 1 : end] if ln.strip()]
+        if not seg:
+            continue
+        size = sum(len(re.sub(r"\s", "", ln)) for ln in seg)
+        out.append((size, seg[-1].strip()))
+    return out
+
+
+def pack_scenes(
+    sizes: list[int],
+    update_band: tuple[int, int],
+    *,
+    allow_open_tail: bool = False,
+) -> list[list[int]] | None:
+    """Greedy scene-run packing for 番茄 更 (spec 施工面 6; pure math).
+
+    Deterministic single source — the SAME function backs the G4.cp precheck
+    and release_split v2, so precheck-pass guarantees v2-pass on the same
+    input. Returns the grouping, or ``None`` when greedy-unpackageable
+    (CONSERVATIVE: a greedy-failing sequence may admit a non-greedy partition,
+    e.g. [1800, 900, 900] fails here though [[1800], [900, 900]] is valid —
+    such bundles take a planning re-dispatch; pinned by test).
+
+    ``allow_open_tail=True`` (planning-time precheck): the FINAL run may be
+    under-weight — a bundle's trailing 配对型 scene legitimately pairs with
+    the NEXT bundle's first scene, so the precheck window ends open. v2's
+    terminal packing keeps the default (every 更 complete within the packed
+    window).
+    """
+    lo, hi = update_band
+    groups: list[list[int]] = []
+    current: list[int] = []
+    for size in sizes:
+        if size > hi:
+            return None  # single scene can never fit
+        if current and sum(current) + size > hi:
+            if sum(current) < lo:
+                return None  # closing under-weight with no room to extend
+            groups.append(current)
+            current = []
+        current.append(size)
+    if current:
+        if sum(current) < lo and not allow_open_tail:
+            return None
+        groups.append(current)
+    return groups
+
+
 CHAPTER_HEADER_RE = re.compile(r"^#\s+Chapter\s+\d+:", re.MULTILINE)
 CHAPTER_NUM_RE = re.compile(r"chapter-(\d+)")
 

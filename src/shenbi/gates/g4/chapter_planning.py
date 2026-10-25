@@ -7,9 +7,14 @@ from typing import Any
 import re
 
 from shenbi.gates.shared import (
+    SCENE_INDEPENDENT_BAND,
+    SCENE_PAIRED_BAND,
     fail,
+    pack_scenes,
+    parse_scene_declarations,
     passed,
     resolve_input_path,
+    split_scenes,
 )
 
 
@@ -42,6 +47,59 @@ def g4_chapter_planning(
         # both registry files absent (phase 1) → nothing to check against
         if registry_parts:
             registered_hooks = set(re.findall(r"MH\d+", "\n".join(registry_parts)))
+
+    # ── spec #72 G4.cp.scene_budget — 场景预算两型域/组合/可打包性预检 ──
+    # 在 planning 时点拦截不可打包的预算序列（替代发布期不可执行的「回 planning」）：
+    # 前章末场景字数取自已收束章文件标记（实际值，非声明）；首 bundle 无前章跳过跨章段。
+    for fp in fps or []:
+        p_ = Path(fp)
+        if not p_.is_file():
+            continue
+        decls = parse_scene_declarations(p_.read_text(encoding="utf-8"))
+        if not decls:
+            continue  # 旧式备忘（无场景块）——存量兼容
+        n_match = re.search(r"chapter-(\d+)", p_.name)
+        chapter_no = int(n_match.group(1)) if n_match else None
+        issues: list[str] = []
+        if not 2 <= len(decls) <= 3:
+            issues.append(f"场景数 {len(decls)} 不在 2-3")
+        for idx, (_num, size, kind, _hook) in enumerate(decls, 1):
+            lo_i, hi_i = SCENE_INDEPENDENT_BAND
+            lo_p, hi_p = SCENE_PAIRED_BAND
+            in_ind = lo_i <= size <= hi_i
+            in_pair = lo_p <= size <= hi_p
+            if kind == "独立型" and not in_ind:
+                issues.append(f"场景{idx} 声明独立型但 {size} 不落 [1800,2000]")
+            if kind == "配对型" and not in_pair:
+                issues.append(f"场景{idx} 声明配对型但 {size} 不落 [900,1400]")
+            if not (in_ind or in_pair):
+                issues.append(f"场景{idx}={size} 落灰域 [1400,1800)")
+        sizes = [d[1] for d in decls]
+        total = sum(sizes)
+        band_lo, band_hi = 2800, 4000
+        indep_count = sum(1 for d in decls if d[2] == "独立型")
+        if len(decls) == 2 and indep_count != 2:
+            issues.append("2 场景章须两独立型（和 [3600,4000]）")
+        if len(decls) == 3 and indep_count not in (0, 1):
+            issues.append("3 场景章须三配对型或一独两配")
+        if not band_lo <= total <= band_hi:
+            issues.append(f"章和 {total} 不在 [{band_lo},{band_hi}]")
+        # 跨章可打包性：前章末实际场景 + 本序列贪心打包
+        seq: list[int] = []
+        if chapter_no is not None and project_dir:
+            prev = Path(project_dir) / "chapters" / f"chapter-{chapter_no - 1}.md"
+            if prev.is_file():
+                prev_scenes = split_scenes(prev.read_text(encoding="utf-8"))
+                if prev_scenes:
+                    seq.append(prev_scenes[-1][0])
+        seq.extend(sizes)
+        fanqie_band = (1800, 2800)
+        if pack_scenes(seq, fanqie_band, allow_open_tail=True) is None:
+            issues.append(f"贪心不可打包（序列 {seq}，更带 {fanqie_band}）——请调整场景预算组合")
+        if issues:
+            mf.append(f"G4.cp.scene_budget:{fp}:" + ";".join(issues))
+        else:
+            c.append({"id": "G4.cp.scene_budget", "file": fp, "s": GateStatus.PASS})
 
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
