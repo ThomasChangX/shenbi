@@ -52,7 +52,6 @@
       "shenbi-volume-consolidation"
     ],
     "writes": [
-      "shenbi-chapter-drafting",
       "shenbi-sequel-writing",
       "shenbi-short-drafting"
     ],
@@ -355,10 +354,24 @@
       "shenbi-score-arc"
     ]
   },
+  "staging/chapter-N-bundle.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-chapter-drafting"
+    ],
+    "updates": []
+  },
   "chapters/chapter-N-decisions.json": {
     "reads": [
       "shenbi-chapter-revision"
     ],
+    "writes": [
+      "shenbi-chapter-drafting"
+    ],
+    "updates": []
+  },
+  "chapters/chapter-{N+1}-decisions.json": {
+    "reads": [],
     "writes": [
       "shenbi-chapter-drafting"
     ],
@@ -487,6 +500,20 @@
     "updates": []
   },
   "plans/chapter-N-plan-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-chapter-planning"
+    ],
+    "updates": []
+  },
+  "plans/chapter-{N+1}-plan.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-chapter-planning"
+    ],
+    "updates": []
+  },
+  "plans/chapter-{N+1}-plan-decisions.json": {
     "reads": [],
     "writes": [
       "shenbi-chapter-planning"

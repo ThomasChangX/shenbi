@@ -27,6 +27,10 @@ contract:
     mode: create_or_overwrite
   - file: plans/chapter-N-plan-decisions.json
     mode: create_or_overwrite
+  - file: plans/chapter-{N+1}-plan.md
+    mode: create_or_overwrite
+  - file: plans/chapter-{N+1}-plan-decisions.json
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -46,10 +50,32 @@ contract:
 ## 数据契约
 
 - **Reads:** novel.json, genre-config.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md, foundation/review_report.md
-- **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json
+- **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json, plans/chapter-{N+1}-plan.md, plans/chapter-{N+1}-plan-decisions.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
+
+## 双章 bundle 协议（spec #72 粒度契约）
+
+一次派发 = 一个场景簇 = **连续 2 章**（卷末奇数章退化为单章备忘——簇不跨卷界）。
+产出两份**完全独立**的备忘，各自包含：
+
+- 章尾张力拍（两章各自独立收束，不得写成一条长弧）
+- **场景预算与收束钩块**（两型规则，机器可解析——逐字按下述格式）：
+
+```
+### 场景预算与收束钩（#72 粒度契约）
+- 场景1: 1900字｜独立型｜收束钩：<钩原文一行>
+- 场景2: 1350字｜配对型｜收束钩：<钩原文一行>
+- 章尾钩：<章末句原文>
+```
+
+- 场景两型域：独立型 [1800,2000]（单场景成更）/ 配对型 [900,1400]（相邻场景
+  配对成更）；**禁 [1400,1800) 灰域**（既不能独立 ≥1800 又不能配对 ≤2800）
+- 章组合约束：2 场景章 = 两独立型（和 [3600,4000]）；3 场景章 = 三配对型
+  （和 ≥2800）或一独两配；场景数 2-3/章
+- 收束钩原文将被 drafting 逐字落款于场景末行、G4 精确匹配——写定稿句，不写概述
+- 共享一次上下文读取；跨章可衔接但两章备忘互不依赖
 
 ## Input: Plan Skeleton
 

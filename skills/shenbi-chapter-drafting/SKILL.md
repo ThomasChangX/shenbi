@@ -27,9 +27,11 @@ contract:
     - chapterTypes
   - truth/audit_drift.md
   writes:
-  - file: chapters/chapter-N.md
+  - file: staging/chapter-N-bundle.md
     mode: create_or_overwrite
   - file: chapters/chapter-N-decisions.json
+    mode: create_or_overwrite
+  - file: chapters/chapter-{N+1}-decisions.json
     mode: create_or_overwrite
   updates: []
 ---
@@ -44,10 +46,26 @@ contract:
 ## 数据契约
 
 - **Reads:** plans/chapter-N-plan.md, context/chapter-N-context.md, context/chapter-N-context-decisions.json, style/style_profile.md, style/style_directives.md, style/anchors.md, genre-config.json, truth/audit_drift.md
-- **Writes:** chapters/chapter-N.md, chapters/chapter-N-decisions.json
+- **Writes:** staging/chapter-N-bundle.md, chapters/chapter-N-decisions.json, chapters/chapter-{N+1}-decisions.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
+
+## 场景簇产物协议（spec #72 粒度契约）
+
+一次派发 = 连续 2 章（约 6400 字；卷末单章簇退化为 1 章）。产物形态：
+
+- **staging 簇产物** `staging/chapter-N-bundle.md`：每章一段完整现行章结构——
+  `===CH:n===` 行起章（章界标记，拆分后剥离）、`## PRE_WRITE_CHECK` 块、
+  **双 H1（其二为章题）**、正文、`## POST_WRITE_SELF_CHECK` 块
+- **SCENE 标记**：`<!--SCENE-->` 独占一行置于每场景开头（耐久标记——终稿保留，
+  发布层剥离；计数面自动豁免）
+- **每场景末行 = 备忘声明的收束钩原文逐字落款**（G4 声明-实际精确匹配：
+  声明文本剥空白须为场景末非空行子串）
+- 每章末尾必须落在备忘声明的章尾钩上
+- 两份章级 decisions sidecar（章 1 与章 2 各一）照常产出
+- 拆分器（pipeline-scene-split 步）将按 CH 标记拆章并逐章校验：字数带
+  2800-4000（total_chars 口径）、场景数 ≥2、每场景字数落两型域——灰域即熔断重派
 
 # 章节起草
 
