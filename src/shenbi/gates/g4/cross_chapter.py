@@ -130,6 +130,100 @@ def protagonist_binding_hits(text: str, name: str, whitelist: tuple[str, ...]) -
     return hits
 
 
+_CN_NUMS = {
+    "一": 1,
+    "二": 2,
+    "三": 3,
+    "四": 4,
+    "五": 5,
+    "六": 6,
+    "七": 7,
+    "八": 8,
+    "九": 9,
+    "十": 10,
+}
+_CN_MONTHS = {f"{m}月": m for m in range(1, 13)}
+
+
+def _cn_day(tok: str) -> int | None:
+    """初十/十五/廿三/初七 → 日数；不可解析 None。"""
+    tok = tok.replace("初", "").replace("廿", "二十")
+    if tok == "十":
+        return 10
+    if tok == "二十":
+        return 20
+    if tok == "三十":
+        return 30
+    if len(tok) == 1 and tok in _CN_NUMS:
+        return _CN_NUMS[tok]
+    if len(tok) == 2 and tok[0] == "十" and tok[1] in _CN_NUMS:
+        return 10 + _CN_NUMS[tok[1]]
+    if len(tok) == 2 and tok[1] == "十" and tok[0] in _CN_NUMS:
+        return _CN_NUMS[tok[0]] * 10
+    return None
+
+
+# day 后负向前瞻排除量词（十二天/二十步类误命中）；「月名+日」或裸「初X/日」形态
+# 带月锚：月名 + 中文日（单字允许——「腊月初七」）
+_MONTHDAY_RE = re.compile(
+    r"(?:(\d{1,2})月|([正腊冬]+月|十一月|十二月|一月|二月))"
+    r"(初[一二三四五六七八九十]|十[一二三四五六七八九]|廿[一二三四五六七八九]|[一二三四五六七八九])(?![天步年遍次章人条枚文块日历谱卷])"
+)
+# 无月锚：两字日形态（初X/十X/廿X）——单字裸数字过宽禁用
+_BARE_DAY_RE = re.compile(
+    r"(初[一二三四五六七八九十]|十[一二三四五六七八九]|廿[一二三四五六七八九])(?![天步年遍次章人条枚文块日历谱卷])"
+)
+
+
+def normalize_anchor(text: str, default_month: int | None) -> tuple[int, int] | None:
+    """正文/声明中的中文锚 → (month, day)；无月继承 default_month。"""
+    m = _MONTHDAY_RE.search(text)
+    if m:
+        if m.group(1):
+            month: int | None = int(m.group(1))
+        else:
+            alias = {
+                "正月": 1,
+                "腊月": 12,
+                "冬月": 11,
+                "十一月": 11,
+                "十二月": 12,
+                "一月": 1,
+                "二月": 2,
+            }
+            month = alias.get(m.group(2), default_month)
+        day = _cn_day(m.group(3))
+        if month is not None and day is not None:
+            return (month, day)
+    b = _BARE_DAY_RE.search(text)
+    if b and default_month is not None:
+        day = _cn_day(b.group(1))
+        if day is not None:
+            return (default_month, day)
+    return None
+
+
+def chapter_last_anchor(text: str, default_month: int | None = None) -> tuple[int, int] | None:
+    """前章末锚（正文派生——从后向前找可解析锚；无月锚继承 default_month）。"""
+    for chunk in reversed(text.split("\n")):
+        a = normalize_anchor(chunk, default_month)
+        if a:
+            return a
+    return None
+
+
+def chapter_all_anchors(text: str, default_month: int | None = None) -> list[tuple[int, int]]:
+    """本章全部可解析锚（wound 形态：任一叙事锚早于前章末锚即回拨——
+    引用/书本日期与叙事日期同集合比较，回忆句属回拨须标记，设计内）。
+    """
+    out = []
+    for chunk in text.split("\n"):
+        a = normalize_anchor(chunk, default_month)
+        if a:
+            out.append(a)
+    return out
+
+
 def check_cross_chapter(
     chapter_path: Path,
     prev_path: Path | None,
@@ -156,6 +250,21 @@ def check_cross_chapter(
         if not declared or declared != cur_pov:
             issues.append(
                 f"POV 人称断裂: 前章 {prev_pov} → 本章 {cur_pov} 且无 POV 变更声明"
+                "（修复者: planning+drafting）"
+            )
+
+    # ── 不变量 3: 时间锚单调（正文派生恒跑；[回拨] 声明豁免全章）──
+    # 本章任一叙事锚早于前章末锚即回拨（无月锚继承本章最早月上下文）
+    cur_anchors = chapter_all_anchors(cur_text)
+    month_hint = cur_anchors[0][0] if cur_anchors else None
+    prev_anchor = chapter_last_anchor(prev_text, month_hint)
+    if prev_anchor and cur_anchors:
+        declared_anchor = decls.get("时间锚", "")
+        flashback = declared_anchor.startswith("[回拨]")
+        back = min(cur_anchors)
+        if back < prev_anchor and not flashback:
+            issues.append(
+                f"时间锚回拨: 前章末 {prev_anchor} → 本章最早锚 {back} 无 [回拨] 声明"
                 "（修复者: planning+drafting）"
             )
 
