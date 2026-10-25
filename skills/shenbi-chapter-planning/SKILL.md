@@ -5,6 +5,8 @@ description: Use when planning the next chapter, generating chapter memo, or dec
 contract:
   kind: artifact
   reads:
+  # #76: protagonist 全卡读（voice_profile 是 frontmatter，字段级切片不可用）
+  - characters/protagonist.md
   - novel.json
   - file: genre-config.json
     fields:
@@ -49,7 +51,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** novel.json, genre-config.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md, foundation/review_report.md
+- **Reads:** characters/protagonist.md, novel.json, genre-config.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md, foundation/review_report.md
 - **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json, plans/chapter-{N+1}-plan.md, plans/chapter-{N+1}-plan-decisions.json
 - **Updates:** none
 
@@ -199,6 +201,10 @@ digraph chapter_planning {
 ```markdown
 ## 1. 当前任务
 
+plan_format: v2
+
+> 版本令牌（#76）：段1 首行；合法值 v1/v2，缺席 = v1。v2 备忘额外义务：声口要求行 + 金句位行（`金句位: 静/燃｜写法｜落点`——drafting PRE_WRITE_CHECK 与章尾钩行三点同型照抄）。
+
 chapter_role: 高潮
 
 > 合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫
@@ -212,6 +218,10 @@ emotion_tone: 悲
 > 合法值：悲/喜/怒/惧/平（对齐 rhythm_principles「单调性检测规则」词表）。规划时对照近 3 章基调（近章备忘/摘要可得时引之；不可得时按本章自评声明）——连续 ≥3 章同基调，本章必须变调（一抑一扬）；跨章排程由 chapter-pattern 单调性检测事后把关（N=4 报警）。
 
 **payoff 拍**: [类型｜强度]
+
+声口要求: [protagonist 口癖/句式要点一行——从 characters/protagonist.md 的 voice_profile 提炼（口癖串＋账房腔句式＋自嘲反问收尾各取其要）；v2 必含]
+
+金句位: [静/燃｜写法三选一｜落点场景]（v2 必含——「静」=冷/准/收敛，「燃」=可传播的狠/燃；类型轴与写法轴正交）
 
 **金句位**: [对比/反差/口诀化｜落点场景]（对齐卷纲「金句、母题物象与梗位」行的排期；drafting PRE_WRITE_CHECK 照抄本行）
 

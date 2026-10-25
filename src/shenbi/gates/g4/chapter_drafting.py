@@ -6,6 +6,8 @@ from typing import Any
 import re
 from pathlib import Path
 
+from shenbi.text.voice_lexicon import catchphrases_from_card, distinct_voice_signals
+
 from shenbi.gates.shared import (
     FATIGUE_BASE,
     META_BLOCK_RE,
@@ -597,6 +599,48 @@ def g4_chapter_drafting(
             r"## POST_WRITE_SELF_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL
         )
 
+        # ── spec #76: plan_format v2 版本条件化（密度 + 金句位类型三点同步）──
+        # v2 判据 = memo plans/chapter-N-plan.md 段1 令牌；v1 旧路径持续可跑
+        # （#75 回归集/CI fixtures 全为 v1——密度 WARN、金句位旧格式 PASS）。
+        _memo_v2 = False
+        _mp: Path | None = None
+        if project_dir:
+            _cn = re.search(r"chapter-(\d+)", Path(pf).name)
+            if _cn:
+                _mp = Path(project_dir) / "plans" / f"chapter-{_cn.group(1)}-plan.md"
+                if _mp.is_file():
+                    _pfv = re.search(
+                        r"^plan_format[：:]\s*v2\s*$", _mp.read_text(encoding="utf-8"), re.MULTILINE
+                    )
+                    _memo_v2 = _pfv is not None
+        _body = strip_narrative_body(content)
+        _cps: list[str] = []
+        if project_dir:
+            _pcard = Path(project_dir) / "characters" / "protagonist.md"
+            if _pcard.is_file():
+                _cps = catchphrases_from_card(_pcard.read_text(encoding="utf-8"))
+        _signals = distinct_voice_signals(_body, _cps)
+        _vdm = (
+            (read_genre_config(project_dir or str(pf.parent)) or {})
+            .get("market_params", {})
+            .get("voice_density_min", {})
+        )
+        _vmin = int(_vdm.get("min_per_chapter", 2)) if _vdm else 2
+        if _memo_v2 and _signals < _vmin:
+            mf.append(
+                f"G4.cd.voice_density:{fp}:{_signals}<{_vmin} "
+                "(v2 章——备忘声口要求行未兑现；修复者: drafting)"
+            )
+        else:
+            c.append(
+                {
+                    "id": "G4.cd.voice_density",
+                    "file": fp,
+                    "s": GateStatus.PASS if _memo_v2 else GateStatus.WARN,
+                    "r": f"signals={_signals}/{_vmin}"
+                    + ("" if _memo_v2 else " (v1 章——dispatch 域外，WARN 口径)"),
+                }
+            )
         golden_issues: list[str] = []
         pre_val: str | None = None
         if pre_block:
@@ -611,6 +655,36 @@ def g4_chapter_drafting(
                 post_ok = True
         if not post_ok:
             golden_issues.append("POST lacks 金句 excerpt line")
+        _quote_type_ok = True
+        if _memo_v2:
+            # 三点同步：memo 段1 金句位行 → PRE 本章金句位行 → 章尾钩行 [?] 金句位行
+            _types: set[str] = set()
+            if _mp is not None and _mp.is_file():
+                _mm = re.search(
+                    r"^金句位[：:]\s*(静|燃)｜.*$",
+                    _mp.read_text(encoding="utf-8"),
+                    re.MULTILINE,
+                )
+                if _mm:
+                    _types.add(_mm.group(1))
+            if pre_val is not None:
+                _qt = re.match(r"(静|燃)｜", pre_val.strip())
+                if _qt:
+                    _types.add(_qt.group(1))
+                else:
+                    _quote_type_ok = False
+            _post_m = _GOLDEN_POST_RE.search(post_block.group(0)) if post_block else None
+            if _post_m:
+                _qt2 = re.match(r"(静|燃)｜", _post_m.group(1).strip())
+                if _qt2:
+                    _types.add(_qt2.group(1))
+                else:
+                    _quote_type_ok = False
+            if not _types or len(_types) > 1 or not _quote_type_ok:
+                mf.append(
+                    f"G4.cd.quote_type:{fp}:v2 金句位须「静/燃｜写法｜落点」三点同型"
+                    f"（观测类型集={sorted(_types) or '∅'}；修复者: drafting）"
+                )
         if golden_issues:
             c.append(
                 {
