@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-10-25（spec #72 chapter-granularity plan 创建 ✅ ready——10 task TDD，plan 审查 2 轮收敛）
-> **活跃 plan 数**：1 | **已归档**：128（见 `archive/`）
+> **最后更新**：2026-10-25（spec #72 plan Done 随 PR #248 归档——10 task 全执行）
+> **活跃 plan 数**：0 | **已归档**：128（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **2026-10-25-spec72-chapter-granularity.md** — spec #72 平台章粒度改革（🟥 P0 地基）：10 task TDD（常量四站/口径统一/scene_splitter 单源/bundle 步进+pipeline-scene-split/SKILL 契约/G4 场景与预检/修订重验/release_split v2/审计簇化/验收收尾）；plan 审查 2 轮收敛（2C/5I/10M 全修）
 
 ## 待执行的 spec → plan 映射
 

@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-10-25（novel-market-overhaul 总设计定稿：spec #72-#79 八连登记——卷一市场适配根治，旧九章全弃重生成）
-> **活跃 spec 数**：8
+> **最后更新**：2026-10-25（spec #72 chapter-granularity Done 随 PR #248 归档——市场适配层 8→7）
+> **活跃 spec 数**：7
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,17 +9,6 @@
 ---
 
 ## 执行队列
-
-### #72 · 平台章粒度改革（chapter-granularity）
-
-- **文件**：`2026-10-25-spec72-chapter-granularity.md`
-- **系列**：市场适配层（novel-market-overhaul 首批并行）
-- **状态**：Active
-- **优先级**：🟥 P0（地基——章数数学与生成契约，后续全部 spec 依赖）
-- **方法**：方案 C——平台章原生粒度 + 场景簇批量派发（一次派发 2 章）+ 声明式发布切分
-- **依赖**：无
-- **内容**：chapter_word 7600→3200（2800-4000 带）；primary_platform=qidian + 番茄档 1800-2800；planning 双章 bundle；drafting `===CH===`/`<!--SCENE-->` 标记契约（SCENE 标记耐久化于章文件，无 sidecar）；确定性拆分器；G4 逐章校验扩展（字数带/场景数/收束钩声明-实际匹配）；release_split v2 声明式切分（四硬规则，启发式退役）；volume-budget 重排接线（1316→约 3125 章，卷界字数锚不动）
-- **对应 plan**：待 writing-plans
 
 ### #73 · 大纲引擎置换与市场参数（engine-swap）
 

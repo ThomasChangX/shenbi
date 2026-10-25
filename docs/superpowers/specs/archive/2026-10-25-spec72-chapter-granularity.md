@@ -1,6 +1,6 @@
 # Spec #72 · 平台章粒度改革（chapter-granularity）
 
-> **Date:** 2026-10-25 | **Status:** Active (Revised 2026-10-25 R1 驳斥复核 + R2 设计审查（修订×标记一致性/天花板统一/卷界奇偶/钩谓词）+ R3 重审（修订后重验新接线/scenes.jsonl 退役/章解剖/口径统一/场景两型）+ R4 重审（口径表补全/内联块重挂/组合约束/manifest 谓词）+ R5 收敛轮（消费方表全量归位/步名钉死/跨章可打包性预检/幽灵测试名订正/标记谓词单源）+ R5.3 实现期订正（bundle 解剖顺序 PRE→双H1→正文——H1 前置会被 PRE 剥除边界吞掉正文)) | **Severity:** 🟥 P0（地基） | **方法:** 方案 C——平台章原生粒度 + 场景簇批量派发（一次派发 2 章）+ 声明式发布切分 | **系列:** 市场适配层（novel-market-overhaul） | **依赖:** 无 | **范围:** genre-config 常量与平台参数（含契约闭键集四站）/ novel.json 章数口径 / chapter-planning 与 chapter-drafting 双章 bundle 契约 + chapter_loop 派发循环 / 确定性拆分器 / G4 逐章校验扩展 / 章节修订×场景标记一致性 / release_split v2 / volume-budget 重排接线
+> **Date:** 2026-10-25 | **Status**: Done (PR #248)) | **Severity:** 🟥 P0（地基） | **方法:** 方案 C——平台章原生粒度 + 场景簇批量派发（一次派发 2 章）+ 声明式发布切分 | **系列:** 市场适配层（novel-market-overhaul） | **依赖:** 无 | **范围:** genre-config 常量与平台参数（含契约闭键集四站）/ novel.json 章数口径 / chapter-planning 与 chapter-drafting 双章 bundle 契约 + chapter_loop 派发循环 / 确定性拆分器 / G4 逐章校验扩展 / 章节修订×场景标记一致性 / release_split v2 / volume-budget 重排接线
 
 > 源自 2026-10-25 总设计 `2026-10-25-novel-market-overhaul-design.md` §2。用户决策：双平台（起点粒度生成为主、番茄发布层适配）；方案 C（原生+批量派发）。总设计 §2.3「修订路径：批量产物先拆分再按章修订」由施工面 9 承载；**本 spec 覆写总设计 §2.2 的 scenes.jsonl 边车条款**——场景边界真源改为章文件内标记，sidecar 索引整体退役（R3-I1：无消费方的索引 = dead-wire；章内标记可随时确定性重导任何所需信息）。
 
