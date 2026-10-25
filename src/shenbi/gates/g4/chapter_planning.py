@@ -6,16 +6,21 @@ from shenbi.status import GateStatus
 from typing import Any
 import re
 
+from shenbi.logging import get_logger
 from shenbi.gates.shared import (
     SCENE_INDEPENDENT_BAND,
     SCENE_PAIRED_BAND,
+    chapter_word_min_max,
     fail,
+    jload,
     pack_scenes,
     parse_scene_declarations,
     passed,
     resolve_input_path,
     split_scenes,
 )
+
+log = get_logger(__name__)
 
 
 def g4_chapter_planning(
@@ -49,10 +54,35 @@ def g4_chapter_planning(
             registered_hooks = set(re.findall(r"MH\d+", "\n".join(registry_parts)))
 
     # ── spec #72 G4.cp.scene_budget — 场景预算两型域/组合/可打包性预检 ──
-    # 在 planning 时点拦截不可打包的预算序列（替代发布期不可执行的「回 planning」）：
-    # 前章末场景字数取自已收束章文件标记（实际值，非声明）；首 bundle 无前章跳过跨章段。
+    # planning 时点拦截不可打包的预算序列。打包窗口 = 前章全场景（实际值）+
+    # 本备忘声明 + 邻章备忘声明（bundle 双备忘 staging 时点均在盘——R2 接缝
+    # 联合）；尾组开埠（allow_open_tail）配下 bundle 首场景。
+    _fanqie_band = (1800, 2800)
+    if project_dir:
+        try:
+            _gc = jload(str(Path(project_dir) / "genre-config.json"))
+            _fq = _gc.get("chapter_word", {}).get("fanqie_update", {})
+            if isinstance(_fq, dict) and _fq.get("min") and _fq.get("max"):
+                _fanqie_band = (int(_fq["min"]), int(_fq["max"]))
+        except (OSError, ValueError):
+            log.warning("cp_scene_budget_fanqie_band_fallback", band=_fanqie_band)
+    _mn_cfg, _mx_cfg = chapter_word_min_max(project_dir)
+    chapter_band = (_mn_cfg or 2800, _mx_cfg or 4000)
+
+    def _memo_decl_sizes(plan_path: Path) -> list[int]:
+        """Sibling memo's declared sizes (packing-window input)."""
+        if not plan_path.is_file():
+            return []
+        return [
+            size
+            for (_num, size, _kind, _hook) in parse_scene_declarations(
+                plan_path.read_text(encoding="utf-8")
+            )
+        ]
+
     for fp in fps or []:
-        p_ = Path(fp)
+        resolved = resolve_input_path(fp, rd)
+        p_ = Path(resolved)
         if not p_.is_file():
             continue
         decls = parse_scene_declarations(p_.read_text(encoding="utf-8"))
@@ -76,26 +106,35 @@ def g4_chapter_planning(
                 issues.append(f"场景{idx}={size} 落灰域 [1400,1800)")
         sizes = [d[1] for d in decls]
         total = sum(sizes)
-        band_lo, band_hi = 2800, 4000
         indep_count = sum(1 for d in decls if d[2] == "独立型")
         if len(decls) == 2 and indep_count != 2:
             issues.append("2 场景章须两独立型（和 [3600,4000]）")
         if len(decls) == 3 and indep_count not in (0, 1):
             issues.append("3 场景章须三配对型或一独两配")
-        if not band_lo <= total <= band_hi:
-            issues.append(f"章和 {total} 不在 [{band_lo},{band_hi}]")
-        # 跨章可打包性：前章末实际场景 + 本序列贪心打包
+        if not chapter_band[0] <= total <= chapter_band[1]:
+            issues.append(f"章和 {total} 不在 [{chapter_band[0]},{chapter_band[1]}]")
+        # 打包窗口：前章全场景（实际）+ 本声明 + 邻章备忘声明（R2 接缝联合）
         seq: list[int] = []
         if chapter_no is not None and project_dir:
             prev = Path(project_dir) / "chapters" / f"chapter-{chapter_no - 1}.md"
             if prev.is_file():
-                prev_scenes = split_scenes(prev.read_text(encoding="utf-8"))
-                if prev_scenes:
-                    seq.append(prev_scenes[-1][0])
+                seq.extend(s for s, _ll in split_scenes(prev.read_text(encoding="utf-8")))
         seq.extend(sizes)
-        fanqie_band = (1800, 2800)
-        if pack_scenes(seq, fanqie_band, allow_open_tail=True) is None:
-            issues.append(f"贪心不可打包（序列 {seq}，更带 {fanqie_band}）——请调整场景预算组合")
+        if chapter_no is not None:
+            for cand in (
+                p_.parent / f"chapter-{chapter_no + 1}-plan.md",
+                Path(project_dir or ".")
+                / "staging"
+                / "plans"
+                / f"chapter-{chapter_no + 1}-plan.md",
+                Path(project_dir or ".") / "plans" / f"chapter-{chapter_no + 1}-plan.md",
+            ):
+                sib = _memo_decl_sizes(cand)
+                if sib:
+                    seq.extend(sib)
+                    break
+        if pack_scenes(seq, _fanqie_band, allow_open_tail=True) is None:
+            issues.append(f"贪心不可打包（序列 {seq}，更带 {_fanqie_band}）——请调整场景预算组合")
         if issues:
             mf.append(f"G4.cp.scene_budget:{fp}:" + ";".join(issues))
         else:

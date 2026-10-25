@@ -1142,6 +1142,14 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
     """
     single = _resolve_g4_path(project_dir, step, chapter)
     files = [single] if single else []
+    # spec #72 R2: bundle planning also G4-validates the FOLLOWER memo (the
+    # leader's dispatch produced both; the follower iteration never re-runs
+    # planning, so this is its only G4.cp face).
+    if step.skill == "shenbi-chapter-planning" and step.output_path:
+        for n in bundle_chapters(project_dir, chapter)[1:]:
+            follower = _resolve_g4_path(project_dir, step, n)
+            if follower and (project_dir / follower).exists() and follower not in files:
+                files.append(follower)
     from shenbi.pipeline.checkpoint import STAGING_DIR
 
     # State-settling writes multiple truth files to staging/

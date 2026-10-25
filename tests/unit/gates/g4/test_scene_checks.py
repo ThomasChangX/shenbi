@@ -187,3 +187,48 @@ def test_cp_no_scene_block_skips(tmp_path: Path) -> None:
     d.mkdir(exist_ok=True)
     (d / "chapter-1-plan.md").write_text("# 旧备忘\n\n## 1. 节\n- x\n", encoding="utf-8")
     assert "G4.cp.scene_budget" not in _cp_result(tmp_path, 1)
+
+
+@pytest.mark.unit
+def test_cp_relative_staging_path(tmp_path: Path, monkeypatch) -> None:
+    """R1 regression: relative staging/ paths still detected when CWD != project."""
+    (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
+    staging = tmp_path / "staging" / "plans"
+    staging.mkdir(parents=True)
+    _plan(tmp_path, 1, [(1900, "独立型", HOOK1), (1900, "独立型", HOOK2)])
+    src = tmp_path / "plans" / "chapter-1-plan.md"
+    (staging / "chapter-1-plan.md").write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+    # 灰域版
+    bad_text = src.read_text(encoding="utf-8").replace("场景1: 1900字", "场景1: 1450字")
+    (staging / "chapter-1-plan.md").write_text(bad_text, encoding="utf-8")
+    monkeypatch.chdir("/")  # CWD 与 project 无关
+    result = g4_chapter_planning(
+        ["staging/plans/chapter-1-plan.md"], rd=str(tmp_path), project_dir=str(tmp_path)
+    )
+    assert "G4.cp.scene_budget:" in result
+    assert "灰域" in result
+
+
+@pytest.mark.unit
+def test_cp_bundle_seam_joint_packing(tmp_path: Path) -> None:
+    """R2 regression: leader open-tail + follower first-independent seam packing."""
+    (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
+    # leader 3×950（开尾）+ follower 首 1950：950+1950=2900 > 2800 → FAIL
+    _plan(
+        tmp_path,
+        1,
+        [(950, "配对型", HOOK1), (950, "配对型", HOOK2), (950, "配对型", HOOK1)],
+    )
+    _plan(tmp_path, 2, [(1950, "独立型", HOOK2), (1900, "独立型", HOOK1)])
+    result = _cp_result(tmp_path, 1)
+    assert "G4.cp.scene_budget:" in result
+
+
+@pytest.mark.unit
+def test_cp_prev_full_sequence_no_false_positive(tmp_path: Path) -> None:
+    """Y1 regression: prev [1900,950,950] + own first 1900 must NOT false-positive."""
+    (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
+    _chapter(tmp_path, 1, [(1900, HOOK1), (950, HOOK2), (950, HOOK1)])
+    _plan(tmp_path, 2, [(1900, "独立型", HOOK2), (1900, "独立型", HOOK1)])
+    result = _cp_result(tmp_path, 2)
+    assert "G4.cp.scene_budget:" not in result
