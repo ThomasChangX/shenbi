@@ -13,7 +13,7 @@
 | 3 | 时间锚单调 | 章内叙事日期不早于前章末锚点；回拨须有显式回拨标记 | truth 时间锚 registry + 前章末锚 |
 | 4 | 物象道具链归属 | 母题物象实体出现时 owner 链可还原（当前持有者=前章末持有者或经手事件） | pending_hooks MH 表**实体实例化改造**（R1：现按母题不按实体——MH03 一行盖三张纸；registry 记录与正文冲突时**以正文为唯一真值源**——回归集防自证清白） |
 | 5 | 角色卡属性一致 | 正文角色性别/所属机构/住所与角色卡一致 | characters/*.md |
-| 6 | 资产连续性 | 钱袋/债务等账目跳变须有来源（收入/支出事件对账；**章末钩窗口内的消失/少一枚形态属合法悬念豁免**——ch10 型） | **particle_ledger.md**（R1 修正：G4.cd 账目钩是句式检查非对账机制；结构化金额行 + 阈值 ≥10 文触发，实物互折记折算注记） |
+| 6 | 资产连续性 | 钱袋/债务等账目跳变须有来源（收入/支出事件对账；**章末钩窗口内的消失/少一枚形态属合法悬念豁免**——ch10 型） | **双源（R3-1）**：主源 = memo「余额声明行」（与时间锚声明行同机制——planning 同批产出，follower 章不缺数）；particle_ledger = 交叉校验（leader 可校/follower 恒 WARN-by-design 记入预期流）；阈值 ≥10 文，实物互折记折算注记 |
 
 ## 2. 施工面
 
@@ -27,8 +27,8 @@
 - **回归集 fixture 完整清单（R2-R3 钉死）**：`tests/fixtures/cross-chapter-regression/` 收——ch1-10 十章 + `characters/major/xiao-man.md` + `truth/{pending_hooks,particle_ledger,current_state}.md`（全部真实产物 G0.9 ✓ + G0.11 哈希）；**三新表（name_registry/timeline/prop_registry）不入库**——测试内 tmp_path 构造（G0.9 结构豁免：不冒充 skill 产物入库，#72 先例）；**调用面 = Python 函数直调**（tests import `g4_cross_chapter`——`shenbi-validate G4` 的 skill 键路由闭集不动，独立 CLI 动词 out of scope 记档）；#79 quarantine 副本保留原位
 - 失败消息携带违规位置与前章证据（沿用 G4.vo 失败消息模式）+ **修复者提示**（R2-Y4：不变量 1/2/3 → planning+drafting 重派（现熔断回 drafting 机制保留）；4/5 → settling/卡修；6 → settling——消息首段标修复者）
 - **G6.4 timeline 正则分支退役（R2-Y1）**：其阿拉伯数字正则永远匹配不了「腊月初十」类锚（旧伤漏网技术根因）——本 checker 上岗同批移除 G6.4 timeline 分支，避免双头检查
-- **修订重验扩展（R2-Y4）**：#72 `_revalidate_revised_chapter` 增跨章复跑（修订可推翻 step 5 的跨章 PASS）
-- **WARN 语义钉死（R2-R2）**：数据缺口 WARN 仅走 structlog 日志 + settle 滚动进 `truth/audit_drift.md`（观察面），**不落 manifest**——manifest 只记 PASS/FAIL，#72 release_split settled 谓词（latest-per-key 严格 PASS）语义零改动
+- **修订重验扩展（R2-Y4/R3-4）**：#72 `_revalidate_revised_chapter` 增跨章复跑，**双向扇出**（修订章 N 复跑 N-vs-N-1 与 N+1-vs-N——同批 bundle 内后继的前章对照已变）；POV 变更声明落场景预算块同区（R3-6）；不变量 2 主角指称绑定谓词 = 主语位/内汲动词绑定/邻句代词共指**三信号任二**（确定性正则——ch4:88「灯在心里过了一遍」内汲绑定形态实证；plan 钉正则细节，验收真 ch4-5 必中为过拟合护栏）；name_registry 整文件透传约定（settling 非 append_dedup 目标——无变更时原样透传 selections 全覆盖）
+- **WARN 语义钉死（R2-R2）**：数据缺口 WARN 仅走 structlog 日志 + settle 滚动进 `truth/audit_drift.md`（观察面），**不落 manifest**——manifest 只记 PASS/FAIL，#72 release_split settled 谓词（latest-per-key 严格 PASS）语义零改动；**manifest 键钉名（R3-2）：pipeline-scene-split skill 下独立 gate 键 `G4.xc`**——与 G4.cd 的 G4 键分离，防 latest-wins 掩蔽（record_gate_result 按 (skill,gate) 追加、读取取最新——同键混记会互相掩蔽）
 
 ### 契约与注册同步清单（R2-Y6）
 
