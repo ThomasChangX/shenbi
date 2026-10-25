@@ -68,7 +68,7 @@ def test_memo_declarations_parsed() -> None:
 
 
 @pytest.mark.integration
-def test_g4_entry_over_fixture_pair_clean_skeleton() -> None:
-    """Skeleton phase: fixture adjacent pair returns PASS (six checks empty)."""
+def test_g4_entry_reports_wound1() -> None:
+    """T2 onwards: ch2-vs-ch1 must surface the POV break."""
     result = g4_cross_chapter([str(FIX / "chapters" / "chapter-2.md")], rd=str(FIX / "chapters"))
-    assert '"status": "PASS"' in result or "PASS" in result
+    assert "POV" in result
