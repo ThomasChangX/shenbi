@@ -89,6 +89,18 @@ def g4_volume_outlining(
             # the SKILL checklist owns the instruction.
             if re.search(r"金句|梗位|彩蛋", last_vol):
                 c.append({"id": "G4.vo.quote_line", "s": GateStatus.PASS})
+                # spec #76: 梗位清单语法契约——段存在而 0「」跨度才 FAIL
+                # （行/段整体缺席维持上方 P2-6 WARN——卷二+ 过渡态政策）。
+                for _line in last_vol.split("\n"):
+                    if "梗位复用" not in _line:
+                        continue
+                    _seg = _line.split("梗位复用", 1)[1].lstrip("：:")
+                    _seg = re.split(r"[｜|]", _seg, maxsplit=1)[0]
+                    if not re.search(r"「[^」]+」", _seg):
+                        mf.append(
+                            "G4.vo.meme_grammar:梗位复用段存在但 0「」跨度"
+                            "（梗位项须引号短语——精确串计数口径）"
+                        )
             else:
                 c.append(
                     {
