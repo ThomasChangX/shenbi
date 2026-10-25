@@ -11,10 +11,13 @@ contract:
     - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
   writes:
     - file: audits/chapter-N-texture.md
+    - file: audits/chapter-{N+1}-texture.md
       mode: create_or_overwrite
     - file: audits/chapter-N-reader-pull.md
+    - file: audits/chapter-{N+1}-reader-pull.md
       mode: create_or_overwrite
     - file: audits/chapter-N-anti-ai.md
+    - file: audits/chapter-{N+1}-anti-ai.md
       mode: create_or_overwrite
   updates: []
 ---
@@ -29,7 +32,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, genre-config.json, plans/chapter-N-plan.md, truth/pending_hooks.md
-- **Writes:** audits/chapter-N-texture.md, audits/chapter-N-reader-pull.md, audits/chapter-N-anti-ai.md
+- **Writes:** audits/chapter-N-texture.md, audits/chapter-{N+1}-texture.md, audits/chapter-N-reader-pull.md, audits/chapter-{N+1}-reader-pull.md, audits/chapter-N-anti-ai.md, audits/chapter-{N+1}-anti-ai.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

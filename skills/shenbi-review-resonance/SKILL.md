@@ -24,6 +24,7 @@ contract:
   - truth/resonance_trend.md
   writes:
   - file: audits/chapter-N-resonance.md
+  - file: audits/chapter-{N+1}-resonance.md
     mode: create_or_overwrite
   updates:
   - file: truth/audit_drift.md
@@ -44,7 +45,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, style/style_profile.md, benchmarks/anchors/, truth/audit_drift.md, truth/resonance_trend.md
-- **Writes:** audits/chapter-N-resonance.md
+- **Writes:** audits/chapter-N-resonance.md, audits/chapter-{N+1}-resonance.md
 - **Updates:** truth/audit_drift.md, truth/resonance_trend.md
 
 <!-- END AUTO-GENERATED -->

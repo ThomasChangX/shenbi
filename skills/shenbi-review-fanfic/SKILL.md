@@ -11,6 +11,7 @@ contract:
   - source_canon/*
   writes:
   - file: audits/chapter-N-fanfic.md
+  - file: audits/chapter-{N+1}-fanfic.md
     mode: create_or_overwrite
   updates: []
 ---
@@ -25,7 +26,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, novel.json, source_canon/*
-- **Writes:** audits/chapter-N-fanfic.md
+- **Writes:** audits/chapter-N-fanfic.md, audits/chapter-{N+1}-fanfic.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

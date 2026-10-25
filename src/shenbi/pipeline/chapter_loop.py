@@ -378,28 +378,121 @@ def _filter_completed_audit_tasks(tasks: list[ReviewTask]) -> list[ReviewTask]:
     return [t for t in tasks if not all((t.project_dir / p).exists() for p in t.all_output_paths())]
 
 
+def _run_audit_close_for_chapter(
+    state: PipelineState, project_dir: Path, n: int, gc: dict[str, object], step: ChapterStep
+) -> bool:
+    """Audit close for ONE n (blocking detection -> revision loop).
+
+    Extracted from the _LAST_AUDIT_IDX site (spec #72 T9): the cursor
+    jumps over follower chapters, so the leader closes EVERY bundle
+    n. Returns True when a checkpoint/escalation was raised.
+    """
+    cs = _get_chapter_state(state, n)
+    while cs.audit_retry_count < 100:
+        audit_result = run_audit_layer(project_dir, n, gc)
+        cs.audit_results["blocking_found"] = audit_result.blocking_found
+        cs.audit_results["issues"] = audit_result.issues
+        cs.audit_results["audit_reports"] = audit_result.audit_reports
+
+        if not audit_result.blocking_found:
+            log.info("audit_layer_passed", n=n)
+            break
+
+        cs.audit_retry_count += 1
+        from shenbi.pipeline.error_handler import handle_audit_blocking
+
+        if not handle_audit_blocking(state, n, cs.audit_retry_count):
+            log.error(
+                "audit_blocking_escalation",
+                chapter=n,
+                retries=cs.audit_retry_count,
+            )
+            set_checkpoint(
+                state,
+                CheckpointType.ESCALATION,
+                chapter=n,
+                context=(
+                    f"Audit BLOCKING persists after {cs.audit_retry_count} "
+                    f"revision attempts for n {n}"
+                ),
+            )
+            return True  # checkpoint raised, pause for human
+
+        log.info(
+            "audit_blocking_revision",
+            chapter=n,
+            retry=cs.audit_retry_count,
+        )
+        # F10: re-audit changed the audit set — regenerate the aggregate
+        # so revision never consumes a stale one (correctness, not just
+        # efficiency).
+        write_audit_aggregate(project_dir, n)
+        rev = dispatch_skill(
+            "shenbi-chapter-revision",
+            project_dir,
+            f"Revise chapter {n} to fix audit BLOCKING issues.",
+            state=state,
+        )
+        if not rev.success:
+            return _handle_failure(
+                state,
+                step,
+                n,
+                "audit-revision",
+                project_dir,
+                failure_class=classify_dispatch_failure(
+                    returncode=rev.returncode, stderr=rev.stderr
+                ),
+            )
+
+    if cs.audit_retry_count >= 100:
+        log.error(
+            "audit_hard_cap_reached",
+            chapter=n,
+            retries=cs.audit_retry_count,
+        )
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            chapter=n,
+            context=(f"Audit revision hard cap (100) reached for n {n}. Manual review required."),
+        )
+        return True
+    return False
+
+
 def _wave_savepoint(
-    state: PipelineState, project_dir: Path, chapter: int
+    state: PipelineState,
+    project_dir: Path,
+    chapter: int,
+    wave_chapters: list[int] | None = None,
 ) -> Callable[[list[ReviewTask]], Callable[[int, DispatchResult], None]]:
     """C30 F377: return an ``on_task_complete`` closure for an audit wave.
 
     Persists the finished skill in ``audit_results["wave_completed"]`` and
     saves state after each completion — a crash loses at most the in-flight
-    skill, not the whole wave.
+    skill, not the whole wave. spec #72 T9: ``wave_chapters`` records BOTH
+    bundle chapters (default: single [chapter]).
     """
+    chapters = wave_chapters or [chapter]
 
     def _factory(tasks: list[ReviewTask]) -> Callable[[int, DispatchResult], None]:
         def _on_complete(idx: int, result: DispatchResult) -> None:
             skill = tasks[idx].skill
-            cs = state.chapter_loop.chapter_states.get(str(chapter))
-            done: list[str] = list(cs.audit_results.get("wave_completed") or []) if cs else []
-            if skill not in done:
-                done.append(skill)
-                # List form (not joined string): crash forensics read exact
-                # membership without substring-collision ambiguity.
-                state.add_audit_result(chapter, "wave_completed", done)
+            # spec #72 T9: cluster savepoint — the wave covered BOTH bundle
+            # chapters; a missing N+1 entry is a cascade blind spot.
+            for n in chapters:
+                cs = state.chapter_loop.chapter_states.get(str(n))
+                done: list[str] = list(cs.audit_results.get("wave_completed") or []) if cs else []
+                if skill not in done:
+                    done.append(skill)
+                    # List form (not joined string): crash forensics read exact
+                    # membership without substring-collision ambiguity.
+                    state.add_audit_result(n, "wave_completed", done)
             save_state(project_dir, state)
-            log.info("parallel_wave_savepoint", chapter=chapter, skill=skill)
+            log.info(
+                "parallel_wave_savepoint", chapter=chapter, chapters=wave_chapters, skill=skill
+            )
 
         return _on_complete
 
@@ -3255,11 +3348,30 @@ def _run_chapter_step_impl(
         # serially — assert_parallelizable rejects any non-read-only skill,
         # so leaving them in would fail the whole wave (F532, C32 R4).
         core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and "review" in s.skill]
+        # spec #72 T9: cluster dispatch — ONE prompt per skill covers the
+        # bundle's chapters; reports stay PER-CHAPTER (contract {N+1} brace
+        # writes make audit_report_paths(N) cover the follower's paths too,
+        # so leader single-resolution — never concatenate paths for m: that
+        # would phantom-resolve m+1 beyond the bundle).
+        wave_chapters = bundle_chapters(project_dir, chapter)
+        chapter_label = (
+            f"{wave_chapters[0]},{wave_chapters[1]}" if len(wave_chapters) > 1 else str(chapter)
+        )
+
+        def _cluster_prompt(skill: str) -> str:
+            if len(wave_chapters) > 1:
+                return (
+                    f"Execute {skill} for chapters {chapter_label} "
+                    f"(ONE dispatch covering BOTH chapters; produce each "
+                    f"chapter's report separately). Project dir: {project_dir}"
+                )
+            return f"Execute {skill} for chapter {chapter}. Project dir: {project_dir}"
+
         core_tasks = [
             ReviewTask(
                 skill=skill,
                 project_dir=project_dir,
-                prompt=f"Execute {skill} for chapter {chapter}. Project dir: {project_dir}",
+                prompt=_cluster_prompt(skill),
                 output_path=f"audits/chapter-{chapter}-{audit_suffix(skill)}.md",
                 # contract-derived writes (grouped skills produce several
                 # per-dimension reports; the convention single path is a
@@ -3293,7 +3405,7 @@ def _run_chapter_step_impl(
             ReviewTask(
                 skill=skill,
                 project_dir=project_dir,
-                prompt=f"Execute {skill} audit for chapter {chapter}.",
+                prompt=_cluster_prompt(skill).replace("Execute ", "Execute "),
                 output_path=audit_relative_path(chapter, skill),
                 output_paths=audit_report_paths(chapter, skill),
                 shared_context=shared_ctx,
@@ -3307,7 +3419,8 @@ def _run_chapter_step_impl(
         # audits as if they ran — operators and adjudicators read a
         # "persistence gap" into what was a cascade skip).
         if cascade_skipped:
-            state.add_audit_result(chapter, "cascade_skipped", sorted(set(cascade_skipped)))
+            for n in wave_chapters:
+                state.add_audit_result(n, "cascade_skipped", sorted(set(cascade_skipped)))
         genre_wave, genre_serial = _partition_review_wave(genre_tasks)
 
         genre_wave = _filter_completed_audit_tasks(genre_wave)
@@ -3316,7 +3429,9 @@ def _run_chapter_step_impl(
             log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_wave))
             genre_results = dispatch_reviews_parallel(
                 genre_wave,
-                on_task_complete=_wave_savepoint(state, project_dir, chapter)(genre_wave),
+                on_task_complete=_wave_savepoint(state, project_dir, chapter, wave_chapters)(
+                    genre_wave
+                ),
             )
         else:
             log.info("parallel_review_wave2_empty", chapter=chapter)
@@ -3876,80 +3991,12 @@ def _run_chapter_step_impl(
         if gc_path.exists():
             gc = json.loads(gc_path.read_text(encoding="utf-8"))
 
-        cs = _get_chapter_state(state, chapter)
-        while cs.audit_retry_count < 100:
-            audit_result = run_audit_layer(project_dir, chapter, gc)
-            cs.audit_results["blocking_found"] = audit_result.blocking_found
-            cs.audit_results["issues"] = audit_result.issues
-            cs.audit_results["audit_reports"] = audit_result.audit_reports
-
-            if not audit_result.blocking_found:
-                log.info("audit_layer_passed", chapter=chapter)
-                break
-
-            cs.audit_retry_count += 1
-            from shenbi.pipeline.error_handler import handle_audit_blocking
-
-            if not handle_audit_blocking(state, chapter, cs.audit_retry_count):
-                log.error(
-                    "audit_blocking_escalation",
-                    chapter=chapter,
-                    retries=cs.audit_retry_count,
-                )
-                set_checkpoint(
-                    state,
-                    CheckpointType.ESCALATION,
-                    chapter=chapter,
-                    context=(
-                        f"Audit BLOCKING persists after {cs.audit_retry_count} "
-                        f"revision attempts for chapter {chapter}"
-                    ),
-                )
-                return True  # checkpoint raised, pause for human
-
-            log.info(
-                "audit_blocking_revision",
-                chapter=chapter,
-                retry=cs.audit_retry_count,
-            )
-            # F10: re-audit changed the audit set — regenerate the aggregate
-            # so revision never consumes a stale one (correctness, not just
-            # efficiency).
-            write_audit_aggregate(project_dir, chapter)
-            rev = dispatch_skill(
-                "shenbi-chapter-revision",
-                project_dir,
-                f"Revise chapter {chapter} to fix audit BLOCKING issues.",
-                state=state,
-            )
-            if not rev.success:
-                return _handle_failure(
-                    state,
-                    step,
-                    chapter,
-                    "audit-revision",
-                    project_dir,
-                    failure_class=classify_dispatch_failure(
-                        returncode=rev.returncode, stderr=rev.stderr
-                    ),
-                )
-
-        if cs.audit_retry_count >= 100:
-            log.error(
-                "audit_hard_cap_reached",
-                chapter=chapter,
-                retries=cs.audit_retry_count,
-            )
-            set_checkpoint(
-                state,
-                CheckpointType.ESCALATION,
-                chapter=chapter,
-                context=(
-                    f"Audit revision hard cap (100) reached for chapter {chapter}. "
-                    f"Manual review required."
-                ),
-            )
-            return True
+        # spec #72 T9: the audit close (blocking detection -> revision
+        # routing) runs for EVERY bundle chapter — the cursor jumps over
+        # the follower, so this leader-side loop is its only close.
+        for _bc_n in bundle_chapters(project_dir, chapter):
+            if _run_audit_close_for_chapter(state, project_dir, _bc_n, gc, step):
+                return True
 
     # After review-resonance: parse score and run revision routing.
     if "review-resonance" in step.skill:

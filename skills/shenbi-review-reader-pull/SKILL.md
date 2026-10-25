@@ -11,6 +11,7 @@ contract:
   - truth/pending_hooks.md
   writes:
   - file: audits/chapter-N-reader-pull.md
+  - file: audits/chapter-{N+1}-reader-pull.md
     mode: create_or_overwrite
   updates: []
 ---
@@ -32,7 +33,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, truth/pending_hooks.md
-- **Writes:** audits/chapter-N-reader-pull.md
+- **Writes:** audits/chapter-N-reader-pull.md, audits/chapter-{N+1}-reader-pull.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

@@ -994,7 +994,21 @@
     ],
     "updates": []
   },
+  "audits/chapter-{N+1}-era.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-era"
+    ],
+    "updates": []
+  },
   "audits/chapter-N-fanfic.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-fanfic"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-fanfic.md": {
     "reads": [],
     "writes": [
       "shenbi-review-fanfic"
@@ -1012,11 +1026,32 @@
       "shenbi-state-settling"
     ]
   },
+  "audits/chapter-{N+1}-character.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-character"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-dialogue.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-character"
+    ],
+    "updates": []
+  },
   "audits/chapter-N-motivation.md": {
     "reads": [],
     "writes": [
       "shenbi-review-group-character",
       "shenbi-review-motivation"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-motivation.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-character"
     ],
     "updates": []
   },
@@ -1028,11 +1063,25 @@
     ],
     "updates": []
   },
+  "audits/chapter-{N+1}-pov.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-character"
+    ],
+    "updates": []
+  },
   "audits/chapter-N-texture.md": {
     "reads": [],
     "writes": [
       "shenbi-review-group-craft",
       "shenbi-review-texture"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-texture.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-craft"
     ],
     "updates": []
   },
@@ -1044,11 +1093,40 @@
     ],
     "updates": []
   },
+  "audits/chapter-{N+1}-reader-pull.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-craft",
+      "shenbi-review-reader-pull"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-anti-ai.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-craft"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-continuity.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-factual"
+    ],
+    "updates": []
+  },
   "audits/chapter-N-world-rules.md": {
     "reads": [],
     "writes": [
       "shenbi-review-group-factual",
       "shenbi-review-world-rules"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-world-rules.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-factual"
     ],
     "updates": []
   },
@@ -1060,11 +1138,32 @@
     ],
     "updates": []
   },
+  "audits/chapter-{N+1}-pacing.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-factual"
+    ],
+    "updates": []
+  },
   "audits/chapter-N-memo-compliance.md": {
     "reads": [],
     "writes": [
       "shenbi-review-group-plan",
       "shenbi-review-memo-compliance"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-memo-compliance.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-plan"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-foreshadowing.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-plan"
     ],
     "updates": []
   },
@@ -1076,6 +1175,13 @@
     "updates": []
   },
   "audits/chapter-N-long-span.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-long-span"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-long-span.md": {
     "reads": [],
     "writes": [
       "shenbi-review-long-span"
@@ -1096,6 +1202,20 @@
     "reads": [],
     "writes": [
       "shenbi-review-resonance"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-resonance.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-resonance"
+    ],
+    "updates": []
+  },
+  "audits/chapter-{N+1}-sensitivity.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-sensitivity"
     ],
     "updates": []
   },

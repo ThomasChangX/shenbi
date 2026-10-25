@@ -14,12 +14,16 @@ contract:
     - genre-config.json
   writes:
     - file: audits/chapter-N-character.md
+    - file: audits/chapter-{N+1}-character.md
       mode: create_or_overwrite
     - file: audits/chapter-N-dialogue.md
+    - file: audits/chapter-{N+1}-dialogue.md
       mode: create_or_overwrite
     - file: audits/chapter-N-motivation.md
+    - file: audits/chapter-{N+1}-motivation.md
       mode: create_or_overwrite
     - file: audits/chapter-N-pov.md
+    - file: audits/chapter-{N+1}-pov.md
       mode: create_or_overwrite
   updates: []
 ---
@@ -34,7 +38,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, characters/protagonist.md, characters/major/*.md, truth/character_matrix.md, truth/emotional_arcs.md, truth/current_state.md, genre-config.json
-- **Writes:** audits/chapter-N-character.md, audits/chapter-N-dialogue.md, audits/chapter-N-motivation.md, audits/chapter-N-pov.md
+- **Writes:** audits/chapter-N-character.md, audits/chapter-{N+1}-character.md, audits/chapter-N-dialogue.md, audits/chapter-{N+1}-dialogue.md, audits/chapter-N-motivation.md, audits/chapter-{N+1}-motivation.md, audits/chapter-N-pov.md, audits/chapter-{N+1}-pov.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
