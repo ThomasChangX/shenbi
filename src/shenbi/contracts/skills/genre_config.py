@@ -65,7 +65,7 @@ class GenreConfig(BaseModel):
     @field_validator("market_params")
     @classmethod
     def _market_params_structure(cls, v: dict[str, dict[str, int]]) -> dict[str, dict[str, int]]:
-        """Spec #73 三态：块缺席 PASS（可选）；块在场须五键齐且值域合法。
+        """Spec #73 三态：块缺席 PASS（可选）；块在场须三必键齐且值域合法。
 
         - payoff_density: window∈[1,10], min>=1（接线 #78 频次窗）
         - emotion_band: window∈[1,3], min>=1（接线 #78 下限）

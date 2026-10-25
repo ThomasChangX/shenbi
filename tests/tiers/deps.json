@@ -364,7 +364,7 @@
     "src/shenbi/contracts/skills/pacing_design.py": "sha256:60288f7d1f0f5b09b1f3787a37972a6112c8bc0794b7b4e4aca3ca79820431ba",
     "src/shenbi/contracts/skills/score_arc.py": "sha256:c60dd677b77d96865fbb1f5f60374a14415d3f658f678f3b51a47b1b379db0b0",
     "src/shenbi/contracts/skills/_scoring_base.py": "sha256:2fd7e3ed6909238455ef94021de04d71f13c45a3760b1d555200e82f6818f177",
-    "src/shenbi/contracts/skills/genre_config.py": "sha256:df1d7d826cfccfd0f5a7f47e4060c9927ac8627de75d4842b8ae3cbbc2fa1104",
+    "src/shenbi/contracts/skills/genre_config.py": "sha256:e4fc07c5175c1e1b09eb1deae6e0a7320607ef1e4133fbd8f48a40322aa4c31e",
     "src/shenbi/contracts/skills/__init__.py": "sha256:c61aecebac05c0aa3b38e33bc659e996ee5de9c2ed36e45a2a7e24b867e0b3e9",
     "src/shenbi/contracts/skills/worldbuilding.py": "sha256:c1a6cbad73c46a7aff176b2c98be7cb6bfa3646e073c96f685d182681d209ae2",
     "src/shenbi/contracts/skills/foreshadowing_resolve.py": "sha256:42207c8c2efa7dcb2f15b8050ac3d8f62aa4ac43e04f94b0b6e503181a8718cc",
