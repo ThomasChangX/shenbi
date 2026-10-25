@@ -87,12 +87,41 @@ def test_band_drift_fails(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_g6_excludes_pre_rev_backups(tmp_path: Path) -> None:
+    """R4-I6 via the REAL gate: backups must not inflate G6.1 nor duplicate
+    ids in G6.2 (tautology-free -- reverting the filter in g6.py turns red).
+    """
+    import json as _json
+
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
+    (tmp_path / "novel.json").write_text(
+        _json.dumps({"target_word_count": 10_000_000}), encoding="utf-8"
+    )
     d = tmp_path / "chapters"
     d.mkdir()
     (d / "chapter-1.md").write_text("# 第1章\n\n灯" * 100, encoding="utf-8")
     (d / "chapter-1-pre-rev.md").write_text("# 第1章\n\n灯" * 100, encoding="utf-8")
-    from shenbi.pipeline.chapter_loop import chapter_sort_key
+    from shenbi.gates.g6 import gate_G6
 
-    picked = [f for f in d.glob("chapter-*.md") if not f.name.endswith("-pre-rev.md")]
-    assert [f.name for f in sorted(picked, key=chapter_sort_key)] == ["chapter-1.md"]
+    result = gate_G6("long-form", str(tmp_path), str(tmp_path))
+    parsed = json.loads(result)
+    mfs = [str(m) for m in parsed.get("must_fix", [])]
+    # 计数 = 1（备份不计入；过滤还原则 G6.1 变 2<… 或 G6.2 重复章号违例）
+    assert any(m.startswith("G6.1:1<") for m in mfs)
+    assert not any(m.startswith("G6.2:") for m in mfs)
+
+
+@pytest.mark.unit
+def test_scene_body_swap_fails_hook_order(tmp_path: Path) -> None:
+    """Scene-body swap (observable marker-reorder variant): hook-order
+    mismatch must be caught by revalidation.
+    """
+    ch = _mk(tmp_path, [(1900, HOOK1), (1900, HOOK2)], plan_hooks=[HOOK1, HOOK2])
+    backup = tmp_path / "chapters" / "chapter-1-pre-rev.md"
+    backup.write_text(ch.read_text(encoding="utf-8"), encoding="utf-8")
+    text = ch.read_text(encoding="utf-8")
+    s1 = "灯" * 1900 + "\n" + HOOK1
+    s2 = "灯" * 1900 + "\n" + HOOK2
+    revised = text.replace(s1, "@@TMP@@").replace(s2, s1).replace("@@TMP@@", s2)
+    ch.write_text(revised, encoding="utf-8")
+    issues = _revalidate_revised_chapter(tmp_path, 1)
+    assert any("钩" in i for i in issues)

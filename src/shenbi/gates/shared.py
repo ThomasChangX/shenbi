@@ -104,6 +104,33 @@ def split_scenes(text: str) -> list[tuple[int, str]]:
     return out
 
 
+def scene_hook_mismatches(
+    decls: list[tuple[int, int, str, str]], scenes: list[tuple[int, str]]
+) -> list[str]:
+    """Declared-vs-actual scene-hook mismatches (spec #72 single predicate).
+
+    ``decls`` from :func:`parse_scene_declarations`; ``scenes`` from
+    :func:`split_scenes`. Predicate: the declared hook text (whitespace-
+    stripped) must be a substring of the scene's final non-empty line.
+    Consumed by BOTH the G4.cd gate and the post-revision revalidation —
+    one predicate, no drift.
+    """
+    import re as _re
+
+    issues: list[str] = []
+    for k, (_num, _size, _kind, hook) in enumerate(decls):
+        want = _re.sub(r"\s", "", hook)
+        if k < len(scenes):
+            got = _re.sub(r"\s", "", scenes[k][1])
+            if want not in got:
+                issues.append(
+                    f"场景{k + 1} 钩未落款: 声明「{hook[:20]}」vs 末行「{scenes[k][1][:20]}」"
+                )
+        else:
+            issues.append(f"场景{k + 1} 声明多于实际场景数 {len(scenes)}")
+    return issues
+
+
 def pack_scenes(
     sizes: list[int],
     update_band: tuple[int, int],

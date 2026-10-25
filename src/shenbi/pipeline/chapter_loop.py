@@ -1150,28 +1150,25 @@ def _revalidate_revised_chapter(project_dir: Path, chapter: int) -> list[str]:
 
     plan = project_dir / "plans" / f"chapter-{chapter}-plan.md"
     if plan.is_file():
-        from shenbi.gates.shared import parse_scene_declarations
+        from shenbi.gates.shared import parse_scene_declarations, scene_hook_mismatches
 
         decls = parse_scene_declarations(plan.read_text(encoding="utf-8"))
         if decls:
-            scenes = split_scenes(text)
-            import re as _re
+            mismatches = scene_hook_mismatches(decls, split_scenes(text))
+            issues.extend(f"钩被改写: {m}" for m in mismatches)
 
-            for k, (_num, _size, _kind, hook) in enumerate(decls):
-                want = _re.sub(r"\s", "", hook)
-                if k < len(scenes):
-                    got = _re.sub(r"\s", "", scenes[k][1])
-                    if want not in got:
-                        issues.append(f"场景{k + 1} 钩被改写: 声明「{hook[:20]}」")
-                else:
-                    issues.append(f"场景{k + 1} 声明多于实际场景数 {len(scenes)}")
+    # 带口径对齐 G2/G4 消费方：地板走 chapter_word_floor 回退链，
+    # 天花板走 chapter_word_min_max（缺省回退并 WARN——T7 审查 I4）
+    from shenbi.gates.shared import chapter_word_floor
 
-    mn, mx = chapter_word_min_max(project_dir)
+    lo = chapter_word_floor(project_dir)
+    _mn, mx = chapter_word_min_max(project_dir)
+    if mx is None:
+        mx = 4000
+        log.warning("revision_revalidate_band_fallback", lo=lo, hi=mx)
     wc = total_chars_md_text(text)
-    lo = mn if mn is not None else 2800
-    hi = mx if mx is not None else 4000
-    if not lo <= wc <= hi:
-        issues.append(f"字数带漂移: {wc} 不在 [{lo},{hi}]")
+    if not (lo <= wc <= mx):
+        issues.append(f"字数带漂移: {wc} 不在 [{lo},{mx}]")
     return issues
 
 

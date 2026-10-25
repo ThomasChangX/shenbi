@@ -24,6 +24,7 @@ from shenbi.gates.shared import (
     strip_scene_markers,
     split_scenes,
     parse_scene_declarations,
+    scene_hook_mismatches,
     is_scene_marker_line,
 )
 from shenbi.logging import get_logger
@@ -373,18 +374,7 @@ def g4_chapter_drafting(
         if plan_text_src is not None:
             decls = parse_scene_declarations(plan_text_src)
             if decls:
-                scenes = split_scenes(content)
-                hook_issues: list[str] = []
-                for k, (_num, _size, _kind, hook) in enumerate(decls):
-                    want = re.sub(r"\s", "", hook)
-                    if k < len(scenes):
-                        got = re.sub(r"\s", "", scenes[k][1])
-                        if want not in got:
-                            hook_issues.append(
-                                f"场景{k + 1} 钩未落款: 声明「{hook[:20]}」vs 末行「{scenes[k][1][:20]}」"
-                            )
-                    else:
-                        hook_issues.append(f"场景{k + 1} 声明多于实际场景数 {len(scenes)}")
+                hook_issues = scene_hook_mismatches(decls, split_scenes(content))
                 if hook_issues:
                     mf.append(f"G4.cd.scene_hook_match:{fp}:{';'.join(hook_issues)}")
                 else:
