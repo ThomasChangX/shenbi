@@ -21,8 +21,8 @@ export SHENBI_LLM_API_KEY=$(grep -oE '^SHENBI_LLM_API_KEY=.*' .env | cut -d= -f2
 pgrep -f run_pipeline   # 确认无残留 runner，有则先清
 
 # 1) 重置（真落盘——本命令是运行项目入口动作；旧章进隔离区，genesis 保留不重跑）
-just regen-reset novel-xinghuo-vol1 pre-regen-v1
-# 预检（不落盘的对照）：just regen-reset novel-xinghuo-vol1 pre-regen-v1 --dry-run
+just regen-reset novel-xinghuo-vol1 --tag pre-regen-v1
+# 预检（不落盘的对照）：just regen-reset novel-xinghuo-vol1 --tag pre-regen-v1 --dry-run
 
 # 2) 空基线自检：聚合器应报 data error（exit 2）——证明无可评残留
 just regen-accept novel-xinghuo-vol1 --through 1 ; echo "exit=$?"   # 期望 exit=2

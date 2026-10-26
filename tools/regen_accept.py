@@ -128,6 +128,8 @@ def check_word_band(project_dir: Path, records: dict, through: int) -> list[Verd
     """判据 2a: floor (manifest ids) + ceiling (offline recompute vs config)."""
     floor_fails: list[str] = []
     for ch, _skill, _gk in sorted(records):
+        if ch > through:
+            continue
         rec = records[(ch, _skill, _gk)]
         for cid in _failed_checks(rec, lambda i: i in _FLOOR_IDS):
             floor_fails.append(f"ch{ch}:{cid}")
@@ -293,9 +295,10 @@ def check_blind_recognition(project_dir: Path, through: int) -> Verdict:
         for para in chapter.read_text(encoding="utf-8").split("\n\n"):
             if not find_quote_spans(para):
                 continue
-            owner = next((c for c in cards if c.name in para), None)
-            if owner is None:
+            named = [c for c in cards if c.name in para]
+            if len(named) != 1:  # 零命中或双名歧义段不归属（D4 粗粒度口径收窄）
                 continue
+            owner = named[0]
             best, hits = None, 0
             for card in cards:
                 cnt = sum(para.count(m) for m in card.markers)
