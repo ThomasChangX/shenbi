@@ -235,6 +235,10 @@ def derive_pov_mode(text: str) -> str:
     body = "\n".join(
         ln for ln in text.split("\n") if not ln.startswith("#") and not ln.startswith("<!--")
     )
+    # F7 (regen v3): narration voice only — dialogue spans belong to the
+    # speaker, not the narrator; a 我-heavy side character's quoted lines
+    # must not flip a third-person chapter to mixed.
+    body = re.sub(r"[「『][^」』]*[」』]", "", body)
     first = len(re.findall(r"我", body))
     third = len(_THIRD_PERSON.findall(body))
     if first + third == 0:

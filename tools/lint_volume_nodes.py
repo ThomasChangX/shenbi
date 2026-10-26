@@ -32,7 +32,7 @@ def parse_volume(volume_map: Path, volume: int) -> tuple[str, int, int, list[tup
     """Return (title, span_start, span_end, [(chapter, role, detail)])."""
     text = volume_map.read_text(encoding="utf-8")
     cn = _CN[volume - 1]
-    head = re.search(rf"## 第{cn}卷：[^\n]*?（第(\d+)—(\d+)章）", text)  # noqa: RUF001
+    head = re.search(rf"## 第{cn}卷：[^\n]*?（第\s*(\d+)\s*[-–—]\s*(\d+)\s*章）", text)  # noqa: RUF001
     if not head:
         raise SystemExit("volume heading not found for requested volume")
     start, end = int(head.group(1)), int(head.group(2))

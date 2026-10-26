@@ -58,7 +58,8 @@ def _volume_section(volume_map: Path, volume: int) -> str:
 def _volume_span(volume_map: Path, volume: int) -> tuple[int, int]:
     cn = _CN[volume - 1]
     m = re.search(
-        rf"## 第{cn}卷：[^\n]*?（第(\d+)—(\d+)章）", volume_map.read_text(encoding="utf-8")
+        rf"## 第{cn}卷：[^\n]*?（第\s*(\d+)\s*[-–—]\s*(\d+)\s*章）",
+        volume_map.read_text(encoding="utf-8"),
     )
     if not m:
         raise SystemExit(f"volume heading not found: 第{cn}卷")
