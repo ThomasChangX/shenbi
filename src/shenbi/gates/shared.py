@@ -89,8 +89,15 @@ def split_scenes(text: str) -> list[tuple[int, str]]:
     marker_idx = [i for i, ln in enumerate(lines) if is_scene_marker_line(ln)]
     if not marker_idx:
         return []
+    # F4 (regen v3): the trailing self-check block is META-wrapped — the
+    # <!--META-BEGIN--> marker line precedes its H2, so the boundary must
+    # catch either form or the marker itself becomes the last scene's 末行.
     trailing_meta = next(
-        (i for i, ln in enumerate(lines) if ln.startswith("## ") and i > marker_idx[-1]),
+        (
+            i
+            for i, ln in enumerate(lines)
+            if (ln.startswith("## ") or ln.startswith("<!--META")) and i > marker_idx[-1]
+        ),
         len(lines),
     )
     out: list[tuple[int, str]] = []
