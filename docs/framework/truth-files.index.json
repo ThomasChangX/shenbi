@@ -1345,6 +1345,15 @@
       "shenbi-state-settling"
     ]
   },
+  "truth/recall_registry.md": {
+    "reads": [
+      "shenbi-state-settling"
+    ],
+    "writes": [],
+    "updates": [
+      "shenbi-state-settling"
+    ]
+  },
   "truth/state-settling-decisions.json": {
     "reads": [],
     "writes": [

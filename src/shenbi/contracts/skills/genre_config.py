@@ -108,6 +108,9 @@ class GenreConfig(BaseModel):
                 f"market_params.quote_type_quota: burning_per_volume∈[0,10], got {qtq}"
             )
         # spec #77 styleFingerprint（嵌套可选块；plan 域表）
+        rw = v.get("recall_window")
+        if rw is not None and not 3 <= float(rw.get("window", -1)) <= 20:
+            raise ValueError(f"market_params.recall_window: window∈[3,20], got {rw}")
         sf = v.get("styleFingerprint")
         _SF_RANGES = {
             "question_per_k": (1, 40),

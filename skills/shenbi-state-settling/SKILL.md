@@ -23,6 +23,7 @@ contract:
     - {file: truth/timeline.md, extractor: recent_increments}
     - truth/prop_registry.md
     - truth/name_registry.md
+    - truth/recall_registry.md
   writes:
     - file: truth/state-settling-decisions.json
       mode: create_or_overwrite
@@ -58,6 +59,10 @@ contract:
     - file: truth/name_registry.md
       mode: append_dedup
       key: 类别
+    # #78: 死者回触登记（末触章滚动——本章有低成本回触时更新该死者行）
+    - file: truth/recall_registry.md
+      mode: append_dedup
+      key: 死者名
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -69,9 +74,9 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/volume_summaries.md, audits/chapter-N-foreshadowing.md, truth/timeline.md, truth/prop_registry.md, truth/name_registry.md
+- **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/volume_summaries.md, audits/chapter-N-foreshadowing.md, truth/timeline.md, truth/prop_registry.md, truth/name_registry.md, truth/recall_registry.md
 - **Writes:** truth/state-settling-decisions.json
-- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/character_matrix.md, truth/timeline.md, truth/prop_registry.md, truth/name_registry.md
+- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/character_matrix.md, truth/timeline.md, truth/prop_registry.md, truth/name_registry.md, truth/recall_registry.md
 
 <!-- END AUTO-GENERATED -->
 
@@ -106,6 +111,9 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
   - `truth/timeline.md` — one row PER 本章时间锚点 for the current chapter: `| 第 N 章 | <本章末锚，如 腊月初十> | <备注> |` (key: `章` — first cell carries the chapter number like the other chapter-keyed tables). Narrative dates ONLY (叙事锚); do NOT log in-text book/citation dates. G4.xc compares this row against the previous chapter's row for monotonicity.
   - `truth/prop_registry.md` — one row PER 经手/初见 物象 this chapter: `| <实体名> | <当前 owner> | <事件，如 萤→临> |` (key: `实体名` — re-emitting an existing entity's row UPDATES its owner; that is the owner-chain). Known motif props appearing WITHOUT a row here trip invariant 4 (`物象出现但无经手声明`).
   - `truth/name_registry.md` — one row PER changed/added 称谓 entry: same 3-column layout as the seeded table `| 类别 | 名 | 备注 |` (key: `类别` — 登记名/代词白名单/禁用名 rows upsert in place). Only emit rows that actually changed; omit untouched rows.
+
+- **append_dedup file（#78 死者回触登记）**:
+  - `truth/recall_registry.md` — output ONLY rows for dead characters receiving a low-cost recall touch this chapter (物象/小调/台词任一形态命中): re-emit that character's full row `| 死者名 | 死亡章 | 权重 | 化名 | 末触章=本章 |` (key: `死者名` — the row upserts 末触章 in place). No touch this chapter → emit nothing for that character.
 
 **WARN 接线（#75）**：G4.xc 的 registry 缺席 / prev 缺档 / 相对锚 WARN 走 structlog 并随 gate 结果进 manifest checks；每次 settle 读上一章 gate 结果中的 XC WARN，若在场则在本章 `truth/audit_drift.md` 增量里记一条（口径：`[跨章] XC.<id> 持续在场——registry 层降级`），供下章 PRE_WRITE_CHECK 与卷末结算看见。
 
