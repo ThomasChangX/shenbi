@@ -36,25 +36,30 @@
 from pathlib import Path
 from shenbi.paths import Layout, detect_layout
 
+
 def _mk(root: Path, layout: str) -> Path:
     proj = root / layout / "proj-x"
     (proj).mkdir(parents=True)
     return proj
+
 
 def test_detect_project_output(tmp_path):
     p = _mk(tmp_path, "rounds/r1")
     (p / "novel.json").write_text("{}", encoding="utf-8")
     assert detect_layout(p) is Layout.PROJECT_OUTPUT
 
+
 def test_detect_novel_output(tmp_path):
     p = _mk(tmp_path, "novel-output")  # p = <tmp>/novel-output/proj-x，parent.name=="novel-output"
     (p / "genre-config.json").write_text("{}", encoding="utf-8")
     assert detect_layout(p) is Layout.NOVEL_OUTPUT
 
+
 def test_detect_skill_output(tmp_path):
     p = _mk(tmp_path, "skill-output")
     (p / "genre-config.json").write_text("{}", encoding="utf-8")
     assert detect_layout(p) is Layout.SKILL_OUTPUT
+
 
 def test_detect_upward_walk(tmp_path):
     p = _mk(tmp_path, "skill-output")
@@ -62,6 +67,7 @@ def test_detect_upward_walk(tmp_path):
     deep = p / "chapters" / "ch3"
     deep.mkdir(parents=True)
     assert detect_layout(deep) is Layout.SKILL_OUTPUT  # 上溯命中
+
 
 def test_detect_none(tmp_path):
     p = _mk(tmp_path, "misc")

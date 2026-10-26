@@ -213,9 +213,22 @@ SCHEMA_ID = "shenbi-releases-v1"
 # Closed scene-transition word list (spec §3.2) — the single source.
 SCENE_TRANSITION_WORDS: frozenset[str] = frozenset(
     {
-        "翌日", "次日", "清晨", "天亮", "黄昏", "入夜",
-        "夜半", "午夜", "到了", "走进", "回到", "出门",
-        "动身", "起程", "转场", "天明",
+        "翌日",
+        "次日",
+        "清晨",
+        "天亮",
+        "黄昏",
+        "入夜",
+        "夜半",
+        "午夜",
+        "到了",
+        "走进",
+        "回到",
+        "出门",
+        "动身",
+        "起程",
+        "转场",
+        "天明",
     }
 )
 
@@ -1061,7 +1074,11 @@ def test_cli_with_ch5_16_and_qidian_isolation(tmp_path: Path) -> None:
     qd = json.loads((p / "publish" / "qidian" / "releases.json").read_text(encoding="utf-8"))
     assert qd["platform"] == "qidian"
     assert {c["chapter"]: len(c["releases"]) for c in qd["chapters"]} == {
-        1: 3, 2: 3, 3: 3, 4: 3, 5: 3,
+        1: 3,
+        2: 3,
+        3: 3,
+        4: 3,
+        5: 3,
     }
     for c in qd["chapters"]:  # qidian 双档带内约束（章级）
         assert all(rl["chars"] >= 2000 for rl in c["releases"])
@@ -1206,7 +1223,13 @@ def test_cli_structural_exit_codes(tmp_path: Path) -> None:
     r = _run_tool(empty)
     assert r.returncode == 1 and "chapters" in r.stderr
     r2 = subprocess.run(
-        [sys.executable, str(REPO / "tools" / "release_split.py"), str(empty), "--platform", "nope"],
+        [
+            sys.executable,
+            str(REPO / "tools" / "release_split.py"),
+            str(empty),
+            "--platform",
+            "nope",
+        ],
         capture_output=True,
         text=True,
         cwd=REPO,
@@ -1310,8 +1333,7 @@ def _write_products(
                 "stripped_chars": e["stripped_chars"],
                 "flags": e["flags"],
                 "releases": [
-                    {k: v for k, v in r.items() if not k.startswith("_")}
-                    for r in e["releases"]
+                    {k: v for k, v in r.items() if not k.startswith("_")} for r in e["releases"]
                 ],
             }
             for e in entries

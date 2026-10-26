@@ -101,6 +101,7 @@ The factory creates **both** `project_dir` (for project state: chapters, novel.j
 ```python
 # tests/unit/gates/conftest.py
 
+
 @pytest.fixture
 def make_project(tmp_path):
     """Factory: build project_dir + round_dir for gate testing.
@@ -109,6 +110,7 @@ def make_project(tmp_path):
     (gate_G6) receive both; gates that need only round_dir
     (gate_G7) receive just round_dir.
     """
+
     def _make(
         *,
         chapters: list[str] | None = None,
@@ -172,6 +174,7 @@ def make_project(tmp_path):
                 (marker_dir / f"marker-{i}.json").write_text(json.dumps(marker))
 
         return project_dir, round_dir
+
     return _make
 ```
 
@@ -362,10 +365,12 @@ uv run pytest --cov=src/shenbi --cov-branch \
 ```python
 # tests/property/gates/test_gate_invariants.py
 
+
 @given(text(alphabet=string.ascii_letters + " \n", min_size=0, max_size=1000))
 def test_word_count_md_non_negative(content):
     """word_count_md always returns non-negative int for any input."""
     ...
+
 
 @given(list_of_chapter_contents(min_size=0, max_size=20))
 def test_gate_g6_never_crashes(chapters, make_project):

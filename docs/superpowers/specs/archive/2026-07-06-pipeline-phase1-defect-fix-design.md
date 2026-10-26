@@ -82,6 +82,7 @@ GENRE_ACTIVATION_MATRIX: dict[str, str] = {
     "highpoint": "shenbi-review-highpoint",
 }
 
+
 # 2. 读取正确的顶层键名，保留 snake_case fallback
 def get_active_genre_audits(genre_config: Mapping[str, object]) -> list[str]:
     audit_dims = genre_config.get("auditDimensions")  # camelCase 优先
@@ -91,8 +92,15 @@ def get_active_genre_audits(genre_config: Mapping[str, object]) -> list[str]:
         return []
 
     # 3. 过滤核心圈键名（它们由 chapter_loop 固定步骤处理）
-    CORE_CIRCLE_KEYS = {"antiAi", "character", "pacing", "continuity",
-                        "foreshadowing", "memoCompliance", "pov"}
+    CORE_CIRCLE_KEYS = {
+        "antiAi",
+        "character",
+        "pacing",
+        "continuity",
+        "foreshadowing",
+        "memoCompliance",
+        "pov",
+    }
 
     return sorted(
         skill
@@ -133,6 +141,7 @@ class ChapterState:
     revision_count: int = 0
     audit_retry_count: int = 0  # NEW
 
+
 # 同步更新 ChapterLoopStateData.to_dict() / from_dict() 序列化 audit_retry_count
 ```
 
@@ -158,17 +167,23 @@ if step.is_audit and step_idx == _LAST_AUDIT_IDX:
 
         cs.audit_retry_count += 1
         if cs.audit_retry_count > state.config.max_revision_retries:
-            set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter,
-                context=f"Audit BLOCKING persists after {cs.audit_retry_count} revision attempts")
+            set_checkpoint(
+                state,
+                CheckpointType.ESCALATION,
+                chapter=chapter,
+                context=f"Audit BLOCKING persists after {cs.audit_retry_count} revision attempts",
+            )
             return True
 
-        rev = dispatch_skill("shenbi-chapter-revision", project_dir,
-            f"Revise chapter {chapter} to fix audit BLOCKING issues.")
+        rev = dispatch_skill(
+            "shenbi-chapter-revision",
+            project_dir,
+            f"Revise chapter {chapter} to fix audit BLOCKING issues.",
+        )
         if not rev.success:
             return _handle_failure(state, step, chapter, "audit-revision")
 
-        log.info("audit_blocking_revision", chapter=chapter,
-                 retry=cs.audit_retry_count)
+        log.info("audit_blocking_revision", chapter=chapter, retry=cs.audit_retry_count)
 ```
 
 **验收:**
@@ -191,9 +206,7 @@ if step.is_audit and step_idx == _LAST_AUDIT_IDX:
 新增 `_resolve_g4_files()` 函数，替换 `run_chapter_step()` 中的单文件 G4 路径解析：
 
 ```python
-def _resolve_g4_files(
-    project_dir: Path, step: ChapterStep, chapter: int
-) -> list[str]:
+def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> list[str]:
     """Return list of file paths for G4 validation."""
     single = _resolve_g4_path(project_dir, step, chapter)
     if single:
@@ -203,10 +216,7 @@ def _resolve_g4_files(
     if step.uses_staging and "state-settling" in step.skill:
         staging_truth = project_dir / STAGING_DIR / "truth"
         if staging_truth.exists():
-            return sorted(
-                f"{STAGING_DIR}/truth/{p.name}"
-                for p in staging_truth.glob("*.md")
-            )
+            return sorted(f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md"))
 
     return []
 ```
@@ -248,6 +258,7 @@ if not result.success:
     # State-settling 失败 → 标记 settling_failed + 暂停
     if "state-settling" in step.skill:
         from shenbi.pipeline.error_handler import handle_state_settle_failure
+
         handle_state_settle_failure(state, chapter)
         return True  # checkpoint 已设置，暂停等人工
 
@@ -304,9 +315,13 @@ if handle_dispatch_failure(state, step.skill, count):
 
 # 新增: 重试耗尽 → 先 dispatch escalation-review
 from shenbi.pipeline.revision_router import dispatch_escalation
+
 # dispatch_escalation(project_dir, chapter, context="") → bool
-dispatch_escalation(project_dir, chapter,
-    context=f"Step {step.step_num} ({step.skill}) failed after {count} attempts")
+dispatch_escalation(
+    project_dir,
+    chapter,
+    context=f"Step {step.step_num} ({step.skill}) failed after {count} attempts",
+)
 
 log.error("chapter_step_escalation", ...)
 set_checkpoint(state, CheckpointType.ESCALATION, ...)
@@ -346,6 +361,7 @@ def _parse_resonance_score(report_path: Path) -> int | None:
     # Pattern 1: YAML frontmatter
     if text.startswith("---"):
         import yaml
+
         parts = text.split("---", 2)
         if len(parts) >= 3:
             try:
@@ -358,12 +374,13 @@ def _parse_resonance_score(report_path: Path) -> int | None:
 
     # Pattern 2: Markdown bold label
     import re
-    m = re.search(r'\*\*Resonance\s*Score\*\*:\s*(\d+)', text, re.IGNORECASE)
+
+    m = re.search(r"\*\*Resonance\s*Score\*\*:\s*(\d+)", text, re.IGNORECASE)
     if m:
         return int(m.group(1))
 
     # Pattern 3: Plain "Score: N"
-    m = re.search(r'(?:Score|resonance_score)\s*:\s*(\d+)', text, re.IGNORECASE)
+    m = re.search(r"(?:Score|resonance_score)\s*:\s*(\d+)", text, re.IGNORECASE)
     if m:
         return int(m.group(1))
 
@@ -409,7 +426,7 @@ def _count_total_chapters(project_dir: Path) -> int:
 
     total = 0
     # Match patterns like "章节数: 12" or "Chapters: 12"
-    for m in re.finditer(r'(?:章节数|Chapters?)\s*:\s*(\d+)', text):
+    for m in re.finditer(r"(?:章节数|Chapters?)\s*:\s*(\d+)", text):
         total += int(m.group(1))
     return total if total > 0 else 0
 
@@ -490,6 +507,7 @@ class ChapterLoopStateData:
     per_chapter_review_enabled: bool = True
     retry_counts: dict[str, int] = field(default_factory=dict)
     modify_feedback: str | None = None  # NEW
+
 
 # 同步更新 PipelineState.to_dict() / from_dict() 序列化 modify_feedback
 ```

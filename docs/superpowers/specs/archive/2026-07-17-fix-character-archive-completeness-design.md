@@ -68,7 +68,7 @@ writes:
 # dispatch_helper.py:_write_parsed_outputs 修改
 def _resolve_output_path(base_dir: Path, pattern: str, content: str) -> Path:
     """解析输出路径，支持通配符展开。"""
-    if '*' in pattern:
+    if "*" in pattern:
         # 通配符路径：期望 LLM 在 FILE 标记中给出具体文件名
         # 暂不展开，由 LLM 输出的具体 FILE 标记驱动
         return None  # 信号：需从 FILE 标记动态确定
@@ -99,14 +99,14 @@ def _resolve_output_path(base_dir: Path, pattern: str, content: str) -> Path:
 
 ```python
 # G4.char.major_count: major/ 目录至少包含 N 个角色文件
-major_dir = project_dir / 'characters' / 'major'
-major_files = list(major_dir.glob('*.md')) if major_dir.exists() else []
+major_dir = project_dir / "characters" / "major"
+major_files = list(major_dir.glob("*.md")) if major_dir.exists() else []
 if len(major_files) < 3:  # 至少 3 个主要配角
     issues.append(f"G4.char.major_count: only {len(major_files)} major characters (min 3)")
 
 # G4.char.minor_count: minor/ 目录至少包含 M 个角色文件
-minor_dir = project_dir / 'characters' / 'minor'
-minor_files = list(minor_dir.glob('*.md')) if minor_dir.exists() else []
+minor_dir = project_dir / "characters" / "minor"
+minor_files = list(minor_dir.glob("*.md")) if minor_dir.exists() else []
 if len(minor_files) < 2:  # 至少 2 个次要角色
     issues.append(f"G4.char.minor_count: only {len(minor_files)} minor characters (min 2)")
 ```

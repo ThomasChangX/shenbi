@@ -44,9 +44,11 @@
 ```python
 # tests/unit/contracts/test_genre_config_platform.py
 """spec #72 T1: primary_platform optional top-level key + fanqie_update sub-block."""
+
 import pytest
 from shenbi.contracts.skills.genre_config import GenreConfig
 from shenbi.contracts.ownership import GENRE_KEYS
+
 
 def _base() -> dict:
     return {
@@ -59,19 +61,26 @@ def _base() -> dict:
         "pacing": {},
         "updated": "",
         "version": "1",
-        "chapter_word": {"default": 3200, "min": 2800, "max": 4000,
-                         "fanqie_update": {"min": 1800, "max": 2800}},
+        "chapter_word": {
+            "default": 3200,
+            "min": 2800,
+            "max": 4000,
+            "fanqie_update": {"min": 1800, "max": 2800},
+        },
     }
+
 
 @pytest.mark.unit
 def test_primary_platform_in_genre_keys() -> None:
     assert "primary_platform" in GENRE_KEYS
     assert len(GENRE_KEYS) == 11
 
+
 @pytest.mark.unit
 def test_optional_key_absent_still_valid() -> None:
     cfg = GenreConfig.model_validate(_base())
     assert cfg.primary_platform == ""
+
 
 @pytest.mark.unit
 def test_primary_platform_enum() -> None:
@@ -80,10 +89,12 @@ def test_primary_platform_enum() -> None:
     with pytest.raises(Exception):
         GenreConfig.model_validate(_base() | {"primary_platform": "zongheng"})
 
+
 @pytest.mark.unit
 def test_fanqie_update_subkey_unmodelled_passes() -> None:
     # chapter_word 子键不受顶层闭键集约束（spec 施工面 1）
     GenreConfig.model_validate(_base())  # fanqie_update 已在 _base 的 chapter_word 内
+
 
 @pytest.mark.unit
 def test_unknown_top_level_key_rejected() -> None:
@@ -101,6 +112,8 @@ Expected: FAIL（GENRE_KEYS 10 键 / 无 primary_platform 字段）
 `ownership.py` GENRE_KEYS 增 `"primary_platform",`（注释行同步「真实 11 顶层键」）。`genre_config.py`：
 ```python
 _OPTIONAL_TOP_KEYS = frozenset({"tropeInventory", "chapter_word", "primary_platform"})
+
+
 # ...
 class GenreConfig(BaseModel):
     # ... 既有字段后增：
@@ -164,6 +177,7 @@ Commit: `feat(contracts): spec72 T1——primary_platform 可选键四站落地 
 ```python
 # tests/unit/gates/test_word_band_unified.py
 """spec #72 T2: floor=min / ceiling=max / total_chars 口径 四联一致性."""
+
 import json
 from pathlib import Path
 
@@ -171,8 +185,7 @@ from shenbi.gates.shared import chapter_word_floor, total_chars_md_text
 
 
 def _project(tmp_path: Path, cw: dict) -> Path:
-    (tmp_path / "genre-config.json").write_text(
-        json.dumps({"chapter_word": cw}), encoding="utf-8")
+    (tmp_path / "genre-config.json").write_text(json.dumps({"chapter_word": cw}), encoding="utf-8")
     return tmp_path
 
 
@@ -264,14 +277,25 @@ class SceneSplitError(RuntimeError)
 ```python
 TITLES = {1: "首章", 2: "次章", 3: "三章", 4: "四章"}
 
+
 def _scene(size: int, hook: str) -> str:
     return "灯" * size + "\n" + hook + "\n"
 
+
 def _bundle(n1: int, n2: int | None, scenes: dict[int, list[tuple[int, str]]]) -> str:
     parts = []
-    for n in ([n1, n2] if n2 else [n1]):
-        seg = [f"===CH:{n}===", f"# 第{n}章", f"# {TITLES[n]}", "",
-               "## PRE_WRITE_CHECK", "", "- x", "", "<!--SCENE-->"]
+    for n in [n1, n2] if n2 else [n1]:
+        seg = [
+            f"===CH:{n}===",
+            f"# 第{n}章",
+            f"# {TITLES[n]}",
+            "",
+            "## PRE_WRITE_CHECK",
+            "",
+            "- x",
+            "",
+            "<!--SCENE-->",
+        ]
         for i, (size, hook) in enumerate(scenes[n]):
             if i > 0:
                 seg.append("<!--SCENE-->")
@@ -327,7 +351,7 @@ Commit: `feat(pipeline): spec72 T3——scene_splitter 单源模块（标记谓�
 
 ① 步表：step4 drafting 改 `uses_staging=True, output_path=""`；其后插：
 ```python
-ChapterStep(5, "pipeline-scene-split", "scene-split", step_type="checkpoint"),
+(ChapterStep(5, "pipeline-scene-split", "scene-split", step_type="checkpoint"),)
 ```
 原 5-15 顺延 6-16；`PIPELINE_STEPS_VERSION = 3`；`:277-282` 注释块补 #72 变更行。② `_bundle_chapters`：读 `outline/volume_map.md`，`parse_volume_spans` 找 chapter 所在卷，`chapter + 1 > 卷.end` → `[chapter]`，否则 `[chapter, chapter + 1]`。③ planning/drafting 步执行时以 bundle 首章为派发锚（prompt 含两章号），完成时 `state.add_step_done` 对 bundle 内**每章**记 `shenbi-chapter-planning`/`shenbi-chapter-drafting`；step3 context 组装对两章各产 `context/chapter-{n}-context.md`（`calls_context_assembly` 机制循环两章跑）。④ `_run_scene_split_step`：定位 staging 簇（bundle 首章 N）→ `split_bundle` → `validate_split`（带自配置）→ 写 `chapters/chapter-{n}.md`（safe_write）→ 晋升 `staging/chapter-{n}-decisions.json` → `commit_staging(project_dir, [章文件们+decisions们])` → 对每章 `run_gate_g4("shenbi-chapter-drafting", [章文件], project_dir, chapter=n, phase="chapter_loop")`（manifest 按 n 记录）→ 失败 raise（外层按 `FailureClass.DETERMINISTIC_GATE` 归类熔断重派）。⑤ CHAPTER_MEMO 提交批次：commit 目标从 `[step.output_path]` 扩为 bundle 双备忘 + `staged_decisions_targets` 双 sidecar。⑥ post-draft 内联块触发键改 `"pipeline-scene-split" == step.skill`，函数体内对 bundle 各章各跑一遍 `_check_volume_map_alignment`/`_run_post_draft_extract`/`_run_g4_checks`/`_check_word_count_bounds`。⑦ 游标推进（:1536）：`current_chapter = chapter + len(bundle_chapters)`（按 bundle 实际章数步进）。⑧ `_resolve_g4_files`：drafting 步的 decisions 候选增 `{N+1}` brace 解析（`resolve_chapter_path` 对 bundle 首章与次章各解析一次）。
 

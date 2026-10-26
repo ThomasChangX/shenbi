@@ -33,6 +33,7 @@
 
 ```python
 """F408: run_gate_g3 must not fabricate progress.json evidence (fail-closed)."""
+
 import json
 from pathlib import Path
 
@@ -61,6 +62,7 @@ def _entries(data: dict) -> list[dict]:
     # gate_manifest.record_gate_result 的存储形状以实际实现为准；若为嵌套
     # {phase: {chapter: [...]}} 则递归展平
     out: list[dict] = []
+
     def walk(v: object) -> None:
         if isinstance(v, dict) and "gate" in v:
             out.append(v)
@@ -70,6 +72,7 @@ def _entries(data: dict) -> list[dict]:
         elif isinstance(v, list):
             for x in v:
                 walk(x)
+
     walk(data)
     return out
 ```
@@ -112,11 +115,13 @@ def _entries(data: dict) -> list[dict]:
 
 ```python
 """F345: parallel audit waves must run G3 for requires_independent skills."""
+
 import json
 from pathlib import Path
 from unittest.mock import patch
 
 from shenbi.pipeline import parallel_dispatch
+
 # 编排函数名以 chapter_loop.py:2655 附近实际函数为准（审计波调度处）——
 # 实施时先读该函数签名，测试直接调用「执行一章审计波」的函数或抽取的辅助函数
 from shenbi.pipeline.chapter_loop import _run_audit_waves  # 若不存在则在本 task 抽取
@@ -184,6 +189,7 @@ def test_g3_parallel_wave_records_manifest(tmp_path: Path) -> None:
 
 ```python
 """F227: G2 must not validate outputs before skill execution."""
+
 from pathlib import Path
 from unittest.mock import patch
 
@@ -222,30 +228,32 @@ def test_g2_runs_after_dispatch(tmp_path: Path, monkeypatch) -> None:
 - [ ] **Step 3: 实现——dispatch() 中删除执行前 G2 块，改为：预存在输出则照旧预检（保持既有「重入」语义）；执行调用拿到 rc 后、返回前对 rc==0 跑 G2：**
 
 ```python
-    output_files = derive_output_files(skill, chapter, round_dir, ctx=path_ctx)
-    preexisting = [f for f in output_files if Path(f).exists()]
-    is_pipeline = (round_dir / "pipeline-state.json").exists()
+output_files = derive_output_files(skill, chapter, round_dir, ctx=path_ctx)
+preexisting = [f for f in output_files if Path(f).exists()]
+is_pipeline = (round_dir / "pipeline-state.json").exists()
 
-    mode = detect_mode()
-    log.info("dispatch_mode", mode=mode)
+mode = detect_mode()
+log.info("dispatch_mode", mode=mode)
 
-    if mode == "codex":
-        from shenbi.dispatcher.modes.codex import dispatch_codex
-        rc = dispatch_codex(skill, test_type, round_dir, prompt, agent_id)
-    else:
-        from shenbi.dispatcher.modes.internal import dispatch_internal
-        rc = dispatch_internal(skill, test_type, round_dir, prompt, agent_id)
+if mode == "codex":
+    from shenbi.dispatcher.modes.codex import dispatch_codex
 
-    # F227: G2 runs AFTER execution (or pre-dispatch only for already-present outputs)
-    if not is_pipeline and rc == 0:
-        outputs = output_files if not preexisting else preexisting
-        if outputs:
-            g2 = run_g2(outputs, file_type, round_dir)
-            if g2.get("status") != "PASS":
-                log.error("g2_failed", gate="G2", result=g2)
-                return 1
-            log.info("gate_passed", gate="G2")
-    return rc
+    rc = dispatch_codex(skill, test_type, round_dir, prompt, agent_id)
+else:
+    from shenbi.dispatcher.modes.internal import dispatch_internal
+
+    rc = dispatch_internal(skill, test_type, round_dir, prompt, agent_id)
+
+# F227: G2 runs AFTER execution (or pre-dispatch only for already-present outputs)
+if not is_pipeline and rc == 0:
+    outputs = output_files if not preexisting else preexisting
+    if outputs:
+        g2 = run_g2(outputs, file_type, round_dir)
+        if g2.get("status") != "PASS":
+            log.error("g2_failed", gate="G2", result=g2)
+            return 1
+        log.info("gate_passed", gate="G2")
+return rc
 ```
 
 - [ ] **Step 4: `uv run pytest tests/unit/dispatcher -q`（含新测试）→ PASS；`uv run pytest tests/unit -k executor -q` 无回归**
@@ -309,6 +317,7 @@ def test_gr2_production_scores_suffix_not_false_fail(tmp_path: Path) -> None:
 
 ```python
 """F404/F458: empty/whitespace rationale must fail P2.5 REQUIRED."""
+
 import pytest
 from pydantic import ValidationError
 
@@ -407,7 +416,9 @@ def test_g33_executes_on_production_shape(tmp_path: Path) -> None:
     _record_completion(rd, "shenbi-worldbuilding", "generative", 95.0, output_files=[str(out)])
     result = json.loads(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
     g33 = [c for c in result["checks"] if c["id"] == "G3.3"]
-    assert g33 and g33[0]["s"] == "PASS"  # G3.3 actually executed and passed (路径含 outline/ 命中 report 分支时用 outline/ 目录；实施时使 output 落在 outline/ 命名下)
+    assert (
+        g33 and g33[0]["s"] == "PASS"
+    )  # G3.3 actually executed and passed (路径含 outline/ 命中 report 分支时用 outline/ 目录；实施时使 output 落在 outline/ 命名下)
 ```
 
 （result 结构以 gate_G3 实际返回为准，实施时核对 checks 键名。）

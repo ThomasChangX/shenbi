@@ -108,6 +108,7 @@ SRC = REPO / "src" / "shenbi"
 
 # --- Detection: mutation primitives MUST be flagged ---
 
+
 def test_flags_write_text(tmp_path: Path) -> None:
     f = tmp_path / "bad.py"
     f.write_text("p.write_text('x')\n", encoding="utf-8")
@@ -172,6 +173,7 @@ def test_flags_nested_open_in_json_dump(tmp_path: Path) -> None:
 
 
 # --- No false positives: reads and safe operations MUST NOT be flagged ---
+
 
 def test_allows_read_text(tmp_path: Path) -> None:
     f = tmp_path / "ok.py"
@@ -251,6 +253,7 @@ NOT detected (known limitations):
   - Dynamic open modes (non-constant mode arg; conservative skip).
   - os.open (low-level fd-based; only used in allowlisted safe_write).
 """
+
 from __future__ import annotations
 
 import ast
@@ -259,39 +262,57 @@ from pathlib import Path
 
 # --- Allowlist ---
 
-PERMANENT_ALLOWLIST: frozenset[str] = frozenset({
-    "safe_write.py",
-    "trace/writer.py",
-})
+PERMANENT_ALLOWLIST: frozenset[str] = frozenset(
+    {
+        "safe_write.py",
+        "trace/writer.py",
+    }
+)
 
-TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset({
-    "gates/shared.py",
-    "gates/g1.py",
-    "phase_runner.py",
-    "plugins/generate.py",
-    "dispatcher/modes/internal.py",
-    "dispatcher/modes/codex.py",
-    "skill_utils/drift_detection/compute_drift.py",
-    "skill_utils/style_learning/compute_stats.py",
-    "sync_contracts.py",
-    "update_progress.py",
-    "summarize_round.py",
-    "trace/replay.py",
-    "trace/compaction.py",
-    "audit/record.py",  # Meitner v5: pillar4-tierB append-only ledger
-})
+TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset(
+    {
+        "gates/shared.py",
+        "gates/g1.py",
+        "phase_runner.py",
+        "plugins/generate.py",
+        "dispatcher/modes/internal.py",
+        "dispatcher/modes/codex.py",
+        "skill_utils/drift_detection/compute_drift.py",
+        "skill_utils/style_learning/compute_stats.py",
+        "sync_contracts.py",
+        "update_progress.py",
+        "summarize_round.py",
+        "trace/replay.py",
+        "trace/compaction.py",
+        "audit/record.py",  # Meitner v5: pillar4-tierB append-only ledger
+    }
+)
 
 ALLOWED_FILES: frozenset[str] = PERMANENT_ALLOWLIST | TRANSITIONAL_ALLOWLIST
 
 # --- Detection constants ---
 
-_OS_MUTATIONS = frozenset({
-    "replace", "rename", "unlink", "remove", "rmdir", "removedirs",
-})
+_OS_MUTATIONS = frozenset(
+    {
+        "replace",
+        "rename",
+        "unlink",
+        "remove",
+        "rmdir",
+        "removedirs",
+    }
+)
 
-_SHUTIL_MUTATIONS = frozenset({
-    "copy", "copy2", "copyfile", "move", "rmtree", "copytree",
-})
+_SHUTIL_MUTATIONS = frozenset(
+    {
+        "copy",
+        "copy2",
+        "copyfile",
+        "move",
+        "rmtree",
+        "copytree",
+    }
+)
 
 _PATH_WRITE_METHODS = frozenset({"write_text", "write_bytes", "unlink"})
 
@@ -334,9 +355,7 @@ def _find_violations(tree: ast.Module, filepath: Path) -> list[str]:
 
             # .write_text() / .write_bytes() / .unlink()
             if attr in _PATH_WRITE_METHODS:
-                violations.append(
-                    f"{filepath}:{node.lineno}: forbidden FS-mutation: .{attr}()"
-                )
+                violations.append(f"{filepath}:{node.lineno}: forbidden FS-mutation: .{attr}()")
                 continue
 
             # .open(mode) with write/append mode
@@ -364,8 +383,7 @@ def _find_violations(tree: ast.Module, filepath: Path) -> list[str]:
         elif isinstance(func, ast.Name) and func.id == "open":
             if _is_write_mode(_extract_mode(node, is_method=False)):
                 violations.append(
-                    f"{filepath}:{node.lineno}: forbidden FS-mutation: "
-                    f"open() in write/append mode"
+                    f"{filepath}:{node.lineno}: forbidden FS-mutation: open() in write/append mode"
                 )
 
     return violations
@@ -567,8 +585,10 @@ def test_aggregation_formula_declared() -> None:
 
 def test_hard_binary_fail_blocks_pass() -> None:
     r = ScoreReport(
-        route_c_hard_binary_pass=2, route_c_hard_binary_total=3,
-        route_c_soft_score=95.0, route_a_score=90.0,
+        route_c_hard_binary_pass=2,
+        route_c_hard_binary_total=3,
+        route_c_soft_score=95.0,
+        route_a_score=90.0,
     )
     # hard_binary failure is an audit flag; does NOT zero final_score (Parfit round-1)
     assert r.hard_binary_gate_failed is True
@@ -578,8 +598,10 @@ def test_hard_binary_fail_blocks_pass() -> None:
 
 def test_all_pass_perfect_score() -> None:
     r = ScoreReport(
-        route_c_hard_binary_pass=3, route_c_hard_binary_total=3,
-        route_c_soft_score=100.0, route_a_score=100.0,
+        route_c_hard_binary_pass=3,
+        route_c_hard_binary_total=3,
+        route_c_soft_score=100.0,
+        route_a_score=100.0,
     )
     assert r.hard_binary_gate_failed is False
     assert r.final_score == 100.0
@@ -589,8 +611,10 @@ def test_all_pass_perfect_score() -> None:
 
 def test_boundary_exactly_90_passes() -> None:
     r = ScoreReport(
-        route_c_hard_binary_pass=1, route_c_hard_binary_total=1,
-        route_c_soft_score=100.0, route_a_score=75.0,
+        route_c_hard_binary_pass=1,
+        route_c_hard_binary_total=1,
+        route_c_soft_score=100.0,
+        route_a_score=75.0,
     )
     assert r.final_score == 90.0
     assert r.passed is True
@@ -598,8 +622,10 @@ def test_boundary_exactly_90_passes() -> None:
 
 def test_just_below_90_fails() -> None:
     r = ScoreReport(
-        route_c_hard_binary_pass=1, route_c_hard_binary_total=1,
-        route_c_soft_score=90.0, route_a_score=74.0,
+        route_c_hard_binary_pass=1,
+        route_c_hard_binary_total=1,
+        route_c_soft_score=90.0,
+        route_a_score=74.0,
     )
     assert r.final_score < PASS_THRESHOLD
     assert r.passed is False
@@ -608,8 +634,10 @@ def test_just_below_90_fails() -> None:
 def test_hard_binary_fail_blocks_tier_advance() -> None:
     """Meitner v5: tier_advance_eligible also gated on hard_binary."""
     r = ScoreReport(
-        route_c_hard_binary_pass=2, route_c_hard_binary_total=3,
-        route_c_soft_score=100.0, route_a_score=100.0,
+        route_c_hard_binary_pass=2,
+        route_c_hard_binary_total=3,
+        route_c_soft_score=100.0,
+        route_a_score=100.0,
     )
     assert r.final_score == 100.0
     assert r.hard_binary_gate_failed is True
@@ -618,8 +646,10 @@ def test_hard_binary_fail_blocks_tier_advance() -> None:
 
 def test_computed_fields_in_model_dump() -> None:
     r = ScoreReport(
-        route_c_hard_binary_pass=1, route_c_hard_binary_total=1,
-        route_c_soft_score=90.0, route_a_score=90.0,
+        route_c_hard_binary_pass=1,
+        route_c_hard_binary_total=1,
+        route_c_soft_score=90.0,
+        route_a_score=90.0,
     )
     dump = r.model_dump()
     assert "final_score" in dump
@@ -630,8 +660,10 @@ def test_computed_fields_in_model_dump() -> None:
 def test_rejects_pass_exceeds_total() -> None:
     with pytest.raises(ValidationError):
         ScoreReport(
-            route_c_hard_binary_pass=5, route_c_hard_binary_total=3,
-            route_c_soft_score=90.0, route_a_score=90.0,
+            route_c_hard_binary_pass=5,
+            route_c_hard_binary_total=3,
+            route_c_soft_score=90.0,
+            route_a_score=90.0,
         )
 
 
@@ -658,6 +690,7 @@ def test_registry_includes_scoring_skills() -> None:
 
 三个评分 skill（arc/stratum/volume）共用本模型；各自 score_*.py 导出
 Report = ScoreReport 供 REGISTRY 自动发现。本文件以 _ 前缀跳过发现。"""
+
 from __future__ import annotations
 
 from pydantic import BaseModel, Field, computed_field, model_validator
@@ -713,10 +746,7 @@ class ScoreReport(BaseModel):
     def final_score(self) -> float:
         # Weighted average; hard_binary failure does NOT zero the score
         # (skill: 该检查项 0 分, not 全卷归零). Parfit round-1 fix.
-        return (
-            ROUTE_C_SOFT_WEIGHT * self.route_c_soft_score
-            + ROUTE_A_WEIGHT * self.route_a_score
-        )
+        return ROUTE_C_SOFT_WEIGHT * self.route_c_soft_score + ROUTE_A_WEIGHT * self.route_a_score
 
     @computed_field
     @property
@@ -738,6 +768,7 @@ class ScoreReport(BaseModel):
 ```python
 # src/shenbi/contracts/skills/score_arc.py
 """score-arc 契约（M3 修复）。继承 ScoreReport；REGISTRY 自动发现。"""
+
 from shenbi.contracts.skills._scoring_base import ScoreReport
 
 Report = ScoreReport
@@ -746,6 +777,7 @@ Report = ScoreReport
 ```python
 # src/shenbi/contracts/skills/score_stratum.py
 """score-stratum 契约（M3 修复）。继承 ScoreReport；REGISTRY 自动发现。"""
+
 from shenbi.contracts.skills._scoring_base import ScoreReport
 
 Report = ScoreReport
@@ -754,6 +786,7 @@ Report = ScoreReport
 ```python
 # src/shenbi/contracts/skills/score_volume.py
 """score-volume 契约（M3 修复）。继承 ScoreReport；REGISTRY 自动发现。"""
+
 from shenbi.contracts.skills._scoring_base import ScoreReport
 
 Report = ScoreReport
@@ -822,7 +855,9 @@ def test_render_includes_computed_fields() -> None:
     from shenbi.contracts.skills._scoring_base import ScoreReport
 
     md = render_autocheck(ScoreReport)
-    assert "ROUTE_C_SOFT_WEIGHT" in md or "AGGREGATION_FORMULA" in md  # Parfit round-1: test the formula
+    assert (
+        "ROUTE_C_SOFT_WEIGHT" in md or "AGGREGATION_FORMULA" in md
+    )  # Parfit round-1: test the formula
     assert "passed" in md
 
 
@@ -886,6 +921,7 @@ CI runs this + git diff to reject manual edits.
 
 Usage: python tools/generate_autocheck_docs.py
 """
+
 from __future__ import annotations
 
 import re
@@ -989,9 +1025,7 @@ def render_autocheck(model_cls: type[BaseModel]) -> str:
     return "\n".join(lines) + "\n"
 
 
-_PATTERN = re.compile(
-    re.escape(BANNER) + r".*?" + re.escape(ENDER) + r"\n?", re.DOTALL
-)
+_PATTERN = re.compile(re.escape(BANNER) + r".*?" + re.escape(ENDER) + r"\n?", re.DOTALL)
 _FRONTMATTER_RE = re.compile(r"^(---\n.*?\n---\n)(.*)$", re.DOTALL)
 
 
@@ -1169,7 +1203,6 @@ def test_read_bytes_allowed(tmp_path: Path) -> None:
     f.write_bytes(b"\x00\x01")
     fs = CapabilityFS(tmp_path)
     assert fs.read_bytes(f) == b"\x00\x01"
-
 ```
 
 Run: `uv run mypy src/shenbi/capability_fs.py && uv run ruff check src/shenbi/capability_fs.py tests/unit/test_capability_fs.py` -> Success / All passed
