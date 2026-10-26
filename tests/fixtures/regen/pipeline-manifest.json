@@ -1,0 +1,684 @@
+{
+  "version": "1.0",
+  "gates": {
+    "chapter_loop": {
+      "1": {
+        "shenbi-chapter-planning": {
+          "G4": {
+            "timestamp": "2026-10-24T20:34:44.931891+00:00",
+            "gate": "G4",
+            "result": {
+              "gate": "G4-composite-g4_chapter_planning",
+              "status": "PASS",
+              "timestamp": "2026-10-24T20:34:44.914597+00:00",
+              "checks": [
+                {
+                  "id": "G4.cp.sections",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "PASS"
+                },
+                {
+                  "id": "G4.cp.chapter_role",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "PASS"
+                },
+                {
+                  "id": "G4.cp.english_heading",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "PASS"
+                },
+                {
+                  "id": "G4.cp.golden_1",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "WARN",
+                  "r": "golden rule '三面墙' not found in chapter 1"
+                },
+                {
+                  "id": "G4.cp.emotion_tone",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "PASS"
+                },
+                {
+                  "id": "G4.cp.payoff_beat",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "PASS"
+                },
+                {
+                  "id": "G4.cp.retention_anchor",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "PASS"
+                },
+                {
+                  "id": "G4.cp.s5_choice",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "PASS"
+                },
+                {
+                  "id": "G4.cp.s7_hook_ops",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "PASS",
+                  "ops": [
+                    "open",
+                    "advance",
+                    "defer"
+                  ]
+                },
+                {
+                  "id": "G4.cp.hook_refs",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "PASS"
+                },
+                {
+                  "id": "G4.cp.s7_defer_silence",
+                  "file": "staging/plans/chapter-1-plan.md",
+                  "s": "PASS"
+                },
+                {
+                  "id": "G4.dec",
+                  "file": "staging/plans/chapter-1-plan-decisions.json",
+                  "s": "PASS"
+                }
+              ]
+            }
+          }
+        },
+        "shenbi-chapter-drafting": {
+          "G4": [
+            {
+              "timestamp": "2026-10-24T20:52:48.746393+00:00",
+              "gate": "G4",
+              "result": {
+                "gate": "G4-composite-g4_chapter_drafting",
+                "status": "FAIL",
+                "timestamp": "2026-10-24T20:52:48.714862+00:00",
+                "checks": [
+                  {
+                    "id": "G4.pre_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.post_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.transition",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "density": "0/6314"
+                  },
+                  {
+                    "id": "G4.fatigue",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "hits": 1
+                  },
+                  {
+                    "id": "G4.meta",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.word_count",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "wc": 6314,
+                    "total": 7693,
+                    "floor": 7600
+                  },
+                  {
+                    "id": "G4.cd.scene_concreteness",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "visual_windows": 5
+                  },
+                  {
+                    "id": "G4.cd.chapter_end_hook",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "window_cjk": 198
+                  },
+                  {
+                    "id": "G4.cd.protagonist_presence",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.cd.surge",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "surge": 36,
+                    "quota": 2
+                  },
+                  {
+                    "id": "G4.cd.simile_band",
+                    "file": "chapters/chapter-1.md",
+                    "s": "WARN",
+                    "r": "simile density 4.6/千字 outside [2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)",
+                    "per_1000": 4.6
+                  },
+                  {
+                    "id": "G4.cd.golden_slot",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  }
+                ],
+                "blocked_action": "scoring",
+                "must_fix": [
+                  "G4.dec.value_error:chapters/chapter-1-decisions.json:selections.2: Value error, rationale REQUIRED for medium/high-severity or manual_override"
+                ]
+              }
+            },
+            {
+              "timestamp": "2026-10-24T20:55:42.543271+00:00",
+              "gate": "G4",
+              "result": {
+                "gate": "G4-composite-g4_chapter_drafting",
+                "status": "FAIL",
+                "timestamp": "2026-10-24T20:55:42.525986+00:00",
+                "checks": [
+                  {
+                    "id": "G4.pre_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.post_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.transition",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "density": "1/5813"
+                  },
+                  {
+                    "id": "G4.fatigue",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "hits": 2
+                  },
+                  {
+                    "id": "G4.meta",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.cd.scene_concreteness",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "visual_windows": 5
+                  },
+                  {
+                    "id": "G4.cd.chapter_end_hook",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "window_cjk": 741
+                  },
+                  {
+                    "id": "G4.cd.protagonist_presence",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.cd.surge",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "surge": 15,
+                    "quota": 2
+                  },
+                  {
+                    "id": "G4.cd.simile_band",
+                    "file": "chapters/chapter-1.md",
+                    "s": "WARN",
+                    "r": "simile density 5.1/千字 outside [2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)",
+                    "per_1000": 5.1
+                  },
+                  {
+                    "id": "G4.cd.golden_slot",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.dec",
+                    "file": "chapters/chapter-1-decisions.json",
+                    "s": "PASS"
+                  }
+                ],
+                "blocked_action": "scoring",
+                "must_fix": [
+                  "G4.word_count:chapters/chapter-1.md:6921<7600"
+                ]
+              }
+            },
+            {
+              "timestamp": "2026-10-24T20:57:09.307951+00:00",
+              "gate": "G4",
+              "result": {
+                "gate": "G4-composite-g4_chapter_drafting",
+                "status": "FAIL",
+                "timestamp": "2026-10-24T20:57:09.288818+00:00",
+                "checks": [
+                  {
+                    "id": "G4.pre_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.post_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.transition",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "density": "1/6622"
+                  },
+                  {
+                    "id": "G4.fatigue",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "hits": 3
+                  },
+                  {
+                    "id": "G4.meta",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.word_count",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "wc": 6622,
+                    "total": 7890,
+                    "floor": 7600
+                  },
+                  {
+                    "id": "G4.cd.scene_concreteness",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "visual_windows": 5
+                  },
+                  {
+                    "id": "G4.cd.chapter_end_hook",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "window_cjk": 439
+                  },
+                  {
+                    "id": "G4.cd.protagonist_presence",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.cd.surge",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "surge": 26,
+                    "quota": 2
+                  },
+                  {
+                    "id": "G4.cd.simile_band",
+                    "file": "chapters/chapter-1.md",
+                    "s": "WARN",
+                    "r": "simile density 4.8/千字 outside [2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)",
+                    "per_1000": 4.8
+                  },
+                  {
+                    "id": "G4.cd.golden_slot",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  }
+                ],
+                "blocked_action": "scoring",
+                "must_fix": [
+                  "G4.dec.value_error:chapters/chapter-1-decisions.json:selections.2: Value error, rationale REQUIRED for medium/high-severity or manual_override"
+                ]
+              }
+            },
+            {
+              "timestamp": "2026-10-24T21:11:07.072606+00:00",
+              "gate": "G4",
+              "result": {
+                "gate": "G4-composite-g4_chapter_drafting",
+                "status": "FAIL",
+                "timestamp": "2026-10-24T21:11:07.055430+00:00",
+                "checks": [
+                  {
+                    "id": "G4.pre_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.post_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.transition",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "density": "1/6622"
+                  },
+                  {
+                    "id": "G4.fatigue",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "hits": 3
+                  },
+                  {
+                    "id": "G4.meta",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.word_count",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "wc": 6622,
+                    "total": 7890,
+                    "floor": 7600
+                  },
+                  {
+                    "id": "G4.cd.scene_concreteness",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "visual_windows": 5
+                  },
+                  {
+                    "id": "G4.cd.chapter_end_hook",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "window_cjk": 439
+                  },
+                  {
+                    "id": "G4.cd.protagonist_presence",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.cd.surge",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "surge": 26,
+                    "quota": 2
+                  },
+                  {
+                    "id": "G4.cd.simile_band",
+                    "file": "chapters/chapter-1.md",
+                    "s": "WARN",
+                    "r": "simile density 4.8/千字 outside [2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)",
+                    "per_1000": 4.8
+                  },
+                  {
+                    "id": "G4.cd.golden_slot",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  }
+                ],
+                "blocked_action": "scoring",
+                "must_fix": [
+                  "G4.dec.value_error:chapters/chapter-1-decisions.json:adjustments.1: Value error, rationale REQUIRED (non-empty) for adjustments"
+                ]
+              }
+            },
+            {
+              "timestamp": "2026-10-24T21:12:28.912078+00:00",
+              "gate": "G4",
+              "result": {
+                "gate": "G4-composite-g4_chapter_drafting",
+                "status": "FAIL",
+                "timestamp": "2026-10-24T21:12:28.895697+00:00",
+                "checks": [
+                  {
+                    "id": "G4.pre_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.post_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.transition",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "density": "0/2644"
+                  },
+                  {
+                    "id": "G4.fatigue",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "hits": 2
+                  },
+                  {
+                    "id": "G4.meta",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.cd.scene_concreteness",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "visual_windows": 4
+                  },
+                  {
+                    "id": "G4.cd.chapter_end_hook",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "window_cjk": 232
+                  },
+                  {
+                    "id": "G4.cd.protagonist_presence",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.cd.surge",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "surge": 10,
+                    "quota": 1
+                  },
+                  {
+                    "id": "G4.cd.simile_band",
+                    "file": "chapters/chapter-1.md",
+                    "s": "WARN",
+                    "r": "simile density 1.2/千字 outside [2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)",
+                    "per_1000": 1.2
+                  },
+                  {
+                    "id": "G4.cd.golden_slot",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.dec",
+                    "file": "chapters/chapter-1-decisions.json",
+                    "s": "PASS"
+                  }
+                ],
+                "blocked_action": "scoring",
+                "must_fix": [
+                  "G4.word_count:chapters/chapter-1.md:3220<7600"
+                ]
+              }
+            },
+            {
+              "timestamp": "2026-10-24T21:14:13.775889+00:00",
+              "gate": "G4",
+              "result": {
+                "gate": "G4-composite-g4_chapter_drafting",
+                "status": "FAIL",
+                "timestamp": "2026-10-24T21:14:13.759104+00:00",
+                "checks": [
+                  {
+                    "id": "G4.pre_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.post_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.transition",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "density": "1/5114"
+                  },
+                  {
+                    "id": "G4.fatigue",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "hits": 2
+                  },
+                  {
+                    "id": "G4.meta",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.cd.scene_concreteness",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "visual_windows": 5
+                  },
+                  {
+                    "id": "G4.cd.chapter_end_hook",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "window_cjk": 252
+                  },
+                  {
+                    "id": "G4.cd.protagonist_presence",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.cd.surge",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "surge": 15,
+                    "quota": 2
+                  },
+                  {
+                    "id": "G4.cd.simile_band",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "per_1000": 2.1
+                  },
+                  {
+                    "id": "G4.cd.golden_slot",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.dec",
+                    "file": "chapters/chapter-1-decisions.json",
+                    "s": "PASS"
+                  }
+                ],
+                "blocked_action": "scoring",
+                "must_fix": [
+                  "G4.word_count:chapters/chapter-1.md:6340<7600"
+                ]
+              }
+            },
+            {
+              "timestamp": "2026-10-24T21:25:22.901252+00:00",
+              "gate": "G4",
+              "result": {
+                "gate": "G4-composite-g4_chapter_drafting",
+                "status": "PASS",
+                "timestamp": "2026-10-24T21:25:22.883799+00:00",
+                "checks": [
+                  {
+                    "id": "G4.pre_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.post_check",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.transition",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "density": "2/7218"
+                  },
+                  {
+                    "id": "G4.fatigue",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "hits": 4
+                  },
+                  {
+                    "id": "G4.meta",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.word_count",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "wc": 7218,
+                    "total": 8808,
+                    "floor": 7600
+                  },
+                  {
+                    "id": "G4.cd.scene_concreteness",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "visual_windows": 5
+                  },
+                  {
+                    "id": "G4.cd.chapter_end_hook",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "window_cjk": 246
+                  },
+                  {
+                    "id": "G4.cd.protagonist_presence",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.cd.surge",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "surge": 29,
+                    "quota": 2
+                  },
+                  {
+                    "id": "G4.cd.simile_band",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS",
+                    "per_1000": 2.1
+                  },
+                  {
+                    "id": "G4.cd.golden_slot",
+                    "file": "chapters/chapter-1.md",
+                    "s": "PASS"
+                  },
+                  {
+                    "id": "G4.dec",
+                    "file": "chapters/chapter-1-decisions.json",
+                    "s": "PASS"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

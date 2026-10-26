@@ -38,7 +38,7 @@ _BASE = (
     + _row(3, "承接", "变现◆")
     + _row(4)
     + _row(5)
-    + _row(6, "回触", "萤回触")
+    + _row(6, "回触", "萤回触 灰烬◆——「下辈子再见」定约")
     + _row(7)
     + _row(8, "回触", "萤回触")
     + _row(9)
@@ -71,6 +71,17 @@ def test_slot_deadline_breach_fails(tmp_path: Path) -> None:
     findings = lint(_mk(tmp_path, rows), 1, 12)
     assert any("slot" in f and "智力爽◆" in f and "deadline" in f for f in findings), findings
     assert any("slot" in f and "变现◆" in f and "no rows" in f for f in findings), findings
+
+
+@pytest.mark.unit
+def test_ash_slot_deadline_fails(tmp_path: Path) -> None:
+    # spec #79 criterion 3: 灰烬◆ first occurrence must land <= 第12章 (vol-1)
+    rows = _BASE.replace(
+        _row(6, "回触", "萤回触 灰烬◆——「下辈子再见」定约"),
+        _row(14, "回触", "萤回触 灰烬◆——「下辈子再见」定约"),
+    )
+    findings = lint(_mk(tmp_path, rows), 1, 12)
+    assert any("slot" in f and "灰烬◆" in f for f in findings), findings
 
 
 @pytest.mark.unit
