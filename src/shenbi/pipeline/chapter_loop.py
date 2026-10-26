@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from shenbi.pipeline.parallel_dispatch import ReviewTask
     from shenbi.skill_utils.drift_detection.linguistic_drift import DriftResult
 
-from shenbi.contracts.paths import resolve_chapter_path
+from shenbi.contracts.paths import PathContext, resolve_chapter_path
 from shenbi.contracts.schemas.hooks import HookState, parse_hook_state
 
 import yaml
@@ -3905,13 +3905,17 @@ def _run_chapter_step_impl(
     if step.skill == "shenbi-chapter-revision":
         write_audit_aggregate(project_dir, chapter)
 
-    # Dispatch the skill.
+    # Dispatch the skill. The explicit [path-context] carrier makes the
+    # chapter authoritative on the API route: bundle prompts ("chapters 1,2")
+    # defeat extract_chapter's singular regex, and a None chapter silently
+    # genesis-skips every {N}/{N+1} write placeholder (regen v3 F1).
     result = dispatch_skill(
         step.skill,
         project_dir,
         prompt,
         uses_staging=step.uses_staging,
         state=state,
+        path_context=PathContext(chapter=chapter),
     )
 
     # State-settling failure: mark settling_failed and pause (spec §11).

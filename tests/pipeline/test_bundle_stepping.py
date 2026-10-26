@@ -348,3 +348,56 @@ def test_two_chapter_bundle_loop_drive(tmp_path: Path) -> None:
     # 两章产物都在
     for n in (1, 2):
         assert (tmp_path / "chapters" / f"chapter-{n}.md").is_file()
+
+
+# ---------------------------------------------------------------------------
+# regen v3 F1 (2026-10-27): bundle prompt must carry [path-context]
+# ---------------------------------------------------------------------------
+@pytest.mark.unit
+def test_chapter_step_dispatch_carries_path_context(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    r"""Bundle prompts ('chapters 1,2') defeat extract_chapter's singular
+    ``chapter \d+`` regex — the API route then builds the prompt with
+    chapter=None and genesis-skips every ``{N}``/``{N+1}`` write placeholder
+    (regen v3 ch1 planning escalation: 3x no_files_parsed on a perfectly
+    valid JSON-manifest envelope). The main step dispatch must carry an
+    explicit [path-context] so the chapter is authoritative.
+    """
+    from shenbi.pipeline import chapter_loop
+    from shenbi.pipeline.chapter_loop import CHAPTER_STEPS, run_chapter_step
+
+    _project(
+        tmp_path,
+        volume_spans=[
+            "## 第一卷：白城雪（第 1–36 章）",
+            "**章节范围**: 第1章 - 第36章（共 36 章）",
+        ],
+    )
+    assert bundle_chapters(tmp_path, 1) == [1, 2]  # bundle active
+
+    state = PipelineState.default(str(tmp_path))
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 1
+    state.chapter_loop.step_index = next(
+        i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-chapter-planning"
+    )
+
+    captured: dict[str, object] = {}
+
+    class _StopError(Exception):
+        pass
+
+    def _fake_dispatch(skill, project_dir, prompt, **kw):
+        captured["skill"] = skill
+        captured["path_context"] = kw.get("path_context")
+        raise _StopError
+
+    monkeypatch.setattr(chapter_loop, "dispatch_skill", _fake_dispatch)
+    with pytest.raises(_StopError):
+        run_chapter_step(state, tmp_path)
+
+    assert captured["skill"] == "shenbi-chapter-planning"
+    ctx = captured["path_context"]
+    assert ctx is not None, "bundle dispatch lost its chapter — [path-context] carrier missing"
+    assert getattr(ctx, "chapter", None) == 1
