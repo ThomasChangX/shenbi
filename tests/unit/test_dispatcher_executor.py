@@ -134,12 +134,12 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
         "genre-config.json",
         "truth/audit_drift.md",
     ]
-    # shenbi-state-settling: writes the decisions sidecar plus updates=10
+    # shenbi-state-settling: writes the decisions sidecar plus updates=11
     # truth files (character_matrix moved from writes to updates in the
     # probe2 settle capacity fix — the increment merge replaced the
     # whole-file rewrite contract). The sidecar was once removed as a dead
     # output; spec #30 T2/T106 re-declared it — G4.dec now consumes it.
-    # Spec #75 added the three registry tables (timeline / prop_registry /
+    # Spec #75 added the three registry tables; spec #78 added recall_registry (timeline / prop_registry /
     # name_registry) as append_dedup update targets.
     assert derive_output_files("shenbi-state-settling") == [
         "truth/state-settling-decisions.json",
@@ -153,6 +153,7 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
         "truth/timeline.md",
         "truth/prop_registry.md",
         "truth/name_registry.md",
+        "truth/recall_registry.md",
     ]
 
 
