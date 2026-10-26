@@ -61,3 +61,47 @@ def test_wordcount_retry_without_persisted_draft_degrades_cleanly(tmp_path: Path
 
     assert "CORRECTIVE FEEDBACK" in out
     assert "PREVIOUS DRAFT" not in out
+
+
+# ---------------------------------------------------------------------------
+# regen v3 F3 (2026-10-27): #72 scene-cluster bundle face — scene-split length
+# failures must attach the STAGING BUNDLE, not silently skip the draft base
+# ---------------------------------------------------------------------------
+def test_scene_split_word_band_attaches_staging_bundle(tmp_path: Path) -> None:
+    """scene-split word failures (word_band/chapter_band/scene_domain ids) are
+    the bundle face of the same length family — the #72 staging bundle is the
+    persisted prior draft (no live chapter file exists pre-split). Without the
+    base text every bundle retry re-rolls BOTH chapters, including the ones
+    that already passed (regen v3 ch1: drafting escalated 4x re-rolling a
+    passing ch1 to fix a short ch2).
+    """
+    bundle = tmp_path / "staging" / "chapter-1-bundle.md"
+    bundle.parent.mkdir(parents=True)
+    bundle.write_text("===CH:1===\n前稿章一正文。\n===CH:2===\n前稿章二正文。\n", encoding="utf-8")
+
+    state = _state_with_feedback(
+        "pipeline-scene-split: word_band:ch2:total_chars 2637 不在带 [2800,4000]", chapter=1
+    )
+    out = _append_feedback_injections("base prompt", state, 1, "shenbi-chapter-drafting", tmp_path)
+
+    assert "前稿章一正文。" in out and "前稿章二正文。" in out, (
+        "staging bundle rides into the retry prompt as the expand base"
+    )
+    assert "扩写" in out and "禁止整章重写" in out
+    assert "2637" in out, "measured gap anchors the expansion"
+
+
+def test_scene_split_scene_domain_failure_also_attaches_bundle(tmp_path: Path) -> None:
+    """scene_domain/composition failures are the same length family:
+    expanding the existing scene into the two-type domain converges without
+    structural rewrite.
+    """
+    bundle = tmp_path / "staging" / "chapter-1-bundle.md"
+    bundle.parent.mkdir(parents=True)
+    bundle.write_text("===CH:1===\n好章。\n===CH:2===\n短章。\n", encoding="utf-8")
+
+    state = _state_with_feedback(
+        "pipeline-scene-split: scene_domain:ch2:场景1=1546 落灰域", chapter=1
+    )
+    out = _append_feedback_injections("base prompt", state, 1, "shenbi-chapter-drafting", tmp_path)
+    assert "好章。" in out, "scene_domain failures attach the bundle base too"

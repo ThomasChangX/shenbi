@@ -1086,17 +1086,41 @@ def _append_feedback_injections(
             f"```\n{prev_g4_feedback}\n```\n"
             f"Fix these issues in your new output."
         )
-        if "G4.word_count" in prev_g4_feedback and project_dir is not None:
-            draft_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+        # Length-family failures attach the persisted prior draft so the retry
+        # EXPANDS instead of re-rolling (escalation #024/#026). The family
+        # covers both faces: G4.word_count (single-chapter) and the #72
+        # scene-split ids (word_band / chapter_band / scene_domain) whose
+        # prior draft is the STAGING BUNDLE, not a live chapter file — the
+        # bundle face regressed the injection (regen v3 F3: ch1 drafting
+        # escalated 4x re-rolling a PASSING ch1 to fix a short ch2).
+        _length_family = (
+            "G4.word_count" in prev_g4_feedback
+            or "word_band" in prev_g4_feedback
+            or "chapter_band" in prev_g4_feedback
+            or "scene_domain" in prev_g4_feedback
+        )
+        if _length_family and project_dir is not None:
+            bundle_path = project_dir / "staging" / f"chapter-{chapter}-bundle.md"
+            draft_path = (
+                bundle_path
+                if bundle_path.exists()
+                else project_dir / "chapters" / f"chapter-{chapter}.md"
+            )
             if draft_path.exists():
                 draft = draft_path.read_text(encoding="utf-8")
                 if draft.strip():
+                    _bundle_note = (
+                        "——本前稿为场景簇 bundle（双章一体）：反馈中未过闸的章/场景按实测缺口扩写，"
+                        "已过闸部分逐字保留；"
+                        if draft_path == bundle_path
+                        else ""
+                    )
                     prompt += (
                         f"\n\n## PREVIOUS DRAFT (your prior attempt, persisted verbatim)\n"
-                        f"以这份前稿为基底**扩写**：逐字保留其全部内容与节拍，仅在既有场景内"
-                        f"增加感官细节、对白往返与动作过程，把上方实测缺口补足（gate 口径计数"
-                        f"见反馈行）。**禁止整章重写、禁止删减既有段落、禁止新增场景**——"
-                        f"重写会重新掷字数骰子，只有在前稿之上的扩写才能收敛。\n\n"
+                        f"以这份前稿为基底**扩写**：{_bundle_note}逐字保留其全部内容与节拍，"
+                        f"仅在既有场景内增加感官细节、对白往返与动作过程，把上方实测缺口补足"
+                        f"（gate 口径计数见反馈行）。**禁止整章重写、禁止删减既有段落、"
+                        f"禁止新增场景**——重写会重新掷字数骰子，只有在前稿之上的扩写才能收敛。\n\n"
                         f"<previous_draft>\n{draft}\n</previous_draft>"
                     )
     return prompt
