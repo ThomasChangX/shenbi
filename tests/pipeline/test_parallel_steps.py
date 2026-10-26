@@ -449,3 +449,42 @@ class TestParallelG4PassClearsFeedback:
         # the loop validates lifecycle first and returns at the first FAIL —
         # the failing step's feedback stays queued for its retry
         assert "ch1-shenbi-foreshadowing-lifecycle" in state.chapter_loop.retry_feedback
+
+
+# ---------------------------------------------------------------------------
+# regen v3 F8 (2026-10-27): review-wave dispatch must carry [path-context]
+# ---------------------------------------------------------------------------
+def test_review_task_dispatch_carries_path_context(monkeypatch, tmp_path) -> None:
+    """Bundle review prompts ('chapters 3,4') defeat extract_chapter's
+    singular regex — without an explicit [path-context] the API route builds
+    with chapter=None, genesis-skips every contract audit path, and the
+    wave burns 3 attempts per skill on no_files_parsed while the model's
+    envelope holds perfectly matching files (regen v3 ch3: 5/6 reviews
+    failed, 52 audits recovered from diagnostics by hand).
+    """
+    import re
+
+    from shenbi.contracts.paths import PathContext
+    from shenbi.pipeline.parallel_dispatch import ReviewTask, task_path_context
+
+    task = ReviewTask(
+        skill="shenbi-review-group-factual",
+        project_dir=tmp_path,
+        prompt="Execute shenbi-review-group-factual for chapters 3,4 (ONE dispatch).",
+        output_path="audits/chapter-3-continuity.md",
+        output_paths=[],
+    )
+    assert task_path_context(task) == PathContext(chapter=3)
+    assert (
+        task_path_context(
+            ReviewTask(
+                skill="x",
+                project_dir=tmp_path,
+                prompt="p",
+                output_path="",
+                output_paths=[],
+            )
+        )
+        is None
+    )
+    _ = re, monkeypatch

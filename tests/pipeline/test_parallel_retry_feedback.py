@@ -39,7 +39,7 @@ def _make_task(tmp_path: Path) -> pd.ReviewTask:
 def test_retry_prompt_carries_rejection_feedback(monkeypatch, tmp_path: Path) -> None:
     calls: list[str] = []
 
-    def fake_dispatch(skill, project_dir, prompt, shared_context=None):
+    def fake_dispatch(skill, project_dir, prompt, shared_context=None, path_context=None):
         calls.append(prompt)
         if len(calls) == 1:
             return DispatchResult(False, -1, "", SHAPE_STDERR)
@@ -60,7 +60,7 @@ def test_retry_prompt_carries_rejection_feedback(monkeypatch, tmp_path: Path) ->
 def test_identical_rejection_is_not_appended_twice(monkeypatch, tmp_path: Path) -> None:
     calls: list[str] = []
 
-    def fake_dispatch(skill, project_dir, prompt, shared_context=None):
+    def fake_dispatch(skill, project_dir, prompt, shared_context=None, path_context=None):
         calls.append(prompt)
         if len(calls) < 3:
             return DispatchResult(False, -1, "", SHAPE_STDERR)

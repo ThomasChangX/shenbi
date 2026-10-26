@@ -13,11 +13,14 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from threading import Semaphore
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from collections.abc import Callable
 
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import DispatchResult, dispatch_skill
+
+if TYPE_CHECKING:
+    from shenbi.contracts.paths import PathContext
 from shenbi.pipeline.write_safety import WriteSafety, classify_skill_write_safety
 
 log = get_logger(__name__)
@@ -71,6 +74,21 @@ class ReviewTask:
         return self.output_paths if self.output_paths else [self.output_path]
 
 
+def task_path_context(task: ReviewTask) -> PathContext | None:
+    """Leader-chapter carrier for review dispatches (regen v3 F8).
+
+    Bundle review prompts say "chapters 3,4" — extract_chapter's singular
+    regex derives None and the API route genesis-skips every contract audit
+    path. The task's output_path always carries the leader chapter.
+    """
+    import re as _re
+
+    from shenbi.contracts.paths import PathContext
+
+    m = _re.search(r"chapter-(\d+)", task.output_path or "")
+    return PathContext(chapter=int(m.group(1))) if m else None
+
+
 def _dispatch_with_retry(
     task: ReviewTask,
     semaphore: Semaphore,
@@ -104,6 +122,7 @@ def _dispatch_with_retry(
                     project_dir=task.project_dir,
                     prompt=task.prompt,
                     shared_context=task.shared_context,
+                    path_context=task_path_context(task),
                 )
                 if result.success:
                     log.info(
