@@ -94,9 +94,9 @@ def test_g4cp_token_truth_table_real_gate(tmp_path: Path) -> None:
     )
     # 缺席 = v1 默认（无 plan_format/voice FAIL 行）
     assert not any("plan_format" in m or "voice_line" in m for m in run_memo(base, "a"))
-    # v3 非法
+    # v4 非法（v3 已合法——#78）
     assert any(
-        "plan_format" in m and "invalid" in m for m in run_memo(base + "plan_format: v3\n", "b")
+        "plan_format" in m and "invalid" in m for m in run_memo(base + "plan_format: v4\n", "b")
     )
     # v2 缺声口要求行
     assert any("voice_line" in m for m in run_memo(base + "plan_format: v2\n", "c"))
@@ -186,3 +186,68 @@ def test_g4vo_meme_grammar() -> None:
         r2 = json.loads(g4_volume_outlining([str(proj / "outline" / "volume_map.md")], rd=td))
     assert not any("meme_grammar" in m for m in r1.get("must_fix", []))
     assert any("meme_grammar" in m for m in r2.get("must_fix", []))
+
+
+_V3_MEMO = """# 第1章 章节备忘
+
+## 1. 当前任务
+
+plan_format: v3
+chapter_role: 推进
+emotion_tone: 平
+**payoff 拍**: 推进｜轴(债)｜-192文
+章尾张力拍: [微]未答之问
+声口要求: 账房腔+自嘲反问
+金句位: 静｜对比｜落点
+"""
+
+
+@pytest.mark.unit
+def test_g4cp_v3_obligations(tmp_path: Path) -> None:
+    def run(memo: str, tag: str) -> list[str]:
+        d = tmp_path / tag
+        (d / "plans").mkdir(parents=True, exist_ok=True)
+        (d / "plans" / "chapter-1-plan.md").write_text(memo, encoding="utf-8")
+        r = json.loads(
+            g4_chapter_planning(
+                [str(d / "plans" / "chapter-1-plan.md")], rd=str(d), project_dir=str(d)
+            )
+        )
+        return r.get("must_fix", [])
+
+    base = _V3_MEMO
+    # v3 齐备 → 无 v3/v2 义务 FAIL
+    assert not any(
+        "tension_tier" in m or "payoff_axis" in m or "voice_line" in m for m in run(base, "a")
+    )
+    # 缺分级行
+    assert any(
+        "tension_tier" in m for m in run(base.replace("章尾张力拍: [微]未答之问\n", ""), "b")
+    )
+    # payoff 缺轴
+    assert any(
+        "payoff_axis" in m
+        for m in run(
+            base.replace("**payoff 拍**: 推进｜轴(债)｜-192文", "**payoff 拍**: 推进｜低"), "c"
+        )
+    )
+    # v3 ⊇ v2：缺声口行仍 FAIL
+    assert any("voice_line" in m for m in run(base.replace("声口要求: 账房腔+自嘲反问\n", ""), "d"))
+
+
+@pytest.mark.unit
+def test_g4cd_v3_micro_hook_run(tmp_path: Path) -> None:
+    d = _mk_v2_project(tmp_path, memo=_V3_MEMO)
+    for k in (1, 2, 3):
+        (d / "plans" / f"chapter-{k}-plan.md").write_text(
+            _V3_MEMO.replace("# 第1章", f"# 第{k}章"), encoding="utf-8"
+        )
+    (d / "chapters" / "chapter-3.md").write_text(
+        _V2_CHAPTER.replace("本章金句位: 静｜对比｜落点", "本章金句位: 静｜对比｜落点"),
+        encoding="utf-8",
+    )
+    # 锚章 ch3：窗口 1..3 全微钩 → run 3 > cap 2 → FAIL
+    r = json.loads(
+        g4_chapter_drafting([str(d / "chapters" / "chapter-3.md")], rd=str(d), project_dir=str(d))
+    )
+    assert any("G4.cd.micro_hook_run" in m for m in r.get("must_fix", [])), r.get("must_fix")

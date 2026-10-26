@@ -73,13 +73,14 @@ def test_declared_surface_snapshot_count() -> None:
     locations / relationship-map relationships + character_matrix — the
     ~50-volume whole-file rewrite walls) + 3 from spec #75 (state-settling
     timeline / prop_registry / name_registry — the cross-chapter invariant
-    registry tables roll per chapter by key, never as whole files). This is
+    registry tables roll per chapter by key, never as whole files) + 1 from
+    spec #78 (state-settling recall_registry — 死者回触末触章 rolls by key). This is
     the anti-silent-shrink tripwire — the parametrized guard below adapts
     to any future growth automatically, but a REMOVED declaration must
     surface here so it cannot pass unnoticed. Updating this number is the
     explicit action.
     """
-    assert len(_PAIRS) == 27, (
+    assert len(_PAIRS) == 28, (
         "declared append_dedup surface changed — if intentional, update the "
         f"snapshot (currently {len(_PAIRS)} pairs: {_PAIRS})"
     )

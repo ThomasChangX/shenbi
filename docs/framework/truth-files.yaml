@@ -54,6 +54,7 @@ concepts:
   - {name: truth/name_registry.md, kind: truth}                  # 称谓字典（卷层）
   - {name: truth/timeline.md, kind: truth}                        # 时间锚（章层键=章）
   - {name: truth/prop_registry.md, kind: truth}                   # 物象 owner 链（键=实体名）
+  - {name: truth/recall_registry.md, kind: truth}               # #78 死者回触登记（键=死者名）
   # plans / chapters / context
   - {name: plans/chapter-N-plan.md, kind: plan}      # parametric: N
   - {name: staging/chapter-N-bundle.md, kind: chapter, producer: skill}  # #72 场景簇产物（拆分步消费，不晋升）

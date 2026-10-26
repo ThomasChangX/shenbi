@@ -615,8 +615,71 @@ def g4_chapter_drafting(
                 _mp = Path(project_dir) / "plans" / f"chapter-{_cn.group(1)}-plan.md"
                 if _mp.is_file():
                     _memo_text = _mp.read_text(encoding="utf-8")
-                    _pfv = re.search(r"^plan_format[：:]\s*v2\s*$", _memo_text, re.MULTILINE)
-                    _memo_v2 = _pfv is not None
+                    _pfv = re.search(r"^plan_format[：:]\s*v[23]\s*$", _memo_text, re.MULTILINE)
+                    _memo_v2 = _pfv is not None  # v3 ⊇ v2（#78）
+        # ── spec #78: plan_format v3（回触/分级/重量）──
+        _memo_v3 = False
+        if _memo_v2:
+            _memo_v3 = bool(re.search(r"^plan_format[：:]\s*v3\s*$", _memo_text, re.MULTILINE))
+        _proj78 = Path(project_dir) if project_dir else None
+        if _memo_v3 and _proj78 is not None:
+            # 连续微钩（读前章 memo 声明——纯读幂等）
+            _cn78 = re.search(r"chapter-(\d+)", pf.name)
+            if _cn78:
+                _tiers: list[str] = []
+                for _k in range(max(1, int(_cn78.group(1)) - 3), int(_cn78.group(1)) + 1):
+                    _mk = _proj78 / "plans" / f"chapter-{_k}-plan.md"
+                    if not _mk.is_file():
+                        continue
+                    _tm = re.search(
+                        r"章尾张力拍[：:]\s*\[?(微|章|大)", _mk.read_text(encoding="utf-8")
+                    )
+                    if _tm:
+                        _tiers.append(_tm.group(1))
+                _micro_cap = (
+                    (read_genre_config(str(project_dir)) or {})
+                    .get("market_params", {})
+                    .get("hook_grading", {})
+                    .get("max_consecutive_micro", 2)
+                )
+                _run78 = 0
+                for _x in reversed(_tiers):
+                    if _x == "微":
+                        _run78 += 1
+                    else:
+                        break
+                if _run78 > _micro_cap:
+                    mf.append(
+                        f"G4.cd.micro_hook_run:{fp}:{_run78}>{_micro_cap} "
+                        f"(v3 连续微钩超限——章/大钩轮换；修复者: planning)"
+                    )
+            # payoff 密度窗：window 内 v3 memo 无轴登记 payoff = WARN
+            _pdw = (
+                (read_genre_config(str(project_dir)) or {})
+                .get("market_params", {})
+                .get("payoff_density", {})
+            )
+            _win = int(_pdw.get("window", 3)) if _pdw else 3
+            _has_axis = False
+            if _cn78:
+                for _k in range(max(1, int(_cn78.group(1)) - _win + 1), int(_cn78.group(1)) + 1):
+                    _mk = _proj78 / "plans" / f"chapter-{_k}-plan.md"
+                    if _mk.is_file() and re.search(
+                        r"\*\*payoff 拍\*\*[：:].*轴[（(]?(债|名声|名字数|进度)",
+                        _mk.read_text(encoding="utf-8"),
+                    ):
+                        _has_axis = True
+                        break
+            if not _has_axis:
+                c.append(
+                    {
+                        "id": "G4.cd.payoff_density",
+                        "file": fp,
+                        "s": GateStatus.WARN,
+                        "r": f"v3 近{_win}章无轴登记 payoff（payoff_density 窗）",
+                    }
+                )
+
         _body = narrative
         _cps: list[str] = []
         if project_dir:
