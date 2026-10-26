@@ -15,7 +15,7 @@
   - `outline/thread_map.md`：A/B 节章键行清零（保留节标题），C 节卷纲行保留（#74 结构）
   - **保留面不动**：book_spine/author_intent/characters//volume_summaries/name_registry/volume_map/story_frame/rhythm_principles——reset 后断言字节不变
 - **Create** justfile recipe `regen-reset <dir> <tag>`（shebang 子 shell 三态传播，e2e-report 先例）
-- **Test** `tests/tools/test_regen_reset.py`：tmp_path 四组断言（隔离面落位/游标差集断言——walk 后非保留前缀键必空、genesis 块原样/章层表头壳+缺席跳过+character_matrix 双表拆分/保留面字节不变）+ tag 冲突 FAIL + dry-run 零变更 + **真项目布局衍生 fixture**（`tests/fixtures/regen/`：从 novel-xinghuo-vol1 拷贝真实 pipeline-state.json、pipeline-manifest.json、character_matrix.md、thread_map.md 片段——G0.9 真实输出拷贝）跑全流程断言
+- **Test** `tests/tools/test_regen_reset.py`：tmp_path 四组断言（隔离面落位/游标差集断言——walk 后非保留前缀键必空、genesis 块原样/章层表头壳+缺席跳过+character_matrix 双表拆分/保留面字节不变）+ tag 冲突 FAIL + dry-run 零变更 + **真项目布局衍生 fixture**（`tests/fixtures/regen/`：从 novel-xinghuo-vol1 拷贝真实 pipeline-state.json、pipeline-manifest.json 裁剪版（保留 dict 单跑+list 多跑各一形态——服务 latest-wins 双形态单测）、character_matrix.md、thread_map.md 片段——G0.9 真实输出拷贝）跑全流程断言
 - Iron Law 验证行：真项目 **--dry-run** 取证贴 progress（真落盘属运行项目入口动作，SDD 内不执行）
 
 ## Task 2: regen-accept 聚合器 + 三新增检查（tdd_red_green）
@@ -23,7 +23,7 @@
 - **Modify** `tools/lint_volume_nodes.py`：`_SLOT_DEADLINES` 扩 `"灰烬◆": 12`
 - **数据补丁**（#74 数据型先例：就地编辑+命令取证贴 progress）：`novel-xinghuo-vol1/outline/volume_map.md` L56 「灰烬「下辈子再见」定约」→「灰烬◆——「下辈子再见」定约」（对齐 L54/55/57 槽位记号格式）；取证 `just volume-nodes`（**本批新增 recipe**——justfile 现无 lint_volume_nodes 入口，补 `volume-nodes <dir> <volume>` shebang 三态，同时服务后续取证面）跑绿
 - **Create** `tools/regen_accept.py`（`python tools/regen_accept.py <dir> --through N`；三态退出 0 pass/1 fail/2 data error——report_longitudinal 先例）：逐判据行 `PASS/FAIL/SKIP(RUN-PROJECT-ONLY)`：
-  - 判据 1/2a-floor/2b：`pipeline-manifest.json` 判读路径钉死 `gates.chapter_loop.{ch}.{skill}.G4` → `result.status` + `result.checks[].id`——latest-wins（同章同 skill 重跑取 timestamp 最新）：判据 1 扫 `G4.xc.*` 检查 id 前缀零 FAIL、2a-floor 扫 `G4.cd.*word*` 族、2b 扫其余 `G4.cd.*`；2a-**ceiling 离线复算**：chapters/*.md 正文字数 vs `genre-config.json` 顶层 `chapter_word.max`（=4000；番茄带 `fanqie_update.max`=2800 可选）——复用 G2.7 `chapter_word_min_max` 助手口径；仅配置整体缺席时该子行 SKIP+指引
+  - 判据 1/2a-floor/2b：`pipeline-manifest.json` 判读路径钉死 `gates.chapter_loop.{ch}.{skill}.G4` → `result.status` + `result.checks[].id`；**G4 值双形态归一**（dict 单跑 / list 多跑追加并存——先归一为列表再按 timestamp latest-wins，纯 dict 读法在多跑章会崩）。判据 1 = `pipeline-scene-split` 技能的 **`G4.xc` 独立 gate 键**（`gates.chapter_loop.{ch}.pipeline-scene-split.G4.xc` → `result.status`——chapter_loop.py:1254/1269 双记录设计，非 check-id 前缀）；2a-floor = check id `G4.word_count`（chapter_drafting.py:348）+ `G4.ln.word_count`（length_normalizing.py:61）；2b = 其余 `G4.cd.*` id 族；2a-**ceiling 离线复算**：chapters/*.md 正文字数 vs `genre-config.json` 顶层 `chapter_word.max`（=4000；番茄带 `fanqie_update.max`=2800 可选）——复用 G2.7 `chapter_word_min_max` 助手（gates/shared.py:294）口径；仅配置整体缺席时该子行 SKIP+指引
   - 判据 3：调 lint_volume_nodes（import 或 subprocess）+ 新键灰烬◆
   - 判据 4：lint_voice_meme chapter+volume 模式聚合（subprocess 退出码）
   - 判据 5 **真章盲认**（新）：chapters/chapter-N.md 对白 span（`shenbi.text.cjk.find_quote_spans` 口径）+ 归属行匹配角色名 → 对白文本按卡面标记（`voice_lexicon.catchphrases_from_card`+ACCOUNTING_VERBS/OPENING_VERB_FAMILIES 命中计数）argmax 归属 → 与实际归属对照；五主角各 ≥4/5 通过
@@ -31,7 +31,7 @@
   - 判据 6：release_split 跑临时发布目录（tmp）+ 场景原子/钩闭合断言（import producer 函数，非静态 lint）
   - 判据 7：`SKIP` 行+取数命令打印（just check 手动行）
   - 判据 8：`RUN-PROJECT-ONLY` 行（G3.4 独立评分——rubric 本批交付）
-- **Create** justfile recipe `regen-accept <dir> <through>`（shebang 三态）+ `volume-nodes <dir> <volume>`（lint_volume_nodes 入口，判据 3 与取证共用）
+- **Create** justfile recipe `regen-accept <dir> <through>`（shebang 三态）+ `volume-nodes <dir> <volume>`（lint_volume_nodes 入口，判据 3 与取证共用；shebang 退出码透传——工具本身 0/1 二态）
 - **Test** `tests/tools/test_regen_accept.py`：空基线（隔离后 ch0）三态正确（0 章数据面→exit 2 data error/部分章→fail 行/全过→pass）；三新增检查各单测（灰烬◆槽位 deadline/盲认 argmax 归属含边界——冷角色标记零命中/情绪代理冷集与燃短路）；manifest latest-wins 单测（同章重跑后旧 FAIL 不计）
 
 ## Task 3: 执行协议文档 + 评分卡 rubric + 验收全量（characterization）
