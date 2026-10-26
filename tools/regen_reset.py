@@ -72,7 +72,7 @@ _TEMPLATE_SHELLS: dict[str, tuple[str, str]] = {
 
 _GUIDANCE_LINE = "> 此文件由 state-settling 首次运行时填充实际数据。"
 
-_PROGRESS_RE = re.compile(r"- \*\*当前进度\*\*: 规划 100%／执行 \d+%")  # noqa: RUF001
+_PROGRESS_RE = re.compile(r"- \*\*当前进度\*\*: 规划 100%／执行 \d+%")
 
 #: Derived caches deleted outright: the index is rebuilt inline (build_index
 #: tolerates the reset truth shells), embeddings rebuild lazily on the next
@@ -141,7 +141,7 @@ def _normalize_thread_map(thread_map: Path) -> None:
     if not thread_map.is_file():
         return
     text = thread_map.read_text(encoding="utf-8")
-    normalized = _PROGRESS_RE.sub("- **当前进度**: 规划 100%／执行 0%", text)  # noqa: RUF001
+    normalized = _PROGRESS_RE.sub("- **当前进度**: 规划 100%／执行 0%", text)
     if normalized != text:
         thread_map.write_text(normalized, encoding="utf-8")
 
