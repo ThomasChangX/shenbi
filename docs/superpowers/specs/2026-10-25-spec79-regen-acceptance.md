@@ -10,9 +10,9 @@
 - **隔离面**：`chapters/`+`plans/`+`adjudications/`+`audits/`+`gate-markers/` → `_quarantine/<tag>/`（相对布局保留）；`pipeline-manifest.json`/`trace.jsonl`/`cost/` 归档同目录（manifest 陈旧行会让 release_split 打包已隔离章）
 - **游标复位**：`pipeline-state.json` **原则式：除 genesis/config 块外全键零态复位**（chapter_loop 归 ch0 含 current/chapter_states/retry_budget_consumed/retry_counts/soft_fail_trackers/modify_feedback/retry_feedback/checkpoint_history/pending_checkpoint，顶层 pending_re_dispatches/trigger_steps_done/closure*/last_trigger_failure 同清——单测对真实 state 键集做差集断言：复位后非 genesis/config 键必须为初始零态；**genesis 块保留**——不重跑付费 genesis）；`progress.json` 重生成为一致态（现文件 stale——不可拷贝）；`snapshots/manifest.json` 清 last_drift_chapter
 - **派生缓存清理**：`truth-embeddings.db` 删除重建（Route B 余弦检索的旧章 chunk 会注入每章重生成上下文——恰毒化重生成目的）、`truth-index.json` 删除重建（hooks 采集自 pending_hooks）、`context/` 旧章上下文删除、`*.lockfile` 清零态
-- **章层 truth 重置**：~16 章键控文件（pending_hooks 8 列壳/current_focus/current_state/character_matrix 交互总表/chapter_summaries/emotional_arcs/subplot_board/bridge_tracker/particle_ledger/resonance_anchors/resonance_trend/drift_guidance/audit_drift/state_snapshot-pre-rev/state-settling-decisions + #75 两表 timeline/prop_registry——经 truth_io._TABLE_HEADER_BOOTSTRAP 表头引导，填充态与缺席态都处理）。character_matrix **双表拆分**：交互总表（章键滚动——现含旧运行第10章行）重置，**信息边界段保留**（角色层）。current_state 现含旧运行第 1-4 章状态行——#74 重锚后章号语义全错，必须重置。
+- **章层 truth 重置**：~17 章键控文件（pending_hooks 8 列壳/current_focus/current_state/character_matrix 交互总表/chapter_summaries/emotional_arcs/subplot_board/bridge_tracker/particle_ledger/resonance_anchors/resonance_trend/drift_guidance/audit_drift/state_snapshot-pre-rev/state-settling-decisions + #75 两表 timeline/prop_registry——经 truth_io._TABLE_HEADER_BOOTSTRAP 表头引导，填充态与缺席态都处理）。character_matrix **双表拆分**：交互总表（章键滚动——现含旧运行第10章行）重置，**信息边界段保留**（角色层）。current_state 现含旧运行第 1-4 章状态行——#74 重锚后章号语义全错，必须重置。
 - **outline/thread_map.md** 章键行重置（C 节跨度保留卷纲行——#74 重锚不动）
-- **保留面**：世界/角色/卷层（book_spine/author_intent/characters/ 角色卡/volume_summaries/name_registry/volume_map/story_frame/rhythm_principles——#74 已修复）
+- **保留面**：世界/角色/卷层（book_spine/author_intent/characters/ 角色卡/volume_summaries/name_registry/volume_map/story_frame/rhythm_principles——#74 修卷层锚定，#75 播种 name_registry）
 
 ## 2. regen-accept 聚合器（`just regen-accept <dir> --through N`）
 
