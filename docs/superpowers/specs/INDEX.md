@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-10-26（spec #77 style-fingerprint-warn Done 随 PR #253 归档——市场适配层 3→2）
-> **活跃 spec 数**：2
+> **最后更新**：2026-10-26（spec #78 recall-payoff-weight Done 随 PR #254 归档——市场适配层 2→1）
+> **活跃 spec 数**：1
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,17 +9,6 @@
 ---
 
 ## 执行队列
-
-### #78 · 情感回触与爽点重量门（recall-payoff-weight）
-
-- **文件**：`2026-10-25-spec78-recall-payoff-weight.md`
-- **系列**：市场适配层
-- **状态**：Active
-- **优先级**：🟠 P1
-- **方法**：频次门 + 重量分级 + audit_drift 改向权
-- **依赖**：#73、#74
-- **内容**：死者回触频次门（≤8 章必触，物象/小调/台词任一形态，接物象追踪器）；钩子分级轮换门（连续微钩上限 2）；爽点重量评估（智识小胜须产生可感知资产/信用轴变动）；audit_drift 改向权（连续 3 章冷蓄压 → 强制注入 escalation 节点）
-- **对应 plan**：待 writing-plans
 
 ### #79 · 重生成与验收协议（regen-acceptance）
 
