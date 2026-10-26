@@ -232,3 +232,18 @@ def test_cp_prev_full_sequence_no_false_positive(tmp_path: Path) -> None:
     _plan(tmp_path, 2, [(1900, "独立型", HOOK2), (1900, "独立型", HOOK1)])
     result = _cp_result(tmp_path, 2)
     assert "G4.cp.scene_budget:" not in result
+
+
+# ---------------------------------------------------------------------------
+# regen v3 F9 (2026-10-27): packing failures must carry a legalization hint
+# ---------------------------------------------------------------------------
+def test_packing_failure_appends_legalization_hint() -> None:
+    """The packer sees the cross-chapter stream (prev actual + this decl +
+    sibling decl) that the model cannot; a bare 'adjust the combination'
+    sent three planning dispatches into blind re-rolls (regen v3 ch5). The
+    failure must append the two concrete legalization routes.
+    """
+    from shenbi.gates.g4.chapter_planning import _packing_hint
+
+    hint = _packing_hint()
+    assert "配对型" in hint and "2800" in hint and "900" in hint

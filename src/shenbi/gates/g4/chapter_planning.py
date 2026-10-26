@@ -135,7 +135,10 @@ def g4_chapter_planning(
                     seq.extend(sib)
                     break
         if pack_scenes(seq, _fanqie_band, allow_open_tail=True) is None:
-            issues.append(f"贪心不可打包（序列 {seq}，更带 {_fanqie_band}）——请调整场景预算组合")
+            issues.append(
+                f"贪心不可打包（序列 {seq}，更带 {_fanqie_band}）——请调整场景预算组合;"
+                + _packing_hint()
+            )
         if issues:
             mf.append(f"G4.cp.scene_budget:{fp}:" + ";".join(issues))
         else:
@@ -366,3 +369,18 @@ def g4_chapter_planning(
     if mf:
         return fail("G4-chapter-planning", c, "scoring", mf)
     return passed("G4-chapter-planning", c)
+
+
+def _packing_hint() -> str:
+    """Legalization routes for a failed cross-chapter pack (regen v3 F9).
+
+    The packer sees the stream the model cannot (prev chapter's actual
+    scenes + this declaration + the sibling memo); a bare 'adjust' sent
+    dispatches into blind re-rolls. Two concrete routes always work.
+    """
+    return (
+        "合法化最短路（二选一）：①本簇所有场景统一配对型 [900,1350]"
+        "（任何相邻对和 ≤2700 必可打包，章和=3 场景×~1100 落带内）；"
+        "②若保留独立型场景，首场景改配对型 [900,1400] 与前章末场配对"
+        "（和须 ≤2800），独立型场景只出现在序列中部且两侧邻居和 ≤2800"
+    )
