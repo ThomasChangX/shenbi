@@ -13,7 +13,7 @@ jobs:
         with:
           # Full history + tags：changelog range 与 SBOM 均需（spec #63 audit-T5 C-3）
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
       # Spec #41 (C27) R2: SBOM 按组分层（F1041——environment 子命令无法分组，
