@@ -92,9 +92,9 @@ class TestParseSeed:
         assert "近世" in str(data.novel_json["era"])
         assert "穿越" in str(data.novel_json["core_concept"])
         assert (
-            data.novel_json["target_word_count"] == 10000000
-        )  # 2026-10-15 re-scoped: 巨型丰富（永生主角×26世×百余战役）→ 千万字/1400章；supersedes F919 20万
-        assert data.novel_json["target_total_chapters"] == 1400  # authoritative chapter override
+            data.novel_json["target_word_count"] == 1980000
+        )  # 2026-10-27 re-scoped: #72 平台章长带（2800-4000/default 3200）重预算 660 章/198 万字（卷均 16.5 万贴已验证卷密度）；supersedes 2026-10-15 千万字/1400 章
+        assert data.novel_json["target_total_chapters"] == 660  # authoritative chapter override
         assert "total_chapters" not in data.novel_json
 
         # section -> genesis context
