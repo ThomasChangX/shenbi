@@ -15,7 +15,7 @@
   - `emotion_band_warnings(project_dir, chapter) -> list[str]`（memo emotion_tone 冷章行 + 连续计数）
   - `escalation_action(project_dir, chapter) -> str | None`（3 连冷→节点取用注入文本；5 连→"CHECKPOINT"；卷末降级 WARN）
 - **Modify** `src/shenbi/contracts/skills/genre_config.py`：`market_params.recall_window ∈[3,20]`（缺省 8）
-- **Modify** `docs/framework/truth-files.yaml` + settling SKILL writes：recall_registry 条目（#75 三表连锁）
+- **Modify** `docs/framework/truth-files.yaml`（recall_registry 条目，#75 同款无 producer 字段风格）+ settling SKILL **updates:** 面（append_dedup 键 死者名）+ reads；sidecar 三源对账豁免记入 commit message（repo 无正式 deviations 机制——adjudication 先例）
 - **Test**：seeding（deng 化名 L53 取证/塾师启发式/weight override/半窗下限）、recall 检测三词库+降级、窗口 WARN（超窗=间隔>窗口）、冷章行+连续计数、escalation 取用（**本卷 scope：当前卷节点表第一个 章>当前章 的 转折/收官 行**）/卷末降级
 - WARN 发射面声明（I4）：`[recall]`/`[emotion-band]` 行=lint/审计钩子面（audit_drift）；payoff 密度窗 WARN=G4.cd 检查面（checks 列表）；三新 kind 均结构性排除于 count_drift_alerts（白名单 regex 构造性豁免——无代码）
 
@@ -39,7 +39,7 @@
 
 ## Task 4: 验收全量
 
-- **萤超窗 WARN = inline 构造 registry 驱动**（G0.9）：tmp 项目带 inline recall_registry（萤/死亡章 2/末触 ch2）+ ch2-10 fixture 章拷贝 + META 剥离口径 + 三词库 inline 注入——超窗边界语义=间隔 **> 窗口** 才 WARN；真实项目 seeding 为 T1 单测面（fixture truth/ 无 cards/volume_map——seeding 不可跑，按设计）
+- **萤超窗 WARN = inline 构造 registry 驱动**（G0.9）：tmp 项目带 inline recall_registry（萤/死亡章 2/末触 ch2/**窗口=4**（weight 高半窗））+ ch2-10 fixture 章拷贝 + META 剥离口径 + 三词库 inline 注入——超窗边界语义=间隔 **> 窗口** 才 WARN（ch10 距 ch2 间隔 8 > 4 → WARN 确定性）；真实项目 seeding 为 T1 单测面（fixture truth/ 无 cards/volume_map——seeding 不可跑，按设计）
 - inline v3：微钩连续 FAIL；半合米 payoff 不计兑现+密度窗 WARN
 - 改向：3 冷注入/5 冷熔断/卷末降级 WARN/recall+style 族注入物分流
 - 禁忌条款：rhythm_principles 文本字符串检查
