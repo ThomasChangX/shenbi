@@ -149,24 +149,39 @@ def g4_chapter_planning(
 
         content = pf.read_text(encoding="utf-8")
 
-        # ── spec #76 G4.cp.plan_format — 版本令牌两查分立 ──
-        # 缺席 = v1 默认（不 FAIL）；在场值 ∉ {v1,v2} = FAIL；
-        # v2 ⇒ 声口要求行存在（缺 = FAIL）。v1 无新义务（旧路径持续可跑）。
+        # ── spec #76/#78 G4.cp.plan_format — 版本令牌分立 ──
+        # 缺席 = v1 默认（不 FAIL）；在场值 ∉ {v1,v2,v3} = FAIL；
+        # v2/v3 ⇒ 声口要求行存在；v3 ⇒ 张力拍分级行 + payoff 轴量行。
         _pf_m = re.search(r"^plan_format[：:]\s*(\S+)\s*$", content, re.MULTILINE)
         if _pf_m:
             _pf_val = _pf_m.group(1)
-            if _pf_val not in ("v1", "v2"):
+            if _pf_val not in ("v1", "v2", "v3"):
                 mf.append(
-                    f"G4.cp.plan_format:{fp}:invalid_token:{_pf_val} (合法值 v1/v2；缺席 = v1 默认)"
+                    f"G4.cp.plan_format:{fp}:invalid_token:{_pf_val} (合法值 v1/v2/v3；缺席 = v1 默认)"
                 )
-            elif _pf_val == "v2":
+            elif _pf_val in ("v2", "v3"):
                 if not re.search(r"^声口要求[：:].+$", content, re.MULTILINE):
                     mf.append(
-                        f"G4.cp.voice_line:{fp}:v2_requires_声口要求行 "
+                        f"G4.cp.voice_line:{fp}:{_pf_val}_requires_声口要求行 "
                         "(protagonist 口癖/句式要点——planning 从 protagonist.md voice_profile 生成)"
                     )
                 else:
                     c.append({"id": "G4.cp.voice_line", "file": fp, "s": GateStatus.PASS})
+            if _pf_val == "v3":
+                # spec #78 v3 义务：张力拍分级行 + payoff 轴量行
+                if not re.search(r"章尾张力拍[：:]\s*\[?(微|章|大)", content):
+                    mf.append(
+                        f"G4.cp.tension_tier:{fp}:v3_requires_张力拍分级行 "
+                        "（[微|章|大]+形态——分级声明制）"
+                    )
+                _payoff_m = re.search(r"\*\*payoff 拍\*\*[：:]\s*(.+)", content)
+                if _payoff_m and not re.search(
+                    r"轴[（(]?(债|名声|名字数|进度)", _payoff_m.group(1)
+                ):
+                    mf.append(
+                        f"G4.cp.payoff_axis:{fp}:v3_requires_轴量声明 "
+                        "（类型｜轴(债/名声/名字数/进度)｜量——四轴登记为兑现唯一口径）"
+                    )
 
         # ── spec #75 G4.cp.declarations — 三声明行（时间锚/余额/POV）──
         # SKILL 承诺「新格式备忘缺任一行 = G4.cp FAIL」；旧格式（无场景预算

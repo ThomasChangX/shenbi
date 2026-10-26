@@ -126,6 +126,8 @@ def _settle_response(chapter: int) -> str:
         f"| 红纸包 | 主角{chapter} | ch{chapter} 经手 |\n"
         f"### FILE: staging/truth/name_registry.md\n"
         f"| 登记名 | 临 | 全卷一致（第{chapter}章透传） |\n"
+        f"### FILE: staging/truth/recall_registry.md\n"
+        f"| 萤 | 2 | 高 | — | {chapter} |\n"
         f"### FILE: staging/truth/state-settling-decisions.json\n"
         '{"$schema": "shenbi-decisions-v1", "skill": "shenbi-state-settling", '
         '"chapter": ' + str(chapter) + ', "produced_at": "2026-08-31T00:00:00Z", '

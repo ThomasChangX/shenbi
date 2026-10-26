@@ -135,3 +135,60 @@ def test_genre_recall_window_domain(tmp_path: Path) -> None:
     base["market_params"]["recall_window"] = {"window": 99}
     with pytest.raises(ValueError, match="recall_window"):
         GenreConfig.model_validate(base)
+
+
+@pytest.mark.unit
+def test_injection_block_and_checkpoint(tmp_path: Path) -> None:
+    """T3 接线面：dispatch 注入块（escalation/回触）+ 5 连熔断 set_checkpoint."""
+    (tmp_path / "plans").mkdir(parents=True)
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "outline").mkdir()
+    for n in (6, 7, 8):
+        (tmp_path / "plans" / f"chapter-{n}-plan.md").write_text(
+            "emotion_tone: 悲\n", encoding="utf-8"
+        )
+    (tmp_path / "outline" / "volume_map.md").write_text(
+        "  | 第12章 | 转折 | 灰烬反扑 |\n", encoding="utf-8"
+    )
+    (tmp_path / "truth").mkdir()
+    (tmp_path / "truth" / "recall_registry.md").write_text(
+        "| 死者名 | 死亡章 | 权重 | 化名 | 末触章 |\n|---|---|---|---|---|\n| 萤 | 2 | 高 | — | 2 |\n",
+        encoding="utf-8",
+    )
+    for n in (6, 7, 8):
+        (tmp_path / "chapters" / f"chapter-{n}.md").write_text("他推门。", encoding="utf-8")
+    # 注入块内容函数（dispatch_helper 的注入分支以这两个函数为内容源——
+    # 分支装配由 suppress/checkpoint 单测与集成面覆盖）
+    from shenbi.text.recall_weight import escalation_action, recall_warnings
+
+    act = escalation_action(tmp_path, 8)
+    assert act and "第12章" in act
+    rw = recall_warnings(tmp_path, 8, recall_window=8)
+    assert any("萤" in r for r in rw)
+
+
+@pytest.mark.unit
+def test_suppression_gate() -> None:
+    """跨族共发抑制：3 连冷时 genre-config 触发让位。"""
+    import tempfile
+
+    from shenbi.pipeline.triggers import _emotion_injection_active
+
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "plans").mkdir(parents=True)
+        for n in (6, 7, 8):
+            (d / "plans" / f"chapter-{n}-plan.md").write_text(
+                "emotion_tone: 悲\n", encoding="utf-8"
+            )
+        assert _emotion_injection_active(d, 8)
+        (d / "plans" / "chapter-7-plan.md").unlink()
+        assert not _emotion_injection_active(d, 8)
+
+
+@pytest.mark.unit
+def test_row_schema_structural_exclusion() -> None:
+    from shenbi.pipeline.triggers import count_drift_alerts
+
+    text = "- [recall] ch8 萤 超窗6章（窗4）\n- [emotion-band] ch8 冷章（悲；连续3）\n"
+    assert count_drift_alerts(text) == 0

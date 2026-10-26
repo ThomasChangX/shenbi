@@ -390,6 +390,16 @@ def _update_total_chapters(state: PipelineState) -> None:
 # ---------------------------------------------------------------------------
 
 
+def _emotion_injection_active(project_dir: Path | str, chapter: int) -> bool:
+    """Spec #78: >=3 adjacent cold chapters (emotion-band family) in window."""
+    try:
+        from shenbi.text.recall_weight import cold_run
+
+        return cold_run(Path(project_dir), chapter, lookback=5) >= 3
+    except Exception:  # noqa: BLE001 (trigger-side best effort — never block)
+        return False
+
+
 def check_triggers(state: PipelineState, chapter: int, total_chapters: int) -> TriggerResult:
     """Determine which triggers fire after *chapter* (spec section 6.4-6.6).
 
@@ -423,9 +433,14 @@ def check_triggers(state: PipelineState, chapter: int, total_chapters: int) -> T
             r.score_volume = True
             r.style_learning = True
 
-    # Genre-config drift (section 6.6).
+    # Genre-config drift (section 6.6) — spec #78 cross-family suppression:
+    # when the emotion-band family's escalation injection is active in this
+    # window (>=3 adjacent cold chapters), the config-tuning trigger yields
+    # (改向优先——injected escalation nodes carry the corrective load).
     if state.config.genre_config_update_on_drift:
-        if check_genre_config_drift(project_dir):
+        if check_genre_config_drift(project_dir) and not _emotion_injection_active(
+            project_dir, chapter
+        ):
             r.genre_config_update = True
 
     # Book closure (last chapter or beyond).

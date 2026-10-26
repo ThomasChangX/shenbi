@@ -1399,7 +1399,38 @@ def _build_skill_prompt(
     user_prompt = "\n".join(user_parts)
 
     # Task 13: Inject plan skeleton for shenbi-chapter-planning when volume_map exists.
+    # spec #78: 三族强制注入块（escalation 节点/回触拍/文体修复）——planning
+    # dispatch 前置（#77 style 族也在此汇流）。emotion 族 3 连冷注入由
+    # escalation_action 提供；recall 族 WARN 注回触拍；style 族注修复指令。
     if skill == "shenbi-chapter-planning" and chapter is not None:
+        _inject78: list[str] = []
+        try:
+            from shenbi.text.recall_weight import escalation_action, recall_warnings
+
+            _act = escalation_action(project_dir, chapter)
+            if _act == "CHECKPOINT":
+                pass  # 熔断由 chapter_loop set_checkpoint 处理——不注入
+            elif _act:
+                _inject78.append(f"[强制节拍·escalation] {_act}——本章必须落位该节点")
+            for _rw in recall_warnings(project_dir, chapter):
+                _inject78.append(f"[强制节拍·回触] {_rw}——本章安排低成本回触（物象/小调/台词）")
+        except Exception:
+            pass
+        try:
+            from shenbi.text.style_fingerprint import fingerprints as _fp77
+
+            for _sr in _fp77(project_dir, chapter):
+                if "style-warn" in _sr:
+                    _inject78.append(f"[文体修复指令] {_sr}——本章规避该指纹形态")
+        except Exception:
+            pass
+        if _inject78:
+            user_prompt = (
+                "以下强制节拍/修复指令必须织入本章备忘（#78 改向权）：\n"
+                + "\n".join(f"- {r}" for r in _inject78)
+                + "\n\n---\n\n"
+                + user_prompt
+            )
         vm_path = project_dir / "outline" / "volume_map.md"
         if vm_path.exists():
             try:

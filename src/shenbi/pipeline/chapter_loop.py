@@ -458,9 +458,14 @@ def _run_audit_close_for_chapter(
             context=(f"Audit revision hard cap (100) reached for n {n}. Manual review required."),
         )
         return True
-    # spec #77: style fingerprints — retry-loop EXIT point (once per chapter;
-    # rows append-only into truth/audit_drift, structurally excluded from
-    # count_drift_alerts). WARN-only, never blocking.
+    # spec #77/#78: fingerprints + recall/emotion WARN rows — retry-loop EXIT
+    # point (once per chapter; append-only rows structurally excluded from
+    # count_drift_alerts). WARN-only — except #78's 5-cold circuit breaker.
+    from shenbi.text.recall_weight import (
+        emotion_band_warnings as _ebw,
+        escalation_action as _esc,
+        recall_warnings as _rw,
+    )
     from shenbi.text.style_fingerprint import fingerprints as _fp
 
     try:
@@ -468,6 +473,22 @@ def _run_audit_close_for_chapter(
             _append_style_warn(project_dir, _row)
     except Exception as _exc:
         log.warning("style_fingerprint_skipped", chapter=n, err=repr(_exc))
+    try:
+        for _row in _rw(project_dir, n) + _ebw(project_dir, n):
+            _append_style_warn(project_dir, _row)
+        if _esc(project_dir, n) == "CHECKPOINT":
+            set_checkpoint(
+                state,
+                CheckpointType.ESCALATION,
+                chapter=n,
+                context=(
+                    f"spec #78 circuit breaker: 5 adjacent cold chapters at n {n} "
+                    "(emotion-band family) — manual review required"
+                ),
+            )
+            return True
+    except Exception as _exc:
+        log.warning("recall_weight_skipped", chapter=n, err=repr(_exc))
     return False
 
 
