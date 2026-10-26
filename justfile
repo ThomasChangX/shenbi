@@ -109,6 +109,22 @@ volume-budget *args:
 release-split *args:
     uv run python tools/release_split.py "$@"
 
+# Regen substrate (spec #79): quarantine old chapters + reset chapter-scoped state.
+# One-shot per tag (existing tag fails closed); --dry-run prints the plan only.
+regen-reset *args:
+    uv run python tools/regen_reset.py "$@"
+
+# Regen acceptance aggregator (spec #79): per-criterion PASS/FAIL/SKIP verdicts.
+# Tri-state exit 0 pass / 1 fail / 2 data error.
+regen-accept *args:
+    uv run python tools/regen_accept.py "$@"
+
+# Volume planning-node lint: slot deadlines / touch gaps / full-order monotonicity (spec #74)
+volume-nodes dir volume:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    exec uv run python tools/lint_volume_nodes.py "$1" --volume "$2"
+
 # Lint contract.reads fields vs truth file headings/keys (spec B.5)
 lint-contract-fields:
 	uv run python scripts/lint_contract_fields.py

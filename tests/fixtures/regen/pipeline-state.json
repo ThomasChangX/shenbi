@@ -1,0 +1,960 @@
+{
+  "version": 1,
+  "project_dir": "novel-xinghuo-vol1",
+  "phase": "chapter-loop",
+  "genesis": {
+    "state": "completed",
+    "current_step": 17,
+    "skills_done": [
+      "shenbi-worldbuilding",
+      "shenbi-genre-config",
+      "shenbi-character-design",
+      "shenbi-story-architecture",
+      "shenbi-faction-builder",
+      "shenbi-volume-outlining",
+      "shenbi-pacing-design",
+      "shenbi-plot-thread-weaver",
+      "shenbi-foreshadowing-lifecycle",
+      "shenbi-power-system",
+      "shenbi-location-builder",
+      "shenbi-relationship-map",
+      "shenbi-book-spine-init",
+      "shenbi-intent-management",
+      "shenbi-style-learning",
+      "shenbi-anchor-curate",
+      "shenbi-foundation-review"
+    ],
+    "retry_counts": {},
+    "retry_feedback": {},
+    "frozen_bindings": {}
+  },
+  "chapter_loop": {
+    "current_chapter": 11,
+    "current_step": "",
+    "step_index": 0,
+    "chapter_states": {
+      "1": {
+        "steps_done": [
+          "pipeline-volume-align",
+          "shenbi-chapter-planning",
+          "pipeline-context-prepare",
+          "shenbi-chapter-drafting",
+          "pipeline-post-draft-extract",
+          "pipeline-linguistic-drift-check",
+          "shenbi-foreshadowing-lifecycle",
+          "shenbi-state-settling",
+          "shenbi-review-group-factual",
+          "shenbi-review-group-character",
+          "shenbi-review-group-craft",
+          "shenbi-review-group-plan",
+          "shenbi-review-resonance",
+          "shenbi-review-sensitivity",
+          "shenbi-chapter-revision"
+        ],
+        "status": "complete",
+        "resonance_score": 78,
+        "audit_results": {
+          "wave_completed": [
+            "shenbi-review-group-character",
+            "shenbi-review-group-craft",
+            "shenbi-review-group-plan",
+            "shenbi-review-sensitivity",
+            "shenbi-review-group-factual"
+          ],
+          "blocking_found": false,
+          "audit_reports": [
+            "audits/chapter-1-continuity.md",
+            "audits/chapter-1-world-rules.md",
+            "audits/chapter-1-pacing.md",
+            "audits/chapter-1-character.md",
+            "audits/chapter-1-dialogue.md",
+            "audits/chapter-1-motivation.md",
+            "audits/chapter-1-pov.md",
+            "audits/chapter-1-texture.md",
+            "audits/chapter-1-reader-pull.md",
+            "audits/chapter-1-anti-ai.md",
+            "audits/chapter-1-memo-compliance.md",
+            "audits/chapter-1-foreshadowing.md",
+            "audits/chapter-1-resonance.md",
+            "audits/chapter-1-sensitivity.md"
+          ],
+          "group-factual": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "group-character": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "group-craft": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "group-plan": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "sensitivity": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "resonance": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "revision_route": "no-revision"
+        },
+        "revision_count": 1,
+        "audit_retry_count": 0
+      },
+      "2": {
+        "steps_done": [
+          "pipeline-volume-align",
+          "shenbi-chapter-planning",
+          "pipeline-context-prepare",
+          "shenbi-chapter-drafting",
+          "pipeline-post-draft-extract",
+          "pipeline-linguistic-drift-check",
+          "shenbi-foreshadowing-lifecycle",
+          "shenbi-state-settling",
+          "shenbi-review-group-factual",
+          "shenbi-review-group-character",
+          "shenbi-review-group-craft",
+          "shenbi-review-group-plan",
+          "shenbi-review-resonance",
+          "shenbi-review-sensitivity",
+          "shenbi-chapter-revision"
+        ],
+        "status": "complete",
+        "resonance_score": 84,
+        "audit_results": {
+          "wave_completed": [
+            "shenbi-review-group-plan",
+            "shenbi-review-sensitivity",
+            "shenbi-review-group-character",
+            "shenbi-review-group-craft",
+            "shenbi-review-group-factual"
+          ],
+          "blocking_found": false,
+          "audit_reports": [
+            "audits/chapter-2-continuity.md",
+            "audits/chapter-2-world-rules.md",
+            "audits/chapter-2-pacing.md",
+            "audits/chapter-2-character.md",
+            "audits/chapter-2-dialogue.md",
+            "audits/chapter-2-motivation.md",
+            "audits/chapter-2-pov.md",
+            "audits/chapter-2-texture.md",
+            "audits/chapter-2-reader-pull.md",
+            "audits/chapter-2-anti-ai.md",
+            "audits/chapter-2-memo-compliance.md",
+            "audits/chapter-2-foreshadowing.md",
+            "audits/chapter-2-resonance.md",
+            "audits/chapter-2-sensitivity.md"
+          ],
+          "group-factual": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "group-character": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "group-craft": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "group-plan": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "sensitivity": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "resonance": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "revision_route": "no-revision"
+        },
+        "revision_count": 1,
+        "audit_retry_count": 0
+      },
+      "3": {
+        "steps_done": [
+          "pipeline-volume-align",
+          "shenbi-chapter-planning",
+          "pipeline-context-prepare",
+          "shenbi-chapter-drafting",
+          "pipeline-post-draft-extract",
+          "pipeline-linguistic-drift-check",
+          "shenbi-foreshadowing-lifecycle",
+          "shenbi-state-settling",
+          "shenbi-review-group-factual",
+          "shenbi-review-group-character",
+          "shenbi-review-group-craft",
+          "shenbi-review-group-plan",
+          "shenbi-review-resonance",
+          "shenbi-review-sensitivity",
+          "shenbi-chapter-revision"
+        ],
+        "status": "complete",
+        "resonance_score": 79,
+        "audit_results": {
+          "wave_completed": [
+            "shenbi-review-group-plan",
+            "shenbi-review-sensitivity",
+            "shenbi-review-group-craft",
+            "shenbi-review-group-factual",
+            "shenbi-review-group-character"
+          ],
+          "blocking_found": false,
+          "audit_reports": [
+            "audits/chapter-3-continuity.md",
+            "audits/chapter-3-world-rules.md",
+            "audits/chapter-3-pacing.md",
+            "audits/chapter-3-character.md",
+            "audits/chapter-3-dialogue.md",
+            "audits/chapter-3-motivation.md",
+            "audits/chapter-3-pov.md",
+            "audits/chapter-3-texture.md",
+            "audits/chapter-3-reader-pull.md",
+            "audits/chapter-3-anti-ai.md",
+            "audits/chapter-3-memo-compliance.md",
+            "audits/chapter-3-foreshadowing.md",
+            "audits/chapter-3-resonance.md",
+            "audits/chapter-3-sensitivity.md"
+          ],
+          "group-factual": {
+            "passed": false,
+            "hard_failures": 1
+          },
+          "group-character": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "group-craft": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "group-plan": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "sensitivity": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "resonance": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "revision_route": "spot-fix"
+        },
+        "revision_count": 1,
+        "audit_retry_count": 0
+      },
+      "4": {
+        "steps_done": [
+          "pipeline-volume-align",
+          "shenbi-chapter-planning",
+          "pipeline-context-prepare",
+          "shenbi-chapter-drafting",
+          "pipeline-post-draft-extract",
+          "pipeline-linguistic-drift-check",
+          "shenbi-foreshadowing-lifecycle",
+          "shenbi-state-settling",
+          "shenbi-review-group-factual",
+          "shenbi-review-group-character",
+          "shenbi-review-group-craft",
+          "shenbi-review-group-plan",
+          "shenbi-review-resonance",
+          "shenbi-review-sensitivity",
+          "shenbi-chapter-revision"
+        ],
+        "status": "complete",
+        "resonance_score": 81,
+        "audit_results": {
+          "wave_completed": [
+            "shenbi-review-group-factual"
+          ],
+          "cascade_skipped": [
+            "shenbi-review-group-character",
+            "shenbi-review-group-craft",
+            "shenbi-review-group-plan",
+            "shenbi-review-sensitivity"
+          ],
+          "blocking_found": false,
+          "audit_reports": [
+            "audits/chapter-4-continuity.md",
+            "audits/chapter-4-world-rules.md",
+            "audits/chapter-4-pacing.md",
+            "audits/chapter-4-resonance.md"
+          ],
+          "group-factual": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "resonance": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "revision_route": "no-revision"
+        },
+        "revision_count": 1,
+        "audit_retry_count": 0
+      },
+      "5": {
+        "steps_done": [
+          "pipeline-volume-align",
+          "shenbi-chapter-planning",
+          "pipeline-context-prepare",
+          "shenbi-chapter-drafting",
+          "pipeline-post-draft-extract",
+          "pipeline-linguistic-drift-check",
+          "shenbi-foreshadowing-lifecycle",
+          "shenbi-state-settling",
+          "shenbi-review-group-factual",
+          "shenbi-review-group-character",
+          "shenbi-review-group-craft",
+          "shenbi-review-group-plan",
+          "shenbi-review-resonance",
+          "shenbi-review-sensitivity",
+          "shenbi-chapter-revision"
+        ],
+        "status": "complete",
+        "resonance_score": 84,
+        "audit_results": {
+          "wave_completed": [
+            "shenbi-review-group-factual"
+          ],
+          "cascade_skipped": [
+            "shenbi-review-group-character",
+            "shenbi-review-group-craft",
+            "shenbi-review-group-plan",
+            "shenbi-review-sensitivity"
+          ],
+          "blocking_found": false,
+          "audit_reports": [
+            "audits/chapter-5-continuity.md",
+            "audits/chapter-5-world-rules.md",
+            "audits/chapter-5-pacing.md",
+            "audits/chapter-5-resonance.md"
+          ],
+          "group-factual": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "resonance": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "revision_route": "no-revision"
+        },
+        "revision_count": 1,
+        "audit_retry_count": 0
+      },
+      "6": {
+        "steps_done": [
+          "pipeline-volume-align",
+          "shenbi-chapter-planning",
+          "pipeline-context-prepare",
+          "shenbi-chapter-drafting",
+          "pipeline-post-draft-extract",
+          "pipeline-linguistic-drift-check",
+          "shenbi-foreshadowing-lifecycle",
+          "shenbi-state-settling",
+          "shenbi-review-group-factual",
+          "shenbi-review-group-character",
+          "shenbi-review-group-craft",
+          "shenbi-review-group-plan",
+          "shenbi-review-resonance",
+          "shenbi-review-sensitivity",
+          "shenbi-chapter-revision"
+        ],
+        "status": "complete",
+        "resonance_score": 86,
+        "audit_results": {
+          "wave_completed": [
+            "shenbi-review-group-factual"
+          ],
+          "cascade_skipped": [
+            "shenbi-review-group-character",
+            "shenbi-review-group-craft",
+            "shenbi-review-group-plan",
+            "shenbi-review-sensitivity"
+          ],
+          "blocking_found": false,
+          "audit_reports": [
+            "audits/chapter-6-continuity.md",
+            "audits/chapter-6-world-rules.md",
+            "audits/chapter-6-pacing.md",
+            "audits/chapter-6-resonance.md"
+          ],
+          "group-factual": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "resonance": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "revision_route": "spot-fix"
+        },
+        "revision_count": 1,
+        "audit_retry_count": 0
+      },
+      "7": {
+        "steps_done": [
+          "pipeline-volume-align",
+          "shenbi-chapter-planning",
+          "pipeline-context-prepare",
+          "shenbi-chapter-drafting",
+          "pipeline-post-draft-extract",
+          "pipeline-linguistic-drift-check",
+          "shenbi-foreshadowing-lifecycle",
+          "shenbi-state-settling",
+          "shenbi-review-group-factual",
+          "shenbi-review-group-character",
+          "shenbi-review-group-craft",
+          "shenbi-review-group-plan",
+          "shenbi-review-resonance",
+          "shenbi-review-sensitivity",
+          "shenbi-chapter-revision"
+        ],
+        "status": "complete",
+        "resonance_score": 88,
+        "audit_results": {
+          "cascade_skipped": [
+            "shenbi-review-group-character",
+            "shenbi-review-group-craft",
+            "shenbi-review-group-factual",
+            "shenbi-review-group-plan",
+            "shenbi-review-sensitivity"
+          ],
+          "blocking_found": false,
+          "audit_reports": [
+            "audits/chapter-7-resonance.md"
+          ],
+          "resonance": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "revision_route": "no-revision"
+        },
+        "revision_count": 1,
+        "audit_retry_count": 0
+      },
+      "8": {
+        "steps_done": [
+          "pipeline-volume-align",
+          "shenbi-chapter-planning",
+          "pipeline-context-prepare",
+          "shenbi-chapter-drafting",
+          "pipeline-post-draft-extract",
+          "pipeline-linguistic-drift-check",
+          "shenbi-foreshadowing-lifecycle",
+          "shenbi-state-settling",
+          "shenbi-review-group-factual",
+          "shenbi-review-group-character",
+          "shenbi-review-group-craft",
+          "shenbi-review-group-plan",
+          "shenbi-review-resonance",
+          "shenbi-review-sensitivity",
+          "shenbi-chapter-revision"
+        ],
+        "status": "complete",
+        "resonance_score": 84,
+        "audit_results": {
+          "cascade_skipped": [
+            "shenbi-review-group-character",
+            "shenbi-review-group-craft",
+            "shenbi-review-group-factual",
+            "shenbi-review-group-plan",
+            "shenbi-review-sensitivity"
+          ],
+          "blocking_found": false,
+          "audit_reports": [
+            "audits/chapter-8-resonance.md"
+          ],
+          "resonance": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "revision_route": "no-revision"
+        },
+        "revision_count": 1,
+        "audit_retry_count": 0
+      },
+      "9": {
+        "steps_done": [
+          "pipeline-volume-align",
+          "shenbi-chapter-planning",
+          "pipeline-context-prepare",
+          "shenbi-chapter-drafting",
+          "pipeline-post-draft-extract",
+          "pipeline-linguistic-drift-check",
+          "shenbi-foreshadowing-lifecycle",
+          "shenbi-state-settling",
+          "shenbi-review-group-factual",
+          "shenbi-review-group-character",
+          "shenbi-review-group-craft",
+          "shenbi-review-group-plan",
+          "shenbi-review-resonance",
+          "shenbi-review-sensitivity",
+          "shenbi-chapter-revision"
+        ],
+        "status": "complete",
+        "resonance_score": 86,
+        "audit_results": {
+          "wave_completed": [
+            "shenbi-review-sensitivity",
+            "shenbi-review-group-plan",
+            "shenbi-review-group-character",
+            "shenbi-review-group-craft"
+          ],
+          "cascade_skipped": [
+            "shenbi-review-group-factual"
+          ],
+          "blocking_found": false,
+          "audit_reports": [
+            "audits/chapter-9-character.md",
+            "audits/chapter-9-dialogue.md",
+            "audits/chapter-9-motivation.md",
+            "audits/chapter-9-pov.md",
+            "audits/chapter-9-texture.md",
+            "audits/chapter-9-reader-pull.md",
+            "audits/chapter-9-anti-ai.md",
+            "audits/chapter-9-memo-compliance.md",
+            "audits/chapter-9-foreshadowing.md",
+            "audits/chapter-9-resonance.md",
+            "audits/chapter-9-sensitivity.md"
+          ],
+          "group-character": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "group-craft": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "group-plan": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "sensitivity": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "resonance": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "revision_route": "no-revision"
+        },
+        "revision_count": 1,
+        "audit_retry_count": 0
+      },
+      "10": {
+        "steps_done": [
+          "pipeline-volume-align",
+          "shenbi-chapter-planning",
+          "pipeline-context-prepare",
+          "shenbi-chapter-drafting",
+          "pipeline-post-draft-extract",
+          "pipeline-linguistic-drift-check",
+          "shenbi-foreshadowing-lifecycle",
+          "shenbi-state-settling",
+          "shenbi-review-group-factual",
+          "shenbi-review-group-character",
+          "shenbi-review-group-craft",
+          "shenbi-review-group-plan",
+          "shenbi-review-resonance",
+          "shenbi-review-sensitivity",
+          "shenbi-chapter-revision"
+        ],
+        "status": "complete",
+        "resonance_score": 79,
+        "audit_results": {
+          "cascade_skipped": [
+            "shenbi-review-group-character",
+            "shenbi-review-group-craft",
+            "shenbi-review-group-factual",
+            "shenbi-review-group-plan",
+            "shenbi-review-sensitivity"
+          ],
+          "blocking_found": false,
+          "audit_reports": [
+            "audits/chapter-10-resonance.md"
+          ],
+          "resonance": {
+            "passed": true,
+            "hard_failures": 0
+          },
+          "revision_route": "no-revision"
+        },
+        "revision_count": 0,
+        "audit_retry_count": 0
+      }
+    },
+    "per_chapter_review_enabled": true,
+    "retry_counts": {},
+    "retry_budget_consumed": {
+      "ch1-shenbi-chapter-drafting": 1,
+      "ch2-shenbi-chapter-drafting": 2,
+      "ch3-shenbi-chapter-drafting": 1,
+      "ch4-shenbi-chapter-drafting": 1,
+      "ch5-shenbi-chapter-drafting": 2,
+      "ch6-shenbi-chapter-drafting": 1,
+      "ch7-shenbi-chapter-planning": 2,
+      "ch7-shenbi-chapter-drafting": 1,
+      "ch8-shenbi-chapter-drafting": 2,
+      "ch9-shenbi-chapter-planning": 1,
+      "ch9-shenbi-chapter-drafting": 1,
+      "ch10-shenbi-chapter-drafting": 1
+    },
+    "modify_feedback": null,
+    "retry_feedback": {},
+    "soft_fail_trackers": {}
+  },
+  "closure": "pending",
+  "pending_checkpoint": {
+    "type": "per-chapter",
+    "chapter": 10,
+    "artifact": null,
+    "context": "Chapter 10 complete. Review before proceeding to chapter 11.",
+    "options": [
+      "approve",
+      "modify",
+      "reject"
+    ],
+    "created_at": "2026-10-25T03:41:21.604200+00:00"
+  },
+  "checkpoint_history": [
+    {
+      "type": "escalation",
+      "chapter": null,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T19:12:50.011378+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #001（Tier 1 · escalation · genesis step 3）\n\n- **checkpoint**: escalation — genesis step 3 shenbi-character-design 三次 gate 尝试失败\n- **时间**: 2026-10-24 18:57 触发 / 19:10 裁决\n- **取证**: escalation-genesis-report.md + characters/*.md frontmatter 亲查 + G4 检查器源码 + gate 复跑（_quarantine/diagnostics 均空，无隔离产物）\n\n## 定性（三层定位：gate 误报）\n\n失败三处 `G4.cd.archetype.{lao-tuo[0],lao-tuo[1],xiao-man[0]}.name:too_short_or_missing`，name 值为 **苏武 / 甘英 / 冯道**——真实历史人物、恰好两字中文名。检查器 `len(name) < 3` 按拉丁口径写成，两字中文名确定性误杀；对照组（周恩来/司马迁/李自成等）全部恰 ≥3 字过闸，是阈值指纹不是内容缺陷。seed 未指定原型人物，系模型自主选择（内容侧无过错）。escalation 报告归因「输出侧内容格式类」——按知识库 #8 不可直接信，亲查后**改判为 gate 校验器层缺陷**（误归因第 3 次复现，按协议立项记档——见下）。\n\n## 修复（TDD，commit ed6bad81）\n\n- red test：两字中文名过 / 一字中文名拦 / 两字拉丁名拦（三断言）\n- 修复：name 含 CJK（\\u4e00-\\u9fff）时地板 >=2；拉丁口径 >=3 不变；空名/非串仍拦；abstract_terms 检查保留\n- 宽面回归 2932 passed；同产物实弹复验 `status: PASS, must_fix: None`；现有在途项目零影响（gate 只读）\n\n## 独立 subagent 意见（general-purpose，证据链六项独立复验）\n\n定性成立（gate 误报）；修复最小无过度施工；**建议 approve**。记档先存盲区（不动手）：① abstract_terms 无 CJK 抽象称谓词表；② 扩展区汉字落拉丁口径。\n\n## 决策\n\n**approve** —— 重置重试计数并重派失败步骤。产物零改动即过闸。\n\n## 记档（挂账观察，防过度施工）\n\n- 知识库 #8 escalation 误归因：本次为第 3 次复现（「输出侧内容格式类」→ 实为校验器口径），按协议**立项**：escalation-review 技能对「gate FAIL 类」报告应引用失败检查项的语义分类而非兜底归「输出侧格式」——挂 P3 候选，不在本跑修。\n- 台账：escalation 分类统计 #1 = gate 误报（已修）。\n"
+    },
+    {
+      "type": "escalation",
+      "chapter": null,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T19:51:55.424383+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #002（Tier 1 · escalation · genesis step 6 volume-outlining）\n\n- **checkpoint**: escalation — genesis step 6 shenbi-volume-outlining 三次尝试失败\n- **时间**: 2026-10-24 19:32 触发 / 19:5x 裁决\n- **must_fix**: `G4.vo.krs:0`、`G4.vo.tension_curve`（三次稳定）\n\n## 定性（三层）\n\n1. **gate 消息层缺陷（已修 423b07a8）**：must_fix 裸机器串不指明检查对象是**末卷（卷十二）**，重派反馈注入后模型两次合理误读为「细化下一卷」（卷一→卷二）。修复后四类失败消息带 `[卷N：标题]` 身份。旧消息格式全库零消费方。\n2. **内容层缺口**：磁盘卷十二仍是 step4 骨架格式（列表式 KR＋「节奏原则」），未达细化契约（`#### KR` H4×3-5＋`### 卷内张力曲线`）。append_dedup 逐卷累积可解，但 3 次重试预算内模型被误导花在卷一/卷二。\n3. **结构性挂账（本跑不修，长跑前必须结算）**：gate 只查末卷＝覆盖率 1/12；volume-outlining 全生命周期只在 genesis 派发一次；3×重试×输出帽（32768 持续截断）装不下 12 卷细化。三者叠加使本升级结构性必然。附属挂账：novel.json `target_total_chapters=1400` 死键与 story-architecture 按 ceil(10M/7600)=1316 建图相互矛盾（两 SKILL 规则冲突，四方对账不含该键，无处理记录披露）；卷三起骨架卷使 chapter-planning 上下文静默退化（`load_volume_context` 只认 `#### KR` 块与节点表格）；story-architecture 铁律 5 `clamp(卷数,1,5)` 与 12 卷脱节。\n\n## 独立 subagent 意见（general-purpose，五项亲验）\n\n定性成立（三层都要记）；指令措辞按其收紧（钉死区段头/章界、只发单卷、KR 恰 3、含金句行、禁发清单）；**approve**。风险五项已并入上文挂账。escalation 误归因第 4 次复现（报告归「内容侧」，实为 gate 消息＋输出帽复合）。\n\n## 模型执行指令（重派 corrective feedback 生效部分）\n\nvolume_map.md 的 **G4 检查对象是最后一卷＝卷十二区段**。本次重派**只发一个卷区段**：\n\n1. **区段头逐字使用**：`## 第十二卷：颜色至星海（第1221—1316章）`——H2 层级与「第十二卷」token 是增量合并的定位键，章界括号 `（第1221—1316章）` 是 frontmatter total_chapters 的派生源。**章界保持第 1221—1316 章、96 章不变，不得改动任何卷界，不得按 seed 的 1400 章口径重切**。\n2. 区段内结构（对齐卷一/卷二细化段的格式，二者就在你读到的同一文件里）：`**Objective**: ...`｜`**章节范围**: 第1221章 - 第1316章（共96章）`｜`**爽点主型**: ...`｜`**金句、母题物象与梗位**: ...`（一行）｜`### Key Results` 下 **恰好 3 个** `#### KR1:` / `#### KR2:` / `#### KR3:` H4（对应骨架 KR12.1 八一九与休克/KR12.2 屏幕广场与立宪/KR12.3 交匣与首航，不拆成 4-5 个）｜`### 卷内张力曲线`（H3，含铺垫/上升/高潮/回落段落）｜`### 跨卷桥接`。\n3. 单卷紧凑密度（约 3-5KB，参照卷一粒度），**远低于输出上限，不与其他卷合并输出**。\n4. **禁止**：frontmatter、`#` 一级标题、骨架序言、`> **卷界**` 行、卷一/卷二等已细化区段的任何重发——重发即触发摄取守卫整次拒收。\n\n## 决策\n\n**approve** —— 重置重试计数并重派；本裁决书作为 corrective feedback 注入重派 prompt。产物零破坏路径：原位替换骨架卷十二段 → G4 四标记齐 → 一次应过。\n"
+    },
+    {
+      "type": "genesis-complete",
+      "chapter": null,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T20:34:22.964866+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #003（Tier 1 · genesis-complete · 17 步全闭合）\n\n- **checkpoint**: genesis-complete（foundation/review_report.md）\n- **时间**: 2026-10-24 20:13 到点 / 20:5x 裁决\n- **genesis 时长/成本**: 18:43→20:13（~90 分钟）/ $0.3368 / 39 派发 / 2 escalation（均框架侧、均已 TDD 修复放行）\n\n## 运行参数（本裁决正式记档——卷界动态口径铁律）\n\n- **卷一 = ch1-60「白城」**；卷二 = ch61-150「征服秩序」（90 章，seed 意向 125 被上游卷界吸收，有处理记录）\n- 全书 **1316 章/12 卷**（60+90+110+110+120+110+120+140+130+120+110+96；frontmatter total_chapters=1316）——**非 seed 的 1400**（差异见挂账①）\n- chapter_word.default=7600；中点反转窗口（卷长 45-55%）≈ **ch27-33**；卷界段观察窗 **ch51-60**；ch30 里程碑不变\n- 成本预期按 60 章口径重估：~$0.10-0.14×61 ≈ $6-9（硬顶 $25 不变）\n\n## foundation-review「不通过 74 分」判决的 override 依据\n\n1. **P0#1 地理方向互斥 = 误报**：白城「浮夸年县委会 东南 180 里」与浮夸「白城 西北 180 里」——东南/西北是互逆方位对，两条目自洽；白城-运河平原-浮夸三角三点共线 180+35=215 精确闭合。评审把互逆当互斥，且其修复建议（改浮夸条目为东南）会制造真互斥。\n2. **P0#2 重愿逆转规则缺口 = 真实，已修**：power_system「能力边界」新增重愿逆转小节（触发/代价/窗口/次数/边界五要素，与轮回六律第 1 条逐字对齐）+ 代价机制表加行。\n3. **P0#3 白霜章号字段语义 = 真实，已修**：`first_appearance_volume: 7` + `first_appearance_chapter: 672`；relationships 括注同步更新。其余 11 张人物卡无同类二义。\n4. **评审反向漏判（独立 subagent 新发现）**：白城↔中央档案楼**双向西南 240 里**（真互斥，正确互逆应为东北）——评审 L91 把该对明判为「一致」。已修方向翻转（中央档案楼条目 西南→东北）；**距离重导（运河平原↔档案楼 120 里 vs 三角闭合 ~320 里）记挂账②**（卷八地理裁量，爆发点 ch723，不阻塞卷一）。\n- 修复后零 ERROR；按评审自身评分路径重算亦过 80 门槛。**override 成立**。\n\n## 防剧透铁律执行（本探针 P1 级）\n\n- volume_map.md L644 生成产物出现「组诗」字样 = 铁律违规 → 已手改「小调全词随之揭晓」（正文层修复不动装置）。全库生成产物复扫干净（genesis-context/ 为 seed 原文副本属设计输入不计；剩余「星火燃穹」命中均为书名正常使用）。台账含「组诗」串但不在 pipeline 派发 reads 内。\n\n## 就绪面（独立 subagent 抽查全过）\n\npending_hooks 12 MH 总览+详情成节 ✔｜thread_map 8 列 22 条线索总览表在 ✔｜book_spine 99 行 ✔｜genre-config 合法 ✔｜style_profile+style_directives 并存（spec #71）✔｜卷界连续性 1316 ✔｜spec #71 接线：卷一/卷二/卷十二区段均带「金句、母题物象与梗位」行 ✔\n\n## 挂账（跑后结算清单——本跑不动）\n\n1. **章数权威冲突**：seed 明写 1400 章 → novel.json `target_total_chapters=1400`（seed_parser 权威覆盖键，「volume-outlining 应优先使用」），但 genre-config 自主选 chapter_word.default=7600 → story-architecture 按 ceil(10M/7600)=1316 建图且过闸。两 SKILL 规则冲突 + 四方对账不含该键 + 无处理记录披露。卷一零影响；**千万字长跑前必须人类定夺**（保 1316 改 seed 口径并披露 / 保 1400 重切卷界）。\n2. **中央档案楼距离重导**（ch723 前结算）：三角闭合要求 ~320 里 vs 现档 120 里（方向已修，距离未动）。\n3. **卷三-卷十骨架卷**（#### KR 块仅卷一/二/十二有——卷十二为本跑补，卷十一仍骨架）：chapter-planning `load_volume_context` 只认 ####KR 块与节点表 → **ch151 前必须补齐**（硬死线）；架构修法候选：卷界 checkpoint 增派单卷细化或 G4.vo 加覆盖率 WARN。\n4. escalation-review 误归因累计 4 次（L91 方向学判反为第 4 类新形态）——P3 候选维持。\n5. pending_hooks/thread_map「设计终点态」登记（正文 0 章而多线 RESOLVED/PAYING_OFF）——确认无 gate 按「已写章节」校验生命周期。\n6. 重愿逆转「每次断锚窗口至多一次」消歧（power_system 明确、protagonist 未回写）——轻量，卷八前回写即可。\n\n## 独立 subagent 意见\n\nP0 处置恰当（P0#1 误报成立、P0#2/3 修复达标）；override 成立；**建议 approve 进入 chapter loop** 附随行修补（已全部执行或入挂账）。\n\n## 决策\n\n**approve** —— 进入 chapter loop，ch1 起即修复批全量首验环境（观察项 15）+ spec #71 文笔面试点（观察项 17-22）。\n"
+    },
+    {
+      "type": "chapter-memo",
+      "chapter": 1,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T20:44:57.676868+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #004（Tier 2 · chapter-memo · ch1）\n\n- **checkpoint**: chapter-memo ch1（chapter-planning 备忘审查）\n- **核对**: BLOCKING/CRITICAL=0、双 structure=0、retry_budget 本章空。新契约字段全齐且对齐上游：emotion_tone 平（末压惧边缘为 ch2 悲留落差）、payoff 拍「无｜纯蓄压章」带理由（智识小胜留 ch4，契约合法）、金句位双落位（seed ch1 两句全在）、母题物象红纸包现实形态一次、留存锚=开篇双钩（与 volume_map ch1 锚章一致）、hook 账 5/8 密度预算内且 MH01 defer 起点合法。\n- **决策**: approve\n"
+    },
+    {
+      "type": "escalation",
+      "chapter": 1,
+      "decision": "reject",
+      "resolved_at": "2026-10-24T21:10:35.262802+00:00",
+      "consumed": false,
+      "feedback": "# 裁决 #005（Tier 1 · escalation · ch1 drafting）\n\n- **checkpoint**: escalation — ch1 step4 shenbi-chapter-drafting 三试耗尽（20:57）\n- **失败链**: attempt1 G4.dec（selections.2 manual_override 缺 rationale）→ attempt2 G4.word_count 6921<7600（扩写路径生效）→ attempt3 正文达标但 sidecar 未重写（沿 attempt2 版）→ G4.dec 同错复现\n- **定性**: 内容层确定性缺陷——P2.5 规则（`manual_override` 不论 severity 必带 rationale，decisions.py L35-43）模型遵从不稳（2/3 漏写）。正文已达标（gate 口径 **7890/7600**，裕度 3.8%；裸字符 10142）。四空字段（pov_mode 等）为 advisory 默认值合法（genre-config 无 povMode 键——独立非阻塞观察，不并入处置）。\n\n## 独立 subagent 意见（五项核验）\n\nP2.5 矩阵亲验；前稿注入路由亲验（裁决书含 \"G4.word_count\" 字样→触发 PREVIOUS DRAFT 保留块）；报告「同错复现=确定性、重跑无效」同意；正文章尾钩真实（梵光残卷→城门落闩→双问句钩）；**漏洞两处已采纳**：①approve 不清预算（consumed=3，一败即再升级）→改走 **reject-redo**（escalation 无 staging 可弃、反馈同路由、预算全重置 3 次——严格占优）；②basis 翻转可静默过闸（manual_override→arc_relevance+low 禁带 rationale 亦 PASS）→指令必须逐字钉死字段值防漂移。\n\n## 模型执行指令（reject-redo corrective feedback 生效部分）\n\n失败根因：`chapters/chapter-1-decisions.json` 的 `selections[2]`（style/style_directives.md）`basis=manual_override` 缺 `rationale`（P2.5 规则：manual_override 不论 severity 必带）。修正要求：\n\n1. **decisions sidecar 与现落盘版唯一差异 = `selections[2]` 新增一行 `rationale`**，其余一切字段（含 `chapter: 1`、`selections[0]/[1]`、`adjustments[0]` 及其 rationale）逐字保留。`selections[2]` 的 `basis` **保持 `manual_override`**（不得改成其他 basis——那是静默蒸发审计痕迹）、`severity` 保持 `low`。rationale 用此句（≤100 字）：\n   「四段为文风目标的人工圈选：节奏基带与长短落差、感官密度、对白比例、金句位——本章首章定调，逐段执行非默认整读。」\n2. **正文以既有 live 稿为基底**：chapters/chapter-1.md 现 gate 口径 7890/7600 **已达标（缺口 0）**，保持 ≥7600 即可，不做无谓扩写；仅当 G4.word_count 复核仍缺时按反馈行实测缺口在既有场景内扩写（禁整章重写、禁删减既有段落、禁新增场景）。\n3. 输出须同时产出正文与 decisions sidecar 两件产物（上一试的教训是只重写了正文）。\n\n## 决策\n\n**reject**（redo 语义：重置重试预算重派失败步骤）——理由：approve 不清预算，单发机会在 2/3 遵从失败率下二次升级风险实质存在；reject 对 escalation checkpoint 无产物损失且反馈路由相同（cli.py L1181-1203），预算全重置严格占优。\n"
+    },
+    {
+      "type": "escalation",
+      "chapter": 1,
+      "decision": "reject",
+      "resolved_at": "2026-10-24T21:23:41.199565+00:00",
+      "consumed": false,
+      "feedback": "# 裁决 #006（Tier 1 · escalation · ch1 drafting 二次升级）\n\n- **checkpoint**: escalation（第二次，ch1 drafting；retry consumed=4）\n- **本轮失败链**（reject-redo 后三派）：#1 5794B 正文+878B sidecar（dec adjustments.1 缺 rationale 败）→ #2 9281B/6340 gate（word_count 败）+ 734B sidecar（**selections[2] 整条消失**）→ 预算耗尽\n- **机制核验**：prompt_tokens 体积证实裁决文本+前稿注入全部到位（20536 vs 基线 12241）——**非反馈死线，纯模型遵从失败**（给了完整前稿+禁重写仍缩水；#005 的 basis 翻移风险以「删除 selections[2]」形态成真）\n- **定性**：模型侧（deepseek-v4-flash@0.90）长上下文保真+规则遵从不稳；机制侧零缺陷。温度回退判据未达（ch1 链 $0.0733 < $0.27；非 decisions-stub 形态），不做超判据干预。\n- **教训记档**：#005 裁决书混入人类分析散文（cli.py 引用等）被整文注入模型 prompt——后续裁决书模型指令段必须独立成块、简洁机器风格（机器格式反馈历史遵从率高于散文指令：首循环 attempt3 曾 6921→7890 收敛成功）。\n\n## 模型执行指令（ corrective feedback 全文即下——裁决记录到此为止，以下为注入模型的内容）\n\n以下 G4 检查失败，请修正后重新输出：\n\n1. **G4.word_count:chapters/chapter-1.md:6340<7600** —— 现落盘稿为基底扩写：逐字保留既有全部场景与节拍，仅在各场景内增加感官细节、对白往返与动作过程，补足缺口 1260 字（gate 口径）。禁止整章重写、禁止删减段落、禁止新增场景。\n2. **G4.dec:chapters/chapter-1-decisions.json** —— sidecar 必须与下方 JSON 逐字一致（唯一允许差异：produced_at 时间戳）：\n\n```json\n{\n  \"$schema\": \"shenbi-decisions-v1\",\n  \"skill\": \"shenbi-chapter-drafting\",\n  \"chapter\": 1,\n  \"produced_at\": \"2026-10-24T21:20:00Z\",\n  \"selections\": [\n    {\n      \"target\": \"plans/chapter-1-plan.md\",\n      \"selected\": [\"scene-1\", \"scene-2\", \"scene-3\", \"scene-4\", \"scene-5\"],\n      \"basis\": \"adjacent_to_target_chapter\",\n      \"severity\": \"low\",\n      \"omitted\": []\n    },\n    {\n      \"target\": \"context/chapter-1-context.md\",\n      \"selected\": [\"route-a:小满\", \"route-a:梵光\", \"route-c:book_spine\"],\n      \"basis\": \"arc_relevance\",\n      \"severity\": \"low\",\n      \"omitted\": [\"route-a:灯\", \"route-a:灰烬\"]\n    },\n    {\n      \"target\": \"style/style_directives.md\",\n      \"selected\": [\"rhythm-baseline\", \"image-density\", \"dialogue-ratio\", \"golden-line\"],\n      \"basis\": \"manual_override\",\n      \"severity\": \"low\",\n      \"omitted\": [],\n      \"rationale\": \"四段为文风目标的人工圈选：节奏基带与长短落差、感官密度、对白比例、金句位——首章定调逐段执行，非默认整读。\"\n    }\n  ],\n  \"adjustments\": [\n    {\n      \"issue_id\": \"g4_word_count_under_floor\",\n      \"severity\": \"medium\",\n      \"handling\": \"compensate_via_pacing\",\n      \"rationale\": \"上稿实测 6340 字低于地板 7600；在原场景内扩感官、对白往返与动作过程补足，不新增场景、不改节拍。\"\n    }\n  ]\n}\n```\n\n3. 输出必须同时包含两件产物：扩写后的完整章节正文 + 上述 decisions sidecar。\n\n## 决策\n\n**reject**（预算重置 3 次重派）\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 1,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T21:33:29.917863+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #007（Tier 2 · state-settle · ch1）\n\n- **checkpoint**: state-settle ch1\n- **核对**: 新日志 BLOCKING/CRITICAL=0、双 structure=0；sidecar state-settling-decisions.json chapter=1 与当前章一致；staging matrix 7 节结构完整、MH08 open 迁移带 ch1 正文证据（L428-436 火中白衣人）；最终稿 11373B 过 word_count。drafting 侧 #006 一次修复成功（钉 sidecar JSON 全文）。\n- **决策**: approve\n"
+    },
+    {
+      "type": "per-chapter",
+      "chapter": 1,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T21:43:39.634502+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #008（Tier 2 · per-chapter · ch1）\n\n- **checkpoint**: per-chapter ch1（终审）\n- **核对**: BLOCKING/CRITICAL=0、双 structure=0；15 项 review audits 齐备；resonance 78/100 通过（基线带 78-84 内）；金句双逐字落位（L84/L408，观察项 7「落位超 seed 设计」复现）；代词 他41/她27 与林烽（男）+女性配角阵容一致；净字符 ~10651 过 word_count。drafting 全程 8 派（2 escalate 已收敛于 #006 钉 sidecar 战术）。\n- **决策**: approve\n"
+    },
+    {
+      "type": "chapter-memo",
+      "chapter": 2,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T21:53:55.137332+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #009（Tier 2 · chapter-memo · ch2）\n\n- **checkpoint**: chapter-memo ch2\n- **核对**: 机器门全绿（BLOCKING/CRITICAL 0、structure 0、escal 0、retry 空）。emotion 悲（承 ch1 末压惧的落差设计）；payoff 大兑现（悲情+认知颠覆，轮回成立×轮回无用双面）；留存锚=第一次死亡与轮回显形（卷纲 KR1.2 ch2 锚章对齐，黄金三章第二锚）；金句「你不是不死——你只是还会再来」落位设计完整；母题红纸包三段变奏（预植→落地→入匣）设计明确。\n- **决策**: approve\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 2,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T22:10:49.549236+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #010（Tier 2+ · state-settle · ch2——retry>0 已亲查）\n\n- **checkpoint**: state-settle ch2\n- **retry 亲查（manifest 两记录）**: drafting attempt1 transient dispatch 失败 + attempt2 word_count 5217<7600 → attempt3 扩写收敛 PASS（2a00fa81 路径正常工作）。word_count 单族已收敛 = 设计内行为，非缺陷面。**操作规则记档**：word_count 单族收敛 Tier 2 记档放行；他族 retry 升 Tier 1。\n- **核对**: 机器门全绿（BLOCKING/CRITICAL 0、structure 0、escal 0）；settle 产物在 staging；resonance 待 per-chapter 采集。\n- **决策**: approve\n"
+    },
+    {
+      "type": "per-chapter",
+      "chapter": 2,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T22:18:10.825356+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #011（Tier 2 · per-chapter · ch2）\n\n- **checkpoint**: per-chapter ch2\n- **核对**: 机器门全绿；resonance 84/100 通过（高于 ch1 的 78）；金句「你不是不死——你只是还会再来」逐字落位 L674；无名小调初哼=「院墙外有人哼调子」哼调不写词（观察项 8 达成）；红纸包落地变奏按三段设计兑现；净字符 10978；代词 她77/他172 一致。记档：seed ch2 排两句金句、备忘只排一句（取更强者）——金句位 1/章设计内，非缺陷。\n- **决策**: approve\n"
+    },
+    {
+      "type": "chapter-memo",
+      "chapter": 3,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T22:26:48.310389+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #012（Tier 2 · chapter-memo · ch3）\n\n- **checkpoint**: chapter-memo ch3\n- **核对**: 机器门全绿（BLOCKING/CRITICAL 0、structure 0、escal 0、retry 空）；craft 字段齐备（见下方 grep 证据行——宿敌定约章：灰烬五百年之约）。\n- **决策**: approve\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 3,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T22:36:28.151191+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #013（Tier 2+ · state-settle · ch3——retry 亲查）\n\n- **checkpoint**: state-settle ch3\n- **retry 亲查**: word_count 5799<7600 + dec adjustments.1.rationale 缺失组合 → attempt2 双修复 PASS（一次收敛）。P2.5 rationale 家族累计 5 次（ch1×4/ch3×1，≈0.5/章）——非 stub 族、未达任何触发线，持续跟踪。\n- **核对**: 机器门全绿；settle 产物 staging 就绪。\n- **决策**: approve\n"
+    },
+    {
+      "type": "per-chapter",
+      "chapter": 3,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T22:43:19.240239+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #014（Tier 2 · per-chapter · ch3）\n\n- **checkpoint**: per-chapter ch3\n- **核对**: 机器门全绿；resonance 79/100 通过；宿敌定约「下辈子再见」+ 老塾师「名字是爹妈给的」双落位；净字符达标；drafting 一次重试收敛（#013 已记）。\n- **决策**: approve\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 3,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T22:50:56.664845+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #015（Tier 2 · state-settle · ch3 修订后重结算）\n\n- **checkpoint**: state-settle ch3（revision 后 re-settle——自动修订三级路由实弹，ch1/2/3 均有 pre-rev 存档）\n- **核对**: 机器门全绿；aggregate 无 BLOCKING/CRITICAL；修订为 review 驱动的 spot-fix 级（无 regenerate）；staging truth 增量待合并。\n- **决策**: approve\n"
+    },
+    {
+      "type": "chapter-memo",
+      "chapter": 4,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T22:59:18.244440+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #016（Tier 2 · chapter-memo · ch4）\n\n- **checkpoint**: chapter-memo ch4（智识小胜◆ 章一卷纲锚点）\n- **核对**: 机器门全绿；craft 字段见裁决附注（payoff 首兑现应在此章——观察项 2 关注点）。\n- **决策**: approve\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 4,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T23:09:14.778410+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #017（Tier 2+ · state-settle · ch4）\n\n- **checkpoint**: state-settle ch4\n- **retry 亲查**: 单次重试见 manifest（word/dec 单族收敛判据内）。\n- **核对**: 机器门全绿；settle 产物就绪。\n- **决策**: approve\n"
+    },
+    {
+      "type": "per-chapter",
+      "chapter": 4,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T23:17:33.873899+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #018（Tier 2 · per-chapter · ch4）\n\n- **checkpoint**: per-chapter ch4\n- **核对**: 机器门全绿；resonance 通过；智识小胜 payoff 首兑现（观察项 2 无+理由 streak 断于 2）；净字符达标；drafting 单 word 重试收敛。\n- **决策**: approve\n"
+    },
+    {
+      "type": "chapter-memo",
+      "chapter": 5,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T23:24:24.881953+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #019（Tier 2 · chapter-memo · ch5）\n\n- **checkpoint**: chapter-memo ch5\n- **核对**: 机器门全绿（BLOCKING/CRITICAL 0、structure 0、escal 0、retry 空）；craft 字段齐备。\n- **决策**: approve\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 5,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T23:34:14.946168+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #020（Tier 2+ · state-settle · ch5）\n\n- **checkpoint**: state-settle ch5\n- **retry 亲查**: word_count 4943→6649→PASS 单调收敛（扩写路径正常；首试偏短模式持续——首试 4943-6900 区间已 5/5 章，观察项 15 采集点）。\n- **核对**: 机器门全绿。\n- **决策**: approve\n"
+    },
+    {
+      "type": "per-chapter",
+      "chapter": 5,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T23:41:42.433263+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #021（Tier 2 · per-chapter · ch5）\n\n- **checkpoint**: per-chapter ch5\n- **核对**: 机器门全绿；resonance 84/100 通过；drafting word×2 单调收敛（#020 已记）。\n- **决策**: approve\n"
+    },
+    {
+      "type": "chapter-memo",
+      "chapter": 6,
+      "decision": "approve",
+      "resolved_at": "2026-10-24T23:49:28.222127+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #022（Tier 2 · chapter-memo · ch6）\n\n- **checkpoint**: chapter-memo ch6\n- **核对**: 机器门全绿；craft 字段齐备。\n- **决策**: approve\n"
+    },
+    {
+      "type": "escalation",
+      "chapter": 6,
+      "decision": "reject",
+      "resolved_at": "2026-10-25T00:02:50.554503+00:00",
+      "consumed": false,
+      "feedback": "# 裁决 #023（Tier 1 · escalation · ch6 drafting）\n\n- **checkpoint**: escalation ch6 drafting（word 6150 + dec selections.2 rationale 组合，两试后耗尽）\n- **定性**: P2.5 manual_override+low 组合陷阱第 3 章复发（ch1×4/ch3×1/ch6×2 累计 7 次）——契约层缺陷已修 ec22e787（drafting SKILL 补组合陷阱行+test 断言；重派 prompt 携带新契约文）。当前章战术沿用 #006 钉 sidecar。\n- **决策**: reject（预算重置）\n\n以下为 corrective feedback：\n\n1. **G4.word_count:chapters/chapter-6.md:6150<7600** —— 以现落盘稿为基底扩写：逐字保留既有场景与节拍，在既有场景内补感官细节、对白往返与动作过程，缺口 1450 字（gate 口径）。禁止整章重写、禁止删减、禁止新增场景。\n2. **G4.dec:chapters/chapter-6-decisions.json** —— `selections[2]`（style 圈选，basis=manual_override）**必须新增 rationale**（manual_override 不论 severity 必带）：用此句（≤90 字）：\n   「style_profile 人工圈选：邻章冷蓄压后本章回暖，圈句法落差与对白密度两段调温——非默认整读。」\n   其余字段（含 selections[0]/[1] 的 low 无 rationale 合法形态、两条 adjustments 及其 rationale、chapter:6）逐字保留。\n3. 输出必须同时产出正文与 sidecar 两件产物。\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 6,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T00:12:31.521681+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #024（Tier 2 · state-settle · ch6）\n\n- **checkpoint**: state-settle ch6\n- **核对**: 机器门全绿；#023 reject-redo 后 drafting 一次过（SKILL 修复 ec22e787 + 钉 sidecar 双保险生效）。\n- **决策**: approve\n"
+    },
+    {
+      "type": "per-chapter",
+      "chapter": 6,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T00:20:14.733701+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #025（Tier 2 · per-chapter · ch6）\n\n- **checkpoint**: per-chapter ch6\n- **核对**: 机器门全绿；resonance 86/100 通过（新高位）。\n- **决策**: approve\n"
+    },
+    {
+      "type": "chapter-memo",
+      "chapter": 7,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T00:28:11.408787+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #026（Tier 2+ · chapter-memo · ch7——planning retry 亲查）\n\n- **checkpoint**: chapter-memo ch7（红纸包入匣章——母题三段收口）\n- **retry 亲查**: planning 三记录 s7_defer_silence→dec rationale 超 100 字→PASS（两族均收敛；s7 defer 静默规则属七型钩纪律面）。\n- **核对**: 机器门全绿；craft 字段齐备。\n- **决策**: approve\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 7,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T00:43:17.407432+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #027（Tier 2 · state-settle · ch7）\n\n- **checkpoint**: state-settle ch7\n- **核对**: 机器门全绿；drafting 一次过（word_count 零失败——SKILL 修复后首章）；settle 产物就绪。\n- **决策**: approve\n"
+    },
+    {
+      "type": "per-chapter",
+      "chapter": 7,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T00:50:25.656733+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #028（Tier 2 · per-chapter · ch7）\n\n- **checkpoint**: per-chapter ch7\n- **核对**: 机器门全绿；resonance 88/100 通过（序列 78/84/79/81/84/86/88——上行趋势）；红纸包入匣三段收口。\n- **决策**: approve\n"
+    },
+    {
+      "type": "chapter-memo",
+      "chapter": 8,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T00:58:14.047825+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #029（Tier 2 · chapter-memo · ch8）\n\n- **checkpoint**: chapter-memo ch8（planning retry×1 已收敛——机器门全绿后放行）\n- **核对**: 机器门全绿；craft 字段齐备。\n- **决策**: approve\n"
+    },
+    {
+      "type": "escalation",
+      "chapter": 8,
+      "decision": "reject",
+      "resolved_at": "2026-10-25T01:11:22.363508+00:00",
+      "consumed": false,
+      "feedback": "# 裁决 #030（Tier 1 · escalation · ch8 drafting——字数/sidecar 打地鼠）\n\n- **checkpoint**: escalation ch8 drafting\n- **定性**: 打地鼠形态实证——01:01 稿 9741B 过字数但 sidecar 不可恢复，01:04 稿 sidecar 有效但字数回缩 5626（gate 口径，本机 shenbi-validate 复核）。两产物耦合重掷是根因，#006 钉 sidecar 战术适用。dec 侧 SKILL 修复（ec22e787）后 volume_scope 合法形态已现。\n- **决策**: reject（预算重置）\n\n以下为 corrective feedback：\n\n1. **G4.word_count:chapters/chapter-8.md:5626<7600** —— **扩写，不是重写**：以现落盘稿为基底逐字保留全部场景与节拍，仅在既有场景内增加感官细节、对白往返与动作过程，补足缺口 **1974 字**（gate 口径：正文净字符，剥 META 块与注记行）。输出必须显著长于前稿。禁止整章重写、禁止删减、禁止新增场景、禁止概括转写。\n2. **G4.dec** —— decisions sidecar 与现落盘版**逐字一致**（含 basis=volume_scope 合法形态与全部 rationale），唯一允许差异是 produced_at 时间戳。不要重写 sidecar 的任何字段。\n3. 两件产物必须同时产出（前两试教训：一次只对了一件）。\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 8,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T01:21:10.371889+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #031（Tier 2 · state-settle · ch8）\n\n- **checkpoint**: state-settle ch8\n- **核对**: 机器门全绿；#030 战术（钉 sidecar+真实缺口 1974）两试收敛。\n- **决策**: approve\n"
+    },
+    {
+      "type": "per-chapter",
+      "chapter": 8,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T01:28:45.041774+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #032（Tier 2 · per-chapter · ch8）\n\n- **checkpoint**: per-chapter ch8\n- **核对**: 机器门全绿；resonance 84/100 通过。\n- **决策**: approve\n"
+    },
+    {
+      "type": "chapter-memo",
+      "chapter": 9,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T01:37:00.955291+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #033（Tier 2 · chapter-memo · ch9）\n\n- **checkpoint**: chapter-memo ch9（planning retry×1 已收敛）\n- **核对**: 机器门全绿；craft 字段齐备。\n- **决策**: approve\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 9,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T01:46:47.864766+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #034（Tier 2 · state-settle · ch9）\n\n- **checkpoint**: state-settle ch9\n- **核对**: 机器门全绿；drafting word×1 收敛（常规模式）。\n- **决策**: approve\n"
+    },
+    {
+      "type": "per-chapter",
+      "chapter": 9,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T01:54:12.404998+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #035（Tier 2 · per-chapter · ch9）\n\n- **checkpoint**: per-chapter ch9\n- **核对**: 机器门全绿；resonance 86/100 通过。\n- **决策**: approve\n"
+    },
+    {
+      "type": "chapter-memo",
+      "chapter": 10,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T03:22:15.886359+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #036（Tier 2 · chapter-memo · ch10）\n\n- **checkpoint**: chapter-memo ch10（黄金三章后的第 10 章——留存锚窗口 N≤30 中段）\n- **核对**: 机器门全绿（BLOCKING/CRITICAL 0、structure 0、escal 0、retry 空）；craft 字段齐备。\n- **决策**: approve\n"
+    },
+    {
+      "type": "escalation",
+      "chapter": 10,
+      "decision": "reject",
+      "resolved_at": "2026-10-25T03:31:30.350023+00:00",
+      "consumed": false,
+      "feedback": "# 裁决 #037（Tier 1 · escalation · ch10 drafting——差 5 字贴边）\n\n- **checkpoint**: escalation ch10 drafting\n- **定性**: word_count 收敛链 3881→7595 良好但贴线差 5 字（7595<7600）；sidecar 有效（本机 validate 仅 word_count 一项 FAIL）。模型侧贴边计数问题；反馈口径已带精确缺口。打地鼠风险低（sidecar 无需动）。\n- **决策**: reject（预算重置）\n\n以下为 corrective feedback：\n\n1. **G4.word_count:chapters/chapter-10.md:7595<7600** —— 缺口仅 5 字，但**按 200-300 字缓冲量扩写**（gate 口径计数与你目测有贴边误差，留余量防再贴线）：以现落盘稿为基底逐字保留，在最后一个既有场景内补 2-3 拍对白往返或一个动作过程的感官细节。禁止整章重写、禁止删减、禁止新增场景。\n2. decisions sidecar 与现落盘版逐字一致（仅 produced_at 可更新）。\n3. 两件产物同时产出。\n"
+    },
+    {
+      "type": "state-settle",
+      "chapter": 10,
+      "decision": "approve",
+      "resolved_at": "2026-10-25T03:41:12.223578+00:00",
+      "consumed": true,
+      "feedback": "# 裁决 #038（Tier 2 · state-settle · ch10）\n\n- **checkpoint**: state-settle ch10\n- **核对**: 机器门全绿；#037 缓冲量扩写一次过。\n- **决策**: approve\n"
+    }
+  ],
+  "closure_step": 0,
+  "closure_skills_done": [],
+  "closure_retry_counts": {},
+  "pending_re_dispatches": [],
+  "last_trigger_failure": null,
+  "trigger_steps_done": [],
+  "config": {
+    "genesis_review_required": true,
+    "chapter_memo_review_required": true,
+    "state_settle_review_required": true,
+    "per_chapter_review_enabled": true,
+    "volume_boundary_review_required": true,
+    "max_revision_retries": 3,
+    "max_audit_retries": 3,
+    "context_budget_override": null,
+    "style_learning_interval": 12,
+    "genre_config_update_on_drift": true,
+    "resonance_global_floor": 65,
+    "dual_scorer": false
+  }
+}
