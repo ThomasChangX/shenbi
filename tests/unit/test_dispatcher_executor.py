@@ -128,6 +128,10 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
         "plans/chapter-1-plan.md",
         "context/chapter-1-context.md",
         "context/chapter-1-context-decisions.json",
+        # F12 (#72 双章束, 21b5d139): drafting also reads the follower
+        # chapter's plan + context so the bundle's CH:N+1 half is grounded.
+        "plans/chapter-2-plan.md",
+        "context/chapter-2-context.md",
         "style/style_profile.md",
         "style/style_directives.md",
         "style/anchors.md",

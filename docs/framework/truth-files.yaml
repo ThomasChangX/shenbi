@@ -131,6 +131,9 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   # same key as the producer (spec #60 T0b: patterns-first dag_key unification).
   - {parametric: "chapters/chapter-{N-3}.md", glob: chapters/chapter-*.md}
   - {parametric: "plans/chapter-{N+1}-plan.md", glob: plans/chapter-*-plan.md}
+  # settle reads the bundle follower chapter (#72 双章束, 5ed419b4) — joins the
+  # drafting producer under the same canonical glob.
+  - {parametric: "chapters/chapter-{N+1}.md", glob: chapters/chapter-*.md}
   - {parametric: "chapters/chapter-{N+1}-decisions.json", glob: chapters/chapter-*-decisions.json}
   - {parametric: "chapters/chapter-{N-2}.md", glob: chapters/chapter-*.md}
   - {parametric: "chapters/chapter-{N-1}.md", glob: chapters/chapter-*.md}
