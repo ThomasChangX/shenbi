@@ -62,6 +62,7 @@ spec 模板新增必填节：「触及的不变量维度」。
 - **F18 体感触点节奏**：genre-config `pacing.core_motif_touch: {motif, max_gap:5}`；volume_outlining 增「卷级体感→章级触点拍」分解步；G4.cp 滑窗检查。
 - **F19 审计视野**：continuity/foreshadowing 契约 reads 增 facts 查询面产物（props/identity/counters 完备集）。
 - **F20 术后全门**：`just gates-sweep <dir> --chapter N`（全门+叙事名清扫+物象/计数检查）；监控侧绕行手术后强制。
+- **F21 dispatch 归档**：→ **spec #81 §1**（归档层归观测域管辖；本 spec 的 mutant 重放、金丝雀、`--as-of` 审计回放消费其产物）。
 
 ## 5. 运行环：金丝雀审计
 
