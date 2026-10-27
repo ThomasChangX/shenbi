@@ -68,3 +68,25 @@ def test_monotonic_forward_passes() -> None:
             d / "chapter-2.md", d / "chapter-1.md", None, CrossChapterContext()
         )
         assert not any("时间锚" in i for i in issues)
+
+
+@pytest.mark.unit
+def test_quantity_units_are_not_bare_days() -> None:
+    """Regen v3 XC false positive: the 一十 inside 一百一十石 (110 dan of
+    grain) was bare-day-anchored to (11,10), which then flagged ch11's real
+    anchor 十一月初三 as a time rollback. Digits followed by a quantity unit
+    (石/文/两/斗/升/钱/匹...) are amounts, not dates.
+    """
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "chapter-10.md").write_text(
+            "「三十四个人，一百一十石。」他答。库里还剩十七文，差七两二钱。三十升豆。",
+            encoding="utf-8",
+        )
+        (d / "chapter-11.md").write_text("十一月初三，雪。他在页边写下一行。", encoding="utf-8")
+        issues = check_cross_chapter(
+            d / "chapter-11.md", d / "chapter-10.md", None, CrossChapterContext()
+        )
+        assert not any("时间锚回拨" in i for i in issues)
