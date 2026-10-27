@@ -13,6 +13,13 @@ contract:
     - 8. 不要做
   - context/chapter-N-context.md
   - context/chapter-N-context-decisions.json
+  - file: plans/chapter-{N+1}-plan.md
+    fields:
+    - 1. 当前任务
+    - 3. 该兑现的 / 暂不掀的
+    - 6. 章尾必须发生的改变
+    - 8. 不要做
+  - context/chapter-{N+1}-context.md
   - file: style/style_profile.md
     fields:
     - 11. 综合画像
@@ -45,7 +52,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, context/chapter-N-context.md, context/chapter-N-context-decisions.json, style/style_profile.md, style/style_directives.md, style/anchors.md, genre-config.json, truth/audit_drift.md
+- **Reads:** plans/chapter-N-plan.md, context/chapter-N-context.md, context/chapter-N-context-decisions.json, plans/chapter-{N+1}-plan.md, context/chapter-{N+1}-context.md, style/style_profile.md, style/style_directives.md, style/anchors.md, genre-config.json, truth/audit_drift.md
 - **Writes:** staging/chapter-N-bundle.md, chapters/chapter-N-decisions.json, chapters/chapter-{N+1}-decisions.json
 - **Updates:** none
 

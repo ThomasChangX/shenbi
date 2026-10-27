@@ -306,6 +306,22 @@
     ],
     "updates": []
   },
+  "plans/chapter-{N+1}-plan.md": {
+    "reads": [
+      "shenbi-chapter-drafting"
+    ],
+    "writes": [
+      "shenbi-chapter-planning"
+    ],
+    "updates": []
+  },
+  "context/chapter-{N+1}-context.md": {
+    "reads": [
+      "shenbi-chapter-drafting"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "style/style_profile.md": {
     "reads": [
       "shenbi-chapter-drafting",
@@ -501,13 +517,6 @@
     "updates": []
   },
   "plans/chapter-N-plan-decisions.json": {
-    "reads": [],
-    "writes": [
-      "shenbi-chapter-planning"
-    ],
-    "updates": []
-  },
-  "plans/chapter-{N+1}-plan.md": {
     "reads": [],
     "writes": [
       "shenbi-chapter-planning"
