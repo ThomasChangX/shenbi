@@ -1318,6 +1318,13 @@
     ],
     "updates": []
   },
+  "chapters/chapter-{N+1}.md": {
+    "reads": [
+      "shenbi-state-settling"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "truth/particle_ledger.md": {
     "reads": [
       "shenbi-state-settling"

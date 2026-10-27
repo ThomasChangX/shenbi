@@ -5,6 +5,11 @@ contract:
   kind: artifact
   reads:
     - chapters/chapter-N.md
+    # spec #72 bundle: the leader's settle covers the follower chapter too —
+    # its chapter file must be in the read set or the follower's rows never
+    # land (regen v3: ch2/4/6/8/10/12 all missing from current_state &
+    # registries; hand-merged every time until this read existed).
+    - chapters/chapter-{N+1}.md
     - truth/character_matrix.md
     # Plan A (adjudication 096): cumulative chapter-keyed tables grow without
     # bound — extractors serve head + recent units; the omitted middle is
@@ -74,7 +79,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/volume_summaries.md, audits/chapter-N-foreshadowing.md, truth/timeline.md, truth/prop_registry.md, truth/name_registry.md, truth/recall_registry.md
+- **Reads:** chapters/chapter-N.md, chapters/chapter-{N+1}.md, truth/character_matrix.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/volume_summaries.md, audits/chapter-N-foreshadowing.md, truth/timeline.md, truth/prop_registry.md, truth/name_registry.md, truth/recall_registry.md
 - **Writes:** truth/state-settling-decisions.json
 - **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md, truth/character_matrix.md, truth/timeline.md, truth/prop_registry.md, truth/name_registry.md, truth/recall_registry.md
 
@@ -83,6 +88,8 @@ contract:
 # 状态结算
 
 HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settling 的章节视为未完成——后续章节的 chapter-planning 读到的 truth files 是过时的，导致全书状态漂移。
+
+**#72 双章束规则**：当 reads 含 `chapters/chapter-{N+1}.md`（bundle 派发，leader 章结算连带 follower 章）时，本次输出必须同时覆盖两章——current_state／timeline／chapter_summaries 的 append_dedup 各出**两行**（N 与 N+1 各一行），character_matrix 出**两个**「## 第N章状态增量」块，follower 章的新角色／新物件照登 name_registry／prop_registry。漏 follower 章增量 = 后续 planning 读到过时真相（regen v3 ch2-12 六次实证，全部手工补合）。
 
 ### 铁律 0：所有 update 文件 ABSOLUTELY NEVER modify 现有行（Batch #22 强化）
 
