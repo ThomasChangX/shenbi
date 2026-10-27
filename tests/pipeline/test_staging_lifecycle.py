@@ -72,6 +72,35 @@ def test_state_settle_marking_covers_all_staged_truth(project: Path) -> None:
     assert "truth/current_state.md" in marked
 
 
+def test_memo_marking_covers_bundle_follower_plan(project: Path) -> None:
+    """Regen v3 F6: CHAPTER_MEMO marking must mirror the #72 commit batch —
+    the follower plan (plans/chapter-{N+1}-plan.md) joins the approve commit
+    (cli.py), so it must also be marked to survive the emergency clear.
+    The mark-side omission wiped the staged follower memo at every bundle
+    checkpoint exit (ch4/ch10/ch12 lost their follower plans this way).
+    """
+    from shenbi.pipeline.chapter_loop import CHAPTER_STEPS, _mark_staged_for_checkpoint
+
+    outline = project / "outline"
+    outline.mkdir()
+    (outline / "volume_map.md").write_text(
+        "## 第一卷：测试（第 1–4 章）\n\n**章节范围**: 第1章 - 第4章（共 4 章）\n",
+        encoding="utf-8",
+    )
+    follower = project / "staging" / "plans" / "chapter-2-plan.md"
+    follower.write_text("# 第2章 章节备忘\n", encoding="utf-8")
+    (project / "staging" / "plans" / "chapter-2-plan-decisions.json").write_text(
+        '{"stub": true}\n', encoding="utf-8"
+    )
+    planning_step = next(s for s in CHAPTER_STEPS if s.skill == "shenbi-chapter-planning")
+    _mark_staged_for_checkpoint(project, planning_step, 1)
+    marked = staging_checkpointed_targets(project)
+    assert "plans/chapter-1-plan.md" in marked
+    assert "plans/chapter-2-plan.md" in marked  # F6: follower plan survives
+    clear_staging(project, preserve_checkpointed=True)
+    assert follower.exists()
+
+
 def test_resume_residual_cleanup_preserves_checkpointed(project: Path) -> None:
     """C2: resume-time residual cleanup must not wipe emergency survivors."""
     from shenbi.pipeline.chapter_loop import _cleanup_residual_staging

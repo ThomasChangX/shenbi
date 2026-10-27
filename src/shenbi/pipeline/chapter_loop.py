@@ -1510,6 +1510,14 @@ def _mark_staged_for_checkpoint(project_dir: Path, step: ChapterStep, chapter: i
             targets.extend(f"truth/{p.name}" for p in sorted(staging_truth.glob("*.md")))
     elif step.output_path:
         targets.append(resolve_chapter_path(step.output_path, chapter))
+        # spec #72 dual-memo bundle: the follower plan joins the approve
+        # commit batch (cli.py _commit_staging_for_checkpoint) — the mark
+        # set must mirror it, or the emergency clear wipes the staged
+        # follower memo before approve can commit it (regen v3 F6: ch4,
+        # ch10 and ch12 each lost plans/chapter-{N+1}-plan.md this way).
+        if step.skill == "shenbi-chapter-planning":
+            for n in bundle_chapters(project_dir, chapter)[1:]:
+                targets.append(f"plans/chapter-{n}-plan.md")
     targets.extend(staged_decisions_targets(project_dir, step.skill, chapter))
     staged = [t for t in targets if (project_dir / STAGING_DIR / t).exists()]
     if staged:
