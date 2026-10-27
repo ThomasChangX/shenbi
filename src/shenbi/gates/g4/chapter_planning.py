@@ -359,7 +359,10 @@ def g4_chapter_planning(
         if any(int(n) >= 4 for n in defer_silent) and not re.search(
             r"激活方案|ABANDON", s7_text, re.IGNORECASE
         ):
-            mf.append(f"G4.cp.s7_defer_silence:{fp}")
+            mf.append(
+                f"G4.cp.s7_defer_silence:{fp}: defer 行沉默章数 ≥4 须在段 7 附激活方案或 ABANDON 标注"
+                "（如「激活方案：第N章以XX场景 advance」或「ABANDON：理由」）——沉默跨束不许无主"
+            )
         else:
             c.append({"id": "G4.cp.s7_defer_silence", "file": fp, "s": GateStatus.PASS})
 
