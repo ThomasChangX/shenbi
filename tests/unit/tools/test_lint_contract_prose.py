@@ -108,6 +108,22 @@ def test_r1_offset_form_canonicalization_passes(tmp_path):
 
 
 @pytest.mark.unit
+def test_r1_forward_offset_brace_form_extracted_whole(tmp_path):
+    # {N+1}（#72 双章束 settle 读 follower 章）在 _SEG 无 '+' 时被 _LOOSE_REF_RE
+    # 截成 '1}.md' 残片 → R1 误报（实弹：settle SKILL 正文引用触发）。整枝提取 +
+    # _canonical 归一后必须被同形声明覆盖。
+    c = {
+        "shenbi-zz": {
+            "reads": ["zzdir/chapter-{N+1}.md"],
+            "writes": [],
+            "updates": [],
+        }
+    }
+    _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "束内核对 zzdir/chapter-{N+1}.md。")
+    assert not _r1(c, tmp_path)
+
+
+@pytest.mark.unit
 def test_r1_skill_bundle_reference_passes(tmp_path):
     c = {"shenbi-zz": {"reads": [], "writes": [], "updates": []}}
     # my-ref.md 不在 allowlist（anti-ai-reference.md 被 *: 通配遮蔽会空转，

@@ -53,8 +53,10 @@ SKILLS_DIR = REPO / "skills"
 # Body reference extraction: relative paths (multi-segment, may carry glob
 # metachars and offset placeholders), or bare .md/.json filenames. Loose on
 # purpose — matches are post-filtered to file-shaped refs (extension/glob).
-_SEG = r"[A-Za-z0-9_.*\[\]{}()N-]+"
-_LOOSE_REF_RE = re.compile(rf"(?:[A-Za-z0-9_-]+/)+(?:{_SEG}/)*{_SEG}|[\w{{}}()N-]+\.(?:md|json)\b")
+# '+' covers forward offsets ({N+1}) — without it the bare-name branch
+# truncates ``chapter-{N+1}.md`` to the ``1}.md`` residue (R1 false positive).
+_SEG = r"[A-Za-z0-9_.*\[\]{}()N+-]+"
+_LOOSE_REF_RE = re.compile(rf"(?:[A-Za-z0-9_-]+/)+(?:{_SEG}/)*{_SEG}|[\w{{}}()N+-]+\.(?:md|json)\b")
 # Offset forms — prose ``(N-3)`` and declared ``{N-3}`` canonicalize to ``N``.
 _OFFSET_FORMS = re.compile(r"[({]N[+-]\d+[)}]")
 

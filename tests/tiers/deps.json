@@ -403,7 +403,7 @@
     "src/shenbi/gates/g4/chapter_planning.py": "sha256:c9738c9a477ebce9b40790ef276e30c91e108495cfbc98849932f0478dc2d4ce",
     "src/shenbi/gates/g4/chapter_revision.py": "sha256:1889a048106e9467f5fd73001c363bc96dc69e25113273b7870068c2ca2761be",
     "src/shenbi/gates/g4/character_design.py": "sha256:300c1cf281487cd4683914599a4f0a2838d55dc485513dc0d52910e528a4ca25",
-    "src/shenbi/gates/g4/cross_chapter.py": "sha256:d89edff5c107a60b0c86ec295a1b6c914fd083bcbf50ab32e7a412e7fb49ae9f",
+    "src/shenbi/gates/g4/cross_chapter.py": "sha256:0af38f0873f6f7ced135c5d01c126879447c03bd226325e71d7354920eaa1f45",
     "src/shenbi/gates/g4/review_resonance.py": "sha256:42181a2b79bd6671968764f26b62b353ee10ec23904b24c2369061fe22ce544c"
   },
   "_out_of_pipeline": {
