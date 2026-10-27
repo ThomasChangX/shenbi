@@ -85,6 +85,18 @@ def _norm_records(manifest: dict[str, Any]) -> dict[tuple[int, str, str], dict[s
         for skill, gate_keys in skills.items():
             for gk, val in gate_keys.items():
                 for rec in val if isinstance(val, list) else [val]:
+                    # manifest may carry bare strings (legacy markers) — only
+                    # dict records carry a status; skip the rest (a skipped
+                    # key then surfaces as 缺席 in the criterion, not a crash)
+                    if not isinstance(rec, dict):
+                        continue
+                    # F8-era salvaged markers double-serialized `result` as a
+                    # JSON string — re-parse so latest-wins comparison works.
+                    if isinstance(rec.get("result"), str):
+                        try:
+                            rec["result"] = json.loads(rec["result"])
+                        except ValueError:
+                            rec["result"] = {}
                     key = (int(ch), skill, gk)
                     if key not in out or str(rec.get("timestamp", "")) >= str(
                         out[key].get("timestamp", "")
@@ -293,15 +305,20 @@ def check_blind_recognition(project_dir: Path, through: int) -> Verdict:
         if not chapter.is_file():
             continue
         for para in chapter.read_text(encoding="utf-8").split("\n\n"):
-            if not find_quote_spans(para):
+            quotes = find_quote_spans(para)
+            if not quotes:
                 continue
             named = [c for c in cards if c.name in para]
             if len(named) != 1:  # 零命中或双名歧义段不归属（D4 粗粒度口径收窄）
                 continue
             owner = named[0]
+            # 盲认口径 = 引号内台词（叙述层的「那罕记账」动词不是说话人的声纹；
+            # 段级计数把叙述噪声算进归属，连主角自测都 2/50——量谁在说，
+            # 就只数谁说出口的那部分）
+            spoken = "".join(para[a:b] for a, b in quotes)
             best, hits = None, 0
             for card in cards:
-                cnt = sum(para.count(m) for m in card.markers)
+                cnt = sum(spoken.count(m) for m in card.markers)
                 if cnt > hits:
                     best, hits = card, cnt
             total[owner.name] += 1
