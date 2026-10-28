@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import NoReturn
+from typing import Any, NoReturn
 
 from pydantic import ValidationError
 
@@ -28,6 +28,18 @@ from shenbi.safe_write import safe_write
 
 def _reject(reason: str) -> NoReturn:
     raise FactsOpRejectedError(reason)
+
+
+def op_in_log(
+    ops_log: list[dict[str, Any]], entry: dict[str, Any], match_keys: tuple[str, ...]
+) -> bool:
+    """章内幂等重放探测（audit-T8 I6）：同键 op 已在 ops_log ⇒ 重放。
+
+    at-least-once 提交窗口（ops 已落盘、markdown/clear_staging 未达）后的
+    重放会静默双计（counter.increment）或名字回弹（identity.rename）——
+    写侧（settle_ops）与读侧（G4.ss simulate）用同一键集跳过重放。
+    """
+    return any(all(logged.get(k) == entry.get(k) for k in match_keys) for logged in ops_log)
 
 
 def apply_prop_op(file: FactsFile, ev: PropTransferEvent) -> FactsFile:

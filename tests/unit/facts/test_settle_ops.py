@@ -177,3 +177,199 @@ def test_apply_settle_facts_ops_noop_without_staged_sidecar(tmp_path: Path):
     state = PipelineState(project_dir=str(tmp_path))
     assert apply_settle_facts_ops(state, tmp_path, "shenbi-state-settling", 20) is None
     assert not state.chapter_loop.retry_feedback
+
+
+def _seed_counters(tmp_path: Path) -> None:
+    d = tmp_path / "truth" / "facts"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "counters.json").write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-facts-v1",
+                "dim": "counters",
+                "facts": {"名字数": {"name": "名字数", "value": 5, "history": []}},
+                "ops_log": [],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+
+def test_two_phase_zero_write_across_dims(tmp_path: Path):
+    # audit-T8 C2：合法 props + 非法 counters ⇒ 拒收时 props.json 也不写
+    _seed_props(tmp_path)
+    _seed_counters(tmp_path)
+    props_before = (tmp_path / "truth" / "facts" / "props.json").read_text(encoding="utf-8")
+    counters_before = (tmp_path / "truth" / "facts" / "counters.json").read_text(encoding="utf-8")
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "props": [
+                {
+                    "op": "transfer",
+                    "prop": "火纹骨哨",
+                    "from": "那罕",
+                    "to": "帖木哥",
+                    "evidence": "chapter-20.md L218",
+                    "chapter": 20,
+                }
+            ],
+            "counters": [
+                # set 非种子期（chapter=20）⇒ 拒收
+                {"op": "set", "name": "名字数", "delta": 9, "chapter": 20}
+            ],
+        },
+    )
+    with pytest.raises(FactsOpRejectedError):
+        apply_sidecar_ops(tmp_path, sidecar)
+    assert (tmp_path / "truth" / "facts" / "props.json").read_text(encoding="utf-8") == props_before
+    assert (tmp_path / "truth" / "facts" / "counters.json").read_text(
+        encoding="utf-8"
+    ) == counters_before
+
+
+def test_multi_sidecar_rejection_zero_write(tmp_path: Path):
+    # audit-T8 C2 跨 sidecar：第一个合法、第二个非法 ⇒ 单次调用零写入
+    _seed_props(tmp_path)
+    before = (tmp_path / "truth" / "facts" / "props.json").read_text(encoding="utf-8")
+    legal = _sidecar(
+        tmp_path,
+        {
+            "props": [
+                {
+                    "op": "transfer",
+                    "prop": "火纹骨哨",
+                    "from": "那罕",
+                    "to": "帖木哥",
+                    "evidence": "chapter-20.md L218",
+                    "chapter": 20,
+                }
+            ]
+        },
+    )
+    second = tmp_path / "chapters" / "chapter-20-2nd-decisions.json"
+    second.write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 20,
+                "produced_at": "2026-10-28T00:00:00Z",
+                "facts_ops": {
+                    "props": [
+                        {
+                            "op": "acquire",
+                            "prop": "火纹骨哨",
+                            "to": "老驼",
+                            "evidence": "L1",
+                            "chapter": 20,
+                        }
+                    ]
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(FactsOpRejectedError):
+        apply_sidecar_ops(tmp_path, legal, second)
+    assert (tmp_path / "truth" / "facts" / "props.json").read_text(encoding="utf-8") == before
+
+
+def test_malformed_op_wrapped_as_rejection(tmp_path: Path):
+    # audit-T8 I5：闭集外自造键（ValidationError）折算为 FactsOpRejectedError
+    _seed_props(tmp_path)
+    sidecar = _sidecar(
+        tmp_path,
+        {"props": [{"op": "transfer", "prop": "火纹骨哨", "自造键": 1}]},
+    )
+    with pytest.raises(FactsOpRejectedError, match="结构非法"):
+        apply_sidecar_ops(tmp_path, sidecar)
+
+
+def test_list_valued_facts_ops_rejected(tmp_path: Path):
+    # audit-T8 I5：facts_ops 非对象形态 ⇒ 折算拒收（非裸 AttributeError）
+    _seed_props(tmp_path)
+    p = tmp_path / "chapters" / "chapter-20-decisions.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 20,
+                "produced_at": "2026-10-28T00:00:00Z",
+                "facts_ops": ["not", "an", "object"],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(FactsOpRejectedError, match="必须是对象"):
+        apply_sidecar_ops(tmp_path, p)
+
+
+def test_replayed_counter_increment_not_double_counted(tmp_path: Path):
+    # audit-T8 I6：at-least-once 重放——同章同计数器同 op 已在 ops_log ⇒ 跳过
+    _seed_counters(tmp_path)
+    cf = tmp_path / "truth" / "facts" / "counters.json"
+    doc = json.loads(cf.read_text(encoding="utf-8"))
+    doc["ops_log"] = [
+        {"dim": "counters", "name": "名字数", "op": "increment", "delta": 1, "chapter": 20}
+    ]
+    cf.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
+    sidecar = _sidecar(
+        tmp_path,
+        {"counters": [{"op": "increment", "name": "名字数", "delta": 1, "chapter": 20}]},
+    )
+    apply_sidecar_ops(tmp_path, sidecar)
+    from shenbi.facts.enums import FactsDim
+    from shenbi.facts.store import load_facts
+
+    out = load_facts(tmp_path, FactsDim.COUNTERS)
+    assert out is not None and out.counters()["名字数"].value == 5  # 不双计
+
+
+def test_commit_site_applies_before_write_loop(tmp_path: Path):
+    # audit-T8 M12（站点 3）：拒收 ⇒ _commit_staging_for_checkpoint 上抛，
+    # 写循环未执行（truth/prop_registry.md 不落），staging 保留
+    from shenbi.pipeline.checkpoint import STAGING_DIR
+
+    _seed_props(tmp_path)
+    staged = tmp_path / STAGING_DIR / "truth"
+    staged.mkdir(parents=True)
+    (staged / "prop_registry.md").write_text(
+        "| 实体名 | 当前owner |\n|---|---|\n", encoding="utf-8"
+    )
+    (staged / "state-settling-decisions.json").write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 20,
+                "produced_at": "2026-10-28T00:00:00Z",
+                "facts_ops": {
+                    "props": [
+                        {
+                            "op": "acquire",
+                            "prop": "火纹骨哨",
+                            "to": "老驼",
+                            "evidence": "L1",
+                            "chapter": 20,
+                        }
+                    ]
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    from shenbi.pipeline.cli import _commit_staging_for_checkpoint
+    from shenbi.pipeline.state import CheckpointData, CheckpointType
+
+    cp = CheckpointData(type=CheckpointType.STATE_SETTLE, chapter=20)
+    with pytest.raises(FactsOpRejectedError):
+        _commit_staging_for_checkpoint(tmp_path, cp)
+    assert (tmp_path / "truth" / "prop_registry.md").exists() is False  # 写循环未跑
+    assert (staged / "state-settling-decisions.json").is_file()  # staging 保留

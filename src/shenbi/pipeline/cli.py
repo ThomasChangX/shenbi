@@ -698,14 +698,16 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
                 log.warning("per_chapter_no_staged_truth", chapter=cp.chapter)
         # spec #80 T8 settle 双写：facts_ops 在写循环之前应用——拒收 ⇒
         # FactsOpRejectedError 上抛，approve 失败（零写入、staging 保留，
-        # 人工 reject 后重派修正 sidecar ops）。
+        # 人工 reject 后重派修正 sidecar ops）。单次调用跨 sidecar 两阶段
+        # （audit-T8 C2）。
         from shenbi.facts.settle_ops import apply_sidecar_ops
         from shenbi.pipeline.checkpoint import STAGING_DIR
 
         settle_sidecars = staged_decisions_targets(project_dir, "shenbi-state-settling", cp.chapter)
         targets += settle_sidecars
-        for rel in settle_sidecars:
-            apply_sidecar_ops(project_dir, project_dir / STAGING_DIR / rel)
+        apply_sidecar_ops(
+            project_dir, *(project_dir / STAGING_DIR / rel for rel in settle_sidecars)
+        )
     else:
         return
 

@@ -632,108 +632,167 @@ def _check_selections_coverage(fps: list[str], rd: str | None) -> list[str]:
     ]
 
 
-def g4_state_settling_check(project_dir: Path, sidecar_path: Path | None) -> list[str]:
+def g4_state_settling_check(
+    project_dir: Path, sidecar_path: Path | None
+) -> tuple[list[str], list[str]]:
     """Spec #80 T8 G4.ss — settle dual-write read-side checks (PURE reader).
 
-    ① sidecar lacks facts_ops while truth/prop_registry gained rows this
-      settle -> compat-period observation (caller decides WARN)
+    Returns ``(fail_issues, warn_notes)`` — audit-T8 C1/I3/M7/M8 shape.
+    Registry lookups prefer the sidecar's staged sibling (this chapter's new
+    rows live in staging/), falling back to committed truth/.
+
+    ① sidecar lacks facts_ops while prop_registry shows a this-chapter row
+      change -> compat-period WARN (not FAIL)
     ② ss.prop_row_match: declared op outcome vs the markdown registry row
       owner (facts canonical — divergence FAIL)
-    ③ ss.identity_row_match: facts alias set vs name_registry 别名/旌名
-      rows (登记名 prose remarks out of scope, rev5 R4-I2)
-    ④ ss.facts_ops: F16s simulate — dry-run each op against current facts;
-      rejection-form ops FAIL (and require a sidecar rationale, P2.5)
+    ③ ss.identity_row_match: facts alias set <-> name_registry 别名/旌名
+      rows, bidirectional, independent of identity_ops presence
+    ④ ss.facts_ops: F16s simulate — chained dry-run each op against current
+      facts; rejection-form ops FAIL (and require a sidecar rationale, P2.5);
+      chapter-idempotent replays are skipped (same keys as the write side)
     """
     issues: list[str] = []
+    warns: list[str] = []
     facts_dir = Path(project_dir) / "truth" / "facts"
     props_file = facts_dir / "props.json"
     identity_file = facts_dir / "identity.json"
     has_props = props_file.is_file()
     has_identity = identity_file.is_file()
     if sidecar_path is None or not sidecar_path.is_file():
-        return issues
+        return issues, warns
     import json as _json
 
     try:
         doc = _json.loads(sidecar_path.read_text(encoding="utf-8"))
     except (OSError, _json.JSONDecodeError):
-        return issues
+        return issues, warns
     facts_ops = doc.get("facts_ops") or {}
+    if not isinstance(facts_ops, dict):
+        return ["ss.facts_ops:非法形态——facts_ops 必须是对象"], warns
 
-    from shenbi.facts.schemas import FactsFile, PropTransferEvent
-    from shenbi.facts.store import apply_prop_op
+    from pydantic import ValidationError
+
     from shenbi.exceptions import FactsOpRejectedError
+    from shenbi.facts.schemas import FactsFile, PropTransferEvent
+    from shenbi.facts.store import apply_prop_op, op_in_log
 
-    # ② props op↔row reconciliation
+    _staged_reg = sidecar_path.parent / "prop_registry.md"
+    _staged_name_reg = sidecar_path.parent / "name_registry.md"
+    chapter = doc.get("chapter")
+    rationale = facts_ops.get("rationale")
+
+    # ② props op↔row reconciliation（链式模拟，audit-T8 M7）
     prop_ops = facts_ops.get("props") or []
     if has_props and prop_ops:
         current = FactsFile.model_validate_json(props_file.read_text(encoding="utf-8"))
         for raw in prop_ops:
             try:
                 ev = PropTransferEvent.model_validate(raw)
-                _after = apply_prop_op(current, ev)  # simulate (pure copy)
+            except ValidationError as exc:
+                issues.append(
+                    f"ss.facts_ops:props op 结构非法（{exc.error_count()} 处）"
+                    "——修正 sidecar 的 op 形态"
+                )
+                continue
+            if op_in_log(current.ops_log, ev.model_dump(by_alias=True), ("prop", "op", "chapter")):
+                continue  # 章内幂等重放（写侧同键跳过）——不模拟不判非法
+            try:
+                current = apply_prop_op(current, ev)
             except FactsOpRejectedError as exc:
                 # ④ rejection-form op: FAIL + P2.5 rationale requirement
                 issues.append(
                     f"ss.facts_ops:非法 op（{exc.reason}）——该形态必须携带非空 rationale（P2.5）"
                 )
+                if not rationale:
+                    issues.append(
+                        "ss.facts_ops:rationale 缺失（P2.5：非法形态 op 必须携带非空 rationale）"
+                    )
                 continue
-            _row_owner = _registry_row_owner(project_dir, ev.prop)
+            _row_owner = _registry_row_owner(project_dir, ev.prop, lookup=_staged_reg)
             if _row_owner is not None and _row_owner != ev.to:
                 issues.append(
-                    f"ss.prop_row_match:「{ev.prop}」op 终态 owner「{ev.to}」"
+                    f"ss.prop_row_match:「{ev.prop}」op 终态 owner「{ev.to or '（空）'}」"
                     f"≠ registry 行 owner「{_row_owner}」"
                     "——facts 为 canonical，修正 registry 行（修复者: settling）"
                 )
-    elif not prop_ops:
-        pass  # ① compat period: no ops — caller-level WARN material
+    elif not prop_ops and isinstance(chapter, int):
+        # ① compat period: registry shows a this-chapter row change while the
+        # sidecar declares no ops — WARN, not FAIL (audit-T8 I3)
+        _reg = (
+            _staged_reg
+            if _staged_reg.is_file()
+            else Path(project_dir) / "truth" / "prop_registry.md"
+        )
+        if _reg.is_file() and re.search(rf"第\s*{chapter}\s*章", _reg.read_text(encoding="utf-8")):
+            warns.append(
+                f"ss.facts_ops:旧 settle 兼容期——sidecar 无 facts_ops 而 prop_registry "
+                f"含第{chapter}章行变更；双写未断言（sidecar 补 facts_ops 后本 WARN 消失）"
+            )
 
-    # ③ identity reconciliation
-    identity_ops = facts_ops.get("identity") or []
-    if has_identity and identity_ops:
+    # ③ identity reconciliation — bidirectional, ungated from identity_ops
+    # (audit-T8 M8); runs whenever identity facts exist (facts canonical)
+    if has_identity:
         facts_id = FactsFile.model_validate_json(identity_file.read_text(encoding="utf-8"))
         fact = facts_id.identity()
         if fact is not None:
-            _names = _name_registry_alias_rows(project_dir)
-            for extra in _names - set(fact.aliases):
+            _rows = _name_registry_alias_rows(project_dir, lookup=_staged_name_reg)
+            for extra in _rows - set(fact.aliases):
                 issues.append(
                     f"ss.identity_row_match:name_registry 别名行「{extra}」"
                     "不在 facts 别名集——facts 为 canonical，重生成该行"
                     "（修复者: settling）"
                 )
-    return issues
+            for missing in set(fact.aliases) - _rows:
+                issues.append(
+                    f"ss.identity_row_match:facts 别名「{missing}」"
+                    "无 name_registry 别名/旌名行——补行（修复者: settling）"
+                )
+    return issues, warns
 
 
-def _registry_row_owner(project_dir: Path, prop: str) -> str | None:
-    """prop_registry.md 行 owner（键宽松匹配：行首列包含 prop 或其 ·-stem）。"""
+def _registry_row_owner(project_dir: Path, prop: str, *, lookup: Path | None = None) -> str | None:
+    """prop_registry.md 行 owner（键宽松匹配：行首列包含 prop 或其 ·-stem）。
+
+    lookup 优先（staging 姊妹副本——本章新行只在 staging），缺席回退
+    committed truth/prop_registry.md。
+    """
     import re as _re
 
-    path = Path(project_dir) / "truth" / "prop_registry.md"
-    if not path.is_file():
-        return None
+    candidates = [lookup] if lookup is not None else []
+    candidates.append(Path(project_dir) / "truth" / "prop_registry.md")
     stem = prop.split("·", 1)[0]
-    for line in path.read_text(encoding="utf-8").splitlines():
-        m = _re.match(r"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|", line)
-        if not m:
+    for path in candidates:
+        if not path.is_file():
             continue
-        key, owner = m.group(1), m.group(2)
-        if prop in key or stem in key:
-            return owner
+        for line in path.read_text(encoding="utf-8").splitlines():
+            m = _re.match(r"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|", line)
+            if not m:
+                continue
+            key, owner = m.group(1), m.group(2)
+            if prop in key or stem in key:
+                return owner
     return None
 
 
-def _name_registry_alias_rows(project_dir: Path) -> set[str]:
-    """name_registry 别名/旌名行的名集合（登记名 prose 备注出范围）。"""
+def _name_registry_alias_rows(project_dir: Path, *, lookup: Path | None = None) -> set[str]:
+    """name_registry 别名/旌名行的名集合（登记名 prose 备注出范围）。
+
+    lookup 优先（staging 姊妹副本），缺席回退 committed truth/。
+    """
     import re as _re
 
-    path = Path(project_dir) / "truth" / "name_registry.md"
-    if not path.is_file():
-        return set()
+    candidates = [lookup] if lookup is not None else []
+    candidates.append(Path(project_dir) / "truth" / "name_registry.md")
     out: set[str] = set()
-    for line in path.read_text(encoding="utf-8").splitlines():
-        m = _re.match(r"^\|\s*(别名|旌名)\s*\|\s*([^|]+?)\s*\|", line)
-        if m:
-            out.add(m.group(2))
+    for path in candidates:
+        if not path.is_file():
+            continue
+        for line in path.read_text(encoding="utf-8").splitlines():
+            m = _re.match(r"^\|\s*(别名|旌名)\s*\|\s*([^|]+?)\s*\|", line)
+            if m:
+                out.add(m.group(2))
+        if out:
+            return out
     return out
 
 
@@ -795,6 +854,20 @@ def g4_state_settling(
 
         if "state-settling-decisions" in str(fp):
             mf.extend(_check_produced_at(content, fp))
+            # spec #80 T8（audit-T8 C1 清偿）：settle 双写读侧四检查接进
+            # 生产门——ss.* 检查从此在真实 settle 上执行（此前死代码）。
+            if project_dir:
+                _issues, _warns = g4_state_settling_check(Path(project_dir), pf)
+                mf.extend(_issues)
+                c.extend(
+                    {
+                        "id": "G4.ss.facts_ops",
+                        "file": fp,
+                        "s": GateStatus.WARN,
+                        "r": w,
+                    }
+                    for w in _warns
+                )
 
         if "chapter_summaries" in str(fp):
             if not re.search(r"#{1,4}\s*第\d+章", content):

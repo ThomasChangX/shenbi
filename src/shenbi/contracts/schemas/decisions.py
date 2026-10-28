@@ -7,6 +7,8 @@ from __future__ import annotations
 from typing import Literal
 from pydantic import BaseModel, Field, model_validator
 
+from shenbi.facts.schemas import CounterEvent, IdentityEvent, PropTransferEvent
+
 DECISIONS_SCHEMA_VERSION = "shenbi-decisions-v1"
 _RATIONALE_MAX_CHARS = 100
 
@@ -78,9 +80,9 @@ class FactsOps(BaseModel):
     """
 
     model_config = {"extra": "forbid"}
-    props: list[dict[str, object]] = []
-    counters: list[dict[str, object]] = []
-    identity: list[dict[str, object]] = []
+    props: list[PropTransferEvent] = []
+    counters: list[CounterEvent] = []
+    identity: list[IdentityEvent] = []
     rationale: str | None = None
 
 

@@ -415,6 +415,18 @@ After updating character state, update `truth/character_matrix.md`:
 - `selections[]`: `target`（**str，必填**，被选取的文件路径）、`selected`（**list[str]**，条目名列表）、`basis`（**仅限四枚举之一**：`adjacent_to_target_chapter` / `arc_relevance` / `volume_scope` / `manual_override`）、`severity`（`low`/`medium`/`high`）、`omitted`（list[str]）——**禁止自造字段**（id/type/decision/evidence 等一律不入）
 - `adjustments[]`: `issue_id`（str，必填）、`severity`、`handling`（**仅限四枚举之一**：`compensate_via_pacing` / `explicit_callout` / `defer_to_next_chapter` / `ignore`）、`rationale`（必填，≤100 字）——**禁止自造字段**（id/description 等一律不入）
 - 顶层只允许 `$schema`/`skill`/`chapter`/`produced_at`/`selections`/`adjustments`/`budget`——`consistency_check`、`human_approval_gate` 等自造顶层键一律禁止
+- `facts_ops`（spec #80，**本 skill 专用加性键**，其他 skill 禁用）：本章 facts 双写声明——凡本章产生物象交接、计数器变化、身份/别名变化，**必须**在此声明对应 op（缺声明而 registry 有本章行变更 ⇒ G4.ss 兼容期 WARN）
+
+**`facts_ops` op 发射契约（spec #80，G4.ss 逐项强校验；拒收 = settle 门 FAIL）**：
+
+结构：`{"props": [...], "counters": [...], "identity": [...], "rationale": "..."}`——四个键全部可省；**凡本章无该维变化则省略整个数组**。
+
+- `props[]` 条目（物象 op）：`op`（`transfer`/`acquire`/`hold`/`lose`——**无 copy op**；副本走 `实体·副本` 键命名）、`prop`（实体全键）、`from`（转出方，transfer 在场实体必填且须为当前 owner）、`to`（终态持有方）、`chapter`、`evidence`（`chapter-N.md L<行>` 定位）。状态机：transfer 要求 from == 当前 owner；acquire 对在场实体 = 无来源二次获得（拒收）；lose 后 owner 置空。
+- `counters[]` 条目（计数 op）：`op`（`increment`/`set`）、`name`（计数器名，与备忘 `- 计数:` 声明同名）、`delta`（increment 正增量）、`chapter`（set 仅种子期 chapter=0）。同章同计数器同 op 只计一次（幂等重放跳过）。
+- `identity[]` 条目（身份 op）：`op`（`rename`/`alias`）、`new_name`（rename 后叙事名）、`alias`（alias 登记）、`from_ch`（生效章）。
+- `rationale`（str，可省）：**仅当某个 op 属非法形态仍需声明时必填非空**（P2.5）；常规合法 op 禁带 rationale。
+- **幂等与拒收**：同章同键 op 重复提交自动跳过（不双计）；任一 op 非法 ⇒ commit 前拒收（零写入、staging 保留），按拒收理由修正后重派。
+- **canonical 义务**：facts store（props/counters/identity 三维 JSON，`shenbi-facts-v1`）为 canonical——`truth/prop_registry.md` 行 owner、`truth/name_registry.md` 别名/旌名行必须与 op 终态一致（G4.ss `prop_row_match`/`identity_row_match` 断言，不一致 = FAIL，修复方向永远改 Markdown 行）。
 
 **可仿写示例**：
 

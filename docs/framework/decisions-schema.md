@@ -54,6 +54,7 @@ source of truth for the schema.
 | `selections` | array | yes | List of selection decisions |
 | `adjustments` | array | no | Drift/conflict adjustments |
 | `budget` | object | no | Context budget tracking |
+| `facts_ops` | object | no | Spec #80 settle 双写（**仅 shenbi-state-settling**）：`props`/`counters`/`identity` op 数组 + `rationale`；缺省 = 旧 settle 兼容期（G4.ss WARN）。条目形态见 `src/shenbi/facts/schemas.py` 事件模型 |
 
 ## Enums
 
