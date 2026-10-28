@@ -548,6 +548,57 @@ def test_registry_copy_key_rows_not_substituted(tmp_path: Path):
     assert not [i for i in issues if "老驼" in i]
 
 
+def test_invalid_utf8_facts_read_side_structured_issue(tmp_path: Path):
+    # audit-T8 round4 I-1：读侧 facts 文件非法 UTF-8（UnicodeDecodeError 非
+    # ValidationError）⇒ 结构化 issue，不裸抛（docstring 契约：损坏文件
+    # 永远以 ss.* issue 面世）
+    d = tmp_path / "truth" / "facts"
+    d.mkdir(parents=True)
+    (d / "props.json").write_bytes(b"\xff\xfe bad")
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "props": [
+                {
+                    "op": "transfer",
+                    "prop": "火纹骨哨",
+                    "from": "那罕",
+                    "to": "帖木哥",
+                    "chapter": 20,
+                }
+            ]
+        },
+    )
+    issues, _warns = g4_state_settling_check(tmp_path, sidecar)
+    assert any("props.json 损坏/不可读" in i for i in issues)
+
+
+def test_corrupt_registry_read_treated_as_absent(tmp_path: Path):
+    # audit-T8 round4 M-1：registry .md 非法 UTF-8 ⇒ 按缺席处理（诚实 None/
+    # 空集），不炸门；op 本身合法 ⇒ 无 issue
+    _seed(tmp_path, {"火纹骨哨": {"entity": "火纹骨哨", "owner": "那罕", "events": []}})
+    registry = tmp_path / "truth" / "prop_registry.md"
+    registry.parent.mkdir(exist_ok=True)
+    registry.write_bytes(b"\xff\xfe bad")
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "props": [
+                {
+                    "op": "transfer",
+                    "prop": "火纹骨哨",
+                    "from": "那罕",
+                    "to": "帖木哥",
+                    "evidence": "L218",
+                    "chapter": 20,
+                }
+            ]
+        },
+    )
+    issues, _warns = g4_state_settling_check(tmp_path, sidecar)
+    assert not issues
+
+
 def test_sidecar_top_level_non_dict_structured_issue(tmp_path: Path):
     # audit-T8 round3 I-3(c)：读侧顶层非对象 ⇒ 结构化 issue（裸
     # AttributeError 会炸穿 _guarded_g4 并抢占 g4_decisions 的精确报告）

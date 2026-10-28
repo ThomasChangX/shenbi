@@ -708,9 +708,11 @@ def g4_state_settling_check(
     if has_props and prop_ops:
         try:
             current = FactsFile.model_validate_json(props_file.read_text(encoding="utf-8"))
-        except (OSError, ValidationError) as _exc:
-            # audit-T8 round2 M-1：裸上抛会被 CLI 折算成「文件路径参数非法」
-            # 的误导性报因——结构化 FAIL 并指明修复对象
+        except (OSError, ValueError) as _exc:
+            # audit-T8 round2 M-1 + round4 I-1：裸上抛会被 CLI 折算成「文件
+            # 路径参数非法」的误导报因；ValueError 宽捕同时覆盖
+            # ValidationError 与 UnicodeDecodeError（非法 UTF-8）——结构化
+            # FAIL 并指明修复对象
             issues.append(
                 "ss.facts_ops:truth/facts/props.json 损坏/不可读"
                 f"（{_exc.__class__.__name__}）——G4 无法模拟，先修复 facts 文件本体"
@@ -767,7 +769,12 @@ def g4_state_settling_check(
             if _staged_reg.is_file()
             else Path(project_dir) / "truth" / "prop_registry.md"
         )
-        if _reg.is_file() and re.search(rf"第\s*{chapter}\s*章", _reg.read_text(encoding="utf-8")):
+        try:
+            _reg_text = _reg.read_text(encoding="utf-8") if _reg.is_file() else ""
+        except (OSError, ValueError):
+            # audit-T8 round4 M-1：损坏/不可读 registry 不炸门——按无行变更处理
+            _reg_text = ""
+        if _reg_text and re.search(rf"第\s*{chapter}\s*章", _reg_text):
             warns.append(
                 f"ss.facts_ops:旧 settle 兼容期——sidecar 无 facts_ops 而 prop_registry "
                 f"含第{chapter}章行变更；双写未断言（sidecar 补 facts_ops 后本 WARN 消失）"
@@ -782,7 +789,9 @@ def g4_state_settling_check(
     if has_identity:
         try:
             facts_id = FactsFile.model_validate_json(identity_file.read_text(encoding="utf-8"))
-        except (OSError, ValidationError) as _exc:
+        except (OSError, ValueError) as _exc:
+            # round4 I-1：与 props 面同则——ValueError 宽捕覆盖
+            # UnicodeDecodeError（非法 UTF-8），结构化 issue
             issues.append(
                 "ss.identity_row_match:truth/facts/identity.json 损坏/不可读"
                 f"（{_exc.__class__.__name__}）——先修复 facts 文件本体"
@@ -859,7 +868,13 @@ def _registry_row_owner(project_dir: Path, prop: str, *, lookup: Path | None = N
     for path in candidates:
         if not path.is_file():
             continue
-        for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            _text = path.read_text(encoding="utf-8")
+        except (OSError, ValueError):
+            # audit-T8 round4 M-1：损坏/不可读的候选文件按缺席处理（诚实
+            # None 信号不变）
+            continue
+        for line in _text.splitlines():
             m = _re.match(r"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|", line)
             if not m:
                 continue
@@ -884,7 +899,12 @@ def _name_registry_alias_rows(project_dir: Path, *, lookup: Path | None = None) 
     for path in candidates:
         if not path.is_file():
             continue
-        for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            _text = path.read_text(encoding="utf-8")
+        except (OSError, ValueError):
+            # audit-T8 round4 M-1：损坏/不可读的候选文件按缺席处理
+            continue
+        for line in _text.splitlines():
             m = _re.match(r"^\|\s*(别名|旌名)\s*\|\s*([^|]+?)\s*\|", line)
             if m:
                 out.add(m.group(2))
@@ -1084,7 +1104,13 @@ def g4_state_settling(
                 continue
             _sidecar = resolve_input_path(fp, rd).parent / "state-settling-decisions.json"
             if _sidecar.is_file():
-                mf.extend(_check_produced_at(_sidecar.read_text(encoding="utf-8"), str(_sidecar)))
+                try:
+                    _sc_text = _sidecar.read_text(encoding="utf-8")
+                except (OSError, ValueError):
+                    # audit-T8 round4 M-2：is_file→read 窗口竞态/损坏按缺席处理
+                    _sc_text = ""
+                if _sc_text:
+                    mf.extend(_check_produced_at(_sc_text, str(_sidecar)))
                 _issues, _warns = g4_state_settling_check(Path(project_dir), _sidecar)
                 mf.extend(_issues)
                 c.extend(
