@@ -186,7 +186,7 @@ def test_seed_empty_idempotent_creates_three_dims(tmp_path: Path):
 **Interfaces:**
 - Produces:
   - `shenbi.facts.query.current_state(file: FactsFile, dim: FactsDim, *, chapter: int | None = None) -> dict[str, dict]`——现态紧凑视图：props=`{entity: {owner}}`、counters=`{name: {value}}`、identity=`{narration_name, from_ch, aliases}`（from_ch 必含——F15 检查消费，plan 审查 R1-I8）；`chapter` 参数=P1 相关性语义（spec rev5 R4-M5：全量返回，预留过滤位，P1 不实现历史点）
-  - `shenbi.facts.query.planning_view(project_dir: Path, dim: FactsDim) -> str`——planning 上下文装配消费的紧凑文本（token 有界，spec rev2 I4）；facts 缺席返回空串（调用方 WARN）
+  - `shenbi.facts.query.planning_view(project_dir: Path, dim: FactsDim) -> str`——紧凑文本投影（token 有界，spec rev2 I4）；facts 缺席返回空串。**P1 消费方=R2 备注后为 P2**（R2-M8：P1 planning 读 `truth/facts/<dim>.json` 文件本体（T9 接线），context_assemble 接线 planning_view=P2 实弹期——函数保留为查询面 API 面，验收用 CLI/测试消费，非死线）
   - CLI：`shenbi-facts query --project <dir> --dim props|counters|identity [--chapter N]` → stdout JSON（`emit_json`）；缺席 dim → exit 1 + stderr WARN（`echo(err=True)`）
 
 - [ ] **Step 1: 失败测试**（current_state 三维投影形态 + CLI 缺席降级 exit code——用 subprocess 或直接调 main(argv)）
@@ -205,7 +205,7 @@ def test_seed_empty_idempotent_creates_three_dims(tmp_path: Path):
 **Interfaces:**
 - Consumes: `load_facts(project_dir, FactsDim.PROPS)`；plan_format token 检查（chapter_planning.py:155-163 既有）
 - Produces:
-  - `shenbi.gates.shared.TRANSFER_VERBS: frozenset[str]`——闭集扩容：`{"递给","塞给","交给","送给","还给","还了","给了","留给","转手","递了","送了","交到","递到","递还","抽出","揣着","揣进","取出"}`（#75 闭集 ∪ 伤口形态「抽出/揣着」，spec F16）
+  - `shenbi.gates.shared.TRANSFER_VERBS: frozenset[str]`——闭集扩容：`{"递给","塞给","交给","送给","还给","还了","给了","留给","转手","递了","送了","交到","递到","递还","抽出","揣着","揣进","取出"}`（#75 闭集 ∪ 伤口形态「抽出/揣着/揣进/取出」四动词，spec F16——R2-M5 对齐字面集）
   - `shenbi.gates.g4.chapter_planning.parse_prop_declarations(memo_text: str) -> list[tuple[str, str, str, str]]`——解析结构化声明行 `物件@op: A→B`；返回 `(prop, op, from_, to)` **四元组**列表；`@hold` 单值形态 from_=to=owner 占位（plan 审查 R1-M10）
   - G4.cp 新 FAIL 消息前缀：`cp.prop_decl:`（G4_CHECK_MAP 注册 HARD——T8 接线）
   - 检查逻辑：声明 op 对 facts 现态合法性（transfer 的 from_==facts owner；副本后缀键=初见合法）；facts 缺席 ⇒ `WARN cp.prop_decl:no_facts`（skip 不 FAIL）；**旧备忘豁免必须 WARN 可见**：memo 无 `物件@` 声明行 ⇒ `WARN cp.prop_decl:legacy_memo`（13/24 静默死法禁令）。**plan_format 决策（钉死，plan 审查 R1-I4）**：声明行 P1 为 **v3 内可选**（不 bump v4——v4 硬门化=P2 全量声明行 backfill 完成后的升级动作）；P1 硬门=G4.cd 交接共现（undeclared handoff FAIL），G4.cp 声明合法性只对在场声明行生效
@@ -247,7 +247,7 @@ def test_declared_transfer_from_wrong_owner_fails(tmp_path, monkeypatch):
 - Consumes: `TRANSFER_VERBS`（T4）；`load_facts`；`parse_prop_declarations`（T4——G4.cd 读同一 memo 声明）
 - Produces:
   - `shenbi.gates.g4.chapter_drafting.check_prop_handoffs(text: str, memo_text: str, props: dict[str, dict]) -> list[str]`——「非 owner 人名 + facts 实体名 + 交接动词」共现而 memo 无对应声明 ⇒ FAIL；返回消息前缀 `cd.prop_handoff:`
-  - XC 吸收（spec rev2 I1 + plan 审查 R1-I7）：`cross_chapter.py` 不变量 4 prose 扫描段加 facts 在场开关——**facts 非空**（`load_facts(PROPS)` 非 None 且 facts dict 非空——空种子≡缺席，rev5 R4-M2 空洞堵死）时跳过该段（职责由 G4.cd 接管）；缺席/空时照旧全 severity 运行（rev5 R4 措辞）
+  - XC 吸收（spec rev2 I1 + plan 审查 R1-I7）：`cross_chapter.py` 不变量 4 prose 扫描段加 facts 在场开关——**facts 非空**（`load_facts(PROPS)` 非 None 且 facts dict 非空——空种子≡缺席，rev5 R4-M2 空洞堵死）时跳过该段——**含 memo 声明 hop 检查子段**（cross_chapter.py:664-678 registry-oracle 路径，R2-M10：facts 在场时不留双 oracle 并行，remediation 文本单一化）；缺席/空时照旧全 severity 运行（rev5 R4 措辞）
   - **动词表双路径单表**（plan 审查 R1-I5）：不变量 4 的 `_markers` alternation 改从 `shenbi.gates.shared.TRANSFER_VERBS` 构建（spec rev3 R2-M2——fallback 层同享扩容动词族，防两表漂移）
   - 实体键匹配：正文用短名（「骨哨」「火纹骨哨」），facts 键可带消歧后缀——匹配器 `entity_in_text(entity: str, text: str) -> bool`（后缀 `·` 分割前段 + 全名双形态）
   - 副本并存绿：ch20 修复语料（两把哨并存）+ 声明完备 ⇒ 零 FAIL（mutant T11 复用本用例）
@@ -285,7 +285,7 @@ def test_wound_undeclared_handoff_fails():
 **Interfaces:**
 - Consumes: `load_facts(project_dir, FactsDim.IDENTITY)`；`_sentence_spans`/对白剥离（cross_chapter 既有工具可复用；若无对白剥离则新写 `strip_dialogue(text) -> str`——剥「」『』段落）
 - Produces:
-  - `shenbi.gates.g4.cross_chapter.check_narration_name(text: str, identity: dict, memo_text: str, *, chapter: int = 0) -> list[str]`——剥对白后叙述段出现 `identity["aliases"]` 任一 ⇒ FAIL `XC.narration_name:`；备忘 `[旧名回溯]` 标记段落豁免（闪回）；`from_ch` 边界：`chapter < identity["from_ch"]` ⇒ 用旧名不 FAIL（M5 合法改名路径——chapter 参数 plan 审查 R1-I8）
+  - `shenbi.gates.g4.cross_chapter.check_narration_name(text: str, identity: dict, memo_text: str, *, chapter: int | None = None) -> list[str]`（None ⇒ from_ch 边界检查关 ⇒ 别名判红——R2-I2：默认不得等价「改名前」）——剥对白后叙述段出现 `identity["aliases"]` 任一 ⇒ FAIL `XC.narration_name:`；备忘 `[旧名回溯]` 标记段落豁免（闪回）；`from_ch` 边界：`chapter < identity["from_ch"]` ⇒ 用旧名不 FAIL（M5 合法改名路径——chapter 参数 plan 审查 R1-I8）
   - facts 缺席/空种子（键缺失≡维缺失）⇒ WARN（skip 不 FAIL）——`XC.narration_name:no_facts`
   - 快照豁免（rev2 M1）：`g4_cross_chapter` 层过滤 `*pre-rev*`/`*snapshot*` 文件名（G2 先例）
   - `shenbi.gates.g4.cross_chapter.strip_dialogue(text: str) -> str`
@@ -314,8 +314,10 @@ def test_alias_in_narration_fails():
 
 
 def test_flashback_marker_exempts():
-    memo = "- [旧名回溯] 本章第 3 段闪回用旧名"
-    issues = check_narration_name("林烽翻过驿务条。", identity={...}, memo_text=memo)
+    memo = "- [旧名回溯] 本章闪回段用旧名"
+    identity = {"narration_name": "那罕", "from_ch": 3, "aliases": ["林烽"]}
+    # chapter=20 显式传参——隔离 memo 标记豁免（不被 from_ch 边界混淆，R2-M12）
+    issues = check_narration_name("林烽翻过驿务条。", identity, memo, chapter=20)
     assert issues == []  # 豁免由 memo 标记声明（简化形态：memo 有标记即整章豁免闪回段）
 ```
 
@@ -335,7 +337,7 @@ def test_flashback_marker_exempts():
 - Consumes: `load_facts(project_dir, FactsDim.COUNTERS)`；`parse_counter_declarations(memo_text) -> list[tuple[str, int]]`（解析 `计数: <名> N+1` 形态行，本 task 产出）
 - Produces:
   - `shenbi.gates.g4.chapter_drafting.parse_counter_declarations(memo_text: str) -> list[tuple[str, int]]`
-  - `shenbi.gates.g4.chapter_drafting.check_counter_reconciliation(text: str, memo_text: str, counters: dict[str, dict]) -> list[str]`——三方对账（spec rev4 R3-M11）：①prose 总数族「N个名字/N名字」≡ facts 现值 ②memo `N+1` ≡ facts+1 ③prose 序数「第N个名字」≡ memo 声明值；任一不符 ⇒ FAIL `cd.counter:`；页范围总数锚（「第一页三个名字」）scope 锚定=忽略页限定词、取全局计数器比对（rev5 R5-M3 plan 钉死：P1 忽略页键，页内计数不立独立计数器）；facts 缺席 ⇒ WARN
+  - `shenbi.gates.g4.chapter_drafting.check_counter_reconciliation(text: str, memo_text: str, counters: dict[str, dict]) -> list[str]`——三方对账（spec rev4 R3-M11）：①prose 总数族「N个名字/N名字」≡ facts 现值 ②memo `N+1` ≡ facts+1 ③prose 序数「第N个名字」≡ memo 声明值；任一不符 ⇒ FAIL `cd.counter:`；页范围总数锚（「第一页三个名字」）scope 锚定=忽略页限定词、取全局计数器比对（rev5 R5-M3 plan 钉死：P1 忽略页键，页内计数不立独立计数器）；**计数器语义钉死**（R2-I4a）：`鉴录名数`=那罕添入《鉴录》的名数（非全书总名数——canon ch17「四十三个名字」为全书口径，不与本计数器比对）；**激活规则**（R2-I4b）：F17 三检查仅当 memo 声明该计数器（`计数: <名>` 行在场）才激活，无声明 ⇒ WARN skip（旧备忘兼容期，防 ch17 类假红）；facts 缺席 ⇒ WARN
   - 计数名映射：facts counters 键 ↔ prose 计数词族（P1 仅《鉴录》名数：键 `鉴录名数`，prose 词族 `名字`）
 
 - [ ] **Step 1: 失败测试**——counter-dup mutant 击杀面：
@@ -381,7 +383,7 @@ def test_ordinal_vs_memo_declared_fails():
 - Modify: `skills/shenbi-state-settling/SKILL.md`（:417 顶层键白名单行扩 `facts_ops` + op 发射契约段）
 - Create: `src/shenbi/facts/settle_ops.py`（写侧：从 sidecar 读 ops → `apply_*` → `save_facts`，fail-fast 在 Markdown upsert 之前）
 - Modify: `src/shenbi/gates/g4/state_settling.py`（G4.ss：op↔row 一致性断言 + identity 对账 + F16s 纯读者 simulate）
-- Modify: settle commit 调用点（**plan 审查 R1-C1——写路径接线**：执行时 grep `staging_auto_committed_state_settle`/state-settle commit 定位 dispatcher 侧 staging commit 落盘 seam（chapter_loop.py:1884/2128 与 dispatcher/cli.py I3 镜像路径）；在 staging commit 之后、Markdown upsert 之前调 `apply_sidecar_ops`，拒收 ⇒ staging commit 一并失败回滚（fail-fast 语义）)
+- Modify: settle commit 调用点（**plan 审查 R1-C1/R2-C1——写路径接线，三站点全枚举**）：①`src/shenbi/pipeline/chapter_loop.py:1884` ②`:2128`（两处 auto-commit `staging_auto_committed_state_settle`）③`src/shenbi/pipeline/cli.py:655-712 _commit_staging_for_checkpoint`（**review-path commit**，`state_settle_review_required=True` 时走——R2-C1 勘误：dispatcher/cli.py 无 staging 路径，「I3 镜像」实为此处 :681 注记）；三站点均在 staging commit 之后、Markdown upsert 之前调 `apply_sidecar_ops`，拒收 ⇒ staging commit 一并失败回滚（fail-fast 语义）
 - Modify: `src/shenbi/pipeline/chapter_loop.py`（G4_CHECK_MAP 追加：`"XC.narration_name": HARD, "cd.prop_handoff": HARD, "cp.prop_decl": HARD, "cd.counter": HARD, "ss.facts_ops": HARD, "ss.prop_row_match": HARD`——T4-T7 消息前缀的 severity 注册，spec rev5 R4-M1）
 - Test: `tests/unit/facts/test_settle_ops.py`、`tests/unit/gates/g4/test_g4_ss_facts.py`
 
@@ -389,10 +391,10 @@ def test_ordinal_vs_memo_declared_fails():
 - Consumes: T1 全部 apply_*；`DecisionsDoc`（decisions.py:71-86 既有）
 - Produces:
   - `shenbi.contracts.schemas.decisions.FactsOps`（pydantic：`props: list[PropTransferEvent] = []; counters: list[CounterEvent] = []; identity: list[IdentityEvent] = []`）；`DecisionsDoc.facts_ops: FactsOps | None = None`
-  - `shenbi.facts.settle_ops.apply_sidecar_ops(project_dir: Path, sidecar_path: Path) -> None`——读 `facts_ops` → 逐维 apply → save_facts；任一 op 拒收 ⇒ `FactsOpRejectedError` 上抛（settle 门 FAIL，attempts/escalation 既有协议），**不写任何文件**（fail-fast）
+  - `shenbi.facts.settle_ops.apply_sidecar_ops(project_dir: Path, sidecar_path: Path) -> None`——读 `facts_ops` → 逐维 apply → save_facts；任一 op 拒收 ⇒ `FactsOpRejectedError` 上抛（settle 门 FAIL，attempts/escalation 既有协议），**不写任何文件**（fail-fast）。**RMW 锁范围**（R2-M9）：load→apply→save 全程持 `truth_file_flock(facts_path)`（save_facts 内部锁重入由外层锁覆盖——锁粒度按 path-keyed 既有语义）
   - G4.ss 检查（state_settling.py 内追加，纯读者）：①sidecar `facts_ops` 缺席且章内 truth/prop_registry 有本座行变更 ⇒ WARN（旧 settle 兼容期）②`ss.prop_row_match:`——sidecar 声明的 op 与 Markdown 行 owner 不一致 ⇒ FAIL（props 对账，facts canonical）③**`ss.identity_row_match:`**——facts 别名集 ↔ name_registry 别名/旌名行对账（登记名 prose 备注显式出范围——rev5 R4-I2，永不永久红；plan 审查 R1-I6）④F16s simulate：逐 op 对现 facts 干跑 apply，拒收 ⇒ FAIL `ss.facts_ops:illegal_op`（无 mutation）
   - `shenbi.facts.schemas.CounterEvent`（pydantic：`name: str; op: str; delta: int; chapter: int`）与 `IdentityEvent`（`op: str; new_name: str | None = None; alias: str | None = None; from_ch: int = 0`）——plan 审查 R1-M11 补定义
-  - P2.5 规则扩展（decisions 校验器）：op 条目属 routine 免 rationale；`manual_override`/拒收路径必带——`FactsOps` 加 `rationale: str | None`，校验器在 manual_override 场景强制非空（`lint_decisions_sources` 三源同批登记）
+  - P2.5 规则扩展（decisions 校验器）：op 条目属 routine 免 rationale；**触发钉死**（R2-M6）：`FactsOps.rationale: str | None`，任一 op 的 op 值 ∉ 该实体当前态合法集（即 F16s simulate 会拒收的形态）⇒ rationale 必填非空（`lint_decisions_sources` 三源同批登记）
 
 - [ ] **Step 1: 失败测试**——三点 enforcement（pydantic 接受 facts_ops 键 / fail-fast 拒收不留半写 / G4.ss 对账 FAIL）
 - [ ] **Step 2-5:** TDD；SKILL.md 契约改完跑 `just lint-contracts` + `just generate`（生成物 diff 空）；commit
@@ -404,7 +406,7 @@ def test_ordinal_vs_memo_declared_fails():
 **Files:**
 - Modify: `skills/shenbi-chapter-planning/SKILL.md`（writes 模板加 `物件@op`/`计数:` 结构化声明行示例；reads 加 facts 查询面产物）
 - Modify: `skills/shenbi-state-settling/SKILL.md`（T8 已动白名单——本 task 补 op 发射示例段）
-- Modify: `docs/framework/truth-files.yaml`（truth 段追加三行：`- {name: truth/facts/props.json, kind: truth, producer: pipeline}` ×3 维——R2-I3 注册面）
+- Modify: `docs/framework/truth-files.yaml`（truth 段追加三行：`- {name: truth/facts/props.json, kind: truth, producer: pipeline}` ×3 维——spec §1.4 glob 口径的字面展开形态，R2-M12 注）
 - Modify: `docs/framework/status-vocab.md`（域清单追加**四行**——plan 审查 R1-M12：PropOp/CounterOp/IdentityOp/FactsDim 四枚举全注册，值集与 StrEnum 成员全等）
 - Test: `tests/unit/contracts/test_truth_files_facts.py`（注册对账：truth-files.yaml 含三维 + lint_status_strings 绿）
 
@@ -519,10 +521,10 @@ def test_mutant_counter_dup_killed_by_f17():
 - 验收汇总进 progress.md（无独立 commit 若纯验证；有 fixture/工具修复则列 pathspec）
 
 **Interfaces:**
-- Produces: `tools/facts_backfill.py --project novel-xinghuo-vol1 [--dry-run]`——①从修复后章节正典派生三维种子（props：24 章经手链现状 owner——含 `火纹骨哨`（那罕）与 `火纹骨哨·帖木哥支`（那罕，ch20 副本键）；counters：`鉴录名数=4`（ch9 后：陆秉文/阿六/老人/赵三）；identity：narration_name=那罕、from_ch=3、aliases=[林烽]）②memo 声明行 backfill（11 份既有声明行键形态归一 + 13 份旧备忘补 `物件@op` 行——从章节正文+registry 交叉派生）③registry 陈旧行重写（赵三行/《鉴录》行/「临」备注——**绝不整文件重生成**，rev5 R4-I2）④`--dry-run` 打印 diff 零写入
+- Produces: `tools/facts_backfill.py --project novel-xinghuo-vol1 [--apply]`（**dry-run 为默认**——R2-M7 对齐 plan_craft_backfill 先例与 F947 立场：默认零写入，`--apply` 才落盘）——①从修复后章节正典派生三维种子（props：24 章经手链现状 owner——含 `火纹骨哨`（那罕）与 `火纹骨哨·帖木哥支`（那罕，ch20 副本键）；counters：`鉴录名数=4`（ch9 后：陆秉文/阿六/老人/赵三）；identity：narration_name=那罕、from_ch=3、aliases=[林烽]）②memo 声明行 backfill（11 份既有声明行键形态归一 + 13 份旧备忘补 `物件@op` 行——从章节正文+registry 交叉派生）③registry 陈旧行重写（赵三行/《鉴录》行/「临」备注——**绝不整文件重生成**，rev5 R4-I2）；**行↔键匹配**（R2-M11）：`ss.prop_row_match` 用 T5 `entity_in_text` 同型匹配器对齐 registry 行键（「火纹骨哨（老驼所授·主线）」↔facts「火纹骨哨」）；facts 键无 registry 行（帖木哥支）=初见不补写 P1；骨哨主行 ch20 经手由 op 追补（transfer 老驼线→记录帖木哥交付拍）④默认 dry-run 打印 diff 零写入（`--apply` 才写）
 - 验收 3 断言（`tests/unit/tools/test_facts_backfill.py` 内，**plan 审查 R1-C3 修正**）：绿断言用 **per-chapter 前置态种子**（G0.9 测试内构造豁免）——ch9 检查喂 count=3 前置态（ch8 后、ch9 前）、ch20 检查喂 `火纹骨哨·帖木哥支` owner=帖木哥 前置态；直接喂终态种子（count=4/双哨皆那罕）会撞 F17 总数对账与 F16 cp 合法性而假红——as-of 态 P1 由测试构造，`--as-of` CLI=P2。终态种子仍为工具交付（运行侧 ch25+ settle 消费）
 
-- [ ] **Step 1-5:** TDD；跑 `uv run python tools/facts_backfill.py --project novel-xinghuo-vol1 --dry-run` 贴输出进 progress.md（真实项目文件 P1 不落写——运行侧 backfill 由用户/P2 执行，本 task 交付工具+离线断言）；commit
+- [ ] **Step 1-5:** TDD；跑 `uv run python tools/facts_backfill.py --project novel-xinghuo-vol1`（默认 dry-run）贴输出进 progress.md（真实项目文件 P1 不落写——运行侧 backfill 由用户/P2 执行，本 task 交付工具+离线断言）；commit
 
 ---
 
@@ -546,6 +548,7 @@ def test_mutant_counter_dup_killed_by_f17():
 
 ## Self-Review 记录
 
+- plan 审查 R2（1C/3I/8M）修正已并入：C1 seam 三站点勘误（pipeline/cli.py:_commit_staging_for_checkpoint 为 review-path 第三站点，dispatcher/cli.py 无 staging）/I2 chapter 默认 None/I3 ss.identity_row_match 入 map（七键）/I4 计数器语义+激活规则（ch17 假红消解）；M5-M12 逐项
 - plan 审查 R1（3C/5I/8M）修正已并入：C1 settle commit 接线（T8）/C2 safe_write 原子写（T2）/C3 per-chapter 前置态绿种子（T13）；I4 v3 内可选钉死/I5 动词表双路径单表（T5）/I6 identity 对账（T8）/I7 空种子吸收洞（T5）/I8 chapter 参数（T6/T3）；M9-M16 逐项（ch08 fixture 接线/四元组/event 类型定义/四枚举注册/名归一/注释精度/__init__.py/T12 缩窄声明）
 - 覆盖：spec §1.1（T1/T2/T3/T8）§1.2（T1）§1.3（T13）§1.4（T2/T3/T8/T9/T12 全清单逐项）§2（T10/T12）§3（T11）§4 F15（T6）/F16（T4/T5/T8）/F17（T7）§5=P2 §6 P1 各句（验收表）§7 条 1-3（表）——无缺口
 - 占位符：无 TBD/「适当处理」；memo 豁免闪回简化形态（整章豁免）在 T6 明示为 P1 形态——段级精化留 P2 非占位
