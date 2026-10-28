@@ -53,6 +53,18 @@ def test_green_fixed_ch9_passes():
     assert issues == []
 
 
+def test_wound_prose_total_face_fails_alone():
+    # audit-T11 I1 回归钉：总数族正则曾缺「个」（_TOTAL_RE 死代码、_re_total
+    # 永不匹配自然形）——面①结构死，counter-dup 仅靠面②拦。本钉隔离面①：
+    # memo 声明与 facts 单调一致（3+1=4=3+1），prose 总数 2 ∉ {3,4} 独立判红
+    text = "那罕翻开《鉴录》。第一页两个名字，墨迹未干。"
+    memo = "- 计数: 鉴录名数 3+1"
+    counters = {"鉴录名数": {"value": 3}}
+    issues = check_counter_reconciliation(text, memo, counters)
+    assert any("总数与计数链互斥" in i for i in issues)
+    assert all("计数链单调断裂" not in i for i in issues)  # 面②静默=面①独立红
+
+
 def test_page_qualifier_ignored():
     # R5-M3：页范围总数锚忽略页限定词，取全局计数器比对
     text = "第一页三个名字，写得规矩。"

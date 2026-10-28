@@ -41,6 +41,7 @@ def _ch08_baseline_count() -> int:
     return counts[-1]
 
 
+@pytest.mark.unit
 def test_ch08_baseline_derives_count_three():
     # 接线断言（plan R1-M9）：ch8 基线语料「添第三个名字」⇒ 鉴录名数=3。
     # counter-dup 的互斥判红依赖这个 3 不是硬编码。

@@ -121,14 +121,15 @@ _COUNTER_DECL_RE = re.compile(r"^[-*]\s*计数[：:]\s*(\S+)\s+(\d+)\s*\+\s*1\s*
 
 
 def _re_total(word: str) -> re.Pattern[str]:
-    return re.compile(rf"([一二两三四五六七八九十百千\d]{{1,5}}){word}")
+    # audit-T11 I1: 「个」不可省——自然 prose 总数形是「N个名字」；
+    # 无 个 的形（「N名字」）不语法化为可选覆盖（与 ordinal 工厂 个? 一致）
+    return re.compile(rf"([一二两三四五六七八九十百千\d]{{1,5}})个?{word}")
 
 
 def _re_ordinal(word: str) -> re.Pattern[str]:
     return re.compile(rf"第([一二两三四五六七八九十百千\d]{{1,5}})个?{word}")
 
 
-_TOTAL_RE = re.compile(r"([一二两三四五六七八九十百千\d]{1,5})个名字")
 _ORDINAL_RE = re.compile(r"第([一二两三四五六七八九十百千\d]{1,5})个名字")
 
 

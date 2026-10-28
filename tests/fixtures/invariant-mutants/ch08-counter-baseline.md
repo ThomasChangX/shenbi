@@ -1,7 +1,7 @@
-> G0.9/G0.11 provenance: excerpt export of novel-xinghuo-vol1/chapters/chapter-8.md at
-> spec #80 T11 (content-repair-round-1 canonical output) — counter-relevant memo hook
-> lines + closing paragraphs, verbatim. Counter baseline for the counter-dup mutant:
-> ch8:247 「他添了第三个名字——那个抱着门框的老人」 establishes 鉴录名数=3 BEFORE ch9
+> G0.9/G0.11 provenance: verbatim excerpt of novel-xinghuo-vol1/chapters/chapter-8.md at
+> spec #80 T11 (content-repair-round-1 canonical output) — memo lines L4-L5 (PRE_WRITE_CHECK)
+> + closing narration paragraphs L237-249, byte-exact. Counter baseline for the counter-dup
+> mutant: ch8:247 「他添了第三个名字——那个抱着门框的老人」 establishes 鉴录名数=3 BEFORE ch9
 > (ch9 pre-rev declared 2+1=3 by mis-counting 赵三 as the third — cross-file mutual
 > exclusion, spec §3 rev1). Full chapter lives in the project dir; this excerpt is the
 > minimum real-product corpus that makes the baseline derivable in CI.
@@ -9,8 +9,8 @@
 <!--META-BEGIN-->
 ## PRE_WRITE_CHECK
 
-- 本章核心任务: 借调期满前那罕被一纸调令从书吏栏划进民夫栏，随西路军粮队押粮北上；他按班期表算脚力、口粮与折耗，看清「民夫折耗」如何把多出的一份从民夫名册上划掉，夜里在《鉴录》添第三个名字。
-- 要兑现的伏笔: MH05《鉴录》添第三个名字；MH03 骨哨发烫未吹；MH01 红纸包变奏（袖底压着折起的回执）。
+- 本章核心任务: 随执行队出城执行空岸令，点户、画押、贴封条、记火油账，亲眼看着一个村子被烧成三十里无人区里的第一片黑。
+- 要兑现的伏笔: MH11 签字之债（回执册经手人栏写下「那罕」）；MH05《鉴录》添第三个名字；MH03 骨哨发烫未吹；MH01 红纸包变奏（袖底压着折起的回执）。
 <!--META-END-->
 
 那罕坐在车尾，把点户册摊在膝上。二十三个名字，二十二个押，一个「亲邻代押」。
