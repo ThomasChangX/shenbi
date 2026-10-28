@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-10-25（spec #73 plan Done 随 PR #249 归档）
-> **活跃 plan 数**：0 | **已归档**：128（见 `archive/`）
+> **最后更新**：2026-10-28（spec #80 P1 plan 登记 ✅ ready）
+> **活跃 plan 数**：1 | **已归档**：128（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,6 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
+- `2026-10-28-spec80-invariant-net-p1.md`（SDD #80 P1 invariant-net——facts store 三维+查询面+F15/F16/F17+普查+lint+mutant CI+backfill，13 tasks，spec rev5）
 
 ## 待执行的 spec → plan 映射
 

@@ -61,6 +61,7 @@ shenbi-phase = "shenbi.phase_runner:main"
 shenbi-sync-contracts = "shenbi.sync_contracts:main"
 shenbi-generate-plugins = "shenbi.plugins.generate:main"
 shenbi-cost = "shenbi.cost.report:main"
+shenbi-facts = "shenbi.facts.cli:main"
 pipeline = "shenbi.pipeline.cli:main"
 pipeline-truth-index = "shenbi.pipeline.truth_index:main"
 pipeline-truth-embed = "shenbi.pipeline.truth_embed:main"
@@ -239,6 +240,33 @@ convention = "google"
 ]
 # 支柱四 Tier B: new records/ + audit/ subpackages. Chinese docstrings use
 # fullwidth punctuation (RUF001-003). Same minimal suppression as contracts/.
+# spec #80 F15/F16/F17 gate tests quote the live wound vocabulary
+# (火纹骨哨/林烽/鉴录名数) — same category as the facts tests above.
+"tests/unit/gates/g4/test_f16_cp_declarations.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/g4/test_f16_cd_handoffs.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/g4/test_f15_narration_name.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/g4/test_f17_counters.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/g4/test_g4_ss_facts.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #80 T12: lint violation messages quote the census vocabulary (维度/
+# 期相/触及的不变量维度 headers) — same category as lint_truth_pool.
+"tools/lint_invariant_coverage.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_lint_invariant_coverage.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #80 T13: backfill rewrites/backfilled declaration lines quote the live
+# registry/memo vocabulary (火纹骨哨/鉴录名数/历史补录) — data, not drift.
+"tools/facts_backfill.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_facts_backfill.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #80 T11 mutant CI: wound-vocabulary docstrings/strings (same category).
+"tests/gates/test_invariant_mutants.py" = ["RUF001", "RUF002", "RUF003"]
+
+# spec #80: facts tests quote the live Chinese vocabulary (火纹骨哨/鉴录名数)
+# — fullwidth punctuation is the data, not drift (release_split test precedent).
+"tests/unit/facts/**" = ["RUF001", "RUF002", "RUF003"]
+
+# spec #80: facts/ subpackage — Chinese docstrings use fullwidth
+# punctuation (RUF001-003), same minimal suppression as contracts/.
+"src/shenbi/facts/*.py" = [
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
 "src/shenbi/records/*.py" = [
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
 ]

@@ -14,6 +14,8 @@ carries one novel's proper nouns as its only source.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -40,6 +42,13 @@ class CrossChapterContext:
     project_dir: Path | None = None
     name_whitelist: tuple[str, ...] = _BOOTSTRAP_WHITELIST  # registry 在场时覆盖
     registry_dir: Path | None = None  # truth/ 三表所在；缺席 → 交叉校验 WARN
+    # spec #80 T5 XC 吸收：props facts 非 None 且非空时，不变量 4 的 prose
+    # 扫描（含 memo hop 检查子段）整体让位给 G4.cd（F16）——不留双 oracle
+    # 并行；facts 缺席/空时本检查照旧全 severity 运行（无 facts 回退层）。
+    props_facts: dict[str, str] | None = None
+    # spec #80 F15: identity fact（narration_name/from_ch/aliases 平视图）；
+    # 缺席/空 ⇒ 本检查 WARN skip（非 FAIL）。
+    identity_fact: Mapping[str, object] | None = None
 
 
 def load_name_registry(registry_dir: Path | None) -> tuple[tuple[str, ...], tuple[str, ...]]:
@@ -128,7 +137,7 @@ _BALANCE_DECL_RE = re.compile(
 )
 
 
-def _cn_amount(tok: str) -> int | None:
+def cn_amount(tok: str) -> int | None:
     """中文金额 → int（一百九十二/十二/300）；不可解析 None。"""
     if tok.isdigit():
         return int(tok)
@@ -560,6 +569,52 @@ def _expected_prop_owner(
     return expected, advanced_by
 
 
+_DIALOGUE_RE = re.compile(r"[「『][^」』]*[」』]")
+
+
+def strip_dialogue(text: str) -> str:
+    """Remove 「」/『』 dialogue spans (spec #80 F15 narration-scan basis)."""
+    return _DIALOGUE_RE.sub("", text)
+
+
+def check_narration_name(
+    text: str,
+    identity: Mapping[str, object],
+    memo_text: str,
+    *,
+    chapter: int | None = None,
+) -> list[str]:
+    """F15 — narration-name regression scan (spec #80 §4).
+
+    Strips dialogue, then flags any alias appearing in narration.
+    ``[旧名回溯]`` memo marker exempts the chapter (flashback, simplified
+    whole-chapter form in P1). ``chapter < from_ch`` = pre-rename window:
+    the old name is the then-current narration name (legal rename path,
+    rev2 M5). ``chapter=None`` disables the boundary check (alias flags).
+    """
+    aliases_raw = identity.get("aliases")
+    aliases = [str(a) for a in aliases_raw] if isinstance(aliases_raw, list) else []
+    if not aliases:
+        return []
+    if "[旧名回溯]" in memo_text:
+        return []
+    from_ch_raw = identity.get("from_ch")
+    from_ch = from_ch_raw if isinstance(from_ch_raw, int) else 1
+    if chapter is not None and chapter < from_ch:
+        return []
+    narration = strip_dialogue(text)
+    issues: list[str] = []
+    for alias in aliases:
+        if alias in narration:
+            issues.append(
+                f"XC.narration_name:叙述段出现别名「{alias}」"
+                f"（当前叙事名「{identity.get('narration_name', '?')}」"
+                f"自 ch{from_ch} 生效；闪回请用备忘 [旧名回溯] 声明）"
+                "——修复者: drafting"
+            )
+    return issues
+
+
 def check_cross_chapter(
     chapter_path: Path,
     prev_path: Path | None,
@@ -635,6 +690,16 @@ def check_cross_chapter(
             issues.append("称谓违例（修复者: planning+drafting）: " + "; ".join(hits[:2]))
     issues.extend(reserved_name_hijack_hits(cur_text, reserved))
 
+    # ── spec #80 F15 叙事名（剥对白叙述段别名扫描；首章亦跑）──
+    if ctx.identity_fact:
+        _ch_num_f15 = None
+        _ch_m15 = re.search(r"chapter-(\d+)", chapter_path.name)
+        if _ch_m15:
+            _ch_num_f15 = int(_ch_m15.group(1))
+        issues.extend(
+            check_narration_name(cur_text, ctx.identity_fact, memo_text, chapter=_ch_num_f15)
+        )
+
     # ── 不变量 4: 物象 owner 链（正文唯一真值；经手事件还原；首章亦跑）──
     # Round-2 fix: spec 或-rule——plain 提及（无经手）视 owner 未变，合法；
     # 只有转移语境要求 memo `- 物象:` 声明行。Round-3 fix: 转移标记限定成说
@@ -642,15 +707,22 @@ def check_cross_chapter(
     # 经由**已落盘的前章备忘**逐步推进——双章批 follower 在 leader 收束前
     # 检查，registry 尚未滚入 leader 的经手，若不推进则 follower 的真声明
     # 会被误杀（确定性重派死循环）。旧格式备忘（无场景预算块）整族豁免。
-    known_props = load_known_props(
-        ctx.registry_dir / "prop_registry.md" if ctx.registry_dir else None
-    )
+    if ctx.props_facts:
+        # spec #80 T5: facts oracle present — invariant 4's prose scan (and
+        # its memo-hop cross-check) is absorbed by G4.cd check_prop_handoffs.
+        known_props: dict[str, str] = {}
+    else:
+        known_props = load_known_props(
+            ctx.registry_dir / "prop_registry.md" if ctx.registry_dir else None
+        )
     _memo_is_new_format = re.search(r"#{2,4}\s*场景预算", memo_text) is not None
     _ch_num_m = re.search(r"chapter-(\d+)", chapter_path.name)
     _ch_num = int(_ch_num_m.group(1)) if _ch_num_m else None
     _cur_steps = _prop_chain_steps(memo_text)  # parsed once (round-5 perf)
     _prior_steps_map: dict[int, dict[str, list[tuple[str, str]]]] = {}
-    if ctx.project_dir and _ch_num and _ch_num > 1:
+    if ctx.props_facts:
+        pass  # absorbed: known_props empty below — skip the prior-memo IO
+    elif ctx.project_dir and _ch_num and _ch_num > 1:
         for _k in range(1, _ch_num):
             _pk = ctx.project_dir / "plans" / f"chapter-{_k}-plan.md"
             if _pk.is_file():
@@ -687,7 +759,11 @@ def check_cross_chapter(
         # colliding with a prop-initial char). 换了 stays OUT (replacement vs trade
         # indistinguishable — documented residual FN, see planning SKILL).
         esc_prop = re.escape(prop)
-        _markers = r"(?:递给|塞给|交给|送给|还给|还了|给了|留给|转手|递了|送了|交到|递到|递还)"
+        # spec #80 T4/T5: single shared verb table (plan R2-I5 anti-drift)
+        from shenbi.gates.shared import TRANSFER_VERBS
+
+        _markers = "|".join(map(re.escape, sorted(TRANSFER_VERBS)))
+        _markers = rf"(?:{_markers})"
         _not_meta = r"(?![^。！？，,；]{0,4}[气感力望意神训戒胆魂暖慰命](?![炉]))"
         transfer_ctx = re.search(
             rf"{esc_prop}[^。！？，,；]{{0,4}}{_markers}{_not_meta}"
@@ -749,8 +825,8 @@ def check_cross_chapter(
     if prev_bal is None:
         prev_bal = _BALANCE_DECL_RE.search(prev_text)
     if cur_bal and prev_bal:
-        cur_amt = _cn_amount(cur_bal.group(1))
-        prev_amt = _cn_amount(prev_bal.group(1))
+        cur_amt = cn_amount(cur_bal.group(1))
+        prev_amt = cn_amount(prev_bal.group(1))
         events = _EVENT_DECL_RE.findall(memo_text)
         delta = (cur_amt - prev_amt) if (cur_amt is not None and prev_amt is not None) else None
         if delta is not None and abs(delta) >= 10:
@@ -762,7 +838,7 @@ def check_cross_chapter(
                 # 对账：声明事件净额须覆盖跳变（容差 max(10, 20%)——散文允许
                 # 未声明的小额流动）；方向相反或量级悬殊 = 假声明
                 net = sum(
-                    _cn_amount(amt) or 0 if kind == "收入" else -(_cn_amount(amt) or 0)
+                    cn_amount(amt) or 0 if kind == "收入" else -(cn_amount(amt) or 0)
                     for kind, amt, _src in events
                 )
                 if abs(delta - net) > max(10, abs(delta) * 0.2):
@@ -805,10 +881,55 @@ def g4_cross_chapter(
                         ),
                     }
                 )
+    # spec #80 F15: identity oracle（空种子≡缺席——R4-M2）
+    _identity: dict[str, object] | None = None
+    if project_dir:
+        from shenbi.facts.enums import FactsDim
+        from shenbi.facts.store import load_facts as _lf
+
+        _id_loaded = _lf(Path(project_dir), FactsDim.IDENTITY)
+        if _id_loaded is not None and not _id_loaded.is_empty:
+            _fact = _id_loaded.identity()
+            if _fact is not None:
+                _identity = {
+                    "narration_name": _fact.narration_name,
+                    "from_ch": _fact.from_ch,
+                    "aliases": list(_fact.aliases),
+                }
+        if _identity is None:
+            c.append(
+                {
+                    "id": "XC.narration_name",
+                    "file": "-",
+                    "s": GateStatus.WARN,
+                    "r": "no_facts — identity facts absent/empty; F15 narration scan skipped (degradation visible)",
+                }
+            )
+
+    # spec #80 T5: props facts oracle（空种子==缺席——R4-M2）；全分支审查：单次
+    # 加载置循环外（原每章重读 props.json N 次），ctx 与 fp 无关一并前置
+    _pf: dict[str, str] | None = None
+    if project_dir:
+        from shenbi.facts.enums import FactsDim
+        from shenbi.facts.store import load_facts
+
+        _pf_loaded = load_facts(Path(project_dir), FactsDim.PROPS)
+        if _pf_loaded is not None and not _pf_loaded.is_empty:
+            _pf = {k: v.owner for k, v in _pf_loaded.props().items()}
+    ctx = CrossChapterContext(
+        project_dir=Path(project_dir) if project_dir else None,
+        registry_dir=(Path(project_dir) / "truth") if project_dir else None,
+        props_facts=_pf,
+        identity_fact=_identity,
+    )
+
     for fp in fps or []:
         ch_path = Path(fp)
         if not ch_path.is_absolute() and rd:
             ch_path = Path(resolve_input_path(fp, rd))
+        # spec #80 F15 快照豁免（rev2 M1）：pre-rev/snapshot = 修复前正史
+        if "*pre-rev*" in fp or "pre-rev" in ch_path.name or "snapshot" in ch_path.name:
+            continue
         if not ch_path.is_file():
             mf.append(f"XC.not_found:{fp}")
             continue
@@ -817,10 +938,6 @@ def g4_cross_chapter(
         memo = None
         if project_dir and ch_num_m:
             memo = Path(project_dir) / "plans" / f"chapter-{ch_num_m.group(1)}-plan.md"
-        ctx = CrossChapterContext(
-            project_dir=Path(project_dir) if project_dir else None,
-            registry_dir=(Path(project_dir) / "truth") if project_dir else None,
-        )
         # 编号断档：N>1 而前章缺席 → 时间锚/POV 基线丢失，降级须可见
         if prev is None and ch_num_m and int(ch_num_m.group(1)) > 1:
             log.warning("xc_prev_missing", chapter=int(ch_num_m.group(1)))

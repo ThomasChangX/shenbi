@@ -98,6 +98,7 @@ EXPECTED_CALLS: dict[str, list[list[str]]] = {
     "ledger-archive": [["--help"]],
     "volume-budget": [["--help"]],
     "release-split": [["--help"]],
+    "facts-query": [["--dim", "props", "--project", "/tmp/d; touch pwned"]],
     "regen-reset": [["--help"]],
     "regen-accept": [["--help"]],
     "volume-nodes": [["/tmp/d; touch pwned", "1"]],

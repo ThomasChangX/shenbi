@@ -57,6 +57,162 @@ def _extract_hook_ledger_section(plan_text: str) -> str:
     return rest[: nxt.start()] if nxt else rest
 
 
+def entity_in_text(entity: str, text: str) -> bool:
+    """Three-form entity matcher (spec #80 T5 / plan R3-M2).
+
+    Full key / the pre-``·`` stem of a disambiguated copy key / the last
+    two chars of a >=3-char key (短称「骨哨」form, ch20 L230).
+    """
+    if entity in text:
+        return True
+    stem = entity.split("·", 1)[0]
+    if stem != entity and stem in text:
+        return True
+    return len(entity) >= 3 and entity[-2:] in text
+
+
+def _handoff_paragraphs(text: str) -> list[str]:
+    return [para for para in text.split("\n\n") if para.strip()]
+
+
+def check_prop_handoffs(text: str, memo_text: str, props: dict[str, dict[str, str]]) -> list[str]:
+    """F16 G4.cd — un-declared hand-off co-occurrence scan (spec #80 §4).
+
+    Paragraph-wide co-occurrence (audit-T5 M4): entity and verb may sit in
+    different sentences of one paragraph — advisory by design; the hard
+    no-source rejection lives in the F16s settle state machine (T8). A
+    paragraph naming the current owner is owner-mediated (legal). The
+    ``·``-stem memo exemption is family-wide (audit-T5 M5): a declared
+    copy acquire also exempts the main-line key — inherent to the
+    three-form matcher, accepted by plan R3-M2.
+    """
+    from shenbi.gates.g4.chapter_planning import parse_prop_declarations
+    from shenbi.gates.shared import TRANSFER_VERBS
+
+    declared_stems: set[str] = {
+        prop.split("·", 1)[0]
+        for prop, op, _frm, _to in parse_prop_declarations(memo_text)
+        if op in ("transfer", "acquire", "lose")
+    }
+    issues: list[str] = []
+    paragraphs = _handoff_paragraphs(text)
+    for prop, info in props.items():
+        owner = info.get("owner", "")
+        stem = prop.split("·", 1)[0]
+        for para in paragraphs:
+            if not entity_in_text(prop, para):
+                continue
+            if not any(v in para for v in TRANSFER_VERBS):
+                continue
+            if owner and owner in para:
+                continue  # owner-mediated paragraph — legal
+            if stem in declared_stems:
+                continue  # declared (or copy-key family declared)
+            issues.append(
+                f"cd.prop_handoff:「{prop}」交接语境（物象+交接动词共现，"
+                f"owner「{owner}」不在场）无备忘声明——正文为唯一真值源，"
+                "核实后补声明或修正 facts（修复者: planning+settling）"
+            )
+            break  # one report per entity
+    return issues
+
+
+_COUNTER_DECL_RE = re.compile(r"^[-*]\s*计数[：:]\s*(\S+)\s+(\d+)\s*\+\s*1\s*$", re.MULTILINE)
+
+
+def _re_total(word: str) -> re.Pattern[str]:
+    # audit-T11 I1: 自然 prose 总数形是「N个名字」——正则须含 个；
+    # 个? 可选形兼容无 个 变体（与 ordinal 工厂一致，spec rev2 M2）
+    return re.compile(rf"([一二两三四五六七八九十百千\d]{{1,5}})个?{word}")
+
+
+def _re_ordinal(word: str) -> re.Pattern[str]:
+    return re.compile(rf"第([一二两三四五六七八九十百千\d]{{1,5}})个?{word}")
+
+
+_ORDINAL_RE = re.compile(r"第([一二两三四五六七八九十百千\d]{1,5})个名字")
+
+
+def parse_counter_declarations(memo_text: str) -> list[tuple[str, int]]:
+    """Parse ``- 计数: <名> N+1`` lines (spec #80 F17).
+
+    Returns ``(name, declared_value)`` where declared_value = the parsed
+    N+1 (plan R4-M4: the declared NEW value, not the base N).
+    """
+    out: list[tuple[str, int]] = []
+    for m in _COUNTER_DECL_RE.finditer(memo_text):
+        try:
+            out.append((m.group(1), int(m.group(2)) + 1))
+        except ValueError:
+            continue
+    return out
+
+
+def check_counter_reconciliation(
+    text: str, memo_text: str, counters: dict[str, dict[str, int]]
+) -> list[str]:
+    """F17 — three-way counter reconciliation (spec #80 §4, rev4 R3-M11).
+
+    Activated only for counters the memo declares (R2-I4b — the WARN
+    judgment lives at the g4.cd call site, R3-M1). Reconciles:
+    (1) prose totals「N个名字」≡ facts value or declared new value
+        (page qualifiers ignored — R5-M3);
+    (2) memo declared N+1 ≡ facts+1;
+    (3) prose ordinals「第N个名字」≡ declared new value.
+    """
+    from shenbi.gates.g4.cross_chapter import cn_amount
+
+    def _amount(raw: str) -> int | None:
+        # 两 (colloquial 2) is outside cn_amount's vocabulary — normalize
+        return cn_amount("二" + raw[1:] if raw.startswith("两") else raw)
+
+    # M1 (audit-T7): counter name -> prose word family; unmapped counters
+    # skip the prose faces (no cross-counter interference). P1 registers
+    # the single 鉴录名数 counter.
+    _WORD_FAMILY: dict[str, tuple[str, ...]] = {
+        "鉴录名数": ("名字",),
+    }
+    issues: list[str] = []
+    declared = dict(parse_counter_declarations(memo_text))
+    for name, declared_val in declared.items():
+        info = counters.get(name)
+        if info is None:
+            continue  # unknown counter — flagged at the call site (C1 wiring)
+        family = _WORD_FAMILY.get(name)
+        if not family:
+            continue  # no word family mapped — prose faces skip (M1)
+        facts_val = int(info.get("value", 0))
+        if declared_val != facts_val + 1:
+            issues.append(
+                f"cd.counter:「{name}」备忘声明 {declared_val - 1}+1={declared_val}"
+                f" ≠ facts 现值 {facts_val}+1={facts_val + 1}"
+                "——计数链单调断裂（修复者: planning+settling）"
+            )
+        for word in family:
+            for m in _re_total(word).finditer(text):
+                amount = _amount(m.group(1))
+                if amount is None:
+                    continue
+                if amount not in (facts_val, declared_val):
+                    issues.append(
+                        f"cd.counter:「{name}」正文总数「{m.group(0)}」={amount}"
+                        f" ∉ {{facts {facts_val}, 声明 {declared_val}}}"
+                        "——总数与计数链互斥（修复者: drafting）"
+                    )
+        for word in family:
+            for m in _re_ordinal(word).finditer(text):
+                amount = _amount(m.group(1))
+                if amount is None:
+                    continue
+                if amount != declared_val:
+                    issues.append(
+                        f"cd.counter:「{name}」正文序数「{m.group(0)}」={amount}"
+                        f" ≠ 备忘声明值 {declared_val}"
+                        "——序数与声明错位（修复者: drafting）"
+                    )
+    return issues
+
+
 def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
     """G4.cd.hook_fulfillment: Verify plan-declared hooks appear in chapter body.
 
@@ -246,6 +402,23 @@ def g4_chapter_drafting(
     _GOLDEN_POST_RE = re.compile(r"^\s*-\s*\[.\]\s*金句位\s*[:：]\s*(.+)$", re.MULTILINE)
     _EMPTY_VALUES = frozenset({"", "无", "N/A", "待定"})
 
+    # ── spec #80 T5 F16 G4.cd — 物象交接共现（挂 facts oracle）──
+    # facts 缺席/空 ⇒ WARN 可见 skip（rev4 R3-I2 三律；audit-T4 I3 先例：
+    # 损坏文件 raise 保持响亮）。备忘路径 = plans/chapter-N-plan.md。
+    _props_facts: dict[str, dict[str, str]] | None = None
+    _counters_facts: dict[str, dict[str, int]] | None = None
+    if project_dir:
+        from shenbi.facts.enums import FactsDim
+        from shenbi.facts.store import load_facts
+
+        _loaded = load_facts(Path(project_dir), FactsDim.PROPS)
+        if _loaded is not None and not _loaded.is_empty:
+            _props_facts = {k: {"owner": v.owner} for k, v in _loaded.props().items()}
+        # spec #80 T7 F17: counters oracle（空种子≡缺席，R4-M2）
+        _cn_loaded = load_facts(Path(project_dir), FactsDim.COUNTERS)
+        if _cn_loaded is not None and not _cn_loaded.is_empty:
+            _counters_facts = {k: {"value": v.value} for k, v in _cn_loaded.counters().items()}
+
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
         if not pf.exists():
@@ -254,6 +427,62 @@ def g4_chapter_drafting(
 
         content = pf.read_text(encoding="utf-8")
         wc = word_count_md(str(pf))
+
+        # per-file memo join (F16/F17 share)
+        _memo: str | None = None
+        _ch_m = re.search(r"chapter-(\d+)", Path(fp).name)
+        if project_dir and _ch_m:
+            _memo_path = Path(project_dir) / "plans" / f"chapter-{_ch_m.group(1)}-plan.md"
+            if _memo_path.is_file():
+                _memo = _memo_path.read_text(encoding="utf-8")
+
+        # ── spec #80 T5 F16 G4.cd — 正文无源交付拍（per-chapter）──
+        if _props_facts is None:
+            c.append(
+                {
+                    "id": "cd.prop_handoff",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": "no_facts — props facts absent/empty; hand-off scan skipped (degradation visible)",
+                }
+            )
+        else:
+            for issue in check_prop_handoffs(content, _memo or "", _props_facts):
+                mf.append(f"{fp}:{issue}")
+
+        # ── spec #80 T7 F17 — 计数器三方对账（激活判定在调用点，R3-M1）──
+        # M1（audit-T7）：计数名→prose 词族映射（未映射计数器跳过 prose 面，
+        # 多计数器不串扰）；M2：鉴录名数=那罕添加名口径（R2-I4a）——ch17 全书
+        # 口径靠 no_decl 跳过，backfill 范围钉 ch9-only（T13）
+        if _counters_facts is None:
+            c.append(
+                {
+                    "id": "cd.counter",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": "no_facts — counters facts absent/empty; reconciliation skipped (degradation visible)",
+                }
+            )
+        else:
+            _memo_decls = parse_counter_declarations(_memo) if _memo else []
+            if not _memo_decls:
+                c.append(
+                    {
+                        "id": "cd.counter",
+                        "file": fp,
+                        "s": GateStatus.WARN,
+                        "r": "no_decl — memo declares no counters this chapter; reconciliation not activated (legacy-memo compat, ch17-class false-red guard)",
+                    }
+                )
+            else:
+                _unknown = {n for n, _v in _memo_decls} - set(_counters_facts)
+                for _u in sorted(_unknown):
+                    mf.append(
+                        f"cd.counter:{fp}:「{_u}」备忘声明了 facts 未种子的计数器"
+                        "——先补 facts 种子（修复者: settling）"
+                    )
+                for issue in check_counter_reconciliation(content, _memo or "", _counters_facts):
+                    mf.append(f"{fp}:{issue}")
 
         # PRE_WRITE_CHECK
         if "## PRE_WRITE_CHECK" not in content:

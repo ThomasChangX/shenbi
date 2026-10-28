@@ -808,6 +808,15 @@ G4_CHECK_MAP: dict[str, G4Severity] = {
     "cp.sections": G4Severity.HARD,
     "cp.chapter_role": G4Severity.HARD,
     "cp.s7_hook_ops": G4Severity.HARD,
+    # spec #80 invariant-net: F15/F16/F17 + G4.ss 双写对账，全部硬失败
+    # （发射前缀见 cross_chapter/chapter_planning/chapter_drafting/state_settling）
+    "XC.narration_name": G4Severity.HARD,
+    "cd.prop_handoff": G4Severity.HARD,
+    "cp.prop_decl": G4Severity.HARD,
+    "cd.counter": G4Severity.HARD,
+    "ss.facts_ops": G4Severity.HARD,
+    "ss.prop_row_match": G4Severity.HARD,
+    "ss.identity_row_match": G4Severity.HARD,
     "transition": G4Severity.SOFT,
     "fatigue": G4Severity.SOFT,
     "cd.chapter_end_hook": G4Severity.SOFT,
@@ -1486,6 +1495,36 @@ def staged_decisions_targets(project_dir: Path, skill: str, chapter: int | None)
     return targets
 
 
+def apply_settle_facts_ops(
+    state: PipelineState, project_dir: Path, skill: str, chapter: int | None
+) -> str | None:
+    """Apply sidecar ``facts_ops`` before a settle commit write loop (spec #80 T8).
+
+    成功或无 ``facts_ops`` 键(旧 settle 兼容期 no-op)时返回 None。拒收时
+    落盘指向性 retry_feedback 并返回拒收消息, facts 应用自身零写入(两阶段,
+    跨维跨 sidecar), staging 保留供重试——调用方中止各自写循环并路由到
+    settle 审查 checkpoint(settle 门 FAIL, attempts/escalation 既有协议)。
+    全部 staged sidecar 一次性单调用(audit-T8 C2: 拒收前零写入跨 sidecar)。
+    """
+    from shenbi.exceptions import FactsOpRejectedError
+    from shenbi.facts.settle_ops import apply_sidecar_ops
+    from shenbi.pipeline.checkpoint import STAGING_DIR
+
+    sidecars = staged_decisions_targets(project_dir, skill, chapter)
+    if not sidecars:
+        return None
+    try:
+        apply_sidecar_ops(project_dir, *(project_dir / STAGING_DIR / rel for rel in sidecars))
+    except FactsOpRejectedError as exc:
+        key = _retry_key(chapter if chapter is not None else 1, skill)
+        state.chapter_loop.retry_feedback[key] = (
+            f"settle 双写 facts_ops 拒收：{exc}"
+            "——重派时修正 decisions sidecar 的 facts_ops，使其与 truth/facts 现态一致"
+        )
+        return str(exc)
+    return None
+
+
 def _mark_staged_for_checkpoint(project_dir: Path, step: ChapterStep, chapter: int) -> None:
     """Mark a staging-bearing checkpoint's staged products (C30 R1, F318).
 
@@ -1857,17 +1896,24 @@ def _check_world_file_freshness(project_dir: Path, chapter: int) -> None:
         )
 
 
-def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int) -> bool:
+def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int) -> bool | str:
     """--auto parallel post-draft settling (F341): when state-settle review is
     not required, commit staging truth + clear staging, NO checkpoint.
 
     Returns True when the auto-commit ran; False when a review is required
-    (caller raises the STATE_SETTLE checkpoint).
+    (caller raises the STATE_SETTLE checkpoint); a str when facts_ops
+    application rejected (audit-T8 M11 — caller raises the checkpoint with
+    the rejection as context; staging preserved for the settle retry).
     """
     from shenbi.pipeline.checkpoint import STAGING_DIR, clear_staging
 
     if state.config.state_settle_review_required:
         return False
+    # spec #80 T8: facts_ops 先验——拒收在任何写之前中止（零写入、staging
+    # 保留），拒收消息上抛供 checkpoint context（audit-T8 M11）。
+    _rejection = apply_settle_facts_ops(state, project_dir, "shenbi-state-settling", chapter)
+    if _rejection is not None:
+        return _rejection
     staging_truth = project_dir / STAGING_DIR / "truth"
     if staging_truth.exists():
         # sidecar via the shared contract-driven helper (audit-T5 C3; final
@@ -2112,6 +2158,24 @@ def _advance(
         elif (
             step.checkpoint == CheckpointType.STATE_SETTLE and not cfg.state_settle_review_required
         ):
+            # spec #80 T8: facts_ops 先验——拒收在任何写之前中止（零写入、
+            # staging 保留），改走 checkpoint 升起分支供 settle 重试。
+            _rejection = apply_settle_facts_ops(state, project_dir, step.skill, chapter)
+            if _rejection is not None:
+                artifact = (
+                    resolve_chapter_path(step.output_path, chapter)
+                    if step.output_path
+                    else f"chapter-{chapter}/{step.name}"
+                )
+                set_checkpoint(
+                    state,
+                    step.checkpoint,
+                    chapter=chapter,
+                    artifact=artifact,
+                    context=f"settle 双写 facts_ops 拒收：{_rejection}",
+                )
+                _mark_staged_for_checkpoint(project_dir, step, chapter)
+                return True
             from shenbi.pipeline.checkpoint import STAGING_DIR, clear_staging
 
             staging_truth = project_dir / STAGING_DIR / "truth"
@@ -3794,7 +3858,8 @@ def _run_chapter_step_impl(
         # body — staging commit + clear, NO checkpoint. Skipping only the
         # checkpoint would strand state-settle writes in staging/ where the
         # next resume's _cleanup_residual_staging wipes them (data-loss trap).
-        if _auto_settle_parallel(state, project_dir, chapter):
+        _settle_outcome = _auto_settle_parallel(state, project_dir, chapter)
+        if _settle_outcome is True:
             # auto committed: fall through to the chapter-completion check
             # (mirrors the serial _advance tail; the pre-existing completion
             # check above this block is normally the one that fires).
@@ -3806,13 +3871,23 @@ def _run_chapter_step_impl(
             if settling_step.output_path
             else f"chapter-{chapter}/{settling_step.name}"
         )
-        set_checkpoint(
-            state,
-            CheckpointType.STATE_SETTLE,
-            chapter=chapter,
-            artifact=settling_artifact,
-            context=f"Review {settling_step.name} for chapter {chapter}",
-        )
+        if isinstance(_settle_outcome, str):
+            # facts_ops rejection: same checkpoint, pointed context (audit-T8 M11)
+            set_checkpoint(
+                state,
+                CheckpointType.STATE_SETTLE,
+                chapter=chapter,
+                artifact=settling_artifact,
+                context=f"settle 双写 facts_ops 拒收：{_settle_outcome}",
+            )
+        else:
+            set_checkpoint(
+                state,
+                CheckpointType.STATE_SETTLE,
+                chapter=chapter,
+                artifact=settling_artifact,
+                context=f"Review {settling_step.name} for chapter {chapter}",
+            )
         _mark_staged_for_checkpoint(project_dir, settling_step, chapter)
         return True
 

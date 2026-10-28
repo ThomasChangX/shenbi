@@ -7,6 +7,8 @@ from __future__ import annotations
 from typing import Literal
 from pydantic import BaseModel, Field, model_validator
 
+from shenbi.facts.schemas import CounterEvent, IdentityEvent, PropTransferEvent
+
 DECISIONS_SCHEMA_VERSION = "shenbi-decisions-v1"
 _RATIONALE_MAX_CHARS = 100
 
@@ -68,6 +70,22 @@ class Budget(BaseModel):
     trim_applied: Trim
 
 
+class FactsOps(BaseModel):
+    """Spec #80 T8: structured facts ops riding the settle sidecar.
+
+    Additive key (no schema bump). P2.5 rationale rule: entries whose op
+    the F16s simulate would reject (illegal transitions) require a
+    non-empty ``rationale`` (enforced at G4.ss — the schema layer cannot
+    see facts state).
+    """
+
+    model_config = {"extra": "forbid"}
+    props: list[PropTransferEvent] = []
+    counters: list[CounterEvent] = []
+    identity: list[IdentityEvent] = []
+    rationale: str | None = None
+
+
 class DecisionsDoc(BaseModel):
     model_config = {"extra": "forbid"}
     schema_: str = Field(alias="$schema")
@@ -77,6 +95,9 @@ class DecisionsDoc(BaseModel):
     selections: list[Selection] = []
     adjustments: list[Adjustment] = []
     budget: Budget | None = None
+    # Spec #80: settle dual-write — structured facts ops (optional key,
+    # absent = legacy settle, compat period WARN at G4.ss).
+    facts_ops: FactsOps | None = None
     produced_at: str
 
     @model_validator(mode="after")

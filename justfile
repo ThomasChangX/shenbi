@@ -22,6 +22,7 @@ install group="dev":
 check:
     uv lock --check
     uv run python tools/lint_status_strings.py
+    uv run python tools/lint_invariant_coverage.py
     uv run python tools/lint_routing_faces.py
     uv run python tools/audit-skill-descriptions.py
     uv run python tools/lint_registry_reconcile.py --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume
@@ -88,6 +89,10 @@ lint-routing:
 # Lint audit-run artifacts: ledger rows, count reconciliation, carryover (spec #49)
 audit-lint *args:
     uv run python tools/lint_audit_run.py "$@"
+
+# Facts query face (spec #80 T3): human/CI compact views of truth/facts/*.json
+facts-query *args:
+    uv run shenbi-facts query "$@"
 
 # Pool two-table reconciliation: pending_hooks overview rows vs detail sections (GO①)
 pool-lint *args:

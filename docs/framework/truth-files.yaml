@@ -55,6 +55,12 @@ concepts:
   - {name: truth/timeline.md, kind: truth}                        # 时间锚（章层键=章）
   - {name: truth/prop_registry.md, kind: truth}                   # 物象 owner 链（键=实体名）
   - {name: truth/recall_registry.md, kind: truth}               # #78 死者回触登记（键=死者名）
+  # spec #80 facts store（§1.4 glob 口径字面展开，R2-M12 注）：三维 JSON 为
+  # canonical 层——pipeline-init 播种、settle commit 时 op 应用；markdown
+  # registry 行是投影面（修复方向永远改 Markdown 行）
+  - {name: truth/facts/props.json, kind: truth, producer: pipeline}
+  - {name: truth/facts/counters.json, kind: truth, producer: pipeline}
+  - {name: truth/facts/identity.json, kind: truth, producer: pipeline}
   # plans / chapters / context
   - {name: plans/chapter-N-plan.md, kind: plan}      # parametric: N
   - {name: staging/chapter-N-bundle.md, kind: chapter, producer: skill}  # #72 场景簇产物（拆分步消费，不晋升）

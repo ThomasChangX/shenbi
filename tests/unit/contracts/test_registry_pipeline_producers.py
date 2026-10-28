@@ -119,7 +119,8 @@ def test_default_producer_is_skill_for_truth_concepts() -> None:
     # Sanity: most truth concepts remain skill-produced (default), so the new
     # field does not accidentally flip the majority to a non-default producer.
     # The only non-skill truth concepts are the pipeline-managed index/store
-    # (truth-index.json, truth-embeddings.db).
+    # (truth-index.json, truth-embeddings.db) + spec #80 facts store (T9:
+    # pipeline seeds empty dims; settle ops apply at commit).
     reg = load_registry()
     truth = [c for c in reg.concepts if c.kind == "truth"]
     assert truth, "expected truth concepts"
@@ -130,6 +131,9 @@ def test_default_producer_is_skill_for_truth_concepts() -> None:
         "truth/chapter_patterns.md",
         "truth/resonance_anchors.md",
         "truth/pending_hooks_archive.md",
+        "truth/facts/props.json",
+        "truth/facts/counters.json",
+        "truth/facts/identity.json",
     }, f"unexpected non-skill truth producers: {sorted(c.name for c in non_skill)}"
 
 

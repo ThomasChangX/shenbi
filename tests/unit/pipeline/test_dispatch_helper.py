@@ -1215,3 +1215,31 @@ class TestOptionalReadsAnchors:
         from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
 
         assert "style/anchors.md" in OPTIONAL_READS["shenbi-chapter-drafting"]
+
+
+class TestOptionalReadsFacts:
+    """spec #80 T9 (audit-T9 I-1): facts 三维是 P1 新读面——既有项目
+    (seed_empty 只在全新 init 跑) 无 truth/facts/ 时按缺读降级, 不硬败 G1。
+    """
+
+    def test_optional_reads_includes_facts_dims(self) -> None:
+        from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+        patterns = OPTIONAL_READS["shenbi-chapter-planning"]
+        for dim in ("props", "counters", "identity"):
+            assert f"truth/facts/{dim}.json" in patterns
+
+    def test_executor_prefilter_drops_absent_facts_reads(self, tmp_path) -> None:
+        # executor 的 pre-G1 过滤 (SHENBI_G1_SKIP_READS ← OPTIONAL_READS)
+        # 复现：在途项目无 truth/facts/ ⇒ 三维读被丢弃，G1 不见它们
+        from shenbi.dispatcher.executor import derive_input_files
+        from shenbi.gates.shared import optional_read_hit
+        from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+        (tmp_path / "truth").mkdir()
+        (tmp_path / "truth" / "current_state.md").write_text("x", encoding="utf-8")
+        inputs = derive_input_files("shenbi-chapter-planning", 25, tmp_path)
+        patterns = OPTIONAL_READS["shenbi-chapter-planning"]
+        kept = [f for f in inputs if not (optional_read_hit(f, patterns) and not Path(f).exists())]
+        assert not [f for f in kept if "truth/facts/" in f]  # 缺席 ⇒ pre-G1 丢弃
+        assert kept  # 其余读面照常进入

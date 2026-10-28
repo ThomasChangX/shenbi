@@ -24,6 +24,11 @@ contract:
   - file: foundation/review_report.md
     fields:
     - 建议修复
+  # spec #80：facts store 三维文件本体（P1 读法——R2-M8：planning 直读 JSON，
+  # canonical 层；markdown registry 行是投影面）
+  - truth/facts/props.json
+  - truth/facts/counters.json
+  - truth/facts/identity.json
   writes:
   - file: plans/chapter-N-plan.md
     mode: create_or_overwrite
@@ -51,7 +56,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** characters/protagonist.md, novel.json, genre-config.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md, foundation/review_report.md
+- **Reads:** characters/protagonist.md, novel.json, genre-config.json, truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/thread_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md, characters/relationships.md, foundation/review_report.md, truth/facts/props.json, truth/facts/counters.json, truth/facts/identity.json
 - **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json, plans/chapter-{N+1}-plan.md, plans/chapter-{N+1}-plan-decisions.json
 - **Updates:** none
 
@@ -312,9 +317,21 @@ emotion_tone: 悲
 **必填一行（章尾张力拍——drafting PRE_WRITE_CHECK 与 G4.cd 硬闸的上游对接口径，裁决 199 落地）**：
 
 - 章尾张力拍: [未答之问／未说破之瞒／未合拢之缝 + 具体指向对象（谁/什么，指向须具体到可写进收束拍）]
+
+**物象/计数结构化声明（spec #80 F16/F17——drafting 三方对账与 settle `facts_ops` 的上游口径；本章涉及物象经手或计数变化时必填）。声明行**逐字替换占位符后**必须形如（方括号占位符原样泄漏即格式错）**：
+
+- [实体全键]@transfer: [当前owner]→[新owner]
+- [实体全键]@acquire: [首次持有者]
+- [实体全键]@hold: [持有者]
+- 计数: [计数器名] [现值] +1
+
+真值示例（火纹骨哨现由那罕持有、交予帖木哥；名字数现值 12）：
+
+- 火纹骨哨@transfer: 那罕→帖木哥
+- 计数: 名字数 12 +1
 ```
 
-**可自动检查规则**：章号 > 3 时，至少 1 条改变的类型在 {信息, 关系, 物理, 权力} 中且非空。
+**可自动检查规则**：章号 > 3 时，至少 1 条改变的类型在 {信息, 关系, 物理, 权力} 中且非空。声明面分级：备忘全无 `物件@op` 行 ⇒ G4.cp `legacy_memo` WARN（下游 drafting `cd.prop_handoff` 才是缺/坏声明的硬网）；**已知名单**的经手起点或持有者与 facts store 现态不符 ⇒ `cp.prop_decl` 硬闸；计数声明的现值+1 与 drafting 后 prose 计数、facts counters 三方对账（F17，`cd.counter` 硬闸）。
 
 ### 段 7 模板：本章 hook 账（EXACT 表格列名）
 
