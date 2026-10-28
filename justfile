@@ -21,7 +21,11 @@ install group="dev":
 # Run all checks (single source of truth — CI calls this; see spec #63 C25)
 check:
     uv lock --check
-    uv run python tools/lint_status_strings.py
+    # spec #80: facts query face (human/CI surface)
+facts-query dim project_dir:
+    uv run shenbi-facts query --dim {{dim}} --project {{project_dir}}
+
+uv run python tools/lint_status_strings.py
     uv run python tools/lint_routing_faces.py
     uv run python tools/audit-skill-descriptions.py
     uv run python tools/lint_registry_reconcile.py --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume
