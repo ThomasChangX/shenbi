@@ -129,7 +129,6 @@ def test_copy_entity_is_a_new_key_not_reacquisition():
 **Files:**
 - Modify: `src/shenbi/facts/store.py`（追加 IO 函数）
 - Modify: `src/shenbi/pipeline/cli.py` 或 init 路径（pipeline-init 空种子——先定位 init 落 truth/ 的函数再钉文件）
-- Create: `tests/unit/facts/__init__.py`
 - Test: `tests/unit/facts/test_store_io.py`
 
 **Interfaces:**
@@ -154,9 +153,8 @@ def test_load_absent_returns_none(tmp_path: Path):
     assert load_facts(tmp_path, FactsDim.PROPS) is None  # 门检 WARN 降级依据
 
 
-def test_save_then_load_roundtrip(tmp_path: Path):
-    from tests.unit.facts.test_store_state_machine import _props_file
-    save_facts(tmp_path, _props_file())
+def test_save_then_load_roundtrip(tmp_path: Path, props_file):
+    save_facts(tmp_path, props_file)  # conftest fixture（R5-M3：跨模块私有 import 换共享 fixture）
     back = load_facts(tmp_path, FactsDim.PROPS)
     assert back is not None and back.facts["火纹骨哨"].owner == "那罕"
     assert (tmp_path / "truth" / "facts" / "props.json").is_file()
@@ -171,7 +169,7 @@ def test_seed_empty_idempotent_creates_three_dims(tmp_path: Path):
 
 - [ ] **Step 2:** 跑 → FAIL
 - [ ] **Step 3:** 实现（`save_facts` = `truth_file_flock` + 内层私有 `_write_facts_unlocked`（`shenbi.safe_write.safe_write` 原子写——purity lint `tools/lint_no_fs_mutation.py` 按**文件** allowlist（R3-M7 措辞），facts/store.py 裸写原语会被拦，safe_write 是唯一获准原子写入口；**内层无锁设计 R3-C1**：同进程 flock 无重入语义——T8 RMW 外层持锁时须直调内层，公开 save_facts 自带锁供独立调用方）；`seed_empty` 三维空 `FactsFile`）；pipeline-init 挂钩：在 init 流程写 truth/ 的函数里追加 `seed_empty(project_dir)` 一行（**候选已钉 R4-M5**：`src/shenbi/pipeline/cli.py:721` `cmd_init` 为首选锚点，`registry_seeding.py` 为备选——执行时确认后写死）
-- [ ] **Step 4:** 重跑 PASS + 既有 init 测试不破（`uv run pytest tests/unit/pipeline/ -q -k init`）
+- [ ] **Step 4:** 重跑 PASS + 既有 init 测试不破（`uv run pytest tests/unit/pipeline/ -q -k init`）；**窗口观察（R5-M2）**：seed_empty 落盘的 facts 文件 T9 才进 truth-files.yaml——T2-T8 间每 task 跑 `just check` 盯 vocabulary/index 面是否枚举 truth/ 内容（`_verify_truth_integrity` 只查 missing-path 不查多余，预期无红）
 - [ ] **Step 5:** commit（pathspec 列全）
 
 ---
@@ -523,7 +521,7 @@ def test_mutant_counter_dup_killed_by_f17():
 - 验收汇总进 progress.md（无独立 commit 若纯验证；有 fixture/工具修复则列 pathspec）
 
 **Interfaces:**
-- Produces: `tools/facts_backfill.py --project novel-xinghuo-vol1 [--apply]`（**dry-run 为默认**——R2-M7 对齐 plan_craft_backfill 先例与 F947 立场：默认零写入，`--apply` 才落盘）——①从修复后章节正典派生三维种子（props：24 章经手链现状 owner——含 `火纹骨哨`（那罕）与 `火纹骨哨·帖木哥支`（那罕，ch20 副本键）；counters：`鉴录名数=4`（ch9 后：陆秉文/阿六/老人/赵三）；identity：narration_name=那罕、from_ch=3、aliases=[林烽]）②memo 声明行 backfill（11 份既有声明行键形态归一 + 13 份旧备忘补 `物件@op` 行——从章节正文+registry 交叉派生；**计数行范围 R4-M1**：`计数: 鉴录名数 N+1` 仅 backfill 进 ch9/ch10 两份备忘（计数链变更章——ch9 添第四名、ch10 复核），ch17 等全书口径章不 backfill——激活规则下无声明=WARN skip，ch17 假红防线双保险）③registry 陈旧行重写（赵三行/《鉴录》行/「临」备注——**绝不整文件重生成**，rev5 R4-I2）；**行↔键匹配**（R2-M11）：`ss.prop_row_match` 用 T5 `entity_in_text` 同型匹配器对齐 registry 行键（「火纹骨哨（老驼所授·主线）」↔facts「火纹骨哨」）；facts 键无 registry 行（帖木哥支）=初见不补写 P1；骨哨主行 ch20 经手由 op 追补（transfer 老驼线→记录帖木哥交付拍）④默认 dry-run 打印 diff 零写入（`--apply` 才写）
+- Produces: `tools/facts_backfill.py --project novel-xinghuo-vol1 [--apply]`（**dry-run 为默认**——R2-M7 对齐 plan_craft_backfill 先例与 F947 立场：默认零写入，`--apply` 才落盘）——①从修复后章节正典派生三维种子（props：24 章经手链现状 owner——含 `火纹骨哨`（那罕）与 `火纹骨哨·帖木哥支`（那罕，ch20 副本键）；counters：`鉴录名数=4`（ch9 后：陆秉文/阿六/老人/赵三）；identity：narration_name=那罕、from_ch=3、aliases=[林烽]）②memo 声明行 backfill（11 份既有声明行键形态归一 + 13 份旧备忘补 `物件@op` 行——从章节正文+registry 交叉派生；**计数行范围 R4-M1/R5-I1 修正**：`计数: 鉴录名数 N+1` 仅 backfill 进 **ch9 一份**备忘（ch9 memo L4「添第四个名字」有 canon 依据；原 ch10「复核」系 R4 凭空推断——chapter-10.md 无复核/计数内容，实测否认），ch10/ch17 等章不 backfill——激活规则下无声明=WARN skip，假红防线双保险）③registry 陈旧行重写（赵三行/《鉴录》行/「临」备注——**绝不整文件重生成**，rev5 R4-I2）；**行↔键匹配**（R2-M11）：`ss.prop_row_match` 用 T5 `entity_in_text` 同型匹配器对齐 registry 行键（「火纹骨哨（老驼所授·主线）」↔facts「火纹骨哨」）；facts 键无 registry 行（帖木哥支）=初见不补写 P1；骨哨主行 ch20 经手由 op 追补（transfer 老驼线→记录帖木哥交付拍）④默认 dry-run 打印 diff 零写入（`--apply` 才写）
 - 验收 3 断言（`tests/unit/tools/test_facts_backfill.py` 内，**plan 审查 R1-C3 修正**）：绿断言用 **per-chapter 前置态种子**（G0.9 测试内构造豁免）——ch9 检查喂 count=3 前置态（ch8 后、ch9 前）、ch20 检查喂 `火纹骨哨·帖木哥支` owner=帖木哥 前置态；直接喂终态种子（count=4/双哨皆那罕）会撞 F17 总数对账与 F16 cp 合法性而假红——as-of 态 P1 由测试构造，`--as-of` CLI=P2。终态种子仍为工具交付（运行侧 ch25+ settle 消费）
 
 - [ ] **Step 1-5:** TDD；跑 `uv run python tools/facts_backfill.py --project novel-xinghuo-vol1`（默认 dry-run）贴输出进 progress.md（真实项目文件 P1 不落写——运行侧 backfill 由用户/P2 执行，本 task 交付工具+离线断言）；commit
@@ -550,6 +548,7 @@ def test_mutant_counter_dup_killed_by_f17():
 
 ## Self-Review 记录
 
+- plan 审查 R5（0C/1I/3M）修正已并入：I1 计数行 backfill 缩窄 ch9-only（ch10 复核系 R4 无据推断，chapter-10.md 实测无计数内容）；M1-M3（T2 stale 重复删/注册窗口观察注/conftest fixture）
 - plan 审查 R4（0C/1I/5M）修正已并入：I1 七键实改（R3 替换未命中遗留）；M1-M5（计数行 backfill 范围=ch9/ch10/T1 __init__/planning_view 形状断言/N+1 语义/cmd_init 锚）
 - plan 审查 R3（1C/2I/8M）修正已并入：C1 flock 嵌套死锁（save_facts 内层无锁化）/I1 七键字面清单对齐/I2 seam 顺序句改「写循环之前」；M1-M8 逐项（激活判定位置/三形态匹配器/:699 行钉/justfile target/分期差注记/P2.5 enforcement point/allowlist 措辞/ch17 前向风险已由激活规则守卫）
 - plan 审查 R2（1C/3I/8M）修正已并入：C1 seam 三站点勘误（pipeline/cli.py:_commit_staging_for_checkpoint 为 review-path 第三站点，dispatcher/cli.py 无 staging）/I2 chapter 默认 None/I3 ss.identity_row_match 入 map（七键）/I4 计数器语义+激活规则（ch17 假红消解）；M5-M12 逐项
