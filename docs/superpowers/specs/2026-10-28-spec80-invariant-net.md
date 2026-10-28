@@ -11,7 +11,7 @@
 
 | 缺陷 | L1 直接原因 | L2 系统缺口 |
 |---|---|---|
-| ch20 骨哨双源 | drafting 发明交付拍（备忘写的是钥匙+哨响一下） | prop_registry 是 write-only oracle；G4.xc 物象环对母题物象**四重失效**（旧格式豁免 13/24 备忘、registry 首列键非正文子串、转移动词闭集不覆盖「抽出/揣着」、伤口章备忘无 `- 物象:` 声明行——注 rev2：11/24 备忘有声明行但键形态与 #75 解析器失配，ch15 全角｜即例）；审计单章视野 |
+| ch20 骨哨双源 | drafting 发明交付拍（备忘写的是钥匙+哨响一下） | prop_registry 是 write-only oracle；G4.xc 物象环对母题物象**四重失效**（旧格式豁免 13/24 备忘、registry 首列键非正文子串、转移动词闭集不覆盖「抽出/揣着」、伤口章备忘无 `- 物象:` 声明行——注 rev2/R5-M2：11/24 备忘有声明行，其中 ch15/16 全角｜形态与 #75 ASCII 管解析器失配，余 9 份可解析）；审计单章视野 |
 | ch19/20「林烽」回退 | planning 被关系档「林烽-X」键污染 | 叙事名约定无载体无门检；XC 只验白名单 |
 | 《鉴录》计数互斥 | 相邻束 planning 各自猜数 | 计数无规范载体、无声明位、无单调门 |
 | 金手指休眠 22 章 | 节点表 ch3-28 零轮回拍 | 卷级体感未分解为章级触点；无节奏门 |
@@ -76,7 +76,7 @@ INDEX 活跃 spec 新增必填登记节：「触及的不变量维度」（rev3 
 
 - **F15 叙事名**：facts/identity `narration_name`（本卷=那罕，携带 `from_ch` 生效章界——rev2 M5，卷中合法改名留路径）+ 别名集（林烽）——name_registry 现状无法派生（登记名「临」备注「全卷一致」与实际叙事名相悖、旌名行含两个不同人物），显式载体必要；G4.xc `narration_name`——剥对白叙述段出现别名即 FAIL（备忘 `[旧名回溯]` 豁免闪回）。**快照豁免**（rev2 M1）：`*pre-rev*`/`*snapshot*` 文件不扫（G2 快照豁免先例；pre-rev 快照叙述名=林烽属修复前正史）。**facts 缺席降级**（rev4 R3-I2）：facts/identity 缺席 ⇒ skip + WARN 可见（XC.registry 先例），不硬 FAIL 无 facts 项目；新项目 bootstrap=pipeline-init 空种子（P1 钉此一途）；**空种子语义**（rev5 R4-M2）：键缺失 ≡ 维缺失 ⇒ WARN（防空洞 vacuous pass——write-only oracle 死法不复现）。
 - **F16 物象经手链**：memo 母题物象行结构化 `物件@op`（持有/传递/获得/遗失）；G4.cp 声明对 facts 现态合法；G4.cd 正文「非 owner 人名+物件+交接动词共现」未声明传递即 FAIL（动词族须覆盖「抽出/揣着」形态——#75 闭集对本伤口假阴性）；settle op 经状态机校验（F16s——**纯读者形态**，rev5 R4-M4：对 sidecar ops 做 simulate/inspect 对照 facts 现态，无 mutation，幂等律无虞；写侧拒收=§1.1 fail-fast）。**XC 关系**（rev2 I1）：facts 在场时 G4.cd（F16）吸收 XC 不变量 4 的 prose 扫描职责（键=facts 实体名，动词族扩容）；facts 缺席时 XC 不变量 4 保留为无 facts 回退层**全 severity 运行**（rev4 R3-M5 订正——回退检查不降级；WARN 仅指 facts 缺席事实本身可见，XC.registry 先例）。**facts 缺席降级**（rev4 R3-I2）：与 F15 同律——skip 新检查 + WARN，不硬 FAIL。**实体副本语义**（rev1）：同母题新实体（修复后 ch20 帖木哥之哨与老驼之哨并存）与非法再获得必须可区分（机制留 plan；硬约束：修复后 ch20 双实体并存语料必须全绿）。**契约升级纪律**（rev1）：新备忘必填字段对 in-flight regen-vol1（24 章已结算）须同批带 backfill/生效策略，旧备忘豁免必须 WARN 可见——禁止静默跳过（#75 旧格式豁免 13/24 静默死法不重演）。**声明词汇超集**（rev2 I7 订正）：既有 `- 物象:` 行（11/24 备忘）与「**母题物象**:」散文并存——G4.cp 解析目标与 backfill 范围（11 声明行备忘键形态归一 + 13 旧格式备忘）plan 阶段钉死。
-- **F17 计数器**：facts/counters 单调；memo 必须声明 `计数: <名> N+1`（planning 从查询面读）；G4.cd 正文计数词=声明值。**计数词法**（rev2 M2）：序数族「第N个名字」+ 总数族「N个名字/N名字」两形态，计数名从 facts/counters 键派生（P1 仅《鉴录》名数一计数）。**三方对账**（rev4 R3-M11）：prose 总数族 ≡ facts 现值（counter-dup 的击杀面——ch9 pre-rev「第一页两个名字」vs 基线 3）；memo `N+1` ≡ facts 现值+1；prose 序数 ≡ memo 声明值。**facts 缺席降级**（rev4 R3-I2）：与 F15/F16 同律。
+- **F17 计数器**：facts/counters 单调；memo 必须声明 `计数: <名> N+1`（planning 从查询面读）；G4.cd 正文计数词=声明值。**计数词法**（rev2 M2）：序数族「第N个名字」+ 总数族「N个名字/N名字」两形态，计数名从 facts/counters 键派生（P1 仅《鉴录》名数一计数）；页范围总数锚（「第一页三个名字」类）与全局计数器的 scope 锚定处理（忽略或页键页内计数）plan 阶段钉死——rev5 R5-M3。**三方对账**（rev4 R3-M11）：prose 总数族 ≡ facts 现值（counter-dup 的击杀面——ch9 pre-rev「第一页两个名字」vs 基线 3）；memo `N+1` ≡ facts 现值+1；prose 序数 ≡ memo 声明值。**facts 缺席降级**（rev4 R3-I2）：与 F15/F16 同律。
 - **F18 体感触点节奏**：genre-config `pacing.core_motif_touch: {motif, max_gap:5}`（rev2 M4：随同 genre-config schema/validator 注册）；volume_outlining 增「卷级体感→章级触点拍」分解步；G4.cp 滑窗检查。
 - **F19 审计视野**：continuity/foreshadowing 契约 reads 增 facts 查询面产物（props/identity/counters 完备集）。
 - **F20 术后全门**：`just gates-sweep <dir> --chapter N`（全门+叙事名清扫+物象/计数检查）；监控侧绕行手术后强制。
@@ -88,7 +88,7 @@ INDEX 活跃 spec 新增必填登记节：「触及的不变量维度」（rev3 
 
 ## 6. 分期
 
-- **P1（本次 SDD 代码交付边界）**：facts store 骨架（props/counters/identity 三维）+ 查询面 + F15/F16/F17 + 普查文档 + lint_invariant_coverage + **真实伤口 mutant 导入**（含 rev1 的 counter-dup ch8 基线补全）。**种子源**（rev2 I6）：从修复后章节正典派生（§1.3），registry 陈旧不入境。**settle 双写自 P1 起**（rev2 C1）：settle 对三维发结构化 op（facts 应用+状态机校验）并照旧写 Markdown 行；settle 契约变更按契约升级纪律同批带 regen-vol1 backfill（op 追补种子）。验收：三 mutant 全 FAIL；ch20/ch9 修复后语料全绿（F947 离线化：fixtures 断言，不涉真实 dispatch；**绿语料口径=修复章节 + backfill 声明备忘/facts op 证据**，非裸章节——rev2 I6）。**契约升级合规**：备忘新字段 backfill/生效策略同批交付。
+- **P1（本次 SDD 代码交付边界）**：facts store 骨架（props/counters/identity 三维）+ 查询面 + F15/F16/F17 + 普查文档 + lint_invariant_coverage + **真实伤口 mutant 导入**（含 rev1 的 counter-dup ch8 基线补全）。**种子源**（rev2 I6）：从修复后章节正典派生（§1.3），registry 陈旧不入境。**settle 双写自 P1 起**（rev2 C1；**双写面=props 唯一**——rev5 R5-M1 呼应 §1.1 R3-M4：identity=对账、counters=纯 facts）：settle 对三维发结构化 op（facts 应用+状态机校验）并照旧写 Markdown 行；settle 契约变更按契约升级纪律同批带 regen-vol1 backfill（op 追补种子）。验收：三 mutant 全 FAIL；ch20/ch9 修复后语料全绿（F947 离线化：fixtures 断言，不涉真实 dispatch；**绿语料口径=修复章节 + backfill 声明备忘/facts op 证据**，非裸章节——rev2 I6）。**契约升级合规**：备忘新字段 backfill/生效策略同批交付。
 - **P2**：F18/F19/F20 + 金丝雀 + 体感触点拍生成 + P1 复评通过的后续束实弹验证。**运行验证阶段**（rev1 明确）：验收 4（ch25-26 实弹束）与验收 5（G3.4 复评 round 2 ≥86）属本阶段运行侧动作（付费 dispatch + 写项目状态），不在 SDD 代码交付边界内——P1 交付其**框架就绪**（planning 可读查询面、memo 契约已扩、门检零误报由 mutant+修复语料双证）。
 - **P3**：promises/情绪等剩余维度迁入 facts；Markdown 全投影化；settle 增量 op 全面替代整档重写。
 
