@@ -251,6 +251,10 @@ convention = "google"
 # 期相/触及的不变量维度 headers) — same category as lint_truth_pool.
 "tools/lint_invariant_coverage.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/tools/test_lint_invariant_coverage.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #80 T13: backfill rewrites/backfilled declaration lines quote the live
+# registry/memo vocabulary (火纹骨哨/鉴录名数/历史补录) — data, not drift.
+"tools/facts_backfill.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_facts_backfill.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #80 T11 mutant CI: wound-vocabulary docstrings/strings (same category).
 "tests/gates/test_invariant_mutants.py" = ["RUF001", "RUF002", "RUF003"]
 
