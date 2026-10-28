@@ -118,6 +118,16 @@ def check_prop_handoffs(text: str, memo_text: str, props: dict[str, dict[str, st
 
 
 _COUNTER_DECL_RE = re.compile(r"^[-*]\s*计数[：:]\s*(\S+)\s+(\d+)\s*\+\s*1\s*$", re.MULTILINE)
+
+
+def _re_total(word: str) -> re.Pattern[str]:
+    return re.compile(rf"([一二两三四五六七八九十百千\d]{{1,5}}){word}")
+
+
+def _re_ordinal(word: str) -> re.Pattern[str]:
+    return re.compile(rf"第([一二两三四五六七八九十百千\d]{{1,5}})个?{word}")
+
+
 _TOTAL_RE = re.compile(r"([一二两三四五六七八九十百千\d]{1,5})个名字")
 _ORDINAL_RE = re.compile(r"第([一二两三四五六七八九十百千\d]{1,5})个名字")
 
@@ -152,15 +162,24 @@ def check_counter_reconciliation(
     from shenbi.gates.g4.cross_chapter import cn_amount
 
     def _amount(raw: str) -> int | None:
-        # 两 (colloquial 2) is outside _cn_amount's vocabulary — normalize
+        # 两 (colloquial 2) is outside cn_amount's vocabulary — normalize
         return cn_amount("二" + raw[1:] if raw.startswith("两") else raw)
 
+    # M1 (audit-T7): counter name -> prose word family; unmapped counters
+    # skip the prose faces (no cross-counter interference). P1 registers
+    # the single 鉴录名数 counter.
+    _WORD_FAMILY: dict[str, tuple[str, ...]] = {
+        "鉴录名数": ("名字",),
+    }
     issues: list[str] = []
     declared = dict(parse_counter_declarations(memo_text))
     for name, declared_val in declared.items():
         info = counters.get(name)
         if info is None:
-            continue  # unknown counter — settle/oracle problem, not prose
+            continue  # unknown counter — flagged at the call site (C1 wiring)
+        family = _WORD_FAMILY.get(name)
+        if not family:
+            continue  # no word family mapped — prose faces skip (M1)
         facts_val = int(info.get("value", 0))
         if declared_val != facts_val + 1:
             issues.append(
@@ -168,26 +187,28 @@ def check_counter_reconciliation(
                 f" ≠ facts 现值 {facts_val}+1={facts_val + 1}"
                 "——计数链单调断裂（修复者: planning+settling）"
             )
-        for m in _TOTAL_RE.finditer(text):
-            amount = _amount(m.group(1))
-            if amount is None:
-                continue
-            if amount not in (facts_val, declared_val):
-                issues.append(
-                    f"cd.counter:「{name}」正文总数「{m.group(0)}」={amount}"
-                    f" ∉ {{facts {facts_val}, 声明 {declared_val}}}"
-                    "——总数与计数链互斥（修复者: drafting）"
-                )
-        for m in _ORDINAL_RE.finditer(text):
-            amount = _amount(m.group(1))
-            if amount is None:
-                continue
-            if amount != declared_val:
-                issues.append(
-                    f"cd.counter:「{name}」正文序数「{m.group(0)}」={amount}"
-                    f" ≠ 备忘声明值 {declared_val}"
-                    "——序数与声明错位（修复者: drafting）"
-                )
+        for word in family:
+            for m in _re_total(word).finditer(text):
+                amount = _amount(m.group(1))
+                if amount is None:
+                    continue
+                if amount not in (facts_val, declared_val):
+                    issues.append(
+                        f"cd.counter:「{name}」正文总数「{m.group(0)}」={amount}"
+                        f" ∉ {{facts {facts_val}, 声明 {declared_val}}}"
+                        "——总数与计数链互斥（修复者: drafting）"
+                    )
+        for word in family:
+            for m in _re_ordinal(word).finditer(text):
+                amount = _amount(m.group(1))
+                if amount is None:
+                    continue
+                if amount != declared_val:
+                    issues.append(
+                        f"cd.counter:「{name}」正文序数「{m.group(0)}」={amount}"
+                        f" ≠ 备忘声明值 {declared_val}"
+                        "——序数与声明错位（修复者: drafting）"
+                    )
     return issues
 
 
@@ -384,6 +405,7 @@ def g4_chapter_drafting(
     # facts 缺席/空 ⇒ WARN 可见 skip（rev4 R3-I2 三律；audit-T4 I3 先例：
     # 损坏文件 raise 保持响亮）。备忘路径 = plans/chapter-N-plan.md。
     _props_facts: dict[str, dict[str, str]] | None = None
+    _counters_facts: dict[str, dict[str, int]] | None = None
     if project_dir:
         from shenbi.facts.enums import FactsDim
         from shenbi.facts.store import load_facts
@@ -391,6 +413,10 @@ def g4_chapter_drafting(
         _loaded = load_facts(Path(project_dir), FactsDim.PROPS)
         if _loaded is not None and not _loaded.is_empty:
             _props_facts = {k: {"owner": v.owner} for k, v in _loaded.props().items()}
+        # spec #80 T7 F17: counters oracle（空种子≡缺席，R4-M2）
+        _cn_loaded = load_facts(Path(project_dir), FactsDim.COUNTERS)
+        if _cn_loaded is not None and not _cn_loaded.is_empty:
+            _counters_facts = {k: {"value": v.value} for k, v in _cn_loaded.counters().items()}
 
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
@@ -400,6 +426,14 @@ def g4_chapter_drafting(
 
         content = pf.read_text(encoding="utf-8")
         wc = word_count_md(str(pf))
+
+        # per-file memo join (F16/F17 share)
+        _memo: str | None = None
+        _ch_m = re.search(r"chapter-(\d+)", Path(fp).name)
+        if project_dir and _ch_m:
+            _memo_path = Path(project_dir) / "plans" / f"chapter-{_ch_m.group(1)}-plan.md"
+            if _memo_path.is_file():
+                _memo = _memo_path.read_text(encoding="utf-8")
 
         # ── spec #80 T5 F16 G4.cd — 正文无源交付拍（per-chapter）──
         if _props_facts is None:
@@ -412,14 +446,42 @@ def g4_chapter_drafting(
                 }
             )
         else:
-            _memo = None
-            _ch_m = re.search(r"chapter-(\d+)", Path(fp).name)
-            if project_dir and _ch_m:
-                _memo_path = Path(project_dir) / "plans" / f"chapter-{_ch_m.group(1)}-plan.md"
-                if _memo_path.is_file():
-                    _memo = _memo_path.read_text(encoding="utf-8")
             for issue in check_prop_handoffs(content, _memo or "", _props_facts):
                 mf.append(f"cd.prop_handoff:{fp}:{issue}")
+
+        # ── spec #80 T7 F17 — 计数器三方对账（激活判定在调用点，R3-M1）──
+        # M1（audit-T7）：计数名→prose 词族映射（未映射计数器跳过 prose 面，
+        # 多计数器不串扰）；M2：鉴录名数=那罕添加名口径（R2-I4a）——ch17 全书
+        # 口径靠 no_decl 跳过，backfill 范围钉 ch9-only（T13）
+        if _counters_facts is None:
+            c.append(
+                {
+                    "id": "cd.counter",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": "no_facts — counters facts absent/empty; reconciliation skipped (degradation visible)",
+                }
+            )
+        else:
+            _memo_decls = parse_counter_declarations(_memo) if _memo else []
+            if not _memo_decls:
+                c.append(
+                    {
+                        "id": "cd.counter",
+                        "file": fp,
+                        "s": GateStatus.WARN,
+                        "r": "no_decl — memo declares no counters this chapter; reconciliation not activated (legacy-memo compat, ch17-class false-red guard)",
+                    }
+                )
+            else:
+                _unknown = {n for n, _v in _memo_decls} - set(_counters_facts)
+                for _u in sorted(_unknown):
+                    mf.append(
+                        f"cd.counter:{fp}:「{_u}」备忘声明了 facts 未种子的计数器"
+                        "——先补 facts 种子（修复者: settling）"
+                    )
+                for issue in check_counter_reconciliation(content, _memo or "", _counters_facts):
+                    mf.append(f"cd.counter:{fp}:{issue}")
 
         # PRE_WRITE_CHECK
         if "## PRE_WRITE_CHECK" not in content:

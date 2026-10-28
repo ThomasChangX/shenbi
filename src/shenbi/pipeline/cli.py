@@ -696,7 +696,16 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
             targets = []
             if cp.type == CheckpointType.PER_CHAPTER:
                 log.warning("per_chapter_no_staged_truth", chapter=cp.chapter)
-        targets += staged_decisions_targets(project_dir, "shenbi-state-settling", cp.chapter)
+        # spec #80 T8 settle 双写：facts_ops 在写循环之前应用——拒收 ⇒
+        # FactsOpRejectedError 上抛，approve 失败（零写入、staging 保留，
+        # 人工 reject 后重派修正 sidecar ops）。
+        from shenbi.facts.settle_ops import apply_sidecar_ops
+        from shenbi.pipeline.checkpoint import STAGING_DIR
+
+        settle_sidecars = staged_decisions_targets(project_dir, "shenbi-state-settling", cp.chapter)
+        targets += settle_sidecars
+        for rel in settle_sidecars:
+            apply_sidecar_ops(project_dir, project_dir / STAGING_DIR / rel)
     else:
         return
 
@@ -1149,7 +1158,24 @@ def cmd_review(args: argparse.Namespace) -> int:
             # output is explicitly discarded (same audited predicate as
             # reject), NOT committed and then overwritten by re-dispatch.
             if decision == ReviewDecision.APPROVE:
-                _commit_staging_for_checkpoint(project_dir, cp)
+                from shenbi.exceptions import FactsOpRejectedError
+
+                try:
+                    _commit_staging_for_checkpoint(project_dir, cp)
+                except FactsOpRejectedError as exc:
+                    # spec #80 T8：零写入、staging 保留——检查点未消费，
+                    # 人工 reject 后重派修正 sidecar ops。
+                    emit_json(
+                        {
+                            "status": CommandStatus.ERROR,
+                            "message": (
+                                f"settle 双写 facts_ops 拒收：{exc}"
+                                "——commit 未发生；reject 本检查点后重派"
+                                "修正 decisions sidecar 的 facts_ops"
+                            ),
+                        }
+                    )
+                    return 1
             elif decision == ReviewDecision.MODIFY:
                 # Contract (C30 audit-T1 I2): human edits must land on the
                 # COMMITTED artifact path or travel via modify_feedback —

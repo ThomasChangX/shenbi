@@ -808,6 +808,15 @@ G4_CHECK_MAP: dict[str, G4Severity] = {
     "cp.sections": G4Severity.HARD,
     "cp.chapter_role": G4Severity.HARD,
     "cp.s7_hook_ops": G4Severity.HARD,
+    # spec #80 invariant-net: F15/F16/F17 + G4.ss 双写对账，全部硬失败
+    # （发射前缀见 cross_chapter/chapter_planning/chapter_drafting/state_settling）
+    "XC.narration_name": G4Severity.HARD,
+    "cd.prop_handoff": G4Severity.HARD,
+    "cp.prop_decl": G4Severity.HARD,
+    "cd.counter": G4Severity.HARD,
+    "ss.facts_ops": G4Severity.HARD,
+    "ss.prop_row_match": G4Severity.HARD,
+    "ss.identity_row_match": G4Severity.HARD,
     "transition": G4Severity.SOFT,
     "fatigue": G4Severity.SOFT,
     "cd.chapter_end_hook": G4Severity.SOFT,
@@ -1486,6 +1495,33 @@ def staged_decisions_targets(project_dir: Path, skill: str, chapter: int | None)
     return targets
 
 
+def apply_settle_facts_ops(
+    state: PipelineState, project_dir: Path, skill: str, chapter: int | None
+) -> str | None:
+    """Apply sidecar ``facts_ops`` before a settle commit write loop (spec #80 T8).
+
+    成功或无 ``facts_ops`` 键(旧 settle 兼容期 no-op)时返回 None。拒收时
+    落盘指向性 retry_feedback 并返回拒收消息, facts 应用自身零写入,
+    staging 保留供重试——调用方中止各自写循环并路由到 settle 审查
+    checkpoint(settle 门 FAIL, attempts/escalation 既有协议)。
+    """
+    from shenbi.exceptions import FactsOpRejectedError
+    from shenbi.facts.settle_ops import apply_sidecar_ops
+    from shenbi.pipeline.checkpoint import STAGING_DIR
+
+    for rel in staged_decisions_targets(project_dir, skill, chapter):
+        try:
+            apply_sidecar_ops(project_dir, project_dir / STAGING_DIR / rel)
+        except FactsOpRejectedError as exc:
+            key = _retry_key(chapter if chapter is not None else 1, skill)
+            state.chapter_loop.retry_feedback[key] = (
+                f"settle 双写 facts_ops 拒收：{exc}"
+                "——重派时修正 decisions sidecar 的 facts_ops，使其与 truth/facts 现态一致"
+            )
+            return str(exc)
+    return None
+
+
 def _mark_staged_for_checkpoint(project_dir: Path, step: ChapterStep, chapter: int) -> None:
     """Mark a staging-bearing checkpoint's staged products (C30 R1, F318).
 
@@ -1868,6 +1904,10 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
 
     if state.config.state_settle_review_required:
         return False
+    # spec #80 T8: facts_ops 先验——拒收在任何写之前中止（零写入、staging
+    # 保留），False 让调用方升起 STATE_SETTLE 审查 checkpoint 供重试。
+    if apply_settle_facts_ops(state, project_dir, "shenbi-state-settling", chapter) is not None:
+        return False
     staging_truth = project_dir / STAGING_DIR / "truth"
     if staging_truth.exists():
         # sidecar via the shared contract-driven helper (audit-T5 C3; final
@@ -2112,6 +2152,24 @@ def _advance(
         elif (
             step.checkpoint == CheckpointType.STATE_SETTLE and not cfg.state_settle_review_required
         ):
+            # spec #80 T8: facts_ops 先验——拒收在任何写之前中止（零写入、
+            # staging 保留），改走 checkpoint 升起分支供 settle 重试。
+            _rejection = apply_settle_facts_ops(state, project_dir, step.skill, chapter)
+            if _rejection is not None:
+                artifact = (
+                    resolve_chapter_path(step.output_path, chapter)
+                    if step.output_path
+                    else f"chapter-{chapter}/{step.name}"
+                )
+                set_checkpoint(
+                    state,
+                    step.checkpoint,
+                    chapter=chapter,
+                    artifact=artifact,
+                    context=f"settle 双写 facts_ops 拒收：{_rejection}",
+                )
+                _mark_staged_for_checkpoint(project_dir, step, chapter)
+                return True
             from shenbi.pipeline.checkpoint import STAGING_DIR, clear_staging
 
             staging_truth = project_dir / STAGING_DIR / "truth"

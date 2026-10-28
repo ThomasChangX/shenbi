@@ -632,6 +632,111 @@ def _check_selections_coverage(fps: list[str], rd: str | None) -> list[str]:
     ]
 
 
+def g4_state_settling_check(project_dir: Path, sidecar_path: Path | None) -> list[str]:
+    """Spec #80 T8 G4.ss — settle dual-write read-side checks (PURE reader).
+
+    ① sidecar lacks facts_ops while truth/prop_registry gained rows this
+      settle -> compat-period observation (caller decides WARN)
+    ② ss.prop_row_match: declared op outcome vs the markdown registry row
+      owner (facts canonical — divergence FAIL)
+    ③ ss.identity_row_match: facts alias set vs name_registry 别名/旌名
+      rows (登记名 prose remarks out of scope, rev5 R4-I2)
+    ④ ss.facts_ops: F16s simulate — dry-run each op against current facts;
+      rejection-form ops FAIL (and require a sidecar rationale, P2.5)
+    """
+    issues: list[str] = []
+    facts_dir = Path(project_dir) / "truth" / "facts"
+    props_file = facts_dir / "props.json"
+    identity_file = facts_dir / "identity.json"
+    has_props = props_file.is_file()
+    has_identity = identity_file.is_file()
+    if sidecar_path is None or not sidecar_path.is_file():
+        return issues
+    import json as _json
+
+    try:
+        doc = _json.loads(sidecar_path.read_text(encoding="utf-8"))
+    except (OSError, _json.JSONDecodeError):
+        return issues
+    facts_ops = doc.get("facts_ops") or {}
+
+    from shenbi.facts.schemas import FactsFile, PropTransferEvent
+    from shenbi.facts.store import apply_prop_op
+    from shenbi.exceptions import FactsOpRejectedError
+
+    # ② props op↔row reconciliation
+    prop_ops = facts_ops.get("props") or []
+    if has_props and prop_ops:
+        current = FactsFile.model_validate_json(props_file.read_text(encoding="utf-8"))
+        for raw in prop_ops:
+            try:
+                ev = PropTransferEvent.model_validate(raw)
+                _after = apply_prop_op(current, ev)  # simulate (pure copy)
+            except FactsOpRejectedError as exc:
+                # ④ rejection-form op: FAIL + P2.5 rationale requirement
+                issues.append(
+                    f"ss.facts_ops:非法 op（{exc.reason}）——该形态必须携带非空 rationale（P2.5）"
+                )
+                continue
+            _row_owner = _registry_row_owner(project_dir, ev.prop)
+            if _row_owner is not None and _row_owner != ev.to:
+                issues.append(
+                    f"ss.prop_row_match:「{ev.prop}」op 终态 owner「{ev.to}」"
+                    f"≠ registry 行 owner「{_row_owner}」"
+                    "——facts 为 canonical，修正 registry 行（修复者: settling）"
+                )
+    elif not prop_ops:
+        pass  # ① compat period: no ops — caller-level WARN material
+
+    # ③ identity reconciliation
+    identity_ops = facts_ops.get("identity") or []
+    if has_identity and identity_ops:
+        facts_id = FactsFile.model_validate_json(identity_file.read_text(encoding="utf-8"))
+        fact = facts_id.identity()
+        if fact is not None:
+            _names = _name_registry_alias_rows(project_dir)
+            for extra in _names - set(fact.aliases):
+                issues.append(
+                    f"ss.identity_row_match:name_registry 别名行「{extra}」"
+                    "不在 facts 别名集——facts 为 canonical，重生成该行"
+                    "（修复者: settling）"
+                )
+    return issues
+
+
+def _registry_row_owner(project_dir: Path, prop: str) -> str | None:
+    """prop_registry.md 行 owner（键宽松匹配：行首列包含 prop 或其 ·-stem）。"""
+    import re as _re
+
+    path = Path(project_dir) / "truth" / "prop_registry.md"
+    if not path.is_file():
+        return None
+    stem = prop.split("·", 1)[0]
+    for line in path.read_text(encoding="utf-8").splitlines():
+        m = _re.match(r"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|", line)
+        if not m:
+            continue
+        key, owner = m.group(1), m.group(2)
+        if prop in key or stem in key:
+            return owner
+    return None
+
+
+def _name_registry_alias_rows(project_dir: Path) -> set[str]:
+    """name_registry 别名/旌名行的名集合（登记名 prose 备注出范围）。"""
+    import re as _re
+
+    path = Path(project_dir) / "truth" / "name_registry.md"
+    if not path.is_file():
+        return set()
+    out: set[str] = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        m = _re.match(r"^\|\s*(别名|旌名)\s*\|\s*([^|]+?)\s*\|", line)
+        if m:
+            out.add(m.group(2))
+    return out
+
+
 def g4_state_settling(
     fps: list[str],
     rd: str | None = None,
