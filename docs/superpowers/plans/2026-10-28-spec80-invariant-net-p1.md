@@ -130,6 +130,7 @@ def test_copy_entity_is_a_new_key_not_reacquisition():
 - Modify: `src/shenbi/facts/store.py`（追加 IO 函数）
 - Modify: `src/shenbi/pipeline/cli.py` 或 init 路径（pipeline-init 空种子——先定位 init 落 truth/ 的函数再钉文件）
 - Test: `tests/unit/facts/test_store_io.py`
+- Create: `tests/unit/facts/conftest.py`（`props_file` 共享 fixture——R6-M1）
 
 **Interfaces:**
 - Consumes: `truth_io.truth_file_flock(path)`（`src/shenbi/pipeline/truth_io.py:123` 既有 flock）
