@@ -14,6 +14,8 @@ carries one novel's proper nouns as its only source.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -44,6 +46,9 @@ class CrossChapterContext:
     # 扫描（含 memo hop 检查子段）整体让位给 G4.cd（F16）——不留双 oracle
     # 并行；facts 缺席/空时本检查照旧全 severity 运行（无 facts 回退层）。
     props_facts: dict[str, str] | None = None
+    # spec #80 F15: identity fact（narration_name/from_ch/aliases 平视图）；
+    # 缺席/空 ⇒ 本检查 WARN skip（非 FAIL）。
+    identity_fact: Mapping[str, object] | None = None
 
 
 def load_name_registry(registry_dir: Path | None) -> tuple[tuple[str, ...], tuple[str, ...]]:
@@ -564,6 +569,52 @@ def _expected_prop_owner(
     return expected, advanced_by
 
 
+_DIALOGUE_RE = re.compile(r"[「『][^」』]*[」』]")
+
+
+def strip_dialogue(text: str) -> str:
+    """Remove 「」/『』 dialogue spans (spec #80 F15 narration-scan basis)."""
+    return _DIALOGUE_RE.sub("", text)
+
+
+def check_narration_name(
+    text: str,
+    identity: Mapping[str, object],
+    memo_text: str,
+    *,
+    chapter: int | None = None,
+) -> list[str]:
+    """F15 — narration-name regression scan (spec #80 §4).
+
+    Strips dialogue, then flags any alias appearing in narration.
+    ``[旧名回溯]`` memo marker exempts the chapter (flashback, simplified
+    whole-chapter form in P1). ``chapter < from_ch`` = pre-rename window:
+    the old name is the then-current narration name (legal rename path,
+    rev2 M5). ``chapter=None`` disables the boundary check (alias flags).
+    """
+    aliases_raw = identity.get("aliases")
+    aliases = [str(a) for a in aliases_raw] if isinstance(aliases_raw, list) else []
+    if not aliases:
+        return []
+    if "[旧名回溯]" in memo_text:
+        return []
+    from_ch_raw = identity.get("from_ch")
+    from_ch = from_ch_raw if isinstance(from_ch_raw, int) else 1
+    if chapter is not None and chapter < from_ch:
+        return []
+    narration = strip_dialogue(text)
+    issues: list[str] = []
+    for alias in aliases:
+        if alias in narration:
+            issues.append(
+                f"XC.narration_name:叙述段出现别名「{alias}」"
+                f"（当前叙事名「{identity.get('narration_name', '?')}」"
+                f"自 ch{from_ch} 生效；闪回请用备忘 [旧名回溯] 声明）"
+                "——修复者: drafting"
+            )
+    return issues
+
+
 def check_cross_chapter(
     chapter_path: Path,
     prev_path: Path | None,
@@ -638,6 +689,16 @@ def check_cross_chapter(
         if hits:
             issues.append("称谓违例（修复者: planning+drafting）: " + "; ".join(hits[:2]))
     issues.extend(reserved_name_hijack_hits(cur_text, reserved))
+
+    # ── spec #80 F15 叙事名（剥对白叙述段别名扫描；首章亦跑）──
+    if ctx.identity_fact:
+        _ch_num_f15 = None
+        _ch_m15 = re.search(r"chapter-(\d+)", chapter_path.name)
+        if _ch_m15:
+            _ch_num_f15 = int(_ch_m15.group(1))
+        issues.extend(
+            check_narration_name(cur_text, ctx.identity_fact, memo_text, chapter=_ch_num_f15)
+        )
 
     # ── 不变量 4: 物象 owner 链（正文唯一真值；经手事件还原；首章亦跑）──
     # Round-2 fix: spec 或-rule——plain 提及（无经手）视 owner 未变，合法；
@@ -820,10 +881,38 @@ def g4_cross_chapter(
                         ),
                     }
                 )
+    # spec #80 F15: identity oracle（空种子≡缺席——R4-M2）
+    _identity: dict[str, object] | None = None
+    if project_dir:
+        from shenbi.facts.enums import FactsDim
+        from shenbi.facts.store import load_facts as _lf
+
+        _id_loaded = _lf(Path(project_dir), FactsDim.IDENTITY)
+        if _id_loaded is not None and not _id_loaded.is_empty:
+            _fact = _id_loaded.identity()
+            if _fact is not None:
+                _identity = {
+                    "narration_name": _fact.narration_name,
+                    "from_ch": _fact.from_ch,
+                    "aliases": list(_fact.aliases),
+                }
+        if _identity is None:
+            c.append(
+                {
+                    "id": "XC.narration_name",
+                    "file": "-",
+                    "s": GateStatus.WARN,
+                    "r": "no_facts — identity facts absent/empty; F15 narration scan skipped (degradation visible)",
+                }
+            )
+
     for fp in fps or []:
         ch_path = Path(fp)
         if not ch_path.is_absolute() and rd:
             ch_path = Path(resolve_input_path(fp, rd))
+        # spec #80 F15 快照豁免（rev2 M1）：pre-rev/snapshot = 修复前正史
+        if "*pre-rev*" in fp or "pre-rev" in ch_path.name or "snapshot" in ch_path.name:
+            continue
         if not ch_path.is_file():
             mf.append(f"XC.not_found:{fp}")
             continue
@@ -845,6 +934,7 @@ def g4_cross_chapter(
             project_dir=Path(project_dir) if project_dir else None,
             registry_dir=(Path(project_dir) / "truth") if project_dir else None,
             props_facts=_pf,
+            identity_fact=_identity,
         )
         # 编号断档：N>1 而前章缺席 → 时间锚/POV 基线丢失，降级须可见
         if prev is None and ch_num_m and int(ch_num_m.group(1)) > 1:
