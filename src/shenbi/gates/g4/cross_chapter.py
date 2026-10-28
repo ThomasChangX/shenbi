@@ -906,6 +906,23 @@ def g4_cross_chapter(
                 }
             )
 
+    # spec #80 T5: props facts oracle（空种子==缺席——R4-M2）；全分支审查：单次
+    # 加载置循环外（原每章重读 props.json N 次），ctx 与 fp 无关一并前置
+    _pf: dict[str, str] | None = None
+    if project_dir:
+        from shenbi.facts.enums import FactsDim
+        from shenbi.facts.store import load_facts
+
+        _pf_loaded = load_facts(Path(project_dir), FactsDim.PROPS)
+        if _pf_loaded is not None and not _pf_loaded.is_empty:
+            _pf = {k: v.owner for k, v in _pf_loaded.props().items()}
+    ctx = CrossChapterContext(
+        project_dir=Path(project_dir) if project_dir else None,
+        registry_dir=(Path(project_dir) / "truth") if project_dir else None,
+        props_facts=_pf,
+        identity_fact=_identity,
+    )
+
     for fp in fps or []:
         ch_path = Path(fp)
         if not ch_path.is_absolute() and rd:
@@ -921,21 +938,6 @@ def g4_cross_chapter(
         memo = None
         if project_dir and ch_num_m:
             memo = Path(project_dir) / "plans" / f"chapter-{ch_num_m.group(1)}-plan.md"
-        # spec #80 T5: props facts oracle (empty seed == absent — R4-M2)
-        _pf: dict[str, str] | None = None
-        if project_dir:
-            from shenbi.facts.enums import FactsDim
-            from shenbi.facts.store import load_facts
-
-            _pf_loaded = load_facts(Path(project_dir), FactsDim.PROPS)
-            if _pf_loaded is not None and not _pf_loaded.is_empty:
-                _pf = {k: v.owner for k, v in _pf_loaded.props().items()}
-        ctx = CrossChapterContext(
-            project_dir=Path(project_dir) if project_dir else None,
-            registry_dir=(Path(project_dir) / "truth") if project_dir else None,
-            props_facts=_pf,
-            identity_fact=_identity,
-        )
         # 编号断档：N>1 而前章缺席 → 时间锚/POV 基线丢失，降级须可见
         if prev is None and ch_num_m and int(ch_num_m.group(1)) > 1:
             log.warning("xc_prev_missing", chapter=int(ch_num_m.group(1)))

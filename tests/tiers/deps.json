@@ -333,7 +333,7 @@
     "src/shenbi/text/recall_weight.py": "sha256:7bb961e413df387f5dfae56d303ef7807c20e9be6ded2ce05e2814d338406550",
     "src/shenbi/facts/store.py": "sha256:895b43787f4dd11e71d023c6a583f274fdde0f9163aeefa4f749ee8bd358397c",
     "src/shenbi/facts/enums.py": "sha256:250e6961426f3edf88f4189b10bd13c161d3a778906844f1c6c42ecbf0e850a0",
-    "src/shenbi/facts/query.py": "sha256:68ccd83b0ca51598594df80991cc3862a50092fe96e764613bc22fe1c24f322e",
+    "src/shenbi/facts/query.py": "sha256:d5f99660f912c8c6bb0ab8f8bfad928768b88672b39b4a877dbb01ef875fefe8",
     "src/shenbi/facts/__init__.py": "sha256:8b32995663b82fcb20cc079b2ee27a356aef94b21d7e37b25172a659bd1803a9",
     "src/shenbi/facts/schemas.py": "sha256:a31b62159d84a09527f8c6f11ec7a16b073b79f22f9857e10f436feebb0aede5",
     "src/shenbi/facts/cli.py": "sha256:012712edcc9ef8a61a7822619dcc303959d15159d7ea98d750b7f62096423def",
@@ -399,7 +399,7 @@
     "src/shenbi/gates/g4/style_polishing.py": "sha256:905d34063d2b0ba257cca2b99d174689b4ec68b2606770e1e44f1a59ec98d4b8",
     "src/shenbi/gates/g4/relationship_map.py": "sha256:b1561bb2625b17fb70e077056cb1d39dfc70a16783b724b14acb533fd113f5f3",
     "src/shenbi/gates/g4/worldbuilding.py": "sha256:20657270c5d17ef9d22d8acd0d6ec9a760c9b77e58def263d79b7d81e6586661",
-    "src/shenbi/gates/g4/chapter_drafting.py": "sha256:7474e961a9cf9371c4a8fec6a7d5e61380e73a98b58482daa3517d3036081242",
+    "src/shenbi/gates/g4/chapter_drafting.py": "sha256:161fbc429630e2fa27ab6222d38bbf728ece6bdd693a2601581ce8812b012021",
     "src/shenbi/gates/g4/escalation_review.py": "sha256:2928537f11fe290240a85b8383d684353de0322a6d7d6d22b5da0b03ae724911",
     "src/shenbi/gates/g4/plot_thread_weaver.py": "sha256:9e82e840c4d6217d7673526935909bfa40db4fc2209f45f2469ca7215a2a786a",
     "src/shenbi/gates/g4/power_system.py": "sha256:958b4e39677c17171bcc48fe25be656a6a6760e9fcdfdd3a19ae72a1f8f53a4d",
@@ -410,7 +410,7 @@
     "src/shenbi/gates/g4/chapter_planning.py": "sha256:e663e46550ce6682270e3bfb5cbd0bf30654c224c09a2cfa9273cfba91dc0939",
     "src/shenbi/gates/g4/chapter_revision.py": "sha256:1889a048106e9467f5fd73001c363bc96dc69e25113273b7870068c2ca2761be",
     "src/shenbi/gates/g4/character_design.py": "sha256:300c1cf281487cd4683914599a4f0a2838d55dc485513dc0d52910e528a4ca25",
-    "src/shenbi/gates/g4/cross_chapter.py": "sha256:c19de45c915d6b1d223872352229b864144fead9a1f023bb2d0071dafc563dc2",
+    "src/shenbi/gates/g4/cross_chapter.py": "sha256:8600f0f9fa100d3557ecb042d586ad46c633e20af04947235d78289647e00ee9",
     "src/shenbi/gates/g4/review_resonance.py": "sha256:42181a2b79bd6671968764f26b62b353ee10ec23904b24c2369061fe22ce544c"
   },
   "_out_of_pipeline": {

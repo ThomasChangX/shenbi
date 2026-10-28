@@ -92,6 +92,10 @@ INDEX 活跃 spec 新增必填登记节：「触及的不变量维度」（rev3 
 
 - **P1（本次 SDD 代码交付边界）**：facts store 骨架（props/counters/identity 三维）+ 查询面 + F15/F16/F17 + 普查文档 + lint_invariant_coverage + **真实伤口 mutant 导入**（含 rev1 的 counter-dup ch8 基线补全）。**种子源**（rev2 I6）：从修复后章节正典派生（§1.3），registry 陈旧不入境。**settle 双写自 P1 起**（rev2 C1；**双写面=props 唯一**——rev5 R5-M1 呼应 §1.1 R3-M4：identity=对账、counters=纯 facts）：settle 对三维发结构化 op（facts 应用+状态机校验）并照旧写 Markdown 行；settle 契约变更按契约升级纪律同批带 regen-vol1 backfill（op 追补种子）。验收：三 mutant 全 FAIL；ch20/ch9 修复后语料全绿（F947 离线化：fixtures 断言，不涉真实 dispatch；**绿语料口径=修复章节 + backfill 声明备忘/facts op 证据**，非裸章节——rev2 I6）。**契约升级合规**：备忘新字段 backfill/生效策略同批交付。
 - **P2**：F18/F19/F20 + 金丝雀 + 体感触点拍生成 + P1 复评通过的后续束实弹验证。**运行验证阶段**（rev1 明确）：验收 4（ch25-26 实弹束）与验收 5（G3.4 复评 round 2 ≥86）属本阶段运行侧动作（付费 dispatch + 写项目状态），不在 SDD 代码交付边界内——P1 交付其**框架就绪**（planning 可读查询面、memo 契约已扩、门检零误报由 mutant+修复语料双证）。
+- **P2 前置（全分支审查 2026-10-29 发现——backfill `--apply` 后真仓重跑门检的交叉实验，P1 离线边界内不触发，P2 gates-sweep/历史重检前必须处置）**：
+  1. **F16 历史语料精度**：78-prop 全量种子下 `cd.prop_handoff`（HARD）对已收束 24 章中 17 章误报（ch20 即 4 处——短形匹配「红纸」↔「帖兰的半张红纸」、段级共现无动词挂靠、代词 owner 不在场）。处置选项：句窗共现+动词挂靠距离 / 代词 owner 容忍 / 扫描面收窄至 memo 触及集 / 实测精度前降 SOFT——P2 F20 `gates-sweep` 开工前裁定并实弹校准；
+  2. **F17 as-of 水位**：回填工件对（终态种子 鉴录名数=4 + ch9 备忘 `- 计数: 鉴录名数 3+1`）在历史重检时自红（4 ≠ 4+1；总数 3 ∉ {4}）——终态种子+历史声明行天然时点错位。P2 需 as-of 机制（种子记录 `backfilled_through` 水位跳过激活，或从 ops_log 派生逐章前置态；`--as-of` CLI 已在 plan R1-C3 预留 P2）；
+  3. **registry 注记键与 `ss.prop_row_match` 对账**：exact-key 匹配下，backfill 的裸键（火纹骨哨）对 registry 注记行（火纹骨哨（老驼所授·主线））永不对账=对账面静默 no-op。P2 前置=归一匹配器（剥全角括注、·副本键保持区分）或 bare-key 行重写，二择一随 P2 投影化裁定。
 - **P3**：promises/情绪等剩余维度迁入 facts；Markdown 全投影化；settle 增量 op 全面替代整档重写。
 
 ## 7. 验收（P1-P3 全期完成定义；P1 本次 SDD 验收=条 1-3）

@@ -121,8 +121,8 @@ _COUNTER_DECL_RE = re.compile(r"^[-*]\s*计数[：:]\s*(\S+)\s+(\d+)\s*\+\s*1\s*
 
 
 def _re_total(word: str) -> re.Pattern[str]:
-    # audit-T11 I1: 「个」不可省——自然 prose 总数形是「N个名字」；
-    # 无 个 的形（「N名字」）不语法化为可选覆盖（与 ordinal 工厂 个? 一致）
+    # audit-T11 I1: 自然 prose 总数形是「N个名字」——正则须含 个；
+    # 个? 可选形兼容无 个 变体（与 ordinal 工厂一致，spec rev2 M2）
     return re.compile(rf"([一二两三四五六七八九十百千\d]{{1,5}})个?{word}")
 
 
@@ -448,7 +448,7 @@ def g4_chapter_drafting(
             )
         else:
             for issue in check_prop_handoffs(content, _memo or "", _props_facts):
-                mf.append(f"cd.prop_handoff:{fp}:{issue}")
+                mf.append(f"{fp}:{issue}")
 
         # ── spec #80 T7 F17 — 计数器三方对账（激活判定在调用点，R3-M1）──
         # M1（audit-T7）：计数名→prose 词族映射（未映射计数器跳过 prose 面，
@@ -482,7 +482,7 @@ def g4_chapter_drafting(
                         "——先补 facts 种子（修复者: settling）"
                     )
                 for issue in check_counter_reconciliation(content, _memo or "", _counters_facts):
-                    mf.append(f"cd.counter:{fp}:{issue}")
+                    mf.append(f"{fp}:{issue}")
 
         # PRE_WRITE_CHECK
         if "## PRE_WRITE_CHECK" not in content:

@@ -14,7 +14,7 @@ from shenbi.gates.g4.cross_chapter import (
 
 
 @pytest.mark.unit
-def testcn_amount() -> None:
+def test_cn_amount() -> None:
     assert cn_amount("一百九十二") == 192
     assert cn_amount("十二") == 12
     assert cn_amount("300") == 300

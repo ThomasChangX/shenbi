@@ -58,6 +58,14 @@ def test_planning_view_bounded_text(tmp_path: Path, props_file):
     assert "ch3 老驼所授" not in text  # 历史 events 不进 planning 投影
 
 
+def test_planning_view_identity_dim_no_keyerror(tmp_path: Path):
+    # 全分支审查 I-3：header 表曾缺 identity 键——P2 消费方 context_assemble
+    # 首调即 KeyError；回归钉
+    save_facts(tmp_path, _identity_file())
+    text = planning_view(tmp_path, FactsDim.IDENTITY)
+    assert "那罕" in text and "林烽" in text and "自 ch3" in text
+
+
 def test_planning_view_absent_returns_empty(tmp_path: Path):
     assert planning_view(tmp_path, FactsDim.PROPS) == ""
 

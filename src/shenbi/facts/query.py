@@ -50,5 +50,9 @@ def planning_view(project_dir: Path, dim: FactsDim) -> str:
         ]
     else:
         lines = [f"{key}: {next(iter(val.values()))}" for key, val in view.items()]
-    header = {"props": "物象现态（owner）", "counters": "计数器现态（值）"}[dim.value]
+    header = {
+        "props": "物象现态（owner）",
+        "counters": "计数器现态（值）",
+        "identity": "身份现态（叙事名/别名）",
+    }[dim.value]
     return header + "\n" + "\n".join(lines)
