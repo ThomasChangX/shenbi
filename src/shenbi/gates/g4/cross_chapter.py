@@ -659,7 +659,9 @@ def check_cross_chapter(
     _ch_num = int(_ch_num_m.group(1)) if _ch_num_m else None
     _cur_steps = _prop_chain_steps(memo_text)  # parsed once (round-5 perf)
     _prior_steps_map: dict[int, dict[str, list[tuple[str, str]]]] = {}
-    if ctx.project_dir and _ch_num and _ch_num > 1:
+    if ctx.props_facts:
+        pass  # absorbed: known_props empty below — skip the prior-memo IO
+    elif ctx.project_dir and _ch_num and _ch_num > 1:
         for _k in range(1, _ch_num):
             _pk = ctx.project_dir / "plans" / f"chapter-{_k}-plan.md"
             if _pk.is_file():
@@ -699,7 +701,7 @@ def check_cross_chapter(
         # spec #80 T4/T5: single shared verb table (plan R2-I5 anti-drift)
         from shenbi.gates.shared import TRANSFER_VERBS
 
-        _markers = "|".join(sorted(TRANSFER_VERBS))
+        _markers = "|".join(map(re.escape, sorted(TRANSFER_VERBS)))
         _markers = rf"(?:{_markers})"
         _not_meta = r"(?![^。！？，,；]{0,4}[气感力望意神训戒胆魂暖慰命](?![炉]))"
         transfer_ctx = re.search(

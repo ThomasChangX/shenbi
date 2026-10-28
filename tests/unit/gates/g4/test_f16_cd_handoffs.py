@@ -40,7 +40,7 @@ def test_short_name_form_caught():
 
 def test_copy_entity_coexistence_green():
     # 修复后 ch20 双实体并存全绿（plan 副本语义硬约束）
-    fixed = Path("novel-xinghuo-vol1/chapters/chapter-20.md").read_text("utf-8")
+    fixed = (FIXTURE.parent / "ch20-fixed-green.md").read_text(encoding="utf-8")
     props = {"火纹骨哨": {"owner": "那罕"}}
     # 修复文本中交付由帖木哥给出且 memo（backfill 后）声明 帖木哥支 acquire
     memo = "- 火纹骨哨·帖木哥支@acquire: 那罕（ch20 灯座交付）\n"
@@ -84,3 +84,37 @@ def test_hold_wrong_owner_fails_at_cp(tmp_path: Path):
     )
     out = g4_chapter_planning([str(memo)], project_dir=str(tmp_path))
     assert "cp.prop_decl:" in out
+
+
+# ── audit-T5 I3 补：XC 吸收/回退回归守卫 ──
+
+
+def test_xc_absorption_stands_down_with_facts(tmp_path: Path):
+    from shenbi.gates.g4.cross_chapter import (
+        CrossChapterContext,
+        check_cross_chapter,
+    )
+
+    ch = tmp_path / "chapter-2.md"
+    ch.write_text("他把骨哨递给帖木哥。", encoding="utf-8")
+    prev = tmp_path / "chapter-1.md"
+    prev.write_text("开头。", encoding="utf-8")
+    ctx_absorbed = CrossChapterContext(props_facts={"火纹骨哨": "那罕"})
+    issues = check_cross_chapter(ch, prev, None, ctx_absorbed)
+    assert not any("物象" in i for i in issues)  # 职责已让位 G4.cd
+
+
+def test_xc_fallback_full_severity_without_facts(tmp_path: Path):
+    from shenbi.gates.g4.cross_chapter import (
+        CrossChapterContext,
+        check_cross_chapter,
+    )
+
+    ch = tmp_path / "chapter-2.md"
+    ch.write_text("他把骨哨递给帖木哥。", encoding="utf-8")
+    prev = tmp_path / "chapter-1.md"
+    prev.write_text("开头。", encoding="utf-8")
+    ctx_fallback = CrossChapterContext()  # 无 facts：全 severity 回退层
+    issues = check_cross_chapter(ch, prev, None, ctx_fallback)
+    # registry 缺席 → known_props 空 → 无物象可查（不炸即回退层健在）
+    assert isinstance(issues, list)

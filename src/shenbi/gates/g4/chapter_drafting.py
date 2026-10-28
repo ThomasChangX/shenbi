@@ -78,14 +78,13 @@ def _handoff_paragraphs(text: str) -> list[str]:
 def check_prop_handoffs(text: str, memo_text: str, props: dict[str, dict[str, str]]) -> list[str]:
     """F16 G4.cd — un-declared hand-off co-occurrence scan (spec #80 §4).
 
-    A paragraph is a transfer context when a facts entity (three-form
-    match) co-occurs with a TRANSFER_VERBS marker. If the paragraph does
-    NOT name the current owner (owner present => owner-mediated, legal)
-    and the memo carries no declaration for the entity or its copy-key
-    family (``·``-stem normalization covers the ch20 dual-whistle fix),
-    the hand-off is un-declared => FAIL. Leniency note (audit-T4 M3):
-    cp-side checking is advisory-strict; the hard no-source rejection
-    lives in the F16s settle state machine (T8).
+    Paragraph-wide co-occurrence (audit-T5 M4): entity and verb may sit in
+    different sentences of one paragraph — advisory by design; the hard
+    no-source rejection lives in the F16s settle state machine (T8). A
+    paragraph naming the current owner is owner-mediated (legal). The
+    ``·``-stem memo exemption is family-wide (audit-T5 M5): a declared
+    copy acquire also exempts the main-line key — inherent to the
+    three-form matcher, accepted by plan R3-M2.
     """
     from shenbi.gates.g4.chapter_planning import parse_prop_declarations
     from shenbi.gates.shared import TRANSFER_VERBS
