@@ -24,6 +24,34 @@ from shenbi.gates.shared import (
 log = get_logger(__name__)
 
 
+_PROP_DECL_RE = re.compile(
+    r"^[-＊*]\s*([^@：:\n]+)@(hold|transfer|acquire|lose)[：:]"
+    r"\s*([^→\n]+?)(?:→([^\n]+))?$",
+    re.MULTILINE,
+)
+
+
+def parse_prop_declarations(memo_text: str) -> list[tuple[str, str, str, str]]:
+    """Parse structured prop declaration lines ``物件@op: A→B`` (spec #80 F16).
+
+    Returns ``(prop, op, from_, to)`` 4-tuples; the single-value ``@hold``
+    form repeats the holder into both slots. Prose ``**母题物象**`` lines
+    are NOT declarations (11/24 memos carry legacy ``- 物象:`` rows whose
+    key forms get normalized by the T13 backfill — out of scope here).
+    """
+    out: list[tuple[str, str, str, str]] = []
+    for m in _PROP_DECL_RE.finditer(memo_text):
+        prop = m.group(1).strip()
+        op = m.group(2)
+        left = m.group(3).strip() if m.group(3) else ""
+        right = m.group(4).strip() if m.group(4) else ""
+        if right:
+            out.append((prop, op, left, right))
+        else:
+            out.append((prop, op, left, left))
+    return out
+
+
 def g4_chapter_planning(
     fps: list[str],
     rd: str | None = None,
@@ -151,6 +179,54 @@ def g4_chapter_planning(
             continue
 
         content = pf.read_text(encoding="utf-8")
+
+        # ── spec #80 T4 F16 G4.cp — 物象声明对 facts 现态合法性 ──
+        # 声明行 v3 内可选（v4 硬门化=P2 全量 backfill 后）；本检查只对
+        # 在场声明行生效。facts 缺席/空 ⇒ WARN（skip 不 FAIL）；无声明行
+        # 备忘 ⇒ WARN legacy_memo（13/24 静默死法禁令）。
+        _props_facts = None
+        if project_dir:
+            from shenbi.facts.enums import FactsDim
+            from shenbi.facts.store import load_facts
+
+            _loaded = load_facts(Path(project_dir), FactsDim.PROPS)
+            if _loaded is not None and not _loaded.is_empty:
+                _props_facts = _loaded.props()
+        _prop_decls = parse_prop_declarations(content)
+        if _props_facts is None:
+            c.append(
+                {
+                    "id": "cp.prop_decl",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": "no_facts — props facts absent/empty; F16 cp legality skipped (degradation visible)",
+                }
+            )
+        elif not _prop_decls:
+            c.append(
+                {
+                    "id": "cp.prop_decl",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": "legacy_memo — no 物件@op declaration lines; cp legality has nothing to verify (WARN-visible exemption, not silent)",
+                }
+            )
+        else:
+            for _prop, _op, _frm, _to in _prop_decls:
+                if _prop not in _props_facts:
+                    continue  # copy key / new entity first sighting = legal
+                if _op == "transfer" and _frm and _frm != _props_facts[_prop].owner:
+                    mf.append(
+                        f"cp.prop_decl:{fp}:「{_prop}」声明经手起点「{_frm}」"
+                        f"≠ facts 现态 owner「{_props_facts[_prop].owner}」"
+                        "——正文为唯一真值源，核实后修正声明或 facts（修复者: settling）"
+                    )
+                elif _op == "hold" and _to and _to != _props_facts[_prop].owner:
+                    mf.append(
+                        f"cp.prop_decl:{fp}:「{_prop}」声明持有者「{_to}」"
+                        f"≠ facts 现态 owner「{_props_facts[_prop].owner}」"
+                        "（修复者: settling）"
+                    )
 
         # ── spec #76/#78 G4.cp.plan_format — 版本令牌分立 ──
         # 缺席 = v1 默认（不 FAIL）；在场值 ∉ {v1,v2,v3} = FAIL；

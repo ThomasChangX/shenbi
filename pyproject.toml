@@ -240,6 +240,10 @@ convention = "google"
 ]
 # 支柱四 Tier B: new records/ + audit/ subpackages. Chinese docstrings use
 # fullwidth punctuation (RUF001-003). Same minimal suppression as contracts/.
+# spec #80 F15/F16/F17 gate tests quote the live wound vocabulary
+# (火纹骨哨/林烽/鉴录名数) — same category as the facts tests above.
+"tests/unit/gates/g4/test_f16_cp_declarations.py" = ["RUF001", "RUF002", "RUF003"]
+
 # spec #80: facts tests quote the live Chinese vocabulary (火纹骨哨/鉴录名数)
 # — fullwidth punctuation is the data, not drift (release_split test precedent).
 "tests/unit/facts/**" = ["RUF001", "RUF002", "RUF003"]

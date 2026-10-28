@@ -889,3 +889,31 @@ def load_chapter_exemptions() -> dict[str, set[int]]:
         except (TypeError, ValueError):
             continue
     return out
+
+
+# Spec #80 T4: shared transfer-verb vocabulary — single table consumed by
+# BOTH the F16 G4.cd co-occurrence scan AND the #75 XC invariant-4 fallback
+# (plan R2-I5: two hand-maintained lists drift; the wound forms 抽出/揣着
+# were invisible to the old closed set).
+TRANSFER_VERBS: frozenset[str] = frozenset(
+    {
+        "递给",
+        "塞给",
+        "交给",
+        "送给",
+        "还给",
+        "还了",
+        "给了",
+        "留给",
+        "转手",
+        "递了",
+        "送了",
+        "交到",
+        "递到",
+        "递还",
+        "抽出",
+        "揣着",
+        "揣进",
+        "取出",
+    }
+)
