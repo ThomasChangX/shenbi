@@ -239,6 +239,15 @@ convention = "google"
 ]
 # 支柱四 Tier B: new records/ + audit/ subpackages. Chinese docstrings use
 # fullwidth punctuation (RUF001-003). Same minimal suppression as contracts/.
+# spec #80: facts tests quote the live Chinese vocabulary (火纹骨哨/鉴录名数)
+# — fullwidth punctuation is the data, not drift (release_split test precedent).
+"tests/unit/facts/**" = ["RUF001", "RUF002", "RUF003"]
+
+# spec #80: facts/ subpackage — Chinese docstrings use fullwidth
+# punctuation (RUF001-003), same minimal suppression as contracts/.
+"src/shenbi/facts/*.py" = [
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
 "src/shenbi/records/*.py" = [
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
 ]

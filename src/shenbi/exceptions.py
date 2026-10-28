@@ -71,6 +71,19 @@ class RegistryMissingError(RegistryError):
     """Lockfile doesn't exist."""
 
 
+class FactsOpRejectedError(FrameworkError):
+    """Facts op state-machine rejection (spec #80 S1.1).
+
+    Raised for illegal transitions such as a sourceless re-acquisition.
+    Settle gate FAILs via the existing attempts/escalation protocol;
+    fail-fast happens before the markdown upsert (no half-written state).
+    """
+
+    def __init__(self, reason: str) -> None:
+        super().__init__(reason)
+        self.reason = reason
+
+
 class SchemaValidationError(FrameworkError):
     """Pydantic schema validation failed."""
 
