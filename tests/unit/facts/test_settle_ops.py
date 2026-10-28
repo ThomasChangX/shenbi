@@ -530,6 +530,38 @@ def test_corrupt_existing_facts_file_wrapped_as_rejection(tmp_path: Path):
     assert (d / "props.json").read_text(encoding="utf-8") == "NOT-JSON"
 
 
+def test_dim_swapped_facts_file_rejected(tmp_path: Path):
+    # audit-T8 round5 I-1 写侧孪生：自洽错维文件（props.json 装 identity 维
+    # 内容）过 schema 验、在 appliers 的维度访问器裸抛 ValueError 绕过
+    # commit 路由——槽位断言折算拒收（阶段 1 零写入）
+    d = tmp_path / "truth" / "facts"
+    d.mkdir(parents=True)
+    payload = {
+        "$schema": "shenbi-facts-v1",
+        "dim": "identity",
+        "facts": {"主角": {"narration_name": "那罕", "from_ch": 3, "aliases": []}},
+        "ops_log": [],
+    }
+    (d / "props.json").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "props": [
+                {
+                    "op": "transfer",
+                    "prop": "火纹骨哨",
+                    "from": "那罕",
+                    "to": "帖木哥",
+                    "chapter": 20,
+                }
+            ]
+        },
+    )
+    with pytest.raises(FactsOpRejectedError, match="维度错位"):
+        apply_sidecar_ops(tmp_path, sidecar)
+    assert json.loads((d / "props.json").read_text(encoding="utf-8")) == payload
+
+
 def test_invalid_utf8_facts_file_wrapped_as_rejection(tmp_path: Path):
     # audit-T8 round3 I-3(b)：非法 UTF-8 字节（UnicodeDecodeError 是
     # ValueError 子类、非 ValidationError）也须折算拒收

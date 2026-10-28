@@ -573,6 +573,75 @@ def test_invalid_utf8_facts_read_side_structured_issue(tmp_path: Path):
     assert any("props.json 损坏/不可读" in i for i in issues)
 
 
+def test_dim_swapped_props_file_structured_issue(tmp_path: Path):
+    # audit-T8 round5 I-1：自洽错维文件（props.json 装 identity 维内容）过
+    # schema 验、在 props() 访问器裸抛——槽位断言折算结构化 issue
+    d = tmp_path / "truth" / "facts"
+    d.mkdir(parents=True)
+    (d / "props.json").write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-facts-v1",
+                "dim": "identity",
+                "facts": {"主角": {"narration_name": "那罕", "from_ch": 3, "aliases": []}},
+                "ops_log": [],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "props": [
+                {
+                    "op": "transfer",
+                    "prop": "火纹骨哨",
+                    "from": "那罕",
+                    "to": "帖木哥",
+                    "chapter": 20,
+                }
+            ]
+        },
+    )
+    issues, _warns = g4_state_settling_check(tmp_path, sidecar)
+    assert any("props.json" in i and "维度错位" in i for i in issues)
+
+
+def test_dim_swapped_identity_file_structured_issue_without_ops(tmp_path: Path):
+    # audit-T8 round5 I-1 无 op 路径：identity() 访问器无条件调用——最小
+    # sidecar（仅 chapter）即可触发，槽位断言须先折算
+    d = tmp_path / "truth" / "facts"
+    d.mkdir(parents=True)
+    (d / "identity.json").write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-facts-v1",
+                "dim": "props",
+                "facts": {"火纹骨哨": {"entity": "火纹骨哨", "owner": "那罕", "events": []}},
+                "ops_log": [],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    sidecar = _sidecar(tmp_path, {"props": []})
+    issues, _warns = g4_state_settling_check(tmp_path, sidecar)
+    assert any("identity.json" in i and "维度错位" in i for i in issues)
+
+
+def test_selections_coverage_unreadable_sidecar_no_crash(tmp_path: Path):
+    # audit-T8 round5 M-1：_check_selections_coverage 读 sidecar 未包裹
+    # （#52 期旧根）——不可读/损坏按缺席处理，composite 不炸穿
+    from shenbi.gates.g4.state_settling import _check_selections_coverage
+
+    staged = tmp_path / "staging" / "truth"
+    staged.mkdir(parents=True)
+    (staged / "current_state.md").write_text("## 位置\n", encoding="utf-8")
+    (staged / "state-settling-decisions.json").write_bytes(b"\xff\xfe bad")
+    assert _check_selections_coverage([str(staged / "current_state.md")], str(tmp_path)) == []
+
+
 def test_corrupt_registry_read_treated_as_absent(tmp_path: Path):
     # audit-T8 round4 M-1：registry .md 非法 UTF-8 ⇒ 按缺席处理（诚实 None/
     # 空集），不炸门；op 本身合法 ⇒ 无 issue

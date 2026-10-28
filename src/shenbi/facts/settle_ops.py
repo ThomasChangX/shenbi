@@ -159,6 +159,14 @@ def apply_sidecar_ops(project_dir: Path, *sidecar_paths: Path) -> None:
                     raise FactsOpRejectedError(
                         f"facts 文件损坏/不可读: {path}: {exc.__class__.__name__}"
                     ) from exc
+                if current.dim is not dim:
+                    # audit-T8 round5 I-1 写侧孪生：自洽错维文件过 schema 验、
+                    # 在 appliers 的维度访问器裸抛 ValueError 绕过 commit 路由
+                    # ——槽位断言折算拒收（阶段 1 零写入）
+                    raise FactsOpRejectedError(
+                        f"facts 文件维度错位: {path}: dim={current.dim.value}"
+                        f"（槽位期望 {dim.value}）——先修复 facts 文件本体"
+                    )
             else:
                 current = FactsFile.model_validate(
                     {"$schema": FACTS_SCHEMA, "dim": dim, "facts": {}}

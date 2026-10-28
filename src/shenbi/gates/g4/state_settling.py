@@ -606,9 +606,13 @@ def _check_selections_coverage(fps: list[str], rd: str | None) -> list[str]:
         return []
     from shenbi.gates.shared import parse_decisions_payload
 
-    data, failures = parse_decisions_payload(
-        sidecar.read_text(encoding="utf-8"), str(sidecar), "G4.ss"
-    )
+    try:
+        _sc_text = sidecar.read_text(encoding="utf-8")
+    except (OSError, ValueError):
+        # audit-T8 round5 M-1（#52 期旧根清偿）：不可读/损坏 sidecar 按缺席
+        # 处理——composite 层不再炸穿 _guarded_g4
+        return []
+    data, failures = parse_decisions_payload(_sc_text, str(sidecar), "G4.ss")
     if failures or not isinstance(data, dict):
         return []
     declared = {
@@ -687,6 +691,7 @@ def g4_state_settling_check(
     from pydantic import ValidationError
 
     from shenbi.exceptions import FactsOpRejectedError
+    from shenbi.facts.enums import FactsDim
     from shenbi.facts.schemas import FactsFile, IdentityEvent, PropTransferEvent
     from shenbi.facts.store import (
         IDENTITY_REPLAY_KEYS,
@@ -708,14 +713,18 @@ def g4_state_settling_check(
     if has_props and prop_ops:
         try:
             current = FactsFile.model_validate_json(props_file.read_text(encoding="utf-8"))
+            if current.dim is not FactsDim.PROPS:
+                # audit-T8 round5 I-1：自洽错维文件过 schema 验（模型只验
+                # 内部一致性），在访问器 props() 裸抛——槽位断言折算结构化
+                raise ValueError(f"维度错位 dim={current.dim.value}（槽位期望 props）")
         except (OSError, ValueError) as _exc:
             # audit-T8 round2 M-1 + round4 I-1：裸上抛会被 CLI 折算成「文件
             # 路径参数非法」的误导报因；ValueError 宽捕同时覆盖
             # ValidationError 与 UnicodeDecodeError（非法 UTF-8）——结构化
             # FAIL 并指明修复对象
             issues.append(
-                "ss.facts_ops:truth/facts/props.json 损坏/不可读"
-                f"（{_exc.__class__.__name__}）——G4 无法模拟，先修复 facts 文件本体"
+                "ss.facts_ops:truth/facts/props.json 损坏/不可读/维度错位"
+                f"（{_exc}）——G4 无法模拟，先修复 facts 文件本体"
             )
         else:
             touched: set[str] = set()
@@ -789,12 +798,16 @@ def g4_state_settling_check(
     if has_identity:
         try:
             facts_id = FactsFile.model_validate_json(identity_file.read_text(encoding="utf-8"))
+            if facts_id.dim is not FactsDim.IDENTITY:
+                # audit-T8 round5 I-1：同 props 面——identity.json 装了别维
+                # 内容时 identity() 访问器裸抛（含无 op 的 :838 路径）
+                raise ValueError(f"维度错位 dim={facts_id.dim.value}（槽位期望 identity）")
         except (OSError, ValueError) as _exc:
-            # round4 I-1：与 props 面同则——ValueError 宽捕覆盖
-            # UnicodeDecodeError（非法 UTF-8），结构化 issue
+            # round4 I-1 + round5 I-1：ValueError 宽捕覆盖 UnicodeDecodeError
+            # 与槽位错位——结构化 issue
             issues.append(
-                "ss.identity_row_match:truth/facts/identity.json 损坏/不可读"
-                f"（{_exc.__class__.__name__}）——先修复 facts 文件本体"
+                "ss.identity_row_match:truth/facts/identity.json 损坏/不可读/维度错位"
+                f"（{_exc}）——先修复 facts 文件本体"
             )
         else:
             _id_seen: _Counter[tuple[_Any, ...]] = _Counter()
