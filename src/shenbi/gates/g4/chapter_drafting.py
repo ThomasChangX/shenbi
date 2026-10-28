@@ -57,6 +57,67 @@ def _extract_hook_ledger_section(plan_text: str) -> str:
     return rest[: nxt.start()] if nxt else rest
 
 
+def entity_in_text(entity: str, text: str) -> bool:
+    """Three-form entity matcher (spec #80 T5 / plan R3-M2).
+
+    Full key / the pre-``·`` stem of a disambiguated copy key / the last
+    two chars of a >=3-char key (短称「骨哨」form, ch20 L230).
+    """
+    if entity in text:
+        return True
+    stem = entity.split("·", 1)[0]
+    if stem != entity and stem in text:
+        return True
+    return len(entity) >= 3 and entity[-2:] in text
+
+
+def _handoff_paragraphs(text: str) -> list[str]:
+    return [para for para in text.split("\n\n") if para.strip()]
+
+
+def check_prop_handoffs(text: str, memo_text: str, props: dict[str, dict[str, str]]) -> list[str]:
+    """F16 G4.cd — un-declared hand-off co-occurrence scan (spec #80 §4).
+
+    A paragraph is a transfer context when a facts entity (three-form
+    match) co-occurs with a TRANSFER_VERBS marker. If the paragraph does
+    NOT name the current owner (owner present => owner-mediated, legal)
+    and the memo carries no declaration for the entity or its copy-key
+    family (``·``-stem normalization covers the ch20 dual-whistle fix),
+    the hand-off is un-declared => FAIL. Leniency note (audit-T4 M3):
+    cp-side checking is advisory-strict; the hard no-source rejection
+    lives in the F16s settle state machine (T8).
+    """
+    from shenbi.gates.g4.chapter_planning import parse_prop_declarations
+    from shenbi.gates.shared import TRANSFER_VERBS
+
+    declared_stems: set[str] = {
+        prop.split("·", 1)[0]
+        for prop, op, _frm, _to in parse_prop_declarations(memo_text)
+        if op in ("transfer", "acquire", "lose")
+    }
+    issues: list[str] = []
+    paragraphs = _handoff_paragraphs(text)
+    for prop, info in props.items():
+        owner = info.get("owner", "")
+        stem = prop.split("·", 1)[0]
+        for para in paragraphs:
+            if not entity_in_text(prop, para):
+                continue
+            if not any(v in para for v in TRANSFER_VERBS):
+                continue
+            if owner and owner in para:
+                continue  # owner-mediated paragraph — legal
+            if stem in declared_stems:
+                continue  # declared (or copy-key family declared)
+            issues.append(
+                f"cd.prop_handoff:「{prop}」交接语境（物象+交接动词共现，"
+                f"owner「{owner}」不在场）无备忘声明——正文为唯一真值源，"
+                "核实后补声明或修正 facts（修复者: planning+settling）"
+            )
+            break  # one report per entity
+    return issues
+
+
 def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
     """G4.cd.hook_fulfillment: Verify plan-declared hooks appear in chapter body.
 
@@ -246,6 +307,18 @@ def g4_chapter_drafting(
     _GOLDEN_POST_RE = re.compile(r"^\s*-\s*\[.\]\s*金句位\s*[:：]\s*(.+)$", re.MULTILINE)
     _EMPTY_VALUES = frozenset({"", "无", "N/A", "待定"})
 
+    # ── spec #80 T5 F16 G4.cd — 物象交接共现（挂 facts oracle）──
+    # facts 缺席/空 ⇒ WARN 可见 skip（rev4 R3-I2 三律；audit-T4 I3 先例：
+    # 损坏文件 raise 保持响亮）。备忘路径 = plans/chapter-N-plan.md。
+    _props_facts: dict[str, dict[str, str]] | None = None
+    if project_dir:
+        from shenbi.facts.enums import FactsDim
+        from shenbi.facts.store import load_facts
+
+        _loaded = load_facts(Path(project_dir), FactsDim.PROPS)
+        if _loaded is not None and not _loaded.is_empty:
+            _props_facts = {k: {"owner": v.owner} for k, v in _loaded.props().items()}
+
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
         if not pf.exists():
@@ -254,6 +327,26 @@ def g4_chapter_drafting(
 
         content = pf.read_text(encoding="utf-8")
         wc = word_count_md(str(pf))
+
+        # ── spec #80 T5 F16 G4.cd — 正文无源交付拍（per-chapter）──
+        if _props_facts is None:
+            c.append(
+                {
+                    "id": "cd.prop_handoff",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": "no_facts — props facts absent/empty; hand-off scan skipped (degradation visible)",
+                }
+            )
+        else:
+            _memo = None
+            _ch_m = re.search(r"chapter-(\d+)", Path(fp).name)
+            if project_dir and _ch_m:
+                _memo_path = Path(project_dir) / "plans" / f"chapter-{_ch_m.group(1)}-plan.md"
+                if _memo_path.is_file():
+                    _memo = _memo_path.read_text(encoding="utf-8")
+            for issue in check_prop_handoffs(content, _memo or "", _props_facts):
+                mf.append(f"cd.prop_handoff:{fp}:{issue}")
 
         # PRE_WRITE_CHECK
         if "## PRE_WRITE_CHECK" not in content:

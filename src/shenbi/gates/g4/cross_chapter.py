@@ -40,6 +40,10 @@ class CrossChapterContext:
     project_dir: Path | None = None
     name_whitelist: tuple[str, ...] = _BOOTSTRAP_WHITELIST  # registry 在场时覆盖
     registry_dir: Path | None = None  # truth/ 三表所在；缺席 → 交叉校验 WARN
+    # spec #80 T5 XC 吸收：props facts 非 None 且非空时，不变量 4 的 prose
+    # 扫描（含 memo hop 检查子段）整体让位给 G4.cd（F16）——不留双 oracle
+    # 并行；facts 缺席/空时本检查照旧全 severity 运行（无 facts 回退层）。
+    props_facts: dict[str, str] | None = None
 
 
 def load_name_registry(registry_dir: Path | None) -> tuple[tuple[str, ...], tuple[str, ...]]:
@@ -642,9 +646,14 @@ def check_cross_chapter(
     # 经由**已落盘的前章备忘**逐步推进——双章批 follower 在 leader 收束前
     # 检查，registry 尚未滚入 leader 的经手，若不推进则 follower 的真声明
     # 会被误杀（确定性重派死循环）。旧格式备忘（无场景预算块）整族豁免。
-    known_props = load_known_props(
-        ctx.registry_dir / "prop_registry.md" if ctx.registry_dir else None
-    )
+    if ctx.props_facts:
+        # spec #80 T5: facts oracle present — invariant 4's prose scan (and
+        # its memo-hop cross-check) is absorbed by G4.cd check_prop_handoffs.
+        known_props: dict[str, str] = {}
+    else:
+        known_props = load_known_props(
+            ctx.registry_dir / "prop_registry.md" if ctx.registry_dir else None
+        )
     _memo_is_new_format = re.search(r"#{2,4}\s*场景预算", memo_text) is not None
     _ch_num_m = re.search(r"chapter-(\d+)", chapter_path.name)
     _ch_num = int(_ch_num_m.group(1)) if _ch_num_m else None
@@ -687,7 +696,11 @@ def check_cross_chapter(
         # colliding with a prop-initial char). 换了 stays OUT (replacement vs trade
         # indistinguishable — documented residual FN, see planning SKILL).
         esc_prop = re.escape(prop)
-        _markers = r"(?:递给|塞给|交给|送给|还给|还了|给了|留给|转手|递了|送了|交到|递到|递还)"
+        # spec #80 T4/T5: single shared verb table (plan R2-I5 anti-drift)
+        from shenbi.gates.shared import TRANSFER_VERBS
+
+        _markers = "|".join(sorted(TRANSFER_VERBS))
+        _markers = rf"(?:{_markers})"
         _not_meta = r"(?![^。！？，,；]{0,4}[气感力望意神训戒胆魂暖慰命](?![炉]))"
         transfer_ctx = re.search(
             rf"{esc_prop}[^。！？，,；]{{0,4}}{_markers}{_not_meta}"
@@ -817,9 +830,19 @@ def g4_cross_chapter(
         memo = None
         if project_dir and ch_num_m:
             memo = Path(project_dir) / "plans" / f"chapter-{ch_num_m.group(1)}-plan.md"
+        # spec #80 T5: props facts oracle (empty seed == absent — R4-M2)
+        _pf: dict[str, str] | None = None
+        if project_dir:
+            from shenbi.facts.enums import FactsDim
+            from shenbi.facts.store import load_facts
+
+            _pf_loaded = load_facts(Path(project_dir), FactsDim.PROPS)
+            if _pf_loaded is not None and not _pf_loaded.is_empty:
+                _pf = {k: v.owner for k, v in _pf_loaded.props().items()}
         ctx = CrossChapterContext(
             project_dir=Path(project_dir) if project_dir else None,
             registry_dir=(Path(project_dir) / "truth") if project_dir else None,
+            props_facts=_pf,
         )
         # 编号断档：N>1 而前章缺席 → 时间锚/POV 基线丢失，降级须可见
         if prev is None and ch_num_m and int(ch_num_m.group(1)) > 1:
