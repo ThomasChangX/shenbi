@@ -49,7 +49,10 @@ CH9 = """<!--META-BEGIN-->
 
 CH9_PLAN = "# 第9章 备忘\n\n## 6. 场景\n\n- 场景1: 1900字｜独立型\n"
 CH20_PLAN = "# 第20章 备忘\n\n## 6. 场景\n\n- 场景1: 2000字｜收束型\n"
-CH5_PLAN = "# 第5章 备忘\n\n- 物象: 红纸包｜那罕（自持，压册页，未易主）；萤染的布｜哑姑→那罕（哑姑塞给那罕，经手成立）\n"
+CH5_PLAN = (
+    "# 第5章 备忘\n\n- 物象: 红纸包｜那罕（自持，压册页，未易主）；萤染的布｜哑姑→那罕（哑姑塞给那罕，经手成立）；"
+    "火纹骨哨｜纯提及（贴身发烫，未易手）\n"
+)
 
 
 def _mini_project(tmp_path: Path) -> Path:
@@ -87,6 +90,9 @@ def test_apply_seeds_three_dims(tmp_path: Path) -> None:
     rc = main(["--project", str(root), "--apply"])
     assert rc == 0
     props = json.loads((root / "truth" / "facts" / "props.json").read_text("utf-8"))
+    # audit-T13 C1：表头行（物象/现持/经手）绝不混入种子
+    assert "物象" not in props["facts"] and "现持" not in props["facts"]
+    assert len(props["facts"]) == 4  # 四数据行，无垃圾头行
     assert props["facts"]["火纹骨哨"]["owner"] == "那罕"
     assert props["facts"]["火纹骨哨·帖木哥支"]["owner"] == "那罕"  # 副本键约定
     assert props["facts"]["半部《鉴录》"]["owner"] == "林烽"
@@ -123,10 +129,14 @@ def test_memo_backfill_and_idempotency(tmp_path: Path) -> None:
     ch9 = (root / "plans" / "chapter-9-plan.md").read_text("utf-8")
     assert "- 计数: 鉴录名数 3+1" in ch9 and "历史补录" in ch9
     ch20 = (root / "plans" / "chapter-20-plan.md").read_text("utf-8")
-    assert "@acquire: 那罕" in ch20 and "火纹骨哨·帖木哥支" in ch20
+    assert "- 火纹骨哨·帖木哥支@acquire: 那罕\n" in ch20  # 值位无括注（M-1）
+    assert "@acquire: 那罕（" not in ch20
     ch5 = (root / "plans" / "chapter-5-plan.md").read_text("utf-8")
     assert "- 红纸包@hold: 那罕" in ch5
     assert "- 萤染的布@transfer: 哑姑→那罕" in ch5
+    # audit-T13 I-1：注记形态（纯提及）不得产出 hold 行——否则 cp.prop_decl
+    # 「声明持有者『纯提及』≠ facts 现态 owner」硬败
+    assert "纯提及" not in ch5.split("历史补录")[-1]
     before = {p.name: p.read_text("utf-8") for p in (root / "plans").glob("*.md")}
     rc2 = main(["--project", str(root), "--apply"])
     assert rc2 == 0

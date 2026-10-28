@@ -42,6 +42,8 @@ NOTE_COL = 2
 CH_COUNTER_PLAN = 9
 CH_COPY_DELIVERY = 20
 COPY_KEY = "火纹骨哨·帖木哥支"
+# pipe 声明行 owner 位的注记词（audit-T13 I-1）——非 owner 值，跳过
+ANNOTATION_HEADS = frozenset({"无", "纯提及", "自持", "暂持"})
 
 _CH_TOTAL = re.compile(r"第一页([一二两三四五六七八九十\d]{1,5})个名字")
 _CH_ADD_ORDINAL = re.compile(r"添第([一二两三四五六七八九十\d]{1,5})个名字")
@@ -83,13 +85,19 @@ def _cn(raw: str) -> int | None:
 
 
 def _table_rows(text: str) -> list[list[str]]:
+    """Data rows of every markdown table; each block's first row = header (skipped)."""
     rows: list[list[str]] = []
+    in_table = False
     for line in text.splitlines():
         if not line.startswith("|"):
+            in_table = False
             continue
         cells = [c.strip() for c in line.strip().strip("|").split("|")]
         if len(cells) < MIN_TABLE_COLS or all(re.fullmatch(r":?-{3,}:?", c) for c in cells):
             continue
+        if not in_table:
+            in_table = True
+            continue  # header row — audit-T13 C1: never a fact
         rows.append(cells)
     return rows
 
@@ -193,14 +201,17 @@ def normalize_pipe_lines(memo: str) -> list[str]:
             if not pm:
                 continue
             key, owner_expr = pm.group(1), pm.group(2)
-            if owner_expr.startswith("无"):
-                continue  # 无主形态：无可声明
+            head = re.sub(r"[（(].*", "", owner_expr).strip()
+            if head in ANNOTATION_HEADS:
+                # 注记形态（无/纯提及/自持…）非 owner 值——产出 hold 行会反咬
+                # cp.prop_decl 硬败（audit-T13 I-1：声明持有者「纯提及」≠ facts
+                # 现态 owner）。无可声明即跳过。
+                continue
             tm = re.match(r"([^（(→]+?)\s*→\s*(.+?)(?:[（(].*)?$", owner_expr)
             if tm:
                 out.append(f"- {key}@transfer: {tm.group(1)}→{re.sub(r'[（(].*', '', tm.group(2))}")
             else:
-                owner = re.sub(r"[（(].*", "", owner_expr).strip()
-                out.append(f"- {key}@hold: {owner}")
+                out.append(f"- {key}@hold: {head}")
     return out
 
 
@@ -229,7 +240,7 @@ def registry_rewrites(text: str) -> str:
     return text
 
 
-def _apply_seeds(project: Path, seeds: Seeds, apply: bool) -> int:
+def _apply_seeds(project: Path, seeds: Seeds) -> int:
     """Write-if-absent the three facts files (FactsFile schema validated)."""
     actions = 0
     payloads = {
@@ -273,7 +284,7 @@ def _apply_memos(project: Path, seeds: Seeds, apply: bool) -> int:
         text = plan.read_text("utf-8")
         prop_lines = normalize_pipe_lines(text)
         if n == CH_COPY_DELIVERY and seeds.props and COPY_KEY in seeds.props:
-            prop_lines.append(f"- {COPY_KEY}@acquire: 那罕（ch20 灯座交付·历史补录）")
+            prop_lines.append(f"- {COPY_KEY}@acquire: 那罕")
         line = counter_line if n == CH_COUNTER_PLAN else None
         new_text = plan_memo_backfill(text, counter_line=line, prop_lines=prop_lines)
         if new_text != text:
@@ -317,7 +328,7 @@ def main(argv: list[str] | None = None) -> int:
 
     actions = 0
     if ns.apply:
-        actions += _apply_seeds(project, seeds, ns.apply)
+        actions += _apply_seeds(project, seeds)
     actions += _apply_memos(project, seeds, ns.apply)
     actions += _apply_registries(project, ns.apply)
     print(f"facts_backfill: {'APPLIED' if ns.apply else 'DRY-RUN'}, actions={actions}")
