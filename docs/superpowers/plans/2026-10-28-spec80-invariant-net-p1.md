@@ -34,6 +34,7 @@
 - Create: `src/shenbi/facts/store.py`
 - Create: `src/shenbi/exceptions.py`（追加 `FactsOpRejectedError`）
 - Test: `tests/unit/facts/test_store_state_machine.py`
+- Create: `tests/unit/facts/__init__.py`（R4-M2：随 T1 落，不等 T2）
 
 **Interfaces:**
 - Produces（后续 task 消费的精确签名）:
@@ -169,7 +170,7 @@ def test_seed_empty_idempotent_creates_three_dims(tmp_path: Path):
 ```
 
 - [ ] **Step 2:** 跑 → FAIL
-- [ ] **Step 3:** 实现（`save_facts` = `truth_file_flock` + 内层私有 `_write_facts_unlocked`（`shenbi.safe_write.safe_write` 原子写——purity lint `tools/lint_no_fs_mutation.py` 按**文件** allowlist（R3-M7 措辞），facts/store.py 裸写原语会被拦，safe_write 是唯一获准原子写入口；**内层无锁设计 R3-C1**：同进程 flock 无重入语义——T8 RMW 外层持锁时须直调内层，公开 save_facts 自带锁供独立调用方）；`seed_empty` 三维空 `FactsFile`）；pipeline-init 挂钩：在 init 流程写 truth/ 的函数里追加 `seed_empty(project_dir)` 一行（执行时 grep 定位 `pipeline init` 的 truth 播种点，实测文件名以现场为准——预期 `src/shenbi/pipeline/cli.py` init 命令或 `registry_seeding.py`）
+- [ ] **Step 3:** 实现（`save_facts` = `truth_file_flock` + 内层私有 `_write_facts_unlocked`（`shenbi.safe_write.safe_write` 原子写——purity lint `tools/lint_no_fs_mutation.py` 按**文件** allowlist（R3-M7 措辞），facts/store.py 裸写原语会被拦，safe_write 是唯一获准原子写入口；**内层无锁设计 R3-C1**：同进程 flock 无重入语义——T8 RMW 外层持锁时须直调内层，公开 save_facts 自带锁供独立调用方）；`seed_empty` 三维空 `FactsFile`）；pipeline-init 挂钩：在 init 流程写 truth/ 的函数里追加 `seed_empty(project_dir)` 一行（**候选已钉 R4-M5**：`src/shenbi/pipeline/cli.py:721` `cmd_init` 为首选锚点，`registry_seeding.py` 为备选——执行时确认后写死）
 - [ ] **Step 4:** 重跑 PASS + 既有 init 测试不破（`uv run pytest tests/unit/pipeline/ -q -k init`）
 - [ ] **Step 5:** commit（pathspec 列全）
 
@@ -190,7 +191,7 @@ def test_seed_empty_idempotent_creates_three_dims(tmp_path: Path):
   - `shenbi.facts.query.planning_view(project_dir: Path, dim: FactsDim) -> str`——紧凑文本投影（token 有界，spec rev2 I4）；facts 缺席返回空串。**P1 消费方=R2 备注后为 P2**（R2-M8：P1 planning 读 `truth/facts/<dim>.json` 文件本体（T9 接线），context_assemble 接线 planning_view=P2 实弹期——函数保留为查询面 API 面，验收用 CLI/测试消费，非死线）
   - CLI：`shenbi-facts query --project <dir> --dim props|counters|identity [--chapter N]` → stdout JSON（`emit_json`）；缺席 dim → exit 1 + stderr WARN（`echo(err=True)`）
 
-- [ ] **Step 1: 失败测试**（current_state 三维投影形态 + CLI 缺席降级 exit code——用 subprocess 或直接调 main(argv)）
+- [ ] **Step 1: 失败测试**（current_state 三维投影形态 + CLI 缺席降级 exit code——用 subprocess 或直接调 main(argv)；**planning_view 形状断言**（R4-M3）：单测断言其输出含 owner 行且不含 ops_log 历史——非死线证明）
 - [ ] **Step 2:** FAIL → **Step 3:** 实现（query.py 纯函数；cli.py 参照 `shenbi.cost.report` 的 main 模式）→ **Step 4:** PASS + `uv run shenbi-facts query --project novel-xinghuo-vol1 --dim props`（种子未建 → 预期 exit 1 WARN，贴输出进 progress.md）
 - [ ] **Step 5:** commit
 
@@ -335,7 +336,7 @@ def test_flashback_marker_exempts():
 - Test: `tests/unit/gates/g4/test_f17_counters.py`
 
 **Interfaces:**
-- Consumes: `load_facts(project_dir, FactsDim.COUNTERS)`；`parse_counter_declarations(memo_text) -> list[tuple[str, int]]`（解析 `计数: <名> N+1` 形态行，本 task 产出）
+- Consumes: `load_facts(project_dir, FactsDim.COUNTERS)`；`parse_counter_declarations(memo_text) -> list[tuple[str, int]]`（解析 `计数: <名> N+1` 形态行，本 task 产出；**int=声明值 N+1**（解析后值），非基值 N——R4-M4 钉死）
 - Produces:
   - `shenbi.gates.g4.chapter_drafting.parse_counter_declarations(memo_text: str) -> list[tuple[str, int]]`
   - `shenbi.gates.g4.chapter_drafting.check_counter_reconciliation(text: str, memo_text: str, counters: dict[str, dict]) -> list[str]`——三方对账（spec rev4 R3-M11）：①prose 总数族「N个名字/N名字」≡ facts 现值 ②memo `N+1` ≡ facts+1 ③prose 序数「第N个名字」≡ memo 声明值；任一不符 ⇒ FAIL `cd.counter:`；页范围总数锚（「第一页三个名字」）scope 锚定=忽略页限定词、取全局计数器比对（rev5 R5-M3 plan 钉死：P1 忽略页键，页内计数不立独立计数器）；**计数器语义钉死**（R2-I4a）：`鉴录名数`=那罕添入《鉴录》的名数（非全书总名数——canon ch17「四十三个名字」为全书口径，不与本计数器比对）；**激活规则**（R2-I4b）：F17 三检查仅当 memo 声明该计数器（`计数: <名>` 行在场）才激活，无声明 ⇒ WARN skip（旧备忘兼容期，防 ch17 类假红）；**判定位置**（R3-M1）：激活/WARN 判定在 `g4_chapter_drafting` 调用点（WARN 是 caller 级 GateStatus），单测直调 `check_counter_reconciliation` 绕过激活判定（Step-1 红测即此形态）；facts 缺席 ⇒ WARN
@@ -385,7 +386,7 @@ def test_ordinal_vs_memo_declared_fails():
 - Create: `src/shenbi/facts/settle_ops.py`（写侧：从 sidecar 读 ops → `apply_*` → `save_facts`，fail-fast 在 Markdown upsert 之前）
 - Modify: `src/shenbi/gates/g4/state_settling.py`（G4.ss：op↔row 一致性断言 + identity 对账 + F16s 纯读者 simulate）
 - Modify: settle commit 调用点（**plan 审查 R1-C1/R2-C1——写路径接线，三站点全枚举**）：①`src/shenbi/pipeline/chapter_loop.py:1884` ②`:2128`（两处 auto-commit `staging_auto_committed_state_settle`）③`src/shenbi/pipeline/cli.py:655-712 _commit_staging_for_checkpoint`（**review-path commit**，`state_settle_review_required=True` 时走，settle sidecar join 在 :699——R3-M3 行钉修正：:681 是 CHAPTER_MEMO 双备忘 follower 追加）；三站点均在**各自写循环之前**调 `apply_sidecar_ops`（R3-I2 勘误：auto 站点的 staging commit 即 Markdown upsert 本体，「commit 之后 upsert 之前」的瞬间不存在；正确序=ops 先验，拒收异常在任何写发生前中止，staging 保留供重试——spec §1.1 fail-fast「无半写态」由此满足）
-- Modify: `src/shenbi/pipeline/chapter_loop.py`（G4_CHECK_MAP 追加：`"XC.narration_name": HARD, "cd.prop_handoff": HARD, "cp.prop_decl": HARD, "cd.counter": HARD, "ss.facts_ops": HARD, "ss.prop_row_match": HARD`——T4-T7 消息前缀的 severity 注册，spec rev5 R4-M1）
+- Modify: `src/shenbi/pipeline/chapter_loop.py`（G4_CHECK_MAP 追加**七键**：`"XC.narration_name": HARD, "cd.prop_handoff": HARD, "cp.prop_decl": HARD, "cd.counter": HARD, "ss.facts_ops": HARD, "ss.prop_row_match": HARD, "ss.identity_row_match": HARD`——T4-T8 全部消息前缀的 severity 注册（R4-I1：R3 替换未命中遗留六键，本次实改），spec rev5 R4-M1）
 - Test: `tests/unit/facts/test_settle_ops.py`、`tests/unit/gates/g4/test_g4_ss_facts.py`
 
 **Interfaces:**
@@ -522,7 +523,7 @@ def test_mutant_counter_dup_killed_by_f17():
 - 验收汇总进 progress.md（无独立 commit 若纯验证；有 fixture/工具修复则列 pathspec）
 
 **Interfaces:**
-- Produces: `tools/facts_backfill.py --project novel-xinghuo-vol1 [--apply]`（**dry-run 为默认**——R2-M7 对齐 plan_craft_backfill 先例与 F947 立场：默认零写入，`--apply` 才落盘）——①从修复后章节正典派生三维种子（props：24 章经手链现状 owner——含 `火纹骨哨`（那罕）与 `火纹骨哨·帖木哥支`（那罕，ch20 副本键）；counters：`鉴录名数=4`（ch9 后：陆秉文/阿六/老人/赵三）；identity：narration_name=那罕、from_ch=3、aliases=[林烽]）②memo 声明行 backfill（11 份既有声明行键形态归一 + 13 份旧备忘补 `物件@op` 行——从章节正文+registry 交叉派生）③registry 陈旧行重写（赵三行/《鉴录》行/「临」备注——**绝不整文件重生成**，rev5 R4-I2）；**行↔键匹配**（R2-M11）：`ss.prop_row_match` 用 T5 `entity_in_text` 同型匹配器对齐 registry 行键（「火纹骨哨（老驼所授·主线）」↔facts「火纹骨哨」）；facts 键无 registry 行（帖木哥支）=初见不补写 P1；骨哨主行 ch20 经手由 op 追补（transfer 老驼线→记录帖木哥交付拍）④默认 dry-run 打印 diff 零写入（`--apply` 才写）
+- Produces: `tools/facts_backfill.py --project novel-xinghuo-vol1 [--apply]`（**dry-run 为默认**——R2-M7 对齐 plan_craft_backfill 先例与 F947 立场：默认零写入，`--apply` 才落盘）——①从修复后章节正典派生三维种子（props：24 章经手链现状 owner——含 `火纹骨哨`（那罕）与 `火纹骨哨·帖木哥支`（那罕，ch20 副本键）；counters：`鉴录名数=4`（ch9 后：陆秉文/阿六/老人/赵三）；identity：narration_name=那罕、from_ch=3、aliases=[林烽]）②memo 声明行 backfill（11 份既有声明行键形态归一 + 13 份旧备忘补 `物件@op` 行——从章节正文+registry 交叉派生；**计数行范围 R4-M1**：`计数: 鉴录名数 N+1` 仅 backfill 进 ch9/ch10 两份备忘（计数链变更章——ch9 添第四名、ch10 复核），ch17 等全书口径章不 backfill——激活规则下无声明=WARN skip，ch17 假红防线双保险）③registry 陈旧行重写（赵三行/《鉴录》行/「临」备注——**绝不整文件重生成**，rev5 R4-I2）；**行↔键匹配**（R2-M11）：`ss.prop_row_match` 用 T5 `entity_in_text` 同型匹配器对齐 registry 行键（「火纹骨哨（老驼所授·主线）」↔facts「火纹骨哨」）；facts 键无 registry 行（帖木哥支）=初见不补写 P1；骨哨主行 ch20 经手由 op 追补（transfer 老驼线→记录帖木哥交付拍）④默认 dry-run 打印 diff 零写入（`--apply` 才写）
 - 验收 3 断言（`tests/unit/tools/test_facts_backfill.py` 内，**plan 审查 R1-C3 修正**）：绿断言用 **per-chapter 前置态种子**（G0.9 测试内构造豁免）——ch9 检查喂 count=3 前置态（ch8 后、ch9 前）、ch20 检查喂 `火纹骨哨·帖木哥支` owner=帖木哥 前置态；直接喂终态种子（count=4/双哨皆那罕）会撞 F17 总数对账与 F16 cp 合法性而假红——as-of 态 P1 由测试构造，`--as-of` CLI=P2。终态种子仍为工具交付（运行侧 ch25+ settle 消费）
 
 - [ ] **Step 1-5:** TDD；跑 `uv run python tools/facts_backfill.py --project novel-xinghuo-vol1`（默认 dry-run）贴输出进 progress.md（真实项目文件 P1 不落写——运行侧 backfill 由用户/P2 执行，本 task 交付工具+离线断言）；commit
@@ -549,6 +550,7 @@ def test_mutant_counter_dup_killed_by_f17():
 
 ## Self-Review 记录
 
+- plan 审查 R4（0C/1I/5M）修正已并入：I1 七键实改（R3 替换未命中遗留）；M1-M5（计数行 backfill 范围=ch9/ch10/T1 __init__/planning_view 形状断言/N+1 语义/cmd_init 锚）
 - plan 审查 R3（1C/2I/8M）修正已并入：C1 flock 嵌套死锁（save_facts 内层无锁化）/I1 七键字面清单对齐/I2 seam 顺序句改「写循环之前」；M1-M8 逐项（激活判定位置/三形态匹配器/:699 行钉/justfile target/分期差注记/P2.5 enforcement point/allowlist 措辞/ch17 前向风险已由激活规则守卫）
 - plan 审查 R2（1C/3I/8M）修正已并入：C1 seam 三站点勘误（pipeline/cli.py:_commit_staging_for_checkpoint 为 review-path 第三站点，dispatcher/cli.py 无 staging）/I2 chapter 默认 None/I3 ss.identity_row_match 入 map（七键）/I4 计数器语义+激活规则（ch17 假红消解）；M5-M12 逐项
 - plan 审查 R1（3C/5I/8M）修正已并入：C1 settle commit 接线（T8）/C2 safe_write 原子写（T2）/C3 per-chapter 前置态绿种子（T13）；I4 v3 内可选钉死/I5 动词表双路径单表（T5）/I6 identity 对账（T8）/I7 空种子吸收洞（T5）/I8 chapter 参数（T6/T3）；M9-M16 逐项（ch08 fixture 接线/四元组/event 类型定义/四枚举注册/名归一/注释精度/__init__.py/T12 缩窄声明）
