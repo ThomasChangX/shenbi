@@ -98,8 +98,16 @@ def test_mutant_obligation_only_f15_family_dims() -> None:
 
 @pytest.mark.unit
 def test_literal_sets_are_referenced_not_defined() -> None:
-    """R3-I3: the census must point at status-vocab for literal value sets."""
+    """R3-I3: the census must point at status-vocab for literal value sets.
+    Full-set restatements (audit-T10 I-1) drift silently when a StrEnum gains
+    a member — lint_status_strings only reconciles StrEnum↔status-vocab.
+    """
     text = DOC.read_text("utf-8")
     assert "status-vocab.md" in text
-    # ... and must NOT restate a full value set (e.g. transfer|acquire|hold|lose)
-    assert not re.search(r"transfer\s*[|｜]\s*acquire", text)
+    # ... and must NOT restate any complete op value set (pipe or slash form)
+    for pattern in (
+        r"transfer\s*[|｜/]\s*acquire",
+        r"rename\s*[|｜/]\s*set_alias",
+        r"increment\s*[|｜/]\s*set\b",
+    ):
+        assert not re.search(pattern, text), pattern
