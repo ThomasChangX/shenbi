@@ -469,3 +469,91 @@ def test_production_composite_path_fires_ss_checks(tmp_path: Path):
 
     payload = _json.loads(result)
     assert any("ss.facts_ops:非法 op" in m for m in payload["must_fix"])
+
+
+def test_production_composite_path_flags_placeholder_produced_at(tmp_path: Path):
+    # audit-T8 round3 I-2：produced_at 现实核查（模型伪造过 4 次）此前只在
+    # 裸 fps 路径跑——生产复合路径必须随姊妹约定块点火
+    import importlib
+
+    generic = importlib.import_module("shenbi.gates.g4.generic")
+    _seed(tmp_path, {})
+    staged = tmp_path / "staging" / "truth"
+    staged.mkdir(parents=True)
+    (staged / "current_state.md").write_text("## 当前位置\n东行\n", encoding="utf-8")
+
+    def _run(produced_at: str) -> list[str]:
+        (staged / "state-settling-decisions.json").write_text(
+            json.dumps(
+                {
+                    "$schema": "shenbi-decisions-v1",
+                    "skill": "shenbi-state-settling",
+                    "chapter": 20,
+                    "produced_at": produced_at,
+                    "facts_ops": {},
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+        fn = generic.build_checkers()["shenbi-state-settling"]
+        import json as _json
+
+        return _json.loads(fn([str(staged / "current_state.md")], None, str(tmp_path), None)).get(
+            "must_fix", []
+        )
+
+    assert any("produced_at" in m and "placeholder" in m for m in _run("2026-10-28T00:00:00Z"))
+    # 非占位真值：取 1 小时前、钉非零分秒（避开 future 分支的时钟敏感）
+    from datetime import UTC, datetime, timedelta
+
+    real = datetime.now(UTC).replace(minute=23, second=45) - timedelta(hours=1)
+    assert not any("produced_at" in m for m in _run(real.strftime("%Y-%m-%dT%H:%M:%SZ")))
+
+
+def test_registry_copy_key_rows_not_substituted(tmp_path: Path):
+    # audit-T8 round3 I-1：`实体·副本` 是独立实体键——子串匹配会把副本行
+    # 当母行（顺序决定结果/母行缺席时静默替换 owner）。全键精确匹配后：
+    # 副本行在前不干扰母行对账；仅副本行 ⇒ 母行缺席不对账（None 诚实信号）
+    _seed(tmp_path, {"火纹骨哨": {"entity": "火纹骨哨", "owner": "那罕", "events": []}})
+    op = {
+        "props": [
+            {
+                "op": "transfer",
+                "prop": "火纹骨哨",
+                "from": "那罕",
+                "to": "帖木哥",
+                "evidence": "L218",
+                "chapter": 20,
+            }
+        ]
+    }
+    # 副本行在前 + 母行持真终态 ⇒ 精确命中母行，无 issue
+    registry = tmp_path / "truth" / "prop_registry.md"
+    registry.parent.mkdir(exist_ok=True)
+    registry.write_text(
+        "| 实体名 | 当前owner | 经手事件 |\n|---|---|---|\n"
+        "| 火纹骨哨·副本 | 老驼 | ch18 |\n| 火纹骨哨 | 帖木哥 | ch20 |\n",
+        encoding="utf-8",
+    )
+    issues, _warns = g4_state_settling_check(tmp_path, _sidecar(tmp_path, op))
+    assert not [i for i in issues if "ss.prop_row_match" in i]
+    # 仅副本行 ⇒ 母行缺席：不对账、不替换（旧行为会拿老驼当母行 owner）
+    registry.write_text(
+        "| 实体名 | 当前owner | 经手事件 |\n|---|---|---|\n| 火纹骨哨·副本 | 老驼 | ch18 |\n",
+        encoding="utf-8",
+    )
+    issues, _warns = g4_state_settling_check(tmp_path, _sidecar(tmp_path, op))
+    assert not [i for i in issues if "ss.prop_row_match" in i]
+    assert not [i for i in issues if "老驼" in i]
+
+
+def test_sidecar_top_level_non_dict_structured_issue(tmp_path: Path):
+    # audit-T8 round3 I-3(c)：读侧顶层非对象 ⇒ 结构化 issue（裸
+    # AttributeError 会炸穿 _guarded_g4 并抢占 g4_decisions 的精确报告）
+    _seed(tmp_path, {})
+    p = tmp_path / "chapters" / "chapter-20-decisions.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text('["not", "an", "object"]', encoding="utf-8")
+    issues, _warns = g4_state_settling_check(tmp_path, p)
+    assert any("顶层必须是 JSON 对象" in i for i in issues)

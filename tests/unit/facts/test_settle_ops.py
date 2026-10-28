@@ -528,3 +528,29 @@ def test_corrupt_existing_facts_file_wrapped_as_rejection(tmp_path: Path):
     with pytest.raises(FactsOpRejectedError, match="损坏/不可读"):
         apply_sidecar_ops(tmp_path, sidecar)
     assert (d / "props.json").read_text(encoding="utf-8") == "NOT-JSON"
+
+
+def test_invalid_utf8_facts_file_wrapped_as_rejection(tmp_path: Path):
+    # audit-T8 round3 I-3(b)：非法 UTF-8 字节（UnicodeDecodeError 是
+    # ValueError 子类、非 ValidationError）也须折算拒收
+    d = tmp_path / "truth" / "facts"
+    d.mkdir(parents=True)
+    (d / "props.json").write_bytes(b"\xff\xfe\x00bad")
+    sidecar = _sidecar(
+        tmp_path,
+        {"props": [{"op": "hold", "prop": "火纹骨哨", "to": "那罕", "chapter": 20}]},
+    )
+    with pytest.raises(FactsOpRejectedError, match="损坏/不可读"):
+        apply_sidecar_ops(tmp_path, sidecar)
+    assert (d / "props.json").read_bytes() == b"\xff\xfe\x00bad"
+
+
+def test_sidecar_top_level_non_dict_rejected(tmp_path: Path):
+    # audit-T8 round3 I-3(a)：整文件顶层非对象（list）⇒ 折算拒收而非裸
+    # AttributeError（G4.dec 常规先挡，此处纵深防御）
+    _seed_props(tmp_path)
+    p = tmp_path / "chapters" / "chapter-20-decisions.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text('["not", "an", "object"]', encoding="utf-8")
+    with pytest.raises(FactsOpRejectedError, match="顶层必须是 JSON 对象"):
+        apply_sidecar_ops(tmp_path, p)

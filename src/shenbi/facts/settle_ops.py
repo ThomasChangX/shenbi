@@ -47,9 +47,13 @@ def _reject(reason: str) -> NoReturn:
 def _load_sidecar_facts_ops(sidecar_path: Path) -> dict[str, Any]:
     """读单个 sidecar 的 ``facts_ops``；结构非法统一折算为拒收（audit-T8 I5）。"""
     try:
-        doc: dict[str, Any] = json.loads(sidecar_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        doc: Any = json.loads(sidecar_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise FactsOpRejectedError(f"sidecar 不可读/非法 JSON: {sidecar_path}: {exc}") from exc
+    if not isinstance(doc, dict):
+        # audit-T8 round3 I-3(a)：顶层非对象裸 AttributeError 炸穿 commit
+        # 站点的 FactsOpRejectedError 单捕（G4.dec 常规先挡，纵深防御）
+        _reject(f"sidecar 顶层必须是 JSON 对象，得到 {type(doc).__name__}: {sidecar_path}")
     facts_ops: Any = doc.get("facts_ops")
     if facts_ops is None:
         return {}
@@ -141,8 +145,9 @@ def apply_sidecar_ops(project_dir: Path, *sidecar_paths: Path) -> None:
         FactsDim.IDENTITY: _apply_identity,
     }
     # 阶段 1：逐维持锁读现态 + 内存 apply——拒收在任何写之前上抛
-    # （audit-T8 round2 I-2：损坏/不可读的既有 facts 文件也折算拒收，
-    # 否则裸 ValidationError 会在三处 commit 点炸穿既定路由协议）
+    # （audit-T8 round2 I-2 + round3 I-3(b)：损坏/不可读/非法 UTF-8 的既有
+    # facts 文件统一折算拒收——ValidationError 与 UnicodeDecodeError 都是
+    # ValueError 子类，裸上抛会炸穿三处 commit 点的既定路由协议）
     staged_writes: list[tuple[Path, FactsFile]] = []
     for dim, ops in per_dim_ops.items():
         path = project_dir / "truth" / "facts" / f"{dim.value}.json"
@@ -150,7 +155,7 @@ def apply_sidecar_ops(project_dir: Path, *sidecar_paths: Path) -> None:
             if path.is_file():
                 try:
                     current = FactsFile.model_validate_json(path.read_text(encoding="utf-8"))
-                except (ValidationError, OSError) as exc:
+                except (OSError, ValueError) as exc:
                     raise FactsOpRejectedError(
                         f"facts 文件损坏/不可读: {path}: {exc.__class__.__name__}"
                     ) from exc

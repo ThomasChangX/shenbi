@@ -673,8 +673,13 @@ def g4_state_settling_check(
 
     try:
         doc = _json.loads(sidecar_path.read_text(encoding="utf-8"))
-    except (OSError, _json.JSONDecodeError):
+    except (OSError, _json.JSONDecodeError, UnicodeDecodeError):
         return issues, warns
+    if not isinstance(doc, dict):
+        # audit-T8 round3 I-3(c)：顶层非对象裸 AttributeError 会炸穿
+        # _guarded_g4（只捕 ValueError），且抢占 g4_decisions 对同文件的
+        # 精确 schema 报告——结构化 issue 让路
+        return ["ss.facts_ops:非法形态——sidecar 顶层必须是 JSON 对象"], warns
     facts_ops = doc.get("facts_ops") or {}
     if not isinstance(facts_ops, dict):
         return ["ss.facts_ops:非法形态——facts_ops 必须是对象"], warns
@@ -696,7 +701,9 @@ def g4_state_settling_check(
     chapter = doc.get("chapter")
     rationale = facts_ops.get("rationale")
 
-    # ②+④ props op↔row reconciliation（链式模拟，audit-T8 M7 + round2 #1）
+    # ②+④ props op↔row reconciliation（链式模拟，audit-T8 M7 + round2 #1）。
+    # 维文件缺席 ⇒ 不模拟（兼容期选择，audit-T8 round3 M-2：pipeline-init
+    # 播种三维后可达性低；写侧 commit 时仍拒收非法 op）
     prop_ops = facts_ops.get("props") or []
     if has_props and prop_ops:
         try:
@@ -768,6 +775,7 @@ def g4_state_settling_check(
 
     # ③ identity reconciliation — bidirectional, ungated from identity_ops
     # (audit-T8 M8); runs whenever identity facts exist (facts canonical).
+    # identity.json 缺席 ⇒ 不对账（同 round3 M-2 兼容期选择）。
     # audit-T8 round2 I-3：先模拟本章 identity op 再对账——settle 声明新别名
     # 且 staging 已带新行是双写契约本身的合法形态（op 到 commit 才落地），
     # 对 committed 前态对账会把合法 settle 判成 FAIL。
@@ -836,16 +844,18 @@ def g4_state_settling_check(
 
 
 def _registry_row_owner(project_dir: Path, prop: str, *, lookup: Path | None = None) -> str | None:
-    """prop_registry.md 行 owner（键宽松匹配：行首列包含 prop 或其 ·-stem）。
+    """prop_registry.md 行 owner（**全键精确匹配**，audit-T8 round3 I-1）。
 
     lookup 优先（staging 姊妹副本——本章新行只在 staging），缺席回退
-    committed truth/prop_registry.md。
+    committed truth/prop_registry.md。`实体·副本` 是独立实体键、有独立行
+    ——子串/stem 宽松匹配会把副本行当母行（顺序决定结果；母行缺席时静默
+    替换成副本 owner，行对账基准被污染且重试数学不可满足）。行缺席返回
+    None（不对账），是诚实信号而非覆盖缺口。
     """
     import re as _re
 
     candidates = [lookup] if lookup is not None else []
     candidates.append(Path(project_dir) / "truth" / "prop_registry.md")
-    stem = prop.split("·", 1)[0]
     for path in candidates:
         if not path.is_file():
             continue
@@ -853,9 +863,8 @@ def _registry_row_owner(project_dir: Path, prop: str, *, lookup: Path | None = N
             m = _re.match(r"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|", line)
             if not m:
                 continue
-            key, owner = m.group(1), m.group(2)
-            if prop in key or stem in key:
-                return owner
+            if m.group(1) == prop:
+                return m.group(2)
     return None
 
 
@@ -1067,12 +1076,15 @@ def g4_state_settling(
     # （schema/P2.5 归属见 _check_selections_coverage docstring）——直接在 fps
     # 里等 sidecar 是死路。按 #52 同款姊妹约定定位生产门真实可见的
     # staging/truth/state-settling-decisions.json，ss.* 四检查由此接入。
+    # round3 I-2：produced_at 现实核查（模型伪造过 4 次）随同接入——
+    # g4_decisions 只验 schema（str），不验时间真实性。
     if project_dir and not any("state-settling-decisions" in str(fp) for fp in fps or []):
         for fp in fps or []:
             if "staging/truth" not in fp.replace("\\", "/"):
                 continue
             _sidecar = resolve_input_path(fp, rd).parent / "state-settling-decisions.json"
             if _sidecar.is_file():
+                mf.extend(_check_produced_at(_sidecar.read_text(encoding="utf-8"), str(_sidecar)))
                 _issues, _warns = g4_state_settling_check(Path(project_dir), _sidecar)
                 mf.extend(_issues)
                 c.extend(
