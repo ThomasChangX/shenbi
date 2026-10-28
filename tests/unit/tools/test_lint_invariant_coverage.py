@@ -130,6 +130,19 @@ def test_index_active_entry_missing_section_fails(tmp_path: Path) -> None:
     assert any("#81" in p and "触及的不变量维度" in p for p in problems)
 
 
+def test_index_block_terminates_at_section_heading(tmp_path: Path) -> None:
+    # audit-T12 I-1 回归钉：末条目节线被删 + 无 --- 分隔——块不得落穿 EOF
+    # 吞掉登记约定段（该段自身含「触及的不变量维度」字面量，会掩盖缺节）
+    idx = GOOD_INDEX.replace("- **触及的不变量维度**：无（观测域）\n", "")
+    idx += "\n## 登记与编号约定\n\n- 活跃 spec 须含「触及的不变量维度」节\n"
+    problems = check(
+        doc=_write(tmp_path, "inv.md", _full13(GOOD_DOC)),
+        index=_write(tmp_path, "INDEX.md", idx),
+        mutant_tests=_write(tmp_path, "m.py", GOOD_MUTANTS),
+    )
+    assert any("#81" in p and "触及的不变量维度" in p for p in problems)
+
+
 def test_section_listing_no_census_dim_fails(tmp_path: Path) -> None:
     idx = GOOD_INDEX.replace("恒等 identity／持有与经手 props", "不存在的维度甲／不存在的维度乙")
     problems = check(

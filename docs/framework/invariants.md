@@ -26,6 +26,6 @@
 
 ## 维护规约
 
-- **改表即改 lint**：门检 check id 增删（新 G4/G2 检查、XC 检查）必须同批反映到本表门检列——`lint_invariant_coverage`（T12）扫全仓 check id 对照本表，表内不存在的 check id = 未登记面红；本表声明而代码不存在的 check id = 幽灵红。
+- **改表即改 lint**：门检 check id 增删（新 G4/G2 检查、XC 检查）必须同批反映到本表门检列——**P2 起** lint 增「扫全仓 check id 对照本表」面（表内不存在的 check id = 未登记面红；本表声明而代码不存在的 check id = 幽灵红）；P1 期 lint 校 P1 期相行的四槽/mutant 义务/INDEX 节（R1-M16 缩窄口径）。
 - **期相 bump**：P2 批次开工时 `CURRENT_PHASE` 常量 P1→P2（能力活性行四槽到期）。
 - **mutant 名归一**：本表与 `tests/gates/test_invariant_mutants.py` 的 mutant 名互查时按 hyphen↔underscore 归一（`name-swap` ↔ `test_mutant_name_swap_killed_by_`）——lint_invariant_coverage 的义务面即按此归一 grep。

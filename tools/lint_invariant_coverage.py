@@ -67,7 +67,8 @@ def parse_census(doc: Path = DOC) -> tuple[list[str], list[dict[str, str]]]:
 
 
 def _is_hole(value: str) -> bool:
-    return not value or value.startswith("—")
+    # em dash (table hole mark), lone ASCII hyphen, or empty
+    return not value or value.startswith("—") or value == "-"
 
 
 def _due(phase: str) -> bool:
@@ -99,14 +100,24 @@ def _due_mutant_names(cell: str) -> list[str]:
 
 
 def _index_active_entries(index: Path) -> list[tuple[str, str]]:
-    """Active spec entries -> (number, entry block text)."""
+    """Active spec entries -> (number, entry block text).
+
+    Blocks terminate at the next entry heading, any deeper heading level
+    (``##`` section heads — audit-T12 I-1: without this, a removed ``---``
+    rule lets the block run to EOF and swallow the convention section,
+    whose own 「触及的不变量维度」 literal then masks a missing entry line),
+    or a ``---`` rule.
+    """
     text = index.read_text("utf-8")
     entries: list[tuple[str, str]] = []
     for m in re.finditer(r"^### #(\d+) · (.+)$", text, re.MULTILINE):
         number = m.group(1)
-        start = m.start()
-        nxt = re.search(r"^### #\d+ ·|^---\s*$", text[start + 1 :], re.MULTILINE)
-        block = text[start : start + 1 + nxt.start()] if nxt else text[start:]
+        # search from the END of the entry heading line — searching from
+        # start+1 lets ^#{1,3} match the heading's own remainder and
+        # truncates every block to one char (audit-T12 I-1 hardening bug,
+        # caught by the tmp negative tests as a silent vacuous face)
+        nxt = re.search(r"^### #\d+ ·|^#{1,3} |^---\s*$", text[m.end() :], re.MULTILINE)
+        block = text[m.start() : m.end() + nxt.start()] if nxt else text[m.start() :]
         if "**状态**：Active" in block or "**Status**: Active" in block:
             entries.append((number, block))
     return entries
