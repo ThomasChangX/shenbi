@@ -135,8 +135,14 @@ def apply_sidecar_ops(project_dir: Path, *sidecar_paths: Path) -> None:
         facts_ops = _load_sidecar_facts_ops(sp)
         for dim in FactsDim:
             ops = facts_ops.get(dim.value) or []
-            if ops:
-                per_dim_ops.setdefault(dim, []).extend(ops)
+            if not ops:
+                continue
+            if not isinstance(ops, list):
+                # audit-T8 round6 M-2：非列表 ops 值（如 props:5）裸
+                # TypeError 绕 commit 路由——纵深防御（生产上游 G4.dec
+                # schema 先挡，同轮 3 I-3(a) 类）
+                _reject(f"facts_ops.{dim.value} 必须是数组，得到 {type(ops).__name__}: {sp}")
+            per_dim_ops.setdefault(dim, []).extend(ops)
     if not per_dim_ops:
         return
     appliers = {

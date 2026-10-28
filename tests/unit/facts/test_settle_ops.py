@@ -577,6 +577,15 @@ def test_invalid_utf8_facts_file_wrapped_as_rejection(tmp_path: Path):
     assert (d / "props.json").read_bytes() == b"\xff\xfe\x00bad"
 
 
+def test_non_list_ops_value_rejected(tmp_path: Path):
+    # audit-T8 round6 M-2：非列表 ops 值（props:5）裸 TypeError 绕 commit
+    # 路由——折算拒收（生产上游 G4.dec schema 先挡，纵深防御）
+    _seed_props(tmp_path)
+    sidecar = _sidecar(tmp_path, {"props": 5})
+    with pytest.raises(FactsOpRejectedError, match="必须是数组"):
+        apply_sidecar_ops(tmp_path, sidecar)
+
+
 def test_sidecar_top_level_non_dict_rejected(tmp_path: Path):
     # audit-T8 round3 I-3(a)：整文件顶层非对象（list）⇒ 折算拒收而非裸
     # AttributeError（G4.dec 常规先挡，此处纵深防御）
