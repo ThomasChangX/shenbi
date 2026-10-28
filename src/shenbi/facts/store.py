@@ -7,15 +7,23 @@ spec：无来源的二次获得=拒收）。实体副本语义（spec rev1）：
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import NoReturn
 
-from shenbi.exceptions import FactsOpRejectedError
+from pydantic import ValidationError
+
+from shenbi.exceptions import FactsOpRejectedError, TruthFileParseError
+from shenbi.facts.enums import FactsDim
 from shenbi.facts.schemas import (
+    FACTS_SCHEMA,
     CounterFact,
     FactsFile,
     PropFact,
     PropTransferEvent,
 )
+from shenbi.pipeline.truth_io import truth_file_flock
+from shenbi.safe_write import safe_write
 
 
 def _reject(reason: str) -> NoReturn:
@@ -161,3 +169,51 @@ def apply_identity_op(
         {"dim": "identity", "op": op, "new_name": new_name, "alias": alias, "from_ch": from_ch}
     )
     return out
+
+
+# ── IO（T2）：flock + safe_write 原子写；内层无锁供 RMW 外层复用 ──────────
+
+
+def _facts_path(project_dir: Path, dim: FactsDim) -> Path:
+    return project_dir / "truth" / "facts" / f"{dim.value}.json"
+
+
+def load_facts(project_dir: Path, dim: FactsDim) -> FactsFile | None:
+    """读 facts 文件；缺席 None（门检 WARN 降级依据），损坏 raise。"""
+    path = _facts_path(project_dir, dim)
+    if not path.is_file():
+        return None
+    try:
+        return FactsFile.model_validate_json(path.read_text(encoding="utf-8"))
+    except ValidationError as exc:
+        raise TruthFileParseError(f"{path}: {exc}") from exc
+
+
+def _write_facts_unlocked(path: Path, file: FactsFile) -> None:
+    """无锁内层写（R3-C1）：外层 RMW 持锁时直调本函数。
+
+    公开 ``save_facts`` 自带 flock 供独立调用方；同进程 flock 跨 fd
+    无重入语义——外层持锁再进公开 save_facts 的自锁=死锁。
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(file.model_dump(by_alias=True), ensure_ascii=False, indent=2)
+    safe_write(path, payload)
+
+
+def save_facts(project_dir: Path, file: FactsFile) -> None:
+    """线程/进程安全落盘（flock + safe_write 原子写）。"""
+    path = _facts_path(project_dir, file.dim)
+    with truth_file_flock(path):
+        _write_facts_unlocked(path, file)
+
+
+def seed_empty(project_dir: Path) -> None:
+    """pipeline-init 空种子（spec §4 F15 bootstrap）：三维 write-if-absent，幂等。"""
+    for dim in FactsDim:
+        path = _facts_path(project_dir, dim)
+        if path.is_file():
+            continue
+        save_facts(
+            project_dir,
+            FactsFile.model_validate({"$schema": FACTS_SCHEMA, "dim": dim, "facts": {}}),
+        )

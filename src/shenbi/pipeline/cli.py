@@ -810,6 +810,13 @@ def _cmd_init_locked(
     for core_dir in ("truth", "characters", "outline", "world"):
         (project_dir / core_dir).mkdir(exist_ok=True)
 
+    # Spec #80 T2: seed empty facts files (props/counters/identity) so the
+    # invariant gates have their WARN-visible bootstrap surface from init
+    # (write-if-absent, idempotent — same discipline as seed_style_directives).
+    from shenbi.facts.store import seed_empty as seed_facts_empty
+
+    seed_facts_empty(project_dir)
+
     # Session31 Q1: seed the universal style TARGET so the channel is never a
     # blank-page problem (write-if-absent; never clobbers a user edit).
     from shenbi.pipeline.style_seed import seed_style_directives
