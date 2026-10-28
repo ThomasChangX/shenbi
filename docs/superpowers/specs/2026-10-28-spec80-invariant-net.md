@@ -5,7 +5,7 @@
 > 维度（有台账无门检）；L3 门体系反应式生长、从未做不变量普查。
 > **方法**：declare-then-verify（钩系统 24 章零漂移的配方）推广到全部维度 + 变异测试闭环。
 > **优先级**：🔴 P0（内容修复的 gate 保障依赖 P1）。
-> **Status**: Active（rev1 2026-10-28 驳斥复核七项修正；rev2 2026-10-28 设计审查 R1 修正：C1 facts 写路径分期/I1 XC 吸收/I2 拒收语义/I3 接线清单/I4 planning 投影/I5 per-mutant 断言/I6 种子源/I7 声明行表述勘误/I8 渲染器路径/M1-M5）
+> **Status**: Active（rev1 驳斥七项；rev2 设计审查 R1 修正 C1+I1-I8+M1-M5；rev3 R2 修正：promises 期相对齐/双写分叉语义 (b)/模板锚点/plan_format+G4_CHECK_MAP/status-vocab 枚举/共享动词表/lint 期相列/canary 节奏/种子工具确定性——2026-10-28）
 
 ## 0. 背景与根因（浓缩）
 
@@ -24,13 +24,13 @@
 ### 1.1 结构
 
 - `truth/facts/<dimension>.json`——按维度分文件（identity / props / counters / knowledge / promises(钩) / emotion），schema 校验（pydantic 或 jsonschema）。
-- **增量 op 协议**：settle 只发结构化事件（`{op: prop.transfer, prop: 骨哨(旧线), from: 帖木哥, to: 那罕, evidence: "chapter-20.md L218"}`），facts store 应用 op 并校验**状态机合法性**（无来源的二次获得=拒收）。这同时根治 matrix/整档 content_dropped 族（模型不再重写整档）。**拒收语义**（rev2 I2）：op 校验失败 → typed exception（exceptions.py 家族）+ settle 门 FAIL，走既有 attempts/escalation 协议；**fail-fast 在 Markdown upsert 之前**（双写下 Markdown 行不落盘，无半写态）。**写路径分期**（rev2 C1）：P1 起 settle 对三维**双写**（结构化 op 供 facts 应用 + 既有 Markdown 行 upsert 照旧），P3 才退役 Markdown 整档重写——不存在 facts 陈旧窗口。**gate 纯度边界**（rev2 I3）：op 应用是有状态写侧，住 facts 模块；门检是纯读者（AGENTS.md 幂等律）。
+- **增量 op 协议**：settle 只发结构化事件（`{op: prop.transfer, prop: 骨哨(旧线), from: 帖木哥, to: 那罕, evidence: "chapter-20.md L218"}`），facts store 应用 op 并校验**状态机合法性**（无来源的二次获得=拒收）。这同时根治 matrix/整档 content_dropped 族（模型不再重写整档）。**拒收语义**（rev2 I2）：op 校验失败 → typed exception（exceptions.py 家族）+ settle 门 FAIL，走既有 attempts/escalation 协议；**fail-fast 在 Markdown upsert 之前**（双写下 Markdown 行不落盘，无半写态）。**写路径分期**（rev2 C1）：P1 起 settle 对三维**双写**（结构化 op 供 facts 应用 + 既有 Markdown 行 upsert 照旧），P3 才退役 Markdown 整档重写——不存在 facts 陈旧窗口。**双写分叉语义**（rev3 R2-I2，裁定方案 b）：Markdown 行仍由 settle 模型面照旧自写（契约零改动，向后兼容最大化）；G4.ss 增 **op↔row 一致性断言**（facts 为 canonical，声明面与事实面不一致即 FAIL）+ identity↔name_registry 对账检查——分叉被门检拦截而非依赖模型自觉；op→row 机械渲染=P3 投影层实现形态（届时分叉面消失）。**gate 纯度边界**（rev2 I3）：op 应用是有状态写侧，住 facts 模块；门检是纯读者（AGENTS.md 幂等律）。
 - **投影层**：现有 truth/*.md 变成从 facts 渲染的投影（渲染器 `src/shenbi/facts/projection.py`——rev2 I8 订正：框架侧模块，非项目数据目录；Markdown 面向人/LLM 的可读性不变，投影头部带 `> projected from facts/<dim>.json — do not edit`）。迁移分两期（见 §6），存量 Markdown 表在迁移前保持现状不阻塞。
 - **查询面**：`shenbi-facts query --dim props --chapter 20 [--as-of N]`——返回该维事实（含 as-of 历史态，供跨章审计回放）。**planning 投影**（rev2 I4）：planning 上下文装配消费**现态紧凑视图**（当前 owner + 本章相关实体，extractor 哲学复用），token 面有界；完备历史/`--as-of` 仅供审计/金丝雀。消费方：chapter-planning 上下文装配（替代猜）、G4 门检 oracle、审计契约 reads、金丝雀审计。
 
 ### 1.2 首批入库维度（P1）
 
-props（owner+事件链+状态机）、counters（鉴录名数等单调计数）、identity（人物别名→叙事名映射+当前叙事名）。P2 迁移 promises(钩)——pending_hooks 证据行保留 Markdown 投影，规范态进 facts。
+props（owner+事件链+状态机）、counters（鉴录名数等单调计数）、identity（人物别名→叙事名映射+当前叙事名）。promises(钩) 迁移=P3 期（rev3 R2-I1 对齐 §6——钩系统四槽已齐备零漂移，迁移优先级最低；pending_hooks 证据行届时保留 Markdown 投影，规范态进 facts）。
 
 ### 1.3 种子真值源（rev2 I6）
 
@@ -39,18 +39,22 @@ facts 种子从**修复后章节正典**（fixed chapters as canonical）派生�
 ### 1.4 接线清单（rev2 I3）
 
 - `docs/framework/truth-files.yaml`：注册 `truth/facts/*.json` glob（新 concept 行——PR 可见决策点）
-- `docs/framework/status-vocab.md`：注册 facts op/状态枚举（`prop.transfer` 等四 op + counter 状态），`tools/lint_status_strings.py` 单一信源
+- `docs/framework/status-vocab.md`：注册 facts op/状态枚举（**rev3 R2-M1：逐维完整字面量集以 §2 普查表为准**——props 四 op+状态机态、counters op+单调态、identity 改名 op），`tools/lint_status_strings.py` 单一信源
+- **plan_format 决策**（rev3 R2-I4）：F16/F17 新增备忘硬门字段（`物件@op`/`计数:`）走既有 `plan_format` token 机制（chapter_planning.py:155-163，现行 v3）——v4 bump 或 v3 内可选，plan 阶段钉死并同批 backfill；禁止第三 bespoke 工具（AGENTS.md）
+- **G4_CHECK_MAP 注册**（rev3 R2-I4）：F15/F16/F17 新 check ids 进 `src/shenbi/pipeline/chapter_loop.py` G4_CHECK_MAP（severity 声明）
+- **共享转移动词表**（rev3 R2-M2）：F16 动词族与 XC fallback 闭集抽为单一词汇模块双路径消费（防两表漂移）
 - 写路径：facts 写入走 `src/shenbi/pipeline/truth_io.py` 既有 path-keyed `.lockfile` flock + append-helper 纪律（无第二套事务机制）
 - `pyproject.toml` 新 entry point `shenbi-facts` + justfile targets（query 面向人/CI）
 - state-settling decisions-sidecar 覆盖规则扩至 facts 写（C1 双写落地后）
+- **regen-vol1 种子工具**（rev3 R2-M5）：确定性 backfill 工具派生 facts 种子+声明行（`tools/plan_craft_backfill.py` 先例模式），禁手写 JSON（CI 可重复性）
 
 ## 2. 不变量普查（四槽契约）
 
-`docs/framework/invariants.md`：13 维×四槽表——恒等(identity)、时间、空间(location)、持有与经手(props)、枚举计数(counters)、知识态(who-knows-what)、承诺与债务(钩)、情绪节奏、能力活性(金手指/体感)、叙事纪律(POV/声口)、字量结构、发布卫生、防剧透。每维四槽：载体（facts 库）/声明（memo 结构化行）/门检（check id）/审计（审计契约 reads）。**任何维度缺槽=文档化的已知洞**。
+`docs/framework/invariants.md`：13 维×四槽表——恒等(identity)、时间、空间(location)、持有与经手(props)、枚举计数(counters)、知识态(who-knows-what)、承诺与债务(钩)、情绪节奏、能力活性(金手指/体感)、叙事纪律(POV/声口)、字量结构、发布卫生、防剧透。每维四槽：载体（facts 库）/声明（memo 结构化行）/门检（check id）/审计（审计契约 reads）。**期相列**（rev3 R2-M3）：普查表每行带 P1/P2/P3 期相标记——即「缺槽=文档化的已知洞」的声明形，也是 lint_invariant_coverage 判定 P1 子集的机制（无期相标记或期相≤当前期而缺槽=红）。**任何维度缺槽=文档化的已知洞**。
 
 `tools/lint_invariant_coverage.py`（进 just check）：扫全部 check id + facts schema + 审计契约，对照普查表——缺槽即红。
 
-spec 模板（`docs/superpowers/single-model-sdd-prompt.md` 附录 A）新增必填节：「触及的不变量维度」（rev2 M3：模板实体钉为该附录，lint 校验对象=specs/INDEX.md 活跃项的该节存在性）。
+INDEX 活跃 spec 新增必填登记节：「触及的不变量维度」（rev3 R2-I3 订正锚点：登记约定落 `docs/superpowers/specs/INDEX.md` 登记模板——附录 A 是 progress 模板非 spec 模板；**同批为 #80/#81 补该节消除自绊**；lint 校验对象=INDEX 活跃项该节存在性，P1 只校 P1 期相维度）。
 
 ## 3. 变异测试式门检覆盖（CI 环——不打地鼠的核心机制）
 
@@ -79,7 +83,7 @@ spec 模板（`docs/superpowers/single-model-sdd-prompt.md` 附录 A）新增必
 
 ## 5. 运行环：金丝雀审计
 
-每 10 章（或每束 per-chapter 检点）：独立 subagent 拿 `shenbi-facts query` 完备答案 + 章节全文做全链核对（G3.4 模式制度化）；入 driver-prompt 附件协议。
+每束 per-chapter 检点（rev3 R2-M4 钉单一节奏——与 bundle 步进机对齐，双章束≈每 2 章；「每 10 章」措辞废弃）：独立 subagent 拿 `shenbi-facts query` 完备答案 + 章节全文做全链核对（G3.4 模式制度化）；入 driver-prompt 附件协议。
 
 ## 6. 分期
 
