@@ -516,6 +516,27 @@
     ],
     "updates": []
   },
+  "truth/facts/props.json": {
+    "reads": [
+      "shenbi-chapter-planning"
+    ],
+    "writes": [],
+    "updates": []
+  },
+  "truth/facts/counters.json": {
+    "reads": [
+      "shenbi-chapter-planning"
+    ],
+    "writes": [],
+    "updates": []
+  },
+  "truth/facts/identity.json": {
+    "reads": [
+      "shenbi-chapter-planning"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "plans/chapter-N-plan-decisions.json": {
     "reads": [],
     "writes": [

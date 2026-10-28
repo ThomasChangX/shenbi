@@ -435,7 +435,7 @@ After updating character state, update `truth/character_matrix.md`:
   "$schema": "shenbi-decisions-v1",
   "skill": "shenbi-state-settling",
   "chapter": 1,
-  "produced_at": "2026-09-28T12:00:00Z",
+  "produced_at": "2026-09-28T12:34:56Z",
   "selections": [
     {"target": "truth/current_state.md", "selected": ["sys-stage-1", "position-ash-crossing"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
     {"target": "truth/character_matrix.md", "selected": ["主角"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
@@ -445,6 +445,14 @@ After updating character state, update `truth/character_matrix.md`:
     {"target": "truth/pending_hooks.md", "selected": ["MH01"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []},
     {"target": "truth/chapter_summaries.md", "selected": ["第 1 章"], "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []}
   ],
-  "adjustments": []
+  "adjustments": [],
+  "facts_ops": {
+    "props": [
+      {"op": "acquire", "prop": "灰木牌", "to": "主角", "evidence": "chapters/chapter-1.md L88", "chapter": 1}
+    ],
+    "counters": [
+      {"op": "increment", "name": "名字数", "delta": 1, "chapter": 1}
+    ]
+  }
 }
 ```

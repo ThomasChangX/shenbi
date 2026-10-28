@@ -55,6 +55,10 @@
 | ChapterStatus | shenbi.pipeline.state.ChapterStatus | pending\|in-progress\|complete\|settling_failed | chapter_loop.py、error_handler.py | cli.py status 列表（T907：from_dict 容错归一旧值 completed→complete） |
 | CheckpointType | shenbi.pipeline.state.CheckpointType | none\|genesis-complete\|chapter-memo\|state-settle\|escalation\|per-chapter\|volume-boundary\|book-closure | state 机 | pending_checkpoint |
 | ReviewDecision | shenbi.pipeline.state.ReviewDecision | approve\|modify\|reject | pipeline/cli.py review 命令 | checkpoint_history（命令域，T909 与 ApprovalDecision 分立） |
+| PropOp | shenbi.facts.enums.PropOp | transfer\|acquire\|hold\|lose | state-settling facts_ops.props 声明 | settle_ops 写侧应用；G4.ss simulate（spec #80 F16；无 copy op——副本走 `实体·副本` 键命名） |
+| CounterOp | shenbi.facts.enums.CounterOp | increment\|set | state-settling facts_ops.counters 声明 | settle_ops 写侧应用（spec #80 F17；set 仅种子期 chapter=0，increment 正向单调） |
+| IdentityOp | shenbi.facts.enums.IdentityOp | rename\|set_alias | state-settling facts_ops.identity 声明 | settle_ops 写侧应用；G4.ss simulate（spec #80；`alias` 不是合法值） |
+| FactsDim | shenbi.facts.enums.FactsDim | props\|counters\|identity | pipeline facts store 维度键（truth/facts/<value>.json 槽位） | settle_ops 槽位断言；G4.ss；查询面（spec #80 T1） |
 
 ## 命名约定（非值域，不参与机器对账）
 
