@@ -247,6 +247,10 @@ convention = "google"
 "tests/unit/gates/g4/test_f15_narration_name.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/g4/test_f17_counters.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/g4/test_g4_ss_facts.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #80 T12: lint violation messages quote the census vocabulary (维度/
+# 期相/触及的不变量维度 headers) — same category as lint_truth_pool.
+"tools/lint_invariant_coverage.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_lint_invariant_coverage.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #80 T11 mutant CI: wound-vocabulary docstrings/strings (same category).
 "tests/gates/test_invariant_mutants.py" = ["RUF001", "RUF002", "RUF003"]
 

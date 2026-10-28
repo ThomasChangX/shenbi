@@ -2,7 +2,7 @@
 
 > spec #80 §2。每维四槽：**载体**（命实文件/机制——非 13 维全 facts 承载）/ **声明**（memo 结构化行）/ **门检**（check id 或工具）/ **审计**（审计契约 reads）。**任何维度缺槽 = 文档化的已知洞**，不是失职隐瞒——期相列声明该洞何时到期补齐。
 
-**期相语义（lint 机制）**：`期相 ≤ 当前期` 而缺槽 = lint_invariant_coverage 红（T12 交付 lint 工具并接 `just check` 后生效）；`期相 > 当前期` 的缺槽 = 已排期的已知洞。**当前期由 lint 内 `CURRENT_PHASE` 常量定义**（随批次 bump，离线确定性），现行 **CURRENT_PHASE = P1**。
+**期相语义（lint 机制）**：`期相 ≤ 当前期` 而缺槽 = `tools/lint_invariant_coverage.py` 红（进 `just check`）；`期相 > 当前期` 的缺槽 = 已排期的已知洞。**当前期由 lint 内 `CURRENT_PHASE` 常量定义**（随批次 bump，离线确定性），现行 **CURRENT_PHASE = P1**。
 
 **字面量权威层级**（只引用不定义）：facts op/dim 枚举值集的唯一权威 = `src/shenbi/facts/` Python StrEnum → `docs/framework/status-vocab.md` 域清单注册行 → 本表**只引用不定义**（doc↔code 双源漂移由 `lint_status_strings` 红）。
 
@@ -28,4 +28,4 @@
 
 - **改表即改 lint**：门检 check id 增删（新 G4/G2 检查、XC 检查）必须同批反映到本表门检列——`lint_invariant_coverage`（T12）扫全仓 check id 对照本表，表内不存在的 check id = 未登记面红；本表声明而代码不存在的 check id = 幽灵红。
 - **期相 bump**：P2 批次开工时 `CURRENT_PHASE` 常量 P1→P2（能力活性行四槽到期）。
-- **mutant 名归一**：本表与 mutant 测试套件（T11 落地于 tests/gates/）的 mutant 名互查时按 hyphen↔underscore 归一（`name-swap` ↔ `test_mutant_name_swap_killed_by_`）。
+- **mutant 名归一**：本表与 `tests/gates/test_invariant_mutants.py` 的 mutant 名互查时按 hyphen↔underscore 归一（`name-swap` ↔ `test_mutant_name_swap_killed_by_`）——lint_invariant_coverage 的义务面即按此归一 grep。
