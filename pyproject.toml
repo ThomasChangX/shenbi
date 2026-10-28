@@ -247,6 +247,8 @@ convention = "google"
 "tests/unit/gates/g4/test_f15_narration_name.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/g4/test_f17_counters.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/g4/test_g4_ss_facts.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #80 T11 mutant CI: wound-vocabulary docstrings/strings (same category).
+"tests/gates/test_invariant_mutants.py" = ["RUF001", "RUF002", "RUF003"]
 
 # spec #80: facts tests quote the live Chinese vocabulary (火纹骨哨/鉴录名数)
 # — fullwidth punctuation is the data, not drift (release_split test precedent).
