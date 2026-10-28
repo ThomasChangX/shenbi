@@ -507,7 +507,15 @@ def build_retry_feedback(exc: BaseException) -> str:
 OPTIONAL_READS: dict[str, list[str]] = {
     "shenbi-context-composing": ["arc-*.md", "volume_summaries.md", "trend"],
     "shenbi-drift-guidance": ["arc-*.md"],
-    "shenbi-chapter-planning": ["chapter-*-plan.md"],
+    "shenbi-chapter-planning": [
+        "chapter-*-plan.md",
+        # spec #80 T9（audit-T9 I-1）：facts 三维是 P1 新读面——既有项目
+        # （seed_empty 只在全新 init 跑）没有 truth/facts/ 时按 ramp-up
+        # 缺读降级（G4.cp prop_decl 对应降 WARN no_facts），不硬败 G1
+        "truth/facts/props.json",
+        "truth/facts/counters.json",
+        "truth/facts/identity.json",
+    ],
     "shenbi-escalation-review": [
         "resonance_trend.md",
         "volume-*-score.md",
