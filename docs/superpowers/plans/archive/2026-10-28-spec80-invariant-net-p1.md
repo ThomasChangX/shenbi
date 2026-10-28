@@ -1,5 +1,7 @@
 # Spec #80 P1 invariant-net Implementation Plan
 
+> **Status**: Done (PR #256 · 2026-10-29)——13/13 task audit PASS；全分支终审两轮收敛；P2 前置三项随 spec §6 在库
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 > **本项目补充**：全部 task 涉及 infra 模块（facts 新域/`gates/g4/`/`contracts/`/`pipeline/`）→ **协调者亲自实现**（v6 leaf/infra 分流铁律），逐 task TDD + task 后 fresh-context 重审产出 `.superpowers/sdd/audit-T<N>.md`。无 audit-T<N>.md 不得开始 T<N+1>。
 

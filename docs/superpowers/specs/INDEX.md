@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-10-28（spec #81 observability-net 登记——观测完备性，Track A 挖矿五发现的框架归宿）
-> **活跃 spec 数**：2
+> **活跃 spec 数**：1
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,15 +9,6 @@
 ---
 
 ## 执行队列
-
-### #80 · 不变量之网：规范事实库、四槽门检、变异测试覆盖（invariant-net）
-- **文件**：`2026-10-28-spec80-invariant-net.md` ｜ **系列**：regen-vol1 收尾 ｜ **状态**：Active
-- **优先级**：🔴 P0 ｜ **方法**：SDD（declare-then-verify 推广 + mutation-tested coverage）
-- **依赖**：无（消费 regen-vol1 伤口语料为 fixtures）
-- **内容**：facts store+查询面／四槽不变量普查／六门 F15-F20／mutant CI／金丝雀审计
-- **对应 plan**：P1=骨架三维度+三门+mutant 导入；P2=余门+实弹；P3=全量迁移
-- **触及的不变量维度**：恒等 identity／持有与经手 props／枚举计数 counters（P1 到期三行）＋ 能力活性（P2 F18）——普查表见 `docs/framework/invariants.md`
-- **配对**：#81（其 mutant 重放/金丝雀/`--as-of` 回放消费 #81 §1 归档）
 
 ### #81 · 观测完备性之网：dispatch 归档、消费者契约、逃逸舱硬化（observability-net）
 - **文件**：`2026-10-28-spec81-observability-net.md` ｜ **系列**：regen-vol1 收尾 ｜ **状态**：Active

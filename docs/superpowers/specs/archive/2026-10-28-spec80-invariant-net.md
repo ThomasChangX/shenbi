@@ -5,7 +5,7 @@
 > 维度（有台账无门检）；L3 门体系反应式生长、从未做不变量普查。
 > **方法**：declare-then-verify（钩系统 24 章零漂移的配方）推广到全部维度 + 变异测试闭环。
 > **优先级**：🔴 P0（内容修复的 gate 保障依赖 P1）。
-> **Status**: Active（rev1 驳斥七项；rev2-4 R1-R3 审查修正 30 项；rev5 R4 修正：facts_ops schema enforcement 触点/identity 对账比较面+重生成=陈旧行重写/severity=HARD/空种子语义/mutant 义务域限定/F16s 纯读者/--chapter 相关性语义——2026-10-28）
+> **Status**: Done (PR #256 · 2026-10-29；P1 期交付——P2 前置三项见 §6；rev1 驳斥七项；rev2-4 R1-R3 审查修正 30 项；rev5 R4 修正：facts_ops schema enforcement 触点/identity 对账比较面+重生成=陈旧行重写/severity=HARD/空种子语义/mutant 义务域限定/F16s 纯读者/--chapter 相关性语义——2026-10-28）
 
 **触及的不变量维度**（T10 自补——普查表 `docs/framework/invariants.md`）：恒等 identity／持有与经手 props／枚举计数 counters（P1 到期三行，facts 承载+mutant 义务）＋ 能力活性（P2 F18 core_motif_touch）。P3 迁移面（promises/情绪等）见 §6。
 
