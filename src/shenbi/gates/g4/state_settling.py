@@ -643,13 +643,20 @@ def g4_state_settling_check(
 
     ① sidecar lacks facts_ops while prop_registry shows a this-chapter row
       change -> compat-period WARN (not FAIL)
-    ② ss.prop_row_match: declared op outcome vs the markdown registry row
-      owner (facts canonical — divergence FAIL)
-    ③ ss.identity_row_match: facts alias set <-> name_registry 别名/旌名
-      rows, bidirectional, independent of identity_ops presence
-    ④ ss.facts_ops: F16s simulate — chained dry-run each op against current
-      facts; rejection-form ops FAIL (and require a sidecar rationale, P2.5);
-      chapter-idempotent replays are skipped (same keys as the write side)
+    ② ss.prop_row_match: the op chain's FINAL simulated owner per touched
+      prop vs the markdown registry row owner (facts canonical — divergence
+      FAIL; per-op ev.to would mis-fire on hop 1 of a legitimate same-chapter
+      two-hop — audit-T8 round2 #1c)
+    ③ ss.identity_row_match: POST-simulation facts alias set (this chapter's
+      identity ops applied first — round2 I-3) <-> name_registry 别名/旌名
+      rows, bidirectional, union of staged + committed rows, independent of
+      identity_ops presence
+    ④ ss.facts_ops: F16s simulate — chained dry-run each props/identity op
+      against current facts; rejection-form ops FAIL (and require a sidecar
+      rationale, P2.5); cross-commit fingerprint replays are skipped (same
+      keys + multiset rule as the write side — audit-T8 round2 #1)
+    Corrupt/unreadable facts files surface as structured ss.* issues, never
+    raw exceptions (round2 M-1).
     """
     issues: list[str] = []
     warns: list[str] = []
@@ -661,6 +668,8 @@ def g4_state_settling_check(
     if sidecar_path is None or not sidecar_path.is_file():
         return issues, warns
     import json as _json
+    from collections import Counter as _Counter
+    from typing import Any as _Any
 
     try:
         doc = _json.loads(sidecar_path.read_text(encoding="utf-8"))
@@ -673,48 +682,76 @@ def g4_state_settling_check(
     from pydantic import ValidationError
 
     from shenbi.exceptions import FactsOpRejectedError
-    from shenbi.facts.schemas import FactsFile, PropTransferEvent
-    from shenbi.facts.store import apply_prop_op, op_in_log
+    from shenbi.facts.schemas import FactsFile, IdentityEvent, PropTransferEvent
+    from shenbi.facts.store import (
+        IDENTITY_REPLAY_KEYS,
+        PROP_REPLAY_KEYS,
+        apply_identity_op,
+        apply_prop_op,
+        replay_skip,
+    )
 
     _staged_reg = sidecar_path.parent / "prop_registry.md"
     _staged_name_reg = sidecar_path.parent / "name_registry.md"
     chapter = doc.get("chapter")
     rationale = facts_ops.get("rationale")
 
-    # ② props op↔row reconciliation（链式模拟，audit-T8 M7）
+    # ②+④ props op↔row reconciliation（链式模拟，audit-T8 M7 + round2 #1）
     prop_ops = facts_ops.get("props") or []
     if has_props and prop_ops:
-        current = FactsFile.model_validate_json(props_file.read_text(encoding="utf-8"))
-        for raw in prop_ops:
-            try:
-                ev = PropTransferEvent.model_validate(raw)
-            except ValidationError as exc:
-                issues.append(
-                    f"ss.facts_ops:props op 结构非法（{exc.error_count()} 处）"
-                    "——修正 sidecar 的 op 形态"
-                )
-                continue
-            if op_in_log(current.ops_log, ev.model_dump(by_alias=True), ("prop", "op", "chapter")):
-                continue  # 章内幂等重放（写侧同键跳过）——不模拟不判非法
-            try:
-                current = apply_prop_op(current, ev)
-            except FactsOpRejectedError as exc:
-                # ④ rejection-form op: FAIL + P2.5 rationale requirement
-                issues.append(
-                    f"ss.facts_ops:非法 op（{exc.reason}）——该形态必须携带非空 rationale（P2.5）"
-                )
-                if not rationale:
+        try:
+            current = FactsFile.model_validate_json(props_file.read_text(encoding="utf-8"))
+        except (OSError, ValidationError) as _exc:
+            # audit-T8 round2 M-1：裸上抛会被 CLI 折算成「文件路径参数非法」
+            # 的误导性报因——结构化 FAIL 并指明修复对象
+            issues.append(
+                "ss.facts_ops:truth/facts/props.json 损坏/不可读"
+                f"（{_exc.__class__.__name__}）——G4 无法模拟，先修复 facts 文件本体"
+            )
+        else:
+            touched: set[str] = set()
+            seen: _Counter[tuple[_Any, ...]] = _Counter()
+            for raw in prop_ops:
+                try:
+                    ev = PropTransferEvent.model_validate(raw)
+                except ValidationError as exc:
                     issues.append(
-                        "ss.facts_ops:rationale 缺失（P2.5：非法形态 op 必须携带非空 rationale）"
+                        f"ss.facts_ops:props op 结构非法（{exc.error_count()} 处）"
+                        "——修正 sidecar 的 op 形态"
                     )
-                continue
-            _row_owner = _registry_row_owner(project_dir, ev.prop, lookup=_staged_reg)
-            if _row_owner is not None and _row_owner != ev.to:
-                issues.append(
-                    f"ss.prop_row_match:「{ev.prop}」op 终态 owner「{ev.to or '（空）'}」"
-                    f"≠ registry 行 owner「{_row_owner}」"
-                    "——facts 为 canonical，修正 registry 行（修复者: settling）"
-                )
+                    continue
+                entry = ev.model_dump(by_alias=True)
+                fp = tuple(entry.get(k) for k in PROP_REPLAY_KEYS)
+                k = seen[fp]
+                seen[fp] += 1
+                if replay_skip(current.ops_log, entry, PROP_REPLAY_KEYS, k):
+                    continue  # 跨提交指纹重放（写侧同键跳过）——不模拟不判非法
+                try:
+                    current = apply_prop_op(current, ev)
+                except FactsOpRejectedError as exc:
+                    # ④ rejection-form op: FAIL + P2.5 rationale requirement
+                    issues.append(
+                        f"ss.facts_ops:非法 op（{exc.reason}）——该形态必须携带非空 rationale（P2.5）"
+                    )
+                    if not rationale:
+                        issues.append(
+                            "ss.facts_ops:rationale 缺失（P2.5：非法形态 op 必须携带非空 rationale）"
+                        )
+                    continue
+                touched.add(ev.prop)
+            # ② row reconciliation vs the FINAL simulated owner（round2 #1c：
+            # 逐 op 用 ev.to 会在合法二跳的第一跳误报——行持真终态时反被
+            # 要求改写成错误的中间态）
+            for prop in sorted(touched):
+                _fact = current.props().get(prop)
+                _final = _fact.owner if _fact is not None else ""
+                _row_owner = _registry_row_owner(project_dir, prop, lookup=_staged_reg)
+                if _row_owner is not None and _row_owner != _final:
+                    issues.append(
+                        f"ss.prop_row_match:「{prop}」op 链终态 owner「{_final or '（空）'}」"
+                        f"≠ registry 行 owner「{_row_owner}」"
+                        "——facts 为 canonical，修正 registry 行（修复者: settling）"
+                    )
     elif not prop_ops and isinstance(chapter, int):
         # ① compat period: registry shows a this-chapter row change while the
         # sidecar declares no ops — WARN, not FAIL (audit-T8 I3)
@@ -730,23 +767,71 @@ def g4_state_settling_check(
             )
 
     # ③ identity reconciliation — bidirectional, ungated from identity_ops
-    # (audit-T8 M8); runs whenever identity facts exist (facts canonical)
+    # (audit-T8 M8); runs whenever identity facts exist (facts canonical).
+    # audit-T8 round2 I-3：先模拟本章 identity op 再对账——settle 声明新别名
+    # 且 staging 已带新行是双写契约本身的合法形态（op 到 commit 才落地），
+    # 对 committed 前态对账会把合法 settle 判成 FAIL。
     if has_identity:
-        facts_id = FactsFile.model_validate_json(identity_file.read_text(encoding="utf-8"))
-        fact = facts_id.identity()
-        if fact is not None:
-            _rows = _name_registry_alias_rows(project_dir, lookup=_staged_name_reg)
-            for extra in _rows - set(fact.aliases):
-                issues.append(
-                    f"ss.identity_row_match:name_registry 别名行「{extra}」"
-                    "不在 facts 别名集——facts 为 canonical，重生成该行"
-                    "（修复者: settling）"
-                )
-            for missing in set(fact.aliases) - _rows:
-                issues.append(
-                    f"ss.identity_row_match:facts 别名「{missing}」"
-                    "无 name_registry 别名/旌名行——补行（修复者: settling）"
-                )
+        try:
+            facts_id = FactsFile.model_validate_json(identity_file.read_text(encoding="utf-8"))
+        except (OSError, ValidationError) as _exc:
+            issues.append(
+                "ss.identity_row_match:truth/facts/identity.json 损坏/不可读"
+                f"（{_exc.__class__.__name__}）——先修复 facts 文件本体"
+            )
+        else:
+            _id_seen: _Counter[tuple[_Any, ...]] = _Counter()
+            for raw in facts_ops.get("identity") or []:
+                try:
+                    iev = IdentityEvent.model_validate(raw)
+                except ValidationError as exc:
+                    issues.append(
+                        f"ss.facts_ops:identity op 结构非法（{exc.error_count()} 处）"
+                        "——修正 sidecar 的 op 形态"
+                    )
+                    continue
+                _entry = {
+                    "op": iev.op.value,
+                    "new_name": iev.new_name,
+                    "alias": iev.alias,
+                    "from_ch": iev.from_ch,
+                }
+                _fp = tuple(_entry.get(k) for k in IDENTITY_REPLAY_KEYS)
+                _k = _id_seen[_fp]
+                _id_seen[_fp] += 1
+                if replay_skip(facts_id.ops_log, _entry, IDENTITY_REPLAY_KEYS, _k):
+                    continue  # 跨提交指纹重放（写侧同键跳过）
+                try:
+                    facts_id = apply_identity_op(
+                        facts_id,
+                        iev.op.value,
+                        new_name=iev.new_name,
+                        alias=iev.alias,
+                        from_ch=iev.from_ch,
+                    )
+                except FactsOpRejectedError as exc:
+                    issues.append(
+                        f"ss.facts_ops:非法 op（{exc.reason}）——该形态必须携带非空 rationale（P2.5）"
+                    )
+                    if not rationale:
+                        issues.append(
+                            "ss.facts_ops:rationale 缺失（P2.5：非法形态 op 必须携带非空 rationale）"
+                        )
+                    continue
+            fact = facts_id.identity()
+            if fact is not None:
+                _rows = _name_registry_alias_rows(project_dir, lookup=_staged_name_reg)
+                for extra in _rows - set(fact.aliases):
+                    issues.append(
+                        f"ss.identity_row_match:name_registry 别名行「{extra}」"
+                        "不在 facts 别名集——facts 为 canonical，重生成该行"
+                        "（修复者: settling）"
+                    )
+                for missing in set(fact.aliases) - _rows:
+                    issues.append(
+                        f"ss.identity_row_match:facts 别名「{missing}」"
+                        "无 name_registry 别名/旌名行——补行（修复者: settling）"
+                    )
     return issues, warns
 
 
@@ -777,7 +862,10 @@ def _registry_row_owner(project_dir: Path, prop: str, *, lookup: Path | None = N
 def _name_registry_alias_rows(project_dir: Path, *, lookup: Path | None = None) -> set[str]:
     """name_registry 别名/旌名行的名集合（登记名 prose 备注出范围）。
 
-    lookup 优先（staging 姊妹副本），缺席回退 committed truth/。
+    **并集**（audit-T8 round2 I-3）：staged 增量行 ∪ committed 旧行——
+    staged 文件粒度优先（有行即早退）会把「旧行只在 committed」的过渡窗
+    误判成 facts 别名无行。旧行被事实层淘汰时 facts 别名集同刻收窄
+    （identity 维只增不删，无此形态）。
     """
     import re as _re
 
@@ -791,8 +879,6 @@ def _name_registry_alias_rows(project_dir: Path, *, lookup: Path | None = None) 
             m = _re.match(r"^\|\s*(别名|旌名)\s*\|\s*([^|]+?)\s*\|", line)
             if m:
                 out.add(m.group(2))
-        if out:
-            return out
     return out
 
 
@@ -854,8 +940,9 @@ def g4_state_settling(
 
         if "state-settling-decisions" in str(fp):
             mf.extend(_check_produced_at(content, fp))
-            # spec #80 T8（audit-T8 C1 清偿）：settle 双写读侧四检查接进
-            # 生产门——ss.* 检查从此在真实 settle 上执行（此前死代码）。
+            # 直呼路径（sidecar 显式出现在 fps——单元测试/裸 CLI）。生产
+            # 复合分区从不把 sidecar 送进本槽（audit-T8 round2 C-2）——
+            # 生产门经函数尾部的姊妹约定定位块进入同一检查。
             if project_dir:
                 _issues, _warns = g4_state_settling_check(Path(project_dir), pf)
                 mf.extend(_issues)
@@ -975,6 +1062,29 @@ def g4_state_settling(
 
     if not fps:
         c.append({"id": "G4.ss", "s": GateStatus.SKIP, "r": "no files"})
+
+    # spec #80 T8（audit-T8 round2 C-2）：复合分区把 sidecar 路由给 g4_decisions
+    # （schema/P2.5 归属见 _check_selections_coverage docstring）——直接在 fps
+    # 里等 sidecar 是死路。按 #52 同款姊妹约定定位生产门真实可见的
+    # staging/truth/state-settling-decisions.json，ss.* 四检查由此接入。
+    if project_dir and not any("state-settling-decisions" in str(fp) for fp in fps or []):
+        for fp in fps or []:
+            if "staging/truth" not in fp.replace("\\", "/"):
+                continue
+            _sidecar = resolve_input_path(fp, rd).parent / "state-settling-decisions.json"
+            if _sidecar.is_file():
+                _issues, _warns = g4_state_settling_check(Path(project_dir), _sidecar)
+                mf.extend(_issues)
+                c.extend(
+                    {
+                        "id": "G4.ss.facts_ops",
+                        "file": str(_sidecar),
+                        "s": GateStatus.WARN,
+                        "r": w,
+                    }
+                    for w in _warns
+                )
+            break
 
     mf.extend(_check_selections_coverage(fps, rd))
 

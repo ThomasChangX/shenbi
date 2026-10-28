@@ -422,10 +422,10 @@ After updating character state, update `truth/character_matrix.md`:
 结构：`{"props": [...], "counters": [...], "identity": [...], "rationale": "..."}`——四个键全部可省；**凡本章无该维变化则省略整个数组**。
 
 - `props[]` 条目（物象 op）：`op`（`transfer`/`acquire`/`hold`/`lose`——**无 copy op**；副本走 `实体·副本` 键命名）、`prop`（实体全键）、`from`（转出方，transfer 在场实体必填且须为当前 owner）、`to`（终态持有方）、`chapter`、`evidence`（`chapter-N.md L<行>` 定位）。状态机：transfer 要求 from == 当前 owner；acquire 对在场实体 = 无来源二次获得（拒收）；lose 后 owner 置空。
-- `counters[]` 条目（计数 op）：`op`（`increment`/`set`）、`name`（计数器名，与备忘 `- 计数:` 声明同名）、`delta`（increment 正增量）、`chapter`（set 仅种子期 chapter=0）。同章同计数器同 op 只计一次（幂等重放跳过）。
-- `identity[]` 条目（身份 op）：`op`（`rename`/`alias`）、`new_name`（rename 后叙事名）、`alias`（alias 登记）、`from_ch`（生效章）。
+- `counters[]` 条目（计数 op）：`op`（`increment`/`set`）、`name`（计数器名，与备忘 `- 计数:` 声明同名）、`delta`（increment 正增量）、`chapter`（set 仅种子期 chapter=0）。同章同计数器可多条 increment（同 delta 也逐条全计，各为一独立事件）。
+- `identity[]` 条目（身份 op）：`op`（`rename`/`set_alias`——枚举值精确匹配，`alias` 不是合法值）、`new_name`（rename 后叙事名）、`alias`（set_alias 登记的别名）、`from_ch`（生效章）。
 - `rationale`（str，可省）：**仅当某个 op 属非法形态仍需声明时必填非空**（P2.5）；常规合法 op 禁带 rationale。
-- **幂等与拒收**：同章同键 op 重复提交自动跳过（不双计）；任一 op 非法 ⇒ commit 前拒收（零写入、staging 保留），按拒收理由修正后重派。
+- **幂等与拒收**：重放判定按**全指纹**（props: `prop+op+chapter+from+to`；counters: `name+op+delta+chapter`）+ 多重集计数——跨提交重放已落盘 op 自动跳过（不双计），同章不同指纹的合法序列（二跳转移、多条 increment）逐条生效不误吞；批内全同指纹重复 op 不会被静默去重（props 状态机会按现态拒收第二条）。任一 op 非法 ⇒ commit 前拒收（零写入、staging 保留），按拒收理由修正后重派。
 - **canonical 义务**：facts store（props/counters/identity 三维 JSON，`shenbi-facts-v1`）为 canonical——`truth/prop_registry.md` 行 owner、`truth/name_registry.md` 别名/旌名行必须与 op 终态一致（G4.ss `prop_row_match`/`identity_row_match` 断言，不一致 = FAIL，修复方向永远改 Markdown 行）。
 
 **可仿写示例**：

@@ -4,13 +4,15 @@
 op，任一拒收/结构非法 ⇒ ``FactsOpRejectedError`` 上抛且**不写任何文件**
 （跨维、跨 sidecar 的零写入契约）；全部合法后才统一落盘。写走 T2 的
 **无锁内层** ``_write_facts_unlocked``（R3-C1：同进程 flock 跨 fd 无重入）。
-幂等重放（audit-T8 I6）：同章同键 op 已在 ops_log ⇒ 跳过，at-least-once
-提交窗口重放不双计。
+幂等重放（audit-T8 I6 + round2 #1 多重集修正）：全指纹 + 批内序位判定，
+at-least-once 提交窗口重放不双计，同章合法重复指纹（二跳转移/同 delta
+双计）不误吞。
 """
 
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Any, NoReturn
 
@@ -26,18 +28,16 @@ from shenbi.facts.schemas import (
     PropTransferEvent,
 )
 from shenbi.facts.store import (
+    COUNTER_REPLAY_KEYS,
+    IDENTITY_REPLAY_KEYS,
+    PROP_REPLAY_KEYS,
     apply_counter_op,
     apply_identity_op,
     apply_prop_op,
-    op_in_log,
+    replay_skip,
 )
 from shenbi.facts.store import _write_facts_unlocked  # pyright: ignore[reportPrivateUsage] — R3-C1 锁边界
 from shenbi.pipeline.truth_io import truth_file_flock
-
-# 章内幂等键集：props/counter 按实体+op+章；identity 按全指纹（无章字段）
-_PROP_REPLAY_KEYS: tuple[str, ...] = ("prop", "op", "chapter")
-_COUNTER_REPLAY_KEYS: tuple[str, ...] = ("name", "op", "chapter")
-_IDENTITY_REPLAY_KEYS: tuple[str, ...] = ("op", "new_name", "alias", "from_ch")
 
 
 def _reject(reason: str) -> NoReturn:
@@ -59,31 +59,41 @@ def _load_sidecar_facts_ops(sidecar_path: Path) -> dict[str, Any]:
 
 
 def _apply_props(file: FactsFile, ops: list[dict[str, Any]]) -> FactsFile:
+    seen: Counter[tuple[Any, ...]] = Counter()
     for raw in ops:
         try:
             ev = PropTransferEvent.model_validate(raw)
         except ValidationError as exc:
             _reject(f"props op 结构非法: {exc.error_count()} 处（{exc.errors()[0]['loc']}）")
-        if op_in_log(file.ops_log, ev.model_dump(by_alias=True), _PROP_REPLAY_KEYS):
-            continue  # 章内幂等重放——跳过
+        entry = ev.model_dump(by_alias=True)
+        fp = tuple(entry.get(k) for k in PROP_REPLAY_KEYS)
+        k = seen[fp]
+        seen[fp] += 1
+        if replay_skip(file.ops_log, entry, PROP_REPLAY_KEYS, k):
+            continue  # 跨提交幂等重放——跳过（同章合法二跳指纹不同，不在此列）
         file = apply_prop_op(file, ev)
     return file
 
 
 def _apply_counters(file: FactsFile, ops: list[dict[str, Any]]) -> FactsFile:
+    seen: Counter[tuple[Any, ...]] = Counter()
     for raw in ops:
         try:
             ev = CounterEvent.model_validate(raw)
         except ValidationError as exc:
             _reject(f"counters op 结构非法: {exc.error_count()} 处（{exc.errors()[0]['loc']}）")
         entry = {"name": ev.name, "op": ev.op.value, "delta": ev.delta, "chapter": ev.chapter}
-        if op_in_log(file.ops_log, entry, _COUNTER_REPLAY_KEYS):
-            continue  # 章内幂等重放——跳过（同章同计数器同 op 只计一次）
+        fp = tuple(entry.get(k) for k in COUNTER_REPLAY_KEYS)
+        k = seen[fp]
+        seen[fp] += 1
+        if replay_skip(file.ops_log, entry, COUNTER_REPLAY_KEYS, k):
+            continue  # 跨提交幂等重放——跳过；同章同 delta 双计是两条合法 op
         file = apply_counter_op(file, ev.name, ev.op.value, delta=ev.delta, chapter=ev.chapter)
     return file
 
 
 def _apply_identity(file: FactsFile, ops: list[dict[str, Any]]) -> FactsFile:
+    seen: Counter[tuple[Any, ...]] = Counter()
     for raw in ops:
         try:
             ev = IdentityEvent.model_validate(raw)
@@ -95,8 +105,11 @@ def _apply_identity(file: FactsFile, ops: list[dict[str, Any]]) -> FactsFile:
             "alias": ev.alias,
             "from_ch": ev.from_ch,
         }
-        if op_in_log(file.ops_log, entry, _IDENTITY_REPLAY_KEYS):
-            continue  # 幂等重放——跳过（rename 重放不再回弹名字）
+        fp = tuple(entry.get(k) for k in IDENTITY_REPLAY_KEYS)
+        k = seen[fp]
+        seen[fp] += 1
+        if replay_skip(file.ops_log, entry, IDENTITY_REPLAY_KEYS, k):
+            continue  # 跨提交幂等重放——跳过（rename 重放不再回弹名字）
         file = apply_identity_op(
             file,
             ev.op.value,
@@ -128,12 +141,19 @@ def apply_sidecar_ops(project_dir: Path, *sidecar_paths: Path) -> None:
         FactsDim.IDENTITY: _apply_identity,
     }
     # 阶段 1：逐维持锁读现态 + 内存 apply——拒收在任何写之前上抛
+    # （audit-T8 round2 I-2：损坏/不可读的既有 facts 文件也折算拒收，
+    # 否则裸 ValidationError 会在三处 commit 点炸穿既定路由协议）
     staged_writes: list[tuple[Path, FactsFile]] = []
     for dim, ops in per_dim_ops.items():
         path = project_dir / "truth" / "facts" / f"{dim.value}.json"
         with truth_file_flock(path):
             if path.is_file():
-                current = FactsFile.model_validate_json(path.read_text(encoding="utf-8"))
+                try:
+                    current = FactsFile.model_validate_json(path.read_text(encoding="utf-8"))
+                except (ValidationError, OSError) as exc:
+                    raise FactsOpRejectedError(
+                        f"facts 文件损坏/不可读: {path}: {exc.__class__.__name__}"
+                    ) from exc
             else:
                 current = FactsFile.model_validate(
                     {"$schema": FACTS_SCHEMA, "dim": dim, "facts": {}}

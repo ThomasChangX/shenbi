@@ -142,8 +142,16 @@ def test_f16s_simulate_rejects_illegal_op(tmp_path: Path):
 
 
 def test_chained_two_hop_transfer_is_legal(tmp_path: Path):
-    # M7：同 sidecar 两跳 A→B、B→C 链式模拟——第二跳对第一跳后状态合法
+    # M7 + round2 #1/#1c：同 sidecar 两跳 A→B、B→C 链式模拟——第二跳对第一跳
+    # 后状态合法；registry 行持**真终态** C 时不得误报（旧逐 op ev.to 对账 +
+    # 粗重放键吞第二跳会把正确行判成分叉，要求改写成错误中间态）
     _seed(tmp_path, {"火纹骨哨": {"entity": "火纹骨哨", "owner": "那罕", "events": []}})
+    registry = tmp_path / "truth" / "prop_registry.md"
+    registry.parent.mkdir(exist_ok=True)
+    registry.write_text(
+        "| 实体名 | 当前owner | 经手事件 |\n|---|---|---|\n| 火纹骨哨 | 帖木哥 | ch20 两跳经手 |\n",
+        encoding="utf-8",
+    )
     sidecar = _sidecar(
         tmp_path,
         {
@@ -168,11 +176,48 @@ def test_chained_two_hop_transfer_is_legal(tmp_path: Path):
         },
     )
     issues, _warns = g4_state_settling_check(tmp_path, sidecar)
-    assert not [i for i in issues if "ss.facts_ops:" in i]
+    assert not [i for i in issues if "ss.facts_ops:" in i or "ss.prop_row_match:" in i]
+
+
+def test_two_hop_row_with_hop1_owner_diverges(tmp_path: Path):
+    # 行持中间态 owner（老驼）≠ op 链终态（帖木哥）⇒ 仍 FAIL——重构后
+    # 对账按终态，逃逸面没有变大
+    _seed(tmp_path, {"火纹骨哨": {"entity": "火纹骨哨", "owner": "那罕", "events": []}})
+    registry = tmp_path / "truth" / "prop_registry.md"
+    registry.parent.mkdir(exist_ok=True)
+    registry.write_text(
+        "| 实体名 | 当前owner | 经手事件 |\n|---|---|---|\n| 火纹骨哨 | 老驼 | ch20 |\n",
+        encoding="utf-8",
+    )
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "props": [
+                {
+                    "op": "transfer",
+                    "prop": "火纹骨哨",
+                    "from": "那罕",
+                    "to": "老驼",
+                    "evidence": "L10",
+                    "chapter": 20,
+                },
+                {
+                    "op": "transfer",
+                    "prop": "火纹骨哨",
+                    "from": "老驼",
+                    "to": "帖木哥",
+                    "evidence": "L20",
+                    "chapter": 20,
+                },
+            ]
+        },
+    )
+    issues, _warns = g4_state_settling_check(tmp_path, sidecar)
+    assert any("ss.prop_row_match:" in i and "帖木哥" in i for i in issues)
 
 
 def test_replayed_op_skipped_in_simulate(tmp_path: Path):
-    # I6 一致性：ops_log 已含 (prop, op, chapter) ⇒ 模拟侧同键跳过，
+    # I6 一致性：ops_log 已含同全指纹 op ⇒ 模拟侧同键跳过，
     # 不再判「from 不匹配」假红（at-least-once 重放窗口的复检场景）
     _seed(
         tmp_path,
@@ -303,3 +348,124 @@ def test_no_oracles_no_hard_fail(tmp_path: Path):
     issues, warns = g4_state_settling_check(tmp_path, None)
     assert isinstance(issues, list) and isinstance(warns, list)
     assert not issues and not warns
+
+
+def test_identity_simulate_before_reconcile_no_false_fail(tmp_path: Path):
+    # round2 I-3：settle 声明 set_alias「萤」且 staging 行已带「萤」是双写契约
+    # 的合法形态（op 到 commit 才落地）——对 committed 前态对账会假红
+    _seed(tmp_path, {}, identity={"narration_name": "那罕", "from_ch": 3, "aliases": ["林烽"]})
+    sidecar_dir = tmp_path / "staging" / "truth"
+    sidecar_dir.mkdir(parents=True)
+    (sidecar_dir / "name_registry.md").write_text(
+        "| 类别 | 名 | 备注 |\n|---|---|---|\n| 别名 | 林烽 | 星象局用名 |\n| 别名 | 萤 | ch20 新 |\n",
+        encoding="utf-8",
+    )
+    sidecar = sidecar_dir / "state-settling-decisions.json"
+    sidecar.write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 20,
+                "produced_at": "2026-10-28T00:00:00Z",
+                "facts_ops": {"identity": [{"op": "set_alias", "alias": "萤", "from_ch": 20}]},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    issues, _warns = g4_state_settling_check(tmp_path, sidecar)
+    assert not issues
+
+
+def test_identity_union_rows_staged_plus_committed(tmp_path: Path):
+    # round2 I-3：staged 只有新行「萤」、旧行「林烽」只在 committed——
+    # 文件粒度早退会把旧别名判成无行假红；并集后全绿
+    _seed(
+        tmp_path, {}, identity={"narration_name": "那罕", "from_ch": 3, "aliases": ["林烽", "萤"]}
+    )
+    committed = tmp_path / "truth" / "name_registry.md"
+    committed.write_text(
+        "| 类别 | 名 | 备注 |\n|---|---|---|\n| 别名 | 林烽 | 星象局用名 |\n",
+        encoding="utf-8",
+    )
+    sidecar_dir = tmp_path / "staging" / "truth"
+    sidecar_dir.mkdir(parents=True)
+    (sidecar_dir / "name_registry.md").write_text(
+        "| 类别 | 名 | 备注 |\n|---|---|---|\n| 别名 | 萤 | ch20 新 |\n",
+        encoding="utf-8",
+    )
+    sidecar = sidecar_dir / "state-settling-decisions.json"
+    sidecar.write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 20,
+                "produced_at": "2026-10-28T00:00:00Z",
+                "facts_ops": {},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    issues, _warns = g4_state_settling_check(tmp_path, sidecar)
+    assert not issues
+
+
+def test_corrupt_props_json_structured_issue(tmp_path: Path):
+    # round2 M-1：既有 props.json 损坏 ⇒ 结构化 issue 指明修复对象，
+    # 不裸抛（CLI 否则折算成「文件路径参数非法」误导报因）
+    d = tmp_path / "truth" / "facts"
+    d.mkdir(parents=True)
+    (d / "props.json").write_text("NOT-JSON", encoding="utf-8")
+    sidecar = _sidecar(
+        tmp_path,
+        {"props": [{"op": "hold", "prop": "火纹骨哨", "to": "那罕", "chapter": 20}]},
+    )
+    issues, _warns = g4_state_settling_check(tmp_path, sidecar)
+    assert any("props.json 损坏/不可读" in i for i in issues)
+
+
+def test_production_composite_path_fires_ss_checks(tmp_path: Path):
+    # round2 C-2：生产入口 = build_checkers 复合分区——sidecar 被路由给
+    # g4_decisions，existing 槽只见 staged md 目标。ss.* 必须经姊妹约定
+    # 定位块在真实复合路径上点火（此前接线是死代码）
+    import importlib
+
+    generic = importlib.import_module("shenbi.gates.g4.generic")
+    _seed(tmp_path, {"火纹骨哨": {"entity": "火纹骨哨", "owner": "那罕", "events": []}})
+    staged = tmp_path / "staging" / "truth"
+    staged.mkdir(parents=True)
+    (staged / "current_state.md").write_text("## 当前位置\n东行\n", encoding="utf-8")
+    (staged / "state-settling-decisions.json").write_text(
+        json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "shenbi-state-settling",
+                "chapter": 20,
+                "produced_at": "2026-10-28T00:00:00Z",
+                "facts_ops": {
+                    "props": [
+                        {
+                            "op": "transfer",
+                            "prop": "火纹骨哨",
+                            "from": "老驼",
+                            "to": "帖木哥",
+                            "evidence": "L218",
+                            "chapter": 20,
+                        }
+                    ]
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    checkers = generic.build_checkers()
+    fn = checkers["shenbi-state-settling"]
+    result = fn([str(staged / "current_state.md")], None, str(tmp_path), None)
+    import json as _json
+
+    payload = _json.loads(result)
+    assert any("ss.facts_ops:非法 op" in m for m in payload["must_fix"])

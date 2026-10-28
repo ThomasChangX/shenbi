@@ -373,3 +373,158 @@ def test_commit_site_applies_before_write_loop(tmp_path: Path):
         _commit_staging_for_checkpoint(tmp_path, cp)
     assert (tmp_path / "truth" / "prop_registry.md").exists() is False  # 写循环未跑
     assert (staged / "state-settling-decisions.json").is_file()  # staging 保留
+
+
+def test_same_chapter_two_hop_transfer_reaches_final_owner(tmp_path: Path):
+    # audit-T8 round2 #1 核心：同章两跳 A→B、B→C 各自生效——粗键
+    # (prop,op,chapter) 会把第二跳错当重放吞掉（终态滞留 B）
+    from shenbi.facts.enums import FactsDim
+    from shenbi.facts.store import load_facts
+
+    _seed_props(tmp_path)
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "props": [
+                {
+                    "op": "transfer",
+                    "prop": "火纹骨哨",
+                    "from": "那罕",
+                    "to": "老驼",
+                    "evidence": "L10",
+                    "chapter": 20,
+                },
+                {
+                    "op": "transfer",
+                    "prop": "火纹骨哨",
+                    "from": "老驼",
+                    "to": "帖木哥",
+                    "evidence": "L20",
+                    "chapter": 20,
+                },
+            ]
+        },
+    )
+    apply_sidecar_ops(tmp_path, sidecar)
+    out = load_facts(tmp_path, FactsDim.PROPS)
+    assert out is not None
+    assert out.props()["火纹骨哨"].owner == "帖木哥"
+    assert len(out.ops_log) == 2
+    # 整批重放（at-least-once 窗口）：两跳各自指纹命中 ⇒ 全跳过，不四计
+    apply_sidecar_ops(tmp_path, sidecar)
+    replayed = load_facts(tmp_path, FactsDim.PROPS)
+    assert replayed is not None
+    assert replayed.props()["火纹骨哨"].owner == "帖木哥"
+    assert len(replayed.ops_log) == 2
+
+
+def test_same_delta_double_increment_counts_both(tmp_path: Path):
+    # audit-T8 round2 #1 附带：同章同 delta 双 increment 是两条合法事件——
+    # delta 入指纹后布尔判定仍会吞第二条，多重集计数才计满
+    from shenbi.facts.enums import FactsDim
+    from shenbi.facts.store import load_facts
+
+    _seed_counters(tmp_path)
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "counters": [
+                {"op": "increment", "name": "名字数", "delta": 1, "chapter": 20},
+                {"op": "increment", "name": "名字数", "delta": 1, "chapter": 20},
+            ]
+        },
+    )
+    apply_sidecar_ops(tmp_path, sidecar)
+    out = load_facts(tmp_path, FactsDim.COUNTERS)
+    assert out is not None and out.counters()["名字数"].value == 7
+    # 整批重放：两条指纹各已记 1 ⇒ 都跳过
+    apply_sidecar_ops(tmp_path, sidecar)
+    replayed = load_facts(tmp_path, FactsDim.COUNTERS)
+    assert replayed is not None and replayed.counters()["名字数"].value == 7
+
+
+def test_mixed_delta_same_chapter_both_counted(tmp_path: Path):
+    # +1 与 +3 同章——不同指纹天然各自生效
+    from shenbi.facts.enums import FactsDim
+    from shenbi.facts.store import load_facts
+
+    _seed_counters(tmp_path)
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "counters": [
+                {"op": "increment", "name": "名字数", "delta": 1, "chapter": 20},
+                {"op": "increment", "name": "名字数", "delta": 3, "chapter": 20},
+            ]
+        },
+    )
+    apply_sidecar_ops(tmp_path, sidecar)
+    out = load_facts(tmp_path, FactsDim.COUNTERS)
+    assert out is not None and out.counters()["名字数"].value == 9
+
+
+def test_partial_replay_applies_new_same_fingerprint_op(tmp_path: Path):
+    # 多重集精度：log 已记 1 条 (名字数,increment,+1,ch20)、批内 2 条同指纹
+    # ⇒ 第 1 条跳（重放）、第 2 条应用（新增）——布尔判定会把新 op 一起吞掉
+    from shenbi.facts.enums import FactsDim
+    from shenbi.facts.store import load_facts
+
+    _seed_counters(tmp_path)
+    cf = tmp_path / "truth" / "facts" / "counters.json"
+    doc = json.loads(cf.read_text(encoding="utf-8"))
+    doc["ops_log"] = [
+        {"dim": "counters", "name": "名字数", "op": "increment", "delta": 1, "chapter": 20}
+    ]
+    cf.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "counters": [
+                {"op": "increment", "name": "名字数", "delta": 1, "chapter": 20},
+                {"op": "increment", "name": "名字数", "delta": 1, "chapter": 20},
+            ]
+        },
+    )
+    apply_sidecar_ops(tmp_path, sidecar)
+    out = load_facts(tmp_path, FactsDim.COUNTERS)
+    assert out is not None and out.counters()["名字数"].value == 6
+
+
+def test_double_acquire_same_chapter_rejected_not_swallowed(tmp_path: Path):
+    # audit-T8 round2 #1 附带：同章双 acquire（to 不同）旧键被静默吞成合法，
+    # 现须按状态机拒收（在场实体二次获得）
+    _seed_props(tmp_path)
+    before = (tmp_path / "truth" / "facts" / "props.json").read_text(encoding="utf-8")
+    sidecar = _sidecar(
+        tmp_path,
+        {
+            "props": [
+                {"op": "acquire", "prop": "新火种", "to": "老驼", "evidence": "L1", "chapter": 20},
+                {
+                    "op": "acquire",
+                    "prop": "新火种",
+                    "to": "帖木哥",
+                    "evidence": "L2",
+                    "chapter": 20,
+                },
+            ]
+        },
+    )
+    with pytest.raises(FactsOpRejectedError, match="新火种"):
+        apply_sidecar_ops(tmp_path, sidecar)
+    assert (tmp_path / "truth" / "facts" / "props.json").read_text(encoding="utf-8") == before
+
+
+def test_corrupt_existing_facts_file_wrapped_as_rejection(tmp_path: Path):
+    # audit-T8 round2 I-2：既有 props.json 损坏 ⇒ 折算拒收（三处 commit 站点
+    # 的路由协议不收裸 ValidationError）
+    d = tmp_path / "truth" / "facts"
+    d.mkdir(parents=True)
+    (d / "props.json").write_text("NOT-JSON", encoding="utf-8")
+    sidecar = _sidecar(
+        tmp_path,
+        {"props": [{"op": "hold", "prop": "火纹骨哨", "to": "那罕", "chapter": 20}]},
+    )
+    with pytest.raises(FactsOpRejectedError, match="损坏/不可读"):
+        apply_sidecar_ops(tmp_path, sidecar)
+    assert (d / "props.json").read_text(encoding="utf-8") == "NOT-JSON"

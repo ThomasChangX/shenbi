@@ -30,16 +30,31 @@ def _reject(reason: str) -> NoReturn:
     raise FactsOpRejectedError(reason)
 
 
-def op_in_log(
-    ops_log: list[dict[str, Any]], entry: dict[str, Any], match_keys: tuple[str, ...]
-) -> bool:
-    """章内幂等重放探测（audit-T8 I6）：同键 op 已在 ops_log ⇒ 重放。
+# 重放指纹键集（audit-T8 round2 #1：粗键 (prop,op,chapter) 会把同章合法
+# 二跳转移错当重放吞掉）。props 含 from/to 全指纹；evidence 刻意排除——
+# 重派 settle 重述证据不算新 op。写侧（settle_ops）与读侧（G4.ss
+# simulate）必须同键集 + 同判定。
+PROP_REPLAY_KEYS: tuple[str, ...] = ("prop", "op", "chapter", "from", "to")
+COUNTER_REPLAY_KEYS: tuple[str, ...] = ("name", "op", "delta", "chapter")
+IDENTITY_REPLAY_KEYS: tuple[str, ...] = ("op", "new_name", "alias", "from_ch")
 
-    at-least-once 提交窗口（ops 已落盘、markdown/clear_staging 未达）后的
-    重放会静默双计（counter.increment）或名字回弹（identity.rename）——
-    写侧（settle_ops）与读侧（G4.ss simulate）用同一键集跳过重放。
+
+def replay_skip(
+    ops_log: list[dict[str, Any]],
+    entry: dict[str, Any],
+    match_keys: tuple[str, ...],
+    seen_in_batch: int,
+) -> bool:
+    """多重集幂等重放判定（audit-T8 round2 #1，取代布尔版 op_in_log）。
+
+    批内第 ``seen_in_batch`` 个（0 基）同指纹 op 是重放 ⇔ ops_log 已持有
+    **多于** ``seen_in_batch`` 个同指纹条目——log 已记的 L 条对应批内前
+    L 条（跳过），超出部分是新增（应用）。布尔"在 log 中即跳"会把同章
+    合法重复指纹（二跳转移的第二跳、同 delta 双 increment）错当重放：
+    写侧丢第二跳、读侧模拟同盲、同章双 acquire 被静默吞成合法。
     """
-    return any(all(logged.get(k) == entry.get(k) for k in match_keys) for logged in ops_log)
+    matches = sum(1 for logged in ops_log if all(logged.get(k) == entry.get(k) for k in match_keys))
+    return matches > seen_in_batch
 
 
 def apply_prop_op(file: FactsFile, ev: PropTransferEvent) -> FactsFile:
