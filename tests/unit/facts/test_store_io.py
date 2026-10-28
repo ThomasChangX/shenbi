@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from shenbi.exceptions import TruthFileParseError
 from shenbi.facts.enums import FactsDim
 from shenbi.facts.store import load_facts, save_facts, seed_empty
 
@@ -14,9 +15,7 @@ def test_load_absent_returns_none(tmp_path: Path):
     assert load_facts(tmp_path, FactsDim.PROPS) is None  # 门检 WARN 降级依据
 
 
-def test_load_corrupt_raises_truth_parse_error(tmp_path: Path, props_file):
-    from shenbi.exceptions import TruthFileParseError
-
+def test_load_corrupt_raises_truth_parse_error(tmp_path: Path):
     target = tmp_path / "truth" / "facts"
     target.mkdir(parents=True)
     (target / "props.json").write_text("{not json", encoding="utf-8")

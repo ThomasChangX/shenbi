@@ -195,7 +195,6 @@ def _write_facts_unlocked(path: Path, file: FactsFile) -> None:
     公开 ``save_facts`` 自带 flock 供独立调用方；同进程 flock 跨 fd
     无重入语义——外层持锁再进公开 save_facts 的自锁=死锁。
     """
-    path.parent.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(file.model_dump(by_alias=True), ensure_ascii=False, indent=2)
     safe_write(path, payload)
 

@@ -2,14 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
 
 from shenbi.facts.schemas import FactsFile
-
-if TYPE_CHECKING:
-    pass
 
 
 @pytest.fixture
