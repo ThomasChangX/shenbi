@@ -8,17 +8,17 @@ import pytest
 
 from shenbi.gates.g4.cross_chapter import (
     CrossChapterContext,
-    _cn_amount,
     check_cross_chapter,
+    cn_amount,
 )
 
 
 @pytest.mark.unit
-def test_cn_amount() -> None:
-    assert _cn_amount("一百九十二") == 192
-    assert _cn_amount("十二") == 12
-    assert _cn_amount("300") == 300
-    assert _cn_amount("十") == 10
+def testcn_amount() -> None:
+    assert cn_amount("一百九十二") == 192
+    assert cn_amount("十二") == 12
+    assert cn_amount("300") == 300
+    assert cn_amount("十") == 10
 
 
 @pytest.mark.unit

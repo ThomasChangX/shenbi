@@ -117,6 +117,80 @@ def check_prop_handoffs(text: str, memo_text: str, props: dict[str, dict[str, st
     return issues
 
 
+_COUNTER_DECL_RE = re.compile(r"^[-*]\s*计数[：:]\s*(\S+)\s+(\d+)\s*\+\s*1\s*$", re.MULTILINE)
+_TOTAL_RE = re.compile(r"([一二两三四五六七八九十百千\d]{1,5})个名字")
+_ORDINAL_RE = re.compile(r"第([一二两三四五六七八九十百千\d]{1,5})个名字")
+
+
+def parse_counter_declarations(memo_text: str) -> list[tuple[str, int]]:
+    """Parse ``- 计数: <名> N+1`` lines (spec #80 F17).
+
+    Returns ``(name, declared_value)`` where declared_value = the parsed
+    N+1 (plan R4-M4: the declared NEW value, not the base N).
+    """
+    out: list[tuple[str, int]] = []
+    for m in _COUNTER_DECL_RE.finditer(memo_text):
+        try:
+            out.append((m.group(1), int(m.group(2)) + 1))
+        except ValueError:
+            continue
+    return out
+
+
+def check_counter_reconciliation(
+    text: str, memo_text: str, counters: dict[str, dict[str, int]]
+) -> list[str]:
+    """F17 — three-way counter reconciliation (spec #80 §4, rev4 R3-M11).
+
+    Activated only for counters the memo declares (R2-I4b — the WARN
+    judgment lives at the g4.cd call site, R3-M1). Reconciles:
+    (1) prose totals「N个名字」≡ facts value or declared new value
+        (page qualifiers ignored — R5-M3);
+    (2) memo declared N+1 ≡ facts+1;
+    (3) prose ordinals「第N个名字」≡ declared new value.
+    """
+    from shenbi.gates.g4.cross_chapter import cn_amount
+
+    def _amount(raw: str) -> int | None:
+        # 两 (colloquial 2) is outside _cn_amount's vocabulary — normalize
+        return cn_amount("二" + raw[1:] if raw.startswith("两") else raw)
+
+    issues: list[str] = []
+    declared = dict(parse_counter_declarations(memo_text))
+    for name, declared_val in declared.items():
+        info = counters.get(name)
+        if info is None:
+            continue  # unknown counter — settle/oracle problem, not prose
+        facts_val = int(info.get("value", 0))
+        if declared_val != facts_val + 1:
+            issues.append(
+                f"cd.counter:「{name}」备忘声明 {declared_val - 1}+1={declared_val}"
+                f" ≠ facts 现值 {facts_val}+1={facts_val + 1}"
+                "——计数链单调断裂（修复者: planning+settling）"
+            )
+        for m in _TOTAL_RE.finditer(text):
+            amount = _amount(m.group(1))
+            if amount is None:
+                continue
+            if amount not in (facts_val, declared_val):
+                issues.append(
+                    f"cd.counter:「{name}」正文总数「{m.group(0)}」={amount}"
+                    f" ∉ {{facts {facts_val}, 声明 {declared_val}}}"
+                    "——总数与计数链互斥（修复者: drafting）"
+                )
+        for m in _ORDINAL_RE.finditer(text):
+            amount = _amount(m.group(1))
+            if amount is None:
+                continue
+            if amount != declared_val:
+                issues.append(
+                    f"cd.counter:「{name}」正文序数「{m.group(0)}」={amount}"
+                    f" ≠ 备忘声明值 {declared_val}"
+                    "——序数与声明错位（修复者: drafting）"
+                )
+    return issues
+
+
 def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
     """G4.cd.hook_fulfillment: Verify plan-declared hooks appear in chapter body.
 

@@ -137,7 +137,7 @@ _BALANCE_DECL_RE = re.compile(
 )
 
 
-def _cn_amount(tok: str) -> int | None:
+def cn_amount(tok: str) -> int | None:
     """中文金额 → int（一百九十二/十二/300）；不可解析 None。"""
     if tok.isdigit():
         return int(tok)
@@ -825,8 +825,8 @@ def check_cross_chapter(
     if prev_bal is None:
         prev_bal = _BALANCE_DECL_RE.search(prev_text)
     if cur_bal and prev_bal:
-        cur_amt = _cn_amount(cur_bal.group(1))
-        prev_amt = _cn_amount(prev_bal.group(1))
+        cur_amt = cn_amount(cur_bal.group(1))
+        prev_amt = cn_amount(prev_bal.group(1))
         events = _EVENT_DECL_RE.findall(memo_text)
         delta = (cur_amt - prev_amt) if (cur_amt is not None and prev_amt is not None) else None
         if delta is not None and abs(delta) >= 10:
@@ -838,7 +838,7 @@ def check_cross_chapter(
                 # 对账：声明事件净额须覆盖跳变（容差 max(10, 20%)——散文允许
                 # 未声明的小额流动）；方向相反或量级悬殊 = 假声明
                 net = sum(
-                    _cn_amount(amt) or 0 if kind == "收入" else -(_cn_amount(amt) or 0)
+                    cn_amount(amt) or 0 if kind == "收入" else -(cn_amount(amt) or 0)
                     for kind, amt, _src in events
                 )
                 if abs(delta - net) > max(10, abs(delta) * 0.2):
