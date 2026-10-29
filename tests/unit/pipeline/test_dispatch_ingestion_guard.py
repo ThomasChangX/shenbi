@@ -425,7 +425,7 @@ class TestBaseStateBanner:
         (project / "truth" / "particle_ledger.md").write_text(
             _CREATION_FORM_STATE, encoding="utf-8"
         )
-        _sys_p, user_p, _paths, _ = _build_skill_prompt(
+        _sys_p, user_p, _paths, _, _ = _build_skill_prompt(
             "shenbi-state-settling",
             project,
             "settle chapter 1",
@@ -449,7 +449,7 @@ class TestDispatchTraceReadsManifest:
         project = tmp_path
         (project / "truth").mkdir(parents=True)
         (project / "truth" / "current_state.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
-        _s, _u, _p, manifest = _build_skill_prompt(
+        _s, _u, _p, manifest, _ = _build_skill_prompt(
             "shenbi-state-settling",
             project,
             "settle chapter 1",

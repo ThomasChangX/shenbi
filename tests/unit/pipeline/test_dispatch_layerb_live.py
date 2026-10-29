@@ -92,7 +92,7 @@ def project_tree(tmp_path: Path) -> Path:
 def test_declared_fields_filter_in_dispatch_loop(
     project_tree: Path, warn_spy: dict[str, list[str]]
 ) -> None:
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
     # Recent window survives (preamble + last-3 rows)
@@ -114,7 +114,7 @@ def test_escape_hatch_warns_and_fulltext_on_missing_field(
     (project_tree / "truth" / "pending_hooks.md").write_text(
         "## 别的节\n\n无声明节。\n", encoding="utf-8"
     )
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
     assert "extractor_failed_fulltext" in warn_spy["dispatch"]
@@ -123,7 +123,7 @@ def test_escape_hatch_warns_and_fulltext_on_missing_field(
 
 
 def test_string_reads_unfiltered(project_tree: Path) -> None:
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
     # outline/story_frame.md is a string read -> full content present
@@ -163,7 +163,7 @@ def test_power_system_fields_filter_in_dispatch(
     ps_full = POWER_SYSTEM_FIXTURE.read_text(encoding="utf-8")
     full_len = len(ps_full.encode("utf-8"))
     assert full_len > 50_000  # fixture sanity (synthetic sample, 58,113B)
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-review-group-factual", factual_tree, "audit ch26", chapter=26
     )
     # Declared sections survive, undeclared filtered away
@@ -174,7 +174,7 @@ def test_power_system_fields_filter_in_dispatch(
     # Spec §7 byte metric: isolate the power_system CONTRIBUTION by
     # subtracting a no-power_system baseline prompt.
     (factual_tree / "world" / "power_system.md").unlink()
-    _, baseline, _, _ = _build_skill_prompt(
+    _, baseline, _, _, _ = _build_skill_prompt(
         "shenbi-review-group-factual", factual_tree, "audit ch26", chapter=26
     )
     contribution = len(user_prompt.encode("utf-8")) - len(baseline.encode("utf-8"))
@@ -188,7 +188,7 @@ def test_volume_extractor_happy_path(project_tree: Path, warn_spy: dict[str, lis
     vm_text = (project_tree / "outline" / "volume_map.md").read_text(encoding="utf-8")
     full = len(vm_text.encode("utf-8"))
     assert full > 26_000
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
     # ch26 in the xinghuo map falls in volume 2 (第16-35章). Assert on the
@@ -204,7 +204,7 @@ def test_volume_extractor_happy_path(project_tree: Path, warn_spy: dict[str, lis
     # pre-existing Task-13 plan-skeleton injection (~3.3KB, also sliced —
     # never full text); both faces vanish without volume_map.
     (project_tree / "outline" / "volume_map.md").unlink()
-    _, baseline, _, _ = _build_skill_prompt(
+    _, baseline, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
     contribution = len(user_prompt.encode("utf-8")) - len(baseline.encode("utf-8"))
@@ -213,7 +213,7 @@ def test_volume_extractor_happy_path(project_tree: Path, warn_spy: dict[str, lis
 
 
 def test_volume_extractor_chapter_none_fulltext(project_tree: Path) -> None:
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "no chapter", chapter=None
     )
     assert "第一卷" in user_prompt and "第五卷" in user_prompt  # full text
@@ -223,7 +223,7 @@ def test_volume_extractor_failure_fulltext_and_warn(
     project_tree: Path, warn_spy: dict[str, list[str]]
 ) -> None:
     # Existing file, unresolvable chapter -> full text + named WARN (no silent drop)
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch9999", chapter=9999
     )
     assert "第一卷" in user_prompt  # full-text fallback
@@ -243,7 +243,7 @@ def test_volume_extractor_carries_kr_and_tension(project_tree: Path) -> None:
     block and the volume tension table (chapter-planning's priority chain
     names 卷纲 Key Result as a source — volume_map.md:90-166).
     """
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
     # ch26 falls in vol-2 KR3 (第26章-第30章): its block must survive…
@@ -262,7 +262,7 @@ def test_volume_extractor_survives_unreadable_map(
     builder (parity with the loop's own except-Exception read guard).
     """
     (project_tree / "outline" / "volume_map.md").write_bytes(b"\xff\xfe\x00binary")
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, "plan ch26", chapter=26
     )
     assert "binary or unreadable" in user_prompt or "第一卷" in user_prompt
@@ -277,7 +277,7 @@ def test_volume_extractor_kr_covers_full_range(project_tree: Path, chapter: int)
     its 章节范围, not just the range-start chapter (full form 第26章 - 第30章
     defeated the compact-range regex).
     """
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", project_tree, f"plan ch{chapter}", chapter=chapter
     )
     assert "KR3: 梵天遗产发现与盟友建立" in user_prompt

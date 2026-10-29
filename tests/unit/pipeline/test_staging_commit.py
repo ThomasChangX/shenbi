@@ -83,7 +83,7 @@ class TestDispatchUsesStaging:
         try:
             os.chdir(tmp_path)
 
-            _, _, output_paths, _ = _build_skill_prompt(
+            _, _, output_paths, _, _ = _build_skill_prompt(
                 "shenbi-chapter-planning", tmp_path, "test prompt", chapter=5, uses_staging=True
             )
         finally:

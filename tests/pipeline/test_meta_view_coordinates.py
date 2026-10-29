@@ -90,7 +90,7 @@ def test_served_read_view_keeps_prose_at_physical_line(tmp_path):
         p = tmp_path / rel
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text("# stub\n", encoding="utf-8")
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         skill="shenbi-state-settling",
         project_dir=tmp_path,
         prompt="settle chapter 2",

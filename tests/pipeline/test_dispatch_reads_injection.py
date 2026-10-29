@@ -108,7 +108,7 @@ def test_required_inputs_injected(tmp_path: Path, skill, files, expected, absent
             Path("tests/fixtures/genre-config-example.json").read_text(encoding="utf-8"),
             encoding="utf-8",
         )
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         skill=skill,
         project_dir=tmp_path,
         prompt="chapter 5",
@@ -175,7 +175,7 @@ def test_genesis_fragment_injected(tmp_path: Path, skill, files, expected):
         p = tmp_path / rel
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(MARK, encoding="utf-8")
-    _, user_prompt, _, reads_manifest = _build_skill_prompt(
+    _, user_prompt, _, reads_manifest, _ = _build_skill_prompt(
         skill=skill, project_dir=tmp_path, prompt="genesis", chapter=None
     )
     for key in expected:
@@ -221,7 +221,7 @@ def test_genesis_fragments_optional_legacy_project(tmp_path: Path):
         "shenbi-faction-builder",
         "shenbi-volume-outlining",
     ):
-        _, user_prompt, _, _ = _build_skill_prompt(
+        _, user_prompt, _, _, _ = _build_skill_prompt(
             skill=skill, project_dir=tmp_path, prompt="genesis", chapter=None
         )
         assert "genesis-context/" not in user_prompt
@@ -233,7 +233,7 @@ def test_lifecycle_prompt_reachable(tmp_path):
 
     step9 = next(s for s in GENESIS_STEPS if s.step_num == 9)
     assert step9.skill == "shenbi-foreshadowing-lifecycle"
-    system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
+    system_prompt, user_prompt, output_paths, _, _ = _build_skill_prompt(
         skill=step9.skill,
         project_dir=tmp_path,
         prompt="genesis",
@@ -248,7 +248,7 @@ def test_genesis_outputs_override_excludes_per_chapter_writes(tmp_path):
     """Stage-8 review I1 pin: genesis dispatch output set is the GenesisStep's
     declared output — lifecycle's bridge_tracker/audits must NOT appear.
     """
-    system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
+    system_prompt, user_prompt, output_paths, _, _ = _build_skill_prompt(
         skill="shenbi-foreshadowing-lifecycle",
         project_dir=tmp_path,
         prompt="genesis",
@@ -267,7 +267,7 @@ def test_staging_prompt_lists_prefixed_paths(tmp_path):
     """Stage-8 r3 C-1 pin: staged prompts list staging/-prefixed paths so the
     prompt instruction and the persistence lookup keys stay identical.
     """
-    _, user_prompt, output_paths, _ = _build_skill_prompt(
+    _, user_prompt, output_paths, _, _ = _build_skill_prompt(
         skill="shenbi-chapter-planning",
         project_dir=tmp_path,
         prompt="plan chapter 5",
@@ -294,7 +294,7 @@ def test_staging_gated_dispatch_serves_staging_twin_read(tmp_path: Path):
     (tmp_path / "staging" / "audits" / "chapter-2-foreshadowing.md").write_text(
         AUDIT_MARK, encoding="utf-8"
     )
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         skill="shenbi-state-settling",
         project_dir=tmp_path,
         prompt="settle chapter 2",
@@ -316,7 +316,7 @@ def test_staging_twin_preferred_over_stale_live(tmp_path: Path):
     staged = tmp_path / "staging" / "audits" / "chapter-2-foreshadowing.md"
     staged.parent.mkdir(parents=True)
     staged.write_text(AUDIT_MARK, encoding="utf-8")
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         skill="shenbi-state-settling",
         project_dir=tmp_path,
         prompt="settle chapter 2",
@@ -334,7 +334,7 @@ def test_non_staging_dispatch_keeps_live_only_reads(tmp_path: Path):
     staged = tmp_path / "staging" / "audits" / "chapter-2-foreshadowing.md"
     staged.parent.mkdir(parents=True)
     staged.write_text(AUDIT_MARK, encoding="utf-8")
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         skill="shenbi-state-settling",
         project_dir=tmp_path,
         prompt="settle chapter 2",

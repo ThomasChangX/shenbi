@@ -44,7 +44,7 @@ PACING_SEVEN_HOOK_TOKENS = 157
 
 
 def _system_prompt(skill: str, tmp_path: Path) -> str:
-    system, _, _, _ = _build_skill_prompt(skill, tmp_path, "measure", 1)
+    system, _, _, _, _ = _build_skill_prompt(skill, tmp_path, "measure", 1)
     return system
 
 

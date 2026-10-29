@@ -50,7 +50,7 @@ def test_closure_prompt_build_all_steps(tmp_path):
         prompt = (
             f"Execute {step.skill} for book closure (step {step.step_num}). Project dir: {proj}"
         )
-        system, user, outs, _ = _build_skill_prompt(
+        system, user, outs, _, _ = _build_skill_prompt(
             step.skill, proj, prompt, ctx.chapter if ctx else None, path_context=ctx
         )
         assert outs, f"step {step.step_num} produced no output paths"

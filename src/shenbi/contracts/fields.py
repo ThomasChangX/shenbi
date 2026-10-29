@@ -66,13 +66,14 @@ def extract_h2_sections(text: str) -> dict[str, str]:
     return sections
 
 
-def _filter_md(text: str, fields: list[str]) -> tuple[str, bool]:
+def _filter_md(text: str, fields: list[str]) -> tuple[str, bool, list[str]]:
     sections = extract_h2_sections(text)
     matched: dict[str, str] = {}
     for heading, body in sections.items():
         if any(match_field(f, heading) for f in fields):
             matched[heading] = body
-    missing = [f for f in fields if not any(match_field(f, h) for h in sections)]
+    resolved = [f for f in fields if any(match_field(f, h) for h in sections)]
+    missing = [f for f in fields if f not in resolved]
     if missing:
         # AGENTS.md field-level reads contract: ANY declared field missing ->
         # escape hatch returns the full file + WARN (spec #9 R3 / F218).
@@ -82,20 +83,21 @@ def _filter_md(text: str, fields: list[str]) -> tuple[str, bool]:
             matched=list(matched.keys()),
             available=list(sections.keys()),
         )
-        return text, False
-    return "\n\n".join(f"## {h}\n{b}" for h, b in matched.items()), True
+        return text, False, resolved
+    return "\n\n".join(f"## {h}\n{b}" for h, b in matched.items()), True, resolved
 
 
-def _filter_json(text: str, fields: list[str], path: str) -> tuple[str, bool]:
+def _filter_json(text: str, fields: list[str], path: str) -> tuple[str, bool, list[str]]:
     try:
         data = json.loads(text)
     except json.JSONDecodeError:
         log.warning("field_filter_json_invalid", path=path)
-        return text, False
+        return text, False, []
     if not isinstance(data, dict):
         log.warning("field_filter_json_not_object", path=path)
-        return text, False
+        return text, False, []
     projected = {k: v for k, v in data.items() if k in fields}
+    resolved = [f for f in fields if f in data]
     missing = [f for f in fields if f not in data]
     if missing:
         # Same any-missing -> full-text + WARN contract as _filter_md (F218).
@@ -106,20 +108,23 @@ def _filter_json(text: str, fields: list[str], path: str) -> tuple[str, bool]:
             matched=list(projected.keys()),
             available=list(data.keys()),
         )
-        return text, False
-    return json.dumps(projected, ensure_ascii=False, indent=2), True
+        return text, False, resolved
+    return json.dumps(projected, ensure_ascii=False, indent=2), True, resolved
 
 
-def filter_to_fields(text: str, fields: list[str], path: str) -> tuple[str, bool]:
-    """Returns (filtered_text, matched_all). matched=False means the escape
-    hatch fired (full file returned; WARN already logged inside).
+def filter_to_fields(text: str, fields: list[str], path: str) -> tuple[str, bool, list[str]]:
+    """Returns (filtered_text, matched_all, resolved_fields).
+
+    matched=False means the escape hatch fired (full file returned; WARN
+    already logged inside); resolved_fields still names the declared fields
+    that DID match (partial-hit visibility — spec #81 §1 archive record).
     """
     if not fields:
-        return text, True
+        return text, True, []
     if path.endswith(".md"):
         return _filter_md(text, fields)
     if path.endswith(".json"):
         return _filter_json(text, fields, path)
     # T305 (spec #39 T12): unknown extensions pass through, now disclosed.
     log.warning("field_filter_unknown_extension_passthrough", path=path)
-    return text, True
+    return text, True, fields

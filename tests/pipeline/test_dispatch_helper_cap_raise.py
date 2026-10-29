@@ -30,7 +30,7 @@ def test_length_truncation_triggers_cap_raise_resend(tmp_path, monkeypatch):
     # Mock _build_skill_prompt to avoid file I/O
     monkeypatch.setattr(
         "shenbi.pipeline.dispatch_helper._build_skill_prompt",
-        lambda *a, **kw: ("sys", "user", [], []),
+        lambda *a, **kw: ("sys", "user", [], [], {}),
     )
     # Mock _write_parsed_outputs to avoid file writes
     monkeypatch.setattr(
@@ -63,7 +63,7 @@ def test_content_filter_is_hard_fail(tmp_path, monkeypatch):
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     monkeypatch.setattr(
         "shenbi.pipeline.dispatch_helper._build_skill_prompt",
-        lambda *a, **kw: ("sys", "user", [], []),
+        lambda *a, **kw: ("sys", "user", [], [], {}),
     )
 
     result: DispatchResult = _dispatch_via_api("shenbi-chapter-drafting", tmp_path, "test prompt")
@@ -88,7 +88,7 @@ def test_cap_raise_capped_at_model_ceiling(tmp_path, monkeypatch):
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     monkeypatch.setattr(
         "shenbi.pipeline.dispatch_helper._build_skill_prompt",
-        lambda *a, **kw: ("sys", "user", [], []),
+        lambda *a, **kw: ("sys", "user", [], [], {}),
     )
     # Simulate post-T3 state: drafting max_tokens = 32768
     monkeypatch.setattr(
@@ -125,7 +125,7 @@ def test_cap_raise_persistent_length_fail_fast(tmp_path, monkeypatch):
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     monkeypatch.setattr(
         "shenbi.pipeline.dispatch_helper._build_skill_prompt",
-        lambda *a, **kw: ("sys", "user", [], []),
+        lambda *a, **kw: ("sys", "user", [], [], {}),
     )
     monkeypatch.setattr(
         "shenbi.pipeline.dispatch_helper._write_parsed_outputs",

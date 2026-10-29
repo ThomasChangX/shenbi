@@ -30,14 +30,16 @@ class TestFilterToFields:
     MD = "# Title\n\n## 1. 当前任务\n内容A\n\n## 2. 世界设定\n内容B\n\n## 3. 其他\n内容C\n"
 
     def test_filters_to_declared_sections(self):
-        result, matched = filter_to_fields(self.MD, ["1. 当前任务", "2. 世界设定"], "truth/test.md")
+        result, matched, _resolved = filter_to_fields(
+            self.MD, ["1. 当前任务", "2. 世界设定"], "truth/test.md"
+        )
         assert matched is True
         assert "内容A" in result
         assert "内容B" in result
         assert "内容C" not in result
 
     def test_escape_hatch_returns_full_when_no_match(self):
-        result, matched = filter_to_fields(self.MD, ["不存在的字段"], "truth/test.md")
+        result, matched, _resolved = filter_to_fields(self.MD, ["不存在的字段"], "truth/test.md")
         assert matched is False
         assert "内容A" in result  # full text returned
 
@@ -45,7 +47,9 @@ class TestFilterToFields:
         import json
 
         data = json.dumps({"fatigueWords": [], "pacing": "fast", "other": "x"})
-        result, matched = filter_to_fields(data, ["fatigueWords", "pacing"], "genre-config.json")
+        result, matched, _resolved = filter_to_fields(
+            data, ["fatigueWords", "pacing"], "genre-config.json"
+        )
         assert matched is True
         assert "fatigueWords" in result
         assert "other" not in result
@@ -60,7 +64,7 @@ class TestPartialMatchEscapeHatch:
         from shenbi.contracts.fields import filter_to_fields
 
         text = "## A\na\n\n## B\nb\n\n## C\nc"
-        out, matched = filter_to_fields(text, ["A", "B", "MISSING"], "x.md")
+        out, matched, _resolved = filter_to_fields(text, ["A", "B", "MISSING"], "x.md")
         assert matched is False
         assert out == text  # full-file fallback, not the partial fragment
 
@@ -86,21 +90,21 @@ class TestPartialMatchEscapeHatch:
         from shenbi.contracts.fields import filter_to_fields
 
         text = "## A\na\n\n## B\nb"
-        out, matched = filter_to_fields(text, ["A", "B"], "x.md")
+        out, matched, _resolved = filter_to_fields(text, ["A", "B"], "x.md")
         assert matched is True
         assert "## A" in out and "## B" in out
 
     def test_json_partial_returns_full(self):
         from shenbi.contracts.fields import filter_to_fields
 
-        out, matched = filter_to_fields('{"a": 1, "b": 2}', ["a", "z"], "x.json")
+        out, matched, _resolved = filter_to_fields('{"a": 1, "b": 2}', ["a", "z"], "x.json")
         assert matched is False
         assert '"b"' in out  # full-file fallback
 
     def test_json_full_match_still_projects(self):
         from shenbi.contracts.fields import filter_to_fields
 
-        out, matched = filter_to_fields('{"a": 1, "b": 2}', ["a"], "x.json")
+        out, matched, _resolved = filter_to_fields('{"a": 1, "b": 2}', ["a"], "x.json")
         assert matched is True
         assert '"b"' not in out
 
@@ -142,7 +146,7 @@ class TestProductionCurrentStateF845:
         monkeypatch.setattr(
             fields_mod.log, "warning", lambda event, **kw: warns.append(event), raising=True
         )
-        filtered, matched = fields_mod.filter_to_fields(
+        filtered, matched, _resolved = fields_mod.filter_to_fields(
             text, ["系统演化阶段", "参数当前位置", "进行中的情节线"], str(prod)
         )
         assert matched is True
@@ -174,7 +178,7 @@ def test_unknown_extension_passthrough_warns() -> None:
     from structlog.testing import capture_logs
 
     with capture_logs() as logs:
-        text, matched = filter_to_fields("# 不过滤", ["字段"], "data/list.yaml")
+        text, matched, _resolved = filter_to_fields("# 不过滤", ["字段"], "data/list.yaml")
     assert text == "# 不过滤" and matched is True
     assert any(
         e.get("event") == "field_filter_unknown_extension_passthrough"

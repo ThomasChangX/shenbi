@@ -742,7 +742,7 @@ def _build_skill_prompt(
     json_mode: bool = False,
     path_context: PathContext | None = None,
     outputs_override: list[str] | None = None,
-) -> tuple[str, str, list[str], list[dict[str, Any]]]:
+) -> tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]:
     """Build a complete execution prompt for a skill.
 
     Returns (system_prompt, user_prompt, output_paths) where:
@@ -798,6 +798,12 @@ def _build_skill_prompt(
     # but chapter is None (genesis mode) — such reads are skipped rather than
     # raising. With a chapter, resolve_chapter_path does a bounded N/NNN replace.
     raw_inputs: dict[str, str] = {}
+    # spec #81 §1: dispatch-time RAW disk snapshot per read — captured BEFORE
+    # any extractor/filter/META-strip (the filtered view the model saw stays
+    # in raw_inputs; this dict is the O-2 adjudication record: what the file
+    # on disk actually said at dispatch time). Cache hits record the cached
+    # value (source tagged in the manifest).
+    raw_disk_reads: dict[str, str] = {}
     # batch #15 #34 (probe20): the DISPATCH trace must persist WHAT the LLM
     # actually saw per read — field-filtered reads record their declared
     # fields and whether the filter matched, so a later miss can be told
@@ -847,11 +853,13 @@ def _build_skill_prompt(
             cached = shared_context.raw_files.get(key) if shared_context is not None else None
             if cached is not None:
                 content = cached
+                raw_disk_reads[key] = content  # spec #81: cache value recorded as-is
             else:
                 try:
                     content = full_path.read_text(encoding="utf-8")
                 except Exception:
                     content = f"[binary or unreadable: {full_path}]"
+                raw_disk_reads[key] = content  # spec #81: pre-extractor disk original
             if extractor == "volume_chapter" and chapter is not None:
                 # spec #65 §4. extractor face routes volume_map through the
                 # _shared family; chapter=None (genesis / manual no-chapter
@@ -1097,12 +1105,13 @@ def _build_skill_prompt(
                 # text (spec #65 §4.2 fail-loud discipline).
                 log.warning("extractor_unrouted_fulltext", extractor=extractor, path=str(full_path))
             if fields:
-                content, _matched = filter_to_fields(content, fields, str(full_path))
+                content, _matched, _resolved = filter_to_fields(content, fields, str(full_path))
                 reads_manifest.append(
                     {
                         "path": key,
                         "mode": "fields",
                         "fields": fields,
+                        "resolved_fields": _resolved,
                         "matched_all": bool(_matched),
                     }
                 )
@@ -1148,6 +1157,13 @@ def _build_skill_prompt(
         for fname, cached in _INJECT_FROM_CACHE.items():
             if cached and fname not in raw_inputs:
                 raw_inputs[fname] = cached
+                # spec #81 deviation ② (additive): cache-injected reads become
+                # manifest-visible with a cache source tag — they are reads the
+                # model actually saw; raw snapshot = the cached value.
+                raw_disk_reads.setdefault(fname, cached)
+                reads_manifest.append(
+                    {"path": fname, "mode": "full", "matched_all": True, "source": "cache"}
+                )
 
     # Priority-weighted budgeted truncation (Task 4/6 wiring).
     # Replaces the old equal-weight proportional budget with priority-driven
@@ -1488,7 +1504,7 @@ def _build_skill_prompt(
         except Exception as e:
             log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
 
-    return system_prompt, user_prompt, output_paths, reads_manifest
+    return system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads
 
 
 def _is_review_skill(skill: str) -> bool:
@@ -3440,7 +3456,13 @@ def _dispatch_via_api(
             log.warning("chapter_ambiguous_in_prompt", skill=skill)
             chapter = None
     try:
-        system_prompt, user_prompt, output_paths, reads_manifest = _build_skill_prompt(
+        (
+            system_prompt,
+            user_prompt,
+            output_paths,
+            reads_manifest,
+            _raw_reads,  # spec #81 §1: T4 archive wiring consumes this
+        ) = _build_skill_prompt(
             skill,
             project_dir,
             prompt,
@@ -3819,7 +3841,7 @@ def _dispatch_via_ide(
     try:
         # IDE face has no DISPATCH trace emit (subprocess outcome path);
         # reads_manifest is API-face only — hence the throwaway name.
-        system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _, _ = _build_skill_prompt(
             skill,
             project_dir,
             prompt,

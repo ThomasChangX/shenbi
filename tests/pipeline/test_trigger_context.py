@@ -85,7 +85,7 @@ def test_trigger_flow_prompt_lists_arc5_paths(tmp_path):
     prompt = (
         f"Execute shenbi-score-arc for chapter 60. Project dir: {proj}\n{format_path_context(ctx)}"
     )
-    system, user, outs, _ = _build_skill_prompt(
+    system, user, outs, _, _ = _build_skill_prompt(
         "shenbi-score-arc", proj, prompt, 60, path_context=ctx
     )
     assert "audits/arc-5-score.md" in outs
