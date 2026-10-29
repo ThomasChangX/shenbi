@@ -1,7 +1,7 @@
 # Spec #81 · 观测完备性之网（observability-net）：让记录足以持续优化系统与 prompt
 
 **日期**：2026-10-28 ｜ **系列**：regen-vol1 收尾（与 #80 invariant-net 配对：#80 管「生成对不对」，#81 管「凭什么知道、凭什么改进」）
-**状态**：Active（rev1 2026-10-29：设计审查轮 1 发现清偿——C1 归档模式改全量 blob/验收分期/逃逸舱检点钉死/API 面覆盖声明/L-A 例外条款；rev2：轮 2 五钉；rev3：轮 3 三重钉——求值点符号/loop_id 换源/快照捕获点；rev4：轮 4 三钉——§2 源矛盾清偿/落档锚点返回路径清单/并行波拓扑透传） ｜ **动机证据**：`docs/regen-vol1-observability-mining.md`（Track A 手工首跑，五发现 O-1/O-2/O-3/A-1/B-1）
+**状态**：Done (PR #258 · 2026-10-29；P1 期交付——P2（lint_reads_reconcile/dispatch_replay/滚动归档）/P3（A/B harness/跨卷看板）遗留见 §6；运行侧验收=regen 续跑窗口)（历史修订 rev1 2026-10-29：设计审查轮 1 发现清偿——C1 归档模式改全量 blob/验收分期/逃逸舱检点钉死/API 面覆盖声明/L-A 例外条款；rev2：轮 2 五钉；rev3：轮 3 三重钉——求值点符号/loop_id 换源/快照捕获点；rev4：轮 4 三钉——§2 源矛盾清偿/落档锚点返回路径清单/并行波拓扑透传） ｜ **动机证据**：`docs/regen-vol1-observability-mining.md`（Track A 手工首跑，五发现 O-1/O-2/O-3/A-1/B-1）
 
 **触及的不变量维度**：无（观测域——dispatch 归档/trace 加性字段/逃逸舱硬化，不直接触及 13 维普查任何维度；其归档产物供 #80 的 mutant 重放与 `--as-of` 审计回放消费）
 

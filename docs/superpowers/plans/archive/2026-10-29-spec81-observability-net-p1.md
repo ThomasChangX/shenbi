@@ -1,5 +1,7 @@
 # Spec #81 observability-net P1 Implementation Plan
 
+**Status**: Done (PR #258 · 2026-10-29 — 9/9 tasks, audits converged, just check green pre-merge and post-merge)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the P1 observability layer — dispatch archiving with content-addressed blobs, additive trace fields (loop_id/feedback_ref/archive_path) + RETRY event, escape-hatch fail-fast, and the observe_report skeleton — per spec `docs/superpowers/specs/2026-10-28-spec81-observability-net.md` (rev5).
