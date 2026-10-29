@@ -358,10 +358,12 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
         patch("shenbi.pipeline.audit_layer.get_active_genre_audits", return_value=[]),
         patch(
             "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
-            side_effect=lambda tasks, on_task_complete=None: _results_for(tasks),
+            side_effect=lambda tasks, on_task_complete=None, state=None: _results_for(tasks),
         ),
         patch.object(
-            cl, "_dispatch_serial_reviews", side_effect=lambda tasks, pd: _results_for(tasks)
+            cl,
+            "_dispatch_serial_reviews",
+            side_effect=lambda tasks, pd, state=None: _results_for(tasks),
         ),
         patch.object(cl, "_parse_and_persist_resonance"),
         patch.object(cl, "_route_revision_after_resonance"),
