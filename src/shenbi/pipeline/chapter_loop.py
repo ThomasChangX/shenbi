@@ -82,6 +82,7 @@ from shenbi.pipeline.state import (
     CheckpointType,
     PipelineState,
     SoftFailTracker,
+    retry_key,
 )
 from shenbi.exceptions import RetryExhaustedError
 from shenbi.skill_utils.escalation.check import check_escalation
@@ -1174,8 +1175,10 @@ def _gate_passed(result: dict[str, Any]) -> bool:
 
 
 def _retry_key(chapter: int, skill: str) -> str:
-    """Chapter-scoped retry key so retries from different chapters don't collide."""
-    return f"ch{chapter}-{skill}"
+    """Alias of the public single source shenbi.pipeline.state.retry_key
+    (spec #81 §2 dedup) — kept for this module's many internal callers.
+    """
+    return retry_key(chapter, skill)
 
 
 def _charge_wave_retries(

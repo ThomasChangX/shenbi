@@ -150,6 +150,17 @@ class ChapterState:
     audit_retry_count: int = 0  # tracks audit BLOCKING revision attempts
 
 
+def retry_key(chapter: int, skill: str) -> str:
+    """Chapter-scoped retry-map key so retries from different chapters don't collide.
+
+    Public single source (spec #81 §2): chapter_loop's retry maps AND the
+    dispatch archive's loop_id snapshot must derive the identical key.
+    Genesis dispatches key on ch1 (chapter None → 1) — the genesis family
+    shares one key slot by design.
+    """
+    return f"ch{chapter}-{skill}"
+
+
 @dataclass
 class SoftFailTracker:
     """Tracks SOFT G4 failures with a sliding window to prevent stale escalations."""
