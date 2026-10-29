@@ -84,7 +84,7 @@ class TestBlobStore:
         monkeypatch.setenv("SHENBI_ARCHIVE_QUOTA_BYTES", "200")  # KB 级实测形态（spec §7.5 离线）
         d1 = ar.put_blob(tmp_path, "x" * 150)   # 150B 落盘
         d2 = ar.put_blob(tmp_path, "y" * 400)   # 150+400 > 200 → 跳内容写
-        assert d2 is not None and d2.startswith("sha256:")       # 哈希照返（spec §1）
+        assert d2.startswith("sha256:")                         # 哈希照返（spec §1）
         blob2 = tmp_path / "observability" / "blobs" / d2.split(":", 1)[1]
         assert not blob2.exists()                                # 内容确实没写
         assert (tmp_path / "observability" / "blobs" / d1.split(":", 1)[1]).exists()
@@ -204,7 +204,7 @@ def put_blob(project_dir: Path, content: str) -> str:
 
 **Files:**
 - Modify: `src/shenbi/pipeline/dispatch_helper.py`（:852 读盘点后捕获；:1100 filter 调用点；:1491 返回）、`src/shenbi/contracts/fields.py`（`filter_to_fields` 扩 3 元组返回——**仅此一个生产调用方**，grep 已核：dispatch_helper.py:1100 唯一）
-- Test: `tests/unit/pipeline/test_dispatch_snapshot.py`、`tests/unit/contracts/test_fields.py`（3 元组适配）；修既有 stub——**爆破面实measure：`grep -rln "_build_skill_prompt" tests/` 约 23 文件 55 位**（tests/pipeline/ 10 文件：spec6_prompt_slimming、dispatch_helper_cap_raise、trigger_context、dispatch_helper_system_stability、dispatch_helper_keys、audit_context_cache、dispatch_reads_injection、closure_context、dispatch_helper_xml、meta_view_coordinates；tests/unit/pipeline/ 13 文件：layerb_live、staging_commit、dispatch_helper、dispatch_ingestion_guard、retry_accounting、token_ledger_guard(:69/:163 双位)、read_extractors_slicing、dispatch_helper_read_suppression、append_dedup_increment_injection、dispatch_usage_capture、style_seed、helper_injection、estimate_rows）
+- Test: `tests/unit/pipeline/test_dispatch_snapshot.py`、`tests/unit/contracts/test_fields.py`（3 元组适配）；**filter 3 元组爆破面另三文件**：`tests/unit/pipeline/test_field_filtering.py`（6 位）、`tests/unit/pipeline/test_read_contract_reality_lock.py`、`tests/unit/contracts/test_chapter_planning_contract.py:42`（后者的目录不在 Step 4 命令里——Step 4 以 `tests/unit/contracts` 整目录跑兜住）；builder 5 元组爆破面实measure：`grep -rln "_build_skill_prompt" tests/` 约 23 文件 55 位（tests/pipeline/ 10 文件：spec6_prompt_slimming、dispatch_helper_cap_raise、trigger_context、dispatch_helper_system_stability、dispatch_helper_keys、audit_context_cache、dispatch_reads_injection、closure_context、dispatch_helper_xml、meta_view_coordinates；tests/unit/pipeline/ 13 文件：layerb_live、staging_commit、dispatch_helper、dispatch_ingestion_guard、retry_accounting、token_ledger_guard(:69/:163 双位)、read_extractors_slicing、dispatch_helper_read_suppression、append_dedup_increment_injection、dispatch_usage_capture、style_seed、helper_injection、estimate_rows）
 
 **Interfaces:**
 - Produces:
@@ -259,7 +259,7 @@ def test_raw_snapshot_is_disk_original_not_filtered_view(tmp_path: Path, monkeyp
 
 - [ ] **Step 2: 确认失败**（4 元组解包 TypeError）
 - [ ] **Step 3: 实现**：:852 后加 `raw_disk_reads: dict[str, str]` 收集（函数头初始化）；`filter_to_fields` 扩 3 元组（`_filter_md`/`_filter_json` 内部收集命中字段名，`match_field` 逐声明字段判定的循环已在）；两条缓存路径同步收集（raw_files 命中位 + `_INJECT_FROM_CACHE` 合并位）并给 manifest 条目加 `"source": "cache"`；:1491 返回 5 元组；两调用点（:3443 API 收用、:3822 IDE `_` 弃用）+ **全部 ~23 测试文件 stub 更新为 5 元组 / 3 元组 filter**（上列爆破面清单逐一过）。
-- [ ] **Step 4: 跑新测试 + 全 dispatch/pipeline 测试面** — `uv run pytest tests/unit/pipeline tests/unit/contracts/test_fields.py tests/pipeline -q` → 全 PASS（**不以 3 个文件为限**——爆破面在 T9 `just check` 才爆 = 返工）
+- [ ] **Step 4: 跑新测试 + 全 dispatch/pipeline/contracts 测试面** — `uv run pytest tests/unit/pipeline tests/unit/contracts tests/pipeline -q` → 全 PASS（**不以 3 个文件为限**——爆破面在 T9 `just check` 才爆 = 返工）
 - [ ] **Step 5: Commit** — `feat(observability): spec #81 T2 — pre-filter raw disk snapshot, builder 5-tuple`
 
 ---
@@ -274,7 +274,7 @@ def test_raw_snapshot_is_disk_original_not_filtered_view(tmp_path: Path, monkeyp
 **Interfaces:**
 - Produces:
   - `update_escape_hatch_state(project_dir: Path, reads_manifest: list[dict[str, Any]]) -> None`——键 `(path, tuple(fields))`；fields 模式条目 `matched_all=False` 连击 +1、`True` 复位清键；flock 于状态文件 `observability/escape-hatch-state.json`；**不受 `SHENBI_ARCHIVE_DISPATCH` 门控**（常开）。
-  - `escape_hatch_drift_check(project_dir: Path) -> list[dict[str, Any]]`——纯读：streak ≥3 的键列表（T7 消费）；文件缺失 → `[]`（absent PASS）；半写 JSON 解析失败 → `[]` + WARN。
+  - `escape_hatch_drift_check(project_dir: Path) -> list[dict[str, Any]]`——纯读：streak ≥3 的键列表，条目形 `{"key": "<path>|<fields-joined>", "path": ..., "fields": [...], "streak": n, "first_ts": ..., "last_ts": ...}`（T7 消费 `key`/`streak`）；文件缺失 → `[]`（absent PASS）；半写 JSON 解析失败 → `[]` + WARN。
 
 - [ ] **Step 1: 失败测试**（键隔离/复位/缺失三语义 + 常开）
 
@@ -453,7 +453,7 @@ def test_archive_write_failure_never_blocks_dispatch(tmp_path, monkeypatch):
 - Produces: 波派发链 state 透传——**两个入口都改**（I7）：`parallel_dispatch.dispatch_reviews_parallel(tasks, on_task_complete, state: Any = None)`（:235，submit :264）→ `_dispatch_with_retry(task, semaphore, state: Any = None)`（:92）→ `dispatch_skill(..., state=state)`；**串行子波同批**：`chapter_loop._dispatch_serial_reviews(serial_tasks, project_dir, state: Any = None)`（:3356，调用位 :3577/:3618）→ 同透传——WRITE_SHARED 串行评审成员否则仍无 state（review-group 人口的最大子集，正是 rev4 钉死要盖的族）。chapter_loop 两个波调用点（:3572/:3610）把 state 传入 `dispatch_reviews_parallel`。
 
 - [ ] **Step 1: 失败测试**——monkeypatch `dispatch_skill` 捕获 kwargs：(a) `_dispatch_with_retry` 收 state 后透传；(b) `_dispatch_serial_reviews` 收 state 后透传。
-- [ ] **Step 2-4: 红→实现→绿**（`_dispatch_with_retry` 加 `state: Any = None` 形参并传入其 `dispatch_skill` 调用 :120-126；`RetryTask` 不动——state 是波级共享非任务级）。
+- [ ] **Step 2-4: 红→实现→绿**（`_dispatch_with_retry` 加 `state: Any = None` 形参并传入其 `dispatch_skill` 调用 :120-126；`ReviewTask` 不动（parallel_dispatch.py:44——state 是波级共享非任务级））。
 - [ ] **Step 5: Commit** — `feat(observability): spec #81 T5 — parallel wave state threading (loop_id coverage)`
 
 ---
@@ -466,7 +466,7 @@ def test_archive_write_failure_never_blocks_dispatch(tmp_path, monkeypatch):
 
 **Interfaces:**
 - Produces: 新模块级 helper `_emit_retry_event(project_dir: Path, *, chapter: int | None, skill: str, reason: dict[str, Any], loop_id: int) -> None`——**先守卫** `(project_dir / "trace.jsonl").exists()` 否则静默返回（同 `_emit_dispatch_trace` :3128-3131 纪律——`TraceWriter.append` 会自建 trace 面（writer.py:102-104），不守卫 = RETRY 静默造面）；守卫过后 `TraceWriter(project_dir).append(actor="chapter-loop", actor_role="SYSTEM", action="RETRY", target=f"ch{chapter}", skill=skill, payload={"chapter": chapter, "skill": skill, "reason": reason, "loop_id": loop_id})`。
-- reason 结构化 + **发射位钉死（M14）**：G4 硬败块的**两个分支**——`per_chapter_review_enabled` 真 → `_handle_failure` 路径（:4140-4144 前）、假 → 直接 auto-retry 路径（:4145-4156）各发一次；监控回卷位（:3925-3955 场景算术差值结构直传 `{"kind": "monitor_rewind", **diff_dict}`）。G4 位 reason = `{"kind": "g4_hard", "check_ids": [...hard_fails], "loop": loop_id}`。
+- reason 结构化 + **发射位钉死（M14）**：G4 硬败块的**两个分支**——`per_chapter_review_enabled` 真 → `_handle_failure` 路径（:4140-4144 前）、假 → 直接 auto-retry 路径（:4145-4156）各发一次；监控回卷位（:3925-3955）。G4 位 reason = `{"kind": "g4_hard", "check_ids": [...hard_fails], "loop": loop_id}`；**回卷位按现存数据形态钉**：该位只有预格式 `issues: list[str]`（`scene_splitter.validate_split` 产物，如 `"word_band:ch2:total_chars 1995 不在带 [2800,4000]"`），spec §2 示例的数值差值 dict 不存在于该作用域——P1 reason = `{"kind": "monitor_rewind", "chapter": N, "issues": [...原串]}`（消费方 observe_report 失败簇按 kind 聚类不受影响）；**数值化差值形态记 spec-deviations 延后**（scene_splitter 结构化暴露属独立小改，不顺手膨胀 T6 scope）。
 
 - [ ] **Step 1: 失败测试**——tmp_path 造 trace.jsonl（先手 TraceWriter 落一 INIT 事件成链），monkeypatch 触发 `_handle_failure` 重派路径，断言 trace 尾部出现 `action=="RETRY"` 且 payload 结构化；监控位同理（直调 `_emit_retry_event` 断言形态 + 回卷路径集成断言）；**无 trace 文件时断言不创建**（守卫测试——空 tmp_path 直调 helper 后 `trace.jsonl` 不存在）。
 - [ ] **Step 2-4: 红→实现→绿**。
@@ -612,6 +612,7 @@ def test_missing_surfaces_degrade_to_explicit_note(tmp_path: Path):
 
 ## 执行说明
 
-- 全 task = infra → **协调者亲自实现**（SDD leaf/infra 分流），每 task commit 后 fresh-context 审查子 agent 产 `audit-T<N>.md`，无之不得开 T<N+1>。
+- 全 task = infra → **协调者亲自实现**（SDD leaf/infra 分流；T8/T9 保守归类 infra——消费 T1/T4/T6 产物格式，协调者做免接口漂移），每 task commit 后 fresh-context 审查子 agent 产 `audit-T<N>.md`，无之不得开 T<N+1>。
 - 每 task TDD 红→绿→commit；偏差当轮记 `spec-deviations.md` `### T<N>` 段。
-- 既有测试 stub 爆破面（T2 改 5 元组）：`grep -rn "_build_skill_prompt" tests/` 列全，逐一更新——漏一个 = 阶段 7 `just check` 红。
+- **预登记 deviations（实施时照记）**：① T1 `skill_contract_sha` 取内容 sha256 非 git blob SHA（溯源等价，格式统一）；② T2 `resolved_fields` 进 manifest（spec §1 措辞「manifest 不动」——加性可选键，trace reads 随之可见，无破坏；偏离措辞记档）；③ T6 回卷位 reason 取现存 `issues: list[str]` 形态，数值化差值 dict 延后。
+- 既有测试 stub 爆破面（T2）：`grep -rn "_build_skill_prompt\|filter_to_fields" tests/` 双清单列全，逐一更新——漏一个 = 阶段 7 `just check` 红。
