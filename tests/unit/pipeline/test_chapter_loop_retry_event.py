@@ -83,3 +83,28 @@ class TestWiringForm:
         assert payload["reason"]["kind"] == "g4_hard"
         assert payload["reason"]["check_ids"] == ["G4.cd.prop_handoff:x:缺"]
         assert payload["loop_id"] == 1  # 首次重派（budget +1 前快照语义）
+
+    def test_monitor_rewind_path_emits_retry(self, tmp_path: Path):
+        """audit-T6 I-1: the rewind site's wiring — real step loop through the
+        pipeline-scene-split step with issues -> one kind=monitor_rewind RETRY
+        carrying the pre-formatted issue strings (deviation ③ form).
+        """
+        from unittest.mock import patch
+
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.state import PipelineState
+
+        _seed_trace(tmp_path)
+        issues = ["word_band:ch2:total_chars 1995 不在带 [2800,4000]"]
+        with patch("shenbi.pipeline.chapter_loop._run_scene_split_step", return_value=issues):
+            state = PipelineState.default(str(tmp_path))
+            state.chapter_loop.current_chapter = 1
+            state.chapter_loop.step_index = 4  # pipeline-scene-split（CHAPTER_STEPS 序 5，0 基 4）
+            state.config.max_audit_retries = 3
+            run_chapter_step(state, tmp_path)
+        retries = [e for e in _events(tmp_path) if e["action"] == "RETRY"]
+        assert len(retries) == 1  # 回卷一次 = 一发
+        payload = retries[0]["payload"]
+        assert payload["reason"]["kind"] == "monitor_rewind"
+        assert payload["reason"]["issues"] == issues  # 原串形态（deviation ③）
+        assert payload["loop_id"] == 1  # 首次回卷（budget +1 前快照语义）
