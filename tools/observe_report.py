@@ -5,7 +5,8 @@ coverage row (the P1 minimal consumer of the dispatch archive — L-A)
 + the WARN tally line. Read-only over the project directory:
 
 - cost/token-ledger.jsonl        (膨胀曲线; coverage denominator: attempt==1
-                                  rows — exactly one per dispatch)
+                                  rows, real/est breakdown — est rows are
+                                  IDE/legacy faces + usage-less failures)
 - trace.jsonl                    (DISPATCH loop_id/reads; RETRY reasons)
 - observability/dispatches/*.json(coverage numerator; blob pointers)
 - observability/blobs/           (dedup ratio ground truth)
@@ -44,7 +45,7 @@ def _table_bloat(ledger: list[dict[str, Any]]) -> list[str]:
         by_skill_ch[(str(row.get("skill")), row.get("chapter"))].append(
             int(row.get("prompt_tokens", 0))
         )
-    for (skill, ch), toks in sorted(by_skill_ch.items(), key=lambda kv: (kv[0][0], kv[0][1])):
+    for (skill, ch), toks in sorted(by_skill_ch.items(), key=lambda kv: (kv[0][0], kv[0][1] or -1)):
         avg = sum(toks) // max(len(toks), 1)
         lines.append(f"| {skill} | ch{ch} | {avg} | {len(toks)} |")
     lines.append("")
@@ -67,7 +68,7 @@ def _table_loop_depth(
     for e in retry_events:
         payload = e.get("payload", {})
         retry_count[(str(payload.get("skill")), payload.get("chapter"))] += 1
-    for key in sorted(set(loop_max) | set(retry_count), key=lambda k: (k[0], k[1])):
+    for key in sorted(set(loop_max) | set(retry_count), key=lambda k: (k[0], k[1] or -1)):
         skill, ch = key
         lines.append(f"| {skill} | ch{ch} | {loop_max.get(key, 0)} | {retry_count.get(key, 0)} |")
     lines.append("")
@@ -116,7 +117,9 @@ def _table_escape_hatch(
     cur: dict[str, int] = {}
     for key, entry in streaks.items():
         if isinstance(entry, dict):
-            cur[str(key).split("|", 1)[0]] = int(entry.get("streak", 0))
+            path_only = str(key).split("|", 1)[0]
+            streak = int(entry.get("streak", 0))
+            cur[path_only] = max(cur.get(path_only, 0), streak)  # (path,fields) 键展平取 max
     for path_ in sorted(set(miss_hist) | set(cur)):
         lines.append(f"| {path_} | {miss_hist.get(path_, 0)} | {cur.get(path_, 0)} |")
     lines.append("")
@@ -125,7 +128,7 @@ def _table_escape_hatch(
 
 def _blob_pointers(rec: dict[str, Any]) -> list[str]:
     pointers: list[str] = []
-    for key in ("system_prompt_blob", "user_prompt_blob", "response_blob"):
+    for key in ("system_prompt_blob", "user_prompt_blob", "response_blob", "feedback_ref"):
         v = rec.get(key)
         if isinstance(v, str) and v.startswith("sha256:"):
             pointers.append(v.split(":", 1)[1])
@@ -163,10 +166,15 @@ def _coverage_row(
         lines.append("无归档 (特性前项目或归档关闭)。")
         lines.append("")
         return lines
-    ledger_denominator = sum(
-        1 for row in ledger if int(row.get("attempt", 1)) == 1 and not row.get("estimated")
+    attempt1 = [row for row in ledger if int(row.get("attempt", 1)) == 1]
+    n_est = sum(1 for row in attempt1 if row.get("estimated"))
+    n_real = len(attempt1) - n_est
+    # est attempt==1 rows = IDE/legacy faces (never archived) + usage-less
+    # failures (archived) — shown explicitly instead of silently filtered,
+    # so a failure-heavy project reads as a breakdown, not a false mismatch.
+    lines.append(
+        f"- 派发对账: ledger={len(attempt1)} (real={n_real}, est={n_est}) / archive={len(archives)}"
     )
-    lines.append(f"- 派发对账: ledger={ledger_denominator} / archive={len(archives)}")
     blob_dir = project / "observability" / "blobs"
     blob_hits = blob_total = 0
     for rec in archives:
@@ -213,11 +221,14 @@ def build_report(project_dir: Path | str) -> str:
     ledger = _load_jsonl(project / "cost" / "token-ledger.jsonl")
     trace = _load_jsonl(project / "trace.jsonl")
     dispatches_dir = project / "observability" / "dispatches"
-    archives = (
-        [json.loads(p.read_text(encoding="utf-8")) for p in sorted(dispatches_dir.glob("*.json"))]
-        if dispatches_dir.exists()
-        else []
-    )
+    archives: list[dict[str, Any]] = []
+    if dispatches_dir.exists():
+        for p in sorted(dispatches_dir.glob("*.json")):
+            try:
+                loaded_rec: dict[str, Any] = json.loads(p.read_text(encoding="utf-8"))
+                archives.append(loaded_rec)
+            except (OSError, ValueError):
+                continue  # externally corrupted record — report on the rest
     stats = _load_stats(project)
     escape_state = _load_escape_state(project)
     dispatch_events = [e for e in trace if e.get("action") == "DISPATCH"]

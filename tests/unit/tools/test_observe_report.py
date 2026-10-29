@@ -172,7 +172,8 @@ class TestReport:
         md = build_report(tmp_path)
         assert "去重率" in md
         assert "blob 存在性: 8/8" in md  # 3 档 × 指针（SYS×3+U×3+R×2）全存在
-        assert "0." in md.split("去重率")[1].split("（")[0]  # 比率 <1（去重生效）
+        ratio_line = next(l for l in md.splitlines() if "去重率" in l)
+        assert "0.6" in ratio_line  # 比率 <1（去重生效；corpus 13B/19B≈0.68）
 
     def test_missing_surfaces_degrade_to_explicit_note(self, tmp_path: Path):
         (tmp_path / "trace.jsonl").write_text("", encoding="utf-8")
@@ -187,3 +188,44 @@ class TestReport:
         next(iter(sorted(blobs.iterdir()))).unlink()
         md = build_report(tmp_path)
         assert "哈希在、内容失" in md
+
+    def test_mixed_genesis_and_chapter_no_crash(self, tmp_path: Path):
+        """audit-T8 I-1: genesis (chapter=None) + chaptered events of the same
+        skill must not crash the sort — None/int tuple comparison died.
+        """
+        from shenbi.trace.writer import TraceWriter
+
+        w = TraceWriter(tmp_path)
+        w.append(actor="t", actor_role="SYSTEM", action="INIT", target="t")
+        for ch in (None, 2, 1):
+            w.append(
+                actor="dispatch_helper",
+                actor_role="SYSTEM",
+                action="DISPATCH",
+                target="skill:s",
+                skill="s",
+                payload={"chapter": ch, "loop_id": 3},
+            )
+        md = build_report(tmp_path)  # 不抛即过
+        assert "| s | ch" in md
+
+    def test_est_breakdown_line(self, tmp_path: Path):
+        """audit-T8 I-2: estimated attempt==1 rows shown as breakdown, not
+        silently filtered (archived usage-less failure = est row).
+        """
+        _seed_corpus(tmp_path)
+        _write_jsonl(
+            tmp_path / "cost" / "token-ledger.jsonl",
+            [
+                {
+                    "skill": "s",
+                    "chapter": 1,
+                    "prompt_tokens": 100,
+                    "attempt": 1,
+                    "estimated": False,
+                },
+                {"skill": "s", "chapter": 1, "prompt_tokens": 90, "attempt": 1, "estimated": True},
+            ],
+        )
+        md = build_report(tmp_path)
+        assert "ledger=2 (real=1, est=1)" in md  # 分解可见，不假失配
