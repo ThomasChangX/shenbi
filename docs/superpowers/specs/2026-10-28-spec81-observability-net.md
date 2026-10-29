@@ -1,7 +1,7 @@
 # Spec #81 · 观测完备性之网（observability-net）：让记录足以持续优化系统与 prompt
 
 **日期**：2026-10-28 ｜ **系列**：regen-vol1 收尾（与 #80 invariant-net 配对：#80 管「生成对不对」，#81 管「凭什么知道、凭什么改进」）
-**状态**：Active（rev1 2026-10-29：设计审查轮 1 发现清偿——C1 归档模式改全量 blob/验收分期/逃逸舱检点钉死/API 面覆盖声明/L-A 例外条款） ｜ **动机证据**：`docs/regen-vol1-observability-mining.md`（Track A 手工首跑，五发现 O-1/O-2/O-3/A-1/B-1）
+**状态**：Active（rev1 2026-10-29：设计审查轮 1 发现清偿——C1 归档模式改全量 blob/验收分期/逃逸舱检点钉死/API 面覆盖声明/L-A 例外条款；rev2 2026-10-29：轮 2 三钉——loop_id/feedback_ref 状态线程约束/检点求值点/seq 原子性） ｜ **动机证据**：`docs/regen-vol1-observability-mining.md`（Track A 手工首跑，五发现 O-1/O-2/O-3/A-1/B-1）
 
 **触及的不变量维度**：无（观测域——dispatch 归档/trace 加性字段/逃逸舱硬化，不直接触及 13 维普查任何维度；其归档产物供 #80 的 mutant 重放与 `--as-of` 审计回放消费）
 
@@ -48,7 +48,9 @@ Track A 挖矿证明：元数据层（trace/账本/取证/裁决）已能产出�
 - **blob 策略（字节级复现的唯一路径）**：`user_prompt`/`response`/`system_prompt` 三者与逐 read 原文全部进内容寻址库 `observability/blobs/<sha256>`，哈希即指针。**不从 reads 重组 prompt**——组装嵌入任务指令、`wrap_untrusted_source` 横幅、`## Plan Skeleton` 注入（volume_map 派生）、#77/#78 强制节拍注入、逐派发 `Current time (UTC)` 行（`dispatch_helper.py:1391-1398`），皆不在 reads blob 内，重组不可行。去重估测：reads 重复注入率极高（genre-config ×130/卷），~40-60MB/卷原始文本 → blobs 实存 ~15-25MB。
 - **plan 约束（接线摩擦，价值门驳斥轮实证）**：逐 read 原文快照需 `_build_skill_prompt` 回传 `raw_inputs`（现为 builder 内部局部量，返回元组不含）；prompt 级 blob 无此依赖（组装产物在 `_dispatch_via_api` 作用域内）。
 - **覆盖面声明**：本层只盖 API 面——regen 实跑全走 API 面（挖矿 223 DISPATCH 全部出自 API）；IDE 面 `_dispatch_via_ide` 无 DISPATCH trace 且弃 reads_manifest（`dispatch_helper.py:3820` throwaway 注释自认），**记为已知覆盖洞，不静默**。
-- **默认开启**（用户令「确保之后可以通过记录进一步优化」）；`SHENBI_ARCHIVE_DISPATCH=0` 可关（极端环境）。写档 fail-safe：归档失败不阻断派发（与 `_persist_failed_write_output` 同纪律），但记 `archive_write_failed` WARN 并计入 §3 消费报表。
+- **`seq` 指派（原子性，rev2 钉）**：`seq` = 派发时在 `.lockfile` flock 下读档目录 max+1 取号——并行审计波（`SharedAuditContext` 共享派发）两路并发 max+1 会撞档名；跨 run 重启续号（按现存档推进，不归零）；档名撞即 WARN 跳过（容忍空洞，不重排——归档序号是历史标识，同 INDEX 编号纪律）。P2 `index.jsonl` 追加同锁。
+- **失败分支档形（rev2 钉）**：API 超时/空正文等**有 prompt 无响应**分支照落档（`response_blob: null`、`finish_reason` 记实际值）；prompt 组装前失败（连 reads_manifest 都无）不落档——`archive_write_failed` WARN 仅记「应档未档」的派发面。档内除 `response_blob` 与失败分支的 `usage` 外全字段非空。
+- **默认开启**（用户令「确保之后可以通过记录进一步优化」）；`SHENBI_ARCHIVE_DISPATCH=0` 可关（极端环境）——**只关归档层，不关逃逸舱计数器**（计数器独立常开：零 blob 开销，是 O-3 的修复本体）。写档 fail-safe：归档失败不阻断派发（与 `_persist_failed_write_output` 同纪律），但记 `archive_write_failed` WARN 并计入 §3 消费报表。
 - **配额熔断**：`observability/` 目录 > `SHENBI_ARCHIVE_QUOTA_BYTES`（默认 1GB，可配——测试可设 KB 级，§7 条 5 的离线形态）→ WARN + 跳过 blobs 新写（档与哈希照写）。**如实记档**：被跳过的 response 该次正文永久丢失；reads blob 仅当磁盘文件未变时可再导——而归档存在的意义正是证明「文件变没变」不可考——熔断即降级为「可验证（哈希在）不可复现（正文失）」。配额检查不逐派发全目录 walk：维护运行字节账 + 每 N 派发抽样校准。
 
 ## 2. trace 结构化补全（加性字段，schema_version 保持 1）
@@ -58,6 +60,7 @@ Track A 挖矿证明：元数据层（trace/账本/取证/裁决）已能产出�
   - `feedback_ref`：重派反馈的 blob 哈希——循环反馈目前只活在代码里，「兜底反馈零信息」类问题（probe8 教训）从此有据可查（recorder-first，消费者 P2，见 §0 例外条款）；
   - `archive_path`：指向 §1 档案（同上）。
 - **新事件 `RETRY`**：门检/监控触发的循环重派时记结构化原因（如场景算术差值 `{scene: 2, actual: 1995, band: [1800,2000]}`），替代只能翻 runner 日志的现状。`action` 为自由字符串（无枚举约束），G7 只验签名链+单调，新 action 直通。
+- **plan 约束（状态线程，rev2 钉——与 §1 raw_inputs 约束同级的接线摩擦）**：`_dispatch_via_api` 特意不收 `PipelineState`（docstring :3418-3420「no PipelineState required — 8/13 call sites dispatch without one」），而 `loop_id` 源在 `state.chapter_loop.retry_counts`、`feedback_ref` 的反馈文本在 `chapter_loop` 拼入 prompt（:1090-1095）——派发函数内两者均不可得。落法二选一（plan 定）：chapter_loop 计算后经 `dispatch()`/`_dispatch_via_api` 签名下传，或派发函数外由调用方补发独立事件。**genesis 键语义**：genesis 重派键挂 ch1（`_retry_key(chapter if chapter is not None else 1)`，:1519）——genesis `loop_id` 快照即读 ch1 键计数，语义如实（创世章族共一个键位）。
 
 ## 3. 消费者契约（L-A 的机制化）
 
@@ -69,10 +72,11 @@ Track A 挖矿证明：元数据层（trace/账本/取证/裁决）已能产出�
 | trace `feedback_ref`/`archive_path` | `dispatch_replay`（P2）——recorder-first 例外见 §0 | P2 |
 | 逃逸舱 WARN | **fail-fast 硬化**（检点钉死见下） | P1 |
 | 契约 fields 声明 | **`tools/lint_reads_reconcile.py`**：所有 SKILL reads 的 `fields:` ↔ 项目内实际文件标题对账（`lint_decisions_sources` 三源对账同模式；O-1 类漂移在 CI 即红） | P2 |
-| 归档写失败 WARN | `observe_report` 末行汇总 | P1 |
+| 归档写失败/配额跳过 WARN | `observe_report` 末行汇总（`archive_write_failed` + `archive_quota_skip` 两键分计） | P1 |
 
 **逃逸舱 fail-fast 检点（钉死四元组）**：
 - **检点 id**：`escape_hatch_drift`，HARD 语义——FAIL 时停循环、走既有 escalation checkpoint 暂停人工（漂移非重派可愈，**禁止烧 retry 预算**）；以 GATE_FAIL 形态落 trace（gate marker）。
+- **求值点（rev2 钉）**：**派发后循环相位检查**（chapter_loop 步进间隙读 `observability/escape-hatch-state.json`，非 G4——逃逸舱漂移是派发输入态不是输出结构态，挂 G4 会在浪费一次派发后才红；GATE_FAIL 走 `audit/record.py` 既有 `record_gate_decision` 形态（action="GATE_FAIL"），HARD 路由经既有 `check_escalation`）。不注册 `G4_CHECK_MAP`。
 - **计数键**：`(path, fields)`——O-1 实际漂移单元。不用 `(project, path)`：多技能读同文件不同 fields 声明时（planning 失配 vs drafting 匹配交错读 style_profile），交错复位互掩真漂移、或异技能偶发失配凑满 3 次假 FAIL。
 - **复位规则**：同键 `matched_all=true` 的读复位该键连击计数。
 - **缺失语义**：`observability/escape-hatch-state.json` 不存在 → PASS（既有项目/特性前历史不追溯失败——向后兼容硬约束）。
@@ -93,9 +97,9 @@ Track A 挖矿证明：元数据层（trace/账本/取证/裁决）已能产出�
 
 ## 6. 分期
 
-- **P1（本批起）**：§1 归档 + blobs 去重 + DISPATCH 三加性字段 + RETRY 事件 + 逃逸舱 fail-fast + `observe_report` 骨架（四表 + 归档覆盖行）+ O-1 一行修复（已随挖矿提交）。
+- **P1（本批起）**：§1 归档 + blobs 去重 + DISPATCH 三加性字段 + RETRY 事件 + 逃逸舱 fail-fast + `observe_report` 骨架（四表 + 归档覆盖行；justfile 挂 `just observe-report <dir>`）+ O-1 一行修复（已随挖矿批次在项目侧完成——repo 不跟踪 novel 目录，此处仅存目）。
   - **P1 验收（离线形态，SDD 代码交付边界内——F947 纪律，fixtures/tmp_path 驱动，禁真实 dispatch）**：归档写档 + blob 去重 + `user_prompt_blob` 解引用字节级复现；fail-fast 3 次触发与四元组语义（复位/缺失 PASS/键隔离）。
-  - **运行侧验收（运行验证阶段动作，不在 SDD 边界内——#80 先例）**：regen 续跑 2 束后 `observability/` 可字节级复现任一 drafting 派发的 prompt 与 reads。
+  - **运行侧验收（运行验证阶段动作，不在 SDD 边界内——#80 先例）**：regen 续跑 2 束（vol1 续章）后 `observability/` 可字节级复现任一 drafting 派发的 prompt 与 reads。**口径统一（rev2）**：P1 期运行验证=vol1 续跑窗口；§7 的「下一卷 5 章」窗口是 spec 全期（P2 后）完成口径，两者并存不混。
 - **P2**：`lint_reads_reconcile` + feedback 归档 + `dispatch_replay` 骨架（输入=归档+改版 SKILL，输出=diff 报告；**不名 `replay`**——与 `trace/replay.py`（签名链撕裂恢复，判据 7 I6b）同名异物）+ 归档滚动工具（§4 三件）。
 - **P3**：A/B harness（同 dispatch 双 prompt 变体对照）+ 跨 run 聚合看板（卷间膨胀/失败率趋势）。
 
