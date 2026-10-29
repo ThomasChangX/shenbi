@@ -1170,6 +1170,16 @@ def _build_skill_prompt(
                     {"path": fname, "mode": "full", "matched_all": True, "source": "cache"}
                 )
 
+    # spec #81 §3: escape-hatch drift counter — always-on (independent of the
+    # archive gate), shared seam (API/IDE faces both count). The builder must
+    # never break on observability state: swallow into WARN inside.
+    try:
+        from shenbi.observability.escape import update_escape_hatch_state
+
+        update_escape_hatch_state(project_dir, reads_manifest)
+    except Exception:
+        log.warning("escape_hatch_update_skipped", exc_info=True)
+
     # Priority-weighted budgeted truncation (Task 4/6 wiring).
     # Replaces the old equal-weight proportional budget with priority-driven
     # allocation via _budgeted_truncate.
