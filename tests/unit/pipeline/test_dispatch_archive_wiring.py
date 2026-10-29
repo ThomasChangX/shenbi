@@ -110,6 +110,9 @@ class TestSuccessArchive:
         assert len(dispatch) == 1
         payload = dispatch[0]["payload"]
         assert payload["loop_id"] == 7
+        assert payload["feedback_ref"] == ar.sha256_of(
+            "上一轮反馈"
+        )  # audit-T4 M-3：§2 三字段端到端
         assert payload["archive_path"] is not None
         assert (tmp_path / payload["archive_path"]).exists()
 
@@ -127,6 +130,7 @@ class TestFailureBranches:
         rec = _load_archive(tmp_path)
         assert rec["response_blob"] is None and rec["finish_reason"] is None
         assert rec["loop_id"] == 7  # 加性字段照进失败档
+        assert rec["usage"] is None or rec["usage"] == {}  # 失败分支 usage 豁免（audit-T4 M-3）
 
     def test_write_failure_branch_archives_despite_no_trace(self, tmp_path, monkeypatch):
         from shenbi.exceptions import DispatchWriteFailureError
@@ -152,6 +156,10 @@ class TestFailureBranches:
         result = dh._dispatch_via_api("shenbi-chapter-drafting", tmp_path, "prompt ch1")
         assert not result.success
         assert not (tmp_path / "observability" / "dispatches").exists()
+        stats_file = tmp_path / "observability" / "archive-stats.json"
+        assert (
+            not stats_file.exists() or "archive_write_failed" not in stats_file.read_text()
+        )  # audit-T4 M-4
 
     def test_archive_write_failure_never_blocks_dispatch(self, tmp_path, monkeypatch):
         def _failing_archive(*a, **k):
