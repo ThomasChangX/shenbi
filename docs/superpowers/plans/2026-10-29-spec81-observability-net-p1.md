@@ -188,7 +188,7 @@ def put_blob(project_dir: Path, content: str) -> str:
         log.warning("archive_quota_skip")
         return digest  # 哈希照返（spec §1「档与哈希照写」）——只跳内容写
     blob.parent.mkdir(parents=True, exist_ok=True)
-    _atomic_write(blob, content.encode("utf-8"))  # temp+rename：内容寻址文件名=完整性声明
+    safe_write(blob, content.encode("utf-8"))  # 原子写唯一入口（safe_write.py:1 自述；bytes|str 皆收）
     _account_bytes(project_dir, len(content.encode()))
     return digest
 ```
@@ -210,7 +210,7 @@ def put_blob(project_dir: Path, content: str) -> str:
 - Produces:
   - `_build_skill_prompt(...) -> tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]`（第 5 元 = `raw_disk_reads: dict[contract_path -> 磁盘原文]`）；**捕获点在 :852 `content = full_path.read_text(...)` 之后、任何 extractor/filter/strip 之前**。
   - `filter_to_fields(text: str, fields: list[str], path: str) -> tuple[str, bool, list[str]]`（第 3 元 = `resolved_fields` 实际命中声明字段名——spec §1 示例「resolved_fields 非空 + matched_all=false」的部分命中形态由此可导；manifest 旧 `matched_all` 语义不变）。
-  - **两条缓存路径都捕获**（I9）：循环内 shared_context `raw_files` 命中位（:847-849，有 manifest 条目）与循环后 `_INJECT_FROM_CACHE` 合并位（:1126-1150，今日无 manifest 条目）——两处都收 raw 值 + manifest 条目记 `"source": "cache"`；归档侧规则：manifest 条目无 raw 对应时该条目跳 blob（无 KeyError，如实少档）。
+  - **两条缓存路径都捕获**（I9，语义钉死 R3-M2：**选 (a) 新增 manifest 条目**）：循环内 shared_context `raw_files` 命中位（:847-849，已有 manifest 条目）与循环后 `_INJECT_FROM_CACHE` 合并位（:1126-1150，**今日无 manifest 条目——本批为其新增条目**，`source: "cache"` 标注；缓存注入 read 是模型实见读面，trace reads 可见性是加性语义增益而非破坏——并入 deviation ② 记档）。归档侧规则：manifest 条目无 raw 对应时该条目跳 blob（无 KeyError，如实少档）。
 
 - [ ] **Step 1: 失败测试**
 
@@ -321,7 +321,26 @@ def test_counter_runs_even_when_archive_disabled(tmp_path, monkeypatch):
 ```
 
 - [ ] **Step 2-4: 红→实现→绿**（state 文件形态 `{"streaks": {"<path>|<fields-joined>": {"streak": n, "first_ts": ..., "last_ts": ...}}}`；flock 经 `truth_file_flock`）
-- 接线：`_build_skill_prompt` reads 循环完成后（manifest 齐时）调 `update_escape_hatch_state(project_dir, reads_manifest)`——try/except 吞异常仅 WARN（builder 不得因观测态崩溃）。
+- 接线：`_build_skill_prompt` reads 循环完成后（manifest 齐时）调 `update_escape_hatch_state(project_dir, reads_manifest)`——try/except 吞异常仅 WARN（builder 不得因观测态崩溃）。**接线缝必须有 executable 验证（R3-I1，dead-wire 防线——token-ledger 双重门控事故同款教训）**：
+
+```python
+def test_builder_wiring_renamed_heading_fires_drift(tmp_path: Path, monkeypatch):
+    """§7.2 离线验收的端到端形态：真跑 builder ×3，非合成计数器状态。"""
+    mock_contract = {  # 同 T2 脚手架形态
+        "kind": OutputKind.ARTIFACT,
+        "reads": ["style/style_profile.md"],
+        "read_fields": {"style/style_profile.md": ["漂移前标题"]},  # 契约声明旧字段
+        "writes": ["chapters/chapter-1.md"], "updates": [],
+    }
+    monkeypatch.setattr("shenbi.contracts.loader.load_contract", lambda s: mock_contract)
+    target = tmp_path / "style" / "style_profile.md"
+    target.parent.mkdir(parents=True)
+    target.write_text("## 漂移后标题\n内容\n", encoding="utf-8")  # 人为制造字段漂移
+    for _ in range(3):
+        dh._build_skill_prompt("shenbi-chapter-drafting", tmp_path, "draft ch1", 1)
+    assert len(esc.escape_hatch_drift_check(tmp_path)) == 1  # 3 次派发内 FAIL 链条成立
+```
+
 - [ ] **Step 5: Commit** — `feat(observability): spec #81 T3 — escape-hatch counter (path,fields) keyed, always-on`
 
 ---
@@ -533,7 +552,7 @@ if _check_escape_hatch_drift(state, project_dir, chapter):
     return True  # escalation checkpoint raised, pause for human
 ```
 
-`_check_escape_hatch_drift`：`drift = escape_hatch_drift_check(project_dir)`；非空 → `record_audit_outcome(project_dir, "escape-hatch", AuditResult(skill="escape-hatch", violations=tuple(f"escape_hatch_drift: {d['key']} streak={d['streak']}" for d in drift), drift=(), checked_files=()))` + `set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter, context="逃逸舱字段漂移：契约 fields 与文件标题连续失配 ≥3——producer 模板漂移，需人工对齐（spec #81 §3）")` → True；**不触任何 retry 计数**（零充 = 从不调用 `_handle_failure`/不手充 budget）。`AuditResult` 从 `shenbi.audit._shared` 导入（`skill` 是无默认值首字段，tuple 型容器字段——:31-39）。
+`_check_escape_hatch_drift`：`drift = escape_hatch_drift_check(project_dir)`；非空 → `record_audit_outcome(project_dir, "escape-hatch", AuditResult(skill="escape-hatch", violations=tuple(f"escape_hatch_drift: {d['key']} streak={d['streak']}" for d in drift), drift=(), checked_files=()))` + `set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter, context="逃逸舱字段漂移：契约 fields 与文件标题连续失配 ≥3——producer 模板漂移，需人工对齐（spec #81 §3）")` → True；**不触任何 retry 计数**（零充 = 从不调用 `_handle_failure`/不手充 budget）。`AuditResult` 从 `shenbi.audit._shared` 导入（`skill` 是无默认值首字段，tuple 型容器字段——:31-39）。**检出时延注记（R3-M3）**：并行评审波块（:3487）与草稿后块（:3743）先于 :4019 派发位 return——波内累积的漂移要到下一串行派发（通常下一章 drafting）才浮出，晚于理想 3 派发窗；此为相位检查归属（spec §3 rev2 钉死）的已知代价，运行侧验收读数时勿误判为缺陷。
 - [ ] **Step 5: Commit** — `feat(observability): spec #81 T7 — escape_hatch_drift fail-fast (zero-charge escalation)`
 
 ---
@@ -572,7 +591,7 @@ def test_missing_surfaces_degrade_to_explicit_note(tmp_path: Path):
     assert "无归档" in md
 ```
 
-`_seed_corpus` 构造（tmp_path 结构语料）：ledger 3 行（2 skill，全部 `attempt=1`、`estimated=false`）；trace.jsonl 经 TraceWriter 落 2 DISPATCH（其一 payload `loop_id=4` + reads `matched_all=false` ×1）+ 1 RETRY（payload `reason={"kind": "monitor_rewind", "scene": 2, "actual": 1995, "band": [1800, 2000]}`）；dispatches/ 3 档（其一 `response_blob` 指向真实存在的 blob 文件、两档共用同一 `system_prompt_blob`）；escape-hatch-state.json 一键 streak=2；archive-stats.json 三键 0/0/0。
+`_seed_corpus` 构造（tmp_path 结构语料）：ledger 3 行（2 skill，全部 `attempt=1`、`estimated=false`）；trace.jsonl 经 TraceWriter 落 2 DISPATCH（其一 payload `loop_id=4` + reads `matched_all=false` ×1）+ 1 RETRY（payload **与 T6 实发形态对齐**：`reason={"kind": "monitor_rewind", "chapter": 2, "issues": ["word_band:ch2:total_chars 1995 不在带 [2800,4000]"]}`——勿用 spec §2 示例的数值 dict 形态，那是 deviation ③ 延后项）；dispatches/ 3 档（其一 `response_blob` 指向真实存在的 blob 文件、两档共用同一 `system_prompt_blob`）；escape-hatch-state.json 一键 streak=2；archive-stats.json 三键 0/0/0。
 
 - [ ] **Step 2-4: 红→实现→绿**。四表：
   1. **膨胀曲线**：ledger 按 (skill, chapter) prompt_tokens 均值走势行；
@@ -597,7 +616,7 @@ def test_missing_surfaces_degrade_to_explicit_note(tmp_path: Path):
 | §6 P1 归档写档+blob 去重+字节复现 | `uv run pytest tests/unit/observability/test_archive.py -v`（dereference 断言）+ `test_dispatch_archive_wiring.py` | T1/T4 |
 | §6 P1 fail-fast 三触发+四元组语义 | `uv run pytest tests/unit/observability/test_escape.py -v`（3 次 FAIL/交错隔离/复位/缺失 PASS） | T3/T7 |
 | §7.1 [P1 离线] 四表+覆盖行对账一致 | `uv run pytest tests/unit/tools/test_observe_report.py -v` | T8 |
-| §7.2 [P1 离线] 漂移制造 → FAIL | `test_escape.py::test_drift_fail_escalates_without_retry_charge`（改标题制造 drift 语料 = tmp_path 文件改节标题 ×3 读） | T7 |
+| §7.2 [P1 离线] 漂移制造 → FAIL | `test_escape.py::test_drift_fail_escalates_without_retry_charge` + `test_escape.py::test_builder_wiring_renamed_heading_fires_drift`（端到端：真跑 builder ×3 对改名标题 → drift 非空） | T7+T3 |
 | §7.5 [P1 离线] KB 级熔断实测 | `test_archive.py::test_quota_breaker_skips_blob_keeps_hash_and_counts` | T1 |
 | 运行侧条目（vol1 续跑字节复现/5 章窗口/≤80MB） | **不在 SDD 边界**（spec §6 运行验证阶段） | — |
 
@@ -614,5 +633,5 @@ def test_missing_surfaces_degrade_to_explicit_note(tmp_path: Path):
 
 - 全 task = infra → **协调者亲自实现**（SDD leaf/infra 分流；T8/T9 保守归类 infra——消费 T1/T4/T6 产物格式，协调者做免接口漂移），每 task commit 后 fresh-context 审查子 agent 产 `audit-T<N>.md`，无之不得开 T<N+1>。
 - 每 task TDD 红→绿→commit；偏差当轮记 `spec-deviations.md` `### T<N>` 段。
-- **预登记 deviations（实施时照记）**：① T1 `skill_contract_sha` 取内容 sha256 非 git blob SHA（溯源等价，格式统一）；② T2 `resolved_fields` 进 manifest（spec §1 措辞「manifest 不动」——加性可选键，trace reads 随之可见，无破坏；偏离措辞记档）；③ T6 回卷位 reason 取现存 `issues: list[str]` 形态，数值化差值 dict 延后。
+- **预登记 deviations（实施时照记）**：① T1 `skill_contract_sha` 取内容 sha256 非 git blob SHA（溯源等价，格式统一）；② T2 `resolved_fields` 进 manifest + `_INJECT_FROM_CACHE` 注入 read **新增 manifest 条目**（`source: "cache"`）——spec §1 措辞「manifest 不动」；两者皆加性（trace reads 可见性增益），无破坏；③ T6 回卷位 reason 取现存 `issues: list[str]` 形态，数值化差值 dict 延后。
 - 既有测试 stub 爆破面（T2）：`grep -rn "_build_skill_prompt\|filter_to_fields" tests/` 双清单列全，逐一更新——漏一个 = 阶段 7 `just check` 红。
