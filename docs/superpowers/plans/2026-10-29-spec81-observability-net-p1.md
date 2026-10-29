@@ -208,7 +208,7 @@ def put_blob(project_dir: Path, content: str) -> str:
 
 **Interfaces:**
 - Produces:
-  - `_build_skill_prompt(...) -> tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]`（第 5 元 = `raw_disk_reads: dict[contract_path -> 磁盘原文]`）；**捕获点在 :852 `content = full_path.read_text(...)` 之后、任何 extractor/filter/strip 之前**。
+  - `_build_skill_prompt(...) -> tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]`（第 5 元 = `raw_disk_reads: dict[contract_path -> 磁盘原文]`）；**磁盘分支捕获点在 :852 `content = full_path.read_text(...)` 之后、任何 extractor/filter/strip 之前；缓存命中分支（:847-849，不走 :852）在其取值点捕获**。
   - `filter_to_fields(text: str, fields: list[str], path: str) -> tuple[str, bool, list[str]]`（第 3 元 = `resolved_fields` 实际命中声明字段名——spec §1 示例「resolved_fields 非空 + matched_all=false」的部分命中形态由此可导；manifest 旧 `matched_all` 语义不变）。
   - **两条缓存路径都捕获**（I9，语义钉死 R3-M2：**选 (a) 新增 manifest 条目**）：循环内 shared_context `raw_files` 命中位（:847-849，已有 manifest 条目）与循环后 `_INJECT_FROM_CACHE` 合并位（:1126-1150，**今日无 manifest 条目——本批为其新增条目**，`source: "cache"` 标注；缓存注入 read 是模型实见读面，trace reads 可见性是加性语义增益而非破坏——并入 deviation ② 记档）。归档侧规则：manifest 条目无 raw 对应时该条目跳 blob（无 KeyError，如实少档）。
 
@@ -455,7 +455,7 @@ def test_archive_write_failure_never_blocks_dispatch(tmp_path, monkeypatch):
 ```
 
 - [ ] **Step 2-4: 红→实现→绿**。实现要点：
-  - prompt build 后构 frame：`raw_reads`（T2 第 5 元）、`skill_contract_sha(skill)`、`loop_id`/`feedback_ref`（`state` 非空时惰性 `from shenbi.pipeline.chapter_loop import _retry_key`；key=`_retry_key(chapter if chapter is not None else 1, skill)`；loop_id=`retry_budget_consumed.get(key, 0)`；feedback 文本非空才 `put_blob`——受 `archive_enabled()` 门控）。
+  - prompt build 后构 frame：`raw_reads`（T2 第 5 元）、`skill_contract_sha(skill)`、`loop_id`/`feedback_ref`（`state` 非空时惰性 `from shenbi.pipeline.chapter_loop import _retry_key`；key=`_retry_key(chapter if chapter is not None else 1, skill)`；loop_id=`retry_budget_consumed.get(key, 0)`；feedback 文本非空才 `put_blob`——受 `archive_enabled()` 门控）、`attempt=usage_acc.get("attempts", 1)`（API 级尝试数——作用域内唯一 attempt 源，spec §1 示例 attempt:1 与 loop_id:3 分立即此语义）。
   - 返回位插桩：本地闭包 `def _archive(finish_reason, response_text, usage, ...) -> str | None`（内调 `write_dispatch_archive`，try/except → WARN+stats；返回 archive_path 供 trace）。九失败位 + 成功位各一次调用；成功位在 `_emit_dispatch_trace` 之前调用并把返回的 `archive_path`、`loop_id`、`feedback_ref` 传入 trace。timeout/generic/content_filter 三个已有 trace 的失败位同样传入。**timeout/generic 失败位 `usage` 未绑定**（:3481 元组解包未完成）——闭包实参取 `usage_acc.get("usage")`，不引用未绑定名（M11）。
   - `dispatch_skill` API 路（:4121-4129）补 `state=state` 透传；同批更新其 docstring（:4102-4105「state only toggles instrumentation」措辞过期——API 路现在消费 state 产 loop_id/feedback_ref）（M15）。
 - [ ] **Step 5: Commit** — `feat(observability): spec #81 T4 — archive wiring at return-path inventory + state threading`
