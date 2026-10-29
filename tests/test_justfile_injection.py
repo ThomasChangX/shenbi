@@ -93,6 +93,7 @@ EXPECTED_CALLS: dict[str, list[list[str]]] = {
     "test-all": [["-q"]],
     "test-file": [["tests/test x.py"]],
     "audit-lint": [["--help"]],
+    "observe-report": [["--help"]],
     "pool-lint": [["--help"]],
     "pool-archive": [["--help"]],
     "ledger-archive": [["--help"]],

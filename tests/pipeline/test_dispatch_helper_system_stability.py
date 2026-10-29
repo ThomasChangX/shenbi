@@ -22,8 +22,8 @@ STABILITY_SKILLS = (
 
 @pytest.mark.parametrize("skill", STABILITY_SKILLS)
 def test_system_prompt_byte_stable_across_calls(tmp_path: Path, skill: str) -> None:
-    sys1, _, _, _ = _build_skill_prompt(skill, tmp_path, "prompt A", 1)
-    sys2, _, _, _ = _build_skill_prompt(skill, tmp_path, "prompt B", 2)
+    sys1, _, _, _, _ = _build_skill_prompt(skill, tmp_path, "prompt A", 1)
+    sys2, _, _, _, _ = _build_skill_prompt(skill, tmp_path, "prompt B", 2)
     assert sys1.encode("utf-8") == sys2.encode("utf-8")
 
 
@@ -53,7 +53,7 @@ def test_state_settling_prompt_injects_append_only_hard_constraint(tmp_path: Pat
         encoding="utf-8",
     )
 
-    system_prompt, user_prompt, output_paths, reads_manifest = _build_skill_prompt(
+    system_prompt, user_prompt, output_paths, reads_manifest, _ = _build_skill_prompt(
         "shenbi-state-settling",
         project_dir,
         prompt="Execute state-settling for chapter 1.",
@@ -110,7 +110,7 @@ def test_state_settling_prompt_injects_hooks_colon_bullet_constraint(tmp_path: P
         encoding="utf-8",
     )
 
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-state-settling",
         project_dir,
         prompt="Execute state-settling for chapter 2.",

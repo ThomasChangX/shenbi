@@ -15,7 +15,7 @@
 - **优先级**：🔴 P0 ｜ **方法**：SDD（观测即契约——每记录必具名消费者）
 - **依赖**：#80 §1/§3/§5（归档的消费方）；动机证据 `docs/regen-vol1-observability-mining.md`
 - **内容**：dispatch 归档+blobs 去重／trace 加性字段（loop_id/feedback_ref）／RETRY 事件／逃逸舱 fail-fast／lint_reads_reconcile／observe_report／滚动归档
-- **对应 plan**：P1=归档+三字段+fail-fast+报表骨架；P2=对账 lint+replay；P3=A/B harness+跨卷看板
+- **对应 plan**：P1=归档+三字段+fail-fast+报表骨架；P2=对账 lint+dispatch_replay；P3=A/B harness+跨卷看板
 - **触及的不变量维度**：无（观测域——dispatch 归档/trace 字段/逃逸舱，不直接触及 13 维普查任何维度；其产物供 #80 mutant 重放与 `--as-of` 回放消费）
 
 ---

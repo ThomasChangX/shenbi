@@ -96,7 +96,7 @@ def test_every_stable_fields_read_matches_chapter118_reality() -> None:
                 failures.append(f"{skill}: 快照缺失 {fixture}")
                 continue
             content = fixture.read_text(encoding="utf-8")
-            _, matched = filter_to_fields(content, fields, str(fixture))
+            _, matched, _resolved = filter_to_fields(content, fields, str(fixture))
             checked += 1
             if not matched:
                 failures.append(f"{skill}: {path} 字段失配 {fields}（逃生舱回退）")

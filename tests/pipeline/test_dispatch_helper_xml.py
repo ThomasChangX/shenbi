@@ -13,7 +13,7 @@ def test_prompt_uses_xml_tags_not_nested_fences():
         # shenbi-worldbuilding reads novel.json
         (project_dir / "novel.json").write_text('{"title": "Test Novel"}', encoding="utf-8")
 
-        system_prompt, user_prompt, _, _ = _build_skill_prompt(
+        system_prompt, user_prompt, _, _, _ = _build_skill_prompt(
             "shenbi-worldbuilding", project_dir, "test prompt", chapter=None
         )
 
@@ -39,7 +39,7 @@ def test_document_attr_escaped(tmp_path):
     (tmp_path / "source_canon" / evil).write_text("content", encoding="utf-8")
     (tmp_path / "source_canon" / "a&b.md").write_text("amp", encoding="utf-8")
 
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-canon-import", tmp_path, "test prompt", chapter=None
     )
 

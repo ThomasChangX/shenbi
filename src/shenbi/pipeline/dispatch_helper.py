@@ -83,6 +83,7 @@ from shenbi.pipeline.llm_output_integrity import (
     check_prose_leakage,
     detect_write_failure,
 )
+from shenbi.observability import archive_enabled, put_blob, skill_contract_sha
 from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
@@ -742,14 +743,19 @@ def _build_skill_prompt(
     json_mode: bool = False,
     path_context: PathContext | None = None,
     outputs_override: list[str] | None = None,
-) -> tuple[str, str, list[str], list[dict[str, Any]]]:
+) -> tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]:
     """Build a complete execution prompt for a skill.
 
-    Returns (system_prompt, user_prompt, output_paths) where:
+    Returns (system_prompt, user_prompt, output_paths, reads_manifest,
+    raw_disk_reads) where:
     - system_prompt: SKILL.md content
     - user_prompt: task description + input file contents + output format
     - output_paths: resolved contract writable paths (prefixed with staging/
       when uses_staging=True)
+    - reads_manifest: what the LLM saw per read (mode/fields/matched;
+      spec #81 adds resolved_fields + source:cache entries)
+    - raw_disk_reads: dispatch-time RAW disk snapshot per read, captured
+      BEFORE any extractor/filter/META-strip (spec #81 §1, O-2 record)
 
     Args:
         skill: The skill name (e.g. 'shenbi-review-anti-ai').
@@ -798,6 +804,12 @@ def _build_skill_prompt(
     # but chapter is None (genesis mode) — such reads are skipped rather than
     # raising. With a chapter, resolve_chapter_path does a bounded N/NNN replace.
     raw_inputs: dict[str, str] = {}
+    # spec #81 §1: dispatch-time RAW disk snapshot per read — captured BEFORE
+    # any extractor/filter/META-strip (the filtered view the model saw stays
+    # in raw_inputs; this dict is the O-2 adjudication record: what the file
+    # on disk actually said at dispatch time). Cache hits record the cached
+    # value (source tagged in the manifest).
+    raw_disk_reads: dict[str, str] = {}
     # batch #15 #34 (probe20): the DISPATCH trace must persist WHAT the LLM
     # actually saw per read — field-filtered reads record their declared
     # fields and whether the filter matched, so a later miss can be told
@@ -847,11 +859,13 @@ def _build_skill_prompt(
             cached = shared_context.raw_files.get(key) if shared_context is not None else None
             if cached is not None:
                 content = cached
+                raw_disk_reads[key] = content  # spec #81: cache value recorded as-is
             else:
                 try:
                     content = full_path.read_text(encoding="utf-8")
                 except Exception:
                     content = f"[binary or unreadable: {full_path}]"
+                raw_disk_reads[key] = content  # spec #81: pre-extractor disk original
             if extractor == "volume_chapter" and chapter is not None:
                 # spec #65 §4. extractor face routes volume_map through the
                 # _shared family; chapter=None (genesis / manual no-chapter
@@ -1097,12 +1111,13 @@ def _build_skill_prompt(
                 # text (spec #65 §4.2 fail-loud discipline).
                 log.warning("extractor_unrouted_fulltext", extractor=extractor, path=str(full_path))
             if fields:
-                content, _matched = filter_to_fields(content, fields, str(full_path))
+                content, _matched, _resolved = filter_to_fields(content, fields, str(full_path))
                 reads_manifest.append(
                     {
                         "path": key,
                         "mode": "fields",
                         "fields": fields,
+                        "resolved_fields": _resolved,
                         "matched_all": bool(_matched),
                     }
                 )
@@ -1148,6 +1163,23 @@ def _build_skill_prompt(
         for fname, cached in _INJECT_FROM_CACHE.items():
             if cached and fname not in raw_inputs:
                 raw_inputs[fname] = cached
+                # spec #81 deviation ② (additive): cache-injected reads become
+                # manifest-visible with a cache source tag — they are reads the
+                # model actually saw; raw snapshot = the cached value.
+                raw_disk_reads.setdefault(fname, cached)
+                reads_manifest.append(
+                    {"path": fname, "mode": "full", "matched_all": True, "source": "cache"}
+                )
+
+    # spec #81 §3: escape-hatch drift counter — always-on (independent of the
+    # archive gate), shared seam (API/IDE faces both count). The builder must
+    # never break on observability state: swallow into WARN inside.
+    try:
+        from shenbi.observability.escape import update_escape_hatch_state
+
+        update_escape_hatch_state(project_dir, reads_manifest)
+    except Exception:
+        log.warning("escape_hatch_update_skipped", exc_info=True)
 
     # Priority-weighted budgeted truncation (Task 4/6 wiring).
     # Replaces the old equal-weight proportional budget with priority-driven
@@ -1488,7 +1520,7 @@ def _build_skill_prompt(
         except Exception as e:
             log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
 
-    return system_prompt, user_prompt, output_paths, reads_manifest
+    return system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads
 
 
 def _is_review_skill(skill: str) -> bool:
@@ -3115,11 +3147,18 @@ def _emit_dispatch_trace(
     success: bool,
     failure_class: FailureClass | None = None,
     reads_manifest: list[dict[str, Any]] | None = None,
+    loop_id: int | None = None,
+    feedback_ref: str | None = None,
+    archive_path: str | None = None,
 ) -> None:
     """C10 spec #36 T7 (F1116): DISPATCH trace event with finish_reason.
 
     C33 spec #47 R1: failure_class carries the FailureClass taxonomy when the
     dispatch failed — reserved for the C10 cost report join.
+
+    spec #81 §2 additive fields (all optional, old events compatible):
+    loop_id (loop-level re-dispatch ordinal), feedback_ref (retry-feedback
+    blob digest), archive_path (pointer into observability/dispatches/).
 
     Only appends when a trace stream already exists in project_dir — dispatch
     must not silently create new trace surfaces. payload is a free dict, so
@@ -3147,6 +3186,12 @@ def _emit_dispatch_trace(
             # matched) — distinguishes a filtered read miss from a full-text
             # escape-hatch fallback during post-mortems.
             payload["reads"] = reads_manifest
+        if loop_id is not None:
+            payload["loop_id"] = loop_id
+        if feedback_ref is not None:
+            payload["feedback_ref"] = feedback_ref
+        if archive_path is not None:
+            payload["archive_path"] = archive_path
         TraceWriter(Path(project_dir)).append(
             actor="dispatch_helper",
             actor_role="SYSTEM",
@@ -3403,6 +3448,7 @@ def _dispatch_via_api(
     uses_staging: bool = False,
     shared_context: Any = None,
     outputs_override: list[str] | None = None,
+    state: Any = None,
 ) -> DispatchResult:
     """Execute a skill via OpenAI-compatible API.
 
@@ -3422,6 +3468,10 @@ def _dispatch_via_api(
         uses_staging: Whether to use staging directories for output paths.
         shared_context: Optional shared context object for prompt building.
         outputs_override: Explicit output set (genesis dispatch).
+        state: Optional PipelineState — spec #81 §2 loop_id/feedback_ref
+            source (retry_budget_consumed / retry_feedback). None keeps the
+            additive trace fields and archive loop_id absent (stateless
+            callers unchanged).
     """
     from openai import OpenAI
 
@@ -3440,7 +3490,13 @@ def _dispatch_via_api(
             log.warning("chapter_ambiguous_in_prompt", skill=skill)
             chapter = None
     try:
-        system_prompt, user_prompt, output_paths, reads_manifest = _build_skill_prompt(
+        (
+            system_prompt,
+            user_prompt,
+            output_paths,
+            reads_manifest,
+            _raw_reads,  # spec #81 §1: T4 archive wiring consumes this
+        ) = _build_skill_prompt(
             skill,
             project_dir,
             prompt,
@@ -3453,6 +3509,74 @@ def _dispatch_via_api(
         )
     except Exception as exc:
         return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
+
+    # spec #81 §1/§2: dispatch archive wiring. Frame construction wraps its
+    # own failures (audit-T1 M-1: put_blob/skill_contract_sha propagate when
+    # called directly — the observability layer must never break dispatch).
+    _loop_id: int | None = None
+    _feedback_ref: str | None = None
+    if state is not None:
+        try:
+            from shenbi.pipeline.state import retry_key  # public single source (spec #81 §2)
+
+            _retry_k = retry_key(chapter if chapter is not None else 1, skill)
+            budget = getattr(state.chapter_loop, "retry_budget_consumed", None)
+            if isinstance(budget, dict):
+                _loop_id = int(budget.get(_retry_k, 0))
+            feedback_text = getattr(state.chapter_loop, "retry_feedback", {}).get(_retry_k)
+            if feedback_text and archive_enabled():
+                _feedback_ref = put_blob(project_dir, feedback_text)
+        except Exception:
+            log.warning("dispatch_archive_state_threading_failed", skill=skill, exc_info=True)
+
+    def _archive(
+        finish_reason: str | None,
+        response_text: str | None,
+        usage: Any,
+    ) -> str | None:
+        """Write the dispatch archive record (fail-safe); return archive_path."""
+        if not archive_enabled():  # skip frame construction entirely when opted out
+            return None
+        try:
+            from shenbi.observability.archive import ArchiveFrame, write_dispatch_archive
+
+            # usage arrives as the provider's object (or None) — extract the
+            # two durable ints; anything else degrades to None (never a
+            # TypeError from json.dumps on an opaque object).
+            usage_out: dict[str, Any] | None = None
+            if usage is not None and not isinstance(usage, dict):
+                try:
+                    usage_out = {
+                        "prompt_tokens": int(getattr(usage, "prompt_tokens", 0)),
+                        "completion_tokens": int(getattr(usage, "completion_tokens", 0)),
+                    }
+                except (TypeError, ValueError):
+                    usage_out = None
+            elif isinstance(usage, dict):
+                usage_out = usage
+            path = write_dispatch_archive(
+                project_dir,
+                ArchiveFrame(
+                    skill=skill,
+                    chapter=chapter,
+                    attempt=int(usage_acc.get("attempts", 1)),
+                    model=model,
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    reads_manifest=list(reads_manifest),
+                    raw_reads=dict(_raw_reads),
+                    skill_contract_sha256=skill_contract_sha(skill),
+                    loop_id=_loop_id,
+                    feedback_ref=_feedback_ref,
+                ),
+                finish_reason=finish_reason,
+                response_text=response_text,
+                usage=usage_out,
+            )
+            return str(path.relative_to(project_dir)) if path is not None else None
+        except Exception:
+            log.warning("archive_write_wiring_failed", skill=skill, exc_info=True)
+            return None
 
     client = OpenAI(
         api_key=os.environ[_ENV_LLM_API_KEY],
@@ -3495,6 +3619,7 @@ def _dispatch_via_api(
         # Exception-TYPED timeout routing — message sniffing breaks silently
         # when the provider library rewords its errors (F395, stage-8 review).
         _account_failed_attempt(skill, chapter, usage_acc, system_prompt, user_prompt, project_dir)
+        _arch = _archive(None, None, usage_acc.get("usage"))
         _emit_dispatch_trace(
             project_dir,
             skill,
@@ -3506,12 +3631,16 @@ def _dispatch_via_api(
             success=False,
             failure_class=classify_dispatch_failure(exc=exc),
             reads_manifest=reads_manifest,
+            loop_id=_loop_id,
+            feedback_ref=_feedback_ref,
+            archive_path=_arch,
         )
         _handle_timeout_gracefully(skill, chapter)
         log.error("api_call_timeout", skill=skill)
         return DispatchResult(False, -1, "", "API call timed out")
     except Exception as exc:
         _account_failed_attempt(skill, chapter, usage_acc, system_prompt, user_prompt, project_dir)
+        _arch = _archive(None, None, usage_acc.get("usage"))
         _emit_dispatch_trace(
             project_dir,
             skill,
@@ -3523,6 +3652,9 @@ def _dispatch_via_api(
             success=False,
             failure_class=classify_dispatch_failure(exc=exc),
             reads_manifest=reads_manifest,
+            loop_id=_loop_id,
+            feedback_ref=_feedback_ref,
+            archive_path=_arch,
         )
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
@@ -3594,6 +3726,7 @@ def _dispatch_via_api(
             )
         except Exception as exc:
             log.error("api_call_failed", skill=skill, error=str(exc))
+            _archive(None, None, usage_acc.get("usage"))
             return DispatchResult(False, -1, "", f"API call failed: {exc}")
         if usage is not None:
             _log_token_usage(
@@ -3606,6 +3739,7 @@ def _dispatch_via_api(
 
     # Spec §5.1: finish_reason-driven cap-raise (outside tenacity @retry).
     if finish_reason == "content_filter":
+        _arch = _archive(finish_reason, output_text, usage)
         _emit_dispatch_trace(
             project_dir,
             skill,
@@ -3617,6 +3751,9 @@ def _dispatch_via_api(
             success=False,
             failure_class=FailureClass.DETERMINISTIC_CONTENT,
             reads_manifest=reads_manifest,
+            loop_id=_loop_id,
+            feedback_ref=_feedback_ref,
+            archive_path=_arch,
         )
         log.error("content_filter_blocked", skill=skill)
         return DispatchResult(
@@ -3634,6 +3771,7 @@ def _dispatch_via_api(
                 cap=original_cap,
                 ceiling=_MODEL_OUTPUT_CEILING,
             )
+            _archive(finish_reason, output_text, usage)
             return DispatchResult(
                 False,
                 -1,
@@ -3666,6 +3804,7 @@ def _dispatch_via_api(
             if "timeout" in str(exc).lower() or "timed out" in str(exc).lower():
                 _handle_timeout_gracefully(skill, chapter)
             log.error("api_call_failed", skill=skill, error=str(exc))
+            _archive(None, None, usage_acc.get("usage"))
             return DispatchResult(False, -1, "", f"API call failed: {exc}")
 
         # Log cap-raised usage.
@@ -3679,6 +3818,7 @@ def _dispatch_via_api(
                 skill=skill,
                 raised_cap=raised_cap,
             )
+            _archive(finish_reason, output_text, usage)
             return DispatchResult(
                 False,
                 -1,
@@ -3688,6 +3828,7 @@ def _dispatch_via_api(
             )
         if finish_reason == "content_filter":
             log.error("content_filter_blocked_after_cap_raise", skill=skill)
+            _archive(finish_reason, output_text, usage)
             return DispatchResult(
                 False,
                 -1,
@@ -3719,6 +3860,7 @@ def _dispatch_via_api(
         _persist_failed_write_output(
             project_dir, skill, output_text, f"write_failure:{exc.signature}"
         )
+        _archive(finish_reason, output_text, usage)
         return DispatchResult(False, -1, "", build_retry_feedback(exc))
     except IncrementShapeError as exc:
         # Whole-file scaffold in an append_dedup increment — rejected BEFORE
@@ -3729,6 +3871,7 @@ def _dispatch_via_api(
         # report to reconstruct facts from rejection records alone.
         log.error("increment_shape_rejected", skill=skill, detail=str(exc)[:300])
         _persist_failed_write_output(project_dir, skill, output_text, "increment_shape")
+        _archive(finish_reason, output_text, usage)
         return DispatchResult(False, -1, "", str(exc))
     except TruthFileParseError as exc:
         # Corrupt existing truth file met an append_dedup upsert: fail loud at
@@ -3737,11 +3880,13 @@ def _dispatch_via_api(
         # loop's failure handling (retry budget -> checkpoint for human repair).
         log.error("truth_upsert_parse_failed", skill=skill, error=str(exc))
         _persist_failed_write_output(project_dir, skill, output_text, f"truth_parse:{exc}")
+        _archive(finish_reason, output_text, usage)
         return DispatchResult(
             False, -1, "", f"truth file upsert aborted (existing file corrupt): {exc}"
         )
     if not written:
         _persist_failed_write_output(project_dir, skill, output_text, "no_files_parsed")
+        _archive(finish_reason, output_text, usage)
         return DispatchResult(
             False, -1, "", _no_files_stderr(output_paths, parsed_dict, outputs_override)
         )
@@ -3752,7 +3897,9 @@ def _dispatch_via_api(
 
     # C10 spec #36 T7: DISPATCH trace event — emitted only once the final
     # outcome is known (post content_filter/length/parse/write), so success
-    # never overstates a dispatch that later failed.
+    # never overstates a dispatch that later failed. spec #81: archive written
+    # BEFORE the trace so the trace can carry the archive pointer.
+    _arch = _archive(finish_reason, output_text, usage)
     _emit_dispatch_trace(
         project_dir,
         skill,
@@ -3763,6 +3910,9 @@ def _dispatch_via_api(
         usage_acc.get("attempts", 1),
         success=True,
         reads_manifest=reads_manifest,
+        loop_id=_loop_id,
+        feedback_ref=_feedback_ref,
+        archive_path=_arch,
     )
     return DispatchResult(True, 0, output_text, "")
 
@@ -3819,7 +3969,7 @@ def _dispatch_via_ide(
     try:
         # IDE face has no DISPATCH trace emit (subprocess outcome path);
         # reads_manifest is API-face only — hence the throwaway name.
-        system_prompt, user_prompt, output_paths, _ = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _, _ = _build_skill_prompt(
             skill,
             project_dir,
             prompt,
@@ -4101,8 +4251,10 @@ def dispatch_skill(
             common files from disk.
         state: Optional PipelineState. No longer used for token accounting —
             the durable ledger is written inside the API path regardless of
-            state (C10 spec T1). Threading it now only toggles instrumentation
-            diagnostics on the IDE/legacy routes.
+            state (C10 spec T1). Spec #81 §2: the API route now consumes it
+            for loop_id/feedback_ref (loop-level retry ordinals + feedback
+            provenance in the DISPATCH trace and dispatch archive); the
+            IDE/legacy routes still only toggle instrumentation diagnostics.
         path_context: Optional per-family placeholder context (spec #6 R5).
             When provided, the ``[path-context]`` carrier line is appended to
             the prompt (visible to the executing LLM as a machine-generated
@@ -4126,6 +4278,7 @@ def dispatch_skill(
                 uses_staging=uses_staging,
                 shared_context=shared_context,
                 outputs_override=outputs_override,
+                state=state,
             ),
             skill,
             pd,

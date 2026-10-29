@@ -67,7 +67,7 @@ def test_dispatch_prompt_includes_directives_when_present(tmp_path: Path) -> Non
     _drafting_read_tree(tmp_path)
     seed_style_directives(tmp_path)
 
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-drafting", tmp_path, "write chapter 1", chapter=1
     )
     assert "叙述句基带：12-25 字/句" in user_prompt, "directives content rides into the prompt"
@@ -80,7 +80,7 @@ def test_dispatch_prompt_without_directives_is_unchanged_shape(tmp_path: Path) -
 
     _drafting_read_tree(tmp_path)
 
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-drafting", tmp_path, "write chapter 1", chapter=1
     )
     assert "文风目标" not in user_prompt

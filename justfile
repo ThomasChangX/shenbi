@@ -90,6 +90,10 @@ lint-routing:
 audit-lint *args:
     uv run python tools/lint_audit_run.py "$@"
 
+# Observability report (spec #81 §3): four tables + archive coverage row
+observe-report *args:
+    uv run python tools/observe_report.py "$@"
+
 # Facts query face (spec #80 T3): human/CI compact views of truth/facts/*.json
 facts-query *args:
     uv run shenbi-facts query "$@"

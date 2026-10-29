@@ -37,7 +37,7 @@ class TestWaveExceptionBranches:
     def test_worker_exception_becomes_failed_result_wave_survives(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        def fake_retry(task: ReviewTask, semaphore: object) -> DispatchResult:
+        def fake_retry(task: ReviewTask, semaphore: object, state: object = None) -> DispatchResult:
             if "0" in task.output_path:
                 raise RuntimeError("worker blew up")
             return DispatchResult(True, 0, "ok", "")
@@ -54,7 +54,7 @@ class TestWaveExceptionBranches:
     ) -> None:
         monkeypatch.setattr(
             "shenbi.pipeline.parallel_dispatch._dispatch_with_retry",
-            lambda task, semaphore: DispatchResult(True, 0, "ok", ""),
+            lambda task, semaphore, state=None: DispatchResult(True, 0, "ok", ""),
         )
         callbacks: list[int] = []
 

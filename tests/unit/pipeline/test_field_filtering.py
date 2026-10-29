@@ -19,7 +19,7 @@ from shenbi.contracts.fields import filter_to_fields
 class TestFilterToFieldsMarkdown:
     def test_markdown_filter_keeps_declared_sections(self) -> None:
         text = "## goal\ncontent"
-        result, matched = filter_to_fields(text, ["goal"], "plans/chapter-1-plan.md")
+        result, matched, _resolved = filter_to_fields(text, ["goal"], "plans/chapter-1-plan.md")
         assert matched is True
         assert "goal" in result
         assert "content" in result
@@ -27,7 +27,9 @@ class TestFilterToFieldsMarkdown:
     def test_escape_hatch_returns_full_text_when_no_fields_match(self) -> None:
         """Escape hatch: no declared field found → matched=False, full text returned."""
         text = "## some_other_section\ncontent"
-        result, matched = filter_to_fields(text, ["nonexistent_field"], "plans/chapter-1-plan.md")
+        result, matched, _resolved = filter_to_fields(
+            text, ["nonexistent_field"], "plans/chapter-1-plan.md"
+        )
         assert matched is False
         assert result == text  # fallback to full text
 
@@ -36,7 +38,7 @@ class TestFilterToFieldsMarkdown:
 class TestFilterToFieldsJson:
     def test_json_filter_projects_declared_keys(self) -> None:
         text = json.dumps({"a": 1, "b": 2})
-        result, matched = filter_to_fields(text, ["a"], "genre-config.json")
+        result, matched, _resolved = filter_to_fields(text, ["a"], "genre-config.json")
         assert matched is True
         projected = json.loads(result)
         assert "a" in projected
@@ -44,7 +46,7 @@ class TestFilterToFieldsJson:
 
     def test_invalid_json_escape_hatch(self) -> None:
         """Escape hatch: invalid JSON → matched=False, original text returned."""
-        result, matched = filter_to_fields("not json", ["a"], "genre-config.json")
+        result, matched, _resolved = filter_to_fields("not json", ["a"], "genre-config.json")
         assert matched is False
         assert result == "not json"
 
@@ -53,12 +55,12 @@ class TestFilterToFieldsJson:
 class TestFilterToFieldsPassthrough:
     def test_unknown_extension_no_filter(self) -> None:
         text = "some content"
-        result, matched = filter_to_fields(text, ["field"], "file.txt")
+        result, matched, _resolved = filter_to_fields(text, ["field"], "file.txt")
         assert matched is True
         assert result == text  # safe default: no filtering
 
     def test_empty_fields_no_filter(self) -> None:
         text = "## goal\ncontent"
-        result, matched = filter_to_fields(text, [], "plans/chapter-1-plan.md")
+        result, matched, _resolved = filter_to_fields(text, [], "plans/chapter-1-plan.md")
         assert matched is True
         assert result == text

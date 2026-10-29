@@ -347,7 +347,7 @@ def test_dispatch_loop_serves_sliced_resolve_reads(
 
     monkeypatch.setattr(dh.log, "warning", _spy)
 
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-foreshadowing-resolve", project, "resolve 卷三清点", chapter=69
     )
 
@@ -427,7 +427,7 @@ def test_dispatch_loop_serves_sliced_settle_reads(
 
     monkeypatch.setattr(dh.log, "warning", _spy)
 
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-state-settling", project, "settle ch57", chapter=57
     )
 
@@ -462,7 +462,7 @@ def test_dispatch_loop_hooks_extractor_without_grounding_falls_back(
 
     monkeypatch.setattr(dh.log, "warning", _spy)
 
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-state-settling", project, "settle ch57", chapter=57
     )
     # full-text fallback: the unnamed detail IS served now
@@ -1043,19 +1043,19 @@ def test_dispatch_loop_serves_windowed_reference_ledgers(
     warned: list[str] = []
     monkeypatch.setattr(dh.log, "warning", lambda event, **kw: warned.append(event))
 
-    _, plan_prompt, _, _ = _build_skill_prompt(
+    _, plan_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-chapter-planning", tmp_path, "规划第118章", chapter=118
     )
     assert "relationships_overview" in plan_prompt, "windowed serve disclosed"
     assert "## 第47章扩容复核" not in plan_prompt, "old volume review sliced out"
 
-    _, loc_prompt, _, _ = _build_skill_prompt(
+    _, loc_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-location-builder", tmp_path, "设计新地点", chapter=None
     )
     assert "locations_overview" in loc_prompt
     assert "### 空间布局" not in loc_prompt, "prose texture sliced out"
 
-    _, ctx_prompt, _, _ = _build_skill_prompt(
+    _, ctx_prompt, _, _, _ = _build_skill_prompt(
         "shenbi-context-composing", tmp_path, "组态第118章", chapter=118
     )
     assert "recent_increments" in ctx_prompt

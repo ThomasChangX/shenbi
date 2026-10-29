@@ -40,7 +40,9 @@ def test_record_estimate_row_fail_safe_no_project_dir():
 def test_ide_dispatch_records_estimate_row(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(subprocess, "run", lambda *a, **k: _FakeRun())
     monkeypatch.setattr(dh, "_find_ide_cli", lambda: ["cat", "{dir}"])
-    monkeypatch.setattr(dh, "_build_skill_prompt", lambda *a, **k: ("sys", "user", ["out.md"], []))
+    monkeypatch.setattr(
+        dh, "_build_skill_prompt", lambda *a, **k: ("sys", "user", ["out.md"], [], {})
+    )
     monkeypatch.setattr(dh, "_write_parsed_outputs", lambda *a, **k: True)
     res = dh._dispatch_via_ide("skill-x", tmp_path, "写第 3 章 chapter-003.md")
     assert res.success, res.stderr
@@ -49,7 +51,9 @@ def test_ide_dispatch_records_estimate_row(tmp_path: Path, monkeypatch):
 
 def test_legacy_subprocess_records_estimate_row(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(subprocess, "run", lambda *a, **k: _FakeRun())
-    monkeypatch.setattr(dh, "_build_skill_prompt", lambda *a, **k: ("sys", "user", ["out.md"], []))
+    monkeypatch.setattr(
+        dh, "_build_skill_prompt", lambda *a, **k: ("sys", "user", ["out.md"], [], {})
+    )
     # force legacy route: no API key, no IDE CLI
     monkeypatch.delenv("SHENBI_LLM_API_KEY", raising=False)
     monkeypatch.setattr(dh, "_find_ide_cli", list)

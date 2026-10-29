@@ -54,7 +54,7 @@ def test_shared_context_fields_are_injectable(tmp_path):
     assemble_shared_context_project(tmp_path)
 
     ctx = build_shared_audit_context(tmp_path, 3)
-    _, user_prompt, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = _build_skill_prompt(
         skill="shenbi-review-anti-ai",
         project_dir=tmp_path,
         prompt="audit chapter 3",

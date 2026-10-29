@@ -82,6 +82,7 @@ from shenbi.pipeline.state import (
     CheckpointType,
     PipelineState,
     SoftFailTracker,
+    retry_key,
 )
 from shenbi.exceptions import RetryExhaustedError
 from shenbi.skill_utils.escalation.check import check_escalation
@@ -1025,6 +1026,97 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
 }
 
 
+def _check_escape_hatch_drift(
+    state: PipelineState, project_dir: Path | str, chapter: int | None
+) -> bool:
+    """Spec #81 §3: post-dispatch escape-hatch drift check (the O-3 fix).
+
+    Three consecutive misses of the same (path, fields) key is drift, not
+    an accident — surface it as an ESCALATION checkpoint for human repair.
+    ZERO-CHARGE semantics: contract drift is not a dispatch failure, so no
+    retry counter is touched (never routed through _handle_failure; the
+    G4 precedent's pre-charge-then-budget_pre_consumed pattern is
+    deliberately NOT copied). Artifacts: write-audit.jsonl + a GATE_FAIL
+    trace event via record_audit_outcome's form — NEVER gate-markers/
+    (G6 filename-mismatch incident class). Fail-safe on read.
+    """
+    try:
+        from shenbi.observability.escape import escape_hatch_drift_check
+
+        drift = escape_hatch_drift_check(Path(project_dir))
+        if not drift:
+            return False
+        violations = tuple(f"escape_hatch_drift: {d['key']} streak={d['streak']}" for d in drift)
+        try:
+            from shenbi.audit._shared import AuditResult  # pyright: ignore[reportPrivateUsage]
+            from shenbi.audit.record import record_audit_outcome
+
+            record_audit_outcome(
+                Path(project_dir),
+                "escape-hatch",
+                AuditResult(
+                    skill="escape-hatch",
+                    violations=violations,
+                    drift=(),
+                    checked_files=(),
+                ),
+            )
+        except Exception:
+            log.warning("escape_hatch_drift_audit_record_failed", exc_info=True)
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            chapter=chapter,
+            context=(
+                "逃逸舱字段漂移：契约 fields 与文件标题连续失配 ≥3——producer 模板漂移，"
+                "需人工对齐（spec #81 §3）；漂移键：" + "; ".join(d["key"] for d in drift[:3])
+            ),
+        )
+        log.error("escape_hatch_drift_escalated", chapter=chapter, keys=[d["key"] for d in drift])
+        return True
+    except Exception:
+        log.warning("escape_hatch_drift_check_failed", exc_info=True)
+        return False
+
+
+def _emit_retry_event(
+    project_dir: Path | str,
+    *,
+    chapter: int | None,
+    skill: str,
+    reason: dict[str, object],
+    loop_id: int,
+) -> None:
+    """Spec #81 §2: structured RETRY trace event for loop-level re-dispatch.
+
+    Replaces runner-log-only visibility for loop re-dispatches (B-1): the
+    token ledger's ``attempt`` only sees API-level retries. The exists-guard
+    mirrors ``_emit_dispatch_trace`` — RETRY must never CREATE a trace
+    surface (TraceWriter.append auto-creates; without the guard a pre-trace
+    project would silently gain one). Fail-safe: never raises into the loop.
+    """
+    try:
+        if not (Path(project_dir) / "trace.jsonl").exists():
+            return
+        from shenbi.trace.writer import TraceWriter
+
+        TraceWriter(Path(project_dir)).append(
+            actor="chapter-loop",
+            actor_role="SYSTEM",
+            action="RETRY",
+            target=f"ch{chapter if chapter is not None else 0}",
+            skill=skill,
+            payload={
+                "chapter": chapter,
+                "skill": skill,
+                "reason": reason,
+                "loop_id": loop_id,
+            },
+        )
+    except Exception:
+        log.warning("retry_event_emit_failed", skill=skill, exc_info=True)
+
+
 def _enrich_g4_feedback(failures: list[str]) -> str:
     """Build enriched retry feedback with format examples for each failed check.
 
@@ -1174,8 +1266,10 @@ def _gate_passed(result: dict[str, Any]) -> bool:
 
 
 def _retry_key(chapter: int, skill: str) -> str:
-    """Chapter-scoped retry key so retries from different chapters don't collide."""
-    return f"ch{chapter}-{skill}"
+    """Alias of the public single source shenbi.pipeline.state.retry_key
+    (spec #81 §2 dedup) — kept for this module's many internal callers.
+    """
+    return retry_key(chapter, skill)
 
 
 def _charge_wave_retries(
@@ -3354,7 +3448,7 @@ def _partition_review_wave(
 
 
 def _dispatch_serial_reviews(
-    serial_tasks: list[ReviewTask], project_dir: Path
+    serial_tasks: list[ReviewTask], project_dir: Path, state: Any = None
 ) -> list[DispatchResult]:
     """Dispatch WRITE_SHARED review skills one at a time (no concurrency).
 
@@ -3380,7 +3474,7 @@ def _dispatch_serial_reviews(
             project_dir=str(project_dir),
             reason="WRITE_SHARED contract writes — excluded from parallel wave (F532)",
         )
-        results.append(_dispatch_with_retry(t, semaphore))
+        results.append(_dispatch_with_retry(t, semaphore, state))
     return results
 
 
@@ -3570,11 +3664,13 @@ def _run_chapter_step_impl(
         if core_wave:
             log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_wave))
             core_results = dispatch_reviews_parallel(
-                core_wave, on_task_complete=_wave_savepoint(state, project_dir, chapter)(core_wave)
+                core_wave,
+                on_task_complete=_wave_savepoint(state, project_dir, chapter)(core_wave),
+                state=state,
             )
         else:
             log.info("parallel_review_wave1_empty", chapter=chapter)
-        core_results.extend(_dispatch_serial_reviews(core_serial, project_dir))
+        core_results.extend(_dispatch_serial_reviews(core_serial, project_dir, state))
 
         # Wave 2: Genre-circle reviews (conditionally active, in parallel;
         # same WRITE_SHARED partition as wave 1)
@@ -3612,10 +3708,11 @@ def _run_chapter_step_impl(
                 on_task_complete=_wave_savepoint(state, project_dir, chapter, wave_chapters)(
                     genre_wave
                 ),
+                state=state,
             )
         else:
             log.info("parallel_review_wave2_empty", chapter=chapter)
-        genre_results.extend(_dispatch_serial_reviews(genre_serial, project_dir))
+        genre_results.extend(_dispatch_serial_reviews(genre_serial, project_dir, state))
 
         # Consolidate all results
         all_results = core_results + genre_results
@@ -3934,6 +4031,16 @@ def _run_chapter_step_impl(
                     i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-chapter-drafting"
                 )
                 retry_key = _retry_key(chapter, drafting_step.skill)
+                # spec #81 §2: monitor-rewind RETRY (issues kept as the
+                # pre-formatted strings scene_splitter produces; the numeric
+                # diff-dict form is a recorded deviation, deferred).
+                _emit_retry_event(
+                    project_dir,
+                    chapter=chapter,
+                    skill=drafting_step.skill,
+                    reason={"kind": "monitor_rewind", "chapter": chapter, "issues": list(issues)},
+                    loop_id=state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1,
+                )
                 # DURABLE budget trail (retry_budget_consumed, NOT retry_counts —
                 # a successful drafting re-dispatch resets retry_counts and the
                 # rewind loop would spin forever): mirror the G4 hard-fail path.
@@ -4024,6 +4131,14 @@ def _run_chapter_step_impl(
         state=state,
         path_context=PathContext(chapter=chapter),
     )
+
+    # Spec #81 §3: post-dispatch loop-phase escape-hatch drift check.
+    # Note (detection latency): the parallel review-wave blocks return
+    # before this serial dispatch site, so wave-accrued drift surfaces at
+    # the NEXT serial dispatch — a known cost of the phase-check placement
+    # (spec-pinned), not a defect.
+    if _check_escape_hatch_drift(state, project_dir, chapter):
+        return True  # escalation checkpoint raised, pause for human
 
     # State-settling failure: mark settling_failed and pause (spec §11).
     if not result.success and "state-settling" in step.skill:
@@ -4129,6 +4244,16 @@ def _run_chapter_step_impl(
 
         if hard_fails:
             state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(hard_fails)
+            # spec #81 §2: structured RETRY event (both re-dispatch branches
+            # below share this emission point — per-chapter _handle_failure
+            # route and the direct auto-retry route).
+            _emit_retry_event(
+                project_dir,
+                chapter=chapter,
+                skill=step.skill,
+                reason={"kind": "g4_hard", "check_ids": list(hard_fails)},
+                loop_id=state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1,
+            )
             # Durable budget trail for both paths (spec §3.1).
             consumed = state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1
             state.chapter_loop.retry_budget_consumed[retry_key] = consumed

@@ -39,7 +39,9 @@ def test_thread_map_fields_match_producer_skeleton() -> None:
         "## 章节线索推进表\n\n| 章节 | 主推 | 副推 |\n\n"
         "## 约束检查表\n\n检查内容\n"
     )
-    result, matched = filter_to_fields(skeleton, THREAD_MAP_FIELDS, "outline/thread_map.md")
+    result, matched, _resolved = filter_to_fields(
+        skeleton, THREAD_MAP_FIELDS, "outline/thread_map.md"
+    )
     assert matched is True
     assert "推进点" in result
     assert "总览内容" not in result

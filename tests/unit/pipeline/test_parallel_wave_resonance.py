@@ -58,13 +58,14 @@ def _run_wave(tmp_path: Path, monkeypatch, report_text: str | None) -> PipelineS
     audits_dir.mkdir(exist_ok=True)
     report = audits_dir / "chapter-1-resonance.md"
 
-    def _fake_serial(serial_tasks, project_dir):
+    def _fake_serial(serial_tasks, project_dir, state=None):
         if report_text is not None:
             report.write_text(report_text, encoding="utf-8")
         return [DispatchResult(True, 0, "", "") for _ in serial_tasks]
 
     # C30 F377: production passes on_task_complete; stub accepts it.
-    ok = lambda tasks, on_task_complete=None: [DispatchResult(True, 0, "", "") for _ in tasks]  # noqa: E731
+    def ok(tasks, on_task_complete=None, state=None):
+        return [DispatchResult(True, 0, "", "") for _ in tasks]
 
     monkeypatch.setattr(
         "shenbi.pipeline.audit_context_cache.build_shared_audit_context",

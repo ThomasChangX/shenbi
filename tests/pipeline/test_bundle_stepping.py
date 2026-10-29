@@ -296,7 +296,9 @@ def test_two_chapter_bundle_loop_drive(tmp_path: Path) -> None:
         mp.setattr(cl, "run_gate_g3", lambda *a, **kw: {"status": "PASS"})
         mp.setattr(
             "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
-            lambda tasks, on_task_complete=None: [DispatchResult(True, 0, "{}", "") for _ in tasks],
+            lambda tasks, on_task_complete=None, state=None: [
+                DispatchResult(True, 0, "{}", "") for _ in tasks
+            ],
         )
         mp.setattr(
             "shenbi.pipeline.parallel_dispatch.consolidate_review_results",
