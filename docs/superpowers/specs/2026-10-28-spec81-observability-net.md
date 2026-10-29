@@ -67,7 +67,7 @@ Track A 挖矿证明：元数据层（trace/账本/取证/裁决）已能产出�
 
 | 记录 | 具名消费者 | 层级 |
 |---|---|---|
-| dispatches 归档 | **P1 最低消费者**：`observe_report` 归档覆盖行（**token-ledger 派发行数** vs 归档档数对账——ledger 覆盖全部 post-prompt 路径；trace DISPATCH 数不作分母，六类失败返回无 trace 事件，§1 落档锚点）、blob 存在性抽检、去重率；P2 起 `dispatch_replay` 骨架（喂 #80 mutant/金丝雀） | P1（覆盖行）→P2（replay） |
+| dispatches 归档 | **P1 最低消费者**：`observe_report` 归档覆盖行（**token-ledger 派发行数** vs 归档档数对账——ledger 覆盖全部 post-prompt 路径；trace DISPATCH 数不作分母，六类失败返回无 trace 事件，§1 落档锚点；**行粒度**：ledger 每 attempt 一行，分母取每派发恰一行的 `attempt=1` 行）、blob 存在性抽检、去重率；P2 起 `dispatch_replay` 骨架（喂 #80 mutant/金丝雀） | P1（覆盖行）→P2（replay） |
 | trace `loop_id` | `tools/observe_report.py`（P1）：膨胀曲线 / loop depth / 失败簇 / 逃逸舱四表一键产出 | P1 |
 | trace `RETRY` 事件 | `observe_report` 失败簇表：结构化原因聚类（替代翻 runner 日志） | P1 |
 | trace `feedback_ref`/`archive_path` | `dispatch_replay`（P2）——recorder-first 例外见 §0 | P2 |
@@ -76,12 +76,12 @@ Track A 挖矿证明：元数据层（trace/账本/取证/裁决）已能产出�
 | 归档写失败/配额跳过/序号撞档 WARN | `observe_report` 末行汇总（`archive_write_failed` + `archive_quota_skip` + `archive_seq_collision` 三键分计） | P1 |
 
 **逃逸舱 fail-fast 检点（钉死四元组）**：
-- **检点 id**：`escape_hatch_drift`，HARD 语义——FAIL 时停循环、走既有 escalation checkpoint 暂停人工（漂移非重派可愈，**禁止烧 retry 预算**——具体化为 `budget_pre_consumed=True` 语义零充发：契约漂移不是派发失败，标准 C33 单充-后升级语义不适用）。产物 = trace GATE_FAIL 事件 + `write-audit.jsonl`（`record_audit_outcome` 形态）；**不写 `gate-markers/*.json`**（G6 文件名错配事故教训，AGENTS.md 提交例在案）。
-- **求值点（rev2 钉，rev3 符号重钉，rev4 行号校准）**：**派发后循环相位检查**（chapter_loop 步进间隙读 `observability/escape-hatch-state.json`，非 G4——逃逸舱漂移是派发输入态不是输出结构态，挂 G4 会在浪费一次派发后才红）。GATE_FAIL 落 trace 走 `audit/record.py` 既有 `record_audit_outcome`（:22，action="GATE_FAIL" 形态）；HARD 路由走既有 `_handle_failure`(DETERMINISTIC) → `_escalate_step_failure` → `set_checkpoint(CheckpointType.ESCALATION)` 链（:1615-1688，set_checkpoint 落点 :1677-1687）——**不走 `check_escalation`**（那是 soft-fail 信号评估器，score 下降/敏感度/量能/regen-loop 族，消费点 :2033-2036）。不注册 `G4_CHECK_MAP`。读侧同取 `.lockfile` flock（或容忍半写 JSON 解析失败即跳过本轮）。
+- **检点 id**：`escape_hatch_drift`，HARD 语义——FAIL 时停循环、走既有 escalation checkpoint 暂停人工（漂移非重派可愈，**禁止烧 retry 预算**——具体化为传 `budget_pre_consumed=True` **且不预充**：代码契约 :1583-1585 是「调用方已充过」，既有先例（G4 硬败 :4133-4144）是先充再传 True——本检点**不照抄先例**，零充直传；漂移是确定性已定因状态，非派发失败）。产物 = trace GATE_FAIL 事件 + `write-audit.jsonl`（`record_audit_outcome` 形态）；**不写 `gate-markers/*.json`**（G6 文件名错配事故教训，AGENTS.md 提交例在案）。
+- **求值点（rev2 钉，rev3 符号重钉，rev4 行号校准）**：**派发后循环相位检查**（chapter_loop 步进间隙读 `observability/escape-hatch-state.json`，非 G4——逃逸舱漂移是派发输入态不是输出结构态，挂 G4 会在浪费一次派发后才红）。GATE_FAIL 落 trace 走 `audit/record.py` 既有 `record_audit_outcome`（:22，action="GATE_FAIL" 形态）；HARD 路由**直达 `set_checkpoint(CheckpointType.ESCALATION)`（:1677-1687）**——不走 `_handle_failure`→`_escalate_step_failure` 全链（该链先派 escalation-review 付费 LLM 再 checkpoint；对确定性已定因的契约漂移是纯成本），也不走 `check_escalation`（soft-fail 信号评估器，消费点 :2033-2036）。不注册 `G4_CHECK_MAP`。读侧同取 `.lockfile` flock（或容忍半写 JSON 解析失败即跳过本轮）。
 - **计数键**：`(path, fields)`——O-1 实际漂移单元。不用 `(project, path)`：多技能读同文件不同 fields 声明时（planning 失配 vs drafting 匹配交错读 style_profile），交错复位互掩真漂移、或异技能偶发失配凑满 3 次假 FAIL。
 - **复位规则**：同键 `matched_all=true` 的读复位该键连击计数。
 - **缺失语义**：`observability/escape-hatch-state.json` 不存在 → PASS（既有项目/特性前历史不追溯失败——向后兼容硬约束）。
-- `fields.py` 逃生舱（spec #9 R3 / F218）保留——契约错了不该断生成；但**同键连发 3 次**证明是漂移不是偶发，必须浮出为检点失败。计数器写侧在派发路径 reads_manifest 构建点（`_build_skill_prompt` 共享路径——API/IDE 两面都计数，与 §1 归档的 API 面覆盖洞解耦）；写走 `truth_io` `.lockfile` flock 纪律（并行审计波共享计数器，无 lost-update）。
+- `fields.py` 逃生舱（spec #9 R3 / F218）保留——契约错了不该断生成；但**同键连发 3 次**证明是漂移不是偶发，必须浮出为检点失败。计数器写侧在派发路径 reads_manifest 构建点（`_build_skill_prompt` 共享路径——API/IDE 两面都计数，与 §1 归档的 API 面覆盖洞解耦；**legacy CLI subprocess 面**（`dispatch_skill` :4156+ 子进程）不做字段级过滤——codex 子进程自读 workspace、注入仅 manifest 形态（executor.py:219-225）——逃生舱机制在该面不存在，计数器自然 N/A 非豁洞）；写走 `truth_io` `.lockfile` flock 纪律（并行审计波共享计数器，无 lost-update）。
 
 ## 4. 保留与轮转（L-B）——P2 批
 
