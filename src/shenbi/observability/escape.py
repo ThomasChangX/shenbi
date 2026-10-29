@@ -85,12 +85,21 @@ def escape_hatch_drift_check(project_dir: Path) -> list[dict[str, Any]]:
 
     Absent state file → ``[]`` (absent PASS — pre-feature projects and
     pre-feature history never retro-fail). Torn/partial JSON → ``[]`` + WARN
-    (skip this round rather than fail on a half-written file).
+    (skip this round rather than fail on a half-written file) — the WARN is
+    load-bearing: a silent ``[]`` would mask drift as absent-PASS.
     """
-    if not _state_path(project_dir).exists():
+    path = _state_path(project_dir)
+    if not path.exists():
         return []
-    state = _read_state(project_dir)
-    streaks = state.get("streaks", {})
+    try:
+        loaded: Any = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        log.warning("escape_hatch_state_read_failed", path=str(path))
+        return []
+    if not isinstance(loaded, dict):
+        log.warning("escape_hatch_state_malformed")
+        return []
+    streaks: Any = loaded.get("streaks", {})
     if not isinstance(streaks, dict):
         log.warning("escape_hatch_state_malformed")
         return []

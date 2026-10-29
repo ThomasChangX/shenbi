@@ -45,11 +45,16 @@ class TestCounter:
     def test_absent_state_file_is_pass(self, tmp_path: Path):
         assert esc.escape_hatch_drift_check(tmp_path) == []
 
-    def test_partial_json_tolerated(self, tmp_path: Path):
+    def test_partial_json_tolerated_with_warn(self, tmp_path: Path, monkeypatch):
         state = tmp_path / "observability" / "escape-hatch-state.json"
         state.parent.mkdir(parents=True)
         state.write_text('{"streaks": {"p|A": {"streak"', encoding="utf-8")  # 半写 JSON
+        warns: list[str] = []
+        monkeypatch.setattr(esc.log, "warning", lambda event, **kw: warns.append(event))
         assert esc.escape_hatch_drift_check(tmp_path) == []
+        assert (
+            "escape_hatch_state_read_failed" in warns
+        )  # audit-T3 I-1：静默 [] 会把漂移掩成 absent-PASS
 
     def test_counter_runs_even_when_archive_disabled(self, tmp_path: Path, monkeypatch):
         monkeypatch.setenv("SHENBI_ARCHIVE_DISPATCH", "0")
@@ -91,5 +96,6 @@ class TestBuilderWiring:
             dh._build_skill_prompt("shenbi-chapter-drafting", tmp_path, "draft ch1", 1)
         drift = esc.escape_hatch_drift_check(tmp_path)
         assert len(drift) == 1  # 3 次派发内 FAIL 链条成立
+        assert drift[0]["streak"] == 3  # audit-T3 M-2：恰一次/派发（双计仍绿=接线缺陷）
         assert drift[0]["path"].endswith("style_profile.md")
         assert drift[0]["fields"] == ["漂移前标题"]
