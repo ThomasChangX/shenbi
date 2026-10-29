@@ -3357,7 +3357,7 @@ def _partition_review_wave(
 
 
 def _dispatch_serial_reviews(
-    serial_tasks: list[ReviewTask], project_dir: Path
+    serial_tasks: list[ReviewTask], project_dir: Path, state: Any = None
 ) -> list[DispatchResult]:
     """Dispatch WRITE_SHARED review skills one at a time (no concurrency).
 
@@ -3383,7 +3383,7 @@ def _dispatch_serial_reviews(
             project_dir=str(project_dir),
             reason="WRITE_SHARED contract writes — excluded from parallel wave (F532)",
         )
-        results.append(_dispatch_with_retry(t, semaphore))
+        results.append(_dispatch_with_retry(t, semaphore, state))
     return results
 
 
@@ -3573,11 +3573,13 @@ def _run_chapter_step_impl(
         if core_wave:
             log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_wave))
             core_results = dispatch_reviews_parallel(
-                core_wave, on_task_complete=_wave_savepoint(state, project_dir, chapter)(core_wave)
+                core_wave,
+                on_task_complete=_wave_savepoint(state, project_dir, chapter)(core_wave),
+                state=state,
             )
         else:
             log.info("parallel_review_wave1_empty", chapter=chapter)
-        core_results.extend(_dispatch_serial_reviews(core_serial, project_dir))
+        core_results.extend(_dispatch_serial_reviews(core_serial, project_dir, state))
 
         # Wave 2: Genre-circle reviews (conditionally active, in parallel;
         # same WRITE_SHARED partition as wave 1)
@@ -3615,10 +3617,11 @@ def _run_chapter_step_impl(
                 on_task_complete=_wave_savepoint(state, project_dir, chapter, wave_chapters)(
                     genre_wave
                 ),
+                state=state,
             )
         else:
             log.info("parallel_review_wave2_empty", chapter=chapter)
-        genre_results.extend(_dispatch_serial_reviews(genre_serial, project_dir))
+        genre_results.extend(_dispatch_serial_reviews(genre_serial, project_dir, state))
 
         # Consolidate all results
         all_results = core_results + genre_results

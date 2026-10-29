@@ -132,7 +132,7 @@ class TestAuditWavePartition:
         wave_skills: list[list[str]] = []
 
         def _fake_parallel(  # codeql[py/unused-local-variable] used as side_effect below
-            tasks: list[ReviewTask], on_task_complete=None
+            tasks: list[ReviewTask], on_task_complete=None, state=None
         ) -> list[object]:
             wave_skills.append([t.skill for t in tasks])
             return [DispatchResult(True, 0, "{}", "") for _ in tasks]
@@ -292,7 +292,7 @@ class TestSerialDispatchFailureParity:
             _serial_dispatch_as(serial_dispatch),
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
-                side_effect=lambda tasks, on_task_complete=None: [
+                side_effect=lambda tasks, on_task_complete=None, state=None: [
                     DispatchResult(True, 0, "{}", "") for _ in tasks
                 ],
             ),

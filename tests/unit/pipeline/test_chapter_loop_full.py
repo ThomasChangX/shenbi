@@ -196,7 +196,7 @@ def chapter_succeeds():
         par_disp = stack.enter_context(
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
-                side_effect=lambda tasks, on_task_complete=None: [
+                side_effect=lambda tasks, on_task_complete=None, state=None: [
                     DispatchResult(True, 0, "{}", "") for _ in tasks
                 ],
             )
@@ -533,7 +533,7 @@ class TestAuditCircleAndRevisionRouting:
             # Parallel dispatch mocks (Task 7).
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
-                side_effect=lambda tasks, on_task_complete=None: [
+                side_effect=lambda tasks, on_task_complete=None, state=None: [
                     DispatchResult(True, 0, "{}", "") for _ in tasks
                 ],
             ),

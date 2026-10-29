@@ -92,6 +92,7 @@ def task_path_context(task: ReviewTask) -> PathContext | None:
 def _dispatch_with_retry(
     task: ReviewTask,
     semaphore: Semaphore,
+    state: Any = None,
 ) -> DispatchResult:
     """Dispatch a single review with retry on failure.
 
@@ -102,6 +103,10 @@ def _dispatch_with_retry(
     Args:
         task: The review task to dispatch.
         semaphore: Semaphore for rate limiting concurrent dispatches.
+        state: Optional PipelineState (spec #81 §2 rev4) — threaded to
+            dispatch_skill so wave dispatches carry loop_id/feedback_ref;
+            review-group is the largest failure family, wave DISPATCH
+            without loop_id would recreate the B-1 blind spot there.
 
     Returns:
         DispatchResult indicating success or failure.
@@ -123,6 +128,7 @@ def _dispatch_with_retry(
                     prompt=task.prompt,
                     shared_context=task.shared_context,
                     path_context=task_path_context(task),
+                    state=state,
                 )
                 if result.success:
                     log.info(
@@ -235,6 +241,7 @@ def assert_parallelizable(tasks: list[ReviewTask]) -> None:
 def dispatch_reviews_parallel(
     tasks: list[ReviewTask],
     on_task_complete: Callable[[int, DispatchResult], None] | None = None,
+    state: Any = None,
 ) -> list[DispatchResult]:
     """Dispatch multiple reviews in parallel with rate limiting.
 
@@ -248,6 +255,9 @@ def dispatch_reviews_parallel(
             result)``. Contract: called ONLY for successful results (failed
             tasks are not called back); called from the single collecting
             thread; a raising callback is logged and does not abort the wave.
+        state: Optional PipelineState (spec #81 §2 rev4) — threaded through
+            to every wave dispatch so review-group DISPATCH events carry
+            loop_id/feedback_ref.
 
     Returns:
         List of DispatchResult objects, one per task (order preserved).
@@ -261,7 +271,7 @@ def dispatch_reviews_parallel(
 
     with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
         future_to_idx = {
-            executor.submit(_dispatch_with_retry, task, semaphore): idx
+            executor.submit(_dispatch_with_retry, task, semaphore, state): idx
             for idx, task in enumerate(tasks)
         }
         for future in as_completed(future_to_idx):
