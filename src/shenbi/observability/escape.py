@@ -63,7 +63,7 @@ def update_escape_hatch_state(project_dir: Path, reads_manifest: list[dict[str, 
             for entry in fields_entries:
                 key = _entry_key(str(entry["path"]), list(entry["fields"]))
                 if entry.get("matched_all"):
-                    mutated = streaks.pop(key, None) is not None  # matched resets the streak
+                    mutated = mutated or streaks.pop(key, None) is not None  # matched resets
                     continue
                 current = streaks.setdefault(key, {"streak": 0, "first_ts": now, "last_ts": now})
                 current["streak"] = int(current.get("streak", 0)) + 1

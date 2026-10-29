@@ -150,3 +150,30 @@ class TestDriftFailFast:
             esc.update_escape_hatch_state(tmp_path, _miss(path="style/style_profile.md"))
         state = PipelineState.default(str(tmp_path))
         assert _check_escape_hatch_drift(state, tmp_path, chapter=5) is False
+
+
+class TestMixedManifestRegression:
+    """Stage-8 R2: miss + fresh-hit in ONE manifest — the mutated flag must
+    OR-accumulate, not assign (assignment dropped the miss when the hit's
+    pop was a no-op — order-dependent silent dead-wire).
+    """
+
+    def test_miss_then_fresh_hit_in_one_manifest_counts(self, tmp_path: Path):
+        manifest = [
+            {"path": "x.md", "mode": "fields", "fields": ["A"], "matched_all": False},
+            {
+                "path": "y.md",
+                "mode": "fields",
+                "fields": ["B"],
+                "matched_all": True,
+            },  # 无既有 streak
+        ]
+        for _ in range(3):
+            esc.update_escape_hatch_state(tmp_path, manifest)
+        drift = esc.escape_hatch_drift_check(tmp_path)
+        assert len(drift) == 1 and drift[0]["key"] == "x.md|A"  # miss 未被同 manifest 命中吞掉
+
+    def test_all_matched_still_skips_write(self, tmp_path: Path):
+        manifest = [{"path": "y.md", "mode": "fields", "fields": ["B"], "matched_all": True}]
+        esc.update_escape_hatch_state(tmp_path, manifest)
+        assert not (tmp_path / "observability" / "escape-hatch-state.json").exists()  # 稳态零写
