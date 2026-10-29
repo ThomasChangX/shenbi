@@ -745,11 +745,16 @@ def _build_skill_prompt(
 ) -> tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]:
     """Build a complete execution prompt for a skill.
 
-    Returns (system_prompt, user_prompt, output_paths) where:
+    Returns (system_prompt, user_prompt, output_paths, reads_manifest,
+    raw_disk_reads) where:
     - system_prompt: SKILL.md content
     - user_prompt: task description + input file contents + output format
     - output_paths: resolved contract writable paths (prefixed with staging/
       when uses_staging=True)
+    - reads_manifest: what the LLM saw per read (mode/fields/matched;
+      spec #81 adds resolved_fields + source:cache entries)
+    - raw_disk_reads: dispatch-time RAW disk snapshot per read, captured
+      BEFORE any extractor/filter/META-strip (spec #81 §1, O-2 record)
 
     Args:
         skill: The skill name (e.g. 'shenbi-review-anti-ai').

@@ -127,4 +127,4 @@ def filter_to_fields(text: str, fields: list[str], path: str) -> tuple[str, bool
         return _filter_json(text, fields, path)
     # T305 (spec #39 T12): unknown extensions pass through, now disclosed.
     log.warning("field_filter_unknown_extension_passthrough", path=path)
-    return text, True, fields
+    return text, True, list(fields)
