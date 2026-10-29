@@ -1026,6 +1026,44 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
 }
 
 
+def _emit_retry_event(
+    project_dir: Path | str,
+    *,
+    chapter: int | None,
+    skill: str,
+    reason: dict[str, object],
+    loop_id: int,
+) -> None:
+    """Spec #81 §2: structured RETRY trace event for loop-level re-dispatch.
+
+    Replaces runner-log-only visibility for loop re-dispatches (B-1): the
+    token ledger's ``attempt`` only sees API-level retries. The exists-guard
+    mirrors ``_emit_dispatch_trace`` — RETRY must never CREATE a trace
+    surface (TraceWriter.append auto-creates; without the guard a pre-trace
+    project would silently gain one). Fail-safe: never raises into the loop.
+    """
+    try:
+        if not (Path(project_dir) / "trace.jsonl").exists():
+            return
+        from shenbi.trace.writer import TraceWriter
+
+        TraceWriter(Path(project_dir)).append(
+            actor="chapter-loop",
+            actor_role="SYSTEM",
+            action="RETRY",
+            target=f"ch{chapter if chapter is not None else 0}",
+            skill=skill,
+            payload={
+                "chapter": chapter,
+                "skill": skill,
+                "reason": reason,
+                "loop_id": loop_id,
+            },
+        )
+    except Exception:
+        log.warning("retry_event_emit_failed", skill=skill, exc_info=True)
+
+
 def _enrich_g4_feedback(failures: list[str]) -> str:
     """Build enriched retry feedback with format examples for each failed check.
 
@@ -3940,6 +3978,16 @@ def _run_chapter_step_impl(
                     i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-chapter-drafting"
                 )
                 retry_key = _retry_key(chapter, drafting_step.skill)
+                # spec #81 §2: monitor-rewind RETRY (issues kept as the
+                # pre-formatted strings scene_splitter produces; the numeric
+                # diff-dict form is a recorded deviation, deferred).
+                _emit_retry_event(
+                    project_dir,
+                    chapter=chapter,
+                    skill=drafting_step.skill,
+                    reason={"kind": "monitor_rewind", "chapter": chapter, "issues": list(issues)},
+                    loop_id=state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1,
+                )
                 # DURABLE budget trail (retry_budget_consumed, NOT retry_counts —
                 # a successful drafting re-dispatch resets retry_counts and the
                 # rewind loop would spin forever): mirror the G4 hard-fail path.
@@ -4135,6 +4183,16 @@ def _run_chapter_step_impl(
 
         if hard_fails:
             state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(hard_fails)
+            # spec #81 §2: structured RETRY event (both re-dispatch branches
+            # below share this emission point — per-chapter _handle_failure
+            # route and the direct auto-retry route).
+            _emit_retry_event(
+                project_dir,
+                chapter=chapter,
+                skill=step.skill,
+                reason={"kind": "g4_hard", "check_ids": list(hard_fails)},
+                loop_id=state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1,
+            )
             # Durable budget trail for both paths (spec §3.1).
             consumed = state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1
             state.chapter_loop.retry_budget_consumed[retry_key] = consumed
