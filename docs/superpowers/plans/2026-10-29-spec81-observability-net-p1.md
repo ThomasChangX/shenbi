@@ -48,17 +48,17 @@ tests/unit/tools/test_observe_report.py             # T8
 - Test: `tests/unit/observability/test_archive.py`
 
 **Interfaces:**
-- Consumes: `shenbi.pipeline.truth_io.truth_file_flock(path)`（跨进程 flock，:123）；`shenbi.pipeline.safe_write.safe_write`。
+- Consumes: `shenbi.pipeline.truth_io.truth_file_flock(path)`（跨进程 flock，:123）；`shenbi.safe_write.safe_write`（**注意：模块在 `src/shenbi/safe_write.py`，非 `pipeline/` 下**——dispatch_helper.py:86 同源导入）。
 - Produces（后续 task 依赖的精确签名）:
   - `archive_enabled() -> bool`（`SHENBI_ARCHIVE_DISPATCH != "0"`）
   - `quota_bytes() -> int`（env `SHENBI_ARCHIVE_QUOTA_BYTES`，默认 1GiB）
   - `sha256_of(text: str) -> str`（返回 `"sha256:<hex>"`）
-  - `put_blob(project_dir: Path, content: str) -> str | None`（None=配额跳过；同内容幂等）
-  - `next_seq(project_dir: Path) -> int`（flock 下 max+1，跨重启续号）
+  - `put_blob(project_dir: Path, content: str) -> str`（**无条件返回 digest**——配额跳过时 bump stats + WARN + 只跳内容写，哈希照进档（spec §1「档与哈希照写」：熔断降级=可验证不可复现，digest 不能丢）；同内容幂等；写盘 temp+rename 防撕裂 blob——内容寻址文件名即完整性声明，撕裂=静默腐蚀解引用）
+  - `next_seq(project_dir: Path) -> int`（flock 下 max+1，跨重启续号；与档写共用一个 flock scope 时撞名结构性不可能，stats 键防御性保留）
   - `bump_stats(project_dir: Path, key: str) -> None`（key ∈ {archive_write_failed, archive_quota_skip, archive_seq_collision}；文件 `observability/archive-stats.json`）
   - `@dataclass ArchiveFrame`（skill/chapter/attempt/model/system_prompt/user_prompt/reads_manifest/raw_reads/skill_contract_sha256/loop_id/feedback_ref）
   - `write_dispatch_archive(project_dir: Path, frame: ArchiveFrame, *, finish_reason: str | None, response_text: str | None, usage: dict[str, Any] | None) -> Path | None`
-  - `skill_contract_sha(skill: str) -> str | None`（SKILL.md 内容 sha256；找不到返回 None）
+  - `skill_contract_sha(skill: str) -> str | None`（SKILL.md 内容 sha256；找不到返回 None。**注：spec §1 措辞「git blob SHA」，此处取内容 sha256 为溯源等价简化（drift 检测同强），digest 格式与全库一致——记 spec-deviations**）
 
 - [ ] **Step 1: 写失败测试**（tests/unit/observability/test_archive.py）
 
@@ -80,11 +80,14 @@ class TestBlobStore:
         blob = tmp_path / "observability" / "blobs" / d1.split(":", 1)[1]
         assert blob.read_text(encoding="utf-8") == "同内容"
 
-    def test_quota_breaker_skips_blob_and_counts(self, tmp_path: Path, monkeypatch):
+    def test_quota_breaker_skips_blob_keeps_hash_and_counts(self, tmp_path: Path, monkeypatch):
         monkeypatch.setenv("SHENBI_ARCHIVE_QUOTA_BYTES", "200")  # KB 级实测形态（spec §7.5 离线）
-        ar.put_blob(tmp_path, "x" * 400)
-        d = ar.put_blob(tmp_path, "y" * 400)
-        assert d is None  # 超配额：跳过新 blob
+        d1 = ar.put_blob(tmp_path, "x" * 150)   # 150B 落盘
+        d2 = ar.put_blob(tmp_path, "y" * 400)   # 150+400 > 200 → 跳内容写
+        assert d2 is not None and d2.startswith("sha256:")       # 哈希照返（spec §1）
+        blob2 = tmp_path / "observability" / "blobs" / d2.split(":", 1)[1]
+        assert not blob2.exists()                                # 内容确实没写
+        assert (tmp_path / "observability" / "blobs" / d1.split(":", 1)[1]).exists()
         stats = json.loads((tmp_path / "observability" / "archive-stats.json").read_text())
         assert stats["archive_quota_skip"] == 1
 
@@ -160,7 +163,7 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.logging import get_logger
-from shenbi.pipeline.safe_write import safe_write
+from shenbi.safe_write import safe_write
 from shenbi.pipeline.truth_io import truth_file_flock
 
 log = get_logger(__name__)
@@ -175,7 +178,7 @@ def quota_bytes() -> int: ...
 def sha256_of(text: str) -> str: ...
 
 
-def put_blob(project_dir: Path, content: str) -> str | None:
+def put_blob(project_dir: Path, content: str) -> str:
     digest = sha256_of(content)
     blob = project_dir / _OBS / "blobs" / digest.split(":", 1)[1]
     if blob.exists():
@@ -183,9 +186,9 @@ def put_blob(project_dir: Path, content: str) -> str | None:
     if _bytes_under_management(project_dir) + len(content.encode()) > quota_bytes():
         bump_stats(project_dir, "archive_quota_skip")
         log.warning("archive_quota_skip")
-        return None
+        return digest  # 哈希照返（spec §1「档与哈希照写」）——只跳内容写
     blob.parent.mkdir(parents=True, exist_ok=True)
-    blob.write_bytes(content.encode("utf-8"))
+    _atomic_write(blob, content.encode("utf-8"))  # temp+rename：内容寻址文件名=完整性声明
     _account_bytes(project_dir, len(content.encode()))
     return digest
 ```
@@ -197,14 +200,17 @@ def put_blob(project_dir: Path, content: str) -> str | None:
 
 ---
 
-### Task 2: `_build_skill_prompt` 磁盘原文快照（5 元组返回）
+### Task 2: `_build_skill_prompt` 磁盘原文快照（5 元组返回）+ `resolved_fields` 可导出
 
 **Files:**
-- Modify: `src/shenbi/pipeline/dispatch_helper.py`（:852 读盘点后捕获；:1491 返回）
-- Test: `tests/unit/pipeline/test_dispatch_snapshot.py`；修既有 stub（`grep -rn "_build_skill_prompt" tests/` 全列更新——已知 `tests/unit/pipeline/test_token_ledger_guard.py:57` 4 元组 patch）
+- Modify: `src/shenbi/pipeline/dispatch_helper.py`（:852 读盘点后捕获；:1100 filter 调用点；:1491 返回）、`src/shenbi/contracts/fields.py`（`filter_to_fields` 扩 3 元组返回——**仅此一个生产调用方**，grep 已核：dispatch_helper.py:1100 唯一）
+- Test: `tests/unit/pipeline/test_dispatch_snapshot.py`、`tests/unit/contracts/test_fields.py`（3 元组适配）；修既有 stub——**爆破面实measure：`grep -rln "_build_skill_prompt" tests/` 约 23 文件 55 位**（tests/pipeline/ 10 文件：spec6_prompt_slimming、dispatch_helper_cap_raise、trigger_context、dispatch_helper_system_stability、dispatch_helper_keys、audit_context_cache、dispatch_reads_injection、closure_context、dispatch_helper_xml、meta_view_coordinates；tests/unit/pipeline/ 13 文件：layerb_live、staging_commit、dispatch_helper、dispatch_ingestion_guard、retry_accounting、token_ledger_guard(:69/:163 双位)、read_extractors_slicing、dispatch_helper_read_suppression、append_dedup_increment_injection、dispatch_usage_capture、style_seed、helper_injection、estimate_rows）
 
 **Interfaces:**
-- Produces: `_build_skill_prompt(...) -> tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]`（第 5 元 = `raw_disk_reads: dict[contract_path -> 磁盘原文]`）；**捕获点在 :852 `content = full_path.read_text(...)` 之后、任何 extractor/filter/strip 之前**；shared_context 缓存注入的 read 记缓存值并以 `"source": "cache"` 标注进 manifest（新增可选键）。
+- Produces:
+  - `_build_skill_prompt(...) -> tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]`（第 5 元 = `raw_disk_reads: dict[contract_path -> 磁盘原文]`）；**捕获点在 :852 `content = full_path.read_text(...)` 之后、任何 extractor/filter/strip 之前**。
+  - `filter_to_fields(text: str, fields: list[str], path: str) -> tuple[str, bool, list[str]]`（第 3 元 = `resolved_fields` 实际命中声明字段名——spec §1 示例「resolved_fields 非空 + matched_all=false」的部分命中形态由此可导；manifest 旧 `matched_all` 语义不变）。
+  - **两条缓存路径都捕获**（I9）：循环内 shared_context `raw_files` 命中位（:847-849，有 manifest 条目）与循环后 `_INJECT_FROM_CACHE` 合并位（:1126-1150，今日无 manifest 条目）——两处都收 raw 值 + manifest 条目记 `"source": "cache"`；归档侧规则：manifest 条目无 raw 对应时该条目跳 blob（无 KeyError，如实少档）。
 
 - [ ] **Step 1: 失败测试**
 
@@ -222,10 +228,10 @@ def test_raw_snapshot_is_disk_original_not_filtered_view(tmp_path: Path, monkeyp
     # test_multi_file_prompt_includes_schema_reminder（builder 直调 + mock 契约）
     mock_contract = {
         "kind": OutputKind.ARTIFACT,
-        "reads": [{"file": "style/style_profile.md", "fields": ["文风基准"]}],
+        "reads": ["style/style_profile.md"],          # builder 只吃字符串 reads（:807-817）
+        "read_fields": {"style/style_profile.md": ["文风基准"]},  # fields 走 sidecar
         "writes": ["chapters/chapter-1.md"],
         "updates": [],
-        "read_fields": {},
     }
     monkeypatch.setattr(
         "shenbi.contracts.loader.load_contract", lambda s: mock_contract
@@ -246,13 +252,14 @@ def test_raw_snapshot_is_disk_original_not_filtered_view(tmp_path: Path, monkeyp
     assert "漂移节" not in user_prompt          # 注入面仍是过滤视图（行为不变）
     fields_entry = next(r for r in reads_manifest if r.get("mode") == "fields")
     assert fields_entry["matched_all"] is True  # 命中节在，声明字段全中
+    assert fields_entry["resolved_fields"] == ["文风基准"]  # 3 元组新返回（部分命中形态见 test_fields）
 ```
 
 （若 mock 契约的 reads dict 形态与 loader 实际解析有出入，以 `tests/unit/pipeline/test_dispatch_layerb_live.py` 的 fields 声明写法为准修正——断言核心不变：`raw_reads` 含未命中节、`user_prompt` 不含。）
 
 - [ ] **Step 2: 确认失败**（4 元组解包 TypeError）
-- [ ] **Step 3: 实现**：:852 后加 `raw_disk_reads: dict[str, str]` 收集（函数头初始化）；shared_context 注入分支同步收集并给 manifest 条目加 `"source": "cache"`；:1491 返回 5 元组；两调用点（:3443 API 收用、:3822 IDE `_` 弃用）+ 全部测试 stub 更新为 5 元组。
-- [ ] **Step 4: 跑新测试 + 全 dispatch 测试** — `uv run pytest tests/unit/pipeline/test_dispatch_snapshot.py tests/unit/pipeline/test_dispatch_helper.py tests/unit/pipeline/test_token_ledger_guard.py -v` → 全 PASS
+- [ ] **Step 3: 实现**：:852 后加 `raw_disk_reads: dict[str, str]` 收集（函数头初始化）；`filter_to_fields` 扩 3 元组（`_filter_md`/`_filter_json` 内部收集命中字段名，`match_field` 逐声明字段判定的循环已在）；两条缓存路径同步收集（raw_files 命中位 + `_INJECT_FROM_CACHE` 合并位）并给 manifest 条目加 `"source": "cache"`；:1491 返回 5 元组；两调用点（:3443 API 收用、:3822 IDE `_` 弃用）+ **全部 ~23 测试文件 stub 更新为 5 元组 / 3 元组 filter**（上列爆破面清单逐一过）。
+- [ ] **Step 4: 跑新测试 + 全 dispatch/pipeline 测试面** — `uv run pytest tests/unit/pipeline tests/unit/contracts/test_fields.py tests/pipeline -q` → 全 PASS（**不以 3 个文件为限**——爆破面在 T9 `just check` 才爆 = 返工）
 - [ ] **Step 5: Commit** — `feat(observability): spec #81 T2 — pre-filter raw disk snapshot, builder 5-tuple`
 
 ---
@@ -430,8 +437,8 @@ def test_archive_write_failure_never_blocks_dispatch(tmp_path, monkeypatch):
 
 - [ ] **Step 2-4: 红→实现→绿**。实现要点：
   - prompt build 后构 frame：`raw_reads`（T2 第 5 元）、`skill_contract_sha(skill)`、`loop_id`/`feedback_ref`（`state` 非空时惰性 `from shenbi.pipeline.chapter_loop import _retry_key`；key=`_retry_key(chapter if chapter is not None else 1, skill)`；loop_id=`retry_budget_consumed.get(key, 0)`；feedback 文本非空才 `put_blob`——受 `archive_enabled()` 门控）。
-  - 返回位插桩：本地闭包 `def _archive(finish_reason, response_text, usage, ...) -> str | None`（内调 `write_dispatch_archive`，try/except → WARN+stats；返回 archive_path 供 trace）。九失败位 + 成功位各一次调用；成功位在 `_emit_dispatch_trace` 之前调用并把返回的 `archive_path`、`loop_id`、`feedback_ref` 传入 trace。timeout/generic/content_filter 三个已有 trace 的失败位同样传入。
-  - `dispatch_skill` API 路（:4121-4129）补 `state=state` 透传。
+  - 返回位插桩：本地闭包 `def _archive(finish_reason, response_text, usage, ...) -> str | None`（内调 `write_dispatch_archive`，try/except → WARN+stats；返回 archive_path 供 trace）。九失败位 + 成功位各一次调用；成功位在 `_emit_dispatch_trace` 之前调用并把返回的 `archive_path`、`loop_id`、`feedback_ref` 传入 trace。timeout/generic/content_filter 三个已有 trace 的失败位同样传入。**timeout/generic 失败位 `usage` 未绑定**（:3481 元组解包未完成）——闭包实参取 `usage_acc.get("usage")`，不引用未绑定名（M11）。
+  - `dispatch_skill` API 路（:4121-4129）补 `state=state` 透传；同批更新其 docstring（:4102-4105「state only toggles instrumentation」措辞过期——API 路现在消费 state 产 loop_id/feedback_ref）（M15）。
 - [ ] **Step 5: Commit** — `feat(observability): spec #81 T4 — archive wiring at return-path inventory + state threading`
 
 ---
@@ -443,10 +450,10 @@ def test_archive_write_failure_never_blocks_dispatch(tmp_path, monkeypatch):
 - Test: `tests/unit/pipeline/test_dispatch_archive_wiring.py`（追加类）
 
 **Interfaces:**
-- Produces: 波派发链 `wave entry(chapter_loop，持 state) → _dispatch_with_retry(task, semaphore, state=None) → dispatch_skill(..., state=state)`——波 DISPATCH 从此有 loop_id（review-group = 最大失败族，spec §2 rev4）。
+- Produces: 波派发链 state 透传——**两个入口都改**（I7）：`parallel_dispatch.dispatch_reviews_parallel(tasks, on_task_complete, state: Any = None)`（:235，submit :264）→ `_dispatch_with_retry(task, semaphore, state: Any = None)`（:92）→ `dispatch_skill(..., state=state)`；**串行子波同批**：`chapter_loop._dispatch_serial_reviews(serial_tasks, project_dir, state: Any = None)`（:3356，调用位 :3577/:3618）→ 同透传——WRITE_SHARED 串行评审成员否则仍无 state（review-group 人口的最大子集，正是 rev4 钉死要盖的族）。chapter_loop 两个波调用点（:3572/:3610）把 state 传入 `dispatch_reviews_parallel`。
 
-- [ ] **Step 1: 失败测试**——monkeypatch `dispatch_skill` 捕获 kwargs，断言 `_dispatch_with_retry` 收 state 后透传。
-- [ ] **Step 2-4: 红→实现→绿**（`_dispatch_with_retry` 加 `state: Any = None` 形参并传入其 `dispatch_skill` 调用 :120-126；波入口从 chapter_loop 调用点把 state 传入；`RetryTask` 不动——state 是波级共享非任务级）。
+- [ ] **Step 1: 失败测试**——monkeypatch `dispatch_skill` 捕获 kwargs：(a) `_dispatch_with_retry` 收 state 后透传；(b) `_dispatch_serial_reviews` 收 state 后透传。
+- [ ] **Step 2-4: 红→实现→绿**（`_dispatch_with_retry` 加 `state: Any = None` 形参并传入其 `dispatch_skill` 调用 :120-126；`RetryTask` 不动——state 是波级共享非任务级）。
 - [ ] **Step 5: Commit** — `feat(observability): spec #81 T5 — parallel wave state threading (loop_id coverage)`
 
 ---
@@ -458,10 +465,10 @@ def test_archive_write_failure_never_blocks_dispatch(tmp_path, monkeypatch):
 - Test: `tests/unit/pipeline/test_chapter_loop_retry_event.py`
 
 **Interfaces:**
-- Produces: 新模块级 helper `_emit_retry_event(project_dir: Path, *, chapter: int | None, skill: str, reason: dict[str, Any], loop_id: int) -> None`——`TraceWriter(project_dir).append(actor="chapter-loop", actor_role="SYSTEM", action="RETRY", target=f"ch{chapter}", skill=skill, payload={"chapter": chapter, "skill": skill, "reason": reason, "loop_id": loop_id})`；trace.jsonl 不存在时静默跳过（同 `_emit_dispatch_trace` 纪律——trace 面已落地才追发）。
-- reason 结构化：G4 硬败位 `{"kind": "g4_hard", "check_ids": [...], "loop": loop_id}`；监控回卷位 `{"kind": "monitor_rewind", **场景算术差异 dict}`（:3925-3956 已有的差值结构直传）。
+- Produces: 新模块级 helper `_emit_retry_event(project_dir: Path, *, chapter: int | None, skill: str, reason: dict[str, Any], loop_id: int) -> None`——**先守卫** `(project_dir / "trace.jsonl").exists()` 否则静默返回（同 `_emit_dispatch_trace` :3128-3131 纪律——`TraceWriter.append` 会自建 trace 面（writer.py:102-104），不守卫 = RETRY 静默造面）；守卫过后 `TraceWriter(project_dir).append(actor="chapter-loop", actor_role="SYSTEM", action="RETRY", target=f"ch{chapter}", skill=skill, payload={"chapter": chapter, "skill": skill, "reason": reason, "loop_id": loop_id})`。
+- reason 结构化 + **发射位钉死（M14）**：G4 硬败块的**两个分支**——`per_chapter_review_enabled` 真 → `_handle_failure` 路径（:4140-4144 前）、假 → 直接 auto-retry 路径（:4145-4156）各发一次；监控回卷位（:3925-3955 场景算术差值结构直传 `{"kind": "monitor_rewind", **diff_dict}`）。G4 位 reason = `{"kind": "g4_hard", "check_ids": [...hard_fails], "loop": loop_id}`。
 
-- [ ] **Step 1: 失败测试**——tmp_path 造 trace.jsonl（先手 TraceWriter 落一 INIT 事件成链），monkeypatch 触发 `_handle_failure` 重派路径，断言 trace 尾部出现 `action=="RETRY"` 且 payload 结构化；监控位同理（直调 `_emit_retry_event` 断言形态 + 回卷路径集成断言）。
+- [ ] **Step 1: 失败测试**——tmp_path 造 trace.jsonl（先手 TraceWriter 落一 INIT 事件成链），monkeypatch 触发 `_handle_failure` 重派路径，断言 trace 尾部出现 `action=="RETRY"` 且 payload 结构化；监控位同理（直调 `_emit_retry_event` 断言形态 + 回卷路径集成断言）；**无 trace 文件时断言不创建**（守卫测试——空 tmp_path 直调 helper 后 `trace.jsonl` 不存在）。
 - [ ] **Step 2-4: 红→实现→绿**。
 - [ ] **Step 5: Commit** — `feat(observability): spec #81 T6 — RETRY trace event (structured loop re-dispatch reasons)`
 
@@ -526,7 +533,7 @@ if _check_escape_hatch_drift(state, project_dir, chapter):
     return True  # escalation checkpoint raised, pause for human
 ```
 
-`_check_escape_hatch_drift`：`drift = escape_hatch_drift_check(project_dir)`；非空 → `record_audit_outcome(project_dir, "escape-hatch", AuditResult(violations=[f"escape_hatch_drift: {d['key']} streak={d['streak']}" for d in drift], drift=[], checked_files=[]))` + `set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter, context="逃逸舱字段漂移：契约 fields 与文件标题连续失配 ≥3——producer 模板漂移，需人工对齐（spec #81 §3）")` → True；**不触任何 retry 计数**（零充 = 从不调用 `_handle_failure`/不手充 budget）。`AuditResult` 从 `shenbi.audit._shared` 导入（实施时核对其 dataclass 字段名）。
+`_check_escape_hatch_drift`：`drift = escape_hatch_drift_check(project_dir)`；非空 → `record_audit_outcome(project_dir, "escape-hatch", AuditResult(skill="escape-hatch", violations=tuple(f"escape_hatch_drift: {d['key']} streak={d['streak']}" for d in drift), drift=(), checked_files=()))` + `set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter, context="逃逸舱字段漂移：契约 fields 与文件标题连续失配 ≥3——producer 模板漂移，需人工对齐（spec #81 §3）")` → True；**不触任何 retry 计数**（零充 = 从不调用 `_handle_failure`/不手充 budget）。`AuditResult` 从 `shenbi.audit._shared` 导入（`skill` 是无默认值首字段，tuple 型容器字段——:31-39）。
 - [ ] **Step 5: Commit** — `feat(observability): spec #81 T7 — escape_hatch_drift fail-fast (zero-charge escalation)`
 
 ---
@@ -591,7 +598,7 @@ def test_missing_surfaces_degrade_to_explicit_note(tmp_path: Path):
 | §6 P1 fail-fast 三触发+四元组语义 | `uv run pytest tests/unit/observability/test_escape.py -v`（3 次 FAIL/交错隔离/复位/缺失 PASS） | T3/T7 |
 | §7.1 [P1 离线] 四表+覆盖行对账一致 | `uv run pytest tests/unit/tools/test_observe_report.py -v` | T8 |
 | §7.2 [P1 离线] 漂移制造 → FAIL | `test_escape.py::test_drift_fail_escalates_without_retry_charge`（改标题制造 drift 语料 = tmp_path 文件改节标题 ×3 读） | T7 |
-| §7.5 [P1 离线] KB 级熔断实测 | `test_archive.py::test_quota_breaker_skips_blob_and_counts` | T1 |
+| §7.5 [P1 离线] KB 级熔断实测 | `test_archive.py::test_quota_breaker_skips_blob_keeps_hash_and_counts` | T1 |
 | 运行侧条目（vol1 续跑字节复现/5 章窗口/≤80MB） | **不在 SDD 边界**（spec §6 运行验证阶段） | — |
 
 - [ ] **Step 2: `just check` 全绿**
