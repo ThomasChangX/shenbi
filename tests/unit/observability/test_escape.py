@@ -99,3 +99,54 @@ class TestBuilderWiring:
         assert drift[0]["streak"] == 3  # audit-T3 M-2：恰一次/派发（双计仍绿=接线缺陷）
         assert drift[0]["path"].endswith("style_profile.md")
         assert drift[0]["fields"] == ["漂移前标题"]
+
+
+class TestDriftFailFast:
+    """Spec #81 §3 read side: escalation, zero-charge, no gate-markers."""
+
+    def _drift_state(self, tmp_path: Path) -> None:
+        for _ in range(3):
+            esc.update_escape_hatch_state(tmp_path, _miss(path="style/style_profile.md"))
+
+    def test_drift_fail_escalates_without_retry_charge(self, tmp_path: Path):
+        from shenbi.pipeline.chapter_loop import _check_escape_hatch_drift
+        from shenbi.pipeline.state import CheckpointType, PipelineState
+
+        self._drift_state(tmp_path)
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.retry_budget_consumed = {"ch1-s": 2}
+        state.chapter_loop.retry_counts = {"ch1-s": 1}
+        raised = _check_escape_hatch_drift(state, tmp_path, chapter=5)
+        assert raised is True
+        # (a) ESCALATION checkpoint set
+        assert state.pending_checkpoint.type == CheckpointType.ESCALATION
+        # (b) zero-charge: retry counters untouched
+        assert state.chapter_loop.retry_budget_consumed == {"ch1-s": 2}
+        assert state.chapter_loop.retry_counts == {"ch1-s": 1}
+        # (c) GATE_FAIL artifacts: write-audit.jsonl blocked record + trace event
+        assert any(
+            json.loads(l)["blocked"]
+            for l in (tmp_path / "write-audit.jsonl").read_text().splitlines()
+        )
+        assert "GATE_FAIL" in (tmp_path / "trace.jsonl").read_text()
+        # (d) gate-markers/ gets NO new file (G6 mismatch incident class)
+        assert not (tmp_path / "gate-markers").exists() or not any(
+            (tmp_path / "gate-markers").iterdir()
+        )
+
+    def test_drift_absent_passes(self, tmp_path: Path):
+        from shenbi.pipeline.chapter_loop import _check_escape_hatch_drift
+        from shenbi.pipeline.state import PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        assert _check_escape_hatch_drift(state, tmp_path, chapter=5) is False
+        assert state.pending_checkpoint.type.value == "none"  # default NONE 未动
+
+    def test_two_misses_no_checkpoint(self, tmp_path: Path):
+        from shenbi.pipeline.chapter_loop import _check_escape_hatch_drift
+        from shenbi.pipeline.state import PipelineState
+
+        for _ in range(2):  # streak=2 <3 → 不触发（O-2 复演防护的窗）
+            esc.update_escape_hatch_state(tmp_path, _miss(path="style/style_profile.md"))
+        state = PipelineState.default(str(tmp_path))
+        assert _check_escape_hatch_drift(state, tmp_path, chapter=5) is False

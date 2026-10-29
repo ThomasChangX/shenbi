@@ -1026,6 +1026,59 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
 }
 
 
+def _check_escape_hatch_drift(
+    state: PipelineState, project_dir: Path | str, chapter: int | None
+) -> bool:
+    """Spec #81 §3: post-dispatch escape-hatch drift check (the O-3 fix).
+
+    Three consecutive misses of the same (path, fields) key is drift, not
+    an accident — surface it as an ESCALATION checkpoint for human repair.
+    ZERO-CHARGE semantics: contract drift is not a dispatch failure, so no
+    retry counter is touched (never routed through _handle_failure; the
+    G4 precedent's pre-charge-then-budget_pre_consumed pattern is
+    deliberately NOT copied). Artifacts: write-audit.jsonl + a GATE_FAIL
+    trace event via record_audit_outcome's form — NEVER gate-markers/
+    (G6 filename-mismatch incident class). Fail-safe on read.
+    """
+    try:
+        from shenbi.observability.escape import escape_hatch_drift_check
+
+        drift = escape_hatch_drift_check(Path(project_dir))
+        if not drift:
+            return False
+        violations = tuple(f"escape_hatch_drift: {d['key']} streak={d['streak']}" for d in drift)
+        try:
+            from shenbi.audit._shared import AuditResult  # pyright: ignore[reportPrivateUsage]
+            from shenbi.audit.record import record_audit_outcome
+
+            record_audit_outcome(
+                Path(project_dir),
+                "escape-hatch",
+                AuditResult(
+                    skill="escape-hatch",
+                    violations=violations,
+                    drift=(),
+                    checked_files=(),
+                ),
+            )
+        except Exception:
+            log.warning("escape_hatch_drift_audit_record_failed", exc_info=True)
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            chapter=chapter,
+            context=(
+                "逃逸舱字段漂移：契约 fields 与文件标题连续失配 ≥3——producer 模板漂移，"
+                "需人工对齐（spec #81 §3）；漂移键：" + "; ".join(d["key"] for d in drift[:3])
+            ),
+        )
+        log.error("escape_hatch_drift_escalated", chapter=chapter, keys=[d["key"] for d in drift])
+        return True
+    except Exception:
+        log.warning("escape_hatch_drift_check_failed", exc_info=True)
+        return False
+
+
 def _emit_retry_event(
     project_dir: Path | str,
     *,
@@ -4078,6 +4131,14 @@ def _run_chapter_step_impl(
         state=state,
         path_context=PathContext(chapter=chapter),
     )
+
+    # Spec #81 §3: post-dispatch loop-phase escape-hatch drift check.
+    # Note (detection latency): the parallel review-wave blocks return
+    # before this serial dispatch site, so wave-accrued drift surfaces at
+    # the NEXT serial dispatch — a known cost of the phase-check placement
+    # (spec-pinned), not a defect.
+    if _check_escape_hatch_drift(state, project_dir, chapter):
+        return True  # escalation checkpoint raised, pause for human
 
     # State-settling failure: mark settling_failed and pause (spec §11).
     if not result.success and "state-settling" in step.skill:
