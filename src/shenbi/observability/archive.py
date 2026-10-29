@@ -7,11 +7,17 @@ dispatch is a blob dereference, never a re-assembly from reads (the
 assembled prompt embeds task instructions, banners, skeleton injection and
 a per-dispatch timestamp line that no reads blob contains).
 
-Fail-safe discipline: every public entry point swallows its own IO errors
+Fail-safe discipline: ``write_dispatch_archive`` swallows every failure
 into WARN + ``archive-stats.json`` counters — an archive failure never
-masks the dispatch outcome. Quota breaker (``SHENBI_ARCHIVE_QUOTA_BYTES``,
-default 1 GiB) skips blob CONTENT writes but still returns the digest so
-the record stays verifiable (spec §1: 档与哈希照写).
+masks the dispatch outcome. The fail-safe BOUNDARY is
+``write_dispatch_archive`` itself: ``put_blob`` and
+``skill_contract_sha`` propagate their IO errors when called directly
+(T4's frame construction wraps them accordingly).
+
+Quota caliber: the breaker counts ``blobs/`` bytes only — dispatch
+records are always written (档与哈希照写), so budgeting them is
+meaningless; blobs are the dominant mass (spec §1 wording says the
+``observability/`` directory; deviation recorded in the plan).
 """
 
 from __future__ import annotations
@@ -92,12 +98,13 @@ def bump_stats(project_dir: Path, key: str) -> None:
 
 def _account_bytes(project_dir: Path, nbytes: int) -> None:
     try:
-        stats = _read_stats(project_dir)
-        stats["_bytes"] = int(stats.get("_bytes", 0)) + nbytes
-        stats["_puts"] = int(stats.get("_puts", 0)) + 1
-        if stats["_puts"] % _CALIBRATE_EVERY == 0:
-            stats["_bytes"] = _du_blobs(project_dir)
-        _write_stats(project_dir, stats)
+        with truth_file_flock(_stats_path(project_dir)):
+            stats = _read_stats(project_dir)
+            stats["_bytes"] = int(stats.get("_bytes", 0)) + nbytes
+            stats["_puts"] = int(stats.get("_puts", 0)) + 1
+            if stats["_puts"] % _CALIBRATE_EVERY == 0:
+                stats["_bytes"] = _du_blobs(project_dir)
+            _write_stats(project_dir, stats)
     except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch — heuristic byte tally, spec #81 §1)
         log.warning("archive_bytes_account_failed", exc_info=True)
 
@@ -106,7 +113,15 @@ def _du_blobs(project_dir: Path) -> int:
     blob_dir = project_dir / _OBS / _BLOBS
     if not blob_dir.exists():
         return 0
-    return sum(p.stat().st_size for p in blob_dir.iterdir() if p.is_file())
+    total = 0
+    for p in blob_dir.iterdir():
+        if p.suffix == ".tmp":
+            continue  # in-flight safe_write temp — becomes a blob via atomic replace
+        try:
+            total += p.stat().st_size
+        except OSError:
+            continue  # vanished between iterdir and stat (concurrent replace/unlink)
+    return total
 
 
 def _bytes_under_management(project_dir: Path) -> int:

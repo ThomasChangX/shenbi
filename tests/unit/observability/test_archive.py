@@ -118,3 +118,31 @@ class TestWriteArchive:
         )
         assert path is None
         assert not (tmp_path / "observability").exists()
+
+
+class TestConcurrentStats:
+    def test_thread_hammer_no_lost_update(self, tmp_path: Path):
+        """audit-T1 I-1: parallel waves must not lose counter/byte updates."""
+        import threading
+
+        def _worker(i: int) -> None:
+            ar.put_blob(tmp_path, f"content-{i}")
+            if i % 3 == 0:
+                ar.bump_stats(tmp_path, "archive_quota_skip")
+
+        threads = [threading.Thread(target=_worker, args=(i,)) for i in range(24)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        stats = json.loads((tmp_path / "observability" / "archive-stats.json").read_text())
+        assert stats["_puts"] == 24  # 字节账无丢失
+        assert stats["archive_quota_skip"] == 8  # 计数无互吞（24 中 i%3==0 者 8 个）
+
+    def test_calibration_path_resets_bytes(self, tmp_path: Path, monkeypatch):
+        """audit-T1 M-4: every-N calibration resets the tally to du ground truth."""
+        monkeypatch.setattr(ar, "_CALIBRATE_EVERY", 5)
+        for i in range(5):
+            ar.put_blob(tmp_path, f"unique-{i}-" + "z" * 10)  # 唯一内容：物理 5 blob
+        stats = json.loads((tmp_path / "observability" / "archive-stats.json").read_text())
+        assert stats["_bytes"] == 5 * (len("unique-0-") + 10)  # du 校准 = 实存字节
