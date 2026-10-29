@@ -272,7 +272,7 @@ class PipelineState:
 
     def increment_retry(self, chapter: int, skill: str) -> int:
         """Thread-safe increment of retry_counts; returns the new count."""
-        rk = f"ch{chapter}-{skill}"
+        rk = retry_key(chapter, skill)
         with self._lock:
             count = self.chapter_loop.retry_counts.get(rk, 0) + 1
             self.chapter_loop.retry_counts[rk] = count
@@ -280,7 +280,7 @@ class PipelineState:
 
     def reset_retry(self, chapter: int, skill: str) -> None:
         """Thread-safe clear of retry_counts[chN-skill]."""
-        rk = f"ch{chapter}-{skill}"
+        rk = retry_key(chapter, skill)
         with self._lock:
             self.chapter_loop.retry_counts.pop(rk, None)
 
@@ -290,7 +290,7 @@ class PipelineState:
         Idempotent max(current, retries) semantics: crash-resume replay of a
         wave aggregation cannot double-count.
         """
-        rk = f"ch{chapter}-{skill}"
+        rk = retry_key(chapter, skill)
         with self._lock:
             current = self.chapter_loop.retry_budget_consumed.get(rk, 0)
             self.chapter_loop.retry_budget_consumed[rk] = max(current, retries)

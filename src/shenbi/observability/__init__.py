@@ -18,13 +18,11 @@ from shenbi.observability.archive import (
     write_dispatch_archive,
 )
 from shenbi.observability.escape import (
-    DRIFT_THRESHOLD,
     escape_hatch_drift_check,
     update_escape_hatch_state,
 )
 
 __all__ = [
-    "DRIFT_THRESHOLD",
     "ArchiveFrame",
     "archive_enabled",
     "bump_stats",

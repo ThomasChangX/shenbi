@@ -33,7 +33,7 @@ log = get_logger(__name__)
 
 _OBS = "observability"
 _STATE_FILE = "escape-hatch-state.json"
-DRIFT_THRESHOLD = 3
+ESCAPE_STREAK_THRESHOLD = 3
 
 
 def _state_path(project_dir: Path) -> Path:
@@ -59,15 +59,18 @@ def update_escape_hatch_state(project_dir: Path, reads_manifest: list[dict[str, 
             state = _read_state(project_dir)
             streaks: dict[str, Any] = state.setdefault("streaks", {})
             now = datetime.now(UTC).isoformat()
+            mutated = False
             for entry in fields_entries:
                 key = _entry_key(str(entry["path"]), list(entry["fields"]))
                 if entry.get("matched_all"):
-                    streaks.pop(key, None)  # matched read resets the streak
+                    mutated = streaks.pop(key, None) is not None  # matched resets the streak
                     continue
                 current = streaks.setdefault(key, {"streak": 0, "first_ts": now, "last_ts": now})
                 current["streak"] = int(current.get("streak", 0)) + 1
                 current["last_ts"] = now
-            safe_write(_state_path(project_dir), json.dumps(state, ensure_ascii=False))
+                mutated = True
+            if mutated:  # all-matched steady state: skip the flock RMW write
+                safe_write(_state_path(project_dir), json.dumps(state, ensure_ascii=False))
     except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch — counter must never break the builder, spec #81 §3)
         log.warning("escape_hatch_state_update_failed", exc_info=True)
 
@@ -81,7 +84,7 @@ def _read_state(project_dir: Path) -> dict[str, Any]:
 
 
 def escape_hatch_drift_check(project_dir: Path) -> list[dict[str, Any]]:
-    """Pure read: keys whose consecutive-miss streak reached DRIFT_THRESHOLD.
+    """Pure read: keys whose consecutive-miss streak reached ESCAPE_STREAK_THRESHOLD.
 
     Absent state file → ``[]`` (absent PASS — pre-feature projects and
     pre-feature history never retro-fail). Torn/partial JSON → ``[]`` + WARN
@@ -109,7 +112,7 @@ def escape_hatch_drift_check(project_dir: Path) -> list[dict[str, Any]]:
             streak = int(entry.get("streak", 0))
         except (AttributeError, TypeError, ValueError):
             continue
-        if streak >= DRIFT_THRESHOLD:
+        if streak >= ESCAPE_STREAK_THRESHOLD:
             path, _, fields_joined = key.partition("|")
             drifted.append(
                 {

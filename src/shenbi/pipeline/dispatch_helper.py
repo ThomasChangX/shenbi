@@ -3535,6 +3535,8 @@ def _dispatch_via_api(
         usage: Any,
     ) -> str | None:
         """Write the dispatch archive record (fail-safe); return archive_path."""
+        if not archive_enabled():  # skip frame construction entirely when opted out
+            return None
         try:
             from shenbi.observability.archive import ArchiveFrame, write_dispatch_archive
 
