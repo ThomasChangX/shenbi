@@ -851,7 +851,12 @@ def g4_state_settling_check(
             fact = facts_id.identity()
             if fact is not None:
                 _rows = _name_registry_alias_rows(project_dir, lookup=_staged_name_reg)
-                for extra in _rows - set(fact.aliases):
+                # 旌名行值=narration_name 是合法 registry 形态（旌名=册官给名即
+                # 当前叙事名；运行侧首触 2026-10-29 ch23 settle 重派实弹）——
+                # 前向允许集须并集 narration_name，否则 committed 旌名行把每个
+                # settle sidecar 判成恒 FAIL
+                _allowed = set(fact.aliases) | {fact.narration_name}
+                for extra in _rows - _allowed:
                     issues.append(
                         f"ss.identity_row_match:name_registry 别名行「{extra}」"
                         "不在 facts 别名集——facts 为 canonical，重生成该行"

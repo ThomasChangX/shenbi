@@ -90,3 +90,14 @@ def test_quantity_units_are_not_bare_days() -> None:
             d / "chapter-11.md", d / "chapter-10.md", None, CrossChapterContext()
         )
         assert not any("时间锚回拨" in i for i in issues)
+
+
+def test_interest_rate_phrase_not_a_date_anchor():
+    # 2026-10-30 ch33 实弹：「一月三分」（月息三分，利率账目对话）被
+    # 裸单字日形态+前瞻缺「分」误判为 (1,3) 日期锚——分是利率/钱分单位，
+    # 从不作日字位
+    from shenbi.gates.g4.cross_chapter import normalize_anchor
+
+    assert normalize_anchor("「一月三分。」", 1) is None
+    assert normalize_anchor("「一月三分，一斗粮压一个月。」他说。", 1) is None
+    assert normalize_anchor("月息三分，四个月一百四十四文。", 1) is None

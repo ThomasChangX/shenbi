@@ -57,34 +57,63 @@ def _extract_hook_ledger_section(plan_text: str) -> str:
     return rest[: nxt.start()] if nxt else rest
 
 
+#: 币值量词族——实体的末两字若落在该族（交易名实体「灯油四文」「灯油三文」
+#: 的「四文」「三文」），不构成「短称」：金额尾与正文计数散文（馍四文半）
+#: 无实体指称关系，短称匹配在此类后缀上必然伪命中（2026-10-29 ch25 实弹）
+_CURRENCY_SUFFIX_CHARS = "文钱两银吊贯"
+
+
 def entity_in_text(entity: str, text: str) -> bool:
     """Three-form entity matcher (spec #80 T5 / plan R3-M2).
 
     Full key / the pre-``·`` stem of a disambiguated copy key / the last
-    two chars of a >=3-char key (短称「骨哨」form, ch20 L230).
+    two chars of a >=3-char key (短称「骨哨」form, ch20 L230). A currency-
+    amount suffix (四文/三文 family) is NOT a short form — transaction-
+    named entities would otherwise collide with money-counting prose.
     """
     if entity in text:
         return True
     stem = entity.split("·", 1)[0]
     if stem != entity and stem in text:
         return True
-    return len(entity) >= 3 and entity[-2:] in text
+    suffix = entity[-2:]
+    if any(ch in _CURRENCY_SUFFIX_CHARS for ch in suffix):
+        return False
+    return len(entity) >= 3 and suffix in text
 
 
 def _handoff_paragraphs(text: str) -> list[str]:
     return [para for para in text.split("\n\n") if para.strip()]
 
 
-def check_prop_handoffs(text: str, memo_text: str, props: dict[str, dict[str, str]]) -> list[str]:
+#: 句切分（。！？；）——、与，为句内从句边界，不切（伤口用例「从灯座下抽出
+#: 骨哨、这个你揣着」须保持一句）
+_SENTENCE_SPLIT_RE = re.compile(r"[。！？；]")
+
+
+def check_prop_handoffs(
+    text: str,
+    memo_text: str,
+    props: dict[str, dict[str, str]],
+    known_names: set[str] | None = None,
+    owner_aliases: dict[str, set[str]] | None = None,
+) -> list[str]:
     """F16 G4.cd — un-declared hand-off co-occurrence scan (spec #80 §4).
 
+    Spec trigger is a THREE-part co-occurrence: 「非 owner 人名」+ facts 实体名
+    + 交接动词（spec #80 plan R3/T5 wording）——a pronoun-only self-handling
+    paragraph (POV-tight narration, 2026-10-29 ch25 live fire: 他从枕下抽出
+    《鉴录》) carries no person-name element and must NOT trigger; the hard
+    no-source rejection lives in the F16s settle state machine (T8).
     Paragraph-wide co-occurrence (audit-T5 M4): entity and verb may sit in
-    different sentences of one paragraph — advisory by design; the hard
-    no-source rejection lives in the F16s settle state machine (T8). A
-    paragraph naming the current owner is owner-mediated (legal). The
-    ``·``-stem memo exemption is family-wide (audit-T5 M5): a declared
+    different sentences of one paragraph. A paragraph naming the current
+    owner (identity aliases count — same person) is owner-mediated (legal).
+    The ``·``-stem memo exemption is family-wide (audit-T5 M5): a declared
     copy acquire also exempts the main-line key — inherent to the
-    three-form matcher, accepted by plan R3-M2.
+    three-form matcher, accepted by plan R3-M2. ``known_names`` is the
+    roster against which「非 owner 人名」is judged (production wires
+    owners ∪ identity names ∪ name_registry 名列; owners-only when absent
+    — degradation visible, settle F16s remains the hard line).
     """
     from shenbi.gates.g4.chapter_planning import parse_prop_declarations
     from shenbi.gates.shared import TRANSFER_VERBS
@@ -94,20 +123,37 @@ def check_prop_handoffs(text: str, memo_text: str, props: dict[str, dict[str, st
         for prop, op, _frm, _to in parse_prop_declarations(memo_text)
         if op in ("transfer", "acquire", "lose")
     }
+    owners = {info.get("owner", "") for info in props.values()} - {""}
+    roster = (known_names or set()) | owners
+    alias_map = owner_aliases or {}
     issues: list[str] = []
     paragraphs = _handoff_paragraphs(text)
     for prop, info in props.items():
         owner = info.get("owner", "")
         stem = prop.split("·", 1)[0]
+        owner_side = {owner} | alias_map.get(owner, set())
+        non_owner_names = roster - owner_side
         for para in paragraphs:
             if not entity_in_text(prop, para):
                 continue
             if not any(v in para for v in TRANSFER_VERBS):
                 continue
-            if owner and owner in para:
+            if any(n in para for n in owner_side):
                 continue  # owner-mediated paragraph — legal
             if stem in declared_stems:
                 continue  # declared (or copy-key family declared)
+            if not any(n in para for n in non_owner_names):
+                continue  # 人名要件不满足（纯代词/未入册行为人）——settle F16s 兜底
+            # 句级实体+动词共现（2026-10-29 ch25 实弹二撞校准）：段落级合并把
+            # 「他在私账上写下。…二十二文半还了老周」这类跨句付钱误判成交账
+            # ——交接动词的宾语必须是实体本身（同句），人名要件仍为段级
+            _sentence_hit = False
+            for _sent in _SENTENCE_SPLIT_RE.split(para):
+                if entity_in_text(prop, _sent) and any(v in _sent for v in TRANSFER_VERBS):
+                    _sentence_hit = True
+                    break
+            if not _sentence_hit:
+                continue
             issues.append(
                 f"cd.prop_handoff:「{prop}」交接语境（物象+交接动词共现，"
                 f"owner「{owner}」不在场）无备忘声明——正文为唯一真值源，"
@@ -407,6 +453,8 @@ def g4_chapter_drafting(
     # 损坏文件 raise 保持响亮）。备忘路径 = plans/chapter-N-plan.md。
     _props_facts: dict[str, dict[str, str]] | None = None
     _counters_facts: dict[str, dict[str, int]] | None = None
+    _known_names: set[str] | None = None
+    _owner_aliases: dict[str, set[str]] = {}
     if project_dir:
         from shenbi.facts.enums import FactsDim
         from shenbi.facts.store import load_facts
@@ -418,6 +466,29 @@ def g4_chapter_drafting(
         _cn_loaded = load_facts(Path(project_dir), FactsDim.COUNTERS)
         if _cn_loaded is not None and not _cn_loaded.is_empty:
             _counters_facts = {k: {"value": v.value} for k, v in _cn_loaded.counters().items()}
+        # F16「非 owner 人名」roster（2026-10-29 实弹校准）：owners ∪ identity
+        # 叙事名+别名 ∪ name_registry 名列；主角别名同时计入 owner-side
+        _known_names = {info.get("owner", "") for info in (_props_facts or {}).values()} - {""}
+        _id_loaded = load_facts(Path(project_dir), FactsDim.IDENTITY)
+        if _id_loaded is not None and not _id_loaded.is_empty:
+            _id = _id_loaded.identity()
+            if _id is not None:
+                _known_names |= {_id.narration_name, *_id.aliases}
+                _owner_aliases[_id.narration_name] = set(_id.aliases)
+        _nr = Path(project_dir) / "truth" / "name_registry.md"
+        if _nr.is_file():
+            for _line in _nr.read_text(encoding="utf-8").splitlines():
+                _m = re.match(r"^\|([^|]+)\|\s*([^|]+?)\s*\|", _line)
+                if not _m:
+                    continue
+                _cat, _name = _m.group(1).strip(), _m.group(2)
+                if _cat in ("类别", "---", ":---") or _name in ("名", "---"):
+                    continue
+                # 控制行不是角色注册（2026-10-29 实弹：代词白名单的「他」入 roster
+                # 后人名要件被代词恒满足；禁用名的「灯」同理）＋裸代词永不入册
+                if _cat in ("代词白名单", "禁用名") or _name in ("他", "她", "它", "我", "你"):
+                    continue
+                _known_names.add(_name)
 
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
@@ -447,7 +518,9 @@ def g4_chapter_drafting(
                 }
             )
         else:
-            for issue in check_prop_handoffs(content, _memo or "", _props_facts):
+            for issue in check_prop_handoffs(
+                content, _memo or "", _props_facts, _known_names, _owner_aliases
+            ):
                 mf.append(f"{fp}:{issue}")
 
         # ── spec #80 T7 F17 — 计数器三方对账（激活判定在调用点，R3-M1）──

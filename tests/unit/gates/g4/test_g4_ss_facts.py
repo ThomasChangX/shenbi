@@ -321,6 +321,39 @@ def test_identity_reconciliation_bidirectional(tmp_path: Path):
     assert "「萤」" in joined and "「晨」" in joined
 
 
+def test_identity_jingming_row_equals_narration_name_no_fail(tmp_path: Path):
+    # #80 运行侧首触（2026-10-29 ch23 settle 重派实弹）：旌名行值=narration_name
+    # 是合法 registry 形态（旌名=册官给名，即当前叙事名本身），前向对账允许集
+    # 只取 aliases 会把每个 settle sidecar 判成恒 FAIL（③不以 identity_ops 为门，
+    # committed 旌名行永远在对账集里）
+    _seed(tmp_path, {}, identity={"narration_name": "那罕", "from_ch": 3, "aliases": ["林烽"]})
+    name_registry = tmp_path / "truth" / "name_registry.md"
+    name_registry.write_text(
+        "---\ntype: truth\n---\n\n| 类别 | 名 | 备注 |\n|---|---|---|\n"
+        "| 登记名 | 临 | 籍册用名 |\n| 别名 | 林烽 | 星象局用名 |\n"
+        "| 旌名 | 那罕 | 第 3 章册官给名 |\n",
+        encoding="utf-8",
+    )
+    sidecar = _sidecar(tmp_path, {"props": []})
+    issues, _warns = g4_state_settling_check(tmp_path, sidecar)
+    assert not issues
+
+
+def test_identity_jingming_row_foreign_value_still_fails(tmp_path: Path):
+    # 允许集放宽仅纳入 narration_name 本值——旌名行值与 narration_name、别名集
+    # 均不符仍 FAIL（逃逸面没有变大）
+    _seed(tmp_path, {}, identity={"narration_name": "那罕", "from_ch": 3, "aliases": ["林烽"]})
+    name_registry = tmp_path / "truth" / "name_registry.md"
+    name_registry.write_text(
+        "---\ntype: truth\n---\n\n| 类别 | 名 | 备注 |\n|---|---|---|\n"
+        "| 别名 | 林烽 | 星象局用名 |\n| 旌名 | 冒名 | 不在 facts 任何名集 |\n",
+        encoding="utf-8",
+    )
+    sidecar = _sidecar(tmp_path, {"props": []})
+    issues, _warns = g4_state_settling_check(tmp_path, sidecar)
+    assert any("ss.identity_row_match:" in i and "冒名" in i for i in issues)
+
+
 def test_malformed_facts_ops_object_fails(tmp_path: Path):
     # facts_ops 非对象（list）⇒ 结构非法 issue
     _seed(tmp_path, {})
