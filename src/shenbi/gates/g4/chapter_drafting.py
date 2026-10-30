@@ -433,8 +433,12 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
 def _ending_archetype_of(text: str) -> str | None:
     """Closing-archetype classifier (spec #82 T4, shared by the rotation
     sentinel and the audit-context ending-history producer).
+
+    The closing window is prose-based: callers feed raw chapter files whose
+    tails are META POST self-check blocks (digit-heavy word-count lines) —
+    classifying the raw tail called every real chapter 账目形态 (PR #263).
     """
-    tail = text[-220:]
+    tail = strip_narrative_body(text)[-220:]
     if len(re.findall(r"\d+", tail)) >= 2:
         return "账目形态"
     if re.search(r"呢？\s*$", tail, re.M):

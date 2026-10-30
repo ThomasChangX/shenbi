@@ -127,9 +127,7 @@ def _touch_chain(
 _MAX_NO_GAIN_STREAK = 2  # 允许连续无获得承接章上限（spec #82 T3）
 
 
-def _check_gains(
-    vm_text: str, nodes: list[tuple[int, str, str]], start: int, end: int
-) -> list[str]:
+def _check_gains(vm_text: str, start: int, end: int) -> list[str]:
     """Spec #82 T3: KR gains column + victory budget + no-gain streak."""
     out: list[str] = []
     if "本章主角获得" not in vm_text:
@@ -188,7 +186,7 @@ def lint(project_dir: Path, volume: int, window: int) -> list[str]:
         + _check_density(chapters, start, end, window)
         + _check_slots(nodes, start)
         + _check_touches(nodes, start, end)
-        + _check_gains(sect_text, nodes, start, end)
+        + _check_gains(sect_text, start, end)
     )
 
 
