@@ -47,6 +47,7 @@ from shenbi.contracts.schemas.hooks import HookState, parse_hook_state
 import yaml
 
 from shenbi.logging import get_logger
+from shenbi.gates.g4.shadow import demote_must_fix
 from shenbi.safe_write import safe_write
 from shenbi.pipeline.audit_aggregate import write_audit_aggregate
 from shenbi.pipeline.audit_layer import GENRE_ACTIVATION_MATRIX, run_audit_layer
@@ -1380,7 +1381,14 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
         # permanently empty on real pipeline output).
         record_gate_result(project_dir, "chapter_loop", n, "pipeline-scene-split", "G4", g4)
         if not _gate_passed(g4):
-            issues.extend(f"G4.cd ch{n}: {m}" for m in g4.get("must_fix", []))
+            _raw = list(g4.get("must_fix", []))
+            _dem, _rem = demote_must_fix(Path(project_dir), _raw)
+            for _dw in _dem:
+                log.warning("shadow_gate_demoted", chapter=n, step="scene-split", item=_dw)
+                _emit_shadow_warn_trace(project_dir, n, _dw)
+            # spec #82 T3: demoted items never reach issues (no state in
+            # scope at this site — project_dir-based demotion only).
+            issues.extend(f"G4.cd ch{n}: {m}" for m in _rem)
 
     # spec #75: cross-chapter invariants — G4.xc independent manifest key
     # (never shares G4 with G4.cd: record_gate_result is latest-wins per key).
@@ -2040,6 +2048,27 @@ DECLARED_WORDLISTS: dict[str, frozenset[str]] = {
     "payoff档": frozenset({"小", "中", "大"}),
     "章尾钩型": frozenset({"悬念钩", "危机钩", "情感钩", "反转钩", "账目钩", "信物钩", "对位钩"}),
 }
+
+
+def _emit_shadow_warn_trace(project_dir: Path | str, chapter: int, item: str) -> None:
+    """Spec #82 T3: append-only trace WARN event for demoted shadow gates.
+
+    Fire-and-forget: trace-face failure must never block the loop (the WARN
+    is observability, the demotion decision already happened).
+    """
+    try:
+        from shenbi.trace.writer import TraceWriter
+
+        TraceWriter(Path(project_dir)).append(
+            actor="chapter-loop",
+            actor_role="SYSTEM",
+            action="WARN",
+            target=f"ch{chapter}",
+            gate="shadow",
+            payload={"chapter": chapter, "item": item[:200]},
+        )
+    except Exception:
+        log.warning("shadow_trace_emit_failed", chapter=chapter)
 
 
 def _snapshot_declared(project_dir: Path, chapter: int) -> dict[str, Any]:
@@ -3962,6 +3991,16 @@ def _run_chapter_step_impl(
             g4 = run_gate_g4(
                 pstep.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop"
             )
+            # spec #82 T3: shadow demotion before the failure branch (same
+            # routing semantics as the serial sequence-step site).
+            if not _gate_passed(g4):
+                _dem, _rem = demote_must_fix(Path(project_dir), g4.get("must_fix", []))
+                for _dw in _dem:
+                    log.warning("shadow_gate_demoted", chapter=chapter, skill=pstep.skill, item=_dw)
+                    _emit_shadow_warn_trace(project_dir, chapter, _dw)
+                if _dem and not _rem:
+                    state.chapter_loop.retry_feedback.pop(_retry_key(chapter, pstep.skill), None)
+                    g4 = {**g4, "status": GateStatus.PASS.value, "must_fix": []}
             if _gate_passed(g4):
                 # #18-4 (probe23): mirror the serial site's canary pop — a
                 # PASSED retry must clear its corrective feedback, or the
@@ -4265,12 +4304,27 @@ def _run_chapter_step_impl(
     # G4: skill-specific structural validation (every dispatched step).
     g4_files = _resolve_g4_files(project_dir, step, chapter)
     g4 = run_gate_g4(step.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
+    # spec #82 T3: shadow demotion BEFORE classification (gates stay pure).
+    if not _gate_passed(g4):
+        _demoted, _remaining = demote_must_fix(Path(project_dir), g4.get("must_fix", []))
+        for _dw in _demoted:
+            log.warning("shadow_gate_demoted", chapter=chapter, step=step.step_num, item=_dw)
+            _emit_shadow_warn_trace(project_dir, chapter, _dw)
+        if _demoted and not _remaining:
+            # All items demoted (single-gate shadow FAIL — the common first-
+            # bundle case): route PASS-with-warnings. Replicate the :4207
+            # cleanup; MUST NOT fall into the G4.generic_failure fallback.
+            state.chapter_loop.retry_feedback.pop(retry_key, None)
+            g4 = {**g4, "status": GateStatus.PASS.value, "must_fix": []}
     if _gate_passed(g4):
         # Canary defect 'retry_feedback 永不清': stale corrective feedback
         # from a prior failure stayed injected into every later dispatch.
         state.chapter_loop.retry_feedback.pop(retry_key, None)
     if not _gate_passed(g4):
         must_fix = g4.get("must_fix", [])
+        # spec #82 T3: remaining (post-demotion) list only — demoted items
+        # never reach the classifier (unmatched ids would default HARD).
+        must_fix = [m for m in must_fix if not m.startswith("[shadow]")]
         hard_fails, soft_fails, warn_fails = _classify_g4_failures(must_fix)
 
         # Edge case: G4 failed but must_fix was empty or all items unmatched.

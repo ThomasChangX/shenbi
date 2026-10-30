@@ -222,7 +222,16 @@ def _re_dispatch_g4_must_fix(
     g4 = run_gate_g4(skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
     if str(g4.get("status")) == GateStatus.PASS:
         return None
-    return list(g4.get("must_fix", []))
+    # spec #82 T3: fourth consumption point — history-dependent shadow FAILs
+    # (cold-streak class) deterministically recur here after checkpoint
+    # re-dispatch; undemoted they burn RE_DISPATCH_RETRY_CAP then drop the
+    # redo silently. Demote before returning the must_fix list.
+    from shenbi.gates.g4.shadow import demote_must_fix
+
+    _dem, _rem = demote_must_fix(project_dir, list(g4.get("must_fix", [])))
+    if _dem and not _rem:
+        return None  # all demoted → treat as passed for the redo decision
+    return _rem
 
 
 def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> bool:

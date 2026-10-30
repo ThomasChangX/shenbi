@@ -122,10 +122,18 @@ digraph genre_config {
   "primary_platform": "qidian",
   "market_params": {
     "payoff_density": { "window": 3, "min": 1 },
-    "emotion_band": { "window": 1, "min": 1 },
     "hook_grading": { "max_consecutive_micro": 2 },
     "voice_density_min": { "min_per_chapter": 2 },
-    "meme_quota": { "per_volume": 3 }
+    "meme_quota": { "per_volume": 3 },
+    "cold_streak_cap": { "max": 3, "shadow": true },
+    "hot_hook_floor": { "window": 10, "min": 1, "shadow": true },
+    "payoff_magnitude_floor": { "window": 6, "min": "中", "shadow": true },
+    "temperature_profile": { "window": 10, "hot_ratio_min": 0.2 },
+    "hook_max_age": { "max": 8, "shadow": true },
+    "hook_defer_budget": { "per_volume": 3 },
+    "hook_rotation": { "shadow": true },
+    "quote_anchor": { "shadow": true },
+    "retention_anchor": { "from_ch": 1, "to_ch": null, "shadow": true }
   },
   "chapter_word": {
     "default": 3200,
@@ -323,7 +331,7 @@ cp genre-config.json genre-config.json.bak
 | customRules | array | 否 | 每项含 id/description/enforcement/example，enforcement ∈ {warning, blocking} |
 | approval | object | 是 | **REQUIRED**。含 reviewer/decision/date，decision ∈ {approved, rejected}。缺失即不合格 |
 
-**顶层字段**：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval——tropeInventory 为可选基线块而非必填）+ 4 可选（tropeInventory——每条 trope 必含 name/role/plan/signatures/rewrite_hint，块内必含 overuse_threshold 数值；chapter_word——章数数学/字数地板的同源基线块，见上文模板；primary_platform——#72 双平台发布层键 qidian|fanqie，缺省时消费方回退 v1 默认；market_params——#73 市场参数块：payoff_density（window∈[1,10]/min≥1）/emotion_band（window∈[1,3]/min≥1）/hook_grading（max_consecutive_micro∈[1,3]）三键块在场必齐，voice_density_min/meme_quota 数值域随 #76 定档——顶层缺块合法（存量兼容），块内缺子键或越域 FAIL）。
+**顶层字段**：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval——tropeInventory 为可选基线块而非必填）+ 4 可选（tropeInventory——每条 trope 必含 name/role/plan/signatures/rewrite_hint，块内必含 overuse_threshold 数值；chapter_word——章数数学/字数地板的同源基线块，见上文模板；primary_platform——#72 双平台发布层键 qidian|fanqie，缺省时消费方回退 v1 默认；market_params——#73 市场参数块：payoff_density（window∈[1,10]/min≥1）/hook_grading（max_consecutive_micro∈[1,3]）两键块在场必齐（spec #82 起 emotion_band 退役——死键，存量容忍新项目勿写；新增九键 spec #82：cold_streak_cap max∈[1,12]/hot_hook_floor window∈[1,50] min≥1/payoff_magnitude_floor window∈[1,50] min 小中大或数值/temperature_profile window∈[1,50] hot_ratio_min∈(0,1]/hook_max_age max∈[1,50]/hook_defer_budget per_volume∈[0,20]/hook_rotation·quote_anchor shadow 位/retention_anchor from_ch≥1 to_ch null 或 ≥from_ch——全部可选、shadow 默认 true 首束 WARN 试运行），voice_density_min/meme_quota 数值域随 #76 定档——顶层缺块合法（存量兼容），块内缺子键或越域 FAIL）。
 
 ### 可自动检查的计数规则
 

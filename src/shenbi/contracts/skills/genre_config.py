@@ -49,7 +49,8 @@ class GenreConfig(BaseModel):
     custom_rules: list[dict[str, Any]] = Field(default_factory=list, alias="customRules")
     fatigue_words: dict[str, Any] = Field(default_factory=dict, alias="fatigueWords")
     pacing: dict[str, Any] = Field(default_factory=dict)
-    market_params: dict[str, dict[str, int | float]] = Field(default_factory=dict)
+    # spec #82: str（payoff_magnitude_floor.min「中」）/ None（retention_anchor.to_ch）/ bool（shadow⊂int）入域
+    market_params: dict[str, dict[str, int | float | str | None]] = Field(default_factory=dict)
     # spec #73: optional market-parameter block — see _market_params_structure
     primary_platform: str = ""  # spec #72: qidian|fanqie; "" = undeclared (legacy)
     updated: str = ""
@@ -78,19 +79,50 @@ class GenreConfig(BaseModel):
         """
         if not v:
             return v
-        required = ("payoff_density", "emotion_band", "hook_grading")
+        # spec #82 T3: emotion_band 退役（死键——schema 校验在、零消费）；
+        # 存量配置携带该键仍容忍（子键多余不拒），新键九个入域。
+        required = ("payoff_density", "hook_grading")
         for key in required:
             if key not in v:
                 raise ValueError(f"market_params: missing sub-key '{key}'")
         pd = v["payoff_density"]
         if not 1 <= pd.get("window", -1) <= 10 or pd.get("min", 0) < 1:
             raise ValueError(f"market_params.payoff_density: window∈[1,10]/min>=1, got {pd}")
-        eb = v["emotion_band"]
-        if not 1 <= eb.get("window", -1) <= 3 or eb.get("min", 0) < 1:
-            raise ValueError(f"market_params.emotion_band: window∈[1,3]/min>=1, got {eb}")
         hg = v["hook_grading"]
         if not 1 <= hg.get("max_consecutive_micro", -1) <= 3:
             raise ValueError(f"market_params.hook_grading: max_consecutive_micro∈[1,3], got {hg}")
+        # spec #82 T3 新键域（全部可选——缺席由消费端退 WARN；shadow 子键 bool⊂int 天然入域）：
+        csc = v.get("cold_streak_cap")
+        if csc is not None and not 1 <= csc.get("max", -1) <= 12:
+            raise ValueError(f"market_params.cold_streak_cap: max∈[1,12], got {csc}")
+        hhf = v.get("hot_hook_floor")
+        if hhf is not None and (not 1 <= hhf.get("window", -1) <= 50 or hhf.get("min", 0) < 1):
+            raise ValueError(f"market_params.hot_hook_floor: window∈[1,50]/min>=1, got {hhf}")
+        pmf = v.get("payoff_magnitude_floor")
+        if pmf is not None and not 1 <= pmf.get("window", -1) <= 50:
+            raise ValueError(f"market_params.payoff_magnitude_floor: window∈[1,50], got {pmf}")
+        tp = v.get("temperature_profile")
+        if tp is not None and (
+            not 1 <= tp.get("window", -1) <= 50 or not 0 < tp.get("hot_ratio_min", -1) <= 1
+        ):
+            raise ValueError(
+                f"market_params.temperature_profile: window∈[1,50]/hot_ratio_min∈(0,1], got {tp}"
+            )
+        hma = v.get("hook_max_age")
+        if hma is not None and not 1 <= hma.get("max", -1) <= 50:
+            raise ValueError(f"market_params.hook_max_age: max∈[1,50], got {hma}")
+        hdb = v.get("hook_defer_budget")
+        if hdb is not None and not 0 <= hdb.get("per_volume", -1) <= 20:
+            raise ValueError(f"market_params.hook_defer_budget: per_volume∈[0,20], got {hdb}")
+        ra = v.get("retention_anchor")
+        if ra is not None:
+            if ra.get("from_ch", 0) < 1:
+                raise ValueError(f"market_params.retention_anchor: from_ch>=1, got {ra}")
+            to_ch = ra.get("to_ch")
+            if to_ch is not None and to_ch < ra["from_ch"]:
+                raise ValueError(
+                    f"market_params.retention_anchor: to_ch None 或 >= from_ch, got {ra}"
+                )
         # spec #76 数值域定档（#73 遗留债务清偿）：
         # - voice_density_min.min_per_chapter ∈ [0,5]
         # - meme_quota.per_volume ∈ [1,20]
