@@ -58,9 +58,15 @@ def test_mutant_name_swap_killed_by_f15():
 
 @pytest.mark.unit
 def test_mutant_prop_chain_break_killed_by_f16():
-    # ch20 pre-rev L218：帖木哥交哨无 memo 声明（无源交付伤口）⇒ F16 必须拦
+    # ch20 pre-rev L218：帖木哥交哨无 memo 声明（无源交付伤口）⇒ F16 必须拦。
+    # known_names 传生产同款 roster（spec §4 人名要件，2026-10-29 实弹校准）
     props = {"火纹骨哨": {"owner": "那罕"}}
-    issues = check_prop_handoffs(CH20_WOUND.read_text(encoding="utf-8"), "", props)
+    issues = check_prop_handoffs(
+        CH20_WOUND.read_text(encoding="utf-8"),
+        "",
+        props,
+        known_names={"那罕", "帖木哥", "林烽"},
+    )
     assert any("cd.prop_handoff:" in i for i in issues)
 
 

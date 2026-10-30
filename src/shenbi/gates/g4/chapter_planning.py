@@ -114,9 +114,19 @@ def g4_chapter_planning(
         p_ = Path(resolved)
         if not p_.is_file():
             continue
-        decls = parse_scene_declarations(p_.read_text(encoding="utf-8"))
+        _plan_text = p_.read_text(encoding="utf-8")
+        decls = parse_scene_declarations(_plan_text)
         if not decls:
-            continue  # 旧式备忘（无场景块）——存量兼容
+            # 旧式备忘（无场景块）——存量兼容；但 v3 自称的备忘缺块=FAIL
+            # （2026-10-29 续跑实弹：模型连续两束漏写预算节溜过兼容口，
+            # 缺锚直接引发 drafting word_band 打摆与余额链失锚）
+            if re.search(r"plan_format[：:]\s*v3\b", _plan_text):
+                mf.append(
+                    f"G4.cp.scene_budget:{fp}:场景预算节缺失——plan_format v3 备忘"
+                    "必含「### 场景预算与收束钩（#72 粒度契约）」块（2-3 场景声明＋"
+                    "时间锚/余额/POV/事件/物象行）"
+                )
+            continue
         n_match = re.search(r"chapter-(\d+)", p_.name)
         chapter_no = int(n_match.group(1)) if n_match else None
         issues: list[str] = []

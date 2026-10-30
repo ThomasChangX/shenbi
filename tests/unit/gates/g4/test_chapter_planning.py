@@ -287,3 +287,21 @@ def test_g4cp_legacy_format_warns_not_fails(tmp_path: Path) -> None:
     result = json.loads(g4_chapter_planning([str(plan)], rd=str(tmp_path)))
     decl = [c for c in result["checks"] if c["id"] == "G4.cp.declarations"]
     assert decl and decl[0]["s"] == "WARN"
+
+
+@pytest.mark.unit
+def test_g4cp_v3_missing_scene_block_fails(tmp_path: Path) -> None:
+    """v3-labeled memo without the scene-budget block → FAIL.
+
+    2026-10-29 续跑实弹: 模型连续两束漏写预算节溜过存量兼容——缺锚直接
+    引发 drafting word_band 打摆与余额链失锚; 旧式无 plan_format 备忘保持
+    WARN 豁免.
+    """
+    plan = tmp_path / "chapter-29-plan.md"
+    plan.write_text(
+        "---\nplan_format: v3\n---\n" + _plan_shell("v3 备忘但缺场景预算块。\n"),
+        encoding="utf-8",
+    )
+    result = json.loads(g4_chapter_planning([str(plan)], rd=str(tmp_path)))
+    assert result["status"] == "FAIL"
+    assert any("场景预算" in m and "缺失" in m for m in result.get("must_fix", []))
