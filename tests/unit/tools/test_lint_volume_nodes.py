@@ -19,16 +19,19 @@ def _mk(tmp_path: Path, rows: str, end: int = 20) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     (out / "volume_map.md").write_text(
         f"---\ntotal_chapters: {end}\n---\n\n## 第一卷：测试（第1—{end}章）\n\n"
+        "胜利预算：本卷 4 次实质获得（≥1 大），量级递增\n"
+        "主角自选目标：测试目标——倒计时锚\n\n"
         "#### KR1: 测试\n\n- **章节节点**:\n"
-        "  | 章节 | 节点角色 | 具体定位 |\n  |------|---------|---------|\n"
+        "  | 章节 | 节点角色 | 具体定位 | 本章主角获得 |\n"
+        "  |------|---------|---------|------|\n"
         f"{rows}\n\n## 第二卷：后（第{end + 1}—40章）\n",
         encoding="utf-8",
     )
     return tmp_path
 
 
-def _row(c: int, role: str = "承接", detail: str = "拍") -> str:
-    return f"  | 第{c}章 | {role} | {detail} |\n"
+def _row(c: int, role: str = "承接", detail: str = "拍", gains: str = "信息·小") -> str:
+    return f"  | 第{c}章 | {role} | {detail} | {gains} |\n"
 
 
 # 触点链 2,6,8,10,12,14（间隔≤8）；◆ 双槽在前 5；收官=20（总量对）

@@ -32,12 +32,12 @@ def parse_volume(volume_map: Path, volume: int) -> tuple[str, int, int, list[tup
     """Return (title, span_start, span_end, [(chapter, role, detail)])."""
     text = volume_map.read_text(encoding="utf-8")
     cn = _CN[volume - 1]
-    head = re.search(rf"## 第{cn}卷：[^\n]*?（第\s*(\d+)\s*[-–—]\s*(\d+)\s*章）", text)  # noqa: RUF001
+    head = re.search(rf"## 第{cn}卷：[^\n]*?（第\s*(\d+)\s*[-–—]\s*(\d+)\s*章）", text)
     if not head:
         raise SystemExit("volume heading not found for requested volume")
     start, end = int(head.group(1)), int(head.group(2))
     body = text[head.end() :]
-    nxt = re.search(r"\n## 第[一二三四五六七八九十]+卷：", body)  # noqa: RUF001
+    nxt = re.search(r"\n## 第[一二三四五六七八九十]+卷：", body)
     if nxt:
         body = body[: nxt.start()]
     nodes: list[tuple[int, str, str]] = []
@@ -105,17 +105,71 @@ def _check_touches(nodes: list[tuple[int, str, str]], start: int, end: int) -> l
     return out
 
 
+_MAX_NO_GAIN_STREAK = 2  # 允许连续无获得承接章上限（spec #82 T3）
+
+
+def _check_gains(
+    vm_text: str, nodes: list[tuple[int, str, str]], start: int, end: int
+) -> list[str]:
+    """Spec #82 T3: KR gains column + victory budget + no-gain streak."""
+    out: list[str] = []
+    if "本章主角获得" not in vm_text:
+        out.append("获得槽: KR 节点表缺「本章主角获得」列 [spec #82 T3——欲望/回报阶梯的规划源头]")
+    if "胜利预算" not in vm_text:
+        out.append(
+            "胜利预算: 卷头缺「胜利预算：本卷 N 次实质获得（≥1 大），量级递增」行（spec #82 T3）"
+        )
+    if "主角自选目标" not in vm_text:
+        out.append(
+            "主角自选目标: 卷 Objective 缺主角自选目标子句"
+            "（spec #82 T3——卷一教训：全部变更由外力文书驱动）"
+        )
+    if "本章主角获得" in vm_text:
+        # 直扫表行取第 4 列（获得槽列）——parse_volume 的 nodes 元组只捕前三列；
+        # 扫描域限本卷节（audit 修正：全文件扫会把无获得列的邻卷表算进来）
+        rows = (
+            m
+            for m in re.finditer(
+                r"^\s*\|\s*第(\d+)章\s*\|[^|]*\|[^|]*\|\s*([^|]*)\|", vm_text, re.M
+            )
+            if start <= int(m.group(1)) <= end  # 本卷节（lint() 已解析的 span）
+        )
+        streak = 0
+        for m in rows:
+            gains = m.group(2).strip()
+            no_gain = ("无获得" in gains) or gains == ""
+            streak = streak + 1 if no_gain else 0
+            if streak > _MAX_NO_GAIN_STREAK:
+                out.append(
+                    f"连续无获得: 第{m.group(1)}章止连续 {streak} 章无获得"
+                    f"（允许连续 ≤{_MAX_NO_GAIN_STREAK}——spec #82 T3）"
+                )
+                break
+    return out
+
+
 def lint(project_dir: Path, volume: int, window: int) -> list[str]:
     """Run all node-table checks for one volume; returns finding strings."""
-    cn, start, end, nodes = parse_volume(project_dir / "outline" / "volume_map.md", volume)
+    vm_path = project_dir / "outline" / "volume_map.md"
+    cn, start, end, nodes = parse_volume(vm_path, volume)
     if not nodes:
         return [f"{cn}: no node rows found"]
     chapters = [c for c, _r, _d in nodes]
+    full_text = vm_path.read_text(encoding="utf-8")
+    # 本卷节文本（spec #82 T3 修正：获得槽/预算检查按卷判定——邻卷表列形态
+    # 互异，全文件扫会把无该列的邻卷算成 streak）
+    head_m = re.search(rf"## 第{cn}卷：[^\n]*?（第\s*\d+\s*[-–—]\s*\d+\s*章）", full_text)
+    sect_text = ""
+    if head_m:
+        tail = full_text[head_m.end() :]
+        nxt = re.search(r"\n## 第[一二三四五六七八九十]+卷：", tail)
+        sect_text = tail[: nxt.start()] if nxt else tail
     return (
         _check_shape(chapters, end)
         + _check_density(chapters, start, end, window)
         + _check_slots(nodes, start)
         + _check_touches(nodes, start, end)
+        + _check_gains(sect_text, nodes, start, end)
     )
 
 
