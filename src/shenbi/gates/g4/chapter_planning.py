@@ -231,6 +231,129 @@ def _spec82_sequence_gates(
                 )
 
 
+def parse_last_reinforced(hooks_text: str) -> dict[str, int]:
+    """Per-hook max last_reinforced chapter from truth detail blocks (T2).
+
+    Real format tolerates spaces: ``last_reinforced: 第 35 章``.
+    """
+    out: dict[str, int] = {}
+    hook = ""
+    for line in hooks_text.splitlines():
+        h = re.match(r"^##+\s+(MH\d+)", line)
+        if h:
+            hook = h.group(1)
+            continue
+        m = re.match(r"^-\s*last_reinforced[：:]\s*第\s*(\d+)\s*章", line)
+        if m and hook:
+            n = int(m.group(1))
+            out[hook] = max(out.get(hook, 0), n)
+    return out
+
+
+def parse_relevant_hooks(hooks_text: str) -> set[str]:
+    """RELEVANT hook ids (plus plant chapters) from the overview table."""
+    out: set[str] = set()
+    for line in hooks_text.splitlines():
+        m = re.match(r"^\|\s*(MH\d+)（[^）]*）\s*\|\s*(\S+)\s*\|\s*(\d+)", line)
+        if m and m.group(2) == "RELEVANT":
+            out.add(m.group(1))
+    return out
+
+
+def _defer_anchor_hits_volume(tail: str, vm_text: str) -> bool:
+    """Defer-anchor existence (spec #82 T2/r3): the anchor's volume/KR
+    reference must hit volume_map — both KR generations
+    (``#### KR2:`` headings and ``2. KR2（第 X–Y 章完成）：`` list rows)
+    plus Chinese numeral normalization (卷三 → 第三卷).
+    """
+    if not vm_text or not tail.strip():
+        return False
+    kr = re.search(r"KR\d+", tail)
+    vol = re.search(r"第?([一二三四五六七八九十百\d]+)卷", tail)
+    cn = {
+        "一": 1,
+        "二": 2,
+        "三": 3,
+        "四": 4,
+        "五": 5,
+        "六": 6,
+        "七": 7,
+        "八": 8,
+        "九": 9,
+        "十": 10,
+        "十一": 11,
+        "十二": 12,
+    }
+    vol_n = None
+    if vol:
+        v = vol.group(1)
+        vol_n = cn.get(v) if not v.isdigit() else int(v)
+    if kr:
+        kid = kr.group(0)
+        heading = re.search(rf"^####+\s*{kid}[：:]", vm_text, re.M)
+        row = re.search(rf"^\d+\.\s*{kid}（", vm_text, re.M)
+        if heading or row:
+            return True
+    return bool(vol_n and re.search(rf"^##+\s*第{vol_n}卷", vm_text, re.M))
+
+
+def _spec82_hook_age(content: str, n: int, project_dir: str | None, mf: list[str]) -> None:
+    """Spec #82 T2: RELEVANT hook aging + defer budget (truth-block source)."""
+    if not project_dir:
+        return
+    from shenbi.gates.shared import read_genre_config
+
+    mp = (read_genre_config(project_dir) or {}).get("market_params", {})
+    hma = mp.get("hook_max_age")
+    hp = (
+        (Path(project_dir) / "truth" / "pending_hooks.md").read_text(encoding="utf-8")
+        if (Path(project_dir) / "truth" / "pending_hooks.md").is_file()
+        else ""
+    )
+    if not isinstance(hma, dict) or not hp:
+        return  # config/truth absent → gate dark (shadow WARN row handled at emit site)
+    max_age = int(hma.get("max", 8))
+    last = parse_last_reinforced(hp)
+    relevant = parse_relevant_hooks(hp)
+    plant = {
+        m.group(1): int(m.group(3))
+        for m in re.finditer(r"^\|\s*(MH\d+)（[^）]*）\s*\|\s*(\S+)\s*\|\s*(\d+)", hp, re.M)
+    }
+    defer_lines = re.findall(r"^[-*]\s*挂起[：:]\s*(MH\d+)[^\n]*$", content, re.M)
+    vm_text = ""
+    vm_path = Path(project_dir) / "outline" / "volume_map.md"
+    if vm_path.is_file():
+        vm_text = vm_path.read_text(encoding="utf-8")
+    for hook in sorted(relevant):
+        anchor = last.get(hook, plant.get(hook, 1))
+        age = n - anchor
+        if age <= max_age:
+            continue
+        touched = hook in content and "挂起" not in content.split(hook, 2)[1][:8]
+        deferred = hook in defer_lines
+        if not (touched or deferred):
+            mf.append(
+                f"G4.cp.hook_age:ch{n}:{hook} 距上次推进 {age}>{max_age} 章且本章未触达未挂起"
+                f"（修复者: planning——钩账行 touch 或带清偿锚挂起）"
+            )
+    # 挂起行须带真实清偿锚（r3/r4：锚中卷/KR 引用须在 volume_map 命中——两代 KR 形态+卷号归一）
+    for line in re.finditer(r"^[-*]\s*挂起[：:]\s*(MH\d+)\s*(.*)$", content, re.M):
+        hook_id, tail = line.group(1), line.group(2)
+        anchor_hit = _defer_anchor_hits_volume(tail, vm_text)
+        if not anchor_hit:
+            mf.append(
+                f"G4.cp.hook_age:ch{n}:{hook_id} 挂起缺有效清偿锚（『{tail.strip()[:20]}』未命中 volume_map 卷/KR）"
+                f"（修复者: planning——挂起行须带「至第N卷·KRn」且该卷/KR 在卷纲在盘）"
+            )
+    budget = mp.get("hook_defer_budget", {})
+    per_vol = int(budget.get("per_volume", 3)) if isinstance(budget, dict) else 3
+    if len(defer_lines) > per_vol:
+        mf.append(
+            f"G4.cp.hook_age:ch{n}:挂起数 {len(defer_lines)}>{per_vol} 超卷预算"
+            f"（hook_defer_budget；修复者: planning——收敛挂起或兑现）"
+        )
+
+
 def g4_chapter_planning(
     fps: list[str],
     rd: str | None = None,
@@ -568,6 +691,8 @@ def g4_chapter_planning(
 
         # ── spec #82 T1: cross-chapter sequence gates (snapshot-sourced) ──
         _spec82_sequence_gates(content, n, project_dir, mf, c)
+        # ── spec #82 T2: hook aging + defer budget (truth-block source) ──
+        _spec82_hook_age(content, n, project_dir, mf)
 
         # Section 5: 关键抉择 — quality bonus, not hard gate
         s5_match = re.search(r"## 5\..*?\n(?=## 6\.|\Z)", content, re.DOTALL)
