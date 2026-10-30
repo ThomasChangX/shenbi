@@ -159,6 +159,11 @@ This dimension supersedes the deprecated `shenbi-review-reader-pull` skill.
 3. **期待管理**: 读取备忘第2段，在正文中追踪兑现/延迟/转方向
 4. **中段牵引点**: 每800-1200字一块，每块需有至少一个牵引点
 5. **钩子池压力平衡**: 对比"施加压力 vs 释放压力"，连续净施加 > 5章 = warning
+6. **章尾温度判温（spec #82 T1，命中即 blocking）**: 章尾张力拍声明的档位 vs 实际章尾句温度——声明「大/章」但章尾句实读低温（无威胁/无未决/无反转），或声明「微」但实读高温 → `- [BLOCKING]` finding（机器面只验引句存在性，温度语义以本判温为唯一拦截面）
+7. **章尾钩型判型（spec #82 T4/F7，命中即 blocking）**: 声明钩型 vs 章尾实况形态明显不符（如声明「危机钩」而章尾无危机在场）→ `- [BLOCKING]` finding
+8. **emotion_tone 判温（spec #82 r4⑦，命中即 blocking）**: 声明 tone 与全章情绪实况背离（全「喜」类词表内谎言的唯一拦截面）→ `- [BLOCKING]` finding
+9. **章尾复述行（spec #82 T4①）**: 章末段落与本章已有内容 ≥60% 语义重述 → finding
+10. **同型收尾卷级 finding（spec #82 T4②）**: 结合「审查参考数据·近 10 章收尾型历史」注入块，连续 ≥3 章同型收尾 → 卷级 finding
 
 #### 输出格式
 
@@ -277,4 +282,4 @@ All three dimensions use the standard defect evidence format. Each defect report
 | "流水账是交代背景的必要手段" | 交代背景可以通过一个冲突场景或一个对话瞬间完成，流水账是懒惰写法 |
 | "开篇可以从背景讲起" | 网文读者给每章30秒判断去留 |
 | "AI味读者看不出来" | 平台AIGC检测算法看得很清楚，降权直接影响收入 |
-| "章尾可以平静收束" | 平静章尾 = 没有下一章理由 = 读者合上书 |
+| "平静收束有预算（每 10 章窗 ≤3 章——超预算才判过；spec #82 与 hot_hook_floor 对齐）" | 平静章尾 = 没有下一章理由 = 读者合上书 |

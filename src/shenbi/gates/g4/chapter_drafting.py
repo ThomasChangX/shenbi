@@ -430,6 +430,66 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
     return names
 
 
+def _spec82_hook_rotation(
+    content: str, pf_name: str, project_dir: str | None, mf: list[str], c: list[dict[str, Any]]
+) -> None:
+    """Spec #82 T4: 七型钩轮换门 + 收尾多样性哨兵（读 T0 快照+章文件）.
+
+    Rotation (FAIL): consecutive same 章尾钩型 across two chapters — the
+    seed's 「轮换使用，连续两章不得同型」 (outline-example.md:1178), previously
+    unenforced. Absent labels (pre-v4 chapters) skip; no history skips.
+    Ending diversity (WARN): closing-archetype pattern firing three chapters
+    in a row — 账目形态 first (>=2 digit runs in the closing window).
+    """
+    from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
+
+    m_ch = re.search(r"chapter-(\d+)", pf_name)
+    if not m_ch or not project_dir:
+        return
+    n = int(m_ch.group(1))
+    hist = _declared_history(project_dir)
+
+    mp = Path(project_dir) / "plans" / f"chapter-{n}-plan.md"
+    cur: str | None = None
+    if mp.is_file():
+        mm = re.search(r"^章尾钩型[：:]\s*(\S+)", mp.read_text(encoding="utf-8"), re.M)
+        cur = mm.group(1).strip() if mm else None
+    prev = (hist.get(n - 1) or {}).get("章尾钩型")
+    if cur and prev and cur == prev:
+        mf.append(
+            f"G4.cd.hook_type_rotation:ch{n}:{cur} 连续两章同型"
+            f"（种子七型「轮换使用，连续两章不得同型」；修复者: planning——换型收束）"
+        )
+
+    def _archetype(text: str) -> str | None:
+        tail = text[-220:]
+        if len(re.findall(r"\d+", tail)) >= 2:
+            return "账目形态"
+        if re.search(r"呢？\s*$", tail, re.M):
+            return "呢？自嘲"
+        if re.search(r"他在心里.{0,12}一遍", tail):
+            return "心里复述"
+        if re.search(r"这一(笔|夜|章)", tail):
+            return "复述起手"
+        return None
+
+    archetypes: list[str | None] = []
+    for k in (n - 2, n - 1):
+        chp = Path(project_dir) / "chapters" / f"chapter-{k}.md"
+        archetypes.append(_archetype(chp.read_text(encoding="utf-8")) if chp.is_file() else None)
+    cur_arch = _archetype(content)
+    archetypes.append(cur_arch)
+    if cur_arch is not None and archetypes[0] == cur_arch and archetypes[1] == cur_arch:
+        c.append(
+            {
+                "id": "G4.cd.ending_diversity",
+                "file": pf_name,
+                "s": GateStatus.WARN,
+                "r": f"连续 3 章「{cur_arch}」同型收尾（收尾多样性哨兵——账目形态第一原型；修复者: drafting）",
+            }
+        )
+
+
 def g4_chapter_drafting(
     fps: list[str],
     rd: str | None = None,
@@ -799,6 +859,7 @@ def g4_chapter_drafting(
             ]
             window_text = "".join(hook_window)
             window_cjk = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", window_text))
+            _spec82_hook_rotation(content, pf.name, project_dir, mf, c)
             # spec #82 T1: quote anchoring (v4 张力拍引句回查本章正文——
             # 与 #83 T1 verbatim 判定器共基；只验存在性，温度语义归 audit
             # 判温 blocking finding）。audit-T5/C1: 读内存 content（与循环头

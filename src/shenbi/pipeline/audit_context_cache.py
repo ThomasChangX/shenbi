@@ -23,6 +23,10 @@ class SharedAuditContext:
     style_profile: str = ""
     volume_context: str = ""
     pending_hooks: str = ""
+    # spec #82 T4②: 近 10 章收尾型历史（自 T0 快照派生——dispatcher 注入
+    # review-group-craft 的「审查参考数据」块；list 字段走 list 注入分支，
+    # 不走 _INJECT_FROM_CACHE 的文件路径键约定）。
+    ending_history: list[str] = field(default_factory=list)
     # C28 R1 read-suppression source: FULL original bytes keyed by
     # project-relative POSIX path (same form as dispatch_helper._input_key).
     # The summarized fields above are truncated values and MUST NOT back

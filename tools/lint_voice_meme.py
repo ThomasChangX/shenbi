@@ -187,6 +187,18 @@ def lint_volume(project: Path, volume: int) -> list[str]:
         present = any(display in ln for ln in node_rows) or any(cp in vol_text for cp in cps)
         if present and not any(cp in vol_text for cp in cps):
             out.append(f"[配角声口] {display} 卷内登场但口癖 0 次")
+    # spec #82 T4: per-catchphrase 卷配额（超用帽——默认每 3 章 ≤1；
+    # 「这笔我先记下」卷一 26 处 vs 建议值 12 的教训。超配 → FAIL 面，
+    # 由 regen-accept 判据 4 消费（既有调用面自动获得））
+    chapters_in_vol = max(1, len(files))
+    cap_scale = chapters_in_vol // 3 or 1
+    for card in sorted((project / "characters" / "major").glob("*.md")):
+        for cp in catchphrases_from_card(card.read_text(encoding="utf-8")):
+            hits = vol_text.count(cp)
+            if hits > cap_scale:
+                out.append(
+                    f"[口癖帽] {cp} 卷内 {hits} 次 > 建议 {cap_scale}（每 3 章 ≤1——spec #82 T4）"
+                )
     return out
 
 
