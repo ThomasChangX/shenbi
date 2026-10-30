@@ -18,10 +18,11 @@
 - G0.9：scenario 输入只用真实产物副本（plans/chapter-36-plan.md、truth/pending_hooks.md、outline/volume_map.md、chapters/*.md 拷贝进 tests/fixtures/spec82/）或 tmp_path 构造结构输入；禁止手写「伪产物」fixture
 - F947：不触发真实 dispatch；全部验收离线可执行
 - 全部新 FAIL 门默认 `shadow: true`（market_params 键内子键）；shadow WARN 事件 action="WARN" 落 trace
+- **契约升级声明（AGENTS.md 纪律，随 Task 1 commit message 携带）**：v4 模板新增必填行（章尾钩型/引句锚定）为 breaking 契约变更——「无既有工件受影响」：卷一 36 章已完结零重跑、在飞运行停 ch37 planning（plan 未生成，恢复即出 v4 plan，零回填）；**v4 兼容三件必须先于该运行恢复落地**（spec r7/N1）
 - task 顺序=依赖顺序：T1(v4 兼容) 先于 T2(快照) 与 T3(序列门)——快照/门消费 v4 声明行；T4(verbatim) 依赖 T1；T6(轮换门) 依赖 T2 快照；T8(◆回填) 先于 T9(core_motif_touch 门) 可跑红测
 
 **跨 spec 联动项归属（v7 Plan rubric 要求显式登记）：**
-- **#83 T1 verbatim 判定器共基**：本计划 Task 4 建 `src/shenbi/gates/g4/quote_verbatim.py`（`quote_in_chapter()`），#83 T1 后续复用同一判定器（其 spec r2 L42「勿各造一份」）
+- **#83 T1 verbatim 判定器共基**：本计划 Task 5 建 `src/shenbi/gates/g4/quote_verbatim.py`（plan 审查 M2——原误写 Task 4）（`quote_in_chapter()`），#83 T1 后续复用同一判定器（其 spec r2 L42「勿各造一份」）
 - **#83 T5 follower 快照同点位**：本计划 Task 2 的 `_snapshot_declared()` 单章函数即 seam——#83 T5 批量写全 bundle status 时循环调用同一函数；本批不实现 #83 T5 的 status 写全（其 scope）
 
 **验收覆盖表（spec §10 → task → 验证命令）**
@@ -31,9 +32,9 @@
 | 1 全部新门红测→绿 + just check exit 0 + shadow 位 + 催转 lint | T1-T9 | `just check`；各 task 测试文件 |
 | 1' shadow WARN 逐束落盘前置 | T3 | `uv run pytest tests/unit/trace/test_warn_action.py -q` |
 | 2 卷二首 10 章实弹（离线可执行部分：门红测含 ch21-36 断供标本回放/轮换 absent 语义/留存锚窗口） | T6/T8/T9 | 对应测试；实弹部分=运行侧边界（#81 先例） |
-| 3 检查点四行必答首跑对账 | T10 | 文档 diff 审读（docs-only） |
+| 3 检查点四行必答首跑对账 | T10 | 文档 diff 审读（docs-only）；「首跑对账」本身=运行侧边界（#81 F947 先例，非本批离线判据） |
 | 4 G3.4 卷二段评 ≥85/86 | — | 运行侧边界，SDD 代码交付不含（#81 先例） |
-| 5 词表外零洗白 | T2/T4 | `test_snapshot_wordlist_external_*` + `test_proxy_sliding_wordlist_external` |
+| 5 词表外零洗白 | T2/T5 | `test_wordlist_external_tone_warns_and_kept_raw`（T2 实名）+ `test_regen_accept_2c_sliding.py` 词表外用例 |
 
 ---
 
@@ -72,7 +73,7 @@ def _run(tmp_path: Path, body: str) -> str:
     p = tmp_path / "plans" / "chapter-37-plan.md"
     p.parent.mkdir(parents=True)
     p.write_text(body, encoding="utf-8")
-    return g4_chapter_planning([str(p)], rd=None, project_dir=str(tmp_path))  # 源码 :55 签名——返回 must_fix 文本（多行拼接）
+    return g4_chapter_planning([str(p)], rd=None, project_dir=str(tmp_path))  # 源码 :55 签名——返回 fail()/passed() 的 JSON 报告串（must_fix 为数组；子串断言即可，勿做行解析——plan 审查 M1）
 
 def test_v4_is_legal_token(tmp_path):
     out = _run(tmp_path, V4_BODY)
@@ -87,9 +88,9 @@ def test_v4_memo_voice_line_required(tmp_path):
     assert "voice" in out.lower()  # 现状 in ("v2","v3") 不认 v4（红）
 
 def test_v4_memo_payoff_axis_required(tmp_path):
-    body = V4_BODY.replace("**payoff 拍**: 类型｜轴(债)｜量\n", "")
+    body = V4_BODY.replace("**payoff 拍**: 类型｜轴(债)｜量\n", "**payoff 拍**: 类型\n")  # 保留行去轴——missing_payoff_beat 版本无关会遮蔽假红（plan 审查 I5）
     out = _run(tmp_path, body)
-    assert "payoff" in out         # 现状 =="v3" 不认 v4（红）
+    assert "payoff_axis" in out    # 现状 :259 =="v3" 不认 v4（真红）；改后 PF_GE_V3 认 v4（绿）
 ```
 
 Run: `uv run pytest tests/unit/gates/g4/test_plan_format_v4.py -q` → **预期 FAIL（红）**
@@ -151,6 +152,11 @@ def test_follower_snapshot_written(tmp_path):
 def test_wordlist_external_tone_warns_and_kept_raw(...):
     # emotion_tone: 安 → WARN 日志 + declared["emotion_tone"]=="安"（消费者按冷谓词处理）
     ...
+def test_real_fixture_six_keys_captured(...):
+    # plan 审查 C1 绿测：对 tests/fixtures/spec82/chapter-36-plan.md 真实副本跑
+    # _snapshot_declared → 六键捕获断言：emotion_tone=="悲"、张力拍档位=="章"、
+    # payoff档=="中"、金句位燃 truthy、章尾钩型 absent（v3 plan 无该行）、节点标记集按 volume_map ch36 行
+    ...
 def test_node_markers_ingested(...):
     # volume_map ch38 节点行含「轮回触点◆」→ declared["节点标记集"] == ["轮回触点◆"]
     ...
@@ -193,8 +199,8 @@ def _snapshot_declared(project_dir: Path, chapter: int) -> dict[str, Any]:
         text = plan.read_text(encoding="utf-8")
         for key, pat in (
             ("emotion_tone", r"^emotion_tone[：:]\s*(\S+)"),
-            ("张力拍档位", r"^[-* ]*章尾张力拍[：:]\s*\[?(微|章|大)"),
-            ("payoff档", r"\*{0,2}payoff\s*拍\*{0,2}[：:].*?量[：:]?(小|中|大)"),
+            ("张力拍档位", r"^[-* ]*\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?(微|章|大)"),  # 兼容 **章尾张力拍**: 加粗形态（ch36:78 实存——plan 审查 M6）
+            ("payoff档", r"\*{0,2}payoff\s*拍\*{0,2}[：:].*?(小|中|大)兑现"),  # 真实形态 32/36 份：类型｜轴(债)｜中兑现——量[：:]形态 0 命中（plan 审查 C1）
             ("章尾钩型", r"^章尾钩型[：:]\s*(\S+)"),
         ):
             m = re.search(pat, text, re.MULTILINE)
@@ -248,23 +254,31 @@ Run: `uv run pytest tests/unit/pipeline/test_snapshot_declared.py -q` → PASS
 - Test: `tests/unit/contracts/test_genre_config_spec82_keys.py`（新）；`tests/unit/trace/test_warn_action.py`（新）
 
 **Interfaces:**
-- Produces: validator 接受 `cold_streak_cap:{max:int, shadow:bool=True}`、`hot_hook_floor:{window:int=10,min:int=1,shadow:bool}`、`payoff_magnitude_floor:{window:int=6,min:"中"|int,shadow:bool}`（min 允许 str——Pydantic 字段类型放宽 `int|float|str`）、`temperature_profile:{window:int=10,hot_ratio_min:float=0.2}`（WARN 级、无 shadow 位）、`hook_max_age: int=8`、`hook_defer_budget:{per_volume:int=3}`、`retention_anchor:{from_ch:int=1,to_ch:int|None=None}`（null 容忍）；`pacing.core_motif_touch:{max_gap:int=6,shadow:bool}`；`emotion_band` 从 required 移除（子键多余仍容忍——存量兼容）
+- Produces: validator 接受 `cold_streak_cap:{max:int, shadow:bool=True}`、`hot_hook_floor:{window:int=10,min:int=1,shadow:bool}`、`payoff_magnitude_floor:{window:int=6,min:"中"|int,shadow:bool}`（min 允许 str——Pydantic 字段类型放宽 `int|float|str`）、`temperature_profile:{window:int=10,hot_ratio_min:float=0.2}`（WARN 级、无 shadow 位）、`hook_max_age:{max:int=8, shadow:bool=True}`（dict 形态——shadow 子键有归宿，plan 审查 I2；Task 6 消费侧读 `.max`）、`hook_defer_budget:{per_volume:int=3}`、`retention_anchor:{from_ch:int=1,to_ch:int|None=None}`（null 容忍）；`pacing.core_motif_touch:{max_gap:int=6,shadow:bool}`；`emotion_band` 从 required 移除（子键多余仍容忍——存量兼容）
 - Consumes: Task 1（无）；shadow 降级接口供 Task 5/7/9 门
 
-- [ ] **Step 1: 红测**（validator 拒新键现状/to_ch None 拒/min "中" 拒 → 改后过；emotion_band 退役后含旧键 config 仍 PASS——characterization）
+- [ ] **Step 1: 红测**（现状三态：纯数值新键=静默忽略不拒、`to_ch:null`/`min:"中"`=Pydantic 类型层拒——红测锚这两类拒；emotion_band 退役后**含旧键** PASS（子键多余容忍，characterization）＋**无 emotion_band 键** PASS（M5——`:88 eb = v["emotion_band"]` 无守卫直取现状 KeyError，须同批移除））
 
 - [ ] **Step 2: validator 域扩展 + required 元组去 emotion_band**（数值域注释同步三态现实：纯数值新键=静默忽略不拒、null/字符串=类型层拒——故必须显式域定义）
 
 - [ ] **Step 3: shadow WARN trace 事件 + 调用侧降级**
 
-trace/event.py：若 action 有白名单则加 `"WARN"`。chapter_loop 在 planning/drafting 门结果消费点（`_run_g4_checks` 与 planning 步 G4 结果处）加降级辅助：
+trace/event.py：实测 `action: str` 自由字符串（`_SIGNED_FIELDS` :24 无枚举）——**无需改**。chapter_loop 插入点=**`run_gate_g4` 结果消费点 :1370-1383（scene-split G4.cd）与 :3898-3917（步骤 G4，`_gate_passed(g4)`/`g4.get("must_fix")`）**（plan 审查 I3——`_run_g4_checks` :3230 只跑 title/hook_fulfillment 两窄检查，主门 must_fix 不流经它）；`shenbi-validate G4` CLI 面保持裸 FAIL 属预期（shadow 是管线运行时概念）：
 
 ```python
+GATE_TO_SHADOW_KEY: dict[str, str] = {  # plan 审查 I2——检查 id 与配置键不同名，显式映射（缺映射=不降级，fail-safe）
+    "cold_streak_window": "cold_streak_cap",
+    "hot_hook_window": "hot_hook_floor",
+    "payoff_magnitude": "payoff_magnitude_floor",
+    "hook_age": "hook_max_age",
+    "hook_type_rotation": "hook_grading",       # 轮换门复用 hook_grading 键（加 rotation 子键）——实现时定一并写进映射
+    "core_motif_touch": "core_motif_touch",     # pacing 块
+}
+
 def _apply_shadow(state: PipelineState, gate_id: str, issue: str, market_params: dict) -> str | None:
     """shadow:true 时 FAIL→WARN 降级 + trace WARN 事件（spec #82——门检查器保持纯，
     降级与观测都在调用侧）。返回降级后的 issue 文案或 None（不降级）。"""
-    key = gate_id.split(".", 2)[-1]
-    cfg = market_params.get(key, {})
+    cfg = market_params.get(GATE_TO_SHADOW_KEY.get(gate_id, ""), {})
     if not (isinstance(cfg, dict) and cfg.get("shadow", True) is True):
         return None
     from shenbi.trace.event import ...  # 既有 writer 按 #81 面
@@ -274,7 +288,11 @@ def _apply_shadow(state: PipelineState, gate_id: str, issue: str, market_params:
 
 - [ ] **Step 4: SKILL 模板三源同步 + 项目数据补丁**
 
-SKILL.md :123 模板键集与 :326「三键块」文本改新键集（emotion_band 移除、新键列入）；`just lint-contracts && just generate` diff 空。运行时写入 `novel-xinghuo-vol1/genre-config.json`（python json 更新七键+pacing.core_motif_touch，全部 shadow:true）+ `uv run python -m shenbi... schema 校验`（或 validator 单测式 CLI）验证过——输出贴 progress（gitignored 文件不 commit）。
+SKILL.md :123 模板键集与 :326「三键块」文本改新键集（emotion_band 移除、新键列入）；`just lint-contracts && just generate` diff 空。运行时写入 `novel-xinghuo-vol1/genre-config.json`（python json 更新七键+pacing.core_motif_touch，全部 shadow:true）＋校验（M8 具体命令，函数名按 :55 邻域实名核对）：
+
+    uv run python -c "import json;from pathlib import Path;from shenbi.contracts.skills.genre_config import _market_params_structure as v; cfg=json.load(open('novel-xinghuo-vol1/genre-config.json')); v(cfg.get('market_params'))"
+
+——输出贴 progress（gitignored 文件不 commit）。
 
 - [ ] **Step 5: 绿 + 提交**
 
@@ -357,7 +375,7 @@ Run → 红
 - Fixture: `tests/fixtures/spec82/pending_hooks.md` 真实副本（MH02 last_reinforced 35/MH03 36/多 bullet 结构）；volume_map 副本（两代 KR 形态段）
 
 **Interfaces:**
-- Produces: `parse_last_reinforced(hooks_text: str) -> dict[str, int]`（per-hook max 章）；`parse_relevant_hooks(hooks_text: str) -> set[str]`（总览 当前生命周期 RELEVANT）；`resolve_defer_anchor(anchor: str, vm_text: str) -> bool`（锚命中 volume_map——`#### KR2:` 与 `2. KR2（…章完成）` 两形态+「卷三→第三卷」归一）
+- Produces: `parse_last_reinforced(hooks_text: str) -> dict[str, int]`（per-hook max 章；**真实格式 `第 35 章` 数字两侧有空格**——:48/:69/:88 实测，正则 `第\s*(\d+)\s*章` 容忍，plan 审查 M7）；`parse_relevant_hooks(hooks_text: str) -> set[str]`（总览 当前生命周期 RELEVANT）；`resolve_defer_anchor(anchor: str, vm_text: str) -> bool`（锚命中 volume_map——`#### KR2:` 与 `2. KR2（…章完成）` 两形态+「卷三→第三卷」归一）
 - Consumes: Task 3 `hook_max_age`/`hook_defer_budget`
 
 - [ ] **Step 1: 红测**（spec T2 TDD 全清单：超龄未触达 FAIL/触达 PASS/带锚挂起 PASS/无锚 FAIL/悬空锚 FAIL/超预算 FAIL/龄期 8 内 PASS/多 bullet 取 max/详情块零 bullet 按总览种植章起算）
@@ -375,7 +393,7 @@ Run → 红
 **Files:**
 - Modify: `skills/shenbi-review-group-craft/SKILL.md`（①复述行检查点 ②≥3 章同型收尾卷级 finding（注入收尾型历史）③反合理化表调和（平静收束预算 10 章窗 ≤3）+ D2 判温+判型 `- [BLOCKING]` + emotion_tone 判温义务）
 - Modify: `src/shenbi/gates/g4/chapter_drafting.py`（`hook_type_rotation` FAIL + `ending_diversity` WARN）
-- Modify: `src/shenbi/pipeline/dispatch_helper.py`（审查参考数据块注入「近 10 章收尾型历史」——自快照派生）
+- Modify: `src/shenbi/pipeline/audit_context_cache.py`（`SharedAuditContext` 加 `ending_history: list[str]` 字段、`build_shared_audit_context` 自快照派生——真实注入链：build → parallel_dispatch.py:129 → dispatch_helper.py:1137-1153 `_build_skill_prompt` 注入；plan 审查 I4）
 - Modify: `tools/lint_voice_meme.py`（per-catchphrase 卷配额：默认每 3 章 ≤1）
 - Test: `tests/unit/gates/g4/test_hook_type_rotation.py`；`tests/unit/tools/test_voice_meme_quota.py`
 
@@ -422,7 +440,7 @@ Run → 红
 - Test: `tests/unit/gates/g4/test_core_motif_touch.py`；`tests/unit/tools/test_touches_per_marker_chain.py`
 
 **Interfaces:**
-- Produces: `core_motif_touch` 门（距上次◆标记章>max_gap→FAIL，反馈文案含双路径修复者：planning 补触点拍/volume-outlining 重排◆（仅未生成章）；卷内首标记前不计间隔；非◆节点章不计）
+- Produces: `core_motif_touch` 门（**对快照 `节点标记集` 先过滤 `轮回触点◆` 标签再单链计间隔**——any-◆ 计数复发并集掩盖（ch22-36 萤回触◆/智力爽◆把间隔压 ≤7，标本不红；plan 审查 I1，与 lint 分链同口径）；距上次轮回触点◆章>max_gap→FAIL，反馈含双路径修复者：planning 补触点拍/volume-outlining 重排◆（仅未生成章）；卷内首标记前不计间隔。红测标本经 `_snapshot_declared` 自真实 volume_map 构造（any-◆ 实现当场红）
 - Consumes: Task 2 快照标记集；Task 8 ◆回填（红测标本：卷一 ch21-36 断链 16 章→FAIL）
 
 - [ ] **Step 1: 红测**（间隔 7 FAIL/6 PASS/非标记节点不计/ch21-36 标本回放 FAIL/卷首首标记前不计/shadow；分链：轮回链单独 max gap>8 finding、萤回触链独立、**并集标本仍红**——Task 8 前卷二空档）
