@@ -55,9 +55,10 @@ def check_promotion(project_dir: Path, ledger: Path | None) -> list[str]:
     findings: list[str] = []
     events = load_warn_events(project_dir)
     if not events:
-        return [
-            "shadow-promotion: 无 shadow WARN 事件（trace 面零记录——新门未试运行或 trace 未接线）"
-        ]
+        # audit-T10/I: absence is DEGRADED-OK (plan: 降级 OK) — new gates not
+        # yet trialed or trace not wired; visible on stdout, exit 0.
+        print("OK [shadow-promotion: no shadow WARN events in trace — degraded OK, exit 0]")
+        return []
     misfires = misfired_gates(ledger)
     from shenbi.gates.shared import read_genre_config  # noqa: PLC0415
 

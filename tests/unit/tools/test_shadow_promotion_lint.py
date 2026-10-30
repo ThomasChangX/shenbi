@@ -95,4 +95,4 @@ def test_misfire_ruling_resets_streak(tmp_path: Path) -> None:
 def test_no_trace_degrades_visible(tmp_path: Path) -> None:
     _mk(tmp_path, warn_chapters={})
     f = check_promotion(tmp_path, None)
-    assert any("无 shadow WARN 事件" in x for x in f)
+    assert f == []  # absence degrades OK (audit-T10/I) — visibility via stdout
