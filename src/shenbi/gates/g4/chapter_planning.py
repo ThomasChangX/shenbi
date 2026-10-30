@@ -270,6 +270,8 @@ def _defer_anchor_hits_volume(tail: str, vm_text: str) -> bool:
         return False
     kr = re.search(r"KR\d+", tail)
     vol = re.search(r"第?([一二三四五六七八九十百\d]+)卷", tail)
+    # audit-T6/C1 复合语义：卷与 KR 双指定须双命中（「至第99卷·KR1」的
+    # 垃圾卷不得借真实 KR 混过）；单指定单命中。
     cn = {
         "一": 1,
         "二": 2,
@@ -288,16 +290,43 @@ def _defer_anchor_hits_volume(tail: str, vm_text: str) -> bool:
     if vol:
         v = vol.group(1)
         vol_n = cn.get(v) if not v.isdigit() else int(v)
+    kr_hit = False
     if kr:
         kid = kr.group(0)
         heading = re.search(rf"^####+\s*{kid}[：:]", vm_text, re.M)
         row = re.search(rf"^\d+\.\s*{kid}（", vm_text, re.M)
-        if heading or row:
-            return True
-    return bool(vol_n and re.search(rf"^##+\s*第{vol_n}卷", vm_text, re.M))
+        kr_hit = bool(heading or row)
+    # audit-T6/C1: 卷腿双向归一——锚侧中文（卷三）转 arabic 后，标题侧也要
+    # CN 形态回查（真实卷纲 12/12 全用「第三卷：」中文数字标题，arabic 直搜
+    # 零命中）；两形态任一命中才放行，垃圾卷号两头都不命中。
+    vol_hit = False
+    if vol_n:
+        cn_digits = {
+            1: "一",
+            2: "二",
+            3: "三",
+            4: "四",
+            5: "五",
+            6: "六",
+            7: "七",
+            8: "八",
+            9: "九",
+            10: "十",
+            11: "十一",
+            12: "十二",
+        }
+        for form in (str(vol_n), cn_digits.get(vol_n, "")):
+            if form and re.search(rf"^##+\s*第{form}卷", vm_text, re.M):
+                vol_hit = True
+                break
+    if vol_n and kr:
+        return vol_hit and kr_hit  # 双指定双命中
+    return vol_hit or kr_hit  # 单指定单命中
 
 
-def _spec82_hook_age(content: str, n: int, project_dir: str | None, mf: list[str]) -> None:
+def _spec82_hook_age(
+    content: str, n: int, project_dir: str | None, mf: list[str], c: list[dict[str, Any]]
+) -> None:
     """Spec #82 T2: RELEVANT hook aging + defer budget (truth-block source)."""
     if not project_dir:
         return
@@ -311,7 +340,17 @@ def _spec82_hook_age(content: str, n: int, project_dir: str | None, mf: list[str
         else ""
     )
     if not isinstance(hma, dict) or not hp:
-        return  # config/truth absent → gate dark (shadow WARN row handled at emit site)
+        # audit-T6/I3: 缺席可见性（与 T1 三门同纪律——键缺席/真相面缺席
+        # 发 WARN 行而非静默暗门）
+        if not isinstance(hma, dict):
+            c.append(
+                {
+                    "id": "G4.cp.hook_age",
+                    "s": GateStatus.WARN,
+                    "r": "market_params.hook_max_age 缺席——退 WARN（spec #82）",
+                }
+            )
+        return
     max_age = int(hma.get("max", 8))
     last = parse_last_reinforced(hp)
     relevant = parse_relevant_hooks(hp)
@@ -329,7 +368,14 @@ def _spec82_hook_age(content: str, n: int, project_dir: str | None, mf: list[str
         age = n - anchor
         if age <= max_age:
             continue
-        touched = hook in content and "挂起" not in content.split(hook, 2)[1][:8]
+        # audit-T6/I2: 提及≠触达——须在钩账/推进语境内（「本章不处理 MH03」
+        # 这类明言不推进的提及不得计触达）
+        touched = bool(
+            re.search(
+                rf"{hook}[^\n]{{0,20}}(推进|touch|本章.+钩账)|（钩账|钩账）[^\n]{{0,12}}{hook}",
+                content,
+            )
+        )
         deferred = hook in defer_lines
         if not (touched or deferred):
             mf.append(
@@ -692,7 +738,7 @@ def g4_chapter_planning(
         # ── spec #82 T1: cross-chapter sequence gates (snapshot-sourced) ──
         _spec82_sequence_gates(content, n, project_dir, mf, c)
         # ── spec #82 T2: hook aging + defer budget (truth-block source) ──
-        _spec82_hook_age(content, n, project_dir, mf)
+        _spec82_hook_age(content, n, project_dir, mf, c)
 
         # Section 5: 关键抉择 — quality bonus, not hard gate
         s5_match = re.search(r"## 5\..*?\n(?=## 6\.|\Z)", content, re.DOTALL)

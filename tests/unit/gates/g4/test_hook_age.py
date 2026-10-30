@@ -142,3 +142,22 @@ def test_zero_bullet_hooks_age_from_plant_chapter(tmp_path: Path) -> None:
     """MH06 RELEVANT, no last_reinforced → age from 种植章 3: ch45 → 42 > 8 → FAIL."""
     _mk(tmp_path, ch=45)
     assert any("hook_age" in m and "MH06" in m for m in _mf(tmp_path, 45))
+
+
+@pytest.mark.unit
+def test_dangling_anchor_volume_not_in_map_fails(tmp_path: Path) -> None:
+    """audit-T6/I1: dangling anchor -- cited volume 99 does not exist;
+    fails even though KR1 hits (C1 composite: both legs must hit).
+    """
+    _mk(tmp_path, ch=45, plan_extra="- 挂起: MH03 至第99卷·KR1\n")
+    assert any("挂起缺有效清偿锚" in m for m in _mf(tmp_path, 45))
+
+
+@pytest.mark.unit
+def test_real_pending_hooks_fixture_parses() -> None:
+    """audit-T6/I1+M2: real truth-file copy (G0.9) anchors parser behavior."""
+    real = (FIX / "pending_hooks.md").read_text(encoding="utf-8")
+    got = parse_last_reinforced(real)
+    assert got.get("MH03") == 36  # multi-bullet max
+    assert got.get("MH02") == 35
+    assert "MH01" in parse_relevant_hooks(real)
