@@ -174,3 +174,52 @@ def test_cn_composite_and_suffix_anchor_pinning() -> None:
     assert _cn_to_int("一百二十三") == 123
     assert _defer_anchor_hits_volume("至卷三", vm) is True  # suffix form, no KR
     assert _defer_anchor_hits_volume("至卷四十二·KR1", vm) is False  # dangling composite
+
+
+@pytest.mark.unit
+def test_v4_section7_table_forms_recognized(tmp_path: Path) -> None:
+    """Stage-8/I1: v4 section-7 table forms.
+    advance rows count as touch; defer rows enter anchor checks.
+    """
+    # 表格 advance 行 → MH03 触达（不 FAIL）
+    _mk(
+        tmp_path,
+        ch=45,
+        plan_extra="| MH03 | advance | 渡口夜哨声再响 | 0 |\n",
+    )
+    assert not any("hook_age" in m and "MH03" in m and "距上次推进" in m for m in _mf(tmp_path, 45))
+    # 表格 defer 行带锚 → 过；无锚 → 「挂起缺有效清偿锚」FAIL
+    _mk(tmp_path, ch=45, plan_extra="| MH03 | defer | 至第三卷·KR1 | 9 |\n")
+    assert not any("挂起缺有效清偿锚" in m and "MH03" in m for m in _mf(tmp_path, 45))
+    _mk(tmp_path, ch=45, plan_extra="| MH03 | defer | 之后再看 | 9 |\n")
+    assert any("挂起缺有效清偿锚" in m and "MH03" in m for m in _mf(tmp_path, 45))
+
+
+@pytest.mark.unit
+def test_v4_hook_type_presence_and_wordlist(tmp_path: Path) -> None:
+    """Stage-8/I2: cp hook-type presence + seven-wordlist gate (v4+)."""
+    import json as _json
+
+    from shenbi.gates.g4.chapter_planning import g4_chapter_planning as _g
+
+    def run(plan: str) -> list[str]:
+        (tmp_path / "plans").mkdir(exist_ok=True)
+        (tmp_path / "plans" / "chapter-5-plan.md").write_text(plan, encoding="utf-8")
+        return _json.loads(
+            _g([str(tmp_path / "plans" / "chapter-5-plan.md")], rd=None, project_dir=str(tmp_path))
+        )["must_fix"]
+
+    ok = "plan_format: v4\nemotion_tone: 悲\n章尾钩型: 悬念钩\n"
+    assert not any(
+        m.startswith("G4.cp.missing_hook_type") or m.startswith("G4.cp.hook_type_wordlist")
+        for m in run(ok)
+    )  # id 前缀——tmp 目录名含 hook_type 会污染子串断言
+    missing = "plan_format: v4\nemotion_tone: 悲\n"
+    assert any(m.startswith("G4.cp.missing_hook_type") for m in run(missing))
+    bad = "plan_format: v4\nemotion_tone: 悲\n章尾钩型: 自造钩\n"
+    assert any(m.startswith("G4.cp.hook_type_wordlist") for m in run(bad))
+    v3 = "plan_format: v3\nemotion_tone: 悲\n"  # v3 无该义务
+    assert not any(
+        m.startswith("G4.cp.missing_hook_type") or m.startswith("G4.cp.hook_type_wordlist")
+        for m in run(v3)
+    )

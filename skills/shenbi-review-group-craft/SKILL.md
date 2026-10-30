@@ -282,4 +282,4 @@ All three dimensions use the standard defect evidence format. Each defect report
 | "流水账是交代背景的必要手段" | 交代背景可以通过一个冲突场景或一个对话瞬间完成，流水账是懒惰写法 |
 | "开篇可以从背景讲起" | 网文读者给每章30秒判断去留 |
 | "AI味读者看不出来" | 平台AIGC检测算法看得很清楚，降权直接影响收入 |
-| "平静收束有预算（每 10 章窗 ≤3 章——超预算才判过；spec #82 与 hot_hook_floor 对齐）" | 平静章尾 = 没有下一章理由 = 读者合上书 |
+| "章尾可以平静收束" | 平静收束有预算（每 10 章窗 ≤3 章——超预算才判过；spec #82 与 hot_hook_floor 对齐——预算内放行、超预算即 finding） |

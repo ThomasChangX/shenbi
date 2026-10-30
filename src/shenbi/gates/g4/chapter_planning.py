@@ -218,8 +218,14 @@ def _spec82_sequence_gates(
         w = int(tp.get("window", 10))
         tp_floor: float = float(tp.get("hot_ratio_min", 0.2))
         vals = _window("张力拍档位", tier, w)
+        tones = _window("emotion_tone", tone, w)
         if vals is not None:
-            hot = sum(1 for v in vals if v in ("章", "大"))
+            # 热章 = 张力拍∈{章,大} 或 emotion_tone∈{怒,喜}（spec 原文双条件）
+            hot = sum(
+                1
+                for v, t in zip(vals, tones if tones else vals, strict=False)
+                if v in ("章", "大") or t in ("怒", "喜")
+            )
             if hot / len(vals) < tp_floor:
                 c.append(
                     {
@@ -377,32 +383,46 @@ def _spec82_hook_age(
         age = n - anchor
         if age <= max_age:
             continue
-        # audit-T6/I2: 提及≠触达——须在钩账/推进语境内（「本章不处理 MH03」
-        # 这类明言不推进的提及不得计触达）
+        # audit-T6/I2 + 阶段8/I1: 提及≠触达——须在钩账/推进语境内；v4 段 7
+        # EXACT 表格（| ID | 操作 | 推进方式 | 沉默章数 |）的 advance/touch 行
+        # 与 bullet 形都认（真实 v4 plan 按契约产出表格——bullet-only 会对
+        # 每个超龄钩确定性误报）。
         touched = bool(
             re.search(rf"{hook}[^\n]{{0,20}}(?:推进|touch|强化)", content)
             or re.search(rf"钩账[^\n]{{0,12}}{hook}", content)
+            or re.search(rf"^\|\s*{hook}\s*\|\s*(?:advance|touch|强化)", content, re.M)
         )
-        deferred = hook in defer_lines
+        deferred = hook in defer_lines or bool(
+            re.search(rf"^\|\s*{hook}\s*\|\s*defer\s*\|([^|\n]*)", content, re.M)
+        )
         if not (touched or deferred):
             mf.append(
                 f"G4.cp.hook_age:ch{n}:{hook} 距上次推进 {age}>{max_age} 章且本章未触达未挂起"
                 f"（修复者: planning——钩账行 touch 或带清偿锚挂起）"
             )
-    # 挂起行须带真实清偿锚（r3/r4：锚中卷/KR 引用须在 volume_map 命中——两代 KR 形态+卷号归一）
-    for line in re.finditer(r"^[-*]\s*挂起[：:]\s*(MH\d+)\s*(.*)$", content, re.M):
-        hook_id, tail = line.group(1), line.group(2)
+    # 挂起行须带真实清偿锚（r3/r4：锚中卷/KR 引用须在 volume_map 命中——两代 KR 形态+卷号归一）；
+    # v4 段 7 表格 defer 行的 推进方式 列同送锚校验（阶段8/I1：bullet-only 让表格形
+    # defer 完全绕过锚校验与预算——「挂而不排」从表格通道复发）。
+    defer_forms: list[tuple[str, str]] = [
+        (m.group(1), m.group(2))
+        for m in re.finditer(r"^[-*]\s*挂起[：:]\s*(MH\d+)\s*(.*)$", content, re.M)
+    ]
+    defer_forms.extend(
+        (m.group(1), m.group(2))
+        for m in re.finditer(r"^\|\s*(MH\d+)\s*\|\s*defer\s*\|([^|\n]*)", content, re.M)
+    )
+    for hook_id, tail in defer_forms:
         anchor_hit = _defer_anchor_hits_volume(tail, vm_text)
         if not anchor_hit:
             mf.append(
                 f"G4.cp.hook_age:ch{n}:{hook_id} 挂起缺有效清偿锚（『{tail.strip()[:20]}』未命中 volume_map 卷/KR）"
-                f"（修复者: planning——挂起行须带「至第N卷·KRn」且该卷/KR 在卷纲在盘）"
+                f"（修复者: planning——挂起行/表格 defer 行的推进方式列须带「至第N卷·KRn」且在卷纲在盘）"
             )
     budget = mp.get("hook_defer_budget", {})
     per_vol = int(budget.get("per_volume", 3)) if isinstance(budget, dict) else 3
-    if len(defer_lines) > per_vol:
+    if len(defer_forms) > per_vol:
         mf.append(
-            f"G4.cp.hook_age:ch{n}:挂起数 {len(defer_lines)}>{per_vol} 超卷预算"
+            f"G4.cp.hook_age:ch{n}:挂起数 {len(defer_forms)}>{per_vol} 超卷预算"
             f"（hook_defer_budget；修复者: planning——收敛挂起或兑现）"
         )
 
@@ -777,6 +797,31 @@ def g4_chapter_planning(
             c.append({"id": "G4.cp.emotion_tone", "file": fp, "s": GateStatus.PASS})
         else:
             mf.append(f"G4.cp.missing_emotion_tone:{fp}")
+
+        # spec #82 r5/C1（阶段8/I2）：v4 章尾钩型行——存在性+七型词表检查
+        # （镜像 emotion_tone 五值模式；词表外自造型 FAIL——种子七型的机器
+        # 执法面，此前只有 rotation 消费值而无源头门）。
+        _pf_val82 = re.search(r"^plan_format[：:]\s*(\S+)\s*$", content, re.M)
+        _is_v4plus = (
+            _pf_val82 and _pf_val82.group(1) in PF_LEGAL and int(_pf_val82.group(1)[1:]) >= 4
+        )
+        if _is_v4plus:
+            _hook_type_m = re.search(r"^章尾钩型[：:]\s*(\S+)", content, re.M)
+            if not _hook_type_m:
+                mf.append(f"G4.cp.missing_hook_type:{fp}")
+            elif _hook_type_m.group(1).strip() not in (
+                "悬念钩",
+                "危机钩",
+                "情感钩",
+                "反转钩",
+                "账目钩",
+                "信物钩",
+                "对位钩",
+            ):
+                mf.append(
+                    f"G4.cp.hook_type_wordlist:{fp}:{_hook_type_m.group(1)}"
+                    f"（七型词表外自造型——悬念/危机/情感/反转/账目/信物/对位）"
+                )
 
         if re.search(r"\*{0,2}payoff\s*拍\*{0,2}\s*[:：]\s*\S", content):
             c.append({"id": "G4.cp.payoff_beat", "file": fp, "s": GateStatus.PASS})

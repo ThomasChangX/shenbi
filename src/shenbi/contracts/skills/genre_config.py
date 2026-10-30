@@ -71,7 +71,7 @@ class GenreConfig(BaseModel):
         """Spec #73 三态：块缺席 PASS（可选）；块在场须三必键齐且值域合法。
 
         - payoff_density: window∈[1,10], min>=1（接线 #78 频次窗）
-        - emotion_band: window∈[1,3], min>=1（接线 #78 下限）
+        # emotion_band 退役（spec #82 T3：schema 校验在、零消费——存量容忍新项目勿写）
         - hook_grading: max_consecutive_micro∈[1,3]（接线 #78 轮换门）
         - voice_density_min / meme_quota / quote_type_quota: 数值域 #76 定档
           （voice_density_min∈[0,5] / meme_quota∈[1,20] /
