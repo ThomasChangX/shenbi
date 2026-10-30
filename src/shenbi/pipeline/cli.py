@@ -226,19 +226,23 @@ def _re_dispatch_g4_must_fix(
     # (cold-streak class) deterministically recur here after checkpoint
     # re-dispatch; undemoted they burn RE_DISPATCH_RETRY_CAP then drop the
     # redo silently. Demote before returning the must_fix list.
-    import structlog
+    # spec #82 T3 (audit-T3/I1+I2): route through the shared demotion
+    # implementation — WARN observability + manifest re-record included.
+    from shenbi.pipeline.chapter_loop import _shadow_route_g4  # pyright: ignore[reportPrivateUsage]
 
-    from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
+    from shenbi.pipeline.state import PipelineState
 
-    _dem, _rem = demote_must_fix(project_dir, list(g4.get("must_fix", [])))
-    for _dw in _dem:
-        structlog.get_logger("shenbi.pipeline.cli").warning(
-            "shadow_gate_demoted", chapter=chapter, step="re-dispatch", item=_dw
-        )
-        emit_shadow_warn_trace(project_dir, chapter or 0, _dw)
-    if _dem and not _rem:
+    routed, remaining = _shadow_route_g4(
+        PipelineState(),
+        project_dir,
+        g4,
+        chapter=chapter or 0,
+        skill=skill,
+        rk=f"ch{chapter or 0}-",
+    )
+    if str(routed.get("status")) == GateStatus.PASS:
         return None  # all demoted → treat as passed for the redo decision
-    return _rem
+    return remaining if remaining is not None else list(g4.get("must_fix", []))
 
 
 def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> bool:
