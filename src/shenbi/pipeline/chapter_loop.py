@@ -2031,6 +2031,61 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
     return True
 
 
+#: spec #82 T0 — declared-label wordlists for the completion-time snapshot.
+#: Wordlist-external values are kept raw (consumers apply the shared cold
+#: predicate, which treats wordlist-external as cold) and logged WARN.
+DECLARED_WORDLISTS: dict[str, frozenset[str]] = {
+    "emotion_tone": frozenset({"悲", "喜", "怒", "惧", "平"}),
+    "张力拍档位": frozenset({"微", "章", "大"}),
+    "payoff档": frozenset({"小", "中", "大"}),
+    "章尾钩型": frozenset({"悬念钩", "危机钩", "情感钩", "反转钩", "账目钩", "信物钩", "对位钩"}),
+}
+
+
+def _snapshot_declared(project_dir: Path, chapter: int) -> dict[str, Any]:
+    """Completion-time declared-label snapshot (spec #82 T0) — pure read.
+
+    Freezes the labels that passed the gate: the plan's declaration lines plus
+    this chapter's volume_map node markers (轮回触点◆ etc. — T6's data base,
+    produced by the outline, not the memo). Follower members snapshot through
+    the same function at the leader's completion moment (#83 T5 seam).
+    """
+    d: dict[str, Any] = {}
+    plan = project_dir / "plans" / f"chapter-{chapter}-plan.md"
+    if plan.is_file():
+        text = plan.read_text(encoding="utf-8")
+        # 真实形态（plan 审查 C1）：`**payoff 拍**: 类型｜轴(债)｜中兑现` — 档位在「X兑现」
+        for key, pat in (
+            ("emotion_tone", r"^emotion_tone[：:]\s*(\S+)"),
+            # 兼容裸/加粗形态（**章尾张力拍**: ch36:78 实存）；档位取 [微|章|大] 首匹配
+            ("张力拍档位", r"^[-* ]*\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?(微|章|大)"),
+            ("payoff档", r"\*{0,2}payoff\s*拍\*{0,2}[：:].*?(小|中|大)兑现"),
+            ("章尾钩型", r"^章尾钩型[：:]\s*(\S+)"),
+        ):
+            m = re.search(pat, text, re.MULTILINE)
+            if m:
+                val = m.group(1).strip()
+                d[key] = val
+                if key in DECLARED_WORDLISTS and val not in DECLARED_WORDLISTS[key]:
+                    log.warning(
+                        "snapshot_wordlist_external",
+                        chapter=chapter,
+                        key=key,
+                        value=val,
+                    )
+        d["金句位燃"] = bool(re.search(r"^金句位[：:]\s*燃", text, re.MULTILINE))
+    markers: list[str] = []
+    vm = project_dir / "outline" / "volume_map.md"
+    if vm.is_file():
+        for line in vm.read_text(encoding="utf-8").splitlines():
+            m = re.match(r"^\|\s*第(\d+)章", line)
+            if m and int(m.group(1)) == chapter:
+                markers = re.findall(r"[一-龥A-Za-z]+◆", line)
+                break
+    d["节点标记集"] = markers
+    return d
+
+
 def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     """Advance to the next chapter, optionally setting a per-chapter checkpoint.
 
@@ -2053,6 +2108,15 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
         cs = ChapterState()
         state.chapter_loop.chapter_states[key] = cs
     cs.status = ChapterStatus.COMPLETE
+
+    # spec #82 T0: freeze declared labels for every bundle member at
+    # completion (leader + followers share one completion moment; #83 T5
+    # routes its batch status write through the same per-chapter function).
+    for member in bundle_chapters(project_dir, chapter):
+        mkey = str(member)
+        mcs = state.chapter_loop.chapter_states.setdefault(mkey, ChapterState())
+        if not mcs.declared:
+            mcs.declared = _snapshot_declared(project_dir, member)
 
     # F368 residual (spec #69 T5): chapter-close sweep — a finished chapter's
     # corrective feedback must not leak into later dispatch cycles. The dash
