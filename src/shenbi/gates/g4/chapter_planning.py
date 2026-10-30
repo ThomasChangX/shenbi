@@ -437,8 +437,21 @@ def _spec82_core_motif_touch(
         return
     max_gap = int(cmt.get("max_gap", 6))
     hist = _declared_history(project_dir)
+    # spec r6/N2 (audit-T9/I2): same-volume scope as T1 — the back-walk stops
+    # at the current volume's start (parse_volume_spans, bundle_chapters
+    # source); a first marker before the window doesn't count (docstring
+    # promised, wasn't implemented — vol-3 opening falsely failed).
+    vol_start = 1
+    _vm = Path(project_dir) / "outline" / "volume_map.md"
+    if _vm.is_file():
+        from shenbi.pipeline.volume_budget import parse_volume_spans
+
+        for _span in parse_volume_spans(_vm.read_text(encoding="utf-8")):
+            if _span.start <= n <= _span.end:
+                vol_start = _span.start
+                break
     last = None
-    for k in range(n - 1, 0, -1):
+    for k in range(n - 1, max(0, vol_start - 1), -1):
         if "轮回触点◆" in ((hist.get(k) or {}).get("节点标记集") or []):
             last = k
             break

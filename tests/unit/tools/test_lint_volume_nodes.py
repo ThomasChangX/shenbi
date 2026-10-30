@@ -131,3 +131,22 @@ def test_touch_chain_must_span_volume(tmp_path: Path) -> None:
     findings = lint(_mk(tmp_path, rows), 1, 12)
     assert any("first touch" in f for f in findings), findings
     assert any("uncovered" in f for f in findings), findings
+
+
+@pytest.mark.unit
+def test_per_marker_chain_discrimination(tmp_path: Path) -> None:
+    """Spec #82 T6: firefly density must not mask a broken motif chain."""
+    rows = (
+        _row(1, "开篇", "双钩 智力爽◆ 轮回触点◆")
+        + _row(3, "回触", "萤回触")
+        + _row(6, "回触", "萤回触")
+        + _row(9, "回触", "萤回触")
+        + _row(12, "回触", "萤回触")
+        + _row(15, "回触", "萤回触")
+        + _row(18, "回触", "萤回触")
+        + _row(20, "收官", "四轴")
+    )  # 轮回链只有 ch1 → 尾距 19 > 8 → 必红；萤链 gap=3 全绿
+    findings = lint(_mk(tmp_path, rows, end=20), 1, 12)
+    # 轮回链断（单触点→fewer-than 或尾距红）；萤链全绿
+    assert any("轮回触点◆" in f for f in findings), findings
+    assert not any("萤回触" in f for f in findings), findings
