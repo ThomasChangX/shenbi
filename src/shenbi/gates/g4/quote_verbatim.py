@@ -19,6 +19,11 @@ import re
 from shenbi.gates.shared import strip_narrative_body
 
 _QUOTE_RE = re.compile(r"[「「" "『]([^「」『』" "]{6,})[」」" "』]")
+_META_BLOCK_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+_META_SECTION_RE = re.compile(
+    r"^## (?:PRE_WRITE_CHECK|POST_WRITE_SELF_CHECK).*?(?=^## |^# |<!--META|\Z)",
+    re.DOTALL | re.M,
+)
 
 
 def strip_to_prose(chapter_text: str) -> str:
@@ -60,9 +65,13 @@ def extract_meta_quotes(chapter_text: str, *, min_len: int = 6) -> list[str]:
     """Extract 「」/『』/""-quoted sentences (>= min_len) from META blocks only.
 
     The extraction seam for spec #83 T1 (POST/PRE 引句 verbatim 门): quotes
-    living in the declarations must be replayed against the prose. Strips to
-    the meta complement (raw minus prose) so prose quotes are not collected.
+    living in the declarations must be replayed against the prose. Only the
+    META regions (BEGIN..END blocks + H2 PRE/POST sections) are scanned —
+    prose quotes are never collected (audit-T5/I2a: the naive
+    raw-minus-prose replace is a no-op once META interleaves the prose).
     """
-    prose = strip_to_prose(chapter_text)
-    meta_part = chapter_text.replace(prose, "")
-    return [m.group(1) for m in _QUOTE_RE.finditer(meta_part) if len(m.group(1)) >= min_len]
+    regions: list[str] = []
+    regions.extend(_META_BLOCK_RE.findall(chapter_text))
+    regions.extend(_META_SECTION_RE.findall(chapter_text))
+    meta_text = "\n".join(regions)
+    return [m.group(1) for m in _QUOTE_RE.finditer(meta_text) if len(m.group(1)) >= min_len]

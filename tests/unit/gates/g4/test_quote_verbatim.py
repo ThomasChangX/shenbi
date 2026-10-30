@@ -119,3 +119,25 @@ def test_extract_meta_quotes_seam() -> None:
     got = extract_meta_quotes(text)
     assert "这句是声明引句要在正文里" in got
     assert all(q != "这句在正文里" for q in got)
+
+
+@pytest.mark.unit
+def test_v3_memo_skips_anchor_gate(tmp_path: Path) -> None:
+    """audit-T5/I1 re-audit: v3 memos (『』 form legally absent) never fire
+    the quote_verbatim gate — the v[4-9] scope. Real vol1 ch6 is v3.
+    """
+    import json
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    d = tmp_path
+    (d / "plans").mkdir()
+    (d / "chapters").mkdir()
+    (d / "plans" / "chapter-6-plan.md").write_text(
+        "plan_format: v3\n章尾张力拍: 章＋形态\n", encoding="utf-8"
+    )
+    (d / "chapters" / "chapter-6.md").write_text(CH6, encoding="utf-8")
+    result = json.loads(
+        g4_chapter_drafting([str(d / "chapters" / "chapter-6.md")], rd=str(d), project_dir=str(d))
+    )
+    assert not any("quote_verbatim" in m for m in result["must_fix"])
