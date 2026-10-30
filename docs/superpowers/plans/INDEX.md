@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-10-30（spec #82 plan 创建 ✅ ready——11 task，审查 rev5 收敛）
-> **活跃 plan 数**：1 | **已归档**：130（见 `archive/`）
+> **最后更新**：2026-10-31（spec #82 plan 归档——PR #263 合并，11 task 全执行收敛）
+> **活跃 plan 数**：0 | **已归档**：131（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **2026-10-30-spec82-retention-engine-net.md** ✅ ready（spec #82 r7 · 11 task T0-T7+验收映射 · plan 审查 4 轮收敛 rev5 · 分支 feat/spec-82-retention-engine-net）
+（空——spec #82 已归档；下一份 plan 由 /sdd-next 队首 spec（#83）立项时创建）
 
 ## 待执行的 spec → plan 映射
 
@@ -36,6 +36,8 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 - **07-19 一致性与韧性集群**（`2026-07-19-01` ~ `-19`，19 个 plan，PR #19）
 
 最近归档项：
+
+- `2026-10-30-spec82-retention-engine-net.md`（SDD #82 完结：PR #263 · 2026-10-31——T0 快照/序列门×4/钩龄/母题触点/留存锚参数化/shadow 纪律；运行侧验收=卷一重生成窗口）
 
 - `2026-09-18-spec40-master-closure.md`（SDD #40 收官 pass：ledger 回写补齐 44 行 + spec #67 登记 + 总纲归档）
 - `2026-09-17-c26-shell-injection-fix.md`（SDD #64 C26 shell/just 包装层注入，PR #220）
