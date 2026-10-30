@@ -12,7 +12,7 @@
 
 ### #82 · 追读引擎之网（retention-engine-net）
 
-- **文件**：`2026-10-30-spec82-retention-engine-net.md` ｜ **系列**：卷一复盘→卷二防复发 ｜ **状态**：Active（r3 审核修订） ｜ **优先级**：🟥 P0
+- **文件**：`2026-10-30-spec82-retention-engine-net.md` ｜ **系列**：卷一复盘→卷二防复发 ｜ **状态**：Active（r4 审核修订） ｜ **优先级**：🟥 P0
 - **依赖**：无（T0 快照层与 #83 T5 同代码位点，建议同批同 PR——r3 起 T0 follower 快照自包含、不硬依赖 #83 T5；T1 引句锚定与 #83 T1 verbatim 判定器共基，先落地者建）
 - **内容**：商业节奏执法面从「声明存在」升级为「分布＋兑现＋验真」——T0 完成时声明快照层（序列门数据基座，堵 relabel 博弈与重派漂移）；序列门（cold_streak **升格** recall_weight.cold_run 而非新建＋hot_hook_floor＋payoff_magnitude_floor＋temperature_profile WARN，数据源一律快照）；引句锚定（张力拍声明带章尾句原文＋verbatim 回查＋audit 判温）；钩龄门（truth 详情块 last_reinforced **审计锚定**＋advance 条文化＋挂起预算堵合法化通道）；卷纲追读三槽（获得槽/胜利预算/主角自选目标）；七型钩轮换门＋收尾多样性（账目钩第一原型＋反合理化表调和）；检查点四行必答（温度谱/胜利账/钩龄表/挂起清单）；金手指供给下限（F18 接线）；retention_anchor 窗口参数化（1-30 硬编码解除）——全部新 FAIL 门 shadow 首束试运行
 - **对应 plan**：待执行时建（`plans/2026-10-30-spec82-*.md`）
