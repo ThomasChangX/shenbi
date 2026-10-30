@@ -89,3 +89,17 @@ def test_cold_streak_cap_domain() -> None:
         GenreConfig.model_validate(_cfg({"cold_streak_cap": {"max": 0}}))
     with pytest.raises(ValueError, match="cold_streak_cap"):
         GenreConfig.model_validate(_cfg({"cold_streak_cap": {"max": 13}}))
+
+
+@pytest.mark.unit
+def test_retention_anchor_toch_below_from_rejected() -> None:
+    with pytest.raises(ValueError, match="retention_anchor"):
+        GenreConfig.model_validate(_cfg({"retention_anchor": {"from_ch": 5, "to_ch": 3}}))
+
+
+@pytest.mark.unit
+def test_temperature_profile_open_lower_bound_rejected() -> None:
+    with pytest.raises(ValueError, match="temperature_profile"):
+        GenreConfig.model_validate(
+            _cfg({"temperature_profile": {"window": 10, "hot_ratio_min": 0}})
+        )

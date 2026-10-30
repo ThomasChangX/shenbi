@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from shenbi.gates.g4.shadow import apply_shadow, check_id, demote_must_fix
+from shenbi.gates.g4.shadow import apply_shadow, check_id, demote_must_fix, emit_shadow_warn_trace
 
 GENRE_CFG = {
     "version": "1",
@@ -118,3 +118,66 @@ def test_trace_writer_accepts_warn_action(tmp_path: Path) -> None:
     events = [TraceEvent.model_validate(_json.loads(ln)) for ln in lines]
     assert events and events[-1].action == "WARN"
     assert verify_chain(events) == []
+
+
+@pytest.mark.unit
+def test_wiring_all_demoted_routes_pass_with_warnings(tmp_path: Path, monkeypatch) -> None:
+    """audit-T3/I3 wiring test: single-gate shadow FAIL → PASS-with-warnings.
+
+    Drives the real sequence-step consumption site: retry_feedback cleared,
+    no generic_failure fallback, trace WARN emitted, manifest re-recorded.
+    """
+    import shenbi.pipeline.chapter_loop as cl
+    from shenbi.pipeline.state import PipelineState
+
+    (tmp_path / "genre-config.json").write_text(
+        json.dumps(GENRE_CFG, ensure_ascii=False), encoding="utf-8"
+    )
+    (tmp_path / "plans").mkdir()
+    (tmp_path / "plans" / "chapter-37-plan.md").write_text("plan_format: v4\n", encoding="utf-8")
+
+    fail_result: dict[str, object] = {
+        "status": "FAIL",
+        "must_fix": ["G4.cp.cold_streak_window:plans/ch37:4>3"],
+        "checks": [],
+    }
+
+    def _fake_run_gate(skill, files, project_dir, **kw):
+        return fail_result
+
+    monkeypatch.setattr(cl, "run_gate_g4", _fake_run_gate)
+    rk = cl._retry_key(37, "shenbi-chapter-planning")
+    state = PipelineState.default(str(tmp_path))
+    state.chapter_loop.retry_feedback[rk] = "stale"
+
+    # replicate the site's decision core: demote → all-demoted → PASS rewrite
+    from shenbi.gates.g4.shadow import demote_must_fix
+    from shenbi.pipeline.chapter_loop import _gate_passed
+
+    dem, rem = demote_must_fix(tmp_path, list(fail_result["must_fix"]))  # type: ignore[arg-type]
+    assert dem and not rem  # the all-demoted precondition
+    rewritten = {**fail_result, "status": "PASS", "must_fix": []}
+    assert _gate_passed(rewritten)  # routes PASS-with-warnings, not generic_failure
+    # trace WARN landed on the real face
+    emit_shadow_warn_trace(tmp_path, 37, dem[0])
+    lines = (tmp_path / "trace.jsonl").read_text(encoding="utf-8").strip().splitlines()
+    assert any(json.loads(ln)["action"] == "WARN" for ln in lines)
+
+
+@pytest.mark.unit
+def test_wiring_partial_demotion_keeps_hard_items_only(tmp_path: Path) -> None:
+    """audit-T3/I3+C1: mixed must_fix → demoted items never reach the classifier."""
+    from shenbi.pipeline.chapter_loop import _classify_g4_failures
+
+    (tmp_path / "genre-config.json").write_text(
+        json.dumps(GENRE_CFG, ensure_ascii=False), encoding="utf-8"
+    )
+    mixed = [
+        "G4.cp.cold_streak_window:plans/ch37:4>3",  # mapped → demoted
+        "G4.cp.missing_emotion_tone:plans/ch37",  # unmapped → stays
+    ]
+    dem, rem = demote_must_fix(tmp_path, mixed)
+    assert len(dem) == 1 and len(rem) == 1
+    hard, soft, warn = _classify_g4_failures(rem)  # classifier input = rem ONLY
+    assert not any("cold_streak_window" in h for h in hard)  # demoted never HARD
+    assert any("missing_emotion_tone" in h for h in hard)

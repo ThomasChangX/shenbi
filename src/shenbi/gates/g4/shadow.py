@@ -56,7 +56,9 @@ def apply_shadow(project_dir: Path, item: str) -> str | None:
     block, key = loc
     entry = (cfg.get(block) or {}).get(key, {})
     if not (isinstance(entry, dict) and entry.get("shadow", True) is True):
-        return None  # shadow:false (promoted) or key absent → stays HARD
+        # shadow:false = promoted → stays HARD. Key absent → default shadow
+        # (spec L-D: 新 FAIL 门默认 shadow:true) → demote.
+        return None
     return f"[shadow] {item}（shadow 试运行——零误伤后转正）"
 
 
@@ -76,3 +78,27 @@ def demote_must_fix(project_dir: Path, must_fix: list[str]) -> tuple[list[str], 
         else:
             demoted.append(text)
     return demoted, remaining
+
+
+def emit_shadow_warn_trace(project_dir: Path | str, chapter: int, item: str) -> None:
+    """Append-only trace WARN event for demoted shadow gates (spec #82 T3).
+
+    Fire-and-forget via the #81 trace face: a trace-side failure must never
+    block the loop. Shared by all four demotion sites (chapter_loop + cli).
+    """
+    import structlog
+
+    log = structlog.get_logger("shenbi.gates.g4.shadow")
+    try:
+        from shenbi.trace.writer import TraceWriter
+
+        TraceWriter(Path(project_dir)).append(
+            actor="chapter-loop",
+            actor_role="SYSTEM",
+            action="WARN",
+            target=f"ch{chapter}",
+            gate="shadow",
+            payload={"chapter": chapter, "item": item[:200]},
+        )
+    except Exception:  # noqa: BLE001 -- observability must not break the loop
+        log.warning("shadow_trace_emit_failed", chapter=chapter)

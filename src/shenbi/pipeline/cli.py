@@ -226,9 +226,16 @@ def _re_dispatch_g4_must_fix(
     # (cold-streak class) deterministically recur here after checkpoint
     # re-dispatch; undemoted they burn RE_DISPATCH_RETRY_CAP then drop the
     # redo silently. Demote before returning the must_fix list.
-    from shenbi.gates.g4.shadow import demote_must_fix
+    import structlog
+
+    from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
 
     _dem, _rem = demote_must_fix(project_dir, list(g4.get("must_fix", [])))
+    for _dw in _dem:
+        structlog.get_logger("shenbi.pipeline.cli").warning(
+            "shadow_gate_demoted", chapter=chapter, step="re-dispatch", item=_dw
+        )
+        emit_shadow_warn_trace(project_dir, chapter or 0, _dw)
     if _dem and not _rem:
         return None  # all demoted → treat as passed for the redo decision
     return _rem

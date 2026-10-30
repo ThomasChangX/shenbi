@@ -47,7 +47,7 @@ from shenbi.contracts.schemas.hooks import HookState, parse_hook_state
 import yaml
 
 from shenbi.logging import get_logger
-from shenbi.gates.g4.shadow import demote_must_fix
+from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
 from shenbi.safe_write import safe_write
 from shenbi.pipeline.audit_aggregate import write_audit_aggregate
 from shenbi.pipeline.audit_layer import GENRE_ACTIVATION_MATRIX, run_audit_layer
@@ -1385,7 +1385,7 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
             _dem, _rem = demote_must_fix(Path(project_dir), _raw)
             for _dw in _dem:
                 log.warning("shadow_gate_demoted", chapter=n, step="scene-split", item=_dw)
-                _emit_shadow_warn_trace(project_dir, n, _dw)
+                emit_shadow_warn_trace(project_dir, n, _dw)
             # spec #82 T3: demoted items never reach issues (no state in
             # scope at this site — project_dir-based demotion only).
             issues.extend(f"G4.cd ch{n}: {m}" for m in _rem)
@@ -3992,15 +3992,21 @@ def _run_chapter_step_impl(
                 pstep.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop"
             )
             # spec #82 T3: shadow demotion before the failure branch (same
-            # routing semantics as the serial sequence-step site).
+            # routing semantics as the serial sequence-step site; audit-T3/C1:
+            # retry_feedback carries the POST-demotion remaining list only).
             if not _gate_passed(g4):
                 _dem, _rem = demote_must_fix(Path(project_dir), g4.get("must_fix", []))
                 for _dw in _dem:
                     log.warning("shadow_gate_demoted", chapter=chapter, skill=pstep.skill, item=_dw)
-                    _emit_shadow_warn_trace(project_dir, chapter, _dw)
+                    emit_shadow_warn_trace(project_dir, chapter, _dw)
                 if _dem and not _rem:
                     state.chapter_loop.retry_feedback.pop(_retry_key(chapter, pstep.skill), None)
                     g4 = {**g4, "status": GateStatus.PASS.value, "must_fix": []}
+                    from shenbi.gates.gate_manifest import record_gate_result
+
+                    record_gate_result(project_dir, "chapter_loop", chapter, pstep.skill, "G4", g4)
+                elif _dem and _rem:
+                    g4 = {**g4, "must_fix": list(_rem)}
             if _gate_passed(g4):
                 # #18-4 (probe23): mirror the serial site's canary pop — a
                 # PASSED retry must clear its corrective feedback, or the
