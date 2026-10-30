@@ -50,6 +50,13 @@ ch25-26 完成后**停 runner**。#80 四槽门（cd.prop_handoff/cd.counter 读
 
 - **每 10 章检查点（ch30/40/50/60）**：`uv run python tools/report_longitudinal.py novel-xinghuo-vol1` +
   `just regen-accept novel-xinghuo-vol1 --through N`。累计 >$10 先分析再继续；硬顶 $25。
+- **检查点四行必答（spec #82 T5——L-A 铁律：机器消费自声明，人工校准自评）**：
+  1. **温度谱**：近 10 章开篇/章尾钩温度分布（热/温/冷计数——取数自 T0 快照＋勘误面，不重解析 plan）；零热尾即红；
+  2. **胜利账**：近 10 章主角实质获得清单（对 plan 获得槽逐项核对，漏报/虚报即红）；
+  3. **钩龄表**：RELEVANT 钩龄期 Top5（`truth/pending_hooks.md` 详情块 last_reinforced——超龄未挂起即红）；
+  4. **挂起清单**：本卷全部挂起声明（钩 ID＋预定清偿卷/章）——挂而不排即红（T2 预算的人工面）。
+  驱动侧（监控 agent）每 10 章对账 machine 声明 vs 正文实况**抽查 ≥2 章**（G3.4 式抽读，不为全量）；**抽读发现声明温度与正文温度背离 → blocking**——处置=当章 revision（正文面修复）＋勘误面登记（快照旁 append-only errata 记「第 N 章声明 X 与实况 Y 背离」，温度谱取数=快照＋勘误）。
+- **shadow 转正催转（spec #82 验收 1）**：`uv run python tools/lint_shadow_promotion.py novel-xinghuo-vol1 --ledger novel-xinghuo-vol1/vol1-ledger.md`——连续 2 束 WARN 零误伤未转正即红；转正动作=genre-config 该键 `shadow: false` ＋台账记录。
 - **判据 5 预期保持 FAIL**（口径失配已挂账 spec 队列，见台账 2026-10-29 R3 取证）——禁止用正文口癖灌水追指标；
   声口人工面由判据 4 + G3.4 声口维覆盖。
 - **多会话恢复游标**：断点协议沿用 probe-vol1；恢复时 `just pipeline-status` + 读 vol1-ledger.md 断点节。

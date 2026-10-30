@@ -770,7 +770,22 @@ def g4_chapter_planning(
         else:
             mf.append(f"G4.cp.missing_payoff_beat:{fp}")
 
-        if 1 <= n <= 30:
+        # spec #82 T7: retention window parameterized (was hardcoded 1-30 —
+        # the retention gate self-extinguished past ch30 for every volume
+        # after the first). market_params.retention_anchor {from_ch, to_ch};
+        # absent config keeps the legacy hardcode (existing-project compat).
+        _ra_from: int = 1
+        _ra_to: int | None = 30
+        if project_dir:
+            from shenbi.gates.shared import read_genre_config as _rgc
+
+            _ra = ((_rgc(project_dir) or {}).get("market_params", {}) or {}).get("retention_anchor")
+            if isinstance(_ra, dict):
+                _ra_from = int(_ra.get("from_ch", 1))
+                _raw_to = _ra.get("to_ch")
+                _ra_to = int(_raw_to) if _raw_to is not None else None  # None = 全卷
+        _in_window = n >= _ra_from and (_ra_to is None or n <= _ra_to)
+        if _in_window:
             if re.search(r"\*{0,2}留存锚\*{0,2}\s*[:：]\s*\S", content):
                 c.append({"id": "G4.cp.retention_anchor", "file": fp, "s": GateStatus.PASS})
             else:
@@ -781,7 +796,7 @@ def g4_chapter_planning(
                     "id": "G4.cp.retention_anchor",
                     "file": fp,
                     "s": GateStatus.SKIP,
-                    "r": f"N={n}, retention window is chapters 1-30",
+                    "r": f"N={n}, retention window is chapters {_ra_from}-{_ra_to or '∞'}",
                 }
             )
 
