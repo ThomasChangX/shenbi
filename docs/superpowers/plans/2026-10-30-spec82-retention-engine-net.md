@@ -251,7 +251,9 @@ Run: `uv run pytest tests/unit/pipeline/test_snapshot_declared.py -q` → PASS
 **Files:**
 - Modify: `src/shenbi/contracts/skills/genre_config.py:67-130`（validator）
 - Modify: `skills/shenbi-genre-config/SKILL.md:123/:326`
-- Modify: `src/shenbi/trace/event.py`（action 白名单若枚举——加 "WARN"）；`src/shenbi/pipeline/chapter_loop.py`（shadow 降级点，见 Step 3）
+- Create: `src/shenbi/gates/g4/shadow.py`（R4/N2——GATE_TO_SHADOW_KEY + apply_shadow + _check_id）
+- Modify: `src/shenbi/pipeline/chapter_loop.py`（:4203/:3907/:1370 三消费点，见 Step 3）；`src/shenbi/pipeline/cli.py`（:218-227 第四消费点——重派 G4 复跑 must_fix 过降级面）
+- 注：`src/shenbi/trace/event.py` 无需改（action: str 自由字符串）
 - Runtime write（不进 git）: `novel-xinghuo-vol1/genre-config.json`
 - Test: `tests/unit/contracts/test_genre_config_spec82_keys.py`（新）；`tests/unit/trace/test_warn_action.py`（新）
 
@@ -291,7 +293,7 @@ GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {  # plan R2/I2'——键=带�
 def apply_shadow(project_dir: Path, item: str) -> str | None:
     """shadow:true 时 FAIL→WARN 降级判定（纯函数——门检查器与降级器都无副作用；
     trace WARN 事件由调用侧在降级确认后发射）。返回降级后文案或 None（不降级）。"""
-    from shenbi.config.genre_loader import read_genre_config  # 按 genre_config.py 邻域实名核对
+    from shenbi.gates.shared import read_genre_config  # 真身 gates/shared.py:744（chapter_drafting.py:15 同源；R4/N1a——genre_loader 不存在）
     cfg = read_genre_config(str(project_dir)) or {}
     loc = GATE_TO_SHADOW_KEY.get(_check_id(item))
     if loc is None:
@@ -301,16 +303,13 @@ def apply_shadow(project_dir: Path, item: str) -> str | None:
     if not (isinstance(entry, dict) and entry.get("shadow", True) is True):
         return None  # shadow:false（已转正）或键缺席→不降级
     return f"[shadow] {item}（shadow 试运行——零误伤后转正）"
-    if not (isinstance(cfg, dict) and cfg.get("shadow", True) is True):
-        return None
-    from shenbi.trace.event import ...  # 既有 writer 按 #81 面
-    # trace WARN 事件：action="WARN", payload={gate_id, issue, chapter}
-    return f"[shadow] {issue}（shadow 试运行——零误伤后转正）"
 ```
+
+（trace WARN 事件由调用侧在降级确认后发射：action="WARN"，payload={check_id, item, chapter}——走 #81 trace 面。）
 
 - [ ] **Step 4: SKILL 模板三源同步 + 项目数据补丁**
 
-SKILL.md :123 模板键集与 :326「三键块」文本改新键集（emotion_band 移除、新键列入）；`just lint-contracts && just generate` diff 空。运行时写入 `novel-xinghuo-vol1/genre-config.json`（python json 更新**九处**（R3/M2 计数订正）：market_params 八键（七键+`hook_rotation`+`quote_anchor`+`retention_anchor.shadow` 子键并入）+pacing.core_motif_touch，全部 shadow:true）＋校验（M8 具体命令，函数名按 :55 邻域实名核对）：
+SKILL.md :123 模板键集与 :326「三键块」文本改新键集（emotion_band 移除、新键列入）；`just lint-contracts && just generate` diff 空。运行时写入 `novel-xinghuo-vol1/genre-config.json`（python json 更新**十处**（R4/N4 订正）：market_params **九键**（四序列键+hook_max_age+hook_rotation+quote_anchor+hook_defer_budget+retention_anchor）+pacing.core_motif_touch，全部 shadow:true）＋校验（M8 具体命令，函数名按 :55 邻域实名核对）：
 
     uv run python -c "import json;from pathlib import Path;from shenbi.contracts.skills.genre_config import _market_params_structure as v; cfg=json.load(open('novel-xinghuo-vol1/genre-config.json')); v(cfg.get('market_params'))"
 
@@ -352,11 +351,11 @@ def test_config_absent_degrades_to_warn(...): ...        # scene_budget 版本�
 def test_bootstrap_window_shorter_than_window_no_floor(...): ...  # r6/N6：窗内已生成章数<window 不判 floor（R3/M7 补红测）
 def test_plan_rewrite_after_completion_keeps_verdict(...): ...  # 改 plan 判定不变（快照）
 def test_min_key_is_consumed(...): ...                   # payoff min 消费断言（反 payoff_density 前车之鉴）
-def test_shadow_flag_demotes_fail(...): ...              # Task 3 _apply_shadow 接线
+def test_shadow_flag_demotes_fail(...): ...              # Task 3 apply_shadow 接线（R4/N3 改名）
 ```
 Run → 红
 - [ ] **Step 2: `cold_chapter` 实现**（recall_weight.py，常量+分支，_COLD_TONES 保留为内部）
-- [ ] **Step 3: 四门实现**（chapter_planning.py；滑窗=快照历史（前 N-1 章已完备章）+当章 plan 声明；跨卷只取本卷已生成章——`bundle_chapters` 同源的 volume span 判定复用；配置缺席退 WARN；全部 FAIL 门经调用侧 `_apply_shadow`）
+- [ ] **Step 3: 四门实现**（chapter_planning.py；滑窗=快照历史（前 N-1 章已完备章）+当章 plan 声明；跨卷只取本卷已生成章——`bundle_chapters` 同源的 volume span 判定复用；配置缺席退 WARN；全部 FAIL 门经调用侧 `apply_shadow`（shadow.py）；**temperature_profile 为 WARN 级门——发射走 checks 数组 WARN 形态（golden 先例 chapter_planning.py:335-345 `c.append(s=GateStatus.WARN)`，不进 must_fix、不经分类器——否则未登记 id 保守默认 HARD，R4/N5）**）
 - [ ] **Step 4: micro_hook_run 改读快照**（chapter_drafting.py:928-957——`_tiers` 改从 pipeline-state declared 取，快照缺席章（卷一历史）回退现 plan 解析路径并记 WARN——I2 双面声明的一部分）
 - [ ] **Step 5: 绿 + 提交**
 
@@ -402,7 +401,7 @@ Run → 红
 - Consumes: Task 3 `hook_max_age`/`hook_defer_budget`
 
 - [ ] **Step 1: 红测**（spec T2 TDD 全清单：超龄未触达 FAIL/触达 PASS/带锚挂起 PASS/无锚 FAIL/悬空锚 FAIL/超预算 FAIL/龄期 8 内 PASS/多 bullet 取 max/详情块零 bullet 按总览种植章起算）
-- [ ] **Step 2: hook_age 门**（RELEVANT 钩×（当前章-last_reinforced>max_age）→当章 plan 钩账行 touch 或挂起行；缺两者 FAIL（修复者 planning）；挂起预算 per_volume 计数超→FAIL；shadow 经调用侧）
+- [ ] **Step 2: hook_age 门**（RELEVANT 钩×（当前章-last_reinforced>max_age）→当章 plan 钩账行 touch 或挂起行；缺两者 FAIL（修复者 planning）；挂起预算 per_volume 计数超→FAIL——**超预算 FAIL 复用 `cp.hook_age` id 发射**（同键 shadow 子键管辖，R4/N6——否则无降级通路永远 HARD，与「全部新 FAIL 门默认 shadow:true」全局约束相抵））
 - [ ] **Step 3: lint 挂起锚子检查**（`resolve_defer_anchor`；`just volume-nodes <dir> <vol>` 跑绿）
 - [ ] **Step 4: 两个 SKILL 契约行**（settling：「物品层在场不等于约定层推进；只有审计判 advance 的在场才发 last_reinforced 增量」升条文；foreshadowing：「正文在场面未被 pending_hooks 登记者 → `- [BLOCKING]` finding；注册并入 settling 钩增量以该 finding 为确证」）；`just lint-contracts && just generate`
 - [ ] **Step 5: 绿 + 提交**
@@ -425,7 +424,7 @@ Run → 红
 - Consumes: Task 2 快照；Task 3 shadow
 
 - [ ] **Step 1: 红测**（轮换：连续同型 FAIL/异型 PASS/首章豁免/absent 跳过/shadow；ending_diversity：账目形态（末 3 句 ≥2 数字串）/`呢？`/`他在心里.*一遍`/`这一(笔|夜|章)` 四原型×连续 3 章 WARN；口癖帽：26 处 vs 卷配额 12 FAIL 边界）
-- [ ] **Step 2: 轮换门 + 哨兵实现**
+- [ ] **Step 2: 轮换门 + 哨兵实现**（ending_diversity=WARN 级——同 N5 钉死：checks 数组 WARN 形态、不进 must_fix）
 - [ ] **Step 3: dispatch 注入 + SKILL 契约改**（`just lint-contracts && just generate`）
 - [ ] **Step 4: 口癖帽**（lint_voice_meme chapter 模式增 per-catchphrase 卷配额；regen-accept 判据 4 已有调用面自动获得）
 - [ ] **Step 5: 绿 + 提交**
