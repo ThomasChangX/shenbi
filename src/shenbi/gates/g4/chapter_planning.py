@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from shenbi.status import GateStatus
 from typing import Any
+import json
 import re
 
 from shenbi.logging import get_logger
@@ -51,6 +52,161 @@ def parse_prop_declarations(memo_text: str) -> list[tuple[str, str, str, str]]:
         else:
             out.append((prop, op, left, left))
     return out
+
+
+def _declared_history(project_dir: str | None) -> dict[int, dict[str, Any]]:
+    """Read completion-time declared snapshots from pipeline-state.json."""
+    if not project_dir:
+        return {}
+    sp = Path(project_dir) / "pipeline-state.json"
+    if not sp.is_file():
+        return {}
+    try:
+        data = json.loads(sp.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    out: dict[int, dict[str, Any]] = {}
+    for k, cs in (data.get("chapter_loop", {}).get("chapter_states", {}) or {}).items():
+        if isinstance(cs, dict) and cs.get("declared"):
+            try:
+                out[int(k)] = dict(cs["declared"])
+            except (TypeError, ValueError):
+                continue
+    return out
+
+
+def _spec82_sequence_gates(
+    content: str,
+    n: int,
+    project_dir: str | None,
+    mf: list[str],
+    c: list[dict[str, Any]],
+) -> None:
+    """Spec #82 T1: cold_streak / hot_hook / payoff_magnitude / temperature.
+
+    History comes from the T0 completion snapshot (never the mutable plan);
+    the current chapter's own declarations join the window tail. Config-
+    absent keys degrade to WARN (scene_budget precedent). The first three
+    chapters are exempt (golden-3 has its own constraints). Bootstrap: a
+    window with fewer completed chapters than `window` skips floor checks.
+    """
+    if not project_dir or n <= 3:
+        return
+    from shenbi.gates.shared import read_genre_config
+    from shenbi.text.recall_weight import cold_chapter
+
+    mp = (read_genre_config(project_dir) or {}).get("market_params", {})
+    hist = _declared_history(project_dir)
+
+    def _cur(key: str, pat: str) -> Any:
+        m = re.search(pat, content, re.MULTILINE)
+        return m.group(1) if m else None
+
+    tone = _cur("emotion_tone", r"^emotion_tone[：:]\s*(\S+)")
+    golden_hot = bool(re.search(r"^金句位[：:]\s*燃", content, re.MULTILINE))
+    tier = _cur("张力拍档位", r"^[-* ]*\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?(微|章|大)")
+    payoff = _cur("payoff档", r"\*{0,2}payoff\s*拍\*{0,2}[：:].*?(小|中|大)兑现")
+
+    # T1 cold_streak_window — trailing cold run ending at the current chapter
+    cap_cfg = mp.get("cold_streak_cap")
+    if not isinstance(cap_cfg, dict):
+        c.append(
+            {
+                "id": "G4.cp.cold_streak_window",
+                "s": GateStatus.WARN,
+                "r": "market_params.cold_streak_cap 缺席——退 WARN（spec #82）",
+            }
+        )
+    else:
+        cap = int(cap_cfg.get("max", 3))
+        run = 1 if cold_chapter(tone, golden_hot) else 0
+        if run:
+            for prev in range(n - 1, 0, -1):
+                d = hist.get(prev)
+                if d is None:
+                    break  # snapshot gap (volume start / pre-T0) stops the run
+                if cold_chapter(d.get("emotion_tone"), bool(d.get("金句位燃"))):
+                    run += 1
+                else:
+                    break
+            if run > cap:
+                mf.append(
+                    f"G4.cp.cold_streak_window:ch{n}:{run}>{cap} "
+                    f"(连续冷章超限——冷=悲/惧/平 且金句位非燃，词表外按冷；修复者: planning——本章须转暖或前置章补暖)"
+                )
+
+    def _window(field: str, current: Any, window: int) -> list[Any] | None:
+        """Values over the trailing window incl. current; None → bootstrap skip."""
+        vals = [
+            v for m in range(n - window + 1, n) if (v := (hist.get(m) or {}).get(field)) is not None
+        ]
+        vals.append(current)
+        have = len([v for v in vals if v is not None])
+        if have < window:
+            return None  # bootstrap (r6/N6): window not full → no floor
+        return vals
+
+    # T1 hot_hook_floor — 大-level tension beats per window
+    hhf = mp.get("hot_hook_floor")
+    if not isinstance(hhf, dict):
+        c.append(
+            {
+                "id": "G4.cp.hot_hook_window",
+                "s": GateStatus.WARN,
+                "r": "market_params.hot_hook_floor 缺席——退 WARN（spec #82）",
+            }
+        )
+    else:
+        w = int(hhf.get("window", 10))
+        floor = int(hhf.get("min", 1))
+        vals = _window("张力拍档位", tier, w)
+        if vals is not None and sum(1 for v in vals if v == "大") < floor:
+            mf.append(
+                f"G4.cp.hot_hook_window:ch{n}:{w}章窗内大钩 0<{floor} "
+                f"(热章尾钩频率下限；修复者: planning——窗尾章张力拍须上「大」)"
+            )
+
+    # T1 payoff_magnitude_floor — 中+ payoff per window (min key consumed)
+    pmf = mp.get("payoff_magnitude_floor")
+    if not isinstance(pmf, dict):
+        c.append(
+            {
+                "id": "G4.cp.payoff_magnitude",
+                "s": GateStatus.WARN,
+                "r": "market_params.payoff_magnitude_floor 缺席——退 WARN（spec #82）",
+            }
+        )
+    else:
+        w = int(pmf.get("window", 6))
+        rank = {"小": 0, "中": 1, "大": 2}
+        min_key = pmf.get("min", "中")
+        min_rank = rank.get(str(min_key), 1)
+        vals = _window("payoff档", payoff, w)
+        if vals is not None and not any(
+            v is not None and rank.get(str(v), -1) >= min_rank for v in vals
+        ):
+            mf.append(
+                f"G4.cp.payoff_magnitude:ch{n}:{w}章窗内无 {min_key} 级以上兑现 "
+                f"(payoff 量级下限，min 键已消费；修复者: planning)"
+            )
+
+    # T1 temperature_profile — WARN-level hot-ratio profile
+    tp = mp.get("temperature_profile")
+    if isinstance(tp, dict):
+        w = int(tp.get("window", 10))
+        tp_floor: float = float(tp.get("hot_ratio_min", 0.2))
+        vals = _window("张力拍档位", tier, w)
+        if vals is not None:
+            hot = sum(1 for v in vals if v in ("章", "大"))
+            if hot / len(vals) < tp_floor:
+                c.append(
+                    {
+                        "id": "G4.cp.temperature_profile",
+                        "file": f"plans/chapter-{n}-plan.md",
+                        "s": GateStatus.WARN,
+                        "r": f"近{w}章热占比 {hot}/{len(vals)} < {tp_floor}——温粥循环风险（WARN 级）",
+                    }
+                )
 
 
 def g4_chapter_planning(
@@ -387,6 +543,9 @@ def g4_chapter_planning(
                     "r": f"N={n}, retention window is chapters 1-30",
                 }
             )
+
+        # ── spec #82 T1: cross-chapter sequence gates (snapshot-sourced) ──
+        _spec82_sequence_gates(content, n, project_dir, mf, c)
 
         # Section 5: 关键抉择 — quality bonus, not hard gate
         s5_match = re.search(r"## 5\..*?\n(?=## 6\.|\Z)", content, re.DOTALL)
