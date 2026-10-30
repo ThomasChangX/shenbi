@@ -813,6 +813,31 @@ def g4_chapter_drafting(
                 # 七型; the digits themselves are the unresolved tension.
                 # Runs, not bare chars: one stray "3" or a lone "4173" is
                 # not a ledger line (review calibration #5).
+                # spec #82 T1: quote anchoring (v4 张力拍引句回查本章正文——
+                # 与 #83 T1 verbatim 判定器共基，先落地者建；只验存在性，
+                # 温度语义归 audit 判温 blocking finding）
+                from shenbi.gates.g4.quote_verbatim import extract_anchor_quotes, quote_in_chapter
+
+                _cn82 = re.search(r"chapter-(\d+)", pf.name)
+                _mp82 = (
+                    Path(project_dir) / "plans" / f"chapter-{int(_cn82.group(1))}-plan.md"
+                    if _cn82 and project_dir
+                    else None
+                )
+                if _mp82 is not None and _mp82.is_file():
+                    _anchors = extract_anchor_quotes(_mp82.read_text(encoding="utf-8"))
+                    if _anchors:
+                        _prose = ""
+                        if fp:
+                            _ch_path = Path(fp)
+                            if _ch_path.is_file():
+                                _prose = _ch_path.read_text(encoding="utf-8")
+                        for _tier, _q in _anchors:
+                            if not quote_in_chapter(_q, _prose):
+                                mf.append(
+                                    f"G4.cd.quote_verbatim:{fp}:『{_q[:24]}…』不在本章正文"
+                                    f"（引句锚定——v4 张力拍引句须逐字取自章尾句原文；修复者: drafting 或 planning 同步改）"
+                                )
                 has_ledger = len(re.findall(r"\d+", window_text)) >= 2
                 if has_q or has_t or has_ledger:
                     c.append(

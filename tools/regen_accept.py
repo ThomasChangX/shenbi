@@ -191,30 +191,45 @@ def check_cd(project_dir: Path, records: dict, through: int) -> Verdict:
 
 def check_emotion_proxy(project_dir: Path, through: int) -> Verdict:
     """判据 2c: cold-streak proxy over memo emotion_tone + golden-slot 燃."""
+    # spec #82 T1 (r3/r6): 10-chapter sliding window + shared cold predicate
+    # (wordlist-external tones count as cold — the third escape hatch,
+    # ch5/12/15 实证); absent memos within the window are skipped (volume-one
+    # replay compatibility) instead of failing the whole check.
+    from shenbi.text.recall_weight import cold_chapter  # noqa: PLC0415
+
+    window = 10
+    lo = max(1, through - window + 1)
     tones: list[tuple[int, str, bool]] = []
-    for n in range(1, through + 1):
+    for n in range(lo, through + 1):
         memo = _load_memo(project_dir / "plans" / f"chapter-{n}-plan.md")
         if not memo:
-            return Verdict("2c", "FAIL", f"ch{n} 备忘缺席——无法解析 emotion_tone")
+            continue  # 滑窗内缺席跳过（历史回放兼容——门面已拦，验收面不重复硬失败）
         m = _EMOTION_RE.search(memo)
         if not m:
-            return Verdict("2c", "FAIL", f"ch{n} memo 无 emotion_tone 声明")
+            continue
         golden = _GOLDEN_RE.search(memo)
         hot = bool(golden and golden.group(1) == "燃")
         tones.append((n, m.group(1), hot))
     worst = 0
     streak = 0
     for _n, tone, hot in tones:
-        if tone in _COLD_TONES and not hot:
+        if cold_chapter(tone, hot):
             streak += 1
             worst = max(worst, streak)
         else:
             streak = 0
-    warm = sum(1 for _n, t, h in tones if t not in _COLD_TONES or h)
+    warm = sum(1 for _n, t, h in tones if not cold_chapter(t, h))
     if worst > _MAX_COLD_STREAK:
-        detail = f"连续冷章最长 {worst} > {_MAX_COLD_STREAK}（冷=悲/惧/平 且金句位非燃）"
+        detail = (
+            f"近{window}章连续冷章最长 {worst} > {_MAX_COLD_STREAK}"
+            f"（冷=词表外或 悲/惧/平 且金句位非燃——spec #82 共享谓词）"
+        )
         return Verdict("2c", "FAIL", detail)
-    return Verdict("2c", "PASS", f"最长冷连续 {worst} ≤ {_MAX_COLD_STREAK}；暖章 {warm}/{through}")
+    return Verdict(
+        "2c",
+        "PASS",
+        f"近{window}章最长冷连续 {worst} ≤ {_MAX_COLD_STREAK}；暖章 {warm}/{len(tones)}",
+    )
 
 
 def _run_tool(args: list[str]) -> tuple[int, str]:
