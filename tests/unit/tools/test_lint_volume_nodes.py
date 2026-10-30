@@ -19,33 +19,36 @@ def _mk(tmp_path: Path, rows: str, end: int = 20) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     (out / "volume_map.md").write_text(
         f"---\ntotal_chapters: {end}\n---\n\n## 第一卷：测试（第1—{end}章）\n\n"
+        "胜利预算：本卷 4 次实质获得（≥1 大），量级递增\n"
+        "主角自选目标：测试目标——倒计时锚\n\n"
         "#### KR1: 测试\n\n- **章节节点**:\n"
-        "  | 章节 | 节点角色 | 具体定位 |\n  |------|---------|---------|\n"
+        "  | 章节 | 节点角色 | 具体定位 | 本章主角获得 |\n"
+        "  |------|---------|---------|------|\n"
         f"{rows}\n\n## 第二卷：后（第{end + 1}—40章）\n",
         encoding="utf-8",
     )
     return tmp_path
 
 
-def _row(c: int, role: str = "承接", detail: str = "拍") -> str:
-    return f"  | 第{c}章 | {role} | {detail} |\n"
+def _row(c: int, role: str = "承接", detail: str = "拍", gains: str = "信息·小") -> str:
+    return f"  | 第{c}章 | {role} | {detail} | {gains} |\n"
 
 
 # 触点链 2,6,8,10,12,14（间隔≤8）；◆ 双槽在前 5；收官=20（总量对）
 _BASE = (
     _row(1, "开篇", "双钩 智力爽◆")
-    + _row(2, "回触", "萤回触")
+    + _row(2, "回触", "萤回触 轮回触点◆")
     + _row(3, "承接", "变现◆")
     + _row(4)
     + _row(5)
     + _row(6, "回触", "萤回触 灰烬◆——「下辈子再见」定约")
     + _row(7)
-    + _row(8, "回触", "萤回触")
+    + _row(8, "回触", "萤回触 轮回触点◆")
     + _row(9)
     + _row(10, "回触", "萤回触")
     + _row(11)
     + _row(12, "回触", "萤回触")
-    + _row(14, "回触", "萤回触")
+    + _row(14, "回触", "萤回触 轮回触点◆")
     + _row(20, "收官", "四轴")
 )
 
@@ -93,9 +96,8 @@ def test_total_mismatch_fails(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_touch_gap_fails(tmp_path: Path) -> None:
-    rows = _BASE.replace(_row(14, "回触", "萤回触"), _row(23 and 14 + 9, "回触", "萤回触"))
-    # 直接构造：触点 12 → 22（间隔 10 > 8）
-    rows = _BASE.replace(_row(14, "回触", "萤回触"), _row(22, "回触", "萤回触"))
+    # 直接构造：触点 12 → 22（间隔 10 > 8；轮回标记随行替换保持双链一致）
+    rows = _BASE.replace(_row(14, "回触", "萤回触 轮回触点◆"), _row(22, "回触", "萤回触 轮回触点◆"))
     rows = rows.replace(_row(20, "收官", "四轴"), _row(20, "收官", "四轴"))
     findings = lint(_mk(tmp_path, rows, end=22), 1, 12)
     assert any("touch" in f and "gap" in f for f in findings), findings
@@ -129,3 +131,22 @@ def test_touch_chain_must_span_volume(tmp_path: Path) -> None:
     findings = lint(_mk(tmp_path, rows), 1, 12)
     assert any("first touch" in f for f in findings), findings
     assert any("uncovered" in f for f in findings), findings
+
+
+@pytest.mark.unit
+def test_per_marker_chain_discrimination(tmp_path: Path) -> None:
+    """Spec #82 T6: firefly density must not mask a broken motif chain."""
+    rows = (
+        _row(1, "开篇", "双钩 智力爽◆ 轮回触点◆")
+        + _row(3, "回触", "萤回触")
+        + _row(6, "回触", "萤回触")
+        + _row(9, "回触", "萤回触")
+        + _row(12, "回触", "萤回触")
+        + _row(15, "回触", "萤回触")
+        + _row(18, "回触", "萤回触")
+        + _row(20, "收官", "四轴")
+    )  # 轮回链只有 ch1 → 尾距 19 > 8 → 必红；萤链 gap=3 全绿
+    findings = lint(_mk(tmp_path, rows, end=20), 1, 12)
+    # 轮回链断（单触点→fewer-than 或尾距红）；萤链全绿
+    assert any("轮回触点◆" in f for f in findings), findings
+    assert not any("萤回触" in f for f in findings), findings

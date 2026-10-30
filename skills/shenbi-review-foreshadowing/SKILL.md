@@ -72,6 +72,7 @@ digraph review_foreshadowing {
 3. **支线停滞 > 5 章必须标记为 warning** — 支线推进的活跃度是追读信号
 4. **备忘 hook 账必须与正文一致** — memo 中标注的兑现动作禁止在正文中缺失
 5. **密度预算禁止超 8 操作/章** — 含种植、强化、触发、兑现
+6. **章级钩注册完整性（spec #82 T2）** — 正文存在钩性在场面（种下后承诺悬置的物/事）但 `truth/pending_hooks.md` 无对应行 → `- [BLOCKING]` finding（注册完整性是龄期门的前提）；注册动作归 state-settling 钩增量，以本审计 finding 为唯一确证来源
 
 ## 检查执行
 

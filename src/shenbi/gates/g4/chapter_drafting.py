@@ -430,6 +430,76 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
     return names
 
 
+def _ending_archetype_of(text: str) -> str | None:
+    """Closing-archetype classifier (spec #82 T4, shared by the rotation
+    sentinel and the audit-context ending-history producer).
+
+    The closing window is prose-based: callers feed raw chapter files whose
+    tails are META POST self-check blocks (digit-heavy word-count lines) —
+    classifying the raw tail called every real chapter 账目形态 (PR #263).
+    """
+    tail = strip_narrative_body(text)[-220:]
+    if len(re.findall(r"\d+", tail)) >= 2:
+        return "账目形态"
+    if re.search(r"呢？\s*$", tail, re.M):
+        return "呢？自嘲"
+    if re.search(r"他在心里.{0,12}一遍", tail):
+        return "心里复述"
+    if re.search(r"这一(笔|夜|章)", tail):
+        return "复述起手"
+    return None
+
+
+def _spec82_hook_rotation(
+    content: str, pf_name: str, project_dir: str | None, mf: list[str], c: list[dict[str, Any]]
+) -> None:
+    """Spec #82 T4: 七型钩轮换门 + 收尾多样性哨兵（读 T0 快照+章文件）.
+
+    Rotation (FAIL): consecutive same 章尾钩型 across two chapters — the
+    seed's 「轮换使用，连续两章不得同型」 (outline-example.md:1178), previously
+    unenforced. Absent labels (pre-v4 chapters) skip; no history skips.
+    Ending diversity (WARN): closing-archetype pattern firing three chapters
+    in a row — 账目形态 first (>=2 digit runs in the closing window).
+    """
+    from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
+
+    m_ch = re.search(r"chapter-(\d+)", pf_name)
+    if not m_ch or not project_dir:
+        return
+    n = int(m_ch.group(1))
+    hist = _declared_history(project_dir)
+
+    mp = Path(project_dir) / "plans" / f"chapter-{n}-plan.md"
+    cur: str | None = None
+    if mp.is_file():
+        mm = re.search(r"^章尾钩型[：:]\s*(\S+)", mp.read_text(encoding="utf-8"), re.M)
+        cur = mm.group(1).strip() if mm else None
+    prev = (hist.get(n - 1) or {}).get("章尾钩型")
+    if cur and prev and cur == prev:
+        mf.append(
+            f"G4.cd.hook_type_rotation:ch{n}:{cur} 连续两章同型"
+            f"（种子七型「轮换使用，连续两章不得同型」；修复者: planning——换型收束）"
+        )
+
+    archetypes: list[str | None] = []
+    for k in (n - 2, n - 1):
+        chp = Path(project_dir) / "chapters" / f"chapter-{k}.md"
+        archetypes.append(
+            _ending_archetype_of(chp.read_text(encoding="utf-8")) if chp.is_file() else None
+        )
+    cur_arch = _ending_archetype_of(content)
+    archetypes.append(cur_arch)
+    if cur_arch is not None and archetypes[0] == cur_arch and archetypes[1] == cur_arch:
+        c.append(
+            {
+                "id": "G4.cd.ending_diversity",
+                "file": pf_name,
+                "s": GateStatus.WARN,
+                "r": f"连续 3 章「{cur_arch}」同型收尾（收尾多样性哨兵——账目形态第一原型；修复者: drafting）",
+            }
+        )
+
+
 def g4_chapter_drafting(
     fps: list[str],
     rd: str | None = None,
@@ -799,6 +869,38 @@ def g4_chapter_drafting(
             ]
             window_text = "".join(hook_window)
             window_cjk = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", window_text))
+            _spec82_hook_rotation(content, pf.name, project_dir, mf, c)
+            # spec #82 T1: quote anchoring (v4 张力拍引句回查本章正文——
+            # 与 #83 T1 verbatim 判定器共基；只验存在性，温度语义归 audit
+            # 判温 blocking finding）。audit-T5/C1: 读内存 content（与循环头
+            # 同源——Path(fp) 相对路径在子进程 CWD 下确定性假阳性）；
+            # audit-T5/I1: v4 memo 缺『』锚定形态 → FAIL（模板义务不可静默逃逸）。
+            from shenbi.gates.g4.quote_verbatim import extract_anchor_quotes, quote_in_chapter
+
+            _cn82 = re.search(r"chapter-(\d+)", pf.name)
+            _mp82 = (
+                Path(project_dir) / "plans" / f"chapter-{int(_cn82.group(1))}-plan.md"
+                if _cn82 and project_dir
+                else None
+            )
+            if _mp82 is not None and _mp82.is_file():
+                _memo82 = _mp82.read_text(encoding="utf-8")
+                if re.search(
+                    r"^plan_format[：:]\s*v[4-9]\s*$", _memo82, re.M
+                ):  # v4+ 义务（audit-T5/I1 复审：v[3-9] 误伤 v3 全量）:
+                    _anchors = extract_anchor_quotes(_memo82)
+                    if _anchors:
+                        for _tier, _q in _anchors:
+                            if not quote_in_chapter(_q, content):
+                                mf.append(
+                                    f"G4.cd.quote_verbatim:{fp}:『{_q[:24]}…』不在本章正文"
+                                    f"（引句锚定——v4 张力拍引句须逐字取自章尾句原文；修复者: drafting 或 planning 同步改）"
+                                )
+                    else:
+                        mf.append(
+                            f"G4.cd.quote_verbatim:{fp}:v4 备忘缺『』引句锚定形态"
+                            f"（章尾张力拍行须为 [微|章|大]｜『章尾句原文引句』；修复者: planning）"
+                        )
             if window_cjk >= 30:
                 has_q = bool(re.search(r"[？?]", window_text))
                 has_t = bool(
@@ -917,19 +1019,29 @@ def g4_chapter_drafting(
                 _mp = Path(project_dir) / "plans" / f"chapter-{_cn.group(1)}-plan.md"
                 if _mp.is_file():
                     _memo_text = _mp.read_text(encoding="utf-8")
-                    _pfv = re.search(r"^plan_format[：:]\s*v[23]\s*$", _memo_text, re.MULTILINE)
+                    _pfv = re.search(
+                        r"^plan_format[：:]\s*v[2-9]\s*$", _memo_text, re.MULTILINE
+                    )  # v2 门（v3 ⊇ v2, #78；v4 ⊇ v3, spec #82）——不得 v[3-9] 误伤 v2
                     _memo_v2 = _pfv is not None  # v3 ⊇ v2（#78）
         # ── spec #78: plan_format v3（回触/分级/重量）──
         _memo_v3 = False
         if _memo_v2:
-            _memo_v3 = bool(re.search(r"^plan_format[：:]\s*v3\s*$", _memo_text, re.MULTILINE))
+            _memo_v3 = bool(re.search(r"^plan_format[：:]\s*v[3-9]\s*$", _memo_text, re.MULTILINE))
         _proj78 = Path(project_dir) if project_dir else None
         if _memo_v3 and _proj78 is not None:
-            # 连续微钩（读前章 memo 声明——纯读幂等）
+            # 连续微钩（读前章声明——spec #82 T1/I4：优先完成时快照（L-D 铁律），
+            # 快照缺席章（卷一 pre-T0 历史）回退 plan memo 解析——纯读幂等）
             _cn78 = re.search(r"chapter-(\d+)", pf.name)
             if _cn78:
+                from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
+
+                _hist78 = _declared_history(str(project_dir)) if _proj78 else {}
                 _tiers: list[str] = []
                 for _k in range(max(1, int(_cn78.group(1)) - 3), int(_cn78.group(1)) + 1):
+                    _snap78 = (_hist78.get(_k) or {}).get("张力拍档位")
+                    if isinstance(_snap78, str) and _snap78 in ("微", "章", "大"):
+                        _tiers.append(_snap78)
+                        continue
                     _mk = _proj78 / "plans" / f"chapter-{_k}-plan.md"
                     if not _mk.is_file():
                         continue

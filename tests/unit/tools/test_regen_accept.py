@@ -160,3 +160,37 @@ def test_blind_recognition_threshold_and_sample_floor(tmp_path: Path) -> None:
     v = check_blind_recognition(p, through=2)
     # 甲 = 1/2 < 4/5 -> FAIL
     assert v.status == "FAIL" and "甲=1/2" in v.detail, v.detail
+
+
+def test_emotion_proxy_wordlist_external_counts_cold(tmp_path: Path) -> None:
+    """Spec #82 (r3): wordlist-external tones (安/暖/快) count as cold —
+    the ch5/12/15 escape hatch is closed by the shared predicate.
+    """
+    p = tmp_path / "proj"
+    (p / "plans").mkdir(parents=True)
+    tones = ["悲", "安", "暖", "快", "悲"]  # 安/暖/快 wordlist-external → cold
+    for n, tone in enumerate(tones, start=1):
+        (p / "plans" / f"chapter-{n}-plan.md").write_text(
+            f"# 计划\n\n- emotion_tone: {tone}\n- 本章金句位: 静｜白描｜段末\n",
+            encoding="utf-8",
+        )
+    # 燃 no longer rescues wordlist-external tones (branch ① priority):
+    # 5 consecutive cold > 3 → FAIL (the old code saw 安/暖/快 as warm → PASS)
+    v = check_emotion_proxy(p, through=5)
+    assert v.status == "FAIL", v.detail
+
+
+def test_emotion_proxy_sliding_window_ignores_early_cold(tmp_path: Path) -> None:
+    """Spec #82 (r6): the check slides over the last 10 chapters — a cold
+    run entirely outside the window must not fail the through=late check.
+    """
+    p = tmp_path / "proj"
+    (p / "plans").mkdir(parents=True)
+    for n in range(1, 21):
+        tone = "悲" if n <= 6 else "喜"  # cold run ch1-6 outside the ch11-20 window
+        (p / "plans" / f"chapter-{n}-plan.md").write_text(
+            f"# 计划\n\n- emotion_tone: {tone}\n- 本章金句位: 静｜白描｜段末\n",
+            encoding="utf-8",
+        )
+    v = check_emotion_proxy(p, through=20)
+    assert v.status == "PASS", v.detail

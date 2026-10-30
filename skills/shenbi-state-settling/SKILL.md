@@ -253,6 +253,8 @@ digraph state_settling {
 > - **foreshadowing-resolve**：兑现处理（TRIGGERED→RESOLVED）。
 > 执行顺序：plant → track（生命周期）→ resolve；state-settling 的 `last_reinforced` 更新与 track 并行。历史 Phase 1 临时由 state-settling 兼做生命周期转换的逻辑已废弃。
 
+**铁律（spec #82 T2 条文化——pending_hooks.md 判例升条文）**：物品层在场不等于约定层推进——只有审计判 advance 的在场才发 `last_reinforced` 增量；纯在场/复读记 defer，不得刷新龄期（hook_age 门以 `last_reinforced` 为唯一审计锚定数据源）。
+
 参考 `truth-files-reference.md` 获取完整的文件格式说明。
 
 ## 输出格式

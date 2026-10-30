@@ -148,6 +148,10 @@ class ChapterState:
     audit_results: dict[str, Any] = field(default_factory=dict)
     revision_count: int = 0
     audit_retry_count: int = 0  # tracks audit BLOCKING revision attempts
+    # spec #82 T0: completion-time declared-label snapshot. Sequence gates
+    # read this frozen copy, never the mutable plan file — post-gate plan
+    # rewrites by _REDO_RE_DISPATCH must not rewrite gate history.
+    declared: dict[str, Any] = field(default_factory=dict)
 
 
 def retry_key(chapter: int, skill: str) -> str:
@@ -324,6 +328,7 @@ class PipelineState:
                         "audit_results": v.audit_results,
                         "revision_count": v.revision_count,
                         "audit_retry_count": v.audit_retry_count,
+                        "declared": v.declared,
                     }
                     for k, v in self.chapter_loop.chapter_states.items()
                 },
@@ -387,6 +392,7 @@ class PipelineState:
                 audit_results=v.get("audit_results", {}),
                 revision_count=v.get("revision_count", 0),
                 audit_retry_count=v.get("audit_retry_count", 0),
+                declared=v.get("declared", {}),
             )
 
         soft_fail_trackers: dict[str, Any] = {}

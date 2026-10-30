@@ -1170,6 +1170,24 @@ def _build_skill_prompt(
                 reads_manifest.append(
                     {"path": fname, "mode": "full", "matched_all": True, "source": "cache"}
                 )
+        # spec #82 T4②: list-field injection branch — ending_history rides no
+        # file-path key (audit-T4-plan/M6): appended to the skill prompt as a
+        # 审查参考数据 section for review-group-craft's same-type-ending check.
+        _ending = getattr(shared_context, "ending_history", None) or []
+        if _ending and skill == "shenbi-review-group-craft":
+            _section = (
+                "审查参考数据·近 10 章收尾型历史（机器派生，供第 10 检查点同型收尾判定）：\n"
+                + "\n".join(f"- {ln}" for ln in _ending[-10:])
+            )
+            raw_inputs["审查参考数据/ending_history"] = _section
+            reads_manifest.append(
+                {
+                    "path": "审查参考数据/ending_history",
+                    "mode": "derived",
+                    "matched_all": True,
+                    "source": "cache",
+                }
+            )
 
     # spec #81 §3: escape-hatch drift counter — always-on (independent of the
     # archive gate), shared seam (API/IDE faces both count). The builder must

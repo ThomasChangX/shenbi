@@ -94,10 +94,12 @@ def test_g4cp_token_truth_table_real_gate(tmp_path: Path) -> None:
     )
     # 缺席 = v1 默认（无 plan_format/voice FAIL 行）
     assert not any("plan_format" in m or "voice_line" in m for m in run_memo(base, "a"))
-    # v4 非法（v3 已合法——#78）
-    assert any(
+    # v4 合法（spec #82 T1——v4 ⊃ v3；真值表翻转：invalid→legal）
+    assert not any(
         "plan_format" in m and "invalid" in m for m in run_memo(base + "plan_format: v4\n", "b")
     )
+    # v4 缺声口要求行 → voice_line FAIL（v4 ⊇ v2 义务，spec #82）
+    assert any("voice_line" in m for m in run_memo(base + "plan_format: v4\n", "b"))
     # v2 缺声口要求行
     assert any("voice_line" in m for m in run_memo(base + "plan_format: v2\n", "c"))
     # v2 齐备
@@ -251,3 +253,47 @@ def test_g4cd_v3_micro_hook_run(tmp_path: Path) -> None:
         g4_chapter_drafting([str(d / "chapters" / "chapter-3.md")], rd=str(d), project_dir=str(d))
     )
     assert any("G4.cd.micro_hook_run" in m for m in r.get("must_fix", [])), r.get("must_fix")
+
+
+@pytest.mark.unit
+def test_g4cd_micro_hook_snapshot_overrides_plan_relabel(tmp_path: Path) -> None:
+    """Spec #82 T1/I4 (audit-T4/I1): snapshot wins over plan relabel.
+
+    Snapshot carries three trailing 微 labels while those plans on
+    disk were rewritten to 章 (relabel); the current memo is 微 too — the
+    snapshot makes the run 4>2 (FAIL). A plan-only variant would see
+    [章,章,章,微] → run 1 → PASS: that difference is the pin.
+    """
+    import json as _json
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    d = tmp_path
+    (d / "plans").mkdir()
+    (d / "chapters").mkdir()
+    for k in (2, 3, 4):
+        (d / "plans" / f"chapter-{k}-plan.md").write_text(
+            "plan_format: v3\n章尾张力拍: 章＋改写后的形态\n", encoding="utf-8"
+        )
+    (d / "plans" / "chapter-5-plan.md").write_text(
+        "plan_format: v3\n章尾张力拍: 微＋形态\n",
+        encoding="utf-8",  # 当前章也微：快照微×3+当章=4 连击
+    )
+    (d / "chapters" / "chapter-5.md").write_text(
+        "# 第五章\n<!--SCENE-->\n他数完这一页，又从头数起。\n<!--SCENE-->\n灯芯挑了一下，账上添一笔。\n",
+        encoding="utf-8",
+    )
+    state = {
+        "project_dir": str(d),
+        "chapter_loop": {
+            "current_chapter": 5,
+            "chapter_states": {
+                str(k): {"declared": {"张力拍档位": "微"}, "status": "complete"} for k in (2, 3, 4)
+            },
+        },
+    }
+    (d / "pipeline-state.json").write_text(_json.dumps(state), encoding="utf-8")
+    result = _json.loads(
+        g4_chapter_drafting([str(d / "chapters" / "chapter-5.md")], rd=str(d), project_dir=str(d))
+    )
+    assert any("micro_hook_run" in m and ("4>2" in m or "3>2" in m) for m in result["must_fix"])

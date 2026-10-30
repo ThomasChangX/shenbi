@@ -22,6 +22,7 @@ from shenbi.text.cjk import find_quote_spans
 _DEATH_PATTERNS = re.compile(r"(萤死|而死|战死|病故|身死|殁)")
 _CURRENT_DEATH = re.compile(r"已故|已消散")
 _COLD_TONES = ("悲", "惧", "平")
+_TONE_WORDLIST = frozenset({"悲", "喜", "怒", "惧", "平"})  # spec #82 cold predicate branch ①
 
 
 @dataclass
@@ -199,6 +200,20 @@ def _tone_of(project_dir: Path, chapter: int) -> str | None:
         r"^emotion_tone[：:]\s*(悲|喜|怒|惧|平)", memo.read_text(encoding="utf-8"), re.MULTILINE
     )
     return m.group(1) if m else None
+
+
+def cold_chapter(tone: str | None, golden_hot: bool) -> bool:
+    """Shared cold predicate (spec #82 T1) — ordered branches, single source.
+
+    ① tone outside the five-value wordlist → cold (wordlist-external takes
+       priority over the golden exception — the third escape hatch);
+    ② tone in {悲,惧,平} AND not golden-hot → cold (2c golden exception);
+    ③ otherwise warm. Consumed by the G4.cp sequence gate, regen-accept 2c
+    and the T0 snapshot write-validation.
+    """
+    if tone is None or tone not in _TONE_WORDLIST:
+        return True
+    return tone in _COLD_TONES and not golden_hot
 
 
 def cold_run(project_dir: Path, chapter: int, *, lookback: int = 5) -> int:

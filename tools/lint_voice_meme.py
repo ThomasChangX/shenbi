@@ -106,7 +106,9 @@ def lint_chapter(project: Path, chapter: int) -> list[str]:
     v2 = False
     if memo.is_file():
         v2 = (
-            re.search(r"^plan_format[：:]\s*v2\s*$", memo.read_text(encoding="utf-8"), re.MULTILINE)
+            re.search(
+                r"^plan_format[：:]\s*v[2-9]\s*$", memo.read_text(encoding="utf-8"), re.MULTILINE
+            )
             is not None
         )
     ch = project / "chapters" / f"chapter-{chapter}.md"
@@ -137,7 +139,7 @@ def _is_v2(project: Path, f: Path) -> bool:
         return False
     mp = project / "plans" / f"chapter-{m.group(1)}-plan.md"
     return mp.is_file() and bool(
-        re.search(r"^plan_format[：:]\s*v2\s*$", mp.read_text(encoding="utf-8"), re.MULTILINE)
+        re.search(r"^plan_format[：:]\s*v[2-9]\s*$", mp.read_text(encoding="utf-8"), re.MULTILINE)
     )
 
 
@@ -185,6 +187,29 @@ def lint_volume(project: Path, volume: int) -> list[str]:
         present = any(display in ln for ln in node_rows) or any(cp in vol_text for cp in cps)
         if present and not any(cp in vol_text for cp in cps):
             out.append(f"[配角声口] {display} 卷内登场但口癖 0 次")
+    # spec #82 T4: per-catchphrase 卷配额（超用帽——默认每 3 章 ≤1；
+    # 「这笔我先记下」卷一 26 处 vs 建议值 12 的教训。超配 → FAIL 面，
+    # 由 regen-accept 判据 4 消费（既有调用面自动获得））
+    chapters_in_vol = max(1, len(files))
+    cap_scale = chapters_in_vol // 3 or 1
+    # audit-T7/C2: protagonist card rides too — the motivating case
+    # （「这笔我先记下」卷一 35 处 vs 帽 12）lives on the protagonist card,
+    # which the major-only glob never saw.
+    cards = sorted((project / "characters" / "major").glob("*.md"))
+    prot = project / "characters" / "protagonist.md"
+    if prot.is_file():
+        cards.append(prot)
+    for card in cards:
+        for cp in catchphrases_from_card(card.read_text(encoding="utf-8")):
+            hits = vol_text.count(cp)
+            if hits > cap_scale:
+                # audit-T7/C2: FAIL 域 token — without it the exit-code filter
+                # (main: fails = rows containing "FAIL 域") never sees the cap
+                # and regen-accept 判据 4 stays blind to overuse.
+                out.append(
+                    f"[口癖帽] {cp} 卷内 {hits} 次 > 建议 {cap_scale}"
+                    f"（每 3 章 ≤1——spec #82 T4）FAIL 域(v2)"
+                )
     return out
 
 

@@ -47,6 +47,7 @@ from shenbi.contracts.schemas.hooks import HookState, parse_hook_state
 import yaml
 
 from shenbi.logging import get_logger
+from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
 from shenbi.safe_write import safe_write
 from shenbi.pipeline.audit_aggregate import write_audit_aggregate
 from shenbi.pipeline.audit_layer import GENRE_ACTIVATION_MATRIX, run_audit_layer
@@ -1380,7 +1381,20 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
         # permanently empty on real pipeline output).
         record_gate_result(project_dir, "chapter_loop", n, "pipeline-scene-split", "G4", g4)
         if not _gate_passed(g4):
-            issues.extend(f"G4.cd ch{n}: {m}" for m in g4.get("must_fix", []))
+            # spec #82 T3 (final unification): shared routing — all-demoted
+            # also re-records the manifest PASS here (raw FAIL logged above;
+            # latest-wins). Throwaway state: no retry key at this site.
+            g4, _rem = _shadow_route_g4(
+                PipelineState(),
+                project_dir,
+                g4,
+                chapter=n,
+                skill="pipeline-scene-split",
+                rk=f"ch{n}-",
+            )
+            issues.extend(
+                f"G4.cd ch{n}: {m}" for m in (_rem if _rem is not None else g4.get("must_fix", []))
+            )
 
     # spec #75: cross-chapter invariants — G4.xc independent manifest key
     # (never shares G4 with G4.cd: record_gate_result is latest-wins per key).
@@ -2031,6 +2045,97 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
     return True
 
 
+#: spec #82 T0 — declared-label wordlists for the completion-time snapshot.
+#: Wordlist-external values are kept raw (consumers apply the shared cold
+#: predicate, which treats wordlist-external as cold) and logged WARN.
+DECLARED_WORDLISTS: dict[str, frozenset[str]] = {
+    "emotion_tone": frozenset({"悲", "喜", "怒", "惧", "平"}),
+    "张力拍档位": frozenset({"微", "章", "大"}),
+    "payoff档": frozenset({"小", "中", "大"}),
+    "章尾钩型": frozenset({"悬念钩", "危机钩", "情感钩", "反转钩", "账目钩", "信物钩", "对位钩"}),
+}
+
+
+def _shadow_route_g4(
+    state: PipelineState,
+    project_dir: Path | str,
+    g4: dict[str, Any],
+    *,
+    chapter: int,
+    skill: str,
+    rk: str,
+) -> tuple[dict[str, Any], list[str] | None]:
+    """Spec #82 T3 shadow demotion routing — the ONE implementation shared
+    by every G4 consumption site (audit-T3/C1 re-land + I2/I3).
+
+    Returns (possibly rewritten g4, post-demotion remaining must_fix or
+    None when no demotion happened — caller feeds remaining to the
+    classifier instead of the raw list). All-demoted → PASS-with-warnings
+    rewrite + retry_feedback cleanup + manifest re-record (the raw FAIL was
+    already logged by run_gate_g4; latest-wins append).
+    """
+    if _gate_passed(g4):
+        return g4, None
+    demoted, remaining = demote_must_fix(Path(project_dir), g4.get("must_fix", []))
+    for dw in demoted:
+        log.warning("shadow_gate_demoted", chapter=chapter, skill=skill, item=dw)
+        emit_shadow_warn_trace(project_dir, chapter, dw)
+    if not demoted:
+        return g4, None
+    if not remaining:
+        state.chapter_loop.retry_feedback.pop(rk, None)
+        rewritten = {**g4, "status": GateStatus.PASS.value, "must_fix": []}
+        from shenbi.gates.gate_manifest import record_gate_result
+
+        record_gate_result(Path(project_dir), "chapter_loop", chapter, skill, "G4", rewritten)
+        return rewritten, []
+    return {**g4, "must_fix": list(remaining)}, list(remaining)
+
+
+def _snapshot_declared(project_dir: Path, chapter: int) -> dict[str, Any]:
+    """Completion-time declared-label snapshot (spec #82 T0) — pure read.
+
+    Freezes the labels that passed the gate: the plan's declaration lines plus
+    this chapter's volume_map node markers (轮回触点◆ etc. — T6's data base,
+    produced by the outline, not the memo). Follower members snapshot through
+    the same function at the leader's completion moment (#83 T5 seam).
+    """
+    d: dict[str, Any] = {}
+    plan = project_dir / "plans" / f"chapter-{chapter}-plan.md"
+    if plan.is_file():
+        text = plan.read_text(encoding="utf-8")
+        # 真实形态（plan 审查 C1）：`**payoff 拍**: 类型｜轴(债)｜中兑现` — 档位在「X兑现」
+        for key, pat in (
+            ("emotion_tone", r"^emotion_tone[：:]\s*(\S+)"),
+            # 兼容裸/加粗形态（**章尾张力拍**: ch36:78 实存）；档位取 [微|章|大] 首匹配
+            ("张力拍档位", r"^[-* ]*\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?(微|章|大)"),
+            ("payoff档", r"\*{0,2}payoff\s*拍\*{0,2}[：:].*?(小|中|大)兑现"),
+            ("章尾钩型", r"^章尾钩型[：:]\s*(\S+)"),
+        ):
+            m = re.search(pat, text, re.MULTILINE)
+            if m:
+                val = m.group(1).strip()
+                d[key] = val
+                if key in DECLARED_WORDLISTS and val not in DECLARED_WORDLISTS[key]:
+                    log.warning(
+                        "snapshot_wordlist_external",
+                        chapter=chapter,
+                        key=key,
+                        value=val,
+                    )
+        d["金句位燃"] = bool(re.search(r"^金句位[：:]\s*燃", text, re.MULTILINE))
+    markers: list[str] = []
+    vm = project_dir / "outline" / "volume_map.md"
+    if vm.is_file():
+        for line in vm.read_text(encoding="utf-8").splitlines():
+            m = re.match(r"^\|\s*第(\d+)章", line)
+            if m and int(m.group(1)) == chapter:
+                markers = re.findall(r"[一-龥A-Za-z]+◆", line)
+                break
+    d["节点标记集"] = markers
+    return d
+
+
 def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     """Advance to the next chapter, optionally setting a per-chapter checkpoint.
 
@@ -2053,6 +2158,15 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
         cs = ChapterState()
         state.chapter_loop.chapter_states[key] = cs
     cs.status = ChapterStatus.COMPLETE
+
+    # spec #82 T0: freeze declared labels for every bundle member at
+    # completion (leader + followers share one completion moment; #83 T5
+    # routes its batch status write through the same per-chapter function).
+    for member in bundle_chapters(project_dir, chapter):
+        mkey = str(member)
+        mcs = state.chapter_loop.chapter_states.setdefault(mkey, ChapterState())
+        if not mcs.declared:
+            mcs.declared = _snapshot_declared(project_dir, member)
 
     # F368 residual (spec #69 T5): chapter-close sweep — a finished chapter's
     # corrective feedback must not leak into later dispatch cycles. The dash
@@ -3898,6 +4012,19 @@ def _run_chapter_step_impl(
             g4 = run_gate_g4(
                 pstep.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop"
             )
+            # spec #82 T3: shadow demotion routing (shared implementation).
+            g4, _shadow_rem = _shadow_route_g4(
+                state,
+                project_dir,
+                g4,
+                chapter=chapter,
+                skill=pstep.skill,
+                rk=_retry_key(chapter, pstep.skill),
+            )
+            if _shadow_rem is not None:
+                state.chapter_loop.retry_feedback[_retry_key(chapter, pstep.skill)] = (
+                    _enrich_g4_feedback(list(_shadow_rem))
+                )
             if _gate_passed(g4):
                 # #18-4 (probe23): mirror the serial site's canary pop — a
                 # PASSED retry must clear its corrective feedback, or the
@@ -4201,12 +4328,19 @@ def _run_chapter_step_impl(
     # G4: skill-specific structural validation (every dispatched step).
     g4_files = _resolve_g4_files(project_dir, step, chapter)
     g4 = run_gate_g4(step.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
+    # spec #82 T3: shadow demotion BEFORE classification (gates stay pure).
+    # spec #82 T3 (final unification): single shared implementation.
+    g4, _shadow_remaining = _shadow_route_g4(
+        state, project_dir, g4, chapter=chapter, skill=step.skill, rk=retry_key
+    )
     if _gate_passed(g4):
         # Canary defect 'retry_feedback 永不清': stale corrective feedback
         # from a prior failure stayed injected into every later dispatch.
         state.chapter_loop.retry_feedback.pop(retry_key, None)
     if not _gate_passed(g4):
-        must_fix = g4.get("must_fix", [])
+        must_fix: list[str] = (
+            _shadow_remaining if _shadow_remaining is not None else list(g4.get("must_fix", []))
+        )
         hard_fails, soft_fails, warn_fails = _classify_g4_failures(must_fix)
 
         # Edge case: G4 failed but must_fix was empty or all items unmatched.

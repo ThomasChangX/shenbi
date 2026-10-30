@@ -4,9 +4,11 @@ from __future__ import annotations
 from pathlib import Path
 from shenbi.status import GateStatus
 from typing import Any
+import json
 import re
 
 from shenbi.logging import get_logger
+from shenbi.contracts.enums import PF_GE_V2, PF_GE_V3, PF_LEGAL
 from shenbi.gates.g4.cross_chapter import load_memo_declarations
 from shenbi.gates.shared import (
     SCENE_INDEPENDENT_BAND,
@@ -50,6 +52,435 @@ def parse_prop_declarations(memo_text: str) -> list[tuple[str, str, str, str]]:
         else:
             out.append((prop, op, left, left))
     return out
+
+
+def _declared_history(project_dir: str | None) -> dict[int, dict[str, Any]]:
+    """Read completion-time declared snapshots from pipeline-state.json."""
+    if not project_dir:
+        return {}
+    sp = Path(project_dir) / "pipeline-state.json"
+    if not sp.is_file():
+        return {}
+    try:
+        data = json.loads(sp.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    out: dict[int, dict[str, Any]] = {}
+    for k, cs in (data.get("chapter_loop", {}).get("chapter_states", {}) or {}).items():
+        if isinstance(cs, dict) and cs.get("declared"):
+            try:
+                out[int(k)] = dict(cs["declared"])
+            except (TypeError, ValueError):
+                continue
+    return out
+
+
+def _spec82_sequence_gates(
+    content: str,
+    n: int,
+    project_dir: str | None,
+    mf: list[str],
+    c: list[dict[str, Any]],
+) -> None:
+    """Spec #82 T1: cold_streak / hot_hook / payoff_magnitude / temperature.
+
+    History comes from the T0 completion snapshot (never the mutable plan);
+    the current chapter's own declarations join the window tail. Config-
+    absent keys degrade to WARN (scene_budget precedent). The first three
+    chapters are exempt (golden-3 has its own constraints). Bootstrap: a
+    window with fewer completed chapters than `window` skips floor checks.
+    """
+    if not project_dir or n <= 3:
+        return
+    from shenbi.gates.shared import read_genre_config
+    from shenbi.text.recall_weight import cold_chapter
+
+    mp = (read_genre_config(project_dir) or {}).get("market_params", {})
+    hist = _declared_history(project_dir)
+
+    # spec #82 T1: 回卷窗口跨卷界时只取本卷已生成章（audit-T4/C1）——
+    # bundle_chapters 同源的 volume span 判定复用；无 volume_map 时全量。
+    vol_start = 1
+    _vm = Path(project_dir) / "outline" / "volume_map.md"
+    if _vm.is_file():
+        from shenbi.pipeline.volume_budget import parse_volume_spans
+
+        for _span in parse_volume_spans(_vm.read_text(encoding="utf-8")):
+            if _span.start <= n <= _span.end:
+                vol_start = _span.start
+                break
+
+    def _cur(key: str, pat: str) -> Any:
+        m = re.search(pat, content, re.MULTILINE)
+        return m.group(1) if m else None
+
+    tone = _cur("emotion_tone", r"^emotion_tone[：:]\s*(\S+)")
+    golden_hot = bool(re.search(r"^金句位[：:]\s*燃", content, re.MULTILINE))
+    tier = _cur("张力拍档位", r"^[-* ]*\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?(微|章|大)")
+    payoff = _cur("payoff档", r"\*{0,2}payoff\s*拍\*{0,2}[：:].*?(小|中|大)兑现")
+
+    # T1 cold_streak_window — trailing cold run ending at the current chapter
+    cap_cfg = mp.get("cold_streak_cap")
+    if not isinstance(cap_cfg, dict):
+        c.append(
+            {
+                "id": "G4.cp.cold_streak_window",
+                "s": GateStatus.WARN,
+                "r": "market_params.cold_streak_cap 缺席——退 WARN（spec #82）",
+            }
+        )
+    else:
+        cap = int(cap_cfg.get("max", 3))
+        run = 1 if cold_chapter(tone, golden_hot) else 0
+        if run:
+            for prev in range(n - 1, max(0, vol_start - 1), -1):
+                d = hist.get(prev)
+                if d is None:
+                    break  # snapshot gap (volume start / pre-T0) stops the run
+                if cold_chapter(d.get("emotion_tone"), bool(d.get("金句位燃"))):
+                    run += 1
+                else:
+                    break
+            if run > cap:
+                mf.append(
+                    f"G4.cp.cold_streak_window:ch{n}:{run}>{cap} "
+                    f"(连续冷章超限——冷=悲/惧/平 且金句位非燃，词表外按冷；修复者: planning——本章须转暖或前置章补暖)"
+                )
+
+    def _window(field: str, current: Any, window: int) -> list[Any] | None:
+        """Trailing window incl. current, clamped to the current volume
+        (spec: 回卷窗口跨卷界只取本卷已生成章); None → bootstrap skip.
+        """
+        lo = max(vol_start, n - window + 1)
+        vals = [v for m in range(lo, n) if (v := (hist.get(m) or {}).get(field)) is not None]
+        vals.append(current)
+        have = len([v for v in vals if v is not None])
+        if have < window:
+            return None  # bootstrap (r6/N6): window not full → no floor
+        return vals
+
+    # T1 hot_hook_floor — 大-level tension beats per window
+    hhf = mp.get("hot_hook_floor")
+    if not isinstance(hhf, dict):
+        c.append(
+            {
+                "id": "G4.cp.hot_hook_window",
+                "s": GateStatus.WARN,
+                "r": "market_params.hot_hook_floor 缺席——退 WARN（spec #82）",
+            }
+        )
+    else:
+        w = int(hhf.get("window", 10))
+        floor = int(hhf.get("min", 1))
+        vals = _window("张力拍档位", tier, w)
+        big = sum(1 for v in vals if v == "大") if vals is not None else 0
+        if vals is not None and big < floor:
+            mf.append(
+                f"G4.cp.hot_hook_window:ch{n}:{w}章窗内大钩 {big}<{floor} "
+                f"(热章尾钩频率下限；修复者: planning——窗尾章张力拍须上「大」)"
+            )
+
+    # T1 payoff_magnitude_floor — 中+ payoff per window (min key consumed)
+    pmf = mp.get("payoff_magnitude_floor")
+    if not isinstance(pmf, dict):
+        c.append(
+            {
+                "id": "G4.cp.payoff_magnitude",
+                "s": GateStatus.WARN,
+                "r": "market_params.payoff_magnitude_floor 缺席——退 WARN（spec #82）",
+            }
+        )
+    else:
+        w = int(pmf.get("window", 6))
+        rank = {"小": 0, "中": 1, "大": 2}
+        min_key = pmf.get("min", "中")
+        min_rank = rank.get(str(min_key), 1)
+        vals = _window("payoff档", payoff, w)
+        if vals is not None and not any(
+            v is not None and rank.get(str(v), -1) >= min_rank for v in vals
+        ):
+            mf.append(
+                f"G4.cp.payoff_magnitude:ch{n}:{w}章窗内无 {min_key} 级以上兑现 "
+                f"(payoff 量级下限，min 键已消费；修复者: planning)"
+            )
+
+    # T1 temperature_profile — WARN-level hot-ratio profile
+    tp = mp.get("temperature_profile")
+    if not isinstance(tp, dict):
+        c.append(
+            {
+                "id": "G4.cp.temperature_profile",
+                "s": GateStatus.WARN,
+                "r": "market_params.temperature_profile 缺席——退 WARN（spec #82）",
+            }
+        )
+    else:
+        w = int(tp.get("window", 10))
+        tp_floor: float = float(tp.get("hot_ratio_min", 0.2))
+        vals = _window("张力拍档位", tier, w)
+        tones = _window("emotion_tone", tone, w)
+        if vals is not None:
+            # 热章 = 张力拍∈{章,大} 或 emotion_tone∈{怒,喜}（spec 原文双条件）
+            hot = sum(
+                1
+                for v, t in zip(vals, tones if tones else vals, strict=False)
+                if v in ("章", "大") or t in ("怒", "喜")
+            )
+            if hot / len(vals) < tp_floor:
+                c.append(
+                    {
+                        "id": "G4.cp.temperature_profile",
+                        "file": f"plans/chapter-{n}-plan.md",
+                        "s": GateStatus.WARN,
+                        "r": f"近{w}章热占比 {hot}/{len(vals)} < {tp_floor}——温粥循环风险（WARN 级）",
+                    }
+                )
+
+
+def parse_last_reinforced(hooks_text: str) -> dict[str, int]:
+    """Per-hook max last_reinforced chapter from truth detail blocks (T2).
+
+    Real format tolerates spaces: ``last_reinforced: 第 35 章``.
+    """
+    out: dict[str, int] = {}
+    hook = ""
+    for line in hooks_text.splitlines():
+        h = re.match(r"^##+\s+(MH\d+)", line)
+        if h:
+            hook = h.group(1)
+            continue
+        m = re.match(r"^-\s*last_reinforced[：:]\s*第\s*(\d+)\s*章", line)
+        if m and hook:
+            n = int(m.group(1))
+            out[hook] = max(out.get(hook, 0), n)
+    return out
+
+
+def parse_relevant_hooks(hooks_text: str) -> set[str]:
+    """RELEVANT hook ids (plus plant chapters) from the overview table."""
+    out: set[str] = set()
+    for line in hooks_text.splitlines():
+        m = re.match(r"^\|\s*(MH\d+)（[^）]*）\s*\|\s*(\S+)\s*\|\s*(\d+)", line)
+        if m and m.group(2) == "RELEVANT":
+            out.add(m.group(1))
+    return out
+
+
+def _cn_to_int(v: str) -> int | None:
+    """CN numeral -> int, composites included (十三=13, 二十=20, 四十二=42).
+
+    Hundred-first ordering: 一百二十三 parses 123, not 13 via the 十 branch.
+    """
+    simple = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if "百" in v:
+        left, _, right = v.partition("百")
+        hundreds = simple.get(left, 1) if left else 1
+        rest = _cn_to_int(right) if right else 0
+        return hundreds * 100 + (rest or 0)
+    if v == "十":
+        return 10
+    if "十" in v:
+        left, _, right = v.partition("十")
+        tens = simple.get(left, 1) if left else 1
+        return tens * 10 + (simple.get(right, 0) if right else 0)
+    return simple.get(v)
+
+
+def _int_to_cn(n: int) -> str | None:
+    """Int -> CN numeral, composites included (13=十三, 20=二十, 42=四十二)."""
+    simple = {1: "一", 2: "二", 3: "三", 4: "四", 5: "五", 6: "六", 7: "七", 8: "八", 9: "九"}
+    if n < 10:
+        return simple.get(n)
+    if n < 20:
+        return "十" + simple.get(n - 10, "")
+    if n < 100 and n % 10 == 0:
+        return simple.get(n // 10, "") + "十"
+    if n < 100:
+        return simple.get(n // 10, "") + "十" + simple.get(n % 10, "")
+    return None
+
+
+def _defer_anchor_hits_volume(tail: str, vm_text: str) -> bool:
+    """Defer-anchor existence (spec #82 T2/r3): the anchor's volume/KR
+    reference must hit volume_map — both KR generations
+    (``#### KR2:`` headings and ``2. KR2（第 X–Y 章完成）：`` list rows)
+    plus Chinese numeral normalization (卷三 → 第三卷).
+    """
+    if not vm_text or not tail.strip():
+        return False
+    kr = re.search(r"KR\d+", tail)
+    # 前缀形「第N卷/N卷」与后缀形「卷N」都在锚域（audit-T6/C1 终轮：
+    # 后缀悬空卷此前不可见 → 复合检查被跳过 → 垃圾卷借 KR 腿混过）
+    vol = re.search(r"(?:第?([一二三四五六七八九十百\d]+)卷|卷([一二三四五六七八九十百\d]+))", tail)
+    # audit-T6/C1 复合语义：卷与 KR 双指定须双命中（「至第99卷·KR1」的
+    # 垃圾卷不得借真实 KR 混过）；单指定单命中。CN 组合数（十三/二十/四十二）
+    # 与后缀形「至卷三」都在解析域（复审：原子 1-12 只覆盖前 12 卷）。
+    vol_n = None
+    if vol:
+        v = vol.group(1) or vol.group(2)  # 前缀形或后缀形
+        vol_n = _cn_to_int(v) if not v.isdigit() else int(v)
+    kr_hit = False
+    if kr:
+        kid = kr.group(0)
+        heading = re.search(rf"^####+\s*{kid}[：:]", vm_text, re.M)
+        row = re.search(rf"^\d+\.\s*{kid}（", vm_text, re.M)
+        kr_hit = bool(heading or row)
+    # audit-T6/C1: 卷腿双向归一——锚侧中文（卷三）转 arabic 后，标题侧也要
+    # CN 形态回查（真实卷纲 12/12 全用「第三卷：」中文数字标题，arabic 直搜
+    # 零命中）；组合数由 _int_to_cn 反查；垃圾卷号两头都不命中。
+    vol_hit = False
+    if vol_n:
+        for form in (str(vol_n), _int_to_cn(vol_n) or ""):
+            if form and re.search(rf"^##+\s*第{form}卷", vm_text, re.M):
+                vol_hit = True
+                break
+    if vol_n and kr:
+        return vol_hit and kr_hit  # 双指定双命中
+    return vol_hit or kr_hit  # 单指定单命中
+
+
+def _spec82_hook_age(
+    content: str, n: int, project_dir: str | None, mf: list[str], c: list[dict[str, Any]]
+) -> None:
+    """Spec #82 T2: RELEVANT hook aging + defer budget (truth-block source)."""
+    if not project_dir:
+        return
+    from shenbi.gates.shared import read_genre_config
+
+    mp = (read_genre_config(project_dir) or {}).get("market_params", {})
+    hma = mp.get("hook_max_age")
+    hp = (
+        (Path(project_dir) / "truth" / "pending_hooks.md").read_text(encoding="utf-8")
+        if (Path(project_dir) / "truth" / "pending_hooks.md").is_file()
+        else ""
+    )
+    if not isinstance(hma, dict) or not hp:
+        # audit-T6/I3: 缺席可见性（与 T1 三门同纪律——键缺席/真相面缺席
+        # 发 WARN 行而非静默暗门）
+        if not isinstance(hma, dict):
+            c.append(
+                {
+                    "id": "G4.cp.hook_age",
+                    "s": GateStatus.WARN,
+                    "r": "market_params.hook_max_age 缺席——退 WARN（spec #82）",
+                }
+            )
+        return
+    max_age = int(hma.get("max", 8))
+    last = parse_last_reinforced(hp)
+    relevant = parse_relevant_hooks(hp)
+    plant = {
+        m.group(1): int(m.group(3))
+        for m in re.finditer(r"^\|\s*(MH\d+)（[^）]*）\s*\|\s*(\S+)\s*\|\s*(\d+)", hp, re.M)
+    }
+    defer_lines = re.findall(r"^[-*]\s*挂起[：:]\s*(MH\d+)[^\n]*$", content, re.M)
+    vm_text = ""
+    vm_path = Path(project_dir) / "outline" / "volume_map.md"
+    if vm_path.is_file():
+        vm_text = vm_path.read_text(encoding="utf-8")
+    for hook in sorted(relevant):
+        anchor = last.get(hook, plant.get(hook, 1))
+        age = n - anchor
+        if age <= max_age:
+            continue
+        # audit-T6/I2 + 阶段8/I1: 提及≠触达——须在钩账/推进语境内；v4 段 7
+        # EXACT 表格（| ID | 操作 | 推进方式 | 沉默章数 |）的 advance/touch 行
+        # 与 bullet 形都认（真实 v4 plan 按契约产出表格——bullet-only 会对
+        # 每个超龄钩确定性误报）。
+        touched = bool(
+            re.search(rf"{hook}[^\n]{{0,20}}(?:推进|touch|强化)", content)
+            or re.search(rf"钩账[^\n]{{0,12}}{hook}", content)
+            or re.search(rf"^\|\s*{hook}\s*\|\s*(?:advance|touch|强化)", content, re.M)
+        )
+        deferred = hook in defer_lines or bool(
+            re.search(rf"^\|\s*{hook}\s*\|\s*defer\s*\|([^|\n]*)", content, re.M)
+        )
+        if not (touched or deferred):
+            mf.append(
+                f"G4.cp.hook_age:ch{n}:{hook} 距上次推进 {age}>{max_age} 章且本章未触达未挂起"
+                f"（修复者: planning——钩账行 touch 或带清偿锚挂起）"
+            )
+    # 挂起行须带真实清偿锚（r3/r4：锚中卷/KR 引用须在 volume_map 命中——两代 KR 形态+卷号归一）；
+    # v4 段 7 表格 defer 行的 推进方式 列同送锚校验（阶段8/I1：bullet-only 让表格形
+    # defer 完全绕过锚校验与预算——「挂而不排」从表格通道复发）。
+    defer_forms: list[tuple[str, str]] = [
+        (m.group(1), m.group(2))
+        for m in re.finditer(r"^[-*]\s*挂起[：:]\s*(MH\d+)\s*(.*)$", content, re.M)
+    ]
+    defer_forms.extend(
+        (m.group(1), m.group(2))
+        for m in re.finditer(r"^\|\s*(MH\d+)\s*\|\s*defer\s*\|([^|\n]*)", content, re.M)
+    )
+    for hook_id, tail in defer_forms:
+        anchor_hit = _defer_anchor_hits_volume(tail, vm_text)
+        if not anchor_hit:
+            mf.append(
+                f"G4.cp.hook_age:ch{n}:{hook_id} 挂起缺有效清偿锚（『{tail.strip()[:20]}』未命中 volume_map 卷/KR）"
+                f"（修复者: planning——挂起行/表格 defer 行的推进方式列须带「至第N卷·KRn」且在卷纲在盘）"
+            )
+    budget = mp.get("hook_defer_budget", {})
+    per_vol = int(budget.get("per_volume", 3)) if isinstance(budget, dict) else 3
+    if len(defer_forms) > per_vol:
+        mf.append(
+            f"G4.cp.hook_age:ch{n}:挂起数 {len(defer_forms)}>{per_vol} 超卷预算"
+            f"（hook_defer_budget；修复者: planning——收敛挂起或兑现）"
+        )
+
+
+def _spec82_core_motif_touch(
+    n: int, project_dir: str | None, mf: list[str], c: list[dict[str, Any]]
+) -> None:
+    """Spec #82 T6: core-motif supply floor (轮回触点◆ single chain).
+
+    Data base: the T0 snapshot's 节点标记集 (volume_map-derived, not a memo
+    duty). The gate filters 轮回触点◆ out of every chapter's marker set
+    BEFORE computing the gap — a union of all ◆ markers would let 萤回触◆
+    mask a broken 轮回 chain (vol-1's 16-chapter drought passed with union
+    gaps ≤7; plan R2/I1). Dual-path fixer: planning (touchpoint beat for a
+    ◆-marked node) / volume-outlining (rearrange ◆, ungenerated chapters
+    only). First marker before the current volume start is not counted.
+    """
+    if not project_dir or n <= 3:
+        return
+    from shenbi.gates.shared import read_genre_config
+
+    cfg = read_genre_config(project_dir) or {}
+    cmt = (cfg.get("pacing") or {}).get("core_motif_touch")
+    if not isinstance(cmt, dict):
+        c.append(
+            {
+                "id": "G4.cp.core_motif_touch",
+                "s": GateStatus.WARN,
+                "r": "pacing.core_motif_touch 缺席——退 WARN（spec #82 T6）",
+            }
+        )
+        return
+    max_gap = int(cmt.get("max_gap", 6))
+    hist = _declared_history(project_dir)
+    # spec r6/N2 (audit-T9/I2): same-volume scope as T1 — the back-walk stops
+    # at the current volume's start (parse_volume_spans, bundle_chapters
+    # source); a first marker before the window doesn't count (docstring
+    # promised, wasn't implemented — vol-3 opening falsely failed).
+    vol_start = 1
+    _vm = Path(project_dir) / "outline" / "volume_map.md"
+    if _vm.is_file():
+        from shenbi.pipeline.volume_budget import parse_volume_spans
+
+        for _span in parse_volume_spans(_vm.read_text(encoding="utf-8")):
+            if _span.start <= n <= _span.end:
+                vol_start = _span.start
+                break
+    last = None
+    for k in range(n - 1, max(0, vol_start - 1), -1):
+        if "轮回触点◆" in ((hist.get(k) or {}).get("节点标记集") or []):
+            last = k
+            break
+    gap = (n - last) if last is not None else None
+    if gap is not None and gap > max_gap:
+        mf.append(
+            f"G4.cp.core_motif_touch:ch{n}:距上次轮回触点◆ {gap}>{max_gap} 章"
+            f"（金手指/母题供给下限——单一标记链，萤回触◆ 不抵轮回；修复者: planning 本章为◆节点补触点拍 / volume-outlining 重排◆（仅未生成章））"
+        )
 
 
 def g4_chapter_planning(
@@ -120,9 +551,9 @@ def g4_chapter_planning(
             # 旧式备忘（无场景块）——存量兼容；但 v3 自称的备忘缺块=FAIL
             # （2026-10-29 续跑实弹：模型连续两束漏写预算节溜过兼容口，
             # 缺锚直接引发 drafting word_band 打摆与余额链失锚）
-            if re.search(r"plan_format[：:]\s*v3\b", _plan_text):
+            if re.search(r"plan_format[：:]\s*v[3-9]\b", _plan_text):
                 mf.append(
-                    f"G4.cp.scene_budget:{fp}:场景预算节缺失——plan_format v3 备忘"
+                    f"G4.cp.scene_budget:{fp}:场景预算节缺失——plan_format v3+ 备忘"
                     "必含「### 场景预算与收束钩（#72 粒度契约）」块（2-3 场景声明＋"
                     "时间锚/余额/POV/事件/物象行）"
                 )
@@ -239,16 +670,16 @@ def g4_chapter_planning(
                     )
 
         # ── spec #76/#78 G4.cp.plan_format — 版本令牌分立 ──
-        # 缺席 = v1 默认（不 FAIL）；在场值 ∉ {v1,v2,v3} = FAIL；
-        # v2/v3 ⇒ 声口要求行存在；v3 ⇒ 张力拍分级行 + payoff 轴量行。
+        # 缺席 = v1 默认（不 FAIL）；在场值 ∉ {v1,v2,v3,v4} = FAIL；
+        # v2/v3/v4 ⇒ 声口要求行存在；v3 ⇒ 张力拍分级行 + payoff 轴量行。
         _pf_m = re.search(r"^plan_format[：:]\s*(\S+)\s*$", content, re.MULTILINE)
         if _pf_m:
             _pf_val = _pf_m.group(1)
-            if _pf_val not in ("v1", "v2", "v3"):
+            if _pf_val not in PF_LEGAL:
                 mf.append(
-                    f"G4.cp.plan_format:{fp}:invalid_token:{_pf_val} (合法值 v1/v2/v3；缺席 = v1 默认)"
+                    f"G4.cp.plan_format:{fp}:invalid_token:{_pf_val} (合法值 v1/v2/v3/v4；缺席 = v1 默认)"
                 )
-            elif _pf_val in ("v2", "v3"):
+            elif _pf_val in PF_GE_V2:
                 if not re.search(r"^声口要求[：:].+$", content, re.MULTILINE):
                     mf.append(
                         f"G4.cp.voice_line:{fp}:{_pf_val}_requires_声口要求行 "
@@ -256,7 +687,7 @@ def g4_chapter_planning(
                     )
                 else:
                     c.append({"id": "G4.cp.voice_line", "file": fp, "s": GateStatus.PASS})
-            if _pf_val == "v3":
+            if _pf_val in PF_GE_V3:
                 # spec #78 v3 义务：张力拍分级行 + payoff 轴量行
                 if not re.search(r"章尾张力拍[：:]\s*\[?(微|章|大)", content):
                     mf.append(
@@ -367,12 +798,52 @@ def g4_chapter_planning(
         else:
             mf.append(f"G4.cp.missing_emotion_tone:{fp}")
 
+        # spec #82 r5/C1（阶段8/I2）：v4 章尾钩型行——存在性+七型词表检查
+        # （镜像 emotion_tone 五值模式；词表外自造型 FAIL——种子七型的机器
+        # 执法面，此前只有 rotation 消费值而无源头门）。
+        _pf_val82 = re.search(r"^plan_format[：:]\s*(\S+)\s*$", content, re.M)
+        _is_v4plus = (
+            _pf_val82 and _pf_val82.group(1) in PF_LEGAL and int(_pf_val82.group(1)[1:]) >= 4
+        )
+        if _is_v4plus:
+            _hook_type_m = re.search(r"^章尾钩型[：:]\s*(\S+)", content, re.M)
+            if not _hook_type_m:
+                mf.append(f"G4.cp.missing_hook_type:{fp}")
+            elif _hook_type_m.group(1).strip() not in (
+                "悬念钩",
+                "危机钩",
+                "情感钩",
+                "反转钩",
+                "账目钩",
+                "信物钩",
+                "对位钩",
+            ):
+                mf.append(
+                    f"G4.cp.hook_type_wordlist:{fp}:{_hook_type_m.group(1)}"
+                    f"（七型词表外自造型——悬念/危机/情感/反转/账目/信物/对位）"
+                )
+
         if re.search(r"\*{0,2}payoff\s*拍\*{0,2}\s*[:：]\s*\S", content):
             c.append({"id": "G4.cp.payoff_beat", "file": fp, "s": GateStatus.PASS})
         else:
             mf.append(f"G4.cp.missing_payoff_beat:{fp}")
 
-        if 1 <= n <= 30:
+        # spec #82 T7: retention window parameterized (was hardcoded 1-30 —
+        # the retention gate self-extinguished past ch30 for every volume
+        # after the first). market_params.retention_anchor {from_ch, to_ch};
+        # absent config keeps the legacy hardcode (existing-project compat).
+        _ra_from: int = 1
+        _ra_to: int | None = 30
+        if project_dir:
+            from shenbi.gates.shared import read_genre_config as _rgc
+
+            _ra = ((_rgc(project_dir) or {}).get("market_params", {}) or {}).get("retention_anchor")
+            if isinstance(_ra, dict):
+                _ra_from = int(_ra.get("from_ch", 1))
+                _raw_to = _ra.get("to_ch")
+                _ra_to = int(_raw_to) if _raw_to is not None else None  # None = 全卷
+        _in_window = n >= _ra_from and (_ra_to is None or n <= _ra_to)
+        if _in_window:
             if re.search(r"\*{0,2}留存锚\*{0,2}\s*[:：]\s*\S", content):
                 c.append({"id": "G4.cp.retention_anchor", "file": fp, "s": GateStatus.PASS})
             else:
@@ -383,9 +854,16 @@ def g4_chapter_planning(
                     "id": "G4.cp.retention_anchor",
                     "file": fp,
                     "s": GateStatus.SKIP,
-                    "r": f"N={n}, retention window is chapters 1-30",
+                    "r": f"N={n}, retention window is chapters {_ra_from}-{_ra_to or '∞'}",
                 }
             )
+
+        # ── spec #82 T1: cross-chapter sequence gates (snapshot-sourced) ──
+        _spec82_sequence_gates(content, n, project_dir, mf, c)
+        # ── spec #82 T2: hook aging + defer budget (truth-block source) ──
+        _spec82_hook_age(content, n, project_dir, mf, c)
+        # ── spec #82 T6: core-motif supply floor (snapshot marker chain) ──
+        _spec82_core_motif_touch(n, project_dir, mf, c)
 
         # Section 5: 关键抉择 — quality bonus, not hard gate
         s5_match = re.search(r"## 5\..*?\n(?=## 6\.|\Z)", content, re.DOTALL)

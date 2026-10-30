@@ -222,7 +222,39 @@ def _re_dispatch_g4_must_fix(
     g4 = run_gate_g4(skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
     if str(g4.get("status")) == GateStatus.PASS:
         return None
-    return list(g4.get("must_fix", []))
+    # spec #82 T3: fourth consumption point — history-dependent shadow FAILs
+    # (cold-streak class) deterministically recur here after checkpoint
+    # re-dispatch; undemoted they burn RE_DISPATCH_RETRY_CAP then drop the
+    # redo silently. Demote before returning the must_fix list.
+    # spec #82 T3 (audit-T3/I1+I2): route through the shared demotion
+    # implementation — WARN observability + manifest re-record included.
+    from shenbi.pipeline.chapter_loop import _shadow_route_g4  # pyright: ignore[reportPrivateUsage]
+
+    from shenbi.pipeline.state import PipelineState
+
+    if chapter is None:
+        # No manifest record exists for a chapter-less rerun (run_gate_g4
+        # skips recording when chapter is None) — pure demotion, no
+        # phantom PASS re-record at ch0.
+        from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
+
+        _dem, _rem = demote_must_fix(project_dir, list(g4.get("must_fix", [])))
+        for _dw in _dem:
+            emit_shadow_warn_trace(project_dir, 0, _dw)
+        if _dem and not _rem:
+            return None
+        return _rem
+    routed, remaining = _shadow_route_g4(
+        PipelineState(),
+        project_dir,
+        g4,
+        chapter=chapter,
+        skill=skill,
+        rk=f"ch{chapter}-",
+    )
+    if str(routed.get("status")) == GateStatus.PASS:
+        return None  # all demoted → treat as passed for the redo decision
+    return remaining if remaining is not None else list(g4.get("must_fix", []))
 
 
 def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> bool:

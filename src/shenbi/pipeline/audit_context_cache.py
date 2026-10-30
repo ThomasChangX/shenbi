@@ -23,6 +23,10 @@ class SharedAuditContext:
     style_profile: str = ""
     volume_context: str = ""
     pending_hooks: str = ""
+    # spec #82 T4②: 近 10 章收尾型历史（自 T0 快照派生——dispatcher 注入
+    # review-group-craft 的「审查参考数据」块；list 字段走 list 注入分支，
+    # 不走 _INJECT_FROM_CACHE 的文件路径键约定）。
+    ending_history: list[str] = field(default_factory=list)
     # C28 R1 read-suppression source: FULL original bytes keyed by
     # project-relative POSIX path (same form as dispatch_helper._input_key).
     # The summarized fields above are truncated values and MUST NOT back
@@ -112,6 +116,25 @@ def build_shared_audit_context(project_dir: Path, chapter: int) -> SharedAuditCo
         chapter=chapter,
         estimated_tokens=ctx.estimated_tokens,
     )
+
+    # spec #82 T4② (audit-T7/C1): ending-history producer — derive the
+    # trailing-10 closing archetypes from the T0 snapshot + chapter tails;
+    # consumed by dispatch_helper's list-injection branch (checkpoint 10).
+    try:
+        from shenbi.gates.g4.chapter_drafting import _ending_archetype_of  # pyright: ignore[reportPrivateUsage]
+
+        for k in range(max(1, chapter - 9), chapter + 1):
+            if k == chapter:
+                text = ctx.chapter_text
+            else:
+                cf = project_dir / "chapters" / f"chapter-{k}.md"
+                text = cf.read_text(encoding="utf-8") if cf.is_file() else ""
+            arch = _ending_archetype_of(text) if text else None
+            if arch:
+                ctx.ending_history.append(f"第{k}章: {arch}")
+    except Exception:  # noqa: BLE001 -- observability only, never block audits
+        pass
+
     return ctx
 
 
