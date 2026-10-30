@@ -314,7 +314,7 @@ SKILL.md :123 模板键集与 :326「三键块」文本改新键集（emotion_ba
 
     uv run python -c "import json;from pathlib import Path;from shenbi.contracts.skills.genre_config import _market_params_structure as v; cfg=json.load(open('novel-xinghuo-vol1/genre-config.json')); v(cfg.get('market_params'))"
 
-——输出贴 progress（gitignored 文件不 commit）。
+——输出贴 progress（gitignored 文件不 commit）。＋pacing 块同批校验（R3/M2）：pacing.core_motif_touch 若无结构校验器则以 Task 9 消费端红测兜底，校验结果同贴。
 
 - [ ] **Step 5: 绿 + 提交**
 
