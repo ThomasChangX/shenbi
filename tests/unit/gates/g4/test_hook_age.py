@@ -161,3 +161,16 @@ def test_real_pending_hooks_fixture_parses() -> None:
     assert got.get("MH03") == 36  # multi-bullet max
     assert got.get("MH02") == 35
     assert "MH01" in parse_relevant_hooks(real)
+
+
+@pytest.mark.unit
+def test_cn_composite_and_suffix_anchor_pinning() -> None:
+    """audit-T6 final-round pinning: suffix form + CN composites."""
+    from shenbi.gates.g4.chapter_planning import _cn_to_int, _defer_anchor_hits_volume
+
+    vm = "## 第三卷：蔗与名册（第 92–146 章）\n#### KR1: 开卷\n"
+    assert _cn_to_int("十三") == 13
+    assert _cn_to_int("四十二") == 42
+    assert _cn_to_int("一百二十三") == 123
+    assert _defer_anchor_hits_volume("至卷三", vm) is True  # suffix form, no KR
+    assert _defer_anchor_hits_volume("至卷四十二·KR1", vm) is False  # dangling composite
