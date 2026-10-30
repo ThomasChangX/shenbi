@@ -1,10 +1,11 @@
 # Spec #82 · 追读引擎之网（retention-engine-net）：把商业节奏从「声明存在」升级为「分布与兑现」
 
 **日期**：2026-10-30 ｜ **系列**：卷一复盘→卷二防复发（与 #83 three-surface-consistency / #84 vol1-repair-vol2-launch 配对：#82 管「读者为什么走」，#83 管「错为什么发生」，#84 管「已发生的怎么修、卷二怎么开」）
-**状态**：Active（Revised 2026-10-30 r3） ｜ **优先级**：🟥 P0（用户直接痛点：「不够引人入胜，很容易让人弃书」——卷一 36 章实证全指标命中）
+**状态**：Active（Revised 2026-10-30 r3·r4） ｜ **优先级**：🟥 P0（用户直接痛点：「不够引人入胜，很容易让人弃书」——卷一 36 章实证全指标命中）
 **动机证据**：G3.4 全卷终评 85.35（reviews/rubric-score-36.md）＋三段式责编盲审（ch1-12 / ch13-24 / ch25-36，2026-10-30）＋驱动侧台账（vol1-ledger.md）
 **修订**：r2 2026-10-30 高精度审核修订——根因一「零存在」断言更正为「存在但失效」（cold_run / check_emotion_proxy 两处既有实现，升格而非重建，免第三套平行实现）；新增 T0 完成时声明快照层（序列门数据源从可变 plan 改固化快照，闭环 relabel 博弈与重派漂移）；T2 数据源改 truth 详情块（总览表无「状态/最后推进章」列，r1 设计为死胎）＋advance 条文化＋挂起预算；T4 补七型钩轮换门、账目钩第一原型、反合理化表调和；新增 T7 retention_anchor 窗口参数化；全部新 FAIL 门 shadow 首束试运行纪律；种子引用行号修正（L893/L897/L1181/L1183）
-**修订**：r3 2026-10-30 SDD 阶段 1 驳斥复核修订（fresh-context 子 agent 五问 + 协调者逐条亲验）——**六处证据矫正**：S1 补声明分布实证（微15/章20/大2，ch2/ch30 声明「大」而 G3.4 判零热——真问题=声明大零验真＋无频率下限）；S5 占比数字标注盲审口径；S7 改「后半卷断供」（前半卷 ch5/8/12/16 触点实在，ch21-36 十六章零轮回触点◆）；S8 黑鸟例证伪删除（ch29:119 正文实写）；KR 承接数 14/26→16/36；账目钩归因改「种子七型之一，缺的是轮换执法＋温度分布」。**六处实施补丁**：T0 follower 快照自包含（不依赖 #83 T5 先行）＋快照写入五值词表校验；T1 吸收退役 emotion_band 死键＋check_emotion_proxy 词表外 tone 堵口；T2 清偿锚存在性校验；T4/T5 audit 判温指定 blocking 级（堵低温引句充数残留口）；T6 同批更新 invariants.md 维度 9 行；新增 shadow 转正机器催转。#83 T1 判定器共基措辞改「先落地者建」
+**修订**：r3 2026-10-30 SDD 阶段 1 驳斥复核修订（fresh-context 子 agent 五问 + 协调者逐条亲验）——**六处证据矫正**：S1 补声明分布实证（微15/章19/大2，ch2/ch30 声明「大」而 G3.4 判零热——真问题=声明大零验真＋无频率下限）；S5 占比数字标注盲审口径；S7 改「后半卷断供」（前半卷 ch5/8/12/16 触点实在，ch21-36 十六章零轮回触点◆）；S8 黑鸟例证伪删除（ch29:119 正文实写）；KR 承接数 14/26→16/36；账目钩归因改「种子七型之一，缺的是轮换执法＋温度分布」。**六处实施补丁**：T0 follower 快照自包含（不依赖 #83 T5 先行）＋快照写入五值词表校验；T1 吸收退役 emotion_band 死键＋check_emotion_proxy 词表外 tone 堵口；T2 清偿锚存在性校验；T4/T5 audit 判温指定 blocking 级（堵低温引句充数残留口）；T6 同批更新 invariants.md 维度 9 行；新增 shadow 转正机器催转。#83 T1 判定器共基措辞改「先落地者建」
+**修订**：r4 2026-10-30 熔断快修轮（用户批准）——轮 2 复核 4 实锤+3 补漏：①S1 声明分布「章20」更正「章19」（ch12 plan L15 模板行+L83 bullet 行双计伪影，15+19+2=36 自洽）；②T6 离线对账改**按标记类型分链检验**（并集扩法模拟仍 findings=0，达不到双面一致）；③shadow 催转 lint 增**前置任务**（逐束 shadow WARN 事件落盘+误伤裁定记录面——trace 零 WARN 事件/gate-markers latest-wins/ChapterState 无字段三面确认数据面不存在）；④T6 裁定**本批不 bump CURRENT_PHASE**（bump P2 则维度 9 审计槽 `—` 真洞触发四槽红）；⑤emotion_band 退役补 genre-config SKILL 模板同步；⑥D2 判温钉 `- [BLOCKING]` marker 行形态（_BLOCKING_MARKER_RE 不认 prose）；⑦判温义务明确含 emotion_tone（堵全「喜」词表内绕过）；附 T2 锚解析两代 KR 形态兼容注记
 
 **触及的不变量维度**：情绪节奏（8）、承诺与债务（7）、能力活性（9）
 
@@ -16,7 +17,7 @@
 
 | # | 症状 | 证据 |
 |---|------|------|
-| S1 | **36 章零热章尾钩**（危机上门型收章）——全部落在物象收束/未答之问/感官余韵/主题句低温区；**r3 实证：机器声明面 微15/章20/大2——ch2/ch30 声明「大」而 G3.4 独立判读零热，声明大零验真＋无热钩频率下限双缺失** | G3.4 D6「36 章无一热钩收章」；ch25-36 盲审「热章尾钩 0/12」（盲审口径，未独立落盘）；plans/chapter-{2,30}-plan.md 声明「大」（r3 驳斥复跑+协调者复验） |
+| S1 | **36 章零热章尾钩**（危机上门型收章）——全部落在物象收束/未答之问/感官余韵/主题句低温区；**r3 实证：机器声明面 微15/章19/大2（r4 更正：章 20 系 ch12 双计伪影）——ch2/ch30 声明「大」而 G3.4 独立判读零热，声明大零验真＋无热钩频率下限双缺失** | G3.4 D6「36 章无一热钩收章」；ch25-36 盲审「热章尾钩 0/12」（盲审口径，未独立落盘）；plans/chapter-{2,30}-plan.md 声明「大」（r3 驳斥复跑+协调者复验） |
 | S2 | **主角零实质胜利**——36 章对抗全部「赢的是嘴」：ch33-34 舌战零成本零收益零声望，灰烬零损伤退场，卷一无反派结算 | 盲审 C「两次友好切磋不是宿敌交锋」；盲审 B「12 章净账面=帖兰死+帖木哥赴死+3000 文债+白站 22 个月」 |
 | S3 | **冷段超限**：ch26-36 十一章仅 ch33 一章真发热；ch28-31 四连冷 | G3.4 D6；盲审 C「ch25 暖意之后熬过八章观察-记录-感悟」 |
 | S4 | **断供钩成灾**：七三一（35 章零提及）、老驼纸条（35 章）、帖木哥线（ch24 后断）、「我见过另一支」第三哨（18 章）、灰烬报价后续（6 章）、经手人笔迹（11 章）、完颜嫂三日钟（立钟后全书零响） | G3.4 D2/D9；盲审三段追读引擎表 |
@@ -73,12 +74,12 @@
   - `payoff_magnitude_floor: {window: 6, min: "中"}`——payoff 拍兑现档每 6 章窗 ≥1 次「中兑现」及以上；
   - `temperature_profile: {window: 10, hot_ratio_min: 0.2}`（**WARN 级**）——热章占比下限（热章=张力拍∈{章,大} 或 emotion_tone∈{怒,喜}），堵「3冷1温」循环 mush——cold cap 与 hot floor 两门皆不触发的空隙。
 - **cold_streak 升格而非新建**：`recall_weight.cold_run` 已算冷连击、注入管线已在 chapter_loop.py:466——升格为 planning 门 FAIL（连击 > cap 时拦章，注入动作保留）；`regen_accept.check_emotion_proxy` 同步滑窗化（全卷一次性判定改 10 章滚动窗）**并堵词表外 tone 通道（r3 补丁）**：tone ∉ 五值词表时按冷章计、不再默认当暖章（ch5/12/15 实证通道）；
-- **emotion_band 死键吸收退役（r3 补丁）**：`market_params.emotion_band`（schema 校验存在、零消费）随 cold_streak_cap 落地**一并退役**——schema 必填键列表移除该键或迁移 alias 至 cold_streak_cap（升格既有而非留第三死旋钮；存量项目含该键时迁移提示）；
+- **emotion_band 死键吸收退役（r3 补丁）**：`market_params.emotion_band`（schema 校验存在、零消费）随 cold_streak_cap 落地**一并退役**——schema 必填键列表移除该键或迁移 alias 至 cold_streak_cap（升格既有而非留第三死旋钮；存量项目含该键时迁移提示）；**同步 `skills/shenbi-genre-config/SKILL.md` 模板（r4 补漏：:125 键例与 :326「三键块在场必齐」文本）——契约三源同步纪律，不同步则 SKILL↔schema 漂移、新项目继续量产死键**；
 - `G4.cp.hot_hook_window` / `G4.cp.payoff_magnitude`：滑窗读 **T0 快照**，不解析 plans/*.md；
-- **引句锚定（标签验真，章级）**：章尾张力拍声明行升级为 `章尾张力拍: 大｜『<章尾句原文引句>』`——(a) 引句逐字存在性机器判（**与 #83 T1 verbatim 判定器共基，先落地者建**：#82 队头先行则本任务建、#83 复用——r3 措辞矫正，勿各造一份；回查本章正文）；(b) 温度语义判定交 per-chapter audit close（shenbi-review-group-craft D2 章尾检查点加温度维度——审计是独立技能输出，非 plan 自声明）**且命中即为 blocking 级 finding（r3 补丁）**——引句存在性≠温度语义，低温引句充数是机器面残留口，audit 判温若为 advisory 级则该口不设防；
+- **引句锚定（标签验真，章级）**：章尾张力拍声明行升级为 `章尾张力拍: 大｜『<章尾句原文引句>』`——(a) 引句逐字存在性机器判（**与 #83 T1 verbatim 判定器共基，先落地者建**：#82 队头先行则本任务建、#83 复用——r3 措辞矫正，勿各造一份；回查本章正文）；(b) 温度语义判定交 per-chapter audit close（shenbi-review-group-craft D2 章尾检查点加温度维度——审计是独立技能输出，非 plan 自声明）**且命中即为 blocking 级 finding（r3 补丁），finding 须以 `- [BLOCKING]` 行形态写出（r4 补漏：管道 `_BLOCKING_MARKER_RE` 只认 `## BLOCKING` 标题/`|**BLOCKING` 表格/`- [BLOCKING]` 行三种 marker 形态，prose「判定: error」不可见）**；**判温义务含 emotion_tone 声明（r4 补漏）**——词表内谎言（如全卷声明「喜」）绕过词表校验与 cold_streak/temperature_profile 双门，D2 判温是唯一拦截面（等价替代：tone↔张力拍一致性机器检查——喜＋微拍即疑点 WARN），否则低温引句充数与全喜绕过两条残留口仅剩 T5 抽样拦截；
 - 卷首三章豁免（黄金三章另有约束）；回卷窗口跨卷界时只取本卷已生成章；
 - **消费端红测**：每个新键断言「门真读了 min/floor 值」（`payoff_density.min` 键存在但消费端只读 window 的前车之鉴）；
-- **shadow 纪律**：新 FAIL 门默认 `shadow: true`，卷二首束（ch37-38）WARN 试运行，零误伤后升 FAIL；
+- **shadow 纪律**：新 FAIL 门默认 `shadow: true`，卷二首束（ch37-38）WARN 试运行，零误伤后升 FAIL；**前置任务（r4）：shadow WARN 事件逐束落盘（append-only）＋误伤裁定记录面**——现有三面皆无此数据（trace 零 WARN 事件/gate-markers latest-wins 单记录/ChapterState 六字段），催转 lint 与「零误伤」判定都读此面，不建则 shadow 纪律不可机核；
 - **TDD**：四连冷 FAIL/三连冷+暖 PASS、10 章窗零大 FAIL、6 章窗全小兑现 FAIL、热占比 WARN 触发、卷首豁免、配置缺席退 WARN（scene_budget 版本门先例）、完成后改 plan 不改判定、min 消费断言、shadow 位生效。
 
 ## 3. T2 · 钩龄门（hook_age：truth 详情块数据源＋挂起预算）
@@ -88,7 +89,7 @@
 - `G4.cp.hook_age` 数据源=**truth 详情块** per-hook `last_reinforced: 第N章` bullet（同钩多 bullet 取 max）＋总览行 `当前生命周期` 列判 RELEVANT——`last_reinforced` 由 settling 以 `audits/chapter-N-foreshadowing.md` 为**唯一确证来源**更新（state-settling SKILL.md:145）：**审计锚定**而非 plan 自声明，天然满足「付息=新信息、复读不计」语义；
 - **advance 条文化**：state-settling SKILL 增一行铁律（把 pending_hooks.md:70 判例升为条文）——「物品层在场不等于约定层推进；只有审计判 advance 的在场才发 last_reinforced 增量」（r1 所引「既有语义保证」此前只有判例散文、无 SKILL 依据）；
 - `当前章 - last_reinforced > max_age`（默认 8，market_params `hook_max_age`）的每个 RELEVANT 钩：要求本章 plan 钩账行 touch **或** 挂起声明；缺两者 → FAIL（修复者：planning）；
-- **挂起预算（堵新合法化通道）**：挂起行强制带预定清偿锚（`- 挂起: MH05 至卷三·KR2` 形态）**且锚存在性机器校验（r3 补丁）**——锚中的卷/KR 引用须在 volume_map 命中（lint 级检查），空锚/悬空锚 FAIL（堵「锚可空写不兑现」残留口）；卷级挂起数预算 market_params `hook_defer_budget: {per_volume: 3}`，超预算 FAIL；T5 检查点必答挂起清单（挂而不排=红）——防「35 章债挂卷二、卷二再挂卷三」的承接合法化复发；
+- **挂起预算（堵新合法化通道）**：挂起行强制带预定清偿锚（`- 挂起: MH05 至卷三·KR2` 形态）**且锚存在性机器校验（r3 补丁）**——锚中的卷/KR 引用须在 volume_map 命中（lint 级检查；**r4 注记：KR 行两代形态并存须兼容**——卷一/卷十 `#### KRn:` 标题形态与卷二~卷九 `N. KRn（第 X–Y 章完成）：` 列表行形态，另须中文卷号归一「卷三→第三卷」），空锚/悬空锚 FAIL（堵「锚可空写不兑现」残留口）；卷级挂起数预算 market_params `hook_defer_budget: {per_volume: 3}`，超预算 FAIL；T5 检查点必答挂起清单（挂而不排=红）——防「35 章债挂卷二、卷二再挂卷三」的承接合法化复发；
 - **TDD**：超龄未触达 FAIL / 触达 PASS / 带清偿锚挂起 PASS / 无锚挂起 FAIL / 悬空锚（卷/KR 不在 volume_map）FAIL / 超挂起预算 FAIL / 龄期 8 内 PASS / 多 bullet 取 max / 详情块零 bullet（种植后零推进）按总览种植章起算。
 
 ## 4. T3 · 卷纲追读三槽（获得槽/胜利预算/欲望线）＋卷二回填
@@ -134,8 +135,8 @@
 - `genre-config.json pacing` 增 `core_motif_touch: {max_gap: 6}`（金手指/母题核心拍最大间隔章数）；
 - `G4.cp` 滑窗检查读 **T0 快照** `轮回触点◆` 计数：距上次 > max_gap → FAIL（修复者：planning）；
 - **纪律不变**：供给=「进度感拍」（新碎片/新规则/新代价），**不是机制解释**——悬念纪律（轮回机制不解释）与供给下限不冲突，卷一已有合规样例（ch5 笃定无来处/ch12 要趁早记得她）；
-- **同批更新 invariants.md（r3 补丁）**：落地时维度 9 行三处「现为洞」改「已接线」、mutant 义务 motif-dormant 激活——invariants 表是 lint_invariant_coverage 的协约面，改门不改表=登记失真；
-- **离线对账同批（r3 补丁，廉价）**：`tools/lint_volume_nodes.py` `_check_touches` 既有 gap≤8 链检只认萤回触不认轮回触点◆（卷一 ch20 后 16 章断链而 lint 绿——r3 驳斥发现）——扩触点认读集合，使离线 lint 与章级门双面一致。
+- **同批更新 invariants.md（r3 补丁；r4 裁定 bump 时机）**：落地时维度 9 行三处「现为洞」改「已接线」、mutant 义务 motif-dormant 激活——invariants 表是 lint_invariant_coverage 的协约面，改门不改表=登记失真；**本批不 bump `CURRENT_PHASE`（保持 P1）**——lint 对期相 > 当前 P1 的维度整体不校验，本批只改文本不触发校验变化；若 bump P2 则维度 9 四槽到期、审计槽现值 `—（P2 随 F18 接线）` 为真洞即红——bump 须与 core_motif_touch 的审计 reads 面接线同批（或登记豁免依据），留后续批次；
+- **离线对账同批（r3 补丁；r4 改法矫正）**：`tools/lint_volume_nodes.py` `_check_touches` 既有 gap≤8 链检只认萤回触不认轮回触点◆（卷一 ch20 后 16 章断链而 lint 绿——r3 驳斥发现）——扩法为**按标记类型分链检验**（轮回触点◆单独成链跑 gap/span 检查，萤回触链保持现状；并集扩法无效：模拟验证轮回+萤回触并集链 max gap=7 仍 findings=0，断链被萤回触掩盖——与章级门按快照「轮回触点◆」单母题链计数的口径一致）。
 - **TDD**：间隔 7 章 FAIL / 6 章 PASS / 快照无该字段的卷配置级豁免 / shadow 位。
 
 ## 8. T7 · 既有留存门升级（retention_anchor 窗口参数化）
@@ -155,7 +156,7 @@
 
 ## 10. 验收（=卷二防复发判据）
 
-1. 全部新门红测→绿 + `just check` exit 0；新 FAIL 门 shadow 位默认 true，首束零误伤后转正（转正动作记台账）；**shadow 转正机器催转（r3 补丁）**：lint 检查「shadow 门连续 2 束零误伤未转正」→ red（治遗忘性 shadow 永久化——门停在 WARN=没建）；
+1. 全部新门红测→绿 + `just check` exit 0；新 FAIL 门 shadow 位默认 true，首束零误伤后转正（转正动作记台账）；**shadow 转正机器催转（r3 补丁；r4 前置化）**：前置=T1 的「shadow WARN 事件逐束落盘+误伤裁定记录面」先行交付，lint 读该数据面检查「shadow 门连续 2 束零误伤未转正」→ red（治遗忘性 shadow 永久化——门停在 WARN=没建）；
 2. 卷二首 10 章实弹：热章尾钩 ≥1、四连冷零发生、超龄钩零（带清偿锚挂起除外）、金手指供给间隔 ≤6 章（**双源度量**：volume_map 轮回触点◆标记 + 正文 grep，ch21-36 断供为红测标本）、获得槽全非空且连续无获得 ≤2、七型钩零连续同型、留存锚声明覆盖全卷——regen-accept 新增判据行（或并判据 2c/4 扩展）；
 3. 10 章检查点四行必答首跑对账无红；
 4. G3.4 卷二段评：D6 情绪拍 ≥85（卷一 83）、D2 悬念 ≥86（断供钩类扣分清零）；
