@@ -328,6 +328,7 @@ class PipelineState:
                         "audit_results": v.audit_results,
                         "revision_count": v.revision_count,
                         "audit_retry_count": v.audit_retry_count,
+                        "declared": v.declared,
                     }
                     for k, v in self.chapter_loop.chapter_states.items()
                 },
@@ -391,6 +392,7 @@ class PipelineState:
                 audit_results=v.get("audit_results", {}),
                 revision_count=v.get("revision_count", 0),
                 audit_retry_count=v.get("audit_retry_count", 0),
+                declared=v.get("declared", {}),
             )
 
         soft_fail_trackers: dict[str, Any] = {}

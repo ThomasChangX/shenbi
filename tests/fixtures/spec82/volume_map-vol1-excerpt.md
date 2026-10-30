@@ -1,3 +1,4 @@
+> G0.11 注：本文件为 novel-xinghuo-vol1/outline/volume_map.md 卷一节选真实副本（spec #82 T0 测试用——保留头注/总览/KR 标题形态/ch8+ch22 标记行）。
 ---
 title: 分卷地图
 total_chapters: 619
