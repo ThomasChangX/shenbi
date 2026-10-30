@@ -94,10 +94,12 @@ def test_g4cp_token_truth_table_real_gate(tmp_path: Path) -> None:
     )
     # 缺席 = v1 默认（无 plan_format/voice FAIL 行）
     assert not any("plan_format" in m or "voice_line" in m for m in run_memo(base, "a"))
-    # v4 非法（v3 已合法——#78）
-    assert any(
+    # v4 合法（spec #82 T1——v4 ⊃ v3；真值表翻转：invalid→legal）
+    assert not any(
         "plan_format" in m and "invalid" in m for m in run_memo(base + "plan_format: v4\n", "b")
     )
+    # v4 缺声口要求行 → voice_line FAIL（v4 ⊇ v2 义务，spec #82）
+    assert any("voice_line" in m for m in run_memo(base + "plan_format: v4\n", "b"))
     # v2 缺声口要求行
     assert any("voice_line" in m for m in run_memo(base + "plan_format: v2\n", "c"))
     # v2 齐备

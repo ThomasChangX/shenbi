@@ -917,12 +917,14 @@ def g4_chapter_drafting(
                 _mp = Path(project_dir) / "plans" / f"chapter-{_cn.group(1)}-plan.md"
                 if _mp.is_file():
                     _memo_text = _mp.read_text(encoding="utf-8")
-                    _pfv = re.search(r"^plan_format[：:]\s*v[23]\s*$", _memo_text, re.MULTILINE)
+                    _pfv = re.search(
+                        r"^plan_format[：:]\s*v[2-9]\s*$", _memo_text, re.MULTILINE
+                    )  # v2 门（v3 ⊇ v2, #78；v4 ⊇ v3, spec #82）——不得 v[3-9] 误伤 v2
                     _memo_v2 = _pfv is not None  # v3 ⊇ v2（#78）
         # ── spec #78: plan_format v3（回触/分级/重量）──
         _memo_v3 = False
         if _memo_v2:
-            _memo_v3 = bool(re.search(r"^plan_format[：:]\s*v3\s*$", _memo_text, re.MULTILINE))
+            _memo_v3 = bool(re.search(r"^plan_format[：:]\s*v[3-9]\s*$", _memo_text, re.MULTILINE))
         _proj78 = Path(project_dir) if project_dir else None
         if _memo_v3 and _proj78 is not None:
             # 连续微钩（读前章 memo 声明——纯读幂等）

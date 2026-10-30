@@ -7,6 +7,7 @@ from typing import Any
 import re
 
 from shenbi.logging import get_logger
+from shenbi.contracts.enums import PF_GE_V2, PF_GE_V3, PF_LEGAL
 from shenbi.gates.g4.cross_chapter import load_memo_declarations
 from shenbi.gates.shared import (
     SCENE_INDEPENDENT_BAND,
@@ -120,7 +121,7 @@ def g4_chapter_planning(
             # 旧式备忘（无场景块）——存量兼容；但 v3 自称的备忘缺块=FAIL
             # （2026-10-29 续跑实弹：模型连续两束漏写预算节溜过兼容口，
             # 缺锚直接引发 drafting word_band 打摆与余额链失锚）
-            if re.search(r"plan_format[：:]\s*v3\b", _plan_text):
+            if re.search(r"plan_format[：:]\s*v[3-9]\b", _plan_text):
                 mf.append(
                     f"G4.cp.scene_budget:{fp}:场景预算节缺失——plan_format v3 备忘"
                     "必含「### 场景预算与收束钩（#72 粒度契约）」块（2-3 场景声明＋"
@@ -244,11 +245,11 @@ def g4_chapter_planning(
         _pf_m = re.search(r"^plan_format[：:]\s*(\S+)\s*$", content, re.MULTILINE)
         if _pf_m:
             _pf_val = _pf_m.group(1)
-            if _pf_val not in ("v1", "v2", "v3"):
+            if _pf_val not in PF_LEGAL:
                 mf.append(
                     f"G4.cp.plan_format:{fp}:invalid_token:{_pf_val} (合法值 v1/v2/v3；缺席 = v1 默认)"
                 )
-            elif _pf_val in ("v2", "v3"):
+            elif _pf_val in PF_GE_V2:
                 if not re.search(r"^声口要求[：:].+$", content, re.MULTILINE):
                     mf.append(
                         f"G4.cp.voice_line:{fp}:{_pf_val}_requires_声口要求行 "
@@ -256,7 +257,7 @@ def g4_chapter_planning(
                     )
                 else:
                     c.append({"id": "G4.cp.voice_line", "file": fp, "s": GateStatus.PASS})
-            if _pf_val == "v3":
+            if _pf_val in PF_GE_V3:
                 # spec #78 v3 义务：张力拍分级行 + payoff 轴量行
                 if not re.search(r"章尾张力拍[：:]\s*\[?(微|章|大)", content):
                     mf.append(

@@ -76,3 +76,9 @@ ALL_ENUMS: dict[str, Any] = {
     "WriteMode": WriteMode,
     "FailureClass": FailureClass,
 }
+
+#: plan_format 版本集（spec #82 r7/F2——六处消费点单一信源；v4 ⊃ v3 ⊃ v2）。
+#: v4 新增义务：章尾钩型七型词表行 + 章尾张力拍引句锚定形态（spec #82 T1/T4）。
+PF_LEGAL: tuple[str, ...] = ("v1", "v2", "v3", "v4")
+PF_GE_V2: frozenset[str] = frozenset({"v2", "v3", "v4"})
+PF_GE_V3: frozenset[str] = frozenset({"v3", "v4"})
