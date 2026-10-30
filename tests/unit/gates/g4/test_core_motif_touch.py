@@ -111,3 +111,33 @@ def test_no_config_skips_gate(tmp_path: Path) -> None:
     del genre["pacing"]["core_motif_touch"]
     _mk(tmp_path, ch=45, markers={38: ["轮回触点◆"]}, genre=genre)
     assert not any("core_motif_touch" in m for m in _mf(tmp_path, 45))
+
+
+@pytest.mark.unit
+def test_no_motif_history_no_fail_no_warn_row(tmp_path: Path) -> None:
+    """audit-T9/M1: no ◆ history (last=None — first-marker rule) → no FAIL;
+    config present → no WARN row either (gate simply satisfied).
+    """
+    import json as _json
+
+    _mk(tmp_path, ch=45, markers={40: ["萤回触◆"]})  # no 轮回触点◆ anywhere
+    out = g4_chapter_planning(
+        [str(tmp_path / "plans" / "chapter-45-plan.md")], rd=None, project_dir=str(tmp_path)
+    )
+    res = _json.loads(out)
+    assert not any("core_motif_touch" in m for m in res["must_fix"])
+
+
+@pytest.mark.unit
+def test_config_absent_warn_row(tmp_path: Path) -> None:
+    """audit-T9/M1: pacing.core_motif_touch absent → WARN row (checks)."""
+    import json as _json
+
+    genre = json.loads(json.dumps(GENRE))
+    del genre["pacing"]["core_motif_touch"]
+    _mk(tmp_path, ch=45, markers={40: ["轮回触点◆"]}, genre=genre)
+    out = g4_chapter_planning(
+        [str(tmp_path / "plans" / "chapter-45-plan.md")], rd=None, project_dir=str(tmp_path)
+    )
+    res = _json.loads(out)
+    assert any("core_motif_touch" in str(c.get("id", "")) for c in res.get("checks", []))
