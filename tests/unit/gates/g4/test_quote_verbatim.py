@@ -8,6 +8,7 @@ import pytest
 
 from shenbi.gates.g4.quote_verbatim import (
     extract_anchor_quotes,
+    extract_meta_quotes,
     quote_in_chapter,
     strip_to_prose,
 )
@@ -73,3 +74,48 @@ def test_anchor_quote_verdict_e2e(tmp_path: Path) -> None:
         g4_chapter_drafting([str(d / "chapters" / "chapter-6.md")], rd=str(d), project_dir=str(d))
     )
     assert any("quote_verbatim" in m for m in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_v4_memo_missing_anchor_form_fails(tmp_path: Path) -> None:
+    """audit-T5/I1: v4 memo without the 『』 anchor form → FAIL (template duty)."""
+    import json
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    d = tmp_path
+    (d / "plans").mkdir()
+    (d / "chapters").mkdir()
+    (d / "plans" / "chapter-6-plan.md").write_text(
+        "plan_format: v4\n章尾张力拍: 章＋形态\n",
+        encoding="utf-8",  # v4 duty escaped
+    )
+    (d / "chapters" / "chapter-6.md").write_text(CH6, encoding="utf-8")
+    result = json.loads(
+        g4_chapter_drafting([str(d / "chapters" / "chapter-6.md")], rd=str(d), project_dir=str(d))
+    )
+    assert any("缺『』引句锚定形态" in m for m in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_ch17_orphan_meta_end_stripped() -> None:
+    """audit-T5/C2: orphan META-END / headered chapters strip correctly."""
+    text = (
+        "---\ntitle: 头部 frontmatter\n---\n"
+        "<!--SCENE-->\n正文一句，册子认得人。\n"
+        "<!--META-END-->\n## POST_WRITE_SELF_CHECK\n- 引句「不该在正文里被找到」\n"
+    )
+    assert quote_in_chapter("不该在正文里被找到", text) is False
+    assert quote_in_chapter("册子认得人", text)
+
+
+@pytest.mark.unit
+def test_extract_meta_quotes_seam() -> None:
+    """audit-T5/I2(a): #83 T1 extraction seam — meta quotes extracted, prose not."""
+    text = (
+        "<!--SCENE-->\n正文说「这句在正文里不算声明引句」。\\n"
+        "<!--META-BEGIN-->\\nPOST 声明「这句是声明引句要在正文里」\\n<!--META-END-->\\n"
+    ).replace("\\n", "\n")
+    got = extract_meta_quotes(text)
+    assert "这句是声明引句要在正文里" in got
+    assert all(q != "这句在正文里" for q in got)

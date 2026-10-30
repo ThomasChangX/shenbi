@@ -219,6 +219,12 @@ def check_emotion_proxy(project_dir: Path, through: int) -> Verdict:
         else:
             streak = 0
     warm = sum(1 for _n, t, h in tones if not cold_chapter(t, h))
+    if not tones:
+        return Verdict(
+            "2c",
+            "PASS",
+            f"近{window}章零可解析备忘（全部缺席——门面已拦；验收面跳过，audit-T5/M4 附注保持可见）",
+        )
     if worst > _MAX_COLD_STREAK:
         detail = (
             f"近{window}章连续冷章最长 {worst} > {_MAX_COLD_STREAK}"
