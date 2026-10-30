@@ -260,6 +260,37 @@ def parse_relevant_hooks(hooks_text: str) -> set[str]:
     return out
 
 
+def _cn_to_int(v: str) -> int | None:
+    """CN numeral -> int, composites included (十三=13, 二十=20, 四十二=42)."""
+    simple = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if v == "十":
+        return 10
+    if "十" in v:
+        left, _, right = v.partition("十")
+        tens = simple.get(left, 1) if left else 1
+        return tens * 10 + (simple.get(right, 0) if right else 0)
+    if "百" in v:
+        left, _, right = v.partition("百")
+        hundreds = simple.get(left, 1) if left else 1
+        rest = _cn_to_int(right) if right else 0
+        return hundreds * 100 + (rest or 0)
+    return simple.get(v)
+
+
+def _int_to_cn(n: int) -> str | None:
+    """Int -> CN numeral, composites included (13=十三, 20=二十, 42=四十二)."""
+    simple = {1: "一", 2: "二", 3: "三", 4: "四", 5: "五", 6: "六", 7: "七", 8: "八", 9: "九"}
+    if n < 10:
+        return simple.get(n)
+    if n < 20:
+        return "十" + simple.get(n - 10, "")
+    if n < 100 and n % 10 == 0:
+        return simple.get(n // 10, "") + "十"
+    if n < 100:
+        return simple.get(n // 10, "") + "十" + simple.get(n % 10, "")
+    return None
+
+
 def _defer_anchor_hits_volume(tail: str, vm_text: str) -> bool:
     """Defer-anchor existence (spec #82 T2/r3): the anchor's volume/KR
     reference must hit volume_map — both KR generations
@@ -271,25 +302,12 @@ def _defer_anchor_hits_volume(tail: str, vm_text: str) -> bool:
     kr = re.search(r"KR\d+", tail)
     vol = re.search(r"第?([一二三四五六七八九十百\d]+)卷", tail)
     # audit-T6/C1 复合语义：卷与 KR 双指定须双命中（「至第99卷·KR1」的
-    # 垃圾卷不得借真实 KR 混过）；单指定单命中。
-    cn = {
-        "一": 1,
-        "二": 2,
-        "三": 3,
-        "四": 4,
-        "五": 5,
-        "六": 6,
-        "七": 7,
-        "八": 8,
-        "九": 9,
-        "十": 10,
-        "十一": 11,
-        "十二": 12,
-    }
+    # 垃圾卷不得借真实 KR 混过）；单指定单命中。CN 组合数（十三/二十/四十二）
+    # 与后缀形「至卷三」都在解析域（复审：原子 1-12 只覆盖前 12 卷）。
     vol_n = None
     if vol:
         v = vol.group(1)
-        vol_n = cn.get(v) if not v.isdigit() else int(v)
+        vol_n = _cn_to_int(v) if not v.isdigit() else int(v)
     kr_hit = False
     if kr:
         kid = kr.group(0)
@@ -298,24 +316,10 @@ def _defer_anchor_hits_volume(tail: str, vm_text: str) -> bool:
         kr_hit = bool(heading or row)
     # audit-T6/C1: 卷腿双向归一——锚侧中文（卷三）转 arabic 后，标题侧也要
     # CN 形态回查（真实卷纲 12/12 全用「第三卷：」中文数字标题，arabic 直搜
-    # 零命中）；两形态任一命中才放行，垃圾卷号两头都不命中。
+    # 零命中）；组合数由 _int_to_cn 反查；垃圾卷号两头都不命中。
     vol_hit = False
     if vol_n:
-        cn_digits = {
-            1: "一",
-            2: "二",
-            3: "三",
-            4: "四",
-            5: "五",
-            6: "六",
-            7: "七",
-            8: "八",
-            9: "九",
-            10: "十",
-            11: "十一",
-            12: "十二",
-        }
-        for form in (str(vol_n), cn_digits.get(vol_n, "")):
+        for form in (str(vol_n), _int_to_cn(vol_n) or ""):
             if form and re.search(rf"^##+\s*第{form}卷", vm_text, re.M):
                 vol_hit = True
                 break
@@ -371,10 +375,8 @@ def _spec82_hook_age(
         # audit-T6/I2: 提及≠触达——须在钩账/推进语境内（「本章不处理 MH03」
         # 这类明言不推进的提及不得计触达）
         touched = bool(
-            re.search(
-                rf"{hook}[^\n]{{0,20}}(推进|touch|本章.+钩账)|（钩账|钩账）[^\n]{{0,12}}{hook}",
-                content,
-            )
+            re.search(rf"{hook}[^\n]{{0,20}}(?:推进|touch|强化)", content)
+            or re.search(rf"钩账[^\n]{{0,12}}{hook}", content)
         )
         deferred = hook in defer_lines
         if not (touched or deferred):
