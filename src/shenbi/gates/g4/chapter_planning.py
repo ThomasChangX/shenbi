@@ -261,19 +261,22 @@ def parse_relevant_hooks(hooks_text: str) -> set[str]:
 
 
 def _cn_to_int(v: str) -> int | None:
-    """CN numeral -> int, composites included (十三=13, 二十=20, 四十二=42)."""
+    """CN numeral -> int, composites included (十三=13, 二十=20, 四十二=42).
+
+    Hundred-first ordering: 一百二十三 parses 123, not 13 via the 十 branch.
+    """
     simple = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if "百" in v:
+        left, _, right = v.partition("百")
+        hundreds = simple.get(left, 1) if left else 1
+        rest = _cn_to_int(right) if right else 0
+        return hundreds * 100 + (rest or 0)
     if v == "十":
         return 10
     if "十" in v:
         left, _, right = v.partition("十")
         tens = simple.get(left, 1) if left else 1
         return tens * 10 + (simple.get(right, 0) if right else 0)
-    if "百" in v:
-        left, _, right = v.partition("百")
-        hundreds = simple.get(left, 1) if left else 1
-        rest = _cn_to_int(right) if right else 0
-        return hundreds * 100 + (rest or 0)
     return simple.get(v)
 
 
@@ -300,13 +303,15 @@ def _defer_anchor_hits_volume(tail: str, vm_text: str) -> bool:
     if not vm_text or not tail.strip():
         return False
     kr = re.search(r"KR\d+", tail)
-    vol = re.search(r"第?([一二三四五六七八九十百\d]+)卷", tail)
+    # 前缀形「第N卷/N卷」与后缀形「卷N」都在锚域（audit-T6/C1 终轮：
+    # 后缀悬空卷此前不可见 → 复合检查被跳过 → 垃圾卷借 KR 腿混过）
+    vol = re.search(r"(?:第?([一二三四五六七八九十百\d]+)卷|卷([一二三四五六七八九十百\d]+))", tail)
     # audit-T6/C1 复合语义：卷与 KR 双指定须双命中（「至第99卷·KR1」的
     # 垃圾卷不得借真实 KR 混过）；单指定单命中。CN 组合数（十三/二十/四十二）
     # 与后缀形「至卷三」都在解析域（复审：原子 1-12 只覆盖前 12 卷）。
     vol_n = None
     if vol:
-        v = vol.group(1)
+        v = vol.group(1) or vol.group(2)  # 前缀形或后缀形
         vol_n = _cn_to_int(v) if not v.isdigit() else int(v)
     kr_hit = False
     if kr:
