@@ -29,7 +29,7 @@
 
 | spec 验收 | task | 验证 |
 |---|---|---|
-| 1 全部新门红测→绿 + just check exit 0 + shadow 位 + 催转 lint | T1-T9 | `just check`；各 task 测试文件 |
+| 1 全部新门红测→绿 + just check exit 0 + shadow 位 + 催转 lint | T1-T10 | `just check`；各 task 测试文件（催转=T10 `test_shadow_promotion_lint.py`） |
 | 1' shadow WARN 逐束落盘前置 | T3 | `uv run pytest tests/unit/trace/test_warn_action.py -q` |
 | 2 卷二首 10 章实弹（离线可执行部分：门红测含 ch21-36 断供标本回放/轮换 absent 语义/留存锚窗口） | T6/T8/T9 | 对应测试；实弹部分=运行侧边界（#81 先例） |
 | 3 检查点四行必答首跑对账 | T10 | 文档 diff 审读（docs-only）；「首跑对账」本身=运行侧边界（#81 F947 先例，非本批离线判据） |
@@ -158,7 +158,9 @@ def test_real_fixture_six_keys_captured(...):
     # payoff档=="中"、金句位燃 truthy、章尾钩型 absent（v3 plan 无该行）、节点标记集按 volume_map ch36 行
     ...
 def test_node_markers_ingested(...):
-    # volume_map ch38 节点行含「轮回触点◆」→ declared["节点标记集"] == ["轮回触点◆"]
+    # 真实卷一行（plan R2/M1'——ch37/38 行 Task 8 回填前不存在，勿引）：ch8 节点行含「轮回触点◆」
+    # → declared["节点标记集"] == ["轮回触点◆"]（fixture=volume_map 卷一节选真实副本）；
+    # 另一断言：ch22 行摄 ["萤回触◆"]（多标记类型共存场景）
     ...
 ```
 
@@ -254,31 +256,39 @@ Run: `uv run pytest tests/unit/pipeline/test_snapshot_declared.py -q` → PASS
 - Test: `tests/unit/contracts/test_genre_config_spec82_keys.py`（新）；`tests/unit/trace/test_warn_action.py`（新）
 
 **Interfaces:**
-- Produces: validator 接受 `cold_streak_cap:{max:int, shadow:bool=True}`、`hot_hook_floor:{window:int=10,min:int=1,shadow:bool}`、`payoff_magnitude_floor:{window:int=6,min:"中"|int,shadow:bool}`（min 允许 str——Pydantic 字段类型放宽 `int|float|str`）、`temperature_profile:{window:int=10,hot_ratio_min:float=0.2}`（WARN 级、无 shadow 位）、`hook_max_age:{max:int=8, shadow:bool=True}`（dict 形态——shadow 子键有归宿，plan 审查 I2；Task 6 消费侧读 `.max`）、`hook_defer_budget:{per_volume:int=3}`、`retention_anchor:{from_ch:int=1,to_ch:int|None=None}`（null 容忍）；`pacing.core_motif_touch:{max_gap:int=6,shadow:bool}`；`emotion_band` 从 required 移除（子键多余仍容忍——存量兼容）
+- Produces: validator 接受 `cold_streak_cap:{max:int, shadow:bool=True}`、`hot_hook_floor:{window:int=10,min:int=1,shadow:bool}`、`payoff_magnitude_floor:{window:int=6,min:"中"|int,shadow:bool}`（min 允许 str——Pydantic 字段类型放宽 `int|float|str`）、`temperature_profile:{window:int=10,hot_ratio_min:float=0.2}`（WARN 级、无 shadow 位）、`hook_max_age:{max:int=8, shadow:bool=True}`（dict 形态——shadow 子键有归宿，plan 审查 I2；spec L146 已同步；Task 6 消费侧读 `.max`）、`hook_rotation:{shadow:bool=True}`（plan R2/I3'——轮换门独立键）、`hook_defer_budget:{per_volume:int=3}`、`retention_anchor:{from_ch:int=1,to_ch:int|None=None}`（null 容忍）；`pacing.core_motif_touch:{max_gap:int=6,shadow:bool}`；`emotion_band` 从 required 移除（子键多余仍容忍——存量兼容）
 - Consumes: Task 1（无）；shadow 降级接口供 Task 5/7/9 门
 
-- [ ] **Step 1: 红测**（现状三态：纯数值新键=静默忽略不拒、`to_ch:null`/`min:"中"`=Pydantic 类型层拒——红测锚这两类拒；emotion_band 退役后**含旧键** PASS（子键多余容忍，characterization）＋**无 emotion_band 键** PASS（M5——`:88 eb = v["emotion_band"]` 无守卫直取现状 KeyError，须同批移除））
+- [ ] **Step 1: 红测**（**含转正方向红测（plan R2/I2'）**：`shadow:false` 的门 must_fix 保持 HARD 不降级 + 未登记检查 id 不降级 + `cp.` 前缀 id 正确命中映射；现状三态：纯数值新键=静默忽略不拒、`to_ch:null`/`min:"中"`=Pydantic 类型层拒——红测锚这两类拒；emotion_band 退役后**含旧键** PASS（子键多余容忍，characterization）＋**无 emotion_band 键** PASS（M5——`:88 eb = v["emotion_band"]` 无守卫直取现状 KeyError，须同批移除））
 
 - [ ] **Step 2: validator 域扩展 + required 元组去 emotion_band**（数值域注释同步三态现实：纯数值新键=静默忽略不拒、null/字符串=类型层拒——故必须显式域定义）
 
 - [ ] **Step 3: shadow WARN trace 事件 + 调用侧降级**
 
-trace/event.py：实测 `action: str` 自由字符串（`_SIGNED_FIELDS` :24 无枚举）——**无需改**。chapter_loop 插入点=**`run_gate_g4` 结果消费点 :1370-1383（scene-split G4.cd）与 :3898-3917（步骤 G4，`_gate_passed(g4)`/`g4.get("must_fix")`）**（plan 审查 I3——`_run_g4_checks` :3230 只跑 title/hook_fulfillment 两窄检查，主门 must_fix 不流经它）；`shenbi-validate G4` CLI 面保持裸 FAIL 属预期（shadow 是管线运行时概念）：
+trace/event.py：实测 `action: str` 自由字符串（`_SIGNED_FIELDS` :24 无枚举）——**无需改**。chapter_loop 插入点（plan R2/C1'——**主位=:4201-4284 序列步 G4 消费点**：`g4 = run_gate_g4(step.skill, ...)` :4203 对每个已派发步（含 shenbi-chapter-planning）跑门，`must_fix = g4.get("must_fix", [])` :4210 进 `_classify_g4_failures` :829——未匹配检查 id 保守默认 HARD→retry→RetryExhaustedError；**降级必须在 :4210 must_fix 列表进分类器之前拦截**，否则 shadow 门在 ch37 planning 首束硬阻塞——冷连击历史依赖重规划修不动）；次位=:1370-1383（scene-split G4.cd）与 :3898-3917；`_run_g4_checks` :3230 只跑 title/hook_fulfillment 两窄检查**不接**；`shenbi-validate G4` CLI 面保持裸 FAIL 属预期（shadow 是管线运行时概念）：
 
 ```python
-GATE_TO_SHADOW_KEY: dict[str, str] = {  # plan 审查 I2——检查 id 与配置键不同名，显式映射（缺映射=不降级，fail-safe）
-    "cold_streak_window": "cold_streak_cap",
-    "hot_hook_window": "hot_hook_floor",
-    "payoff_magnitude": "payoff_magnitude_floor",
-    "hook_age": "hook_max_age",
-    "hook_type_rotation": "hook_grading",       # 轮换门复用 hook_grading 键（加 rotation 子键）——实现时定一并写进映射
-    "core_motif_touch": "core_motif_touch",     # pacing 块
+GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {  # plan R2/I2'——键=带前缀检查 id（_extract_check_id :851 产出 `cp.cold_streak_window` 形态，勿用裸名）；值=(配置块, 键)；缺映射=None→**不降级**（fail-safe 方向：未登记门保持 HARD 可见，静默降级才是事故）
+    "cp.cold_streak_window": ("market_params", "cold_streak_cap"),
+    "cp.hot_hook_window": ("market_params", "hot_hook_floor"),
+    "cp.payoff_magnitude": ("market_params", "payoff_magnitude_floor"),
+    "cp.hook_age": ("market_params", "hook_max_age"),
+    "cd.hook_type_rotation": ("market_params", "hook_rotation"),   # plan R2/I3'：轮换门独立键 hook_rotation:{shadow:bool}（嵌套 hook_grading.rotation 会被 Pydantic dict[str,dict[str,int|float]] 拒）
+    "cp.core_motif_touch": ("pacing", "core_motif_touch"),        # pacing 块——降级器须读两块（R2/I2'c）
 }
 
-def _apply_shadow(state: PipelineState, gate_id: str, issue: str, market_params: dict) -> str | None:
+def _apply_shadow(state: PipelineState, item: str, cfg: dict) -> str | None:
     """shadow:true 时 FAIL→WARN 降级 + trace WARN 事件（spec #82——门检查器保持纯，
-    降级与观测都在调用侧）。返回降级后的 issue 文案或 None（不降级）。"""
-    cfg = market_params.get(GATE_TO_SHADOW_KEY.get(gate_id, ""), {})
+    降级与观测都在调用侧）。item=must_fix 原文（`_extract_check_id` 取带前缀 id 再查映射）；
+    cfg=genre-config 全量 dict（market_params/pacing 两块都要可读）。返回降级后文案或 None。"""
+    from shenbi.pipeline.chapter_loop import _extract_check_id  # :851——带前缀 id
+    loc = GATE_TO_SHADOW_KEY.get(_extract_check_id(item))
+    if loc is None:
+        return None  # 未登记门不降级（fail-safe：保持 HARD 可见）
+    block, key = loc
+    entry = (cfg.get(block) or {}).get(key, {})
+    if not (isinstance(entry, dict) and entry.get("shadow", True) is True):
+        return None  # shadow:false（已转正）或键缺席→不降级
     if not (isinstance(cfg, dict) and cfg.get("shadow", True) is True):
         return None
     from shenbi.trace.event import ...  # 既有 writer 按 #81 面
@@ -288,7 +298,7 @@ def _apply_shadow(state: PipelineState, gate_id: str, issue: str, market_params:
 
 - [ ] **Step 4: SKILL 模板三源同步 + 项目数据补丁**
 
-SKILL.md :123 模板键集与 :326「三键块」文本改新键集（emotion_band 移除、新键列入）；`just lint-contracts && just generate` diff 空。运行时写入 `novel-xinghuo-vol1/genre-config.json`（python json 更新七键+pacing.core_motif_touch，全部 shadow:true）＋校验（M8 具体命令，函数名按 :55 邻域实名核对）：
+SKILL.md :123 模板键集与 :326「三键块」文本改新键集（emotion_band 移除、新键列入）；`just lint-contracts && just generate` diff 空。运行时写入 `novel-xinghuo-vol1/genre-config.json`（python json 更新八键——七键+`hook_rotation:{shadow:true}`（plan R2/I3'：轮换门独立键，勿嵌套 hook_grading）+pacing.core_motif_touch，全部 shadow:true）＋校验（M8 具体命令，函数名按 :55 邻域实名核对）：
 
     uv run python -c "import json;from pathlib import Path;from shenbi.contracts.skills.genre_config import _market_params_structure as v; cfg=json.load(open('novel-xinghuo-vol1/genre-config.json')); v(cfg.get('market_params'))"
 
