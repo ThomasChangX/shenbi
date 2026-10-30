@@ -82,24 +82,43 @@ def _check_slots(nodes: list[tuple[int, str, str]], start: int) -> list[str]:
 
 
 def _check_touches(nodes: list[tuple[int, str, str]], start: int, end: int) -> list[str]:
-    """Touchpoint chain checks: pairwise gaps, plus span coverage.
+    """Touchpoint chain checks — PER MARKER TYPE (spec #82 T6/r4②).
 
-    (回触 rows or 萤回触 markers): gaps <= 8 AND the chain spans the volume
-    (first touch early, last touch near the end).
+    萤回触 chain (回触 rows or 萤回触◆ markers) keeps the legacy shape;
+    the 轮回触点◆ chain runs its own gap/span checks — a union of all ◆
+    markers lets 萤回触 mask a broken 轮回 chain (vol-1's ch20-36 drought
+    passed with union gaps ≤7).
     """
-    touches = [c for c, r, d in nodes if r == "回触" or "萤回触" in d]
+    out: list[str] = []
+    for label, pred in (
+        ("萤回触", lambda r, d: r == "回触" or "萤回触" in d),
+        ("轮回触点◆", lambda r, d: "轮回触点◆" in d),
+    ):
+        out.extend(_touch_chain(nodes, start, end, label, pred))
+    return out
+
+
+def _touch_chain(
+    nodes: list[tuple[int, str, str]],
+    start: int,
+    end: int,
+    label: str,
+    pred,
+) -> list[str]:
+    """One marker-type chain: pairwise gaps + span coverage."""
+    touches = [c for c, r, d in nodes if pred(r, d)]
     if len(touches) < _MIN_TOUCHES:
-        return [f"touch: fewer than {_MIN_TOUCHES} touchpoint rows"]
+        return [f"touch[{label}]: fewer than {_MIN_TOUCHES} touchpoint rows"]
     out = [
-        f"touch: gap 第{a}章->第{b}章 = {b - a} > {_TOUCH_GAP_MAX}"
+        f"touch[{label}]: gap 第{a}章->第{b}章 = {b - a} > {_TOUCH_GAP_MAX}"
         for a, b in pairwise(touches)
         if b - a > _TOUCH_GAP_MAX
     ]
     if touches[0] - start > _TOUCH_GAP_MAX:
-        out.append(f"touch: first touch 第{touches[0]}章 > {start}+{_TOUCH_GAP_MAX}")
+        out.append(f"touch[{label}]: first touch 第{touches[0]}章 > {start}+{_TOUCH_GAP_MAX}")
     if end - touches[-1] > _TOUCH_GAP_MAX:
         out.append(
-            f"touch: last touch 第{touches[-1]}章 leaves "
+            f"touch[{label}]: last touch 第{touches[-1]}章 leaves "
             f"{end - touches[-1]} chapters uncovered to span end"
         )
     return out

@@ -407,6 +407,49 @@ def _spec82_hook_age(
         )
 
 
+def _spec82_core_motif_touch(
+    n: int, project_dir: str | None, mf: list[str], c: list[dict[str, Any]]
+) -> None:
+    """Spec #82 T6: core-motif supply floor (轮回触点◆ single chain).
+
+    Data base: the T0 snapshot's 节点标记集 (volume_map-derived, not a memo
+    duty). The gate filters 轮回触点◆ out of every chapter's marker set
+    BEFORE computing the gap — a union of all ◆ markers would let 萤回触◆
+    mask a broken 轮回 chain (vol-1's 16-chapter drought passed with union
+    gaps ≤7; plan R2/I1). Dual-path fixer: planning (touchpoint beat for a
+    ◆-marked node) / volume-outlining (rearrange ◆, ungenerated chapters
+    only). First marker before the current volume start is not counted.
+    """
+    if not project_dir or n <= 3:
+        return
+    from shenbi.gates.shared import read_genre_config
+
+    cfg = read_genre_config(project_dir) or {}
+    cmt = (cfg.get("pacing") or {}).get("core_motif_touch")
+    if not isinstance(cmt, dict):
+        c.append(
+            {
+                "id": "G4.cp.core_motif_touch",
+                "s": GateStatus.WARN,
+                "r": "pacing.core_motif_touch 缺席——退 WARN（spec #82 T6）",
+            }
+        )
+        return
+    max_gap = int(cmt.get("max_gap", 6))
+    hist = _declared_history(project_dir)
+    last = None
+    for k in range(n - 1, 0, -1):
+        if "轮回触点◆" in ((hist.get(k) or {}).get("节点标记集") or []):
+            last = k
+            break
+    gap = (n - last) if last is not None else None
+    if gap is not None and gap > max_gap:
+        mf.append(
+            f"G4.cp.core_motif_touch:ch{n}:距上次轮回触点◆ {gap}>{max_gap} 章"
+            f"（金手指/母题供给下限——单一标记链，萤回触◆ 不抵轮回；修复者: planning 本章为◆节点补触点拍 / volume-outlining 重排◆（仅未生成章））"
+        )
+
+
 def g4_chapter_planning(
     fps: list[str],
     rd: str | None = None,
@@ -746,6 +789,8 @@ def g4_chapter_planning(
         _spec82_sequence_gates(content, n, project_dir, mf, c)
         # ── spec #82 T2: hook aging + defer budget (truth-block source) ──
         _spec82_hook_age(content, n, project_dir, mf, c)
+        # ── spec #82 T6: core-motif supply floor (snapshot marker chain) ──
+        _spec82_core_motif_touch(n, project_dir, mf, c)
 
         # Section 5: 关键抉择 — quality bonus, not hard gate
         s5_match = re.search(r"## 5\..*?\n(?=## 6\.|\Z)", content, re.DOTALL)

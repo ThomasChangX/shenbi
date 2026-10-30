@@ -37,18 +37,18 @@ def _row(c: int, role: str = "承接", detail: str = "拍", gains: str = "信息
 # 触点链 2,6,8,10,12,14（间隔≤8）；◆ 双槽在前 5；收官=20（总量对）
 _BASE = (
     _row(1, "开篇", "双钩 智力爽◆")
-    + _row(2, "回触", "萤回触")
+    + _row(2, "回触", "萤回触 轮回触点◆")
     + _row(3, "承接", "变现◆")
     + _row(4)
     + _row(5)
     + _row(6, "回触", "萤回触 灰烬◆——「下辈子再见」定约")
     + _row(7)
-    + _row(8, "回触", "萤回触")
+    + _row(8, "回触", "萤回触 轮回触点◆")
     + _row(9)
     + _row(10, "回触", "萤回触")
     + _row(11)
     + _row(12, "回触", "萤回触")
-    + _row(14, "回触", "萤回触")
+    + _row(14, "回触", "萤回触 轮回触点◆")
     + _row(20, "收官", "四轴")
 )
 
@@ -96,9 +96,8 @@ def test_total_mismatch_fails(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_touch_gap_fails(tmp_path: Path) -> None:
-    rows = _BASE.replace(_row(14, "回触", "萤回触"), _row(23 and 14 + 9, "回触", "萤回触"))
-    # 直接构造：触点 12 → 22（间隔 10 > 8）
-    rows = _BASE.replace(_row(14, "回触", "萤回触"), _row(22, "回触", "萤回触"))
+    # 直接构造：触点 12 → 22（间隔 10 > 8；轮回标记随行替换保持双链一致）
+    rows = _BASE.replace(_row(14, "回触", "萤回触 轮回触点◆"), _row(22, "回触", "萤回触 轮回触点◆"))
     rows = rows.replace(_row(20, "收官", "四轴"), _row(20, "收官", "四轴"))
     findings = lint(_mk(tmp_path, rows, end=22), 1, 12)
     assert any("touch" in f and "gap" in f for f in findings), findings
