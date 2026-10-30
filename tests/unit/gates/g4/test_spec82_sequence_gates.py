@@ -177,3 +177,60 @@ def test_min_key_is_consumed(tmp_path: Path) -> None:
     _mk(tmp_path, payoff="中", history=hist)  # current 中 satisfies min=中
     out = _run(tmp_path)
     assert "G4.cp.payoff_magnitude" not in out
+
+
+@pytest.mark.unit
+def test_volume_boundary_excludes_previous_volume(tmp_path: Path) -> None:
+    """audit-T4/C1: 回卷窗口跨卷界只取本卷已生成章.
+
+    vol2=ch37-91, vol3=ch92+: planning ch92 (first chapter of vol3) with a
+    four-cold tail in vol2 snapshots must NOT fail — the run restarts at the
+    volume boundary (run=1, the current chapter only).
+    """
+    hist = {
+        n: {"emotion_tone": t} for n, t in zip(range(88, 92), ["悲", "惧", "平", "悲"], strict=True)
+    }
+    _mk(tmp_path, tone="悲", ch=92, history=hist)
+    (tmp_path / "outline").mkdir()
+    (tmp_path / "outline" / "volume_map.md").write_text(
+        "# 卷纲\n## 第一卷（第 1-36 章）\n## 第二卷（第 37-91 章）\n## 第三卷（第 92-146 章）\n",
+        encoding="utf-8",
+    )
+    out = _run(tmp_path, ch=92)
+    assert not any("cold_streak_window" in m for m in _must_fix(out))
+
+
+@pytest.mark.unit
+def test_hot_ratio_warn_not_in_must_fix(tmp_path: Path) -> None:
+    """audit-T4/I2: WARN-level emission goes to checks, never must_fix."""
+    hist = {n: {"emotion_tone": "平", "张力拍档位": "微"} for n in range(27, 37)}
+    _mk(tmp_path, tone="悲", tier="微", history=hist)
+    out = _run(tmp_path)
+    assert not any("temperature_profile" in m for m in _must_fix(out))  # never HARD
+    checks = json.loads(out).get("checks", [])
+    assert any(
+        "temperature_profile" in str(chk.get("id", "")) for chk in checks
+    )  # WARN row present
+
+
+@pytest.mark.unit
+def test_config_absent_warn_row_present(tmp_path: Path) -> None:
+    """audit-T4/I2: absent key emits a WARN row (not silent skip)."""
+    genre = json.loads(json.dumps(GENRE))
+    del genre["market_params"]["cold_streak_cap"]
+    _mk(tmp_path, genre=genre)
+    out = _run(tmp_path)
+    checks = json.loads(out).get("checks", [])
+    assert any("cold_streak_window" in str(chk.get("id", "")) for chk in checks)
+
+
+@pytest.mark.unit
+def test_hot_hook_min_two_consumed(tmp_path: Path) -> None:
+    """audit-T4/M2: hot_hook_floor.min=2 with exactly one 大 in window → FAIL."""
+    genre = json.loads(json.dumps(GENRE))
+    genre["market_params"]["hot_hook_floor"] = {"window": 10, "min": 2, "shadow": False}
+    hist = {n: {"张力拍档位": "微"} for n in range(27, 37)}
+    hist[30]["张力拍档位"] = "大"  # exactly one 大 in window
+    _mk(tmp_path, tier="微", history=hist, genre=genre)
+    out = _run(tmp_path)
+    assert any("hot_hook_window" in m and "1<2" in m for m in _must_fix(out))

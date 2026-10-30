@@ -98,6 +98,18 @@ def _spec82_sequence_gates(
     mp = (read_genre_config(project_dir) or {}).get("market_params", {})
     hist = _declared_history(project_dir)
 
+    # spec #82 T1: 回卷窗口跨卷界时只取本卷已生成章（audit-T4/C1）——
+    # bundle_chapters 同源的 volume span 判定复用；无 volume_map 时全量。
+    vol_start = 1
+    _vm = Path(project_dir) / "outline" / "volume_map.md"
+    if _vm.is_file():
+        from shenbi.pipeline.volume_budget import parse_volume_spans
+
+        for _span in parse_volume_spans(_vm.read_text(encoding="utf-8")):
+            if _span.start <= n <= _span.end:
+                vol_start = _span.start
+                break
+
     def _cur(key: str, pat: str) -> Any:
         m = re.search(pat, content, re.MULTILINE)
         return m.group(1) if m else None
@@ -121,7 +133,7 @@ def _spec82_sequence_gates(
         cap = int(cap_cfg.get("max", 3))
         run = 1 if cold_chapter(tone, golden_hot) else 0
         if run:
-            for prev in range(n - 1, 0, -1):
+            for prev in range(n - 1, max(0, vol_start - 1), -1):
                 d = hist.get(prev)
                 if d is None:
                     break  # snapshot gap (volume start / pre-T0) stops the run
@@ -136,10 +148,11 @@ def _spec82_sequence_gates(
                 )
 
     def _window(field: str, current: Any, window: int) -> list[Any] | None:
-        """Values over the trailing window incl. current; None → bootstrap skip."""
-        vals = [
-            v for m in range(n - window + 1, n) if (v := (hist.get(m) or {}).get(field)) is not None
-        ]
+        """Trailing window incl. current, clamped to the current volume
+        (spec: 回卷窗口跨卷界只取本卷已生成章); None → bootstrap skip.
+        """
+        lo = max(vol_start, n - window + 1)
+        vals = [v for m in range(lo, n) if (v := (hist.get(m) or {}).get(field)) is not None]
         vals.append(current)
         have = len([v for v in vals if v is not None])
         if have < window:
@@ -160,9 +173,10 @@ def _spec82_sequence_gates(
         w = int(hhf.get("window", 10))
         floor = int(hhf.get("min", 1))
         vals = _window("张力拍档位", tier, w)
-        if vals is not None and sum(1 for v in vals if v == "大") < floor:
+        big = sum(1 for v in vals if v == "大") if vals is not None else 0
+        if vals is not None and big < floor:
             mf.append(
-                f"G4.cp.hot_hook_window:ch{n}:{w}章窗内大钩 0<{floor} "
+                f"G4.cp.hot_hook_window:ch{n}:{w}章窗内大钩 {big}<{floor} "
                 f"(热章尾钩频率下限；修复者: planning——窗尾章张力拍须上「大」)"
             )
 
@@ -192,7 +206,15 @@ def _spec82_sequence_gates(
 
     # T1 temperature_profile — WARN-level hot-ratio profile
     tp = mp.get("temperature_profile")
-    if isinstance(tp, dict):
+    if not isinstance(tp, dict):
+        c.append(
+            {
+                "id": "G4.cp.temperature_profile",
+                "s": GateStatus.WARN,
+                "r": "market_params.temperature_profile 缺席——退 WARN（spec #82）",
+            }
+        )
+    else:
         w = int(tp.get("window", 10))
         tp_floor: float = float(tp.get("hot_ratio_min", 0.2))
         vals = _window("张力拍档位", tier, w)
