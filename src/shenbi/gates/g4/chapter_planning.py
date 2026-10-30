@@ -123,7 +123,7 @@ def g4_chapter_planning(
             # 缺锚直接引发 drafting word_band 打摆与余额链失锚）
             if re.search(r"plan_format[：:]\s*v[3-9]\b", _plan_text):
                 mf.append(
-                    f"G4.cp.scene_budget:{fp}:场景预算节缺失——plan_format v3 备忘"
+                    f"G4.cp.scene_budget:{fp}:场景预算节缺失——plan_format v3+ 备忘"
                     "必含「### 场景预算与收束钩（#72 粒度契约）」块（2-3 场景声明＋"
                     "时间锚/余额/POV/事件/物象行）"
                 )
@@ -240,14 +240,14 @@ def g4_chapter_planning(
                     )
 
         # ── spec #76/#78 G4.cp.plan_format — 版本令牌分立 ──
-        # 缺席 = v1 默认（不 FAIL）；在场值 ∉ {v1,v2,v3} = FAIL；
-        # v2/v3 ⇒ 声口要求行存在；v3 ⇒ 张力拍分级行 + payoff 轴量行。
+        # 缺席 = v1 默认（不 FAIL）；在场值 ∉ {v1,v2,v3,v4} = FAIL；
+        # v2/v3/v4 ⇒ 声口要求行存在；v3 ⇒ 张力拍分级行 + payoff 轴量行。
         _pf_m = re.search(r"^plan_format[：:]\s*(\S+)\s*$", content, re.MULTILINE)
         if _pf_m:
             _pf_val = _pf_m.group(1)
             if _pf_val not in PF_LEGAL:
                 mf.append(
-                    f"G4.cp.plan_format:{fp}:invalid_token:{_pf_val} (合法值 v1/v2/v3；缺席 = v1 默认)"
+                    f"G4.cp.plan_format:{fp}:invalid_token:{_pf_val} (合法值 v1/v2/v3/v4；缺席 = v1 默认)"
                 )
             elif _pf_val in PF_GE_V2:
                 if not re.search(r"^声口要求[：:].+$", content, re.MULTILINE):

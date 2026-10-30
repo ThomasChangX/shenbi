@@ -42,18 +42,20 @@ def test_v4_is_legal_token(tmp_path: Path) -> None:
 
 def test_v4_memo_scene_budget_still_enforced(tmp_path: Path) -> None:
     out = _run(tmp_path, V4_BODY)  # no 场景预算 section
-    assert "scene_budget" in out
+    assert (
+        "G4.cp.scene_budget" in out
+    )  # 检查 id 前缀（audit-T1/C1：裸子串会被 tmp_path 目录名污染成永真）
 
 
 def test_v4_memo_voice_line_required(tmp_path: Path) -> None:
     out = _run(tmp_path, V4_BODY)  # no 声口要求行
-    assert "voice" in out.lower()
+    assert "G4.cp.voice_line" in out  # audit-T1/C1 同款防污染
 
 
 def test_v4_memo_payoff_axis_required(tmp_path: Path) -> None:
     body = V4_BODY.replace("**payoff 拍**: 类型｜轴(债)｜量\n", "**payoff 拍**: 类型\n")
     out = _run(tmp_path, body)
-    assert "payoff_axis" in out
+    assert "G4.cp.payoff_axis" in out  # audit-T1/C1 同款防污染
 
 
 def test_v3_memo_still_enforced(tmp_path: Path) -> None:
@@ -63,4 +65,33 @@ def test_v3_memo_still_enforced(tmp_path: Path) -> None:
     )
     body = body.replace("章尾钩型: 悬念钩\n", "")
     out = _run(tmp_path, body)  # no 场景预算 → v3 FAIL must keep firing
-    assert "scene_budget" in out
+    assert "G4.cp.scene_budget" in out
+
+
+def test_v4_drafting_v2_family_density_fires(tmp_path: Path) -> None:
+    """audit-T1/I4: drafting regexes :920 v2-gate / :925 v3-gate regression net.
+
+    v4 memo + thin-voice chapter -> G4.cd.voice_density FAIL fires live:
+    v4 must enter the #76 v2 family per v[2-9].
+    """
+    import json
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    d = tmp_path
+    (d / "plans").mkdir()
+    (d / "chapters").mkdir()
+    (d / "plans" / "chapter-1-plan.md").write_text(
+        "plan_format: v4\n声口要求: 账房腔+自嘲反问\n金句位: 静｜章首复述｜一页眉批\n",
+        encoding="utf-8",
+    )
+    (d / "chapters" / "chapter-1.md").write_text(
+        "# 第一章\n<!--SCENE-->\n他把册子翻到那一页，又翻了回来。\n<!--SCENE-->\n灯芯挑了一下，账上添一笔。\n",
+        encoding="utf-8",
+    )
+    result = json.loads(
+        g4_chapter_drafting([str(d / "chapters" / "chapter-1.md")], rd=str(d), project_dir=str(d))
+    )
+    assert any("voice_density" in m for m in result.get("must_fix", [])) or any(
+        "voice_density" in str(c.get("id", "")) for c in result.get("checks", [])
+    )

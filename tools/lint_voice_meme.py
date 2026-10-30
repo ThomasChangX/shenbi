@@ -106,7 +106,9 @@ def lint_chapter(project: Path, chapter: int) -> list[str]:
     v2 = False
     if memo.is_file():
         v2 = (
-            re.search(r"^plan_format[：:]\s*v2\s*$", memo.read_text(encoding="utf-8"), re.MULTILINE)
+            re.search(
+                r"^plan_format[：:]\s*v[2-9]\s*$", memo.read_text(encoding="utf-8"), re.MULTILINE
+            )
             is not None
         )
     ch = project / "chapters" / f"chapter-{chapter}.md"
@@ -137,7 +139,7 @@ def _is_v2(project: Path, f: Path) -> bool:
         return False
     mp = project / "plans" / f"chapter-{m.group(1)}-plan.md"
     return mp.is_file() and bool(
-        re.search(r"^plan_format[：:]\s*v2\s*$", mp.read_text(encoding="utf-8"), re.MULTILINE)
+        re.search(r"^plan_format[：:]\s*v[2-9]\s*$", mp.read_text(encoding="utf-8"), re.MULTILINE)
     )
 
 
