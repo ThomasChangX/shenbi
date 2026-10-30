@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -50,15 +51,24 @@ def test_snapshot_captures_six_keys_real_fixture() -> None:
 
 
 @pytest.mark.unit
-def test_wordlist_external_tone_warns_and_kept_raw(tmp_path: Path, caplog) -> None:
-    import logging as _logging
+def test_wordlist_external_tone_warns_and_kept_raw(tmp_path: Path, monkeypatch) -> None:
 
-    with caplog.at_level(_logging.WARNING, logger="shenbi.pipeline.chapter_loop"):
-        _mk_project(tmp_path, plan=V4_PLAN.replace("emotion_tone: 悲", "emotion_tone: 安"))
-        snap = _snapshot_declared(tmp_path, 37)
+    # structlog 不经 stdlib caplog——用 monkeypatch 捕 get_logger 的 warning 调用
+    import shenbi.pipeline.chapter_loop as cl
+
+    calls: list[tuple[str, dict[str, Any]]] = []
+
+    class _Spy:
+        def warning(self, event: str, **kw):
+            calls.append((event, kw))
+
+    monkeypatch.setattr(cl, "log", _Spy())
+    _mk_project(tmp_path, plan=V4_PLAN.replace("emotion_tone: 悲", "emotion_tone: 安"))
+    snap = _snapshot_declared(tmp_path, 37)
     assert snap["emotion_tone"] == "安"  # raw kept; consumers apply cold predicate
     assert "安" not in DECLARED_WORDLISTS["emotion_tone"]
-    assert any("snapshot_wordlist_external" in r.message for r in caplog.records)  # audit-T2/I2
+    assert calls and calls[0][0] == "snapshot_wordlist_external"  # audit-T2/I2
+    assert calls[0][1]["value"] == "安"
 
 
 @pytest.mark.unit
