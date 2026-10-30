@@ -18,7 +18,7 @@ import re
 
 from shenbi.gates.shared import strip_narrative_body
 
-_QUOTE_RE = re.compile(r"[「「" "『]([^「」『』" "]{6,})[」」" "』]")
+_QUOTE_RE = re.compile('[「『“"]([^「」『』“”"]+)[」』”"]')
 _META_BLOCK_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
 _META_SECTION_RE = re.compile(
     r"^## (?:PRE_WRITE_CHECK|POST_WRITE_SELF_CHECK).*?(?=^## |^# |<!--META|\Z)",

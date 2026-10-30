@@ -31,6 +31,9 @@ GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {
     "cp.payoff_magnitude": ("market_params", "payoff_magnitude_floor"),
     "cp.hook_age": ("market_params", "hook_max_age"),
     "cd.hook_type_rotation": ("market_params", "hook_rotation"),
+    # 阶段8/N1: cp 钩型存在性/词表门与 rotation 同七型执法族（同一 shadow 键族管辖）
+    "cp.missing_hook_type": ("market_params", "hook_rotation"),
+    "cp.hook_type_wordlist": ("market_params", "hook_rotation"),
     "cd.quote_verbatim": ("market_params", "quote_anchor"),
     "cp.missing_retention_anchor": ("market_params", "retention_anchor"),
     "cp.core_motif_touch": ("pacing", "core_motif_touch"),

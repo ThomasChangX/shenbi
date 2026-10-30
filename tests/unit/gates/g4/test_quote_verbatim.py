@@ -141,3 +141,11 @@ def test_v3_memo_skips_anchor_gate(tmp_path: Path) -> None:
         g4_chapter_drafting([str(d / "chapters" / "chapter-6.md")], rd=str(d), project_dir=str(d))
     )
     assert not any("quote_verbatim" in m for m in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_curly_quote_extraction() -> None:
+    """Stage-8/M6: curly-quote (“”) declarations are extracted too."""
+    text = "<!--META-BEGIN-->\nPOST 声明“这句是弯引号声明要在正文里”\n<!--META-END-->\n<!--SCENE-->\n正文一句。\n"
+    got = extract_meta_quotes(text)
+    assert "这句是弯引号声明要在正文里" in got
