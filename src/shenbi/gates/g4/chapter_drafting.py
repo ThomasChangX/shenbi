@@ -927,11 +927,19 @@ def g4_chapter_drafting(
             _memo_v3 = bool(re.search(r"^plan_format[：:]\s*v[3-9]\s*$", _memo_text, re.MULTILINE))
         _proj78 = Path(project_dir) if project_dir else None
         if _memo_v3 and _proj78 is not None:
-            # 连续微钩（读前章 memo 声明——纯读幂等）
+            # 连续微钩（读前章声明——spec #82 T1/I4：优先完成时快照（L-D 铁律），
+            # 快照缺席章（卷一 pre-T0 历史）回退 plan memo 解析——纯读幂等）
             _cn78 = re.search(r"chapter-(\d+)", pf.name)
             if _cn78:
+                from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
+
+                _hist78 = _declared_history(str(project_dir)) if _proj78 else {}
                 _tiers: list[str] = []
                 for _k in range(max(1, int(_cn78.group(1)) - 3), int(_cn78.group(1)) + 1):
+                    _snap78 = (_hist78.get(_k) or {}).get("张力拍档位")
+                    if isinstance(_snap78, str) and _snap78 in ("微", "章", "大"):
+                        _tiers.append(_snap78)
+                        continue
                     _mk = _proj78 / "plans" / f"chapter-{_k}-plan.md"
                     if not _mk.is_file():
                         continue
