@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-10-29（spec #81 P1 plan 归档 ✅ PR #258）
-> **活跃 plan 数**：0 | **已归档**：130（见 `archive/`）
+> **最后更新**：2026-10-30（spec #82 plan 创建 ✅ ready——11 task，审查 rev5 收敛）
+> **活跃 plan 数**：1 | **已归档**：130（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无——#81 P1 已归档 2026-10-29，PR #258）
+- **2026-10-30-spec82-retention-engine-net.md** ✅ ready（spec #82 r7 · 11 task T0-T7+验收映射 · plan 审查 4 轮收敛 rev5 · 分支 feat/spec-82-retention-engine-net）
 
 ## 待执行的 spec → plan 映射
 
