@@ -92,6 +92,4 @@ def test_v4_drafting_v2_family_density_fires(tmp_path: Path) -> None:
     result = json.loads(
         g4_chapter_drafting([str(d / "chapters" / "chapter-1.md")], rd=str(d), project_dir=str(d))
     )
-    assert any("voice_density" in m for m in result.get("must_fix", [])) or any(
-        "voice_density" in str(c.get("id", "")) for c in result.get("checks", [])
-    )
+    assert any(m.startswith("G4.cd.voice_density") for m in result["must_fix"])
