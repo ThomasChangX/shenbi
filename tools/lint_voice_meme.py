@@ -192,12 +192,23 @@ def lint_volume(project: Path, volume: int) -> list[str]:
     # 由 regen-accept 判据 4 消费（既有调用面自动获得））
     chapters_in_vol = max(1, len(files))
     cap_scale = chapters_in_vol // 3 or 1
-    for card in sorted((project / "characters" / "major").glob("*.md")):
+    # audit-T7/C2: protagonist card rides too — the motivating case
+    # （「这笔我先记下」卷一 35 处 vs 帽 12）lives on the protagonist card,
+    # which the major-only glob never saw.
+    cards = sorted((project / "characters" / "major").glob("*.md"))
+    prot = project / "characters" / "protagonist.md"
+    if prot.is_file():
+        cards.append(prot)
+    for card in cards:
         for cp in catchphrases_from_card(card.read_text(encoding="utf-8")):
             hits = vol_text.count(cp)
             if hits > cap_scale:
+                # audit-T7/C2: FAIL 域 token — without it the exit-code filter
+                # (main: fails = rows containing "FAIL 域") never sees the cap
+                # and regen-accept 判据 4 stays blind to overuse.
                 out.append(
-                    f"[口癖帽] {cp} 卷内 {hits} 次 > 建议 {cap_scale}（每 3 章 ≤1——spec #82 T4）"
+                    f"[口癖帽] {cp} 卷内 {hits} 次 > 建议 {cap_scale}"
+                    f"（每 3 章 ≤1——spec #82 T4）FAIL 域(v2)"
                 )
     return out
 

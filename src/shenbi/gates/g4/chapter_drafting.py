@@ -430,6 +430,22 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
     return names
 
 
+def _ending_archetype_of(text: str) -> str | None:
+    """Closing-archetype classifier (spec #82 T4, shared by the rotation
+    sentinel and the audit-context ending-history producer).
+    """
+    tail = text[-220:]
+    if len(re.findall(r"\d+", tail)) >= 2:
+        return "账目形态"
+    if re.search(r"呢？\s*$", tail, re.M):
+        return "呢？自嘲"
+    if re.search(r"他在心里.{0,12}一遍", tail):
+        return "心里复述"
+    if re.search(r"这一(笔|夜|章)", tail):
+        return "复述起手"
+    return None
+
+
 def _spec82_hook_rotation(
     content: str, pf_name: str, project_dir: str | None, mf: list[str], c: list[dict[str, Any]]
 ) -> None:
@@ -461,23 +477,13 @@ def _spec82_hook_rotation(
             f"（种子七型「轮换使用，连续两章不得同型」；修复者: planning——换型收束）"
         )
 
-    def _archetype(text: str) -> str | None:
-        tail = text[-220:]
-        if len(re.findall(r"\d+", tail)) >= 2:
-            return "账目形态"
-        if re.search(r"呢？\s*$", tail, re.M):
-            return "呢？自嘲"
-        if re.search(r"他在心里.{0,12}一遍", tail):
-            return "心里复述"
-        if re.search(r"这一(笔|夜|章)", tail):
-            return "复述起手"
-        return None
-
     archetypes: list[str | None] = []
     for k in (n - 2, n - 1):
         chp = Path(project_dir) / "chapters" / f"chapter-{k}.md"
-        archetypes.append(_archetype(chp.read_text(encoding="utf-8")) if chp.is_file() else None)
-    cur_arch = _archetype(content)
+        archetypes.append(
+            _ending_archetype_of(chp.read_text(encoding="utf-8")) if chp.is_file() else None
+        )
+    cur_arch = _ending_archetype_of(content)
     archetypes.append(cur_arch)
     if cur_arch is not None and archetypes[0] == cur_arch and archetypes[1] == cur_arch:
         c.append(
