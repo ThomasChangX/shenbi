@@ -232,13 +232,25 @@ def _re_dispatch_g4_must_fix(
 
     from shenbi.pipeline.state import PipelineState
 
+    if chapter is None:
+        # No manifest record exists for a chapter-less rerun (run_gate_g4
+        # skips recording when chapter is None) — pure demotion, no
+        # phantom PASS re-record at ch0.
+        from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
+
+        _dem, _rem = demote_must_fix(project_dir, list(g4.get("must_fix", [])))
+        for _dw in _dem:
+            emit_shadow_warn_trace(project_dir, 0, _dw)
+        if _dem and not _rem:
+            return None
+        return _rem
     routed, remaining = _shadow_route_g4(
         PipelineState(),
         project_dir,
         g4,
-        chapter=chapter or 0,
+        chapter=chapter,
         skill=skill,
-        rk=f"ch{chapter or 0}-",
+        rk=f"ch{chapter}-",
     )
     if str(routed.get("status")) == GateStatus.PASS:
         return None  # all demoted → treat as passed for the redo decision

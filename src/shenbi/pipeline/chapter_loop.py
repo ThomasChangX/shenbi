@@ -1381,14 +1381,20 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
         # permanently empty on real pipeline output).
         record_gate_result(project_dir, "chapter_loop", n, "pipeline-scene-split", "G4", g4)
         if not _gate_passed(g4):
-            _raw = list(g4.get("must_fix", []))
-            _dem, _rem = demote_must_fix(Path(project_dir), _raw)
-            for _dw in _dem:
-                log.warning("shadow_gate_demoted", chapter=n, step="scene-split", item=_dw)
-                emit_shadow_warn_trace(project_dir, n, _dw)
-            # spec #82 T3: demoted items never reach issues (no state in
-            # scope at this site — project_dir-based demotion only).
-            issues.extend(f"G4.cd ch{n}: {m}" for m in _rem)
+            # spec #82 T3 (final unification): shared routing — all-demoted
+            # also re-records the manifest PASS here (raw FAIL logged above;
+            # latest-wins). Throwaway state: no retry key at this site.
+            g4, _rem = _shadow_route_g4(
+                PipelineState(),
+                project_dir,
+                g4,
+                chapter=n,
+                skill="pipeline-scene-split",
+                rk=f"ch{n}-",
+            )
+            issues.extend(
+                f"G4.cd ch{n}: {m}" for m in (_rem if _rem is not None else g4.get("must_fix", []))
+            )
 
     # spec #75: cross-chapter invariants — G4.xc independent manifest key
     # (never shares G4 with G4.cd: record_gate_result is latest-wins per key).
@@ -4323,27 +4329,10 @@ def _run_chapter_step_impl(
     g4_files = _resolve_g4_files(project_dir, step, chapter)
     g4 = run_gate_g4(step.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
     # spec #82 T3: shadow demotion BEFORE classification (gates stay pure).
-    # audit-T3/C1 (re-land): the classifier input is the POST-demotion
-    # remaining list — demoted items must never re-enter (unmatched ids
-    # default HARD and burn the retry budget).
-    _shadow_remaining: list[str] | None = None
-    if not _gate_passed(g4):
-        _demoted, _remaining = demote_must_fix(Path(project_dir), g4.get("must_fix", []))
-        for _dw in _demoted:
-            log.warning("shadow_gate_demoted", chapter=chapter, step=step.step_num, item=_dw)
-            emit_shadow_warn_trace(project_dir, chapter, _dw)
-        _shadow_remaining = _remaining
-        if _demoted and not _remaining:
-            # All items demoted (single-gate shadow FAIL — the common first-
-            # bundle case): route PASS-with-warnings. Replicate the :4207
-            # cleanup; MUST NOT fall into the G4.generic_failure fallback.
-            state.chapter_loop.retry_feedback.pop(retry_key, None)
-            g4 = {**g4, "status": GateStatus.PASS.value, "must_fix": []}
-            # audit-T3/I2: re-record the manifest with the demoted outcome —
-            # run_gate_g4 already logged the raw FAIL (latest-wins append).
-            from shenbi.gates.gate_manifest import record_gate_result
-
-            record_gate_result(project_dir, "chapter_loop", chapter, step.skill, "G4", g4)
+    # spec #82 T3 (final unification): single shared implementation.
+    g4, _shadow_remaining = _shadow_route_g4(
+        state, project_dir, g4, chapter=chapter, skill=step.skill, rk=retry_key
+    )
     if _gate_passed(g4):
         # Canary defect 'retry_feedback 永不清': stale corrective feedback
         # from a prior failure stayed injected into every later dispatch.
