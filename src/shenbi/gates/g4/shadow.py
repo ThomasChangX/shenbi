@@ -51,6 +51,9 @@ GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {
     "cd.counter.plan_conflict": ("market_params", "counter_anchor"),  # 行 5
     "cd.counter.base_mismatch": ("market_params", "counter_anchor"),  # 行 6
     "cd.counter.prose_mismatch": ("market_params", "counter_anchor"),  # 行 7
+    # spec #83 §10 行 8/9：余额锚 FAIL 臂（WARN 臂同键 shadow——非 FAIL 不入表）+ 束级升格
+    "cd.balance_value_drift": ("market_params", "balance_anchor"),  # 行 8
+    "cd.balance_value_drift.bundle": ("market_params", "balance_anchor"),  # 行 9
 }
 
 

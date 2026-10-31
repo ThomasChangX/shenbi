@@ -657,6 +657,44 @@ def g4_chapter_drafting(
                     )
                 )
 
+        # ── spec #83 T6 余额锚（§10 行 8/9，shadow 起 L-D）──
+        # 取数：truth/particle_ledger.md check 时点现值（单一信源，不扫前章正文）；
+        # 缺席 → WARN 可见 skip（F16/F17 facts 三律同款）。
+        _ledger_path = Path(project_dir) / "truth" / "particle_ledger.md" if project_dir else None
+        _ledger_text = (
+            _ledger_path.read_text(encoding="utf-8")
+            if _ledger_path and _ledger_path.is_file()
+            else None
+        )
+        if _ledger_text is None:
+            c.append(
+                {
+                    "id": "cd.balance_value_drift",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": "no_ledger — particle_ledger.md absent; balance anchor skipped (degradation visible)",
+                }
+            )
+        else:
+            from shenbi.gates.g4.post_declarations import (
+                check_balance_value_drift,
+                parse_ledger_current_value,
+                parse_spend_events,
+            )
+
+            _bal_fails, _bal_warns = check_balance_value_drift(
+                content,
+                parse_ledger_current_value(_ledger_text),
+                spend_events=parse_spend_events(_memo or ""),
+            )
+            for _bf in _bal_fails:
+                _bf_id, _bf_detail = _bf.split(":", 1)
+                mf.append(f"G4.{_bf_id}:{fp}:{_bf_detail}")
+            for _bw in _bal_warns:
+                c.append(
+                    {"id": "cd.balance_value_drift", "file": fp, "s": GateStatus.WARN, "r": _bw}
+                )
+
         # PRE_WRITE_CHECK
         if "## PRE_WRITE_CHECK" not in content:
             mf.append(f"G4.pre_check:{fp}")

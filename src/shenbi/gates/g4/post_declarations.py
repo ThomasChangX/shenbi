@@ -133,3 +133,135 @@ def check_post_wordcount_precision(content: str, actual_chars: int) -> list[str]
                 f"（差 {drift:.1%} >2%）——虚假精度（修复者: drafting 改声明一行）"
             )
     return issues
+
+
+# spec #83 T6 余额锚（双面设计——轮 4 N1 定稿：raw content 输入；META/POST 区间
+# 位置排除（quote_verbatim meta_regions 区间法）；场景跨度与匹配共用 raw 坐标系。
+# 不得以 strip_narrative_body 为输入面——其尾部 strip_scene_markers 会剥掉
+# <!--SCENE--> 标记，first_scene_span 恒走无标记退化、FAIL 臂回退全章首现。）
+_BALANCE_RE = re.compile(
+    r"(一共|还剩|只剩|剩下|剩|袋底|余额)[^。]{0,6}?([一二两三四五六七八九十百千\d]+)文"
+)
+_LEDGER_VALUE_RE = re.compile(r"余[额]?\s*[零一二两三四五六七八九十百千\d]+\s*文")
+
+
+def parse_ledger_current_value(ledger_text: str) -> int | None:
+    """Last matching value row of truth/particle_ledger.md (Chinese-digit).
+
+    Real form (r5-C1 replay): ``| 第 36 章 | 余额一百零三文 | 未动 | …`` —
+    余额-prefixed; bare-余 forms exist at multiple history rows, the LAST
+    hit wins (tail rows may be out of chronological order); 无/未动 rows
+    with no value form never match.
+    """
+    from shenbi.gates.g4.cross_chapter import cn_amount
+
+    value: int | None = None
+    for m in _LEDGER_VALUE_RE.finditer(ledger_text):
+        raw = m.group(0).replace("余额", "").replace("余", "").strip()
+        try:
+            amount = cn_amount(raw)
+        except (TypeError, ValueError):
+            continue
+        if amount is not None:
+            value = amount
+    return value
+
+
+_SPEND_LINE_RE = re.compile(r"支出[|｜]([^|｜\s]+)文")
+
+
+def parse_spend_events(memo_text: str) -> list[int]:
+    """Spend amounts from plan ``- 事件: 支出|N文|…`` segments (spec #83 T6).
+
+    Line-anchored AND mid-line scans (ch4 compound ``收入|…｜支出|六文|…``);
+    无/零文 yield nothing (0 never exempts).
+    """
+    from shenbi.gates.g4.cross_chapter import cn_amount
+
+    out: list[int] = []
+    for m in _SPEND_LINE_RE.finditer(memo_text):
+        raw = m.group(1)
+        if raw in ("无", "零", "0"):
+            continue
+        try:
+            amount = cn_amount(raw)
+        except (TypeError, ValueError):
+            continue
+        if amount:
+            out.append(amount)
+    return out
+
+
+def first_scene_span(content: str) -> tuple[int, int] | None:
+    """Char span of the first <!--SCENE--> scene (marker1 -> marker2/trailing
+    meta boundary), None when no markers (caller degenerates to whole body).
+
+    Line-level rescan on ``is_scene_marker_line`` (shared.py) — NOT
+    ``split_scenes`` (returns ``(size, last_line)`` tuples, unusable as spans).
+    """
+    from shenbi.gates.shared import is_scene_marker_line
+
+    lines = content.split("\n")
+    marker_idx = [i for i, ln in enumerate(lines) if is_scene_marker_line(ln)]
+    if not marker_idx:
+        return None
+    # trailing-meta boundary mirrors split_scenes' (first H2/META after last marker);
+    # for the FIRST scene the boundary is simply the next marker.
+    start_line = marker_idx[0]
+    end_line = marker_idx[1] if len(marker_idx) > 1 else len(lines)
+    start = sum(len(ln) + 1 for ln in lines[:start_line])
+    end = sum(len(ln) + 1 for ln in lines[:end_line])
+    return start, end
+
+
+def check_balance_value_drift(
+    content: str, ledger_value: int | None, *, spend_events: list[int] | None = None
+) -> tuple[list[str], list[str]]:
+    """Balance anchor (spec #83 T6): FAIL arm = first-scene first occurrence
+    != ledger (ch26 opening-spoiler pathology); WARN arm = every other hit
+    whose value differs and whose signed diff ``ledger - occurrence`` is not
+    a declared spend (ch23 post-payment deep occurrence exempt; ch1
+    multi-timepoint progression warns). Dual-surface: raw content, META
+    regions positionally excluded, scene span in the same coordinates.
+    """
+    from shenbi.gates.g4.quote_verbatim import meta_regions
+    from shenbi.gates.g4.cross_chapter import cn_amount
+
+    if ledger_value is None:
+        return [], []
+    meta_spans: list[tuple[int, int]] = [(rs, re_) for _r, rs, re_ in meta_regions(content)]
+    scene = first_scene_span(content)
+    hits: list[tuple[int, int]] = []  # (char_start, value)
+    for m in _BALANCE_RE.finditer(content):
+        if any(ms <= m.start() < me for ms, me in meta_spans):
+            continue  # POST/PRE self-restatements never enter (M9)
+        amount = cn_amount(m.group(2))
+        if amount is None:
+            continue
+        hits.append((m.start(), amount))
+    if not hits:
+        return [], []
+    fails: list[str] = []
+    warns: list[str] = []
+    first_start, first_value = hits[0]
+    in_first_scene = scene is None or (scene[0] <= first_start < scene[1])
+    if in_first_scene and first_value != ledger_value:
+        fails.append(
+            f"cd.balance_value_drift:章首首现余额 {first_value} ≠ ledger 现值 {ledger_value}"
+            "——时序泄漏（章首不应携带本章结算后值；修复者: drafting）"
+        )
+    spent = spend_events or []
+    # WARN 面=FAIL 臂评估对象之外的全部命中（r5-I3/r7-I1）：首现在首场景时归
+    # FAIL 臂评估（无论红绿）、WARN 从次命中起；首现不在首场景（ch23 深位形）
+    # 时首现归 WARN 面——全部命中入迭代
+    _warn_hits = hits[1:] if in_first_scene else hits
+    for _start, value in _warn_hits:
+        if value == ledger_value:
+            continue
+        if (ledger_value - value) in spent:
+            continue  # declared spend covers the drop (signed: income never exempts)
+        warns.append(
+            f"cd.balance_value_drift:余额命中 {value} ≠ 现值 {ledger_value} 且无对应支出声明"
+            "——异值余额供人工裁决"
+        )
+    return fails, warns

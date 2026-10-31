@@ -203,6 +203,58 @@ def _check_escape_corruption(pf: Path, live_text: str, staged_text: str) -> list
     return []
 
 
+def _balance_bundle_escalation(project_dir: str | Path | None, chapter: int | None) -> list[str]:
+    """Spec #83 §10 行 9: bundle-settle escalation of per-chapter balance WARNs.
+
+    Aggregates the manifest's latest G4.cd records for the bundle members:
+    the same balance anchor WARN recurring in >=2 bundle chapters (or >=2
+    times in one chapter) escalates to a bundle-level FAIL — emitted
+    id-first so the :4016 consumption site demotes it naturally (shadow).
+    """
+    if not project_dir or chapter is None:
+        return []
+    import json as _json
+    from shenbi.pipeline.chapter_loop import bundle_chapters
+
+    manifest_path = Path(project_dir) / "pipeline-manifest.json"
+    if not manifest_path.is_file():
+        return []
+    try:
+        manifest = _json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    per_chapter: dict[int, int] = {}
+    records = manifest.get("gates", {}).get("chapter_loop", {})
+    for member in bundle_chapters(Path(project_dir), chapter):
+        skill_gate = records.get(str(member), {}).get("shenbi-chapter-drafting", {})
+        rec = skill_gate.get("G4", {})
+        result = rec.get("result") if isinstance(rec, dict) else None
+        if isinstance(result, str):
+            try:
+                result = _json.loads(result)
+            except ValueError:
+                result = None
+        checks = result.get("checks", []) if isinstance(result, dict) else []
+        n = sum(
+            1
+            for ch_ in checks
+            if isinstance(ch_, dict)
+            and ch_.get("id") == "cd.balance_value_drift"
+            and ch_.get("s") == GateStatus.WARN
+        )
+        if n:
+            per_chapter[member] = n
+    total = sum(per_chapter.values())
+    if len(per_chapter) >= 2 or total >= 2:
+        detail = ",".join(f"ch{k}×{v}" for k, v in sorted(per_chapter.items()))
+        return [
+            f"G4.cd.balance_value_drift.bundle:truth/particle_ledger.md:"
+            f"束内余额 WARN 复发（{detail or 'missing'}；束级升格判据 ≥2 章/≥2 次）"
+            "——同锚束级复发（修复者: drafting/planning 对齐 ledger）"
+        ]
+    return []
+
+
 def _current_settle_chapter(pf: Path) -> int | None:
     """Chapter the staged settle owns, from the sibling decisions sidecar.
 
@@ -1066,6 +1118,9 @@ def g4_state_settling(
                 c.append({"id": "G4.ss.arcs", "file": fp, "s": GateStatus.PASS})
 
         if "particle_ledger" in str(fp):
+            # spec #83 §10 行 9：束级升格（manifest 聚合 per-章 WARN——经 :4016 demote）
+            _bb_ch = _current_settle_chapter(Path(fp))
+            mf.extend(_balance_bundle_escalation(project_dir, _bb_ch))
             # Accept: 粒子账本, 粒子记录, particle ledger, 账本, etc.
             if not re.search(
                 r"(粒子账本|粒子记录|particle.*ledger|账本|资源)", content, re.IGNORECASE

@@ -34,7 +34,7 @@ _META_SECTION_RE = re.compile(
 PAREN_SPAN_RE = re.compile(r"（[^（）]*）")
 
 
-def _meta_regions(chapter_text: str) -> list[tuple[str, int, int]]:
+def meta_regions(chapter_text: str) -> list[tuple[str, int, int]]:
     """(region_text, start, end) —— META 块 + PRE/POST H2 节，带绝对位置。"""
     regions: list[tuple[str, int, int]] = []
     for m in _META_BLOCK_RE.finditer(chapter_text):
@@ -93,7 +93,7 @@ def extract_meta_quotes(chapter_text: str, *, min_len: int = 6) -> list[str]:
     ch31「…『制度』…」形，防内层片段重复入面）。
     """
     out: list[str] = []
-    for region, _rs, _re in _meta_regions(chapter_text):
+    for region, _rs, _re in meta_regions(chapter_text):
         paren_spans = [m.span() for m in PAREN_SPAN_RE.finditer(region)]
         nested_spans: list[tuple[int, int]] = []
         for m in NESTED_QUOTE_RE.finditer(region):
