@@ -244,7 +244,7 @@ def _strip_increment_section(live_text: str, chapter: int) -> str:
     return "\n".join(out)
 
 
-def _check_matrix_structure(pf: Path) -> list[str]:
+def _check_matrix_structure(pf: Path) -> tuple[list[str], list[str]]:
     """Content-preservation guard for a STAGED character_matrix.
 
     Fixcheck probe (2026-09-29): seven consecutive settle rewrites failed
@@ -259,7 +259,7 @@ def _check_matrix_structure(pf: Path) -> list[str]:
     """
     live = _live_sibling(pf)
     if live is None:
-        return []
+        return [], []
     issues: list[str] = []
     staged_text = pf.read_text(encoding="utf-8")
     live_text = live.read_text(encoding="utf-8")
@@ -284,7 +284,17 @@ def _check_matrix_structure(pf: Path) -> list[str]:
         for detail in _dropped_content_lines(live_text, staged_text)
     )
     issues.extend(_check_escape_corruption(pf, live_text, staged_text))
-    return issues
+    # spec #83 T4: diff 面积 WARN（shadow 量化面——观测记录非 FAIL 门；全量
+    # 重写病理的量化面，matrix_structure content_dropped 检测职责不重复建门）
+    warns: list[str] = []
+    if live_lines:
+        dropped_n = len(_dropped_content_lines(live_text, staged_text))
+        if dropped_n > len(live_lines) * 0.5:
+            warns.append(
+                f"ss.matrix_structure.diff_area: staged 重写面积 {dropped_n}/{len(live_lines)}"
+                " 行（>50%——增量契约违反的量化观测，交评审/驱动侧裁决）"
+            )
+    return issues, warns
 
 
 #: Registry rows are keyed by their hook id wherever it starts the first
@@ -983,7 +993,17 @@ def g4_state_settling(
 
             # Structural preservation vs the live sibling (probe session
             # 2026-09-29: template regeneration was invisible to the gate).
-            mf.extend(_check_matrix_structure(pf))
+            _mx_fails, _mx_warns = _check_matrix_structure(pf)  # spec #83 T4 拆包
+            mf.extend(_mx_fails)
+            for _mw in _mx_warns:
+                c.append(
+                    {
+                        "id": "ss.matrix_structure.diff_area",
+                        "file": fp,
+                        "s": GateStatus.WARN,
+                        "r": _mw,
+                    }
+                )
 
         if "state-settling-decisions" in str(fp):
             mf.extend(_check_produced_at(content, fp))

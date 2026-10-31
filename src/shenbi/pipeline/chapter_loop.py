@@ -1204,6 +1204,12 @@ def _append_feedback_injections(
                 "- 字数缺口按反馈实测值补足，不重掷全章；\n"
                 "- 未被点名的段落 token 级不变。禁止整章重写、禁止场景重组。\n"
             )
+        # spec #83 T4：分族路由反馈定向（路由面——前缀 token 匹配已结构化
+        # issue 串；非自由文本判读，触发判定在 streak 计数器）
+        from shenbi.pipeline.retry_routing import classify_retry_family, targeted_feedback_addendum
+
+        _fam = classify_retry_family(prev_g4_feedback)
+        prompt += targeted_feedback_addendum(_fam, prev_g4_feedback)
         prompt += (
             f"\n\n## CORRECTIVE FEEDBACK (prior attempt failed G4 validation)\n"
             f"Your previous output failed the structural check:\n"
