@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-10-31（spec #83 plan 立项 ✅ ready）
-> **活跃 plan 数**：1 | **已归档**：131（见 `archive/`）
+> **最后更新**：2026-11-01（spec #83 plan 归档——PR #271 合并，14 task 全执行收敛）
+> **活跃 plan 数**：0 | **已归档**：132（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- [`2026-10-31-spec83-three-surface-consistency.md`](2026-10-31-spec83-three-surface-consistency.md) ✅ ready — spec #83 三面一致性之网（r5.3）：14 task（T0 fixtures 基建 + T1-T13 门/管线/工具面）；全部新 FAIL 支路按 §10 shadow checklist，状态字面量按 §11 落点表；验收覆盖表映射 spec §9 五条
+（空——spec #83 已归档；下一份 plan 由 /sdd-next 队头 spec 立项时创建）
 
 ## 待执行的 spec → plan 映射
 
@@ -17,6 +17,8 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 - `❌ 未写` → 该 spec 进入实施阶段时再创建 plan（避免过早规划）
 - `✅ ready` → plan 已创建并位于本目录（执行 spec 时此页面会同步登记）
+
+- **spec #83 三面一致性之网**（`2026-10-31`，PR #271）— POST 引句两臂门/修订联动+stale 三站点/打摆计数+分族路由/follower 完成语义/计数三支路/余额双面锚+束级升格/来历锚/canon 回灌 lint/声口 token 族+口径清偿；§10 九支路 shadow 全闭环
 
 ## 归档说明
 

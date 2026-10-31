@@ -10,14 +10,6 @@
 
 ## 执行队列
 
-### #83 · 三面一致性之网（three-surface-consistency）
-
-- **文件**：`2026-10-30-spec83-three-surface-consistency.md` ｜ **系列**：卷一复盘→卷二防复发 ｜ **状态**：Active（r5.3 审查轮2清偿修订） ｜ **优先级**：🟠 P1
-- **依赖**：无（#82 已落地（PR #263）：T0 快照层/`quote_verbatim.py` 共基/`_shadow_route_g4` 降级中枢可直接复用；T3 回灌输补丁与 #84 T0 同批）
-- **内容**：正文/声明/truth/大纲四面脱钩的机制化修复——POST 声明引句 verbatim 门（**两行执法面**：金句位+章尾张力；嵌套引号提取前置；#82 共基扩消费面）、revision→声明联动（**物象〔plan 结构化行〕/POST 引句并入 #72 R3-C1 复验面**为主+stale 状态化次级）、canon 回灌对账工具（lint_outline_truth_drift，含声明面子命令）、增量生成硬化（反馈定向增强挂 `_length_family` 先例+diff 面积 WARN＋drafting 打摆切换**取数 RETRY 两源合流**〔monitor_rewind issues 主源〕）、follower 完成语义＋声明快照接续、正文本体数字锚（计数锚**并入 F17 扩族+N+0 解析+计划内部矛盾门**/余额锚/provenance 来历锚）、判据 5 口径与 #80 回放口径清偿；铁律 L-D 新门 shadow 纪律
-- **对应 plan**：待执行时建（`plans/2026-10-30-spec83-*.md`）
-- **触及的不变量维度**：恒等 identity、时间、持有与经手 props、枚举计数 counters、承诺与债务（钩）、叙事纪律（POV/声口）
-
 ### #84 · 卷一清偿与卷二开卷（vol1-repair-vol2-launch）
 
 - **文件**：`2026-10-30-spec84-vol1-repair-vol2-launch.md` ｜ **系列**：卷一复盘→卷二防复发 ｜ **状态**：Active（r2 审核修订） ｜ **优先级**：🟠 P1
