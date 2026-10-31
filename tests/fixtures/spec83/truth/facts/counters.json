@@ -1,0 +1,12 @@
+{
+  "$schema": "shenbi-facts-v1",
+  "dim": "counters",
+  "facts": {
+    "鉴录名数": {
+      "name": "鉴录名数",
+      "value": 4,
+      "history": []
+    }
+  },
+  "ops_log": []
+}

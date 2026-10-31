@@ -1,0 +1,485 @@
+{
+  "$schema": "shenbi-facts-v1",
+  "dim": "props",
+  "facts": {
+    "旧红纸包": {
+      "entity": "旧红纸包",
+      "owner": "那罕",
+      "events": [
+        "旧红纸包: still held by 那罕 (ch35)"
+      ]
+    },
+    "半块墨": {
+      "entity": "半块墨",
+      "owner": "那罕",
+      "events": []
+    },
+    "历册": {
+      "entity": "历册",
+      "owner": "那罕",
+      "events": []
+    },
+    "盐包": {
+      "entity": "盐包",
+      "owner": "那罕",
+      "events": []
+    },
+    "「七三一，待」纸卡": {
+      "entity": "「七三一，待」纸卡",
+      "owner": "星象局档案房",
+      "events": []
+    },
+    "炮架炭画木板": {
+      "entity": "炮架炭画木板",
+      "owner": "画炮架人",
+      "events": []
+    },
+    "半部《鉴录》": {
+      "entity": "半部《鉴录》",
+      "owner": "那罕",
+      "events": [
+        "半部《鉴录》: still held by 那罕 (ch35)"
+      ]
+    },
+    "竹笔": {
+      "entity": "竹笔",
+      "owner": "那罕",
+      "events": []
+    },
+    "火纹骨哨": {
+      "entity": "火纹骨哨",
+      "owner": "那罕",
+      "events": []
+    },
+    "屯庄附籍册": {
+      "entity": "屯庄附籍册",
+      "owner": "屯庄登记官",
+      "events": []
+    },
+    "灰底采买旗": {
+      "entity": "灰底采买旗",
+      "owner": "灰烬",
+      "events": []
+    },
+    "炭写价目木板": {
+      "entity": "炭写价目木板",
+      "owner": "灰烬",
+      "events": []
+    },
+    "半张破席": {
+      "entity": "半张破席",
+      "owner": "那罕",
+      "events": []
+    },
+    "榆林驿站户册": {
+      "entity": "榆林驿站户册",
+      "owner": "榆林驿站",
+      "events": []
+    },
+    "马料账": {
+      "entity": "马料账",
+      "owner": "榆林驿站站房",
+      "events": []
+    },
+    "半页私账": {
+      "entity": "半页私账",
+      "owner": "那罕",
+      "events": []
+    },
+    "榆林驿站房灯": {
+      "entity": "榆林驿站房灯",
+      "owner": "那罕",
+      "events": []
+    },
+    "灯油四文": {
+      "entity": "灯油四文",
+      "owner": "灶间老妇",
+      "events": []
+    },
+    "整张纸一沓": {
+      "entity": "整张纸一沓",
+      "owner": "那罕",
+      "events": []
+    },
+    "借调令": {
+      "entity": "借调令",
+      "owner": "那罕",
+      "events": []
+    },
+    "腰牌「榆字三十七」": {
+      "entity": "腰牌「榆字三十七」",
+      "owner": "那罕",
+      "events": []
+    },
+    "三册": {
+      "entity": "三册",
+      "owner": "达鲁花赤衙门值房",
+      "events": []
+    },
+    "脚价银清册": {
+      "entity": "脚价银清册",
+      "owner": "达鲁花赤衙门",
+      "events": []
+    },
+    "铜章": {
+      "entity": "铜章",
+      "owner": "掌印官",
+      "events": []
+    },
+    "档案房「经手人」格子表": {
+      "entity": "档案房「经手人」格子表",
+      "owner": "达鲁花赤衙门档案房",
+      "events": []
+    },
+    "北院少年图章匣": {
+      "entity": "北院少年图章匣",
+      "owner": "北院少年",
+      "events": []
+    },
+    "巴掌大私账": {
+      "entity": "巴掌大私账",
+      "owner": "那罕",
+      "events": []
+    },
+    "公案文具": {
+      "entity": "公案文具",
+      "owner": "达鲁花赤衙门值房公案",
+      "events": []
+    },
+    "折耗名册": {
+      "entity": "折耗名册",
+      "owner": "西路军粮队",
+      "events": []
+    },
+    "军粮册": {
+      "entity": "军粮册",
+      "owner": "粮队老书吏",
+      "events": []
+    },
+    "驿路班期表": {
+      "entity": "驿路班期表",
+      "owner": "西路军粮队",
+      "events": []
+    },
+    "一领破席": {
+      "entity": "一领破席",
+      "owner": "队里",
+      "events": []
+    },
+    "帖兰的黍米袋": {
+      "entity": "帖兰的黍米袋",
+      "owner": "帖兰",
+      "events": []
+    },
+    "灶间窗台灯": {
+      "entity": "灶间窗台灯",
+      "owner": "榆林驿站",
+      "events": []
+    },
+    "借调文书": {
+      "entity": "借调文书",
+      "owner": "那罕",
+      "events": []
+    },
+    "腰牌「书字六十一」": {
+      "entity": "腰牌「书字六十一」",
+      "owner": "那罕",
+      "events": []
+    },
+    "合剌的黄布图章匣": {
+      "entity": "合剌的黄布图章匣",
+      "owner": "合剌",
+      "events": []
+    },
+    "图章房红漆匣": {
+      "entity": "图章房红漆匣",
+      "owner": "达鲁花赤衙门",
+      "events": []
+    },
+    "抄册房正册与底册": {
+      "entity": "抄册房正册与底册",
+      "owner": "达鲁花赤衙门抄册房",
+      "events": []
+    },
+    "桑木弓": {
+      "entity": "桑木弓",
+      "owner": "那罕",
+      "events": []
+    },
+    "两壶箭": {
+      "entity": "两壶箭",
+      "owner": "那罕",
+      "events": []
+    },
+    "酱熟肉一块": {
+      "entity": "酱熟肉一块",
+      "owner": "老董、小陆",
+      "events": []
+    },
+    "灯油三文": {
+      "entity": "灯油三文",
+      "owner": "那罕",
+      "events": []
+    },
+    "蓝布条": {
+      "entity": "蓝布条",
+      "owner": "那罕",
+      "events": []
+    },
+    "浅蓝布一匹": {
+      "entity": "浅蓝布一匹",
+      "owner": "那罕",
+      "events": []
+    },
+    "蓝指甲印布": {
+      "entity": "蓝指甲印布",
+      "owner": "染坊",
+      "events": []
+    },
+    "染坊木牌": {
+      "entity": "染坊木牌",
+      "owner": "染坊",
+      "events": []
+    },
+    "断齿木梳": {
+      "entity": "断齿木梳",
+      "owner": "那罕",
+      "events": []
+    },
+    "空白格式页": {
+      "entity": "空白格式页",
+      "owner": "那罕",
+      "events": []
+    },
+    "抄册房废纸": {
+      "entity": "抄册房废纸",
+      "owner": "那罕",
+      "events": []
+    },
+    "灰烬的价目纸": {
+      "entity": "灰烬的价目纸",
+      "owner": "灰烬",
+      "events": []
+    },
+    "马家酒铺采买旗": {
+      "entity": "马家酒铺采买旗",
+      "owner": "马家酒铺",
+      "events": []
+    },
+    "帖兰的半张红纸": {
+      "entity": "帖兰的半张红纸",
+      "owner": "那罕",
+      "events": []
+    },
+    "榆林驿站班期表": {
+      "entity": "榆林驿站班期表",
+      "owner": "那罕",
+      "events": []
+    },
+    "榆林驿站钥匙": {
+      "entity": "榆林驿站钥匙",
+      "owner": "那罕",
+      "events": []
+    },
+    "站房灯": {
+      "entity": "站房灯",
+      "owner": "那罕",
+      "events": []
+    },
+    "火纹骨哨·帖木哥支": {
+      "entity": "火纹骨哨·帖木哥支",
+      "owner": "那罕",
+      "events": []
+    },
+    "帖木哥的遗物登记": {
+      "entity": "帖木哥的遗物登记",
+      "owner": "榆林驿站册",
+      "events": []
+    },
+    "帖兰遗物灯": {
+      "entity": "帖兰遗物灯",
+      "owner": "官库",
+      "events": []
+    },
+    "灯油账": {
+      "entity": "灯油账",
+      "owner": "榆林驿站账",
+      "events": []
+    },
+    "七封信": {
+      "entity": "七封信",
+      "owner": "驿卒老赵带出城 → 青石驿",
+      "events": []
+    },
+    "分装单": {
+      "entity": "分装单",
+      "owner": "那罕",
+      "events": []
+    },
+    "青石驿回炭": {
+      "entity": "青石驿回炭",
+      "owner": "那罕",
+      "events": []
+    },
+    "点役票": {
+      "entity": "点役票",
+      "owner": "陈门刘氏带来 → 那罕经手",
+      "events": []
+    },
+    "徭役册": {
+      "entity": "徭役册",
+      "owner": "榆林驿站",
+      "events": []
+    },
+    "驿仓旧单": {
+      "entity": "驿仓旧单",
+      "owner": "榆林驿站册底",
+      "events": []
+    },
+    "附页·呈报": {
+      "entity": "附页·呈报",
+      "owner": "衙门存档",
+      "events": []
+    },
+    "免役回执": {
+      "entity": "免役回执",
+      "owner": "陈门刘氏",
+      "events": []
+    },
+    "桑伽的粗纸": {
+      "entity": "桑伽的粗纸",
+      "owner": "那罕",
+      "events": []
+    },
+    "驼队": {
+      "entity": "驼队",
+      "owner": "桑伽",
+      "events": []
+    },
+    "三文订金": {
+      "entity": "三文订金",
+      "owner": "那罕",
+      "events": []
+    },
+    "欠条": {
+      "entity": "欠条",
+      "owner": "那罕",
+      "events": []
+    },
+    "欠条上的朱印": {
+      "entity": "欠条上的朱印",
+      "owner": "合济号",
+      "events": []
+    },
+    "欠条副本": {
+      "entity": "欠条副本",
+      "owner": "榆林驿站柜上",
+      "events": []
+    },
+    "收据": {
+      "entity": "收据",
+      "owner": "那罕",
+      "events": []
+    },
+    "算盘": {
+      "entity": "算盘",
+      "owner": "榆林驿站",
+      "events": []
+    },
+    "四栏算式页": {
+      "entity": "四栏算式页",
+      "owner": "那罕",
+      "events": []
+    },
+    "官灯": {
+      "entity": "官灯",
+      "owner": "榆林驿站",
+      "events": []
+    },
+    "屯庄市集采买旗（灰底·靛蓝边）": {
+      "entity": "屯庄市集采买旗（灰底·靛蓝边）",
+      "owner": "墨管事（灰烬）",
+      "events": [
+        "屯庄市集采买旗（灰底·靛蓝边）: first sighting ->墨管事（灰烬） (ch33, chapters/chapter-33.md L22)"
+      ]
+    },
+    "价目板（斗米一百二十文）": {
+      "entity": "价目板（斗米一百二十文）",
+      "owner": "墨管事（灰烬）",
+      "events": [
+        "价目板（斗米一百二十文）: first sighting ->墨管事（灰烬） (ch33, chapters/chapter-33.md L30)"
+      ]
+    },
+    "旗号抄样（账纸一页·四格）": {
+      "entity": "旗号抄样（账纸一页·四格）",
+      "owner": "那罕（林烽）",
+      "events": [
+        "旗号抄样（账纸一页·四格）: first sighting ->那罕（林烽） (ch34, chapters/chapter-34.md L60)"
+      ]
+    },
+    "火纹骨哨（老驼所授·主线）": {
+      "entity": "火纹骨哨（老驼所授·主线）",
+      "owner": "那罕",
+      "events": [
+        "火纹骨哨（老驼所授·主线）: first sighting held by 那罕 (ch35)"
+      ]
+    }
+  },
+  "ops_log": [
+    {
+      "op": "acquire",
+      "prop": "火纹骨哨·帖木哥支",
+      "to": "那罕",
+      "evidence": "chapters/chapter-20.md L218",
+      "chapter": 20
+    },
+    {
+      "op": "acquire",
+      "prop": "屯庄市集采买旗（灰底·靛蓝边）",
+      "from": "",
+      "to": "墨管事（灰烬）",
+      "evidence": "chapters/chapter-33.md L22",
+      "chapter": 33
+    },
+    {
+      "op": "acquire",
+      "prop": "价目板（斗米一百二十文）",
+      "from": "",
+      "to": "墨管事（灰烬）",
+      "evidence": "chapters/chapter-33.md L30",
+      "chapter": 33
+    },
+    {
+      "op": "acquire",
+      "prop": "旗号抄样（账纸一页·四格）",
+      "from": "",
+      "to": "那罕（林烽）",
+      "evidence": "chapters/chapter-34.md L60",
+      "chapter": 34
+    },
+    {
+      "op": "hold",
+      "prop": "半部《鉴录》",
+      "from": "",
+      "to": "那罕",
+      "evidence": "chapters/chapter-35.md L123",
+      "chapter": 35
+    },
+    {
+      "op": "hold",
+      "prop": "旧红纸包",
+      "from": "",
+      "to": "那罕",
+      "evidence": "chapters/chapter-35.md L212",
+      "chapter": 35
+    },
+    {
+      "op": "hold",
+      "prop": "火纹骨哨（老驼所授·主线）",
+      "from": "",
+      "to": "那罕",
+      "evidence": "chapters/chapter-35.md L208",
+      "chapter": 35
+    }
+  ]
+}
