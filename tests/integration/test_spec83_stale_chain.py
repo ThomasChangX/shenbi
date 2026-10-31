@@ -14,8 +14,10 @@ from unittest.mock import patch
 
 from shenbi.pipeline import chapter_loop
 from shenbi.pipeline.chapter_loop import (
+    CHAPTER_STEPS,
     _pre_settle_guard,
     _revalidate_revised_chapter,
+    run_chapter_step,
     run_parallel_post_draft_steps,
 )
 from shenbi.pipeline.cli import _execute_pending_re_dispatches
@@ -105,10 +107,36 @@ def test_cli_queue_site_rejects_stale(tmp_path: Path) -> None:
 
 
 def test_serial_site_routes_to_handle_failure(tmp_path: Path) -> None:
-    """站点③：串行通用路径——guard 谓词与 _handle_failure 路由（STATE_SETTLE redo 落此）。"""
+    """站点③：串行通用路径真实驱动（audit-T5 I 补——STATE_SETTLE redo 落此路径）。
+
+    转正态（shadow:false）下 guard 须在 dispatch_skill **之前**短路：真实
+    settle 派发零次、retry_feedback 载报文、_handle_failure 路由（per_chapter
+    检查点模式返回 True）。
+    """
     d = _mini_project(tmp_path)
     st = PipelineState(project_dir=str(d))
+    st.chapter_loop.current_chapter = 28
     st.chapter_loop.chapter_states["28"] = ChapterState(declarations_stale=True)
-    demoted, hard = _pre_settle_guard(st, d, 28)
-    # 默认 shadow（键缺席）→ demote；转正态在 test_pre_settle_guard_hard_when_shadow_promoted 已覆盖
-    assert demoted and not hard
+    (d / "genre-config.json").write_text(
+        '{"market_params": {"stale_declarations": {"shadow": false}}}', encoding="utf-8"
+    )
+    # 游标直接钉到 settling 步（STATE_SETTLE checkpoint redo 的 step_index 重置态）
+    settle_idx = next(
+        i for i, s_ in enumerate(CHAPTER_STEPS) if s_.skill == "shenbi-state-settling"
+    )
+    st.chapter_loop.step_index = settle_idx
+    st.config.per_chapter_review_enabled = True
+    with patch.object(chapter_loop, "dispatch_skill") as mock_dispatch:
+        mock_dispatch.return_value = DispatchResult(
+            success=True, returncode=0, stdout="", stderr=""
+        )
+        raised_or_checkpoint = run_chapter_step(st, d)
+    assert mock_dispatch.call_count == 0  # guard 先于派发（audit-T5 C1 回归钉）
+    fb = st.chapter_loop.retry_feedback.get("ch28-shenbi-state-settling", "")
+    assert "ss.stale_declarations" in fb  # 反馈定向载报文
+    # _handle_failure 路由面：步骤未标记完成（失败路径，具体 checkpoint/auto-retry
+    # 形态由内部失败分类决定——非本断言义务）
+    assert (
+        "shenbi-state-settling"
+        not in st.chapter_loop.chapter_states.get("28", ChapterState()).steps_done
+    )

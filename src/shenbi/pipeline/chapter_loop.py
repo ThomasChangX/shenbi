@@ -4353,6 +4353,15 @@ def _run_chapter_step_impl(
     if step.skill == "shenbi-chapter-revision":
         write_audit_aggregate(project_dir, chapter)
 
+    # spec #83 §10 行 4 站点③：串行通用路径 settle 派发前 stale 检查——
+    # STATE_SETTLE checkpoint 人审 REJECT/MODIFY（cli.py 重置 step_index）落本
+    # 路径。必须在 dispatch_skill **之前**（audit-T5 C1：guard 落派发后会让每
+    # 次拒收先烧一次真实 settle 派发、staging 残留过期产物）。
+    if step.skill == "shenbi-state-settling":
+        _st_demoted, _st_hard = _pre_settle_guard(state, project_dir, chapter)
+        if _st_hard:
+            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(_st_hard)
+            return _handle_failure(state, step, chapter, "g4", project_dir)
     # Dispatch the skill. The explicit [path-context] carrier makes the
     # chapter authoritative on the API route: bundle prompts ("chapters 1,2")
     # defeat extract_chapter's singular regex, and a None chapter silently
@@ -4434,13 +4443,6 @@ def _run_chapter_step_impl(
 
     # G4: skill-specific structural validation (every dispatched step).
     g4_files = _resolve_g4_files(project_dir, step, chapter)
-    # spec #83 §10 行 4 站点③：串行通用路径 settle 派发前 stale 检查——
-    # STATE_SETTLE checkpoint 人审 REJECT/MODIFY（cli.py 重置 step_index）落本路径
-    if step.skill == "shenbi-state-settling":
-        _st_demoted, _st_hard = _pre_settle_guard(state, project_dir, chapter)
-        if _st_hard:
-            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(_st_hard)
-            return _handle_failure(state, step, chapter, "g4", project_dir)
     g4 = run_gate_g4(step.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
     # spec #82 T3: shadow demotion BEFORE classification (gates stay pure).
     # spec #82 T3 (final unification): single shared implementation.

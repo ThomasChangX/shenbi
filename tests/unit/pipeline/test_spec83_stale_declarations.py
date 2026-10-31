@@ -60,46 +60,58 @@ def test_shadow_registration_row4() -> None:
 
 
 def test_settle_dispatch_sites_all_guarded() -> None:
-    """机械穷尽性（audit 轮 3 C1 根治机制）：dispatch_skill 调用点全枚举——
-    settle-capable 站点上下文须含 _pre_settle_guard；新调用点不在 allowlist → 红。
+    """Mechanical exhaustiveness over dispatch_skill call points.
 
-    勿按 "shenbi-state-settling" 字面量提取站点（skill 经变量传递——三站点
-    函数体内无该字面量；~30 处引用多为非派发面）。
+    Every call point MUST be classified in one of the two pinned lists below
+    (settle-capable -> function body must reference _pre_settle_guard; rest
+    -> no settle face). An unclassified point fails with "classify before
+    wiring" -- the enforced invariant that ended the r2/r3 C1 falsification
+    cycle. Do NOT extract sites by the "shenbi-state-settling" literal (the
+    skill travels via variables; the three settle functions carry no such
+    literal at their dispatch lines).
     """
     src = Path(__file__).resolve().parents[3] / "src" / "shenbi"
-    hits: list[tuple[str, int, str]] = []
-    for py in sorted(src.rglob("*.py")):
-        for i, ln in enumerate(py.read_text(encoding="utf-8").splitlines(), 1):
-            if "dispatch_skill(" in ln and not ln.strip().startswith("def "):
-                hits.append((str(py.relative_to(src)), i, ln.strip()))
-    call_points = [h for h in hits if not re.search(r"import|from ", h[2])]
-    # allowlist：settle-capable 三对（外层函数级）+ rest 分类（audit 轮 5 I1/6 I1 预分类）
-    settle_capable = {
+    settle_capable = {  # (path-from-src/shenbi, enclosing function)
         ("pipeline/chapter_loop.py", "run_parallel_post_draft_steps"),
         ("pipeline/cli.py", "_execute_pending_re_dispatches"),
         ("pipeline/chapter_loop.py", "_run_chapter_step_impl"),
     }
+    rest = {  # pre-classified non-settle points (audit r5-I1/r6-I1)
+        ("pipeline/triggers.py", "run_triggered_skills"),
+        ("pipeline/parallel_dispatch.py", "_dispatch_with_retry"),
+        ("pipeline/audit_layer.py", "run_audit_layer"),
+        ("pipeline/genesis.py", "run_genesis_step"),
+        ("pipeline/closure.py", "run_closure_step"),
+        ("pipeline/revision_router.py", "dispatch_escalation"),
+        ("pipeline/chapter_loop.py", "_run_audit_close_for_chapter"),
+        ("pipeline/chapter_loop.py", "_check_conditional_resolve"),
+        ("pipeline/cli.py", "cmd_resume"),
+    }
+    call_points: list[tuple[str, str]] = []
+    for py in sorted(src.rglob("*.py")):
+        rel = str(py.relative_to(src))
+        for i, ln in enumerate(py.read_text(encoding="utf-8").splitlines(), 1):
+            if "dispatch_skill(" in ln and not ln.strip().startswith("def ") and "import" not in ln:
+                call_points.append((rel, _enclosing(py, i)))
+    unclassified = [cp for cp in call_points if cp not in settle_capable and cp not in rest]
+    assert not unclassified, (
+        f"classify before wiring — 未分类 dispatch_skill 调用点: {unclassified}"
+    )
+    for path, fn in settle_capable:
+        assert "_pre_settle_guard" in _func_body(src / path, fn), (
+            f"settle-capable 站点 {path}:{fn} 未过 _pre_settle_guard"
+        )
+    # canary：调用点总数钉死（增减都红——新增派发面强制重新分类）
+    assert len(call_points) == 13, f"dispatch_skill 调用点数变动: {len(call_points)} → 重新分类"
 
-    def _enclosing(path: str, line: int) -> str:
-        text = (src / path).read_text(encoding="utf-8").splitlines()
-        for j in range(line - 1, -1, -1):
-            m = re.match(r"^def (\w+)", text[j])
-            if m:
-                return m.group(1)
-        return ""
 
-    for path, line, _raw in call_points:
-        fn = _enclosing(path, line)
-        assert (path, fn) and f"{path}:{fn}" and True
-        if (path, fn) in settle_capable:
-            body = _func_body(src / path, fn)
-            # 并行块含两个派发点（lifecycle 无 guard 义务）——函数级含 guard 即可
-            if "settling" in body or fn == "_execute_pending_re_dispatches":
-                assert "_pre_settle_guard" in body, (
-                    f"settle-capable 站点 {path}:{fn} 未过 _pre_settle_guard——先接线再扩 allowlist"
-                )
-    # canary：调用点总数（新增派发面强制分类）
-    assert len(call_points) >= 12, f"dispatch_skill 调用点异常减少: {len(call_points)}"
+def _enclosing(path: Path, line: int) -> str:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for j in range(line - 1, -1, -1):
+        m = re.match(r"^def (\w+)", lines[j])
+        if m:
+            return m.group(1)
+    return ""
 
 
 def _func_start(path: Path, fn: str) -> int:

@@ -339,7 +339,14 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
                     items=_st_hard[:2],
                 )
                 entry["attempts"] = int(entry.get("attempts", 0)) + 1
-                entry["feedback"] = _st_hard[0] if _st_hard else entry.get("feedback")
+                _old_fb = entry.get("feedback")
+                _st_msg = _st_hard[0] if _st_hard else ""
+                # audit-T5 M4：镜像 G4 失败分支的追加保留语义——人审反馈不因过期拒收丢失
+                entry["feedback"] = (
+                    (f"{_old_fb}\n{_st_msg}" if _old_fb else _st_msg)
+                    if (_old_fb or _st_msg)
+                    else entry.get("feedback")
+                )
                 if entry["attempts"] >= RE_DISPATCH_RETRY_CAP:
                     log.error(
                         "re_dispatch_dropped", skill=skill, chapter=ch, attempts=entry["attempts"]
