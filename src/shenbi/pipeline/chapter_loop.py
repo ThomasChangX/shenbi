@@ -2262,6 +2262,9 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
         mcs = state.chapter_loop.chapter_states.setdefault(mkey, ChapterState())
         if not mcs.declared:
             mcs.declared = _snapshot_declared(project_dir, member)
+        # spec #83 T5: batch status write（#82 T0 预留接口注释位）——修 18/18
+        # 假 pending；status 写点原本仅 leader 一处（:2160），游标跳过 follower
+        mcs.status = ChapterStatus.COMPLETE
         # spec #83 T4：打摆连击复位=仅章推进（bundle 全员各自复位；升级/熔断/
         # 成功重派不复位——跨熔断持久连击是病理本体）
         for k in [

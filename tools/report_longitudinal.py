@@ -22,7 +22,7 @@ from typing import Any
 from shenbi.cost.ledger import TokenLedger
 from shenbi.gates.shared import word_count_md
 from shenbi.pipeline.audit_aggregate import FindingUnit, extract_finding_units
-from shenbi.pipeline.chapter_loop import committed_chapter_anchor
+from shenbi.pipeline.chapter_loop import bundle_chapters, committed_chapter_anchor
 from shenbi.skill_utils.drift_detection.compute_drift import (
     DriftFinding,
     detect_chapter_drift,
@@ -195,13 +195,27 @@ class ChapterVerdict:
     resonance: float | None
     cjk_chars: int
     fail_reasons: tuple[str, ...]
+    bundle_merged: bool = False  # spec #83 T5: follower 束级评分标记（resonance 取束级值）
 
 
 def chapter_verdicts(
     project_dir: Path, n_done: int, rows: dict[int, ResonanceRow], state: dict[str, Any]
 ) -> list[ChapterVerdict]:
-    """Per-chapter terminal health with three-input-face fail-closed semantics."""
+    """Per-chapter terminal health with three-input-face fail-closed semantics.
+
+    spec #83 T5: follower chapters (non-first bundle members) carry
+    ``bundle_merged=True`` and borrow the leader's resonance row — the
+    single-chapter resonance-missing assertion is skipped for them and the
+    bundle-level assertion (leader row present) takes over. Vol-1 false-
+    negative face: 8 follower rows missing (all even chapters) previously
+    read as fail-closed errors.
+    """
     raw_states = (state.get("chapter_loop") or {}).get("chapter_states") or {}
+    leader_of: dict[int, int] = {}
+    for leader in range(1, n_done + 1):
+        for member in bundle_chapters(project_dir, leader):
+            if member != leader and member <= n_done:
+                leader_of[member] = leader
     out: list[ChapterVerdict] = []
     for ch in range(1, n_done + 1):
         reasons: list[str] = []
@@ -220,18 +234,25 @@ def chapter_verdicts(
                 reasons.append(f"status={status!r} != 'complete'")
             if not isinstance(retry, int) or retry != 0:
                 reasons.append(f"audit_retry_count={retry!r} != 0 (v1 strict)")
-        row = rows.get(ch)
-        if row is None:
-            reasons.append(f"resonance row {ch} missing/non-numeric (fail-closed)")
+        bundle_merged = ch in leader_of
+        eff_row = rows.get(leader_of[ch]) if bundle_merged else rows.get(ch)
+        if eff_row is None:
+            if bundle_merged:
+                reasons.append(
+                    f"bundle leader {leader_of[ch]} resonance row missing (bundle fail-closed)"
+                )
+            else:
+                reasons.append(f"resonance row {ch} missing/non-numeric (fail-closed)")
         out.append(
             ChapterVerdict(
                 chapter=ch,
                 present=present,
                 status=status,
                 audit_retry_count=retry,
-                resonance=row.overall if row else None,
+                resonance=eff_row.overall if eff_row else None,
                 cjk_chars=cjk,
                 fail_reasons=tuple(reasons),
+                bundle_merged=bundle_merged,
             )
         )
     return out
@@ -433,6 +454,7 @@ def evaluate(project_dir: Path) -> dict[str, Any]:
                 "resonance": v.resonance,
                 "cjk_chars": v.cjk_chars,
                 "fail_reasons": list(v.fail_reasons),
+                "bundle_merged": v.bundle_merged,  # spec #83 T5
             }
             for v in verdicts
         ],
@@ -749,11 +771,80 @@ def write_reports(project_dir: Path, report: dict[str, Any]) -> tuple[Path, Path
     return md, js
 
 
+def emit_ledger_rows(project_dir: Path, n: int, m: int) -> list[str]:
+    """Draft 纵向采集表 rows for chapters N..M (spec #83 T5).
+
+    Derivable columns come from on-disk observability faces (trace RETRY /
+    DISPATCH counts, resonance trend rows, chapter CJK counts); the manual
+    columns (新闸拦截 / payoff 拍 / 章尾钩型 / 三 WARN) carry 待补 markers —
+    the tool reports, the driver adjudicates (audit-lint 惯例: 只报不写).
+    """
+    trace_path = project_dir / "trace.jsonl"
+    retries: dict[int, int] = {}
+    dispatches: dict[int, int] = {}
+    if trace_path.is_file():
+        for line in trace_path.read_text(encoding="utf-8").splitlines():
+            try:
+                ev = json.loads(line)
+            except ValueError:
+                continue
+            payload = ev.get("payload", {}) or {}
+            ch = payload.get("chapter")
+            if not isinstance(ch, int):
+                continue
+            action = ev.get("action")
+            if action == "RETRY":
+                retries[ch] = retries.get(ch, 0) + 1
+            elif action == "DISPATCH":
+                dispatches[ch] = dispatches.get(ch, 0) + 1
+    try:
+        rows = parse_resonance_trend(project_dir / "truth" / TREND_FILENAME)
+    except LongitudinalDataError:
+        rows = {}
+    out = [
+        "| 章 | 实测字数 | 超发率 | cost | 一次过/retry | 新闸拦截 |"
+        " emotion_tone | payoff 拍 | 章尾钩型 | resonance | 三 WARN |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for ch in range(n, m + 1):
+        path = project_dir / "chapters" / f"chapter-{ch}.md"
+        cjk = word_count_md(path) if path.exists() else 0
+        row = rows.get(ch)
+        res = row.overall if row else "待测"
+        n_retry = retries.get(ch, 0)
+        if ch in dispatches or ch in retries:
+            one_pass = "是" if n_retry == 0 and dispatches.get(ch, 0) else f"否（RETRY×{n_retry}）"
+        else:
+            one_pass = "待核（无 trace 面）"
+        out.append(
+            f"| {ch} | {cjk} | 待补 | 计入 bundle | {one_pass} | 待补 | 待补 | 待补 | 待补 | {res} | 待补 |"  # noqa: E501
+        )
+    out.append("")
+    out.append(f"（草稿行 ch{n}-ch{m}——手工列待补；数据源 trace/trend/chapters；只报不写）")
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI entry: exit 0 pass / 1 fail / 2 data error."""
     parser = argparse.ArgumentParser(description="Longitudinal acceptance report (spec #68)")
     parser.add_argument("project_dir", type=Path)
+    parser.add_argument(
+        "--emit-ledger-rows",
+        metavar=("N", "M"),
+        type=int,
+        nargs=2,
+        default=None,
+        help="spec #83 T5: draft ledger rows for chapters N..M from trace (stdout only)",
+    )
     args = parser.parse_args(argv)
+    if args.emit_ledger_rows:
+        n, m = args.emit_ledger_rows
+        if not (1 <= n <= m):
+            print("usage: --emit-ledger-rows N M (1 <= N <= M)", file=sys.stderr)
+            return 2
+        for line in emit_ledger_rows(args.project_dir, n, m):
+            print(line)
+        return 0
     try:
         report = evaluate(args.project_dir)
     except LongitudinalDataError as exc:
