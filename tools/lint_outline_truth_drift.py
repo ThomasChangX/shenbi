@@ -20,8 +20,8 @@
    ``genesis-context/chapter_outline.md`` 还账进度表（私账打卡）：词集零交集
    （运行期新账不在排期）→ finding；该文件缺失或无该节 → 本面 SKIP（不硬崩）。
 
-``--declarations`` 子命令面（spec #83 T7 声明面漂移清单：scene_hook 11 行 +
-voice_density + 无 META 块）为预留骨架，未实装（Task 13 落地），显式报错 exit 2。
+``--declarations`` 子命令面（spec #83 T7 声明面漂移清单：scene_hook 对账/
+声口面缺席/无 META 块）已实装——只报不写，清偿随 #84 T0。
 
 CLI: ``uv run python tools/lint_outline_truth_drift.py <dir> [--volume N]``；
 exit 0 = 零悬空 finding / 1 = 有 finding / 2 = 用法或输入错误。
@@ -363,6 +363,18 @@ def _face_declarations(ctx: _Ctx) -> tuple[list[Finding], str | None]:
             findings.append(
                 Finding(
                     face="declarations", detail=f"ch{n} 无 META/POST 自检块（ch11 形声明面漂移）"
+                )
+            )
+        # voice 面（ch10 形）：plan 声明「声口要求」而章内声口自检面缺席
+        if (
+            plan
+            and plan.is_file()
+            and re.search(r"^声口要求[：:]", plan.read_text(encoding="utf-8"), re.M)
+            and not re.search(r"声口|voice", text)
+        ):
+            findings.append(
+                Finding(
+                    face="declarations", detail=f"ch{n} 声口要求已声明但章内声口面缺席（ch10 形）"
                 )
             )
     return findings, None

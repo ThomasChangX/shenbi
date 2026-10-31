@@ -339,7 +339,7 @@ def voice_token_buckets(
         # 「灯在人在。路通行通。」vs 对白「灯在人在，路通行通」，r5-M5 同款
         # 标点族切分）；protagonist 侧另入账房动词族+自嘲句尾（#76 思路分桶）
         seg_re = re.compile(r"[。.，,、；;！!？?/／|｜]+")
-        # ≥_MIN_TOKEN_LEN 字最小长：2 字泛用词（拿着/走吧/三尺类）不具判别力
+        # ≥_MIN_TOKEN_LEN（3）字最小长：2 字泛用词（拿着/走吧/三尺类）不具判别力
         toks = [seg for m in card.markers for seg in seg_re.split(m) if len(seg) >= _MIN_TOKEN_LEN]
         if protagonist and card.name == protagonist:
             toks.extend(ACCOUNTING_VERBS)
@@ -380,10 +380,19 @@ def _attr_paragraphs(
     """(owner_name, attributed_name) per single-named quote paragraph.
 
     盲认口径 = 引号内台词（叙述层的「那罕记账」动词不是说话人的声纹）；
-    unattributable paragraphs return None for the second element.
+    META/POST 自检块段不入场（audit-T13 I3：转述声明段非对白——本族
+    T5/T6 已立剥 META 纪律）；unattributable 段第二元为 None。
     """
+    from shenbi.gates.g4.quote_verbatim import meta_regions  # noqa: PLC0415
+
+    meta_spans = [(rs, re_) for _r, rs, re_ in meta_regions(text)]
+    pos = 0
     out: list[tuple[str, str | None]] = []
     for para in text.split("\n\n"):
+        para_start = pos
+        pos += len(para) + 2
+        if any(ms <= para_start < me for ms, me in meta_spans):
+            continue  # 自检/声明块段非对白
         quotes = find_quote_spans(para)
         if not quotes:
             continue
@@ -407,8 +416,9 @@ def check_blind_recognition(project_dir: Path, through: int) -> Verdict:
         return Verdict(
             "5", "FAIL", f"带卡面标记的角色卡仅 {len(cards)} 张（<{_MIN_SAMPLED_ROLES}）"
         )
-    # spec #83 T7: 声口 token 族分桶（protagonist 侧含账房动词族+自嘲句尾——
-    # 五角色 4/5 阈值可达；卡面 catchphrase 保留全桶）
+    # spec #83 T7: 声口 token 族分桶（protagonist 侧含账房动词族；自嘲句尾
+    # 不入归属桶——命中一切反问）。36 章真语料实测可归属精度 67-100%（vs 修前
+    # 4-33%）；整卷五角色全 ≥4/5 归 regen 窗口校准（那罕/老驼残差=转引语义）
     _prot_path = project_dir / "characters" / "protagonist.md"
     protagonist = (
         _card_name(_prot_path.read_text(encoding="utf-8"), "protagonist")
