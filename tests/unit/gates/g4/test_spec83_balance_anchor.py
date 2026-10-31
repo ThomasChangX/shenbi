@@ -94,3 +94,68 @@ def test_shadow_registration_rows8_9() -> None:
         "market_params",
         "balance_anchor",
     )
+
+
+def test_ling_digit_parses_ch30_healthy_green() -> None:
+    # audit-T10 C1 回归钉：ch30:55「余额一百零三文」@现值 103 == 103 → 零 FAIL
+    fails, warns = check_balance_value_drift(_text(30), 103)
+    assert fails == []
+
+
+def test_price_total_derivation_skips_fail() -> None:
+    # audit-T10 I1：价总额句（句内面价加总=总额）→ FAIL 臂跳过（WARN 面保留）
+    ch24_shape = "那罕把这三个数在心里搁了一下：盐十四文，对联纸四文，一共十八文。"
+    fails, _ = check_balance_value_drift(ch24_shape, 143)
+    assert fails == []  # 18 = 14+4 算术衍生——非章首余额泄漏
+    ch25_shape = "「年货十八文，馍四文半。」老周报得干脆，「一共二十二文半。」"
+    fails2, _ = check_balance_value_drift(ch25_shape, 143)
+    assert fails2 == []  # 22.5 = 18+4.5（半感知）
+    ch1_shape = "账是这么算的：月俸一百五十文，扣伙食九十八文，剩五十二文；五十二文里花掉三十五文，剩下的就是这十七文。"
+    fails3, _ = check_balance_value_drift(ch1_shape, 17)
+    assert fails3 == []  # 52 = 150−98 衍生；尾值 17 == ledger
+
+
+def test_liang_digit_normalized() -> None:
+    # audit-T10 I2：两→二归一（剩两文不再静默丢弃）
+    fails, warns = check_balance_value_drift("他摸出钱袋。袋底剩两文，数了两遍。", 2)
+    assert fails == [] and warns == []  # ==ledger 绿（解析面活着——非 None 丢弃）
+
+
+def test_bundle_escalation_list_records_and_file_attribution(tmp_path: Path) -> None:
+    # audit-T10 C2 回归钉：时间戳 list 记录 latest-wins + 按 file 归属计数
+    import json as _json
+
+    from shenbi.gates.g4.state_settling import _balance_bundle_escalation
+
+    (tmp_path / "outline").mkdir()
+    (tmp_path / "outline" / "volume_map.md").write_text(
+        "## 第一卷（第1-第4章）\n", encoding="utf-8"
+    )
+    checks = [
+        {"id": "cd.balance_value_drift", "file": "chapters/chapter-1.md", "s": "WARN"},
+        {"id": "cd.balance_value_drift", "file": "chapters/chapter-2.md", "s": "WARN"},
+        {
+            "id": "cd.balance_value_drift",
+            "file": "chapters/chapter-3.md",
+            "s": "WARN",
+        },  # 非束成员不计
+        {"id": "G4.cd.golden_slot", "file": "chapters/chapter-1.md", "s": "PASS"},
+    ]
+    manifest = {
+        "gates": {
+            "chapter_loop": {
+                "1": {
+                    "shenbi-chapter-drafting": {
+                        "G4": [  # list 形（追加后）——latest-wins
+                            {"ts": "t1", "result": {"checks": []}},
+                            {"ts": "t2", "result": {"checks": checks}},
+                        ]
+                    }
+                }
+            }
+        }
+    }
+    (tmp_path / "pipeline-manifest.json").write_text(_json.dumps(manifest), encoding="utf-8")
+    issues = _balance_bundle_escalation(tmp_path, 1)
+    assert issues and "bundle" in issues[0] and "ch1×1" in issues[0] and "ch2×1" in issues[0]
+    assert "ch3" not in issues[0]  # file 归属排除非成员

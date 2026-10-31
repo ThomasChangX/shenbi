@@ -225,25 +225,30 @@ def _balance_bundle_escalation(project_dir: str | Path | None, chapter: int | No
         return []
     per_chapter: dict[int, int] = {}
     records = manifest.get("gates", {}).get("chapter_loop", {})
-    for member in bundle_chapters(Path(project_dir), chapter):
-        skill_gate = records.get(str(member), {}).get("shenbi-chapter-drafting", {})
-        rec = skill_gate.get("G4", {})
-        result = rec.get("result") if isinstance(rec, dict) else None
-        if isinstance(result, str):
-            try:
-                result = _json.loads(result)
-            except ValueError:
-                result = None
-        checks = result.get("checks", []) if isinstance(result, dict) else []
-        n = sum(
-            1
-            for ch_ in checks
-            if isinstance(ch_, dict)
-            and ch_.get("id") == "cd.balance_value_drift"
-            and ch_.get("s") == GateStatus.WARN
-        )
-        if n:
-            per_chapter[member] = n
+    members = bundle_chapters(Path(project_dir), chapter)
+    leader = members[0] if members else chapter
+    # audit-T10 C2：束 drafting 单记录挂 leader 名下（follower 无自身记录）——
+    # 从 leader 记录聚合，按 checks 的 file 字段归属到成员；记录 list 形
+    # latest-wins 取 [-1]（首写 dict、追加后 list）。
+    skill_gate = records.get(str(leader), {}).get("shenbi-chapter-drafting", {})
+    recs = skill_gate.get("G4", {})
+    rec = recs[-1] if isinstance(recs, list) and recs else recs
+    result = rec.get("result") if isinstance(rec, dict) else None
+    if isinstance(result, str):
+        try:
+            result = _json.loads(result)
+        except ValueError:
+            result = None
+    checks = result.get("checks", []) if isinstance(result, dict) else []
+    for ch_ in checks:
+        if not (isinstance(ch_, dict) and ch_.get("id") == "cd.balance_value_drift"):
+            continue
+        if ch_.get("s") != GateStatus.WARN:
+            continue
+        fname = str(ch_.get("file", ""))
+        for member in members:
+            if f"chapter-{member}.md" in fname:
+                per_chapter[member] = per_chapter.get(member, 0) + 1
     total = sum(per_chapter.values())
     if len(per_chapter) >= 2 or total >= 2:
         detail = ",".join(f"ch{k}×{v}" for k, v in sorted(per_chapter.items()))

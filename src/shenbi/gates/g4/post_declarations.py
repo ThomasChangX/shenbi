@@ -140,8 +140,8 @@ def check_post_wordcount_precision(content: str, actual_chars: int) -> list[str]
 # 不得以 strip_narrative_body 为输入面——其尾部 strip_scene_markers 会剥掉
 # <!--SCENE--> 标记，first_scene_span 恒走无标记退化、FAIL 臂回退全章首现。）
 _BALANCE_RE = re.compile(
-    r"(一共|还剩|只剩|剩下|剩|袋底|余额)[^。]{0,6}?([一二两三四五六七八九十百千\d]+)文"
-)
+    r"(一共|还剩|只剩|剩下|剩|袋底|余额)[^。]{0,6}?([零一二两三四五六七八九十百千\d]+)文(半?)"
+)  # audit-T10 C1：零入类（一百零三文→3 事故）；I1：半捕获（二十二文半=22.5）
 _LEDGER_VALUE_RE = re.compile(r"余[额]?\s*[零一二两三四五六七八九十百千\d]+\s*文")
 
 
@@ -214,6 +214,62 @@ def first_scene_span(content: str) -> tuple[int, int] | None:
     return start, end
 
 
+def _cn_amount_loose(raw: str) -> float | None:
+    """cn_amount with 两->二 normalization (I2) and 文半 trailing (22.5)."""
+    from shenbi.gates.g4.cross_chapter import cn_amount
+
+    half = 0.5 if raw.endswith("半") else 0.0
+    core = raw[:-1] if half else raw
+    if not core:
+        return None
+    core = "二" + core[1:] if core.startswith("两") else core
+    try:
+        val = cn_amount(core)
+    except (TypeError, ValueError):
+        return None
+    if val is None:
+        return None
+    return float(val) + half
+
+
+_SENTENCE_VALUES_RE = re.compile(r"([零一二两三四五六七八九十百千\d]+)文(半?)")
+
+
+def _paragraph_at(content: str, pos: int) -> str:
+    """The line-block (paragraph) containing char offset *pos*.
+
+    Derivation scope is paragraph-wide (audit-T10 I1 residual): price lists
+    spread across quoted sentences (「年货十八文，馍四文半。」…「一共二十二文半。」)
+    still itemize within one paragraph; ch26's spoiler paragraph carries no
+    itemization (十文一摞 never sums to 一百零三).
+    """
+    start = content.rfind("\n", 0, pos) + 1
+    end = content.find("\n", pos)
+    return content[start:] if end == -1 else content[start:end]
+
+
+def _derived_from_sentence_items(sentence: str, hit_value: float) -> bool:
+    """audit-T10 I1: hit derivable from other N文 values in its own sentence.
+
+    Price-total sentences (盐十四文，对联纸四文，一共十八文 / 年货十八文+馍四文半
+    =二十二文半 / 月俸150 扣98 =52) are itemizations, not balance spoilers:
+    pairwise ± derivation (hit==x±y, hit+x==y, x−hit==y) over the paragraph skips the FAIL arm
+    (WARN face keeps it). L-C: pure arithmetic, decidable.
+    """
+    others: list[float] = []
+    for m in _SENTENCE_VALUES_RE.finditer(sentence):
+        val = _cn_amount_loose(m.group(1) + (m.group(2) or ""))
+        if val is not None and val != hit_value:
+            others.append(val)
+    for i, x in enumerate(others):
+        if any(hit_value + x == y or x - hit_value == y for y in others[i + 1 :] + others[:i]):
+            return True
+        for y in others[i + 1 :]:
+            if hit_value == x + y or hit_value == x - y:
+                return True
+    return False
+
+
 def check_balance_value_drift(
     content: str, ledger_value: int | None, *, spend_events: list[int] | None = None
 ) -> tuple[list[str], list[str]]:
@@ -225,17 +281,16 @@ def check_balance_value_drift(
     regions positionally excluded, scene span in the same coordinates.
     """
     from shenbi.gates.g4.quote_verbatim import meta_regions
-    from shenbi.gates.g4.cross_chapter import cn_amount
 
     if ledger_value is None:
         return [], []
     meta_spans: list[tuple[int, int]] = [(rs, re_) for _r, rs, re_ in meta_regions(content)]
     scene = first_scene_span(content)
-    hits: list[tuple[int, int]] = []  # (char_start, value)
+    hits: list[tuple[int, float]] = []  # (char_start, value)
     for m in _BALANCE_RE.finditer(content):
         if any(ms <= m.start() < me for ms, me in meta_spans):
             continue  # POST/PRE self-restatements never enter (M9)
-        amount = cn_amount(m.group(2))
+        amount = _cn_amount_loose(m.group(2) + (m.group(3) or ""))
         if amount is None:
             continue
         hits.append((m.start(), amount))
@@ -245,9 +300,10 @@ def check_balance_value_drift(
     warns: list[str] = []
     first_start, first_value = hits[0]
     in_first_scene = scene is None or (scene[0] <= first_start < scene[1])
-    if in_first_scene and first_value != ledger_value:
+    _derived = _derived_from_sentence_items(_paragraph_at(content, first_start), float(first_value))
+    if in_first_scene and first_value != ledger_value and not _derived:
         fails.append(
-            f"cd.balance_value_drift:章首首现余额 {first_value} ≠ ledger 现值 {ledger_value}"
+            f"cd.balance_value_drift:章首首现余额 {first_value:g} ≠ ledger 现值 {ledger_value}"
             "——时序泄漏（章首不应携带本章结算后值；修复者: drafting）"
         )
     spent = spend_events or []
