@@ -15,7 +15,12 @@ content (heaviest constraint first - the ch25 all-mixed main shape).
 from __future__ import annotations
 
 _LENGTH_TOKENS = ("word_band", "chapter_band", "G4.word_count", "word_count")
-_STRUCTURE_TOKENS = ("scene_domain", "composition", "CH:")
+_STRUCTURE_TOKENS = (
+    "scene_domain",
+    "composition",
+    "CH:",
+    "CH ",
+)  # CH 空格形=语料实形（audit-T7 M1：4/4 全为 `CH 标记…` 无冒号）
 _CONTENT_TOKENS = ("G4.cd", "XC:")
 
 

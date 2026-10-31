@@ -276,22 +276,38 @@ def _check_matrix_structure(pf: Path) -> tuple[list[str], list[str]]:
             f"staged={len(staged_lines)}<live*0.9={int(len(live_lines) * 0.9)} "
             "(template regeneration — rebuild as live increment)"
         )
+    _dropped = _dropped_content_lines(live_text, staged_text)  # 报告串（samples 截断）
     issues.extend(
         f"G4.ss.matrix_structure:{pf}:{detail} "
         "(format replacement — re-emit ONLY this chapter's increment: the "
         "new/changed keyed rows plus this chapter's increment section; do "
         "NOT reproduce or re-emit other sections of the live file)"
-        for detail in _dropped_content_lines(live_text, staged_text)
+        for detail in _dropped
     )
     issues.extend(_check_escape_corruption(pf, live_text, staged_text))
     # spec #83 T4: diff 面积 WARN（shadow 量化面——观测记录非 FAIL 门；全量
-    # 重写病理的量化面，matrix_structure content_dropped 检测职责不重复建门）
+    # 重写病理的量化面，matrix_structure content_dropped 检测职责不重复建门）。
+    # WARN 与 content_dropped FAIL 共存（audit-T7 I1 释明：每 dropped 行已发
+    # FAIL，WARN 是束级量化观测——非互斥）
     warns: list[str] = []
     if live_lines:
-        dropped_n = len(_dropped_content_lines(live_text, staged_text))
-        if dropped_n > len(live_lines) * 0.5:
+        # 面积=全量丢失行数（_seq_drops 未截断口径——samples 截断的报告串不可作分母分子）
+        _drop_n = len(
+            _seq_drops(
+                [
+                    l
+                    for l in _content_stream(live_text)
+                    if not _PLACEHOLDER_LINE_RE.match(l.strip())
+                ],
+                _content_stream(staged_text),
+            )
+        )
+        _live_n = len(
+            [l for l in _content_stream(live_text) if not _PLACEHOLDER_LINE_RE.match(l.strip())]
+        )
+        if _drop_n > _live_n * 0.5:
             warns.append(
-                f"ss.matrix_structure.diff_area: staged 重写面积 {dropped_n}/{len(live_lines)}"
+                f"ss.matrix_structure.diff_area: staged 重写面积 {_drop_n}/{_live_n}"
                 " 行（>50%——增量契约违反的量化观测，交评审/驱动侧裁决）"
             )
     return issues, warns
