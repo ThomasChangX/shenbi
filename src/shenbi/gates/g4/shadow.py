@@ -47,6 +47,10 @@ GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {
     # spec #83 §10 行 4：stale 拒收（框架摄取步直检——G4.ss 纯文件校验器拿不到
     # ChapterState，不承载；三派发站点显式咨询 _pre_settle_guard 后降级）
     "ss.stale_declarations": ("market_params", "stale_declarations"),
+    # spec #83 §10 行 5/6/7：计数三支路（同键族——hook 族多 id 一键先例）
+    "cd.counter.plan_conflict": ("market_params", "counter_anchor"),  # 行 5
+    "cd.counter.base_mismatch": ("market_params", "counter_anchor"),  # 行 6
+    "cd.counter.prose_mismatch": ("market_params", "counter_anchor"),  # 行 7
 }
 
 
