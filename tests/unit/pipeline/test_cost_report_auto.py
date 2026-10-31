@@ -43,6 +43,7 @@ def test_complete_chapter_renders_report(tmp_path, monkeypatch):
             current_step="",
             per_chapter_review_enabled=False,
             retry_feedback={},
+            streak_monitor_rewinds={},  # spec #83 T4 字段入 mock
         ),
     )
     with (

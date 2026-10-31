@@ -217,6 +217,11 @@ class ChapterLoopStateData:
     # crash-resume can enforce max_audit_retries. Contrast retry_counts above,
     # which is intentionally cleared on step success.
     retry_budget_consumed: dict[str, int] = field(default_factory=dict)
+    # spec #83 T4: per-retry_key 打摆连击计数器（口径a——reason.kind 不分族）。
+    # Durable 纪律对齐 retry_budget_consumed（NOT cleared by _reset_retries）；
+    # 复位=仅章推进（_complete_chapter bundle 循环）——升级/熔断/成功重派均
+    # 不复位（跨熔断持久连击正是打摆病理本体，ch25 两轮熔断间 14 连实证）。
+    streak_monitor_rewinds: dict[str, int] = field(default_factory=dict)
     modify_feedback: str | None = None
     retry_feedback: dict[str, str] = field(default_factory=dict)
     soft_fail_trackers: dict[str, SoftFailTracker] = field(default_factory=dict)
@@ -341,6 +346,7 @@ class PipelineState:
                 "per_chapter_review_enabled": self.chapter_loop.per_chapter_review_enabled,
                 "retry_counts": self.chapter_loop.retry_counts,
                 "retry_budget_consumed": self.chapter_loop.retry_budget_consumed,
+                "streak_monitor_rewinds": self.chapter_loop.streak_monitor_rewinds,
                 "modify_feedback": self.chapter_loop.modify_feedback,
                 "retry_feedback": self.chapter_loop.retry_feedback,
                 "soft_fail_trackers": {
@@ -426,6 +432,7 @@ class PipelineState:
                 per_chapter_review_enabled=cl_data.get("per_chapter_review_enabled", True),
                 retry_counts=cl_data.get("retry_counts", {}),
                 retry_budget_consumed=cl_data.get("retry_budget_consumed", {}),
+                streak_monitor_rewinds=cl_data.get("streak_monitor_rewinds", {}),
                 modify_feedback=cl_data.get("modify_feedback"),
                 retry_feedback=cl_data.get("retry_feedback", {}),
                 soft_fail_trackers=soft_fail_trackers,

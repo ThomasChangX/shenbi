@@ -1118,6 +1118,17 @@ def _emit_retry_event(
         log.warning("retry_event_emit_failed", skill=skill, exc_info=True)
 
 
+_STREAK_TARGETED_MODE_THRESHOLD = 4  # 卷一战术「打摆>5 轮切手工」代码化，4 留自动裕量（spec T4）
+
+
+def _record_retry(state: PipelineState, chapter: int, skill: str) -> None:
+    """Spec #83 T4 口径a: every RETRY (any reason.kind) bumps the streak."""
+    rk = _retry_key(chapter, skill)
+    state.chapter_loop.streak_monitor_rewinds[rk] = (
+        state.chapter_loop.streak_monitor_rewinds.get(rk, 0) + 1
+    )
+
+
 def _enrich_g4_feedback(failures: list[str]) -> str:
     """Build enriched retry feedback with format examples for each failed check.
 
@@ -1182,6 +1193,17 @@ def _append_feedback_injections(
         state.chapter_loop.modify_feedback = None
     prev_g4_feedback = state.chapter_loop.retry_feedback.get(_retry_key(chapter, skill))
     if prev_g4_feedback:
+        # spec #83 T4：打摆切换——同 key 连击 ≥4 → 反馈模板切「定点扩写」模式，
+        # 不再发整档约束重述（ch25 型混合族连续全档重写病理；loop_id 不作计数器）
+        _streak = state.chapter_loop.streak_monitor_rewinds.get(_retry_key(chapter, skill), 0)
+        if skill == "shenbi-chapter-drafting" and _streak >= _STREAK_TARGETED_MODE_THRESHOLD:
+            prompt += (
+                f"\n\n## TARGETED-EDIT MODE（连击 {_streak} 次打摆切换）\n"
+                "前稿逐字保留，**只在反馈点名的问题处做定点修改/扩写**：\n"
+                "- 每条失败项给段落锚（场景号/首句引用），只改该段；\n"
+                "- 字数缺口按反馈实测值补足，不重掷全章；\n"
+                "- 未被点名的段落 token 级不变。禁止整章重写、禁止场景重组。\n"
+            )
         prompt += (
             f"\n\n## CORRECTIVE FEEDBACK (prior attempt failed G4 validation)\n"
             f"Your previous output failed the structural check:\n"
@@ -2234,6 +2256,12 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
         mcs = state.chapter_loop.chapter_states.setdefault(mkey, ChapterState())
         if not mcs.declared:
             mcs.declared = _snapshot_declared(project_dir, member)
+        # spec #83 T4：打摆连击复位=仅章推进（bundle 全员各自复位；升级/熔断/
+        # 成功重派不复位——跨熔断持久连击是病理本体）
+        for k in [
+            k for k in state.chapter_loop.streak_monitor_rewinds if k.startswith(f"ch{member}-")
+        ]:
+            state.chapter_loop.streak_monitor_rewinds.pop(k, None)
 
     # F368 residual (spec #69 T5): chapter-close sweep — a finished chapter's
     # corrective feedback must not leak into later dispatch cycles. The dash
@@ -4268,6 +4296,7 @@ def _run_chapter_step_impl(
                 # spec #81 §2: monitor-rewind RETRY (issues kept as the
                 # pre-formatted strings scene_splitter produces; the numeric
                 # diff-dict form is a recorded deviation, deferred).
+                _record_retry(state, chapter, drafting_step.skill)  # spec #83 T4 口径a
                 _emit_retry_event(
                     project_dir,
                     chapter=chapter,
@@ -4497,6 +4526,7 @@ def _run_chapter_step_impl(
             # spec #81 §2: structured RETRY event (both re-dispatch branches
             # below share this emission point — per-chapter _handle_failure
             # route and the direct auto-retry route).
+            _record_retry(state, chapter, step.skill)  # spec #83 T4 口径a
             _emit_retry_event(
                 project_dir,
                 chapter=chapter,
