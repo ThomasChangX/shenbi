@@ -1,6 +1,6 @@
 # Spec 执行索引
 
-> **最后更新**：2026-10-31（spec #83 r3 驳斥复核修订——T1 嵌套引号前置+作用面收窄/T2 升格复验面/T4 取数源改 RETRY check_ids/T6 判据重设计/T7 lint 并子命令）
+> **最后更新**：2026-10-31（spec #83 r4 熔断清偿修订——T4 取数 RETRY 两源合流/T6 计划内部矛盾门/T1 两行执法面〔微粒钩移出〕/T2 plan 结构化行取数；连续 2 次 REWRITE 熔断经用户审单解除）
 > **活跃 spec 数**：2
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
@@ -12,9 +12,9 @@
 
 ### #83 · 三面一致性之网（three-surface-consistency）
 
-- **文件**：`2026-10-30-spec83-three-surface-consistency.md` ｜ **系列**：卷一复盘→卷二防复发 ｜ **状态**：Active（r3 驳斥修订） ｜ **优先级**：🟠 P1
+- **文件**：`2026-10-30-spec83-three-surface-consistency.md` ｜ **系列**：卷一复盘→卷二防复发 ｜ **状态**：Active（r4 熔断清偿修订） ｜ **优先级**：🟠 P1
 - **依赖**：无（#82 已落地（PR #263）：T0 快照层/`quote_verbatim.py` 共基/`_shadow_route_g4` 降级中枢可直接复用；T3 回灌输补丁与 #84 T0 同批）
-- **内容**：正文/声明/truth/大纲四面脱钩的机制化修复——POST 声明引句 verbatim 门（嵌套引号提取前置+作用面收窄；#82 共基扩消费面）、revision→声明联动（**PRE 物象/POST 引句并入 #72 R3-C1 复验面**为主+stale 状态化次级）、canon 回灌对账工具（lint_outline_truth_drift，含声明面子命令）、增量生成硬化（反馈定向增强+diff 面积 WARN＋drafting 打摆切换**取数 RETRY check_ids**）、follower 完成语义＋声明快照接续、正文本体数字锚（计数锚**并入 F17 扩族**/余额锚/provenance 来历锚）、判据 5 口径与 #80 回放口径清偿；铁律 L-D 新门 shadow 纪律
+- **内容**：正文/声明/truth/大纲四面脱钩的机制化修复——POST 声明引句 verbatim 门（**两行执法面**：金句位+章尾张力；嵌套引号提取前置；#82 共基扩消费面）、revision→声明联动（**物象〔plan 结构化行〕/POST 引句并入 #72 R3-C1 复验面**为主+stale 状态化次级）、canon 回灌对账工具（lint_outline_truth_drift，含声明面子命令）、增量生成硬化（反馈定向增强挂 `_length_family` 先例+diff 面积 WARN＋drafting 打摆切换**取数 RETRY 两源合流**〔monitor_rewind issues 主源〕）、follower 完成语义＋声明快照接续、正文本体数字锚（计数锚**并入 F17 扩族+N+0 解析+计划内部矛盾门**/余额锚/provenance 来历锚）、判据 5 口径与 #80 回放口径清偿；铁律 L-D 新门 shadow 纪律
 - **对应 plan**：待执行时建（`plans/2026-10-30-spec83-*.md`）
 - **触及的不变量维度**：恒等 identity、时间、持有与经手 props、枚举计数 counters、承诺与债务（钩）、叙事纪律（POV/声口）
 
