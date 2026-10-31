@@ -54,8 +54,28 @@ def test_fixture_run_exit_1_and_read_only(capsys):  # 真实包：有 finding �
     assert before == after
 
 
-def test_declarations_stub_errors_exit_2(capsys):  # Task 13 实装前的骨架：明确报错
-    assert main([str(FIX), "--declarations"]) == 2
+def test_declarations_clean_project_exit_zero(tmp_path: Path) -> None:
+    # spec #83 T13: --declarations 已实装——零漂移项目 exit 0（原 stub exit-2 测试随实装作废）
+    import subprocess
+    import sys as _sys
+
+    d = tmp_path
+    (d / "chapters").mkdir()
+    (d / "chapters" / "chapter-1.md").write_text(
+        "<!--SCENE-->\n正文。\n<!--META-BEGIN-->\n## POST_WRITE_SELF_CHECK\n- [ ] x\n<!--META-END-->\n",
+        encoding="utf-8",
+    )
+    r = subprocess.run(
+        [
+            _sys.executable,
+            str(Path(__file__).parents[3] / "tools" / "lint_outline_truth_drift.py"),
+            str(d),
+            "--declarations",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 0 and "findings: 0" in r.stdout
 
 
 def test_missing_seed_outline_skips_debt_face(tmp_path):  # 种子文件缺失 → 欠账面 SKIP 不硬崩
@@ -98,3 +118,34 @@ def test_clean_project_zero_findings_exit_0(tmp_path, capsys):  # 零悬空 → 
     )
     assert run_lint(tmp_path) == []
     assert main([str(tmp_path)]) == 0
+
+
+def test_declarations_face_scene_hook_and_meta(tmp_path: Path) -> None:
+    # spec #83 T13: --declarations 实装——scene_hook 钩被改写红 + 无 META 块清单
+    import subprocess
+    import sys as _sys
+
+    d = tmp_path
+    (d / "plans").mkdir()
+    (d / "chapters").mkdir()
+    # 场景钩声明 vs 正文末行失配（复用 scene_hook_mismatches 判定）
+    # _SCENE_DECL_RE 契约形：`- 场景N: M字｜型｜收束钩：钩原文`
+    (d / "plans" / "chapter-1-plan.md").write_text(
+        "- 场景1: 300字｜独立型｜收束钩：灯在人在\n", encoding="utf-8"
+    )
+    (d / "chapters" / "chapter-1.md").write_text(
+        "<!--SCENE-->\n正文结尾完全不同的句子。\n", encoding="utf-8"
+    )
+    (d / "chapters" / "chapter-2.md").write_text("无自检块的章。\n", encoding="utf-8")  # 无 META 面
+    r = subprocess.run(
+        [
+            _sys.executable,
+            str(Path(__file__).parents[3] / "tools" / "lint_outline_truth_drift.py"),
+            str(d),
+            "--declarations",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert "scene_hook" in r.stdout and "无 META/POST" in r.stdout
+    assert r.returncode == 1

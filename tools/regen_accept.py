@@ -174,7 +174,12 @@ def check_word_band(project_dir: Path, records: dict, through: int) -> list[Verd
 
 
 def check_cd(project_dir: Path, records: dict, through: int) -> Verdict:
-    """判据 2b: drafting-gate G4.cd.* ids zero FAIL (latest-wins)."""
+    """判据 2b: drafting-gate G4.cd.* ids zero FAIL (latest-wins).
+
+    spec #83 T7/#80 回放口径：manifest 门行对已生成章不回放（卷一 10-29
+    记录已剥离历史 latest-wins 面）；卷二按新口径执行——文档化入
+    docs/framework/gates.md #80 节。
+    """
     fails = []
     for ch, _skill, _gk in sorted(records):
         if ch > through:
@@ -308,8 +313,91 @@ def _load_cards(project_dir: Path) -> list[_Card]:
         text = card.read_text(encoding="utf-8")
         markers = catchphrases_from_card(text)
         if markers:
-            cards.append(_Card(_card_name(text, card.stem), markers))
+            # spec #83 T7: 卡面引语 token（「…」切口形，avoid 段排除）并入 markers
+            cards.append(_Card(_card_name(text, card.stem), markers + _card_tokens(text)))
     return cards
+
+
+#: 声口 token 最小字长（泛用 2 字词不具归属判别力——拿着/走吧/三尺类）
+_MIN_TOKEN_LEN = 3
+
+
+def voice_token_buckets(
+    cards: list[_Card], protagonist: str | None = None
+) -> dict[str, tuple[str, ...]]:
+    """Spec #83 T7: per-card voice-token buckets (声口 token 族).
+
+    Card catchphrases for every card; the protagonist card additionally
+    carries the accounting-verb family and the self-mock closing marker
+    (#76 lexicon classes — spoken-line attribution only, argmax unchanged).
+    """
+    from shenbi.text.voice_lexicon import ACCOUNTING_VERBS  # noqa: PLC0415
+
+    buckets: dict[str, tuple[str, ...]] = {}
+    for card in cards:
+        # 声口 token 族＝catchphrase 切段（≥2 字段——全句精确匹配漏标点变体：
+        # 「灯在人在。路通行通。」vs 对白「灯在人在，路通行通」，r5-M5 同款
+        # 标点族切分）；protagonist 侧另入账房动词族+自嘲句尾（#76 思路分桶）
+        seg_re = re.compile(r"[。.，,、；;！!？?/／|｜]+")
+        # ≥_MIN_TOKEN_LEN 字最小长：2 字泛用词（拿着/走吧/三尺类）不具判别力
+        toks = [seg for m in card.markers for seg in seg_re.split(m) if len(seg) >= _MIN_TOKEN_LEN]
+        if protagonist and card.name == protagonist:
+            toks.extend(ACCOUNTING_VERBS)
+            # 自嘲句尾（吧？/呢？）不入归属桶——命中一切反问句（audit 实测噪声主源
+            # 之二；该类属密度计数面 distinct_voice_signals，非归属面）
+        seen: dict[str, None] = {}
+        for t in toks:
+            seen.setdefault(t, None)
+        buckets[card.name] = tuple(seen)
+    # 全局去歧：多卡共享 token 不具判别力（跨卡互撞是 misattr 主源）——各卡弃之
+    owners: dict[str, int] = {}
+    for toks in buckets.values():
+        for t in toks:
+            owners[t] = owners.get(t, 0) + 1
+    return {name: tuple(t for t in toks if owners[t] == 1) for name, toks in buckets.items()}
+
+
+def _card_tokens(card_text: str) -> list[str]:
+    """Per-card voice tokens: catchphrase segments + card-quoted phrases.
+
+    「…」 spans from speech_patterns/arc fields join the bucket; the
+    avoid_patterns block is excluded (quoted there = NOT said).
+    """
+    body = card_text
+    m_av = re.search(r"^avoid_patterns:.*?(?=^\w+:|^---|\Z)", card_text, re.M | re.S)
+    if m_av:
+        body = card_text[: m_av.start()] + card_text[m_av.end() :]
+    seg_re = re.compile(r"[。.，,、；;！!？?/／|｜]+")
+    toks: list[str] = []
+    for q in re.findall(r"「([^「」]{2,})」", body):
+        toks.extend(seg for seg in seg_re.split(q) if len(seg) >= _MIN_TOKEN_LEN)
+    return toks
+
+
+def _attr_paragraphs(
+    text: str, cards: list[_Card], buckets: dict[str, tuple[str, ...]]
+) -> list[tuple[str, str | None]]:
+    """(owner_name, attributed_name) per single-named quote paragraph.
+
+    盲认口径 = 引号内台词（叙述层的「那罕记账」动词不是说话人的声纹）；
+    unattributable paragraphs return None for the second element.
+    """
+    out: list[tuple[str, str | None]] = []
+    for para in text.split("\n\n"):
+        quotes = find_quote_spans(para)
+        if not quotes:
+            continue
+        named = [c for c in cards if c.name in para]
+        if len(named) != 1:  # 零命中或双名歧义段不归属（D4 粗粒度口径收窄）
+            continue
+        spoken = "".join(para[a:b] for a, b in quotes)
+        best, hits = None, 0
+        for card in cards:
+            cnt = sum(spoken.count(m) for m in buckets.get(card.name, card.markers))
+            if cnt > hits:
+                best, hits = card, cnt
+        out.append((named[0].name, best.name if hits >= 1 else None))
+    return out
 
 
 def check_blind_recognition(project_dir: Path, through: int) -> Verdict:
@@ -319,33 +407,31 @@ def check_blind_recognition(project_dir: Path, through: int) -> Verdict:
         return Verdict(
             "5", "FAIL", f"带卡面标记的角色卡仅 {len(cards)} 张（<{_MIN_SAMPLED_ROLES}）"
         )
+    # spec #83 T7: 声口 token 族分桶（protagonist 侧含账房动词族+自嘲句尾——
+    # 五角色 4/5 阈值可达；卡面 catchphrase 保留全桶）
+    _prot_path = project_dir / "characters" / "protagonist.md"
+    protagonist = (
+        _card_name(_prot_path.read_text(encoding="utf-8"), "protagonist")
+        if _prot_path.is_file()
+        else None
+    )
+    buckets = voice_token_buckets(cards, protagonist)
     correct: dict[str, int] = defaultdict(int)
     total: dict[str, int] = defaultdict(int)
     for n in range(1, through + 1):
         chapter = project_dir / "chapters" / f"chapter-{n}.md"
         if not chapter.is_file():
             continue
-        for para in chapter.read_text(encoding="utf-8").split("\n\n"):
-            quotes = find_quote_spans(para)
-            if not quotes:
+        for owner_name, best_name in _attr_paragraphs(
+            chapter.read_text(encoding="utf-8"), cards, buckets
+        ):
+            # spec #83 T7: 零命中段=不可归属（None），不入分母（原「计错」使
+            # 4/5 对任何 token 族结构性不可达——自然对白多数不携带签名 token）
+            if best_name is None:
                 continue
-            named = [c for c in cards if c.name in para]
-            if len(named) != 1:  # 零命中或双名歧义段不归属（D4 粗粒度口径收窄）
-                continue
-            owner = named[0]
-            # 盲认口径 = 引号内台词（叙述层的「那罕记账」动词不是说话人的声纹；
-            # 段级计数把叙述噪声算进归属，连主角自测都 2/50——量谁在说，
-            # 就只数谁说出口的那部分）
-            spoken = "".join(para[a:b] for a, b in quotes)
-            best, hits = None, 0
-            for card in cards:
-                cnt = sum(spoken.count(m) for m in card.markers)
-                if cnt > hits:
-                    best, hits = card, cnt
-            total[owner.name] += 1
-            # 零标记段无法盲认（best=None）——计错而非计对
-            if best is not None and best.name == owner.name:
-                correct[owner.name] += 1
+            total[owner_name] += 1
+            if best_name == owner_name:
+                correct[owner_name] += 1
     sampled = {k: v for k, v in total.items() if v > 0}
     if len(sampled) < _MIN_SAMPLED_ROLES:
         return Verdict(

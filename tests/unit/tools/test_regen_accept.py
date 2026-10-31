@@ -155,10 +155,22 @@ def test_blind_recognition_threshold_and_sample_floor(tmp_path: Path) -> None:
     v = check_blind_recognition(p, through=1)
     assert v.status == "PASS", v.detail
 
-    # zero-marker quote paragraph counts WRONG (unattributed != correct)
+    # spec #83 T7 语义修正：零命中段=不可归属，不入分母（原「计错」使 4/5 对
+    # 任何 token 族结构性不可达）——甲保持 1/1，不因无 token 对白受罚
     (p / "chapters" / "chapter-2.md").write_text("甲说：「随便讲点什么。」", encoding="utf-8")
     v = check_blind_recognition(p, through=2)
-    # 甲 = 1/2 < 4/5 -> FAIL
+    assert v.status == "PASS", v.detail
+
+    # 误归属仍计错：甲的对白携带乙的 token（token 不含卡名——含名会成双名段跳过）
+    (p / "chapters" / "chapter-3.md").write_text(
+        "甲说：「北风卷地，再说一遍北风卷地。」", encoding="utf-8"
+    )
+    # 乙卡追加第二 token（保既有样本可归属——五卡仍全带标记者）
+    (p / "characters" / "major" / "b.md").write_text(
+        "---\nname: 乙\nvoice_profile:\n  catchphrases: ['乙的口头禅', '北风卷地']\n---\n",
+        encoding="utf-8",
+    )
+    v = check_blind_recognition(p, through=3)
     assert v.status == "FAIL" and "甲=1/2" in v.detail, v.detail
 
 

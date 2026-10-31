@@ -39,3 +39,7 @@ G1.4 对 in-place 修改型 skill（`BACKUP_SKILLS` 名单）在 dispatch 前创
 - **豁免范围**：仅 G1.4 的幂等备份写（`.bak` 已存在即跳过，不重写）；不含其他任何写。
 - **裁决（Option B，2026-09-07）**：保留 checker 内写而非移至 dispatcher 预阶段（Option A）。理由：G2.11 truth-diff 的 `.bak` 读方契约（`bak_path`，gates/shared.py）与 dispatcher 失败恢复路径已依赖「G1 运行时 .bak 已存在」时序；Option A 需迁移 executor run_g1 subprocess 接线 + G1.4 SKIP 分支 + G2.11 读方三处，破坏面大于收益，且引入「G1 未跑但 G2.11 期望 .bak」新时序洞。
 - **锚定**：`.bak` 锚定 = 源文件同目录（见 [paths.md](paths.md)）。
+
+## spec #80 前向门回放口径
+
+manifest 门行对**已生成章不回放**（spec #83 T7 文档化）：`pipeline-manifest.json` 的 G4 门记录为 latest-wins 面——历史失败重试记录被最新结果覆盖，对已生成章节回放历史门行既不可达也不构成验收面。卷一 10-29 章的记录剥离即此口径；卷二起 regen-accept 判据 2b 按本口径执行（读最新记录，不回放重放历史）。

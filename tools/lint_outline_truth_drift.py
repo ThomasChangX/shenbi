@@ -338,6 +338,36 @@ def _face_debt(ctx: _Ctx) -> tuple[list[Finding], str | None]:
     return findings, None
 
 
+def _face_declarations(ctx: _Ctx) -> tuple[list[Finding], str | None]:
+    """Spec #83 T7 declarations face: scene-hook + missing-META drift list."""
+    from shenbi.gates.shared import (  # noqa: PLC0415
+        parse_scene_declarations,
+        scene_hook_mismatches,
+        split_scenes,
+    )
+
+    findings: list[Finding] = []
+    chapters = sorted(ctx.chapters_dir.glob("chapter-*.md")) if ctx.chapters_dir else []
+    for ch_path in chapters:
+        n = ch_path.stem.split("-")[-1]
+        text = ch_path.read_text(encoding="utf-8")
+        plan = ctx.plans_dir / f"chapter-{n}-plan.md" if ctx.plans_dir else None
+        if plan and plan.is_file():
+            decls = parse_scene_declarations(plan.read_text(encoding="utf-8"))
+            if decls:
+                for m in scene_hook_mismatches(decls, split_scenes(text)):
+                    findings.append(
+                        Finding(face="declarations", detail=f"ch{n} scene_hook 钩被改写: {m}")
+                    )
+        if "META" not in text and "POST_WRITE_SELF_CHECK" not in text:
+            findings.append(
+                Finding(
+                    face="declarations", detail=f"ch{n} 无 META/POST 自检块（ch11 形声明面漂移）"
+                )
+            )
+    return findings, None
+
+
 def _lint_all(
     project_dir: Path, *, volume: int, strict: bool
 ) -> tuple[list[Finding], list[str], _Ctx]:
@@ -379,17 +409,23 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--declarations",
         action="store_true",
-        help="声明面漂移清单（scene_hook/voice_density/无 META 块）——未实装（Task 13）",
+        help="声明面漂移清单（scene_hook 对账/无 META 块）——只报不写",
     )
     args = parser.parse_args(argv)
 
     if args.declarations:
-        print(
-            "错误: --declarations 子命令未实装（spec #83 T7 声明面漂移清单，Task 13 落地）；"
-            "本版本只预留参数骨架",
-            file=sys.stderr,
-        )
-        return 2
+
+        class _Dctx:
+            pass
+
+        dctx = _Dctx()
+        dctx.chapters_dir = args.dir / "chapters"
+        dctx.plans_dir = args.dir / "plans"
+        d_findings, _ = _face_declarations(dctx)
+        for f in d_findings:
+            print(f"[{f.face}] {f.detail}")
+        print(f"declarations findings: {len(d_findings)}（只报不写；清偿随 #84 T0）")
+        return 1 if d_findings else 0
 
     try:
         findings, skips, ctx = _lint_all(args.dir, volume=args.volume, strict=args.strict)
