@@ -246,6 +246,9 @@ def _balance_bundle_escalation(project_dir: str | Path | None, chapter: int | No
             if isinstance(ch_, dict)
             and ch_.get("id") == "cd.balance_value_drift"
             and ch_.get("s") == GateStatus.WARN
+            # 终审 I1：no_ledger 降级跳过标记非漂移复发——不计入升格（防
+            # ledger-less 首束假阳性污染 ch37-38 转正判定）
+            and not str(ch_.get("r", "")).startswith("no_ledger")
             and f"chapter-{member}.md" in str(ch_.get("file", ""))
         )
         if n:
