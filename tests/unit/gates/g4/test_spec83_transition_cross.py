@@ -69,6 +69,17 @@ def test_corpus_calibration_anchor() -> None:
     ch28 = (FIX / "chapters" / "chapter-28.md").read_text(encoding="utf-8")
     warns28 = check_post_wordcount_precision(ch28, total_chars_md_text(ch28))
     assert not any("3187" in w for w in warns28)  # ch28 带内
+    ch26 = (FIX / "chapters" / "chapter-26.md").read_text(encoding="utf-8")
+    assert any(
+        "3.5%" in w for w in check_post_wordcount_precision(ch26, total_chars_md_text(ch26))
+    )  # ch26 真阳（plan 三例校准锚补钉）
+
+
+def test_wordcount_tail_note_form_parsed() -> None:
+    # audit-T3 I1：尾注形 `总计 3760（≥2800，≤4000）`（ch6/16/17/31/33 形）入检测面
+    decl = "- [ ] 正文字数（逐段计数合计）: 场景1: 80；总计 80（≥70，≤90）"
+    warns = check_post_wordcount_precision(f"## POST\n{decl}\n", actual_chars=70)
+    assert warns != []  # 12.5% 漂移可检（此前该形漏检）
 
 
 def test_shadow_registration_row2() -> None:

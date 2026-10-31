@@ -96,9 +96,9 @@ _POST_TRANSITION_DECL_RE = re.compile(
 )
 # 形态锚：ch1:233 `…；总计 3625` / ch28:241 `总计 1029+1098+1060=3187`（裸数或 = 后数）
 _POST_WORDCOUNT_DECL_RE = re.compile(
-    r"^\s*[-*]\s*\[[ xX]\]\s*正文字数（逐段计数合计）\s*[：:].*?总计\s*(?:[\d+]+\s*=\s*)?(\d+)\s*$",
+    r"^\s*[-*]\s*\[[ xX]\]\s*正文字数（逐段计数合计）\s*[：:].*?总计\s*[≈约]?\s*(?:[\d+]+\s*=\s*)?(\d+)\s*(?:（[^）]*）)?\s*$",
     re.M,
-)
+)  # audit-T3 I1：兼收尾注形（总计 3760（≥2800，≤4000））与 ≈/约 前缀；总计 a+b=N 形保持
 
 
 def check_post_transition_cross(content: str) -> list[str]:
