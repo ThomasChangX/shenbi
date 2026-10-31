@@ -638,6 +638,19 @@ def g4_chapter_drafting(
             mf.append(f"G4.post_check:{fp}")
         else:
             c.append({"id": "G4.post_check", "file": fp, "s": GateStatus.PASS})
+            # spec #83 T1: POST 声明引句两臂门（执法两行；WARN 臂进 c 列表交评审）。
+            # FAIL 项 id-first 发射（check_id() 按串首提取）；消费点走既有
+            # _shadow_route_g4 路径（§10 前提满足——经 :4333/:4016/:1387 自然 demote）。
+            from shenbi.gates.g4.post_declarations import check_post_quote_verbatim
+
+            _pq_fails, _pq_warns = check_post_quote_verbatim(content)
+            for _pq_f in _pq_fails:
+                _pq_id, _pq_detail = _pq_f.split(":", 1)
+                mf.append(f"G4.{_pq_id}:{fp}:{_pq_detail}")
+            for _w in _pq_warns:
+                c.append(
+                    {"id": "cd.post_quote_verbatim", "file": fp, "s": GateStatus.WARN, "r": _w}
+                )
 
         # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
         # Count on the narrative body only (probe escalation #4): the raw

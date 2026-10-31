@@ -64,7 +64,7 @@ def test_anchor_quote_verdict_e2e(tmp_path: Path) -> None:
     result = json.loads(
         g4_chapter_drafting([str(d / "chapters" / "chapter-6.md")], rd=str(d), project_dir=str(d))
     )
-    assert not any("quote_verbatim" in m for m in result["must_fix"])
+    assert not any(m.startswith("G4.cd.quote_verbatim") for m in result["must_fix"])
 
     # flipped: anchored quote that the prose does not carry
     (d / "plans" / "chapter-6-plan.md").write_text(
@@ -73,7 +73,7 @@ def test_anchor_quote_verdict_e2e(tmp_path: Path) -> None:
     result = json.loads(
         g4_chapter_drafting([str(d / "chapters" / "chapter-6.md")], rd=str(d), project_dir=str(d))
     )
-    assert any("quote_verbatim" in m for m in result["must_fix"])
+    assert any(m.startswith("G4.cd.quote_verbatim") for m in result["must_fix"])
 
 
 @pytest.mark.unit
@@ -140,7 +140,7 @@ def test_v3_memo_skips_anchor_gate(tmp_path: Path) -> None:
     result = json.loads(
         g4_chapter_drafting([str(d / "chapters" / "chapter-6.md")], rd=str(d), project_dir=str(d))
     )
-    assert not any("quote_verbatim" in m for m in result["must_fix"])
+    assert not any(m.startswith("G4.cd.quote_verbatim") for m in result["must_fix"])
 
 
 @pytest.mark.unit
@@ -172,9 +172,9 @@ def test_spec83_paren_span_quotes_excluded() -> None:
     from shenbi.gates.g4.quote_verbatim import (
         _META_BLOCK_RE,
         _META_SECTION_RE,
-        _NESTED_QUOTE_RE,
-        _PAREN_SPAN_RE,
-        _QUOTE_RE,
+        NESTED_QUOTE_RE,
+        PAREN_SPAN_RE,
+        QUOTE_RE,
     )
 
     quotes = extract_meta_quotes(CH19_83, min_len=6)
@@ -184,8 +184,8 @@ def test_spec83_paren_span_quotes_excluded() -> None:
     raw_kept = 0
     paren_hits = 0
     for region in regions:
-        spans = [m.span() for m in _PAREN_SPAN_RE.finditer(region)]
-        for rx in (_NESTED_QUOTE_RE, _QUOTE_RE):
+        spans = [m.span() for m in PAREN_SPAN_RE.finditer(region)]
+        for rx in (NESTED_QUOTE_RE, QUOTE_RE):
             for m in rx.finditer(region):
                 if len(m.group(1)) < 6:
                     continue
@@ -199,7 +199,7 @@ def test_spec83_paren_span_quotes_excluded() -> None:
 
 @pytest.mark.unit
 def test_spec82_anchor_extraction_unchanged() -> None:
-    # #82 面回归（r5.3 注记）：extract_anchor_quotes 用独立『』行正则，不受 _QUOTE_RE 影响
+    # #82 面回归（r5.3 注记）：extract_anchor_quotes 用独立『』行正则，不受 QUOTE_RE 影响
     plan1 = (FIX83 / "plans" / "chapter-1-plan.md").read_text(encoding="utf-8")
     for _tier, q in extract_anchor_quotes(plan1):
         assert q and "「" not in q  # 『』锚面不含「」
@@ -211,11 +211,11 @@ def test_spec82_anchor_extraction_unchanged() -> None:
 @pytest.mark.unit
 def test_spec83_nested_span_dedup() -> None:
     # M16：『』嵌套在「」内（ch31 章尾形）——单层命中落在嵌套 span 内则弃（span 级去重）
-    from shenbi.gates.g4.quote_verbatim import _NESTED_QUOTE_RE, _QUOTE_RE
+    from shenbi.gates.g4.quote_verbatim import NESTED_QUOTE_RE, QUOTE_RE
 
     region = "「他写下『制度』『私放』『借』三个词」"
-    nested = [m.span() for m in _NESTED_QUOTE_RE.finditer(region)]
-    singles = [m for m in _QUOTE_RE.finditer(region)]
+    nested = [m.span() for m in NESTED_QUOTE_RE.finditer(region)]
+    singles = [m for m in QUOTE_RE.finditer(region)]
     assert nested and singles
     assert all(any(ns <= m.start() < ne for ns, ne in nested) for m in singles)
     # 『』片段全部落在嵌套 span 内——提取器须弃置（span 去重义务的行为前提）

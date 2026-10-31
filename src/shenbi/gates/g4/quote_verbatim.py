@@ -18,11 +18,11 @@ import re
 
 from shenbi.gates.shared import strip_narrative_body
 
-_QUOTE_RE = re.compile('[『“"]([^『“”"]+)[』”"]')
+QUOTE_RE = re.compile('[『“"]([^『“”"]+)[』”"]')
 # spec #83 T1: nested-aware 「」 extraction (r4 钉死嵌套感知式；不用最长匹配——
 # 按行 greedy 会把双引句行〔ch1:234/235、ch6:298「场景1「…」／场景2「…」」形〕
 # 合并成跨 / 假引句)。『』“” 保留单层族（语料无该族嵌套）。
-_NESTED_QUOTE_RE = re.compile("「((?:[^「」]|「[^「」]*」)*)」")
+NESTED_QUOTE_RE = re.compile("「((?:[^「」]|「[^「」]*」)*)」")
 _META_BLOCK_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
 _META_SECTION_RE = re.compile(
     r"^## (?:PRE_WRITE_CHECK|POST_WRITE_SELF_CHECK).*?(?=^## |^# |<!--META|\Z)",
@@ -31,7 +31,7 @@ _META_SECTION_RE = re.compile(
 # 位置法排尾注（r5 定稿）：引句起点落在全角括号区间（…）内即弃——尾注
 # 〔（含张力词「…」）（三点同型…）〕构造上不可能逐字命中；用位置法而非文本
 # 剥除，防主引句内含括号被误改写。
-_PAREN_SPAN_RE = re.compile(r"（[^（）]*）")
+PAREN_SPAN_RE = re.compile(r"（[^（）]*）")
 
 
 def _meta_regions(chapter_text: str) -> list[tuple[str, int, int]]:
@@ -94,16 +94,16 @@ def extract_meta_quotes(chapter_text: str, *, min_len: int = 6) -> list[str]:
     """
     out: list[str] = []
     for region, _rs, _re in _meta_regions(chapter_text):
-        paren_spans = [m.span() for m in _PAREN_SPAN_RE.finditer(region)]
+        paren_spans = [m.span() for m in PAREN_SPAN_RE.finditer(region)]
         nested_spans: list[tuple[int, int]] = []
-        for m in _NESTED_QUOTE_RE.finditer(region):
+        for m in NESTED_QUOTE_RE.finditer(region):
             nested_spans.append(m.span())
             if len(m.group(1)) < min_len:
                 continue
             if any(ps <= m.start() < pe for ps, pe in paren_spans):
                 continue
             out.append(m.group(1))
-        for m in _QUOTE_RE.finditer(region):
+        for m in QUOTE_RE.finditer(region):
             if any(ns <= m.start() < ne for ns, ne in nested_spans):
                 continue  # span 级去重（M16）
             if len(m.group(1)) < min_len:
