@@ -226,29 +226,30 @@ def _balance_bundle_escalation(project_dir: str | Path | None, chapter: int | No
     per_chapter: dict[int, int] = {}
     records = manifest.get("gates", {}).get("chapter_loop", {})
     members = bundle_chapters(Path(project_dir), chapter)
-    leader = members[0] if members else chapter
-    # audit-T10 C2：束 drafting 单记录挂 leader 名下（follower 无自身记录）——
-    # 从 leader 记录聚合，按 checks 的 file 字段归属到成员；记录 list 形
-    # latest-wins 取 [-1]（首写 dict、追加后 list）。
-    skill_gate = records.get(str(leader), {}).get("shenbi-chapter-drafting", {})
-    recs = skill_gate.get("G4", {})
-    rec = recs[-1] if isinstance(recs, list) and recs else recs
-    result = rec.get("result") if isinstance(rec, dict) else None
-    if isinstance(result, str):
-        try:
-            result = _json.loads(result)
-        except ValueError:
-            result = None
-    checks = result.get("checks", []) if isinstance(result, dict) else []
-    for ch_ in checks:
-        if not (isinstance(ch_, dict) and ch_.get("id") == "cd.balance_value_drift"):
-            continue
-        if ch_.get("s") != GateStatus.WARN:
-            continue
-        fname = str(ch_.get("file", ""))
-        for member in members:
-            if f"chapter-{member}.md" in fname:
-                per_chapter[member] = per_chapter.get(member, 0) + 1
+    # audit-T10 C2 终修（清偿核验轮实证真实拓扑）：split-site 写入器对束内
+    # 每成员各记 records[n][drafting].G4（file=chapters/chapter-{n}.md）——
+    # 逐成员读自身记录（list 形 latest-wins 取 [-1]，首写 dict），按 file
+    # 字段归属计数（记录可携带伴生章 decisions 边车 checks）。
+    for member in members:
+        recs = records.get(str(member), {}).get("shenbi-chapter-drafting", {}).get("G4", {})
+        rec = recs[-1] if isinstance(recs, list) and recs else recs
+        result = rec.get("result") if isinstance(rec, dict) else None
+        if isinstance(result, str):
+            try:
+                result = _json.loads(result)
+            except ValueError:
+                result = None
+        checks = result.get("checks", []) if isinstance(result, dict) else []
+        n = sum(
+            1
+            for ch_ in checks
+            if isinstance(ch_, dict)
+            and ch_.get("id") == "cd.balance_value_drift"
+            and ch_.get("s") == GateStatus.WARN
+            and f"chapter-{member}.md" in str(ch_.get("file", ""))
+        )
+        if n:
+            per_chapter[member] = n
     total = sum(per_chapter.values())
     if len(per_chapter) >= 2 or total >= 2:
         detail = ",".join(f"ch{k}×{v}" for k, v in sorted(per_chapter.items()))

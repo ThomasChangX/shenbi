@@ -24,7 +24,9 @@ def test_provenance_mismatch_warns_and_match_green() -> None:
     assert w and "零词重叠" in w[0]  # 渡口类 vs 门洞类
     assert check_provenance_anchor("城破门洞那夜他塞给那罕火纹骨哨。", REG4) == []  # 词重叠绿
     # 两序并存：那夜在动词前后都判
-    assert check_provenance_anchor("火纹骨哨是那夜得的。", REG4) or True  # 名在句+得+那夜（后序）
+    # audit-T11 I2 清偿：后序臂钉实（名在句+得+那夜——原 `or True` 恒真空转）
+    w_post = check_provenance_anchor("火纹骨哨是那夜得的。", REG4)
+    assert w_post and "零词重叠" in w_post[0]
 
 
 def test_no_origin_verb_or_entity_no_signal() -> None:

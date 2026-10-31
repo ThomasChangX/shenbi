@@ -122,7 +122,8 @@ def test_liang_digit_normalized() -> None:
 
 
 def test_bundle_escalation_list_records_and_file_attribution(tmp_path: Path) -> None:
-    # audit-T10 C2 回归钉：时间戳 list 记录 latest-wins + 按 file 归属计数
+    # audit-T10 C2 回归钉（清偿核验轮终形）：真实拓扑=各成员自身记录（split-site
+    # 写入器逐成员记 G4）；list 形 latest-wins；file 归属排除伴生边车
     import json as _json
 
     from shenbi.gates.g4.state_settling import _balance_bundle_escalation
@@ -131,16 +132,6 @@ def test_bundle_escalation_list_records_and_file_attribution(tmp_path: Path) -> 
     (tmp_path / "outline" / "volume_map.md").write_text(
         "## 第一卷（第1-第4章）\n", encoding="utf-8"
     )
-    checks = [
-        {"id": "cd.balance_value_drift", "file": "chapters/chapter-1.md", "s": "WARN"},
-        {"id": "cd.balance_value_drift", "file": "chapters/chapter-2.md", "s": "WARN"},
-        {
-            "id": "cd.balance_value_drift",
-            "file": "chapters/chapter-3.md",
-            "s": "WARN",
-        },  # 非束成员不计
-        {"id": "G4.cd.golden_slot", "file": "chapters/chapter-1.md", "s": "PASS"},
-    ]
     manifest = {
         "gates": {
             "chapter_loop": {
@@ -148,14 +139,51 @@ def test_bundle_escalation_list_records_and_file_attribution(tmp_path: Path) -> 
                     "shenbi-chapter-drafting": {
                         "G4": [  # list 形（追加后）——latest-wins
                             {"ts": "t1", "result": {"checks": []}},
-                            {"ts": "t2", "result": {"checks": checks}},
+                            {
+                                "ts": "t2",
+                                "result": {
+                                    "checks": [
+                                        {
+                                            "id": "cd.balance_value_drift",
+                                            "file": "chapters/chapter-1.md",
+                                            "s": "WARN",
+                                        },
+                                        # 伴生边车（ch3 非束成员——file 归属排除）
+                                        {
+                                            "id": "cd.balance_value_drift",
+                                            "file": "chapters/chapter-3.md",
+                                            "s": "WARN",
+                                        },
+                                    ]
+                                },
+                            },
                         ]
                     }
-                }
+                },
+                "2": {
+                    "shenbi-chapter-drafting": {
+                        "G4": {  # dict 首写形
+                            "result": {
+                                "checks": [
+                                    {
+                                        "id": "cd.balance_value_drift",
+                                        "file": "chapters/chapter-2.md",
+                                        "s": "WARN",
+                                    },
+                                    {
+                                        "id": "G4.cd.golden_slot",
+                                        "file": "chapters/chapter-2.md",
+                                        "s": "PASS",
+                                    },
+                                ]
+                            }
+                        }
+                    }
+                },
             }
         }
     }
     (tmp_path / "pipeline-manifest.json").write_text(_json.dumps(manifest), encoding="utf-8")
     issues = _balance_bundle_escalation(tmp_path, 1)
-    assert issues and "bundle" in issues[0] and "ch1×1" in issues[0] and "ch2×1" in issues[0]
-    assert "ch3" not in issues[0]  # file 归属排除非成员
+    assert issues and "ch1×1" in issues[0] and "ch2×1" in issues[0]
+    assert "ch3" not in issues[0]
