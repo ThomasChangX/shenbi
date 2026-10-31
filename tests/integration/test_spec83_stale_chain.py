@@ -89,7 +89,7 @@ def test_cli_queue_site_rejects_stale(tmp_path: Path) -> None:
         {
             "skill": "shenbi-state-settling",
             "chapter": 28,
-            "checkpoint_type": "per_chapter",
+            "checkpoint_type": "per-chapter",
             "reason": "audit_routed_revision",
         }
     )
