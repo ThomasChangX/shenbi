@@ -68,6 +68,9 @@ def test_bundle_merged_face_and_bundle_level_assertion(tmp_path) -> None:
     by = {v.chapter: v for v in verdicts}
     assert by[1].bundle_merged is False and by[1].resonance == 90
     assert by[2].bundle_merged is True and by[2].resonance == 90  # 束级值
+    # audit-T8 C1 回归钉：奇数 leader 不被误标 follower（对 ch2 调 bundle_chapters
+    # 返回虚构束 [2,3]——旧实现把 ch3 标 follower 并借 ch2 的行，真值被改错）
+    assert by[3].bundle_merged is False and by[3].resonance is None  # ch3 无自有行=None（非借值）
     assert not any("resonance row 2 missing" in r for r in by[2].fail_reasons)  # 单章断言跳过
     # 缺 leader 行 → 束级 fail-closed（非静默）
     rows_no_leader = {}

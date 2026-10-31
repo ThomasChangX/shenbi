@@ -207,15 +207,21 @@ def chapter_verdicts(
     ``bundle_merged=True`` and borrow the leader's resonance row — the
     single-chapter resonance-missing assertion is skipped for them and the
     bundle-level assertion (leader row present) takes over. Vol-1 false-
-    negative face: 8 follower rows missing (all even chapters) previously
+    negative face: follower rows missing (even chapters) (all even chapters) previously
     read as fail-closed errors.
     """
     raw_states = (state.get("chapter_loop") or {}).get("chapter_states") or {}
+    # audit-T8 C1：按真实束步进反查——对偶数章调 bundle_chapters 会返回虚构束
+    # [偶,奇]，把奇 leader 误标 follower（resonance 被改借前偶章值+假束级
+    # fail-closed）。只有真实 leader 的正向查询合法；步进=束长。
     leader_of: dict[int, int] = {}
-    for leader in range(1, n_done + 1):
-        for member in bundle_chapters(project_dir, leader):
-            if member != leader and member <= n_done:
-                leader_of[member] = leader
+    _ch = 1
+    while _ch <= n_done:
+        _bundle = bundle_chapters(project_dir, _ch)
+        for _member in _bundle[1:]:
+            if _member <= n_done:
+                leader_of[_member] = _ch
+        _ch += len(_bundle)
     out: list[ChapterVerdict] = []
     for ch in range(1, n_done + 1):
         reasons: list[str] = []
@@ -771,6 +777,24 @@ def write_reports(project_dir: Path, report: dict[str, Any]) -> tuple[Path, Path
     return md, js
 
 
+def _token_cost_by_chapter(project_dir: Path) -> dict[int, float]:
+    """Per-chapter total_tokens from cost/token-ledger.jsonl ({} when absent)."""
+    cost_by_ch: dict[int, float] = {}
+    ledger_path = project_dir / "cost" / "token-ledger.jsonl"
+    if not ledger_path.is_file():
+        return cost_by_ch
+    for _ln in ledger_path.read_text(encoding="utf-8").splitlines():
+        try:
+            _rec = json.loads(_ln)
+        except ValueError:
+            continue
+        _ch = _rec.get("chapter")
+        _tok = _rec.get("total_tokens")
+        if isinstance(_ch, int) and isinstance(_tok, (int, float)):
+            cost_by_ch[_ch] = cost_by_ch.get(_ch, 0.0) + float(_tok)
+    return cost_by_ch
+
+
 def emit_ledger_rows(project_dir: Path, n: int, m: int) -> list[str]:
     """Draft 纵向采集表 rows for chapters N..M (spec #83 T5).
 
@@ -779,6 +803,7 @@ def emit_ledger_rows(project_dir: Path, n: int, m: int) -> list[str]:
     columns (新闸拦截 / payoff 拍 / 章尾钩型 / 三 WARN) carry 待补 markers —
     the tool reports, the driver adjudicates (audit-lint 惯例: 只报不写).
     """
+    cost_by_ch = _token_cost_by_chapter(project_dir)
     trace_path = project_dir / "trace.jsonl"
     retries: dict[int, int] = {}
     dispatches: dict[int, int] = {}
@@ -817,7 +842,7 @@ def emit_ledger_rows(project_dir: Path, n: int, m: int) -> list[str]:
         else:
             one_pass = "待核（无 trace 面）"
         out.append(
-            f"| {ch} | {cjk} | 待补 | 计入 bundle | {one_pass} | 待补 | 待补 | 待补 | 待补 | {res} | 待补 |"  # noqa: E501
+            f"| {ch} | {cjk} | 待补 | {cost_by_ch.get(ch, '待核')} | {one_pass} | 待补 | 待补 | 待补 | 待补 | {res} | 待补 |"  # noqa: E501
         )
     out.append("")
     out.append(f"（草稿行 ch{n}-ch{m}——手工列待补；数据源 trace/trend/chapters；只报不写）")
