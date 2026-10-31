@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-10-31（spec #82 plan 归档——PR #263 合并，11 task 全执行收敛）
-> **活跃 plan 数**：0 | **已归档**：131（见 `archive/`）
+> **最后更新**：2026-10-31（spec #83 plan 立项 ✅ ready）
+> **活跃 plan 数**：1 | **已归档**：131（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（空——spec #82 已归档；下一份 plan 由 /sdd-next 队首 spec（#83）立项时创建）
+- [`2026-10-31-spec83-three-surface-consistency.md`](2026-10-31-spec83-three-surface-consistency.md) ✅ ready — spec #83 三面一致性之网（r5.3）：14 task（T0 fixtures 基建 + T1-T13 门/管线/工具面）；全部新 FAIL 支路按 §10 shadow checklist，状态字面量按 §11 落点表；验收覆盖表映射 spec §9 五条
 
 ## 待执行的 spec → plan 映射
 
