@@ -2087,6 +2087,8 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
     _rejection = apply_settle_facts_ops(state, project_dir, "shenbi-state-settling", chapter)
     if _rejection is not None:
         return _rejection
+    # spec #83 §11 清除点 2（摄取点一：重派/并行路径成功摄取后）
+    _get_chapter_state(state, chapter).declarations_stale = False
     staging_truth = project_dir / STAGING_DIR / "truth"
     if staging_truth.exists():
         # sidecar via the shared contract-driven helper (audit-T5 C3; final
@@ -2434,6 +2436,9 @@ def _advance(
             # spec #80 T8: facts_ops 先验——拒收在任何写之前中止（零写入、
             # staging 保留），改走 checkpoint 升起分支供 settle 重试。
             _rejection = apply_settle_facts_ops(state, project_dir, step.skill, chapter)
+            if _rejection is None:
+                # spec #83 §11 清除点 2（摄取点二：串行 settle 自动提交路径成功后）
+                _get_chapter_state(state, chapter).declarations_stale = False
             if _rejection is not None:
                 artifact = (
                     resolve_chapter_path(step.output_path, chapter)
@@ -2831,6 +2836,31 @@ def _get_chapter_state(state: PipelineState, chapter: int) -> ChapterState:
         cs = ChapterState()
         state.chapter_loop.chapter_states[key] = cs
     return cs
+
+
+def _pre_settle_guard(
+    state: PipelineState, project_dir: Path | str, chapter: int
+) -> tuple[list[str], list[str]]:
+    """Spec #83 §10 row 4 pure predicate: stale- declarations pre-settle gate.
+
+    Returns (demoted_warn_texts, hard_items); routing belongs to the three
+    call sites (parallel block / cli pending-queue / serial generic dispatch
+    — each mirrors its own existing failure-routing precedent). Belt-and-
+    suspenders semantics: the happy path clears stale at revalidation-green
+    (same block), so the visible windows are escalation/continue flows,
+    PASS-with-warnings re-settle queues, checkpoint redo, and crash resume.
+    """
+    if not _get_chapter_state(state, chapter).declarations_stale:
+        return [], []
+    items = [
+        f"G4.ss.stale_declarations:chapters/chapter-{chapter}.md:"
+        "修订后声明面未同步（declarations_stale）——先重跑 hook_match/补声明同步再 settle"
+    ]
+    demoted, hard = demote_must_fix(Path(project_dir), items)
+    for dw in demoted:  # dual channel per _shadow_route_g4 :2081-2082
+        log.warning("shadow_gate_demoted", chapter=chapter, skill="shenbi-state-settling", item=dw)
+        emit_shadow_warn_trace(project_dir, chapter, dw)
+    return demoted, hard
 
 
 def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
@@ -3560,12 +3590,24 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
         lifecycle_prompt,
         uses_staging=lifecycle_step.uses_staging,
     )
-    settling_result = dispatch_skill(
-        settling_step.skill,
-        project_dir,
-        settling_prompt,
-        uses_staging=settling_step.uses_staging,
-    )
+    # spec #83 §10 行 4 站点①：并行块 settling 派发前 stale 检查（正常
+    # per-chapter settle 的真实路径——:3954 分支拦截进本函数）。hard 路由=
+    # 合成失败 DispatchResult（stderr 载 guard 报文——调用侧 :3961-3978 的
+    # feedback 写入以 stderr 为闸）；demoted 则 WARN 继续。
+    _st_demoted, _st_hard = _pre_settle_guard(state, project_dir, chapter)
+    if _st_hard:
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+
+        settling_result = DispatchResult(
+            success=False, returncode=1, stdout="", stderr="; ".join(_st_hard)
+        )
+    else:
+        settling_result = dispatch_skill(
+            settling_step.skill,
+            project_dir,
+            settling_prompt,
+            uses_staging=settling_step.uses_staging,
+        )
 
     # Single-writer: merge results on the main thread ONLY.
     _merge_step_result(state, lifecycle_result)
@@ -4392,6 +4434,13 @@ def _run_chapter_step_impl(
 
     # G4: skill-specific structural validation (every dispatched step).
     g4_files = _resolve_g4_files(project_dir, step, chapter)
+    # spec #83 §10 行 4 站点③：串行通用路径 settle 派发前 stale 检查——
+    # STATE_SETTLE checkpoint 人审 REJECT/MODIFY（cli.py 重置 step_index）落本路径
+    if step.skill == "shenbi-state-settling":
+        _st_demoted, _st_hard = _pre_settle_guard(state, project_dir, chapter)
+        if _st_hard:
+            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(_st_hard)
+            return _handle_failure(state, step, chapter, "g4", project_dir)
     g4 = run_gate_g4(step.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
     # spec #82 T3: shadow demotion BEFORE classification (gates stay pure).
     # spec #82 T3 (final unification): single shared implementation.
@@ -4546,6 +4595,9 @@ def _run_chapter_step_impl(
     # After chapter-revision step succeeds, ensure decisions file exists
     if "chapter-revision" in step.skill:
         _ensure_revision_decisions_exists(project_dir, chapter, state, log)
+        # spec #83 T2 写入者：修订完成→declarations_stale=True（无条件置位；
+        # 清除点见下——复验绿复同步处＋settle 摄取成功后，§11 双清除点）
+        _get_chapter_state(state, chapter).declarations_stale = True
         # spec #72 施工面 9: post-revision revalidation (marker diff + scene
         # checks + band) — R3-C1: the revision G4 only validates the
         # decisions JSON; prose was never re-checked before this wiring.
@@ -4569,6 +4621,10 @@ def _run_chapter_step_impl(
                 )
                 return _handle_failure(state, step, chapter, "g4", project_dir)
             state.chapter_loop.retry_feedback.pop(retry_key, None)  # 全 demoted → 清理旧反馈
+        else:
+            # spec #83 §11 清除点 1（复验谓词全绿复同步处）：三类声明已同步——
+            # 快乐路径清除（防「拒收→摄取永不发生→清除不可达」死锁的另一清除点在摄取步）
+            _get_chapter_state(state, chapter).declarations_stale = False
         # Probe2 matrix-D gap: an audit-routed (step-15) revision changed the
         # chapter AFTER settle, but nothing queued a re-settlement — truth
         # files kept the PRE-revision draft's facts until a checkpoint-routed

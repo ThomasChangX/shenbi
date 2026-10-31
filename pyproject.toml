@@ -149,6 +149,11 @@ convention = "google"
 "tools/regen_accept.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/tools/test_regen_accept.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/test_shared_prose_primitives.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #83 系测试（中文锚证据 docstring 惯例——同 tools 测试）
+"tests/unit/gates/g4/test_spec83_*.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/pipeline/test_spec83_*.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/integration/test_spec83_*.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_spec83_*.py" = ["RUF001", "RUF002", "RUF003"]
 # vol1 probe escalation #1 test: CJK archetype names + fullwidth punctuation
 # are the test data (两字中文名合法性), not drift.
 "tests/unit/gates/g4/test_character_design.py" = ["RUF001", "RUF002", "RUF003"]

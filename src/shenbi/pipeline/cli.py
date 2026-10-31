@@ -325,6 +325,30 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
                 dropped.append(entry)
                 continue
 
+        # spec #83 §10 行 4 站点②：cli 重派队列 settle entry 派发前 stale 检查——
+        # 修订后重派 settle 的主战场（PASS-with-warnings 流程下 stale 保持 True）。
+        # hard 路由镜像本函数 G4 失败 entry 分支（attempts++ + feedback + 保持排队）。
+        if skill == "shenbi-state-settling" and ch is not None:
+            from shenbi.pipeline.chapter_loop import _pre_settle_guard  # pyright: ignore[reportPrivateUsage]
+
+            _st_demoted, _st_hard = _pre_settle_guard(state, project_dir, ch)
+            if _st_hard:
+                log.error(
+                    "re_dispatch_settle_stale_rejected",
+                    chapter=ch,
+                    items=_st_hard[:2],
+                )
+                entry["attempts"] = int(entry.get("attempts", 0)) + 1
+                entry["feedback"] = _st_hard[0] if _st_hard else entry.get("feedback")
+                if entry["attempts"] >= RE_DISPATCH_RETRY_CAP:
+                    log.error(
+                        "re_dispatch_dropped", skill=skill, chapter=ch, attempts=entry["attempts"]
+                    )
+                    dropped.append(entry)
+                else:
+                    remaining.append(entry)
+                continue
+
         result = dispatch_skill(skill, project_dir, prompt, uses_staging=uses_staging)
         if result.success:
             g4_must_fix = _re_dispatch_g4_must_fix(project_dir, skill, ch)

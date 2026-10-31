@@ -44,6 +44,9 @@ GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {
     "cd.post_transition_cross": ("market_params", "post_transition_cross"),
     # spec #83 §10 行 3：修订删物象相对谓词（复验面——消费点 :4487 显式 demote）
     "rev.prop_purged": ("market_params", "prop_purge_guard"),
+    # spec #83 §10 行 4：stale 拒收（框架摄取步直检——G4.ss 纯文件校验器拿不到
+    # ChapterState，不承载；三派发站点显式咨询 _pre_settle_guard 后降级）
+    "ss.stale_declarations": ("market_params", "stale_declarations"),
 }
 
 
