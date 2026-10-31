@@ -87,3 +87,49 @@ def check_post_quote_verbatim(content: str) -> tuple[list[str], list[str]]:
                         "（标点/复合变体，交评审）"
                     )
     return fails, warns
+
+
+# 形态锚：ch1:229 `- [ ] 转折词密度: 0 / 3625字 = 0 (≤ 1/3000)`（值后带 / N字 = N
+# 尾巴，非行尾裸 0）；轮 8 M2 兼收 ch23 变体形 `0（正文零显式转折词）`
+_POST_TRANSITION_DECL_RE = re.compile(
+    r"^\s*[-*]\s*\[[ xX]\]\s*转折词密度\s*[：:]\s*0\s*(?:/|（)", re.M
+)
+# 形态锚：ch1:233 `…；总计 3625` / ch28:241 `总计 1029+1098+1060=3187`（裸数或 = 后数）
+_POST_WORDCOUNT_DECL_RE = re.compile(
+    r"^\s*[-*]\s*\[[ xX]\]\s*正文字数（逐段计数合计）\s*[：:].*?总计\s*(?:[\d+]+\s*=\s*)?(\d+)\s*$",
+    re.M,
+)
+
+
+def check_post_transition_cross(content: str) -> list[str]:
+    """POST 报「转折词密度 0」而剥后正文词法计数 ≥1 → FAIL（声明↔门计数交叉对账）。"""
+    from shenbi.gates.shared import count_transition_words
+
+    if not _POST_TRANSITION_DECL_RE.search(content):
+        return []
+    if count_transition_words(strip_narrative_body(content)) >= 1:
+        return [
+            "cd.post_transition_cross:POST 报「转折词密度 0」但正文词法计数 ≥1"
+            "——自检声明与词法门计数互斥（修复者: drafting 改声明一行）"
+        ]
+    return []
+
+
+def check_post_wordcount_precision(content: str, actual_chars: int) -> list[str]:
+    """Spec §1 字数行虚假精度：声明总计 vs 实测差 >2% → WARN。
+
+    实测口径=total_chars_md_text（全字符剥后——与修订复验字数带同口径；
+    wc（word_count_md）是 CJK 计数，与逐段全字符总计系统差 13-19%）。
+    """
+    issues: list[str] = []
+    for m in _POST_WORDCOUNT_DECL_RE.finditer(content):
+        declared = int(m.group(1))
+        if declared <= 0:
+            continue
+        drift = abs(declared - actual_chars) / declared
+        if drift > 0.02:
+            issues.append(
+                f"cd.post_wordcount_precision:声明总计 {declared} vs 实测 {actual_chars}"
+                f"（差 {drift:.1%} >2%）——虚假精度（修复者: drafting 改声明一行）"
+            )
+    return issues

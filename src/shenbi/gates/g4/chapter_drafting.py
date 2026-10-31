@@ -658,6 +658,22 @@ def g4_chapter_drafting(
         # which itself enumerates transition words — the gate was counting
         # its own checklist (6 of 8 hits on probe chapter 1).
         tc = count_transition_words(strip_narrative_body(content))
+        # spec #83 T1: POST 声明-门实测交叉（§10 行 2，shadow 起 L-D）＋字数行
+        # 虚假精度 WARN（评审面非 FAIL，不入 §10）。实测口径=total_chars_md_text
+        # （全字符剥后——wc 是 CJK 计数，与 POST 逐段全字符总计系统差 13-19%）。
+        from shenbi.gates.g4.post_declarations import (
+            check_post_transition_cross,
+            check_post_wordcount_precision,
+        )
+        from shenbi.gates.shared import total_chars_md_text as _tcmt
+
+        for _ptc in check_post_transition_cross(content):
+            _ptc_id, _ptc_detail = _ptc.split(":", 1)
+            mf.append(f"G4.{_ptc_id}:{fp}:{_ptc_detail}")
+        for _wcp in check_post_wordcount_precision(content, _tcmt(content)):
+            c.append(
+                {"id": "cd.post_wordcount_precision", "file": fp, "s": GateStatus.WARN, "r": _wcp}
+            )
         max_t = max(5, wc // 1000)
         if tc > max_t:
             mf.append(f"G4.transition:{fp}:{tc}>{max_t}")

@@ -40,6 +40,8 @@ GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {
     # spec #83 §10 行 1：POST 引句两臂 FAIL 臂（勿与 #82 既有 G4.cd.quote_verbatim
     # 混同——彼门为 v4 备忘张力拍锚，两语义不同的门不可连带转正）
     "cd.post_quote_verbatim": ("market_params", "post_quote_verbatim"),
+    # spec #83 §10 行 2：POST 转折词交叉门（前置=count_transition_words 补语形去重）
+    "cd.post_transition_cross": ("market_params", "post_transition_cross"),
 }
 
 
