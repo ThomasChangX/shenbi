@@ -37,6 +37,23 @@ GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {
     "cd.quote_verbatim": ("market_params", "quote_anchor"),
     "cp.missing_retention_anchor": ("market_params", "retention_anchor"),
     "cp.core_motif_touch": ("pacing", "core_motif_touch"),
+    # spec #83 §10 行 1：POST 引句两臂 FAIL 臂（勿与 #82 既有 G4.cd.quote_verbatim
+    # 混同——彼门为 v4 备忘张力拍锚，两语义不同的门不可连带转正）
+    "cd.post_quote_verbatim": ("market_params", "post_quote_verbatim"),
+    # spec #83 §10 行 2：POST 转折词交叉门（前置=count_transition_words 补语形去重）
+    "cd.post_transition_cross": ("market_params", "post_transition_cross"),
+    # spec #83 §10 行 3：修订删物象相对谓词（复验面——消费点 :4487 显式 demote）
+    "rev.prop_purged": ("market_params", "prop_purge_guard"),
+    # spec #83 §10 行 4：stale 拒收（框架摄取步直检——G4.ss 纯文件校验器拿不到
+    # ChapterState，不承载；三派发站点显式咨询 _pre_settle_guard 后降级）
+    "ss.stale_declarations": ("market_params", "stale_declarations"),
+    # spec #83 §10 行 5/6/7：计数三支路（同键族——hook 族多 id 一键先例）
+    "cd.counter.plan_conflict": ("market_params", "counter_anchor"),  # 行 5
+    "cd.counter.base_mismatch": ("market_params", "counter_anchor"),  # 行 6
+    "cd.counter.prose_mismatch": ("market_params", "counter_anchor"),  # 行 7
+    # spec #83 §10 行 8/9：余额锚 FAIL 臂（WARN 臂同键 shadow——非 FAIL 不入表）+ 束级升格
+    "cd.balance_value_drift": ("market_params", "balance_anchor"),  # 行 8
+    "cd.balance_value_drift.bundle": ("market_params", "balance_anchor"),  # 行 9
 }
 
 

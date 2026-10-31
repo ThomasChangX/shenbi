@@ -90,6 +90,10 @@ lint-routing:
 audit-lint *args:
     uv run python tools/lint_audit_run.py "$@"
 
+# Outline↔truth canon drift reconciliation: 只报不写（spec #83 T3）
+outline-drift *args:
+    uv run python tools/lint_outline_truth_drift.py "$@"
+
 # Observability report (spec #81 §3): four tables + archive coverage row
 observe-report *args:
     uv run python tools/observe_report.py "$@"

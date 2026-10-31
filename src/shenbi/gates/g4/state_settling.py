@@ -203,6 +203,67 @@ def _check_escape_corruption(pf: Path, live_text: str, staged_text: str) -> list
     return []
 
 
+def _balance_bundle_escalation(project_dir: str | Path | None, chapter: int | None) -> list[str]:
+    """Spec #83 §10 行 9: bundle-settle escalation of per-chapter balance WARNs.
+
+    Aggregates the manifest's latest G4.cd records for the bundle members:
+    the same balance anchor WARN recurring in >=2 bundle chapters (or >=2
+    times in one chapter) escalates to a bundle-level FAIL — emitted
+    id-first so the :4016 consumption site demotes it naturally (shadow).
+    """
+    if not project_dir or chapter is None:
+        return []
+    import json as _json
+    from shenbi.pipeline.chapter_loop import bundle_chapters
+
+    manifest_path = Path(project_dir) / "pipeline-manifest.json"
+    if not manifest_path.is_file():
+        return []
+    try:
+        manifest = _json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    per_chapter: dict[int, int] = {}
+    records = manifest.get("gates", {}).get("chapter_loop", {})
+    members = bundle_chapters(Path(project_dir), chapter)
+    # audit-T10 C2 终修（清偿核验轮实证真实拓扑）：split-site 写入器对束内
+    # 每成员各记 records[n][drafting].G4（file=chapters/chapter-{n}.md）——
+    # 逐成员读自身记录（list 形 latest-wins 取 [-1]，首写 dict），按 file
+    # 字段归属计数（记录可携带伴生章 decisions 边车 checks）。
+    for member in members:
+        recs = records.get(str(member), {}).get("shenbi-chapter-drafting", {}).get("G4", {})
+        rec = recs[-1] if isinstance(recs, list) and recs else recs
+        result = rec.get("result") if isinstance(rec, dict) else None
+        if isinstance(result, str):
+            try:
+                result = _json.loads(result)
+            except ValueError:
+                result = None
+        checks = result.get("checks", []) if isinstance(result, dict) else []
+        n = sum(
+            1
+            for ch_ in checks
+            if isinstance(ch_, dict)
+            and ch_.get("id") == "cd.balance_value_drift"
+            and ch_.get("s") == GateStatus.WARN
+            # 终审 I1：no_ledger 降级跳过标记非漂移复发——不计入升格（防
+            # ledger-less 首束假阳性污染 ch37-38 转正判定）
+            and not str(ch_.get("r", "")).startswith("no_ledger")
+            and f"chapter-{member}.md" in str(ch_.get("file", ""))
+        )
+        if n:
+            per_chapter[member] = n
+    total = sum(per_chapter.values())
+    if len(per_chapter) >= 2 or total >= 2:
+        detail = ",".join(f"ch{k}×{v}" for k, v in sorted(per_chapter.items()))
+        return [
+            f"G4.cd.balance_value_drift.bundle:truth/particle_ledger.md:"
+            f"束内余额 WARN 复发（{detail or 'missing'}；束级升格判据 ≥2 章/≥2 次）"
+            "——同锚束级复发（修复者: drafting/planning 对齐 ledger）"
+        ]
+    return []
+
+
 def _current_settle_chapter(pf: Path) -> int | None:
     """Chapter the staged settle owns, from the sibling decisions sidecar.
 
@@ -244,7 +305,7 @@ def _strip_increment_section(live_text: str, chapter: int) -> str:
     return "\n".join(out)
 
 
-def _check_matrix_structure(pf: Path) -> list[str]:
+def _check_matrix_structure(pf: Path) -> tuple[list[str], list[str]]:
     """Content-preservation guard for a STAGED character_matrix.
 
     Fixcheck probe (2026-09-29): seven consecutive settle rewrites failed
@@ -259,7 +320,7 @@ def _check_matrix_structure(pf: Path) -> list[str]:
     """
     live = _live_sibling(pf)
     if live is None:
-        return []
+        return [], []
     issues: list[str] = []
     staged_text = pf.read_text(encoding="utf-8")
     live_text = live.read_text(encoding="utf-8")
@@ -276,15 +337,41 @@ def _check_matrix_structure(pf: Path) -> list[str]:
             f"staged={len(staged_lines)}<live*0.9={int(len(live_lines) * 0.9)} "
             "(template regeneration — rebuild as live increment)"
         )
+    _dropped = _dropped_content_lines(live_text, staged_text)  # 报告串（samples 截断）
     issues.extend(
         f"G4.ss.matrix_structure:{pf}:{detail} "
         "(format replacement — re-emit ONLY this chapter's increment: the "
         "new/changed keyed rows plus this chapter's increment section; do "
         "NOT reproduce or re-emit other sections of the live file)"
-        for detail in _dropped_content_lines(live_text, staged_text)
+        for detail in _dropped
     )
     issues.extend(_check_escape_corruption(pf, live_text, staged_text))
-    return issues
+    # spec #83 T4: diff 面积 WARN（shadow 量化面——观测记录非 FAIL 门；全量
+    # 重写病理的量化面，matrix_structure content_dropped 检测职责不重复建门）。
+    # WARN 与 content_dropped FAIL 共存（audit-T7 I1 释明：每 dropped 行已发
+    # FAIL，WARN 是束级量化观测——非互斥）
+    warns: list[str] = []
+    if live_lines:
+        # 面积=全量丢失行数（_seq_drops 未截断口径——samples 截断的报告串不可作分母分子）
+        _drop_n = len(
+            _seq_drops(
+                [
+                    l
+                    for l in _content_stream(live_text)
+                    if not _PLACEHOLDER_LINE_RE.match(l.strip())
+                ],
+                _content_stream(staged_text),
+            )
+        )
+        _live_n = len(
+            [l for l in _content_stream(live_text) if not _PLACEHOLDER_LINE_RE.match(l.strip())]
+        )
+        if _drop_n > _live_n * 0.5:
+            warns.append(
+                f"ss.matrix_structure.diff_area: staged 重写面积 {_drop_n}/{_live_n}"
+                " 行（>50%——增量契约违反的量化观测，交评审/驱动侧裁决）"
+            )
+    return issues, warns
 
 
 #: Registry rows are keyed by their hook id wherever it starts the first
@@ -983,7 +1070,17 @@ def g4_state_settling(
 
             # Structural preservation vs the live sibling (probe session
             # 2026-09-29: template regeneration was invisible to the gate).
-            mf.extend(_check_matrix_structure(pf))
+            _mx_fails, _mx_warns = _check_matrix_structure(pf)  # spec #83 T4 拆包
+            mf.extend(_mx_fails)
+            for _mw in _mx_warns:
+                c.append(
+                    {
+                        "id": "ss.matrix_structure.diff_area",
+                        "file": fp,
+                        "s": GateStatus.WARN,
+                        "r": _mw,
+                    }
+                )
 
         if "state-settling-decisions" in str(fp):
             mf.extend(_check_produced_at(content, fp))
@@ -1030,6 +1127,9 @@ def g4_state_settling(
                 c.append({"id": "G4.ss.arcs", "file": fp, "s": GateStatus.PASS})
 
         if "particle_ledger" in str(fp):
+            # spec #83 §10 行 9：束级升格（manifest 聚合 per-章 WARN——经 :4016 demote）
+            _bb_ch = _current_settle_chapter(Path(fp))
+            mf.extend(_balance_bundle_escalation(project_dir, _bb_ch))
             # Accept: 粒子账本, 粒子记录, particle ledger, 账本, etc.
             if not re.search(
                 r"(粒子账本|粒子记录|particle.*ledger|账本|资源)", content, re.IGNORECASE

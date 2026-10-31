@@ -27,6 +27,7 @@ def _state(tmp_path, retry_feedback: dict[str, str]):
             current_step="",
             per_chapter_review_enabled=False,
             retry_feedback=retry_feedback,
+            streak_monitor_rewinds={},  # spec #83 T4 字段入 mock
         ),
     )
 

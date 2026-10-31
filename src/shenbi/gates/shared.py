@@ -868,6 +868,10 @@ def count_transition_words(content: str) -> int:
     # Add specific multi-char transition words
     for w in TRANSITION_SPECIFIC:
         tc += content.count(w)
+    # spec #83 T1 前置：补语潜在形（V+不过+来/去）非转折用法——ch17:79「算不过来的账」
+    # 实弹误计 1 次；不修则 cd.post_transition_cross 反向误伤无过错正文
+    tc -= content.count("不过来")
+    tc -= content.count("不过去")
     return max(tc, 0)
 
 

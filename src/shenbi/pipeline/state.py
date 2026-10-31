@@ -152,6 +152,11 @@ class ChapterState:
     # read this frozen copy, never the mutable plan file — post-gate plan
     # rewrites by _REDO_RE_DISPATCH must not rewrite gate history.
     declared: dict[str, Any] = field(default_factory=dict)
+    # spec #83 T2: revision completed -> True; two clear points (spec §11:
+    # settle ingestion success + revalidation-green re-sync). NOT a
+    # ChapterStatus enum value — chapter lifecycle and declaration freshness
+    # are orthogonal (a chapter may be complete AND stale).
+    declarations_stale: bool = False
 
 
 def retry_key(chapter: int, skill: str) -> str:
@@ -212,6 +217,11 @@ class ChapterLoopStateData:
     # crash-resume can enforce max_audit_retries. Contrast retry_counts above,
     # which is intentionally cleared on step success.
     retry_budget_consumed: dict[str, int] = field(default_factory=dict)
+    # spec #83 T4: per-retry_key 打摆连击计数器（口径a——reason.kind 不分族）。
+    # Durable 纪律对齐 retry_budget_consumed（NOT cleared by _reset_retries）；
+    # 复位=仅章推进（_complete_chapter bundle 循环）——升级/熔断/成功重派均
+    # 不复位（跨熔断持久连击正是打摆病理本体，ch25 两轮熔断间 14 连实证）。
+    streak_monitor_rewinds: dict[str, int] = field(default_factory=dict)
     modify_feedback: str | None = None
     retry_feedback: dict[str, str] = field(default_factory=dict)
     soft_fail_trackers: dict[str, SoftFailTracker] = field(default_factory=dict)
@@ -329,12 +339,14 @@ class PipelineState:
                         "revision_count": v.revision_count,
                         "audit_retry_count": v.audit_retry_count,
                         "declared": v.declared,
+                        "declarations_stale": v.declarations_stale,
                     }
                     for k, v in self.chapter_loop.chapter_states.items()
                 },
                 "per_chapter_review_enabled": self.chapter_loop.per_chapter_review_enabled,
                 "retry_counts": self.chapter_loop.retry_counts,
                 "retry_budget_consumed": self.chapter_loop.retry_budget_consumed,
+                "streak_monitor_rewinds": self.chapter_loop.streak_monitor_rewinds,
                 "modify_feedback": self.chapter_loop.modify_feedback,
                 "retry_feedback": self.chapter_loop.retry_feedback,
                 "soft_fail_trackers": {
@@ -393,6 +405,7 @@ class PipelineState:
                 revision_count=v.get("revision_count", 0),
                 audit_retry_count=v.get("audit_retry_count", 0),
                 declared=v.get("declared", {}),
+                declarations_stale=bool(v.get("declarations_stale", False)),
             )
 
         soft_fail_trackers: dict[str, Any] = {}
@@ -419,6 +432,7 @@ class PipelineState:
                 per_chapter_review_enabled=cl_data.get("per_chapter_review_enabled", True),
                 retry_counts=cl_data.get("retry_counts", {}),
                 retry_budget_consumed=cl_data.get("retry_budget_consumed", {}),
+                streak_monitor_rewinds=cl_data.get("streak_monitor_rewinds", {}),
                 modify_feedback=cl_data.get("modify_feedback"),
                 retry_feedback=cl_data.get("retry_feedback", {}),
                 soft_fail_trackers=soft_fail_trackers,

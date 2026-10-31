@@ -139,6 +139,9 @@ convention = "google"
 "tools/lint_volume_nodes.py" = ["RUF001", "RUF002", "RUF003"]
 "tools/lint_shadow_promotion.py" = ["RUF001", "RUF002", "RUF003"]
 "tools/lint_voice_meme.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #83 T3: findings/docstrings quote the live Chinese outline/truth
+# vocabulary (卷纲节点清单/还账进度表 anchors) — data, not drift.
+"tools/lint_outline_truth_drift.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #70 release-split: scene word list + fullwidth predicate chars are the
 # data, not drift (same category as lint_truth_pool).
 "tools/release_split.py" = ["RUF001", "RUF002", "RUF003"]
@@ -149,6 +152,11 @@ convention = "google"
 "tools/regen_accept.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/tools/test_regen_accept.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/test_shared_prose_primitives.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #83 系测试（中文锚证据 docstring 惯例——同 tools 测试）
+"tests/unit/gates/g4/test_spec83_*.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/pipeline/test_spec83_*.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/integration/test_spec83_*.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_spec83_*.py" = ["RUF001", "RUF002", "RUF003"]
 # vol1 probe escalation #1 test: CJK archetype names + fullwidth punctuation
 # are the test data (两字中文名合法性), not drift.
 "tests/unit/gates/g4/test_character_design.py" = ["RUF001", "RUF002", "RUF003"]

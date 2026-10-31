@@ -1118,6 +1118,17 @@ def _emit_retry_event(
         log.warning("retry_event_emit_failed", skill=skill, exc_info=True)
 
 
+_STREAK_TARGETED_MODE_THRESHOLD = 4  # 卷一战术「打摆>5 轮切手工」代码化，4 留自动裕量（spec T4）
+
+
+def _record_retry(state: PipelineState, chapter: int, skill: str) -> None:
+    """Spec #83 T4 口径a: every RETRY (any reason.kind) bumps the streak."""
+    rk = _retry_key(chapter, skill)
+    state.chapter_loop.streak_monitor_rewinds[rk] = (
+        state.chapter_loop.streak_monitor_rewinds.get(rk, 0) + 1
+    )
+
+
 def _enrich_g4_feedback(failures: list[str]) -> str:
     """Build enriched retry feedback with format examples for each failed check.
 
@@ -1182,6 +1193,23 @@ def _append_feedback_injections(
         state.chapter_loop.modify_feedback = None
     prev_g4_feedback = state.chapter_loop.retry_feedback.get(_retry_key(chapter, skill))
     if prev_g4_feedback:
+        # spec #83 T4：打摆切换——同 key 连击 ≥4 → 反馈模板切「定点扩写」模式，
+        # 不再发整档约束重述（ch25 型混合族连续全档重写病理；loop_id 不作计数器）
+        _streak = state.chapter_loop.streak_monitor_rewinds.get(_retry_key(chapter, skill), 0)
+        if skill == "shenbi-chapter-drafting" and _streak >= _STREAK_TARGETED_MODE_THRESHOLD:
+            prompt += (
+                f"\n\n## TARGETED-EDIT MODE（连击 {_streak} 次打摆切换）\n"
+                "前稿逐字保留，**只在反馈点名的问题处做定点修改/扩写**：\n"
+                "- 每条失败项给段落锚（场景号/首句引用），只改该段；\n"
+                "- 字数缺口按反馈实测值补足，不重掷全章；\n"
+                "- 未被点名的段落 token 级不变。禁止整章重写、禁止场景重组。\n"
+            )
+        # spec #83 T4：分族路由反馈定向（路由面——前缀 token 匹配已结构化
+        # issue 串；非自由文本判读，触发判定在 streak 计数器）
+        from shenbi.pipeline.retry_routing import classify_retry_family, targeted_feedback_addendum
+
+        _fam = classify_retry_family(prev_g4_feedback)
+        prompt += targeted_feedback_addendum(_fam, prev_g4_feedback)
         prompt += (
             f"\n\n## CORRECTIVE FEEDBACK (prior attempt failed G4 validation)\n"
             f"Your previous output failed the structural check:\n"
@@ -1413,6 +1441,54 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
     return issues
 
 
+_PROP_HOLD_RE = re.compile(r"^\s*[-*]\s*(\S+?)@hold\s*[：:]\s*\S+", re.M)
+_PROP_COLON_RE = re.compile(r"^\s*[-*]\s*物象\s*[：:]\s*([^|｜]+)[|｜]\s*\S+", re.M)
+
+
+def parse_prop_lines(plan_text: str) -> list[str]:
+    """Entry lines = @hold + 物象: X|Y structured forms (spec #83 T2).
+
+    Dedup preserves order; see the comments below for the exclusion rules.
+    """
+    # r4 用户裁定：入场行＝@hold＋物象: X|Y 结构化行（r5 清点 44 行）
+    # @lose/@mention/@none 与 PRE 散文物象行不入场（丢失/纯提及不在场是预期态）
+    # 去重保序（audit 轮 2 M9：ch28 同一实体双声明形——@hold 与物象: 并存——
+    # 不去重则删尽时双发同一 FAIL）
+    seen: dict[str, None] = {}
+    for m in (*_PROP_HOLD_RE.finditer(plan_text), *_PROP_COLON_RE.finditer(plan_text)):
+        seen.setdefault(m.group(1).strip(), None)
+    return list(seen)
+
+
+def check_prop_purge_on_revision(
+    before_text: str, after_text: str, plan_text: str, *, chapter: int
+) -> list[str]:
+    """Spec #83 T2: revision prop-purge relative predicate (R3-C1 extension).
+
+    before-has and after-lacks -> FAIL; both sides stripped to the same
+    prose caliber. See comments below for the corpus-replay rationale.
+    """
+    # 相对谓词：entity_in_text(名, strip(修订前)) ∧ ¬entity_in_text(名, strip(修订后))
+    # → FAIL——修订把物象整段删尽；两侧同口径 strip_narrative_body（raw 面下
+    # PRE/POST 声明块自含物象名会使 pre 侧恒真、谓词退化单侧）。绝对在场
+    # 口径在全语料证伪（28 例/14 章零删改即红）——持有物象当章正文零提及
+    # 为合法叙事态，零修订现状全绿
+    from shenbi.gates.g4.chapter_drafting import entity_in_text
+    from shenbi.gates.shared import strip_narrative_body
+
+    before = strip_narrative_body(before_text)
+    after = strip_narrative_body(after_text)
+    issues: list[str] = []
+    for name in parse_prop_lines(plan_text):
+        if entity_in_text(name, before) and not entity_in_text(name, after):
+            issues.append(
+                f"G4.rev.prop_purged:chapters/chapter-{chapter}.md:『{name}』修订前在场、"
+                "修订后被删尽——物象删除须有 @lose/事件声明，不许静默蒸发"
+                "（修复者: revision 补回或补声明）"
+            )
+    return issues
+
+
 def _revalidate_revised_chapter(project_dir: Path, chapter: int) -> list[str]:
     """Post-revision revalidation (spec 施工面 9, #72 R3-C1 new wiring).
 
@@ -1446,6 +1522,23 @@ def _revalidate_revised_chapter(project_dir: Path, chapter: int) -> list[str]:
             issues.append(
                 f"场景标记数变化: 修订前 {len(before)} → 修订后 {len(after)}（标记行不得删除/新增）"
             )
+
+    # spec #83 T2: 物象/POST 声明引句并入复验谓词（升格既有 #72 R3-C1 复验面）——
+    # 相对口径（r5 定稿）两侧同口径 strip；pre 侧取 pre-rev 备份（backup 缺席
+    # 时取现 text——谓词左元两侧同文本恒不红，防误伤）。
+    _plan_pr = project_dir / "plans" / f"chapter-{chapter}-plan.md"
+    if _plan_pr.is_file():
+        _before_text = backup.read_text(encoding="utf-8") if backup.is_file() else text
+        issues.extend(
+            check_prop_purge_on_revision(
+                _before_text, text, _plan_pr.read_text(encoding="utf-8"), chapter=chapter
+            )
+        )
+    # spec #83 T1: POST 引句复验走 T2 判定器执法两行（判定器串无 G4. 前缀，
+    # 此处补齐进消费点 id 分流——I5b）
+    from shenbi.gates.g4.post_declarations import check_post_quote_verbatim as _cpq
+
+    issues.extend(f"G4.{_f}" for _f in _cpq(text)[0])
 
     scene_markers = sum(1 for ln in text.split("\n") if is_scene_marker_line(ln))
     if scene_markers < 2:
@@ -2022,6 +2115,8 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
     _rejection = apply_settle_facts_ops(state, project_dir, "shenbi-state-settling", chapter)
     if _rejection is not None:
         return _rejection
+    # spec #83 §11 清除点 2（摄取点一：重派/并行路径成功摄取后）
+    _get_chapter_state(state, chapter).declarations_stale = False
     staging_truth = project_dir / STAGING_DIR / "truth"
     if staging_truth.exists():
         # sidecar via the shared contract-driven helper (audit-T5 C3; final
@@ -2167,6 +2262,15 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
         mcs = state.chapter_loop.chapter_states.setdefault(mkey, ChapterState())
         if not mcs.declared:
             mcs.declared = _snapshot_declared(project_dir, member)
+        # spec #83 T5: batch status write（#82 T0 预留接口注释位）——修 18/18
+        # 假 pending；status 写点原本仅 leader 一处（:2160），游标跳过 follower
+        mcs.status = ChapterStatus.COMPLETE
+        # spec #83 T4：打摆连击复位=仅章推进（bundle 全员各自复位；升级/熔断/
+        # 成功重派不复位——跨熔断持久连击是病理本体）
+        for k in [
+            k for k in state.chapter_loop.streak_monitor_rewinds if k.startswith(f"ch{member}-")
+        ]:
+            state.chapter_loop.streak_monitor_rewinds.pop(k, None)
 
     # F368 residual (spec #69 T5): chapter-close sweep — a finished chapter's
     # corrective feedback must not leak into later dispatch cycles. The dash
@@ -2369,6 +2473,9 @@ def _advance(
             # spec #80 T8: facts_ops 先验——拒收在任何写之前中止（零写入、
             # staging 保留），改走 checkpoint 升起分支供 settle 重试。
             _rejection = apply_settle_facts_ops(state, project_dir, step.skill, chapter)
+            if _rejection is None:
+                # spec #83 §11 清除点 2（摄取点二：串行 settle 自动提交路径成功后）
+                _get_chapter_state(state, chapter).declarations_stale = False
             if _rejection is not None:
                 artifact = (
                     resolve_chapter_path(step.output_path, chapter)
@@ -2766,6 +2873,31 @@ def _get_chapter_state(state: PipelineState, chapter: int) -> ChapterState:
         cs = ChapterState()
         state.chapter_loop.chapter_states[key] = cs
     return cs
+
+
+def _pre_settle_guard(
+    state: PipelineState, project_dir: Path | str, chapter: int
+) -> tuple[list[str], list[str]]:
+    """Spec #83 §10 row 4 pure predicate: stale- declarations pre-settle gate.
+
+    Returns (demoted_warn_texts, hard_items); routing belongs to the three
+    call sites (parallel block / cli pending-queue / serial generic dispatch
+    — each mirrors its own existing failure-routing precedent). Belt-and-
+    suspenders semantics: the happy path clears stale at revalidation-green
+    (same block), so the visible windows are escalation/continue flows,
+    PASS-with-warnings re-settle queues, checkpoint redo, and crash resume.
+    """
+    if not _get_chapter_state(state, chapter).declarations_stale:
+        return [], []
+    items = [
+        f"G4.ss.stale_declarations:chapters/chapter-{chapter}.md:"
+        "修订后声明面未同步（declarations_stale）——先重跑 hook_match/补声明同步再 settle"
+    ]
+    demoted, hard = demote_must_fix(Path(project_dir), items)
+    for dw in demoted:  # dual channel per _shadow_route_g4 :2081-2082
+        log.warning("shadow_gate_demoted", chapter=chapter, skill="shenbi-state-settling", item=dw)
+        emit_shadow_warn_trace(project_dir, chapter, dw)
+    return demoted, hard
 
 
 def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
@@ -3495,12 +3627,24 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
         lifecycle_prompt,
         uses_staging=lifecycle_step.uses_staging,
     )
-    settling_result = dispatch_skill(
-        settling_step.skill,
-        project_dir,
-        settling_prompt,
-        uses_staging=settling_step.uses_staging,
-    )
+    # spec #83 §10 行 4 站点①：并行块 settling 派发前 stale 检查（正常
+    # per-chapter settle 的真实路径——:3954 分支拦截进本函数）。hard 路由=
+    # 合成失败 DispatchResult（stderr 载 guard 报文——调用侧 :3961-3978 的
+    # feedback 写入以 stderr 为闸）；demoted 则 WARN 继续。
+    _st_demoted, _st_hard = _pre_settle_guard(state, project_dir, chapter)
+    if _st_hard:
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+
+        settling_result = DispatchResult(
+            success=False, returncode=1, stdout="", stderr="; ".join(_st_hard)
+        )
+    else:
+        settling_result = dispatch_skill(
+            settling_step.skill,
+            project_dir,
+            settling_prompt,
+            uses_staging=settling_step.uses_staging,
+        )
 
     # Single-writer: merge results on the main thread ONLY.
     _merge_step_result(state, lifecycle_result)
@@ -4161,6 +4305,7 @@ def _run_chapter_step_impl(
                 # spec #81 §2: monitor-rewind RETRY (issues kept as the
                 # pre-formatted strings scene_splitter produces; the numeric
                 # diff-dict form is a recorded deviation, deferred).
+                _record_retry(state, chapter, drafting_step.skill)  # spec #83 T4 口径a
                 _emit_retry_event(
                     project_dir,
                     chapter=chapter,
@@ -4246,6 +4391,15 @@ def _run_chapter_step_impl(
     if step.skill == "shenbi-chapter-revision":
         write_audit_aggregate(project_dir, chapter)
 
+    # spec #83 §10 行 4 站点③：串行通用路径 settle 派发前 stale 检查——
+    # STATE_SETTLE checkpoint 人审 REJECT/MODIFY（cli.py 重置 step_index）落本
+    # 路径。必须在 dispatch_skill **之前**（audit-T5 C1：guard 落派发后会让每
+    # 次拒收先烧一次真实 settle 派发、staging 残留过期产物）。
+    if step.skill == "shenbi-state-settling":
+        _st_demoted, _st_hard = _pre_settle_guard(state, project_dir, chapter)
+        if _st_hard:
+            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(_st_hard)
+            return _handle_failure(state, step, chapter, "g4", project_dir)
     # Dispatch the skill. The explicit [path-context] carrier makes the
     # chapter authoritative on the API route: bundle prompts ("chapters 1,2")
     # defeat extract_chapter's singular regex, and a None chapter silently
@@ -4381,6 +4535,7 @@ def _run_chapter_step_impl(
             # spec #81 §2: structured RETRY event (both re-dispatch branches
             # below share this emission point — per-chapter _handle_failure
             # route and the direct auto-retry route).
+            _record_retry(state, chapter, step.skill)  # spec #83 T4 口径a
             _emit_retry_event(
                 project_dir,
                 chapter=chapter,
@@ -4481,16 +4636,36 @@ def _run_chapter_step_impl(
     # After chapter-revision step succeeds, ensure decisions file exists
     if "chapter-revision" in step.skill:
         _ensure_revision_decisions_exists(project_dir, chapter, state, log)
+        # spec #83 T2 写入者：修订完成→declarations_stale=True（无条件置位；
+        # 清除点见下——复验绿复同步处＋settle 摄取成功后，§11 双清除点）
+        _get_chapter_state(state, chapter).declarations_stale = True
         # spec #72 施工面 9: post-revision revalidation (marker diff + scene
         # checks + band) — R3-C1: the revision G4 only validates the
         # decisions JSON; prose was never re-checked before this wiring.
         rev_issues = _revalidate_revised_chapter(project_dir, chapter)
         if rev_issues:
             log.warning("revision_revalidation_failed", chapter=chapter, issues=rev_issues[:5])
-            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(
-                [f"修订重验: {i}" for i in rev_issues]
-            )
-            return _handle_failure(state, step, chapter, "g4", project_dir)
+            # spec #83 §10 行 3：id-first 项过 shadow demote（rev_issues 混合既有
+            # 无 id 串——只对 G4. 前缀项 demote，其余保持既有路由）
+            from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
+
+            _id_items = [i for i in rev_issues if i.startswith("G4.")]
+            _plain = [i for i in rev_issues if not i.startswith("G4.")]
+            _demoted, _hard = demote_must_fix(project_dir, _id_items)
+            for _dw in _demoted:
+                log.warning("shadow_gate_demoted", chapter=chapter, skill=step.skill, item=_dw)
+                emit_shadow_warn_trace(project_dir, chapter, _dw)
+            if _plain or _hard:  # all-demoted 不得写空反馈头——shadow 契约要求
+                # 复刻 retry_feedback 清理（PASS-with-warnings），非注入 vacuous 模板
+                state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(
+                    [f"修订重验: {i}" for i in (_plain + _hard)]
+                )
+                return _handle_failure(state, step, chapter, "g4", project_dir)
+            state.chapter_loop.retry_feedback.pop(retry_key, None)  # 全 demoted → 清理旧反馈
+        else:
+            # spec #83 §11 清除点 1（复验谓词全绿复同步处）：三类声明已同步——
+            # 快乐路径清除（防「拒收→摄取永不发生→清除不可达」死锁的另一清除点在摄取步）
+            _get_chapter_state(state, chapter).declarations_stale = False
         # Probe2 matrix-D gap: an audit-routed (step-15) revision changed the
         # chapter AFTER settle, but nothing queued a re-settlement — truth
         # files kept the PRE-revision draft's facts until a checkpoint-routed

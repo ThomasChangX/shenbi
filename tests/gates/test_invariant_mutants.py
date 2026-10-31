@@ -77,7 +77,8 @@ def test_mutant_counter_dup_killed_by_f17():
     counters = {"鉴录名数": {"value": _ch08_baseline_count()}}
     memo = "- 计数: 鉴录名数 2+1"  # pre-rev 备忘：把赵三当第三个——与 ch8 冲突
     issues = check_counter_reconciliation(CH09_DUP.read_text(encoding="utf-8"), memo, counters)
-    assert any("cd.counter:" in i for i in issues)
+    # spec #83 T9：子 id 形 cd.counter.<arm>:（r5 基值==facts 口径——base_mismatch 拦本 mutant）
+    assert any("cd.counter." in i for i in issues)
 
 
 # ── 绿语料对极（防误报面；完整 as-of 终态断言在 T13 test_facts_backfill）──

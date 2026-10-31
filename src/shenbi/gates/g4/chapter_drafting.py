@@ -163,7 +163,9 @@ def check_prop_handoffs(
     return issues
 
 
-_COUNTER_DECL_RE = re.compile(r"^[-*]\s*计数[：:]\s*(\S+)\s+(\d+)\s*\+\s*1\s*$", re.MULTILINE)
+_COUNTER_DECL_RE = re.compile(
+    r"^[-*]\s*计数[：:]\s*(\S+)\s+(\d+)\s*\+\s*(\d+)\s*$", re.MULTILINE
+)  # spec #83 T9: N+M 全形态（r5 回放：旧 +1-only 全语料 9 条仅捕 2、+0 六章全盲）
 
 
 def _re_total(word: str) -> re.Pattern[str]:
@@ -179,83 +181,105 @@ def _re_ordinal(word: str) -> re.Pattern[str]:
 _ORDINAL_RE = re.compile(r"第([一二两三四五六七八九十百千\d]{1,5})个名字")
 
 
-def parse_counter_declarations(memo_text: str) -> list[tuple[str, int]]:
-    """Parse ``- 计数: <名> N+1`` lines (spec #80 F17).
+def parse_counter_declarations(memo_text: str) -> list[tuple[str, int, int]]:
+    """Parse ``- 计数: <名> N+M`` lines (spec #80 F17 / spec #83 T9 N+M).
 
-    Returns ``(name, declared_value)`` where declared_value = the parsed
-    N+1 (plan R4-M4: the declared NEW value, not the base N).
+    Returns ``(name, base, delta)`` triples — the declared FINAL value is
+    base + delta. Signatures changed from the #80 2-tuple form; both
+    in-module callers (:222 collect / :621 unknown-check) updated with it.
     """
-    out: list[tuple[str, int]] = []
+    out: list[tuple[str, int, int]] = []
     for m in _COUNTER_DECL_RE.finditer(memo_text):
         try:
-            out.append((m.group(1), int(m.group(2)) + 1))
+            out.append((m.group(1), int(m.group(2)), int(m.group(3))))
         except ValueError:
             continue
     return out
 
 
 def check_counter_reconciliation(
-    text: str, memo_text: str, counters: dict[str, dict[str, int]]
+    text: str, memo_text: str, counters: dict[str, dict[str, int]], *, fp: str = ""
 ) -> list[str]:
-    """F17 — three-way counter reconciliation (spec #80 §4, rev4 R3-M11).
+    """F17/#83 T9 — counter reconciliation: N+M parsing + three FAIL arms.
 
-    Activated only for counters the memo declares (R2-I4b — the WARN
-    judgment lives at the g4.cd call site, R3-M1). Reconciles:
-    (1) prose totals「N个名字」≡ facts value or declared new value
-        (page qualifiers ignored — R5-M3);
-    (2) memo declared N+1 ≡ facts+1;
-    (3) prose ordinals「第N个名字」≡ declared new value.
+    Arms (r5 corpus-replay verdicts):
+    ② cd.counter.plan_conflict — same counter declared with MUTUALLY
+       EXCLUSIVE finals (ch28 :88 4+0 vs :100 4 +1 -> {4,5});
+    ③ cd.counter.base_mismatch — each declaration's base != facts current
+       value at check time (drafting reads the pre-increment present;
+       replaces the #80 ``declared != facts+1`` judgment which false-red
+       all six +0 chapters);
+    ④ cd.counter.prose_mismatch — totals/ordinals must co-occur IN THE SAME
+       SENTENCE with a registered anchor word (鉴录名数 -> 《鉴录》/鉴录) and
+       the prose face is strip_narrative_body'd (POST self-row excluded);
+       allowed set = {facts} ∪ declared finals.
     """
     from shenbi.gates.g4.cross_chapter import cn_amount
+    from shenbi.gates.shared import strip_narrative_body
 
     def _amount(raw: str) -> int | None:
         # 两 (colloquial 2) is outside cn_amount's vocabulary — normalize
         return cn_amount("二" + raw[1:] if raw.startswith("两") else raw)
 
-    # M1 (audit-T7): counter name -> prose word family; unmapped counters
-    # skip the prose faces (no cross-counter interference). P1 registers
-    # the single 鉴录名数 counter.
-    _WORD_FAMILY: dict[str, tuple[str, ...]] = {
-        "鉴录名数": ("名字",),
+    # 锚词注册（audit 轮 5 I4 定稿：函数内 dict 扩族面；M1 未映射计数器跳 prose 面）
+    _ANCHORED_COUNTERS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
+        "鉴录名数": (("名字",), ("《鉴录》", "鉴录")),
     }
     issues: list[str] = []
-    declared = dict(parse_counter_declarations(memo_text))
-    for name, declared_val in declared.items():
+    decls: dict[str, list[tuple[int, int]]] = {}
+    for name, base, delta in parse_counter_declarations(memo_text):
+        decls.setdefault(name, []).append((base, delta))
+    _detail_fp = f":{fp}" if fp else ""
+    for name, pairs in decls.items():
         info = counters.get(name)
         if info is None:
             continue  # unknown counter — flagged at the call site (C1 wiring)
-        family = _WORD_FAMILY.get(name)
-        if not family:
-            continue  # no word family mapped — prose faces skip (M1)
         facts_val = int(info.get("value", 0))
-        if declared_val != facts_val + 1:
+        finals = {b + d for b, d in pairs}
+        if len(finals) > 1:
             issues.append(
-                f"cd.counter:「{name}」备忘声明 {declared_val - 1}+1={declared_val}"
-                f" ≠ facts 现值 {facts_val}+1={facts_val + 1}"
-                "——计数链单调断裂（修复者: planning+settling）"
+                f"cd.counter.plan_conflict{_detail_fp}:「{name}」多条声明终值互斥"
+                f" {{{', '.join(str(x) for x in sorted(finals))}}}——计划内部矛盾"
+                "（修复者: planning 对齐口径）"
             )
+        for base, _delta in pairs:
+            if base != facts_val:
+                issues.append(
+                    f"cd.counter.base_mismatch{_detail_fp}:「{name}」声明基值 {base}"
+                    f" ≠ facts 现值 {facts_val}（check 时点）——计数链断裂"
+                    "（修复者: planning+settling 对齐）"
+                )
+        anchored = _ANCHORED_COUNTERS.get(name)
+        if not anchored:
+            continue  # no word family mapped — prose faces skip (M1)
+        family, anchors = anchored
+        allowed = {facts_val} | finals
+        body = strip_narrative_body(text)
+        sentences = _SENTENCE_SPLIT_RE.split(body)
         for word in family:
-            for m in _re_total(word).finditer(text):
-                amount = _amount(m.group(1))
-                if amount is None:
-                    continue
-                if amount not in (facts_val, declared_val):
+            for sent in sentences:
+                if not any(a in sent for a in anchors):
+                    continue  # 同句锚定（r5：ch30 船单/修辞双误红由此排除）
+                for m in _re_total(word).finditer(sent):
+                    amount = _amount(m.group(1))
+                    if amount is None or amount in allowed:
+                        continue
                     issues.append(
-                        f"cd.counter:「{name}」正文总数「{m.group(0)}」={amount}"
-                        f" ∉ {{facts {facts_val}, 声明 {declared_val}}}"
+                        f"cd.counter.prose_mismatch{_detail_fp}:「{name}」正文总数"
+                        f"「{m.group(0)}」={amount} ∉ {{{', '.join(str(x) for x in sorted(allowed))}}}"
                         "——总数与计数链互斥（修复者: drafting）"
                     )
-        for word in family:
-            for m in _re_ordinal(word).finditer(text):
-                amount = _amount(m.group(1))
-                if amount is None:
-                    continue
-                if amount != declared_val:
-                    issues.append(
-                        f"cd.counter:「{name}」正文序数「{m.group(0)}」={amount}"
-                        f" ≠ 备忘声明值 {declared_val}"
-                        "——序数与声明错位（修复者: drafting）"
-                    )
+                for m in _re_ordinal(word).finditer(sent):
+                    amount = _amount(m.group(1))
+                    if amount is None:
+                        continue
+                    declared_final = max(finals) if finals else None
+                    if declared_final is not None and amount != declared_final:
+                        issues.append(
+                            f"cd.counter.prose_mismatch{_detail_fp}:「{name}」正文序数"
+                            f"「{m.group(0)}」={amount} ≠ 声明终值 {declared_final}"
+                            "——序数与声明错位（修复者: drafting）"
+                        )
     return issues
 
 
@@ -618,14 +642,67 @@ def g4_chapter_drafting(
                     }
                 )
             else:
-                _unknown = {n for n, _v in _memo_decls} - set(_counters_facts)
+                _unknown = {n for n, _b, _d in _memo_decls} - set(_counters_facts)
                 for _u in sorted(_unknown):
                     mf.append(
-                        f"cd.counter:{fp}:「{_u}」备忘声明了 facts 未种子的计数器"
+                        f"G4.cd.counter:{fp}:「{_u}」备忘声明了 facts 未种子的计数器"
                         "——先补 facts 种子（修复者: settling）"
                     )
-                for issue in check_counter_reconciliation(content, _memo or "", _counters_facts):
-                    mf.append(f"{fp}:{issue}")
+                # spec #83 T9: id-first 发射（r5.3 铁律——path-first 形态使
+                # check_id() 提取失效、shadow 静默失灵）
+                mf.extend(
+                    f"G4.{issue}"
+                    for issue in check_counter_reconciliation(
+                        content, _memo or "", _counters_facts, fp=fp
+                    )
+                )
+
+        # ── spec #83 T6 余额锚（§10 行 8/9，shadow 起 L-D）──
+        # 取数：truth/particle_ledger.md check 时点现值（单一信源，不扫前章正文）；
+        # 缺席 → WARN 可见 skip（F16/F17 facts 三律同款）。
+        _ledger_path = Path(project_dir) / "truth" / "particle_ledger.md" if project_dir else None
+        _ledger_text = (
+            _ledger_path.read_text(encoding="utf-8")
+            if _ledger_path and _ledger_path.is_file()
+            else None
+        )
+        if _ledger_text is None:
+            c.append(
+                {
+                    "id": "cd.balance_value_drift",
+                    "file": fp,
+                    "s": GateStatus.WARN,
+                    "r": "no_ledger — particle_ledger.md absent; balance anchor skipped (degradation visible)",
+                }
+            )
+        else:
+            from shenbi.gates.g4.post_declarations import (
+                check_balance_value_drift,
+                parse_ledger_current_value,
+                parse_spend_events,
+            )
+
+            _bal_fails, _bal_warns = check_balance_value_drift(
+                content,
+                parse_ledger_current_value(_ledger_text),
+                spend_events=parse_spend_events(_memo or ""),
+            )
+            for _bf in _bal_fails:
+                _bf_id, _bf_detail = _bf.split(":", 1)
+                mf.append(f"G4.{_bf_id}:{fp}:{_bf_detail}")
+            for _bw in _bal_warns:
+                c.append(
+                    {"id": "cd.balance_value_drift", "file": fp, "s": GateStatus.WARN, "r": _bw}
+                )
+        # spec #83 T6 来历锚（WARN-only 人工裁决面——存量缺列跳过；与 ledger
+        # 缺席无依赖，audit-T11 I1 清偿：原嵌 ledger-else 会在 particle_ledger
+        # 缺席时静默不跑）
+        _reg_path = Path(project_dir) / "truth" / "prop_registry.md" if project_dir else None
+        if _reg_path and _reg_path.is_file():
+            from shenbi.gates.g4.post_declarations import check_provenance_anchor
+
+            for _pv in check_provenance_anchor(content, _reg_path.read_text(encoding="utf-8")):
+                c.append({"id": "cd.provenance_anchor", "file": fp, "s": GateStatus.WARN, "r": _pv})
 
         # PRE_WRITE_CHECK
         if "## PRE_WRITE_CHECK" not in content:
@@ -638,6 +715,19 @@ def g4_chapter_drafting(
             mf.append(f"G4.post_check:{fp}")
         else:
             c.append({"id": "G4.post_check", "file": fp, "s": GateStatus.PASS})
+            # spec #83 T1: POST 声明引句两臂门（执法两行；WARN 臂进 c 列表交评审）。
+            # FAIL 项 id-first 发射（check_id() 按串首提取）；消费点走既有
+            # _shadow_route_g4 路径（§10 前提满足——经 :4333/:4016/:1387 自然 demote）。
+            from shenbi.gates.g4.post_declarations import check_post_quote_verbatim
+
+            _pq_fails, _pq_warns = check_post_quote_verbatim(content)
+            for _pq_f in _pq_fails:
+                _pq_id, _pq_detail = _pq_f.split(":", 1)
+                mf.append(f"G4.{_pq_id}:{fp}:{_pq_detail}")
+            for _w in _pq_warns:
+                c.append(
+                    {"id": "cd.post_quote_verbatim", "file": fp, "s": GateStatus.WARN, "r": _w}
+                )
 
         # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
         # Count on the narrative body only (probe escalation #4): the raw
@@ -645,6 +735,22 @@ def g4_chapter_drafting(
         # which itself enumerates transition words — the gate was counting
         # its own checklist (6 of 8 hits on probe chapter 1).
         tc = count_transition_words(strip_narrative_body(content))
+        # spec #83 T1: POST 声明-门实测交叉（§10 行 2，shadow 起 L-D）＋字数行
+        # 虚假精度 WARN（评审面非 FAIL，不入 §10）。实测口径=total_chars_md_text
+        # （全字符剥后——wc 是 CJK 计数，与 POST 逐段全字符总计系统差 13-19%）。
+        from shenbi.gates.g4.post_declarations import (
+            check_post_transition_cross,
+            check_post_wordcount_precision,
+        )
+        from shenbi.gates.shared import total_chars_md_text as _tcmt
+
+        for _ptc in check_post_transition_cross(content):
+            _ptc_id, _ptc_detail = _ptc.split(":", 1)
+            mf.append(f"G4.{_ptc_id}:{fp}:{_ptc_detail}")
+        for _wcp in check_post_wordcount_precision(content, _tcmt(content)):
+            c.append(
+                {"id": "cd.post_wordcount_precision", "file": fp, "s": GateStatus.WARN, "r": _wcp}
+            )
         max_t = max(5, wc // 1000)
         if tc > max_t:
             mf.append(f"G4.transition:{fp}:{tc}>{max_t}")

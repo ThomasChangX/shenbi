@@ -126,6 +126,8 @@ uv run shenbi-score tests/tiers/t3-pipeline/<pipeline>/rubric.md <score-file> --
 
 T3 不使用 phase-runner.py。G6 gate marker 是评分的前置条件。
 
+**T3 运行期 canon 对账义务（spec #83 T3）**：管线推进中每 6 章束 settle 后＋卷界前必跑 `just outline-drift <dir> [--volume N]`（卷纲↔truth canon 漂移对账，只报不写；四面对账=物象清单/来历短语/承诺件/欠账）。出现 finding → 人工裁定双择一：改大纲（volume_map 节点行就地更新）或在卷纲行内加 `※canon-vN` 引注；不许悬空跳过。
+
 ### 每轮结束
 
 ```bash
