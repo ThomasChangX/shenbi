@@ -321,3 +321,49 @@ def check_balance_value_drift(
             "——异值余额供人工裁决"
         )
     return fails, warns
+
+
+# spec #83 T6 来历锚（WARN-only 人工裁决面——不入 §10）：正文来历句 vs
+# prop_registry provenance 列（未来第 4 列，表头扩列归 #84 T0 回灌批——
+# 本 task 只建读侧跳过面+写侧指引；存量行缺列 → 跳过该实体不恒 WARN）。
+# 语序无关：句含来历动词（得/授/给/塞）且含 那夜/那天（真实语料两序并存——
+# 「塞给他…那夜」/「是那夜得的」）
+_ORIGIN_SENT_RE = re.compile(r"[^。！？；]*那[夜天][^。！？；]*")
+_ORIGIN_VERBS = ("得", "授", "给", "塞")
+
+
+def check_provenance_anchor(content: str, registry_text: str) -> list[str]:
+    """Origin-sentence vs provenance-column word-overlap WARN (L-C coarsest).
+
+    Registry rows are ``| 实体 | owner | 经手事件 | [地点·chN] |`` — the
+    4th segment exists only on NEW settle-written rows; missing column skips
+    the entity (36-chapter stock rows are all column-less). An origin
+    sentence (得/授/给/塞 + entity + 那夜/那天) sharing NO 2-gram with the
+    provenance place string -> WARN (渡口 vs 门洞 class).
+    """
+    warns: list[str] = []
+    # registry 行解析：4+ 列才有 provenance（| 分隔 → split 后 [实体,owner,事件,prov?]）
+    provenance: dict[str, str] = {}
+    for line in registry_text.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.split("|")[1:-1]]
+        if len(cells) >= 4 and cells[0] not in ("实体名", "---", ":---") and cells[3]:
+            provenance[cells[0]] = cells[3]
+    if not provenance:
+        return []  # 存量全缺列——零 WARN（不恒噪声）
+    for m in _ORIGIN_SENT_RE.finditer(content):
+        sent = m.group(0)
+        if not any(v in sent for v in _ORIGIN_VERBS):
+            continue
+        for name, prov in provenance.items():
+            if name not in sent and name.split("·")[0] not in sent:
+                continue
+            place = prov.split("·")[0]  # 地点·chN → 地点
+            grams = {place[i : i + 2] for i in range(len(place) - 1)}
+            if grams and not any(g in sent for g in grams):
+                warns.append(
+                    f"cd.provenance_anchor:来历句「{sent[:24]}…」与 provenance"
+                    f"「{prov}」零词重叠——来历疑似漂移（人工裁决面）"
+                )
+    return warns

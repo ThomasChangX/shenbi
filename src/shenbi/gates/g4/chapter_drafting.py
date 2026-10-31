@@ -694,6 +694,15 @@ def g4_chapter_drafting(
                 c.append(
                     {"id": "cd.balance_value_drift", "file": fp, "s": GateStatus.WARN, "r": _bw}
                 )
+            # spec #83 T6 来历锚（WARN-only 人工裁决面——存量缺列跳过，不恒噪声）
+            _reg_path = Path(project_dir) / "truth" / "prop_registry.md" if project_dir else None
+            if _reg_path and _reg_path.is_file():
+                from shenbi.gates.g4.post_declarations import check_provenance_anchor
+
+                for _pv in check_provenance_anchor(content, _reg_path.read_text(encoding="utf-8")):
+                    c.append(
+                        {"id": "cd.provenance_anchor", "file": fp, "s": GateStatus.WARN, "r": _pv}
+                    )
 
         # PRE_WRITE_CHECK
         if "## PRE_WRITE_CHECK" not in content:

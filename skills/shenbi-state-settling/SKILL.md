@@ -104,6 +104,8 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
 
 定点编辑反馈见 incremental 通道：重派反馈中的「定向修复」分族指令（长度族/结构族/内容门族）与 TARGETED-EDIT MODE 指令给出段落锚与逐字保留边界——按其定点修改，勿整档重发。
 
+prop_registry 新增/更新行在「经手事件」后附第 4 列 `地点·chN`（授物地点+章号——来历锚对账数据面；表头扩列随 #84 T0 回灌批，新行先带列）。
+
 ### Truth File Update Mode Rules (CRITICAL)
 
 **All ten `updates:` targets in this skill's contract are declared `mode: append_dedup` — the pipeline's dispatch write path merges your output into those files BY KEY. You must NEVER output the whole file content for them.**
