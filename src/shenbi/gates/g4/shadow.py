@@ -42,6 +42,8 @@ GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {
     "cd.post_quote_verbatim": ("market_params", "post_quote_verbatim"),
     # spec #83 §10 行 2：POST 转折词交叉门（前置=count_transition_words 补语形去重）
     "cd.post_transition_cross": ("market_params", "post_transition_cross"),
+    # spec #83 §10 行 3：修订删物象相对谓词（复验面——消费点 :4487 显式 demote）
+    "rev.prop_purged": ("market_params", "prop_purge_guard"),
 }
 
 

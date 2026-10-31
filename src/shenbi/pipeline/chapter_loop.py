@@ -1413,6 +1413,54 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
     return issues
 
 
+_PROP_HOLD_RE = re.compile(r"^\s*[-*]\s*(\S+?)@hold\s*[：:]\s*\S+", re.M)
+_PROP_COLON_RE = re.compile(r"^\s*[-*]\s*物象\s*[：:]\s*([^|｜]+)[|｜]\s*\S+", re.M)
+
+
+def parse_prop_lines(plan_text: str) -> list[str]:
+    """Entry lines = @hold + 物象: X|Y structured forms (spec #83 T2).
+
+    Dedup preserves order; see the comments below for the exclusion rules.
+    """
+    # r4 用户裁定：入场行＝@hold＋物象: X|Y 结构化行（r5 清点 44 行）
+    # @lose/@mention/@none 与 PRE 散文物象行不入场（丢失/纯提及不在场是预期态）
+    # 去重保序（audit 轮 2 M9：ch28 同一实体双声明形——@hold 与物象: 并存——
+    # 不去重则删尽时双发同一 FAIL）
+    seen: dict[str, None] = {}
+    for m in (*_PROP_HOLD_RE.finditer(plan_text), *_PROP_COLON_RE.finditer(plan_text)):
+        seen.setdefault(m.group(1).strip(), None)
+    return list(seen)
+
+
+def check_prop_purge_on_revision(
+    before_text: str, after_text: str, plan_text: str, *, chapter: int
+) -> list[str]:
+    """Spec #83 T2: revision prop-purge relative predicate (R3-C1 extension).
+
+    before-has and after-lacks -> FAIL; both sides stripped to the same
+    prose caliber. See comments below for the corpus-replay rationale.
+    """
+    # 相对谓词：entity_in_text(名, strip(修订前)) ∧ ¬entity_in_text(名, strip(修订后))
+    # → FAIL——修订把物象整段删尽；两侧同口径 strip_narrative_body（raw 面下
+    # PRE/POST 声明块自含物象名会使 pre 侧恒真、谓词退化单侧）。绝对在场
+    # 口径在全语料证伪（28 例/14 章零删改即红）——持有物象当章正文零提及
+    # 为合法叙事态，零修订现状全绿
+    from shenbi.gates.g4.chapter_drafting import entity_in_text
+    from shenbi.gates.shared import strip_narrative_body
+
+    before = strip_narrative_body(before_text)
+    after = strip_narrative_body(after_text)
+    issues: list[str] = []
+    for name in parse_prop_lines(plan_text):
+        if entity_in_text(name, before) and not entity_in_text(name, after):
+            issues.append(
+                f"G4.rev.prop_purged:chapters/chapter-{chapter}.md:『{name}』修订前在场、"
+                "修订后被删尽——物象删除须有 @lose/事件声明，不许静默蒸发"
+                "（修复者: revision 补回或补声明）"
+            )
+    return issues
+
+
 def _revalidate_revised_chapter(project_dir: Path, chapter: int) -> list[str]:
     """Post-revision revalidation (spec 施工面 9, #72 R3-C1 new wiring).
 
@@ -1446,6 +1494,23 @@ def _revalidate_revised_chapter(project_dir: Path, chapter: int) -> list[str]:
             issues.append(
                 f"场景标记数变化: 修订前 {len(before)} → 修订后 {len(after)}（标记行不得删除/新增）"
             )
+
+    # spec #83 T2: 物象/POST 声明引句并入复验谓词（升格既有 #72 R3-C1 复验面）——
+    # 相对口径（r5 定稿）两侧同口径 strip；pre 侧取 pre-rev 备份（backup 缺席
+    # 时取现 text——谓词左元两侧同文本恒不红，防误伤）。
+    _plan_pr = project_dir / "plans" / f"chapter-{chapter}-plan.md"
+    if _plan_pr.is_file():
+        _before_text = backup.read_text(encoding="utf-8") if backup.is_file() else text
+        issues.extend(
+            check_prop_purge_on_revision(
+                _before_text, text, _plan_pr.read_text(encoding="utf-8"), chapter=chapter
+            )
+        )
+    # spec #83 T1: POST 引句复验走 T2 判定器执法两行（判定器串无 G4. 前缀，
+    # 此处补齐进消费点 id 分流——I5b）
+    from shenbi.gates.g4.post_declarations import check_post_quote_verbatim as _cpq
+
+    issues.extend(f"G4.{_f}" for _f in _cpq(text)[0])
 
     scene_markers = sum(1 for ln in text.split("\n") if is_scene_marker_line(ln))
     if scene_markers < 2:
@@ -4487,10 +4552,23 @@ def _run_chapter_step_impl(
         rev_issues = _revalidate_revised_chapter(project_dir, chapter)
         if rev_issues:
             log.warning("revision_revalidation_failed", chapter=chapter, issues=rev_issues[:5])
-            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(
-                [f"修订重验: {i}" for i in rev_issues]
-            )
-            return _handle_failure(state, step, chapter, "g4", project_dir)
+            # spec #83 §10 行 3：id-first 项过 shadow demote（rev_issues 混合既有
+            # 无 id 串——只对 G4. 前缀项 demote，其余保持既有路由）
+            from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
+
+            _id_items = [i for i in rev_issues if i.startswith("G4.")]
+            _plain = [i for i in rev_issues if not i.startswith("G4.")]
+            _demoted, _hard = demote_must_fix(project_dir, _id_items)
+            for _dw in _demoted:
+                log.warning("shadow_gate_demoted", chapter=chapter, skill=step.skill, item=_dw)
+                emit_shadow_warn_trace(project_dir, chapter, _dw)
+            if _plain or _hard:  # all-demoted 不得写空反馈头——shadow 契约要求
+                # 复刻 retry_feedback 清理（PASS-with-warnings），非注入 vacuous 模板
+                state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(
+                    [f"修订重验: {i}" for i in (_plain + _hard)]
+                )
+                return _handle_failure(state, step, chapter, "g4", project_dir)
+            state.chapter_loop.retry_feedback.pop(retry_key, None)  # 全 demoted → 清理旧反馈
         # Probe2 matrix-D gap: an audit-routed (step-15) revision changed the
         # chapter AFTER settle, but nothing queued a re-settlement — truth
         # files kept the PRE-revision draft's facts until a checkpoint-routed
