@@ -40,6 +40,7 @@ Use entry points (not `python3 tests/X.py`):
 - `just ledger-archive <dir> --resolved-through <ch>` — Both evidence ledgers (pool + thread_map) rolling archival in one command (B 批)
 - `just volume-budget <dir> [--apply]` — Volume budget guardrails: re-budget pending / per-volume ±3 drift / 保量 floor; `--apply` performs deterministic total_chapters + skeleton writeback (C 批)
 - `just release-split <dir> [--platform fanqie|qidian]` — 发布切分层：已收束章节 → 平台档位发布更（`publish/<platform>/`，spec #70）
+- `just outline-drift <dir> [--volume N]` — 卷纲↔truth canon drift 对账：物象清单/来历短语/承诺件/欠账四面对账，finding 交人工裁定（只报不写，spec #83 T3）
 - `shenbi-validate G0 <seed>` — Gate 0: environment check
 - `shenbi-validate G2 <files> <type>` — Gate 2: output validation
 - `shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural check

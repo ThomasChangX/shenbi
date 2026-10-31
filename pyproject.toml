@@ -139,6 +139,9 @@ convention = "google"
 "tools/lint_volume_nodes.py" = ["RUF001", "RUF002", "RUF003"]
 "tools/lint_shadow_promotion.py" = ["RUF001", "RUF002", "RUF003"]
 "tools/lint_voice_meme.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #83 T3: findings/docstrings quote the live Chinese outline/truth
+# vocabulary (卷纲节点清单/还账进度表 anchors) — data, not drift.
+"tools/lint_outline_truth_drift.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #70 release-split: scene word list + fullwidth predicate chars are the
 # data, not drift (same category as lint_truth_pool).
 "tools/release_split.py" = ["RUF001", "RUF002", "RUF003"]
