@@ -45,7 +45,16 @@ ch37-38 内即付（认罚/摊封结局实写），不许继续悬空。
 
 ## 每束收尾固定动作
 
-1. **章头形态断言**（仓库根执行；只核已生成章）：`for f in novel-xinghuo-vol1/chapters/chapter-*.md; do n=$(basename $f .md); [ ${n#chapter-} -lt 37 ] && continue; echo "$f $(grep -cE '^# 第[0-9]+章$' $f) $(grep -cE '^# Chapter [0-9]+:' $f)"; done` → 每行 `1 0`（唯一性：恰一行章号行；重复插入不过闸）；
+1. **章头形态断言**（仓库根执行；只核已生成章、排 -pre-rev 备份）：
+   ```bash
+   for f in novel-xinghuo-vol1/chapters/chapter-*.md; do
+     case "$f" in *pre-rev*) continue;; esac
+     n=$(basename "$f" .md); n=${n#chapter-}
+     [ "$n" -lt 37 ] && continue
+     echo "$f $(grep -cE '^# 第[0-9]+章$' "$f") $(grep -cE '^# Chapter [0-9]+:' "$f")"
+   done
+   ```
+   → 每行 `1 0`（唯一性：恰一行章号行；重复插入不过闸）；
 2. 三件套逐章全量核（上节）；
 3. 断供钩清偿表对表推进；
 4. **shadow 促转留痕**：`uv run python tools/lint_shadow_promotion.py novel-xinghuo-vol1 --ledger novel-xinghuo-vol1/vol1-ledger.md` 每束跑一次（「连续 2 束 WARN 零误伤」判定依赖逐束留痕，台账逐束记一行）；
