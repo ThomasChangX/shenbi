@@ -946,6 +946,101 @@ def test_ensure_chapter_header_idempotent_when_present() -> None:
     assert ensure_chapter_header(body, 7) == body
 
 
+# --- spec #84 §0: chapter_header_style 参数化（two_line_zh 形态） ---
+
+
+def test_chapter_header_style_default_english_on_missing_config(tmp_path: Path) -> None:
+    from shenbi.pipeline.dispatch_helper import _chapter_header_style
+
+    assert _chapter_header_style(tmp_path) == "english"
+
+
+def test_chapter_header_style_two_line_zh(tmp_path: Path) -> None:
+    from shenbi.pipeline.dispatch_helper import _chapter_header_style
+
+    (tmp_path / "genre-config.json").write_text(
+        '{"chapter_word": {"chapter_header_style": "two_line_zh"}}', encoding="utf-8"
+    )
+    assert _chapter_header_style(tmp_path) == "two_line_zh"
+
+
+def test_chapter_header_style_invalid_value_falls_back(tmp_path: Path) -> None:
+    from shenbi.pipeline.dispatch_helper import _chapter_header_style
+
+    (tmp_path / "genre-config.json").write_text(
+        '{"chapter_word": {"chapter_header_style": "bogus"}}', encoding="utf-8"
+    )
+    assert _chapter_header_style(tmp_path) == "english"
+
+
+def test_ensure_chapter_header_zh_meta_first_insert() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    content = (
+        "<!--META-BEGIN-->\n## PRE_WRITE_CHECK\n\n- x\n<!--META-END-->\n\n旧残头行\n\n正文首句。"
+    )
+    out = ensure_chapter_header(content, 37, style="two_line_zh")
+    assert "# 第37章\n" in out
+    assert out.index("<!--META-END-->") < out.index("# 第37章") < out.index("旧残头行")
+
+
+def test_ensure_chapter_header_zh_zero_action_header_after_end() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    content = "<!--META-BEGIN-->\n- x\n<!--META-END-->\n\n# 第1章\n\n# 雪夜账房\n\n正文。"
+    assert ensure_chapter_header(content, 1, style="two_line_zh") == content
+
+
+def test_ensure_chapter_header_zh_bare_end_with_tail_paired_block_zero_action() -> None:
+    """ch17/18 form: bare END at head (no paired BEGIN) + tail paired POST block.
+
+    Criterion must use the FIRST literal META-END (spec #84 r7): a paired
+    META_BLOCK_RE would resolve the region to the tail block and insert a
+    duplicate chapter line after it.
+    """
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    content = (
+        "\n<!--META-END-->\n\n# 第17章\n\n# 章题\n\n正文。\n\n"
+        "<!--META-BEGIN-->\n- post\n<!--META-END-->\n"
+    )
+    assert ensure_chapter_header(content, 17, style="two_line_zh") == content
+
+
+def test_ensure_chapter_header_zh_no_marker_inserts_at_head() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    content = "\n# 第11章\n\n正文。"  # 章头已在：零动作
+    assert ensure_chapter_header(content, 11, style="two_line_zh") == content
+    out = ensure_chapter_header("正文无头。", 11, style="two_line_zh")
+    assert out == "# 第11章\n\n正文无头。"
+
+
+def test_ensure_chapter_header_zh_marker_at_eof_without_newline() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    content = "<!--META-BEGIN-->\n- x\n<!--META-END-->"
+    out = ensure_chapter_header(content, 3, style="two_line_zh")
+    assert out == "<!--META-BEGIN-->\n- x\n<!--META-END-->\n# 第3章\n"
+
+
+def test_ensure_chapter_header_zh_idempotent() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    once = ensure_chapter_header(
+        "<!--META-BEGIN-->\n- x\n<!--META-END-->\n\n正文。", 5, style="two_line_zh"
+    )
+    assert ensure_chapter_header(once, 5, style="two_line_zh") == once
+
+
+def test_ensure_chapter_header_english_default_unchanged() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    # F1301 回归：无 style 参数行为与旧版逐字一致
+    assert ensure_chapter_header("正文。", 5) == "# Chapter 5:\n\n正文。"
+    assert ensure_chapter_header("# Chapter 5:\n正文。", 5) == "# Chapter 5:\n正文。"
+
+
 def test_write_parsed_outputs_normalizes_chapter_header(tmp_path: Path) -> None:
     """Walk the real _write_parsed_outputs write path; headerless chapter-3.md gets normalized."""
     from shenbi.pipeline import dispatch_helper as dh

@@ -140,6 +140,7 @@ digraph genre_config {
     "min": 2800,
     "max": 4000,
     "fanqie_update": { "min": 1800, "max": 2800 },
+    "chapter_header_style": "english",
     "note": "每章目标字数（total_chars 口径，剥 SCENE 标记行）。#72 双平台：起点粒度原生生成（primary_platform=qidian，2800-4000 带，default=3200）；番茄发布层以场景为原子组更（fanqie_update 1800-2800，见 release_split v2）——1800 更下限为 #72 用户决策（旧检索的 2000 红线系 2200 单档时代口径，双平台决策取代）。这是章数数学的唯一基线：G0.3 用 ceil(target_word_count / default) 推章数；G2/G4 每章硬地板读 min、天花板读 max（#72 口径统一，大章概念退役——战役/审判大节拍由发布层场景组更承接）。从 novel.json 的 target_word_count 与 target_total_chapters（预算章数）共同推导，保量校验：default × 0.95 ≥ target/target_total_chapters（分母=预算章数；禁止卷间缓冲章等任何虚增章数充当分母——probe8 实测幽灵章教训）。"
   },
   "auditDimensions": {
@@ -331,7 +332,7 @@ cp genre-config.json genre-config.json.bak
 | customRules | array | 否 | 每项含 id/description/enforcement/example，enforcement ∈ {warning, blocking} |
 | approval | object | 是 | **REQUIRED**。含 reviewer/decision/date，decision ∈ {approved, rejected}。缺失即不合格 |
 
-**顶层字段**：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval——tropeInventory 为可选基线块而非必填）+ 4 可选（tropeInventory——每条 trope 必含 name/role/plan/signatures/rewrite_hint，块内必含 overuse_threshold 数值；chapter_word——章数数学/字数地板的同源基线块，见上文模板；primary_platform——#72 双平台发布层键 qidian|fanqie，缺省时消费方回退 v1 默认；market_params——#73 市场参数块：payoff_density（window∈[1,10]/min≥1）/hook_grading（max_consecutive_micro∈[1,3]）两键块在场必齐（spec #82 起 emotion_band 退役——死键，存量容忍新项目勿写；新增九键 spec #82：cold_streak_cap max∈[1,12]/hot_hook_floor window∈[1,50] min≥1/payoff_magnitude_floor window∈[1,50] min 小中大或数值/temperature_profile window∈[1,50] hot_ratio_min∈(0,1]/hook_max_age max∈[1,50]/hook_defer_budget per_volume∈[0,20]/hook_rotation·quote_anchor shadow 位/retention_anchor from_ch≥1 to_ch null 或 ≥from_ch——全部可选、shadow 默认 true 首束 WARN 试运行），voice_density_min/meme_quota 数值域随 #76 定档——顶层缺块合法（存量兼容），块内缺子键或越域 FAIL）。
+**顶层字段**：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval——tropeInventory 为可选基线块而非必填）+ 4 可选（tropeInventory——每条 trope 必含 name/role/plan/signatures/rewrite_hint，块内必含 overuse_threshold 数值；chapter_word——章数数学/字数地板的同源基线块，见上文模板；可选子键 chapter_header_style：english（缺省，z11 F1301 契约头形不变）|two_line_zh（spec #84——章文件两行式中文章头，dispatch_helper 注入器按首个字面 META-END 感知判据）；primary_platform——#72 双平台发布层键 qidian|fanqie，缺省时消费方回退 v1 默认；market_params——#73 市场参数块：payoff_density（window∈[1,10]/min≥1）/hook_grading（max_consecutive_micro∈[1,3]）两键块在场必齐（spec #82 起 emotion_band 退役——死键，存量容忍新项目勿写；新增九键 spec #82：cold_streak_cap max∈[1,12]/hot_hook_floor window∈[1,50] min≥1/payoff_magnitude_floor window∈[1,50] min 小中大或数值/temperature_profile window∈[1,50] hot_ratio_min∈(0,1]/hook_max_age max∈[1,50]/hook_defer_budget per_volume∈[0,20]/hook_rotation·quote_anchor shadow 位/retention_anchor from_ch≥1 to_ch null 或 ≥from_ch——全部可选、shadow 默认 true 首束 WARN 试运行），voice_density_min/meme_quota 数值域随 #76 定档——顶层缺块合法（存量兼容），块内缺子键或越域 FAIL）。
 
 ### 可自动检查的计数规则
 
