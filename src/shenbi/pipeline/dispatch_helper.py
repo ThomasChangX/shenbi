@@ -1859,6 +1859,8 @@ def _chapter_header_style(project_root: Path) -> str:
         cfg = json.loads((Path(project_root) / "genre-config.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return "english"
+    if not isinstance(cfg, dict):  # audit-T0 M1: valid JSON non-dict -> default
+        return "english"
     block = cfg.get("chapter_word")
     style = block.get("chapter_header_style", "english") if isinstance(block, dict) else "english"
     return style if style in {"english", "two_line_zh"} else "english"
