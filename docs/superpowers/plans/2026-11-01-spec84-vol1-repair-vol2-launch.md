@@ -74,6 +74,12 @@ def test_ensure_chapter_header_english_default_unchanged() -> None:
     # F1301 回归：无 style 参数行为与旧版逐字一致
     assert ensure_chapter_header("正文。", 5) == "# Chapter 5:\n\n正文。"
     assert ensure_chapter_header("# Chapter 5:\n正文。", 5) == "# Chapter 5:\n正文。"
+
+def test_ensure_chapter_header_zh_marker_at_eof_without_newline() -> None:
+    # 边界：META-END 恰在文件尾且无尾换行——region 不得回卷全文
+    content = "<!--META-BEGIN-->\n- x\n<!--META-END-->"
+    out = ensure_chapter_header(content, 3, style="two_line_zh")
+    assert out == "<!--META-BEGIN-->\n- x\n<!--META-END-->\n# 第3章\n"
 ```
 
 - [ ] **Step 2: 跑红**——`uv run pytest tests/unit/pipeline/test_dispatch_helper.py -q -k "zh or header_style"` → **7 failed**（TypeError/NameError；第 8 个 english_default 回归测试不匹配 -k、本来就过）
@@ -106,7 +112,10 @@ def _insert_zh_header(content: str, chapter_num: int) -> str:
         if _ZH_CHAPTER_LINE_RE.search(content):
             return content
         return f"# 第{chapter_num}章\n\n" + content
-    region_start = content.find("\n", marker) + 1
+    nl = content.find("\n", marker)
+    if nl == -1:  # END 行即文件尾（无尾换行）——region 为空，紧跟其后补行
+        return content + f"\n# 第{chapter_num}章\n"
+    region_start = nl + 1
     region = content[region_start:]
     if _ZH_CHAPTER_LINE_RE.search(region):
         return content
@@ -186,22 +195,22 @@ def _insert_zh_header(content: str, chapter_num: int) -> str:
 ### Task 5: T0-5..8 连续性四项（内容）
 
 - [ ] **Step 1: T0-5**——ch26:26「纸包里剩一百零三文，十文一摞，压得平。」→「纸包里剩一百一十三文…」（付工本前；:177 付后 103 不动）
-- [ ] **Step 2: T0-6（二择一已裁：入账方案）**——ch30:130-131 后补一句「桑伽给的三十文脚钱，他记在私账空栏」（账房腔，≤2 句）；余额链同步 ch31:282/ch32:268/ch35:139/ch36:173 四处「一百零三文」→「一百三十三文」；truth 镜像同步（current_state:49 页脚/character_matrix/particle_ledger 对应行——grep `一百零三文` 核 ch31 后各面）
+- [ ] **Step 2: T0-6（二择一已裁：入账方案）**——ch30:130-131 后补一句「桑伽给的三十文脚钱，他记在私账空栏」（账房腔，≤2 句）；余额链同步**五处正文**：ch30:144「余额一百零三文…剩四十三文」→ 133/七十三文（:145 派生句「四十三文，到不了蔗海」随改）＋ch31:282/ch32:268/ch35:139/ch36:173「一百零三文」→「一百三十三文」；**ch35:139 差数句改写**：「值一百一十五，剩一百零三，中间差的十二文，是这半年吃掉的」在 133 下推导断裂（133>115 方向翻转）——改写为与 133 自洽的账房自审（保留 G3.4 最强样本声口，差数语义重述执行时定）；truth 镜像同步点名：current_state:48（ch35 行页脚+差十二文短语）/:49（ch36 行页脚「一百零三文」）、character_matrix:755、particle_ledger 对应行、pending_hooks.md:116/:118 证据段引用行——兜底 grep `一百零三文` 核 **ch30 付脚钱后** 各面（ch1-29 历史行不动）
 - [ ] **Step 3: T0-7**——ch31:268 引述改与 :157-159 原话对齐（「粮借出去叫私放，粮烂在仓里叫折耗」→引述形复述「借出去是罪，烂在仓里是德」语义，引述人称语气保留）
 - [ ] **Step 4: T0-8**——ch33 开场（:20-40 区）加一句回收：墨管事三倍价做市=皮帽人收粮前奏（31/32/33 焊接；不展开、一句锚）
 - [ ] **Step 5: 台账** `### T0-5..8`
 
 ### Task 6: T0-9..11 收束三项（内容）
 
-- [ ] **Step 1: T0-9**——删 ch35:161「开春他要替她把一整张饼吃回来；这话他对谁都没说全过，今夜对着匣子说全了。」整句（饼之约留 ch36 独享首兑）；ch36:240 誓言后至 :270 约 27 行日常压缩至 ≤10 行（调三音 :246/数滴水 :254-256/剪灯花 :262 **合并成段保留**——ch36 正文须 ≥chapter_word.min 2800 字，删而不并会破下限）；末拍序列=誓言→南下第一步实写→卷二钩；**truth 镜像同步（r 轮勘误补）**：被删句在 truth/current_state.md:48 与 truth/character_matrix.md:755 逐字镜像——随删；压缩涉及的 ch35/36 摘要行（current_state:48-49/character_matrix:755/particle_ledger/prop_registry:17/relationships.md:51）逐面核对涉及处同步
-- [ ] **Step 2: T0-10（T0-9 压缩后 ch36 行号已漂移——按引文内容重锚，不按行号）**——「听说公司贸易船正在测绘新航道」二道转述改实写（**信源已裁：周二船工带信登门**——ch29:141 既有声口；含具体威胁指向「新航道废驿路→站籍饭碗」+ 一句画面（港口/船可见））；保留「船开在清明前」倒计时锚；**truth 镜像同步**：current_state.md:49 环境列「院里驿卒在院里喊『港口来了信』，公司贸易船正在测绘新航道」与周二船工信源矛盾——环境列随改
-- [ ] **Step 3: T0-9/T0-10 判据 grep**——`grep -rn "这话他对谁都没说全过" novel-xinghuo-vol1/chapters/ novel-xinghuo-vol1/truth/ | grep -v pre-rev` → 0；`grep -n "驿卒在院里喊" novel-xinghuo-vol1/truth/current_state.md` → 0
+- [ ] **Step 1: T0-9**——删 ch35:161「开春他要替她把一整张饼吃回来；这话他对谁都没说全过，今夜对着匣子说全了。」整句（饼之约留 ch36 独享首兑）；ch36:240 誓言后至 :270 约 27 行日常压缩至 ≤10 行（调三音 :246/数滴水 :254-256/剪灯花 :262 **合并成段保留**——ch36 正文须 ≥chapter_word.min 2800 字，删而不并会破下限）；末拍序列=誓言→南下第一步实写→卷二钩；**truth 镜像同步**：被删句逐字镜像 truth/current_state.md:48（随删）＋**truth/pending_hooks.md:71 春天之约钩证据段**（逐字引该句并断「L161 约定第一次说全」——非机械删：钩重裁=证据锚迁 ch36（首兑拍）、lifecycle 语义保留、裁定过程记台账）；truth/character_matrix.md:755 为压缩镜像（不含「这话他对谁都没说全过」从句）——压缩面随删；压缩涉及的 ch35/36 摘要行（current_state:48-49/character_matrix:755/particle_ledger/prop_registry:17/relationships.md:51）逐面核对涉及处同步
+- [ ] **Step 2: T0-10（T0-9 压缩后 ch36 行号已漂移——按引文内容重锚，不按行号）**——「听说公司贸易船正在测绘新航道」二道转述改实写（**信源已裁：周二船工带信登门**——ch29:141 既有声口；含具体威胁指向「新航道废驿路→站籍饭碗」+ 一句画面（港口/船可见））；保留「船开在清明前」倒计时锚；**truth 信源镜像同步四处**：current_state.md:49 环境列、truth/chapter_summaries.md:45（出场列「章末驿卒在院里喊了一声」＋钩列逐字引）、truth/arcs/arc-3.md:37（章末句）、truth/emotional_arcs.md:51（末拍「听驿卒喊」）——全部改周二船工带信登门
+- [ ] **Step 3: T0-9/T0-10 判据 grep**——`grep -rn "这话他对谁都没说全过" novel-xinghuo-vol1/chapters/ novel-xinghuo-vol1/truth/ | grep -v pre-rev` → 0；`grep -rn "港口来了信\|驿卒喊\|驿卒在喊" novel-xinghuo-vol1/truth/ | grep -v pre-rev` → 0（新信源措辞不复用驿卒短语；ch36 正文面按引文重锚核）
 - [ ] **Step 4: T0-11（二择一已裁：转卷二）**——ch35 清点段不加认罚行；罚单处置=卷二 ch37-38 内即付（Task 1 驱动 prompt 第 6 节已载）
 - [ ] **Step 5: 台账** `### T0-9..11`
 
 ### Task 7: T0-12/13 清扫批 + P2 外科批 + 档案卡登记（内容）
 
-- [ ] **Step 1: 清扫**——引号体例统一「」（弯引号残留章 grep `" ` 定位逐处换）；双结尾段去重（ch1:218-224/ch3:238-256/ch6:197-199 保留首拍删复述）；ch29:119 幽灵黑鸟行删+**chapters/chapter-29.md 的** PRE :19/POST :176/:177 声明同步（**PRE 锚一律指 chapters/ 章文件声明块，非 plans/ 目录**）；ch11 META 块（Task 4 已落则核）；**ch5/6（裸 PRE）/ch17/18（META-END 无 BEGIN）围栏不完整形态记台账备查行（spec T0-12 交付物）**；口癖「这笔我先记下」正文面 26→≤12（留关键拍：ch1 首记/ch24 复利课/ch36 誓言前等关键拍优先保留）；「…呢？」按两处逐字引文剔除后计数 14→≤4
+- [ ] **Step 1: 清扫**——引号体例统一「」（弯引号残留定位用 U+201C/U+201D 码点 `grep -n $'\u201c' chapters/chapter-N.md`——ASCII `"` 零命中会静默空转）；双结尾段去重（ch1:218-224/ch3:238-256/ch6:197-199 保留首拍删复述）；ch29:119 幽灵黑鸟行删+**chapters/chapter-29.md 的** PRE :19/POST :176/:177 声明同步（**PRE 锚一律指 chapters/ 章文件声明块，非 plans/ 目录**）；ch11 META 块（Task 4 已落则核）；**ch5/6（裸 PRE）/ch17/18（META-END 无 BEGIN）围栏不完整形态记台账备查行（spec T0-12 交付物）**；口癖「这笔我先记下」正文面 26→≤12（留关键拍：ch1 首记/ch24 复利课/ch36 誓言前等关键拍优先保留）；「…呢？」按两处逐字引文剔除后计数 14→≤4
 - [ ] **Step 2: P2 外科**——ch2:256 旁白预支「落款只有一句：此账必有还之日」改悬账收束不含誓言句；ch25:235「昨日」→「前日」+**chapters/chapter-25.md 的** PRE :19 锚记号修正（以行内 prose 尾注「同日清晨，同日回拨开篇」为准）；**chapters/chapter-32.md 的** PRE:8 钩声明「指向第 35 章」改指实际回收章或删（执行时核对小账本在 ch35/36 实况后定向）；timeline.md:26 ch23 行删「章末认出欠条之印与城破降表同印」尾注
 - [ ] **Step 3: 档案卡登记**——vol1-ledger T0 节注明「渡鸦局档案卡卷末彩蛋拆出 release-split 扩展子任务另立项（release_split 零附录槽位 r3 坐实）」＝该项落地
 - [ ] **Step 4: 计数断言**——`grep -c "这笔我先记下"`（正文面，G3.4 口径）≤12；「…呢？」剔除两引文后 ≤4；贴 progress.md
