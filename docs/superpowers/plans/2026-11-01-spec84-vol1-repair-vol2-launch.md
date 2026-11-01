@@ -76,7 +76,7 @@ def test_ensure_chapter_header_english_default_unchanged() -> None:
     assert ensure_chapter_header("# Chapter 5:\n正文。", 5) == "# Chapter 5:\n正文。"
 ```
 
-- [ ] **Step 2: 跑红**——`uv run pytest tests/unit/pipeline/test_dispatch_helper.py -q -k "zh or header_style"` → 8 failed（TypeError/NameError）
+- [ ] **Step 2: 跑红**——`uv run pytest tests/unit/pipeline/test_dispatch_helper.py -q -k "zh or header_style"` → **7 failed**（TypeError/NameError；第 8 个 english_default 回归测试不匹配 -k、本来就过）
 - [ ] **Step 3: 实现**（dispatch_helper.py，`ensure_chapter_header` 就地扩展）
 
 ```python
@@ -129,7 +129,7 @@ def _insert_zh_header(content: str, chapter_num: int) -> str:
 ```
 
 - [ ] **Step 4: 跑绿**——`uv run pytest tests/unit/pipeline/test_dispatch_helper.py -q`（含既有 :934/:942 两测试与 tests/pipeline/test_dispatch_helper_* 8 文件族全绿）
-- [ ] **Step 5: 契约同步**——skills/shenbi-genre-config/SKILL.md chapter_word 块描述处（:334 附近键集叙述）加一句：`chapter_word 可选子键 chapter_header_style：english（缺省，z11 F1301 契约头形不变）|two_line_zh（spec #84——章文件两行式中文章头，注入器按首个字面 META-END 感知判据）`；novel-xinghuo-vol1/genre-config.json chapter_word 块加 `"chapter_header_style": "two_line_zh"`
+- [ ] **Step 5: 契约同步（两处，防叙述与模板不一致）**——skills/shenbi-genre-config/SKILL.md ①:334 附近键集叙述加一句：`chapter_word 可选子键 chapter_header_style：english（缺省，z11 F1301 契约头形不变）|two_line_zh（spec #84——章文件两行式中文章头，注入器按首个字面 META-END 感知判据）`；②:138-144 chapter_word 模板范式加子键行（`"chapter_header_style": "english"` 缺省示例行＋注释）；novel-xinghuo-vol1/genre-config.json chapter_word 块加 `"chapter_header_style": "two_line_zh"`
 - [ ] **Step 6: 门禁**——`uv run pytest tests/unit/gates/test_g2_chapter_contract.py tests/unit/gates/test_chapter_contract_re.py -q` + `just check` exit 0
 - [ ] **Step 7: Commit**——`git add src/shenbi/pipeline/dispatch_helper.py tests/unit/pipeline/test_dispatch_helper.py skills/shenbi-genre-config/SKILL.md && git commit -m "feat: chapter_header_style 参数化——章头注入器 two_line_zh 形态（spec #84 §0 框架面适配）"`
 
@@ -193,15 +193,16 @@ def _insert_zh_header(content: str, chapter_num: int) -> str:
 
 ### Task 6: T0-9..11 收束三项（内容）
 
-- [ ] **Step 1: T0-9**——删 ch35:161「开春他要替她把一整张饼吃回来；这话他对谁都没说全过，今夜对着匣子说全了。」整句（饼之约留 ch36 独享首兑）；ch36:240 誓言后至 :270 约 27 行日常压缩至 ≤10 行（调三音 :246/数滴水 :254-256/剪灯花 :262 合并成段）；末拍序列=誓言→南下第一步实写→卷二钩
-- [ ] **Step 2: T0-10**——ch36:270「听说公司贸易船正在测绘新航道」二道转述改实写（**信源已裁：周二船工带信登门**——ch29:141 既有声口；含具体威胁指向「新航道废驿路→站籍饭碗」+ 一句画面（港口/船可见））；保留 :266「船开在清明前」倒计时锚
-- [ ] **Step 3: T0-11（二择一已裁：转卷二）**——ch35 清点段不加认罚行；罚单处置=卷二 ch37-38 内即付（Task 1 驱动 prompt 第 6 节已载）
-- [ ] **Step 4: 台账** `### T0-9..11`
+- [ ] **Step 1: T0-9**——删 ch35:161「开春他要替她把一整张饼吃回来；这话他对谁都没说全过，今夜对着匣子说全了。」整句（饼之约留 ch36 独享首兑）；ch36:240 誓言后至 :270 约 27 行日常压缩至 ≤10 行（调三音 :246/数滴水 :254-256/剪灯花 :262 **合并成段保留**——ch36 正文须 ≥chapter_word.min 2800 字，删而不并会破下限）；末拍序列=誓言→南下第一步实写→卷二钩；**truth 镜像同步（r 轮勘误补）**：被删句在 truth/current_state.md:48 与 truth/character_matrix.md:755 逐字镜像——随删；压缩涉及的 ch35/36 摘要行（current_state:48-49/character_matrix:755/particle_ledger/prop_registry:17/relationships.md:51）逐面核对涉及处同步
+- [ ] **Step 2: T0-10（T0-9 压缩后 ch36 行号已漂移——按引文内容重锚，不按行号）**——「听说公司贸易船正在测绘新航道」二道转述改实写（**信源已裁：周二船工带信登门**——ch29:141 既有声口；含具体威胁指向「新航道废驿路→站籍饭碗」+ 一句画面（港口/船可见））；保留「船开在清明前」倒计时锚；**truth 镜像同步**：current_state.md:49 环境列「院里驿卒在院里喊『港口来了信』，公司贸易船正在测绘新航道」与周二船工信源矛盾——环境列随改
+- [ ] **Step 3: T0-9/T0-10 判据 grep**——`grep -rn "这话他对谁都没说全过" novel-xinghuo-vol1/chapters/ novel-xinghuo-vol1/truth/ | grep -v pre-rev` → 0；`grep -n "驿卒在院里喊" novel-xinghuo-vol1/truth/current_state.md` → 0
+- [ ] **Step 4: T0-11（二择一已裁：转卷二）**——ch35 清点段不加认罚行；罚单处置=卷二 ch37-38 内即付（Task 1 驱动 prompt 第 6 节已载）
+- [ ] **Step 5: 台账** `### T0-9..11`
 
 ### Task 7: T0-12/13 清扫批 + P2 外科批 + 档案卡登记（内容）
 
-- [ ] **Step 1: 清扫**——引号体例统一「」（弯引号残留章 grep `" ` 定位逐处换）；双结尾段去重（ch1:218-224/ch3:238-256/ch6:197-199 保留首拍删复述）；ch29:119 幽灵黑鸟行删+PRE :19/POST :176/:177 声明同步；ch11 META 块（Task 4 已落则核）；口癖「这笔我先记下」正文面 26→≤12（留关键拍：ch1 首记/ch24 复利课/ch36 誓言前等关键拍优先保留）；「…呢？」按两处逐字引文剔除后计数 14→≤4
-- [ ] **Step 2: P2 外科**——ch2:256 旁白预支「落款只有一句：此账必有还之日」改悬账收束不含誓言句；ch25:235「昨日」→「前日」+PRE :19 锚记号修正（以行内 prose 尾注「同日清晨，同日回拨开篇」为准）；ch32 PRE:8 钩声明「指向第 35 章」改指实际回收章或删（执行时核对小账本在 ch35/36 实况后定向）；timeline.md:26 ch23 行删「章末认出欠条之印与城破降表同印」尾注
+- [ ] **Step 1: 清扫**——引号体例统一「」（弯引号残留章 grep `" ` 定位逐处换）；双结尾段去重（ch1:218-224/ch3:238-256/ch6:197-199 保留首拍删复述）；ch29:119 幽灵黑鸟行删+**chapters/chapter-29.md 的** PRE :19/POST :176/:177 声明同步（**PRE 锚一律指 chapters/ 章文件声明块，非 plans/ 目录**）；ch11 META 块（Task 4 已落则核）；**ch5/6（裸 PRE）/ch17/18（META-END 无 BEGIN）围栏不完整形态记台账备查行（spec T0-12 交付物）**；口癖「这笔我先记下」正文面 26→≤12（留关键拍：ch1 首记/ch24 复利课/ch36 誓言前等关键拍优先保留）；「…呢？」按两处逐字引文剔除后计数 14→≤4
+- [ ] **Step 2: P2 外科**——ch2:256 旁白预支「落款只有一句：此账必有还之日」改悬账收束不含誓言句；ch25:235「昨日」→「前日」+**chapters/chapter-25.md 的** PRE :19 锚记号修正（以行内 prose 尾注「同日清晨，同日回拨开篇」为准）；**chapters/chapter-32.md 的** PRE:8 钩声明「指向第 35 章」改指实际回收章或删（执行时核对小账本在 ch35/36 实况后定向）；timeline.md:26 ch23 行删「章末认出欠条之印与城破降表同印」尾注
 - [ ] **Step 3: 档案卡登记**——vol1-ledger T0 节注明「渡鸦局档案卡卷末彩蛋拆出 release-split 扩展子任务另立项（release_split 零附录槽位 r3 坐实）」＝该项落地
 - [ ] **Step 4: 计数断言**——`grep -c "这笔我先记下"`（正文面，G3.4 口径）≤12；「…呢？」剔除两引文后 ≤4；贴 progress.md
 - [ ] **Step 5: 台账** `### T0-12/13`
@@ -222,7 +223,7 @@ def _insert_zh_header(content: str, chapter_num: int) -> str:
 
 ### Task 10: ch37-44 实弹生产（生产 · **用户门：卷二启动属用户独立决策**）
 
-- [ ] **Step 1: 用户确认后启动**——`export SHENBI_LLM_API_KEY` → `nohup ./run_pipeline.sh novel-xinghuo-vol1 > /tmp/vol2-open-run.log 2>&1 & disown`（断点协议沿用）
+- [ ] **Step 1: 用户确认后启动**——前置一行可证伪检查（#82/#83 门在位）：`grep -c "hot_hook_floor" src/shenbi/gates/g4/chapter_planning.py` ≥1 且 `ls tools/lint_shadow_promotion.py` 存在；`export SHENBI_LLM_API_KEY` → `nohup ./run_pipeline.sh novel-xinghuo-vol1 > /tmp/vol2-open-run.log 2>&1 & disown`（断点协议沿用）
 - [ ] **Step 2: 逐束监控**——按 docs/regen-vol2-driver-prompt.md 执行（三件套逐束全量/裁决分级/断供钩清偿表推进/shadow 促转检查点每束跑 lint_shadow_promotion/章头断言每束收尾/修后章 -pre-rev diff 复核）
 - [ ] **Step 3: 收口验收（spec 验收 3）**——三件套全中+断供钩清偿表全勾（含笔迹链挂起行）+新门零误伤（促转记录在案）+ch37-44 章头断言
 - [ ] **Step 4: 台账卷二开卷节** + memory 断点「卷二开卷协议就位」
