@@ -82,7 +82,7 @@ def test_ensure_chapter_header_zh_marker_at_eof_without_newline() -> None:
     assert out == "<!--META-BEGIN-->\n- x\n<!--META-END-->\n# 第3章\n"
 ```
 
-- [ ] **Step 2: 跑红**——`uv run pytest tests/unit/pipeline/test_dispatch_helper.py -q -k "zh or header_style"` → **7 failed**（TypeError/NameError；第 8 个 english_default 回归测试不匹配 -k、本来就过）
+- [ ] **Step 2: 跑红**——`uv run pytest tests/unit/pipeline/test_dispatch_helper.py -q -k "zh or header_style"` → **8 failed**（9 个新测中 8 个匹配 -k：3 NameError+5 TypeError；第 9 个 english_default 回归测试不匹配 -k、本来就过）
 - [ ] **Step 3: 实现**（dispatch_helper.py，`ensure_chapter_header` 就地扩展）
 
 ```python
@@ -195,7 +195,7 @@ def _insert_zh_header(content: str, chapter_num: int) -> str:
 ### Task 5: T0-5..8 连续性四项（内容）
 
 - [ ] **Step 1: T0-5**——ch26:26「纸包里剩一百零三文，十文一摞，压得平。」→「纸包里剩一百一十三文…」（付工本前；:177 付后 103 不动）
-- [ ] **Step 2: T0-6（二择一已裁：入账方案）**——ch30:130-131 后补一句「桑伽给的三十文脚钱，他记在私账空栏」（账房腔，≤2 句）；余额链同步**五处正文**：ch30:144「余额一百零三文…剩四十三文」→ 133/七十三文（:145 派生句「四十三文，到不了蔗海」随改）＋ch31:282/ch32:268/ch35:139/ch36:173「一百零三文」→「一百三十三文」；**ch35:139 差数句改写**：「值一百一十五，剩一百零三，中间差的十二文，是这半年吃掉的」在 133 下推导断裂（133>115 方向翻转）——改写为与 133 自洽的账房自审（保留 G3.4 最强样本声口，差数语义重述执行时定，**禁机械换数**）；truth 镜像同步点名：current_state:48（ch35 行页脚+差十二文短语）/:49（ch36 行页脚「一百零三文」）、character_matrix:755、particle_ledger:134（ch30 行自算句）/:146/:151（ch35 行差十二文）**＋新增第 30 章脚钱收入行（+30 文）**、timeline:38（差十二文短句随重述）、subplot_board:112（payoff 列「四十三文到不了蔗海」）、arc-3:25（ch30 自算句）/:56（「后未再动」断言改述：补 ch30 脚钱入账至 133）/:76、pending_hooks.md:116/:118 证据段引用行；**decisions 侧车处置声明**：chapters/chapter-31-revision-decisions.json:139 引「余额一百零三文一文未动」系当时决策时点证词——历史记录保留不改，台账注记口径；**兜底 grep `一百零三文\|四十三文` 核 ch30 付脚钱后各面**（按章节行归属过滤：ch1-29 历史行含「一百四十三文」子串者不动）
+- [ ] **Step 2: T0-6（二择一已裁：入账方案）**——ch30:130-131 后补一句「桑伽给的三十文脚钱，他记在私账空栏」（账房腔，≤2 句）；余额链同步**五处正文**：ch30:144「余额一百零三文…剩四十三文」→ 133/七十三文（:145 派生句「四十三文，到不了蔗海」随改）＋ch31:282/ch32:268/ch35:139/ch36:173「一百零三文」→「一百三十三文」；**ch35:139 差数句改写**：「值一百一十五，剩一百零三，中间差的十二文，是这半年吃掉的」在 133 下推导断裂（133>115 方向翻转）——改写为与 133 自洽的账房自审（保留 G3.4 最强样本声口，差数语义重述执行时定，**禁机械换数**）；truth 镜像同步点名：current_state:48（ch35 行页脚+差十二文短语）/:49（ch36 行页脚「一百零三文」）、character_matrix:755、particle_ledger:134（ch30 行自算句）/:146/:151（ch35 行差十二文）**＋新增第 30 章脚钱收入行（+30 文）**、timeline:38（差十二文短句随重述）、subplot_board:112（payoff 列「四十三文到不了蔗海」）、arc-3:25（ch30 自算句）/:56（「后未再动」断言改述：补 ch30 脚钱入账至 133）/:76、pending_hooks.md:116/:118 证据段引用行；**decisions 侧车处置声明**：chapters/chapter-31-revision-decisions.json:139 引「余额一百零三文一文未动」系当时决策时点证词——历史记录保留不改，台账注记口径；**兜底收口断言（终态形式）**：修复后 `grep -rn "一百零三文\|四十三文" novel-xinghuo-vol1/chapters/ novel-xinghuo-vol1/truth/ | grep -v pre-rev` 残余**恰为 30 行且全部归属付脚钱前状态**（章属 ≤ch29 历史行含「一百四十三文」子串者、ch26:177/ch29:37 及 truth 对应 ch26/ch29 行、ch30:55 付点前行、两个 decisions 侧车时点证词）——残余清单贴台账；**出现任何归属付脚钱后（章属 ≥ch30 付点后状态）仍读 103/43 的行＝FAIL**（付脚钱后 truth 镜像面=点名清单 19 行+兜底发现的其余各面，全部须已改 133/73）
 - [ ] **Step 3: T0-7**——ch31:268 引述改与 :157-159 原话对齐（「粮借出去叫私放，粮烂在仓里叫折耗」→引述形复述「借出去是罪，烂在仓里是德」语义，引述人称语气保留）
 - [ ] **Step 4: T0-8**——ch33 开场（:20-40 区）加一句回收：墨管事三倍价做市=皮帽人收粮前奏（31/32/33 焊接；不展开、一句锚）
 - [ ] **Step 5: 台账** `### T0-5..8`
@@ -204,7 +204,7 @@ def _insert_zh_header(content: str, chapter_num: int) -> str:
 
 - [ ] **Step 1: T0-9**——删 ch35:161「开春他要替她把一整张饼吃回来；这话他对谁都没说全过，今夜对着匣子说全了。」整句（饼之约留 ch36 独享首兑）；ch36:240 誓言后至 :270 约 27 行日常压缩至 ≤10 行（调三音 :246/数滴水 :254-256/剪灯花 :262 **合并成段保留**——ch36 正文须 ≥chapter_word.min 2800 字，删而不并会破下限）；末拍序列=誓言→南下第一步实写→卷二钩；**truth 镜像同步**：被删句逐字镜像 truth/current_state.md:48（随删）＋**truth/pending_hooks.md:71 春天之约钩证据段**（逐字引该句并断「L161 约定第一次说全」——非机械删：钩重裁=证据锚迁 ch36（首兑拍）、lifecycle 语义保留、裁定过程记台账）；truth/character_matrix.md:755 为压缩镜像（不含「这话他对谁都没说全过」从句）——压缩面随删；压缩涉及的 ch35/36 摘要行（current_state:48-49/character_matrix:755/particle_ledger/prop_registry:17/relationships.md:51）逐面核对涉及处同步
 - [ ] **Step 2: T0-10（T0-9 压缩后 ch36 行号已漂移——按引文内容重锚，不按行号）**——「听说公司贸易船正在测绘新航道」二道转述改实写（**信源已裁：周二船工带信登门**——ch29:141 既有声口；含具体威胁指向「新航道废驿路→站籍饭碗」+ 一句画面（港口/船可见））；保留「船开在清明前」倒计时锚；**truth 信源镜像同步四处**：current_state.md:49 环境列、truth/chapter_summaries.md:45（出场列「章末驿卒在院里喊了一声」＋钩列逐字引）、truth/arcs/arc-3.md:37（章末句）、truth/emotional_arcs.md:51（末拍「听驿卒喊」）——全部改周二船工带信登门
-- [ ] **Step 3: T0-9/T0-10 判据 grep**——`grep -rn "这话他对谁都没说全过" novel-xinghuo-vol1/chapters/ novel-xinghuo-vol1/truth/ | grep -v pre-rev` → 0；`grep -rn "港口来了信\|驿卒喊\|驿卒在喊" novel-xinghuo-vol1/truth/ | grep -v pre-rev` → 0（新信源措辞不复用驿卒短语；ch36 正文面按引文重锚核）
+- [ ] **Step 3: T0-9/T0-10 判据 grep**——`grep -rn "这话他对谁都没说全过" novel-xinghuo-vol1/chapters/ novel-xinghuo-vol1/truth/ | grep -v pre-rev` → 0；`grep -rn "港口来了信\|驿卒喊\|驿卒在喊" novel-xinghuo-vol1/chapters/ novel-xinghuo-vol1/truth/ | grep -v pre-rev` → 0（chapters/ 面现盘仅 ch36:270 一处=重写对象，机械断言零误伤；新信源措辞不复用驿卒短语）
 - [ ] **Step 4: T0-11（二择一已裁：转卷二）**——ch35 清点段不加认罚行；罚单处置=卷二 ch37-38 内即付（Task 1 驱动 prompt 第 6 节已载）
 - [ ] **Step 5: 台账** `### T0-9..11`
 
