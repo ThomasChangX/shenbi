@@ -1,6 +1,6 @@
 # Spec #93 · 阈值权威化（threshold-authority）：对账 lint 读执法器、散文↔门分歧入 docs、小型契约漂移点清偿
 
-**日期**：2026-11-01（r2 修订 2026-11-02：**带宽常量当前不存在**须先提取；裕度声明改入 docs 不动 SKILL.md 散文——卷二开卷前 prompt 行为红线）｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2） ｜ **优先级**：🟠 P1
+**日期**：2026-11-01（r2 修订 2026-11-02：**带宽常量当前不存在**须先提取；裕度声明改入 docs 不动 SKILL.md 散文——**束4 验收后窗口**的 prompt 行为红线【r2.2 更正：原文「卷二开卷前」已过期，总序批次 A 在束4 后】；**r2.2 2026-11-02 全量对抗式审计修订**——T1b 判定式改包含（原相交仍放行带内漂移）、T1c `--strict` 实际不存在须新写、T5 parser 归属更正（escalation_bridge/confidence_calibration，非 compute_drift））｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.2） ｜ **优先级**：🟠 P1
 **动机证据**：architecture-review-20261101 #9/#26 卡；亲验：`pacing_design.py:52-56` 的 `15 <= const <= 40` 是 **pydantic validator 内联字面量**（无常量可读）；`threshold_allowlist.json` 4 条 entry 各带手拷 `bounds: [15,40]`；SKILL.md 转折词 1/3000 ×5 处 vs 门执行 1/1000（chapter_drafting.py:732/:754）
 
 **触及的不变量维度**：情绪节奏（弱关联——pacing 域阈值声明单源化，不新增门检）
@@ -9,7 +9,7 @@
 
 ## 0. 根因
 
-**对账器结构上抓不住它存在的目的**：lint_threshold_reconciliation 自认「parsing checker constants is out of scope」（:26-28）且「always exits 0 (WARN-only)」（:99）——比较 SKILL.md ↔ allowlist JSON，而 allowlist 的 bounds 是**第三份手拷**（4 条 entry × [15,40]）；真执法器只验文件存在。改 checker 为 [18,45]：无红无 WARN——进了 `just check` 却无条件放行。
+**对账器结构上抓不住它存在的目的**：lint_threshold_reconciliation 自认「parsing checker constants is out of scope」（**r2.2 行号更正：:5-8 与 :36-38，原 :26-28 是空行+`def _scan_entry`**）且「always exits 0 (WARN-only)」（:99）——比较 SKILL.md ↔ allowlist JSON，而 allowlist 的 bounds 是**第三份手拷**（4 条 entry × [15,40]）；真执法器只验文件存在。改 checker 为 [18,45]：无红无 WARN——进了 `just check` 却无条件放行。
 
 **r2 事实校正**：执法器当前**没有可读常量**（内联字面量），故「lint import 读常量」的前提需先补一步（T1a 提取常量）。另：SKILL 的「目标比值（按卷型）」四档（15-25/30-40/15-25/15-25）落在硬失败带 [15,40] 内——allowlist 4 条 bounds 相同**是设计而非漂移**，本 spec 不指控其为复写错误，只去掉「bounds 作为第三源」。
 
@@ -19,8 +19,8 @@
 
 ### T1 · 对账器读执法器（含前置常量提取）
 - **T1a**：`contracts/skills/pacing_design.py` 提取 `CONSTELLATION_HARD_BAND: tuple[int,int] = (15, 40)`，validator 改用它（行为零变化，红测：现值通过/越界失败照旧）；
-- **T1b**：lint_threshold_reconciliation 改 `import` 该模块读常量（tools 可 import src——facts_backfill.py:27-30 先例）；**删 allowlist 的 `bounds` 字段**（deletion test：删之严格增收信息保真）；
-- **T1c**：`--strict` 翻转进 `just check`（WARN-only 历史 → FAIL）；
+- **T1b**：lint_threshold_reconciliation 改 `import` 该模块读常量（tools 可 import src——facts_backfill.py:27-30 先例）；**删 allowlist 的 `bounds` 字段**（deletion test：删之严格增收信息保真）；**r2.2 关键**：判定式 `d_hi < lo or d_lo > hi` 是**相交**而非包含——SKILL 写 `10-20` 与硬带 [15,40] 相交即放行；同批改包含式 **`d_lo >= lo and d_hi <= hi`**，否则只是把第三源换成第二源，结构性漏检照旧；
+- **T1c**：**r2.2：`--strict` 当前不存在**（对照 lint_key_reconciliation 的 `--strict` 在 justfile:33）——须新写 strict 模式并接线进 `just check`；实跑现状无输出、exit 0（四档 15-25/30-40/15-25/15-25 全在带内），翻转后**不会立刻红**，红测须注入越界值；
 - 红测：临时改常量为 (18,45) → lint 红（回滚）。
 
 ### T2 · 裕度决策成文（**docs only**）
@@ -29,15 +29,18 @@
 - **不改任何 SKILL.md 指令散文**（豁免：纯注释性 docs）；若用户裁定应把散文也对齐，另立内容批（属 prompt 变更，走 #84 窗口）。
 
 ### T3 · pricing 模型契约 import 化
-`cost/pricing.py:8-29` 与 `dispatch_helper.py:97-103` 的 env 名 + 默认模型双源（注释互指「MUST match」）→ 常量单源（落 `shenbi/config/` 中性叶，cost 与 pipeline 双向 import 均可；或 dispatch_helper 从 pricing import 一次倒置——plan 择一，判据=无环）。
-**判据**：`grep -rn "MUST match\|must match shenbi.pipeline" src/shenbi/cost/ src/shenbi/pipeline/dispatch_helper.py` 零（注释互指消除）。
+`cost/pricing.py:8-29` 与 `dispatch_helper.py:97-103` 的 env 名 + 默认模型双源（**r2.2 更正：实际是 pricing→dispatch_helper 单向指针，不是互指**）→ 常量单源（落 `shenbi/config/` 中性叶，cost 与 pipeline 双向 import 均可；或 dispatch_helper 从 pricing import 一次倒置——plan 择一，判据=无环）。
+**判据（r2.2 更正）**：`grep -rn "must match shenbi.pipeline.dispatch_helper" src/shenbi/cost/` = 0（注释消除后；现串为**小写** `must match`——pricing.py:26，大写 `MUST match` 实测 0 命中）；宽式 `must match` 另有 dispatch_helper.py:1138/3049 两处无关文案，须白名单。
 
 ### T4 · executor 派生集缓存失效
 `executor.py:32-59` `_truth_files_cache`/`_decisions_files_cache` 进程期冻结，与 loader.load_registry 的 mtime 键缓存契约（loader.py:166-197）相悖——长生命周期进程中途编辑 truth-files.yaml 时契约验新值而 file_type 派生用旧值。改：派生集按同一 stat 键失效（或每 dispatch 调 bootstrap_registry——C28 后已缓存）。
 **红测**：改 truth-files.yaml 后同进程再派发，file_type 集已刷新。
 
-### T5 · trend 表列契约单源
-`chapter_loop.py:2690-2721`（writer，docstring 自认 "requires >=7 cells and reads cells[6]"）与 `skill_utils/drift_detection/compute_drift.py:164`（parser）异包 wire 靠 docstring 同步 → 共享 `TREND_COLUMNS` 常量（落 compute_drift，chapter_loop import）+ 往返 property 测试（writer→parser 列位不变；红测：重排列序断言 parser 读出对应字段）。
+### T5 · trend 表列契约单源（**r2.2 重写：三个位置消费者**）
+- **writer**：`chapter_loop.py:2691-2719`（docstring 自认 "requires >=7 cells and reads cells[6]"）；
+- **位置解析者（真 cells[6]）**：`orchestration/escalation_bridge.py:15-19`（`len(cells)>=7`、`float(cells[6])`）——r2 误指 `compute_drift.py:164`：`parse_trend` 是**表头名映射**（`col={name:i}`，越界跳过），无 cells[6]/无 >=7；
+- **第三处**：`pipeline/confidence_calibration.py:118/:129` `patch_markdown_table_cell(..., "chapter", 7, calibrated)` 硬编码 confidence=第 7 列。
+**处置**：共享 `TREND_COLUMNS`（含 `confidence`）常量——**落 `pipeline/_shared` 或 `orchestration/`，不落 compute_drift**（compute_drift 语义上不需要它，且将来 gate 用它会造成 gates→skill_utils 环）；writer/escalation_bridge/confidence_calibration 三处 import + writer docstring 改函数名引用；**往返 property 测试必须打 escalation_bridge**（writer→bridge 列位不变），对 compute_drift 测不出任何东西；红测：重排列序断言 bridge 读出对应字段。
 
 ## 2. 验收
 
