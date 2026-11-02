@@ -1,0 +1,2113 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-10-13-spec69-seed-content-flow/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>spec #69 seed 内容流恢复与传递性收尾 — Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="spec #69 seed 内容流恢复与传递性收尾 — Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-10-13-spec69-seed-content-flow.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-10-13-spec69-seed-content-flow/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="spec #69 seed 内容流恢复与传递性收尾 — Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-10-13-spec69-seed-content-flow.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-69-seed-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              spec #69 seed 内容流恢复与传递性收尾 — Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints（每 task 隐含包含）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-3-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec §3 → task → 可执行验证）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="验收覆盖表（spec §3 → task → 可执行验证）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-character-design-spec-t0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 注册表加法 + character-design 孤儿路径修正（spec T0）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-genesis-context-spec-t1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 五技能 genesis-context 接线（spec T1，主体）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-spec-t2-seed-spec-34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 配角可选节（spec T2）+ 丰富版 seed 软约束锚点（spec §3.4 前半）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-warnspec-t3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: 丢弃键 WARN（spec T3）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-g02-spec-t4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: G0.2 目标字数节锚定（spec T4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-f368-spec-t5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: F368 章节关闭清扫（spec T5）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-novelconfig-spec-t6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: NovelConfig 删除（spec T6）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-spec-t7-36" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: 文档收口（spec T7 + §3.6 挂账闭合）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-g5-delta-just-check-spec-3132" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: G5 delta 验收测试 + 终锁 + just check 收口（spec §3.1/§3.2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review 结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plan-1-2026-10-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已裁决偏离（Plan 审查轮 1 修复记录 · 2026-10-13）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-69-seed-implementation-plan">spec #69 seed 内容流恢复与传递性收尾 — Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking. <strong>本项目例外（SDD v6 leaf/infra 分流）</strong>：本 plan 全部 task 触及 infra 模块（pipeline/gates/contracts），由协调者亲自实现（不分派 implementer 子 agent）；每 task 完成后 fresh-context 审查子 agent 产出 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>（SDD 阶段 6 铁律，无 audit-T<N>.md 不得开始 T<N+1>）。</p>
+</blockquote>
+<p><strong>Goal:</strong> F886 断流根治——pipeline init 写出的 <code>genesis-context/*.md</code> seed 片段经契约 reads 通道接入五个 genesis 技能派发 prompt；顺带清偿孤儿 reads / 配角节 / 丢弃键 WARN / G0.2 节锚定 / F368 残余 / NovelConfig 死 schema / 4.3 六项裁决固化。</p>
+<p><strong>Architecture:</strong> 契约声明式接线（frontmatter <code>reads:</code> 声明具体片段路径 + <code>sync_contracts</code> 再生成 + SKILL 正文同步句），注册表 globs 段一行加法使具体路径过 loader <code>resolves()</code> 强制；框架代码改动 = seed_parser（T2/T3）+ g0（T4）+ chapter_loop（T5）三处小面 + cli.py 注释一处 + novel.py 删除（T6）。零新框架机制。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pydantic 契约层 / pytest（uv run 同构）/ structlog。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-10-13-spec69-seed-content-flow.md</code>（v2.4，commit 39801d3c）。§1/§2 钉死内容 plan 照抄不发明。</p>
+<h2 id="global-constraints-task">Global Constraints（每 task 隐含包含）</h2>
+<ul>
+<li>验证一律 <code>uv run</code>（与 CI <code>uv run --frozen</code> 同构）；系统 python 结果不算证据</li>
+<li><code>src/shenbi/</code> 禁 <code>print()</code>（structlog）；gate 检查器纯函数幂等；pathlib 文件 IO</li>
+<li>契约改动三联动：frontmatter + <code>uv run python -m shenbi.sync_contracts</code> 再生成 + SKILL 正文同步；生成物（deps.json/docs/framework//skills/ AUTO 段）随同 commit，禁手改生成物</li>
+<li><strong>触及 src/shenbi/ 任何文件的任务 commit 前跑 <code>bash tests/lock-tool-hashes.sh</code></strong>（R3 全树活锁；sync_contracts 不再锁此段）</li>
+<li>commit 走 pathspec 显式列文件（禁 <code>git add -A</code>），Conventional Commits</li>
+<li>G0.9：scenario 输入引用 <code>tests/fixtures/</code> 真实产物或测试内字面量（先例 <code>tests/unit/pipeline/conftest.py::sample_seed_content</code>；spec v2.1 消歧——本 plan 的丰富版 seed 一律测试内字面量，不落 tests/fixtures/）</li>
+<li>核心原则 8：全程禁真实 dispatch / pipeline 子命令取证；LLM 产物验收用离线组装测试表达（F947）</li>
+<li>无评分场景 → G3.4 独立评分不适用（本 plan 全部为确定性结构测试）</li>
+</ul>
+<h2 id="spec-3-task">验收覆盖表（spec §3 → task → 可执行验证）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>§3.1 <code>just check</code> 全绿</td>
+<td>T9</td>
+<td><code>just check</code> → EXIT=0</td>
+</tr>
+<tr>
+<td>§3.2 G5 delta 钉死</td>
+<td>T9</td>
+<td><code>uv run pytest tests/unit/gates/test_g5.py -k genesis_context -v</code>（新测试断言四对+spillover）+ <code>uv run python -c</code>（gate_G5 直跑，genesis 相 missing 键集合比对）</td>
+</tr>
+<tr>
+<td>§3.3 T0/T1 契约+组装测试</td>
+<td>T1/T2</td>
+<td><code>uv run pytest tests/pipeline/test_dispatch_reads_injection.py -v</code></td>
+</tr>
+<tr>
+<td>§3.3 T2 配角节</td>
+<td>T3</td>
+<td><code>uv run pytest tests/unit/pipeline/test_seed_parser.py -k "Supporting or RichSeed" -v</code>；<code>uv run pytest tests/unit/pipeline/test_e2e.py -k "supporting or rich_seed" -v</code>（两条分跑）</td>
+</tr>
+<tr>
+<td>§3.3 T3 丢弃键 WARN</td>
+<td>T4</td>
+<td><code>uv run pytest tests/unit/pipeline/test_seed_parser.py -k dropped -v</code></td>
+</tr>
+<tr>
+<td>§3.3 T4 G0.2 节锚定</td>
+<td>T5</td>
+<td><code>uv run pytest tests/unit/gates/test_g0.py -k "target_words or basic_info" -v</code></td>
+</tr>
+<tr>
+<td>§3.3 T5 两测</td>
+<td>T6</td>
+<td><code>uv run pytest tests/unit/pipeline/test_chapter_close_retry_sweep.py -v</code></td>
+</tr>
+<tr>
+<td>§3.3 T6 代码面 grep 零命中</td>
+<td>T7</td>
+<td><code>grep -r NovelConfig --include='*.py' src/ tests/ tools/</code> → 空输出</td>
+</tr>
+<tr>
+<td>§3.4 丰富版 seed fixture 化</td>
+<td>T3</td>
+<td><code>uv run pytest tests/unit/pipeline/test_seed_parser.py -k rich_seed -v</code>（十节合计 &lt;100K + 各节 &lt;32K 断言）</td>
+</tr>
+<tr>
+<td>§3.5 T7 验收（六项裁决齐全）</td>
+<td>T8</td>
+<td>spec §2 T7 对照检查（commit message 记录）+ <code>grep -n "4.3" docs/getting-started/first-novel.md</code>（预期空/无关）</td>
+</tr>
+<tr>
+<td>§3.6 挂账闭合</td>
+<td>T6/T8</td>
+<td>T6: c37-triage F368 行更新；T8: F886 行 + findings-ledger + cli.py 注释</td>
+</tr>
+<tr>
+<td>§3.7 顺序注记</td>
+<td>—（本 spec 交付后用户动作，plan 不含）</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-character-design-spec-t0">Task 1: 注册表加法 + character-design 孤儿路径修正（spec T0）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/framework/truth-files.yaml</code>（globs 段 +1 行；concepts 段 −2 行）
+- Modify: <code>skills/shenbi-character-design/SKILL.md:10-11</code>（frontmatter reads）+ 正文 44-45/105-106/201-203 + 权威序句
+- Test: <code>tests/pipeline/test_dispatch_reads_injection.py</code>（character-design 用例改 staging 路径）
+- Regen: <code>uv run python -m shenbi.sync_contracts</code>（AUTO 段 + deps.json + docs/framework/truth-files.index.json）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>genesis-context/chapter_outline.md</code>/<code>genesis-context/three_act.md</code> 成为 loader 可解析的合法 read 路径（globs 行）——Task 2 五技能接线复用该前提
+- Consumes: 无（先行件）</p>
+<p><strong>复杂度:</strong> infra（契约 + 注册表）· <strong>test_kind:</strong> tdd_red_green · <strong>层级:</strong> T1 单测（离线组装，F947）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>——<code>tests/pipeline/test_dispatch_reads_injection.py</code> 的 character-design 用例（:28-41）改为：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="p">(</span>
+        <span class="s2">&quot;shenbi-character-design&quot;</span><span class="p">,</span>  <span class="c1"># F809 — nested placement: the dispatcher&#39;s</span>
+        <span class="c1"># stdlib glob has no recursive=True, so `**` is single-level</span>
+        <span class="c1"># (characters/&lt;dir&gt;/*.md), matching characters/major/alice.md.</span>
+        <span class="c1"># spec #69 T0: outline/ orphan reads re-anchored to genesis-context/.</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;world/story_bible.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;world/rules.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;genesis-context/chapter_outline.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;genesis-context/three_act.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;characters/major/alice.md&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;genesis-context/chapter_outline.md&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/three_act.md&quot;</span><span class="p">,</span> <span class="s2">&quot;characters/major/alice.md&quot;</span><span class="p">],</span>
+        <span class="p">[],</span>
+    <span class="p">),</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/pipeline/test_dispatch_reads_injection.py -k "character-design" -v</code>
+Expected: FAIL（<code>expected input not injected: genesis-context/chapter_outline.md</code>——契约 reads 仍指 outline/ 旧路径；<code>-k</code> 用连字符形态匹配 parametrize id）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: 实施最小改动</strong></p>
+</li>
+<li>
+<p><code>docs/framework/truth-files.yaml</code> globs 段（:149 起的 <code>globs:</code> 列表）末尾加：</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="nv">genesis-context/*.md</span><span class="p p-Indicator">}</span><span class="w">  </span><span class="c1"># spec #69: seed fragments (concepts :91 twin; loader resolves + dag_key canonicalize)</span>
+</code></pre></div>
+<ol>
+<li>同文件 concepts 段删除两行（:103-104）：</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="nv">outline/chapter_outline.md</span><span class="p p-Indicator">,</span><span class="nt"> kind</span><span class="p">:</span><span class="w"> </span><span class="nv">outline</span><span class="p p-Indicator">,</span><span class="nt"> producer</span><span class="p">:</span><span class="w"> </span><span class="nv">skill</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="nv">outline/three_act.md</span><span class="p p-Indicator">,</span><span class="nt"> kind</span><span class="p">:</span><span class="w"> </span><span class="nv">outline</span><span class="p p-Indicator">,</span><span class="nt"> producer</span><span class="p">:</span><span class="w"> </span><span class="nv">skill</span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<p>（陈旧登记：producer: skill 但全仓零写方；T0 后零读者，保留转 R2 orphan-concept WARN）</p>
+<ol>
+<li><code>skills/shenbi-character-design/SKILL.md:10-11</code> frontmatter 两行改为：</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genesis-context/chapter_outline.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genesis-context/three_act.md</span>
+</code></pre></div>
+<ol>
+<li>
+<p>正文同步（4 处行带）：:44-45「No character explicitly named in <code>genesis-context/chapter_outline.md</code> or <code>genesis-context/three_act.md</code> may be omitted.」；:105-106「identified from <code>genesis-context/chapter_outline.md</code> and <code>genesis-context/three_act.md</code>」；:201/:203 两行 <code>outline/…</code> → <code>genesis-context/…</code>。（:35 Reads 摘要行在 AUTO-GENERATED 段内，Step 5 再生成自动覆盖，不入手改清单）</p>
+</li>
+<li>
+<p>正文 AUTO 段后加权威序句（spec §1）：</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="gs">**Seed 片段（genesis-context/）**</span>：<span class="sb">`genesis-context/chapter_outline.md`</span> 与 <span class="sb">`genesis-context/three_act.md`</span> 是人类伙伴 seed 原文（开篇章纲/三幕结构节）的逐字片段。权威序：上游 truth（story_bible/rules 等）&gt; seed 片段；冲突时以上游为准，若据此调整须在产出档案内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 再生成 + 全量相关测试</strong></li>
+</ul>
+<p>Run: <code>uv run python -m shenbi.sync_contracts &amp;&amp; uv run pytest tests/pipeline/test_dispatch_reads_injection.py tests/unit/contracts -q &amp;&amp; git diff --stat</code>
+Expected: 注入测试 PASS；contracts 面零回归；diff 含 SKILL.md AUTO 段 + deps.json + docs/framework/truth-files.index.json（两 concept 键消失）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit（pathspec + R3 无涉及——本 task 不触 src/shenbi/，锁面无漂移）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>docs/framework/truth-files.yaml<span class="w"> </span>skills/shenbi-character-design/SKILL.md<span class="w"> </span>tests/pipeline/test_dispatch_reads_injection.py<span class="w"> </span>docs/framework/truth-files.index.json<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span>docs/skills<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>docs/framework/truth-files.yaml<span class="w"> </span>skills/shenbi-character-design/SKILL.md<span class="w"> </span>tests/pipeline/test_dispatch_reads_injection.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(contracts): spec69 T0——character-design 孤儿 reads 锚定 genesis-context + 注册表 globs 加法&quot;</span>
+</code></pre></div>
+<p>（实际生成物路径以 Step 4 <code>git status</code> 为准逐一列名）</p>
+<hr />
+<h3 id="task-2-genesis-context-spec-t1">Task 2: 五技能 genesis-context 接线（spec T1，主体）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-worldbuilding/SKILL.md</code>、<code>skills/shenbi-story-architecture/SKILL.md</code>、<code>skills/shenbi-faction-builder/SKILL.md</code>、<code>skills/shenbi-volume-outlining/SKILL.md</code>（frontmatter reads + 正文句）
+- Test: <code>tests/pipeline/test_dispatch_reads_injection.py</code>（四技能新用例 + 契约声明断言 + 缺文件可选性测试）
+- Regen: <code>uv run python -m shenbi.sync_contracts</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 的 globs 行（loader resolves 前提）
+- Produces: 五技能 reads 含各自片段路径（T1 表映射，见各技能步骤）；后续 T3 在 character-design 追加 supporting</p>
+<p><strong>复杂度:</strong> infra（契约）· <strong>test_kind:</strong> tdd_red_green · <strong>层级:</strong> T1 单测（离线组装，F947）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>——<code>tests/pipeline/test_dispatch_reads_injection.py</code> 追加：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1">#: spec #69 T1: genesis-context fragments wired into the five genesis skills.</span>
+<span class="n">GENESIS_FRAGMENT_CASES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># (skill, staged fragment files, expected-injected subset)</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s2">&quot;genesis-context/world_rules.md&quot;</span><span class="p">,</span> <span class="s2">&quot;novel.json&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;genesis-context/world_rules.md&quot;</span><span class="p">],</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;shenbi-story-architecture&quot;</span><span class="p">,</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;genesis-context/three_act.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;genesis-context/plot_lines.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;genesis-context/surface_conflict.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;genesis-context/personal_conflict.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;genesis-context/deep_conflict.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;novel.json&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;genesis-context/three_act.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;genesis-context/plot_lines.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;genesis-context/surface_conflict.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;genesis-context/personal_conflict.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;genesis-context/deep_conflict.md&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;shenbi-faction-builder&quot;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s2">&quot;genesis-context/forces.md&quot;</span><span class="p">,</span> <span class="s2">&quot;novel.json&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;genesis-context/forces.md&quot;</span><span class="p">],</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;shenbi-volume-outlining&quot;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s2">&quot;genesis-context/chapter_outline.md&quot;</span><span class="p">,</span> <span class="s2">&quot;novel.json&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;genesis-context/chapter_outline.md&quot;</span><span class="p">],</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;skill,files,expected&quot;</span><span class="p">,</span> <span class="n">GENESIS_FRAGMENT_CASES</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_genesis_fragment_injected</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">files</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="n">rel</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">MARK</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">reads_manifest</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;genesis&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">: expected fragment not injected: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="c1"># spec §3.3 reads_manifest 面: injection is recorded (dispatch_helper</span>
+        <span class="c1"># 4th return; entries carry {&quot;path&quot;: key, &quot;mode&quot;: &quot;full&quot;, ...}).</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">key</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">reads_manifest</span><span class="p">),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> missing from reads_manifest&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
+    <span class="s2">&quot;skill,fragment&quot;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/world_rules.md&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shenbi-character-design&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/chapter_outline.md&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shenbi-character-design&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/three_act.md&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shenbi-story-architecture&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/three_act.md&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shenbi-story-architecture&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/plot_lines.md&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shenbi-story-architecture&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/surface_conflict.md&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shenbi-story-architecture&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/personal_conflict.md&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shenbi-story-architecture&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/deep_conflict.md&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shenbi-faction-builder&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/forces.md&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shenbi-volume-outlining&quot;</span><span class="p">,</span> <span class="s2">&quot;genesis-context/chapter_outline.md&quot;</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_genesis_fragment_declared</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">fragment</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec §3.3 T0/T1: contract-load face asserts the fragment path in reads.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_contract</span>
+
+    <span class="k">assert</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="n">load_contract</span><span class="p">(</span><span class="n">skill</span><span class="p">)[</span><span class="s2">&quot;reads&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_genesis_fragments_optional_legacy_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec §1 缺文件语义: no fragments staged (USER-mode legacy) -&gt; prompt</span>
+<span class="sd">    assembles fine, no fragment keys, no failure.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">skill</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-character-design&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-story-architecture&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-faction-builder&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-volume-outlining&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+            <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;genesis&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;genesis-context/&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_prompt</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/pipeline/test_dispatch_reads_injection.py -k "genesis_fragment or genesis_fragments" -v</code>
+Expected: FAIL（<code>expected fragment not injected</code> / <code>assert ... in reads</code> 不成立——尚未接线）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实施接线（四技能 frontmatter + 正文句）</strong></li>
+</ul>
+<p>frontmatter <code>reads:</code> 追加（保持既有顺序，片段插在 novel.json 后）：</p>
+<ul>
+<li>worldbuilding：<code>+ - genesis-context/world_rules.md</code></li>
+<li>story-architecture：<code>+ - genesis-context/three_act.md</code> <code>+ - genesis-context/plot_lines.md</code> <code>+ - genesis-context/surface_conflict.md</code> <code>+ - genesis-context/personal_conflict.md</code> <code>+ - genesis-context/deep_conflict.md</code></li>
+<li>faction-builder：<code>+ - genesis-context/forces.md</code></li>
+<li>volume-outlining：<code>+ - genesis-context/chapter_outline.md</code></li>
+</ul>
+<p>各技能 AUTO 段后加正文句（模板，<code>&lt;片段列&gt;</code> 按技能填）：</p>
+<div class="highlight"><pre><span></span><code><span class="gs">**Seed 片段（genesis-context/）**</span>：<span class="sb">`&lt;片段列&gt;`</span> 是人类伙伴 seed 原文的逐字片段（人类原始意向输入）。权威序：上游已产出 truth &gt; seed 片段；冲突时以上游为准，若据此调整须在本技能产出文件内以「seed 意向与 truth 冲突的处理记录」小节披露（含一句理由）。
+</code></pre></div>
+<p>volume-outlining 额外加一句（spec T7 卷数偏好裁决）：「章节大纲节散文中的卷数偏好为软约束；<code>outline/volume_map.md</code> 为结构权威。」</p>
+<ul>
+<li>[ ] <strong>Step 4: 再生成 + 测试</strong></li>
+</ul>
+<p>Run: <code>uv run python -m shenbi.sync_contracts &amp;&amp; uv run pytest tests/pipeline/test_dispatch_reads_injection.py -v &amp;&amp; uv run pytest tests/unit/contracts -q</code>
+Expected: 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-worldbuilding/SKILL.md<span class="w"> </span>skills/shenbi-story-architecture/SKILL.md<span class="w"> </span>skills/shenbi-faction-builder/SKILL.md<span class="w"> </span>skills/shenbi-volume-outlining/SKILL.md<span class="w"> </span>tests/pipeline/test_dispatch_reads_injection.py
+<span class="c1"># + 生成物（deps.json/docs/framework//docs/skills 以 git status 实况列名）</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(contracts): spec69 T1——genesis-context 片段接入五 genesis 技能 reads&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-spec-t2-seed-spec-34">Task 3: 配角可选节（spec T2）+ 丰富版 seed 软约束锚点（spec §3.4 前半）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/seed_parser.py:241</code>（genesis_context 字典加 supporting 键）
+- Modify: <code>skills/shenbi-character-design/SKILL.md</code>（reads + supporting + 正文「点名角色不可漏」扩句）
+- Test: <code>tests/unit/pipeline/test_seed_parser.py</code>（parse 面 + 丰富版锚点）、<code>tests/unit/pipeline/test_e2e.py</code>（init 写盘面）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1/2 的接线通道
+- Produces: <code>SeedData.genesis_context["supporting"]: str</code>（空串 = 节缺席）；<code>genesis-context/supporting.md</code> 写盘（值非空时）</p>
+<p><strong>复杂度:</strong> infra（pipeline 模块）· <strong>test_kind:</strong> tdd_red_green · <strong>层级:</strong> T1（test_e2e 的 init 用例为 T1 级 CLI 单测，非 T2 链）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<p><code>tests/unit/pipeline/test_seed_parser.py</code> 追加（沿用现有 tmp_path 写 seed 文件的风格）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestSupportingSection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #69 T2: 配角设定 optional section.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_supporting_section_parsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed.md&quot;</span>
+        <span class="n">seed</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# 书</span><span class="se">\n\n</span><span class="s2">## 基本信息</span><span class="se">\n</span><span class="s2">- 类型: 玄幻</span><span class="se">\n</span><span class="s2">- 目标字数: 1000000</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;## 配角设定</span><span class="se">\n</span><span class="s2">- 阿萱：女主挚友，药庐传人</span><span class="se">\n\n</span><span class="s2">## 主角设定</span><span class="se">\n</span><span class="s2">- 名字: 测试</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">parse_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;阿萱&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">genesis_context</span><span class="p">[</span><span class="s2">&quot;supporting&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_supporting_section_absent_defaults_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed.md&quot;</span>
+        <span class="n">seed</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# 书</span><span class="se">\n\n</span><span class="s2">## 基本信息</span><span class="se">\n</span><span class="s2">- 类型: 玄幻</span><span class="se">\n</span><span class="s2">- 目标字数: 1000000</span><span class="se">\n\n</span><span class="s2">## 主角设定</span><span class="se">\n</span><span class="s2">- 名字: 测试</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">parse_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="o">.</span><span class="n">genesis_context</span><span class="p">[</span><span class="s2">&quot;supporting&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestRichSeedSoftBounds</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec §3.4: 丰富软约束锚点——各节 &lt; 32K、十节合计 &lt; ~100K（字面量 seed，</span>
+<span class="sd">    G0.9 先例 conftest.sample_seed_content；不落 tests/fixtures/）。&quot;&quot;&quot;</span>
+
+    <span class="n">RICH_SECTIONS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;基本信息&quot;</span><span class="p">:</span> <span class="s2">&quot;- 类型: 玄幻</span><span class="se">\n</span><span class="s2">- 目标字数: 2000000</span><span class="se">\n</span><span class="s2">- 目标章节数: 600</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;主角设定&quot;</span><span class="p">:</span> <span class="s2">&quot;- 测试主角 &quot;</span> <span class="o">*</span> <span class="mi">200</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;配角设定&quot;</span><span class="p">:</span> <span class="s2">&quot;- 测试配角 &quot;</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;世界观设定&quot;</span><span class="p">:</span> <span class="s2">&quot;- 测试规则 &quot;</span> <span class="o">*</span> <span class="mi">400</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;势力/组织&quot;</span><span class="p">:</span> <span class="s2">&quot;- 测试势力 &quot;</span> <span class="o">*</span> <span class="mi">200</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;核心冲突&quot;</span><span class="p">:</span> <span class="s2">&quot;- 表层冲突: 测试</span><span class="se">\n</span><span class="s2">- 个人冲突: 测试</span><span class="se">\n</span><span class="s2">- 深层冲突: 测试</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;情节线&quot;</span><span class="p">:</span> <span class="s2">&quot;- 测试情节线 &quot;</span> <span class="o">*</span> <span class="mi">200</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;章节大纲&quot;</span><span class="p">:</span> <span class="s2">&quot;- 第1章 测试 &quot;</span> <span class="o">*</span> <span class="mi">200</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;三幕结构&quot;</span><span class="p">:</span> <span class="s2">&quot;- 第一幕 测试 &quot;</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;叙事技巧&quot;</span><span class="p">:</span> <span class="s2">&quot;- 展示讲述比: 0.6</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_rich_seed_within_soft_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;## </span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">RICH_SECTIONS</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed.md&quot;</span>
+        <span class="n">seed</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# 丰富测试书</span><span class="se">\n\n</span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">parse_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">fragments</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">genesis_context</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">}</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fragments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">10</span>  <span class="c1"># 十节全产出（含 supporting）</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">fragments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">32000</span><span class="p">,</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">fragments</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">100000</span>
+</code></pre></div>
+<p><code>tests/unit/pipeline/test_e2e.py</code> 的 init 用例后追加：</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">def</span><span class="w"> </span><span class="nf">test_init_writes_supporting_fragment</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">sample_seed_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;spec #69 T2: 配角设定节 -&gt; genesis-context/supporting.md 写盘；缺省不写。&quot;&quot;&quot;</span>
+        <span class="n">seed_file</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed.md&quot;</span>
+        <span class="n">with_supporting</span> <span class="o">=</span> <span class="n">sample_seed_content</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">## 配角设定</span><span class="se">\n</span><span class="s2">- 阿萱：女主挚友</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">seed_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">with_supporting</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;novel-a&quot;</span>
+        <span class="n">main</span><span class="p">([</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">seed_file</span><span class="p">),</span> <span class="s2">&quot;--project-dir&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)])</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;genesis-context&quot;</span> <span class="o">/</span> <span class="s2">&quot;supporting.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="s2">&quot;阿萱&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;genesis-context&quot;</span> <span class="o">/</span> <span class="s2">&quot;supporting.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">seed_file2</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed2.md&quot;</span>
+        <span class="n">seed_file2</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">sample_seed_content</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">project_dir2</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;novel-b&quot;</span>
+        <span class="n">main</span><span class="p">([</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">seed_file2</span><span class="p">),</span> <span class="s2">&quot;--project-dir&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir2</span><span class="p">)])</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">project_dir2</span> <span class="o">/</span> <span class="s2">&quot;genesis-context&quot;</span> <span class="o">/</span> <span class="s2">&quot;supporting.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_init_writes_all_fragments_from_rich_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;spec §3.4 后半: 丰富版 seed 经真实 init 写方断言十片段全部写盘</span>
+<span class="sd">        （测试内字面量，G0.9 先例 sample_seed_content；不落 tests/fixtures/）。&quot;&quot;&quot;</span>
+        <span class="n">sections</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;基本信息&quot;</span><span class="p">,</span> <span class="s2">&quot;- 类型: 玄幻</span><span class="se">\n</span><span class="s2">- 目标字数: 2000000</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;主角设定&quot;</span><span class="p">,</span> <span class="s2">&quot;- 测试主角 &quot;</span> <span class="o">*</span> <span class="mi">200</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;配角设定&quot;</span><span class="p">,</span> <span class="s2">&quot;- 测试配角 &quot;</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;世界观设定&quot;</span><span class="p">,</span> <span class="s2">&quot;- 测试规则 &quot;</span> <span class="o">*</span> <span class="mi">400</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;势力/组织&quot;</span><span class="p">,</span> <span class="s2">&quot;- 测试势力 &quot;</span> <span class="o">*</span> <span class="mi">200</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;核心冲突&quot;</span><span class="p">,</span> <span class="s2">&quot;- 表层冲突: 测试</span><span class="se">\n</span><span class="s2">- 个人冲突: 测试</span><span class="se">\n</span><span class="s2">- 深层冲突: 测试</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;情节线&quot;</span><span class="p">,</span> <span class="s2">&quot;- 测试情节线 &quot;</span> <span class="o">*</span> <span class="mi">200</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;章节大纲&quot;</span><span class="p">,</span> <span class="s2">&quot;- 第1章 测试 &quot;</span> <span class="o">*</span> <span class="mi">200</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;三幕结构&quot;</span><span class="p">,</span> <span class="s2">&quot;- 第一幕 测试 &quot;</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;叙事技巧&quot;</span><span class="p">,</span> <span class="s2">&quot;- 展示讲述比: 0.6</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;## </span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">)</span>
+        <span class="n">seed_file</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;rich-seed.md&quot;</span>
+        <span class="n">seed_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# 丰富测试书</span><span class="se">\n\n</span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;novel-rich&quot;</span>
+        <span class="n">main</span><span class="p">([</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">seed_file</span><span class="p">),</span> <span class="s2">&quot;--project-dir&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)])</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">&quot;protagonist&quot;</span><span class="p">,</span> <span class="s2">&quot;supporting&quot;</span><span class="p">,</span> <span class="s2">&quot;world_rules&quot;</span><span class="p">,</span> <span class="s2">&quot;forces&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;surface_conflict&quot;</span><span class="p">,</span> <span class="s2">&quot;personal_conflict&quot;</span><span class="p">,</span> <span class="s2">&quot;deep_conflict&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;plot_lines&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter_outline&quot;</span><span class="p">,</span> <span class="s2">&quot;three_act&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;genesis-context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="n">name</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_seed_parser.py -k "Supporting or RichSeed" -v &amp;&amp; uv run pytest tests/unit/pipeline/test_e2e.py -k "supporting or rich_seed" -v</code>
+Expected: FAIL（KeyError/无 supporting 键 / 9!=10 / 文件不存在——两命令分跑，<code>-k</code> 不跨文件共享）</p>
+<ul>
+<li>[ ] <strong>Step 3: 最小实现</strong></li>
+</ul>
+<p><code>seed_parser.py</code> genesis_context 字典（:232-242）<code>"three_act"</code> 行后加：</p>
+<div class="highlight"><pre><span></span><code>        <span class="s2">&quot;supporting&quot;</span><span class="p">:</span> <span class="n">_extract_section</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;Supporting Cast|配角设定|配角&quot;</span><span class="p">),</span>
+</code></pre></div>
+<p><code>skills/shenbi-character-design/SKILL.md</code>：frontmatter reads 在 <code>genesis-context/three_act.md</code> 后加 <code>- genesis-context/supporting.md</code>；正文「点名角色不可漏」两处（:44-45 句与 :201-203 清单）各扩 supporting 一句：「seed <code>配角设定</code>（<code>genesis-context/supporting.md</code>）点名的配角同理不可漏」；权威序句的片段列补 supporting。</p>
+<ul>
+<li>[ ] <strong>Step 4: 再生成 + 测试 + R3 再锁</strong></li>
+</ul>
+<p>Run: <code>uv run python -m shenbi.sync_contracts &amp;&amp; uv run pytest tests/unit/pipeline/test_seed_parser.py tests/unit/pipeline/test_e2e.py tests/pipeline/test_dispatch_reads_injection.py -q &amp;&amp; bash tests/lock-tool-hashes.sh</code>
+Expected: 全 PASS；deps.json <code>_tool_hashes</code> 的 seed_parser 条目更新</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/seed_parser.py<span class="w"> </span>skills/shenbi-character-design/SKILL.md<span class="w"> </span>tests/unit/pipeline/test_seed_parser.py<span class="w"> </span>tests/unit/pipeline/test_e2e.py<span class="w"> </span>tests/tiers/deps.json
+<span class="c1"># + 其余生成物按 git status 列名</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(pipeline): spec69 T2——配角可选节解析 + supporting 片段接线 + 丰富软约束锚点&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-warnspec-t3">Task 4: 丢弃键 WARN（spec T3）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/seed_parser.py</code>（Basic Info / Narrative 两解析循环各加 dropped 收集与一次汇总 WARN）
+- Test: <code>tests/unit/pipeline/test_seed_parser.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: structlog 事件 <code>seed_key_dropped</code>（字段 <code>section</code>/<code>keys</code>，一次汇总）</p>
+<p><strong>复杂度:</strong> infra · <strong>test_kind:</strong> tdd_red_green · <strong>层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestDroppedKeyWarning</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #69 T3: non-whitelist keys surface once via seed_key_dropped.</span>
+
+<span class="sd">    structlog binds stderr (PrintLoggerFactory(sys.stderr)) — caplog CANNOT</span>
+<span class="sd">    capture it; capsys must (precedent: tests/unit/pipeline/</span>
+<span class="sd">    test_dispatch_skill_write_audit.py:281-292, 明文「caplog 捕不到 structlog，</span>
+<span class="sd">    必须 capsys」).&quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_configure</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_logging</span>
+
+        <span class="n">configure_logging</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_basic_info_unknown_key_warns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">capsys</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configure</span><span class="p">()</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed.md&quot;</span>
+        <span class="n">seed</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# 书</span><span class="se">\n\n</span><span class="s2">## 基本信息</span><span class="se">\n</span><span class="s2">- 类型: 玄幻</span><span class="se">\n</span><span class="s2">- 目标字数: 1000000</span><span class="se">\n</span><span class="s2">- 灵感来源: 某剧</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parse_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span><span class="o">.</span><span class="n">err</span>
+        <span class="k">assert</span> <span class="n">err</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;seed_key_dropped&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># 一次汇总，不逐键刷屏</span>
+        <span class="k">assert</span> <span class="s2">&quot;灵感来源&quot;</span> <span class="ow">in</span> <span class="n">err</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_narrative_unknown_key_warns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">capsys</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configure</span><span class="p">()</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed.md&quot;</span>
+        <span class="n">seed</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# 书</span><span class="se">\n\n</span><span class="s2">## 基本信息</span><span class="se">\n</span><span class="s2">- 类型: 玄幻</span><span class="se">\n</span><span class="s2">- 目标字数: 1000000</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;## 叙事技巧</span><span class="se">\n</span><span class="s2">- 展示讲述比: 0.6</span><span class="se">\n</span><span class="s2">- 叙事人称: 第一人称</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parse_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span><span class="o">.</span><span class="n">err</span>
+        <span class="k">assert</span> <span class="n">err</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;seed_key_dropped&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="s2">&quot;叙事人称&quot;</span> <span class="ow">in</span> <span class="n">err</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_all_whitelisted_no_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">capsys</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configure</span><span class="p">()</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed.md&quot;</span>
+        <span class="n">seed</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# 书</span><span class="se">\n\n</span><span class="s2">## 基本信息</span><span class="se">\n</span><span class="s2">- 类型: 玄幻</span><span class="se">\n</span><span class="s2">- 目标字数: 1000000</span><span class="se">\n\n</span><span class="s2">## 叙事技巧</span><span class="se">\n</span><span class="s2">- 展示讲述比: 0.6</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parse_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;seed_key_dropped&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span><span class="o">.</span><span class="n">err</span>
+</code></pre></div>
+<p>（capsys + 测试内 <code>configure_logging()</code> 照抄 test_dispatch_skill_write_audit.py:279-293 先例——structlog PrintLoggerFactory 直写 stderr，caplog 结构性不可用）</p>
+<ul>
+<li>[ ] <strong>Step 2: 确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_seed_parser.py -k dropped -v</code> → FAIL（无事件）</p>
+<ul>
+<li>[ ] <strong>Step 3: 最小实现</strong></li>
+</ul>
+<p>Basic Info 循环（<code>parse_seed</code> 内）改为（Narrative 循环同构，section 名换）：</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">dropped_basic</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">_parse_list_items</span><span class="p">(</span><span class="n">basic</span><span class="p">):</span>
+        <span class="n">kv</span> <span class="o">=</span> <span class="n">_split_key_value</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">kv</span>
+        <span class="n">key_norm</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">key_norm</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;genre&quot;</span><span class="p">,</span> <span class="s2">&quot;类型&quot;</span><span class="p">,</span> <span class="s2">&quot;题材&quot;</span><span class="p">):</span>
+            <span class="o">...</span>
+        <span class="k">elif</span> <span class="o">...</span><span class="err">（</span><span class="n">既有分支不动</span><span class="err">）</span><span class="p">:</span>
+            <span class="o">...</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dropped_basic</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dropped_basic</span><span class="p">:</span>
+        <span class="c1"># spec #69 T3: surface silently-dropped seed keys once per section.</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;seed_key_dropped&quot;</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;Basic Info|基本信息&quot;</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">dropped_basic</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 测试 + R3 再锁</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_seed_parser.py -q &amp;&amp; bash tests/lock-tool-hashes.sh</code>
+Expected: 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/seed_parser.py<span class="w"> </span>tests/unit/pipeline/test_seed_parser.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(pipeline): spec69 T3——seed 非白名单键 seed_key_dropped WARN（每节一次汇总）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-g02-spec-t4">Task 5: G0.2 目标字数节锚定（spec T4）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g0.py:354-356</code>（G0.2 匹配域改为基本信息节优先）
+- Test: <code>tests/unit/gates/test_g0.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.pipeline.seed_parser._extract_section(text, section_name) -&gt; str</code>（函数内 lazy import，g6.py:70 先例同形）
+- Produces: G0.2 匹配域 = 基本信息节；节缺席回退全文（legacy 兼容）</p>
+<p><strong>复杂度:</strong> infra（gates）· <strong>test_kind:</strong> tdd_red_green · <strong>层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<p><code>tests/unit/gates/test_g0.py</code> 在 <code>TestG0ErrorPaths</code> 类（:137 起，<code>test_g02_*</code> 既有用例所在）之后新增 <code>TestG02</code> 类：</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.status</span><span class="w"> </span><span class="kn">import</span> <span class="n">GateStatus</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestG02</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #69 T4: G0.2 目标字数基本信息节锚定。&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_g02_takes_basic_info_value_over_earlier_decoy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;spec #69 T4: 正文他节先出现「目标字数：」时 G0.2 仍取基本信息节值。&quot;&quot;&quot;</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed.md&quot;</span>
+        <span class="n">seed</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# 书</span><span class="se">\n\n</span><span class="s2">## 世界观设定</span><span class="se">\n</span><span class="s2">本系列目标字数：500 字的短篇集设定。</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;## 基本信息</span><span class="se">\n</span><span class="s2">- 类型: 玄幻</span><span class="se">\n</span><span class="s2">- 目标字数: 1200000</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_result_dict</span><span class="p">(</span><span class="n">gate_G0</span><span class="p">(</span><span class="n">seed_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">)))</span>
+        <span class="n">g02</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G0.2&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">g02</span><span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">PASS</span>  <span class="c1"># StrEnum == JSON 串 &quot;PASS&quot;</span>
+        <span class="k">assert</span> <span class="n">g02</span><span class="p">[</span><span class="s2">&quot;target_words&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1200000</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_g02_falls_back_to_fulltext_when_section_absent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Legacy 兼容：基本信息节缺席时回退全文首匹配（现行行为保持）。&quot;&quot;&quot;</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed.md&quot;</span>
+        <span class="n">seed</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# 书</span><span class="se">\n\n</span><span class="s2">## 主角设定</span><span class="se">\n</span><span class="s2">- 目标字数：800000</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_result_dict</span><span class="p">(</span><span class="n">gate_G0</span><span class="p">(</span><span class="n">seed_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">)))</span>
+        <span class="n">g02</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G0.2&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">g02</span><span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">PASS</span>
+        <span class="k">assert</span> <span class="n">g02</span><span class="p">[</span><span class="s2">&quot;target_words&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">800000</span>
+</code></pre></div>
+<p>（<code>gate_G0(seed_file, round_dir) -&gt; str</code> 返回 JSON 字符串——用 test_g0.py:14-15 既有 <code>_result_dict</code>（json.loads）解包；<code>GateStatus</code> 已在代码块顶部 import，StrEnum 与 JSON 串比较成立）</p>
+<ul>
+<li>[ ] <strong>Step 2: 确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0.py -k "g02_takes_basic_info_value_over_earlier_decoy or g02_falls_back_to_fulltext_when_section_absent" -v</code>
+Expected: 第一测 FAIL（<code>assert 500 == 1200000</code>——G0.2 取到全文首匹配 500）；第二测 PASS（legacy 回退行为保持）</p>
+<ul>
+<li>[ ] <strong>Step 3: 最小实现</strong></li>
+</ul>
+<p><code>g0.py</code> G0.2 段改为：</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># G0.2 — target_words extraction (spec #69 T4: anchor to the Basic Info</span>
+    <span class="c1"># section first so prose elsewhere can&#39;t shadow the declared value;</span>
+    <span class="c1"># fall back to full text for section-less legacy seeds).</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.seed_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">_extract_section</span>
+
+    <span class="n">basic</span> <span class="o">=</span> <span class="n">_extract_section</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s2">&quot;Basic Info|基本信息&quot;</span><span class="p">)</span>
+    <span class="n">domain</span> <span class="o">=</span> <span class="n">basic</span> <span class="k">if</span> <span class="n">basic</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">else</span> <span class="n">content</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;目标字数[：:]\s*(\d+)&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="p">)</span>
+</code></pre></div>
+<p>（其后 fail/PASS 分支不动）</p>
+<ul>
+<li>[ ] <strong>Step 4: 测试（新 + 既有 G0.2 全组）+ R3 再锁</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0.py -v &amp;&amp; bash tests/lock-tool-hashes.sh</code>
+Expected: 全 PASS（既有 :29-66 用例零回归）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g0.py<span class="w"> </span>tests/unit/gates/test_g0.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(gates): spec69 T4——G0.2 目标字数基本信息节锚定（lazy import seed_parser）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-f368-spec-t5">Task 6: F368 章节关闭清扫（spec T5）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（<code>_complete_chapter</code> :1463 起加清扫）+ <code>docs/superpowers/audit-runs/2026-08-15/c37-triage.md:27</code>（F368 行注记）
+- Test: <code>tests/unit/pipeline/test_chapter_close_retry_sweep.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>state.chapter_loop.retry_feedback: dict[str, str]</code>（键形 <code>f"ch{chapter}-{skill}"</code>，:956-958）
+- Produces: 章节关闭时该章全部 retry_feedback 键清除（<code>_complete_chapter</code> 副作用——注意：此为既有状态推进函数内的既有模式，非 gate 检查器，幂等性约束不适用）</p>
+<p><strong>复杂度:</strong> infra（chapter_loop 状态机）· <strong>test_kind:</strong> regression_guard（成功即清已由 canary pop 落地并被 test_cli.py:1222/:1230 元测试钉住；本 task 为关闭时兜底清扫）· <strong>层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（<code>tests/unit/pipeline/test_chapter_close_retry_sweep.py</code> 新建，state 构造先例 <code>test_cost_report_auto.py:36-52</code>）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #69 T5 (F368 residual): chapter-close sweep of retry_feedback keys.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">chapter_loop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineState</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">retry_feedback</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="n">SimpleNamespace</span><span class="p">(</span>
+        <span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">),</span>
+        <span class="n">chapter_loop</span><span class="o">=</span><span class="n">SimpleNamespace</span><span class="p">(</span>
+            <span class="n">chapter_states</span><span class="o">=</span><span class="p">{},</span>
+            <span class="n">current_chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">step_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">current_step</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">per_chapter_review_enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">retry_feedback</span><span class="o">=</span><span class="n">retry_feedback</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.pipeline.product_contracts</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pc</span>
+
+    <span class="n">orig</span> <span class="o">=</span> <span class="n">pc</span><span class="o">.</span><span class="n">check_product_contracts</span>
+    <span class="n">pc</span><span class="o">.</span><span class="n">check_product_contracts</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">pd</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="p">(</span>
+            <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">chapter_loop</span><span class="p">,</span> <span class="s2">&quot;_check_world_file_freshness&quot;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+            <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">chapter_loop</span><span class="p">,</span> <span class="s2">&quot;_print_timing_summary&quot;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+            <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">chapter_loop</span><span class="p">,</span> <span class="s2">&quot;print_token_summary&quot;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">chapter_loop</span><span class="o">.</span><span class="n">_complete_chapter</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">PipelineState</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">pc</span><span class="o">.</span><span class="n">check_product_contracts</span> <span class="o">=</span> <span class="n">orig</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_chapter_close_clears_all_chapter_keys</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;失败→遗留（含 legacy 键形）→ 章节关闭 → 该章全部键消失。&quot;&quot;&quot;</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">_state</span><span class="p">(</span>
+        <span class="n">tmp_path</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;ch1-shenbi-review-resonance&quot;</span><span class="p">:</span> <span class="s2">&quot;fb&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ch1-shenbi-chapter-drafting&quot;</span><span class="p">:</span> <span class="s2">&quot;fb2&quot;</span><span class="p">,</span>  <span class="c1"># legacy 键形（:1197 同构）</span>
+            <span class="s2">&quot;ch10-shenbi-review-resonance&quot;</span><span class="p">:</span> <span class="s2">&quot;keep&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">_run</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;ch1-shenbi-review-resonance&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span>
+    <span class="k">assert</span> <span class="s2">&quot;ch1-shenbi-chapter-drafting&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_chapter_close_does_not_touch_other_chapters</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;dash 终结使 ch1- 前缀不误伤 ch10-*（spec §2 T5.1 安全性）。&quot;&quot;&quot;</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;ch10-shenbi-review-resonance&quot;</span><span class="p">:</span> <span class="s2">&quot;keep&quot;</span><span class="p">,</span> <span class="s2">&quot;ch2-x&quot;</span><span class="p">:</span> <span class="s2">&quot;keep2&quot;</span><span class="p">})</span>
+    <span class="n">_run</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;ch10-shenbi-review-resonance&quot;</span><span class="p">:</span> <span class="s2">&quot;keep&quot;</span><span class="p">,</span> <span class="s2">&quot;ch2-x&quot;</span><span class="p">:</span> <span class="s2">&quot;keep2&quot;</span><span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_chapter_close_retry_sweep.py -v</code> → 第一测 FAIL（键残留）</p>
+<ul>
+<li>[ ] <strong>Step 3: 最小实现</strong></li>
+</ul>
+<p><code>_complete_chapter</code> 内、<code>cs.status = ChapterStatus.COMPLETE</code> 之后加：</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># F368 residual (spec #69 T5): chapter-close sweep — a finished chapter&#39;s</span>
+    <span class="c1"># corrective feedback must not leak into later dispatch cycles. The dash</span>
+    <span class="c1"># terminator in _retry_key scopes the prefix (ch1- never matches ch10-).</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ch</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-&quot;</span>
+    <span class="k">for</span> <span class="n">stale</span> <span class="ow">in</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)]:</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">stale</span><span class="p">)</span>
+</code></pre></div>
+<p><code>docs/superpowers/audit-runs/2026-08-15/c37-triage.md:27</code> F368 行注记列追加：「成功即清已由 probe23 #18-4 与 canary pop 落地（chapter_loop.py:3276/:3477），残余=章节关闭清扫，随 spec #69 T5 closed」</p>
+<ul>
+<li>[ ] <strong>Step 4: 测试 + R3 再锁</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_chapter_close_retry_sweep.py tests/unit/pipeline/test_cost_report_auto.py -q &amp;&amp; bash tests/lock-tool-hashes.sh</code>
+Expected: 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_chapter_close_retry_sweep.py<span class="w"> </span>docs/superpowers/audit-runs/2026-08-15/c37-triage.md<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(pipeline): spec69 T5——F368 残余章节关闭清扫 + c37-triage 行更新&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-novelconfig-spec-t6">Task 7: NovelConfig 删除（spec T6）</h3>
+<p><strong>Files:</strong>
+- Delete: <code>src/shenbi/contracts/schemas/novel.py</code>
+- Regen: <code>uv run python -m shenbi.sync_contracts</code>（若 index/生成物涉及）</p>
+<p><strong>Interfaces:</strong> 无消费者（零导入者已验证：src/tests/tools 仅自身命中；schemas/<strong>init</strong> 无 re-export）</p>
+<p><strong>复杂度:</strong> infra（contracts）· <strong>test_kind:</strong> characterization（删除后全量回归确认零依赖）· <strong>层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 删除 + 验证</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>rm<span class="w"> </span>src/shenbi/contracts/schemas/novel.py
+grep<span class="w"> </span>-r<span class="w"> </span>NovelConfig<span class="w"> </span>--include<span class="o">=</span><span class="s1">&#39;*.py&#39;</span><span class="w"> </span>src/<span class="w"> </span>tests/<span class="w"> </span>tools/<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;exit=</span><span class="nv">$?</span><span class="s2">&quot;</span>
+</code></pre></div>
+Expected: grep 空输出 exit=1（spec §3.3 T6 验收面；docs/spec 历史引用不阻碍——append-only）</p>
+<ul>
+<li>[ ] <strong>Step 2: 全量回归</strong></li>
+</ul>
+<p>Run: <code>uv run python -m shenbi.sync_contracts &amp;&amp; uv run pytest tests/unit/contracts -q &amp;&amp; uv run pytest tests/ -q -x --ignore=tests/tiers 2&gt;/dev/null | tail -3</code>
+Expected: 零 ImportError / 零 NovelConfig 引用失败</p>
+<ul>
+<li>[ ] <strong>Step 3: R3 再锁 + Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>bash<span class="w"> </span>tests/lock-tool-hashes.sh<span class="w">   </span><span class="c1"># 死条目随 rglob 全量重写清除</span>
+git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/schemas/novel.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore(contracts): spec69 T6——删除零导入者 NovelConfig 死 schema（F240 执行）&quot;</span>
+</code></pre></div>
+<p>（<code>git rm</code> 已暂存删除；再锁后 deps.json 一并提交）</p>
+<hr />
+<h3 id="task-8-spec-t7-36">Task 8: 文档收口（spec T7 + §3.6 挂账闭合）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/audit-runs/2026-08-15/c37-triage.md:44</code>（F886 行 closed 注 spec #69）
+- Modify: <code>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md:571</code>（F886 行状态注 spec #69 执行）
+- Modify: <code>src/shenbi/pipeline/cli.py:834-837</code>（F886 注释改写）→ <strong>触发 R3 再锁</strong>
+- 核对: <code>docs/getting-started/first-novel.md</code>（预期空操作）</p>
+<p><strong>Interfaces:</strong> 无代码接口；纯文档 + 注释</p>
+<p><strong>复杂度:</strong> leaf（文档）· <strong>test_kind:</strong> 不适用（文档核对）· <strong>层级:</strong> —</p>
+<ul>
+<li>[ ] <strong>Step 1: 台账与注释</strong></li>
+</ul>
+<p>c37-triage F886 行状态列 <code>defer</code> → <code>closed (spec #69)</code>，注记列追加「seed 内容流恢复随 spec #69 落地（genesis 五技能 reads 接线）」；findings-ledger F886 行状态 cell 追加 <code>→ executed (spec #69)</code>。cli.py 注释块改为：</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># Persist each genesis section as its own prompt fragment. Since spec #69</span>
+    <span class="c1"># these are consumed: the five genesis skills declare the fragment paths</span>
+    <span class="c1"># in their contract reads (worldbuilding/character-design/</span>
+    <span class="c1"># story-architecture/faction-builder/volume-outlining) — see</span>
+    <span class="c1"># truth-files.yaml globs + skills/*/SKILL.md.</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: first-novel.md 核对</strong></li>
+</ul>
+<p>Run: <code>grep -n "4\.3\|疲劳词\|每章目标字数\|canon" docs/getting-started/first-novel.md</code>
+Expected: 无 4.3 失真表述（空或无关命中）——结果记入 commit message；T7 六项裁决权威记录 = spec §2 T7（随归档长期可查）</p>
+<ul>
+<li>[ ] <strong>Step 3: R3 再锁 + Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>bash<span class="w"> </span>tests/lock-tool-hashes.sh
+git<span class="w"> </span>add<span class="w"> </span>docs/superpowers/audit-runs/2026-08-15/c37-triage.md<span class="w"> </span>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md<span class="w"> </span>src/shenbi/pipeline/cli.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(spec): spec69 T7/挂账闭合——F886/F368 台账 closed + cli 注释改写 + first-novel 核对(空操作)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-9-g5-delta-just-check-spec-3132">Task 9: G5 delta 验收测试 + 终锁 + just check 收口（spec §3.1/§3.2）</h3>
+<p><strong>Files:</strong>
+- Test: <code>tests/unit/gates/test_g5.py</code>（追加 genesis-context delta 组）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.gates.g5.gate_G5(phase_name, round_dir, project_dir)</code>（gates/cli.py:197 调用形）+ <code>tests/tiers/deps.json</code> prereqs</p>
+<p><strong>复杂度:</strong> infra（gates 测试面）· <strong>test_kind:</strong> regression_guard（delta 钉死）· <strong>层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 delta 断言测试</strong>（追加到 test_g5.py；按该文件既有 gate_G5 调用形对齐）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">GENESIS_CTX_TARGET_PAIRS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="s2">&quot;shenbi-power-system&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-faction-builder&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;shenbi-location-builder&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-character-design&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;shenbi-relationship-map&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-story-architecture&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;shenbi-story-architecture&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-volume-outlining&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestGenesisContextDelta</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #69 §3.2: G5.2 delta 钉死——新 missing 键恰为 genesis-context/*.md，</span>
+<span class="sd">    genesis 相恰四对 + architecture 相 spillover 一对，无其他波及。pair 源 =</span>
+<span class="sd">    deps.json prerequisites（非 GENESIS_STEPS）。gate_G5 返回 JSON 串，</span>
+<span class="sd">    以 test_g5.py:14 同款 json.loads 解包。&quot;&quot;&quot;</span>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;phase,target_pairs&quot;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;genesis&quot;</span><span class="p">,</span> <span class="n">GENESIS_CTX_TARGET_PAIRS</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;architecture&quot;</span><span class="p">,</span> <span class="p">{(</span><span class="s2">&quot;shenbi-story-architecture&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-volume-outlining&quot;</span><span class="p">)}),</span>
+    <span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_delta_is_exactly_target_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">target_pairs</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">gate_G5</span><span class="p">(</span><span class="n">phase_name</span><span class="o">=</span><span class="n">phase</span><span class="p">,</span> <span class="n">round_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">))</span>
+        <span class="n">g52</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;G5.2&quot;</span><span class="p">]</span>
+        <span class="n">hit</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;pair&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">g52</span>
+            <span class="k">if</span> <span class="s2">&quot;genesis-context/*.md&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;missing&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="p">}</span>
+        <span class="k">assert</span> <span class="n">hit</span> <span class="o">==</span> <span class="n">target_pairs</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试</strong>（T1-T2 已落地，此为验收钉死——预期直接 PASS；若 FAIL 说明接线面与 delta 预测不符，回查）</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g5.py -k TestGenesisContextDelta -v</code>
+Expected: 接线落地后 PASS ×2；执行前（现状）RED——<code>hit == set()</code> ≠ target_pairs</p>
+<ul>
+<li>[ ] <strong>Step 2b: gate_G5 直跑取证（progress.md 验收证据用）</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import json, tempfile</span>
+<span class="s2">from shenbi.gates.g5 import gate_G5</span>
+<span class="s2">with tempfile.TemporaryDirectory() as td:</span>
+<span class="s2">    r = json.loads(gate_G5(phase_name=&#39;genesis&#39;, round_dir=None, project_dir=td))</span>
+<span class="s2">pairs = sorted(</span>
+<span class="s2">    c[&#39;pair&#39;] for c in r[&#39;checks&#39;]</span>
+<span class="s2">    if c.get(&#39;id&#39;) == &#39;G5.2&#39; and &#39;genesis-context/*.md&#39; in c.get(&#39;missing&#39;, [])</span>
+<span class="s2">)</span>
+<span class="s2">n_missing = sum(len(c.get(&#39;missing&#39;, [])) for c in r[&#39;checks&#39;] if c.get(&#39;id&#39;) == &#39;G5.2&#39;)</span>
+<span class="s2">print(&#39;genesis-context pairs:&#39;, pairs)</span>
+<span class="s2">print(&#39;genesis phase total missing keys:&#39;, n_missing)</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+Expected（接线后）：pairs 恰四对（power-system→faction-builder / location-builder→character-design / relationship-map→story-architecture / story-architecture→volume-outlining）；total missing = 30（baseline 26 + 4）</p>
+<ul>
+<li>[ ] <strong>Step 3: 终锁 + just check</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>bash<span class="w"> </span>tests/lock-tool-hashes.sh
+just<span class="w"> </span>check
+</code></pre></div>
+Expected: <code>All checks passed!</code> EXIT=0（含 G5/g5 测试、契约 lint、R3 面全绿）</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/gates/test_g5.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(gates): spec69 §3.2——G5.2 genesis-context delta 钉死（四对+spillover）&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review 结论</h2>
+<ol>
+<li><strong>Spec coverage</strong>：§2 T0→Task 1、T1→Task 2、T2→Task 3、T3→Task 4、T4→Task 5、T5→Task 6、T6→Task 7、T7+§3.6→Task 8、§3.1/§3.2→Task 9、§3.4 前半→Task 3（丰富锚点 + 十片段 init 写盘）、后半（人工探针）= 交付后用户动作不入 plan、§3.7 = 交付后动作。§1 全部机制约束（globs 加法/缺文件语义/权威序句/截断事实/R3 再锁）逐条落在对应 task。无缺口。</li>
+<li><strong>Placeholder scan</strong>：无 TBD/「适当处理」类占位；所有代码步骤给出实际代码。</li>
+<li><strong>Type consistency</strong>：<code>genesis_context["supporting"]</code>（Task 3 产 / Task 3 测消费）；<code>seed_key_dropped</code> 事件名 Task 4 产测一致；<code>_extract_section</code> 签名（Task 5 消费 = seed_parser 现签名）；retry 键形 Task 6 测试与 <code>_retry_key</code> 现实现一致；<code>_build_skill_prompt</code> 四元组第四位 = <code>reads_manifest</code>（Task 2 断言消费）。</li>
+</ol>
+<h2 id="plan-1-2026-10-13">已裁决偏离（Plan 审查轮 1 修复记录 · 2026-10-13）</h2>
+<ul>
+<li><strong>C1 修复</strong>：Task 4 测试机制从 caplog 改为 capsys + 测试内 <code>configure_logging()</code>（structlog PrintLoggerFactory 直写 stderr，caplog 结构性不可用——先例 test_dispatch_skill_write_audit.py:281-292；spec §3.3 T3 的「caplog 断言」措辞本身有误，plan 以代码级正确形态为准）</li>
+<li><strong>I1 修复</strong>：Task 5/9 测试经 <code>_result_dict</code>/<code>json.loads</code> 解包 gate 的 JSON 字符串返回（gate_G0 -&gt; str、gate_G5 -&gt; str）+ <code>GateStatus</code> 显式 import（StrEnum == JSON 串成立）</li>
+<li><strong>I2 修复</strong>：<code>-k</code> 选择器钉正（<code>character-design</code> 连字符形态 / <code>TestGenesisContextDelta</code> 类名 / 两测全名）</li>
+<li><strong>I3 修复</strong>：Task 2 注入测试补 reads_manifest 第四返回值断言（spec §3.3 三要素闭合）</li>
+<li><strong>M1 修复</strong>：Task 3 Step 2 双 <code>-k</code> 拆两条命令；<strong>M3 修复</strong>：Task 9 补 Step 2b gate_G5 直跑取证；<strong>M4 修复</strong>：Task 3 补 <code>test_init_writes_all_fragments_from_rich_seed</code>（十片段写盘）</li>
+<li><strong>M2 已裁决偏离（显式记录）</strong>：spec T5.3 字面两测（「失败→重试→成功→键消失；章节关闭→该章全部键消失」）中第一测的功能面由既有元测试 test_cli.py:1222/:1230（源码断言 <code>retry_feedback.pop</code> 在两站点）代理 + Task 6 关闭兜底清扫测试覆盖键生命周期闭合；理由：成功即清（probe23 #18-4/canary pop）已落地且被钉住，本 task 的增量是关闭清扫。<strong>M5 已裁决</strong>：rich_seed 各节 1-2K 远离 32K/100K 边界——锚点目的是「软约束可表达」非截断回归检测（截断在 dispatch 层，属 Task 2 组装测试面之外、交付后探针观测项）</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

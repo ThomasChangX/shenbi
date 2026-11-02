@@ -1,0 +1,1612 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-06-c30-chapter-loop-staging/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>C30 章循环状态机与 staging 生命周期修复 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="C30 章循环状态机与 staging 生命周期修复 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-06-c30-chapter-loop-staging.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-06-c30-chapter-loop-staging/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="C30 章循环状态机与 staging 生命周期修复 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-06-c30-chapter-loop-staging.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#c30-staging-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              C30 章循环状态机与 staging 生命周期修复 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-09-06-main-head" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        现状签名（从源码复制，2026-09-06 main HEAD）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="现状签名（从源码复制，2026-09-06 main HEAD）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-r1-staging-modify-discard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: R1 · staging 清理谓词 + 紧急清理保护 + MODIFY 显式 discard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-r2-resume" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: R2 · resume 游标锚定 + 步名版本化迁移
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-r3-clear_checkpoint-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: R3 · 装配触发后移 + 魔法索引推导化 + clear_checkpoint NONE 防御
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-r4-scr-pathsizemtime-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: R4 · SCR 缓存 (path,size,mtime) 失效 + state 完成校验降级
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-r5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: R5 · 审计波/触发器扇出中途保存点 + 回写
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec 验收 → task → 可执行验证）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="c30-staging-implementation-plan">C30 章循环状态机与 staging 生命周期修复 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 落地 spec #44（C30）修订后的 R1-R5：staging 清理谓词定稿、resume 游标锚定、步骤表去魔法索引/装配后移、SCR 缓存失效、审计波中途保存点。</p>
+<p><strong>Architecture:</strong> 全部为 infra task（涉及 <code>src/shenbi/pipeline/</code> 核心状态机、crash_recovery 锁协议、staging 提交路由），由协调者亲自实现（SDD 阶段 6 leaf/infra 分流规则）。谓词信源扩展 <code>checkpoint.py</code> 既有 <code>.staging-meta.json</code> 登记（不新建平行设施）；R1 叠加在 spec #37 one-shot latch/锁协议之上，不破坏其不变量。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+，pathlib/json/structlog，pytest（<code>uv run pytest</code>），gate CLI（<code>shenbi-validate</code>）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><code>src/shenbi/</code> 禁 <code>print()</code>（structlog）；文件 I/O 用 <code>pathlib.Path</code>；gate 检查器幂等纯函数。</li>
+<li>新状态/事件字面量以 <code>Literal</code> 定义于 <code>src/shenbi/contracts/enums.py</code>（<code>tools/lint_status_strings.py</code> 红即 Critical）。</li>
+<li>原子写经 <code>src/shenbi/safe_write.py</code>（<code>safe_write</code> 等设施）；atexit 路径不得盲取 <code>WriteLock</code>。</li>
+<li>fixtures 只能引用 <code>tests/fixtures/</code> 真实产物（G0.9）；崩溃注入用确定性故障 hook，非真实信号 kill。</li>
+<li>验证命令一律 <code>uv run pytest ...</code>（与 CI <code>uv run --frozen</code> 同构）。</li>
+<li>Conventional commits；每个 task commit 显式列文件路径（禁 <code>git add -A</code>）。</li>
+<li>Scope 裁决：T102/F1110/F305/F1153/F379 已在 main 修复，本 plan 不重复实现；F311 零消费面留 C37 裁决。</li>
+<li><strong>测试落点裁决（plan 审查 C1）</strong>：本仓无 <code>tests/integration/pipeline/</code> 目录——pipeline 集成测试既有惯例落点为 <code>tests/pipeline/</code>，spec 验证命令中的 <code>tests/integration/pipeline/</code> 一律映射为 <code>tests/pipeline/</code>；同理 spec 的 <code>tests/unit/pipeline/ -k steps_migration</code> 映射为 <code>tests/pipeline/test_resume_anchor.py -k migration</code>（均记 spec-deviations）。R1/R2/R5 的链路级用例（确定性崩溃注入）落在对应 task 的测试文件内，标记 T2 层级。spec R1 正文「经 <code>write_safety</code> 原子写」的设施实名 <code>src/shenbi/safe_write.py</code>（<code>safe_write</code>），随 T1 spec-deviations 记一行。</li>
+</ul>
+<h2 id="2026-09-06-main-head">现状签名（从源码复制，2026-09-06 main HEAD）</h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># checkpoint.py</span>
+<span class="n">STAGING_DIR</span> <span class="o">=</span> <span class="s2">&quot;staging&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">staging_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_staging_meta</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>   <span class="c1"># staging/.staging-meta.json</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">commit_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clear_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>                       <span class="c1"># :130，rmtree 整目录</span>
+
+<span class="c1"># crash_recovery.py（spec #37 协议已在此）</span>
+<span class="n">_cleanup_done</span><span class="p">:</span> <span class="nb">bool</span>                       <span class="c1"># one-shot latch</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_emergency_cleanup</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<span class="c1"># 步骤 4 现状：无条件 clear_staging(project_dir)（F318 根因）</span>
+
+<span class="c1"># machine.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clear_checkpoint</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">decision</span><span class="p">:</span> <span class="n">ReviewDecision</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>   <span class="c1"># :90，无 NONE 防御（F338）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_checkpoint</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">checkpoint_type</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">artifact</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+
+<span class="c1"># cli.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_commit_staging_for_checkpoint</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">cp</span><span class="p">:</span> <span class="n">CheckpointData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>   <span class="c1"># :363</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cmd_review</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>   <span class="c1"># MODIFY 块 :641-659：先 commit 再回退 step_index 重派（F323）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cmd_resume</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>   <span class="c1"># :791，checkpoint_history[-1] 猜测（F371）</span>
+
+<span class="c1"># chapter_loop.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChapterStep</span><span class="p">:</span>  <span class="c1"># step_num/skill/name/step_type/conditional/checkpoint/uses_staging/calls_context_assembly/is_audit/output_path</span>
+<span class="n">CHAPTER_STEPS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ChapterStep</span><span class="p">]</span>          <span class="c1"># :139；step-2 &quot;shenbi-chapter-planning&quot; calls_context_assembly=True（F358/T1602）</span>
+<span class="n">_FORESHADOWING_LIFECYCLE_IDX</span> <span class="o">=</span> <span class="mi">6</span>          <span class="c1"># :2299 字面量（F357）；_FIRST_AUDIT_IDX :291 为推导式先例</span>
+
+<span class="c1"># scr_extractor.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_scr</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StructuredChapterRepresentation</span>   <span class="c1"># :435，缓存无失效（F310）</span>
+
+<span class="c1"># state.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChapterLoopStateData</span><span class="p">:</span>   <span class="c1"># :184，含 current_chapter/current_step/step_index/chapter_states</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChapterState</span><span class="p">:</span> <span class="n">steps_done</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>   <span class="c1"># :141（F797 旧代步名）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_step_done</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>   <span class="c1"># state.py:222 线程安全追加（幂等）</span>
+
+<span class="c1"># parallel_dispatch.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dispatch_reviews_parallel</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>   <span class="c1"># :150，无中途保存点（F377）</span>
+
+<span class="c1"># enums.py</span>
+<span class="c1"># Literal 定义唯一信源：src/shenbi/contracts/enums.py</span>
+</code></pre></div>
+<hr />
+<h3 id="task-1-r1-staging-modify-discard">Task 1: R1 · staging 清理谓词 + 紧急清理保护 + MODIFY 显式 discard</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/checkpoint.py</code>
+- Modify: <code>src/shenbi/pipeline/crash_recovery.py:181-189</code>
+- Modify: <code>src/shenbi/pipeline/cli.py:636-659</code>
+- Modify: <code>src/shenbi/pipeline/machine.py</code>（Step 5 联动如触）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（Step 5 set_checkpoint 调用点标记）
+- Test: <code>tests/pipeline/test_staging_lifecycle.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces（后续 task 无消费方；对外行为变更）：
+  - <code>mark_staging_checkpointed(project_dir: Path, targets: list[str]) -&gt; None</code>（checkpoint.py 新增）
+  - <code>staging_checkpointed_targets(project_dir: Path) -&gt; set[str]</code>（checkpoint.py 新增）
+  - <code>clear_staging(project_dir: Path | str, *, preserve_checkpointed: bool = False) -&gt; None</code>（签名扩展，默认值保旧调用方兼容）
+  - <code>discard_staging(project_dir: Path, reason: str) -&gt; None</code>（checkpoint.py 新增，审计日志走 structlog <code>staging_discarded</code>）</p>
+<p><strong>复杂度:</strong> infra · <strong>test_kind:</strong> tdd_red_green · <strong>层级:</strong> T1（单元，fixture 驱动）+ 现有 <code>tests/pipeline/test_crash_recovery.py</code> 回归</p>
+<ul>
+<li>[x] <strong>Step 1: 写失败测试</strong>（<code>tests/pipeline/test_staging_lifecycle.py</code>，fixture 输入用 <code>tests/fixtures/chapter-plan-example.md</code> 复制构造 project_dir——产物为真实 skill 输出，符合 G0.9）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;C30 R1 staging lifecycle: checkpoint-preservation predicate + MODIFY discard.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.checkpoint</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">clear_staging</span><span class="p">,</span> <span class="n">commit_staging</span><span class="p">,</span> <span class="n">discard_staging</span><span class="p">,</span>
+    <span class="n">mark_staging_checkpointed</span><span class="p">,</span> <span class="n">staging_checkpointed_targets</span><span class="p">,</span> <span class="n">staging_path</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">plan</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;staging&quot;</span> <span class="o">/</span> <span class="s2">&quot;plans&quot;</span>
+    <span class="n">plan</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/chapter-plan-example.md&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">plan</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-plan.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;staging&quot;</span> <span class="o">/</span> <span class="s2">&quot;plans&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-plan-decisions.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/decisions/valid-chapter-decisions.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>   <span class="c1"># 真实 decisions 产物（G0.9），不手写</span>
+    <span class="k">return</span> <span class="n">tmp_path</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_uncheckpointed_staging_cleared_emergency</span><span class="p">(</span><span class="n">project</span><span class="p">):</span>
+    <span class="n">clear_staging</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">preserve_checkpointed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">staging_path</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="s2">&quot;plans/chapter-1-plan.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>   <span class="c1"># 从未进入 checkpoint → 清</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_checkpointed_staging_survives_emergency</span><span class="p">(</span><span class="n">project</span><span class="p">):</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;plans/chapter-1-plan.md&quot;</span><span class="p">,</span> <span class="s2">&quot;plans/chapter-1-plan-decisions.json&quot;</span><span class="p">]</span>
+    <span class="n">mark_staging_checkpointed</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">targets</span><span class="p">)</span>
+    <span class="n">clear_staging</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">preserve_checkpointed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">staging_path</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="s2">&quot;plans/chapter-1-plan.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>       <span class="c1"># 已进入 checkpoint → 保留</span>
+    <span class="k">assert</span> <span class="n">staging_checkpointed_targets</span><span class="p">(</span><span class="n">project</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_marker_survives_new_process_simulated_crash</span><span class="p">(</span><span class="n">project</span><span class="p">):</span>
+    <span class="c1"># 谓词跨进程：重载 meta（新进程视角）后标记仍在</span>
+    <span class="n">mark_staging_checkpointed</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;plans/chapter-1-plan.md&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">staging_checkpointed_targets</span><span class="p">(</span><span class="n">project</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;plans/chapter-1-plan.md&quot;</span><span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_reject_clears_everything_including_checkpointed</span><span class="p">(</span><span class="n">project</span><span class="p">):</span>
+    <span class="n">mark_staging_checkpointed</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;plans/chapter-1-plan.md&quot;</span><span class="p">])</span>
+    <span class="n">clear_staging</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>   <span class="c1"># 显式决策路径不保留</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;staging&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>   <span class="c1"># 整目录移除（含 .staging-meta.json），非&quot;只删文件留目录&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_discard_staging_logs_and_clears</span><span class="p">(</span><span class="n">project</span><span class="p">):</span>
+    <span class="n">discard_staging</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;modify&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;staging&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_commit_removes_checkpoint_marker</span><span class="p">(</span><span class="n">project</span><span class="p">):</span>
+    <span class="n">mark_staging_checkpointed</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;plans/chapter-1-plan.md&quot;</span><span class="p">])</span>
+    <span class="n">commit_staging</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;plans/chapter-1-plan.md&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="s2">&quot;plans/chapter-1-plan.md&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">staging_checkpointed_targets</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;plans&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-plan.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 2: 跑测确认失败</strong>：<code>uv run pytest tests/pipeline/test_staging_lifecycle.py -q --no-cov</code> → Expected FAIL（<code>mark_staging_checkpointed</code> 不存在）</li>
+<li>[x] <strong>Step 3: 实现</strong>（checkpoint.py）：<code>mark_staging_checkpointed</code> 读 <code>_load_staging_meta</code>、给每个 target 写 <code>{"checkpointed": "true", **既有键}</code>、经 <code>safe_write</code> 原子回写 <code>.staging-meta.json</code>；<code>staging_checkpointed_targets</code> 返回键集合过滤 checkpointed；<code>clear_staging</code> 加 keyword 参数——<code>preserve_checkpointed=True</code> 时只删未标记文件与空目录（保留 <code>.staging-meta.json</code> 中标记条目）；<code>commit_staging</code> 成功后从 meta 删该 target 的 checkpointed 标记；<code>discard_staging(project, reason)</code> = <code>log.info("staging_discarded", reason=reason, targets=sorted(残留 targets))</code> + 全清</li>
+<li>[x] <strong>Step 4: crash_recovery.py 步骤 4 改</strong>：<code>clear_staging(project_dir)</code> → <code>clear_staging(project_dir, preserve_checkpointed=True)</code>，日志事件改 <code>staging_cleared_preserving_checkpointed</code>（保留条目数入 log）——不触锁（clear_staging 本无锁），latch 逻辑不动。顺手把该段既有 <code>except Exception: pass</code> 吞错改为 <code>except Exception as e: logger.warning("emergency_staging_clear_failed", error=str(e))</code>（best-effort 语义不变，可观测）</li>
+<li>[x] <strong>Step 5: set_checkpoint 联动</strong>（machine.py）：<code>set_checkpoint</code> 时对 <code>uses_staging</code> 步骤的产物调用 <code>mark_staging_checkpointed</code>？——不可行（machine 无产物清单）。改为：<code>cli.py _commit_staging_for_checkpoint</code> 与 <code>chapter_loop.py</code> auto-commit 路径在 <strong>checkpoint 设置处</strong>（<code>set_checkpoint</code> 调用点）以 <code>staged_decisions_targets</code> + output_path 构造 target 清单并标记。实际落点：<code>chapter_loop.py</code> 调 <code>set_checkpoint(CheckpointType.CHAPTER_MEMO/STATE_SETTLE, ...)</code> 的两处，标记 <code>staging/</code> 下当前章全部 staged 文件（用 <code>staged_decisions_targets</code> + step output_path）。<strong>实现时 grep <code>set_checkpoint(</code> 全部调用点（全仓约 19 处：chapter_loop 7 + closure/error_handler/genesis/cli/triggers），产出裁决表记入 spec-deviations <code>### T1</code></strong>：仅 <code>uses_staging</code> 步的 checkpoint 标记；与 T2 的 <code>consumed</code> 字段（clear_checkpoint 侧）正交不冲突——T2 改 history 条目写侧，T1 改 staging 标记侧，无共享行</li>
+<li>[x] <strong>Step 5b: 链路级集成用例（T2 层级，spec R1 验收「approve 后 sidecar 入 committed truth」）</strong>：在 <code>test_staging_lifecycle.py</code> 追加——构造 staged plan+sidecar → <code>mark_staging_checkpointed</code> → 构造 <code>CheckpointData(type=CHAPTER_MEMO, chapter=1)</code> → 调 <code>cli._commit_staging_for_checkpoint(project, cp)</code> → 断言 <code>plans/chapter-1-plan.md</code> 与 <code>plans/chapter-1-plan-decisions.json</code> 均在 committed 路径且 staging 标记清空；再模拟 crash（<code>clear_staging(project, preserve_checkpointed=True)</code>）后重跑 approve → 产物仍完整</li>
+<li>[x] <strong>Step 6: cli.py MODIFY 块改</strong>（F323）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># 旧：if decision in (APPROVE, MODIFY): _commit_staging_for_checkpoint(...)</span>
+<span class="k">if</span> <span class="n">decision</span> <span class="o">==</span> <span class="n">ReviewDecision</span><span class="o">.</span><span class="n">APPROVE</span><span class="p">:</span>
+    <span class="n">_commit_staging_for_checkpoint</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">cp</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">decision</span> <span class="o">==</span> <span class="n">ReviewDecision</span><span class="o">.</span><span class="n">MODIFY</span><span class="p">:</span>
+    <span class="c1"># C30 F323：人工编辑为基线 = 对旧 staging 显式 discard（同一审计谓词），</span>
+    <span class="c1"># 不 commit 旧 staging 再让重派 LLM 覆盖人工编辑。</span>
+    <span class="n">discard_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;modify_baseline_human_edit&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">decision</span> <span class="o">==</span> <span class="n">ReviewDecision</span><span class="o">.</span><span class="n">REJECT</span><span class="p">:</span>
+    <span class="n">clear_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+</code></pre></div>
+<p>注意：MODIFY 分支下人工编辑已直接落在 committed 路径（review 前），discard 不丢人工编辑；如调用点存在「staging 中有非 cp 产物的人工编辑」场景，实现时打开文件核实并在 spec-deviations 记录裁决
+- [x] <strong>Step 7: 跑测 + 回归</strong>：<code>uv run pytest tests/pipeline/test_staging_lifecycle.py tests/pipeline/test_crash_recovery.py -q --no-cov</code> → 全 PASS；<code>uv run pytest tests/pipeline -k "staging or checkpoint" -q --no-cov</code> → PASS（T102 回归基线复用）
+- [x] <strong>Step 8: Commit</strong>：<code>git add src/shenbi/pipeline/checkpoint.py src/shenbi/pipeline/crash_recovery.py src/shenbi/pipeline/cli.py src/shenbi/pipeline/machine.py src/shenbi/pipeline/chapter_loop.py tests/pipeline/test_staging_lifecycle.py &amp;&amp; git commit -m "fix: C30 R1 staging lifecycle predicate — checkpointed survival, emergency preserve, MODIFY explicit discard (F318/F323)"</code></p>
+<hr />
+<h3 id="task-2-r2-resume">Task 2: R2 · resume 游标锚定 + 步名版本化迁移</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（版本常量 + 迁移表）
+- Modify: <code>src/shenbi/pipeline/cli.py:791-910</code>（cmd_resume 锚定 + 事件消费）
+- Modify: <code>src/shenbi/pipeline/machine.py:90-116</code>（clear_checkpoint consumed 字段）
+- Modify: <code>src/shenbi/contracts/enums.py</code>（如需新字面量）
+- Test: <code>tests/pipeline/test_resume_anchor.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>CHAPTER_STEPS</code>（chapter_loop）、<code>state.chapter_loop.{current_chapter, step_index}</code>、<code>chapters/chapter-N.md</code> 提交产物
+- Produces:
+  - <code>PIPELINE_STEPS_VERSION: int</code>（chapter_loop 模块常量，初始 2）
+  - <code>STEP_NAME_MIGRATIONS: dict[int, dict[str, str]]</code>（旧代步名→新名，按版本号索引）
+  - <code>committed_chapter_anchor(project_dir: Path) -&gt; int</code>（chapter_loop 新增：<code>max(n for chapters/chapter-N.md 存在)</code>，无产物返回 0）
+  - <code>migrate_steps_done(steps: list[str]) -&gt; tuple[list[str], bool]</code>（chapter_loop 新增：按迁移表逐版本迁移，返回 (迁移后列表, 是否发生迁移)）</p>
+<p><strong>复杂度:</strong> infra · <strong>test_kind:</strong> tdd_red_green（迁移）+ characterization（先锁 cmd_resume 现行为再改，spec 风险节要求）· <strong>层级:</strong> T1 + T2（resume 链）</p>
+<ul>
+<li>[x] <strong>Step 1: characterization 锁现行为</strong>（防 pin 旧 bug：只锁「无 checkpoint 时 resume 不改 current_chapter」这一将被保留的面向）：在 <code>tests/pipeline/test_resume_anchor.py</code> 写 fixture 驱动用例：构造 <code>tests/fixtures/</code> 真实章节产物（<code>tests/fixtures/chapters/</code> 或 <code>chapter-N-draft.md</code> 族）落 <code>chapters/chapter-1..3.md</code>，state <code>current_chapter=4, step_index=0</code>，跑 <code>cmd_resume</code> 的锚定纯函数（不跑全 CLI——<code>_orchestrate_to_checkpoint</code> 会 dispatch；<strong>只测新增纯函数 + cmd_resume 中锚定段的独立可测提取</strong>，提取为 <code>_clamp_resume_cursor(cl: ChapterLoopStateData, project_dir: Path) -&gt; None</code> 便于 T1 直测）</li>
+<li>[x] <strong>Step 2: 失败测试</strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_anchor_clamps_uncommitted_chapter</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# 第</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">章</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">ChapterLoopStateData</span><span class="p">(</span><span class="n">current_chapter</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">step_index</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>   <span class="c1"># 「当前章零进展」判据 = cl.chapter_states.get(&quot;6&quot;) 无 steps_done（ChapterState 才有该字段）</span>
+    <span class="n">_clamp_resume_cursor</span><span class="p">(</span><span class="n">cl</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">cl</span><span class="o">.</span><span class="n">current_chapter</span> <span class="o">==</span> <span class="mi">4</span>   <span class="c1"># 锚=已提交 3，恢复从 4 续，不回 1 也不越 6 静默覆盖</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_anchor_noop_when_mid_committed_chapter</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="c1"># 已提交章内的修订中断（当前章 steps_done 有内容）不动游标</span>
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">ChapterLoopStateData</span><span class="p">(</span><span class="n">current_chapter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">step_index</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                              <span class="n">chapter_states</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="n">ChapterState</span><span class="p">(</span><span class="n">steps_done</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">])})</span>
+    <span class="n">_clamp_resume_cursor</span><span class="p">(</span><span class="n">cl</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">cl</span><span class="o">.</span><span class="n">current_chapter</span> <span class="o">==</span> <span class="mi">3</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_steps_done_migration_v1_to_v2</span><span class="p">():</span>
+    <span class="n">migrated</span><span class="p">,</span> <span class="n">changed</span> <span class="o">=</span> <span class="n">migrate_steps_done</span><span class="p">([</span><span class="s2">&quot;shenbi-foreshadowing-plant&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">changed</span> <span class="ow">and</span> <span class="n">migrated</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;shenbi-foreshadowing-lifecycle&quot;</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 3: 跑测失败</strong>：<code>uv run pytest tests/pipeline/test_resume_anchor.py -q --no-cov</code> → FAIL</li>
+<li>[x] <strong>Step 4: 实现</strong>：</li>
+<li><code>committed_chapter_anchor</code>：glob <code>chapters/chapter-*.md</code> 取最大 N（regex <code>chapter-(\d+)\.md</code>，排除 <code>*-emergency.md</code> 等带 label 副本——匹配仅 <code>chapter-N.md</code> 精确形态）</li>
+<li><code>_clamp_resume_cursor</code>：<code>anchor = committed_chapter_anchor(pd)</code>；仅当 <code>cl.current_chapter &gt; anchor + 1</code> 且当前章零进展（<code>cs = cl.chapter_states.get(str(cl.current_chapter))</code>，<code>cs is None or not cs.steps_done</code>——steps_done 在 ChapterState 上，ChapterLoopStateData 无此字段）→ <code>cl.current_chapter = anchor + 1</code>，<code>cl.step_index = 0</code>，<code>log.warning("resume_cursor_clamped", old=…, new=…)</code></li>
+<li>事件消费：<code>clear_checkpoint</code>（machine.py）给 history 条目加 <code>"consumed": False</code>；<code>cmd_resume</code> 取尾部第一条 <code>decision=="approve" and not consumed</code> 的事件做 phase 转换（替换现 <code>history[-1]</code> 直读），转换后置 <code>consumed=True</code>。字面量 <code>"approve"</code> 已有 <code>ReviewDecision</code> 枚举承载，不新增裸串</li>
+<li><code>PIPELINE_STEPS_VERSION = 2</code>；<code>STEP_NAME_MIGRATIONS = {1: {"shenbi-foreshadowing-plant": "shenbi-foreshadowing-lifecycle", "shenbi-foreshadowing-track": "shenbi-foreshadowing-lifecycle", "shenbi-foreshadowing-recall": "shenbi-foreshadowing-lifecycle", "shenbi-context-composing": "pipeline-context-prepare", ...}}</code>——实现时 grep 旧步名全集（audit 证据：55 章 steps_done 旧代名），映射去重后写入</li>
+<li><code>cmd_resume</code> 在 state heal 后对每章 <code>steps_done</code> 跑 <code>migrate_steps_done</code>，发生迁移即 WARN + save_state</li>
+<li>[x] <strong>Step 5: 快照 pin 测试</strong>（强制 <code>PIPELINE_STEPS_VERSION</code> 与步骤表一致）：<code>tests/pipeline/test_chapter_steps_restructured.py</code> 已有步骤表测试——追加断言 <code>CHAPTER_STEPS</code> 的 <code>tuple(s.skill for s in CHAPTER_STEPS)</code> == 硬编码快照，且测试注释「步骤表重命名/重排必须 bump PIPELINE_STEPS_VERSION 并更新 STEP_NAME_MIGRATIONS 与本快照」</li>
+<li>[x] <strong>Step 6: 跑测 + 回归</strong>：<code>uv run pytest tests/pipeline/test_resume_anchor.py tests/pipeline/test_chapter_steps_restructured.py -q --no-cov</code>；<code>uv run pytest tests/pipeline -k resume -q --no-cov</code> → 全 PASS</li>
+<li>[x] <strong>Step 7: Commit</strong>：<code>git add src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/cli.py src/shenbi/pipeline/machine.py src/shenbi/contracts/enums.py tests/pipeline/test_resume_anchor.py tests/pipeline/test_chapter_steps_restructured.py &amp;&amp; git commit -m "fix: C30 R2 resume cursor anchoring + steps_done versioned migration (F371/F1114/F797)"</code></li>
+</ul>
+<hr />
+<h3 id="task-3-r3-clear_checkpoint-none">Task 3: R3 · 装配触发后移 + 魔法索引推导化 + clear_checkpoint NONE 防御</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:149-165</code>（step-2 表项）、<code>:2299</code>（索引）、<code>:2774-2777</code>（装配入口守卫）
+- Modify: <code>src/shenbi/pipeline/machine.py:90-116</code>（NONE 防御）
+- Test: <code>tests/pipeline/test_step3_assembly_gate.py</code>（新建）、<code>tests/pipeline/test_chapter_steps_restructured.py</code>（扩展）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>ChapterStep.calls_context_assembly</code>、<code>assemble_context</code>、<code>_FIRST_AUDIT_IDX</code> 推导先例
+- Produces: <code>_FORESHADOWING_LIFECYCLE_IDX</code> 改为推导式（名字保留，验收 grep 零<strong>字面量赋值</strong>）</p>
+<p><strong>复杂度:</strong> infra · <strong>test_kind:</strong> tdd_red_green · <strong>层级:</strong> T1</p>
+<ul>
+<li>[x] <strong>Step 1: 失败测试</strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_step2_does_not_call_assembly</span><span class="p">():</span>
+    <span class="n">step2</span> <span class="o">=</span> <span class="n">CHAPTER_STEPS</span><span class="p">[</span><span class="mi">0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># step_num 2</span>
+    <span class="k">assert</span> <span class="n">step2</span><span class="o">.</span><span class="n">calls_context_assembly</span> <span class="ow">is</span> <span class="kc">False</span>     <span class="c1"># T1602：plan 不存在时不得装配</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_step3_calls_assembly_with_plan_guard</span><span class="p">():</span>
+    <span class="n">step3</span> <span class="o">=</span> <span class="n">CHAPTER_STEPS</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">step3</span><span class="o">.</span><span class="n">calls_context_assembly</span> <span class="ow">is</span> <span class="kc">True</span>      <span class="c1"># 装配移至 step-3 首入口</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_foreshadowing_idx_derived_not_literal</span><span class="p">():</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;src/shenbi/pipeline/chapter_loop.py&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_FORESHADOWING_LIFECYCLE_IDX\s*=\s*6\b&quot;</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>   <span class="c1"># 字面量清零（含空格变体）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_assembly_guard_skips_when_plan_missing</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">calls</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.pipeline.context_assemble.assemble_context&quot;</span><span class="p">,</span>
+                        <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">_</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="p">())</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;must not assemble&quot;</span><span class="p">)))</span>
+    <span class="c1"># step-3 入口、plan 缺失 → 跳过装配且不写 fallback（调用计数 == 0）</span>
+    <span class="o">...</span>  <span class="c1"># 构造 state，走装配守卫函数，断言 calls == [] 且无 context/chapter-N-context.md 生成</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_clear_checkpoint_none_noop</span><span class="p">():</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="p">()</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">pending_checkpoint</span> <span class="o">=</span> <span class="n">CheckpointData</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">CheckpointType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span>
+    <span class="n">clear_checkpoint</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">ReviewDecision</span><span class="o">.</span><span class="n">APPROVE</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">checkpoint_history</span> <span class="o">==</span> <span class="p">[]</span>   <span class="c1"># F338：NONE 不入 history</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 2: 确认失败</strong>：<code>uv run pytest tests/pipeline/test_step3_assembly_gate.py -q --no-cov</code> → FAIL</li>
+<li>[x] <strong>Step 3: 实现</strong>：</li>
+<li>step-2 表项删 <code>calls_context_assembly=True</code></li>
+<li>装配入口（chapter_loop.py:2774 <code>if step.calls_context_assembly:</code>）加 plan 存在性守卫：<code>plan = project_dir/"plans"/f"chapter-{n}-plan.md"</code>；不存在且当前 step 是 step-3 → 允许（首入口）但 assemble 内部已有 read 错误面——改为：装配前置校验 plan，缺失则 <code>log.error("assembly_skipped_no_plan", step=step.skill)</code> 并跳过（不再写废弃 fallback，:1276-1278 的 fallback 写盘分支删除或收紧为 step-3 显式路径）；实现时打开 :2760-2790 与 fallback 写盘段核实落点</li>
+<li><code>_FORESHADOWING_LIFECYCLE_IDX = 6</code> → 推导式（<code>_FIRST_AUDIT_IDX</code> 同法）：如 <code>_FORESHADOWING_LIFECYCLE_IDX = next(i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-foreshadowing-lifecycle")</code></li>
+<li><code>clear_checkpoint</code> 开头：<code>if cp.type == CheckpointType.NONE: state.pending_checkpoint = CheckpointData(type=CheckpointType.NONE); return</code>（no-op 不入 history）</li>
+<li><strong>改表必须 bump</strong>：<code>PIPELINE_STEPS_VERSION</code> 与快照 pin 同步（T2 已建机制；本 task 不重排步序只改标志位，版本不变——若实现中发现需重排，bump 并补迁移表）</li>
+<li>[x] <strong>Step 4: 跑测 + 回归</strong>：<code>uv run pytest tests/pipeline/test_step3_assembly_gate.py tests/pipeline/test_chapter_steps_restructured.py tests/pipeline/test_resume_anchor.py -q --no-cov</code>；<code>uv run pytest tests/pipeline -k "steps or assembly or context" -q --no-cov</code></li>
+<li>[x] <strong>Step 5: F380 回归锁定</strong>：在 <code>test_chapter_steps_restructured.py</code> 追加——新章首步 <code>CHAPTER_STEPS[0].skill == "pipeline-volume-align"</code> 且 volume-boundary approve 后 resume 进编排从 step-1 起（若现测试已覆盖则引用其名并确认存在，不重复）</li>
+<li>[x] <strong>Step 6: Commit</strong>：<code>git add src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/machine.py tests/pipeline/test_step3_assembly_gate.py tests/pipeline/test_chapter_steps_restructured.py &amp;&amp; git commit -m "fix: C30 R3 assembly trigger gate + derived lifecycle idx + NONE checkpoint guard (T1602/F358/F357/F338/F380)"</code></li>
+</ul>
+<hr />
+<h3 id="task-4-r4-scr-pathsizemtime-state">Task 4: R4 · SCR 缓存 (path,size,mtime) 失效 + state 完成校验降级</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/scr_extractor.py:435-460</code>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（完成标记前产物校验——落点为 <code>state.add_step_done(</code> 调用族前置校验，grep 全部调用点逐处加；:1343-1346 的 curation post-check 是 curation 输出校验且发生在入表前，非 F1112 落点）
+- Test: <code>tests/pipeline/test_scr_cache_invalidation.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>extract_scr</code> 现签名（不变，向后兼容）；缓存 schema 自管
+- Produces: 缓存 JSON 增加 <code>_cache_key</code> 字段 <code>{"size": int, "mtime_ns": int}</code>（chapter file 的 stat）</p>
+<p><strong>复杂度:</strong> infra · <strong>test_kind:</strong> tdd_red_green · <strong>层级:</strong> T1</p>
+<ul>
+<li>[x] <strong>Step 1: 失败测试</strong>（章节文件用 <code>tests/fixtures/chapter-2-draft.md</code> 真实产物）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_scr_cache_invalidated_on_revision</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   <span class="c1"># mkdir 先于 copy</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/chapter-2-draft.md&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-2.md&quot;</span><span class="p">)</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="n">extract_scr</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># 模拟修订：改写章节文件（内容不同、可能同秒）</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-2.md&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">新增段落&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">second</span> <span class="o">=</span> <span class="n">extract_scr</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">second</span><span class="o">.</span><span class="n">paragraph_stats</span> <span class="o">!=</span> <span class="n">first</span><span class="o">.</span><span class="n">paragraph_stats</span> <span class="ow">or</span> <span class="n">second</span><span class="o">.</span><span class="n">extracted_at</span> <span class="o">!=</span> <span class="n">first</span><span class="o">.</span><span class="n">extracted_at</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_scr_cache_hit_when_unchanged</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="o">...</span>  <span class="c1"># 连续两次调用：第二次走缓存（monkeypatch extractor 计数为 0 或断言返回同一 extracted_at）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_cache_key_uses_size_and_mtime</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="o">...</span>  <span class="c1"># 同 size 不同 mtime_ns → 失效（os.utime 显式改）</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 2: 确认失败</strong>：<code>uv run pytest tests/pipeline/test_scr_cache_invalidation.py -q --no-cov</code> → FAIL（现缓存恒命中）</li>
+<li>[x] <strong>Step 3: 实现</strong>：<code>extract_scr</code> 缓存读取前 stat <code>chapter_path</code> 得 <code>(size, mtime_ns)</code>；缓存 JSON 顶层存 <code>"_cache_key": {"size":…, "mtime_ns":…}</code>；不匹配则重提取并回写（json 经 <code>safe_write</code> 原子写，如该模块未用则与仓库写惯例核对）。<code>StructuredChapterRepresentation(**cached)</code> 需剥离 <code>_cache_key</code> 键（cached.pop）</li>
+<li>[x] <strong>Step 4: state 完成校验降级</strong>（F1112 残余）：落点 = <code>chapter_loop.py</code> 中 <code>state.add_step_done(</code> 调用族（grep 全部调用点）：有 <code>output_path</code> 的步在入表前校验产物存在（<code>output_path.format</code>/replace N 后 resolve 到 project_dir），缺失则<strong>不入表</strong> + <code>log.warning("step_output_missing_downgraded", step=…, expected=…)</code>——降级 = 不声称完成（而非事后移除）。字面量入 log 事件名，不新增状态字面量；如需新的完成标志字段，<code>Literal</code> 入 enums.py</li>
+<li>[x] <strong>Step 5: 跑测 + 回归</strong>：<code>uv run pytest tests/pipeline/test_scr_cache_invalidation.py -q --no-cov</code>；<code>uv run pytest tests/pipeline -k "scr or extract" -q --no-cov</code>；相关 chapter_loop 测试族</li>
+<li>[x] <strong>Step 6: Commit</strong>：<code>git add src/shenbi/pipeline/scr_extractor.py src/shenbi/pipeline/chapter_loop.py src/shenbi/contracts/enums.py tests/pipeline/test_scr_cache_invalidation.py &amp;&amp; git commit -m "fix: C30 R4 SCR cache (path,size,mtime) invalidation + step-output downgrade (F310/F1112)"</code></li>
+</ul>
+<hr />
+<h3 id="task-5-r5">Task 5: R5 · 审计波/触发器扇出中途保存点 + 回写</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/parallel_dispatch.py:150-190</code>（或其 chapter_loop 调用波处）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（波调用处闭包）
+- Modify: <code>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md</code>（回写 C30 状态）
+- Test: <code>tests/pipeline/test_wave_midpoint_save.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>dispatch_reviews_parallel(tasks, ...)</code>、<code>as_completed</code> 循环
+- Produces: <code>on_task_complete: Callable[[int, DispatchResult], None] | None = None</code> keyword 参数（<strong>回调契约：仅成功完成的任务回调；失败/异常任务不回调</strong>，重放范围由未完成段定义，契约写 docstring）</p>
+<p><strong>复杂度:</strong> infra · <strong>test_kind:</strong> tdd_red_green · <strong>层级:</strong> T1 + T2</p>
+<ul>
+<li>[x] <strong>Step 1: 失败测试</strong>（确定性故障注入：fake <code>dispatch_skill</code> 对指定 skill 名<strong>返回</strong> <code>DispatchResult(success=False)</code> 持久失败——走 failure 分支而非 exception 分支；fixture 输入用 <code>tests/fixtures/audits/</code> 真实审计产物）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_partial_wave_results_survive_crash</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># 注意：_dispatch_with_retry 对 success=False 重试 MAX_RETRIES=2 次——失败注入必须</span>
+    <span class="c1"># 按 task 持久失败（不能全局计数只失败一次），并 patch MAX_RETRIES=0 + time.sleep</span>
+    <span class="c1"># 消除真实 backoff。DispatchResult 字段 (success, returncode, stdout, stderr)；</span>
+    <span class="c1"># project_dir 在 ReviewTask 上而非函数 kwarg。</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.pipeline.parallel_dispatch</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">pd</span><span class="p">,</span> <span class="s2">&quot;MAX_RETRIES&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="s2">&quot;sleep&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.parallel_dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReviewTask</span><span class="p">,</span> <span class="n">dispatch_reviews_parallel</span>
+    <span class="n">completed_cb</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fake_dispatch_skill</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">DispatchResult</span>
+        <span class="k">if</span> <span class="n">skill</span> <span class="o">==</span> <span class="n">FAILING_SKILL</span><span class="p">:</span>   <span class="c1"># 按名持久失败，重试也不得成功</span>
+            <span class="k">return</span> <span class="n">DispatchResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="s2">&quot;injected failure&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DispatchResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="s2">&quot;ok&quot;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">pd</span><span class="p">,</span> <span class="s2">&quot;dispatch_skill&quot;</span><span class="p">,</span> <span class="n">fake_dispatch_skill</span><span class="p">)</span>
+    <span class="c1"># 两个真实 READ_ONLY_AUDIT 审计 skill 名（assert_parallelizable 跑真实 classify_skill_write_safety）</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">ReviewTask</span><span class="p">(</span><span class="n">OK_SKILL</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=&lt;</span><span class="n">真实审计产物内容</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+             <span class="n">ReviewTask</span><span class="p">(</span><span class="n">FAILING_SKILL</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=&lt;...&gt;</span><span class="p">,</span> <span class="o">...</span><span class="p">)]</span>
+    <span class="n">dispatch_reviews_parallel</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">on_task_complete</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">completed_cb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">completed_cb</span> <span class="o">==</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>   <span class="c1"># 成功者回调（可 save）、失败者不回调</span>
+    <span class="c1"># 重放范围 = 未成功段：调用方以回调集合差集构造重放清单（同文件加用例断言差集逻辑）</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 2: 确认失败</strong> → <strong>Step 3: 实现</strong>：<code>dispatch_reviews_parallel</code> 的 <code>as_completed(futures)</code> 循环内，每个成功完成的 future 即调 <code>on_task_complete(idx, result)</code>（异常/失败任务不回调，docstring 定契约）；chapter_loop 并行审计波调用处传闭包：合并该 skill 的 audit_results 进 state（走既有 <code>add_step_done</code>/audit_results 串行化设施，state.py:222 线程安全面）+ <code>save_state</code>。触发器扇出处（若 parallel 波之外的扇出点存在，grep <code>dispatch_reviews_parallel(</code> 全部调用方逐一接回调）——裁决记 spec-deviations <code>### T5</code></li>
+<li>[x] <strong>Step 4: 跑测 + 回归</strong>：<code>uv run pytest tests/pipeline/test_wave_midpoint_save.py -q --no-cov</code>；<code>uv run pytest tests/pipeline -k "parallel or wave or review" -q --no-cov</code></li>
+<li>[x] <strong>Step 5: ledger 回写</strong>：<code>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md</code> 中 C30 的 14 条本 spec 关闭改 <code>closed-by PR（本 PR #）</code>、5 条按 spec closed-by 标签（T102/F1110→#120、F305→#63、F1153→ac466632+2b00ff53、F379→8d3f5c7e）、T1108 移交注记、F311 视 C37（保持 open + 注记）。PR 号在 merge 前未知——回写用 <code>fixed by SDD #44</code>，merge 后 squash SHA 由归档 commit 补</li>
+<li>[x] <strong>Step 6: Commit</strong>：<code>git add src/shenbi/pipeline/parallel_dispatch.py src/shenbi/pipeline/chapter_loop.py tests/pipeline/test_wave_midpoint_save.py docs/superpowers/audit-runs/2026-08-15/findings-ledger.md &amp;&amp; git commit -m "fix: C30 R5 parallel wave midpoint save points + ledger write-back (F377)"</code></li>
+</ul>
+<hr />
+<h2 id="spec-task">验收覆盖表（spec 验收 → task → 可执行验证）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1 staged sidecar approve 后入 committed truth</td>
+<td>T1</td>
+<td><code>uv run pytest tests/pipeline/test_staging_lifecycle.py -k commit -q --no-cov</code></td>
+</tr>
+<tr>
+<td>R1 atexit（latch + manifest 重建）不丢产物</td>
+<td>T1</td>
+<td><code>uv run pytest tests/pipeline/test_staging_lifecycle.py tests/pipeline/test_crash_recovery.py -q --no-cov</code></td>
+</tr>
+<tr>
+<td>R2 F371 场景恢复零覆盖</td>
+<td>T2</td>
+<td><code>uv run pytest tests/pipeline/test_resume_anchor.py -q --no-cov</code></td>
+</tr>
+<tr>
+<td>R2 旧 state fixture 迁移测试</td>
+<td>T2</td>
+<td><code>uv run pytest tests/pipeline/test_resume_anchor.py -k migration -q --no-cov</code></td>
+</tr>
+<tr>
+<td>R3 step-2 不空跑装配、停顿 ≤1（调用计数代理）</td>
+<td>T3</td>
+<td><code>uv run pytest tests/pipeline/test_step3_assembly_gate.py -q --no-cov</code></td>
+</tr>
+<tr>
+<td>R3 <code>git grep _FORESHADOWING_LIFECYCLE_IDX</code> 零字面量</td>
+<td>T3</td>
+<td><code>git grep -E "_FORESHADOWING_LIFECYCLE_IDX\s*=\s*6\b" -- src/</code> → 空</td>
+</tr>
+<tr>
+<td>R3 F380 回归锁定</td>
+<td>T3</td>
+<td><code>uv run pytest tests/pipeline/test_chapter_steps_restructured.py -q --no-cov</code></td>
+</tr>
+<tr>
+<td>R4 修订后 SCR 含新文本</td>
+<td>T4</td>
+<td><code>uv run pytest tests/pipeline/test_scr_cache_invalidation.py -q --no-cov</code></td>
+</tr>
+<tr>
+<td>R4 state claims 与产物一致性</td>
+<td>T4</td>
+<td>T4 Step 4 降级逻辑测试（同上文件补用例）</td>
+</tr>
+<tr>
+<td>R5 崩溃注入重放 ≤ 当前段</td>
+<td>T5</td>
+<td><code>uv run pytest tests/pipeline/test_wave_midpoint_save.py -q --no-cov</code></td>
+</tr>
+<tr>
+<td>簇级 <code>just check</code> 全绿</td>
+<td>全部</td>
+<td><code>just check</code></td>
+</tr>
+<tr>
+<td>spec 验证命令（staging/checkpoint 族）</td>
+<td>T1</td>
+<td><code>uv run pytest tests/pipeline -k "staging or checkpoint" -q --no-cov</code></td>
+</tr>
+<tr>
+<td>spec 验证命令（resume 族）</td>
+<td>T2</td>
+<td><code>uv run pytest tests/pipeline -k resume -q --no-cov</code></td>
+</tr>
+</tbody>
+</table>
+<p>G3.4 评分：本 plan 无生成物评分场景（全部确定性修复 + fixture 驱动测试），不涉及 dispatch 评分。</p>
+<h2 id="self-review">Self-Review</h2>
+<ul>
+<li>Spec 覆盖：R1(F318/F323)=T1、R2(F371/F1114/F797)=T2、R3(T1602/F358/F380/F357/F338)=T3、R4(F310/F1112)=T4、R5(F377)=T5；F311 留 C37（spec 裁决）；T1108 移交不实现。✓</li>
+<li>占位符扫描：无 TBD；两处「实现时 grep 调用点逐一裁决」为显式现场裁决指令（有明确裁决记录去向 spec-deviations），非占位。✓</li>
+<li>类型一致：<code>mark_staging_checkpointed/staging_checkpointed_targets/discard_staging/clear_staging(preserve_checkpointed=)</code> T1 定义 T1 消费；<code>committed_chapter_anchor/migrate_steps_done/_clamp_resume_cursor</code> T2 定义；<code>on_task_complete</code> T5 定义。✓</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

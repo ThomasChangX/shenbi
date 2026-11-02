@@ -1,0 +1,1230 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-10-26-spec79-regen-acceptance/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #79 实施计划 — 重生成基板与验收协议 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #79 实施计划 — 重生成基板与验收协议 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-10-26-spec79-regen-acceptance.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-10-26-spec79-regen-acceptance/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #79 实施计划 — 重生成基板与验收协议 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-10-26-spec79-regen-acceptance.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-79" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #79 实施计划 — 重生成基板与验收协议
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#task-1-regen-reset-clitdd_red_green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: regen-reset CLI（tdd_red_green）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-2-regen-accept-tdd_red_green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: regen-accept 聚合器 + 三新增检查（tdd_red_green）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-3-rubric-characterization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 执行协议文档 + 评分卡 rubric + 验收全量（characterization）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-79">Spec #79 实施计划 — 重生成基板与验收协议</h1>
+<blockquote>
+<p>Spec: <code>docs/superpowers/specs/2026-10-25-spec79-regen-acceptance.md</code>（rev3 GO）
+全部 task infra → 协调者亲做；F947：全离线，零 dispatch
+工具落点：<code>tools/</code>（purity lint 不约束 FS 变更；report_longitudinal/volume_budget 先例），src 只读侧 import</p>
+</blockquote>
+<h2 id="task-1-regen-reset-clitdd_red_green">Task 1: regen-reset CLI（tdd_red_green）</h2>
+<ul>
+<li><strong>Create</strong> <code>tools/regen_reset.py</code>（<code>python tools/regen_reset.py &lt;dir&gt; --tag pre-regen-2026-10 [--dry-run]</code>）：</li>
+<li><strong>隔离面</strong>：<code>chapters/</code>+<code>plans/</code>+<code>adjudications/</code>+<code>audits/</code>+<code>gate-markers/</code>+<code>cost/</code>+<code>pipeline-manifest.json</code>+<code>trace.jsonl</code>+<code>trace.jsonl.lockfile</code>+<code>pipeline-manifest.json.lockfile</code> → <code>_quarantine/&lt;tag&gt;/</code>（相对布局保留；shutil.move）；tag 已存在即 FAIL exit 1；<code>--dry-run</code> 只打印计划不落盘；完成后在 <code>_quarantine/&lt;tag&gt;/RESET-MANIFEST.txt</code> 写动作清单（取证面）</li>
+<li><strong>游标复位</strong>：<code>pipeline-state.json</code> 保留键集 <code>{genesis, config, version, project_dir, phase}</code>（phase="chapter-loop" 保留——Phase 枚举分派避免重跑 genesis），其余顶层键（chapter_loop/checkpoint_history/closure/closure_step/closure_skills_done/closure_retry_counts/last_trigger_failure/pending_checkpoint/pending_re_dispatches/trigger_steps_done）删除后写入<strong>框架零态</strong>（<code>PipelineState.default</code>（state.py）——cli.py <code>cmd_init</code> 同源；不重造）——genesis 块保留（不重跑付费 genesis）</li>
+<li><code>progress.json</code> 重生成为一致态（<code>_auto_rebuild_progress_if_stale</code>（chapter_loop.py:1630）同族口径）；<code>snapshots/manifest.json</code> 清 <code>last_drift_chapter</code> 键（目录缺席→跳过）</li>
+<li><strong>派生缓存</strong>：<code>truth-embeddings.db</code>/<code>truth-index.json</code> 删除（重建：<code>truth_index.build_index(project_dir)</code> 立即重建 index；embeddings 若无独立构建入口则删除留待首章 context_assemble 惰性重建——执行时确认并记 deviations）；<code>context/</code> 目录删除；其余 <code>*.lockfile</code> 清零态（<code>{}</code>）</li>
+<li><strong>章层 truth 重置 ~17 文件</strong>：经 <code>truth_io._TABLE_HEADER_BOOTSTRAP</code>——文件存在→重写为 frontmatter+表头壳；缺席→跳过（bootstrap 保证首写自动建壳）。非表键控文件同族处理：<code>pending_hooks.md</code> 8 列壳（bootstrap 有）；<code>current_focus.md</code>/<code>state_snapshot-pre-rev.md</code>/<code>state-settling-decisions.json</code>（空对象 <code>{}</code>）/<code>audit_drift.md</code>（YAML create_or_overwrite 面→初始空结构）/<code>drift_guidance.md</code>；<code>character_matrix.md</code> <strong>双表拆分</strong>：交互总表段→表头壳，信息边界段原样保留（段落定位 <code>## 交互总表</code> 到下一 <code>##</code> 前）</li>
+<li><code>outline/thread_map.md</code>：A/B 节章键行清零（保留节标题），C 节卷纲行保留（#74 结构）</li>
+<li><strong>保留面不动</strong>：book_spine/author_intent/characters//volume_summaries/name_registry/volume_map/story_frame/rhythm_principles——reset 后断言字节不变</li>
+<li><strong>Create</strong> justfile recipe <code>regen-reset &lt;dir&gt; &lt;tag&gt;</code>（shebang 子 shell 三态传播，e2e-report 先例）</li>
+<li><strong>Test</strong> <code>tests/tools/test_regen_reset.py</code>：tmp_path 四组断言（隔离面落位/游标差集断言——walk 后非保留前缀键必空、genesis 块原样/章层表头壳+缺席跳过+character_matrix 双表拆分/保留面字节不变）+ tag 冲突 FAIL + dry-run 零变更 + <strong>真项目布局衍生 fixture</strong>（<code>tests/fixtures/regen/</code>：从 novel-xinghuo-vol1 拷贝真实 pipeline-state.json、pipeline-manifest.json 裁剪版（保留 dict 单跑+list 多跑各一形态——服务 latest-wins 双形态单测）、character_matrix.md、thread_map.md 片段——G0.9 真实输出拷贝）跑全流程断言</li>
+<li>Iron Law 验证行：真项目 <strong>--dry-run</strong> 取证贴 progress（真落盘属运行项目入口动作，SDD 内不执行）</li>
+</ul>
+<h2 id="task-2-regen-accept-tdd_red_green">Task 2: regen-accept 聚合器 + 三新增检查（tdd_red_green）</h2>
+<ul>
+<li><strong>Modify</strong> <code>tools/lint_volume_nodes.py</code>：<code>_SLOT_DEADLINES</code> 扩 <code>"灰烬◆": 12</code></li>
+<li><strong>数据补丁</strong>（#74 数据型先例：就地编辑+命令取证贴 progress）：<code>novel-xinghuo-vol1/outline/volume_map.md</code> L56 「灰烬「下辈子再见」定约」→「灰烬◆——「下辈子再见」定约」（对齐 L54/55/57 槽位记号格式）；取证 <code>just volume-nodes</code>（<strong>本批新增 recipe</strong>——justfile 现无 lint_volume_nodes 入口，补 <code>volume-nodes &lt;dir&gt; &lt;volume&gt;</code> shebang 三态，同时服务后续取证面）跑绿</li>
+<li><strong>Create</strong> <code>tools/regen_accept.py</code>（<code>python tools/regen_accept.py &lt;dir&gt; --through N</code>；三态退出 0 pass/1 fail/2 data error——report_longitudinal 先例）：逐判据行 <code>PASS/FAIL/SKIP(RUN-PROJECT-ONLY)</code>：</li>
+<li>判据 1/2a-floor/2b：<code>pipeline-manifest.json</code> 判读路径钉死 <code>gates.chapter_loop.{ch}.{skill}.G4</code> → <code>result.status</code> + <code>result.checks[].id</code>；<strong>G4 值双形态归一</strong>（dict 单跑 / list 多跑追加并存——先归一为列表再按 timestamp latest-wins，纯 dict 读法在多跑章会崩）。判据 1 = <code>pipeline-scene-split</code> 技能的 <strong><code>G4.xc</code> 独立 gate 键</strong>（<code>gates.chapter_loop.{ch}.pipeline-scene-split.G4.xc</code> → <code>result.status</code>——chapter_loop.py:1254/1269 双记录设计，非 check-id 前缀）；2a-floor = check id <code>G4.word_count</code>（chapter_drafting.py:348）+ <code>G4.ln.word_count</code>（length_normalizing.py:61）；2b = 其余 <code>G4.cd.*</code> id 族；2a-<strong>ceiling 离线复算</strong>：chapters/*.md 正文字数 vs <code>genre-config.json</code> 顶层 <code>chapter_word.max</code>（=4000；番茄带 <code>fanqie_update.max</code>=2800 可选）——复用 G2.7 <code>chapter_word_min_max</code> 助手（gates/shared.py:294）口径；仅配置整体缺席时该子行 SKIP+指引</li>
+<li>判据 3：调 lint_volume_nodes（import 或 subprocess）+ 新键灰烬◆</li>
+<li>判据 4：lint_voice_meme chapter+volume 模式聚合（subprocess 退出码）</li>
+<li>判据 5 <strong>真章盲认</strong>（新）：chapters/chapter-N.md 对白 span（<code>shenbi.text.cjk.find_quote_spans</code> 口径）+ 归属行匹配角色名 → 对白文本按卡面标记（<code>voice_lexicon.catchphrases_from_card</code>+ACCOUNTING_VERBS/OPENING_VERB_FAMILIES 命中计数）argmax 归属 → 与实际归属对照；五主角各 ≥4/5 通过</li>
+<li>判据 2c <strong>情绪代理解析</strong>（新）：plans/chapter-N-plan.md <code>emotion_tone ∈{悲,喜,怒,惧,平}</code>——冷集 {悲,惧,平}；PASS=emotion_tone ∉ 冷集 或金句位=燃（#76 金句位声明行）；确定性正/负代查（正文级检测留运行项目）</li>
+<li>判据 6：release_split 跑临时发布目录（tmp）+ 场景原子/钩闭合断言（import producer 函数，非静态 lint）</li>
+<li>判据 7：<code>SKIP</code> 行+取数命令打印（just check 手动行）</li>
+<li>判据 8：<code>RUN-PROJECT-ONLY</code> 行（G3.4 独立评分——rubric 本批交付）</li>
+<li><strong>Create</strong> justfile recipe <code>regen-accept &lt;dir&gt; &lt;through&gt;</code>（shebang 三态）+ <code>volume-nodes &lt;dir&gt; &lt;volume&gt;</code>（lint_volume_nodes 入口，判据 3 与取证共用；shebang 退出码透传——工具本身 0/1 二态）</li>
+<li><strong>Test</strong> <code>tests/tools/test_regen_accept.py</code>：空基线（隔离后 ch0）三态正确（0 章数据面→exit 2 data error/部分章→fail 行/全过→pass）；三新增检查各单测（灰烬◆槽位 deadline/盲认 argmax 归属含边界——冷角色标记零命中/情绪代理冷集与燃短路）；manifest latest-wins 单测（同章重跑后旧 FAIL 不计）</li>
+</ul>
+<h2 id="task-3-rubric-characterization">Task 3: 执行协议文档 + 评分卡 rubric + 验收全量（characterization）</h2>
+<ul>
+<li><strong>Create</strong> <code>docs/regen-vol1-driver-prompt.md</code>：probe-vol1-driver 模式扩展——运行入口检查清单（<code>just regen-reset &lt;dir&gt; pre-regen-v1</code> 真落盘→<code>just regen-accept</code> 空基线绿→起步）/首个场景簇 ch1-2 人工停检点/每 10 章成本检查点（$ 上限声明+取数命令）/多会话恢复游标协议/判据 8 评分卡轴+G3.4 dispatch 配方（<code>--test-type generative</code>+独立子 agent 铁律）/复盘模板；顶部横幅「本运行在 SDD 外，由用户启动」（核心原则 8）</li>
+<li><strong>Create</strong> <code>docs/regen-vol1-scoring-rubric.md</code>：诡秘/捞尸人开篇轴评分卡（tests/tiers/t1-skill/*/rubric.md 形态；0-100 维度表）</li>
+<li><strong>验收</strong>：<code>bash tests/lock-tool-hashes.sh</code>（src 无改动则跳过说明）；<code>just check</code> EXIT=0；真项目 <code>--dry-run</code> 取证+<code>just volume-nodes</code> 跑绿（灰烬◆数据补丁）贴 progress</li>
+</ul>
+<h2 id="_1">验收覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>spec §</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>§1 隔离/游标/缓存/章层/保留 四组+fixture</td>
+<td>T1</td>
+<td>pytest tmp_path+fixture；真项目 dry-run 取证</td>
+</tr>
+<tr>
+<td>§2 灰烬◆≤12</td>
+<td>T2</td>
+<td>_SLOT_DEADLINES 单测+volume_map 数据补丁跑绿</td>
+</tr>
+<tr>
+<td>§2 真章盲认 ≥4/5</td>
+<td>T2</td>
+<td>pytest argmax 归属</td>
+</tr>
+<tr>
+<td>§2 情绪代理</td>
+<td>T2</td>
+<td>pytest 冷集/燃短路</td>
+</tr>
+<tr>
+<td>§2 判据 1/2/3/4/6/7 聚合+三态</td>
+<td>T2</td>
+<td>pytest 空基线/latest-wins/exit code</td>
+</tr>
+<tr>
+<td>§3 协议文档+rubric</td>
+<td>T3</td>
+<td>文件落盘+横幅断言</td>
+</tr>
+<tr>
+<td>§4 基板完成定义（全离线）</td>
+<td>T3</td>
+<td>just check EXIT=0；零 dispatch 声明</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
