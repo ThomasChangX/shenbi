@@ -955,6 +955,14 @@ def test_chapter_header_style_default_english_on_missing_config(tmp_path: Path) 
     assert _chapter_header_style(tmp_path) == "english"
 
 
+def test_chapter_header_style_invalid_utf8_fails_closed(tmp_path: Path) -> None:
+    """PR #275 Copilot: invalid-encoding genre-config must fail closed (not crash)."""
+    from shenbi.pipeline.dispatch_helper import _chapter_header_style
+
+    (tmp_path / "genre-config.json").write_bytes(b'{"chapter_word": \xff\xfe}')
+    assert _chapter_header_style(tmp_path) == "english"
+
+
 def test_chapter_header_style_two_line_zh(tmp_path: Path) -> None:
     from shenbi.pipeline.dispatch_helper import _chapter_header_style
 

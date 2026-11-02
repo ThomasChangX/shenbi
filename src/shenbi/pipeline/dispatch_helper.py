@@ -1857,7 +1857,10 @@ def _chapter_header_style(project_root: Path) -> str:
     """
     try:
         cfg = json.loads((Path(project_root) / "genre-config.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except (
+        OSError,
+        ValueError,
+    ):  # ValueError covers JSONDecodeError + UnicodeDecodeError (PR #275 Copilot)
         return "english"
     if not isinstance(cfg, dict):  # audit-T0 M1: valid JSON non-dict -> default
         return "english"
