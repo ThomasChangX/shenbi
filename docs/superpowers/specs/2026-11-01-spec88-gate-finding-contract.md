@@ -1,71 +1,72 @@
 # Spec #88 · 门禁 finding 契约（gate-finding-contract）：id 前缀恒不变 + 严重度分类改精确 id（不靠 prose 子串）
 
-**日期**：2026-11-01（r2 修订 2026-11-02：T3 由「键重写」改判「删冗余键+精确 id 匹配」，T1 契约收窄为唯一必需不变量）｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2） ｜ **优先级**：🟠 P1
-**动机证据**：architecture-review-20261101 #3 卡；亲验：chapter_drafting.py:651-652 事故注释（spec #83 T9「path-first 形态使 check_id() 提取失效、shadow 静默失灵」）；`G4_CHECK_MAP` 28 键全文（:796-831）；真实 id 清单（§1.3）
+**日期**：2026-11-01（r2 修订 2026-11-02：T3 由「键重写」改判「删冗余键+精确 id 匹配」，T1 契约收窄为唯一必需不变量；**r2.2 2026-11-02 全量对抗式审计修订**——shadow.check_id 有 fallback 从不返回 None（动机表重写）、发射拓扑分层（helper 无前缀是设计）、纯中文 id 面、5 覆盖键仅 2 真活、T4 前提不成立改判）｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.2） ｜ **优先级**：🟠 P1
+**动机证据**：architecture-review-20261101 #3 卡；亲验：chapter_drafting.py:651-652 事故注释；`G4_CHECK_MAP` 28 键全文（:796-827）；r2.2 审计对 shadow/发射点/覆盖键逐条实跑
 
 **触及的不变量维度**：无（门禁元层——finding 发射格式与严重度路由；不改任何检查的判定语义）
 
 ---
 
-## 0. 根因
+## 0. 根因（r2.2 重写：问题不是「None」，是「错 id + 错分流」）
 
-门禁契约是「返回 JSON 字符串」，但 must_fix **字符串格式本身**是承重接口：5 个消费者用正则/子串抠语义（shadow.check_id、chapter_loop._extract_check_id 逐字复制品、G4_CHECK_MAP 子串分类、G4_FORMAT_EXAMPLES 反馈模板、startswith("G4.") 路由）。发射侧仍多形态并存——**且普遍缺 `G4.` 前缀**（r2 亲验，比原稿更严重）：
+门禁契约是「返回 JSON 字符串」，must_fix **字符串格式**是承重接口：5 个消费者用正则/子串抠语义（shadow.check_id、chapter_loop._extract_check_id 逐字复制品、G4_CHECK_MAP 子串分类、G4_FORMAT_EXAMPLES 反馈模板、`startswith("G4.")` 路由）。**r2.2 实测纠正**：`shadow.check_id`（shadow.py:60-64）有 fallback——`re.match(r"G4\.([a-z_.]+)")` 失败时取 `item.split(":",1)[0].replace("G4.","")`，**从不返回 None**；真正的危害是取到**路径或裸家族名**：
 
-| 形态 | 实例 | 位置 | shadow.check_id 结果 |
+| 形态 | 实例 | 位置 | 真实后果（r2.2 实跑） |
 |---|---|---|---|
-| 无 G4 前缀 + 中文详情 | `f"cd.prop_handoff:「{prop}」…"` | chapter_drafting.py:158 | **None（静默失灵）** |
-| 无 G4 前缀 + 详情缀 | `f"cd.counter.plan_conflict{_detail_fp}:…"` | :241,:248,:268,:279 | **None** |
-| `ss.facts_ops:…` | state_settling.py:773,776 | 无前缀 | **None** |
-| `cp.prop_decl:{fp}:…` | chapter_planning.py:661 | 无前缀 | **None** |
-| id-first（对） | `f"G4.cd.counter:{fp}:…"` | chapter_drafting.py:648 | `cd.counter` ✓ |
+| path-first（helper 返回无前缀，调用点拼路径） | `f"cd.prop_handoff:「{prop}」…"` → 调用点 `f"{fp}:{issue}"` | helper chapter_drafting.py:158；调用点 **:618** | `check_id` → `"chapters/ch025.md"`（路径当 id）；`_enrich_g4_feedback`（chapter_loop:1148-1160）查不到格式示例；soft-tracker key 变成路径 |
+| 无前缀家族名 | `ss.facts_ops:…` | state_settling.py:773/:776 | → `"ss.facts_ops"`（可解析，但 `startswith("G4.")` 分流走错）；同类还有 **:813/:824/:839/:843/:856(ss.prop_row_match)/:875/:906/:931/:935/:948/:954(ss.identity_row_match)** |
+| 无前缀家族名 | `cp.prop_decl:…` | chapter_planning.py:661 **与 :667** | → `"cp.prop_decl"`（可解析但无 G4 前缀） |
+| **纯中文无 id**（r2.2 新增面） | `XC:chapter-1.md:角色「X」正文用「她」而卡为男性代词…`、`称谓违例（…）: …` | cross_chapter.py:659/667/679/692 → :969 | `check_id` → `"XC"`（仅家族名）；**这类项根本没有机器 id**，加前缀之前须先**新发明 id**（消息语义变更） |
+| 分层契约（不是违规点） | `cd.counter.plan_conflict*` helper 返回无前缀，调用点 :653-655 `mf.extend(f"G4.{issue}" …)` | chapter_drafting.py:241/248/268/279 | 最终 must_fix 是 `G4.cd.counter.*`，**可解析**——r2 把它们列为「无前缀违规」属误判；post_declarations.py:63 明写该分层契约（helper 返回无前缀、调用方 id-first 拼装） |
+| id-first（对） | `f"G4.cd.counter:{fp}:…"` | chapter_drafting.py:648 | ✓ |
 
-即：**spec #83 T9 只修了一处发射点，其余同类点仍在**——shadow 降级通道对 `cd.prop_handoff`/`cd.counter.*`/`ss.facts_ops`/`cp.prop_decl` 全部失效。这是同一个生产事故的未修完整面。
+**结论（r2.2）**：真实缺陷 = ①path-first 一项；②ss./cp. 家族名一批；③纯中文项一批（需新 id）；④`GATE_TO_SHADOW_KEY` 不含 prop_handoff/ss.facts_ops/cp.prop_decl/XC（本就无降级面——不是「降级通道失效」）；⑤五个消费者各自解析。**修法核心不是给 helper 无脑加前缀（会造 `G4.G4.`），而是把「id 产生」收进单一发射器。**
 
-## 1. 契约定义（r2：只保留消费者真正需要的唯一不变量）
+## 1. 契约定义（r2.2：id 字符集须与消费端正则同批对齐）
 
-**唯一必需不变量**：must_fix 项以 `G4.<id>` 开头，`id` 匹配 `[a-z_][a-z_0-9]*(\.[a-z_0-9]+)*`。
-- file/detail 槽位**不强制**语法（消费者不从字符串取文件；正文可含任意 `:`/中文符）——不在本 spec 发明新语法（原稿的 `id:file:detail` 三元文法属超需发明，废弃）。
-- `shadow.check_id()` 与 `_classify_g4_failures` 的输入因此恒为可解析。
+**唯一必需不变量**：must_fix 项以 `G4.<id>` 开头，`id` 匹配 **`[a-z0-9_][a-z0-9_.]*`**（r2.2 修正：r2 写 `[a-z_][a-z_0-9]*` 但 `shadow.check_id` 实为 `[a-z_.]+`——**无数字**，`G4.cc.p1p2_empty` 被截成 `cc.p`、`G4.cp.s7_hook_ops` 截成 `cp.s`；本批须同批把 shadow 正则改 `[a-z0-9_.]+`）。
+- file/detail 槽位**不强制**语法（消费者不从字符串取文件）。
+- **发射拓扑分层（r2.2 新增）**：helper 函数返回 `(id, detail)` 元组或直接调 `finding()` 产完整串；**禁止在 helper 加 `G4.` 再由调用点拼**（双前缀）。T1 先按拓扑分类全部发射点，再改。
 
-### 1.1 真实 id 清单（r2 采集，用于 T3 键重建；plan 期扩为全量）
+### 1.1 真实 id 清单（r2.2 扩：含数字 id 与纯中文家族）
 
-已采集样本：`cd.prop_handoff` / `cd.counter.plan_conflict` / `cd.counter.base_mismatch` / `cd.counter.prose_mismatch` / `cd.counter` / `cd.title` / `cd.hook_unfulfilled` / `cd.protagonist_absent` / `cd.hook_type_rotation` / `cd.content_overlap` / `cd.no_visual_scene` / `file_not_found` / `ad.not_found` / `ap.not_found` / `bh.not_found` / `bsi.not_found` / `cc.not_found` / `XC.narration_name` / `ss.facts_ops` / `cp.sections` …
+`cd.prop_handoff` / `cd.counter.plan_conflict` / `cd.counter.base_mismatch` / `cd.counter.prose_mismatch` / `cd.counter` / `cd.title` / `cd.hook_unfulfilled` / `cd.protagonist_absent` / `cd.hook_type_rotation` / `cd.content_overlap` / `cd.no_visual_scene` / `cd.no_hook`（`cd.chapter_end_hook` 键对应的**真实失败 id**）/ `cc.p1p2_empty` / `cp.s7_hook_ops` / `file_not_found` / `ad.not_found` / `ap.not_found` / `bh.not_found` / `bsi.not_found` / `cc.not_found` / `XC.narration_name` / `ss.facts_ops` / `ss.prop_row_match` / `ss.identity_row_match` / `cp.sections` / `cp.prop_decl` / `cp.chapter_role` …（plan 期以 AST 枚举全量落 `tests/fixtures/g4-id-inventory.json`；**纯中文项须在本批新发明 id**，如 `XC.pronoun_mismatch`/`XC.title_violation`——语义变更记 deviation）
 
-### 1.2 G4_CHECK_MAP 键结构（r2 关键发现）
+### 1.2 G4_CHECK_MAP 键结构（r2.2 关键更正）
 
-28 键 = **23 HARD + 3 SOFT + 2 WARN**。而 `_classify_g4_failures` 的未匹配分支**已默认 HARD**（:846）——即 23 个 HARD 键全部冗余，与默认等价。真正携带语义的只有 **5 个覆盖键**：`transition`(S)/`fatigue`(S)/`cd.chapter_end_hook`(S)/`cp.golden`(W)/`cp.s5_choice`(W)。而这 5 个的匹配当前走**任意位置子串**（`key in item`）——任意消息含 "meta"/"transition" 即改判。**原稿「把 28 键全改成前缀形态再匹配」属过度施工；正解是删 23 冗余键 + 5 键精确匹配。**
+28 键 = **23 HARD + 3 SOFT + 2 WARN**；`_classify_g4_failures` 未匹配分支**默认 HARD**（:848）——23 个 HARD 键全部冗余。真正携带 must_fix 语义的只有 **2 个**：`transition`(S)/`fatigue`(S)。**r2.2 实跑更正**：`cd.chapter_end_hook`/`cp.golden`/`cp.s5_choice` **只出现在 `checks[]`**（chapter_drafting.py:1025-1030、chapter_planning.py:772-790/874-881），其失败 must_fix 的 id 分别是 `cd.no_hook` 等——这 3 键对 must_fix 分类是**死键**（r2 称「5 键携带语义」不成立）。且 `cd.post_transition_cross`（chapter_drafting.py:749）含子串 `"transition"` → **今天已被误判为 SOFT**（应为 HARD）——这是 T3 的已知案例，修精确匹配时记录为「有意修正」。
 
 ## 2. 任务分解
 
-### T1 · `G4.` 前缀补齐 + 输出契约 lint
-- 补齐 §0 表中 4 类无前缀发射点（加 `G4.`；详情文本不动）；
-- `gates/shared.py` 增 `finding(check_id, detail="", file="") -> str`（恒产 `G4.<id>` 前缀；detail 自由文本）——新代码用它，旧发射点按触碰迁移（**不一次性重写全部 33 checker**）；
-- **输出契约 lint**（新测试，fixtures 语料驱动）：全部 g4 checker 的 must_fix 项逐条断言 `^G4\.[a-z_][a-z_0-9]*(\.[a-z_0-9]+)*`。首跑即红（现有 4 类违规点），修后绿。
+### T1 · `G4.` 前缀补齐 + 输出契约 lint（**先拓扑分类**）
+- **拓扑分类（r2.2 前置）**：AST 枚举全部 `mf.append/extend` 发射点，分三类——(a) helper 返回无前缀→调用点拼（`:241/248/268/279`+`:653-655`，**不动**）；(b) 直接产 must_fix 的裸家族串（`:618` path-first、state_settling 全部 ss. 点、chapter_planning :661/:667）→ 改 id-first；(c) 纯中文项（cross_chapter）→ 先定 id 再发；
+- `gates/shared.py` 增 `finding(check_id, detail="", file="") -> str`（恒产 `G4.<id>`），新代码用它；旧发射点按触碰迁移（不一次性重写全部 33 函数）；
+- **输出契约 lint**（新测试）：AST 断言所有进入 must_fix 列表的字符串由 `finding()` 或 id-first 常量产生；首跑红（现有违规面），修后绿。**不用 fixtures 语料驱动**（33 个 checker 签名异构、多数缺 project_dir 走降级分支，覆盖率虚高）。
 
-### T2 · 解析侧去重
-删 `chapter_loop._extract_check_id`（:852）→ import `g4.shadow.check_id`（同正则两 owner 归一；return-None 行为差异以 characterization 钉死）。
+### T2 · 解析侧去重（r2.2 更正判据）
+`chapter_loop._extract_check_id`（:852）与 `shadow.check_id` 是**逐字同构**（含同一 fallback，两者都永不返回 None）——删前者、import 后者，判据=全仓唯一正则 owner（不是「return-None characterization」）。**同批**把 shadow 正则从 `[a-z_.]+` 改 `[a-z0-9_.]+`（见 §1）。
 
-### T3 · 分类改精确 id + 键集瘦身
+### T3 · 分类改精确 id + 键集瘦身（r2.2 改判：2 活键）
 - 匹配改 `id == key or id.startswith(key + ".")`（点边界最长前缀）；
-- **删 23 个 HARD 键**（与默认等价）；保留 5 个非 HARD 覆盖键，键名保持现值（`transition`/`fatigue` 等与真实 id 已一致——亲验 `G4.transition:`/`G4.fatigue:` 的 id 恰为 `transition`/`fatigue`）；
-- **id 清单化防漏**：plan 期全量采集（全部 checker × fixtures 语料）落 `tests/fixtures/g4-id-inventory.json`；配两条断言——(a) 每个覆盖键必须出现在清单（防陈旧键）；(b) **行为不回归表**：旧子串匹配下被判 SOFT/WARN 的 id 集合 vs 新精确匹配结果 diff 为空（若出现 `cd.transition_budget` 类被旧键意外捕获的 id，显式补键或记为有意变更）；
-- 未匹配 → HARD 默认不变。
+- **删 23 个 HARD 键**（与默认等价）；保留 **2 个 must_fix 活键** `transition`/`fatigue`；`cd.chapter_end_hook`/`cp.golden`/`cp.s5_choice` 三个 checks-only 键**移出分类映射**（在 checks 分类处直用，注释说明不参与 must_fix）；
+- **id 清单化防漏**：plan 期全量采集落 `tests/fixtures/g4-id-inventory.json`；断言——(a) 每个保留键出现在清单；(b) **行为不回归表（item 字符串级）**：子串匹配依赖整条 item（路径/中文详情），id 集合 diff 不足以复现旧行为；语料=fixtures 真实 must_fix+合成对抗串，冻结后做 **property test**：「任何被判 SOFT/WARN 的 item，其 extracted id ∈ 覆盖键集」——把一次性快照升级为持续不变量；`cd.post_transition_cross` 记为**有意修正**（旧=SOFT 误判，新=HARD）；
+- 未匹配 → HARD 默认不变；
+- **连带测试（r2.2 补）**：`tests/unit/pipeline/test_g4_classification.py:23-27` 断言 `not_found`/`meta` == HARD——删 23 键即红，同批改写为精确匹配用例。
 
-### T4 · G2/G4 字数双 finding 互引去重
-G4.cd 字数族失败消息引用 `G2.6`（`G4.cd.word_count:… (≡G2.6)`），`_classify_g4_failures`/反馈模板对同缺陷两 id 去重——一个字数缺陷产一条重试反馈。**不删任何一层检查**（分层校准属设计内）。
+### T4 · 字数 finding 单一权威（r2.2 撤销原「双 finding 去重」）
+**原设计前提不成立**：pipeline 模式**跳过 G2**（executor.py:245-253；outputs 由 G4/G6 验），G2 的 mf 是 **dict** 且失败只 `return 1`，**无 retry-feedback 通道**——两者永不共处一条反馈。改判：**floor 单一权威**——字数下限只在 `chapter_word_floor` 定义；G4.cd 字数失败消息在 detail 里注明 floor 来源（文本引用，不新建 dedup 代码）。**不删任何一层检查**。
 
-### T5 · shadow 回归参数化
-spec #83 T9 铁律测试扩为全 checker 参数化：任一 checker 输出的 must_fix 项 `shadow.check_id()` 必须非空。
+### T5 · shadow 回归参数化（r2.2：非空断言恒真）
+spec #83 T9 铁律测试扩为全 checker 参数化，但断言改为 **`check_id(item)` 等于期望 id 或 ∈ inventory**（「非空」恒真=空测）；含数字 id 语料（`cc.p1p2_empty`/`cp.s7_hook_ops`）必测。
 
 ## 3. 验收
 
-1. T1 输出契约 lint 绿（0 条违规）；
-2. `grep -rn 'mf.append(f"{fp}\|f"cd\.\|f"ss\.\|f"cp\.prop_decl' src/shenbi/gates/` 零输出（无前缀发射清零）；
-3. `_extract_check_id` 全仓唯一定义（shadow）；
-4. `G4_CHECK_MAP` 恰 5 键且全为非 HARD 覆盖；`g4-id-inventory.json` 两断言绿；
-5. 字数缺陷重试反馈恰 1 条（红测）；
-6. `just check` exit 0。
+1. T1 输出契约 lint 绿（AST 面，0 条违规）；纯中文项已获新 id 并记 deviation；
+2. **r2.2 替换**：`_extract_check_id` 全仓唯一定义（shadow）；shadow 正则含数字（`G4.cc.p1p2_empty`→完整 id 红测）；
+3. `G4_CHECK_MAP` 恰 **2 个 must_fix 活键**（transition/fatigue）+ 3 个 checks-only 键移出；`g4-id-inventory.json` 两断言绿；`cd.post_transition_cross` 有意修正记录在案；
+4. property test 绿（所有 SOFT/WARN item 的 id ∈ 覆盖键集）；**G4 字数失败 detail 含 floor 来源标注（红测）；无 G2/G4 dedup 代码**（r2.2：T4 已撤销双 finding 去重，原「恰 1 条」断言无对象）；
+5. `just check` exit 0。
 
 ## 4. 误报成本
 
-无新 FAIL 门于生成路径（输出契约 lint 是仓库自检面，CI 红，不触运行项目）。T3 若 diff 出行为变化，必为已记录的有意变更（T3-b 断言强制记录）。
+无新 FAIL 门于生成路径（输出契约 lint 是仓库自检面，CI 红，不触运行项目）。T3 若 diff 出行为变化，必为已记录的有意变更（T3-b 断言强制记录）。T1 的纯中文 id 新发明会改变 must_fix 文本（模型可见面变化）——在卷二开卷窗内属 prompt 行为变更，**须排在束4 验收后**（批次 A 殿后总序已覆盖）。
