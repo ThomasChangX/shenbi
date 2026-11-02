@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-01（spec #83 plan 归档——PR #271 合并，14 task 全执行收敛）
-> **活跃 plan 数**：0 | **已归档**：132（见 `archive/`）
+> **最后更新**：2026-11-01（spec #84 plan 立项 ✅ ready——阶段 5 audit_loop 七轮收敛）
+> **活跃 plan 数**：1 | **已归档**：132（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（空——spec #83 已归档；下一份 plan 由 /sdd-next 队头 spec 立项时创建）
+- **[2026-11-01-spec84-vol1-repair-vol2-launch.md](2026-11-01-spec84-vol1-repair-vol2-launch.md)** ✅ ready——对应 spec #84（r12）：T0 注入器适配/T1 驱动 prompt/T2-T8 内容修复批+收口/T9 staged 实审/T10 实弹/T11 可选复评；双用户门（T0 修复轮启动确认+卷二启动确认）
 
 ## 待执行的 spec → plan 映射
 

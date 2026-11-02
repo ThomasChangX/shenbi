@@ -1843,13 +1843,76 @@ def _is_chapter_prose_write(rel_path: str) -> bool:
     )
 
 
-def ensure_chapter_header(content: str, chapter_num: int) -> str:
+_ZH_CHAPTER_LINE_RE = re.compile(r"^# 第[0-9]+章$", re.MULTILINE)
+_META_END_MARKER = "<!--META-END-->"
+
+
+def _chapter_header_style(project_root: Path) -> str:
+    """chapter_word.chapter_header_style - 'english' (default, z11 F1301
+    unchanged) | 'two_line_zh' (spec #84 S0 r6-r10 pinned form).
+
+    Missing file/key or invalid value falls back to english; reads raw JSON
+    instead of GenreConfig - the contract model does not model chapter_word
+    block internals (all consumers .get() single keys).
+    """
+    try:
+        cfg = json.loads((Path(project_root) / "genre-config.json").read_text(encoding="utf-8"))
+    except (
+        OSError,
+        ValueError,
+    ):  # ValueError covers JSONDecodeError + UnicodeDecodeError (PR #275 Copilot)
+        return "english"
+    if not isinstance(cfg, dict):  # audit-T0 M1: valid JSON non-dict -> default
+        return "english"
+    block = cfg.get("chapter_word")
+    style = block.get("chapter_header_style", "english") if isinstance(block, dict) else "english"
+    return style if style in {"english", "two_line_zh"} else "english"
+
+
+def _insert_zh_header(content: str, chapter_num: int) -> str:
+    """Spec #84 r6-r7 criterion: bounded by the FIRST literal ``<!--META-END-->``
+    line (whole file when absent, insert at head); zero action if a
+    ``^# 第N章$`` line exists in the scan region; completion inserts the
+    chapter-number line only, at the first blank line after META-END (right
+    after the END line when none follows).
+
+    Paired ``META_BLOCK_RE`` locating is FORBIDDEN - the ch17/18 bare-END +
+    tail-paired-POST form would mis-resolve the region to EOF (r7: measured
+    duplicate chapter-line insertion).
+    """
+    marker = content.find(_META_END_MARKER)
+    if marker == -1:
+        if _ZH_CHAPTER_LINE_RE.search(content):
+            return content
+        return f"# 第{chapter_num}章\n\n" + content
+    nl = content.find("\n", marker)
+    if nl == -1:  # END 行即文件尾（无尾换行）——扫描域为空，紧跟其后补行
+        return content + f"\n# 第{chapter_num}章\n"
+    region_start = nl + 1
+    region = content[region_start:]
+    if _ZH_CHAPTER_LINE_RE.search(region):
+        return content
+    m = re.search(r"^\s*$", region, re.MULTILINE)
+    if m is None:
+        return content[:region_start] + f"# 第{chapter_num}章\n" + region
+    insert_at = region_start + m.start()
+    return content[:insert_at] + f"# 第{chapter_num}章\n" + content[insert_at:]
+
+
+def ensure_chapter_header(content: str, chapter_num: int, style: str = "english") -> str:
     """Insert the contract ``# Chapter N:`` header if missing. Idempotent.
 
     z11 SDD #20 R1a (F1301): the chapter-file header is a machine-insertable
     contract line; it is normalized on the write path (pre snapshot) and
     enforced gate-side by G2.13 — both share ``CHAPTER_HEADER_RE``.
+
+    spec #84 S0: ``style='two_line_zh'`` (genre-config ``chapter_word.
+    chapter_header_style``) switches to the two-line zh chapter-header policy -
+    zero-action criterion / insertion point per ``_insert_zh_header``;
+    default ``english`` keeps F1301 behavior byte-identical.
     """
+    if style == "two_line_zh":
+        return _insert_zh_header(content, chapter_num)
     first_line = content.lstrip().split("\n", 1)[0]
     if CHAPTER_HEADER_RE.match(first_line):
         return content
@@ -2824,7 +2887,11 @@ def _write_parsed_outputs(
             # after each compliant model output; eight probes' artifacts
             # carry the signature). Prose = chapters/chapter-N.md exactly.
             if _is_chapter_prose_write(rel_path):
-                content = ensure_chapter_header(content, int(Path(rel_path).stem.split("-")[1]))
+                content = ensure_chapter_header(
+                    content,
+                    int(Path(rel_path).stem.split("-")[1]),
+                    style=_chapter_header_style(project_root),
+                )
             safe_write(full_path, content, allowed_roots=(project_root,))
             written.append(rel_path)
             log.info("output_written", path=rel_path, size=len(content), mode=mode_meta.get("mode"))
