@@ -1,7 +1,7 @@
 # Spec #87 · god 文件拆分与正名（god-file-decomposition）：五体制出鞘、prompt 装配降维、事实公共 API 正名
 
 **日期**：2026-11-01（r2 修订 2026-11-02：T6 DispatchContext 移出至 #94/后钩机制简化/验收校准）｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2） ｜ **优先级**：🟥 P0
-**依赖**：#86 先行（死分支先删再拆）；建议排在 #84 卷二开卷冻结窗后执行（改动面 = 两热文件全量）
+**依赖**：#86 先行（死分支先删再拆）；建议排在 #84 卷二开卷冻结窗后执行（改动面 = 两热文件全量）；**#95 先行本 spec（r2.1 注记，2026-11-02）**——#95 是束4 解冻最短路径且与本章 prompt 装配/失败路径同文件域，冻结窗内 #95 优先插队，本 spec 排 #95＋束4 验收之后；characterization 基线=含 #95 落地后的装配面（分窗/范例章/反馈模板）
 **动机证据**：architecture-review-20261101 #2 卡（3×代理独立收敛）；协调者亲验：`_run_chapter_step_impl` 恰在 :3777-4693 = 917 行；`_build_skill_prompt` :736-1541 = 806 行；`extractor_failed_fulltext` 恰 18 处；pipeline 内 `reportPrivateUsage` 压制 20 处
 
 **触及的不变量维度**：无（行为保持重构——characterization 先行；T4 语义收紧面红测钉死）
@@ -21,7 +21,7 @@
 `@dataclass BuiltPrompt {system, user, output_paths, reads_manifest, raw_disk_reads}`；`_build_skill_prompt` 及全部解包点机械替换。此后加字段=加具名属性。
 
 ### T2 · extractor 注册表
-`read_extractors.REGISTRY: dict[str, Callable]`（统一签名 `(project_dir, chapter, content) -> str`；现有 9 实现签名已近乎一致，唯 volume_chapter 用 project_dir）；`contracts/loader.READ_EXTRACTORS = frozenset(REGISTRY)` 派生；dispatch_helper.py:869-1112 九臂坍缩为一臂（单份 try/except/WARN + `recent_increments` 的 WARN 条件改谓词标志）。~230 行 → ~30 行；第 10 个 extractor = 2 处编辑。
+`read_extractors.REGISTRY: dict[str, Callable]`（统一签名 `(project_dir, chapter, content) -> str`；现有 9 实现签名已近乎一致，唯 volume_chapter 用 project_dir）；`contracts/loader.READ_EXTRACTORS = frozenset(REGISTRY)` 派生；dispatch_helper.py:869-1112 九臂坍缩为一臂（单份 try/except/WARN + `recent_increments` 的 WARN 条件改谓词标志）。~230 行 → ~30 行；第 10 个 extractor = 2 处编辑（**预期即 #95 T3 分窗 extractor**——若其以 read extractor 形态落地：content=全文、chapter=触章上下文，统一签名已容纳；若以 dispatch_helper 读过滤器形态落地则不入表，#95 plan 期定形）。
 
 ### T3 · 五体制拆分
 ```

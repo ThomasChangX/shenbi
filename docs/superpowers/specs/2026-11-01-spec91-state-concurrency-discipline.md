@@ -31,6 +31,7 @@
 - `retry_budget_consumed` 三处裸写（:1796,:4320,:4548）→ 加锁的 `charge_retry_budget`（必要时补 setter 语义，保持预算语义不变）；
 - PipelineState 增 `set_retry_feedback`/`pop_retry_feedback`（替换 10 处裸写）；
 - **红测**：并发两线程交替 increment/charge，终值等于串行和（复用 test_state_concurrency 既有模式）。
+- **与 #95 交汇（r2.1 注记，2026-11-02）**：#95 T4（反馈模板内容）与 T5（字数早检单章重试）均流经本任务封装的 retry_feedback/预算写点——本任务封装**机制**（锁/单点写），不改 #95 的**内容**（模板/重试策略），先落/后落皆可、后落者适配（机械兼容性口径；批次排程仍见 §3 总序——#95 先行）。束模式预算双计数（束内双章各计一次失败、retry_budget_consumed 双倍消耗——vol1-ledger 裁决 #05 实证）是否并入本任务 charge 语义修正：plan 期裁定，不在本 spec 自治改。
 
 ### T5 · 命名诚实
 `_dispatch_with_retry` 正名公共 `dispatch_with_retry`（已有 1 外部消费者 + pyright 压制）；`run_parallel_post_draft_steps` → `run_post_draft_pair`（名说 parallel 实 SEQUENTIALLY，docstring 自认）；`_dispatch_serial_reviews` 的 1 许可信号量戏法删除（正名后直接循环）。
@@ -46,4 +47,4 @@
 
 ## 3. 顺序
 
-T3 独立可先行；T4/T5 的 chapter_loop 调用点若与 #87 T3 撞面 → #87 先行、本 spec 适配新结构（不并行施工同函数）。
+T3 独立可先行；T4/T5 的 chapter_loop 调用点若与 #87 T3 撞面 → #87 先行、本 spec 适配新结构（不并行施工同函数）；T4/T5 写点与 #95 T4/T5 同域 → #95 先行（束4 解冻路径），本 spec 在其落地面上适配（总序 #85→#95→束4 验收→#86→#87→本 spec）。

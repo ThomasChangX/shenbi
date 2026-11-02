@@ -23,7 +23,7 @@
 ### #85 · 真相文件格式单源（truth-format-single-source）
 
 - **文件**：`2026-11-01-spec85-truth-format-single-source.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2） ｜ **优先级**：🟥 P0
-- **依赖**：无（本批次首件）。与 #84 无文件冲突面（本批全为框架侧）；**执行时序由用户裁**——建议 #84 卷二开卷冻结窗后
+- **依赖**：无（总序首件）。与 #84 无文件冲突面（本批全为框架侧）；**执行时序（r2.1）：冻结窗内先于 #95 落地**——#95 T3 以本 spec 为解析基座（总序 #85→#95→束4 验收→批次 A 其余）
 - **内容**：叶模块 truth_format.py（hook-id/thread-id/表格行/分隔行/frontmatter/节边界六族解析单源，gates↔pipeline 双向 import 下的唯一无环落点）+ 5 处误解析红测修复（M1/M2 truth_index MH/CP 改键、M3 truth_readers CP→P、**M4 truth_io cell 正则漏 P 族**（r2 修正：缺口在 :414 非 heading）、M5 lint_truth_pool 旧线程集）+ 8 处 g4 严格 MH\d+ 收敛 + volume_map 收敛落 **_shared**（r2 亲验依赖方向 volume_budget→_shared）+ fixtures 误报清单过审
 - **对应 plan**：待执行时建（`plans/2026-11-01-spec85-*.md`）
 - **触及的不变量维度**：承诺与债务（钩）（hook-id 检测语法决定对账/归档/检索三面可见集）
@@ -43,7 +43,7 @@
 ### #87 · god 文件拆分与正名（god-file-decomposition）
 
 - **文件**：`2026-11-01-spec87-god-file-decomposition.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2） ｜ **优先级**：🟥 P0
-- **依赖**：#86 先行；建议 #84 卷二开卷冻结窗后执行（两热文件全量改动面）
+- **依赖**：#86 先行；建议 #84 卷二开卷冻结窗后执行（两热文件全量改动面）；#95 先行（束4 解冻路径、同文件域——#95 排本 spec 前）
 - **内容**：BuiltPrompt dataclass 替 5 元组 + extractor 注册表（九臂 elif 坍缩，18 WARN→1）+ _run_chapter_step_impl 五体制拆分（917 行函数出鞘，技能后钩收一个显式具名函数——**不做全局注册表**）+ 子串判定消灭（ChapterStep 属性）+ ~12-15 事实公共符号正名 + tests 私有 import **增量** lint。（DispatchContext 原 T6 **移出至 #94 T4**——拆分中不同时改签名面）
 - **对应 plan**：待执行时建
 - **触及的不变量维度**：无（行为保持重构，characterization 先行）
@@ -123,7 +123,7 @@
 ### #95 · 模型契约对齐与上下文预算（model-contract-alignment）
 
 - **文件**：`2026-11-02-spec95-model-contract-alignment.md` ｜ **系列**：卷二实弹复盘批 ｜ **状态**：Active（r1） ｜ **优先级**：🔴 P1
-- **依赖**：T3 复用 #81 归档窗口；T4 衔接 #88 finding 契约；其余独立
+- **依赖**：T3 复用 #81 窗口语义＋#85 truth_format 解析基座；T4 衔接 #88 finding 契约；其余独立；**批次时序 #85→#95→束4 验收→批次 A 其余**
 - **内容**：束1-3 九次人工接骨的根因矩阵（R1-R8，blob 级证据：**教错的**——SKILL 枚举斜杠形/defer 锚零进 prompt/热协议只在监控侧；**看不全的**——settle prompt 68→96k 无界增长+pending_hooks 被 32k 截断后盲写最新钩行；**没锚住的**——drafting 无范例章+JSON 信封长文压缩；**被放大的**——「你丢了行」反馈驱动整档重发越试越糟）＋六任务：T1 gate 词表⇄prompt 契约同步器（lint 进 just check）+ T2 卷期热协议参数下沉 + T3 settle 读面分窗（≤60k 断言+截断告知保底）+ T4 失败反馈改操作路径（verbatim 行清单+修复正例）+ T5 范例章注入+字数落盘早检 + T6 修订场景级 diff 化+束 follower 章 memo 检查点。验收=束4 重跑 ≤1 次接骨（对照束1-3 的 3-5 次/束）
 - **对应 plan**：待执行时建（束4 重跑=验收场，亦即 #84 Task 10 解冻条件）
 - **触及的不变量维度**：无（prompt/预算/反馈层——不动门禁判据与 truth 结构）

@@ -58,7 +58,7 @@ g4/chapter_planning.py 另有 8 处严格 `MH\d+`（:248,:263,:374,:376,:408,:41
 - `canon_hook_id()`（自 truth_io 迁入；truth_io 重导出）
 - `split_table_cells(row)` / `is_separator_row(line)`（合并 truth_io.py:1426/:1464 与 truth_readers.py:71/:81 两字节同体拷贝；`_row_entry_id`（ledger_archive.py:272，缺尾管守卫）与 read_extractors 内联拆分（:153,:264）改走带守卫版）
 - `split_frontmatter(text)`（带 truth_io.py:1819-1824 的 `----` 主题性断线修复——truth_index.py:118-134 的拷贝缺此修复）
-- `iter_h2_sections(text)`（`^##\s+\S` 边界遍历单源；蓝本 ledger_archive.py:176 参数化形态）
+- `iter_sections(text, level=2)`（`^#{2,level}\s+\S` 级域边界遍历单源；蓝本=ledger_archive.py:88 `section_heading_re` 的 `#{2,6}` 级域＋组提取形态——池归档已以此切 `###` 级 MH|CP 钩详情节，:176 仅为其 H2 外边界【r2.1 锚勘误：原「:176 参数化形态」系粗锚】；**level 参数必须保留**：#95 T3 settle 分窗切 pending_hooks H3 钩详情节为同款需求——实测 113,741 字节/14 个 `### MHnn（…）` 详情节，2026-11-02 grep 亲验；默认 level=2 覆盖既有 H2 消费者）
 
 ### 2.2 volume_map 收敛（落点已亲验：**_shared.py**）
 
@@ -72,6 +72,8 @@ g4/chapter_planning.py 另有 8 处严格 `MH\d+`（:248,:263,:374,:376,:408,:41
 
 truth_io / truth_readers / truth_index / read_extractors / ledger_archive / review_checklist（活半边）/ g4-chapter_planning（8 处）/ g4-state_settling / tools/lint_truth_pool（M5）。scr_extractor 若按 #86 缩编则随之去重。
 
+**前瞻第三消费方（r2.1 注记，2026-11-02）：#95 T3 settle 分窗组装**——总览表行（split_table_cells）/active 钩 ID（HOOK_ID_RE）/触及钩 H3 详情节（iter_sections level=3）三面切片一律 import 本模块；#95 T3 禁自带临时正则（否则即 M6 第六方言——本 spec 立项病因复发）。
+
 ## 3. 分期
 
 - **P1**：叶模块 + M1-M5 五红测转绿 + 全消费者换源 + volume 收敛 + 表格/frontmatter/节界单源 + 误报清单过审。
@@ -82,7 +84,7 @@ truth_io / truth_readers / truth_index / read_extractors / ledger_archive / revi
 1. M1-M5 各一红测（输入/输出照 §1.2 表；M4 断言点 = cell 正则经 `canon_hook_id` 归一后与 `P0-4` 匹配）；
 2. 误报清单落 plan 证据且零未处置误匹配；
 3. `grep -rn "re.compile" src/shenbi tools/ | grep -E "MH|HOOK_ID|THREAD_ID" | grep -v truth_format | grep -v test` 零输出（方言定义唯一点；truth_io 重导出除外）；
-4. `split_table_cells`/`is_separator_row`/`split_frontmatter`/`iter_h2_sections` 各唯一定义；
+4. `split_table_cells`/`is_separator_row`/`split_frontmatter`/`iter_sections`（level=2/3 两档红测）各唯一定义；
 5. volume span 正则唯一定义；三种卷标题形态红测绿；
 6. `just check` exit 0（G4/G2 判定面变化仅限 M1-M5 修复本体，characterization 记录变化集）。
 7. **误报成本**：无新 FAIL 门——纯解析修复+收敛；越严越准，无 shadow 义务。

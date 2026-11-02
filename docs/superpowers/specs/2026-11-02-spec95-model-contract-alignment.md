@@ -1,7 +1,7 @@
 # Spec #95 · 模型契约对齐与上下文预算（model-contract-alignment）：教对、看全、锚住、别放大
 
 **日期**：2026-11-02 ｜ **系列**：卷二实弹复盘批（regen-vol2 首四束实证） ｜ **状态**：Active（r1） ｜ **优先级**：🔴 P1
-**依赖**：T3 读面分窗可复用 #81 归档层产物；T4 反馈文案与 #88 gate-finding 契约衔接；其余独立
+**依赖**：T3 读面分窗复用 #81 窗口选取语义＋**#85 truth_format.py 解析基座**（Hook ID/表格行/H3 节界三面切片单源——T3 自带临时正则即 M6 第六方言，禁）；T4 反馈文案与 #88 gate-finding 契约衔接；其余独立。**批次时序（r1.1 注记，2026-11-02）：#85 先落 → 本 spec T1-T6 → 束4 验收 → 批次 A 其余**（验收窗内不混入行为保持重构——防接骨数归因污染）
 **动机证据**：spec #84 Task 10 束1-3 实弹（2026-11-01/02，novel-xinghuo-vol1 ch37-41）：三束共 **9 次人工接骨**（裁决 #02-#09，vol1-ledger「卷二开卷运行」节）；全部派发 `finish_reason=stop`（**零 API 截断**——不是输出上限问题）；dispatch blob 取证（observability/dispatches/00163 等 + blobs/ 逐字 prompt）。
 
 **触及的不变量维度**：无（prompt/预算/反馈层——不改门禁判据与 truth 结构）
@@ -35,7 +35,7 @@
 - 驱动 prompt 降级为「监控侧复核」而非唯一执法（与 #82/#83 门转正后并轨）。
 
 ### T3 · settle 读面分窗与指令保底（修 R5 上半）
-- settle reads 改**分窗**：pending_hooks 只注入「总览表 + active 钩 + 本章触及钩的详情节」（其余节以 `（已归档引用：MHnn…）` 一行带过）；character_matrix 只注入本章出场角色行+键结构样例——复用 #81 归档工具的窗口逻辑；
+- settle reads 改**分窗**：pending_hooks 只注入「总览表 + active 钩 + 本章触及钩的详情节」（其余节以 `（已归档引用：MHnn…）` 一行带过；规模实测：113,741 字节/14 个 `### MHnn（…）` H3 详情节，2026-11-02）；character_matrix 只注入本章出场角色行+键结构样例——窗口选取语义参照 #81 归档窗口先例，**三面切片（钩 ID/表格行/节界）一律 import #85 truth_format.py**（HOOK_ID_RE/split_table_cells/iter_sections(level=3)；自带临时正则=M6 复发，禁）；
 - 目标上限：settle prompt 恒 ≤60k tokens（断言测试：以 ch41 工件回放组装，断言 token 预算）；
 - 截断语义保底：`_budgeted_truncate` 后在 user prompt 顶部注入 `【截断告知】以下文件数据不完整（截断清单+缺多少）`——被截数据须被模型知晓为不完整（禁止静默中段）。
 
@@ -70,5 +70,5 @@
 ## 4. 与在档 spec 的关系
 
 - 上游实证：spec #84 Task 10 束1-3（vol1-ledger 裁决 #02-#09 为故障台账）；
-- 复用：#81 归档窗口（T3）、#88 finding 契约（T4 反馈格式）；
+- 复用：#81 窗口选取语义＋#85 truth_format.py 解析基座（T3 两半）〔r1.1 口径修正：原「#81 归档窗口」产物级复用收窄为窗口语义先例——切片语法基座归 #85〕、#88 finding 契约（T4 反馈格式）；
 - 下游：束4 重跑即本 spec 验收场，亦是 #84 Task 10 解冻条件。
