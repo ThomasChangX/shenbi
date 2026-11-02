@@ -164,6 +164,7 @@ uv run pip-audit
 ```python
 #!/usr/bin/env python3
 """Pre-commit guard: fixture mirrors must match source hashes (G0.11 本地版)."""
+
 import hashlib, shutil, sys
 from pathlib import Path
 
@@ -173,8 +174,10 @@ MIRROR_MAP = {
     "tests/fixtures/outline-example.md": "outline-example.md",
 }
 
+
 def sha256(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
+
 
 def main() -> int:
     drift = []
@@ -189,6 +192,7 @@ def main() -> int:
             print(f"fixture mirror drift: {f} != {s}\n  fix: cp {s} {f}", file=sys.stderr)
         return 1
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -70,7 +70,9 @@ def test_render_body_into_prepends_when_missing(tmp_path: Path) -> None:
 def test_render_body_into_replaces_existing_block(tmp_path: Path) -> None:
     skill_md = tmp_path / "SKILL.md"
     skill_md.write_text(
-        "---\nname: x\n---\n" + sc.render_body_view("x", {"reads": [], "writes": ["old"], "updates": []}) + "tail\n",
+        "---\nname: x\n---\n"
+        + sc.render_body_view("x", {"reads": [], "writes": ["old"], "updates": []})
+        + "tail\n",
         encoding="utf-8",
     )
     sc.render_body_into(skill_md, {"reads": [], "writes": ["new"], "updates": []})
@@ -110,7 +112,9 @@ def _make_tmp_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str,
     )
     deps = tmp_path / "deps.json"
     deps.write_text(
-        json.dumps({"t2-phases": {"p1": {"prerequisites": ["shenbi-alpha"], "expected_outputs": []}}}),
+        json.dumps(
+            {"t2-phases": {"p1": {"prerequisites": ["shenbi-alpha"], "expected_outputs": []}}}
+        ),
         encoding="utf-8",
     )
     dag = tmp_path / "dag.json"
@@ -122,11 +126,22 @@ def _make_tmp_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str,
     return {"skills": skills, "deps": deps, "dag": dag, "index": index}
 
 
-def test_main_end_to_end_regenerates_artifacts(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_main_end_to_end_regenerates_artifacts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     paths = _make_tmp_repo(tmp_path, monkeypatch)
-    monkeypatch.setattr(sc, "load_all_contracts", lambda: {
-        "shenbi-alpha": {"kind": "artifact", "reads": ["truth/a.md"], "writes": ["out/alpha.md"], "updates": []}
-    })
+    monkeypatch.setattr(
+        sc,
+        "load_all_contracts",
+        lambda: {
+            "shenbi-alpha": {
+                "kind": "artifact",
+                "reads": ["truth/a.md"],
+                "writes": ["out/alpha.md"],
+                "updates": [],
+            }
+        },
+    )
     monkeypatch.setattr(sc, "load_registry", lambda: _real_load_registry())
     assert sc.main() == 0
     # deps.json: expected_outputs regenerated in place, org fields preserved
@@ -134,7 +149,9 @@ def test_main_end_to_end_regenerates_artifacts(tmp_path: Path, monkeypatch: pyte
     assert deps_out["t2-phases"]["p1"]["expected_outputs"] == ["out/alpha.md"]
     # dag + index written
     assert paths["dag"].exists() and paths["index"].exists()
-    assert json.loads(paths["index"].read_text(encoding="utf-8"))["truth/a.md"]["reads"] == ["shenbi-alpha"]
+    assert json.loads(paths["index"].read_text(encoding="utf-8"))["truth/a.md"]["reads"] == [
+        "shenbi-alpha"
+    ]
     # SKILL.md got the auto block and kept its body
     skill_text = (paths["skills"] / "shenbi-alpha" / "SKILL.md").read_text(encoding="utf-8")
     assert sc.BODY_BANNER in skill_text and "alpha body" in skill_text
@@ -148,7 +165,11 @@ def test_main_bails_when_no_contracts(tmp_path, monkeypatch):
 
 def test_main_fails_closed_on_corrupt_deps(tmp_path, monkeypatch):
     _make_tmp_repo(tmp_path, monkeypatch)
-    monkeypatch.setattr(sc, "load_all_contracts", lambda: {"x": {"kind": "artifact", "reads": [], "writes": ["w"], "updates": []}})
+    monkeypatch.setattr(
+        sc,
+        "load_all_contracts",
+        lambda: {"x": {"kind": "artifact", "reads": [], "writes": ["w"], "updates": []}},
+    )
     paths_dir = tmp_path
     (paths_dir / "deps.json").write_text("{corrupt", encoding="utf-8")
     assert sc.main() == 1
@@ -193,7 +214,9 @@ class TestMemoryDistillChecker:
         fp = tmp_path / "arc.md"
         shutil.copy(FIXTURES / "arc-example.md", fp)
         out = g4_memory_distill([str(fp)])
-        assert '"s": "PASS"' in out or "PASS" in out  # 以 shared.passed 实际序列化形态断言（红灯期校准）
+        assert (
+            '"s": "PASS"' in out or "PASS" in out
+        )  # 以 shared.passed 实际序列化形态断言（红灯期校准）
 
     def test_fail_missing_section(self, tmp_path: Path) -> None:
         fp = tmp_path / "arcs.md"  # arc-named → requires 事件链/伏笔/角色状态
@@ -232,7 +255,9 @@ class TestBookSpineInitChecker:
 
     def test_fail_missing_sections(self, tmp_path: Path) -> None:
         fp = tmp_path / "book_spine.md"
-        fp.write_text("---\nupdated: 2026-01-01\ntotal_chapters: 100\nstatus: active\n---\n", encoding="utf-8")
+        fp.write_text(
+            "---\nupdated: 2026-01-01\ntotal_chapters: 100\nstatus: active\n---\n", encoding="utf-8"
+        )
         out = g4_book_spine_init([str(fp)])
         assert "missing_section" in out
 
@@ -276,10 +301,21 @@ def test_main_usage_returns_1(monkeypatch: pytest.MonkeyPatch, capsys) -> None:
 
 def test_main_forwards_with_joined_prompt(monkeypatch: pytest.MonkeyPatch) -> None:
     calls = {}
-    monkeypatch.setattr(sys, "argv", ["shenbi-dispatch", "skill", "generative", "/tmp/rd", "multi", "word", "prompt"])
-    monkeypatch.setattr(dcli, "dispatch", lambda s, t, rd, p: (calls.update(args=(s, t, rd, p)), 0)[1])
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["shenbi-dispatch", "skill", "generative", "/tmp/rd", "multi", "word", "prompt"],
+    )
+    monkeypatch.setattr(
+        dcli, "dispatch", lambda s, t, rd, p: (calls.update(args=(s, t, rd, p)), 0)[1]
+    )
     assert dcli.main() == 0
-    assert calls["args"] == ("skill", "generative", Path("/tmp/rd"), "multi word prompt")  # F267 join
+    assert calls["args"] == (
+        "skill",
+        "generative",
+        Path("/tmp/rd"),
+        "multi word prompt",
+    )  # F267 join
 
 
 def test_main_propagates_dispatch_rc(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -317,11 +353,17 @@ import sys
 
 
 def run_module(args: list[str]) -> subprocess.CompletedProcess:
-    return subprocess.run([sys.executable, "-m", "shenbi.skill_utils.revision_routing", *args], capture_output=True, text=True)
+    return subprocess.run(
+        [sys.executable, "-m", "shenbi.skill_utils.revision_routing", *args],
+        capture_output=True,
+        text=True,
+    )
 
 
 def test_main_routes_valid_diagnosis() -> None:
-    p = run_module(["--diagnosis", json.dumps({"severity": "low"})])  # payload 按 route_revision 真实入参形态（红灯期核对 route.py）
+    p = run_module(
+        ["--diagnosis", json.dumps({"severity": "low"})]
+    )  # payload 按 route_revision 真实入参形态（红灯期核对 route.py）
     assert p.returncode == 0
     assert json.loads(p.stdout)["mode"]  # routed mode emitted
 

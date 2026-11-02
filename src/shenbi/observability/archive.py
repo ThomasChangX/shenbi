@@ -92,7 +92,7 @@ def bump_stats(project_dir: Path, key: str) -> None:
                 stats.setdefault(k, 0)
             stats[key] = int(stats[key]) + 1
             _write_stats(project_dir, stats)
-    except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch — fail-safe counter must never raise, spec #81 §1)
+    except Exception:
         log.warning("archive_stats_bump_failed", key=key, exc_info=True)
 
 
@@ -105,7 +105,7 @@ def _account_bytes(project_dir: Path, nbytes: int) -> None:
             if stats["_puts"] % _CALIBRATE_EVERY == 0:
                 stats["_bytes"] = _du_blobs(project_dir)
             _write_stats(project_dir, stats)
-    except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch — heuristic byte tally, spec #81 §1)
+    except Exception:
         log.warning("archive_bytes_account_failed", exc_info=True)
 
 
@@ -293,7 +293,7 @@ def write_dispatch_archive(
             log.warning("archive_seq_collision", skill=frame.skill)
             return None
         return path
-    except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch — fail-safe, archive failure never masks dispatch, spec #81 §1 / _persist_failed_write_output discipline)
+    except Exception:
         bump_stats(project_dir, "archive_write_failed")
         log.warning("archive_write_failed", skill=frame.skill, exc_info=True)
         return None

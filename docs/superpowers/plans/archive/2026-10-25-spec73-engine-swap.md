@@ -41,6 +41,7 @@
 ```python
 # tests/unit/contracts/test_market_params.py
 """spec #73 T1: market_params 三态校验 + 四站键数。"""
+
 import pytest
 from shenbi.contracts.ownership import GENRE_KEYS
 from shenbi.contracts.skills.genre_config import GenreConfig
@@ -59,45 +60,65 @@ def test_absent_block_passes() -> None:
 
 @pytest.mark.unit
 def test_full_block_passes() -> None:
-    cfg = GenreConfig.model_validate(_base() | {"market_params": {
-        "payoff_density": {"window": 3, "min": 1},
-        "emotion_band": {"window": 1, "min": 1},
-        "hook_grading": {"max_consecutive_micro": 2},
-        "voice_density_min": {"min_per_chapter": 2},
-        "meme_quota": {"per_volume": 3},
-    }})
+    cfg = GenreConfig.model_validate(
+        _base()
+        | {
+            "market_params": {
+                "payoff_density": {"window": 3, "min": 1},
+                "emotion_band": {"window": 1, "min": 1},
+                "hook_grading": {"max_consecutive_micro": 2},
+                "voice_density_min": {"min_per_chapter": 2},
+                "meme_quota": {"per_volume": 3},
+            }
+        }
+    )
     assert cfg.market_params["payoff_density"]["window"] == 3
 
 
 @pytest.mark.unit
 def test_missing_subkey_fails() -> None:
     with pytest.raises(Exception, match="payoff_density"):
-        GenreConfig.model_validate(_base() | {"market_params": {
-            "emotion_band": {"window": 1, "min": 1},
-            "hook_grading": {"max_consecutive_micro": 2},
-            "voice_density_min": {"min_per_chapter": 2},
-            "meme_quota": {"per_volume": 3},
-        }})  # payoff_density 缺
+        GenreConfig.model_validate(
+            _base()
+            | {
+                "market_params": {
+                    "emotion_band": {"window": 1, "min": 1},
+                    "hook_grading": {"max_consecutive_micro": 2},
+                    "voice_density_min": {"min_per_chapter": 2},
+                    "meme_quota": {"per_volume": 3},
+                }
+            }
+        )  # payoff_density 缺
 
 
 @pytest.mark.unit
 def test_out_of_range_fails() -> None:
     with pytest.raises(Exception, match="window"):
-        GenreConfig.model_validate(_base() | {"market_params": {
-            "payoff_density": {"window": 99, "min": 1},
-            "emotion_band": {"window": 1, "min": 1},
-            "hook_grading": {"max_consecutive_micro": 2},
-            "voice_density_min": {"min_per_chapter": 2},
-            "meme_quota": {"per_volume": 3},
-        }})
+        GenreConfig.model_validate(
+            _base()
+            | {
+                "market_params": {
+                    "payoff_density": {"window": 99, "min": 1},
+                    "emotion_band": {"window": 1, "min": 1},
+                    "hook_grading": {"max_consecutive_micro": 2},
+                    "voice_density_min": {"min_per_chapter": 2},
+                    "meme_quota": {"per_volume": 3},
+                }
+            }
+        )
     with pytest.raises(Exception, match="max_consecutive_micro"):
-        GenreConfig.model_validate(_base() | {"market_params": {
-            "payoff_density": {"window": 3, "min": 1},
-            "emotion_band": {"window": 1, "min": 1},
-            "hook_grading": {"max_consecutive_micro": 9},
-            "voice_density_min": {"min_per_chapter": 2},
-            "meme_quota": {"per_volume": 3},
-        }})
+        GenreConfig.model_validate(
+            _base()
+            | {
+                "market_params": {
+                    "payoff_density": {"window": 3, "min": 1},
+                    "emotion_band": {"window": 1, "min": 1},
+                    "hook_grading": {"max_consecutive_micro": 9},
+                    "voice_density_min": {"min_per_chapter": 2},
+                    "meme_quota": {"per_volume": 3},
+                }
+            }
+        )
 
 
 @pytest.mark.unit
@@ -105,25 +126,44 @@ def test_g4_three_state_via_real_checker(tmp_path):
     # G4 genre_config 走 model_validate：三态经真实 checker 面
     from shenbi.gates.g4.genre_config import g4_genre_config
     import json
+
     base = _base()
     gc_ok = tmp_path / "genre-config.json"
-    gc_ok.write_text(json.dumps(base | {"market_params": {
-        "payoff_density": {"window": 3, "min": 1},
-        "emotion_band": {"window": 1, "min": 1},
-        "hook_grading": {"max_consecutive_micro": 2},
-        "voice_density_min": {"min_per_chapter": 2},
-        "meme_quota": {"per_volume": 3},
-    }}, ensure_ascii=False), encoding="utf-8")
+    gc_ok.write_text(
+        json.dumps(
+            base
+            | {
+                "market_params": {
+                    "payoff_density": {"window": 3, "min": 1},
+                    "emotion_band": {"window": 1, "min": 1},
+                    "hook_grading": {"max_consecutive_micro": 2},
+                    "voice_density_min": {"min_per_chapter": 2},
+                    "meme_quota": {"per_volume": 3},
+                }
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
     r = g4_genre_config([str(gc_ok)], rd=str(tmp_path))
     assert "market_params" not in r
     gc_bad = tmp_path / "genre-config-bad.json"
-    gc_bad.write_text(json.dumps(base | {"market_params": {
-        "payoff_density": {"window": 99, "min": 1},
-        "emotion_band": {"window": 1, "min": 1},
-        "hook_grading": {"max_consecutive_micro": 2},
-        "voice_density_min": {"min_per_chapter": 2},
-        "meme_quota": {"per_volume": 3},
-    }}, ensure_ascii=False), encoding="utf-8")
+    gc_bad.write_text(
+        json.dumps(
+            base
+            | {
+                "market_params": {
+                    "payoff_density": {"window": 99, "min": 1},
+                    "emotion_band": {"window": 1, "min": 1},
+                    "hook_grading": {"max_consecutive_micro": 2},
+                    "voice_density_min": {"min_per_chapter": 2},
+                    "meme_quota": {"per_volume": 3},
+                }
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
     r2 = g4_genre_config([str(gc_bad)], rd=str(tmp_path))
     assert "market_params" in r2 or "window" in r2
 ```

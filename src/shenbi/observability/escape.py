@@ -71,7 +71,7 @@ def update_escape_hatch_state(project_dir: Path, reads_manifest: list[dict[str, 
                 mutated = True
             if mutated:  # all-matched steady state: skip the flock RMW write
                 safe_write(_state_path(project_dir), json.dumps(state, ensure_ascii=False))
-    except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch — counter must never break the builder, spec #81 §3)
+    except Exception:
         log.warning("escape_hatch_state_update_failed", exc_info=True)
 
 

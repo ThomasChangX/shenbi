@@ -97,9 +97,13 @@ G0.9：全部为真实 skill 输出/运行工件精确拷贝（chapter= drafting
 ```python
 # tests/unit/gates/g4/test_spec83_fixtures.py
 """spec #83 fixture 包存在性与关键锚断言（G0.9 拷贝证明）。"""
+
 from pathlib import Path
 
-FIX = Path(__file__).resolve().parents[3] / "fixtures" / "spec83"  # parents[3]——tests/unit/gates/g4/ 深四层
+FIX = (
+    Path(__file__).resolve().parents[3] / "fixtures" / "spec83"
+)  # parents[3]——tests/unit/gates/g4/ 深四层
+
 
 def test_chapter_anchors_present():
     # spec 钦定实证锚：ch1:231 嵌套实证句 / ch6 截断金句 / ch28 双声明
@@ -108,12 +112,16 @@ def test_chapter_anchors_present():
     ch28p = (FIX / "plans" / "chapter-28-plan.md").read_text(encoding="utf-8")
     assert "计数: 鉴录名数 4+0" in ch28p and "计数: 鉴录名数 4 +1" in ch28p
 
+
 def test_truth_faces_present():
     assert (FIX / "truth" / "particle_ledger.md").is_file()
     assert (FIX / "truth" / "facts" / "counters.json").is_file()
     import json
+
     counters = json.loads((FIX / "truth" / "facts" / "counters.json").read_text(encoding="utf-8"))
-    assert counters["facts"]["鉴录名数"]["value"] == 4  # 实文件嵌套在 "facts" 键下（审查轮 2 M5：裸 ["鉴录名数"] KeyError）；r5.1：终态 4；ch9 时序绿测须另行构造 facts=3
+    assert (
+        counters["facts"]["鉴录名数"]["value"] == 4
+    )  # 实文件嵌套在 "facts" 键下（审查轮 2 M5：裸 ["鉴录名数"] KeyError）；r5.1：终态 4；ch9 时序绿测须另行构造 facts=3
 ```
 
 - [ ] **Step 3: 运行测试确认通过**
@@ -150,15 +158,23 @@ git commit -m "test: add spec83 real-corpus fixture pack (G0.9 exact copies)"
 # tests/unit/gates/g4/test_quote_verbatim.py 追加
 NESTED_SENTENCE = "心里记下这笔「听不懂的账」——却不知道明天城就破了"  # ch1:231 外层「」内嵌「」
 
+
 def test_nested_quote_extracted_from_meta():
     ch1 = (FIX / "chapters" / "chapter-1.md").read_text(encoding="utf-8")
     quotes = extract_meta_quotes(ch1, min_len=6)
     assert any("听不懂的账" in q and "城就破了" in q for q in quotes)  # r4 实测：现行零命中 → 红
 
+
 def test_paren_span_quotes_excluded():
     # 审查轮 1 I8：ch19 实证 3 条尾注形（（从备忘段6「章尾张力拍」行）/（把「遗物：无。灯一盏」的「无」轻轻划掉…）/（收束钩：「粥凉了，不算折耗。」…））
     # 轮 3 M10：测试内自备复算 helper——按 match 位置（非引句串）判括号归属
-    from shenbi.gates.g4.quote_verbatim import _NESTED_QUOTE_RE, _QUOTE_RE, _meta_regions, _PAREN_SPAN_RE
+    from shenbi.gates.g4.quote_verbatim import (
+        _NESTED_QUOTE_RE,
+        _QUOTE_RE,
+        _meta_regions,
+        _PAREN_SPAN_RE,
+    )
+
     ch19 = (FIX / "chapters" / "chapter-19.md").read_text(encoding="utf-8")
     quotes = extract_meta_quotes(ch19, min_len=6)
     raw_n = 0
@@ -171,9 +187,18 @@ def test_paren_span_quotes_excluded():
             if len(m.group(1)) >= 6 and not any(ps <= m.start() < pe for ps, pe in spans)
         )
     assert raw_n == len(quotes)  # 复算（未排除面-位置法）与提取器一致
-    assert any("粥凉了" in q for q in (  # 尾注内引句「粥凉了，不算折耗。」确被位置法弃置
-        m.group(1) for region, *_ in _meta_regions(ch19) for m in _NESTED_QUOTE_RE.finditer(region)
-    )) and "粥凉了，不算折耗。" not in quotes
+    assert (
+        any(
+            "粥凉了" in q
+            for q in (  # 尾注内引句「粥凉了，不算折耗。」确被位置法弃置
+                m.group(1)
+                for region, *_ in _meta_regions(ch19)
+                for m in _NESTED_QUOTE_RE.finditer(region)
+            )
+        )
+        and "粥凉了，不算折耗。" not in quotes
+    )
+
 
 def test_spec82_anchor_extraction_unchanged():
     # #82 面回归（r5.3 注记）：extract_anchor_quotes 用独立『』行正则，不受 _QUOTE_RE 影响
@@ -184,7 +209,9 @@ def test_spec82_anchor_extraction_unchanged():
         assert q and "「" not in q  # 『』锚面不含「」
     for p in sorted((FIX / "chapters").glob("chapter-*.md")):
         text = p.read_text(encoding="utf-8")
-        assert extract_meta_quotes(text, min_len=1) is not None  # 全包 15 章提取不崩（守恒面在 T2 基线测试承载）
+        assert (
+            extract_meta_quotes(text, min_len=1) is not None
+        )  # 全包 15 章提取不崩（守恒面在 T2 基线测试承载）
 ```
 
 - [ ] **Step 2: 运行确认红**
@@ -202,6 +229,7 @@ _NESTED_QUOTE_RE = re.compile("「((?:[^「」]|「[^「」]*」)*)」")
 _QUOTE_RE = re.compile('[『“"]([^『“”"]+)[』”"]')  # 单层族保留（『』“”不嵌套于语料）
 _PAREN_SPAN_RE = re.compile(r"（[^（）]*）")
 
+
 def _meta_regions(chapter_text: str) -> list[tuple[str, int, int]]:
     """(region_text, start, end) —— 位置法排尾注需要 match 绝对位置。"""
     regions: list[tuple[str, int, int]] = []
@@ -210,6 +238,7 @@ def _meta_regions(chapter_text: str) -> list[tuple[str, int, int]]:
     for m in _META_SECTION_RE.finditer(chapter_text):
         regions.append((m.group(0), m.start(), m.end()))
     return regions
+
 
 def extract_meta_quotes(chapter_text: str, *, min_len: int = 6) -> list[str]:
     """（docstring 保留 #83 seam 说明，追加：嵌套「」感知＋全角括号尾注区间位置法排除。）"""
@@ -225,7 +254,9 @@ def extract_meta_quotes(chapter_text: str, *, min_len: int = 6) -> list[str]:
                 continue
             out.append(m.group(1))
         for m in _QUOTE_RE.finditer(region):
-            if any(ns <= m.start() < ne for ns, ne in nested_spans):  # M16 去重：单层命中落嵌套 span 内弃
+            if any(
+                ns <= m.start() < ne for ns, ne in nested_spans
+            ):  # M16 去重：单层命中落嵌套 span 内弃
                 continue
             if len(m.group(1)) < min_len:
                 continue
@@ -279,32 +310,44 @@ git commit -m "feat: nested-aware meta quote extraction + paren tail-note positi
 """spec #83 T1: cd.post_quote_verbatim 两臂判定——r5 全语料回放钉死基线。
 红测 5 例（ch1/ch6/ch2/ch31/ch33 声明失真）；WARN（ch13/16/19/26 标点/复合变体）；
 负例：ch28 微粒钩不入面 / ch25 变体标签行不入面 / ch30 尾注弃。"""
+
 from shenbi.gates.g4.post_declarations import check_post_quote_verbatim
+
 
 def _fails(ch: int) -> list[str]:
     text = (FIX / "chapters" / f"chapter-{ch}.md").read_text(encoding="utf-8")
     fails, warns = check_post_quote_verbatim(text)
     return fails
 
+
 def test_five_distortion_fails():  # r5 回放 5 FAIL 全集逐章断言
-    assert any("城就破了" in f for f in _fails(1))      # 正文无此句
-    assert any("册子认得" in f for f in _fails(6))      # 正文=册子认得人（截断漂移，子句等值不豁免）
-    assert any("账上" in f for f in _fails(2))          # 归并缩写（添「账上」）
+    assert any("城就破了" in f for f in _fails(1))  # 正文无此句
+    assert any("册子认得" in f for f in _fails(6))  # 正文=册子认得人（截断漂移，子句等值不豁免）
+    assert any("账上" in f for f in _fails(2))  # 归并缩写（添「账上」）
     assert any("私账" in f or "头一行" in f for f in _fails(31))
     assert any("旗会换" in f or "价会变" in f for f in _fails(33))
+
 
 def test_punct_variants_warn_not_fail():  # ch13/16/19/26 逐字缺席但子句全在 → WARN 不 FAIL
     for ch in (13, 16, 19, 26):
         fails, warns = check_post_quote_verbatim(
-            (FIX / "chapters" / f"chapter-{ch}.md").read_text(encoding="utf-8"))
+            (FIX / "chapters" / f"chapter-{ch}.md").read_text(encoding="utf-8")
+        )
         assert fails == [], f"ch{ch} 应零 FAIL（回放基线）"
 
+
 def test_negative_faces():  # 微粒钩移出执法面/变体行不入面（行为级断言——审查轮 2 M8）
-    fails28, _ = check_post_quote_verbatim((FIX / "chapters" / "chapter-28.md").read_text(encoding="utf-8"))
-    assert not any("王朝的命" in f for f in fails28)   # 跨段转述微粒钩 → G3.4 兜底
+    fails28, _ = check_post_quote_verbatim(
+        (FIX / "chapters" / "chapter-28.md").read_text(encoding="utf-8")
+    )
+    assert not any("王朝的命" in f for f in fails28)  # 跨段转述微粒钩 → G3.4 兜底
     text25 = (FIX / "chapters" / "chapter-25.md").read_text(encoding="utf-8")
-    fails25, _ = check_post_quote_verbatim(text25)     # ch25 变体行 `- [x] 章尾张力:`（无口径标签）不入执法面
-    tail_variant = [l for l in text25.splitlines() if "章尾张力" in l and "[x]" in l and "G4.cd" not in l]
+    fails25, _ = check_post_quote_verbatim(
+        text25
+    )  # ch25 变体行 `- [x] 章尾张力:`（无口径标签）不入执法面
+    tail_variant = [
+        l for l in text25.splitlines() if "章尾张力" in l and "[x]" in l and "G4.cd" not in l
+    ]
     if tail_variant:  # 变体行存在时：其行内引句不产生 FAIL（正则不收行）
         assert not any("章尾张力" in f for f in fails25)
 ```
@@ -324,6 +367,7 @@ Expected: FAIL（模块不存在）
 两臂判定（r5 定稿）：逐字臂缺席 → 子句臂（标点归一子句等值，切分与归一同源）：
 任一子句缺席 → FAIL；子句全在 → WARN（交 G3.4 评审）。微粒钩/PRE 面/无引号裸句
 张力声明不入执法面（spec §1 裁定）。"""
+
 from __future__ import annotations
 import re
 
@@ -341,6 +385,7 @@ _CLAUSE_SPLIT_RE = re.compile(
     r"[。！？；，、：·—–…「」『』“”\"'（）()\[\]【】《》〈〉？！!?:;,./｜|＝=＋+＊*～\s]+"
 )
 
+
 def _line_quotes(line_text: str) -> list[str]:
     out: list[str] = []
     paren_spans = [m.span() for m in _PAREN_SPAN_RE.finditer(line_text)]
@@ -350,8 +395,10 @@ def _line_quotes(line_text: str) -> list[str]:
         out.append(m.group(1))
     return out
 
+
 def _clauses(text: str, min_len: int = 2) -> set[str]:
     return {c for c in _CLAUSE_SPLIT_RE.split(text) if len(c) >= min_len}
+
 
 def check_post_quote_verbatim(content: str) -> tuple[list[str], list[str]]:
     fails: list[str] = []
@@ -371,20 +418,23 @@ def check_post_quote_verbatim(content: str) -> tuple[list[str], list[str]]:
                         "——POST 自检引句须逐字/子句取自正文（修复者: drafting 改声明一行）"
                     )
                 else:
-                    warns.append(f"cd.post_quote_verbatim:『{q[:24]}…』逐字缺席但子句全在（标点/复合变体，交评审）")
+                    warns.append(
+                        f"cd.post_quote_verbatim:『{q[:24]}…』逐字缺席但子句全在（标点/复合变体，交评审）"
+                    )
     return fails, warns
 ```
 
 chapter_drafting.py 接线（PRE/POST 块存在性检查 :636-640 之后、transition 计数前）：
 
 ```python
-        # spec #83 T1: POST 声明引句两臂门（执法两行；WARN 臂进 c 列表交评审）
-        from shenbi.gates.g4.post_declarations import check_post_quote_verbatim
-        _pq_fails, _pq_warns = check_post_quote_verbatim(content)
-        for _f in _pq_fails:
-            mf.append(f"G4.{_f.split(':', 1)[0]}:{fp}:{_f.split(':', 1)[1]}")  # id-first 铁律
-        for _w in _pq_warns:
-            c.append({"id": "cd.post_quote_verbatim", "file": fp, "s": GateStatus.WARN, "r": _w})
+# spec #83 T1: POST 声明引句两臂门（执法两行；WARN 臂进 c 列表交评审）
+from shenbi.gates.g4.post_declarations import check_post_quote_verbatim
+
+_pq_fails, _pq_warns = check_post_quote_verbatim(content)
+for _f in _pq_fails:
+    mf.append(f"G4.{_f.split(':', 1)[0]}:{fp}:{_f.split(':', 1)[1]}")  # id-first 铁律
+for _w in _pq_warns:
+    c.append({"id": "cd.post_quote_verbatim", "file": fp, "s": GateStatus.WARN, "r": _w})
 ```
 
 shadow.py 登记（`GATE_TO_SHADOW_KEY` dict 追加）：
@@ -436,12 +486,17 @@ git commit -m "feat: cd.post_quote_verbatim two-arm POST quote gate (spec #83 T1
 ```python
 def test_transition_substring_noise_fixed():
     from shenbi.gates.shared import count_transition_words
-    assert count_transition_words("算不过来的账，忽然说了一句") == 0  # ch17:79 补语形（:186 忽然=非计数例——轮 7 M3 勘误）
+
+    assert (
+        count_transition_words("算不过来的账，忽然说了一句") == 0
+    )  # ch17:79 补语形（:186 忽然=非计数例——轮 7 M3 勘误）
     assert count_transition_words("不过他还是走了") == 1  # 真转折不减
+
 
 def test_post_transition_cross_fires_on_real_decl_form():
     # 红测用真实声明行形（审查轮 1 C1：ch1:229 实测 `- [ ] 转折词密度: 0 / 3625字 = 0 (≤ 1/3000)`）
     from shenbi.gates.g4.post_declarations import check_post_transition_cross
+
     real_decl = "- [ ] 转折词密度: 0 / 3625字 = 0 (≤ 1/3000)"
     content = f"## POST_WRITE_SELF_CHECK\n{real_decl}\n\n正文不过如此，他终于明白了。\n"
     assert check_post_transition_cross(content) != []
@@ -449,13 +504,19 @@ def test_post_transition_cross_fires_on_real_decl_form():
     ok = "## POST_WRITE_SELF_CHECK\n- [ ] 转折词密度: 1 / 3187 字 = 1\n\n正文。\n"
     assert check_post_transition_cross(ok) == []
 
+
 def test_post_wordcount_precision_warn():
     # spec §1 字数行虚假精度（审查轮 1 I9 补）：声明 3625 vs 实测差 >2% → WARN
     from shenbi.gates.g4.post_declarations import check_post_wordcount_precision
+
     decl = "- [ ] 正文字数（逐段计数合计）: 场景1: 8+72=80；总计 80"
-    warns = check_post_wordcount_precision(f"## POST_WRITE_SELF_CHECK\n{decl}\n", actual_chars=70)  # 差 12.5%
+    warns = check_post_wordcount_precision(
+        f"## POST_WRITE_SELF_CHECK\n{decl}\n", actual_chars=70
+    )  # 差 12.5%
     assert warns != []
-    assert check_post_wordcount_precision(f"## POST_WRITE_SELF_CHECK\n{decl}\n", actual_chars=79) == []  # 1.2% 带内
+    assert (
+        check_post_wordcount_precision(f"## POST_WRITE_SELF_CHECK\n{decl}\n", actual_chars=79) == []
+    )  # 1.2% 带内
 ```
 
 - [ ] **Step 2: 确认红** — Run: `uv run pytest ... -k "transition or wordcount_precision"` Expected: FAIL
@@ -475,19 +536,29 @@ post_declarations.py 追加：
 
 ```python
 # 形态锚：ch1:229 `- [ ] 转折词密度: 0 / 3625字 = 0 (≤ 1/3000)`（值后带 / N字 = N 尾巴，非行尾裸 0）
-_POST_TRANSITION_DECL_RE = re.compile(r"^\s*[-*]\s*\[[ xX]\]\s*转折词密度\s*[：:]\s*0\s*(?:/|（)", re.M)  # 轮 8 M2：兼收 ch23 变体形 `0（正文零显式转折词）`（1/36；漏检无害——shadow 起步欠检测面）
+_POST_TRANSITION_DECL_RE = re.compile(
+    r"^\s*[-*]\s*\[[ xX]\]\s*转折词密度\s*[：:]\s*0\s*(?:/|（)", re.M
+)  # 轮 8 M2：兼收 ch23 变体形 `0（正文零显式转折词）`（1/36；漏检无害——shadow 起步欠检测面）
 # 形态锚：ch1:233 `…；总计 3625` / ch28:241 `总计 1029+1098+1060=3187`（裸数或 = 后数）
-_POST_WORDCOUNT_DECL_RE = re.compile(r"^\s*[-*]\s*\[[ xX]\]\s*正文字数（逐段计数合计）\s*[：:].*?总计\s*(?:[\d+]+\s*=\s*)?(\d+)\s*$", re.M)
+_POST_WORDCOUNT_DECL_RE = re.compile(
+    r"^\s*[-*]\s*\[[ xX]\]\s*正文字数（逐段计数合计）\s*[：:].*?总计\s*(?:[\d+]+\s*=\s*)?(\d+)\s*$",
+    re.M,
+)
+
 
 def check_post_transition_cross(content: str) -> list[str]:
     """POST 报「转折词密度 0」而剥后正文词法计数 ≥1 → FAIL（声明↔门计数交叉对账）。"""
     from shenbi.gates.shared import count_transition_words
+
     if not _POST_TRANSITION_DECL_RE.search(content):
         return []
     if count_transition_words(strip_narrative_body(content)) >= 1:
-        return ["cd.post_transition_cross:POST 报「转折词密度 0」但正文词法计数 ≥1"
-                "——自检声明与词法门计数互斥（修复者: drafting 改声明一行）"]
+        return [
+            "cd.post_transition_cross:POST 报「转折词密度 0」但正文词法计数 ≥1"
+            "——自检声明与词法门计数互斥（修复者: drafting 改声明一行）"
+        ]
     return []
+
 
 def check_post_wordcount_precision(content: str, actual_chars: int) -> list[str]:
     """spec §1 字数行虚假精度：声明总计 vs 实测差 >2% → WARN（复用 G2 口径助手复算精神）。"""
@@ -498,8 +569,10 @@ def check_post_wordcount_precision(content: str, actual_chars: int) -> list[str]
             continue
         drift = abs(declared - actual_chars) / declared
         if drift > 0.02:
-            issues.append(f"cd.post_wordcount_precision:声明总计 {declared} vs 实测 {actual_chars}"
-                          f"（差 {drift:.1%} >2%）——虚假精度（修复者: drafting 改声明一行）")
+            issues.append(
+                f"cd.post_wordcount_precision:声明总计 {declared} vs 实测 {actual_chars}"
+                f"（差 {drift:.1%} >2%）——虚假精度（修复者: drafting 改声明一行）"
+            )
     return issues
 ```
 
@@ -539,20 +612,28 @@ git commit -m "fix: transition-word complement-form dedup + cd.post_transition_c
 ```python
 # tests/unit/pipeline/test_spec83_rev_prop_purged.py
 """spec #83 T2: 修订删物象相对谓词——r5 回放基线（44 行零修订全绿 / 7 例合法缺席修订其他段仍绿 / 删尽红）。"""
+
 from shenbi.pipeline.chapter_loop import check_prop_purge_on_revision, parse_prop_lines
+
 
 def test_zero_revision_corpus_all_green():  # r5 回放：全语料零删改现状全绿
     text = (FIX / "chapters" / "chapter-28.md").read_text(encoding="utf-8")
     plan = (FIX / "plans" / "chapter-28-plan.md").read_text(encoding="utf-8")
     assert parse_prop_lines(plan)  # @hold + 物象: 行非空（ch28 实测形态）
-    assert check_prop_purge_on_revision(text, text, plan, chapter=28) == []  # chapter 必传（轮 3 M6）
+    assert (
+        check_prop_purge_on_revision(text, text, plan, chapter=28) == []
+    )  # chapter 必传（轮 3 M6）
+
 
 def test_purge_detected(tmp_path):  # 修订删尽红：真实章基底构造 post（结构测试豁免面）
     text = (FIX / "chapters" / "chapter-28.md").read_text(encoding="utf-8")
     plan = (FIX / "plans" / "chapter-28-plan.md").read_text(encoding="utf-8")
     purged = text.replace("骨哨", "口哨")  # 物象名整段消失形（pre 命中 post 不命中）
     fails = check_prop_purge_on_revision(text, purged, plan, chapter=28)
-    assert any("骨哨" in f and "rev.prop_purged:chapters/chapter-28.md" in f for f in fails)  # id-first 含真章号
+    assert any(
+        "骨哨" in f and "rev.prop_purged:chapters/chapter-28.md" in f for f in fails
+    )  # id-first 含真章号
+
 
 def test_legal_absence_stays_green():  # ch4/6/27 类合法缺席：持有物象当章正文零提及为合法态
     # 零提及 → pre 侧不命中 → 谓词左元 false → 不红（相对口径核心）
@@ -587,6 +668,7 @@ def test_legal_absence_stays_green():  # ch4/6/27 类合法缺席：持有物象
 _PROP_HOLD_RE = re.compile(r"^\s*[-*]\s*(\S+?)@hold\s*[：:]\s*\S+", re.M)
 _PROP_COLON_RE = re.compile(r"^\s*[-*]\s*物象\s*[：:]\s*([^|｜]+)[|｜]\s*\S+", re.M)
 
+
 def parse_prop_lines(plan_text: str) -> list[str]:
     """入场行＝@hold＋物象: X|Y 结构化行（r4 用户裁定；r5 清点 44 行）。
     @lose/@mention/@none 与 PRE 散文物象行不入场（丢失/纯提及不在场是预期态）。
@@ -597,11 +679,13 @@ def parse_prop_lines(plan_text: str) -> list[str]:
         seen.setdefault(m.group(1).strip(), None)
     return list(seen)
 
+
 def check_prop_purge_on_revision(
     before_text: str, after_text: str, plan_text: str, *, chapter: int
 ) -> list[str]:
     from shenbi.gates.g4.chapter_drafting import entity_in_text
     from shenbi.gates.shared import strip_narrative_body
+
     before = strip_narrative_body(before_text)
     after = strip_narrative_body(after_text)
     issues: list[str] = []
@@ -617,8 +701,9 @@ def check_prop_purge_on_revision(
 POST 引句复验（spec：POST 引句走 T1 判定器执法两行）：`_revalidate_revised_chapter` 内追加对修订后 text 跑 `check_post_quote_verbatim(text)` 的 fails——**审查轮 1 I5b：判定器返回串自带 `cd.post_quote_verbatim:` 前缀而无 `G4.`，消费点按 `startswith("G4.")` 分流会漏 demote**——追加处显式加前缀：
 
 ```python
-    from shenbi.gates.g4.post_declarations import check_post_quote_verbatim as _cpq
-    issues.extend(f"G4.{f}" for f in _cpq(text)[0])  # 判定器串无 G4. 前缀，此处补齐进 id 分流
+from shenbi.gates.g4.post_declarations import check_post_quote_verbatim as _cpq
+
+issues.extend(f"G4.{f}" for f in _cpq(text)[0])  # 判定器串无 G4. 前缀，此处补齐进 id 分流
 ```
 
 消费点接线 :4487-4493（r5.3 §10 强制项——行 3 支路）：
@@ -685,15 +770,21 @@ git commit -m "feat: rev.prop_purged revision revalidation extension (spec #83 T
 # tests/unit/pipeline/test_spec83_stale_declarations.py
 def test_stale_field_persists_roundtrip(tmp_path):
     st = PipelineState(project_dir=str(tmp_path))
-    st.chapter_loop.chapter_states["26"] = ChapterState(status=ChapterStatus.COMPLETE, declarations_stale=True)
+    st.chapter_loop.chapter_states["26"] = ChapterState(
+        status=ChapterStatus.COMPLETE, declarations_stale=True
+    )
     rt = PipelineState.from_json(st.to_json())
-    assert rt.chapter_loop.chapter_states["26"].declarations_stale is True  # 现基线 AttributeError → 红
+    assert (
+        rt.chapter_loop.chapter_states["26"].declarations_stale is True
+    )  # 现基线 AttributeError → 红
+
 
 def test_stale_set_on_revision_clear_on_green(tmp_path):
     # 置位：修订完成（:4482 块内联写入，非独立 helper——审查轮 1 M13：测试经真实代码路径
     # run_chapter_step 修订分支或直接构造后调内联语义）；清除点 1：复验谓词全绿复同步处
     ...  # mini project（tmp_path: plans/ + chapters/ 真实 fixture 拷贝）驱动修订成功路径
     ...  # 断言置位 stale=True → 复验绿后 stale=False（快乐路径清除）
+
 
 def test_settle_rejects_stale(tmp_path):
     # 执法点：state-settling 派发前 stale=True → must_fix ss.stale_declarations（shadow demote 后 WARN 继续）
@@ -731,8 +822,10 @@ def _pre_settle_guard(
     路由归调用站点（并行块/串行/.cli 队列三站点各自镜像既有失败路由先例）。"""
     if not _get_chapter_state(state, chapter).declarations_stale:
         return [], []
-    items = [f"G4.ss.stale_declarations:chapters/chapter-{chapter}.md:"
-             "修订后声明面未同步（declarations_stale）——先重跑 hook_match/补声明同步再 settle"]
+    items = [
+        f"G4.ss.stale_declarations:chapters/chapter-{chapter}.md:"
+        "修订后声明面未同步（declarations_stale）——先重跑 hook_match/补声明同步再 settle"
+    ]
     demoted, hard = demote_must_fix(Path(project_dir), items)
     for dw in demoted:  # 轮 4 N5：对齐 _shadow_route_g4 :2081-2082 双通道（log + trace）
         log.warning("shadow_gate_demoted", chapter=chapter, skill="shenbi-state-settling", item=dw)
@@ -791,6 +884,7 @@ git commit -m "feat: declarations_stale state chain + ss.stale_declarations sett
 g4_hard 同计）；DISPATCH 交织不断链；loop_id 不作计数器；planning key 计数但不触发
 切换；复位=仅章推进。回放基线：ch25×14/ch31×5/ch27/29/33/35×4 全 ≥4 触发零假触发。"""
 
+
 def test_streak_counts_retries_and_dispatch_does_not_break():
     # 口径a 不分族：_record_retry(state, chapter, skill) 无 kind 参数（monitor_rewind/g4_hard
     # 两站点同 helper）；RETRY→DISPATCH→RETRY 是重派循环本体（ch25 seq 505-546 流形）——
@@ -801,13 +895,16 @@ def test_streak_counts_retries_and_dispatch_does_not_break():
     _record_retry(st, 25, "shenbi-chapter-drafting")
     assert st.chapter_loop.streak_monitor_rewinds[rk] == 2  # 现基线 AttributeError → 红
 
+
 def test_switch_fires_at_4_with_loop_id_reset_midway():
     # ch25 型：loop_id 序列 [1,2,3,4,1,...] 中途重置仍切换（loop_id 不可作计数器）
     ...
 
+
 def test_reset_only_on_chapter_advance():
     # 成功重派不复位（对齐 retry_budget_consumed 纪律）；_complete_chapter(bundle) 推进后复位
     ...
+
 
 def test_planning_key_counts_but_never_switches():
     # planning key 计数存在；切换消费面只读 drafting key
@@ -825,6 +922,7 @@ chapter_loop.py：
 
 ```python
 _STREAK_TARGETED_MODE_THRESHOLD = 4  # 卷一战术「打摆>5 轮切手工」代码化，4 留自动裕量（spec T4）
+
 
 def _record_retry(state: PipelineState, chapter: int, skill: str) -> None:
     """spec #83 T4 口径a：每条 RETRY（reason.kind 不分族）连击 +1。
@@ -904,17 +1002,24 @@ def test_family_classification_seven_prefixes():
     assert classify_retry_family("- word_band: ch25 短 380\n- G4.word_count: 差 500") == "length"
     assert classify_retry_family("- G4.cd ch25:quote 缺锚") == "content"
     assert classify_retry_family("- scene_domain: 4场景\n- composition: 拆") == "structure"
-    assert classify_retry_family("- XC: 单位词根\n- CH:12 缺段") == "structure"  # 轮 4 N4 勘误：混合串按 Interfaces 钉死优先级 length>structure>content 归 structure（最重约束先路由——ch25 全混族主形态）
+    assert (
+        classify_retry_family("- XC: 单位词根\n- CH:12 缺段") == "structure"
+    )  # 轮 4 N4 勘误：混合串按 Interfaces 钉死优先级 length>structure>content 归 structure（最重约束先路由——ch25 全混族主形态）
+
 
 def test_g4_hard_check_id_prefix_normalization():
     # g4_hard 兜底：剥可选 G4. 前缀归一（r5 实测 1 条 cp.prop_decl 无前缀）——check_ids 进反馈文本后同前缀通道
-    assert classify_retry_family("- cp.prop_decl:staging/plans/x.md") == "other"  # planning 族→other（drafting 切换面不读）
+    assert (
+        classify_retry_family("- cp.prop_decl:staging/plans/x.md") == "other"
+    )  # planning 族→other（drafting 切换面不读）
     assert classify_retry_family("- G4.cd.post_quote_verbatim:x") == "content"
 
+
 def test_routing_addendum_shapes():
-    assert "扩写" in targeted_feedback_addendum("length", "...")       # → _length_family 定向同款
+    assert "扩写" in targeted_feedback_addendum("length", "...")  # → _length_family 定向同款
     assert "场景结构" in targeted_feedback_addendum("structure", "...")
     assert "引句/数字锚" in targeted_feedback_addendum("content", "...")
+
 
 def test_matrix_structure_warn_channel():
     # 审查轮 1 M11：_check_matrix_structure 返回 (fails, warns)——diff 面积 >50% 走 warns（观测非 FAIL）
@@ -961,9 +1066,11 @@ def test_bundle_completion_writes_all_member_status(tmp_path):
     # mini project 构造后调 _complete_chapter(state, 2)：两章 status 均 complete（现基线 follower 恒 pending → 红）
     ...
 
+
 def test_bundle_merged_field_and_bundle_level_assertion():
     # 生成侧：follower 行 bundle_merged=True + resonance=束级值；读取侧：单章断言跳过、束级断言替代
     ...
+
 
 def test_emit_ledger_rows_shape(capsys):
     # --emit-ledger-rows 5 10：从 trace/cost 产出 ch5-10 草稿行（11 列头+可推导列，不可推导列=「待补」）
@@ -1030,28 +1137,40 @@ def test_plan_conflict_ch28_dual_declaration():
     issues = check_counter_reconciliation(text, plan, {"鉴录名数": {"value": 4}})
     assert any("plan_conflict" in i for i in issues)
 
+
 def test_base_mismatch_and_plus_zero_green():
     # +0 六章 base4==facts4 全绿（r5 回放）；base≠facts 红
     plan = "- 计数: 鉴录名数 5+0\n"
     issues = check_counter_reconciliation("正文", plan, {"鉴录名数": {"value": 4}})
     assert any("base_mismatch" in i for i in issues)
-    issues0 = check_counter_reconciliation("正文", "- 计数: 鉴录名数 4+0\n", {"鉴录名数": {"value": 4}})
+    issues0 = check_counter_reconciliation(
+        "正文", "- 计数: 鉴录名数 4+0\n", {"鉴录名数": {"value": 4}}
+    )
     assert not any("base_mismatch" in i for i in issues0)
+
 
 def test_ch9_temporal_green_with_constructed_facts():
     # r5.1：ch9 3+1 在 check 时点 facts=3 时序绿（照抄终态 4 会得红测）——夹具构造 facts=3
-    issues = check_counter_reconciliation("正文", "- 计数: 鉴录名数 3+1\n", {"鉴录名数": {"value": 3}})
+    issues = check_counter_reconciliation(
+        "正文", "- 计数: 鉴录名数 3+1\n", {"鉴录名数": {"value": 3}}
+    )
     assert not any("base_mismatch" in i for i in issues)
+
 
 def test_prose_anchor_same_sentence():
     # ch30 回放：:154「《鉴录》上四个名字」真命中；:58 船单「七个名字」无锚词排除；
     # :176 修辞「一个名字」排除；:186 POST 行剥 META 排除
     ch30 = (FIX / "chapters" / "chapter-30.md").read_text(encoding="utf-8")
-    issues = check_counter_reconciliation(ch30, "- 计数: 鉴录名数 4+0\n", {"鉴录名数": {"value": 4}})
+    issues = check_counter_reconciliation(
+        ch30, "- 计数: 鉴录名数 4+0\n", {"鉴录名数": {"value": 4}}
+    )
     assert not any("prose_mismatch" in i for i in issues)  # 双误红全消（r5 基线）
 
+
 def test_ordinal_face_kept():  # characterization：F17 序数判定保留
-    issues = check_counter_reconciliation("第五个名字", "- 计数: 鉴录名数 4+1\n", {"鉴录名数": {"value": 4}})
+    issues = check_counter_reconciliation(
+        "第五个名字", "- 计数: 鉴录名数 4+1\n", {"鉴录名数": {"value": 4}}
+    )
     assert issues == []  # final 5 == 序数 5
 ```
 
@@ -1117,18 +1236,26 @@ Expected: 命中行清单粘贴进 task 记录；**双维裁定**：①句类（
 def test_ch26_opening_balance_mismatch_fails():
     ch26 = (FIX / "chapters" / "chapter-26.md").read_text(encoding="utf-8")
     # ch26:26 实测「纸包里剩一百零三文」（裸「剩」——C2 勘误后前缀族命中）
-    fails, _ = check_balance_value_drift(ch26, ledger_value=113)  # ch26 check 时点前章末值 113（付前）
+    fails, _ = check_balance_value_drift(
+        ch26, ledger_value=113
+    )  # ch26 check 时点前章末值 113（付前）
     assert any("balance_value_drift" in f for f in fails)  # 章首 103 ≠ 113 → FAIL 臂红
+
 
 def test_spend_exemption_arithmetic():  # 轮 6 I2：豁免算术钉测——带符号 ledger−occurrence，符号翻转实现即红
     from shenbi.gates.g4.post_declarations import check_balance_value_drift
+
     ch23 = (FIX / "chapters" / "chapter-23.md").read_text(encoding="utf-8")
-    fails, warns = check_balance_value_drift(ch23, 183, spend_events=[40])  # 183−143=+40 ∈ {40} 豁免
+    fails, warns = check_balance_value_drift(
+        ch23, 183, spend_events=[40]
+    )  # 183−143=+40 ∈ {40} 豁免
     assert fails == [] and all("一百四十三文" not in w for w in warns)  # :300 零信号
+
 
 def test_price_sentence_not_anchored():
     _, warns = check_balance_value_drift("灯油四文一斤，他买了。", ledger_value=103)
     assert warns == []  # 价格句不命中强锚
+
 
 def test_bundle_escalation_from_manifest_warns():
     # 束 settle 聚合：束内两章各 1 WARN → cd.balance_value_drift.bundle must_fix（经 :4016 可 demote）
@@ -1198,15 +1325,20 @@ git commit -m "feat: balance_value_drift anchor with WARN arm + bundle escalatio
 ```python
 # tests/unit/tools/test_spec83_outline_drift.py
 """spec #83 T3: canon 回灌对账——卷一四实证作夹具（P1-2 根因链）。"""
+
+
 def test_second_whistle_missing_from_node_list():  # 双哨 canon：truth 持有、节点清单只一把
     findings = run_lint(FIX)  # volume_map:88 四件清单 vs props.json（两把哨）
     assert any("骨哨" in f.detail and "节点清单" in f.detail for f in findings)
 
+
 def test_provenance_phrase_mismatch():  # 「临终塞给他」vs 实际 ch2 存续授哨——词集交集空
     ...
 
+
 def test_promise_item_missing():  # 渡鸦局档案卡（卷纲 L21 承诺件）正文缺件
     ...
+
 
 def test_new_debt_not_scheduled():  # 五条欠账（ch36 运行期立账）不在还账进度表首批六行
     ...

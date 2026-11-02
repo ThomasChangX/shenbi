@@ -90,6 +90,7 @@ jobs:
 T1301/T1303 回归守卫：任何收窄审计范围的改动（如恢复 --group dev、去掉
 --all-groups/--all-extras、退回 uvx pip-audit/环境审计）都会使本测试 FAIL。
 """
+
 from pathlib import Path
 
 WORKFLOW = Path(__file__).resolve().parents[3] / ".github/workflows/security.yml"
@@ -263,12 +264,20 @@ def run_tool(*args: str) -> subprocess.CompletedProcess[str]:
 
 
 def test_clean_sbom_passes() -> None:
-    result = run_tool(str(FIX / "sbom-gpl-fixture.cdx.json"), "--exceptions", str(REPO / "tools/supply_chain_exceptions.json"))
+    result = run_tool(
+        str(FIX / "sbom-gpl-fixture.cdx.json"),
+        "--exceptions",
+        str(REPO / "tools/supply_chain_exceptions.json"),
+    )
     assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_unregistered_gpl_fails() -> None:
-    result = run_tool(str(FIX / "sbom-gpl-injected.cdx.json"), "--exceptions", str(REPO / "tools/supply_chain_exceptions.json"))
+    result = run_tool(
+        str(FIX / "sbom-gpl-injected.cdx.json"),
+        "--exceptions",
+        str(REPO / "tools/supply_chain_exceptions.json"),
+    )
     assert result.returncode == 1
     assert "GPL-3.0-only" in result.stdout
 
@@ -278,9 +287,13 @@ def test_ignore_vuln_must_be_registered(tmp_path) -> None:
     wf = tmp_path / "fake-workflow.yml"
     wf.write_text("run: pip-audit --ignore-vuln PYSEC-FAKE-0001\n", encoding="utf-8")
     try:
-        result = run_tool(str(FIX / "sbom-gpl-fixture.cdx.json"),
-                          "--exceptions", str(REPO / "tools/supply_chain_exceptions.json"),
-                          "--workflows", str(wf))
+        result = run_tool(
+            str(FIX / "sbom-gpl-fixture.cdx.json"),
+            "--exceptions",
+            str(REPO / "tools/supply_chain_exceptions.json"),
+            "--workflows",
+            str(wf),
+        )
         assert result.returncode == 1
         assert "PYSEC-FAKE-0001" in result.stdout
     finally:

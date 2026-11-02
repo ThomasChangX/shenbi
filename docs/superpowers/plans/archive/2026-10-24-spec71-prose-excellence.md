@@ -75,9 +75,7 @@ def test_segment_sentences_reexport_from_compute_stats() -> None:
 def test_count_similes_basic_and_domain() -> None:
     """计数于非对白域 + strip_narrative_body 域：对白内喻词不计、PRE 自检行不喂饱。"""
     prose = (
-        "剑光像一匹扯开的白绢。\n\n"
-        "「你别管，这事就像天塌了。」他说。\n\n"
-        "远处的山宛如一头伏兽。\n"
+        "剑光像一匹扯开的白绢。\n\n「你别管，这事就像天塌了。」他说。\n\n远处的山宛如一头伏兽。\n"
     )
     result = count_similes(prose)
     # 对白句（引号内）的「像」不计：只计 剑光像 + 宛如 = 2
@@ -227,7 +225,13 @@ def test_per_chapter_mapping() -> None:
     pc = stats["per_chapter"]
     assert set(pc) == {"chapter-1.md", "chapter-2.md"}
     for cols in pc.values():
-        assert set(cols) == {"total_chars", "mean_sentence_len", "ttr", "dialogue_ratio", "ge35_ratio"}
+        assert set(cols) == {
+            "total_chars",
+            "mean_sentence_len",
+            "ttr",
+            "dialogue_ratio",
+            "ge35_ratio",
+        }
     assert pc["chapter-1.md"]["ge35_ratio"] > 0.0
     assert pc["chapter-2.md"]["ge35_ratio"] == 0.0
     assert pc["chapter-1.md"]["total_chars"] > pc["chapter-2.md"]["total_chars"]
@@ -265,21 +269,19 @@ return dict 增 `"ge35_ratio": round(ge35 / n, 4)`。
 `compute_all_stats` 增（**per_chapter 的章文本剥域用 `strip_narrative_body`（裸 H2 PRE/POST 也剥——真实 fixtures 以裸 H2 形态为主（chapter-{2,3,4,10}-draft.md 等），自检长行不得白送假奔涌句；与 `simile` 块同域**）；`combined` 现行构造不动）：
 
 ```python
-    per_chapter: dict[str, dict[str, Any]] = {}
-    for fname, raw in texts.items():
-        ch = strip_narrative_body(raw)
-        ch_sents = segment_sentences(ch)
-        lens = [c for _, c in ch_sents]
-        ch_total = len(ch.replace("\n", "").replace(" ", ""))
-        per_chapter[fname] = {
-            "total_chars": ch_total,
-            "mean_sentence_len": round(sum(lens) / len(lens), 1) if lens else 0.0,
-            "ttr": compute_ttr(ch)["global_ttr"],
-            "dialogue_ratio": round(dialogue_char_ratio(ch), 4),
-            "ge35_ratio": round(
-                sum(1 for l in lens if l >= 35) / len(lens), 4
-            ) if lens else 0.0,
-        }
+per_chapter: dict[str, dict[str, Any]] = {}
+for fname, raw in texts.items():
+    ch = strip_narrative_body(raw)
+    ch_sents = segment_sentences(ch)
+    lens = [c for _, c in ch_sents]
+    ch_total = len(ch.replace("\n", "").replace(" ", ""))
+    per_chapter[fname] = {
+        "total_chars": ch_total,
+        "mean_sentence_len": round(sum(lens) / len(lens), 1) if lens else 0.0,
+        "ttr": compute_ttr(ch)["global_ttr"],
+        "dialogue_ratio": round(dialogue_char_ratio(ch), 4),
+        "ge35_ratio": round(sum(1 for l in lens if l >= 35) / len(lens), 4) if lens else 0.0,
+    }
 ```
 
 return dict 增 `"simile": count_similes(combined_raw)`（`combined_raw` = join 后未剥 META 的原文——在现行 `combined = META_BLOCK_RE.sub(...)` 之前取 `"\n\n".join(texts.values())` 的引用）与 `"per_chapter": per_chapter`。**import 面同步扩**（T1 的 gates.shared 括号加两名 + cjk 一行）：
@@ -481,92 +483,84 @@ Expected: FAIL（`_warn_ids` 返回空 dict——id 不存在）
 循环体内（word_count 块后新增）：）
 
 ```python
-        # spec #71 prose-excellence WARN predicates (WARN-level: recorded in
-        # checks for the pipeline manifest, never in must_fix).
-        narrative = strip_narrative_body(content)
-        sents = segment_sentences(narrative)
-        narrative_surge = sum(
-            1
-            for sent, slen in sents
-            if slen >= 35 and dialogue_char_ratio(sent) < 0.5
-        )
-        surge_quota = max(1, total // 3000)  # 复用 :324 已算的 total（total_chars_md_text 同值）
-        if narrative_surge < surge_quota:
-            c.append(
-                {
-                    "id": "G4.cd.surge",
-                    "file": fp,
-                    "s": GateStatus.WARN,
-                    "r": f"narrative surge sentences {narrative_surge} < quota {surge_quota}",
-                }
-            )
-        else:
-            c.append(
-                {
-                    "id": "G4.cd.surge",
-                    "file": fp,
-                    "s": GateStatus.PASS,
-                    "surge": narrative_surge,
-                    "quota": surge_quota,
-                }
-            )
+# spec #71 prose-excellence WARN predicates (WARN-level: recorded in
+# checks for the pipeline manifest, never in must_fix).
+narrative = strip_narrative_body(content)
+sents = segment_sentences(narrative)
+narrative_surge = sum(1 for sent, slen in sents if slen >= 35 and dialogue_char_ratio(sent) < 0.5)
+surge_quota = max(1, total // 3000)  # 复用 :324 已算的 total（total_chars_md_text 同值）
+if narrative_surge < surge_quota:
+    c.append(
+        {
+            "id": "G4.cd.surge",
+            "file": fp,
+            "s": GateStatus.WARN,
+            "r": f"narrative surge sentences {narrative_surge} < quota {surge_quota}",
+        }
+    )
+else:
+    c.append(
+        {
+            "id": "G4.cd.surge",
+            "file": fp,
+            "s": GateStatus.PASS,
+            "surge": narrative_surge,
+            "quota": surge_quota,
+        }
+    )
 
-        simile_stats = count_similes(content)
-        if 2.0 <= simile_stats["per_1000"] <= 4.0:
-            c.append(
-                {
-                    "id": "G4.cd.simile_band",
-                    "file": fp,
-                    "s": GateStatus.PASS,
-                    "per_1000": simile_stats["per_1000"],
-                }
-            )
-        else:
-            c.append(
-                {
-                    "id": "G4.cd.simile_band",
-                    "file": fp,
-                    "s": GateStatus.WARN,
-                    "r": (
-                        f"simile density {simile_stats['per_1000']}/千字 outside "
-                        "[2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)"
-                    ),
-                    "per_1000": simile_stats["per_1000"],
-                }
-            )
+simile_stats = count_similes(content)
+if 2.0 <= simile_stats["per_1000"] <= 4.0:
+    c.append(
+        {
+            "id": "G4.cd.simile_band",
+            "file": fp,
+            "s": GateStatus.PASS,
+            "per_1000": simile_stats["per_1000"],
+        }
+    )
+else:
+    c.append(
+        {
+            "id": "G4.cd.simile_band",
+            "file": fp,
+            "s": GateStatus.WARN,
+            "r": (
+                f"simile density {simile_stats['per_1000']}/千字 outside "
+                "[2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)"
+            ),
+            "per_1000": simile_stats["per_1000"],
+        }
+    )
 
-        pre_block = re.search(
-            r"## PRE_WRITE_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL
-        )
-        post_block = re.search(
-            r"## POST_WRITE_SELF_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL
-        )
+pre_block = re.search(r"## PRE_WRITE_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL)
+post_block = re.search(r"## POST_WRITE_SELF_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL)
 
-        golden_issues: list[str] = []
-        pre_val: str | None = None
-        if pre_block:
-            m = _GOLDEN_PRE_RE.search(pre_block.group(0))
-            if m:
-                pre_val = m.group(1)
-        if pre_val is None or pre_val.strip().strip("[]").strip() in _EMPTY_VALUES:
-            golden_issues.append("PRE lacks non-empty 金句位 line")
-        post_ok = False
-        if post_block:
-            if _GOLDEN_POST_RE.search(post_block.group(0)):
-                post_ok = True
-        if not post_ok:
-            golden_issues.append("POST lacks 金句 excerpt line")
-        if golden_issues:
-            c.append(
-                {
-                    "id": "G4.cd.golden_slot",
-                    "file": fp,
-                    "s": GateStatus.WARN,
-                    "r": "; ".join(golden_issues),
-                }
-            )
-        else:
-            c.append({"id": "G4.cd.golden_slot", "file": fp, "s": GateStatus.PASS})
+golden_issues: list[str] = []
+pre_val: str | None = None
+if pre_block:
+    m = _GOLDEN_PRE_RE.search(pre_block.group(0))
+    if m:
+        pre_val = m.group(1)
+if pre_val is None or pre_val.strip().strip("[]").strip() in _EMPTY_VALUES:
+    golden_issues.append("PRE lacks non-empty 金句位 line")
+post_ok = False
+if post_block:
+    if _GOLDEN_POST_RE.search(post_block.group(0)):
+        post_ok = True
+if not post_ok:
+    golden_issues.append("POST lacks 金句 excerpt line")
+if golden_issues:
+    c.append(
+        {
+            "id": "G4.cd.golden_slot",
+            "file": fp,
+            "s": GateStatus.WARN,
+            "r": "; ".join(golden_issues),
+        }
+    )
+else:
+    c.append({"id": "G4.cd.golden_slot", "file": fp, "s": GateStatus.PASS})
 ```
 
 import 区扩展 `from shenbi.gates.shared import (...)` 增 `count_similes`, `segment_sentences`；增 `from shenbi.text.cjk import dialogue_char_ratio`。（`re` 已 import。）
@@ -678,9 +672,9 @@ Expected: FAIL（AssertionError——提取面不含该行 / OPTIONAL_READS 无�
 `dispatch_helper.py` OPTIONAL_READS drafting 列表（`"style/style_directives.md",` 行后）增：
 
 ```python
-        # spec #71: self-anchored exemplar file — absent until the first
-        # style-learning re-measure (ch12/volume boundary) produces it.
-        "style/anchors.md",
+# spec #71: self-anchored exemplar file — absent until the first
+# style-learning re-measure (ch12/volume boundary) produces it.
+("style/anchors.md",)
 ```
 
 - [ ] **Step 4: 跑测试确认通过 + 两文件全量回归**

@@ -56,7 +56,8 @@ def test_context_file_written_on_assembly():
         (project_dir / "context").mkdir(parents=True)
         # Write a minimal plan so assemble_context can read it
         (project_dir / "plans" / "chapter-1-plan.md").write_text(
-            "# Plan\nrole: opening\n", encoding="utf-8")
+            "# Plan\nrole: opening\n", encoding="utf-8"
+        )
 
         _run_context_assembly(project_dir, 1)
 
@@ -97,6 +98,7 @@ Expected: FAIL (`test_context_file_fallback_written_when_assembly_throws` fails:
 
 ```python
 # In src/shenbi/pipeline/chapter_loop.py, REPLACE _run_context_assembly (lines 566-591):
+
 
 def _run_context_assembly(project_dir: Path, chapter: int) -> None:
     """Materialize the three-route context package for the chapter.
@@ -221,10 +223,13 @@ def test_curated_context_uses_safe_write():
         (project_dir / "context").mkdir(parents=True)
         (project_dir / "chapters").mkdir(parents=True)
 
-        with patch(
-            "shenbi.pipeline.context_curation.curate_context",
-            return_value="curated body",
-        ), patch("shenbi.safe_write.safe_write") as mock_sw:
+        with (
+            patch(
+                "shenbi.pipeline.context_curation.curate_context",
+                return_value="curated body",
+            ),
+            patch("shenbi.safe_write.safe_write") as mock_sw,
+        ):
             _run_context_curation(project_dir, 2)
             assert mock_sw.called, "safe_write must be used to persist curated context"
 ```
@@ -238,6 +243,7 @@ Expected: FAIL (curated file does not exist — currently discarded)
 
 ```python
 # In src/shenbi/pipeline/chapter_loop.py, REPLACE _run_context_curation (lines 594-610):
+
 
 def _run_context_curation(project_dir: Path, chapter: int) -> None:
     """Run deterministic context curation and PERSIST it (Gap 2 fix).
@@ -259,8 +265,7 @@ def _run_context_curation(project_dir: Path, chapter: int) -> None:
         curated = curate_context(project_dir, chapter)
         curated_path.parent.mkdir(parents=True, exist_ok=True)
         safe_write(curated_path, curated)  # FIX: actually persist (was discarded)
-        log.info("context_curated", chapter=chapter, length=len(curated),
-                 output=str(curated_path))
+        log.info("context_curated", chapter=chapter, length=len(curated), output=str(curated_path))
     except Exception as e:
         log.warning("context_curation_failed", chapter=chapter, error=str(e), exc_info=True)
 
@@ -360,12 +365,17 @@ def test_system_terms_loaded_from_genre_config(tmp_path):
     import json
     from shenbi.skill_utils.drift_detection.linguistic_drift import load_drift_config
 
-    (tmp_path / "genre-config.json").write_text(json.dumps({
-        "drift_detection": {
-            "system_terms": ["自定义甲", "自定义乙"],
-            "pattern_fingerprints": ["自定义句式"],
-        }
-    }), encoding="utf-8")
+    (tmp_path / "genre-config.json").write_text(
+        json.dumps(
+            {
+                "drift_detection": {
+                    "system_terms": ["自定义甲", "自定义乙"],
+                    "pattern_fingerprints": ["自定义句式"],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
 
     cfg = load_drift_config(tmp_path)
     assert "自定义甲" in cfg.system_terms
@@ -380,11 +390,11 @@ def test_frequency_divergence_flags_outlier_terms():
     current_metrics = compute_linguistic_metrics(degraded)
     baseline_metrics = compute_linguistic_metrics(baseline_text)
 
-    alarms = frequency_divergence_alarms(
-        degraded, baseline_text, sigma_threshold=3.0)
+    alarms = frequency_divergence_alarms(degraded, baseline_text, sigma_threshold=3.0)
     # The novel outlier term must be flagged without being in SYSTEM_TERMS
     assert any("在场度" in a for a in alarms), (
-        "Generic >3 sigma alarm must catch novel degradation terms not in SYSTEM_TERMS")
+        "Generic >3 sigma alarm must catch novel degradation terms not in SYSTEM_TERMS"
+    )
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -406,6 +416,7 @@ The goal is an alarm system that works even when the resonance LLM scorer is
 contaminated by the same degraded context it scores. Embedding-novelty /
 Burrows' Delta are future enhancements (Shout-Out spec), not this module.
 """
+
 from __future__ import annotations
 
 import json
@@ -425,11 +436,26 @@ class DriftConfig:
     Falls back to a conservative bootstrap set when the config is absent so
     detection still works on fresh projects.
     """
-    system_terms: list[str] = field(default_factory=lambda: [
-        # Bootstrap fallback only; overridden by genre-config.json in real runs.
-        "参数", "系统", "格式串", "历法", "槽位", "帧序列", "阈值", "在场于",
-        "Phase", "MH-", "冷在场", "冷值", "在场度", "冷知道",
-    ])
+
+    system_terms: list[str] = field(
+        default_factory=lambda: [
+            # Bootstrap fallback only; overridden by genre-config.json in real runs.
+            "参数",
+            "系统",
+            "格式串",
+            "历法",
+            "槽位",
+            "帧序列",
+            "阈值",
+            "在场于",
+            "Phase",
+            "MH-",
+            "冷在场",
+            "冷值",
+            "在场度",
+            "冷知道",
+        ]
+    )
     pattern_fingerprints: list[str] = field(default_factory=lambda: ["冷在", "冷知道"])
 
 
@@ -463,7 +489,8 @@ def load_drift_config(project_dir: Path | str | None) -> DriftConfig:
     return DriftConfig(
         system_terms=list(dd.get("system_terms", DriftConfig().system_terms)),
         pattern_fingerprints=list(
-            dd.get("pattern_fingerprints", DriftConfig().pattern_fingerprints)),
+            dd.get("pattern_fingerprints", DriftConfig().pattern_fingerprints)
+        ),
     )
 
 
@@ -473,9 +500,7 @@ def _short_chain_chars(text: str) -> int:
     return sum(len(s) for s in short_sents)
 
 
-def compute_linguistic_metrics(
-    text: str, project_dir: Path | str | None = None
-) -> dict:
+def compute_linguistic_metrics(text: str, project_dir: Path | str | None = None) -> dict:
     """Compute 5 linguistic drift metrics, each normalized per mille.
 
     Args:
@@ -532,10 +557,11 @@ def frequency_divergence_alarms(
     > Until sufficient data is accumulated, treat frequency_alarms as
     > informational (WARN) rather than blocking (HARD).
     """
+
     def _term_freqs(text: str) -> Counter:
         # Bigrams of CJK chars — cheap surface units that capture novel phrases
         cjk = [c for c in text if "\u4e00" <= c <= "\u9fff"]
-        return Counter(cjk[i:i + 2] for i in range(len(cjk) - 1))
+        return Counter(cjk[i : i + 2] for i in range(len(cjk) - 1))
 
     base = _term_freqs(baseline_text)
     curr = _term_freqs(current_text)
@@ -572,8 +598,12 @@ def detect_drift(current: dict, baseline: dict) -> DriftResult:
     max_deviation_ratio = 1.0
     trigger_metric: str | None = None
 
-    for metric in ["system_term_density", "em_dash_density", "pattern_density",
-                   "short_sentence_chain_density"]:
+    for metric in [
+        "system_term_density",
+        "em_dash_density",
+        "pattern_density",
+        "short_sentence_chain_density",
+    ]:
         base_val = baseline.get(metric, 0.0)
         curr_val = current.get(metric, 0.0)
         ratio = (curr_val / base_val) if base_val > 0 else (6.0 if curr_val > 0 else 1.0)
@@ -605,9 +635,13 @@ def detect_drift(current: dict, baseline: dict) -> DriftResult:
         severity = "NONE"
 
     message = (
-        f"Drift detected: {trigger_metric} deviated {max_deviation_ratio:.1f}x "
-        f"from baseline. System term density: {stm_density:.1f} per mille."
-    ) if is_drift else "No linguistic drift detected."
+        (
+            f"Drift detected: {trigger_metric} deviated {max_deviation_ratio:.1f}x "
+            f"from baseline. System term density: {stm_density:.1f} per mille."
+        )
+        if is_drift
+        else "No linguistic drift detected."
+    )
 
     return DriftResult(
         is_drift=is_drift,
@@ -647,8 +681,10 @@ git commit -m "feat: add pragmatic linguistic-drift alarm detectors (config-driv
 ```python
 # Add to tests/unit/skill_utils/drift_detection/test_linguistic_drift.py:
 
+
 def test_check_opening_similarity_identical():
     from shenbi.skill_utils.drift_detection.linguistic_drift import check_opening_similarity
+
     ch1 = "冷在场于第七层深度。冷知道深度在第八层。" + "x" * 300
     ch2 = "冷在场于第七层深度。冷知道深度在第八层。" + "y" * 300
     similarity = check_opening_similarity(ch1, ch2)
@@ -657,6 +693,7 @@ def test_check_opening_similarity_identical():
 
 def test_check_opening_similarity_different():
     from shenbi.skill_utils.drift_detection.linguistic_drift import check_opening_similarity
+
     ch1 = "林风站在山顶，望着远方的云海翻涌。" + "x" * 300
     ch2 = "陈维民推开实验室的门，灯光自动亮起。" + "y" * 300
     similarity = check_opening_similarity(ch1, ch2)
@@ -665,6 +702,7 @@ def test_check_opening_similarity_different():
 
 def test_check_window_redundancy_detects_looping():
     from shenbi.skill_utils.drift_detection.linguistic_drift import check_window_redundancy
+
     chapters = [
         "冷在场于第七层深度。" * 50,
         "冷在场于第八层深度。" * 50,
@@ -745,6 +783,7 @@ from shenbi.skill_utils.drift_detection.linguistic_drift import (
     detect_drift,
 )
 
+
 def test_intervention_triggers_on_degraded_text():
     """3-tier intervention should fire when system term density exceeds thresholds."""
     normal = "林风站在山顶，望着远方。" * 20
@@ -769,6 +808,7 @@ Expected: FAIL (test file not found → create it) then PASS
 ```python
 # In src/shenbi/pipeline/chapter_loop.py, add after the snapshot step:
 
+
 def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:
     """Check chapter text for linguistic drift and apply tiered intervention.
 
@@ -791,6 +831,7 @@ def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | No
     # Load baseline (established from first 3 chapters — see Task 6 / spec §3.5)
     baseline_file = project_dir / "style" / "linguistic_baseline.json"
     import json
+
     if baseline_file.exists():
         baseline = json.loads(baseline_file.read_text(encoding="utf-8"))
     else:
@@ -801,10 +842,12 @@ def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | No
     result = detect_drift(current, baseline)
 
     if result.is_drift:
-        log.warning("linguistic_drift_detected",
-                     chapter=chapter,
-                     severity=result.severity,
-                     metrics=result.metrics)
+        log.warning(
+            "linguistic_drift_detected",
+            chapter=chapter,
+            severity=result.severity,
+            metrics=result.metrics,
+        )
 
         if result.severity == "ESCALATE":
             log.error("drift_escalate_pause_for_review", chapter=chapter)
@@ -825,8 +868,9 @@ def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | No
             prev_text = prev_file.read_text(encoding="utf-8")
             opening_sim = check_opening_similarity(chapter_text, prev_text)
             if opening_sim > 0.6:
-                log.warning("opening_similarity_high",
-                            chapter=chapter, similarity=round(opening_sim, 2))
+                log.warning(
+                    "opening_similarity_high", chapter=chapter, similarity=round(opening_sim, 2)
+                )
                 _inject_opening_variation_directive(project_dir, chapter, opening_sim)
 
     return result
@@ -835,9 +879,10 @@ def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | No
 def _inject_drift_correction(project_dir: Path, chapter: int, result: DriftResult) -> None:
     """Write a PRE_WRITE_CHECK directive for the next chapter to correct drift."""
     from shenbi.safe_write import safe_write
+
     directive = f"""## PRE_WRITE_CHECK (AUTO-GENERATED - DRIFT DETECTED)
 
-CRITICAL: Chapter {chapter} has system term density of {result.metrics.get('system_term_density', 0):.1f} per mille (baseline: <5).
+CRITICAL: Chapter {chapter} has system term density of {result.metrics.get("system_term_density", 0):.1f} per mille (baseline: <5).
 The next chapter MUST:
 1. Use natural Chinese narrative prose — NO system parameter language (冷在场, 冷值, 在场度)
 2. Include at least 3 dialogue exchanges with human characters
@@ -851,6 +896,7 @@ The next chapter MUST:
 def _inject_drift_warning(project_dir: Path, chapter: int, result: DriftResult) -> None:
     """Write a gentle warning for the next chapter."""
     from shenbi.safe_write import safe_write
+
     warning = f"""## PRE_WRITE_CHECK (AUTO-GENERATED - STYLE WARNING)
 
 Note: Chapter {chapter} shows early signs of parametric language.
@@ -863,9 +909,10 @@ Please prioritize natural prose and human character dialogue in the next chapter
 def _inject_opening_variation_directive(project_dir: Path, chapter: int, similarity: float) -> None:
     """Warn about high opening similarity."""
     from shenbi.safe_write import safe_write
+
     directive = f"""## PRE_WRITE_CHECK (OPENING VARIATION)
 
-The opening of Chapter {chapter} is {similarity*100:.0f}% similar to Chapter {chapter-1}.
+The opening of Chapter {chapter} is {similarity * 100:.0f}% similar to Chapter {chapter - 1}.
 Next chapter MUST use a different opening approach.
 Forbidden openings: "冷知道/冷在/冷在场于" sentence patterns.
 """
@@ -875,6 +922,7 @@ Forbidden openings: "冷知道/冷在/冷在场于" sentence patterns.
 
 class DriftEscalationError(Exception):
     """Raised when linguistic drift reaches ESCALATE severity."""
+
     pass
 ```
 
@@ -951,8 +999,10 @@ after chapter 3 completes.
 import tempfile
 from pathlib import Path
 
+
 def test_audit_context_coverage_finds_gaps():
     from shenbi.pipeline.chapter_loop import _audit_context_coverage
+
     with tempfile.TemporaryDirectory() as tmp:
         project_dir = Path(tmp)
         context_dir = project_dir / "context"
@@ -978,6 +1028,7 @@ Expected: FAIL
 ```python
 # In src/shenbi/pipeline/chapter_loop.py:
 
+
 def _audit_context_coverage(project_dir: Path, current_chapter: int) -> list[int]:
     """Scan all chapters up to current_chapter and return list of missing context files.
 
@@ -985,6 +1036,7 @@ def _audit_context_coverage(project_dir: Path, current_chapter: int) -> list[int
     pipeline resume initialization to surface the 77% coverage gap (spec §3.1).
     """
     import structlog
+
     log = structlog.get_logger()
     context_dir = project_dir / "context"
     missing = []
@@ -993,8 +1045,11 @@ def _audit_context_coverage(project_dir: Path, current_chapter: int) -> list[int
         if not context_file.exists():
             missing.append(ch)
     if missing:
-        log.warning("context_coverage_gap", missing_chapters=missing,
-                    gap_ratio=f"{len(missing)}/{current_chapter}")
+        log.warning(
+            "context_coverage_gap",
+            missing_chapters=missing,
+            gap_ratio=f"{len(missing)}/{current_chapter}",
+        )
     return missing
 ```
 
@@ -1014,6 +1069,7 @@ def backfill_context(chapters: str, project_dir: str):
     from shenbi.pipeline.context_assemble import assemble_context, write_context_file
     from shenbi.pipeline.context_curation import curate_context
     from shenbi.safe_write import safe_write
+
     project_path = Path(project_dir)
 
     if "-" in chapters:

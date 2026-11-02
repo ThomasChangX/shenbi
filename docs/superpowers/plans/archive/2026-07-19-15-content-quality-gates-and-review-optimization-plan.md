@@ -33,8 +33,10 @@
 - [ ] **1a. Write test:** Create `tests/gates/g4/test_title_check.py`
   ```python
   """Test G4.cd.title chapter title quality enforcement."""
+
   import pytest
   from shenbi.gates.g4.chapter_drafting import check_chapter_title
+
 
   class TestChapterTitleValidation:
       def test_rejects_chapter_number_in_title(self):
@@ -73,6 +75,7 @@
   ```python
   import re
 
+
   def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str]:
       """G4.cd.title: Validate chapter title quality.
 
@@ -85,23 +88,28 @@
       issues = []
 
       # HARD FAIL: Chapter number in title
-      if re.search(r'第\d+章', title):
-          issues.append("G4.cd.title:contains_chapter_number -- "
-                         "title must not include chapter number (SKILL.md:125)")
+      if re.search(r"第\d+章", title):
+          issues.append(
+              "G4.cd.title:contains_chapter_number -- "
+              "title must not include chapter number (SKILL.md:125)"
+          )
 
       # HARD FAIL: Duplicate title
       if title in previous_titles:
-          issues.append(f"G4.cd.title:duplicate_of_ch{previous_titles[title]} -- "
-                         f"title '{title}' already used")
+          issues.append(
+              f"G4.cd.title:duplicate_of_ch{previous_titles[title]} -- title '{title}' already used"
+          )
 
       # WARN: Day-of-week or date label
       day_pattern = re.compile(
-          r'(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|'
-          r'周[一二三四五六日])'
+          r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|"
+          r"周[一二三四五六日])"
       )
       if day_pattern.search(title):
-          issues.append("G4.cd.title:day_label_instead_of_thematic_name -- "
-                         "prefer thematic 1-4 character name over date label")
+          issues.append(
+              "G4.cd.title:day_label_instead_of_thematic_name -- "
+              "prefer thematic 1-4 character name over date label"
+          )
 
       return issues
   ```
@@ -122,22 +130,26 @@
 - [ ] **2a. Write test:** Create `tests/pipeline/test_title_gate_integration.py`
   ```python
   """Test title gate integration into chapter loop post-drafting checks."""
+
   import pytest
   from pathlib import Path
   from unittest.mock import patch, MagicMock
+
 
   class TestTitleGateIntegration:
       def test_title_check_called_post_drafting(self):
           """Verify _run_g4_checks calls check_chapter_title after drafting."""
           from shenbi.pipeline.chapter_loop import _run_g4_checks
+
           title_dict = _run_g4_checks(MagicMock(), chapter=1)
-          assert 'text' in title_dict
-          assert 'chapter' in title_dict
-          assert 'style' in title_dict
+          assert "text" in title_dict
+          assert "chapter" in title_dict
+          assert "style" in title_dict
 
       def test_detects_title_degradation_in_pipeline(self):
           """Integration: chapter with 'Saturday' title produces WARN."""
           from shenbi.gates.g4.chapter_drafting import check_chapter_title
+
           title = "沉"
           assert 1 <= len(title) <= 20
 
@@ -145,8 +157,9 @@
           """Two chapters with same title: second is flagged."""
           from shenbi.gates.g4.chapter_drafting import check_chapter_title
           import re
+
           title = "废料场"
-          assert not re.match(r'第\d+章', title)
+          assert not re.match(r"第\d+章", title)
   ```
 
 - [ ] **2b. Run test -- confirm FAIL.**
@@ -158,14 +171,15 @@
       all_issues = []
       project_dir = state.project_dir
 
-      chapter_path = project_dir / 'chapters' / f'chapter-{chapter}.md'
-      plan_path = project_dir / 'plans' / f'chapter-{chapter}-plan.md'
+      chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+      plan_path = project_dir / "plans" / f"chapter-{chapter}-plan.md"
 
       if not chapter_path.exists():
           return all_issues
 
       # --- G4.cd.title ---
       from shenbi.gates.g4.chapter_drafting import check_chapter_title
+
       title = _extract_chapter_title(chapter_path)
       previous_titles = _load_previous_titles(project_dir, chapter)
       title_issues = check_chapter_title(title, previous_titles)
@@ -173,6 +187,7 @@
 
       # --- G4.cd.hook_fulfillment ---
       from shenbi.gates.g4.chapter_drafting import check_hook_fulfillment
+
       hook_issues = check_hook_fulfillment(plan_path, chapter_path)
       all_issues.extend(hook_issues)
 
@@ -181,8 +196,8 @@
 
   def _extract_chapter_title(chapter_path: Path) -> str:
       """Extract title from chapter markdown file. Title is first H1 heading."""
-      text = chapter_path.read_text(encoding='utf-8')
-      match = re.match(r'^#\s+(.+?)$', text, re.MULTILINE)
+      text = chapter_path.read_text(encoding="utf-8")
+      match = re.match(r"^#\s+(.+?)$", text, re.MULTILINE)
       return match.group(1).strip() if match else ""
 
 
@@ -190,7 +205,7 @@
       """Load all previous chapter titles for duplicate detection."""
       previous = {}
       for ch in range(1, current_chapter):
-          ch_path = project_dir / 'chapters' / f'chapter-{ch}.md'
+          ch_path = project_dir / "chapters" / f"chapter-{ch}.md"
           if ch_path.exists():
               title = _extract_chapter_title(ch_path)
               if title:
@@ -216,10 +231,12 @@
 - [ ] **3a. Write test:** Create `tests/gates/g4/test_hook_fulfillment.py`
   ```python
   """Test G4.cd.hook_fulfillment plan-content cross-validation."""
+
   import pytest
   import tempfile
   from pathlib import Path
   from shenbi.gates.g4.chapter_drafting import check_hook_fulfillment
+
 
   class TestHookFulfillment:
       def test_detects_missing_hooks(self, tmp_path):
@@ -275,6 +292,7 @@
   import re
   from pathlib import Path
 
+
   def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
       """G4.cd.hook_fulfillment: Verify plan-declared hooks appear in chapter body.
 
@@ -284,18 +302,20 @@
       if not plan_path.exists():
           return []
 
-      plan_text = plan_path.read_text(encoding='utf-8')
-      chapter_text = chapter_path.read_text(encoding='utf-8')
+      plan_text = plan_path.read_text(encoding="utf-8")
+      chapter_text = chapter_path.read_text(encoding="utf-8")
 
       # Extract hook IDs from plan -- match patterns like MH-003, CP-012, etc.
-      plan_hooks = set(re.findall(r'[A-Z]{2,4}-\d+', plan_text))
+      plan_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", plan_text))
       # Extract hook IDs from chapter body
-      chapter_hooks = set(re.findall(r'[A-Z]{2,4}-\d+', chapter_text))
+      chapter_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", chapter_text))
 
       missing = plan_hooks - chapter_hooks
       if missing:
-          return [f"G4.cd.hook_unfulfilled: plan requires hooks {sorted(missing)} "
-                  f"but none found in chapter body"]
+          return [
+              f"G4.cd.hook_unfulfilled: plan requires hooks {sorted(missing)} "
+              f"but none found in chapter body"
+          ]
       return []
   ```
 
@@ -366,6 +386,7 @@ def check_escalation(
 - [ ] **5a. Write test:** Create `tests/pipeline/test_escalation_review_conditional.py`
   ```python
   """Test reactive escalation-review: check_escalation() gates the LLM dispatch."""
+
   import json
   import pytest
   import tempfile
@@ -376,6 +397,7 @@ def check_escalation(
       _parse_audit_verdict,
   )
   from shenbi.skill_utils.escalation.check import check_escalation
+
 
   class TestCheckEscalationHelperExists:
       def test_empty_signals_when_clean(self):
@@ -397,57 +419,59 @@ def check_escalation(
           )
           assert len(signals) > 0
 
+
   class TestParseAuditVerdict:
       def test_parses_pass_verdict(self, tmp_path):
-          f = tmp_path / 'audit.md'
+          f = tmp_path / "audit.md"
           f.write_text("## Verdict\n\nPASS - All checks passed.")
           verdict = _parse_audit_verdict(f)
-          assert verdict['status'] == 'PASS'
+          assert verdict["status"] == "PASS"
 
       def test_parses_blocking_verdict(self, tmp_path):
-          f = tmp_path / 'audit.md'
+          f = tmp_path / "audit.md"
           f.write_text("## Verdict\n\nBLOCKING - Critical issue found.")
           verdict = _parse_audit_verdict(f)
-          assert verdict['status'] == 'BLOCKING'
-          assert verdict['blocking'] is True
+          assert verdict["status"] == "BLOCKING"
+          assert verdict["blocking"] is True
 
       def test_parses_warn_verdict(self, tmp_path):
-          f = tmp_path / 'audit.md'
+          f = tmp_path / "audit.md"
           f.write_text("## Verdict\n\nWARN - Minor concern noted.")
           verdict = _parse_audit_verdict(f)
-          assert verdict['status'] == 'WARN'
+          assert verdict["status"] == "WARN"
+
 
   class TestDeterministicSummary:
       def test_generates_summary_when_no_escalation(self, tmp_path):
-          audit_dir = tmp_path / 'audits'
+          audit_dir = tmp_path / "audits"
           audit_dir.mkdir()
-          for atype in ['continuity', 'character']:
-              f = audit_dir / f'chapter-5-{atype}.md'
+          for atype in ["continuity", "character"]:
+              f = audit_dir / f"chapter-5-{atype}.md"
               f.write_text("## Verdict\n\nPASS - OK.")
           _generate_deterministic_review_summary(tmp_path, 5)
-          summary = audit_dir / 'chapter-5-review-summary.md'
+          summary = audit_dir / "chapter-5-review-summary.md"
           assert summary.exists()
           content = summary.read_text()
-          assert 'continuity' in content
-          assert 'character' in content
+          assert "continuity" in content
+          assert "character" in content
 
       def test_does_not_generate_when_no_audit_files(self, tmp_path):
-          audit_dir = tmp_path / 'audits'
+          audit_dir = tmp_path / "audits"
           audit_dir.mkdir()
           _generate_deterministic_review_summary(tmp_path, 5)
-          summary = audit_dir / 'chapter-5-review-summary.md'
+          summary = audit_dir / "chapter-5-review-summary.md"
           assert not summary.exists()
 
       def test_summary_contains_chapter_specific_info(self, tmp_path):
-          audit_dir = tmp_path / 'audits'
+          audit_dir = tmp_path / "audits"
           audit_dir.mkdir()
-          f = audit_dir / 'chapter-7-continuity.md'
+          f = audit_dir / "chapter-7-continuity.md"
           f.write_text("## Verdict\n\nPASS - Timeline consistent through Ch7.")
           _generate_deterministic_review_summary(tmp_path, 7)
-          summary = audit_dir / 'chapter-7-review-summary.md'
+          summary = audit_dir / "chapter-7-review-summary.md"
           content = summary.read_text()
-          assert 'Chapter 7' in content
-          assert 'Timeline consistent' in content
+          assert "Chapter 7" in content
+          assert "Timeline consistent" in content
   ```
 
 - [ ] **5b. Run test -- confirm FAIL.**
@@ -474,11 +498,8 @@ def check_escalation(
 
   if not signals:
       # No escalation signal -> deterministic summary instead of LLM dispatch.
-      _generate_deterministic_review_summary(
-          state.project_dir, state.chapter_loop.current_chapter
-      )
-      log.info("escalation_review_skipped_no_signals",
-               chapter=state.chapter_loop.current_chapter)
+      _generate_deterministic_review_summary(state.project_dir, state.chapter_loop.current_chapter)
+      log.info("escalation_review_skipped_no_signals", chapter=state.chapter_loop.current_chapter)
   else:
       dispatch_escalation(project_dir, chapter, context=...)
   ```
@@ -491,13 +512,14 @@ def check_escalation(
       scores = []
       for ch_num in sorted(state.chapter_loop.chapter_states.keys())[-window:]:
           cs = state.chapter_loop.chapter_states[ch_num]
-          if hasattr(cs, 'resonance_score') and cs.resonance_score is not None:
+          if hasattr(cs, "resonance_score") and cs.resonance_score is not None:
               scores.append(float(cs.resonance_score))
       return scores
 
+
   def _has_sensitivity_blocking(cs) -> bool:
       """Check if sensitivity blocking is active for this chapter."""
-      return getattr(cs, 'sensitivity_blocking', False)
+      return getattr(cs, "sensitivity_blocking", False)
   ```
 
   Add the supporting deterministic-summary helpers (these are the only NEW functions):
@@ -507,10 +529,20 @@ def check_escalation(
   from pathlib import Path
 
   ALL_AUDIT_TYPES = [
-      'continuity', 'character', 'world-rules', 'pacing',
-      'dialogue', 'motivation', 'pov', 'memo-compliance',
-      'foreshadowing', 'anti-ai', 'texture', 'reader-pull',
-      'resonance', 'sensitivity',
+      "continuity",
+      "character",
+      "world-rules",
+      "pacing",
+      "dialogue",
+      "motivation",
+      "pov",
+      "memo-compliance",
+      "foreshadowing",
+      "anti-ai",
+      "texture",
+      "reader-pull",
+      "resonance",
+      "sensitivity",
   ]
 
 
@@ -520,45 +552,40 @@ def check_escalation(
       Returns dict with keys: status, blocking, summary.
       """
       if not audit_file.exists():
-          return {'status': 'UNKNOWN', 'blocking': False, 'summary': ''}
+          return {"status": "UNKNOWN", "blocking": False, "summary": ""}
 
-      text = audit_file.read_text(encoding='utf-8')
+      text = audit_file.read_text(encoding="utf-8")
 
       # Extract verdict status from ## Verdict section
-      status_match = re.search(
-          r'##\s*Verdict\s*\n+\s*(PASS|BLOCKING|WARN|FAIL)',
-          text, re.IGNORECASE
-      )
-      status = status_match.group(1).upper() if status_match else 'UNKNOWN'
+      status_match = re.search(r"##\s*Verdict\s*\n+\s*(PASS|BLOCKING|WARN|FAIL)", text, re.IGNORECASE)
+      status = status_match.group(1).upper() if status_match else "UNKNOWN"
 
       # Extract summary line after verdict
-      summary = ''
+      summary = ""
       if status_match:
-          rest = text[status_match.end():]
-          summary_line = re.search(r'-\s*(.+?)$', rest, re.MULTILINE)
+          rest = text[status_match.end() :]
+          summary_line = re.search(r"-\s*(.+?)$", rest, re.MULTILINE)
           if summary_line:
               summary = summary_line.group(1).strip()
 
       return {
-          'status': status,
-          'blocking': status in ('BLOCKING', 'FAIL'),
-          'summary': summary,
+          "status": status,
+          "blocking": status in ("BLOCKING", "FAIL"),
+          "summary": summary,
       }
 
 
-  def _generate_deterministic_review_summary(
-      project_dir: Path, chapter: int
-  ) -> None:
+  def _generate_deterministic_review_summary(project_dir: Path, chapter: int) -> None:
       """Generate review summary by scanning audit files on disk. No LLM call.
 
       Only creates the summary file when escalation signals are absent.
       When escalation IS triggered, the LLM-based escalation-review handles it.
       """
-      audit_dir = project_dir / 'audits'
+      audit_dir = project_dir / "audits"
       results = {}
 
       for audit_type in ALL_AUDIT_TYPES:
-          audit_file = audit_dir / f'chapter-{chapter}-{audit_type}.md'
+          audit_file = audit_dir / f"chapter-{chapter}-{audit_type}.md"
           if audit_file.exists():
               verdict = _parse_audit_verdict(audit_file)
               results[audit_type] = verdict
@@ -566,7 +593,7 @@ def check_escalation(
       if not results:
           return
 
-      has_blocking = any(r.get('blocking') for r in results.values())
+      has_blocking = any(r.get("blocking") for r in results.values())
       if has_blocking:
           return  # Let LLM escalation-review handle blocking cases
 
@@ -579,7 +606,7 @@ def check_escalation(
       # Count by status
       status_counts = {}
       for r in results.values():
-          s = r.get('status', 'UNKNOWN')
+          s = r.get("status", "UNKNOWN")
           status_counts[s] = status_counts.get(s, 0) + 1
 
       total = len(results)
@@ -597,9 +624,10 @@ def check_escalation(
               f"{verdict.get('summary', '(no details)')}"
           )
 
-      summary_path = audit_dir / f'chapter-{chapter}-review-summary.md'
+      summary_path = audit_dir / f"chapter-{chapter}-review-summary.md"
       from shenbi.safe_write import safe_write
-      safe_write(summary_path, '\n'.join(lines) + '\n')
+
+      safe_write(summary_path, "\n".join(lines) + "\n")
   ```
 
 - [ ] **5d.** Apply the same reactive gate at the closure-failure dispatch site in `src/shenbi/pipeline/cli.py:284` (import + call `check_escalation()` before the `dispatch_escalation` call there; fall back to deterministic summary on empty signals).
@@ -630,6 +658,7 @@ def check_escalation(
   NOTE: _extract_hook_deliverables and _get_max_source_mtime ALREADY EXIST.
   These tests cover the NEW static/dynamic layering and the NEW fatigue scanner.
   """
+
   import json
   import pytest
   import tempfile
@@ -641,73 +670,75 @@ def check_escalation(
       _scan_recent_fatigue_patterns,
   )
 
+
   class TestStaticTemplate:
       def test_loads_genesis_template(self, tmp_path):
-          context_dir = tmp_path / 'context'
+          context_dir = tmp_path / "context"
           context_dir.mkdir()
           static = {
               "genre_rules": ["no modern slang"],
               "formatting_constraints": ["8-section structure"],
-              "ai_blacklist": ["骤然", "仿佛", "只见", "突然"]
+              "ai_blacklist": ["骤然", "仿佛", "只见", "突然"],
           }
           # Filename aligned with Spec 10
-          (context_dir / 'review-checklist-template.json').write_text(
+          (context_dir / "review-checklist-template.json").write_text(
               json.dumps(static, ensure_ascii=False)
           )
           result = _load_static_template(tmp_path)
-          assert len(result['ai_blacklist']) == 4
-          assert result['genre_rules'][0] == "no modern slang"
+          assert len(result["ai_blacklist"]) == 4
+          assert result["genre_rules"][0] == "no modern slang"
+
 
   class TestScanRecentFatiguePatterns:
       def test_flags_repeated_fatigue_words(self, tmp_path):
-          chapters_dir = tmp_path / 'chapters'
+          chapters_dir = tmp_path / "chapters"
           chapters_dir.mkdir()
           # 3 recent chapters with heavy "骤然" usage
           for ch in [1, 2, 3]:
-              (chapters_dir / f'chapter-{ch}.md').write_text("骤然" * 4)
+              (chapters_dir / f"chapter-{ch}.md").write_text("骤然" * 4)
           flagged = _scan_recent_fatigue_patterns(tmp_path, 4)
-          assert '骤然' in flagged
+          assert "骤然" in flagged
 
       def test_no_recent_chapters_returns_empty(self, tmp_path):
           assert _scan_recent_fatigue_patterns(tmp_path, 5) == []
 
+
   class TestBuildReviewChecklist:
       def test_merges_static_and_dynamic(self, tmp_path):
-          context_dir = tmp_path / 'context'
+          context_dir = tmp_path / "context"
           context_dir.mkdir()
-          plans_dir = tmp_path / 'plans'
+          plans_dir = tmp_path / "plans"
           plans_dir.mkdir()
 
           # Static template (Spec 10 filename)
           static = {"ai_blacklist": ["骤然", "仿佛"], "genre_rules": ["r1"]}
-          (context_dir / 'review-checklist-template.json').write_text(
+          (context_dir / "review-checklist-template.json").write_text(
               json.dumps(static, ensure_ascii=False)
           )
 
           # Plan with hooks (existing _extract_hook_deliverables reads
           # truth/pending_hooks.md, not the plan; set up a minimal truth file
           # so the existing extraction is exercised).
-          truth_dir = tmp_path / 'truth'
+          truth_dir = tmp_path / "truth"
           truth_dir.mkdir()
-          (truth_dir / 'pending_hooks.md').write_text(
-              "hooks:\n  - id: MH-001\n    state: ACTIVE\n"
-          )
+          (truth_dir / "pending_hooks.md").write_text("hooks:\n  - id: MH-001\n    state: ACTIVE\n")
 
           checklist = build_review_checklist(tmp_path, 3)
-          assert len(checklist['ai_blacklist']) >= 2  # static base
-          assert 'transition_budget' in checklist
+          assert len(checklist["ai_blacklist"]) >= 2  # static base
+          assert "transition_budget" in checklist
 
       def test_persists_per_chapter_delta_with_spec10_filename(self, tmp_path):
-          context_dir = tmp_path / 'context'
+          context_dir = tmp_path / "context"
           context_dir.mkdir()
           static = {"ai_blacklist": ["骤然"]}
-          (context_dir / 'review-checklist-template.json').write_text(
+          (context_dir / "review-checklist-template.json").write_text(
               json.dumps(static, ensure_ascii=False)
           )
           build_review_checklist(tmp_path, 3)
           # Spec 10 filename: review-checklist-N.json
-          delta = context_dir / 'review-checklist-3.json'
+          delta = context_dir / "review-checklist-3.json"
           assert delta.exists()
+
 
   class TestExistingExtractionDiagnosis:
       """Diagnose why the EXISTING _extract_hook_deliverables returns empty."""
@@ -715,22 +746,20 @@ def check_escalation(
       def test_active_hooks_appear_in_deliverables(self, tmp_path):
           """EXISTS: pending_hooks.md with ACTIVE hooks must populate deliverables."""
           from shenbi.pipeline.review_checklist import _extract_hook_deliverables
-          truth_dir = tmp_path / 'truth'
+
+          truth_dir = tmp_path / "truth"
           truth_dir.mkdir()
-          (truth_dir / 'pending_hooks.md').write_text(
-              "hooks:\n  - id: MH-003\n    state: ACTIVE\n"
-          )
+          (truth_dir / "pending_hooks.md").write_text("hooks:\n  - id: MH-003\n    state: ACTIVE\n")
           deliverables = _extract_hook_deliverables(tmp_path, 5)
           assert len(deliverables) >= 1
 
       def test_only_planted_hooks_excluded(self, tmp_path):
           """The existing filter keeps PLANTED/ACTIVE/PENDING; RESOLVED excluded."""
           from shenbi.pipeline.review_checklist import _extract_hook_deliverables
-          truth_dir = tmp_path / 'truth'
+
+          truth_dir = tmp_path / "truth"
           truth_dir.mkdir()
-          (truth_dir / 'pending_hooks.md').write_text(
-              "hooks:\n  - id: MH-003\n    state: RESOLVED\n"
-          )
+          (truth_dir / "pending_hooks.md").write_text("hooks:\n  - id: MH-003\n    state: RESOLVED\n")
           deliverables = _extract_hook_deliverables(tmp_path, 5)
           assert deliverables == []
   ```
@@ -747,6 +776,7 @@ def check_escalation(
   and _get_max_source_mtime (mtime-based cache invalidation) ALREADY EXIST and are
   retained unchanged. This module adds the static/dynamic layering on top.
   """
+
   import json
   import re
   from pathlib import Path
@@ -757,14 +787,14 @@ def check_escalation(
 
       Filename aligned with Spec 10: context/review-checklist-template.json
       """
-      template_path = project_dir / 'context' / 'review-checklist-template.json'
+      template_path = project_dir / "context" / "review-checklist-template.json"
       if not template_path.exists():
           return {
-              'genre_rules': [],
-              'formatting_constraints': [],
-              'ai_blacklist': [],
+              "genre_rules": [],
+              "formatting_constraints": [],
+              "ai_blacklist": [],
           }
-      return json.loads(template_path.read_text(encoding='utf-8'))
+      return json.loads(template_path.read_text(encoding="utf-8"))
 
 
   def _scan_recent_fatigue_patterns(project_dir: Path, chapter: int) -> list[str]:
@@ -778,11 +808,11 @@ def check_escalation(
       word_counts = {}
 
       for ch in range(start_ch, chapter):
-          ch_path = project_dir / 'chapters' / f'chapter-{ch}.md'
+          ch_path = project_dir / "chapters" / f"chapter-{ch}.md"
           if not ch_path.exists():
               continue
-          text = ch_path.read_text(encoding='utf-8')
-          for word in ['骤然', '仿佛', '只见', '突然', '缓缓', '微微', '深深']:
+          text = ch_path.read_text(encoding="utf-8")
+          for word in ["骤然", "仿佛", "只见", "突然", "缓缓", "微微", "深深"]:
               count = text.count(word)
               word_counts[word] = word_counts.get(word, 0) + count
 
@@ -802,24 +832,20 @@ def check_escalation(
 
       # _extract_hook_deliverables ALREADY EXISTS (reads truth/pending_hooks.md)
       dynamic = {
-          'hook_deliverables': _extract_hook_deliverables(project_dir, chapter),
-          'ai_blacklist_additions': _scan_recent_fatigue_patterns(
-              project_dir, chapter
-          ),
-          'transition_budget': _compute_transition_budget(project_dir, chapter),
+          "hook_deliverables": _extract_hook_deliverables(project_dir, chapter),
+          "ai_blacklist_additions": _scan_recent_fatigue_patterns(project_dir, chapter),
+          "transition_budget": _compute_transition_budget(project_dir, chapter),
       }
 
       merged = dict(static)
-      merged['hook_deliverables'] = dynamic['hook_deliverables']
-      merged['ai_blacklist'] = (
-          static.get('ai_blacklist', []) +
-          dynamic['ai_blacklist_additions']
-      )
-      merged['transition_budget'] = dynamic['transition_budget']
+      merged["hook_deliverables"] = dynamic["hook_deliverables"]
+      merged["ai_blacklist"] = static.get("ai_blacklist", []) + dynamic["ai_blacklist_additions"]
+      merged["transition_budget"] = dynamic["transition_budget"]
 
       # Persist the per-chapter delta (Spec 10 filename: review-checklist-N.json)
-      delta_path = project_dir / 'context' / f'review-checklist-{chapter}.json'
+      delta_path = project_dir / "context" / f"review-checklist-{chapter}.json"
       from shenbi.safe_write import safe_write
+
       safe_write(delta_path, json.dumps(merged, ensure_ascii=False, indent=2))
 
       return merged

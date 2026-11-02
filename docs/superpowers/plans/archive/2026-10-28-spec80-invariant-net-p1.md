@@ -68,6 +68,7 @@
 
 G0.9 注：facts 态种子为测试内构造的结构性输入（spec §3 钉死的豁免面）。
 """
+
 import pytest
 
 from shenbi.exceptions import FactsOpRejectedError
@@ -76,21 +77,29 @@ from shenbi.facts.store import apply_prop_op
 
 
 def _props_file() -> FactsFile:
-    return FactsFile.model_validate({
-        "$schema": "shenbi-facts-v1",
-        "dim": "props",
-        "facts": {
-            "火纹骨哨": {"entity": "火纹骨哨", "owner": "那罕", "events": ["ch3 老驼所授"]},
-        },
-        "ops_log": [],
-    })
+    return FactsFile.model_validate(
+        {
+            "$schema": "shenbi-facts-v1",
+            "dim": "props",
+            "facts": {
+                "火纹骨哨": {"entity": "火纹骨哨", "owner": "那罕", "events": ["ch3 老驼所授"]},
+            },
+            "ops_log": [],
+        }
+    )
 
 
 def test_transfer_from_current_owner_passes():
-    ev = PropTransferEvent.model_validate({
-        "op": "transfer", "prop": "火纹骨哨", "from": "那罕", "to": "帖木哥",
-        "evidence": "chapter-20.md L218", "chapter": 20,
-    })
+    ev = PropTransferEvent.model_validate(
+        {
+            "op": "transfer",
+            "prop": "火纹骨哨",
+            "from": "那罕",
+            "to": "帖木哥",
+            "evidence": "chapter-20.md L218",
+            "chapter": 20,
+        }
+    )
     out = apply_prop_op(_props_file(), ev)
     assert out.facts["火纹骨哨"].owner == "帖木哥"
     assert len(out.ops_log) == 1
@@ -98,22 +107,34 @@ def test_transfer_from_current_owner_passes():
 
 def test_acquire_without_source_rejected():
     # ch20 伤口形态：帖木哥「我揣了二十年」——无来源的二次获得
-    ev = PropTransferEvent.model_validate({
-        "op": "acquire", "prop": "火纹骨哨", "from": "", "to": "帖木哥",
-        "evidence": "chapter-20.md L218", "chapter": 20,
-    })
+    ev = PropTransferEvent.model_validate(
+        {
+            "op": "acquire",
+            "prop": "火纹骨哨",
+            "from": "",
+            "to": "帖木哥",
+            "evidence": "chapter-20.md L218",
+            "chapter": 20,
+        }
+    )
     with pytest.raises(FactsOpRejectedError):
         apply_prop_op(_props_file(), ev)
 
 
 def test_copy_entity_is_a_new_key_not_reacquisition():
     # 实体副本语义（rev1）：同母题新实体=独立键初见——修复后 ch20 双哨并存全绿
-    ev = PropTransferEvent.model_validate({
-        "op": "acquire", "prop": "火纹骨哨·帖木哥支", "from": "", "to": "那罕",
-        "evidence": "chapter-20.md L218", "chapter": 20,
-    })
+    ev = PropTransferEvent.model_validate(
+        {
+            "op": "acquire",
+            "prop": "火纹骨哨·帖木哥支",
+            "from": "",
+            "to": "那罕",
+            "evidence": "chapter-20.md L218",
+            "chapter": 20,
+        }
+    )
     out = apply_prop_op(_props_file(), ev)
-    assert out.facts["火纹骨哨"].owner == "那罕"       # 老键不动
+    assert out.facts["火纹骨哨"].owner == "那罕"  # 老键不动
     assert out.facts["火纹骨哨·帖木哥支"].owner == "那罕"
 ```
 
@@ -146,6 +167,7 @@ def test_copy_entity_is_a_new_key_not_reacquisition():
 ```python
 # tests/unit/facts/test_store_io.py
 """T2: facts JSON 侧车 IO——flock 原子写 + 空种子 bootstrap（spec §1.1/§4 F15 空种子语义）。"""
+
 from pathlib import Path
 
 from shenbi.facts.enums import FactsDim
@@ -218,6 +240,7 @@ def test_seed_empty_idempotent_creates_three_dims(tmp_path: Path):
 ```python
 # tests/unit/gates/g4/test_f16_cp_declarations.py
 """T4: F16 G4.cp——memo 物象声明解析 + 对 facts 现态合法性（spec §4 F16）。"""
+
 from shenbi.gates.g4.chapter_planning import parse_prop_declarations
 
 
@@ -260,6 +283,7 @@ def test_declared_transfer_from_wrong_owner_fails(tmp_path, monkeypatch):
 ```python
 # tests/unit/gates/g4/test_f16_cd_handoffs.py
 """T5: F16 G4.cd——正文无源交付拍拦截（spec §4 F16；ch20 L218 伤口）。"""
+
 from pathlib import Path
 
 from shenbi.gates.g4.chapter_drafting import check_prop_handoffs
@@ -298,6 +322,7 @@ def test_wound_undeclared_handoff_fails():
 ```python
 # tests/unit/gates/g4/test_f15_narration_name.py
 """T6: F15——叙事名回退拦截（spec §4 F15；ch19/20 林烽×12 伤口）。"""
+
 from pathlib import Path
 
 from shenbi.gates.g4.cross_chapter import check_narration_name, strip_dialogue
@@ -348,6 +373,7 @@ def test_flashback_marker_exempts():
 ```python
 # tests/unit/gates/g4/test_f17_counters.py
 """T7: F17——计数器三方对账（spec §4 F17；ch8↔ch9 计数互斥伤口）。"""
+
 from pathlib import Path
 
 from shenbi.gates.g4.chapter_drafting import check_counter_reconciliation
@@ -456,6 +482,7 @@ def test_ordinal_vs_memo_declared_fails():
 per-mutant check-id 断言：合并语料不得掩盖死门。
 G0.9: 语料=真实伤口导出 fixtures；facts 态种子=测试内构造（spec §3 豁免面）。
 """
+
 from pathlib import Path
 
 import pytest
@@ -468,13 +495,17 @@ FIX = Path("tests/fixtures/invariant-mutants")
 
 def test_mutant_name_swap_killed_by_f15():
     identity = {"narration_name": "那罕", "from_ch": 3, "aliases": ["林烽"]}
-    issues = check_narration_name((FIX / "ch20-name-swap-prop-break.md").read_text("utf-8"), identity, "")
+    issues = check_narration_name(
+        (FIX / "ch20-name-swap-prop-break.md").read_text("utf-8"), identity, ""
+    )
     assert any(i.startswith("XC.narration_name:") for i in issues)
 
 
 def test_mutant_prop_chain_break_killed_by_f16():
     props = {"火纹骨哨": {"owner": "那罕"}}
-    issues = check_prop_handoffs((FIX / "ch20-name-swap-prop-break.md").read_text("utf-8"), "", props)
+    issues = check_prop_handoffs(
+        (FIX / "ch20-name-swap-prop-break.md").read_text("utf-8"), "", props
+    )
     assert any("cd.prop_handoff:" in i for i in issues)
 
 

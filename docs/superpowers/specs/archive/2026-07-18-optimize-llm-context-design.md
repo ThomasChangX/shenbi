@@ -203,7 +203,10 @@ Savings: 837KB/章 (88%)
 # 替换 L142-161 的简单路径拼接
 import glob as globmod
 
-def _resolve_read_path(project_dir: Path, read_path: str, chapter: int | None) -> list[tuple[str, str]]:
+
+def _resolve_read_path(
+    project_dir: Path, read_path: str, chapter: int | None
+) -> list[tuple[str, str]]:
     """解析读取路径，支持通配符展开。返回 [(resolved_name, full_path_str), ...]。
 
     行业实践：通配符在构建时展开（LangChain DirectoryLoader），
@@ -214,7 +217,7 @@ def _resolve_read_path(project_dir: Path, read_path: str, chapter: int | None) -
         return []
 
     # 通配符展开
-    if '*' in resolved or '?' in resolved:
+    if "*" in resolved or "?" in resolved:
         pattern = str(project_dir / resolved)
         matches = sorted(globmod.glob(pattern, recursive=True))
         if not matches:
@@ -233,7 +236,11 @@ def _resolve_read_path(project_dir: Path, read_path: str, chapter: int | None) -
 
     # 单文件路径
     full_path = project_dir / resolved
-    return [(resolved, str(full_path))] if full_path.exists() else [(resolved, f"[file not found: {resolved}]")]
+    return (
+        [(resolved, str(full_path))]
+        if full_path.exists()
+        else [(resolved, f"[file not found: {resolved}]")]
+    )
 ```
 
 **额外收益**：`review-long-span` 恢复跨章 n-gram 分析能力；`review-character` 可读取 `characters/major/*.md`。
@@ -261,19 +268,21 @@ def _safe_truncate(text: str, limit: int, label: str = "") -> str:
     # 在 limit 处截断，保留完整的段落/句子边界
     truncated = text[:limit]
     # 回退到最后一个完整段落
-    last_para = truncated.rfind('\n\n')
+    last_para = truncated.rfind("\n\n")
     if last_para > limit * 0.7:  # 如果最后一段不太短
         truncated = truncated[:last_para]
     elif limit > 500:
         # 回退到最后一个完整句子
-        for sent_end in ['。\n', '.\n', '！\n', '?\n', '？\n']:
+        for sent_end in ["。\n", ".\n", "！\n", "?\n", "？\n"]:
             last_sent = truncated.rfind(sent_end)
             if last_sent > limit * 0.5:
-                truncated = truncated[:last_sent + 1]
+                truncated = truncated[: last_sent + 1]
                 break
 
     removed = len(text) - len(truncated)
-    truncated += f"\n\n[截断指示：已省略 {removed} 字符（{removed//4} tokens）。原始文件：{label}]"
+    truncated += (
+        f"\n\n[截断指示：已省略 {removed} 字符（{removed // 4} tokens）。原始文件：{label}]"
+    )
     return truncated
 ```
 
@@ -299,7 +308,7 @@ def _safe_truncate(text: str, limit: int, label: str = "") -> str:
 for fname, content in input_texts.items():
     # 使用 XML 标签替代 code fence——不会与文件内容冲突
     # 行业实践（Anthropic）：<document> 标签用于分隔多个文档
-    safe_content = content.replace('</doc>', '<\\/doc>')  # 转义内部标签
+    safe_content = content.replace("</doc>", "<\\/doc>")  # 转义内部标签
     user_parts.append(f'<document name="{fname}">\n{safe_content}\n</document>')
 ```
 
@@ -319,6 +328,7 @@ for fname, content in input_texts.items():
 ```python
 # 新增：dispatch_helper.py
 
+
 def _build_shared_audit_context(project_dir: Path, chapter: int) -> dict[str, str]:
     """构建审计器共享上下文缓存。
 
@@ -332,21 +342,21 @@ def _build_shared_audit_context(project_dir: Path, chapter: int) -> dict[str, st
         return _AUDIT_CONTEXT_CACHE[cache_key]
 
     # 一次性加载所有审计器需要的共享文件
-    chapter_text = (project_dir / 'chapters' / f'chapter-{chapter}.md').read_text()
-    plan_text = (project_dir / 'plans' / f'chapter-{chapter}-plan.md').read_text()
+    chapter_text = (project_dir / "chapters" / f"chapter-{chapter}.md").read_text()
+    plan_text = (project_dir / "plans" / f"chapter-{chapter}-plan.md").read_text()
 
     # 从策展上下文提取特定节（而非让每个审计器各自读取原始 truth）
     curated = _get_or_create_curated_context(project_dir, chapter)
 
     shared = {
-        'chapter_full': chapter_text,
-        'plan_full': plan_text,
+        "chapter_full": chapter_text,
+        "plan_full": plan_text,
         # 按审计类型分发策展上下文的特定节
-        'world_rules_context': curated.get('P7', ''),
-        'character_context': curated.get('P5', '') + '\n' + curated.get('P6', ''),
-        'continuity_context': curated.get('P6', '') + '\n' + curated.get('P4', ''),
-        'pacing_context': curated.get('P4', ''),
-        'hook_context': curated.get('hook_debt_briefing', ''),
+        "world_rules_context": curated.get("P7", ""),
+        "character_context": curated.get("P5", "") + "\n" + curated.get("P6", ""),
+        "continuity_context": curated.get("P6", "") + "\n" + curated.get("P4", ""),
+        "pacing_context": curated.get("P4", ""),
+        "hook_context": curated.get("hook_debt_briefing", ""),
     }
 
     _AUDIT_CONTEXT_CACHE[cache_key] = shared
@@ -366,6 +376,7 @@ def _build_shared_audit_context(project_dir: Path, chapter: int) -> dict[str, st
 ```python
 # 新增：src/shenbi/pipeline/world_summarizer.py
 
+
 def summarize_world_files(project_dir: Path, max_chars: int = 2000) -> dict[str, str]:
     """确定性摘要世界文件——无需 LLM。
 
@@ -375,22 +386,21 @@ def summarize_world_files(project_dir: Path, max_chars: int = 2000) -> dict[str,
     summaries = {}
 
     # power_system.md: 提取规则名称+关键数字
-    ps_text = (project_dir / 'world' / 'power_system.md').read_text()
-    rules = re.findall(r'(?:###|##)\s+(.+?)(?=\n(?:###|##)|\Z)', ps_text, re.DOTALL)
-    ps_summary = '\n'.join(
-        f"- {r.split(chr(10))[0].strip()}"
-        for r in rules if len(r) > 20
-    )[:max_chars]
-    summaries['power_system'] = ps_summary
+    ps_text = (project_dir / "world" / "power_system.md").read_text()
+    rules = re.findall(r"(?:###|##)\s+(.+?)(?=\n(?:###|##)|\Z)", ps_text, re.DOTALL)
+    ps_summary = "\n".join(f"- {r.split(chr(10))[0].strip()}" for r in rules if len(r) > 20)[
+        :max_chars
+    ]
+    summaries["power_system"] = ps_summary
 
     # locations.md: 提取地点名称+关键特征
-    loc_text = (project_dir / 'world' / 'locations.md').read_text()
-    locations = re.findall(r'###\s+(.+?)(?=\n###|\Z)', loc_text, re.DOTALL)
-    loc_summary = '\n'.join(
+    loc_text = (project_dir / "world" / "locations.md").read_text()
+    locations = re.findall(r"###\s+(.+?)(?=\n###|\Z)", loc_text, re.DOTALL)
+    loc_summary = "\n".join(
         f"- {l.split(chr(10))[0].strip()}: {l.split(chr(10))[1].strip() if len(l.split(chr(10))) > 1 else ''}"
         for l in locations
     )[:max_chars]
-    summaries['locations'] = loc_summary
+    summaries["locations"] = loc_summary
 
     return summaries
 ```
@@ -438,24 +448,26 @@ contract:
 
 # 文件优先级权重（基于行业实践：指令 > 核心内容 > 参考数据）
 _FILE_PRIORITY_WEIGHTS = {
-    'plan': 1.0,           # 章节计划——最高优先级
-    'chapter': 0.9,        # 章节正文
-    'volume_map': 0.8,     # 卷纲
-    'story_frame': 0.7,    # 故事框架
-    'current_state': 0.6,  # 当前状态
-    'pending_hooks': 0.6,  # 伏笔
-    'character': 0.5,      # 角色数据
-    'style': 0.4,          # 风格
-    'audit_drift': 0.4,    # 漂移
-    'world': 0.3,          # 世界设定（参考）
-    'default': 0.5,
+    "plan": 1.0,  # 章节计划——最高优先级
+    "chapter": 0.9,  # 章节正文
+    "volume_map": 0.8,  # 卷纲
+    "story_frame": 0.7,  # 故事框架
+    "current_state": 0.6,  # 当前状态
+    "pending_hooks": 0.6,  # 伏笔
+    "character": 0.5,  # 角色数据
+    "style": 0.4,  # 风格
+    "audit_drift": 0.4,  # 漂移
+    "world": 0.3,  # 世界设定（参考）
+    "default": 0.5,
 }
+
 
 def _get_file_priority(filename: str) -> float:
     for key, weight in _FILE_PRIORITY_WEIGHTS.items():
         if key in filename.lower():
             return weight
-    return _FILE_PRIORITY_WEIGHTS['default']
+    return _FILE_PRIORITY_WEIGHTS["default"]
+
 
 def _budgeted_truncate(raw_inputs: dict[str, str], total_budget: int) -> dict[str, str]:
     """优先级驱动的上下文预算分配。
@@ -489,9 +501,19 @@ def _budgeted_truncate(raw_inputs: dict[str, str], total_budget: int) -> dict[st
 ```python
 # chapter_loop.py:_run_audits 中增加级联逻辑
 
-CORE_AUDITS = ['continuity', 'character', 'world-rules', 'pacing']
-CASCADABLE_AUDITS = ['dialogue', 'motivation', 'sensitivity', 'foreshadowing',
-                     'pov', 'memo-compliance', 'anti-ai', 'texture', 'reader-pull']
+CORE_AUDITS = ["continuity", "character", "world-rules", "pacing"]
+CASCADABLE_AUDITS = [
+    "dialogue",
+    "motivation",
+    "sensitivity",
+    "foreshadowing",
+    "pov",
+    "memo-compliance",
+    "anti-ai",
+    "texture",
+    "reader-pull",
+]
+
 
 def _should_skip_cascaded_audit(audit_type: str, core_results: dict) -> bool:
     """如果核心审计全部 PASS 且 confidence > 90%，跳过级联审计。
@@ -502,8 +524,7 @@ def _should_skip_cascaded_audit(audit_type: str, core_results: dict) -> bool:
         return False
 
     core_pass = all(
-        r.get('status') == 'PASS' and r.get('confidence', 0) > 0.9
-        for r in core_results.values()
+        r.get("status") == "PASS" and r.get("confidence", 0) > 0.9 for r in core_results.values()
     )
     return core_pass
 ```
@@ -566,8 +587,10 @@ def _build_user_prompt_with_hierarchy(skill, inputs, output_paths, chapter):
 
     # L1: HARD CONSTRAINTS（最高优先级，违反触发 G4 重试）
     parts.append("## 🔴 HARD CONSTRAINTS — 违反将触发 G4 重试\n")
-    if 'volume_map' in inputs:
-        parts.append(f"- **卷纲对齐**：本章必须对齐 volume_map 中声明的章节点：{inputs['volume_node']}")
+    if "volume_map" in inputs:
+        parts.append(
+            f"- **卷纲对齐**：本章必须对齐 volume_map 中声明的章节点：{inputs['volume_node']}"
+        )
     parts.append(f"- **8 节完整性**：计划必须包含全部 8 节，每节标题精确匹配")
     parts.append(f"- **输出格式**：严格使用 `### FILE:` 标记，JSON 文件禁止尾部注释\n")
 
@@ -586,7 +609,7 @@ def _build_user_prompt_with_hierarchy(skill, inputs, output_paths, chapter):
         for fname, content in inputs.items():
             parts.append(f'<document name="{fname}">\n{content}\n</document>')
 
-    return '\n'.join(parts)
+    return "\n".join(parts)
 ```
 
 ---
@@ -632,8 +655,8 @@ def _validate_context_freshness(input_texts: dict[str, str], chapter: int, skill
     warnings = []
 
     for fname, text in input_texts.items():
-        if 'chapter_summaries' in fname or 'resonance_trend' in fname:
-            ch_refs = len(set(re.findall(r'[Cc]h(?:apter)?[ .-]*(\d+)', text)))
+        if "chapter_summaries" in fname or "resonance_trend" in fname:
+            ch_refs = len(set(re.findall(r"[Cc]h(?:apter)?[ .-]*(\d+)", text)))
             if ch_refs <= 2 and chapter > 5:
                 warnings.append(
                     f"STALE: {fname} 仅引用 {ch_refs} 章，"
@@ -641,7 +664,7 @@ def _validate_context_freshness(input_texts: dict[str, str], chapter: int, skill
                     f"根因：state-settling 覆盖模式（Spec CN3）。"
                 )
 
-        if 'style_profile' in fname and 'bootstrap' in text.lower() and chapter > 3:
+        if "style_profile" in fname and "bootstrap" in text.lower() and chapter > 3:
             warnings.append(
                 f"STALE: style_profile 仍为 bootstrap 模式，"
                 f"但已生成 {chapter} 章。根因：style-learning 未更新（Spec CN4）。"

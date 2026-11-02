@@ -38,31 +38,41 @@
 def test_chapter_header_style_default_english_on_missing_config(tmp_path: Path) -> None:
     assert _chapter_header_style(tmp_path) == "english"
 
+
 def test_chapter_header_style_two_line_zh(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(
-        '{"chapter_word": {"chapter_header_style": "two_line_zh"}}', encoding="utf-8")
+        '{"chapter_word": {"chapter_header_style": "two_line_zh"}}', encoding="utf-8"
+    )
     assert _chapter_header_style(tmp_path) == "two_line_zh"
+
 
 def test_chapter_header_style_invalid_value_falls_back(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(
-        '{"chapter_word": {"chapter_header_style": "bogus"}}', encoding="utf-8")
+        '{"chapter_word": {"chapter_header_style": "bogus"}}', encoding="utf-8"
+    )
     assert _chapter_header_style(tmp_path) == "english"
 
+
 def test_ensure_chapter_header_zh_meta_first_insert() -> None:
-    content = "<!--META-BEGIN-->\n## PRE_WRITE_CHECK\n\n- x\n<!--META-END-->\n\n旧残头行\n\n正文首句。"
+    content = (
+        "<!--META-BEGIN-->\n## PRE_WRITE_CHECK\n\n- x\n<!--META-END-->\n\n旧残头行\n\n正文首句。"
+    )
     out = ensure_chapter_header(content, 37, style="two_line_zh")
     # 零动作判据：META-END 后存在 ^# 第N章$ 才零动作；此处插入
     assert "# 第37章\n" in out
     assert out.index("<!--META-END-->") < out.index("# 第37章") < out.index("旧残头行")
 
+
 def test_ensure_chapter_header_zh_zero_action_header_after_end() -> None:
     content = "<!--META-BEGIN-->\n- x\n<!--META-END-->\n\n# 第1章\n\n# 雪夜账房\n\n正文。"
     assert ensure_chapter_header(content, 1, style="two_line_zh") == content
+
 
 def test_ensure_chapter_header_zh_bare_end_with_tail_paired_block_zero_action() -> None:
     # ch17/18 形态：裸 END@头部（无配对 BEGIN）+ 尾部完整配对 POST 块——配对式 META_BLOCK_RE 会误判，判据必须按首个字面 END
     content = "\n<!--META-END-->\n\n# 第17章\n\n# 章题\n\n正文。\n\n<!--META-BEGIN-->\n- post\n<!--META-END-->\n"
     assert ensure_chapter_header(content, 17, style="two_line_zh") == content
+
 
 def test_ensure_chapter_header_zh_no_marker_inserts_at_head() -> None:
     content = "\n# 第11章\n\n正文。"  # 章头已在：零动作
@@ -70,10 +80,12 @@ def test_ensure_chapter_header_zh_no_marker_inserts_at_head() -> None:
     out = ensure_chapter_header("正文无头。", 11, style="two_line_zh")
     assert out.startswith("# 第11章\n\n")
 
+
 def test_ensure_chapter_header_english_default_unchanged() -> None:
     # F1301 回归：无 style 参数行为与旧版逐字一致
     assert ensure_chapter_header("正文。", 5) == "# Chapter 5:\n\n正文。"
     assert ensure_chapter_header("# Chapter 5:\n正文。", 5) == "# Chapter 5:\n正文。"
+
 
 def test_ensure_chapter_header_zh_marker_at_eof_without_newline() -> None:
     # 边界：META-END 恰在文件尾且无尾换行——region 不得回卷全文

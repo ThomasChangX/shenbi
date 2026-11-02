@@ -94,6 +94,7 @@ shenbi-chapter-revision 的 no-op 路由
    ```python
    # 新增：修订前备份原章节
    import shutil
+
    chapter_path = project_dir / f"chapters/chapter-{state.current_chapter}.md"
    backup_path = project_dir / f"chapters/chapter-{state.current_chapter}-pre-rev.md"
    if chapter_path.exists():
@@ -110,8 +111,12 @@ shenbi-chapter-revision 的 no-op 路由
        if Path(path).exists():
            original_size = Path(path).stat().st_size
            if len(content) < original_size * 0.2:
-               logger.warning("revision_content_too_small", path=str(path),
-                              original=original_size, new=len(content))
+               logger.warning(
+                   "revision_content_too_small",
+                   path=str(path),
+                   original=original_size,
+                   new=len(content),
+               )
                # 不覆盖，保留原文件
                continue
    ```

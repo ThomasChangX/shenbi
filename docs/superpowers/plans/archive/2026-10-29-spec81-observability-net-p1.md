@@ -66,6 +66,7 @@ tests/unit/tools/test_observe_report.py             # T8
 
 ```python
 """Spec #81 §1 archive layer unit tests (offline, tmp_path structural corpora)."""
+
 from __future__ import annotations
 
 import json
@@ -84,11 +85,11 @@ class TestBlobStore:
 
     def test_quota_breaker_skips_blob_keeps_hash_and_counts(self, tmp_path: Path, monkeypatch):
         monkeypatch.setenv("SHENBI_ARCHIVE_QUOTA_BYTES", "200")  # KB 级实测形态（spec §7.5 离线）
-        d1 = ar.put_blob(tmp_path, "x" * 150)   # 150B 落盘
-        d2 = ar.put_blob(tmp_path, "y" * 400)   # 150+400 > 200 → 跳内容写
-        assert d2.startswith("sha256:")                         # 哈希照返（spec §1）
+        d1 = ar.put_blob(tmp_path, "x" * 150)  # 150B 落盘
+        d2 = ar.put_blob(tmp_path, "y" * 400)  # 150+400 > 200 → 跳内容写
+        assert d2.startswith("sha256:")  # 哈希照返（spec §1）
         blob2 = tmp_path / "observability" / "blobs" / d2.split(":", 1)[1]
-        assert not blob2.exists()                                # 内容确实没写
+        assert not blob2.exists()  # 内容确实没写
         assert (tmp_path / "observability" / "blobs" / d1.split(":", 1)[1]).exists()
         stats = json.loads((tmp_path / "observability" / "archive-stats.json").read_text())
         assert stats["archive_quota_skip"] == 1
@@ -109,20 +110,36 @@ class TestSeq:
 class TestWriteArchive:
     def _frame(self, **kw):
         base = dict(
-            skill="shenbi-chapter-drafting", chapter=20, attempt=1, model="m",
-            system_prompt="SYS", user_prompt="USER",
-            reads_manifest=[{"path": "truth/current_state.md", "mode": "fields",
-                             "fields": ["系统演化阶段"], "matched_all": False}],
+            skill="shenbi-chapter-drafting",
+            chapter=20,
+            attempt=1,
+            model="m",
+            system_prompt="SYS",
+            user_prompt="USER",
+            reads_manifest=[
+                {
+                    "path": "truth/current_state.md",
+                    "mode": "fields",
+                    "fields": ["系统演化阶段"],
+                    "matched_all": False,
+                }
+            ],
             raw_reads={"truth/current_state.md": "# 原文"},
-            skill_contract_sha256="sha256:abc", loop_id=3, feedback_ref=None,
+            skill_contract_sha256="sha256:abc",
+            loop_id=3,
+            feedback_ref=None,
         )
         base.update(kw)
         return ar.ArchiveFrame(**base)
 
     def test_success_record_shape_and_dereference(self, tmp_path: Path):
         path = ar.write_dispatch_archive(
-            tmp_path, self._frame(), finish_reason="stop",
-            response_text="RESP", usage={"prompt_tokens": 10, "completion_tokens": 5})
+            tmp_path,
+            self._frame(),
+            finish_reason="stop",
+            response_text="RESP",
+            usage={"prompt_tokens": 10, "completion_tokens": 5},
+        )
         assert path is not None and path.exists()
         rec = json.loads(path.read_text(encoding="utf-8"))
         assert rec["seq"] == 1 and rec["skill_contract_sha256"] == "sha256:abc"
@@ -136,8 +153,8 @@ class TestWriteArchive:
 
     def test_genesis_ch000_and_failure_nullable(self, tmp_path: Path):
         path = ar.write_dispatch_archive(
-            tmp_path, self._frame(chapter=None), finish_reason=None,
-            response_text=None, usage=None)
+            tmp_path, self._frame(chapter=None), finish_reason=None, response_text=None, usage=None
+        )
         assert "ch000" in path.name
         rec = json.loads(path.read_text(encoding="utf-8"))
         assert rec["response_blob"] is None and rec["finish_reason"] is None
@@ -154,6 +171,7 @@ Write side is the dispatch path ONLY (fail-safe: an archive failure never
 masks the dispatch outcome — same discipline as _persist_failed_write_output).
 Readers (observe_report, dispatch_replay in P2) never write here.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -190,7 +208,9 @@ def put_blob(project_dir: Path, content: str) -> str:
         log.warning("archive_quota_skip")
         return digest  # 哈希照返（spec §1「档与哈希照写」）——只跳内容写
     blob.parent.mkdir(parents=True, exist_ok=True)
-    safe_write(blob, content.encode("utf-8"))  # 原子写唯一入口（safe_write.py:1 自述；bytes|str 皆收）
+    safe_write(
+        blob, content.encode("utf-8")
+    )  # 原子写唯一入口（safe_write.py:1 自述；bytes|str 皆收）
     _account_bytes(project_dir, len(content.encode()))
     return digest
 ```
@@ -218,6 +238,7 @@ def put_blob(project_dir: Path, content: str) -> str:
 
 ```python
 """Spec #81 §1: raw disk snapshot captured pre-filter/pre-strip (O-2 semantics)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -230,14 +251,12 @@ def test_raw_snapshot_is_disk_original_not_filtered_view(tmp_path: Path, monkeyp
     # test_multi_file_prompt_includes_schema_reminder（builder 直调 + mock 契约）
     mock_contract = {
         "kind": OutputKind.ARTIFACT,
-        "reads": ["style/style_profile.md"],          # builder 只吃字符串 reads（:807-817）
+        "reads": ["style/style_profile.md"],  # builder 只吃字符串 reads（:807-817）
         "read_fields": {"style/style_profile.md": ["文风基准"]},  # fields 走 sidecar
         "writes": ["chapters/chapter-1.md"],
         "updates": [],
     }
-    monkeypatch.setattr(
-        "shenbi.contracts.loader.load_contract", lambda s: mock_contract
-    )
+    monkeypatch.setattr("shenbi.contracts.loader.load_contract", lambda s: mock_contract)
     target = tmp_path / "style" / "style_profile.md"
     target.parent.mkdir(parents=True)
     # 一节命中契约字段、一节不命中——fields 过滤视图必然丢第二节（:1100 filter_to_fields）
@@ -245,16 +264,18 @@ def test_raw_snapshot_is_disk_original_not_filtered_view(tmp_path: Path, monkeyp
 
     from shenbi.pipeline.dispatch_helper import _build_skill_prompt
 
-    system_prompt, user_prompt, output_paths, reads_manifest, raw_reads = (
-        _build_skill_prompt("shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1)
+    system_prompt, user_prompt, output_paths, reads_manifest, raw_reads = _build_skill_prompt(
+        "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
     )
 
     key = next(k for k in raw_reads if "style_profile" in k)
-    assert "漂移节" in raw_reads[key]           # 磁盘原文保留未命中节（pre-filter 捕获）
-    assert "漂移节" not in user_prompt          # 注入面仍是过滤视图（行为不变）
+    assert "漂移节" in raw_reads[key]  # 磁盘原文保留未命中节（pre-filter 捕获）
+    assert "漂移节" not in user_prompt  # 注入面仍是过滤视图（行为不变）
     fields_entry = next(r for r in reads_manifest if r.get("mode") == "fields")
     assert fields_entry["matched_all"] is True  # 命中节在，声明字段全中
-    assert fields_entry["resolved_fields"] == ["文风基准"]  # 3 元组新返回（部分命中形态见 test_fields）
+    assert fields_entry["resolved_fields"] == [
+        "文风基准"
+    ]  # 3 元组新返回（部分命中形态见 test_fields）
 ```
 
 （若 mock 契约的 reads dict 形态与 loader 实际解析有出入，以 `tests/unit/pipeline/test_dispatch_layerb_live.py` 的 fields 声明写法为准修正——断言核心不变：`raw_reads` 含未命中节、`user_prompt` 不含。）
@@ -282,14 +303,21 @@ def test_raw_snapshot_is_disk_original_not_filtered_view(tmp_path: Path, monkeyp
 
 ```python
 def test_three_consecutive_misses_keyed_by_path_fields(tmp_path: Path):
-    manifest = [{"path": "style/style_profile.md", "mode": "fields",
-                 "fields": ["文风基准"], "matched_all": False}]
+    manifest = [
+        {
+            "path": "style/style_profile.md",
+            "mode": "fields",
+            "fields": ["文风基准"],
+            "matched_all": False,
+        }
+    ]
     for _ in range(2):
         ar_escape.update_escape_hatch_state(tmp_path, manifest)
     assert ar_escape.escape_hatch_drift_check(tmp_path) == []
     ar_escape.update_escape_hatch_state(tmp_path, manifest)  # 第 3 次
     drift = ar_escape.escape_hatch_drift_check(tmp_path)
     assert len(drift) == 1 and drift[0]["streak"] == 3
+
 
 def test_interleaved_different_fields_do_not_reset_each_other(tmp_path: Path):
     # O-1 交错读语义：同文件不同 fields 声明互不干扰（spec §3 键论证）
@@ -300,19 +328,23 @@ def test_interleaved_different_fields_do_not_reset_each_other(tmp_path: Path):
         ar_escape.update_escape_hatch_state(tmp_path, m2)  # B 命中只复位 B
     assert len(ar_escape.escape_hatch_drift_check(tmp_path)) == 1  # A 键仍满 3
 
+
 def test_matched_resets_streak(tmp_path: Path):
     m = [{"path": "p", "mode": "fields", "fields": ["A"], "matched_all": False}]
     ar_escape.update_escape_hatch_state(tmp_path, m)
     ar_escape.update_escape_hatch_state(tmp_path, m)
     # 同键命中 → 连击复位
     ar_escape.update_escape_hatch_state(
-        tmp_path, [{"path": "p", "mode": "fields", "fields": ["A"], "matched_all": True}])
+        tmp_path, [{"path": "p", "mode": "fields", "fields": ["A"], "matched_all": True}]
+    )
     assert ar_escape.escape_hatch_drift_check(tmp_path) == []
     ar_escape.update_escape_hatch_state(tmp_path, m)  # 复位后从 1 重新起算
     assert ar_escape.escape_hatch_drift_check(tmp_path) == []
 
+
 def test_absent_state_file_is_pass(tmp_path: Path):
     assert ar_escape.escape_hatch_drift_check(tmp_path) == []
+
 
 def test_counter_runs_even_when_archive_disabled(tmp_path, monkeypatch):
     monkeypatch.setenv("SHENBI_ARCHIVE_DISPATCH", "0")
@@ -332,7 +364,8 @@ def test_builder_wiring_renamed_heading_fires_drift(tmp_path: Path, monkeypatch)
         "kind": OutputKind.ARTIFACT,
         "reads": ["style/style_profile.md"],
         "read_fields": {"style/style_profile.md": ["漂移前标题"]},  # 契约声明旧字段
-        "writes": ["chapters/chapter-1.md"], "updates": [],
+        "writes": ["chapters/chapter-1.md"],
+        "updates": [],
     }
     monkeypatch.setattr("shenbi.contracts.loader.load_contract", lambda s: mock_contract)
     target = tmp_path / "style" / "style_profile.md"
@@ -511,13 +544,20 @@ def test_archive_write_failure_never_blocks_dispatch(tmp_path, monkeypatch):
 def test_drift_fail_escalates_without_retry_charge(tmp_path, monkeypatch):
     # 造 streak=3 状态文件
     from shenbi.observability import escape as esc
-    m = [{"path": "style/style_profile.md", "mode": "fields",
-          "fields": ["文风基准"], "matched_all": False}]
+
+    m = [
+        {
+            "path": "style/style_profile.md",
+            "mode": "fields",
+            "fields": ["文风基准"],
+            "matched_all": False,
+        }
+    ]
     for _ in range(3):
         esc.update_escape_hatch_state(tmp_path, m)
-    state = _minimal_chapter_state()   # SimpleNamespace(chapter_loop=SimpleNamespace(
-                                       #   retry_budget_consumed={"ch1-s": 2}, retry_counts={}),
-                                       #   pending_checkpoint=None)
+    state = _minimal_chapter_state()  # SimpleNamespace(chapter_loop=SimpleNamespace(
+    #   retry_budget_consumed={"ch1-s": 2}, retry_counts={}),
+    #   pending_checkpoint=None)
     raised = cl._check_escape_hatch_drift(state, tmp_path, chapter=5)
     assert raised is True
     # (a) ESCALATION checkpoint 已设
@@ -526,20 +566,30 @@ def test_drift_fail_escalates_without_retry_charge(tmp_path, monkeypatch):
     assert state.chapter_loop.retry_budget_consumed == {"ch1-s": 2}
     assert state.chapter_loop.retry_counts == {}
     # (c) GATE_FAIL 双产物（write-audit.jsonl + trace），(d) gate-markers/ 无新文件
-    assert any(json.loads(l)["blocked"] for l in
-               (tmp_path / "write-audit.jsonl").read_text().splitlines())
+    assert any(
+        json.loads(l)["blocked"] for l in (tmp_path / "write-audit.jsonl").read_text().splitlines()
+    )
     assert "GATE_FAIL" in (tmp_path / "trace.jsonl").read_text()
     assert not (tmp_path / "gate-markers").exists() or not any(
-        (tmp_path / "gate-markers").iterdir())
+        (tmp_path / "gate-markers").iterdir()
+    )
+
 
 def test_drift_absent_passes(tmp_path):
     state = _minimal_chapter_state()
     assert cl._check_escape_hatch_drift(state, tmp_path, chapter=5) is False
 
+
 def test_two_misses_no_checkpoint(tmp_path):
     # streak=2 <3 → 不触发（O-2 复演防护的窗）
-    m = [{"path": "style/style_profile.md", "mode": "fields",
-          "fields": ["文风基准"], "matched_all": False}]
+    m = [
+        {
+            "path": "style/style_profile.md",
+            "mode": "fields",
+            "fields": ["文风基准"],
+            "matched_all": False,
+        }
+    ]
     esc.update_escape_hatch_state(tmp_path, m)
     esc.update_escape_hatch_state(tmp_path, m)
     assert cl._check_escape_hatch_drift(_minimal_chapter_state(), tmp_path, chapter=5) is False
@@ -577,14 +627,16 @@ def test_four_tables_and_coverage_row(tmp_path: Path):
     md = build_report(tmp_path)
     for header in ("## 膨胀曲线", "## Loop depth", "## 失败簇", "## 逃逸舱", "## 归档覆盖"):
         assert header in md
-    assert "ledger=3" in md and "archive=3" in md          # 覆盖行对账（attempt=1 口径）
-    assert "monitor_rewind" in md                           # 失败簇聚类
-    assert "archive_quota_skip=0" in md                     # WARN 三键汇总行
+    assert "ledger=3" in md and "archive=3" in md  # 覆盖行对账（attempt=1 口径）
+    assert "monitor_rewind" in md  # 失败簇聚类
+    assert "archive_quota_skip=0" in md  # WARN 三键汇总行
+
 
 def test_dedup_ratio_and_blob_existence(tmp_path: Path):
-    _seed_corpus(tmp_path)   # 2 档共用同一 system_prompt blob → 去重率 <1、存在比例 100%
+    _seed_corpus(tmp_path)  # 2 档共用同一 system_prompt blob → 去重率 <1、存在比例 100%
     md = build_report(tmp_path)
     assert "去重率" in md and "blob" in md
+
 
 def test_missing_surfaces_degrade_to_explicit_note(tmp_path: Path):
     # 无 observability/ 的既有项目：报告头明示「无归档（特性前项目）」不炸

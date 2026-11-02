@@ -79,12 +79,15 @@ def _write_skill(tmp_path: Path, skill: str, fm: str) -> Path:
 
 
 def test_dict_form_reads_extract_file_and_keep_fields(tmp_path, monkeypatch):
-    _write_skill(tmp_path, "shenbi-test-dict",
+    _write_skill(
+        tmp_path,
+        "shenbi-test-dict",
         "name: shenbi-test-dict\n"
         "contract:\n  kind: report\n  reads:\n"
         "    - {file: truth/audit_drift.md, fields: [shortcomings]}\n"
         "    - truth/current_state.md\n"
-        "  writes: [audits/chapter-N-dict.md]\n  updates: []\n")
+        "  writes: [audits/chapter-N-dict.md]\n  updates: []\n",
+    )
     monkeypatch.setattr("shenbi.contract.SKILLS", tmp_path / "skills")
     c = load_contract("shenbi-test-dict")
     assert c["reads"] == ["truth/audit_drift.md", "truth/current_state.md"]
@@ -92,17 +95,23 @@ def test_dict_form_reads_extract_file_and_keep_fields(tmp_path, monkeypatch):
 
 
 def test_requires_independent_agent_reads_top_level_field(tmp_path, monkeypatch):
-    _write_skill(tmp_path, "shenbi-test-ind",
+    _write_skill(
+        tmp_path,
+        "shenbi-test-ind",
         "name: shenbi-test-ind\nrequires_independent_agent: true\n"
-        "contract:\n  kind: report\n  reads: []\n  writes: [audits/x.md]\n  updates: []\n")
+        "contract:\n  kind: report\n  reads: []\n  writes: [audits/x.md]\n  updates: []\n",
+    )
     monkeypatch.setattr("shenbi.contract.SKILLS", tmp_path / "skills")
     assert requires_independent_agent("shenbi-test-ind") is True
 
 
 def test_requires_independent_agent_default_false(tmp_path, monkeypatch):
-    _write_skill(tmp_path, "shenbi-test-noind",
+    _write_skill(
+        tmp_path,
+        "shenbi-test-noind",
         "name: shenbi-test-noind\n"
-        "contract:\n  kind: artifact\n  reads: []\n  writes: [chapters/chapter-N.md]\n  updates: []\n")
+        "contract:\n  kind: artifact\n  reads: []\n  writes: [chapters/chapter-N.md]\n  updates: []\n",
+    )
     monkeypatch.setattr("shenbi.contract.SKILLS", tmp_path / "skills")
     assert requires_independent_agent("shenbi-test-noind") is False
 ```
@@ -120,7 +129,7 @@ class Contract(TypedDict):
     reads: list[str]
     writes: list[str]
     updates: list[str]
-    read_fields: dict[str, list[str]]   # only populated for dict-form reads
+    read_fields: dict[str, list[str]]  # only populated for dict-form reads
 ```
 
 ```python
@@ -130,7 +139,9 @@ def _normalize_read_item(item: Any) -> tuple[str, list[str] | None]:
         return item, None
     if isinstance(item, dict) and "file" in item:
         fields = item.get("fields")
-        if fields is not None and not (isinstance(fields, list) and all(isinstance(x, str) for x in fields)):
+        if fields is not None and not (
+            isinstance(fields, list) and all(isinstance(x, str) for x in fields)
+        ):
             raise ContractError("contract.reads[].fields must be list[str]", field="reads")
         return str(item["file"]), fields
     raise ContractError("contract.reads[] must be str or {file, fields?}", field="reads")
@@ -247,6 +258,7 @@ def test_report_skill_with_marker_ok():
 ```python
 from shenbi.contract import OutputKind, load_contract, requires_independent_agent
 
+
 def check_independence_markers(skills: dict[str, dict]) -> list[str]:
     """G0 sub-check: every report-kind skill must declare requires_independent_agent.
 
@@ -266,30 +278,40 @@ def check_independence_markers(skills: dict[str, dict]) -> list[str]:
 Wire into `gate_G0` in `src/shenbi/gates/g0.py` as a new **G0.13** block, inserted immediately before the final `return passed("G0", checks)` (after the G0.12 block):
 
 ```python
-    # G0.13 — independence markers: every report-kind skill must declare
-    # requires_independent_agent (spec §8.1). Deterministic frontmatter check.
-    from shenbi.contract import (
-        load_contract, requires_independent_agent, OutputKind as _OK, ContractError,
+# G0.13 — independence markers: every report-kind skill must declare
+# requires_independent_agent (spec §8.1). Deterministic frontmatter check.
+from shenbi.contract import (
+    load_contract,
+    requires_independent_agent,
+    OutputKind as _OK,
+    ContractError,
+)
+
+indep_issues: list[str] = []
+for d in SKILLS.iterdir():
+    if not d.is_dir() or d.name.startswith("_"):
+        continue
+    try:
+        c = load_contract(d.name)
+    except ContractError:
+        continue  # contract issues surface in their own checks
+    if c["kind"] == _OK.REPORT and not requires_independent_agent(d.name):
+        indep_issues.append(d.name)
+if indep_issues:
+    return fail(
+        "G0",
+        checks
+        + [
+            {
+                "id": "G0.13",
+                "s": "FAIL",
+                "r": f"report skills missing requires_independent_agent: {indep_issues}",
+            }
+        ],
+        "round_creation",
+        ["G0.13: add 'requires_independent_agent: true' to listed skills"],
     )
-    indep_issues: list[str] = []
-    for d in SKILLS.iterdir():
-        if not d.is_dir() or d.name.startswith("_"):
-            continue
-        try:
-            c = load_contract(d.name)
-        except ContractError:
-            continue  # contract issues surface in their own checks
-        if c["kind"] == _OK.REPORT and not requires_independent_agent(d.name):
-            indep_issues.append(d.name)
-    if indep_issues:
-        return fail(
-            "G0",
-            checks + [{"id": "G0.13", "s": "FAIL",
-                       "r": f"report skills missing requires_independent_agent: {indep_issues}"}],
-            "round_creation",
-            ["G0.13: add 'requires_independent_agent: true' to listed skills"],
-        )
-    checks.append({"id": "G0.13", "s": "PASS", "note": "all report-kind skills declare independence"})
+checks.append({"id": "G0.13", "s": "PASS", "note": "all report-kind skills declare independence"})
 ```
 
 Note: `check_independence_markers` (the unit-tested helper) is the pure logic; G0.13 is the wiring that assembles inputs via `load_contract` + `requires_independent_agent` and calls it. Keep the helper tested in isolation (Task 0.3 Step 1) so G0 wiring is thin.
@@ -363,12 +385,14 @@ def test_overuse_flagged_above_threshold():
 from __future__ import annotations
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class Trope:
     trope: str
     signatures: list[str]
     overuse_threshold: int
     rewrite_hint: str
+
 
 def count_trope_hits(beats: list[str], trope: Trope) -> int:
     """Count story beats that match any signature (keyword substring match).
@@ -382,6 +406,7 @@ def count_trope_hits(beats: list[str], trope: Trope) -> int:
         if any(sig in beat for sig in trope.signatures):
             hits += 1
     return hits
+
 
 def trope_overuse(hit_count: int, trope: Trope) -> bool:
     return hit_count > trope.overuse_threshold
@@ -446,32 +471,41 @@ Depends on Phase 0 + 1. Largest phase.
 ```python
 # tests/unit/skill_utils/test_drift_detection.py
 from shenbi.skill_utils.drift_detection.compute_drift import (
-    smooth, detect_chapter_drift, detect_volume_drift, DriftFinding
+    smooth,
+    detect_chapter_drift,
+    detect_volume_drift,
+    DriftFinding,
 )
+
 
 def test_smooth_3_point_window():
     assert smooth([10.0, 10.0, 7.0, 7.0, 7.0]) == [10.0, 9.0, 8.0, 7.0, 7.0]
 
+
 def test_smooth_boundary_2_point():
     # first/last use 2-point (self + sole neighbor)
     assert smooth([10.0, 12.0]) == [11.0, 11.0]
+
 
 def test_chapter_drift_monotonic_decline_triggers():
     scores = [24.0, 23.0, 21.0, 18.0]  # smoothed: ~24, 22.67, 20.67, 18.0 — monotonic decline ≥3
     f = detect_chapter_drift(scores, dim="情感落地", min_samples_sigma=6)
     assert any(f.kind == "monotonic_decline" for f in f)
 
+
 def test_chapter_drift_sigma_requires_min_samples():
     scores = [24.0, 10.0]  # only 2 samples — sigma trigger must NOT fire
     f = detect_chapter_drift(scores, dim="情感落地", min_samples_sigma=6)
     assert all(f.kind != "below_mean_2sigma" for f in f)
 
+
 def test_chapter_drift_stable_series_no_trigger():
-    scores = [22.0]*8
+    scores = [22.0] * 8
     assert detect_chapter_drift(scores, dim="情感落地", min_samples_sigma=6) == []
 
+
 def test_volume_drift_two_volume_decline_triggers():
-    assert len(detect_volume_drift([82.0, 74.0])) == 1   # consecutive 2-volume decline
+    assert len(detect_volume_drift([82.0, 74.0])) == 1  # consecutive 2-volume decline
     assert detect_volume_drift([74.0, 82.0]) == []
 
 
@@ -480,8 +514,9 @@ def test_chapter_drift_human_overridden_excluded():
     # Chapter index 2 overridden -> must break the decline run (no false trigger),
     # even though the raw series would otherwise fire monotonic_decline.
     scores = [24.0, 23.0, 21.0, 18.0]
-    assert detect_chapter_drift(scores, dim="情感落地", min_samples_sigma=6,
-                                exclude_indices={2}) == []
+    assert (
+        detect_chapter_drift(scores, dim="情感落地", min_samples_sigma=6, exclude_indices={2}) == []
+    )
     # and without exclusion it DOES fire (sanity):
     assert detect_chapter_drift(scores, dim="情感落地", min_samples_sigma=6) != []
 ```
@@ -496,16 +531,19 @@ import statistics
 from dataclasses import dataclass
 from enum import StrEnum
 
+
 class DriftKind(StrEnum):
     MONOTONIC_DECLINE = "monotonic_decline"
     BELOW_MEAN_2SIGMA = "below_mean_2sigma"
     VOLUME_DECLINE = "volume_decline"
+
 
 @dataclass(frozen=True)
 class DriftFinding:
     kind: DriftKind
     dim: str
     detail: str
+
 
 def smooth(scores: list[float]) -> list[float]:
     """3-point moving average; 2-point at boundaries."""
@@ -520,8 +558,11 @@ def smooth(scores: list[float]) -> list[float]:
     out.append((scores[n - 2] + scores[n - 1]) / 2)
     return out
 
+
 def detect_chapter_drift(
-    raw: list[float], dim: str, min_samples_sigma: int = 6,
+    raw: list[float],
+    dim: str,
+    min_samples_sigma: int = 6,
     exclude_indices: set[int] | None = None,
 ) -> list[DriftFinding]:
     """spec §8.3. exclude_indices = chapters flagged human_overridden (excluded
@@ -541,8 +582,13 @@ def detect_chapter_drift(
             run, start = 1, i
         prev = v
         if run >= 3 and (s[start] - v) >= 3:
-            findings.append(DriftFinding(DriftKind.MONOTONIC_DECLINE, dim,
-                f"{dim} declined {s[start]:.1f}->{v:.1f} over chapters {start+1}-{i+1}"))
+            findings.append(
+                DriftFinding(
+                    DriftKind.MONOTONIC_DECLINE,
+                    dim,
+                    f"{dim} declined {s[start]:.1f}->{v:.1f} over chapters {start + 1}-{i + 1}",
+                )
+            )
             break
     # (b) below mean − 2σ over non-excluded, ≥2 consecutive non-excluded
     kept = [v for i, v in enumerate(s) if i not in excl]
@@ -557,17 +603,28 @@ def detect_chapter_drift(
             if v < mean - 2 * sd:
                 below_run += 1
                 if below_run >= 2:
-                    findings.append(DriftFinding(DriftKind.BELOW_MEAN_2SIGMA, dim,
-                        f"{dim} < mean-2σ ({mean-2*sd:.1f}) for ≥2 consecutive chapters"))
+                    findings.append(
+                        DriftFinding(
+                            DriftKind.BELOW_MEAN_2SIGMA,
+                            dim,
+                            f"{dim} < mean-2σ ({mean - 2 * sd:.1f}) for ≥2 consecutive chapters",
+                        )
+                    )
                     break
             else:
                 below_run = 0
     return findings
 
+
 def detect_volume_drift(volume_scores: list[float]) -> list[DriftFinding]:
     if len(volume_scores) >= 2 and volume_scores[-1] < volume_scores[-2]:
-        return [DriftFinding(DriftKind.VOLUME_DECLINE, "overall",
-            f"volume overall declined {volume_scores[-2]}->{volume_scores[-1]}")]
+        return [
+            DriftFinding(
+                DriftKind.VOLUME_DECLINE,
+                "overall",
+                f"volume overall declined {volume_scores[-2]}->{volume_scores[-1]}",
+            )
+        ]
     return []
 ```
 
@@ -603,12 +660,15 @@ Parser (`compute_drift.parse_trend(path, dims) -> dict[dim, list[(score, exclude
 ```python
 from shenbi.skill_utils.calibration.confidence import calibrate_confidence, HitRate
 
+
 def test_high_confidence_downgraded_when_anchor_hitrate_low():
     # scorer reported "high" but only hit 60% of anchors it judged high → downgrade to mid
     assert calibrate_confidence("high", HitRate(high_confidence=0.6, threshold=0.8)) == "mid"
 
+
 def test_high_confidence_kept_when_hitrate_ok():
     assert calibrate_confidence("high", HitRate(high_confidence=0.9, threshold=0.8)) == "high"
+
 
 def test_low_never_upgraded():
     assert calibrate_confidence("low", HitRate(high_confidence=0.99, threshold=0.8)) == "low"
@@ -621,10 +681,12 @@ def test_low_never_upgraded():
 # src/shenbi/skill_utils/calibration/confidence.py
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class HitRate:
-    high_confidence: float   # fraction of high-confidence anchor judgments that were correct
+    high_confidence: float  # fraction of high-confidence anchor judgments that were correct
     threshold: float = 0.8
+
 
 def calibrate_confidence(reported: str, hr: HitRate) -> str:
     """LLM scorers are overconfident. Downgrade 'high' → 'mid' when anchor hit-rate < threshold.
@@ -645,26 +707,38 @@ def calibrate_confidence(reported: str, hr: HitRate) -> str:
 ```python
 from shenbi.skill_utils.review_resonance.routing import route_block, Routing, RevisionLoop
 
+
 def test_clear_pass_when_above_threshold():
-    r = route_block(overall=82, threshold=75, floors={"情感落地": (22, 20)},
-                    confidence="high", prior_revisions=0)
+    r = route_block(
+        overall=82,
+        threshold=75,
+        floors={"情感落地": (22, 20)},
+        confidence="high",
+        prior_revisions=0,
+    )
     assert r.path is Routing.PASS
+
 
 def test_clear_fail_auto_revise():
     r = route_block(overall=40, threshold=75, floors={}, confidence="high", prior_revisions=0)
     assert r.path is Routing.AUTO_REVISE
 
+
 def test_borderline_goes_to_human():
-    r = route_block(overall=73, threshold=75, floors={}, confidence="high", prior_revisions=0)  # within ±5
+    r = route_block(
+        overall=73, threshold=75, floors={}, confidence="high", prior_revisions=0
+    )  # within ±5
     assert r.path is Routing.HUMAN_REVIEW
+
 
 def test_low_confidence_goes_to_human():
     r = route_block(overall=40, threshold=75, floors={}, confidence="low", prior_revisions=0)
     assert r.path is Routing.HUMAN_REVIEW
 
+
 def test_third_clear_fail_escalates_to_human():
     r = route_block(overall=40, threshold=75, floors={}, confidence="high", prior_revisions=2)
-    assert r.path is Routing.HUMAN_REVIEW   # cap reached, no more auto-revise
+    assert r.path is Routing.HUMAN_REVIEW  # cap reached, no more auto-revise
 ```
 
 - [ ] **Step 2: Run FAIL.**
@@ -675,15 +749,23 @@ def test_third_clear_fail_escalates_to_human():
 from dataclasses import dataclass
 from enum import StrEnum
 
+
 class Routing(StrEnum):
     PASS = "pass"
     AUTO_REVISE = "auto_revise"
     HUMAN_REVIEW = "human_review"
 
+
 MAX_AUTO_REVISIONS = 2
 
-def route_block(overall: float, threshold: float, floors: dict[str, tuple[float, float]],
-                confidence: str, prior_revisions: int) -> Routing:
+
+def route_block(
+    overall: float,
+    threshold: float,
+    floors: dict[str, tuple[float, float]],
+    confidence: str,
+    prior_revisions: int,
+) -> Routing:
     """spec §5.4 three-path routing + 2-revision cap."""
     floor_ok = all(score >= floor for score, floor in floors.values())
     if overall >= threshold and floor_ok:
@@ -694,7 +776,7 @@ def route_block(overall: float, threshold: float, floors: dict[str, tuple[float,
         return Routing.HUMAN_REVIEW
     # high confidence, clearly below (>5 under threshold)
     if prior_revisions >= MAX_AUTO_REVISIONS:
-        return Routing.HUMAN_REVIEW     # cap → escalate
+        return Routing.HUMAN_REVIEW  # cap → escalate
     return Routing.AUTO_REVISE
 ```
 
@@ -710,12 +792,15 @@ def route_block(overall: float, threshold: float, floors: dict[str, tuple[float,
 ```python
 # tests/unit/gates/g4/test_chapter_planning_role.py
 def test_plan_without_chapter_role_fails_g4(tmp_path):
-    plan = tmp_path / "plans/chapter-1-plan.md"; plan.parent.mkdir(parents=True)
+    plan = tmp_path / "plans/chapter-1-plan.md"
+    plan.parent.mkdir(parents=True)
     plan.write_text("# plan\n## 1. 核心任务\n...\n", encoding="utf-8")  # no chapter_role
     assert "FAIL" in g4_chapter_planning([str(plan)], None)
 
+
 def test_plan_with_chapter_role_passes(tmp_path):
-    plan = tmp_path / "plans/chapter-1-plan.md"; plan.parent.mkdir(parents=True)
+    plan = tmp_path / "plans/chapter-1-plan.md"
+    plan.parent.mkdir(parents=True)
     plan.write_text("# plan\nchapter_role: 高潮\n## 1. 核心任务\n...\n", encoding="utf-8")
     assert "PASS" in g4_chapter_planning([str(plan)], None)
 ```
@@ -779,13 +864,17 @@ VALID = """# 共鸣评分报告
 判定: 通过
 """
 
+
 def test_valid_report_passes(tmp_path):
-    f = tmp_path / "audits/chapter-1-resonance.md"; f.parent.mkdir(parents=True)
+    f = tmp_path / "audits/chapter-1-resonance.md"
+    f.parent.mkdir(parents=True)
     f.write_text(VALID, encoding="utf-8")
     assert "PASS" in g4_review_resonance([str(f)], None)
 
+
 def test_missing_confidence_column_fails(tmp_path):
-    f = tmp_path / "audits/chapter-1-resonance.md"; f.parent.mkdir(parents=True)
+    f = tmp_path / "audits/chapter-1-resonance.md"
+    f.parent.mkdir(parents=True)
     f.write_text("# 共鸣评分报告\n## 评分明细\n| 维度 | 得分 |\n| x | 10 |\n", encoding="utf-8")
     assert "FAIL" in g4_review_resonance([str(f)], None)
 ```

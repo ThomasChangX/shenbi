@@ -69,28 +69,37 @@ emotion_tone: 悲
 章尾钩型: 悬念钩
 """
 
+
 def _run(tmp_path: Path, body: str) -> str:
     p = tmp_path / "plans" / "chapter-37-plan.md"
     p.parent.mkdir(parents=True)
     p.write_text(body, encoding="utf-8")
-    return g4_chapter_planning([str(p)], rd=None, project_dir=str(tmp_path))  # 源码 :55 签名——返回 fail()/passed() 的 JSON 报告串（must_fix 为数组；子串断言即可，勿做行解析——plan 审查 M1）
+    return g4_chapter_planning(
+        [str(p)], rd=None, project_dir=str(tmp_path)
+    )  # 源码 :55 签名——返回 fail()/passed() 的 JSON 报告串（must_fix 为数组；子串断言即可，勿做行解析——plan 审查 M1）
+
 
 def test_v4_is_legal_token(tmp_path):
     out = _run(tmp_path, V4_BODY)
     assert "invalid_token" not in out
 
+
 def test_v4_memo_scene_budget_still_enforced(tmp_path):
     out = _run(tmp_path, V4_BODY)  # 无场景预算节
-    assert "scene_budget" in out   # 现状 v3\b 不匹配 v4 → 静默豁免（红）
+    assert "scene_budget" in out  # 现状 v3\b 不匹配 v4 → 静默豁免（红）
+
 
 def test_v4_memo_voice_line_required(tmp_path):
     out = _run(tmp_path, V4_BODY)  # 无声口要求行
     assert "voice" in out.lower()  # 现状 in ("v2","v3") 不认 v4（红）
 
+
 def test_v4_memo_payoff_axis_required(tmp_path):
-    body = V4_BODY.replace("**payoff 拍**: 类型｜轴(债)｜量\n", "**payoff 拍**: 类型\n")  # 保留行去轴——missing_payoff_beat 版本无关会遮蔽假红（plan 审查 I5）
+    body = V4_BODY.replace(
+        "**payoff 拍**: 类型｜轴(债)｜量\n", "**payoff 拍**: 类型\n"
+    )  # 保留行去轴——missing_payoff_beat 版本无关会遮蔽假红（plan 审查 I5）
     out = _run(tmp_path, body)
-    assert "payoff_axis" in out    # 现状 :259 =="v3" 不认 v4（真红）；改后 PF_GE_V3 认 v4（绿）
+    assert "payoff_axis" in out  # 现状 :259 =="v3" 不认 v4（真红）；改后 PF_GE_V3 认 v4（绿）
 ```
 
 Run: `uv run pytest tests/unit/gates/g4/test_plan_format_v4.py -q` → **预期 FAIL（红）**
@@ -193,6 +202,7 @@ DECLARED_WORDLISTS: dict[str, frozenset[str]] = {
     "章尾钩型": frozenset({"悬念钩", "危机钩", "情感钩", "反转钩", "账目钩", "信物钩", "对位钩"}),
 }
 
+
 def _snapshot_declared(project_dir: Path, chapter: int) -> dict[str, Any]:
     """完成时声明快照（spec #82 T0）——只读 plan 与 volume_map，纯函数。"""
     d: dict[str, Any] = {}
@@ -201,8 +211,14 @@ def _snapshot_declared(project_dir: Path, chapter: int) -> dict[str, Any]:
         text = plan.read_text(encoding="utf-8")
         for key, pat in (
             ("emotion_tone", r"^emotion_tone[：:]\s*(\S+)"),
-            ("张力拍档位", r"^[-* ]*\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?(微|章|大)"),  # 兼容 **章尾张力拍**: 加粗形态（ch36:78 实存——plan 审查 M6）
-            ("payoff档", r"\*{0,2}payoff\s*拍\*{0,2}[：:].*?(小|中|大)兑现"),  # 真实形态 32/36 份：类型｜轴(债)｜中兑现——量[：:]形态 0 命中（plan 审查 C1）
+            (
+                "张力拍档位",
+                r"^[-* ]*\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?(微|章|大)",
+            ),  # 兼容 **章尾张力拍**: 加粗形态（ch36:78 实存——plan 审查 M6）
+            (
+                "payoff档",
+                r"\*{0,2}payoff\s*拍\*{0,2}[：:].*?(小|中|大)兑现",
+            ),  # 真实形态 32/36 份：类型｜轴(债)｜中兑现——量[：:]形态 0 命中（plan 审查 C1）
             ("章尾钩型", r"^章尾钩型[：:]\s*(\S+)"),
         ):
             m = re.search(pat, text, re.MULTILINE)
@@ -275,25 +291,42 @@ trace/event.py：实测 `action: str` 自由字符串（`_SIGNED_FIELDS` :24 无
 # src/shenbi/gates/g4/shadow.py
 import re
 
+
 def _check_id(item: str) -> str:
     m = re.match(r"G4\.([a-z_.]+)", item)
     return m.group(1) if m else item.split(":", maxsplit=1)[0].replace("G4.", "")
 
-GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {  # plan R2/I2'——键=带前缀检查 id（_extract_check_id :851 产出 `cp.cold_streak_window` 形态，勿用裸名）；值=(配置块, 键)；缺映射=None→**不降级**（fail-safe 方向：未登记门保持 HARD 可见，静默降级才是事故）
+
+GATE_TO_SHADOW_KEY: dict[
+    str, tuple[str, str]
+] = {  # plan R2/I2'——键=带前缀检查 id（_extract_check_id :851 产出 `cp.cold_streak_window` 形态，勿用裸名）；值=(配置块, 键)；缺映射=None→**不降级**（fail-safe 方向：未登记门保持 HARD 可见，静默降级才是事故）
     "cp.cold_streak_window": ("market_params", "cold_streak_cap"),
     "cp.hot_hook_window": ("market_params", "hot_hook_floor"),
     "cp.payoff_magnitude": ("market_params", "payoff_magnitude_floor"),
     "cp.hook_age": ("market_params", "hook_max_age"),
-    "cd.hook_type_rotation": ("market_params", "hook_rotation"),   # plan R2/I3'：轮换门独立键 hook_rotation:{shadow:bool}（嵌套 hook_grading.rotation 会被 Pydantic dict[str,dict[str,int|float]] 拒）
-    "cp.core_motif_touch": ("pacing", "core_motif_touch"),        # pacing 块——降级器须读两块（R2/I2'c）
-    "cd.quote_verbatim": ("market_params", "quote_anchor"),          # plan R3/I2——引句锚定门独立 shadow 键 {shadow:bool}
-    "cp.missing_retention_anchor": ("market_params", "retention_anchor"),  # 现存发射 id（:379）——spec F8「同 shadow 纪律」落地：键形加 shadow 子键
+    "cd.hook_type_rotation": (
+        "market_params",
+        "hook_rotation",
+    ),  # plan R2/I3'：轮换门独立键 hook_rotation:{shadow:bool}（嵌套 hook_grading.rotation 会被 Pydantic dict[str,dict[str,int|float]] 拒）
+    "cp.core_motif_touch": ("pacing", "core_motif_touch"),  # pacing 块——降级器须读两块（R2/I2'c）
+    "cd.quote_verbatim": (
+        "market_params",
+        "quote_anchor",
+    ),  # plan R3/I2——引句锚定门独立 shadow 键 {shadow:bool}
+    "cp.missing_retention_anchor": (
+        "market_params",
+        "retention_anchor",
+    ),  # 现存发射 id（:379）——spec F8「同 shadow 纪律」落地：键形加 shadow 子键
 }
+
 
 def apply_shadow(project_dir: Path, item: str) -> str | None:
     """shadow:true 时 FAIL→WARN 降级判定（纯函数——门检查器与降级器都无副作用；
     trace WARN 事件由调用侧在降级确认后发射）。返回降级后文案或 None（不降级）。"""
-    from shenbi.gates.shared import read_genre_config  # 真身 gates/shared.py:744（chapter_drafting.py:15 同源；R4/N1a——genre_loader 不存在）
+    from shenbi.gates.shared import (
+        read_genre_config,
+    )  # 真身 gates/shared.py:744（chapter_drafting.py:15 同源；R4/N1a——genre_loader 不存在）
+
     cfg = read_genre_config(str(project_dir)) or {}
     loc = GATE_TO_SHADOW_KEY.get(_check_id(item))
     if loc is None:
