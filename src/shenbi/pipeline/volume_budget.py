@@ -45,8 +45,8 @@ from shenbi.safe_write import safe_write
 #: groups (2, 3). The paren span is the genesis contract shape; without it
 #: neither the anchor rule nor the five-way reconciliation can read the
 #: section.
-#: spec #85 T7: span face single-sourced in _shared (VOL_NUMERAL charset);
-#: the module-level name below re-exports for any internal references.
+#: spec #85 T7: charset imported from _shared; the old module-level
+#: ``_VOL_SPAN_HEADING_RE`` was removed (sole consumer was parse_volume_spans).
 from shenbi.pipeline._shared import (
     VOL_NUMERAL as _VOL_NUMERAL,
 )
@@ -205,8 +205,8 @@ def _actual_spans(project_dir: Path) -> dict[str, tuple[int, int]]:
     text = path.read_text(encoding="utf-8")
     spans: dict[str, tuple[int, int]] = {}
     for m in re.finditer(
-        rf"^##\s*(第[{_VOL_NUMERAL}]+卷)[:：][^\n（(]*[（(]第\s*(\d+)\s*[-–—~～]\s*第?\s*(\d+)\s*章[）)]",
-        text,
+        rf"^##\s*(第[{_VOL_NUMERAL}]+卷)[:：][^\n（(]*[（(]第\s*(\d+)\s*[-–—~～\u301c]\s*第?\s*(\d+)\s*章[）)]",
+        text,  # audit-T7 C2: dash 类补 301C 与 planned 面对齐
         re.MULTILINE,
     ):  # spec #85 T7: charset unified（纯阿拉伯→含千/百=登记放宽 char-T7）
         spans.setdefault(m.group(1), (int(m.group(2)), int(m.group(3))))

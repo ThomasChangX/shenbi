@@ -21,14 +21,18 @@ from pathlib import Path
 
 __all__ = [
     "VOLUME_MAP_PATH",
+    "VOL_NUMERAL",
+    "VOL_SPAN_HEADING_RE",
     "_BRIDGE_ACTIVATION_WINDOW",
     "_END_RE",
     "_RANGE_RE",
     "BridgeRow",
+    "VolumeSpan",
     "_read_cn_volume_boundaries",
     "_resolve_volume_at_runtime",
     "bridges_for_chapter",
     "load_volume_context",
+    "parse_volume_spans",
     "read_bridges",
     "read_chapter_node",
     "read_total_chapters",
@@ -63,7 +67,7 @@ VOL_NUMERAL = "0-9一二三四五六七八九十百千"
 #: Machine-readable paren span heading, colon-optional (spec #85 §2.2 三形态):
 #: ``## 第一卷：名（第 1-23 章）`` / ``## 第一卷 名（第 1-23 章）`` / arabic forms.
 VOL_SPAN_HEADING_RE = re.compile(
-    rf"^##\s*(第[{VOL_NUMERAL}]+卷)[^\n（(]*[（(]第\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*第?\s*(\d+)\s*章[）)]",
+    rf"^##\s*(第[{VOL_NUMERAL}]+卷)[^\n（(]*[（(]第\s*(\d+)\s*[-\u2013\u2014~\u301c\uff5e]\s*第?\s*(\d+)\s*章[）)]",  # audit-T7 C2: \uff5e 同形异码超集（FF5E=IME 常态，301C=迁入形）
     re.MULTILINE,
 )
 
