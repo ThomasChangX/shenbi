@@ -90,7 +90,7 @@
 
 - [ ] **Step 1: 红测 M3/M4（钉名）**——`tests/unit/pipeline/test_truth_readers.py` 追加 **`test_m3_cp_visible_to_pending_hooks_reader`**（`CP-001` 行经 read_pending_hooks 可见）；`tests/unit/pipeline/test_truth_io_hooks.py` 新建 **`test_m4_p_family_cell_and_heading`**（fixture `tests/fixtures/truth-pending_hooks-ch56.md` 读入，断言 `P0-4` 行[:29-35 cell]与 `### P0-4 TRIGGER 证据`[:65 heading]均被识别）；**负测**：两分组旧式对 `P0-4` 只捕 `P0` 的假阳性形（构造 `(MH|CP|P)-?(\d{1,4})` 推演断言 `P0` 不作为合法捕获出现——用新整串实现断言 `m.group(0)=="P0-4"`）
 - [ ] **Step 2: 换源**——truth_readers :50 换 `HOOK_ID_RE`；truth_io :408/:411 换 `HOOK_HEADING_RE`（组消费点适配 group(2)）；:414 cell 面改 `HOOK_ID_RE.search(cell)` + `canon_hook_id(m.group(0))`（整串化，:975-976 `f"{g1}{g2}"` 拼接链删除）；:588 保行锚+前视终止符、id 段换 `hook_family_source(("MH","CP","H","P"))`；`_cells`/`_is_separator` 换公共名调用
-- [ ] **Step 3: characterization**——跑 fixture 驱动对比测试（ch56/ch118/probe19 三 fixture 的钩可见集 before/after，变化集=P 族新增**加已登记松动/收紧轴项**——:408/:411 标题终止符 CJK/下划线受控松动[spec 验收 7 轴②]、:414 cell 面尾字母收紧[`MH02x` 旧入键/新拒，与 read_extractors:43 同款]）落 `.superpowers/sdd/char-T3.md`
+- [ ] **Step 3: characterization**——跑 fixture 驱动对比测试（ch56/ch118/probe19 三 fixture 的钩可见集 before/after，变化集=P 族新增**加已登记松动/收紧轴项**——:408/:411 标题终止符 CJK/下划线受控松动[spec 验收 7 轴②]、:414 cell 面尾字母收紧[`MH02x` 旧入键/新拒，与 read_extractors:43 同款]、**:675 无尾管数据行分类变化[base_is_shell 换带守卫版，spec §2.1 r4 注记]**）落 `.superpowers/sdd/char-T3.md`
 - [ ] **Step 4: 跑绿 + 回归**——`uv run pytest tests/unit/pipeline/ -q`
 - [ ] **Step 5: Commit**——`fix: M3/M4 readers+truth_io hook-face swap, cell regex integral-string rework (spec #85 T3)`
 
@@ -108,7 +108,7 @@
 - [ ] **Step 2: 跑基线确认双绿**——两测试文件全绿（含既有 `test_cp_namespace_hooks_are_not_gated`）
 - [ ] **Step 3: A/B 换源**——:248 换 `hook_family_source(("MH",))` 内嵌（group(1) 原形）；五 B 层点同款内嵌（组结构/行锚/尾注组不动）；:514 `set(find_hook_ids(text, families=("MH",)))`、:906 `list(dict.fromkeys(find_hook_ids(s7_text, families=("MH",))))`；`:910` 文案注记 canon 展示（`'、'.join(unknown)` 旁附原文形态或明示 canon——按 spec §2.3.1 注记实施）
 - [ ] **Step 4: 跑绿（双判据）**——既有绿测**零改动**保持绿 + 新增钉死测试绿；`uv run pytest tests/unit/gates/g4/ -q`
-- [ ] **Step 5: characterization**——连字符形两分支验证（`MH-01` 已注册→命中无 FAIL；未注册→must_fix=堵盲区）落 char-T4.md
+- [ ] **Step 5: characterization**——连字符形两分支验证（`MH-01` 已注册→命中无 FAIL；未注册→must_fix=堵盲区）＋轴⑤（:514/:906 位数收窄）与轴⑥（B 层 ≥5 位收窄/截断二分）实测登记，落 char-T4.md
 - [ ] **Step 6: Commit**——`fix: chapter_planning A/B-layer swap, judgment domains pinned by dual tests (spec #85 T4)`
 
 ### Task 5: C 层表六点位换源（characterization 先行）
@@ -123,7 +123,7 @@
 
 - [ ] **Step 1: characterization 先行**——对六点位各写 before 断言测试（现行行为快照）：lint_truth_pool 对 P 族失明快照、ledger_archive P 族节不可归档快照、chapter_drafting 对 `MH01` 形盲区快照（fixtures 5 个 plan 均 no-op 已证——用构造输入）
 - [ ] **Step 1b: 弱守卫收敛**——lint_truth_pool:70 `_cells` 删除改调 `split_table_cells`（None 早退守卫统一）；ledger_archive `_row_entry_id`（:274）与 read_extractors:153/:264 内联 `strip("|").split("|")` 改走 `split_table_cells` 带守卫版（无尾管数据行返 None 跳过=行为变化记 char）
-- [ ] **Step 2: 换源**——:383/:588[Task 3 已做]/:43/:80 换 `HOOK_ID_RE`/`HOOK_HEADING_RE`（:80 适配 group(2)；ledger_archive:88 的 POOL_SPEC 以 `re.compile(HOOK_HEADING_RE.pattern, re.MULTILINE)` 派生）；:109-111 与 read_extractors:156-158/:267-269 两分组 `canon(f"{g1}{g2}")` 链整串化 `canon(m.group(0))`；read_extractors:46 保 `^###` 锚只换 id 段（families 含 P）；:309/:311 双侧 `set(find_hook_ids(...))`（无 families=全族）——`missing = plan_hooks - chapter_hooks` 语义不变
+- [ ] **Step 2: 换源**——:383 与 :588[Task 3 已做]均为**族源串内嵌（保留行锚+前视终止符，禁整串换 HOOK_ID_RE——probe32 陷阱）**；:43/:80 换 `HOOK_ID_RE`/`HOOK_HEADING_RE`（:80 适配 group(2)；ledger_archive:88 的 POOL_SPEC 以 `re.compile(HOOK_HEADING_RE.pattern, re.MULTILINE)` 派生）；:109-111 与 read_extractors:156-158/:267-269 两分组 `canon(f"{g1}{g2}")` 链整串化 `canon(m.group(0))`；read_extractors:46 保 `^###` 锚只换 id 段（families 含 P）；:309/:311 双侧 `set(find_hook_ids(...))`（无 families=全族）——`missing = plan_hooks - chapter_hooks` 语义不变
 - [ ] **Step 3: after 断言 + 差集**——char-T5.md **六点位变化集＋Step 1b 弱守卫四处行为变化**（含 BR-01/AC-001 退出 fulfillment 域样例）
 - [ ] **Step 4: 跑绿 + 回归**——`uv run pytest tests/unit/ -q`
 - [ ] **Step 5: Commit**——`fix: C-layer per-site swap (six sites, spec #85 §2.3.1 table) with characterization sets`
@@ -137,7 +137,7 @@
 
 **Interfaces:**
 - Consumes: `split_frontmatter`（fm_text 含围栏）
-- Produces: 12 处私有切分定义归零；内芯类消费者剥围栏两行的适配行；行为变化表（7 处宽松形 `----` 翻转 + :261/shared:348/truth_io:546 反向轴 + state_settling:633 中段差异）落 char-T6.md
+- Produces: 12 处私有切分定义归零；内芯类消费者剥围栏两行的适配行；行为变化表（7 处宽松形 `----` 翻转 + shared:348/truth_io:546 反向轴 + state_settling:633 中段差异 + presence 四点两轴）落 char-T6.md；**:261 残差说明行**（本轮不迁移故无时序行为变化；spec 反向轴措辞系「若未来对齐严格形」的条件差异登记——plan 裁定现状保留 `startswith("---\n")`）
 
 - [ ] **Step 1: 红测**——`test_split_frontmatter_replaces_all_copies`：对 12 处所在模块的代表性入口各一测（如 truth_index `_parse_frontmatter(text)` 与 `_split_frontmatter(text)` 返回值在新旧实现下对 `----` 首行/CRLF/`--- ` 变体的行为差异按 spec 行为变化表断言）
 - [ ] **Step 2: 逐处换源**——内芯类（yaml/取值面）调 `fm_text, body = split_frontmatter(text)` 后剥围栏首尾两行；拼接类（truth_io:382/checkpoint:76）直接用 fm_text（含围栏零适配）；truth_io:546 regex 切分换调用；**presence 位四点（truth_io:280/:360、dispatch_helper:2292/:2403）改走 `split_frontmatter(text)[0] != ""` 判定**——`----` 首行从「有 fm」翻转为「无 fm」（spec r8 登记的修复方向：ensure_truth_frontmatter 将为此类文件补块）＋**前置空行轴**（`"\n---\n…"` 首行文件今日 lstrip 判有 fm→迁移后判无 fm——零生产证据同登记），两轴均入行为变化表（显式迁移非沉默跳过）
@@ -172,7 +172,7 @@
 - Consumes: `THREAD_ID_RE.pattern`（源串载体钦定）
 - Produces: thread 族私有 token 定义归零；`:426` `\d+`→`\d{1,3}` 收窄入 characterization
 
-- [ ] **Step 1: characterization 先行 + M5 红测**——`### A1234: x` 旧匹配/新不匹配断言（收窄登记）；`_thread_section_map` D 级节可见性 before 快照；**红测 M5（验收 1 落点）**：`tools` 侧 lint 的 `_HOOK_ID_RE`/`_thread_section_map` 对 `| D12 |` 行与 `### D12:` 节——现行不可见（`[ABC]\d` 失明）、换源后两图可见（`test_m5_d12_visible_in_both_maps`，tests/unit/tools/ 下 lint 级测试或直接调 lint 内函数）
+- [ ] **Step 1: characterization 先行 + M5 红测**——`### A1234: x` 旧匹配/新不匹配断言（收窄登记）；`_thread_section_map` D 级节可见性 before 快照；**红测 M5（验收 1 落点）**：lint 的 **thread 行图 `_THREAD_ID_RE`（:53）与节图 `_thread_section_map`（:181）**对 `| D12 |` 行与 `### D12:` 节——现行不可见（`[ABC]\d` 失明）、换源后两图可见（`test_m5_d12_visible_in_both_maps`，tests/unit/tools/ 下 lint 级测试或直接调 lint 内函数；注意 D12 管辖在 thread 图非 hook 图——`_HOOK_ID_RE`(:43) 换源后对 D12 仍不可见属正确）
 - [ ] **Step 2: 换源**——五文件组合点 f-string 内插（truth_io:426/:443/:447/:451、ledger_archive:107、read_extractors:394、lint_truth_pool:53/:181）；`:439` 常量删除（ledger_archive/read_extractors 惰性 import 同步改）
 - [ ] **Step 3: 跑绿 + 回归**——`uv run pytest tests/unit/ -q`
 - [ ] **Step 4: Commit**——`refactor: thread-id token single-source via THREAD_ID_RE.pattern (spec #85 T8)`
