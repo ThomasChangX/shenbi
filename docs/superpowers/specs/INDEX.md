@@ -22,7 +22,7 @@
 
 ### #85 · 真相文件格式单源（truth-format-single-source）
 
-- **文件**：`2026-11-01-spec85-truth-format-single-source.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r8——三轮清偿：lint_truth_pool:181 收编/:619 白名单时序条款/frontmatter 13 处终计/收窄五轴登记） ｜ **优先级**：🟥 P0
+- **文件**：`2026-11-01-spec85-truth-format-single-source.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r9——四轮清偿：chapter_drafting 第 8 活方言对称收编/truth_io:546 第 14 处/range-out 补全/lint 位式口径/B 层双轴） ｜ **优先级**：🟥 P0
 - **依赖**：无（总序首件）。与 #84 无文件冲突面（本批全为框架侧）；**执行时序（r2.1）：冻结窗内先于 #95 落地**——#95 T3 以本 spec 为解析基座（总序 #85→#95→束4 验收→批次 A 其余）
 - **内容**：叶模块 truth_format.py（hook-id/thread-id/表格行/分隔行/frontmatter/节边界六族解析单源，gates↔pipeline 双向 import 下的唯一无环落点）+ 5 处误解析红测修复（M1/M2 truth_index MH/CP 改键、M3 truth_readers CP→P、**M4 truth_io cell 正则漏 P 族 + heading 家族缺 P 同活（r2.2 改判：fixture :65 实证）**、M5 lint_truth_pool 旧线程集、**M6 records/writer 第二副本**）+ 8 处 g4 严格 MH\d+ 收敛 + volume_map 收敛落 **_shared**（r2 亲验依赖方向 volume_budget→_shared）+ fixtures 误报差集清单过审
 - **对应 plan**：待执行时建（`../plans/2026-11-01-spec85-*.md`）
