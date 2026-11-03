@@ -49,6 +49,7 @@ log = get_logger(__name__)
 #: M3: the legacy alternation keyed ``CP-001`` as ``P-001``, blinding the
 #: single parser to the whole CP family).
 from shenbi.truth_format import HOOK_ID_RE as _HOOK_ID_RE
+from shenbi.truth_format import split_frontmatter
 
 _CH_RE = re.compile(r"ch\s*(\d+)", re.IGNORECASE)
 
@@ -89,14 +90,17 @@ def _int_or_none(cell: str) -> int | None:
 
 
 def _split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
-    """Minimal frontmatter split (no yaml dependency for one scalar)."""
-    if not text.startswith("---"):
+    """Minimal frontmatter split (no yaml dependency for one scalar).
+
+    Boundary split single-sourced via truth_format.split_frontmatter
+    (spec #85 T6); the scalar extraction stays here (core consumer).
+    """
+    fm_text, body = split_frontmatter(text)
+    if not fm_text:
         return {}, text
-    parts = text.split("---", 2)
-    if len(parts) < 3:
-        return {}, text
-    fm_line = re.search(r"^last_chapter:\s*(\d+)\s*$", parts[1], re.MULTILINE)
-    body = parts[2]
+    fm_core_lines = fm_text.split("\n")
+    fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
+    fm_line = re.search(r"^last_chapter:\s*(\d+)\s*$", fm_core, re.MULTILINE)
     return ({"last_chapter": int(fm_line.group(1))} if fm_line else {}), body
 
 

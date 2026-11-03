@@ -29,6 +29,7 @@ log = get_logger(__name__)
 # Hook ids embedded in prose -- grammar defined by the single source
 # ``shenbi.truth_format.HOOK_ID_RE`` (spec #85; full family table there).
 from shenbi.truth_format import HOOK_ID_RE as _HOOK_ID_RE  # spec #85 T2 (M1/M2)
+from shenbi.truth_format import split_frontmatter  # spec #85 T6
 
 # Rule headings — Chinese ordinals: ``## 规则一：能量守恒`` (production).
 _RULE_HEADING_RE = re.compile(
@@ -121,13 +122,15 @@ def _parse_frontmatter(text: str) -> dict[str, Any]:
     Returns an empty dict when the text has no frontmatter or it is not a
     mapping. ``Any`` values are intentional: YAML yields heterogeneous data
     whose exact shapes are validated per-category by the callers.
+    Boundary split single-sourced via truth_format.split_frontmatter
+    (spec #85 T6); yaml parsing stays here (core consumer).
     """
-    if not text.startswith("---"):
+    fm_text, _body = split_frontmatter(text)
+    if not fm_text:
         return {}
-    parts = text.split("---", 2)
-    if len(parts) < 3:
-        return {}
-    data = yaml.safe_load(parts[1])
+    fm_core_lines = fm_text.split("\n")
+    fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
+    data = yaml.safe_load(fm_core)
     return data if isinstance(data, dict) else {}
 
 
@@ -138,14 +141,14 @@ def _split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
     :func:`_parse_frontmatter` but also returns the body for body-source
     extraction (spec §3.2b).
     """
-    if not text.startswith("---"):
+    fm_text, body = split_frontmatter(text)  # spec #85 T6: single source
+    if not fm_text:
         return {}, text
-    parts = text.split("---", 2)
-    if len(parts) < 3:
-        return {}, text
-    data = yaml.safe_load(parts[1])
+    fm_core_lines = fm_text.split("\n")
+    fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
+    data = yaml.safe_load(fm_core)
     fm = data if isinstance(data, dict) else {}
-    return fm, parts[2]
+    return fm, body
 
 
 def _index_characters(project_dir: Path, idx: TruthIndex) -> None:

@@ -1,7 +1,7 @@
 """G4 checker for shenbi-chapter-drafting."""
 
 from __future__ import annotations
-from shenbi.truth_format import find_hook_ids  # spec #85 T5
+from shenbi.truth_format import find_hook_ids, split_frontmatter  # spec #85 T5/T6
 from shenbi.status import GateStatus
 from typing import Any
 import re
@@ -439,14 +439,18 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
         match = re.search(r"^name:\s*(.+)$", text, re.MULTILINE)
         if match:
             names.append(match.group(1).strip())
-        # Also try YAML frontmatter
-        if text.startswith("---"):
-            parts = text.split("---", 2)
-            if len(parts) >= 3:
+        # Also try YAML frontmatter (boundary single-sourced, spec #85 T6)
+        fm_text, _body = split_frontmatter(text)
+        if fm_text:
+            if True:
                 try:
                     import yaml as _yaml
 
-                    fm = _yaml.safe_load(parts[1])
+                    fm_core_lines = fm_text.split("\n")
+                    fm_core = "\n".join(
+                        fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1]
+                    )
+                    fm = _yaml.safe_load(fm_core)
                     if isinstance(fm, dict) and "name" in fm:
                         names.append(str(fm["name"]))
                 except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)

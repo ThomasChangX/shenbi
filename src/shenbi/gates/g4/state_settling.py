@@ -1,7 +1,7 @@
 """G4 checker for shenbi-state-settling."""
 
 from __future__ import annotations
-from shenbi.truth_format import hook_family_source  # spec #85 T5
+from shenbi.truth_format import hook_family_source, split_frontmatter  # spec #85 T5/T6
 from shenbi.status import GateStatus
 from typing import Any
 from datetime import UTC, datetime, timedelta
@@ -632,11 +632,9 @@ def _validate_character_matrix(
     issues: list[str] = []
 
     # Only check the content after the frontmatter, excluding the 角色定义 section
-    body = content
-    if "---" in content:
-        parts = content.split("---", 2)
-        if len(parts) >= 3:
-            body = parts[2]
+    # spec #85 T6: leading-only strict split (the legacy "---" in content +
+    # split could strip at a MID-document fence — characterized change).
+    _, body = split_frontmatter(content)
 
     # Find the 角色定义 section boundaries
     def_section = ""

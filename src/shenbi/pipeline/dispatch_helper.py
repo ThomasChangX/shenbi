@@ -41,6 +41,7 @@ from tenacity import (
     wait_exponential_jitter,
 )
 
+from shenbi.truth_format import split_frontmatter  # spec #85 T6
 from shenbi.contracts.enums import FailureClass
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.file_list import join_gate_file_list
@@ -2289,7 +2290,7 @@ def _validate_increment_package(
         return
     violations: list[str] = []
     stripped = content.lstrip()
-    if stripped.startswith("---"):
+    if split_frontmatter(stripped)[0]:  # spec #85 T6: strict presence
         violations.append("frontmatter（--- 块）")
     lines = content.split("\n")
     h1 = [l.strip() for l in lines if re.match(r"^#\s", l)]
@@ -2400,7 +2401,7 @@ def _is_creation_form(content: str, *, key_field: str) -> bool:
     routes as a base-replacing creation instead of a keyed merge.
     """
     stripped = content.lstrip()
-    if stripped.startswith("---"):
+    if split_frontmatter(stripped)[0]:  # spec #85 T6: strict presence
         return True
     lines = content.split("\n")
     if any(re.match(r"^#\s", ln) for ln in lines):

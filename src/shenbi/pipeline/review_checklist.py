@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any
 
 
+from shenbi.truth_format import split_frontmatter  # spec #85 T6
 from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 
@@ -440,13 +441,15 @@ def _extract_hook_deliverables(
         return []
 
     hooks: list[dict[str, Any]] = []
-    if text.startswith("---"):
+    fm_text, _body = split_frontmatter(text)  # spec #85 T6: single source
+    if fm_text:
         import yaml
 
-        parts = text.split("---", 2)
-        if len(parts) >= 3:
+        fm_core_lines = fm_text.split("\n")
+        fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
+        if True:
             try:
-                fm: Any = yaml.safe_load(parts[1]) or {}
+                fm: Any = yaml.safe_load(fm_core) or {}
                 raw_hooks: Any = fm.get("hooks", [])
                 if isinstance(raw_hooks, list):
                     hooks = raw_hooks

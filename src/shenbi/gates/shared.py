@@ -4,6 +4,7 @@ Gate validation logic (originally extracted from tests/validate-gate.py in PR-19
 import these helpers to keep behavior identical to the legacy monolith.
 """
 
+from shenbi.truth_format import split_frontmatter  # spec #85 T6
 from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 from shenbi.status import GateResult, GateStatus
@@ -344,8 +345,9 @@ def strip_narrative_body(content: str) -> str:
     itself (6 of 8 hits on the probe's chapter 1).
     """
     c = content
-    # Strip YAML frontmatter
-    c = re.sub(r"^---\n.*?\n---\n", "", c, flags=re.DOTALL)
+    # Strip YAML frontmatter (boundary single-sourced, spec #85 T6 — #89 T4
+    # handed this face over; regex copy retired).
+    _, c = split_frontmatter(c)
     # Strip code blocks
     c = re.sub(r"```.*?```", "", c, flags=re.DOTALL)
     # Strip meta sections that are not narrative

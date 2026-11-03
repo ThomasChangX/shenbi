@@ -52,6 +52,7 @@ from shenbi.truth_format import (  # spec #85 T1/T3: truth-file format single so
     canon_hook_id as canon_hook_id,  # noqa: PLC0414  # explicit re-export，保既有 import 方
     hook_family_source,
     is_separator_row as is_separator_row,  # noqa: PLC0414
+    split_frontmatter,
     split_table_cells as split_table_cells,  # noqa: PLC0414
 )
 from shenbi.safe_write import safe_write
@@ -285,7 +286,7 @@ def ensure_truth_frontmatter(filename: str, content: str) -> str:
     create-path, staging merge base, whole-file replace/creation forms) —
     frontmatter presence is a program invariant, never the LLM's job.
     """
-    if content.lstrip().startswith("---"):
+    if split_frontmatter(content.lstrip())[0]:  # spec #85 T6: strict presence
         return content
     return _TRUTH_FRONTMATTER + content
 
@@ -365,7 +366,7 @@ def ensure_table_header(filename: str, content: str) -> str:
     # Frontmatter guarantee runs BEFORE the registered-header early-out:
     # unregistered truth files (resonance_anchors incident) must still gain
     # the canonical block on creation.
-    if not content.lstrip().startswith("---"):
+    if not split_frontmatter(content.lstrip())[0]:  # spec #85 T6: strict presence
         content = ensure_truth_frontmatter(filename, content)
     if not header:
         return content
@@ -386,12 +387,9 @@ def ensure_table_header(filename: str, content: str) -> str:
     # the block is scaffolding, not the first data line (a frontmatter-carrying
     # headerless base is the repair form: rows exist, header missing). The
     # header lands AFTER the block, keeping frontmatter first.
-    fm_block, body = "", content
-    if body.startswith("---"):
-        close = body.find("\n---", 3)
-        if close != -1:
-            fm_block = body[: close + 4] + "\n"
-            body = body[close + 4 :].lstrip("\n")
+    # spec #85 T6: fence-inclusive splice via the single source (zero-adapt
+    # consumer of the fm_text contract).
+    fm_block, body = split_frontmatter(content)
     first = next((line for line in body.split("\n") if line.strip()), "")
     if first.lstrip().startswith("|") and "chapter" not in first and "---" not in first:
         return fm_block + header + "\n" + separator + "\n" + body
@@ -557,10 +555,11 @@ def touch_frontmatter_updated_at(text: str, iso_now: str) -> str:
     frontmatter or without an existing ``updated_at`` key (never invents
     frontmatter structure).
     """
-    m = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
-    if m is None:
+    fm_text, body = split_frontmatter(text)  # spec #85 T6: single source
+    if not fm_text:
         return text
-    fm, body = m.group(1), text[m.end() :]
+    fm_core_lines = fm_text.split("\n")
+    fm = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
     if not re.search(r"^updated_at\s*[:：]", fm, re.MULTILINE):
         return text
     fm = re.sub(
@@ -1805,16 +1804,17 @@ def _read_yaml_records(path: Path) -> list[dict[str, Any]]:
         # ``startswith("---")`` prefix test also matched ``----`` thematic
         # breaks, misparsing frontmatter-less bodies as frontmatter and
         # raising TruthFileParseError on them (final review T4 M2).
-        first_line = text.split("\n", 1)[0].rstrip("\r \t")
-        if first_line != "---":
+        fm_text, _body = split_frontmatter(text)  # spec #85 T6: single source
+        if not fm_text:
+            if text.split("\n", 1)[0].rstrip("\r \t") == "---":
+                raise TruthFileParseError(
+                    "truth file frontmatter is unterminated (no closing ---)",
+                    path=str(path),
+                )
             return []
-        parts = text.split("---", 2)
-        if len(parts) < 3:
-            raise TruthFileParseError(
-                "truth file frontmatter is unterminated (no closing ---)",
-                path=str(path),
-            )
-        fm = yaml.safe_load(parts[1]) or {}
+        fm_core_lines = fm_text.split("\n")
+        fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
+        fm = yaml.safe_load(fm_core) or {}
         if not isinstance(fm, dict):
             raise TruthFileParseError(
                 "truth file frontmatter is not a YAML mapping",

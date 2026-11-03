@@ -31,6 +31,7 @@ from shenbi.records.parser import parse_records, serialize_records
 from shenbi.safe_write import safe_write
 
 from shenbi.truth_format import HOOK_ID_RE as _HOOK_ID_RE  # spec #85 T2 (M6: second copy retired)
+from shenbi.truth_format import split_frontmatter  # spec #85 T6
 
 
 # 8 canonical table columns, sourced from the drift checker's header map.
@@ -50,18 +51,24 @@ class RecordState(StrEnum):
 TABLE_COLUMNS: list[str] = list(MD_HEADER_TO_KEY.values())
 _KEY_TO_HEADER: dict[str, str] = {v: k for k, v in MD_HEADER_TO_KEY.items()}
 
-_FM_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n?", re.DOTALL)
-
 
 def _split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
-    m = _FM_RE.match(text)
-    if m is None:
+    """Boundary split single-sourced (spec #85 T6); yaml stays here.
+
+    NOTE behavior change (characterized, spec acceptance-7): the legacy
+    anchored regex accepted a mid-document close fence; the single source
+    requires the closing fence on its own line (rstrip-cured).
+    """
+    fm_text, body = split_frontmatter(text)
+    if not fm_text:
         return {}, text
+    fm_core_lines = fm_text.split("\n")
+    fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
     try:
-        fm = yaml.safe_load(m.group(1)) or {}
+        fm = yaml.safe_load(fm_core) or {}
     except yaml.YAMLError:
         return {}, text
-    return fm if isinstance(fm, dict) else {}, text[m.end() :]
+    return fm if isinstance(fm, dict) else {}, body
 
 
 def normalize_record(rec: dict[str, Any]) -> dict[str, Any]:
