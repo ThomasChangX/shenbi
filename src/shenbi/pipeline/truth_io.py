@@ -55,6 +55,7 @@ from shenbi.truth_format import (  # spec #85 T1/T3: truth-file format single so
     split_frontmatter,
     split_table_cells as split_table_cells,  # noqa: PLC0414
 )
+from shenbi.pipeline._shared import VOL_NUMERAL as _VOL_NUMERAL  # spec #85 T7
 from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
@@ -435,7 +436,7 @@ _HOOK_HEADING_BLOCK_RE = re.compile(_HOOK_HEADING_RE.pattern, re.MULTILINE)
 #: ``第N章扩容复核``.
 _OUTLINE_SECTION_KEY_RE = re.compile(
     r"^(#{2,6})\s+("
-    r"第[一二三四五六七八九十百千\d]+卷"  # volume_map
+    rf"第[{_VOL_NUMERAL}]+卷"  # spec #85 T7: charset from _shared VOL_NUMERAL
     r"|[A-Za-z]+\d+"  # thread_map ids
     r"|第\d+章扩容复核"  # relationships boundary reviews
     r"|地点：.+"  # locations entries

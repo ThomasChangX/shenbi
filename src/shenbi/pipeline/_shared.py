@@ -56,8 +56,39 @@ _RANGE_RE = re.compile(
 # volume-level range line `**章节范围**: 第A章 - 第M章（共K章）`. KR-level lines
 # are list-dash-prefixed (`- **章节范围**`) and excluded by the line-start anchor;
 # the `| 段 | 章节范围 |` tension-table column never matches the bolded pattern.
+#: Volume numeral charset — THE single source (spec #85 T7): 千/百 included,
+#: arabic digits included. All volume-face regexes derive from this class.
+VOL_NUMERAL = "0-9一二三四五六七八九十百千"
+
+#: Machine-readable paren span heading, colon-optional (spec #85 §2.2 三形态):
+#: ``## 第一卷：名（第 1-23 章）`` / ``## 第一卷 名（第 1-23 章）`` / arabic forms.
+VOL_SPAN_HEADING_RE = re.compile(
+    rf"^##\s*(第[{VOL_NUMERAL}]+卷)[^\n（(]*[（(]第\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*第?\s*(\d+)\s*章[）)]",
+    re.MULTILINE,
+)
+
+
+@dataclass(frozen=True)
+class VolumeSpan:
+    token: str  # 第N卷 heading token, as written
+    start: int
+    end: int
+
+    @property
+    def length(self) -> int:
+        return self.end - self.start + 1
+
+
+def parse_volume_spans(text: str) -> list[VolumeSpan]:
+    """Ordered volume spans from ``(第 a-b 章)`` headings ([] when none)."""
+    return [
+        VolumeSpan(m.group(1), int(m.group(2)), int(m.group(3)))
+        for m in VOL_SPAN_HEADING_RE.finditer(text)
+    ]
+
+
 _CN_VOL_HEAD_RE = re.compile(
-    r"^##\s*第[0-9一二三四五六七八九十百]+卷\s*[：:]",
+    rf"^##\s*第[{VOL_NUMERAL}]+卷\s*[：:]",
     re.MULTILINE,
 )
 _CN_VOL_RANGE_LINE_RE = re.compile(
@@ -68,8 +99,11 @@ _CN_VOL_RANGE_LINE_RE = re.compile(
 # C 批: the machine-readable heading span (``## 第一卷：名（第 1-23 章）``) —
 # the 卷界锚规则's canonical shape; accepted as a boundary source when a
 # volume section carries no 章节范围 line.
+#: Colon-required span face for the range-line-priority path (the span is
+#: only consulted when the volume section carries no 章节范围 line). Charset
+#: derives from VOL_NUMERAL; adding 千 = registered loosening (char-T7).
 _CN_VOL_HEAD_SPAN_RE = re.compile(
-    r"^##\s*第[0-9一二三四五六七八九十百]+卷\s*[：:][^\n（(]*[（(]第\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*第?\s*(\d+)\s*章[）)]",
+    rf"^##\s*第[{VOL_NUMERAL}]+卷\s*[：:][^\n（(]*[（(]第\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*第?\s*(\d+)\s*章[）)]",
     re.MULTILINE,
 )
 
