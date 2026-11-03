@@ -318,7 +318,7 @@ def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
     missing = plan_hooks - chapter_hooks
     if missing:
         return [
-            f"G4.cd.hook_unfulfilled: plan requires hooks {sorted(missing)} "
+            f"G4.cd.hook_unfulfilled: plan requires hooks {sorted(missing)}（canon 归一形，原文可能为 MH-003 形） "
             f"but none found in chapter body"
         ]
     return []

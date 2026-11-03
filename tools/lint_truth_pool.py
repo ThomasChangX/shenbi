@@ -107,7 +107,7 @@ def _row_map(text: str) -> dict[str, list[str]]:
         if not s.startswith("|"):
             continue
         cells = _cells(s)
-        if len(cells) <= _COL_LIFECYCLE or cells[0].startswith("Hook"):
+        if cells is None or len(cells) <= _COL_LIFECYCLE or cells[0].startswith("Hook"):
             continue
         idm = _HOOK_ID_RE.search(cells[0])
         if idm is not None:
@@ -208,7 +208,7 @@ def _thread_row_map(text: str) -> dict[str, list[str]]:
         if not s.startswith("|"):
             continue
         cells = _cells(s)
-        if len(cells) <= _T_COL_LIFECYCLE or cells[0].strip().upper() == "ID":
+        if cells is None or len(cells) <= _T_COL_LIFECYCLE or cells[0].strip().upper() == "ID":
             continue
         idm = _THREAD_ID_RE.search(cells[0])
         if idm is not None:
@@ -242,7 +242,9 @@ def lint_thread(text: str) -> list[Finding]:
     if m_ov is not None:
         for line in text[m_ov.end() :].splitlines():
             if line.strip().startswith("|"):
-                header_cells = _cells(line)
+                cells = _cells(line)  # spec #85 T5 C1: None-guarded single source
+                if cells is not None:
+                    header_cells = cells
                 break
     col_resolve, col_lifecycle = (
         _thread_cols(header_cells)

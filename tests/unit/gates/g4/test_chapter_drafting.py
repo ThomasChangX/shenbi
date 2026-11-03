@@ -717,3 +717,39 @@ def test_chapter_drafting_skill_states_manual_override_rationale_combo():
     assert "manual_override" in content and "不论 severity" in content, (
         "drafting SKILL.md 须含 manual_override 不论 severity 必带 rationale 的组合陷阱明示"
     )
+
+
+# --- spec #85 T5 (audit I2): fulfillment symmetric-swap phases ---
+
+
+@pytest.mark.unit
+def test_c_layer_fulfillment_unhyphenated_now_visible(tmp_path) -> None:
+    """S2b: plan declares MH01 (un-hyphenated), chapter cites MH-01 →
+    legacy regex was blind on the plan side (false PASS); the symmetric
+    canon finder catches it (guard strengthening).
+    """
+    plan = tmp_path / "plan.md"
+    plan.write_text(
+        "## 7. Hook Ledger\n| ID | 操作 |\n| --- | --- |\n| MH01 | advance |\n",
+        encoding="utf-8",
+    )
+    ch = tmp_path / "ch.md"
+    ch.write_text("正文回收了 MH-01。\n", encoding="utf-8")
+    issues = check_hook_fulfillment(plan, ch)
+    assert not issues  # MH-01 ≡ MH01 经 canon 双侧一致
+
+
+@pytest.mark.unit
+def test_c_layer_fulfillment_kr_token_leaves_domain(tmp_path) -> None:
+    r"""S3: KR-1 (volume anchor token) leaves the fulfillment domain —
+    it was a legacy `[A-Z]{2,4}-\d+` false member.
+    """
+    plan = tmp_path / "plan.md"
+    plan.write_text(
+        "## 7. Hook Ledger\n| ID | 操作 |\n| --- | --- |\n| KR-1 | advance |\n",
+        encoding="utf-8",
+    )
+    ch = tmp_path / "ch.md"
+    ch.write_text("正文没有提。\n", encoding="utf-8")
+    issues = check_hook_fulfillment(plan, ch)
+    assert not any("KR-1" in i or "KR1" in i for i in issues)
