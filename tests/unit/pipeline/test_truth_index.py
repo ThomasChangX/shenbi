@@ -229,3 +229,28 @@ class TestTruthIndexSerialization:
     def test_entry_is_dataclass(self):
         entry = IndexEntry(category="character", entity_id="X", file="f.md", ref="f.md#X")
         assert entry.extra == {}
+
+
+# --- spec #85 T2: M1/M2 red tests (hook-id dialect swap) ---
+
+
+@pytest.mark.unit
+def test_m1_mh01_key_not_mangled() -> None:
+    r"""M1: the legacy ``(?:[HM]\d+|P\d*-\d+)`` pattern keyed ``MH01`` as
+    ``H01`` (unbounded alternation matches from the second character). The
+    single-source HOOK_ID_RE must keep the full token as the key.
+    """
+    from shenbi.pipeline.truth_index import _HOOK_ID_RE  # pyright: ignore[reportPrivateImportUsage]
+
+    body = "MH01 与 CP-004 提及"
+    ids = [m.group(0) for m in _HOOK_ID_RE.finditer(body)]
+    assert ids == ["MH01", "CP-004"]
+
+
+@pytest.mark.unit
+def test_m2_cp_key_not_mangled() -> None:
+    """M2: ``CP-001`` must not be keyed as ``P-001``."""
+    from shenbi.pipeline.truth_index import _HOOK_ID_RE  # pyright: ignore[reportPrivateImportUsage]
+
+    ids = [m.group(0) for m in _HOOK_ID_RE.finditer("CP-001")]
+    assert ids == ["CP-001"]

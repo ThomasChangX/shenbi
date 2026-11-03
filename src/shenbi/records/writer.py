@@ -30,8 +30,7 @@ from shenbi.records.drift import MD_HEADER_TO_KEY, parse_markdown_table
 from shenbi.records.parser import parse_records, serialize_records
 from shenbi.safe_write import safe_write
 
-# Same pattern as pipeline/truth_index.py _HOOK_ID_RE (body free-text IDs).
-_HOOK_ID_RE = re.compile(r"(?:[HM]\d+|P\d*-\d+)")
+from shenbi.truth_format import HOOK_ID_RE as _HOOK_ID_RE  # spec #85 T2 (M6: second copy retired)
 
 
 # 8 canonical table columns, sourced from the drift checker's header map.
