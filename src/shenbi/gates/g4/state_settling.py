@@ -35,6 +35,7 @@ def _content_stream(text: str) -> list[str]:
     mutation surfaces of a settle increment; everything else is base mass.
     """
     out: list[str] = []
+    # spec #85 T6 跳过位：边界语义回指 shenbi.truth_format.split_frontmatter（不强换源）
     in_fm = False
     first = True
     for line in text.split("\n"):

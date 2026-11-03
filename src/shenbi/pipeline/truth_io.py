@@ -640,6 +640,7 @@ def base_is_shell(text: str) -> bool:
     i = 0
     n = len(lines)
     # Skip a LEADING frontmatter block (fenced key/value pairs, no data).
+    # spec #85 T6 跳过位：边界语义回指 shenbi.truth_format.split_frontmatter（不强换源）。
     while i < n and not lines[i].strip():
         i += 1
     if i < n and lines[i].strip() == "---":
