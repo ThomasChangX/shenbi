@@ -28,8 +28,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from shenbi.pipeline.truth_io import parse_thread_span, path_lock
-from shenbi.pipeline.truth_io import _THREAD_ID_CELL_RE  # pyright: ignore[reportPrivateUsage]
-from shenbi.pipeline.truth_io import _THREAD_ID_TOKEN  # pyright: ignore[reportPrivateUsage]
+from shenbi.truth_format import THREAD_ID_RE  # spec #85 T8: single source
+from shenbi.truth_format import HOOK_HEADING_RE, HOOK_ID_RE, split_table_cells  # spec #85 T5
 from shenbi.safe_write import safe_write
 
 
@@ -85,8 +85,8 @@ POOL_SPEC = LedgerSpec(
     archive_title="伏笔池",
     overview_heading="总览",
     details_heading="详情",
-    section_heading_re=re.compile(r"^(#{2,6})\s+((?:MH|CP)-?\d{1,4})\b", re.MULTILINE),
-    row_id_re=re.compile(r"(?<![A-Za-z0-9-])(MH|CP)-?(\d{1,4})(?!\d)"),
+    section_heading_re=re.compile(HOOK_HEADING_RE.pattern, re.MULTILINE),  # spec #85 T5
+    row_id_re=HOOK_ID_RE,
     state_field="lifecycle_state",
     span_field="resolve_chapter",
     canon=_pool_canon,
@@ -104,9 +104,10 @@ THREAD_SPEC = LedgerSpec(
     overview_heading="线索总览表",
     details_heading="线索详情",
     section_heading_re=re.compile(
-        rf"^(#{{2,6}})\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])", re.MULTILINE
+        rf"^(#{{2,6}})\s+({THREAD_ID_RE.pattern})",
+        re.MULTILINE,  # spec #85 T8
     ),
-    row_id_re=_THREAD_ID_CELL_RE,
+    row_id_re=THREAD_ID_RE,  # spec #85 T8
     state_field="状态",
     span_field="跨度",
     canon=lambda raw: raw.strip(),
@@ -271,9 +272,10 @@ def archive_ledger(project_dir: Path, resolved_through: int, spec: LedgerSpec) -
 
 def _row_entry_id(spec: LedgerSpec, line: str) -> str | None:
     """Entry id from a table row's FIRST cell (None when the cell has none)."""
-    stripped = line.strip().strip("|")
-    first = stripped.split("|", 1)[0] if "|" in stripped else stripped
-    m = spec.row_id_re.search(first)
+    cells = split_table_cells(line)  # spec #85 T5 Step 1b: guarded single source
+    if cells is None:
+        return None  # un-piped row: not a registry row (characterized)
+    m = spec.row_id_re.search(cells[0])
     return spec.canon(m.group(0)) if m else None
 
 

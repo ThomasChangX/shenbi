@@ -13,6 +13,7 @@ import json
 import shutil
 from pathlib import Path
 
+from shenbi.truth_format import split_frontmatter  # spec #85 T6
 from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 
@@ -73,10 +74,13 @@ def _merge_staged_rows_keyed(staged_text: str, live_text: str, key_field: str) -
     # Adjudication 004 surface: the staged snapshot is the merge SUBJECT —
     # when it lacks frontmatter but live carries one, the commit must not
     # silently drop it (staged character_matrix lost live's block this way).
-    if not staged_text.lstrip().startswith("---") and live_text.lstrip().startswith("---"):
-        fm_end = live_text.find("\n---", 4)
-        if fm_end != -1:
-            staged_text = live_text[: fm_end + 4] + "\n\n" + staged_text.lstrip("\n")
+    # spec #85 T6: fence-inclusive splice via the single source (zero-adapt
+    # consumer; the legacy find(\n---) copy retired).
+    staged_fm, _ = split_frontmatter(staged_text.lstrip())
+    live_fm, _ = split_frontmatter(live_text.lstrip())
+    if not staged_fm and live_fm:
+        # byte-form parity with the legacy find("\n---") splice: ONE blank line
+        staged_text = live_fm.rstrip("\n") + "\n\n" + staged_text.lstrip("\n")
 
     merged = staged_text
     for line in live_text.split("\n"):

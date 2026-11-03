@@ -207,3 +207,17 @@ def test_archive_last_section_without_trailing_newline(tmp_path: Path) -> None:
     assert "| MH09" not in live
     arc = (project / "truth" / "pending_hooks_archive.md").read_text(encoding="utf-8")
     assert arc.count("### MH09（回声）") == 1, "no duplicate archive entries"
+
+
+# --- spec #85 T5 (audit I2): C-layer ledger assertions ---
+
+
+@pytest.mark.unit
+def test_c_layer_p_family_detail_section_archivable(tmp_path) -> None:
+    """P-family detail sections are now in the archival domain (was never)."""
+    import re
+
+    from shenbi.pipeline.ledger_archive import POOL_SPEC
+
+    assert re.match(POOL_SPEC.section_heading_re.pattern, "### P0-4 TRIGGER 证据")
+    assert POOL_SPEC.row_id_re.search("P0-4 (quiet阈结构)") is not None

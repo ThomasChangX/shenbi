@@ -45,9 +45,10 @@ from shenbi.safe_write import safe_write
 #: groups (2, 3). The paren span is the genesis contract shape; without it
 #: neither the anchor rule nor the five-way reconciliation can read the
 #: section.
-_VOL_SPAN_HEADING_RE = re.compile(
-    r"^##\s*(第[一二三四五六七八九十百千\d]+卷)[^\n（(]*[（(]第\s*(\d+)\s*[-–—~～]\s*第?\s*(\d+)\s*章[）)]",
-    re.MULTILINE,
+#: spec #85 T7: charset imported from _shared; the old module-level
+#: ``_VOL_SPAN_HEADING_RE`` was removed (sole consumer was parse_volume_spans).
+from shenbi.pipeline._shared import (
+    VOL_NUMERAL as _VOL_NUMERAL,
 )
 
 #: The preamble line the skeleton derivation maintains.
@@ -63,23 +64,12 @@ _DRIFT_TOLERANCE = 3
 _CONSECUTIVE_ESCALATION = 2
 
 
-@dataclass(frozen=True)
-class VolumeSpan:
-    token: str  # 第N卷 heading token, as written
-    start: int
-    end: int
-
-    @property
-    def length(self) -> int:
-        return self.end - self.start + 1
-
-
-def parse_volume_spans(text: str) -> list[VolumeSpan]:
-    """Ordered volume spans from ``(第 a-b 章)`` headings ([] when none)."""
-    return [
-        VolumeSpan(m.group(1), int(m.group(2)), int(m.group(3)))
-        for m in _VOL_SPAN_HEADING_RE.finditer(text)
-    ]
+#: spec #85 T7: VolumeSpan + parse_volume_spans migrated to _shared;
+#: re-exported here to keep the public API (chapter_loop/dispatch_helper).
+from shenbi.pipeline._shared import (
+    VolumeSpan as VolumeSpan,  # noqa: PLC0414
+    parse_volume_spans as parse_volume_spans,  # noqa: PLC0414
+)
 
 
 def check_new_volume_anchor(base_text: str, increment_text: str) -> str | None:
@@ -110,7 +100,7 @@ def check_new_volume_anchor(base_text: str, increment_text: str) -> str | None:
     all_tokens = {
         m.group(1)
         for m in re.finditer(
-            r"^##\s*(第[一二三四五六七八九十百千\d]+卷)[：:（(\s]", increment_text, re.MULTILINE
+            rf"^##\s*(第[{_VOL_NUMERAL}]+卷)[：:（(\s]", increment_text, re.MULTILINE
         )
     }
     spanned_new = {s.token for s in new_spans}
@@ -215,10 +205,10 @@ def _actual_spans(project_dir: Path) -> dict[str, tuple[int, int]]:
     text = path.read_text(encoding="utf-8")
     spans: dict[str, tuple[int, int]] = {}
     for m in re.finditer(
-        r"^##\s*(第\d+卷)[:：][^\n（(]*[（(]第\s*(\d+)\s*[-–—~～]\s*第?\s*(\d+)\s*章[）)]",
-        text,
+        rf"^##\s*(第[{_VOL_NUMERAL}]+卷)[:：][^\n（(]*[（(]第\s*(\d+)\s*[-–—~～\u301c]\s*第?\s*(\d+)\s*章[）)]",
+        text,  # audit-T7 C2: dash 类补 301C 与 planned 面对齐
         re.MULTILINE,
-    ):
+    ):  # spec #85 T7: charset unified（纯阿拉伯→含千/百=登记放宽 char-T7）
         spans.setdefault(m.group(1), (int(m.group(2)), int(m.group(3))))
     return spans
 

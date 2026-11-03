@@ -131,7 +131,7 @@ def check_pacing(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[str]]
         ct = ch.read_text(encoding="utf-8")
         body = ct
         for tag_pat in [
-            r"^---\n.*?\n---\n",
+            "^---\\n.*?\\n---\\n",  # spec #85 T6 跳过位：边界语义回指 shenbi.truth_format.split_frontmatter（不强换源）
             r"```.*?```",
             r"## PRE_WRITE_CHECK.*?(?=## |\Z)",
             r"## POST_WRITE_SELF_CHECK.*?(?=## |\Z)",

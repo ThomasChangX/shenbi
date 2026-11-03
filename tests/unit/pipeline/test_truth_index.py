@@ -229,3 +229,65 @@ class TestTruthIndexSerialization:
     def test_entry_is_dataclass(self):
         entry = IndexEntry(category="character", entity_id="X", file="f.md", ref="f.md#X")
         assert entry.extra == {}
+
+
+# --- spec #85 T2: M1/M2 red tests (hook-id dialect swap) ---
+
+
+@pytest.mark.unit
+def test_m1_mh01_key_not_mangled() -> None:
+    r"""M1: the legacy ``(?:[HM]\d+|P\d*-\d+)`` pattern keyed ``MH01`` as
+    ``H01`` (unbounded alternation matches from the second character). The
+    single-source HOOK_ID_RE must keep the full token as the key.
+    """
+    from shenbi.pipeline.truth_index import _HOOK_ID_RE  # pyright: ignore[reportPrivateImportUsage]
+
+    body = "MH01 与 CP-004 提及"
+    ids = [m.group(0) for m in _HOOK_ID_RE.finditer(body)]
+    assert ids == ["MH01", "CP-004"]
+
+
+@pytest.mark.unit
+def test_m2_cp_key_not_mangled() -> None:
+    """M2: ``CP-001`` must not be keyed as ``P-001``."""
+    from shenbi.pipeline.truth_index import _HOOK_ID_RE  # pyright: ignore[reportPrivateImportUsage]
+
+    ids = [m.group(0) for m in _HOOK_ID_RE.finditer("CP-001")]
+    assert ids == ["CP-001"]
+
+
+# --- spec #85 T2: consumer-level key assertions (audit-T2 I1) ---
+
+
+@pytest.mark.unit
+def test_m1_index_keys_full_form_via_build_index(tmp_path: Path) -> None:
+    """M1 at the consumer level: frontmatter id MH01 + body mention MH01
+    dedupe into ONE full-form key -- no phantom H01 entry from the legacy
+    second-character match.
+    """
+    p = tmp_path / "proj"
+    (p / "truth").mkdir(parents=True)
+    (p / "truth" / "pending_hooks.md").write_text(
+        "---\nhooks:\n  - id: MH01\n    content: 正文提及 MH01\n"
+        "    state: PLANTED\n    last_reinforced: 3\n    max_distance: 25\n---\n# Hooks\n",
+        encoding="utf-8",
+    )
+    idx = build_index(p)
+    assert set(idx.hooks) == {"MH01"}
+
+
+@pytest.mark.unit
+def test_m2_plan_reference_filter_full_form(tmp_path: Path) -> None:
+    """M2 at the consumer level: plan reference CP-004 resolves against the
+    registered CP key (legacy pattern keyed it P-004 -> empty result).
+    """
+    p = tmp_path / "proj"
+    (p / "truth").mkdir(parents=True)
+    (p / "truth" / "pending_hooks.md").write_text(
+        "---\nhooks:\n  - id: CP-004\n    content: 钩\n    state: PLANTED\n"
+        "    last_reinforced: 3\n    max_distance: 25\n---\n# Hooks\n",
+        encoding="utf-8",
+    )
+    idx = build_index(p)
+    result = extract_entities_from_plan(idx, "回收 CP-004")
+    assert result["hooks"] == ["CP-004"]

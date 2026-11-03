@@ -148,6 +148,7 @@ def _structure_binding_lines(text: str) -> list[str]:
     canon terms, volume titles). Prose and frontmatter are not bound (the
     semantic layer is the feedback's job, not the freeze's).
     """
+    # spec #85 T6 跳过位：边界语义回指 shenbi.truth_format.split_frontmatter（不强换源）
     lines = text.split("\n")
     start = 0
     if lines and lines[0].strip() == "---":

@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any
 
 
+from shenbi.truth_format import split_frontmatter  # spec #85 T6
 from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 
@@ -440,19 +441,19 @@ def _extract_hook_deliverables(
         return []
 
     hooks: list[dict[str, Any]] = []
-    if text.startswith("---"):
+    fm_text, _body = split_frontmatter(text)  # spec #85 T6: single source
+    if fm_text:
         import yaml
 
-        parts = text.split("---", 2)
-        if len(parts) >= 3:
-            try:
-                fm: Any = yaml.safe_load(parts[1]) or {}
-                raw_hooks: Any = fm.get("hooks", [])
-                if isinstance(raw_hooks, list):
-                    hooks = raw_hooks
-            except Exception:
-                log.warning("hook_deliverables_yaml_parse_error", path=str(hooks_file))
-                return []
+        fm_core = "\n".join(fm_text.split("\n")[1:-2])  # fence lines + trailing "" dropped
+        try:
+            fm: Any = yaml.safe_load(fm_core) or {}
+            raw_hooks: Any = fm.get("hooks", [])
+            if isinstance(raw_hooks, list):
+                hooks = raw_hooks
+        except Exception:
+            log.warning("hook_deliverables_yaml_parse_error", path=str(hooks_file))
+            return []
 
     # Filter to active hooks that need attention.
     active: list[dict[str, Any]] = []

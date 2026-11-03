@@ -136,6 +136,10 @@ convention = "google"
 # GO① pool lint: findings quote the live Chinese truth-file vocabulary
 # (当前生命周期/兑现章 headers) — fullwidth punctuation is the data, not drift.
 "tools/lint_truth_pool.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #85 T9: AST walker is inherently branch-heavy (three scan positions ×
+# dialect/exemption verdicts); complexity gates off, behavior pinned by
+# tests/unit/tools/test_lint_truth_format_single_source.py
+"tools/lint_truth_format_single_source.py" = ["PLR0911", "SIM102", "D103"]
 "tools/lint_volume_nodes.py" = ["RUF001", "RUF002", "RUF003"]
 "tools/lint_shadow_promotion.py" = ["RUF001", "RUF002", "RUF003"]
 "tools/lint_voice_meme.py" = ["RUF001", "RUF002", "RUF003"]

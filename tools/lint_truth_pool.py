@@ -39,8 +39,19 @@ from shenbi.pipeline.truth_io import (
     sync_pool_overview_rows,
     sync_thread_overview_rows,
 )
+from shenbi.truth_format import (  # spec #85 T5/T8: single-source swaps
+    HOOK_HEADING_RE as _HOOK_HEADING_POOL,
+)
+from shenbi.truth_format import (
+    HOOK_ID_RE as _HOOK_ID_RE,
+)
+from shenbi.truth_format import (
+    THREAD_ID_RE as _THREAD_ID_RE,
+)
+from shenbi.truth_format import (
+    split_table_cells as _cells,
+)
 
-_HOOK_ID_RE = re.compile(r"(?<![A-Za-z0-9-])(MH|CP)-?(\d{1,4})(?!\d)")
 _FIELD_RE = re.compile(
     r"^-\s+(lifecycle_state|plant_chapter|resolve_chapter|archived_to)\s*[:：]\s*(.*)$"
 )
@@ -50,7 +61,6 @@ _FIELD_RE = re.compile(
 _COL_LIFECYCLE = 1
 _COL_RESOLVE = 3
 
-_THREAD_ID_RE = re.compile(r"(?<![A-Za-z0-9-])([ABC]\d{1,3})(?![0-9A-Za-z])")
 _THREAD_FIELD_RE = re.compile(r"^-\s+\*{0,2}(状态|跨度|archived_to)\*{0,2}\s*[:：]\s*(.*)$")
 #: thread_map overview column indices (genesis EXACT-table contract):
 #: 6=终点章, 7=状态.
@@ -67,19 +77,14 @@ class Finding:
     message: str
 
 
-def _cells(line: str) -> list[str]:
-    """Split a markdown table row into stripped cells."""
-    return [c.strip() for c in line.strip().strip("|").split("|")]
-
-
 def _section_map(text: str) -> dict[str, dict[str, str]]:
     """hook_id → parsed stable fields of its ``###`` detail section."""
     sections: dict[str, dict[str, str]] = {}
     current: str | None = None
     for line in text.splitlines():
-        hm = re.match(r"^#{2,6}\s+((?:MH|H|CP)-?\d{1,4})\b", line.strip())
+        hm = re.match(_HOOK_HEADING_POOL.pattern, line.strip())
         if hm:
-            current = canon_hook_id(hm.group(1))
+            current = canon_hook_id(hm.group(2))
             sections.setdefault(current, {})
             continue
         if current is None:
@@ -104,11 +109,11 @@ def _row_map(text: str) -> dict[str, list[str]]:
         if not s.startswith("|"):
             continue
         cells = _cells(s)
-        if len(cells) <= _COL_LIFECYCLE or cells[0].startswith("Hook"):
+        if cells is None or len(cells) <= _COL_LIFECYCLE or cells[0].startswith("Hook"):
             continue
         idm = _HOOK_ID_RE.search(cells[0])
         if idm is not None:
-            rows.setdefault(canon_hook_id(f"{idm.group(1)}{idm.group(2)}"), cells)
+            rows.setdefault(canon_hook_id(idm.group(0)), cells)
     return rows
 
 
@@ -178,7 +183,7 @@ def _thread_section_map(text: str) -> dict[str, dict[str, str]]:
     sections: dict[str, dict[str, str]] = {}
     current: str | None = None
     for line in text.splitlines():
-        hm = re.match(r"^#{2,6}\s+([ABC]\d{1,3})(?![0-9A-Za-z])", line.strip())
+        hm = re.match(rf"^#{{2,6}}\s+({_THREAD_ID_RE.pattern})", line.strip())  # spec #85 T8
         if hm:
             current = hm.group(1)
             sections.setdefault(current, {})
@@ -205,7 +210,7 @@ def _thread_row_map(text: str) -> dict[str, list[str]]:
         if not s.startswith("|"):
             continue
         cells = _cells(s)
-        if len(cells) <= _T_COL_LIFECYCLE or cells[0].strip().upper() == "ID":
+        if cells is None or len(cells) <= _T_COL_LIFECYCLE or cells[0].strip().upper() == "ID":
             continue
         idm = _THREAD_ID_RE.search(cells[0])
         if idm is not None:
@@ -239,7 +244,9 @@ def lint_thread(text: str) -> list[Finding]:
     if m_ov is not None:
         for line in text[m_ov.end() :].splitlines():
             if line.strip().startswith("|"):
-                header_cells = _cells(line)
+                cells = _cells(line)  # spec #85 T5 C1: None-guarded single source
+                if cells is not None:
+                    header_cells = cells
                 break
     col_resolve, col_lifecycle = (
         _thread_cols(header_cells)

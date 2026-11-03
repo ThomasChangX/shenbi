@@ -1,6 +1,7 @@
 """G4 checker for shenbi-chapter-drafting."""
 
 from __future__ import annotations
+from shenbi.truth_format import find_hook_ids, split_frontmatter  # spec #85 T5/T6
 from shenbi.status import GateStatus
 from typing import Any
 import re
@@ -306,14 +307,18 @@ def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
     # F749 (spec #39 T11): scan ONLY the Hook Ledger section (docstring's
     # declared "Section 7") — IDs elsewhere in the plan are not requirements.
     section = _extract_hook_ledger_section(plan_text)
-    plan_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", section)) if section else set()
-    # Extract hook IDs from chapter body
-    chapter_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", chapter_text))
+    # spec #85 T5 (r9 收编): symmetric full-family swap — both extraction sides
+    # use the same canon-normalized finder, so plan_hooks - chapter_hooks keeps
+    # its semantics while the MH01 un-hyphenated form becomes visible (guard
+    # strengthening) and non-hook ALL-CAPS tokens (KR-1/BR-01/AC-001) leave
+    # the fulfillment domain (tightening, characterized).
+    plan_hooks = set(find_hook_ids(section)) if section else set()
+    chapter_hooks = set(find_hook_ids(chapter_text))
 
     missing = plan_hooks - chapter_hooks
     if missing:
         return [
-            f"G4.cd.hook_unfulfilled: plan requires hooks {sorted(missing)} "
+            f"G4.cd.hook_unfulfilled: plan requires hooks {sorted(missing)}（canon 归一形，原文可能为 MH-003 形） "
             f"but none found in chapter body"
         ]
     return []
@@ -434,18 +439,21 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
         match = re.search(r"^name:\s*(.+)$", text, re.MULTILINE)
         if match:
             names.append(match.group(1).strip())
-        # Also try YAML frontmatter
-        if text.startswith("---"):
-            parts = text.split("---", 2)
-            if len(parts) >= 3:
-                try:
-                    import yaml as _yaml
+        # Also try YAML frontmatter (boundary single-sourced, spec #85 T6)
+        fm_text, _body = split_frontmatter(text)
+        if fm_text:
+            try:
+                import yaml as _yaml
 
-                    fm = _yaml.safe_load(parts[1])
-                    if isinstance(fm, dict) and "name" in fm:
-                        names.append(str(fm["name"]))
-                except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
-                    pass  # malformed YAML frontmatter → fall back to regex name match above
+                fm_core_lines = fm_text.split("\n")
+                fm_core = "\n".join(
+                    fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1]
+                )
+                fm = _yaml.safe_load(fm_core)
+                if isinstance(fm, dict) and "name" in fm:
+                    names.append(str(fm["name"]))
+            except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
+                pass  # malformed YAML frontmatter → fall back to regex name match above
     if not names:
         return []
     # Always include common pronoun

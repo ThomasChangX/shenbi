@@ -1,6 +1,7 @@
 """G4 checker for shenbi-state-settling."""
 
 from __future__ import annotations
+from shenbi.truth_format import hook_family_source, split_frontmatter  # spec #85 T5/T6
 from shenbi.status import GateStatus
 from typing import Any
 from datetime import UTC, datetime, timedelta
@@ -34,6 +35,7 @@ def _content_stream(text: str) -> list[str]:
     mutation surfaces of a settle increment; everything else is base mass.
     """
     out: list[str] = []
+    # spec #85 T6 跳过位：边界语义回指 shenbi.truth_format.split_frontmatter（不强换源）
     in_fm = False
     first = True
     for line in text.split("\n"):
@@ -380,7 +382,9 @@ def _check_matrix_structure(pf: Path) -> tuple[list[str], list[str]]:
 #: the hyphen-only family made this guard silently inert for live-form
 #: tables). The lookahead requires a cell terminator so prose like
 #: ``MH02编年`` never keys.
-_HOOK_ROW_KEY_RE = re.compile(r"^\|\s*((?:MH|H|CP)-?\d{1,4})(?=[\s（(｜|]|$)")
+_HOOK_ROW_KEY_RE = re.compile(
+    rf"^\|\s*({hook_family_source(('MH', 'CP', 'H', 'P'))})(?=[\s（(｜|]|$)"
+)
 
 _SEPARATOR_ROW_RE = re.compile(r"^[\s:\-|]+$")
 _LIFECYCLE_HEADER_RE = re.compile(r"生命周期|状态")
@@ -629,11 +633,9 @@ def _validate_character_matrix(
     issues: list[str] = []
 
     # Only check the content after the frontmatter, excluding the 角色定义 section
-    body = content
-    if "---" in content:
-        parts = content.split("---", 2)
-        if len(parts) >= 3:
-            body = parts[2]
+    # spec #85 T6: leading-only strict split (the legacy "---" in content +
+    # split could strip at a MID-document fence — characterized change).
+    _, body = split_frontmatter(content)
 
     # Find the 角色定义 section boundaries
     def_section = ""

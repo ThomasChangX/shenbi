@@ -46,6 +46,17 @@ import yaml
 
 from shenbi.exceptions import TruthFileParseError
 from shenbi.logging import get_logger
+from shenbi.truth_format import (  # spec #85 T1/T3/T8: truth-file format single source
+    HOOK_HEADING_RE as _HOOK_HEADING_RE,
+    HOOK_ID_RE,
+    THREAD_ID_RE,
+    canon_hook_id as canon_hook_id,  # noqa: PLC0414  # explicit re-export，保既有 import 方
+    hook_family_source,
+    is_separator_row as is_separator_row,  # noqa: PLC0414
+    split_frontmatter,
+    split_table_cells as split_table_cells,  # noqa: PLC0414
+)
+from shenbi.pipeline._shared import VOL_NUMERAL as _VOL_NUMERAL  # spec #85 T7
 from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
@@ -277,7 +288,7 @@ def ensure_truth_frontmatter(filename: str, content: str) -> str:
     create-path, staging merge base, whole-file replace/creation forms) —
     frontmatter presence is a program invariant, never the LLM's job.
     """
-    if content.lstrip().startswith("---"):
+    if split_frontmatter(content.lstrip())[0]:  # spec #85 T6: strict presence
         return content
     return _TRUTH_FRONTMATTER + content
 
@@ -357,7 +368,7 @@ def ensure_table_header(filename: str, content: str) -> str:
     # Frontmatter guarantee runs BEFORE the registered-header early-out:
     # unregistered truth files (resonance_anchors incident) must still gain
     # the canonical block on creation.
-    if not content.lstrip().startswith("---"):
+    if not split_frontmatter(content.lstrip())[0]:  # spec #85 T6: strict presence
         content = ensure_truth_frontmatter(filename, content)
     if not header:
         return content
@@ -378,12 +389,10 @@ def ensure_table_header(filename: str, content: str) -> str:
     # the block is scaffolding, not the first data line (a frontmatter-carrying
     # headerless base is the repair form: rows exist, header missing). The
     # header lands AFTER the block, keeping frontmatter first.
-    fm_block, body = "", content
-    if body.startswith("---"):
-        close = body.find("\n---", 3)
-        if close != -1:
-            fm_block = body[: close + 4] + "\n"
-            body = body[close + 4 :].lstrip("\n")
+    # spec #85 T6: fence-inclusive splice via the single source (zero-adapt
+    # consumer of the fm_text contract).
+    fm_block, body = split_frontmatter(content)
+    body = body.lstrip("\n")  # byte-form parity: legacy splice stripped the post-fence blank line
     first = next((line for line in body.split("\n") if line.strip()), "")
     if first.lstrip().startswith("|") and "chapter" not in first and "---" not in first:
         return fm_block + header + "\n" + separator + "\n" + body
@@ -405,13 +414,19 @@ _BULLET_ROW_RE = re.compile(r"^\s*-\s*(?P<key>.+?)\s*:(?P<rest>.*)$")
 #: the hyphen-only regex made the field-level merge unreachable for every
 #: probe output (splitter grouped whole ``## 详情`` blocks into one unit;
 #: scaffold headings fell to destructive section replacement).
-_HOOK_HEADING_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-?\d{1,4})\b")
+#: Multi-family source for the guarded row-key faces (spec #85 §2.3.1
+#: C-layer: keep the line anchor and positive-lookahead terminator; swap
+#: ONLY the id segment — never the whole regex, see the probe32 trap).
+_HOOK_ALL_FAMILIES = hook_family_source(("MH", "CP", "H", "P"))
 
-#: Any hook heading line, for scanning a whole file's hook sections.
-_HOOK_HEADING_BLOCK_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-?\d{1,4})\b", re.MULTILINE)
+#: Hook-id heading faces — single source (spec #85 T3). Two-group contract
+#: (group(1)=level, group(2)=id) preserved; the legacy ``\b`` terminator is
+#: retired per spec acceptance-7 axis 2 (CJK/underscore controlled
+#: loosening, characterized in char-T3).
 
-#: A hook id embedded in a table cell (``| MH01（名） | …``).
-_HOOK_ID_CELL_RE = re.compile(r"(?<![A-Za-z0-9-])(MH|CP)-?(\d{1,4})(?!\d)")
+#: Any hook heading line, for scanning a whole file's hook sections
+#: (block-scan derivation — keep re.MULTILINE).
+_HOOK_HEADING_BLOCK_RE = re.compile(_HOOK_HEADING_RE.pattern, re.MULTILINE)
 
 #: Outline-ledger section locator: heading level + 编号 token — ``## 第N卷：…``
 #: (volume_map) and ``### A1: …`` (thread_map). Locating by token, not the
@@ -422,33 +437,24 @@ _HOOK_ID_CELL_RE = re.compile(r"(?<![A-Za-z0-9-])(MH|CP)-?(\d{1,4})(?!\d)")
 #: ``第N章扩容复核``.
 _OUTLINE_SECTION_KEY_RE = re.compile(
     r"^(#{2,6})\s+("
-    r"第[一二三四五六七八九十百千\d]+卷"  # volume_map
-    r"|[A-Za-z]+\d+"  # thread_map ids
+    rf"第[{_VOL_NUMERAL}]+卷"  # spec #85 T7: charset from _shared VOL_NUMERAL
+    rf"|{THREAD_ID_RE.pattern}"  # thread_map ids（spec #85 T8 收编；\\d+→\\d{1,3} 收窄登记 char-T8）
     r"|第\d+章扩容复核"  # relationships boundary reviews
     r"|地点：.+"  # locations entries
     r"|关系对：.+"  # relationships pair sections
     r")\b"
 )
 
-#: Thread id token — SINGLE SOURCE for the derivation, the read extractor,
-#: the archival spec, and the lint (rebudget-drill find + review #4: the
-#: locator/validator charset is ``[A-Za-z]+\d`` while the derivation only
-#: accepted ``[ABC]``, so an off-tier id merged but silently skipped its
-#: 总览行). The SKILL still mandates the A/B/C tiers; this is shape
-#: tolerance, not tier policy.
-_THREAD_ID_TOKEN = r"[A-Za-z]+\d{1,3}"
-
+#: Thread id grammar — single source: truth_format.THREAD_ID_RE (spec #85 T8).
 #: Thread-ledger detail-section heading (``### A1: 名称``). Same group
 #: layout as the hook family: group(2) = the thread id token.
-_THREAD_HEADING_RE = re.compile(rf"^(#{{2,6}})\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])")
+_THREAD_HEADING_RE = re.compile(rf"^(#{{2,6}})\s+({THREAD_ID_RE.pattern})")  # spec #85 T8
 
 #: Any thread heading line, for scanning a whole file's thread sections.
-_THREAD_HEADING_BLOCK_RE = re.compile(
-    rf"^(#{{2,6}})\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])", re.MULTILINE
-)
+_THREAD_HEADING_BLOCK_RE = re.compile(_THREAD_HEADING_RE.pattern, re.MULTILINE)  # spec #85 T8
 
 #: A thread id embedded in a table cell's first column (``| A1 | …``).
-_THREAD_ID_CELL_RE = re.compile(rf"(?<![A-Za-z0-9-])({_THREAD_ID_TOKEN})(?![0-9A-Za-z])")
+_THREAD_ID_CELL_RE = THREAD_ID_RE  # spec #85 T8: single source (alias)
 
 
 def _append_thread_section(existing: str, section: str) -> str:
@@ -543,10 +549,11 @@ def touch_frontmatter_updated_at(text: str, iso_now: str) -> str:
     frontmatter or without an existing ``updated_at`` key (never invents
     frontmatter structure).
     """
-    m = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
-    if m is None:
+    fm_text, body = split_frontmatter(text)  # spec #85 T6: single source
+    if not fm_text:
         return text
-    fm, body = m.group(1), text[m.end() :]
+    fm_core_lines = fm_text.split("\n")
+    fm = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
     if not re.search(r"^updated_at\s*[:：]", fm, re.MULTILINE):
         return text
     fm = re.sub(
@@ -557,20 +564,6 @@ def touch_frontmatter_updated_at(text: str, iso_now: str) -> str:
         flags=re.MULTILINE,
     )
     return f"---\n{fm}\n---\n{body}"
-
-
-def canon_hook_id(raw: str) -> str:
-    """Canonical hook id: ``MH-001`` ≡ ``MH01`` ≡ ``mh1``.
-
-    Family letters uppercased, hyphen dropped, leading zeros stripped, so
-    live-form (genesis template), gate-example, and legacy heading keys all
-    address the same hook. Non-family ids (``CH1-L1`` local hooks) pass
-    through uppercased.
-    """
-    m = re.fullmatch(r"([A-Za-z]+)-?0*(\d+)", raw.strip())
-    if not m:
-        return raw.strip().upper()
-    return f"{m.group(1).upper()}{m.group(2)}"
 
 
 def is_hook_heading(text: str) -> bool:
@@ -585,7 +578,7 @@ def is_hook_heading(text: str) -> bool:
 
 #: A registry table row whose first cell starts with a hook id (live form
 #: ``| MH01（名） | … |`` or legacy ``| MH-001 | … |``).
-_HOOK_ROW_IN_TABLE_RE = re.compile(r"^\|\s*(?:MH|H|CP)-?\d{1,4}(?=[\s（(｜|]|$)")
+_HOOK_ROW_IN_TABLE_RE = re.compile(rf"^\|\s*{_HOOK_ALL_FAMILIES}(?=[\s（(｜|]|$)")
 
 
 def base_has_hook_content(text: str) -> bool:
@@ -641,6 +634,7 @@ def base_is_shell(text: str) -> bool:
     i = 0
     n = len(lines)
     # Skip a LEADING frontmatter block (fenced key/value pairs, no data).
+    # spec #85 T6 跳过位：边界语义回指 shenbi.truth_format.split_frontmatter（不强换源）。
     while i < n and not lines[i].strip():
         i += 1
     if i < n and lines[i].strip() == "---":
@@ -672,8 +666,10 @@ def base_is_shell(text: str) -> bool:
                 nxt += 1
             if nxt < n and _TABLE_SEPARATOR_LINE_RE.fullmatch(lines[nxt].strip()):
                 continue
-            cells = [c.strip() for c in line.strip("|").split("|")]
-            if any(c and not _SHELL_CELL_PLACEHOLDER_RE.fullmatch(c) for c in cells):
+            cells = split_table_cells(line)
+            if cells is not None and any(
+                c and not _SHELL_CELL_PLACEHOLDER_RE.fullmatch(c) for c in cells
+            ):
                 return False  # a real data cell
             continue
         if line.startswith("-"):
@@ -972,8 +968,8 @@ def sync_pool_overview_rows(existing: str, hook_ids: set[str] | None = None) -> 
             cells = split_table_cells(line)
             if cells is None or not cells:
                 continue
-            idm = _HOOK_ID_CELL_RE.search(cells[0])
-            if idm is not None and canon_hook_id(f"{idm.group(1)}{idm.group(2)}") == hid:
+            idm = HOOK_ID_RE.search(cells[0])
+            if idm is not None and canon_hook_id(idm.group(0)) == hid:
                 if _is_separator_row(cells):
                     continue
                 row_idx = i
@@ -1423,22 +1419,7 @@ def patch_markdown_table_cell(
         return False
 
 
-def split_table_cells(line: str) -> list[str] | None:
-    """Split a markdown table row into stripped cells, or None if not a row.
-
-    A table row starts and ends with ``|``. Cell boundaries are the pipes
-    themselves, so a key is the FULL cell text — never the first whitespace
-    token. This is the T702 fix: keys like ``第 1 章`` or ``Ch 1`` (containing
-    spaces/CJK) must compare as whole cells, otherwise rows whose first
-    *token* collides (``第`` == ``第``) wrongly dedup each other and whole
-    families of rows get deleted.
-    """
-    s = line.strip()
-    if not (s.startswith("|") and s.endswith("|")) or len(s) < 2:
-        return None
-    return [c.strip() for c in s[1:-1].split("|")]
-
-
+#: spec #85 T3: split_table_cells single-sourced from truth_format (re-export above).
 def _norm_cell(cell: str) -> str:
     """Normalize a header cell for key-column matching (T713).
 
@@ -1461,9 +1442,8 @@ def _norm_key(cell: str) -> str:
     return re.sub(r"\s+", "", cell)
 
 
-def _is_separator_row(cells: list[str]) -> bool:
-    """True for a markdown table separator row (``| --- | :---: |``)."""
-    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c) for c in cells)
+#: Private alias — 11 internal call sites keep the name (spec #85 T3).
+_is_separator_row = is_separator_row
 
 
 def _key_columns(existing: str, key_spec: str) -> list[int]:
@@ -1819,16 +1799,16 @@ def _read_yaml_records(path: Path) -> list[dict[str, Any]]:
         # ``startswith("---")`` prefix test also matched ``----`` thematic
         # breaks, misparsing frontmatter-less bodies as frontmatter and
         # raising TruthFileParseError on them (final review T4 M2).
-        first_line = text.split("\n", 1)[0].rstrip("\r \t")
-        if first_line != "---":
+        fm_text, _body = split_frontmatter(text)  # spec #85 T6: single source
+        if not fm_text:
+            if text.split("\n", 1)[0].rstrip("\r \t") == "---":
+                raise TruthFileParseError(
+                    "truth file frontmatter is unterminated (no closing ---)",
+                    path=str(path),
+                )
             return []
-        parts = text.split("---", 2)
-        if len(parts) < 3:
-            raise TruthFileParseError(
-                "truth file frontmatter is unterminated (no closing ---)",
-                path=str(path),
-            )
-        fm = yaml.safe_load(parts[1]) or {}
+        fm_core = "\n".join(fm_text.split("\n")[1:-2])  # fence lines + trailing "" dropped
+        fm = yaml.safe_load(fm_core) or {}
         if not isinstance(fm, dict):
             raise TruthFileParseError(
                 "truth file frontmatter is not a YAML mapping",

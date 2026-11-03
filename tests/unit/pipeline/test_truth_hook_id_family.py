@@ -66,8 +66,10 @@ class TestIsHookHeading:
 
     def test_rejects_local_and_prose_headings(self):
         assert not is_hook_heading("### CH1-L1（原主留下的半张活计签）")
-        # no word boundary between digits and CJK identifier text
-        assert not is_hook_heading("### MH02编年核对")
+        # spec #85 验收 7 轴②（受控松动）：heading 族 ``\b`` 终止符退役——
+        # CJK 直连形（### MH02编年核对）与下划线形（### MH01_tail）旧拒/新纳，
+        # 变化集以 characterization 记录（char-T3）。
+        assert is_hook_heading("### MH02编年核对")
         assert not is_hook_heading("### 钩子详情")
 
 

@@ -364,6 +364,7 @@ def _card_tokens(card_text: str) -> list[str]:
     avoid_patterns block is excluded (quoted there = NOT said).
     """
     body = card_text
+    # spec #85 T6 跳过位：以 --- 作键块终止符，边界语义回指 shenbi.truth_format.split_frontmatter
     m_av = re.search(r"^avoid_patterns:.*?(?=^\w+:|^---|\Z)", card_text, re.M | re.S)
     if m_av:
         body = card_text[: m_av.start()] + card_text[m_av.end() :]

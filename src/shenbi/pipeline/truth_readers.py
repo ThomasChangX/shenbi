@@ -45,9 +45,11 @@ from shenbi.logging import get_logger
 
 log = get_logger(__name__)
 
-#: Hook ids as written in production tables: ``P0-4``, ``P0-9``, plus the
-#: legacy canonical ``H01``/``MH02`` forms (mirrors truth_index._HOOK_ID_RE).
-_HOOK_ID_RE = re.compile(r"(?:MH\d+|[HM]\d+|P\d*-\d+)")
+#: Hook ids as written in production tables — single source (spec #85 T3,
+#: M3: the legacy alternation keyed ``CP-001`` as ``P-001``, blinding the
+#: single parser to the whole CP family).
+from shenbi.truth_format import HOOK_ID_RE as _HOOK_ID_RE
+from shenbi.truth_format import split_frontmatter
 
 _CH_RE = re.compile(r"ch\s*(\d+)", re.IGNORECASE)
 
@@ -57,16 +59,12 @@ _STATE_ARROW_RE = re.compile(r"(?:→|->)")
 _STATE_ENUM = {"PLANTED", "RELEVANT", "TRIGGERED", "RESOLVED"}
 
 
-def _cells(line: str) -> list[str] | None:
-    """Split a markdown table row into stripped cells, or None if not a row."""
-    s = line.strip()
-    if not (s.startswith("|") and s.endswith("|")) or len(s) < 2:
-        return None
-    return [c.strip() for c in s[1:-1].split("|")]
-
-
-def _is_separator(cells: list[str]) -> bool:
-    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c) for c in cells)
+#: Table helpers — single source (spec #85 T3: byte-identical bodies
+#: migrated to truth_format; private aliases keep internal call sites).
+from shenbi.truth_format import (
+    is_separator_row as _is_separator,
+    split_table_cells as _cells,
+)
 
 
 def _hook_id(cell: str) -> str | None:
@@ -92,14 +90,16 @@ def _int_or_none(cell: str) -> int | None:
 
 
 def _split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
-    """Minimal frontmatter split (no yaml dependency for one scalar)."""
-    if not text.startswith("---"):
+    """Minimal frontmatter split (no yaml dependency for one scalar).
+
+    Boundary split single-sourced via truth_format.split_frontmatter
+    (spec #85 T6); the scalar extraction stays here (core consumer).
+    """
+    fm_text, body = split_frontmatter(text)
+    if not fm_text:
         return {}, text
-    parts = text.split("---", 2)
-    if len(parts) < 3:
-        return {}, text
-    fm_line = re.search(r"^last_chapter:\s*(\d+)\s*$", parts[1], re.MULTILINE)
-    body = parts[2]
+    fm_core = "\n".join(fm_text.split("\n")[1:-2])  # fence lines + trailing "" dropped
+    fm_line = re.search(r"^last_chapter:\s*(\d+)\s*$", fm_core, re.MULTILINE)
     return ({"last_chapter": int(fm_line.group(1))} if fm_line else {}), body
 
 
