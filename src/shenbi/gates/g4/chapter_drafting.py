@@ -1,6 +1,7 @@
 """G4 checker for shenbi-chapter-drafting."""
 
 from __future__ import annotations
+from shenbi.truth_format import find_hook_ids  # spec #85 T5
 from shenbi.status import GateStatus
 from typing import Any
 import re
@@ -306,9 +307,13 @@ def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
     # F749 (spec #39 T11): scan ONLY the Hook Ledger section (docstring's
     # declared "Section 7") — IDs elsewhere in the plan are not requirements.
     section = _extract_hook_ledger_section(plan_text)
-    plan_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", section)) if section else set()
-    # Extract hook IDs from chapter body
-    chapter_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", chapter_text))
+    # spec #85 T5 (r9 收编): symmetric full-family swap — both extraction sides
+    # use the same canon-normalized finder, so plan_hooks - chapter_hooks keeps
+    # its semantics while the MH01 un-hyphenated form becomes visible (guard
+    # strengthening) and non-hook ALL-CAPS tokens (KR-1/BR-01/AC-001) leave
+    # the fulfillment domain (tightening, characterized).
+    plan_hooks = set(find_hook_ids(section)) if section else set()
+    chapter_hooks = set(find_hook_ids(chapter_text))
 
     missing = plan_hooks - chapter_hooks
     if missing:

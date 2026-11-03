@@ -1,6 +1,7 @@
 """G4 checker for shenbi-state-settling."""
 
 from __future__ import annotations
+from shenbi.truth_format import hook_family_source  # spec #85 T5
 from shenbi.status import GateStatus
 from typing import Any
 from datetime import UTC, datetime, timedelta
@@ -380,7 +381,9 @@ def _check_matrix_structure(pf: Path) -> tuple[list[str], list[str]]:
 #: the hyphen-only family made this guard silently inert for live-form
 #: tables). The lookahead requires a cell terminator so prose like
 #: ``MH02编年`` never keys.
-_HOOK_ROW_KEY_RE = re.compile(r"^\|\s*((?:MH|H|CP)-?\d{1,4})(?=[\s（(｜|]|$)")
+_HOOK_ROW_KEY_RE = re.compile(
+    rf"^\|\s*({hook_family_source(('MH', 'CP', 'H', 'P'))})(?=[\s（(｜|]|$)"
+)
 
 _SEPARATOR_ROW_RE = re.compile(r"^[\s:\-|]+$")
 _LIFECYCLE_HEADER_RE = re.compile(r"生命周期|状态")

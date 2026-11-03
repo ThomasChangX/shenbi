@@ -250,7 +250,7 @@ def test_hook_ids_inside_ledger_section_enforced(tmp_path) -> None:
     chapter = tmp_path / "chapter-001.md"
     chapter.write_text("正文没有出现任何钩子编号。\n", encoding="utf-8")
     issues = check_hook_fulfillment(plan, chapter)
-    assert any("MH-003" in i for i in issues)
+    assert any("MH3" in i for i in issues)  # spec #85: canon 归一形展示（原文 MH-003）
 
 
 # ---------------------------------------------------------------------------

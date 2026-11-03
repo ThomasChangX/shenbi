@@ -40,10 +40,13 @@ from pathlib import Path
 
 #: Hook ids as they appear in plan/audit grounding text (``MH02`` /
 #: ``CP-001`` / legacy ``MH-002``) — normalized through canon_hook_id.
-_GROUNDING_ID_RE = re.compile(r"(?<![A-Za-z0-9-])(MH|CP)-?(\d{1,4})(?!\d)")
+from shenbi.truth_format import HOOK_ID_RE as _GROUNDING_ID_RE  # spec #85 T5 (C-layer)
+from shenbi.truth_format import hook_family_source, split_table_cells
 
 #: Detail-section heading inside pending_hooks' ``## 详情`` (``### MH01（名）``).
-_DETAIL_HEADING_RE = re.compile(r"^###\s+((?:MH|CP)-?\d{1,4})\b", re.MULTILINE)
+_DETAIL_HEADING_RE = re.compile(
+    rf"^###\s+({hook_family_source(('MH', 'CP', 'H', 'P'))})", re.MULTILINE
+)
 
 #: A chapter-keyed section unit: ``### 第 47 章`` / ``## 第N章状态增量``.
 _SECTION_UNIT_RE = re.compile(r"^#{2,4}\s*第\s*(\d+)\s*章", re.MULTILINE)
@@ -77,7 +80,7 @@ def _grounding_hook_ids(project_dir: Path, chapter: int) -> set[str]:
         if not path.is_file():
             continue
         for m in _GROUNDING_ID_RE.finditer(path.read_text(encoding="utf-8")):
-            ids.add(canon_hook_id(f"{m.group(1)}{m.group(2)}"))
+            ids.add(canon_hook_id(m.group(0)))  # spec #85 T5: integral chain
     return ids
 
 
@@ -150,12 +153,12 @@ def _boundary_candidate_ids(content: str) -> set[str]:
 
     ids: set[str] = set()
     for line in content[m_ov.end() : m_det.start()].splitlines():
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if len(cells) < 2:
+        cells = split_table_cells(line)  # spec #85 T5: guarded single source
+        if cells is None or len(cells) < 2:
             continue
         idm = _GROUNDING_ID_RE.search(cells[0])
         if idm is not None and cells[1] in ("TRIGGERED", "PARTIAL"):
-            ids.add(canon_hook_id(f"{idm.group(1)}{idm.group(2)}"))
+            ids.add(canon_hook_id(idm.group(0)))
     return ids
 
 
@@ -261,12 +264,12 @@ def extract_hooks_inventory_scoped(content: str) -> str:
     m_ov = re.search(r"^##\s*总览\s*$", content, re.MULTILINE)
     if m_ov is not None and m_ov.start() < m.start():
         for line in content[m_ov.end() : m.start()].splitlines():
-            cells = [c.strip() for c in line.strip().strip("|").split("|")]
-            if len(cells) < 3:
+            cells = split_table_cells(line)  # spec #85 T5: guarded single source
+            if cells is None or len(cells) < 3:
                 continue
             idm = _GROUNDING_ID_RE.search(cells[0])
             if idm is not None:
-                plant_by_id.setdefault(canon_hook_id(f"{idm.group(1)}{idm.group(2)}"), cells[2])
+                plant_by_id.setdefault(canon_hook_id(idm.group(0)), cells[2])
     anchor_lines = [
         f"- {display}: plant {plant_by_id.get(sec_id, '?')} | last_reinforced {lr_by_id.get(sec_id, '未强化')}"
         for display, sec_id in section_ids
