@@ -137,7 +137,7 @@ def find_hook_ids(text: str, families: tuple[str, ...] | None = None) -> list[st
     ``families`` filters by family letters (e.g. ``("MH",)`` keeps the
     MH-only judgment domain of chapter_planning's registry check); None
     accepts all families. Normalized output guarantees both sides of the
-    :514/:906 reconciliation compare equal strings.
+    chapter_planning registry/refs reconciliation compare equal strings.
     """
     if families is None:
         return [canon_hook_id(m.group(0)) for m in HOOK_ID_RE.finditer(text)]
@@ -155,8 +155,9 @@ def hook_family_source(families: tuple[str, ...]) -> str:
     Returns a single embeddable unit: top-level alternation is wrapped in
     ``(?:...)``, long forms first (``MH|CP|H`` before ``P\\d*-``), hyphen
     slots kept per family. Carries NO boundary assertions — composites
-    embed it inside their own anchors/terminators (B-layer :263/:374/:376/
-    :408/:412 and C-layer :383/:588).
+    embed it inside their own anchors/terminators (chapter_planning B-layer
+    composite points and the C-layer guarded row-key faces; see spec #85
+    §2.3.1 for the site table).
     """
     if not families:
         raise ValueError("families must be non-empty")

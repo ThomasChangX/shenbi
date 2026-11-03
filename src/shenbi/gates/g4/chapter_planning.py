@@ -916,7 +916,7 @@ def g4_chapter_planning(
                 mf.append(
                     # spec #85 §2.3.1 注记：unknown 为 canon 归一形（MH01→MH1），
                     # memo 原文可能带连字符/前导零——定位时按归一形对照。
-                    f"G4.cp.hook_refs:{fp}:引用未注册钩子「{'、'.join(unknown)}」"
+                    f"G4.cp.hook_refs:{fp}:引用未注册钩子「{'、'.join(unknown)}」（canon 归一形，原文可能为 MH01/MH-01）"
                     "（book_spine/pending_hooks 无此 MH 编号——新钩属 genesis/lifecycle "
                     "职权，memo 不得自造 MH 号；确需新钩请走 CP-NNN 或先注册再引用）"
                 )
