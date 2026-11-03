@@ -39,11 +39,14 @@ from shenbi.pipeline.truth_io import (
     sync_pool_overview_rows,
     sync_thread_overview_rows,
 )
-from shenbi.truth_format import (  # spec #85 T5: single-source swaps
+from shenbi.truth_format import (  # spec #85 T5/T8: single-source swaps
     HOOK_HEADING_RE as _HOOK_HEADING_POOL,
 )
 from shenbi.truth_format import (
     HOOK_ID_RE as _HOOK_ID_RE,
+)
+from shenbi.truth_format import (
+    THREAD_ID_RE as _THREAD_ID_RE,
 )
 from shenbi.truth_format import (
     split_table_cells as _cells,
@@ -58,7 +61,6 @@ _FIELD_RE = re.compile(
 _COL_LIFECYCLE = 1
 _COL_RESOLVE = 3
 
-_THREAD_ID_RE = re.compile(r"(?<![A-Za-z0-9-])([ABC]\d{1,3})(?![0-9A-Za-z])")
 _THREAD_FIELD_RE = re.compile(r"^-\s+\*{0,2}(状态|跨度|archived_to)\*{0,2}\s*[:：]\s*(.*)$")
 #: thread_map overview column indices (genesis EXACT-table contract):
 #: 6=终点章, 7=状态.
@@ -181,7 +183,7 @@ def _thread_section_map(text: str) -> dict[str, dict[str, str]]:
     sections: dict[str, dict[str, str]] = {}
     current: str | None = None
     for line in text.splitlines():
-        hm = re.match(r"^#{2,6}\s+([ABC]\d{1,3})(?![0-9A-Za-z])", line.strip())
+        hm = re.match(rf"^#{{2,6}}\s+({_THREAD_ID_RE.pattern})", line.strip())  # spec #85 T8
         if hm:
             current = hm.group(1)
             sections.setdefault(current, {})

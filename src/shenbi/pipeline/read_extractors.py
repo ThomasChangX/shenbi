@@ -392,9 +392,9 @@ def _thread_detail_heading_re() -> re.Pattern[str]:
     id rides group(1) exactly like the local regex it replaced. Charset
     from truth_io's single source (import-cycle-safe lazy resolution).
     """
-    from shenbi.pipeline.truth_io import _THREAD_ID_TOKEN  # pyright: ignore[reportPrivateUsage]
+    from shenbi.truth_format import THREAD_ID_RE as _THREAD_ID_RE_HEAD  # spec #85 T8
 
-    return re.compile(rf"^#{{2,6}}\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])", re.MULTILINE)
+    return re.compile(rf"^#{{2,6}}\s+({_THREAD_ID_RE_HEAD.pattern})", re.MULTILINE)
 
 
 #: A 章节线索推进表 interval row: ``| 1-8（一卷 KR1） | A1 | … |``. The

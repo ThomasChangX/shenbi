@@ -46,9 +46,10 @@ import yaml
 
 from shenbi.exceptions import TruthFileParseError
 from shenbi.logging import get_logger
-from shenbi.truth_format import (  # spec #85 T1/T3: truth-file format single source
+from shenbi.truth_format import (  # spec #85 T1/T3/T8: truth-file format single source
     HOOK_HEADING_RE as _HOOK_HEADING_RE,
     HOOK_ID_RE,
+    THREAD_ID_RE,
     canon_hook_id as canon_hook_id,  # noqa: PLC0414  # explicit re-export，保既有 import 方
     hook_family_source,
     is_separator_row as is_separator_row,  # noqa: PLC0414
@@ -437,7 +438,7 @@ _HOOK_HEADING_BLOCK_RE = re.compile(_HOOK_HEADING_RE.pattern, re.MULTILINE)
 _OUTLINE_SECTION_KEY_RE = re.compile(
     r"^(#{2,6})\s+("
     rf"第[{_VOL_NUMERAL}]+卷"  # spec #85 T7: charset from _shared VOL_NUMERAL
-    r"|[A-Za-z]+\d+"  # thread_map ids
+    rf"|{THREAD_ID_RE.pattern}"  # thread_map ids（spec #85 T8 收编；\\d+→\\d{1,3} 收窄登记 char-T8）
     r"|第\d+章扩容复核"  # relationships boundary reviews
     r"|地点：.+"  # locations entries
     r"|关系对：.+"  # relationships pair sections
@@ -450,19 +451,15 @@ _OUTLINE_SECTION_KEY_RE = re.compile(
 #: accepted ``[ABC]``, so an off-tier id merged but silently skipped its
 #: 总览行). The SKILL still mandates the A/B/C tiers; this is shape
 #: tolerance, not tier policy.
-_THREAD_ID_TOKEN = r"[A-Za-z]+\d{1,3}"
-
 #: Thread-ledger detail-section heading (``### A1: 名称``). Same group
 #: layout as the hook family: group(2) = the thread id token.
-_THREAD_HEADING_RE = re.compile(rf"^(#{{2,6}})\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])")
+_THREAD_HEADING_RE = re.compile(rf"^(#{{2,6}})\s+({THREAD_ID_RE.pattern})")  # spec #85 T8
 
 #: Any thread heading line, for scanning a whole file's thread sections.
-_THREAD_HEADING_BLOCK_RE = re.compile(
-    rf"^(#{{2,6}})\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])", re.MULTILINE
-)
+_THREAD_HEADING_BLOCK_RE = re.compile(_THREAD_HEADING_RE.pattern, re.MULTILINE)  # spec #85 T8
 
 #: A thread id embedded in a table cell's first column (``| A1 | …``).
-_THREAD_ID_CELL_RE = re.compile(rf"(?<![A-Za-z0-9-])({_THREAD_ID_TOKEN})(?![0-9A-Za-z])")
+_THREAD_ID_CELL_RE = THREAD_ID_RE  # spec #85 T8: single source (alias)
 
 
 def _append_thread_section(existing: str, section: str) -> str:

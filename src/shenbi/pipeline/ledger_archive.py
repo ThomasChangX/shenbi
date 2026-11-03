@@ -28,8 +28,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from shenbi.pipeline.truth_io import parse_thread_span, path_lock
-from shenbi.pipeline.truth_io import _THREAD_ID_CELL_RE  # pyright: ignore[reportPrivateUsage]
-from shenbi.pipeline.truth_io import _THREAD_ID_TOKEN  # pyright: ignore[reportPrivateUsage]
+from shenbi.truth_format import THREAD_ID_RE  # spec #85 T8: single source
 from shenbi.truth_format import HOOK_HEADING_RE, HOOK_ID_RE, split_table_cells  # spec #85 T5
 from shenbi.safe_write import safe_write
 
@@ -105,9 +104,10 @@ THREAD_SPEC = LedgerSpec(
     overview_heading="线索总览表",
     details_heading="线索详情",
     section_heading_re=re.compile(
-        rf"^(#{{2,6}})\s+({_THREAD_ID_TOKEN})(?![0-9A-Za-z])", re.MULTILINE
+        rf"^(#{{2,6}})\s+({THREAD_ID_RE.pattern})",
+        re.MULTILINE,  # spec #85 T8
     ),
-    row_id_re=_THREAD_ID_CELL_RE,
+    row_id_re=THREAD_ID_RE,  # spec #85 T8
     state_field="状态",
     span_field="跨度",
     canon=lambda raw: raw.strip(),
