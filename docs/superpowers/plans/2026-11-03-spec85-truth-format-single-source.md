@@ -56,7 +56,7 @@
   - `find_hook_ids(text: str, families: tuple[str, ...] | None = None) -> list[str]`（返回 canon 归一形态）
   - `hook_family_source(families: tuple[str, ...]) -> str`（联合源串按族过滤、长匹配优先、**不含界断言**；**返回串是单一可内嵌单元——顶层 alternation 自带 `(?:...)` 包裹**，如 `hook_family_source(("MH",)) == r"(?:MH-?\d{1,4})"`、多族 `r"(?:(?:MH|CP|H)-?\d{1,4}|P\d*-\d{1,4})"`——非捕获内嵌位直接拼接不拆散消费正则）
 
-- [ ] **Step 1: 写红测**——`tests/unit/test_truth_format.py`，覆盖：边界负例四件套（`H2O`/`P53`/`CPR12`/`MP3` 全不匹配）＋受控误报三形（`第H2节`→`H2`、`H-1 项`→`H-1`、`MH02编年`→`MH02`）＋全族命中（`MH01`/`CP-004`/`H01`/`P0-4`）＋canon 语义（`MH-001`≡`MH01`≡`mh1`；`canon("P0-4")=="P0-4"` 恒等）＋split_frontmatter 围栏契约（fm_text 含 `---` 围栏原字节；`----` 首行→`("", text)`；中段 `---` 不切）＋iter_sections level=2 只取 H2/level=3 只取 H3（构造 H2>H3 嵌套样本断言互不混入）＋HOOK_HEADING_RE 两群组（`### P0-4 TRIGGER 证据`→group(2)=="P0-4"）＋find_hook_ids families 过滤（`families=("MH",)` 对 `CP-001` 不可见）与 canon 归一（`MH-01`→`MH1`）＋hook_family_source 联合串（单族 `== r"(?:MH-?\\d{1,4})"`；多族 `MH|CP|H` 前 `P\d*-` 后且整体 `(?:...)` 包裹；**多族嵌入回归**：`re.fullmatch(rf"^\\|\\s*{hook_family_source(('MH','CP','H','P'))}(?=[\\s（(｜|]|$)", "| MH01（名） | x |")` 命中）＋split_table_cells 尾管守卫（无 `|` 返 None）＋is_separator_row
+- [ ] **Step 1: 写红测**——`tests/unit/test_truth_format.py`，覆盖：边界负例四件套（`H2O`/`P53`/`CPR12`/`MP3` 全不匹配）＋受控误报三形（`第H2节`→`H2`、`H-1 项`→`H-1`、`MH02编年`→`MH02`）＋全族命中（`MH01`/`CP-004`/`H01`/`P0-4`）＋canon 语义（`MH-001`≡`MH01`≡`mh1`；`canon("P0-4")=="P0-4"` 恒等）＋split_frontmatter 围栏契约（fm_text 含 `---` 围栏原字节；`----` 首行→`("", text)`；中段 `---` 不切）＋iter_sections level=2 只取 H2/level=3 只取 H3（构造 H2>H3 嵌套样本断言互不混入）＋HOOK_HEADING_RE 两群组（`### P0-4 TRIGGER 证据`→group(2)=="P0-4"）＋find_hook_ids families 过滤（`families=("MH",)` 对 `CP-001` 不可见）与 canon 归一（`MH-01`→`MH1`）＋hook_family_source 联合串（单族 `== r"(?:MH-?\d{1,4})"`；多族 `MH|CP|H` 前 `P\d*-` 后且整体 `(?:...)` 包裹；**多族嵌入回归**：`re.match(rf"^\|\s*{hook_family_source(('MH','CP','H','P'))}(?=[\s（(｜|]|$)", "| MH01（名） | x |")` 命中——**注意 `re.match` 非 fullmatch**[模式只消费行首 id 段+零宽前瞻]、**单反斜杠**[代码 span 内 Markdown 转义不生效，双反斜杠=匹配字面反斜杠必假阴]）＋split_table_cells 尾管守卫（无 `|` 返 None）＋is_separator_row
 - [ ] **Step 2: 跑红**——`uv run pytest tests/unit/test_truth_format.py -q` → ModuleNotFoundError/fail 预期
 - [ ] **Step 3: 实现模块**——纯函数零依赖（仅 re/typing/collections）；模块 docstring 注明「§2.1 落点域分离：volume 族归 pipeline._shared，本模块管真相文件格式族」＋「iter_sections 为前瞻导出：#95 T3 settle 分窗是其首个消费者（spec §2.1 r2.1 注记）——T10 跑 just check 时若死代码 lint 触发则于 allowlist 登记 #95 前瞻锚」
 - [ ] **Step 4: canon_hook_id 迁移**——truth_io.py 改 `from shenbi.truth_format import canon_hook_id`（import 即绑名，外部调用方零改动）；truth_io 原实现删除
@@ -86,11 +86,11 @@
 
 **Interfaces:**
 - Consumes: `HOOK_ID_RE`/`HOOK_HEADING_RE`/`split_table_cells`/`is_separator_row`/`canon_hook_id`/`hook_family_source`
-- Produces: `pending_hooks` 单一解析者对 CP 族可见（M3）；cell 面 `P0-4` 命中且 canon 恒等（M4）；truth_io 内 `split_table_cells`/`is_separator_row` 转重导出（`:1426/:1464` 私有定义删除——**truth_io 内 6 处 `_is_separator_row` 内部调用点（:977/:1154/:1241/:1395/:1400/:1498）统一改名 `is_separator_row` 或保留一行私有别名**、`:675` 内联拆分与 `:972` 调用统一走单源）
+- Produces: `pending_hooks` 单一解析者对 CP 族可见（M3）；cell 面 `P0-4` 命中且 canon 恒等（M4）；truth_io 内 `split_table_cells`/`is_separator_row` 转重导出（`:1426/:1464` 私有定义删除——truth_io 内 `_is_separator_row` 调用点**共 11 处**（:977/:1154/:1241/:1395/:1400/:1498/:1525/:1531/:1551/:1572/:1797）与 :1895 既有公共别名 `is_separator_row = _is_separator_row`——**施工时保留一行私有别名**（改名分支 11 处全改易漏，别名为零行为差）、`:675` 内联拆分与 `:972` 调用统一走单源）
 
-- [ ] **Step 1: 红测 M3**——`CP-001` 行经 read_pending_hooks 可见；**红测 M4**：fixture `tests/fixtures/truth-pending_hooks-ch56.md` 读入，断言 `P0-4` 行（:29-35 cell）与 `### P0-4 TRIGGER 证据`（:65 heading）均被识别；**负测**：两分组旧式对 `P0-4` 只捕 `P0` 的假阳性形（构造 `(MH|CP|P)-?(\d{1,4})` 推演断言 `P0` 不作为合法捕获出现——用新整串实现断言 `m.group(0)=="P0-4"`）
+- [ ] **Step 1: 红测 M3/M4（钉名）**——`tests/unit/pipeline/test_truth_readers.py` 追加 **`test_m3_cp_visible_to_pending_hooks_reader`**（`CP-001` 行经 read_pending_hooks 可见）；`tests/unit/pipeline/test_truth_io_hooks.py` 新建 **`test_m4_p_family_cell_and_heading`**（fixture `tests/fixtures/truth-pending_hooks-ch56.md` 读入，断言 `P0-4` 行[:29-35 cell]与 `### P0-4 TRIGGER 证据`[:65 heading]均被识别）；**负测**：两分组旧式对 `P0-4` 只捕 `P0` 的假阳性形（构造 `(MH|CP|P)-?(\d{1,4})` 推演断言 `P0` 不作为合法捕获出现——用新整串实现断言 `m.group(0)=="P0-4"`）
 - [ ] **Step 2: 换源**——truth_readers :50 换 `HOOK_ID_RE`；truth_io :408/:411 换 `HOOK_HEADING_RE`（组消费点适配 group(2)）；:414 cell 面改 `HOOK_ID_RE.search(cell)` + `canon_hook_id(m.group(0))`（整串化，:975-976 `f"{g1}{g2}"` 拼接链删除）；:588 保行锚+前视终止符、id 段换 `hook_family_source(("MH","CP","H","P"))`；`_cells`/`_is_separator` 换公共名调用
-- [ ] **Step 3: characterization**——跑 fixture 驱动对比测试（ch56/ch118/probe19 三 fixture 的钩可见集 before/after，变化集=纯 P 族新增）落 `.superpowers/sdd/char-T3.md`
+- [ ] **Step 3: characterization**——跑 fixture 驱动对比测试（ch56/ch118/probe19 三 fixture 的钩可见集 before/after，变化集=P 族新增**加已登记松动/收紧轴项**——:408/:411 标题终止符 CJK/下划线受控松动[spec 验收 7 轴②]、:414 cell 面尾字母收紧[`MH02x` 旧入键/新拒，与 read_extractors:43 同款]）落 `.superpowers/sdd/char-T3.md`
 - [ ] **Step 4: 跑绿 + 回归**——`uv run pytest tests/unit/pipeline/ -q`
 - [ ] **Step 5: Commit**——`fix: M3/M4 readers+truth_io hook-face swap, cell regex integral-string rework (spec #85 T3)`
 
@@ -124,7 +124,7 @@
 - [ ] **Step 1: characterization 先行**——对六点位各写 before 断言测试（现行行为快照）：lint_truth_pool 对 P 族失明快照、ledger_archive P 族节不可归档快照、chapter_drafting 对 `MH01` 形盲区快照（fixtures 5 个 plan 均 no-op 已证——用构造输入）
 - [ ] **Step 1b: 弱守卫收敛**——lint_truth_pool:70 `_cells` 删除改调 `split_table_cells`（None 早退守卫统一）；ledger_archive `_row_entry_id`（:274）与 read_extractors:153/:264 内联 `strip("|").split("|")` 改走 `split_table_cells` 带守卫版（无尾管数据行返 None 跳过=行为变化记 char）
 - [ ] **Step 2: 换源**——:383/:588[Task 3 已做]/:43/:80 换 `HOOK_ID_RE`/`HOOK_HEADING_RE`（:80 适配 group(2)；ledger_archive:88 的 POOL_SPEC 以 `re.compile(HOOK_HEADING_RE.pattern, re.MULTILINE)` 派生）；:109-111 与 read_extractors:156-158/:267-269 两分组 `canon(f"{g1}{g2}")` 链整串化 `canon(m.group(0))`；read_extractors:46 保 `^###` 锚只换 id 段（families 含 P）；:309/:311 双侧 `set(find_hook_ids(...))`（无 families=全族）——`missing = plan_hooks - chapter_hooks` 语义不变
-- [ ] **Step 3: after 断言 + 差集**——char-T5.md 六点位变化集（含 BR-01/AC-001 退出 fulfillment 域样例）
+- [ ] **Step 3: after 断言 + 差集**——char-T5.md **六点位变化集＋Step 1b 弱守卫四处行为变化**（含 BR-01/AC-001 退出 fulfillment 域样例）
 - [ ] **Step 4: 跑绿 + 回归**——`uv run pytest tests/unit/ -q`
 - [ ] **Step 5: Commit**——`fix: C-layer per-site swap (six sites, spec #85 §2.3.1 table) with characterization sets`
 
@@ -140,7 +140,7 @@
 - Produces: 12 处私有切分定义归零；内芯类消费者剥围栏两行的适配行；行为变化表（7 处宽松形 `----` 翻转 + :261/shared:348/truth_io:546 反向轴 + state_settling:633 中段差异）落 char-T6.md
 
 - [ ] **Step 1: 红测**——`test_split_frontmatter_replaces_all_copies`：对 12 处所在模块的代表性入口各一测（如 truth_index `_parse_frontmatter(text)` 与 `_split_frontmatter(text)` 返回值在新旧实现下对 `----` 首行/CRLF/`--- ` 变体的行为差异按 spec 行为变化表断言）
-- [ ] **Step 2: 逐处换源**——内芯类（yaml/取值面）调 `fm_text, body = split_frontmatter(text)` 后剥围栏首尾两行；拼接类（truth_io:382/checkpoint:76）直接用 fm_text（含围栏零适配）；truth_io:546 regex 切分换调用；**presence 位四点（truth_io:280/:360、dispatch_helper:2292/:2403）改走 `split_frontmatter(text)[0] != ""` 判定**——`----` 首行从「有 fm」翻转为「无 fm」（spec r8 登记的修复方向：ensure_truth_frontmatter 将为此类文件补块），翻转入行为变化表（显式迁移非沉默跳过）
+- [ ] **Step 2: 逐处换源**——内芯类（yaml/取值面）调 `fm_text, body = split_frontmatter(text)` 后剥围栏首尾两行；拼接类（truth_io:382/checkpoint:76）直接用 fm_text（含围栏零适配）；truth_io:546 regex 切分换调用；**presence 位四点（truth_io:280/:360、dispatch_helper:2292/:2403）改走 `split_frontmatter(text)[0] != ""` 判定**——`----` 首行从「有 fm」翻转为「无 fm」（spec r8 登记的修复方向：ensure_truth_frontmatter 将为此类文件补块）＋**前置空行轴**（`"\n---\n…"` 首行文件今日 lstrip 判有 fm→迁移后判无 fm——零生产证据同登记），两轴均入行为变化表（显式迁移非沉默跳过）
 - [ ] **Step 3: 跳过/剥离位注释回指**——5 处各加一行注释 `# frontmatter boundary semantics: see shenbi.truth_format.split_frontmatter`（不强换源）
 - [ ] **Step 4: characterization**——char-T6.md 行为变化表（逐站点方向）
 - [ ] **Step 5: 跑绿 + 回归**——`uv run pytest tests/unit/ -q`
