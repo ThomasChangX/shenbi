@@ -45,6 +45,9 @@ from typing import Any
 import yaml
 
 from shenbi.exceptions import TruthFileParseError
+from shenbi.truth_format import (
+    canon_hook_id as canon_hook_id,  # noqa: PLC0414  # explicit re-export（basedpyright 契约），保既有 import 方
+)  # spec #85 T1: single source
 from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 
@@ -557,20 +560,6 @@ def touch_frontmatter_updated_at(text: str, iso_now: str) -> str:
         flags=re.MULTILINE,
     )
     return f"---\n{fm}\n---\n{body}"
-
-
-def canon_hook_id(raw: str) -> str:
-    """Canonical hook id: ``MH-001`` ≡ ``MH01`` ≡ ``mh1``.
-
-    Family letters uppercased, hyphen dropped, leading zeros stripped, so
-    live-form (genesis template), gate-example, and legacy heading keys all
-    address the same hook. Non-family ids (``CH1-L1`` local hooks) pass
-    through uppercased.
-    """
-    m = re.fullmatch(r"([A-Za-z]+)-?0*(\d+)", raw.strip())
-    if not m:
-        return raw.strip().upper()
-    return f"{m.group(1).upper()}{m.group(2)}"
 
 
 def is_hook_heading(text: str) -> bool:
