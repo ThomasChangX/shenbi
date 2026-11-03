@@ -26,9 +26,8 @@ from shenbi.text import find_terms
 
 log = get_logger(__name__)
 
-# Hook ids embedded in prose. Supports BOTH the legacy canonical form
-# (``H01``, ``MH02``) AND the production form used by shenbi-foreshadowing-*
-# (``P0-4``, ``P0-9``). Spec §3.2b.
+# Hook ids embedded in prose -- grammar defined by the single source
+# ``shenbi.truth_format.HOOK_ID_RE`` (spec #85; full family table there).
 from shenbi.truth_format import HOOK_ID_RE as _HOOK_ID_RE  # spec #85 T2 (M1/M2)
 
 # Rule headings — Chinese ordinals: ``## 规则一：能量守恒`` (production).
