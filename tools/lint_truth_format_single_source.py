@@ -17,6 +17,8 @@ Exemptions (AST-shape based, NO line anchors):
   AND whose constant segments carry no dialect literal;
 - named whitelist: ``review_checklist.py``'s dead ``hook_pattern`` (removed
   with #86 T2 — the whitelist entry dies with it);
+- BinOp concatenation and ``str.format()``/``%`` built patterns
+  (residual risk ③, registered — zero instances on the current tree);
 - generic-charclass blind spot (residual risk ①, registered): patterns like
   ``[A-Z]{2,4}-\\d+`` do not match the dialect detector.
 
@@ -41,7 +43,12 @@ SINGLE_SOURCE = "truth_format.py"
 #: value is caught even without a re.compile wrapper).
 #: Value-level detectors (match the regex SOURCE text as stored in the
 #: string value, e.g. ``MH\\d+`` / ``CP-?\\d`` / ``P\\d*-`` / ``[HM]\\d``).
-_HOOK_DIALECT = re.compile(r"MH-?\\d|CP-?\\d|P\\d\*-|\[HM\]\\d")
+#: Both spellings are dialect evidence: the optional-hyphen pattern form
+#: (``MH-?\\d``) and the canonical source-string literal form where ``?``
+#: is a literal VALUE character (``MH-?\\d{1,4}`` — audit-T9 C1: verbatim
+#: copies of truth_format's family source are the top recurrence vector).
+#: P quantifier variants covered (M5).
+_HOOK_DIALECT = re.compile(r"MH-?\??\\d|CP-?\??\\d|H-?\??\\d|P\\d[+*]?[\{]?[0-9,]*\}?-|\[HM\]\\d")
 _THREAD_DIALECT = re.compile(r"\[ABC\]\\d|\[A-Za-z\]\+\\d|\[a-zA-Z\]\+\\d")
 
 #: Named whitelist (spec r8 timing clause): dead code scheduled for removal.
@@ -103,8 +110,13 @@ def _references_exempt(expr: ast.expr) -> bool:
     for n in ast.walk(expr):
         if isinstance(n, ast.Name) and n.id in _EXEMPT_REFERENCES:
             return True
-        if isinstance(n, ast.Attribute) and n.attr == "pattern":
-            return True  # <ANY>.pattern reference — whitelist composites derive
+        if (
+            isinstance(n, ast.Attribute)
+            and n.attr == "pattern"
+            and isinstance(n.value, ast.Name)
+            and n.value.id in _EXEMPT_REFERENCES
+        ):
+            return True  # single-source .pattern derivation (spec-caliber names)
         if isinstance(n, ast.Call):
             for sub in ast.walk(n.func):
                 if isinstance(sub, ast.Name) and sub.id in _EXEMPT_REFERENCES:
@@ -185,6 +197,8 @@ def lint_tree(rel: str, tree: ast.Module, findings: list[str]) -> None:
     for stmt in tree.body:
         if isinstance(stmt, ast.Assign):
             _check_module_assign(stmt, rel, findings)
+        elif isinstance(stmt, ast.AnnAssign) and stmt.value is not None:
+            _check_module_assign(ast.Assign(targets=[stmt.target], value=stmt.value), rel, findings)
         elif isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call):
             _check_re_call(stmt.value, rel, findings)
     for node in ast.walk(tree):
@@ -203,17 +217,41 @@ def main(argv: list[str] | None = None) -> int:
             rel = str(py.relative_to(REPO_ROOT))
             if py.name == SINGLE_SOURCE:
                 continue
-            if rel in NAMED_WHITELIST:
-                continue
             try:
                 tree = ast.parse(py.read_text(encoding="utf-8"), filename=str(py))
             except SyntaxError as exc:  # pragma: no cover - defensive
                 findings.append(f"{rel}: unparseable ({exc})")
                 continue
+            if rel in NAMED_WHITELIST:
+                # Mechanical staleness check (lint_dead_code_allowlist
+                # precedent): the exempted name must still exist in the
+                # file, else the entry outlived its removal promise.
+                names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+                attrs = {n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute)}
+                if NAMED_WHITELIST[rel] not in names | attrs:
+                    findings.append(
+                        f"{rel}: stale whitelist entry {NAMED_WHITELIST[rel]!r}"
+                        " (name gone — remove the entry; spec #85 r8)"
+                    )
+                continue
             lint_tree(rel, tree, findings)
 
     # Deduplicate (re-call scan may double-visit module-level Expr calls)
+    def _dedupe_key(f: str) -> tuple[str, str]:
+        head = f.split(" ", 1)[0]
+        fam = "hook" if "hook-family" in f else "thread" if "thread-family" in f else f
+        return head, fam
+
     findings = sorted(set(findings))
+    seen: set[tuple[str, str]] = set()
+    deduped: list[str] = []
+    for f in findings:
+        k = _dedupe_key(f)
+        if k in seen:
+            continue
+        seen.add(k)
+        deduped.append(f)
+    findings = deduped
     if findings and not args.quiet:
         for f in findings:
             print(f, file=sys.stderr)

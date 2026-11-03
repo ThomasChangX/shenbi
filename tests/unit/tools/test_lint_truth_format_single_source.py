@@ -72,3 +72,35 @@ def test_generic_charclass_blind_spot_registered() -> None:
 def test_real_tree_zero_violations() -> None:
     rc = lt.main(["--quiet"])
     assert rc == 0, "current tree must be single-source clean (spec acceptance 3)"
+
+
+# --- audit-T9 C1/I3: per-form parametrized detection (both spellings) ---
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "dialect_src",
+    [
+        r"MH\d+",  # 旧方言拼写
+        r"MH-?\d{1,4}",  # truth_format 规范族源串逐字拷贝（top recurrence vector）
+        r"CP-?\d{1,4}",
+        r"H-?\d{1,4}",
+        r"P\d*-\d{1,4}",
+        r"P\d+-",  # 量词变体（M5）
+        r"CP-\d",
+        r"[HM]\d",
+    ],
+)
+def test_hook_dialect_forms_detected(dialect_src: str) -> None:
+    src = f"import re\n\n_X = re.compile(r'{dialect_src}')\n"
+    assert any("hook-family" in f for f in _findings_for(src)), dialect_src
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "thread_src",
+    [r"[ABC]\d{1,3}", r"[A-Za-z]+\d{1,3}", r"[a-zA-Z]+\d"],
+)
+def test_thread_dialect_forms_detected(thread_src: str) -> None:
+    src = f"import re\n\n_T = re.compile(r'{thread_src}')\n"
+    assert any("thread-family" in f for f in _findings_for(src)), thread_src
