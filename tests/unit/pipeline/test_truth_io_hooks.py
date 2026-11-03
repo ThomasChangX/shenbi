@@ -38,7 +38,15 @@ def test_m4_negative_no_partial_two_group_capture() -> None:
     """
     m = HOOK_ID_RE.search("| P0-4 (quiet阈结构) |")
     assert m is not None and m.group(0) == "P0-4"
-    # 对照：旧两分组形态对 P 族整行不命中（历史病灶钉死说明）
+    from shenbi.truth_format import canon_hook_id
+
+    assert canon_hook_id(m.group(0)) == "P0-4"  # spec 验收 1：canon 归一后匹配
+    # 对照一：旧两分组形态对 P 族整行不命中（历史病灶钉死说明）
     legacy = re.compile(r"(MH|CP)-?(\d{1,4})(?!\d)")
     assert legacy.search("| P0-4 (quiet) |") is None
     assert legacy.search("CP-001") is not None  # 旧式 CP 形仍命中（对照）
+    # 对照二：假想的「两分组扩展形」(MH|CP|P)-?(\d{1,4}) 只捕 P0 ——
+    # spec §2.1/验收 1 明令钉死的部分匹配假阳性（-? 贪不上中位连字符）
+    naive = re.compile(r"(MH|CP|P)-?(\d{1,4})(?!\d)")
+    nm = naive.search("P0-4 (quiet)")
+    assert nm is not None and nm.group(0) == "P0" and nm.group(0) != "P0-4"
