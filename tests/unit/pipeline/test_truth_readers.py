@@ -118,3 +118,31 @@ def test_g67_consumes_same_records(consumer: str, expected: set[str]) -> None:
         hooks = _real_hooks()
         unresolved = {h["id"] for h in hooks if h["state"] and h["state"] != "RESOLVED"}
         assert unresolved == expected
+
+
+# --- spec #85 T3: M3 red test (CP family visible to the single parser) ---
+
+
+@pytest.mark.unit
+def test_m3_cp_visible_to_pending_hooks_reader(tmp_path: Path) -> None:
+    """M3: the pending_hooks single parser was blind to CP-family ids
+    (legacy alternation keyed ``CP-001`` as ``P-001``). Full tokens must
+    come through under their own family.
+    """
+    from shenbi.pipeline.truth_readers import read_pending_hooks
+
+    p = tmp_path / "proj"
+    (p / "truth").mkdir(parents=True)
+    (p / "truth" / "pending_hooks.md").write_text(
+        "---\nlast_chapter: 5\n---\n"
+        "# 总览\n\n| Hook ID | 当前生命周期 | 是否出现 | 文本依据 |\n"
+        "|---------|------------|---------|---------|\n"
+        "| CP-001（新植钩） | PLANTED | 是 | 段落 |\n"
+        "| MH01（旧钩） | RELEVANT | 是 | 段落 |\n",
+        encoding="utf-8",
+    )
+    hooks = read_pending_hooks(p)
+    ids = {h["id"] for h in hooks}
+    assert "CP-001" in ids
+    assert "MH01" in ids
+    assert not any(str(i).startswith("P-") for i in ids)

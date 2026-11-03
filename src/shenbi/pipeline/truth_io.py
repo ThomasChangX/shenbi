@@ -45,10 +45,15 @@ from typing import Any
 import yaml
 
 from shenbi.exceptions import TruthFileParseError
-from shenbi.truth_format import (
-    canon_hook_id as canon_hook_id,  # noqa: PLC0414  # explicit re-export（basedpyright 契约），保既有 import 方
-)  # spec #85 T1: single source
 from shenbi.logging import get_logger
+from shenbi.truth_format import (  # spec #85 T1/T3: truth-file format single source
+    HOOK_HEADING_RE as _HOOK_HEADING_RE,
+    HOOK_ID_RE,
+    canon_hook_id as canon_hook_id,  # noqa: PLC0414  # explicit re-export，保既有 import 方
+    hook_family_source,
+    is_separator_row as is_separator_row,  # noqa: PLC0414
+    split_table_cells as split_table_cells,  # noqa: PLC0414
+)
 from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
@@ -408,13 +413,19 @@ _BULLET_ROW_RE = re.compile(r"^\s*-\s*(?P<key>.+?)\s*:(?P<rest>.*)$")
 #: the hyphen-only regex made the field-level merge unreachable for every
 #: probe output (splitter grouped whole ``## 详情`` blocks into one unit;
 #: scaffold headings fell to destructive section replacement).
-_HOOK_HEADING_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-?\d{1,4})\b")
+#: Multi-family source for the guarded row-key faces (spec #85 §2.3.1
+#: C-layer: keep the line anchor and positive-lookahead terminator; swap
+#: ONLY the id segment — never the whole regex, see the probe32 trap).
+_HOOK_ALL_FAMILIES = hook_family_source(("MH", "CP", "H", "P"))
 
-#: Any hook heading line, for scanning a whole file's hook sections.
-_HOOK_HEADING_BLOCK_RE = re.compile(r"^(#{2,6})\s+((?:MH|H|CP)-?\d{1,4})\b", re.MULTILINE)
+#: Hook-id heading faces — single source (spec #85 T3). Two-group contract
+#: (group(1)=level, group(2)=id) preserved; the legacy ``\b`` terminator is
+#: retired per spec acceptance-7 axis 2 (CJK/underscore controlled
+#: loosening, characterized in char-T3).
 
-#: A hook id embedded in a table cell (``| MH01（名） | …``).
-_HOOK_ID_CELL_RE = re.compile(r"(?<![A-Za-z0-9-])(MH|CP)-?(\d{1,4})(?!\d)")
+#: Any hook heading line, for scanning a whole file's hook sections
+#: (block-scan derivation — keep re.MULTILINE).
+_HOOK_HEADING_BLOCK_RE = re.compile(_HOOK_HEADING_RE.pattern, re.MULTILINE)
 
 #: Outline-ledger section locator: heading level + 编号 token — ``## 第N卷：…``
 #: (volume_map) and ``### A1: …`` (thread_map). Locating by token, not the
@@ -574,7 +585,7 @@ def is_hook_heading(text: str) -> bool:
 
 #: A registry table row whose first cell starts with a hook id (live form
 #: ``| MH01（名） | … |`` or legacy ``| MH-001 | … |``).
-_HOOK_ROW_IN_TABLE_RE = re.compile(r"^\|\s*(?:MH|H|CP)-?\d{1,4}(?=[\s（(｜|]|$)")
+_HOOK_ROW_IN_TABLE_RE = re.compile(rf"^\|\s*{_HOOK_ALL_FAMILIES}(?=[\s（(｜|]|$)")
 
 
 def base_has_hook_content(text: str) -> bool:
@@ -661,8 +672,10 @@ def base_is_shell(text: str) -> bool:
                 nxt += 1
             if nxt < n and _TABLE_SEPARATOR_LINE_RE.fullmatch(lines[nxt].strip()):
                 continue
-            cells = [c.strip() for c in line.strip("|").split("|")]
-            if any(c and not _SHELL_CELL_PLACEHOLDER_RE.fullmatch(c) for c in cells):
+            cells = split_table_cells(line)
+            if cells is not None and any(
+                c and not _SHELL_CELL_PLACEHOLDER_RE.fullmatch(c) for c in cells
+            ):
                 return False  # a real data cell
             continue
         if line.startswith("-"):
@@ -961,8 +974,8 @@ def sync_pool_overview_rows(existing: str, hook_ids: set[str] | None = None) -> 
             cells = split_table_cells(line)
             if cells is None or not cells:
                 continue
-            idm = _HOOK_ID_CELL_RE.search(cells[0])
-            if idm is not None and canon_hook_id(f"{idm.group(1)}{idm.group(2)}") == hid:
+            idm = HOOK_ID_RE.search(cells[0])
+            if idm is not None and canon_hook_id(idm.group(0)) == hid:
                 if _is_separator_row(cells):
                     continue
                 row_idx = i
@@ -1412,22 +1425,7 @@ def patch_markdown_table_cell(
         return False
 
 
-def split_table_cells(line: str) -> list[str] | None:
-    """Split a markdown table row into stripped cells, or None if not a row.
-
-    A table row starts and ends with ``|``. Cell boundaries are the pipes
-    themselves, so a key is the FULL cell text — never the first whitespace
-    token. This is the T702 fix: keys like ``第 1 章`` or ``Ch 1`` (containing
-    spaces/CJK) must compare as whole cells, otherwise rows whose first
-    *token* collides (``第`` == ``第``) wrongly dedup each other and whole
-    families of rows get deleted.
-    """
-    s = line.strip()
-    if not (s.startswith("|") and s.endswith("|")) or len(s) < 2:
-        return None
-    return [c.strip() for c in s[1:-1].split("|")]
-
-
+#: spec #85 T3: split_table_cells single-sourced from truth_format (re-export above).
 def _norm_cell(cell: str) -> str:
     """Normalize a header cell for key-column matching (T713).
 
@@ -1450,9 +1448,8 @@ def _norm_key(cell: str) -> str:
     return re.sub(r"\s+", "", cell)
 
 
-def _is_separator_row(cells: list[str]) -> bool:
-    """True for a markdown table separator row (``| --- | :---: |``)."""
-    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c) for c in cells)
+#: Private alias — 11 internal call sites keep the name (spec #85 T3).
+_is_separator_row = is_separator_row
 
 
 def _key_columns(existing: str, key_spec: str) -> list[int]:
