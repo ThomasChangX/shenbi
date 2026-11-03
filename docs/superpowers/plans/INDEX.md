@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-11-03（spec #85 plan 立项——阶段 5 审查中）
-> **活跃 plan 数**：2 | **已归档**：132（见 `archive/`）
+> **活跃 plan 数**：1 | **已归档**：132（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **[2026-11-03-spec85-truth-format-single-source.md](2026-11-03-spec85-truth-format-single-source.md)** ✅ ready（阶段 5 audit_loop 三轮收敛）——对应 spec #85（r12 冻结）：T0 re-anchor+基线/T1 叶模块 10 符号/T2-T5 M1-M6 换源+A/B/C 分层/T6 frontmatter 12 处收敛+presence 迁移/T7 volume _shared/T8 thread 侧+M5 红测/T9 AST lint+just check/T10 终验收批（全部 infra 协调者亲实现）
 - **[2026-11-01-spec84-vol1-repair-vol2-launch.md](2026-11-01-spec84-vol1-repair-vol2-launch.md)** ✅ ready（**冻结**——束4 待 #95 T1-T6 落地后解冻）——对应 spec #84（r12）：T0 注入器适配/T1 驱动 prompt/T2-T8 内容修复批+收口/T9 staged 实审/T10 实弹（束1-3 完成冻结于 ch43-0）/T11 完成（G3.4 r4=88.10）；束4=解冻后剩余验收
 
 ## 待执行的 spec → plan 映射
