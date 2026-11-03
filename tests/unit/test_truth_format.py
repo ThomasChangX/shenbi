@@ -88,15 +88,21 @@ class TestSplitFrontmatter:
         # truth_io:1819-1824 的 `----` 主题性断线修复
         assert split_frontmatter("----\n正文") == ("", "----\n正文")
 
+    def test_unterminated_fence_is_not_fm(self) -> None:
+        # I1: 「无错误模式」契约的唯一未钉分支——无闭合围栏整体不切
+        assert split_frontmatter("---\nfoo") == ("", "---\nfoo")
+
     def test_mid_document_fence_ignored(self) -> None:
         text = "正文\n---\n仍正文"
         fm, _ = split_frontmatter(text)
         assert fm == ""
 
     def test_crlf_and_trailing_space_first_line_cured(self) -> None:
-        # 首行严格 `---`（rstrip 治愈）：`--- \r\n` 变体仍识别为 fm
-        fm, _ = split_frontmatter("--- \r\nname: x\r\n---\r\n正文")
-        assert fm.startswith("---")
+        # 首行严格 `---`（rstrip 治愈）：`--- \r\n` 变体仍识别为 fm（M6 精确等值）
+        assert split_frontmatter("--- \r\nname: x\r\n---\r\n正文") == (
+            "--- \r\nname: x\r\n---\r\n",
+            "正文",
+        )
 
 
 class TestIterSections:
@@ -136,6 +142,12 @@ class TestFindHookIds:
         text = "MH01 与 CP-001 与 P0-4"
         assert find_hook_ids(text, families=("MH",)) == ["MH1"]
 
+    def test_family_filter_each_family(self) -> None:
+        # M4: P/CP/H 归属过滤钉死
+        assert find_hook_ids("CP-001", families=("CP",)) == ["CP1"]
+        assert find_hook_ids("H01", families=("H",)) == ["H1"]
+        assert find_hook_ids("P0-4", families=("P",)) == ["P0-4"]
+
     def test_canon_normalized_output(self) -> None:
         assert find_hook_ids("MH-01 与 MH01") == ["MH1", "MH1"]
 
@@ -151,6 +163,22 @@ class TestHookFamilySource:
         src = hook_family_source(("MH", "CP", "H", "P"))
         # 长形在前（MH|CP|H 各带 -? 槽）、P 族殿后、整体 (?:...) 包裹
         assert src == r"(?:MH-?\d{1,4}|CP-?\d{1,4}|H-?\d{1,4}|P\d*-\d{1,4})"
+
+    def test_empty_and_unknown_families_raise(self) -> None:
+        # I2: 错误契约钉死——静默返空串会让内嵌 (?:) 匹配一切
+        with pytest.raises(ValueError, match="non-empty"):
+            hook_family_source(())
+        with pytest.raises(ValueError, match="unknown hook families"):
+            hook_family_source(("MH", "XX"))
+
+    def test_family_source_invariant_across_module(self) -> None:
+        # I3: 单源不变量——_FAMILY_SOURCE 每族子串均须出现在两条 RE 的 pattern
+        # （spec §3 残余风险②「新族同步家表」在 T10 lint 前的唯一守卫）
+        import shenbi.truth_format as tf
+
+        for fam, src_frag in tf._FAMILY_SOURCE.items():
+            assert src_frag in HOOK_ID_RE.pattern, fam
+            assert src_frag in HOOK_HEADING_RE.pattern, fam
 
     def test_multifamily_embedding_regression(self) -> None:
         # §2.3.1 C 层 :383/:588 组合形内嵌回归：单一可内嵌单元、单反斜杠、re.match

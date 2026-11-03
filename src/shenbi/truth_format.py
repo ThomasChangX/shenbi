@@ -15,30 +15,36 @@ from __future__ import annotations
 import re
 from collections.abc import Iterator
 
-#: Canonical hook id acceptance (spec §1.3). Lookaround boundaries are the
-#: root fix for M1/M2: unbounded ``[HM]\d+`` could match from the second
-#: character of ``MH01``. Family order puts the long forms first;
-#: ``P\d*-`` (compound plant ids like ``P0-4``) last. Bare ``P14`` (no
-#: hyphen) has no production evidence and is excluded.
-HOOK_ID_RE = re.compile(r"(?<![A-Za-z0-9-])(?:(?:MH|CP|H)-?\d{1,4}|P\d*-\d{1,4})(?![0-9A-Za-z])")
-
-#: Thread/clue ids as written in thread_map: ``A1`` / ``AB12`` / ``D12``.
-THREAD_ID_RE = re.compile(r"(?<![A-Za-z0-9-])([A-Za-z]+\d{1,3})(?![0-9A-Za-z])")
-
-#: Hook-id heading (``### MH01（名）`` / ``### P0-4 TRIGGER 证据``).
-#: Two-group contract: group(1)=heading level, group(2)=id — aligned with
-#: the LedgerSpec group(2) contract (ledger_archive.py docstring). Block
-#: scanners derive with ``re.compile(HOOK_HEADING_RE.pattern, re.MULTILINE)``.
-HOOK_HEADING_RE = re.compile(r"^(#{2,6})\s+((?:(?:MH|CP|H)-?\d{1,4}|P\d*-\d{1,4}))")
-
 _FAMILY_ORDER: tuple[str, ...] = ("MH", "CP", "H", "P")
 
+#: The ONLY family literals in this module — every exported hook regex is
+#: derived from this table (single-source invariant, guarded by test).
 _FAMILY_SOURCE: dict[str, str] = {
     "MH": r"MH-?\d{1,4}",
     "CP": r"CP-?\d{1,4}",
     "H": r"H-?\d{1,4}",
     "P": r"P\d*-\d{1,4}",
 }
+
+_ALL_FAMILIES_SRC = "|".join(_FAMILY_SOURCE[f] for f in _FAMILY_ORDER)
+
+#: Canonical hook id acceptance (spec §1.3), DERIVED from the family table.
+#: Lookaround boundaries are the root fix for M1/M2: unbounded ``[HM]\d+``
+#: could match from the second character of ``MH01``. Family order puts the
+#: long forms first; ``P\d*-`` (compound plant ids like ``P0-4``) last.
+#: Bare ``P14`` (no hyphen) has no production evidence and is excluded.
+HOOK_ID_RE = re.compile(rf"(?<![A-Za-z0-9-])(?:{_ALL_FAMILIES_SRC})(?![0-9A-Za-z])")
+
+#: Thread/clue ids as written in thread_map: ``A1`` / ``AB12`` / ``D12``.
+#: NOTE: carries one capture group (group(1)=id) so ``.pattern`` interpolation
+#: into composites inherits that layout (same as truth_io _THREAD_ID_CELL_RE).
+THREAD_ID_RE = re.compile(r"(?<![A-Za-z0-9-])([A-Za-z]+\d{1,3})(?![0-9A-Za-z])")
+
+#: Hook-id heading (``### MH01（名）`` / ``### P0-4 TRIGGER 证据``).
+#: Two-group contract: group(1)=heading level, group(2)=id — aligned with
+#: the LedgerSpec group(2) contract (ledger_archive.py docstring). Block
+#: scanners derive with ``re.compile(HOOK_HEADING_RE.pattern, re.MULTILINE)``.
+HOOK_HEADING_RE = re.compile(rf"^(#{{2,6}})\s+((?:{_ALL_FAMILIES_SRC}))")
 
 
 def canon_hook_id(raw: str) -> str:
@@ -48,8 +54,8 @@ def canon_hook_id(raw: str) -> str:
     live-form (genesis template), gate-example, and legacy heading keys all
     address the same hook. Non-family ids (``CH1-L1`` local hooks) pass
     through uppercased. Compound ``P0-4`` ids fail the fullmatch and pass
-    through unchanged (identity) — the premise of the M4 integral-string
-    rework.
+    through uppercased (``P0-4`` is already upper-case so this is the M4
+    integral-string identity premise).
     """
     m = re.fullmatch(r"([A-Za-z]+)-?0*(\d+)", raw.strip())
     if not m:
