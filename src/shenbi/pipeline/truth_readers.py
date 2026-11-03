@@ -98,8 +98,7 @@ def _split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
     fm_text, body = split_frontmatter(text)
     if not fm_text:
         return {}, text
-    fm_core_lines = fm_text.split("\n")
-    fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
+    fm_core = "\n".join(fm_text.split("\n")[1:-2])  # fence lines + trailing "" dropped
     fm_line = re.search(r"^last_chapter:\s*(\d+)\s*$", fm_core, re.MULTILINE)
     return ({"last_chapter": int(fm_line.group(1))} if fm_line else {}), body
 

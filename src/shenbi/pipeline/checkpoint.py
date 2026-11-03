@@ -79,7 +79,8 @@ def _merge_staged_rows_keyed(staged_text: str, live_text: str, key_field: str) -
     staged_fm, _ = split_frontmatter(staged_text.lstrip())
     live_fm, _ = split_frontmatter(live_text.lstrip())
     if not staged_fm and live_fm:
-        staged_text = live_fm + "\n\n" + staged_text.lstrip("\n")
+        # byte-form parity with the legacy find("\n---") splice: ONE blank line
+        staged_text = live_fm.rstrip("\n") + "\n\n" + staged_text.lstrip("\n")
 
     merged = staged_text
     for line in live_text.split("\n"):

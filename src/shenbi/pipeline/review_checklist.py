@@ -445,17 +445,15 @@ def _extract_hook_deliverables(
     if fm_text:
         import yaml
 
-        fm_core_lines = fm_text.split("\n")
-        fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
-        if True:
-            try:
-                fm: Any = yaml.safe_load(fm_core) or {}
-                raw_hooks: Any = fm.get("hooks", [])
-                if isinstance(raw_hooks, list):
-                    hooks = raw_hooks
-            except Exception:
-                log.warning("hook_deliverables_yaml_parse_error", path=str(hooks_file))
-                return []
+        fm_core = "\n".join(fm_text.split("\n")[1:-2])  # fence lines + trailing "" dropped
+        try:
+            fm: Any = yaml.safe_load(fm_core) or {}
+            raw_hooks: Any = fm.get("hooks", [])
+            if isinstance(raw_hooks, list):
+                hooks = raw_hooks
+        except Exception:
+            log.warning("hook_deliverables_yaml_parse_error", path=str(hooks_file))
+            return []
 
     # Filter to active hooks that need attention.
     active: list[dict[str, Any]] = []

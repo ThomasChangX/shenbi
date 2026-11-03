@@ -390,6 +390,7 @@ def ensure_table_header(filename: str, content: str) -> str:
     # spec #85 T6: fence-inclusive splice via the single source (zero-adapt
     # consumer of the fm_text contract).
     fm_block, body = split_frontmatter(content)
+    body = body.lstrip("\n")  # byte-form parity: legacy splice stripped the post-fence blank line
     first = next((line for line in body.split("\n") if line.strip()), "")
     if first.lstrip().startswith("|") and "chapter" not in first and "---" not in first:
         return fm_block + header + "\n" + separator + "\n" + body
@@ -1813,8 +1814,7 @@ def _read_yaml_records(path: Path) -> list[dict[str, Any]]:
                     path=str(path),
                 )
             return []
-        fm_core_lines = fm_text.split("\n")
-        fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
+        fm_core = "\n".join(fm_text.split("\n")[1:-2])  # fence lines + trailing "" dropped
         fm = yaml.safe_load(fm_core) or {}
         if not isinstance(fm, dict):
             raise TruthFileParseError(

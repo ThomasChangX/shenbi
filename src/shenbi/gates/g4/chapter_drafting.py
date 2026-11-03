@@ -442,19 +442,18 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
         # Also try YAML frontmatter (boundary single-sourced, spec #85 T6)
         fm_text, _body = split_frontmatter(text)
         if fm_text:
-            if True:
-                try:
-                    import yaml as _yaml
+            try:
+                import yaml as _yaml
 
-                    fm_core_lines = fm_text.split("\n")
-                    fm_core = "\n".join(
-                        fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1]
-                    )
-                    fm = _yaml.safe_load(fm_core)
-                    if isinstance(fm, dict) and "name" in fm:
-                        names.append(str(fm["name"]))
-                except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
-                    pass  # malformed YAML frontmatter → fall back to regex name match above
+                fm_core_lines = fm_text.split("\n")
+                fm_core = "\n".join(
+                    fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1]
+                )
+                fm = _yaml.safe_load(fm_core)
+                if isinstance(fm, dict) and "name" in fm:
+                    names.append(str(fm["name"]))
+            except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
+                pass  # malformed YAML frontmatter → fall back to regex name match above
     if not names:
         return []
     # Always include common pronoun

@@ -128,8 +128,7 @@ def _parse_frontmatter(text: str) -> dict[str, Any]:
     fm_text, _body = split_frontmatter(text)
     if not fm_text:
         return {}
-    fm_core_lines = fm_text.split("\n")
-    fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
+    fm_core = "\n".join(fm_text.split("\n")[1:-2])  # fence lines + trailing "" dropped
     data = yaml.safe_load(fm_core)
     return data if isinstance(data, dict) else {}
 
@@ -144,8 +143,7 @@ def _split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
     fm_text, body = split_frontmatter(text)  # spec #85 T6: single source
     if not fm_text:
         return {}, text
-    fm_core_lines = fm_text.split("\n")
-    fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
+    fm_core = "\n".join(fm_text.split("\n")[1:-2])  # fence lines + trailing "" dropped
     data = yaml.safe_load(fm_core)
     fm = data if isinstance(data, dict) else {}
     return fm, body

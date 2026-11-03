@@ -62,8 +62,7 @@ def _split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
     fm_text, body = split_frontmatter(text)
     if not fm_text:
         return {}, text
-    fm_core_lines = fm_text.split("\n")
-    fm_core = "\n".join(fm_core_lines[1:-2] if fm_core_lines[-1] == "" else fm_core_lines[1:-1])
+    fm_core = "\n".join(fm_text.split("\n")[1:-2])  # fence lines + trailing "" dropped
     try:
         fm = yaml.safe_load(fm_core) or {}
     except yaml.YAMLError:
