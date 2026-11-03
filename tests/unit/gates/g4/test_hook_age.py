@@ -223,3 +223,28 @@ def test_v4_hook_type_presence_and_wordlist(tmp_path: Path) -> None:
         m.startswith("G4.cp.missing_hook_type") or m.startswith("G4.cp.hook_type_wordlist")
         for m in run(v3)
     )
+
+
+# --- spec #85 T4: acceptance-8 criterion 2 (hook_age domain pinning) ---
+
+
+@pytest.mark.unit
+def test_cp_relevant_rows_not_in_hook_age(tmp_path: Path) -> None:
+    """CP-family overview rows must stay OUT of the hook_age judgment
+    domain (spec #85 §2.3.1 B-layer, acceptance 8(2)).
+
+    green-before phase: current :263 never captures CP rows, so no
+    must_fix fires. Degeneration phase this pins against: a naive
+    canonical full-family swap would admit CP-005 -> age 45-26 > 8 with no
+    touch/defer -> G4.cp.hook_age must_fix.
+    """
+    hooks_cp = HOOKS.replace(
+        "| MH06（无名小调） | RELEVANT | 3 | 616 | SIDE | 0.8 | 70 | STAIRCASE |",
+        "| MH06（无名小调） | RELEVANT | 3 | 616 | SIDE | 0.8 | 70 | STAIRCASE |\n"
+        "| CP-005（码头那顿换来的饭） | RELEVANT | 26 | 630 | SIDE | 0.6 | 14 | STAIRCASE |",
+    )
+    _mk(tmp_path, ch=45, hooks=hooks_cp)
+    mf = _mf(tmp_path, 45)
+    # CP 特异断言（既有 MH06 超龄 must_fix 属基线行为与本测试无关）
+    assert not any("CP-005" in m for m in mf), mf
+    assert not any(m.startswith("G4.cp.hook_age:ch45:CP") for m in mf), mf

@@ -23,6 +23,13 @@ from shenbi.gates.shared import (
     split_scenes,
 )
 
+from shenbi.truth_format import find_hook_ids, hook_family_source  # spec #85 T4
+
+#: B-layer family source (spec #85 §2.3.1): MH-only judgment domain kept,
+#: group(1) stays the RAW matched token (no canon — canon forms never occur
+#: in the documents, see the r5 rebuttal), composites keep anchors/groups.
+_MH_SRC = hook_family_source(("MH",))
+
 log = get_logger(__name__)
 
 
@@ -245,7 +252,7 @@ def parse_last_reinforced(hooks_text: str) -> dict[str, int]:
     out: dict[str, int] = {}
     hook = ""
     for line in hooks_text.splitlines():
-        h = re.match(r"^##+\s+(MH\d+)", line)
+        h = re.match(rf"^##+\s+({_MH_SRC})", line)
         if h:
             hook = h.group(1)
             continue
@@ -260,7 +267,7 @@ def parse_relevant_hooks(hooks_text: str) -> set[str]:
     """RELEVANT hook ids (plus plant chapters) from the overview table."""
     out: set[str] = set()
     for line in hooks_text.splitlines():
-        m = re.match(r"^\|\s*(MH\d+)（[^）]*）\s*\|\s*(\S+)\s*\|\s*(\d+)", line)
+        m = re.match(rf"^\|\s*({_MH_SRC})（[^）]*）\s*\|\s*(\S+)\s*\|\s*(\d+)", line)
         if m and m.group(2) == "RELEVANT":
             out.add(m.group(1))
     return out
@@ -371,9 +378,9 @@ def _spec82_hook_age(
     relevant = parse_relevant_hooks(hp)
     plant = {
         m.group(1): int(m.group(3))
-        for m in re.finditer(r"^\|\s*(MH\d+)（[^）]*）\s*\|\s*(\S+)\s*\|\s*(\d+)", hp, re.M)
+        for m in re.finditer(rf"^\|\s*({_MH_SRC})（[^）]*）\s*\|\s*(\S+)\s*\|\s*(\d+)", hp, re.M)
     }
-    defer_lines = re.findall(r"^[-*]\s*挂起[：:]\s*(MH\d+)[^\n]*$", content, re.M)
+    defer_lines = re.findall(rf"^[-*]\s*挂起[：:]\s*({_MH_SRC})[^\n]*$", content, re.M)
     vm_text = ""
     vm_path = Path(project_dir) / "outline" / "volume_map.md"
     if vm_path.is_file():
@@ -405,11 +412,11 @@ def _spec82_hook_age(
     # defer 完全绕过锚校验与预算——「挂而不排」从表格通道复发）。
     defer_forms: list[tuple[str, str]] = [
         (m.group(1), m.group(2))
-        for m in re.finditer(r"^[-*]\s*挂起[：:]\s*(MH\d+)\s*(.*)$", content, re.M)
+        for m in re.finditer(rf"^[-*]\s*挂起[：:]\s*({_MH_SRC})\s*(.*)$", content, re.M)
     ]
     defer_forms.extend(
         (m.group(1), m.group(2))
-        for m in re.finditer(r"^\|\s*(MH\d+)\s*\|\s*defer\s*\|([^|\n]*)", content, re.M)
+        for m in re.finditer(rf"^\|\s*({_MH_SRC})\s*\|\s*defer\s*\|([^|\n]*)", content, re.M)
     )
     for hook_id, tail in defer_forms:
         anchor_hit = _defer_anchor_hits_volume(tail, vm_text)
@@ -511,7 +518,7 @@ def g4_chapter_planning(
                 registry_parts.append(rf.read_text(encoding="utf-8"))
         # both registry files absent (phase 1) → nothing to check against
         if registry_parts:
-            registered_hooks = set(re.findall(r"MH\d+", "\n".join(registry_parts)))
+            registered_hooks = set(find_hook_ids("\n".join(registry_parts), families=("MH",)))
 
     # ── spec #72 G4.cp.scene_budget — 场景预算两型域/组合/可打包性预检 ──
     # planning 时点拦截不可打包的预算序列。打包窗口 = 前章全场景（实际值）+
@@ -903,10 +910,12 @@ def g4_chapter_planning(
                 }
             )
         else:
-            refs = list(dict.fromkeys(re.findall(r"MH\d+", s7_text)))
+            refs = list(dict.fromkeys(find_hook_ids(s7_text, families=("MH",))))
             unknown = [r for r in refs if r not in registered_hooks]
             if unknown:
                 mf.append(
+                    # spec #85 §2.3.1 注记：unknown 为 canon 归一形（MH01→MH1），
+                    # memo 原文可能带连字符/前导零——定位时按归一形对照。
                     f"G4.cp.hook_refs:{fp}:引用未注册钩子「{'、'.join(unknown)}」"
                     "（book_spine/pending_hooks 无此 MH 编号——新钩属 genesis/lifecycle "
                     "职权，memo 不得自造 MH 号；确需新钩请走 CP-NNN 或先注册再引用）"
