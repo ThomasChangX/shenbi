@@ -55,5 +55,5 @@ def test_m5_d12_visible_in_both_maps() -> None:
     )
     rows = _thread_row_map(text)
     sections = _thread_section_map(text)
-    assert "D12" in rows or any("D12" in str(k) for k in rows)
+    assert "D12" in rows
     assert "D12" in sections

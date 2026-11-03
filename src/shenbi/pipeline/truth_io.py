@@ -445,12 +445,7 @@ _OUTLINE_SECTION_KEY_RE = re.compile(
     r")\b"
 )
 
-#: Thread id token — SINGLE SOURCE for the derivation, the read extractor,
-#: the archival spec, and the lint (rebudget-drill find + review #4: the
-#: locator/validator charset is ``[A-Za-z]+\d`` while the derivation only
-#: accepted ``[ABC]``, so an off-tier id merged but silently skipped its
-#: 总览行). The SKILL still mandates the A/B/C tiers; this is shape
-#: tolerance, not tier policy.
+#: Thread id grammar — single source: truth_format.THREAD_ID_RE (spec #85 T8).
 #: Thread-ledger detail-section heading (``### A1: 名称``). Same group
 #: layout as the hook family: group(2) = the thread id token.
 _THREAD_HEADING_RE = re.compile(rf"^(#{{2,6}})\s+({THREAD_ID_RE.pattern})")  # spec #85 T8

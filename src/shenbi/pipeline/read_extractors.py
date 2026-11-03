@@ -41,7 +41,7 @@ from pathlib import Path
 #: Hook ids as they appear in plan/audit grounding text (``MH02`` /
 #: ``CP-001`` / legacy ``MH-002``) — normalized through canon_hook_id.
 from shenbi.truth_format import HOOK_ID_RE as _GROUNDING_ID_RE  # spec #85 T5 (C-layer)
-from shenbi.truth_format import hook_family_source, split_table_cells
+from shenbi.truth_format import THREAD_ID_RE, hook_family_source, split_table_cells
 
 #: Detail-section heading inside pending_hooks' ``## 详情`` (``### MH01（名）``).
 _DETAIL_HEADING_RE = re.compile(
@@ -392,9 +392,7 @@ def _thread_detail_heading_re() -> re.Pattern[str]:
     id rides group(1) exactly like the local regex it replaced. Charset
     from truth_io's single source (import-cycle-safe lazy resolution).
     """
-    from shenbi.truth_format import THREAD_ID_RE as _THREAD_ID_RE_HEAD  # spec #85 T8
-
-    return re.compile(rf"^#{{2,6}}\s+({_THREAD_ID_RE_HEAD.pattern})", re.MULTILINE)
+    return re.compile(rf"^#{{2,6}}\s+({THREAD_ID_RE.pattern})", re.MULTILINE)
 
 
 #: A 章节线索推进表 interval row: ``| 1-8（一卷 KR1） | A1 | … |``. The
