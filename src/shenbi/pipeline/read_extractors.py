@@ -791,20 +791,24 @@ def _chapter_cast_cell(project_dir: Path, chapter: int) -> str | None:
         m = _re.search(r"第\s*(\d+)\s*章", label)
         return int(m.group(1)) if m else None
 
+    cast_idx = 3  # | 章节 | 事件 | 出场角色 | ... 框架模板缺省（truth_io 钉死）
     for base in (project_dir / "staging" / "truth", project_dir / "truth"):
         f = base / "chapter_summaries.md"
         if not f.is_file():
             continue
         for line in f.read_text(encoding="utf-8").splitlines():
             if "出场角色" in line and line.lstrip().startswith("|"):
-                continue  # header row
+                # audit-T7 M1: 列索引从表头行推导（防未来表头加列静默读错列）
+                cols = [c.strip() for c in line.split("|")]
+                if "出场角色" in cols:
+                    cast_idx = cols.index("出场角色") - 1  # split 首元素为空串
+                continue
             m = _re.match(r"^\|\s*(第\s*\d+\s*章)\s*\|", line)
             if not m or _n(m.group(1)) != chapter:
                 continue
             cells = [c for c in line.split("|")]
-            # | 章节 | 事件 | 出场角色 | ... → 第三数据列
-            if len(cells) >= 5:
-                return cells[3].strip() or None
+            if len(cells) > cast_idx + 1:
+                return cells[cast_idx + 1].strip() or None
     return None
 
 
@@ -870,6 +874,8 @@ def extract_matrix_scoped(project_dir: Path, chapter: int | None, content: str) 
             out.append(line)  # 表头（键结构样例）
             header_emitted = True
             continue
+        if in_pair_table and not stripped.startswith("|"):
+            in_pair_table = False  # audit-T7 M2: 空行/散文行结束表格——次表不按 pairs 过滤
         if in_pair_table and stripped.startswith("|"):
             if _re.match(r"^\|[-\s|:]+\|?$", stripped):  # 分隔行
                 out.append(line)

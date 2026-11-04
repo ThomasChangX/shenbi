@@ -52,10 +52,52 @@ def test_non_cast_pair_row_dropped(tmp_path: Path) -> None:
 
 
 def test_chapter_status_blocks_kept_for_settle_pair(tmp_path: Path) -> None:
-    cast = "那罕（林烽）"
-    out = extract_matrix_scoped(_project(tmp_path, cast), 41, _matrix_content())
-    # settle 写 N 与 N+1 增量——第41/42章状态块保留（若在盘）
-    assert "第41章状态增量" in out or "第 41 章状态增量" in out or "状态增量" in out
+    # audit-T7 I2: 合成含 N/N+1 状态块的 matrix，钉死双块保留（真实 00189 fixture
+    # 无 ch41/42 块——旧断言第三析取支恒被哨兵命中，名不副实）
+    synthetic = (
+        "---\ntype: truth\n---\n# 角色交互矩阵\n\n"
+        "| 角色A | 角色B | 关系性质 | 本章交互 | 变化 |\n|---|---|---|---|---|\n"
+        "| 林烽 | 义仓差人 | 登记 | 面验 | 第 41 章 |\n\n"
+        "## 第 40 章状态增量\n\n旧块（非束伴，应裁）。\n\n"
+        "## 第41章状态增量\n\n本章块保留。\n\n"
+        "## 第 42 章状态增量\n\n束伴章块保留。\n"
+    )
+    out = extract_matrix_scoped(_project(tmp_path, "那罕（林烽）"), 41, synthetic)
+    assert "第41章状态增量" in out and "本章块保留" in out
+    assert "第 42 章状态增量" in out and "束伴章块保留" in out
+    assert "旧块（非束伴，应裁）" not in out
+
+
+def test_extractor_wired_into_prompt_success_path(tmp_path, monkeypatch) -> None:
+    """audit-T7 I1: C1 regression guard - success-path wiring sentinel via _build_skill_prompt."""
+    import shenbi.pipeline.dispatch_helper as dh
+
+    (tmp_path / "truth").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "truth" / "chapter_summaries.md").write_text(
+        "| 章节 | 一句话事件 | 出场角色 | 推进的支线 | 新增／回收伏笔 | 结尾钩子 |\n"
+        "|---|---|---|---|---|---|\n"
+        "| 第 41 章 | 事件 | 那罕（林烽） | — | — | — |\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "truth" / "character_matrix.md").write_text(
+        "---\ntype: truth\n---\n\n# 角色交互矩阵\n\n"
+        "| 角色A | 角色B | 关系性质 | 本章交互 | 变化 |\n|---|---|---|---|---|\n"
+        "| 林烽 | 义仓差人 | 登记 | 面验 | 第 41 章 |\n"
+        "| 老驼 | 帖木哥 | 旧识 | 路遇 | 第 12 章 |\n",
+        encoding="utf-8",
+    )
+    warned: list[str] = []
+
+    def _spy(event: str, **kw: object) -> None:
+        warned.append(event)
+
+    monkeypatch.setattr(dh.log, "warning", _spy)
+    _, user_prompt, _, _, _ = dh._build_skill_prompt(
+        "shenbi-state-settling", tmp_path, "settle ch41", chapter=41
+    )
+    assert "[extractor:matrix_scoped]" in user_prompt
+    assert "已按本章出场角色裁剪" in user_prompt
+    assert "老驼" not in user_prompt
 
 
 def test_no_chapter_or_no_cast_degrades_loud(tmp_path: Path) -> None:

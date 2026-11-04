@@ -294,6 +294,8 @@ def test_real_settle_contract_wires_plan_a_extractors() -> None:
         "truth/subplot_board.md",
     ):
         assert ex[table] == "recent_increments", table
+    # audit-T7 M4: spec #95 T3 matrix_scoped 接线一并钉死
+    assert ex["truth/character_matrix.md"] == "matrix_scoped"
     # volume_summaries 补读: compact mid-range context the slices lose
     assert "truth/volume_summaries.md" in c["reads"]
 
@@ -361,9 +363,7 @@ def test_dispatch_loop_serves_sliced_resolve_reads(
     assert "卷级摘要" in user_prompt
     # chapter_summaries: only the last-3 rows survive
     assert "第 29 章" in user_prompt and "第 5 章" not in user_prompt
-    # happy path is WARN-free (spec §7) — except matrix_scoped: the synthetic
-    # project's summaries stop at ch40 while settle is ch57 (no ch56/57 cast row),
-    # so the cast face degrades loud by design (spec #95 T3 timing note).
+    # resolve face is matrix-free: strictly WARN-free
     assert "extractor_failed_fulltext" not in warned
 
 
