@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-03（spec #85 plan 立项——阶段 5 审查中）
-> **活跃 plan 数**：1 | **已归档**：132（见 `archive/`）
+> **最后更新**：2026-11-04（spec #95 plan 立项——阶段 5 两轮审查收敛 ✅ ready）
+> **活跃 plan 数**：2 | **已归档**：132（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,6 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
+- **[2026-11-02-spec95-model-contract-alignment.md](2026-11-02-spec95-model-contract-alignment.md)** ✅ ready——对应 spec #95（r1.6）：T0 re-anchor/T1 枚举常量单源+锚尾 gate+BUDGET_BY_ROLE 换键+契约 lint（Task 1-4）/T2 卷期热协议下沉（Task 5）/T3 blob 回放+matrix 提取器+hooks 窗强化+settle 72k 预算（Task 6-9）/T4 反馈三段式+TARGETED-EDIT 并道（Task 10-11）/T5 范例章+束级早检（Task 12）/T6 merge_prose applier+reject 对称（Task 13-14）；束4 实弹验收=合并后生产窗（#84 解冻条件）
 - **[2026-11-01-spec84-vol1-repair-vol2-launch.md](2026-11-01-spec84-vol1-repair-vol2-launch.md)** ✅ ready（**冻结**——束4 待 #95 T1-T6 落地后解冻）——对应 spec #84（r12）：T0 注入器适配/T1 驱动 prompt/T2-T8 内容修复批+收口/T9 staged 实审/T10 实弹（束1-3 完成冻结于 ch43-0）/T11 完成（G3.4 r4=88.10）；束4=解冻后剩余验收
 
 ## 待执行的 spec → plan 映射
