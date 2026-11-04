@@ -776,12 +776,12 @@ def g4_chapter_planning(
         # 三臂全冷才报，单臂不报（弱 tell 聚集语义）。
         _golden_cold = tuple(v for v in GOLDEN_LINE_VALUES if v != GOLDEN_LINE_VALUES[0])
         if (
-            re.search(r"^emotion_tone[：:]\s*平\s*$", content, re.MULTILINE)
+            re.search(r"^emotion_tone[：:]\s*平", content, re.MULTILINE)
             and any(
                 re.search(rf"^金句位[：:]\s*{re.escape(g)}[｜|]", content, re.MULTILINE)
                 for g in _golden_cold
             )
-            and re.search(r"\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?微", content)
+            and re.search(r"^[-* ]*\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?微", content, re.MULTILINE)
         ):
             mf.append(
                 f"G4.cp.cold_opening_triple:{fp}: 冷三连同现（tone=平+金句位=静+张力拍=微）"

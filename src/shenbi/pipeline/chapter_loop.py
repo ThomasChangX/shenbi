@@ -827,8 +827,8 @@ G4_CHECK_MAP: dict[str, G4Severity] = {
     "cd.chapter_end_hook": G4Severity.SOFT,
     "cp.golden": G4Severity.WARN,
     "cp.s5_choice": G4Severity.WARN,
-    # spec #95 T2: 冷三连 WARN 影子（shadow 层默认降级；shadow:false 转正）
-    "cold_opening_triple": G4Severity.WARN,
+    # spec #95 T2 冷三连不入此表（audit-T5 I1：分类发生在 shadow 降级之后，
+    # 能到分类器的必是 shadow:false 转正项——未列走保守默认 HARD，cold_streak_window 先例）
 }
 
 

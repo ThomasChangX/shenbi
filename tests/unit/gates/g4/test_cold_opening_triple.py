@@ -83,6 +83,23 @@ def test_shadow_registry_defaults_warn(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
+def test_shadow_false_promotes_hard_routing(tmp_path: Path) -> None:
+    """audit-T5 I1: promotion must reach the HARD path end-to-end.
+
+    apply_shadow None (no demotion) + G4_CHECK_MAP has no cold_opening_triple
+    entry (unlisted -> conservative default HARD, cold_streak_window precedent)
+    — the classifier runs AFTER shadow demotion, so a WARN map entry would
+    misroute promoted items into warn_fails (log-only) and kill the promotion.
+    """
+    from shenbi.pipeline.chapter_loop import G4_CHECK_MAP, _classify_g4_failures
+
+    item = "G4.cp.cold_opening_triple:plans/x.md: 冷三连同现"
+    assert "cold_opening_triple" not in G4_CHECK_MAP  # 未列=保守默认 HARD
+    hard, soft, warn = _classify_g4_failures([item])
+    assert item in hard and not soft and not warn
+
+
+@pytest.mark.unit
 def test_shadow_false_promotes_hard(tmp_path: Path) -> None:
     cfg = {
         "market_params": {

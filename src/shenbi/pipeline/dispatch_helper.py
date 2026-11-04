@@ -1081,16 +1081,25 @@ def _build_skill_prompt(
                             chapter=chapter,
                         )
             elif extractor == "volume_opening_protocol":
-                # spec #95 T2: genre-config 热协议投影（子键越顶层字段过滤——extractor 面）
+                # spec #95 T2: genre-config 热协议投影（子键越顶层字段过滤——extractor 面）。
+                # audit-T5 C1: 五件套齐——""（JSON 不解析）走 loud fulltext + WARN，
+                # 与兄弟分支同 §4.3 纪律（禁静默全文）。
+                _vop_err: Exception | None = None
                 try:
                     extracted = extract_volume_opening_protocol(content)
                 except Exception as exc:
+                    _vop_err = exc
+                    extracted = ""
+                if extracted:
+                    content = extracted
+                else:
+                    # "" (unparseable JSON) or raise — both land loud fulltext+WARN
                     log.warning(
                         "extractor_failed_fulltext",
                         extractor=extractor,
                         path=str(full_path),
                         chapter=chapter,
-                        error=str(exc),
+                        **({"error": str(_vop_err)} if _vop_err is not None else {}),
                     )
             elif extractor == "recent_increments":
                 # Plan A: chapter-keyed cumulative tables serve head + last
