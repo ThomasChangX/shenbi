@@ -112,9 +112,9 @@
 
 ### #95 · 模型契约对齐与上下文预算（model-contract-alignment）
 
-- **文件**：`2026-11-02-spec95-model-contract-alignment.md` ｜ **系列**：卷二实弹复盘批 ｜ **状态**：Active（r1.2） ｜ **优先级**：🟠 P1
+- **文件**：`2026-11-02-spec95-model-contract-alignment.md` ｜ **系列**：卷二实弹复盘批 ｜ **状态**：Active（r1.3 价值门驳斥修订 2026-11-04：R2/R3 口径修正、R5 因果细化、T1 补 gate 锚尾+数据形正例、T3 改道升格既有 extractor、T4 并 TARGETED-EDIT、T6 改标所有权对称并划出覆写路径） ｜ **优先级**：🟠 P1
 - **依赖**：T3 复用 #81 窗口语义＋#85 truth_format 解析基座；T4 衔接 #88 finding 契约；**T2 落地面=genre-config `market_params.volume_opening_protocol` 子键**（顶层 12 键红线，若升顶层属 breaking contract 需裁）；其余独立；**批次时序 #85→#95→束4 验收→批次 A 其余**
-- **内容**：束1-3 九次人工介入的根因矩阵（R1-R8，blob 级证据：**教错的**——SKILL 枚举斜杠形/defer 锚零进 prompt/热协议只在监控侧；**看不全的**——settle prompt 68→96k 无界增长+pending_hooks 被 32k 截断后盲写最新钩行；**没锚住的**——drafting 无范例章+JSON 信封长文压缩；**被放大的**——「你丢了行」反馈驱动整档重发越试越糟）＋六任务：T1 gate 词表⇄prompt 契约同步器（lint 进 just check；先立显式枚举常量）+ T2 卷期热协议参数下沉（**market_params 子键+三处接线；门替代前不撤驱动 prompt**）+ T3 settle 读面分窗（**含 current_state；settle 专属 ≤75k chars 组装断言**；截断汇总块保底；blob 快照回放）+ T4 失败反馈改操作路径（verbatim 行清单+上限/去重）+ T5 范例章注入+**束级早检**（单章重试属 Phase 2）+ T6 修订场景级 diff 化（**applier+schema**）+ **reject 作用域含 follower**（原「follower 检查点」改判）。验收=束4 重跑 ≤1 次接骨（度量=ledger 人工处理条目+escalation 数，评审逐条重数；基线 8 裁决＋1 手工回灌）
+- **内容**：束1-3 九次人工介入的根因矩阵（R1-R8，blob 级证据：**教错的**——SKILL 枚举斜杠形/defer 锚零进 prompt/热协议只在监控侧；**看不全的**——settle prompt 68→96k 无界增长+pending_hooks 被 32k 截断后盲写最新钩行；**没锚住的**——drafting 无范例章+JSON 信封长文压缩；**被放大的**——「你丢了行」反馈驱动整档重发越试越糟）＋六任务：T1 gate 词表⇄prompt 契约同步器（lint 进 just check；先立显式枚举常量；**r1.3 补 gate 侧锚尾判定拒斜杠形+defer 锚数据形正例**）+ T2 卷期热协议参数下沉（**market_params 子键+三处接线；门替代前不撤驱动 prompt**；r1.3 WARN 走 shadow 通道 GATE_TO_SHADOW_KEY 显式入表）+ T3 settle 读面分窗（**r1.3 改道：升格既有 read_extractors 体系——hooks_audit_scoped/recent_increments 已在役；真新增=matrix 定向提取器+hooks 窗语义强化+settle 专属 ≤75k chars 组装断言+顶部截断汇总块+降级路径预算**；blob 快照回放）+ T4 失败反馈改操作路径（verbatim 行清单+上限/去重；drafting 半边并既有 TARGETED-EDIT 通道）+ T5 范例章注入+**束级早检**（单章重试属 Phase 2）+ T6 修订场景级 diff 化（**applier+schema**）+ **reject 作用域含 follower（r1.3 改标：检查点所有权对称；覆写事故路径显式划出——治本属 dispatch 写守卫域另立）**。验收=束4 重跑 ≤1 次接骨（度量=ledger 人工处理条目+escalation 数，评审逐条重数；基线 8 裁决＋1 手工回灌）
 - **对应 plan**：待执行时建（`../plans/2026-11-02-spec95-*.md`；束4 重跑=验收场，#84 Task 10 解冻条件=**T1-T6 实现落地**，#95 Done 另以接骨数判）
 - **触及的不变量维度**：情绪节奏（弱关联——T2 卷期热协议，仅 WARN）；其余 prompt/预算/反馈层——不动门禁判据与 truth 结构
 
