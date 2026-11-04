@@ -50,6 +50,9 @@ BUDGET_BY_ROLE: dict[str, int] = {
     role: budget for group, budget in _BUDGET_BY_GROUP for role in group
 }
 BUDGET_BY_ROLE.update({"/".join(group): budget for group, budget in _BUDGET_BY_GROUP})
+assert {r for g, _ in _BUDGET_BY_GROUP for r in g} == set(
+    CHAPTER_ROLE_VALUES
+)  # audit-T3 M2: 双向对账
 assert all(v in BUDGET_BY_ROLE for v in CHAPTER_ROLE_VALUES)  # 单源对账（常量↔派生键）
 DEFAULT_BUDGET = 12000
 TOKEN_FACTOR = 1.5

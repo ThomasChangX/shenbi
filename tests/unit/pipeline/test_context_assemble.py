@@ -165,6 +165,7 @@ class TestAssembleContext:
         )
         pkg = assemble_context(p, "plans/chapter-1-plan.md")
         assert pkg.chapter_role == "高潮/兑现"
+        assert BUDGET_BY_ROLE[pkg.chapter_role] == 18000  # audit-T3 M1: 档位命中实证
         assert pkg.total_tokens <= 18000
 
     def test_unknown_role_uses_default_budget(self, tmp_path: Path):

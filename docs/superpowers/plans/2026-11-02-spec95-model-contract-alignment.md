@@ -194,7 +194,7 @@ assert all(v in BUDGET_BY_ROLE for v in CHAPTER_ROLE_VALUES)  # 单源对账（i
 
 **Files:**
 - Create: `tools/lint_gate_prompt_contract.py`
-- Modify: `skills/shenbi-chapter-planning/SKILL.md:158/:223`（斜杠形改逐行清单+锚模板+正例）＋`:264`（audit-T2 I2——非合法值注记改指 invalid_chapter_role，missing 仅键不存在）
+- Modify: `skills/shenbi-chapter-planning/SKILL.md:158/:223`（斜杠形改逐行清单+锚模板+正例）＋`:264`（audit-T2 I2——非合法值注记改指 invalid_chapter_role，missing 仅键不存在）＋`:154`（audit-T3 M3——感官拍「过渡/铺垫」档名标签随调制键同批 ∈ 形化）
 - Modify: `justfile` check 面（lint 注册）
 - Test: `tests/unit/tools/test_lint_gate_prompt_contract.py`
 
