@@ -27,4 +27,4 @@ def test_check_enum_registry_covers_chapter_role() -> None:
     assert "cp.chapter_role" in CHECK_ENUM_REGISTRY
     const_name, skill_rel = CHECK_ENUM_REGISTRY["cp.chapter_role"]
     assert const_name == "CHAPTER_ROLE_VALUES"
-    assert skill_rel.endswith("chapter-planning/SKILL.md")
+    assert skill_rel == "skills/shenbi-chapter-planning/SKILL.md"

@@ -249,6 +249,7 @@ def test_passing_template_block_shape():
 - Test: `tests/unit/gates/g4/test_cold_opening_triple.py`、`tests/unit/contracts/test_genre_config_spec95.py`
 
 **Interfaces:**
+- Consumes（audit-T1 补）: `GOLDEN_LINE_VALUES`——冷三连谓词的 `金句位∈{静}` 分支从常量派生（`"静" in GOLDEN_LINE_VALUES` 语义），禁内联字面 `静`（词表多源病）；Task 2 顺手把 chapter_planning.py:125 `golden_hot` 正则的 `燃` 字面换为常量派生 alternation。
 - Produces: `extract_volume_opening_protocol(project_dir: Path, chapter: int | None, content: str) -> str`（""→全文+WARN 降级语义同既有 extractor）；WARN id `cp.cold_opening_triple`。
 - 复杂度: **infra** · tdd_red_green · T1；不变量维度=情绪节奏（仅 WARN）
 - 顶层 12 键红线：**不动 GENRE_KEYS**；子键值=扁平标量（`dict[str, int|float|str|None]`）
