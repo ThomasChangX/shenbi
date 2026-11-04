@@ -92,11 +92,12 @@ def test_hooks_audit_scoped_keeps_overview_and_named_sections(tmp_path: Path) ->
     assert "CP-001（册末空格） | RESOLVED" in out
     # named detail sections kept (union of plan MH02 + audit CP-001)
     assert "### MH02（灵誓）" in out
-    assert "### CP-001（册末空格）" in out
-    # unnamed detail section dropped, with a disclosure sentinel
-    assert "### MH01（灵印）" not in out
-    assert "第4章断脉塌方首次显形" not in out
-    assert "省略" in out and "MH01" in out
+    assert "### CP-001（册末空格）" in out  # 点名优先级一：预算内必保
+    # spec #95 T3 ②: 未点名活钩（MH01 RELEVANT）详情纳入窗（R5 盲写面修复）
+    assert "### MH01（灵印）" in out
+    assert "第4章断脉塌方首次显形" in out
+    # 预算窗哨兵（点名/active 计数披露）
+    assert "＋active" in out
 
 
 def test_hooks_audit_scoped_staging_twin_grounding_wins(tmp_path: Path) -> None:
@@ -117,8 +118,10 @@ def test_hooks_audit_scoped_staging_twin_grounding_wins(tmp_path: Path) -> None:
     )
 
     out = extract_hooks_audit_scoped(tmp_path, 57, _PENDING_HOOKS)
+    # spec #95 T3 ② 后：staging 点名的 MH01 必在；MH02 未被任何 grounding 点名，
+    # 但作为活钩（PLANTED）也入窗——该测试的 staging-first 判据改由 MH01 计数承载
     assert "### MH01（灵印）" in out
-    assert "### MH02（灵誓）" not in out
+    assert "### MH02（灵誓）" in out
 
 
 def test_hooks_audit_scoped_no_grounding_returns_empty(tmp_path: Path) -> None:
@@ -435,9 +438,11 @@ def test_dispatch_loop_serves_sliced_settle_reads(
         "shenbi-state-settling", project, "settle ch57", chapter=57
     )
 
-    # pending_hooks: named detail kept, unnamed detail + its 证据 dropped
+    # pending_hooks: named (MH02/CP-001) + unnamed-active (MH01) kept;
+    # closed-hook evidence stays out (spec #95 T3 ② active∪named window)
     assert "### MH02（灵誓）" in user_prompt
-    assert "第4章断脉塌方首次显形" not in user_prompt
+    assert "第4章断脉塌方首次显形" in user_prompt  # MH01 RELEVANT——活钩纳入
+    assert "第17章行署当众指向" not in user_prompt  # CP-001 RESOLVED 详情仍裁
     assert "hooks_audit_scoped" in user_prompt  # sentinel travels with the text
     # chapter_summaries: only the last-3 rows survive
     assert "第 39 章" in user_prompt and "第 40 章" in user_prompt

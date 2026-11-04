@@ -60,6 +60,14 @@ _GROUP_HEADING_RE = re.compile(r"^##\s+\S", re.MULTILINE)
 #: span, not every unit (the sentinel itself must stay cheap).
 _MAX_SENTINEL_UNITS = 40
 
+#: spec #95 T3 (r1.6 ②): 详情节字符预算——点名∪active 合并体超此值按优先级截断
+#: （unnamed-active 先让位），被截段逐段披露。ch41 实测 14 活钩详情 42.2k chars
+#: 曾顶着 32k per-file 帽拦腰截尾（R5 盲写面）；预算=1/3 容量给详情面，总览全保。
+DETAILS_CHAR_BUDGET = 14_000
+
+#: 总览表「当前生命周期」列的收束态（详情不再保留——已收束钩生命周期总览行已足）。
+_HOOK_CLOSED_LIFECYCLE = frozenset({"RESOLVED", "已收束", "SUPERSEDED", "ABANDONED"})
+
 
 def _staging_first(project_dir: Path, rel: str) -> Path:
     """F-3 parity: same-chapter writer products exist only under staging/
@@ -89,8 +97,37 @@ def has_chapter_units(content: str) -> bool:
     return bool(_ROW_UNIT_RE.search(content) or _SECTION_UNIT_RE.search(content))
 
 
+def _active_hook_ids(head: str) -> set[str]:
+    """Live hook ids from the 总览 table (lifecycle column not closed).
+
+    spec #95 T3: 未点名活钩的详情此前不可见——模型对看不见的行只能重造
+    （R5 盲写面）；active 纳入让活钩详情常驻窗口。
+    """
+    from shenbi.pipeline.truth_io import canon_hook_id
+
+    active: set[str] = set()
+    for line in head.splitlines():
+        if not line.lstrip().startswith("|"):
+            continue
+        cells = split_table_cells(line) or []
+        if len(cells) < 2 or "Hook ID" in cells[0]:
+            continue  # 表头/短行
+        lifecycle = cells[1].strip()
+        if lifecycle in _HOOK_CLOSED_LIFECYCLE:
+            continue
+        hid = _GROUNDING_ID_RE.search(cells[0])
+        if hid:
+            active.add(canon_hook_id(hid.group(0)))
+    return active
+
+
 def extract_hooks_audit_scoped(project_dir: Path, chapter: int | None, content: str) -> str:
-    """Slice pending_hooks to 总览 full + this chapter's named detail sections.
+    """Slice pending_hooks to 总览 full + named∪active details under budget.
+
+    spec #95 T3 (r1.6 ②): keep = plan/audit 点名（优先级一）∪ 活钩
+    （总览生命周期非收束——优先级二，修未点名活钩盲写面）；合并详情体超
+    ``DETAILS_CHAR_BUDGET`` 时 unnamed-active 先让位、再截点名段（按文件序），
+    被截段逐段披露（ch41 点名全部 14 活钩零裁剪→42.2k 顶帽的失效模式）。
 
     Returns ``""`` when the slice cannot be made responsibly (chapter=None
     genesis dispatch, no grounding ids, or an unexpected file shape) — the
@@ -109,33 +146,59 @@ def extract_hooks_audit_scoped(project_dir: Path, chapter: int | None, content: 
 
     head = content[: m.end()]
     body = content[m.end() :]
+    active = _active_hook_ids(head)
 
     starts = [hm for hm in _DETAIL_HEADING_RE.finditer(body)]
     if not starts:
         return ""
 
-    kept: list[str] = []
-    omitted: list[str] = []
+    sections: list[tuple[str, str, int]] = []  # (hook_id, text, priority 1=named 2=active)
     for i, hm in enumerate(starts):
         end = starts[i + 1].start() if i + 1 < len(starts) else len(body)
-        section = body[hm.start() : end]
         hook_id = canon_hook_id(hm.group(1))
         if hook_id in named:
-            kept.append(section)
-        else:
-            omitted.append(hm.group(1))
-    if not kept:
+            sections.append((hook_id, body[hm.start() : end], 1))
+        elif hook_id in active:
+            sections.append((hook_id, body[hm.start() : end], 2))
+    if not any(pri == 1 for _, _, pri in sections):
         return ""
 
-    omitted_list = "、".join(omitted[:_MAX_SENTINEL_UNITS])
-    if len(omitted) > _MAX_SENTINEL_UNITS:
-        omitted_list += f" 等 {len(omitted)} 段"
-    sentinel = (
-        f"> [extractor:hooks_audit_scoped] 详情已按本章 plan/audit 点名裁剪："
-        f"保留 {len(kept)} 段，省略 {len(omitted)} 段（{omitted_list}）——"
-        f"未点名钩子的完整生命周期见上方总览表。\n"
-    )
-    return head + "\n" + sentinel + "".join(kept).rstrip() + "\n"
+    # 预算装配：named 先、active 次；超额按（优先级升序,文件序）截断
+    budget = DETAILS_CHAR_BUDGET
+    kept: list[str] = []
+    kept_ids: list[str] = []
+    dropped: list[tuple[str, int]] = []
+    used = 0
+    order = sorted(range(len(sections)), key=lambda k: (sections[k][2], k))
+    dropped_set: set[int] = set()
+    for k in order:
+        hid, text, _pri = sections[k]
+        if used + len(text) <= budget:
+            kept.append(text)
+            kept_ids.append(hid)
+            used += len(text)
+        else:
+            dropped_set.add(k)
+            dropped.append((hid, len(text)))
+    if not kept:
+        return ""
+    # 恢复文件序输出
+    kept_in_order = [sections[k][1] for k in range(len(sections)) if k not in dropped_set]
+    omitted_else = [sections[k][0] for k in range(len(sections)) if k not in dropped_set]
+    _ = omitted_else
+
+    lines = [
+        f"> [extractor:hooks_audit_scoped] 详情已按 点名∪active 预算窗裁剪："
+        f"点名 {sum(1 for h, _, p in sections if p == 1 and h in kept_ids)}＋active "
+        f"{sum(1 for h, _, p in sections if p == 2 and h in kept_ids)} 段保留"
+        f"（{used} chars），已省略 {len(dropped)} 段——总览表载全部钩生命周期，全量见本体。"
+    ]
+    for hid, size in dropped[:_MAX_SENTINEL_UNITS]:
+        lines.append(f"> 已省略：{hid} 详情 {size} chars")
+    if len(dropped) > _MAX_SENTINEL_UNITS:
+        lines.append(f"> ……等共 {len(dropped)} 段")
+    sentinel = "\n".join(lines) + "\n"
+    return head + "\n" + sentinel + "".join(kept_in_order).rstrip() + "\n"
 
 
 def _boundary_candidate_ids(content: str) -> set[str]:

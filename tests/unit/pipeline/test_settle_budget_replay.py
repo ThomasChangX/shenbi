@@ -62,6 +62,8 @@ def test_baseline_assembly_numbers_recorded() -> None:
     est_tokens = int(up["chars"] * TOKEN_RATIO)  # type: ignore[operator]
     assert est_tokens == 95_942  # 119,928 × 0.80 ≈ recorded usage 95,835 (±0.1%)
     assert user_text.count("[TRUNCATED") == 2
+    # Task 8 随动（plan I1）：零裁剪是 2026-11-01 捕获时点实录（旧窗语义）；
+    # 新 点名∪active 预算窗语义在 test_hooks_window_semantics.py 于真实 fixture 钉
     assert (
         "extractor:hooks_audit_scoped] 详情已按本章 plan/audit 点名裁剪：保留 14 段，省略 0 段"
         in user_text
