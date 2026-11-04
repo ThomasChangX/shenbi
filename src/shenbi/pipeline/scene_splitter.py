@@ -216,7 +216,17 @@ def validate_split(ch: SplitChapter, band: tuple[int, int]) -> list[str]:
     issues: list[str] = []
     total = total_chars_md_text(ch.body)
     if not (band[0] <= total <= band[1]):
-        issues.append(f"word_band:ch{ch.number}:total_chars {total} 不在带 [{band[0]},{band[1]}]")
+        # spec #95 T4 (drafting 半边，并入 TARGETED-EDIT 通道): 场景级差值+扩拍位——
+        # 只报总额模型会重掷全章骰；逐场景缺口给出可执行扩写位（R4③ 早检同款报文）。
+        gap = band[0] - total if total < band[0] else total - band[1]
+        scene_bits: list[str] = []
+        for i, s in enumerate(ch.scenes, 1):
+            scene_bits.append(f"场景{i} {s.size}")
+        issues.append(
+            f"word_band:ch{ch.number}:total_chars {total} 不在带 [{band[0]},{band[1]}]"
+            f"（差 {gap} 字；逐场景现值：{'、'.join(scene_bits)}）"
+            f"——扩写建议（对白往返/动作过程/感官细节各补一处，禁整章重写）"
+        )
     if len(ch.scenes) < 2:
         issues.append(f"scene_count:ch{ch.number}:场景数 {len(ch.scenes)} < 2")
     issues.extend(_scene_domain_violations(ch))
