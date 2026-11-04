@@ -131,9 +131,9 @@ def test_canonical_template_role_token_passes_g4(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_invalid_chapter_role_value_rejected(tmp_path: Path) -> None:
-    """A chapter_role with a non-canonical value (无效) is rejected: the checker
-    regex value set (高潮/兑现/推进/转折/过渡/铺垫) does not match, so
-    G4.cp.missing_chapter_role fires (the 值非法 contract in SKILL.md).
+    """A present-but-non-canonical value (无效) is rejected via the dedicated
+    G4.cp.invalid_chapter_role id (spec #95 r1.6: present-but-illegal is not
+    missing - missing now fires only when the key is absent).
     """
     f = tmp_path / "chapter-001-plan.md"
     f.write_text(_valid_plan(role="无效"), encoding="utf-8")

@@ -147,7 +147,7 @@ chapter_loop `G4_CHECK_MAP` 增 `"invalid_chapter_role": G4Severity.HARD`（G4Se
 **Files:**
 - Modify: `src/shenbi/pipeline/context_assemble.py:39-44`（BUDGET_BY_ROLE）+ `:255`（get 链不变）
 - Modify: `skills/shenbi-chapter-drafting/SKILL.md:149-151`、`skills/shenbi-review-resonance/SKILL.md:107-109`（表单值化）
-- Modify: `tests/tiers/t1-skill/shenbi-review-resonance/rubric.md:17`、`generative/input/scenario.md:9,:19,:24`（tier 面同批对齐）
+- Modify: `tests/tiers/t1-skill/shenbi-review-resonance/rubric.md:17`、`generative/input/scenario.md:9,:19,:24`＋**clean/bug-hunt 两份 input/scenario.md:7**（audit-T2 I1 补——tier 面同批对齐，勿留无主斜杠声明）
 - Test: `tests/unit/pipeline/test_context_assemble.py:51-54/:129-141`（改写+新增）
 
 **Interfaces:**
@@ -194,7 +194,7 @@ assert all(v in BUDGET_BY_ROLE for v in CHAPTER_ROLE_VALUES)  # 单源对账（i
 
 **Files:**
 - Create: `tools/lint_gate_prompt_contract.py`
-- Modify: `skills/shenbi-chapter-planning/SKILL.md:158/:223`（斜杠形改逐行清单+锚模板+正例）
+- Modify: `skills/shenbi-chapter-planning/SKILL.md:158/:223`（斜杠形改逐行清单+锚模板+正例）＋`:264`（audit-T2 I2——非合法值注记改指 invalid_chapter_role，missing 仅键不存在）
 - Modify: `justfile` check 面（lint 注册）
 - Test: `tests/unit/tools/test_lint_gate_prompt_contract.py`
 
@@ -373,7 +373,7 @@ def test_passing_template_block_shape():
 - Test: `tests/unit/pipeline/test_exemplar_and_bundle_earlycheck.py`
 
 **Interfaces:**
-- Produces: ①范例章=user prompt 注入「上一通过章全文」——**解析规则（plan 审查 I2 钉死）**：`chapters/chapter-{N-1}.md` 在盘即注入（step-5 G4.cd 晋升=「已通过」代理判据）；不在盘（真首章）→**跳过注入**（无范例不造范例）；**fixture 章（chapter-8-example.md / z11/chapter-40-no-meta.md）仅单测用**（测试显式传路径注入），生产代码禁依赖 tests/ 路径；②束级早检：dispatch 输出解析后即 split_bundle+逐章 total_chars，低于带→按章定向反馈（Task 11 报文）+整束重派；**单章重试属 Phase 2 不做**。**早检挂点（M8）**：bundle 输出解析实际执行点≈chapter_loop :1354-1363（split_bundle 消费/step-5 前域，非 :179-189 声明点）——Task 0 re-anchor 时以符号定位并记入漂移表。
+- Produces: ①范例章=user prompt 注入「上一通过章全文」（**注入前剥 META 块**——audit-T2 M4：META 内斜杠形 chapter_role 有 R1 数据形再教学面）——**解析规则（plan 审查 I2 钉死）**：`chapters/chapter-{N-1}.md` 在盘即注入（step-5 G4.cd 晋升=「已通过」代理判据）；不在盘（真首章）→**跳过注入**（无范例不造范例）；**fixture 章（chapter-8-example.md / z11/chapter-40-no-meta.md）仅单测用**（测试显式传路径注入），生产代码禁依赖 tests/ 路径；②束级早检：dispatch 输出解析后即 split_bundle+逐章 total_chars，低于带→按章定向反馈（Task 11 报文）+整束重派；**单章重试属 Phase 2 不做**。**早检挂点（M8）**：bundle 输出解析实际执行点≈chapter_loop :1354-1363（split_bundle 消费/step-5 前域，非 :179-189 声明点）——Task 0 re-anchor 时以符号定位并记入漂移表。
 - 成本声明：+3.5k tokens/次（成本可忽略）。
 - 复杂度: infra · tdd_red_green · T1
 

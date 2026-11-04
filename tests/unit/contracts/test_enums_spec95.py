@@ -18,6 +18,11 @@ def test_chapter_role_values_single_only() -> None:
     assert all("/" not in v for v in CHAPTER_ROLE_VALUES)  # 单值铁律（禁斜杠分组形）
 
 
+def test_golden_line_values_first_is_hot() -> None:
+    # audit-T2 M1: _GOLDEN_HOT_RE 按首位派生（chapter_planning.py）——索引序是隐式契约，钉死
+    assert GOLDEN_LINE_VALUES[0] == "燃"
+
+
 def test_golden_line_values_cover_current_regex_domain() -> None:
     # 现 chapter_planning.py:125 只编码 燃；GOLDEN_LINE_VALUES 至少含 燃/静（R3 冷三连用 静）
     assert {"燃", "静"}.issubset(set(GOLDEN_LINE_VALUES))
