@@ -30,7 +30,10 @@ repos:
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
+        # spec #95 T3: blob 回放 fixtures 必须逐字节等于捕获产物（manifest 哈希钉）
+        exclude: ^tests/fixtures/spec95/00189-reads/
       - id: end-of-file-fixer
+        exclude: ^tests/fixtures/spec95/00189-reads/
       - id: check-yaml
         # mkdocs.yml uses MkDocs-specific !!python/name: tags (e.g. for the
         # pymdownx.superfences mermaid custom fence) that PyYAML's safe loader
