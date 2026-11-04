@@ -8,7 +8,13 @@ import json
 import re
 
 from shenbi.logging import get_logger
-from shenbi.contracts.enums import PF_GE_V2, PF_GE_V3, PF_LEGAL
+from shenbi.contracts.enums import (
+    CHAPTER_ROLE_VALUES,
+    GOLDEN_LINE_VALUES,
+    PF_GE_V2,
+    PF_GE_V3,
+    PF_LEGAL,
+)
 from shenbi.gates.g4.cross_chapter import load_memo_declarations
 from shenbi.gates.shared import (
     SCENE_INDEPENDENT_BAND,
@@ -38,6 +44,11 @@ _PROP_DECL_RE = re.compile(
     r"\s*([^→\n]+?)(?:→([^\n]+))?$",
     re.MULTILINE,
 )
+
+# spec #95 T1: chapter_role 锚尾单值行——`.+?` 捕获任意在场值（含空格多值），
+# 规范性对账 CHAPTER_ROLE_VALUES；金句位热值从 GOLDEN_LINE_VALUES 派生（词表单源）。
+_ROLE_LINE_RE = re.compile(r"^chapter_role\s*[:：]\s*(?P<val>.+?)\s*$", re.MULTILINE)
+_GOLDEN_HOT_RE = re.compile(rf"^金句位[：:]\s*{re.escape(GOLDEN_LINE_VALUES[0])}", re.MULTILINE)
 
 
 def parse_prop_declarations(memo_text: str) -> list[tuple[str, str, str, str]]:
@@ -122,7 +133,7 @@ def _spec82_sequence_gates(
         return m.group(1) if m else None
 
     tone = _cur("emotion_tone", r"^emotion_tone[：:]\s*(\S+)")
-    golden_hot = bool(re.search(r"^金句位[：:]\s*燃", content, re.MULTILINE))
+    golden_hot = bool(_GOLDEN_HOT_RE.search(content))  # spec #95 T1: 热值自 GOLDEN_LINE_VALUES 派生
     tier = _cur("张力拍档位", r"^[-* ]*\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?(微|章|大)")
     payoff = _cur("payoff档", r"\*{0,2}payoff\s*拍\*{0,2}[：:].*?(小|中|大)兑现")
 
@@ -746,10 +757,18 @@ def g4_chapter_planning(
             c.append({"id": "G4.cp.sections", "file": fp, "s": GateStatus.PASS})
 
         # chapter_role token — drives review-resonance threshold calibration (spec §5.1)
-        if re.search(r"chapter_role\s*[:：]\s*(高潮|兑现|推进|转折|过渡|铺垫)", content):
-            c.append({"id": "G4.cp.chapter_role", "file": fp, "s": GateStatus.PASS})
+        # spec #95 T1: 锚尾单值判定——旧前缀匹配曾放行 `推进/转折`（R1 加重发现，
+        # 协调者亲测复现）。finditer 全量收行：混合行（示例正则+斜杠并存）不豁免；
+        # 一切非规范在场值（斜杠/空格多值/无效）统一 invalid_chapter_role（r1.6 边界）。
+        _role_vals = [m.group("val").strip() for m in _ROLE_LINE_RE.finditer(content)]
+        _role_canon = set(CHAPTER_ROLE_VALUES)
+        if not _role_vals:
+            mf.append(f"G4.cp.missing_chapter_role:{fp}")  # 键不存在
+        elif any(v not in _role_canon for v in _role_vals):
+            _bad_role = next(v for v in _role_vals if v not in _role_canon)
+            mf.append(f"G4.cp.invalid_chapter_role:{fp}:{_bad_role!r}")
         else:
-            mf.append(f"G4.cp.missing_chapter_role:{fp}")
+            c.append({"id": "G4.cp.chapter_role", "file": fp, "s": GateStatus.PASS})
 
         # #27 (probe17 adjudications #003→#005): the '# Chapter N:' English
         # heading is contract-banned; the write-path injector kept re-adding

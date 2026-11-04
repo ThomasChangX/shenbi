@@ -809,6 +809,9 @@ G4_CHECK_MAP: dict[str, G4Severity] = {
     "no_evidence": G4Severity.HARD,
     "cp.sections": G4Severity.HARD,
     "cp.chapter_role": G4Severity.HARD,
+    # spec #95 T1: 在场非规范值（斜杠/多值/无效）独立 HARD id——present-but-illegal
+    # ≠ missing；不入 GATE_TO_SHADOW_KEY（未列即保 HARD，正确）。
+    "invalid_chapter_role": G4Severity.HARD,
     "cp.s7_hook_ops": G4Severity.HARD,
     # spec #80 invariant-net: F15/F16/F17 + G4.ss 双写对账，全部硬失败
     # （发射前缀见 cross_chapter/chapter_planning/chapter_drafting/state_settling）

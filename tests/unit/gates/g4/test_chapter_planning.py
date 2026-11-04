@@ -129,7 +129,7 @@ def test_g4_cp_hard_fails_english_chapter_heading_residue(tmp_path):
 
     from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 
-    body = "# 第1章 章节备忘\n\n## 1. 当前任务\nchapter_role: 过渡/铺垫\n"
+    body = "# 第1章 章节备忘\n\n## 1. 当前任务\nchapter_role: 过渡\n"
     for i in range(2, 9):
         body += f"\n## {i}. 段落{i}内容。\n"
 
