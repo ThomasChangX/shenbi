@@ -674,9 +674,10 @@ def _emit_orchestration_result(state: PipelineState) -> None:
 
 
 def _checkpoint_staging_targets(project_dir: Path, cp: CheckpointData) -> list[str]:
-    """Staging targets a checkpoint OWNS — the single map both approve
-    (commit) and reject (scoped discard, #39) act on, so the two decisions
-    can never diverge on what belongs to this checkpoint.
+    """Staging targets a checkpoint OWNS — both approve (commit) and reject
+    (scoped discard, #39) act on this map. spec #95 T6b keeps the CHAPTER_MEMO
+    face symmetric: the follower loop below mirrors the commit branch — the
+    two decisions must list the same chapter set.
     """
     from shenbi.pipeline.chapter_loop import staged_decisions_targets
 
@@ -685,6 +686,14 @@ def _checkpoint_staging_targets(project_dir: Path, cp: CheckpointData) -> list[s
         targets = [f"plans/chapter-{chapter}-plan.md"]
         # audit-T5 C1: contract-declared sidecar joins the same batch.
         targets += staged_decisions_targets(project_dir, "shenbi-chapter-planning", chapter)
+        # spec #95 T6b (R8 real gap = checkpoint ownership symmetry): reject mirrors commit follower
+        # 循环——#72 已把 follower plan 纳入 approve/commit 面，reject 只清 leader
+        # 会让 follower staged 计划在 reject 后残留不一致。
+        from shenbi.pipeline.chapter_loop import bundle_chapters
+
+        for n in bundle_chapters(project_dir, chapter)[1:]:
+            targets.append(f"plans/chapter-{n}-plan.md")
+            targets += staged_decisions_targets(project_dir, "shenbi-chapter-planning", n)
     elif cp.type in (CheckpointType.STATE_SETTLE, CheckpointType.PER_CHAPTER):
         # I3: glob all staged truth files rather than hardcoding one.
         from shenbi.pipeline.checkpoint import STAGING_DIR
