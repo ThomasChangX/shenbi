@@ -52,7 +52,7 @@ def _value_line_re(value: str) -> re.Pattern[str]:
 
 
 def lint_skill(
-    check_id: str, const_name: str, skill_rel: str, values: tuple[str, ...]
+    check_id: str, const_name: str, skill_rel: str, field: str, values: tuple[str, ...]
 ) -> list[str]:
     """Lint one registry entry's SKILL for the verbatim template block."""
     findings: list[str] = []
@@ -68,9 +68,12 @@ def lint_skill(
             )
     if "只许单值" not in text:
         findings.append(f"[{check_id}] 缺「只许单值」明示（禁斜杠/组合形）")
-    exemplar = re.search(rf"chapter_role[:：]\s*{re.escape(values[0])}\b", text)
-    if exemplar is None:
-        findings.append(f"[{check_id}] 缺最小正例行（`chapter_role: {values[0]}` 形）")
+    # audit-T4 I: 正例按 registry 字段名派生，任一合法值皆可（非仅 values[0]）
+    exemplar_any = any(
+        re.search(rf"{re.escape(field)}[:：]\s*{re.escape(v)}\b", text) for v in values
+    )
+    if not exemplar_any:
+        findings.append(f"[{check_id}] 缺最小正例行（`{field}: <合法值>` 形）")
     # 禁斜杠分组教学形：任两合法值复合 `a/b`
     for a, b in permutations(values, 2):
         composite = f"{a}/{b}"
@@ -86,15 +89,15 @@ def lint_skill(
 
 def main() -> int:
     """Entry: lint every registry entry; non-zero exit on findings."""
-    import shenbi.contracts.enums as enums_mod  # noqa: PLC0415 — after _VALUE cache setup
+    import shenbi.contracts.enums as enums_mod  # noqa: PLC0415 — keep top imports stdlib-only
 
     all_findings: list[str] = []
-    for check_id, (const_name, skill_rel) in CHECK_ENUM_REGISTRY.items():
+    for check_id, (const_name, skill_rel, field) in CHECK_ENUM_REGISTRY.items():
         values = getattr(enums_mod, const_name, None)
         if values is None:
             all_findings.append(f"[{check_id}] registry 常量不存在: {const_name}")
             continue
-        all_findings.extend(lint_skill(check_id, const_name, skill_rel, values))
+        all_findings.extend(lint_skill(check_id, const_name, skill_rel, field, values))
 
     if all_findings:
         for f in all_findings:

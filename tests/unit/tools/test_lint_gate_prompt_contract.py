@@ -20,7 +20,11 @@ def test_current_skill_passes_after_rewrite(values: tuple[str, ...]) -> None:
     from tools.lint_gate_prompt_contract import lint_skill
 
     findings = lint_skill(
-        "cp.chapter_role", "CHAPTER_ROLE_VALUES", "skills/shenbi-chapter-planning/SKILL.md", values
+        "cp.chapter_role",
+        "CHAPTER_ROLE_VALUES",
+        "skills/shenbi-chapter-planning/SKILL.md",
+        "chapter_role",
+        values,
     )
     assert findings == [], findings
 
@@ -36,7 +40,9 @@ def test_slash_grouping_flagged(tmp_path, monkeypatch, values: tuple[str, ...]) 
     f = tmp_path / "SKILL.md"
     f.write_text(body, encoding="utf-8")
     monkeypatch.setattr(mod, "REPO_ROOT", tmp_path)
-    findings = mod.lint_skill("cp.chapter_role", "CHAPTER_ROLE_VALUES", f.name, values)
+    findings = mod.lint_skill(
+        "cp.chapter_role", "CHAPTER_ROLE_VALUES", f.name, "chapter_role", values
+    )
     assert any("斜杠分组教学形" in x for x in findings)
 
 
@@ -49,7 +55,9 @@ def test_missing_value_line_and_exemplar_flagged(
     f = tmp_path / "SKILL.md"
     f.write_text(body, encoding="utf-8")
     monkeypatch.setattr(mod, "REPO_ROOT", tmp_path)
-    findings = mod.lint_skill("cp.chapter_role", "CHAPTER_ROLE_VALUES", f.name, values)
+    findings = mod.lint_skill(
+        "cp.chapter_role", "CHAPTER_ROLE_VALUES", f.name, "chapter_role", values
+    )
     assert any("逐行清单缺值行" in x for x in findings)
     assert any("最小正例行" in x for x in findings)
     assert any("defer" in x for x in findings)

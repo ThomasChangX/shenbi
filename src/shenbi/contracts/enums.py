@@ -51,8 +51,13 @@ GOLDEN_LINE_VALUES: tuple[str, ...] = ("燃", "静")
 
 # 有枚举判定的检查 → (常量名, SKILL 仓库相对路径)；lint_gate_prompt_contract 从此
 # 派生枚举检查清单，禁手列函数清单（r1.5：手列即计数腐化源）。
-CHECK_ENUM_REGISTRY: dict[str, tuple[str, str]] = {
-    "cp.chapter_role": ("CHAPTER_ROLE_VALUES", "skills/shenbi-chapter-planning/SKILL.md"),
+CHECK_ENUM_REGISTRY: dict[str, tuple[str, str, str]] = {
+    # check_id -> (常量名, SKILL 仓库相对路径, 字段名)——lint 的正例检查按字段名派生
+    "cp.chapter_role": (
+        "CHAPTER_ROLE_VALUES",
+        "skills/shenbi-chapter-planning/SKILL.md",
+        "chapter_role",
+    ),
 }
 
 

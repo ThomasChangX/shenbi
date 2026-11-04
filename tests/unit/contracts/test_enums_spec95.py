@@ -30,6 +30,7 @@ def test_golden_line_values_cover_current_regex_domain() -> None:
 
 def test_check_enum_registry_covers_chapter_role() -> None:
     assert "cp.chapter_role" in CHECK_ENUM_REGISTRY
-    const_name, skill_rel = CHECK_ENUM_REGISTRY["cp.chapter_role"]
+    const_name, skill_rel, field = CHECK_ENUM_REGISTRY["cp.chapter_role"]
     assert const_name == "CHAPTER_ROLE_VALUES"
     assert skill_rel == "skills/shenbi-chapter-planning/SKILL.md"
+    assert field == "chapter_role"
