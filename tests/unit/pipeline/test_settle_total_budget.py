@@ -129,3 +129,52 @@ def test_normal_project_within_budget_no_disclosure(
     )
     assert "【截断告知】" not in user_prompt
     assert "settle_budget_degraded" not in [w for w in warned if w == "settle_budget_degraded"]
+
+
+def test_same_tier_multi_face_drop_content_intact(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """audit-T9 r2 N1: same-tier multi-face drops must actually remove content.
+
+    The stale-offset shape kept the 2nd "dropped" face ~99.5% alive while
+    silently deleting pending_hooks head content — length-conserving, so
+    only content assertions can catch it.
+    """
+    project = _settle_project(tmp_path)
+    (project / "audits" / "chapter-57-foreshadowing.md").write_text(
+        "触及 MH02。" + "甲" * 16000, encoding="utf-8"
+    )
+    # 同层第二面：settle 契约还读 audits/chapter-56-foreshadowing? 无——用
+    # registries 同层三面替代同层多弃形态（tier 2: prop/name/recall）
+    (project / "truth" / "prop_registry.md").write_text("道具甲" * 9000, encoding="utf-8")
+    (project / "truth" / "name_registry.md").write_text("人名乙" * 9000, encoding="utf-8")
+    (project / "truth" / "recall_registry.md").write_text("回触丙" * 9000, encoding="utf-8")
+    (project / "chapters" / "chapter-57.md").write_text(
+        "# 第57章\n\n" + "正文填充。" * 6000, encoding="utf-8"
+    )
+    warned: list[tuple[str, dict[str, object]]] = []
+
+    def _spy(event: str, **kw: object) -> None:
+        warned.append((event, dict(kw)))
+
+    with monkeypatch.context() as mp:
+        mp.setattr(dh.log, "warning", _spy)
+        _, user_prompt, _, _, _ = dh._build_skill_prompt(
+            "shenbi-state-settling", project, "settle ch57", chapter=57
+        )
+    budget_events = [kw for ev, kw in warned if ev == "settle_budget_degraded"]
+    assert budget_events, "enforcement must fire"
+    dropped = list(budget_events[0]["dropped_faces"])  # type: ignore[arg-type]
+    # N1 不变量：台账声称已弃的面，其内容必须真的消失（内容级——非长度守恒陷阱）
+    assert len(dropped) >= 3, dropped  # 同层多弃形态成立（audits+至少两面 registry）
+    assert "audits/chapter-57-foreshadowing.md" in dropped
+    assert "道具甲道具甲" not in user_prompt
+    assert "人名乙人名乙" not in user_prompt
+    if "truth/recall_registry.md" in dropped:
+        assert "回触丙回触丙" not in user_prompt
+    # 省略披露行数与台账一致
+    assert user_prompt.count("【预算省略】") == len(dropped)
+    # 受保护面无伤：伏笔池（pending_hooks 恒保）内容完整在场
+    assert "伏笔池" in user_prompt and "MH02（灵誓）" in user_prompt
+    # 顶部汇总在场（纯面降级路径，r2 N2）
+    assert "【截断告知】" in user_prompt

@@ -1598,7 +1598,7 @@ def _build_skill_prompt(
     # 出现（非断言永不超）。
     budget = SKILL_TOTAL_CHAR_BUDGET.get(skill)
     if budget is not None:
-        user_prompt = _enforce_skill_total_budget(skill, user_prompt, budget, raw_disk_reads)
+        user_prompt = _enforce_skill_total_budget(skill, user_prompt, budget)
 
     return system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads
 
@@ -1621,34 +1621,38 @@ _UNTRUSTED_BLOCK_RE = re.compile(
 )
 
 
-def _enforce_skill_total_budget(
-    skill: str, user_prompt: str, budget: int, raw_disk_reads: dict[str, str]
-) -> str:
+def _enforce_skill_total_budget(skill: str, user_prompt: str, budget: int) -> str:
     floor = SKILL_TOTAL_CHAR_FLOOR.get(skill, 0)
     reserve = 400  # 披露块+断言余量
     if len(user_prompt) <= budget:
         return user_prompt
     dropped_faces: list[tuple[str, int]] = []
 
-    def _drop_face(path: str) -> str:
-        return f"> 【预算省略】{path} 已整体省略（总预算降级）——全量见项目文件本体。\n"
-
-    # ① 面优先级降级（audit-T9 I1：spec 钦定优先级层——非一刀平尾）
+    # audit-T9 r2 N1: 逐面重取（同层多弃时 stale offset 曾删无辜内容+保留该面——
+    # 长度守恒使断言不可检；每次替换后重新 finditer）。
+    # audit-T9 r2 N3: 弃该面将跌破硬地板时停弃（平尾兜底保 budget-400）。
     for tier in _BUDGET_DROP_TIERS:
         if len(user_prompt) <= budget:
             break
-        blocks = list(_UNTRUSTED_BLOCK_RE.finditer(user_prompt))
-        for m in blocks:
+        while True:
             if len(user_prompt) <= budget:
                 break
-            path = m.group(1)
-            if not any(key in path for key in tier):
-                continue
-            replacement = _drop_face(path)
-            user_prompt = user_prompt[: m.start()] + replacement + user_prompt[m.end() :]
-            dropped_faces.append((path, len(m.group(0)) - len(replacement)))
+            blocks = list(_UNTRUSTED_BLOCK_RE.finditer(user_prompt))
+            target = next(
+                (m for m in blocks if any(key in m.group(1) for key in tier)),
+                None,
+            )
+            if target is None:
+                break
+            replacement = (
+                f"> 【预算省略】{target.group(1)} 已整体省略（总预算降级）——全量见项目文件本体。\n"
+            )
+            if len(user_prompt) - (len(target.group(0)) - len(replacement)) < floor:
+                break  # N3: 该面弃后破地板——留给平尾
+            user_prompt = user_prompt[: target.start()] + replacement + user_prompt[target.end() :]
+            dropped_faces.append((target.group(1), len(target.group(0)) - len(replacement)))
 
-    # ② 平尾披露式截断（终态兜底；audit-T9 C1：保留界=常量，非 len-删除量）
+    # ② 平尾披露式截断（终态兜底；audit-T9 C1：保留界=常量）
     tail_dropped = 0
     if len(user_prompt) > budget:
         keep = budget - reserve
@@ -1661,6 +1665,15 @@ def _enforce_skill_total_budget(
             f"被截内容可能含最新数据行——增量输出以你在上文可见的行集为基底，未见行不得臆造。\n"
         )
         user_prompt = summary_block + kept
+    elif dropped_faces:
+        # audit-T9 r2 N2: 纯面降级路径同发顶部汇总（单源清单——不双口径）
+        user_prompt = (
+            f"\n【截断告知】以下文件数据不完整：总预算 {budget} chars 已超——"
+            f"已按优先级省略 {len(dropped_faces)} 个文件面"
+            f"（{', '.join(p for p, _ in dropped_faces[:6])}"
+            f"{'…' if len(dropped_faces) > 6 else ''}）；"
+            f"被省略面的增量以你在上文可见的行集为基底，未见行不得臆造。\n" + user_prompt
+        )
 
     log.warning(
         "settle_budget_degraded",
@@ -1671,7 +1684,7 @@ def _enforce_skill_total_budget(
         tail_dropped_chars=tail_dropped,
         final_chars=len(user_prompt),
     )
-    # 组装内断言（audit-T9 I2：双向——上限+「未塌缩」下限；披露块必然在场）
+    # 组装内断言（audit-T9 I2：双向——上限+「未塌缩」下界；披露块必然在场）
     assert len(user_prompt) <= budget + reserve, (
         f"{skill} budget enforcement failed: {len(user_prompt)} > {budget}"
     )
