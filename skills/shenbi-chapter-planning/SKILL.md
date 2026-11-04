@@ -155,7 +155,15 @@ digraph chapter_planning {
    - 输出中必须注明目标由哪个优先级层驱动（外部指令 / 局部覆盖 / 卷纲 Key Result / current_focus / author_intent）
    - 如果高层级给出的指令与低层级冲突，必须说明为何选择当前层级（如"外部指令要求本章引入新角色X，但与 current_focus 的'主角独自探索'冲突，以外部指令为准"）
    - 未注明优先级来源的备忘视为不完整
-   - 首行必须声明 `chapter_role`（合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫），驱动 review-resonance 校准阈值（spec §5.1）
+   - 首行必须声明 `chapter_role`，**只许单值**（禁斜杠/组合形——G4 拒 `G4.cp.invalid_chapter_role`），合法值逐行列出：
+     - `高潮`
+     - `兑现`
+     - `推进`
+     - `转折`
+     - `过渡`
+     - `铺垫`
+     - 正例：`chapter_role: 推进`。驱动 review-resonance 校准阈值（spec §5.1）
+     - defer 行锚模板：`至第N卷·KRn（N=卷号, n=KR 号，须在 volume_map 在盘）`；**数据形正例**：`→ defer 至第2卷·KR3`（完整 defer 行实值形——照此形态写）
 2. **读者此刻在等什么** — 制造/延迟/兑现读者期待
 3. **该兑现的 / 暂不掀的** — 伏笔兑现清单 + 压住不掀的底牌；对照 thread_map 的「章节线索推进表」与「线索详情」：本章区间内主推/副推线索的推进点必须逐一落实（含 P0 线在本章区间的首次露面约束），落不进备忘的推进点视为备忘不完整
 4. **日常/过渡承担什么任务** — 非冲突段落的功能映射
@@ -220,7 +228,14 @@ plan_format: v4
 
 chapter_role: 高潮
 
-> 合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫
+> 合法值（只许单值，逐行列出；禁斜杠/组合形——G4 拒）：
+> - `高潮`
+> - `兑现`
+> - `推进`
+> - `转折`
+> - `过渡`
+> - `铺垫`
+> defer 行锚模板：`至第N卷·KRn（N=卷号, n=KR 号，须在 volume_map 在盘）`；数据形正例：`→ defer 至第2卷·KR3`
 
 chapter_type: battle
 
@@ -261,7 +276,7 @@ emotion_tone: 悲
 
 **不合格条件**: 未注明优先级来源；段1 缺「**目标字数**」行（probe13/probe14 两探针均靠裁决补行）；缺 `emotion_tone` 行或值非法（G4.cp.missing_emotion_tone）；缺 `payoff 拍` 行或冒号后为空（G4.cp.missing_payoff_beat）。
 
-> 注：未声明 `chapter_role` 或使用非合法值，视为不合格（G4.cp.missing_chapter_role）。文件必须以中文章节备忘标题行开头（如 `# 第N章 章节备忘`），禁止输出 `# Chapter N:` 形式的孤立英文标题行（probe13/14 均现此残留）。
+> 注：未声明 `chapter_role` 视为不合格（G4.cp.missing_chapter_role）；**在场非合法值**（斜杠/多值等）视为不合格（G4.cp.invalid_chapter_role）。文件必须以中文章节备忘标题行开头（如 `# 第N章 章节备忘`），禁止输出 `# Chapter N:` 形式的孤立英文标题行（probe13/14 均现此残留）。
 
 ### 段 2 模板：读者此刻在等什么
 
@@ -374,7 +389,7 @@ emotion_tone: 悲
 | 段完整性 | 8/8 段全部存在 | 缺任意段 |
 | 段标题精确性 | 8 个段标题精确匹配规定字符串 | 标题偏差 |
 | 优先级来源声明 | 段 1 含"优先级来源"字段且非空 | 缺失或为空 |
-| chapter_role 声明 | 段含 `chapter_role:` + 合法值（高潮/兑现/推进/转折/过渡/铺垫） | 缺失或值非法 |
+| chapter_role 声明 | 段含 `chapter_role:` + 合法单值（高潮、兑现、推进、转折、过渡、铺垫——六值各为独立单值，禁斜杠复合） | 缺失或值非法 |
 | 章尾改变数 | ≥ 1 条（第 3 章起 ≥ 1 条 advance 型） | 无改变或全为其他型 |
 | hook 账列名 | ID/操作/推进方式/沉默章数 四列 | 列名不匹配 |
 | hook 操作有效性 | 仅使用 open/advance/resolve/defer | 使用不允许值 |
