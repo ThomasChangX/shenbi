@@ -2569,6 +2569,17 @@ def _is_creation_form(content: str, *, key_field: str) -> bool:
     return key_field == "hook_id" and any(re.match(r"^##\s", ln) for ln in lines)
 
 
+def _merge_prose_base_target(project_dir: Path, rel_path: str) -> Path:
+    """Base chapter for a merge_prose write: live committed chapter (staging
+    twin is the output target itself; the base is what passed the gates).
+    """
+    rel = rel_path.removeprefix("staging/")
+    base = project_dir / rel
+    if base.is_file():
+        return base
+    return project_dir / rel  # absent -> caller reports via unmatched/empty base
+
+
 def _route_append_dedup_write(
     project_dir: Path, rel_path: str, content: str, *, key_field: str
 ) -> None:
@@ -3005,10 +3016,16 @@ def _write_parsed_outputs(
                 signature="decisions_json_unrecoverable",
             ) from e
 
-        should_block, reason = _check_content_size_guard(project_dir, rel_path, content)
-        if should_block:
-            log.warning("write_blocked_content_size_guard", path=rel_path, reason=reason)
-            return  # Skip this file, preserve original
+        # spec #95 T6a: merge_prose 的原始输出是 patch 清单（天然小）——size 守卫
+        # 延迟到合并结果面执行（见 merge_prose 分支），此处跳过
+        _is_merge_prose = (
+            semantics.get(rel_path.removeprefix("staging/"), {}).get("mode") == "merge_prose"
+        )
+        if not _is_merge_prose:
+            should_block, reason = _check_content_size_guard(project_dir, rel_path, content)
+            if should_block:
+                log.warning("write_blocked_content_size_guard", path=rel_path, reason=reason)
+                return  # Skip this file, preserve original
 
         # 2. WRITE.
         # Contract paths arrive staging-prefixed for checkpoint-gated skills
@@ -3036,6 +3053,45 @@ def _write_parsed_outputs(
                 size=len(content),
                 mode="append_dedup",
                 key=key_field,
+            )
+        elif mode_meta.get("mode") == "merge_prose":
+            # spec #95 T6a (修 R7): 场景级替换清单——确定性 applier 只重掷被列
+            # 场景（PRE/POST/未列场景不动）；未匹配场景键 fail-loud 拒收（不静默）。
+            # G2 字数/G4.cd 全章复核由修订步的既有 gate 序在写后执行（顺序见
+            # chapter_loop 修订步：applier 落盘 → 全章重检——本处只管写面）。
+            from shenbi.pipeline.prose_patch import (
+                apply_scene_replacements,
+                parse_scene_replacements,
+            )
+
+            patches = parse_scene_replacements(content)
+            if not patches:
+                raise IncrementShapeError(
+                    f"merge_prose: {rel_path} 输出缺场景级替换清单"
+                    "（须含至少一个 `场景n：` 段——见 chapter-revision 契约）"
+                )
+            base_target = _merge_prose_base_target(project_dir, rel_path)
+            base_text = base_target.read_text(encoding="utf-8") if base_target.is_file() else ""
+            res = apply_scene_replacements(base_text, patches)
+            if res.unmatched:
+                raise IncrementShapeError(
+                    f"merge_prose: {rel_path} 场景定位键未匹配: {', '.join(res.unmatched)}"
+                    f"（基座章 {base_target.name if base_target else '<absent>'} 场景数"
+                    f"不足以覆盖——核对场景序号后整清单重发）"
+                )
+            # size 守卫（结果面）：合并章对基座章的缩幅保护——场景替换不应把章砍半
+            should_block, reason = _check_content_size_guard(project_dir, rel_path, res.new_text)
+            if should_block:
+                log.warning("write_blocked_content_size_guard", path=rel_path, reason=reason)
+                return  # Skip this file, preserve original
+            safe_write(full_path, res.new_text, allowed_roots=(project_root,))
+            written.append(rel_path)
+            log.info(
+                "output_written",
+                path=rel_path,
+                size=len(res.new_text),
+                mode="merge_prose",
+                scenes=[p.scene_no for p in patches],
             )
         else:
             # z11 R1a (F1301): normalize the contract header on the chapter
