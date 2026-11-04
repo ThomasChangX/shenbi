@@ -1189,8 +1189,10 @@ def _prioritize_unseen_drop_lines(feedback: str, prompt: str) -> str:
         lines = [(m.start(), m.group(1)) for m in _DROP_LINE_RE.finditer(seg)]
         if len(lines) < 2:
             continue
-        unseen = [s for s in lines if s[1] not in prompt]
-        seen = [s for s in lines if s[1] in prompt]
+        # 阶段8 M3: 溢出披露行（……前缀）不参与分划（恒"未见"会被浮顶——信息行非数据行）
+        data_lines = [s for s in lines if not s[1].startswith("……")]
+        unseen = [s for s in data_lines if s[1] not in prompt]
+        seen = [s for s in data_lines if s[1] in prompt]
         if unseen and seen:
             reordered = unseen + seen
             first = lines[0][0]

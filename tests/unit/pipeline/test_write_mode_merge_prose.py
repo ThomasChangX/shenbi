@@ -105,3 +105,11 @@ def test_empty_patch_list_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     project = _project(tmp_path)
     with pytest.raises(IncrementShapeError, match="场景级替换清单"):
         _write_merge(tmp_path, monkeypatch, payload_override="全文重写形（无场景段）")
+
+
+def test_malformed_list_valueerror_wrapped(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """阶段8 I1: 解析器 ValueError 越写边界须包成 IncrementShapeError（重试机括）。"""
+    # 空体场景与重复键各一发
+    for payload in ("场景1：\n\n场景2：\n有文\n", "场景1：\n有文\n场景1：\n又文\n"):
+        with pytest.raises(IncrementShapeError, match="场景清单格式错误"):
+            _write_merge(tmp_path, monkeypatch, payload_override=payload)

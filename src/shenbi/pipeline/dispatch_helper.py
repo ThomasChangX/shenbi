@@ -3070,7 +3070,12 @@ def _write_parsed_outputs(
                 parse_scene_replacements,
             )
 
-            patches = parse_scene_replacements(content)
+            try:
+                patches = parse_scene_replacements(content)
+            except ValueError as e:
+                # 阶段8 I1: 裸 ValueError 越写边界=probe3 反型（崩步不耗重试、无反馈）——
+                # 包成 IncrementShapeError 走既有重试+反馈机括（与空清单/未匹配同路）
+                raise IncrementShapeError(f"merge_prose: {rel_path} 场景清单格式错误: {e}") from e
             if not patches:
                 raise IncrementShapeError(
                     f"merge_prose: {rel_path} 输出缺场景级替换清单"

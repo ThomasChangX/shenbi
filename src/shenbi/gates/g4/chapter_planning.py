@@ -778,7 +778,7 @@ def g4_chapter_planning(
         if (
             re.search(r"^emotion_tone[：:]\s*平", content, re.MULTILINE)
             and any(
-                re.search(rf"^金句位[：:]\s*{re.escape(g)}[｜|]", content, re.MULTILINE)
+                re.search(rf"^金句位[：:]\s*{re.escape(g)}\s*(?:[｜|]|$)", content, re.MULTILINE)
                 for g in _golden_cold
             )
             and re.search(r"^[-* ]*\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?微", content, re.MULTILINE)
