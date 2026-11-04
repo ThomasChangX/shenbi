@@ -3016,11 +3016,14 @@ def _write_parsed_outputs(
                 signature="decisions_json_unrecoverable",
             ) from e
 
-        # spec #95 T6a: merge_prose 的原始输出是 patch 清单（天然小）——size 守卫
-        # 延迟到合并结果面执行（见 merge_prose 分支），此处跳过
-        _is_merge_prose = (
-            semantics.get(rel_path.removeprefix("staging/"), {}).get("mode") == "merge_prose"
-        )
+        # spec #95 T6a (audit-T13 F1): semantics 键=未解析契约路径（chapter-N 形），
+        # rel_path=已解析——查找前归一回参数形（append_dedup 全非参数路径从未踩中；
+        # merge_prose 全部 4 处声明都是 chapters/chapter-N.md）。size 守卫对
+        # merge_prose 延迟到合并结果面执行（见 merge_prose 分支），此处跳过。
+        def _mode_key(rp: str) -> str:
+            return re.sub(r"chapter-\d+", "chapter-N", rp.removeprefix("staging/"))
+
+        _is_merge_prose = semantics.get(_mode_key(rel_path), {}).get("mode") == "merge_prose"
         if not _is_merge_prose:
             should_block, reason = _check_content_size_guard(project_dir, rel_path, content)
             if should_block:
@@ -3030,7 +3033,10 @@ def _write_parsed_outputs(
         # 2. WRITE.
         # Contract paths arrive staging-prefixed for checkpoint-gated skills
         # (uses_staging); the semantics map is keyed by the CONTRACT path.
-        mode_meta = semantics.get(rel_path.removeprefix("staging/"), {})
+        mode_key = _mode_key(rel_path)
+        mode_meta = semantics.get(mode_key, {}) or semantics.get(
+            rel_path.removeprefix("staging/"), {}
+        )
         if mode_meta.get("mode") == "append_dedup":
             # Routed merge (C3 T2): upsert by key, never a whole-file rewrite.
             key_field = str(mode_meta.get("key") or "chapter")
@@ -3082,8 +3088,12 @@ def _write_parsed_outputs(
             # size 守卫（结果面）：合并章对基座章的缩幅保护——场景替换不应把章砍半
             should_block, reason = _check_content_size_guard(project_dir, rel_path, res.new_text)
             if should_block:
-                log.warning("write_blocked_content_size_guard", path=rel_path, reason=reason)
-                return  # Skip this file, preserve original
+                # audit-T13 F5: 合并结果对基座 <20% 是异常——fail-loud 拒收
+                # （静默 skip 会让派发报成而章未改）
+                raise IncrementShapeError(
+                    f"merge_prose: {rel_path} 合并结果尺寸异常（{reason}）——"
+                    "场景替换不得大幅缩章，核对清单是否漏列保留场景"
+                )
             safe_write(full_path, res.new_text, allowed_roots=(project_root,))
             written.append(rel_path)
             log.info(

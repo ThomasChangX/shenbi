@@ -40,7 +40,7 @@ def _write_merge(
 
     def _fake_contract(skill_name: str) -> object:
         if skill_name == "shenbi-chapter-revision":
-            return {"write_semantics": {"chapters/chapter-9.md": {"mode": "merge_prose"}}}
+            return {"write_semantics": {"chapters/chapter-N.md": {"mode": "merge_prose"}}}
         return orig(skill_name)
 
     monkeypatch.setattr(contracts_mod, "load_contract", _fake_contract)
@@ -73,7 +73,7 @@ def test_merge_prose_branch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> 
 
     def _fake_contract(skill_name: str) -> object:
         if skill_name == "shenbi-chapter-revision":
-            return {"write_semantics": {"chapters/chapter-9.md": {"mode": "merge_prose"}}}
+            return {"write_semantics": {"chapters/chapter-N.md": {"mode": "merge_prose"}}}
         return orig(skill_name)
 
     monkeypatch.setattr(contracts_mod, "load_contract", _fake_contract)

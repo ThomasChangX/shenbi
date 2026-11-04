@@ -39,12 +39,18 @@ def parse_scene_replacements(payload: str) -> list[ScenePatch]:
     段落形：``场景1：`` 行后跟该场景全文直到下一个 ``场景k：`` 行或文末。
     """
     patches: list[ScenePatch] = []
+    seen_nos: set[int] = set()
     marks = list(_SCENE_KEY_RE.finditer(payload))
     for i, m in enumerate(marks):
         end = marks[i + 1].start() if i + 1 < len(marks) else len(payload)
         scene_text = payload[m.end() : end].strip("\n")
-        if scene_text:
-            patches.append(ScenePatch(scene_no=int(m.group(1)), scene_text=scene_text))
+        no = int(m.group(1))
+        if not scene_text:
+            raise ValueError(f"场景{no}：替换段为空——空体场景属格式错误（fail-loud，不静默丢弃）")
+        if no in seen_nos:
+            raise ValueError(f"场景{no}：重复定位键（fail-loud——last-wins 会静默丢改动）")
+        seen_nos.add(no)
+        patches.append(ScenePatch(scene_no=no, scene_text=scene_text))
     return patches
 
 
