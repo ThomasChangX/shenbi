@@ -1166,6 +1166,39 @@ def _enrich_g4_feedback(failures: list[str]) -> str:
     return "\n".join(lines)
 
 
+_DROP_LINE_RE = re.compile(r"^  (.+)$", re.MULTILINE)
+_DROP_BLOCK_HEAD_RE = re.compile(r"^content_dropped:\d+行", re.MULTILINE)
+
+
+def _prioritize_unseen_drop_lines(feedback: str, prompt: str) -> str:
+    """Reorder content_dropped verbatim lists: model-unseen lines first.
+
+    Stable partition per block: lines absent from *prompt* (outside the
+    truncated window the model actually saw) float above lines the model
+    saw — invisible lines are the ones it reinvents (R5). Pure text op.
+    """
+    if "content_dropped" not in feedback:
+        return feedback
+    out = feedback
+    for head_m in list(_DROP_BLOCK_HEAD_RE.finditer(out)):
+        block_start = head_m.start()
+        instr_idx = out.find("指令：", block_start)
+        if instr_idx < 0:
+            continue
+        seg = out[block_start:instr_idx]
+        lines = [(m.start(), m.group(1)) for m in _DROP_LINE_RE.finditer(seg)]
+        if len(lines) < 2:
+            continue
+        unseen = [s for s in lines if s[1] not in prompt]
+        seen = [s for s in lines if s[1] in prompt]
+        if unseen and seen:
+            reordered = unseen + seen
+            first = lines[0][0]
+            new_seg = seg[:first] + "\n".join(f"  {txt}" for _, txt in reordered) + "\n"
+            out = out[:block_start] + new_seg + out[instr_idx:]
+    return out
+
+
 def _append_feedback_injections(
     prompt: str,
     state: PipelineState,
@@ -1198,6 +1231,10 @@ def _append_feedback_injections(
         state.chapter_loop.modify_feedback = None
     prev_g4_feedback = state.chapter_loop.retry_feedback.get(_retry_key(chapter, skill))
     if prev_g4_feedback:
+        # spec #95 T4 (audit-T10 I1): 窗口优先排序——content_dropped verbatim 清单
+        # 中模型未见过的行（不在本次 prompt 的窗口面内）浮到前列：未见行最易被
+        # 凭空重造（R5 盲写面）。gate 发纯清单（纯函数），排序属注入层职责。
+        prev_g4_feedback = _prioritize_unseen_drop_lines(prev_g4_feedback, prompt)
         # spec #83 T4：打摆切换——同 key 连击 ≥4 → 反馈模板切「定点扩写」模式，
         # 不再发整档约束重述（ch25 型混合族连续全档重写病理；loop_id 不作计数器）
         _streak = state.chapter_loop.streak_monitor_rewinds.get(_retry_key(chapter, skill), 0)
