@@ -317,6 +317,13 @@ def _thinking_kwargs(thinking: str | None) -> dict[str, Any]:
 _INPUT_MAX_CHARS_PER_FILE = 32000  # hard cap per input file (~8K tokens)
 _INPUT_MAX_CHARS_TOTAL = 128000  # total input budget (~32K tokens)
 
+# spec #95 T3③ (r1.4): settle 专属字符总预算——实测配比 ≈0.80 tokens/char
+# （95,835/119,928），60k tokens 目标对应 72k chars 留 ~4% 余量（75k 贴线无余量）。
+# 降级路径（extractor_failed_fulltext 回全文）同受此预算约束；超预算→披露式截断
+# ＋WARN（loud-degradation），仅低于硬地板（不足以承载增量契约）才 raise。
+SKILL_TOTAL_CHAR_BUDGET: dict[str, int] = {"shenbi-state-settling": 72_000}
+SKILL_TOTAL_CHAR_FLOOR: dict[str, int] = {"shenbi-state-settling": 40_000}
+
 # ---------------------------------------------------------------------------
 # Priority-driven context budget allocation
 # ---------------------------------------------------------------------------
@@ -1583,6 +1590,47 @@ def _build_skill_prompt(
             user_prompt = inject_checklist_into_prompt(user_prompt, checklist)
         except Exception as e:
             log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
+
+    # spec #95 T3③: settle 专属总预算（plan I3 落位=组装函数 return 前——后置注入
+    # 块今日对 settle 皆 no-op，但不给未来接线留绕过面）。降级序：超 72k → 尾部
+    # 披露式截断（保头=系统指令/模板与前置数据）＋顶部【截断告知】汇总块＋WARN；
+    # 低于 40k 硬地板（承载不了增量契约）才 raise。断言=预算路径与披露块的必然
+    # 出现（非断言永不超）。
+    budget = SKILL_TOTAL_CHAR_BUDGET.get(skill)
+    if budget is not None:
+        floor = SKILL_TOTAL_CHAR_FLOOR.get(skill, 0)
+        if len(user_prompt) > budget:
+            cut_from = len(user_prompt) - (budget - 400)  # 预留披露块自身
+            cut_from = max(cut_from, min(floor, len(user_prompt) - 1))
+            kept = user_prompt[:cut_from]
+            dropped_chars = len(user_prompt) - cut_from
+            summary_block = (
+                f"\n【截断告知】以下文件数据不完整：总预算 {budget} chars 已超，"
+                f"尾部 {dropped_chars} chars 被截断——被截内容可能含最新数据行；"
+                f"增量输出以你在上文可见的行集为基底，未见行不得臆造。\n"
+            )
+            user_prompt = summary_block + kept
+            log.warning(
+                "settle_budget_degraded",
+                skill=skill,
+                original_chars=len(user_prompt) - len(summary_block) + dropped_chars,
+                budget=budget,
+                dropped_chars=dropped_chars,
+            )
+            # 断言（组装内）：预算执行路径与披露块必然同时出现
+            assert len(user_prompt) <= budget + len(summary_block), (
+                f"settle budget enforcement failed: {len(user_prompt)} > {budget}"
+            )
+            assert "【截断告知】" in user_prompt
+        # 硬地板仅对真实规模语料生效（raw 读面总量 ≥ 地板而组装面塌缩=数据被
+        # 吃掉——窗口/降级路径的结构性失败背止）；合成/创世规模项目豁免。
+        raw_total = sum(len(v) for v in raw_disk_reads.values())
+        if len(user_prompt) < floor and raw_total >= floor:
+            raise ValueError(
+                f"{skill}: assembled prompt {len(user_prompt)} chars < hard floor "
+                f"{floor} with raw reads {raw_total} chars — windowing ate the "
+                f"data (structural failure), cannot carry the incremental contract"
+            )
 
     return system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads
 
