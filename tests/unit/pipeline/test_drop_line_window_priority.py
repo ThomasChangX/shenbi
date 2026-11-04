@@ -35,3 +35,18 @@ def test_non_drop_feedback_passthrough() -> None:
         _prioritize_unseen_drop_lines("G4.word_count: 差 26 字", "prompt")
         == "G4.word_count: 差 26 字"
     )
+
+
+def test_ellipsis_disclosure_line_preserved_in_reorder() -> None:
+    """Stage-8 r2 N1: reorder must KEEP the ellipsis overflow disclosure line."""
+    fb = (
+        "content_dropped:22行（去重后 22）——被丢行 verbatim 清单（原样保留于输出，作为基底行）：\n"
+        "  | a | 1 |\n"
+        "  ……（共 22 行，超出 20 行上限的部分以 live 文件为准）\n"
+        "  | c | 3 |\n"
+        "指令：以上行原样保留于输出（作为基底行）。\n"
+    )
+    out = _prioritize_unseen_drop_lines(fb, "窗口只见 | a | 1 |")
+    assert "超出 20 行上限" in out  # 披露行保留
+    assert out.index("| c | 3 |") < out.index("| a | 1 |")  # 未见行浮前
+    assert out.index("| a | 1 |") < out.index("超出 20 行上限")  # …… 仍置尾

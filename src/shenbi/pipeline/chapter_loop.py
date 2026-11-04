@@ -1189,12 +1189,15 @@ def _prioritize_unseen_drop_lines(feedback: str, prompt: str) -> str:
         lines = [(m.start(), m.group(1)) for m in _DROP_LINE_RE.finditer(seg)]
         if len(lines) < 2:
             continue
-        # 阶段8 M3: 溢出披露行（……前缀）不参与分划（恒"未见"会被浮顶——信息行非数据行）
+        # 阶段8 M3/r2 N1: 溢出披露行（……前缀）不参与分划且**保留在重建输出**
+        # （生产者恒置尾部——重挂 seen 后恢复原位语义；删除会让模型把 ≤20 行
+        # 当完整基集——R6 类静默丢行）
         data_lines = [s for s in lines if not s[1].startswith("……")]
+        ellipsis_lines = [s for s in lines if s[1].startswith("……")]
         unseen = [s for s in data_lines if s[1] not in prompt]
         seen = [s for s in data_lines if s[1] in prompt]
         if unseen and seen:
-            reordered = unseen + seen
+            reordered = unseen + seen + ellipsis_lines
             first = lines[0][0]
             new_seg = seg[:first] + "\n".join(f"  {txt}" for _, txt in reordered) + "\n"
             out = out[:block_start] + new_seg + out[instr_idx:]
