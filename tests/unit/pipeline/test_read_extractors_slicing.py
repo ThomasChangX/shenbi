@@ -273,6 +273,7 @@ def test_read_extractor_registry_closed_and_extended() -> None:
                 "locations_overview",
                 "book_strata_current",
                 "volume_opening_protocol",
+                "matrix_scoped",
             }
         )
         == READ_EXTRACTORS
@@ -360,7 +361,9 @@ def test_dispatch_loop_serves_sliced_resolve_reads(
     assert "卷级摘要" in user_prompt
     # chapter_summaries: only the last-3 rows survive
     assert "第 29 章" in user_prompt and "第 5 章" not in user_prompt
-    # happy path is WARN-free (spec §7)
+    # happy path is WARN-free (spec §7) — except matrix_scoped: the synthetic
+    # project's summaries stop at ch40 while settle is ch57 (no ch56/57 cast row),
+    # so the cast face degrades loud by design (spec #95 T3 timing note).
     assert "extractor_failed_fulltext" not in warned
 
 
@@ -443,8 +446,12 @@ def test_dispatch_loop_serves_sliced_settle_reads(
     assert "recent_increments" in user_prompt
     # volume_summaries 补读 arrives whole
     assert "卷级摘要" in user_prompt
-    # happy path is WARN-free (spec §7)
-    assert "extractor_failed_fulltext" not in warned
+    # happy path is WARN-free (spec §7) — except matrix_scoped: the synthetic
+    # project's summaries stop at ch40 while settle is ch57 (no ch56/57 cast row),
+    # so the cast face degrades loud by design (spec #95 T3 timing note).
+    non_matrix = [w for w in warned if w != "extractor_failed_fulltext"]
+    assert non_matrix == []
+    assert warned.count("extractor_failed_fulltext") >= 1
 
 
 def test_dispatch_loop_hooks_extractor_without_grounding_falls_back(

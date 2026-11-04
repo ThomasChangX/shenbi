@@ -776,3 +776,118 @@ def extract_volume_opening_protocol(content: str) -> str:
             "market_params.volume_opening_protocol: 未声明（本卷无卷期热协议约束——按卷纲节点字面执行）"
         )
     return "\n".join(lines) + "\n"
+
+
+def _chapter_cast_cell(project_dir: Path, chapter: int) -> str | None:
+    """Cast cell for a chapter from chapter_summaries (出场角色 column).
+
+    staging-first (mirror the dispatch read rule: settle reads the staged
+    world it writes into), live fallback; None when the chapter row or the
+    cast column is absent — the caller degrades loudly.
+    """
+    import re as _re
+
+    def _n(label: str) -> int | None:
+        m = _re.search(r"第\s*(\d+)\s*章", label)
+        return int(m.group(1)) if m else None
+
+    for base in (project_dir / "staging" / "truth", project_dir / "truth"):
+        f = base / "chapter_summaries.md"
+        if not f.is_file():
+            continue
+        for line in f.read_text(encoding="utf-8").splitlines():
+            if "出场角色" in line and line.lstrip().startswith("|"):
+                continue  # header row
+            m = _re.match(r"^\|\s*(第\s*\d+\s*章)\s*\|", line)
+            if not m or _n(m.group(1)) != chapter:
+                continue
+            cells = [c for c in line.split("|")]
+            # | 章节 | 事件 | 出场角色 | ... → 第三数据列
+            if len(cells) >= 5:
+                return cells[3].strip() or None
+    return None
+
+
+def extract_matrix_scoped(project_dir: Path, chapter: int | None, content: str) -> str:
+    """Slice character_matrix to this chapter's cast rows + settle-pair blocks.
+
+    spec #95 T3 (R5①): character_matrix had no dedicated extractor — the
+    generic head+tail window mid-cut 59,329→34,045 chars (last 14/36 chapter
+    units, middle blindly dropped). This extractor keeps:
+
+    - preamble + pairs-table header (键结构样例)
+    - pairs rows whose 角色A/角色B appears in this chapter's 出场角色 cell
+      (matrix names may ride an alias parenthetical inside the cast cell)
+    - ``第N章状态增量`` / ``第{N+1}章状态增量`` blocks (settle writes both)
+
+    Returns ``""`` when the slice cannot be made responsibly (chapter=None,
+    no cast row) — the dispatch loop then serves full text + WARN.
+    """
+    import re as _re
+
+    from shenbi.truth_format import split_table_cells
+
+    if chapter is None:
+        return ""
+    # 时序事实：首次结算 N 时 summaries 最新行只到 N-1（N 行是本次的写目标）；
+    # re-settle 场景 staged 已有 N 行——N 先试、N-1 兜底（最近章阵容连续性代理）。
+    cast = _chapter_cast_cell(project_dir, chapter) or _chapter_cast_cell(project_dir, chapter - 1)
+    if not cast:
+        return ""
+
+    lines = content.splitlines()
+    out: list[str] = []
+    kept_rows = 0
+    dropped_rows = 0
+    in_pair_table = False
+    header_emitted = False
+
+    # 第一遍：确定 pairs 表头位置（键结构样例锚）
+    header_idx = -1
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith("|") and "角色A" in line and "角色B" in line:
+            header_idx = i
+            break
+
+    chapter_block_res = [
+        _re.compile(rf"^##\s*第\s*{n}\s*章\s*状态增量") for n in (chapter, chapter + 1)
+    ]
+    keep_block = False
+
+    for i, line in enumerate(lines):
+        stripped = line.lstrip()
+        if any(rx.match(line) for rx in chapter_block_res):
+            keep_block = True
+            out.append(line)
+            continue
+        if line.startswith("## "):  # 其它 H2 块边界
+            keep_block = False
+        if keep_block:
+            out.append(line)
+            continue
+        if header_idx >= 0 and i == header_idx:
+            in_pair_table = True
+            out.append(line)  # 表头（键结构样例）
+            header_emitted = True
+            continue
+        if in_pair_table and stripped.startswith("|"):
+            if _re.match(r"^\|[-\s|:]+\|?$", stripped):  # 分隔行
+                out.append(line)
+                continue
+            cells = split_table_cells(line) or []
+            if len(cells) >= 2 and (cells[0] in cast or cells[1] in cast):
+                out.append(line)
+                kept_rows += 1
+            else:
+                dropped_rows += 1
+            continue
+        if not header_emitted and i < max(header_idx, 0):
+            out.append(line)  # frontmatter/标题/preamble
+
+    if kept_rows == 0:
+        return ""  # 本章 cast 无任何矩阵行——降级全文，宁多勿盲
+    sentinel = (
+        f"> [extractor:matrix_scoped] 已按本章出场角色裁剪：保留 {kept_rows} 行"
+        f"（省略 {dropped_rows} 行）+ 本章/束伴章状态增量块——全史见 truth/character_matrix.md 本体。\n"
+    )
+    return "\n".join(out).rstrip("\n") + "\n\n" + sentinel

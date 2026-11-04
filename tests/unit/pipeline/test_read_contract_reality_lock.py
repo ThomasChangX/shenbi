@@ -61,7 +61,9 @@ FIXTURE_MAP = {
 #: 需要 plans/audits 接地才有产出的提取器（本锁无接地环境）——
 #: 各自的单测已有合成接地覆盖；volume_chapter 读取 outline 全目录
 #: 由派发侧专用机械服务，不属 extract_* 函数族。
-SKIP_EXTRACTORS = frozenset({"hooks_audit_scoped", "volume_chapter"})
+SKIP_EXTRACTORS = frozenset(
+    {"hooks_audit_scoped", "volume_chapter", "matrix_scoped"}
+)  # matrix_scoped: project_dir grounding 面（快照锁不适用，spec #95 T3）
 
 
 def _iter_skill_contracts() -> list[tuple[str, Contract]]:

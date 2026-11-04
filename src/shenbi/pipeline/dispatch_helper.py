@@ -72,6 +72,7 @@ from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 09
     extract_hooks_overview,
     extract_locations_overview,
     extract_recent_increments,
+    extract_matrix_scoped,
     extract_volume_opening_protocol,
     extract_relationships_overview,
     extract_threads_overview,
@@ -1080,6 +1081,28 @@ def _build_skill_prompt(
                             path=str(full_path),
                             chapter=chapter,
                         )
+            elif extractor == "matrix_scoped":
+                # spec #95 T3: character_matrix 本章出场角色定向窗（替代通用 head+tail 中段盲截）
+                _mx_err: Exception | None = None
+                if chapter is not None:
+                    try:
+                        extracted = extract_matrix_scoped(project_dir, chapter, content)
+                    except Exception as exc:
+                        _mx_err = exc
+                        extracted = ""
+                else:
+                    extracted = ""
+                if extracted:
+                    content = extracted
+                else:
+                    # ""（chapter=None/cast 无行/无保留行）或 raise——loud fulltext+WARN
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        **({"error": str(_mx_err)} if _mx_err is not None else {}),
+                    )
             elif extractor == "volume_opening_protocol":
                 # spec #95 T2: genre-config 热协议投影（子键越顶层字段过滤——extractor 面）。
                 # audit-T5 C1: 五件套齐——""（JSON 不解析）走 loud fulltext + WARN，
