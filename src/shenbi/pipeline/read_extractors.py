@@ -184,8 +184,6 @@ def extract_hooks_audit_scoped(project_dir: Path, chapter: int | None, content: 
         return ""
     # 恢复文件序输出
     kept_in_order = [sections[k][1] for k in range(len(sections)) if k not in dropped_set]
-    omitted_else = [sections[k][0] for k in range(len(sections)) if k not in dropped_set]
-    _ = omitted_else
 
     lines = [
         f"> [extractor:hooks_audit_scoped] 详情已按 点名∪active 预算窗裁剪："

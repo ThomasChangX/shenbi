@@ -110,7 +110,13 @@ def test_hooks_audit_scoped_staging_twin_grounding_wins(tmp_path: Path) -> None:
     )
     (tmp_path / "audits").mkdir()
     (tmp_path / "audits" / "chapter-57-foreshadowing.md").write_text(
-        "触及 MH02。", encoding="utf-8"
+        # audit-T8 I: live-only 点名 CP-001（RESOLVED——闭态不入窗）。
+        # staging-first：grounding 只见 MH01 → CP-001 详情不在窗；
+        # live-first 回归：CP-001 入 grounding 且 named 优先级一 → 详情入窗。
+        # 这恢复该测试对 _staging_first 的区分力（spec #95 active∪named 语义下
+        # 活钩恒在窗，活钩断言不再可区分）。
+        "触及 MH02 与 CP-001。",
+        encoding="utf-8",
     )
     (tmp_path / "plans").mkdir()
     (tmp_path / "plans" / "chapter-57-plan.md").write_text(
@@ -118,10 +124,8 @@ def test_hooks_audit_scoped_staging_twin_grounding_wins(tmp_path: Path) -> None:
     )
 
     out = extract_hooks_audit_scoped(tmp_path, 57, _PENDING_HOOKS)
-    # spec #95 T3 ② 后：staging 点名的 MH01 必在；MH02 未被任何 grounding 点名，
-    # 但作为活钩（PLANTED）也入窗——该测试的 staging-first 判据改由 MH01 计数承载
-    assert "### MH01（灵印）" in out
-    assert "### MH02（灵誓）" in out
+    assert "### MH01（灵印）" in out  # staging 点名（活钩）
+    assert "### CP-001（册末空格）" not in out  # live-only 点名且闭态——staging-first 排除
 
 
 def test_hooks_audit_scoped_no_grounding_returns_empty(tmp_path: Path) -> None:
@@ -438,8 +442,8 @@ def test_dispatch_loop_serves_sliced_settle_reads(
         "shenbi-state-settling", project, "settle ch57", chapter=57
     )
 
-    # pending_hooks: named (MH02/CP-001) + unnamed-active (MH01) kept;
-    # closed-hook evidence stays out (spec #95 T3 ② active∪named window)
+    # pending_hooks: grounding 只点名 MH02；unnamed-active MH01 入窗；
+    # CP-001 闭态（非点名非活）详情仍出窗 (spec #95 T3 ② active∪named window)
     assert "### MH02（灵誓）" in user_prompt
     assert "第4章断脉塌方首次显形" in user_prompt  # MH01 RELEVANT——活钩纳入
     assert "第17章行署当众指向" not in user_prompt  # CP-001 RESOLVED 详情仍裁
