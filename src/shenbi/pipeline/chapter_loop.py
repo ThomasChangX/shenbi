@@ -1295,7 +1295,32 @@ def _append_feedback_injections(
                         f"禁止新增场景**——重写会重新掷字数骰子，只有在前稿之上的扩写才能收敛。\n\n"
                         f"<previous_draft>\n{draft}\n</previous_draft>"
                     )
+
+    # spec #95 T5 (R4①): 范例章锚定——上一通过章全文常驻注入（flash 档无 few-shot
+    # 时锚向「一次回复的自然长度」；+3.5k tokens 换长度稳定）。真首章（N-1 不在盘）
+    # 跳过注入——无范例不造范例；注入前剥 META 块（audit-T2 M4：META 内斜杠形
+    # chapter_role 有 R1 数据形再教学面）。
+    if skill == "shenbi-chapter-drafting" and project_dir is not None:
+        exemplar_path = project_dir / "chapters" / f"chapter-{chapter - 1}.md"
+        if exemplar_path.is_file():
+            exemplar = exemplar_path.read_text(encoding="utf-8")
+            stripped = _strip_meta_from_exemplar(exemplar)
+            if stripped.strip():
+                prompt += (
+                    f"\n\n## EXEMPLAR CHAPTER (上一通过章全文——长度与节拍的锚，不是内容素材)\n"
+                    f"你的输出在**总长度、场景密度、段落呼吸**上向它对齐（数值带以 genre-config 为准）；"
+                    f"不要复用其情节或句段。\n\n<exemplar_chapter>\n{stripped}\n</exemplar_chapter>"
+                )
     return prompt
+
+
+def _strip_meta_from_exemplar(text: str) -> str:
+    """Strip the leading ```META block from an exemplar chapter (R1 re-teach face)."""
+    if text.startswith("```META"):
+        end = text.find("```", len("```META"))
+        if end != -1:
+            return text[end + 3 :].lstrip("\n")
+    return text
 
 
 # ---------------------------------------------------------------------------
