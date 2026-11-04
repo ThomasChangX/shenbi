@@ -46,15 +46,52 @@ def test_over_budget_truncates_with_disclosure_and_warn(
         "shenbi-state-settling", project, "settle ch57", chapter=57
     )
     assert len(user_prompt) <= 72_000 + 400, len(user_prompt)
-    assert "【截断告知】" in user_prompt  # 披露块必然出现
+    # audit-T9 I2: 下界——体量必须保住（容差=单个可弃面粒度 ~31k）
+    assert len(user_prompt) >= 72_000 - 33_000, len(user_prompt)
+    # 披露必然在场：整面省略行（面降级）或顶部【截断告知】（平尾）
+    assert ("【截断告知】" in user_prompt) or ("【预算省略】" in user_prompt)
     assert "settle_budget_degraded" in warned
 
 
-def test_floor_raises_when_windowing_eats_real_corpus(tmp_path: Path) -> None:
-    """Raw reads >= floor while assembly collapses (windowing failure) -> raise.
+def test_priority_face_drop_before_tail_cut(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """audit-T9 I1: face-priority degradation precedes the flat tail cut.
 
-    Five chapter-keyed tables at ~54k raw each (recent_increments keeps
-    last 3 rows), small hooks/matrix windows: raw_total >40k but assembly <40k.
+    audits face ~31k (per-file cap) + huge matrix fulltext fallback ~32k
+    + huge chapter body ~32k -> assembly ~100k. The audits block must be
+    dropped whole (disclosure line present); the tail cut is only the belt.
+    """
+    project = _settle_project(tmp_path)
+    (project / "audits" / "chapter-57-foreshadowing.md").write_text(
+        "触及 MH02。" + "甲" * 31000, encoding="utf-8"
+    )
+    (project / "chapters" / "chapter-57.md").write_text(
+        "# 第57章\n\n" + "正文填充。" * 6000, encoding="utf-8"
+    )
+    (project / "truth" / "character_matrix.md").write_text(
+        (project / "truth" / "character_matrix.md").read_text(encoding="utf-8")
+        + "\n"
+        + "\n".join(f"| 路人{n} | 路人{n + 1} | 擦肩 | 无 | 第 {n} 章 |" for n in range(3000)),
+        encoding="utf-8",
+    )
+    warned: list[str] = []
+    monkeypatch.setattr(dh.log, "warning", lambda event, **kw: warned.append(event))
+    _, user_prompt, _, _, _ = dh._build_skill_prompt(
+        "shenbi-state-settling", project, "settle ch57", chapter=57
+    )
+    assert len(user_prompt) <= 72_000 + 400
+    assert "【预算省略】" in user_prompt and "chapter-57-foreshadowing" in user_prompt
+    assert "settle_budget_degraded" in warned
+
+
+def test_floor_only_inside_enforcement_path(tmp_path: Path) -> None:
+    """audit-T9 C2: healthy windowed small assemblies must NOT raise.
+
+    Five chapter-keyed tables at ~54k raw each (recent_increments keeps the
+    last 3 rows): raw_total >40k while assembly <40k — the old floor
+    misfire shape; it must now return normally (floor lives inside the
+    enforcement branch only).
     """
     project = _settle_project(tmp_path)
     big_rows = "\n".join(f"| 第 {n} 章 | {'y' * 80} | {'z' * 40} |" for n in range(1, 600))
@@ -74,8 +111,11 @@ def test_floor_raises_when_windowing_eats_real_corpus(tmp_path: Path) -> None:
             f"---\ntype: truth\n---\n\n# {name}\n\n{header}\n|{'---|' * ncols}\n{big_rows}\n{row}\n",
             encoding="utf-8",
         )
-    with pytest.raises(ValueError, match="hard floor"):
-        dh._build_skill_prompt("shenbi-state-settling", project, "settle ch57", chapter=57)
+    _, user_prompt, _, _, _ = dh._build_skill_prompt(
+        "shenbi-state-settling", project, "settle ch57", chapter=57
+    )
+    assert len(user_prompt) < 40_000  # the healthy-windowed premise shape
+    # not raising is the pass condition
 
 
 def test_normal_project_within_budget_no_disclosure(

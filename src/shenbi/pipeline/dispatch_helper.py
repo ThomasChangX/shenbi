@@ -1598,41 +1598,95 @@ def _build_skill_prompt(
     # 出现（非断言永不超）。
     budget = SKILL_TOTAL_CHAR_BUDGET.get(skill)
     if budget is not None:
-        floor = SKILL_TOTAL_CHAR_FLOOR.get(skill, 0)
-        if len(user_prompt) > budget:
-            cut_from = len(user_prompt) - (budget - 400)  # 预留披露块自身
-            cut_from = max(cut_from, min(floor, len(user_prompt) - 1))
-            kept = user_prompt[:cut_from]
-            dropped_chars = len(user_prompt) - cut_from
-            summary_block = (
-                f"\n【截断告知】以下文件数据不完整：总预算 {budget} chars 已超，"
-                f"尾部 {dropped_chars} chars 被截断——被截内容可能含最新数据行；"
-                f"增量输出以你在上文可见的行集为基底，未见行不得臆造。\n"
-            )
-            user_prompt = summary_block + kept
-            log.warning(
-                "settle_budget_degraded",
-                skill=skill,
-                original_chars=len(user_prompt) - len(summary_block) + dropped_chars,
-                budget=budget,
-                dropped_chars=dropped_chars,
-            )
-            # 断言（组装内）：预算执行路径与披露块必然同时出现
-            assert len(user_prompt) <= budget + len(summary_block), (
-                f"settle budget enforcement failed: {len(user_prompt)} > {budget}"
-            )
-            assert "【截断告知】" in user_prompt
-        # 硬地板仅对真实规模语料生效（raw 读面总量 ≥ 地板而组装面塌缩=数据被
-        # 吃掉——窗口/降级路径的结构性失败背止）；合成/创世规模项目豁免。
-        raw_total = sum(len(v) for v in raw_disk_reads.values())
-        if len(user_prompt) < floor and raw_total >= floor:
-            raise ValueError(
-                f"{skill}: assembled prompt {len(user_prompt)} chars < hard floor "
-                f"{floor} with raw reads {raw_total} chars — windowing ate the "
-                f"data (structural failure), cannot carry the incremental contract"
-            )
+        user_prompt = _enforce_skill_total_budget(skill, user_prompt, budget, raw_disk_reads)
 
     return system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads
+
+
+# spec #95 T3③ (r1.4/r1.5): 超预算降级序——①按面优先级整块弃（audits→registries
+# →volume_summaries→次级 truth 窗面；chapters/pending_hooks/current_state 恒保）
+# ②仍超→平尾披露式截断（保头=发射契约与前置数据；正确公式：保留界=budget-预留）。
+# 硬地板仅限执法支路内（截断后仍 <floor=执法造出的塌缩才 raise；健康窗口化小组装
+# 不入支路——audit-T9 C2：窗口化本职即无界→有界，raw≥地板的 20-45k 组装是常态）。
+_BUDGET_DROP_TIERS: tuple[tuple[str, ...], ...] = (
+    ("audits/",),  # 先弃：审计参考面
+    ("prop_registry", "name_registry", "recall_registry"),
+    ("volume_summaries",),
+    ("timeline",),
+    ("subplot_board", "emotional_arcs", "particle_ledger"),
+    ("chapter_summaries", "character_matrix"),
+)
+_UNTRUSTED_BLOCK_RE = re.compile(
+    r'<untrusted-source path="([^"]+)">\n?(.*?)\n?</untrusted-source>', re.DOTALL
+)
+
+
+def _enforce_skill_total_budget(
+    skill: str, user_prompt: str, budget: int, raw_disk_reads: dict[str, str]
+) -> str:
+    floor = SKILL_TOTAL_CHAR_FLOOR.get(skill, 0)
+    reserve = 400  # 披露块+断言余量
+    if len(user_prompt) <= budget:
+        return user_prompt
+    dropped_faces: list[tuple[str, int]] = []
+
+    def _drop_face(path: str) -> str:
+        return f"> 【预算省略】{path} 已整体省略（总预算降级）——全量见项目文件本体。\n"
+
+    # ① 面优先级降级（audit-T9 I1：spec 钦定优先级层——非一刀平尾）
+    for tier in _BUDGET_DROP_TIERS:
+        if len(user_prompt) <= budget:
+            break
+        blocks = list(_UNTRUSTED_BLOCK_RE.finditer(user_prompt))
+        for m in blocks:
+            if len(user_prompt) <= budget:
+                break
+            path = m.group(1)
+            if not any(key in path for key in tier):
+                continue
+            replacement = _drop_face(path)
+            user_prompt = user_prompt[: m.start()] + replacement + user_prompt[m.end() :]
+            dropped_faces.append((path, len(m.group(0)) - len(replacement)))
+
+    # ② 平尾披露式截断（终态兜底；audit-T9 C1：保留界=常量，非 len-删除量）
+    tail_dropped = 0
+    if len(user_prompt) > budget:
+        keep = budget - reserve
+        tail_dropped = len(user_prompt) - keep
+        kept = user_prompt[:keep]
+        summary_block = (
+            f"\n【截断告知】以下文件数据不完整：总预算 {budget} chars 已超——"
+            f"已按优先级省略 {len(dropped_faces)} 个文件面（{', '.join(p for p, _ in dropped_faces[:6])}"
+            f"{'…' if len(dropped_faces) > 6 else ''}），尾部 {tail_dropped} chars 亦被截断；"
+            f"被截内容可能含最新数据行——增量输出以你在上文可见的行集为基底，未见行不得臆造。\n"
+        )
+        user_prompt = summary_block + kept
+
+    log.warning(
+        "settle_budget_degraded",
+        skill=skill,
+        budget=budget,
+        dropped_faces=[p for p, _ in dropped_faces],
+        dropped_face_chars=sum(n for _, n in dropped_faces),
+        tail_dropped_chars=tail_dropped,
+        final_chars=len(user_prompt),
+    )
+    # 组装内断言（audit-T9 I2：双向——上限+「未塌缩」下限；披露块必然在场）
+    assert len(user_prompt) <= budget + reserve, (
+        f"{skill} budget enforcement failed: {len(user_prompt)} > {budget}"
+    )
+    # 下界容差=单个可弃面的粒度（面降级可过冲一个面；~32k per-file 帽+余量）
+    assert len(user_prompt) >= budget - 33_000, (
+        f"{skill} budget enforcement gutted the prompt: {len(user_prompt)} << {budget}"
+    )
+    assert "【截断告知】" in user_prompt or dropped_faces, "disclosure missing"
+    # 硬地板（仅执法支路内）：截断把契约面切没了才 raise——健康小组装不进此函数此支
+    if len(user_prompt) < floor:
+        raise ValueError(
+            f"{skill}: post-enforcement prompt {len(user_prompt)} chars < hard floor "
+            f"{floor} — enforcement gutted the contract face"
+        )
+    return user_prompt
 
 
 def _is_review_skill(skill: str) -> bool:
