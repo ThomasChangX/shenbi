@@ -179,12 +179,38 @@ def _dropped_hook_section_lines(live_text: str, staged_text: str, samples: int) 
     return _format_drops(missing, samples)
 
 
-def _format_drops(missing: list[str], samples: int) -> list[str]:
+def _format_drops(missing: list[str], samples: int, *, cap: int = 20) -> list[str]:
+    """Spec #95 T4 (r6): three-part actionable feedback (symptom -> operation).
+
+    旧模板只报症状（`content_dropped:{n}行 e.g. {截断样本}`）——R6 实证模型把
+    「你丢了行」读成「多重发整档」，越试越糟（completion 36k→24k→20k 且 dropped
+    递增）。三段式：①被丢行 verbatim 清单（去重、≤cap、全文行——数据形可照抄）
+    ②操作指令（以 live 行集为基底，仅追加新键行）③最小正例。`content_dropped:`
+    前缀 token 保留（retry_routing 消费面 sweep 已核）。
+    """
     total = len(missing)
     if not total:
         return []
-    shown = [m[:24] + ("…" if len(m) > 24 else "") for m in missing[:samples]]
-    return [f"content_dropped:{total}行 e.g. {shown}"]
+    deduped: list[str] = []
+    for m in missing:
+        if m not in deduped:
+            deduped.append(m)
+    shown = deduped[:cap]
+    head = f"content_dropped:{total}行（去重后 {len(deduped)}）"
+    lines = [f"{head}——被丢行 verbatim 清单（原样保留于输出，作为基底行）："]
+    lines.extend(f"  {m}" for m in shown)
+    if len(deduped) > cap:
+        lines.append(f"  ……（共 {len(deduped)} 行，超出 {cap} 行上限的部分以 live 文件为准）")
+    lines.append(
+        "指令：以上行原样保留于输出（作为基底行），仅在其后追加本章新键行——"
+        "不要重发整档，不要改写基底行。"
+    )
+    lines.append(
+        "正例：live 已有 `| a | 1 |` 与 `| b | 2 |` 两行、本章新增键 c 时，"
+        "输出=那两行原样+新行 `| c | 3 |`（不是重发 a/b 的改写）。"
+    )
+    _ = samples  # 兼容旧签名位（旧样本截断逻辑由 verbatim 清单取代）
+    return ["\n".join(lines)]
 
 
 def _check_escape_corruption(pf: Path, live_text: str, staged_text: str) -> list[str]:
