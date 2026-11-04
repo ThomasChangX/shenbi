@@ -14,7 +14,7 @@
 | 3 | 4-dim scoring quality | 40% | 情感落地 / 场景临场感 / 文笔质感 / 读者回报 each scored against the calibration anchors (anchor-first); the located band of each excerpt must be explainable relative to high/mid/low anchors; scores are reader-reaction signals, not aesthetic guesses |
 | 4 | Evidence rigor (file + line) | 20% | Every dimension score lands on original-text line numbers + quoted excerpt (show-vs-tell for 情感落地 names the strongest emotion + trigger line); deductions follow the four-element defect format (位置 / 原文引述 ≥20字 / 违反规则名 / 严重度) |
 | 5 | Confidence + routing correctness | 15% | Per-dimension + overall confidence reported as high/mid/low; self-reported high with anchor hit-rate < 0.8 is calibrated DOWN to mid (§8.2); §5.4 routing (放行 / 自动 chapter-revision / 人机复核) computed via deterministic helper, not hand-judged; revision-loop cap of 2 enforced |
-| 6 | Gate-decision correctness | 10% | Calibration gate picks threshold + sub-floor from `chapter_role` (高潮/兑现 ≥75 & 情感落地≥20; 推进/转折 ≥65; 过渡/铺垫 ≥50 & 读者回报≥12; 未声明 → 推进 + flag); overall or sub-floor missed → 阻断 with correct three-path split |
+| 6 | Gate-decision correctness | 10% | Calibration gate picks threshold + sub-floor from `chapter_role` (高潮/兑现 档＝单值 高潮 或 兑现 ≥75 & 情感落地≥20; 推进/转折 档＝单值 推进 或 转折 ≥65; 过渡/铺垫 档＝单值 过渡 或 铺垫 ≥50 & 读者回报≥12; 未声明 → 推进 + flag); overall or sub-floor missed → 阻断 with correct three-path split |
 
 ## Kill Switches by Test Type
 

@@ -4,7 +4,7 @@
 `skills/shenbi-review-resonance/SKILL.md`
 
 ## Test Setup
-A finished climax chapter has been written. The chapter plan declares `chapter_role: 高潮/兑现` and requires the debt-slavery revelation to land as the cognitive and emotional climax of the whole book, with a devastating (震撼) emotional delivery. The style profile is `tests/fixtures/style-profile-example.md`; anchors are `tests/fixtures/calibration/resonance/`.
+A finished climax chapter has been written. The chapter plan declares `chapter_role: 高潮` and requires the debt-slavery revelation to land as the cognitive and emotional climax of the whole book, with a devastating (震撼) emotional delivery. The style profile is `tests/fixtures/style-profile-example.md`; anchors are `tests/fixtures/calibration/resonance/`.
 
 The drafted climax passage under evaluation is:
 

@@ -40,9 +40,27 @@ RevisionStatus = Literal[
 # spec #34 T909: genre-config approval 值域（与 pipeline ReviewDecision 命令域分立）
 ApprovalDecision = Literal["approved", "rejected"]
 # spec #34 T204: write-semantics mode 值域（G0.16 此前只查存在性不查合法性）
+# spec #95 T6a: merge_prose 载体=场景级替换清单（`场景n: <全文>`；applier 见
+# pipeline/prose_patch.py——确定性整体替换，未匹配场景键 fail-loud 拒收）
 WriteMode = Literal["create_or_overwrite", "append_dedup", "merge_prose"]
 # spec #34 T911: novel.json status（生产两文件持值，立域不删字段）
 NovelStatus = Literal["worldbuilding", "worldbuilding_complete"]
+
+# --- spec #95 T1: gate 词表 ⇄ prompt 单源（R1：SKILL 斜杠分组形教错模型） ---
+# 值域只收单值；斜杠/多值在场由 gate 锚尾判定拒（G4.cp.invalid_chapter_role）。
+CHAPTER_ROLE_VALUES: tuple[str, ...] = ("高潮", "兑现", "推进", "转折", "过渡", "铺垫")
+GOLDEN_LINE_VALUES: tuple[str, ...] = ("燃", "静")
+
+# 有枚举判定的检查 → (常量名, SKILL 仓库相对路径)；lint_gate_prompt_contract 从此
+# 派生枚举检查清单，禁手列函数清单（r1.5：手列即计数腐化源）。
+CHECK_ENUM_REGISTRY: dict[str, tuple[str, str, str]] = {
+    # check_id -> (常量名, SKILL 仓库相对路径, 字段名)——lint 的正例检查按字段名派生
+    "cp.chapter_role": (
+        "CHAPTER_ROLE_VALUES",
+        "skills/shenbi-chapter-planning/SKILL.md",
+        "chapter_role",
+    ),
+}
 
 
 # spec #47 C33 R1: dispatch 失败分类单源域（每层重试决策消费同一分类）。

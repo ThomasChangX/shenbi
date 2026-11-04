@@ -1,0 +1,131 @@
+{
+ "src_dispatch": "observability/dispatches/00189-shenbi-state-settling-ch041-a1.json",
+ "reads": [
+  {
+   "path": "chapters/chapter-41.md",
+   "mode": "full",
+   "extractor": null,
+   "file": "00-chapters__chapter-41.md",
+   "bytes": 13194,
+   "sha256_payload": "236ea179ff196683ee13483b039742035afe8ab0e0006120ccecfb7fdd108fcf"
+  },
+  {
+   "path": "chapters/chapter-42.md",
+   "mode": "full",
+   "extractor": null,
+   "file": "01-chapters__chapter-42.md",
+   "bytes": 13056,
+   "sha256_payload": "b1755f993ba8cc7f6894ea6b96e7f29a04149c259f9b1570edc7816c6c0c4c13"
+  },
+  {
+   "path": "staging/truth/character_matrix.md",
+   "mode": "full",
+   "extractor": null,
+   "file": "02-staging__truth__character_matrix.md",
+   "bytes": 169169,
+   "sha256_payload": "a37f361eb96edab0c3725586a47b21edd7317fab145fe6f4987b338b53b296a8"
+  },
+  {
+   "path": "staging/truth/current_state.md",
+   "mode": "full",
+   "extractor": "recent_increments",
+   "file": "03-staging__truth__current_state.md",
+   "bytes": 83042,
+   "sha256_payload": "d0fdeee337da4ba4dbb844c4ec16b1f4de9dfecb5cf21203a446d1ac44d33876"
+  },
+  {
+   "path": "staging/truth/particle_ledger.md",
+   "mode": "full",
+   "extractor": "recent_increments",
+   "file": "04-staging__truth__particle_ledger.md",
+   "bytes": 38314,
+   "sha256_payload": "39c34f6d5baf7879db090ee7e613e297d88197a7e85f62a417153e49f04a0fdc"
+  },
+  {
+   "path": "staging/truth/emotional_arcs.md",
+   "mode": "full",
+   "extractor": "recent_increments",
+   "file": "05-staging__truth__emotional_arcs.md",
+   "bytes": 25470,
+   "sha256_payload": "d3475dac46f98481019f933afb2fbdaf023c3af740d9218e1459c58ab867d436"
+  },
+  {
+   "path": "staging/truth/subplot_board.md",
+   "mode": "full",
+   "extractor": "recent_increments",
+   "file": "06-staging__truth__subplot_board.md",
+   "bytes": 44317,
+   "sha256_payload": "8c3da58a01c0f6c4d3a61e278552a39375768e64bf6f5dafd74fa19c0687375b"
+  },
+  {
+   "path": "staging/truth/pending_hooks.md",
+   "mode": "full",
+   "extractor": "hooks_audit_scoped",
+   "file": "07-staging__truth__pending_hooks.md",
+   "bytes": 103077,
+   "sha256_payload": "a2a125544a8cb9c36d7638f1767feec15f1ba8f901fa6e37f181de0e0b023d6c"
+  },
+  {
+   "path": "staging/truth/chapter_summaries.md",
+   "mode": "full",
+   "extractor": "recent_increments",
+   "file": "08-staging__truth__chapter_summaries.md",
+   "bytes": 37472,
+   "sha256_payload": "994f731e6854f6730e5562dfccc1bf9093bb8071addff764f2fac78a30ec26cc"
+  },
+  {
+   "path": "truth/volume_summaries.md",
+   "mode": "full",
+   "extractor": null,
+   "file": "09-truth__volume_summaries.md",
+   "bytes": 7312,
+   "sha256_payload": "9a07283a32756dab20df67ea5f83017c4481117cf11998a922022f79d2f61d81"
+  },
+  {
+   "path": "staging/audits/chapter-41-foreshadowing.md",
+   "mode": "full",
+   "extractor": null,
+   "file": "10-staging__audits__chapter-41-foreshadowing.md",
+   "bytes": 10822,
+   "sha256_payload": "a93971fd22dc1c1dd43390783477a817df4bb6d897f4c71b9a0e11bca9bc41b9"
+  },
+  {
+   "path": "staging/truth/timeline.md",
+   "mode": "full",
+   "extractor": "recent_increments",
+   "file": "11-staging__truth__timeline.md",
+   "bytes": 11213,
+   "sha256_payload": "711952ac8825f312cc235c06798f33e2cca04811d0cc6bd7e0fcf9506b26443e"
+  },
+  {
+   "path": "staging/truth/prop_registry.md",
+   "mode": "full",
+   "extractor": null,
+   "file": "12-staging__truth__prop_registry.md",
+   "bytes": 36910,
+   "sha256_payload": "98b4709fcd62a6f44791021354c9cd0ca69fb6442518f24a10055946329c01c4"
+  },
+  {
+   "path": "staging/truth/name_registry.md",
+   "mode": "full",
+   "extractor": null,
+   "file": "13-staging__truth__name_registry.md",
+   "bytes": 25518,
+   "sha256_payload": "1543b1c4dced4342cfc8d197c77a0ea75542c8bf476a39b13f06dac1df7a0f2a"
+  },
+  {
+   "path": "staging/truth/recall_registry.md",
+   "mode": "full",
+   "extractor": null,
+   "file": "14-staging__truth__recall_registry.md",
+   "bytes": 796,
+   "sha256_payload": "c2d3b8e892e6a068e659c964e4baffca4c29abaabbc2f64e0a56889e95c4d575"
+  }
+ ],
+ "user_prompt": {
+  "file": "user_prompt.txt",
+  "bytes": 299597,
+  "sha256_payload": "ef2f7195b0e1928f21a8be6e09853d98a2ceddd1f9fe571cef26c11dfa8dbda5",
+  "chars": 119928
+ }
+}

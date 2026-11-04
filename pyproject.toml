@@ -143,6 +143,17 @@ convention = "google"
 "tools/lint_volume_nodes.py" = ["RUF001", "RUF002", "RUF003"]
 "tools/lint_shadow_promotion.py" = ["RUF001", "RUF002", "RUF003"]
 "tools/lint_voice_meme.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #95 T1: findings quote the SKILL teaching vocabulary (斜杠分组教学形/
+# 逐行清单) — fullwidth punctuation is the quoted data, not drift.
+"tools/lint_gate_prompt_contract.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_lint_gate_prompt_contract.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #95 T3: extractor sentinels/comments quote the Chinese truth vocabulary
+# (点名∪active/已省略) — fullwidth punctuation is the data, not drift.
+"src/shenbi/pipeline/read_extractors.py" = ["RUF001", "RUF002", "RUF003"]
+"src/shenbi/pipeline/prose_patch.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/pipeline/test_prose_patch.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/pipeline/test_write_mode_merge_prose.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/pipeline/test_hooks_window_semantics.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #83 T3: findings/docstrings quote the live Chinese outline/truth
 # vocabulary (卷纲节点清单/还账进度表 anchors) — data, not drift.
 "tools/lint_outline_truth_drift.py" = ["RUF001", "RUF002", "RUF003"]

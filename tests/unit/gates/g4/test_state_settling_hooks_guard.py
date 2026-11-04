@@ -254,7 +254,11 @@ class TestDroppedLinesPerLineTruth:
         del staged_lines[8]  # one real miss late in the stream
         staged = "\n".join(staged_lines)
         issues = _dropped_content_lines(live, staged, hooks=True)
-        assert issues == ["content_dropped:1行 e.g. ['- stable8: v']"], issues
+        # spec #95 T4: 三段式模板——前缀 token+verbatim 行保留（旧 e.g. 截断样本形退役）
+        assert len(issues) == 1, issues
+        assert issues[0].startswith("content_dropped:1行"), issues[0]
+        assert "- stable8: v" in issues[0]  # verbatim 全行（数据形可照抄）
+        assert "作为基底行" in issues[0]  # 操作指令段
 
     def test_two_scattered_misses_report_two_lines(self):
         from shenbi.gates.g4.state_settling import _dropped_content_lines

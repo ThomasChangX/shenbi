@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from shenbi.contracts.enums import CHAPTER_ROLE_VALUES
 from shenbi.logging import get_logger
 from shenbi.pipeline._shared import (  # pyright: ignore[reportPrivateUsage]
     load_volume_context as _load_volume_context,
@@ -36,11 +37,23 @@ from shenbi.safe_write import safe_write
 log = get_logger(__name__)
 
 # Token budget per chapter_role (spec §7.2). 1 Chinese char ≈ 1.5 tokens.
+# spec #95 T1 (r1.5/r1.6): 单值键自 CHAPTER_ROLE_VALUES 单源派生（三档位分组
+# 由 _BUDGET_BY_GROUP 声明）；旧斜杠键保留为兼容别名——预算消费方读已提交 live
+# plan（chapter_loop step 3 assemble_context），升级时点的中断续跑/回工窗口可能
+# 携旧斜杠 plan 重入，别名防静默跌回 DEFAULT_BUDGET（束4 后可清）。
+_BUDGET_BY_GROUP: tuple[tuple[tuple[str, ...], int], ...] = (
+    (("高潮", "兑现"), 18000),
+    (("推进", "转折"), 12000),
+    (("过渡", "铺垫"), 8000),
+)
 BUDGET_BY_ROLE: dict[str, int] = {
-    "高潮/兑现": 18000,
-    "推进/转折": 12000,
-    "过渡/铺垫": 8000,
+    role: budget for group, budget in _BUDGET_BY_GROUP for role in group
 }
+BUDGET_BY_ROLE.update({"/".join(group): budget for group, budget in _BUDGET_BY_GROUP})
+assert {r for g, _ in _BUDGET_BY_GROUP for r in g} == set(
+    CHAPTER_ROLE_VALUES
+)  # audit-T3 M2: 双向对账
+assert all(v in BUDGET_BY_ROLE for v in CHAPTER_ROLE_VALUES)  # 单源对账（常量↔派生键）
 DEFAULT_BUDGET = 12000
 TOKEN_FACTOR = 1.5
 

@@ -4,7 +4,7 @@
 
 plan_format: v3
 
-chapter_role: 高潮/兑现
+chapter_role: 高潮
 
 chapter_type: battle
 

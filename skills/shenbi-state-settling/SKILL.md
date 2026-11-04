@@ -10,7 +10,7 @@ contract:
     # land (regen v3: ch2/4/6/8/10/12 all missing from current_state &
     # registries; hand-merged every time until this read existed).
     - chapters/chapter-{N+1}.md
-    - truth/character_matrix.md
+    - {file: truth/character_matrix.md, extractor: matrix_scoped}
     # Plan A (adjudication 096): cumulative chapter-keyed tables grow without
     # bound — extractors serve head + recent units; the omitted middle is
     # disclosed by an in-text sentinel. Full history stays in the files.

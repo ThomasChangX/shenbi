@@ -16,7 +16,7 @@
 2. **主角自选目标出口**：那罕亲口说出要什么（南下/春天之约/还账的具体第一步）+ 倒计时锚——承接 ch36「船开在清明前」（按引文重锚，不按行号）；
 3. **章尾热钩**（危机型）——声明温度 vs 正文温度**背离→blocking**：抽读正文尾段实判，不信任声明面单方面口径。
 
-门面真相（防误依赖）：hot_hook_floor 自 ch37 起累计窗口数据，**ch46 前不满 window=10 不执法**（bootstrap skip），且 genre-config 该键 shadow:true 期仅 WARN——首四束三件套**唯一执法=本节驱动侧协议**。
+门面真相（防误依赖；spec #95 T2 已落门级替代）：hot_hook_floor 自 ch37 起累计窗口数据，**ch46 前不满 window=10 不执法**（bootstrap skip），且 genre-config 该键 shadow:true 期仅 WARN。**spec #95 T2 落地后分工**：热协议已下沉 genre-config `market_params.volume_opening_protocol` 子键并经 extractor 常驻注入 planning/drafting；冷三连由 `cp.cold_opening_triple` shadow WARN 把关（shadow:false 转正后即门级执法）。本节驱动侧协议降为**补充核对**（抽读正文尾段实判仍保留）——不再与门级双源并存。
 
 ## 断供钩清偿表（卷二前 12 章内每钩付息或显式挂起；每束收束对表）
 

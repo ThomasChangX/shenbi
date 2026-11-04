@@ -4,7 +4,7 @@
 
 plan_format: v3
 
-chapter_role: 过渡/铺垫
+chapter_role: 过渡
 
 chapter_type: dialogue
 

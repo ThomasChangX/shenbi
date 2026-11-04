@@ -92,11 +92,12 @@ def test_hooks_audit_scoped_keeps_overview_and_named_sections(tmp_path: Path) ->
     assert "CP-001（册末空格） | RESOLVED" in out
     # named detail sections kept (union of plan MH02 + audit CP-001)
     assert "### MH02（灵誓）" in out
-    assert "### CP-001（册末空格）" in out
-    # unnamed detail section dropped, with a disclosure sentinel
-    assert "### MH01（灵印）" not in out
-    assert "第4章断脉塌方首次显形" not in out
-    assert "省略" in out and "MH01" in out
+    assert "### CP-001（册末空格）" in out  # 点名优先级一：预算内必保
+    # spec #95 T3 ②: 未点名活钩（MH01 RELEVANT）详情纳入窗（R5 盲写面修复）
+    assert "### MH01（灵印）" in out
+    assert "第4章断脉塌方首次显形" in out
+    # 预算窗哨兵（点名/active 计数披露）
+    assert "＋active" in out
 
 
 def test_hooks_audit_scoped_staging_twin_grounding_wins(tmp_path: Path) -> None:
@@ -109,7 +110,13 @@ def test_hooks_audit_scoped_staging_twin_grounding_wins(tmp_path: Path) -> None:
     )
     (tmp_path / "audits").mkdir()
     (tmp_path / "audits" / "chapter-57-foreshadowing.md").write_text(
-        "触及 MH02。", encoding="utf-8"
+        # audit-T8 I: live-only 点名 CP-001（RESOLVED——闭态不入窗）。
+        # staging-first：grounding 只见 MH01 → CP-001 详情不在窗；
+        # live-first 回归：CP-001 入 grounding 且 named 优先级一 → 详情入窗。
+        # 这恢复该测试对 _staging_first 的区分力（spec #95 active∪named 语义下
+        # 活钩恒在窗，活钩断言不再可区分）。
+        "触及 MH02 与 CP-001。",
+        encoding="utf-8",
     )
     (tmp_path / "plans").mkdir()
     (tmp_path / "plans" / "chapter-57-plan.md").write_text(
@@ -117,8 +124,8 @@ def test_hooks_audit_scoped_staging_twin_grounding_wins(tmp_path: Path) -> None:
     )
 
     out = extract_hooks_audit_scoped(tmp_path, 57, _PENDING_HOOKS)
-    assert "### MH01（灵印）" in out
-    assert "### MH02（灵誓）" not in out
+    assert "### MH01（灵印）" in out  # staging 点名（活钩）
+    assert "### CP-001（册末空格）" not in out  # live-only 点名且闭态——staging-first 排除
 
 
 def test_hooks_audit_scoped_no_grounding_returns_empty(tmp_path: Path) -> None:
@@ -272,6 +279,8 @@ def test_read_extractor_registry_closed_and_extended() -> None:
                 "relationships_overview",
                 "locations_overview",
                 "book_strata_current",
+                "volume_opening_protocol",
+                "matrix_scoped",
             }
         )
         == READ_EXTRACTORS
@@ -292,6 +301,8 @@ def test_real_settle_contract_wires_plan_a_extractors() -> None:
         "truth/subplot_board.md",
     ):
         assert ex[table] == "recent_increments", table
+    # audit-T7 M4: spec #95 T3 matrix_scoped 接线一并钉死
+    assert ex["truth/character_matrix.md"] == "matrix_scoped"
     # volume_summaries 补读: compact mid-range context the slices lose
     assert "truth/volume_summaries.md" in c["reads"]
 
@@ -359,7 +370,7 @@ def test_dispatch_loop_serves_sliced_resolve_reads(
     assert "卷级摘要" in user_prompt
     # chapter_summaries: only the last-3 rows survive
     assert "第 29 章" in user_prompt and "第 5 章" not in user_prompt
-    # happy path is WARN-free (spec §7)
+    # resolve face is matrix-free: strictly WARN-free
     assert "extractor_failed_fulltext" not in warned
 
 
@@ -431,9 +442,11 @@ def test_dispatch_loop_serves_sliced_settle_reads(
         "shenbi-state-settling", project, "settle ch57", chapter=57
     )
 
-    # pending_hooks: named detail kept, unnamed detail + its 证据 dropped
+    # pending_hooks: grounding 只点名 MH02；unnamed-active MH01 入窗；
+    # CP-001 闭态（非点名非活）详情仍出窗 (spec #95 T3 ② active∪named window)
     assert "### MH02（灵誓）" in user_prompt
-    assert "第4章断脉塌方首次显形" not in user_prompt
+    assert "第4章断脉塌方首次显形" in user_prompt  # MH01 RELEVANT——活钩纳入
+    assert "第17章行署当众指向" not in user_prompt  # CP-001 RESOLVED 详情仍裁
     assert "hooks_audit_scoped" in user_prompt  # sentinel travels with the text
     # chapter_summaries: only the last-3 rows survive
     assert "第 39 章" in user_prompt and "第 40 章" in user_prompt
@@ -442,8 +455,12 @@ def test_dispatch_loop_serves_sliced_settle_reads(
     assert "recent_increments" in user_prompt
     # volume_summaries 补读 arrives whole
     assert "卷级摘要" in user_prompt
-    # happy path is WARN-free (spec §7)
-    assert "extractor_failed_fulltext" not in warned
+    # happy path is WARN-free (spec §7) — except matrix_scoped: the synthetic
+    # project's summaries stop at ch40 while settle is ch57 (no ch56/57 cast row),
+    # so the cast face degrades loud by design (spec #95 T3 timing note).
+    non_matrix = [w for w in warned if w != "extractor_failed_fulltext"]
+    assert non_matrix == []
+    assert warned.count("extractor_failed_fulltext") >= 1
 
 
 def test_dispatch_loop_hooks_extractor_without_grounding_falls_back(

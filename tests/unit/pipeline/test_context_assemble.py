@@ -49,6 +49,17 @@ def project_with_plan(tmp_path: Path) -> Path:
 
 class TestConstants:
     def test_budget_by_role_values(self):
+        # spec #95 T1 (r1.5/r1.6): 单值键自 CHAPTER_ROLE_VALUES 派生（三档位），旧斜杠键为兼容别名
+        assert BUDGET_BY_ROLE["高潮"] == 18000
+        assert BUDGET_BY_ROLE["兑现"] == 18000
+        assert BUDGET_BY_ROLE["推进"] == 12000
+        assert BUDGET_BY_ROLE["转折"] == 12000
+        assert BUDGET_BY_ROLE["过渡"] == 8000
+        assert BUDGET_BY_ROLE["铺垫"] == 8000
+
+    def test_budget_by_role_legacy_slash_aliases(self):
+        # r1.6: 预算消费方读已提交 live plan——升级时点中断续跑/回工窗口携旧斜杠 plan
+        # 重入 step 3，别名防静默跌回 DEFAULT（束4 后可清）
         assert BUDGET_BY_ROLE["高潮/兑现"] == 18000
         assert BUDGET_BY_ROLE["推进/转折"] == 12000
         assert BUDGET_BY_ROLE["过渡/铺垫"] == 8000
@@ -127,6 +138,22 @@ class TestAssembleContext:
         assert pkg.total_tokens <= 12000
 
     def test_high_climax_budget(self, tmp_path: Path):
+        # spec #95 T1: 正向形态=单值 plan（gate 锚尾判定后）；预算档位命中派生单值键
+        p = tmp_path / "project"
+        (p / "plans").mkdir(parents=True)
+        (p / "plans" / "chapter-1-plan.md").write_text(
+            "chapter_role: 高潮\nHero fights dragon.\n", encoding="utf-8"
+        )
+        (p / "characters").mkdir()
+        (p / "characters" / "protagonist.md").write_text(
+            "---\nname: Hero\n---\n# Hero\nBrave.", encoding="utf-8"
+        )
+        pkg = assemble_context(p, "plans/chapter-1-plan.md")
+        assert pkg.chapter_role == "高潮"
+        assert pkg.total_tokens <= 18000
+
+    def test_legacy_slash_plan_keeps_tier_budget(self, tmp_path: Path):
+        # r1.6 兼容别名：旧斜杠 plan（中断续跑/回工窗口）仍命中档位预算，不跌 DEFAULT
         p = tmp_path / "project"
         (p / "plans").mkdir(parents=True)
         (p / "plans" / "chapter-1-plan.md").write_text(
@@ -138,6 +165,7 @@ class TestAssembleContext:
         )
         pkg = assemble_context(p, "plans/chapter-1-plan.md")
         assert pkg.chapter_role == "高潮/兑现"
+        assert BUDGET_BY_ROLE[pkg.chapter_role] == 18000  # audit-T3 M1: 档位命中实证
         assert pkg.total_tokens <= 18000
 
     def test_unknown_role_uses_default_budget(self, tmp_path: Path):

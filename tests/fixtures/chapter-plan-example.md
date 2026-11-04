@@ -15,7 +15,7 @@ golden_opening: chapter_1
 
 ## 1. 当前任务
 
-chapter_role: 推进/转折
+chapter_role: 推进
 
 emotion_tone: 怒
 

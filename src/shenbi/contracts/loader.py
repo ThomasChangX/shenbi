@@ -102,6 +102,8 @@ READ_EXTRACTORS: frozenset[str] = frozenset(
         "relationships_overview",
         "locations_overview",
         "book_strata_current",
+        "volume_opening_protocol",
+        "matrix_scoped",
     }
 )
 

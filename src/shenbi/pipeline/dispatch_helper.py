@@ -72,6 +72,8 @@ from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 09
     extract_hooks_overview,
     extract_locations_overview,
     extract_recent_increments,
+    extract_matrix_scoped,
+    extract_volume_opening_protocol,
     extract_relationships_overview,
     extract_threads_overview,
     has_chapter_units,
@@ -314,6 +316,13 @@ def _thinking_kwargs(thinking: str | None) -> dict[str, Any]:
 
 _INPUT_MAX_CHARS_PER_FILE = 32000  # hard cap per input file (~8K tokens)
 _INPUT_MAX_CHARS_TOTAL = 128000  # total input budget (~32K tokens)
+
+# spec #95 T3③ (r1.4): settle 专属字符总预算——实测配比 ≈0.80 tokens/char
+# （95,835/119,928），60k tokens 目标对应 72k chars 留 ~4% 余量（75k 贴线无余量）。
+# 降级路径（extractor_failed_fulltext 回全文）同受此预算约束；超预算→披露式截断
+# ＋WARN（loud-degradation），仅低于硬地板（不足以承载增量契约）才 raise。
+SKILL_TOTAL_CHAR_BUDGET: dict[str, int] = {"shenbi-state-settling": 72_000}
+SKILL_TOTAL_CHAR_FLOOR: dict[str, int] = {"shenbi-state-settling": 40_000}
 
 # ---------------------------------------------------------------------------
 # Priority-driven context budget allocation
@@ -1079,6 +1088,49 @@ def _build_skill_prompt(
                             path=str(full_path),
                             chapter=chapter,
                         )
+            elif extractor == "matrix_scoped":
+                # spec #95 T3: character_matrix 本章出场角色定向窗（替代通用 head+tail 中段盲截）
+                _mx_err: Exception | None = None
+                if chapter is not None:
+                    try:
+                        extracted = extract_matrix_scoped(project_dir, chapter, content)
+                    except Exception as exc:
+                        _mx_err = exc
+                        extracted = ""
+                else:
+                    extracted = ""
+                if extracted:
+                    content = extracted
+                else:
+                    # ""（chapter=None/cast 无行/无保留行）或 raise——loud fulltext+WARN
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        **({"error": str(_mx_err)} if _mx_err is not None else {}),
+                    )
+            elif extractor == "volume_opening_protocol":
+                # spec #95 T2: genre-config 热协议投影（子键越顶层字段过滤——extractor 面）。
+                # audit-T5 C1: 五件套齐——""（JSON 不解析）走 loud fulltext + WARN，
+                # 与兄弟分支同 §4.3 纪律（禁静默全文）。
+                _vop_err: Exception | None = None
+                try:
+                    extracted = extract_volume_opening_protocol(content)
+                except Exception as exc:
+                    _vop_err = exc
+                    extracted = ""
+                if extracted:
+                    content = extracted
+                else:
+                    # "" (unparseable JSON) or raise — both land loud fulltext+WARN
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        **({"error": str(_vop_err)} if _vop_err is not None else {}),
+                    )
             elif extractor == "recent_increments":
                 # Plan A: chapter-keyed cumulative tables serve head + last
                 # units with an omission sentinel. "" (unexpected shape,
@@ -1539,7 +1591,115 @@ def _build_skill_prompt(
         except Exception as e:
             log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
 
+    # spec #95 T3③: settle 专属总预算（plan I3 落位=组装函数 return 前——后置注入
+    # 块今日对 settle 皆 no-op，但不给未来接线留绕过面）。降级序：超 72k → 尾部
+    # 披露式截断（保头=系统指令/模板与前置数据）＋顶部【截断告知】汇总块＋WARN；
+    # 低于 40k 硬地板（承载不了增量契约）才 raise。断言=预算路径与披露块的必然
+    # 出现（非断言永不超）。
+    budget = SKILL_TOTAL_CHAR_BUDGET.get(skill)
+    if budget is not None:
+        user_prompt = _enforce_skill_total_budget(skill, user_prompt, budget)
+
     return system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads
+
+
+# spec #95 T3③ (r1.4/r1.5): 超预算降级序——①按面优先级整块弃（audits→registries
+# →volume_summaries→次级 truth 窗面；chapters/pending_hooks/current_state 恒保）
+# ②仍超→平尾披露式截断（保头=发射契约与前置数据；正确公式：保留界=budget-预留）。
+# 硬地板仅限执法支路内（截断后仍 <floor=执法造出的塌缩才 raise；健康窗口化小组装
+# 不入支路——audit-T9 C2：窗口化本职即无界→有界，raw≥地板的 20-45k 组装是常态）。
+_BUDGET_DROP_TIERS: tuple[tuple[str, ...], ...] = (
+    ("audits/",),  # 先弃：审计参考面
+    ("prop_registry", "name_registry", "recall_registry"),
+    ("volume_summaries",),
+    ("timeline",),
+    ("subplot_board", "emotional_arcs", "particle_ledger"),
+    ("chapter_summaries", "character_matrix"),
+)
+_UNTRUSTED_BLOCK_RE = re.compile(
+    r'<untrusted-source path="([^"]+)">\n?(.*?)\n?</untrusted-source>', re.DOTALL
+)
+
+
+def _enforce_skill_total_budget(skill: str, user_prompt: str, budget: int) -> str:
+    floor = SKILL_TOTAL_CHAR_FLOOR.get(skill, 0)
+    reserve = 400  # 披露块+断言余量
+    if len(user_prompt) <= budget:
+        return user_prompt
+    dropped_faces: list[tuple[str, int]] = []
+
+    # audit-T9 r2 N1: 逐面重取（同层多弃时 stale offset 曾删无辜内容+保留该面——
+    # 长度守恒使断言不可检；每次替换后重新 finditer）。
+    # audit-T9 r2 N3: 弃该面将跌破硬地板时停弃（平尾兜底保 budget-400）。
+    for tier in _BUDGET_DROP_TIERS:
+        if len(user_prompt) <= budget:
+            break
+        while True:
+            if len(user_prompt) <= budget:
+                break
+            blocks = list(_UNTRUSTED_BLOCK_RE.finditer(user_prompt))
+            target = next(
+                (m for m in blocks if any(key in m.group(1) for key in tier)),
+                None,
+            )
+            if target is None:
+                break
+            replacement = (
+                f"> 【预算省略】{target.group(1)} 已整体省略（总预算降级）——全量见项目文件本体。\n"
+            )
+            if len(user_prompt) - (len(target.group(0)) - len(replacement)) < floor:
+                break  # N3: 该面弃后破地板——留给平尾
+            user_prompt = user_prompt[: target.start()] + replacement + user_prompt[target.end() :]
+            dropped_faces.append((target.group(1), len(target.group(0)) - len(replacement)))
+
+    # ② 平尾披露式截断（终态兜底；audit-T9 C1：保留界=常量）
+    tail_dropped = 0
+    if len(user_prompt) > budget:
+        keep = budget - reserve
+        tail_dropped = len(user_prompt) - keep
+        kept = user_prompt[:keep]
+        summary_block = (
+            f"\n【截断告知】以下文件数据不完整：总预算 {budget} chars 已超——"
+            f"已按优先级省略 {len(dropped_faces)} 个文件面（{', '.join(p for p, _ in dropped_faces[:6])}"
+            f"{'…' if len(dropped_faces) > 6 else ''}），尾部 {tail_dropped} chars 亦被截断；"
+            f"被截内容可能含最新数据行——增量输出以你在上文可见的行集为基底，未见行不得臆造。\n"
+        )
+        user_prompt = summary_block + kept
+    elif dropped_faces:
+        # audit-T9 r2 N2: 纯面降级路径同发顶部汇总（单源清单——不双口径）
+        user_prompt = (
+            f"\n【截断告知】以下文件数据不完整：总预算 {budget} chars 已超——"
+            f"已按优先级省略 {len(dropped_faces)} 个文件面"
+            f"（{', '.join(p for p, _ in dropped_faces[:6])}"
+            f"{'…' if len(dropped_faces) > 6 else ''}）；"
+            f"被省略面的增量以你在上文可见的行集为基底，未见行不得臆造。\n" + user_prompt
+        )
+
+    log.warning(
+        "settle_budget_degraded",
+        skill=skill,
+        budget=budget,
+        dropped_faces=[p for p, _ in dropped_faces],
+        dropped_face_chars=sum(n for _, n in dropped_faces),
+        tail_dropped_chars=tail_dropped,
+        final_chars=len(user_prompt),
+    )
+    # 组装内断言（audit-T9 I2：双向——上限+「未塌缩」下界；披露块必然在场）
+    assert len(user_prompt) <= budget + reserve, (
+        f"{skill} budget enforcement failed: {len(user_prompt)} > {budget}"
+    )
+    # 下界容差=单个可弃面的粒度（面降级可过冲一个面；~32k per-file 帽+余量）
+    assert len(user_prompt) >= budget - 33_000, (
+        f"{skill} budget enforcement gutted the prompt: {len(user_prompt)} << {budget}"
+    )
+    assert "【截断告知】" in user_prompt or dropped_faces, "disclosure missing"
+    # 硬地板（仅执法支路内）：截断把契约面切没了才 raise——健康小组装不进此函数此支
+    if len(user_prompt) < floor:
+        raise ValueError(
+            f"{skill}: post-enforcement prompt {len(user_prompt)} chars < hard floor "
+            f"{floor} — enforcement gutted the contract face"
+        )
+    return user_prompt
 
 
 def _is_review_skill(skill: str) -> bool:
@@ -2409,6 +2569,17 @@ def _is_creation_form(content: str, *, key_field: str) -> bool:
     return key_field == "hook_id" and any(re.match(r"^##\s", ln) for ln in lines)
 
 
+def _merge_prose_base_target(project_dir: Path, rel_path: str) -> Path:
+    """Base chapter for a merge_prose write: live committed chapter (staging
+    twin is the output target itself; the base is what passed the gates).
+    """
+    rel = rel_path.removeprefix("staging/")
+    base = project_dir / rel
+    if base.is_file():
+        return base
+    return project_dir / rel  # absent -> caller reports via unmatched/empty base
+
+
 def _route_append_dedup_write(
     project_dir: Path, rel_path: str, content: str, *, key_field: str
 ) -> None:
@@ -2845,15 +3016,27 @@ def _write_parsed_outputs(
                 signature="decisions_json_unrecoverable",
             ) from e
 
-        should_block, reason = _check_content_size_guard(project_dir, rel_path, content)
-        if should_block:
-            log.warning("write_blocked_content_size_guard", path=rel_path, reason=reason)
-            return  # Skip this file, preserve original
+        # spec #95 T6a (audit-T13 F1): semantics 键=未解析契约路径（chapter-N 形），
+        # rel_path=已解析——查找前归一回参数形（append_dedup 全非参数路径从未踩中；
+        # merge_prose 全部 4 处声明都是 chapters/chapter-N.md）。size 守卫对
+        # merge_prose 延迟到合并结果面执行（见 merge_prose 分支），此处跳过。
+        def _mode_key(rp: str) -> str:
+            return re.sub(r"chapter-\d+", "chapter-N", rp.removeprefix("staging/"))
+
+        _is_merge_prose = semantics.get(_mode_key(rel_path), {}).get("mode") == "merge_prose"
+        if not _is_merge_prose:
+            should_block, reason = _check_content_size_guard(project_dir, rel_path, content)
+            if should_block:
+                log.warning("write_blocked_content_size_guard", path=rel_path, reason=reason)
+                return  # Skip this file, preserve original
 
         # 2. WRITE.
         # Contract paths arrive staging-prefixed for checkpoint-gated skills
         # (uses_staging); the semantics map is keyed by the CONTRACT path.
-        mode_meta = semantics.get(rel_path.removeprefix("staging/"), {})
+        mode_key = _mode_key(rel_path)
+        mode_meta = semantics.get(mode_key, {}) or semantics.get(
+            rel_path.removeprefix("staging/"), {}
+        )
         if mode_meta.get("mode") == "append_dedup":
             # Routed merge (C3 T2): upsert by key, never a whole-file rewrite.
             key_field = str(mode_meta.get("key") or "chapter")
@@ -2876,6 +3059,54 @@ def _write_parsed_outputs(
                 size=len(content),
                 mode="append_dedup",
                 key=key_field,
+            )
+        elif mode_meta.get("mode") == "merge_prose":
+            # spec #95 T6a (修 R7): 场景级替换清单——确定性 applier 只重掷被列
+            # 场景（PRE/POST/未列场景不动）；未匹配场景键 fail-loud 拒收（不静默）。
+            # G2 字数/G4.cd 全章复核由修订步的既有 gate 序在写后执行（顺序见
+            # chapter_loop 修订步：applier 落盘 → 全章重检——本处只管写面）。
+            from shenbi.pipeline.prose_patch import (
+                apply_scene_replacements,
+                parse_scene_replacements,
+            )
+
+            try:
+                patches = parse_scene_replacements(content)
+            except ValueError as e:
+                # 阶段8 I1: 裸 ValueError 越写边界=probe3 反型（崩步不耗重试、无反馈）——
+                # 包成 IncrementShapeError 走既有重试+反馈机括（与空清单/未匹配同路）
+                raise IncrementShapeError(f"merge_prose: {rel_path} 场景清单格式错误: {e}") from e
+            if not patches:
+                raise IncrementShapeError(
+                    f"merge_prose: {rel_path} 输出缺场景级替换清单"
+                    "（须含至少一个 `场景n：` 段——见 chapter-revision 契约）"
+                )
+            base_target = _merge_prose_base_target(project_dir, rel_path)
+            base_text = base_target.read_text(encoding="utf-8") if base_target.is_file() else ""
+            res = apply_scene_replacements(base_text, patches)
+            if res.unmatched:
+                raise IncrementShapeError(
+                    f"merge_prose: {rel_path} 场景定位键未匹配: {', '.join(res.unmatched)}"
+                    f"（基座章 {base_target.name if base_target else '<absent>'} 场景数"
+                    f"不足以覆盖——核对场景序号后整清单重发）"
+                )
+            # size 守卫（结果面）：合并章对基座章的缩幅保护——场景替换不应把章砍半
+            should_block, reason = _check_content_size_guard(project_dir, rel_path, res.new_text)
+            if should_block:
+                # audit-T13 F5: 合并结果对基座 <20% 是异常——fail-loud 拒收
+                # （静默 skip 会让派发报成而章未改）
+                raise IncrementShapeError(
+                    f"merge_prose: {rel_path} 合并结果尺寸异常（{reason}）——"
+                    "场景替换不得大幅缩章，核对清单是否漏列保留场景"
+                )
+            safe_write(full_path, res.new_text, allowed_roots=(project_root,))
+            written.append(rel_path)
+            log.info(
+                "output_written",
+                path=rel_path,
+                size=len(res.new_text),
+                mode="merge_prose",
+                scenes=[p.scene_no for p in patches],
             )
         else:
             # z11 R1a (F1301): normalize the contract header on the chapter

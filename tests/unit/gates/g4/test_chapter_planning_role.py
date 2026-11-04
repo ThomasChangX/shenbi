@@ -131,12 +131,54 @@ def test_canonical_template_role_token_passes_g4(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_invalid_chapter_role_value_rejected(tmp_path: Path) -> None:
-    """A chapter_role with a non-canonical value (无效) is rejected: the checker
-    regex value set (高潮/兑现/推进/转折/过渡/铺垫) does not match, so
-    G4.cp.missing_chapter_role fires (the 值非法 contract in SKILL.md).
+    """A present-but-non-canonical value (无效) is rejected via the dedicated
+    G4.cp.invalid_chapter_role id (spec #95 r1.6: present-but-illegal is not
+    missing - missing now fires only when the key is absent).
     """
     f = tmp_path / "chapter-001-plan.md"
     f.write_text(_valid_plan(role="无效"), encoding="utf-8")
     result = _run([str(f)])
     assert result["status"] == "FAIL"
-    assert any("G4.cp.missing_chapter_role" in mf for mf in result["must_fix"])
+    # spec #95 T1 (r1.6): 在场非规范值 → invalid_chapter_role（present-but-illegal ≠ missing）
+    assert any("G4.cp.invalid_chapter_role" in mf for mf in result["must_fix"])
+    assert not any("G4.cp.missing_chapter_role" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_slash_form_rejected_not_passed(tmp_path: Path) -> None:
+    """Spec #95 T1 (R1 aggravated): the slash form must FAIL - the old
+    prefix-match regex returned match=True->PASS for it (coordinator-verified).
+    """
+    f = tmp_path / "chapter-001-plan.md"
+    f.write_text(_valid_plan(role="推进/转折"), encoding="utf-8")
+    result = _run([str(f)])
+    assert result["status"] == "FAIL"
+    assert any("G4.cp.invalid_chapter_role" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_mixed_canonical_and_slash_still_fails(tmp_path: Path) -> None:
+    """Spec #95 T1 (plan review C1): a canonical exemplar line plus a slash
+    declaration must still FAIL - finditer collects every present value (the
+    model-copies-exemplar failure class R1 exists to kill).
+    """
+    content = _valid_plan_raw_role_line("chapter_role: 推进")
+    content += "\n## 9. 补充\nchapter_role: 推进/转折\n"
+    f = tmp_path / "chapter-001-plan.md"
+    f.write_text(content, encoding="utf-8")
+    result = _run([str(f)])
+    assert result["status"] == "FAIL"
+    assert any("G4.cp.invalid_chapter_role" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_space_separated_multi_value_fails_invalid(tmp_path: Path) -> None:
+    """Spec #95 T1 (C1 follow-up): space-separated multi-value must not collapse
+    into missing - every non-canonical present value maps to invalid_chapter_role.
+    """
+    f = tmp_path / "chapter-001-plan.md"
+    f.write_text(_valid_plan(role="推进 转折"), encoding="utf-8")
+    result = _run([str(f)])
+    assert result["status"] == "FAIL"
+    assert any("G4.cp.invalid_chapter_role" in mf for mf in result["must_fix"])
+    assert not any("G4.cp.missing_chapter_role" in mf for mf in result["must_fix"])

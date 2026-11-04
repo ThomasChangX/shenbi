@@ -27,11 +27,7 @@ contract:
     - 9. 对白占比
   - style/style_directives.md
   - style/anchors.md
-  - file: genre-config.json
-    fields:
-    - fatigueWords
-    - pacing
-    - chapterTypes
+  - {file: genre-config.json, extractor: volume_opening_protocol}
   - truth/audit_drift.md
   writes:
   - file: staging/chapter-N-bundle.md
@@ -146,12 +142,12 @@ PRE_WRITE_CHECK:
 5. **对话指纹** — 角色说话必须匹配 voice_profile；关键对白三层结构：信息／关系变化／潜台词至少推进其一（潜台词三法：答非所问／一语双关／反话克制）
 6. **文风目标带（style_directives）** — 若 `style/style_directives.md` 存在（用户手写的总体文风目标，标准结构与示例见 `docs/framework/style-directives.md`），其句长目标带/节奏/意象密度/对白叙述比等**目标**优先于 style_profile 的统计**现状**（profile 回答「现在是什么」，directives 设定「要什么」——没有 directives 时才以 profile 为参照）。**硬闸不因 directives 松动**：转折词密度、AI 标记词、fatigueWords、字数契约、段落下限一律照常执行。文件缺席 = 本条不适用，照旧按 profile 写。
 7. **章型调制（自动，无需人工逐章设定）** — 全局目标带是基带，本章章型在带内调制。调制键 = 备忘段 1 的 `chapter_role`（主）与 `chapter_type`（次，选填）：
-   - `chapter_role: 高潮/兑现` → 句长压向带下沿、动作动词密度上调、段落更碎（仍守 8 段下限）；高潮 = 斩截与咏叹交替——短句连排后允许 1-2 句 ≥35 字咏叹长句（反向档）
-   - `chapter_role: 推进/转折` → 带中位节奏，转折信息落在对白缝隙与物象变化
-   - `chapter_role: 过渡/铺垫` → 句长浮向带上沿、感官意象密度上调、对白占比压向带下沿——过渡章是长句与意象的合法栖息地
+   - `chapter_role` ∈ {高潮, 兑现} → 句长压向带下沿、动作动词密度上调、段落更碎（仍守 8 段下限）；高潮 = 斩截与咏叹交替——短句连排后允许 1-2 句 ≥35 字咏叹长句（反向档）
+   - `chapter_role` ∈ {推进, 转折} → 带中位节奏，转折信息落在对白缝隙与物象变化
+   - `chapter_role` ∈ {过渡, 铺垫} → 句长浮向带上沿、感官意象密度上调、对白占比压向带下沿——过渡章是长句与意象的合法栖息地
    - `chapter_type` 叠加内容向调制：battle=动觉/听觉意象优先；dialogue=对白占比浮向带上沿、归属动作拍全守；political_intrigue=静物/空间意象、信息藏于留白；training=过程细节密度上调；memorial=铭记章专用档：单场景纯度、五感密度顶格、对白占比压向下沿、禁蒙太奇与多线并置、章末固定信物钩（遗物入匣拍）
    - 调制永远在 style_directives 的带内移动（带是用户目标，调制是带内重心）；五道硬闸（转折词/AI 标记词/fatigueWords/字数/段落下限）不因调制松动
-8. **感官拍（氛围的地基）** — 每个场景至少两个感官通道（视觉之外至少一项：听觉/触觉/嗅觉/味觉/体感）。章型调制即感官配额：battle=动觉/听觉、dialogue=声调与停顿、political_intrigue=空间与静物、training=触觉与疲劳感、过渡/铺垫=长句与意象密度。PRE_WRITE_CHECK 的「感官锚」行须点名本章主导通道与一个可回味的物象——氛围（《炮火弧线》自述第一卖点）不靠事后返修补，起草时就铺。
+8. **感官拍（氛围的地基）** — 每个场景至少两个感官通道（视觉之外至少一项：听觉/触觉/嗅觉/味觉/体感）。章型调制即感官配额：battle=动觉/听觉、dialogue=声调与停顿、political_intrigue=空间与静物、training=触觉与疲劳感、chapter_role ∈ {过渡, 铺垫}=长句与意象密度。PRE_WRITE_CHECK 的「感官锚」行须点名本章主导通道与一个可回味的物象——氛围（《炮火弧线》自述第一卖点）不靠事后返修补，起草时就铺。
 9. **微粒钩** — 与审计面的牵引点分工：牵引点（冲突/揭示/转折，group-craft 审计口径每 800-1200 字一个）是底账；微粒钩是其中悬念/爽点/情感类的强化拍，每 2500-3500 字保一枚，场景字数预算行同步标注每场景的钩位；发布若按双更切分（约 3500 字/更），切分点选场景边界并给上半段补一枚中钩——章末钩审计按整章口径，切分后钩位须重排。
 10. **落差工艺** — 长句蓄势短句收割；三叠句刀刃使用（高潮/悲拍每章 ≤1 处）；点染收尾——章尾情绪落物象不落陈述。
 

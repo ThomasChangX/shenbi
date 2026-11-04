@@ -91,6 +91,21 @@ class GenreConfig(BaseModel):
         hg = v["hook_grading"]
         if not 1 <= hg.get("max_consecutive_micro", -1) <= 3:
             raise ValueError(f"market_params.hook_grading: max_consecutive_micro∈[1,3], got {hg}")
+        # spec #95 T2: 卷期开卷热协议（可选——扁平标量子键；planning/drafting 经
+        # volume_opening_protocol extractor 常驻注入；shadow 位为门运行时旗标非内容）
+        vop = v.get("volume_opening_protocol")
+        if vop is not None:
+            # 值型（扁平标量 int|float|str|None）由字段注解经 pydantic mode-after
+            # 保证；validator 只拦结构面：空块与空键。
+            if not vop:
+                raise ValueError(
+                    "market_params.volume_opening_protocol: 须为非空子键 dict（扁平标量）"
+                )
+            for k in vop:
+                if not k:
+                    raise ValueError(
+                        f"market_params.volume_opening_protocol: 键须非空 str, got {k!r}"
+                    )
         # spec #82 T3 新键域（全部可选——缺席由消费端退 WARN；shadow 子键 bool⊂int 天然入域）：
         csc = v.get("cold_streak_cap")
         if csc is not None and not 1 <= csc.get("max", -1) <= 12:

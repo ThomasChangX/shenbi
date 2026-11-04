@@ -809,6 +809,9 @@ G4_CHECK_MAP: dict[str, G4Severity] = {
     "no_evidence": G4Severity.HARD,
     "cp.sections": G4Severity.HARD,
     "cp.chapter_role": G4Severity.HARD,
+    # spec #95 T1: 在场非规范值（斜杠/多值/无效）独立 HARD id——present-but-illegal
+    # ≠ missing；不入 GATE_TO_SHADOW_KEY（未列即保 HARD，正确）。
+    "invalid_chapter_role": G4Severity.HARD,
     "cp.s7_hook_ops": G4Severity.HARD,
     # spec #80 invariant-net: F15/F16/F17 + G4.ss 双写对账，全部硬失败
     # （发射前缀见 cross_chapter/chapter_planning/chapter_drafting/state_settling）
@@ -824,6 +827,8 @@ G4_CHECK_MAP: dict[str, G4Severity] = {
     "cd.chapter_end_hook": G4Severity.SOFT,
     "cp.golden": G4Severity.WARN,
     "cp.s5_choice": G4Severity.WARN,
+    # spec #95 T2 冷三连不入此表（audit-T5 I1：分类发生在 shadow 降级之后，
+    # 能到分类器的必是 shadow:false 转正项——未列走保守默认 HARD，cold_streak_window 先例）
 }
 
 
@@ -1161,6 +1166,44 @@ def _enrich_g4_feedback(failures: list[str]) -> str:
     return "\n".join(lines)
 
 
+_DROP_LINE_RE = re.compile(r"^  (.+)$", re.MULTILINE)
+_DROP_BLOCK_HEAD_RE = re.compile(r"^content_dropped:\d+行", re.MULTILINE)
+
+
+def _prioritize_unseen_drop_lines(feedback: str, prompt: str) -> str:
+    """Reorder content_dropped verbatim lists: model-unseen lines first.
+
+    Stable partition per block: lines absent from *prompt* (outside the
+    truncated window the model actually saw) float above lines the model
+    saw — invisible lines are the ones it reinvents (R5). Pure text op.
+    """
+    if "content_dropped" not in feedback:
+        return feedback
+    out = feedback
+    for head_m in list(_DROP_BLOCK_HEAD_RE.finditer(out)):
+        block_start = head_m.start()
+        instr_idx = out.find("指令：", block_start)
+        if instr_idx < 0:
+            continue
+        seg = out[block_start:instr_idx]
+        lines = [(m.start(), m.group(1)) for m in _DROP_LINE_RE.finditer(seg)]
+        if len(lines) < 2:
+            continue
+        # 阶段8 M3/r2 N1: 溢出披露行（……前缀）不参与分划且**保留在重建输出**
+        # （生产者恒置尾部——重挂 seen 后恢复原位语义；删除会让模型把 ≤20 行
+        # 当完整基集——R6 类静默丢行）
+        data_lines = [s for s in lines if not s[1].startswith("……")]
+        ellipsis_lines = [s for s in lines if s[1].startswith("……")]
+        unseen = [s for s in data_lines if s[1] not in prompt]
+        seen = [s for s in data_lines if s[1] in prompt]
+        if unseen and seen:
+            reordered = unseen + seen + ellipsis_lines
+            first = lines[0][0]
+            new_seg = seg[:first] + "\n".join(f"  {txt}" for _, txt in reordered) + "\n"
+            out = out[:block_start] + new_seg + out[instr_idx:]
+    return out
+
+
 def _append_feedback_injections(
     prompt: str,
     state: PipelineState,
@@ -1193,6 +1236,10 @@ def _append_feedback_injections(
         state.chapter_loop.modify_feedback = None
     prev_g4_feedback = state.chapter_loop.retry_feedback.get(_retry_key(chapter, skill))
     if prev_g4_feedback:
+        # spec #95 T4 (audit-T10 I1): 窗口优先排序——content_dropped verbatim 清单
+        # 中模型未见过的行（不在本次 prompt 的窗口面内）浮到前列：未见行最易被
+        # 凭空重造（R5 盲写面）。gate 发纯清单（纯函数），排序属注入层职责。
+        prev_g4_feedback = _prioritize_unseen_drop_lines(prev_g4_feedback, prompt)
         # spec #83 T4：打摆切换——同 key 连击 ≥4 → 反馈模板切「定点扩写」模式，
         # 不再发整档约束重述（ch25 型混合族连续全档重写病理；loop_id 不作计数器）
         _streak = state.chapter_loop.streak_monitor_rewinds.get(_retry_key(chapter, skill), 0)
@@ -1253,7 +1300,32 @@ def _append_feedback_injections(
                         f"禁止新增场景**——重写会重新掷字数骰子，只有在前稿之上的扩写才能收敛。\n\n"
                         f"<previous_draft>\n{draft}\n</previous_draft>"
                     )
+
+    # spec #95 T5 (R4①): 范例章锚定——上一通过章全文常驻注入（flash 档无 few-shot
+    # 时锚向「一次回复的自然长度」；+3.5k tokens 换长度稳定）。真首章（N-1 不在盘）
+    # 跳过注入——无范例不造范例；注入前剥 META 块（audit-T2 M4：META 内斜杠形
+    # chapter_role 有 R1 数据形再教学面）。
+    if skill == "shenbi-chapter-drafting" and project_dir is not None:
+        exemplar_path = project_dir / "chapters" / f"chapter-{chapter - 1}.md"
+        if exemplar_path.is_file():
+            exemplar = exemplar_path.read_text(encoding="utf-8")
+            stripped = _strip_meta_from_exemplar(exemplar)
+            if stripped.strip():
+                prompt += (
+                    f"\n\n## EXEMPLAR CHAPTER (上一通过章全文——长度与节拍的锚，不是内容素材)\n"
+                    f"你的输出在**总长度、场景密度、段落呼吸**上向它对齐（数值带以 genre-config 为准）；"
+                    f"不要复用其情节或句段。\n\n<exemplar_chapter>\n{stripped}\n</exemplar_chapter>"
+                )
     return prompt
+
+
+def _strip_meta_from_exemplar(text: str) -> str:
+    """Strip the leading ```META block from an exemplar chapter (R1 re-teach face)."""
+    if text.startswith("```META"):
+        end = text.find("```", len("```META"))
+        if end != -1:
+            return text[end + 3 :].lstrip("\n")
+    return text
 
 
 # ---------------------------------------------------------------------------
