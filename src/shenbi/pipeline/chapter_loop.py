@@ -827,6 +827,8 @@ G4_CHECK_MAP: dict[str, G4Severity] = {
     "cd.chapter_end_hook": G4Severity.SOFT,
     "cp.golden": G4Severity.WARN,
     "cp.s5_choice": G4Severity.WARN,
+    # spec #95 T2: 冷三连 WARN 影子（shadow 层默认降级；shadow:false 转正）
+    "cold_opening_triple": G4Severity.WARN,
 }
 
 

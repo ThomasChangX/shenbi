@@ -37,6 +37,8 @@ GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {
     "cd.quote_verbatim": ("market_params", "quote_anchor"),
     "cp.missing_retention_anchor": ("market_params", "retention_anchor"),
     "cp.core_motif_touch": ("pacing", "core_motif_touch"),
+    # spec #95 T2: 冷三连影子检查（R3）——三臂全冷才报；shadow:false 转正 HARD
+    "cp.cold_opening_triple": ("market_params", "volume_opening_protocol"),
     # spec #83 §10 行 1：POST 引句两臂 FAIL 臂（勿与 #82 既有 G4.cd.quote_verbatim
     # 混同——彼门为 v4 备忘张力拍锚，两语义不同的门不可连带转正）
     "cd.post_quote_verbatim": ("market_params", "post_quote_verbatim"),

@@ -72,6 +72,7 @@ from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 09
     extract_hooks_overview,
     extract_locations_overview,
     extract_recent_increments,
+    extract_volume_opening_protocol,
     extract_relationships_overview,
     extract_threads_overview,
     has_chapter_units,
@@ -1079,6 +1080,18 @@ def _build_skill_prompt(
                             path=str(full_path),
                             chapter=chapter,
                         )
+            elif extractor == "volume_opening_protocol":
+                # spec #95 T2: genre-config 热协议投影（子键越顶层字段过滤——extractor 面）
+                try:
+                    extracted = extract_volume_opening_protocol(content)
+                except Exception as exc:
+                    log.warning(
+                        "extractor_failed_fulltext",
+                        extractor=extractor,
+                        path=str(full_path),
+                        chapter=chapter,
+                        error=str(exc),
+                    )
             elif extractor == "recent_increments":
                 # Plan A: chapter-keyed cumulative tables serve head + last
                 # units with an omission sentinel. "" (unexpected shape,

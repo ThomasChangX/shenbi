@@ -770,6 +770,24 @@ def g4_chapter_planning(
         else:
             c.append({"id": "G4.cp.chapter_role", "file": fp, "s": GateStatus.PASS})
 
+        # spec #95 T2 (R3): 冷三连影子检查——emotion_tone∈{平} ∧ 金句位∈{非热值} ∧
+        # 章尾张力拍=微 同现 → G4.cp.cold_opening_triple（GATE_TO_SHADOW_KEY 默认
+        # shadow:true → WARN；shadow:false 转正 HARD）。#82 cold_chapter 的更严子集：
+        # 三臂全冷才报，单臂不报（弱 tell 聚集语义）。
+        _golden_cold = tuple(v for v in GOLDEN_LINE_VALUES if v != GOLDEN_LINE_VALUES[0])
+        if (
+            re.search(r"^emotion_tone[：:]\s*平\s*$", content, re.MULTILINE)
+            and any(
+                re.search(rf"^金句位[：:]\s*{re.escape(g)}[｜|]", content, re.MULTILINE)
+                for g in _golden_cold
+            )
+            and re.search(r"\*{0,2}章尾张力拍\*{0,2}[：:]\s*\[?微", content)
+        ):
+            mf.append(
+                f"G4.cp.cold_opening_triple:{fp}: 冷三连同现（tone=平+金句位=静+张力拍=微）"
+                "——卷期热协议面（market_params.volume_opening_protocol），shadow WARN"
+            )
+
         # #27 (probe17 adjudications #003→#005): the '# Chapter N:' English
         # heading is contract-banned; the write-path injector kept re-adding
         # it after compliant model output (#28 scoped the injector), so the

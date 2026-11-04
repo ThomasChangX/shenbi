@@ -54,8 +54,14 @@ def test_chapter_planning_reads_genre_config_chapter_word() -> None:
     was absent from the contract reads — the model was never shown the file,
     so the value could only arrive by luck (probe14/15) or adjudication
     (probe17, which then mis-attributed it to the model). The read must be
-    declared at field level.
+    declared deterministically.
+
+    spec #95 T2: the wiring moved from top-level field filtering (chapter_word
+    only) to the volume_opening_protocol extractor — the top-key filter cannot
+    reach the market_params.volume_opening_protocol subkey. The extractor
+    projects chapter_word (+ the hot protocol subkey); its projection face is
+    pinned by test_extract_volume_opening_protocol.py.
     """
     contract = load_contract("shenbi-chapter-planning")
     assert "genre-config.json" in contract["reads"], contract["reads"]
-    assert contract["read_fields"]["genre-config.json"] == ["chapter_word"]
+    assert contract["read_extractors"]["genre-config.json"] == "volume_opening_protocol"

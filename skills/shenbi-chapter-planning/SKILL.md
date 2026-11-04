@@ -8,9 +8,7 @@ contract:
   # #76: protagonist 全卡读（voice_profile 是 frontmatter，字段级切片不可用）
   - characters/protagonist.md
   - novel.json
-  - file: genre-config.json
-    fields:
-    - chapter_word
+  - {file: genre-config.json, extractor: volume_opening_protocol}
   - {file: truth/current_state.md, extractor: recent_increments}
   - {file: truth/pending_hooks.md, extractor: hooks_overview}
   - {file: truth/chapter_summaries.md, extractor: recent_increments}

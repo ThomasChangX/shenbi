@@ -27,11 +27,7 @@ contract:
     - 9. 对白占比
   - style/style_directives.md
   - style/anchors.md
-  - file: genre-config.json
-    fields:
-    - fatigueWords
-    - pacing
-    - chapterTypes
+  - {file: genre-config.json, extractor: volume_opening_protocol}
   - truth/audit_drift.md
   writes:
   - file: staging/chapter-N-bundle.md

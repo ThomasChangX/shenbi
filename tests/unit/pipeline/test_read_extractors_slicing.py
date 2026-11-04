@@ -272,6 +272,7 @@ def test_read_extractor_registry_closed_and_extended() -> None:
                 "relationships_overview",
                 "locations_overview",
                 "book_strata_current",
+                "volume_opening_protocol",
             }
         )
         == READ_EXTRACTORS

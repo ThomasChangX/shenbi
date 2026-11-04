@@ -734,3 +734,45 @@ def extract_locations_overview(content: str, *, keep: int = 5) -> str:
         + "——全文见 world/locations.md 本体。\n"
     )
     return out_parts[0].rstrip("\n") + "\n\n" + sentinel + "".join(out_parts[1:]).lstrip("\n")
+
+
+def extract_volume_opening_protocol(content: str) -> str:
+    """Project genre-config.json onto the hot-protocol read face (spec #95 T2/R3).
+
+    Serves the top-level scalars planning/drafting consume (chapter_word /
+    fatigueWords / pacing / chapterTypes) plus the ``market_params.
+    volume_opening_protocol`` subkey — the top-level field filter cannot
+    reach subkeys (contracts/fields.py top-key limit), so the protocol rides
+    an extractor. Returns ``""`` on unparseable JSON (loud full-text + WARN
+    degrade contract, same as the other extractors).
+
+    The hot protocol was previously monitoring-side only (regen-vol2 driver
+    prompt); resident injection here makes planning see 热开篇/倒计时 tier
+    signals every round instead of only in transient retry feedback.
+    """
+    import json
+
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        return ""
+    if not isinstance(data, dict):
+        return ""
+    proto = (data.get("market_params") or {}).get("volume_opening_protocol")
+    lines: list[str] = ["> [extractor:volume_opening_protocol] genre-config 投影："]
+    for key in ("chapter_word", "fatigueWords", "pacing", "chapterTypes"):
+        if key in data:
+            lines.append(f"{key}: {json.dumps(data[key], ensure_ascii=False)}")
+    if isinstance(proto, dict) and proto:
+        lines.append(
+            "market_params.volume_opening_protocol（卷期开卷热协议——本卷前几章须照此执行）:"
+        )
+        for k, v in proto.items():
+            if k == "shadow":
+                continue  # gate-runtime flag, not prompt content
+            lines.append(f"- {k}: {v}")
+    else:
+        lines.append(
+            "market_params.volume_opening_protocol: 未声明（本卷无卷期热协议约束——按卷纲节点字面执行）"
+        )
+    return "\n".join(lines) + "\n"
