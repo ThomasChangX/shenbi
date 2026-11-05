@@ -51,7 +51,7 @@ digraph style_polishing {
     "Polish: paragraph breathing" -> "Polish: word choice (replace fatigue words)";
     "Polish: word choice" -> "Check: no plot/character/motivation changes";
     "Check: no plot/character/motivation changes" -> "Verify constraints (word count +-15%, no new events)";
-    "Verify constraints (word count +-15%, no new events)" -> "Output polished chapter";
+    "Verify constraints (word count +-15%, no new events)" -> "Output scene replacement list + 润色说明(回复内)";
 }
 ```
 
@@ -87,15 +87,21 @@ digraph style_polishing {
 
 ## 输出格式
 
-修订/处理后的**完整章节**写出至 `chapters/chapter-N.md`：
+**管线写面（updates mode `merge_prose`——spec #95 T6a）**：`chapters/chapter-N.md` 走**场景级替换清单**——只重发**需要润色的场景**，未列场景原样保留；写面只认此格式，其它形态（含整章重写）将被 fail-loud 拒收。润色不得删除或挪动 `<!--SCENE-->` 标记行与各场景末钩行（spec #72 场景标记保护条款）。
+
+```
+场景2：
+<场景 2 润色后的完整全文（含场景钩行）>
+
+场景3：
+<场景 3 润色后的完整全文>
+```
+
+场景序号=章内 `<!--SCENE-->` 分隔序（1 起）；确定性 applier 按序号整体替换，未匹配序号整清单拒收。
+
+**润色说明**（下方模板，含 `[polisher-note]`）在**回复中呈现**（监控面）——不写盘、不进场景段（写进场景段会被 applier 吸收为章正文污染）：
 
 ```markdown
-# 润色后的第N章
-
-[完整的润色后章节正文]
-
----
-
 ## 润色说明
 
 ### 修改统计

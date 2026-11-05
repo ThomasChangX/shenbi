@@ -25,7 +25,8 @@ def g4_length_normalizing(
     (probe3 P1 unification — the drafting gate already floors on the same
     config's default; a 1700-default genre cannot demand 3000 from the
     normalizer while accepting 1700 from the drafter). Fallbacks keep the
-    legacy 3000/10000 constants when the config is absent.
+    legacy 3000/10000 constants when the config is absent. Input is the
+    merge_prose merged chapter (spec #95 维护批 audit-T13 F4).
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
@@ -44,30 +45,10 @@ def g4_length_normalizing(
         # spec #72 口径统一: total_chars (band contract), not CJK-only count
         wc = total_chars_md_text(content)
 
-        if "## 归一化报告" not in content:
-            mf.append(f"G4.ln.no_report:{fp}")
-            continue
-        c.append({"id": "G4.ln.report", "file": fp, "s": GateStatus.PASS})
-
-        # Detect "no normalization needed" case
-        no_action = (
-            "不触发" in content
-            or "无需归一化" in content
-            or "within acceptable range" in content.lower()
-        )
-        if no_action:
-            c.append(
-                {
-                    "id": "G4.ln.word_count",
-                    "file": fp,
-                    "s": GateStatus.PASS,
-                    "wc": wc,
-                    "note": "no normalization needed",
-                }
-            )
-            continue
-
-        # Expansion or compression was applied — enforce word count
+        # spec #95 维护批（audit-T13 F4）：updates mode=merge_prose——staged 件=
+        # applier 合并后的整章，旧「## 归一化报告 在章内」检查退役（报告移出章
+        # 文件，进场景段会被吸收为正文）；字数带即结果判定：带内=无需归一化亦过，
+        # 带外=below_floor/above_ceiling（顺带修复旧口径把报告文本计入字数的虚高）。
         if wc < floor:
             mf.append(f"G4.ln.below_floor:{fp}:{wc}<{floor}")
         elif wc > ceiling:

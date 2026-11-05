@@ -365,12 +365,14 @@ def _check_matrix_structure(pf: Path) -> tuple[list[str], list[str]]:
             f"staged={len(staged_lines)}<live*0.9={int(len(live_lines) * 0.9)} "
             "(template regeneration — rebuild as live increment)"
         )
-    _dropped = _dropped_content_lines(live_text, staged_text)  # 报告串（samples 截断）
+    _dropped = _dropped_content_lines(live_text, staged_text)  # 三段式反馈串（_format_drops）
     issues.extend(
         f"G4.ss.matrix_structure:{pf}:{detail} "
-        "(format replacement — re-emit ONLY this chapter's increment: the "
-        "new/changed keyed rows plus this chapter's increment section; do "
-        "NOT reproduce or re-emit other sections of the live file)"
+        # spec #95 维护批（audit-T10 M1）：旧 wrapper「do NOT reproduce or re-emit」
+        # 与三段式「基底行原样重发」极性相反——合并基底=staged 副本，被丢行不会自
+        # live 自动恢复；wrapper 收敛为合并语义注记，操作指令以三段式为准。
+        "(合并基底=staged 副本，被丢行不会自 live 自动恢复——按上方三段式指令："
+        "被丢行原样重发为基底行，新内容仅本章新键行/本章增量节；不要改写基底行)"
         for detail in _dropped
     )
     issues.extend(_check_escape_corruption(pf, live_text, staged_text))
@@ -380,7 +382,8 @@ def _check_matrix_structure(pf: Path) -> tuple[list[str], list[str]]:
     # FAIL，WARN 是束级量化观测——非互斥）
     warns: list[str] = []
     if live_lines:
-        # 面积=全量丢失行数（_seq_drops 未截断口径——samples 截断的报告串不可作分母分子）
+        # 面积=全量丢失行数（_seq_drops 未截断口径——三段式清单 cap=20 带披露截断，
+        # 不可作分母分子）
         _drop_n = len(
             _seq_drops(
                 [
@@ -588,10 +591,12 @@ def _check_hooks_structure(pf: Path) -> list[str]:
         )
     issues.extend(
         f"G4.ss.hooks_structure:{pf}:{detail} "
-        "(hook base lines dropped — re-emit ONLY the affected hook's section "
-        "as named-field colon bullets (e.g. `- last_reinforced: N`); the "
-        "program merges them into the live block in place — never re-emit "
-        f"the hook's stable lines: {hooks_stable_fields_hint()})"
+        # spec #95 维护批（audit-T10 M1）：旧 wrapper「never re-emit the hook's
+        # stable lines」与三段式「基底行原样重发」极性相反——收敛为合并语义注记，
+        # 稳定字段禁的是「改写」而非「原样重发」。
+        "(钩子基底行被丢；合并基底=staged 副本，被丢行不会自 live 自动恢复——"
+        "按上方三段式指令原样重发基底行，本章新内容以 named-field colon bullets "
+        f"记入对应钩分节；稳定字段不得改写：{hooks_stable_fields_hint()})"
         for detail in _dropped_content_lines(live_text, staged_text, hooks=True)
     )
     # Hook-row findings carry their own row-scoped remediation text.

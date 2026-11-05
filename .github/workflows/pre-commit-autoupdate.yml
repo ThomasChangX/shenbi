@@ -16,26 +16,59 @@ jobs:
         with:
           python-version: "3.13"
       - run: pip install pre-commit
+      # Local hooks (basedpyright, lint-*) need the project env. On a bare
+      # runner they all Failed weekly and the old rc==1 logic swallowed it
+      # as "expected autofix" (8 silent weekly failures, run 41376266687).
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv python install 3.13
+      - run: uv sync --frozen --group dev
       - run: pre-commit autoupdate
-      - name: Verify updated hooks work (tolerate autofix, block on real failure)
+      - name: Verify updated hooks work (two-pass idempotent, block on real failure)
         run: |
           set +e
           pre-commit run --all-files
           rc=$?
           set -e
-          # 0 = clean; 1 = hooks autofixed files (expected on autoupdate,
-          # those changes get included in the PR); >1 = real failure
-          # indicating the new hook revs are incompatible — block PR creation.
+          # Pass 1: 0 = clean; 1 = at least one hook failed — covers both
+          # "autofix modified files" (expected, fixes join the PR) and real
+          # failures; >1 = pre-commit-level error. Both >1 and a non-clean
+          # pass 2 block PR creation.
           if [ $rc -gt 1 ]; then
             echo "::error::pre-commit verification failed (exit $rc)"
             echo "::error::new hook revs are incompatible — PR will not be created"
             exit $rc
           fi
-          echo "Verification passed (exit $rc; autofixes included in PR)"
+          # Pass 2 must exit 0: this is what separates "autofix applied"
+          # from a violation no autofix resolves (incl. local gate hooks —
+          # previously their failures were swallowed by the rc==1 path).
+          set +e
+          pre-commit run --all-files
+          rc2=$?
+          set -e
+          if [ $rc2 -ne 0 ]; then
+            echo "::error::pass 2 not clean (exit $rc2) — unresolved violations remain"
+            exit $rc2
+          fi
+          echo "Verification passed (two-pass idempotent; pass-1 fixes join the PR)"
+      - name: Guard C13 allowlist annotations (block silent noqa stripping)
+        # New ruff revs may stop firing BLE001 on some sites → RUF100 autofix
+        # deletes the inline `# noqa: BLE001 (C13 …)` rationale documented in
+        # pyproject per-file-ignores (spec #39 T5). Rationale migration is a
+        # human decision — never silently shipped by a bot PR (7725f002 did).
+        run: |
+          if git diff -U0 -- src/ tools/ | grep -E '^-.*# noqa: BLE001'; then
+            echo "::error::autofix would strip a C13 allowlist # noqa: BLE001 annotation"
+            echo "::error::migrate the rationale in a reviewed rev-bump PR first"
+            exit 1
+          fi
       - name: Create PR if changes
         uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "chore: pre-commit autoupdate"
           title: "chore: pre-commit autoupdate"
           branch: pre-commit-autoupdate
+          delete-branch: true
           labels: dependencies, pre-commit

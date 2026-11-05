@@ -44,7 +44,7 @@ digraph anti_detect {
     "Verify" -> "Re-run anti-AI audit";
     "Re-run anti-AI audit" -> "Re-run sensitivity audit";
     "Re-run sensitivity audit" -> "Passed?";
-    "Passed?" -> "Output revised chapter" [label="yes"];
+    "Passed?" -> "Output scene replacement list + 改写报告(回复内)" [label="yes"];
     "Passed?" -> "Apply additional techniques" [label="no"];
     "Apply additional techniques" -> "Re-run anti-AI audit";
 }
@@ -83,15 +83,21 @@ digraph anti_detect {
 
 ## 输出格式
 
-修订/处理后的**完整章节**写出至 `chapters/chapter-N.md`：
+**管线写面（updates mode `merge_prose`——spec #95 T6a）**：`chapters/chapter-N.md` 走**场景级替换清单**——只重发**需要改写的场景**，未列场景原样保留；写面只认此格式，其它形态（含整章重写）将被 fail-loud 拒收。改写不得删除或挪动 `<!--SCENE-->` 标记行与各场景末钩行（spec #72 场景标记保护条款）；确需全章过刀时逐场景全列即可达成同效。
+
+```
+场景2：
+<场景 2 改写后的完整全文（含场景钩行）>
+
+场景5：
+<场景 5 改写后的完整全文>
+```
+
+场景序号=章内 `<!--SCENE-->` 分隔序（1 起）；确定性 applier 按序号整体替换，未匹配序号整清单拒收。
+
+**改写报告**（下方模板）在**回复中呈现**（监控面）——不写盘、不进场景段（写进场景段会被 applier 吸收为章正文污染）：
 
 ```markdown
-# 反检测改写后的第N章
-
-[完整的改写后章节正文]
-
----
-
 ## 改写报告
 
 **应用手法**:

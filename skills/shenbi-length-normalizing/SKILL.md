@@ -46,10 +46,10 @@ digraph length_normalizing {
     "Word count > 10000?" -> "Done — within acceptable range" [label="no (3000-10000)"];
     "Word count > 10000?" -> "Compress: trim redundant prose + merge descriptions" [label="yes"];
     "Expand: enrich descriptions + deepen content" -> "Expanded ≥ 3000?";
-    "Expanded ≥ 3000?" -> "Output normalized chapter" [label="yes"];
+    "Expanded ≥ 3000?" -> "Output scene replacement list + 归一化报告(回复内)" [label="yes"];
     "Expanded ≥ 3000?" -> "Expand: enrich descriptions + deepen content" [label="no (still < 3000)"];
     "Compress: trim redundant prose + merge descriptions" -> "Compressed ≥ 3000 AND ≥ 25% original?";
-    "Compressed ≥ 3000 AND ≥ 25% original?" -> "Output normalized chapter" [label="yes"];
+    "Compressed ≥ 3000 AND ≥ 25% original?" -> "Output scene replacement list + 归一化报告(回复内)" [label="yes"];
     "Compressed ≥ 3000 AND ≥ 25% original?" -> "REJECT: surface compression cannot achieve target without structural damage" [label="no"];
 }
 ```
@@ -81,15 +81,21 @@ digraph length_normalizing {
 
 ## 输出格式
 
-修订/处理后的**完整章节**写出至 `chapters/chapter-N.md`：
+**管线写面（updates mode `merge_prose`——spec #95 T6a）**：`chapters/chapter-N.md` 走**场景级替换清单**——只重发**需要扩写/压缩的场景**，未列场景原样保留；写面只认此格式，其它形态（含整章重写）将被 fail-loud 拒收。改写不得删除或挪动 `<!--SCENE-->` 标记行与各场景末钩行（spec #72 场景标记保护条款）。
+
+```
+场景1：
+<场景 1 归一化后的完整全文（含场景钩行）>
+
+场景4：
+<场景 4 归一化后的完整全文>
+```
+
+场景序号=章内 `<!--SCENE-->` 分隔序（1 起）；确定性 applier 按序号整体替换，未匹配序号整清单拒收。
+
+**归一化报告**（下方模板）在**回复中呈现**（监控面）——不写盘、不进场景段（写进场景段会被 applier 吸收为章正文污染）：
 
 ```markdown
-# 归一化后的第N章
-
-[完整的归一化后章节正文]
-
----
-
 ## 归一化报告
 
 **原始字数**: N
