@@ -19,7 +19,7 @@ jobs:
       # Local hooks (basedpyright, lint-*) need the project env. On a bare
       # runner they all Failed weekly and the old rc==1 logic swallowed it
       # as "expected autofix" (8 silent weekly failures, run 41376266687).
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
