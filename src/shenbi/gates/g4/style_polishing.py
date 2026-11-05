@@ -20,7 +20,13 @@ def g4_style_polishing(
     project_dir: str | None = None,  # threaded by 15a, consumed by 15b
     repo_root: str | None = None,  # threaded by 15a, consumed by 15b
 ) -> str:
-    """Style polishing: 润色说明 block present, word count change ratio check."""
+    """Style polishing: word count change ratio check vs pre-polish .bak.
+
+    spec #95 维护批（audit-T13 F4）：updates mode=merge_prose——staged 件=
+    applier 合并后的整章，旧「## 润色说明 在章内」存在性检查随报告移出章文件
+    而退役（报告进场景段会被 applier 吸收为正文污染）；±15% 字数比（vs .bak
+    同伴）即章内可检不变量。
+    """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
@@ -29,13 +35,6 @@ def g4_style_polishing(
         if not pf.exists():
             mf.append(f"G4.sp.not_found:{fp}")
             continue
-
-        content = pf.read_text(encoding="utf-8")
-
-        if "## 润色说明" not in content:
-            mf.append(f"G4.sp.no_report:{fp}")
-        else:
-            c.append({"id": "G4.sp.report", "file": fp, "s": GateStatus.PASS})
 
         # Word count change ratio within [0.85, 1.15]
         # Check the .bak sibling (pre-polish version) at the same resolved

@@ -154,6 +154,13 @@ convention = "google"
 "tests/unit/pipeline/test_prose_patch.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/pipeline/test_write_mode_merge_prose.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/pipeline/test_hooks_window_semantics.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #95 维护批（F4/M1）：测试 docstring/断言引用 settle 反馈与 SKILL 教学
+# 词汇（合并基底=staged 副本/场景级替换清单/章内报告退役）——引的是数据，非漂移。
+"tests/unit/gates/g4/test_settle_wrapper_polarity_spec95.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/test_merge_prose_format_invariant.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/g4/test_anti_detect.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/g4/test_length_normalizing.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/g4/test_style_polishing.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #83 T3: findings/docstrings quote the live Chinese outline/truth
 # vocabulary (卷纲节点清单/还账进度表 anchors) — data, not drift.
 "tools/lint_outline_truth_drift.py" = ["RUF001", "RUF002", "RUF003"]

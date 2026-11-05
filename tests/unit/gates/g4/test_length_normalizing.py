@@ -22,18 +22,16 @@ def test_fails_when_file_not_found(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
-def test_fails_when_no_report_block(tmp_path: Path) -> None:
-    f = tmp_path / "ch.md"
-    f.write_text("# 章节\n正文。\n", encoding="utf-8")
-    result = _run([str(f)])
-    assert any("G4.ln.no_report" in mf for mf in result["must_fix"])
+def test_reportless_merged_chapter_passes_when_in_band(tmp_path: Path) -> None:
+    """merge_prose 合并章（报告移出章文件）——带内即 PASS，无需在章内报报告。
 
-
-@pytest.mark.unit
-def test_passes_when_no_normalization_needed(tmp_path: Path) -> None:
+    旧断言（无 ## 归一化报告 → FAIL）随报告移出章文件退役；旧 no_action
+    文本探针（"不触发/无需归一化"）退役——字数带即结果判定。
+    """
     f = tmp_path / "ch.md"
-    f.write_text("# 章节\n正文内容。\n## 归一化报告\n不触发无需归一化。\n", encoding="utf-8")
+    f.write_text("# 章节\n" + ("正文字数填充。" * 800) + "\n", encoding="utf-8")
     result = _run([str(f)])
+    assert result["status"] == "PASS", result["must_fix"]
     assert any(c.get("id") == "G4.ln.word_count" and c["s"] == "PASS" for c in result["checks"])
 
 
@@ -63,7 +61,7 @@ def test_relative_path_with_rd_counts_resolved_file(tmp_path: Path) -> None:
     (rd / "skill-output").mkdir(parents=True)
     f = rd / "skill-output" / "ch.md"
     f.write_text(
-        "# 章节\n" + ("正文字数填充。" * 800) + "\n## 归一化报告\n3000-10000 区间，仅报告。\n",
+        "# 章节\n" + ("正文字数填充。" * 800) + "\n",
         encoding="utf-8",
     )
     result = _run(["skill-output/ch.md"], rd=str(rd))
