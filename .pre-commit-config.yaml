@@ -7,6 +7,10 @@ repos:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
+        # ruff ≥0.17 formats python code blocks inside markdown — the
+        # 7725f002 bot run churned 167 archived docs. Plans/specs archive
+        # and audit-run records are frozen evidence: never auto-reformatted.
+        exclude: ^docs/superpowers/(plans/archive|specs/archive|audit-runs)/
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v2.1.0
