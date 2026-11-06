@@ -149,3 +149,23 @@ def test_bare_tens_regex_shape_punct_guard() -> None:
     assert _BARE_DAY_RE.search("船是二十三那天开的。") is not None
     assert _BARE_DAY_RE.search("过了廿三才动身") is not None
     assert _BARE_DAY_INITIAL_RE.search("初十，") is not None
+
+
+@pytest.mark.unit
+def test_counting_unit_gen_after_tens_not_bare_day() -> None:
+    """束5 ch44 实弹（2026-11-06）：算筹计数「第二十三根/二十四根」被裸日
+    形态误锚 (2,23)/(2,24)——ch44 末锚被推到未来，ch45 真锚二月初六 误判
+    回拨。根=计数单位（日字位从不后接），入 _UNIT_LOOKAHEAD（石/分 同例）。
+    """
+    from shenbi.gates.g4.cross_chapter import chapter_last_anchor, normalize_anchor
+
+    assert normalize_anchor("数着收：一、二、三……二十四。第二十三根短了一截。", 2) is None
+    assert normalize_anchor("归的时候数了一遍，二十四根，一根没少。", 2) is None
+    assert normalize_anchor("一遍二十二根，一根三文。", 2) is None
+    # ch44 实弹全文形态：末锚回到真值 (2,5)（二月初五夜）
+    prev = (
+        "二月初五夜，站房只余他这一间点灯。\n"
+        "削完他数了一遍：二十四根。\n"
+        "他把算筹一根一根收进布袋。第二十三根短了一截。\n"
+    )
+    assert chapter_last_anchor(prev) == (2, 5)
