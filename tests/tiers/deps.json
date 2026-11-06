@@ -416,7 +416,7 @@
     "src/shenbi/gates/g4/shadow.py": "sha256:ca373f9b0611dc2ffd71ffc38a26edb2b7fa556ae41f2ee09be51ae888edefa9",
     "src/shenbi/gates/g4/verdict_fence.py": "sha256:0087409c8859d4b7082e18507b6be02967a018b9ed34bab31e7758633abced84",
     "src/shenbi/gates/g4/quote_verbatim.py": "sha256:e3d81fcde1bab258e5608cad5de904921b571471c3ea719f4b17fb253786e4fe",
-    "src/shenbi/gates/g4/chapter_planning.py": "sha256:fabe5b82264f1483b440ff8300c23f64421c82474b1031403812d7b113913792",
+    "src/shenbi/gates/g4/chapter_planning.py": "sha256:bfbe9e95fef9303c7ab70c34eae4df5cdecfd7977ca7ac8e79d52d304f4f2602",
     "src/shenbi/gates/g4/chapter_revision.py": "sha256:1889a048106e9467f5fd73001c363bc96dc69e25113273b7870068c2ca2761be",
     "src/shenbi/gates/g4/character_design.py": "sha256:300c1cf281487cd4683914599a4f0a2838d55dc485513dc0d52910e528a4ca25",
     "src/shenbi/gates/g4/cross_chapter.py": "sha256:25e6fa1f7574adb0f2b2ca0124196e04237cba776c827d3a18597bb8094a1d88",

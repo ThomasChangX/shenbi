@@ -360,7 +360,8 @@ def _defer_anchor_hits_volume(tail: str, vm_text: str) -> bool:
 def _anchor_sample_for_chapter(vm_text: str, n: int) -> str | None:
     """束6 逐字化：从 volume_map 提取 ch{n} 的活清偿锚样例。
 
-    样例=本章所在卷+覆盖本章的 KR（缺覆盖 KR 时回退该卷/全图首个 KR），并经
+    样例=本章所在卷+覆盖本章的 KR（缺覆盖 KR 时回退该卷标题式 KR；卷内闭环，
+    不跨卷配对——跨卷配对虽能过存在性校验，但教出的是语义错配锚），并经
     ``_defer_anchor_hits_volume`` 自验——只返回本身能过锚校验的形态（垃圾卷/
     悬空 KR 一律不产出）。解析面与校验器同源：卷标题 ``## 第X卷…（第 A–B 章）``
     （中文/阿拉伯数字、–/—/- 三种破折号），KR 行 ``1. KRk（第 A–B 章完成）``
