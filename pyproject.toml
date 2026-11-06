@@ -161,6 +161,10 @@ convention = "google"
 "tests/unit/gates/g4/test_anti_detect.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/g4/test_length_normalizing.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/g4/test_style_polishing.py" = ["RUF001", "RUF002", "RUF003"]
+# 束4 复验前置批：测试 docstring/断言引用实弹中文报文与正文词形
+# （防回退令/船工十二，/酱熟肉一块）——引的是数据，非漂移。
+"tests/unit/pipeline/test_retry_feedback_accumulation.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/g4/test_xc_timeline.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #83 T3: findings/docstrings quote the live Chinese outline/truth
 # vocabulary (卷纲节点清单/还账进度表 anchors) — data, not drift.
 "tools/lint_outline_truth_drift.py" = ["RUF001", "RUF002", "RUF003"]

@@ -87,6 +87,26 @@ def test_currency_suffixed_entity_no_short_form_collision():
     assert entity_in_text("火纹骨哨", "他把骨哨揣进怀里。") is True
 
 
+def test_counter_suffixed_entity_no_short_form_collision():
+    # 量词短语尾（数字+量词）不是短称——束4 ch43 实弹（2026-11-05）：注册物
+    # 「酱熟肉一块」后两字「一块」命中正文计数用法「一块薄板」，交接语境
+    # 三要件齐 → 伪交接报（手术当时以正文改「一方薄板」消撞；本测钉门侧
+    # 收窄）。全键命中仍有效；泛称名词后缀（木板类）不在收窄列——短称
+    # 「骨哨」形是设计内匹配面
+    from shenbi.gates.g4.chapter_drafting import entity_in_text
+
+    # 束4 实弹形：计数用法不得命中量词尾注册物
+    assert entity_in_text("酱熟肉一块", "他递过去一块薄板。") is False
+    # 「两」字头量词短语此前已由币值族覆盖（两∈currency chars）——钉回归
+    assert entity_in_text("契纸两张", "案上摆着两张纸。") is False
+    # 同族他例：三枚/半张 尾同样不构成短称
+    assert entity_in_text("铜钱三枚", "怀里三枚温热。") is False
+    # 全键命中仍有效（fail-safe 方向：实体指称永不丢）
+    assert entity_in_text("酱熟肉一块", "酱熟肉一块切开了。") is True
+    # 泛称名词后缀不在收窄列（束4 木板撞名裁定：改文消撞，不收窄短称设计）
+    assert entity_in_text("炮架炭画木板", "他把木板立起来。") is True
+
+
 def test_cross_sentence_verb_not_entity_handoff():
     # 句级共现校准（2026-10-29 ch25 实弹二撞）：「他在私账上写下这个数。
     # ……二十二文半还了老周，七文半给了完颜嫂」——交接动词的宾语是钱不是

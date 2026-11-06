@@ -1166,6 +1166,101 @@ def _enrich_g4_feedback(failures: list[str]) -> str:
     return "\n".join(lines)
 
 
+# ---------------------------------------------------------------------------
+# Cumulative retry feedback (束4 裁决 #10/#11 实证形：全约束一次成形)
+# ---------------------------------------------------------------------------
+
+#: 累积历史上限（族数）——防长熔断循环把反馈撑成无界清单；超出丢最旧族
+#: （dict 序=首见序）。真实失败族数远低于此，上限只是防御性截断。
+_RETRY_HISTORY_MAX_FAMILIES = 16
+
+_ANTI_REGRESSION_HEADER = (
+    "\n## 防回退令（此前轮已点名、本轮未再报的失败族）\n"
+    "下列各族在你此前某轮失败中被点名、本轮检查未再报——视为已修。"
+    "重发时必须保持已修状态，不得为修新项而回退：\n"
+)
+
+
+def _failure_family_id(must_fix_item: str) -> str:
+    """Failure-family key: check id with indexed suffixes normalized to _N.
+
+    Same normalization shape as the format-example keying in
+    ``_enrich_g4_feedback`` -- sel_3_missing_basis and sel_5_missing_basis
+    are one family (same check, different rows). Segment extraction uses
+    split-colon, NOT ``_extract_check_id`` (whose ``[a-z_.]+`` class
+    truncates at the first digit, collapsing indexed families away). Non-G4
+    shapes (dispatch stderr / human review feedback) degrade to their first
+    colon segment or the whole string: identical text rewrites, distinct
+    text accumulates -- both are bounded surfaces.
+    """
+    fam = must_fix_item.split(":", maxsplit=1)[0]
+    if fam.startswith("G4."):
+        fam = fam[len("G4.") :]
+    return re.sub(r"_\d+", "_N", fam)
+
+
+def _failure_history_map(state: PipelineState) -> dict[str, dict[str, str]]:
+    """Forward-compatible field access for the accumulation history.
+
+    getattr face (same shape as dispatch_helper's access to
+    retry_budget_consumed/retry_feedback): a SimpleNamespace test double or
+    an older serialized state lacking the field gets a lazily created empty
+    dict instead of an AttributeError.
+    """
+    h = getattr(state.chapter_loop, "retry_failure_history", None)
+    if h is None:
+        h = {}
+        state.chapter_loop.retry_failure_history = h
+    return h
+
+
+def accumulate_retry_feedback(
+    state: PipelineState, retry_key: str, failures: list[str], *, enrich: bool = True
+) -> str:
+    """Cumulative corrective feedback (live-fire proven form, 束4 ruling #10:
+    the 4th dispatch passed first-try once feedback carried the full set).
+
+    Single-round feedback carries only the previous round's failures, so the
+    model oscillates (fix one, regress another: 束4 ch43 planning 3-fail /
+    drafting 4-fail). This rewrites the G4 hard-fail retry_feedback write
+    from full overwrite to failure-family accumulation:
+
+    - families still failing this round: rendered via _enrich_g4_feedback
+      (format examples included) when enrich=True; verbatim passthrough when
+      enrich=False (human free-text review feedback -- the G4 template
+      header/fallback line would pollute adjudication semantics; the cli
+      review-routing sites use that form);
+    - families named in EARLIER rounds but silent this round: kept in an
+      anti-regression section with their latest message -- the constraint
+      set persists across rounds so the model self-checks the full list;
+    - same family re-failing: latest message replaces the old one (no
+      stacking).
+
+    Lifecycle mirrors retry_feedback under the same key: gate PASS / step
+    success / chapter-close sweep clear both via _clear_retry_feedback.
+    """
+    current: dict[str, str] = {}
+    for f in failures:
+        current[_failure_family_id(f)] = f  # 同族多报文：后者（最新）胜
+    history = _failure_history_map(state).setdefault(retry_key, {})
+    carryover = {k: v for k, v in history.items() if k not in current}
+    merged = _enrich_g4_feedback(failures) if enrich else "\n".join(failures)
+    if carryover:
+        lines = [_ANTI_REGRESSION_HEADER]
+        lines.extend(f"- **{v}**" for v in carryover.values())
+        merged += "\n".join(lines)
+    history.update(current)
+    while len(history) > _RETRY_HISTORY_MAX_FAMILIES:
+        history.pop(next(iter(history)))  # 丢最旧（首见序）
+    return merged
+
+
+def _clear_retry_feedback(state: PipelineState, retry_key: str) -> None:
+    """Clear retry_feedback together with its accumulation history."""
+    state.chapter_loop.retry_feedback.pop(retry_key, None)
+    _failure_history_map(state).pop(retry_key, None)
+
+
 _DROP_LINE_RE = re.compile(r"^  (.+)$", re.MULTILINE)
 _DROP_BLOCK_HEAD_RE = re.compile(r"^content_dropped:\d+行", re.MULTILINE)
 
@@ -1255,7 +1350,10 @@ def _append_feedback_injections(
         # issue 串；非自由文本判读，触发判定在 streak 计数器）
         from shenbi.pipeline.retry_routing import classify_retry_family, targeted_feedback_addendum
 
-        _fam = classify_retry_family(prev_g4_feedback)
+        # 累积反馈只对**活项节**分族路由——防回退节是历史约束持存面，把
+        # carryover 长度族路由进「定向修复（长度族）」附录会误导当前
+        # structure/content 败轮的修法（split 无头时回退整串，向后兼容）。
+        _fam = classify_retry_family(prev_g4_feedback.split("## 防回退令", 1)[0])
         prompt += targeted_feedback_addendum(_fam, prev_g4_feedback)
         prompt += (
             f"\n\n## CORRECTIVE FEEDBACK (prior attempt failed G4 validation)\n"
@@ -1790,9 +1888,15 @@ def apply_settle_facts_ops(
         apply_sidecar_ops(project_dir, *(project_dir / STAGING_DIR / rel for rel in sidecars))
     except FactsOpRejectedError as exc:
         key = _retry_key(chapter if chapter is not None else 1, skill)
-        state.chapter_loop.retry_feedback[key] = (
-            f"settle 双写 facts_ops 拒收：{exc}"
-            "——重派时修正 decisions sidecar 的 facts_ops，使其与 truth/facts 现态一致"
+        state.chapter_loop.retry_feedback[key] = accumulate_retry_feedback(
+            state,
+            key,
+            [
+                # ASCII 冒号分段——族键须稳定为前缀（settle 双写 facts_ops 拒收），
+                # 全角冒号会令每次 exc 细节各成一族、挤爆累积史上限（PR #291 审查）
+                f"settle 双写 facts_ops 拒收: {exc}"
+                "——重派时修正 decisions sidecar 的 facts_ops，使其与 truth/facts 现态一致"
+            ],
         )
         return str(exc)
     return None
@@ -1964,6 +2068,9 @@ def _escalate_step_failure(
 def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> None:
     """Clear retry count after a successful step."""
     state.chapter_loop.retry_counts.pop(_retry_key(chapter, step.skill), None)
+    # 累积历史同清（门 PASS 面已清——此处兜底 pipeline-内部步等不经门 PASS
+    # pop 的成功路径；幂等）。
+    _failure_history_map(state).pop(_retry_key(chapter, step.skill), None)
 
 
 # ---------------------------------------------------------------------------
@@ -2250,7 +2357,7 @@ def _shadow_route_g4(
     if not demoted:
         return g4, None
     if not remaining:
-        state.chapter_loop.retry_feedback.pop(rk, None)
+        _clear_retry_feedback(state, rk)
         rewritten = {**g4, "status": GateStatus.PASS.value, "must_fix": []}
         from shenbi.gates.gate_manifest import record_gate_result
 
@@ -2350,6 +2457,10 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     prefix = f"ch{chapter}-"
     for stale in [k for k in state.chapter_loop.retry_feedback if k.startswith(prefix)]:
         state.chapter_loop.retry_feedback.pop(stale)
+    _fh = getattr(state.chapter_loop, "retry_failure_history", None)
+    if _fh:
+        for stale in [k for k in _fh if k.startswith(prefix)]:
+            _fh.pop(stale)
 
     # 10e: Check world file freshness at volume boundaries
     _check_world_file_freshness(project_dir, chapter)
@@ -4184,7 +4295,11 @@ def _run_chapter_step_impl(
                 # retrying model and re-dispatches ran the original prompt
                 # verbatim (blind-retry signature).
                 state.chapter_loop.retry_feedback[_retry_key(chapter, settling_step.skill)] = (
-                    f"上一次派发失败（输出未落盘）：{settling_result.stderr}"
+                    accumulate_retry_feedback(
+                        state,
+                        _retry_key(chapter, settling_step.skill),
+                        [f"上一次派发失败（输出未落盘）：{settling_result.stderr}"],
+                    )
                 )
             handle_state_settle_failure(state, chapter)
             log.error(
@@ -4209,7 +4324,11 @@ def _run_chapter_step_impl(
                 # increment-shape guard's teaching feedback was lost and all
                 # three attempts emitted identical non-compliant shapes.
                 state.chapter_loop.retry_feedback[_retry_key(chapter, lifecycle_step.skill)] = (
-                    f"上一次派发失败（输出未落盘）：{lifecycle_result.stderr}"
+                    accumulate_retry_feedback(
+                        state,
+                        _retry_key(chapter, lifecycle_step.skill),
+                        [f"上一次派发失败（输出未落盘）：{lifecycle_result.stderr}"],
+                    )
                 )
             return _handle_failure(
                 state,
@@ -4239,14 +4358,16 @@ def _run_chapter_step_impl(
             )
             if _shadow_rem is not None:
                 state.chapter_loop.retry_feedback[_retry_key(chapter, pstep.skill)] = (
-                    _enrich_g4_feedback(list(_shadow_rem))
+                    accumulate_retry_feedback(
+                        state, _retry_key(chapter, pstep.skill), list(_shadow_rem)
+                    )
                 )
             if _gate_passed(g4):
                 # #18-4 (probe23): mirror the serial site's canary pop — a
                 # PASSED retry must clear its corrective feedback, or the
                 # audit-routed re-settle re-injects selections_uncovered
                 # demands into a dispatch whose issues were already fixed.
-                state.chapter_loop.retry_feedback.pop(_retry_key(chapter, pstep.skill), None)
+                _clear_retry_feedback(state, _retry_key(chapter, pstep.skill))
             if not _gate_passed(g4):
                 log.warning(
                     "parallel_post_draft_g4_failed",
@@ -4257,7 +4378,9 @@ def _run_chapter_step_impl(
                 # prompt (the serial audit-wave site does this; this site
                 # previously left retry_feedback empty, so retries ran blind).
                 state.chapter_loop.retry_feedback[_retry_key(chapter, pstep.skill)] = (
-                    _enrich_g4_feedback(list(g4.get("must_fix", [])))
+                    accumulate_retry_feedback(
+                        state, _retry_key(chapter, pstep.skill), list(g4.get("must_fix", []))
+                    )
                 )
                 # C33 R4 (F365 residual): G4 failure escalates through the
                 # failure handler instead of marking the step done anyway.
@@ -4368,7 +4491,11 @@ def _run_chapter_step_impl(
                 # 熔断重派 drafting（标记/带违例的修复者是 LLM 产物侧）；
                 # 失败归类确定性门（FailureClass.DETERMINISTIC_GATE 语义面）
                 state.chapter_loop.retry_feedback[_retry_key(chapter, drafting_step.skill)] = (
-                    _enrich_g4_feedback([f"pipeline-scene-split: {i}" for i in issues])
+                    accumulate_retry_feedback(
+                        state,
+                        _retry_key(chapter, drafting_step.skill),
+                        [f"pipeline-scene-split: {i}" for i in issues],
+                    )
                 )
                 drafting_idx = next(
                     i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-chapter-drafting"
@@ -4470,7 +4597,9 @@ def _run_chapter_step_impl(
     if step.skill == "shenbi-state-settling":
         _st_demoted, _st_hard = _pre_settle_guard(state, project_dir, chapter)
         if _st_hard:
-            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(_st_hard)
+            state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
+                state, retry_key, _st_hard
+            )
             return _handle_failure(state, step, chapter, "g4", project_dir)
     # Dispatch the skill. The explicit [path-context] carrier makes the
     # chapter authoritative on the API route: bundle prompts ("chapters 1,2")
@@ -4537,8 +4666,8 @@ def _run_chapter_step_impl(
             # quarantine) retried blind — the stderr carries the missing-path
             # signature + expected ### FILE format; route it into the
             # corrective slot the re-dispatch injects.
-            state.chapter_loop.retry_feedback[retry_key] = (
-                f"上一次派发失败（输出未落盘）：{result.stderr}"
+            state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
+                state, retry_key, [f"上一次派发失败（输出未落盘）：{result.stderr}"]
             )
         return _handle_failure(
             state,
@@ -4562,7 +4691,7 @@ def _run_chapter_step_impl(
     if _gate_passed(g4):
         # Canary defect 'retry_feedback 永不清': stale corrective feedback
         # from a prior failure stayed injected into every later dispatch.
-        state.chapter_loop.retry_feedback.pop(retry_key, None)
+        _clear_retry_feedback(state, retry_key)
     if not _gate_passed(g4):
         must_fix: list[str] = (
             _shadow_remaining if _shadow_remaining is not None else list(g4.get("must_fix", []))
@@ -4603,7 +4732,11 @@ def _run_chapter_step_impl(
                 _check_soft_fail_escalation(state, Path(project_dir), chapter)
 
         if hard_fails:
-            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(hard_fails)
+            # 束4 裁决 #10/#11（2026-11-05）：整覆写→失败族累积（防回退令节
+            # 持存此前轮已点名族——单轮反馈令模型逐轮丢持振荡，修一漏一）。
+            state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
+                state, retry_key, hard_fails
+            )
             # spec #81 §2: structured RETRY event (both re-dispatch branches
             # below share this emission point — per-chapter _handle_failure
             # route and the direct auto-retry route).
@@ -4729,11 +4862,11 @@ def _run_chapter_step_impl(
                 emit_shadow_warn_trace(project_dir, chapter, _dw)
             if _plain or _hard:  # all-demoted 不得写空反馈头——shadow 契约要求
                 # 复刻 retry_feedback 清理（PASS-with-warnings），非注入 vacuous 模板
-                state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(
-                    [f"修订重验: {i}" for i in (_plain + _hard)]
+                state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
+                    state, retry_key, [f"修订重验: {i}" for i in (_plain + _hard)]
                 )
                 return _handle_failure(state, step, chapter, "g4", project_dir)
-            state.chapter_loop.retry_feedback.pop(retry_key, None)  # 全 demoted → 清理旧反馈
+            _clear_retry_feedback(state, retry_key)  # 全 demoted → 清理旧反馈
         else:
             # spec #83 §11 清除点 1（复验谓词全绿复同步处）：三类声明已同步——
             # 快乐路径清除（防「拒收→摄取永不发生→清除不可达」死锁的另一清除点在摄取步）

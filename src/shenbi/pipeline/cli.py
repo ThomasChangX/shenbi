@@ -1314,12 +1314,26 @@ def cmd_review(args: argparse.Namespace) -> int:
                 # run_triggered_skills injects it into the re-dispatch.
                 trig = state.last_trigger_failure or {}
                 if trig.get("chapter") == cp.chapter and trig.get("skill"):
-                    state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{trig['skill']}"] = feedback
+                    from shenbi.pipeline.chapter_loop import accumulate_retry_feedback
+
+                    # enrich=False：人审自由文本逐字透传（G4 模板头会污染裁决
+                    # 语义）；族仍入累积史——后续机器败轮以防回退令持存人审约束
+                    state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{trig['skill']}"] = (
+                        accumulate_retry_feedback(
+                            state, f"ch{cp.chapter}-{trig['skill']}", [feedback], enrich=False
+                        )
+                    )
                 else:
                     idx = state.chapter_loop.step_index
                     if 0 <= idx < len(CHAPTER_STEPS):
                         skill = CHAPTER_STEPS[idx].skill
-                        state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{skill}"] = feedback
+                        from shenbi.pipeline.chapter_loop import accumulate_retry_feedback
+
+                        state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{skill}"] = (
+                            accumulate_retry_feedback(
+                                state, f"ch{cp.chapter}-{skill}", [feedback], enrich=False
+                            )
+                        )
 
             # G4: On modify, queue re-dispatches for derived truth files
             # (spec section 9.2: truth-sync propagation after human edit).

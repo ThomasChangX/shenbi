@@ -443,11 +443,21 @@ _MONTHDAY_RE = re.compile(
 # 无月锚：两字日形态（初X/十X/廿X）——单字裸数字过宽禁用。
 # 负回顾断言：数字中段不开局（「榆字三十七」不得吃出「十七」、「书字六十一」
 # 不得吃出「十一」——regen v3 ch14 假锚 (11,17)/(11,11) 第三案）。
+# 束4 ch42 实弹（2026-11-05）：裸「十X/廿X」形后随**顿断标点**（，、；。）
+# 是名册/账目计数位（「船工十二，厨上二」「加护卫二十三；」），不是日期
+# ——计数被日锚继承月后伪成 (2,12)/(2,23)，把前章末锚推到未来，令后章
+# 真锚误判回拨（ch43 二月初五 伪回拨案的根因位）。初X 形不受此限
+# （「初」为日位专名，从无计数用法）；「二十三那天」类后续非标点形亦
+# 保留（真日期引用不带月名时的合法裸日位）。
+_BARE_DAY_INITIAL_RE = re.compile(
+    r"(?<![一二三四五六七八九十百千万零两])" r"(初[一二三四五六七八九十])" + _UNIT_LOOKAHEAD
+)
 _BARE_DAY_RE = re.compile(
     r"(?<![一二三四五六七八九十百千万零两])"
-    r"(初[一二三四五六七八九十]|三十[一二]?|(?:[一二]?十)[一二三四五六七八九]?|"
-    r"廿[一二三四五六七八九]?)" + _UNIT_LOOKAHEAD
+    r"(三十[一二]?|(?:[一二]?十)[一二三四五六七八九]?|"
+    r"廿[一二三四五六七八九]?)" + _UNIT_LOOKAHEAD + r"(?![，、；。])"
 )
+_BARE_DAY_ANY_RE = (_BARE_DAY_INITIAL_RE, _BARE_DAY_RE)
 # 阿拉伯形态（G6.4 退役后唯一的 arabic 日期防线）：12月7日
 _ARABIC_MD_RE = re.compile(r"(\d{1,2})月(\d{1,2})[日号]")
 
@@ -477,7 +487,7 @@ def normalize_anchor(text: str, default_month: int | None) -> tuple[int, int] | 
         day = _cn_day(m.group(3))
         if month is not None and day is not None:
             return (month, day)
-    b = _BARE_DAY_RE.search(text)
+    b = _BARE_DAY_INITIAL_RE.search(text) or _BARE_DAY_RE.search(text)
     if b and default_month is not None:
         day = _cn_day(b.group(1))
         if day is not None:
@@ -506,7 +516,7 @@ def chapter_last_anchor(text: str, default_month: int | None = None) -> tuple[in
                 if day is not None:
                     last = (month, day)
                 continue
-        b = _BARE_DAY_RE.search(chunk)
+        b = _BARE_DAY_INITIAL_RE.search(chunk) or _BARE_DAY_RE.search(chunk)
         if b and carry is not None:
             day = _cn_day(b.group(1))
             if day is not None:
