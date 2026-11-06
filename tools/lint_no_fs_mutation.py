@@ -144,11 +144,14 @@ def _find_violations(tree: ast.Module, filepath: Path) -> list[str]:
                     )
 
         # builtin open(file, mode)
-        elif isinstance(func, ast.Name) and func.id == "open":
-            if _is_write_mode(_extract_mode(node, is_method=False)):
-                violations.append(
-                    f"{filepath}:{node.lineno}: forbidden FS-mutation: open() in write/append mode"
-                )
+        elif (
+            isinstance(func, ast.Name)
+            and func.id == "open"
+            and _is_write_mode(_extract_mode(node, is_method=False))
+        ):
+            violations.append(
+                f"{filepath}:{node.lineno}: forbidden FS-mutation: open() in write/append mode"
+            )
 
     return violations
 

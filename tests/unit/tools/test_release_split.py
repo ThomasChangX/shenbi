@@ -88,7 +88,8 @@ def _settle(
         if n == skip_split_key:
             del skills["pipeline-scene-split"]
         if n == fail_chapter:
-            skills["shenbi-chapter-planning"]["G4"] = [_rec("PASS"), _rec("FAIL")]  # noqa: typed as object
+            # typed as object
+            skills["shenbi-chapter-planning"]["G4"] = [_rec("PASS"), _rec("FAIL")]
         gates[str(n)] = skills  # type: ignore[assignment]
     (p / "pipeline-manifest.json").write_text(
         json.dumps({"gates": {"chapter_loop": gates}}), encoding="utf-8"

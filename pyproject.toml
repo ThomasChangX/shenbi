@@ -81,10 +81,6 @@ module = "shenbi.contracts.*"
 disable_error_code = ["prop-decorator"]
 
 [[tool.mypy.overrides]]
-module = "jieba.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
 module = "tenacity.*"
 ignore_missing_imports = true
 
@@ -115,6 +111,10 @@ select = [
 ignore = [
     "D100", "D104",
     "PLR0913",
+    # spec #97 T3: PLR0917 (too-many-positional-args) newly fires ×29 at
+    # ruff 0.17; signature refactors collide with batch-A #87/#94 interface
+    # work — deferred there, revisit after batch A lands.
+    "PLR0917",
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -127,7 +127,10 @@ convention = "google"
 # spec #39 T5 (F103-family prevention): BLE001 blind-except lint is
 # ACTIVE repo-wide; the files below are legacy out-of-scope sites pending
 # their own cluster fixes — each entry is an explicit, reviewed allowlist
-# member. Spec-scope files use inline `# noqa: BLE001` with justification.
+# member. Spec-scope sites carry inline justification at the site itself:
+# `# noqa: BLE001 (C13 …)` while the rule still fires; a plain `# C13 …`
+# comment once ruff ≥0.17 exempts the handler (spec #97 T1) — either way
+# the rationale never leaves the site.
 "tools/**" = ["T201"]
 # SDD #56 C18 oneoff cleanup scripts live in the audit-run record dir (spec
 # pins them next to their evidence); CLI prints and CJK punctuation are
@@ -491,6 +494,17 @@ convention = "google"
     "C401", "C416",
     "B007",
     "I001",
+]
+
+[tool.ruff.format]
+# ruff ≥0.17 formats python code blocks inside markdown (spec #97 T2):
+# archived plans/specs and audit-run records are frozen evidence — never
+# auto-reformatted. Single source: the pre-commit ruff-format hook relies
+# on this config (no hook-level duplicate).
+exclude = [
+    "docs/superpowers/plans/archive/**",
+    "docs/superpowers/specs/archive/**",
+    "docs/superpowers/audit-runs/**",
 ]
 
 [tool.mypy]
