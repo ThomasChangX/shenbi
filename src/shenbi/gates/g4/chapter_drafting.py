@@ -1244,13 +1244,19 @@ def g4_chapter_drafting(
             # 束6 逐字化：逐字内联未在场的卡口癖——束5 实弹面是卡形差一字
             # （正文『行，先记账』vs 卡『行，先算账』），语义近似但计分是
             # 精确子串，报文不引卡原串模型无从对照；另列其余两类可计分
-            # 信号的确定形态。
+            # 信号的确定形态。卡口癖全在场时换措辞——缺的是其余信号类，
+            # 不再出现『未计分卡口癖：已全在场』的自相矛盾形（PR #295 审查）。
             _miss = [p for p in _cps if p not in _body]
-            _mq = "；".join(f"『{p}』" for p in _miss[:4]) if _miss else "卡口癖已全在场"
+            _cp_part = (
+                f"未在场卡口癖（须逐字照抄、一字不可改）："
+                f"{'；'.join(f'『{p}』' for p in _miss[:4])}；另可计分："
+                if _miss
+                else "卡口癖已全在场——补其余信号；可计分："
+            )
             mf.append(
                 f"G4.cd.voice_density:{fp}:{_signals}<{_vmin} "
-                f"(v2 章——备忘声口要求行未兑现；未计分卡口癖（须逐字照抄、一字不可改）：{_mq}；"
-                f"另可计分：账房动词任一（如『{'』『'.join(ACCOUNTING_VERBS[:3])}』）"
+                f"(v2 章——备忘声口要求行未兑现；{_cp_part}"
+                f"账房动词任一（如『{'』『'.join(ACCOUNTING_VERBS[:3])}』）"
                 f"或自嘲反问收尾（『…吧？』『…呢？』句式）；修复者: drafting)"
             )
         else:

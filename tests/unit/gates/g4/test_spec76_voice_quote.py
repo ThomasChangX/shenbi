@@ -163,6 +163,41 @@ def test_g4cd_voice_density_failure_quotes_missing_catchphrases_verbatim(
 
 
 @pytest.mark.unit
+def test_g4cd_voice_density_all_catchphrases_present_no_contradiction(
+    tmp_path: Path,
+) -> None:
+    """PR #295 review: catchphrases all present but signals still short (vmin=3,
+    only 2 catchphrase signals) -- the message must switch wording instead of
+    the self-contradictory "missing catchphrases: none missing" form.
+    """
+    chapter = _V2_CHAPTER.replace(
+        "他把这笔我先记下。利息又涨了。这买卖不亏吧？", "他把这笔我先记下。又记一笔。他推门。"
+    )
+    d = _mk_v2_project(tmp_path, chapter=chapter)
+    (d / "genre-config.json").write_text(
+        json.dumps(
+            {
+                "chapter_word": {"default": 3200, "min": 2800, "max": 4000},
+                "market_params": {
+                    "payoff_density": {"window": 3, "min": 1},
+                    "emotion_band": {"window": 1, "min": 1},
+                    "hook_grading": {"max_consecutive_micro": 2},
+                    "voice_density_min": {"min_per_chapter": 3},
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    bad = json.loads(
+        g4_chapter_drafting([str(d / "chapters" / "chapter-1.md")], rd=str(d), project_dir=str(d))
+    )
+    hit = [m for m in bad.get("must_fix", []) if "G4.cd.voice_density" in m]
+    assert hit  # 1 catchphrase signal < 3
+    assert "卡口癖已全在场——补其余信号" in hit[0]
+    assert "未在场卡口癖" not in hit[0]
+
+
+@pytest.mark.unit
 def test_g4cd_quote_type_three_point_sync(tmp_path: Path) -> None:
     # 全一致（静/静/静）→ PASS（C1 回归钉：memo 点须贡献类型——_memo_text 赋值）
     okd = _mk_v2_project(tmp_path / "ok")
