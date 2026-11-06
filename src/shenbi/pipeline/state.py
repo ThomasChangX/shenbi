@@ -226,8 +226,8 @@ class ChapterLoopStateData:
     retry_feedback: dict[str, str] = field(default_factory=dict)
     # 束4（2026-11-05）裁决 #10/#11 实证：重派反馈只带上一轮失败项 → 模型
     # 逐轮丢持振荡（修一漏一）。失败族累积历史（retry_key → {族id: 最新报文}），
-    # 与 retry_feedback 同键同生命周期（写入经 _accumulate_retry_feedback 合并、
-    # 门 PASS/步成功/章闭清扫处经 _clear_retry_feedback 同清）。
+    # 与 retry_feedback 同键同生命周期（写入经 accumulate_retry_feedback 合并、
+    # 门 PASS/步成功/章闭清扫处同清——清理入口 _clear_retry_feedback）。
     retry_failure_history: dict[str, dict[str, str]] = field(default_factory=dict)
     soft_fail_trackers: dict[str, SoftFailTracker] = field(default_factory=dict)
     # Observability: per-skill wall-clock timing (list of elapsed seconds per call).

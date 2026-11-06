@@ -215,3 +215,12 @@ def test_serial_g4_path_accumulates_across_rounds(tmp_path, monkeypatch) -> None
     # planning 步可能因 outputs/precheck 面走失败路由——只断言门 PASS 清面
     if key not in state.chapter_loop.retry_feedback:
         assert key not in state.chapter_loop.retry_failure_history
+
+
+def test_facts_reject_family_key_stable_across_rejections() -> None:
+    """PR #291 审查修复：facts_ops 拒收前缀 ASCII 冒号——族键稳定为前缀，
+    不同 exc 同族（全角冒号会令每次 exc 各成一族、挤爆累积史上限）。
+    """
+    m1 = "settle 双写 facts_ops 拒收: 键 骨哨 owner 缺失——重派时修正"
+    m2 = "settle 双写 facts_ops 拒收: 键 余额 现态冲突——重派时修正"
+    assert _failure_family_id(m1) == _failure_family_id(m2)

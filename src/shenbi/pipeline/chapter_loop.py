@@ -1892,7 +1892,9 @@ def apply_settle_facts_ops(
             state,
             key,
             [
-                f"settle 双写 facts_ops 拒收：{exc}"
+                # ASCII 冒号分段——族键须稳定为前缀（settle 双写 facts_ops 拒收），
+                # 全角冒号会令每次 exc 细节各成一族、挤爆累积史上限（PR #291 审查）
+                f"settle 双写 facts_ops 拒收: {exc}"
                 "——重派时修正 decisions sidecar 的 facts_ops，使其与 truth/facts 现态一致"
             ],
         )
