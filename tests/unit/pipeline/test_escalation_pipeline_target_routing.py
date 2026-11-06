@@ -40,7 +40,7 @@ def test_scene_split_reject_feedback_routes_to_drafting(tmp_path, monkeypatch) -
     args.feedback = str(fb_path)
     # 审查决策走 cmd_review 主入口（含 ESCALATION 路由块）
     rc = cli_mod.cmd_review(args)
-    assert rc in (0, None)
+    assert rc == 0  # cmd_review 契约 int（0=成功）；None 会掩盖返回型回归（PR #292 审查）
     # 正键：drafting（熔断重派目标）；死键不得残留
     state = load_state(tmp_path)
     fb = state.chapter_loop.retry_feedback.get("ch45-shenbi-chapter-drafting", "")
