@@ -25,7 +25,7 @@ import sys
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, assert_never
 
 from shenbi.cli_utils import echo, emit_json
 from shenbi.logging import configure_logging, get_logger
@@ -623,7 +623,10 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
                     return
 
             else:
-                return
+                # spec #97 T3: mypy 2.4 exhaustiveness — the three PipelinePhase
+                # values are fully covered above; a future fourth value must
+                # fail loud here instead of silently returning.
+                assert_never(phase)
 
     except RetryExhaustedError as exc:
         log.error("retry_budget_exhausted_escalation", error=str(exc))

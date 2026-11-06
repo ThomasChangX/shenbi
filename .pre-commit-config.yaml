@@ -2,18 +2,14 @@
 default_install_hook_types: [pre-commit, pre-push]
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.17
+    rev: v0.17.4
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
-      - id: ruff-format
-        # ruff ≥0.17 formats python code blocks inside markdown — the
-        # 7725f002 bot run churned 167 archived docs. Plans/specs archive
-        # and audit-run records are frozen evidence: never auto-reformatted.
-        exclude: ^docs/superpowers/(plans/archive|specs/archive|audit-runs)/
+      - id: ruff-format  # md 冻结面单源：pyproject [tool.ruff.format] exclude（spec #97 T2）
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+    rev: v2.4.1
     hooks:
       - id: mypy
         additional_dependencies:
@@ -31,7 +27,7 @@ repos:
         args: [src/shenbi/]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         # spec #95 T3: blob 回放 fixtures 必须逐字节等于捕获产物（manifest 哈希钉）
@@ -56,7 +52,7 @@ repos:
         exclude: ^tests/rounds/(archived/|round-[0-9]{3}-)
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1
+    rev: v0.11.0.1-1
     hooks:
       - id: shellcheck
         files: \.sh$

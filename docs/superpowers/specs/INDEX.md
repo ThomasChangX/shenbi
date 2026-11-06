@@ -122,10 +122,10 @@
 
 ### #97 · pre-commit hook rev 落地链（precommit-rev-landing）
 
-- **文件**：`2026-11-06-spec97-precommit-rev-landing.md` ｜ **系列**：工具链卫生批（PR #288 后件） ｜ **状态**：Active（r1 立项） ｜ **优先级**：🟠 P1（**死线驱动**：2026-11-09 02:00 UTC 修复版工作流首跑前清偿，否则 C13 守卫每周红灯拦 PR）
+- **文件**：`2026-11-06-spec97-precommit-rev-landing.md` ｜ **系列**：工具链卫生批（PR #288 后件） ｜ **状态**：Active（**执行中** r1 施工 2026-11-06——T0-T3 落地，站点数勘误 7 非 6［archive.py:195 保留 noqa］+uv.lock ruff/mypy 双对齐为 spec 未预判的第 5 组 bump；首跑验收待 11-09） ｜ **优先级**：🟠 P1（**死线驱动**：2026-11-09 02:00 UTC 修复版工作流首跑前清偿，否则 C13 守卫每周红灯拦 PR）
 - **依赖**：**T0 前置 = PR #288 合并**（守卫/两遍验证执法面）；与批次 A 无文件域冲突，**先于批次 A 执行**（小件+死线，不触最热文件）
 - **内容**：四组 rev 落地（ruff 0.15.17→0.17.3/mypy 2.1.0→2.4.1/pre-commit-hooks 4.5.0→6.0.0/shellcheck→-1）＋C13 理由迁移（**RUF100×6 判死实锤**——`uvx ruff@0.17.3` 干跑确认；六站点 noqa 删指令留纯注释理由，pyproject 治理注释同步演进，`grep -rc "C13 allowlist" src/` ≥6 红测）＋**冻结单源**（#288 的 hook 级 ruff-format exclude 收敛为 pyproject `[tool.ruff]` 单源——干跑实锤直接 `ruff format` 面不认 hook 级；活面残留仅 2 md 顺手清零）＋新规 fallout（**PLR0917×29 ignore 挂账批次 A 后**不做签名重构；tests 非法 noqa 1 处修）＋首跑验收观察点。回测基线 7725f002（173 文件污染批，已删）。干跑证据：format 面 169（archive 166＋活 2＋audit 1）/lint 面 35 零 md
-- **对应 plan**：待执行时建
+- **对应 plan**：已建 `../plans/2026-11-06-spec97-precommit-rev-landing.md`（T0-T3 落地，首跑验收待 11-09）
 - **触及的不变量维度**：无（工具链卫生）
 
 ---
