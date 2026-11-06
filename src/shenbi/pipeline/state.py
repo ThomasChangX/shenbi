@@ -224,6 +224,11 @@ class ChapterLoopStateData:
     streak_monitor_rewinds: dict[str, int] = field(default_factory=dict)
     modify_feedback: str | None = None
     retry_feedback: dict[str, str] = field(default_factory=dict)
+    # 束4（2026-11-05）裁决 #10/#11 实证：重派反馈只带上一轮失败项 → 模型
+    # 逐轮丢持振荡（修一漏一）。失败族累积历史（retry_key → {族id: 最新报文}），
+    # 与 retry_feedback 同键同生命周期（写入经 _accumulate_retry_feedback 合并、
+    # 门 PASS/步成功/章闭清扫处经 _clear_retry_feedback 同清）。
+    retry_failure_history: dict[str, dict[str, str]] = field(default_factory=dict)
     soft_fail_trackers: dict[str, SoftFailTracker] = field(default_factory=dict)
     # Observability: per-skill wall-clock timing (list of elapsed seconds per call).
     # Populated by run_chapter_step; summarized by _print_timing_summary at chapter
@@ -349,6 +354,7 @@ class PipelineState:
                 "streak_monitor_rewinds": self.chapter_loop.streak_monitor_rewinds,
                 "modify_feedback": self.chapter_loop.modify_feedback,
                 "retry_feedback": self.chapter_loop.retry_feedback,
+                "retry_failure_history": self.chapter_loop.retry_failure_history,
                 "soft_fail_trackers": {
                     k: v.to_dict() for k, v in self.chapter_loop.soft_fail_trackers.items()
                 },
@@ -435,6 +441,7 @@ class PipelineState:
                 streak_monitor_rewinds=cl_data.get("streak_monitor_rewinds", {}),
                 modify_feedback=cl_data.get("modify_feedback"),
                 retry_feedback=cl_data.get("retry_feedback", {}),
+                retry_failure_history=cl_data.get("retry_failure_history", {}),
                 soft_fail_trackers=soft_fail_trackers,
             ),
             closure=ClosureState(data.get("closure", "pending")),

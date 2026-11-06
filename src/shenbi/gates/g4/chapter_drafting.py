@@ -63,14 +63,26 @@ def _extract_hook_ledger_section(plan_text: str) -> str:
 #: 无实体指称关系，短称匹配在此类后缀上必然伪命中（2026-10-29 ch25 实弹）
 _CURRENCY_SUFFIX_CHARS = "文钱两银吊贯"
 
+#: 量词短语族——实体的末两字若为「数字+量词」（注册物「酱熟肉一块」的
+#: 「一块」），不构成「短称」：量词短语与正文一切计数用法（一方薄板/
+#: 两张/三枚）无实体指称关系（束4 ch43 实弹 2026-11-05：正文「一块薄板」
+#: 命中注册物「酱熟肉一块」后两字致伪报）。泛称名词后缀（木板类）**不在**
+#: 此列——短称「骨哨」形是设计内匹配面（ch20 L230），收窄泛称名词即废
+#: 短称设计（束4 木板撞名以正文改名消撞，非门收窄）。
+_COUNTER_SUFFIX_RE = re.compile(
+    r"^[一二三四五六七八九十百零两半双][块张枚只条支把颗粒串匹头件幅面根片叠]$"
+)
+
 
 def entity_in_text(entity: str, text: str) -> bool:
     """Three-form entity matcher (spec #80 T5 / plan R3-M2).
 
     Full key / the pre-``·`` stem of a disambiguated copy key / the last
     two chars of a >=3-char key (短称「骨哨」form, ch20 L230). A currency-
-    amount suffix (四文/三文 family) is NOT a short form — transaction-
-    named entities would otherwise collide with money-counting prose.
+    amount suffix (四文/三文 family) or a numeral-classifier suffix
+    (一块/两张 family) is NOT a short form — transaction- and quantity-
+    named entities would otherwise collide with money/quantity-counting
+    prose (ch25 / 束4 ch43 live fire).
     """
     if entity in text:
         return True
@@ -79,6 +91,8 @@ def entity_in_text(entity: str, text: str) -> bool:
         return True
     suffix = entity[-2:]
     if any(ch in _CURRENCY_SUFFIX_CHARS for ch in suffix):
+        return False
+    if _COUNTER_SUFFIX_RE.match(suffix):
         return False
     return len(entity) >= 3 and suffix in text
 

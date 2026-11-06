@@ -101,3 +101,51 @@ def test_interest_rate_phrase_not_a_date_anchor():
     assert normalize_anchor("「一月三分。」", 1) is None
     assert normalize_anchor("「一月三分，一斗粮压一个月。」他说。", 1) is None
     assert normalize_anchor("月息三分，四个月一百四十四文。", 1) is None
+
+
+@pytest.mark.unit
+def test_roster_counts_before_pause_punct_are_not_bare_days() -> None:
+    """束4 ch42 实弹（2026-11-05）：名册计数「船工十二，」「加护卫二十三；」
+    被裸十X/廿X 日形态捕获，carry 月后伪成 (2,12)/(2,23)——前章末锚被推到
+    未来，令 ch43 真锚二月初五 误判回拨（伪回拨案根因位）。顿断标点
+    （，、；。）前的裸十X/廿X 是计数位，不是日期；初X 形与「二十三那天」
+    类非标点后续形保留。
+    """
+    from shenbi.gates.g4.cross_chapter import (
+        _BARE_DAY_INITIAL_RE,
+        chapter_last_anchor,
+        normalize_anchor,
+    )
+
+    # 束4 实弹行（ch42:140/:142 原文）——计数位不再成锚
+    assert normalize_anchor("船工十二，厨上二，带路一，护卫四。", 2) is None
+    assert (
+        normalize_anchor("读第二遍数人数，十九个，加护卫二十三；读第三遍，只看带路那一栏。", 2)
+        is None
+    )
+    # 算术计数（ch17 历史形）：三十六加三十二，六十八
+    assert normalize_anchor("他又核了一遍：三十六加三十二，六十八。", 2) is None
+    # 价目计数（ch2 历史形）：一张十五，两张二十五
+    assert normalize_anchor("「一张十五，两张二十五。」他把钱袋掂了掂。", 2) is None
+    # 初X 形不受限（「初」为日位专名）——顿断标点后随仍成锚
+    assert normalize_anchor("到了初十，雪没停。", 12) == (12, 10)
+    assert _BARE_DAY_INITIAL_RE.search("到了初十，雪没停。") is not None
+    # 「二十三那天」非标点后续形保留（真裸日引用）
+    assert normalize_anchor("船是二十三那天开的。", 2) == (2, 23)
+    # 前章末锚面：ch42 实弹全文形态——末锚回到 (2,4)（二月初四 真锚）
+    prev = "二月初四，天刚亮，站门口来了三个人。\n……\n首航人手名册贴在墙上：船工十二，厨上二，带路一，护卫四。\n他读第二遍数人数，十九个，加护卫二十三；读第三遍，只看带路那一栏。\n"
+    assert chapter_last_anchor(prev) == (2, 4)
+
+
+def test_bare_tens_regex_shape_punct_guard() -> None:
+    # 形状钉：十X/廿X 裸形态带标点守卫，初X 形无标点守卫（族分裂不变量）
+    from shenbi.gates.g4.cross_chapter import _BARE_DAY_INITIAL_RE, _BARE_DAY_RE
+
+    assert _BARE_DAY_RE.search("护卫二十三；") is None
+    assert _BARE_DAY_RE.search("船工十二，") is None
+    assert _BARE_DAY_RE.search("到了十七。") is None
+    assert _BARE_DAY_RE.search("廿三，辰时") is None
+    # 非标点后续保留
+    assert _BARE_DAY_RE.search("船是二十三那天开的。") is not None
+    assert _BARE_DAY_RE.search("过了廿三才动身") is not None
+    assert _BARE_DAY_INITIAL_RE.search("初十，") is not None
