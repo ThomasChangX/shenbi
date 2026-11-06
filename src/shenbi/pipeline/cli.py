@@ -1327,8 +1327,18 @@ def cmd_review(args: argparse.Namespace) -> int:
                     idx = state.chapter_loop.step_index
                     if 0 <= idx < len(CHAPTER_STEPS):
                         skill = CHAPTER_STEPS[idx].skill
-                        from shenbi.pipeline.chapter_loop import accumulate_retry_feedback
+                        # 束5 发现（2026-11-06 裁决 #13）：pipeline- 步源的
+                        # escalation（scene-split 熔断），step_index 指向
+                        # pipeline- 步——pipeline- 步从不消费 retry_feedback，
+                        # 反馈会写进死键、reject 重派（目标是映射的 LLM 步）
+                        # 拿不到人审约束。按熔断重派映射落目标技能键（与
+                        # chapter_loop scene-split 熔断写点同键）。
+                        from shenbi.pipeline.chapter_loop import (
+                            ESCALATION_PIPELINE_TARGET,
+                            accumulate_retry_feedback,
+                        )
 
+                        skill = ESCALATION_PIPELINE_TARGET.get(skill, skill)
                         state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{skill}"] = (
                             accumulate_retry_feedback(
                                 state, f"ch{cp.chapter}-{skill}", [feedback], enrich=False

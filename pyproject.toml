@@ -165,6 +165,8 @@ convention = "google"
 # （防回退令/船工十二，/酱熟肉一块）——引的是数据，非漂移。
 "tests/unit/pipeline/test_retry_feedback_accumulation.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/g4/test_xc_timeline.py" = ["RUF001", "RUF002", "RUF003"]
+# 束5 收尾批：docstring 引实弹报文与键形（第二十三根/ch45-shenbi-chapter-drafting）。
+"tests/unit/pipeline/test_escalation_pipeline_target_routing.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #83 T3: findings/docstrings quote the live Chinese outline/truth
 # vocabulary (卷纲节点清单/还账进度表 anchors) — data, not drift.
 "tools/lint_outline_truth_drift.py" = ["RUF001", "RUF002", "RUF003"]

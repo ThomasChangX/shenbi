@@ -142,6 +142,15 @@ class ChapterStep:
 # removed with CONDITIONAL_STEPS (C37 F315: dead table, zero consumers).
 # NOTE: escalation-review is NOT a CHAPTER_STEPS entry — it is dispatched
 #   reactively by revision_router.dispatch_escalation (Spec 5).
+
+#: 熔断重派映射：pipeline- 步源的 escalation，其 reject 反馈/重派目标应落
+#: 映射的 LLM 步键（pipeline- 步从不消费 retry_feedback——束5 2026-11-06
+#: 裁决 #13 实证：scene-split 熔断的 reject 反馈写进 ch{N}-pipeline-scene-split
+#: 死键，重派的 drafting 拿不到人审全清单）。与 scene-split 熔断写点（本文件
+#: _run_chapter_step）同键；cli 审查路由消费（cmd_review）。
+ESCALATION_PIPELINE_TARGET: dict[str, str] = {
+    "pipeline-scene-split": "shenbi-chapter-drafting",
+}
 CHAPTER_STEPS: list[ChapterStep] = [
     # Step 1: Volume alignment (deterministic, pre-planning)
     ChapterStep(
