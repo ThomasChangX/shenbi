@@ -225,6 +225,34 @@ def test_v4_hook_type_presence_and_wordlist(tmp_path: Path) -> None:
     )
 
 
+# --- 束6 逐字化：hook_age 报文必须内联可照抄的逐字模板/活锚样例 ---
+
+
+@pytest.mark.unit
+def test_overaged_message_inlines_touch_row_template(tmp_path: Path) -> None:
+    """束6 verbatim batch: over-age message inlines a section-7 table row
+    template carrying the real hook id -- model can copy it verbatim.
+    """
+    _mk(tmp_path, ch=45)
+    hit = [m for m in _mf(tmp_path, 45) if "距上次推进" in m and "MH03" in m]
+    assert hit
+    assert "| MH03 | advance |" in hit[0]  # 逐字模板行（含真实钩号）
+
+
+@pytest.mark.unit
+def test_anchor_miss_message_carries_live_volume_kr_sample(tmp_path: Path) -> None:
+    """束6 verbatim batch: anchor-miss message carries a live sample extracted
+    from volume_map (chapter's volume + that volume's KR); the sample itself
+    passes _defer_anchor_hits_volume (self-validated -- ch100 lands in the
+    fixture VM's 第三卷; KR2's row range 105-120 does not cover 100, so the
+    heading-form KR1 fallback applies).
+    """
+    _mk(tmp_path, ch=100, plan_extra="- 挂起: MH03 之后再看\n")
+    hit = [m for m in _mf(tmp_path, 100) if "挂起缺有效清偿锚" in m and "MH03" in m]
+    assert hit
+    assert "至第3卷·KR1" in hit[0]  # 活样例逐字内联（第三卷 92-146 含 100）
+
+
 # --- spec #85 T4: acceptance-8 criterion 2 (hook_age domain pinning) ---
 
 

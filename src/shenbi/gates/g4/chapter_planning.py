@@ -357,6 +357,67 @@ def _defer_anchor_hits_volume(tail: str, vm_text: str) -> bool:
     return vol_hit or kr_hit  # 单指定单命中
 
 
+def _anchor_sample_for_chapter(vm_text: str, n: int) -> str | None:
+    """束6 逐字化：从 volume_map 提取 ch{n} 的活清偿锚样例。
+
+    样例=本章所在卷+覆盖本章的 KR（缺覆盖 KR 时回退该卷/全图首个 KR），并经
+    ``_defer_anchor_hits_volume`` 自验——只返回本身能过锚校验的形态（垃圾卷/
+    悬空 KR 一律不产出）。解析面与校验器同源：卷标题 ``## 第X卷…（第 A–B 章）``
+    （中文/阿拉伯数字、–/—/- 三种破折号），KR 行 ``1. KRk（第 A–B 章完成）``
+    与标题 ``#### KRk:``。
+    """
+    if not vm_text:
+        return None
+    vol_n: int | None = None
+    for m in re.finditer(
+        r"^##+\s*第([一二三四五六七八九十百\d]+)卷[^\n]*?[（(]\s*第?\s*(\d+)\s*[–—-]\s*(\d+)\s*章\s*[）)]",
+        vm_text,
+        re.M,
+    ):
+        lo, hi = int(m.group(2)), int(m.group(3))
+        if lo <= n <= hi:
+            raw = m.group(1)
+            vol_n = int(raw) if raw.isdigit() else (_cn_to_int(raw) or 0)
+            break
+    if not vol_n:
+        return None
+    # 卷段定位双形态归一（与校验器同法：真实卷纲 12/12 用「第二卷」中文标题）
+    seg_m: re.Match[str] | None = None
+    for form in (str(vol_n), _int_to_cn(vol_n) or ""):
+        if not form:
+            continue
+        seg_m = re.search(
+            rf"^##+\s*第{form}卷.*?(?=^##+\s*第[一二三四五六七八九十百\d]+卷|\Z)",
+            vm_text,
+            re.M | re.S,
+        )
+        if seg_m:
+            break
+    if not seg_m:
+        return None
+    seg = seg_m.group(0)
+    # 优先覆盖本章的行式 KR；回退该卷标题式 KR。不做跨卷回退——样例必须
+    # 是「本卷+本卷 KR」的自洽形态（跨卷配对虽能过存在性校验，但教出的
+    # 是语义错配锚）。
+    kr_id = next(
+        (
+            k.group(1)
+            for k in re.finditer(r"^\d+\.\s*(KR\d+)（第\s*(\d+)\s*[–—-]\s*(\d+)\s*章", seg, re.M)
+            if int(k.group(2)) <= n <= int(k.group(3))
+        ),
+        None,
+    )
+    if not kr_id:
+        kr_id = next(
+            (m.group(1) for m in re.finditer(r"^####+\s*(KR\d+)[：:]", seg, re.M)),
+            None,
+        )
+    if not kr_id:
+        return None
+    sample = f"至第{vol_n}卷·{kr_id}"
+    return sample if _defer_anchor_hits_volume(sample, vm_text) else None
+
+
 def _spec82_hook_age(
     content: str, n: int, project_dir: str | None, mf: list[str], c: list[dict[str, Any]]
 ) -> None:
@@ -414,9 +475,13 @@ def _spec82_hook_age(
             re.search(rf"^\|\s*{hook}\s*\|\s*defer\s*\|([^|\n]*)", content, re.M)
         )
         if not (touched or deferred):
+            # 束6 逐字化：报文内联带真实钩号的段7 表格行模板——模型可逐字
+            # 照抄过关（旧报文只说「须触达」不给可抄形态，模型自造行常不中
+            # 触达正则）。
             mf.append(
                 f"G4.cp.hook_age:ch{n}:{hook} 距上次推进 {age}>{max_age} 章且本章未触达未挂起"
-                f"（修复者: planning——钩账行 touch 或带清偿锚挂起）"
+                f"（修复者: planning——段7 钩账表逐字加行『| {hook} | advance | （推进方式一句话） | 0 |』"
+                f"或钩账行『- 钩账: {hook} 本章推进（一句话）』；不推进则挂起，挂起须带清偿锚）"
             )
     # 挂起行须带真实清偿锚（r3/r4：锚中卷/KR 引用须在 volume_map 命中——两代 KR 形态+卷号归一）；
     # v4 段 7 表格 defer 行的 推进方式 列同送锚校验（阶段8/I1：bullet-only 让表格形
@@ -429,12 +494,20 @@ def _spec82_hook_age(
         (m.group(1), m.group(2))
         for m in re.finditer(rf"^\|\s*({_MH_SRC})\s*\|\s*defer\s*\|([^|\n]*)", content, re.M)
     )
+    _anchor_sample = _anchor_sample_for_chapter(vm_text, n)
     for hook_id, tail in defer_forms:
         anchor_hit = _defer_anchor_hits_volume(tail, vm_text)
         if not anchor_hit:
+            # 束6 逐字化：失败报文带活锚样例（本章所在卷+KR，自验可过锚校验）
+            # ——模型可照抄形态，不必猜「至第N卷·KRn」的 N/n 取值。
+            _samp = (
+                f"本章活锚样例（照抄形态换内容）：『{_anchor_sample}』"
+                if _anchor_sample
+                else "锚形『至第N卷·KRn』的卷/KR 均须在卷纲在盘"
+            )
             mf.append(
                 f"G4.cp.hook_age:ch{n}:{hook_id} 挂起缺有效清偿锚（『{tail.strip()[:20]}』未命中 volume_map 卷/KR）"
-                f"（修复者: planning——挂起行/表格 defer 行的推进方式列须带「至第N卷·KRn」且在卷纲在盘）"
+                f"（修复者: planning——挂起行/表格 defer 行的推进方式列须带清偿锚；{_samp}）"
             )
     budget = mp.get("hook_defer_budget", {})
     per_vol = int(budget.get("per_volume", 3)) if isinstance(budget, dict) else 3
@@ -766,7 +839,15 @@ def g4_chapter_planning(
             mf.append(f"G4.cp.missing_chapter_role:{fp}")  # 键不存在
         elif any(v not in _role_canon for v in _role_vals):
             _bad_role = next(v for v in _role_vals if v not in _role_canon)
-            mf.append(f"G4.cp.invalid_chapter_role:{fp}:{_bad_role!r}")
+            # 束6 逐字化：报文内联合法六枚举全文＋节点角色反混淆——束5 复发面
+            # 是模型照抄卷纲『章节节点』表节点角色列用词（『承接』×2 章连犯），
+            # 旧报文只给坏值不给对值，模型无从改对。
+            mf.append(
+                f"G4.cp.invalid_chapter_role:{fp}:{_bad_role!r} 不在合法枚举"
+                f"（chapter_role 只许六个单值：{'/'.join(CHAPTER_ROLE_VALUES)}；"
+                f"卷纲『章节节点』表的节点角色列用词（开篇/承接/收束等）不是 chapter_role"
+                f"——禁照抄节点角色词，从六值中选最贴近者改写该行）"
+            )
         else:
             c.append({"id": "G4.cp.chapter_role", "file": fp, "s": GateStatus.PASS})
 
@@ -965,13 +1046,20 @@ def g4_chapter_planning(
         # annotation in section 7. Only the EXACT-template column order
         # (ID | 操作 | 推进方式 | 沉默章数) is parsed; free-form tables
         # (e.g. Phase-1 placeholder prose) do not match and are not flagged.
-        defer_silent = re.findall(r"\|\s*[^|]*\|\s*defer\s*\|[^|]*\|\s*(\d+)\s*\|", s7_text)
-        if any(int(n) >= 4 for n in defer_silent) and not re.search(
-            r"激活方案|ABANDON", s7_text, re.IGNORECASE
-        ):
+        # 束6 逐字化：捕获 ID 列——报文内联真实钩号+沉默数+带真实钩号的逐字
+        # 修复模板（旧报文只有 N/XX 占位符，模型常自造不含钩号的模板句）。
+        _silent_rows = [
+            (m.group(1).strip(), int(m.group(2)))
+            for m in re.finditer(r"\|\s*([^|]*)\|\s*defer\s*\|[^|]*\|\s*(\d+)\s*\|", s7_text)
+        ]
+        _offenders = [(hid, cnt) for hid, cnt in _silent_rows if cnt >= 4]
+        if _offenders and not re.search(r"激活方案|ABANDON", s7_text, re.IGNORECASE):
+            _oq = "、".join(f"{hid or '（缺ID）'}（沉默{cnt}章）" for hid, cnt in _offenders)
+            _first = _offenders[0][0] or "该钩"
             mf.append(
-                f"G4.cp.s7_defer_silence:{fp}: defer 行沉默章数 ≥4 须在段 7 附激活方案或 ABANDON 标注"
-                "（如「激活方案：第N章以XX场景 advance」或「ABANDON：理由」）——沉默跨束不许无主"
+                f"G4.cp.s7_defer_silence:{fp}: defer 行 {_oq} 须在段 7 附激活方案或 ABANDON 标注"
+                f"（逐字模板：『激活方案：第N章以XX场景 advance {_first}』或『{_first} ABANDON：理由』）"
+                "——沉默跨束不许无主"
             )
         else:
             c.append({"id": "G4.cp.s7_defer_silence", "file": fp, "s": GateStatus.PASS})

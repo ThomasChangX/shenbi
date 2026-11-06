@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 
 from shenbi.text.voice_lexicon import (
+    ACCOUNTING_VERBS,
     DEFAULT_VOICE_DENSITY_MIN,
     catchphrases_from_card,
     distinct_voice_signals,
@@ -1240,9 +1241,17 @@ def g4_chapter_drafting(
             else DEFAULT_VOICE_DENSITY_MIN
         )
         if _memo_v2 and _signals < _vmin:
+            # 束6 逐字化：逐字内联未在场的卡口癖——束5 实弹面是卡形差一字
+            # （正文『行，先记账』vs 卡『行，先算账』），语义近似但计分是
+            # 精确子串，报文不引卡原串模型无从对照；另列其余两类可计分
+            # 信号的确定形态。
+            _miss = [p for p in _cps if p not in _body]
+            _mq = "；".join(f"『{p}』" for p in _miss[:4]) if _miss else "卡口癖已全在场"
             mf.append(
                 f"G4.cd.voice_density:{fp}:{_signals}<{_vmin} "
-                "(v2 章——备忘声口要求行未兑现；修复者: drafting)"
+                f"(v2 章——备忘声口要求行未兑现；未计分卡口癖（须逐字照抄、一字不可改）：{_mq}；"
+                f"另可计分：账房动词任一（如『{'』『'.join(ACCOUNTING_VERBS[:3])}』）"
+                f"或自嘲反问收尾（『…吧？』『…呢？』句式）；修复者: drafting)"
             )
         else:
             c.append(
