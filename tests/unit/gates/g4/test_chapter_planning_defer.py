@@ -63,3 +63,17 @@ class TestDeferSilence:
         f.write_text(_plan(4, tail="ABANDON：放弃此伏笔"), encoding="utf-8")
         result = _run([str(f)])
         assert not any("G4.cp.s7_defer_silence" in mf for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_defer_silence_message_inlines_live_hook_ids(self, tmp_path: Path) -> None:
+        """束6 verbatim batch: message inlines live hook id + silence count
+        + a copy-ready fix template carrying the real hook id.
+        """
+        f = tmp_path / "chapter-005-plan.md"
+        f.write_text(_plan(6), encoding="utf-8")
+        result = _run([str(f)])
+        hit = [m for m in result["must_fix"] if "G4.cp.s7_defer_silence" in m]
+        assert hit
+        m = hit[0]
+        assert "H01" in m and "沉默6章" in m  # 真实钩号+沉默数入文
+        assert "advance H01" in m  # 逐字模板带真实钩号

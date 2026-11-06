@@ -145,6 +145,27 @@ def test_invalid_chapter_role_value_rejected(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
+def test_invalid_role_message_inlines_enum_and_node_word_teaching(tmp_path: Path) -> None:
+    """束6 verbatim batch: invalid_chapter_role message inlines the full legal
+    enum plus the volume-map node-word anti-confusion teaching.
+
+    束5 recurrence face = the model copying the 『章节节点』 table's 节点角色
+    column word 『承接』 as chapter_role (ch47 escalation, two chapters in a
+    row); the old message showed only the bad value, never the legal ones.
+    """
+    f = tmp_path / "chapter-001-plan.md"
+    f.write_text(_valid_plan(role="承接"), encoding="utf-8")
+    result = _run([str(f)])
+    msgs = [m for m in result["must_fix"] if "G4.cp.invalid_chapter_role" in m]
+    assert msgs
+    m = msgs[0]
+    # 合法六值逐字内联——报文自足，模型只看报文即可知对值
+    assert all(v in m for v in ("高潮", "兑现", "推进", "转折", "过渡", "铺垫"))
+    # 反混淆：点名卷纲节点角色列用词≠枚举（坏值『承接』本身入文）
+    assert "节点角色" in m and "承接" in m
+
+
+@pytest.mark.unit
 def test_slash_form_rejected_not_passed(tmp_path: Path) -> None:
     """Spec #95 T1 (R1 aggravated): the slash form must FAIL - the old
     prefix-match regex returned match=True->PASS for it (coordinator-verified).

@@ -137,6 +137,67 @@ def test_g4cd_v2_density_pass_and_fail(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
+def test_g4cd_voice_density_failure_quotes_missing_catchphrases_verbatim(
+    tmp_path: Path,
+) -> None:
+    """束6 verbatim batch: voice_density FAIL message inlines the card
+    catchphrases verbatim when they are absent from the body.
+
+    束5 live face = one-char card misses (see body comment below)
+    -- semantically close but scoring is exact-substring; without the
+    card's literal strings in the message the model cannot self-correct
+    (束6 ch47/48 preflight batch).
+    """
+    # 正文真实 miss 形：口癖被打乱（非子串）且无账房动词/自嘲反问 → 信号 0
+    thin = _V2_CHAPTER.replace(
+        "他把这笔我先记下。利息又涨了。这买卖不亏吧？", "他记下了这一笔。他推门。"
+    )
+    d = _mk_v2_project(tmp_path, chapter=thin)
+    bad = json.loads(
+        g4_chapter_drafting([str(d / "chapters" / "chapter-1.md")], rd=str(d), project_dir=str(d))
+    )
+    hit = [m for m in bad.get("must_fix", []) if "G4.cd.voice_density" in m]
+    assert hit
+    # 卡口癖逐字串内联（fixture 卡：这笔我先记下）
+    assert "『这笔我先记下』" in hit[0]
+
+
+@pytest.mark.unit
+def test_g4cd_voice_density_all_catchphrases_present_no_contradiction(
+    tmp_path: Path,
+) -> None:
+    """PR #295 review: catchphrases all present but signals still short (vmin=3,
+    only 2 catchphrase signals) -- the message must switch wording instead of
+    the self-contradictory "missing catchphrases: none missing" form.
+    """
+    chapter = _V2_CHAPTER.replace(
+        "他把这笔我先记下。利息又涨了。这买卖不亏吧？", "他把这笔我先记下。又记一笔。他推门。"
+    )
+    d = _mk_v2_project(tmp_path, chapter=chapter)
+    (d / "genre-config.json").write_text(
+        json.dumps(
+            {
+                "chapter_word": {"default": 3200, "min": 2800, "max": 4000},
+                "market_params": {
+                    "payoff_density": {"window": 3, "min": 1},
+                    "emotion_band": {"window": 1, "min": 1},
+                    "hook_grading": {"max_consecutive_micro": 2},
+                    "voice_density_min": {"min_per_chapter": 3},
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    bad = json.loads(
+        g4_chapter_drafting([str(d / "chapters" / "chapter-1.md")], rd=str(d), project_dir=str(d))
+    )
+    hit = [m for m in bad.get("must_fix", []) if "G4.cd.voice_density" in m]
+    assert hit  # 1 catchphrase signal < 3
+    assert "卡口癖已全在场——补其余信号" in hit[0]
+    assert "未在场卡口癖" not in hit[0]
+
+
+@pytest.mark.unit
 def test_g4cd_quote_type_three_point_sync(tmp_path: Path) -> None:
     # 全一致（静/静/静）→ PASS（C1 回归钉：memo 点须贡献类型——_memo_text 赋值）
     okd = _mk_v2_project(tmp_path / "ok")
