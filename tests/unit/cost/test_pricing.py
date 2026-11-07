@@ -102,7 +102,7 @@ class TestEstimateCost:
         cost = estimate_cost(usage, model=None)
         assert cost == pytest.approx(0.14)
 
-    @pytest.mark.parametrize("model", ["deepseek-v4-flash"])
+    @pytest.mark.parametrize("model", ["deepseek-v4-flash", "deepseek-v4-pro", "deepseek-flash"])
     def test_each_known_model_produces_monotonic_cost(self, model):
         """More tokens → higher cost for every known model."""
         usage_small = {"prompt_tokens": 1, "completion_tokens": 1}
@@ -151,4 +151,13 @@ class TestExperimentTiers:
         assert PRICING[self.TIER_MAIN] == {
             "input": 0.435 / 1_000_000,
             "output": 0.87 / 1_000_000,
+        }
+
+    def test_backup_tier_rates_pinned_to_flash_price(self):
+        """deepseek-flash serves at Flash prices (T0 report §4/§1-A)."""
+        from shenbi.cost.pricing import PRICING
+
+        assert PRICING[self.TIER_BACKUP] == {
+            "input": 0.14 / 1_000_000,
+            "output": 0.28 / 1_000_000,
         }
