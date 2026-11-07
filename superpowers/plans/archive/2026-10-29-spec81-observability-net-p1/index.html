@@ -1,0 +1,1871 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-10-29-spec81-observability-net-p1/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #81 observability-net P1 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #81 observability-net P1 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-10-29-spec81-observability-net-p1.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-10-29-spec81-observability-net-p1/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #81 observability-net P1 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-10-29-spec81-observability-net-p1.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-81-observability-net-p1-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #81 observability-net P1 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-observability-archive-blob-store-seq-quota-stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: observability archive 模块（blob store / seq / quota / stats / 落档）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-_build_skill_prompt-5-resolved_fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: _build_skill_prompt 磁盘原文快照（5 元组返回）+ resolved_fields 可导出
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 逃逸舱计数器（写侧，共享路径，常开）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-_dispatch_via_api-state-loop_idfeedback_refarchive_path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: _dispatch_via_api 归档接线 + state 透传（loop_id/feedback_ref/archive_path）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: 并行评审波 state 透传
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-retry-chapter_loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: RETRY 事件（chapter_loop 两缝）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-escape_hatch_drift-fail-fast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: escape_hatch_drift fail-fast 读侧（派发后相位检查）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-toolsobserve_reportpy-warn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: tools/observe_report.py 四表 + 覆盖行 + WARN 汇总
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: P1 离线验收整合（可执行化跑批）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-7-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec §7 ↔ task）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行说明
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-81-observability-net-p1-implementation-plan">Spec #81 observability-net P1 Implementation Plan</h1>
+<p><strong>Status</strong>: Done (PR #258 · 2026-10-29 — 9/9 tasks, audits converged, just check green pre-merge and post-merge)</p>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Build the P1 observability layer — dispatch archiving with content-addressed blobs, additive trace fields (loop_id/feedback_ref/archive_path) + RETRY event, escape-hatch fail-fast, and the observe_report skeleton — per spec <code>docs/superpowers/specs/2026-10-28-spec81-observability-net.md</code> (rev5).</p>
+<p><strong>Architecture:</strong> A new <code>src/shenbi/observability/</code> package (archive.py + escape.py) owns all writes; <code>_build_skill_prompt</code> gains raw-disk snapshot capture and the escape-hatch counter (shared API/IDE path); <code>_dispatch_via_api</code> gains state threading and per-return-path archive calls; <code>chapter_loop</code> gains RETRY emission and the post-dispatch <code>escape_hatch_drift</code> check; <code>tools/observe_report.py</code> reads only. Gates stay pure (writers = dispatch path, readers = loop/checkpoint).</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pathlib / structlog / pydantic TraceWriter / pytest tmp_path. No new dependencies.</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><strong>复杂度</strong>：本 plan 全部 task 为 <strong>infra</strong>（触及 <code>src/shenbi/pipeline/</code>、<code>src/shenbi/observability/</code>、<code>src/shenbi/trace/</code>）——协调者亲自实现，不分派 implementer 子 agent；每 task 后 fresh-context 审查产 <code>audit-T&lt;N&gt;.md</code>。</li>
+<li><strong>F947 离线纪律</strong>：全部验收离线可执行（tmp_path 结构语料 + monkeypatch 假流式客户端）；SDD 全程禁真实 dispatch。结构记录（archive/trace/ledger 形态）按 AGENTS.md 允许 tmp_path/inline 构造（非 skill 产物 fixture 冒充）。</li>
+<li><strong>G3.4</strong>：P1 无评分场景（无 LLM 产物生成），无 G3.4 子 agent 需求——在此显式声明。</li>
+<li><strong>门检纯度</strong>：<code>src/shenbi/observability/</code> 写侧仅由派发路径调用；<code>escape_hatch_drift</code> 读侧在 chapter_loop（读文件不写）。</li>
+<li><strong>框架纯度</strong>：无 <code>print()</code>（ruff T20 零豁免）；structlog；pathlib；状态字面量不新增裸串（本 plan 不新增 gate 状态词——<code>escape_hatch_drift</code> 是 check id 不是状态字面量；RETRY 是 trace action 自由串，<code>action: str</code> 无枚举约束，<code>contracts/enums.py</code> 不动）。</li>
+<li><strong>fail-safe 纪律</strong>：归档失败绝不阻断派发（同 <code>_persist_failed_write_output</code> docstring :3370-3371）。</li>
+<li><strong>环境同构</strong>：一切验证走 <code>uv run pytest</code> / <code>just</code>。</li>
+<li><strong>spec 引用的行号锚点</strong>（实施时以 grep 复核为准，偏移不作为豁免理由）：<code>_dispatch_via_api</code> :3399；reads 循环磁盘读入 :852；<code>filter_to_fields</code> 调用 :1100；<code>_strip_meta_for_non_drafting</code> :1119；<code>raw_inputs[key] = content</code> :1120；builder 返回 :1491；trace docstring :3125-3126；主步派发 chapter_loop :4019；<code>dispatch_skill</code> :4066（API 路丢 state :4121-4129）。</li>
+</ul>
+<h2 id="file-structure">File Structure</h2>
+<div class="highlight"><pre><span></span><code>src/shenbi/observability/            # 新包——全部观测写侧
+├── __init__.py                      # re-export
+├── archive.py                       # blob store / seq / quota / stats / write_dispatch_archive
+└── escape.py                        # escape-hatch 计数器 + drift 检查（读侧纯函数）
+src/shenbi/pipeline/dispatch_helper.py   # 修改：builder 5 元组 + raw 捕获 + 计数器调用 + 归档接线 + state 透传
+src/shenbi/pipeline/chapter_loop.py      # 修改：RETRY 事件 + escape_hatch_drift 检查 + 波 state 透传
+src/shenbi/pipeline/parallel_dispatch.py # 修改：_dispatch_with_retry 传 state
+tools/observe_report.py                  # 新建：四表 + 覆盖行 + WARN 汇总（只读）
+justfile                                 # 修改：observe-report target
+tests/unit/observability/test_archive.py            # T1
+tests/unit/observability/test_escape.py             # T3/T7
+tests/unit/pipeline/test_dispatch_snapshot.py       # T2
+tests/unit/pipeline/test_dispatch_archive_wiring.py # T4/T5
+tests/unit/pipeline/test_chapter_loop_retry_event.py # T6
+tests/unit/tools/test_observe_report.py             # T8
+</code></pre></div>
+<hr />
+<h3 id="task-1-observability-archive-blob-store-seq-quota-stats">Task 1: observability archive 模块（blob store / seq / quota / stats / 落档）</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/observability/__init__.py</code>, <code>src/shenbi/observability/archive.py</code>
+- Test: <code>tests/unit/observability/test_archive.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.pipeline.truth_io.truth_file_flock(path)</code>（跨进程 flock，:123）；<code>shenbi.safe_write.safe_write</code>（<strong>注意：模块在 <code>src/shenbi/safe_write.py</code>，非 <code>pipeline/</code> 下</strong>——dispatch_helper.py:86 同源导入）。
+- Produces（后续 task 依赖的精确签名）:
+  - <code>archive_enabled() -&gt; bool</code>（<code>SHENBI_ARCHIVE_DISPATCH != "0"</code>）
+  - <code>quota_bytes() -&gt; int</code>（env <code>SHENBI_ARCHIVE_QUOTA_BYTES</code>，默认 1GiB）
+  - <code>sha256_of(text: str) -&gt; str</code>（返回 <code>"sha256:&lt;hex&gt;"</code>）
+  - <code>put_blob(project_dir: Path, content: str) -&gt; str</code>（<strong>无条件返回 digest</strong>——配额跳过时 bump stats + WARN + 只跳内容写，哈希照进档（spec §1「档与哈希照写」：熔断降级=可验证不可复现，digest 不能丢）；同内容幂等；写盘 temp+rename 防撕裂 blob——内容寻址文件名即完整性声明，撕裂=静默腐蚀解引用）
+  - <code>next_seq(project_dir: Path) -&gt; int</code>（flock 下 max+1，跨重启续号；与档写共用一个 flock scope 时撞名结构性不可能，stats 键防御性保留）
+  - <code>bump_stats(project_dir: Path, key: str) -&gt; None</code>（key ∈ {archive_write_failed, archive_quota_skip, archive_seq_collision}；文件 <code>observability/archive-stats.json</code>）
+  - <code>@dataclass ArchiveFrame</code>（skill/chapter/attempt/model/system_prompt/user_prompt/reads_manifest/raw_reads/skill_contract_sha256/loop_id/feedback_ref）
+  - <code>write_dispatch_archive(project_dir: Path, frame: ArchiveFrame, *, finish_reason: str | None, response_text: str | None, usage: dict[str, Any] | None) -&gt; Path | None</code>
+  - <code>skill_contract_sha(skill: str) -&gt; str | None</code>（SKILL.md 内容 sha256；找不到返回 None。<strong>注：spec §1 措辞「git blob SHA」，此处取内容 sha256 为溯源等价简化（drift 检测同强），digest 格式与全库一致——记 spec-deviations</strong>）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（tests/unit/observability/test_archive.py）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #81 §1 archive layer unit tests (offline, tmp_path structural corpora).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.observability</span><span class="w"> </span><span class="kn">import</span> <span class="n">archive</span> <span class="k">as</span> <span class="n">ar</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestBlobStore</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_put_blob_content_addressed_idempotent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">put_blob</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;同内容&quot;</span><span class="p">)</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">put_blob</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;同内容&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">d1</span> <span class="o">==</span> <span class="n">d2</span> <span class="ow">and</span> <span class="n">d1</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sha256:&quot;</span><span class="p">)</span>
+        <span class="n">blob</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;observability&quot;</span> <span class="o">/</span> <span class="s2">&quot;blobs&quot;</span> <span class="o">/</span> <span class="n">d1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">blob</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;同内容&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_quota_breaker_skips_blob_keeps_hash_and_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_ARCHIVE_QUOTA_BYTES&quot;</span><span class="p">,</span> <span class="s2">&quot;200&quot;</span><span class="p">)</span>  <span class="c1"># KB 级实测形态（spec §7.5 离线）</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">put_blob</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">150</span><span class="p">)</span>   <span class="c1"># 150B 落盘</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">put_blob</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span> <span class="o">*</span> <span class="mi">400</span><span class="p">)</span>   <span class="c1"># 150+400 &gt; 200 → 跳内容写</span>
+        <span class="k">assert</span> <span class="n">d2</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sha256:&quot;</span><span class="p">)</span>                         <span class="c1"># 哈希照返（spec §1）</span>
+        <span class="n">blob2</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;observability&quot;</span> <span class="o">/</span> <span class="s2">&quot;blobs&quot;</span> <span class="o">/</span> <span class="n">d2</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">blob2</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>                                <span class="c1"># 内容确实没写</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;observability&quot;</span> <span class="o">/</span> <span class="s2">&quot;blobs&quot;</span> <span class="o">/</span> <span class="n">d1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;observability&quot;</span> <span class="o">/</span> <span class="s2">&quot;archive-stats.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+        <span class="k">assert</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;archive_quota_skip&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_archive_disabled_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_ARCHIVE_DISPATCH&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">ar</span><span class="o">.</span><span class="n">archive_enabled</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestSeq</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_next_seq_monotonic_across_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;observability&quot;</span> <span class="o">/</span> <span class="s2">&quot;dispatches&quot;</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;00003-x-ch001-a1.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">ar</span><span class="o">.</span><span class="n">next_seq</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span>  <span class="c1"># 跨重启续号</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestWriteArchive</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+            <span class="n">system_prompt</span><span class="o">=</span><span class="s2">&quot;SYS&quot;</span><span class="p">,</span> <span class="n">user_prompt</span><span class="o">=</span><span class="s2">&quot;USER&quot;</span><span class="p">,</span>
+            <span class="n">reads_manifest</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;fields&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;系统演化阶段&quot;</span><span class="p">],</span> <span class="s2">&quot;matched_all&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}],</span>
+            <span class="n">raw_reads</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">:</span> <span class="s2">&quot;# 原文&quot;</span><span class="p">},</span>
+            <span class="n">skill_contract_sha256</span><span class="o">=</span><span class="s2">&quot;sha256:abc&quot;</span><span class="p">,</span> <span class="n">loop_id</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">feedback_ref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ar</span><span class="o">.</span><span class="n">ArchiveFrame</span><span class="p">(</span><span class="o">**</span><span class="n">base</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_success_record_shape_and_dereference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">write_dispatch_archive</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="p">(),</span> <span class="n">finish_reason</span><span class="o">=</span><span class="s2">&quot;stop&quot;</span><span class="p">,</span>
+            <span class="n">response_text</span><span class="o">=</span><span class="s2">&quot;RESP&quot;</span><span class="p">,</span> <span class="n">usage</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;completion_tokens&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+        <span class="k">assert</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;seq&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;skill_contract_sha256&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;sha256:abc&quot;</span>
+        <span class="k">assert</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;user_prompt_blob&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ar</span><span class="o">.</span><span class="n">sha256_of</span><span class="p">(</span><span class="s2">&quot;USER&quot;</span><span class="p">)</span>
+        <span class="c1"># 字节级复现：解引用 == 原文（spec §6 P1 离线验收）</span>
+        <span class="n">blob</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;observability&quot;</span> <span class="o">/</span> <span class="s2">&quot;blobs&quot;</span> <span class="o">/</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;user_prompt_blob&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">blob</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;USER&quot;</span>
+        <span class="k">assert</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;reads&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;resolved_fields&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[]</span>  <span class="c1"># 未命中如实记空</span>
+        <span class="k">assert</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;reads&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;blob&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ar</span><span class="o">.</span><span class="n">sha256_of</span><span class="p">(</span><span class="s2">&quot;# 原文&quot;</span><span class="p">)</span>  <span class="c1"># 磁盘原文（非过滤视图）</span>
+        <span class="k">assert</span> <span class="s2">&quot;00001-shenbi-chapter-drafting-ch020-a1&quot;</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_genesis_ch000_and_failure_nullable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">write_dispatch_archive</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span> <span class="n">finish_reason</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">response_text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">usage</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;ch000&quot;</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;response_blob&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;finish_reason&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑测确认失败</strong> — <code>uv run pytest tests/unit/observability/test_archive.py -v</code> → FAIL（ModuleNotFoundError）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现 archive.py</strong>（要点；完整实现按测试驱动补齐）</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Dispatch archive layer (spec #81 §1): content-addressed blobs + per-dispatch records.</span>
+
+<span class="sd">Write side is the dispatch path ONLY (fail-safe: an archive failure never</span>
+<span class="sd">masks the dispatch outcome — same discipline as _persist_failed_write_output).</span>
+<span class="sd">Readers (observe_report, dispatch_replay in P2) never write here.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">UTC</span><span class="p">,</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">truth_file_flock</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_OBS</span> <span class="o">=</span> <span class="s2">&quot;observability&quot;</span>
+<span class="n">_DEFAULT_QUOTA</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>
+<span class="n">_STATS</span> <span class="o">=</span> <span class="s2">&quot;archive-stats.json&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">archive_enabled</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">quota_bytes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sha256_of</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="o">...</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">put_blob</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">digest</span> <span class="o">=</span> <span class="n">sha256_of</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="n">blob</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">_OBS</span> <span class="o">/</span> <span class="s2">&quot;blobs&quot;</span> <span class="o">/</span> <span class="n">digest</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">blob</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">digest</span>
+    <span class="k">if</span> <span class="n">_bytes_under_management</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span> <span class="o">&gt;</span> <span class="n">quota_bytes</span><span class="p">():</span>
+        <span class="n">bump_stats</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;archive_quota_skip&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;archive_quota_skip&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">digest</span>  <span class="c1"># 哈希照返（spec §1「档与哈希照写」）——只跳内容写</span>
+    <span class="n">blob</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>  <span class="c1"># 原子写唯一入口（safe_write.py:1 自述；bytes|str 皆收）</span>
+    <span class="n">_account_bytes</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">digest</span>
+</code></pre></div>
+<p><code>_bytes_under_management</code>：stats 文件内 <code>{"bytes": int}</code> 运行字节账；每 50 次 put_blob 抽样 <code>du</code> 校准（<code>_calibrate</code>）。<code>next_seq</code>：<code>truth_file_flock(stats 文件)</code> 下 glob dispatches 取 max。<code>write_dispatch_archive</code>：frame → 档 dict（schema 按 spec §1 JSON，加 <code>resolved_fields</code>（manifest <code>fields</code> 中实际命中者——由调用方在 manifest 构建时已可判定，未命中记 <code>[]</code>）、<code>"source": "disk"|"cache"</code> 可选键）；档名 <code>{seq:05d}-{skill}-ch{N:03d}-a{attempt}.json</code>（chapter=None → ch000）；写档撞名 → <code>bump_stats("archive_seq_collision")</code> + WARN 跳过；<code>safe_write</code> 落盘；异常 → <code>bump_stats("archive_write_failed")</code> + WARN + 返回 None（<strong>不抛</strong>）。<code>skill_contract_sha(skill)</code>：<code>skills/&lt;skill&gt;/SKILL.md</code> 字节 sha256。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测过</strong> — <code>uv run pytest tests/unit/observability/test_archive.py -v</code> → PASS</li>
+<li>[ ] <strong>Step 5: Commit</strong> — <code>git add src/shenbi/observability/ tests/unit/observability/test_archive.py &amp;&amp; git commit -m "feat(observability): spec #81 T1 — dispatch archive module (blobs/seq/quota/stats)"</code></li>
+</ul>
+<hr />
+<h3 id="task-2-_build_skill_prompt-5-resolved_fields">Task 2: <code>_build_skill_prompt</code> 磁盘原文快照（5 元组返回）+ <code>resolved_fields</code> 可导出</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（:852 读盘点后捕获；:1100 filter 调用点；:1491 返回）、<code>src/shenbi/contracts/fields.py</code>（<code>filter_to_fields</code> 扩 3 元组返回——<strong>仅此一个生产调用方</strong>，grep 已核：dispatch_helper.py:1100 唯一）
+- Test: <code>tests/unit/pipeline/test_dispatch_snapshot.py</code>、<code>tests/unit/contracts/test_fields.py</code>（3 元组适配）；<strong>filter 3 元组爆破面另三文件</strong>：<code>tests/unit/pipeline/test_field_filtering.py</code>（6 位）、<code>tests/unit/pipeline/test_read_contract_reality_lock.py</code>、<code>tests/unit/contracts/test_chapter_planning_contract.py:42</code>（后者的目录不在 Step 4 命令里——Step 4 以 <code>tests/unit/contracts</code> 整目录跑兜住）；builder 5 元组爆破面实measure：<code>grep -rln "_build_skill_prompt" tests/</code> 约 23 文件 55 位（tests/pipeline/ 10 文件：spec6_prompt_slimming、dispatch_helper_cap_raise、trigger_context、dispatch_helper_system_stability、dispatch_helper_keys、audit_context_cache、dispatch_reads_injection、closure_context、dispatch_helper_xml、meta_view_coordinates；tests/unit/pipeline/ 13 文件：layerb_live、staging_commit、dispatch_helper、dispatch_ingestion_guard、retry_accounting、token_ledger_guard(:69/:163 双位)、read_extractors_slicing、dispatch_helper_read_suppression、append_dedup_increment_injection、dispatch_usage_capture、style_seed、helper_injection、estimate_rows）</p>
+<p><strong>Interfaces:</strong>
+- Produces:
+  - <code>_build_skill_prompt(...) -&gt; tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]</code>（第 5 元 = <code>raw_disk_reads: dict[contract_path -&gt; 磁盘原文]</code>）；<strong>磁盘分支捕获点在 :852 <code>content = full_path.read_text(...)</code> 之后、任何 extractor/filter/strip 之前；缓存命中分支（:847-849，不走 :852）在其取值点捕获</strong>。
+  - <code>filter_to_fields(text: str, fields: list[str], path: str) -&gt; tuple[str, bool, list[str]]</code>（第 3 元 = <code>resolved_fields</code> 实际命中声明字段名——spec §1 示例「resolved_fields 非空 + matched_all=false」的部分命中形态由此可导；manifest 旧 <code>matched_all</code> 语义不变）。
+  - <strong>两条缓存路径都捕获</strong>（I9，语义钉死 R3-M2：<strong>选 (a) 新增 manifest 条目</strong>）：循环内 shared_context <code>raw_files</code> 命中位（:847-849，已有 manifest 条目）与循环后 <code>_INJECT_FROM_CACHE</code> 合并位（:1126-1150，<strong>今日无 manifest 条目——本批为其新增条目</strong>，<code>source: "cache"</code> 标注；缓存注入 read 是模型实见读面，trace reads 可见性是加性语义增益而非破坏——并入 deviation ② 记档）。归档侧规则：manifest 条目无 raw 对应时该条目跳 blob（无 KeyError，如实少档）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #81 §1: raw disk snapshot captured pre-filter/pre-strip (O-2 semantics).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputKind</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_raw_snapshot_is_disk_original_not_filtered_view</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># 脚手架形态取自 tests/unit/pipeline/test_dispatch_helper.py::</span>
+    <span class="c1"># test_multi_file_prompt_includes_schema_reminder（builder 直调 + mock 契约）</span>
+    <span class="n">mock_contract</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="n">OutputKind</span><span class="o">.</span><span class="n">ARTIFACT</span><span class="p">,</span>
+        <span class="s2">&quot;reads&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">],</span>          <span class="c1"># builder 只吃字符串 reads（:807-817）</span>
+        <span class="s2">&quot;read_fields&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;文风基准&quot;</span><span class="p">]},</span>  <span class="c1"># fields 走 sidecar</span>
+        <span class="s2">&quot;writes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-1.md&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi.contracts.loader.load_contract&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">mock_contract</span>
+    <span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;style_profile.md&quot;</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># 一节命中契约字段、一节不命中——fields 过滤视图必然丢第二节（:1100 filter_to_fields）</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## 文风基准</span><span class="se">\n</span><span class="s2">命中内容</span><span class="se">\n</span><span class="s2">## 漂移节</span><span class="se">\n</span><span class="s2">独有内容</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_build_skill_prompt</span>
+
+    <span class="n">system_prompt</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">output_paths</span><span class="p">,</span> <span class="n">reads_manifest</span><span class="p">,</span> <span class="n">raw_reads</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_build_skill_prompt</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;draft chapter 1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">raw_reads</span> <span class="k">if</span> <span class="s2">&quot;style_profile&quot;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;漂移节&quot;</span> <span class="ow">in</span> <span class="n">raw_reads</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>           <span class="c1"># 磁盘原文保留未命中节（pre-filter 捕获）</span>
+    <span class="k">assert</span> <span class="s2">&quot;漂移节&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_prompt</span>          <span class="c1"># 注入面仍是过滤视图（行为不变）</span>
+    <span class="n">fields_entry</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reads_manifest</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;fields&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">fields_entry</span><span class="p">[</span><span class="s2">&quot;matched_all&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>  <span class="c1"># 命中节在，声明字段全中</span>
+    <span class="k">assert</span> <span class="n">fields_entry</span><span class="p">[</span><span class="s2">&quot;resolved_fields&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;文风基准&quot;</span><span class="p">]</span>  <span class="c1"># 3 元组新返回（部分命中形态见 test_fields）</span>
+</code></pre></div>
+<p>（若 mock 契约的 reads dict 形态与 loader 实际解析有出入，以 <code>tests/unit/pipeline/test_dispatch_layerb_live.py</code> 的 fields 声明写法为准修正——断言核心不变：<code>raw_reads</code> 含未命中节、<code>user_prompt</code> 不含。）</p>
+<ul>
+<li>[ ] <strong>Step 2: 确认失败</strong>（4 元组解包 TypeError）</li>
+<li>[ ] <strong>Step 3: 实现</strong>：:852 后加 <code>raw_disk_reads: dict[str, str]</code> 收集（函数头初始化）；<code>filter_to_fields</code> 扩 3 元组（<code>_filter_md</code>/<code>_filter_json</code> 内部收集命中字段名，<code>match_field</code> 逐声明字段判定的循环已在）；两条缓存路径同步收集（raw_files 命中位 + <code>_INJECT_FROM_CACHE</code> 合并位）并给 manifest 条目加 <code>"source": "cache"</code>；:1491 返回 5 元组；两调用点（:3443 API 收用、:3822 IDE <code>_</code> 弃用）+ <strong>全部 ~23 测试文件 stub 更新为 5 元组 / 3 元组 filter</strong>（上列爆破面清单逐一过）。</li>
+<li>[ ] <strong>Step 4: 跑新测试 + 全 dispatch/pipeline/contracts 测试面</strong> — <code>uv run pytest tests/unit/pipeline tests/unit/contracts tests/pipeline -q</code> → 全 PASS（<strong>不以 3 个文件为限</strong>——爆破面在 T9 <code>just check</code> 才爆 = 返工）</li>
+<li>[ ] <strong>Step 5: Commit</strong> — <code>feat(observability): spec #81 T2 — pre-filter raw disk snapshot, builder 5-tuple</code></li>
+</ul>
+<hr />
+<h3 id="task-3">Task 3: 逃逸舱计数器（写侧，共享路径，常开）</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/observability/escape.py</code>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（reads 循环后一次调用）
+- Test: <code>tests/unit/observability/test_escape.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces:
+  - <code>update_escape_hatch_state(project_dir: Path, reads_manifest: list[dict[str, Any]]) -&gt; None</code>——键 <code>(path, tuple(fields))</code>；fields 模式条目 <code>matched_all=False</code> 连击 +1、<code>True</code> 复位清键；flock 于状态文件 <code>observability/escape-hatch-state.json</code>；<strong>不受 <code>SHENBI_ARCHIVE_DISPATCH</code> 门控</strong>（常开）。
+  - <code>escape_hatch_drift_check(project_dir: Path) -&gt; list[dict[str, Any]]</code>——纯读：streak ≥3 的键列表，条目形 <code>{"key": "&lt;path&gt;|&lt;fields-joined&gt;", "path": ..., "fields": [...], "streak": n, "first_ts": ..., "last_ts": ...}</code>（T7 消费 <code>key</code>/<code>streak</code>）；文件缺失 → <code>[]</code>（absent PASS）；半写 JSON 解析失败 → <code>[]</code> + WARN。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>（键隔离/复位/缺失三语义 + 常开）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_three_consecutive_misses_keyed_by_path_fields</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;fields&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;文风基准&quot;</span><span class="p">],</span> <span class="s2">&quot;matched_all&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">ar_escape</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">manifest</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ar_escape</span><span class="o">.</span><span class="n">escape_hatch_drift_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+    <span class="n">ar_escape</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">manifest</span><span class="p">)</span>  <span class="c1"># 第 3 次</span>
+    <span class="n">drift</span> <span class="o">=</span> <span class="n">ar_escape</span><span class="o">.</span><span class="n">escape_hatch_drift_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">drift</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">drift</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;streak&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_interleaved_different_fields_do_not_reset_each_other</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="c1"># O-1 交错读语义：同文件不同 fields 声明互不干扰（spec §3 键论证）</span>
+    <span class="n">m1</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;fields&quot;</span><span class="p">,</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">],</span> <span class="s2">&quot;matched_all&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}]</span>
+    <span class="n">m2</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;fields&quot;</span><span class="p">,</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">],</span> <span class="s2">&quot;matched_all&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">ar_escape</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">m1</span><span class="p">)</span>
+        <span class="n">ar_escape</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">m2</span><span class="p">)</span>  <span class="c1"># B 命中只复位 B</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ar_escape</span><span class="o">.</span><span class="n">escape_hatch_drift_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># A 键仍满 3</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_matched_resets_streak</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;fields&quot;</span><span class="p">,</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">],</span> <span class="s2">&quot;matched_all&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}]</span>
+    <span class="n">ar_escape</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+    <span class="n">ar_escape</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+    <span class="c1"># 同键命中 → 连击复位</span>
+    <span class="n">ar_escape</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span>
+        <span class="n">tmp_path</span><span class="p">,</span> <span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;fields&quot;</span><span class="p">,</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">],</span> <span class="s2">&quot;matched_all&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}])</span>
+    <span class="k">assert</span> <span class="n">ar_escape</span><span class="o">.</span><span class="n">escape_hatch_drift_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+    <span class="n">ar_escape</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>  <span class="c1"># 复位后从 1 重新起算</span>
+    <span class="k">assert</span> <span class="n">ar_escape</span><span class="o">.</span><span class="n">escape_hatch_drift_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_absent_state_file_is_pass</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">ar_escape</span><span class="o">.</span><span class="n">escape_hatch_drift_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_counter_runs_even_when_archive_disabled</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_ARCHIVE_DISPATCH&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;fields&quot;</span><span class="p">,</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">],</span> <span class="s2">&quot;matched_all&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">ar_escape</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ar_escape</span><span class="o">.</span><span class="n">escape_hatch_drift_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># 计数器照常落盘</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2-4: 红→实现→绿</strong>（state 文件形态 <code>{"streaks": {"&lt;path&gt;|&lt;fields-joined&gt;": {"streak": n, "first_ts": ..., "last_ts": ...}}}</code>；flock 经 <code>truth_file_flock</code>）</li>
+<li>接线：<code>_build_skill_prompt</code> reads 循环完成后（manifest 齐时）调 <code>update_escape_hatch_state(project_dir, reads_manifest)</code>——try/except 吞异常仅 WARN（builder 不得因观测态崩溃）。<strong>接线缝必须有 executable 验证（R3-I1，dead-wire 防线——token-ledger 双重门控事故同款教训）</strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_builder_wiring_renamed_heading_fires_drift</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;§7.2 离线验收的端到端形态：真跑 builder ×3，非合成计数器状态。&quot;&quot;&quot;</span>
+    <span class="n">mock_contract</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># 同 T2 脚手架形态</span>
+        <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="n">OutputKind</span><span class="o">.</span><span class="n">ARTIFACT</span><span class="p">,</span>
+        <span class="s2">&quot;reads&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;read_fields&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;漂移前标题&quot;</span><span class="p">]},</span>  <span class="c1"># 契约声明旧字段</span>
+        <span class="s2">&quot;writes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-1.md&quot;</span><span class="p">],</span> <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.contracts.loader.load_contract&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">mock_contract</span><span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;style_profile.md&quot;</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## 漂移后标题</span><span class="se">\n</span><span class="s2">内容</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>  <span class="c1"># 人为制造字段漂移</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">dh</span><span class="o">.</span><span class="n">_build_skill_prompt</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;draft ch1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">esc</span><span class="o">.</span><span class="n">escape_hatch_drift_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># 3 次派发内 FAIL 链条成立</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong> — <code>feat(observability): spec #81 T3 — escape-hatch counter (path,fields) keyed, always-on</code></li>
+</ul>
+<hr />
+<h3 id="task-4-_dispatch_via_api-state-loop_idfeedback_refarchive_path">Task 4: <code>_dispatch_via_api</code> 归档接线 + state 透传（loop_id/feedback_ref/archive_path）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（签名 + ArchiveFrame + 返回路径清单 + trace 加性字段 + <code>dispatch_skill</code> :4121-4129 透传恢复）
+- Test: <code>tests/unit/pipeline/test_dispatch_archive_wiring.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: T1 <code>write_dispatch_archive/ArchiveFrame/put_blob/archive_enabled</code>、T2 第 5 元组。
+- Produces:
+  - <code>_dispatch_via_api(skill, project_dir, prompt, uses_staging=False, shared_context=None, outputs_override=None, state: Any = None) -&gt; DispatchResult</code>
+  - <code>_emit_dispatch_trace(..., loop_id: int | None = None, feedback_ref: str | None = None, archive_path: str | None = None)</code>（payload 可选键）
+  - 归档插桩点 = <strong>返回路径清单</strong>（spec §1 rev4）：成功 :3767 + 九失败位（timeout :3507 / generic :3526 / empty-resend :3597 / content_filter :3618 / length-ceiling :3637 / cap-raise-resend :3669 / persistent-length :3682 / post-cap-filter :3691 / write-failure 族 ×4 :3720-3747）；prompt-build 失败 :3456 不落档不计 stats。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>（复用 <code>test_token_ledger_guard.py</code> 的 <code>_dispatch_with_fake_client</code> 模式——注意其 <code>_build_skill_prompt</code> patch 改 5 元组）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #81 §2/§1 wiring tests — fake streaming client pattern copied from</span>
+<span class="sd">tests/unit/pipeline/test_token_ledger_guard.py::_dispatch_with_fake_client.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.observability</span><span class="w"> </span><span class="kn">import</span> <span class="n">archive</span> <span class="k">as</span> <span class="n">ar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_helper</span> <span class="k">as</span> <span class="n">dh</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_content_chunk</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SimpleNamespace</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">))])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_usage_chunk</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SimpleNamespace</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[],</span> <span class="n">usage</span><span class="o">=</span><span class="n">SimpleNamespace</span><span class="p">(</span>
+        <span class="n">prompt_tokens</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">completion_tokens</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">total_tokens</span><span class="o">=</span><span class="n">p</span> <span class="o">+</span> <span class="n">c</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dispatch_fake</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;prompt ch1&quot;</span><span class="p">):</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_LLM_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;test-key&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_LLM_MODEL&quot;</span><span class="p">,</span> <span class="s2">&quot;deepseek-v4-flash&quot;</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;chapters/chapter-1.md&quot;</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">chunks</span> <span class="ow">or</span> <span class="p">[</span><span class="n">_content_chunk</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;### FILE: </span><span class="si">{</span><span class="n">out</span><span class="si">}</span><span class="se">\n</span><span class="s2">body</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">_usage_chunk</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">)]</span>
+    <span class="k">with</span> <span class="p">(</span>
+        <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;openai.OpenAI&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_openai</span><span class="p">,</span>
+        <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.dispatch_helper._build_skill_prompt&quot;</span><span class="p">,</span>
+            <span class="n">return_value</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;sys&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">out</span><span class="p">],</span> <span class="p">[],</span>
+                          <span class="p">{</span><span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">:</span> <span class="s2">&quot;# 原文&quot;</span><span class="p">}),</span>
+        <span class="p">),</span>
+    <span class="p">):</span>
+        <span class="n">mock_openai</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">stream</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">dh</span><span class="o">.</span><span class="n">_dispatch_via_api</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_archive</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">((</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;observability&quot;</span> <span class="o">/</span> <span class="s2">&quot;dispatches&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.json&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;expected exactly 1 archive, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_success_writes_archive_with_loop_id_and_feedback</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">chapter_loop</span><span class="o">=</span><span class="n">SimpleNamespace</span><span class="p">(</span>
+        <span class="n">retry_budget_consumed</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ch1-shenbi-chapter-drafting&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">},</span>
+        <span class="n">retry_feedback</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ch1-shenbi-chapter-drafting&quot;</span><span class="p">:</span> <span class="s2">&quot;上一轮反馈&quot;</span><span class="p">}))</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_dispatch_fake</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">_load_archive</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;loop_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">7</span> <span class="ow">and</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;feedback_ref&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ar</span><span class="o">.</span><span class="n">sha256_of</span><span class="p">(</span><span class="s2">&quot;上一轮反馈&quot;</span><span class="p">)</span>
+    <span class="n">blob</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;observability&quot;</span> <span class="o">/</span> <span class="s2">&quot;blobs&quot;</span> <span class="o">/</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;feedback_ref&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">blob</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;上一轮反馈&quot;</span>
+    <span class="k">assert</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;response_blob&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ar</span><span class="o">.</span><span class="n">sha256_of</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_state_means_null_loop_id_feedback</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_dispatch_fake</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>  <span class="c1"># state=None（8/13 无 state 调用点兼容）</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">_load_archive</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;loop_id&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;feedback_ref&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_timeout_failure_branch_archives_with_null_response</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_raise</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">httpx</span><span class="o">.</span><span class="n">TimeoutException</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">)</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span> <span class="s2">&quot;_call_llm_streaming_with_retry&quot;</span><span class="p">,</span> <span class="n">_raise</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_dispatch_fake</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">_load_archive</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;response_blob&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;finish_reason&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;usage&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;usage&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">{}</span>   <span class="c1"># 失败分支 usage 豁免</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_write_failure_branch_archives_despite_no_trace</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># 令输出写盘抛 DispatchWriteFailureError（patch _write_parsed_outputs）</span>
+    <span class="c1"># 断言：归档仍在（六类无 trace 返回位代表）且 trace.jsonl 无该派发 DISPATCH 事件</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_trace_payload_carries_additive_fields</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># 成功路径后读 trace.jsonl：DISPATCH payload 含 loop_id/archive_path（trace 面预置一事件成链）</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_prompt_build_failure_no_archive_no_stats</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># patch _build_skill_prompt 抛异常 → dispatches/ 空、archive-stats 不计 write_failed</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_archive_write_failure_never_blocks_dispatch</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># patch shenbi.observability.archive.write_dispatch_archive 抛 RuntimeError</span>
+    <span class="c1"># → dispatch 照常成功 + stats archive_write_failed +1 + WARN（fail-safe 纪律）</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2-4: 红→实现→绿</strong>。实现要点：</li>
+<li>prompt build 后构 frame：<code>raw_reads</code>（T2 第 5 元）、<code>skill_contract_sha(skill)</code>、<code>loop_id</code>/<code>feedback_ref</code>（<code>state</code> 非空时惰性 <code>from shenbi.pipeline.chapter_loop import _retry_key</code>；key=<code>_retry_key(chapter if chapter is not None else 1, skill)</code>；loop_id=<code>retry_budget_consumed.get(key, 0)</code>；feedback 文本非空才 <code>put_blob</code>——受 <code>archive_enabled()</code> 门控）、<code>attempt=usage_acc.get("attempts", 1)</code>（API 级尝试数——作用域内唯一 attempt 源，spec §1 示例 attempt:1 与 loop_id:3 分立即此语义）。</li>
+<li>返回位插桩：本地闭包 <code>def _archive(finish_reason, response_text, usage, ...) -&gt; str | None</code>（内调 <code>write_dispatch_archive</code>，try/except → WARN+stats；返回 archive_path 供 trace）。九失败位 + 成功位各一次调用；成功位在 <code>_emit_dispatch_trace</code> 之前调用并把返回的 <code>archive_path</code>、<code>loop_id</code>、<code>feedback_ref</code> 传入 trace。timeout/generic/content_filter 三个已有 trace 的失败位同样传入。<strong>timeout/generic 失败位 <code>usage</code> 未绑定</strong>（:3481 元组解包未完成）——闭包实参取 <code>usage_acc.get("usage")</code>，不引用未绑定名（M11）。</li>
+<li><code>dispatch_skill</code> API 路（:4121-4129）补 <code>state=state</code> 透传；同批更新其 docstring（:4102-4105「state only toggles instrumentation」措辞过期——API 路现在消费 state 产 loop_id/feedback_ref）（M15）。</li>
+<li>[ ] <strong>Step 5: Commit</strong> — <code>feat(observability): spec #81 T4 — archive wiring at return-path inventory + state threading</code></li>
+</ul>
+<hr />
+<h3 id="task-5-state">Task 5: 并行评审波 state 透传</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/parallel_dispatch.py</code>（<code>_dispatch_with_retry</code> :92 + 波入口签名）、<code>src/shenbi/pipeline/chapter_loop.py</code>（波入口调用点）
+- Test: <code>tests/unit/pipeline/test_dispatch_archive_wiring.py</code>（追加类）</p>
+<p><strong>Interfaces:</strong>
+- Produces: 波派发链 state 透传——<strong>两个入口都改</strong>（I7）：<code>parallel_dispatch.dispatch_reviews_parallel(tasks, on_task_complete, state: Any = None)</code>（:235，submit :264）→ <code>_dispatch_with_retry(task, semaphore, state: Any = None)</code>（:92）→ <code>dispatch_skill(..., state=state)</code>；<strong>串行子波同批</strong>：<code>chapter_loop._dispatch_serial_reviews(serial_tasks, project_dir, state: Any = None)</code>（:3356，调用位 :3577/:3618）→ 同透传——WRITE_SHARED 串行评审成员否则仍无 state（review-group 人口的最大子集，正是 rev4 钉死要盖的族）。chapter_loop 两个波调用点（:3572/:3610）把 state 传入 <code>dispatch_reviews_parallel</code>。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>——monkeypatch <code>dispatch_skill</code> 捕获 kwargs：(a) <code>_dispatch_with_retry</code> 收 state 后透传；(b) <code>_dispatch_serial_reviews</code> 收 state 后透传。</li>
+<li>[ ] <strong>Step 2-4: 红→实现→绿</strong>（<code>_dispatch_with_retry</code> 加 <code>state: Any = None</code> 形参并传入其 <code>dispatch_skill</code> 调用 :120-126；<code>ReviewTask</code> 不动（parallel_dispatch.py:44——state 是波级共享非任务级））。</li>
+<li>[ ] <strong>Step 5: Commit</strong> — <code>feat(observability): spec #81 T5 — parallel wave state threading (loop_id coverage)</code></li>
+</ul>
+<hr />
+<h3 id="task-6-retry-chapter_loop">Task 6: RETRY 事件（chapter_loop 两缝）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（<code>_handle_failure</code> 重派批准位 + 监控回卷位 :3925-3956）
+- Test: <code>tests/unit/pipeline/test_chapter_loop_retry_event.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: 新模块级 helper <code>_emit_retry_event(project_dir: Path, *, chapter: int | None, skill: str, reason: dict[str, Any], loop_id: int) -&gt; None</code>——<strong>先守卫</strong> <code>(project_dir / "trace.jsonl").exists()</code> 否则静默返回（同 <code>_emit_dispatch_trace</code> :3128-3131 纪律——<code>TraceWriter.append</code> 会自建 trace 面（writer.py:102-104），不守卫 = RETRY 静默造面）；守卫过后 <code>TraceWriter(project_dir).append(actor="chapter-loop", actor_role="SYSTEM", action="RETRY", target=f"ch{chapter}", skill=skill, payload={"chapter": chapter, "skill": skill, "reason": reason, "loop_id": loop_id})</code>。
+- reason 结构化 + <strong>发射位钉死（M14）</strong>：G4 硬败块的<strong>两个分支</strong>——<code>per_chapter_review_enabled</code> 真 → <code>_handle_failure</code> 路径（:4140-4144 前）、假 → 直接 auto-retry 路径（:4145-4156）各发一次；监控回卷位（:3925-3955）。G4 位 reason = <code>{"kind": "g4_hard", "check_ids": [...hard_fails], "loop": loop_id}</code>；<strong>回卷位按现存数据形态钉</strong>：该位只有预格式 <code>issues: list[str]</code>（<code>scene_splitter.validate_split</code> 产物，如 <code>"word_band:ch2:total_chars 1995 不在带 [2800,4000]"</code>），spec §2 示例的数值差值 dict 不存在于该作用域——P1 reason = <code>{"kind": "monitor_rewind", "chapter": N, "issues": [...原串]}</code>（消费方 observe_report 失败簇按 kind 聚类不受影响）；<strong>数值化差值形态记 spec-deviations 延后</strong>（scene_splitter 结构化暴露属独立小改，不顺手膨胀 T6 scope）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>——tmp_path 造 trace.jsonl（先手 TraceWriter 落一 INIT 事件成链），monkeypatch 触发 <code>_handle_failure</code> 重派路径，断言 trace 尾部出现 <code>action=="RETRY"</code> 且 payload 结构化；监控位同理（直调 <code>_emit_retry_event</code> 断言形态 + 回卷路径集成断言）；<strong>无 trace 文件时断言不创建</strong>（守卫测试——空 tmp_path 直调 helper 后 <code>trace.jsonl</code> 不存在）。</li>
+<li>[ ] <strong>Step 2-4: 红→实现→绿</strong>。</li>
+<li>[ ] <strong>Step 5: Commit</strong> — <code>feat(observability): spec #81 T6 — RETRY trace event (structured loop re-dispatch reasons)</code></li>
+</ul>
+<hr />
+<h3 id="task-7-escape_hatch_drift-fail-fast">Task 7: <code>escape_hatch_drift</code> fail-fast 读侧（派发后相位检查）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（:4019 <code>result = dispatch_skill(...)</code> 之后、state-settling 失败分支之前）
+- Test: <code>tests/unit/observability/test_escape.py</code>（追加）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: T3 <code>escape_hatch_drift_check</code>；<code>shenbi.audit.record.record_audit_outcome(round_dir, skill, result)</code>；<code>shenbi.pipeline.machine.set_checkpoint(state, CheckpointType.ESCALATION, chapter=..., context=...)</code>。
+- Produces: helper <code>_check_escape_hatch_drift(state, project_dir, chapter) -&gt; bool</code>（True=已设 checkpoint 应停步）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_drift_fail_escalates_without_retry_charge</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># 造 streak=3 状态文件</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.observability</span><span class="w"> </span><span class="kn">import</span> <span class="n">escape</span> <span class="k">as</span> <span class="n">esc</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;fields&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;文风基准&quot;</span><span class="p">],</span> <span class="s2">&quot;matched_all&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">esc</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">_minimal_chapter_state</span><span class="p">()</span>   <span class="c1"># SimpleNamespace(chapter_loop=SimpleNamespace(</span>
+                                       <span class="c1">#   retry_budget_consumed={&quot;ch1-s&quot;: 2}, retry_counts={}),</span>
+                                       <span class="c1">#   pending_checkpoint=None)</span>
+    <span class="n">raised</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">_check_escape_hatch_drift</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">raised</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="c1"># (a) ESCALATION checkpoint 已设</span>
+    <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">pending_checkpoint</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;escalation&quot;</span>  <span class="c1"># 按 CheckpointType 实际形态断言</span>
+    <span class="c1"># (b) 零充语义：retry 计数原值未动</span>
+    <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;ch1-s&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span> <span class="o">==</span> <span class="p">{}</span>
+    <span class="c1"># (c) GATE_FAIL 双产物（write-audit.jsonl + trace），(d) gate-markers/ 无新文件</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">l</span><span class="p">)[</span><span class="s2">&quot;blocked&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span>
+               <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;write-audit.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="s2">&quot;GATE_FAIL&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;trace.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;gate-markers&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;gate-markers&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">())</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_drift_absent_passes</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">_minimal_chapter_state</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">cl</span><span class="o">.</span><span class="n">_check_escape_hatch_drift</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_two_misses_no_checkpoint</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="c1"># streak=2 &lt;3 → 不触发（O-2 复演防护的窗）</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;fields&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;文风基准&quot;</span><span class="p">],</span> <span class="s2">&quot;matched_all&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}]</span>
+    <span class="n">esc</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+    <span class="n">esc</span><span class="o">.</span><span class="n">update_escape_hatch_state</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">cl</span><span class="o">.</span><span class="n">_check_escape_hatch_drift</span><span class="p">(</span><span class="n">_minimal_chapter_state</span><span class="p">(),</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+</code></pre></div>
+<p>（<code>_minimal_chapter_state</code> 与 CheckpointType 断言形态在实施时对齐 <code>tests/unit/pipeline/</code> 既有 state 脚手架——<code>test_retry_taxonomy.py</code> 的 state 构造是现成参照；<code>...</code> 处即两次 <code>update_escape_hatch_state</code> 调用，同上族写法。）</p>
+<ul>
+<li>[ ] <strong>Step 2-4: 红→实现→绿</strong>。实现：:4019 后插</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">_check_escape_hatch_drift</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">):</span>
+    <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># escalation checkpoint raised, pause for human</span>
+</code></pre></div>
+<p><code>_check_escape_hatch_drift</code>：<code>drift = escape_hatch_drift_check(project_dir)</code>；非空 → <code>record_audit_outcome(project_dir, "escape-hatch", AuditResult(skill="escape-hatch", violations=tuple(f"escape_hatch_drift: {d['key']} streak={d['streak']}" for d in drift), drift=(), checked_files=()))</code> + <code>set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter, context="逃逸舱字段漂移：契约 fields 与文件标题连续失配 ≥3——producer 模板漂移，需人工对齐（spec #81 §3）")</code> → True；<strong>不触任何 retry 计数</strong>（零充 = 从不调用 <code>_handle_failure</code>/不手充 budget）。<code>AuditResult</code> 从 <code>shenbi.audit._shared</code> 导入（<code>skill</code> 是无默认值首字段，tuple 型容器字段——:31-39）。<strong>检出时延注记（R3-M3）</strong>：并行评审波块（:3487）与草稿后块（:3743）先于 :4019 派发位 return——波内累积的漂移要到下一串行派发（通常下一章 drafting）才浮出，晚于理想 3 派发窗；此为相位检查归属（spec §3 rev2 钉死）的已知代价，运行侧验收读数时勿误判为缺陷。
+- [ ] <strong>Step 5: Commit</strong> — <code>feat(observability): spec #81 T7 — escape_hatch_drift fail-fast (zero-charge escalation)</code></p>
+<hr />
+<h3 id="task-8-toolsobserve_reportpy-warn">Task 8: <code>tools/observe_report.py</code> 四表 + 覆盖行 + WARN 汇总</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/observe_report.py</code>；Modify: <code>justfile</code>
+- Test: <code>tests/unit/tools/test_observe_report.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>trace.jsonl</code>（DISPATCH payload loop_id/reads + RETRY + GATE_FAIL）、<code>cost/token-ledger.jsonl</code>（attempt==1 行 = 每派发恰一行）、<code>observability/dispatches/*.json</code>、<code>observability/escape-hatch-state.json</code>、<code>observability/archive-stats.json</code>。
+- Produces: <code>build_report(project_dir: Path) -&gt; str</code>（markdown）；CLI <code>uv run python tools/observe_report.py &lt;project_dir&gt;</code>；justfile <code>observe-report *args: uv run python tools/observe_report.py "$@"</code>。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>（tmp_path 结构语料：3 派发 ledger/trace/archive 三源交叉）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_four_tables_and_coverage_row</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">_seed_corpus</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">md</span> <span class="o">=</span> <span class="n">build_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;## 膨胀曲线&quot;</span><span class="p">,</span> <span class="s2">&quot;## Loop depth&quot;</span><span class="p">,</span> <span class="s2">&quot;## 失败簇&quot;</span><span class="p">,</span> <span class="s2">&quot;## 逃逸舱&quot;</span><span class="p">,</span> <span class="s2">&quot;## 归档覆盖&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">md</span>
+    <span class="k">assert</span> <span class="s2">&quot;ledger=3&quot;</span> <span class="ow">in</span> <span class="n">md</span> <span class="ow">and</span> <span class="s2">&quot;archive=3&quot;</span> <span class="ow">in</span> <span class="n">md</span>          <span class="c1"># 覆盖行对账（attempt=1 口径）</span>
+    <span class="k">assert</span> <span class="s2">&quot;monitor_rewind&quot;</span> <span class="ow">in</span> <span class="n">md</span>                           <span class="c1"># 失败簇聚类</span>
+    <span class="k">assert</span> <span class="s2">&quot;archive_quota_skip=0&quot;</span> <span class="ow">in</span> <span class="n">md</span>                     <span class="c1"># WARN 三键汇总行</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dedup_ratio_and_blob_existence</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">_seed_corpus</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>   <span class="c1"># 2 档共用同一 system_prompt blob → 去重率 &lt;1、存在比例 100%</span>
+    <span class="n">md</span> <span class="o">=</span> <span class="n">build_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;去重率&quot;</span> <span class="ow">in</span> <span class="n">md</span> <span class="ow">and</span> <span class="s2">&quot;blob&quot;</span> <span class="ow">in</span> <span class="n">md</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_missing_surfaces_degrade_to_explicit_note</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="c1"># 无 observability/ 的既有项目：报告头明示「无归档（特性前项目）」不炸</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;trace.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">md</span> <span class="o">=</span> <span class="n">build_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;无归档&quot;</span> <span class="ow">in</span> <span class="n">md</span>
+</code></pre></div>
+<p><code>_seed_corpus</code> 构造（tmp_path 结构语料）：ledger 3 行（2 skill，全部 <code>attempt=1</code>、<code>estimated=false</code>）；trace.jsonl 经 TraceWriter 落 2 DISPATCH（其一 payload <code>loop_id=4</code> + reads <code>matched_all=false</code> ×1）+ 1 RETRY（payload <strong>与 T6 实发形态对齐</strong>：<code>reason={"kind": "monitor_rewind", "chapter": 2, "issues": ["word_band:ch2:total_chars 1995 不在带 [2800,4000]"]}</code>——勿用 spec §2 示例的数值 dict 形态，那是 deviation ③ 延后项）；dispatches/ 3 档（其一 <code>response_blob</code> 指向真实存在的 blob 文件、两档共用同一 <code>system_prompt_blob</code>）；escape-hatch-state.json 一键 streak=2；archive-stats.json 三键 0/0/0。</p>
+<ul>
+<li>[ ] <strong>Step 2-4: 红→实现→绿</strong>。四表：</li>
+<li><strong>膨胀曲线</strong>：ledger 按 (skill, chapter) prompt_tokens 均值走势行；</li>
+<li><strong>Loop depth</strong>：trace DISPATCH payload <code>loop_id</code> 每 (skill, chapter) max + RETRY 计数；</li>
+<li><strong>失败簇</strong>：RETRY payload reason 按 <code>kind</code> 聚类 + 失败派发数；</li>
+<li><strong>逃逸舱</strong>：trace reads <code>matched_all=false</code> 计数 per path + 当前 streaks。
+  覆盖行：<code>ledger attempt=1 行数 vs dispatches 档数</code> + blob 存在性（档内全部 blob 指针 → blobs/ 存在比例）+ 去重率（引用字节/实存字节）。WARN 行：archive-stats 三键分计。tools/ 脚本可 <code>print</code>（AGENTS.md T20 仅限 <code>src/shenbi/</code>）。</li>
+<li>[ ] <strong>Step 5: Commit</strong> — <code>feat(observability): spec #81 T8 — observe_report four tables + coverage row</code></li>
+</ul>
+<hr />
+<h3 id="task-9-p1">Task 9: P1 离线验收整合（可执行化跑批）</h3>
+<p><strong>Files:</strong>
+- Test: 上述各测试文件的验收映射注释 + 本 task 无新代码（跑批 + 记录）。
+- 无新实现——此 task 把 spec §6/§7 离线验收逐条跑一遍并粘 progress.md。</p>
+<ul>
+<li>[ ] <strong>Step 1: 跑验收映射</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>spec 验收条</th>
+<th>可执行验证</th>
+<th>所在</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>§6 P1 归档写档+blob 去重+字节复现</td>
+<td><code>uv run pytest tests/unit/observability/test_archive.py -v</code>（dereference 断言）+ <code>test_dispatch_archive_wiring.py</code></td>
+<td>T1/T4</td>
+</tr>
+<tr>
+<td>§6 P1 fail-fast 三触发+四元组语义</td>
+<td><code>uv run pytest tests/unit/observability/test_escape.py -v</code>（3 次 FAIL/交错隔离/复位/缺失 PASS）</td>
+<td>T3/T7</td>
+</tr>
+<tr>
+<td>§7.1 [P1 离线] 四表+覆盖行对账一致</td>
+<td><code>uv run pytest tests/unit/tools/test_observe_report.py -v</code></td>
+<td>T8</td>
+</tr>
+<tr>
+<td>§7.2 [P1 离线] 漂移制造 → FAIL</td>
+<td><code>test_escape.py::test_drift_fail_escalates_without_retry_charge</code> + <code>test_escape.py::test_builder_wiring_renamed_heading_fires_drift</code>（端到端：真跑 builder ×3 对改名标题 → drift 非空）</td>
+<td>T7+T3</td>
+</tr>
+<tr>
+<td>§7.5 [P1 离线] KB 级熔断实测</td>
+<td><code>test_archive.py::test_quota_breaker_skips_blob_keeps_hash_and_counts</code></td>
+<td>T1</td>
+</tr>
+<tr>
+<td>运行侧条目（vol1 续跑字节复现/5 章窗口/≤80MB）</td>
+<td><strong>不在 SDD 边界</strong>（spec §6 运行验证阶段）</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[ ] <strong>Step 2: <code>just check</code> 全绿</strong></li>
+<li>[ ] <strong>Step 3: 验收输出粘 progress.md <code>## 验收证据</code></strong></li>
+</ul>
+<hr />
+<h2 id="spec-7-task">验收覆盖表（spec §7 ↔ task）</h2>
+<p>见 Task 9 表（P1 期交付 1/2/5 离线形态；3/4 为 P2 期定义，spec §7 已分期标注）。</p>
+<h2 id="_1">执行说明</h2>
+<ul>
+<li>全 task = infra → <strong>协调者亲自实现</strong>（SDD leaf/infra 分流；T8/T9 保守归类 infra——消费 T1/T4/T6 产物格式，协调者做免接口漂移），每 task commit 后 fresh-context 审查子 agent 产 <code>audit-T&lt;N&gt;.md</code>，无之不得开 T<N+1>。</li>
+<li>每 task TDD 红→绿→commit；偏差当轮记 <code>spec-deviations.md</code> <code>### T&lt;N&gt;</code> 段。</li>
+<li><strong>预登记 deviations（实施时照记）</strong>：① T1 <code>skill_contract_sha</code> 取内容 sha256 非 git blob SHA（溯源等价，格式统一）；② T2 <code>resolved_fields</code> 进 manifest + <code>_INJECT_FROM_CACHE</code> 注入 read <strong>新增 manifest 条目</strong>（<code>source: "cache"</code>）——spec §1 措辞「manifest 不动」；两者皆加性（trace reads 可见性增益），无破坏；③ T6 回卷位 reason 取现存 <code>issues: list[str]</code> 形态，数值化差值 dict 延后。</li>
+<li>既有测试 stub 爆破面（T2）：<code>grep -rn "_build_skill_prompt\|filter_to_fields" tests/</code> 双清单列全，逐一更新——漏一个 = 阶段 7 <code>just check</code> 红。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

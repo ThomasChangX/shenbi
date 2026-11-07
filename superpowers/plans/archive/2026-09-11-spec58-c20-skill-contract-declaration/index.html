@@ -1,0 +1,1891 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-11-spec58-c20-skill-contract-declaration/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #58 C20 技能契约声明面修复 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #58 C20 技能契约声明面修复 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-11-spec58-c20-skill-contract-declaration.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-11-spec58-c20-skill-contract-declaration/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #58 C20 技能契约声明面修复 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-11-spec58-c20-skill-contract-declaration.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-58-c20-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #58 C20 技能契约声明面修复 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec 验收 → task → 可执行验证）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 复杂度/测试分级总表
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 复杂度/测试分级总表">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-pathspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 相对章号偏移占位符（paths.py）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-r1r2-lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: R1/R2 契约闭合 lint 工具
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-warn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 双面接线 + WARN 基线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-p1-f803f809f811-f821f836f889f892-volume_summaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: P1 读侧修复（F803/F809/F811 读侧/F821/F836/F889/F892 + volume_summaries 三方对齐）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-p1-f812f871f811" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: P1 写侧修复（F812/F871/F811 后半）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-f870-glob-f884" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: 越权写拆除（F870）+ 占位模式 glob 化（F884）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-p2-f802f805f807f825f872" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: P2 批量（F802/F805/F807/F825/F872）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-d104-meta-f849-fanfic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: D104 meta 豁免单一信源 + F849 fanfic 子模式拆除
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-dispatch-g4g2-r1r2-fail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: 验收聚合——dispatch 五腿断言 + G4/G2 回归 + R1/R2 清零 FAIL
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review 记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-58-c20-implementation-plan">Spec #58 C20 技能契约声明面修复 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 建立 SKILL.md「正文↔frontmatter 契约」双向闭合 lint（R1/R2），修复 C20 簇存活 findings（8 P1 + P2 族 + D104 裁决），并使能相对章号占位符。</p>
+<p><strong>Architecture:</strong> 新独立 lint 工具 <code>tools/lint_contract_prose.py</code>（R1 正文引用⊆声明 / R2 声明 writes⇒正文步骤，双面挂载 justfile+ci.yml，终态 FAIL 阻断）；<code>src/shenbi/contracts/paths.py</code> 扩展相对偏移占位符 <code>chapter-{N-3}</code>（F811 时序修复的使能前提）；~14 个 SKILL.md 的 frontmatter/正文修复。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pytest / just / uv（与 CI <code>uv run --frozen</code> 同构）。</p>
+<p><strong>对应 spec:</strong> <code>docs/superpowers/specs/2026-08-16-audit-skill-contract-declaration-fix.md</code>（Revised 2026-09-11 · 设计审查四轮收敛版）</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>一切验证命令走 <code>uv run</code> / <code>just</code>（环境同构；系统 python 不算证据）</li>
+<li><code>src/shenbi/</code> 无 <code>print()</code>（structlog）；gate 检查器纯函数幂等；<code>pathlib.Path</code> 文件 I/O</li>
+<li>所有 SKILL.md frontmatter 契约变更后：<code>just lint-contracts</code> 绿 + <code>just generate</code> 幂等 diff 空（生成物 <code>## 数据契约</code> AUTO-GENERATED 块由 sync-contracts 重生，禁手改生成物）</li>
+<li>F947：全验收离线（fixtures/tmp_path 驱动；禁真实 <code>shenbi-dispatch</code>/<code>pipeline</code> dispatch）</li>
+<li>G0.9：<code>tests/fixtures/</code> 只放真实产物；tmp_path 内测试组装内容不算 fixture</li>
+<li>状态字面量唯一定义于 <code>src/shenbi/contracts/enums.py</code>（本 plan 无新增状态词）</li>
+<li>commit 走 conventional commits，显式 pathspec（禁 <code>git add -A</code>）</li>
+<li>修复后 21 条簇成员 ledger 回写：3 条已修 elsewhere（F838→PR #120、F881→PR #120、F882→PR #117），余 18 条 closed (C-20 spec #58)</li>
+</ul>
+<h2 id="spec-task">验收覆盖表（spec 验收 → task → 可执行验证）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. R1/R2 违规=0（基线↔修复同口径对照）</td>
+<td>T3 基线 + T9 清零</td>
+<td><code>uv run python tools/lint_contract_prose.py --fail</code> exit 0（对照 <code>.superpowers/sdd/r1r2-baseline.md</code>）</td>
+</tr>
+<tr>
+<td>2. 读侧五技能 dispatch 注入断言</td>
+<td>T9</td>
+<td><code>uv run pytest tests/pipeline/test_dispatch_reads_injection.py -v</code> 全 PASS</td>
+</tr>
+<tr>
+<td>3. G4 PASS + market-radar decisions 回归</td>
+<td>T9</td>
+<td>T9 Step 4（gates 全量 pytest + T1 套件 + decisions lint）；<code>uv run pytest tests/tiers/t1-skill/shenbi-market-radar tests/test_lint_decisions_sources.py -q</code>（<strong>deviation</strong>：仓内无真实 market-radar decisions.json——G0.9 禁现造，以既有 T1 套件 + decisions 链测试承载回归）</td>
+</tr>
+<tr>
+<td>4. meta 豁免显式输出</td>
+<td>T8</td>
+<td><code>uv run python tools/lint_contract_prose.py --list-exempt</code> 列 2 条 meta 豁免</td>
+</tr>
+<tr>
+<td>5. just check 全绿 + FAIL 级 + CI 挂载</td>
+<td>T3 + T9</td>
+<td><code>just check</code> exit 0；ci.yml 契约步含新工具与 lint_contract_graph</td>
+</tr>
+</tbody>
+</table>
+<h2 id="task">Task 复杂度/测试分级总表</h2>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>内容</th>
+<th>复杂度</th>
+<th>test_kind</th>
+<th>层级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>paths.py 偏移占位符</td>
+<td><strong>infra</strong>（contracts/ 模块）</td>
+<td>tdd_red_green</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>lint_contract_prose.py</td>
+<td><strong>infra</strong>（CI 承载 + 消费 contracts loader）</td>
+<td>tdd_red_green</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>接线 + 基线</td>
+<td><strong>infra</strong>（ci.yml/justfile）</td>
+<td>regression_guard</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>P1 读侧 7 技能</td>
+<td>leaf</td>
+<td>characterization</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>P1 写侧 3 面</td>
+<td>leaf</td>
+<td>characterization</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>6</td>
+<td>F870 越权写 + F884 glob</td>
+<td>leaf</td>
+<td>characterization</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>7</td>
+<td>P2 批量 5 面</td>
+<td>leaf</td>
+<td>characterization</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>8</td>
+<td>D104 + F849</td>
+<td>leaf</td>
+<td>characterization</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>9</td>
+<td>验收聚合</td>
+<td><strong>infra</strong>（断言面广）</td>
+<td>acceptance/regression</td>
+<td>T1</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-pathspy">Task 1: 相对章号偏移占位符（paths.py）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/paths.py</code>（<code>_FAMILY_N</code> 定义行（:30）后新增偏移正则；<code>resolve_contract_path</code> ctx 路由 + <code>resolve_chapter_path</code> no-ctx/genesis 路由）
+- Test: <code>tests/unit/contracts/test_paths_offset.py</code>（新建；paths 旧族测试在 <code>tests/unit/contracts/test_paths.py</code> + <code>test_paths_family.py</code>，新测试与家族同位）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>PathContext</code>（既有 dataclass，<code>chapter/arc/stratum/volume/anchor/escalation</code>）
+- Produces: 偏移形态 <code>chapter-{N-3}</code> / <code>volume-{N+1}</code> 的解析语义——ctx 路由按 ctx 家族值为基（家族值 None 或 str sentinel → <code>UnresolvedPathError</code>）；no-ctx 路由按 chapter 为基（<code>resolve_chapter_path</code>）；chapter=None 且路径含偏移 → <code>UnresolvedPathError</code>（genesis 由 <code>resolve_or_skip_ctx</code> 过滤为 skip）。Task 4 的 reads 声明 <code>chapters/chapter-{N-3}.md</code> 依赖此语义；Task 2 的 lint canonical 化消费同一形态。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/contracts/test_paths_offset.py</span>
+<span class="sd">&quot;&quot;&quot;Relative-offset placeholder semantics (spec #58 C20 T2.5 enabler, F811).&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.paths</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PathContext</span><span class="p">,</span>
+    <span class="n">UnresolvedPathError</span><span class="p">,</span>
+    <span class="n">resolve_chapter_path</span><span class="p">,</span>
+    <span class="n">resolve_contract_path</span><span class="p">,</span>
+    <span class="n">resolve_or_skip_ctx</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_offset_no_ctx_chapter_base</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="s2">&quot;chapters/chapter-{N-3}.md&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;chapters/chapter-2.md&quot;</span>
+    <span class="k">assert</span> <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="s2">&quot;chapters/chapter-{N-1}.md&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;chapters/chapter-0.md&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_offset_ctx_family_base</span><span class="p">():</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">PathContext</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="mi">99</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">resolve_contract_path</span><span class="p">(</span><span class="s2">&quot;chapters/chapter-{N-3}.md&quot;</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;chapters/chapter-96.md&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_offset_ctx_family_value_missing_raises</span><span class="p">():</span>  <span class="c1"># 路径须家族前有 / 或 -（_FAMILY_N_OFFSET lookbehind），字符串起始形态不匹配</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">UnresolvedPathError</span><span class="p">):</span>
+        <span class="n">resolve_contract_path</span><span class="p">(</span><span class="s2">&quot;truth/volume-{N-1}/x.md&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">PathContext</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_offset_genesis_skipped_via_resolve_or_skip</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">resolve_or_skip_ctx</span><span class="p">(</span><span class="s2">&quot;chapters/chapter-{N-3}.md&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">UnresolvedPathError</span><span class="p">):</span>
+        <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="s2">&quot;chapters/chapter-{N-3}.md&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_offset_no_interference_with_legacy_forms</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="s2">&quot;chapters/chapter-N.md&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;chapters/chapter-5.md&quot;</span>
+    <span class="k">assert</span> <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="s2">&quot;import/canon/01_SECTION.md&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;import/canon/01_SECTION.md&quot;</span>
+    <span class="k">assert</span> <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="s2">&quot;audits/AC-NNN.md&quot;</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;NNN&quot;</span><span class="p">,</span> <span class="s2">&quot;007&quot;</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;audits/AC-007.md&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_paths_offset.py -v</code>
+Expected: FAIL（<code>chapter-{N-3}</code> 原样返回/不抛 UnresolvedPathError——偏移形态未实现）</p>
+<ul>
+<li>[ ] <strong>Step 3: 最小实现</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/paths.py —— _FAMILY_N 定义行后新增：</span>
+<span class="c1"># Spec #58 C20 (F811): relative-offset placeholders `chapter-{N-3}` — brace</span>
+<span class="c1"># form only (prose&#39;s paren form `(N-3)` is lint-side canonicalized, never a</span>
+<span class="c1"># declared read). Base value: ctx family value (ctx route, F207 semantics —</span>
+<span class="c1"># None/str-sentinel raises) or chapter (no-ctx route).</span>
+<span class="n">_FAMILY_N_OFFSET</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;(?&lt;=[-/])(arc|stratum|volume|chapter|escalation)-\{N([+-]\d+)\}&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_offset_sub</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">base</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_FAMILY_N_OFFSET</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">fm</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fm</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">base</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">fm</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+</code></pre></div>
+<p><code>resolve_contract_path</code> 的 <code>if ctx is not None:</code> 块内、<code>_FAMILY_N.search</code> 之前插入：</p>
+<div class="highlight"><pre><span></span><code>        <span class="k">if</span> <span class="n">_FAMILY_N_OFFSET</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">fm</span> <span class="ow">in</span> <span class="n">_FAMILY_N_OFFSET</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">fm</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="c1"># F207 语义沿用：家族值缺失/str sentinel 无算术基 → 显式错</span>
+                    <span class="k">raise</span> <span class="n">UnresolvedPathError</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                    <span class="n">fm</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fm</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">base</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">fm</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+</code></pre></div>
+<p>（单一循环：per-family base 校验 + 逐处替换。）</p>
+<p><code>resolve_chapter_path</code> 改为：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_chapter_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">chapter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_NNN</span> <span class="ow">in</span> <span class="n">path</span> <span class="ow">or</span> <span class="n">_BOUND_N</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_FAMILY_N_OFFSET</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">UnresolvedPathError</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_NNN_BOUNDED</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">chapter</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_offset_sub</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_bounded_replace_n</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_paths_offset.py -v</code>
+Expected: 5 passed</p>
+<ul>
+<li>[ ] <strong>Step 5: 回归既有路径测试 + 类型门</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts -q &amp;&amp; uv run ruff check src/shenbi/contracts/paths.py &amp;&amp; uv run mypy src/shenbi/contracts/paths.py</code>
+Expected: tests/unit/contracts 全 PASS（含 test_paths.py/test_paths_family.py 旧族 + 新 test_paths_offset.py）、ruff/mypy 0 errors</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/paths.py<span class="w"> </span>tests/unit/contracts/test_paths_offset.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: relative-offset placeholder chapter-{N-k} in contract paths (spec58 C20 enabler)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-r1r2-lint">Task 2: R1/R2 契约闭合 lint 工具</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/lint_contract_prose.py</code>
+- Test: <code>tests/unit/tools/test_lint_contract_prose.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.sync_contracts.load_all_contracts()</code>（dict[skill → contract dict]，monkeypatch 点同 <code>tests/unit/tools/test_lint_contract_graph.py:50</code> 先例：<code>monkeypatch.setattr("shenbi.sync_contracts.load_all_contracts", ...)</code>）、<code>shenbi.contracts.graph.dag_key</code>、<code>shenbi.pipeline.dispatch_helper._strip_autogen_blocks</code>（R2/R1 共用：AUTO-GENERATED 数据契约块不算正文证据）、<code>tools.lint_contracts.META_SKILLS</code>
+- Produces: CLI <code>python tools/lint_contract_prose.py [--fail] [--list-exempt]</code>——默认 WARN（打印违规 exit 0）；<code>--fail</code> 违规 exit 1；<code>--list-exempt</code> 显式输出 meta 豁免与 allowlist（验收 4/5）。Task 3 挂载、Task 9 清零验证消费。</p>
+<p><strong>规则设计（spec T1.1 三段裁决全文落地）：</strong>
+- R1 正文→声明：剥 AUTO-GENERATED 块后，提取正文路径引用（相对路径/裸 <code>.md</code> 名/glob 形态），归一化 <code>[({]N±k[)}]</code> → <code>N</code>，依次匹配：①声明精确（双方归一后相等）②声明转 glob（<code>N</code>→<code>*</code>，fnmatch）③裸名=任一声明基名 ④skill-bundle（<code>skills/&lt;skill&gt;/&lt;basename&gt;</code> 物理存在）⑤registry 词表 globs/patterns ⑥显式 allowlist（具名类别+理由）。六级全不中 → 违规。
+- R2 声明→正文：剥 AUTO-GENERATED 块后，声明 writes/updates 每个文件须在正文（步骤/标题/输出格式节）出现其 basename 或归一路径；仅出现在 AUTO-GENERATED 摘要块不算（F812/F871/F872 靶点）。</p>
+<p><strong>Allowlist 数据结构（具名类别，验收 5 的记录载体）：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">ALLOWLIST</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c1"># (category, &quot;skill:pattern&quot;(fnmatch，* 通配), reason)</span>
+    <span class="p">(</span><span class="s2">&quot;skill-bundle&quot;</span><span class="p">,</span> <span class="s2">&quot;*:anti-ai-reference.md&quot;</span><span class="p">,</span> <span class="s2">&quot;捆绑参考文件，dispatcher 不注入（T1.1 裁决 b）&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;anti-example&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-context-composing:chapters/chapter-*.md&quot;</span><span class="p">,</span> <span class="s2">&quot;anti-rationalization 反例行，非真实读依赖&quot;</span><span class="p">),</span>
+    <span class="c1"># 基线期按实况增补，每条附一行理由；known-limitation 注记见 docstring</span>
+<span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（tmp_path 组装合成 SKILL 文本——先例 <code>tests/pipeline/test_g4_directory.py:24-32</code> 的 tmp_path 豁免（G0.9 边界裁决在其 docstring），非 tests/fixtures 产物；monkeypatch <code>load_all_contracts</code> 与 skills 根路径）</li>
+</ul>
+<p>测试覆盖矩阵（每条一个 test 函数，全部写全）：
+1. R1 命中：正文引用 <code>outline/three_act.md</code> 未声明 → 违规列表含 <code>(skill, "outline/three_act.md")</code>
+2. R1 裸名过：正文 <code>protagonist.md</code>，声明含 <code>characters/protagonist.md</code> → 过（基名规范化）
+3. R1 glob 过：正文 <code>characters/**/*.md</code>，声明 <code>characters/*.md</code> → 过
+4. R1 偏移归一过：正文 <code>chapter-(N-3).md</code>，声明 <code>chapters/chapter-{N-3}.md</code> → 过（双形态归一）
+5. R1 skill-bundle 过：正文 <code>anti-ai-reference.md</code> 且 <code>skills/&lt;skill&gt;/anti-ai-reference.md</code> 存在 → 过
+6. R1 AUTO-GEN 块不算：违规引用只出现在 AUTO-GENERATED 块内 → 不报
+7. R2 命中：声明写 <code>truth/drift_guidance.md</code>，正文（剥块后）零出现 → 违规
+8. R2 块内出现不算：basename 仅在 AUTO-GENERATED 块 → 仍违规（F812 靶点）
+9. meta 豁免：<code>using-shenbi</code>/<code>shenbi-writing-skills</code> 不参与两规则
+10. <code>--fail</code> exit 语义：有违规 exit 1 / 无违规 exit 0 / WARN 模式恒 exit 0</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_contract_prose.py -v</code>
+Expected: FAIL（模块不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 tools/lint_contract_prose.py</strong></li>
+</ul>
+<p>结构（骨架 + 关键函数签名；docstring 载明 spec 出处、三类白名单裁决、known-limitation 注记——reads/writes/updates 并池基名匹配对 F836 回退形态不可见，由 Task 9 行为级断言兜底）：</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Prose↔declaration closure lint (spec #58 C20 T1).</span>
+
+<span class="sd">R1 body→decl: every file path referenced in a SKILL.md body (outside the</span>
+<span class="sd">AUTO-GENERATED contract block) must be covered by the frontmatter contract</span>
+<span class="sd">(six-level match: exact / glob / basename / skill-bundle / registry vocab /</span>
+<span class="sd">allowlist).  R2 decl→body: every declared write/update must appear in real</span>
+<span class="sd">prose (steps/headers/output sections), not only the AUTO-GENERATED summary.</span>
+
+<span class="sd">Known limitation (deliberate, spec T1.1 note): basename matching pools</span>
+<span class="sd">reads+writes+updates, so a READ reference that only matches a WRITE</span>
+<span class="sd">declaration passes — the F836 regression shape is covered instead by the</span>
+<span class="sd">behavioral dispatch assertions (tests/pipeline/test_dispatch_reads_injection.py).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fnmatch</span><span class="o">,</span><span class="w"> </span><span class="nn">re</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span><span class="p">))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi</span><span class="w"> </span><span class="kn">import</span> <span class="n">sync_contracts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">dag_key</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_strip_autogen_blocks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tools.lint_contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">META_SKILLS</span>
+
+<span class="n">_OFFSET_N</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[({]N[+-]\d+[)}]&quot;</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_canonical</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_body_refs</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span> <span class="o">...</span>          <span class="c1"># 路径/glob/裸 .md 提取</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_covered</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">declared</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">skill_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">registry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span> <span class="o">...</span>  <span class="c1"># 六级匹配</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_violations</span><span class="p">(</span><span class="n">contracts</span><span class="p">,</span> <span class="n">skills_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">registry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns (r1_violations [(skill, ref, rule)], r2_violations [(skill, target)]).&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>  <span class="c1"># --fail / --list-exempt</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_contract_prose.py -v</code>
+Expected: 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: ruff/mypy 门（tools 面按仓库现状跑 ruff 即可，mypy 仅 src/）</strong></li>
+</ul>
+<p>Run: <code>uv run ruff check tools/lint_contract_prose.py tests/unit/tools/test_lint_contract_prose.py &amp;&amp; uv run ruff format --check tools/lint_contract_prose.py</code>
+Expected: 0 errors（format 不符则 <code>ruff format</code> 该两文件后复跑）</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_contract_prose.py<span class="w"> </span>tests/unit/tools/test_lint_contract_prose.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: R1/R2 prose-contract closure lint tool (spec58 C20 T1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-warn">Task 3: 双面接线 + WARN 基线</h3>
+<p><strong>Files:</strong>
+- Modify: <code>justfile:74-77</code>（lint-contracts target）、<code>.github/workflows/ci.yml:53-57</code>（契约 lint 步）
+- 产出（gitignored 工作态）: <code>.superpowers/sdd/r1r2-baseline.md</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2 的 <code>--fail</code> 语义
+- Produces: CI/本地双面 FAIL 阻断 + 基线底单（Task 4-8 修复的机械验收参照；Task 9 对照清零）。<strong>预期时序</strong>：本 task 落地后本地 <code>just check</code> 在 Task 4-8 完成前会红（R1/R2 存量违规）——这是设计内状态，阶段 7 才要求全绿。</p>
+<ul>
+<li>[ ] <strong>Step 1: justfile lint-contracts 增行</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>lint-contracts:
+    uv run python tools/lint_contract_graph.py
+    uv run python scripts/lint_contract_fields.py
+    uv run python tools/lint_contracts.py
+    uv run python tools/lint_contract_prose.py --fail
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: ci.yml 契约 lint 步补两行</strong>（同时修复该步漏跑 lint_contract_graph 的存量缺口——spec T1.1 记载）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Contract + repo-consistency lints (spec §5.5)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">uv run python tools/lint_contracts.py</span>
+<span class="w">          </span><span class="no">uv run python tools/lint_contract_graph.py</span>
+<span class="w">          </span><span class="no">uv run python tools/lint_contract_prose.py --fail</span>
+<span class="w">          </span><span class="no">uv run python scripts/lint_contract_fields.py</span>
+<span class="w">          </span><span class="no">uv run python tools/lint_repo_consistency.py</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: WARN 基线全量跑批落盘</strong></li>
+</ul>
+<p>Run: <code>uv run python tools/lint_contract_prose.py &gt; /tmp/r1r2-baseline.txt 2&gt;&amp;1; echo "exit=$?"; wc -l /tmp/r1r2-baseline.txt</code>
+Expected: exit=0（WARN 模式），输出违规清单——复制到 <code>.superpowers/sdd/r1r2-baseline.md</code>（附日期与 HEAD SHA；此即验收 1 的「基线报告」半侧）</p>
+<ul>
+<li>[ ] <strong>Step 4: 行动验证 yaml/justfile 语法</strong></li>
+</ul>
+<p>Run: <code>uv run python tools/lint_contract_prose.py --fail; echo "fail-exit=$?"</code>（预期非 0——存量违规存在，FAIL 语义生效）+ <code>just --fmt --check</code>（或 <code>just -l</code> 列 target 不报错）
+Expected: fail-exit=1；justfile 语法有效</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>justfile<span class="w"> </span>.github/workflows/ci.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: wire prose-closure lint into justfile+CI, backfill lint_contract_graph in CI (spec58 C20)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-p1-f803f809f811-f821f836f889f892-volume_summaries">Task 4: P1 读侧修复（F803/F809/F811 读侧/F821/F836/F889/F892 + volume_summaries 三方对齐）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-book-spine-init/SKILL.md</code>、<code>skills/shenbi-character-design/SKILL.md</code>、<code>skills/shenbi-context-composing/SKILL.md</code>、<code>skills/shenbi-foundation-review/SKILL.md</code>、<code>skills/shenbi-memory-distill/SKILL.md</code>、<code>skills/shenbi-sequel-writing/SKILL.md</code>、<code>skills/shenbi-escalation-review/SKILL.md</code>、<code>skills/shenbi-volume-consolidation/SKILL.md</code>（仅模板节）
+- 验证：无新测试文件——机械验证 = lint 收敛 + <code>just generate</code> 幂等（characterization：修复行为由 Task 2 lint 与 Task 9 行为断言刻画）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 偏移占位符（F811 近章声明）、Task 2/3 lint
+- Produces: 六技能 reads 集合变更（Task 9 断言的输入）。</p>
+<p><strong>编辑清单（每处 = frontmatter <code>reads:</code> 列表增行；YAML 缩进对齐既有条目）：</strong></p>
+<ol>
+<li>book-spine-init（F803）: reads += <code>characters/protagonist.md</code>、<code>world/rules.md</code></li>
+<li>character-design（F809）: reads += <code>outline/chapter_outline.md</code>、<code>outline/three_act.md</code>、<code>characters/**/*.md</code>（<strong>glob 语义边界（2026-09-11 轮 3 亲证）</strong>：dispatcher <code>_resolve_read_path</code> 用 stdlib glob <strong>无 recursive=True</strong>——<code>**</code> 退化为单层，匹配 <code>characters/&lt;dir&gt;/*.md</code> 嵌套位、不匹配顶层 <code>characters/*.md</code>；registry 也无 <code>characters/*.md</code> glob，故角色文件按既有 registry 布局放嵌套位（<code>characters/major/</code> 等），声明保持 <code>characters/**/*.md</code> 与 SKILL.md:224 散文一致）</li>
+<li>context-composing（F811 读侧+时序）: reads -= <code>chapters/chapter-N.md</code>；reads += <code>chapters/chapter-{N-3}.md</code>、<code>chapters/chapter-{N-2}.md</code>、<code>chapters/chapter-{N-1}.md</code></li>
+<li>foundation-review（F821）: reads += <code>genre-config.json</code>、<code>truth/book_spine.md</code>；正文删重复的第二个 <code>## 输出格式</code> 节（<code>:95</code> 与 <code>:125</code> 并存——保留信息更全的一节，另一节删除）</li>
+<li>memory-distill（F836）: reads += <code>truth/author_intent.md</code>、<code>truth/book_spine.md</code>、<code>world/rules.md</code></li>
+<li>sequel-writing（F889）: reads += <code>style/style_profile.md</code></li>
+<li>escalation-review（F892）: reads += <code>truth/volume_score_trend.md</code>、<code>truth/arc_payoff_trend.md</code>、<code>audits/stratum-N-score.md</code>（六类触发：score_decline/sensitivity 已覆盖，volume_objective_missed/arc_score_below_threshold/stratum_axis_drift 三源补入；regeneration_loop_exhausted 为 pipeline 计数器非文件，无 reads 面）</li>
+<li>
+<p>volume-consolidation（F811c 三方对齐）: 锚定<strong>精确输出模板</strong>（<code>:166 ## 输出格式</code> 下的模板块，<code>:177 ### 叙事弧线</code> 起——注意勿改 <code>:80</code> 的填充示例区）增三节 <code>### 卷目标达成</code>、<code>### 核心事件</code>、<code>### 跨卷钩子</code>；既有六节保留（<code>### 关键事件</code> 与新增 <code>### 核心事件</code> 并存为有意超集：前者服务其他读者，后者为 context-composing fields/fixture 的三方闭合节，勿删改前者）。消费方 fields（卷目标达成/核心事件/跨卷钩子）与 fixture（tests/fixtures/volume-summary-example.md 三 H2）由此闭合</p>
+</li>
+<li>
+<p>[ ] <strong>Step 1: 逐技能编辑</strong>（上表 1-8；每技能一个独立 commit 可选，按仓库惯例合并为本 task 单 commit 亦可——本 plan 取单 commit）</p>
+</li>
+<li>[ ] <strong>Step 2: 契约同步与 lint 收敛验证</strong></li>
+</ol>
+<p>Run: <code>just generate &amp;&amp; just lint-contracts || true</code> → 重点看 <code>lint_contract_prose</code> 段：上述七技能的 R1 违规消失（其余技能存量违规仍在，Task 5-8 处置）；<code>uv run python tools/lint_contract_graph.py</code> 无新 ORPHAN_READ（新增 reads 均有 producer：protagonist/world rules/outline 三件/near-chapter/style_profile/trend 三件——若 ORPHAN 出现即声明了无生产者文件，回查 truth-files.yaml registry）
+Expected: 生成物 diff 空（<code>git status --short</code> 无 deps.json/docs/skills 意外变更——预期变更仅 AUTO-GENERATED 块重生）；无新 ORPHAN_READ
+- [ ] <strong>Step 3: 偏移声明生效单测</strong></p>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_paths_offset.py -q</code>
+Expected: PASS（Task 1 语义仍绿）
+- [ ] <strong>Step 4: Commit</strong></p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-book-spine-init/SKILL.md<span class="w"> </span>skills/shenbi-character-design/SKILL.md<span class="w"> </span>skills/shenbi-context-composing/SKILL.md<span class="w"> </span>skills/shenbi-foundation-review/SKILL.md<span class="w"> </span>skills/shenbi-memory-distill/SKILL.md<span class="w"> </span>skills/shenbi-sequel-writing/SKILL.md<span class="w"> </span>skills/shenbi-escalation-review/SKILL.md<span class="w"> </span>skills/shenbi-volume-consolidation/SKILL.md
+just<span class="w"> </span>generate
+git<span class="w"> </span>add<span class="w"> </span>docs/skills<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span>docs/framework/dependency-dag.json<span class="w"> </span>docs/framework/truth-files.index.json<span class="w">  </span><span class="c1"># docs/skills 为无害兜底（sync 主产物=后三件套）</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: P1 read-side contract closures — F803/F809/F811/F821/F836/F889/F892 + volume_summaries 3-way alignment (spec58 C20)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-p1-f812f871f811">Task 5: P1 写侧修复（F812/F871/F811 后半）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-drift-guidance/SKILL.md</code>、<code>skills/shenbi-score-volume/SKILL.md</code>、<code>skills/shenbi-context-composing/SKILL.md</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 3 lint（R2 验证）
+- Produces: 三处正文产出节 + 两处 frontmatter 变更。</p>
+<p><strong>编辑清单：</strong></p>
+<ol>
+<li><strong>F812 drift-guidance</strong>：正文步骤区（<code>## 数据契约</code> AUTO-GEN 块之外）新增产出节。<strong>消费面实况（2026-09-11 亲证）</strong>：<code>truth/drift_guidance.md</code> 仅被 triggers.py:268-273 声明为 volume 边界 TriggerStep 的 <code>output_path</code>——pipeline 消费的是「产物存在性」（dispatch 后 gate 检查输出落盘），<strong>无任何代码解析其字段</strong>（全 src/ grep <code>drift_guidance</code> 仅 3 处：声明 + chapter_loop:1743/1814 的触发器读的是 <code>truth/audit_drift.md</code> 而非本文件）。因此产出节<strong>不得虚构消费者行为</strong>，字段语义由本 skill 自身定义：</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="gu">## drift_guidance 产出（truth/drift_guidance.md，create_or_overwrite）</span>
+
+每次执行末尾整体写出该文件（pipeline volume 边界触发器期待其存在——triggers.py volume_boundary 链）。最小模板：
+<span class="k">-</span><span class="w"> </span><span class="sb">`## 漂移状态`</span>：无漂移 | 轻度漂移 | 重度漂移（汇总自本次读取的 audit_drift 证据）
+<span class="k">-</span><span class="w"> </span><span class="sb">`## 拦截建议`</span>：一句话处置建议（供下一卷开卷决策的人类伙伴参考）
+</code></pre></div>
+<p>核对命令：<code>grep -rn "drift_guidance" src/shenbi/</code>（预期仅 3 处，如上——若执行时出现新消费代码以其为准）。</p>
+<ol>
+<li><strong>F871 score-volume</strong>：frontmatter <code>updates</code> 条目 <code>key: chapter</code> → <code>key: volume</code>（<code>:19</code>）；正文新增步骤与格式节：</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="gu">## volume_score_trend 追加（append_dedup，key=卷号）</span>
+
+评分完成后向 <span class="sb">`truth/volume_score_trend.md`</span> 追加**本卷一行**（首列=第X卷，勿输出他卷行/表头）：
+<span class="sb">`| 第X卷 | &lt;总评&gt; | &lt;三维分项&gt; | &lt;相较上卷 Δ&gt; |`</span>
+</code></pre></div>
+<ol>
+<li><strong>F812 子项 2（audit_drift_archive 写未声明）</strong>：drift-guidance frontmatter writes += <code>- file: truth/audit_drift_archive.md
+    mode: create_or_overwrite</code> 且 <strong>reads += <code>truth/audit_drift_archive.md</code></strong>。<strong>mode 裁决（2026-09-11 轮 3/4 两轮证据）</strong>：归档与 audit_drift.md 同为 YAML frontmatter 形态——SKILL.md:44 明文「append_dedup 会把整份 YAML 块追加到文件尾破坏 frontmatter 位消费，整文件重写是合并器正确形态」→ mode 取 create_or_overwrite；<strong>轮 2/4 的历史坍缩担忧由 reads 补声明消解</strong>——dispatcher 注入既有归档、合并器生成权威版本时并入未剪枝历史（缺失文件在 <code>_resolve_read_path</code> 静默跳过，爬坡期安全）；正文铁律 6 补一句「重写归档前先读既有归档条目，未被剪枝的并入后整体写出」。改后 <code>just lint-contracts</code> 须绿。</li>
+<li>
+<p><strong>F811 后半 context-composing</strong>：frontmatter <code>writes</code> += <code>- file: context/chapter-N-context.md\n    mode: create_or_overwrite</code>；正文非 pipeline 模式补产出步骤（pipeline 模式 <code>:111-116</code> 已有）——直接 dispatch 时同样把组装结果写出至 <code>context/chapter-N-context.md</code>（spec 轮 3 裁决：双模式均写）。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 1: 三处编辑</strong></p>
+</li>
+<li>[ ] <strong>Step 2: R2 收敛验证</strong></li>
+</ol>
+<p>Run: <code>just generate &amp;&amp; uv run python tools/lint_contract_prose.py 2&gt;&amp;1 | grep -E "drift-guidance|score-volume|context-composing" || echo "(三技能 R2 违规清零)"</code>
+Expected: 三技能零 R2 违规（R1 若因新增正文路径引用出现新违规，本 task 内补声明或 allowlist——增补 allowlist 须附理由）
+- [ ] <strong>Step 3: G4 结构验证（score-volume key 变更）</strong></p>
+<p>Run: <code>uv run pytest tests/unit/gates -q &amp;&amp; just lint-contracts</code>
+Expected: gates 全 PASS（score-volume key 变更由 G4/键对账测试承载——仓内无独立 score-volume 真实产物 fixture）；lint-contracts 四件绿
+- [ ] <strong>Step 4: Commit</strong></p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-drift-guidance/SKILL.md<span class="w"> </span>skills/shenbi-score-volume/SKILL.md<span class="w"> </span>skills/shenbi-context-composing/SKILL.md
+just<span class="w"> </span>generate
+git<span class="w"> </span>add<span class="w"> </span>docs/skills<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span>docs/framework/dependency-dag.json<span class="w"> </span>docs/framework/truth-files.index.json<span class="w">  </span><span class="c1"># docs/skills 为无害兜底</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: P1 write-side closures — F812 drift_guidance output section, F871 volume key+steps, F811 main-artifact writes (spec58 C20)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-f870-glob-f884">Task 6: 越权写拆除（F870）+ 占位模式 glob 化（F884）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-state-settling/SKILL.md</code>（<code>:277-287</code> arc_log 指令）、<code>skills/shenbi-truth-sync/SKILL.md</code>（reads）、<code>tests/unit/gates/g4/test_state_settling.py:182-187</code>（钉住测试同步）</p>
+<p><strong>编辑清单：</strong>
+1. F870：删除「For the protagonist specifically, append an <code>arc_log</code> entry to <code>characters/protagonist.md</code> frontmatter」整个代码块与指令（字段所有权归 character 域技能），原位替换为一行说明：「主角弧进度通过上方 character_matrix 更新落账（Arc Stage / Last Updated Ch 列）；<code>characters/protagonist.md</code> 归 character 域技能所有，本 skill 不写（arc_log 结构由其维护）」；其后「3. Write updated character_matrix.md」步骤序号 3→2（原步骤 2 被删）。
+   同步更新钉住测试 <code>tests/unit/gates/g4/test_state_settling.py:182-187</code>：<code>test_state_settling_skill_mentions_arc_log</code> 的 <code>assert "arc_log" in content</code> 保留（替换说明含该词），<strong>新增</strong> <code>assert "append an</code>arc_log<code>entry" not in content</code>（钉住写指令移除——C1 轮 4 审查：不改此测试则删除即击穿）。注（轮 5）：替换句保留 <code>characters/protagonist.md</code> 字样（所有权免责声明）会留一条 R1 基线违规——T9 清零时以 allowlist 条目处置（类别 ownership-disclaimer，理由：所有权免责声明非读依赖）。
+2. F884：reads <code>chapters/chapter-N.md</code> → <code>chapters/chapter-*.md</code>（多章 N..M 语义；token 由预算截断+披露兜底——spec 轮 3 裁决倾向 glob 化）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 两处编辑</strong></li>
+<li>[ ] <strong>Step 2: 验证</strong></li>
+</ul>
+<p>Run: <code>just generate &amp;&amp; uv run python tools/lint_contract_prose.py 2&gt;&amp;1 | grep -E "state-settling|truth-sync" || echo "(清零)"; uv run pytest tests/unit/gates -q</code>
+Expected: 两技能零新违规；G4 state-settling 相关测试绿
+- [ ] <strong>Step 3: Commit</strong></p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-state-settling/SKILL.md<span class="w"> </span>skills/shenbi-truth-sync/SKILL.md<span class="w"> </span>tests/unit/gates/g4/test_state_settling.py<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span>docs/framework/dependency-dag.json<span class="w"> </span>docs/framework/truth-files.index.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: remove protagonist.md out-of-contract write (F870) + truth-sync multi-chapter glob read (F884) (spec58 C20)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-p2-f802f805f807f825f872">Task 7: P2 批量（F802/F805/F807/F825/F872）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-anti-detect/SKILL.md</code>、<code>skills/shenbi-style-learning/SKILL.md</code>、<code>skills/shenbi-chapter-planning/SKILL.md</code>、<code>skills/shenbi-foreshadowing-lifecycle/SKILL.md</code>、<code>skills/shenbi-score-stratum/SKILL.md</code></p>
+<p><strong>编辑清单：</strong>
+1. <strong>F802 anti-detect</strong>：DOT 流程图 <code>:44-48</code> 循环边补 sensitivity 复审节点——在 <code>"Re-run anti-AI audit"</code> 后接 <code>"Re-run anti-AI audit" -&gt; "Re-run sensitivity audit"</code>、<code>"Re-run sensitivity audit" -&gt; "Passed?"</code>，失败侧回连既有重修边（沿用 :45 既有节点名 <code>Passed?</code>，勿造 <code>Pass</code> 新节点）——与铁律 3「anti-ai + sensitivity 两个审计必须重新通过」对齐，DOT 为权威。
+2. <strong>F805 style-learning</strong>：输出模板节名/编号对齐 fixture 11 节实名（<code>tests/fixtures/style-profile-example.md</code>：<code>## 1. 句长分布</code>/<code>## 2. 段长分布</code>/<code>## 3. TTR（Type-Token Ratio）</code>/<code>## 4. 高频 character 二元组（bigrams，出现 ≥ 30 次）</code>/<code>## 5. 高频 character 三元组（trigrams，出现 ≥ 15 次）</code>/<code>## 6. 修辞模式</code>/<code>## 7. 标点密度（每千字）</code>/<code>## 8. 连接词密度（每千字）</code>/<code>## 9. 对白占比</code>/<code>## 10. 各章统计</code>/<code>## 11. 综合画像</code>）——模板重排为该 11 节（消费方 chapter-drafting fields 声明 <code>11. 综合画像/6. 修辞模式/9. 对白占比</code> 由此为真）。
+3. <strong>F807 chapter-planning</strong>：reads += <code>novel.json</code>。
+4. <strong>F825 foreshadowing-lifecycle</strong>：reads += <code>outline/story_frame.md</code>、<code>truth/bridge_tracker.md</code>（spec 明文「<strong>读写</strong>声明补全」——Cross-Volume Bridge 节先读 tracker 查 pending 桥再写）；writes += <code>- file: truth/bridge_tracker.md\n    mode: append_dedup\n    key: bridge_id</code>；正文 Cross-Volume Bridge Tracking 节（<code>:120-126</code>）补一句产出说明（每桥一行、首列 Bridge ID、勿输出他行——append_dedup 纪律，镜像 state-settling mode-rules 行文）。
+5. <strong>F872 score-stratum</strong>：正文补 book_spine 更新说明节（「评分后更新 <code>truth/book_spine.md</code> 的<strong>数据字段</strong>（当前位置/进度/themes 探索深度），不改声明字段——与 memory-distill L5 同语义」）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 五处编辑</strong></li>
+<li>[ ] <strong>Step 2: 验证</strong></li>
+</ul>
+<p>Run: <code>just generate &amp;&amp; uv run python tools/lint_contract_prose.py 2&gt;&amp;1 | grep -E "anti-detect|style-learning|chapter-planning|foreshadowing|score-stratum" || echo "(清零)"; uv run python scripts/lint_contract_fields.py</code>
+Expected: 五技能零新违规；fields lint 绿（F805 后消费方声明与 fixture 仍一致）
+- [ ] <strong>Step 3: Commit</strong></p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-anti-detect/SKILL.md<span class="w"> </span>skills/shenbi-style-learning/SKILL.md<span class="w"> </span>skills/shenbi-chapter-planning/SKILL.md<span class="w"> </span>skills/shenbi-foreshadowing-lifecycle/SKILL.md<span class="w"> </span>skills/shenbi-score-stratum/SKILL.md<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span>docs/framework/dependency-dag.json<span class="w"> </span>docs/framework/truth-files.index.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: P2 contract closures — F802 DOT/F805 style template 11-section/F807/F825 bridge_tracker/F872 (spec58 C20)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8-d104-meta-f849-fanfic">Task 8: D104 meta 豁免单一信源 + F849 fanfic 子模式拆除</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tools/lint_contract_prose.py</code>（豁免输出）、<code>skills/shenbi-review-fanfic/SKILL.md</code></p>
+<p><strong>编辑清单：</strong>
+1. <strong>D104</strong>：lint 的 meta 处理已 import <code>META_SKILLS</code>（Task 2 单一信源）；本 task 在 <code>--list-exempt</code> 输出中显式列出两条豁免（<code>meta-exempt: using-shenbi</code>、<code>meta-exempt: shenbi-writing-skills</code>——验收 4 的可观察面）；豁免即裁决落文：meta skill 免契约（既有 lint_contracts 同裁定的沿用，不对称从静默变声明）。
+2. <strong>F849</strong>：review-fanfic 正文删除 <code>:37</code>「模式由 shenbi-canon-import 导入并声明」句 + <code>:75</code> 区 <code>novel.json.fanfic.mode</code> 读取指令改为「模式由 human partner 在指令中直接给出（au/ooc/cp）」+ 删除依赖 fanfic.mode 配置的子模式选择分支描述（YAGNI——NovelConfig <code>extra: forbid</code> 无该字段，spec 推荐）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 编辑 + 豁免输出</strong></li>
+</ul>
+<p>Run（编辑后）: <code>uv run python tools/lint_contract_prose.py --list-exempt | grep -c "meta-exempt"</code>
+Expected: <code>2</code></p>
+<ul>
+<li>[ ] <strong>Step 2: 验证</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_contract_prose.py -q &amp;&amp; uv run python tools/lint_contract_prose.py 2&gt;&amp;1 | grep -E "review-fanfic" || echo "(清零)"</code>
+Expected: 全绿/清零
+- [ ] <strong>Step 3: Commit</strong></p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_contract_prose.py<span class="w"> </span>skills/shenbi-review-fanfic/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: D104 meta exemption made explicit + F849 fanfic.mode unconfigurable description removal (spec58 C20)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-9-dispatch-g4g2-r1r2-fail">Task 9: 验收聚合——dispatch 五腿断言 + G4/G2 回归 + R1/R2 清零 FAIL</h3>
+<p><strong>Files:</strong>
+- Test: <code>tests/pipeline/test_dispatch_reads_injection.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 4 的 reads 集合、Task 1 偏移解析、<code>_build_skill_prompt(skill, project_dir, prompt, chapter, uses_staging=False, shared_context=None, json_mode=False, path_context=None) -&gt; tuple[str, str, list[str]]</code>（dispatch_helper.py:603 实签名）、<code>tests/fixtures/genre-config-example.json</code>（真实产物）
+- Produces: 验收 1/2/3/4/5 的最终可执行证据（阶段 6 验收证据节直接引用）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写五腿参数化测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/pipeline/test_dispatch_reads_injection.py</span>
+<span class="sd">&quot;&quot;&quot;Spec #58 C20 acceptance 2: declared reads must be injected for the five</span>
+<span class="sd">read-side P1 skills (offline; F947 — no real dispatch). Precedent:</span>
+<span class="sd">tests/pipeline/test_dispatch_helper_keys.py tmp_path assembly.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_build_skill_prompt</span>
+
+<span class="n">MARK</span> <span class="o">=</span> <span class="s2">&quot;# spec58 acceptance</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+<span class="n">CASES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># (skill, files to place, expected injected keys, keys that must be ABSENT)</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;shenbi-book-spine-init&quot;</span><span class="p">,</span>  <span class="c1"># F803</span>
+        <span class="p">[</span><span class="s2">&quot;characters/protagonist.md&quot;</span><span class="p">,</span> <span class="s2">&quot;world/rules.md&quot;</span><span class="p">,</span> <span class="s2">&quot;outline/story_frame.md&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;outline/volume_map.md&quot;</span><span class="p">,</span> <span class="s2">&quot;novel.json&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;characters/protagonist.md&quot;</span><span class="p">,</span> <span class="s2">&quot;world/rules.md&quot;</span><span class="p">],</span>
+        <span class="p">[],</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;shenbi-character-design&quot;</span><span class="p">,</span>  <span class="c1"># F809</span>
+        <span class="p">[</span><span class="s2">&quot;world/story_bible.md&quot;</span><span class="p">,</span> <span class="s2">&quot;world/rules.md&quot;</span><span class="p">,</span> <span class="s2">&quot;outline/chapter_outline.md&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;outline/three_act.md&quot;</span><span class="p">,</span> <span class="s2">&quot;characters/major/alice.md&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;outline/chapter_outline.md&quot;</span><span class="p">,</span> <span class="s2">&quot;outline/three_act.md&quot;</span><span class="p">,</span> <span class="s2">&quot;characters/major/alice.md&quot;</span><span class="p">],</span>
+        <span class="p">[],</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;shenbi-context-composing&quot;</span><span class="p">,</span>  <span class="c1"># F811: near-chapter in, current-chapter out</span>
+        <span class="p">[</span><span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/chapter_summaries.md&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;truth/volume_summaries.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapters/chapter-2.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapters/chapter-3.md&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;chapters/chapter-4.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapters/chapter-5.md&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;chapters/chapter-2.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapters/chapter-3.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapters/chapter-4.md&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;chapters/chapter-5.md&quot;</span><span class="p">],</span>  <span class="c1"># N=5: 组装时不存在，不得注入</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;shenbi-foundation-review&quot;</span><span class="p">,</span>  <span class="c1"># F821 (genre-config uses the real fixture)</span>
+        <span class="p">[</span><span class="s2">&quot;outline/story_frame.md&quot;</span><span class="p">,</span> <span class="s2">&quot;world/rules.md&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;genre-config.json&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/book_spine.md&quot;</span><span class="p">],</span>
+        <span class="p">[],</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;shenbi-memory-distill&quot;</span><span class="p">,</span>  <span class="c1"># F836: L5 inputs no longer filtered out</span>
+        <span class="p">[</span><span class="s2">&quot;truth/chapter_summaries.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/character_matrix.md&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;truth/volume_summaries.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/author_intent.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/book_spine.md&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;world/rules.md&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;truth/author_intent.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/book_spine.md&quot;</span><span class="p">,</span> <span class="s2">&quot;world/rules.md&quot;</span><span class="p">],</span>
+        <span class="p">[],</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;skill,files,expected,absent&quot;</span><span class="p">,</span> <span class="n">CASES</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_required_inputs_injected</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">absent</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="n">rel</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">MARK</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="c1"># F821 leg: real fixture for genre-config.json (G0.9 real product)</span>
+    <span class="k">if</span> <span class="n">skill</span> <span class="o">==</span> <span class="s2">&quot;shenbi-foundation-review&quot;</span><span class="p">:</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span>
+        <span class="n">gc</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/genre-config-example.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;book_spine.md&quot;</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">MARK</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+        <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;chapter 5&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">: expected input not injected: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">absent</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">: must NOT be injected: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>（执行时按各 skill 契约的完整 reads 集补齐 files 列表使注入不因缺文件静默跳过——每腿以「expected 全命中」为准；context-composing 腿 chapter=5。）</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/pipeline/test_dispatch_reads_injection.py -v</code>
+Expected: 5 passed</p>
+<ul>
+<li>[ ] <strong>Step 3: R1/R2 全量清零（FAIL 级）+ 基线对照</strong></li>
+</ul>
+<p>Run: <code>uv run python tools/lint_contract_prose.py --fail; echo "exit=$?"; uv run python tools/lint_contract_prose.py --list-exempt</code>
+Expected: exit=0（零违规——对照 <code>.superpowers/sdd/r1r2-baseline.md</code> 存量清单全数消解：修复/allowlist 具理由）；<code>--list-exempt</code> 输出含 2 条 meta-exempt + 全部 allowlist 条目</p>
+<ul>
+<li>[ ] <strong>Step 4: G4/G2 回归（验收 3）</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/tiers/t1-skill/shenbi-market-radar -q &amp;&amp; uv run pytest tests/test_lint_decisions_sources.py -q &amp;&amp; uv run pytest tests/unit/gates -q</code>
+Expected: 全 PASS（market-radar decisions 链 = T1 套件 + decisions 三源 lint + gates 全量；<strong>spec 验收 3 的 market-radar decisions.json 直跑形态因仓内无真实产物按 G0.9 改由本组测试承载——spec deviation 已记</strong>）</p>
+<ul>
+<li>[ ] <strong>Step 5: just check 终验（验收 5 + 全门禁闭环）</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: exit 0（含 ruff/format 触达文件、<code>lint_key_reconciliation --strict</code>——score-volume key 改 volume 后由此验证、两段 pytest + 覆盖率门；本步是 T3 设计内红态的解除点）</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/pipeline/test_dispatch_reads_injection.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: spec58 acceptance — five-leg dispatch injection assertions + R1/R2 zero-violation at FAIL level&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review 记录</h2>
+<ol>
+<li><strong>Spec coverage</strong>：spec 任务 1-3（lint+基线+升级）→ T2/T3/T9；任务 4-8（P1/P2/D104）→ T4-T8；任务 9（F849）→ T8；任务 10（F849 批量清理节）→ 同 T8；验收 1-5 → 覆盖表全映射。F838/F881/F882 无 task（已修退出）✓。volume_summaries（F811c）→ T4.8 ✓。bridge_tracker（F825）→ T7.4 ✓。</li>
+<li><strong>Placeholder scan</strong>：T1 Step 3 的 ctx 路由代码块含「终版收敛为单一循环」注记——实现指引非占位（意图与替换式均已给出）；T5 F812 产出节以 triggers.py 实际解析面为对齐锚（步骤含核对命令）。其余无 TBD/TODO。</li>
+<li><strong>Type consistency</strong>：<code>_build_skill_prompt</code> 签名/返回 tuple 与 Task 9 测试一致（源码 :603 实抄）；<code>_offset_sub</code>/<code>_FAMILY_N_OFFSET</code> 在 T1 定义、T2 <code>_canonical</code> 消费同形态；<code>META_SKILLS</code> 单一信源（tools/lint_contracts.py:22）T2/T8 一致引用。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1544 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-18-spec66-f750-fixture-real-f006-pyver/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>SDD #66 F750 真实 fixture 化 + F0-06 python 三元统一 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="SDD #66 F750 真实 fixture 化 + F0-06 python 三元统一 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-18-spec66-f750-fixture-real-f006-pyver.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-18-spec66-f750-fixture-real-f006-pyver/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="SDD #66 F750 真实 fixture 化 + F0-06 python 三元统一 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-18-spec66-f750-fixture-real-f006-pyver.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sdd-66-f750-fixture-f0-06-python-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SDD #66 F750 真实 fixture 化 + F0-06 python 三元统一 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraintsspec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints（spec 边界，逐 task 隐含）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实际签名（从源码复制）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实际签名（从源码复制）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-xinghuo-ranqiong-fixture-8-sidecar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: xinghuo-ranqiong fixture 树（8 文件 + sidecar + 守卫测试）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-test_gate_clipy-helper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: test_gate_cli.py helper 改目录组装
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-f0-06-pyproject-python_version-311" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: F0-06 pyproject python_version 统一 3.11
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec 验收 → task → 命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review 记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="sdd-66-f750-fixture-f0-06-python-implementation-plan">SDD #66 F750 真实 fixture 化 + F0-06 python 三元统一 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 把 <code>tests/integration/test_gate_cli.py</code> 的手捏 worldbuilding 项目替换为 git 历史真实产物的 upstream-copy fixtures（三类载体形态），并把 pyproject 的 mypy python_version 从 3.12 统一到 3.11。</p>
+<p><strong>Architecture:</strong> 素材从 <code>git show d120a444^:novel-output/xinghuo-ranqiong/&lt;path&gt;</code> 取回（生产树已出库 PR #217，内容自 2026-07-20 未变）；fixture 载体按 spec 三形态处方（truth+protagonist 单块合并、story_bible/rules 前置单块、novel.json sidecar）；测试 helper 退化为目录组装（拷贝）；G4 worldbuilding 在真实 fixture 下仍 PASS（边界压线：story_bible 恰 4 节、rules 恰 10 条、locations 恰 5 个——<strong>payload 零扰动</strong>）。F0-06 为 pyproject 单行改值。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pytest / unittest / shutil / pyYAML frontmatter / uv + just。</p>
+<h2 id="global-constraintsspec-task">Global Constraints（spec 边界，逐 task 隐含）</h2>
+<ul>
+<li><strong>不动 <code>src/</code> 生产代码</strong>（spec 边界节）</li>
+<li><strong>不改 ledger 状态</strong>（F750/F0-06 两行由 SDD 份在归档时回写 closed）</li>
+<li>payload 与 <code>git show d120a444^:...</code> 逐字节一致（唯一 frontmatter 级新造 = chapter_summaries 重建块）；<code>source:</code> 值整体加引号（防 YAML <code>:</code> 事故）</li>
+<li>空行约定：前置块/重建块与 payload 间空一行</li>
+<li><code>.provenance.json</code> sidecar 只留 fixtures 侧，不拷入 tmp project</li>
+<li>G3.4 评分：<strong>N/A</strong>——本 spec 无 LLM 评分场景（全部离线验收，核心原则 8 合规）</li>
+<li>F947 规则：验收已全部离线化（fixtures 驱动 + 静态断言），无需改写</li>
+</ul>
+<h2 id="_1">实际签名（从源码复制）</h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/integration/test_gate_cli.py:27（现状，Task 2 改写其体）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_worldbuilding_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;... Returns the path to a file that can be passed as the G4 file argument.&quot;&quot;&quot;</span>
+
+<span class="c1"># src/shenbi/gates/g0_purity.py:65</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_provenance</span><span class="p">(</span><span class="n">fixture_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+
+<span class="c1"># 标准库</span>
+<span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span>
+</code></pre></div>
+<p><strong>复杂度</strong>：Task 1/2/3 全部 <strong>leaf</strong>（测试文件 + fixtures + 配置；零 src/ 改动、零契约/并发/infra 模块）——但按 SDD 单模型现实由协调者亲自实现（上下文已长）。</p>
+<p><strong>test_kind</strong>：Task 1 = <code>tdd_red_green</code>（守卫测试先红后绿）；Task 2 = <code>regression_guard</code>（行为保持：G4 PASS + marker 写盘不变，输入换真品）；Task 3 = <code>regression_guard</code>（配置统一，mypy/basedpyright 无新报错）。</p>
+<p><strong>测试层级与 fixture</strong>：Task 1 守卫测试 = <strong>T1 unit</strong>（<code>tests/unit/gates/test_xinghuo_fixture_tree.py</code>，引用 <code>tests/fixtures/xinghuo-ranqiong/*</code>）；Task 2 = <strong>T1 integration</strong>（<code>tests/integration/test_gate_cli.py</code>，引用 xinghuo-ranqiong 树 + 既有 <code>tests/fixtures/genre-config-example.json</code> + <code>tests/fixtures/world/locations/locations.md</code>——均为真实产物/upstream 副本，G0.9 合规）。</p>
+<p><strong>CI 浅克隆约束</strong>：ci.yml 的 quality job 用 actions/checkout 默认 fetch-depth=1——<strong>永久测试禁止依赖 <code>git show</code></strong>（守卫测试只查载体在场）；字节保真验证（AC#4）是一次性验收命令，在全克隆上跑（本地/实施者）。</p>
+<hr />
+<h3 id="task-1-xinghuo-ranqiong-fixture-8-sidecar">Task 1: xinghuo-ranqiong fixture 树（8 文件 + sidecar + 守卫测试）</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/fixtures/xinghuo-ranqiong/novel.json</code>（830B verbatim）
+- Create: <code>tests/fixtures/xinghuo-ranqiong/novel.json.provenance.json</code>
+- Create: <code>tests/fixtures/xinghuo-ranqiong/world/story_bible.md</code>（10,045B payload + 前置块）
+- Create: <code>tests/fixtures/xinghuo-ranqiong/world/rules.md</code>（4,289B payload + 前置块）
+- Create: <code>tests/fixtures/xinghuo-ranqiong/truth/current_state.md</code>（10,292B payload + 合并块）
+- Create: <code>tests/fixtures/xinghuo-ranqiong/truth/character_matrix.md</code>（3,711B payload + 合并块）
+- Create: <code>tests/fixtures/xinghuo-ranqiong/truth/emotional_arcs.md</code>（4,566B payload + 合并块）
+- Create: <code>tests/fixtures/xinghuo-ranqiong/truth/chapter_summaries.md</code>（5,955B body + 重建块）
+- Create: <code>tests/fixtures/xinghuo-ranqiong/characters/protagonist.md</code>（7,977B payload + 合并块）
+- Test: <code>tests/unit/gates/test_xinghuo_fixture_tree.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.gates.g0_purity.load_provenance</code>（既有）
+- Produces: fixture 树路径约定 <code>tests/fixtures/xinghuo-ranqiong/&lt;原项目相对路径&gt;</code>（Task 2 的组装循环依赖此布局）；守卫测试 <code>test_xinghuo_fixture_tree_complete_with_carriers</code></p>
+<ul>
+<li>[x] <strong>Step 1: 写守卫测试（先红）</strong></li>
+</ul>
+<p>创建 <code>tests/unit/gates/test_xinghuo_fixture_tree.py</code>（对齐 test_g0_purity.py 风格：future annotations、<code>@pytest.mark.unit</code>、line-length ≤100）：</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Carrier guard for the xinghuo-ranqiong upstream-copy fixture tree (spec #66 F750).</span>
+
+<span class="sd">Byte-fidelity vs git history (d120a444^) is a one-off acceptance command run</span>
+<span class="sd">on a full clone (spec AC#4) — CI quality workflows use shallow clones</span>
+<span class="sd">(fetch-depth=1), so this permanent guard checks tree completeness and</span>
+<span class="sd">provenance carriers only, with no git dependency.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0_purity</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_provenance</span>
+
+<span class="c1"># tests/unit/gates/&lt;file&gt;.py → parents[3] = repo root（对齐 test_g0.py:317 先例）</span>
+<span class="n">FIXTURE_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;fixtures&quot;</span> <span class="o">/</span> <span class="s2">&quot;xinghuo-ranqiong&quot;</span>
+<span class="n">EXPECTED_FILES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;novel.json&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;world/story_bible.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;world/rules.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;truth/character_matrix.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;truth/emotional_arcs.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;truth/chapter_summaries.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;characters/protagonist.md&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_xinghuo_fixture_tree_complete_with_carriers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">FIXTURE_ROOT</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">FIXTURE_ROOT</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;.md&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.provenance.json&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">assert</span> <span class="n">files</span> <span class="o">==</span> <span class="n">EXPECTED_FILES</span>
+    <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">EXPECTED_FILES</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">load_provenance</span><span class="p">(</span><span class="n">FIXTURE_ROOT</span> <span class="o">/</span> <span class="n">rel</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;upstream-copy&quot;</span><span class="p">,</span> <span class="n">rel</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 2: 跑测试确认红</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_xinghuo_fixture_tree.py -v</code>
+Expected: FAIL（<code>files == EXPECTED_FILES</code> 断言失败——树不存在，files 为空集）</p>
+<ul>
+<li>[x] <strong>Step 3: 生成 fixture 树</strong></li>
+</ul>
+<p>以下命令逐条在 repo 根跑（前置单块/合并块用 python 注入；<code>&lt;CARRIER&gt;</code> 行见下）：</p>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>tests/fixtures/xinghuo-ranqiong/world<span class="w"> </span>tests/fixtures/xinghuo-ranqiong/truth<span class="w"> </span>tests/fixtures/xinghuo-ranqiong/characters
+
+<span class="c1"># (a) novel.json —— verbatim + sidecar</span>
+git<span class="w"> </span>show<span class="w"> </span><span class="s1">&#39;d120a444^:novel-output/xinghuo-ranqiong/novel.json&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>tests/fixtures/xinghuo-ranqiong/novel.json
+<span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;%s\n&#39;</span><span class="w"> </span><span class="s1">&#39;{&quot;provenance&quot;: &quot;upstream-copy&quot;, &quot;source&quot;: &quot;git history d120a444^:novel-output/xinghuo-ranqiong/novel.json (verbatim; production tree removed in PR #217)&quot;}&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>tests/fixtures/xinghuo-ranqiong/novel.json.provenance.json
+
+<span class="c1"># (b) 前置单块 × 2（story_bible / rules——源无 frontmatter）</span>
+<span class="k">for</span><span class="w"> </span>rel<span class="w"> </span><span class="k">in</span><span class="w"> </span>world/story_bible.md<span class="w"> </span>world/rules.md<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>git<span class="w"> </span>show<span class="w"> </span><span class="s2">&quot;d120a444^:novel-output/xinghuo-ranqiong/</span><span class="nv">$rel</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import sys</span>
+<span class="s2">src = sys.stdin.read()</span>
+<span class="s2">rel = &#39;</span><span class="nv">$rel</span><span class="s2">&#39;</span>
+<span class="s2">carrier = (</span>
+<span class="s2">    &#39;provenance: upstream-copy\n&#39;</span>
+<span class="s2">    &#39;source: \&quot;git history d120a444^:novel-output/xinghuo-ranqiong/&#39; + rel</span>
+<span class="s2">    + &#39; (payload verbatim; production tree removed in PR #217)\&quot;\n&#39;</span>
+<span class="s2">)</span>
+<span class="s2">sys.stdout.write(&#39;---\n&#39; + carrier + &#39;---\n\n&#39; + src)</span>
+<span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;tests/fixtures/xinghuo-ranqiong/</span><span class="nv">$rel</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+
+<span class="c1"># (c) 单块合并 × 4（truth 三件 + protagonist——源自带 frontmatter，provenance/source 插为前两键）</span>
+<span class="k">for</span><span class="w"> </span>rel<span class="w"> </span><span class="k">in</span><span class="w"> </span>truth/current_state.md<span class="w"> </span>truth/character_matrix.md<span class="w"> </span>truth/emotional_arcs.md<span class="w"> </span>characters/protagonist.md<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>git<span class="w"> </span>show<span class="w"> </span><span class="s2">&quot;d120a444^:novel-output/xinghuo-ranqiong/</span><span class="nv">$rel</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import re, sys</span>
+<span class="s2">src = sys.stdin.read()</span>
+<span class="s2">rel = &#39;</span><span class="nv">$rel</span><span class="s2">&#39;</span>
+<span class="s2">carrier = (</span>
+<span class="s2">    &#39;provenance: upstream-copy\n&#39;</span>
+<span class="s2">    &#39;source: \&quot;git history d120a444^:novel-output/xinghuo-ranqiong/&#39; + rel</span>
+<span class="s2">    + &#39; (frontmatter keys merged with provenance carrier; body verbatim; production tree removed in PR #217)\&quot;\n&#39;</span>
+<span class="s2">)</span>
+<span class="s2">m = re.match(r&#39;^---\n(.*?)\n---\n&#39;, src, re.DOTALL)</span>
+<span class="s2">assert m, rel + &#39;: expected frontmatter&#39;</span>
+<span class="s2">sys.stdout.write(&#39;---\n&#39; + carrier + m.group(1) + &#39;\n---\n&#39; + src[m.end():])</span>
+<span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;tests/fixtures/xinghuo-ranqiong/</span><span class="nv">$rel</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+
+<span class="c1"># (d) chapter_summaries 重建块（源无 frontmatter，块内容全指定）</span>
+git<span class="w"> </span>show<span class="w"> </span><span class="s1">&#39;d120a444^:novel-output/xinghuo-ranqiong/truth/chapter_summaries.md&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import sys</span>
+<span class="s2">src = sys.stdin.read()</span>
+<span class="s2">block = &#39;&#39;&#39;---</span>
+<span class="s2">provenance: upstream-copy</span>
+<span class="s2">source: \&quot;git history d120a444^:novel-output/xinghuo-ranqiong/truth/chapter_summaries.md (frontmatter reconstructed per template contract; body verbatim; production tree removed in PR #217)\&quot;</span>
+<span class="s2">title: 章节摘要</span>
+<span class="s2">project: 星火燃穹</span>
+<span class="s2">type: chapter_summaries</span>
+<span class="s2">category: truth</span>
+<span class="s2">status: active</span>
+<span class="s2">---</span>
+
+<span class="s2">&#39;&#39;&#39;</span>
+<span class="s2">sys.stdout.write(block + src)</span>
+<span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>tests/fixtures/xinghuo-ranqiong/truth/chapter_summaries.md
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 4: 跑守卫测试确认绿</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_xinghuo_fixture_tree.py -v</code>
+Expected: PASS（1 passed）</p>
+<ul>
+<li>[x] <strong>Step 5: 跑 spec AC#3（载体真树断言）</strong></li>
+</ul>
+<p>Run（repo 根）:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from pathlib import Path; from shenbi.gates.g0_purity import load_provenance; ps=[p for p in Path(&#39;tests/fixtures/xinghuo-ranqiong&#39;).rglob(&#39;*&#39;) if p.is_file() and p.suffix in (&#39;.md&#39;,&#39;.json&#39;) and not p.name.endswith(&#39;.provenance.json&#39;)]; assert ps and all(load_provenance(p) for p in ps), ps&quot;</span>
+</code></pre></div>
+Expected: 无输出、exit 0</p>
+<ul>
+<li>[x] <strong>Step 6: 跑 spec AC#4（字节保真一次性验证，全克隆）</strong></li>
+</ul>
+<p>Run（repo 根；spec 验收节命令的功能等价形式——注释省略）:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import re, subprocess, sys</span>
+<span class="s2">from pathlib import Path</span>
+<span class="s2">def body(t):</span>
+<span class="s2">    m = re.match(r&#39;^---\r?\n.*?\r?\n---\r?\n&#39;, t, re.DOTALL)</span>
+<span class="s2">    return t[m.end():].lstrip(&#39;\r\n&#39;) if m else t</span>
+<span class="s2">ok = True</span>
+<span class="s2">for rel in [&#39;world/story_bible.md&#39;,&#39;world/rules.md&#39;,&#39;truth/current_state.md&#39;,&#39;truth/character_matrix.md&#39;,&#39;truth/emotional_arcs.md&#39;,&#39;truth/chapter_summaries.md&#39;,&#39;characters/protagonist.md&#39;,&#39;novel.json&#39;]:</span>
+<span class="s2">    fx = Path(&#39;tests/fixtures/xinghuo-ranqiong&#39;, rel).read_text(encoding=&#39;utf-8&#39;)</span>
+<span class="s2">    src = subprocess.run([&#39;git&#39;,&#39;show&#39;,f&#39;d120a444^:novel-output/xinghuo-ranqiong/{rel}&#39;],capture_output=True,text=True,encoding=&#39;utf-8&#39;).stdout</span>
+<span class="s2">    if rel.endswith(&#39;.json&#39;):</span>
+<span class="s2">        ok &amp;= fx == src; continue</span>
+<span class="s2">    same = body(fx) == body(src)</span>
+<span class="s2">    print(rel, &#39;body-bytes:&#39;, same)</span>
+<span class="s2">    ok &amp;= same</span>
+<span class="s2">fx = Path(&#39;tests/fixtures/world/locations/locations.md&#39;).read_text(encoding=&#39;utf-8&#39;)</span>
+<span class="s2">src = subprocess.run([&#39;git&#39;,&#39;show&#39;,&#39;d120a444^:novel-output/xinghuo-ranqiong/world/locations.md&#39;],capture_output=True,text=True,encoding=&#39;utf-8&#39;).stdout</span>
+<span class="s2">print(&#39;world/locations.md (existing fixture) body-bytes:&#39;, body(fx) == body(src))</span>
+<span class="s2">ok &amp;= body(fx) == body(src)</span>
+<span class="s2">sys.exit(0 if ok else 1)&quot;</span>
+</code></pre></div>
+Expected: 8 行 <code>body-bytes: True</code>（7 个循环 .md + 1 行 locations 既有件；novel.json 走 json 分支静默比较无输出行）、exit 0</p>
+<ul>
+<li>[x] <strong>Step 7: 体积抽查（防意外截断）</strong></li>
+</ul>
+<p>Run: <code>find tests/fixtures/xinghuo-ranqiong -type f -name '*.md' -o -type f -name '*.json' | xargs wc -c | sort -k2</code>
+Expected（payload + 实测载体增量，审查者 verbatim 复算）：story_bible = 10,218、rules = 4,456、current_state = 10,504、character_matrix = 3,926、emotional_arcs = 4,779、chapter_summaries = 6,277、protagonist = 8,192、novel.json = 830（sidecar 另计）</p>
+<ul>
+<li>[x] <strong>Step 8: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/fixtures/xinghuo-ranqiong<span class="w"> </span>tests/unit/gates/test_xinghuo_fixture_tree.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(spec66): xinghuo-ranqiong upstream-copy fixture tree + carrier guard (F750 T1)&quot;</span>
+</code></pre></div>
+<h3 id="task-2-test_gate_clipy-helper">Task 2: test_gate_cli.py helper 改目录组装</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tests/integration/test_gate_cli.py:27-97</code>（<code>_make_worldbuilding_project</code> 函数体整体替换；模块头加 FIXTURES 常量）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 的 <code>tests/fixtures/xinghuo-ranqiong/</code> 树 + 既有 <code>tests/fixtures/genre-config-example.json</code>、<code>tests/fixtures/world/locations/locations.md</code>
+- Produces: 不变——<code>_make_worldbuilding_project(self, base_dir) -&gt; str</code>（返回 <code>base/world/story_bible.md</code> 路径供 G4 file 参数）；仅内部实现换</p>
+<ul>
+<li>[x] <strong>Step 1: 改写 helper（characterization——现有测试就是规格，先跑基线）</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/integration/test_gate_cli.py -v</code>
+Expected: <strong>19 passed</strong>（基线绿——改动是输入替换不是行为变更）</p>
+<ul>
+<li>[x] <strong>Step 2: 替换 :27-97 函数体</strong></li>
+</ul>
+<p>在模块头 <code>TESTS = Path(__file__).resolve().parent.parent</code>（:12）之后加：</p>
+<div class="highlight"><pre><span></span><code><span class="n">FIXTURES</span> <span class="o">=</span> <span class="n">TESTS</span> <span class="o">/</span> <span class="s2">&quot;fixtures&quot;</span>
+<span class="n">XINGHUO</span> <span class="o">=</span> <span class="n">FIXTURES</span> <span class="o">/</span> <span class="s2">&quot;xinghuo-ranqiong&quot;</span>
+</code></pre></div>
+<p><code>_make_worldbuilding_project</code> 整体替换为（docstring 注记 F750 出处与 G0.9 合规性）：</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">def</span><span class="w"> </span><span class="nf">_make_worldbuilding_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assemble a worldbuilding project from real-product fixtures.</span>
+
+<span class="sd">        Content comes from tests/fixtures/ (xinghuo-ranqiong upstream</span>
+<span class="sd">        copies of the real novel-output products, F750 / spec #66);</span>
+<span class="sd">        only directory assembly lives here. G4 worldbuilding PASS on</span>
+<span class="sd">        this assembly is boundary-tight (story_bible exactly 4 sections,</span>
+<span class="sd">        rules exactly 10, locations exactly 5) — do not edit fixture</span>
+<span class="sd">        payloads.</span>
+
+<span class="sd">        Returns the path to a file that can be passed as the G4 file argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">base_dir</span><span class="p">)</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">XINGHUO</span> <span class="o">/</span> <span class="s2">&quot;novel.json&quot;</span><span class="p">,</span> <span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;novel.json&quot;</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">FIXTURES</span> <span class="o">/</span> <span class="s2">&quot;genre-config-example.json&quot;</span><span class="p">,</span> <span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">)</span>
+        <span class="n">world</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span>
+        <span class="n">world</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">XINGHUO</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;story_bible.md&quot;</span><span class="p">,</span> <span class="n">world</span> <span class="o">/</span> <span class="s2">&quot;story_bible.md&quot;</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">XINGHUO</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">,</span> <span class="n">world</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">FIXTURES</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;locations&quot;</span> <span class="o">/</span> <span class="s2">&quot;locations.md&quot;</span><span class="p">,</span> <span class="n">world</span> <span class="o">/</span> <span class="s2">&quot;locations.md&quot;</span><span class="p">)</span>
+        <span class="n">truth</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+        <span class="n">truth</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">&quot;current_state.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;character_matrix.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;emotional_arcs.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chapter_summaries.md&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">XINGHUO</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="n">name</span><span class="p">,</span> <span class="n">truth</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">characters</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;characters&quot;</span>
+        <span class="n">characters</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">XINGHUO</span> <span class="o">/</span> <span class="s2">&quot;characters&quot;</span> <span class="o">/</span> <span class="s2">&quot;protagonist.md&quot;</span><span class="p">,</span> <span class="n">characters</span> <span class="o">/</span> <span class="s2">&quot;protagonist.md&quot;</span><span class="p">)</span>
+        <span class="c1"># G4 worldbuilding derives project_dir from the file path</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">world</span> <span class="o">/</span> <span class="s2">&quot;story_bible.md&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>注意：<code>json</code> import 仍被文件其余测试使用（基线 :108 起的 marker/scoring/phase 类）——保留；<code>shutil</code> 已在 :6 import。</p>
+<ul>
+<li>[x] <strong>Step 3: 跑集成测试确认仍绿（spec AC#2）</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/integration/test_gate_cli.py -v</code>
+Expected: <strong>19 passed</strong>（关键：<code>test_g4_pass_writes_marker</code> PASS——真品过 G4）</p>
+<ul>
+<li>[x] <strong>Step 4: 跑 spec AC#1（捏造文本清除）</strong></li>
+</ul>
+<p>Run: <code>grep -n "Content here\|这是一个宏大而复杂的世界\|name: Test\|天机城" tests/integration/test_gate_cli.py</code>
+Expected: 零命中、exit 1</p>
+<ul>
+<li>[x] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/integration/test_gate_cli.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(spec66): gate CLI integration test uses real-product fixtures (F750 T2)&quot;</span>
+</code></pre></div>
+<h3 id="task-3-f0-06-pyproject-python_version-311">Task 3: F0-06 pyproject python_version 统一 3.11</h3>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml:379</code>（<code>python_version = "3.12"</code> → <code>"3.11"</code>；:8 与 :398 不动）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无
+- Produces: 无（配置值）</p>
+<ul>
+<li>[x] <strong>Step 1: 改值</strong></li>
+</ul>
+<p><code>pyproject.toml</code> <code>[tool.mypy]</code> 段 <code>python_version = "3.12"</code> → <code>python_version = "3.11"</code>（仅此一处）。</p>
+<ul>
+<li>[x] <strong>Step 2: 跑 spec 验收 grep</strong></li>
+</ul>
+<p>Run: <code>grep -n "python_version\|pythonVersion\|requires-python" pyproject.toml</code>
+Expected: 三行——<code>:8:requires-python = "&gt;=3.11"</code>、<code>:379:python_version = "3.11"</code>、<code>:398:pythonVersion = "3.11"</code>（3.11 基准一致）</p>
+<ul>
+<li>[x] <strong>Step 3: uv lock 校验（pyproject 已改，按 SDD 阶段 7 规则必跑）</strong></li>
+</ul>
+<p>Run: <code>uv lock --check</code>
+Expected: exit 0（非依赖区改动，锁无漂移）</p>
+<ul>
+<li>[x] <strong>Step 4: 快速门禁（mypy/basedpyright 面 + 新守卫测试 + 全量 just check——覆盖 F0-06 AC#2）</strong></li>
+</ul>
+<p>Run: <code>uv run mypy src/shenbi/ &amp;&amp; uv run basedpyright &amp;&amp; uv run pytest tests/unit/gates/test_xinghuo_fixture_tree.py tests/integration/test_gate_cli.py -v</code>
+Expected: mypy <code>Success: no issues found in 193 source files</code>；basedpyright <code>0 errors</code>；<strong>20 passed</strong>（1 守卫 + 19 集成）</p>
+<p>Run: <code>just check</code>
+Expected: <strong>EXIT=0</strong>（全 lint 面 + ruff format + mypy 3.11 + basedpyright + 两段 pytest——F0-06 AC#2 在 plan 内闭环，不待阶段 7）</p>
+<ul>
+<li>[x] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore(spec66): unify mypy python_version to 3.11 floor (F0-06 T3)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="spec-task">验收覆盖表（spec 验收 → task → 命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>命令（本 plan 步骤）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F750 AC#1 捏造文本零命中</td>
+<td>T2 Step 4</td>
+<td><code>grep -n "Content here\|这是一个宏大而复杂的世界\|name: Test\|天机城" tests/integration/test_gate_cli.py</code> → exit 1</td>
+</tr>
+<tr>
+<td>F750 AC#2 集成全绿</td>
+<td>T2 Step 3</td>
+<td><code>uv run pytest tests/integration/test_gate_cli.py -v</code> → 19 passed</td>
+</tr>
+<tr>
+<td>F750 AC#3 载体合规真树断言</td>
+<td>T1 Step 5</td>
+<td>AC#3 python -c → exit 0（守卫测试 T1 Step 4 为永久化）</td>
+</tr>
+<tr>
+<td>F750 AC#4 字节保真</td>
+<td>T1 Step 6</td>
+<td>AC#4 python -c（功能等价）→ 8 行 body-bytes True + novel.json 静默字节一致 + exit 0</td>
+</tr>
+<tr>
+<td>F0-06 AC#1 三处一致</td>
+<td>T3 Step 2</td>
+<td>grep 三行 3.11 基准</td>
+</tr>
+<tr>
+<td>F0-06 AC#2 just check 全绿</td>
+<td>T3 Step 4（阶段 7 复跑）</td>
+<td><code>just check</code> → EXIT=0（含 mypy 3.11/basedpyright/两段 pytest/全 lint 面）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="self-review">Self-Review 记录</h2>
+<ul>
+<li><strong>Spec 覆盖</strong>：spec §1 修复（映射表 10 行 → T1 生成命令 a-d + T2 组装）、§2 修复（T3）、边界（零 src/ 改动 ✓、ledger 不动 ✓）、全部 6 条验收 → 上表 ✓</li>
+<li><strong>占位符扫描</strong>：无 TBD/「适当处理」；所有代码步骤给全文；生成命令逐文件可执行 ✓</li>
+<li><strong>类型/名字一致性</strong>：<code>FIXTURES</code>/<code>XINGHUO</code> 常量 T2 定义即 T2 使用；守卫测试 <code>EXPECTED_FILES</code> 与 T1 生成文件集一一对应；<code>load_provenance</code> 签名自源码复制 ✓</li>
+<li><strong>CI 浅克隆</strong>：永久测试零 git 依赖（AC#4 一次性）✓</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1832 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-10-28-spec80-invariant-net-p1/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #80 P1 invariant-net Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #80 P1 invariant-net Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-10-28-spec80-invariant-net-p1.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-10-28-spec80-invariant-net-p1/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #80 P1 invariant-net Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-10-28-spec80-invariant-net-p1.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-80-p1-invariant-net-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #80 P1 invariant-net Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-facts-schema-op" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: facts 域模块——词表 + schema + op 状态机（纯内存）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-facts-ioflock-pipeline-init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: facts IO——flock 原子读写 + pipeline-init 空种子
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-shenbi-facts-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 查询面——shenbi-facts CLI + 现态紧凑投影
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-f16-g4cp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: 共享转移动词表 + F16 G4.cp 声明解析与合法性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-f16-g4cd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: F16 G4.cd 正文交接共现检查 + 实体副本
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-f15-g4xc-narration_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: F15 叙事名——G4.xc narration_name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-f17-g4cd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: F17 计数器三方对账——G4.cd
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-settle-decisions-facts_ops-g4ss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: settle 双写——decisions facts_ops 加性键 + 写侧应用 + G4.ss 读侧校验
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-skill-planning-reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: SKILL 契约扩展——planning 声明模板 + reads 接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-10-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 10: 普查文档 + INDEX 必填节
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-11-mutant-cich8-per-mutant-check-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 11: mutant CI——ch8 基线导入 + per-mutant check-id 断言
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-12-lint_invariant_coverage-just-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 12: lint_invariant_coverage + just check 接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-13-regen-vol1-backfill-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 13: regen-vol1 backfill 工具 + 验收 3 绿语料 + 收尾
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-7-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec §7 → task → 验证命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#f947" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F947 离线化声明
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#g34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G3.4 声明
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review 记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-80-p1-invariant-net-implementation-plan">Spec #80 P1 invariant-net Implementation Plan</h1>
+<blockquote>
+<p><strong>Status</strong>: Done (PR #256 · 2026-10-29)——13/13 task audit PASS；全分支终审两轮收敛；P2 前置三项随 spec §6 在库</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.
+<strong>本项目补充</strong>：全部 task 涉及 infra 模块（facts 新域/<code>gates/g4/</code>/<code>contracts/</code>/<code>pipeline/</code>）→ <strong>协调者亲自实现</strong>（v6 leaf/infra 分流铁律），逐 task TDD + task 后 fresh-context 重审产出 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>。无 audit-T<N>.md 不得开始 T<N+1>。</p>
+</blockquote>
+<p><strong>Goal:</strong> 落地 spec #80 P1——规范事实库（props/counters/identity 三维）+ 唯一查询面 + F15/F16/F17 三门检 + 13 维四槽普查 + lint_invariant_coverage + 真实伤口 mutant CI（含 ch8 基线补全）+ regen-vol1 确定性 backfill。</p>
+<p><strong>Architecture:</strong> facts 是 <code>src/shenbi/facts/</code> 新域（StrEnum 词表 + pydantic schema + 纯函数 op 状态机 + flock 原子 JSON IO + 查询投影）；门检挂既有 G4 检查器族（G4.xc=cross_chapter.py、G4.cd=chapter_drafting.py、G4.cp=chapter_planning.py、G4.ss=state_settling.py），facts 缺席一律 skip+WARN（XC.registry 先例）；settle 双写（方案 b：op 走 decisions sidecar 加性键 <code>facts_ops</code>，Markdown 面零改动，G4.ss 一致性断言拦分叉）；mutant CI per-mutant check-id 断言。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pydantic（既有依赖）/ StrEnum / structlog / pytest。零新第三方依赖。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><strong>spec</strong>：<code>docs/superpowers/specs/2026-10-28-spec80-invariant-net.md</code> rev5（commit 8ac16b26）——施工唯一真源</li>
+<li><strong>P1 边界</strong>：验收 4（ch25-26 实弹）/5（G3.4 复评）=P2 运行侧，本 plan 不实现；投影层 projection.py=P3，不建</li>
+<li><strong>gate 纯度</strong>（AGENTS.md）：门检纯函数幂等零副作用；op 应用=写侧住 facts 模块；F16s=纯读者 simulate</li>
+<li><strong>状态字面量单一信源</strong>：新枚举唯一定义于 <code>src/shenbi/facts/enums.py</code>（StrEnum）；status-vocab.md 注册行值集全等；invariants.md 只引用不定义</li>
+<li><strong>无 print</strong>：<code>src/shenbi/</code> 用 structlog；CLI stdout 走 <code>shenbi.cli_utils.emit_json</code>/<code>echo</code></li>
+<li><strong>验证同构</strong>：一切验证走 <code>uv run</code>/<code>just</code>（CI <code>uv run --frozen</code> 同构）；系统 python 不算证据</li>
+<li><strong>F947</strong>：全部验收离线确定性（fixtures 断言 + lint），零真实 dispatch</li>
+<li><strong>G3.4 声明</strong>：本 spec 无 LLM 产物评分场景（全离线结构性验证）——无需独立评分子 agent</li>
+<li><strong>契约三源同步</strong>：改 SKILL.md reads/writes → <code>just lint-contracts</code> 绿 + <code>just generate</code> 生成物 diff 为空；禁止手改生成物</li>
+<li><strong>fixtures</strong>：<code>tests/fixtures/invariant-mutants/</code> 只能是真实伤口导出（已入库两份）；mutant 的 facts 态种子=测试内构造（G0.9 构造性结构输入豁免，spec §3 钉死）</li>
+<li><strong>pathspec commit</strong>：所有 commit 显式列文件，禁 <code>git add -A</code></li>
+</ul>
+<hr />
+<h3 id="task-1-facts-schema-op">Task 1: facts 域模块——词表 + schema + op 状态机（纯内存）</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/facts/__init__.py</code>
+- Create: <code>src/shenbi/facts/enums.py</code>
+- Create: <code>src/shenbi/facts/schemas.py</code>
+- Create: <code>src/shenbi/facts/store.py</code>
+- Create: <code>src/shenbi/exceptions.py</code>（追加 <code>FactsOpRejectedError</code>）
+- Test: <code>tests/unit/facts/test_store_state_machine.py</code>
+- Create: <code>tests/unit/facts/__init__.py</code>（R4-M2：随 T1 落，不等 T2）</p>
+<p><strong>Interfaces:</strong>
+- Produces（后续 task 消费的精确签名）:
+  - <code>shenbi.facts.enums.PropOp</code>（StrEnum：<code>hold|transfer|acquire|lose</code>）
+  - <code>shenbi.facts.enums.CounterOp</code>（StrEnum：<code>increment|set</code>）
+  - <code>shenbi.facts.enums.IdentityOp</code>（StrEnum：<code>rename|set_alias</code>）
+  - <code>shenbi.facts.enums.FactsDim</code>（StrEnum：<code>props|counters|identity</code>）
+  - <code>shenbi.facts.schemas.PropFact</code>（pydantic：<code>entity: str; owner: str; events: list[str]</code>）
+  - <code>shenbi.facts.schemas.CounterFact</code>（<code>name: str; value: int; history: list[str]</code>）
+  - <code>shenbi.facts.schemas.IdentityFact</code>（<code>narration_name: str; from_ch: int; aliases: list[str]</code>）
+  - <code>shenbi.facts.schemas.FactsFile</code>（<code>schema_: str = Field(alias="$schema"); dim: FactsDim; facts: dict[str, PropFact|CounterFact|IdentityFact]</code> 按 dim 多态；<code>ops_log: list[dict]</code>）
+  - <code>shenbi.facts.schemas.PropTransferEvent</code>（<code>op: str; prop: str; from_: str = Field(alias="from"); to: str; evidence: str; chapter: int</code>）
+  - <code>shenbi.facts.store.apply_prop_op(file: FactsFile, ev: PropTransferEvent) -&gt; FactsFile</code>（拒收 raise）
+  - <code>shenbi.facts.store.apply_counter_op(file: FactsFile, name: str, op: str, delta: int, chapter: int) -&gt; FactsFile</code>
+  - <code>shenbi.facts.store.apply_identity_op(file: FactsFile, op: str, *, new_name: str|None, alias: str|None, from_ch: int) -&gt; FactsFile</code>
+  - <code>shenbi.exceptions.FactsOpRejectedError(FrameworkError)</code>（属性 <code>reason: str</code>）
+- 状态机规则（spec §1.1「无来源的二次获得=拒收」+ 实体副本语义 rev1）：
+  - <code>transfer</code>：from_ 必须 == 当前 owner（或实体不存在时 from_ 为「初见」语义=首登）；to 成为新 owner
+  - <code>acquire</code>：实体已存在且 owner ≠ to 且无声明来源 ⇒ <strong>拒收</strong>；实体不存在 ⇒ 合法初见获得
+  - <code>lose</code>：owner 必须 == 声明者
+  - <strong>副本语义</strong>：<code>entity</code> 键携带消歧后缀（如 <code>火纹骨哨·帖木哥支</code>）——同母题新实体=新键初见，老键不动（spec F16 硬约束「ch20 双实体并存全绿」由此达成：backfill 种子把帖木哥之哨立为独立键）
+  - counter <code>increment</code>：value += delta 且 delta ≥ 1（<code>delta&lt;=0</code> 拒收——单调律）；<code>set</code> 仅种子期合法（chapter=0）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>（红——模块不存在）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/facts/test_store_state_machine.py</span>
+<span class="sd">&quot;&quot;&quot;T1: facts op 状态机——纯内存合法性校验（spec §1.1）。</span>
+
+<span class="sd">G0.9 注：facts 态种子为测试内构造的结构性输入（spec §3 钉死的豁免面）。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FactsOpRejectedError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.facts.schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">FactsFile</span><span class="p">,</span> <span class="n">PropTransferEvent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.facts.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_prop_op</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_props_file</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">FactsFile</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">FactsFile</span><span class="o">.</span><span class="n">model_validate</span><span class="p">({</span>
+        <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-facts-v1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dim&quot;</span><span class="p">:</span> <span class="s2">&quot;props&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;facts&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;火纹骨哨&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="s2">&quot;火纹骨哨&quot;</span><span class="p">,</span> <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="s2">&quot;那罕&quot;</span><span class="p">,</span> <span class="s2">&quot;events&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ch3 老驼所授&quot;</span><span class="p">]},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;ops_log&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_transfer_from_current_owner_passes</span><span class="p">():</span>
+    <span class="n">ev</span> <span class="o">=</span> <span class="n">PropTransferEvent</span><span class="o">.</span><span class="n">model_validate</span><span class="p">({</span>
+        <span class="s2">&quot;op&quot;</span><span class="p">:</span> <span class="s2">&quot;transfer&quot;</span><span class="p">,</span> <span class="s2">&quot;prop&quot;</span><span class="p">:</span> <span class="s2">&quot;火纹骨哨&quot;</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="s2">&quot;那罕&quot;</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="s2">&quot;帖木哥&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;evidence&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter-20.md L218&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">apply_prop_op</span><span class="p">(</span><span class="n">_props_file</span><span class="p">(),</span> <span class="n">ev</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span><span class="o">.</span><span class="n">facts</span><span class="p">[</span><span class="s2">&quot;火纹骨哨&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">owner</span> <span class="o">==</span> <span class="s2">&quot;帖木哥&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">ops_log</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_acquire_without_source_rejected</span><span class="p">():</span>
+    <span class="c1"># ch20 伤口形态：帖木哥「我揣了二十年」——无来源的二次获得</span>
+    <span class="n">ev</span> <span class="o">=</span> <span class="n">PropTransferEvent</span><span class="o">.</span><span class="n">model_validate</span><span class="p">({</span>
+        <span class="s2">&quot;op&quot;</span><span class="p">:</span> <span class="s2">&quot;acquire&quot;</span><span class="p">,</span> <span class="s2">&quot;prop&quot;</span><span class="p">:</span> <span class="s2">&quot;火纹骨哨&quot;</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="s2">&quot;帖木哥&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;evidence&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter-20.md L218&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">FactsOpRejectedError</span><span class="p">):</span>
+        <span class="n">apply_prop_op</span><span class="p">(</span><span class="n">_props_file</span><span class="p">(),</span> <span class="n">ev</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_copy_entity_is_a_new_key_not_reacquisition</span><span class="p">():</span>
+    <span class="c1"># 实体副本语义（rev1）：同母题新实体=独立键初见——修复后 ch20 双哨并存全绿</span>
+    <span class="n">ev</span> <span class="o">=</span> <span class="n">PropTransferEvent</span><span class="o">.</span><span class="n">model_validate</span><span class="p">({</span>
+        <span class="s2">&quot;op&quot;</span><span class="p">:</span> <span class="s2">&quot;acquire&quot;</span><span class="p">,</span> <span class="s2">&quot;prop&quot;</span><span class="p">:</span> <span class="s2">&quot;火纹骨哨·帖木哥支&quot;</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="s2">&quot;那罕&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;evidence&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter-20.md L218&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">apply_prop_op</span><span class="p">(</span><span class="n">_props_file</span><span class="p">(),</span> <span class="n">ev</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span><span class="o">.</span><span class="n">facts</span><span class="p">[</span><span class="s2">&quot;火纹骨哨&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">owner</span> <span class="o">==</span> <span class="s2">&quot;那罕&quot;</span>       <span class="c1"># 老键不动</span>
+    <span class="k">assert</span> <span class="n">out</span><span class="o">.</span><span class="n">facts</span><span class="p">[</span><span class="s2">&quot;火纹骨哨·帖木哥支&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">owner</span> <span class="o">==</span> <span class="s2">&quot;那罕&quot;</span>
+</code></pre></div>
+<p>（counter 单调/identity rename 同型用例：<code>test_counter_increment_monotonic</code>、<code>test_counter_nonpositive_delta_rejected</code>、<code>test_identity_rename_updates_narration_name</code>——三用例与上述同构，实现时一并写。）</p>
+<ul>
+<li>[ ] <strong>Step 2:</strong> <code>uv run pytest tests/unit/facts/test_store_state_machine.py -q</code> → 预期 FAIL（ModuleNotFoundError）</li>
+<li>[ ] <strong>Step 3:</strong> 实现 <code>enums.py</code>（StrEnum 四枚）、<code>schemas.py</code>（pydantic v2 <code>model_config = {"extra": "forbid"}</code>，FactsFile 按 dim 判 facts 值类型）、<code>store.py</code>（三个 apply_* 纯函数，拒收 <code>raise FactsOpRejectedError(reason=...)</code>）、exceptions.py 追加一行类</li>
+<li>[ ] <strong>Step 4:</strong> 重跑 → PASS</li>
+<li>[ ] <strong>Step 5:</strong> <code>git add src/shenbi/facts/ src/shenbi/exceptions.py tests/unit/facts/ &amp;&amp; git commit -m "feat(facts): op state machine for props/counters/identity (spec #80 T1)"</code></li>
+</ul>
+<hr />
+<h3 id="task-2-facts-ioflock-pipeline-init">Task 2: facts IO——flock 原子读写 + pipeline-init 空种子</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/facts/store.py</code>（追加 IO 函数）
+- Modify: <code>src/shenbi/pipeline/cli.py</code> 或 init 路径（pipeline-init 空种子——先定位 init 落 truth/ 的函数再钉文件）
+- Test: <code>tests/unit/facts/test_store_io.py</code>
+- Create: <code>tests/unit/facts/conftest.py</code>（<code>props_file</code> 共享 fixture——R6-M1）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>truth_io.truth_file_flock(path)</code>（<code>src/shenbi/pipeline/truth_io.py:123</code> 既有 flock）
+- Produces:
+  - <code>shenbi.facts.store.load_facts(project_dir: Path, dim: FactsDim) -&gt; FactsFile | None</code>（缺席返回 None——门检 WARN 降级依据；文件损坏 raise <code>TruthFileParseError</code>）
+  - <code>shenbi.facts.store.save_facts(project_dir: Path, file: FactsFile) -&gt; None</code>（flock + tmp 文件原子 rename；<code>facts/$schema</code> 常量 <code>shenbi-facts-v1</code>）
+  - <code>shenbi.facts.store.seed_empty(project_dir: Path) -&gt; None</code>（pipeline-init bootstrap：三维空种子文件；幂等——已存在不覆写）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/facts/test_store_io.py</span>
+<span class="sd">&quot;&quot;&quot;T2: facts JSON 侧车 IO——flock 原子写 + 空种子 bootstrap（spec §1.1/§4 F15 空种子语义）。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.facts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">FactsDim</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.facts.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_facts</span><span class="p">,</span> <span class="n">save_facts</span><span class="p">,</span> <span class="n">seed_empty</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_load_absent_returns_none</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">load_facts</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">FactsDim</span><span class="o">.</span><span class="n">PROPS</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># 门检 WARN 降级依据</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_save_then_load_roundtrip</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">props_file</span><span class="p">):</span>
+    <span class="n">save_facts</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">props_file</span><span class="p">)</span>  <span class="c1"># conftest fixture（R5-M3：跨模块私有 import 换共享 fixture）</span>
+    <span class="n">back</span> <span class="o">=</span> <span class="n">load_facts</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">FactsDim</span><span class="o">.</span><span class="n">PROPS</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">back</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">back</span><span class="o">.</span><span class="n">facts</span><span class="p">[</span><span class="s2">&quot;火纹骨哨&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">owner</span> <span class="o">==</span> <span class="s2">&quot;那罕&quot;</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;facts&quot;</span> <span class="o">/</span> <span class="s2">&quot;props.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_seed_empty_idempotent_creates_three_dims</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">seed_empty</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;props&quot;</span><span class="p">,</span> <span class="s2">&quot;counters&quot;</span><span class="p">,</span> <span class="s2">&quot;identity&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;facts&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+    <span class="n">seed_empty</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>  <span class="c1"># 幂等：不覆写</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2:</strong> 跑 → FAIL</li>
+<li>[ ] <strong>Step 3:</strong> 实现（<code>save_facts</code> = <code>truth_file_flock</code> + 内层私有 <code>_write_facts_unlocked</code>（<code>shenbi.safe_write.safe_write</code> 原子写——purity lint <code>tools/lint_no_fs_mutation.py</code> 按<strong>文件</strong> allowlist（R3-M7 措辞），facts/store.py 裸写原语会被拦，safe_write 是唯一获准原子写入口；<strong>内层无锁设计 R3-C1</strong>：同进程 flock 无重入语义——T8 RMW 外层持锁时须直调内层，公开 save_facts 自带锁供独立调用方）；<code>seed_empty</code> 三维空 <code>FactsFile</code>）；pipeline-init 挂钩：在 init 流程写 truth/ 的函数里追加 <code>seed_empty(project_dir)</code> 一行（<strong>候选已钉 R4-M5</strong>：<code>src/shenbi/pipeline/cli.py:721</code> <code>cmd_init</code> 为首选锚点，<code>registry_seeding.py</code> 为备选——执行时确认后写死）</li>
+<li>[ ] <strong>Step 4:</strong> 重跑 PASS + 既有 init 测试不破（<code>uv run pytest tests/unit/pipeline/ -q -k init</code>）；<strong>窗口观察（R5-M2）</strong>：seed_empty 落盘的 facts 文件 T9 才进 truth-files.yaml——T2-T8 间每 task 跑 <code>just check</code> 盯 vocabulary/index 面是否枚举 truth/ 内容（<code>_verify_truth_integrity</code> 只查 missing-path 不查多余，预期无红）</li>
+<li>[ ] <strong>Step 5:</strong> commit（pathspec 列全）</li>
+</ul>
+<hr />
+<h3 id="task-3-shenbi-facts-cli">Task 3: 查询面——<code>shenbi-facts</code> CLI + 现态紧凑投影</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/facts/query.py</code>
+- Create: <code>src/shenbi/facts/cli.py</code>
+- Modify: <code>pyproject.toml</code>（entry point <code>shenbi-facts = "shenbi.facts.cli:main"</code>）
+- Modify: <code>justfile</code>（追加 <code>facts-query</code> target 包 <code>shenbi-facts query</code>——spec §1.4「justfile targets（query 面向人/CI）」，R3-M4）
+- Test: <code>tests/unit/facts/test_query.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces:
+  - <code>shenbi.facts.query.current_state(file: FactsFile, dim: FactsDim, *, chapter: int | None = None) -&gt; dict[str, dict]</code>——现态紧凑视图：props=<code>{entity: {owner}}</code>、counters=<code>{name: {value}}</code>、identity=<code>{narration_name, from_ch, aliases}</code>（from_ch 必含——F15 检查消费，plan 审查 R1-I8）；<code>chapter</code> 参数=P1 相关性语义（spec rev5 R4-M5：<strong>P1 全量返回、预留过滤位</strong>——与 spec §1.1「本章相关实体子集」终态有分期差，P2 实装子集过滤时收口，R3-M5 注记）
+  - <code>shenbi.facts.query.planning_view(project_dir: Path, dim: FactsDim) -&gt; str</code>——紧凑文本投影（token 有界，spec rev2 I4）；facts 缺席返回空串。<strong>P1 消费方=R2 备注后为 P2</strong>（R2-M8：P1 planning 读 <code>truth/facts/&lt;dim&gt;.json</code> 文件本体（T9 接线），context_assemble 接线 planning_view=P2 实弹期——函数保留为查询面 API 面，验收用 CLI/测试消费，非死线）
+  - CLI：<code>shenbi-facts query --project &lt;dir&gt; --dim props|counters|identity [--chapter N]</code> → stdout JSON（<code>emit_json</code>）；缺席 dim → exit 1 + stderr WARN（<code>echo(err=True)</code>）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>（current_state 三维投影形态 + CLI 缺席降级 exit code——用 subprocess 或直接调 main(argv)；<strong>planning_view 形状断言</strong>（R4-M3）：单测断言其输出含 owner 行且不含 ops_log 历史——非死线证明）</li>
+<li>[ ] <strong>Step 2:</strong> FAIL → <strong>Step 3:</strong> 实现（query.py 纯函数；cli.py 参照 <code>shenbi.cost.report</code> 的 main 模式）→ <strong>Step 4:</strong> PASS + <code>uv run shenbi-facts query --project novel-xinghuo-vol1 --dim props</code>（种子未建 → 预期 exit 1 WARN，贴输出进 progress.md）</li>
+<li>[ ] <strong>Step 5:</strong> commit</li>
+</ul>
+<hr />
+<h3 id="task-4-f16-g4cp">Task 4: 共享转移动词表 + F16 G4.cp 声明解析与合法性</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/shared.py</code>（追加 <code>TRANSFER_VERBS</code> 与 <code>TRANSFER_CONTEXT_RE</code>）
+- Modify: <code>src/shenbi/gates/g4/chapter_planning.py</code>（<code>g4_chapter_planning</code> 内追加 F16 声明检查）
+- Test: <code>tests/unit/gates/g4/test_f16_cp_declarations.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>load_facts(project_dir, FactsDim.PROPS)</code>；plan_format token 检查（chapter_planning.py:155-163 既有）
+- Produces:
+  - <code>shenbi.gates.shared.TRANSFER_VERBS: frozenset[str]</code>——闭集扩容：<code>{"递给","塞给","交给","送给","还给","还了","给了","留给","转手","递了","送了","交到","递到","递还","抽出","揣着","揣进","取出"}</code>（#75 闭集 ∪ 伤口形态「抽出/揣着/揣进/取出」四动词，spec F16——R2-M5 对齐字面集）
+  - <code>shenbi.gates.g4.chapter_planning.parse_prop_declarations(memo_text: str) -&gt; list[tuple[str, str, str, str]]</code>——解析结构化声明行 <code>物件@op: A→B</code>；返回 <code>(prop, op, from_, to)</code> <strong>四元组</strong>列表；<code>@hold</code> 单值形态 from_=to=owner 占位（plan 审查 R1-M10）
+  - G4.cp 新 FAIL 消息前缀：<code>cp.prop_decl:</code>（G4_CHECK_MAP 注册 HARD——T8 接线）
+  - 检查逻辑：声明 op 对 facts 现态合法性（transfer 的 from_==facts owner；副本后缀键=初见合法）；facts 缺席 ⇒ <code>WARN cp.prop_decl:no_facts</code>（skip 不 FAIL）；<strong>旧备忘豁免必须 WARN 可见</strong>：memo 无 <code>物件@</code> 声明行 ⇒ <code>WARN cp.prop_decl:legacy_memo</code>（13/24 静默死法禁令）。<strong>plan_format 决策（钉死，plan 审查 R1-I4）</strong>：声明行 P1 为 <strong>v3 内可选</strong>（不 bump v4——v4 硬门化=P2 全量声明行 backfill 完成后的升级动作）；P1 硬门=G4.cd 交接共现（undeclared handoff FAIL），G4.cp 声明合法性只对在场声明行生效</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/g4/test_f16_cp_declarations.py</span>
+<span class="sd">&quot;&quot;&quot;T4: F16 G4.cp——memo 物象声明解析 + 对 facts 现态合法性（spec §4 F16）。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_planning</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_prop_declarations</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_parse_declaration_line</span><span class="p">():</span>
+    <span class="n">memo</span> <span class="o">=</span> <span class="s2">&quot;- 火纹骨哨@transfer: 帖木哥→那罕</span><span class="se">\n</span><span class="s2">- 红纸包@hold: 那罕&quot;</span>
+    <span class="n">decls</span> <span class="o">=</span> <span class="n">parse_prop_declarations</span><span class="p">(</span><span class="n">memo</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">decls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;火纹骨哨&quot;</span><span class="p">,</span> <span class="s2">&quot;transfer&quot;</span><span class="p">,</span> <span class="s2">&quot;帖木哥&quot;</span><span class="p">,</span> <span class="s2">&quot;那罕&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">decls</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;hold&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_declared_transfer_from_wrong_owner_fails</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># facts owner=那罕，声明 from_=老驼 ⇒ 非法</span>
+    <span class="o">...</span>  <span class="c1"># 组装 facts 文件 + 调 g4_chapter_planning，断言 FAIL 消息含 &quot;cp.prop_decl:&quot;</span>
+</code></pre></div>
+<p>（豁免用例 <code>test_legacy_memo_warns_not_silent</code>：v3 无声明行备忘 ⇒ WARN 非静默 skip——<strong>本 task 核心红测</strong>。）</p>
+<ul>
+<li>[ ] <strong>Step 2-5:</strong> 同 TDD 循环；commit <code>feat(gates): F16 G4.cp prop declarations vs facts (spec #80 T4)</code></li>
+</ul>
+<hr />
+<h3 id="task-5-f16-g4cd">Task 5: F16 G4.cd 正文交接共现检查 + 实体副本</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py</code>（<code>g4_chapter_drafting</code> 内追加）
+- Modify: <code>src/shenbi/gates/g4/cross_chapter.py</code>（不变量 4 的 facts 在场吸收开关）
+- Test: <code>tests/unit/gates/g4/test_f16_cd_handoffs.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>TRANSFER_VERBS</code>（T4）；<code>load_facts</code>；<code>parse_prop_declarations</code>（T4——G4.cd 读同一 memo 声明）
+- Produces:
+  - <code>shenbi.gates.g4.chapter_drafting.check_prop_handoffs(text: str, memo_text: str, props: dict[str, dict]) -&gt; list[str]</code>——「非 owner 人名 + facts 实体名 + 交接动词」共现而 memo 无对应声明 ⇒ FAIL；返回消息前缀 <code>cd.prop_handoff:</code>
+  - XC 吸收（spec rev2 I1 + plan 审查 R1-I7）：<code>cross_chapter.py</code> 不变量 4 prose 扫描段加 facts 在场开关——<strong>facts 非空</strong>（<code>load_facts(PROPS)</code> 非 None 且 facts dict 非空——空种子≡缺席，rev5 R4-M2 空洞堵死）时跳过该段——<strong>含 memo 声明 hop 检查子段</strong>（cross_chapter.py:664-678 registry-oracle 路径，R2-M10：facts 在场时不留双 oracle 并行，remediation 文本单一化）；缺席/空时照旧全 severity 运行（rev5 R4 措辞）
+  - <strong>动词表双路径单表</strong>（plan 审查 R1-I5）：不变量 4 的 <code>_markers</code> alternation 改从 <code>shenbi.gates.shared.TRANSFER_VERBS</code> 构建（spec rev3 R2-M2——fallback 层同享扩容动词族，防两表漂移）
+  - 实体键匹配：正文用短名（「骨哨」）与全名（「火纹骨哨」）双形态，facts 键可带消歧后缀——匹配器 <code>entity_in_text(entity: str, text: str) -&gt; bool</code>（<strong>三形态</strong>，R3-M2：后缀 <code>·</code> 分割前段 + 全名 + ≥3 字键的末两字缩称——「骨哨揣进怀里」L230 类短称命中）
+  - 副本并存绿：ch20 修复语料（两把哨并存）+ 声明完备 ⇒ 零 FAIL（mutant T11 复用本用例）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>——核心用例直接吃伤口 fixture：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/g4/test_f16_cd_handoffs.py</span>
+<span class="sd">&quot;&quot;&quot;T5: F16 G4.cd——正文无源交付拍拦截（spec §4 F16；ch20 L218 伤口）。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_prop_handoffs</span>
+
+<span class="n">FIXTURE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/invariant-mutants/ch20-name-swap-prop-break.md&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_wound_undeclared_handoff_fails</span><span class="p">():</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="c1"># fixture L218 区域：「帖木哥把布解开…」「这个你揣着」——交接动词「揣着」+非 owner 帖木哥</span>
+    <span class="n">props</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;火纹骨哨&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="s2">&quot;那罕&quot;</span><span class="p">}}</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_prop_handoffs</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">memo_text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">props</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;cd.prop_handoff:&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2-5:</strong> TDD 循环；commit</li>
+</ul>
+<hr />
+<h3 id="task-6-f15-g4xc-narration_name">Task 6: F15 叙事名——G4.xc narration_name</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/cross_chapter.py</code>（<code>check_cross_chapter</code> 追加不变量段 + <code>g4_cross_chapter</code> 组装）
+- Test: <code>tests/unit/gates/g4/test_f15_narration_name.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>load_facts(project_dir, FactsDim.IDENTITY)</code>；<code>_sentence_spans</code>/对白剥离（cross_chapter 既有工具可复用；若无对白剥离则新写 <code>strip_dialogue(text) -&gt; str</code>——剥「」『』段落）
+- Produces:
+  - <code>shenbi.gates.g4.cross_chapter.check_narration_name(text: str, identity: dict, memo_text: str, *, chapter: int | None = None) -&gt; list[str]</code>（None ⇒ from_ch 边界检查关 ⇒ 别名判红——R2-I2：默认不得等价「改名前」）——剥对白后叙述段出现 <code>identity["aliases"]</code> 任一 ⇒ FAIL <code>XC.narration_name:</code>；备忘 <code>[旧名回溯]</code> 标记段落豁免（闪回）；<code>from_ch</code> 边界：<code>chapter &lt; identity["from_ch"]</code> ⇒ 用旧名不 FAIL（M5 合法改名路径——chapter 参数 plan 审查 R1-I8）
+  - facts 缺席/空种子（键缺失≡维缺失）⇒ WARN（skip 不 FAIL）——<code>XC.narration_name:no_facts</code>
+  - 快照豁免（rev2 M1）：<code>g4_cross_chapter</code> 层过滤 <code>*pre-rev*</code>/<code>*snapshot*</code> 文件名（G2 先例）
+  - <code>shenbi.gates.g4.cross_chapter.strip_dialogue(text: str) -&gt; str</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>——伤口直接判红：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/g4/test_f15_narration_name.py</span>
+<span class="sd">&quot;&quot;&quot;T6: F15——叙事名回退拦截（spec §4 F15；ch19/20 林烽×12 伤口）。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.cross_chapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_narration_name</span><span class="p">,</span> <span class="n">strip_dialogue</span>
+
+<span class="n">FIXTURE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/invariant-mutants/ch20-name-swap-prop-break.md&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_stripped_dialogue_still_has_narration_hits</span><span class="p">():</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;林烽&quot;</span> <span class="ow">in</span> <span class="n">strip_dialogue</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>  <span class="c1"># ≈7 处叙述段命中，剥对白后仍在</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_alias_in_narration_fails</span><span class="p">():</span>
+    <span class="n">identity</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;narration_name&quot;</span><span class="p">:</span> <span class="s2">&quot;那罕&quot;</span><span class="p">,</span> <span class="s2">&quot;from_ch&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;aliases&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;林烽&quot;</span><span class="p">]}</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_narration_name</span><span class="p">(</span><span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">identity</span><span class="p">,</span> <span class="n">memo_text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;XC.narration_name:&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_flashback_marker_exempts</span><span class="p">():</span>
+    <span class="n">memo</span> <span class="o">=</span> <span class="s2">&quot;- [旧名回溯] 本章闪回段用旧名&quot;</span>
+    <span class="n">identity</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;narration_name&quot;</span><span class="p">:</span> <span class="s2">&quot;那罕&quot;</span><span class="p">,</span> <span class="s2">&quot;from_ch&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;aliases&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;林烽&quot;</span><span class="p">]}</span>
+    <span class="c1"># chapter=20 显式传参——隔离 memo 标记豁免（不被 from_ch 边界混淆，R2-M12）</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_narration_name</span><span class="p">(</span><span class="s2">&quot;林烽翻过驿务条。&quot;</span><span class="p">,</span> <span class="n">identity</span><span class="p">,</span> <span class="n">memo</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">issues</span> <span class="o">==</span> <span class="p">[]</span>  <span class="c1"># 豁免由 memo 标记声明（简化形态：memo 有标记即整章豁免闪回段）</span>
+</code></pre></div>
+<p>（<code>from_ch</code> 边界用例 <code>test_before_from_ch_old_name_legal</code>；修复后 ch20 零林烽绿用例 <code>test_fixed_chapter_clean</code>——读 <code>novel-xinghuo-vol1/chapters/chapter-20.md</code>。）</p>
+<ul>
+<li>[ ] <strong>Step 2-5:</strong> TDD；commit <code>feat(gates): F15 narration-name invariant on G4.xc (spec #80 T6)</code></li>
+</ul>
+<hr />
+<h3 id="task-7-f17-g4cd">Task 7: F17 计数器三方对账——G4.cd</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py</code>（追加）
+- Test: <code>tests/unit/gates/g4/test_f17_counters.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>load_facts(project_dir, FactsDim.COUNTERS)</code>；<code>parse_counter_declarations(memo_text) -&gt; list[tuple[str, int]]</code>（解析 <code>计数: &lt;名&gt; N+1</code> 形态行，本 task 产出；<strong>int=声明值 N+1</strong>（解析后值），非基值 N——R4-M4 钉死）
+- Produces:
+  - <code>shenbi.gates.g4.chapter_drafting.parse_counter_declarations(memo_text: str) -&gt; list[tuple[str, int]]</code>
+  - <code>shenbi.gates.g4.chapter_drafting.check_counter_reconciliation(text: str, memo_text: str, counters: dict[str, dict]) -&gt; list[str]</code>——三方对账（spec rev4 R3-M11）：①prose 总数族「N个名字/N名字」≡ facts 现值 ②memo <code>N+1</code> ≡ facts+1 ③prose 序数「第N个名字」≡ memo 声明值；任一不符 ⇒ FAIL <code>cd.counter:</code>；页范围总数锚（「第一页三个名字」）scope 锚定=忽略页限定词、取全局计数器比对（rev5 R5-M3 plan 钉死：P1 忽略页键，页内计数不立独立计数器）；<strong>计数器语义钉死</strong>（R2-I4a）：<code>鉴录名数</code>=那罕添入《鉴录》的名数（非全书总名数——canon ch17「四十三个名字」为全书口径，不与本计数器比对）；<strong>激活规则</strong>（R2-I4b）：F17 三检查仅当 memo 声明该计数器（<code>计数: &lt;名&gt;</code> 行在场）才激活，无声明 ⇒ WARN skip（旧备忘兼容期，防 ch17 类假红）；<strong>判定位置</strong>（R3-M1）：激活/WARN 判定在 <code>g4_chapter_drafting</code> 调用点（WARN 是 caller 级 GateStatus），单测直调 <code>check_counter_reconciliation</code> 绕过激活判定（Step-1 红测即此形态）；facts 缺席 ⇒ WARN
+  - 计数名映射：facts counters 键 ↔ prose 计数词族（P1 仅《鉴录》名数：键 <code>鉴录名数</code>，prose 词族 <code>名字</code>）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>——counter-dup mutant 击杀面：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/g4/test_f17_counters.py</span>
+<span class="sd">&quot;&quot;&quot;T7: F17——计数器三方对账（spec §4 F17；ch8↔ch9 计数互斥伤口）。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_counter_reconciliation</span>
+
+<span class="n">FIXTURE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/invariant-mutants/ch09-counter-dup.md&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_wound_total_vs_facts_baseline_fails</span><span class="p">():</span>
+    <span class="c1"># facts 基线 count=3（ch8 已添第三个名字）；ch9 pre-rev 语料「第一页两个名字」⇒ 2≠3 FAIL</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">counters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;鉴录名数&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}}</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_counter_reconciliation</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">memo_text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">counters</span><span class="o">=</span><span class="n">counters</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;cd.counter:&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_ordinal_vs_memo_declared_fails</span><span class="p">():</span>
+    <span class="c1"># memo 声明 N+1=3（「添第三个名字」），prose 序数也是第三——但 facts=3 时序数应为第四</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;他添了第三个名字——赵三。&quot;</span>
+    <span class="n">memo</span> <span class="o">=</span> <span class="s2">&quot;- 计数: 鉴录名数 3+1&quot;</span>
+    <span class="n">counters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;鉴录名数&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}}</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_counter_reconciliation</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">memo</span><span class="p">,</span> <span class="n">counters</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;cd.counter:&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>  <span class="c1"># 4≠3</span>
+</code></pre></div>
+<p>（绿用例：修复后 ch9「第一页三个名字」+ facts=3 ⇒ 零 FAIL。）</p>
+<ul>
+<li>[ ] <strong>Step 2-5:</strong> TDD；commit</li>
+</ul>
+<hr />
+<h3 id="task-8-settle-decisions-facts_ops-g4ss">Task 8: settle 双写——decisions <code>facts_ops</code> 加性键 + 写侧应用 + G4.ss 读侧校验</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/schemas/decisions.py</code>（DecisionsDoc 追加 <code>facts_ops</code> 可选字段——extra:forbid 下必须同批，R4-I1）
+- Modify: <code>docs/framework/decisions-schema.md</code>（Fields 表加行）
+- Modify: <code>skills/shenbi-state-settling/SKILL.md</code>（:417 顶层键白名单行扩 <code>facts_ops</code> + op 发射契约段）
+- Create: <code>src/shenbi/facts/settle_ops.py</code>（写侧：从 sidecar 读 ops → <code>apply_*</code> → <code>save_facts</code>，fail-fast 在 Markdown upsert 之前）
+- Modify: <code>src/shenbi/gates/g4/state_settling.py</code>（G4.ss：op↔row 一致性断言 + identity 对账 + F16s 纯读者 simulate）
+- Modify: settle commit 调用点（<strong>plan 审查 R1-C1/R2-C1——写路径接线，三站点全枚举</strong>）：①<code>src/shenbi/pipeline/chapter_loop.py:1884</code> ②<code>:2128</code>（两处 auto-commit <code>staging_auto_committed_state_settle</code>）③<code>src/shenbi/pipeline/cli.py:655-712 _commit_staging_for_checkpoint</code>（<strong>review-path commit</strong>，<code>state_settle_review_required=True</code> 时走，settle sidecar join 在 :699——R3-M3 行钉修正：:681 是 CHAPTER_MEMO 双备忘 follower 追加）；三站点均在<strong>各自写循环之前</strong>调 <code>apply_sidecar_ops</code>（R3-I2 勘误：auto 站点的 staging commit 即 Markdown upsert 本体，「commit 之后 upsert 之前」的瞬间不存在；正确序=ops 先验，拒收异常在任何写发生前中止，staging 保留供重试——spec §1.1 fail-fast「无半写态」由此满足）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（G4_CHECK_MAP 追加<strong>七键</strong>：<code>"XC.narration_name": HARD, "cd.prop_handoff": HARD, "cp.prop_decl": HARD, "cd.counter": HARD, "ss.facts_ops": HARD, "ss.prop_row_match": HARD, "ss.identity_row_match": HARD</code>——T4-T8 全部消息前缀的 severity 注册（R4-I1：R3 替换未命中遗留六键，本次实改），spec rev5 R4-M1）
+- Test: <code>tests/unit/facts/test_settle_ops.py</code>、<code>tests/unit/gates/g4/test_g4_ss_facts.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: T1 全部 apply_<em>；<code>DecisionsDoc</code>（decisions.py:71-86 既有）
+- Produces:
+  - <code>shenbi.contracts.schemas.decisions.FactsOps</code>（pydantic：<code>props: list[PropTransferEvent] = []; counters: list[CounterEvent] = []; identity: list[IdentityEvent] = []</code>）；<code>DecisionsDoc.facts_ops: FactsOps | None = None</code>
+  - <code>shenbi.facts.settle_ops.apply_sidecar_ops(project_dir: Path, sidecar_path: Path) -&gt; None</code>——读 <code>facts_ops</code> → 逐维 apply → save_facts；任一 op 拒收 ⇒ <code>FactsOpRejectedError</code> 上抛（settle 门 FAIL，attempts/escalation 既有协议），</em><em>不写任何文件</em><em>（fail-fast）。</em><em>RMW 锁范围</em><em>（R2-M9 + </em><em>R3-C1 死锁修正</em><em>）：load→apply→save 全程持 <code>truth_file_flock(facts_path)</code>，save 走 T2 的</em><em>无锁内层 <code>_write_facts_unlocked</code></em><em>（同进程 flock 跨 fd 无重入——外层持锁再进公开 save_facts 的自锁=死锁；truth_io.py:123 docstring「short-lived subprocess helpers…no in-process registry」即此边界）
+  - G4.ss 检查（state_settling.py 内追加，纯读者）：①sidecar <code>facts_ops</code> 缺席且章内 truth/prop_registry 有本座行变更 ⇒ WARN（旧 settle 兼容期）②<code>ss.prop_row_match:</code>——sidecar 声明的 op 与 Markdown 行 owner 不一致 ⇒ FAIL（props 对账，facts canonical）③</em><em><code>ss.identity_row_match:</code></em><em>——facts 别名集 ↔ name_registry 别名/旌名行对账（登记名 prose 备注显式出范围——rev5 R4-I2，永不永久红；plan 审查 R1-I6）④F16s simulate：逐 op 对现 facts 干跑 apply，拒收 ⇒ FAIL <code>ss.facts_ops:illegal_op</code>（无 mutation）
+  - <code>shenbi.facts.schemas.CounterEvent</code>（pydantic：<code>name: str; op: str; delta: int; chapter: int</code>）与 <code>IdentityEvent</code>（<code>op: str; new_name: str | None = None; alias: str | None = None; from_ch: int = 0</code>）——plan 审查 R1-M11 补定义
+  - P2.5 规则扩展（decisions 校验器）：op 条目属 routine 免 rationale；</em><em>触发钉死</em><em>（R2-M6）：<code>FactsOps.rationale: str | None</code>，任一 op 的 op 值 ∉ 该实体当前态合法集（即 F16s simulate 会拒收的形态）⇒ rationale 必填非空——</em><em>enforcement point=G4.ss F16s simulate</em>*（R3-M6：DecisionsDoc 校验器看不见 facts 态，schema 层只强制 rationale 字段存在性；<code>lint_decisions_sources</code> 三源同批登记）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>——三点 enforcement（pydantic 接受 facts_ops 键 / fail-fast 拒收不留半写 / G4.ss 对账 FAIL）</li>
+<li>[ ] <strong>Step 2-5:</strong> TDD；SKILL.md 契约改完跑 <code>just lint-contracts</code> + <code>just generate</code>（生成物 diff 空）；commit</li>
+</ul>
+<hr />
+<h3 id="task-9-skill-planning-reads">Task 9: SKILL 契约扩展——planning 声明模板 + reads 接线</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-chapter-planning/SKILL.md</code>（writes 模板加 <code>物件@op</code>/<code>计数:</code> 结构化声明行示例；reads 加 facts 查询面产物）
+- Modify: <code>skills/shenbi-state-settling/SKILL.md</code>（T8 已动白名单——本 task 补 op 发射示例段）
+- Modify: <code>docs/framework/truth-files.yaml</code>（truth 段追加三行：<code>- {name: truth/facts/props.json, kind: truth, producer: pipeline}</code> ×3 维——spec §1.4 glob 口径的字面展开形态，R2-M12 注）
+- Modify: <code>docs/framework/status-vocab.md</code>（域清单追加<strong>四行</strong>——plan 审查 R1-M12：PropOp/CounterOp/IdentityOp/FactsDim 四枚举全注册，值集与 StrEnum 成员全等）
+- Test: <code>tests/unit/contracts/test_truth_files_facts.py</code>（注册对账：truth-files.yaml 含三维 + lint_status_strings 绿）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: T8 的 SKILL 白名单变更
+- Produces: 契约三源同步后的 deps.json/docs/skills 生成物（<code>just generate</code> 产出，禁止手改）
+- 注意：reads 声明的查询面产物形——<code>truth/facts/&lt;dim&gt;.json</code>（planning 读文件本体而非 CLI 产物；dispatcher 读切片走既有机制）</p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> 红测（truth-files.yaml 三维注册 + status-vocab 三域可被 lint_status_strings 解析全等）</li>
+<li>[ ] <strong>Step 2-5:</strong> TDD + <code>just lint-contracts</code> + <code>just generate</code> 双绿；commit</li>
+</ul>
+<hr />
+<h3 id="task-10-index">Task 10: 普查文档 + INDEX 必填节</h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/framework/invariants.md</code>——13 维×四槽表（列：维度/载体（逐行命实，R3-M9）/声明/门检 check id/审计 reads/期相 P1|P2|P3/mutant 义务（F15+族或 facts 承载才 Yes，R3-I1））；P1 三行满槽，其余行按现状填（XC 门控维度注记既有红测文件名）；表头注明 CURRENT_PHASE=P1 语义与字面量「只引用不定义」
+- Modify: <code>docs/superpowers/specs/INDEX.md</code>（登记与编号约定段追加「触及的不变量维度」必填节说明）
+- Modify: <code>docs/superpowers/specs/2026-10-28-spec80-invariant-net.md</code>（自补该节——R2-I3 同批消自绊）
+- Modify: <code>docs/superpowers/specs/2026-10-28-spec81-observability-net.md</code>（同上）
+- Test: <code>tests/unit/tools/test_invariants_doc_shape.py</code>（表格列数/13 行数/P1 行四槽非空——文档形状守卫）</p>
+<ul>
+<li>[ ] <strong>Step 1-5:</strong> TDD（文档形状红测先行）；commit <code>docs(framework): invariant census 13-dim four-slot table (spec #80 T10)</code></li>
+</ul>
+<hr />
+<h3 id="task-11-mutant-cich8-per-mutant-check-id">Task 11: mutant CI——ch8 基线导入 + per-mutant check-id 断言</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/fixtures/invariant-mutants/ch08-counter-baseline.md</code>（从 <code>novel-xinghuo-vol1/chapters/chapter-8.md</code> 导出计数相关段落+备忘行——真实产物副本，G0.9/G0.11：带源文件 provenance 头）
+- Create: <code>tests/gates/test_invariant_mutants.py</code>
+- Test: 即本文件（自验）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: T4-T7 全部门检函数；fixtures 两份既有 + 本 task ch8 基线（<strong>接线断言</strong>——plan 审查 R1-M9：<code>test_ch08_baseline_derives_count_three</code> 从 ch08 fixture 解析「添第三个名字」断言基线 count=3，fixture 非死件）
+- Produces: spec §7 验收 1 的载体；mutant 名归一规则（plan 审查 R1-M13）：普查表 mutant 名 hyphen 形 ↔ 测试名 underscore 形（<code>name-swap</code> ↔ <code>test_mutant_name_swap_killed_by_</code>），lint/T12 grep 前统一 <code>-.→_</code> 归一</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 mutant 测试</strong>（per-mutant check-id 断言——spec rev2 I5）:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/gates/test_invariant_mutants.py</span>
+<span class="sd">&quot;&quot;&quot;Spec #80 §3: 变异体全被拦=网眼无洞的机器证明。</span>
+
+<span class="sd">per-mutant check-id 断言：合并语料不得掩盖死门。</span>
+<span class="sd">G0.9: 语料=真实伤口导出 fixtures；facts 态种子=测试内构造（spec §3 豁免面）。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_counter_reconciliation</span><span class="p">,</span> <span class="n">check_prop_handoffs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.cross_chapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_narration_name</span>
+
+<span class="n">FIX</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/invariant-mutants&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_mutant_name_swap_killed_by_f15</span><span class="p">():</span>
+    <span class="n">identity</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;narration_name&quot;</span><span class="p">:</span> <span class="s2">&quot;那罕&quot;</span><span class="p">,</span> <span class="s2">&quot;from_ch&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;aliases&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;林烽&quot;</span><span class="p">]}</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_narration_name</span><span class="p">((</span><span class="n">FIX</span> <span class="o">/</span> <span class="s2">&quot;ch20-name-swap-prop-break.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">identity</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;XC.narration_name:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_mutant_prop_chain_break_killed_by_f16</span><span class="p">():</span>
+    <span class="n">props</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;火纹骨哨&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="s2">&quot;那罕&quot;</span><span class="p">}}</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_prop_handoffs</span><span class="p">((</span><span class="n">FIX</span> <span class="o">/</span> <span class="s2">&quot;ch20-name-swap-prop-break.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">props</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;cd.prop_handoff:&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_mutant_counter_dup_killed_by_f17</span><span class="p">():</span>
+    <span class="n">counters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;鉴录名数&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}}</span>  <span class="c1"># ch8 基线：第三个名字=抱门框老人，count=3</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">FIX</span> <span class="o">/</span> <span class="s2">&quot;ch09-counter-dup.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">memo</span> <span class="o">=</span> <span class="s2">&quot;- 计数: 鉴录名数 2+1&quot;</span>  <span class="c1"># pre-rev 备忘：把赵三当第三个——与 ch8 冲突</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_counter_reconciliation</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">memo</span><span class="p">,</span> <span class="n">counters</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;cd.counter:&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2:</strong> <code>uv run pytest tests/gates/test_invariant_mutants.py -q</code> → 三 mutant 全 FAIL 断言过 = PASS（若 F15/F16/F17 任一未拦 ⇒ 红——即死门探测器）</li>
+<li>[ ] <strong>Step 3:</strong> 绿语料对极（防误报面）：修复后 ch9/ch20 + 声明完备种子 ⇒ 三检查零 FAIL（spec §7 验收 3）</li>
+<li>[ ] <strong>Step 4:</strong> 全量 <code>uv run pytest tests/gates/ tests/unit/facts/ tests/unit/gates/g4/ -q</code></li>
+<li>[ ] <strong>Step 5:</strong> commit</li>
+</ul>
+<hr />
+<h3 id="task-12-lint_invariant_coverage-just-check">Task 12: lint_invariant_coverage + just check 接线</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/lint_invariant_coverage.py</code>
+- Modify: <code>justfile</code>（check target 追加一行 <code>uv run python tools/lint_invariant_coverage.py</code>，与 lint_status_strings 并列）
+- Test: <code>tests/unit/tools/test_lint_invariant_coverage.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>docs/framework/invariants.md</code>（T10 表）、<code>tests/gates/test_invariant_mutants.py</code>（T11 mutant 名单）、<code>tests/fixtures/invariant-mutants/</code> 目录
+- Produces: exit 0/1 CLI（模式照 <code>tools/lint_status_strings.py</code>：structlog + 逐违规输出 + sys.exit）
+- lint 谓词（spec §2 + R3 修正）：
+  - 表形状：13 行×七列，期相列 ∈ {P1,P2,P3}
+  - <code>CURRENT_PHASE = "P1"</code>（模块常量，随批次 bump——R3-M10）
+  - 期相 ≤ CURRENT_PHASE 的行：四槽非空，否则红
+  - mutant 义务行（义务列=Yes 且期相≤CURRENT_PHASE）：<code>tests/gates/test_invariant_mutants.py</code> 须有对应 <code>test_mutant_&lt;name&gt;_killed_by_</code> 用例（源码 grep），否则红
+  - INDEX 活跃项（<code>Status: Active</code>）含「触及的不变量维度」节，否则红（P1 只校 P1 期相维度存在性）
+  - <strong>P1 缩窄声明</strong>（plan 审查 R1-M16）：spec §2「扫全部 check id 对照普查表」的 code→table 全量对账=P2+ 期责任；P1 lint 只校 P1 期相行的四槽/mutant/INDEX 节，非缩窄违 spec——spec §2 期相列机制（rev3 R2-M3）即为此设计
+  - 字面量「只引用不定义」：invariants.md 不得含 <code>= "</code> 形态的值定义（防 doc 私定义）</p>
+<ul>
+<li>[ ] <strong>Step 1-5:</strong> TDD（用 tmp invariants.md 喂正反例）；接线 justfile 后跑 <code>just check</code> 全绿；commit</li>
+</ul>
+<hr />
+<h3 id="task-13-regen-vol1-backfill-3">Task 13: regen-vol1 backfill 工具 + 验收 3 绿语料 + 收尾</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/facts_backfill.py</code>（确定性种子派生——<code>tools/plan_craft_backfill.py</code> 先例模式；禁手写 JSON）
+- Test: <code>tests/unit/tools/test_facts_backfill.py</code>
+- 验收汇总进 progress.md（无独立 commit 若纯验证；有 fixture/工具修复则列 pathspec）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>tools/facts_backfill.py --project novel-xinghuo-vol1 [--apply]</code>（<strong>dry-run 为默认</strong>——R2-M7 对齐 plan_craft_backfill 先例与 F947 立场：默认零写入，<code>--apply</code> 才落盘）——①从修复后章节正典派生三维种子（props：24 章经手链现状 owner——含 <code>火纹骨哨</code>（那罕）与 <code>火纹骨哨·帖木哥支</code>（那罕，ch20 副本键）；counters：<code>鉴录名数=4</code>（ch9 后：陆秉文/阿六/老人/赵三）；identity：narration_name=那罕、from_ch=3、aliases=[林烽]）②memo 声明行 backfill（11 份既有声明行键形态归一 + 13 份旧备忘补 <code>物件@op</code> 行——从章节正文+registry 交叉派生；<strong>计数行范围 R4-M1/R5-I1 修正</strong>：<code>计数: 鉴录名数 N+1</code> 仅 backfill 进 <strong>ch9 一份</strong>备忘（ch9 memo L4「添第四个名字」有 canon 依据；原 ch10「复核」系 R4 凭空推断——chapter-10.md 无复核/计数内容，实测否认），ch10/ch17 等章不 backfill——激活规则下无声明=WARN skip，假红防线双保险）③registry 陈旧行重写（赵三行/《鉴录》行/「临」备注——<strong>绝不整文件重生成</strong>，rev5 R4-I2）；<strong>行↔键匹配</strong>（R2-M11）：<code>ss.prop_row_match</code> 用 T5 <code>entity_in_text</code> 同型匹配器对齐 registry 行键（「火纹骨哨（老驼所授·主线）」↔facts「火纹骨哨」）；facts 键无 registry 行（帖木哥支）=初见不补写 P1；骨哨主行 ch20 经手由 op 追补（transfer 老驼线→记录帖木哥交付拍）④默认 dry-run 打印 diff 零写入（<code>--apply</code> 才写）
+- 验收 3 断言（<code>tests/unit/tools/test_facts_backfill.py</code> 内，<strong>plan 审查 R1-C3 修正</strong>）：绿断言用 <strong>per-chapter 前置态种子</strong>（G0.9 测试内构造豁免）——ch9 检查喂 count=3 前置态（ch8 后、ch9 前）、ch20 检查喂 <code>火纹骨哨·帖木哥支</code> owner=帖木哥 前置态；直接喂终态种子（count=4/双哨皆那罕）会撞 F17 总数对账与 F16 cp 合法性而假红——as-of 态 P1 由测试构造，<code>--as-of</code> CLI=P2。终态种子仍为工具交付（运行侧 ch25+ settle 消费）</p>
+<ul>
+<li>[ ] <strong>Step 1-5:</strong> TDD；跑 <code>uv run python tools/facts_backfill.py --project novel-xinghuo-vol1</code>（默认 dry-run）贴输出进 progress.md（真实项目文件 P1 不落写——运行侧 backfill 由用户/P2 执行，本 task 交付工具+离线断言）；commit</li>
+</ul>
+<hr />
+<h2 id="spec-7-task">验收覆盖表（spec §7 → task → 验证命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>可执行验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. mutant 测试全绿（P1 三 mutant 被拦）</td>
+<td>T11</td>
+<td><code>uv run pytest tests/gates/test_invariant_mutants.py -v</code></td>
+</tr>
+<tr>
+<td>2. lint_invariant_coverage 进 just check 且绿</td>
+<td>T12</td>
+<td><code>just check</code>（含新 lint）+ <code>uv run python tools/lint_invariant_coverage.py</code></td>
+</tr>
+<tr>
+<td>3. 修复后语料过 F15/F16/F17（ch20 双哨全绿/骨哨合法/计数单调）</td>
+<td>T11+T13</td>
+<td><code>uv run pytest tests/unit/tools/test_facts_backfill.py tests/gates/test_invariant_mutants.py -q</code>（绿语料对极用例）</td>
+</tr>
+<tr>
+<td>（§6 P1 双契约合规：backfill 同批）</td>
+<td>T8+T9+T13</td>
+<td><code>just lint-contracts</code> + <code>just generate</code> diff 空 + backfill 工具交付</td>
+</tr>
+<tr>
+<td>4/5（P2 运行侧）</td>
+<td>—</td>
+<td>本 plan 边界外（F947 切层，spec §6 rev1）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="f947">F947 离线化声明</h2>
+<p>全部验收以 fixtures 断言 + lint + tmp_path 构造表达；零 <code>shenbi-dispatch</code>/<code>pipeline resume</code> 调用；backfill 对真实项目仅 <code>--dry-run</code> 取证。</p>
+<h2 id="g34">G3.4 声明</h2>
+<p>本 plan 无 LLM 产物评分场景（全离线结构性验证）——无需独立评分子 agent。</p>
+<h2 id="self-review">Self-Review 记录</h2>
+<ul>
+<li>plan 审查 R5（0C/1I/3M）修正已并入：I1 计数行 backfill 缩窄 ch9-only（ch10 复核系 R4 无据推断，chapter-10.md 实测无计数内容）；M1-M3（T2 stale 重复删/注册窗口观察注/conftest fixture）</li>
+<li>plan 审查 R4（0C/1I/5M）修正已并入：I1 七键实改（R3 替换未命中遗留）；M1-M5（计数行 backfill 范围=ch9/ch10/T1 <strong>init</strong>/planning_view 形状断言/N+1 语义/cmd_init 锚）</li>
+<li>plan 审查 R3（1C/2I/8M）修正已并入：C1 flock 嵌套死锁（save_facts 内层无锁化）/I1 七键字面清单对齐/I2 seam 顺序句改「写循环之前」；M1-M8 逐项（激活判定位置/三形态匹配器/:699 行钉/justfile target/分期差注记/P2.5 enforcement point/allowlist 措辞/ch17 前向风险已由激活规则守卫）</li>
+<li>plan 审查 R2（1C/3I/8M）修正已并入：C1 seam 三站点勘误（pipeline/cli.py:_commit_staging_for_checkpoint 为 review-path 第三站点，dispatcher/cli.py 无 staging）/I2 chapter 默认 None/I3 ss.identity_row_match 入 map（七键）/I4 计数器语义+激活规则（ch17 假红消解）；M5-M12 逐项</li>
+<li>plan 审查 R1（3C/5I/8M）修正已并入：C1 settle commit 接线（T8）/C2 safe_write 原子写（T2）/C3 per-chapter 前置态绿种子（T13）；I4 v3 内可选钉死/I5 动词表双路径单表（T5）/I6 identity 对账（T8）/I7 空种子吸收洞（T5）/I8 chapter 参数（T6/T3）；M9-M16 逐项（ch08 fixture 接线/四元组/event 类型定义/四枚举注册/名归一/注释精度/<strong>init</strong>.py/T12 缩窄声明）</li>
+<li>覆盖：spec §1.1（T1/T2/T3/T8）§1.2（T1）§1.3（T13）§1.4（T2/T3/T8/T9/T12 全清单逐项）§2（T10/T12）§3（T11）§4 F15（T6）/F16（T4/T5/T8）/F17（T7）§5=P2 §6 P1 各句（验收表）§7 条 1-3（表）——无缺口</li>
+<li>占位符：无 TBD/「适当处理」；memo 豁免闪回简化形态（整章豁免）在 T6 明示为 P1 形态——段级精化留 P2 非占位</li>
+<li>类型一致：<code>check_prop_handoffs(text, memo_text, props)</code> T5/T11 一致；<code>FactsFile.facts</code> dict 值多态 T1/T2 一致；消息前缀 T4-T8 与 G4_CHECK_MAP T8 注册逐一对应（<code>XC.narration_name:</code>/<code>cp.prop_decl:</code>/<code>cd.prop_handoff:</code>/<code>cd.counter:</code>/<code>ss.facts_ops:</code>/<code>ss.prop_row_match:</code>/<code>ss.identity_row_match:</code>——R3-I1 对齐）</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
