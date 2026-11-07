@@ -204,7 +204,7 @@ MODEL_CONTEXT_LIMITS: dict[str, int] = {
 - Consumes: Task 1/2 产物
 - Produces: 索引登记态；T2/T3 待令声明（PR 描述+progress.md 最终状态块）
 
-- [ ] **Step 1: 双 INDEX 更新**（四点）：① plans/INDEX 头部（最后更新日期+活跃 plan 数 1→3）与活跃列表补 #97+#98 两行——#97 系 2026-11-06 建档未登记的陈旧漂移（顺带清偿记 deviation），行内状态逐字镜像 specs/INDEX #97 现态防注册表分叉；② specs/INDEX #98「对应 plan」字段「待执行时建」→本 plan 路径+T0/T1 完成态；③ specs/INDEX #98 状态字段补「执行中（T0/T1 落地；T2 待实弹令）」；④ plans/ 根下另有 5 份已完结 spec 未归档 plan 文件（74-79 系）——仅记 deviation 不动（越权清理属 #97/工具链面）。
+- [ ] **Step 1: 双 INDEX 更新**（四点）：① plans/INDEX 头部（最后更新日期+活跃 plan 数 1→3）与活跃列表补 #97+#98 两行——#97 系 2026-11-06 建档未登记的陈旧漂移（顺带清偿记 deviation），行内状态逐字镜像 specs/INDEX #97 现态防注册表分叉；② specs/INDEX #98「对应 plan」字段「待执行时建」→本 plan 路径+T0/T1 完成态；③ specs/INDEX #98 状态字段补「执行中（T0/T1 落地；T2 待实弹令）」；④ plans/ 根下另有 6 份已完结 spec 未归档 plan 文件（spec74-79 系，2026-10-25/26）——仅记 deviation 不动（越权清理属 #97/工具链面）。
 - [ ] **Step 2: Commit**: `git add docs/superpowers/plans/INDEX.md docs/superpowers/specs/INDEX.md && git commit -m "docs: spec98 plan 登记+T0/T1 完成态（T2 实弹窗待用户令）"`
 - [ ] **Step 3: audit-T3.md**（fresh-context 子 agent）
 
