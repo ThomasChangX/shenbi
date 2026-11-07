@@ -29,14 +29,14 @@
 | 预算 | max_audit_retries=3 | 同 |
 | 证据 | trace.jsonl RETRY 事件（5→7→8） | 同口径采集，落 ledger 对照表 |
 
-**已知混杂与处置**：①束6 #15 人审反馈模板自缺陷（B 节 bullet 形锚 vs 表格形推进方式列、C 节激活方案独立行——形差致 a4-a6 部分失败）→ 实验首派反馈**单形化**：锚入推进方式列+激活方案行并存逐字模板（此为实验-setup 修正，ledger 已记）；②双章批粒度——若高档仍失败，T3 分叉含拆单章批的框架侧候选（不预支）；③**thinking 政策混杂（r2 增）**——planning 步现配置 `thinking="disabled"`（executor_config.toml:221-222，flash 期调定冻结，:219 注释自证 "revisit with post-rollout data"）：保持 disabled→高档容量被人为压低，FAIL 会误判「瓶颈在约束集」；翻启用→模型+thinking 双变量。**处置：档位定义必须含 thinking 政策**——T0 探测高档 planning thinking 可用性并在 T0 报告**预注册**实验口径（disabled=严酷对照／启用=容量满配，两口径择一记录在案）；T3 FAIL 判定前须核对所跑口径——disabled 口径 FAIL 先补一次启用口径规划步单派（≤1 派）再判。
+**已知混杂与处置**：①束6 #15 人审反馈模板自缺陷（B 节 bullet 形锚 vs 表格形推进方式列、C 节激活方案独立行——形差致 a4-a6 部分失败）→ 实验首派反馈**单形化**：锚入推进方式列+激活方案行并存逐字模板（此为实验-setup 修正，ledger 已记）；②双章批粒度——若高档仍失败，T3 分叉含拆单章批的框架侧候选（不预支）；③**thinking 政策混杂（r2 增；r2.1 补裁决准则与豁免）**——planning 步现配置 `thinking="disabled"`（executor_config.toml:221-222，flash 期调定冻结，:219 注释自证 "revisit with post-rollout data"）：保持 disabled→高档容量被人为压低，FAIL 会误判「瓶颈在约束集」；翻启用→模型+thinking 双变量。**处置：档位定义必须含 thinking 政策**（档位定义=模型+thinking 政策整体单元，非单变量漂移）——T0 探测高档 planning thinking 可用性并在 T0 报告**预注册**实验口径（disabled=严酷对照／启用=容量满配，两口径择一记录在案）；**两口径皆可用时默认启用（容量满配）——H1 测模型真实持有容量，disabled 系 flash 特有成本调优非能力属性（r2.1）**；T3 FAIL 判定前须核对所跑口径——disabled 口径 FAIL 先补一次启用口径规划步单派再判，**该补派=判定阶段诊断派：预注册豁免接骨计数、不入窗口成本主对照表（单列诊断行，r2.1）**。
 
 ## 2. 任务分解
 
-- **T0 档位探测（半天，无实弹成本或 ≤$0.5 探针）**：候选清单连通行探测（provider 档位目录；thinking/max_tokens 行为探测——**planning `thinking="disabled"` 与 drafting `thinking="low"` 两面**；超时面观察：900s base 对高档慢派的截断风险）；**thinking 政策预注册**（§1 ③处置）；锁定 1 主 1 备两档；**探测不过则回用户重定档**。
+- **T0 档位探测（半天，无实弹成本或 ≤$0.5 探针）**：候选清单连通行探测（provider 档位目录；thinking/max_tokens 行为探测——**planning `thinking="disabled"` 与 drafting `thinking="low"` 两面**；超时面观察：900s base 对高档慢派的截断风险）；**thinking 政策预注册**（§1 ③处置）；锁定 1 主 1 备两档——**主档=提供方谱系最高档（按定价/产品定位排序非营销名，r2.1）**；**探测不过则回用户重定档**。
 - **T1 接线小批（branch+PR）**：`src/shenbi/cost/pricing.py` PRICING 补高档 rates（**r2 论据勘误**：unknown model 的 ValueError 被 `_safe_estimate_cost`（cost/ledger.py:22-33）捕获降级 cost=0.0/pricing_status=unknown-model——派发不崩，但**成本护栏静默失效**（>$10 停析与 ≤30× 对照读到全 $0）——必须先接线）；`src/shenbi/cost/estimate.py` MODEL_CONTEXT_LIMITS 补高档上下文限（防 F523 128K 保守回退致告警失真，r2 增）；executor_config 档位适配（若 T0 探明需要）；`test_pricing` 补档位用例。
 - **T2 实验窗实弹（需用户新实弹令）**：单形化反馈 reject 二次熔断 escalation → `SHENBI_LLM_MODEL=<高档>` resume → ch47/48 全链（规划→草写→scene-split→评审→settle）；trace 采集；接骨计数+成本护栏（>$10 停析报告）。
-- **T3 判定与分叉**：对照表（flash vs 高档失败面演化/派数/接骨/成本）落 ledger；分叉——**PASS**：#95 验收 3 在高档口径闭环成立→生产模型决策交用户（全换/分步分档：低约束步留 flash）；**FAIL**：束6 模型侧归因被推翻→瓶颈在约束集/批粒度设计→框架侧拆批实验另立 spec。
+- **T3 判定与分叉**：对照表（flash vs 高档失败面演化/派数/接骨/成本）落 ledger；分叉——**PASS**：#95 验收 3 在高档口径闭环成立→生产模型决策交用户（全换/分步分档：低约束步留 flash）；**FAIL**：束6 模型侧归因被推翻→瓶颈在约束集/批粒度设计→框架侧拆批实验另立 spec（**r2.1：若备档未测且提供方谱系存在更高档，FAIL 判定附升档出口——用户裁决是否二窗，不径跳框架侧拆批**）。
 
 ## 3. 验收
 
@@ -50,4 +50,4 @@
 - 高档候选不可用（连通性/配额）→ 备档→回用户重定档（不降级回 flash 重跑——控制组证据已足）；
 - 高档显著变慢/变贵 → 只测规划步（主判据面）即可出归因结论，草写链可选（副判据降级为规划步口径，ledger 记 deviation）；
 - 实验窗 PASS 但成本超卷二预算 → 生产模型决策不能只按可行性，须附单章成本对照（**r2 勘误**：flash 束5 14 派 727,668 tokens、当日 token-ledger 实测 ≈$0.17（18 行窗口）≈$0.08/章为基数——原「$0.02」系束6 3 派 $0.023 张冠李戴）。
-- 高档慢派 900s base 超时截断（`_compute_dispatch_timeout` dispatch_helper.py:126-153；`_handle_timeout_gracefully` 仅 WARN 留部分输出，r2 增）——截断计划过不了 G4，表象与容量不足不可分；T2 观察点=trace timeout WARN 命中即单列记账不入容量归因。
+- 高档慢派 900s base 超时截断（`_compute_dispatch_timeout` dispatch_helper.py:126-153；`_handle_timeout_gracefully` 仅 WARN 留部分输出，r2 增）——截断计划过不了 G4，表象与容量不足不可分；T2 观察点=**structlog `dispatch_timeout` WARN／`api_call_timeout` ERROR（日志面，dispatch_helper.py:163/:3956；r2.1 勘正——trace 失败派仅呈现 TRANSIENT failure_class 无 timeout 专属分类）**；命中即人工复核该派，确认截断则剔除容量归因单列记账。
