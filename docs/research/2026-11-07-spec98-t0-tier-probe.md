@@ -30,11 +30,11 @@
 | (b) disabled | `{"thinking":{"type":"disabled"}}`（extra_body 形） | **200**；content 非空、completion=2（**零 reasoning——官方开关生效**） | b.json |
 | (c) low | `{"reasoning_effort":"low"}` | **200**；content 7 字、reasoning_tokens=40 | c.json |
 
-**session30 病理判定：未触发**——(a) 形 content 与 reasoning 并存（content 通道在小预算下正常产出），无 pinned-at-cap 形态；无需 4096 重探。MiniMax 教训面（参数被拒 2013 型）**未复现**：三形全 200。
+**session30 病理判定：未触发**——(a) 形 content 与 reasoning 并存（content 通道在小预算下正常产出，completion 57 远未钉 512 帽——非 pinned-at-cap），无需 4096 重探。MiniMax 教训面（参数被拒 2013 型）**未复现**：三形全 200。注：小预算探针行为 ≠ 生产 45K prompt 行为，T2 观察点兜底（plan Step 2 要求的注记）。
 
-## §3 max_tokens/超时面（stream 形，首块即断）
+## §3 max_tokens/超时面（stream 形）
 
-`max_tokens: 65536, stream: true` → **HTTP 200+流打开**（65536 接受，无 400/钳制声明）；首块延迟 ≈0.9s。目录另证 `max_output_tokens=393,216`（≥`_MODEL_OUTPUT_CEILING=65536`，不构成约束）。**900s base 超时风险评估：低**（探针级延迟 ~2s；生产 45K prompt+effort high 仍留 T2 观察点兜底——spec §4 风险行）。
+`max_tokens: 65536, stream: true` → **HTTP 200+流打开**；**流跑至自然结束**（audit-T1 勘正：首命令 `-o stream_head.txt` 全量落盘未截断——418 chunks、usage 92+416、`finish_reason=stop`[非 length]）——**65536 接受且无钳制**（416≪65536 即自然停笔）；首块延迟 ≈0.9s。目录另证 `max_output_tokens=393,216`（≥`_MODEL_OUTPUT_CEILING=65536`，不构成约束）。**900s base 超时风险评估：低**（探针级延迟 ~2s；生产 45K prompt+effort high 仍留 T2 观察点兜底——spec §4 风险行）。
 
 ## §4 rates 来源（官方，cache-miss 口径=现表约定）
 
@@ -62,16 +62,41 @@ DeepSeek 官方平台页（www.deepseek.com/en/platform，2026-11-07 WebFetch �
 
 **撞名实锤**：`deepseek-v4-pro` 现为真实目录模型 ≠ unknown。`tests/unit/test_pricing_fail_loud.py:21` 夹具改 `no-such-model-x`（Task 2 Step 5 触发）。
 
-## §8 成本（探针累计）
+## §8 成本（探针累计；audit-T1 勘正后口径）
 
 | 探针 | tokens（prompt+completion） | 估算成本 |
 |---|---|---|
-| (a) 默认 | 93+57 | $0.000090 |
-| (b) disabled | ~93+2 | $0.000042 |
-| (c) low | ~93+47 | $0.000082 |
-| stream（首块断开） | ~30+≈20 | <$0.00002 |
-| **合计** | — | **≈$0.0002（≪$0.5 ✓）** |
+| (a) 默认（93 prompt） | 93+57 | $0.000090 |
+| (b) disabled（14 prompt） | 14+2 | $0.0000078 |
+| (c) low（14 prompt） | 14+47 | $0.000047 |
+| stream（92 prompt，跑至自然 stop——见 §3 勘正） | 92+416 | $0.00040 |
+| **合计** | — | **≈$0.0006（≪$0.5 ✓；单探针最坏 $0.0004<$0.1 阈 ✓）** |
 
-## §9 附录：脚本形态（复现用）
+## §9 附录：脚本形态与原始工件（复现用）
 
-探针均为 curl 直调（`-H "Authorization: Bearer $SHENBI_LLM_API_KEY"`，body 见 §2/§3 各形 JSON）；原始响应存 /tmp/spec98-probe/{a,b,c}.json（临时，不入库）。目录与 rates 引用：GET /models（§1 全录）、www.deepseek.com/en/platform（§4）、api-docs.deepseek.com/quick_start/pricing（发现 A）。
+四探针字面 curl（`$BASE`=`SHENBI_LLM_BASE_URL` 缺省 `https://api.deepseek.com/v1`；鉴权头同式）：
+
+```bash
+# (a) 默认形
+curl -s "$BASE/chat/completions" -H "Authorization: Bearer $SHENBI_LLM_API_KEY" -H "Content-Type: application/json" \
+  -d '{"model":"deepseek-v4-pro","messages":[{"role":"user","content":"用一句话回答：1+1等于几？"}],"max_tokens":512}'
+# (b) disabled 形——body 同上，prompt「2+2等于几？」，追加 "thinking":{"type":"disabled"}
+# (c) low 形——body 同上，prompt「3+3等于几？」，追加 "reasoning_effort":"low"
+# stream 形
+curl -s -N "$BASE/chat/completions" -H "Authorization: Bearer $SHENBI_LLM_API_KEY" -H "Content-Type: application/json" \
+  -d '{"model":"deepseek-v4-pro","messages":[{"role":"user","content":"从1数到100，每个数一行"}],"max_tokens":65536,"stream":true}'
+# 目录
+curl -s "$BASE/models" -H "Authorization: Bearer $SHENBI_LLM_API_KEY"
+```
+
+原始工件：/tmp/spec98-probe/{a,b,c}.json + stream_head.txt（全量流）+ stream_first.txt（临时，不入库）。延迟数字：(a) 1.9s / stream 首块 0.9s（会话内 time 实测）。
+
+**GET /models 原始响应（2026-11-07，原文全录）**：
+
+```json
+{"object":"list","data":[
+ {"id":"deepseek-flash","object":"model","owned_by":"deepseek","name":"DeepSeek-V4.1-Flash","context_window":1048576,"max_output_tokens":393216,"input_modalities":["text","image"],"output_modalities":["text"],"effort":{"supported_levels":["low","high","max"],"default_level":"high"},"api_capabilities":{"anthropic_messages":{"system_prompt_update":"in-history","tool_update":"addition-only"}}},
+ {"id":"deepseek-v4-pro","object":"model","owned_by":"deepseek","name":"DeepSeek-V4-Pro","context_window":1048576,"max_output_tokens":393216,"input_modalities":["text"],"output_modalities":["text"],"effort":{"supported_levels":["low","high","max"],"default_level":"high"},"api_capabilities":{"anthropic_messages":{"system_prompt_update":"leading-only","tool_update":"leading-only"}}}]}
+```
+
+rates 引用：www.deepseek.com/en/platform（§4，WebFetch 2026-11-07 逐行引用）、api-docs.deepseek.com/quick_start/pricing（发现 A）。
