@@ -127,16 +127,20 @@ def test_plot_thread_weaver_has_headroom():
 
 
 def test_empty_output_family_disables_thinking():
-    """Evaluative queue + chapter-planning carry thinking="disabled"
+    """Evaluative review queue carries thinking="disabled"
     (session30 调试②: reasoning channel consumes the completion budget —
     90+ dispatches pinned at exactly max_tokens with empty content; 152
     empties wasted 3.06M completion + 6.46M prompt tokens ≈18% of run cost.
     Official switch: extra_body {"thinking": {"type": "disabled"}}).
+    chapter-planning removed from this family by spec #98 T0 pre-registration
+    (docs/research/2026-11-07-spec98-t0-tier-probe.md §6): experiment tier
+    definition = model + thinking policy as one unit — planning runs on the
+    provider default (effort high) for the capacity experiment window; T3
+    verdict owns the config disposition clause (migrate/rollback).
     """
     config = _load_config()
     overrides = config.get("overrides", {})
     for skill in (
-        "shenbi-chapter-planning",  # 55% empty rate
         "shenbi-review-resonance",  # 44%
         "shenbi-review-group-factual",  # 76%
         "shenbi-review-group-plan",  # 72%
@@ -147,6 +151,20 @@ def test_empty_output_family_disables_thinking():
         assert overrides.get(skill, {}).get("thinking") == "disabled", (
             f"{skill} must set thinking=disabled (empty-output family)"
         )
+
+
+def test_chapter_planning_thinking_unpinned_for_experiment():
+    """Spec #98: planning carries NO thinking override (provider default).
+
+    Pins the pre-registered experiment posture so a silent re-add of the
+    flash-era override would fail loudly here instead of skewing the T2
+    window attribution. T3 disposition clause owns the post-experiment state.
+    """
+    config = _load_config()
+    overrides = config.get("overrides", {})
+    assert "shenbi-chapter-planning" not in overrides or (
+        overrides["shenbi-chapter-planning"].get("thinking") is None
+    )
 
 
 def test_creative_writers_keep_provider_default_thinking():

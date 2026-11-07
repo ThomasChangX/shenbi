@@ -97,3 +97,28 @@ class TestF523Spec36:
         ]
         assert len(once) == 1
         estimate.reset_unknown_model_warning()
+
+
+class TestExperimentTierLimits:
+    """spec #98 T1: MODEL_CONTEXT_LIMITS covers the T0-locked tiers.
+
+    Prevents the F523 conservative 128K fallback from masking the real
+    context window when SHENBI_LLM_MODEL points at the experiment tier.
+    """
+
+    TIER_MAIN = "deepseek-v4-pro"  # keep in sync with TestExperimentTiers
+    TIER_BACKUP = "deepseek-flash"
+
+    def test_limits_cover_both_tiers(self):
+        from shenbi.cost.estimate import MODEL_CONTEXT_LIMITS
+
+        for tier in (self.TIER_MAIN, self.TIER_BACKUP):
+            # a literal "128K" provider tier must also pass (don't assume 131_072)
+            assert MODEL_CONTEXT_LIMITS[tier] >= 128_000
+
+    def test_pricing_and_limits_keys_parity(self):
+        """Cross-table guard: priceable model set == limited model set."""
+        from shenbi.cost.estimate import MODEL_CONTEXT_LIMITS
+        from shenbi.cost.pricing import PRICING
+
+        assert set(PRICING.keys()) == set(MODEL_CONTEXT_LIMITS.keys())

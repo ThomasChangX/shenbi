@@ -15,12 +15,17 @@ from typing import Any
 # The model the dispatch path defaults to (mirrors dispatch_helper._DEFAULT_MODEL).
 DEFAULT_PRICING_MODEL = "deepseek-v4-flash"
 
-#: USD per 1,000,000 tokens (DeepSeek V4 Flash official rates, cache-miss).
-#: Update rates when confirmed for the deployment.
+#: USD per 1,000,000 tokens (official rates, cache-miss; spec #98 T1).
+#: deepseek-v4-pro / deepseek-flash rates verbatim from the T0 probe report
+#: (docs/research/2026-11-07-spec98-t0-tier-probe.md §4-§5: platform page
+#: 2026-11-07). deepseek-v4-flash is a retired alias served by V4.1-Flash at
+#: Flash prices — its entry stays correct for existing ledgers.
 #: Unknown models raise ValueError in estimate_cost (spec §5.2 I3).
 #: The ledger wraps this in _safe_estimate_cost to avoid crashing dispatch.
 PRICING: dict[str, dict[str, float]] = {
     "deepseek-v4-flash": {"input": 0.14 / 1_000_000, "output": 0.28 / 1_000_000},
+    "deepseek-v4-pro": {"input": 0.435 / 1_000_000, "output": 0.87 / 1_000_000},
+    "deepseek-flash": {"input": 0.14 / 1_000_000, "output": 0.28 / 1_000_000},
 }
 
 # Env var name — must match shenbi.pipeline.dispatch_helper._ENV_LLM_MODEL.

@@ -14,9 +14,12 @@ from typing import Any
 CONTEXT_WARN_FRACTION = 0.8
 
 # Conservative per-model context limits (prompt tokens). Unknown models fall
-# back to the default entry.
+# back to the default entry. Tiers beyond the default wired by spec #98 T1
+# (values from the T0 probe report §5 — GET /models context_window).
 MODEL_CONTEXT_LIMITS: dict[str, int] = {
     "deepseek-v4-flash": 1_048_576,
+    "deepseek-v4-pro": 1_048_576,
+    "deepseek-flash": 1_048_576,
 }
 # CJK ranges (F523, spec #36 T6'a): Basic + Ext-A + compatibility ideographs
 # + fullwidth forms. The old BMP-only range priced Ext-A/fullwidth text at the

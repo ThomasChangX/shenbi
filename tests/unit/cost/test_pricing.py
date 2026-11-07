@@ -110,3 +110,45 @@ class TestEstimateCost:
         cost_small = estimate_cost(usage_small, model=model)
         cost_large = estimate_cost(usage_large, model=model)
         assert cost_large > cost_small, f"{model} cost not monotonic"
+
+
+class TestExperimentTiers:
+    """spec #98 T1: experiment tiers wired from the T0 probe report.
+
+    Tier names locked by docs/research/2026-11-07-spec98-t0-tier-probe.md §5
+    (main = provider top tier pro; secondary = current flash-generation id,
+    wiring placeholder only — NOT an experiment fallback tier).
+    """
+
+    TIER_MAIN = "deepseek-v4-pro"
+    TIER_BACKUP = "deepseek-flash"
+
+    def test_pricing_has_both_experiment_tiers(self):
+        from shenbi.cost.pricing import PRICING
+
+        assert self.TIER_MAIN in PRICING
+        assert self.TIER_BACKUP in PRICING
+
+    def test_estimate_cost_positive_both_tiers(self):
+        from shenbi.cost.pricing import estimate_cost
+
+        usage = {"prompt_tokens": 100_000, "completion_tokens": 10_000}
+        for tier in (self.TIER_MAIN, self.TIER_BACKUP):
+            assert estimate_cost(usage, tier) > 0.0
+
+    def test_flash_default_pricing_unchanged(self):
+        from shenbi.cost.pricing import PRICING
+
+        assert PRICING["deepseek-v4-flash"] == {
+            "input": 0.14 / 1_000_000,
+            "output": 0.28 / 1_000_000,
+        }
+
+    def test_pro_rates_match_t0_report(self):
+        """Rates verbatim from T0 report §4/§5 (official platform page)."""
+        from shenbi.cost.pricing import PRICING
+
+        assert PRICING[self.TIER_MAIN] == {
+            "input": 0.435 / 1_000_000,
+            "output": 0.87 / 1_000_000,
+        }
