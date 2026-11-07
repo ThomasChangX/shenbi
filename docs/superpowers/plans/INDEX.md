@@ -11,7 +11,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 - **[2026-11-01-spec84-vol1-repair-vol2-launch.md](2026-11-01-spec84-vol1-repair-vol2-launch.md)** ✅ ready（**冻结**——束4 待 #95 T1-T6 落地后解冻）——对应 spec #84（r12）：T0 注入器适配/T1 驱动 prompt/T2-T8 内容修复批+收口/T9 staged 实审/T10 实弹（束1-3 完成冻结于 ch43-0）/T11 完成（G3.4 r4=88.10）；束4=解冻后剩余验收
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行中** r1 施工——T0-T3 落地，首跑验收待 2026-11-09 02:00 UTC）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
-- **[2026-11-07-spec98-model-tier-experiment.md](2026-11-07-spec98-model-tier-experiment.md)** ✅ ready——对应 spec #98（r2.4）：Task 0 re-anchor/Task 1=T0 档位探测（≤$0.5 探针+thinking 政策预注册）/Task 2=T1 接线（PRICING+MODEL_CONTEXT_LIMITS 主备两档）/Task 3 收口登记；T2/T3 实弹窗**待用户实弹令**（批外）
+- **[2026-11-07-spec98-model-tier-experiment.md](2026-11-07-spec98-model-tier-experiment.md)** ✅ ready（**Task 0-3 完成**——T0 探测[deepseek-v4-pro 主档锁定+预注册启用+夹具撞名实锤]/T1 接线[PRICING+MODEL_CONTEXT_LIMITS+planning override 预注册删除]；T2/T3 实弹窗**待用户实弹令**批外）——对应 spec #98（r2.4）
 
 ## 待执行的 spec → plan 映射
 
