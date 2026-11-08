@@ -1569,6 +1569,71 @@ def _key_table_tail(lines: list[str], key_name: str) -> int | None:
     return None
 
 
+def increment_heading_re(chapter: int, *, anchored: bool = True) -> re.Pattern[str]:
+    r"""Spec #99 (4): single-source heading grammar for ``## 第N章状态增量``
+    blocks (tolerates whitespace around the numeral -- ``\s*`` covers U+3000;
+    the H4 root cause was the gate's strict literal drifting from the
+    extractor's tolerant one).
+
+    - ``anchored=True``: trailing ``\s*$`` anchor (gate exemption strict
+      form -- suffixed headings such as (手工合并) stay OUT of the
+      exemption domain; on-disk evidence in T0 report §4).
+    - ``anchored=False``: prefix form (extractor block detection, tolerant
+      of suffixed headings -- behavior-equivalent to the prior inline regex).
+
+    The grammar literal is defined exactly once: gate, extractor and write
+    path all consume this function; private copies are forbidden.
+    """
+    tail = r"\s*$" if anchored else ""
+    return re.compile(rf"^##\s*第\s*{chapter}\s*章\s*状态增量{tail}")
+
+
+_INCREMENT_FAMILY_RE = re.compile(r"^##\s*第\s*(\d+)\s*章\s*状态增量")
+
+
+def _increment_heading_key(line: str) -> str | None:
+    """Normalization key (chapter number) for increment-family headings.
+
+    Consumed by the write-path pre-match so ``第47章`` and ``第 47 章``
+    compare equal. Increment-family ONLY (red line: ``_replace_section``
+    is the generic primitive for ALL headed sections -- normalization
+    must not generalize to other headings).
+    """
+    m = _INCREMENT_FAMILY_RE.match(line.strip())
+    return m.group(1) if m else None
+
+
+def strip_increment_blocks(text: str, chapters: list[int]) -> str:
+    """Strip the given chapters' (bundle incl. twin N+1) increment spans.
+
+    Spec #99 (4) bundle twin exemption (C1): under the probe31 keyed-upsert
+    semantics the chapter's own block is a wholesale-replaceable unit, so a
+    bundle re-settle exempts the twin chapter's block too. Heading match =
+    ``increment_heading_re(ch).match(line.strip())`` (anchored strict form,
+    tolerant of both ``第 47 章`` and ``第47章``); span boundary = the next
+    line at heading level <= 2 (by leading-# run length -- no dependency on
+    the ``'## '`` prefix, killing the ``##第47章`` boundary mismatch;
+    ``###`` and deeper sub-headings are block BODY and do not close the
+    span -- prior semantics preserved; the 束7 quote line lives under
+    ``### 赵瘸子``).
+    """
+    patterns = [increment_heading_re(ch) for ch in chapters]
+    out: list[str] = []
+    inside = False
+    for line in text.split("\n"):
+        stripped = line.strip()
+        level = len(stripped) - len(stripped.lstrip("#")) if stripped.startswith("#") else 0
+        if any(p.match(stripped) for p in patterns):
+            inside = True
+            continue
+        if inside and level and level <= 2:
+            inside = False
+        if inside:
+            continue
+        out.append(line)
+    return "\n".join(out)
+
+
 def _replace_section(existing: str, section: str) -> str | None:
     """Replace the same-heading section in *existing* with *section*.
 
@@ -1581,8 +1646,18 @@ def _replace_section(existing: str, section: str) -> str | None:
     if not heading:
         return None
     level = len(heading) - len(heading.lstrip("#"))
+    # Spec #99 (4) write-path normalization: increment-family headings
+    # (## 第N章状态增量) pre-match by chapter number (第47章 == 第 47 章) --
+    # a re-settle whose heading form differs from live must NOT fall to None
+    # -> caller EOF-appends a duplicate block (invisible to G4: both spans
+    # get exemption-stripped). Increment family ONLY (red line: no
+    # generalization to other headed sections).
+    inc_key = _increment_heading_key(heading)
     for i, line in enumerate(lines):
-        if line.strip() != heading:
+        if inc_key is not None:
+            if _increment_heading_key(line) != inc_key:
+                continue
+        elif line.strip() != heading:
             continue
         end = len(lines)
         for j in range(i + 1, len(lines)):

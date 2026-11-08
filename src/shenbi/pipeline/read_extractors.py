@@ -914,9 +914,11 @@ def extract_matrix_scoped(project_dir: Path, chapter: int | None, content: str) 
             header_idx = i
             break
 
-    chapter_block_res = [
-        _re.compile(rf"^##\s*第\s*{n}\s*章\s*状态增量") for n in (chapter, chapter + 1)
-    ]
+    # spec #99 ④：标题语法单源化（前缀形=anchored False，现行行为等价——
+    # 消 gate/提取器双字面量漂移）
+    from shenbi.pipeline.truth_io import increment_heading_re
+
+    chapter_block_res = [increment_heading_re(n, anchored=False) for n in (chapter, chapter + 1)]
     keep_block = False
 
     for i, line in enumerate(lines):
