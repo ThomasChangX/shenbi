@@ -44,7 +44,9 @@ FACES: list[tuple[str, str, list[str]]] = [
 # (chapter_loop's counter-regression example taught the spaced form -- the 束7
 # H4 drift source; SKILL must stay on the no-space canonical form too).
 # Regex matches ANY ``## 第 N 章状态增量`` with whitespace around the numeral.
-_SPACED_HEADING_RE = re.compile(r"##\s*第\s+\d+\s*章状态增量|##\s*第\s*\d+\s+章状态增量")
+_SPACED_HEADING_RE = re.compile(
+    r"##\s*第\s+\d+\s*章状态增量|##\s*第\s*\d+\s+章状态增量|##\s*第\s*\d+\s*章\s+状态增量"
+)
 _FORBIDDEN_FILES: list[tuple[str, str]] = [
     ("chapter_loop", "src/shenbi/pipeline/chapter_loop.py"),
     ("SKILL", "skills/shenbi-state-settling/SKILL.md"),

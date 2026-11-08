@@ -1569,6 +1569,11 @@ def _key_table_tail(lines: list[str], key_name: str) -> int | None:
     return None
 
 
+# Single grammar template -- BOTH the per-chapter pattern and the family key
+# pattern derive from this (spec #99 ④: one literal, no private copies).
+_INCREMENT_HEADING_TMPL = r"^##\s*第\s*{n}\s*章\s*状态增量"
+
+
 def increment_heading_re(chapter: int, *, anchored: bool = True) -> re.Pattern[str]:
     r"""Spec #99 (4): single-source heading grammar for ``## 第N章状态增量``
     blocks (tolerates whitespace around the numeral -- ``\s*`` covers U+3000;
@@ -1585,10 +1590,10 @@ def increment_heading_re(chapter: int, *, anchored: bool = True) -> re.Pattern[s
     path all consume this function; private copies are forbidden.
     """
     tail = r"\s*$" if anchored else ""
-    return re.compile(rf"^##\s*第\s*{chapter}\s*章\s*状态增量{tail}")
+    return re.compile(_INCREMENT_HEADING_TMPL.format(n=chapter) + tail)
 
 
-_INCREMENT_FAMILY_RE = re.compile(r"^##\s*第\s*(\d+)\s*章\s*状态增量")
+_INCREMENT_FAMILY_RE = re.compile(_INCREMENT_HEADING_TMPL.format(n=r"(\d+)"))
 
 
 def _increment_heading_key(line: str) -> str | None:
@@ -1622,11 +1627,12 @@ def strip_increment_blocks(text: str, chapters: list[int]) -> str:
     inside = False
     for line in text.split("\n"):
         stripped = line.strip()
-        level = len(stripped) - len(stripped.lstrip("#")) if stripped.startswith("#") else 0
         if any(p.match(stripped) for p in patterns):
             inside = True
             continue
-        if inside and level and level <= 2:
+        # Boundary = a REAL H1/H2 heading (hash run then whitespace or EOL);
+        # bare "#tag"/"#1" body lines must not close the span.
+        if inside and re.match(r"^#{1,2}(?:\s|$)", stripped):
             inside = False
         if inside:
             continue
@@ -1655,8 +1661,22 @@ def _replace_section(existing: str, section: str) -> str | None:
     inc_key = _increment_heading_key(heading)
     for i, line in enumerate(lines):
         if inc_key is not None:
+            # Spec #99 (4): write domain must stay WITHIN the gate exemption
+            # domain -- only the anchored (strict) form is replaceable. A
+            # suffixed live heading ("(手工合并)", on disk for ch12/15/16) is
+            # NOT gate-exempt, so replacing it would surface as a fresh
+            # content_dropped deadlock; keep the legacy None -> append path.
             if _increment_heading_key(line) != inc_key:
                 continue
+            if not increment_heading_re(int(inc_key)).match(line.strip()):
+                continue
+            if line.strip() != heading:
+                log.info(
+                    "truth_section_replace_heading_normalized",
+                    chapter=inc_key,
+                    live_heading=line.strip()[:60],
+                    incoming=heading[:60],
+                )
         elif line.strip() != heading:
             continue
         end = len(lines)

@@ -44,8 +44,20 @@ def test_tolerant_regex_implies_quote_example_and_exclusion_clause() -> None:
 @pytest.mark.unit
 def test_bundle_exemption_iff_dual_chapter_injection() -> None:
     """(b) symmetric: gate twin exemption present <=> injection dual-chapter."""
+    from shenbi.gates.g4.state_settling import _bundle_exempt_chapters
+
     gate = GATE_SRC.read_text(encoding="utf-8")
-    bundle_in_gate = "bundle_chapters" in gate and "_bundle_exempt_chapters" in gate
+    called = "_bundle_exempt_chapters(project_dir, _chapter)" in gate
+    import tempfile
+    from pathlib import Path as _Path
+
+    probe = _Path(tempfile.mkdtemp())
+    (probe / "outline").mkdir()
+    (probe / "outline" / "volume_map.md").write_text(
+        "## 第二卷：利息与图章（第 37–86 章）\n", encoding="utf-8"
+    )
+    behaves = _bundle_exempt_chapters(str(probe), 47) == [47, 48]
+    bundle_in_gate = called and behaves
 
     inj = INJ_SRC.read_text(encoding="utf-8")
     # 源字符串按行连接拆行——分段断言（渲染后的整句由

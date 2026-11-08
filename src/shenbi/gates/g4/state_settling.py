@@ -14,7 +14,11 @@ from shenbi.gates.shared import (
     passed,
     resolve_input_path,
 )
-from shenbi.pipeline.truth_io import HOOKS_VOLATILE_FIELDS, hooks_stable_fields_hint
+from shenbi.pipeline.truth_io import (  # spec #99 ④ 单源消费（模块级）
+    HOOKS_VOLATILE_FIELDS,
+    hooks_stable_fields_hint,
+    strip_increment_blocks,
+)
 
 # Known parameter-agent identifiers that must NOT appear in character_matrix
 _PARAMETER_AGENT_NAMES = {"冷", "光", "安静", "缺口", "在场于", "参数", "槽位"}
@@ -336,8 +340,6 @@ def _strip_increment_section(live_text: str, chapter: int) -> str:
     （容 ``第 47 章``/``第47章`` 双形——束7 H4 根因=旧内联严格正则不容
     数字两侧空格，live 空格形标题豁免静默失效）。函数名保留（调用方零改）。
     """
-    from shenbi.pipeline.truth_io import strip_increment_blocks
-
     return strip_increment_blocks(live_text, [chapter])
 
 

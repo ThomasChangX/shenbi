@@ -99,3 +99,46 @@ class TestWritePathIncrementNormalization:
         live = "## 交互总表\n- a: 1\n"
         # 形不一致的非增量族标题不得归一命中（红线：仅增量族）
         assert _replace_section(live, "## 交互总表 \n- b: 2\n") is None
+
+
+class TestSuffixedHeadingAndBoundary:
+    """Final-review I-1/I-2/M-1 pins."""
+
+    @pytest.mark.unit
+    def test_suffixed_live_heading_not_written_through(self) -> None:
+        """I-1: write domain ⊆ gate exemption domain — a suffixed live heading
+        (on disk for ch12/15/16) must NOT be replaced by the normalized path
+        (legacy None -> append keeps observability, no new deadlock face).
+        """
+        live = "## 第 12 章状态增量（手工合并）\n- 旧行: 甲\n- 旧行二: 乙\n## 尾节\n- t: 1\n"
+        merged = _replace_section(live, "## 第12章状态增量\n- 新行: 甲改\n")
+        assert merged is None, "后缀标题块被归一替换 → 写径域超出 gate 豁免域"
+
+    @pytest.mark.unit
+    def test_clean_heading_replaces_suffixed_free_block(self) -> None:
+        """Narrow positive control: a clean (unsuffixed) spaced heading still
+        replaces -- I-1 fix must not close the H4 hole it opened.
+        """
+        live = "## 第 47 章状态增量\n- 旧: a\n## 尾节\n- t: 1\n"
+        merged = _replace_section(live, "## 第47章状态增量\n- 新: b\n")
+        assert merged is not None and "- 新: b" in merged and "- 旧: a" not in merged
+
+    @pytest.mark.unit
+    def test_non_target_h2_headings_kept_in_base(self) -> None:
+        """I-2 delta pin: out-of-span H2 headings are now explicitly KEPT.
+
+        The old implementation dropped every H2 heading from the comparison
+        base implicitly; the check surface therefore only grows -- direction
+        is stricter, not looser.
+        """
+        live = "## 交互总表\n| a | 1 |\n## 第47章状态增量\n- x: y\n"
+        out = strip_increment_blocks(live, [47])
+        assert "## 交互总表" in out and "| a | 1 |" in out
+
+    @pytest.mark.unit
+    def test_bare_hash_body_lines_do_not_close_span(self) -> None:
+        """M-1: '#tag'/`#1` body lines are not headings — span must not close."""
+        live = "## 第47章状态增量\n### 子节\n#标签行 内容\n- 后续: 行\n## 尾节\n- t: 1\n"
+        out = strip_increment_blocks(live, [47])
+        assert "#标签行" not in out and "- 后续: 行" not in out
+        assert "- t: 1" in out

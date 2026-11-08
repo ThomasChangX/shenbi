@@ -103,7 +103,7 @@ class TestGenericFilledContract:
         assert "OTHER chapter" in user and "keyed-upsert replaceable unit" in user
         assert "re-emitting it wholesale on a re-settle is LEGAL" in user
         # M-3: old contradictory forms must be GONE (not merely supplemented)
-        assert "a new " not in user or "block only" not in user
+        assert "MUST be a new `## 第N章状态增量` block only" not in user
         assert "any earlier `## 第N章状态增量` section" not in user
 
     def test_shell_base_gets_no_filled_contract(self, tmp_path):
