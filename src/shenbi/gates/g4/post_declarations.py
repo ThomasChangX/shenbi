@@ -115,6 +115,21 @@ def check_post_transition_cross(content: str) -> list[str]:
     return []
 
 
+def parse_post_wordcount_declarations(content: str) -> list[int]:
+    """All declared 正文字数总计 values, in whole-content document order.
+
+    Single parse surface (spec #100): the regex stays in this module; both
+    ``check_post_wordcount_precision`` and the scene-split band feedback
+    consume this helper. No POST-block scoping here -- in the corpus this
+    label only occurs inside POST_WRITE_SELF_CHECK. Zero declared values are
+    filtered (same rule as the precision check). Order = document order;
+    callers needing "the last declaration" take ``[-1]`` themselves.
+    """
+    return [
+        int(m.group(1)) for m in _POST_WORDCOUNT_DECL_RE.finditer(content) if int(m.group(1)) > 0
+    ]
+
+
 def check_post_wordcount_precision(content: str, actual_chars: int) -> list[str]:
     """Spec §1 字数行虚假精度：声明总计 vs 实测差 >2% → WARN。
 
@@ -122,9 +137,8 @@ def check_post_wordcount_precision(content: str, actual_chars: int) -> list[str]
     wc（word_count_md）是 CJK 计数，与逐段全字符总计系统差 13-19%）。
     """
     issues: list[str] = []
-    for m in _POST_WORDCOUNT_DECL_RE.finditer(content):
-        declared = int(m.group(1))
-        if declared <= 0:
+    for declared in parse_post_wordcount_declarations(content):
+        if declared <= 0:  # defensive belt: helper already filters zeros
             continue
         drift = abs(declared - actual_chars) / declared
         if drift > 0.02:

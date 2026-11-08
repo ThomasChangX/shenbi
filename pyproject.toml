@@ -172,6 +172,9 @@ convention = "google"
 "tests/unit/gates/g4/test_xc_timeline.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #99 束7 blob 物化回放：中文现场注记/断言消息（docstring 全文中文为现场保真）
 "tests/unit/gates/g4/test_spec99_h4_redgreen.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #100 反馈报文断言含中文原文（须逐字匹配 issue 文本）
+"tests/unit/pipeline/test_spec100_post_decl_feedback.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_spec100_skill_teaching.py" = ["RUF001", "RUF002", "RUF003"]
 # 束5 收尾批：docstring 引实弹报文与键形（第二十三根/ch45-shenbi-chapter-drafting）。
 "tests/unit/pipeline/test_escalation_pipeline_target_routing.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #83 T3: findings/docstrings quote the live Chinese outline/truth
