@@ -1460,13 +1460,17 @@ def _build_skill_prompt(
     if skill == "shenbi-state-settling":
         user_parts.append(
             "\n## CRITICAL — APPEND-ONLY HARD CONSTRAINT\n"
-            "Your output to truth/character_matrix.md MUST be a new "
-            "`## 第N章状态增量` block only — this target is append-only.\n"
+            "Your output to truth/character_matrix.md MUST be the chapter's "
+            "own `## 第N章状态增量` block(s) only — a bundle settle emits ONE "
+            "block per chapter (leader N and twin N+1, each its own block).\n"
             "DO NOT modify existing rows; NEVER modify or extend any existing "
-            "row or any earlier `## 第N章状态增量` section. The dispatcher "
+            "row or any OTHER chapter's `## 第N章状态增量` section. The current "
+            "chapter's own increment block (and the twin's, in a bundle) is a "
+            "keyed-upsert replaceable unit — re-emitting it wholesale on a "
+            "re-settle is LEGAL and exempt from comparison. The dispatcher "
             "merges by key and preserves existing rows for you — re-emitting "
-            "live rows triggers G4.ss.matrix_structure content_dropped and "
-            "burns the chapter's retry budget."
+            "live base rows triggers G4.ss.matrix_structure content_dropped "
+            "and burns the chapter's retry budget."
         )
         # Batch #26 (probe32 ch2: first advance-an-existing-hook scenario,
         # hooks_structure 3-attempt deadlock): advancing an existing hook

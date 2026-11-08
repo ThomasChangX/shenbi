@@ -35,6 +35,7 @@ check:
     uv run python tools/lint_truth_format_single_source.py
     uv run python tools/lint_gate_prompt_contract.py
     uv run python tools/lint_helper_usage.py
+    uv run python tools/lint_increment_teaching.py
     uv run python tools/lint_threshold_reconciliation.py
     uv run python tools/lint_dead_code_allowlist.py
     uv run python tools/lint_audit_run.py

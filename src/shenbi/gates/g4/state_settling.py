@@ -209,6 +209,12 @@ def _format_drops(missing: list[str], samples: int, *, cap: int = 20) -> list[st
         "正例：live 已有 `| a | 1 |` 与 `| b | 2 |` 两行、本章新增键 c 时，"
         "输出=那两行原样+新行 `| c | 3 |`（不是重发 a/b 的改写）。"
     )
+    # spec #99 ③：引语类行双行正例（原句保持+新句另起——束7 改写族的对症出口）
+    lines.append(
+        "引语行正例：live 其他章块已有 `- 自陈: 「旧句」` 时，该行原样保持；"
+        "本章正文如有更全原句，新起一行 `- 自陈补全（第N章原句）: 「新句」`"
+        "——两行并存，禁把原句行改写为更准引文。"
+    )
     _ = samples  # 兼容旧签名位（旧样本截断逻辑由 verbatim 清单取代）
     return ["\n".join(lines)]
 
@@ -345,10 +351,10 @@ def _bundle_exempt_chapters(pf: Path, project_dir: str | None, chapter: int) -> 
 def _check_matrix_structure(
     pf: Path, project_dir: str | None = None
 ) -> tuple[list[str], list[str]]:
-    """project_dir: spec #99 ④ bundle 孪生豁免信号源（缺省 None=单例[chapter]，
-    既有行为零破坏；g4_state_settling :1055 的 project_dir 参数经调用点穿入）。
-    """
     """Content-preservation guard for a STAGED character_matrix.
+
+    project_dir: spec #99 ④ bundle 孪生豁免信号源（缺省 None=单例[chapter]，
+    既有行为零破坏；g4_state_settling 的 project_dir 参数经调用点穿入）。
 
     Fixcheck probe (2026-09-29): seven consecutive settle rewrites failed
     as template regenerations — line collapse, format replacement,

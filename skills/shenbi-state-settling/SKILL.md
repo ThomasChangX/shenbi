@@ -95,10 +95,12 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
 
 **对 `truth/character_matrix.md` 等全部 `mode: append_dedup` 目标文件**：
 
-1. **ABSOLUTELY NEVER modify 现有 rows**——任何对已有「## 第N章状态增量」section 或「交互总表」已有行的文本重写（如扩展 `- 当前位置: ...` 内容、合并活跃关系等），都触发 G4.ss.matrix_structure content_dropped（attempts=3 耗尽后 approve 仍失败，详见 probe29 ch4）。
-2. **append-only 输出**：本 chapter 的增量必须以全新 `## 第N章状态增量` 块的形式插入（或对应 append_dedup 键的全新 row），**绝不要 touch 任何之前的 section 或 row**。
-3. **若需更新已有行**——重写整个 chapter 状态块到对应新 chapter 块，旧块保留原样（这是 append_dedup 的 key-merge 语义；旧 chapter 不被覆盖）。
+1. **ABSOLUTELY NEVER modify 现有 rows**——任何对**其他章**已有「## 第N章状态增量」section 或「交互总表」已有行的文本重写（如扩展 `- 当前位置: ...` 内容、合并活跃关系等），都触发 G4.ss.matrix_structure content_dropped（attempts=3 耗尽后 approve 仍失败，详见 probe29 ch4）。**排除条款（spec #99 ④）**：**本章自身**的 `## 第N章状态增量` 块（bundle 重派时含孪生章 N+1 的块）是 keyed-upsert 可整体替换单元——重派时整块重发/替换该块**合法**，不属「已有行」，G4 对其豁免比对。
+2. **append-only 输出**：本 chapter 的增量必须以全新 `## 第N章状态增量` 块的形式插入（或对应 append_dedup 键的全新 row），**绝不要 touch 其他章的 section 或「交互总表」的已有 row**。
+3. **若需更新已有行**——重写整个 chapter 状态块到**本 chapter 自己的新块**（这是 append_dedup 的 key-merge 语义；**其他章**的旧块保留原样不被覆盖；本章自己的旧块被你的新块整体替换——合法）。
 4. **live 文件的当前内容已在你的 reads 里**——你的任务只发增量，不发「live 现状的副本 + 你的改动」。
+
+**引语类行双行正例（spec #99 ①）**：live 其他章块里已有引语行（如 `- 自陈: 「…」`）时——**原句行原样保持，禁改写**；若本章正文出现更全原句，**新起一行**追加：`- 自陈补全（第N章原句）: 「…」`——两行并存（保真与准确各有其位），禁把原句行改写为「更准引文」。
 
 违反铁律 0 = G4.ss.matrix_structure FAIL + state-settling attempts=3 耗尽 → 章节卡死。**本铁律自 probe29 ch4 验证后固化（sessions 23-24）。**
 
@@ -245,7 +247,7 @@ digraph state_settling {
 | 资源 | `truth/particle_ledger.md` | append_dedup (复合键 章节,变动项：本章每个变动项一行) |
 | 关系 | `truth/character_matrix.md` | append_dedup（复合键 角色A,角色B：仅输出本章变更行＋第N章增量节，程序按键合并到 live 基底） |
 | 情绪 | `truth/emotional_arcs.md` | append_dedup (复合键 章节,角色：本章每个弧线推进的角色一行) |
-| 信息 | `truth/character_matrix.md` (信息边界) | create_or_overwrite（基底保全：逐字复现 live 基底＋仅追加增量／原键位更新行） |
+| 信息 | `truth/character_matrix.md` (信息边界) | append_dedup（键合并：现有行由合并层保全——模型只发本章增量块，禁重发现有行；spec #99 ① 口径修正） |
 | 线索 | `truth/subplot_board.md` [Phase 4] | append_dedup (复合键 章节,支线：本章每条支线一行) |
 | 伏笔 | `truth/pending_hooks.md` | append_dedup (key: hook_id) |
 | 摘要 | `truth/chapter_summaries.md` (追加) | append_dedup (key: chapter) |

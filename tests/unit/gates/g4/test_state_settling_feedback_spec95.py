@@ -13,6 +13,7 @@ def test_three_part_template_shape() -> None:
     assert "  | a | 1 |" in text and "  | b | 2 |" in text  # verbatim 全行
     assert "原样保留于输出（作为基底行）" in text  # 操作指令段
     assert "正例" in text and "`| c | 3 |`" in text  # 最小正例段
+    assert "引语行正例" in text and "自陈补全（第N章原句）" in text  # spec #99 ③ 引语双行正例
 
 
 def test_dedup_and_cap() -> None:
