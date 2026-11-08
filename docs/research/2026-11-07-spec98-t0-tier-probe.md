@@ -100,3 +100,23 @@ curl -s "$BASE/models" -H "Authorization: Bearer $SHENBI_LLM_API_KEY"
 ```
 
 rates 引用：www.deepseek.com/en/platform（§4，WebFetch 2026-11-07 逐行引用）、api-docs.deepseek.com/quick_start/pricing（发现 A）。
+
+---
+
+## §10 T0-补：flash 档（V4.1-Flash-1017）三形探针（2026-11-08，r2.5 用户改令后）
+
+**背景**：用户改令实验档 pro→`deepseek-flash`。配置面检索（官方 thinking_mode 指南+新闻页+变更日志，2026-11-08）：
+
+- **时间线**：V4.1-Flash-1017 于 **2026-10-17** 上线（api-docs.deepseek.com/news/news261017「Wish-Driven Programming」——V4.1-Flash 基座的小版本升级，reasoning/coding/agentic 显著提升+输出更短）；变更日志「DeepSeek V4.1 Flash has been upgraded to V4.1-Flash-1017」；退役别名 `deepseek-v4-flash` 路由至 1017 按 Flash 价计费。**推论：束5/束6 控制组（2026-11-05/06，经别名）实跑 V4.1-Flash-1017——实验组 `deepseek-flash` 与控制组同代同模**，tier 变量归零。
+- **thinking 配置事实**（官方指南）：默认 ON effort high；开关=`extra_body {"thinking":{"type":"enabled/disabled"}}`（与 `_thinking_kwargs` 接线一致）；effort=`reasoning_effort low/high/max`（medium/xhigh 映射 high）；**thinking 模式下 temperature 不生效**（executor_config 各 temperature 在启用口径下为 no-op，无害）；`reasoning_content` 回传仅在带 `tools` 时强制（shenbi 派发不带 tools）；并发限制 flash 2500 / pro 500。
+- **价差**：flash 0.14/0.28 vs pro 0.435/0.87 per M——flash ≈ pro 的 32%。
+
+**三形探针**（同 §2 纪律；探针成本 ≈$0.0002）：
+
+| 形 | 结果 |
+|---|---|
+| (a) 默认（effort high） | 200；content 7 字+reasoning 31 tokens 并存；finish=stop（病理未触发，非 pinned） |
+| (b) disabled | 200；completion=6 零 reasoning（官方开关生效） |
+| (c) low | 200；reasoning 30 |
+
+**预注册裁定（r2.5）**：三形全通+content 健康 → 按 r2.1 默认准则维持**启用（容量满配=provider 默认 effort high）**；planning 补 `max_tokens=32768` 头寸（只预算不设 thinking 键——2026-10-24 drafting 探针[1017 后]实证本族 effort-high 推理可独食 30-50K，[default] 16384 对 planning 有截断风险；T2 首派观察 finish_reason=length 即单列记账）。

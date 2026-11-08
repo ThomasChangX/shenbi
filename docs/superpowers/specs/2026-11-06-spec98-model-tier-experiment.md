@@ -1,6 +1,6 @@
 # Spec #98 · 模型分档实验（model-tier-experiment）：多约束持有容量归因与高档验证
 
-**日期**：2026-11-06 ｜ **系列**：#95 §3 预留件（模型契约对齐的运行侧收口） ｜ **状态**：Active（立项 2026-11-06——束6 复验 FAIL 分叉落点；**Revised 2026-11-07（r2-r2.4）**——r2 价值门驳斥四修订：T1 论据改成本护栏口径＋MODEL_CONTEXT_LIMITS 补接线／T0 补 thinking 政策预注册与超时观察／束5 成本基数勘误／「>8 族」措辞精确化；r2.1-r2.4 设计审查三轮清偿：三结局/派计数基准/诊断段与 kill 臂口径/主备双档同批入表/夹具撞名/判定书骨架；T2 实弹需用户新实弹令） ｜ **优先级**：🟠 P1（**生产解堵**：卷二停机面 ch47 规划二次熔断，续跑被模型问题阻塞——先于批次 A 的 #86 执行；代码面极小（pricing/配置接线），不抢 `chapter_loop.py` 最热文件）
+**日期**：2026-11-06 ｜ **系列**：#95 §3 预留件（模型契约对齐的运行侧收口） ｜ **状态**：Active（立项 2026-11-06；r2-r2.4 修订见前批；**r2.5 2026-11-08 用户改令：实验档 pro→`deepseek-flash`（V4.1-Flash-1017）**——T0-补三形探针全通、预注册启用口径维持（见 §1 ④与 T0 报告 §10）；pro 降为 T3 FAIL 升档出口档；planning 补 max_tokens=32768 头寸；T2 实弹需用户新实弹令） ｜ **优先级**：🟠 P1（**生产解堵**：卷二停机面 ch47 规划二次熔断，续跑被模型问题阻塞——先于批次 A 的 #86 执行；代码面极小（pricing/配置接线），不抢 `chapter_loop.py` 最热文件）
 **依赖**：**PR #295（失败报文逐字化）已合并**——教面确认投递且被消费是本实验归因干净的前提；与批次 A 无文件域冲突；**T0 档位探测先行**（MiniMax-M3.1-Flash 连通性教训：thinking:disabled 被拒——先探测后锁定档位）。
 **动机证据**（束5+束6 双窗归因链）：①束5（ch45/46）：累积机制在场（6 族史+防回退令）模型仍失败，卡形逐字差一字（「记账」vs「算账」）；②束6（ch47/48，PR #295 逐字化后）：**逐字教面确认被消费**——chapter_role『承接』→「推进」一次修复且三派持存、激活方案模板逐字照抄、a5 锚全修（0 锚失败）；但失败面 **5→7→8 振荡不收敛**（trace RETRY 事件：a4=5×清偿锚；a5=锚全修+payoff_axis×2/voice_line/冷三连/s7 回退+预算 4>3；a6=锚回退×6+冷三连/voice_line 持存）——防回退令在场压不住修一漏一。**结论：每个被点名的族都能修，6 检查族·8-13 并发约束实例×双章约束集同时持有超出 flash 容量**（「>8 族」系实例数误计为族数，r2 勘误；升级证据：a6 锚回退发生在 a5 失败反馈不含锚项时——累积史在场仍丢，持有容量证据更强）；框架侧（路由/累积/逐字化/预算重置）束6 全绿（ledger :418 自带注记：retry 计数器 consumed 4 含熔断路径一次、界定待查=#86 候选——不影响派级计数口径，r2.2）。
 
@@ -10,7 +10,7 @@
 
 ## 0. 假设与判据
 
-**H1（主假设）**：deepseek-v4-flash 的同时硬约束持有容量 < 卷二双章计划的约束族数（束6 实测 6 检查族·8-13 并发实例：6×清偿锚+冷三连+voice_line+payoff_axis+s7+挂起预算；实例计数出处=trace seq 1182/1186/1190，r2.2）；同提供方高档模型容量 ≥ 该集。
+**H1（主假设；r2.5 重述）**：控制组（V4.1-Flash-1017+planning thinking disabled）的同时硬约束持有容量 < 卷二双章计划的约束族数（束6 实测 6 检查族·8-13 并发实例：6×清偿锚+冷三连+voice_line+payoff_axis+s7+挂起预算；实例计数出处=trace seq 1182/1186/1190，r2.2）；**同模型启用 thinking（effort high）后容量 ≥ 该集**。原「同提供方高档模型」表述因控制组别名发现（退役 v4-flash 实跑 V4.1 同代）+用户改令 flash 档而重述——tier 假设降为 T3 FAIL 升档出口（pro 档），主假设纯化为 thinking 政策假设。
 
 **H0（对照已成立）**：教面已排除——束6 证明逐字报文被消费且单族可修；框架放大回路已排除——束4/束5（PR #291/#292）。
 
@@ -23,7 +23,7 @@
 | 面 | 控制组（已完成） | 实验组 |
 |---|---|---|
 | 窗口 | ch47/48 规划步（束5 停机面→束6） | 同（ch47 规划二次熔断 escalation 处置起） |
-| 模型 | deepseek-v4-flash（`_DEFAULT_MODEL`） | **唯一变量**：`SHENBI_LLM_MODEL`＝高档候选（T0 探测定档） |
+| 模型 | deepseek-v4-flash（`_DEFAULT_MODEL`；**退役别名——实由 V4.1-Flash-1017 服务，2026-10-17 起，控制组=V4.1 同代**，r2.5） | **主变量重定（r2.5 用户令）**：`SHENBI_LLM_MODEL`＝`deepseek-flash`（V4.1-Flash-1017，与控制组同代同模）——tier 变量归零，实验纯化为 **thinking 政策（启用-high vs 控制 disabled）＋单形化反馈** 双因素同模对照；pro（deepseek-v4-pro）降为 T3 FAIL 升档出口档 |
 | 教面 | PR #295 main（逐字报文+活锚样例） | 同 commit |
 | 反馈机制 | 累积+防回退令+enrich=False 人审透传 | 同 |
 | 预算 | max_audit_retries=3 | 同 |
@@ -35,7 +35,7 @@
 
 - **T0 档位探测（半天，无实弹成本或 ≤$0.5 探针）**：候选清单连通行探测（provider 档位目录；thinking/max_tokens 行为探测——**planning `thinking="disabled"` 与 drafting `thinking="low"` 两面**；超时面观察：900s base 对高档慢派的截断风险）；**thinking 政策预注册**（§1 ③处置）；锁定 1 主 1 备两档——**主档=提供方谱系最高档（按定价/产品定位排序非营销名，r2.1）**；**探测不过则回用户重定档**。
 - **T1 接线小批（branch+PR）**：`src/shenbi/cost/pricing.py` PRICING 补**主+备两档** rates（**r2 论据勘误**：unknown model 的 ValueError 被 `_safe_estimate_cost`（cost/ledger.py:22-33）捕获降级 cost=0.0/pricing_status=unknown-model——派发不崩，但**成本护栏静默失效**（>$10 停析与 ≤30× 对照读到全 $0）——必须先接线；**备档回退路径若缺键将重演同款失明——主备同批入表，r2.2**）；`src/shenbi/cost/estimate.py` MODEL_CONTEXT_LIMITS 补**主+备两档**上下文限（防 F523 128K 保守回退致告警失真，r2 增）；executor_config 档位适配（若 T0 探明需要；全局共享面——见 T3 回滚条款）；`test_pricing` 补**两档**用例；既有 unknown-model 红测夹具（tests/unit/test_pricing_fail_loud.py `deepseek-v4-pro`）若与档位名撞名→夹具改 guaranteed-unknown 名（r2.2）。
-- **T2 实验窗实弹（需用户新实弹令）**：单形化反馈 reject 二次熔断 escalation → `SHENBI_LLM_MODEL=<高档>` resume → ch47/48 全链（规划→草写→scene-split→评审→settle）；trace 采集；接骨计数+成本护栏（>$10 停析报告）。
+- **T2 实验窗实弹（需用户新实弹令）**：单形化反馈 reject 二次熔断 escalation → `SHENBI_LLM_MODEL=deepseek-flash`（r2.5 改令档）resume → ch47/48 全链（规划→草写→scene-split→评审→settle）；trace 采集；接骨计数+成本护栏（>$10 停析报告）。**planning max_tokens=32768 头寸（r2.5）**：thinking-high 下推理与内容共享完成预算（本族已证——2026-10-24 drafting 探针在 1017 后实测 effort-high 独食 30-50K），planning 无 override 时 [default] 16384 有截断风险——只补 max_tokens 不设 thinking 键（启用口径与 unpinned 测试均保持）。
 - **T3 判定与分叉**：对照表（flash vs 高档失败面演化/派数/接骨/成本）落 ledger——**判定书骨架列（r2.2；r2.3 补全）：口径（thinking 政策/反馈形）/派数与逐派 trace seq/接骨/成本（主表＋诊断行＋kill 臂/截断剔除行（若有））/**判定结局（强 PASS／margin PASS 附保留意见／FAIL／中止——kill 臂杀死 H1 主窗中止交用户，r2.4）**/kill 臂行（若跑）/混杂①反驳段/分叉落点**；分叉——**PASS**：#95 验收 3 在高档口径闭环成立→生产模型决策交用户（全换/分步分档：低约束步留 flash）；**FAIL**：束6 模型侧归因被推翻→瓶颈在约束集/批粒度设计→框架侧拆批实验另立 spec（**r2.1：若备档未测且提供方谱系存在更高档，FAIL 判定附升档出口——用户裁决是否二窗，不径跳框架侧拆批**）；**两分叉均附 executor_config 处置条款（r2.2）**——thinking 改动系全局共享（按 skill 键非按模型键）：启用口径落地后至判定前 flash 生产派发同受影响（session30 实测 ~18% 成本回归面），PASS 附生产迁移评估、FAIL 附回滚评估。
 
 ## 3. 验收

@@ -218,14 +218,19 @@ max_tokens = 49152
 # creative/synthesis writers keep the provider default — mid-run behavior
 # freeze, revisit with post-rollout data.
 
-# spec #98 T0 预注册（2026-11-07，docs/research/2026-11-07-spec98-t0-tier-probe.md §6）：
-# 实验口径=启用（容量满配=provider 默认 effort high）——deepseek-v4-pro 三形探针全 200
-# 且默认形 content 正常产出（session30 病理未触发）。删 planning override 系档位定义
-# 整体单元变更（spec §1 ③：档位=模型+thinking 政策）；T3 判定分叉附处置条款
-# （PASS=生产迁移评估 / FAIL=回滚评估）。过渡窗提示：T1 合并→T2 开窗期间任何 flash
-# 生产派发的 planning 步同受影响（session30 实测 ~18% 成本回归面）——当前卷二停机面
-# 无生产派发在途。kill 臂（spec r2.3，若获用户裁跑）：flash 侧跑规划须临时恢复本
-# override（disabled 系 flash 成本调优）——setup 面 ledger 单列，臂毕即撤。
+# spec #98 T0 预注册（2026-11-07，docs/research/2026-11-07-spec98-t0-tier-probe.md §6；
+# r2.5 2026-11-08 改令档=deepseek-flash，同口径维持——§10 三形补探全通）：
+# 实验口径=启用（容量满配=provider 默认 effort high）——planning 无 thinking 键
+# （fallthrough provider 默认）。档位定义整体单元（spec §1 ③）；T3 判定分叉附处置
+# 条款（PASS=生产迁移评估 / FAIL=回滚评估）。过渡窗提示：thinking 启用口径下任何
+# flash 生产派发的 planning 步同受影响——当前卷二停机面无生产派发在途。kill 臂
+# （spec r2.3，若获用户裁跑）：flash 侧跑规划须临时恢复 disabled——setup 面 ledger
+# 单列，臂毕即撤。
+[overrides."shenbi-chapter-planning"]
+# r2.5: thinking-high 推理与内容共享完成预算（2026-10-24 drafting 探针[1017 后]
+# 实测 effort-high 独食 30-50K）——planning 无 override 时 [default] 16384 有截断
+# 风险。只补 max_tokens 头寸，不设 thinking 键（启用口径不变）。
+max_tokens = 32768
 
 [overrides."shenbi-review-group-craft"]
 thinking = "disabled"
