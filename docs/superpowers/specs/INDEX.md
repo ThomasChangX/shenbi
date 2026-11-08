@@ -133,15 +133,9 @@
 
 ---
 
-### #100 · 草写字数带首派达成（drafting-band-first-pass）
-
-- **文件**：`2026-11-08-spec100-drafting-band-first-pass.md` ｜ **系列**：生产运行慢族根治批 ｜ **状态**：Active（**r6** 2026-11-09——设计审查修复：C1 T3 三线归因（线3=①机制线）/C2 `parse_post_wordcount_declaration` 单源助手/最小性=precision 句并入 word_band 报文；r4/r5=事实层订正+计数勘误；r3=二次 REWRITE 三处契约钉死（F1 触发收窄「声明在带∧实测<下限」/F2 预算语义/F3 族 token）；r2=驳斥改道（H1/H2/H3 全驳斥，真根因=POST 自检回显 PRE/plan，ch47 虚 40%/ch48 虚 97%；`check_post_wordcount_precision` 函数能力在场但首派 bundle 面未接线+仅 WARN 不进反馈=死线）） ｜ **优先级**：🟡 P3（降级：机器环 2 派收敛可忍）
-- **依赖**：无硬依赖；与 #96 共用 drafting SKILL 文件域——执行序避让（互不同期施工）
-- **内容**：首派欠带族（束4 #11/束5 #14/束7 #18 三窗；六章首派 2256/1788/2881/2052/2288/1646（word_band 口径），5/6 欠带 -18%~-41%）——**r2 驳斥改道**：H1/H2/H3 全驳斥（plan 预算已在首派 prompt/EXEMPLAR 锚已落地/预算 3200-3400 不贴下沿）；真根因=**POST 自检回显 PRE/plan 而非实测**（ch47 虚 40%/ch48 虚 97%），`check_post_wordcount_precision` 函数能力在场但首派 bundle 面未接线+仅 WARN 不进反馈。四任务：T0 三证核（manifest 34 entry/13 唯一 WARN+rewind issues 无 precision 行+首派未跑 G4.cd）→ T1 同批两候选（①死线接通：**仅「声明在带∧实测<下限」**时 precision 行进 rewind[word_band token 族命中/仍计 rewind 预算]②教学禁照抄 PRE/plan+逐段重点+≥3200 口径）→ T2 blob 回放红绿+in-band 2.9% 不 rewind 用例 → T3 双观测线（累计首派带内率 ≥3 窗/双边偏差 ≤1.05）
-- **对应 plan**：待执行时建（`../plans/2026-11-08-spec100-*.md`）
-- **触及的不变量维度**：无（prompt/预算教学面）
-
----
+- **文件**：`2026-11-08-spec100-drafting-band-first-pass.md` ｜ **系列**：生产运行慢族根治批 ｜ **状态**：Active（**r7** 2026-11-09——r6 收敛订正：线 3 指标替换[第一次重派 POST 双边偏差 ≤2%，基线 4.6%/2.8% + monitor_rewind RETRY 计数基线 6]/helper 返回 list[int]/INDEX 同步；r6=设计审查 2C+4I+6M[三线归因/单源助手/precision 句并入 word_band]；r2=驳斥改道[H1/H2/H3 全驳斥，真根因=POST 自检回显 PRE/plan]） ｜ **优先级**：🟡 P3（降级：机器环 2 派收敛可忍，主修=小面反馈补充句）
+- **依赖**：无硬依赖；与 #96 共用 1 处文件（drafting SKILL）→ #96 施工期让路（plan 首步 re-anchor）
+- **内容**：首派欠带族（六章首派 2256/1788/2881/2052/2288/1646，5/6 欠带 -18%~-41%）——**真根因=POST 自检回显 PRE/plan 而非实测**（ch47 声明 3210/实测 2288 虚 40%、ch48 3250/1646 虚 97%；ch45/46 数值逐位相同；触发覆盖 4/6）。四任务：T0 三证核（manifest 34 entry/13 唯一 WARN 2.1-15.5%+rewind issues 无 precision 行+被拒首派未跑 G4.cd）→ T1 两候选（① precision 句**并入既有 word_band 报文**：仅「声明在带∧实测<下限」/`parse_post_wordcount_declarations` 单源助手/零新 id 零新解析面，预算语义自动继承；②SKILL 净新增两句：禁以 PRE/计划总计充 POST 总计+目标=chapter_word.default[不写死 3200]）→ T2 离线（blob 解包 files[0].content 回放红绿+in-band 2.9% 不触发+over-band 负例+助手直测+零翻转）→ T3 三线（②=累计首派带内率+首派双边偏差；①=第一次重派双边偏差 ≤2%+monitor_rewind RETRY 计数；窗口钉模型/thinking）
 
 ## 批次 A 共享文件面与施工顺序（2026-11-02 r2.2 审计增补）
 
