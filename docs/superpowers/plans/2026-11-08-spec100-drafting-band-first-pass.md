@@ -26,9 +26,10 @@
 ## 实际签名（源码复制；执行首步 re-anchor）
 
 ```python
-# src/shenbi/gates/g4/post_declarations.py:97-101（规则现状）
+# src/shenbi/gates/g4/post_declarations.py:98-101（源码逐字——含 sum 形与尾锚，勿简写）
 _POST_WORDCOUNT_DECL_RE = re.compile(
-    r"^\s*-\s*\[[xX ]\]\s*正文字数（逐段计数合计）[^\n]*?总计\s*[≈约]?\s*(\d+)", re.M
+    r"^\s*-\s*\[[xX ]\]\s*正文字数（逐段计数合计）[^\n]*?总计\s*[≈约]?\s*(?:(?:\d+)\s*\+\s*)*?(?:\d+\s*=\s*)?(\d+)(?:\s*字)?\s*(?:（[^）]*）)?\s*$",
+    re.M,
 )
 
 
@@ -51,8 +52,15 @@ issues.extend(validate_split(ch, band))
 
 ### Task 0: Re-anchor（leaf）
 
-- [ ] **Step 1:** `grep -n "def validate_split\|_POST_WORDCOUNT_DECL_RE\|def check_post_wordcount_precision\|issues.extend(validate_split" src/shenbi/ -r` — 漂移 ±3 外更新本 plan 签名节
+- [ ] **Step 1:** `grep -n "def validate_split\|_POST_WORDCOUNT_DECL_RE\|def check_post_wordcount_precision\|issues.extend(validate_split" src/shenbi/ -r` — 漂移 ±3 外更新本 plan 签名节；**并对 `_POST_WORDCOUNT_DECL_RE` 做内容等价比对**（`git grep -F` 源码原串，非只看行号——plan 简写版曾丢 sum 形）
 - [ ] **Step 2:** 基线 `uv run pytest tests/unit/pipeline/test_scene_splitter.py tests/unit/pipeline/test_length_feedback_scenes.py tests/unit/gates/g4/test_spec83_transition_cross.py -q --no-cov` → 记 progress.md
+
+### Task 0b: T0 三证核报告（leaf；C3）
+
+**Files:** Create `docs/research/2026-11-08-spec100-t0-post-decl-autopsy.md`
+
+- [ ] **Step 1:** 报告三节（数据全部可复算）：§1 首派 POST 声明 vs 实测六章表（2256/1788/2881/2052/2288/1646；声明/实测比 1.16-1.97；ch47 虚 40%/ch48 虚 97%）；§2 死线三证（manifest 34 entry/13 唯一 WARN 漂移 2.1-15.5% + trace rewind issues 零 precision 行 + 被 word_band 拒的首派短 bundle 未跑 G4.cd）；§3 触发覆盖 4/6（ch43/46/47/48 命中）+ first-retry 基线（ch47 3358/3511=4.6%、ch48 3100/3015=2.8%）
+- [ ] **Step 2:** Commit `docs: spec #100 T0 三证核报告（six-chapter table+死线三证+触发覆盖 4/6）`
 
 ### Task 1: 单源助手 + 原函数重构（infra · tdd_red_green；协调者亲自）
 
@@ -66,7 +74,7 @@ def parse_post_wordcount_declarations(content: str) -> list[int]:
     scene-split band feedback; the regex stays in this module)."""
 ```
 
-- [ ] **Step 1:** 红测：多声明行 → `[3358, 3100]`；无声明 → `[]`；声明 0 过滤（与原函数 `declared <= 0: continue` 对齐）
+- [ ] **Step 1:** 红测（`T1（单元）`；**inline 结构输入**，不依赖 fixture）：多声明行（两行合计 3358/3100 形）→ `[3358, 3100]`；无声明 → `[]`；声明 0 过滤（与原函数 `declared <= 0: continue` 对齐）；**sum 形**（`1029+1098+1060=3187`）→ `[3187]`（锁住 I1 的正则语义）
 - [ ] **Step 2:** 实现助手；`check_post_wordcount_precision` 重构为 `for declared in parse_post_wordcount_declarations(content):`（逐条同样加 issue，**零行为变**）
 - [ ] **Step 3:** 既有 `test_spec83_transition_cross.py` 零翻转 + 新测绿
 - [ ] **Step 4:** `bash tests/lock-tool-hashes.sh` → Commit `feat: spec #100 单源助手 parse_post_wordcount_declarations（原函数零行为变重构）`
@@ -79,10 +87,10 @@ def parse_post_wordcount_declarations(content: str) -> list[int]:
 - Consumes: `parse_post_wordcount_declarations`（Task 1）；`total_chars_md_text`（既有）
 - Produces: `validate_split` 在 `actual < band[0] ∧ declared_last ∈ band` 时，word_band issue 尾部追加：`；POST自检申报 {d}（在带内）而实测 {actual}<{band[0]}——自检虚报，须逐段真实点数补足缺口，禁照抄计划/PRE 预算`
 
-- [ ] **Step 1:** fixture：解包 seq248 response blob `files[0].content`（bundle，含 ch47/48）→ `tests/fixtures/spec100/ch47-48-first-pass-bundle.md` + SHA256SUMS 裸形（G0.9）
-- [ ] **Step 2:** 红测 3 条：①ch47 首派（声明 3210/实测 2288<2800）→ word_band 报文含「POST自检申报 3210」+「实测 2288」+「补足缺口」，**不含**「改声明一行」；②in-band（final ch48 声明 3006/实测 3093）→ issues **无**「POST自检申报」且 G4 WARN 仍产出（`check_post_wordcount_precision` 直测）；③over-band 构造（declared 3200/actual 4100）→ issues 无「POST自检申报」
-- [ ] **Step 3:** 实现（`validate_split` 内 `declared = parse_...(...)` 取 `[-1]`；条件 `band[0] <= d <= band[1] and total < band[0]`）
-- [ ] **Step 4:** 三绿 + 全量 `tests/unit/pipeline/ tests/unit/gates/g4/` 零翻转
+- [ ] **Step 1:** fixture（**C2/M6**）：①解包 `novel-xinghuo-vol1/observability/dispatches/00248-shenbi-chapter-drafting-ch047-a1.json` → `response_blob` → `observability/blobs/<hex>` → `files[0].content`（bundle ch47/48）→ `tests/fixtures/spec100/ch47-48-first-pass-bundle.md`；②**拷 `novel-xinghuo-vol1/chapters/chapter-48.md`**（final 3006/3093，无 `===CH:===`）→ `tests/fixtures/spec100/chapter-48-final.md`；③SHA256SUMS 裸形（pre-commit end-of-file-fixer 归一后生成——注意 fixtures 目录需豁免，沿用 spec99 先例或确认无尾换行）
+- [ ] **Step 2:** 红测 **5 条**（`T1（单元）`；输入=fixtures/spec100 或 inline 结构输入）：①ch47 首派（声明 3210/实测 2288<2800）→ `word_band:` 那条 issue **内含**「POST自检申报 3210」+「实测 2288」+「补足缺口」且不含「改声明一行」；**并断言 issue 前缀集合与改前一致（零新 id——I8）**；②in-band（final ch48 声明 3006/实测 3093）→ issues 无「POST自检申报」（`check_post_wordcount_precision` 直测仍产 WARN 串——gate 接线由既有 test_spec83 覆盖，I7 措辞）；③over-band 构造（declared 3200/actual 4100，**显式断言 `total_chars_md_text==4100`**——M12）→ issues 无「POST自检申报」；④**declared 出带负例（I5）**：ch44 首派真实形 declared 2373/actual 1788 → issues 无「POST自检申报」（F1 第二半唯一判别）；⑤**空声明守卫（C1）**：短章无字数声明行（既有 `test_length_feedback_scenes.py` 形状）→ issues 有 word_band、无 clause、**不抛 IndexError**
+- [ ] **Step 3:** 实现（**C1 空守卫**）：`if total < band[0]: decls = parse_post_wordcount_declarations(ch.body); d = decls[-1] if decls else None; if d is not None and band[0] <= d <= band[1]: issues[-1] += clause`（子句追加到刚 append 的 word_band 行，**不新增行**）
+- [ ] **Step 4:** 五绿 + 零翻转（`tests/unit/pipeline/ tests/unit/gates/g4/ tests/pipeline/test_wordcount_retry_expansion.py tests/unit/tools/test_observe_report.py`——M8 扩面）
 - [ ] **Step 5:** 锁哈希 → Commit `feat: spec #100 validate_split 并入 POST 自检虚报反驳句（仅声明在带∧实测<下限）`
 
 ### Task 3: SKILL 净新增两句（infra · regression_guard；协调者亲自）
@@ -90,14 +98,15 @@ def parse_post_wordcount_declarations(content: str) -> list[int]:
 **Files:** Modify `skills/shenbi-chapter-drafting/SKILL.md:110`（篇幅契约段）；Test 并入 Task 2 文件或 `tests/unit/tools/`（存在性断言）
 
 - [ ] **Step 1:** 在 :110 段末追加（不改既有句）：「**不得以 PRE 自检行或计划场景预算的总计充作 POST 总计**，POST 必须重新点数（实测六章虚报 16-97%）；目标值=`chapter_word.default`（带下限只是硬底线，不得按底线思维铺量）」
-- [ ] **Step 2:** 测试：断言两句在场 + `coverage`（`chapter_word.default` 出现）；断言不含硬编码「≥3200」
-- [ ] **Step 3:** `just check` 生成物 diff 为空（SKILL 变更检查）→ 锁哈希 → Commit `docs: spec #100 草写 SKILL 禁照抄 POST 总计教学（净新增两句）`
+- [ ] **Step 2:** 测试（`tests/unit/tools/test_spec100_skill_teaching.py`，M5 固定路径；`tdd_red_green + regression_guard`）：断言净新增三子句在场（禁抄 PRE/计划总计 / 重新点数 / `chapter_word.default` 符号引用）；断言不含硬编码「3200」数字（M4：`chapter_word.default` 改前已存在，不作红断言）
+- [ ] **Step 3:** `git add skills/shenbi-chapter-drafting/SKILL.md tests/unit/tools/test_spec100_skill_teaching.py` **先 stage**（I4：`just check` 末尾 `git diff --exit-code` 对未 stage 改动必红）→ `just check` 全绿 → Commit `docs: spec #100 草写 SKILL 禁照抄 POST 总计教学（净新增三子句）`（M7：SKILL-only 不跑哈希锁）
 
 ### Task 4: 收口（leaf）
 
-- [ ] **Step 1:** plans/INDEX 登记；specs/INDEX #100 状态→执行中 T0-T2 完成/T3 批外
+- [ ] **Step 1:** plans/INDEX **更新状态**（M2：条目已存在，非新登记）；specs/INDEX #100 状态→执行中 T0-T2 完成/T3 批外
 - [ ] **Step 2:** progress.md 验收覆盖表：验收 1→Task 0-2 证据；验收 2→PR/CI；验收 3→批外（T3 三线）
 - [ ] **Step 3:** Commit `docs: spec #100 收口登记`
+- [ ] **Step 4:** 阶段 7-10（I6）：`just check` 全绿 → push → PR（价值裁决摘要+deviations）→ CI 全绿 → squash merge → post-merge 串行全量 → 归档 PR（spec/plan→archive、双 INDEX 删行）
 
 ---
 
@@ -105,9 +114,14 @@ def parse_post_wordcount_declarations(content: str) -> list[int]:
 
 | Spec 验收 | Task | 验证 |
 |---|---|---|
-| 1. T0 三证核报告落 docs/research/ | Task 0/2 | 三证数据：manifest 34/13（T0 报告）+ rewind issues 零 precision + 被拒首派未跑 G4.cd（blob 回放证明） |
-| 2. T1 PR 合并（CI 全绿+① 离线红绿+② 在场+零翻转） | Task 1-3 | Task 2 Step 2 红→Step 4 绿；`just check`；PR CI |
+| 1. T0 三证核报告落 docs/research/ | **Task 0b**（C3） | `docs/research/2026-11-08-spec100-t0-post-decl-autopsy.md` 三节齐 |
+| 2. T1 PR 合并（CI 全绿+① 离线红绿+② 在场+零翻转） | Task 1-3 + **Task 4 Step 4**（I6） | Task 2 Step 2 五红→Step 4 五绿；`just check`；PR CI |
 | 3. T3 三线记录 | **批外** | 束8 续跑窗台账 |
+
+## Deviations（执行期记入 .superpowers/sdd/spec-deviations.md）
+
+- I2：spec T2 ⑤ 仍写单数 `parse_post_wordcount_declaration`/`None` 语义，r7 已定复数 `list[int]`/`[]`——**以实现（plan）为准**，spec 文本随归档前订正或记 deviation
+- M1：spec:23「gates→pipeline 方向允许」应为「pipeline→gates 单向依赖允许」（scene_splitter 已 import gates.shared）
 
 ## G3.4 / F947
 
