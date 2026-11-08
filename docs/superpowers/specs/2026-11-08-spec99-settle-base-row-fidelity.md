@@ -2,7 +2,7 @@
 
 **日期**：2026-11-08 ｜ **系列**：生产运行慢族根治批（束4-束7 三窗实锤；spec #98 束7 分叉落点件） ｜ **状态**：Active（**r4** 2026-11-08——轮 2 重审修复：C1 bundle 孪生块豁免扩展裁定+⑤配对前置；I1 铁律 0 own-block 排除条款；I2 锚点与边界扫描统一入 helper；I3 验收依据改写+T0 判别法[空格 own-block 下被丢行=H4 窗口误归因]；I4 写径归一入批强制。r3=轮 1 重定性；r2=价值门六修订；r1 立项同日） ｜ **优先级**：🟠 P1（生产税：每窗 1 接骨+手术风险——probe31 以来第三个实锤窗）
 **依赖**：无硬依赖（与批次 A 文件域不冲突）；证据源=novel-xinghuo-vol1 运行工件（blob 验尸法）。
-**动机证据**（r3 重定性+r4 补强）：①probe29-31：content_dropped 跨窗慢性 P1（pre-#23 时代）——**r4 判别法待 T0 裁**：其被丢行位于空格 own-block 标题下（H4 窗口误归因 H1）还是基底区（真 H1）——该判定直接控制①③存续合理性；②束4 裁决 #12：手工手术面（matcher 限度另案 #86）——归因待同判别法复核；③束7 裁决 #19——重定性为 **H4 假阳性死锁**（blob 实证：a1 prompt 自陈行 `@21872` 落 `## 第 47 章状态增量` 块 `@21504-21924` 内；a2 反馈 `content_dropped:1行（去重后 1）` 仅列该行；a1/a3 response 逐字核一致改写为更全章句，a2 response blob 缺失（`860f0f0f…` 不在 blobs/ 1293 件中）经 a3 反馈同签名反推一致——r4.1 逐字主义口径；模型按 probe31 keyed-upsert 语义合法替换、**门错**）；④机械根因四表面（gate 严格形 state_settling.py:322/提取器容错形 read_extractors.py:916-918/写径精确匹配 truth_io.py:1585[失配→`_replace_section` None→EOF 追加重复块，链路 truth_io.py:1642-1662 实证]/教学示例空格形 chapter_loop.py:955=漂移源；第五邻接面 read_extractors.py:52 `_SECTION_UNIT_RE` 已容错——附记兼容不改）；**空格形系长期生产现象**（fixture spec95/00189-reads :92/:108 已有 `## 第 3 章状态增量` 形——「ch47/48 模型自撰」表述不成立，首派 00255 发空格双块只是延续）。
+**动机证据**（r3 重定性+r4 补强）：①probe29-31：content_dropped 跨窗慢性 P1（pre-#23 时代）——**r4 判别法待 T0 裁**：其被丢行位于空格 own-block 标题下（H4 窗口误归因 H1）还是基底区（真 H1）——该判定直接控制①③存续合理性；②束4 裁决 #12：手工手术面（matcher 限度另案 #86）——归因待同判别法复核；③束7 裁决 #19——重定性为 **H4 假阳性死锁**（blob 实证：a1 prompt 自陈行 `@21872` 落 `## 第 47 章状态增量` 块 `@21504-21924` 内；a2 反馈 `content_dropped:1行（去重后 1）` 仅列该行；**三派 response 逐字全在场**（a2 blob=`8600f0fa…` 20665B sha256 自校验过——r4.2 勘误：轮 2 报「缺失」系哈希转录错）且全部一致改写为更全章句——模型按 probe31 keyed-upsert 语义合法替换、**门错**）；④机械根因四表面（gate 严格形 state_settling.py:322/提取器容错形 read_extractors.py:916-918/写径精确匹配 truth_io.py:1585[失配→`_replace_section` None→EOF 追加重复块，链路 truth_io.py:1642-1662 实证]/教学示例空格形 chapter_loop.py:955=漂移源；第五邻接面 read_extractors.py:52 `_SECTION_UNIT_RE` 已容错——附记兼容不改）；**空格形系长期生产现象**（fixture spec95/00189-reads :92/:108 已有 `## 第 3 章状态增量` 形——「ch47/48 模型自撰」表述不成立，首派 00255 发空格双块只是延续）。
 
 **触及的不变量维度**：无（truth 增量语义/prompt 契约面；④系恢复 probe31 已裁定语义+单源化，非改判据——见 T1 豁免声明）。
 
@@ -10,14 +10,14 @@
 
 ## 0. 根因假设（r4）
 
-- **H4（主，束7 面）**：own-block 豁免正则空格不容→豁免静默失效→合法 keyed-upsert 重派被误判→矛盾指令死锁。束7 窗口整体由此解释（blob 实证）。**扩展面（r4/C1）**：`_current_settle_chapter` 只返 sidecar 首章（=47），bundle 重派时孪生块（48）重派发但不豁免——同型死锁对 follower 块敞开（束7 a1/a2 未重发 48 块；**a3 已重发 48 块**（00266 response 实证，与 live 逐字同稿 ratio=1.000 故未触发）——follower 重发系观测行为而非推测，⑤ 双章口径下 follower 块合法更新即暴露无豁免死锁）。
+- **H4（主，束7 面）**：own-block 豁免正则空格不容→豁免静默失效→合法 keyed-upsert 重派被误判→矛盾指令死锁。束7 窗口整体由此解释（blob 实证）。**扩展面（r4/C1）**：`_current_settle_chapter` 只返 sidecar 首章（=47），bundle 重派时孪生块（48）重派发但不豁免——同型死锁对 follower 块敞开（束7 **a1 未重发 48 块；a2/a3 均重发**[00265/00266 response 实证，均与 live 逐字同稿故 48 面未触发]——follower 重发系观测行为 2/3 而非推测，⑤ 双章口径下 follower 块合法更新即暴露无豁免死锁）。
 - **H1（降级：慢性族残余假设，待 T0 判别法裁）**：引语类**基底区**（非 own-block）行的「保真-准确」语义引力。活测试条件：改写发生于 own-block 之外。
 - **H2**：反馈缺引语行专用锚形（双行正例）。
 - **H3**：重派预注入已是现状；首派有通用锚（#23 注入）——残余=首派缺引语形正例/verbatim 数据锚。
 
 ## 1. 任务分解（r4）
 
-- **T0 blob 验尸+表面盘点+判别法（半天，无实弹）**：束7 三派（dispatches 00264-266；**首派=00255**[2026-11-08T01:45:52]——seq 1214 系 trace 事件非 dispatch 文件，r4 勘误）逐字证据链（own-block 豁免失效逐派影响/a1+a3 response 逐字改写核+a2 response blob 缺失经 a3 反馈签名反推[记 deviation]/首派 00255 双空格块创建形/**a3 follower 块重发形**[与 live 逐字同稿——C1 实证基础]）+ **判别法**：probe29-31/束4 #12 的被丢行定位核验（空格 own-block 标题下=H4 误归因→①③缩窄为预防面；基底区=真 H1→①③ 为根治面）+ 标题语法四表面盘点（含 `_replace_section` 失配→EOF 追加链触发条件推演；第五邻接面 `_SECTION_UNIT_RE` 附记兼容不改）+ probe 族同源判定（旧 POC blob 磁盘可用性未核——不可用按 SKILL :98 内注+会话记忆并记 deviation）。
+- **T0 blob 验尸+表面盘点+判别法（半天，无实弹）**：束7 三派（dispatches 00264-266；**首派=00255**[2026-11-08T01:45:52]——seq 1214 系 trace 事件非 dispatch 文件，r4 勘误）逐字证据链（own-block 豁免失效逐派影响/**三派 response 逐字改写核**[三派 blob 全在场——a2=`8600f0fa…` 轮 2「缺失」系哈希转录错，r4.2 勘误]/首派 00255 双空格块创建形/**a2/a3 follower 块重发形**[均与 live 逐字同稿——C1 实证基础]）+ **判别法**：probe29-31/束4 #12 的被丢行定位核验（空格 own-block 标题下=H4 误归因→①③缩窄为预防面；基底区=真 H1→①③ 为根治面）+ 标题语法四表面盘点（含 `_replace_section` 失配→EOF 追加链触发条件推演；第五邻接面 `_SECTION_UNIT_RE` 附记兼容不改）+ probe 族同源判定（旧 POC blob 磁盘可用性未核——不可用按 SKILL :98 内注+会话记忆并记 deviation）。
 - **T1 修复面（branch+PR，同批强制①③④⑤，r4）**：
   ①SKILL.md：铁律 0 增 **own-block 排除条款**（:98「已有」=除本章（bundle 重派含孪生章 N+1）外的块——与④后语义对齐；:100「对应新 chapter 块」消歧）＋引语行双行正例（「原句保持原样；正文如有更全原句→新起一行『XX 补全（第N章原句）』」，**自行构造过离线三验**——三验=改后 G4 判定通过/与 live diff 仅新增行/append-only 语义保持）＋:248 legacy 行口径修（create_or_overwrite→append_dedup 口径）＋教学统一**无空格规范形**（SKILL.md 全文现系无空格形；真正的空格教学面=**chapter_loop.py:955 重试指引示例**——①显式纳入改无空格形，存在性 lint 范围同步覆盖 SKILL 面+该示例面）——**与④写径归一配对前置**（见④）＋一行存在性 lint（仿 lint_decisions_sources 模式，入 just check 面——防①教学漂移回退）；
   ②（现状声明）重派预注入已是现状；残余首派引语形锚并入①；
