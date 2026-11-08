@@ -137,7 +137,7 @@
 
 - **文件**：`2026-11-08-spec100-drafting-band-first-pass.md` ｜ **系列**：生产运行慢族根治批 ｜ **状态**：Active（**r3** 2026-11-09——二次 REWRITE 三处契约钉死（F1 触发改「声明在带∧实测出带」不误杀已通过章/F2 预算语义统一/F3 报文带 word_band token）；r2=驳斥改道（H1/H2/H3 全驳斥，真根因=POST 自检回显 PRE/plan，ch47 虚 40%/ch48 虚 97%；`check_post_wordcount_precision` 函数能力在场但首派 bundle 面未接线+仅 WARN 不进反馈=死线）） ｜ **优先级**：🟡 P3（降级：机器环 2 派收敛可忍）
 - **依赖**：无硬依赖；与 #96 共用 drafting SKILL 文件域——执行序避让（互不同期施工）
-- **内容**：首派欠带族（束4 #11/束5 #14/束7 #18 三窗；六章首派 2256/1788/2889/2052/2288/1646，5/6 欠带 -18%~-41%）——**r2 驳斥改道**：H1/H2/H3 全驳斥（plan 预算已在首派 prompt/EXEMPLAR 锚已落地/预算 3200-3400 不贴下沿）；真根因=**POST 自检回显 PRE/plan 而非实测**（ch47 虚 40%/ch48 虚 97%），`check_post_wordcount_precision` 函数能力在场但首派 bundle 面未接线+仅 WARN 不进反馈。四任务：T0 三证核（manifest 34 entry/13 唯一 WARN+rewind issues 无 precision 行+首派未跑 G4.cd）→ T1 同批两候选（①死线接通：**仅「声明在带∧实测<下限」**时 precision 行进 rewind[word_band token 族命中/仍计 rewind 预算]②教学禁照抄 PRE/plan+逐段重点+≥3200 口径）→ T2 blob 回放红绿+in-band 2.9% 不 rewind 用例 → T3 双观测线（累计首派带内率 ≥3 窗/双边偏差 ≤1.05）
+- **内容**：首派欠带族（束4 #11/束5 #14/束7 #18 三窗；六章首派 2256/1788/2881/2052/2288/1646（word_band 口径），5/6 欠带 -18%~-41%）——**r2 驳斥改道**：H1/H2/H3 全驳斥（plan 预算已在首派 prompt/EXEMPLAR 锚已落地/预算 3200-3400 不贴下沿）；真根因=**POST 自检回显 PRE/plan 而非实测**（ch47 虚 40%/ch48 虚 97%），`check_post_wordcount_precision` 函数能力在场但首派 bundle 面未接线+仅 WARN 不进反馈。四任务：T0 三证核（manifest 34 entry/13 唯一 WARN+rewind issues 无 precision 行+首派未跑 G4.cd）→ T1 同批两候选（①死线接通：**仅「声明在带∧实测<下限」**时 precision 行进 rewind[word_band token 族命中/仍计 rewind 预算]②教学禁照抄 PRE/plan+逐段重点+≥3200 口径）→ T2 blob 回放红绿+in-band 2.9% 不 rewind 用例 → T3 双观测线（累计首派带内率 ≥3 窗/双边偏差 ≤1.05）
 - **对应 plan**：待执行时建（`../plans/2026-11-08-spec100-*.md`）
 - **触及的不变量维度**：无（prompt/预算教学面）
 
