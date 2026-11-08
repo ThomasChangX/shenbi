@@ -222,11 +222,26 @@ def validate_split(ch: SplitChapter, band: tuple[int, int]) -> list[str]:
         scene_bits: list[str] = []
         for i, s in enumerate(ch.scenes, 1):
             scene_bits.append(f"场景{i} {s.size}")
-        issues.append(
+        _msg = (
             f"word_band:ch{ch.number}:total_chars {total} 不在带 [{band[0]},{band[1]}]"
             f"（差 {gap} 字；逐场景现值：{'、'.join(scene_bits)}）"
             f"——扩写建议（对白往返/动作过程/感官细节各补一处，禁整章重写）"
         )
+        # spec #100：POST 自检虚报反驳句——仅「声明在带 ∧ 实测<下限」追加到本行
+        # 尾部（不新增 issue 行/id/派发轮次；声明出带或实测在带时不追加）。
+        if total < band[0]:
+            from shenbi.gates.g4.post_declarations import (
+                parse_post_wordcount_declarations,
+            )
+
+            _decls = parse_post_wordcount_declarations(ch.body)
+            _decl = _decls[-1] if _decls else None
+            if _decl is not None and band[0] <= _decl <= band[1]:
+                _msg += (
+                    f"；POST自检申报 {_decl}（在带内）而实测 {total}<{band[0]}"
+                    f"——自检虚报，须逐段真实点数补足缺口，禁照抄计划/PRE 预算"
+                )
+        issues.append(_msg)
     if len(ch.scenes) < 2:
         issues.append(f"scene_count:ch{ch.number}:场景数 {len(ch.scenes)} < 2")
     issues.extend(_scene_domain_violations(ch))
