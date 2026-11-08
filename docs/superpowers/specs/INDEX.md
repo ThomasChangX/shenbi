@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-11-08（**#98 完结归档**：束7 实验窗判定 PASS（强）——规划 1 派收敛[对照束6 三派 5→7→8 熔断]/副判据 FAIL[接骨 3，残余族=草写字数族+settle matrix 增量族，均非 planning 族]；生产模型决策交用户，卷二停机面 ch49-0 待令）
-> **活跃 spec 数**：12
+> **最后更新**：2026-11-08（**#99/#100 立项**：束7 分叉落点两残余族独立成 spec——settle 基底行保真[P1]/草写字数带首派达成[P2]；#98 同日完结归档：束7 判定 PASS（强），卷二停机面 ch49-0 待令）
+> **活跃 spec 数**：14
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -84,7 +84,7 @@
 
 - **文件**：`2026-11-01-spec92-test-ci-hygiene.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.2） ｜ **优先级**：🟠 P1
 - **依赖**：无硬依赖（与 #90/#93/#95 共 justfile/lint_registry 文件面，顺序见「批次 A 共享文件面」表）
-- **内容**：deps.json **_tool_hashes 整删**（G7 不使用、唯一消费者是 R3 自洽检查；连带 lock-tool-hashes.sh/R3/**5 处测试+2 处 G0.14 断言+3 份活文档**/DepsDoc 字段）+ DepsDoc 单装载函数 **6 个 src 读者+3 tools** 换装（phase_runner 同名 load_deps 改薄包装）+ REPO_ROOT 常量替 parents[N] 魔法（7 点）+ **test 与 test-all 合并**（`unit` 标记退役**三选一**——`--strict-markers` 下删定义=全仓 1,153 处标注收集 ERROR，已复现）+ --cov-fail-under 四拷收敛 pyproject + just lint/type/test-ci 子配方（lint 20+#95 新增 1）+ pre-push hook 构造性子集（补 hypothesis profile 对齐）+ 死目录/幻影 norecursedirs/contract 孪生/per-file-ignores 整并 + dispatch_payload 构造器首批 5 文件
+- **内容**：deps.json **_tool_hashes 整删**（G7 不使用、唯一消费者是 R3 自洽检查；连带 lock-tool-hashes.sh/R3/**5 处测试+2 处 G0.14 断言+3 份活文档**/DepsDoc 字段）+ DepsDoc 单装载函数 **6 个 src 读者+3 tools** 换装（phase_runner 同名 load_deps 改薄包装）+ REPO_ROOT 常量替 parents[N] 魔法（7 点）+ **test 与 test-all 合并**（`unit` 标记退役**三选一**——`--strict-markers` 下删定义=全仓 1,153 处标注收集 ERROR，已复现）+ --cov-fail-under 四拷收敛 pyproject + just lint/type/test-ci 子配方（lint 20+#95 新增 1）+ pre-push hook 构造性子集（补 hypothesis profile 对齐）+ 死目录/幻影 norecursedirs/contract 孪生/per-file-ignores 整并 + dispatch_payload 构造器首批 5 文件；**＋tests/pipeline pytest-randomly 顺序 flake**（束7 实测：随机序 6 失败/固定序双侧全绿——顺序敏感根因待查，2026-11-08 束7 发现）
 - **对应 plan**：待执行时建
 - **触及的不变量维度**：无（测试/CI 基建）
 
@@ -130,6 +130,26 @@
 
 ---
 
+
+---
+
+### #99 · settle 增量契约基底行保真（settle-base-row-fidelity）
+
+- **文件**：`2026-11-08-spec99-settle-base-row-fidelity.md` ｜ **系列**：生产运行慢族根治批 ｜ **状态**：Active（立项 2026-11-08） ｜ **优先级**：🟠 P1
+- **依赖**：无硬依赖（主战场 state-settling SKILL+反馈通道面，不抢批次 A 文件域）；建议批次 A 前后皆可，卷二续跑窗持续积累证据
+- **内容**：引语类基底行改写族根治（probe29-31 慢族+束4 #12+束7 #19 三窗实锤——verbatim 反馈在场仍三连改写基底为「更准引文」，手术收束）。四任务：T0 blob 验尸（束7 三派 seq 1231/1233/1235 逐字+族同源判定）→ T1 修复面三候选（SKILL 引语行双行正例[束7 手术形固化]/反馈通道 verbatim 预注入/G4 报文正例——**禁改判定语义**）→ T2 离线回放红绿（束7 blob 改前 FAIL→改后 PASS+G4 测试零漂移）→ T3 实弹疗效（后续束窗 settle 0 接骨 0 手术）
+- **对应 plan**：待执行时建（`../plans/2026-11-08-spec99-*.md`）
+- **触及的不变量维度**：无（truth 增量语义/prompt 契约面）
+
+---
+
+### #100 · 草写字数带首派达成（drafting-band-first-pass）
+
+- **文件**：`2026-11-08-spec100-drafting-band-first-pass.md` ｜ **系列**：生产运行慢族根治批 ｜ **状态**：Active（立项 2026-11-08） ｜ **优先级**：🟡 P2
+- **依赖**：无硬依赖；与 #96 共用 drafting SKILL 文件域——执行序避让（互不同期施工）
+- **内容**：欠带族首派预算对齐（束4 #11/束5 #14/束7 #18 三窗同族——首派系统性欠带 20-40%，缺口算术反馈已证 2 派收敛但为事后补救）。四任务：T0 三窗首派 vs 终稿字数分布（H1 场景预算脱钩/H3 带下限贴沿裁定）→ T1 修复面（逐场景目标字数显式化[取带中值 3200 留双向余量]/场景预算分配对齐/现值前移——**带值 [2800,4000] 与硬闸不动**）→ T2 离线断言 → T3 实弹疗效（首派带内率 ≥50%+全程 0 熔断，对照束7=0%+1 熔断）
+- **对应 plan**：待执行时建（`../plans/2026-11-08-spec100-*.md`）
+- **触及的不变量维度**：无（prompt/预算教学面）
 
 ---
 
