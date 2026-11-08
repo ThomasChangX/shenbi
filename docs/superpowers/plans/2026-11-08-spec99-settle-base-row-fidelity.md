@@ -18,7 +18,7 @@
 - **写径预匹配仅对 `第N章状态增量` 语法族生效**（`_replace_section` 系全体 headed 分节通用原语，禁泛化）
 - **教学统一无空格规范形** `## 第N章状态增量`（含 chapter_loop.py:955 示例）
 - **deps.json 哈希工序**：T1 触及 src 文件全部在 `tests/tiers/deps.json` `_tool_hashes` 锁内——commit 前最后一步 `bash tests/lock-tool-hashes.sh`（ruff-format 在后会再改文件——先 format 后锁）
-- **G0.9**：fixture 只能是真实产物复制（tests/fixtures/spec99/ = dispatch JSON+blob 复制件+SHA256SUMS 清单，G0.11 哈希一致）
+- **G0.9**：fixture 只能是真实产物复制（tests/fixtures/spec99/ = dispatch JSON+blob 复制件+SHA256SUMS 清单，G0.9 真实复制件+SHA256SUMS 溯源）
 - **T3（实弹疗效）批外**：依赖卷二续跑窗复机（现停机面 ch49-0 待令）——本 plan 边界止于 T2 完结+PR 合并；T3 双观测线归束8 窗台账
 - Conventional commits；框架代码无 print（structlog）；gate 检查器纯函数幂等
 
@@ -90,7 +90,7 @@ chapter_block_res = [
 
 - [ ] **Step 1:** 复制工件：00255/00264/00265/00266 dispatch JSON + 各自 user_prompt_blob+response_blob（prompt：00264=`29053cec…`、00265=`aa91eee…`、00266=`ee3d214…`；response：00255=`c7e9d718…`、00264=`e0cf960…`、00265=`8600f0fa…`、00266=`fa7b451f…`）至 `tests/fixtures/spec99/`；生成 SHA256SUMS 清单（G0.9 真实复制件溯源——spec95/00189-reads 的 manifest+内联 `<!-- src: sha256:… -->` 溯源先例，此处采 SHA256SUMS 等价形）
 - [ ] **Step 2:** 物化 harness：live=00264 的 user_prompt_blob 中 `<untrusted-source>` 的 character_matrix 段提取（含 `## 第 47 章状态增量` 空格形块）；staged=00264 response 的 matrix 输出经 `_increment_units`+upsert 物化；sidecar `{"chapter": 47}`——写入 tmp_path 结构 `staging/truth/character_matrix.md`+live 兄弟；**孪生用例**（I-2）：另一 tmp 结构补 `outline/volume_map.md`（span 覆盖 47-48）+staged 重写 live 孪生 48 块行
-- [ ] **Step 3:** 红断言四处（**断言期望行为**——Task 2 时红、Task 3 后绿；证据链=改前红/改后绿与 spec T2(a) 一致）：①`_strip_increment_section(live, 47)` 输出**不含**自陈行（现行严格正则下红）；②`_check_matrix_structure(staged_pf)` **无** content_dropped（现行豁免失效下红）；③heading 形不一致的增量族 `_replace_section` 调用返回**非 None**且含替换文本（现行精确匹配下红）；④**孪生豁免行为测**（I-2）：sidecar 47+volume_map 覆盖 47-48+staged 重写 48 块行→断言无 content_dropped（现行只豁免 47 下红）
+- [ ] **Step 3:** 红断言四处（**断言期望行为**——Task 2 时红、Task 3 后绿；证据链=改前红/改后绿与 spec T2(a) 一致）：①`_strip_increment_section(live, 47)` 输出**不含**自陈行（现行严格正则下红）；②`_check_matrix_structure(staged_pf)` **无** content_dropped（现行豁免失效下红）；③heading 形不一致的增量族 `_replace_section` 调用返回**非 None**且含替换文本（现行精确匹配下红）；④**孪生豁免行为测**（I-2）：走 gate 入口 `g4_state_settling(fps, rd=…, project_dir=…)`（project_dir 参数 :1052-1056 现已存在）——sidecar 47+volume_map 覆盖 47-48+staged 重写 48 块行→断言无 content_dropped（现行 48 块被判 drop 下红；Task 3 接线后绿——机制纯红不走 TypeError）
 - [ ] **Step 4:** `uv run pytest tests/unit/gates/g4/test_spec99_h4_redgreen.py -q --no-cov` → **四红**（红即预期——粘贴 progress.md 验收 3 红侧证据）
 - [ ] **Step 5:** Commit `test: spec #99 红侧固化——束7 blob 物化 harness+H4 四红（豁免失效/整链/写径归一/孪生豁免）`（**Task 2/3/4 同分支同 PR 一次性 push——中间 commit 红/④暂无①③⑤ 属分支内态，CI 管 push head**）
 
@@ -169,7 +169,7 @@ def strip_increment_blocks(text: str, chapters: list[int]) -> str:
 |---|---|---|
 | 1. T0 报告落 docs/research/ | Task 1 | `docs/research/2026-11-08-spec99-t0-autopsy.md` 在盘五节齐 |
 | 2. PR 合并（CI 全绿+零翻转+①③④⑤同批+配对机械化+⑤防回退+①lint） | Task 3+4 | Task 3 Step 6 零翻转输出+Task 4 Step 8 `just check`+PR CI |
-| 3. T2 红绿记录 | Task 2+3 | Task 2 Step 4 三红 → Task 3 Step 5 三绿 |
+| 3. T2 红绿记录 | Task 2+3 | Task 2 Step 4 四红 → Task 3 Step 5 四绿 |
 | 4. T3 实弹窗疗效（双观测线+supersede #19） | **批外**（束8 续跑窗台账） | vol1-ledger 束8 条目（续跑令=T3 启动条件） |
 
 ## G3.4 / F947 声明
