@@ -89,6 +89,23 @@ class TestGenericFilledContract:
         assert "APPEND-ONLY HARD CONSTRAINT" in user  # matrix block intact
         assert "pending_hooks.md INCREMENT SHAPE" in user  # hooks block intact
 
+    def test_settle_injection_dual_chapter_and_own_block_upsert(self, tmp_path):
+        """Spec #99 (5) anti-regression: dual-chapter wording + own-block
+        keyed-upsert replaceability.
+
+        Pins the 束7 dual-contradiction fix: reverting the injection to the
+        singular form or the any-earlier ban turns this red.
+        """
+        user = _user_prompt("shenbi-state-settling", _project(tmp_path))
+        # 双章口径：bundle = leader 与 twin 各一块
+        assert "ONE block per chapter" in user and "twin N+1" in user
+        # own-block 可替换性（probe31 语义；束7 死锁面）
+        assert "OTHER chapter" in user and "keyed-upsert replaceable unit" in user
+        assert "re-emitting it wholesale on a re-settle is LEGAL" in user
+        # M-3: old contradictory forms must be GONE (not merely supplemented)
+        assert "MUST be a new `## 第N章状态增量` block only" not in user
+        assert "any earlier `## 第N章状态增量` section" not in user
+
     def test_shell_base_gets_no_filled_contract(self, tmp_path):
         user = _user_prompt("shenbi-score-arc", _project(tmp_path, drift=_SHELL_DRIFT))
         assert GENERIC_MARKER not in user.replace("## 逐目标基座态", "") or ("FILLED" not in user)

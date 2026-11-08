@@ -14,7 +14,11 @@ from shenbi.gates.shared import (
     passed,
     resolve_input_path,
 )
-from shenbi.pipeline.truth_io import HOOKS_VOLATILE_FIELDS, hooks_stable_fields_hint
+from shenbi.pipeline.truth_io import (  # spec #99 ④ 单源消费（模块级）
+    HOOKS_VOLATILE_FIELDS,
+    hooks_stable_fields_hint,
+    strip_increment_blocks,
+)
 
 # Known parameter-agent identifiers that must NOT appear in character_matrix
 _PARAMETER_AGENT_NAMES = {"冷", "光", "安静", "缺口", "在场于", "参数", "槽位"}
@@ -121,6 +125,7 @@ def _dropped_content_lines(
             _content_stream(staged_text),
         ),
         samples,
+        quote_example=True,
     )
 
 
@@ -179,7 +184,9 @@ def _dropped_hook_section_lines(live_text: str, staged_text: str, samples: int) 
     return _format_drops(missing, samples)
 
 
-def _format_drops(missing: list[str], samples: int, *, cap: int = 20) -> list[str]:
+def _format_drops(
+    missing: list[str], samples: int, *, cap: int = 20, quote_example: bool = False
+) -> list[str]:
     """Spec #95 T4 (r6): three-part actionable feedback (symptom -> operation).
 
     旧模板只报症状（`content_dropped:{n}行 e.g. {截断样本}`）——R6 实证模型把
@@ -209,6 +216,16 @@ def _format_drops(missing: list[str], samples: int, *, cap: int = 20) -> list[st
         "正例：live 已有 `| a | 1 |` 与 `| b | 2 |` 两行、本章新增键 c 时，"
         "输出=那两行原样+新行 `| c | 3 |`（不是重发 a/b 的改写）。"
     )
+    # spec #99 ③：引语类行双行正例（原句保持+新句另起——束7 改写族的对症出口）。
+    # quote_example 开关：仅 matrix 面置 True——hooks 面（_dropped_hook_section_lines）
+    # 无 `## 第N章状态增量` 块，误教会把 `- 自陈补全…` 灌进钩分节（audit-T4 I-2）。
+    if quote_example:
+        lines.append(
+            "引语行正例：live 其他章块已有 `- 自陈: 「旧句」` 时，该行原样保持；"
+            "本章正文如有更全原句，在**本章自己的** `## 第N章状态增量` 块里新起一行 "
+            "`- 自陈补全（第N章原句）: 「新句」`——两行并存（原章块不动），"
+            "禁把原句行改写为「更准引文」。"
+        )
     _ = samples  # 兼容旧签名位（旧样本截断逻辑由 verbatim 清单取代）
     return ["\n".join(lines)]
 
@@ -317,24 +334,36 @@ def _strip_increment_section(live_text: str, chapter: int) -> str:
     """Drop the current chapter's own ``## 第N章状态增量`` span from the
     live text — that block is the merge-owned upsert unit, not base mass.
     Prior chapters' blocks stay (over-exemption guard is positional: only
-    the span between this chapter's heading and the next ``##`` heading).
+    the span between this chapter's heading and the next H1/H2 heading).
+
+    Spec #99 ④：正则/边界单源化委托 ``truth_io.strip_increment_blocks``
+    （容 ``第 47 章``/``第47章`` 双形——束7 H4 根因=旧内联严格正则不容
+    数字两侧空格，live 空格形标题豁免静默失效）。函数名保留（调用方零改）。
     """
-    heading_re = re.compile(rf"^##\s*第{chapter}章状态增量\s*$")
-    out: list[str] = []
-    inside = False
-    for line in live_text.split("\n"):
-        stripped = line.strip()
-        if stripped.startswith("## "):
-            inside = bool(heading_re.match(stripped))
-            continue
-        if inside:
-            continue
-        out.append(line)
-    return "\n".join(out)
+    return strip_increment_blocks(live_text, [chapter])
 
 
-def _check_matrix_structure(pf: Path) -> tuple[list[str], list[str]]:
+def _bundle_exempt_chapters(project_dir: str | None, chapter: int) -> list[int]:
+    """Spec #99 ④（C1）：bundle 重派时豁免章集=leader+孪生章（N+1）。
+
+    信号源=``bundle_chapters``（volume_map 派生不跨卷；:245 已有函数级
+    import 先例）——sidecar 只携带标量 leader 章。``project_dir`` 缺席
+    （None/无 volume_map）退 ``[chapter]`` 单例，保持既有行为零破坏。
+    """
+    if not project_dir:
+        return [chapter]
+    from shenbi.pipeline.chapter_loop import bundle_chapters
+
+    return bundle_chapters(Path(project_dir), chapter)
+
+
+def _check_matrix_structure(
+    pf: Path, project_dir: str | None = None
+) -> tuple[list[str], list[str]]:
     """Content-preservation guard for a STAGED character_matrix.
+
+    project_dir: spec #99 ④ bundle 孪生豁免信号源（缺省 None=单例[chapter]，
+    既有行为零破坏；g4_state_settling 的 project_dir 参数经调用点穿入）。
 
     Fixcheck probe (2026-09-29): seven consecutive settle rewrites failed
     as template regenerations — line collapse, format replacement,
@@ -356,7 +385,10 @@ def _check_matrix_structure(pf: Path) -> tuple[list[str], list[str]]:
     # re-settle owns (probe31 ch2); compare base mass only.
     _chapter = _current_settle_chapter(pf)
     if _chapter is not None:
-        live_text = _strip_increment_section(live_text, _chapter)
+        # spec #99 ④：豁免章集扩 bundle（孪生章 N+1 同豁免——C1 死锁面闭合）。
+        # 逐章经 _strip_increment_section 委托单源（章集互斥，顺序剥离等价）。
+        for _ch in _bundle_exempt_chapters(project_dir, _chapter):
+            live_text = _strip_increment_section(live_text, _ch)
     staged_lines = [l for l in staged_text.split("\n") if l.strip()]
     live_lines = [l for l in live_text.split("\n") if l.strip()]
     if live_lines and len(staged_lines) < len(live_lines) * 0.9:
@@ -1103,7 +1135,9 @@ def g4_state_settling(
 
             # Structural preservation vs the live sibling (probe session
             # 2026-09-29: template regeneration was invisible to the gate).
-            _mx_fails, _mx_warns = _check_matrix_structure(pf)  # spec #83 T4 拆包
+            _mx_fails, _mx_warns = _check_matrix_structure(
+                pf, project_dir=project_dir
+            )  # spec #83 T4 拆包；spec #99 ④ bundle 孪生豁免
             mf.extend(_mx_fails)
             for _mw in _mx_warns:
                 c.append(

@@ -139,6 +139,8 @@ convention = "google"
 # GO① pool lint: findings quote the live Chinese truth-file vocabulary
 # (当前生命周期/兑现章 headers) — fullwidth punctuation is the data, not drift.
 "tools/lint_truth_pool.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #99 ①⑤ 存在性 lint：断言串/注释含中文教学原文（须逐字匹配 SKILL/注入文案）
+"tools/lint_increment_teaching.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #85 T9: AST walker is inherently branch-heavy (three scan positions ×
 # dialect/exemption verdicts); complexity gates off, behavior pinned by
 # tests/unit/tools/test_lint_truth_format_single_source.py
@@ -168,6 +170,8 @@ convention = "google"
 # （防回退令/船工十二，/酱熟肉一块）——引的是数据，非漂移。
 "tests/unit/pipeline/test_retry_feedback_accumulation.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/gates/g4/test_xc_timeline.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #99 束7 blob 物化回放：中文现场注记/断言消息（docstring 全文中文为现场保真）
+"tests/unit/gates/g4/test_spec99_h4_redgreen.py" = ["RUF001", "RUF002", "RUF003"]
 # 束5 收尾批：docstring 引实弹报文与键形（第二十三根/ch45-shenbi-chapter-drafting）。
 "tests/unit/pipeline/test_escalation_pipeline_target_routing.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #83 T3: findings/docstrings quote the live Chinese outline/truth
