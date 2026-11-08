@@ -1,6 +1,6 @@
 # Spec #99 T0 · 束7 settle 三连败 blob 验尸 + 判别法 + 标题语法表面盘点
 
-**日期**：2026-11-08 ｜ **spec**：`docs/superpowers/specs/2026-11-08-spec99-settle-base-row-fidelity.md`（r4.2）§T0 ｜ **验收**：spec §2 验收 1
+**日期**：2026-11-08 ｜ **spec**：`docs/superpowers/specs/archive/2026-11-08-spec99-settle-base-row-fidelity.md`（r4.3，归档）§T0 ｜ **验收**：spec §2 验收 1
 **取证方式**：全程离线（零 LLM 派发）——盘内 blob/dispatch/trace/ledger/quarantine 交叉分析 + 框架真实代码重放（`uv run python`，只读消费 `shenbi.pipeline.dispatch_helper._increment_units` / `shenbi.pipeline.truth_io.upsert_markdown_row` / `shenbi.gates.g4.state_settling`；重放工件写 `/tmp`，repo 零改动）。
 
 ---
