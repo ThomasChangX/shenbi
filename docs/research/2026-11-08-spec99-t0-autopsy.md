@@ -18,7 +18,7 @@
 
 九个 blob 全在 `novel-xinghuo-vol1/observability/blobs/`，逐一 `shasum -a 256` 自校验通过（与 dispatch JSON 内哈希一致）。system prompt 四派同 blob `82c14e27…`（30614B）。时序链：00255（settle 过检落账）→ 评审组 00256-00260 → 修订 00261-00263（audit-routed revision）→ **re-settle 三连败 00264/265/266** → 评分链 00267-269（trace seq 1237-1242）→ 台账裁决 #19 手术收束（vol1-ledger.md 束7 节）。
 
-**r4.2 勘误复核**：「三派 response 逐字节相同」精确化为——**三派 response 的 47 块改写形逐字一致**（差异仅 a1 少 48 块、多 1 个空行与 1 行交互表行），**a2/a3 的 character_matrix 输出整体逐字节相同**（869 chars）；三派 response blob 整体大小不同（14267/20665/18000B，其余 11 个非 matrix truth 文件各派有差异）。逐字性主张成立，逐字节主张按此口径收窄。
+**r4.2 勘误复核**：「三派 response 逐字节相同」精确化为——**三派 response 的 47 块改写形逐字一致**（差异仅 a1 少 48 块、多 1 个空行与 1 行交互表行），**a2/a3 的 character_matrix 输出整体逐字节相同**（869 chars）；三派 response blob 整体大小不同（14267/20665/18000B，其余 10 个非 matrix truth 文件+decisions sidecar 各派有差异）。逐字性主张成立，逐字节主张按此口径收窄。
 
 ---
 

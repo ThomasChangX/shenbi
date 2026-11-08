@@ -16,6 +16,7 @@ Faces:
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -39,10 +40,14 @@ FACES: list[tuple[str, str, list[str]]] = [
     ),
 ]
 
-# 教学面封堵：空格形示例不得回流（chapter_loop 防回退令区曾教空格形——
-# 束7 H4 漂移源；SKILL 同步禁带空格块标题示例）
-FORBIDDEN: list[tuple[str, str, str]] = [
-    ("chapter_loop 空格形示例回流", "src/shenbi/pipeline/chapter_loop.py", "## 第 2 章状态增量"),
+# Teaching-face seal: spaced heading forms must not return to any teaching face
+# (chapter_loop's counter-regression example taught the spaced form -- the 束7
+# H4 drift source; SKILL must stay on the no-space canonical form too).
+# Regex matches ANY ``## 第 N 章状态增量`` with whitespace around the numeral.
+_SPACED_HEADING_RE = re.compile(r"##\s*第\s+\d+\s*章状态增量|##\s*第\s*\d+\s+章状态增量")
+_FORBIDDEN_FILES: list[tuple[str, str]] = [
+    ("chapter_loop", "src/shenbi/pipeline/chapter_loop.py"),
+    ("SKILL", "skills/shenbi-state-settling/SKILL.md"),
 ]
 
 
@@ -62,13 +67,13 @@ def main() -> int:
                     1,
                 )
                 failures.append(f"{label}: {rel}:{line} 缺 `{needle}`")
-    for label, rel, banned in FORBIDDEN:
+    for label, rel in _FORBIDDEN_FILES:
         path = REPO / rel
         if not path.is_file():
             continue
         for i, row in enumerate(path.read_text(encoding="utf-8").splitlines()):
-            if banned in row:
-                failures.append(f"{label}: {rel}:{i + 1} 出现禁形 `{banned}`")
+            if _SPACED_HEADING_RE.search(row):
+                failures.append(f"{label} 空格形示例回流: {rel}:{i + 1} `{row.strip()[:40]}`")
     if failures:
         for f in failures:
             print(f"ERROR: {f}", file=sys.stderr)

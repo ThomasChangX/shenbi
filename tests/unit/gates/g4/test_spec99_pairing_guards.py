@@ -31,7 +31,7 @@ def test_tolerant_regex_implies_quote_example_and_exclusion_clause() -> None:
     # ④ 的容错语法以真实现探针验证（数字两侧空格命中）
     assert increment_heading_re(47).match("## 第 47 章状态增量"), "④ 容错正则退化为严格形"
 
-    fb = _format_drops(["| a | 1 |"], samples=1)[0]
+    fb = _format_drops(["| a | 1 |"], samples=1, quote_example=True)[0]
     assert "引语行正例" in fb and "自陈补全（第N章原句）" in fb, "③ 报文引语双行正例缺席"
 
     skill = SKILL.read_text(encoding="utf-8")

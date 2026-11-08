@@ -2,14 +2,10 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
-REPO = Path(__file__).resolve().parents[3]
 
-
-def _run(argv: list[str] | None = None) -> int:
+def _run() -> int:
     import tools.lint_increment_teaching as mod
 
     return mod.main()
@@ -26,7 +22,7 @@ def test_tamper_red_missing_exclusion_clause(tmp_path, monkeypatch, capsys) -> N
 
     (tmp_path / "skills/shenbi-state-settling").mkdir(parents=True)
     skill = tmp_path / "skills/shenbi-state-settling" / "SKILL.md"
-    skill.write_text("铁律 0 内容（无排除条款/无引语正例）\n", encoding="utf-8")
+    skill.write_text("铁律 0 旧版内容（本节尚未迁移）\n", encoding="utf-8")
     monkeypatch.setattr(mod, "REPO", tmp_path)
     (tmp_path / "src/shenbi/pipeline").mkdir(parents=True)
     (tmp_path / "src/shenbi/pipeline/chapter_loop.py").write_text(
@@ -39,7 +35,7 @@ def test_tamper_red_missing_exclusion_clause(tmp_path, monkeypatch, capsys) -> N
     rc = mod.main()
     assert rc == 1
     err = capsys.readouterr().err
-    assert "排除条款" in err and "自陈补全" in err
+    assert "缺 `排除条款`" in err and "缺 `自陈补全（第N章原句）`" in err
 
 
 @pytest.mark.unit

@@ -6,7 +6,7 @@ from shenbi.gates.g4.state_settling import _format_drops
 
 
 def test_three_part_template_shape() -> None:
-    out = _format_drops(["| a | 1 |", "| b | 2 |"], samples=3)
+    out = _format_drops(["| a | 1 |", "| b | 2 |"], samples=3, quote_example=True)
     assert len(out) == 1
     text = out[0]
     assert text.startswith("content_dropped:2行")  # 前缀 token 保留（消费面 sweep 已核）
@@ -14,6 +14,16 @@ def test_three_part_template_shape() -> None:
     assert "原样保留于输出（作为基底行）" in text  # 操作指令段
     assert "正例" in text and "`| c | 3 |`" in text  # 最小正例段
     assert "引语行正例" in text and "自陈补全（第N章原句）" in text  # spec #99 ③ 引语双行正例
+
+
+def test_quote_example_gated_to_matrix_face() -> None:
+    """audit-T4 I-2: hooks face (default quote_example=False) must NOT carry the
+    matrix-only quote dual-line example.
+    """
+    hooks_out = _format_drops(["| a | 1 |"], samples=1)[0]
+    assert "引语行正例" not in hooks_out and "自陈补全" not in hooks_out
+    matrix_out = _format_drops(["| a | 1 |"], samples=1, quote_example=True)[0]
+    assert "引语行正例" in matrix_out and "本章自己的" in matrix_out
 
 
 def test_dedup_and_cap() -> None:
