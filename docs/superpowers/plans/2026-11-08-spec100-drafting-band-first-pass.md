@@ -26,26 +26,11 @@
 ## 实际签名（源码复制；执行首步 re-anchor）
 
 ```python
-# src/shenbi/gates/g4/post_declarations.py:98-101（源码逐字——含 sum 形与尾锚，勿简写）
+# src/shenbi/gates/g4/post_declarations.py:98-102（源码逐字粘贴）
 _POST_WORDCOUNT_DECL_RE = re.compile(
-    r"^\s*-\s*\[[xX ]\]\s*正文字数（逐段计数合计）[^\n]*?总计\s*[≈约]?\s*(?:(?:\d+)\s*\+\s*)*?(?:\d+\s*=\s*)?(\d+)(?:\s*字)?\s*(?:（[^）]*）)?\s*$",
+    r"^\s*[-*]\s*\[[ xX]\]\s*正文字数（逐段计数合计）\s*[：:].*?总计\s*[≈约]?\s*(?:[\d+]+\s*=\s*)?(\d+)\s*(?:（[^）]*）)?\s*$",
     re.M,
-)
-
-
-# src/shenbi/gates/g4/post_declarations.py:118
-def check_post_wordcount_precision(content: str, actual_chars: int) -> list[str]: ...
-
-
-# src/shenbi/pipeline/scene_splitter.py:211
-def validate_split(ch: SplitChapter, band: tuple[int, int]) -> list[str]: ...
-
-
-# :217 total = total_chars_md_text(ch.body)
-# :225-229 word_band issue 首 append
-
-# src/shenbi/pipeline/chapter_loop.py:1557
-issues.extend(validate_split(ch, band))
+)  # audit-T3 I1：兼收尾注形（总计 3760（≥2800，≤4000））与 ≈/约 前缀；总计 a+b=N 形保持
 ```
 
 ---

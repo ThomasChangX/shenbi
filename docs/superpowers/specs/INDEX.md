@@ -133,7 +133,7 @@
 
 ---
 
-- **文件**：`2026-11-08-spec100-drafting-band-first-pass.md` ｜ **系列**：生产运行慢族根治批 ｜ **状态**：Active（**r7** 2026-11-09——r6 收敛订正：线 3 指标替换[第一次重派 POST 双边偏差 ≤2%，基线 4.6%/2.8% + monitor_rewind RETRY 计数基线 6]/helper 返回 list[int]/INDEX 同步；r6=设计审查 2C+4I+6M[三线归因/单源助手/precision 句并入 word_band]；r2=驳斥改道[H1/H2/H3 全驳斥，真根因=POST 自检回显 PRE/plan]） ｜ **优先级**：🟡 P3（降级：机器环 2 派收敛可忍，主修=小面反馈补充句）
+- **文件**：`2026-11-08-spec100-drafting-band-first-pass.md` ｜ **系列**：生产运行慢族根治批 ｜ **状态**：Active（**r7** 2026-11-09——r6 收敛订正：线 3 指标替换[第一次重派 POST 双边偏差 ≤2%，基线 4.6%/2.8% + monitor_rewind RETRY 计数基线 6]/helper 返回 list[int]/INDEX 同步；r6=设计审查 2C+4I+6M[三线归因/单源助手/precision 句并入 word_band]；r2=驳斥改道[H1/H2/H3 全驳斥，真根因=POST 自检回显 PRE/plan]） ｜ **优先级**：🟡 P3（降级：机器环 2 派收敛可忍，主修=小面反馈补充句）｜**执行中** 2026-11-09：T0 报告/T1 助手/T2 接线/T3 教学 全完（PR 待建），T3 实弹三线批外
 - **依赖**：无硬依赖；与 #96 共用 1 处文件（drafting SKILL）→ #96 施工期让路（plan 首步 re-anchor）
 - **内容**：首派欠带族（六章首派 2256/1788/2881/2052/2288/1646，5/6 欠带 -18%~-41%）——**真根因=POST 自检回显 PRE/plan 而非实测**（ch47 声明 3210/实测 2288 虚 40%、ch48 3250/1646 虚 97%；ch45/46 数值逐位相同；触发覆盖 4/6）。四任务：T0 三证核（manifest 34 entry/13 唯一 WARN 2.1-15.5%+rewind issues 无 precision 行+被拒首派未跑 G4.cd）→ T1 两候选（① precision 句**并入既有 word_band 报文**：仅「声明在带∧实测<下限」/`parse_post_wordcount_declarations` 单源助手/零新 id 零新解析面，预算语义自动继承；②SKILL 净新增两句：禁以 PRE/计划总计充 POST 总计+目标=chapter_word.default[不写死 3200]）→ T2 离线（blob 解包 files[0].content 回放红绿+in-band 2.9% 不触发+over-band 负例+助手直测+零翻转）→ T3 三线（②=累计首派带内率+首派双边偏差；①=第一次重派双边偏差 ≤2%+monitor_rewind RETRY 计数；窗口钉模型/thinking）
 

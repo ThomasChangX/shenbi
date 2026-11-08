@@ -59,6 +59,8 @@ def test_false_in_band_claim_appends_clause_and_keeps_issue_ids() -> None:
     # 零新 issue 行/id：全部行都以既有前缀开头
     prefixes = {i.split(":", 1)[0] for i in issues}
     assert prefixes <= {"word_band", "scene_count", "scene_domain", "composition", "chapter_band"}
+    # M6: 只有一条 word_band 行（子句不得新开行）
+    assert len([i for i in issues if i.startswith("word_band:")]) == 1
 
 
 @pytest.mark.unit
@@ -82,14 +84,15 @@ def test_over_band_actual_no_clause() -> None:
     """③ over-band false claim 不在本批域（r4 收窄）：actual 4100 → 无子句。"""
     from shenbi.pipeline.scene_splitter import validate_split
 
-    filler = "这是一段用于字数构造的叙述文字。" * 300
+    filler = "这是一段用于字数构造的叙述文字。" * 258
+    filler = filler[:4100]
     body = (
         "<!--META-BEGIN-->\n## POST_WRITE_SELF_CHECK\n\n"
         "- [x] 正文字数（逐段计数合计）: 总计 3200（2800–4000 带内）\n"
         "<!--META-END-->\n" + filler
     )
     ch = _inline_chapter(48, [body])
-    assert total_chars_md_text(ch.body) > 4000  # M12: 构造有效性
+    assert total_chars_md_text(ch.body) == 4100  # M12: 构造有效性（精确值）
     issues = validate_split(ch, BAND)
     assert _word_band_issue(issues) is not None
     assert not any("POST自检申报" in i for i in issues)
