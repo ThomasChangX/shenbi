@@ -51,12 +51,13 @@ def test_bundle_exemption_iff_dual_chapter_injection() -> None:
     import tempfile
     from pathlib import Path as _Path
 
-    probe = _Path(tempfile.mkdtemp())
-    (probe / "outline").mkdir()
-    (probe / "outline" / "volume_map.md").write_text(
-        "## 第二卷：利息与图章（第 37–86 章）\n", encoding="utf-8"
-    )
-    behaves = _bundle_exempt_chapters(str(probe), 47) == [47, 48]
+    with tempfile.TemporaryDirectory() as probe_s:
+        probe = _Path(probe_s)
+        (probe / "outline").mkdir()
+        (probe / "outline" / "volume_map.md").write_text(
+            "## 第二卷：利息与图章（第 37–86 章）\n", encoding="utf-8"
+        )
+        behaves = _bundle_exempt_chapters(str(probe), 47) == [47, 48]
     bundle_in_gate = called and behaves
 
     inj = INJ_SRC.read_text(encoding="utf-8")

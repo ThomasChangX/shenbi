@@ -1609,14 +1609,15 @@ def _increment_heading_key(line: str) -> str | None:
 
 
 def strip_increment_blocks(text: str, chapters: list[int]) -> str:
-    """Strip the given chapters' (bundle incl. twin N+1) increment spans.
+    r"""Strip the given chapters' (bundle incl. twin N+1) increment spans.
 
     Spec #99 (4) bundle twin exemption (C1): under the probe31 keyed-upsert
     semantics the chapter's own block is a wholesale-replaceable unit, so a
     bundle re-settle exempts the twin chapter's block too. Heading match =
     ``increment_heading_re(ch).match(line.strip())`` (anchored strict form,
     tolerant of both ``第 47 章`` and ``第47章``); span boundary = the next
-    line at heading level <= 2 (by leading-# run length -- no dependency on
+    line at heading level <= 2 matching real heading syntax `^#{1,2}(\s|$)`
+    (no dependency on
     the ``'## '`` prefix, killing the ``##第47章`` boundary mismatch;
     ``###`` and deeper sub-headings are block BODY and do not close the
     span -- prior semantics preserved; the 束7 quote line lives under
