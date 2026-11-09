@@ -635,8 +635,16 @@ def g4_chapter_drafting(
                 }
             )
         else:
+            # 束8 实弹（2026-11-09，ch49）：扫描面须剔除 META 块——PRE_WRITE_CHECK
+            # 的任务复述行（「把…班期表逐条对勘，补出…交上去」）含物象+交接动词+
+            # 人名，raw 面 4 假阳性 vs strip_narrative_body 后 0（其余内容检查同
+            # 口径：#86 候选「检查器表面比真值面宽」）。正文为真值源。
             for issue in check_prop_handoffs(
-                content, _memo or "", _props_facts, _known_names, _owner_aliases
+                strip_narrative_body(content),
+                _memo or "",
+                _props_facts,
+                _known_names,
+                _owner_aliases,
             ):
                 mf.append(f"{fp}:{issue}")
 
