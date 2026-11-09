@@ -109,6 +109,10 @@ facts-query *args:
 pool-lint *args:
     uv run python tools/lint_truth_pool.py "$@"
 
+# Chapter-header form assertion (spec #84 T0-14): 阿码章号恰一行/零中文数字/零英文头/章题恰一行
+chapter-headers *args:
+    uv run python tools/lint_chapter_headers.py "$@"
+
 # Pool evidence rolling archival: RESOLVED sections past the window -> archive (GO②)
 pool-archive *args:
     uv run python -m shenbi.pipeline.pool_archive "$@"
