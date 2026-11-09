@@ -37,7 +37,7 @@ def test_three_h1_flagged(tmp_path: Path, capsys) -> None:
     assert main([str(tmp_path)]) == 1
     out = capsys.readouterr().out
     assert "chapter-39.md" in out
-    assert "恰一行" in out or "non-number" in out  # cites the single-title rule
+    assert "恰一行" in out  # cites the single-title rule
 
 
 def test_missing_number_flagged(tmp_path: Path, capsys) -> None:
@@ -74,3 +74,10 @@ def test_backups_and_sidecars_excluded(tmp_path: Path, capsys) -> None:
 def test_missing_chapters_dir_fails_loud(tmp_path: Path, capsys) -> None:
     assert main([str(tmp_path)]) == 2
     assert "not found" in capsys.readouterr().out
+
+
+def test_empty_chapters_dir_fails_loud(tmp_path: Path, capsys) -> None:
+    """An empty chapters/ dir (no chapter-<N>.md) is exit 2, not a false OK."""
+    (tmp_path / "chapters").mkdir()
+    assert main([str(tmp_path)]) == 2
+    assert "no chapter" in capsys.readouterr().out

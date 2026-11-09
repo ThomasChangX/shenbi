@@ -1,6 +1,6 @@
 r"""Chapter-header form assertion for a novel project (spec #84 T0-14).
 
-Per ``chapters/chapter-<N>.md`` (stem fullmatch ``chapter-\\d+`` — ``-pre-rev``
+Per ``chapters/chapter-<N>.md`` (stem fullmatch ``chapter-\d+`` — ``-pre-rev``
 backups and ``-decisions.json`` sidecars are naturally excluded):
 
 1. exactly one  ``^# 第[0-9]+章$``            (Arabic chapter-number line)
