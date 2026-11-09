@@ -2,7 +2,7 @@
 
 > 使用方式：新开 ZCode session（工作目录 = 本仓库），把本文全部内容作为首条消息发送。
 > 上游协议：监控循环／裁决分级／裁决知识库／断点协议／纵向采集沿用 `docs/probe-vol1-driver-prompt.md` v2.2；验收口径与判据 8 评分配方见 `docs/regen-vol1-driver-prompt.md`；判据 5 挂账口径与检查点四行必答沿用 `docs/regen-vol1-continue-prompt.md`。本文件只写卷二开卷差异面。
-> 前置（spec #84）：T0 修复轮已完成（G4 真门全 PASS+regen-accept --through 36+章头断言三件）；章头注入器已参数化 `chapter_header_style: two_line_zh`——管线写路径自动按两行式中文章头规范化。
+> 前置（spec #84）：T0 修复轮已完成（G4 真门全 PASS+regen-accept --through 36+章头断言三件）；章头注入器已参数化 `chapter_header_style: two_line_zh`——管线写路径（直写/晋升/修订三路）自动按两行式中文章头规范化。
 
 ## 任务定位
 
@@ -45,16 +45,11 @@ ch37-38 内即付（认罚/摊封结局实写），不许继续悬空。
 
 ## 每束收尾固定动作
 
-1. **章头形态断言**（仓库根执行；只核已生成章、排 -pre-rev 备份）：
+1. **章头形态断言**（仓库根执行）：
    ```bash
-   for f in novel-xinghuo-vol1/chapters/chapter-*.md; do
-     case "$f" in *pre-rev*) continue;; esac
-     n=$(basename "$f" .md); n=${n#chapter-}
-     [ "$n" -lt 37 ] && continue
-     echo "$f $(grep -cE '^# 第[0-9]+章$' "$f") $(grep -cE '^# Chapter [0-9]+:' "$f")"
-   done
+   just chapter-headers novel-xinghuo-vol1
    ```
-   → 每行 `1 0`（唯一性：恰一行章号行；重复插入不过闸）；
+   → exit 0（四条件全章强制：阿码章号恰一行/零中文数字形/零英文头/章题恰一行；`-pre-rev` 备份与非正文文件天然排除）；
 2. 三件套逐章全量核（上节）；
 3. 断供钩清偿表对表推进；
 4. **shadow 促转留痕**：`uv run python tools/lint_shadow_promotion.py novel-xinghuo-vol1 --ledger novel-xinghuo-vol1/vol1-ledger.md` 每束跑一次（「连续 2 束 WARN 零误伤」判定依赖逐束留痕，台账逐束记一行）；

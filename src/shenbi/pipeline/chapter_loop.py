@@ -54,6 +54,7 @@ from shenbi.pipeline.audit_layer import GENRE_ACTIVATION_MATRIX, run_audit_layer
 from shenbi.pipeline.dispatch_helper import (
     DispatchResult,
     dispatch_skill,
+    normalize_chapter_header,
     requires_independent,
     run_gate_g3,
     run_gate_g4,
@@ -1567,7 +1568,11 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
         return [f"decisions 晋升失败: {exc}"]
     for ch in bundle.chapters:
         target = project_dir / "chapters" / f"chapter-{ch.number}.md"
-        safe_write(target, ch.body.encode("utf-8"))
+        # spec #84 T0-14: promotion writes through the single header
+        # normalization entry — the ch40-50 on-disk defect (missing number /
+        # CJK numerals) came from this path writing bundle bodies verbatim.
+        body = normalize_chapter_header(ch.body, ch.number, project_dir)
+        safe_write(target, body.encode("utf-8"))
 
     # Per-chapter terminal G4.cd + manifest records for BOTH chapters
     # (follower chapters have no drafting key by design — the split key is

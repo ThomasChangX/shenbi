@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-08（spec #98 plan 归档——束7 实验窗完结，判定 PASS（强））
-> **活跃 plan 数**：2 | **已归档**：137（见 `archive/`；2026-11-08 校正：旧值 133 系陈旧计数[此前漏登 3 份 spec74-79 系]，实际 136+#98 归档 1）
+> **最后更新**：2026-11-10（spec #84 残余执行 addendum plan 建档——T0-14 章头归一接线+ch39-50 修复+收口归档）
+> **活跃 plan 数**：3 | **已归档**：137（见 `archive/`；2026-11-08 校正：旧值 133 系陈旧计数[此前漏登 3 份 spec74-79 系]，实际 136+#98 归档 1）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,8 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **[2026-11-01-spec84-vol1-repair-vol2-launch.md](2026-11-01-spec84-vol1-repair-vol2-launch.md)** ✅ ready（**冻结**——束4 待 #95 T1-T6 落地后解冻）——对应 spec #84（r12）：T0 注入器适配/T1 驱动 prompt/T2-T8 内容修复批+收口/T9 staged 实审/T10 实弹（束1-3 完成冻结于 ch43-0）/T11 完成（G3.4 r4=88.10）；束4=解冻后剩余验收
+- **[2026-11-10-spec84-t0-14-header-repair.md](2026-11-10-spec84-t0-14-header-repair.md)** ✅ ready（**执行中**——T0-14 归一/接线三路/ch39-50 修复/断言工具/Task 10 收口+归档）——spec #84 残余执行 addendum（价值门 2026-11-10：T0-14 从未落码，束4-9 已越窗产出 ch43-50）
+- **[2026-11-01-spec84-vol1-repair-vol2-launch.md](2026-11-01-spec84-vol1-repair-vol2-launch.md)** ✅ ready（**冻结**——束4 待 #95 T1-T6 落地后解冻）——对应 spec #84（r12）：T0 注入器适配/T1 驱动 prompt/T2-T8 内容修复批+收口/T9 staged 实审/T10 实弹（束1-3 完成冻结于 ch43-0）/T11 完成（G3.4 r4=88.10）；束4=解冻后剩余验收（残余执行由上方 addendum plan 承接）
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行中** r1 施工——T0-T3 落地，首跑验收待 2026-11-09 02:00 UTC）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
 
 ## 待执行的 spec → plan 映射
