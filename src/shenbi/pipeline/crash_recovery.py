@@ -99,6 +99,25 @@ def _check_emergency_flag(  # pyright: ignore[reportUnusedFunction] -- called fr
             pass  # Best-effort cleanup
 
 
+def _atexit_safe_log(level: str, event: str, **kw: object) -> None:
+    """Log without ever raising.
+
+    _emergency_cleanup runs in atexit/signal context where captured or
+    piped streams may already be closed — one ValueError at a logger call
+    escapes the callback and the interpreter skips the REST of it (state
+    save, emergency snapshot, staging clear all silently lost; reproduced
+    under pytest stream teardown, where the closed-stream exception also
+    surfaces as ignored-atexit noise). The surgery below matters more than
+    the log line, so even the logging failure itself is swallowed.
+    """
+    try:
+        getattr(logger, level)(event, **kw)
+    except (
+        Exception
+    ):  # atexit 流已关时日志必须哑——状态手术优先于日志行（本文件 BLE001 已 per-file-ignores）
+        pass
+
+
 def _emergency_cleanup(
     project_dir: Path | None = None,
     state: PipelineState | None = None,
@@ -122,7 +141,7 @@ def _emergency_cleanup(
     if not project_dir or not state:
         return
 
-    logger.info("emergency_cleanup_started")
+    _atexit_safe_log("info", "emergency_cleanup_started")
 
     # 1. Mark current step
     try:
@@ -148,7 +167,7 @@ def _emergency_cleanup(
         elif mode == "read":
             # Cannot release another frame's ReadLock from here; a direct
             # WriteLock acquisition would deterministically self-deadlock.
-            logger.error("emergency_save_skipped_read_lock_holder")
+            _atexit_safe_log("error", "emergency_save_skipped_read_lock_holder")
         else:
             from shenbi.pipeline.machine import transact_state
 
@@ -164,9 +183,9 @@ def _emergency_cleanup(
                     loaded.__dict__.update(state.__dict__)
 
             transact_state(project_dir, _overlay)
-        logger.info("pipeline_state_saved")
+        _atexit_safe_log("info", "pipeline_state_saved")
     except Exception as e:
-        logger.error("pipeline_state_save_failed", error=str(e))
+        _atexit_safe_log("error", "pipeline_state_save_failed", error=str(e))
 
     # 3. Create emergency snapshot
     try:
@@ -176,9 +195,9 @@ def _emergency_cleanup(
             else 0
         )
         _snapshot_chapter_files(project_dir, chapter, label="emergency")
-        logger.info("emergency_snapshot_created")
+        _atexit_safe_log("info", "emergency_snapshot_created")
     except Exception as e:
-        logger.error("emergency_snapshot_failed", error=str(e))
+        _atexit_safe_log("error", "emergency_snapshot_failed", error=str(e))
 
     # 4. Clear staging — C30 R1 (F318): preserve products that already
     # entered a checkpoint (pending an explicit review decision); only
@@ -187,10 +206,10 @@ def _emergency_cleanup(
         from shenbi.pipeline.checkpoint import clear_staging
 
         clear_staging(project_dir, preserve_checkpointed=True)
-        logger.info("staging_cleared_preserving_checkpointed")
+        _atexit_safe_log("info", "staging_cleared_preserving_checkpointed")
     except Exception as e:
         # Best-effort staging wipe; failures here must not block process exit.
-        logger.warning("emergency_staging_clear_failed", error=str(e))
+        _atexit_safe_log("warning", "emergency_staging_clear_failed", error=str(e))
 
 
 def _snapshot_chapter_files(
