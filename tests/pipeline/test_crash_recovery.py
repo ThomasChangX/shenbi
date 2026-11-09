@@ -11,7 +11,17 @@ import shenbi.pipeline.crash_recovery as cr
 
 @pytest.fixture(autouse=True)
 def _reset_crash_state():
-    """Prevent cross-test contamination of module-level emergency globals under xdist."""
+    """Prevent cross-test contamination of module-level emergency globals under xdist.
+
+    Reset on BOTH sides: setup-only reset left _shutdown_requested=True set
+    by test_handle_emergency_signal_sets_flags, poisoning every later test
+    in the same worker whose path consults is_shutdown_requested() (chapter
+    loop step boundaries) — pytest-randomly seed 4 reproduced 7 downstream
+    failures (bundle stepping / redispatch / parallel waves) from this one
+    leak.
+    """
+    cr.reset_emergency_state()
+    yield
     cr.reset_emergency_state()
 
 
