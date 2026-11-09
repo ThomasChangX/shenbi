@@ -3164,12 +3164,20 @@ def _write_parsed_outputs(
                     f"merge_prose: {rel_path} 合并结果尺寸异常（{reason}）——"
                     "场景替换不得大幅缩章，核对清单是否漏列保留场景"
                 )
-            safe_write(full_path, res.new_text, allowed_roots=(project_root,))
+            # spec #84 T0-14: merge_prose writes through the single header
+            # normalization entry too — a non-compliant base header would
+            # otherwise be perpetuated by every revision (review second gap).
+            new_text = res.new_text
+            if _is_chapter_prose_write(rel_path):
+                new_text = normalize_chapter_header(
+                    new_text, int(Path(rel_path).stem.split("-")[1]), project_root
+                )
+            safe_write(full_path, new_text, allowed_roots=(project_root,))
             written.append(rel_path)
             log.info(
                 "output_written",
                 path=rel_path,
-                size=len(res.new_text),
+                size=len(new_text),
                 mode="merge_prose",
                 scenes=[p.scene_no for p in patches],
             )
@@ -3184,10 +3192,8 @@ def _write_parsed_outputs(
             # after each compliant model output; eight probes' artifacts
             # carry the signature). Prose = chapters/chapter-N.md exactly.
             if _is_chapter_prose_write(rel_path):
-                content = ensure_chapter_header(
-                    content,
-                    int(Path(rel_path).stem.split("-")[1]),
-                    style=_chapter_header_style(project_root),
+                content = normalize_chapter_header(
+                    content, int(Path(rel_path).stem.split("-")[1]), project_root
                 )
             safe_write(full_path, content, allowed_roots=(project_root,))
             written.append(rel_path)

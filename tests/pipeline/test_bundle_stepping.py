@@ -21,17 +21,21 @@ from shenbi.pipeline.chapter_loop import (
 from shenbi.pipeline.state import PipelinePhase, PipelineState, ReviewDecision
 
 
-def _w(project_dir: Path, n: int) -> None:
+def _w(project_dir: Path, n: int, number_line: str | None = None) -> None:
     staging = Path(project_dir) / "staging"
     staging.mkdir(parents=True, exist_ok=True)
+    # number_line: None -> canonical Arabic default; "" -> omit (headerless
+    # bundle for the english-prepend pin); otherwise the given form (e.g.
+    # CJK numeral) — spec #84 T0-14 promotion normalization tests.
+    head = f"# 第{n}章" if number_line is None else number_line
+    head_block = [head, f"# 章题{n}"] if head else [f"# 章题{n}"]
     parts = [
         f"===CH:{n}===",
         "## PRE_WRITE_CHECK",
         "",
         "- x",
         "",
-        f"# 第{n}章",
-        f"# 章题{n}",
+        *head_block,
         "",
         "<!--SCENE-->",
         "灯" * 1900,
@@ -51,9 +55,18 @@ def _w(project_dir: Path, n: int) -> None:
     side.write_text("{}", encoding="utf-8")
 
 
-def _project(tmp_path: Path, volume_spans: list[str] | None = None) -> Path:
+def _project(
+    tmp_path: Path,
+    volume_spans: list[str] | None = None,
+    header_style: str | None = "two_line_zh",
+) -> Path:
+    # header_style mirrors production (spec #84): "two_line_zh" by default;
+    # None omits the key -> english default (F1301) for the prepend pin.
+    chapter_word: dict[str, object] = {"default": 3200, "min": 2800, "max": 4000}
+    if header_style is not None:
+        chapter_word["chapter_header_style"] = header_style
     (tmp_path / "genre-config.json").write_text(
-        json.dumps({"chapter_word": {"default": 3200, "min": 2800, "max": 4000}}),
+        json.dumps({"chapter_word": chapter_word}),
         encoding="utf-8",
     )
     if volume_spans:
@@ -403,3 +416,52 @@ def test_chapter_step_dispatch_carries_path_context(
     ctx = captured["path_context"]
     assert ctx is not None, "bundle dispatch lost its chapter — [path-context] carrier missing"
     assert getattr(ctx, "chapter", None) == 1
+
+
+# --- spec #84 T0-14: promotion-path header normalization wiring ---
+
+
+@pytest.mark.integration
+def test_split_step_normalizes_cjk_numeral_header(tmp_path: Path) -> None:
+    """Promotion writes through the single normalization entry: a CJK-numeral
+    bundle (ch41-50 on-disk defect form) converges to the Arabic line.
+    """
+    import re as _re
+
+    _project(tmp_path)
+    _w(tmp_path, 1, number_line="# 第一章")
+    import shenbi.pipeline.chapter_loop as cl
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(
+            cl,
+            "run_gate_g4",
+            lambda *a, **kw: {"status": "PASS", "checks": [], "must_fix": []},
+        )
+        assert _run_scene_split_step(tmp_path, 1) == []
+    text = (tmp_path / "chapters" / "chapter-1.md").read_text(encoding="utf-8")
+    assert _re.search(r"^# 第1章$", text, _re.MULTILINE)
+    assert "第一章" not in text
+
+
+@pytest.mark.integration
+def test_split_step_english_default_prepends_contract_header(tmp_path: Path) -> None:
+    """English-default projects get the F1301 ``# Chapter N:`` prepend on the
+    (newly wired) promotion path — pinned explicitly (plan review I-1). The
+    bundle keeps its zh two-H1 head (the split contract demands two H1s per
+    CH); the english branch only recognizes its own contract line, so the
+    canonical prepend lands on top.
+    """
+    _project(tmp_path, header_style=None)
+    _w(tmp_path, 1)
+    import shenbi.pipeline.chapter_loop as cl
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(
+            cl,
+            "run_gate_g4",
+            lambda *a, **kw: {"status": "PASS", "checks": [], "must_fix": []},
+        )
+        assert _run_scene_split_step(tmp_path, 1) == []
+    text = (tmp_path / "chapters" / "chapter-1.md").read_text(encoding="utf-8")
+    assert text.startswith("# Chapter 1:")
