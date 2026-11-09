@@ -95,6 +95,7 @@ EXPECTED_CALLS: dict[str, list[list[str]]] = {
     "audit-lint": [["--help"]],
     "observe-report": [["--help"]],
     "pool-lint": [["--help"]],
+    "chapter-headers": [["--help"]],  # spec #84 T0-14
     "outline-drift": [["--help"]],  # spec #83 T3
     "pool-archive": [["--help"]],
     "ledger-archive": [["--help"]],
