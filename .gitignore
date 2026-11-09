@@ -92,6 +92,10 @@ staging/
 # novel-output 生产树已出库（spec #63 T1504，前向删除；审计历史在 git log 与 C18 清洗记录）
 novel-output/
 
+# 运行时隔离区（dispatch_helper._quarantine_output——被拒 settle/resettle 原始快照
+# 仅供人工复核，同 novel-output 生产残面，永不入库）
+_quarantine/
+
 # run_pipeline.sh root artifacts, root-anchored (spec #63 F1020)
 /novel-*/
 /pipeline.log
