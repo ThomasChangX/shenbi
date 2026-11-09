@@ -2008,7 +2008,16 @@ def _is_chapter_prose_write(rel_path: str) -> bool:
     )
 
 
-_ZH_CHAPTER_LINE_RE = re.compile(r"^# 第[0-9]+章$", re.MULTILINE)
+# Public (single source, spec #84 T0-14 M-1): the chapter-header scanners are
+# consumed by tools/lint_chapter_headers.py too — never copy the patterns.
+ZH_CHAPTER_LINE_RE = re.compile(r"^# 第[0-9]+章$", re.MULTILINE)
+ZH_CHAPTER_LINE_CJK_RE = re.compile(r"^# 第[一二三四五六七八九十百千零〇]+章$", re.MULTILINE)
+# English-contract header as a per-LINE residue scanner. Derived from the
+# CHAPTER_HEADER_RE prefix contract but LINE-ANCHORED both ends: the shared
+# pattern has no "$" and its "\s+" can cross newlines — as a line scanner it
+# would truncate "# Chapter 41: 旧题" at the colon (title glued onto the
+# replacement) and mis-delete across lines (plan review C1). [ \t] not \s.
+EN_CHAPTER_HEADER_LINE_RE = re.compile(r"^#[ \t]+Chapter[ \t]+\d+:[^\n]*$", re.MULTILINE)
 _META_END_MARKER = "<!--META-END-->"
 
 
@@ -2034,6 +2043,39 @@ def _chapter_header_style(project_root: Path) -> str:
     return style if style in {"english", "two_line_zh"} else "english"
 
 
+def _strip_header_residue_lines(region: str) -> str:
+    """Drop whole CJK-numeral / English-contract header lines (newline-clean)."""
+    return "\n".join(
+        line
+        for line in region.split("\n")
+        if ZH_CHAPTER_LINE_CJK_RE.fullmatch(line) is None
+        and EN_CHAPTER_HEADER_LINE_RE.fullmatch(line) is None
+    )
+
+
+def _normalize_zh_number_lines(region: str, chapter_num: int) -> str:
+    """Converge the scan region to exactly one Arabic ``# 第N章`` line (spec
+    #84 T0-14 I-3): Arabic present -> whole-line-strip any CJK-numeral /
+    English-contract residue; otherwise the first CJK (then English) header
+    line is REPLACED in place by the canonical Arabic line (number taken from
+    *chapter_num* — no CJK-numeral parsing) and any further residue lines are
+    stripped. Returns *region* byte-identical when already canonical.
+    """
+    if ZH_CHAPTER_LINE_RE.search(region):
+        stripped = _strip_header_residue_lines(region)
+        if stripped != region:
+            log.info("chapter_header_normalized", kind="strip_residue", chapter=chapter_num)
+            return stripped
+        return region
+    first = ZH_CHAPTER_LINE_CJK_RE.search(region) or EN_CHAPTER_HEADER_LINE_RE.search(region)
+    if first is None:
+        return region
+    region = region[: first.start()] + f"# 第{chapter_num}章" + region[first.end() :]
+    region = _strip_header_residue_lines(region)
+    log.info("chapter_header_normalized", kind="replace_numeral", chapter=chapter_num)
+    return region
+
+
 def _insert_zh_header(content: str, chapter_num: int) -> str:
     """Spec #84 r6-r7 criterion: bounded by the FIRST literal ``<!--META-END-->``
     line (whole file when absent, insert at head); zero action if a
@@ -2041,27 +2083,35 @@ def _insert_zh_header(content: str, chapter_num: int) -> str:
     chapter-number line only, at the first blank line after META-END (right
     after the END line when none follows).
 
+    T0-14: the scan region first passes ``_normalize_zh_number_lines`` —
+    CJK-numeral lines are replaced in place / residue stripped so any input
+    converges to exactly one Arabic chapter line (wiring the injector without
+    normalization would mint double numbers).
+
     Paired ``META_BLOCK_RE`` locating is FORBIDDEN - the ch17/18 bare-END +
     tail-paired-POST form would mis-resolve the region to EOF (r7: measured
     duplicate chapter-line insertion).
     """
     marker = content.find(_META_END_MARKER)
     if marker == -1:
-        if _ZH_CHAPTER_LINE_RE.search(content):
-            return content
-        return f"# 第{chapter_num}章\n\n" + content
+        region = _normalize_zh_number_lines(content, chapter_num)
+        if ZH_CHAPTER_LINE_RE.search(region):
+            return region
+        return f"# 第{chapter_num}章\n\n" + region
     nl = content.find("\n", marker)
     if nl == -1:  # END 行即文件尾（无尾换行）——扫描域为空，紧跟其后补行
         return content + f"\n# 第{chapter_num}章\n"
     region_start = nl + 1
-    region = content[region_start:]
-    if _ZH_CHAPTER_LINE_RE.search(region):
-        return content
+    region = _normalize_zh_number_lines(content[region_start:], chapter_num)
+    if ZH_CHAPTER_LINE_RE.search(region):
+        return content[:region_start] + region
     m = re.search(r"^\s*$", region, re.MULTILINE)
     if m is None:
         return content[:region_start] + f"# 第{chapter_num}章\n" + region
-    insert_at = region_start + m.start()
-    return content[:insert_at] + f"# 第{chapter_num}章\n" + content[insert_at:]
+    insert_at = m.start()
+    return (
+        content[:region_start] + region[:insert_at] + f"# 第{chapter_num}章\n" + region[insert_at:]
+    )
 
 
 def ensure_chapter_header(content: str, chapter_num: int, style: str = "english") -> str:
@@ -2082,6 +2132,17 @@ def ensure_chapter_header(content: str, chapter_num: int, style: str = "english"
     if CHAPTER_HEADER_RE.match(first_line):
         return content
     return f"# Chapter {chapter_num}:\n\n" + content
+
+
+def normalize_chapter_header(content: str, chapter_num: int, project_root: Path) -> str:
+    """Single normalization entry for EVERY chapter-prose write path (spec
+    #84 T0-14 / 手工通道纪律): resolves ``chapter_header_style`` from the
+    project's genre-config and delegates to :func:`ensure_chapter_header`.
+    Idempotent for compliant content; the english default keeps F1301
+    semantics (``# Chapter N:`` prepend when the first line misses the
+    contract).
+    """
+    return ensure_chapter_header(content, chapter_num, style=_chapter_header_style(project_root))
 
 
 def _is_audit_file(path: str) -> bool:

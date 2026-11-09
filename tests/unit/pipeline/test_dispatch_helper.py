@@ -1049,6 +1049,100 @@ def test_ensure_chapter_header_english_default_unchanged() -> None:
     assert ensure_chapter_header("# Chapter 5:\n正文。", 5) == "# Chapter 5:\n正文。"
 
 
+# --- spec #84 T0-14: CJK-numeral / English-residue normalization (I-3/M-6) ---
+
+
+def test_insert_zh_header_normalizes_cjk_numeral_in_place() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    body = "<!--META-END-->\n\n# 第四十一章\n\n# 勾名\n\n正文。"
+    out = ensure_chapter_header(body, 41, style="two_line_zh")
+    assert "# 第41章" in out
+    assert "第四十一章" not in out
+    assert "# 勾名" in out  # 章题不动
+
+
+def test_insert_zh_header_strips_cjk_line_when_arabic_present() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    body = "<!--META-END-->\n\n# 第41章\n\n# 第四十一章\n\n# 勾名\n\n正文。"
+    out = ensure_chapter_header(body, 41, style="two_line_zh")
+    assert out.count("# 第41章") == 1
+    assert "第四十一章" not in out
+
+
+def test_insert_zh_header_strips_english_header_residue() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    body = "<!--META-END-->\n\n# Chapter 41:\n\n# 第41章\n\n# 勾名\n\n正文。"
+    out = ensure_chapter_header(body, 41, style="two_line_zh")
+    assert "Chapter 41" not in out
+    assert out.count("# 第41章") == 1
+
+
+def test_insert_zh_header_replaces_english_line_when_no_zh() -> None:
+    import re as _re
+
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    body = "# Chapter 41: 旧题\n\n# 勾名\n\n正文。"
+    out = ensure_chapter_header(body, 41, style="two_line_zh")
+    # Full-line assertion: the canonical line must be line-anchored complete —
+    # a substring assert would pass even with the old title glued on (C1).
+    assert _re.search(r"^# 第41章$", out, _re.MULTILINE)
+    assert "Chapter 41" not in out
+    assert "旧题" not in out
+    assert "# 勾名" in out
+
+
+def test_insert_zh_header_arabic_present_pure_is_byte_identical() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    body = "<!--META-END-->\n\n# 第41章\n\n# 勾名\n\n正文。"
+    assert ensure_chapter_header(body, 41, style="two_line_zh") == body
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "<!--META-END-->\n\n# 第四十一章\n\n# 勾名\n\n正文。",
+        "<!--META-END-->\n\n# 第41章\n\n# 第四十一章\n\n# 勾名\n\n正文。",
+        "# Chapter 41: 旧题\n\n# 勾名\n\n正文。",
+        "<!--META-END-->\n\n# Chapter 41:\n\n# 第41章\n\n# 勾名\n\n正文。",
+    ],
+)
+def test_normalize_chapter_header_converges_idempotent(body: str, tmp_path: Path) -> None:
+    """Convergence pin: normalizing twice equals once, for every dirty form."""
+    from shenbi.pipeline.dispatch_helper import normalize_chapter_header
+
+    (tmp_path / "genre-config.json").write_text(
+        '{"chapter_word": {"chapter_header_style": "two_line_zh"}}', encoding="utf-8"
+    )
+    once = normalize_chapter_header(body, 41, tmp_path)
+    assert normalize_chapter_header(once, 41, tmp_path) == once
+    assert once.count("# 第41章") == 1
+    assert "第四十一章" not in once and "Chapter" not in once
+
+
+def test_normalize_chapter_header_wrapper_resolves_style(tmp_path: Path) -> None:
+    from shenbi.pipeline.dispatch_helper import normalize_chapter_header
+
+    (tmp_path / "genre-config.json").write_text(
+        '{"chapter_word": {"chapter_header_style": "two_line_zh"}}', encoding="utf-8"
+    )
+    body = "# 第四十二章\n\n# 过站\n\n正文。"
+    out = normalize_chapter_header(body, 42, tmp_path)
+    assert "# 第42章" in out and "第四十二章" not in out
+
+
+def test_normalize_chapter_header_wrapper_english_default(tmp_path: Path) -> None:
+    """No genre-config -> english default keeps F1301 semantics (I-1)."""
+    from shenbi.pipeline.dispatch_helper import normalize_chapter_header
+
+    out = normalize_chapter_header("正文。", 5, tmp_path)
+    assert out == "# Chapter 5:\n\n正文。"
+
+
 def test_write_parsed_outputs_normalizes_chapter_header(tmp_path: Path) -> None:
     """Walk the real _write_parsed_outputs write path; headerless chapter-3.md gets normalized."""
     from shenbi.pipeline import dispatch_helper as dh
