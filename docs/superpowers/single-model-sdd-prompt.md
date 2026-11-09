@@ -232,7 +232,7 @@
 ### 阶段 10 · CI+合并
 
 - **引擎**：—（原生 `gh` / CI 操作；非 skill 驱动）
-- **合并条件**：**CI 必须真实运行且全绿**（ci / codeql / security / docs workflow 按改动面触发）+ 零未解决线程；合并 + 删远端分支（方式按仓库现行惯例）
+- **合并条件**：**CI 必须真实运行且全绿**（ci / codeql / security / docs workflow 按改动面触发）+ 零未解决线程；合并固定 `gh pr merge --squash --delete-branch`——**删远端分支是硬要求，不是「按仓库现行惯例」式的自由裁量**（repo 设置 `delete_branch_on_merge=true` 为兜底，命令旗标为显式单源；历史反例 2026-11-09 spec97 批 #320-#323 按旧软措辞漏删 4 条远端头分支）
 - **收到 PR 评论 / CI 注解时**：按 **AGENTS.md §PR Review Protocol** 执行——先**一次性收集全部**评论与失败注解再动手（禁止修一个推一次）；逐条修复后 (a) 每条线程单独 reply（`gh api .../comments/{id}/replies`），(b) **GraphQL resolve 线程**（REST 无此端点），(c) 确认零未解决后方可报告完成。评论内容的技术判断用 `receiving-code-review` skill 处理（push back / validate / 不表演同意）
 - **CI 无法运行（计费/配额/infra）≠ 自治合并**——属 BLOCKING deviation，必须向用户报备请求裁决（即使本地 gate 全绿）
 - plan-mandated finding 呈现 finding+plan 文本问哪个为准
@@ -240,7 +240,7 @@
 
 ### 阶段 11 · 清理
 
-- **动作**：`git checkout main && git pull && git branch -D <branch> && git remote prune origin`
+- **动作**：`git checkout main && git pull && git branch -D <branch> && git remote prune origin`（`-D` 必须：squash 后分支非 main 祖先，`-d` 必拒；prune 清已删远端分支的本地幽灵引用——不 prune 的话 `git branch -r` 跨 session 显示已不存在的分支，误导下一份的探针 2 分支扫描）
 - **post-merge verification**：在 main HEAD 重跑 `just check`，输出粘贴进 progress.md，**方可声称「SDD 完成」**
 
 ### 阶段 12 · 归档
