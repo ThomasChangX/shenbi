@@ -75,6 +75,12 @@ _COUNTER_SUFFIX_RE = re.compile(
 )
 
 
+#: 材料/包装类前置字——后缀短称紧跟其后时属"另一个复合词"（油纸包 ≠ 红纸包），
+#: 不算引用（束8 ch49 实弹：『旧红纸包』尾短称命中『油纸包』）。窄集，只收
+#: 常见包材/材料修饰字；功能字/动词（把/从/揣…）不在此集。
+_COMPOUND_PREFIX_CHARS = frozenset("油皮纸布塑胶铁木竹石泥铜银锡麻棉绸缎瓷陶蜡漆")
+
+
 def entity_in_text(entity: str, text: str) -> bool:
     """Three-form entity matcher (spec #80 T5 / plan R3-M2).
 
@@ -95,7 +101,35 @@ def entity_in_text(entity: str, text: str) -> bool:
         return False
     if _COUNTER_SUFFIX_RE.match(suffix):
         return False
-    return len(entity) >= 3 and suffix in text
+    return _suffix_short_form_hit(entity, suffix, text)
+
+
+def _suffix_short_form_hit(entity: str, suffix: str, text: str) -> bool:
+    """Boundary-aware last-two-chars short form (「骨哨」class).
+
+    束8 ch49 live fire: entity 「旧红纸包」's 2-char suffix 「纸包」 matched
+    the compound 「油纸包」 (老陈's ink wrapping) inside a hand-off paragraph —
+    a false positive. Rule: a suffix occurrence counts only when it is
+    (a) at a non-CJK boundary, or (b) preceded by an earlier char of the
+    entity itself (「红纸包」 for 「旧红纸包」 — a legitimate tail form).
+    A suffix embedded after a foreign char (油/牛皮/…) is a different compound.
+    """
+    if len(entity) < 3:
+        return False
+    earlier = set(entity[:-2])
+    for m in re.finditer(re.escape(suffix), text):
+        i = m.start()
+        if i == 0:
+            return True
+        prev = text[i - 1]
+        if not ("\u4e00" <= prev <= "\u9fff"):
+            return True  # ASCII/punct boundary — standalone occurrence
+        if prev in earlier:
+            return True  # entity's own earlier char (「红纸包」 for 「旧红纸包」)
+        if prev not in _COMPOUND_PREFIX_CHARS:
+            return True  # function word / verb before a standalone noun (把骨哨/了纸包)
+        # else: material/packaging modifier forming a different compound (油纸包)
+    return False
 
 
 def _handoff_paragraphs(text: str) -> list[str]:
