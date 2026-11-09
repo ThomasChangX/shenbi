@@ -163,3 +163,38 @@ def test_merge_prose_normalizes_cjk_base_header(
     assert "# 第9章" in text
     assert "第九章" not in text
     assert "场景一改写。" in text
+
+
+def test_merge_prose_english_default_prepends_contract_header(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """English-default (config-less) merge_prose keeps F1301 semantics: the
+    canonical ``# Chapter N:`` prepend lands on the merged output (M4 pin).
+    """
+    import shenbi.pipeline.dispatch_helper as dh
+
+    project = tmp_path  # no genre-config -> english default
+    (project / "chapters").mkdir(exist_ok=True)
+    (project / "chapters" / "chapter-9.md").write_text(
+        "# 第9章\n<!--SCENE-->\n场景一原文。\n<!--SCENE-->\n场景二原文。\n",
+        encoding="utf-8",
+    )
+    import shenbi.contracts as contracts_mod
+
+    orig = contracts_mod.load_contract
+
+    def _fake_contract(skill_name: str) -> object:
+        if skill_name == "shenbi-chapter-revision":
+            return {"write_semantics": {"chapters/chapter-N.md": {"mode": "merge_prose"}}}
+        return orig(skill_name)
+
+    monkeypatch.setattr(contracts_mod, "load_contract", _fake_contract)
+    dh._write_parsed_outputs(
+        "",
+        ["chapters/chapter-9.md"],
+        project,
+        skill="shenbi-chapter-revision",
+        parsed={"chapters/chapter-9.md": _payload({"1": "场景一改写。", "2": "场景二改写。"})},
+    )
+    text = (project / "chapters" / "chapter-9.md").read_text(encoding="utf-8")
+    assert text.startswith("# Chapter 9:")

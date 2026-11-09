@@ -64,7 +64,11 @@ def main(argv: list[str]) -> int:
     if not chapters.is_dir():
         sys.stdout.write(f"FAIL: {chapters} not found\n")
         return 2
-    files = sorted(p for p in chapters.iterdir() if _CHAPTER_STEM_RE.fullmatch(p.stem))
+    # Suffix + stem fullmatch mirrors the src-side predicate
+    # (_is_chapter_prose_write) — single-source judgment shape.
+    files = sorted(
+        p for p in chapters.iterdir() if p.suffix == ".md" and _CHAPTER_STEM_RE.fullmatch(p.stem)
+    )
     if not files:
         sys.stdout.write(f"FAIL: no chapter-<N>.md under {chapters}\n")
         return 2

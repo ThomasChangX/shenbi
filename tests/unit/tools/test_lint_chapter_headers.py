@@ -81,3 +81,12 @@ def test_empty_chapters_dir_fails_loud(tmp_path: Path, capsys) -> None:
     (tmp_path / "chapters").mkdir()
     assert main([str(tmp_path)]) == 2
     assert "no chapter" in capsys.readouterr().out
+
+
+def test_non_md_files_excluded(tmp_path: Path, capsys) -> None:
+    """chapter-9.txt (stem matches, suffix doesn't) never enters the check."""
+    chapters = tmp_path / "chapters"
+    chapters.mkdir()
+    (chapters / "chapter-9.txt").write_text("not a chapter file", encoding="utf-8")
+    assert main([str(tmp_path)]) == 2  # no eligible .md -> fail-loud, not a false check
+    assert "no chapter" in capsys.readouterr().out
