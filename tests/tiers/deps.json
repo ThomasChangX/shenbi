@@ -281,7 +281,7 @@
     "src/shenbi/pipeline/state.py": "sha256:2b1e27bce869d43111197c5404903715a59fc5cfca3d6576e5f7e366949bc636",
     "src/shenbi/pipeline/llm_output_integrity.py": "sha256:8277bc3bb2c54149e88192b2cb048a72c1959ec6c3e2b89614c9d761b37a1d84",
     "src/shenbi/pipeline/genesis.py": "sha256:cbd92dc99429e6d757cde25056816694812d201e5f4fe1fdb9901b473fa9abe4",
-    "src/shenbi/pipeline/crash_recovery.py": "sha256:7905665dede308c8a1e6e242833293c75ab0b05ac05547cb519cf1bbe9dd7808",
+    "src/shenbi/pipeline/crash_recovery.py": "sha256:b02991ecf9b13adc0983cf757bb454f519fe2b45d4b330d2026e5ef2f2cde58a",
     "src/shenbi/records/drift.py": "sha256:860cff5a6f251b1d920a91a709dbccd56a6a64947616f5aca6920f19ad380dc5",
     "src/shenbi/records/__init__.py": "sha256:13e2e1faee3623f3a1c8d49d6439915d55a16735ab9a68499434bae0ec6362f5",
     "src/shenbi/records/parser.py": "sha256:2bb3d1ea50045a7f018c939f33c1aaadbd92bc1df54ab885b57f87f06ee6220a",
