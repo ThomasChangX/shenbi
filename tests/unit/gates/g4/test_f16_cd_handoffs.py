@@ -8,6 +8,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from shenbi.gates.g4.chapter_drafting import check_prop_handoffs
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 
@@ -207,3 +209,49 @@ def test_xc_fallback_full_severity_without_facts(tmp_path: Path):
     issues = check_cross_chapter(ch, prev, None, ctx_fallback)
     # registry 缺席 → known_props 空 → 无物象可查（不炸即回退层健在）
     assert isinstance(issues, list)
+
+
+# --- 束8 实弹（2026-11-09 ch49）：META 面假阳性回归钉 ---
+
+
+@pytest.mark.unit
+def test_pre_write_check_meta_block_not_scanned(tmp_path: Path) -> None:
+    """PRE_WRITE_CHECK 的任务复述行不得触发 prop_handoff（raw 面假阳性）。
+
+    束8 ch49 现场：PRE 行「把…班期表逐条对勘，补出「班期对勘表」交上去」含
+    物象+交接动词+人名，raw 面 4 假阳性；正文（strip_narrative_body 后）干净。
+    """
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    props = {"旧红纸包": {"owner": "那罕"}}
+    plan = tmp_path / "plans" / "chapter-1-plan.md"
+    plan.parent.mkdir(parents=True)
+    plan.write_text("# 第1章 章节备忘\n", encoding="utf-8")
+    facts = tmp_path / "truth" / "facts"
+    facts.mkdir(parents=True)
+    (facts / "props.json").write_text(
+        '{"$schema":"shenbi-facts-v1","dim":"props","facts":'
+        '{"旧红纸包":{"entity":"旧红纸包","owner":"那罕","events":[]}},"ops_log":[]}',
+        encoding="utf-8",
+    )
+    body = "他推门进去，站了一息。\n\n他数了三遍，没说话。\n"
+    meta = (
+        "<!--META-BEGIN-->\n## PRE_WRITE_CHECK\n\n"
+        "- 本章核心任务: 把旧红纸包交给赵瘸子过目，再收回来\n\n"
+        "## POST_WRITE_SELF_CHECK\n\n- [x] 无反思句/元叙事: 是\n<!--META-END-->\n"
+    )
+    ch = tmp_path / "chapters" / "chapter-1.md"
+    ch.parent.mkdir(parents=True)
+    ch.write_text(
+        "---\nprovenance: real-output\n---\n\n# 第1章\n\n" + body + meta, encoding="utf-8"
+    )
+    result = json.loads(g4_chapter_drafting([str(ch)], rd=str(tmp_path), project_dir=str(tmp_path)))
+    mf = result.get("must_fix", [])
+    assert not any("prop_handoff" in m for m in mf), mf
+    # 直接函数级对照：raw 有、stripped 无
+    from shenbi.gates.g4.chapter_drafting import check_prop_handoffs
+    from shenbi.gates.shared import strip_narrative_body
+
+    raw = ch.read_text(encoding="utf-8")
+    assert check_prop_handoffs(raw, "", props, {"那罕", "赵瘸子"})
+    assert not check_prop_handoffs(strip_narrative_body(raw), "", props, {"那罕", "赵瘸子"})
