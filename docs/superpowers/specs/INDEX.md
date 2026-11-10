@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-11-10（**#84 完结归档**（PR #325——T0-14 章头归一接线三路[晋升/merge_prose/直写]+在盘修复 ch39-50+`just chapter-headers` 断言工具；r14 勘误 r13「14 项完成」失实声明；Task 10 收口=断供钩 6/7 勾+第三哨挂账/G3.4 r4 维持挂账；卷二续跑 ch51+ 待用户令[批粒度分叉 #101 候选]）；顺带清偿 #100 归档删行残留的无头 body 块[PR #317 删行不完整]）
-> **活跃 spec 数**：11
+> **最后更新**：2026-11-11（**#86 完结归档**（PR #328——死面清扫批：6 面 src 净减 1008 行[scr_extractor 493→36/review_checklist 死半边/chapter_loop 死分支族/trace 双模块/capability_fs 迁 tests/executor_config 6 块+registry 死 kind]；两轮驳斥+四轮设计/plan 审查收敛；7 task 全 audit；#87 前置达成可开工）
+> **活跃 spec 数**：10
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,16 +9,6 @@
 ---
 
 ## 执行队列
-
-### #86 · 死面清扫批（dead-surface-purge）
-
-- **文件**：`2026-11-01-spec86-dead-surface-purge.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r3.5** 2026-11-10 两轮驳斥+两轮设计审查修订——10/10 死面主张存活；连带清单四轮收敛：STATIC/DYNAMIC_FIELDS 改判死常量、lint 两面、test_triggers:233 改判不删、spec83 canary 同步、concurrency:268-274 守卫删、pyproject ignores 键迁移、regen_reset 三处（含 :228 调用行）、truth-files producer 保留 pipeline+历史化、T1 语义三钉、T9 生成物同步、全 T 显式判据+防假红） ｜ **优先级**：🟠 P1
-- **依赖**：**#87 的前置**（拆分前减重）；全部条目 grep 亲验零引用
-- **内容**：scr_extractor 缩编（**StructuredChapterRepresentation 17 字段 16 死** → 单函数 ~20 行，含两调用点与测试改写；文件 ≤60 行；step-6 条目保留 pass-through 归 #87）/ review_checklist 死半边（8 死函数+**STATIC/DYNAMIC_FIELDS 死常量（r3 改判）**）+`__all__` 收缩 / chapter_loop 死分支 ×4+manifest 三函数+**3 孤儿 helper（r3）**+lint_key_reconciliation 两锚 / **trace materialize+replay 删除**（r2 改判：零消费者+第二套 trace 读取器；连带 6 测试文件；替代条款=若事件溯源为既定方向则保留原状另立项）/ capability_fs 迁 tests 支撑（tests/support 新建）/ executor_config **按键删 6 个 deprecated skill 覆盖块**（禁按行区间——判据 `deprecated_skill_names`）+ registry 死 kind "short"（schemas/registry.py:38）。src 净减 ≥650 行
-- **对应 plan**：待执行时建
-- **触及的不变量维度**：无（纯删除零引用面）
-
----
 
 ### #87 · god 文件拆分与正名（god-file-decomposition）
 
