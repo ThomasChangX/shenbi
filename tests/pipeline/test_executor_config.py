@@ -49,19 +49,19 @@ def test_score_skills_have_low_temperature():
 
 
 def test_discriminative_review_queue_has_low_temperature():
-    """9 discriminative review skills must have temperature ≤0.2 (spec §2.1 P0)."""
+    """5 discriminative review skills must have temperature ≤0.2 (spec §2.1 P0).
+
+    The 4 deprecated discriminative skills (memo-compliance / world-rules /
+    pov / dialogue) were removed with their override blocks in spec #86 T6.
+    """
     config = _load_config()
     overrides = config.get("overrides", {})
     discriminative = [
-        "shenbi-review-memo-compliance",
-        "shenbi-review-world-rules",
         "shenbi-review-arc-payoff",
-        "shenbi-review-pov",
         "shenbi-review-era",
         "shenbi-review-fanfic",
         "shenbi-review-sensitivity",
         "shenbi-review-spinoff",
-        "shenbi-review-dialogue",
     ]
     for skill in discriminative:
         assert skill in overrides, f"{skill} missing temperature override"

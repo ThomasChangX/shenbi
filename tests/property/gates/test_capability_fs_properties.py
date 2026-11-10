@@ -6,7 +6,7 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from shenbi.capability_fs import CapabilityFS
+from tests.support.capability_fs import CapabilityFS
 
 
 @given(

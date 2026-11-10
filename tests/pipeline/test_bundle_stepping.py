@@ -319,7 +319,6 @@ def test_two_chapter_bundle_loop_drive(tmp_path: Path) -> None:
         )
         mp.setattr(cl, "_any_audit_has_findings", lambda *a, **kw: False)
         mp.setattr(cl, "_check_volume_map_alignment", lambda *a, **kw: None)
-        mp.setattr(cl, "_run_post_draft_extract", lambda *a, **kw: None)
         mp.setattr(cl, "_run_g4_checks", lambda state, n: [])
         mp.setattr(cl, "_run_context_assembly", lambda *a, **kw: None)
         mp.setattr(

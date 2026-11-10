@@ -31,7 +31,7 @@ Field-mapping and arbitration rules (spec #21 R2, audit r1 C2 + r2 I-2/I-3):
   consumers must ``isinstance(x, int)``-guard numeric use and log skips).
 
 All downstream readers (gates/g6 G6.7, truth_index body source,
-chapter_loop conditional-resolve) MUST go through :func:`read_pending_hooks` —
+chapter_loop pending-hooks consumption) MUST go through :func:`read_pending_hooks` —
 no second parser.
 """
 

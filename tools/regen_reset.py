@@ -146,16 +146,6 @@ def _normalize_thread_map(thread_map: Path) -> None:
         thread_map.write_text(normalized, encoding="utf-8")
 
 
-def _clear_snapshots_key(project_dir: Path) -> None:
-    """Drop last_drift_chapter from snapshots/manifest.json (absent dir is fine)."""
-    snaps = project_dir / "snapshots" / "manifest.json"
-    if not snaps.is_file():
-        return
-    data = json.loads(snaps.read_text(encoding="utf-8"))
-    data.pop("last_drift_chapter", None)
-    snaps.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-
-
 def _clear_derived_caches(project_dir: Path) -> None:
     """Delete embeddings/index/context — stale chapter chunks poison regeneration."""
     for f in _DERIVED_CACHE_FILES:
@@ -183,7 +173,6 @@ def _plan_actions(project_dir: Path, tag: str) -> list[str]:
     ]
     actions.append("reset      pipeline-state.json (genesis/config/version/project_dir kept)")
     actions.append("regen      progress.json (genesis trace kept)")
-    actions.append("clear      snapshots/manifest.json last_drift_chapter")
     actions += [
         f"delete     {f} (stale chapter chunks would poison context)"
         for f in _DERIVED_CACHE_FILES
@@ -225,7 +214,6 @@ def _execute_reset(project_dir: Path, tag: str, actions: list[str]) -> None:
         _reset_state(state_path)
     _reset_progress(project_dir / "progress.json", "chapter-loop")
 
-    _clear_snapshots_key(project_dir)
     _clear_derived_caches(project_dir)
 
     for lock in project_dir.rglob("*.lockfile"):

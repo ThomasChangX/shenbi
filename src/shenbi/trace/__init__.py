@@ -2,8 +2,6 @@
 
 from shenbi.trace.compaction import verify_chain
 from shenbi.trace.event import GENESIS_PREV, TraceEvent, canonical_payload, sign
-from shenbi.trace.materialize import materialize_progress
-from shenbi.trace.replay import replay
 from shenbi.trace.versioning import (
     CURRENT_VERSION,
     assert_monotonic,
@@ -18,9 +16,7 @@ __all__ = [
     "TraceWriter",
     "assert_monotonic",
     "canonical_payload",
-    "materialize_progress",
     "migrate_to_current",
-    "replay",
     "sign",
     "verify_chain",
 ]

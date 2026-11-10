@@ -99,8 +99,9 @@ concepts:
   #   crash_recovery._snapshot_chapter_files (label always "emergency").
   - {name: snapshots/chapter-N-emergency.md, kind: snapshot, producer: pipeline}
   # pipeline-written files (no skill producer):
-  # drift marker only (chapter_loop._update_last_drift_manifest writes
-  # last_drift_chapter); NOT a snapshot index.
+  # historical leftover: the writer (chapter_loop._update_last_drift_manifest)
+  # was removed in spec #86; on-disk files on existing projects are tolerated,
+  # no new writes (producer kept as pipeline for the R2 exemption — see #86 r3.3).
   - {name: snapshots/manifest.json, kind: config, producer: pipeline}
   - {name: truth-index.json, kind: truth, producer: pipeline}
   - {name: pipeline-state.json, kind: config, producer: pipeline}

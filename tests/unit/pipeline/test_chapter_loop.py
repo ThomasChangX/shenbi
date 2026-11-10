@@ -332,48 +332,6 @@ class TestChapterCompletion:
 
 
 # ---------------------------------------------------------------------------
-# Conditional foreshadowing-resolve
-# ---------------------------------------------------------------------------
-class TestConditionalResolve:
-    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
-    def test_triggered_hooks_dispatch_resolve(self, mock_disp, tmp_path):
-        # Real ch56 product (G0.9): P0-4 is TRIGGERED in the lifecycle table
-        import shutil
-
-        from shenbi.pipeline.chapter_loop import _check_conditional_resolve
-
-        src = Path("tests/fixtures/pipeline/truth-pending_hooks-ch56.md")
-        if not src.exists():
-            src = next(Path("tests/fixtures").rglob("truth-pending_hooks-ch56.md"))
-        hooks_file = tmp_path / "truth" / "pending_hooks.md"
-        hooks_file.parent.mkdir(parents=True)
-        shutil.copyfile(src, hooks_file)
-        state = PipelineState.default(str(tmp_path))
-        _check_conditional_resolve(state, tmp_path, 1)
-        assert mock_disp.called
-        assert "foreshadowing-resolve" in mock_disp.call_args[0][0]
-
-    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
-    def test_no_triggered_hooks_no_resolve(self, mock_disp, tmp_path):
-        from shenbi.pipeline.chapter_loop import _check_conditional_resolve
-
-        hooks_file = tmp_path / "truth" / "pending_hooks.md"
-        hooks_file.parent.mkdir(parents=True)
-        hooks_file.write_text(
-            "---\nhooks:\n  - id: H01\n    state: PLANTED\n---\nbody",
-            encoding="utf-8",
-        )
-        state = PipelineState.default(str(tmp_path))
-        _check_conditional_resolve(state, tmp_path, 1)
-        assert not mock_disp.called
-
-    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
-    def test_missing_hooks_file_no_crash(self, mock_disp, tmp_path):
-        from shenbi.pipeline.chapter_loop import _check_conditional_resolve
-
-        state = PipelineState.default(str(tmp_path))
-        _check_conditional_resolve(state, tmp_path, 1)
-        assert not mock_disp.called
 
 
 # ---------------------------------------------------------------------------
@@ -541,30 +499,6 @@ class TestConditionalResolveIntegration:
             run_chapter_step(state, tmp_path)
         # spec #72: advances past lifecycle (7) and settling (8) to index 9
         assert state.chapter_loop.step_index == 9
-
-    def test_track_step_with_triggered_hooks_dispatches_resolve(self, tmp_path):
-        """_check_conditional_resolve dispatches resolve when TRIGGERED hooks exist."""
-        # Real ch56 product (G0.9): P0-4 is TRIGGERED in the lifecycle table
-        import shutil
-
-        from shenbi.pipeline.chapter_loop import _check_conditional_resolve
-
-        src = Path("tests/fixtures/pipeline/truth-pending_hooks-ch56.md")
-        if not src.exists():
-            src = next(Path("tests/fixtures").rglob("truth-pending_hooks-ch56.md"))
-        hooks_file = tmp_path / "truth" / "pending_hooks.md"
-        hooks_file.parent.mkdir(parents=True)
-        shutil.copyfile(src, hooks_file)
-        state = PipelineState.default(str(tmp_path))
-        with patch("shenbi.pipeline.chapter_loop.dispatch_skill") as mock_disp:
-            mock_disp.return_value = DispatchResult(True, 0, "{}", "")
-            _check_conditional_resolve(state, tmp_path, 1)
-        # dispatch_skill called for resolve
-        assert mock_disp.call_count >= 1
-        resolve_skills = [
-            c[0][0] for c in mock_disp.call_args_list if "foreshadowing-resolve" in c[0][0]
-        ]
-        assert len(resolve_skills) >= 1
 
 
 # ---------------------------------------------------------------------------

@@ -46,8 +46,8 @@ class TestConceptDefaults:
         c = RegistryConcept(name="x.md", kind="truth", producer="pipeline")
         assert c.producer == "pipeline"
 
-    def test_kind_literal_all_16(self):
-        # all 16 real kinds must be accepted
+    def test_kind_literal_all_15(self):
+        # all 15 real kinds must be accepted
         kinds = [
             "benchmark",
             "chapter",
@@ -60,7 +60,6 @@ class TestConceptDefaults:
             "plan",
             "reference",
             "report",
-            "short",
             "snapshot",
             "style",
             "truth",

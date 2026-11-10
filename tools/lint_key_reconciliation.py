@@ -129,20 +129,6 @@ READ_KEY_REGISTRY: list[ReadKey] = [
         "audit_results[<short>] = {passed, hard_failures}",
         ["src/shenbi/pipeline/chapter_loop.py: cs.audit_results[short] = _wave_audit_entry("],
     ),
-    # --- drift-guidance alert surface (T5) ---
-    ReadKey(
-        "chapterloop/drift-guidance",
-        "src/shenbi/pipeline/chapter_loop.py: _drift_guidance_triggered",
-        "truth/audit_drift.md drift-finding lines",
-        ["src/shenbi/skill_utils/drift_detection/compute_drift.py: def _append_audit"],
-    ),
-    # --- pending hooks single parser (T5) ---
-    ReadKey(
-        "chapterloop/pending-hooks",
-        "src/shenbi/pipeline/chapter_loop.py: _check_conditional_resolve",
-        "truth/pending_hooks.md hook records",
-        ["src/shenbi/pipeline/truth_readers.py: def read_pending_hooks"],
-    ),
     # --- avg G3 score contract keys (T5) ---
     # --- rubric applicability lint face (T7; F104/F757 parser face was
     # implemented by spec #9 R4 — this entry pins the reconciliation) ---
