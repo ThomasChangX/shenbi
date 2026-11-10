@@ -17,7 +17,7 @@
 | CommandStatus | shenbi.status.CommandStatus | ok\|blocked\|error\|exists\|degraded | phase_runner、pipeline/cli.py、pipeline/truth_embed.py | CLI 消费者（DEGRADED 为 T908 收编 truth_embed 越表值；T9 行 35 的 cli not_implemented 形态已由先前 ERROR 化统一，不另立） |
 | ScoringStatus | shenbi.status.ScoringStatus | ok\|REJECT\|MARKER_MISSING\|UNIMPLEMENTED | scoring.py | dispatcher |
 | ScoreClassification | shenbi.status.ScoreClassification | PASS\|CONDITIONAL\|MARGINAL\|FAIL | scoring.classify | - |
-| SkillProgressStatus | shenbi.status.SkillProgressStatus | pending\|done\|skip | dispatcher/modes/codex.py、trace/materialize.py | gates/g_reconcile.py（容错读旧大写 DONE，T906） |
+| SkillProgressStatus | shenbi.status.SkillProgressStatus | pending\|done\|skip | dispatcher/modes/codex.py | gates/g_reconcile.py（容错读旧大写 DONE，T906） |
 | AuditSeverity | shenbi.contracts.enums.Severity | BLOCKING\|CRITICAL\|MINOR | 审计产出 | escalation 路由（regex 域大小写归一后比对，revision_router.py、parallel_dispatch.py） |
 | ReviewVerdict | shenbi.contracts.enums.Verdict | 通过\|有瑕疵\|不通过 | review-* 技能 md | 评分/审计读取 |
 | ResonanceVerdict | shenbi.contracts.enums.ResonanceVerdict | 通过\|阻断\|待人机复核 | review-resonance 技能 md | gates/g4/review_resonance.py（T902：_VERDICTS 裸 tuple 收编） |

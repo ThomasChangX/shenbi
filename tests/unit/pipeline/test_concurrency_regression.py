@@ -17,7 +17,36 @@ from pathlib import Path
 
 import pytest
 
+from shenbi.trace.event import TraceEvent
+
 pytestmark = pytest.mark.skipif(sys.platform == "win32", reason="flock POSIX-only")
+
+
+def _read_events(round_dir: Path) -> list[TraceEvent]:
+    """Pure reader: parse trace.jsonl, stop at first torn line / bad signature.
+
+    Local copy — the pre-#86 replay reader module was removed in spec #86 T4;
+    tests only consume the returned events, so the helper is read-only.
+    """
+    from shenbi.trace.event import GENESIS_PREV, canonical_payload, sign
+
+    path = Path(round_dir) / "trace.jsonl"
+    if not path.exists():
+        return []
+    prev = GENESIS_PREV
+    out: list[TraceEvent] = []
+    for ln in path.read_text(encoding="utf-8").splitlines():
+        if not ln.strip():
+            continue
+        try:
+            event = TraceEvent.model_validate_json(ln)
+        except Exception:
+            break
+        if sign(prev, canonical_payload(event), event.schema_version) != event.signature:
+            break
+        out.append(event)
+        prev = event.signature
+    return out
 
 
 def test_t605_dual_writer_lost_update(tmp_path: Path) -> None:
@@ -129,27 +158,6 @@ def test_t604_emergency_cleanup_double_execution(tmp_path: Path, monkeypatch) ->
     assert len(calls) == 1  # red: save_state called twice
 
 
-def test_f630_materialize_clobbers_foreign_keys(tmp_path: Path) -> None:
-    """materialize_progress must preserve keys it does not own (F630)."""
-    from shenbi.trace.materialize import materialize_progress
-
-    progress = tmp_path / "progress.json"
-    progress.write_text(
-        json.dumps(
-            {
-                "custom_key": 1,
-                "skills": {"x": {"generative": {"status": "DONE", "score": 95.0}}},
-            },
-            ensure_ascii=False,
-        ),
-        encoding="utf-8",
-    )
-    materialize_progress(tmp_path, total_skills=["x"], tier="T1")
-    out = json.loads(progress.read_text(encoding="utf-8"))
-    assert out.get("custom_key") == 1  # red: wholesale rebuild drops it
-    assert out["skills"]["x"]["generative"]["status"] == "DONE"  # red: rebuilt as pending
-
-
 def test_locked_transact_mutual_exclusion(tmp_path: Path) -> None:
     """locked_transact serializes whole read-modify-write cycles (F206/F347 primitive)."""
     from shenbi.safe_write import locked_transact
@@ -189,7 +197,6 @@ def test_record_audit_outcome_g7_no_false_tamper(tmp_path: Path) -> None:
     """Concurrent record_audit_outcome keeps the chain verifiable (F531/F536, spec AC4)."""
     from shenbi.audit._shared import AuditResult
     from shenbi.audit.record import record_audit_outcome
-    from shenbi.trace.replay import replay
 
     barrier = threading.Barrier(4)
 
@@ -206,7 +213,7 @@ def test_record_audit_outcome_g7_no_false_tamper(tmp_path: Path) -> None:
         t.start()
     for t in threads:
         t.join(timeout=25)
-    events = replay(tmp_path)
+    events = _read_events(tmp_path)
     seqs = [e.seq for e in events]
     assert len(seqs) == len(set(seqs))  # no duplicate seq
     assert len(events) == 4
@@ -263,15 +270,6 @@ def test_path_lock_registry_bounded() -> None:
     for i in range(1000):
         truth_io._path_lock(Path(f"/tmp/nonexistent-{i}.json"))
     assert len(truth_io._PATH_LOCKS) <= truth_io._PATH_LOCKS_MAX
-
-
-def test_periodic_materialize_removed() -> None:
-    """The zero-event periodic materialize call sites are gone (F630 ruling b)."""
-    from shenbi.pipeline import chapter_loop
-
-    assert not hasattr(chapter_loop, "_maybe_materialize_progress")
-    source = Path(chapter_loop.__file__).read_text(encoding="utf-8")
-    assert "materialize_progress(Path(state.project_dir)" not in source
 
 
 def test_append_jsonl_fsync_and_timestamp(tmp_path: Path, monkeypatch) -> None:

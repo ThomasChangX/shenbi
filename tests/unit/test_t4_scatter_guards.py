@@ -3,7 +3,21 @@
 G0.9 说明:构造性最小输入钉边界行为(畸形形状),非 skill 产物内容。
 """
 
+from pathlib import Path
+
 import pytest
+
+
+def round_field(round_dir: Path) -> str:
+    """Derive round number from a ``round-<N>`` dir name; else "unknown" (F614).
+
+    Local copy — shenbi.trace.materialize was removed in spec #86 T4.
+    """
+    name = Path(round_dir).name
+    if "round-" in name:
+        tail = name.split("-")[1]
+        return tail if tail.isdigit() else "unknown"
+    return "unknown"
 
 
 class TestHooksNotDict:
@@ -124,10 +138,9 @@ class TestExecutorFinallyGuard:
 class TestMaterializeRoundField:
     def test_unknown_round_dir_not_question_marks(self, tmp_path) -> None:
         """F614:无 round- 前缀目录 → 'unknown' 而非 '???'。"""
-        from shenbi.trace.materialize import _round_field
-
-        assert _round_field(tmp_path) == "unknown"
-        assert _round_field(tmp_path / "round-7") == "7"
+        # Local helper — shenbi.trace.materialize was removed in spec #86 T4.
+        assert round_field(tmp_path) == "unknown"
+        assert round_field(tmp_path / "round-7") == "7"
 
 
 class TestParserYamlGuard:
