@@ -15,8 +15,6 @@ Exemptions (AST-shape based, NO line anchors):
 - composite points whose f-string/JoinedStr references
   ``hook_family_source(...)`` or ``THREAD_ID_RE.pattern``/``HOOK_*.pattern``
   AND whose constant segments carry no dialect literal;
-- named whitelist: ``review_checklist.py``'s dead ``hook_pattern`` (removed
-  with #86 T2 — the whitelist entry dies with it);
 - BinOp concatenation and ``str.format()``/``%`` built patterns
   (residual risk ③, registered — zero instances on the current tree);
 - generic-charclass blind spot (residual risk ①, registered): patterns like
@@ -52,10 +50,9 @@ _HOOK_DIALECT = re.compile(r"MH-?\??\\d|CP-?\??\\d|H-?\??\\d|P\\d[+*]?[\{]?[0-9,
 _THREAD_DIALECT = re.compile(r"\[ABC\]\\d|\[A-Za-z\]\+\\d|\[a-zA-Z\]\+\\d")
 
 #: Named whitelist (spec r8 timing clause): dead code scheduled for removal.
-NAMED_WHITELIST: dict[str, str] = {
-    # dead code; the entry dies with the #86 T2 removal
-    "src/shenbi/pipeline/review_checklist.py": "hook_pattern",
-}
+#: (spec #85 r8 commitment honored: the ``review_checklist.py`` dead
+#: ``hook_pattern`` entry was removed with #86 T2.)
+NAMED_WHITELIST: dict[str, str] = {}
 
 _RE_CALL_FUNCS = {
     "compile",
