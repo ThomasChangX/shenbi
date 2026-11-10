@@ -4,7 +4,9 @@
 
 **Goal:** 删除 6 处零引用死面（src 净减 ~906 行），为 spec #87 god 文件拆分减重——纯删除批，零新机制、零新 FAIL 门、零付费 dispatch。
 
-**Architecture:** 按 spec r3.4 的 T1-T6 分七个 task：scr_extractor 缩编（唯一新代码=~40 行单函数）、review_checklist 死半边、chapter_loop 死分支+manifest+孤儿 helper、trace 两模块删除、capability_fs 迁 tests、executor_config 死块+registry 死 kind，收尾生成物重同步+全验收跑。所有 task 均 infra（触 pipeline//contracts/），协调者亲实现。
+**Architecture:** 按 spec r3.4 的 T1-T6 分七个 task：scr_extractor 缩编（唯一新代码=~40 行单函数）、review_checklist 死半边、chapter_loop 死分支+manifest+孤儿 helper、trace 两模块删除、capability_fs 迁 tests、executor_config 死块+registry 死 kind，收尾生成物重同步+全验收跑。所有 task 均 infra（触 `pipeline/`/`contracts/`），协调者亲实现。
+
+> **Plan r2（2026-11-10 审查轮 1 修订）**：C1/C2 补 Task 6 两钉死测试（test_executor_config discriminative 列表裁 5+docstring 9→5；test_registry kinds 删 short+名 16→15）· I3 Task 3 补删 :45 HookState/parse_hook_state 悬空 import · I4 `_write_chapter` META 改规范 `<!--META-BEGIN-->…<!--META-END-->` 形态且内置不在期望集的 location 字钉剥离序 · I5 steps_restructured/adaptive_triggers 两 patch 直测钉死整测删 · M6 删已 rm 文件的 pytest 参数+补 skipped 基线步 · M7 t4_scatter :129/:130 调用点 · M8 truth_readers:34 docstring · M9 world-freshness NOTE docstring 同步 · M10 STATIC/DYNAMIC 区间与笔误修正。验收 4 计数 16→**18**。
 
 **Tech Stack:** Python 3.11+ / pytest / just（CI 同构）/ uv run
 
@@ -53,10 +55,14 @@ from shenbi.pipeline.scr_extractor import recent_location_terms
 
 
 def _write_chapter(project_dir: Path, n: int, body: str) -> None:
+    # META 块内置 location 字「林」与 `# ` 行——两者若泄漏进结果集（各测期望集
+    # 均不含林）即证明 META 剥离或 H1 剥离失效，钉住剥离序（plan r2 审查 I4）。
     chapters = project_dir / "chapters"
     chapters.mkdir(parents=True, exist_ok=True)
     (chapters / f"chapter-{n}.md").write_text(
-        f"# 第{n}章 测试\n\n{body}\n\n<!-- META\nx: 1\nMETA -->\n", encoding="utf-8"
+        f"# 第{n}章 测试\n\n{body}\n\n"
+        "<!--META-BEGIN-->林 # 非散文 META 行\n第二行谷<!--META-END-->\n",
+        encoding="utf-8",
     )
 
 
@@ -137,7 +143,7 @@ def recent_location_terms(project_dir: Path, chapter: int, lookback: int = 10) -
 （文件级验收 ≤60 行：此实现 ~40 行 ✓）
 
 - [ ] **Step 4: chapter_loop 换源**——`src/shenbi/pipeline/chapter_loop.py`（行号按符号找）：
-  1. world freshness 块（原 :2266-2282）：删 try-import 守卫（`try: from shenbi.pipeline.scr_extractor import extract_scr ... return` 五行）与整个 for 循环（`recent_locations: set[str] = set()` 到 `continue` 十行），替换为：
+  1. world freshness 块（原 :2266-2282）：删 try-import 守卫（`try: from shenbi.pipeline.scr_extractor import extract_scr ... return` 五行）与整个 for 循环（`recent_locations: set[str] = set()` 到 `continue` 十行），替换为（**并同步改写函数头 :2252-2255 的 Plan 17 NOTE docstring——守卫删除后失败会传播而非静默降级，原注释失实**）：
 
 ```python
     from shenbi.pipeline.scr_extractor import recent_location_terms
@@ -150,7 +156,7 @@ def recent_location_terms(project_dir: Path, chapter: int, lookback: int = 10) -
 
 - [ ] **Step 5: 删测试文件 + 改 mock 点**——`git rm tests/pipeline/test_scr_cache_invalidation.py`；`tests/pipeline/test_bundle_stepping.py` 删 `:322` 行 `mp.setattr(cl, "_run_post_draft_extract", lambda *a, **kw: None)`
 
-- [ ] **Step 6: 绿跑 + 零翻转面**——`uv run pytest tests/pipeline/test_scr_extractor.py tests/pipeline/test_scr_cache_invalidation.py tests/pipeline/test_bundle_stepping.py tests/unit/pipeline/test_chapter_loop.py -q`（cache_invalidation 应 collect 0；bundle_stepping/全章环零翻转）；`uv run pytest tests/ -q -k "world_freshness or scene_split" ` 相关面
+- [ ] **Step 6: 绿跑 + 零翻转面**——`uv run pytest tests/pipeline/test_scr_extractor.py tests/pipeline/test_bundle_stepping.py tests/unit/pipeline/test_chapter_loop.py -q`（bundle_stepping/全章环零翻转）；`uv run pytest tests/ -q -k "world_freshness or scene_split" ` 相关面；记录 `uv run pytest tests/ -q --collect-only 2>/dev/null | tail -2` 的用例总数与 skipped 基线（验收 4 比对用）
 
 - [ ] **Step 7: 判据跑**——`grep -rn "StructuredChapterRepresentation\|extract_scr" src/ tools/ tests/ | grep -v scr_extractor.py` 期望零输出；`wc -l src/shenbi/pipeline/scr_extractor.py` 期望 ≤60
 
@@ -172,7 +178,7 @@ def recent_location_terms(project_dir: Path, chapter: int, lookback: int = 10) -
 - Deletes: `generate_static_template` / `generate_chapter_delta` / `get_checklist` / `_extract_hooks_from_plan` / `_load_blacklist` / `_load_voice_constraints` / `_load_pov_mode` / `_load_world_rules_brief` / `STATIC_FIELDS` / `DYNAMIC_FIELDS`（`__all__` 中 5 死 `_` 名随之）
 
 - [ ] **Step 1: 逐个删 8 死函数**（:572/:584/:594/:611/:634/:643/:647/:651——**逐个定位删除，禁止整段区间**；中间夹的活私有函数（`_get_recent_ending_types` 等 9 活 `_` 名对应的函数体在 :103-:550 区间）不动）
-- [ ] **Step 2: 删 STATIC_FIELDS（:551-557）与 DYNAMIC_FIELDS（:559-565）两死常量**；`__all__` 改为恰四名：
+- [ ] **Step 2: 删 STATIC_FIELDS（:551-558）与 DYNAMIC_FIELDS（:559-569）两死常量**；`__all__` 改为恰四名：
 
 ```python
 __all__ = [
@@ -212,8 +218,8 @@ __all__ = [
 - Keeps: `shenbi.pipeline.triggers.is_volume_boundary(chapter: int, project_dir: Path | str) -> bool`（活函数 :318——**test_triggers.py:233 不动**）；`_get_recent_resonance_scores`（:2944 活）
 
 - [ ] **Step 1: 先跑 canary 红证**——`uv run pytest tests/unit/pipeline/test_spec83_stale_declarations.py -q`（批前绿基线记录）；删 chapter_loop 死分支+三函数+孤儿 helper 后先跑一次看 canary `==13` 红 dispatch 计数（13→12 变动实锚）+ lint_key_reconciliation 红（reader anchor FAIL）——两红即「删对了地方」的证据，随后改 :105 与 lint 锚转绿
-- [ ] **Step 2: chapter_loop 删除**——按符号定位（Task 1 已使行号漂移）：死分支①②（`if step.skill == "shenbi-intent-management":` / `elif`/`if step.skill == "shenbi-drift-guidance":` 含 return 两块 :3044-3048）、③（`if "foreshadowing-lifecycle" in step.skill: _check_conditional_resolve(...)` :4810-4813）、④（`if step.skill == "shenbi-drift-guidance": _update_last_drift_manifest(...)` :4909-4910）；manifest 三函数两段；孤儿 helper 三函数
-- [ ] **Step 3: 连带面逐项落**——lint 两 ReadKey 块删；spec83 :87 行删+:105 `13`→`12`；test_chapter_loop 两段删；steps_restructured/adaptive_triggers 亲读改写或删；truth-files.yaml 注释；regen_reset 三处；writer.py docstring；spec79 plan 注记
+- [ ] **Step 2: chapter_loop 删除**——按符号定位（Task 1 已使行号漂移）：死分支①②（`if step.skill == "shenbi-intent-management":` / `elif`/`if step.skill == "shenbi-drift-guidance":` 含 return 两块 :3044-3048）、③（`if "foreshadowing-lifecycle" in step.skill: _check_conditional_resolve(...)` :4810-4813）、④（`if step.skill == "shenbi-drift-guidance": _update_last_drift_manifest(...)` :4909-4910）；manifest 三函数两段；孤儿 helper 三函数；**删 :45 行 `from shenbi.contracts.schemas.hooks import HookState, parse_hook_state`（全文件唯一消费点在 _check_conditional_resolve 体内 :2828——删前 grep 复核两符号零残余使用，否则 ruff F401 悬空）**
+- [ ] **Step 3: 连带面逐项落**——lint 两 ReadKey 块删；spec83 :87 行删+:105 `13`→`12`；test_chapter_loop 两段删；**steps_restructured:41-76 与 adaptive_triggers:34-56 两处 `_is_volume_boundary` patch 直测整测删**（r2 钉死：分支删除后 `_should_run_step` 对 conditional 步恒 `return True`，`is False` 断言无论 patch 指向哪必失败——改 patch 目标不可行）；truth-files.yaml 注释；regen_reset 三处；writer.py docstring；spec79 plan 注记；truth_readers.py:34 docstring「(chapter_loop conditional-resolve)」悬空指认顺手改写
 - [ ] **Step 4: 验证**——`uv run pytest tests/unit/pipeline/test_spec83_stale_declarations.py tests/pipeline/test_chapter_steps_restructured.py tests/unit/pipeline/test_adaptive_triggers.py tests/unit/pipeline/test_triggers.py tests/unit/tools/test_regen_reset.py -q` 全绿；`uv run python tools/lint_key_reconciliation.py --strict` exit 0
 - [ ] **Step 5: 判据跑**——T3 两条 grep（spec r3.4 文本）期望零输出
 - [ ] **Step 6: Commit** + audit-T3
@@ -229,7 +235,7 @@ __all__ = [
 - Modify: `src/shenbi/trace/__init__.py`（删 :5-6 两 import + `__all__` 中 `materialize_progress`/`replay` 两名）
 - Modify: `tests/unit/trace/test_compaction.py`（:6 import 换本地 helper；:22/:44 `replay(tmp_path)` 换 `_read_events`）
 - Modify: `tests/property/trace/test_chain_invariants.py`（:10 import；:22/:37 同换）
-- Modify: `tests/unit/test_t4_scatter_guards.py:127`（`from shenbi.trace.materialize import _round_field` → 本地 helper **换名 `round_field`**——沿用旧名会使验收 grep 非零）
+- Modify: `tests/unit/test_t4_scatter_guards.py:127-130`（:127 `from shenbi.trace.materialize import _round_field` → 本地 helper **换名 `round_field`**——沿用旧名会使验收 grep 非零；:129/:130 两处调用点同步换名）
 - Modify: `tests/unit/pipeline/test_concurrency_regression.py`（:132-150 `test_f630_materialize_clobbers_foreign_keys` **整测删**——守护对象已删；:188-213 `test_record_audit_outcome_g7_no_false_tamper` 的 :192 import 与 `replay(tmp_path)` 换本地 helper；:268-274 `test_periodic_materialize_removed` 整测删）
 - Modify: `docs/framework/status-vocab.md:20`（materialize/replay 提及行改写）、`docs/superpowers/full-project-audit-prompt.md:335`（`trace/replay.py` 引用改写）
 
@@ -314,13 +320,15 @@ def round_field(round_dir: Path) -> str:
 **Files:**
 - Modify: `executor_config.toml`（**按键删 6 块**：`[overrides."shenbi-review-continuity"]` :120、`[overrides."shenbi-review-anti-ai"]` :124、`[overrides."shenbi-review-memo-compliance"]` :157、`[overrides."shenbi-review-world-rules"]` :161、`[overrides."shenbi-review-pov"]` :169、`[overrides."shenbi-review-dialogue"]` :189——**每块含其键值对至下一 `[` 前；禁按行区间整删**——区间夹 10 活块）
 - Modify: `src/shenbi/contracts/schemas/registry.py`（:38 Literal 删 `"short"` 行；:9 docstring「16 kind values (the real yaml uses all 16)」→「15 kind values (the real yaml uses all 15)」）
+- Modify: `tests/pipeline/test_executor_config.py:44-58`（`test_discriminative_review_queue_has_low_temperature` discriminative 列表含将删 4 键且断言 `skill in overrides`——**列表裁至存活 5 技能**（arc-payoff/era/fanfic/sensitivity/spinoff），docstring「9 discriminative」改「5」）
+- Modify: `tests/unit/contracts/schemas/test_registry.py:49-70`（`test_kind_literal_all_16` kinds 列表 :63 钉死 `"short"`——删该元素；测试名与 docstring `16`→`15`）
 
 **Interfaces:**
 - Keeps: `RegistryKind` Literal 其余 15 值；executor_config 其余 29 活 override 块
 
 - [ ] **Step 1: 按键删 6 块**（逐键定位 `[overrides."<key>"]` 起至下一节头）
-- [ ] **Step 2: registry 删 "short" + docstring 16→15**
-- [ ] **Step 3: 验证**——`uv run pytest tests/ -q -k "registry or executor_config or routing"` 相关面绿；`uv run python -c "import tomllib; cfg=tomllib.loads(open('executor_config.toml').read()); assert len(cfg['overrides'])==29"`；`uv run python -c "from shenbi.contracts.schemas.registry import RegistryKind; assert 'short' not in RegistryKind.__args__"`
+- [ ] **Step 2: registry 删 "short" + docstring 16→15**；同步两测试：executor_config discriminative 列表裁至存活 5 技能+docstring 9→5；registry 测试 kinds 删 "short"+名与 docstring 16→15
+- [ ] **Step 3: 验证**——`uv run pytest tests/pipeline/test_executor_config.py tests/unit/contracts/schemas/test_registry.py -q` 全绿；`uv run python -c "import tomllib; cfg=tomllib.loads(open('executor_config.toml').read()); assert len(cfg['overrides'])==29"`；`uv run python -c "from shenbi.contracts.schemas.registry import RegistryKind; assert 'short' not in RegistryKind.__args__"`
 - [ ] **Step 4: 判据跑**——六键 grep executor_config.toml 零输出
 - [ ] **Step 5: Commit** + audit-T6
 
@@ -338,7 +346,7 @@ def round_field(round_dir: Path) -> str:
 - [ ] **Step 2: `just check`**——期望 EXIT=0（契约 lints 三件+repo 一致性+状态字面量+ruff+mypy+basedpyright+幂等 diff+两段 pytest）
 - [ ] **Step 3: 验收 1 判据全跑**——T1/T2/T3/T4/T5/T6 六组 grep + 存在性断言全零输出，粘贴进 progress.md 验收证据
 - [ ] **Step 4: 验收 2**——`git diff --stat origin/main...HEAD -- src/ | tail -1` 核 src 净减 ≥650（预期 ~906）；`wc -l src/shenbi/pipeline/scr_extractor.py` ≤60
-- [ ] **Step 5: 验收 4**——skip 计数比对（批前基线在 Task 1 Step 6 记录；`uv run pytest tests/ -q 2>&1 | tail -3` 的 skipped 数不增）；16 文件改写后全绿已由各 task 证明
+- [ ] **Step 5: 验收 4**——skip 计数比对（批前基线在 Task 1 Step 6 记录；`uv run pytest tests/ -q 2>&1 | tail -3` 的 skipped 数不增）；18 文件改写后全绿已由各 task 证明（r2：T1 三+T2 一+T3 四+T4 六+T5 两+T6 两）
 - [ ] **Step 6: Commit（生成物）** + audit-T7
 
 ---
@@ -350,7 +358,7 @@ def round_field(round_dir: Path) -> str:
 | 1 每 T grep 判据零输出 | T1-T6 各 Step「判据跑」+ T7 Step 3 汇总 | 六组 grep（spec r3.4 全文判据段） |
 | 2 src 净减 ≥650 + scr ≤60 行 | T7 Step 4 | `git diff --stat origin/main...HEAD -- src/` + `wc -l` |
 | 3 just check exit 0 | T7 Step 2 | `just check`（前置：lint 两锚 T3/白名单 T2/pyproject 键 T5 均已落） |
-| 4 skip 不增 + 16 文件改写后过 | 各 task Step 验证 + T7 Step 5 | pytest skipped 计数比对 |
+| 4 skip 不增 + 18 文件改写后过 | 各 task Step 验证 + T7 Step 5 | pytest skipped 计数比对 |
 
 ## F947 合规
 
