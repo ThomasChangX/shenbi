@@ -12,7 +12,7 @@
 
 ### #86 · 死面清扫批（dead-surface-purge）
 
-- **文件**：`2026-11-01-spec86-dead-surface-purge.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r3** 2026-11-10 驳斥复核修订——10/10 死面主张存活；连带清单补齐：STATIC/DYNAMIC_FIELDS 改判死常量、lint_key_reconciliation 两锚、13 测试文件、判据补盲） ｜ **优先级**：🟠 P1
+- **文件**：`2026-11-01-spec86-dead-surface-purge.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r3.1** 2026-11-10 两轮驳斥复核修订——10/10 死面主张存活；连带清单补齐+修正：STATIC/DYNAMIC_FIELDS 改判死常量、lint 两面（key_reconciliation 锚+truth_format 白名单承诺锚）、test_triggers:233 改判不删、spec83 canary 同步、判据补盲） ｜ **优先级**：🟠 P1
 - **依赖**：**#87 的前置**（拆分前减重）；全部条目 grep 亲验零引用
 - **内容**：scr_extractor 缩编（**StructuredChapterRepresentation 17 字段 16 死** → 单函数 ~20 行，含两调用点与测试改写；文件 ≤60 行；step-6 条目保留 pass-through 归 #87）/ review_checklist 死半边（8 死函数+**STATIC/DYNAMIC_FIELDS 死常量（r3 改判）**）+`__all__` 收缩 / chapter_loop 死分支 ×4+manifest 三函数+**3 孤儿 helper（r3）**+lint_key_reconciliation 两锚 / **trace materialize+replay 删除**（r2 改判：零消费者+第二套 trace 读取器；连带 6 测试文件；替代条款=若事件溯源为既定方向则保留原状另立项）/ capability_fs 迁 tests 支撑（tests/support 新建）/ executor_config **按键删 6 个 deprecated skill 覆盖块**（禁按行区间——判据 `deprecated_skill_names`）+ registry 死 kind "short"（schemas/registry.py:38）。src 净减 ≥650 行
 - **对应 plan**：待执行时建

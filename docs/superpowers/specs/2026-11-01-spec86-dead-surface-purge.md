@@ -1,7 +1,7 @@
 # Spec #86 · 死面清扫批（dead-surface-purge）：纯删除零引用面，为 god 文件拆分减重
 
-**日期**：2026-11-01（r2 修订 2026-11-02：trace 两模块改判删除/调用点与测试影响钉死；**r2.2 2026-11-02 全量对抗式审计修订**——类名/字段数更正、死函数测试占用补列、executor_config 改按键删除、replay 删除理由重写、scr_extractor 文件级验收；**r3 2026-11-10 驳斥复核修订**——r2.2 连带清单系统性缺口补齐：T1 补缓存测试整删+mock 点+step-6 裁定；T2 STATIC/DYNAMIC_FIELDS 活面误判改判死常量；T3 补 3 孤儿 helper+5 测试文件+lint_key_reconciliation 两锚+truth-files 注释；T4 补 4 测试文件+判据补盲；T5 补 tests/support 新建+审计文档失实行；行号全面 re-anchor 至 2026-11-10 树）｜ **系列**：架构复审批次 A（**#87 前置**）｜ **状态**：Design（r3，Revised 2026-11-10） ｜ **优先级**：🟠 P1
-**动机证据**：architecture-review-20261101 #14 卡；本节每项消费者 grep 由协调者复跑（2026-11-02），r2.2 审计逐项对码；r3 驳斥复核（fresh-context 子 agent＋协调者亲核，2026-11-10 main HEAD e585485a）10/10 死面主张存活
+**日期**：2026-11-01（r2 修订 2026-11-02：trace 两模块改判删除/调用点与测试影响钉死；**r2.2 2026-11-02 全量对抗式审计修订**——类名/字段数更正、死函数测试占用补列、executor_config 改按键删除、replay 删除理由重写、scr_extractor 文件级验收；**r3 2026-11-10 驳斥复核修订**——r2.2 连带清单系统性缺口补齐：T1 补缓存测试整删+mock 点+step-6 裁定；T2 STATIC/DYNAMIC_FIELDS 活面误判改判死常量；T3 补 3 孤儿 helper+5 测试文件+lint_key_reconciliation 两锚+truth-files 注释；T4 补 4 测试文件+判据补盲；T5 补 tests/support 新建+审计文档失实行；行号全面 re-anchor 至 2026-11-10 树）｜ **系列**：架构复审批次 A（**#87 前置**）｜ **状态**：Design（r3.1，Revised 2026-11-10） ｜ **优先级**：🟠 P1
+**动机证据**：architecture-review-20261101 #14 卡；本节每项消费者 grep 由协调者复跑（2026-11-02），r2.2 审计逐项对码；r3 驳斥复核（fresh-context 子 agent＋协调者亲核，2026-11-10 main HEAD e585485a）10/10 死面主张存活；**r3.1 2026-11-10 第二轮驳斥修正**——test_triggers:233 改判不删（测活函数）/spec83 canary 13→12 同步/lint_truth_format 白名单承诺锚补列/writer.py:6 docstring 补列）
 
 **触及的不变量维度**：无（纯删除零引用面；唯一行为触点=scr_extractor 缩编保留其被消费的 location WARN）
 
@@ -27,21 +27,22 @@
 ### T2 · review_checklist 死半边（**:572-655** + `__all__`:657-681）
 **亲核（r2.2 修正；r3 再改判）**：8 个死函数（现树 **:572/:584/:594/:611/:634/:643/:647/:651**——`generate_static_template`/`generate_chapter_delta`/`get_checklist`/`_extract_hooks_from_plan`/`_load_blacklist`/`_load_voice_constraints`/`_load_pov_mode`/`_load_world_rules_brief`），其中 **`generate_chapter_delta`/`get_checklist` 被 `tests/pipeline/test_review_checklist.py:6-7,38,44,55` 使用**——删除必须同批改写/删除这些测试（r2 称「逐名 grep 外部引用 0」系只查 src）。
 **r3 改判（推翻 r2.2「活导出」认定）**：`STATIC_FIELDS`(:551)/`DYNAMIC_FIELDS`(:559) 实为**零消费死常量**——文件内零自用（仅定义+`__all__`:659/:661 导出），文件外 src/tools/tests 也零消费者（r3 驳斥复核逐面 grep 实锤）→ **加入删除面**。保留面=`ReviewChecklist`/`ENDING_PATTERNS`/`generate_review_checklist`/`inject_checklist_into_prompt`（生产消费者 dispatch_helper.py:1580-1594）+ 其真私有依赖（`__all__` 14 个 `_` 名中 9 活：`_build_checklist`/`_extract_ai_blacklist`/`_extract_fatigue_warnings`/`_extract_hook_deliverables`/`_extract_voice_constraints`/`_get_max_source_mtime`/`_get_recent_ending_types`/`_load_genre_config`/`_summarize_world_rules`；5 死随死函数删）。
-**处置**：删 8 死函数+`STATIC_FIELDS`/`DYNAMIC_FIELDS` 两死常量；`__all__` 收缩至真活面（公共 4 名+活私有 9 名的去留按 `__all__` 只留真公共面原则重审——活私有名是否留 `__all__` 由 plan 裁定，但死名必删）。
+**处置**：删 8 死函数+`STATIC_FIELDS`/`DYNAMIC_FIELDS` 两死常量；`__all__` 收缩至真活面（公共 4 名+活私有 9 名的去留按 `__all__` 只留真公共面原则重审——活私有名是否留 `__all__` 由 plan 裁定，但死名必删）；**r3.1 补：`tools/lint_truth_format_single_source.py:57` NAMED_WHITELIST 条目 `review_checklist.py: hook_pattern` 随删**——#85 r8 成文承诺锚（「#86 落地时本白名单条目随之删除，防白名单永久化」）。
 **死桩自相矛盾的证据留档**（plan 期写入 commit message）：`third_person_limited`/`multi_pov` 捏造、`truth/world_rules.md` 不存在（活半边读 `world/rules.md`）、`chapter-{ch:03d}` 零填充与全管线不一致、`sensitivity_flags: 0` int 冒充 list。
 
 ### T3 · chapter_loop 死分支 ×4（r3 re-anchor）+ 死 manifest + 孤儿 helper
 **亲核（r3 re-anchor 至现树）**：死分支=①②`:3044-3048`（`shenbi-intent-management`/`shenbi-drift-guidance`——不在 CHAPTER_STEPS（:155-310 全 16 条目无此二 skill），注释 :142-143 自认）；③`:4810-4813`（foreshadowing-lifecycle serial 分支——源码 NOTE 自认 "unconditionally intercepted by the parallel post-draft block... stays unreachable in production"，:4295 拦截块 `if step_idx == _FORESHADOWING_LIFECYCLE_IDX:` 全出口 return）；④`:4909-4910`（drift-guidance manifest 更新——不可达，见 manifest 链）。
 **manifest 三函数（r3 re-anchor）**：`_load_manifest` :2924/`_save_manifest` :2937 仅服务 `_update_last_drift_manifest` :2960（唯一调用 :4910 死分支④内）；中间 `:2944 _get_recent_resonance_scores` 是**活函数**（:2561 调用）——按段删，禁止整段区间。
 **r3 补：3 孤儿 helper 随分支同删**（唯一生产调用点在死分支内）：`_check_conditional_resolve` :2814（唯一生产调用 :4813 死分支③内）、`_is_volume_boundary` :2967（唯一生产调用 :3045 死分支①②内）、`_drift_guidance_triggered` :2977（唯一生产调用 :3048 死分支①②内）。
-**连带（r3 补齐，共 5 测试文件+1 lint+1 文档）**：
+**连带（r3 补齐；r3.1 修正——4 测试文件+2 lint+2 文档）**：
 - `tests/unit/pipeline/test_chapter_loop.py:343-375,546-561`（`_check_conditional_resolve` 直测——删）；
 - `tests/pipeline/test_chapter_steps_restructured.py:48,51,76`（`_is_volume_boundary` patch 两处+`_drift_guidance_triggered` 直测——改写或删）；
 - `tests/unit/pipeline/test_adaptive_triggers.py:47,52`（`_is_volume_boundary` patch 点——改写）；
-- `tests/unit/pipeline/test_triggers.py:233`（`test_is_volume_boundary_direct` 直测——删）；
-- `tests/unit/pipeline/test_spec83_stale_declarations.py:87`（声明守卫 pin `("pipeline/chapter_loop.py", "_check_conditional_resolve")`——删该行）；
-- **`tools/lint_key_reconciliation.py` 两 ReadKey 锚（现树 :135/:142：`chapterloop/drift-guidance`→`_drift_guidance_triggered`、`chapterloop/pending-hooks`→`_check_conditional_resolve`）同批删**——该 lint 是 just check 成员（justfile:33 --strict），不改则验收 3 必红；
-- `docs/framework/truth-files.yaml:102` 注释指认 manifest.json drift marker 由 `_update_last_drift_manifest` 写——删后同批改写（防静默过期）。
+- **r3.1 改判**：`tests/unit/pipeline/test_triggers.py:233`（`test_is_volume_boundary_direct`）**不删**——第二轮驳斥核实其测的是**活函数** `shenbi.pipeline.triggers.is_volume_boundary`（triggers.py:318，签名 `(chapter, project_dir)`，生产调用 chapter_loop.py:2257），非 chapter_loop 孤儿 wrapper（:2967，签名相反、委托 triggers 版）——删之=无红灯的静默覆盖损失；
+- `tests/unit/pipeline/test_spec83_stale_declarations.py:87`（声明守卫 pin `("pipeline/chapter_loop.py", "_check_conditional_resolve")`——删该行）**+:105 canary `dispatch_skill` 调用点计数 `==13` 同步改 `==12`**（r3.1 补：`_check_conditional_resolve` 体内 :2832 占 13 处之一，删函数后计数变——canary「增减都红」）；
+- **`tools/lint_key_reconciliation.py` 两 ReadKey 锚（现树 :135/:142：`chapterloop/drift-guidance`→`_drift_guidance_triggered`、`chapterloop/pending-hooks`→`_check_conditional_resolve`）同批删**——该 lint 是 just check 成员（justfile:33 --strict），不改则验收 3 必红（纯 registry 驱动无跨条目依赖，删条目自洽——第二轮亲核）；
+- `docs/framework/truth-files.yaml:102` 注释指认 manifest.json drift marker 由 `_update_last_drift_manifest` 写——删后同批改写（防静默过期）；
+- **r3.1 补（轻微）**：`src/shenbi/records/writer.py:6` docstring「via chapter_loop._check_conditional_resolve」——删函数后同批改写。
 **处置**：纯删（分支+manifest 三函数+3 孤儿 helper），连带面同批。
 
 ### T4 · trace/materialize.py + trace/replay.py —— **删除**（r2 改判；r2.2 理由重写；r3 连带补齐）
