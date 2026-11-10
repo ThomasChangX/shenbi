@@ -2174,20 +2174,6 @@ def _print_timing_summary(state: PipelineState) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _run_post_draft_extract(state: PipelineState, chapter: int) -> None:
-    """Deterministic: extract SCR from freshly drafted chapter (ADD-2).
-
-    Non-blocking: if extract_scr fails (e.g., chapter file missing or
-    incomplete), the pipeline continues. The SCR extraction is best-effort.
-    """
-    try:
-        from shenbi.pipeline.scr_extractor import extract_scr
-
-        extract_scr(Path(state.project_dir), chapter)
-    except Exception:
-        log.debug("post_draft_extract_failed", chapter=chapter, exc_info=True)
-
-
 def _audit_routed_settle_redispatch_entry(chapter: int) -> dict[str, object]:
     """Queue entry for the post-revision settle re-dispatch.
 
@@ -2247,13 +2233,7 @@ def _check_word_count_bounds(chapter_text: str, project_dir: Path | None = None)
 
 
 def _check_world_file_freshness(project_dir: Path, chapter: int) -> None:
-    """Check if locations.md needs updating at volume boundaries.
-
-    NOTE: The scr_extractor import is lazy (inside function body). This module
-    is delivered by Plan 18. If Plan 17 executes first, the scr_extractor
-    feature will silently degrade until Plan 18 ships. This is intentional --
-    no hard dependency.
-    """
+    """Check if locations.md needs updating at volume boundaries."""
     from shenbi.pipeline.triggers import is_volume_boundary
 
     if not is_volume_boundary(chapter, project_dir):
@@ -2263,22 +2243,11 @@ def _check_world_file_freshness(project_dir: Path, chapter: int) -> None:
     if not locations_path.exists():
         return
 
-    # Compare against SCR-extracted locations from last 10 chapters
-    try:
-        from shenbi.pipeline.scr_extractor import extract_scr  # Plan 18 delivers this
-    except ImportError:
-        log.debug("scr_extractor_not_available_skipping_world_freshness", chapter=chapter)
-        return
+    # Compare against location terms from the last 10 chapters (spec #86 T1:
+    # the old SCR loop is now a single-function extraction, no disk cache).
+    from shenbi.pipeline.scr_extractor import recent_location_terms
 
-    recent_locations: set[str] = set()
-    for ch in range(max(1, chapter - 10), chapter):
-        try:
-            scr = extract_scr(project_dir, ch)
-            for ref in scr.world_refs:
-                if ref.get("category") == "location":
-                    recent_locations.add(ref["element"])
-        except Exception:
-            continue
+    recent_locations = recent_location_terms(project_dir, chapter)
 
     current_locations_text = locations_path.read_text(encoding="utf-8")
     missing = [loc for loc in recent_locations if loc not in current_locations_text]
@@ -4489,7 +4458,6 @@ def _run_chapter_step_impl(
                 # never reach the generic success tail where they used to sit.
                 for n in bundle_chapters(project_dir, chapter):
                     _check_volume_map_alignment(project_dir, n)
-                    _run_post_draft_extract(state, n)
                     _run_g4_checks(state, n)
                     chapter_path = project_dir / "chapters" / f"chapter-{n}.md"
                     if chapter_path.exists():
