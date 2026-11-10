@@ -6,7 +6,7 @@ in the registry matches the declared shape (so silent synonym creation shows up
 as a ValidationError at load).
 
 Phase-0-verified facts reflected here:
-- 16 kind values (the real yaml uses all 16).
+- 15 kind values (the real yaml uses all 15).
 - top-level keys: ``concepts`` (required), ``patterns`` / ``globs`` (optional,
   default empty); ``extra: forbid`` so undeclared keys surface as drift.
 - the real file has NO ``version`` field — it defaults to 1 and the validator
@@ -35,7 +35,6 @@ RegistryKind = Literal[
     "plan",
     "reference",
     "report",
-    "short",
     "snapshot",
     "style",
     "truth",

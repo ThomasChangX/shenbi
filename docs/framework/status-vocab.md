@@ -39,7 +39,7 @@
 | OutputKind | shenbi.contracts.loader.OutputKind | artifact\|report\|ephemeral | SKILL 契约 kind | G0/G2 |
 | RecordState | shenbi.records.writer.RecordState | PENDING\|RELEVANT\|TRIGGER\|TRIGGERED\|REINFORCE | records/writer.py md 表 state 列 | truth_index（md 列与 schemas HookState 的归并归 F815/F820 已立案族） |
 | HookState | shenbi.contracts.schemas.hooks.HookState | PLANTED\|RELEVANT\|TRIGGERED\|RESOLVED\|ARCHIVED\|EXPIRED | foreshadowing-lifecycle | truth hooks（F815/F820 已立案族） |
-| RegistryKind | shenbi.contracts.schemas.registry.RegistryKind | benchmark\|chapter\|character\|config\|context\|decisions\|import\|outline\|plan\|reference\|report\|short\|snapshot\|style\|truth\|world | truth-files.yaml | registry loader（F445/F440 已立案族） |
+| RegistryKind | shenbi.contracts.schemas.registry.RegistryKind | benchmark\|chapter\|character\|config\|context\|decisions\|import\|outline\|plan\|reference\|report\|snapshot\|style\|truth\|world | truth-files.yaml | registry loader（F445/F440 已立案族） |
 | Producer | shenbi.contracts.schemas.registry.Producer | skill\|pipeline\|external\|shared | truth-files.yaml | registry loader |
 | OwnershipStatus | shenbi.contracts.ownership.FileChange.status | added\|deleted\|modified\|unchanged | audit snapshot | OWNERSHIP 检查 |
 | OwnershipLevel | shenbi.contracts.ownership.FileOwnership.level | field\|record_create\|record_field | - | ownership.py |

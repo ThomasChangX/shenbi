@@ -117,14 +117,6 @@ temperature = 0.15
 # single-call multi-output skills.
 max_tokens = 49152
 
-[overrides."shenbi-review-continuity"]
-thinking = "disabled"
-temperature = 0.2
-
-[overrides."shenbi-review-anti-ai"]
-thinking = "disabled"
-temperature = 0.15
-
 [overrides."shenbi-review-resonance"]
 thinking = "disabled"
 temperature = 0.1
@@ -154,21 +146,9 @@ temperature = 0.1
 thinking = "disabled"
 temperature = 0.1
 
-[overrides."shenbi-review-memo-compliance"]
-thinking = "disabled"
-temperature = 0.1
-
-[overrides."shenbi-review-world-rules"]
-thinking = "disabled"
-temperature = 0.1
-
 [overrides."shenbi-review-arc-payoff"]
 thinking = "disabled"
 temperature = 0.1
-
-[overrides."shenbi-review-pov"]
-thinking = "disabled"
-temperature = 0.15
 
 [overrides."shenbi-review-era"]
 thinking = "disabled"
@@ -183,10 +163,6 @@ thinking = "disabled"
 temperature = 0.1
 
 [overrides."shenbi-review-spinoff"]
-thinking = "disabled"
-temperature = 0.15
-
-[overrides."shenbi-review-dialogue"]
 thinking = "disabled"
 temperature = 0.15
 
