@@ -3,8 +3,7 @@
 Origin: T0 red-first reproduction tests (each reproduced a live defect on
 main). After the spec #37 fixes landed they flipped green and now VERIFY
 mutual exclusion: dual-writer zero-loss, concurrent-append conservation,
-trace-chain integrity, one-shot emergency cleanup, and key-preserving
-materialization. Deterministic interleaving strategies (barriers, seeded
+trace-chain integrity, and one-shot emergency cleanup. Deterministic interleaving strategies (barriers, seeded
 state) — no pure-timing reliance. POSIX-only (flock).
 """
 

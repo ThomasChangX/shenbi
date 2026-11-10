@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from shenbi.capability_fs import CapabilityFS
+from tests.support.capability_fs import CapabilityFS
 
 
 def test_reads_allowed_under_capability_fs(tmp_path: Path) -> None:
