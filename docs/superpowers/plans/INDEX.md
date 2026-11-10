@@ -10,7 +10,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 ## 活跃 Plan
 
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行完毕待归档**——T0-T3+首跑验收全落）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
-- **[2026-11-10-spec86-dead-surface-purge.md](2026-11-10-spec86-dead-surface-purge.md)** ✅ ready——对应 spec #86（r3.4）；七 task：scr_extractor 缩编/review_checklist 死半边/chapter_loop 死分支族/trace 双模块删除/capability_fs 迁 tests/executor_config+registry/生成物重同步+全验收；全 infra 协调者亲实现
+- **[2026-11-10-spec86-dead-surface-purge.md](2026-11-10-spec86-dead-surface-purge.md)** ✅ ready——对应 spec #86（r3.5）；七 task：scr_extractor 缩编/review_checklist 死半边/chapter_loop 死分支族/trace 双模块删除/capability_fs 迁 tests/executor_config+registry/生成物重同步+全验收；全 infra 协调者亲实现
 
 ## 待执行的 spec → plan 映射
 

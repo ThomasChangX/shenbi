@@ -41,7 +41,7 @@ def _read_events(round_dir: Path) -> list[TraceEvent]:
 @given(actions=st.lists(st.sampled_from(["A", "B", "C"]), min_size=1, max_size=20))
 @settings(max_examples=25)
 def test_chain_always_verifies(actions: list[str]) -> None:
-    """写任意序列 → replay 全部签名通过。"""
+    """写任意序列 → 读取器全部签名通过。"""
     with tempfile.TemporaryDirectory() as d:
         w = TraceWriter(Path(d))
         for a in actions:
@@ -53,7 +53,7 @@ def test_chain_always_verifies(actions: list[str]) -> None:
 @given(seed=st.text(min_size=1, max_size=10))
 @settings(max_examples=25)
 def test_tamper_any_field_breaks_chain(seed: str) -> None:
-    """改任一字段 → 签名不匹配 → replay 截断。"""
+    """改任一字段 → 签名不匹配 → 读取器截断。"""
     with tempfile.TemporaryDirectory() as d:
         w = TraceWriter(Path(d))
         w.append(actor="d", actor_role="GATE", action="A", target=seed)
