@@ -212,7 +212,7 @@ __all__ = [
 - Modify: `tests/unit/pipeline/test_spec83_stale_declarations.py`（删 :87 参数化行 + **:105 canary `== 13` 改 `== 12`**）
 - Modify: `tests/unit/pipeline/test_chapter_loop.py`（删 **:334-376「Conditional foreshadowing-resolve」banner+`class TestConditionalResolve` 整类**（类实止 :376——r4 锚精：r3 的 :337-375 差末行孤立断言语法红）与 **:545-568 `test_track_step_with_triggered_hooks_dispatches_resolve` 整测**）
 - Modify: `tests/pipeline/test_chapter_steps_restructured.py`（**删 :41-52 `test_intent_management_boundary_only` + :76-102 `test_drift_guidance_triggered_by_alerts` 两死分支直测；保 :55-73 两活测试**（`test_non_conditional_steps_always_run`/`test_conditional_snapshot_manage_runs`——删分支后仍过、钉默认 fallthrough）；r3 钉死：改 patch 目标不可行——`_should_run_step` 删 :3044-3048 后 conditional 步落默认 `return True`，`is False` 断言无解）
-- Modify: `tests/unit/pipeline/test_adaptive_triggers.py:34-56`（`test_intent_management_gated_by_volume_boundary` 整测删至文件尾——r4 钉死与 steps_restructured 同理：改 patch 目标不可行，`_should_run_step` 删分支后对 conditional 步恒 `return True`，`is False` 断言无解）
+- Modify: `tests/unit/pipeline/test_adaptive_triggers.py:34-55`（`test_intent_management_gated_by_volume_boundary` 整测删至文件尾（文件实止 :55）——r4 钉死与 steps_restructured 同理：改 patch 目标不可行，`_should_run_step` 删分支后对 conditional 步恒 `return True`，`is False` 断言无解）
 - Modify: `docs/framework/truth-files.yaml:102-104`（:102-103 注释历史化：「历史遗留：写方 `_update_last_drift_manifest` 已于 spec #86 删除；存量项目盘上文件容忍，无新写入」；:104 条目 `producer: pipeline` **保留原值**）
 - Modify: `tools/regen_reset.py`（删 :149-156 `_clear_snapshots_key` 整函数 + :228 调用行 + :186 动作标签行）
 - Modify: `src/shenbi/records/writer.py:6`（docstring「(via chapter_loop._check_conditional_resolve)」→「(via chapter_loop pending-hooks consumption)」）
@@ -245,7 +245,7 @@ __all__ = [
 - Modify: `docs/framework/status-vocab.md:20`（materialize/replay 提及行改写）、`docs/superpowers/full-project-audit-prompt.md:335`（`trace/replay.py` 引用改写）
 
 **Interfaces:**
-- Produces（测试本地 helper，两文件各一份同形）:
+- Produces（测试本地 helper，**三文件各一份同形**——test_compaction/test_chain_invariants/test_concurrency_regression g7 测）:
 
 ```python
 def _read_events(round_dir: Path) -> list[TraceEvent]:
