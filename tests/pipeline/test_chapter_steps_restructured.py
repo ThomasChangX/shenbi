@@ -38,20 +38,6 @@ def test_escalation_review_NOT_a_step():
     assert "shenbi-escalation-review" not in step_skills
 
 
-def test_intent_management_boundary_only():
-    """intent-management should only run at volume boundaries."""
-    state = MagicMock()
-    step = MagicMock()
-    step.skill = "shenbi-intent-management"
-    step.conditional = True
-
-    with patch("shenbi.pipeline.chapter_loop._is_volume_boundary", return_value=False):
-        assert not _should_run_step(state, step)
-
-    with patch("shenbi.pipeline.chapter_loop._is_volume_boundary", return_value=True):
-        assert _should_run_step(state, step)
-
-
 def test_non_conditional_steps_always_run():
     """Steps without conditional flag should always return True."""
     state = MagicMock()
@@ -71,35 +57,6 @@ def test_conditional_snapshot_manage_runs():
 
     # No specific gate for snapshot-manage in _should_run_step → defaults to True
     assert _should_run_step(state, step)
-
-
-def test_drift_guidance_triggered_by_alerts(tmp_path):
-    """shenbi-drift-guidance runs when >=3 drift findings exist in
-    truth/audit_drift.md (the real writer surface, F349 spec #27).
-    """
-    truth = tmp_path / "truth"
-    truth.mkdir(parents=True)
-    drift = truth / "audit_drift.md"
-    drift.write_text(
-        "# Audit Drift\n\n"
-        "- [below_mean_2sigma] 情感落地: 低于均值 (ch1)\n"
-        "- [below_mean_2sigma] 情感落地: 低于均值 (ch2)\n"
-        "- [below_mean_2sigma] 情感落地: 低于均值 (ch3)\n",
-        encoding="utf-8",
-    )
-    state = MagicMock()
-    state.project_dir = str(tmp_path)
-    step = MagicMock()
-    step.skill = "shenbi-drift-guidance"
-    step.conditional = True
-
-    assert _should_run_step(state, step)
-
-    drift.write_text(
-        "# Audit Drift\n\n- [below_mean_2sigma] 情感落地: 低于均值 (ch1)\n",
-        encoding="utf-8",
-    )
-    assert not _should_run_step(state, step)
 
 
 def test_chapter_revision_with_findings():

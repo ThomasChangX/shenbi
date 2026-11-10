@@ -84,7 +84,6 @@ def test_settle_dispatch_sites_all_guarded() -> None:
         ("pipeline/closure.py", "run_closure_step"),
         ("pipeline/revision_router.py", "dispatch_escalation"),
         ("pipeline/chapter_loop.py", "_run_audit_close_for_chapter"),
-        ("pipeline/chapter_loop.py", "_check_conditional_resolve"),
         ("pipeline/cli.py", "cmd_resume"),
     }
     call_points: list[tuple[str, str]] = []
@@ -102,7 +101,7 @@ def test_settle_dispatch_sites_all_guarded() -> None:
             f"settle-capable 站点 {path}:{fn} 未过 _pre_settle_guard"
         )
     # canary：调用点总数钉死（增减都红——新增派发面强制重新分类）
-    assert len(call_points) == 13, f"dispatch_skill 调用点数变动: {len(call_points)} → 重新分类"
+    assert len(call_points) == 12, f"dispatch_skill 调用点数变动: {len(call_points)} → 重新分类"
 
 
 def _enclosing(path: Path, line: int) -> str:

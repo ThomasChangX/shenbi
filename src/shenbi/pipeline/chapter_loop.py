@@ -34,7 +34,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from shenbi.pipeline.dispatch_helper import DispatchResult
@@ -42,7 +42,6 @@ if TYPE_CHECKING:
     from shenbi.skill_utils.drift_detection.linguistic_drift import DriftResult
 
 from shenbi.contracts.paths import PathContext, resolve_chapter_path
-from shenbi.contracts.schemas.hooks import HookState, parse_hook_state
 
 import yaml
 
@@ -2780,34 +2779,6 @@ def _write_minimal_context_fallback(project_dir: Path, chapter: int) -> None:
     safe_write(out, body)
 
 
-def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
-    """Dispatch foreshadowing-resolve if TRIGGERED hooks are detected.
-
-    Reads the foreshadowing-lifecycle output (``truth/pending_hooks.md``). If any
-    hooks have ``state: TRIGGERED``, dispatches ``shenbi-foreshadowing-resolve``
-    to handle them (spec section 6.1 step 7b). Missing file or no triggered
-    hooks are no-ops.
-    """
-    # F238 residual (spec #27 T5): route through the single parser
-    # (truth_readers.read_pending_hooks) instead of a local regex/scan.
-    from shenbi.pipeline.truth_readers import read_pending_hooks
-
-    hooks = read_pending_hooks(Path(project_dir))
-    triggered_count = sum(
-        1 for h in hooks if parse_hook_state(str(h.get("state", ""))) == HookState.TRIGGERED
-    )
-    if triggered_count > 0:
-        log.info("conditional_resolve_triggered", chapter=chapter, count=triggered_count)
-        dispatch_skill(
-            "shenbi-foreshadowing-resolve",
-            project_dir,
-            f"Resolve {triggered_count} TRIGGERED hooks for chapter {chapter}.",
-            state=state,
-        )
-    else:
-        log.debug("no_triggered_hooks", chapter=chapter)
-
-
 def _parse_high_anchor_count(report_path: Path) -> int:
     """Count high-confidence anchors declared in the report's anchors block."""
     import re as _re
@@ -2890,26 +2861,6 @@ def build_resonance_trend_row(chapter: int, overall: int) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _load_manifest(project_dir: Path) -> dict[str, Any]:
-    """Load the drift-marker manifest from ``snapshots/manifest.json``.
-
-    The manifest records ``last_drift_chapter`` (drift-guidance progress);
-    it is not a snapshot index. Returns an empty skeleton when the file
-    does not exist.
-    """
-    manifest_path = project_dir / "snapshots" / "manifest.json"
-    if manifest_path.exists():
-        return cast(dict[str, Any], json.loads(manifest_path.read_text(encoding="utf-8")))
-    return {"last_drift_chapter": 0}
-
-
-def _save_manifest(project_dir: Path, manifest: dict[str, Any]) -> None:
-    """Persist the drift-marker manifest to ``snapshots/manifest.json``."""
-    manifest_path = project_dir / "snapshots" / "manifest.json"
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    safe_write(manifest_path, json.dumps(manifest, indent=2, ensure_ascii=False))
-
-
 def _get_recent_resonance_scores(project_dir: Path, chapter: int, window: int = 3) -> list[int]:
     """Collect resonance scores from the most recent *window* audit reports.
 
@@ -2924,38 +2875,6 @@ def _get_recent_resonance_scores(project_dir: Path, chapter: int, window: int = 
         if score is not None:
             scores.append(score)
     return scores
-
-
-def _update_last_drift_manifest(project_dir: Path, chapter: int) -> None:
-    """Record that drift guidance ran at *chapter* in the manifest."""
-    manifest = _load_manifest(project_dir)
-    manifest["last_drift_chapter"] = chapter
-    _save_manifest(project_dir, manifest)
-
-
-def _is_volume_boundary(project_dir: Path, chapter: int) -> bool:
-    """Check if chapter is at a volume boundary.
-
-    Delegates to :func:`shenbi.pipeline.triggers.is_volume_boundary`.
-    """
-    from shenbi.pipeline.triggers import is_volume_boundary as _is_vol_boundary
-
-    return _is_vol_boundary(chapter, project_dir)
-
-
-def _drift_guidance_triggered(state: PipelineState) -> bool:
-    """Run drift guidance when >= DRIFT_THRESHOLD drift findings accumulate.
-
-    Reads the real writer surface (truth/audit_drift.md); findings need not be
-    consecutive — count_drift_alerts totals entries in the rolling window.
-    """
-    # F349 (spec #27 T5): the ghost ``state.drift_alerts`` field never existed
-    # on PipelineState — the old getattr-default read made this permanently
-    # False. The real drift-alert writer is truth/audit_drift.md
-    # (drift_detection._append_audit, ``- [{kind}] ...`` lines).
-    from shenbi.pipeline.triggers import DRIFT_THRESHOLD, count_drift_alerts
-
-    return count_drift_alerts(Path(state.project_dir)) >= DRIFT_THRESHOLD
 
 
 def _any_audit_has_findings(state: PipelineState) -> bool:
@@ -3009,12 +2928,6 @@ def _should_run_step(state: PipelineState, step: ChapterStep) -> bool:
     """
     if not step.conditional:
         return True
-
-    if step.skill == "shenbi-intent-management":
-        return _is_volume_boundary(Path(state.project_dir), state.chapter_loop.current_chapter)
-
-    if step.skill == "shenbi-drift-guidance":
-        return _drift_guidance_triggered(state)
 
     if step.skill == "shenbi-chapter-revision":
         return _any_audit_has_findings(state)
@@ -4771,15 +4684,6 @@ def _run_chapter_step_impl(
             )
             return _handle_failure(state, step, chapter, "gate", project_dir)
 
-    # Conditional: foreshadowing-resolve after foreshadowing-lifecycle (step 7).
-    # NOTE (spec #59 T2 audit): step 7 is unconditionally intercepted by the
-    # parallel post-draft block above (_FORESHADOWING_LIFECYCLE_IDX), so this
-    # serial branch stays unreachable in production — kept for the serial
-    # fallback path; per-chapter conditional resolve via the parallel block is
-    # a known pre-existing gap (recorded in spec #59 deviations).
-    if "foreshadowing-lifecycle" in step.skill:
-        _check_conditional_resolve(state, project_dir, chapter)
-
     # After last core-circle audit: genre circle + boundary circle via audit_layer.
     if step.is_audit and step_idx == _LAST_AUDIT_IDX:
         gc_path = project_dir / "genre-config.json"
@@ -4872,9 +4776,5 @@ def _run_chapter_step_impl(
                 chapter=chapter,
                 reason="audit_routed_revision",
             )
-
-    # Update manifest tracking for adaptive steps that just ran.
-    if step.skill == "shenbi-drift-guidance":
-        _update_last_drift_manifest(project_dir, chapter)
 
     return _advance(state, step_idx, step, chapter, project_dir=project_dir)
