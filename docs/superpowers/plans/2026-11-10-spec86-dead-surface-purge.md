@@ -6,7 +6,9 @@
 
 **Architecture:** 按 spec r3.4 的 T1-T6 分七个 task：scr_extractor 缩编（唯一新代码=~40 行单函数）、review_checklist 死半边、chapter_loop 死分支+manifest+孤儿 helper、trace 两模块删除、capability_fs 迁 tests、executor_config 死块+registry 死 kind，收尾生成物重同步+全验收跑。所有 task 均 infra（触 `pipeline/`/`contracts/`），协调者亲实现。
 
-> **Plan r2（2026-11-10 审查轮 1 修订）**：C1/C2 补 Task 6 两钉死测试（test_executor_config discriminative 列表裁 5+docstring 9→5；test_registry kinds 删 short+名 16→15）· I3 Task 3 补删 :45 HookState/parse_hook_state 悬空 import · I4 `_write_chapter` META 改规范 `<!--META-BEGIN-->…<!--META-END-->` 形态且内置不在期望集的 location 字钉剥离序 · I5 steps_restructured/adaptive_triggers 两 patch 直测钉死整测删 · M6 删已 rm 文件的 pytest 参数+补 skipped 基线步 · M7 t4_scatter :129/:130 调用点 · M8 truth_readers:34 docstring · M9 world-freshness NOTE docstring 同步 · M10 STATIC/DYNAMIC 区间与笔误修正。验收 4 计数 16→**18**。
+> **Plan r2（2026-11-10 审查轮 1 修订）**：C1/C2 补 Task 6 两钉死测试（test_executor_config discriminative 列表裁 5+docstring 9→5；test_registry kinds 删 short+名 16→15）· I3 Task 3 补删 :45 HookState/parse_hook_state 悬空 import · I4 `_write_chapter` META 改规范 `<!--META-BEGIN-->…<!--META-END-->` 形态且内置不在期望集的 location 字钉剥离序 · I5 steps_restructured/adaptive_triggers 两 patch 直测钉死整测删 · M6 删已 rm 文件的 pytest 参数+补 skipped 基线步 · M7 t4_scatter :129/:130 调用点 · M8 truth_readers:34 docstring · M9 world-freshness NOTE docstring 同步 · M10 STATIC/DYNAMIC 区间与笔误修正。验收 4 计数 16→**18**（spec r3.5 同步）。
+>
+> **Plan r3（2026-11-10 审查轮 2 修订）**：C1 `_read_events` docstring 去 `shenbi.trace.replay` 字面量（否则植入两测试文件后 T4 grep 永久非零）· I1 steps_restructured 区间改 :41-52+:76-102 删/**保 :55-73 两活测试**（r2 的 :41-76 夹活测试=静默覆盖损失；Files/Self-Review 陈旧措辞同步清）+test_chapter_loop 锚精（:337-375 整类/:545-568 整测）· I2 T4 判据 deps.json:292-293 陈旧键预期假红注记（Task 7 重生成后 canonical 全零）· M1 双剥离钉（标题内置「镇」）· M4 三锚修（:51-69/:551-558/:4812-4813 含 NOTE 段）· M5 spec 验收 4 同步 18（spec r3.5）。
 
 **Tech Stack:** Python 3.11+ / pytest / just（CI 同构）/ uv run
 
@@ -55,12 +57,12 @@ from shenbi.pipeline.scr_extractor import recent_location_terms
 
 
 def _write_chapter(project_dir: Path, n: int, body: str) -> None:
-    # META 块内置 location 字「林」与 `# ` 行——两者若泄漏进结果集（各测期望集
-    # 均不含林）即证明 META 剥离或 H1 剥离失效，钉住剥离序（plan r2 审查 I4）。
+    # 双剥离钉（plan r3 审查 M1）：标题内置「镇」、META 块内置「林/谷」——三者
+    # 均不在任何期望集：META 剥离失效→林/谷泄漏红；H1 剥离失效→镇泄漏红。
     chapters = project_dir / "chapters"
     chapters.mkdir(parents=True, exist_ok=True)
     (chapters / f"chapter-{n}.md").write_text(
-        f"# 第{n}章 测试\n\n{body}\n\n"
+        f"# 第{n}章 镇志\n\n{body}\n\n"
         "<!--META-BEGIN-->林 # 非散文 META 行\n第二行谷<!--META-END-->\n",
         encoding="utf-8",
     )
@@ -169,7 +171,7 @@ def recent_location_terms(project_dir: Path, chapter: int, lookback: int = 10) -
 **复杂度: infra** ｜ **test_kind: regression_guard**
 
 **Files:**
-- Modify: `src/shenbi/pipeline/review_checklist.py`（删 8 死函数 :572-655 区段逐个删 + STATIC_FIELDS :551-557 + DYNAMIC_FIELDS :559 + `__all__` 收缩至 4 公共名）
+- Modify: `src/shenbi/pipeline/review_checklist.py`（删 8 死函数 :572-655 区段逐个删 + STATIC_FIELDS :551-558 + DYNAMIC_FIELDS :559-569 + `__all__` 收缩至 4 公共名）
 - Modify: `tools/lint_truth_format_single_source.py`（删 NAMED_WHITELIST 条目 :57 + 模块 docstring :18-19 两行）
 - Delete: `tests/pipeline/test_review_checklist.py`（整文件 57 行——两测试全测死函数 get_checklist/generate_chapter_delta）
 
@@ -205,8 +207,8 @@ __all__ = [
 - Modify: `src/shenbi/pipeline/chapter_loop.py`（删 :3044-3048/:4810-4813/:4909-4910 死分支；_check_conditional_resolve :2814-：函数体含 :2832 dispatch_skill；_is_volume_boundary :2967；_drift_guidance_triggered :2977；_load_manifest :2924；_save_manifest :2937；_update_last_drift_manifest :2960——**三段不连续，:2944 _get_recent_resonance_scores 是活函数勿伤**）
 - Modify: `tools/lint_key_reconciliation.py`（删两 ReadKey 锚 :132-138 `chapterloop/drift-guidance` 与 :139-145 `chapterloop/pending-hooks`——整 ReadKey 块）
 - Modify: `tests/unit/pipeline/test_spec83_stale_declarations.py`（删 :87 参数化行 + **:105 canary `== 13` 改 `== 12`**）
-- Modify: `tests/unit/pipeline/test_chapter_loop.py`（删 :343-375/:546-561 `_check_conditional_resolve` 直测两段）
-- Modify: `tests/pipeline/test_chapter_steps_restructured.py`（:48/:51 patch 点改 `shenbi.pipeline.triggers.is_volume_boundary` 或随 :76 删——:76 `test_drift_guidance_triggered_by_alerts` 经 `_should_run_step` 驱动死分支，**整测删**；:48/:51 若测的是活路由则改 patch 目标，亲读后定）
+- Modify: `tests/unit/pipeline/test_chapter_loop.py`（删 **:337-375 `class TestConditionalResolve` 整类** 与 **:545-568 `test_track_step_with_triggered_hooks_dispatches_resolve` 整测**——r3 锚精：plan r2 的 :343-375/:546-561 从中部起算会留空壳/语法红）
+- Modify: `tests/pipeline/test_chapter_steps_restructured.py`（**删 :41-52 `test_intent_management_boundary_only` + :76-102 `test_drift_guidance_triggered_by_alerts` 两死分支直测；保 :55-73 两活测试**（`test_non_conditional_steps_always_run`/`test_conditional_snapshot_manage_runs`——删分支后仍过、钉默认 fallthrough）；r3 钉死：改 patch 目标不可行——`_should_run_step` 删 :3044-3048 后 conditional 步落默认 `return True`，`is False` 断言无解）
 - Modify: `tests/unit/pipeline/test_adaptive_triggers.py:47,52`（patch 目标 `chapter_loop._is_volume_boundary` → `chapter_loop` 内改用 triggers 版后跟随；亲读后定——若 patch 语义是「伪造卷界触发条件步」则改 patch `shenbi.pipeline.triggers.is_volume_boundary`）
 - Modify: `docs/framework/truth-files.yaml:102-104`（:102-103 注释历史化：「历史遗留：写方 `_update_last_drift_manifest` 已于 spec #86 删除；存量项目盘上文件容忍，无新写入」；:104 条目 `producer: pipeline` **保留原值**）
 - Modify: `tools/regen_reset.py`（删 :149-156 `_clear_snapshots_key` 整函数 + :228 调用行 + :186 动作标签行）
@@ -218,9 +220,9 @@ __all__ = [
 - Keeps: `shenbi.pipeline.triggers.is_volume_boundary(chapter: int, project_dir: Path | str) -> bool`（活函数 :318——**test_triggers.py:233 不动**）；`_get_recent_resonance_scores`（:2944 活）
 
 - [ ] **Step 1: 先跑 canary 红证**——`uv run pytest tests/unit/pipeline/test_spec83_stale_declarations.py -q`（批前绿基线记录）；删 chapter_loop 死分支+三函数+孤儿 helper 后先跑一次看 canary `==13` 红 dispatch 计数（13→12 变动实锚）+ lint_key_reconciliation 红（reader anchor FAIL）——两红即「删对了地方」的证据，随后改 :105 与 lint 锚转绿
-- [ ] **Step 2: chapter_loop 删除**——按符号定位（Task 1 已使行号漂移）：死分支①②（`if step.skill == "shenbi-intent-management":` / `elif`/`if step.skill == "shenbi-drift-guidance":` 含 return 两块 :3044-3048）、③（`if "foreshadowing-lifecycle" in step.skill: _check_conditional_resolve(...)` :4810-4813）、④（`if step.skill == "shenbi-drift-guidance": _update_last_drift_manifest(...)` :4909-4910）；manifest 三函数两段；孤儿 helper 三函数；**删 :45 行 `from shenbi.contracts.schemas.hooks import HookState, parse_hook_state`（全文件唯一消费点在 _check_conditional_resolve 体内 :2828——删前 grep 复核两符号零残余使用，否则 ruff F401 悬空）**
-- [ ] **Step 3: 连带面逐项落**——lint 两 ReadKey 块删；spec83 :87 行删+:105 `13`→`12`；test_chapter_loop 两段删；**steps_restructured:41-76 与 adaptive_triggers:34-56 两处 `_is_volume_boundary` patch 直测整测删**（r2 钉死：分支删除后 `_should_run_step` 对 conditional 步恒 `return True`，`is False` 断言无论 patch 指向哪必失败——改 patch 目标不可行）；truth-files.yaml 注释；regen_reset 三处；writer.py docstring；spec79 plan 注记；truth_readers.py:34 docstring「(chapter_loop conditional-resolve)」悬空指认顺手改写
-- [ ] **Step 4: 验证**——`uv run pytest tests/unit/pipeline/test_spec83_stale_declarations.py tests/pipeline/test_chapter_steps_restructured.py tests/unit/pipeline/test_adaptive_triggers.py tests/unit/pipeline/test_triggers.py tests/unit/tools/test_regen_reset.py -q` 全绿；`uv run python tools/lint_key_reconciliation.py --strict` exit 0
+- [ ] **Step 2: chapter_loop 删除**——按符号定位（Task 1 已使行号漂移）：死分支①②（`if step.skill == "shenbi-intent-management":` / `elif`/`if step.skill == "shenbi-drift-guidance":` 含 return 两块 :3044-3048）、③（`if "foreshadowing-lifecycle" in step.skill: _check_conditional_resolve(...)` :4812-4813——**连同其上方 :4806-4811 NOTE 注释段一并删**，字面删 if/call 两行会留孤儿注释）、④（`if step.skill == "shenbi-drift-guidance": _update_last_drift_manifest(...)` :4909-4910）；manifest 三函数两段；孤儿 helper 三函数；**删 :45 行 `from shenbi.contracts.schemas.hooks import HookState, parse_hook_state`（全文件唯一消费点在 _check_conditional_resolve 体内 :2828——删前 grep 复核两符号零残余使用，否则 ruff F401 悬空）**
+- [ ] **Step 3: 连带面逐项落**——lint 两 ReadKey 块删；spec83 :87 行删+:105 `13`→`12`；test_chapter_loop 整类+整测删；**steps_restructured 删 :41-52+:76-102（保 :55-73 两活测试）与 adaptive_triggers :34-56 两处 `_is_volume_boundary` patch 直测整测删**（r3 钉死：分支删除后 `_should_run_step` 对 conditional 步落默认 `return True`，`is False` 断言无论 patch 指向哪必失败——改 patch 目标不可行）；truth-files.yaml 注释；regen_reset 三处；writer.py docstring；spec79 plan 注记；truth_readers.py:34 docstring「(chapter_loop conditional-resolve)」悬空指认顺手改写
+- [ ] **Step 4: 验证**——`uv run pytest tests/unit/pipeline/test_spec83_stale_declarations.py tests/pipeline/test_chapter_steps_restructured.py tests/unit/pipeline/test_adaptive_triggers.py tests/unit/pipeline/test_triggers.py tests/unit/pipeline/test_chapter_loop.py tests/unit/tools/test_regen_reset.py -q` 全绿；`uv run python tools/lint_key_reconciliation.py --strict` exit 0
 - [ ] **Step 5: 判据跑**——T3 两条 grep（spec r3.4 文本）期望零输出
 - [ ] **Step 6: Commit** + audit-T3
 
@@ -246,8 +248,8 @@ __all__ = [
 def _read_events(round_dir: Path) -> list[TraceEvent]:
     """Pure reader: parse trace.jsonl, stop at first torn line / bad signature.
 
-    The pre-#86 shenbi.trace.replay also truncated the file on torn lines;
-    tests only consume the returned events, so the helper is read-only.
+    The pre-#86 replay reader also truncated the file on torn lines; tests
+    only consume the returned events, so the helper is read-only.
     """
     from shenbi.trace.event import GENESIS_PREV, TraceEvent, canonical_payload, sign
 
@@ -287,7 +289,7 @@ def round_field(round_dir: Path) -> str:
 - [ ] **Step 3: 四文件改写**——test_compaction/test_chain_invariants 植入 `_read_events` helper 换调用；t4_scatter_guards 植入 `round_field`；concurrency 删两整测+g7 测换 helper
 - [ ] **Step 4: 文档两处改写**（status-vocab.md:20 行内提及；audit-prompt:335 trace/replay.py 引用——按上下文最小改写）
 - [ ] **Step 5: 验证**——`uv run pytest tests/unit/trace/ tests/property/trace/ tests/unit/test_t4_scatter_guards.py tests/unit/pipeline/test_concurrency_regression.py -q` 全绿
-- [ ] **Step 6: 判据跑**——两条 grep（含 `--exclude-dir=coverage` 与私有导入面）期望零输出
+- [ ] **Step 6: 判据跑**——两条 grep（含 `--exclude-dir=coverage` 与私有导入面）：**T4 时点预期命中 `tests/tiers/deps.json:292-293` 两陈旧键（`trace/replay.py`/`trace.materialize.py`——`.` 通配命中；已提交生成物在 Task 7 Step 1 `just generate` 重生成前为陈旧态，此为预期假红非缺陷）**；其余命中须为零。canonical 判据（全零）在 Task 7 Step 3 重生成后统一跑
 - [ ] **Step 7: Commit** + audit-T4
 
 ---
@@ -320,7 +322,7 @@ def round_field(round_dir: Path) -> str:
 **Files:**
 - Modify: `executor_config.toml`（**按键删 6 块**：`[overrides."shenbi-review-continuity"]` :120、`[overrides."shenbi-review-anti-ai"]` :124、`[overrides."shenbi-review-memo-compliance"]` :157、`[overrides."shenbi-review-world-rules"]` :161、`[overrides."shenbi-review-pov"]` :169、`[overrides."shenbi-review-dialogue"]` :189——**每块含其键值对至下一 `[` 前；禁按行区间整删**——区间夹 10 活块）
 - Modify: `src/shenbi/contracts/schemas/registry.py`（:38 Literal 删 `"short"` 行；:9 docstring「16 kind values (the real yaml uses all 16)」→「15 kind values (the real yaml uses all 15)」）
-- Modify: `tests/pipeline/test_executor_config.py:44-58`（`test_discriminative_review_queue_has_low_temperature` discriminative 列表含将删 4 键且断言 `skill in overrides`——**列表裁至存活 5 技能**（arc-payoff/era/fanfic/sensitivity/spinoff），docstring「9 discriminative」改「5」）
+- Modify: `tests/pipeline/test_executor_config.py:51-69`（`test_discriminative_review_queue_has_low_temperature` discriminative 列表 :55-65 含将删 4 键且断言 `skill in overrides`——**列表裁至存活 5 技能**（arc-payoff/era/fanfic/sensitivity/spinoff），docstring「9 discriminative」改「5」）
 - Modify: `tests/unit/contracts/schemas/test_registry.py:49-70`（`test_kind_literal_all_16` kinds 列表 :63 钉死 `"short"`——删该元素；测试名与 docstring `16`→`15`）
 
 **Interfaces:**
@@ -367,5 +369,5 @@ def round_field(round_dir: Path) -> str:
 ## Self-Review 记录
 
 - 覆盖：spec T1-T6+T7(不动面)+T8(更正已在 spec)+T9 ↔ Task 1-7 一一对应 ✓
-- 占位符：无 TBD/「适当处理」类；tests_restructured/adaptive_triggers 两处标注「亲读后定」为**改写目标二选一的现场判定**（patch 目标随删除面自动消失或需改指向 triggers 版——两类处置均已给出具体形态）✓
+- 占位符：无 TBD/「适当处理」类；steps_restructured/adaptive_triggers 两处 patch 直测的处置已在 r3 **钉死为整测删**（分支删除后 `_should_run_step` 对 conditional 步落默认 `return True`——改 patch 目标不可行；steps_restructured 保 :55-73 两活测试）✓
 - 类型一致：`recent_location_terms` 签名 Task 1 Step 1/3/4 三处一致；`_read_events`/`round_field` helper 名与 T4 验收 grep 判据（`_round_field` 零输出）自洽 ✓
