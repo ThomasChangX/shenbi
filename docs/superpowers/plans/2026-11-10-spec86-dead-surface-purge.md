@@ -9,6 +9,8 @@
 > **Plan r2（2026-11-10 审查轮 1 修订）**：C1/C2 补 Task 6 两钉死测试（test_executor_config discriminative 列表裁 5+docstring 9→5；test_registry kinds 删 short+名 16→15）· I3 Task 3 补删 :45 HookState/parse_hook_state 悬空 import · I4 `_write_chapter` META 改规范 `<!--META-BEGIN-->…<!--META-END-->` 形态且内置不在期望集的 location 字钉剥离序 · I5 steps_restructured/adaptive_triggers 两 patch 直测钉死整测删 · M6 删已 rm 文件的 pytest 参数+补 skipped 基线步 · M7 t4_scatter :129/:130 调用点 · M8 truth_readers:34 docstring · M9 world-freshness NOTE docstring 同步 · M10 STATIC/DYNAMIC 区间与笔误修正。验收 4 计数 16→**18**（spec r3.5 同步）。
 >
 > **Plan r3（2026-11-10 审查轮 2 修订）**：C1 `_read_events` docstring 去 `shenbi.trace.replay` 字面量（否则植入两测试文件后 T4 grep 永久非零）· I1 steps_restructured 区间改 :41-52+:76-102 删/**保 :55-73 两活测试**（r2 的 :41-76 夹活测试=静默覆盖损失；Files/Self-Review 陈旧措辞同步清）+test_chapter_loop 锚精（:337-375 整类/:545-568 整测）· I2 T4 判据 deps.json:292-293 陈旧键预期假红注记（Task 7 重生成后 canonical 全零）· M1 双剥离钉（标题内置「镇」）· M4 三锚修（:51-69/:551-558/:4812-4813 含 NOTE 段）· M5 spec 验收 4 同步 18（spec r3.5）。
+>
+> **Plan r4（2026-11-10 审查轮 3 修订）**：I1 test_chapter_loop 类区间锚精 `:334-376`（banner+整类；r3 终点 :375 差末行孤立断言语法红）· I2 test_adaptive_triggers Files 条目钉死整测删（「亲读后定」陈旧措辞清除——与 Step 3/Self-Review 一致）· M1 deps.json 预期命中改恰 :292（:293 不匹配判据模式）· M2 truth_readers.py 入 Task 3 Files（pathspec 防漏提交）· M3 review_checklist :547-549 孤儿 banner 同删。
 
 **Tech Stack:** Python 3.11+ / pytest / just（CI 同构）/ uv run
 
@@ -171,7 +173,7 @@ def recent_location_terms(project_dir: Path, chapter: int, lookback: int = 10) -
 **复杂度: infra** ｜ **test_kind: regression_guard**
 
 **Files:**
-- Modify: `src/shenbi/pipeline/review_checklist.py`（删 8 死函数 :572-655 区段逐个删 + STATIC_FIELDS :551-558 + DYNAMIC_FIELDS :559-569 + `__all__` 收缩至 4 公共名）
+- Modify: `src/shenbi/pipeline/review_checklist.py`（删 8 死函数 :572-655 区段逐个删 + STATIC_FIELDS :551-558 + DYNAMIC_FIELDS :559-569 + **:547-549「Static/Dynamic Split」孤儿 banner 同删** + `__all__` 收缩至 4 公共名）
 - Modify: `tools/lint_truth_format_single_source.py`（删 NAMED_WHITELIST 条目 :57 + 模块 docstring :18-19 两行）
 - Delete: `tests/pipeline/test_review_checklist.py`（整文件 57 行——两测试全测死函数 get_checklist/generate_chapter_delta）
 
@@ -205,11 +207,12 @@ __all__ = [
 
 **Files:**
 - Modify: `src/shenbi/pipeline/chapter_loop.py`（删 :3044-3048/:4810-4813/:4909-4910 死分支；_check_conditional_resolve :2814-：函数体含 :2832 dispatch_skill；_is_volume_boundary :2967；_drift_guidance_triggered :2977；_load_manifest :2924；_save_manifest :2937；_update_last_drift_manifest :2960——**三段不连续，:2944 _get_recent_resonance_scores 是活函数勿伤**）
+- Modify: `src/shenbi/pipeline/truth_readers.py:34`（docstring「(chapter_loop conditional-resolve)」悬空指认改写——Step 3 顺手项入 Files 防 pathspec 漏提交）
 - Modify: `tools/lint_key_reconciliation.py`（删两 ReadKey 锚 :132-138 `chapterloop/drift-guidance` 与 :139-145 `chapterloop/pending-hooks`——整 ReadKey 块）
 - Modify: `tests/unit/pipeline/test_spec83_stale_declarations.py`（删 :87 参数化行 + **:105 canary `== 13` 改 `== 12`**）
-- Modify: `tests/unit/pipeline/test_chapter_loop.py`（删 **:337-375 `class TestConditionalResolve` 整类** 与 **:545-568 `test_track_step_with_triggered_hooks_dispatches_resolve` 整测**——r3 锚精：plan r2 的 :343-375/:546-561 从中部起算会留空壳/语法红）
+- Modify: `tests/unit/pipeline/test_chapter_loop.py`（删 **:334-376「Conditional foreshadowing-resolve」banner+`class TestConditionalResolve` 整类**（类实止 :376——r4 锚精：r3 的 :337-375 差末行孤立断言语法红）与 **:545-568 `test_track_step_with_triggered_hooks_dispatches_resolve` 整测**）
 - Modify: `tests/pipeline/test_chapter_steps_restructured.py`（**删 :41-52 `test_intent_management_boundary_only` + :76-102 `test_drift_guidance_triggered_by_alerts` 两死分支直测；保 :55-73 两活测试**（`test_non_conditional_steps_always_run`/`test_conditional_snapshot_manage_runs`——删分支后仍过、钉默认 fallthrough）；r3 钉死：改 patch 目标不可行——`_should_run_step` 删 :3044-3048 后 conditional 步落默认 `return True`，`is False` 断言无解）
-- Modify: `tests/unit/pipeline/test_adaptive_triggers.py:47,52`（patch 目标 `chapter_loop._is_volume_boundary` → `chapter_loop` 内改用 triggers 版后跟随；亲读后定——若 patch 语义是「伪造卷界触发条件步」则改 patch `shenbi.pipeline.triggers.is_volume_boundary`）
+- Modify: `tests/unit/pipeline/test_adaptive_triggers.py:34-56`（`test_intent_management_gated_by_volume_boundary` 整测删至文件尾——r4 钉死与 steps_restructured 同理：改 patch 目标不可行，`_should_run_step` 删分支后对 conditional 步恒 `return True`，`is False` 断言无解）
 - Modify: `docs/framework/truth-files.yaml:102-104`（:102-103 注释历史化：「历史遗留：写方 `_update_last_drift_manifest` 已于 spec #86 删除；存量项目盘上文件容忍，无新写入」；:104 条目 `producer: pipeline` **保留原值**）
 - Modify: `tools/regen_reset.py`（删 :149-156 `_clear_snapshots_key` 整函数 + :228 调用行 + :186 动作标签行）
 - Modify: `src/shenbi/records/writer.py:6`（docstring「(via chapter_loop._check_conditional_resolve)」→「(via chapter_loop pending-hooks consumption)」）
@@ -289,7 +292,7 @@ def round_field(round_dir: Path) -> str:
 - [ ] **Step 3: 四文件改写**——test_compaction/test_chain_invariants 植入 `_read_events` helper 换调用；t4_scatter_guards 植入 `round_field`；concurrency 删两整测+g7 测换 helper
 - [ ] **Step 4: 文档两处改写**（status-vocab.md:20 行内提及；audit-prompt:335 trace/replay.py 引用——按上下文最小改写）
 - [ ] **Step 5: 验证**——`uv run pytest tests/unit/trace/ tests/property/trace/ tests/unit/test_t4_scatter_guards.py tests/unit/pipeline/test_concurrency_regression.py -q` 全绿
-- [ ] **Step 6: 判据跑**——两条 grep（含 `--exclude-dir=coverage` 与私有导入面）：**T4 时点预期命中 `tests/tiers/deps.json:292-293` 两陈旧键（`trace/replay.py`/`trace.materialize.py`——`.` 通配命中；已提交生成物在 Task 7 Step 1 `just generate` 重生成前为陈旧态，此为预期假红非缺陷）**；其余命中须为零。canonical 判据（全零）在 Task 7 Step 3 重生成后统一跑
+- [ ] **Step 6: 判据跑**——两条 grep（含 `--exclude-dir=coverage` 与私有导入面）：**T4 时点预期命中 `tests/tiers/deps.json:292`（`trace/replay.py` 陈旧键——`.` 通配 `/`；:293 的 materialize 键同陈旧但两判据模式均不命中它，随重生成同灭）**；其余命中须为零。canonical 判据（全零）在 Task 7 Step 3 重生成后统一跑
 - [ ] **Step 7: Commit** + audit-T4
 
 ---
