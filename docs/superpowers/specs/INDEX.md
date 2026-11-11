@@ -12,9 +12,9 @@
 
 ### #87 · god 文件拆分与正名（god-file-decomposition）
 
-- **文件**：`2026-11-01-spec87-god-file-decomposition.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r3） ｜ **优先级**：🟥 P0
+- **文件**：`2026-11-01-spec87-god-file-decomposition.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r3.1） ｜ **优先级**：🟥 P0
 - **依赖**：#86 先行（已归档）；#95 先行（已归档——T2 悬置项判定=入表分支）；建议 #84 卷二开卷冻结窗后执行（#84 已归档、卷二无活跃运行，当前窗口可施工）
-- **内容**：BuiltPrompt **NamedTuple** 替 5 元组（r3 选型：52 解构位点零破坏）+ extractor 注册表（**11 臂** elif 坍缩 **−252 行**，21 WARN→1；10 实现+volume_chapter 薄包装 _shared.load_volume_context；名字单源落 **contracts 侧零依赖叶**防 contracts→pipeline 反边——#90 roster-叶同族；+禁裸 `extractor ==` 防复发禁令）+ _run_chapter_step_impl 五体制拆分（**925 行**函数出鞘，后钩**按三时机**拆 pre/failure/success——不做全局注册表；checkpoint 唯一持有/推进语义各体制显式持有）+ 子串判定消灭（**双路径**：ChapterStep 属性升格既有面 + dispatch_helper :1577 无 step 对象点走精确 frozenset+目录扫描对账；卫生加固如实标注）+ ~12-15 事实公共符号正名（须含 4+1 处 pyright 压制符号）+ tests 私有 import **基线文件** lint。（DispatchContext 原 T6 **移出至 #94 T4**——拆分中不同时改签名面）；**验收 r3 重定标（基线 9,690）：合计 ≤9,500/chapter_loop ≤4,820/dispatch_helper ≤4,680；pyright 压制 ≤12（#87 时点算术，撤 #94 时序引用）**
+- **内容**：BuiltPrompt **NamedTuple** 替 5 元组（r3 选型：54 解构位点零破坏含星号 1 处）+ extractor 注册表（**11 臂** elif 坍缩 **−252 行**，21 WARN→1；10 实现+统一包装层归一 4 种签名形态+volume_chapter 薄包装 _shared.load_volume_context；名字单源落 **contracts 侧零依赖叶**防 contracts→pipeline 反边——#90 roster-叶同族；+禁裸 `extractor ==` 防复发禁令；warn_when 表达 guard-warn/silent/loud/no-op 四态）+ _run_chapter_step_impl 五体制拆分（**925 行**函数出鞘，后钩**按三时机**拆 pre/failure/success——不做全局注册表；checkpoint 唯一持有/推进语义各体制显式持有）+ 子串判定消灭（**双路径**：ChapterStep 属性升格既有面 + dispatch_helper :1577 无 step 对象点走精确 frozenset **26 名**（r3.1 裁定含 escalation/foundation-review 防活行为收紧）+目录扫描对账+escalation 保留注入特征测试；卫生加固如实标注）+ ~12-15 事实公共符号正名（须含 4+1 处 pyright 压制符号，AuditResult 走公共再导出改 import）+ tests 私有 import **基线文件** lint。（DispatchContext 原 T6 **移出至 #94 T4**——拆分中不同时改签名面）；**验收 r3 重定标（基线 9,690）：合计 ≤9,500/chapter_loop ≤4,820/dispatch_helper ≤4,680；pyright 压制 ≤12（#87 时点算术，撤 #94 时序引用）**
 - **对应 plan**：待执行时建
 - **触及的不变量维度**：无（行为保持重构，characterization 先行）
 
