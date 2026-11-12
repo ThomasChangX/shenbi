@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-12（spec #87 plan 建档 ✅ ready——四轮设计审查收敛后的 r3.4 施工）
-> **活跃 plan 数**：2 | **已归档**：140（见 `archive/`）
+> **最后更新**：2026-11-13（spec #87 完结归档——PR #331 squash，T0-T5 全 audit+终审 PASS）
+> **活跃 plan 数**：1 | **已归档**：141（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **[2026-11-12-spec87-god-file-decomposition.md](2026-11-12-spec87-god-file-decomposition.md)** ✅ ready——对应 spec #87（r3.4）；Task -1 re-anchor + T0-T5 六 task 全 infra
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行完毕待归档**——T0-T3+首跑验收全落）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
 
 ## 待执行的 spec → plan 映射
@@ -40,6 +39,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 最近归档项：
 
+- `2026-11-12-spec87-god-file-decomposition.md`（SDD #87 完结：PR #331 · 2026-11-13——god 文件拆分与正名：五体制出鞘/ExtractSpec 注册表/BuiltPrompt NamedTuple/26 名 roster/正名+基线冻结）
 - `2026-10-30-spec82-retention-engine-net.md`（SDD #82 完结：PR #263 · 2026-10-31——T0 快照/序列门×4/钩龄/母题触点/留存锚参数化/shadow 纪律；运行侧验收=卷一重生成窗口）
 
 - `2026-09-18-spec40-master-closure.md`（SDD #40 收官 pass：ledger 回写补齐 44 行 + spec #67 登记 + 总纲归档）
