@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-11-11（**#86 完结归档**（PR #328——死面清扫批：6 面 src 净减 1008 行[scr_extractor 493→36/review_checklist 死半边/chapter_loop 死分支族/trace 双模块/capability_fs 迁 tests/executor_config 6 块+registry 死 kind]；两轮驳斥+四轮设计/plan 审查收敛；7 task 全 audit；#87 前置达成可开工）
-> **活跃 spec 数**：10
+> **最后更新**：2026-11-13（**#87 完结归档**（PR #331——god 文件拆分：chapter_loop 4,820+dispatch_helper 4,663=9,483≤9,500；五体制出鞘+位置作用域四钩+ExtractSpec 注册表坍缩 11 臂[−252 行]+BuiltPrompt NamedTuple 63 位点零破坏+子串判定双路径根除+18 符号正名+tests 私有 import 基线 170 冻结；两轮驳斥+四轮 spec 审查+六轮 plan 审查；T0-T5 全 audit+终审 PASS；行为保持=T0 八路径 characterization 拆分时刻零改动）
+> **活跃 spec 数**：9
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,16 +9,6 @@
 ---
 
 ## 执行队列
-
-### #87 · god 文件拆分与正名（god-file-decomposition）
-
-- **文件**：`2026-11-01-spec87-god-file-decomposition.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r3.5） ｜ **优先级**：🟥 P0
-- **依赖**：#86 先行（已归档）；#95 先行（已归档——T2 悬置项判定=入表分支）；建议 #84 卷二开卷冻结窗后执行（#84 已归档、卷二无活跃运行，当前窗口可施工）
-- **内容**：BuiltPrompt **NamedTuple** 替 5 元组（r3.4 AST 口径：63 解构位点零破坏含星号 1 处）+ extractor 注册表（**11 臂** elif 坍缩 **−252 行**，20 WARN 位+1 注释→1；10 实现+统一包装层归一 4 种签名形态+volume_chapter 薄包装 _shared.load_volume_context；名字单源落 **contracts 侧零依赖叶**防 contracts→pipeline 反边——#90 roster-叶同族；+禁裸 `extractor ==` 防复发禁令；warn_when 表达 guard-warn/silent/loud/no-op 四态）+ _run_chapter_step_impl 五体制拆分（**925 行**函数出鞘，后钩按三时机拆**位置作用域四钩**（pre/失败三态/成功位1 resonance void+位2 revision bool，r3.5 随 plan 修订）——不做全局注册表；checkpoint 唯一持有/推进语义各体制显式持有）+ 子串判定消灭（**双路径**：ChapterStep 属性升格既有面 + dispatch_helper :1577 无 step 对象点走精确 frozenset **26 名**（r3.1 裁定含 escalation/foundation-review 防活行为收紧）+目录扫描对账+escalation 保留注入特征测试；卫生加固如实标注）+ ~12-15 事实公共符号正名（须含 4+1 处 pyright 压制符号，AuditResult 走公共再导出改 import；验收=grep 归零收编五类面）+ tests 私有 import **基线文件** lint（首跑 report-only）。（DispatchContext 原 T6 **移出至 #94 T4**——拆分中不同时改签名面）；**验收 r3 重定标（基线 9,690）：合计 ≤9,500/chapter_loop ≤4,820/dispatch_helper ≤4,680；pyright 压制 ≤12（#87 时点算术，撤 #94 时序引用）**
-- **对应 plan**：已建 `../plans/2026-11-12-spec87-god-file-decomposition.md`（r2.4 ✅ ready——plan 审查六轮收敛）
-- **触及的不变量维度**：无（行为保持重构，characterization 先行）
-
----
 
 ### #88 · 门禁 finding 格式契约（gate-finding-contract）
 
