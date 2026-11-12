@@ -34,7 +34,7 @@
 | `tools/lint_private_imports.py` | Create | tests 私有 import 子集断言 lint（--update 人工评审后用） |
 | `tests/private_imports_baseline.txt` | Create | (file, symbol) 对基线 |
 | `justfile` | Modify | 挂 lint_private_imports（首跑 report-only 后接 FAIL） |
-| `tests/pipeline/test_chapter_step_characterization.py` | Create | T0 六路径 |
+| `tests/pipeline/test_chapter_step_characterization.py` | Create | T0 八路径 |
 | `tests/pipeline/test_read_extractor_registry.py` | Create | T2 表驱动 + 防复发禁令 |
 | `tests/pipeline/test_review_skill_routing.py` | Create | T4 路径 B 对账 + escalation 特征 + 红测 |
 | `tests/unit/pipeline/test_read_extractors_slicing.py` | Modify | :271-284 硬编码名集改 ⊆ REGISTRY 断言 |
@@ -92,7 +92,7 @@ grep -rn "from shenbi.pipeline" src/shenbi/contracts/                           
 
 已有覆盖的路径注明复用锚不重写；缺口路径写新测试。
 
-- [ ] **Step 2: 写六条测试**（已有覆盖的路径至少断言一次 checkpoint 契约：返回 bool + step_index 前进/steps_done 记录）
+- [ ] **Step 2: 写八条测试**（已有覆盖的路径至少断言一次 checkpoint 契约：返回 bool + step_index 前进/steps_done 记录）
 
 八条测试统一骨架（以审计波为例；其余五条按表驱动换 step 定位与断言面）：
 
@@ -651,7 +651,7 @@ if outcome is not None:
 
 - [ ] **Step 3: spec83 白名单同步**——`tests/unit/pipeline/test_spec83_stale_declarations.py`：拆出函数内 `dispatch_skill(` 调用点的 `_enclosing` 归属变为新函数名——settle_capable 三元组中 `("pipeline/chapter_loop.py", "_run_chapter_step_impl")` 改为新归属（serial 函数内的 `_pre_settle_guard` 站点→`_run_serial_dispatch_step`；`run_parallel_post_draft_steps` 不变；逐一跑该测试按 unclassified 红名清单归类）。
 
-- [ ] **Step 4: 验证**——T0 六测试零改动全绿（行为保持证明）；`tests/unit/pipeline/test_spec83_stale_declarations.py` 绿；`grep -n "_run_chapter_step_impl" src/ tests/` 零输出（验收 2）；serial 函数体 wc <260；`wc -l chapter_loop.py` ≤4,820；全量 `-m unit` 绿
+- [ ] **Step 4: 验证**——T0 八测试零改动全绿（行为保持证明）；`tests/unit/pipeline/test_spec83_stale_declarations.py` 绿；`grep -n "_run_chapter_step_impl" src/ tests/` 零输出（验收 2）；serial 函数体 wc <260；`wc -l chapter_loop.py` ≤4,820；全量 `-m unit` 绿
 
 - [ ] **Step 5: Commit + audit**
 
@@ -740,9 +740,9 @@ def _pre_dispatch_hooks(
         outcome = _pre_settle_guard(state, project_dir, chapter)  # 3-arg (:2957)
     return outcome
 ```
-（T4 只做**条件替换**——`in step.skill` → `step.xxx` 属性；签名/函数名/返回契约与 T3 落地形态完全一致，不重定义。`_on_dispatch_failure`/`_on_dispatch_success` 同步换条件；T4 红测 1 的外来 step 注入用 `monkeypatch.setattr(chapter_loop, "CHAPTER_STEPS", ...)` 替换序列项〔r2.2 补注入 seam〕）
+（T4 只做**条件替换**——`in step.skill` → `step.xxx` 属性；签名/函数名/返回契约与 T3 落地形态完全一致，不重定义。`_on_dispatch_failure`/`_on_resonance_success`/`_on_revision_success` 同步换条件；T4 红测 1 的外来 step 注入用 `monkeypatch.setattr(chapter_loop, "CHAPTER_STEPS", ...)` 替换序列项〔r2.2 补注入 seam〕）
 
-- [ ] **Step 4: 验证**——红测全绿（含 T0 八路径）；`grep -n '"state-settling" in step.skill\|"review-resonance" in step.skill\|"chapter-revision" in step.skill' src/shenbi/pipeline/chapter_loop.py` = 零输出；**泛查** `grep -n "in step.skill" src/shenbi/pipeline/chapter_loop.py` 逐条裁定（应仅剩非三模式的合法用法或零）；T0 六路径仍绿；全量 unit 绿
+- [ ] **Step 4: 验证**——红测全绿（含 T0 八路径）；`grep -n '"state-settling" in step.skill\|"review-resonance" in step.skill\|"chapter-revision" in step.skill' src/shenbi/pipeline/chapter_loop.py` = 零输出；**泛查** `grep -n "in step.skill" src/shenbi/pipeline/chapter_loop.py` 逐条裁定（应仅剩非三模式的合法用法或零）；T0 八路径仍绿；全量 unit 绿
 
 - [ ] **Step 5: Commit + audit**
 
@@ -760,7 +760,7 @@ git commit -m "refactor: spec #87 T4 substring elimination — ChapterStep attrs
 - Create: `tools/lint_private_imports.py`、`tests/private_imports_baseline.txt`
 - Modify: `justfile`（挂 lint）、`tools/lint_dead_code_allowlist.py:32-33`（收缩两条）
 
-**正名清单（18 函数 + 1 import 改路）**：
+**正名清单（19 行=18 函数正名+1 import 改路，r2.4 标签对齐表实列）**：
 
 | # | 旧名→新名 | 定义文件 | tests import 次数 |
 |---|---|---|---|
