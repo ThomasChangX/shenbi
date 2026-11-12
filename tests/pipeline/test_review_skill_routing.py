@@ -17,13 +17,56 @@ from shenbi.pipeline.review_checklist import REVIEW_SKILLS, is_review_skill
 
 
 @pytest.mark.unit
-def test_review_resonance_substring_negative() -> None:
-    """A skill merely CONTAINING 'review-resonance' must not be treated as
-    the resonance step (substring today over-triggers; red->green).
+def test_review_resonance_substring_negative(tmp_path, monkeypatch) -> None:
+    """A skill merely CONTAINING 'review-resonance' must not trigger the
+    resonance post-processing (audit-T4: drive the PUBLIC entry with an
+    injected step — a constructed-flag assertion would be vacuous).
     """
-    fake = type(CHAPTER_STEPS[0])(99, "shenbi-xreview-resonance-y", "fake", emits_resonance=False)
-    assert not fake.emits_resonance
-    # and the roster must not admit it (path B independence)
+    from types import SimpleNamespace
+    from unittest.mock import patch
+
+    from shenbi.pipeline import chapter_loop as cl
+    from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+    fake = type(CHAPTER_STEPS[0])(
+        99, "shenbi-xreview-resonance-y", "fake", uses_staging=True
+    )  # emits_resonance defaults False — the substring form would over-fire
+    real_steps = list(CHAPTER_STEPS)
+    monkeypatch.setattr(cl, "CHAPTER_STEPS", real_steps + [fake])
+
+    state = PipelineState.default(str(tmp_path))
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 1
+    state.chapter_loop.step_index = len(real_steps)  # the injected step
+
+    tail_calls: list[str] = []
+    with (
+        patch.object(
+            cl,
+            "dispatch_skill",
+            side_effect=lambda *a, **kw: SimpleNamespace(
+                success=True, result={}, stdout="", stderr="", returncode=0
+            ),
+        ),
+        patch.object(
+            cl, "run_gate_g4", lambda *a, **kw: {"status": "PASS", "checks": [], "must_fix": []}
+        ),
+        patch.object(
+            cl,
+            "_parse_and_persist_resonance",
+            side_effect=lambda *a, **kw: tail_calls.append("persist"),
+        ),
+        patch.object(
+            cl,
+            "_route_revision_after_resonance",
+            side_effect=lambda *a, **kw: tail_calls.append("route"),
+        ),
+    ):
+        reached = cl.run_chapter_step(state, tmp_path)
+
+    assert isinstance(reached, bool)
+    assert tail_calls == [], "substring-named skill must NOT fire resonance tails"
+    # roster independence (path B)
     assert not is_review_skill("shenbi-xreview-resonance-y")
 
 

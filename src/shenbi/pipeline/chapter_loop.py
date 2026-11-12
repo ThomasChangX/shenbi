@@ -42,6 +42,7 @@ if TYPE_CHECKING:
     from shenbi.skill_utils.drift_detection.linguistic_drift import DriftResult
 
 from shenbi.contracts.paths import PathContext, resolve_chapter_path
+from shenbi.pipeline.review_checklist import is_review_skill  # spec #87 T4
 
 import yaml
 
@@ -3996,7 +3997,7 @@ def _run_audit_wave_step(
     # truth/resonance_trend.md) are partitioned out and dispatched
     # serially — assert_parallelizable rejects any non-read-only skill,
     # so leaving them in would fail the whole wave (F532, C32 R4).
-    core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and "review" in s.skill]
+    core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and is_review_skill(s.skill)]
     # spec #72 T9: cluster dispatch — ONE prompt per skill covers the
     # bundle's chapters; reports stay PER-CHAPTER (contract {N+1} brace
     # writes make audit_report_paths(N) cover the follower's paths too,
