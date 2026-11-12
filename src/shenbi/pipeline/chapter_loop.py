@@ -290,7 +290,7 @@ CHAPTER_STEPS: list[ChapterStep] = [
 
 #: #51 (probe21 adjudication #009): LLM steps that DERIVE their output from
 #: the chapter draft. Their dispatch is precheck-gated on the draft existing —
-#: see the ghost-chain guard in ``_run_chapter_step_impl``.
+#: see the ghost-chain guard in run_chapter_step.
 _DRAFT_CONSUMING_SKILLS = frozenset(
     {"shenbi-foreshadowing-lifecycle", "shenbi-state-settling", "shenbi-chapter-revision"}
 )
@@ -3841,7 +3841,98 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     # ── Observability: per-step timing (Task 11a) ────────────────────────
     step_start = time.monotonic()
     try:
-        return _run_chapter_step_impl(state, project_dir, step_idx, step, chapter)
+        # ── Crash recovery: checkpoint-on-step (spec §3.4, §3.6) ────────────
+        # Check for emergency shutdown flag at each step boundary (safe I/O from
+        # the main thread — the signal handler only sets the atomic flag).
+        _cr_check_emergency_flag(project_dir)
+
+        # If shutdown was requested during cleanup, raise escalation checkpoint
+        # so the loop stops cleanly and the caller persists state.
+        if is_shutdown_requested():
+            set_checkpoint(
+                state,
+                CheckpointType.ESCALATION,
+                chapter=chapter,
+                context=(
+                    f"Emergency shutdown during chapter {chapter} step {step.step_num} ({step.skill})"
+                ),
+            )
+            return True
+
+        # ── Emergency registration (first step only) ─────────────────────────
+        if step_idx == 0:
+            # Register emergency handler ONCE (installs signal handlers + atexit backstop)
+            register_emergency_handlers(project_dir, state)
+
+        # ── #51 ghost-chain guard: draft-existence invariant ─────────────────
+        # The draft-consuming LLM writers (foreshadowing-lifecycle, state-settling,
+        # chapter-revision) derive truth from chapters/chapter-N.md — dispatching
+        # them for an un-drafted chapter FABRICATES truth (probe21: a cursor bug
+        # sent ch2 into settle with no chapter-2.md; the poisoned rows propagated
+        # into every later file). Refuse BEFORE any dispatch: no fabrication
+        # attempt, no cost, human adjudicates via the escalation.
+        if step.skill in _DRAFT_CONSUMING_SKILLS:
+            draft = project_dir / "chapters" / f"chapter-{chapter}.md"
+            if not draft.exists():
+                log.error(
+                    "chapter_draft_missing_precheck",
+                    chapter=chapter,
+                    skill=step.skill,
+                    expected=str(draft),
+                )
+                set_checkpoint(
+                    state,
+                    CheckpointType.ESCALATION,
+                    chapter=chapter,
+                    context=(
+                        f"chapters/chapter-{chapter}.md 不存在，而步骤 {step.step_num}"
+                        f"（{step.skill}）以该草稿为输入——禁止对未起草章节结算/伏笔/修订"
+                        "（幽灵链防护 #51）。请人工核查章游标与起草步骤后重试。"
+                    ),
+                )
+                return True
+
+        # ── Parallel review dispatch (Task 7): two waves at the first audit step.
+        if step_idx == _FIRST_AUDIT_IDX and step.is_audit:
+            return _run_audit_wave_step(state, project_dir, step_idx, step, chapter)
+        # ── Parallel post-draft dispatch (Task 6): lifecycle+settling sequential (canary #16).
+        if step_idx == _FORESHADOWING_LIFECYCLE_IDX:
+            return _run_post_draft_pair_step(state, project_dir, step_idx, step, chapter)
+
+        # Context assembly (step 3): materialize package before chapter-drafting.
+        # spec #72: the drafting bundle consumes BOTH chapters' context packages.
+        if step.calls_context_assembly:
+            _run_context_assembly_step(state, project_dir, step_idx, step, chapter)
+
+        # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
+        if step.skill.startswith("pipeline-"):
+            return _run_pipeline_internal_step(state, project_dir, step_idx, step, chapter)
+
+        # context-composing replaced by deterministic assembly in step 3 (spec #67)
+        if step.skill == "shenbi-context-composing":
+            log.info("context_composing_replaced_by_assembly", chapter=chapter)
+            state.add_step_done(chapter, step.skill)
+            _reset_retries(state, step, chapter)
+            return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+
+        # chapter-revision is conditional -- skip when routing decided no
+        # revision is needed (spec §6.3, route set during review-resonance).
+        # Scoped to the revision skill ONLY; other steps are unaffected.
+        if step.skill == "shenbi-chapter-revision" and _is_revision_skipped(state, chapter):
+            log.info("revision_step_skipped", chapter=chapter)
+            state.add_step_done(chapter, step.skill)
+            _reset_retries(state, step, chapter)
+            _ensure_revision_decisions_exists(project_dir, chapter, state, log)
+            return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+
+        # Conditional dispatch: gated steps only run when their condition is met.
+        if not _should_run_step(state, step):
+            log.info("conditional_step_skipped", chapter=chapter, skill=step.skill)
+            state.add_step_done(chapter, step.skill)
+            _reset_retries(state, step, chapter)
+            return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+
+        return _run_serial_dispatch_step(state, project_dir, step_idx, step, chapter)
     finally:
         elapsed = time.monotonic() - step_start
         log.info(
@@ -3856,11 +3947,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 def _run_audit_wave_step(
     state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int
 ) -> bool:
-    """Parallel review dispatch: core+genre circles in two waves (Task 7).
-
-    Extracted verbatim from _run_chapter_step_impl (spec #87 T3); the
-    wave runs when the first audit step is reached.
-    """
+    """Parallel review dispatch: core+genre circles in two waves (Task 7; spec #87 T3 extraction)."""
     from shenbi.pipeline.parallel_dispatch import (
         ReviewTask,
         consolidate_review_results,
@@ -4116,11 +4203,7 @@ def _run_audit_wave_step(
 def _run_post_draft_pair_step(
     state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int
 ) -> bool:
-    """Post-draft pair: foreshadowing-lifecycle then state-settling,
-    sequentially on the main thread (canary escalation #16; single-writer).
-
-    Extracted verbatim from _run_chapter_step_impl (spec #87 T3).
-    """
+    """Post-draft pair: lifecycle then settling, sequential single-writer (canary #16; spec #87 T3)."""
     lifecycle_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX]
     settling_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX + 1]
 
@@ -4298,11 +4381,7 @@ def _run_post_draft_pair_step(
 def _run_context_assembly_step(
     state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int
 ) -> None:
-    """Context assembly (step 3): materialize the context package before
-    chapter-drafting; the drafting bundle consumes BOTH chapters' packages
-    (spec #72). VOID pre-step: the caller falls through to the
-    pipeline-internal branch, which owns the advance.
-    """
+    """Context assembly (step 3): materialize packages; VOID pre-step — the pipeline-internal branch owns the advance (spec #72/#87)."""
     for n in bundle_chapters(project_dir, chapter):
         _run_context_assembly(project_dir, n)
 
@@ -4310,10 +4389,7 @@ def _run_context_assembly_step(
 def _run_pipeline_internal_step(
     state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int
 ) -> bool:
-    """Pipeline-internal steps (not dispatched): advance without dispatch/G4.
-
-    Extracted verbatim from _run_chapter_step_impl (spec #87 T3).
-    """
+    """Pipeline-internal steps (not dispatched): advance without dispatch/G4 (spec #87 T3 extraction)."""
     # ── Linguistic drift check (non-blocking, except ESCALATE) ────────
     if step.skill == "pipeline-linguistic-drift-check":
         _run_linguistic_drift_check(project_dir, chapter)
@@ -4386,123 +4462,132 @@ def _run_pipeline_internal_step(
     return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
 
-def _run_chapter_step_impl(
+def _pre_dispatch_hooks(
+    step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int
+) -> tuple[list[str], list[str]] | None:
+    """Pre-dispatch hooks (== matching verbatim); returns settle-guard outcome, routing stays with the caller (spec #87 T3)."""
+    outcome: tuple[list[str], list[str]] | None = None
+    if step.skill == "shenbi-chapter-revision":
+        write_audit_aggregate(project_dir, chapter)
+    if step.skill == "shenbi-state-settling":
+        outcome = _pre_settle_guard(state, project_dir, chapter)
+    return outcome
+
+
+def _on_dispatch_failure(
+    step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int, result: Any
+) -> bool | None:
+    """Failure-branch hooks, three-state: None=no arm (generic route), True=checkpoint, False=retry passthrough (spec #87 T3)."""
+    if "state-settling" in step.skill:
+        from shenbi.pipeline.error_handler import handle_state_settle_failure
+
+        handle_state_settle_failure(state, chapter)
+        log.error(
+            "chapter_state_settle_failed",
+            chapter=chapter,
+            step=step.step_num,
+        )
+        return True  # checkpoint raised, pause for human
+    if "review-resonance" in step.skill:
+        from shenbi.pipeline.error_handler import handle_scoring_failure
+
+        retry, fc = handle_scoring_failure(state, result.returncode)
+        if retry:  # pragma: no cover — no retry path remains; kept for API truth
+            log.warning(
+                "scoring_failure_retry",
+                chapter=chapter,
+                exit_code=result.returncode,
+            )
+            return False
+        log.warning(
+            "scoring_failure_deterministic",
+            chapter=chapter,
+            exit_code=result.returncode,
+            failure_class=fc.value,
+        )
+        return _handle_failure(state, step, chapter, "scoring", project_dir, failure_class=fc)
+    return None
+
+
+def _on_resonance_success(
+    step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int
+) -> None:
+    """Resonance-position success tail (before the output gate); void fall-through (spec #87 T3)."""
+    if "review-resonance" in step.skill:
+        _parse_and_persist_resonance(state, project_dir, chapter, source="serial_step")
+
+        _route_revision_after_resonance(state, project_dir, chapter)
+
+
+def _on_revision_success(
+    step: ChapterStep,
     state: PipelineState,
     project_dir: Path,
     step_idx: int,
-    step: ChapterStep,
     chapter: int,
+    retry_key: str,
 ) -> bool:
-    """Implementation body of run_chapter_step — wrapped by timing instrumentation."""
-    # ── Crash recovery: checkpoint-on-step (spec §3.4, §3.6) ────────────
-    # Check for emergency shutdown flag at each step boundary (safe I/O from
-    # the main thread — the signal handler only sets the atomic flag).
-    _cr_check_emergency_flag(project_dir)
-
-    # If shutdown was requested during cleanup, raise escalation checkpoint
-    # so the loop stops cleanly and the caller persists state.
-    if is_shutdown_requested():
-        set_checkpoint(
-            state,
-            CheckpointType.ESCALATION,
-            chapter=chapter,
-            context=(
-                f"Emergency shutdown during chapter {chapter} step {step.step_num} ({step.skill})"
-            ),
-        )
-        return True
-
-    # ── Emergency registration (first step only) ─────────────────────────
-    if step_idx == 0:
-        # Register emergency handler ONCE (installs signal handlers + atexit backstop)
-        register_emergency_handlers(project_dir, state)
-
-    # ── #51 ghost-chain guard: draft-existence invariant ─────────────────
-    # The draft-consuming LLM writers (foreshadowing-lifecycle, state-settling,
-    # chapter-revision) derive truth from chapters/chapter-N.md — dispatching
-    # them for an un-drafted chapter FABRICATES truth (probe21: a cursor bug
-    # sent ch2 into settle with no chapter-2.md; the poisoned rows propagated
-    # into every later file). Refuse BEFORE any dispatch: no fabrication
-    # attempt, no cost, human adjudicates via the escalation.
-    if step.skill in _DRAFT_CONSUMING_SKILLS:
-        draft = project_dir / "chapters" / f"chapter-{chapter}.md"
-        if not draft.exists():
-            log.error(
-                "chapter_draft_missing_precheck",
-                chapter=chapter,
-                skill=step.skill,
-                expected=str(draft),
-            )
-            set_checkpoint(
-                state,
-                CheckpointType.ESCALATION,
-                chapter=chapter,
-                context=(
-                    f"chapters/chapter-{chapter}.md 不存在，而步骤 {step.step_num}"
-                    f"（{step.skill}）以该草稿为输入——禁止对未起草章节结算/伏笔/修订"
-                    "（幽灵链防护 #51）。请人工核查章游标与起草步骤后重试。"
-                ),
-            )
-            return True
-
-    # ── Parallel review dispatch (Task 7) ──────────────────────────────
-    # When the first audit step is reached, dispatch all core-circle and
-    # genre-circle reviews in two parallel waves instead of serial steps.
-    if step_idx == _FIRST_AUDIT_IDX and step.is_audit:
-        return _run_audit_wave_step(state, project_dir, step_idx, step, chapter)
-    # ── Parallel post-draft dispatch (Task 6) ────────────────────────────
-    # When the foreshadowing-lifecycle step is reached, execute it and
-    # then state-settling SEQUENTIALLY (canary escalation #16). Their write
-    # sets overlap on truth/pending_hooks.md (both append_dedup) — the old
-    # parallel form raced last-writer-wins on staging merges and could kill
-    # a worker before its dispatch. The main thread handles G4, step
-    # recording, and advancing (single-writer pattern).
-    if step_idx == _FORESHADOWING_LIFECYCLE_IDX:
-        return _run_post_draft_pair_step(state, project_dir, step_idx, step, chapter)
-
-    # Context assembly (step 3): materialize package before chapter-drafting.
-    # spec #72: the drafting bundle consumes BOTH chapters' context packages.
-    if step.calls_context_assembly:
-        _run_context_assembly_step(state, project_dir, step_idx, step, chapter)
-
-    # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
-    if step.skill.startswith("pipeline-"):
-        return _run_pipeline_internal_step(state, project_dir, step_idx, step, chapter)
-
-    # context-composing replaced by deterministic assembly in step 3 (spec #67)
-    if step.skill == "shenbi-context-composing":
-        log.info("context_composing_replaced_by_assembly", chapter=chapter)
-        state.add_step_done(chapter, step.skill)
-        _reset_retries(state, step, chapter)
-        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
-
-    # chapter-revision is conditional -- skip when routing decided no
-    # revision is needed (spec §6.3, route set during review-resonance).
-    # Scoped to the revision skill ONLY; other steps are unaffected.
-    if step.skill == "shenbi-chapter-revision" and _is_revision_skipped(state, chapter):
-        log.info("revision_step_skipped", chapter=chapter)
-        state.add_step_done(chapter, step.skill)
-        _reset_retries(state, step, chapter)
+    """Revision-position success tail (after add_done/reset): decisions/stale/revalidate/redispatch; block returns are the hook return (spec #87 T3)."""
+    # After chapter-revision step succeeds, ensure decisions file exists
+    if "chapter-revision" in step.skill:
         _ensure_revision_decisions_exists(project_dir, chapter, state, log)
-        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+        # spec #83 T2 写入者：修订完成→declarations_stale=True（无条件置位；
+        # 清除点见下——复验绿复同步处＋settle 摄取成功后，§11 双清除点）
+        _get_chapter_state(state, chapter).declarations_stale = True
+        # spec #72 施工面 9: post-revision revalidation (marker diff + scene
+        # checks + band) — R3-C1: the revision G4 only validates the
+        # decisions JSON; prose was never re-checked before this wiring.
+        rev_issues = _revalidate_revised_chapter(project_dir, chapter)
+        if rev_issues:
+            log.warning("revision_revalidation_failed", chapter=chapter, issues=rev_issues[:5])
+            # spec #83 §10 行 3：id-first 项过 shadow demote（rev_issues 混合既有
+            # 无 id 串——只对 G4. 前缀项 demote，其余保持既有路由）
+            from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
 
-    # Conditional dispatch: gated steps only run when their condition is met.
-    if not _should_run_step(state, step):
-        log.info("conditional_step_skipped", chapter=chapter, skill=step.skill)
-        state.add_step_done(chapter, step.skill)
-        _reset_retries(state, step, chapter)
-        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+            _id_items = [i for i in rev_issues if i.startswith("G4.")]
+            _plain = [i for i in rev_issues if not i.startswith("G4.")]
+            _demoted, _hard = demote_must_fix(project_dir, _id_items)
+            for _dw in _demoted:
+                log.warning("shadow_gate_demoted", chapter=chapter, skill=step.skill, item=_dw)
+                emit_shadow_warn_trace(project_dir, chapter, _dw)
+            if _plain or _hard:  # all-demoted 不得写空反馈头——shadow 契约要求
+                # 复刻 retry_feedback 清理（PASS-with-warnings），非注入 vacuous 模板
+                state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
+                    state, retry_key, [f"修订重验: {i}" for i in (_plain + _hard)]
+                )
+                return _handle_failure(state, step, chapter, "g4", project_dir)
+            _clear_retry_feedback(state, retry_key)  # 全 demoted → 清理旧反馈
+        else:
+            # spec #83 §11 清除点 1（复验谓词全绿复同步处）：三类声明已同步——
+            # 快乐路径清除（防「拒收→摄取永不发生→清除不可达」死锁的另一清除点在摄取步）
+            _get_chapter_state(state, chapter).declarations_stale = False
+        # Probe2 matrix-D gap: an audit-routed (step-15) revision changed the
+        # chapter AFTER settle, but nothing queued a re-settlement — truth
+        # files kept the PRE-revision draft's facts until a checkpoint-routed
+        # revision (a27ccf4e's PER_CHAPTER DERIVED_TRUTH_MAP entries)
+        # happened to fire. Queue the same settle re-dispatch here; the
+        # orchestration loop-top executes it (staging-gated, re-raises
+        # STATE_SETTLE) before the next chapter starts.
+        if not any(
+            d.get("skill") == "shenbi-state-settling" and d.get("chapter") == chapter
+            for d in state.pending_re_dispatches
+        ):
+            state.pending_re_dispatches.append(_audit_routed_settle_redispatch_entry(chapter))
+            log.info(
+                "re_dispatch_queued",
+                skill="shenbi-state-settling",
+                checkpoint="per_chapter",
+                chapter=chapter,
+                reason="audit_routed_revision",
+            )
 
-    return _run_serial_dispatch_step(state, project_dir, step_idx, step, chapter)
+    return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
 
 def _run_serial_dispatch_step(
     state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int
 ) -> bool:
-    """Generic serial dispatch regime: prompt build, pre-hooks, dispatch,
-    failure routing, success tails (resonance/revision). Extracted verbatim
-    from _run_chapter_step_impl (spec #87 T3); conditional skips upstream.
-    """
+    """Generic serial dispatch: prompt build, hooks, dispatch, failure/success tails (spec #87 T3 extraction)."""
     # Build dispatch prompt (staging steps write to staging/).
     # spec #72: planning/drafting dispatch ONCE per bundle covering both
     # chapters (planning = two independent memos; drafting = one marked
@@ -4527,18 +4612,11 @@ def _run_serial_dispatch_step(
     prompt = _append_feedback_injections(prompt, state, chapter, step.skill, project_dir)
     retry_key = _retry_key(chapter, step.skill)
 
-    # F10 (spec §5.1a): refresh the audit aggregate right before revision
-    # is dispatched — the revision skill reads the aggregate, not the raw
-    # glob, so the aggregate must reflect the latest audit set.
-    if step.skill == "shenbi-chapter-revision":
-        write_audit_aggregate(project_dir, chapter)
-
-    # spec #83 §10 行 4 站点③：串行通用路径 settle 派发前 stale 检查——
-    # STATE_SETTLE checkpoint 人审 REJECT/MODIFY（cli.py 重置 step_index）落本
-    # 路径。必须在 dispatch_skill **之前**（audit-T5 C1：guard 落派发后会让每
-    # 次拒收先烧一次真实 settle 派发、staging 残留过期产物）。
-    if step.skill == "shenbi-state-settling":
-        _st_demoted, _st_hard = _pre_settle_guard(state, project_dir, chapter)
+    # Pre-dispatch hooks (spec #87 T3); spec #83 §10 行 4 站点③: guard MUST
+    # precede dispatch_skill (audit-T5 C1). F10 aggregate refresh inside.
+    _pre = _pre_dispatch_hooks(step, state, project_dir, chapter)
+    if _pre is not None:
+        _st_demoted, _st_hard = _pre
         if _st_hard:
             state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
                 state, retry_key, _st_hard
@@ -4565,39 +4643,10 @@ def _run_serial_dispatch_step(
     if _check_escape_hatch_drift(state, project_dir, chapter):
         return True  # escalation checkpoint raised, pause for human
 
-    # State-settling failure: mark settling_failed and pause (spec §11).
-    if not result.success and "state-settling" in step.skill:
-        from shenbi.pipeline.error_handler import handle_state_settle_failure
-
-        handle_state_settle_failure(state, chapter)
-        log.error(
-            "chapter_state_settle_failed",
-            chapter=chapter,
-            step=step.step_num,
-        )
-        return True  # checkpoint raised, pause for human
-
-    # Scoring failure (review-resonance): C33 — exit 2/3 deterministic, zero retry.
-    if not result.success and "review-resonance" in step.skill:
-        from shenbi.pipeline.error_handler import handle_scoring_failure
-
-        retry, fc = handle_scoring_failure(state, result.returncode)
-        if retry:  # pragma: no cover — no retry path remains; kept for API truth
-            log.warning(
-                "scoring_failure_retry",
-                chapter=chapter,
-                exit_code=result.returncode,
-            )
-            return False
-        log.warning(
-            "scoring_failure_deterministic",
-            chapter=chapter,
-            exit_code=result.returncode,
-            failure_class=fc.value,
-        )
-        return _handle_failure(state, step, chapter, "scoring", project_dir, failure_class=fc)
-
-    if not result.success:
+    if not result.success:  # three-state hooks (spec #87 T3)
+        _fail = _on_dispatch_failure(step, state, project_dir, chapter, result)
+        if _fail is not None:
+            return _fail
         log.error(
             "chapter_dispatch_failed",
             chapter=chapter,
@@ -4746,11 +4795,7 @@ def _run_serial_dispatch_step(
             if _run_audit_close_for_chapter(state, project_dir, _bc_n, gc, step):
                 return True
 
-    # After review-resonance: parse score and run revision routing.
-    if "review-resonance" in step.skill:
-        _parse_and_persist_resonance(state, project_dir, chapter, source="serial_step")
-
-        _route_revision_after_resonance(state, project_dir, chapter)
+    _on_resonance_success(step, state, project_dir, chapter)  # after-resonance tail
 
     # Success: record, reset retries, advance. C30 F1112: a step whose
     # declared output is missing must NOT be recorded as done — downgrade
@@ -4772,57 +4817,4 @@ def _run_serial_dispatch_step(
         state.add_step_done(n, step.skill)
     _reset_retries(state, step, chapter)
 
-    # After chapter-revision step succeeds, ensure decisions file exists
-    if "chapter-revision" in step.skill:
-        _ensure_revision_decisions_exists(project_dir, chapter, state, log)
-        # spec #83 T2 写入者：修订完成→declarations_stale=True（无条件置位；
-        # 清除点见下——复验绿复同步处＋settle 摄取成功后，§11 双清除点）
-        _get_chapter_state(state, chapter).declarations_stale = True
-        # spec #72 施工面 9: post-revision revalidation (marker diff + scene
-        # checks + band) — R3-C1: the revision G4 only validates the
-        # decisions JSON; prose was never re-checked before this wiring.
-        rev_issues = _revalidate_revised_chapter(project_dir, chapter)
-        if rev_issues:
-            log.warning("revision_revalidation_failed", chapter=chapter, issues=rev_issues[:5])
-            # spec #83 §10 行 3：id-first 项过 shadow demote（rev_issues 混合既有
-            # 无 id 串——只对 G4. 前缀项 demote，其余保持既有路由）
-            from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
-
-            _id_items = [i for i in rev_issues if i.startswith("G4.")]
-            _plain = [i for i in rev_issues if not i.startswith("G4.")]
-            _demoted, _hard = demote_must_fix(project_dir, _id_items)
-            for _dw in _demoted:
-                log.warning("shadow_gate_demoted", chapter=chapter, skill=step.skill, item=_dw)
-                emit_shadow_warn_trace(project_dir, chapter, _dw)
-            if _plain or _hard:  # all-demoted 不得写空反馈头——shadow 契约要求
-                # 复刻 retry_feedback 清理（PASS-with-warnings），非注入 vacuous 模板
-                state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
-                    state, retry_key, [f"修订重验: {i}" for i in (_plain + _hard)]
-                )
-                return _handle_failure(state, step, chapter, "g4", project_dir)
-            _clear_retry_feedback(state, retry_key)  # 全 demoted → 清理旧反馈
-        else:
-            # spec #83 §11 清除点 1（复验谓词全绿复同步处）：三类声明已同步——
-            # 快乐路径清除（防「拒收→摄取永不发生→清除不可达」死锁的另一清除点在摄取步）
-            _get_chapter_state(state, chapter).declarations_stale = False
-        # Probe2 matrix-D gap: an audit-routed (step-15) revision changed the
-        # chapter AFTER settle, but nothing queued a re-settlement — truth
-        # files kept the PRE-revision draft's facts until a checkpoint-routed
-        # revision (a27ccf4e's PER_CHAPTER DERIVED_TRUTH_MAP entries)
-        # happened to fire. Queue the same settle re-dispatch here; the
-        # orchestration loop-top executes it (staging-gated, re-raises
-        # STATE_SETTLE) before the next chapter starts.
-        if not any(
-            d.get("skill") == "shenbi-state-settling" and d.get("chapter") == chapter
-            for d in state.pending_re_dispatches
-        ):
-            state.pending_re_dispatches.append(_audit_routed_settle_redispatch_entry(chapter))
-            log.info(
-                "re_dispatch_queued",
-                skill="shenbi-state-settling",
-                checkpoint="per_chapter",
-                chapter=chapter,
-                reason="audit_routed_revision",
-            )
-
-    return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+    return _on_revision_success(step, state, project_dir, step_idx, chapter, retry_key)

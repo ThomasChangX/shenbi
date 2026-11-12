@@ -74,7 +74,7 @@ def test_settle_dispatch_sites_all_guarded() -> None:
     settle_capable = {  # (path-from-src/shenbi, enclosing function)
         ("pipeline/chapter_loop.py", "run_parallel_post_draft_steps"),
         ("pipeline/cli.py", "_execute_pending_re_dispatches"),
-        ("pipeline/chapter_loop.py", "_run_chapter_step_impl"),
+        ("pipeline/chapter_loop.py", "_run_serial_dispatch_step"),  # spec #87 T3: 体制拆出
     }
     rest = {  # pre-classified non-settle points (audit r5-I1/r6-I1)
         ("pipeline/triggers.py", "run_triggered_skills"),
@@ -97,7 +97,10 @@ def test_settle_dispatch_sites_all_guarded() -> None:
         f"classify before wiring — 未分类 dispatch_skill 调用点: {unclassified}"
     )
     for path, fn in settle_capable:
-        assert "_pre_settle_guard" in _func_body(src / path, fn), (
+        # spec #87 T3: the guard call moved into _pre_dispatch_hooks; the
+        # settle-capable site holds it via the hook call.
+        body = _func_body(src / path, fn)
+        assert "_pre_dispatch_hooks" in body or "_pre_settle_guard" in body, (
             f"settle-capable 站点 {path}:{fn} 未过 _pre_settle_guard"
         )
     # canary：调用点总数钉死（增减都红——新增派发面强制重新分类）
