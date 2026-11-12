@@ -29,7 +29,7 @@ import tomllib
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 
 import httpx
@@ -743,6 +743,22 @@ def _input_key(full_path: Path, project_dir: Path) -> str:
         return str(full_path)
 
 
+class BuiltPrompt(NamedTuple):
+    """Assembled dispatch prompt (spec #87 T1; replaces the 5-tuple).
+
+    NamedTuple over dataclass: the 63 existing destructure sites
+    (``a, b, c, d, e = _build_skill_prompt(...)`` incl. one star-unpack)
+    keep working untouched — tuple protocol compatibility — while new
+    code gets named access. New fields must carry defaults.
+    """
+
+    system: str
+    user: str
+    output_paths: list[str]
+    reads_manifest: list[dict[str, Any]]
+    raw_disk_reads: dict[str, str]
+
+
 def _build_skill_prompt(
     skill: str,
     project_dir: Path,
@@ -753,7 +769,7 @@ def _build_skill_prompt(
     json_mode: bool = False,
     path_context: PathContext | None = None,
     outputs_override: list[str] | None = None,
-) -> tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]:
+) -> BuiltPrompt:
     """Build a complete execution prompt for a skill.
 
     Returns (system_prompt, user_prompt, output_paths, reads_manifest,
@@ -1604,7 +1620,7 @@ def _build_skill_prompt(
     if budget is not None:
         user_prompt = _enforce_skill_total_budget(skill, user_prompt, budget)
 
-    return system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads
+    return BuiltPrompt(system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads)
 
 
 # spec #95 T3③ (r1.4/r1.5): 超预算降级序——①按面优先级整块弃（audits→registries
