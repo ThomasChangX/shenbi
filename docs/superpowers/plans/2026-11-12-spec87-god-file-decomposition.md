@@ -525,7 +525,7 @@ def _run_pipeline_internal_step(state: PipelineState, project_dir: Path, step_id
 def _run_serial_dispatch_step(state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int) -> bool
 def _pre_dispatch_hooks(step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int) -> tuple[list, list] | None
 def _on_dispatch_failure(step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int, result) -> bool
-def _on_dispatch_success(step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int, result) -> bool
+def _on_dispatch_success(step: ChapterStep, state: PipelineState, project_dir: Path, step_idx: int, chapter: int, result) -> bool | None  # r2.2 三态：None=无钩触发
 ```
 - 主函数保留：step_idx==0 特例（:3883）、`_DRAFT_CONSUMING_SKILLS` 门（:3893）、条件跳过三连（r2.1 标签订正：:4435-4456 = 22 行——spec 的「≈14 行」仅覆盖前两块）、checkpoint 创建/恢复唯一持有
 
@@ -573,18 +573,42 @@ def _on_dispatch_failure(
 
 
 def _on_dispatch_success(
-    step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int, result
-) -> bool:
-    """Success-tail hooks: resonance persist/route (:4702), revision
-    decisions+stale (:4726-4732). Same bool contract as failure hook."""
+    step: ChapterStep, state: PipelineState, project_dir: Path, step_idx: int, chapter: int, result
+) -> bool | None:
+    """Success-tail hooks (r2.2 THREE-STATE contract — a plain bool cannot
+    behavior-preserve: revision arm's `return _handle_failure(...)` returns
+    False while still in retry budget [keep going] AND hook-bottom False
+    would mean [nothing happened] — caller must distinguish. None = no hook
+    fired, fall through; a bool = terminal outcome, propagate verbatim).
+    Resonance arm at its present position (:4702, BEFORE _step_output_exists
+    gate); revision arm at its present position (:4728, AFTER add_step_done
+    + unconditional _reset_retries :4725) — TWO call sites, order preserved.
+    """
     if "review-resonance" in step.skill:  # T4 → step.emits_resonance
-        ...  # :4702 现体（_parse_and_persist_resonance 链 + 路由）
+        ...  # :4702 现体（_parse_and_persist_resonance 链 + 路由，尾 bool 透传）
+        return <现体尾值>  # resonance 路由结局
     if "chapter-revision" in step.skill:  # T4 → step.is_revision
-        ...  # :4729-~4776 现体整块（r2.1：ensure_decisions/stale=True → revalidate+
-        # return _handle_failure bool 透传 → stale=False 清除 → settle 重派队）
-    return False
+        ...  # :4728-4778 现体整块（r2.2 锚订正；ensure_decisions/stale=True → revalidate+
+        # return _handle_failure bool 透传 → stale=False 清除 → settle 重派队 → 尾 _advance）
+        return <现体尾值>
+    return None
 ```
-  （三函数体内的 `...` 均为「现体逐行搬入」占位——搬移源行号已给，重构类 task 源码即规格；**不做全局注册表**——显式顺序 if 即「表+顺序」）
+  调用形态（serial 主体两处，保持现时序）：
+```python
+outcome = _on_dispatch_success(
+    step, state, project_dir, step_idx, chapter, result
+)  # resonance 位 :4702
+if outcome is not None:
+    return outcome
+...  # _step_output_exists 闸 / add_step_done / 无条件 _reset_retries(:4725) 原样
+outcome = _on_dispatch_success(
+    step, state, project_dir, step_idx, chapter, result
+)  # revision 位 :4728
+if outcome is not None:
+    return outcome
+return _advance(...)  # 尾
+```
+  （三函数体内的 `...` 均为「现体逐行搬入」占位——搬移源行号已给，重构类 task 源码即规格；**不做全局注册表**——显式顺序 if 即「表+顺序」。`_on_dispatch_failure` 调用方：specialized 技能 `return _on_dispatch_failure(...)` 双 bool 透传、generic 落空走 :4552 现路由〔r2.2 补〕）
   ⚠️ **spec83 `_func_body` 断言同步**：test_spec83_stale_declarations.py:96-98 断言 settle_capable 函数体含 `_pre_settle_guard` 字面量——settle 站点搬入 `_run_serial_dispatch_step` 后体内经 `_pre_dispatch_hooks` 间接持有，断言目标须同批改 `"_pre_dispatch_hooks" in body or "_pre_settle_guard" in body`（Step 3 白名单同步一并落）。
 
 - [ ] **Step 2: 主函数重写为分派骨架**（`_run_chapter_step_impl` 删除——验收 2；`run_chapter_step` 内直接写分派或保留薄 impl 皆可——spec 验收 2 写 `_run_chapter_step_impl` 消失，主分派逻辑并入 `run_chapter_step` try 块或改名——**采用并入**：`run_chapter_step` 的 try 块内直接五体制分派）：
@@ -603,7 +627,7 @@ def _on_dispatch_success(
             return _run_context_assembly_step(state, project_dir, step_idx, step, chapter)
         if step.skill.startswith("pipeline-"):
             return _run_pipeline_internal_step(state, project_dir, step_idx, step, chapter)
-        # conditional skips (:4435-4448) stay here — 主函数持有
+        # conditional skips (:4435-4456, r2.2) stay here — 主函数持有
         ...
         return _run_serial_dispatch_step(state, project_dir, step_idx, step, chapter)
     finally:
@@ -692,14 +716,16 @@ def test_roster_scan_reconciles_with_skills_dir() -> None:
 ```python
 def _pre_dispatch_hooks(
     step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int
-) -> None:
-    """Ordered pre-dispatch hooks: revision aggregate refresh, settle guard."""
+) -> tuple[list, list] | None:
+    """Ordered pre-dispatch hooks (r2.2: same contract as T3's r2 form)."""
+    outcome: tuple[list, list] | None = None
     if step.is_revision:
-        _refresh_revision_aggregate(step, state, project_dir, chapter)
+        write_audit_aggregate(project_dir, chapter)  # real name (:4486)
     if step.settles_state:
-        _pre_settle_guard(step, state, project_dir, chapter)
+        outcome = _pre_settle_guard(state, project_dir, chapter)  # 3-arg (:2957)
+    return outcome
 ```
-（T3 落 dict 形态时键为子串匹配、T4 换此形态——两步各自全绿）
+（T4 只做**条件替换**——`in step.skill` → `step.xxx` 属性；签名/函数名/返回契约与 T3 落地形态完全一致，不重定义。`_on_dispatch_failure`/`_on_dispatch_success` 同步换条件；T4 红测 1 的外来 step 注入用 `monkeypatch.setattr(chapter_loop, "CHAPTER_STEPS", ...)` 替换序列项〔r2.2 补注入 seam〕）
 
 - [ ] **Step 4: 验证**——红测全绿；`grep -n '"state-settling" in step.skill\|"review-resonance" in step.skill\|"chapter-revision" in step.skill' src/shenbi/pipeline/chapter_loop.py` = 零输出；**泛查** `grep -n "in step.skill" src/shenbi/pipeline/chapter_loop.py` 逐条裁定（应仅剩非三模式的合法用法或零）；T0 六路径仍绿；全量 unit 绿
 
@@ -745,7 +771,7 @@ git commit -m "refactor: spec #87 T4 substring elimination — ChapterStep attrs
 
 另有 chapter_loop:1066 `from shenbi.audit._shared import AuditResult  # pyright: ignore[reportPrivateUsage]` 改 `from shenbi.audit import AuditResult`（公共再导出已在 `shenbi/audit/__init__.py:6`）。
 
-**docstring 连带**（grep 归零兜底，导航清单）：exceptions.py:98、gates/g4/generic.py:270、pipeline/helper_injection.py:8、pipeline/llm_output_integrity.py:7、dispatch_helper 自身 :4228/:4513/:4638。
+**docstring/字符串连带**（grep 归零兜底，导航清单）：exceptions.py:98、gates/g4/generic.py:270、pipeline/helper_injection.py:8、pipeline/llm_output_integrity.py:7、dispatch_helper 自身 :4228/:4513/:4638、tools/lint_key_reconciliation.py:128（`_should_skip_audit` 字符串站点，r2.2 补）。
 
 **复杂度:** infra ｜ **test_kind:** regression_guard + tdd（lint 工具）｜ **层级:** T1
 
