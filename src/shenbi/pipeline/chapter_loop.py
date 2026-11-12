@@ -4493,6 +4493,16 @@ def _run_chapter_step_impl(
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
+    return _run_serial_dispatch_step(state, project_dir, step_idx, step, chapter)
+
+
+def _run_serial_dispatch_step(
+    state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int
+) -> bool:
+    """Generic serial dispatch regime: prompt build, pre-hooks, dispatch,
+    failure routing, success tails (resonance/revision). Extracted verbatim
+    from _run_chapter_step_impl (spec #87 T3); conditional skips upstream.
+    """
     # Build dispatch prompt (staging steps write to staging/).
     # spec #72: planning/drafting dispatch ONCE per bundle covering both
     # chapters (planning = two independent memos; drafting = one marked
