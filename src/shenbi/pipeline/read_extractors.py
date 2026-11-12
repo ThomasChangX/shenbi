@@ -1008,6 +1008,8 @@ def _volume_chapter(project_dir: Path, chapter: int | None, content: str) -> str
     # chapter=None never reaches impl (chapter_none="guard_warn" intercepts),
     # so the int-typed _shared call needs no cast.
     assert chapter is not None  # invariant guard, see comment above
+    # function-local import keeps this leaf-adjacent module's import surface
+    # minimal; no cycle exists either way (_shared is stdlib-only)
     from shenbi.pipeline._shared import load_volume_context
 
     return load_volume_context(project_dir, chapter)
