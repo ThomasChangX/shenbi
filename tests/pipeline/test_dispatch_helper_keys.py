@@ -1,4 +1,4 @@
-"""Tests for input-key form in _build_skill_prompt (spec §3.4 + C1 regression guard)."""
+"""Tests for input-key form in build_skill_prompt (spec §3.4 + C1 regression guard)."""
 
 from pathlib import Path
 
@@ -36,7 +36,7 @@ EXPECTED_INJECTION_KEYS = (
 
 
 def test_injection_block_pins_canonical_keys(tmp_path):
-    """SharedAuditContext injection drives _build_skill_prompt with the canonical keys.
+    """SharedAuditContext injection drives build_skill_prompt with the canonical keys.
 
     Regression guard for spec §6.1 C1 + C28 R1 (F312): the injected keys must
     match the disk-read key form AND the canonical paths. A phantom key or a
@@ -44,12 +44,12 @@ def test_injection_block_pins_canonical_keys(tmp_path):
     helper twice and compared — always green).
     """
     from shenbi.pipeline.audit_context_cache import build_shared_audit_context
-    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+    from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
     assemble_shared_context_project(tmp_path)
 
     ctx = build_shared_audit_context(tmp_path, 3)
-    _, user_prompt, _, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = build_skill_prompt(
         skill="shenbi-review-anti-ai",
         project_dir=tmp_path,
         prompt="audit chapter 3",

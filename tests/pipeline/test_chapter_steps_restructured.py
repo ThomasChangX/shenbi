@@ -54,6 +54,10 @@ def test_conditional_snapshot_manage_runs():
     step = MagicMock()
     step.skill = "shenbi-snapshot-manage"
     step.conditional = True
+    # spec #87 T4: attribute-based gates — Mock attrs are truthy, set explicitly
+    step.is_revision = False
+    step.settles_state = False
+    step.emits_resonance = False
 
     # No specific gate for snapshot-manage in _should_run_step → defaults to True
     assert _should_run_step(state, step)
@@ -66,8 +70,8 @@ def test_chapter_revision_with_findings():
     step.skill = "shenbi-chapter-revision"
     step.conditional = True
 
-    with patch("shenbi.pipeline.chapter_loop._any_audit_has_findings", return_value=True):
+    with patch("shenbi.pipeline.chapter_loop.any_audit_has_findings", return_value=True):
         assert _should_run_step(state, step)
 
-    with patch("shenbi.pipeline.chapter_loop._any_audit_has_findings", return_value=False):
+    with patch("shenbi.pipeline.chapter_loop.any_audit_has_findings", return_value=False):
         assert not _should_run_step(state, step)

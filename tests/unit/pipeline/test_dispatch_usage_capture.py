@@ -1,4 +1,4 @@
-"""Tests that _dispatch_via_api handles streaming responses correctly (spec SS3.1)."""
+"""Tests that dispatch_via_api handles streaming responses correctly (spec SS3.1)."""
 
 from __future__ import annotations
 
@@ -30,14 +30,14 @@ class TestUsageCapture:
         with (
             patch("openai.OpenAI") as mock_openai,
             patch(
-                "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+                "shenbi.pipeline.dispatch_helper.build_skill_prompt",
                 return_value=("sys", "user", ["chapters/chapter-1.md"], [], {}),
             ),
         ):
             mock_openai.return_value.chat.completions.create.return_value = fake_stream
-            from shenbi.pipeline.dispatch_helper import _dispatch_via_api
+            from shenbi.pipeline.dispatch_helper import dispatch_via_api
 
-            result = _dispatch_via_api("shenbi-chapter-drafting", tmp_path, "Chapter 1 draft")
+            result = dispatch_via_api("shenbi-chapter-drafting", tmp_path, "Chapter 1 draft")
             assert result.success
 
     def test_missing_usage_does_not_crash(self, tmp_path: Path, monkeypatch):
@@ -49,12 +49,12 @@ class TestUsageCapture:
         with (
             patch("openai.OpenAI") as mock_openai,
             patch(
-                "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+                "shenbi.pipeline.dispatch_helper.build_skill_prompt",
                 return_value=("sys", "user", ["chapters/chapter-1.md"], [], {}),
             ),
         ):
             mock_openai.return_value.chat.completions.create.return_value = fake_stream
-            from shenbi.pipeline.dispatch_helper import _dispatch_via_api
+            from shenbi.pipeline.dispatch_helper import dispatch_via_api
 
-            result = _dispatch_via_api("shenbi-chapter-drafting", tmp_path, "Chapter 1 draft")
+            result = dispatch_via_api("shenbi-chapter-drafting", tmp_path, "Chapter 1 draft")
             assert result.success  # dispatch still succeeds

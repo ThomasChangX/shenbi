@@ -19,7 +19,7 @@ from pathlib import Path
 import pytest
 
 from shenbi.exceptions import IncrementShapeError
-from shenbi.pipeline.dispatch_helper import _section_ledger_units, _write_parsed_outputs
+from shenbi.pipeline.dispatch_helper import _section_ledger_units, write_parsed_outputs
 from shenbi.pipeline.truth_io import sync_relationship_matrix, upsert_markdown_row
 
 _LOCATIONS = """# 地点图谱
@@ -100,7 +100,7 @@ def test_location_section_increment_replaces_and_appends(tmp_path: Path) -> None
     (tmp_path / "world" / "locations.md").write_text(_LOCATIONS, encoding="utf-8")
     before_core = "- **苍麓城**：中枢之城。"
 
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: world/locations.md\n"
             "## 地点：哑脉采掘场\n\n**类型**: 矿场（采掘场）\n**首次出场**: 第1章\n\n"
@@ -127,7 +127,7 @@ def test_location_scaffold_rejected(tmp_path: Path) -> None:
     (tmp_path / "world" / "locations.md").write_text(_LOCATIONS, encoding="utf-8")
     before = (tmp_path / "world" / "locations.md").read_text(encoding="utf-8")
     with pytest.raises(IncrementShapeError):
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=(
                 "### FILE: world/locations.md\n# 地点图谱\n\n## 核心地点（重发）\n\n- **x**：y。\n"
             ),
@@ -151,7 +151,7 @@ def test_location_increment_with_hr_separators_merges(tmp_path: Path) -> None:
     """
     (tmp_path / "world").mkdir(parents=True)
     (tmp_path / "world" / "locations.md").write_text(_LOCATIONS, encoding="utf-8")
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: world/locations.md\n"
             "---\n\n"
@@ -182,7 +182,7 @@ def test_location_increment_real_frontmatter_still_rejected(tmp_path: Path) -> N
     (tmp_path / "world" / "locations.md").write_text(_LOCATIONS, encoding="utf-8")
     before = (tmp_path / "world" / "locations.md").read_text(encoding="utf-8")
     with pytest.raises(IncrementShapeError, match="updated_at"):
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=(
                 "### FILE: world/locations.md\n"
                 '---\nupdated_at: "2026-10-24T00:00:00Z"\n---\n\n'
@@ -210,7 +210,7 @@ def test_new_pair_grows_matrix_row_and_column(tmp_path: Path) -> None:
     (tmp_path / "characters").mkdir(parents=True)
     (tmp_path / "characters" / "relationships.md").write_text(_RELATIONSHIPS, encoding="utf-8")
 
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: characters/relationships.md\n"
             "## 关系对：阿烬 - 桑渡\n\n**类型**: 暗中间谋\n**矩阵格**: 暗中间谋（敌手起头）\n"
@@ -237,7 +237,7 @@ def test_matrix_emission_rejected(tmp_path: Path) -> None:
     (tmp_path / "characters" / "relationships.md").write_text(_RELATIONSHIPS, encoding="utf-8")
     before = (tmp_path / "characters" / "relationships.md").read_text(encoding="utf-8")
     with pytest.raises(IncrementShapeError):
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=(
                 "### FILE: characters/relationships.md\n"
                 "## 关系矩阵（角色 × 角色）\n\n| 角色 | 阿烬 |\n|------|------|\n| 阿烬 | — |\n"
@@ -252,7 +252,7 @@ def test_matrix_emission_rejected(tmp_path: Path) -> None:
 def test_boundary_review_section_appends_once(tmp_path: Path) -> None:
     (tmp_path / "characters").mkdir(parents=True)
     (tmp_path / "characters" / "relationships.md").write_text(_RELATIONSHIPS, encoding="utf-8")
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: characters/relationships.md\n"
             "## 第70章扩容复核（卷三卷终 · 弧五）\n\n本界不新增命名角色。\n"
@@ -274,7 +274,7 @@ def test_character_matrix_row_increment_merges_composite_key(tmp_path: Path) -> 
         "| 阿烬 | 阿石 | 养育 | 第18章 顶罪 | 灯绳系腕 |\n",
         encoding="utf-8",
     )
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: truth/character_matrix.md\n"
             "| 阿烬 | 阿石 | 养育 | 第18章 顶罪；第75章 灯边打结 | 灯绳系腕；绳账记日常 |\n"

@@ -65,7 +65,7 @@ class ReviewTask:
     output_paths: list[str] | None = None
     shared_context: Any = None
     #: C33 R4 (F363, spec #47): attempts used (1 = first try). Set by
-    #: _dispatch_with_retry; aggregated into retry_budget_consumed at wave
+    #: dispatch_with_retry; aggregated into retry_budget_consumed at wave
     #: completion by the main thread (_charge_wave_retries in chapter_loop).
     attempts: int = 0
 
@@ -89,7 +89,7 @@ def task_path_context(task: ReviewTask) -> PathContext | None:
     return PathContext(chapter=int(m.group(1))) if m else None
 
 
-def _dispatch_with_retry(
+def dispatch_with_retry(
     task: ReviewTask,
     semaphore: Semaphore,
     state: Any = None,
@@ -271,7 +271,7 @@ def dispatch_reviews_parallel(
 
     with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
         future_to_idx = {
-            executor.submit(_dispatch_with_retry, task, semaphore, state): idx
+            executor.submit(dispatch_with_retry, task, semaphore, state): idx
             for idx, task in enumerate(tasks)
         }
         for future in as_completed(future_to_idx):

@@ -64,11 +64,11 @@ class TestStagingAutoCommit:
 
 
 class TestDispatchUsesStaging:
-    """dispatch_skill should pass uses_staging through to _build_skill_prompt."""
+    """dispatch_skill should pass uses_staging through to build_skill_prompt."""
 
     def test_build_skill_prompt_prefixes_staging(self, tmp_path: Path):
         """When uses_staging=True, output paths are prefixed with staging/."""
-        from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+        from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
         # Create minimal contract fixture
         (tmp_path / "skills" / "shenbi-chapter-planning").mkdir(parents=True)
@@ -83,7 +83,7 @@ class TestDispatchUsesStaging:
         try:
             os.chdir(tmp_path)
 
-            _, _, output_paths, _, _ = _build_skill_prompt(
+            _, _, output_paths, _, _ = build_skill_prompt(
                 "shenbi-chapter-planning", tmp_path, "test prompt", chapter=5, uses_staging=True
             )
         finally:

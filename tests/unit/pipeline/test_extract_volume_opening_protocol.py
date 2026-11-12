@@ -44,7 +44,7 @@ def test_extractor_wired_into_prompt(tmp_path, monkeypatch) -> None:
 
     The first cut of the dispatch-loop branch computed ``extracted`` and
     dropped it (classic dead-wire); this pins the sentinel + the shadow-flag
-    non-leak + loud-degrade end-to-end through _build_skill_prompt.
+    non-leak + loud-degrade end-to-end through build_skill_prompt.
     """
     import json as _json
 
@@ -67,7 +67,7 @@ def test_extractor_wired_into_prompt(tmp_path, monkeypatch) -> None:
         warned.append(event)
 
     monkeypatch.setattr(dh.log, "warning", _spy)
-    _, user_prompt, _, _, _ = dh._build_skill_prompt(
+    _, user_prompt, _, _, _ = dh.build_skill_prompt(
         "shenbi-chapter-planning", tmp_path, "plan 第2章", chapter=2
     )
     assert "[extractor:volume_opening_protocol]" in user_prompt
@@ -88,7 +88,7 @@ def test_unparseable_genre_config_loud_degrades(tmp_path, monkeypatch) -> None:
         warned.append(event)
 
     monkeypatch.setattr(dh.log, "warning", _spy)
-    _, user_prompt, _, _, _ = dh._build_skill_prompt(
+    _, user_prompt, _, _, _ = dh.build_skill_prompt(
         "shenbi-chapter-planning", tmp_path, "plan 第2章", chapter=2
     )
     assert "extractor_failed_fulltext" in warned

@@ -11,9 +11,9 @@ fixtures/spec99/ = 束7 dispatch 工件复制件（G0.9 真实产物；SHA256SUM
 - live = 00264 prompt 中 `truth/character_matrix.md` 的 untrusted-source 段
   （matrix_scoped 提取面：含空格形 `## 第 47 章状态增量`/`## 第 48 章状态增量`；
   清理提取面注记行+html 实体后作为 live 基座）
-- staged = 00264 response 增量经**生产写路径本体**（`_route_append_dedup_write`）
+- staged = 00264 response 增量经**生产写路径本体**（`route_append_dedup_write`）
   对 live 合并的快照——G4 实际所见的 staging 形态（dispatch_helper
-  `_route_append_dedup_write` docstring：merged against live, merged snapshot
+  `route_append_dedup_write` docstring：merged against live, merged snapshot
   written to staging）
 """
 
@@ -75,7 +75,7 @@ def _materialize(tmp_path: Path, *, twin_rewrite: bool = False, volume_map: bool
     bullet 行加后缀——probe31 keyed-upsert 语义面）；volume_map=True 时补
     outline/volume_map.md（span 覆盖 47-48，供 bundle 孪生豁免信号源）。
     """
-    from shenbi.pipeline.dispatch_helper import _route_append_dedup_write
+    from shenbi.pipeline.dispatch_helper import route_append_dedup_write
 
     live = _live_matrix()
     inc = _staged_increment()
@@ -92,7 +92,7 @@ def _materialize(tmp_path: Path, *, twin_rewrite: bool = False, volume_map: bool
 
     (tmp_path / "truth").mkdir(parents=True, exist_ok=True)
     (tmp_path / "truth" / "character_matrix.md").write_text(live, encoding="utf-8")
-    _route_append_dedup_write(
+    route_append_dedup_write(
         tmp_path, "staging/truth/character_matrix.md", inc, key_field=_MATRIX_KEY
     )
     (tmp_path / "staging" / "truth" / "state-settling-decisions.json").write_text(

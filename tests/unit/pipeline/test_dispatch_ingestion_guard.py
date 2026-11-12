@@ -23,7 +23,7 @@ from pathlib import Path
 import pytest
 
 from shenbi.exceptions import IncrementShapeError
-from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 from shenbi.pipeline.truth_io import _TABLE_HEADER_BOOTSTRAP
 
 _LIVE_HOOKS = """---
@@ -58,7 +58,7 @@ def _project(tmp_path: Path) -> Path:
 
 
 def _write(tmp_path: Path, block: str, rel: str = "staging/truth/pending_hooks.md"):
-    return _write_parsed_outputs(
+    return write_parsed_outputs(
         response=f"### FILE: {rel}\n{block}\n",
         output_paths=[rel],
         project_dir=tmp_path,
@@ -198,7 +198,7 @@ class TestFirstWriteExemption:
         project = tmp_path
         (project / "truth").mkdir(parents=True)
         (project / "truth" / "pending_hooks.md").write_text(_TEMPLATE_BASE, encoding="utf-8")
-        out = _write_parsed_outputs(
+        out = write_parsed_outputs(
             response=f"### FILE: truth/pending_hooks.md\n{_WHOLE_FILE_FORM}\n",
             output_paths=["truth/pending_hooks.md"],
             project_dir=project,
@@ -297,7 +297,7 @@ class TestShellFirstWriteCreationRoute:
         project = tmp_path
         (project / "truth").mkdir(parents=True)
         (project / "truth" / "current_state.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
-        out = _write_parsed_outputs(
+        out = write_parsed_outputs(
             response=f"### FILE: staging/truth/current_state.md\n{_CREATION_FORM_STATE}\n",
             output_paths=["staging/truth/current_state.md"],
             project_dir=project,
@@ -315,7 +315,7 @@ class TestShellFirstWriteCreationRoute:
         project = tmp_path
         (project / "truth").mkdir(parents=True)
         (project / "truth" / "current_state.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
-        out = _write_parsed_outputs(
+        out = write_parsed_outputs(
             response=f"### FILE: truth/current_state.md\n{_CREATION_FORM_STATE}\n",
             output_paths=["truth/current_state.md"],
             project_dir=project,
@@ -399,7 +399,7 @@ class TestStagingBranchHeaderBootstrap:
         project = tmp_path
         (project / "truth").mkdir(parents=True)
         row = "| 1 | L1 | L2 | L3 | L4 | L5 | 82 | 良好 | false |"
-        out = _write_parsed_outputs(
+        out = write_parsed_outputs(
             response=f"### FILE: staging/truth/resonance_trend.md\n{row}\n",
             output_paths=["staging/truth/resonance_trend.md"],
             project_dir=project,
@@ -417,7 +417,7 @@ class TestBaseStateBanner:
     """
 
     def test_settle_prompt_carries_per_target_base_states(self, tmp_path):
-        from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+        from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
         project = tmp_path
         (project / "truth").mkdir(parents=True)
@@ -425,7 +425,7 @@ class TestBaseStateBanner:
         (project / "truth" / "particle_ledger.md").write_text(
             _CREATION_FORM_STATE, encoding="utf-8"
         )
-        _sys_p, user_p, _paths, _, _ = _build_skill_prompt(
+        _sys_p, user_p, _paths, _, _ = build_skill_prompt(
             "shenbi-state-settling",
             project,
             "settle chapter 1",
@@ -444,12 +444,12 @@ class TestDispatchTraceReadsManifest:
     """
 
     def test_builder_returns_manifest_with_field_modes(self, tmp_path):
-        from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+        from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
         project = tmp_path
         (project / "truth").mkdir(parents=True)
         (project / "truth" / "current_state.md").write_text(_SHELL_STATE_BASE, encoding="utf-8")
-        _s, _u, _p, manifest, _ = _build_skill_prompt(
+        _s, _u, _p, manifest, _ = build_skill_prompt(
             "shenbi-state-settling",
             project,
             "settle chapter 1",

@@ -69,7 +69,7 @@ def test_chapter_status_blocks_kept_for_settle_pair(tmp_path: Path) -> None:
 
 
 def test_extractor_wired_into_prompt_success_path(tmp_path, monkeypatch) -> None:
-    """audit-T7 I1: C1 regression guard - success-path wiring sentinel via _build_skill_prompt."""
+    """audit-T7 I1: C1 regression guard - success-path wiring sentinel via build_skill_prompt."""
     import shenbi.pipeline.dispatch_helper as dh
 
     (tmp_path / "truth").mkdir(parents=True, exist_ok=True)
@@ -92,7 +92,7 @@ def test_extractor_wired_into_prompt_success_path(tmp_path, monkeypatch) -> None
         warned.append(event)
 
     monkeypatch.setattr(dh.log, "warning", _spy)
-    _, user_prompt, _, _, _ = dh._build_skill_prompt(
+    _, user_prompt, _, _, _ = dh.build_skill_prompt(
         "shenbi-state-settling", tmp_path, "settle ch41", chapter=41
     )
     assert "[extractor:matrix_scoped]" in user_prompt

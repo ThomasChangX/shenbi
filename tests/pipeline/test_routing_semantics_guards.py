@@ -43,7 +43,7 @@ def test_resonance_pending_report_records_pending_not_passed(tmp_path: Path):
     report.parent.mkdir(parents=True)
     report.write_text(PENDING_REPORT, encoding="utf-8")
 
-    assert cl._parse_resonance_score(report) is None  # no score to adopt
+    assert cl.parse_resonance_score(report) is None  # no score to adopt
 
     state = PipelineState.default(str(tmp_path))
     state.phase = PipelinePhase.CHAPTER_LOOP

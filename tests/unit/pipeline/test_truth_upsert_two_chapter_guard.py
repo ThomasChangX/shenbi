@@ -5,7 +5,7 @@ Audit F1104/F1105 shape: the dispatch write path used to write contract
 dispatch collapsed the cumulative truth files (chapter summaries, trend rows)
 to that chapter's increment — chapter 1's row vanished the moment chapter 2
 settled. Task 2/5 routed these writes through the truth_io keyed upsert
-(``_route_append_dedup_write``). These tests are the REGRESSION GUARD for that
+(``route_append_dedup_write``). These tests are the REGRESSION GUARD for that
 fix: a simulated two-chapter loop must leave one row per completed chapter in
 ``truth/chapter_summaries.md`` and ``truth/resonance_trend.md``, and the row
 count must grow MONOTONICALLY (chapter 1's row survives chapter 2's write).
@@ -13,16 +13,16 @@ count must grow MONOTONICALLY (chapter 1's row survives chapter 2's write).
 Integration scope — the ONLY stubbed boundary is the LLM itself
 (``_call_llm_streaming_with_retry`` returns canned per-chapter increments).
 Everything downstream runs REAL: contract loading (``load_contract``), prompt
-building (``_build_skill_prompt`` — output paths come from the live frontmatter
-contract), response parsing, ``_write_parsed_outputs``,
-``_route_append_dedup_write``, the staging merge against the live file,
+building (``build_skill_prompt`` — output paths come from the live frontmatter
+contract), response parsing, ``write_parsed_outputs``,
+``route_append_dedup_write``, the staging merge against the live file,
 ``commit_staging``, and the truth_io keyed upsert. Stubbing the write path
 would defeat the guard's purpose.
 
 Guard validity (verified while developing, see task-6-report.md): against the
 pre-routing BASE commit 7de2360 these tests FAIL — chapter 2's whole-file
 staging commit leaves 1 row instead of 2 (F1104/F1105 recurrence caught);
-short-circuiting ``_route_append_dedup_write`` to the legacy whole-file write
+short-circuiting ``route_append_dedup_write`` to the legacy whole-file write
 on current HEAD fails all four loop tests the same way.
 
 Fixture policy (G0.9): the "loop continues from real prior state" test seeds
@@ -40,7 +40,7 @@ import pytest
 from shenbi.contracts import load_contract
 from shenbi.pipeline.chapter_loop import build_resonance_trend_row
 from shenbi.pipeline.checkpoint import commit_staging
-from shenbi.pipeline.dispatch_helper import DispatchResult, _dispatch_via_api
+from shenbi.pipeline.dispatch_helper import DispatchResult, dispatch_via_api
 
 FIXTURES = Path("tests/fixtures")
 
@@ -163,7 +163,7 @@ def _install_fake_llm(monkeypatch: pytest.MonkeyPatch, responses: list[str]) -> 
 
 def _settle_chapter(monkeypatch: pytest.MonkeyPatch, project: Path, chapter: int) -> None:
     """One loop iteration's state-settling leg: staged dispatch + commit."""
-    result = _dispatch_via_api(
+    result = dispatch_via_api(
         "shenbi-state-settling",
         project,
         f"settle truth files after drafting chapter {chapter}",
@@ -180,7 +180,7 @@ def _resonance_chapter(
     """One loop iteration's review leg: resonance dispatch + the programmatic
     post-review trend-row persistence (the second resonance_trend writer).
     """
-    result = _dispatch_via_api(
+    result = dispatch_via_api(
         "shenbi-review-resonance",
         project,
         f"score chapter {chapter} for emotional landing and reader reward",

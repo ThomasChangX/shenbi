@@ -4,7 +4,7 @@ and Task 6 wiring helpers.
 
 
 def test_three_chapter_zero_hard_streak_skips_cascaded_audit():
-    from shenbi.pipeline.chapter_loop import _should_skip_audit
+    from shenbi.pipeline.chapter_loop import should_skip_audit
 
     # Previous N=3 chapters: 'dialogue' audit passed with zero HARD failures each time.
     # audit_history is most-recent-last; only the trailing N=3 entries are considered.
@@ -13,11 +13,11 @@ def test_three_chapter_zero_hard_streak_skips_cascaded_audit():
         {"skill": "dialogue", "chapter": 2, "passed": True, "hard_failures": 0},
         {"skill": "dialogue", "chapter": 3, "passed": True, "hard_failures": 0},
     ]
-    assert _should_skip_audit("dialogue", audit_history) is True
+    assert should_skip_audit("dialogue", audit_history) is True
 
 
 def test_hard_failure_in_streak_prevents_skip():
-    from shenbi.pipeline.chapter_loop import _should_skip_audit
+    from shenbi.pipeline.chapter_loop import should_skip_audit
 
     # One of the previous 3 chapters had a HARD failure in 'dialogue' → do NOT skip.
     audit_history = [
@@ -25,22 +25,22 @@ def test_hard_failure_in_streak_prevents_skip():
         {"skill": "dialogue", "chapter": 2, "passed": False, "hard_failures": 1},  # HARD failure
         {"skill": "dialogue", "chapter": 3, "passed": True, "hard_failures": 0},
     ]
-    assert _should_skip_audit("dialogue", audit_history) is False
+    assert should_skip_audit("dialogue", audit_history) is False
 
 
 def test_insufficient_history_prevents_skip():
-    from shenbi.pipeline.chapter_loop import _should_skip_audit
+    from shenbi.pipeline.chapter_loop import should_skip_audit
 
     # Fewer than N=3 chapters of history → cannot establish a streak → do NOT skip.
     audit_history = [
         {"dialogue": {"passed": True, "hard_failures": 0}},
         {"dialogue": {"passed": True, "hard_failures": 0}},
     ]
-    assert _should_skip_audit("dialogue", audit_history) is False
+    assert should_skip_audit("dialogue", audit_history) is False
 
 
 def test_always_run_audits_are_never_skipped():
-    from shenbi.pipeline.chapter_loop import ALWAYS_RUN, _should_skip_audit
+    from shenbi.pipeline.chapter_loop import ALWAYS_RUN, should_skip_audit
 
     audit_history = [
         {"resonance": {"passed": True, "hard_failures": 0}},
@@ -49,13 +49,13 @@ def test_always_run_audits_are_never_skipped():
     ]
     # resonance and memo-compliance ALWAYS run regardless of the cascade.
     for skill in ALWAYS_RUN:
-        assert _should_skip_audit(skill, audit_history) is False, (
-            f"{skill} must always run, but _should_skip_audit returned True"
+        assert should_skip_audit(skill, audit_history) is False, (
+            f"{skill} must always run, but should_skip_audit returned True"
         )
 
 
 def test_non_cascadable_skill_is_not_skipped():
-    from shenbi.pipeline.chapter_loop import _should_skip_audit
+    from shenbi.pipeline.chapter_loop import should_skip_audit
 
     # A core audit (e.g. 'continuity') is never cascade-skipped.
     audit_history = [
@@ -63,7 +63,7 @@ def test_non_cascadable_skill_is_not_skipped():
         {"continuity": {"passed": True, "hard_failures": 0}},
         {"continuity": {"passed": True, "hard_failures": 0}},
     ]
-    assert _should_skip_audit("continuity", audit_history) is False
+    assert should_skip_audit("continuity", audit_history) is False
 
 
 # ---------------------------------------------------------------------------
@@ -128,9 +128,9 @@ def test_get_audit_history_extracts_previous_chapters():
 
 def test_cascade_wiring_skips_dialogue_keeps_continuity():
     """Task 6 Step 3: given a 3-chapter zero-HARD-failure streak for dialogue,
-    _should_skip_audit returns True for dialogue but False for continuity/core.
+    should_skip_audit returns True for dialogue but False for continuity/core.
     """
-    from shenbi.pipeline.chapter_loop import _should_skip_audit
+    from shenbi.pipeline.chapter_loop import should_skip_audit
 
     audit_history = [
         {"skill": "dialogue", "chapter": 1, "passed": True, "hard_failures": 0},
@@ -142,24 +142,24 @@ def test_cascade_wiring_skips_dialogue_keeps_continuity():
     ]
 
     # dialogue is cascadable and has a 3-chapter clean streak → skip
-    assert _should_skip_audit("dialogue", audit_history) is True
+    assert should_skip_audit("dialogue", audit_history) is True
     # continuity is a core audit → never cascade-skipped
-    assert _should_skip_audit("continuity", audit_history) is False
+    assert should_skip_audit("continuity", audit_history) is False
     # resonance is always-run → never skipped
-    assert _should_skip_audit("resonance", audit_history) is False
+    assert should_skip_audit("resonance", audit_history) is False
 
 
 def test_unknown_skill_never_skipped():
     """F748 (spec #52): an audit in NO list (core/always-run/cascadable) is
     never cascade-skipped — unknown skills are outside the heuristic's scope.
     """
-    from shenbi.pipeline.chapter_loop import _should_skip_audit
+    from shenbi.pipeline.chapter_loop import should_skip_audit
 
     passing_history = [
         {"skill": "mystery-audit", "chapter": i, "passed": True, "hard_failures": 0}
         for i in range(1, 4)
     ]
-    assert _should_skip_audit("mystery-audit", passing_history) is False
+    assert should_skip_audit("mystery-audit", passing_history) is False
 
 
 # ---------------------------------------------------------------------------
@@ -172,7 +172,7 @@ def test_unknown_skill_never_skipped():
 
 
 def test_streak_skip_still_applies_within_reverify_gap():
-    from shenbi.pipeline.chapter_loop import _should_skip_audit
+    from shenbi.pipeline.chapter_loop import should_skip_audit
 
     history = [
         {"skill": "dialogue", "chapter": 1, "passed": True, "hard_failures": 0},
@@ -180,11 +180,11 @@ def test_streak_skip_still_applies_within_reverify_gap():
         {"skill": "dialogue", "chapter": 3, "passed": True, "hard_failures": 0},
     ]
     # current ch4: first skip — within the gap
-    assert _should_skip_audit("dialogue", history, current_chapter=4) is True
+    assert should_skip_audit("dialogue", history, current_chapter=4) is True
 
 
 def test_stale_streak_forces_rerun_after_reverify_gap():
-    from shenbi.pipeline.chapter_loop import CASCADE_REVERIFY_GAP, _should_skip_audit
+    from shenbi.pipeline.chapter_loop import CASCADE_REVERIFY_GAP, should_skip_audit
 
     history = [
         {"skill": "dialogue", "chapter": 1, "passed": True, "hard_failures": 0},
@@ -194,11 +194,11 @@ def test_stale_streak_forces_rerun_after_reverify_gap():
     # The streak's newest record is ch3; after CASCADE_REVERIFY_GAP skipped
     # chapters the audit must RUN again to refresh the evidence.
     stale_ch = 3 + CASCADE_REVERIFY_GAP + 1
-    assert _should_skip_audit("dialogue", history, current_chapter=stale_ch) is False
+    assert should_skip_audit("dialogue", history, current_chapter=stale_ch) is False
 
 
 def test_fresh_streak_from_recent_chapter_still_skips():
-    from shenbi.pipeline.chapter_loop import CASCADE_REVERIFY_GAP, _should_skip_audit
+    from shenbi.pipeline.chapter_loop import CASCADE_REVERIFY_GAP, should_skip_audit
 
     base = 10
     history = [
@@ -206,7 +206,7 @@ def test_fresh_streak_from_recent_chapter_still_skips():
         {"skill": "dialogue", "chapter": base - 1, "passed": True, "hard_failures": 0},
         {"skill": "dialogue", "chapter": base, "passed": True, "hard_failures": 0},
     ]
-    assert _should_skip_audit("dialogue", history, current_chapter=base + 2) is True
+    assert should_skip_audit("dialogue", history, current_chapter=base + 2) is True
     assert (
-        _should_skip_audit("dialogue", history, current_chapter=base + CASCADE_REVERIFY_GAP) is True
+        should_skip_audit("dialogue", history, current_chapter=base + CASCADE_REVERIFY_GAP) is True
     )

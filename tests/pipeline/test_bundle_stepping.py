@@ -317,7 +317,7 @@ def test_two_chapter_bundle_loop_drive(tmp_path: Path) -> None:
             "shenbi.pipeline.parallel_dispatch.consolidate_review_results",
             lambda *a, **kw: "No BLOCKING issues.",
         )
-        mp.setattr(cl, "_any_audit_has_findings", lambda *a, **kw: False)
+        mp.setattr(cl, "any_audit_has_findings", lambda *a, **kw: False)
         mp.setattr(cl, "_check_volume_map_alignment", lambda *a, **kw: None)
         mp.setattr(cl, "_run_g4_checks", lambda state, n: [])
         mp.setattr(cl, "_run_context_assembly", lambda *a, **kw: None)

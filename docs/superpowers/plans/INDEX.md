@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-11（spec #86 完结归档——七 task 死面清扫批 PR #328；#87 前置达成）
-> **活跃 plan 数**：1 | **已归档**：140（见 `archive/`）
+> **最后更新**：2026-11-12（spec #87 plan 建档 ✅ ready——四轮设计审查收敛后的 r3.4 施工）
+> **活跃 plan 数**：2 | **已归档**：140（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,6 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
+- **[2026-11-12-spec87-god-file-decomposition.md](2026-11-12-spec87-god-file-decomposition.md)** ✅ ready——对应 spec #87（r3.4）；Task -1 re-anchor + T0-T5 六 task 全 infra
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行完毕待归档**——T0-T3+首跑验收全落）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
 
 ## 待执行的 spec → plan 映射

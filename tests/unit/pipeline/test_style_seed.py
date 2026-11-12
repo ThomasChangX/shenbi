@@ -62,12 +62,12 @@ def _drafting_read_tree(project: Path) -> None:
 
 def test_dispatch_prompt_includes_directives_when_present(tmp_path: Path) -> None:
     """The wiring proof: a present directives file reaches the LLM prompt."""
-    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+    from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
     _drafting_read_tree(tmp_path)
     seed_style_directives(tmp_path)
 
-    _, user_prompt, _, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = build_skill_prompt(
         "shenbi-chapter-drafting", tmp_path, "write chapter 1", chapter=1
     )
     assert "叙述句基带：12-25 字/句" in user_prompt, "directives content rides into the prompt"
@@ -76,11 +76,11 @@ def test_dispatch_prompt_includes_directives_when_present(tmp_path: Path) -> Non
 
 def test_dispatch_prompt_without_directives_is_unchanged_shape(tmp_path: Path) -> None:
     """Absent file = channel inert (no marker, no error — opt-in by existence)."""
-    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+    from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
     _drafting_read_tree(tmp_path)
 
-    _, user_prompt, _, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = build_skill_prompt(
         "shenbi-chapter-drafting", tmp_path, "write chapter 1", chapter=1
     )
     assert "文风目标" not in user_prompt

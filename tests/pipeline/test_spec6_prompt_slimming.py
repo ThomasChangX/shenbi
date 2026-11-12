@@ -1,7 +1,7 @@
 """Spec #6 T_C: externalized-teaching-block slimming assertions (offline).
 
 Pre-slim baselines measured 2026-09-17 on branch f64d13c5 via
-_build_skill_prompt (chars via len(); tokens via estimate_prompt_tokens).
+build_skill_prompt (chars via len(); tokens via estimate_prompt_tokens).
 Spec §3.5's 887B/869B figures are UTF-8 BYTES — different unit, both
 recorded in acceptance evidence.
 """
@@ -9,7 +9,7 @@ recorded in acceptance evidence.
 from pathlib import Path
 
 from shenbi.cost.estimate import estimate_prompt_tokens
-from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
 SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
 
@@ -44,7 +44,7 @@ PACING_SEVEN_HOOK_TOKENS = 157
 
 
 def _system_prompt(skill: str, tmp_path: Path) -> str:
-    system, _, _, _, _ = _build_skill_prompt(skill, tmp_path, "measure", 1)
+    system, _, _, _, _ = build_skill_prompt(skill, tmp_path, "measure", 1)
     return system
 
 

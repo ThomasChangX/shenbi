@@ -55,20 +55,20 @@ class TestSignalHandlers:
             mock_signal.assert_called_with(signal.SIGTERM, signal.SIG_DFL)
 
     def test_check_emergency_flag_clears_and_cleans(self, tmp_path):
-        """_check_emergency_flag clears flag and calls cleanup when flag is set."""
+        """check_emergency_flag clears flag and calls cleanup when flag is set."""
         cr._emergency_flag = True
         cr._emergency_state["project_dir"] = tmp_path
         cr._emergency_state["pipeline_state"] = MagicMock()
         with patch("shenbi.pipeline.crash_recovery._emergency_cleanup") as mock_cleanup:
-            cr._check_emergency_flag(tmp_path)
+            cr.check_emergency_flag(tmp_path)
             mock_cleanup.assert_called_once()
         assert cr._emergency_flag is False
 
     def test_check_emergency_flag_noop_when_flag_false(self, tmp_path):
-        """_check_emergency_flag is a no-op when _emergency_flag is False."""
+        """check_emergency_flag is a no-op when _emergency_flag is False."""
         cr._emergency_flag = False
         with patch("shenbi.pipeline.crash_recovery._emergency_cleanup") as mock_cleanup:
-            cr._check_emergency_flag(tmp_path)
+            cr.check_emergency_flag(tmp_path)
             mock_cleanup.assert_not_called()
 
     def test_emergency_cleanup_noop_without_project_dir(self):

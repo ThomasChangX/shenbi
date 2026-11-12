@@ -1,10 +1,10 @@
-"""Tests for contract-driven write semantics in _write_parsed_outputs (spec §3.3)."""
+"""Tests for contract-driven write semantics in write_parsed_outputs (spec §3.3)."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
 
 class TestCreateOrOverwrite:
@@ -12,7 +12,7 @@ class TestCreateOrOverwrite:
         """create_or_overwrite (and undeclared) -> safe_write, current behavior."""
         # NOTE: _parse_file_outputs expects the real marker format
         # "### FILE: <path>" (see dispatch_helper._parse_file_outputs).
-        out = _write_parsed_outputs(
+        out = write_parsed_outputs(
             response="### FILE: chapters/c-1.md\nnew body\n",
             output_paths=["chapters/c-1.md"],
             project_dir=tmp_path,
@@ -43,7 +43,7 @@ class TestAppendDedupRoutedThroughTruthUpsert:
         truth.parent.mkdir(parents=True)
         truth.write_text("# Current State\n\n- chapter: ch0\n", encoding="utf-8")
 
-        out = _write_parsed_outputs(
+        out = write_parsed_outputs(
             response="### FILE: truth/current_state.md\n| 第 2 章 | 林烽进入内门 |\n",
             output_paths=["truth/current_state.md"],
             project_dir=tmp_path,

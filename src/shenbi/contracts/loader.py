@@ -27,6 +27,7 @@ from typing import Any, TypedDict
 
 import yaml
 
+from shenbi.contracts.read_extractor_names import READ_EXTRACTOR_NAMES
 from shenbi.contracts.schemas.registry import TruthFilesRegistry
 from shenbi.exceptions import FrameworkError
 from shenbi.gates.shared import PROJECT, SKILLS
@@ -91,21 +92,9 @@ def _skill_path(skill: str) -> Path:
 #: book_strata_current (P0 读面失配批): the strata ledger appends one
 #: ``# 第N大弧合成`` H1 block per arc — H2 field reads are first-wins and
 #: would forever serve arc 1; this extractor serves the current (last) arc.
-READ_EXTRACTORS: frozenset[str] = frozenset(
-    {
-        "volume_chapter",
-        "hooks_audit_scoped",
-        "recent_increments",
-        "hooks_inventory_scoped",
-        "hooks_overview",
-        "threads_overview",
-        "relationships_overview",
-        "locations_overview",
-        "book_strata_current",
-        "volume_opening_protocol",
-        "matrix_scoped",
-    }
-)
+#: spec #87 T2: derived from the zero-dependency leaf roster (single
+#: source) — adding an extractor is a 2-edit change (leaf + REGISTRY).
+READ_EXTRACTORS: frozenset[str] = READ_EXTRACTOR_NAMES
 
 
 def _normalize_read_item(item: Any) -> tuple[str, list[str] | None, str | None]:

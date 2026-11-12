@@ -8,7 +8,7 @@ PipelineState being threaded through the call (``if state:`` +
 ``if project_dir:``) — and 8 of the 13 production call sites (parallel
 audit waves, parallel post-draft, genesis, closure, triggers) dispatch
 without state. This guard asserts the T401 fix shape: the ledger write
-happens inside ``_dispatch_via_api`` unconditionally, with the on-the-spot
+happens inside ``dispatch_via_api`` unconditionally, with the on-the-spot
 chapter parsed from the prompt (never ``getattr(state, "chapter", 0)``).
 
 The network layer is faked (openai.OpenAI patched) — no real dispatch.
@@ -21,7 +21,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from shenbi.pipeline.dispatch_helper import _dispatch_via_api, print_token_summary
+from shenbi.pipeline.dispatch_helper import dispatch_via_api, print_token_summary
 
 
 def _content_chunk(content: str) -> SimpleNamespace:
@@ -56,7 +56,7 @@ def _dispatch_with_fake_client(
     output_rel: str,
     prompt_tokens: int,
 ) -> None:
-    """Run one _dispatch_via_api call against a stubbed OpenAI client."""
+    """Run one dispatch_via_api call against a stubbed OpenAI client."""
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     monkeypatch.setenv("SHENBI_LLM_MODEL", "deepseek-v4-flash")
     fake_stream = [
@@ -66,12 +66,12 @@ def _dispatch_with_fake_client(
     with (
         patch("openai.OpenAI") as mock_openai,
         patch(
-            "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+            "shenbi.pipeline.dispatch_helper.build_skill_prompt",
             return_value=("sys", "user", [output_rel], [], {}),
         ),
     ):
         mock_openai.return_value.chat.completions.create.return_value = fake_stream
-        result = _dispatch_via_api(skill, project, prompt)
+        result = dispatch_via_api(skill, project, prompt)
     assert result.success, f"dispatch must succeed, got: {result.stderr}"
 
 
@@ -161,7 +161,7 @@ class TestLedgerFailSafe:
         with (
             patch("openai.OpenAI") as mock_openai,
             patch(
-                "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+                "shenbi.pipeline.dispatch_helper.build_skill_prompt",
                 return_value=("sys", "user", ["chapters/chapter-1.md"], [], {}),
             ),
             patch(
@@ -170,7 +170,7 @@ class TestLedgerFailSafe:
             ),
         ):
             mock_openai.return_value.chat.completions.create.return_value = fake_stream
-            result = _dispatch_via_api("shenbi-chapter-drafting", project, "Chapter 1 draft")
+            result = dispatch_via_api("shenbi-chapter-drafting", project, "Chapter 1 draft")
 
         assert result.success, "dispatch must survive a ledger write failure"
 

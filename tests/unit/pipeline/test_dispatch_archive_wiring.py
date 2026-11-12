@@ -47,12 +47,12 @@ def _dispatch_fake(
     with (
         patch("openai.OpenAI") as mock_openai,
         patch(
-            "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+            "shenbi.pipeline.dispatch_helper.build_skill_prompt",
             return_value=("sys", "user", [_OUT], [], {"style/style_profile.md": "# raw"}),
         ),
     ):
         mock_openai.return_value.chat.completions.create.return_value = chunks
-        return dh._dispatch_via_api(skill, tmp_path, prompt, state=state)
+        return dh.dispatch_via_api(skill, tmp_path, prompt, state=state)
 
 
 def _state(loop: int = 7, feedback: str | None = "上一轮反馈") -> SimpleNamespace:
@@ -138,7 +138,7 @@ class TestFailureBranches:
         def _boom(*a, **k):
             raise DispatchWriteFailureError("sig")
 
-        monkeypatch.setattr(dh, "_write_parsed_outputs", _boom)
+        monkeypatch.setattr(dh, "write_parsed_outputs", _boom)
         result = _dispatch_fake(monkeypatch, tmp_path)
         assert not result.success
         rec = _load_archive(tmp_path)  # 六类无 trace 返回位代表：归档仍在
@@ -152,8 +152,8 @@ class TestFailureBranches:
         def _boom(*a, **k):
             raise RuntimeError("contract missing")
 
-        monkeypatch.setattr(dh, "_build_skill_prompt", _boom)
-        result = dh._dispatch_via_api("shenbi-chapter-drafting", tmp_path, "prompt ch1")
+        monkeypatch.setattr(dh, "build_skill_prompt", _boom)
+        result = dh.dispatch_via_api("shenbi-chapter-drafting", tmp_path, "prompt ch1")
         assert not result.success
         assert not (tmp_path / "observability" / "dispatches").exists()
         stats_file = tmp_path / "observability" / "archive-stats.json"
@@ -197,7 +197,7 @@ class TestCacheManifestWiring:
             style_profile="STYLE",
             pending_hooks="HOOKS",
         )
-        _, _, _, manifest, raw_reads = dh._build_skill_prompt(
+        _, _, _, manifest, raw_reads = dh.build_skill_prompt(
             "shenbi-review-group-character",
             tmp_path,
             "prompt ch1",

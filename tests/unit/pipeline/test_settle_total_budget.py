@@ -42,7 +42,7 @@ def test_over_budget_truncates_with_disclosure_and_warn(
     )
     warned: list[str] = []
     monkeypatch.setattr(dh.log, "warning", lambda event, **kw: warned.append(event))
-    _, user_prompt, _, _, _ = dh._build_skill_prompt(
+    _, user_prompt, _, _, _ = dh.build_skill_prompt(
         "shenbi-state-settling", project, "settle ch57", chapter=57
     )
     assert len(user_prompt) <= 72_000 + 400, len(user_prompt)
@@ -77,7 +77,7 @@ def test_priority_face_drop_before_tail_cut(
     )
     warned: list[str] = []
     monkeypatch.setattr(dh.log, "warning", lambda event, **kw: warned.append(event))
-    _, user_prompt, _, _, _ = dh._build_skill_prompt(
+    _, user_prompt, _, _, _ = dh.build_skill_prompt(
         "shenbi-state-settling", project, "settle ch57", chapter=57
     )
     assert len(user_prompt) <= 72_000 + 400
@@ -111,7 +111,7 @@ def test_floor_only_inside_enforcement_path(tmp_path: Path) -> None:
             f"---\ntype: truth\n---\n\n# {name}\n\n{header}\n|{'---|' * ncols}\n{big_rows}\n{row}\n",
             encoding="utf-8",
         )
-    _, user_prompt, _, _, _ = dh._build_skill_prompt(
+    _, user_prompt, _, _, _ = dh.build_skill_prompt(
         "shenbi-state-settling", project, "settle ch57", chapter=57
     )
     assert len(user_prompt) < 40_000  # the healthy-windowed premise shape
@@ -124,7 +124,7 @@ def test_normal_project_within_budget_no_disclosure(
     project = _settle_project(tmp_path)
     warned: list[str] = []
     monkeypatch.setattr(dh.log, "warning", lambda event, **kw: warned.append(event))
-    _, user_prompt, _, _, _ = dh._build_skill_prompt(
+    _, user_prompt, _, _, _ = dh.build_skill_prompt(
         "shenbi-state-settling", project, "settle ch57", chapter=57
     )
     assert "【截断告知】" not in user_prompt
@@ -159,7 +159,7 @@ def test_same_tier_multi_face_drop_content_intact(
 
     with monkeypatch.context() as mp:
         mp.setattr(dh.log, "warning", _spy)
-        _, user_prompt, _, _, _ = dh._build_skill_prompt(
+        _, user_prompt, _, _, _ = dh.build_skill_prompt(
             "shenbi-state-settling", project, "settle ch57", chapter=57
         )
     budget_events = [kw for ev, kw in warned if ev == "settle_budget_degraded"]

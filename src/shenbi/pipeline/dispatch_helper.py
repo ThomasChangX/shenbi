@@ -29,7 +29,7 @@ import tomllib
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 
 import httpx
@@ -63,20 +63,10 @@ from shenbi.exceptions import (
     ShenbiError,
     TruthFileParseError,
 )
-from shenbi.pipeline._shared import load_volume_context  # spec #65 §4 (leaf module, no cycle)
-from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 096) — leaf module
+from shenbi.pipeline.review_checklist import is_review_skill  # spec #87 T4
+from shenbi.pipeline.read_extractors import (
+    REGISTRY,  # Plan A slicing (adjudication 096) — leaf module
     chapter_scoped_head_tail,
-    extract_book_strata_current,
-    extract_hooks_audit_scoped,
-    extract_hooks_inventory_scoped,
-    extract_hooks_overview,
-    extract_locations_overview,
-    extract_recent_increments,
-    extract_matrix_scoped,
-    extract_volume_opening_protocol,
-    extract_relationships_overview,
-    extract_threads_overview,
-    has_chapter_units,
 )
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
@@ -319,7 +309,7 @@ _INPUT_MAX_CHARS_TOTAL = 128000  # total input budget (~32K tokens)
 
 # spec #95 T3③ (r1.4): settle 专属字符总预算——实测配比 ≈0.80 tokens/char
 # （95,835/119,928），60k tokens 目标对应 72k chars 留 ~4% 余量（75k 贴线无余量）。
-# 降级路径（extractor_failed_fulltext 回全文）同受此预算约束；超预算→披露式截断
+# extractor 降级回全文路径同受此预算约束；超预算→披露式截断
 # ＋WARN（loud-degradation），仅低于硬地板（不足以承载增量契约）才 raise。
 SKILL_TOTAL_CHAR_BUDGET: dict[str, int] = {"shenbi-state-settling": 72_000}
 SKILL_TOTAL_CHAR_FLOOR: dict[str, int] = {"shenbi-state-settling": 40_000}
@@ -648,7 +638,7 @@ def _wildcard_to_regex(pattern: str) -> str:
     return "^" + escaped.replace(r"\*", r"[^/]*") + "$"
 
 
-def _resolve_wildcard_path(
+def resolve_wildcard_path(
     contract_pattern: str,
     concrete_path: str,
     base_dir: Path | None = None,
@@ -692,7 +682,7 @@ def _resolve_wildcard_path(
     return True
 
 
-def _resolve_all_wildcards(
+def resolve_all_wildcards(
     contract_writes: list[str],
     concrete_path: str,
     base_dir: Path | None = None,
@@ -704,7 +694,7 @@ def _resolve_all_wildcards(
     matching: list[str] = []
     for pattern in contract_writes:
         if "*" in pattern or "?" in pattern:
-            if _resolve_wildcard_path(pattern, concrete_path, base_dir):
+            if resolve_wildcard_path(pattern, concrete_path, base_dir):
                 matching.append(pattern)
         else:
             # Literal match: compare against the relative path if base_dir set
@@ -743,7 +733,23 @@ def _input_key(full_path: Path, project_dir: Path) -> str:
         return str(full_path)
 
 
-def _build_skill_prompt(
+class BuiltPrompt(NamedTuple):
+    """Assembled dispatch prompt (spec #87 T1; replaces the 5-tuple).
+
+    NamedTuple over dataclass: the 63 existing destructure sites
+    (``a, b, c, d, e = build_skill_prompt(...)`` incl. one star-unpack)
+    keep working untouched — tuple protocol compatibility — while new
+    code gets named access. New fields must carry defaults.
+    """
+
+    system: str
+    user: str
+    output_paths: list[str]
+    reads_manifest: list[dict[str, Any]]
+    raw_disk_reads: dict[str, str]
+
+
+def build_skill_prompt(
     skill: str,
     project_dir: Path,
     prompt: str,
@@ -753,7 +759,7 @@ def _build_skill_prompt(
     json_mode: bool = False,
     path_context: PathContext | None = None,
     outputs_override: list[str] | None = None,
-) -> tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]:
+) -> BuiltPrompt:
     """Build a complete execution prompt for a skill.
 
     Returns (system_prompt, user_prompt, output_paths, reads_manifest,
@@ -876,293 +882,45 @@ def _build_skill_prompt(
                 except Exception:
                     content = f"[binary or unreadable: {full_path}]"
                 raw_disk_reads[key] = content  # spec #81: pre-extractor disk original
-            if extractor == "volume_chapter" and chapter is not None:
-                # spec #65 §4. extractor face routes volume_map through the
-                # _shared family; chapter=None (genesis / manual no-chapter
-                # dispatch) falls through to full text (§4.3). Extraction
-                # failure -> full-text fallback + WARN (never a silent drop).
-                extraction_error: Exception | None = None
-                try:
-                    extracted = load_volume_context(project_dir, chapter)
-                except Exception as exc:
-                    extraction_error = exc
-                    extracted = ""
-                if extracted:
-                    content = extracted
-                elif extraction_error is not None:
-                    # Parity with the loop's own read guard above: an
-                    # unreadable map degrades to sentinel/full text + WARN,
-                    # never raises out of the prompt builder (final-review I2).
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(extraction_error),
-                    )
-                else:
-                    # Resolved-empty extraction (no chapter node / no volume
-                    # boundaries): full-text fallback, single WARN (PR #227).
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                    )
-            elif extractor == "hooks_audit_scoped":
-                # Plan A (adjudication 096): slice pending_hooks to 总览
-                # full + this chapter's plan/audit-named detail sections.
-                # chapter=None (genesis) keeps the full-pool view — same §4.3
-                # fallthrough discipline as volume_chapter. "" -> full text
-                # + WARN (never a silent drop).
-                if chapter is not None:
-                    try:
-                        extracted = extract_hooks_audit_scoped(project_dir, chapter, content)
-                    except Exception as exc:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                            error=str(exc),
-                        )
-                    else:
-                        if extracted:
-                            content = extracted
-                        else:
-                            log.warning(
-                                "extractor_failed_fulltext",
-                                extractor=extractor,
-                                path=str(full_path),
-                                chapter=chapter,
-                            )
-            elif extractor == "hooks_inventory_scoped":
-                # T0 (session30): the volume-boundary resolve inventory —
-                # 总览 full + TRIGGERED/PARTIAL candidate detail sections
-                # (grounding is intrinsic to the pool file, so no
-                # chapter/grounding guard). "" -> full text + WARN (never a
-                # silent drop), same §4.3 discipline as the Plan A family.
-                try:
-                    extracted = extract_hooks_inventory_scoped(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "hooks_overview":
-                # GO③ (session31): overview-only consumers (planning /
-                # composing / boundary chain) — 总览 table + disclosed
-                # detail omission. "" -> full text + WARN (never a silent
-                # drop), same §4.3 discipline as the Plan A family.
-                try:
-                    extracted = extract_hooks_overview(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "threads_overview":
-                # B 批 (千万字读面): thread_map windowed to 总览表 + active
-                # detail sections + the chapter's 推进表 interval ± 1.
-                # "" (unexpected shape / chapter outside every planned
-                # interval) -> full text + WARN (never a silent drop), same
-                # §4.3 discipline as the Plan A family.
-                try:
-                    extracted = extract_threads_overview(content, chapter)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "relationships_overview":
-                # 挂账清偿 (千万字读面): relationships.md windowed to 矩阵 +
-                # 待兑现 + latest 扩容复核 + pairs with bounded 演化轨迹.
-                # "" (unexpected shape) -> full text + WARN (never a silent
-                # drop), same §4.3 discipline as the Plan A family.
-                try:
-                    extracted = extract_relationships_overview(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "locations_overview":
-                # 挂账清偿 (千万字读面): locations.md windowed to identity
-                # headers + 地理位置 + recent 功能事件 rows. "" (unexpected
-                # shape) -> full text + WARN (never a silent drop), same §4.3
-                # discipline as the Plan A family.
-                try:
-                    extracted = extract_locations_overview(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "book_strata_current":
-                # P0 读面失配批: book_strata 按弧 H1 追加，H2 字段读
-                # first-wins 永远只服务第 1 弧（陈旧）——提取器取当前
-                # （末）弧块。"" (unexpected shape) -> full text + WARN
-                # (never a silent drop), same §4.3 discipline.
-                try:
-                    extracted = extract_book_strata_current(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "matrix_scoped":
-                # spec #95 T3: character_matrix 本章出场角色定向窗（替代通用 head+tail 中段盲截）
-                _mx_err: Exception | None = None
-                if chapter is not None:
-                    try:
-                        extracted = extract_matrix_scoped(project_dir, chapter, content)
-                    except Exception as exc:
-                        _mx_err = exc
-                        extracted = ""
-                else:
-                    extracted = ""
-                if extracted:
-                    content = extracted
-                else:
-                    # ""（chapter=None/cast 无行/无保留行）或 raise——loud fulltext+WARN
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        **({"error": str(_mx_err)} if _mx_err is not None else {}),
-                    )
-            elif extractor == "volume_opening_protocol":
-                # spec #95 T2: genre-config 热协议投影（子键越顶层字段过滤——extractor 面）。
-                # audit-T5 C1: 五件套齐——""（JSON 不解析）走 loud fulltext + WARN，
-                # 与兄弟分支同 §4.3 纪律（禁静默全文）。
-                _vop_err: Exception | None = None
-                try:
-                    extracted = extract_volume_opening_protocol(content)
-                except Exception as exc:
-                    _vop_err = exc
-                    extracted = ""
-                if extracted:
-                    content = extracted
-                else:
-                    # "" (unparseable JSON) or raise — both land loud fulltext+WARN
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        **({"error": str(_vop_err)} if _vop_err is not None else {}),
-                    )
-            elif extractor == "recent_increments":
-                # Plan A: chapter-keyed cumulative tables serve head + last
-                # units with an omission sentinel. "" (unexpected shape,
-                # fewer units than keep) -> full text, WARN only on the
-                # shape-with-more-units failure; under-keep is a no-op by
-                # design (nothing to omit).
-                try:
-                    extracted = extract_recent_increments(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    elif has_chapter_units(content):
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor is not None:
+            spec = REGISTRY.get(extractor) if extractor is not None else None
+            if extractor is not None and spec is None:
                 # Defense-in-depth: loader's closed registry rejects unknown
                 # names at load, so this is unreachable today — guard keeps a
                 # future registry expansion from silently degrading to full
                 # text (spec #65 §4.2 fail-loud discipline).
                 log.warning("extractor_unrouted_fulltext", extractor=extractor, path=str(full_path))
+            elif spec is not None:
+                if chapter is None and spec.chapter_none == "guard_warn":
+                    # volume_chapter: chapter-less dispatch falls to the guard
+                    log.warning(
+                        "extractor_unrouted_fulltext", extractor=extractor, path=str(full_path)
+                    )
+                elif chapter is None and spec.chapter_none == "silent":
+                    pass  # full-pool view preserved (§4.3 fallthrough)
+                else:
+                    _x_err: Exception | None = None
+                    _extracted = ""
+                    if not (chapter is None and spec.chapter_none == "loud"):
+                        # matrix_scoped: chapter=None never reaches impl — the
+                        # loud policy falls through to the shared WARN below
+                        # (same event/fields as the former arm).
+                        try:
+                            _extracted = spec.impl(project_dir, chapter, content)
+                        except Exception as exc:
+                            _x_err = exc
+                            _extracted = ""
+                    if _extracted:
+                        content = _extracted
+                    elif _x_err is not None or (
+                        spec.empty_warn_predicate is None or spec.empty_warn_predicate(content)
+                    ):
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                            **({"error": str(_x_err)} if _x_err is not None else {}),
+                        )
             if fields:
                 content, _matched, _resolved = filter_to_fields(content, fields, str(full_path))
                 reads_manifest.append(
@@ -1574,7 +1332,7 @@ def _build_skill_prompt(
         log.warning("helper_inject_failed", skill=skill, error=str(e))
 
     # Inject shared review checklist for review skills (Phase 2.3).
-    if _is_review_skill(skill) and chapter is not None:
+    if is_review_skill(skill) and chapter is not None:
         try:
             from shenbi.pipeline.review_checklist import (
                 generate_review_checklist,
@@ -1604,7 +1362,7 @@ def _build_skill_prompt(
     if budget is not None:
         user_prompt = _enforce_skill_total_budget(skill, user_prompt, budget)
 
-    return system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads
+    return BuiltPrompt(system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads)
 
 
 # spec #95 T3③ (r1.4/r1.5): 超预算降级序——①按面优先级整块弃（audits→registries
@@ -1704,11 +1462,6 @@ def _enforce_skill_total_budget(skill: str, user_prompt: str, budget: int) -> st
             f"{floor} — enforcement gutted the contract face"
         )
     return user_prompt
-
-
-def _is_review_skill(skill: str) -> bool:
-    """Check whether a skill name indicates a review skill."""
-    return "review" in skill.lower()
 
 
 # ---------------------------------------------------------------------------
@@ -2021,7 +1774,7 @@ EN_CHAPTER_HEADER_LINE_RE = re.compile(r"^#[ \t]+Chapter[ \t]+\d+:[^\n]*$", re.M
 _META_END_MARKER = "<!--META-END-->"
 
 
-def _chapter_header_style(project_root: Path) -> str:
+def chapter_header_style(project_root: Path) -> str:
     """chapter_word.chapter_header_style - 'english' (default, z11 F1301
     unchanged) | 'two_line_zh' (spec #84 S0 r6-r10 pinned form).
 
@@ -2142,7 +1895,7 @@ def normalize_chapter_header(content: str, chapter_num: int, project_root: Path)
     semantics (``# Chapter N:`` prepend when the first line misses the
     contract).
     """
-    return ensure_chapter_header(content, chapter_num, style=_chapter_header_style(project_root))
+    return ensure_chapter_header(content, chapter_num, style=chapter_header_style(project_root))
 
 
 def _is_audit_file(path: str) -> bool:
@@ -2222,7 +1975,7 @@ _STAGING_TRUTH_PREFIX = "staging/truth/"
 #: A2 批: world/locations.md (``## 地点：X`` entries, ~49KB at 118 ch) and
 #: characters/relationships.md (``## 关系对：A - B`` sections, 44KB) join the
 #: channel — their increments are WHOLE ``##`` sections (split at section
-#: boundaries, NOT by ``_increment_units``: an embedded 功能事件 table would
+#: boundaries, NOT by ``increment_units``: an embedded 功能事件 table would
 #: shred into row units the shape guard must reject).
 _KEYED_OUTLINE_TARGETS: dict[str, str] = {
     "outline/volume_map.md": "volume",
@@ -2245,7 +1998,7 @@ def _section_ledger_units(content: str) -> list[str]:
 
     Every unit starts at a level-2 heading and runs to the next one —
     embedded ``###`` subsections and tables stay INSIDE the section (the
-    generic ``_increment_units`` would shred an embedded 功能事件/矩阵 table
+    generic ``increment_units`` would shred an embedded 功能事件/矩阵 table
     into standalone row units). Non-blank content before the first ``##``
     becomes its own leading unit so the shape guard can reject it loudly
     instead of silently dropping it.
@@ -2281,7 +2034,7 @@ def _now_iso() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _increment_units(content: str) -> list[str]:
+def increment_units(content: str) -> list[str]:
     """Split a dispatched append_dedup increment into upsert units.
 
     Each markdown TABLE row line is its own unit, so a multi-row increment
@@ -2536,7 +2289,7 @@ def _validate_increment_package(
         from shenbi.pipeline.truth_io import split_table_cells
         from shenbi.pipeline.truth_io import _OUTLINE_SECTION_KEY_RE  # pyright: ignore[reportPrivateUsage]
 
-        for unit in _section_ledger_units(content) if section_ledger else _increment_units(content):
+        for unit in _section_ledger_units(content) if section_ledger else increment_units(content):
             first = next((l for l in unit.split("\n") if l.strip()), "")
             fs = first.strip()
             if _OUTLINE_SECTION_KEY_RE.match(fs) is not None:
@@ -2645,7 +2398,7 @@ def _merge_prose_base_target(project_dir: Path, rel_path: str) -> Path:
     return project_dir / rel  # absent -> caller reports via unmatched/empty base
 
 
-def _route_append_dedup_write(
+def route_append_dedup_write(
     project_dir: Path, rel_path: str, content: str, *, key_field: str
 ) -> None:
     """Write an ``append_dedup`` increment through the truth_io keyed upsert.
@@ -2683,7 +2436,7 @@ def _route_append_dedup_write(
             above go through the pure-string ``upsert_markdown_row`` path,
             which never parses existing files as YAML (only ``upsert_yaml``
             can, via ``truth_io._read_yaml_records``). The dispatch entry
-            points' ``except TruthFileParseError`` (:func:`_dispatch_via_api`
+            points' ``except TruthFileParseError`` (:func:`dispatch_via_api`
             / :func:`_dispatch_via_ide`, converting it into a failed
             DispatchResult) stays as defense for a future ``upsert_yaml``
             wiring, not a live path today.
@@ -2760,7 +2513,7 @@ def _route_append_dedup_write(
             log.info("truth_shell_first_write", path=rel_path, key=key_field, mode="creation")
             return
 
-    units = _increment_units(content)
+    units = increment_units(content)
 
     if rel_path.startswith(_STAGING_TRUTH_PREFIX):
         filename = rel_path[len(_STAGING_TRUTH_PREFIX) :]
@@ -2835,7 +2588,7 @@ def _route_append_dedup_write(
         # does not start at live max boundary + 1 BEFORE any write; the
         # skeleton (total_chapters + 卷界 preamble line) is derived after.
         # A2: locations/relationships increments split at ``##`` section
-        # boundaries (embedded tables stay atomic), not by _increment_units.
+        # boundaries (embedded tables stay atomic), not by increment_units.
         from shenbi.pipeline.truth_io import path_lock, touch_frontmatter_updated_at
 
         target = project_dir / rel_path
@@ -2860,7 +2613,7 @@ def _route_append_dedup_write(
         section_units = (
             _section_ledger_units(content)
             if rel_path in _SECTION_LEDGER_TARGETS
-            else _increment_units(content)
+            else increment_units(content)
         )
         with path_lock(target):
             base = base_text
@@ -2960,7 +2713,7 @@ def _no_files_stderr(
     )
 
 
-def _write_parsed_outputs(
+def write_parsed_outputs(
     response: str,
     output_paths: list[str],
     project_dir: Path,
@@ -2976,7 +2729,7 @@ def _write_parsed_outputs(
     per output), with ONE routed exception: contract targets declared
     ``mode: append_dedup`` under ``truth/`` are merged through the truth_io
     keyed upsert instead of overwritten (C3 T2, F360/F828 — see
-    :func:`_route_append_dedup_write`). The skill's output for such a target is
+    :func:`route_append_dedup_write`). The skill's output for such a target is
     the INCREMENT (the new chapter's row/rows); the program merges it by the
     contract-declared key, so cumulative truth files accumulate instead of
     collapsing to the latest increment.
@@ -3106,7 +2859,7 @@ def _write_parsed_outputs(
             # Routed merge (C3 T2): upsert by key, never a whole-file rewrite.
             key_field = str(mode_meta.get("key") or "chapter")
             try:
-                _route_append_dedup_write(project_dir, rel_path, content, key_field=key_field)
+                route_append_dedup_write(project_dir, rel_path, content, key_field=key_field)
             except IncrementShapeError as exc:
                 # #44 split-package feedback: name WHICH targets are shells
                 # (creation sanctioned) and which are filled (rows-only) —
@@ -3259,7 +3012,7 @@ def _write_parsed_outputs(
         # mkdir lives INSIDE _write_one (after path validation) so a rejected
         # traversal/symlink path cannot leave directories outside project_dir.
         # append_dedup-declared truth targets branch INSIDE _write_one into
-        # _route_append_dedup_write (keyed upsert merge); everything else is a
+        # route_append_dedup_write (keyed upsert merge); everything else is a
         # whole-file write.
         _write_one(rel_path, content)
 
@@ -3284,7 +3037,7 @@ def _write_parsed_outputs(
                 rf'characters (" < > [ \ control): {rel_path!r}',
                 signature="forbidden_filename",
             )
-        matching = _resolve_all_wildcards(wildcard_patterns, rel_path, base_dir=project_dir)
+        matching = resolve_all_wildcards(wildcard_patterns, rel_path, base_dir=project_dir)
         if matching:
             if not content.strip():
                 log.warning("output_empty", path=rel_path)
@@ -3297,7 +3050,7 @@ def _write_parsed_outputs(
             )
 
     if create_truth_templates and any("*" in p for p in output_paths):
-        _init_truth_templates(project_dir)
+        init_truth_templates(project_dir)
 
     return written
 
@@ -3343,7 +3096,7 @@ def _collect_declared_truth_fields() -> dict[str, list[str]]:
     return {name: list(fields) for name, fields in declared.items()}
 
 
-def _init_truth_templates(project_dir: Path) -> None:
+def init_truth_templates(project_dir: Path) -> None:
     """Create minimal truth template files with required YAML frontmatter.
 
     Each template includes an ``update_mode`` field (``replace``,
@@ -3829,7 +3582,7 @@ def _persist_failed_write_output(
         log.warning("failed_write_output_persist_failed", skill=skill)
 
 
-def _dispatch_via_api(
+def dispatch_via_api(
     skill: str,
     project_dir: Path,
     prompt: str,
@@ -3884,7 +3637,7 @@ def _dispatch_via_api(
             output_paths,
             reads_manifest,
             _raw_reads,  # spec #81 §1: T4 archive wiring consumes this
-        ) = _build_skill_prompt(
+        ) = build_skill_prompt(
             skill,
             project_dir,
             prompt,
@@ -4225,12 +3978,12 @@ def _dispatch_via_api(
             )
     # If we reach here (no length/content_filter, or cap-raise succeeded with
     # finish_reason="stop"), output_text is valid — fall through to the existing
-    # _parse_structured_output / _write_parsed_outputs block below.
+    # _parse_structured_output / write_parsed_outputs block below.
 
     try:
         output = _parse_structured_output(output_text)
         parsed_dict = {f.path: f.content for f in output.files}
-        written = _write_parsed_outputs(
+        written = write_parsed_outputs(
             output_text,
             output_paths,
             project_dir,
@@ -4357,7 +4110,7 @@ def _dispatch_via_ide(
     try:
         # IDE face has no DISPATCH trace emit (subprocess outcome path);
         # reads_manifest is API-face only — hence the throwaway name.
-        system_prompt, user_prompt, output_paths, _, _ = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _, _ = build_skill_prompt(
             skill,
             project_dir,
             prompt,
@@ -4407,7 +4160,7 @@ def _dispatch_via_ide(
     log.info("ide_dispatch_complete", skill=skill)
 
     try:
-        written = _write_parsed_outputs(
+        written = write_parsed_outputs(
             r.stdout,
             output_paths,
             project_dir,
@@ -4431,7 +4184,7 @@ def _dispatch_via_ide(
         return DispatchResult(False, -1, "", str(exc))
     except TruthFileParseError as exc:
         # Same policy as the API route: corrupt existing truth file -> failed
-        # dispatch result, not a process crash (see _dispatch_via_api).
+        # dispatch result, not a process crash (see dispatch_via_api).
         log.error("truth_upsert_parse_failed", skill=skill, error=str(exc))
         return DispatchResult(
             False, -1, "", f"truth file upsert aborted (existing file corrupt): {exc}"
@@ -4510,7 +4263,7 @@ def _with_write_audit(
     Same finally-hook topology as ``dispatcher.executor.dispatch_with_write_audit``
     (the legacy CLI route's auditor): pre snapshot(declared write surface) ->
     dispatch -> post snapshot -> audit -> ledger record. The snapshot root is
-    the pipeline project dir — the root ``_write_parsed_outputs`` actually
+    the pipeline project dir — the root ``write_parsed_outputs`` actually
     writes to (the legacy CLI route snapshots its ``round_dir`` —
     the same write-tree semantics, fixed by spec #67). With ``uses_staging=True`` the watch face is
     extended to ``staging/<declared>`` and staged snapshot keys are folded
@@ -4635,7 +4388,7 @@ def dispatch_skill(
         skip_reads: Optional list of read patterns to skip.
         uses_staging: If True, dispatch writes to staging/ first.
         shared_context: Optional SharedAuditContext with pre-extracted fields.
-            Passed through to _build_skill_prompt so auditors skip re-reading
+            Passed through to build_skill_prompt so auditors skip re-reading
             common files from disk.
         state: Optional PipelineState. No longer used for token accounting —
             the durable ledger is written inside the API path regardless of
@@ -4659,7 +4412,7 @@ def dispatch_skill(
     # API path (audited — C32 R3 / F518)
     if os.environ.get(_ENV_LLM_API_KEY):
         return _with_write_audit(
-            lambda: _dispatch_via_api(
+            lambda: dispatch_via_api(
                 skill,
                 pd,
                 prompt,

@@ -18,7 +18,7 @@ import pytest
 from shenbi.exceptions import IncrementShapeError
 from shenbi.pipeline.dispatch_helper import (
     _hooks_increment_shape_injection,
-    _write_parsed_outputs,
+    write_parsed_outputs,
 )
 from shenbi.pipeline.truth_io import HOOKS_STABLE_FIELDS
 
@@ -41,7 +41,7 @@ category: state
 def _write(tmp_path: Path, block: str) -> None:
     (tmp_path / "truth").mkdir(parents=True, exist_ok=True)
     (tmp_path / "truth" / "pending_hooks.md").write_text(_LIVE_HOOKS, encoding="utf-8")
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=f"### FILE: staging/truth/pending_hooks.md\n{block}\n",
         output_paths=["staging/truth/pending_hooks.md"],
         project_dir=tmp_path,

@@ -13,7 +13,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from shenbi.pipeline.dispatch_helper import _route_append_dedup_write
+from shenbi.pipeline.dispatch_helper import route_append_dedup_write
 
 
 def _row(key: str, note: str) -> str:
@@ -30,10 +30,10 @@ def test_chained_base_keeps_first_writer_increment(tmp_path: Path) -> None:
         "| hook | note |\n|------|------|\n" + _row("ch1", "live row"), encoding="utf-8"
     )
 
-    _route_append_dedup_write(
+    route_append_dedup_write(
         tmp_path, "staging/truth/hooks.md", _row("writer-a", "from A"), key_field="hook"
     )
-    _route_append_dedup_write(
+    route_append_dedup_write(
         tmp_path, "staging/truth/hooks.md", _row("writer-b", "from B"), key_field="hook"
     )
 
@@ -54,7 +54,7 @@ def test_concurrent_writers_both_survive(tmp_path: Path) -> None:
     )
 
     def _write(tag: str) -> None:
-        _route_append_dedup_write(
+        route_append_dedup_write(
             tmp_path, "staging/truth/hooks.md", _row(tag, f"from {tag}"), key_field="hook"
         )
 
@@ -73,8 +73,8 @@ def test_sidecar_records_keyed_target_and_merges(tmp_path: Path) -> None:
     """
     import json
 
-    _route_append_dedup_write(tmp_path, "staging/truth/hooks.md", _row("a", "x"), key_field="hook")
-    _route_append_dedup_write(
+    route_append_dedup_write(tmp_path, "staging/truth/hooks.md", _row("a", "x"), key_field="hook")
+    route_append_dedup_write(
         tmp_path, "staging/truth/other.md", _row("b", "y"), key_field="chapter"
     )
 
@@ -101,7 +101,7 @@ def test_commit_does_not_clobber_live_rows_written_after_staging(tmp_path: Path)
     live.parent.mkdir(parents=True)
     live.write_text("| hook | note |\n|------|------|\n" + _row("k0", "baseline"), encoding="utf-8")
 
-    _route_append_dedup_write(
+    route_append_dedup_write(
         tmp_path, "staging/truth/hooks.md", _row("k1", "staged"), key_field="hook"
     )
     # live gains a NEW row after staging (second key, plus a richer k1)

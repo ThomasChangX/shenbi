@@ -110,16 +110,16 @@ class TestParallelPostDraft:
         # returns, both steps' results are merged into the state.
         import threading as _threading
 
-        from shenbi.pipeline.state import _merge_step_result
+        from shenbi.pipeline.state import merge_step_result
 
         merge_thread_ids: list[int] = []
-        real_merge = _merge_step_result
+        real_merge = merge_step_result
 
         def tracking_merge(*a, **k):
             merge_thread_ids.append(_threading.get_ident())
             return real_merge(*a, **k)
 
-        with patch("shenbi.pipeline.state._merge_step_result", tracking_merge):
+        with patch("shenbi.pipeline.state.merge_step_result", tracking_merge):
             state = PipelineState.default("/tmp/test-project")
             state.chapter_loop.current_chapter = 4
             run_parallel_post_draft_steps(state)
@@ -192,7 +192,7 @@ def test_parallel_worker_exception_persists_stack(tmp_path, monkeypatch):
 
     # route through the API path so _call_llm_streaming_with_retry is used
     monkeypatch.setattr("shenbi.pipeline.dispatch_helper._call_llm_streaming_with_retry", boom)
-    monkeypatch.setattr("shenbi.pipeline.dispatch_helper._dispatch_via_api", boom)
+    monkeypatch.setattr("shenbi.pipeline.dispatch_helper.dispatch_via_api", boom)
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
 
     task = ReviewTask(
@@ -362,7 +362,7 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
         ),
         patch.object(
             cl,
-            "_dispatch_serial_reviews",
+            "dispatch_serial_reviews",
             side_effect=lambda tasks, pd, state=None: _results_for(tasks),
         ),
         patch.object(cl, "_parse_and_persist_resonance"),

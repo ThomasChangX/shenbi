@@ -19,7 +19,7 @@ from pathlib import Path
 import pytest
 
 from shenbi.exceptions import IncrementShapeError
-from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 from shenbi.pipeline.truth_io import touch_frontmatter_updated_at, upsert_markdown_row
 
 _VOLUME_MAP = """---
@@ -109,7 +109,7 @@ def test_dispatch_routes_outline_increment_through_keyed_merge(tmp_path: Path) -
     increment no longer carries.
     """
     _outline_project(tmp_path)
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: outline/volume_map.md\n"
             "## 第一卷：哑脉藏火·修订（第 1-23 章）\n\n**Objective**: 卷一修订目标。\n"
@@ -132,7 +132,7 @@ def test_outline_increment_scaffold_rejected(tmp_path: Path) -> None:
     _outline_project(tmp_path)
     before = (tmp_path / "outline" / "volume_map.md").read_text(encoding="utf-8")
     with pytest.raises(IncrementShapeError):
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=(
                 "### FILE: outline/volume_map.md\n---\ntotal_chapters: 118\n---\n\n"
                 "# 分卷地图\n\n## 第一卷：整档重发\n"
@@ -150,7 +150,7 @@ def test_outline_increment_prose_unit_rejected(tmp_path: Path) -> None:
     """
     _outline_project(tmp_path)
     with pytest.raises(IncrementShapeError, match=r"第N卷|卷区段"):
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response="### FILE: outline/volume_map.md\n裸散文单元，不属于任何卷。\n",
             output_paths=["outline/volume_map.md"],
             project_dir=tmp_path,
@@ -255,7 +255,7 @@ def test_thread_interval_row_increment_merges_in_place(tmp_path: Path) -> None:
     volume's interval row lands in the table without disturbing siblings.
     """
     _thread_project(tmp_path)
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: outline/thread_map.md\n"
             "| 9-16（一卷 KR2） | A2 | B3、B5 | 修订后的追索收紧 |\n"
@@ -285,7 +285,7 @@ def test_thread_overview_row_increment_still_rejected(tmp_path: Path) -> None:
     _thread_project(tmp_path)
     before = (tmp_path / "outline" / "thread_map.md").read_text(encoding="utf-8")
     with pytest.raises(IncrementShapeError):
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=(
                 "### FILE: outline/thread_map.md\n"
                 "| B7 | 新开的商路 | P1 | 中线 | 4 | 50 | 80 | PLANTED |\n"
@@ -303,7 +303,7 @@ def test_volume_target_rejects_interval_row(tmp_path: Path) -> None:
     """
     _outline_project(tmp_path)
     with pytest.raises(IncrementShapeError):
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=("### FILE: outline/volume_map.md\n| 24-31（二卷 KR1） | A1 | 落脚 |\n"),
             output_paths=["outline/volume_map.md"],
             project_dir=tmp_path,
@@ -316,7 +316,7 @@ def test_thread_section_increment_derives_overview_row_via_dispatch(tmp_path: Pa
     keyed merge and its 线索总览表 row appears mechanically.
     """
     _thread_project(tmp_path)
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: outline/thread_map.md\n"
             "### B7: 新开的商路\n\n- **状态**: PLANTED\n- **跨度**: 第50章 - 第80章\n"
@@ -349,7 +349,7 @@ def test_thread_interval_row_di_prefix_family_merges(tmp_path: Path) -> None:
     )
     (tmp_path / "outline").mkdir(parents=True, exist_ok=True)
     (tmp_path / "outline" / "thread_map.md").write_text(base, encoding="utf-8")
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: outline/thread_map.md\n"
             "| 第17-23章（卷1 KR3） | A1 | C1 | 修订后的顶罪与清算 |\n"
@@ -384,7 +384,7 @@ def test_thread_section_increment_bootstraps_missing_overview_table(tmp_path: Pa
     )
     (tmp_path / "outline").mkdir(parents=True, exist_ok=True)
     (tmp_path / "outline" / "thread_map.md").write_text(base, encoding="utf-8")
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: outline/thread_map.md\n"
             "### B7: 新开的商路\n\n- **状态**: PLANTED\n- **跨度**: 第50章 - 第80章\n"
@@ -437,7 +437,7 @@ def test_volume_section_with_kr_table_survives_dispatch_splitter(tmp_path: Path)
     ledgers, so embedded tables stay atomic.
     """
     _outline_project(tmp_path)
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=(
             "### FILE: outline/volume_map.md\n"
             "## 第三卷：潮汛（第 48-71 章）\n\n**Objective**: 卷三目标。\n\n"

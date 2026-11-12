@@ -270,7 +270,7 @@ class TestMultiFileOutputFormat:
 
     def test_multi_file_prompt_includes_schema_reminder(self, tmp_path, monkeypatch):
         from shenbi.contracts import OutputKind
-        from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+        from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
         # Mock contract with 2 writes (chapter.md + decisions.json)
         mock_contract = {
@@ -280,14 +280,14 @@ class TestMultiFileOutputFormat:
             "updates": [],
             "read_fields": {},
         }
-        # load_contract is imported locally inside _build_skill_prompt from
+        # load_contract is imported locally inside build_skill_prompt from
         # shenbi.contracts.loader, so patch it there.
         monkeypatch.setattr(
             "shenbi.contracts.loader.load_contract",
             lambda s: mock_contract,
         )
 
-        system_prompt, user_prompt, output_paths, _, _ = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _, _ = build_skill_prompt(
             "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
         )
 
@@ -298,7 +298,7 @@ class TestMultiFileOutputFormat:
     def test_single_file_prompt_omits_schema_reminder(self, tmp_path, monkeypatch):
         """Single-write contracts should NOT include the schema reminder."""
         from shenbi.contracts import OutputKind
-        from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+        from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
         mock_contract = {
             "kind": OutputKind.ARTIFACT,
@@ -312,7 +312,7 @@ class TestMultiFileOutputFormat:
             lambda s: mock_contract,
         )
 
-        system_prompt, user_prompt, output_paths, _, _ = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _, _ = build_skill_prompt(
             "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
         )
 
@@ -324,9 +324,9 @@ class TestTruthTemplates:
     """D21: truth templates derive H2 headings from consumer-declared fields."""
 
     def test_seeds_all_four_files(self, tmp_path):
-        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+        from shenbi.pipeline.dispatch_helper import init_truth_templates
 
-        _init_truth_templates(tmp_path)
+        init_truth_templates(tmp_path)
         truth = tmp_path / "truth"
         for name in (
             "current_state.md",
@@ -337,9 +337,9 @@ class TestTruthTemplates:
             assert (truth / name).exists()
 
     def test_current_state_no_h2_stubs_table_file(self, tmp_path):
-        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+        from shenbi.pipeline.dispatch_helper import init_truth_templates
 
-        _init_truth_templates(tmp_path)
+        init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "current_state.md").read_text(encoding="utf-8")
         # P0 读面失配批: chapter-planning/review-continuity switched to the
         # recent_increments extractor (phase3 trace: the 系统演化阶段 field set
@@ -349,9 +349,9 @@ class TestTruthTemplates:
         assert "# Current State" in body
 
     def test_character_matrix_template_created(self, tmp_path):
-        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+        from shenbi.pipeline.dispatch_helper import init_truth_templates
 
-        _init_truth_templates(tmp_path)
+        init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "character_matrix.md").read_text(encoding="utf-8")
         # The template is created with frontmatter and H1; no H2 stubs are
         # seeded since no consumer skill declares fields for this file
@@ -360,30 +360,30 @@ class TestTruthTemplates:
         assert "# Character Matrix" in body
 
     def test_chapter_summaries_no_h2_stubs_table_file(self, tmp_path):
-        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+        from shenbi.pipeline.dispatch_helper import init_truth_templates
 
-        _init_truth_templates(tmp_path)
+        init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "chapter_summaries.md").read_text(encoding="utf-8")
         # P0 读面失配批: consumers ride recent_increments (table form); no
         # consumer declares fields on this file anymore.
         assert "## " not in body
 
     def test_yaml_frontmatter_present(self, tmp_path):
-        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+        from shenbi.pipeline.dispatch_helper import init_truth_templates
 
-        _init_truth_templates(tmp_path)
+        init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "current_state.md").read_text(encoding="utf-8")
         assert body.startswith("---\n")
         assert "update_mode: replace" in body
 
     def test_does_not_overwrite_existing_file(self, tmp_path):
-        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+        from shenbi.pipeline.dispatch_helper import init_truth_templates
 
         truth = tmp_path / "truth"
         truth.mkdir(parents=True)
         pre_existing = "PRESERVED CONTENT"
         (truth / "current_state.md").write_text(pre_existing, encoding="utf-8")
-        _init_truth_templates(tmp_path)
+        init_truth_templates(tmp_path)
         assert (truth / "current_state.md").read_text(encoding="utf-8") == pre_existing
 
 
@@ -494,28 +494,28 @@ class TestValidateJsonOutput:
 
 
 class TestResolveWildcardPath:
-    """Tests for _resolve_wildcard_path wildcard-to-concrete matching."""
+    """Tests for resolve_wildcard_path wildcard-to-concrete matching."""
 
     def test_resolve_wildcard_creates_directory_for_concrete_path(self, tmp_path: Path):
         """When a contract declares characters/major/*.md and LLM outputs
         characters/major/chen-weimin.md, auto-create the major/ directory.
         """
-        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+        from shenbi.pipeline.dispatch_helper import resolve_wildcard_path
 
         contract_pattern = "characters/major/*.md"
         concrete_path = tmp_path / "characters" / "major" / "chen-weimin.md"
         assert not concrete_path.parent.exists()
 
-        _resolve_wildcard_path(contract_pattern, str(concrete_path), base_dir=tmp_path)
+        resolve_wildcard_path(contract_pattern, str(concrete_path), base_dir=tmp_path)
 
         assert concrete_path.parent.exists()
 
     def test_resolve_wildcard_matches_pattern(self, tmp_path: Path):
         """Wildcard pattern should match concrete paths."""
-        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+        from shenbi.pipeline.dispatch_helper import resolve_wildcard_path
 
         assert (
-            _resolve_wildcard_path(
+            resolve_wildcard_path(
                 "characters/major/*.md",
                 str(tmp_path / "characters" / "major" / "chen-weimin.md"),
                 base_dir=tmp_path,
@@ -525,10 +525,10 @@ class TestResolveWildcardPath:
 
     def test_resolve_wildcard_rejects_non_matching_path(self, tmp_path: Path):
         """Concrete path must match the wildcard pattern."""
-        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+        from shenbi.pipeline.dispatch_helper import resolve_wildcard_path
 
         assert (
-            _resolve_wildcard_path(
+            resolve_wildcard_path(
                 "characters/major/*.md",
                 str(tmp_path / "characters" / "protagonist.md"),
                 base_dir=tmp_path,
@@ -538,32 +538,32 @@ class TestResolveWildcardPath:
 
     def test_resolve_wildcard_with_minor_characters(self, tmp_path: Path):
         """Test with minor character wildcard."""
-        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+        from shenbi.pipeline.dispatch_helper import resolve_wildcard_path
 
         contract_pattern = "characters/minor/*.md"
         concrete_path = tmp_path / "characters" / "minor" / "zhao-tiezhu.md"
         assert not concrete_path.parent.exists()
 
-        _resolve_wildcard_path(contract_pattern, str(concrete_path), base_dir=tmp_path)
+        resolve_wildcard_path(contract_pattern, str(concrete_path), base_dir=tmp_path)
         assert concrete_path.parent.exists()
 
     def test_resolve_wildcard_creates_dir_for_truth_wildcard(self, tmp_path: Path):
         """truth/*.md wildcard should match truth/current_state.md."""
-        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+        from shenbi.pipeline.dispatch_helper import resolve_wildcard_path
 
         concrete_path = tmp_path / "truth" / "current_state.md"
         assert not concrete_path.parent.exists()
 
-        result = _resolve_wildcard_path("truth/*.md", str(concrete_path), base_dir=tmp_path)
+        result = resolve_wildcard_path("truth/*.md", str(concrete_path), base_dir=tmp_path)
         assert result is True
         assert concrete_path.parent.exists()
 
     def test_resolve_wildcard_rejects_deeply_nested_path(self, tmp_path: Path):
         """Wildcard * should not match across directory boundaries."""
-        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+        from shenbi.pipeline.dispatch_helper import resolve_wildcard_path
 
         assert (
-            _resolve_wildcard_path(
+            resolve_wildcard_path(
                 "characters/major/*.md",
                 str(tmp_path / "characters" / "major" / "subdir" / "chen-weimin.md"),
                 base_dir=tmp_path,
@@ -608,55 +608,55 @@ class TestWildcardToRegex:
 
 
 class TestResolveAllWildcards:
-    """Tests for _resolve_all_wildcards batch matching."""
+    """Tests for resolve_all_wildcards batch matching."""
 
     def test_resolve_all_matches_single_pattern(self, tmp_path: Path):
-        from shenbi.pipeline.dispatch_helper import _resolve_all_wildcards
+        from shenbi.pipeline.dispatch_helper import resolve_all_wildcards
 
         contract_writes = ["characters/major/*.md", "characters/minor/*.md"]
         concrete = str(tmp_path / "characters" / "major" / "chen-weimin.md")
 
-        matching = _resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
+        matching = resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
         assert matching == ["characters/major/*.md"]
 
     def test_resolve_all_creates_directories(self, tmp_path: Path):
-        from shenbi.pipeline.dispatch_helper import _resolve_all_wildcards
+        from shenbi.pipeline.dispatch_helper import resolve_all_wildcards
 
         contract_writes = ["characters/major/*.md"]
         concrete = str(tmp_path / "characters" / "major" / "li-xiaoyao.md")
 
         assert not (tmp_path / "characters" / "major").exists()
-        _resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
+        resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
         assert (tmp_path / "characters" / "major").exists()
 
     def test_resolve_all_returns_empty_for_no_match(self, tmp_path: Path):
-        from shenbi.pipeline.dispatch_helper import _resolve_all_wildcards
+        from shenbi.pipeline.dispatch_helper import resolve_all_wildcards
 
         contract_writes = ["characters/major/*.md"]
         concrete = str(tmp_path / "other" / "file.md")
 
-        matching = _resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
+        matching = resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
         assert matching == []
 
     def test_resolve_all_handles_literal_fallback(self, tmp_path: Path):
         """Literal patterns (no wildcards) should also match via substring heuristic."""
-        from shenbi.pipeline.dispatch_helper import _resolve_all_wildcards
+        from shenbi.pipeline.dispatch_helper import resolve_all_wildcards
 
         contract_writes = ["chapters/chapter-1.md"]
         concrete = str(tmp_path / "chapters" / "chapter-1.md")
 
-        matching = _resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
+        matching = resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
         assert "chapters/chapter-1.md" in matching
 
 
 class TestWriteParsedOutputsWithWildcards:
-    """Integration tests for _write_parsed_outputs with wildcard contract patterns."""
+    """Integration tests for write_parsed_outputs with wildcard contract patterns."""
 
     def test_writes_concrete_path_matching_wildcard(self, tmp_path: Path):
         """When LLM outputs characters/major/chen-weimin.md and contract has
         characters/major/*.md, the file should be written.
         """
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         response = "### FILE: characters/major/chen-weimin.md\n# 陈伟民\n\n主角的好友，性格沉稳。\n"
         output_paths = [
@@ -664,7 +664,7 @@ class TestWriteParsedOutputsWithWildcards:
             "characters/major/*.md",
             "characters/minor/*.md",
         ]
-        _write_parsed_outputs(response, output_paths, tmp_path)
+        write_parsed_outputs(response, output_paths, tmp_path)
 
         written_file = tmp_path / "characters" / "major" / "chen-weimin.md"
         assert written_file.exists()
@@ -673,7 +673,7 @@ class TestWriteParsedOutputsWithWildcards:
 
     def test_writes_multiple_wildcard_matches(self, tmp_path: Path):
         """Multiple wildcard-matching files should all be written."""
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         response = (
             "### FILE: characters/major/li-xiaoyao.md\n"
@@ -682,14 +682,14 @@ class TestWriteParsedOutputsWithWildcards:
             "# 赵灵儿\n\n女主角。\n"
         )
         output_paths = ["characters/major/*.md"]
-        _write_parsed_outputs(response, output_paths, tmp_path)
+        write_parsed_outputs(response, output_paths, tmp_path)
 
         assert (tmp_path / "characters" / "major" / "li-xiaoyao.md").exists()
         assert (tmp_path / "characters" / "major" / "zhao-ling-er.md").exists()
 
     def test_wildcard_and_literal_paths_together(self, tmp_path: Path):
         """Literal and wildcard writes should coexist."""
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         response = (
             "### FILE: characters/protagonist.md\n"
@@ -701,18 +701,18 @@ class TestWriteParsedOutputsWithWildcards:
             "characters/protagonist.md",
             "characters/major/*.md",
         ]
-        _write_parsed_outputs(response, output_paths, tmp_path)
+        write_parsed_outputs(response, output_paths, tmp_path)
 
         assert (tmp_path / "characters" / "protagonist.md").exists()
         assert (tmp_path / "characters" / "major" / "chen-weimin.md").exists()
 
     def test_non_matching_parsed_output_is_skipped(self, tmp_path: Path):
         """A parsed output that matches neither literal nor wildcard should be skipped."""
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         response = "### FILE: unrelated/extra_file.md\n# Extra\n\nShould not be written.\n"
         output_paths = ["characters/major/*.md"]
-        written = _write_parsed_outputs(response, output_paths, tmp_path)
+        written = write_parsed_outputs(response, output_paths, tmp_path)
 
         assert not (tmp_path / "unrelated" / "extra_file.md").exists()
         assert written == []
@@ -724,19 +724,19 @@ class TestWriteParsedOutputsWithWildcards:
 
 
 class TestPlanSkeletonInjection:
-    """Task 13: _build_skill_prompt injects plan skeleton for chapter planning."""
+    """Task 13: build_skill_prompt injects plan skeleton for chapter planning."""
 
     def test_chapter_planning_prompt_includes_skeleton(self, tmp_path: Path, monkeypatch):
-        """When dispatching shenbi-chapter-planning, the REAL _build_skill_prompt
+        """When dispatching shenbi-chapter-planning, the REAL build_skill_prompt
         must include a plan skeleton when volume_map.md exists.
 
-        This does NOT mock _build_skill_prompt (that would make the test a no-op).
+        This does NOT mock build_skill_prompt (that would make the test a no-op).
         Instead it exercises the real function and asserts the skeleton-derived
         content appears in the returned prompt, proving the Task 13 wiring works.
         """
         from shenbi.contracts import OutputKind
         from shenbi.pipeline.dispatch_helper import (
-            _build_skill_prompt,
+            build_skill_prompt,
         )
 
         # ---- Arrange: set up project structure ----
@@ -757,7 +757,7 @@ class TestPlanSkeletonInjection:
             encoding="utf-8",
         )
 
-        # _build_skill_prompt reads SKILL.md from _PROJECT_ROOT / "skills" / skill.
+        # build_skill_prompt reads SKILL.md from _PROJECT_ROOT / "skills" / skill.
         # Redirect _PROJECT_ROOT to tmp_path so it finds our test SKILL.md.
         skill_dir = tmp_path / "skills" / "shenbi-chapter-planning"
         skill_dir.mkdir(parents=True)
@@ -786,8 +786,8 @@ class TestPlanSkeletonInjection:
             lambda s: mock_contract,
         )
 
-        # ---- Act: call the REAL _build_skill_prompt ----
-        system_prompt, user_prompt, output_paths, _, _ = _build_skill_prompt(
+        # ---- Act: call the REAL build_skill_prompt ----
+        system_prompt, user_prompt, output_paths, _, _ = build_skill_prompt(
             skill="shenbi-chapter-planning",
             project_dir=tmp_path,
             prompt="plan chapter 1",
@@ -852,42 +852,42 @@ class TestWriteParsedOutputsIntegrity:
 
     def test_write_failure_raises_before_write(self, tmp_path):
         from shenbi.exceptions import DispatchWriteFailureError
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         response = (
             "### FILE: chapters/chapter-1.md\n由于沙箱限制，我无法直接写文件。请使用现有内容。\n"
         )
         with pytest.raises(DispatchWriteFailureError):
-            _write_parsed_outputs(response, ["chapters/chapter-1.md"], tmp_path)
+            write_parsed_outputs(response, ["chapters/chapter-1.md"], tmp_path)
         # The file must NOT have been written.
         assert not (tmp_path / "chapters" / "chapter-1.md").exists()
 
     def test_prose_leakage_logged_not_raised(self, tmp_path, caplog):
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         response = (
             f"### FILE: chapters/chapter-56.md\n正文……\nNow the decisions JSON:\n{'段落' * 200}\n"
         )
-        written = _write_parsed_outputs(response, ["chapters/chapter-56.md"], tmp_path)
+        written = write_parsed_outputs(response, ["chapters/chapter-56.md"], tmp_path)
         # The write succeeds; leakage is a post-write warning.
         assert written == ["chapters/chapter-56.md"]
         assert (tmp_path / "chapters" / "chapter-56.md").exists()
 
     def test_audit_completeness_check_runs(self, tmp_path):
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         aborted = "所有输入文件已确认。现在执行完整的伏笔审计……"
         response = f"### FILE: audits/chapter-32-foreshadowing.md\n{aborted}\n"
         # Aborted stub writes (it is not a write-failure) but is flagged.
-        written = _write_parsed_outputs(response, ["audits/chapter-32-foreshadowing.md"], tmp_path)
+        written = write_parsed_outputs(response, ["audits/chapter-32-foreshadowing.md"], tmp_path)
         assert written == ["audits/chapter-32-foreshadowing.md"]
 
     def test_clean_output_passes_through(self, tmp_path):
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         clean_prose = "林烽推开门，走进教室。" * 200
         response = f"### FILE: chapters/chapter-1.md\n{clean_prose}\n"
-        written = _write_parsed_outputs(response, ["chapters/chapter-1.md"], tmp_path)
+        written = write_parsed_outputs(response, ["chapters/chapter-1.md"], tmp_path)
         assert written == ["chapters/chapter-1.md"]
 
 
@@ -950,35 +950,35 @@ def test_ensure_chapter_header_idempotent_when_present() -> None:
 
 
 def test_chapter_header_style_default_english_on_missing_config(tmp_path: Path) -> None:
-    from shenbi.pipeline.dispatch_helper import _chapter_header_style
+    from shenbi.pipeline.dispatch_helper import chapter_header_style
 
-    assert _chapter_header_style(tmp_path) == "english"
+    assert chapter_header_style(tmp_path) == "english"
 
 
 def test_chapter_header_style_invalid_utf8_fails_closed(tmp_path: Path) -> None:
     """PR #275 Copilot: invalid-encoding genre-config must fail closed (not crash)."""
-    from shenbi.pipeline.dispatch_helper import _chapter_header_style
+    from shenbi.pipeline.dispatch_helper import chapter_header_style
 
     (tmp_path / "genre-config.json").write_bytes(b'{"chapter_word": \xff\xfe}')
-    assert _chapter_header_style(tmp_path) == "english"
+    assert chapter_header_style(tmp_path) == "english"
 
 
 def test_chapter_header_style_two_line_zh(tmp_path: Path) -> None:
-    from shenbi.pipeline.dispatch_helper import _chapter_header_style
+    from shenbi.pipeline.dispatch_helper import chapter_header_style
 
     (tmp_path / "genre-config.json").write_text(
         '{"chapter_word": {"chapter_header_style": "two_line_zh"}}', encoding="utf-8"
     )
-    assert _chapter_header_style(tmp_path) == "two_line_zh"
+    assert chapter_header_style(tmp_path) == "two_line_zh"
 
 
 def test_chapter_header_style_invalid_value_falls_back(tmp_path: Path) -> None:
-    from shenbi.pipeline.dispatch_helper import _chapter_header_style
+    from shenbi.pipeline.dispatch_helper import chapter_header_style
 
     (tmp_path / "genre-config.json").write_text(
         '{"chapter_word": {"chapter_header_style": "bogus"}}', encoding="utf-8"
     )
-    assert _chapter_header_style(tmp_path) == "english"
+    assert chapter_header_style(tmp_path) == "english"
 
 
 def test_ensure_chapter_header_zh_meta_first_insert() -> None:
@@ -1144,12 +1144,12 @@ def test_normalize_chapter_header_wrapper_english_default(tmp_path: Path) -> Non
 
 
 def test_write_parsed_outputs_normalizes_chapter_header(tmp_path: Path) -> None:
-    """Walk the real _write_parsed_outputs write path; headerless chapter-3.md gets normalized."""
+    """Walk the real write_parsed_outputs write path; headerless chapter-3.md gets normalized."""
     from shenbi.pipeline import dispatch_helper as dh
 
     resp = "### FILE: chapters/chapter-3.md\n正文，无头。\n"
     paths = ["chapters/chapter-3.md"]
-    dh._write_parsed_outputs(resp, paths, tmp_path, skill="shenbi-chapter-drafting")
+    dh.write_parsed_outputs(resp, paths, tmp_path, skill="shenbi-chapter-drafting")
     text = (tmp_path / "chapters" / "chapter-3.md").read_text(encoding="utf-8")
     assert text.startswith("# Chapter 3:")
 
@@ -1159,11 +1159,11 @@ def test_wildcard_write_rejects_quote_filename(tmp_path):
     rejected with DispatchWriteFailureError before any mkdir/write.
     """
     from shenbi.exceptions import DispatchWriteFailureError
-    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+    from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
     parsed = {'import/canon/x" auto="1.md': "evil"}
     with pytest.raises(DispatchWriteFailureError):
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response="",
             output_paths=["import/canon/*.md"],
             project_dir=tmp_path,
@@ -1173,10 +1173,10 @@ def test_wildcard_write_rejects_quote_filename(tmp_path):
 
 
 def test_wildcard_write_accepts_normal_filename(tmp_path):
-    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+    from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
     parsed = {"import/canon/alice.md": "ok"}
-    written = _write_parsed_outputs(
+    written = write_parsed_outputs(
         response="",
         output_paths=["import/canon/*.md"],
         project_dir=tmp_path,
@@ -1193,11 +1193,11 @@ def test_chapter_header_not_injected_into_json_sidecars(tmp_path: Path) -> None:
     needed the raw_decode recovery branch and strict parsers failed. The
     header is a chapter-PROSE contract (G2.13); it belongs to .md only.
     """
-    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+    from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
     sidecar = "chapters/chapter-8-decisions.json"
     payload = '{"$schema": "shenbi-decisions-v1", "skill": "x", "chapter": 8}'
-    written = _write_parsed_outputs(
+    written = write_parsed_outputs(
         response=f"### FILE: {sidecar}\n{payload}\n",
         output_paths=[sidecar],
         project_dir=tmp_path,
@@ -1210,7 +1210,7 @@ def test_chapter_header_not_injected_into_json_sidecars(tmp_path: Path) -> None:
 
     # control: the .md main artifact still gets the contract header
     main = "chapters/chapter-8.md"
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=f"### FILE: {main}\n正文\n",
         output_paths=[main],
         project_dir=tmp_path,
@@ -1287,10 +1287,10 @@ class TestGenesisQuarantineValidationSet:
     """
 
     def test_override_narrows_quarantine_not_persistence(self, tmp_path: Path) -> None:
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         resp = "### FILE: world/story_bible.md\n\nbible\n"
-        _write_parsed_outputs(
+        write_parsed_outputs(
             resp,
             # persistence set: full contract writes (chapter-mode file present)
             ["world/story_bible.md", "truth/bridge_tracker.md"],
@@ -1305,10 +1305,10 @@ class TestGenesisQuarantineValidationSet:
         )
 
     def test_missing_required_path_still_quarantines(self, tmp_path: Path) -> None:
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         resp = "### FILE: world/story_bible.md\n\nbible\n"
-        _write_parsed_outputs(
+        write_parsed_outputs(
             resp,
             ["world/story_bible.md", "truth/bridge_tracker.md"],
             tmp_path,
@@ -1319,10 +1319,10 @@ class TestGenesisQuarantineValidationSet:
         assert quarantine.exists() and list(quarantine.glob("*"))
 
     def test_without_override_full_set_still_validated(self, tmp_path: Path) -> None:
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         resp = "### FILE: world/story_bible.md\n\nbible\n"
-        _write_parsed_outputs(
+        write_parsed_outputs(
             resp,
             ["world/story_bible.md", "truth/bridge_tracker.md"],
             tmp_path,
@@ -1341,25 +1341,25 @@ class TestFrameworkOwnedWriteGuard:
     """
 
     def test_novel_json_block_is_blocked_not_written(self, tmp_path: Path) -> None:
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         resp = (
             "### FILE: novel.json\n"
             '{"title": "LLM-invented"}\n'
             "### FILE: world/story_bible.md\n\nbible\n"
         )
-        _write_parsed_outputs(resp, ["novel.json", "world/story_bible.md"], tmp_path)
+        write_parsed_outputs(resp, ["novel.json", "world/story_bible.md"], tmp_path)
         assert not (tmp_path / "novel.json").exists()
         assert (tmp_path / "world" / "story_bible.md").exists()
 
     def test_genre_config_writable_only_by_owner_skill(self, tmp_path: Path) -> None:
-        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+        from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
         resp = '### FILE: genre-config.json\n{"version": "1.0"}\n'
-        _write_parsed_outputs(resp, ["genre-config.json"], tmp_path, skill="shenbi-worldbuilding")
+        write_parsed_outputs(resp, ["genre-config.json"], tmp_path, skill="shenbi-worldbuilding")
         assert not (tmp_path / "genre-config.json").exists()
 
-        _write_parsed_outputs(
+        write_parsed_outputs(
             resp,
             ["genre-config.json"],
             tmp_path,
@@ -1377,10 +1377,10 @@ def test_chapter_header_not_injected_into_plans(tmp_path: Path) -> None:
     all carry the injected signature). The header is a chapter-PROSE
     contract: scope to chapters/chapter-N.md exactly.
     """
-    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+    from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
     plan = "plans/chapter-1-plan.md"
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=f"### FILE: {plan}\n# 第1章 章节备忘\n\n## 1. 当前任务\n",
         output_paths=[plan],
         project_dir=tmp_path,
@@ -1393,10 +1393,10 @@ def test_chapter_header_not_injected_into_plans(tmp_path: Path) -> None:
 
 def test_chapter_header_still_injected_into_prose(tmp_path: Path) -> None:
     """Control for #28: the prose normalization itself stays (G2.13 contract)."""
-    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+    from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
     main = "chapters/chapter-2.md"
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=f"### FILE: {main}\n正文，无头。\n",
         output_paths=[main],
         project_dir=tmp_path,

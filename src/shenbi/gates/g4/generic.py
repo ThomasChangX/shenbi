@@ -267,7 +267,7 @@ def g4_post_write_integrity(project_dir: Path, *, chapter: int) -> dict[str, Any
     """G4 checker: consume persisted post-write integrity findings.
 
     Reads ``audits/.integrity-findings-<chapter>.jsonl`` (written by
-    ``_write_parsed_outputs``) and maps each finding to a G4 check with the
+    ``write_parsed_outputs``) and maps each finding to a G4 check with the
     severity from spec §3.6. Findings that no longer reproduce against
     current disk state are dropped (see :func:`_revalidate_finding`). Returns
     a dict ``{"status", "checks", "must_fix"}`` — reproduced FAIL-class

@@ -38,7 +38,7 @@ def _seed_genre_config(pd: Path) -> None:
 
 
 def _fake_api_writing(mutate: Any) -> Any:
-    """构造 fake _dispatch_via_api:按 mutate 修改 genre-config.json 后返回成功."""
+    """构造 fake dispatch_via_api:按 mutate 修改 genre-config.json 后返回成功."""
 
     def fake(skill: str, project_dir: Path, prompt: str, **kwargs: Any) -> dh.DispatchResult:
         cfg_path = project_dir / "genre-config.json"
@@ -64,7 +64,7 @@ def test_api_route_records_write_audit(tmp_path: Path, monkeypatch: pytest.Monke
     _seed_genre_config(tmp_path)
     monkeypatch.setattr(
         dh,
-        "_dispatch_via_api",
+        "dispatch_via_api",
         _fake_api_writing(lambda c: c.update({"approval": c.get("approval", {})})),
     )
 
@@ -83,7 +83,7 @@ def test_api_route_records_write_audit(tmp_path: Path, monkeypatch: pytest.Monke
 def _fake_api_staged_writing(
     staged_content: str,
 ) -> Any:
-    """构造 fake _dispatch_via_api:只写 staging/<declared> 后返回成功(staging 派发形态)."""
+    """构造 fake dispatch_via_api:只写 staging/<declared> 后返回成功(staging 派发形态)."""
 
     def fake(skill: str, project_dir: Path, prompt: str, **kwargs: Any) -> dh.DispatchResult:
         staged = project_dir / "staging" / "genre-config.json"
@@ -106,7 +106,7 @@ def test_staging_write_visible_to_audit(tmp_path: Path, monkeypatch: pytest.Monk
     staged_cfg = json.loads(GENRE_FIXTURE.read_text(encoding="utf-8"))
     staged_cfg["approval"] = {}
     staged_json = json.dumps(staged_cfg, ensure_ascii=False)
-    monkeypatch.setattr(dh, "_dispatch_via_api", _fake_api_staged_writing(staged_json))
+    monkeypatch.setattr(dh, "dispatch_via_api", _fake_api_staged_writing(staged_json))
 
     # 观察缝:包装真实 audit_writes 捕获归一化后的 pre/post 快照(不 stub 审计本体)
     import shenbi.audit.write_audit as wa
@@ -140,7 +140,7 @@ def test_staging_rogue_key_write_blocked(tmp_path: Path, monkeypatch: pytest.Mon
     staged_cfg["rogueKey"] = "staged 越权"
     monkeypatch.setattr(
         dh,
-        "_dispatch_via_api",
+        "dispatch_via_api",
         _fake_api_staged_writing(json.dumps(staged_cfg, ensure_ascii=False)),
     )
 
@@ -166,7 +166,7 @@ def test_staging_wins_over_live_on_same_key(
     staged_cfg["rogueKey"] = "staged 越权"
     monkeypatch.setattr(
         dh,
-        "_dispatch_via_api",
+        "dispatch_via_api",
         _fake_api_staged_writing(json.dumps(staged_cfg, ensure_ascii=False)),
     )
     dh.dispatch_skill(SKILL, tmp_path, PROMPT, uses_staging=True)
@@ -202,7 +202,7 @@ def test_api_route_blocks_undeclared_key_write(
     _seed_genre_config(tmp_path)
     # rogueKey 不在 genre-config 真实 12 个 OWNERSHIP write_keys 内 → 越权
     monkeypatch.setattr(
-        dh, "_dispatch_via_api", _fake_api_writing(lambda c: c.update({"rogueKey": "越权"}))
+        dh, "dispatch_via_api", _fake_api_writing(lambda c: c.update({"rogueKey": "越权"}))
     )
 
     result = dh.dispatch_skill(SKILL, tmp_path, PROMPT)
@@ -229,7 +229,7 @@ def test_failed_api_dispatch_not_upgraded_but_audited(
         cfg_path.write_text(json.dumps(cfg, ensure_ascii=False), encoding="utf-8")
         return dh.DispatchResult(False, -1, "", "API call failed")
 
-    monkeypatch.setattr(dh, "_dispatch_via_api", fake)
+    monkeypatch.setattr(dh, "dispatch_via_api", fake)
     result = dh.dispatch_skill(SKILL, tmp_path, PROMPT)
 
     assert result.success is False
@@ -270,7 +270,7 @@ def test_audit_infra_crash_preserves_dispatch_result(
 ) -> None:
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     _seed_genre_config(tmp_path)
-    monkeypatch.setattr(dh, "_dispatch_via_api", _fake_api_writing(lambda c: None))
+    monkeypatch.setattr(dh, "dispatch_via_api", _fake_api_writing(lambda c: None))
 
     def boom(*args: Any, **kwargs: Any) -> None:
         raise RuntimeError("audit infra broken")
@@ -301,6 +301,6 @@ def test_round_dir_receives_ledger(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     _seed_genre_config(tmp_path)
     round_dir = tmp_path / "round-001"
     round_dir.mkdir()
-    monkeypatch.setattr(dh, "_dispatch_via_api", _fake_api_writing(lambda c: None))
+    monkeypatch.setattr(dh, "dispatch_via_api", _fake_api_writing(lambda c: None))
     dh.dispatch_skill(SKILL, tmp_path, PROMPT, round_dir=round_dir)
     assert (round_dir / "write-audit.jsonl").exists()

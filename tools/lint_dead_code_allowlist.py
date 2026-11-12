@@ -29,8 +29,6 @@ ALLOWLIST: set[tuple[str, str]] = {
     ("pipeline/chapter_loop.py", "_auto_rebuild_progress_if_stale"),  # cmd_resume
     ("pipeline/chapter_loop.py", "_cleanup_residual_staging"),  # cli.py:195 local import
     ("pipeline/chapter_loop.py", "_has_pending_staging_step"),  # cli.py:195 local import
-    ("pipeline/state.py", "_merge_step_result"),  # chapter_loop.py local import
-    ("pipeline/crash_recovery.py", "_check_emergency_flag"),  # chapter_loop.py wrapper call
 }
 
 SUPPRESSION_RE = re.compile(r"^\s*(?:async\s+)?def\s+(_?\w+)\(")

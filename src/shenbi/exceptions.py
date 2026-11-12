@@ -95,7 +95,7 @@ class DispatcherError(FrameworkError):
 class DispatchWriteFailureError(DispatcherError):
     """The LLM emitted a write-failure diagnostic instead of file content.
 
-    Raised by ``_write_parsed_outputs`` when :func:`detect_write_failure`
+    Raised by ``write_parsed_outputs`` when :func:`detect_write_failure`
     matches. Carries the matched ``signature`` so the retry prompt can quote
     it back to the model.
     """

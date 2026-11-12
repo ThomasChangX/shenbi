@@ -157,9 +157,9 @@ def test_init_templates_include_update_mode_frontmatter():
 
     with tempfile.TemporaryDirectory() as tmp:
         project_dir = Path(tmp)
-        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+        from shenbi.pipeline.dispatch_helper import init_truth_templates
 
-        _init_truth_templates(project_dir)
+        init_truth_templates(project_dir)
 
         # Cumulative markdown-table files must have update_mode: upsert_markdown_row
         arcs = (project_dir / "truth" / "emotional_arcs.md").read_text()
@@ -621,7 +621,7 @@ def test_increment_units_chapter_section_swallows_subsections() -> None:
     from ch2 onward. A ``##``-anchored block must swallow its deeper
     NON-hook sub-headings so the chapter section stays atomic.
     """
-    from shenbi.pipeline.dispatch_helper import _increment_units
+    from shenbi.pipeline.dispatch_helper import increment_units
     from shenbi.pipeline.truth_io import upsert_markdown_row
 
     live = (
@@ -644,7 +644,7 @@ def test_increment_units_chapter_section_swallows_subsections() -> None:
         "- Last Updated Ch: 第 2 章\n"
         "### 柳氏\n- 公开身份: 丙区名册代管者\n"
     )
-    units = _increment_units(increment)
+    units = increment_units(increment)
     # The chapter section is ONE atomic unit (heading + both sub-sections).
     chapter_units = [u for u in units if u.startswith("## 第 2 章状态增量")]
     assert len(chapter_units) == 1
@@ -672,14 +672,14 @@ def test_increment_units_hook_sections_stay_independent_under_parent() -> None:
     increment carries a parent ``##`` heading — the hook bullet merge keys
     on the hook id, a swallowed hook section would dedup on the parent.
     """
-    from shenbi.pipeline.dispatch_helper import _increment_units
+    from shenbi.pipeline.dispatch_helper import increment_units
 
     increment = (
         "## 第3章 状态变化\n\n总述行。\n\n"
         "### MH-001｜静海回响\n- last_reinforced: 第3章\n\n"
         "### MH-005｜名字的保存方式\n- last_reinforced: 第3章\n"
     )
-    units = _increment_units(increment)
+    units = increment_units(increment)
     assert any(u.startswith("### MH-001｜") for u in units)
     assert any(u.startswith("### MH-005｜") for u in units)
     # the parent ## heading did NOT swallow them
@@ -694,10 +694,10 @@ def test_increment_units_h1_block_does_not_swallow_h2() -> None:
     block would make partial title-led outputs destructive (span-to-EOF
     replace). h1 blocks stay atomic at their own level only.
     """
-    from shenbi.pipeline.dispatch_helper import _increment_units
+    from shenbi.pipeline.dispatch_helper import increment_units
 
     increment = "# 角色交互矩阵\n\n> 占位说明\n\n## 第 1 章状态增量\n### 陈砚\n- x: 1\n"
-    units = _increment_units(increment)
+    units = increment_units(increment)
     assert any(u.startswith("# 角色交互矩阵") for u in units)
     assert any(u.startswith("## 第 1 章状态增量") for u in units)
     title_unit = next(u for u in units if u.startswith("# 角色交互矩阵"))
@@ -710,7 +710,7 @@ def test_increment_units_split_at_heading_boundaries() -> None:
     in the block slipped past the block-level dedup. Sections must become
     independent units.
     """
-    from shenbi.pipeline.dispatch_helper import _increment_units
+    from shenbi.pipeline.dispatch_helper import increment_units
     from shenbi.pipeline.truth_io import upsert_markdown_row
 
     increment = (
@@ -718,7 +718,7 @@ def test_increment_units_split_at_heading_boundaries() -> None:
         "### MH-001｜静海回响\n- lifecycle_state: RELEVANT\n\n"
         "### MH-005｜名字的保存方式\n- lifecycle_state: RELEVANT\n"
     )
-    units = _increment_units(increment)
+    units = increment_units(increment)
     assert any(u.startswith("### MH-001｜") for u in units), "sections must be separate units"
     assert any(u.startswith("### MH-005｜") for u in units)
 
@@ -740,7 +740,7 @@ def test_increment_units_drop_separator_rows() -> None:
     import tempfile
     from pathlib import Path
 
-    from shenbi.pipeline.dispatch_helper import _route_append_dedup_write
+    from shenbi.pipeline.dispatch_helper import route_append_dedup_write
 
     tmp = Path(tempfile.mkdtemp())
     try:
@@ -753,7 +753,7 @@ def test_increment_units_drop_separator_rows() -> None:
             encoding="utf-8",
         )
         increment = "| chapter | role | overall |\n|---|---|---|\n| 14 | 推进 | 89 |\n"
-        _route_append_dedup_write(tmp, "truth/resonance_trend.md", increment, key_field="chapter")
+        route_append_dedup_write(tmp, "truth/resonance_trend.md", increment, key_field="chapter")
         out = live.read_text(encoding="utf-8")
         lines = [l for l in out.split("\n") if l.strip().startswith("|")]
         separators = [

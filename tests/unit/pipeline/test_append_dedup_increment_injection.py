@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
 GENERIC_MARKER = "append_dedup"
 
@@ -69,7 +69,7 @@ def _project(tmp_path: Path, drift: str = _FILLED_DRIFT, hooks: str | None = Non
 
 
 def _user_prompt(skill: str, project: Path, json_mode: bool = True) -> str:
-    _system, user, _paths, _extras, _ = _build_skill_prompt(
+    _system, user, _paths, _extras, _ = build_skill_prompt(
         skill, project, "task", 12, json_mode=json_mode
     )
     return user
