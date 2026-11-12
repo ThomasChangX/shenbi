@@ -3853,6 +3853,539 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         _record_step_timing(state, step.skill, elapsed)
 
 
+def _run_audit_wave_step(
+    state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int
+) -> bool:
+    """Parallel review dispatch: core+genre circles in two waves (Task 7).
+
+    Extracted verbatim from _run_chapter_step_impl (spec #87 T3); the
+    wave runs when the first audit step is reached.
+    """
+    from shenbi.pipeline.parallel_dispatch import (
+        ReviewTask,
+        consolidate_review_results,
+        dispatch_reviews_parallel,
+    )
+    from shenbi.pipeline.audit_layer import (
+        audit_relative_path,
+        audit_report_paths,
+        audit_suffix,
+        get_active_genre_audits,
+    )
+    from shenbi.safe_write import safe_write
+
+    # Build shared audit context ONCE per chapter so auditors skip
+    # re-reading the same files from disk (Task 6 Step 2 wiring).
+    from shenbi.pipeline.audit_context_cache import build_shared_audit_context
+
+    shared_ctx = build_shared_audit_context(project_dir, chapter)
+    log.info(
+        "shared_audit_context_built_for_wave",
+        chapter=chapter,
+        estimated_tokens=shared_ctx.estimated_tokens,
+    )
+
+    # Load per-skill audit history for cascade filtering (Task 6 Step 3).
+    audit_history = _get_audit_history(state, chapter)
+
+    cascade_skipped: list[str] = []
+
+    def _keep_task(task: ReviewTask) -> bool:
+        skill_short = _audit_short_name(task.skill)
+        if _should_skip_audit(skill_short, audit_history, current_chapter=chapter):
+            log.info("audit_cascade_skipped", chapter=chapter, skill=task.skill)
+            cascade_skipped.append(task.skill)
+            return False
+        return True
+
+    # Wave 1: Core-circle reviews in parallel. WRITE_SHARED members (e.g.
+    # review-resonance, whose contract updates truth/audit_drift.md +
+    # truth/resonance_trend.md) are partitioned out and dispatched
+    # serially — assert_parallelizable rejects any non-read-only skill,
+    # so leaving them in would fail the whole wave (F532, C32 R4).
+    core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and "review" in s.skill]
+    # spec #72 T9: cluster dispatch — ONE prompt per skill covers the
+    # bundle's chapters; reports stay PER-CHAPTER (contract {N+1} brace
+    # writes make audit_report_paths(N) cover the follower's paths too,
+    # so leader single-resolution — never concatenate paths for m: that
+    # would phantom-resolve m+1 beyond the bundle).
+    wave_chapters = bundle_chapters(project_dir, chapter)
+    chapter_label = (
+        f"{wave_chapters[0]},{wave_chapters[1]}" if len(wave_chapters) > 1 else str(chapter)
+    )
+
+    def _cluster_prompt(skill: str) -> str:
+        if len(wave_chapters) > 1:
+            return (
+                f"Execute {skill} for chapters {chapter_label} "
+                f"(ONE dispatch covering BOTH chapters; produce each "
+                f"chapter's report separately). Project dir: {project_dir}"
+            )
+        return f"Execute {skill} for chapter {chapter}. Project dir: {project_dir}"
+
+    core_tasks = [
+        ReviewTask(
+            skill=skill,
+            project_dir=project_dir,
+            prompt=_cluster_prompt(skill),
+            output_path=f"audits/chapter-{chapter}-{audit_suffix(skill)}.md",
+            # contract-derived writes (grouped skills produce several
+            # per-dimension reports; the convention single path is a
+            # phantom for them — fixcheck ch2 audit_reports evidence)
+            output_paths=audit_report_paths(chapter, skill),
+            shared_context=shared_ctx,
+        )
+        for skill in core_skills
+    ]
+    # Filter cascaded audits (core audits + always-run are never skipped)
+    core_tasks = [t for t in core_tasks if _keep_task(t)]
+    core_wave, core_serial = _partition_review_wave(core_tasks)
+
+    core_wave = _filter_completed_audit_tasks(core_wave)
+    core_results: list[DispatchResult] = []
+    if core_wave:
+        log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_wave))
+        core_results = dispatch_reviews_parallel(
+            core_wave,
+            on_task_complete=_wave_savepoint(state, project_dir, chapter)(core_wave),
+            state=state,
+        )
+    else:
+        log.info("parallel_review_wave1_empty", chapter=chapter)
+    core_results.extend(_dispatch_serial_reviews(core_serial, project_dir, state))
+
+    # Wave 2: Genre-circle reviews (conditionally active, in parallel;
+    # same WRITE_SHARED partition as wave 1)
+    gc_path = project_dir / "genre-config.json"
+    genre_gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
+    genre_skills = get_active_genre_audits(genre_gc)
+    genre_tasks = [
+        ReviewTask(
+            skill=skill,
+            project_dir=project_dir,
+            prompt=_cluster_prompt(skill).replace("Execute ", "Execute "),
+            output_path=audit_relative_path(chapter, skill),
+            output_paths=audit_report_paths(chapter, skill),
+            shared_context=shared_ctx,
+        )
+        for skill in genre_skills
+    ]
+    # Filter cascaded audits for genre wave too
+    genre_tasks = [t for t in genre_tasks if _keep_task(t)]
+
+    # Persist the skip list (probe session: steps_done recorded skipped
+    # audits as if they ran — operators and adjudicators read a
+    # "persistence gap" into what was a cascade skip).
+    if cascade_skipped:
+        for n in wave_chapters:
+            state.add_audit_result(n, "cascade_skipped", sorted(set(cascade_skipped)))
+    genre_wave, genre_serial = _partition_review_wave(genre_tasks)
+
+    genre_wave = _filter_completed_audit_tasks(genre_wave)
+    genre_results: list[DispatchResult] = []
+    if genre_wave:
+        log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_wave))
+        genre_results = dispatch_reviews_parallel(
+            genre_wave,
+            on_task_complete=_wave_savepoint(state, project_dir, chapter, wave_chapters)(
+                genre_wave
+            ),
+            state=state,
+        )
+    else:
+        log.info("parallel_review_wave2_empty", chapter=chapter)
+    genre_results.extend(_dispatch_serial_reviews(genre_serial, project_dir, state))
+
+    # Consolidate all results
+    all_results = core_results + genre_results
+    # F345: G3 scoring independence for audit skills riding the parallel
+    # wave / serial reviews (the step-loop G3 at review-resonance only covers the
+    # serial chapter-step path). Recorded per-skill into the gate manifest.
+    for rec in _g3_parallel_wave(
+        [t.skill for t in core_tasks + genre_tasks], project_dir, chapter=chapter
+    ):
+        if str(rec["g3"].get("status", "")) != "PASS":
+            log.warning("parallel_wave_g3_failed", chapter=chapter, skill=rec["skill"])
+    consolidated = consolidate_review_results(
+        all_results,
+        chapter,
+        skills=[t.skill for t in core_tasks + genre_tasks],
+        project_dir=project_dir,
+        cascade_skipped=sorted(set(cascade_skipped)) or None,
+    )
+    summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
+    safe_write(summary_path, consolidated)
+
+    # Record review steps as done and advance past them — EXCEPT those
+    # whose dispatch failed (fixcheck ch2: the character group failed on
+    # persistent length truncation, was marked done anyway, and resume
+    # never re-dispatched it — a whole audit dimension vanished silently
+    # while the chapter proceeded to checkpoint).
+    _failed_audit_skills = {
+        task.skill
+        for task, result in zip(
+            core_wave + core_serial + genre_wave + genre_serial,
+            core_results + genre_results,
+            strict=True,
+        )
+        if not result.success
+    }
+    for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
+        if i < len(CHAPTER_STEPS) and CHAPTER_STEPS[i].skill not in _failed_audit_skills:
+            state.add_step_done(chapter, CHAPTER_STEPS[i].skill)
+
+    state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1
+    state.chapter_loop.current_step = ""
+
+    # Check for blocking issues
+    cs = _get_chapter_state(state, chapter)
+    # The consolidated summary always contains "- **BLOCKING Issues**: N".
+    # Only the "## BLOCKING Issues" H2 section is present when actual
+    # blocking issues exist (see consolidate_review_results in parallel_dispatch.py).
+    # C30 audit-T5 I1: on a post-crash replay where the whole wave was
+    # already filtered out (all outputs exist), ``consolidated`` is built
+    # from an empty result list and would under-report BLOCKING — derive
+    # from the durable artifacts of the FULL task set instead.
+    cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated or any(
+        "## BLOCKING Issues" in (project_dir / p).read_text(encoding="utf-8")
+        for task in core_tasks + genre_tasks
+        for p in task.all_output_paths()
+        if (project_dir / p).exists()
+    )
+    cs.audit_results["audit_reports"] = [
+        p for t in core_tasks + genre_tasks for p in t.all_output_paths()
+    ]
+    # Per-skill history entries (F341/F726, spec #27 T5): the cascade
+    # (_should_skip_audit/_get_audit_history) consumes exactly this shape.
+    # hard_failures counts BLOCKING/CRITICAL markers in the audit report
+    # artifact (the durable writer surface), not subprocess stdout.
+    blocking_re = _BLOCKING_MARKER_RE
+    # C33 R4 (F363): aggregate wave retry attempts into the durable budget
+    # (single main-thread charge point for both waves + serial extensions).
+    _charge_wave_retries(
+        state,
+        chapter,
+        list(
+            zip(
+                core_wave + core_serial + genre_wave + genre_serial,
+                core_results + genre_results,
+                strict=True,
+            )
+        ),
+    )
+    for task, result in zip(
+        core_wave + core_serial + genre_wave + genre_serial,
+        core_results + genre_results,
+        strict=True,
+    ):
+        short = _audit_short_name(task.skill)
+        hard = 0
+        for rel in task.all_output_paths():
+            report = project_dir / rel
+            if report.exists():
+                try:
+                    hard += len(blocking_re.findall(report.read_text(encoding="utf-8")))
+                except OSError:
+                    log.warning("audit_report_unreadable", path=str(report))
+        cs.audit_results[short] = _wave_audit_entry(
+            bool(result.success), hard, list(task.all_output_paths()), project_dir
+        )
+
+    # F304: parse the resonance score from the serially-dispatched
+    # review-resonance report (file exists at this point) and persist the
+    # trend row — mirrors the serial step-loop path. Must run BEFORE
+    # _route_revision_after_resonance so the floor check sees a real
+    # score instead of fail-opening on None.
+    _parse_and_persist_resonance(state, project_dir, chapter, source="parallel_wave")
+
+    # Run revision routing after all reviews complete (spec §6.3).
+    # In the serial path this is called after review-resonance; in the
+    # parallel path we call it once after consolidation.
+    _route_revision_after_resonance(state, project_dir, chapter)
+
+    _reset_retries(state, step, chapter)
+    return _advance(
+        state,
+        _LAST_AUDIT_IDX,
+        CHAPTER_STEPS[_LAST_AUDIT_IDX],
+        chapter,
+        project_dir=project_dir,
+    )
+
+
+def _run_post_draft_pair_step(
+    state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int
+) -> bool:
+    """Post-draft pair: foreshadowing-lifecycle then state-settling,
+    sequentially on the main thread (canary escalation #16; single-writer).
+
+    Extracted verbatim from _run_chapter_step_impl (spec #87 T3).
+    """
+    lifecycle_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX]
+    settling_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX + 1]
+
+    lifecycle_result, settling_result = run_parallel_post_draft_steps(state)
+
+    # State-settling failure: mark settling_failed and pause (spec §11).
+    if not settling_result.success:
+        from shenbi.pipeline.error_handler import handle_state_settle_failure
+
+        if getattr(settling_result, "stderr", ""):
+            # probe17 ch1 step 8 (adjudication #006): parallel-branch
+            # parity with the serial dispatch-failure site — without this
+            # the guard's pointed rejection message never reached the
+            # retrying model and re-dispatches ran the original prompt
+            # verbatim (blind-retry signature).
+            state.chapter_loop.retry_feedback[_retry_key(chapter, settling_step.skill)] = (
+                accumulate_retry_feedback(
+                    state,
+                    _retry_key(chapter, settling_step.skill),
+                    [f"上一次派发失败（输出未落盘）：{settling_result.stderr}"],
+                )
+            )
+        handle_state_settle_failure(state, chapter)
+        log.error(
+            "chapter_state_settle_failed",
+            chapter=chapter,
+        )
+        return True  # checkpoint raised, pause for human
+
+    # Lifecycle failure: C33 R4 (F365 residual) — route to the failure
+    # handler (retry budget + escalation) instead of silently continuing.
+    if not lifecycle_result.success:
+        log.error(
+            "chapter_dispatch_failed",
+            chapter=chapter,
+            step=lifecycle_step.step_num,
+            skill=lifecycle_step.skill,
+        )
+        if getattr(lifecycle_result, "stderr", ""):
+            # probe17 ch1 step 7 (adjudication #006): same parity fix —
+            # the serial site routes stderr into the corrective slot the
+            # re-dispatch injects; this site dropped it, so the
+            # increment-shape guard's teaching feedback was lost and all
+            # three attempts emitted identical non-compliant shapes.
+            state.chapter_loop.retry_feedback[_retry_key(chapter, lifecycle_step.skill)] = (
+                accumulate_retry_feedback(
+                    state,
+                    _retry_key(chapter, lifecycle_step.skill),
+                    [f"上一次派发失败（输出未落盘）：{lifecycle_result.stderr}"],
+                )
+            )
+        return _handle_failure(
+            state,
+            lifecycle_step,
+            chapter,
+            "dispatch",
+            project_dir,
+            failure_class=classify_dispatch_failure(
+                returncode=lifecycle_result.returncode, stderr=lifecycle_result.stderr
+            ),
+        )
+
+    # G4: structural validation for both steps (main thread only).
+    for pstep in (lifecycle_step, settling_step):
+        g4_files = _resolve_g4_files(project_dir, pstep, chapter)
+        g4 = run_gate_g4(pstep.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
+        # spec #82 T3: shadow demotion routing (shared implementation).
+        g4, _shadow_rem = _shadow_route_g4(
+            state,
+            project_dir,
+            g4,
+            chapter=chapter,
+            skill=pstep.skill,
+            rk=_retry_key(chapter, pstep.skill),
+        )
+        if _shadow_rem is not None:
+            state.chapter_loop.retry_feedback[_retry_key(chapter, pstep.skill)] = (
+                accumulate_retry_feedback(
+                    state, _retry_key(chapter, pstep.skill), list(_shadow_rem)
+                )
+            )
+        if _gate_passed(g4):
+            # #18-4 (probe23): mirror the serial site's canary pop — a
+            # PASSED retry must clear its corrective feedback, or the
+            # audit-routed re-settle re-injects selections_uncovered
+            # demands into a dispatch whose issues were already fixed.
+            _clear_retry_feedback(state, _retry_key(chapter, pstep.skill))
+        if not _gate_passed(g4):
+            log.warning(
+                "parallel_post_draft_g4_failed",
+                chapter=chapter,
+                skill=pstep.skill,
+            )
+            # Fixcheck escalation ch1: store the must_fix for the retry
+            # prompt (the serial audit-wave site does this; this site
+            # previously left retry_feedback empty, so retries ran blind).
+            state.chapter_loop.retry_feedback[_retry_key(chapter, pstep.skill)] = (
+                accumulate_retry_feedback(
+                    state, _retry_key(chapter, pstep.skill), list(g4.get("must_fix", []))
+                )
+            )
+            # C33 R4 (F365 residual): G4 failure escalates through the
+            # failure handler instead of marking the step done anyway.
+            # No pre-charge at this site (unlike the audit-wave G4
+            # hard-fail path) → let _handle_failure charge the budget.
+            return _handle_failure(state, pstep, chapter, "g4", project_dir)
+
+    # Record both steps as done and advance past them. C30 F1112:
+    # missing declared outputs downgrade — same semantics as the generic
+    # success path (route to _handle_failure so the step retries and
+    # escalates; final-review I1: silently advancing would complete the
+    # chapter with un-updated truth).
+    for pstep in (lifecycle_step, settling_step):
+        if _step_output_exists(project_dir, pstep, chapter):
+            state.add_step_done(chapter, pstep.skill)
+            _reset_retries(state, pstep, chapter)
+        else:
+            log.warning(
+                "step_output_missing_downgraded",
+                chapter=chapter,
+                step=pstep.skill,
+                expected=pstep.output_path or "staging/truth/*.md",
+            )
+            return _handle_failure(state, pstep, chapter, "output_missing", project_dir)
+
+    # Advance past both steps (idx 6 and 7 -> idx 8)
+    next_idx = _FORESHADOWING_LIFECYCLE_IDX + 2  # 8
+    state.chapter_loop.step_index = next_idx
+    state.chapter_loop.current_step = (
+        CHAPTER_STEPS[next_idx].skill if next_idx < len(CHAPTER_STEPS) else "chapter_complete"
+    )
+
+    if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
+        return _complete_chapter(state, chapter)
+
+    # Raise state-settle checkpoint after both parallel steps complete.
+    # --auto (F341, spec #6): mirror the serial branch's full auto-commit
+    # body — staging commit + clear, NO checkpoint. Skipping only the
+    # checkpoint would strand state-settle writes in staging/ where the
+    # next resume's _cleanup_residual_staging wipes them (data-loss trap).
+    _settle_outcome = _auto_settle_parallel(state, project_dir, chapter)
+    if _settle_outcome is True:
+        # auto committed: fall through to the chapter-completion check
+        # (mirrors the serial _advance tail; the pre-existing completion
+        # check above this block is normally the one that fires).
+        if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
+            return _complete_chapter(state, chapter)
+        return False
+    settling_artifact = (
+        resolve_chapter_path(settling_step.output_path, chapter)
+        if settling_step.output_path
+        else f"chapter-{chapter}/{settling_step.name}"
+    )
+    if isinstance(_settle_outcome, str):
+        # facts_ops rejection: same checkpoint, pointed context (audit-T8 M11)
+        set_checkpoint(
+            state,
+            CheckpointType.STATE_SETTLE,
+            chapter=chapter,
+            artifact=settling_artifact,
+            context=f"settle 双写 facts_ops 拒收：{_settle_outcome}",
+        )
+    else:
+        set_checkpoint(
+            state,
+            CheckpointType.STATE_SETTLE,
+            chapter=chapter,
+            artifact=settling_artifact,
+            context=f"Review {settling_step.name} for chapter {chapter}",
+        )
+    _mark_staged_for_checkpoint(project_dir, settling_step, chapter)
+    return True
+
+
+def _run_context_assembly_step(
+    state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int
+) -> None:
+    """Context assembly (step 3): materialize the context package before
+    chapter-drafting; the drafting bundle consumes BOTH chapters' packages
+    (spec #72). VOID pre-step: the caller falls through to the
+    pipeline-internal branch, which owns the advance.
+    """
+    for n in bundle_chapters(project_dir, chapter):
+        _run_context_assembly(project_dir, n)
+
+
+def _run_pipeline_internal_step(
+    state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int
+) -> bool:
+    """Pipeline-internal steps (not dispatched): advance without dispatch/G4.
+
+    Extracted verbatim from _run_chapter_step_impl (spec #87 T3).
+    """
+    # ── Linguistic drift check (non-blocking, except ESCALATE) ────────
+    if step.skill == "pipeline-linguistic-drift-check":
+        _run_linguistic_drift_check(project_dir, chapter)
+
+    # ── Scene split + promotion (spec #72, deterministic) ─────────────
+    if step.skill == "pipeline-scene-split":
+        issues = _run_scene_split_step(project_dir, chapter)
+        if not issues:
+            # R4-I2 rehang (spec 3b-⑦): the four post-draft checks run
+            # HERE — pipeline- steps return at this branch's tail and
+            # never reach the generic success tail where they used to sit.
+            for n in bundle_chapters(project_dir, chapter):
+                _check_volume_map_alignment(project_dir, n)
+                _run_g4_checks(state, n)
+                chapter_path = project_dir / "chapters" / f"chapter-{n}.md"
+                if chapter_path.exists():
+                    chapter_text = chapter_path.read_text(encoding="utf-8")
+                    wc_issues = _check_word_count_bounds(chapter_text, project_dir=project_dir)
+                    for issue in wc_issues:
+                        log.warning("word_count_bounds", chapter=n, issue=issue)
+        if issues:
+            log.error("scene_split_failed", chapter=chapter, issues=issues[:5])
+            drafting_step = next(s for s in CHAPTER_STEPS if s.skill == "shenbi-chapter-drafting")
+            # 熔断重派 drafting（标记/带违例的修复者是 LLM 产物侧）；
+            # 失败归类确定性门（FailureClass.DETERMINISTIC_GATE 语义面）
+            state.chapter_loop.retry_feedback[_retry_key(chapter, drafting_step.skill)] = (
+                accumulate_retry_feedback(
+                    state,
+                    _retry_key(chapter, drafting_step.skill),
+                    [f"pipeline-scene-split: {i}" for i in issues],
+                )
+            )
+            drafting_idx = next(
+                i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-chapter-drafting"
+            )
+            retry_key = _retry_key(chapter, drafting_step.skill)
+            # spec #81 §2: monitor-rewind RETRY (issues kept as the
+            # pre-formatted strings scene_splitter produces; the numeric
+            # diff-dict form is a recorded deviation, deferred).
+            _record_retry(state, chapter, drafting_step.skill)  # spec #83 T4 口径a
+            _emit_retry_event(
+                project_dir,
+                chapter=chapter,
+                skill=drafting_step.skill,
+                reason={"kind": "monitor_rewind", "chapter": chapter, "issues": list(issues)},
+                loop_id=state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1,
+            )
+            # DURABLE budget trail (retry_budget_consumed, NOT retry_counts —
+            # a successful drafting re-dispatch resets retry_counts and the
+            # rewind loop would spin forever): mirror the G4 hard-fail path.
+            consumed = state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1
+            state.chapter_loop.retry_budget_consumed[retry_key] = consumed
+            if consumed > state.config.max_audit_retries:
+                set_checkpoint(
+                    state,
+                    CheckpointType.ESCALATION,
+                    chapter=chapter,
+                    context=(
+                        f"pipeline-scene-split 熔断重派超预算（{consumed - 1} 次）: "
+                        + "; ".join(issues[:3])
+                    ),
+                )
+                return True
+            state.chapter_loop.step_index = drafting_idx
+            state.chapter_loop.current_step = drafting_step.skill
+            return False
+
+    state.add_step_done(chapter, step.skill)
+    _reset_retries(state, step, chapter)
+    return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+
+
 def _run_chapter_step_impl(
     state: PipelineState,
     project_dir: Path,
@@ -3916,257 +4449,7 @@ def _run_chapter_step_impl(
     # When the first audit step is reached, dispatch all core-circle and
     # genre-circle reviews in two parallel waves instead of serial steps.
     if step_idx == _FIRST_AUDIT_IDX and step.is_audit:
-        from shenbi.pipeline.parallel_dispatch import (
-            ReviewTask,
-            consolidate_review_results,
-            dispatch_reviews_parallel,
-        )
-        from shenbi.pipeline.audit_layer import (
-            audit_relative_path,
-            audit_report_paths,
-            audit_suffix,
-            get_active_genre_audits,
-        )
-        from shenbi.safe_write import safe_write
-
-        # Build shared audit context ONCE per chapter so auditors skip
-        # re-reading the same files from disk (Task 6 Step 2 wiring).
-        from shenbi.pipeline.audit_context_cache import build_shared_audit_context
-
-        shared_ctx = build_shared_audit_context(project_dir, chapter)
-        log.info(
-            "shared_audit_context_built_for_wave",
-            chapter=chapter,
-            estimated_tokens=shared_ctx.estimated_tokens,
-        )
-
-        # Load per-skill audit history for cascade filtering (Task 6 Step 3).
-        audit_history = _get_audit_history(state, chapter)
-
-        cascade_skipped: list[str] = []
-
-        def _keep_task(task: ReviewTask) -> bool:
-            skill_short = _audit_short_name(task.skill)
-            if _should_skip_audit(skill_short, audit_history, current_chapter=chapter):
-                log.info("audit_cascade_skipped", chapter=chapter, skill=task.skill)
-                cascade_skipped.append(task.skill)
-                return False
-            return True
-
-        # Wave 1: Core-circle reviews in parallel. WRITE_SHARED members (e.g.
-        # review-resonance, whose contract updates truth/audit_drift.md +
-        # truth/resonance_trend.md) are partitioned out and dispatched
-        # serially — assert_parallelizable rejects any non-read-only skill,
-        # so leaving them in would fail the whole wave (F532, C32 R4).
-        core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and "review" in s.skill]
-        # spec #72 T9: cluster dispatch — ONE prompt per skill covers the
-        # bundle's chapters; reports stay PER-CHAPTER (contract {N+1} brace
-        # writes make audit_report_paths(N) cover the follower's paths too,
-        # so leader single-resolution — never concatenate paths for m: that
-        # would phantom-resolve m+1 beyond the bundle).
-        wave_chapters = bundle_chapters(project_dir, chapter)
-        chapter_label = (
-            f"{wave_chapters[0]},{wave_chapters[1]}" if len(wave_chapters) > 1 else str(chapter)
-        )
-
-        def _cluster_prompt(skill: str) -> str:
-            if len(wave_chapters) > 1:
-                return (
-                    f"Execute {skill} for chapters {chapter_label} "
-                    f"(ONE dispatch covering BOTH chapters; produce each "
-                    f"chapter's report separately). Project dir: {project_dir}"
-                )
-            return f"Execute {skill} for chapter {chapter}. Project dir: {project_dir}"
-
-        core_tasks = [
-            ReviewTask(
-                skill=skill,
-                project_dir=project_dir,
-                prompt=_cluster_prompt(skill),
-                output_path=f"audits/chapter-{chapter}-{audit_suffix(skill)}.md",
-                # contract-derived writes (grouped skills produce several
-                # per-dimension reports; the convention single path is a
-                # phantom for them — fixcheck ch2 audit_reports evidence)
-                output_paths=audit_report_paths(chapter, skill),
-                shared_context=shared_ctx,
-            )
-            for skill in core_skills
-        ]
-        # Filter cascaded audits (core audits + always-run are never skipped)
-        core_tasks = [t for t in core_tasks if _keep_task(t)]
-        core_wave, core_serial = _partition_review_wave(core_tasks)
-
-        core_wave = _filter_completed_audit_tasks(core_wave)
-        core_results: list[DispatchResult] = []
-        if core_wave:
-            log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_wave))
-            core_results = dispatch_reviews_parallel(
-                core_wave,
-                on_task_complete=_wave_savepoint(state, project_dir, chapter)(core_wave),
-                state=state,
-            )
-        else:
-            log.info("parallel_review_wave1_empty", chapter=chapter)
-        core_results.extend(_dispatch_serial_reviews(core_serial, project_dir, state))
-
-        # Wave 2: Genre-circle reviews (conditionally active, in parallel;
-        # same WRITE_SHARED partition as wave 1)
-        gc_path = project_dir / "genre-config.json"
-        genre_gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
-        genre_skills = get_active_genre_audits(genre_gc)
-        genre_tasks = [
-            ReviewTask(
-                skill=skill,
-                project_dir=project_dir,
-                prompt=_cluster_prompt(skill).replace("Execute ", "Execute "),
-                output_path=audit_relative_path(chapter, skill),
-                output_paths=audit_report_paths(chapter, skill),
-                shared_context=shared_ctx,
-            )
-            for skill in genre_skills
-        ]
-        # Filter cascaded audits for genre wave too
-        genre_tasks = [t for t in genre_tasks if _keep_task(t)]
-
-        # Persist the skip list (probe session: steps_done recorded skipped
-        # audits as if they ran — operators and adjudicators read a
-        # "persistence gap" into what was a cascade skip).
-        if cascade_skipped:
-            for n in wave_chapters:
-                state.add_audit_result(n, "cascade_skipped", sorted(set(cascade_skipped)))
-        genre_wave, genre_serial = _partition_review_wave(genre_tasks)
-
-        genre_wave = _filter_completed_audit_tasks(genre_wave)
-        genre_results: list[DispatchResult] = []
-        if genre_wave:
-            log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_wave))
-            genre_results = dispatch_reviews_parallel(
-                genre_wave,
-                on_task_complete=_wave_savepoint(state, project_dir, chapter, wave_chapters)(
-                    genre_wave
-                ),
-                state=state,
-            )
-        else:
-            log.info("parallel_review_wave2_empty", chapter=chapter)
-        genre_results.extend(_dispatch_serial_reviews(genre_serial, project_dir, state))
-
-        # Consolidate all results
-        all_results = core_results + genre_results
-        # F345: G3 scoring independence for audit skills riding the parallel
-        # wave / serial reviews (the step-loop G3 at review-resonance only covers the
-        # serial chapter-step path). Recorded per-skill into the gate manifest.
-        for rec in _g3_parallel_wave(
-            [t.skill for t in core_tasks + genre_tasks], project_dir, chapter=chapter
-        ):
-            if str(rec["g3"].get("status", "")) != "PASS":
-                log.warning("parallel_wave_g3_failed", chapter=chapter, skill=rec["skill"])
-        consolidated = consolidate_review_results(
-            all_results,
-            chapter,
-            skills=[t.skill for t in core_tasks + genre_tasks],
-            project_dir=project_dir,
-            cascade_skipped=sorted(set(cascade_skipped)) or None,
-        )
-        summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
-        safe_write(summary_path, consolidated)
-
-        # Record review steps as done and advance past them — EXCEPT those
-        # whose dispatch failed (fixcheck ch2: the character group failed on
-        # persistent length truncation, was marked done anyway, and resume
-        # never re-dispatched it — a whole audit dimension vanished silently
-        # while the chapter proceeded to checkpoint).
-        _failed_audit_skills = {
-            task.skill
-            for task, result in zip(
-                core_wave + core_serial + genre_wave + genre_serial,
-                core_results + genre_results,
-                strict=True,
-            )
-            if not result.success
-        }
-        for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
-            if i < len(CHAPTER_STEPS) and CHAPTER_STEPS[i].skill not in _failed_audit_skills:
-                state.add_step_done(chapter, CHAPTER_STEPS[i].skill)
-
-        state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1
-        state.chapter_loop.current_step = ""
-
-        # Check for blocking issues
-        cs = _get_chapter_state(state, chapter)
-        # The consolidated summary always contains "- **BLOCKING Issues**: N".
-        # Only the "## BLOCKING Issues" H2 section is present when actual
-        # blocking issues exist (see consolidate_review_results in parallel_dispatch.py).
-        # C30 audit-T5 I1: on a post-crash replay where the whole wave was
-        # already filtered out (all outputs exist), ``consolidated`` is built
-        # from an empty result list and would under-report BLOCKING — derive
-        # from the durable artifacts of the FULL task set instead.
-        cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated or any(
-            "## BLOCKING Issues" in (project_dir / p).read_text(encoding="utf-8")
-            for task in core_tasks + genre_tasks
-            for p in task.all_output_paths()
-            if (project_dir / p).exists()
-        )
-        cs.audit_results["audit_reports"] = [
-            p for t in core_tasks + genre_tasks for p in t.all_output_paths()
-        ]
-        # Per-skill history entries (F341/F726, spec #27 T5): the cascade
-        # (_should_skip_audit/_get_audit_history) consumes exactly this shape.
-        # hard_failures counts BLOCKING/CRITICAL markers in the audit report
-        # artifact (the durable writer surface), not subprocess stdout.
-        blocking_re = _BLOCKING_MARKER_RE
-        # C33 R4 (F363): aggregate wave retry attempts into the durable budget
-        # (single main-thread charge point for both waves + serial extensions).
-        _charge_wave_retries(
-            state,
-            chapter,
-            list(
-                zip(
-                    core_wave + core_serial + genre_wave + genre_serial,
-                    core_results + genre_results,
-                    strict=True,
-                )
-            ),
-        )
-        for task, result in zip(
-            core_wave + core_serial + genre_wave + genre_serial,
-            core_results + genre_results,
-            strict=True,
-        ):
-            short = _audit_short_name(task.skill)
-            hard = 0
-            for rel in task.all_output_paths():
-                report = project_dir / rel
-                if report.exists():
-                    try:
-                        hard += len(blocking_re.findall(report.read_text(encoding="utf-8")))
-                    except OSError:
-                        log.warning("audit_report_unreadable", path=str(report))
-            cs.audit_results[short] = _wave_audit_entry(
-                bool(result.success), hard, list(task.all_output_paths()), project_dir
-            )
-
-        # F304: parse the resonance score from the serially-dispatched
-        # review-resonance report (file exists at this point) and persist the
-        # trend row — mirrors the serial step-loop path. Must run BEFORE
-        # _route_revision_after_resonance so the floor check sees a real
-        # score instead of fail-opening on None.
-        _parse_and_persist_resonance(state, project_dir, chapter, source="parallel_wave")
-
-        # Run revision routing after all reviews complete (spec §6.3).
-        # In the serial path this is called after review-resonance; in the
-        # parallel path we call it once after consolidation.
-        _route_revision_after_resonance(state, project_dir, chapter)
-
-        _reset_retries(state, step, chapter)
-        return _advance(
-            state,
-            _LAST_AUDIT_IDX,
-            CHAPTER_STEPS[_LAST_AUDIT_IDX],
-            chapter,
-            project_dir=project_dir,
-        )
-
+        return _run_audit_wave_step(state, project_dir, step_idx, step, chapter)
     # ── Parallel post-draft dispatch (Task 6) ────────────────────────────
     # When the foreshadowing-lifecycle step is reached, execute it and
     # then state-settling SEQUENTIALLY (canary escalation #16). Their write
@@ -4175,261 +4458,16 @@ def _run_chapter_step_impl(
     # a worker before its dispatch. The main thread handles G4, step
     # recording, and advancing (single-writer pattern).
     if step_idx == _FORESHADOWING_LIFECYCLE_IDX:
-        lifecycle_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX]
-        settling_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX + 1]
-
-        lifecycle_result, settling_result = run_parallel_post_draft_steps(state)
-
-        # State-settling failure: mark settling_failed and pause (spec §11).
-        if not settling_result.success:
-            from shenbi.pipeline.error_handler import handle_state_settle_failure
-
-            if getattr(settling_result, "stderr", ""):
-                # probe17 ch1 step 8 (adjudication #006): parallel-branch
-                # parity with the serial dispatch-failure site — without this
-                # the guard's pointed rejection message never reached the
-                # retrying model and re-dispatches ran the original prompt
-                # verbatim (blind-retry signature).
-                state.chapter_loop.retry_feedback[_retry_key(chapter, settling_step.skill)] = (
-                    accumulate_retry_feedback(
-                        state,
-                        _retry_key(chapter, settling_step.skill),
-                        [f"上一次派发失败（输出未落盘）：{settling_result.stderr}"],
-                    )
-                )
-            handle_state_settle_failure(state, chapter)
-            log.error(
-                "chapter_state_settle_failed",
-                chapter=chapter,
-            )
-            return True  # checkpoint raised, pause for human
-
-        # Lifecycle failure: C33 R4 (F365 residual) — route to the failure
-        # handler (retry budget + escalation) instead of silently continuing.
-        if not lifecycle_result.success:
-            log.error(
-                "chapter_dispatch_failed",
-                chapter=chapter,
-                step=lifecycle_step.step_num,
-                skill=lifecycle_step.skill,
-            )
-            if getattr(lifecycle_result, "stderr", ""):
-                # probe17 ch1 step 7 (adjudication #006): same parity fix —
-                # the serial site routes stderr into the corrective slot the
-                # re-dispatch injects; this site dropped it, so the
-                # increment-shape guard's teaching feedback was lost and all
-                # three attempts emitted identical non-compliant shapes.
-                state.chapter_loop.retry_feedback[_retry_key(chapter, lifecycle_step.skill)] = (
-                    accumulate_retry_feedback(
-                        state,
-                        _retry_key(chapter, lifecycle_step.skill),
-                        [f"上一次派发失败（输出未落盘）：{lifecycle_result.stderr}"],
-                    )
-                )
-            return _handle_failure(
-                state,
-                lifecycle_step,
-                chapter,
-                "dispatch",
-                project_dir,
-                failure_class=classify_dispatch_failure(
-                    returncode=lifecycle_result.returncode, stderr=lifecycle_result.stderr
-                ),
-            )
-
-        # G4: structural validation for both steps (main thread only).
-        for pstep in (lifecycle_step, settling_step):
-            g4_files = _resolve_g4_files(project_dir, pstep, chapter)
-            g4 = run_gate_g4(
-                pstep.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop"
-            )
-            # spec #82 T3: shadow demotion routing (shared implementation).
-            g4, _shadow_rem = _shadow_route_g4(
-                state,
-                project_dir,
-                g4,
-                chapter=chapter,
-                skill=pstep.skill,
-                rk=_retry_key(chapter, pstep.skill),
-            )
-            if _shadow_rem is not None:
-                state.chapter_loop.retry_feedback[_retry_key(chapter, pstep.skill)] = (
-                    accumulate_retry_feedback(
-                        state, _retry_key(chapter, pstep.skill), list(_shadow_rem)
-                    )
-                )
-            if _gate_passed(g4):
-                # #18-4 (probe23): mirror the serial site's canary pop — a
-                # PASSED retry must clear its corrective feedback, or the
-                # audit-routed re-settle re-injects selections_uncovered
-                # demands into a dispatch whose issues were already fixed.
-                _clear_retry_feedback(state, _retry_key(chapter, pstep.skill))
-            if not _gate_passed(g4):
-                log.warning(
-                    "parallel_post_draft_g4_failed",
-                    chapter=chapter,
-                    skill=pstep.skill,
-                )
-                # Fixcheck escalation ch1: store the must_fix for the retry
-                # prompt (the serial audit-wave site does this; this site
-                # previously left retry_feedback empty, so retries ran blind).
-                state.chapter_loop.retry_feedback[_retry_key(chapter, pstep.skill)] = (
-                    accumulate_retry_feedback(
-                        state, _retry_key(chapter, pstep.skill), list(g4.get("must_fix", []))
-                    )
-                )
-                # C33 R4 (F365 residual): G4 failure escalates through the
-                # failure handler instead of marking the step done anyway.
-                # No pre-charge at this site (unlike the audit-wave G4
-                # hard-fail path) → let _handle_failure charge the budget.
-                return _handle_failure(state, pstep, chapter, "g4", project_dir)
-
-        # Record both steps as done and advance past them. C30 F1112:
-        # missing declared outputs downgrade — same semantics as the generic
-        # success path (route to _handle_failure so the step retries and
-        # escalates; final-review I1: silently advancing would complete the
-        # chapter with un-updated truth).
-        for pstep in (lifecycle_step, settling_step):
-            if _step_output_exists(project_dir, pstep, chapter):
-                state.add_step_done(chapter, pstep.skill)
-                _reset_retries(state, pstep, chapter)
-            else:
-                log.warning(
-                    "step_output_missing_downgraded",
-                    chapter=chapter,
-                    step=pstep.skill,
-                    expected=pstep.output_path or "staging/truth/*.md",
-                )
-                return _handle_failure(state, pstep, chapter, "output_missing", project_dir)
-
-        # Advance past both steps (idx 6 and 7 -> idx 8)
-        next_idx = _FORESHADOWING_LIFECYCLE_IDX + 2  # 8
-        state.chapter_loop.step_index = next_idx
-        state.chapter_loop.current_step = (
-            CHAPTER_STEPS[next_idx].skill if next_idx < len(CHAPTER_STEPS) else "chapter_complete"
-        )
-
-        if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
-            return _complete_chapter(state, chapter)
-
-        # Raise state-settle checkpoint after both parallel steps complete.
-        # --auto (F341, spec #6): mirror the serial branch's full auto-commit
-        # body — staging commit + clear, NO checkpoint. Skipping only the
-        # checkpoint would strand state-settle writes in staging/ where the
-        # next resume's _cleanup_residual_staging wipes them (data-loss trap).
-        _settle_outcome = _auto_settle_parallel(state, project_dir, chapter)
-        if _settle_outcome is True:
-            # auto committed: fall through to the chapter-completion check
-            # (mirrors the serial _advance tail; the pre-existing completion
-            # check above this block is normally the one that fires).
-            if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
-                return _complete_chapter(state, chapter)
-            return False
-        settling_artifact = (
-            resolve_chapter_path(settling_step.output_path, chapter)
-            if settling_step.output_path
-            else f"chapter-{chapter}/{settling_step.name}"
-        )
-        if isinstance(_settle_outcome, str):
-            # facts_ops rejection: same checkpoint, pointed context (audit-T8 M11)
-            set_checkpoint(
-                state,
-                CheckpointType.STATE_SETTLE,
-                chapter=chapter,
-                artifact=settling_artifact,
-                context=f"settle 双写 facts_ops 拒收：{_settle_outcome}",
-            )
-        else:
-            set_checkpoint(
-                state,
-                CheckpointType.STATE_SETTLE,
-                chapter=chapter,
-                artifact=settling_artifact,
-                context=f"Review {settling_step.name} for chapter {chapter}",
-            )
-        _mark_staged_for_checkpoint(project_dir, settling_step, chapter)
-        return True
+        return _run_post_draft_pair_step(state, project_dir, step_idx, step, chapter)
 
     # Context assembly (step 3): materialize package before chapter-drafting.
     # spec #72: the drafting bundle consumes BOTH chapters' context packages.
     if step.calls_context_assembly:
-        for n in bundle_chapters(project_dir, chapter):
-            _run_context_assembly(project_dir, n)
+        _run_context_assembly_step(state, project_dir, step_idx, step, chapter)
 
     # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
     if step.skill.startswith("pipeline-"):
-        # ── Linguistic drift check (non-blocking, except ESCALATE) ────────
-        if step.skill == "pipeline-linguistic-drift-check":
-            _run_linguistic_drift_check(project_dir, chapter)
-
-        # ── Scene split + promotion (spec #72, deterministic) ─────────────
-        if step.skill == "pipeline-scene-split":
-            issues = _run_scene_split_step(project_dir, chapter)
-            if not issues:
-                # R4-I2 rehang (spec 3b-⑦): the four post-draft checks run
-                # HERE — pipeline- steps return at this branch's tail and
-                # never reach the generic success tail where they used to sit.
-                for n in bundle_chapters(project_dir, chapter):
-                    _check_volume_map_alignment(project_dir, n)
-                    _run_g4_checks(state, n)
-                    chapter_path = project_dir / "chapters" / f"chapter-{n}.md"
-                    if chapter_path.exists():
-                        chapter_text = chapter_path.read_text(encoding="utf-8")
-                        wc_issues = _check_word_count_bounds(chapter_text, project_dir=project_dir)
-                        for issue in wc_issues:
-                            log.warning("word_count_bounds", chapter=n, issue=issue)
-            if issues:
-                log.error("scene_split_failed", chapter=chapter, issues=issues[:5])
-                drafting_step = next(
-                    s for s in CHAPTER_STEPS if s.skill == "shenbi-chapter-drafting"
-                )
-                # 熔断重派 drafting（标记/带违例的修复者是 LLM 产物侧）；
-                # 失败归类确定性门（FailureClass.DETERMINISTIC_GATE 语义面）
-                state.chapter_loop.retry_feedback[_retry_key(chapter, drafting_step.skill)] = (
-                    accumulate_retry_feedback(
-                        state,
-                        _retry_key(chapter, drafting_step.skill),
-                        [f"pipeline-scene-split: {i}" for i in issues],
-                    )
-                )
-                drafting_idx = next(
-                    i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-chapter-drafting"
-                )
-                retry_key = _retry_key(chapter, drafting_step.skill)
-                # spec #81 §2: monitor-rewind RETRY (issues kept as the
-                # pre-formatted strings scene_splitter produces; the numeric
-                # diff-dict form is a recorded deviation, deferred).
-                _record_retry(state, chapter, drafting_step.skill)  # spec #83 T4 口径a
-                _emit_retry_event(
-                    project_dir,
-                    chapter=chapter,
-                    skill=drafting_step.skill,
-                    reason={"kind": "monitor_rewind", "chapter": chapter, "issues": list(issues)},
-                    loop_id=state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1,
-                )
-                # DURABLE budget trail (retry_budget_consumed, NOT retry_counts —
-                # a successful drafting re-dispatch resets retry_counts and the
-                # rewind loop would spin forever): mirror the G4 hard-fail path.
-                consumed = state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1
-                state.chapter_loop.retry_budget_consumed[retry_key] = consumed
-                if consumed > state.config.max_audit_retries:
-                    set_checkpoint(
-                        state,
-                        CheckpointType.ESCALATION,
-                        chapter=chapter,
-                        context=(
-                            f"pipeline-scene-split 熔断重派超预算（{consumed - 1} 次）: "
-                            + "; ".join(issues[:3])
-                        ),
-                    )
-                    return True
-                state.chapter_loop.step_index = drafting_idx
-                state.chapter_loop.current_step = drafting_step.skill
-                return False
-
-        state.add_step_done(chapter, step.skill)
-        _reset_retries(state, step, chapter)
-        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+        return _run_pipeline_internal_step(state, project_dir, step_idx, step, chapter)
 
     # context-composing replaced by deterministic assembly in step 3 (spec #67)
     if step.skill == "shenbi-context-composing":
