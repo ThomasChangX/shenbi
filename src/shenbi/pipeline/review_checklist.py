@@ -14,6 +14,48 @@ Spec: docs/superpowers/specs/archive/2026-07-07-pipeline-performance-redesign.md
 
 from __future__ import annotations
 
+# spec #87 T4: precise review-skill roster (26 names = 24 shenbi-review-*
+# prefix + escalation/foundation-review, which today's substring match
+# already reaches via dispatch_escalation — keeping them preserves the
+# injection; a bare-substring scan predicate is FORBIDDEN, "preview"
+# contains "review").
+REVIEW_SKILLS: frozenset[str] = frozenset(
+    {
+        "shenbi-escalation-review",
+        "shenbi-foundation-review",
+        "shenbi-review-anti-ai",
+        "shenbi-review-arc-payoff",
+        "shenbi-review-character",
+        "shenbi-review-continuity",
+        "shenbi-review-dialogue",
+        "shenbi-review-era",
+        "shenbi-review-fanfic",
+        "shenbi-review-foreshadowing",
+        "shenbi-review-group-character",
+        "shenbi-review-group-craft",
+        "shenbi-review-group-factual",
+        "shenbi-review-group-plan",
+        "shenbi-review-highpoint",
+        "shenbi-review-long-span",
+        "shenbi-review-memo-compliance",
+        "shenbi-review-motivation",
+        "shenbi-review-pacing",
+        "shenbi-review-pov",
+        "shenbi-review-reader-pull",
+        "shenbi-review-resonance",
+        "shenbi-review-sensitivity",
+        "shenbi-review-spinoff",
+        "shenbi-review-texture",
+        "shenbi-review-world-rules",
+    }
+)
+
+
+def is_review_skill(skill: str) -> bool:
+    """Precise membership test (spec #87 T4) — replaces ``"review" in skill.lower()``."""
+    return skill in REVIEW_SKILLS
+
+
 import json
 import re
 from dataclasses import dataclass, field

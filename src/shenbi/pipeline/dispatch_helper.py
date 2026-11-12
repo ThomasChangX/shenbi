@@ -63,6 +63,7 @@ from shenbi.exceptions import (
     ShenbiError,
     TruthFileParseError,
 )
+from shenbi.pipeline.review_checklist import is_review_skill  # spec #87 T4
 from shenbi.pipeline.read_extractors import (
     REGISTRY,  # Plan A slicing (adjudication 096) — leaf module
     chapter_scoped_head_tail,
@@ -1331,7 +1332,7 @@ def _build_skill_prompt(
         log.warning("helper_inject_failed", skill=skill, error=str(e))
 
     # Inject shared review checklist for review skills (Phase 2.3).
-    if _is_review_skill(skill) and chapter is not None:
+    if is_review_skill(skill) and chapter is not None:
         try:
             from shenbi.pipeline.review_checklist import (
                 generate_review_checklist,
@@ -1461,11 +1462,6 @@ def _enforce_skill_total_budget(skill: str, user_prompt: str, budget: int) -> st
             f"{floor} — enforcement gutted the contract face"
         )
     return user_prompt
-
-
-def _is_review_skill(skill: str) -> bool:
-    """Check whether a skill name indicates a review skill."""
-    return "review" in skill.lower()
 
 
 # ---------------------------------------------------------------------------

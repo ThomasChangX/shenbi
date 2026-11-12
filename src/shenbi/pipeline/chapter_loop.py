@@ -127,6 +127,9 @@ class ChapterStep:
     calls_context_assembly: bool = False
     is_audit: bool = False
     output_path: str = ""
+    settles_state: bool = False  # spec #87 T4: replaces substring/equality tests
+    emits_resonance: bool = False
+    is_revision: bool = False
 
 
 # Restructured CHAPTER_STEPS: 15 core steps (shrunk from 20 per Plan 18 Task 5;
@@ -232,6 +235,7 @@ CHAPTER_STEPS: list[ChapterStep] = [
         "state-settling",
         step_type="core",
         uses_staging=True,
+        settles_state=True,
     ),
     # Step 9-14: Grouped audits (LLM, MERGE-2 -- dispatch as parallel waves
     # via the existing parallel_dispatch.py, preserving the two-wave model)
@@ -269,6 +273,7 @@ CHAPTER_STEPS: list[ChapterStep] = [
         "review-resonance",
         step_type="audit",
         is_audit=True,
+        emits_resonance=True,
     ),
     ChapterStep(
         15,
@@ -285,6 +290,7 @@ CHAPTER_STEPS: list[ChapterStep] = [
         step_type="core",
         conditional=True,
         output_path="chapters/chapter-N.md",
+        is_revision=True,
     ),
 ]
 
@@ -566,7 +572,7 @@ def _step_output_exists(project_dir: Path, step: ChapterStep, chapter: int) -> b
     """
     from shenbi.pipeline.checkpoint import STAGING_DIR
 
-    if step.skill == "shenbi-state-settling":
+    if step.settles_state:
         truth_dir = project_dir / STAGING_DIR / "truth"
         return truth_dir.is_dir() and any(truth_dir.glob("*.md"))
     if not step.output_path:
@@ -1816,7 +1822,7 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
     from shenbi.pipeline.checkpoint import STAGING_DIR
 
     # State-settling writes multiple truth files to staging/
-    if step.uses_staging and "state-settling" in step.skill:
+    if step.uses_staging and step.settles_state:
         staging_truth = project_dir / STAGING_DIR / "truth"
         if staging_truth.exists():
             files.extend(
@@ -1930,7 +1936,7 @@ def _mark_staged_for_checkpoint(project_dir: Path, step: ChapterStep, chapter: i
     from shenbi.pipeline.checkpoint import STAGING_DIR, mark_staging_checkpointed
 
     targets: list[str] = []
-    if step.skill == "shenbi-state-settling":
+    if step.settles_state:
         # Mirror the commit path (cli.py I3): state-settle commits glob ALL
         # staged truth files — the settling step has no single output_path
         # (and raises STATE_SETTLE out-of-band, so step.checkpoint is None).
@@ -2929,7 +2935,7 @@ def _should_run_step(state: PipelineState, step: ChapterStep) -> bool:
     if not step.conditional:
         return True
 
-    if step.skill == "shenbi-chapter-revision":
+    if step.is_revision:
         return _any_audit_has_findings(state)
 
     # Other conditional steps default to running
@@ -3918,7 +3924,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         # chapter-revision is conditional -- skip when routing decided no
         # revision is needed (spec §6.3, route set during review-resonance).
         # Scoped to the revision skill ONLY; other steps are unaffected.
-        if step.skill == "shenbi-chapter-revision" and _is_revision_skipped(state, chapter):
+        if step.is_revision and _is_revision_skipped(state, chapter):
             log.info("revision_step_skipped", chapter=chapter)
             state.add_step_done(chapter, step.skill)
             _reset_retries(state, step, chapter)
@@ -4467,9 +4473,9 @@ def _pre_dispatch_hooks(
 ) -> tuple[list[str], list[str]] | None:
     """Pre-dispatch hooks (== matching verbatim); returns settle-guard outcome, routing stays with the caller (spec #87 T3)."""
     outcome: tuple[list[str], list[str]] | None = None
-    if step.skill == "shenbi-chapter-revision":
+    if step.is_revision:
         write_audit_aggregate(project_dir, chapter)
-    if step.skill == "shenbi-state-settling":
+    if step.settles_state:
         outcome = _pre_settle_guard(state, project_dir, chapter)
     return outcome
 
@@ -4478,7 +4484,7 @@ def _on_dispatch_failure(
     step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int, result: Any
 ) -> bool | None:
     """Failure-branch hooks, three-state: None=no arm (generic route), True=checkpoint, False=retry passthrough (spec #87 T3)."""
-    if "state-settling" in step.skill:
+    if step.settles_state:
         from shenbi.pipeline.error_handler import handle_state_settle_failure
 
         handle_state_settle_failure(state, chapter)
@@ -4488,7 +4494,7 @@ def _on_dispatch_failure(
             step=step.step_num,
         )
         return True  # checkpoint raised, pause for human
-    if "review-resonance" in step.skill:
+    if step.emits_resonance:
         from shenbi.pipeline.error_handler import handle_scoring_failure
 
         retry, fc = handle_scoring_failure(state, result.returncode)
@@ -4513,7 +4519,7 @@ def _on_resonance_success(
     step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int
 ) -> None:
     """Resonance-position success tail (before the output gate); void fall-through (spec #87 T3)."""
-    if "review-resonance" in step.skill:
+    if step.emits_resonance:
         _parse_and_persist_resonance(state, project_dir, chapter, source="serial_step")
 
         _route_revision_after_resonance(state, project_dir, chapter)
@@ -4529,7 +4535,7 @@ def _on_revision_success(
 ) -> bool:
     """Revision-position success tail (after add_done/reset): decisions/stale/revalidate/redispatch; block returns are the hook return (spec #87 T3)."""
     # After chapter-revision step succeeds, ensure decisions file exists
-    if "chapter-revision" in step.skill:
+    if step.is_revision:
         _ensure_revision_decisions_exists(project_dir, chapter, state, log)
         # spec #83 T2 写入者：修订完成→declarations_stale=True（无条件置位；
         # 清除点见下——复验绿复同步处＋settle 摄取成功后，§11 双清除点）
