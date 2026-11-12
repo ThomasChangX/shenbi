@@ -296,11 +296,11 @@ def test_serial_revision_tail(tmp_path: Path) -> None:
         if state.chapter_loop.chapter_states.get("1")
         else None
     )
-    from shenbi.pipeline.chapter_loop import _REVISION_ROUTE_KEY, _get_chapter_state
+    from shenbi.pipeline.state import ChapterState
 
-    cs = _get_chapter_state(state, 1)
+    cs = state.chapter_loop.chapter_states.setdefault("1", ChapterState())
     cs.declarations_stale = True
-    cs.audit_results[_REVISION_ROUTE_KEY] = "auto"
+    cs.audit_results["revision_route"] = "auto"
 
     decisions = tmp_path / "chapters" / "chapter-1-revision-decisions.json"
 

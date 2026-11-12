@@ -128,7 +128,7 @@ class ChapterStep:
     calls_context_assembly: bool = False
     is_audit: bool = False
     output_path: str = ""
-    settles_state: bool = False  # spec #87 T4: replaces substring/equality tests
+    settles_state: bool = False  # spec #87 T4
     emits_resonance: bool = False
     is_revision: bool = False
 
@@ -3992,17 +3992,11 @@ def _run_audit_wave_step(
             return False
         return True
 
-    # Wave 1: Core-circle reviews in parallel. WRITE_SHARED members (e.g.
-    # review-resonance, whose contract updates truth/audit_drift.md +
-    # truth/resonance_trend.md) are partitioned out and dispatched
-    # serially — assert_parallelizable rejects any non-read-only skill,
-    # so leaving them in would fail the whole wave (F532, C32 R4).
+    # Wave 1: core reviews in parallel; WRITE_SHARED members partitioned out
+    # to serial (assert_parallelizable rejects non-read-only; F532, C32 R4).
     core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and is_review_skill(s.skill)]
-    # spec #72 T9: cluster dispatch — ONE prompt per skill covers the
-    # bundle's chapters; reports stay PER-CHAPTER (contract {N+1} brace
-    # writes make audit_report_paths(N) cover the follower's paths too,
-    # so leader single-resolution — never concatenate paths for m: that
-    # would phantom-resolve m+1 beyond the bundle).
+    # spec #72 T9: cluster dispatch — ONE prompt per skill covers the bundle;
+    # reports stay PER-CHAPTER ({N+1} brace writes cover follower paths too).
     wave_chapters = bundle_chapters(project_dir, chapter)
     chapter_label = (
         f"{wave_chapters[0]},{wave_chapters[1]}" if len(wave_chapters) > 1 else str(chapter)
@@ -4619,8 +4613,7 @@ def _run_serial_dispatch_step(
     prompt = _append_feedback_injections(prompt, state, chapter, step.skill, project_dir)
     retry_key = _retry_key(chapter, step.skill)
 
-    # Pre-dispatch hooks (spec #87 T3); spec #83 §10 行 4 站点③: guard MUST
-    # precede dispatch_skill (audit-T5 C1). F10 aggregate refresh inside.
+    # Pre-dispatch hooks (spec #87 T3); guard MUST precede dispatch (audit-T5 C1).
     _pre = _pre_dispatch_hooks(step, state, project_dir, chapter)
     if _pre is not None:
         _st_demoted, _st_hard = _pre

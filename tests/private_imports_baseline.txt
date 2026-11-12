@@ -1,4 +1,5 @@
-# tests private-import baseline (spec #87 T5) — subset invariant; --update is human-reviewed only
+# tests private-import baseline (spec #87 T5) — subset invariant;
+# --update is human-reviewed only
 tests/benchmark/test_c28_baselines.py::_load_previous_titles
 tests/integration/test_spec83_stale_chain.py::_execute_pending_re_dispatches
 tests/integration/test_spec83_stale_chain.py::_pre_settle_guard
@@ -13,8 +14,6 @@ tests/pipeline/test_budgeted_truncate.py::_INPUT_MAX_CHARS_TOTAL
 tests/pipeline/test_budgeted_truncate.py::_budgeted_truncate
 tests/pipeline/test_budgeted_truncate.py::_cap_single
 tests/pipeline/test_bundle_stepping.py::_run_scene_split_step
-tests/pipeline/test_chapter_step_characterization.py::_REVISION_ROUTE_KEY
-tests/pipeline/test_chapter_step_characterization.py::_get_chapter_state
 tests/pipeline/test_chapter_steps_restructured.py::_should_run_step
 tests/pipeline/test_closure_context.py::_closure_step_context
 tests/pipeline/test_closure_context.py::_resolve_closure_g4_path

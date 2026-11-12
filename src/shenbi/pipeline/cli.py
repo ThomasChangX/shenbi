@@ -209,7 +209,7 @@ def _re_dispatch_g4_must_fix(
     ch2 truth never met a structural gate.
     """
     from shenbi.pipeline.chapter_loop import (
-        resolve_g4_files,  # pyright: ignore[reportPrivateUsage]
+        resolve_g4_files,
         CHAPTER_STEPS,
     )
 
