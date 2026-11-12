@@ -63,20 +63,9 @@ from shenbi.exceptions import (
     ShenbiError,
     TruthFileParseError,
 )
-from shenbi.pipeline._shared import load_volume_context  # spec #65 §4 (leaf module, no cycle)
-from shenbi.pipeline.read_extractors import (  # Plan A slicing (adjudication 096) — leaf module
+from shenbi.pipeline.read_extractors import (
+    REGISTRY,  # Plan A slicing (adjudication 096) — leaf module
     chapter_scoped_head_tail,
-    extract_book_strata_current,
-    extract_hooks_audit_scoped,
-    extract_hooks_inventory_scoped,
-    extract_hooks_overview,
-    extract_locations_overview,
-    extract_recent_increments,
-    extract_matrix_scoped,
-    extract_volume_opening_protocol,
-    extract_relationships_overview,
-    extract_threads_overview,
-    has_chapter_units,
 )
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
@@ -319,7 +308,7 @@ _INPUT_MAX_CHARS_TOTAL = 128000  # total input budget (~32K tokens)
 
 # spec #95 T3③ (r1.4): settle 专属字符总预算——实测配比 ≈0.80 tokens/char
 # （95,835/119,928），60k tokens 目标对应 72k chars 留 ~4% 余量（75k 贴线无余量）。
-# 降级路径（extractor_failed_fulltext 回全文）同受此预算约束；超预算→披露式截断
+# extractor 降级回全文路径同受此预算约束；超预算→披露式截断
 # ＋WARN（loud-degradation），仅低于硬地板（不足以承载增量契约）才 raise。
 SKILL_TOTAL_CHAR_BUDGET: dict[str, int] = {"shenbi-state-settling": 72_000}
 SKILL_TOTAL_CHAR_FLOOR: dict[str, int] = {"shenbi-state-settling": 40_000}
@@ -892,293 +881,45 @@ def _build_skill_prompt(
                 except Exception:
                     content = f"[binary or unreadable: {full_path}]"
                 raw_disk_reads[key] = content  # spec #81: pre-extractor disk original
-            if extractor == "volume_chapter" and chapter is not None:
-                # spec #65 §4. extractor face routes volume_map through the
-                # _shared family; chapter=None (genesis / manual no-chapter
-                # dispatch) falls through to full text (§4.3). Extraction
-                # failure -> full-text fallback + WARN (never a silent drop).
-                extraction_error: Exception | None = None
-                try:
-                    extracted = load_volume_context(project_dir, chapter)
-                except Exception as exc:
-                    extraction_error = exc
-                    extracted = ""
-                if extracted:
-                    content = extracted
-                elif extraction_error is not None:
-                    # Parity with the loop's own read guard above: an
-                    # unreadable map degrades to sentinel/full text + WARN,
-                    # never raises out of the prompt builder (final-review I2).
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(extraction_error),
-                    )
-                else:
-                    # Resolved-empty extraction (no chapter node / no volume
-                    # boundaries): full-text fallback, single WARN (PR #227).
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                    )
-            elif extractor == "hooks_audit_scoped":
-                # Plan A (adjudication 096): slice pending_hooks to 总览
-                # full + this chapter's plan/audit-named detail sections.
-                # chapter=None (genesis) keeps the full-pool view — same §4.3
-                # fallthrough discipline as volume_chapter. "" -> full text
-                # + WARN (never a silent drop).
-                if chapter is not None:
-                    try:
-                        extracted = extract_hooks_audit_scoped(project_dir, chapter, content)
-                    except Exception as exc:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                            error=str(exc),
-                        )
-                    else:
-                        if extracted:
-                            content = extracted
-                        else:
-                            log.warning(
-                                "extractor_failed_fulltext",
-                                extractor=extractor,
-                                path=str(full_path),
-                                chapter=chapter,
-                            )
-            elif extractor == "hooks_inventory_scoped":
-                # T0 (session30): the volume-boundary resolve inventory —
-                # 总览 full + TRIGGERED/PARTIAL candidate detail sections
-                # (grounding is intrinsic to the pool file, so no
-                # chapter/grounding guard). "" -> full text + WARN (never a
-                # silent drop), same §4.3 discipline as the Plan A family.
-                try:
-                    extracted = extract_hooks_inventory_scoped(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "hooks_overview":
-                # GO③ (session31): overview-only consumers (planning /
-                # composing / boundary chain) — 总览 table + disclosed
-                # detail omission. "" -> full text + WARN (never a silent
-                # drop), same §4.3 discipline as the Plan A family.
-                try:
-                    extracted = extract_hooks_overview(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "threads_overview":
-                # B 批 (千万字读面): thread_map windowed to 总览表 + active
-                # detail sections + the chapter's 推进表 interval ± 1.
-                # "" (unexpected shape / chapter outside every planned
-                # interval) -> full text + WARN (never a silent drop), same
-                # §4.3 discipline as the Plan A family.
-                try:
-                    extracted = extract_threads_overview(content, chapter)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "relationships_overview":
-                # 挂账清偿 (千万字读面): relationships.md windowed to 矩阵 +
-                # 待兑现 + latest 扩容复核 + pairs with bounded 演化轨迹.
-                # "" (unexpected shape) -> full text + WARN (never a silent
-                # drop), same §4.3 discipline as the Plan A family.
-                try:
-                    extracted = extract_relationships_overview(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "locations_overview":
-                # 挂账清偿 (千万字读面): locations.md windowed to identity
-                # headers + 地理位置 + recent 功能事件 rows. "" (unexpected
-                # shape) -> full text + WARN (never a silent drop), same §4.3
-                # discipline as the Plan A family.
-                try:
-                    extracted = extract_locations_overview(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "book_strata_current":
-                # P0 读面失配批: book_strata 按弧 H1 追加，H2 字段读
-                # first-wins 永远只服务第 1 弧（陈旧）——提取器取当前
-                # （末）弧块。"" (unexpected shape) -> full text + WARN
-                # (never a silent drop), same §4.3 discipline.
-                try:
-                    extracted = extract_book_strata_current(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    else:
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor == "matrix_scoped":
-                # spec #95 T3: character_matrix 本章出场角色定向窗（替代通用 head+tail 中段盲截）
-                _mx_err: Exception | None = None
-                if chapter is not None:
-                    try:
-                        extracted = extract_matrix_scoped(project_dir, chapter, content)
-                    except Exception as exc:
-                        _mx_err = exc
-                        extracted = ""
-                else:
-                    extracted = ""
-                if extracted:
-                    content = extracted
-                else:
-                    # ""（chapter=None/cast 无行/无保留行）或 raise——loud fulltext+WARN
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        **({"error": str(_mx_err)} if _mx_err is not None else {}),
-                    )
-            elif extractor == "volume_opening_protocol":
-                # spec #95 T2: genre-config 热协议投影（子键越顶层字段过滤——extractor 面）。
-                # audit-T5 C1: 五件套齐——""（JSON 不解析）走 loud fulltext + WARN，
-                # 与兄弟分支同 §4.3 纪律（禁静默全文）。
-                _vop_err: Exception | None = None
-                try:
-                    extracted = extract_volume_opening_protocol(content)
-                except Exception as exc:
-                    _vop_err = exc
-                    extracted = ""
-                if extracted:
-                    content = extracted
-                else:
-                    # "" (unparseable JSON) or raise — both land loud fulltext+WARN
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        **({"error": str(_vop_err)} if _vop_err is not None else {}),
-                    )
-            elif extractor == "recent_increments":
-                # Plan A: chapter-keyed cumulative tables serve head + last
-                # units with an omission sentinel. "" (unexpected shape,
-                # fewer units than keep) -> full text, WARN only on the
-                # shape-with-more-units failure; under-keep is a no-op by
-                # design (nothing to omit).
-                try:
-                    extracted = extract_recent_increments(content)
-                except Exception as exc:
-                    log.warning(
-                        "extractor_failed_fulltext",
-                        extractor=extractor,
-                        path=str(full_path),
-                        chapter=chapter,
-                        error=str(exc),
-                    )
-                else:
-                    if extracted:
-                        content = extracted
-                    elif has_chapter_units(content):
-                        log.warning(
-                            "extractor_failed_fulltext",
-                            extractor=extractor,
-                            path=str(full_path),
-                            chapter=chapter,
-                        )
-            elif extractor is not None:
+            spec = REGISTRY.get(extractor) if extractor is not None else None
+            if extractor is not None and spec is None:
                 # Defense-in-depth: loader's closed registry rejects unknown
                 # names at load, so this is unreachable today — guard keeps a
                 # future registry expansion from silently degrading to full
                 # text (spec #65 §4.2 fail-loud discipline).
                 log.warning("extractor_unrouted_fulltext", extractor=extractor, path=str(full_path))
+            elif spec is not None:
+                if chapter is None and spec.chapter_none == "guard_warn":
+                    # volume_chapter: chapter-less dispatch falls to the guard
+                    log.warning(
+                        "extractor_unrouted_fulltext", extractor=extractor, path=str(full_path)
+                    )
+                elif chapter is None and spec.chapter_none == "silent":
+                    pass  # full-pool view preserved (§4.3 fallthrough)
+                else:
+                    _x_err: Exception | None = None
+                    _extracted = ""
+                    if not (chapter is None and spec.chapter_none == "loud"):
+                        # matrix_scoped: chapter=None never reaches impl — the
+                        # loud policy falls through to the shared WARN below
+                        # (same event/fields as the former arm).
+                        try:
+                            _extracted = spec.impl(project_dir, chapter, content)
+                        except Exception as exc:
+                            _x_err = exc
+                            _extracted = ""
+                    if _extracted:
+                        content = _extracted
+                    elif _x_err is not None or (
+                        spec.empty_warn_predicate is None or spec.empty_warn_predicate(content)
+                    ):
+                        log.warning(
+                            "extractor_failed_fulltext",
+                            extractor=extractor,
+                            path=str(full_path),
+                            chapter=chapter,
+                            **({"error": str(_x_err)} if _x_err is not None else {}),
+                        )
             if fields:
                 content, _matched, _resolved = filter_to_fields(content, fields, str(full_path))
                 reads_manifest.append(

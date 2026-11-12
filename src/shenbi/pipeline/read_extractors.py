@@ -36,10 +36,14 @@ cap-proof discipline: the disclosure is part of the served text).
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 #: Hook ids as they appear in plan/audit grounding text (``MH02`` /
 #: ``CP-001`` / legacy ``MH-002``) — normalized through canon_hook_id.
+from shenbi.contracts.read_extractor_names import READ_EXTRACTOR_NAMES  # spec #87 T2
 from shenbi.truth_format import HOOK_ID_RE as _GROUNDING_ID_RE  # spec #85 T5 (C-layer)
 from shenbi.truth_format import THREAD_ID_RE, hook_family_source, split_table_cells
 
@@ -960,3 +964,68 @@ def extract_matrix_scoped(project_dir: Path, chapter: int | None, content: str) 
         f"（省略 {dropped_rows} 行）+ 本章/束伴章状态增量块——全史见 truth/character_matrix.md 本体。\n"
     )
     return "\n".join(out).rstrip("\n") + "\n\n" + sentinel
+
+
+# ---------------------------------------------------------------------------
+# spec #87 T2: registry — single dispatch for read extractors
+# ---------------------------------------------------------------------------
+
+#: ``chapter is None`` behavior, per extractor (the four observed WARN
+#: semantics of the former 11-arm elif chain):
+#:   guard_warn — falls to the unrouted-guard WARN (volume_chapter)
+#:   silent     — full-pool/full-text view preserved, no WARN (hooks_audit_scoped)
+#:   loud       — failed-WARN with chapter=None, impl never called (matrix_scoped)
+#:   irrelevant — chapter plays no role in extraction
+ChapterNonePolicy = Literal["guard_warn", "silent", "loud", "irrelevant"]
+
+
+@dataclass(frozen=True)
+class ExtractSpec:
+    """Per-extractor routing policy for the collapsed dispatch arm."""
+
+    impl: Callable[[Path, int | None, str], str]
+    chapter_none: ChapterNonePolicy = "irrelevant"
+    #: None = warn on empty result; a predicate gates the WARN (recent_increments:
+    #: under-keep with no chapter units is a no-op by design).
+    empty_warn_predicate: Callable[[str], bool] | None = None
+
+
+def _content_only(fn: Callable[[str], str]) -> Callable[[Path, int | None, str], str]:
+    def wrap(project_dir: Path, chapter: int | None, content: str) -> str:
+        return fn(content)
+
+    return wrap
+
+
+def _chapterly(fn: Callable[[str, int | None], str]) -> Callable[[Path, int | None, str], str]:
+    def wrap(project_dir: Path, chapter: int | None, content: str) -> str:
+        return fn(content, chapter)
+
+    return wrap
+
+
+def _volume_chapter(project_dir: Path, chapter: int | None, content: str) -> str:
+    # chapter=None never reaches impl (chapter_none="guard_warn" intercepts),
+    # so the int-typed _shared call needs no cast.
+    assert chapter is not None  # invariant guard, see comment above
+    from shenbi.pipeline._shared import load_volume_context
+
+    return load_volume_context(project_dir, chapter)
+
+
+REGISTRY: dict[str, ExtractSpec] = {
+    "volume_chapter": ExtractSpec(_volume_chapter, chapter_none="guard_warn"),
+    "hooks_audit_scoped": ExtractSpec(extract_hooks_audit_scoped, chapter_none="silent"),
+    "hooks_inventory_scoped": ExtractSpec(_content_only(extract_hooks_inventory_scoped)),
+    "hooks_overview": ExtractSpec(_content_only(extract_hooks_overview)),
+    "threads_overview": ExtractSpec(_chapterly(extract_threads_overview)),
+    "relationships_overview": ExtractSpec(_content_only(extract_relationships_overview)),
+    "locations_overview": ExtractSpec(_content_only(extract_locations_overview)),
+    "book_strata_current": ExtractSpec(_content_only(extract_book_strata_current)),
+    "matrix_scoped": ExtractSpec(extract_matrix_scoped, chapter_none="loud"),
+    "volume_opening_protocol": ExtractSpec(_content_only(extract_volume_opening_protocol)),
+    "recent_increments": ExtractSpec(
+        _content_only(extract_recent_increments), empty_warn_predicate=has_chapter_units
+    ),
+}
+assert set(REGISTRY) == READ_EXTRACTOR_NAMES, "roster drift: update leaf + registry together"

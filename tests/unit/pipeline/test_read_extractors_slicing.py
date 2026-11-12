@@ -265,26 +265,16 @@ def test_book_strata_current_no_h1_returns_empty() -> None:
 
 
 def test_read_extractor_registry_closed_and_extended() -> None:
-    from shenbi.contracts.loader import READ_EXTRACTORS
+    """Spec #87 T2: hardcoded name set replaced by registry derivation.
 
-    assert (
-        frozenset(
-            {
-                "volume_chapter",
-                "hooks_audit_scoped",
-                "recent_increments",
-                "hooks_inventory_scoped",
-                "hooks_overview",
-                "threads_overview",
-                "relationships_overview",
-                "locations_overview",
-                "book_strata_current",
-                "volume_opening_protocol",
-                "matrix_scoped",
-            }
-        )
-        == READ_EXTRACTORS
-    )
+    The contract roster derives from the zero-dependency leaf; the
+    dispatch REGISTRY keys equal it (leaf assert + registry test). The
+    12th extractor is a 2-edit change — no third hardcoded copy here.
+    """
+    from shenbi.contracts.loader import READ_EXTRACTORS
+    from shenbi.pipeline.read_extractors import REGISTRY
+
+    assert set(REGISTRY) == READ_EXTRACTORS
 
 
 def test_real_settle_contract_wires_plan_a_extractors() -> None:
