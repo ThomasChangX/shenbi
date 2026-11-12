@@ -133,6 +133,9 @@ def test_post_draft_pair_regime(tmp_path: Path) -> None:
     skills = [c.args[0] for c in dsp.call_args_list]
     assert isinstance(reached, bool)
     assert "shenbi-foreshadowing-lifecycle" in skills and "shenbi-state-settling" in skills
+    assert skills.index("shenbi-foreshadowing-lifecycle") < skills.index("shenbi-state-settling"), (
+        "settling must run AFTER lifecycle (staging merge-base ordering)"
+    )
     # pair advances two steps (or reaches the audit checkpoint)
     assert (
         state.chapter_loop.step_index
@@ -198,9 +201,13 @@ def test_serial_dispatch_regime(tmp_path: Path) -> None:
         reached = run_chapter_step(state, tmp_path)
 
     assert captured["skill"] == "shenbi-chapter-planning"
+    assert getattr(captured["path_context"], "chapter", None) == 1, (
+        "serial dispatch must carry the chapter [path-context]"
+    )
     assert isinstance(reached, bool)
     # planning raises CHAPTER_MEMO checkpoint (or advances)
-    assert reached or state.chapter_loop.step_index > 1
+    idx = _step_index_of(lambda s: s.skill == "shenbi-chapter-planning")
+    assert reached or state.chapter_loop.step_index > idx
 
 
 @pytest.mark.unit
@@ -280,6 +287,22 @@ def test_serial_revision_tail(tmp_path: Path) -> None:
     draft.write_text("# 第一章\n\n修订后正文。", encoding="utf-8")
 
     state = _state(tmp_path, idx)
+    # Non-vacuous pin (audit-T0 I1): start STALE with a routed revision so
+    # the tail block actually flips stale -> False and lands decisions.
+    cs0 = (
+        state.chapter_loop.chapter_states.setdefault(
+            "1", type(state.chapter_loop.chapter_states["1"])()
+        )
+        if state.chapter_loop.chapter_states.get("1")
+        else None
+    )
+    from shenbi.pipeline.chapter_loop import _REVISION_ROUTE_KEY, _get_chapter_state
+
+    cs = _get_chapter_state(state, 1)
+    cs.declarations_stale = True
+    cs.audit_results[_REVISION_ROUTE_KEY] = "auto"
+
+    decisions = tmp_path / "chapters" / "chapter-1-revision-decisions.json"
 
     with (
         patch.object(cl, "_any_audit_has_findings", return_value=True),
@@ -292,4 +315,5 @@ def test_serial_revision_tail(tmp_path: Path) -> None:
     cs = state.chapter_loop.chapter_states.get("1")
     assert cs is not None, "revision tail must ensure the chapter state exists"
     assert cs.declarations_stale is False, "clean revalidation must clear the stale flag"
+    assert decisions.is_file(), "routed revision must land the decisions file"
     assert state.chapter_loop.step_index > idx or reached
