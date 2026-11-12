@@ -64,10 +64,10 @@ grep -rn "from shenbi.pipeline" src/shenbi/contracts/                           
 
 ---
 
-### Task 0 · characterization 六路径（先钉行为）
+### Task 0 · characterization 八路径（先钉行为）
 
 **Files:**
-- Test: `tests/pipeline/test_chapter_step_characterization.py`（Create）
+- Test: `tests/pipeline/test_chapter_step_characterization.py`（Create，八条）
 - Reference: `tests/pipeline/test_bundle_stepping.py:382-420`（公共入口驱动模板——`_project()` helper / `PipelineState.default` / `step_index = next(i for i,s in enumerate(CHAPTER_STEPS) if s.skill==...)` / `monkeypatch.setattr(chapter_loop, "dispatch_skill", ...)`）
 
 **Interfaces:**
@@ -94,7 +94,7 @@ grep -rn "from shenbi.pipeline" src/shenbi/contracts/                           
 
 - [ ] **Step 2: 写六条测试**（已有覆盖的路径至少断言一次 checkpoint 契约：返回 bool + step_index 前进/steps_done 记录）
 
-六条测试统一骨架（以审计波为例；其余五条按表驱动换 step 定位与断言面）：
+八条测试统一骨架（以审计波为例；其余五条按表驱动换 step 定位与断言面）：
 
 ```python
 """Spec #87 T0: per-regime characterization through the public entry.
@@ -181,11 +181,13 @@ def test_audit_wave_regime(tmp_path: Path) -> None:
 3. `test_pipeline_internal_regime`：定位 skill `startswith("pipeline-")` 的 step；断言**零** dispatch_skill 调用且游标推进（pipeline-internal 不派发）。
 4. `test_serial_dispatch_regime`：定位 `shenbi-chapter-planning`（bundle_stepping 模板）；断言 dispatch 调用带 skill 名与 prompt、游标推进。
 5. `test_conditional_skip_regime`：定位 `conditional=True` 的 step 且构造条件不满足（或直接用 `shenbi-context-composing`——:4435 skip 分支）；断言零 dispatch、`state.add_step_done` 记录、游标推进、返回 bool。
+6. `test_serial_resonance_tail`（r2.3 补）：定位 `shenbi-review-resonance`（serial 域）；monkeypatch `cl._parse_and_persist_resonance`/`cl._route_revision_after_resonance` 记录调用；fake dispatch success；断言两 void 调用各恰一次 + `_step_output_exists` 闸/add_step_done/_reset_retries 仍执行（spy 或状态断言）+ 游标推进——**位置 1 钩语义载体**。
+7. `test_serial_revision_tail`（r2.3 补）：定位 `shenbi-chapter-revision`；构造 decisions 文件与 staging 输出（test_bundle_stepping 既有 seam）；fake dispatch success；断言 `_ensure_revision_decisions_exists` 效果（decisions 落盘）+ `declarations_stale` 翻转 + 游标推进——**位置 2 钩语义载体**。
 
 - [ ] **Step 3: 跑新测试全绿**（characterization 是钉现状——若现状即红，说明锚点/构造错，修构造不修产品码）
 
 Run: `uv run pytest tests/pipeline/test_chapter_step_characterization.py -v`
-Expected: 6 passed
+Expected: 8 passed
 
 - [ ] **Step 4: Commit + audit**
 
@@ -532,14 +534,14 @@ def _on_revision_success(step: ChapterStep, state: PipelineState, project_dir: P
 ```
 - 主函数保留：step_idx==0 特例（:3883）、`_DRAFT_CONSUMING_SKILLS` 门（:3893）、条件跳过三连（r2.1 标签订正：:4435-4456 = 22 行——spec 的「≈14 行」仅覆盖前两块）、checkpoint 创建/恢复唯一持有
 
-**复杂度:** infra ｜ **test_kind:** regression_guard（T0 六路径即安全网）｜ **层级:** T1/T2
+**复杂度:** infra ｜ **test_kind:** regression_guard（T0 八路径即安全网）｜ **层级:** T1/T2
 
-- [ ] **Step 1: 一次一个体制搬出**（spec §3——五步串行，每步搬完跑 T0 六测试+全量 unit；任何一步红即回滚该步）：
+- [ ] **Step 1: 一次一个体制搬出**（spec §3——五步串行，每步搬完跑 T0 八测试+全量 unit；任何一步红即回滚该步）：
   1. `_run_audit_wave_step` ← :3913-4162 域（域起以 `:3918 if step_idx == _FIRST_AUDIT_IDX and step.is_audit:` 为准——:3913 是前分支尾 return）
   2. `_run_post_draft_pair_step` ← :4170-4351 域（含直写 `state.chapter_loop.step_index` 的推进语义）
   3. `_run_context_assembly_step` ← :4355-4357 三行体
   4. `_run_pipeline_internal_step` ← :4360-4432 域（`startswith("pipeline-")`）
-  5. `_run_serial_dispatch_step` ← serial 域（r2 边界澄清：条件跳过块 :4451-4456 `_should_run_step` 留主函数，实际函数体 ≈:4457-4780 = 324 行——仍 >260，三块抽取主张成立）——内部再抽三块使函数体 <260 行：a) dispatch 调用块（bundle_set 构建 + `dispatch_skill` 调用）; b) 三钩调用点（pre :4485-4501 / 失败 :4521-4533 / 成功 :4702-4728 的调用处）; c) revision 成功尾块（r2.1 范围订正：**整块 :4729-~4776**——`if "chapter-revision" in step.skill:` 起，含 `_ensure_revision_decisions_exists`/`declarations_stale=True`/`_revalidate_revised_chapter`+`return _handle_failure("g4")`/`declarations_stale=False` 清除/settle 重派队——全部入 `_on_revision_success`（r2.3 名）；**无条件 `_reset_retries`（:4725-4726）留在 serial 主体每步执行，不得搬入钩**——r2 的「:4726-4732」字面搬运会丢非 revision 步的重试重置=行为破坏）。三钩本体（**r2**：真实函数名与控制流对齐现树——pre 钩的 revision 项是 `write_audit_aggregate(project_dir, chapter)` :4486〔plan r1 误写 `_refresh_revision_aggregate`，树无此函数〕；settle guard 谓词经钩透传结果；failure/success 钩返回 bool）：
+  5. `_run_serial_dispatch_step` ← serial 域（r2 边界澄清：条件跳过块 :4451-4456 `_should_run_step` 留主函数，实际函数体 ≈:4457-4780 = 324 行——仍 >260，三块抽取主张成立）——内部再抽三块使函数体 <260 行：a) dispatch 调用块（bundle_set 构建 + `dispatch_skill` 调用）; b) 四钩位（三时机）：pre :4485-4501 / 失败 :4521-4533 / 成功位 1 resonance :4702 + 成功位 2 revision :4728; c) revision 成功尾块（r2.1 范围订正：**整块 :4729-~4776**——`if "chapter-revision" in step.skill:` 起，含 `_ensure_revision_decisions_exists`/`declarations_stale=True`/`_revalidate_revised_chapter`+`return _handle_failure("g4")`/`declarations_stale=False` 清除/settle 重派队——全部入 `_on_revision_success`（r2.3 名）；**无条件 `_reset_retries`（:4725-4726）留在 serial 主体每步执行，不得搬入钩**——r2 的「:4726-4732」字面搬运会丢非 revision 步的重试重置=行为破坏）。三钩本体（**r2**：真实函数名与控制流对齐现树——pre 钩的 revision 项是 `write_audit_aggregate(project_dir, chapter)` :4486〔plan r1 误写 `_refresh_revision_aggregate`，树无此函数〕；settle guard 谓词经钩透传结果；failure/success 钩返回 bool）：
 
 ```python
 def _pre_dispatch_hooks(
@@ -600,6 +602,7 @@ def _on_revision_success(
     tail `return _advance(...)` / `return _handle_failure(...)` is the hook
     return; non-revision steps take the unconditional tail (present body)."""
     if "chapter-revision" in step.skill:  # T4 → step.is_revision
+        retry_key = _retry_key(chapter, step.skill)  # r2.4：块体 :4751/:4755 引用，钩内重算（纯推导行为等同）
         ...  # :4728-4778 现体整块（ensure_decisions/stale=True → revalidate+
         # return _handle_failure bool 透传 → stale=False 清除 → settle 重派队 → 尾 _advance）
         return <块尾现值>
@@ -723,7 +726,7 @@ def test_roster_scan_reconciles_with_skills_dir() -> None:
 
 - [ ] **Step 2: 跑红** → `uv run pytest tests/pipeline/test_review_skill_routing.py -v` FAIL（`is_review_skill` 不存在；resonance 子串现误触）
 
-- [ ] **Step 3: 实现**——review_checklist.py 加 26 名 frozenset（从 `ls skills/` 逐一誊抄）+ `is_review_skill`；dispatch_helper :1577 `_is_review_skill(skill)` 改 `is_review_skill(skill)`（删 :1709-1711 旧实现）；ChapterStep +3 字段；CHAPTER_STEPS 表中 `shenbi-state-settling` 行加 `settles_state=True`、`shenbi-review-resonance` 行加 `emits_resonance=True`、`shenbi-chapter-revision` 行加 `is_revision=True`；五位子串位点改属性判定（`:1819 step.uses_staging and step.settles_state`、失败/成功尾与三钩内 `step.emits_resonance`/`step.settles_state`/`step.is_revision`——行号以 T3 后现树为准 grep `"state-settling" in step.skill` 等三模式逐一定位）；**`_pre_dispatch_hooks`/`_on_dispatch_failure`/`_on_dispatch_success` 三钩体内的 `if "state-settling" in step.skill` 等子串条件（T3 引入，三模式 grep 已覆盖但 dict/属性形态注意）一并改属性判定**：
+- [ ] **Step 3: 实现**——review_checklist.py 加 26 名 frozenset（从 `ls skills/` 逐一誊抄）+ `is_review_skill`；dispatch_helper :1577 `_is_review_skill(skill)` 改 `is_review_skill(skill)`（删 :1709-1711 旧实现）；ChapterStep +3 字段；CHAPTER_STEPS 表中 `shenbi-state-settling` 行加 `settles_state=True`、`shenbi-review-resonance` 行加 `emits_resonance=True`、`shenbi-chapter-revision` 行加 `is_revision=True`；五位子串位点改属性判定（`:1819 step.uses_staging and step.settles_state`、失败/成功尾与三钩内 `step.emits_resonance`/`step.settles_state`/`step.is_revision`——行号以 T3 后现树为准 grep `"state-settling" in step.skill` 等三模式逐一定位）；**`_pre_dispatch_hooks`/`_on_dispatch_failure`/`_on_resonance_success`/`_on_revision_success` 四钩体内的 `if "state-settling" in step.skill` 等子串/等值条件（T3 引入，三模式 grep 已覆盖但 dict/属性形态注意）一并改属性判定**：
 
 ```python
 def _pre_dispatch_hooks(
@@ -739,7 +742,7 @@ def _pre_dispatch_hooks(
 ```
 （T4 只做**条件替换**——`in step.skill` → `step.xxx` 属性；签名/函数名/返回契约与 T3 落地形态完全一致，不重定义。`_on_dispatch_failure`/`_on_dispatch_success` 同步换条件；T4 红测 1 的外来 step 注入用 `monkeypatch.setattr(chapter_loop, "CHAPTER_STEPS", ...)` 替换序列项〔r2.2 补注入 seam〕）
 
-- [ ] **Step 4: 验证**——红测全绿；`grep -n '"state-settling" in step.skill\|"review-resonance" in step.skill\|"chapter-revision" in step.skill' src/shenbi/pipeline/chapter_loop.py` = 零输出；**泛查** `grep -n "in step.skill" src/shenbi/pipeline/chapter_loop.py` 逐条裁定（应仅剩非三模式的合法用法或零）；T0 六路径仍绿；全量 unit 绿
+- [ ] **Step 4: 验证**——红测全绿（含 T0 八路径）；`grep -n '"state-settling" in step.skill\|"review-resonance" in step.skill\|"chapter-revision" in step.skill' src/shenbi/pipeline/chapter_loop.py` = 零输出；**泛查** `grep -n "in step.skill" src/shenbi/pipeline/chapter_loop.py` 逐条裁定（应仅剩非三模式的合法用法或零）；T0 六路径仍绿；全量 unit 绿
 
 - [ ] **Step 5: Commit + audit**
 
@@ -841,7 +844,7 @@ git commit -m "refactor: spec #87 T5 public renames (18 syms + AuditResult impor
 | spec 验收 | task | 验证命令 |
 |---|---|---|
 | 1 行数 ≤9,500/≤4,820/≤4,680 | T1/T2/T3 | `wc -l src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/dispatch_helper.py` |
-| 2 `_run_chapter_step_impl` 消失+五函数红测+checkpoint 唯一持有+serial<260 | T0+T3 | `grep -n "_run_chapter_step_impl" src/ tests/`=空；T0 六测试零改动绿；`uv run pytest tests/pipeline/test_chapter_step_characterization.py -v` |
+| 2 `_run_chapter_step_impl` 消失+五函数红测+checkpoint 唯一持有+serial<260 | T0+T3 | `grep -n "_run_chapter_step_impl" src/ tests/`=空；T0 八测试零改动绿；`uv run pytest tests/pipeline/test_chapter_step_characterization.py -v` |
 | 3 grep -c = 1 | T2 | `grep -c extractor_failed_fulltext src/shenbi/pipeline/dispatch_helper.py` |
 | 4 T4 红测绿+压制 ≤12 | T4+T5 | `uv run pytest tests/pipeline/test_review_skill_routing.py -v`；`grep -c reportPrivateUsage src/shenbi/pipeline/*.py \| grep -v :0` 合计 |
 | 5 基线子集断言+禁裸比较 | T2+T5 | `uv run python tools/lint_private_imports.py --check`；`grep -c "extractor ==" src/shenbi/pipeline/dispatch_helper.py` = 0 |
