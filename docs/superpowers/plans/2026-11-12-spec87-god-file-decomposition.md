@@ -105,8 +105,12 @@ proof. Reference seam: test_bundle_stepping.py:382-420.
 import pytest
 from pathlib import Path
 
+from types import SimpleNamespace
+from unittest.mock import patch
+
+from shenbi.pipeline import chapter_loop as cl
 from shenbi.pipeline.chapter_loop import CHAPTER_STEPS, run_chapter_step
-from shenbi.pipeline.state import PipelineState
+from shenbi.pipeline.state import PipelinePhase, PipelineState
 
 
 def _step_index_of(skill_prefix: str) -> int:
@@ -121,9 +125,6 @@ def test_audit_wave_regime(tmp_path: Path) -> None:
     parallel_dispatch namespace — patching cl.dispatch_skill alone would let
     REAL dispatches through. Patch the wave boundary instead.
     """
-    from types import SimpleNamespace
-    from unittest.mock import patch
-
     state = PipelineState.default(str(tmp_path))
     state.phase = PipelinePhase.CHAPTER_LOOP
     state.chapter_loop.current_chapter = 1
@@ -132,10 +133,14 @@ def test_audit_wave_regime(tmp_path: Path) -> None:
     )  # first audit step — attribute access, not private-const import
 
     def _results_for(tasks):
-        return {
-            t.skill: SimpleNamespace(success=True, result={}, stdout="", stderr="", returncode=0)
+        # r2.1: dispatch_reviews_parallel (parallel_dispatch.py:241) and
+        # _dispatch_serial_reviews (chapter_loop.py:3787) both return
+        # list[DispatchResult] — wave consumers .extend()/concat; a dict
+        # would TypeError. Reference: test_parallel_steps.py:337-338.
+        return [
+            SimpleNamespace(success=True, result={}, stdout="", stderr="", returncode=0)
             for t in tasks
-        }
+        ]
 
     with (
         patch(
@@ -403,7 +408,8 @@ def _volume_chapter(project_dir: Path, chapter: int | None, content: str) -> str
     # chapter=None never reaches impl (chapter_none="guard_warn" intercepts),
     # so the int-typed _shared call needs no cast (r2: dropped typing.cast —
     # typing import list never included it).
-    assert chapter is not None  # noqa: S101 — invariant guard, see above
+    assert chapter is not None  # invariant guard, see comment above (no noqa:
+    # S101 is not in the ruff select set — a noqa would trip RUF100 unused-noqa)
     return load_volume_context(project_dir, chapter)
 
 
@@ -475,7 +481,7 @@ elif spec is not None:
 | recent 空有章单元 | failed WARN | 谓词 True |
 | recent 空无章单元 | no-op | 谓词 False |
 
-注意：`matrix_scoped` chapter=None 现行走 `extracted=""` → `log.warning(..., chapter=chapter)`（chapter=None 字段带上）——坍缩统一分支 `chapter is None or predicate` 命中同事件同字段 ✓。dispatch_helper 顶部补 `from shenbi.pipeline.read_extractors import REGISTRY`。
+注意（r2.1）：坍缩后 dispatch_helper 顶部逐 extractor import 有 ~10 个变 unused——F401 必红，同批删（这些行也计入 −252 口径）。`matrix_scoped` chapter=None 现行走 `extracted=""` → `log.warning(..., chapter=chapter)`（chapter=None 字段带上）——坍缩统一分支 `chapter is None or predicate` 命中同事件同字段 ✓。dispatch_helper 顶部补 `from shenbi.pipeline.read_extractors import REGISTRY`。
 
 - [ ] **Step 5: :322 注释改写**（验收 3 前置）：`# 降级路径（extractor_failed_fulltext 回全文）同受此预算约束；超预算→披露式截断` 改 `# extractor 降级回全文路径同受此预算约束；超预算→披露式截断`（不含机器判据字面量）
 
@@ -521,7 +527,7 @@ def _pre_dispatch_hooks(step: ChapterStep, state: PipelineState, project_dir: Pa
 def _on_dispatch_failure(step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int, result) -> bool
 def _on_dispatch_success(step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int, result) -> bool
 ```
-- 主函数保留：step_idx==0 特例（:3883）、`_DRAFT_CONSUMING_SKILLS` 门（:3893）、条件跳过三连（:4435-4448）、checkpoint 创建/恢复唯一持有
+- 主函数保留：step_idx==0 特例（:3883）、`_DRAFT_CONSUMING_SKILLS` 门（:3893）、条件跳过三连（r2.1 标签订正：:4435-4456 = 22 行——spec 的「≈14 行」仅覆盖前两块）、checkpoint 创建/恢复唯一持有
 
 **复杂度:** infra ｜ **test_kind:** regression_guard（T0 六路径即安全网）｜ **层级:** T1/T2
 
@@ -530,7 +536,7 @@ def _on_dispatch_success(step: ChapterStep, state: PipelineState, project_dir: P
   2. `_run_post_draft_pair_step` ← :4170-4351 域（含直写 `state.chapter_loop.step_index` 的推进语义）
   3. `_run_context_assembly_step` ← :4355-4357 三行体
   4. `_run_pipeline_internal_step` ← :4360-4432 域（`startswith("pipeline-")`）
-  5. `_run_serial_dispatch_step` ← serial 域（r2 边界澄清：条件跳过块 :4451-4456 `_should_run_step` 留主函数，实际函数体 ≈:4457-4780 = 324 行——仍 >260，三块抽取主张成立）——内部再抽三块使函数体 <260 行：a) dispatch 调用块（bundle_set 构建 + `dispatch_skill` 调用）; b) 三钩调用点（pre :4485-4501 / 失败 :4521-4533 / 成功 :4702-4728 的调用处）; c) `_ensure_revision_decisions_exists` + `declarations_stale` 尾块（:4726-4732）。三钩本体（**r2**：真实函数名与控制流对齐现树——pre 钩的 revision 项是 `write_audit_aggregate(project_dir, chapter)` :4486〔plan r1 误写 `_refresh_revision_aggregate`，树无此函数〕；settle guard 谓词经钩透传结果；failure/success 钩返回 bool）：
+  5. `_run_serial_dispatch_step` ← serial 域（r2 边界澄清：条件跳过块 :4451-4456 `_should_run_step` 留主函数，实际函数体 ≈:4457-4780 = 324 行——仍 >260，三块抽取主张成立）——内部再抽三块使函数体 <260 行：a) dispatch 调用块（bundle_set 构建 + `dispatch_skill` 调用）; b) 三钩调用点（pre :4485-4501 / 失败 :4521-4533 / 成功 :4702-4728 的调用处）; c) revision 成功尾块（r2.1 范围订正：**整块 :4729-~4776**——`if "chapter-revision" in step.skill:` 起，含 `_ensure_revision_decisions_exists`/`declarations_stale=True`/`_revalidate_revised_chapter`+`return _handle_failure("g4")`/`declarations_stale=False` 清除/settle 重派队——全部入 `_on_dispatch_success`；**无条件 `_reset_retries`（:4725-4726）留在 serial 主体每步执行，不得搬入钩**——r2 的「:4726-4732」字面搬运会丢非 revision 步的重试重置=行为破坏）。三钩本体（**r2**：真实函数名与控制流对齐现树——pre 钩的 revision 项是 `write_audit_aggregate(project_dir, chapter)` :4486〔plan r1 误写 `_refresh_revision_aggregate`，树无此函数〕；settle guard 谓词经钩透传结果；failure/success 钩返回 bool）：
 
 ```python
 def _pre_dispatch_hooks(
@@ -561,7 +567,8 @@ def _on_dispatch_failure(
     if "state-settling" in step.skill:  # T4 → step.settles_state
         ...  # :4521-4532 现体逐行搬入（escalation 派发，尾 return True 保留）
     if "review-resonance" in step.skill:  # T4 → step.emits_resonance
-        ...  # :4533-... 现体逐行搬入（尾 return True 保留）
+        ...  # :4533-... 现体逐行搬入（r2.1：尾是 return _handle_failure(...) bool 透传，
+        # 内含 return False retry 分支保留——非 r2 误注的「return True 保留」）
     return False
 
 
@@ -573,7 +580,8 @@ def _on_dispatch_success(
     if "review-resonance" in step.skill:  # T4 → step.emits_resonance
         ...  # :4702 现体（_parse_and_persist_resonance 链 + 路由）
     if "chapter-revision" in step.skill:  # T4 → step.is_revision
-        ...  # :4726-4732 现体（_ensure_revision_decisions_exists + declarations_stale=True）
+        ...  # :4729-~4776 现体整块（r2.1：ensure_decisions/stale=True → revalidate+
+        # return _handle_failure bool 透传 → stale=False 清除 → settle 重派队）
     return False
 ```
   （三函数体内的 `...` 均为「现体逐行搬入」占位——搬移源行号已给，重构类 task 源码即规格；**不做全局注册表**——显式顺序 if 即「表+顺序」）
@@ -733,7 +741,7 @@ git commit -m "refactor: spec #87 T4 substring elimination — ChapterStep attrs
 | 16 | `_check_emergency_flag→check_emergency_flag` | crash_recovery（压制 :64 摘） | — |
 | 17 | `_merge_step_result→merge_step_result` | state（压制 :3685 摘） | — |
 | 18 | `_dispatch_with_retry→dispatch_with_retry` | parallel_dispatch（压制 :3802 摘；接线四类面：string monkeypatch tests/unit/pipeline/test_c15_wave_and_context_branches.py:45/:56；直接调用 tests/pipeline/test_parallel_retry_feedback.py:53/:76、tests/unit/pipeline/test_wave_state_threading.py:47/:59、tests/unit/pipeline/test_retry_taxonomy.py:431/:552；pinned 对 test_spec83_stale_declarations.py rest 集；测试函数名 test_wave_state_threading.py:38/:51、test_retry_taxonomy.py:408 同批改） | — |
-| 19 | `_ending_archetype_of→ending_archetype_of` | **gates/g4/chapter_drafting.py:514**（r2 订正——非 text/）；连带 :569/:571 内部使用 + tests/unit/gates/g4/test_hook_type_rotation.py:156/:168/:172/:173 四站点；压制 audit_context_cache:124 摘 | — |
+| 19 | `_ending_archetype_of→ending_archetype_of` | **gates/g4/chapter_drafting.py:514**（r2 订正——非 text/）；连带 :569/:571 内部使用 + tests/unit/gates/g4/test_hook_type_rotation.py:156/:160/:168/:172/:173 五站点（r2.1 补 :160）；压制 audit_context_cache:124 摘 | — |
 
 另有 chapter_loop:1066 `from shenbi.audit._shared import AuditResult  # pyright: ignore[reportPrivateUsage]` 改 `from shenbi.audit import AuditResult`（公共再导出已在 `shenbi/audit/__init__.py:6`）。
 
