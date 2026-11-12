@@ -54,6 +54,10 @@ def test_conditional_snapshot_manage_runs():
     step = MagicMock()
     step.skill = "shenbi-snapshot-manage"
     step.conditional = True
+    # spec #87 T4: attribute-based gates — Mock attrs are truthy, set explicitly
+    step.is_revision = False
+    step.settles_state = False
+    step.emits_resonance = False
 
     # No specific gate for snapshot-manage in _should_run_step → defaults to True
     assert _should_run_step(state, step)

@@ -13,6 +13,7 @@ def _step(
     skill: str = "shenbi-chapter-drafting",
     output_path: str = "chapters/chapter-N.md",
     uses_staging: bool = False,
+    **flags: bool,
 ) -> ChapterStep:
     return ChapterStep(
         step_num=1,
@@ -20,6 +21,7 @@ def _step(
         name="test-step",
         output_path=output_path,
         uses_staging=uses_staging,
+        settles_state=skill == "shenbi-state-settling" or flags.get("settles_state", False),
     )
 
 
