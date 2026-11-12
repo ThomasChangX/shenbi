@@ -4,7 +4,7 @@
 
 **Goal:** 行为保持地拆解 chapter_loop/dispatch_helper 两个 god 文件——五体制出鞘、prompt 装配 NamedTuple 化、extractor 注册表坍缩 11 臂、子串判定消灭、事实公共 API 正名 + tests 私有 import 增量 lint。
 
-**Architecture:** 全部行为保持（T0 characterization 先行钉死五体制+条件跳过共六条公共入口路径）；T2 以 contracts 侧零依赖叶 + read_extractors.REGISTRY 单源派生 + dispatch_helper 单臂坍缩；T4 双路径（ChapterStep 属性 / 精确 frozenset）；T5 正名后冻基线。
+**Architecture:** 全部行为保持（T0 characterization 先行钉死五体制+条件跳过+serial resonance/revision 尾共八条公共入口路径）；T2 以 contracts 侧零依赖叶 + read_extractors.REGISTRY 单源派生 + dispatch_helper 单臂坍缩；T4 双路径（ChapterStep 属性 / 精确 frozenset）；T5 正名后冻基线。
 
 **Tech Stack:** Python 3.11+ / pathlib / structlog / pytest（unit 标记）/ basedpyright strict。
 
@@ -72,7 +72,7 @@ grep -rn "from shenbi.pipeline" src/shenbi/contracts/                           
 
 **Interfaces:**
 - Consumes: `run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool`（chapter_loop.py:3823 公共入口）、`CHAPTER_STEPS`、`PipelineState.default(project_dir_str)`、`PipelinePhase.CHAPTER_LOOP`
-- Produces: 六条 characterization 测试（拆分安全网；T3 完成后全绿即行为保持证明）
+- Produces: **八条** characterization 测试（r2.3：六路径 + serial resonance 尾 + serial revision 尾——后两条是位置作用域钩语义的承载场景；拆分安全网；T3 完成后全绿即行为保持证明）
 
 **复杂度:** infra ｜ **test_kind:** characterization ｜ **层级:** T1（结构单元测试，无 LLM 产物依赖）
 
@@ -86,7 +86,9 @@ grep -rn "from shenbi.pipeline" src/shenbi/contracts/                           
 | context_assembly | `step.calls_context_assembly`（:4355-4357） | （查填） | 是/否 |
 | pipeline 内部 | `step.skill.startswith("pipeline-")`（:4360） | （查填） | 是/否 |
 | 通用串行 | else 域（:4450+） | （查填） | 是/否 |
-| 条件跳过 | `:4435-4448` 三连 skip | （查填） | 是/否 |
+| 条件跳过 | `:4435-4456` 三块 skip（r2.3 锚订正） | （查填） | 是/否 |
+| **serial resonance 尾** | serial 域 :4702（r2.3 补——T0 盲区） | （查填） | 是 |
+| **serial revision 尾** | serial 域 :4728-4778（r2.3 补——位置作用域钩语义的承载体） | （查填） | 是 |
 
 已有覆盖的路径注明复用锚不重写；缺口路径写新测试。
 
@@ -524,8 +526,9 @@ def _run_context_assembly_step(state: PipelineState, project_dir: Path, step_idx
 def _run_pipeline_internal_step(state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int) -> bool
 def _run_serial_dispatch_step(state: PipelineState, project_dir: Path, step_idx: int, step: ChapterStep, chapter: int) -> bool
 def _pre_dispatch_hooks(step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int) -> tuple[list, list] | None
-def _on_dispatch_failure(step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int, result) -> bool
-def _on_dispatch_success(step: ChapterStep, state: PipelineState, project_dir: Path, step_idx: int, chapter: int, result) -> bool | None  # r2.2 三态：None=无钩触发
+def _on_dispatch_failure(step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int, result) -> bool | None  # r2.3 三态：None=未触发臂/True=checkpoint raised/False=retry 透传
+def _on_resonance_success(step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int) -> None  # r2.3 位置作用域：resonance 位 :4702（闸前），现体 void fall-through
+def _on_revision_success(step: ChapterStep, state: PipelineState, project_dir: Path, step_idx: int, chapter: int) -> bool  # r2.3 位置作用域：revision 位 :4728（add_done+reset 后），尾 _advance/_handle_failure
 ```
 - 主函数保留：step_idx==0 特例（:3883）、`_DRAFT_CONSUMING_SKILLS` 门（:3893）、条件跳过三连（r2.1 标签订正：:4435-4456 = 22 行——spec 的「≈14 行」仅覆盖前两块）、checkpoint 创建/恢复唯一持有
 
@@ -536,7 +539,7 @@ def _on_dispatch_success(step: ChapterStep, state: PipelineState, project_dir: P
   2. `_run_post_draft_pair_step` ← :4170-4351 域（含直写 `state.chapter_loop.step_index` 的推进语义）
   3. `_run_context_assembly_step` ← :4355-4357 三行体
   4. `_run_pipeline_internal_step` ← :4360-4432 域（`startswith("pipeline-")`）
-  5. `_run_serial_dispatch_step` ← serial 域（r2 边界澄清：条件跳过块 :4451-4456 `_should_run_step` 留主函数，实际函数体 ≈:4457-4780 = 324 行——仍 >260，三块抽取主张成立）——内部再抽三块使函数体 <260 行：a) dispatch 调用块（bundle_set 构建 + `dispatch_skill` 调用）; b) 三钩调用点（pre :4485-4501 / 失败 :4521-4533 / 成功 :4702-4728 的调用处）; c) revision 成功尾块（r2.1 范围订正：**整块 :4729-~4776**——`if "chapter-revision" in step.skill:` 起，含 `_ensure_revision_decisions_exists`/`declarations_stale=True`/`_revalidate_revised_chapter`+`return _handle_failure("g4")`/`declarations_stale=False` 清除/settle 重派队——全部入 `_on_dispatch_success`；**无条件 `_reset_retries`（:4725-4726）留在 serial 主体每步执行，不得搬入钩**——r2 的「:4726-4732」字面搬运会丢非 revision 步的重试重置=行为破坏）。三钩本体（**r2**：真实函数名与控制流对齐现树——pre 钩的 revision 项是 `write_audit_aggregate(project_dir, chapter)` :4486〔plan r1 误写 `_refresh_revision_aggregate`，树无此函数〕；settle guard 谓词经钩透传结果；failure/success 钩返回 bool）：
+  5. `_run_serial_dispatch_step` ← serial 域（r2 边界澄清：条件跳过块 :4451-4456 `_should_run_step` 留主函数，实际函数体 ≈:4457-4780 = 324 行——仍 >260，三块抽取主张成立）——内部再抽三块使函数体 <260 行：a) dispatch 调用块（bundle_set 构建 + `dispatch_skill` 调用）; b) 三钩调用点（pre :4485-4501 / 失败 :4521-4533 / 成功 :4702-4728 的调用处）; c) revision 成功尾块（r2.1 范围订正：**整块 :4729-~4776**——`if "chapter-revision" in step.skill:` 起，含 `_ensure_revision_decisions_exists`/`declarations_stale=True`/`_revalidate_revised_chapter`+`return _handle_failure("g4")`/`declarations_stale=False` 清除/settle 重派队——全部入 `_on_revision_success`（r2.3 名）；**无条件 `_reset_retries`（:4725-4726）留在 serial 主体每步执行，不得搬入钩**——r2 的「:4726-4732」字面搬运会丢非 revision 步的重试重置=行为破坏）。三钩本体（**r2**：真实函数名与控制流对齐现树——pre 钩的 revision 项是 `write_audit_aggregate(project_dir, chapter)` :4486〔plan r1 误写 `_refresh_revision_aggregate`，树无此函数〕；settle guard 谓词经钩透传结果；failure/success 钩返回 bool）：
 
 ```python
 def _pre_dispatch_hooks(
@@ -546,69 +549,78 @@ def _pre_dispatch_hooks(
 
     Returns the settle-guard outcome (demoted, hard) when the step settles
     state, else None — routing (the _handle_failure call) stays with the
-    caller because it ends in `return`.
+    caller because it ends in `return`. r2.3 condition fix: the present
+    body uses EXACT equality (:4485 `== "shenbi-chapter-revision"`,
+    :4492 `== "shenbi-state-settling"`) — move `==` verbatim, do NOT widen
+    to substring `in` (widening is the very hazard T4's red test 1 targets).
     """
     outcome: tuple[list, list] | None = None
-    if "chapter-revision" in step.skill:  # T4 → step.is_revision  (:4485-4486)
+    if step.skill == "shenbi-chapter-revision":  # T4 → step.is_revision  (:4485-4486)
         write_audit_aggregate(project_dir, chapter)
-    if "state-settling" in step.skill:  # T4 → step.settles_state  (:4492-4493)
+    if step.skill == "shenbi-state-settling":  # T4 → step.settles_state  (:4492-4493)
         outcome = _pre_settle_guard(state, project_dir, chapter)
     return outcome
 
 
 def _on_dispatch_failure(
     step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int, result
-) -> bool:
-    """Failure-branch hooks — :4521 (settle escalate) and :4533 (resonance
-    failure) moved VERBATIM; returns True when a checkpoint was raised
-    (caller propagates the return), else False. T3 keeps substring
-    conditions; T4 swaps to ChapterStep attributes.
+) -> bool | None:
+    """Failure-branch hooks (r2.3 three-state: None = neither arm fired —
+    caller falls to the generic :4552 route; True = checkpoint raised;
+    False = in-budget retry passthrough — caller returns it verbatim).
+    :4521 (settle escalate) and :4533 (resonance failure) moved VERBATIM;
+    their conditions are present-day substring `in step.skill` — T4 swaps
+    to ChapterStep attributes.
     """
     if "state-settling" in step.skill:  # T4 → step.settles_state
-        ...  # :4521-4532 现体逐行搬入（escalation 派发，尾 return True 保留）
+        ...  # :4521-4532 现体逐行搬入（escalation 派发，尾 return True）
     if "review-resonance" in step.skill:  # T4 → step.emits_resonance
-        ...  # :4533-... 现体逐行搬入（r2.1：尾是 return _handle_failure(...) bool 透传，
-        # 内含 return False retry 分支保留——非 r2 误注的「return True 保留」）
-    return False
-
-
-def _on_dispatch_success(
-    step: ChapterStep, state: PipelineState, project_dir: Path, step_idx: int, chapter: int, result
-) -> bool | None:
-    """Success-tail hooks (r2.2 THREE-STATE contract — a plain bool cannot
-    behavior-preserve: revision arm's `return _handle_failure(...)` returns
-    False while still in retry budget [keep going] AND hook-bottom False
-    would mean [nothing happened] — caller must distinguish. None = no hook
-    fired, fall through; a bool = terminal outcome, propagate verbatim).
-    Resonance arm at its present position (:4702, BEFORE _step_output_exists
-    gate); revision arm at its present position (:4728, AFTER add_step_done
-    + unconditional _reset_retries :4725) — TWO call sites, order preserved.
-    """
-    if "review-resonance" in step.skill:  # T4 → step.emits_resonance
-        ...  # :4702 现体（_parse_and_persist_resonance 链 + 路由，尾 bool 透传）
-        return <现体尾值>  # resonance 路由结局
-    if "chapter-revision" in step.skill:  # T4 → step.is_revision
-        ...  # :4728-4778 现体整块（r2.2 锚订正；ensure_decisions/stale=True → revalidate+
-        # return _handle_failure bool 透传 → stale=False 清除 → settle 重派队 → 尾 _advance）
-        return <现体尾值>
+        ...  # :4533-... 现体逐行搬入（尾 return _handle_failure(...) bool 透传，
+        # 内含 return False retry 分支保留）
     return None
+
+
+def _on_resonance_success(
+    step: ChapterStep, state: PipelineState, project_dir: Path, chapter: int
+) -> None:
+    """Resonance-position hook (:4702, BEFORE _step_output_exists gate).
+    r2.3: the present body :4702-4705 calls two `-> None` functions
+    (:3046/:3119) and FALLS THROUGH — faithful extraction is void (r2.2's
+    「尾 bool 透传」 was wrong, no such bool exists)."""
+    if "review-resonance" in step.skill:  # T4 → step.emits_resonance
+        _parse_and_persist_resonance(...)      # :4702-4705 现体（-> None）
+        _route_revision_after_resonance(...)   # 同上（-> None）
+
+
+def _on_revision_success(
+    step: ChapterStep, state: PipelineState, project_dir: Path, step_idx: int, chapter: int
+) -> bool:
+    """Revision-position hook (:4728, AFTER add_step_done + unconditional
+    _reset_retries :4725). Whole present block :4728-4778; the block's own
+    tail `return _advance(...)` / `return _handle_failure(...)` is the hook
+    return; non-revision steps take the unconditional tail (present body)."""
+    if "chapter-revision" in step.skill:  # T4 → step.is_revision
+        ...  # :4728-4778 现体整块（ensure_decisions/stale=True → revalidate+
+        # return _handle_failure bool 透传 → stale=False 清除 → settle 重派队 → 尾 _advance）
+        return <块尾现值>
+    return _advance(state, step_idx, step, chapter, project_dir=project_dir)  # 非 revision 尾
 ```
-  调用形态（serial 主体两处，保持现时序）：
+  调用形态（**r2.3 位置作用域——两个不同函数**。r2.2 的同函数双调用是机制级破坏：revision step 在位置 1 提前 return 会跳过 `_step_output_exists` 闸/add_step_done/`_reset_retries`；resonance step 在位置 1 fall-through 后位置 2 会**再次**触发 resonance 臂→双重 persist/route）：
 ```python
-outcome = _on_dispatch_success(
-    step, state, project_dir, step_idx, chapter, result
-)  # resonance 位 :4702
-if outcome is not None:
-    return outcome
+_on_resonance_success(step, state, project_dir, chapter)  # 位置 1（:4702，闸前）——void 直调
 ...  # _step_output_exists 闸 / add_step_done / 无条件 _reset_retries(:4725) 原样
-outcome = _on_dispatch_success(
-    step, state, project_dir, step_idx, chapter, result
-)  # revision 位 :4728
-if outcome is not None:
-    return outcome
-return _advance(...)  # 尾
+return _on_revision_success(
+    step, state, project_dir, step_idx, chapter
+)  # 位置 2（:4728）——bool 即函数尾
 ```
-  （三函数体内的 `...` 均为「现体逐行搬入」占位——搬移源行号已给，重构类 task 源码即规格；**不做全局注册表**——显式顺序 if 即「表+顺序」。`_on_dispatch_failure` 调用方：specialized 技能 `return _on_dispatch_failure(...)` 双 bool 透传、generic 落空走 :4552 现路由〔r2.2 补〕）
+  失败分支调用方（三态）：
+```python
+outcome = _on_dispatch_failure(step, state, project_dir, chapter, result)
+if outcome is not None:
+    return outcome  # True=checkpoint raised / False=retry 预算内透传
+...  # generic :4552 现路由（None=未触发臂）
+```
+  （函数体内的 `...` 均为「现体逐行搬入」占位——搬移源行号已给，重构类 task 源码即规格；**不做全局注册表**——显式顺序 if 即「表+顺序」）
   ⚠️ **spec83 `_func_body` 断言同步**：test_spec83_stale_declarations.py:96-98 断言 settle_capable 函数体含 `_pre_settle_guard` 字面量——settle 站点搬入 `_run_serial_dispatch_step` 后体内经 `_pre_dispatch_hooks` 间接持有，断言目标须同批改 `"_pre_dispatch_hooks" in body or "_pre_settle_guard" in body`（Step 3 白名单同步一并落）。
 
 - [ ] **Step 2: 主函数重写为分派骨架**（`_run_chapter_step_impl` 删除——验收 2；`run_chapter_step` 内直接写分派或保留薄 impl 皆可——spec 验收 2 写 `_run_chapter_step_impl` 消失，主分派逻辑并入 `run_chapter_step` try 块或改名——**采用并入**：`run_chapter_step` 的 try 块内直接五体制分派）：
