@@ -51,7 +51,7 @@ def _write_merge(
 
     monkeypatch.setattr(contracts_mod, "load_contract", _fake_contract)
     payload = payload_override if payload_override is not None else _payload(patches or {})
-    dh._write_parsed_outputs(
+    dh.write_parsed_outputs(
         "",
         ["chapters/chapter-9.md"],
         project,
@@ -72,7 +72,7 @@ def test_merge_prose_branch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> 
         "info",
         lambda event, **kw: events.append((event, dict(kw))),
     )
-    # 走公共入口 _write_parsed_outputs（parsed 面 + semantics 由契约加载器注入）
+    # 走公共入口 write_parsed_outputs（parsed 面 + semantics 由契约加载器注入）
     import shenbi.contracts as contracts_mod
 
     orig = contracts_mod.load_contract
@@ -83,7 +83,7 @@ def test_merge_prose_branch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> 
         return orig(skill_name)
 
     monkeypatch.setattr(contracts_mod, "load_contract", _fake_contract)
-    dh._write_parsed_outputs(
+    dh.write_parsed_outputs(
         "",
         ["chapters/chapter-9.md"],
         project,
@@ -149,7 +149,7 @@ def test_merge_prose_normalizes_cjk_base_header(
         return orig(skill_name)
 
     monkeypatch.setattr(contracts_mod, "load_contract", _fake_contract)
-    dh._write_parsed_outputs(
+    dh.write_parsed_outputs(
         "",
         ["chapters/chapter-9.md"],
         project,
@@ -189,7 +189,7 @@ def test_merge_prose_english_default_prepends_contract_header(
         return orig(skill_name)
 
     monkeypatch.setattr(contracts_mod, "load_contract", _fake_contract)
-    dh._write_parsed_outputs(
+    dh.write_parsed_outputs(
         "",
         ["chapters/chapter-9.md"],
         project,

@@ -143,7 +143,7 @@ class TestAuditWavePartition:
 
         with (
             # Serial members now dispatch through parallel_dispatch.dispatch_skill
-            # (inside _dispatch_with_retry, C32 R4 follow-up) — same seam as
+            # (inside dispatch_with_retry, C32 R4 follow-up) — same seam as
             # concurrent-wave members.
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_skill",
@@ -171,7 +171,7 @@ class TestAuditWavePartition:
         # resonance never rides the concurrent wave...
         assert wave_skills, "parallel wave must have run"
         assert all("shenbi-review-resonance" not in w for w in wave_skills)
-        # ...it is dispatched serially instead (keyword form — _dispatch_with_retry
+        # ...it is dispatched serially instead (keyword form — dispatch_with_retry
         # calls dispatch_skill(skill=..., project_dir=..., prompt=..., ...)).
         serial_calls = [c.kwargs["skill"] for c in serial_disp.call_args_list]
         assert "shenbi-review-resonance" in serial_calls
@@ -192,7 +192,7 @@ def _serial_dispatch_as(mock: MagicMock) -> Generator[None, None, None]:
     """Patch BOTH dispatch seams with the same mock (no real dispatch).
 
     The serial WRITE_SHARED path must dispatch through
-    ``parallel_dispatch.dispatch_skill`` (inside ``_dispatch_with_retry``);
+    ``parallel_dispatch.dispatch_skill`` (inside ``dispatch_with_retry``);
     ``chapter_loop.dispatch_skill`` is the seam used before the C32 R4
     follow-up and by the non-audit steps. Patching both with one shared mock
     makes these tests fail closed — the exception propagates and the test
@@ -208,7 +208,7 @@ def _serial_dispatch_as(mock: MagicMock) -> Generator[None, None, None]:
 
 class TestSerialDispatchFailureParity:
     """C32 R4 follow-up: serial WRITE_SHARED members get the same failure
-    semantics as concurrent-wave members (``_dispatch_with_retry``):
+    semantics as concurrent-wave members (``dispatch_with_retry``):
 
     1. dispatch exceptions are caught and wrapped into a failed
        DispatchResult (batch survives, failure joins consolidation) instead
@@ -226,11 +226,11 @@ class TestSerialDispatchFailureParity:
 
     def test_serial_exception_wrapped_as_failed_result(self, tmp_path: Path):
         """A raised exception becomes ok=False, not a crashed batch."""
-        from shenbi.pipeline.chapter_loop import _dispatch_serial_reviews
+        from shenbi.pipeline.chapter_loop import dispatch_serial_reviews
 
         serial_dispatch = MagicMock(side_effect=OSError("OpenAI() construction failed"))
         with _serial_dispatch_as(serial_dispatch):
-            results = _dispatch_serial_reviews([self._resonance_task(tmp_path)], tmp_path)
+            results = dispatch_serial_reviews([self._resonance_task(tmp_path)], tmp_path)
 
         assert len(results) == 1
         result = results[0]
@@ -240,11 +240,11 @@ class TestSerialDispatchFailureParity:
 
     def test_serial_persistent_failure_retries_max_attempts(self, tmp_path: Path):
         """Persistent failure exhausts MAX_RETRIES + 1 attempts before failed."""
-        from shenbi.pipeline.chapter_loop import _dispatch_serial_reviews
+        from shenbi.pipeline.chapter_loop import dispatch_serial_reviews
 
         serial_dispatch = MagicMock(side_effect=OSError("api down"))
         with _serial_dispatch_as(serial_dispatch):
-            results = _dispatch_serial_reviews([self._resonance_task(tmp_path)], tmp_path)
+            results = dispatch_serial_reviews([self._resonance_task(tmp_path)], tmp_path)
 
         assert serial_dispatch.call_count == MAX_RETRIES + 1  # 3 attempts
         assert results[0].success is False
@@ -252,13 +252,13 @@ class TestSerialDispatchFailureParity:
 
     def test_serial_transient_failure_retried_then_succeeds(self, tmp_path: Path):
         """A transient exception is retried; the retry's success wins."""
-        from shenbi.pipeline.chapter_loop import _dispatch_serial_reviews
+        from shenbi.pipeline.chapter_loop import dispatch_serial_reviews
 
         serial_dispatch = MagicMock(
             side_effect=[OSError("transient API hiccup"), DispatchResult(True, 0, "{}", "")]
         )
         with _serial_dispatch_as(serial_dispatch):
-            results = _dispatch_serial_reviews([self._resonance_task(tmp_path)], tmp_path)
+            results = dispatch_serial_reviews([self._resonance_task(tmp_path)], tmp_path)
 
         assert serial_dispatch.call_count == 2
         assert results[0].success is True

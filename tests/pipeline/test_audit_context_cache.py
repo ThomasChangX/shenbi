@@ -43,18 +43,18 @@ def test_shared_context_reduces_repeated_io():
 
 
 def test_shared_context_fields_are_injectable(tmp_path):
-    """SharedAuditContext cached fields land in the real _build_skill_prompt output.
+    """SharedAuditContext cached fields land in the real build_skill_prompt output.
 
     Drives the production injection block (dispatch_helper._INJECT_FROM_CACHE)
     instead of re-implementing it: canonical keys (C28 R1 F312) must appear
     in the built user_prompt with the ctx content.
     """
-    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+    from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
     assemble_shared_context_project(tmp_path)
 
     ctx = build_shared_audit_context(tmp_path, 3)
-    _, user_prompt, _, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = build_skill_prompt(
         skill="shenbi-review-anti-ai",
         project_dir=tmp_path,
         prompt="audit chapter 3",

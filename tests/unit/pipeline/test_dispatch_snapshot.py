@@ -27,9 +27,9 @@ def test_raw_snapshot_is_disk_original_not_filtered_view(tmp_path: Path, monkeyp
     # 一节命中契约字段、一节不命中——fields 过滤视图必然丢第二节（:1100 filter_to_fields）
     target.write_text("## 文风基准\n命中内容\n## 漂移节\n独有内容\n", encoding="utf-8")
 
-    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+    from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
-    system_prompt, user_prompt, output_paths, reads_manifest, raw_reads = _build_skill_prompt(
+    system_prompt, user_prompt, output_paths, reads_manifest, raw_reads = build_skill_prompt(
         "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
     )
 
@@ -50,9 +50,9 @@ def test_partial_hit_resolved_fields_subset(tmp_path: Path, monkeypatch):
     target.parent.mkdir(parents=True)
     target.write_text("## 文风基准\n命中内容\n", encoding="utf-8")
 
-    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+    from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
-    *_rest, reads_manifest, raw_reads = _build_skill_prompt(
+    *_rest, reads_manifest, raw_reads = build_skill_prompt(
         "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
     )
     entry = next(r for r in reads_manifest if r.get("mode") == "fields")

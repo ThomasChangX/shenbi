@@ -12,7 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from shenbi.contracts import load_contract
-from shenbi.pipeline.dispatch_helper import _route_append_dedup_write
+from shenbi.pipeline.dispatch_helper import route_append_dedup_write
 from shenbi.pipeline.truth_io import upsert_markdown_row
 
 #: Real probe21 ch1 rows (novel-xinghuo-probe21/truth/particle_ledger.md) —
@@ -177,7 +177,7 @@ def test_staging_merge_activates_composite_keys_on_stub_base(tmp_path: Path):
     live = tmp_path / "truth" / "subplot_board.md"
     live.parent.mkdir(parents=True)
     live.write_text(_STUB_SUBPLOT_BASE, encoding="utf-8")
-    _route_append_dedup_write(
+    route_append_dedup_write(
         tmp_path,
         "staging/truth/subplot_board.md",
         "\n".join(SUBPLOT_ROWS),
@@ -205,7 +205,7 @@ def test_reemitted_contract_header_dropped_on_chapter_key_file(tmp_path: Path):
     live.write_text(_STUB_SUBPLOT_BASE, encoding="utf-8")
     header = "| 章节 | 位置 | 时间锚 | 主角处境 | 势力态势 | 待处理压力 |"
     increment = "| 第 1 章 | 黑脉矿场 | 灰雨第三日 | 无档之身 | 册籍三分 | 西三巷道塌方\n" + header
-    _route_append_dedup_write(
+    route_append_dedup_write(
         tmp_path, "staging/truth/current_state.md", increment, key_field="chapter"
     )
     staged = (tmp_path / "staging" / "truth" / "current_state.md").read_text(encoding="utf-8")
@@ -226,7 +226,7 @@ def test_staging_route_remerge_keeps_multi_row_ledger(tmp_path: Path):
     )
 
     increment = "\n".join(PROBE21_LEDGER_ROWS)
-    _route_append_dedup_write(
+    route_append_dedup_write(
         tmp_path, "staging/truth/particle_ledger.md", increment, key_field="章节,变动项"
     )
 
@@ -357,7 +357,7 @@ def test_staging_route_bootstraps_emotional_arcs_header(tmp_path: Path):
     live = tmp_path / "truth" / "emotional_arcs.md"
     live.parent.mkdir(parents=True)
     live.write_text(_INIT_SHELL_EMOTIONAL, encoding="utf-8")
-    _route_append_dedup_write(
+    route_append_dedup_write(
         tmp_path,
         "staging/truth/emotional_arcs.md",
         "| 第 1 章 | 沈烬 | 落点 · 身份归零（起点） | 以刻瓦记账自我确认 | 「不算数」判定 |",
@@ -375,7 +375,7 @@ def test_staging_route_bootstraps_character_matrix_header(tmp_path: Path):
     live = tmp_path / "truth" / "character_matrix.md"
     live.parent.mkdir(parents=True)
     live.write_text(_INIT_SHELL_MATRIX, encoding="utf-8")
-    _route_append_dedup_write(
+    route_append_dedup_write(
         tmp_path,
         "staging/truth/character_matrix.md",
         "| 沈烬 | 挑担汉子 | 记账者 ↔ 雇主 | 初建（低） | 汉子知两兄弟被扣的实情 |\n"

@@ -52,7 +52,7 @@ class TestEmptyContentResend:
         monkey_patch = dh._call_llm_streaming_with_retry
         dh._call_llm_streaming_with_retry = stream
         try:
-            result = dh._dispatch_via_api("shenbi-power-system", tmp_path, "Execute test.")
+            result = dh.dispatch_via_api("shenbi-power-system", tmp_path, "Execute test.")
         finally:
             dh._call_llm_streaming_with_retry = monkey_patch
         assert stream.call_count == 2
@@ -65,7 +65,7 @@ class TestEmptyContentResend:
         original = dh._call_llm_streaming_with_retry
         dh._call_llm_streaming_with_retry = stream
         try:
-            result = dh._dispatch_via_api("shenbi-power-system", tmp_path, "Execute test.")
+            result = dh.dispatch_via_api("shenbi-power-system", tmp_path, "Execute test.")
         finally:
             dh._call_llm_streaming_with_retry = original
         assert stream.call_count == 2  # first try + the single resend
@@ -76,7 +76,7 @@ class TestEmptyContentResend:
         original = dh._call_llm_streaming_with_retry
         dh._call_llm_streaming_with_retry = stream
         try:
-            result = dh._dispatch_via_api("shenbi-power-system", tmp_path, "Execute test.")
+            result = dh.dispatch_via_api("shenbi-power-system", tmp_path, "Execute test.")
         finally:
             dh._call_llm_streaming_with_retry = original
         assert stream.call_count == 1

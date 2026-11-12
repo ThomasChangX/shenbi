@@ -1,7 +1,7 @@
 """T2 wiring tests: dispatch routes ``append_dedup`` to truth_io upsert (C3).
 
 Audit F360/F828: contract updates declared ``mode: append_dedup`` were written
-as WHOLE FILES by ``_write_parsed_outputs`` — cumulative truth data (chapter
+as WHOLE FILES by ``write_parsed_outputs`` — cumulative truth data (chapter
 summaries, trend rows, hook rows) collapsed to the last chapter's increment on
 every dispatch. These tests pin the routed behavior:
 
@@ -26,7 +26,7 @@ import pytest
 import yaml
 
 from shenbi.exceptions import TruthFileParseError
-from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
 FIXTURES = Path("tests/fixtures")
 
@@ -54,7 +54,7 @@ class TestChapterSummariesHistoryPreserved:
         """
         _seed_from_fixture(tmp_path, "truth/chapter_summaries.md", "truth-chapter_summaries.md")
 
-        out = _write_parsed_outputs(
+        out = write_parsed_outputs(
             response=(
                 "### FILE: truth/chapter_summaries.md\n"
                 "| 第 2 章 | 林烽开始修炼灵能呼吸法，初次引导灵能流经经脉。 |\n"
@@ -78,7 +78,7 @@ class TestChapterSummariesHistoryPreserved:
         rows in chapter_summaries.
         """
         for chapter, summary in ((1, "穿越负债开局"), (2, "初次修炼突破")):
-            out = _write_parsed_outputs(
+            out = write_parsed_outputs(
                 response=(
                     f"### FILE: truth/chapter_summaries.md\n| 第 {chapter} 章 | {summary} |\n"
                 ),
@@ -97,13 +97,13 @@ class TestChapterSummariesHistoryPreserved:
         — exactly one row per chapter key.
         """
         row = "| 第 2 章 | 初版摘要 |"
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=f"### FILE: truth/chapter_summaries.md\n{row}\n",
             output_paths=["truth/chapter_summaries.md"],
             project_dir=tmp_path,
             skill="shenbi-state-settling",
         )
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response="### FILE: truth/chapter_summaries.md\n| 第 2 章 | 修订摘要 |\n",
             output_paths=["truth/chapter_summaries.md"],
             project_dir=tmp_path,
@@ -123,7 +123,7 @@ class TestResonanceTrendDoubleChapter:
 
     def test_two_chapter_rows_both_present(self, tmp_path: Path):
         for chapter, score in ((1, 82), (2, 87)):
-            _write_parsed_outputs(
+            write_parsed_outputs(
                 response=(
                     "### FILE: truth/resonance_trend.md\n"
                     f"| Ch{chapter} | - | - | - | - | - | {score} |\n"
@@ -146,7 +146,7 @@ class TestPendingHooksKeyedByHookId:
     def test_new_hook_row_merges_without_dropping_existing_hooks(self, tmp_path: Path):
         _seed_from_fixture(tmp_path, "truth/pending_hooks.md", "truth-pending_hooks.md")
 
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=(
                 "### FILE: truth/pending_hooks.md\n"
                 "| hook-ch2-001 | GENUINE | STRUCTURAL | 0.60 | RISING | 2 | plant | PLANTED |\n"
@@ -167,7 +167,7 @@ class TestPendingHooksKeyedByHookId:
         _seed_from_fixture(tmp_path, "truth/pending_hooks.md", "truth-pending_hooks.md")
 
         row = "| hook-ch1-001 | GENUINE | THEMATIC | 0.45 | RISING | 1 | reinforce | RELEVANT |"
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=f"### FILE: truth/pending_hooks.md\n{row}\n",
             output_paths=["truth/pending_hooks.md"],
             project_dir=tmp_path,
@@ -191,7 +191,7 @@ class TestPendingHooksKeyedByHookId:
         """
         _seed_from_fixture(tmp_path, "truth/pending_hooks.md", "truth-pending_hooks.md")
 
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=(
                 "### FILE: truth/pending_hooks.md\n"
                 "| hook-ch2-001 | GENUINE | STRUCTURAL | 0.60 | RISING | 2 | plant | PLANTED |\n"
@@ -206,7 +206,7 @@ class TestPendingHooksKeyedByHookId:
         assert "hook-ch2-001" in result
         assert "hook-ch2-002" in result
         # Re-dispatch the same two rows: still one table row per hook (dedup).
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=(
                 "### FILE: truth/pending_hooks.md\n"
                 "| hook-ch2-001 | GENUINE | STRUCTURAL | 0.60 | RISING | 2 | plant | PLANTED |\n"
@@ -235,7 +235,7 @@ class TestStagingTruthMerge:
         _seed_from_fixture(tmp_path, "truth/chapter_summaries.md", "truth-chapter_summaries.md")
         live_before = (tmp_path / "truth" / "chapter_summaries.md").read_text(encoding="utf-8")
 
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response=("### FILE: staging/truth/chapter_summaries.md\n| 第 2 章 | 初次修炼突破 |\n"),
             output_paths=["staging/truth/chapter_summaries.md"],
             project_dir=tmp_path,
@@ -272,7 +272,7 @@ class TestFailLoudOnCorruptTruthFile:
         monkeypatch.setattr("shenbi.pipeline.truth_io.write_truth_file", _raise)
 
         with pytest.raises(TruthFileParseError):
-            _write_parsed_outputs(
+            write_parsed_outputs(
                 response=(
                     "### FILE: truth/pending_hooks.md\n"
                     "| hook-ch2-001 | GENUINE | STRUCTURAL | 0.6 | RISING | 2 | plant | PLANTED |\n"
@@ -304,7 +304,7 @@ class TestNonTruthAppendDedupFallback:
                 "write_semantics": {"logs/append.md": {"mode": "append_dedup", "key": "chapter"}},
             },
         )
-        out = _write_parsed_outputs(
+        out = write_parsed_outputs(
             response="### FILE: logs/append.md\nrow-1\n",
             output_paths=["logs/append.md"],
             project_dir=tmp_path,
@@ -358,7 +358,7 @@ class TestDriftGuidanceAuditDriftWholeFileRewrite:
         return block.replace("连续3章无 FIRE", f"第{chapter}章观测：连续3章无 FIRE")
 
     def _dispatch(self, tmp_path: Path, chapter: int) -> None:
-        out = _write_parsed_outputs(
+        out = write_parsed_outputs(
             response=f"### FILE: truth/audit_drift.md\n{self._block_for_chapter(chapter)}\n",
             output_paths=["truth/audit_drift.md"],
             project_dir=tmp_path,

@@ -101,7 +101,7 @@ READ_KEY_REGISTRY: list[ReadKey] = [
     # --- audit gate scan list (T5) ---
     ReadKey(
         "chapterloop/audit-scan-family",
-        "src/shenbi/pipeline/chapter_loop.py: _any_audit_has_findings",
+        "src/shenbi/pipeline/chapter_loop.py: any_audit_has_findings",
         "audits/chapter-<N>-<audit_suffix>.md",
         [
             "src/shenbi/pipeline/audit_layer.py: def audit_relative_path",
@@ -118,14 +118,14 @@ READ_KEY_REGISTRY: list[ReadKey] = [
     # --- resonance product format (T5) ---
     ReadKey(
         "chapterloop/resonance-score",
-        "src/shenbi/pipeline/chapter_loop.py: _parse_resonance_score",
+        "src/shenbi/pipeline/chapter_loop.py: parse_resonance_score",
         "audits/chapter-<N>-resonance.md (**结果**: … (N/100))",
         ["src/shenbi/pipeline/chapter_loop.py: audit_relative_path(chapter, step.skill)"],
     ),
     # --- cascade history shape (T5) ---
     ReadKey(
         "chapterloop/cascade-history",
-        "src/shenbi/pipeline/chapter_loop.py: _should_skip_audit",
+        "src/shenbi/pipeline/chapter_loop.py: should_skip_audit",
         "audit_results[<short>] = {passed, hard_failures}",
         ["src/shenbi/pipeline/chapter_loop.py: cs.audit_results[short] = _wave_audit_entry("],
     ),

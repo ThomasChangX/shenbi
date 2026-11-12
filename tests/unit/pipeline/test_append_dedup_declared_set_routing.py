@@ -12,14 +12,14 @@ for key A then an increment for key B must leave BOTH rows in the file — the
 pre-fix whole-file write collapsed the file to B's increment (audit F1104/F1105
 data loss). A re-dispatch of the same key replaces its row in place (exactly
 one row per key). The write path under test is the real
-``_write_parsed_outputs`` → ``_route_append_dedup_write`` → truth_io upsert
+``write_parsed_outputs`` → ``route_append_dedup_write`` → truth_io upsert
 chain with the real contract loaded; only the LLM text is the test's own.
 
 Guard validity (verified while developing, see task-6-report.md): against the
 pre-routing BASE commit 7de2360 the parametrized guard FAILS (history collapses
 to the last increment; BASE also carries drift-guidance's since-removed
 append_dedup declaration, so the snapshot count reads 18 there), and
-short-circuiting ``_route_append_dedup_write`` to the legacy whole-file write
+short-circuiting ``route_append_dedup_write`` to the legacy whole-file write
 on current HEAD fails all 17 parametrized cases.
 """
 
@@ -31,7 +31,7 @@ import pytest
 
 from shenbi.contracts import ContractError, load_contract
 from shenbi.gates.shared import SKILLS as _SKILLS_DIR
-from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
 
 def _declared_append_dedup_pairs() -> list[tuple[str, str, str]]:
@@ -147,7 +147,7 @@ def test_declared_increment_routes_through_keyed_upsert(
         second = "| t6-key-two | second increment |"
         revised = "| t6-key-two | revised increment |"
     for row in (first, second):
-        written = _write_parsed_outputs(
+        written = write_parsed_outputs(
             response=f"### FILE: {path}\n{row}\n",
             output_paths=[path],
             project_dir=tmp_path,
@@ -164,7 +164,7 @@ def test_declared_increment_routes_through_keyed_upsert(
 
     # Re-dispatching the SAME key replaces its row in place — crash-retry
     # safety — and never duplicates it or disturbs the other key's row.
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response=f"### FILE: {path}\n{revised}\n",
         output_paths=[path],
         project_dir=tmp_path,

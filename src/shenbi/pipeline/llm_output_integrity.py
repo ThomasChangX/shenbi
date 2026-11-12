@@ -4,7 +4,7 @@ Spec: 2026-07-19 output-structural-integrity-beyond-json-design (merged Spec 19
 + former Spec 20).
 
 This module is the single source of truth for the pattern catalog and the five
-check functions invoked from ``dispatch_helper._write_parsed_outputs``. The
+check functions invoked from ``dispatch_helper.write_parsed_outputs``. The
 former Specs 19/20 maintained overlapping pattern lists; they are de-duplicated
 here, split by detection mode:
 

@@ -455,7 +455,7 @@ class TestAuditCircleIntegration:
                 return_value=DispatchResult(True, 0, "{}", ""),
             ),
             # Serial WRITE_SHARED members dispatch through the same seam as
-            # the concurrent wave (inside _dispatch_with_retry, C32 R4 follow-up).
+            # the concurrent wave (inside dispatch_with_retry, C32 R4 follow-up).
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_skill",
                 return_value=DispatchResult(True, 0, "{}", ""),
@@ -519,7 +519,7 @@ class TestRevisionRoutingIntegration:
             return_value=DispatchResult(True, 0, "{}", ""),
         )
         # Serial WRITE_SHARED members (review-resonance) dispatch through the
-        # parallel_dispatch seam inside _dispatch_with_retry (C32 R4 follow-up).
+        # parallel_dispatch seam inside dispatch_with_retry (C32 R4 follow-up).
         patches["serial_disp"] = patch(
             "shenbi.pipeline.parallel_dispatch.dispatch_skill",
             return_value=DispatchResult(True, 0, "{}", ""),
@@ -594,9 +594,9 @@ class TestRevisionRoutingIntegration:
 
             run_chapter_step(state, tmp_path)
 
-            # Step 15 needs _any_audit_has_findings=True to not be gated.
+            # Step 15 needs any_audit_has_findings=True to not be gated.
             with patch(
-                "shenbi.pipeline.chapter_loop._any_audit_has_findings",
+                "shenbi.pipeline.chapter_loop.any_audit_has_findings",
                 return_value=True,
             ):
                 run_chapter_step(state, tmp_path)
@@ -801,16 +801,16 @@ class TestAuditLayerWiring:
 
 
 # ---------------------------------------------------------------------------
-# A7: State-settling G4 validation — _resolve_g4_files
+# A7: State-settling G4 validation — resolve_g4_files
 # ---------------------------------------------------------------------------
 class TestResolveG4Files:
-    """Tests _resolve_g4_files for multi-file steps like state-settling."""
+    """Tests resolve_g4_files for multi-file steps like state-settling."""
 
     def test_state_settling_returns_staging_truth_files(self, tmp_path):
         """State-settling step globs staging/truth/*.md."""
         from shenbi.pipeline.chapter_loop import (
             CHAPTER_STEPS,
-            _resolve_g4_files,
+            resolve_g4_files,
         )
 
         # Find state-settling step (step 7, index 6)
@@ -823,7 +823,7 @@ class TestResolveG4Files:
         (staging_truth / "character_matrix.md").write_text("# chars")
         (staging_truth / "not_markdown.txt").write_text("nope")
 
-        files = _resolve_g4_files(tmp_path, ss_step, chapter=5)
+        files = resolve_g4_files(tmp_path, ss_step, chapter=5)
         assert len(files) >= 2
         assert any("current_state.md" in f for f in files)
         assert any("character_matrix.md" in f for f in files)
@@ -834,26 +834,26 @@ class TestResolveG4Files:
         """No staging/truth/ dir → returns empty list, no crash."""
         from shenbi.pipeline.chapter_loop import (
             CHAPTER_STEPS,
-            _resolve_g4_files,
+            resolve_g4_files,
         )
 
         ss_step = next(s for s in CHAPTER_STEPS if "state-settling" in s.skill)
-        files = _resolve_g4_files(tmp_path, ss_step, chapter=5)
+        files = resolve_g4_files(tmp_path, ss_step, chapter=5)
         assert files == []
 
     def test_non_state_settling_returns_single_file(self, tmp_path):
         """Non-state-settling steps return single path unchanged."""
         from shenbi.pipeline.chapter_loop import (
             CHAPTER_STEPS,
-            _resolve_g4_files,
+            resolve_g4_files,
         )
 
         # spec #72: drafting no longer carries an md output_path (staging
         # bundle until split) — the single-file exemplar is planning.
         drafting_step = CHAPTER_STEPS[3]
-        assert _resolve_g4_files(tmp_path, drafting_step, chapter=3) == []
+        assert resolve_g4_files(tmp_path, drafting_step, chapter=3) == []
         planning_step = CHAPTER_STEPS[1]  # step 2: chapter-planning
-        files = _resolve_g4_files(tmp_path, planning_step, chapter=3)
+        files = resolve_g4_files(tmp_path, planning_step, chapter=3)
         assert len(files) == 1
         assert "chapter-3-plan.md" in files[0]
 
@@ -974,40 +974,40 @@ class TestEscalationWiring:
 # Resonance Score Parser (A2)
 # ---------------------------------------------------------------------------
 class TestResonanceScoreParser:
-    """Tests _parse_resonance_score from audit reports."""
+    """Tests parse_resonance_score from audit reports."""
 
     def test_parses_yaml_frontmatter(self, tmp_path):
-        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+        from shenbi.pipeline.chapter_loop import parse_resonance_score
 
         report = tmp_path / "resonance.md"
         report.write_text("---\nresonance_score: 87\n---\n# Report\n...")
-        assert _parse_resonance_score(report) == 87
+        assert parse_resonance_score(report) == 87
 
     def test_parses_bold_label(self, tmp_path):
-        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+        from shenbi.pipeline.chapter_loop import parse_resonance_score
 
         report = tmp_path / "resonance.md"
         report.write_text("# Review\n\n**Resonance Score**: 92\n\nDetails...")
-        assert _parse_resonance_score(report) == 92
+        assert parse_resonance_score(report) == 92
 
     def test_parses_plain_label(self, tmp_path):
-        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+        from shenbi.pipeline.chapter_loop import parse_resonance_score
 
         report = tmp_path / "resonance.md"
         report.write_text("Score: 75")
-        assert _parse_resonance_score(report) == 75
+        assert parse_resonance_score(report) == 75
 
     def test_missing_file_returns_none(self, tmp_path):
-        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+        from shenbi.pipeline.chapter_loop import parse_resonance_score
 
-        assert _parse_resonance_score(tmp_path / "nonexistent.md") is None
+        assert parse_resonance_score(tmp_path / "nonexistent.md") is None
 
     def test_no_score_found_returns_none(self, tmp_path):
-        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+        from shenbi.pipeline.chapter_loop import parse_resonance_score
 
         report = tmp_path / "resonance.md"
         report.write_text("# No score here\n\nJust text.")
-        assert _parse_resonance_score(report) is None
+        assert parse_resonance_score(report) is None
 
 
 # ---------------------------------------------------------------------------
@@ -1119,21 +1119,21 @@ class TestAnyAuditHasFindings:
         """F340 P0: a group-* audit with a BLOCKING section must trigger
         revision gating (old 13-type list missed the group family).
         """
-        from shenbi.pipeline.chapter_loop import _any_audit_has_findings
+        from shenbi.pipeline.chapter_loop import any_audit_has_findings
 
         state = self._state_with_audit(
             tmp_path,
             "chapter-3-group-factual.md",
             "# 审计\n\n## BLOCKING Issues\n\n- 事实错误\n",
         )
-        assert _any_audit_has_findings(state) is True
+        assert any_audit_has_findings(state) is True
 
     def test_genre_dimension_era_triggers(self, tmp_path):
         """F369: genre-activated audit families (era/…) must be scanned."""
-        from shenbi.pipeline.chapter_loop import _any_audit_has_findings
+        from shenbi.pipeline.chapter_loop import any_audit_has_findings
 
         state = self._state_with_audit(tmp_path, "chapter-3-era.md", "## BLOCKING\n时代错位\n")
-        assert _any_audit_has_findings(state) is True
+        assert any_audit_has_findings(state) is True
 
     def test_real_production_blocking_audit_triggers(self, tmp_path):
         """F370: real BLOCKING product (xinghuo chapter audits) triggers;
@@ -1141,7 +1141,7 @@ class TestAnyAuditHasFindings:
         """
         import shutil
 
-        from shenbi.pipeline.chapter_loop import _any_audit_has_findings
+        from shenbi.pipeline.chapter_loop import any_audit_has_findings
 
         src = Path("novel-output/xinghuo-ranqiong/audits/chapter-2-memo-compliance.md")
         if not src.exists():  # production tree not present in this checkout
@@ -1152,16 +1152,16 @@ class TestAnyAuditHasFindings:
         state = self._state_with_audit(tmp_path, None, "")
         state.project_dir = str(proj)
         # chapter-2-memo-compliance.md contains "## BLOCKING" (verified real product)
-        assert _any_audit_has_findings(state) is True
+        assert any_audit_has_findings(state) is True
 
     def test_prose_fail_mention_does_not_trigger(self, tmp_path):
         """F370: bare 'FAIL' inside prose is not a marker."""
-        from shenbi.pipeline.chapter_loop import _any_audit_has_findings
+        from shenbi.pipeline.chapter_loop import any_audit_has_findings
 
         state = self._state_with_audit(
             tmp_path, "chapter-3-pacing.md", "本次审计未出现 FAIL 情况，一切正常。\n"
         )
-        assert _any_audit_has_findings(state) is False
+        assert any_audit_has_findings(state) is False
 
 
 class TestAuditRoutedRevisionQueuesResettle:

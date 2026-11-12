@@ -406,7 +406,7 @@ class TestLifecycleFailureRouting:
         assert handle_failure.call_args.args[3] == "g4"
 
     def test_dispatch_with_retry_records_attempts(self, tmp_path, monkeypatch):
-        """F363 wiring: _dispatch_with_retry stamps ReviewTask.attempts even
+        """F363 wiring: dispatch_with_retry stamps ReviewTask.attempts even
         when all attempts fail (exception path).
         """
         from shenbi.pipeline import parallel_dispatch as pd
@@ -428,7 +428,7 @@ class TestLifecycleFailureRouting:
             prompt="p",
             output_path="o",
         )
-        result = pd._dispatch_with_retry(task, Semaphore(4))
+        result = pd.dispatch_with_retry(task, Semaphore(4))
         assert result.success is False
         assert task.attempts == pd.MAX_RETRIES + 1
         assert len(calls) == pd.MAX_RETRIES + 1
@@ -549,7 +549,7 @@ class TestDeterministicZeroRetryWiring:
             prompt="p",
             output_path="o",
         )
-        result = pd._dispatch_with_retry(task, Semaphore(4))
+        result = pd.dispatch_with_retry(task, Semaphore(4))
         assert result.success is False
         assert len(calls) == 1  # deterministic → no wave retry
         assert task.attempts == 1

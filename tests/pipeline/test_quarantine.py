@@ -13,7 +13,7 @@ from shenbi.contracts.skills.pacing_design import PacingDesign
 from shenbi.pipeline.dispatch_helper import (
     _is_truncated_file_output,
     _quarantine_output,
-    _write_parsed_outputs,
+    write_parsed_outputs,
 )
 
 
@@ -21,7 +21,7 @@ class TestQuarantine:
     def test_missing_literal_path_quarantines_not_written(self, tmp_path) -> None:
         """F329:literal 路径不在 parsed → 不回退 __stdout__,quarantine 原始输出。"""
         parsed = {"a.md": "content-a"}
-        written = _write_parsed_outputs(
+        written = write_parsed_outputs(
             "raw response body",
             ["a.md", "b.md"],
             tmp_path,
@@ -37,7 +37,7 @@ class TestQuarantine:
 
     def test_stdout_declared_path_still_written(self, tmp_path) -> None:
         """回归:`__stdout__` 作为契约声明路径正常落盘。"""
-        written = _write_parsed_outputs(
+        written = write_parsed_outputs(
             "whole output",
             ["__stdout__"],
             tmp_path,
@@ -63,7 +63,7 @@ class TestTruncation:
 
         truncated = "### FILE: a.md\nsome content\n\n### FILE: b.md\n"
         with pytest.raises(DispatchWriteFailureError, match="truncated"):
-            _write_parsed_outputs(truncated, ["a.md", "b.md"], tmp_path, skill="shenbi-example")
+            write_parsed_outputs(truncated, ["a.md", "b.md"], tmp_path, skill="shenbi-example")
         assert not (tmp_path / "a.md").exists()
         assert list((tmp_path / "_quarantine").glob("shenbi-example-*.md"))
 

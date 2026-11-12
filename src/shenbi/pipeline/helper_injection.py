@@ -5,7 +5,7 @@ LLM receives precomputed values instead of recomputing them by hand —
 or, on the API dispatch route, instead of receiving a dead ``python -m``
 instruction it cannot execute at all.
 
-Injection happens at the ``_build_skill_prompt`` seam (same layer as
+Injection happens at the ``build_skill_prompt`` seam (same layer as
 plan_skeleton / review_checklist injection). Per-skill rollback: list a
 skill under the top-level ``helper_injection_disabled`` key in
 executor_config.toml to fall back to the pure-prompt path.

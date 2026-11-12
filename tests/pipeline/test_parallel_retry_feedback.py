@@ -2,7 +2,7 @@
 
 probe23 ch2 resonance: the increment-shape guard rejected all three
 attempts with the same pointed teaching stderr (「合法增量是…」), but
-``_dispatch_with_retry`` re-sent the IDENTICAL prompt — the model never
+``dispatch_with_retry`` re-sent the IDENTICAL prompt — the model never
 learned why its output was rejected, burned ~107k completion tokens on
 three identical whole-file scaffolds, and the review-summary increment
 was lost (``parallel_review_wave2_empty`` → empty ch2 review summary).
@@ -50,7 +50,7 @@ def test_retry_prompt_carries_rejection_feedback(monkeypatch, tmp_path: Path) ->
     monkeypatch.setattr(pd, "dispatch_skill", fake_dispatch)
     monkeypatch.setattr(time, "sleep", lambda _s: None)
 
-    result = pd._dispatch_with_retry(_make_task(tmp_path), Semaphore(1))
+    result = pd.dispatch_with_retry(_make_task(tmp_path), Semaphore(1))
 
     assert result.success is True
     assert len(calls) == 2
@@ -73,7 +73,7 @@ def test_identical_rejection_is_not_appended_twice(monkeypatch, tmp_path: Path) 
     monkeypatch.setattr(pd, "dispatch_skill", fake_dispatch)
     monkeypatch.setattr(time, "sleep", lambda _s: None)
 
-    result = pd._dispatch_with_retry(_make_task(tmp_path), Semaphore(1))
+    result = pd.dispatch_with_retry(_make_task(tmp_path), Semaphore(1))
 
     assert result.success is True
     assert len(calls) == 3

@@ -173,7 +173,7 @@ def chapter_succeeds():
             )
         )
         # Serial WRITE_SHARED member (review-resonance) dispatches through the
-        # parallel_dispatch seam inside _dispatch_with_retry (C32 R4 follow-up).
+        # parallel_dispatch seam inside dispatch_with_retry (C32 R4 follow-up).
         serial_disp = stack.enter_context(
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_skill",
@@ -309,7 +309,7 @@ class TestFullChapterSequence:
         # parallel-dispatched).
         # review-resonance runs serially through the parallel_dispatch seam
         # (its contract updates shared truth files, F532/C32 R4; since the
-        # R4 follow-up it retries via _dispatch_with_retry like wave members).
+        # R4 follow-up it retries via dispatch_with_retry like wave members).
         # (volume-align, context-prepare, post-draft-extract, linguistic-drift-check
         #  are pipeline-internal;
         #  revision is skipped with NO_REVISION route).
@@ -518,7 +518,7 @@ class TestAuditCircleAndRevisionRouting:
                 )[1],
             ) as mock_disp,
             # Serial review-resonance dispatches through the parallel_dispatch
-            # seam inside _dispatch_with_retry (C32 R4 follow-up).
+            # seam inside dispatch_with_retry (C32 R4 follow-up).
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_skill",
                 return_value=DispatchResult(True, 0, "{}", ""),
@@ -554,10 +554,10 @@ class TestAuditCircleAndRevisionRouting:
                 "shenbi.pipeline.chapter_loop.route_chapter_revision",
                 return_value=RevisionRoute.SPOT_FIX,
             ),
-            # _any_audit_has_findings scans disk files; mock it since audit
+            # any_audit_has_findings scans disk files; mock it since audit
             # output files are not written to disk in this test.
             patch(
-                "shenbi.pipeline.chapter_loop._any_audit_has_findings",
+                "shenbi.pipeline.chapter_loop.any_audit_has_findings",
                 return_value=True,
             ),
         ):

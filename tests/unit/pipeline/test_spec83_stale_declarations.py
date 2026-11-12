@@ -78,7 +78,7 @@ def test_settle_dispatch_sites_all_guarded() -> None:
     }
     rest = {  # pre-classified non-settle points (audit r5-I1/r6-I1)
         ("pipeline/triggers.py", "run_triggered_skills"),
-        ("pipeline/parallel_dispatch.py", "_dispatch_with_retry"),
+        ("pipeline/parallel_dispatch.py", "dispatch_with_retry"),
         ("pipeline/audit_layer.py", "run_audit_layer"),
         ("pipeline/genesis.py", "run_genesis_step"),
         ("pipeline/closure.py", "run_closure_step"),

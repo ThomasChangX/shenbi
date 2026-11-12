@@ -66,11 +66,11 @@ def test_escalate_message_reflects_severity():
 
 
 def test_stm_110_escalate_raises_through_check(tmp_path):
-    """R3 验收原文: stm 110 permille 触发 ESCALATE — 经 _check_linguistic_drift 断言 raise."""
+    """R3 验收原文: stm 110 permille 触发 ESCALATE — 经 check_linguistic_drift 断言 raise."""
     import json
     import shutil
 
-    from shenbi.pipeline.chapter_loop import DriftEscalationError, _check_linguistic_drift
+    from shenbi.pipeline.chapter_loop import DriftEscalationError, check_linguistic_drift
 
     src = Path("tests/fixtures/multi-chapter-example")
     chapters = tmp_path / "chapters"
@@ -89,4 +89,4 @@ def test_stm_110_escalate_raises_through_check(tmp_path):
         encoding="utf-8",
     )
     with pytest.raises(DriftEscalationError):
-        _check_linguistic_drift(tmp_path, 4)
+        check_linguistic_drift(tmp_path, 4)

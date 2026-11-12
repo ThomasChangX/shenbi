@@ -149,7 +149,7 @@ def test_t604_emergency_cleanup_double_execution(tmp_path: Path, monkeypatch) ->
     cr._emergency_state["pipeline_state"] = object()  # truthy sentinel
     cr._emergency_flag = True
     try:
-        cr._check_emergency_flag(tmp_path)  # step-boundary path
+        cr.check_emergency_flag(tmp_path)  # step-boundary path
         cr._emergency_cleanup(tmp_path)  # atexit path fires again
     finally:
         cr._emergency_flag = False  # xdist 安全：模块全局复位

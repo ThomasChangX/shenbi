@@ -62,7 +62,7 @@ from shenbi.pipeline.dispatch_helper import (
 )
 from shenbi.pipeline.write_safety import WriteSafety, classify_skill_write_safety
 from shenbi.pipeline.crash_recovery import (
-    _check_emergency_flag as _cr_check_emergency_flag,  # pyright: ignore[reportPrivateUsage]
+    check_emergency_flag as _cr_check_emergency_flag,
     is_shutdown_requested,
     register_emergency_handlers,
 )
@@ -683,7 +683,7 @@ _BLOCKING_MARKER_RE = re.compile(
 )
 
 
-def _should_skip_audit(
+def should_skip_audit(
     skill: str,
     audit_history: list[dict[str, Any]],
     current_chapter: int | None = None,
@@ -1070,7 +1070,7 @@ def _check_escape_hatch_drift(
             return False
         violations = tuple(f"escape_hatch_drift: {d['key']} streak={d['streak']}" for d in drift)
         try:
-            from shenbi.audit._shared import AuditResult  # pyright: ignore[reportPrivateUsage]
+            from shenbi.audit import AuditResult  # spec #87 T5: public re-export
             from shenbi.audit.record import record_audit_outcome
 
             record_audit_outcome(
@@ -1459,7 +1459,7 @@ def _run_linguistic_drift_check(project_dir: Path, chapter: int) -> None:
     non-blocking (warning only).
     """
     try:
-        _check_linguistic_drift(project_dir, chapter)
+        check_linguistic_drift(project_dir, chapter)
     except DriftEscalationError:
         raise
     except Exception:
@@ -1801,7 +1801,7 @@ def _resolve_g4_path(project_dir: Path, step: ChapterStep, chapter: int) -> str:
     return resolved
 
 
-def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> list[str]:
+def resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> list[str]:
     """Return list of file paths for G4 validation.
 
     Single-file steps return one path. State-settling returns all
@@ -2796,7 +2796,7 @@ def _parse_high_anchor_count(report_path: Path) -> int:
     return int(match.group(1)) if match else 0
 
 
-def _parse_resonance_score(report_path: Path) -> int | None:
+def parse_resonance_score(report_path: Path) -> int | None:
     """Extract resonance score from a review-resonance audit report.
 
     T1201 (spec #45 R1): the fence envelope (```verdict block, ``共振: N/100``)
@@ -2845,7 +2845,7 @@ def build_resonance_trend_row(chapter: int, overall: int) -> str:
     >=7 cells and reads cells[6] as the overall score — unchanged here.
 
     Only the overall score (cs.resonance_score, an int) is available here;
-    the upstream parser _parse_resonance_score (chapter_loop.py:1389) returns
+    the upstream parser parse_resonance_score (chapter_loop.py:1389) returns
     int|None with no per-dimension breakdown. Columns without data use "-"
     placeholders so the column count stays at 9 (confidence column mirrors
     the skill's "-" convention; the last cell is blank like the skill's).
@@ -2878,13 +2878,13 @@ def _get_recent_resonance_scores(project_dir: Path, chapter: int, window: int = 
     scores: list[int] = []
     for ch in range(max(1, chapter - window + 1), chapter + 1):
         report_path = project_dir / "audits" / f"chapter-{ch}-resonance.md"
-        score = _parse_resonance_score(report_path)
+        score = parse_resonance_score(report_path)
         if score is not None:
             scores.append(score)
     return scores
 
 
-def _any_audit_has_findings(state: PipelineState) -> bool:
+def any_audit_has_findings(state: PipelineState) -> bool:
     """Check if any audit reported findings needing revision.
 
     Scans audit files for BLOCKING or FAIL markers.
@@ -2937,7 +2937,7 @@ def _should_run_step(state: PipelineState, step: ChapterStep) -> bool:
         return True
 
     if step.is_revision:
-        return _any_audit_has_findings(state)
+        return any_audit_has_findings(state)
 
     # Other conditional steps default to running
     return True
@@ -3064,7 +3064,7 @@ def _parse_and_persist_resonance(
     """
     cs = _get_chapter_state(state, chapter)
     report_path = project_dir / resolve_chapter_path("audits/chapter-N-resonance.md", chapter)
-    cs.resonance_score = _parse_resonance_score(report_path)
+    cs.resonance_score = parse_resonance_score(report_path)
     log.info(
         "resonance_score_parsed",
         chapter=chapter,
@@ -3283,7 +3283,7 @@ def _ensure_revision_decisions_exists(
 # ---------------------------------------------------------------------------
 
 
-def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:
+def check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:
     """Check chapter text for linguistic drift and apply tiered intervention.
 
     Reads the just-written ``chapters/chapter-{chapter}.md`` (no zero-padding),
@@ -3689,7 +3689,7 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
     Returns:
         Tuple of (lifecycle_result, settling_result) DispatchResult objects.
     """
-    from shenbi.pipeline.state import _merge_step_result  # pyright: ignore[reportPrivateUsage]
+    from shenbi.pipeline.state import merge_step_result
 
     project_dir = Path(state.project_dir)
     chapter = state.chapter_loop.current_chapter
@@ -3733,8 +3733,8 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
         )
 
     # Single-writer: merge results on the main thread ONLY.
-    _merge_step_result(state, lifecycle_result)
-    _merge_step_result(state, settling_result)
+    merge_step_result(state, lifecycle_result)
+    merge_step_result(state, settling_result)
 
     if not lifecycle_result.success:
         log.warning(
@@ -3791,12 +3791,12 @@ def _partition_review_wave(
     return wave, serial
 
 
-def _dispatch_serial_reviews(
+def dispatch_serial_reviews(
     serial_tasks: list[ReviewTask], project_dir: Path, state: Any = None
 ) -> list[DispatchResult]:
     """Dispatch WRITE_SHARED review skills one at a time (no concurrency).
 
-    Reuses parallel_dispatch._dispatch_with_retry so serial members get the
+    Reuses parallel_dispatch.dispatch_with_retry so serial members get the
     SAME failure semantics as concurrent-wave members: every exception is
     caught and wrapped into a failed DispatchResult (never allowed to crash
     run_chapter_step / the CLI driver) and failures retry with backoff,
@@ -3806,7 +3806,7 @@ def _dispatch_serial_reviews(
     from threading import Semaphore
 
     from shenbi.pipeline.parallel_dispatch import (
-        _dispatch_with_retry,  # pyright: ignore[reportPrivateUsage]
+        dispatch_with_retry,
     )
 
     semaphore = Semaphore(1)
@@ -3818,7 +3818,7 @@ def _dispatch_serial_reviews(
             project_dir=str(project_dir),
             reason="WRITE_SHARED contract writes — excluded from parallel wave (F532)",
         )
-        results.append(_dispatch_with_retry(t, semaphore, state))
+        results.append(dispatch_with_retry(t, semaphore, state))
     return results
 
 
@@ -3986,7 +3986,7 @@ def _run_audit_wave_step(
 
     def _keep_task(task: ReviewTask) -> bool:
         skill_short = _audit_short_name(task.skill)
-        if _should_skip_audit(skill_short, audit_history, current_chapter=chapter):
+        if should_skip_audit(skill_short, audit_history, current_chapter=chapter):
             log.info("audit_cascade_skipped", chapter=chapter, skill=task.skill)
             cascade_skipped.append(task.skill)
             return False
@@ -4046,7 +4046,7 @@ def _run_audit_wave_step(
         )
     else:
         log.info("parallel_review_wave1_empty", chapter=chapter)
-    core_results.extend(_dispatch_serial_reviews(core_serial, project_dir, state))
+    core_results.extend(dispatch_serial_reviews(core_serial, project_dir, state))
 
     # Wave 2: Genre-circle reviews (conditionally active, in parallel;
     # same WRITE_SHARED partition as wave 1)
@@ -4088,7 +4088,7 @@ def _run_audit_wave_step(
         )
     else:
         log.info("parallel_review_wave2_empty", chapter=chapter)
-    genre_results.extend(_dispatch_serial_reviews(genre_serial, project_dir, state))
+    genre_results.extend(dispatch_serial_reviews(genre_serial, project_dir, state))
 
     # Consolidate all results
     all_results = core_results + genre_results
@@ -4150,7 +4150,7 @@ def _run_audit_wave_step(
         p for t in core_tasks + genre_tasks for p in t.all_output_paths()
     ]
     # Per-skill history entries (F341/F726, spec #27 T5): the cascade
-    # (_should_skip_audit/_get_audit_history) consumes exactly this shape.
+    # (should_skip_audit/_get_audit_history) consumes exactly this shape.
     # hard_failures counts BLOCKING/CRITICAL markers in the audit report
     # artifact (the durable writer surface), not subprocess stdout.
     blocking_re = _BLOCKING_MARKER_RE
@@ -4275,7 +4275,7 @@ def _run_post_draft_pair_step(
 
     # G4: structural validation for both steps (main thread only).
     for pstep in (lifecycle_step, settling_step):
-        g4_files = _resolve_g4_files(project_dir, pstep, chapter)
+        g4_files = resolve_g4_files(project_dir, pstep, chapter)
         g4 = run_gate_g4(pstep.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
         # spec #82 T3: shadow demotion routing (shared implementation).
         g4, _shadow_rem = _shadow_route_g4(
@@ -4680,7 +4680,7 @@ def _run_serial_dispatch_step(
         )
 
     # G4: skill-specific structural validation (every dispatched step).
-    g4_files = _resolve_g4_files(project_dir, step, chapter)
+    g4_files = resolve_g4_files(project_dir, step, chapter)
     g4 = run_gate_g4(step.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
     # spec #82 T3: shadow demotion BEFORE classification (gates stay pure).
     # spec #82 T3 (final unification): single shared implementation.

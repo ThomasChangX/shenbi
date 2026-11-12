@@ -42,7 +42,7 @@ class TestWaveExceptionBranches:
                 raise RuntimeError("worker blew up")
             return DispatchResult(True, 0, "ok", "")
 
-        monkeypatch.setattr("shenbi.pipeline.parallel_dispatch._dispatch_with_retry", fake_retry)
+        monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.dispatch_with_retry", fake_retry)
         results = dispatch_reviews_parallel([_task(0), _task(1)])
         assert len(results) == 2  # order preserved, wave survived
         assert results[0].success is False
@@ -53,7 +53,7 @@ class TestWaveExceptionBranches:
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(
-            "shenbi.pipeline.parallel_dispatch._dispatch_with_retry",
+            "shenbi.pipeline.parallel_dispatch.dispatch_with_retry",
             lambda task, semaphore, state=None: DispatchResult(True, 0, "ok", ""),
         )
         callbacks: list[int] = []

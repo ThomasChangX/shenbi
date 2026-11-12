@@ -493,7 +493,7 @@ class PipelineState:
 # ---------------------------------------------------------------------------
 
 
-def _merge_step_result(  # pyright: ignore[reportUnusedFunction] -- called from chapter_loop.py (local import; pyright false positive)
+def merge_step_result(  # pyright: ignore[reportUnusedFunction] -- called from chapter_loop.py (local import; pyright false positive)
     state: PipelineState, result: Any
 ) -> None:
     """Merge a worker thread's result into PipelineState on the main thread.

@@ -6,7 +6,7 @@ state-settling staging/truth glob.
 
 from pathlib import Path
 
-from shenbi.pipeline.chapter_loop import ChapterStep, _resolve_g4_files
+from shenbi.pipeline.chapter_loop import ChapterStep, resolve_g4_files
 
 
 def _step(
@@ -30,7 +30,7 @@ def test_decisions_sidecar_in_g4_files(tmp_path: Path):
     (ch / "chapter-2-decisions.json").write_text(
         '{"$schema": "shenbi-decisions-v1"}', encoding="utf-8"
     )
-    files = _resolve_g4_files(tmp_path, _step(), chapter=2)
+    files = resolve_g4_files(tmp_path, _step(), chapter=2)
     assert any(str(f).endswith("chapters/chapter-2-decisions.json") for f in files), files
     assert any(str(f).endswith("chapters/chapter-2.md") for f in files), files
 
@@ -39,7 +39,7 @@ def test_missing_sidecar_not_included(tmp_path: Path):
     ch = tmp_path / "chapters"
     ch.mkdir()
     (ch / "chapter-2.md").write_text("x", encoding="utf-8")
-    files = _resolve_g4_files(tmp_path, _step(), chapter=2)
+    files = resolve_g4_files(tmp_path, _step(), chapter=2)
     assert not any("decisions" in str(f) for f in files), files
 
 
@@ -50,7 +50,7 @@ def test_state_settling_glob_not_short_circuited(tmp_path: Path):
     (st / "current_state.md").write_text("x", encoding="utf-8")
     (st / "state-settling-decisions.json").write_text("{}", encoding="utf-8")
     step = _step(skill="shenbi-state-settling", output_path="", uses_staging=True)
-    files = _resolve_g4_files(tmp_path, step, chapter=2)
+    files = resolve_g4_files(tmp_path, step, chapter=2)
     assert any("current_state.md" in str(f) for f in files), files
     # sidecar appended once state-settling declares it in writes (Task 5);
     # here the guard is that expansion doesn't drop the glob results.
@@ -63,5 +63,5 @@ def test_revision_sidecar_appended(tmp_path: Path):
     (ch / "chapter-3-revision.md").write_text("y", encoding="utf-8")
     (ch / "chapter-3-revision-decisions.json").write_text("{}", encoding="utf-8")
     step = _step(skill="shenbi-chapter-revision", output_path="chapters/chapter-N-revision.md")
-    files = _resolve_g4_files(tmp_path, step, chapter=3)
+    files = resolve_g4_files(tmp_path, step, chapter=3)
     assert any("revision-decisions.json" in str(f) for f in files), files

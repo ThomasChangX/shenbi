@@ -44,7 +44,7 @@ _G4_PASS = {"status": "PASS", "checks": [], "must_fix": []}
 
 def _results_for(tasks):
     # dispatch_reviews_parallel (parallel_dispatch.py:241) and
-    # _dispatch_serial_reviews (chapter_loop.py:3787) both return
+    # dispatch_serial_reviews (chapter_loop.py:3787) both return
     # list[DispatchResult]; wave consumers .extend()/concat.
     return [_ok_result() for _ in tasks]
 
@@ -87,7 +87,7 @@ def test_audit_wave_regime(tmp_path: Path) -> None:
         ),
         patch.object(
             cl,
-            "_dispatch_serial_reviews",
+            "dispatch_serial_reviews",
             side_effect=lambda tasks, pd, state=None: _results_for(tasks),
         ),
         patch.object(cl, "_parse_and_persist_resonance"),
@@ -215,7 +215,7 @@ def test_conditional_skip_regime(tmp_path: Path) -> None:
     """chapter-revision with no audit findings skips without dispatch.
 
     :4452 conditional gate — `_should_run_step` returns False for the
-    revision step when `_any_audit_has_findings` finds nothing (empty
+    revision step when `any_audit_has_findings` finds nothing (empty
     tmp_path). The step is recorded done and the cursor advances.
     """
     idx = _step_index_of(lambda s: s.skill == "shenbi-chapter-revision")
@@ -305,7 +305,7 @@ def test_serial_revision_tail(tmp_path: Path) -> None:
     decisions = tmp_path / "chapters" / "chapter-1-revision-decisions.json"
 
     with (
-        patch.object(cl, "_any_audit_has_findings", return_value=True),
+        patch.object(cl, "any_audit_has_findings", return_value=True),
         patch.object(cl, "dispatch_skill", side_effect=lambda *a, **kw: _ok_result()),
         patch.object(cl, "_revalidate_revised_chapter", return_value=[]),
     ):

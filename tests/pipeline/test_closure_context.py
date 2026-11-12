@@ -42,7 +42,7 @@ def test_closure_g4_paths_resolved(tmp_path):
 
 def test_closure_prompt_build_all_steps(tmp_path):
     """Acceptance: all 10 closure steps build prompts (no UnresolvedPathError)."""
-    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+    from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
     proj = _mk_cn_project(tmp_path)
     for step in CLOSURE_STEPS:
@@ -50,7 +50,7 @@ def test_closure_prompt_build_all_steps(tmp_path):
         prompt = (
             f"Execute {step.skill} for book closure (step {step.step_num}). Project dir: {proj}"
         )
-        system, user, outs, _, _ = _build_skill_prompt(
+        system, user, outs, _, _ = build_skill_prompt(
             step.skill, proj, prompt, ctx.chapter if ctx else None, path_context=ctx
         )
         assert outs, f"step {step.step_num} produced no output paths"
@@ -69,7 +69,7 @@ def test_dispatch_skill_injects_context_line(tmp_path, monkeypatch):
         return type("R", (), {"success": True, "stderr": "", "returncode": 0})()
 
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
-    monkeypatch.setattr(dh, "_dispatch_via_api", fake_api)
+    monkeypatch.setattr(dh, "dispatch_via_api", fake_api)
     dh.dispatch_skill(
         "shenbi-score-volume",
         tmp_path,

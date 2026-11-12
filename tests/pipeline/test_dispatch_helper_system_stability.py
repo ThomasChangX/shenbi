@@ -1,7 +1,7 @@
 """Spec #6 T_A: system prompt byte-stability regression (offline).
 
 Fixes the implicit contract that the system prompt for a given skill is
-byte-identical across consecutive _build_skill_prompt calls. The API
+byte-identical across consecutive build_skill_prompt calls. The API
 path relies on a stable system prefix for provider prompt-cache hits;
 _strip_autogen_blocks must stay deterministic (pure regex, no
 timestamps/random) for that to hold.
@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
 STABILITY_SKILLS = (
     "shenbi-chapter-pattern",
@@ -22,8 +22,8 @@ STABILITY_SKILLS = (
 
 @pytest.mark.parametrize("skill", STABILITY_SKILLS)
 def test_system_prompt_byte_stable_across_calls(tmp_path: Path, skill: str) -> None:
-    sys1, _, _, _, _ = _build_skill_prompt(skill, tmp_path, "prompt A", 1)
-    sys2, _, _, _, _ = _build_skill_prompt(skill, tmp_path, "prompt B", 2)
+    sys1, _, _, _, _ = build_skill_prompt(skill, tmp_path, "prompt A", 1)
+    sys2, _, _, _, _ = build_skill_prompt(skill, tmp_path, "prompt B", 2)
     assert sys1.encode("utf-8") == sys2.encode("utf-8")
 
 
@@ -39,7 +39,7 @@ def test_state_settling_prompt_injects_append_only_hard_constraint(tmp_path: Pat
     in one chapter). The prompt MUST inject a near-final, very explicit
     CRITICAL block before the input files section.
     """
-    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+    from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
     # Minimal project scaffold: only the SKILL.md file is needed.
     project_dir = tmp_path
@@ -53,7 +53,7 @@ def test_state_settling_prompt_injects_append_only_hard_constraint(tmp_path: Pat
         encoding="utf-8",
     )
 
-    system_prompt, user_prompt, output_paths, reads_manifest, _ = _build_skill_prompt(
+    system_prompt, user_prompt, output_paths, reads_manifest, _ = build_skill_prompt(
         "shenbi-state-settling",
         project_dir,
         prompt="Execute state-settling for chapter 1.",
@@ -110,7 +110,7 @@ def test_state_settling_prompt_injects_hooks_colon_bullet_constraint(tmp_path: P
         encoding="utf-8",
     )
 
-    _, user_prompt, _, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = build_skill_prompt(
         "shenbi-state-settling",
         project_dir,
         prompt="Execute state-settling for chapter 2.",

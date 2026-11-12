@@ -16,7 +16,7 @@ def test_generic_step_writes_aggregate_before_revision_dispatch(
 ):
     audit_dir = tmp_path / "audits"
     audit_dir.mkdir()
-    # 必须用 character 维度文件名（_any_audit_has_findings 只扫固定 atype
+    # 必须用 character 维度文件名（any_audit_has_findings 只扫固定 atype
     # 清单，含 character 不含 consistency），且需含 BLOCKING/FAIL 字样才
     # 触发条件步——在 tmp 副本末尾追加（fixture 文件本身不动）
     body = FIX.read_text(encoding="utf-8")

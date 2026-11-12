@@ -209,14 +209,14 @@ def _re_dispatch_g4_must_fix(
     ch2 truth never met a structural gate.
     """
     from shenbi.pipeline.chapter_loop import (
-        _resolve_g4_files,  # pyright: ignore[reportPrivateUsage]
+        resolve_g4_files,  # pyright: ignore[reportPrivateUsage]
         CHAPTER_STEPS,
     )
 
     step = next((s for s in CHAPTER_STEPS if s.skill == skill), None)
     if step is None:
         return None
-    g4_files = _resolve_g4_files(project_dir, step, chapter or 0)
+    g4_files = resolve_g4_files(project_dir, step, chapter or 0)
     if not g4_files:
         return None
     g4 = run_gate_g4(skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")

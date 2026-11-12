@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from shenbi.pipeline.dispatch_helper import DispatchResult, _dispatch_via_api
+from shenbi.pipeline.dispatch_helper import DispatchResult, dispatch_via_api
 
 
 def test_length_truncation_triggers_cap_raise_resend(tmp_path, monkeypatch):
@@ -27,14 +27,14 @@ def test_length_truncation_triggers_cap_raise_resend(tmp_path, monkeypatch):
         mock_streaming_with_retry,
     )
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
-    # Mock _build_skill_prompt to avoid file I/O
+    # Mock build_skill_prompt to avoid file I/O
     monkeypatch.setattr(
-        "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+        "shenbi.pipeline.dispatch_helper.build_skill_prompt",
         lambda *a, **kw: ("sys", "user", [], [], {}),
     )
-    # Mock _write_parsed_outputs to avoid file writes
+    # Mock write_parsed_outputs to avoid file writes
     monkeypatch.setattr(
-        "shenbi.pipeline.dispatch_helper._write_parsed_outputs",
+        "shenbi.pipeline.dispatch_helper.write_parsed_outputs",
         lambda *a, **kw: True,
     )
     monkeypatch.setattr(
@@ -42,7 +42,7 @@ def test_length_truncation_triggers_cap_raise_resend(tmp_path, monkeypatch):
         lambda text: MagicMock(files=[]),
     )
 
-    _dispatch_via_api("shenbi-chapter-drafting", tmp_path, "test prompt")
+    dispatch_via_api("shenbi-chapter-drafting", tmp_path, "test prompt")
 
     assert call_count[0] == 2  # exactly 2 calls: original + 1 cap-raise resend
     assert max_tokens_used[1] > max_tokens_used[0]  # cap was raised
@@ -62,11 +62,11 @@ def test_content_filter_is_hard_fail(tmp_path, monkeypatch):
     )
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     monkeypatch.setattr(
-        "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+        "shenbi.pipeline.dispatch_helper.build_skill_prompt",
         lambda *a, **kw: ("sys", "user", [], [], {}),
     )
 
-    result: DispatchResult = _dispatch_via_api("shenbi-chapter-drafting", tmp_path, "test prompt")
+    result: DispatchResult = dispatch_via_api("shenbi-chapter-drafting", tmp_path, "test prompt")
 
     assert call_count[0] == 1  # no resend
     assert result.success is False
@@ -87,7 +87,7 @@ def test_cap_raise_capped_at_model_ceiling(tmp_path, monkeypatch):
     )
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     monkeypatch.setattr(
-        "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+        "shenbi.pipeline.dispatch_helper.build_skill_prompt",
         lambda *a, **kw: ("sys", "user", [], [], {}),
     )
     # Simulate post-T3 state: drafting max_tokens = 32768
@@ -102,7 +102,7 @@ def test_cap_raise_capped_at_model_ceiling(tmp_path, monkeypatch):
         32768,  # == drafting's max_tokens after T3
     )
 
-    result: DispatchResult = _dispatch_via_api("shenbi-chapter-drafting", tmp_path, "test prompt")
+    result: DispatchResult = dispatch_via_api("shenbi-chapter-drafting", tmp_path, "test prompt")
 
     assert call_count[0] == 1  # fail-fast BEFORE any resend (raised_cap <= original_cap)
     assert result.success is False
@@ -124,11 +124,11 @@ def test_cap_raise_persistent_length_fail_fast(tmp_path, monkeypatch):
     )
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     monkeypatch.setattr(
-        "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+        "shenbi.pipeline.dispatch_helper.build_skill_prompt",
         lambda *a, **kw: ("sys", "user", [], [], {}),
     )
     monkeypatch.setattr(
-        "shenbi.pipeline.dispatch_helper._write_parsed_outputs",
+        "shenbi.pipeline.dispatch_helper.write_parsed_outputs",
         lambda *a, **kw: True,
     )
     monkeypatch.setattr(
@@ -141,7 +141,7 @@ def test_cap_raise_persistent_length_fail_fast(tmp_path, monkeypatch):
         65536,
     )
 
-    result: DispatchResult = _dispatch_via_api("shenbi-chapter-drafting", tmp_path, "test prompt")
+    result: DispatchResult = dispatch_via_api("shenbi-chapter-drafting", tmp_path, "test prompt")
 
     assert call_count[0] == 2  # original + exactly 1 cap-raise resend (then fail-fast)
     assert result.success is False

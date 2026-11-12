@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 from shenbi.exceptions import IncrementShapeError
-from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 from shenbi.pipeline.volume_budget import (
     apply_budget_writeback,
     budget_verdict,
@@ -197,7 +197,7 @@ def test_dispatch_rejects_misanchored_new_volume(tmp_path: Path) -> None:
     (tmp_path / "outline" / "volume_map.md").write_text(_VOLUME_MAP, encoding="utf-8")
     before = (tmp_path / "outline" / "volume_map.md").read_text(encoding="utf-8")
     with pytest.raises(IncrementShapeError, match="卷界锚规则"):
-        _write_parsed_outputs(
+        write_parsed_outputs(
             response="### FILE: outline/volume_map.md\n## 第三卷：潮汛（第 45-71 章）\n\n**Objective**: 三。\n",
             output_paths=["outline/volume_map.md"],
             project_dir=tmp_path,
@@ -209,7 +209,7 @@ def test_dispatch_rejects_misanchored_new_volume(tmp_path: Path) -> None:
 def test_dispatch_derives_skeleton_on_new_volume(tmp_path: Path) -> None:
     (tmp_path / "outline").mkdir(parents=True)
     (tmp_path / "outline" / "volume_map.md").write_text(_VOLUME_MAP, encoding="utf-8")
-    _write_parsed_outputs(
+    write_parsed_outputs(
         response="### FILE: outline/volume_map.md\n## 第三卷：潮汛（第 48-71 章）\n\n**Objective**: 三。\n",
         output_paths=["outline/volume_map.md"],
         project_dir=tmp_path,

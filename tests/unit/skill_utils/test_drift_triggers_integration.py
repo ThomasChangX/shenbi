@@ -279,7 +279,7 @@ def test_parse_trend_three_consumer_header_contract(tmp_path):
 #
 # Control-flow inputs constructed in-test (metric ratios), not generative
 # fixture surfaces (G0.9 fixture rule does not apply): clean baseline chapters
-# → establish_baseline → drifted chapter → _check_linguistic_drift fires and
+# → establish_baseline → drifted chapter → check_linguistic_drift fires and
 # the escalation/directive record lands on disk.
 
 _CLEAN_PARA = (
@@ -317,7 +317,7 @@ def _write_clean_project(tmp_path, chapters: list[int]):
 @pytest.mark.unit
 def test_linguistic_drift_e2e_warn_writes_directive_to_disk(tmp_path) -> None:
     """Ratio drift (em-dash flood) → WARN → drift-warning directive on disk."""
-    from shenbi.pipeline.chapter_loop import _check_linguistic_drift
+    from shenbi.pipeline.chapter_loop import check_linguistic_drift
 
     project = _write_clean_project(tmp_path, [1, 2, 3])
     drifted = (
@@ -325,7 +325,7 @@ def test_linguistic_drift_e2e_warn_writes_directive_to_disk(tmp_path) -> None:
     )
     (project / "chapters" / "chapter-4.md").write_text(drifted, encoding="utf-8")
 
-    result = _check_linguistic_drift(project, 4)
+    result = check_linguistic_drift(project, 4)
     assert result is not None
     assert result.is_drift is True
     assert result.severity == "WARN"  # ratio drift, absolute stm density still low
@@ -355,14 +355,14 @@ def test_linguistic_drift_e2e_escalate_pauses_pipeline(tmp_path) -> None:
 @pytest.mark.unit
 def test_linguistic_drift_e2e_clean_chapter_no_intervention(tmp_path) -> None:
     """A clean chapter-4 matching the baseline: no drift, nothing written."""
-    from shenbi.pipeline.chapter_loop import _check_linguistic_drift
+    from shenbi.pipeline.chapter_loop import check_linguistic_drift
 
     project = _write_clean_project(tmp_path, [1, 2, 3])
     # distinct prose (same style profile, different sentences) so BOTH the
     # drift check and the opening-similarity check stay quiet
     (project / "chapters" / "chapter-4.md").write_text(_CLEAN_CHAPTER_ALT, encoding="utf-8")
 
-    result = _check_linguistic_drift(project, 4)
+    result = check_linguistic_drift(project, 4)
     assert result is not None
     assert result.severity == "NONE"
     assert result.is_drift is False

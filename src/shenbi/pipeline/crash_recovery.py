@@ -83,7 +83,7 @@ def _handle_emergency_signal(signum: int, frame: object) -> None:
     signal.signal(signum, signal.SIG_DFL)
 
 
-def _check_emergency_flag(  # pyright: ignore[reportUnusedFunction] -- called from chapter_loop.py via _cr_check_emergency_flag wrapper (pyright false positive)
+def check_emergency_flag(  # pyright: ignore[reportUnusedFunction] -- called from chapter_loop.py via _cr_check_emergency_flag wrapper (pyright false positive)
     project_dir: Path,
 ) -> None:
     """Called at step boundaries in main loop. Performs cleanup if flag set."""
@@ -124,7 +124,7 @@ def _emergency_cleanup(
 ) -> None:
     """Best-effort emergency cleanup: save state, create snapshot, clear staging.
 
-    Called by both _check_emergency_flag and atexit (for normal exits with
+    Called by both check_emergency_flag and atexit (for normal exits with
     unsaved data). All operations wrapped in try/except -- failure must not
     prevent process exit.
     """
@@ -156,7 +156,7 @@ def _emergency_cleanup(
     # 2. Save pipeline state — under L1 unless this thread already holds it
     # (flock conflicts across fds even in-process; a blind WriteLock here
     # self-blocks to the 300s timeout when cleanup runs inside a locked
-    # critical section, e.g. via _check_emergency_flag under cmd_next).
+    # critical section, e.g. via check_emergency_flag under cmd_next).
     try:
         from shenbi.pipeline.filelock_utils import holder_mode
         from shenbi.pipeline.machine import save_state

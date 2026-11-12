@@ -93,7 +93,7 @@ class TestBuilderWiring:
         target.parent.mkdir(parents=True)
         target.write_text("## 漂移后标题\n内容\n", encoding="utf-8")  # 人为制造字段漂移
         for _ in range(3):
-            dh._build_skill_prompt("shenbi-chapter-drafting", tmp_path, "draft ch1", 1)
+            dh.build_skill_prompt("shenbi-chapter-drafting", tmp_path, "draft ch1", 1)
         drift = esc.escape_hatch_drift_check(tmp_path)
         assert len(drift) == 1  # 3 次派发内 FAIL 链条成立
         assert drift[0]["streak"] == 3  # audit-T3 M-2：恰一次/派发（双计仍绿=接线缺陷）

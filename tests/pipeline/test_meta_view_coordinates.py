@@ -17,7 +17,7 @@ physical line N. No per-line gutter cost, no quote contamination, and the
 
 from __future__ import annotations
 
-from shenbi.pipeline.dispatch_helper import _build_skill_prompt, _strip_meta_for_non_drafting
+from shenbi.pipeline.dispatch_helper import _strip_meta_for_non_drafting, build_skill_prompt
 
 #: probe22 chapters/chapter-2.md layout (verbatim structure): title, blank,
 #: 12-line META block L3-L14, blank, prose from L16.
@@ -90,7 +90,7 @@ def test_served_read_view_keeps_prose_at_physical_line(tmp_path):
         p = tmp_path / rel
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text("# stub\n", encoding="utf-8")
-    _, user_prompt, _, _, _ = _build_skill_prompt(
+    _, user_prompt, _, _, _ = build_skill_prompt(
         skill="shenbi-state-settling",
         project_dir=tmp_path,
         prompt="settle chapter 2",

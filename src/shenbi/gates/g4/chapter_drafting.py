@@ -511,7 +511,7 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
     return names
 
 
-def _ending_archetype_of(text: str) -> str | None:
+def ending_archetype_of(text: str) -> str | None:
     """Closing-archetype classifier (spec #82 T4, shared by the rotation
     sentinel and the audit-context ending-history producer).
 
@@ -566,9 +566,9 @@ def _spec82_hook_rotation(
     for k in (n - 2, n - 1):
         chp = Path(project_dir) / "chapters" / f"chapter-{k}.md"
         archetypes.append(
-            _ending_archetype_of(chp.read_text(encoding="utf-8")) if chp.is_file() else None
+            ending_archetype_of(chp.read_text(encoding="utf-8")) if chp.is_file() else None
         )
-    cur_arch = _ending_archetype_of(content)
+    cur_arch = ending_archetype_of(content)
     archetypes.append(cur_arch)
     if cur_arch is not None and archetypes[0] == cur_arch and archetypes[1] == cur_arch:
         c.append(

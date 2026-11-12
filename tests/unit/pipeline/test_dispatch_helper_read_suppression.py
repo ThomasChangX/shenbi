@@ -1,6 +1,6 @@
 """C28 read-suppression test file (T2 template short-circuit + T4 R1 tests).
 
-T2 part: _init_truth_templates must skip the 74-skill contract scan
+T2 part: init_truth_templates must skip the 74-skill contract scan
 (~655ms) when every template file already exists (T1606).
 """
 
@@ -14,7 +14,7 @@ import pytest
 
 import shenbi.pipeline.dispatch_helper as dh
 from shenbi.pipeline.audit_context_cache import build_shared_audit_context
-from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
 
 def test_init_truth_templates_shortcircuits_when_all_exist(
@@ -32,7 +32,7 @@ def test_init_truth_templates_shortcircuits_when_all_exist(
         return {}
 
     monkeypatch.setattr(dh, "_collect_declared_truth_fields", counting_collect)
-    dh._init_truth_templates(tmp_path)
+    dh.init_truth_templates(tmp_path)
     assert calls["n"] == 0
 
 
@@ -53,7 +53,7 @@ def test_init_truth_templates_scans_when_missing(
         return {}
 
     monkeypatch.setattr(dh, "_collect_declared_truth_fields", counting_collect)
-    dh._init_truth_templates(tmp_path)
+    dh.init_truth_templates(tmp_path)
     assert calls["n"] == 1
     assert (truth / names[-1]).exists()
 
@@ -130,7 +130,7 @@ def test_chapter_read_count_is_one(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     monkeypatch.setattr(Path, "read_text", counting_read)
     ctx = build_shared_audit_context(project, 3)  # the ONE legitimate read
     for skill in AUDIT_SKILLS:
-        _build_skill_prompt(
+        build_skill_prompt(
             skill=skill, project_dir=project, prompt="审计本章", chapter=3, shared_context=ctx
         )
     assert counter["n"] == 1  # was 9: 6 contract reads + 3 checklist cold-path reads
@@ -154,7 +154,7 @@ def test_byte_equality_suppression_switch(tmp_path: Path, monkeypatch: pytest.Mo
     project = _assemble_project(tmp_path)
     ctx_on = build_shared_audit_context(project, 3)
     prompts_on = [
-        _build_skill_prompt(
+        build_skill_prompt(
             skill=s, project_dir=project, prompt="审计本章", chapter=3, shared_context=ctx_on
         )
         for s in AUDIT_SKILLS
@@ -165,7 +165,7 @@ def test_byte_equality_suppression_switch(tmp_path: Path, monkeypatch: pytest.Mo
         cache.unlink()
     ctx_off = replace(ctx_on, raw_files={})  # suppression OFF (path fixes stay)
     prompts_off = [
-        _build_skill_prompt(
+        build_skill_prompt(
             skill=s, project_dir=project, prompt="审计本章", chapter=3, shared_context=ctx_off
         )
         for s in AUDIT_SKILLS

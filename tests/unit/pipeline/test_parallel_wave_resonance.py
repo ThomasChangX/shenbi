@@ -72,7 +72,7 @@ def _run_wave(tmp_path: Path, monkeypatch, report_text: str | None) -> PipelineS
         lambda project_dir, chapter: SimpleNamespace(estimated_tokens=1),
     )
     monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel", ok)
-    monkeypatch.setattr("shenbi.pipeline.chapter_loop._dispatch_serial_reviews", _fake_serial)
+    monkeypatch.setattr("shenbi.pipeline.chapter_loop.dispatch_serial_reviews", _fake_serial)
     monkeypatch.setattr(
         "shenbi.pipeline.chapter_loop._g3_parallel_wave",
         lambda skills, project_dir, chapter: [],

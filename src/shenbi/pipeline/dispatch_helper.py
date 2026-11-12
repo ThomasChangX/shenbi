@@ -638,7 +638,7 @@ def _wildcard_to_regex(pattern: str) -> str:
     return "^" + escaped.replace(r"\*", r"[^/]*") + "$"
 
 
-def _resolve_wildcard_path(
+def resolve_wildcard_path(
     contract_pattern: str,
     concrete_path: str,
     base_dir: Path | None = None,
@@ -682,7 +682,7 @@ def _resolve_wildcard_path(
     return True
 
 
-def _resolve_all_wildcards(
+def resolve_all_wildcards(
     contract_writes: list[str],
     concrete_path: str,
     base_dir: Path | None = None,
@@ -694,7 +694,7 @@ def _resolve_all_wildcards(
     matching: list[str] = []
     for pattern in contract_writes:
         if "*" in pattern or "?" in pattern:
-            if _resolve_wildcard_path(pattern, concrete_path, base_dir):
+            if resolve_wildcard_path(pattern, concrete_path, base_dir):
                 matching.append(pattern)
         else:
             # Literal match: compare against the relative path if base_dir set
@@ -737,7 +737,7 @@ class BuiltPrompt(NamedTuple):
     """Assembled dispatch prompt (spec #87 T1; replaces the 5-tuple).
 
     NamedTuple over dataclass: the 63 existing destructure sites
-    (``a, b, c, d, e = _build_skill_prompt(...)`` incl. one star-unpack)
+    (``a, b, c, d, e = build_skill_prompt(...)`` incl. one star-unpack)
     keep working untouched — tuple protocol compatibility — while new
     code gets named access. New fields must carry defaults.
     """
@@ -749,7 +749,7 @@ class BuiltPrompt(NamedTuple):
     raw_disk_reads: dict[str, str]
 
 
-def _build_skill_prompt(
+def build_skill_prompt(
     skill: str,
     project_dir: Path,
     prompt: str,
@@ -1774,7 +1774,7 @@ EN_CHAPTER_HEADER_LINE_RE = re.compile(r"^#[ \t]+Chapter[ \t]+\d+:[^\n]*$", re.M
 _META_END_MARKER = "<!--META-END-->"
 
 
-def _chapter_header_style(project_root: Path) -> str:
+def chapter_header_style(project_root: Path) -> str:
     """chapter_word.chapter_header_style - 'english' (default, z11 F1301
     unchanged) | 'two_line_zh' (spec #84 S0 r6-r10 pinned form).
 
@@ -1895,7 +1895,7 @@ def normalize_chapter_header(content: str, chapter_num: int, project_root: Path)
     semantics (``# Chapter N:`` prepend when the first line misses the
     contract).
     """
-    return ensure_chapter_header(content, chapter_num, style=_chapter_header_style(project_root))
+    return ensure_chapter_header(content, chapter_num, style=chapter_header_style(project_root))
 
 
 def _is_audit_file(path: str) -> bool:
@@ -1975,7 +1975,7 @@ _STAGING_TRUTH_PREFIX = "staging/truth/"
 #: A2 批: world/locations.md (``## 地点：X`` entries, ~49KB at 118 ch) and
 #: characters/relationships.md (``## 关系对：A - B`` sections, 44KB) join the
 #: channel — their increments are WHOLE ``##`` sections (split at section
-#: boundaries, NOT by ``_increment_units``: an embedded 功能事件 table would
+#: boundaries, NOT by ``increment_units``: an embedded 功能事件 table would
 #: shred into row units the shape guard must reject).
 _KEYED_OUTLINE_TARGETS: dict[str, str] = {
     "outline/volume_map.md": "volume",
@@ -1998,7 +1998,7 @@ def _section_ledger_units(content: str) -> list[str]:
 
     Every unit starts at a level-2 heading and runs to the next one —
     embedded ``###`` subsections and tables stay INSIDE the section (the
-    generic ``_increment_units`` would shred an embedded 功能事件/矩阵 table
+    generic ``increment_units`` would shred an embedded 功能事件/矩阵 table
     into standalone row units). Non-blank content before the first ``##``
     becomes its own leading unit so the shape guard can reject it loudly
     instead of silently dropping it.
@@ -2034,7 +2034,7 @@ def _now_iso() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _increment_units(content: str) -> list[str]:
+def increment_units(content: str) -> list[str]:
     """Split a dispatched append_dedup increment into upsert units.
 
     Each markdown TABLE row line is its own unit, so a multi-row increment
@@ -2289,7 +2289,7 @@ def _validate_increment_package(
         from shenbi.pipeline.truth_io import split_table_cells
         from shenbi.pipeline.truth_io import _OUTLINE_SECTION_KEY_RE  # pyright: ignore[reportPrivateUsage]
 
-        for unit in _section_ledger_units(content) if section_ledger else _increment_units(content):
+        for unit in _section_ledger_units(content) if section_ledger else increment_units(content):
             first = next((l for l in unit.split("\n") if l.strip()), "")
             fs = first.strip()
             if _OUTLINE_SECTION_KEY_RE.match(fs) is not None:
@@ -2398,7 +2398,7 @@ def _merge_prose_base_target(project_dir: Path, rel_path: str) -> Path:
     return project_dir / rel  # absent -> caller reports via unmatched/empty base
 
 
-def _route_append_dedup_write(
+def route_append_dedup_write(
     project_dir: Path, rel_path: str, content: str, *, key_field: str
 ) -> None:
     """Write an ``append_dedup`` increment through the truth_io keyed upsert.
@@ -2436,7 +2436,7 @@ def _route_append_dedup_write(
             above go through the pure-string ``upsert_markdown_row`` path,
             which never parses existing files as YAML (only ``upsert_yaml``
             can, via ``truth_io._read_yaml_records``). The dispatch entry
-            points' ``except TruthFileParseError`` (:func:`_dispatch_via_api`
+            points' ``except TruthFileParseError`` (:func:`dispatch_via_api`
             / :func:`_dispatch_via_ide`, converting it into a failed
             DispatchResult) stays as defense for a future ``upsert_yaml``
             wiring, not a live path today.
@@ -2513,7 +2513,7 @@ def _route_append_dedup_write(
             log.info("truth_shell_first_write", path=rel_path, key=key_field, mode="creation")
             return
 
-    units = _increment_units(content)
+    units = increment_units(content)
 
     if rel_path.startswith(_STAGING_TRUTH_PREFIX):
         filename = rel_path[len(_STAGING_TRUTH_PREFIX) :]
@@ -2588,7 +2588,7 @@ def _route_append_dedup_write(
         # does not start at live max boundary + 1 BEFORE any write; the
         # skeleton (total_chapters + 卷界 preamble line) is derived after.
         # A2: locations/relationships increments split at ``##`` section
-        # boundaries (embedded tables stay atomic), not by _increment_units.
+        # boundaries (embedded tables stay atomic), not by increment_units.
         from shenbi.pipeline.truth_io import path_lock, touch_frontmatter_updated_at
 
         target = project_dir / rel_path
@@ -2613,7 +2613,7 @@ def _route_append_dedup_write(
         section_units = (
             _section_ledger_units(content)
             if rel_path in _SECTION_LEDGER_TARGETS
-            else _increment_units(content)
+            else increment_units(content)
         )
         with path_lock(target):
             base = base_text
@@ -2713,7 +2713,7 @@ def _no_files_stderr(
     )
 
 
-def _write_parsed_outputs(
+def write_parsed_outputs(
     response: str,
     output_paths: list[str],
     project_dir: Path,
@@ -2729,7 +2729,7 @@ def _write_parsed_outputs(
     per output), with ONE routed exception: contract targets declared
     ``mode: append_dedup`` under ``truth/`` are merged through the truth_io
     keyed upsert instead of overwritten (C3 T2, F360/F828 — see
-    :func:`_route_append_dedup_write`). The skill's output for such a target is
+    :func:`route_append_dedup_write`). The skill's output for such a target is
     the INCREMENT (the new chapter's row/rows); the program merges it by the
     contract-declared key, so cumulative truth files accumulate instead of
     collapsing to the latest increment.
@@ -2859,7 +2859,7 @@ def _write_parsed_outputs(
             # Routed merge (C3 T2): upsert by key, never a whole-file rewrite.
             key_field = str(mode_meta.get("key") or "chapter")
             try:
-                _route_append_dedup_write(project_dir, rel_path, content, key_field=key_field)
+                route_append_dedup_write(project_dir, rel_path, content, key_field=key_field)
             except IncrementShapeError as exc:
                 # #44 split-package feedback: name WHICH targets are shells
                 # (creation sanctioned) and which are filled (rows-only) —
@@ -3012,7 +3012,7 @@ def _write_parsed_outputs(
         # mkdir lives INSIDE _write_one (after path validation) so a rejected
         # traversal/symlink path cannot leave directories outside project_dir.
         # append_dedup-declared truth targets branch INSIDE _write_one into
-        # _route_append_dedup_write (keyed upsert merge); everything else is a
+        # route_append_dedup_write (keyed upsert merge); everything else is a
         # whole-file write.
         _write_one(rel_path, content)
 
@@ -3037,7 +3037,7 @@ def _write_parsed_outputs(
                 rf'characters (" < > [ \ control): {rel_path!r}',
                 signature="forbidden_filename",
             )
-        matching = _resolve_all_wildcards(wildcard_patterns, rel_path, base_dir=project_dir)
+        matching = resolve_all_wildcards(wildcard_patterns, rel_path, base_dir=project_dir)
         if matching:
             if not content.strip():
                 log.warning("output_empty", path=rel_path)
@@ -3050,7 +3050,7 @@ def _write_parsed_outputs(
             )
 
     if create_truth_templates and any("*" in p for p in output_paths):
-        _init_truth_templates(project_dir)
+        init_truth_templates(project_dir)
 
     return written
 
@@ -3096,7 +3096,7 @@ def _collect_declared_truth_fields() -> dict[str, list[str]]:
     return {name: list(fields) for name, fields in declared.items()}
 
 
-def _init_truth_templates(project_dir: Path) -> None:
+def init_truth_templates(project_dir: Path) -> None:
     """Create minimal truth template files with required YAML frontmatter.
 
     Each template includes an ``update_mode`` field (``replace``,
@@ -3582,7 +3582,7 @@ def _persist_failed_write_output(
         log.warning("failed_write_output_persist_failed", skill=skill)
 
 
-def _dispatch_via_api(
+def dispatch_via_api(
     skill: str,
     project_dir: Path,
     prompt: str,
@@ -3637,7 +3637,7 @@ def _dispatch_via_api(
             output_paths,
             reads_manifest,
             _raw_reads,  # spec #81 §1: T4 archive wiring consumes this
-        ) = _build_skill_prompt(
+        ) = build_skill_prompt(
             skill,
             project_dir,
             prompt,
@@ -3978,12 +3978,12 @@ def _dispatch_via_api(
             )
     # If we reach here (no length/content_filter, or cap-raise succeeded with
     # finish_reason="stop"), output_text is valid — fall through to the existing
-    # _parse_structured_output / _write_parsed_outputs block below.
+    # _parse_structured_output / write_parsed_outputs block below.
 
     try:
         output = _parse_structured_output(output_text)
         parsed_dict = {f.path: f.content for f in output.files}
-        written = _write_parsed_outputs(
+        written = write_parsed_outputs(
             output_text,
             output_paths,
             project_dir,
@@ -4110,7 +4110,7 @@ def _dispatch_via_ide(
     try:
         # IDE face has no DISPATCH trace emit (subprocess outcome path);
         # reads_manifest is API-face only — hence the throwaway name.
-        system_prompt, user_prompt, output_paths, _, _ = _build_skill_prompt(
+        system_prompt, user_prompt, output_paths, _, _ = build_skill_prompt(
             skill,
             project_dir,
             prompt,
@@ -4160,7 +4160,7 @@ def _dispatch_via_ide(
     log.info("ide_dispatch_complete", skill=skill)
 
     try:
-        written = _write_parsed_outputs(
+        written = write_parsed_outputs(
             r.stdout,
             output_paths,
             project_dir,
@@ -4184,7 +4184,7 @@ def _dispatch_via_ide(
         return DispatchResult(False, -1, "", str(exc))
     except TruthFileParseError as exc:
         # Same policy as the API route: corrupt existing truth file -> failed
-        # dispatch result, not a process crash (see _dispatch_via_api).
+        # dispatch result, not a process crash (see dispatch_via_api).
         log.error("truth_upsert_parse_failed", skill=skill, error=str(exc))
         return DispatchResult(
             False, -1, "", f"truth file upsert aborted (existing file corrupt): {exc}"
@@ -4263,7 +4263,7 @@ def _with_write_audit(
     Same finally-hook topology as ``dispatcher.executor.dispatch_with_write_audit``
     (the legacy CLI route's auditor): pre snapshot(declared write surface) ->
     dispatch -> post snapshot -> audit -> ledger record. The snapshot root is
-    the pipeline project dir — the root ``_write_parsed_outputs`` actually
+    the pipeline project dir — the root ``write_parsed_outputs`` actually
     writes to (the legacy CLI route snapshots its ``round_dir`` —
     the same write-tree semantics, fixed by spec #67). With ``uses_staging=True`` the watch face is
     extended to ``staging/<declared>`` and staged snapshot keys are folded
@@ -4388,7 +4388,7 @@ def dispatch_skill(
         skip_reads: Optional list of read patterns to skip.
         uses_staging: If True, dispatch writes to staging/ first.
         shared_context: Optional SharedAuditContext with pre-extracted fields.
-            Passed through to _build_skill_prompt so auditors skip re-reading
+            Passed through to build_skill_prompt so auditors skip re-reading
             common files from disk.
         state: Optional PipelineState. No longer used for token accounting —
             the durable ledger is written inside the API path regardless of
@@ -4412,7 +4412,7 @@ def dispatch_skill(
     # API path (audited — C32 R3 / F518)
     if os.environ.get(_ENV_LLM_API_KEY):
         return _with_write_audit(
-            lambda: _dispatch_via_api(
+            lambda: dispatch_via_api(
                 skill,
                 pd,
                 prompt,

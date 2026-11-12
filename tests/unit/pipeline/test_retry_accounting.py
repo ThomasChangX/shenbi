@@ -57,12 +57,12 @@ def _dispatch(monkeypatch, tmp_path: Path, stream: Any):  # type: ignore[no-unty
     with (
         patch("openai.OpenAI") as mock_openai,
         patch(
-            "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+            "shenbi.pipeline.dispatch_helper.build_skill_prompt",
             return_value=("sys", "user", ["chapters/chapter-1.md"], [], {}),
         ),
     ):
         mock_openai.return_value.chat.completions.create.return_value = stream
-        return dh._dispatch_via_api("shenbi-chapter-drafting", tmp_path, "Chapter 1 draft")
+        return dh.dispatch_via_api("shenbi-chapter-drafting", tmp_path, "Chapter 1 draft")
 
 
 def test_usage_acc_semantics_midstream():
