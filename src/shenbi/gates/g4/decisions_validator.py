@@ -19,7 +19,7 @@ from pydantic import ValidationError
 
 from shenbi.contracts.schemas.adapt import pydantic_err_to_gate_failures
 from shenbi.contracts.schemas.decisions import DecisionsDoc
-from shenbi.gates.shared import fail, parse_decisions_payload, passed, resolve_input_path
+from shenbi.gates.shared import fail, finding, parse_decisions_payload, passed, resolve_input_path
 from shenbi.status import GateStatus
 
 
@@ -103,7 +103,7 @@ def g4_decisions(
         # DecisionsDoc validation below (never a silent pass).
         data, parse_failures = parse_decisions_payload(p.read_text(encoding="utf-8"), fp, "G4.dec")
         if parse_failures:
-            mf.extend(f"{f['id']}:{fp}:{f['r']}" for f in parse_failures)
+            mf.extend(finding(f["id"], file=fp, detail=f["r"]) for f in parse_failures)
             continue
 
         # Schema version, required keys, and P2.5 rationale (DecisionsDoc).
@@ -115,7 +115,8 @@ def g4_decisions(
             # (prefix is passed as "G4.dec"). Use its output directly — do NOT
             # re-split/re-prefix the id, which double-prefixes to "G4.dec.dec.<type>".
             mf.extend(
-                f"{f['id']}:{fp}:{f['r']}" for f in pydantic_err_to_gate_failures(e, fp, "G4.dec")
+                finding(f["id"], file=fp, detail=f["r"])
+                for f in pydantic_err_to_gate_failures(e, fp, "G4.dec")
             )
 
     if not fps:
