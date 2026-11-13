@@ -1,6 +1,6 @@
 # Spec 执行索引
 
-> **最后更新**：2026-11-13（**#87 完结归档**（PR #331——god 文件拆分：chapter_loop 4,820+dispatch_helper 4,663=9,483≤9,500；五体制出鞘+位置作用域四钩+ExtractSpec 注册表坍缩 11 臂[−252 行]+BuiltPrompt NamedTuple 63 位点零破坏+子串判定双路径根除+18 符号正名+tests 私有 import 基线 170 冻结；两轮驳斥+四轮 spec 审查+六轮 plan 审查；T0-T5 全 audit+终审 PASS；行为保持=T0 八路径 characterization 拆分时刻零改动）
+> **最后更新**：2026-11-14（#88 r2.2→r2.8 八轮修订（价值门驳斥+阶段2 核锚+设计审查轮1-6 吸收）；前次 2026-11-13（**#87 完结归档**（PR #331——god 文件拆分：chapter_loop 4,820+dispatch_helper 4,663=9,483≤9,500；五体制出鞘+位置作用域四钩+ExtractSpec 注册表坍缩 11 臂[−252 行]+BuiltPrompt NamedTuple 63 位点零破坏+子串判定双路径根除+18 符号正名+tests 私有 import 基线 170 冻结；两轮驳斥+四轮 spec 审查+六轮 plan 审查；T0-T5 全 audit+终审 PASS；行为保持=T0 八路径 characterization 拆分时刻零改动）
 > **活跃 spec 数**：9
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
@@ -14,7 +14,7 @@
 
 - **文件**：`2026-11-01-spec88-gate-finding-contract.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.8 Revised 2026-11-14） ｜ **优先级**：🟠 P1
 - **依赖**：无硬依赖（与 #87 不同文件域；#87 落地后 chapter_loop 侧改动面更小）
-- **内容**：`G4.` 前缀补齐（r2.2 重写：shadow.check_id **有 fallback 从不返回 None**——真实危害是路径/裸家族名/纯中文项取错 id；按发射拓扑分层，helper 无前缀是设计）+ finding() 发射器 + 全 checker 输出契约 **AST** lint（r2.3 登记假阴性面；r2.5 合法形态语法定死；**r2.7-r2.8：四类拓扑含 (d) 变量前缀 JoinedStr 家族[5 站点；跨类 AST 真值 10]，权威枚举=lint 首跑红清单；残余形态登记 genre_config/character_design**）+ _extract_check_id 归一 shadow.check_id（r2.3 补第三正则副本 lint_shadow_promotion:74；r2.5 [shadow] 前缀先剥除再调）+ **G4_CHECK_MAP 29 键瘦身至 2 个 must_fix 活键（transition/fatigue）+ 3 个 checks-only 键直接删除（severity 发射点自带）**（r2.3：24 HARD 冗余）+ 分类改点边界精确 id 匹配 + id 清单与行为不回归 **property test**（+双向防漂：SOFT/WARN id ∈ 覆盖键集 ∧ inventory ⊆ AST 枚举）+ 字数 finding 单一权威（撤销「G2/G4 双 finding 去重」；**r2.6：floor 两发射面静态引用[:2230 排除——非 chapter_word_floor 消费者]**）+ **r2.5：收编第 7 消费者 retry_routing（_CONTENT_TOKENS 同批加 G4.XC，路由变化记有意修正）**
+- **内容**：`G4.` 前缀补齐（r2.2 重写：shadow.check_id **有 fallback 从不返回 None**——真实危害是路径/裸家族名/纯中文项取错 id；按发射拓扑分层，helper 无前缀是设计）+ finding() 发射器 + 全 checker 输出契约 **AST** lint（r2.3 登记假阴性面；r2.5 合法形态语法定死；**r2.7-r2.8：四类拓扑含 (d) 变量前缀 JoinedStr 家族[5 站点；跨类 AST 真值 10]，权威枚举=lint 首跑红清单；残余形态登记 genre_config/character_design/volume_outlining/pacing_design——plan 期机械枚举定稿**）+ _extract_check_id 归一 shadow.check_id（r2.3 补第三正则副本 lint_shadow_promotion:74；r2.5 [shadow] 前缀先剥除再调）+ **G4_CHECK_MAP 29 键瘦身至 2 个 must_fix 活键（transition/fatigue）+ 3 个 checks-only 键直接删除（severity 发射点自带）**（r2.3：24 HARD 冗余）+ 分类改点边界精确 id 匹配 + id 清单与行为不回归 **property test**（+双向防漂：SOFT/WARN id ∈ 覆盖键集 ∧ inventory ⊆ AST 枚举）+ 字数 finding 单一权威（撤销「G2/G4 双 finding 去重」；**r2.6：floor 两发射面静态引用[:2230 排除——非 chapter_word_floor 消费者]**）+ **r2.5：收编第 7 消费者 retry_routing（_CONTENT_TOKENS 同批加 G4.XC，路由变化记有意修正）**
 - **对应 plan**：待执行时建
 - **触及的不变量维度**：无（门禁元层，不改判定语义）
 
