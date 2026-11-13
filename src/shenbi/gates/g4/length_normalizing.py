@@ -50,7 +50,9 @@ def g4_length_normalizing(
         # 文件，进场景段会被吸收为正文）；字数带即结果判定：带内=无需归一化亦过，
         # 带外=below_floor/above_ceiling（顺带修复旧口径把报告文本计入字数的虚高）。
         if wc < floor:
-            mf.append(f"G4.ln.below_floor:{fp}:{wc}<{floor}")
+            mf.append(
+                f"G4.ln.below_floor:{fp}:{wc}<{floor}（floor 来源: chapter_word_floor={floor}）"
+            )
         elif wc > ceiling:
             mf.append(f"G4.ln.above_ceiling:{fp}:{wc}>{ceiling}")
         else:
