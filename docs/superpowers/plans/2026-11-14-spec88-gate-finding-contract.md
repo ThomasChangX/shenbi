@@ -120,7 +120,7 @@ git commit -m "feat: finding() must_fix emitter in gates/shared (spec #88 T1)"
 **Interfaces:**
 - Produces: lint 工具 exit 0（0 违规）/ exit 1（违规清单到 stderr）；`--list` 模式打印红清单供对账。
 - 扫描位：`src/shenbi/gates/g4/*.py` 中 `.append(...)`/`.extend(...)` 调用，当其**接收者名**为 `mf`（must_fix 列表惯例名——spec 全域 213 处实证）时的参数形态。
-- 判定（spec 语法）：合法 = `finding(...)` Call ｜ Str 常量 `"G4."` 开头 ｜ JoinedStr 且首常量段 `"G4."` 开头 ｜ GeneratorExp（`mf.extend(f"..." for ...)`——element 同语法判定）。
+- 判定（spec 语法）：合法 = `finding(...)` Call ｜ Str 常量 `"G4."` 开头 ｜ JoinedStr 且首常量段 `"G4."` 开头 ｜ GeneratorExp（`mf.extend(f"..." for ...)`——element 同语法判定）；**不判定（登记盲区，轮2 I2 补）**：Name 实参（`mf.extend(var)`——protagonist_issues/matrix_issues/_issues 等 9 处）与非 finding() Call 实参（`mf.extend(helper(...))`——5 处）——跨函数间接形态，返回 True（不报）。
 - 豁免（AST 形态，无行锚）：`warns.append`/`c.append`（非 mf 接收者天然不扫）；残余形态家族不出红（genre_config/volume_outlining JoinedStr 首段已 "G4." 语法过；character_design 经 `local_failures` 中转在扫描域外——M4 口径）；**盲区登记进模块 docstring**：跨函数间接（mf.extend(变量)——变量来自 helper，state_settling ss. 批改写后仍属此盲区形态）与 BinOp/format/% 拼接不判定（与 lint_truth_format 同款登记惯例）。
 
 **复杂度:** infra ｜ **test_kind:** tdd_red_green ｜ **测试层级:** T1
@@ -169,6 +169,14 @@ class TestGrammar:
     def test_binop_not_judged_registered_blind(self):
         # BinOp 形态不判（登记盲区）——返回 True（不报）但 docstring 登记
         assert is_legal_argument(_arg('mf.append("G4.a" + var)'))
+
+    def test_name_arg_not_judged_registered_blind(self):
+        # 轮2 I2：跨函数间接（mf.extend(变量)）不判——登记盲区
+        assert is_legal_argument(_arg("mf.extend(_issues)"))
+
+    def test_helper_call_arg_not_judged_registered_blind(self):
+        # 轮2 I2：非 finding() Call 实参（helper 产列表）不判——登记盲区
+        assert is_legal_argument(_arg("mf.extend(_check_hooks_structure(x))"))
 ```
 
 - [ ] **Step 2: 跑测确认红**（工具不存在）
@@ -186,7 +194,7 @@ Expected: 8 passed
 - [ ] **Step 5: 首跑红清单落盘 + 与 spec 站点表对账**
 
 Run: `uv run python tools/lint_mustfix_emission.py --list > .superpowers/sdd/lint-redlist-baseline.txt; cat .superpowers/sdd/lint-redlist-baseline.txt`
-Expected 红清单（AST 真值 10 站点）：chapter_drafting:683、chapter_planning:752、chapter_planning:758、cross_chapter:949、cross_chapter:982、scoring_sections:40、scoring_sections:45、scoring_sections:47、decisions_validator:106、decisions_validator:118。
+Expected 红清单（AST 真值 10 站点）：chapter_drafting:683、chapter_planning:752、chapter_planning:758、cross_chapter:949、cross_chapter:982、scoring_sections:40、scoring_sections:45、scoring_sections:47、decisions_validator:106、decisions_validator:117（M1：lint 报 Call.lineno）。
 **对账断言**：红清单 == spec (b)(cd:683/cp:752/cp:758/xc:949) + (c)(xc:982) + (d)(ss:40/:45/:47/dv:106/dv:118) 站点表——diff 为空。任何多出站点 = spec 枚举缺口 → 记 spec-deviations 并回补 spec 后继续。
 
 - [ ] **Step 6: just check 接线**
@@ -215,7 +223,7 @@ git commit -m "feat: AST must_fix emission-contract lint + red-list baseline (sp
 
 **Interfaces:**
 - Consumes: Task 1 `finding()`。
-- Produces: 改写后 must_fix 串**与改写前逐字节相同**（运行时零 delta——等价性由 characterization 测试钉死）；`G4_FORMAT_EXAMPLES` `G4.dec.*` 键（chapter_loop.py:939/:982/:987/:994/:1003）继续命中（id 文本逐字保留）。
+- Produces: 改写后 must_fix 串**与改写前逐字节相同**（运行时零 delta——等价性由 characterization 测试钉死；**边界（轮2 M5）**：finding() 空槽收缩语义 vs 旧 f-string 尾冒号在 detail="" 时差一冒号——现行产者 r 恒非空，characterization 覆盖即可）；`G4_FORMAT_EXAMPLES` `G4.dec.*` 键（chapter_loop.py:939/:982/:987/:994/:1003）继续命中（id 文本逐字保留）。
 
 **复杂度:** infra ｜ **test_kind:** characterization（改写前后输出逐字节等价）+ tdd_red_green（lint 面转绿）｜ **测试层级:** T1
 
@@ -249,8 +257,8 @@ Expected: 测试全绿；红清单剩 5（cd:683/cp:752/cp:758/xc:949/xc:982—�
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/shenbi/gates/g4/scoring_sections.py src/shenbi/gates/g4/decisions_validator.py tests/unit/gates/test_g4_score_checkers.py
-git commit -m "refactor: (d)-family variable-prefix emissions to legal form, byte-identical output (spec #88 T1)"
+git add src/shenbi/gates/g4/scoring_sections.py src/shenbi/gates/g4/decisions_validator.py tests/unit/gates/test_g4_score_checkers.py tests/unit/gates/g4/test_decisions_validator.py
+    git commit -m "refactor: (d)-family variable-prefix emissions to legal form, byte-identical output (spec #88 T1)"
 ```
 
 ---
@@ -261,7 +269,7 @@ git commit -m "refactor: (d)-family variable-prefix emissions to legal form, byt
 - Modify: `src/shenbi/gates/g4/chapter_drafting.py:683`（path-first→分层契约形态）
 - Modify: `src/shenbi/gates/g4/chapter_planning.py:752/:758`
 - Modify: `src/shenbi/gates/g4/cross_chapter.py:949`
-- Modify: `src/shenbi/gates/g4/state_settling.py`（**ss. 裸家族批——plan 审查轮1 C1 补**：helper 内 13 处 `f"ss.…"` → `f"G4.ss.…"（:838/:841/:878/:889/:904/:908/:921/:940/:961/:971/:996/:1000/:1013/:1019）；:434 warns 面不动；:1134 matrix_issues 形态实读核（非 ss. 前缀不改）——lint 盲区（跨函数间接）故红清单不含，以 `grep -n 'f"ss\.' state_settling.py` 双清单对账）
+- Modify: `src/shenbi/gates/g4/state_settling.py`（**ss. 裸家族批——plan 审查轮1 C1 补；轮2 I1 修正**：mf 面 13 站点（7 f-string + 6 plain string）`ss.…` → `G4.ss.…`（:838/:841/:878/:889/:904/:908/:921/:961/:971/:996/:1000/:1013/:1019）；**warns 面两处不动**（:434 diff_area + :940 旧 settle 兼容期——:926-927 注释「WARN, not FAIL」）；:1134 matrix_issues 形态实读核（非 ss. 前缀不改）——lint 盲区（跨函数间接）故红清单不含，以 `grep -n '"ss\.' state_settling.py` 对账**预期 2 处残留（:434/:940 两 warns 面）**）
 - Modify: `src/shenbi/pipeline/retry_routing.py:24`（token 增补）
 - Test: `tests/unit/pipeline/test_spec83_retry_routing.py:24`（legacy 输入镜像更新）+ `tests/unit/pipeline/test_retry_routing_xc.py`（新建：XC 新形态 content 路由 + cd.prop_handoff 路由）+ 既有 ss. 断言测试同步（`grep -rln 'f\?"ss\.\|in i.*ss\.' tests/unit/gates/g4/` 命中面——实施时逐文件改期望串为 `G4.ss.` 前缀形态）
 
@@ -300,20 +308,20 @@ def test_check_id_extracts_family_not_path():
     assert check_id("G4.cd.prop_handoff:「灯」交接语境") == "cd.prop_handoff"
 ```
 
-- [ ] **Step 2: 跑测确认红**（`test_prop_handoff_gains_content_routing` 红——现产出 other；`test_check_id_extracts_family_not_path` 红——现 :683 产 path-first 串）
+- [ ] **Step 2: 跑测确认红**（轮2 M4 改准：红者=`test_prop_handoff_gains_content_routing`[现产出 other] 与 `test_xc_new_form_routes_content`[token 未加]；`test_check_id_extracts_family_not_path` 为 born-green 合成串断言[防回归哨]）
 
 - [ ] **Step 3: 改写**——
 chapter_drafting:683：`mf.append(f"{fp}:{issue}")` → `mf.append(f"G4.{issue}")`（与 :718-719 counter 族同构——helper 已返回 `cd.prop_handoff:…` 家族前缀串，调用点拼 G4. 即 id-first；fp 不入串，spec §1 file 槽不强制）。
 chapter_planning:752/:758：`f"cp.prop_decl:{fp}:…"` → `f"G4.cp.prop_decl:{fp}:…"`。
 cross_chapter:949：`f"XC.not_found:{fp}"` → `f"G4.XC.not_found:{fp}"`。
-state_settling ss. 批（C1 补）：helper 内 13 处 `f"ss.…"` → `f"G4.ss.…"`（逐点机械替换；warns 面 :434 除外）。
+state_settling ss. 批（C1 补；轮2 I1 修正）：mf 面 13 站点 `ss.…` → `G4.ss.…`（7 f-string+6 plain；warns 面 :434/:940 除外）。
 retry_routing:24：`_CONTENT_TOKENS = ("G4.cd", "XC:", "G4.XC")`。
 test_spec83_retry_routing:24 legacy `cp.prop_decl` 输入更新为新形态镜像（`G4.cp.prop_decl:…`，路由期望仍 "other"——非 cd 前缀）。
 
 - [ ] **Step 4: 跑测确认绿 + lint 转绿核对 + ss. 对账**
 
-Run: `uv run pytest tests/unit/pipeline/test_retry_routing_xc.py tests/unit/pipeline/test_spec83_retry_routing.py tests/unit/gates/g4/ -v && uv run python tools/lint_mustfix_emission.py --list && grep -c 'f"ss\.' src/shenbi/gates/g4/state_settling.py`
-Expected: 测试全绿（g4 域含 ss. 期望串同步面）；红清单剩 1（xc:982）；grep `f"ss.` 计数仅剩 warns 面 1 处（:434）
+Run: `uv run pytest tests/unit/pipeline/test_retry_routing_xc.py tests/unit/pipeline/test_spec83_retry_routing.py tests/unit/gates/g4/ -v && uv run python tools/lint_mustfix_emission.py --list && grep -c '"ss\.' src/shenbi/gates/g4/state_settling.py`
+Expected: 测试全绿（g4 域含 ss. 期望串同步面）；红清单剩 1（xc:982）；grep ss. 残留恰 2（:434/:940 两 warns 面）
 
 - [ ] **Step 5: 更新既有断言**（grep `chapters/ch025.md:cd.prop_handoff` / `"{fp}:{issue}"` 于 tests/——若既有测试钉死 path-first 串，同批改为新形态；grep 自证零残留）
 
@@ -330,8 +338,10 @@ git commit -m "fix: (b)-family bare emissions to id-first (incl. ss. batch) + re
 
 **Files:**
 - Modify: `src/shenbi/gates/g4/cross_chapter.py`（issues 构造点 :625/:672/:684/:695/:705/:706/:714/:759/:790/:808/:825/:849/:860 + 包装点 :982）
+- Modify: `src/shenbi/pipeline/chapter_loop.py:1766`（**plan 审查轮2 C1 补**：`check_cross_chapter` 的第二 src 调用方 `issues.extend(f"跨章复验 ch{_n}: {i}" for i in _xc_issues)` 改 unpacking `f"跨章复验 ch{_n}: G4.XC.{cid}:{det}" for cid, det in _xc_issues`——防 tuple repr 泄入修订重验反馈[retry_feedback :4556]模型可见面）
 - Test: `tests/unit/gates/g4/test_cross_chapter_ids.py`（新建）
 - Test（连带——plan 审查轮1 C2 补）：`tests/unit/gates/g4/test_xc_pov_name.py`、`test_xc_prop_card.py`、`test_xc_assets.py`、`test_xc_timeline.py`、`test_xc_regression.py`、`test_cross_chapter_skeleton.py`、`test_f15_narration_name.py`、`tests/gates/test_invariant_mutants.py`（tuple/新 id 形态断言同步——`"substring" in i` 对 tuple 是成员判定非子串，~25 断言改写）
+- Test（连带——轮2 C1）：`tests/pipeline/test_xc_wiring.py:105`（「跨章复验 ch2」断言钉 `G4.XC.` 新形态——防 tuple repr 假绿存活）
 
 **Interfaces:**
 - Produces: cross_chapter issues 元素从裸中文串改为 `(id, detail)` 二元组；包装点产 `G4.XC.{id}:{ch_path.name}:{detail}`。新 id 清单（spec §1.1 r2.7 定稿）：`pronoun_mismatch`(:672)/`title_violation`(:705)/`org_drift`(:684)/`residence_drift`(:695)/`reserved_name_hijack`(:706 经 reserved_name_hijack_hits——其返回形态按实际核)/`prop_chain_origin`(:759)/`prop_undeclared`(:790)/`pov_break`(:808)/`timeline_rollback`(:825)/`balance_jump`(:849/:860 双臂合一 id)＋嵌套 `narration_name`(:625——detail 剥内层前缀)。
@@ -347,16 +357,16 @@ git commit -m "fix: (b)-family bare emissions to id-first (incl. ss. batch) + re
 
 - [ ] **Step 4: 跑测确认绿 + lint 全绿 + 连带族回归**
 
-Run: `uv run pytest tests/unit/gates/g4/test_cross_chapter_ids.py tests/unit/gates/g4/test_xc_pov_name.py tests/unit/gates/g4/test_xc_prop_card.py tests/unit/gates/g4/test_xc_assets.py tests/unit/gates/g4/test_xc_timeline.py tests/unit/gates/g4/test_xc_regression.py tests/unit/gates/g4/test_cross_chapter_skeleton.py tests/unit/gates/g4/test_f15_narration_name.py tests/gates/test_invariant_mutants.py -v && uv run python tools/lint_mustfix_emission.py`
-Expected: 全绿（C2 连带族同步后）；lint exit 0（10/10 红点清零——(b)(c)(d) 全消化）
+Run: `uv run pytest tests/unit/gates/g4/test_cross_chapter_ids.py tests/unit/gates/g4/test_xc_pov_name.py tests/unit/gates/g4/test_xc_prop_card.py tests/unit/gates/g4/test_xc_assets.py tests/unit/gates/g4/test_xc_timeline.py tests/unit/gates/g4/test_xc_regression.py tests/unit/gates/g4/test_cross_chapter_skeleton.py tests/unit/gates/g4/test_f15_narration_name.py tests/gates/test_invariant_mutants.py tests/pipeline/test_xc_wiring.py -v && uv run python tools/lint_mustfix_emission.py`
+Expected: 全绿（C2 连带族+轮2 C1 接线同步后）；lint exit 0（10/10 红点清零——(b)(c)(d) 全消化）
 
-- [ ] **Step 5: spec-deviations 记 `### T5`（新 id 全清单+文本变更声明）**
+- [ ] **Step 5: spec-deviations 记 `### T5`（新 id 全清单+文本变更声明+跨章复验反馈文本变更）**
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/shenbi/gates/g4/cross_chapter.py tests/unit/gates/g4/test_cross_chapter_ids.py tests/unit/gates/g4/test_xc_pov_name.py tests/unit/gates/g4/test_xc_prop_card.py tests/unit/gates/g4/test_xc_assets.py tests/unit/gates/g4/test_xc_timeline.py tests/unit/gates/g4/test_xc_regression.py tests/unit/gates/g4/test_cross_chapter_skeleton.py tests/unit/gates/g4/test_f15_narration_name.py tests/gates/test_invariant_mutants.py
-git commit -m "feat: machine ids for all pure-Chinese XC findings + nested promotion; xc test family synced (spec #88 T1c, model-visible text change recorded)"
+git add src/shenbi/gates/g4/cross_chapter.py src/shenbi/pipeline/chapter_loop.py tests/unit/gates/g4/test_cross_chapter_ids.py tests/unit/gates/g4/test_xc_pov_name.py tests/unit/gates/g4/test_xc_prop_card.py tests/unit/gates/g4/test_xc_assets.py tests/unit/gates/g4/test_xc_timeline.py tests/unit/gates/g4/test_xc_regression.py tests/unit/gates/g4/test_cross_chapter_skeleton.py tests/unit/gates/g4/test_f15_narration_name.py tests/gates/test_invariant_mutants.py tests/pipeline/test_xc_wiring.py .superpowers/sdd/spec-deviations.md
+git commit -m "feat: machine ids for all pure-Chinese XC findings + nested promotion; xc test family + revision-feedback caller synced (spec #88 T1c, model-visible text change recorded)"
 ```
 
 ---
@@ -397,7 +407,7 @@ def test_extract_check_id_gone_single_owner() -> None:
 - [ ] **Step 4: 跑测确认绿 + 全仓唯一性 grep**
 
 Run: `uv run pytest tests/unit/gates/g4/test_shadow_demotion.py tests/unit/pipeline/test_g4_classification.py -v && grep -rn 'G4\\.(\[' src/ tools/ | grep -v shadow.py`
-Expected: 测试绿；grep 仅 shadow.py:64 一处（唯一 owner 证据）
+Expected: 测试绿；过滤 shadow.py 后 grep 输出为空（唯一 owner 证据=过滤后零命中）
 
 - [ ] **Step 5: Commit**
 
@@ -504,8 +514,8 @@ Expected: 全绿（cold_opening `not in G4_CHECK_MAP` 断言恒真不破）
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/shenbi/pipeline/chapter_loop.py tools/gen_g4_id_inventory.py tests/fixtures/g4-id-inventory.json tests/property/gates/test_g4_id_inventory.py tests/unit/pipeline/test_g4_classification.py
-git commit -m "feat: exact-id severity matching, 24+3 dead keys deleted, id inventory + bidirectional property invariants (spec #88 T3)"
+git add src/shenbi/pipeline/chapter_loop.py tools/gen_g4_id_inventory.py tests/fixtures/g4-id-inventory.json tests/property/gates/test_g4_id_inventory.py tests/unit/pipeline/test_g4_classification.py .superpowers/sdd/spec-deviations.md
+    git commit -m "feat: exact-id severity matching, 24+3 dead keys deleted, id inventory + bidirectional property invariants (spec #88 T3)"
 ```
 
 ---
@@ -515,10 +525,10 @@ git commit -m "feat: exact-id severity matching, 24+3 dead keys deleted, id inve
 **Files:**
 - Modify: `src/shenbi/gates/g4/chapter_drafting.py:887`（word_count 消息加 floor 来源）
 - Modify: `src/shenbi/gates/g4/length_normalizing.py:53`（below_floor 同）
-- Test: `tests/unit/gates/g4/test_word_floor_citation.py`（新建红测）+ `tests/property/gates/test_shadow_all_checkers.py`（T5 参数化）
+- Test: `tests/unit/gates/g4/test_word_floor_citation.py`（新建红测）+ `tests/property/gates/test_shadow_all_checkers.py`（**Create**——轮2 M3：该文件不存在，全新建）
 
 **Interfaces:**
-- Produces: 两处消息 detail 含 `chapter_word_floor` 静态函数引用（名+当前值，如 `（floor 来源: chapter_word_floor=3200）`）；T5 参数化语料=per-checker 单测构造输出聚合 + fixture 真实 must_fix（bracketed-list-only 解析）+ 死 id 豁免集机械推导（fixture 语料 id − AST inventory；已知真死：`G4.fp.no_hooks`、`G4.rr.*` 族、`G4.rules.count`、`G4.protag.yaml_error`、`G4.ss.no_hook_state` 等按推导结果定——豁免项仅走「等于期望 id」分支）。
+- Produces: 两处消息 detail 含 `chapter_word_floor` 静态函数引用（名+当前值，如 `（floor 来源: chapter_word_floor=3200）`）；T5 参数化语料=per-checker 单测构造输出聚合 + fixture 真实 must_fix（bracketed-list-only 解析）+ 死 id 豁免集机械推导（fixture 语料 id − AST inventory；已验真死唯 `G4.fp.no_hooks`（轮2 I3 修正：rr.detail_table[review_resonance:65]/rr.verdict[:79]/rules.count[worldbuilding:155]/protag.yaml_error[character_design:45]/ss.no_hook_state[state_settling:1217] 均为活 id 不得入例）——其余按推导结果定——豁免项仅走「等于期望 id」分支）。
 
 **复杂度:** infra ｜ **test_kind:** tdd_red_green（floor 引用红测）+ regression_guard（T5 参数化套件 born-green——Tasks 3-7 已落地，M3 口径）｜ **测试层级:** T1 + property
 
