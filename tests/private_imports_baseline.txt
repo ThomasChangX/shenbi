@@ -50,6 +50,7 @@ tests/pipeline/test_truth_composite_key_multirow.py::_TABLE_HEADER_BOOTSTRAP
 tests/pipeline/test_volume_map_cn.py::_read_cn_volume_boundaries
 tests/pipeline/test_wave_midpoint_save.py::_filter_completed_audit_tasks
 tests/pipeline/test_wordcount_retry_expansion.py::_append_feedback_injections
+tests/property/gates/test_g4_id_inventory.py::_classify_g4_failures
 tests/test_staged_sidecar_commit.py::_auto_settle_parallel
 tests/unit/facts/test_settle_ops.py::_commit_staging_for_checkpoint
 tests/unit/gates/g4/test_cold_opening_triple.py::_classify_g4_failures
