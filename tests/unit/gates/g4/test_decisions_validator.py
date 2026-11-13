@@ -54,3 +54,17 @@ def test_budget_comparison_skips_when_prev_missing():
 
         issues = _check_adjacent_budget(project_dir, chapter=1)
         assert len(issues) == 0  # No previous chapter
+
+
+def test_emission_ids_byte_stable_via_finding(tmp_path):
+    """Spec #88 T1d characterization: composed G4.dec.* strings unchanged."""
+    import json
+
+    from shenbi.gates.g4.decisions_validator import g4_decisions
+
+    bad = tmp_path / "x-decisions.json"
+    bad.write_text(json.dumps({"skill": "shenbi-x", "not_schema": 1}), encoding="utf-8")
+    result = g4_decisions([str(bad)])
+    assert '"status": "FAIL"' in result
+    # parse/pydantic path composes G4.dec.<id>:<file>:<reason> byte-stable
+    assert "G4.dec." in result and str(bad) in result

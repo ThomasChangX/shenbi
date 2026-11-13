@@ -86,8 +86,10 @@ def test_emission_ids_byte_stable_across_prefix_bareization():
     import pathlib
 
     missing = str(pathlib.Path(tempfile.gettempdir()) / "definitely-missing-88.md")
-    result = g4_scoring_sections([missing], "G4-score-arc", "G4.arc")
-    assert f"G4.arc.not_found:{missing}" in result
+    # audit-T3 I1: bare prefix arg (pre-prefixed input would double-prefix —
+    # vacuous containment); assert the FULL composed must_fix string.
+    result = g4_scoring_sections([missing], "G4-score-arc", "arc")
+    assert f'\n    "G4.arc.not_found:{missing}"\n' in result
     with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False, encoding="utf-8") as f:
         f.write("# no route sections here either")
         f.flush()
