@@ -19,14 +19,22 @@ class TestG4SeverityEnum:
     def test_fatigue_is_soft(self):
         assert G4_CHECK_MAP.get("fatigue") == G4Severity.SOFT
 
-    def test_not_found_is_hard(self):
-        assert G4_CHECK_MAP.get("not_found") == G4Severity.HARD
+    def test_not_found_hard_by_default_not_by_key(self):
+        """Spec #88 T3: deleted HARD keys fall to the unmatched-default arm."""
+        assert "not_found" not in G4_CHECK_MAP
+        hard, _, _ = _classify_g4_failures(["G4.not_found:path/file.md"])
+        assert len(hard) == 1
 
-    def test_meta_is_hard(self):
-        assert G4_CHECK_MAP.get("meta") == G4Severity.HARD
+    def test_meta_hard_by_default_not_by_key(self):
+        assert "meta" not in G4_CHECK_MAP
+        hard, _, _ = _classify_g4_failures(["G4.meta:path/file.md:x"])
+        assert len(hard) == 1
 
-    def test_golden_is_warn(self):
-        assert G4_CHECK_MAP.get("cp.golden") == G4Severity.WARN
+    def test_golden_checks_only_key_deleted(self):
+        """checks-only keys carry severity at emission (checks[].s), not here."""
+        assert "cp.golden" not in G4_CHECK_MAP
+        hard, soft, warn = _classify_g4_failures(["G4.cp.golden:path/file.md"])
+        assert len(hard) == 1 and not soft and not warn
 
     def test_unknown_key_defaults_to_hard(self):
         """Conservative default: unknown check IDs are HARD."""
@@ -41,13 +49,12 @@ class TestG4FailureClassification:
             [
                 "G4.not_found:path/file.md",
                 "G4.transition:path/file.md:8>7",
-                "G4.cp.golden:path/file.md",
                 "G4.meta:path/file.md:{'让人感悟': 1}",
             ]
         )
-        assert len(hard) == 2  # not_found, meta
+        assert len(hard) == 2  # not_found, meta (both via default arm)
         assert len(soft) == 1  # transition
-        assert len(warn) == 1  # golden
+        assert len(warn) == 0  # golden was a checks-only key (deleted)
 
     def test_all_soft_no_retry_needed(self):
         hard, soft, warn = _classify_g4_failures(

@@ -810,41 +810,13 @@ class G4Severity(StrEnum):
 
 
 G4_CHECK_MAP: dict[str, G4Severity] = {
-    "not_found": G4Severity.HARD,
-    "pre_check": G4Severity.HARD,
-    "post_check": G4Severity.HARD,
-    "meta": G4Severity.HARD,
-    "word_count": G4Severity.HARD,
-    "no_visual_scene": G4Severity.HARD,
-    "content_overlap": G4Severity.HARD,
-    "no_valid_verdict": G4Severity.HARD,
-    "no_file_line_ref": G4Severity.HARD,
-    "missing_cols": G4Severity.HARD,
-    "missing_sections": G4Severity.HARD,
-    "no_result": G4Severity.HARD,
-    "no_evidence": G4Severity.HARD,
-    "cp.sections": G4Severity.HARD,
-    "cp.chapter_role": G4Severity.HARD,
-    # spec #95 T1: 在场非规范值（斜杠/多值/无效）独立 HARD id——present-but-illegal
-    # ≠ missing；不入 GATE_TO_SHADOW_KEY（未列即保 HARD，正确）。
-    "invalid_chapter_role": G4Severity.HARD,
-    "cp.s7_hook_ops": G4Severity.HARD,
-    # spec #80 invariant-net: F15/F16/F17 + G4.ss 双写对账，全部硬失败
-    # （发射前缀见 cross_chapter/chapter_planning/chapter_drafting/state_settling）
-    "XC.narration_name": G4Severity.HARD,
-    "cd.prop_handoff": G4Severity.HARD,
-    "cp.prop_decl": G4Severity.HARD,
-    "cd.counter": G4Severity.HARD,
-    "ss.facts_ops": G4Severity.HARD,
-    "ss.prop_row_match": G4Severity.HARD,
-    "ss.identity_row_match": G4Severity.HARD,
     "transition": G4Severity.SOFT,
     "fatigue": G4Severity.SOFT,
-    "cd.chapter_end_hook": G4Severity.SOFT,
-    "cp.golden": G4Severity.WARN,
-    "cp.s5_choice": G4Severity.WARN,
-    # spec #95 T2 冷三连不入此表（audit-T5 I1：分类发生在 shadow 降级之后，
-    # 能到分类器的必是 shadow:false 转正项——未列走保守默认 HARD，cold_streak_window 先例）
+    # spec #88 T3: 24 个显式 HARD 键与未匹配默认 HARD（见 _classify_g4_failures
+    # 尾部）行为等价——全部删除；3 个 checks-only 键（cd.chapter_end_hook/
+    # cp.golden/cp.s5_choice）的 severity 由发射点 checks[].s 自带
+    # （chapter_drafting:1093、chapter_planning:909/:1000/:1007）——对
+    # must_fix 分类是死键，直接删除。
 }
 
 
@@ -853,10 +825,13 @@ def _classify_g4_failures(must_fix: list[str]) -> tuple[list[str], list[str], li
     hard: list[str] = []
     soft: list[str] = []
     warn: list[str] = []
+    from shenbi.gates.g4.shadow import check_id as _check_id  # spec #88 T3: 精确 id
+
     for item in must_fix:
         matched = False
+        cid = _check_id(item)
         for key, severity in G4_CHECK_MAP.items():
-            if key in item:
+            if cid == key or cid.startswith(key + "."):
                 if severity == G4Severity.HARD:
                     hard.append(item)
                 elif severity == G4Severity.SOFT:
