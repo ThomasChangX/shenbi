@@ -85,18 +85,15 @@ def test_corpus_nonempty_and_digit_pair_present(corpus):
 
 @pytest.mark.unit
 def test_exempt_set_is_mechanically_bounded(exempt):
-    # sole verified dead id today; anything beyond it must be a deliberate
-    # addition recorded in spec-deviations
-    assert (
-        exempt
-        <= {"fp.no_hooks", "rr.detail_table", "rr.verdict", "rr.evidence"}
-        | {
-            "rules.count",
-            "protag.yaml_error",
-            "ss.no_hook_state",
-        }
-        | exempt
-    ), "exemption grew — reconcile with spec-deviations"
+    """Dead-id exemption bound (audit-T8 R1: no tautological union arm).
+
+    The derivation yields exactly the sole verified dead id today
+    (G4.fp.no_hooks); any growth requires deliberately widening THIS
+    bound plus a spec-deviations entry.
+    """
+    assert exempt == {"fp.no_hooks"}, (
+        f"exemption grew beyond the verified-dead bound: {exempt} — reconcile with spec-deviations"
+    )
 
 
 @pytest.mark.parametrize("item", sorted(set(_CONSTRUCTED)))
