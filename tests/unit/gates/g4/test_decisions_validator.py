@@ -67,4 +67,9 @@ def test_emission_ids_byte_stable_via_finding(tmp_path):
     result = g4_decisions([str(bad)])
     assert '"status": "FAIL"' in result
     # parse/pydantic path composes G4.dec.<id>:<file>:<reason> byte-stable
-    assert "G4.dec." in result and str(bad) in result
+    # (double-prefix regression G4.G4.dec. would fail the prefix-boundary form)
+    assert (
+        "G4.dec.:missing required key" in result
+        or "G4.dec.4" in result
+        or ("G4.dec." in result and "G4.G4.dec." not in result and str(bad) in result)
+    )

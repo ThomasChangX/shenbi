@@ -40,6 +40,16 @@ class TestG4SeverityEnum:
         """Conservative default: unknown check IDs are HARD."""
         assert G4_CHECK_MAP.get("unknown_future_check", G4Severity.HARD) == G4Severity.HARD
 
+    def test_gc_fatiguewords_flips_to_hard_intentional(self):
+        """终审 🟡: genre-config fatigueWords was substring-SOFT, exact-id HARD.
+
+        Old: "fatigue" ⊂ "G4.gc.…:fatigueWords:…" → SOFT (soft-tracker path).
+        New: extracted id "gc.genre" → unmatched → default HARD. Fail-safe
+        direction; recorded in spec-deviations T7 (intentional).
+        """
+        hard, soft, _ = _classify_g4_failures(["G4.gc.genre-config.json:fatigueWords: x"])
+        assert len(hard) == 1 and not soft
+
 
 class TestG4FailureClassification:
     """_classify_g4_failures partitions must_fix by severity."""

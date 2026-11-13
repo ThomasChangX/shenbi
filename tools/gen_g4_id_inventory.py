@@ -6,8 +6,9 @@ Three sources (plan M2), one ``enumerate_ids()`` function consumed by both
 
 1. AST constant extraction: ``mf.append/extend`` emission sites in
    ``src/shenbi/gates/g4/*.py`` whose first constant segment starts ``G4.``
-   (id = text between ``G4.`` and the first ``:``); plus the (id, detail)
-   tuple literal first elements (spec #88 T1c xc family).
+   (id = text between ``G4.`` and the first ``:``; trailing-dot family
+   fragments are skipped — they are prefixes, not ids). The xc (id, detail)
+   tuple family rides source 2 (helper-internal appends are scan-blind).
 2. Explicit supplement: ids invisible to static extraction — layered-contract
    helper returns (composed at runtime via ``f"G4.{issue}"``), variable-prefix
    forms (cd.post_transition_cross :814 etc.), and registry-produced ids
@@ -112,7 +113,7 @@ def _iter_emission_ids(tree: ast.Module) -> set[str]:
         head = _first_constant(arg)
         if head:
             m = _ID_RE.match(head)
-            if m:
+            if m and not m.group(1).endswith("."):  # skip family-prefix fragments
                 out.add(m.group(1))
     return out
 

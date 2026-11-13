@@ -1,6 +1,5 @@
 {
   "ids": [
-    "XC.",
     "XC.balance_jump",
     "XC.narration_name",
     "XC.not_found",
@@ -96,7 +95,6 @@
     "factions.not_found",
     "fatigue",
     "file_not_found",
-    "fl.",
     "fl.chapter_refs",
     "fl.hook_not_dict",
     "fl.no_changes",
@@ -105,7 +103,6 @@
     "fl.not_found_pending_hooks",
     "fl.ops",
     "fl.read_error",
-    "gc.",
     "gc.invalid_json",
     "gc.no_input",
     "gen.dir_empty",
@@ -132,7 +129,6 @@
     "novel.missing_",
     "novel.missing_target_words",
     "novel.not_found",
-    "pd.",
     "pd.no_beat_data",
     "post_check",
     "pre_check",
@@ -184,7 +180,6 @@
     "ss.stale_declarations",
     "thread.not_found",
     "transition",
-    "truth.",
     "truth.dir_not_found",
     "vo.bridge",
     "vo.krs",
@@ -193,13 +188,12 @@
     "vo.not_found",
     "vo.objective",
     "vo.tension_curve",
-    "voice.",
     "voice.not_a_dict",
     "volumes.count",
     "volumes.not_found",
     "volumes.obj_kr",
     "word_count"
   ],
-  "generated_at": "2026-11-13T21:34:08.187725+00:00",
+  "generated_at": "2026-11-13T22:04:03.316443+00:00",
   "generator": "tools/gen_g4_id_inventory.py"
 }
