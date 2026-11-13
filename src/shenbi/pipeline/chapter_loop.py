@@ -1763,7 +1763,7 @@ def _revalidate_revised_chapter(project_dir: Path, chapter: int) -> list[str]:
             _memo if _memo.is_file() else None,
             _XCtx(project_dir=project_dir, registry_dir=project_dir / "truth"),
         )
-        issues.extend(f"跨章复验 ch{_n}: {i}" for i in _xc_issues)
+        issues.extend(f"跨章复验 ch{_n}: G4.XC.{cid}:{det}" for cid, det in _xc_issues)
 
     # 带口径对齐 G2/G4 消费方：地板走 chapter_word_floor 回退链，
     # 天花板走 chapter_word_min_max（缺省回退并 WARN——T7 审查 I4）

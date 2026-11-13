@@ -31,7 +31,7 @@ def test_wound1_pov_break_fixture() -> None:
         None,
         CrossChapterContext(),
     )
-    assert any("POV 人称断裂" in i for i in issues)
+    assert any("POV 人称断裂" in det for _cid, det in issues)
 
 
 @pytest.mark.integration
@@ -43,7 +43,7 @@ def test_wound2_lamp_binding_fixture() -> None:
         None,
         CrossChapterContext(),
     )
-    assert any("称谓违例" in i and "灯" in i for i in issues)
+    assert any("称谓违例" in det and "灯" in det for _cid, det in issues)
 
 
 @pytest.mark.unit

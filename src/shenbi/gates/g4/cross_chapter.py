@@ -636,12 +636,16 @@ def check_cross_chapter(
     memo_path: Path | None,
     ctx: CrossChapterContext,
     cur_text: str | None = None,
-) -> list[str]:
-    """Run the six invariants; returns violation strings (empty = clean).
+) -> list[tuple[str, str]]:
+    """Run the six invariants; returns ``(check_id, detail)`` tuples (empty = clean).
+
+    spec #88 T1c: ids are bare family members (``pov_break`` …); the g4
+    wrapper composes ``G4.XC.<id>:<file>:<detail>`` must_fix strings.
+
 
     First chapter (prev_path None): skip the seam-dependent items entirely.
     """
-    issues: list[str] = []
+    issues: list[tuple[str, str]] = []
     if cur_text is None:
         cur_text = chapter_path.read_text(encoding="utf-8")
     memo_text = memo_path.read_text(encoding="utf-8") if memo_path and memo_path.is_file() else ""
@@ -669,7 +673,12 @@ def check_cross_chapter(
             if name in para:
                 para_hits += len(re.findall(r"(?:^|[。！？])\s*她", para))
         if card["性别代词"] == "他" and para_hits >= 1:
-            issues.append(f"角色「{name}」正文用「她」而卡为男性代词（修复者: 卡修/settling）")
+            issues.append(
+                (
+                    "pronoun_mismatch",
+                    f"角色「{name}」正文用「她」而卡为男性代词（修复者: 卡修/settling）",
+                )
+            )
         # 同表其它已知机构在正文成主导（卡机构被边缘化）→ 机构漂移；
         # 跨卡去重（多卡同漂移只报一次）
         if card["机构"]:
@@ -682,7 +691,10 @@ def check_cross_chapter(
                 ):
                     org_drift_flagged.add(drift_key)
                     issues.append(
-                        f"卡机构「{card['机构']}」与正文主导机构「{other}」不一致（修复者: 卡修）"
+                        (
+                            "org_drift",
+                            f"卡机构「{card['机构']}」与正文主导机构「{other}」不一致（修复者: 卡修）",
+                        )
                     )
         # 住所轨迹（#75 不变量 5 第三面；卡字段缺席 → 不检）
         if card["住所"]:
@@ -693,7 +705,10 @@ def check_cross_chapter(
                     loc = rm.group(1)
                     if loc not in card["住所"] and card["住所"] not in loc:
                         issues.append(
-                            f"角色「{name}」正文住所「{loc}」与卡（{card['住所']}）不一致（修复者: 卡修）"
+                            (
+                                "residence_drift",
+                                f"角色「{name}」正文住所「{loc}」与卡（{card['住所']}）不一致（修复者: 卡修）",
+                            )
                         )
 
     # ── 不变量 2: 主角称谓（禁用名绑定 + 撞名——不依赖前章，首章亦跑）──
@@ -702,8 +717,12 @@ def check_cross_chapter(
     for name in reserved:
         hits = protagonist_binding_hits(cur_text, name, whitelist)
         if hits:
-            issues.append("称谓违例（修复者: planning+drafting）: " + "; ".join(hits[:2]))
-    issues.extend(reserved_name_hijack_hits(cur_text, reserved))
+            issues.append(
+                ("title_violation", "称谓违例（修复者: planning+drafting）: " + "; ".join(hits[:2]))
+            )
+    issues.extend(
+        ("reserved_name_hijack", h) for h in reserved_name_hijack_hits(cur_text, reserved)
+    )
 
     # ── spec #80 F15 叙事名（剥对白叙述段别名扫描；首章亦跑）──
     if ctx.identity_fact:
@@ -712,7 +731,14 @@ def check_cross_chapter(
         if _ch_m15:
             _ch_num_f15 = int(_ch_m15.group(1))
         issues.extend(
-            check_narration_name(cur_text, ctx.identity_fact, memo_text, chapter=_ch_num_f15)
+            # spec #88 T1c 嵌套升格：内层家族前缀剥除、id 升格、detail 干净
+            (
+                "narration_name",
+                i.removeprefix("XC.narration_name:"),
+            )
+            for i in check_narration_name(
+                cur_text, ctx.identity_fact, memo_text, chapter=_ch_num_f15
+            )
         )
 
     # ── 不变量 4: 物象 owner 链（正文唯一真值；经手事件还原；首章亦跑）──
@@ -757,9 +783,12 @@ def check_cross_chapter(
                 if _origin and _origin not in expected and expected not in _origin:
                     _adv = f"，经 ch{_adv_ch} 备忘推进" if _adv_ch else ""
                     issues.append(
-                        f"物象「{prop}」声明经手起点「{_origin}」与期望 owner"
-                        f"（{expected}{_adv}；registry {known_props[prop]}）不符"
-                        "——正文为唯一真值源，核实后修正声明或 registry（修复者: settling）"
+                        (
+                            "prop_chain_origin",
+                            f"物象「{prop}」声明经手起点「{_origin}」与期望 owner"
+                            f"（{expected}{_adv}；registry {known_props[prop]}）不符"
+                            "——正文为唯一真值源，核实后修正声明或 registry（修复者: settling）",
+                        )
                     )
                     break
                 expected = _new
@@ -788,8 +817,11 @@ def check_cross_chapter(
         )
         if transfer_ctx:
             issues.append(
-                f"物象「{prop}」经手语境出现但无经手声明"
-                f"（registry owner: {known_props[prop]}；修复者: settling）"
+                (
+                    "prop_undeclared",
+                    f"物象「{prop}」经手语境出现但无经手声明"
+                    f"（registry owner: {known_props[prop]}；修复者: settling）",
+                )
             )
 
     if prev_path is None:
@@ -806,8 +838,11 @@ def check_cross_chapter(
         declared_matches = declared == cur_pov or (declared == "混称" and cur_pov == "mixed")
         if not declared_matches:
             issues.append(
-                f"POV 人称断裂: 前章 {prev_pov} → 本章 {cur_pov} 且无 POV 变更声明"
-                "（修复者: planning+drafting）"
+                (
+                    "pov_break",
+                    f"POV 人称断裂: 前章 {prev_pov} → 本章 {cur_pov} 且无 POV 变更声明"
+                    "（修复者: planning+drafting）",
+                )
             )
 
     # ── 不变量 3: 时间锚单调（正文派生恒跑；[回拨] 声明豁免全章）──
@@ -823,8 +858,11 @@ def check_cross_chapter(
         year_wrap = prev_anchor[0] == 12 and back[0] == 1
         if back < prev_anchor and not flashback and not year_wrap:
             issues.append(
-                f"时间锚回拨: 前章末 {prev_anchor} → 本章最早锚 {back} 无 [回拨] 声明"
-                "（修复者: planning+drafting）"
+                (
+                    "timeline_rollback",
+                    f"时间锚回拨: 前章末 {prev_anchor} → 本章最早锚 {back} 无 [回拨] 声明"
+                    "（修复者: planning+drafting）",
+                )
             )
 
     # ── 不变量 6: 资产连续性（memo 余额声明行主源；≥10 文跳变须事件对账）──
@@ -847,7 +885,10 @@ def check_cross_chapter(
         if delta is not None and abs(delta) >= 10:
             if not events:
                 issues.append(
-                    f"余额跳变 {prev_amt}文→{cur_amt}文（Δ{delta}）无事件声明（修复者: settling）"
+                    (
+                        "balance_jump",
+                        f"余额跳变 {prev_amt}文→{cur_amt}文（Δ{delta}）无事件声明（修复者: settling）",
+                    )
                 )
             else:
                 # 对账：声明事件净额须覆盖跳变（容差 max(10, 20%)——散文允许
@@ -858,8 +899,11 @@ def check_cross_chapter(
                 )
                 if abs(delta - net) > max(10, abs(delta) * 0.2):
                     issues.append(
-                        f"余额跳变 {prev_amt}文→{cur_amt}文（Δ{delta}）与事件净额 {net}文 对账不符"
-                        "（修复者: settling）"
+                        (
+                            "balance_jump",
+                            f"余额跳变 {prev_amt}文→{cur_amt}文（Δ{delta}）与事件净额 {net}文 对账不符"
+                            "（修复者: settling）",
+                        )
                     )
     return issues
 
@@ -979,7 +1023,7 @@ def g4_cross_chapter(
                 }
             )
         if issues:
-            mf.extend(f"XC:{ch_path.name}:{i}" for i in issues)
+            mf.extend(f"G4.XC.{cid}:{ch_path.name}:{det}" for cid, det in issues)
         else:
             c.append({"id": "XC.clean", "file": fp, "s": GateStatus.PASS})
     if mf:
