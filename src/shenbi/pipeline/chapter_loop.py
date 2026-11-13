@@ -47,7 +47,7 @@ from shenbi.pipeline.review_checklist import is_review_skill  # spec #87 T4
 import yaml
 
 from shenbi.logging import get_logger
-from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
+from shenbi.gates.g4.shadow import check_id, demote_must_fix, emit_shadow_warn_trace
 from shenbi.safe_write import safe_write
 from shenbi.pipeline.audit_aggregate import write_audit_aggregate
 from shenbi.pipeline.audit_layer import GENRE_ACTIVATION_MATRIX, run_audit_layer
@@ -810,53 +810,26 @@ class G4Severity(StrEnum):
 
 
 G4_CHECK_MAP: dict[str, G4Severity] = {
-    "not_found": G4Severity.HARD,
-    "pre_check": G4Severity.HARD,
-    "post_check": G4Severity.HARD,
-    "meta": G4Severity.HARD,
-    "word_count": G4Severity.HARD,
-    "no_visual_scene": G4Severity.HARD,
-    "content_overlap": G4Severity.HARD,
-    "no_valid_verdict": G4Severity.HARD,
-    "no_file_line_ref": G4Severity.HARD,
-    "missing_cols": G4Severity.HARD,
-    "missing_sections": G4Severity.HARD,
-    "no_result": G4Severity.HARD,
-    "no_evidence": G4Severity.HARD,
-    "cp.sections": G4Severity.HARD,
-    "cp.chapter_role": G4Severity.HARD,
-    # spec #95 T1: 在场非规范值（斜杠/多值/无效）独立 HARD id——present-but-illegal
-    # ≠ missing；不入 GATE_TO_SHADOW_KEY（未列即保 HARD，正确）。
-    "invalid_chapter_role": G4Severity.HARD,
-    "cp.s7_hook_ops": G4Severity.HARD,
-    # spec #80 invariant-net: F15/F16/F17 + G4.ss 双写对账，全部硬失败
-    # （发射前缀见 cross_chapter/chapter_planning/chapter_drafting/state_settling）
-    "XC.narration_name": G4Severity.HARD,
-    "cd.prop_handoff": G4Severity.HARD,
-    "cp.prop_decl": G4Severity.HARD,
-    "cd.counter": G4Severity.HARD,
-    "ss.facts_ops": G4Severity.HARD,
-    "ss.prop_row_match": G4Severity.HARD,
-    "ss.identity_row_match": G4Severity.HARD,
     "transition": G4Severity.SOFT,
     "fatigue": G4Severity.SOFT,
-    "cd.chapter_end_hook": G4Severity.SOFT,
-    "cp.golden": G4Severity.WARN,
-    "cp.s5_choice": G4Severity.WARN,
-    # spec #95 T2 冷三连不入此表（audit-T5 I1：分类发生在 shadow 降级之后，
-    # 能到分类器的必是 shadow:false 转正项——未列走保守默认 HARD，cold_streak_window 先例）
+    # spec #88 T3: 24 个显式 HARD 键与未匹配默认 HARD（见 _classify_g4_failures
+    # 尾部）行为等价——全部删除；3 个 checks-only 键（cd.chapter_end_hook/
+    # cp.golden/cp.s5_choice）的 severity 由发射点 checks[].s 自带
+    # （chapter_drafting:1093、chapter_planning:909/:1000/:1007）——对
+    # must_fix 分类是死键，直接删除。
 }
 
 
 def _classify_g4_failures(must_fix: list[str]) -> tuple[list[str], list[str], list[str]]:
-    """Partition G4 must_fix into (hard, soft, warn) by substring matching against G4_CHECK_MAP."""
+    """Partition G4 must_fix into (hard, soft, warn) by exact-id/dot-boundary matching (spec #88 T3)."""
     hard: list[str] = []
     soft: list[str] = []
     warn: list[str] = []
     for item in must_fix:
         matched = False
+        cid = check_id(item)
         for key, severity in G4_CHECK_MAP.items():
-            if key in item:
+            if cid == key or cid.startswith(key + "."):
                 if severity == G4Severity.HARD:
                     hard.append(item)
                 elif severity == G4Severity.SOFT:
@@ -868,12 +841,6 @@ def _classify_g4_failures(must_fix: list[str]) -> tuple[list[str], list[str], li
         if not matched:
             hard.append(item)  # conservative default
     return hard, soft, warn
-
-
-def _extract_check_id(must_fix_item: str) -> str:
-    """Extract the G4 check ID from a must_fix string like 'G4.transition:path:7>6'."""
-    m = re.match(r"G4\.([a-z_.]+)", must_fix_item)
-    return m.group(1) if m else must_fix_item.split(":", maxsplit=1)[0].replace("G4.", "")
 
 
 # ---------------------------------------------------------------------------
@@ -1203,8 +1170,9 @@ def _failure_family_id(must_fix_item: str) -> str:
     Same normalization shape as the format-example keying in
     ``_enrich_g4_feedback`` -- sel_3_missing_basis and sel_5_missing_basis
     are one family (same check, different rows). Segment extraction uses
-    split-colon, NOT ``_extract_check_id`` (whose ``[a-z_.]+`` class
-    truncates at the first digit, collapsing indexed families away). Non-G4
+    split-colon, NOT ``shadow.check_id`` (whose pre-#88 ``[a-z_.]+`` class
+    truncated at the first digit, collapsing indexed families away; the
+    post-#88 digit-safe regex makes the split-colon choice belt-and-braces). Non-G4
     shapes (dispatch stderr / human review feedback) degrade to their first
     colon segment or the whole string: identical text rewrites, distinct
     text accumulates -- both are bounded surfaces.
@@ -1763,7 +1731,7 @@ def _revalidate_revised_chapter(project_dir: Path, chapter: int) -> list[str]:
             _memo if _memo.is_file() else None,
             _XCtx(project_dir=project_dir, registry_dir=project_dir / "truth"),
         )
-        issues.extend(f"跨章复验 ch{_n}: {i}" for i in _xc_issues)
+        issues.extend(f"跨章复验 ch{_n}: G4.XC.{cid}:{det}" for cid, det in _xc_issues)
 
     # 带口径对齐 G2/G4 消费方：地板走 chapter_word_floor 回退链，
     # 天花板走 chapter_word_min_max（缺省回退并 WARN——T7 审查 I4）
@@ -4699,7 +4667,7 @@ def _run_serial_dispatch_step(
             log.info("chapter_g4_warn", chapter=chapter, step=step.step_num, item=w)
 
         for s in soft_fails:
-            tracker_key = _extract_check_id(s)
+            tracker_key = check_id(s)
             tracker = state.chapter_loop.soft_fail_trackers.get(tracker_key)
             if tracker is None:
                 tracker = SoftFailTracker(check_id=tracker_key)

@@ -33,7 +33,7 @@ def test_wound3_fixture_ch1_ch2() -> None:
         None,
         CrossChapterContext(),
     )
-    assert any("时间锚回拨" in i for i in issues)
+    assert any("时间锚回拨" in det for _cid, det in issues)
 
 
 @pytest.mark.unit
@@ -53,7 +53,7 @@ def test_flashback_marker_exempts() -> None:
         issues = check_cross_chapter(
             d / "chapter-2.md", d / "chapter-1.md", memo, CrossChapterContext()
         )
-        assert not any("时间锚回拨" in i for i in issues)
+        assert not any("时间锚回拨" in det for _cid, det in issues)
 
 
 @pytest.mark.unit
@@ -67,7 +67,7 @@ def test_monotonic_forward_passes() -> None:
         issues = check_cross_chapter(
             d / "chapter-2.md", d / "chapter-1.md", None, CrossChapterContext()
         )
-        assert not any("时间锚" in i for i in issues)
+        assert not any("时间锚" in det for _cid, det in issues)
 
 
 @pytest.mark.unit
@@ -89,7 +89,7 @@ def test_quantity_units_are_not_bare_days() -> None:
         issues = check_cross_chapter(
             d / "chapter-11.md", d / "chapter-10.md", None, CrossChapterContext()
         )
-        assert not any("时间锚回拨" in i for i in issues)
+        assert not any("时间锚回拨" in det for _cid, det in issues)
 
 
 def test_interest_rate_phrase_not_a_date_anchor():

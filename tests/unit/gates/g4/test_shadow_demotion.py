@@ -193,3 +193,16 @@ def test_wiring_partial_demotion_keeps_hard_items_only(tmp_path: Path) -> None:
     assert not any("cold_streak_window" in h for h in hard)  # demoted never HARD
     assert any("missing_emotion_tone" in h for h in hard)
     assert "cold_streak_window" not in routed.get("must_fix", [])  # rewritten g4 carries rem only
+
+
+def test_check_id_digit_ids_not_truncated() -> None:
+    """Spec #88 T2: digit-bearing ids survive extraction (old [a-z_.]+ truncated)."""
+    assert check_id("G4.cc.p1p2_empty:ctx.md") == "cc.p1p2_empty"
+    assert check_id("G4.cp.s7_hook_ops:plan.md") == "cp.s7_hook_ops"
+
+
+def test_extract_check_id_gone_single_owner() -> None:
+    """Spec #88 T2: chapter_loop duplicate deleted; shadow is sole owner."""
+    import shenbi.pipeline.chapter_loop as cl
+
+    assert not hasattr(cl, "_extract_check_id")

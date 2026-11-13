@@ -750,13 +750,13 @@ def g4_chapter_planning(
                     continue  # copy key / new entity first sighting = legal
                 if _op == "transfer" and _frm and _frm != _props_facts[_prop].owner:
                     mf.append(
-                        f"cp.prop_decl:{fp}:「{_prop}」声明经手起点「{_frm}」"
+                        f"G4.cp.prop_decl:{fp}:「{_prop}」声明经手起点「{_frm}」"
                         f"≠ facts 现态 owner「{_props_facts[_prop].owner}」"
                         "——正文为唯一真值源，核实后修正声明或 facts（修复者: settling）"
                     )
                 elif _op == "hold" and _to and _to != _props_facts[_prop].owner:
                     mf.append(
-                        f"cp.prop_decl:{fp}:「{_prop}」声明持有者「{_to}」"
+                        f"G4.cp.prop_decl:{fp}:「{_prop}」声明持有者「{_to}」"
                         f"≠ facts 现态 owner「{_props_facts[_prop].owner}」"
                         "（修复者: settling）"
                     )

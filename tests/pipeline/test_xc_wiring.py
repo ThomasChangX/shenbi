@@ -102,4 +102,6 @@ def test_revision_fanout_bidirectional(tmp_path: Path) -> None:
     )
     issues = cl._revalidate_revised_chapter(p, 1)
     # ch2 vs 修订后 ch1 的 POV 断裂被后向扇出捕获
-    assert any("跨章复验 ch2" in i and "POV" in i for i in issues), issues[:4]
+    assert any("跨章复验 ch2" in i and "G4.XC.pov_break" in i for i in issues), issues[
+        :4
+    ]  # spec #88 T1c：新形态钉死（防 tuple repr 假绿）

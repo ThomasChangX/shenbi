@@ -21,7 +21,9 @@ def test_family_classification_seven_prefixes() -> None:
 
 def test_g4_hard_check_id_prefix_channel() -> None:
     # g4_hard check_ids 进反馈文本后同前缀通道（剥 G4. 归一不在此层——前缀 token 匹配）
-    assert classify_retry_family("- cp.prop_decl:staging/plans/x.md") == "other"  # planning 族
+    assert (
+        classify_retry_family("- G4.cp.prop_decl:staging/plans/x.md") == "other"
+    )  # planning 族（spec #88 后新形态镜像——非 G4.cd 前缀仍 other）
     assert classify_retry_family("- G4.cd.post_quote_verbatim:x") == "content"
 
 

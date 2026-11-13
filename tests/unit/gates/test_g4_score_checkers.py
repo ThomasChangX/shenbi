@@ -15,15 +15,15 @@ from shenbi.gates.g4.scoring_sections import g4_scoring_sections
 
 
 def _g4_score_arc(fps):
-    return g4_scoring_sections(fps, "G4-score-arc", "G4.arc")
+    return g4_scoring_sections(fps, "G4-score-arc", "arc")
 
 
 def _g4_score_volume(fps):
-    return g4_scoring_sections(fps, "G4-score-volume", "G4.vol")
+    return g4_scoring_sections(fps, "G4-score-volume", "vol")
 
 
 def _g4_score_stratum(fps):
-    return g4_scoring_sections(fps, "G4-score-stratum", "G4.str")
+    return g4_scoring_sections(fps, "G4-score-stratum", "str")
 
 
 @pytest.mark.unit
@@ -77,3 +77,26 @@ def test_router_registers_all_three_score_family_skills(tmp_path):
     assert '"status": "PASS"' in result
     missing = gate_G4("shenbi-score-stratum", "generative", [])
     assert '"SKIP"' in missing or '"FAIL"' in missing
+
+
+@pytest.mark.unit
+def test_emission_ids_byte_stable_across_prefix_bareization():
+    """Spec #88 T1(d) characterization: must_fix ids byte-identical pre/post rewrite."""
+    # not_found full form (absolute path — Task 15b removed CWD fallback)
+    import pathlib
+
+    missing = str(pathlib.Path(tempfile.gettempdir()) / "definitely-missing-88.md")
+    # audit-T3 I1: bare prefix arg (pre-prefixed input would double-prefix —
+    # vacuous containment); assert the FULL composed must_fix string.
+    result = g4_scoring_sections([missing], "G4-score-arc", "arc")
+    assert f'\n    "G4.arc.not_found:{missing}"\n' in result
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False, encoding="utf-8") as f:
+        f.write("# no route sections here either")
+        f.flush()
+        partial = f.name
+    try:
+        result = _g4_score_stratum([partial])
+        assert "G4.str.no_route_c:must have Route C section" in result
+        assert "G4.str.no_route_a:must have Route A anchor section" in result
+    finally:
+        os.unlink(partial)

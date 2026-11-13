@@ -16,10 +16,12 @@ from shenbi.status import GateStatus
 
 # (skill id, gate name, code prefix) — the three former checkers differed
 # ONLY in these strings plus identical Route C / Route A(锚点) requirements.
+# Prefix is BARE (spec #88 T1d): emitters prepend "G4." — never pass a
+# pre-prefixed value (double-prefix hazard, plan 审查轮3 I4).
 _SCORE_FAMILY: list[tuple[str, str, str]] = [
-    ("shenbi-score-arc", "G4-score-arc", "G4.arc"),
-    ("shenbi-score-stratum", "G4-score-stratum", "G4.str"),
-    ("shenbi-score-volume", "G4-score-volume", "G4.vol"),
+    ("shenbi-score-arc", "G4-score-arc", "arc"),
+    ("shenbi-score-stratum", "G4-score-stratum", "str"),
+    ("shenbi-score-volume", "G4-score-volume", "vol"),
 ]
 
 
@@ -37,16 +39,16 @@ def g4_scoring_sections(
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
         if not pf.exists():
-            mf.append(f"{code_prefix}.not_found:{fp}")
+            mf.append(f"G4.{code_prefix}.not_found:{fp}")
             continue
         content = pf.read_text(encoding="utf-8")
         normalized = re.sub(r"\s+", "", content)
         if "RouteC" not in normalized:
-            mf.append(f"{code_prefix}.no_route_c:must have Route C section")
+            mf.append(f"G4.{code_prefix}.no_route_c:must have Route C section")
         if "RouteA" not in normalized and "锚点" not in content:
-            mf.append(f"{code_prefix}.no_route_a:must have Route A anchor section")
+            mf.append(f"G4.{code_prefix}.no_route_a:must have Route A anchor section")
     if not fps:
-        c.append({"id": code_prefix, "s": GateStatus.SKIP, "r": "no files"})
+        c.append({"id": f"G4.{code_prefix}", "s": GateStatus.SKIP, "r": "no files"})
     if mf:
         return fail(gate_name, c, "scoring", mf)
     return passed(gate_name, c)

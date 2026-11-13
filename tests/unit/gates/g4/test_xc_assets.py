@@ -42,7 +42,7 @@ def test_balance_jump_without_event_fails() -> None:
             memo2,
             CrossChapterContext(project_dir=d),
         )
-        assert any("余额跳变" in i for i in issues)
+        assert any("余额跳变" in det for _cid, det in issues)
 
 
 @pytest.mark.unit
@@ -67,7 +67,7 @@ def test_balance_jump_with_event_passes() -> None:
             memo2,
             CrossChapterContext(project_dir=d),
         )
-        assert not any("余额跳变" in i for i in issues)
+        assert not any("余额跳变" in det for _cid, det in issues)
 
 
 @pytest.mark.unit
@@ -90,4 +90,4 @@ def test_small_delta_passes() -> None:
             memo2,
             CrossChapterContext(project_dir=d),
         )
-        assert not any("余额跳变" in i for i in issues)
+        assert not any("余额跳变" in det for _cid, det in issues)

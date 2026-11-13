@@ -580,6 +580,23 @@ def parse_decisions_payload(
     return data, []
 
 
+def finding(check_id: str, detail: str = "", file: str = "") -> str:
+    """Emit a must_fix item string with the canonical ``G4.<id>`` prefix.
+
+    spec #88 T1 single emission point: callers pass the BARE check id
+    (``cd.no_hook``); a pre-prefixed input is stripped, never doubled.
+    Slot layout ``G4.<id>:<file>:<detail>`` with empty slots collapsed.
+    """
+    if check_id.startswith("G4."):
+        check_id = check_id[len("G4.") :]
+    parts = [f"G4.{check_id}"]
+    if file:
+        parts.append(file)
+    if detail:
+        parts.append(detail)
+    return ":".join(parts)
+
+
 def fail(
     gid: str,
     checks: list[dict[str, Any]],

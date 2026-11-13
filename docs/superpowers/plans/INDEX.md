@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-13（spec #87 完结归档——PR #331 squash，T0-T5 全 audit+终审 PASS）
-> **活跃 plan 数**：1 | **已归档**：141（见 `archive/`）
+> **最后更新**：2026-11-14（spec #88 plan 建档 ✅ ready）
+> **活跃 plan 数**：2 | **已归档**：141（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,6 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
+- **[2026-11-14-spec88-gate-finding-contract.md](2026-11-14-spec88-gate-finding-contract.md)** ✅ ready——对应 spec #88（r2.8 七轮审查收敛终态）；8 task（finding 发射器/AST lint+红清单/(d)(b)(c) 三族改写/check_id 单源/精确匹配+键删除+inventory/参数化+floor 标注）；批末 just check 终验
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行完毕待归档**——T0-T3+首跑验收全落）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
 
 ## 待执行的 spec → plan 映射

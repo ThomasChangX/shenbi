@@ -39,7 +39,7 @@ def test_wound4_prop_chain_fixture() -> None:
             memo,
             CrossChapterContext(project_dir=d, registry_dir=d / "truth"),
         )
-        assert any("红纸包" in i and "经手" in i for i in issues)
+        assert any("红纸包" in det and "经手" in det for _cid, det in issues)
 
 
 @pytest.mark.integration
@@ -51,8 +51,8 @@ def test_wound5_card_gender_org_fixture() -> None:
         None,
         CrossChapterContext(project_dir=FIX),
     )
-    assert any("小满" in i for i in issues), issues
-    assert any("机构" in i or "星象局" in i for i in issues), issues
+    assert any("小满" in det for _cid, det in issues), issues
+    assert any("机构" in det or "星象局" in det for _cid, det in issues), issues
 
 
 @pytest.mark.unit
@@ -88,7 +88,7 @@ def test_handled_prop_passes() -> None:
             memo,
             CrossChapterContext(project_dir=d, registry_dir=d / "truth"),
         )
-        assert not any("经手" in i for i in issues)
+        assert not any("经手" in det for _cid, det in issues)
 
 
 @pytest.mark.unit
@@ -179,7 +179,7 @@ def test_declaration_origin_cross_checked(tmp_path: Path) -> None:
         memo,
         CrossChapterContext(project_dir=d, registry_dir=d / "truth"),
     )
-    assert any("经手起点" in i and "期望 owner" in i for i in issues), issues
+    assert any("经手起点" in det and "期望 owner" in det for _cid, det in issues), issues
 
 
 @pytest.mark.unit
@@ -376,4 +376,4 @@ def test_real_recipient_handoffs_fire(tmp_path: Path, body: str, label: str) -> 
         memo,
         CrossChapterContext(project_dir=d, registry_dir=d / "truth"),
     )
-    assert any("经手" in i for i in issues), f"{label}: {issues}"
+    assert any("经手" in det for _cid, det in issues), f"{label}: {issues}"

@@ -21,7 +21,7 @@ _STRUCTURE_TOKENS = (
     "CH:",
     "CH ",
 )  # CH 空格形=语料实形（audit-T7 M1：4/4 全为 `CH 标记…` 无冒号）
-_CONTENT_TOKENS = ("G4.cd", "XC:")
+_CONTENT_TOKENS = ("G4.cd", "XC:", "G4.XC")
 
 
 def classify_retry_family(feedback_text: str) -> str:

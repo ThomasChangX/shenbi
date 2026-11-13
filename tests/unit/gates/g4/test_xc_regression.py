@@ -22,7 +22,7 @@ from shenbi.gates.g4.cross_chapter import check_cross_chapter, g4_cross_chapter
 FIX = Path(__file__).resolve().parents[4] / "tests/fixtures/cross-chapter-regression"
 
 
-def _wounds(chapter: int) -> list[str]:
+def _wounds(chapter: int) -> list[tuple[str, str]]:
     """Issues for fixture chapter N vs N-1 (fixture root as project dir)."""
     from shenbi.gates.g4.cross_chapter import CrossChapterContext
 
@@ -41,21 +41,21 @@ def _wounds(chapter: int) -> list[str]:
 def test_wound1_ch2_pov_break() -> None:
     """ch1 我-narration vs ch2 他-narration with no POV change declaration."""
     wounds = _wounds(2)
-    assert any("POV 人称断裂" in w for w in wounds), wounds
+    assert any("POV 人称断裂" in w for _cid, w in wounds), wounds
 
 
 @pytest.mark.unit
 def test_wound2_protagonist_called_deng() -> None:
     """ch4-5 narrate the protagonist as 灯 — outside the name whitelist."""
     wounds = _wounds(5)
-    assert any("称谓违例" in w and "灯" in w for w in wounds), wounds
+    assert any("称谓违例" in w and "灯" in w for _cid, w in wounds), wounds
 
 
 @pytest.mark.unit
 def test_wound3_timeline_rollback_ch2() -> None:
     """ch1 ends on 初十, ch2 opens on 初七/初八 — anchor rollback, no marker."""
     wounds = _wounds(2)
-    assert any("时间锚回拨" in w for w in wounds), wounds
+    assert any("时间锚回拨" in w for _cid, w in wounds), wounds
 
 
 @pytest.mark.unit
@@ -99,14 +99,14 @@ def test_wound4_prop_chain_break(tmp_path: Path) -> None:
         memo,
         CrossChapterContext(project_dir=tmp_path, registry_dir=truth),
     )
-    assert any("红纸包" in w and "无经手声明" in w for w in issues), issues
+    assert any("红纸包" in w and "无经手声明" in w for _cid, w in issues), issues
 
 
 @pytest.mark.unit
 def test_wound5_xiaoman_card_conflict() -> None:
     """xiao-man's card pronoun/organization conflicts with the prose."""
     wounds = _wounds(1)
-    assert any("卡" in w and ("代词" in w or "机构" in w) for w in wounds), wounds
+    assert any("卡" in w and ("代词" in w or "机构" in w) for _cid, w in wounds), wounds
 
 
 @pytest.mark.unit
@@ -198,7 +198,7 @@ def test_clean_chapters_zero_naming_hits(n: int) -> None:
     actions (小满/萤) — 5 spurious FAILs on 4 clean chapters.
     """
     wounds = _wounds(n)
-    assert not any("称谓违例" in w or "禁用名" in w for w in wounds), wounds
+    assert not any("称谓违例" in w or "禁用名" in w for _cid, w in wounds), wounds
 
 
 @pytest.mark.unit
@@ -207,7 +207,7 @@ def test_wound2b_ch7_reserved_name_hijack() -> None:
     name — dialogue vocative + 她-co-ref paragraphs must trip the hijack.
     """
     wounds = _wounds(7)
-    assert any("禁用名" in w and "灯" in w for w in wounds), wounds
+    assert any("禁用名" in w and "灯" in w for _cid, w in wounds), wounds
 
 
 @pytest.mark.unit
@@ -233,7 +233,7 @@ def test_twenty_and_arabic_day_forms(probe: str, want: tuple[int, int] | None) -
 def test_year_wrap_not_rollback() -> None:
     """腊月末 → 正月 is FORWARD (year wrap), never a rollback flag."""
     issues = _wounds(8)  # ch7 ends 腊月, ch8 opens 正月初一 — clean seam
-    assert not any("时间锚回拨" in w for w in issues), issues
+    assert not any("时间锚回拨" in w for _cid, w in issues), issues
 
 
 @pytest.mark.unit
@@ -258,7 +258,7 @@ def test_mixed_pov_declarable() -> None:
             memo,
             CrossChapterContext(project_dir=d),
         )
-        assert not any("POV" in i for i in issues), issues
+        assert not any("POV" in det for _cid, det in issues), issues
 
 
 @pytest.mark.unit
@@ -291,7 +291,7 @@ def test_event_reconciliation_mismatch_flagged() -> None:
             memo,
             CrossChapterContext(project_dir=d),
         )
-        assert any("对账不符" in i for i in issues), issues
+        assert any("对账不符" in det for _cid, det in issues), issues
 
 
 @pytest.mark.unit
