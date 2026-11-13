@@ -12,9 +12,9 @@
 
 ### #88 · 门禁 finding 格式契约（gate-finding-contract）
 
-- **文件**：`2026-11-01-spec88-gate-finding-contract.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.3 Revised 2026-11-14） ｜ **优先级**：🟠 P1
+- **文件**：`2026-11-01-spec88-gate-finding-contract.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.5 Revised 2026-11-14） ｜ **优先级**：🟠 P1
 - **依赖**：无硬依赖（与 #87 不同文件域；#87 落地后 chapter_loop 侧改动面更小）
-- **内容**：`G4.` 前缀补齐（r2.2 重写：shadow.check_id **有 fallback 从不返回 None**——真实危害是路径/裸家族名/纯中文项取错 id；按发射拓扑分层，helper 无前缀是设计）+ finding() 发射器 + 全 checker 输出契约 **AST** lint（r2.3：登记跨函数间接/BinOp 假阴性面，T5 运行时断言兜底）+ _extract_check_id 归一 shadow.check_id（**r2.3：补第三正则副本 tools/lint_shadow_promotion.py:74 同批换源**）+ **G4_CHECK_MAP 29 键瘦身至 2 个 must_fix 活键（transition/fatigue）+ 3 个 checks-only 键移出**（r2.3：24 HARD 冗余——invalid_chapter_role #95 T1 后加）+ 分类改点边界精确 id 匹配 + id 清单与行为不回归 **property test** 双断言 + 字数 finding 单一权威（撤销原「G2/G4 双 finding 去重」——pipeline 跳 G2、无共享反馈通道；r2.3：path-first 的 soft-tracker 后果降级为潜伏危害）
+- **内容**：`G4.` 前缀补齐（r2.2 重写：shadow.check_id **有 fallback 从不返回 None**——真实危害是路径/裸家族名/纯中文项取错 id；按发射拓扑分层，helper 无前缀是设计）+ finding() 发射器 + 全 checker 输出契约 **AST** lint（r2.3 登记假阴性面；**r2.5：合法形态语法定死=finding() 调用｜G4. 常量｜JoinedStr 首段 G4.**）+ _extract_check_id 归一 shadow.check_id（r2.3 补第三正则副本 lint_shadow_promotion:74；**r2.5：[shadow] 前缀先剥除再调**）+ **G4_CHECK_MAP 29 键瘦身至 2 个 must_fix 活键（transition/fatigue）+ 3 个 checks-only 键直接删除（r2.5：无 checks 分类消费点，severity 发射点自带）**（r2.3：24 HARD 冗余）+ 分类改点边界精确 id 匹配 + id 清单与行为不回归 **property test**（r2.5：+反向防漂 inventory⊆AST 枚举）+ 字数 finding 单一权威（撤销「G2/G4 双 finding 去重」；**r2.5：floor 三发射面静态引用钉死**）+ **r2.5：收编第 7 消费者 retry_routing（_CONTENT_TOKENS 同批加 G4.XC，路由变化记有意修正）**
 - **对应 plan**：待执行时建
 - **触及的不变量维度**：无（门禁元层，不改判定语义）
 
