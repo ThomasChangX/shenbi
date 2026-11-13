@@ -189,7 +189,7 @@ Expected: FAIL ModuleNotFoundError
 - [ ] **Step 4: 跑测确认绿**
 
 Run: `uv run pytest tests/unit/tools/test_lint_mustfix_emission.py -v`
-Expected: 8 passed
+Expected: 10 passed（轮4 M1——轮2 I2 增两盲区用例后计数）
 
 - [ ] **Step 5: 首跑红清单落盘 + 与 spec 站点表对账**
 
@@ -217,7 +217,7 @@ git commit -m "feat: AST must_fix emission-contract lint + red-list baseline (sp
 ### Task 3: (d) 变量前缀家族 5 站点改写 + scoring_sections 连带
 
 **Files:**
-- Modify: `src/shenbi/gates/g4/scoring_sections.py:40/:45/:47`（发射）+ `:49`（SKIP checks id 拼回）+ **:21-25 `_SCORE_FAMILY` 三元组第三列值裸化（轮3 I4——生产实参源：register_score_checkers[generic.py:488 注册]经此表传 code_prefix，不裸化则产 `G4.G4.arc.*` 双前缀且测试全绿——测试直呼 helper 不经注册路径）** + 模块头 `code_prefix` 实参语义注释
+- Modify: `src/shenbi/gates/g4/scoring_sections.py:40/:45/:47`（发射）+ `:49`（SKIP checks id 拼回）+ **:19-23 `_SCORE_FAMILY` 三元组第三列值裸化（轮4 M2 锚准）（轮3 I4——生产实参源：register_score_checkers[generic.py:488 注册]经此表传 code_prefix，不裸化则产 `G4.G4.arc.*` 双前缀且测试全绿——测试直呼 helper 不经注册路径）** + 模块头 `code_prefix` 实参语义注释
 - Modify: `src/shenbi/gates/g4/decisions_validator.py:106/:117-119`
 - Test: `tests/unit/gates/test_g4_score_checkers.py:18/:22/:26`（实参同步）+ `tests/unit/gates/g4/test_decisions_validator.py`（若无则追加到该域合适文件）
 
@@ -232,7 +232,7 @@ git commit -m "feat: AST must_fix emission-contract lint + red-list baseline (sp
 - [ ] **Step 2: 跑测确认绿（改写前基线）**
 
 - [ ] **Step 3: 改写**——
-scoring_sections（`code_prefix` 实参从 `"G4.arc"` 族改 `"arc"` 族——**含 :21-25 `_SCORE_FAMILY` 三元组第三列同步裸化[轮3 I4]**）：
+scoring_sections（`code_prefix` 实参从 `"G4.arc"` 族改 `"arc"` 族——**含 :19-23 `_SCORE_FAMILY` 三元组第三列同步裸化[轮3 I4]）**）：
 ```python
 mf.append(f"G4.{code_prefix}.not_found:{fp}")
 mf.append(f"G4.{code_prefix}.no_route_c:must have Route C section")
@@ -258,7 +258,7 @@ Expected: 测试全绿；红清单剩 5（cd:683/cp:752/cp:758/xc:949/xc:982—�
 
 ```bash
 git add src/shenbi/gates/g4/scoring_sections.py src/shenbi/gates/g4/decisions_validator.py tests/unit/gates/test_g4_score_checkers.py tests/unit/gates/g4/test_decisions_validator.py
-    git commit -m "refactor: (d)-family variable-prefix emissions to legal form, byte-identical output (spec #88 T1)"
+git commit -m "refactor: (d)-family variable-prefix emissions to legal form, byte-identical output (spec #88 T1)"
 ```
 
 ---
@@ -321,7 +321,7 @@ test_spec83_retry_routing:24 legacy `cp.prop_decl` 输入更新为新形态镜�
 - [ ] **Step 4: 跑测确认绿 + lint 转绿核对 + ss. 对账**
 
 Run: `uv run pytest tests/unit/pipeline/test_retry_routing_xc.py tests/unit/pipeline/test_spec83_retry_routing.py tests/unit/gates/g4/ -v && uv run python tools/lint_mustfix_emission.py --list && grep -c '"ss\.' src/shenbi/gates/g4/state_settling.py`
-Expected: 测试全绿（g4 域含 ss. 期望串同步面）；红清单剩 1（xc:982）；grep ss. 残留恰 2（:434/:940 两 warns 面）
+Expected: 测试全绿（g4 域含 ss. 期望串同步面）；红清单剩 1（xc:982）；grep ss. 残留恰 3（:434/:940 两 warns 面 + :1145 checks dict id——轮4 I1 与 Files 段对齐）
 
 - [ ] **Step 5: 更新既有断言**（grep `chapters/ch025.md:cd.prop_handoff` / `"{fp}:{issue}"` 于 tests/——若既有测试钉死 path-first 串，同批改为新形态；grep 自证零残留）
 
@@ -342,6 +342,7 @@ git commit -m "fix: (b)-family bare emissions to id-first (incl. ss. batch) + re
 - Test: `tests/unit/gates/g4/test_cross_chapter_ids.py`（新建）
 - Test（连带——plan 审查轮1 C2 补）：`tests/unit/gates/g4/test_xc_pov_name.py`、`test_xc_prop_card.py`、`test_xc_assets.py`、`test_xc_timeline.py`、`test_xc_regression.py`、`test_cross_chapter_skeleton.py`、`test_f15_narration_name.py`、`tests/gates/test_invariant_mutants.py`（tuple/新 id 形态断言同步——`"substring" in i` 对 tuple 是成员判定非子串，~25 断言改写）
 - Test（连带——轮2 C1）：`tests/pipeline/test_xc_wiring.py:105`（「跨章复验 ch2」断言钉 `G4.XC.` 新形态——防 tuple repr 假绿存活）
+- Test（连带——轮4 I3）：`tests/unit/gates/g4/test_f16_cd_handoffs.py:194-195`（`"物象" in i` 对 tuple 恒 False——XC 吸收回归哨静默失效的同类陷阱，改断言 tuple detail 元素）
 
 **Interfaces:**
 - Produces: cross_chapter issues 元素从裸中文串改为 `(id, detail)` 二元组；包装点产 `G4.XC.{id}:{ch_path.name}:{detail}`。新 id 清单（spec §1.1 r2.7 定稿）：`pronoun_mismatch`(:672)/`title_violation`(:705)/`org_drift`(:684)/`residence_drift`(:695)/`reserved_name_hijack`(:706 经 reserved_name_hijack_hits——其返回形态按实际核)/`prop_chain_origin`(:759)/`prop_undeclared`(:790)/`pov_break`(:808)/`timeline_rollback`(:825)/`balance_jump`(:849/:860 双臂合一 id)＋嵌套 `narration_name`(:625——detail 剥内层前缀)。
@@ -357,7 +358,7 @@ git commit -m "fix: (b)-family bare emissions to id-first (incl. ss. batch) + re
 
 - [ ] **Step 4: 跑测确认绿 + lint 全绿 + 连带族回归**
 
-Run: `uv run pytest tests/unit/gates/g4/test_cross_chapter_ids.py tests/unit/gates/g4/test_xc_pov_name.py tests/unit/gates/g4/test_xc_prop_card.py tests/unit/gates/g4/test_xc_assets.py tests/unit/gates/g4/test_xc_timeline.py tests/unit/gates/g4/test_xc_regression.py tests/unit/gates/g4/test_cross_chapter_skeleton.py tests/unit/gates/g4/test_f15_narration_name.py tests/gates/test_invariant_mutants.py tests/pipeline/test_xc_wiring.py -v && uv run python tools/lint_mustfix_emission.py`
+Run: `uv run pytest tests/unit/gates/g4/test_cross_chapter_ids.py tests/unit/gates/g4/test_xc_pov_name.py tests/unit/gates/g4/test_xc_prop_card.py tests/unit/gates/g4/test_xc_assets.py tests/unit/gates/g4/test_xc_timeline.py tests/unit/gates/g4/test_xc_regression.py tests/unit/gates/g4/test_cross_chapter_skeleton.py tests/unit/gates/g4/test_f15_narration_name.py tests/gates/test_invariant_mutants.py tests/pipeline/test_xc_wiring.py tests/unit/gates/g4/test_f16_cd_handoffs.py -v && uv run python tools/lint_mustfix_emission.py`
 Expected: 全绿（C2 连带族+轮2 C1 接线同步后）；lint exit 0（10/10 红点清零——(b)(c)(d) 全消化）
 
 - [ ] **Step 5: spec-deviations 记 `### T5`（新 id 全清单+文本变更声明+跨章复验反馈文本变更）**
@@ -365,7 +366,7 @@ Expected: 全绿（C2 连带族+轮2 C1 接线同步后）；lint exit 0（10/10
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/shenbi/gates/g4/cross_chapter.py src/shenbi/pipeline/chapter_loop.py tests/unit/gates/g4/test_cross_chapter_ids.py tests/unit/gates/g4/test_xc_pov_name.py tests/unit/gates/g4/test_xc_prop_card.py tests/unit/gates/g4/test_xc_assets.py tests/unit/gates/g4/test_xc_timeline.py tests/unit/gates/g4/test_xc_regression.py tests/unit/gates/g4/test_cross_chapter_skeleton.py tests/unit/gates/g4/test_f15_narration_name.py tests/gates/test_invariant_mutants.py tests/pipeline/test_xc_wiring.py
+git add src/shenbi/gates/g4/cross_chapter.py src/shenbi/pipeline/chapter_loop.py tests/unit/gates/g4/test_cross_chapter_ids.py tests/unit/gates/g4/test_xc_pov_name.py tests/unit/gates/g4/test_xc_prop_card.py tests/unit/gates/g4/test_xc_assets.py tests/unit/gates/g4/test_xc_timeline.py tests/unit/gates/g4/test_xc_regression.py tests/unit/gates/g4/test_cross_chapter_skeleton.py tests/unit/gates/g4/test_f15_narration_name.py tests/gates/test_invariant_mutants.py tests/pipeline/test_xc_wiring.py tests/unit/gates/g4/test_f16_cd_handoffs.py
 git commit -m "feat: machine ids for all pure-Chinese XC findings + nested promotion; xc test family + revision-feedback caller synced (spec #88 T1c, model-visible text change recorded)"
 ```
 
@@ -481,11 +482,16 @@ def test_any_id_extractable_roundtrip(cid):
     assert check_id(f"G4.{cid}:f:d") == cid
 
 
-@given(st.text(alphabet="abcdefghijklmnopqrstuvwxyz0123456789_.", min_size=1, max_size=16))
+@given(
+    st.one_of(
+        st.sampled_from(["transition", "fatigue", "transition.x", "fatigue.density"]),
+        st.text(alphabet="abcdefghijklmnopqrstuvwxyz0123456789_.", min_size=1, max_size=16),
+    )
+)
 def test_softwarn_implies_covered(seed):
     # property 主不变量：任何被判 SOFT/WARN 的 item，其 extracted id ∈ 覆盖键集
-    # （alphabet 全集含 t/u 与点——hypothesis 可生成 "transition"/"fatigue"/"transition.x"
-    #   命中 SOFT 臂，断言循环体非平凡执行；plan 审查轮1 I1 修正空测）
+    # （轮4 I2：st.text 无字典导向，纯 text 生成 "transition" 概率 ~1e-16=事实空测——
+    #   sampled_from 种子臂保证 SOFT 臂非平凡执行，text 臂保持任意串对抗性）
     from shenbi.pipeline.chapter_loop import _classify_g4_failures
 
     item = f"G4.{seed}:f:d"
@@ -515,7 +521,7 @@ Expected: 全绿（cold_opening `not in G4_CHECK_MAP` 断言恒真不破）
 
 ```bash
 git add src/shenbi/pipeline/chapter_loop.py tools/gen_g4_id_inventory.py tests/fixtures/g4-id-inventory.json tests/property/gates/test_g4_id_inventory.py tests/unit/pipeline/test_g4_classification.py
-    git commit -m "feat: exact-id severity matching, 24+3 dead keys deleted, id inventory + bidirectional property invariants (spec #88 T3)"
+git commit -m "feat: exact-id severity matching, 24+3 dead keys deleted, id inventory + bidirectional property invariants (spec #88 T3)"
 ```
 
 ---
