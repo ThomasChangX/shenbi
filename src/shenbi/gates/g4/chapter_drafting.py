@@ -680,7 +680,7 @@ def g4_chapter_drafting(
                 _known_names,
                 _owner_aliases,
             ):
-                mf.append(f"{fp}:{issue}")
+                mf.append(f"G4.{issue}")
 
         # ── spec #80 T7 F17 — 计数器三方对账（激活判定在调用点，R3-M1）──
         # M1（audit-T7）：计数名→prose 词族映射（未映射计数器跳过 prose 面，

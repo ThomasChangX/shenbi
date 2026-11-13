@@ -946,7 +946,7 @@ def g4_cross_chapter(
         if "*pre-rev*" in fp or "pre-rev" in ch_path.name or "snapshot" in ch_path.name:
             continue
         if not ch_path.is_file():
-            mf.append(f"XC.not_found:{fp}")
+            mf.append(f"G4.XC.not_found:{fp}")
             continue
         prev = prev_chapter_path(ch_path)
         ch_num_m = re.search(r"chapter-(\d+)", ch_path.name)

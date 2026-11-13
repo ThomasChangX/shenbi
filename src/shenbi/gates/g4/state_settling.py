@@ -835,10 +835,10 @@ def g4_state_settling_check(
         # audit-T8 round3 I-3(c)：顶层非对象裸 AttributeError 会炸穿
         # _guarded_g4（只捕 ValueError），且抢占 g4_decisions 对同文件的
         # 精确 schema 报告——结构化 issue 让路
-        return ["ss.facts_ops:非法形态——sidecar 顶层必须是 JSON 对象"], warns
+        return ["G4.ss.facts_ops:非法形态——sidecar 顶层必须是 JSON 对象"], warns
     facts_ops = doc.get("facts_ops") or {}
     if not isinstance(facts_ops, dict):
-        return ["ss.facts_ops:非法形态——facts_ops 必须是对象"], warns
+        return ["G4.ss.facts_ops:非法形态——facts_ops 必须是对象"], warns
 
     from pydantic import ValidationError
 
@@ -875,7 +875,7 @@ def g4_state_settling_check(
             # ValidationError 与 UnicodeDecodeError（非法 UTF-8）——结构化
             # FAIL 并指明修复对象
             issues.append(
-                "ss.facts_ops:truth/facts/props.json 损坏/不可读/维度错位"
+                "G4.ss.facts_ops:truth/facts/props.json 损坏/不可读/维度错位"
                 f"（{_exc}）——G4 无法模拟，先修复 facts 文件本体"
             )
         else:
@@ -886,7 +886,7 @@ def g4_state_settling_check(
                     ev = PropTransferEvent.model_validate(raw)
                 except ValidationError as exc:
                     issues.append(
-                        f"ss.facts_ops:props op 结构非法（{exc.error_count()} 处）"
+                        f"G4.ss.facts_ops:props op 结构非法（{exc.error_count()} 处）"
                         "——修正 sidecar 的 op 形态"
                     )
                     continue
@@ -901,11 +901,11 @@ def g4_state_settling_check(
                 except FactsOpRejectedError as exc:
                     # ④ rejection-form op: FAIL + P2.5 rationale requirement
                     issues.append(
-                        f"ss.facts_ops:非法 op（{exc.reason}）——该形态必须携带非空 rationale（P2.5）"
+                        f"G4.ss.facts_ops:非法 op（{exc.reason}）——该形态必须携带非空 rationale（P2.5）"
                     )
                     if not rationale:
                         issues.append(
-                            "ss.facts_ops:rationale 缺失（P2.5：非法形态 op 必须携带非空 rationale）"
+                            "G4.ss.facts_ops:rationale 缺失（P2.5：非法形态 op 必须携带非空 rationale）"
                         )
                     continue
                 touched.add(ev.prop)
@@ -918,7 +918,7 @@ def g4_state_settling_check(
                 _row_owner = _registry_row_owner(project_dir, prop, lookup=_staged_reg)
                 if _row_owner is not None and _row_owner != _final:
                     issues.append(
-                        f"ss.prop_row_match:「{prop}」op 链终态 owner「{_final or '（空）'}」"
+                        f"G4.ss.prop_row_match:「{prop}」op 链终态 owner「{_final or '（空）'}」"
                         f"≠ registry 行 owner「{_row_owner}」"
                         "——facts 为 canonical，修正 registry 行（修复者: settling）"
                     )
@@ -958,7 +958,7 @@ def g4_state_settling_check(
             # round4 I-1 + round5 I-1：ValueError 宽捕覆盖 UnicodeDecodeError
             # 与槽位错位——结构化 issue
             issues.append(
-                "ss.identity_row_match:truth/facts/identity.json 损坏/不可读/维度错位"
+                "G4.ss.identity_row_match:truth/facts/identity.json 损坏/不可读/维度错位"
                 f"（{_exc}）——先修复 facts 文件本体"
             )
         else:
@@ -968,7 +968,7 @@ def g4_state_settling_check(
                     iev = IdentityEvent.model_validate(raw)
                 except ValidationError as exc:
                     issues.append(
-                        f"ss.facts_ops:identity op 结构非法（{exc.error_count()} 处）"
+                        f"G4.ss.facts_ops:identity op 结构非法（{exc.error_count()} 处）"
                         "——修正 sidecar 的 op 形态"
                     )
                     continue
@@ -993,11 +993,11 @@ def g4_state_settling_check(
                     )
                 except FactsOpRejectedError as exc:
                     issues.append(
-                        f"ss.facts_ops:非法 op（{exc.reason}）——该形态必须携带非空 rationale（P2.5）"
+                        f"G4.ss.facts_ops:非法 op（{exc.reason}）——该形态必须携带非空 rationale（P2.5）"
                     )
                     if not rationale:
                         issues.append(
-                            "ss.facts_ops:rationale 缺失（P2.5：非法形态 op 必须携带非空 rationale）"
+                            "G4.ss.facts_ops:rationale 缺失（P2.5：非法形态 op 必须携带非空 rationale）"
                         )
                     continue
             fact = facts_id.identity()
@@ -1010,13 +1010,13 @@ def g4_state_settling_check(
                 _allowed = set(fact.aliases) | {fact.narration_name}
                 for extra in _rows - _allowed:
                     issues.append(
-                        f"ss.identity_row_match:name_registry 别名行「{extra}」"
+                        f"G4.ss.identity_row_match:name_registry 别名行「{extra}」"
                         "不在 facts 别名集——facts 为 canonical，重生成该行"
                         "（修复者: settling）"
                     )
                 for missing in set(fact.aliases) - _rows:
                     issues.append(
-                        f"ss.identity_row_match:facts 别名「{missing}」"
+                        f"G4.ss.identity_row_match:facts 别名「{missing}」"
                         "无 name_registry 别名/旌名行——补行（修复者: settling）"
                     )
     return issues, warns
