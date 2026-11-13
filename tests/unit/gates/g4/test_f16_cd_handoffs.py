@@ -192,7 +192,9 @@ def test_xc_absorption_stands_down_with_facts(tmp_path: Path):
     prev.write_text("开头。", encoding="utf-8")
     ctx_absorbed = CrossChapterContext(props_facts={"火纹骨哨": "那罕"})
     issues = check_cross_chapter(ch, prev, None, ctx_absorbed)
-    assert not any("物象" in i for i in issues)  # 职责已让位 G4.cd
+    assert not any(
+        "物象" in det for _cid, det in issues
+    )  # spec #88 T1c: tuple form (audit-T5 R1)  # 职责已让位 G4.cd
 
 
 def test_xc_fallback_full_severity_without_facts(tmp_path: Path):
