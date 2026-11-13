@@ -19,7 +19,7 @@ from pathlib import Path
 
 # gate id (prefixed, from WARN payload item) → config location, same map as
 # gates/g4/shadow.py GATE_TO_SHADOW_KEY — kept in sync there (single source).
-from shenbi.gates.g4.shadow import GATE_TO_SHADOW_KEY
+from shenbi.gates.g4.shadow import GATE_TO_SHADOW_KEY, check_id
 
 MISFIRE_RE = re.compile(r"shadow\s*误伤[：:]\s*(\S+)")
 
@@ -71,9 +71,13 @@ def check_promotion(project_dir: Path, ledger: Path | None) -> list[str]:
             continue
         item = str(payload.get("item", ""))
         ch = payload.get("chapter")
-        m = re.match(r"\[?shadow\]?\s*G4\.([a-z_.]+)", item) or re.match(r"G4\.([a-z_.]+)", item)
-        if m and isinstance(ch, int):
-            per_gate_chapters.setdefault(m.group(1), set()).add(ch)
+        # spec #88 T2: single regex owner (shadow.check_id, digit-safe);
+        # the [shadow]-prefixed WARN text is stripped BEFORE extraction (the
+        # regex is start-anchored). Sole producer (shadow.py apply_shadow)
+        # always emits the bracketed form.
+        stripped = re.sub(r"^\[shadow\]\s*", "", item)
+        if stripped and isinstance(ch, int):
+            per_gate_chapters.setdefault(check_id(stripped), set()).add(ch)
     for gate_id, chapters in sorted(per_gate_chapters.items()):
         key = GATE_TO_SHADOW_KEY.get(gate_id)
         if key is None:

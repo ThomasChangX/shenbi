@@ -22,7 +22,7 @@ from pathlib import Path
 from shenbi.gates.shared import read_genre_config
 
 # Keys are prefixed check ids as emitted by must_fix strings (the
-# `_extract_check_id` shape); values are (config_block, config_key).
+# `check_id` G4.<id>:... shape); values are (config_block, config_key).
 # An unmapped id maps to None → NO demotion (fail-safe direction: unlisted
 # gates stay HARD-visible; silent demotion is the accident we guard against).
 GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {
@@ -61,7 +61,7 @@ GATE_TO_SHADOW_KEY: dict[str, tuple[str, str]] = {
 
 def check_id(item: str) -> str:
     """Extract the prefixed G4 check id from a must_fix string."""
-    m = re.match(r"G4\.([a-z_.]+)", item)
+    m = re.match(r"G4\.([a-z0-9_.]+)", item)  # spec #88 T2: digit-safe (cc.p1p2_empty)
     return m.group(1) if m else item.split(":", maxsplit=1)[0].replace("G4.", "")
 
 

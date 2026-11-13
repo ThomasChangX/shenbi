@@ -47,7 +47,7 @@ from shenbi.pipeline.review_checklist import is_review_skill  # spec #87 T4
 import yaml
 
 from shenbi.logging import get_logger
-from shenbi.gates.g4.shadow import demote_must_fix, emit_shadow_warn_trace
+from shenbi.gates.g4.shadow import check_id, demote_must_fix, emit_shadow_warn_trace
 from shenbi.safe_write import safe_write
 from shenbi.pipeline.audit_aggregate import write_audit_aggregate
 from shenbi.pipeline.audit_layer import GENRE_ACTIVATION_MATRIX, run_audit_layer
@@ -870,12 +870,6 @@ def _classify_g4_failures(must_fix: list[str]) -> tuple[list[str], list[str], li
     return hard, soft, warn
 
 
-def _extract_check_id(must_fix_item: str) -> str:
-    """Extract the G4 check ID from a must_fix string like 'G4.transition:path:7>6'."""
-    m = re.match(r"G4\.([a-z_.]+)", must_fix_item)
-    return m.group(1) if m else must_fix_item.split(":", maxsplit=1)[0].replace("G4.", "")
-
-
 # ---------------------------------------------------------------------------
 # G4 format examples for enriched retry feedback (Task 6)
 # ---------------------------------------------------------------------------
@@ -1203,8 +1197,9 @@ def _failure_family_id(must_fix_item: str) -> str:
     Same normalization shape as the format-example keying in
     ``_enrich_g4_feedback`` -- sel_3_missing_basis and sel_5_missing_basis
     are one family (same check, different rows). Segment extraction uses
-    split-colon, NOT ``_extract_check_id`` (whose ``[a-z_.]+`` class
-    truncates at the first digit, collapsing indexed families away). Non-G4
+    split-colon, NOT ``shadow.check_id`` (whose pre-#88 ``[a-z_.]+`` class
+    truncated at the first digit, collapsing indexed families away; the
+    post-#88 digit-safe regex makes the split-colon choice belt-and-braces). Non-G4
     shapes (dispatch stderr / human review feedback) degrade to their first
     colon segment or the whole string: identical text rewrites, distinct
     text accumulates -- both are bounded surfaces.
@@ -4699,7 +4694,7 @@ def _run_serial_dispatch_step(
             log.info("chapter_g4_warn", chapter=chapter, step=step.step_num, item=w)
 
         for s in soft_fails:
-            tracker_key = _extract_check_id(s)
+            tracker_key = check_id(s)
             tracker = state.chapter_loop.soft_fail_trackers.get(tracker_key)
             if tracker is None:
                 tracker = SoftFailTracker(check_id=tracker_key)
