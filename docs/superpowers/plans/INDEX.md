@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-14（spec #88 plan 建档 ✅ ready）
-> **活跃 plan 数**：2 | **已归档**：141（见 `archive/`）
+> **最后更新**：2026-11-14（spec #88 完结归档——PR #334 squash，T1-T8 全 audit+终审 Ready to merge）
+> **活跃 plan 数**：1 | **已归档**：141（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **[2026-11-14-spec88-gate-finding-contract.md](2026-11-14-spec88-gate-finding-contract.md)** ✅ ready——对应 spec #88（r2.8 七轮审查收敛终态）；8 task（finding 发射器/AST lint+红清单/(d)(b)(c) 三族改写/check_id 单源/精确匹配+键删除+inventory/参数化+floor 标注）；批末 just check 终验
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行完毕待归档**——T0-T3+首跑验收全落）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
 
 ## 待执行的 spec → plan 映射
@@ -39,6 +38,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 - **07-19 一致性与韧性集群**（`2026-07-19-01` ~ `-19`，19 个 plan，PR #19）
 
 最近归档项：
+- **2026-11-14 spec88-gate-finding-contract**（PR #334）——finding() 发射器+AST lint+三族改写+check_id 单源+精确匹配+id inventory
 
 - `2026-11-12-spec87-god-file-decomposition.md`（SDD #87 完结：PR #331 · 2026-11-13——god 文件拆分与正名：五体制出鞘/ExtractSpec 注册表/BuiltPrompt NamedTuple/26 名 roster/正名+基线冻结）
 - `2026-10-30-spec82-retention-engine-net.md`（SDD #82 完结：PR #263 · 2026-10-31——T0 快照/序列门×4/钩龄/母题触点/留存锚参数化/shadow 纪律；运行侧验收=卷一重生成窗口）
