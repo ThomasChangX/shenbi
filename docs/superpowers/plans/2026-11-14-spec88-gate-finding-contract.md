@@ -24,6 +24,8 @@
 
 ## 执行纪律（v7）
 
+- 执行期卫生注记（plan 审查轮5 Minor 吸收）：①T4 deviation 条目补 (b) 家族前缀文本变更声明（与路由修正并列）；②T6 删 :873-876 后同文件内 :1206/:4702 锚按内容定位（`_extract_check_id` 引用字面）非行号；③T4 Step5 的 `"{fp}:{issue}"` 系源码形态 grep 恒零命中（有效目标仅 `chapters/ch025.md:cd.prop_handoff` 字面）；④T8 Step4 `grep -c "dedup"` 计数 0 时 exit 1 属预期（命令分行列出非 && 链，勿读退出码为失败）。
+
 - 全部 task **infra** 级（gates/g4 域+pipeline 域+lint 基建）——**协调者亲自实现**，不分派 implementer。
 - 每 task commit 后产出 `.superpowers/sdd/audit-T<N>.md`（fresh-context 全量重审）；无 audit-T<N> 不得开始 T<N+1>。
 - 每 task commit 当轮更新 `spec-deviations.md` 的 `### T<N>` 段。
