@@ -59,6 +59,19 @@ _SUPPLEMENT: tuple[str, ...] = (
     "ss.matrix_structure.diff_area",
     # XC.narration_name via check_narration_name (inner-prefix strings)
     "XC.narration_name",
+    # spec #88 T1c xc ids: built via helper ``issues.append((id, detail))``
+    # (cross_chapter check_cross_chapter) then composed at the mf wrapper —
+    # helper-internal appends are outside the mf scan position, so listed.
+    "XC.pronoun_mismatch",
+    "XC.org_drift",
+    "XC.residence_drift",
+    "XC.title_violation",
+    "XC.reserved_name_hijack",
+    "XC.prop_chain_origin",
+    "XC.prop_undeclared",
+    "XC.pov_break",
+    "XC.timeline_rollback",
+    "XC.balance_jump",
 )
 # Retained severity keys must be present (assertion in main).
 _REQUIRED = ("transition", "fatigue")
@@ -94,13 +107,8 @@ def _iter_emission_ids(tree: ast.Module) -> set[str]:
         if not _is_mf_emit(node):
             continue
         arg = node.args[0]
-        # (a) tuple literal first element — (id, detail) xc family
-        if isinstance(arg, ast.Tuple) and arg.elts:
-            cid = _first_constant(arg.elts[0])
-            if cid and ":" not in cid:
-                out.add(f"XC.{cid}")
-                continue
-        # (b) constant first segment starting G4.
+        # constant first segment starting G4. (xc family ids ride the
+        # explicit supplement — helper-internal tuple appends are blind)
         head = _first_constant(arg)
         if head:
             m = _ID_RE.match(head)

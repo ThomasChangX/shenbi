@@ -1,8 +1,18 @@
 {
   "ids": [
     "XC.",
+    "XC.balance_jump",
     "XC.narration_name",
     "XC.not_found",
+    "XC.org_drift",
+    "XC.pov_break",
+    "XC.pronoun_mismatch",
+    "XC.prop_chain_origin",
+    "XC.prop_undeclared",
+    "XC.reserved_name_hijack",
+    "XC.residence_drift",
+    "XC.timeline_rollback",
+    "XC.title_violation",
     "ad.not_found",
     "ad.scene_marker_loss",
     "ap.detail_table",
@@ -190,6 +200,6 @@
     "volumes.obj_kr",
     "word_count"
   ],
-  "generated_at": "2026-11-13T21:23:30.995949+00:00",
+  "generated_at": "2026-11-13T21:34:08.187725+00:00",
   "generator": "tools/gen_g4_id_inventory.py"
 }

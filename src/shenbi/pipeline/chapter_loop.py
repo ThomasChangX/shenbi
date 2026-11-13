@@ -821,15 +821,13 @@ G4_CHECK_MAP: dict[str, G4Severity] = {
 
 
 def _classify_g4_failures(must_fix: list[str]) -> tuple[list[str], list[str], list[str]]:
-    """Partition G4 must_fix into (hard, soft, warn) by substring matching against G4_CHECK_MAP."""
+    """Partition G4 must_fix into (hard, soft, warn) by exact-id/dot-boundary matching (spec #88 T3)."""
     hard: list[str] = []
     soft: list[str] = []
     warn: list[str] = []
-    from shenbi.gates.g4.shadow import check_id as _check_id  # spec #88 T3: 精确 id
-
     for item in must_fix:
         matched = False
-        cid = _check_id(item)
+        cid = check_id(item)
         for key, severity in G4_CHECK_MAP.items():
             if cid == key or cid.startswith(key + "."):
                 if severity == G4Severity.HARD:
