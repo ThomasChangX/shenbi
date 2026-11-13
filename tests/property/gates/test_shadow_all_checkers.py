@@ -110,16 +110,13 @@ def test_fixture_corpus_check_id(item, exempt):
     assert m, item
     extracted = check_id(item)
     fam = m.group(1)
-    if fam in exempt:
-        # historical dead id: expected-id branch only (not ∈ inventory)
-        assert extracted == fam or extracted.startswith(fam)
-    else:
-        assert extracted == fam or extracted.startswith(fam)
+    assert extracted == fam or extracted.startswith(fam)
+    if fam not in exempt:
+        # live id must be inventory-covered. The XC/prefix arms are declared
+        # widening conditions: uppercase-XC wrapper ids and family prefixes
+        # ride the supplement; growth here = deliberate widening.
         assert (
             fam in _inventory_ids()
-            or fam.split(".")[0]
-            in {
-                "XC",
-            }
-            or any(fam.startswith(p + ".") or fam == p for p in _inventory_ids())
+            or fam.split(".")[0] == "XC"
+            or any(fam.startswith(p_ + ".") or fam == p_ for p_ in _inventory_ids())
         ), f"live id {fam} missing from inventory"

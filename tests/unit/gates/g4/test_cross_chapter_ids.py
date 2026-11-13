@@ -83,5 +83,5 @@ def test_wrapper_composes_g4_xc_full_form():
     import re
 
     m = re.search(r"G4\.XC\.[a-z0-9_]+:[^:\n]+:", result)
-    if m:
-        assert m.group(0).startswith("G4.XC.")
+    assert m, "expected at least one composed G4.XC.<id>:<file>: firing"
+    assert m.group(0).startswith("G4.XC.")
