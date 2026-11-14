@@ -18,7 +18,7 @@
 
 ---
 
-### Task 1: `gate_passed` 单源 + 11 点 characterization 断言表
+### Task 1: `gate_passed` 单源 + characterization 断言表（9 单比较站点；11 点判定面另含 :1597/:4063 由 Task 2 钉死）
 
 **复杂度: infra** ｜ **test_kind: characterization**（钉死现行为——SKIP 分歧逐点快照）
 
@@ -29,7 +29,7 @@
 **Interfaces:**
 - Produces: `gate_passed(result: Any, *, accept_skip: bool = False) -> bool`（`shenbi.status`）——Task 2 全部换装点消费此签名；语义：`status = str(result.get("status", ""))`，`accept_skip=True` → `status in (GateStatus.PASS, GateStatus.SKIP)`，默认 → `status == GateStatus.PASS`。
 
-- [ ] **Step 1: 写 characterization 断言表（11 点 × PASS/SKIP/FAIL）**
+- [ ] **Step 1: 写 characterization 断言表（9 单比较站点 × PASS/SKIP/FAIL）**
 
 ```python
 """Spec #91 T1: gate_passed single-source characterization.
@@ -116,7 +116,7 @@ Expected: 3 passed
 
 ```bash
 tests/lock-tool-hashes.sh && git add src/shenbi/status.py tests/unit/test_gate_passed_single_source.py tests/tiers/deps.json
-git commit -m "feat: spec #91 T1 gate_passed 单源（status.py）+11 点 characterization 断言表"
+git commit -m "feat: spec #91 T1 gate_passed 单源（status.py）+9 站点 characterization 断言表（11 点判定面）"
 ```
 
 ---
@@ -162,7 +162,7 @@ chapter_loop.py（默认 PASS-only）：
 #   新: if not gate_passed(rec["g3"]):
 ```
 audit_layer.py（:248 换装；:209 删）、genesis.py（:644/:649/:708 换装；:284 删）同默认 pattern。
-**unused-import 清理（r2 审查 M1）**：triggers.py/closure.py/pipeline-cli.py 的 `GateStatus` import 在 def 删除/换装后若失用（ruff F401）——按 ruff 提示逐文件删除；chapter_loop/genesis 的 GateStatus 若仍有他处消费则保留。
+**unused-import 清理（r2 审查 M1；r4 审查补 audit_layer/genesis 同查）**：triggers.py/closure.py/pipeline-cli.py/audit_layer.py/genesis.py 的 `GateStatus` import 在 def 删除/换装后若失用（ruff F401）——按 ruff 提示逐文件删除；chapter_loop/genesis 的 GateStatus 若仍有他处消费则保留。
 
 phase_runner.py:
 ```python
@@ -679,7 +679,7 @@ git commit -m "docs: spec #91 INDEX 登记对应 plan 指针"
 
 | 验收 | task | 验证 |
 |---|---|---|
-| 1 零残留+11 点+lint 首跑零红 | T2/T3 | `grep -rn "def _gate_passed" src/` 空；`uv run python tools/lint_gate_status_comparisons.py` exit 0；断言表 11 点 |
+| 1 零残留+11 点+lint 首跑零红 | T2/T3 | `grep -rn "def _gate_passed" src/` 空；`uv run python tools/lint_gate_status_comparisons.py` exit 0；断言表 9 站点 |
 | 2 T3 红绿双测（形态不同） | T5/T6 | `pytest test_ledger_archive_lock_window.py test_outline_merge_lock_window.py`（xfail-strict 哨兵+spy 结构断言） |
 | 3 budget/feedback/counts 裸写零+生产调用 ≥1 | T7 | 三连 grep 空 + 调用方 grep 多行 |
 | 4 genesis 差异表落盘 | T4 | spec §4 存在+内容=rc=2 单点对比+裁定请求段 |
