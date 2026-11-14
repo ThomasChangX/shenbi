@@ -215,7 +215,7 @@
     "src/shenbi/exceptions.py": "sha256:352d160f09592d084102282fc355b8c9a9c59711d6fc46450c5e91254876e1d7",
     "src/shenbi/process_guard.py": "sha256:98a6dd3de92b12fa96c1455f45201d0f8e6eeb50f7a451d2bd0e6cda9c64bb05",
     "src/shenbi/sync_contracts.py": "sha256:23cf94e797957993c9574da9f579f9bce2e033fabcd9a796298d2ec1ebd1366a",
-    "src/shenbi/status.py": "sha256:7fc0a9c25f277337681e30081505a706b2d130a6313b90115aa394d060485969",
+    "src/shenbi/status.py": "sha256:e39d952bb99eabe79615d8034c70984f5d5f01374443f408a0b09b4e310f5128",
     "src/shenbi/append_helper.py": "sha256:f5d7c824d48904dc7b1884f8ae026051d56e8bc4948ee4291755d9664e0339b5",
     "src/shenbi/gates/g5.py": "sha256:48bd559a011c5241625e405ceac9809c73c0e45b5f2169677abb9d856073dd9b",
     "src/shenbi/gates/g1.py": "sha256:cefc53379d0970b5dbecb3c1ccccfce0bcda9f5c6cce859dad8e2fad849be4a6",
