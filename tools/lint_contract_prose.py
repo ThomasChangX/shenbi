@@ -34,6 +34,7 @@ read shapes fixed here is re-caught only by the behavioral injection tests
 from __future__ import annotations
 
 import fnmatch
+import json
 import re
 import sys
 from collections.abc import Mapping, Sequence
@@ -60,50 +61,45 @@ _LOOSE_REF_RE = re.compile(rf"(?:[A-Za-z0-9_-]+/)+(?:{_SEG}/)*{_SEG}|[\w{{}}()N+
 # Offset forms — prose ``(N-3)`` and declared ``{N-3}`` canonicalize to ``N``.
 _OFFSET_FORMS = re.compile(r"[({]N[+-]\d+[)}]")
 
-#: (category, "skill:ref-pattern" fnmatch, one-line reason)
-ALLOWLIST: tuple[tuple[str, str, str], ...] = (
-    ("skill-bundle", "*:anti-ai-reference.md", "捆绑参考文件, dispatcher 不注入 (T1.1 裁决 b)"),
-    (
-        "skill-bundle",
-        "shenbi-review-era:skills/shenbi-review-era/era-reference.md",
-        "捆绑参考文件全路径消歧 (spec62 F857), dispatcher 不注入",
-    ),
-    (
-        "anti-example",
-        "shenbi-context-composing:chapters/chapter-*.md",
-        "anti-rationalization 反例行引用, 非真实读依赖",
-    ),
-    (
-        "anti-example",
-        "shenbi-foundation-review:characters/villain.md",
-        "证据引用格式的示例路径, 非真实读依赖",
-    ),
-    (
-        "anti-example",
-        "shenbi-book-spine-init:author_intent.md",
-        "铁律 1 显式否定引用(创世层不读此文件), 非读依赖——reads 补声明即死声明",
-    ),
-    (
-        "repo-docs",
-        "shenbi-chapter-drafting:docs/framework/chapter-file-format.md",
-        "仓库框架文档引用, 开发者参考, dispatcher 不注入",
-    ),
-    (
-        "repo-docs",
-        "shenbi-chapter-drafting:docs/framework/style-directives.md",
-        "仓库框架文档引用(style_directives 规范), 开发者/用户参考, dispatcher 不注入",
-    ),
-    (
-        "repo-docs",
-        "shenbi-chapter-revision:docs/framework/status-vocab.md",
-        "仓库框架文档引用, 开发者参考, dispatcher 不注入",
-    ),
-    (
-        "anti-example",
-        "shenbi-review-anti-ai:checklist.md",
-        "否定引用(原文件已随 spec #33 T2 死资产清理删除), 非读依赖",
-    ),
-)
+#: (category, "skill:ref-pattern" fnmatch, one-line reason) — external JSON
+#: carrier (spec #90 T4a: frontmatter annotations would leak into the dispatch
+#: system prompt verbatim, so the allowlist lives as lint-side config instead).
+ALLOWLIST_PATH = Path(__file__).resolve().parent / "contract_prose_allowlist.json"
+_SKILL_KEY = re.compile(r"^([a-z0-9-]+|\*):")
+
+
+def load_allowlist() -> tuple[tuple[str, str, str], ...]:
+    """Load the exemption carrier. Missing/unparseable/unknown-skill-key → exit 1.
+
+    An external file can go missing (an in-code tuple cannot); silently
+    falling back to an empty allowlist would surface every exempted R1 —
+    fail loud instead (spec #90 r2.3 fail-loud ruling).
+    """
+    if not ALLOWLIST_PATH.exists():
+        print(f"lint_contract_prose: allowlist carrier missing: {ALLOWLIST_PATH}", file=sys.stderr)
+        sys.exit(1)
+    try:
+        data = json.loads(ALLOWLIST_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        print(f"lint_contract_prose: allowlist JSON unparseable: {exc}", file=sys.stderr)
+        sys.exit(1)
+    skills_root = ALLOWLIST_PATH.parent.parent / "skills"
+    known = {q.name for q in skills_root.iterdir() if q.is_dir()} if skills_root.exists() else set()
+    out: list[tuple[str, str, str]] = []
+    for entry in data:
+        key_m = _SKILL_KEY.match(entry["pattern"])
+        key = key_m.group(1) if key_m else None
+        if key not in (None, "*") and key not in known:
+            print(
+                f"lint_contract_prose: unknown skill key '{key}' in allowlist entry",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        out.append((entry["category"], entry["pattern"], entry["reason"]))
+    return tuple(out)
+
+
+ALLOWLIST: tuple[tuple[str, str, str], ...] = load_allowlist()
 
 
 def _canonical(path: str) -> str:
