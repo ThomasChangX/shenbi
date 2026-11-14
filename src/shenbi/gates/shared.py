@@ -196,6 +196,18 @@ def chapter_no(name_or_path: str | Path) -> int | None:
     return int(m.group(1)) if m else None
 
 
+def chapter_no_raw(name_or_path: str | Path) -> str | None:
+    """Raw chapter-number digits, padding preserved (spec #89 T2, audit-T2 I2).
+
+    Returns the matched group text — ``"030"`` for ``chapter-030`` — so path
+    reconstruction (``f"chapter-{raw}-plan.md"``) stays byte-identical with
+    zero-padded on-disk names; use :func:`chapter_no` for numeric work.
+    Pass a basename when the path may contain ``chapter-N`` directory segments.
+    """
+    m = CHAPTER_NUM_RE.search(str(name_or_path))
+    return m.group(1) if m else None
+
+
 def load_facts_oracle(project_dir: str | Path, dim: "FactsDim") -> "FactsFile | None":
     """Load a facts oracle, collapsing absent/empty to None (spec #89 T3).
 

@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from shenbi.gates.shared import chapter_no
+from shenbi.gates.shared import chapter_no, chapter_no_raw
 from shenbi.logging import get_logger
 from shenbi.status import GateStatus
 
@@ -989,10 +989,11 @@ def g4_cross_chapter(
             mf.append(f"G4.XC.not_found:{fp}")
             continue
         prev = prev_chapter_path(ch_path)
-        ch_n = chapter_no(ch_path.name)
+        ch_raw = chapter_no_raw(ch_path.name)
+        ch_n = int(ch_raw) if ch_raw is not None else None
         memo = None
-        if project_dir and ch_n is not None:
-            memo = Path(project_dir) / "plans" / f"chapter-{ch_n}-plan.md"
+        if project_dir and ch_raw is not None:
+            memo = Path(project_dir) / "plans" / f"chapter-{ch_raw}-plan.md"
         # 编号断档：N>1 而前章缺席 → 时间锚/POV 基线丢失，降级须可见
         if prev is None and ch_n is not None and ch_n > 1:
             log.warning("xc_prev_missing", chapter=ch_n)

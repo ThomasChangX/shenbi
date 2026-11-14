@@ -13,6 +13,7 @@ log = get_logger(__name__)
 
 from shenbi.gates.shared import (
     chapter_no,
+    chapter_no_raw,
     fail,
     passed,
     resolve_input_path,
@@ -248,8 +249,10 @@ def _revalidate_finding(project_dir: Path, file_field: str, finding: str) -> boo
     elif finding.startswith("G4.pi.fence_imbalance"):
         emitted = check_markdown_fence_balance(target)
     elif finding.startswith("G4.av."):
-        tn = chapter_no(target.name)
-        chapter_path = project_dir / "chapters" / f"chapter-{tn}.md" if tn is not None else None
+        t_raw = chapter_no_raw(target.name)
+        chapter_path = (
+            project_dir / "chapters" / f"chapter-{t_raw}.md" if t_raw is not None else None
+        )
         if chapter_path is None or not chapter_path.exists():
             log.warning("pwi_finding_stale_chapter_gone", finding=finding, file=file_field)
             return False

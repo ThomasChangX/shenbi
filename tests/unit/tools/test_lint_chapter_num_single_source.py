@@ -40,6 +40,31 @@ def test_definition_allowed_only_for_shared() -> None:
 
 
 @pytest.mark.unit
+def test_second_compile_and_embedded_compile_still_red_in_shared() -> None:
+    # audit-T2 I4：放行仅限精确等值 re.compile——第二/内嵌形态仍红
+    tree = ast.parse(
+        'CHAPTER_NUM_RE = re.compile(r"chapter-(\\d+)")\n'
+        'X = re.compile(r"chapter-(\\d+)-decisions\\.json")\n'
+        'Y = foo.compile(r"chapter-(\\d+)")\n'
+    )
+    hits: list[tuple[str, int]] = []
+    lint.lint_tree(tree, "shared.py", hits, allow_definition=True)
+    assert hits == [("shared.py", 2), ("shared.py", 3)]
+
+
+@pytest.mark.unit
+def test_split_subn_and_keyword_pattern_hit() -> None:
+    tree = ast.parse(
+        'a = re.split(r"chapter-(\\d+)", s)\n'
+        'b = re.subn(r"chapter-(\\d+)", "x", s)\n'
+        'c = re.search(pattern=r"chapter-(\\d+)", string=s)\n'
+    )
+    hits: list[tuple[str, int]] = []
+    lint.lint_tree(tree, "x.py", hits, allow_definition=False)
+    assert hits == [("x.py", 1), ("x.py", 2), ("x.py", 3)]
+
+
+@pytest.mark.unit
 def test_current_tree_is_green() -> None:
     assert lint.main() == 0
 

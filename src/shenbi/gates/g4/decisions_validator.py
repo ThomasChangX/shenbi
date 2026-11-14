@@ -68,7 +68,7 @@ def _check_adjacent_budget(project_dir: Path, chapter: int) -> list[str]:
 
 def _extract_chapter_number(filepath: str) -> int | None:
     """Extract chapter number from a decisions file path like 'chapter-6-decisions.json'."""
-    m = CHAPTER_NUM_RE.search(filepath)  # group 原文保留零填充（chapter-06）
+    m = CHAPTER_NUM_RE.search(Path(filepath).name)  # basename 域+group 原文（零填充/嵌套）
     return int(m.group(1)) if m and f"chapter-{m.group(1)}-decisions.json" in filepath else None
 
 

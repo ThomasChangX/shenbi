@@ -885,7 +885,9 @@ def g4_chapter_planning(
         # Golden-3 rules based on chapter number N — quality bonus, not hard gate.
         # Only fails if golden content is completely missing AND sections are also
         # incomplete. Warnings are more appropriate for automated pipelines.
-        _pl_m = CHAPTER_NUM_RE.search(str(fp))  # group 原文保留零填充（chapter-030）
+        _pl_m = CHAPTER_NUM_RE.search(
+            Path(fp).name
+        )  # basename 域+group 原文（零填充/嵌套 chapter 目录）
         n = int(_pl_m.group(1)) if _pl_m and f"-{_pl_m.group(1)}-plan" in str(fp) else 0
         golden = {1: "三面墙", 2: "验证主角特殊性|对手", 3: "小高潮"}
         if n in golden:

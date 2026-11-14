@@ -21,6 +21,7 @@ from shenbi.gates.shared import (
     chapter_word_floor,
     count_similes,
     chapter_no,
+    chapter_no_raw,
     count_transition_words,
     degrade,
     fail,
@@ -653,9 +654,9 @@ def g4_chapter_drafting(
 
         # per-file memo join (F16/F17 share)
         _memo: str | None = None
-        _ch_n = chapter_no(Path(fp).name)
-        if project_dir and _ch_n is not None:
-            _memo_path = Path(project_dir) / "plans" / f"chapter-{_ch_n}-plan.md"
+        _ch_raw = chapter_no_raw(Path(fp).name)
+        if project_dir and _ch_raw is not None:
+            _memo_path = Path(project_dir) / "plans" / f"chapter-{_ch_raw}-plan.md"
             if _memo_path.is_file():
                 _memo = _memo_path.read_text(encoding="utf-8")
 
@@ -926,11 +927,11 @@ def g4_chapter_drafting(
 
         # spec #72 G4.cd.scene_hook_match — declared hooks land verbatim on
         # each scene's final line (predicate: 声明剥空白 ⊆ 场景末非空行)
-        _m_n = chapter_no(fp)
+        _m_raw = chapter_no_raw(Path(fp).name)
         plan_text_src = None
-        if _m_n is not None and (rd or project_root):
+        if _m_raw is not None and (rd or project_root):
             _plan_base = Path(rd) if rd else Path(project_root)
-            _plan_path = _plan_base / "plans" / f"chapter-{_m_n}-plan.md"
+            _plan_path = _plan_base / "plans" / f"chapter-{_m_raw}-plan.md"
             if _plan_path.is_file():
                 plan_text_src = _plan_path.read_text(encoding="utf-8")
         if plan_text_src is not None:
@@ -1061,10 +1062,10 @@ def g4_chapter_drafting(
             # audit-T5/I1: v4 memo 缺『』锚定形态 → FAIL（模板义务不可静默逃逸）。
             from shenbi.gates.g4.quote_verbatim import extract_anchor_quotes, quote_in_chapter
 
-            _cn82_n = chapter_no(pf.name)
+            _cn82_raw = chapter_no_raw(pf.name)
             _mp82 = (
-                Path(project_dir) / "plans" / f"chapter-{_cn82_n}-plan.md"
-                if _cn82_n is not None and project_dir
+                Path(project_dir) / "plans" / f"chapter-{_cn82_raw}-plan.md"
+                if _cn82_raw is not None and project_dir
                 else None
             )
             if _mp82 is not None and _mp82.is_file():
@@ -1198,9 +1199,9 @@ def g4_chapter_drafting(
         _mp: Path | None = None
         _memo_text = ""
         if project_dir:
-            _cn_n = chapter_no(pf.name)
-            if _cn_n is not None:
-                _mp = Path(project_dir) / "plans" / f"chapter-{_cn_n}-plan.md"
+            _cn_raw = chapter_no_raw(pf.name)
+            if _cn_raw is not None:
+                _mp = Path(project_dir) / "plans" / f"chapter-{_cn_raw}-plan.md"
                 if _mp.is_file():
                     _memo_text = _mp.read_text(encoding="utf-8")
                     _pfv = re.search(

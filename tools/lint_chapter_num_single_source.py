@@ -16,12 +16,38 @@ REPO = Path(__file__).resolve().parents[1]
 GATES = REPO / "src" / "shenbi" / "gates"
 ALLOWED_FILE = "shared.py"
 PATTERN = "chapter-(\\d+)"
-RE_FUNCS = ("compile", "search", "match", "fullmatch", "findall", "sub")
+RE_FUNCS = ("compile", "search", "match", "fullmatch", "findall", "sub", "subn", "split")
 
 
-def _is_definition(node: ast.Call) -> bool:
-    """True for the CHAPTER_NUM_RE = re.compile(...) definition form."""
-    return isinstance(node.func, ast.Attribute) and node.func.attr == "compile"
+def _pattern_arg(node: ast.Call) -> str | None:
+    """The string pattern of a re.* call: positional or keyword ``pattern=``."""
+    if node.args and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str):
+        return node.args[0].value
+    for kw in node.keywords:
+        if (
+            kw.arg == "pattern"
+            and isinstance(kw.value, ast.Constant)
+            and isinstance(kw.value.value, str)
+        ):
+            return kw.value.value
+    return None
+
+
+def _is_definition(node: ast.Call, pattern: str) -> bool:
+    """True only for ``re.compile(PATTERN)`` — the exact single-source definition.
+
+    Exact equality (not containment) so a second compile embedding the
+    pattern still reds; ``re`` module check so ``foo.compile`` never exempts.
+    """
+    func = node.func
+    if not isinstance(func, ast.Attribute):
+        return False
+    return (
+        func.attr == "compile"
+        and pattern == PATTERN
+        and isinstance(func.value, ast.Name)
+        and func.value.id == "re"
+    )
 
 
 def lint_tree(
@@ -33,15 +59,10 @@ def lint_tree(
             continue
         if node.func.attr not in RE_FUNCS:
             continue
-        if not (
-            node.args
-            and isinstance(node.args[0], ast.Constant)
-            and isinstance(node.args[0].value, str)
-        ):
+        pattern = _pattern_arg(node)
+        if pattern is None or PATTERN not in pattern:
             continue
-        if PATTERN not in node.args[0].value:
-            continue
-        if allow_definition and _is_definition(node):
+        if allow_definition and _is_definition(node, pattern):
             continue
         hits.append((rel, node.lineno))
 
