@@ -18,7 +18,7 @@
 - **文件**：`2026-11-01-spec90-contract-data-single-source.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r2.3d** 2026-11-14——r2.3 价值门驳斥修订：T1 载体改判 shared 单源+generic re-export/编辑面 3-4 修正/_checker_keys 改指向/T4a JSON+fail-loud；r2.3b 行号改准+权威名钉死+非空守卫+tests 破裂面；r2.3c AC6 触发机制修正——lint 守结构级/成员级归运行时三重守卫；r2.3d T3 钉输入面+第四源对账 G4_DECISIONS_WIRED+T4a 钉 JSON schema） ｜ **优先级**：🟡 P2
 - **依赖**：无（spec #9 裁决约束已核——不新增契约模型消费）
 - **内容**：**一个权威集合 + 派生（零构建基础设施，r2.3 载体）**：G4_CHECKER_KEYS 字面量**迁 gates/shared.py**（权威名钉死——AST 提取器只认解点名下字面量）→ generic re-export / `G4_CHECKER_SKILLS = G4_CHECKER_KEYS` 别名（g0 零改动）/ SHORT_MAP 机械派生移 cli G4 懒分支内 / build_checkers 断言对齐（加 checker 编辑面 5-6 处→**3 处**，GENERIC_ONLY_ROSTER 场景 4）+ lint **10 面**收缩（9 R1 面+R5；agents_counts 恒真面删；`_checker_keys` 改指向 shared+**非空守卫**；tests 两破裂测试同批改写）+ lint_decisions_sources 弃 crude scan 走 load_contract + STEM_TO_SKILL 派生（N/N+1 归一，二义即 fail）+ decisions 枚举 value-set 对账（status-vocab 模板；**Per-Skill 表生成器 r2 裁剪**）+ writing-skills 机器契约节（可延后不阻塞）+ lint_contract_prose **allowlist 迁 tools/contract_prose_allowlist.json（JSON+fail-loud）**
-- **对应 plan**：待执行时建
+- **对应 plan**：已建 `../plans/2026-11-14-spec90-contract-data-single-source.md`（5 task 四轮审查收敛）
 - **触及的不变量维度**：无（契约/名册数据面）
 
 ---
