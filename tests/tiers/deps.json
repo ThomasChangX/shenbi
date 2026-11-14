@@ -271,7 +271,7 @@
     "src/shenbi/pipeline/error_handler.py": "sha256:439336eeabae164f9619fcbd74ce9e3a9f6aa4cf317504755c49066cd35ac9cb",
     "src/shenbi/pipeline/seed_parser.py": "sha256:e788d25f3ea6533ed3c6b3d7400de761febaff8bd3e92bc9c7b3ab3ad968ccee",
     "src/shenbi/pipeline/state_heal.py": "sha256:f912928485866364c782514b66b18ae83ac594375066c5014b4b14d4c14ebb44",
-    "src/shenbi/pipeline/dispatch_helper.py": "sha256:687eef58d3eca89ce2dbdbb2759677776060f96261ab3e3512a1c54bfd53dbf8",
+    "src/shenbi/pipeline/dispatch_helper.py": "sha256:6db83ea6160975c01afc57a5995bea7cb0ec513196b58d5a735ac2a4cc9879e5",
     "src/shenbi/pipeline/audit_aggregate.py": "sha256:e93c4b94ab62f615da80d1aa990fddcad3b216766284381ea4f1bb3b4fd4fd50",
     "src/shenbi/pipeline/write_safety.py": "sha256:e87fb1dc32564e8b8fed8226e19805b56546c7f703bfd3932e48c7c04c526776",
     "src/shenbi/pipeline/volume_budget.py": "sha256:f6ef827d147fc86bce5fd2a9eddf90969439748da2178f993f557e494b463c78",
