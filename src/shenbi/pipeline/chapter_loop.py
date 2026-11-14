@@ -3764,9 +3764,9 @@ def dispatch_serial_reviews(
     caught and wrapped into a failed DispatchResult (never allowed to crash
     run_chapter_step / the CLI driver) and failures retry with backoff,
     up to MAX_RETRIES extra attempts. Serialness comes from the loop itself
-    (spec #91 T5): dispatch_with_retry's semaphore is optional/None here —
-    the historical Semaphore(1) satisfied a mandatory parameter without
-    providing any cross-call exclusion (C32 R4 follow-up resolved).
+    (spec #91 T5): dispatch_with_retry's rate limiter is optional/None here —
+    the historical 1-permit placeholder satisfied a mandatory parameter
+    without providing any cross-call exclusion (C32 R4 follow-up resolved).
     """
     from shenbi.pipeline.parallel_dispatch import (
         dispatch_with_retry,
