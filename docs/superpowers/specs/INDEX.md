@@ -13,9 +13,9 @@
 
 ### #89 · 门禁内部性修复（gates-internal-repair）
 
-- **文件**：`2026-11-01-spec89-gates-internal-repair.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.2） ｜ **优先级**：🟠 P1
-- **依赖**：无（r2 修正：CHAPTER_NUM_RE 已存在于 gates/shared.py:182，无需 #85 前置）
-- **内容**：g4_chapter_drafting CheckContext 一次装载（772 行主函数 <300；plan 每章读 1 次非 5 次）+ 章号正则 **AST 判据**归零（实测 20 处内联，含 g6_checks）+ 四窄助手（chapter_no/load_facts_oracle（**6 处/3 文件，删 ss 伪条目**）/degrade/**RoundPaths.require_roots 落 paths.py:55**；**明确不做 table-DSL**）+ shared.py 出鞘（write_gate_marker 迁 gate_manifest、**segment_sentences 迁 text/（仅 1 符号；strip_narrative_body 的 frontmatter 面归 #85）**、import 时 FS 扫描惰性化）+ 4 门禁助手正名公共（**实为 1 个真改名** + `_declared_history`）+ g4_cross_chapter 非注册表门文档化 + G0.12 假检查真实现（**集合对账，不 import g4**）
+- **文件**：`2026-11-01-spec89-gates-internal-repair.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r2.3** 2026-11-14——价值门驳斥修订：T5 主项已被 #87 清偿划掉/T4 换源补 4 破裂面/T6 判据强化双条件+GENERIC_ONLY_ROSTER/degrade 计数 5+前缀变体/行号全量 re-anchor） ｜ **优先级**：🟠 P1
+- **依赖**：无（#85/#87 均已归档就绪；CHAPTER_NUM_RE 在 gates/shared.py:183）
+- **内容**：g4_chapter_drafting CheckContext 一次装载（**796 行主函数**（r2.3 re-anchor）<300；plan 每章读 1 次非 5 次；**模板=cross_chapter.py:38 CrossChapterContext**）+ 章号正则 **AST 判据**归零（**gates 全域 20 处内联=g4 15+g6 5**，含 g6_checks）+ 四窄助手（chapter_no/load_facts_oracle（6 处/3 文件）/degrade（**5 发射点+no_facts/no_ledger/no_decl 前缀变体参数化**）/**RoundPaths.require_roots 落 paths.py:55**；**明确不做 table-DSL**）+ shared.py 出鞘（write_gate_marker 迁 gate_manifest、**segment_sentences 迁 text/（仅 1 符号；连带 QUOTE_PAIR 归属 plan 期定；strip_narrative_body 留原处）**、import 时 FS 扫描惰性化**+换源补 4 破裂面（round-exec.sh/test_g0_dynamic_count/test_g0_config_coherence/lint_contracts）**）+ 调用缝（**_ending_archetype_of 正名已被 #87 清偿划掉**；剩 `_declared_history` 两处）+ g4_cross_chapter 非注册表门文档化 + G0.12 假检查真实现（**双条件：tests 侧 30=30 断言已在场 + G0 侧 GENERIC_ONLY_ROSTER 44 项显式名单集合对账，不 import g4**）
 - **对应 plan**：待执行时建
 - **触及的不变量维度**：无（门禁内部结构，characterization 先行）
 
