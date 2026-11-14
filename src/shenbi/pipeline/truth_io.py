@@ -78,6 +78,9 @@ _PATH_LOCKS: dict[str, tuple[threading.Lock, int]] = {}
 def _path_lock(path: Path) -> Generator[None, None, None]:
     """Serialize same-path writers in-process AND cross-process (spec #37 T709).
 
+    NOT reentrant (plain ``threading.Lock``): never call ``write_truth_file``
+    (or anything else that takes this path's lock) while already holding it.
+
     Layering: registry threading.Lock (in-process identity + refcount) then
     flock on ``<path>.lockfile`` (cross-process). Writers that honor this
     lockfile — including subprocess helpers that take it explicitly — are

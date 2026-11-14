@@ -2593,29 +2593,32 @@ def route_append_dedup_write(
 
         target = project_dir / rel_path
         target.parent.mkdir(parents=True, exist_ok=True)
-        base_text = target.read_text(encoding="utf-8") if target.exists() else ""
-        # vol1 escalation #002: normalize cosmetic hr rules BEFORE validation
-        # and the volume-anchor check — both must judge the stripped shape.
-        content = _strip_hr_lines(content)
-        _validate_increment_package(
-            content,
-            key_field=outline_key,
-            base_text=base_text,
-            outline_units=True,
-            section_ledger=rel_path in _SECTION_LEDGER_TARGETS,
-        )
-        if rel_path == "outline/volume_map.md":
-            from shenbi.pipeline.volume_budget import check_new_volume_anchor
-
-            anchor_error = check_new_volume_anchor(base_text, content)
-            if anchor_error is not None:
-                raise IncrementShapeError(anchor_error)
-        section_units = (
-            _section_ledger_units(content)
-            if rel_path in _SECTION_LEDGER_TARGETS
-            else increment_units(content)
-        )
+        # spec #91 T3: base read + validation + anchor check all run INSIDE
+        # the per-path lock — the read used to happen outside, so a concurrent
+        # writer's commit between read and lock was merged blind (stale base).
         with path_lock(target):
+            base_text = target.read_text(encoding="utf-8") if target.exists() else ""
+            # vol1 escalation #002: normalize cosmetic hr rules BEFORE validation
+            # and the volume-anchor check — both must judge the stripped shape.
+            content = _strip_hr_lines(content)
+            _validate_increment_package(
+                content,
+                key_field=outline_key,
+                base_text=base_text,
+                outline_units=True,
+                section_ledger=rel_path in _SECTION_LEDGER_TARGETS,
+            )
+            if rel_path == "outline/volume_map.md":
+                from shenbi.pipeline.volume_budget import check_new_volume_anchor
+
+                anchor_error = check_new_volume_anchor(base_text, content)
+                if anchor_error is not None:
+                    raise IncrementShapeError(anchor_error)
+            section_units = (
+                _section_ledger_units(content)
+                if rel_path in _SECTION_LEDGER_TARGETS
+                else increment_units(content)
+            )
             base = base_text
             merged = base
             for unit in section_units:
