@@ -22,6 +22,7 @@ from shenbi.gates.shared import (
     FIXTURES,
     PROJECT,
     TESTS,
+    chapter_no,
     clip_with_disclosure,
     fail,
     jload,
@@ -84,9 +85,9 @@ def gate_G6(
             c.append({"id": "G6.1", "s": GateStatus.PASS, "chapters": len(chapters)})
         # G6.2: no gaps
         for ch in chapters:
-            m = re.search(r"chapter-(\d+)", ch.name)
-            if m:
-                nums.append(int(m.group(1)))
+            n = chapter_no(ch.name)
+            if n is not None:
+                nums.append(n)
         if nums and sorted(nums) != list(range(min(nums), max(nums) + 1)):
             mf.append("G6.2:chapter_gaps")
         else:
@@ -418,8 +419,7 @@ def gate_G6(
                 ch_in_vol = [
                     ch
                     for ch in chapters
-                    if (cn_m := re.search(r"chapter-(\d+)", ch.name))
-                    and vol_start <= int(cn_m.group(1)) <= vol_end
+                    if (cn := chapter_no(ch.name)) is not None and vol_start <= cn <= vol_end
                 ]
                 if not ch_in_vol:
                     mf.append(f"G6.11:no_chapters:vol{vol['vol']}:range={vol_start}-{vol_end}")
@@ -428,8 +428,7 @@ def gate_G6(
                 if not is_final and ch_in_vol:
 
                     def _ch_num(c: Path) -> int:
-                        m = re.search(r"chapter-(\d+)", c.name)
-                        return int(m.group(1)) if m else 0
+                        return chapter_no(c.name) or 0
 
                     last_ch = sorted(ch_in_vol, key=_ch_num)[-1]
                     last_ct = last_ch.read_text(encoding="utf-8")
@@ -475,9 +474,9 @@ def gate_G6(
     if cm_path.exists() and chapters:
         dead_chars = set()
         for line in cm_path.read_text(encoding="utf-8").split("\n"):
-            m = re.match(r"\|\s*(\S+?)\s*\|.*死亡", line)
-            if m:
-                dead_chars.add(m.group(1))
+            dead_m = re.match(r"\|\s*(\S+?)\s*\|.*死亡", line)
+            if dead_m:
+                dead_chars.add(dead_m.group(1))
         ghosts_found: list[str] = []
         for ch in chapters:
             content = ch.read_text(encoding="utf-8")

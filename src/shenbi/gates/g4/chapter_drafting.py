@@ -20,6 +20,7 @@ from shenbi.gates.shared import (
     META_NARRATIVE,
     chapter_word_floor,
     count_similes,
+    chapter_no,
     count_transition_words,
     degrade,
     fail,
@@ -546,10 +547,9 @@ def _spec82_hook_rotation(
     """
     from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
 
-    m_ch = re.search(r"chapter-(\d+)", pf_name)
-    if not m_ch or not project_dir:
+    n = chapter_no(pf_name)
+    if n is None or not project_dir:
         return
-    n = int(m_ch.group(1))
     hist = _declared_history(project_dir)
 
     mp = Path(project_dir) / "plans" / f"chapter-{n}-plan.md"
@@ -653,9 +653,9 @@ def g4_chapter_drafting(
 
         # per-file memo join (F16/F17 share)
         _memo: str | None = None
-        _ch_m = re.search(r"chapter-(\d+)", Path(fp).name)
-        if project_dir and _ch_m:
-            _memo_path = Path(project_dir) / "plans" / f"chapter-{_ch_m.group(1)}-plan.md"
+        _ch_n = chapter_no(Path(fp).name)
+        if project_dir and _ch_n is not None:
+            _memo_path = Path(project_dir) / "plans" / f"chapter-{_ch_n}-plan.md"
             if _memo_path.is_file():
                 _memo = _memo_path.read_text(encoding="utf-8")
 
@@ -926,11 +926,11 @@ def g4_chapter_drafting(
 
         # spec #72 G4.cd.scene_hook_match — declared hooks land verbatim on
         # each scene's final line (predicate: 声明剥空白 ⊆ 场景末非空行)
-        _m_num = re.search(r"chapter-(\d+)", str(fp))
+        _m_n = chapter_no(fp)
         plan_text_src = None
-        if _m_num and (rd or project_root):
+        if _m_n is not None and (rd or project_root):
             _plan_base = Path(rd) if rd else Path(project_root)
-            _plan_path = _plan_base / "plans" / f"chapter-{_m_num.group(1)}-plan.md"
+            _plan_path = _plan_base / "plans" / f"chapter-{_m_n}-plan.md"
             if _plan_path.is_file():
                 plan_text_src = _plan_path.read_text(encoding="utf-8")
         if plan_text_src is not None:
@@ -1061,10 +1061,10 @@ def g4_chapter_drafting(
             # audit-T5/I1: v4 memo 缺『』锚定形态 → FAIL（模板义务不可静默逃逸）。
             from shenbi.gates.g4.quote_verbatim import extract_anchor_quotes, quote_in_chapter
 
-            _cn82 = re.search(r"chapter-(\d+)", pf.name)
+            _cn82_n = chapter_no(pf.name)
             _mp82 = (
-                Path(project_dir) / "plans" / f"chapter-{int(_cn82.group(1))}-plan.md"
-                if _cn82 and project_dir
+                Path(project_dir) / "plans" / f"chapter-{_cn82_n}-plan.md"
+                if _cn82_n is not None and project_dir
                 else None
             )
             if _mp82 is not None and _mp82.is_file():
@@ -1198,9 +1198,9 @@ def g4_chapter_drafting(
         _mp: Path | None = None
         _memo_text = ""
         if project_dir:
-            _cn = re.search(r"chapter-(\d+)", pf.name)
-            if _cn:
-                _mp = Path(project_dir) / "plans" / f"chapter-{_cn.group(1)}-plan.md"
+            _cn_n = chapter_no(pf.name)
+            if _cn_n is not None:
+                _mp = Path(project_dir) / "plans" / f"chapter-{_cn_n}-plan.md"
                 if _mp.is_file():
                     _memo_text = _mp.read_text(encoding="utf-8")
                     _pfv = re.search(
@@ -1215,13 +1215,13 @@ def g4_chapter_drafting(
         if _memo_v3 and _proj78 is not None:
             # 连续微钩（读前章声明——spec #82 T1/I4：优先完成时快照（L-D 铁律），
             # 快照缺席章（卷一 pre-T0 历史）回退 plan memo 解析——纯读幂等）
-            _cn78 = re.search(r"chapter-(\d+)", pf.name)
-            if _cn78:
+            _cn78_n = chapter_no(pf.name)
+            if _cn78_n is not None:
                 from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
 
                 _hist78 = _declared_history(str(project_dir)) if _proj78 else {}
                 _tiers: list[str] = []
-                for _k in range(max(1, int(_cn78.group(1)) - 3), int(_cn78.group(1)) + 1):
+                for _k in range(max(1, _cn78_n - 3), _cn78_n + 1):
                     _snap78 = (_hist78.get(_k) or {}).get("张力拍档位")
                     if isinstance(_snap78, str) and _snap78 in ("微", "章", "大"):
                         _tiers.append(_snap78)
@@ -1259,8 +1259,8 @@ def g4_chapter_drafting(
             )
             _win = int(_pdw.get("window", 3)) if _pdw else 3
             _has_axis = False
-            if _cn78:
-                for _k in range(max(1, int(_cn78.group(1)) - _win + 1), int(_cn78.group(1)) + 1):
+            if _cn78_n is not None:
+                for _k in range(max(1, _cn78_n - _win + 1), _cn78_n + 1):
                     _mk = _proj78 / "plans" / f"chapter-{_k}-plan.md"
                     if _mk.is_file() and re.search(
                         r"\*\*payoff 拍\*\*[：:].*轴[（(]?(债|名声|名字数|进度)",

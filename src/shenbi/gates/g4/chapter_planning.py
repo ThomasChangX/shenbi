@@ -19,6 +19,8 @@ from shenbi.gates.g4.cross_chapter import load_memo_declarations
 from shenbi.gates.shared import (
     SCENE_INDEPENDENT_BAND,
     SCENE_PAIRED_BAND,
+    CHAPTER_NUM_RE,
+    chapter_no,
     chapter_word_min_max,
     degrade,
     fail,
@@ -652,8 +654,7 @@ def g4_chapter_planning(
                     "时间锚/余额/POV/事件/物象行）"
                 )
             continue
-        n_match = re.search(r"chapter-(\d+)", p_.name)
-        chapter_no = int(n_match.group(1)) if n_match else None
+        ch_n = chapter_no(p_.name)
         issues: list[str] = []
         if not 2 <= len(decls) <= 3:
             issues.append(f"场景数 {len(decls)} 不在 2-3")
@@ -679,19 +680,16 @@ def g4_chapter_planning(
             issues.append(f"章和 {total} 不在 [{chapter_band[0]},{chapter_band[1]}]")
         # 打包窗口：前章全场景（实际）+ 本声明 + 邻章备忘声明（R2 接缝联合）
         seq: list[int] = []
-        if chapter_no is not None and project_dir:
-            prev = Path(project_dir) / "chapters" / f"chapter-{chapter_no - 1}.md"
+        if ch_n is not None and project_dir:
+            prev = Path(project_dir) / "chapters" / f"chapter-{ch_n - 1}.md"
             if prev.is_file():
                 seq.extend(s for s, _ll in split_scenes(prev.read_text(encoding="utf-8")))
         seq.extend(sizes)
-        if chapter_no is not None:
+        if ch_n is not None:
             for cand in (
-                p_.parent / f"chapter-{chapter_no + 1}-plan.md",
-                Path(project_dir or ".")
-                / "staging"
-                / "plans"
-                / f"chapter-{chapter_no + 1}-plan.md",
-                Path(project_dir or ".") / "plans" / f"chapter-{chapter_no + 1}-plan.md",
+                p_.parent / f"chapter-{ch_n + 1}-plan.md",
+                Path(project_dir or ".") / "staging" / "plans" / f"chapter-{ch_n + 1}-plan.md",
+                Path(project_dir or ".") / "plans" / f"chapter-{ch_n + 1}-plan.md",
             ):
                 sib = _memo_decl_sizes(cand)
                 if sib:
@@ -887,8 +885,8 @@ def g4_chapter_planning(
         # Golden-3 rules based on chapter number N — quality bonus, not hard gate.
         # Only fails if golden content is completely missing AND sections are also
         # incomplete. Warnings are more appropriate for automated pipelines.
-        ch_num = re.search(r"-(\d+)-plan", str(fp))
-        n = int(ch_num.group(1)) if ch_num else 0
+        _pl_m = CHAPTER_NUM_RE.search(str(fp))  # group 原文保留零填充（chapter-030）
+        n = int(_pl_m.group(1)) if _pl_m and f"-{_pl_m.group(1)}-plan" in str(fp) else 0
         golden = {1: "三面墙", 2: "验证主角特殊性|对手", 3: "小高潮"}
         if n in golden:
             alternatives = golden[n].split("|")

@@ -222,7 +222,8 @@ def degrade(
     Byte-exact with the five hand-written emission sites (cd/cp/xc) plus the
     no_decl variant: ``{kind} — {cause}; {what_skipped}{suffix}`` where
     suffix defaults to `` (degradation visible)``; pass ``visible=False``
-    plus a ``tail`` for the legacy-memo no_decl wording.
+    plus a ``tail`` for the legacy-memo no_decl wording. ``tail`` is only
+    consulted when ``visible=False`` (no production site combines the two).
     """
     suffix = tail if not visible else " (degradation visible)"
     return f"{kind} — {cause}; {what_skipped}{suffix}"

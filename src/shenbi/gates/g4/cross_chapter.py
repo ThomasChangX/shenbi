@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from shenbi.gates.shared import chapter_no
 from shenbi.logging import get_logger
 from shenbi.status import GateStatus
 
@@ -115,10 +116,9 @@ def load_memo_declarations(memo_path: Path) -> dict[str, str]:
 
 def prev_chapter_path(chapter_path: Path) -> Path | None:
     """章 N 前章恒为 N-1（双章批语义：leader 前章=批外，follower=leader）。"""
-    m = re.search(r"chapter-(\d+)", chapter_path.name)
-    if not m:
+    n = chapter_no(chapter_path.name)
+    if n is None:
         return None
-    n = int(m.group(1))
     if n <= 1:
         return None
     prev = chapter_path.parent / f"chapter-{n - 1}.md"
@@ -726,10 +726,7 @@ def check_cross_chapter(
 
     # ── spec #80 F15 叙事名（剥对白叙述段别名扫描；首章亦跑）──
     if ctx.identity_fact:
-        _ch_num_f15 = None
-        _ch_m15 = re.search(r"chapter-(\d+)", chapter_path.name)
-        if _ch_m15:
-            _ch_num_f15 = int(_ch_m15.group(1))
+        _ch_num_f15 = chapter_no(chapter_path.name)
         issues.extend(
             # spec #88 T1c 嵌套升格：内层家族前缀剥除、id 升格、detail 干净
             (
@@ -757,8 +754,7 @@ def check_cross_chapter(
             ctx.registry_dir / "prop_registry.md" if ctx.registry_dir else None
         )
     _memo_is_new_format = re.search(r"#{2,4}\s*场景预算", memo_text) is not None
-    _ch_num_m = re.search(r"chapter-(\d+)", chapter_path.name)
-    _ch_num = int(_ch_num_m.group(1)) if _ch_num_m else None
+    _ch_num = chapter_no(chapter_path.name)
     _cur_steps = _prop_chain_steps(memo_text)  # parsed once (round-5 perf)
     _prior_steps_map: dict[int, dict[str, list[tuple[str, str]]]] = {}
     if ctx.props_facts:
@@ -870,9 +866,9 @@ def check_cross_chapter(
     # prev 余额双源：prev memo（plans/ 下）优先，正文余额行回退
     prev_bal = None
     if ctx.project_dir:
-        _pn = re.search(r"chapter-(\d+)", prev_path.name)
-        if _pn:
-            _pm = ctx.project_dir / "plans" / f"chapter-{int(_pn.group(1))}-plan.md"
+        _pn_n = chapter_no(prev_path.name)
+        if _pn_n is not None:
+            _pm = ctx.project_dir / "plans" / f"chapter-{_pn_n}-plan.md"
             if _pm.is_file():
                 prev_bal = _BALANCE_DECL_RE.search(_pm.read_text(encoding="utf-8"))
     if prev_bal is None:
@@ -993,19 +989,19 @@ def g4_cross_chapter(
             mf.append(f"G4.XC.not_found:{fp}")
             continue
         prev = prev_chapter_path(ch_path)
-        ch_num_m = re.search(r"chapter-(\d+)", ch_path.name)
+        ch_n = chapter_no(ch_path.name)
         memo = None
-        if project_dir and ch_num_m:
-            memo = Path(project_dir) / "plans" / f"chapter-{ch_num_m.group(1)}-plan.md"
+        if project_dir and ch_n is not None:
+            memo = Path(project_dir) / "plans" / f"chapter-{ch_n}-plan.md"
         # 编号断档：N>1 而前章缺席 → 时间锚/POV 基线丢失，降级须可见
-        if prev is None and ch_num_m and int(ch_num_m.group(1)) > 1:
-            log.warning("xc_prev_missing", chapter=int(ch_num_m.group(1)))
+        if prev is None and ch_n is not None and ch_n > 1:
+            log.warning("xc_prev_missing", chapter=ch_n)
             c.append(
                 {
                     "id": "XC.prev_missing",
                     "file": fp,
                     "s": GateStatus.WARN,
-                    "r": f"chapter-{int(ch_num_m.group(1)) - 1}.md absent — seam checks (POV/timeline) skipped for this chapter",
+                    "r": f"chapter-{ch_n - 1}.md absent — seam checks (POV/timeline) skipped for this chapter",
                 }
             )
         _body = ch_path.read_text(encoding="utf-8")

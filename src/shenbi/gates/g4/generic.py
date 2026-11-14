@@ -12,6 +12,7 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 from shenbi.gates.shared import (
+    chapter_no,
     fail,
     passed,
     resolve_input_path,
@@ -247,8 +248,8 @@ def _revalidate_finding(project_dir: Path, file_field: str, finding: str) -> boo
     elif finding.startswith("G4.pi.fence_imbalance"):
         emitted = check_markdown_fence_balance(target)
     elif finding.startswith("G4.av."):
-        m = re.search(r"chapter-(\d+)", target.name)
-        chapter_path = project_dir / "chapters" / f"chapter-{m.group(1)}.md" if m else None
+        tn = chapter_no(target.name)
+        chapter_path = project_dir / "chapters" / f"chapter-{tn}.md" if tn is not None else None
         if chapter_path is None or not chapter_path.exists():
             log.warning("pwi_finding_stale_chapter_gone", finding=finding, file=file_field)
             return False
@@ -311,9 +312,9 @@ def g4_post_write_integrity(project_dir: Path, *, chapter: int) -> dict[str, Any
 def _chapter_number_from_paths(file_paths: list[str]) -> int | None:
     """Extract chapter number from file paths like ``chapter-NN``."""
     for fp in file_paths:
-        m = re.search(r"chapter-(\d+)", fp)
-        if m:
-            return int(m.group(1))
+        n = chapter_no(fp)
+        if n is not None:
+            return n
     return None
 
 
