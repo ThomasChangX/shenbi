@@ -43,6 +43,7 @@ check:
     uv run python tools/lint_private_imports.py --check
     uv run python tools/lint_audit_run.py
     uv run python tools/lint_artifact_contamination.py
+    uv run python tools/lint_gate_status_comparisons.py
     uv run python tools/count_active_specs.py
     uv run python tools/check_fixture_mirror.py
     uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts

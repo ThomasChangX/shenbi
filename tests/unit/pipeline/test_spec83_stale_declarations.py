@@ -72,7 +72,7 @@ def test_settle_dispatch_sites_all_guarded() -> None:
     """
     src = Path(__file__).resolve().parents[3] / "src" / "shenbi"
     settle_capable = {  # (path-from-src/shenbi, enclosing function)
-        ("pipeline/chapter_loop.py", "run_parallel_post_draft_steps"),
+        ("pipeline/chapter_loop.py", "run_post_draft_pair"),
         ("pipeline/cli.py", "_execute_pending_re_dispatches"),
         ("pipeline/chapter_loop.py", "_run_serial_dispatch_step"),  # spec #87 T3: 体制拆出
     }

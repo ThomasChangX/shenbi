@@ -314,6 +314,40 @@ class PipelineState:
             current = self.chapter_loop.retry_budget_consumed.get(rk, 0)
             self.chapter_loop.retry_budget_consumed[rk] = max(current, retries)
 
+    def increment_retry_budget(self, chapter: int, skill: str) -> int:
+        """Thread-safe serial +=1 of retry_budget_consumed (spec #91 T4).
+
+        NOT charge_retry_budget: charge is idempotent max() for wave
+        aggregation replay; serial paths need monotonic increments that
+        never lose counts. Returns the new consumed value.
+        """
+        rk = retry_key(chapter, skill)
+        with self._lock:
+            consumed = self.chapter_loop.retry_budget_consumed.get(rk, 0) + 1
+            self.chapter_loop.retry_budget_consumed[rk] = consumed
+            return consumed
+
+    def set_retry_feedback(self, key: str, feedback: str) -> None:
+        """Locked write of retry_feedback[key] (spec #91 T4; key = 'chN-skill')."""
+        with self._lock:
+            self.chapter_loop.retry_feedback[key] = feedback
+
+    def pop_retry_feedback(self, key: str) -> str | None:
+        """Locked pop of retry_feedback[key]."""
+        with self._lock:
+            return self.chapter_loop.retry_feedback.pop(key, None)
+
+    def get_retry_feedback(self, key: str) -> str | None:
+        """Locked read of retry_feedback[key]."""
+        with self._lock:
+            return self.chapter_loop.retry_feedback.get(key)
+
+    def clear_retry_feedback_prefix(self, prefix: str) -> None:
+        """Locked bulk pop of every retry_feedback key starting with prefix."""
+        with self._lock:
+            for stale in [k for k in self.chapter_loop.retry_feedback if k.startswith(prefix)]:
+                self.chapter_loop.retry_feedback.pop(stale)
+
     @classmethod
     def default(cls, project_dir: str) -> PipelineState:
         return cls(project_dir=project_dir)

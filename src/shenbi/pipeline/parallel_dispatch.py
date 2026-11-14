@@ -12,6 +12,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
+from contextlib import nullcontext
 from threading import Semaphore
 from typing import TYPE_CHECKING, Any
 from collections.abc import Callable
@@ -91,7 +92,7 @@ def task_path_context(task: ReviewTask) -> PathContext | None:
 
 def dispatch_with_retry(
     task: ReviewTask,
-    semaphore: Semaphore,
+    semaphore: Semaphore | None = None,
     state: Any = None,
 ) -> DispatchResult:
     """Dispatch a single review with retry on failure.
@@ -102,7 +103,8 @@ def dispatch_with_retry(
 
     Args:
         task: The review task to dispatch.
-        semaphore: Semaphore for rate limiting concurrent dispatches.
+        semaphore: Semaphore for rate limiting concurrent dispatches;
+            None (spec #91 T5) disables rate limiting — serial callers use it.
         state: Optional PipelineState (spec #81 §2 rev4) — threaded to
             dispatch_skill so wave dispatches carry loop_id/feedback_ref;
             review-group is the largest failure family, wave DISPATCH
@@ -115,7 +117,7 @@ def dispatch_with_retry(
         task.attempts = attempt + 1
         result: DispatchResult | None = None
         try:
-            with semaphore:
+            with nullcontext() if semaphore is None else semaphore:
                 log.info(
                     "parallel_dispatch_attempt",
                     skill=task.skill,

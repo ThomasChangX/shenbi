@@ -55,7 +55,6 @@ tests/test_staged_sidecar_commit.py::_auto_settle_parallel
 tests/unit/facts/test_settle_ops.py::_commit_staging_for_checkpoint
 tests/unit/gates/g4/test_cold_opening_triple.py::_classify_g4_failures
 tests/unit/gates/g4/test_shadow_demotion.py::_classify_g4_failures
-tests/unit/gates/g4/test_shadow_demotion.py::_gate_passed
 tests/unit/gates/g4/test_shadow_demotion.py::_shadow_route_g4
 tests/unit/gates/g4/test_spec99_h4_redgreen.py::_replace_section
 tests/unit/gates/test_word_band_unified.py::_check_word_count_bounds

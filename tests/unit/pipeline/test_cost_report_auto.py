@@ -45,6 +45,8 @@ def test_complete_chapter_renders_report(tmp_path, monkeypatch):
             retry_feedback={},
             streak_monitor_rewinds={},  # spec #83 T4 字段入 mock
         ),
+        # spec #91 T4: chapter-close sweep routes through the locked accessor.
+        clear_retry_feedback_prefix=lambda prefix: None,
     )
     with (
         patch.object(chapter_loop, "_check_world_file_freshness", return_value=None),

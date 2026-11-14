@@ -30,6 +30,19 @@ class GateStatus(StrEnum):
     UNIMPLEMENTED = "UNIMPLEMENTED"
 
 
+def gate_passed(result: Any, *, accept_skip: bool = False) -> bool:
+    """Single source for gate-result pass/fail decisions (spec #91 T1).
+
+    ``accept_skip`` makes the site's SKIP tolerance explicit: trigger/closure
+    sites pass True (SKIP counts as passed — pinned pre-existing behavior);
+    all other sites default to PASS-only.
+    """
+    status = str(result.get("status", ""))
+    if accept_skip:
+        return status in (GateStatus.PASS, GateStatus.SKIP)
+    return status == GateStatus.PASS
+
+
 class PhaseState(StrEnum):
     """Phase state-machine states (values match existing phase-state/*.json)."""
 

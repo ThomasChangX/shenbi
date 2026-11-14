@@ -155,100 +155,102 @@ def archive_ledger(project_dir: Path, resolved_through: int, spec: LedgerSpec) -
     """
     live_path = project_dir / spec.live_rel
     archive_path = project_dir / spec.archive_rel
-    live = live_path.read_text(encoding="utf-8")
-
-    if not re.search(rf"^##\s*{spec.overview_heading}\s*$", live, re.MULTILINE) or (
-        not re.search(rf"^##\s*{spec.details_heading}\s*$", live, re.MULTILINE)
-    ):
-        raise ValueError(
-            f"{spec.live_rel} 缺少 {spec.overview_heading}/{spec.details_heading} 结构——"
-            "拒绝在异常布局上归档（degrade loudly）。"
-        )
-
-    # Section spans BOUNDED to the details section (``## <details>`` up to
-    # the next ``##`` heading) — entries live there. The unbounded scan made
-    # the LAST entry's span swallow every trailing section (推进表/约束检查
-    # 表…) and the tombstone splice destroyed them (rebudget-drill find on
-    # the live-shaped rig).
-    m_det = re.search(rf"^##\s*{spec.details_heading}\s*$", live, re.MULTILINE)
-    assert m_det is not None  # guaranteed by the shape check above
-    det_body_start = m_det.end()
-    det_after = live[det_body_start:]
-    m_det_next = re.search(r"^##\s+\S", det_after, re.MULTILINE)
-    det_body_end = det_body_start + (
-        m_det_next.start() if m_det_next is not None else len(det_after)
-    )
-    sections: list[tuple[str, str, int, int]] = []  # (id, heading_line, start, end)
-    starts = [
-        hm
-        for hm in spec.section_heading_re.finditer(live)
-        if det_body_start <= hm.start() < det_body_end
-    ]
-    for i, hm in enumerate(starts):
-        end = starts[i + 1].start() if i + 1 < len(starts) else det_body_end
-        line_end = live.find("\n", hm.start())
-        heading = live[hm.start() : line_end if line_end != -1 else end].rstrip()
-        sections.append((spec.canon(hm.group(2)), heading, hm.start(), end))
-
-    to_archive: list[
-        tuple[str, str, str, str, int, int]
-    ] = []  # (id, heading, text, end, start, span_end)
-    for hid, heading, start, end in sections:
-        text = live[start:end]
-        fields = _section_fields(spec, text)
-        if fields.get(spec.state_field) != "RESOLVED":
-            continue
-        if "archived_to" in fields:
-            continue
-        rend = _resolve_end(spec, fields)
-        if not rend.isdigit() or int(rend) > resolved_through:
-            continue
-        to_archive.append((hid, heading, text.rstrip() + "\n", rend, start, end))
-
-    if not to_archive:
-        return []
-
-    archived_ids = [hid for hid, *_ in to_archive]
-
-    # 1) Live ledger: tombstone each archived section, drop its overview row.
-    # Splice by the EXACT computed span (descending so earlier spans stay
-    # valid) — the historical replace-by-text silently missed when the last
-    # section had no trailing newline (rstripped form not a substring),
-    # leaving the row dropped but NO tombstone: every later run re-archived
-    # the same section into the archive (review Important #2).
-    out = live
-    for hid, heading, text, rend, start, end in sorted(to_archive, key=lambda x: -x[4]):
-        fields = _section_fields(spec, text)
-        tombstone = (
-            f"{heading}\n\n"
-            f"{spec.state_bullet('RESOLVED')}\n"
-            f"{spec.span_bullet(fields.get(spec.span_field, '-'), rend)}\n"
-            f"- archived_to: {spec.archive_rel}\n\n"
-        )
-        out = out[:start] + tombstone + out[end:]
-    lines = out.split("\n")
-    out = "\n".join(
-        line
-        for line in lines
-        if not (line.strip().startswith("|") and _row_entry_id(spec, line) in archived_ids)
-    )
-    note = (
-        f"> 已归档 {len(archived_ids)} 条终态条目（RESOLVED，见 {spec.archive_rel}）；"
-        f"{spec.overview_heading}行已同步移除。"
-    )
-    note_re = re.compile(r"^> 已归档.*$", re.MULTILINE)
-    if note_re.search(out):
-        out = note_re.sub(note, out, count=1)
-    else:
-        out = re.sub(
-            rf"^(##\s*{spec.overview_heading}\s*)$",
-            r"\1\n\n" + note,
-            out,
-            count=1,
-            flags=re.MULTILINE,
-        )
-
+    # spec #91 T3: the whole read-merge-write transaction runs under the
+    # per-path lock (truth_io contract) — the read used to live outside it.
     with path_lock(live_path):
+        live = live_path.read_text(encoding="utf-8")
+
+        if not re.search(rf"^##\s*{spec.overview_heading}\s*$", live, re.MULTILINE) or (
+            not re.search(rf"^##\s*{spec.details_heading}\s*$", live, re.MULTILINE)
+        ):
+            raise ValueError(
+                f"{spec.live_rel} 缺少 {spec.overview_heading}/{spec.details_heading} 结构——"
+                "拒绝在异常布局上归档（degrade loudly）。"
+            )
+
+        # Section spans BOUNDED to the details section (``## <details>`` up to
+        # the next ``##`` heading) — entries live there. The unbounded scan made
+        # the LAST entry's span swallow every trailing section (推进表/约束检查
+        # 表…) and the tombstone splice destroyed them (rebudget-drill find on
+        # the live-shaped rig).
+        m_det = re.search(rf"^##\s*{spec.details_heading}\s*$", live, re.MULTILINE)
+        assert m_det is not None  # guaranteed by the shape check above
+        det_body_start = m_det.end()
+        det_after = live[det_body_start:]
+        m_det_next = re.search(r"^##\s+\S", det_after, re.MULTILINE)
+        det_body_end = det_body_start + (
+            m_det_next.start() if m_det_next is not None else len(det_after)
+        )
+        sections: list[tuple[str, str, int, int]] = []  # (id, heading_line, start, end)
+        starts = [
+            hm
+            for hm in spec.section_heading_re.finditer(live)
+            if det_body_start <= hm.start() < det_body_end
+        ]
+        for i, hm in enumerate(starts):
+            end = starts[i + 1].start() if i + 1 < len(starts) else det_body_end
+            line_end = live.find("\n", hm.start())
+            heading = live[hm.start() : line_end if line_end != -1 else end].rstrip()
+            sections.append((spec.canon(hm.group(2)), heading, hm.start(), end))
+
+        to_archive: list[
+            tuple[str, str, str, str, int, int]
+        ] = []  # (id, heading, text, end, start, span_end)
+        for hid, heading, start, end in sections:
+            text = live[start:end]
+            fields = _section_fields(spec, text)
+            if fields.get(spec.state_field) != "RESOLVED":
+                continue
+            if "archived_to" in fields:
+                continue
+            rend = _resolve_end(spec, fields)
+            if not rend.isdigit() or int(rend) > resolved_through:
+                continue
+            to_archive.append((hid, heading, text.rstrip() + "\n", rend, start, end))
+
+        if not to_archive:
+            return []
+
+        archived_ids = [hid for hid, *_ in to_archive]
+
+        # 1) Live ledger: tombstone each archived section, drop its overview row.
+        # Splice by the EXACT computed span (descending so earlier spans stay
+        # valid) — the historical replace-by-text silently missed when the last
+        # section had no trailing newline (rstripped form not a substring),
+        # leaving the row dropped but NO tombstone: every later run re-archived
+        # the same section into the archive (review Important #2).
+        out = live
+        for hid, heading, text, rend, start, end in sorted(to_archive, key=lambda x: -x[4]):
+            fields = _section_fields(spec, text)
+            tombstone = (
+                f"{heading}\n\n"
+                f"{spec.state_bullet('RESOLVED')}\n"
+                f"{spec.span_bullet(fields.get(spec.span_field, '-'), rend)}\n"
+                f"- archived_to: {spec.archive_rel}\n\n"
+            )
+            out = out[:start] + tombstone + out[end:]
+        lines = out.split("\n")
+        out = "\n".join(
+            line
+            for line in lines
+            if not (line.strip().startswith("|") and _row_entry_id(spec, line) in archived_ids)
+        )
+        note = (
+            f"> 已归档 {len(archived_ids)} 条终态条目（RESOLVED，见 {spec.archive_rel}）；"
+            f"{spec.overview_heading}行已同步移除。"
+        )
+        note_re = re.compile(r"^> 已归档.*$", re.MULTILINE)
+        if note_re.search(out):
+            out = note_re.sub(note, out, count=1)
+        else:
+            out = re.sub(
+                rf"^(##\s*{spec.overview_heading}\s*)$",
+                r"\1\n\n" + note,
+                out,
+                count=1,
+                flags=re.MULTILINE,
+            )
+
         safe_write(live_path, out.encode("utf-8"))
 
     # 2) Archive: append the verbatim sections (create with frontmatter).

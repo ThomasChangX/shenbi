@@ -15,7 +15,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 from shenbi.contracts.paths import PathContext, resolve_contract_path, resolve_volume_path
 from shenbi.logging import get_logger
@@ -29,7 +28,7 @@ from shenbi.pipeline.machine import is_at_checkpoint, set_checkpoint
 from shenbi.pipeline.error_handler import handle_dispatch_failure
 from shenbi.pipeline._shared import read_volume_boundaries
 from shenbi.pipeline.state import CheckpointType, ClosureState, PipelineState
-from shenbi.status import GateStatus
+from shenbi.status import gate_passed
 
 log = get_logger(__name__)
 
@@ -120,12 +119,6 @@ CLOSURE_STEPS: list[ClosureStep] = [
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-
-
-def _gate_passed(result: dict[str, Any]) -> bool:
-    """True iff a gate result dict reports PASS or SKIP."""
-    status = str(result.get("status", ""))
-    return status in (GateStatus.PASS, GateStatus.SKIP)
 
 
 def _record_done(state: PipelineState, skill: str) -> None:
@@ -306,7 +299,7 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
         # G4: skill-specific structural validation (with volume substitution I5).
         g4_file = _resolve_closure_g4_path(step, project_dir)
         g4 = run_gate_g4(step.skill, [g4_file] if g4_file else [], project_dir)
-        if not _gate_passed(g4):
+        if not gate_passed(g4, accept_skip=True):
             if _handle_closure_failure(state, step, "gate"):
                 continue
             return False
@@ -314,7 +307,7 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
         # G3: scoring independence for requires_independent_agent skills.
         if step.requires_g3 or requires_independent(step.skill):
             g3 = run_gate_g3(step.skill, project_dir)
-            if not _gate_passed(g3):
+            if not gate_passed(g3, accept_skip=True):
                 if _handle_closure_failure(state, step, "gate"):
                     continue
                 return False

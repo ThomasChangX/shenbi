@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any, NoReturn, cast
 
 from shenbi.cli_utils import emit_json
+from shenbi.status import gate_passed
 from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts.file_list import join_gate_file_list
 from shenbi.contracts.loader import validate_skill_name
@@ -143,7 +144,7 @@ def cmd_start(phase: str, round_dir: str, project_dir: str | None) -> None:
     # F102 (spec #38): never pass str(None)=="None" as a path argument.
     g5 = run_gate("G5", [phase, str(round_dir), *([str(project_dir)] if project_dir else [])])
     step = {"action": "start", "timestamp": now_iso(), "g5_status": g5.get("status")}
-    if g5.get("status") == "PASS":
+    if gate_passed(g5):
         state["state"] = PhaseState.STARTED
         state["steps"].append(step)
         save_state(round_dir, state)
@@ -375,7 +376,7 @@ def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
         "timestamp": now_iso(),
         "g5_status": g5.get("status"),
     }
-    if g5.get("status") != "PASS":
+    if not gate_passed(g5):
         state["steps"].append({**step, "g5_must_fix": g5.get("must_fix", [])})
         save_state(round_dir, state)
         emit_json({"status": CommandStatus.BLOCKED, "phase": phase, "g5": g5})

@@ -25,7 +25,7 @@ from collections.abc import Callable, Mapping
 from shenbi.config.thresholds import resolve_audit_dimensions
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
-from shenbi.status import GateStatus
+from shenbi.status import gate_passed
 
 log = get_logger(__name__)
 
@@ -206,11 +206,6 @@ def audit_report_paths(chapter: int, skill: str) -> list[str]:
     return paths or [audit_relative_path(chapter, skill)]
 
 
-def _gate_passed(result: dict[str, object]) -> bool:
-    """True iff a gate result dict reports PASS (handles str and GateStatus)."""
-    return str(result.get("status", "")) == GateStatus.PASS
-
-
 # ---------------------------------------------------------------------------
 # Sub-orchestrator
 # ---------------------------------------------------------------------------
@@ -245,7 +240,7 @@ def run_audit_layer(
             _accumulate_pattern_input(project_dir, chapter)
 
         g4 = run_gate_g4(skill, [rel_path], project_dir)
-        if not _gate_passed(g4):
+        if not gate_passed(g4):
             log.error("audit_g4_failed", skill=skill, chapter=chapter, g4=g4)
             result.blocking_found = True
             result.issues.append(_issue(skill, chapter, "BLOCKING", "g4", rel_path, detail=g4))

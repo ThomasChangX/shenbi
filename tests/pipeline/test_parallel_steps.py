@@ -7,7 +7,7 @@ the main thread merges. No _state_lock.
 import inspect
 from unittest.mock import MagicMock, patch
 
-from shenbi.pipeline.chapter_loop import run_parallel_post_draft_steps
+from shenbi.pipeline.chapter_loop import run_post_draft_pair
 from shenbi.pipeline.state import PipelineState
 
 
@@ -27,7 +27,7 @@ class TestParallelPostDraft:
         state = PipelineState.default("/tmp/test-project")
         state.chapter_loop.current_chapter = 3
 
-        lifecycle_result, settling_result = run_parallel_post_draft_steps(state)
+        lifecycle_result, settling_result = run_post_draft_pair(state)
 
         assert lifecycle_result.success and settling_result.success
         skills_called = [c.args[0] for c in mock_dispatch.call_args_list]
@@ -60,7 +60,7 @@ class TestParallelPostDraft:
 
         # Should not raise; lifecycle failure is logged but does not
         # block state-settling from succeeding.
-        run_parallel_post_draft_steps(state)
+        run_post_draft_pair(state)
 
         # Both were dispatched
         assert mock_dispatch.call_count == 2
@@ -86,7 +86,7 @@ class TestParallelPostDraft:
         state = PipelineState.default("/tmp/test-project")
         state.chapter_loop.current_chapter = 3
 
-        lifecycle_result, settling_result = run_parallel_post_draft_steps(state)
+        lifecycle_result, settling_result = run_post_draft_pair(state)
         assert lifecycle_result.success
         assert not settling_result.success
 
@@ -106,7 +106,7 @@ class TestParallelPostDraft:
         # calling (main) thread — the workers' results are merged after
         # future.result() returns (chapter_loop.py "merge on the main thread
         # ONLY"). The textual grep above cannot see call-site discipline;
-        # this pins the observable contract: after run_parallel_post_draft_steps
+        # this pins the observable contract: after run_post_draft_pair
         # returns, both steps' results are merged into the state.
         import threading as _threading
 
@@ -122,7 +122,7 @@ class TestParallelPostDraft:
         with patch("shenbi.pipeline.state.merge_step_result", tracking_merge):
             state = PipelineState.default("/tmp/test-project")
             state.chapter_loop.current_chapter = 4
-            run_parallel_post_draft_steps(state)
+            run_post_draft_pair(state)
         main_id = _threading.get_ident()
         assert merge_thread_ids and all(tid == main_id for tid in merge_thread_ids), (
             "state merges must happen on the calling thread only (single-writer)"
@@ -228,7 +228,7 @@ class TestParallelRetryFeedbackWire:
             "G4.ss.matrix_structure:character_matrix.md:line_collapse:staged=22<live*0.9=73"
         )
 
-        run_parallel_post_draft_steps(state)
+        run_post_draft_pair(state)
 
         settling_call = mock_dispatch.call_args_list[1]
         settling_prompt = settling_call.args[2]
@@ -244,7 +244,7 @@ class TestParallelRetryFeedbackWire:
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.modify_feedback = "改用送灯回铺收尾"
 
-        run_parallel_post_draft_steps(state)
+        run_post_draft_pair(state)
 
         prompts = [c.args[2] for c in mock_dispatch.call_args_list]
         assert sum("Human review feedback" in p for p in prompts) == 1

@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any, assert_never
 
 from shenbi.cli_utils import echo, emit_json
+from shenbi.status import gate_passed
 from shenbi.logging import configure_logging, get_logger
 from shenbi.pipeline.filelock_utils import ReadLock, WriteLock
 from shenbi.pipeline.chapter_loop import chapter_sort_key
@@ -50,7 +51,7 @@ from shenbi.pipeline.state import (
     ReviewDecision,
 )
 from shenbi.safe_write import safe_write
-from shenbi.status import CommandStatus, GateStatus
+from shenbi.status import CommandStatus
 
 
 # Orchestration loop: phase dispatch, trigger checks, closure transition
@@ -220,7 +221,7 @@ def _re_dispatch_g4_must_fix(
     if not g4_files:
         return None
     g4 = run_gate_g4(skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
-    if str(g4.get("status")) == GateStatus.PASS:
+    if gate_passed(g4):
         return None
     # spec #82 T3: fourth consumption point — history-dependent shadow FAILs
     # (cold-streak class) deterministically recur here after checkpoint
@@ -252,7 +253,7 @@ def _re_dispatch_g4_must_fix(
         skill=skill,
         rk=f"ch{chapter}-",
     )
-    if str(routed.get("status")) == GateStatus.PASS:
+    if gate_passed(routed):
         return None  # all demoted → treat as passed for the redo decision
     return remaining if remaining is not None else list(g4.get("must_fix", []))
 
@@ -1321,10 +1322,13 @@ def cmd_review(args: argparse.Namespace) -> int:
 
                     # enrich=False：人审自由文本逐字透传（G4 模板头会污染裁决
                     # 语义）；族仍入累积史——后续机器败轮以防回退令持存人审约束
-                    state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{trig['skill']}"] = (
-                        accumulate_retry_feedback(
-                            state, f"ch{cp.chapter}-{trig['skill']}", [feedback], enrich=False
-                        )
+                    state.set_retry_feedback(
+                        f"ch{cp.chapter}-{trig['skill']}",
+                        (
+                            accumulate_retry_feedback(
+                                state, f"ch{cp.chapter}-{trig['skill']}", [feedback], enrich=False
+                            )
+                        ),
                     )
                 else:
                     idx = state.chapter_loop.step_index
@@ -1342,10 +1346,13 @@ def cmd_review(args: argparse.Namespace) -> int:
                         )
 
                         skill = ESCALATION_PIPELINE_TARGET.get(skill, skill)
-                        state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{skill}"] = (
-                            accumulate_retry_feedback(
-                                state, f"ch{cp.chapter}-{skill}", [feedback], enrich=False
-                            )
+                        state.set_retry_feedback(
+                            f"ch{cp.chapter}-{skill}",
+                            (
+                                accumulate_retry_feedback(
+                                    state, f"ch{cp.chapter}-{skill}", [feedback], enrich=False
+                                )
+                            ),
                         )
 
             # G4: On modify, queue re-dispatches for derived truth files
