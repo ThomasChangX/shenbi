@@ -47,11 +47,16 @@ def test_detects_str_wrapped_and_value_wrapped_compares(tmp_path):
 
 
 def test_scan_anchored_to_repo_root(tmp_path, monkeypatch):
-    # audit-T3 I-2: scan() must not go CWD-blind — domain is __file__-anchored
-    import os
-
+    # audit-T3 I-2 + fix-review R-2: scan() must really sweep the domain
+    # from any cwd — assert file coverage, not just an empty result.
     monkeypatch.chdir(tmp_path)
-    from tools.lint_gate_status_comparisons import scan
+    from tools.lint_gate_status_comparisons import DOMAIN, scan
 
-    assert scan() == []  # still finds the real repo face from any cwd
-    assert os.getcwd() == str(tmp_path)
+    assert scan() == []  # real repo face (clean post-rewiring) from any cwd
+    py_files = [
+        f
+        for root in DOMAIN
+        for f in (root.rglob("*.py") if root.is_dir() else [root])
+        if f.exists()
+    ]
+    assert len(py_files) >= 45  # 44 pipeline files + phase_runner.py

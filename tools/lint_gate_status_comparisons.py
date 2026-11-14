@@ -11,6 +11,7 @@ Known residuals (spec r2.3c + audit-T3, deliberately out of scope):
 - indirect compares through an intermediate variable
 - GateStatus accessed under a non-default alias (``from shenbi.status
   import GateStatus as GS`` then ``== GS.PASS``)
+- case-mangling call wrappers on the literal side (``== "PASS".upper()``-family)
 """
 
 from __future__ import annotations
@@ -66,6 +67,8 @@ def _is_pass_literal(node: ast.AST) -> bool:
         and node.value.id == GATE_STATUS_ENUM
     ):
         return True
+    if isinstance(node, ast.Attribute) and node.attr == "value":
+        return _is_pass_literal(node.value)
     if isinstance(node, ast.Tuple):
         return any(_is_pass_literal(elt) for elt in node.elts)
     return False
