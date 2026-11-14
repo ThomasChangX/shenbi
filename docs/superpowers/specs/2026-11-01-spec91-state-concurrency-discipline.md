@@ -16,6 +16,7 @@
 ### T1 · `gate_passed` 单源 + SKIP 显式化 + 比较侧守卫（r2.3 扩容）
 `shenbi/status.py`（GateStatus 之家）增 `gate_passed(result, *, accept_skip=False) -> bool`；**8 个判定点换装**（r2.3：5 站点 + 3 漏网点——triggers.py:505/chapter_loop.py:1446/closure.py:125/audit_layer.py:209/genesis.py:284 五定义 + phase_runner.py:146 裸 `"PASS"` 比较 + pipeline/cli.py:223/:255 直比），SKIP 容忍逐调用点显式（triggers/closure 传 `accept_skip=True` 钉死现行为；其余默认 False）。**红测先行**：8 点 × PASS/SKIP/FAIL 三态现断言表落盘（钉死时若暴露真 bug → 记 deviation 转内容批，不在本 spec 顺手改语义）。
 **比较侧 lint 守卫（r2.3 新增，封 ④a 博弈路径）**：现状 `lint_status_strings` 只拦 emit 侧（dict 裸值），比较侧零覆盖——phase_runner:146 裸字符串比较存续至今即为活证据。新增 AST 守卫：a) `src/shenbi/pipeline/`+`phase_runner.py` 域内新增 `def *_gate_passed` 模式定义零容忍；b) 同域内 status 与 PASS/SKIP 的比较（`GateStatus.PASS`/`GateStatus.SKIP`/裸 `"PASS"`/`"SKIP"` 字面量）仅允许出现在 `gate_passed` 单源本体内。载体 plan 期裁定（扩 lint_status_strings 或对标 #88 finding() lint 新建）；**误报处置**：换装完成后首跑须零红（全绿基线），豁免面若有须逐一登记。
+**r2.3b 归域裁定（阶段 2 同类锚点裁定）**：①phase_runner.py:378 裸 `"PASS"` **负比较**（`!= "PASS"`）与 :146 同型——并入 T1 换装+lint 面（phase_runner 域判定点实为 2 处，判定面 8→10）；②dispatcher/executor.py:205/:250 裸 `"PASS"` 属 dispatcher 域——**不在本 spec lint 域**（登记知悉）；③chapter_loop.py:1597 `not in ("PASS", None)` 复合判定——换装为 `gate_passed(...) or status is None` 语义等价形态或 lint 豁免登记，plan 期定；④gates 域内直比（scoring/g3/g5/g6/g7/gate_manifest 各点）系门内自产自销（passed()/fail() 构造后判定）——**不在本 spec lint 域**。
 
 ### T2 · 失败协议纯函数共享（**不建 Router 类；复用既有分类器**——r2.2 改判；**安放改判 contracts 层——r2.3**）
 **r2.2 事实更正**：C33 分类器**已经存在**——`classify_dispatch_failure(exc=None, returncode=None, *, stderr="") -> FailureClass`（**r2.3 行号** dispatch_helper.py:3411，纯函数无 log/IO），parallel_dispatch.py:151-154 已在消费；`_handle_failure` 收的是 `failure_class: FailureClass | None = None`（chapter_loop.py:1931），**11 个调用点只有 4 个传**（r2.3 行号 :455/:4227/:4477/:4632），其余 **7 个**为 None（:4281/:4299/:4527/:4592/:4722/:4750/:4782——gate/output_missing 路径，语义上应保持可重试）。r2 写的 `is_deterministic_failure(gate_result) -> bool` 是**凭空新造**（gate_result 里没有 FailureClass）。
@@ -41,12 +42,12 @@
 ### T5 · 命名诚实（**r2.3 范围缩减——两正名子项已由 #87 偿还**）
 **已偿还划除（r2.3）**：`_dispatch_with_retry`→`dispatch_with_retry`、`_dispatch_serial_reviews`→`dispatch_serial_reviews` 两正名已随 #87（f5aac4f6）落地，src+tests 旧名零残留——本 spec 不再做。
 - `run_parallel_post_draft_steps` → `run_post_draft_pair`（名说 parallel 实 SEQUENTIALLY，docstring 自认；消费面 r2.3 刷新：chapter_loop:4179 内部 1 处 + tests/pipeline/test_parallel_steps.py）；
-- semaphore 可选化：`dispatch_with_retry(task, semaphore, state=None)` 的 semaphore 仍是**必填位置参数**（parallel_dispatch.py:94，体内 :118 `with semaphore:` 无 None 分支），`dispatch_serial_reviews` 的 `Semaphore(1)` 戏法（chapter_loop.py:3780）仍在——改为 `semaphore: Semaphore | None = None` + `nullcontext()` 分支后删除戏法（stdlib 一行，优于自造 no-op 信号量对象）；
+- semaphore 可选化：`dispatch_with_retry(task, semaphore, state=None)` 的 semaphore 仍是**必填位置参数**（parallel_dispatch.py:94，体内 :118 `with semaphore:` 无 None 分支），`dispatch_serial_reviews` 的 `Semaphore(1)` 戏法（chapter_loop.py:3780）仍在——改为 `semaphore: Semaphore | None = None` + `nullcontext()` 分支后删除戏法（stdlib 一行，优于自造 no-op 信号量对象）；**r2.3b 知悉**：parallel_dispatch.py:269 `Semaphore(MAX_CONCURRENT_REVIEWS)`（=4 并行评审限流器本体）系真限流非戏法，**保留不动**——验收 5 域限 chapter_loop.py 正确；
 - **接线清单（r2.3 刷新）**：r2.2 清单大半失效（test_retry_taxonomy 等已用新名）；实施时以 `grep -rn "run_parallel_post_draft_steps\|Semaphore" src/ tests/` 现场枚举为准。**已验证无影响**：pipeline 无 ProcessPool/pickle（r2.3 复跑 N7 零命中）、log event 不含函数名。
 
 ## 2. 验收
 
-1. `grep -rn "def _gate_passed" src/` 唯一；**8 判定点全部换装或显式豁免（r2.3）**——phase_runner.py:146 裸 `"PASS"` 与 pipeline/cli.py:223/:255 直比一并收编；**比较侧 lint 守卫落盘且首跑零红（r2.3 新增）**；
+1. `grep -rn "def _gate_passed" src/` 唯一；**10 判定点全部换装或显式豁免（r2.3+r2.3b：5 定义 + phase_runner.py:146/:378 裸 `"PASS"` 两点 + pipeline/cli.py:223/:255 直比 + chapter_loop.py:1597 复合判定）**；**比较侧 lint 守卫落盘且首跑零红（r2.3 新增）**；
 2. T3 确定性并发红测绿（交错编排，无 sleep；**红绿两测形态不同**——红=丢失更新，绿=锁内读结构断言+双写者共存）；
 3. `grep -n "retry_budget_consumed\[" src/shenbi/pipeline/chapter_loop.py` 零；**retry_feedback 裸写零（定义见 T4：赋值含域外 triggers/cli 点；pop 含 :2416/:1244 与 triggers:746；读点一并经存取器）**；`increment_retry/reset_retry/increment_retry_budget` 生产调用方 ≥1（T4 接线后）；
 4. genesis 差异表落盘（**r2.3 预判不等价——rc=2 现 genesis 烧满 3 次重试 vs chapter_loop 零重试**；等价则换装；不等价挂用户裁定）；
@@ -58,3 +59,5 @@
 T3 独立可先行；T4/T5 的 chapter_loop 调用点若与 #87 T3 撞面 → #87 先行、本 spec 适配新结构（不并行施工同函数）——**#87 已完结（2026-11-13，PR #331/#332），约束满足，r2.3 行号已按拆分后新树重锚**；T4/T5 写点与 #95 T4/T5 同域 → #95 先行——**#95 已完结（PR #287-#295），约束满足，写点清单已按 #95 落地面重枚举（r2.3）**。实施时 plan 首步仍须按符号 re-anchor（INDEX 行号锚纪律）。
 
 **r2.3 附注**：dispatcher/executor.py:208/:253 存在 log event 名 `gate_passed`（字符串），与 T1 新公共函数无实冲突——知悉即可，不改。
+
+**r2.3b 域外姊妹写点登记（阶段 2 发现，明确不并入本 spec）**：genesis 域 retry_feedback 裸写 6 点（genesis.py:632/:658、cli.py:1085/:1093/:1097/:1294）+pop 1 点（genesis.py:648）；genesis.retry_counts 裸写 2 点（genesis.py:444/:677）；closure_retry_counts 裸写 1 点（closure.py:217）——与 T4 同根因但属 genesis/closure 域，本 spec T4 定义域=chapter_loop 域（单 spec 原子性）；**记挂账**：若 T4 接线后需同域治理，另立小 spec 或并入后续批次。
