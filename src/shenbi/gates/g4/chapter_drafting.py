@@ -630,7 +630,6 @@ class CheckContext:
     owner_aliases: dict[str, set[str]]
     project_dir: str | None
     rd: str | None
-    repo_root: str | None
 
 
 def _load_cd_oracles(
@@ -687,7 +686,6 @@ def _build_check_context(
     pf: Path,
     rd: str | None,
     project_dir: str | None,
-    repo_root: str | None,
     props_facts: dict[str, dict[str, str]] | None,
     counters_facts: dict[str, dict[str, int]] | None,
     known_names: set[str] | None,
@@ -768,7 +766,6 @@ def _build_check_context(
         owner_aliases=owner_aliases,
         project_dir=project_dir,
         rd=rd,
-        repo_root=repo_root,
     )
 
 
@@ -1508,7 +1505,6 @@ def g4_chapter_drafting(
             pf,
             rd,
             project_dir,
-            repo_root,
             props_facts,
             counters_facts,
             known_names,
