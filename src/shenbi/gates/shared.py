@@ -806,6 +806,60 @@ G4_CHECKER_SKILLS = {
     "shenbi-worldbuilding",
 }
 
+# Spec #89 T6: generic-fallback roster — the explicit declaration that G0.12
+# reconciles against set(all_skills()) == set(G4_CHECKER_SKILLS) | GENERIC_ONLY_ROSTER.
+# A new generic skill MUST be registered here (or in G4_CHECKER_SKILLS when it
+# gets a dedicated checker); this turns the implicit FS dependency into an
+# explicit declaration — the fake check becomes falsifiable without importing g4.
+GENERIC_ONLY_ROSTER: frozenset[str] = frozenset(
+    {
+        "shenbi-anchor-curate",
+        "shenbi-canon-import",
+        "shenbi-chapter-pattern",
+        "shenbi-character-extraction",
+        "shenbi-drift-guidance",
+        "shenbi-foreshadowing-plant",
+        "shenbi-foreshadowing-recall",
+        "shenbi-foreshadowing-resolve",
+        "shenbi-foreshadowing-track",
+        "shenbi-foundation-review",
+        "shenbi-import-analysis",
+        "shenbi-intent-management",
+        "shenbi-review-anti-ai",
+        "shenbi-review-character",
+        "shenbi-review-continuity",
+        "shenbi-review-dialogue",
+        "shenbi-review-era",
+        "shenbi-review-fanfic",
+        "shenbi-review-foreshadowing",
+        "shenbi-review-group-character",
+        "shenbi-review-group-craft",
+        "shenbi-review-group-factual",
+        "shenbi-review-group-plan",
+        "shenbi-review-highpoint",
+        "shenbi-review-long-span",
+        "shenbi-review-memo-compliance",
+        "shenbi-review-motivation",
+        "shenbi-review-pacing",
+        "shenbi-review-pov",
+        "shenbi-review-reader-pull",
+        "shenbi-review-sensitivity",
+        "shenbi-review-spinoff",
+        "shenbi-review-texture",
+        "shenbi-review-world-rules",
+        "shenbi-sequel-writing",
+        "shenbi-short-outline",
+        "shenbi-short-packaging",
+        "shenbi-snapshot-manage",
+        "shenbi-style-learning",
+        "shenbi-truth-sync",
+        "shenbi-volume-consolidation",
+        "shenbi-world-extraction",
+        "shenbi-writing-skills",
+        "using-shenbi",
+    }
+)
+
 # Default lists (used when genre-config.json doesn't provide them)
 FATIGUE_BASE = [
     "突然",
