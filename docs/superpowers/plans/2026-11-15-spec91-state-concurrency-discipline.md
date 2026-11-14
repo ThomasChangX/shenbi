@@ -159,6 +159,7 @@ chapter_loop.py（默认 PASS-only）：
 #   新: if not gate_passed(rec["g3"]):
 ```
 audit_layer.py（:248 换装；:209 删）、genesis.py（:644/:649/:708 换装；:284 删）同默认 pattern。
+**unused-import 清理（r2 审查 M1）**：triggers.py/closure.py/pipeline-cli.py 的 `GateStatus` import 在 def 删除/换装后若失用（ruff F401）——按 ruff 提示逐文件删除；chapter_loop/genesis 的 GateStatus 若仍有他处消费则保留。
 
 phase_runner.py:
 ```python
@@ -204,7 +205,7 @@ git commit -m "refactor: spec #91 T1 11 判定点换装 gate_passed 单源——
 
 **Interfaces:**
 - Produces: lint 守卫（验收 1 后半）——a) `src/shenbi/pipeline/**`+`src/shenbi/phase_runner.py` 域内 `def *_gate_passed` 模式定义零容忍；b) 同域 Compare 节点中 status 与 PASS/SKIP（`GateStatus.PASS`/`GateStatus.SKIP`/裸 `"PASS"`/`"SKIP"`）比较仅允许出现在 `gate_passed` 单源本体（域外 status.py 天然不在扫描面）。已知残余不拦：反演式（`== "FAIL"`）、变量间接。
-- CLI 形态对齐既有 lint：`uv run python tools/lint_gate_status_comparisons.py` → 零违规 exit 0 / 违规逐行打印 exit 1。
+- CLI 形态对齐既有 lint：`uv run python tools/lint_gate_status_comparisons.py` → 零违规 exit 0 / 违规逐行打印 exit 1。**scan 签名（r2 审查 I4）**：`scan(roots: list[Path] | None = None) -> list[str]`——None 时内建默认域 `DOMAIN = [Path("src/shenbi/pipeline"), Path("src/shenbi/phase_runner.py")]`（CLI 无参跑默认域；测试 `scan()` 即首跑零红基线——gates/gate_manifest.py:195、g7.py:151 等域外命中不进面）。
 
 - [ ] **Step 1: 红测（违规样本 tmp 构造 + 干净面零违规）**
 
@@ -220,21 +221,21 @@ import lint_gate_status_comparisons as lgc
 
 def test_clean_tree_zero_violations():
     # against the real repo src face (post-Task-2 rewiring)
-    out = lgc.scan(Path("src/shenbi"))
+    out = scan()  # default domain = pipeline/ + phase_runner.py (I4: domain built-in)
     assert out == []
 
 
 def test_detects_new_private_definition(tmp_path):
     f = tmp_path / "bad.py"
     f.write_text("def _gate_passed(r):\n    return True\n")
-    out = lgc.scan_file(f.read_text(), str(f))
+    out = scan_file(f.read_text(), str(f))
     assert any("_gate_passed" in v for v in out)
 
 
 def test_detects_bare_compare(tmp_path):
     f = tmp_path / "bad2.py"
     f.write_text('if g4.get("status") == "PASS":\n    pass\n')
-    out = lgc.scan_file(f.read_text(), str(f))
+    out = scan_file(f.read_text(), str(f))
     assert any("PASS" in v for v in out)
 
 
@@ -244,7 +245,7 @@ def test_allows_enum_emit_and_non_status_compare(tmp_path):
         "x = GateStatus.PASS.value  # emit, not compare\n"
         'if name == "PASS-ish":\n    pass\n'  # not a status-keyed compare
     )
-    assert lgc.scan_file(f.read_text(), str(f)) == []
+    assert scan_file(f.read_text(), str(f)) == []
 ```
 
 （AST 实现要点：`ast.walk` 收 `Compare` 节点；左侧 `.get("status"/"state"/"classification"/"s")` 调用或 `Subscript` status 键，右侧/左侧常量 `"PASS"/"SKIP"` 或 `GateStatus.PASS/SKIP` 属性 → 违规；`FunctionDef` 名匹配 `*_gate_passed` → 违规；扫描根=`src/shenbi/pipeline`+`src/shenbi/phase_runner.py`；豁免=无（status.py 域外）。`main()` 对齐 lint_status_strings 的 exit 约定。）
@@ -333,7 +334,7 @@ Run: `uv run pytest tests/unit/contracts/test_failure_classify.py tests/unit/pip
 - [ ] **Step 6: Commit**
 
 ```bash
-tests/lock-tool-hashes.sh && git add src/shenbi/contracts/failure.py src/shenbi/pipeline/dispatch_helper.py deps.json docs/superpowers/specs/2026-11-01-spec91-state-concurrency-discipline.md
+tests/lock-tool-hashes.sh && git add src/shenbi/contracts/failure.py src/shenbi/pipeline/dispatch_helper.py tests/tiers/deps.json docs/superpowers/specs/2026-11-01-spec91-state-concurrency-discipline.md
 git commit -m "refactor: spec #91 T2 classify_dispatch_failure 迁 contracts/failure.py+re-export——genesis 差异表落盘挂裁定"
 ```
 
@@ -345,6 +346,7 @@ git commit -m "refactor: spec #91 T2 classify_dispatch_failure 迁 contracts/fai
 
 **Files:**
 - Modify: `src/shenbi/pipeline/ledger_archive.py:146-252`（`archive_ledger`——:158 读+锚检/拼接整体移入 :251 `with path_lock(live_path):`；归档半边 :260-265 不动=蓝本）
+- Modify: `src/shenbi/pipeline/truth_io.py`（新增公共探针 `path_lock_held(path: Path | str) -> bool`——`entry = _PATH_LOCKS.get(str(path)); return entry is not None and entry[0].locked()`；纯读无副作用；供绿测 spy 与后续锁纪律测试用——r2 审查 I2：避免 tests import `_PATH_LOCKS` 撞 lint_private_imports 基线[增量=零政策]）
 - Test: `tests/unit/pipeline/test_ledger_archive_lock_window.py`（新）
 
 **Interfaces:**
@@ -360,14 +362,14 @@ import threading
 from pathlib import Path
 import pytest
 from shenbi.pipeline import ledger_archive as la
-from shenbi.pipeline.truth_io import _PATH_LOCKS
+# spy uses the PUBLIC probe added in this task (r2 审查 I2：tests 私有 import 会撞 lint_private_imports 基线增量=零)
 
 # fixture MUST pass POOL_SPEC shape gates: `## 总览` + `## 详情` + a
 # 详情-section matching HOOK_HEADING_RE (blueprint: tests/unit/pipeline/test_ledger_archive.py:150-155)
 LIVE_TEXT = (
     "---\ntype: truth\n---\n\n# 伏笔池\n\n## 总览\n\n| Hook ID（钩子名） | 当前生命周期 | 种植章 |\n"
-    "| MH01（灵印） | OPEN | 4 |\n\n## 详情\n\n### MH01（灵印）\n\n"
-    "- lifecycle_state: OPEN\n- resolve_chapter: 30\n"
+    "| MH01（灵印） | RESOLVED | 4 |\n\n## 详情\n\n### MH01（灵印）\n\n"
+    "- lifecycle_state: RESOLVED\n- resolve_chapter: 30\n"
 )
 B_LINE = "- lifecycle_state: RESOLVED-by-b\n"  # B's committed update
 
@@ -416,7 +418,7 @@ def test_red_thread_b_update_lost(tmp_path, monkeypatch):
 
 （`POOL_SPEC` 为实际模块常量（ledger_archive.py:82）；`resolved_through=30` 使 RESOLVED 判定入窗——若 re-anchor 后窗口判定不同，按 `test_ledger_archive.py` 既有断言调参；红测断言「B 丢失」在当前码为 True=测试通过=缺陷被钉死。）
 
-- [ ] **Step 2: 跑红**（当前码下 B 行丢失 → 断言 `"ch999" not in ...` 通过=缺陷实存证据；若断言失败说明窗口未如预期开——调注入点行号后重试）
+- [ ] **Step 2: 跑红**（当前码下 B 行丢失 → 断言 `B_LINE not in ...` 通过=缺陷实存证据；若断言失败说明窗口未如预期开——调注入点行号后重试）
 
 - [ ] **Step 3: 绿测（修复后形态——锁内读结构断言）**
 
@@ -430,16 +432,26 @@ def test_green_read_holds_lock(tmp_path, monkeypatch):
 
     def spy(self, *a, **k):
         if self == live:  # only watch the live ledger file
-            entry = _PATH_LOCKS.get(str(self))
-            seen.append(entry is not None and entry[0].locked())  # tuple[0] = the Lock
+            seen.append(la.path_lock_held(self))  # public probe (truth_io)
         return orig(self, *a, **k)
 
     monkeypatch.setattr(Path, "read_text", spy)
     la.archive_ledger(tmp_path, 30, la.POOL_SPEC)
     assert seen and all(seen)  # every live-read happened under the path lock
+
+
+def test_green_both_writers_survive(tmp_path):  # r2 审查 I5：spec 验收 2 绿侧第二断言
+    live = tmp_path / "truth" / "pending_hooks.md"
+    live.parent.mkdir(parents=True)
+    live.write_text(LIVE_TEXT, encoding="utf-8")
+    _write_b(live)  # B commits first (properly locked)
+    la.archive_ledger(tmp_path, 30, la.POOL_SPEC)  # A archives afterwards
+    final = live.read_text(encoding="utf-8")
+    assert B_LINE in final  # B's committed update survives
+    assert "### MH01" in final or "RESOLVED" in final  # A's tombstone/archive shape present
 ```
 
-- [ ] **Step 4: 实现（:146-252 重排——`with path_lock(live_path):` 提前到 :158 读之前，函数体其余缩进一级；单写者行为零变化；归档半边不动）→ 跑双测**（红测断言现在**翻转**：修复后 B 不丢→`"ch999" not in` 失败——**将红测断言改为 `assert "ch999" in ...` 并重命名 `test_both_writers_survive`**？**否**——spec 验收 2 要求「红绿非同一测试翻转」：保留红测文件原断言但在修复 commit 前将其标记 `pytest.mark.xfail(strict=True, reason="defect fixed")`，绿测独立存在。采用 xfail(strict) 形态：修复后红测变 xfail-strict 通过=防回潮哨兵，绿测=结构断言）
+- [ ] **Step 4: 实现（:146-252 重排——`with path_lock(live_path):` 提前到 :158 读之前，函数体其余缩进一级；单写者行为零变化；归档半边不动）→ 跑双测**（红测断言现在**翻转**：修复后 B 不丢→`B_LINE not in` 失败——**将红测断言翻转为 `assert B_LINE in ...` 并改名**？**否**——spec 验收 2 要求「红绿非同一测试翻转」：保留红测文件原断言但在修复 commit 前将其标记 `pytest.mark.xfail(strict=True, reason="defect fixed")`，绿测独立存在。采用 xfail(strict) 形态：修复后红测变 xfail-strict 通过=防回潮哨兵，绿测=结构断言）
 
 Run: `uv run pytest tests/unit/pipeline/test_ledger_archive_lock_window.py -q` → 红(xfail strict)+绿 全 PASS
 
@@ -460,7 +472,7 @@ git commit -m "fix: spec #91 T3 ledger_archive 锁窗口闭合——读-合-写�
 **Files:**
 - Modify: `src/shenbi/pipeline/dispatch_helper.py:2592-2644`（`:2596 base_text = target.read_text(...)` 与 `:2599 _strip_hr_lines`、`:2610 check_new_volume_anchor` 移入 `:2618 with path_lock(target):` 内；锁内重读 `base_text = target.read_text(...) if target.exists() else ""` 后再 strip/验锚/合并）
 - Modify: `src/shenbi/pipeline/truth_io.py:79-91`（path_lock docstring 追加不可重入警告）
-- Test: `tests/unit/pipeline/test_outline_merge_lock_window.py`（新；形态同 Task 5——注入 `_strip_hr_lines` 为编排点，红=锁外读+并发写者行丢失[xfail-strict 哨兵]，绿=Path.read_text spy 断言 `_PATH_LOCKS[str(path)][0].locked()`）
+- Test: `tests/unit/pipeline/test_outline_merge_lock_window.py`（新；形态同 Task 5——注入 `_strip_hr_lines` 为编排点，红=锁外读+并发写者行丢失[xfail-strict 哨兵]，绿=Path.read_text spy 断言 `path_lock_held(path)`（Task 5 公共探针——r2 审查 I2/M4））
 
 **Interfaces:**
 - Produces: outline 合并读-验-写全锁内；`path_lock` docstring 含「Lock is NOT reentrant (threading.Lock): never call write_truth_file on the same path while holding it」。
@@ -485,7 +497,7 @@ git commit -m "fix: spec #91 T3 outline 合并锁内重读重验锚+path_lock �
 **复杂度: infra** ｜ **test_kind: tdd_red_green（新 API）+ characterization（charge/feedback 并发语义）**
 
 **Files:**
-- Modify: `src/shenbi/pipeline/state.py`（`charge_retry_budget` 后新增三方法）
+- Modify: `src/shenbi/pipeline/state.py`（`charge_retry_budget` 后新增五方法——increment_retry_budget/set_retry_feedback/pop_retry_feedback/get_retry_feedback/clear_retry_feedback_prefix）
 - Modify: `src/shenbi/pipeline/chapter_loop.py`（全部写点换装——清单见下）
 - Modify: `src/shenbi/pipeline/triggers.py:594/:746`、`src/shenbi/pipeline/cli.py:1324-1346`
 - Test: `tests/unit/pipeline/test_retry_accessors.py`（新）+ 既有 `test_state_concurrency.py` 全绿
