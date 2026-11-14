@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-14（spec #90 plan 建立——四轮审查收敛 Ready to execute）
-> **活跃 plan 数**：2 | **已归档**：141（见 `archive/`）
+> **最后更新**：2026-11-14（spec #90 完结归档——PR #340 squash；五 task 全 audit+终审 Ready）
+> **活跃 plan 数**：1 | **已归档**：142（见 `archive/`——最近归档：[2026-11-14-spec90-contract-data-single-source.md](archive/2026-11-14-spec90-contract-data-single-source.md)，PR #340：名册单源+lint 收缩+decisions 换源+allowlist JSON）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **[2026-11-14-spec90-contract-data-single-source.md](2026-11-14-spec90-contract-data-single-source.md)** ✅ ready（对应 spec #90 r2.3d；5 task：lint 先行删面+守卫→原子迁移→T3 换源→T4a JSON+附带→演练汇跑；plan 审查四轮收敛——轮 2 R1 hash-lock 重锁必做步/R2 f-string 双大括号为高价值拦截）
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行完毕待归档**——T0-T3+首跑验收全落）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
 
 ## 待执行的 spec → plan 映射
