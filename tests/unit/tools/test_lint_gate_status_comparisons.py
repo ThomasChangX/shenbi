@@ -33,3 +33,25 @@ def test_allows_enum_emit_and_non_status_compare(tmp_path):
         'if name == "PASS-ish":\n    pass\n'  # not a status-keyed compare
     )
     assert scan_file(f.read_text(), str(f)) == []
+
+
+def test_detects_str_wrapped_and_value_wrapped_compares(tmp_path):
+    # audit-T3 I-1: str()/`.value` wrapped escape family — must be caught
+    f = tmp_path / "bad3.py"
+    f.write_text(
+        'if str(g4.get("status")) == GateStatus.PASS:\n    pass\n'
+        'if g4.get("status").value == "SKIP":\n    pass\n'
+    )
+    out = scan_file(f.read_text(), str(f))
+    assert len([v for v in out if "bare PASS/SKIP compare" in v]) == 2
+
+
+def test_scan_anchored_to_repo_root(tmp_path, monkeypatch):
+    # audit-T3 I-2: scan() must not go CWD-blind — domain is __file__-anchored
+    import os
+
+    monkeypatch.chdir(tmp_path)
+    from tools.lint_gate_status_comparisons import scan
+
+    assert scan() == []  # still finds the real repo face from any cwd
+    assert os.getcwd() == str(tmp_path)

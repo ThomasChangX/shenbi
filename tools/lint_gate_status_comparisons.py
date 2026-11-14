@@ -6,9 +6,11 @@ result's status must be judged through ``shenbi.status.gate_passed`` (the
 single source), never by comparing against PASS/SKIP literals directly.
 Also forbids re-introducing private ``def *_gate_passed`` copies.
 
-Known residuals (spec r2.3c, deliberately out of scope):
+Known residuals (spec r2.3c + audit-T3, deliberately out of scope):
 - inverted compares (``== "FAIL"`` / ``!= GateStatus.FAIL``)
 - indirect compares through an intermediate variable
+- GateStatus accessed under a non-default alias (``from shenbi.status
+  import GateStatus as GS`` then ``== GS.PASS``)
 """
 
 from __future__ import annotations
@@ -18,9 +20,11 @@ import ast
 import sys
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
 DOMAIN: list[Path] = [
-    Path("src/shenbi/pipeline"),
-    Path("src/shenbi/phase_runner.py"),
+    REPO_ROOT / "src/shenbi/pipeline",
+    REPO_ROOT / "src/shenbi/phase_runner.py",
 ]
 
 STATUS_KEYS = frozenset({"status", "state", "classification", "s"})
@@ -29,7 +33,15 @@ GATE_STATUS_ENUM = "GateStatus"
 
 
 def _is_status_read(node: ast.AST) -> bool:
-    """True for ``x.get("status", ...)`` or ``x["status"]`` shaped reads."""
+    """True for status-shaped reads.
+
+    Covers ``x.get("status", ...)``, ``x["status"]``, and the same wrapped
+    in ``str(...)`` / ``(...).value`` (audit-T3 I-1 unpacking).
+    """
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "str":
+        return len(node.args) == 1 and _is_status_read(node.args[0])
+    if isinstance(node, ast.Attribute) and node.attr == "value":
+        return _is_status_read(node.value)
     if isinstance(node, ast.Call):
         func = node.func
         if isinstance(func, ast.Attribute) and func.attr == "get":
@@ -65,9 +77,9 @@ def scan_file(text: str, path: str) -> list[str]:
     try:
         tree = ast.parse(text)
     except SyntaxError:
-        return [f"{path}: unparseable (skipped)"]
+        return [f"{path}: unparseable (reported, scan fails closed)"]
     for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef):
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
             if node.name.endswith("_gate_passed"):
                 violations.append(
                     f"{path}:{node.lineno}: private gate-status judge "
