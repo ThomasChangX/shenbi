@@ -20,9 +20,17 @@ def test_import_shared_performs_no_iterdir(monkeypatch: pytest.MonkeyPatch) -> N
         calls.append(str(self))
         return real(self)
 
+    # reload 会把 compiled 正则等绑定换成新对象——跨文件顺序敏感（audit-T5 🟡：
+    # test_meta_block_re_is_single_source 的身份断言被重绑炸）。快照/恢复 __dict__
+    # 消除跨测试污染。
+    snapshot = dict(vars(shared))
     monkeypatch.setattr(Path, "iterdir", spy)
-    importlib.reload(shared)  # type: ignore[arg-type]
-    assert calls == [], f"import-time FS scan detected: {calls}"
+    try:
+        importlib.reload(shared)  # type: ignore[arg-type]
+        assert calls == [], f"import-time FS scan detected: {calls}"
+    finally:
+        shared.__dict__.clear()
+        shared.__dict__.update(snapshot)
 
 
 @pytest.mark.unit
