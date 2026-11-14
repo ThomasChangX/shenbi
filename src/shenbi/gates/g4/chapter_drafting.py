@@ -21,7 +21,9 @@ from shenbi.gates.shared import (
     chapter_word_floor,
     count_similes,
     count_transition_words,
+    degrade,
     fail,
+    load_facts_oracle,
     passed,
     read_genre_config,
     resolve_input_path,
@@ -608,20 +610,19 @@ def g4_chapter_drafting(
     _owner_aliases: dict[str, set[str]] = {}
     if project_dir:
         from shenbi.facts.enums import FactsDim
-        from shenbi.facts.store import load_facts
 
-        _loaded = load_facts(Path(project_dir), FactsDim.PROPS)
-        if _loaded is not None and not _loaded.is_empty:
+        _loaded = load_facts_oracle(project_dir, FactsDim.PROPS)
+        if _loaded is not None:
             _props_facts = {k: {"owner": v.owner} for k, v in _loaded.props().items()}
         # spec #80 T7 F17: counters oracle（空种子≡缺席，R4-M2）
-        _cn_loaded = load_facts(Path(project_dir), FactsDim.COUNTERS)
-        if _cn_loaded is not None and not _cn_loaded.is_empty:
+        _cn_loaded = load_facts_oracle(project_dir, FactsDim.COUNTERS)
+        if _cn_loaded is not None:
             _counters_facts = {k: {"value": v.value} for k, v in _cn_loaded.counters().items()}
         # F16「非 owner 人名」roster（2026-10-29 实弹校准）：owners ∪ identity
         # 叙事名+别名 ∪ name_registry 名列；主角别名同时计入 owner-side
         _known_names = {info.get("owner", "") for info in (_props_facts or {}).values()} - {""}
-        _id_loaded = load_facts(Path(project_dir), FactsDim.IDENTITY)
-        if _id_loaded is not None and not _id_loaded.is_empty:
+        _id_loaded = load_facts_oracle(project_dir, FactsDim.IDENTITY)
+        if _id_loaded is not None:
             _id = _id_loaded.identity()
             if _id is not None:
                 _known_names |= {_id.narration_name, *_id.aliases}
@@ -665,7 +666,7 @@ def g4_chapter_drafting(
                     "id": "cd.prop_handoff",
                     "file": fp,
                     "s": GateStatus.WARN,
-                    "r": "no_facts — props facts absent/empty; hand-off scan skipped (degradation visible)",
+                    "r": degrade("no_facts", "props facts absent/empty", "hand-off scan skipped"),
                 }
             )
         else:
@@ -692,7 +693,9 @@ def g4_chapter_drafting(
                     "id": "cd.counter",
                     "file": fp,
                     "s": GateStatus.WARN,
-                    "r": "no_facts — counters facts absent/empty; reconciliation skipped (degradation visible)",
+                    "r": degrade(
+                        "no_facts", "counters facts absent/empty", "reconciliation skipped"
+                    ),
                 }
             )
         else:
@@ -703,7 +706,13 @@ def g4_chapter_drafting(
                         "id": "cd.counter",
                         "file": fp,
                         "s": GateStatus.WARN,
-                        "r": "no_decl — memo declares no counters this chapter; reconciliation not activated (legacy-memo compat, ch17-class false-red guard)",
+                        "r": degrade(
+                            "no_decl",
+                            "memo declares no counters this chapter",
+                            "reconciliation not activated",
+                            visible=False,
+                            tail=" (legacy-memo compat, ch17-class false-red guard)",
+                        ),
                     }
                 )
             else:
@@ -737,7 +746,9 @@ def g4_chapter_drafting(
                     "id": "cd.balance_value_drift",
                     "file": fp,
                     "s": GateStatus.WARN,
-                    "r": "no_ledger — particle_ledger.md absent; balance anchor skipped (degradation visible)",
+                    "r": degrade(
+                        "no_ledger", "particle_ledger.md absent", "balance anchor skipped"
+                    ),
                 }
             )
         else:

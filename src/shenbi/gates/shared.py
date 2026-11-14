@@ -17,7 +17,11 @@ import json
 import re
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:  # spec #89 T3: facts is a zero-dependency leaf (no cycle)
+    from shenbi.facts.enums import FactsDim
+    from shenbi.facts.schemas import FactsFile
 
 try:
     import yaml
@@ -181,6 +185,48 @@ def pack_scenes(
 
 CHAPTER_HEADER_RE = re.compile(r"^#\s+Chapter\s+\d+:", re.MULTILINE)
 CHAPTER_NUM_RE = re.compile(r"chapter-(\d+)")
+
+
+def chapter_no(name_or_path: str | Path) -> int | None:
+    """Extract the chapter number from a path/name via CHAPTER_NUM_RE (spec #89 T3).
+
+    search semantics — matches ``chapter-N`` anywhere; None when absent.
+    """
+    m = CHAPTER_NUM_RE.search(str(name_or_path))
+    return int(m.group(1)) if m else None
+
+
+def load_facts_oracle(project_dir: str | Path, dim: "FactsDim") -> "FactsFile | None":
+    """Load a facts oracle, collapsing absent/empty to None (spec #89 T3).
+
+    Replaces the six hand-written ``load_facts(...) is not None and not
+    ....is_empty`` triples (empty seed ≡ absent, spec #80 T7 R4-M2).
+    Corrupt files still raise loudly at load_facts.
+    """
+    from shenbi.facts.store import load_facts
+
+    loaded = load_facts(Path(project_dir), dim)
+    return loaded if (loaded is not None and not loaded.is_empty) else None
+
+
+def degrade(
+    kind: str,
+    cause: str,
+    what_skipped: str,
+    *,
+    tail: str = "",
+    visible: bool = True,
+) -> str:
+    """Compose the WARN ``r`` string for oracle-absent degradation (spec #89 T3).
+
+    Byte-exact with the five hand-written emission sites (cd/cp/xc) plus the
+    no_decl variant: ``{kind} — {cause}; {what_skipped}{suffix}`` where
+    suffix defaults to `` (degradation visible)``; pass ``visible=False``
+    plus a ``tail`` for the legacy-memo no_decl wording.
+    """
+    suffix = tail if not visible else " (degradation visible)"
+    return f"{kind} — {cause}; {what_skipped}{suffix}"
+
 
 # spec #71: simile closed set — substring counting on the non-dialogue domain.
 SIMILE_MARKERS: tuple[str, ...] = ("像", "仿佛", "宛如", "宛若", "恰似", "如同", "似的")

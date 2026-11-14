@@ -20,8 +20,10 @@ from shenbi.gates.shared import (
     SCENE_INDEPENDENT_BAND,
     SCENE_PAIRED_BAND,
     chapter_word_min_max,
+    degrade,
     fail,
     jload,
+    load_facts_oracle,
     pack_scenes,
     parse_scene_declarations,
     passed,
@@ -720,10 +722,9 @@ def g4_chapter_planning(
         _props_facts = None
         if project_dir:
             from shenbi.facts.enums import FactsDim
-            from shenbi.facts.store import load_facts
 
-            _loaded = load_facts(Path(project_dir), FactsDim.PROPS)
-            if _loaded is not None and not _loaded.is_empty:
+            _loaded = load_facts_oracle(project_dir, FactsDim.PROPS)
+            if _loaded is not None:
                 _props_facts = _loaded.props()
         _prop_decls = parse_prop_declarations(content)
         if _props_facts is None:
@@ -732,7 +733,7 @@ def g4_chapter_planning(
                     "id": "cp.prop_decl",
                     "file": fp,
                     "s": GateStatus.WARN,
-                    "r": "no_facts — props facts absent/empty; F16 cp legality skipped (degradation visible)",
+                    "r": degrade("no_facts", "props facts absent/empty", "F16 cp legality skipped"),
                 }
             )
         elif not _prop_decls:

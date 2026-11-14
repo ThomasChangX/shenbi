@@ -11,7 +11,6 @@ words (derived from the enum; plan review r5/r6 ruling).
 from __future__ import annotations
 
 import re
-from pathlib import Path
 from typing import Any
 
 import yaml
@@ -71,13 +70,7 @@ def g4_foreshadowing_lifecycle(
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    if rd is None and project_dir is None:
-        raise ValueError("round_dir or project_dir required for G4 RoundPaths checkers")
-    rp = RoundPaths(  # spec #48 C34: explicit roots, no silent fallthrough
-        round_dir=Path(str(rd or project_dir)),
-        project_dir=Path(str(project_dir or rd)),
-        repo_root=Path(repo_root or PROJECT),
-    )
+    rp = RoundPaths.require_roots(rd, project_dir, repo_root or PROJECT)  # spec #48 C34
 
     # — per-output-file checks (plant heritage) —
     total_ops = 0

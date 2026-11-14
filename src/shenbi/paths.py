@@ -57,6 +57,27 @@ class RoundPaths:
     project_dir: Path  # the novel project root (novel.json, world/, chapters/, truth/)
     repo_root: Path  # repo root (SKILL.md, fixtures, rubric)
 
+    @classmethod
+    def require_roots(
+        cls,
+        rd: str | None,
+        project_dir: str | None,
+        repo_root: str | Path,
+    ) -> RoundPaths:
+        """Collapse the 11-checker preamble (spec #89 T3, spec #48 C34).
+
+        Raises the pinned ValueError when both roots are None (message kept
+        byte-identical — test_g4_signatures pins it); mutual defaults
+        otherwise: each missing root mirrors the provided one.
+        """
+        if rd is None and project_dir is None:
+            raise ValueError("round_dir or project_dir required for G4 RoundPaths checkers")
+        return cls(
+            round_dir=Path(str(rd or project_dir)),
+            project_dir=Path(str(project_dir or rd)),
+            repo_root=Path(repo_root),
+        )
+
     def read(self, rel: str, chapter: int | None = None, *, strict: bool = False) -> Path:
         resolved = resolve_chapter_path(rel, chapter)
         rd = self.round_dir / resolved

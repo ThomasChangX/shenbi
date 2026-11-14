@@ -915,7 +915,7 @@ def g4_cross_chapter(
     repo_root: str | None = None,
 ) -> str:
     """G4 checker entry (signature aligned with the existing checker family)."""
-    from shenbi.gates.shared import fail, passed, resolve_input_path
+    from shenbi.gates.shared import degrade, fail, load_facts_oracle, passed, resolve_input_path
 
     c: list[dict[str, Any]] = []
     mf: list[str] = []
@@ -944,10 +944,9 @@ def g4_cross_chapter(
     _identity: dict[str, object] | None = None
     if project_dir:
         from shenbi.facts.enums import FactsDim
-        from shenbi.facts.store import load_facts as _lf
 
-        _id_loaded = _lf(Path(project_dir), FactsDim.IDENTITY)
-        if _id_loaded is not None and not _id_loaded.is_empty:
+        _id_loaded = load_facts_oracle(project_dir, FactsDim.IDENTITY)
+        if _id_loaded is not None:
             _fact = _id_loaded.identity()
             if _fact is not None:
                 _identity = {
@@ -961,7 +960,9 @@ def g4_cross_chapter(
                     "id": "XC.narration_name",
                     "file": "-",
                     "s": GateStatus.WARN,
-                    "r": "no_facts — identity facts absent/empty; F15 narration scan skipped (degradation visible)",
+                    "r": degrade(
+                        "no_facts", "identity facts absent/empty", "F15 narration scan skipped"
+                    ),
                 }
             )
 
@@ -970,10 +971,9 @@ def g4_cross_chapter(
     _pf: dict[str, str] | None = None
     if project_dir:
         from shenbi.facts.enums import FactsDim
-        from shenbi.facts.store import load_facts
 
-        _pf_loaded = load_facts(Path(project_dir), FactsDim.PROPS)
-        if _pf_loaded is not None and not _pf_loaded.is_empty:
+        _pf_loaded = load_facts_oracle(project_dir, FactsDim.PROPS)
+        if _pf_loaded is not None:
             _pf = {k: v.owner for k, v in _pf_loaded.props().items()}
     ctx = CrossChapterContext(
         project_dir=Path(project_dir) if project_dir else None,

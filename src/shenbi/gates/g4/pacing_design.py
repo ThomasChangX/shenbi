@@ -33,13 +33,7 @@ def g4_pacing_design(
     if not project_dir:
         project_dir = rd or (str(Path(fps[0]).parent.parent) if fps else None)
 
-    if rd is None and project_dir is None:
-        raise ValueError("round_dir or project_dir required for G4 RoundPaths checkers")
-    rp = RoundPaths(  # spec #48 C34: explicit roots, no silent fallthrough
-        round_dir=Path(str(rd or project_dir)),
-        project_dir=Path(str(project_dir or rd)),
-        repo_root=Path(repo_root or PROJECT),
-    )
+    rp = RoundPaths.require_roots(rd, project_dir, repo_root or PROJECT)  # spec #48 C34
 
     rhythm_path = rp.read("outline/rhythm_principles.md")
     if not rhythm_path.exists():

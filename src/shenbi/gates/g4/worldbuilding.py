@@ -5,7 +5,6 @@ from shenbi.status import GateStatus
 from typing import Any
 import json
 import re
-from pathlib import Path
 
 from shenbi.gates.shared import (
     PROJECT,
@@ -26,13 +25,7 @@ def g4_worldbuilding(
     """Worldbuilding: novel.json, genre-config.json, 4 world files, truth templates."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    if rd is None and project_dir is None:
-        raise ValueError("round_dir or project_dir required for G4 RoundPaths checkers")
-    rp = RoundPaths(  # spec #48 C34: explicit roots, no silent fallthrough
-        round_dir=Path(str(rd or project_dir)),
-        project_dir=Path(str(project_dir or rd)),
-        repo_root=Path(repo_root or PROJECT),
-    )
+    rp = RoundPaths.require_roots(rd, project_dir, repo_root or PROJECT)  # spec #48 C34
 
     # novel.json: title/genre/language/target_words
     nj = rp.read("novel.json")
