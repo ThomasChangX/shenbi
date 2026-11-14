@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-11-14（**#89 完结归档**（PR #337——门禁内部性修复：CheckContext 一次装载[主函数 805→57 行+22 检查函数+memo 四读归一+scene_hook 双基不归一]/五窄助手 chapter_no+chapter_no_raw+load_facts_oracle+degrade+require_roots[11 前导收敛]/章号单源[20 内联归零+AST lint+零填充 group 原文锚]/shared 出鞘[marker 迁 gate_manifest+文本原语迁 text.cjk+roster 惰性化+七破裂面换源]/declared_history 正名+g4_cross_chapter 非注册表门文档化/G0.12 真实现[GENERIC_ONLY_ROSTER 44 项集合对账+注入红测]；REWRITE 一轮[PR #336]+四轮 spec 审查 r2.7+三轮 plan 审查；六 task 全 audit[两轮首轮 FAIL 修复闭环]+终审 Ready+实弹差分逐字节一致）；前次 #88 完结归档（PR #334）
-> **活跃 spec 数**：7
+> **最后更新**：2026-11-14（**#90 完结归档**（PR #340——契约数据面单源：G4 checker 名册 shared.py 单源[权威字面量+别名+generic re-export+cli 分支内派生，编辑面 5-6→3 处]/lint 对账面收缩[删三恒真面+R1/R5 非空结构守卫，成员级归运行时三重守卫]/lint_decisions_sources 换源 load_contract+STEM 严格归一派生+值集+G4_DECISIONS_WIRED 第四源/allowlist 外置 JSON[三态 fail-loud+零命中 WARN]/writing-skills 机器契约节；REWRITE 一轮[PR #339 r2.3 载体改判]+r2.3b-d 三轮修订；五 task 全 audit+终审 Ready[AC1 演练三态+行为保持基线差分]）；前次 #89 完结归档（PR #337——门禁内部性修复：CheckContext 一次装载[主函数 805→57 行+22 检查函数+memo 四读归一+scene_hook 双基不归一]/五窄助手 chapter_no+chapter_no_raw+load_facts_oracle+degrade+require_roots[11 前导收敛]/章号单源[20 内联归零+AST lint+零填充 group 原文锚]/shared 出鞘[marker 迁 gate_manifest+文本原语迁 text.cjk+roster 惰性化+七破裂面换源]/declared_history 正名+g4_cross_chapter 非注册表门文档化/G0.12 真实现[GENERIC_ONLY_ROSTER 44 项集合对账+注入红测]；REWRITE 一轮[PR #336]+四轮 spec 审查 r2.7+三轮 plan 审查；六 task 全 audit[两轮首轮 FAIL 修复闭环]+终审 Ready+实弹差分逐字节一致）；前次 #88 完结归档（PR #334）
+> **活跃 spec 数**：6
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -10,16 +10,6 @@
 
 ## 执行队列
 
-
----
-
-### #90 · 契约数据面单源（contract-data-single-source）
-
-- **文件**：`2026-11-01-spec90-contract-data-single-source.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r2.3d** 2026-11-14——r2.3 价值门驳斥修订：T1 载体改判 shared 单源+generic re-export/编辑面 3-4 修正/_checker_keys 改指向/T4a JSON+fail-loud；r2.3b 行号改准+权威名钉死+非空守卫+tests 破裂面；r2.3c AC6 触发机制修正——lint 守结构级/成员级归运行时三重守卫；r2.3d T3 钉输入面+第四源对账 G4_DECISIONS_WIRED+T4a 钉 JSON schema） ｜ **优先级**：🟡 P2
-- **依赖**：无（spec #9 裁决约束已核——不新增契约模型消费）
-- **内容**：**一个权威集合 + 派生（零构建基础设施，r2.3 载体）**：G4_CHECKER_KEYS 字面量**迁 gates/shared.py**（权威名钉死——AST 提取器只认解点名下字面量）→ generic re-export / `G4_CHECKER_SKILLS = G4_CHECKER_KEYS` 别名（g0 零改动）/ SHORT_MAP 机械派生移 cli G4 懒分支内 / build_checkers 断言对齐（加 checker 编辑面 5-6 处→**3 处**，GENERIC_ONLY_ROSTER 场景 4）+ lint **10 面**收缩（9 R1 面+R5；agents_counts 恒真面删；`_checker_keys` 改指向 shared+**非空守卫**；tests 两破裂测试同批改写）+ lint_decisions_sources 弃 crude scan 走 load_contract + STEM_TO_SKILL 派生（N/N+1 归一，二义即 fail）+ decisions 枚举 value-set 对账（status-vocab 模板；**Per-Skill 表生成器 r2 裁剪**）+ writing-skills 机器契约节（可延后不阻塞）+ lint_contract_prose **allowlist 迁 tools/contract_prose_allowlist.json（JSON+fail-loud）**
-- **对应 plan**：已建 `../plans/2026-11-14-spec90-contract-data-single-source.md`（5 task 四轮审查收敛）
-- **触及的不变量维度**：无（契约/名册数据面）
 
 ---
 
