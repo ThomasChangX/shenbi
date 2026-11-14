@@ -773,38 +773,46 @@ def t1_scaffold_skills() -> tuple[str, ...]:
 
 
 # Skills that have dedicated (non-generic) G4 generative checkers
-G4_CHECKER_SKILLS = {
-    "shenbi-anti-detect",
-    "shenbi-book-spine-init",
-    "shenbi-chapter-drafting",
-    "shenbi-chapter-planning",
-    "shenbi-chapter-revision",
-    "shenbi-character-design",
-    "shenbi-context-composing",
-    "shenbi-escalation-review",
-    "shenbi-faction-builder",
-    "shenbi-foreshadowing-lifecycle",
-    "shenbi-genre-config",
-    "shenbi-length-normalizing",
-    "shenbi-location-builder",
-    "shenbi-market-radar",
-    "shenbi-memory-distill",
-    "shenbi-pacing-design",
-    "shenbi-plot-thread-weaver",
-    "shenbi-power-system",
-    "shenbi-relationship-map",
-    "shenbi-review-arc-payoff",
-    "shenbi-review-resonance",
-    "shenbi-score-arc",
-    "shenbi-score-stratum",
-    "shenbi-score-volume",
-    "shenbi-short-drafting",
-    "shenbi-state-settling",
-    "shenbi-story-architecture",
-    "shenbi-style-polishing",
-    "shenbi-volume-outlining",
-    "shenbi-worldbuilding",
-}
+# Spec #90 T1: authoritative G4 checker roster (single source). The literal
+# MUST stay under the G4_CHECKER_KEYS name — tools/lint_registry_reconcile.py
+# extracts it by AST from this file; G4_CHECKER_SKILLS is a compatibility
+# alias (g0.py module-level import stays untouched). String-only so lint
+# tooling (and g5) can import it without pulling the per-skill checker modules.
+G4_CHECKER_KEYS: frozenset[str] = frozenset(
+    {
+        "shenbi-anti-detect",
+        "shenbi-book-spine-init",
+        "shenbi-chapter-drafting",
+        "shenbi-chapter-planning",
+        "shenbi-chapter-revision",
+        "shenbi-character-design",
+        "shenbi-context-composing",
+        "shenbi-escalation-review",
+        "shenbi-faction-builder",
+        "shenbi-foreshadowing-lifecycle",
+        "shenbi-genre-config",
+        "shenbi-length-normalizing",
+        "shenbi-location-builder",
+        "shenbi-market-radar",
+        "shenbi-memory-distill",
+        "shenbi-pacing-design",
+        "shenbi-plot-thread-weaver",
+        "shenbi-power-system",
+        "shenbi-relationship-map",
+        "shenbi-review-arc-payoff",
+        "shenbi-review-resonance",
+        "shenbi-score-arc",
+        "shenbi-score-stratum",
+        "shenbi-score-volume",
+        "shenbi-short-drafting",
+        "shenbi-state-settling",
+        "shenbi-story-architecture",
+        "shenbi-style-polishing",
+        "shenbi-volume-outlining",
+        "shenbi-worldbuilding",
+    }
+)
+G4_CHECKER_SKILLS = G4_CHECKER_KEYS
 
 # Spec #89 T6: generic-fallback roster — the explicit declaration that G0.12
 # reconciles against set(all_skills()) == set(G4_CHECKER_SKILLS) | GENERIC_ONLY_ROSTER.

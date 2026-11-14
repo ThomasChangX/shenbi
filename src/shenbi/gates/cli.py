@@ -20,38 +20,6 @@ from collections.abc import Callable
 import sys
 
 # Shorthand skill name -> full shenbi-* name. Mirrors legacy validate-gate.py.
-SHORT_MAP = {
-    "anti-detect": "shenbi-anti-detect",
-    "book-spine-init": "shenbi-book-spine-init",
-    "chapter-drafting": "shenbi-chapter-drafting",
-    "chapter-planning": "shenbi-chapter-planning",
-    "chapter-revision": "shenbi-chapter-revision",
-    "character-design": "shenbi-character-design",
-    "context-composing": "shenbi-context-composing",
-    "escalation-review": "shenbi-escalation-review",
-    "faction-builder": "shenbi-faction-builder",
-    "foreshadowing-lifecycle": "shenbi-foreshadowing-lifecycle",
-    "genre-config": "shenbi-genre-config",
-    "length-normalizing": "shenbi-length-normalizing",
-    "location-builder": "shenbi-location-builder",
-    "market-radar": "shenbi-market-radar",
-    "memory-distill": "shenbi-memory-distill",
-    "pacing-design": "shenbi-pacing-design",
-    "plot-thread-weaver": "shenbi-plot-thread-weaver",
-    "power-system": "shenbi-power-system",
-    "relationship-map": "shenbi-relationship-map",
-    "review-arc-payoff": "shenbi-review-arc-payoff",
-    "review-resonance": "shenbi-review-resonance",
-    "score-arc": "shenbi-score-arc",
-    "score-stratum": "shenbi-score-stratum",
-    "score-volume": "shenbi-score-volume",
-    "short-drafting": "shenbi-short-drafting",
-    "state-settling": "shenbi-state-settling",
-    "story-architecture": "shenbi-story-architecture",
-    "style-polishing": "shenbi-style-polishing",
-    "volume-outlining": "shenbi-volume-outlining",
-    "worldbuilding": "shenbi-worldbuilding",
-}
 
 
 def main() -> int:
@@ -113,6 +81,7 @@ Examples:
 
     elif gate == "G4":
         from shenbi.gates.g4 import gate_G4, gate_G4_bughunt, gate_G4_clean
+        from shenbi.gates.g4.generic import G4_CHECKER_KEYS
         from shenbi.gates.gate_manifest import write_gate_marker
         from shenbi.gates.shared import PROJECT
         from shenbi.status import GateStatus
@@ -166,7 +135,8 @@ Examples:
             if result is _G4_PATH_FAIL:
                 return 1
         else:
-            full_name = SHORT_MAP.get(skill_or_type, skill_or_type)
+            short_map = {k.removeprefix("shenbi-"): k for k in G4_CHECKER_KEYS}
+            full_name = short_map.get(skill_or_type, skill_or_type)
             if test_type in ("bug-hunt", "bughunt"):
                 result = _guarded_g4(gate_G4_bughunt, file_list, rd, pd, str(PROJECT))
                 if result is _G4_PATH_FAIL:

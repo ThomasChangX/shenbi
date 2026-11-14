@@ -21,7 +21,6 @@ _COPY_LIST = [
     "AGENTS.md",
     "src/shenbi/gates/g5.py",
     "src/shenbi/gates/shared.py",
-    "src/shenbi/gates/g4/generic.py",
     "src/shenbi/gates/g4/scoring_sections.py",
     "src/shenbi/contracts/registry.py",
 ]
@@ -72,8 +71,8 @@ def test_checker_keys_relocation_fails(repo_copy: Path) -> None:
     runtime-guarded by generic.py build_checkers assert + test_build_checkers
     + G0.12 — the lint deliberately does NOT guard it (spec #90 r2.3c).
     """
-    p = repo_copy / "src" / "shenbi" / "gates" / "g4" / "generic.py"
-    orig = (_SRC / "src/shenbi/gates/g4/generic.py").read_text(encoding="utf-8")
+    p = repo_copy / "src" / "shenbi" / "gates" / "shared.py"
+    orig = (_SRC / "src/shenbi/gates/shared.py").read_text(encoding="utf-8")
     relocated = orig.replace(
         "G4_CHECKER_KEYS: frozenset[str] = frozenset(",
         "G4_CHECKER_KEYS_MOVED: frozenset[str] = frozenset(",
@@ -81,8 +80,8 @@ def test_checker_keys_relocation_fails(repo_copy: Path) -> None:
     )
     assert relocated != orig, "anchor string drifted — recalibrate"
     relocated = relocated.replace(
-        '        "shenbi-score-volume",\n    }\n)',
-        '        "shenbi-score-volume",\n    }\n)\nG4_CHECKER_KEYS = G4_CHECKER_KEYS_MOVED\n',
+        "G4_CHECKER_SKILLS = G4_CHECKER_KEYS\n",
+        "G4_CHECKER_SKILLS = G4_CHECKER_KEYS_MOVED\nG4_CHECKER_KEYS = G4_CHECKER_KEYS_MOVED\n",
         1,
     )
     p.write_text(relocated, encoding="utf-8")
@@ -107,8 +106,8 @@ def test_g5_glob_deletion_fails(repo_copy: Path) -> None:
 
 def test_g4_checker_skills_face_removed_member_drift_lint_green(repo_copy: Path) -> None:
     """Spec #90 r2.3c: member-level drift must NOT trip the lint (runtime guards own it)."""
-    p = repo_copy / "src" / "shenbi" / "gates" / "g4" / "generic.py"
-    orig = (_SRC / "src/shenbi/gates/g4/generic.py").read_text(encoding="utf-8")
+    p = repo_copy / "src" / "shenbi" / "gates" / "shared.py"
+    orig = (_SRC / "src/shenbi/gates/shared.py").read_text(encoding="utf-8")
     p.write_text(orig.replace('    "shenbi-worldbuilding",\n', "", 1), encoding="utf-8")
     vios = lint_registry_reconcile(repo_copy)
     assert not any("G4_CHECKER_SKILLS" in v for v in vios), vios

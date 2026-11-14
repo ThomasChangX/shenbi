@@ -12,6 +12,7 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 from shenbi.gates.shared import (
+    G4_CHECKER_KEYS as G4_CHECKER_KEYS,  # noqa: PLC0414  # explicit re-export (spec #90 single source)
     chapter_no,
     chapter_no_raw,
     fail,
@@ -366,43 +367,9 @@ G4_DECISIONS_WIRED: frozenset[str] = frozenset(
     }
 )
 
-# The full checker roster: 27 static keys below + 3 score-* keys registered
-# dynamically by register_score_checkers(). String-only so lint tooling (and
-# g5) can import it without pulling the per-skill checker modules.
-G4_CHECKER_KEYS: frozenset[str] = frozenset(
-    {
-        "shenbi-anti-detect",
-        "shenbi-chapter-drafting",
-        "shenbi-chapter-planning",
-        "shenbi-character-design",
-        "shenbi-context-composing",
-        "shenbi-faction-builder",
-        "shenbi-foreshadowing-lifecycle",
-        "shenbi-genre-config",
-        "shenbi-length-normalizing",
-        "shenbi-location-builder",
-        "shenbi-pacing-design",
-        "shenbi-plot-thread-weaver",
-        "shenbi-power-system",
-        "shenbi-relationship-map",
-        "shenbi-review-arc-payoff",
-        "shenbi-review-resonance",
-        "shenbi-state-settling",
-        "shenbi-story-architecture",
-        "shenbi-style-polishing",
-        "shenbi-volume-outlining",
-        "shenbi-worldbuilding",
-        "shenbi-book-spine-init",
-        "shenbi-memory-distill",
-        "shenbi-escalation-review",
-        "shenbi-market-radar",
-        "shenbi-chapter-revision",
-        "shenbi-short-drafting",
-        "shenbi-score-arc",
-        "shenbi-score-stratum",
-        "shenbi-score-volume",
-    }
-)
+# G4_CHECKER_KEYS lives in gates/shared.py (spec #90 single source);
+# len() == 30 (27 static + 3 score-*). register_score_checkers() only wires
+# checker functions — the roster itself is fully declarative above.
 
 
 def build_checkers() -> dict[str, Any]:

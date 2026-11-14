@@ -105,11 +105,11 @@ def _literal_str_set(source: str, assign_target: str) -> set[str]:
 
 
 def _checker_keys(repo: Path) -> set[str]:
-    """G4_CHECKER_KEYS from generic.py (AST; includes the 3 dynamic score keys)."""
-    generic = repo / "src" / "shenbi" / "gates" / "g4" / "generic.py"
-    if not generic.exists():
+    """G4_CHECKER_KEYS from shared.py (AST; spec #90 single source)."""
+    shared = repo / "src" / "shenbi" / "gates" / "shared.py"
+    if not shared.exists():
         return set()
-    return _literal_str_set(generic.read_text(encoding="utf-8"), "G4_CHECKER_KEYS")
+    return _literal_str_set(shared.read_text(encoding="utf-8"), "G4_CHECKER_KEYS")
 
 
 def _g5_checker_globs(repo: Path) -> dict[str, list[str]]:
