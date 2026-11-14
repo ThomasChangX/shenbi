@@ -780,6 +780,7 @@ def t1_scaffold_skills() -> tuple[str, ...]:
 # tooling (and g5) can import it without pulling the per-skill checker modules.
 G4_CHECKER_KEYS: frozenset[str] = frozenset(
     {
+        "shenbi-anchor-curate",
         "shenbi-anti-detect",
         "shenbi-book-spine-init",
         "shenbi-chapter-drafting",
@@ -821,7 +822,6 @@ G4_CHECKER_SKILLS = G4_CHECKER_KEYS
 # explicit declaration — the fake check becomes falsifiable without importing g4.
 GENERIC_ONLY_ROSTER: frozenset[str] = frozenset(
     {
-        "shenbi-anchor-curate",
         "shenbi-canon-import",
         "shenbi-chapter-pattern",
         "shenbi-character-extraction",
