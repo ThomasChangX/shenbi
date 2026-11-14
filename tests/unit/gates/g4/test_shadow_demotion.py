@@ -130,8 +130,9 @@ def test_wiring_all_demoted_routes_pass_with_warnings(tmp_path: Path) -> None:
     manifest re-recorded PASS (latest-wins), trace WARN on the real face.
     """
     from shenbi.gates.gate_manifest import record_gate_result  # noqa: F401 -- route re-records
-    from shenbi.pipeline.chapter_loop import _gate_passed, _shadow_route_g4
+    from shenbi.pipeline.chapter_loop import _shadow_route_g4
     from shenbi.pipeline.state import PipelineState
+    from shenbi.status import gate_passed
 
     (tmp_path / "genre-config.json").write_text(
         json.dumps(GENRE_CFG, ensure_ascii=False), encoding="utf-8"
@@ -154,7 +155,7 @@ def test_wiring_all_demoted_routes_pass_with_warnings(tmp_path: Path) -> None:
         rk=rk,
     )
     assert remaining == []  # all-demoted precondition pinned
-    assert _gate_passed(routed)  # PASS-with-warnings, never generic_failure
+    assert gate_passed(routed)  # PASS-with-warnings, never generic_failure
     assert rk not in state.chapter_loop.retry_feedback  # cleanup replicated
     # trace WARN landed on the real face
     lines = (tmp_path / "trace.jsonl").read_text(encoding="utf-8").strip().splitlines()

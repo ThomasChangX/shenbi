@@ -55,7 +55,7 @@ from shenbi.config.config_coherence import rollback_genre_config
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.state import CheckpointType, PipelineState
-from shenbi.status import GateStatus
+from shenbi.status import gate_passed
 
 log = get_logger(__name__)
 
@@ -502,12 +502,6 @@ def get_trigger_steps(result: TriggerResult) -> list[TriggerStep]:
 # ---------------------------------------------------------------------------
 
 
-def _gate_passed(result: dict[str, Any]) -> bool:
-    """True iff a gate result dict reports PASS or SKIP."""
-    status = str(result.get("status", ""))
-    return status in (GateStatus.PASS, GateStatus.SKIP)
-
-
 # Execution
 # ---------------------------------------------------------------------------
 
@@ -654,7 +648,7 @@ def run_triggered_skills(
             # equivalent to the resolve_contract_path treatment for this name).
             g4_files.append("genre-config-decisions.json")
         g4 = run_gate_g4(step.skill, g4_files, project_dir)
-        if not _gate_passed(g4):
+        if not gate_passed(g4, accept_skip=True):
             log.error(
                 "trigger_g4_failed",
                 chapter=chapter,
@@ -721,7 +715,7 @@ def run_triggered_skills(
             from shenbi.pipeline.dispatch_helper import run_gate_g3
 
             g3 = run_gate_g3(step.skill, project_dir)
-            if not _gate_passed(g3):
+            if not gate_passed(g3, accept_skip=True):
                 log.error(
                     "trigger_g3_failed",
                     chapter=chapter,

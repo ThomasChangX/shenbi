@@ -41,7 +41,7 @@ from shenbi.pipeline.state import (
 from shenbi.pipeline.truth_embed import embed_and_store, is_embed_available
 from shenbi.pipeline.truth_io import split_table_cells
 from shenbi.safe_write import safe_write
-from shenbi.status import GateStatus
+from shenbi.status import gate_passed
 
 log = get_logger(__name__)
 
@@ -279,11 +279,6 @@ def mark_skill_done(state: PipelineState, skill: str) -> None:
     """
     if skill not in state.genesis.skills_done:
         state.genesis.skills_done.append(skill)
-
-
-def _gate_passed(result: dict[str, object]) -> bool:
-    """True iff a gate result dict reports PASS (handles str and GateStatus)."""
-    return str(result.get("status", "")) == GateStatus.PASS
 
 
 def _update_indexes(project_dir: Path, skill: str) -> None:
@@ -641,12 +636,12 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     # sidecar surfaces as not_found instead of staying invisible.
     g4_files = ([step.output_path] + sidecars) if step.output_path else []
     g4 = run_gate_g4(step.skill, g4_files, project_dir)
-    if _gate_passed(g4):
+    if gate_passed(g4):
         # Canary defect 'retry_feedback 永不清': stale corrective feedback
         # from a PRIOR failure stayed injected into every later dispatch
         # prompt for the same skill. A pass retires it.
         state.genesis.retry_feedback.pop(step.skill, None)
-    if not _gate_passed(g4):
+    if not gate_passed(g4):
         log.warning(
             "genesis_g4_failed",
             step=step.step_num,
@@ -705,7 +700,7 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
             },
         )
         g3 = run_gate_g3(step.skill, project_dir)
-        if not _gate_passed(g3):
+        if not gate_passed(g3):
             log.error("genesis_g3_failed", step=step.step_num, skill=step.skill, g3=g3)
             return _handle_failure(state, step, "gate", project_dir)
 

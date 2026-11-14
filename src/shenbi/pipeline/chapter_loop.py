@@ -88,7 +88,7 @@ from shenbi.pipeline.state import (
 )
 from shenbi.exceptions import RetryExhaustedError
 from shenbi.skill_utils.escalation.check import check_escalation
-from shenbi.status import GateStatus
+from shenbi.status import GateStatus, gate_passed
 from datetime import UTC
 
 log = get_logger(__name__)
@@ -1443,11 +1443,6 @@ def _run_linguistic_drift_check(project_dir: Path, chapter: int) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _gate_passed(result: dict[str, Any]) -> bool:
-    """True iff a gate result dict reports PASS (handles str and GateStatus)."""
-    return str(result.get("status", "")) == GateStatus.PASS
-
-
 def _retry_key(chapter: int, skill: str) -> str:
     """Alias of the public single source shenbi.pipeline.state.retry_key
     (spec #81 §2 dedup) — kept for this module's many internal callers.
@@ -1566,7 +1561,7 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
         # (T8-F1 writer/reader contract — without it the settled window is
         # permanently empty on real pipeline output).
         record_gate_result(project_dir, "chapter_loop", n, "pipeline-scene-split", "G4", g4)
-        if not _gate_passed(g4):
+        if not gate_passed(g4):
             # spec #82 T3 (final unification): shared routing — all-demoted
             # also re-records the manifest PASS here (raw FAIL logged above;
             # latest-wins). Throwaway state: no retry key at this site.
@@ -1594,7 +1589,7 @@ def _run_scene_split_step(project_dir: Path, chapter: int) -> list[str]:
         )
         xc: dict[str, Any] = json.loads(xc_raw)
         record_gate_result(project_dir, "chapter_loop", n, "pipeline-scene-split", "G4.xc", xc)
-        if xc.get("status") not in ("PASS", None):
+        if xc.get("status") is not None and not gate_passed(xc):
             issues.extend(f"XC ch{n}: {m}" for m in xc.get("must_fix", []) if isinstance(m, str))
     return issues
 
@@ -2305,7 +2300,7 @@ def _shadow_route_g4(
     rewrite + retry_feedback cleanup + manifest re-record (the raw FAIL was
     already logged by run_gate_g4; latest-wins append).
     """
-    if _gate_passed(g4):
+    if gate_passed(g4):
         return g4, None
     demoted, remaining = demote_must_fix(Path(project_dir), g4.get("must_fix", []))
     for dw in demoted:
@@ -4060,7 +4055,7 @@ def _run_audit_wave_step(
     for rec in _g3_parallel_wave(
         [t.skill for t in core_tasks + genre_tasks], project_dir, chapter=chapter
     ):
-        if str(rec["g3"].get("status", "")) != "PASS":
+        if not gate_passed(rec["g3"]):
             log.warning("parallel_wave_g3_failed", chapter=chapter, skill=rec["skill"])
     consolidated = consolidate_review_results(
         all_results,
@@ -4254,13 +4249,13 @@ def _run_post_draft_pair_step(
                     state, _retry_key(chapter, pstep.skill), list(_shadow_rem)
                 )
             )
-        if _gate_passed(g4):
+        if gate_passed(g4):
             # #18-4 (probe23): mirror the serial site's canary pop — a
             # PASSED retry must clear its corrective feedback, or the
             # audit-routed re-settle re-injects selections_uncovered
             # demands into a dispatch whose issues were already fixed.
             _clear_retry_feedback(state, _retry_key(chapter, pstep.skill))
-        if not _gate_passed(g4):
+        if not gate_passed(g4):
             log.warning(
                 "parallel_post_draft_g4_failed",
                 chapter=chapter,
@@ -4648,11 +4643,11 @@ def _run_serial_dispatch_step(
     g4, _shadow_remaining = _shadow_route_g4(
         state, project_dir, g4, chapter=chapter, skill=step.skill, rk=retry_key
     )
-    if _gate_passed(g4):
+    if gate_passed(g4):
         # Canary defect 'retry_feedback 永不清': stale corrective feedback
         # from a prior failure stayed injected into every later dispatch.
         _clear_retry_feedback(state, retry_key)
-    if not _gate_passed(g4):
+    if not gate_passed(g4):
         must_fix: list[str] = (
             _shadow_remaining if _shadow_remaining is not None else list(g4.get("must_fix", []))
         )
@@ -4740,7 +4735,7 @@ def _run_serial_dispatch_step(
     # G3: scoring independence for requires_independent_agent skills.
     if requires_independent(step.skill):
         g3 = run_gate_g3(step.skill, project_dir, chapter=chapter, phase="chapter_loop")
-        if not _gate_passed(g3):
+        if not gate_passed(g3):
             log.error(
                 "chapter_g3_failed",
                 chapter=chapter,
