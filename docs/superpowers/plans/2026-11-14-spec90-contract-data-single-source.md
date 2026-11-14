@@ -38,7 +38,7 @@
 
 **Files:**
 - Modify: `tools/lint_registry_reconcile.py`（删 `_face_short_map:214`/`_face_g4_checker_skills:232`/`_face_agents_counts:274-283` 三面与 `_r1_skill_closure` 内三行调用；`_checker_keys:136-141` 加非空守卫；删孤儿 `_short_map_keys:108`；docstring :4-13 三面行更新；:33-36 Reading mechanisms 注释更新）
-- Modify: `tests/unit/test_lint_registry_reconcile.py`（`test_short_map_deletion_fails:68-76` 与 `test_g4_checker_skills_gap_fails:94-99` 合并改写为结构级守卫红测；`_COPY_LIST:28` 注释更新+cli.py/generic.py copy 行处置——generic.py 行保留[守卫仍读]，cli.py 行删除）
+- Modify: `tests/unit/test_lint_registry_reconcile.py`（`test_short_map_deletion_fails:68-76` 与 `test_g4_checker_skills_gap_fails:94-99` 改写为结构级守卫红测+成员级绿钉[终审清偿字面：落地为超集]；`_COPY_LIST:28` 注释更新+cli.py/generic.py copy 行处置——generic.py 行保留[守卫仍读]，cli.py 行删除）
 - Test: `tests/unit/test_lint_registry_reconcile.py`
 
 **Interfaces:**
