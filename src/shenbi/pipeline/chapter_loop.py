@@ -3763,8 +3763,10 @@ def dispatch_serial_reviews(
     SAME failure semantics as concurrent-wave members: every exception is
     caught and wrapped into a failed DispatchResult (never allowed to crash
     run_chapter_step / the CLI driver) and failures retry with backoff,
-    up to MAX_RETRIES extra attempts. A 1-permit semaphore expresses the
-    single-flight form its signature expects (C32 R4 follow-up).
+    up to MAX_RETRIES extra attempts. Serialness comes from the loop itself
+    (spec #91 T5): dispatch_with_retry's semaphore is optional/None here —
+    the historical Semaphore(1) satisfied a mandatory parameter without
+    providing any cross-call exclusion (C32 R4 follow-up resolved).
     """
     from shenbi.pipeline.parallel_dispatch import (
         dispatch_with_retry,

@@ -103,7 +103,8 @@ def dispatch_with_retry(
 
     Args:
         task: The review task to dispatch.
-        semaphore: Semaphore for rate limiting concurrent dispatches.
+        semaphore: Semaphore for rate limiting concurrent dispatches;
+            None (spec #91 T5) disables rate limiting — serial callers use it.
         state: Optional PipelineState (spec #81 §2 rev4) — threaded to
             dispatch_skill so wave dispatches carry loop_id/feedback_ref;
             review-group is the largest failure family, wave DISPATCH
