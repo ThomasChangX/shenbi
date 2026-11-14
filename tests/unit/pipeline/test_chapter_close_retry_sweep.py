@@ -29,6 +29,10 @@ def _state(tmp_path, retry_feedback: dict[str, str]):
             retry_feedback=retry_feedback,
             streak_monitor_rewinds={},  # spec #83 T4 字段入 mock
         ),
+        # spec #91 T4: sweep now routes through the locked accessor.
+        clear_retry_feedback_prefix=lambda prefix: [
+            retry_feedback.pop(k) for k in list(retry_feedback) if k.startswith(prefix)
+        ],
     )
 
 

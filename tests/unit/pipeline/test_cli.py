@@ -1227,7 +1227,9 @@ class TestRetryFeedbackRetired:
         from shenbi.pipeline import chapter_loop
 
         src = inspect.getsource(chapter_loop)
-        assert "retry_feedback.pop" in src, "chapter_loop must retire feedback on pass"
+        assert "pop_retry_feedback" in src, (
+            "chapter_loop must retire feedback on pass (spec #91 T4 accessor)"
+        )
 
 
 class TestEscalationReportDetails:

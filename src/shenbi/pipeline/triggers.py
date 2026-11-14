@@ -585,7 +585,7 @@ def run_triggered_skills(
         # reviewer feedback overrides the memory: feedback on a step means
         # the human wants it redone.
         done_key = f"{chapter}:{step.skill}"
-        prior_feedback = state.chapter_loop.retry_feedback.get(f"ch{chapter}-{step.skill}")
+        prior_feedback = state.get_retry_feedback(f"ch{chapter}-{step.skill}")
         if done_key in state.trigger_steps_done and not prior_feedback:
             log.info(
                 "trigger_step_skipped_done",
@@ -737,7 +737,7 @@ def run_triggered_skills(
         if prior_feedback:
             # Feedback consumed by a passing re-dispatch — a later re-entry
             # must not re-inject stale instructions.
-            state.chapter_loop.retry_feedback.pop(f"ch{chapter}-{step.skill}", None)
+            state.pop_retry_feedback(f"ch{chapter}-{step.skill}")
         log.info(
             "trigger_step_done",
             chapter=chapter,

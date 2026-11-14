@@ -1322,10 +1322,13 @@ def cmd_review(args: argparse.Namespace) -> int:
 
                     # enrich=False：人审自由文本逐字透传（G4 模板头会污染裁决
                     # 语义）；族仍入累积史——后续机器败轮以防回退令持存人审约束
-                    state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{trig['skill']}"] = (
-                        accumulate_retry_feedback(
-                            state, f"ch{cp.chapter}-{trig['skill']}", [feedback], enrich=False
-                        )
+                    state.set_retry_feedback(
+                        f"ch{cp.chapter}-{trig['skill']}",
+                        (
+                            accumulate_retry_feedback(
+                                state, f"ch{cp.chapter}-{trig['skill']}", [feedback], enrich=False
+                            )
+                        ),
                     )
                 else:
                     idx = state.chapter_loop.step_index
@@ -1343,10 +1346,13 @@ def cmd_review(args: argparse.Namespace) -> int:
                         )
 
                         skill = ESCALATION_PIPELINE_TARGET.get(skill, skill)
-                        state.chapter_loop.retry_feedback[f"ch{cp.chapter}-{skill}"] = (
-                            accumulate_retry_feedback(
-                                state, f"ch{cp.chapter}-{skill}", [feedback], enrich=False
-                            )
+                        state.set_retry_feedback(
+                            f"ch{cp.chapter}-{skill}",
+                            (
+                                accumulate_retry_feedback(
+                                    state, f"ch{cp.chapter}-{skill}", [feedback], enrich=False
+                                )
+                            ),
                         )
 
             # G4: On modify, queue re-dispatches for derived truth files

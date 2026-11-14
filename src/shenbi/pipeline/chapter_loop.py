@@ -1241,7 +1241,7 @@ def accumulate_retry_feedback(
 
 def _clear_retry_feedback(state: PipelineState, retry_key: str) -> None:
     """Clear retry_feedback together with its accumulation history."""
-    state.chapter_loop.retry_feedback.pop(retry_key, None)
+    state.pop_retry_feedback(retry_key)
     _failure_history_map(state).pop(retry_key, None)
 
 
@@ -1313,7 +1313,7 @@ def _append_feedback_injections(
             f"{state.chapter_loop.modify_feedback}"
         )
         state.chapter_loop.modify_feedback = None
-    prev_g4_feedback = state.chapter_loop.retry_feedback.get(_retry_key(chapter, skill))
+    prev_g4_feedback = state.get_retry_feedback(_retry_key(chapter, skill))
     if prev_g4_feedback:
         # spec #95 T4 (audit-T10 I1): 窗口优先排序——content_dropped verbatim 清单
         # 中模型未见过的行（不在本次 prompt 的窗口面内）浮到前列：未见行最易被
@@ -1871,15 +1871,18 @@ def apply_settle_facts_ops(
         apply_sidecar_ops(project_dir, *(project_dir / STAGING_DIR / rel for rel in sidecars))
     except FactsOpRejectedError as exc:
         key = _retry_key(chapter if chapter is not None else 1, skill)
-        state.chapter_loop.retry_feedback[key] = accumulate_retry_feedback(
-            state,
+        state.set_retry_feedback(
             key,
-            [
-                # ASCII 冒号分段——族键须稳定为前缀（settle 双写 facts_ops 拒收），
-                # 全角冒号会令每次 exc 细节各成一族、挤爆累积史上限（PR #291 审查）
-                f"settle 双写 facts_ops 拒收: {exc}"
-                "——重派时修正 decisions sidecar 的 facts_ops，使其与 truth/facts 现态一致"
-            ],
+            accumulate_retry_feedback(
+                state,
+                key,
+                [
+                    # ASCII 冒号分段——族键须稳定为前缀（settle 双写 facts_ops 拒收），
+                    # 全角冒号会令每次 exc 细节各成一族、挤爆累积史上限（PR #291 审查）
+                    f"settle 双写 facts_ops 拒收: {exc}"
+                    "——重派时修正 decisions sidecar 的 facts_ops，使其与 truth/facts 现态一致"
+                ],
+            ),
         )
         return str(exc)
     return None
@@ -1945,14 +1948,12 @@ def _handle_failure(
     skips its own increment to avoid double-counting.
     """
     key = _retry_key(chapter, step.skill)
-    count = state.chapter_loop.retry_counts.get(key, 0) + 1
-    state.chapter_loop.retry_counts[key] = count
+    count = state.increment_retry(chapter, step.skill)
 
     # Durable budget (spec §3.1): NOT cleared by _reset_retries, so crash-resume
     # can enforce max_audit_retries even after a successful retry.
     if not budget_pre_consumed:
-        consumed = state.chapter_loop.retry_budget_consumed.get(key, 0) + 1
-        state.chapter_loop.retry_budget_consumed[key] = consumed
+        consumed = state.increment_retry_budget(chapter, step.skill)
     else:
         consumed = state.chapter_loop.retry_budget_consumed.get(key, 0)
     if consumed > state.config.max_audit_retries:
@@ -2022,8 +2023,8 @@ def _escalate_step_failure(
         project_dir,
         chapter,
         context=f"Chapter {chapter} step {step.step_num} ({step.skill}) failed after {count} {failure} attempts",
-        details=state.chapter_loop.retry_feedback.get(_retry_key(chapter, step.skill))
-        or state.chapter_loop.retry_feedback.get(f"ch{chapter}-{step.skill}"),
+        details=state.get_retry_feedback(_retry_key(chapter, step.skill))
+        or state.get_retry_feedback(f"ch{chapter}-{step.skill}"),
         failing_skill=step.skill,
     )
     log.error(
@@ -2050,7 +2051,7 @@ def _escalate_step_failure(
 
 def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> None:
     """Clear retry count after a successful step."""
-    state.chapter_loop.retry_counts.pop(_retry_key(chapter, step.skill), None)
+    state.reset_retry(chapter, step.skill)
     # 累积历史同清（门 PASS 面已清——此处兜底 pipeline-内部步等不经门 PASS
     # pop 的成功路径；幂等）。
     _failure_history_map(state).pop(_retry_key(chapter, step.skill), None)
@@ -2407,8 +2408,7 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     # corrective feedback must not leak into later dispatch cycles. The dash
     # terminator in _retry_key scopes the prefix (ch1- never matches ch10-).
     prefix = f"ch{chapter}-"
-    for stale in [k for k in state.chapter_loop.retry_feedback if k.startswith(prefix)]:
-        state.chapter_loop.retry_feedback.pop(stale)
+    state.clear_retry_feedback_prefix(prefix)
     _fh = getattr(state.chapter_loop, "retry_failure_history", None)
     if _fh:
         for stale in [k for k in _fh if k.startswith(prefix)]:
@@ -4183,12 +4183,15 @@ def _run_post_draft_pair_step(
             # the guard's pointed rejection message never reached the
             # retrying model and re-dispatches ran the original prompt
             # verbatim (blind-retry signature).
-            state.chapter_loop.retry_feedback[_retry_key(chapter, settling_step.skill)] = (
-                accumulate_retry_feedback(
-                    state,
-                    _retry_key(chapter, settling_step.skill),
-                    [f"上一次派发失败（输出未落盘）：{settling_result.stderr}"],
-                )
+            state.set_retry_feedback(
+                _retry_key(chapter, settling_step.skill),
+                (
+                    accumulate_retry_feedback(
+                        state,
+                        _retry_key(chapter, settling_step.skill),
+                        [f"上一次派发失败（输出未落盘）：{settling_result.stderr}"],
+                    )
+                ),
             )
         handle_state_settle_failure(state, chapter)
         log.error(
@@ -4212,12 +4215,15 @@ def _run_post_draft_pair_step(
             # re-dispatch injects; this site dropped it, so the
             # increment-shape guard's teaching feedback was lost and all
             # three attempts emitted identical non-compliant shapes.
-            state.chapter_loop.retry_feedback[_retry_key(chapter, lifecycle_step.skill)] = (
-                accumulate_retry_feedback(
-                    state,
-                    _retry_key(chapter, lifecycle_step.skill),
-                    [f"上一次派发失败（输出未落盘）：{lifecycle_result.stderr}"],
-                )
+            state.set_retry_feedback(
+                _retry_key(chapter, lifecycle_step.skill),
+                (
+                    accumulate_retry_feedback(
+                        state,
+                        _retry_key(chapter, lifecycle_step.skill),
+                        [f"上一次派发失败（输出未落盘）：{lifecycle_result.stderr}"],
+                    )
+                ),
             )
         return _handle_failure(
             state,
@@ -4244,10 +4250,13 @@ def _run_post_draft_pair_step(
             rk=_retry_key(chapter, pstep.skill),
         )
         if _shadow_rem is not None:
-            state.chapter_loop.retry_feedback[_retry_key(chapter, pstep.skill)] = (
-                accumulate_retry_feedback(
-                    state, _retry_key(chapter, pstep.skill), list(_shadow_rem)
-                )
+            state.set_retry_feedback(
+                _retry_key(chapter, pstep.skill),
+                (
+                    accumulate_retry_feedback(
+                        state, _retry_key(chapter, pstep.skill), list(_shadow_rem)
+                    )
+                ),
             )
         if gate_passed(g4):
             # #18-4 (probe23): mirror the serial site's canary pop — a
@@ -4264,10 +4273,13 @@ def _run_post_draft_pair_step(
             # Fixcheck escalation ch1: store the must_fix for the retry
             # prompt (the serial audit-wave site does this; this site
             # previously left retry_feedback empty, so retries ran blind).
-            state.chapter_loop.retry_feedback[_retry_key(chapter, pstep.skill)] = (
-                accumulate_retry_feedback(
-                    state, _retry_key(chapter, pstep.skill), list(g4.get("must_fix", []))
-                )
+            state.set_retry_feedback(
+                _retry_key(chapter, pstep.skill),
+                (
+                    accumulate_retry_feedback(
+                        state, _retry_key(chapter, pstep.skill), list(g4.get("must_fix", []))
+                    )
+                ),
             )
             # C33 R4 (F365 residual): G4 failure escalates through the
             # failure handler instead of marking the step done anyway.
@@ -4379,17 +4391,19 @@ def _run_pipeline_internal_step(
             drafting_step = next(s for s in CHAPTER_STEPS if s.skill == "shenbi-chapter-drafting")
             # 熔断重派 drafting（标记/带违例的修复者是 LLM 产物侧）；
             # 失败归类确定性门（FailureClass.DETERMINISTIC_GATE 语义面）
-            state.chapter_loop.retry_feedback[_retry_key(chapter, drafting_step.skill)] = (
-                accumulate_retry_feedback(
-                    state,
-                    _retry_key(chapter, drafting_step.skill),
-                    [f"pipeline-scene-split: {i}" for i in issues],
-                )
+            state.set_retry_feedback(
+                _retry_key(chapter, drafting_step.skill),
+                (
+                    accumulate_retry_feedback(
+                        state,
+                        _retry_key(chapter, drafting_step.skill),
+                        [f"pipeline-scene-split: {i}" for i in issues],
+                    )
+                ),
             )
             drafting_idx = next(
                 i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-chapter-drafting"
             )
-            retry_key = _retry_key(chapter, drafting_step.skill)
             # spec #81 §2: monitor-rewind RETRY (issues kept as the
             # pre-formatted strings scene_splitter produces; the numeric
             # diff-dict form is a recorded deviation, deferred).
@@ -4399,13 +4413,13 @@ def _run_pipeline_internal_step(
                 chapter=chapter,
                 skill=drafting_step.skill,
                 reason={"kind": "monitor_rewind", "chapter": chapter, "issues": list(issues)},
-                loop_id=state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1,
+                loop_id=(consumed := state.increment_retry_budget(chapter, drafting_step.skill)),
             )
             # DURABLE budget trail (retry_budget_consumed, NOT retry_counts —
             # a successful drafting re-dispatch resets retry_counts and the
             # rewind loop would spin forever): mirror the G4 hard-fail path.
-            consumed = state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1
-            state.chapter_loop.retry_budget_consumed[retry_key] = consumed
+            # spec #91 T4: increment FIRST, then emit with loop_id=consumed
+            # (the returned value already includes the +1).
             if consumed > state.config.max_audit_retries:
                 set_checkpoint(
                     state,
@@ -4516,8 +4530,11 @@ def _on_revision_success(
                 emit_shadow_warn_trace(project_dir, chapter, _dw)
             if _plain or _hard:  # all-demoted 不得写空反馈头——shadow 契约要求
                 # 复刻 retry_feedback 清理（PASS-with-warnings），非注入 vacuous 模板
-                state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
-                    state, retry_key, [f"修订重验: {i}" for i in (_plain + _hard)]
+                state.set_retry_feedback(
+                    retry_key,
+                    accumulate_retry_feedback(
+                        state, retry_key, [f"修订重验: {i}" for i in (_plain + _hard)]
+                    ),
                 )
                 return _handle_failure(state, step, chapter, "g4", project_dir)
             _clear_retry_feedback(state, retry_key)  # 全 demoted → 清理旧反馈
@@ -4581,8 +4598,8 @@ def _run_serial_dispatch_step(
     if _pre is not None:
         _st_demoted, _st_hard = _pre
         if _st_hard:
-            state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
-                state, retry_key, _st_hard
+            state.set_retry_feedback(
+                retry_key, accumulate_retry_feedback(state, retry_key, _st_hard)
             )
             return _handle_failure(state, step, chapter, "g4", project_dir)
     # Dispatch the skill. The explicit [path-context] carrier makes the
@@ -4621,8 +4638,11 @@ def _run_serial_dispatch_step(
             # quarantine) retried blind — the stderr carries the missing-path
             # signature + expected ### FILE format; route it into the
             # corrective slot the re-dispatch injects.
-            state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
-                state, retry_key, [f"上一次派发失败（输出未落盘）：{result.stderr}"]
+            state.set_retry_feedback(
+                retry_key,
+                accumulate_retry_feedback(
+                    state, retry_key, [f"上一次派发失败（输出未落盘）：{result.stderr}"]
+                ),
             )
         return _handle_failure(
             state,
@@ -4689,8 +4709,8 @@ def _run_serial_dispatch_step(
         if hard_fails:
             # 束4 裁决 #10/#11（2026-11-05）：整覆写→失败族累积（防回退令节
             # 持存此前轮已点名族——单轮反馈令模型逐轮丢持振荡，修一漏一）。
-            state.chapter_loop.retry_feedback[retry_key] = accumulate_retry_feedback(
-                state, retry_key, hard_fails
+            state.set_retry_feedback(
+                retry_key, accumulate_retry_feedback(state, retry_key, hard_fails)
             )
             # spec #81 §2: structured RETRY event (both re-dispatch branches
             # below share this emission point — per-chapter _handle_failure
@@ -4701,11 +4721,10 @@ def _run_serial_dispatch_step(
                 chapter=chapter,
                 skill=step.skill,
                 reason={"kind": "g4_hard", "check_ids": list(hard_fails)},
-                loop_id=state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1,
+                loop_id=(consumed := state.increment_retry_budget(chapter, step.skill)),
             )
             # Durable budget trail for both paths (spec §3.1).
-            consumed = state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1
-            state.chapter_loop.retry_budget_consumed[retry_key] = consumed
+            # spec #91 T4: increment FIRST, then emit with loop_id=consumed.
             if consumed > state.config.max_audit_retries:
                 raise RetryExhaustedError(
                     f"Retry budget ({state.config.max_audit_retries}) exhausted for {retry_key} "
@@ -4717,8 +4736,7 @@ def _run_serial_dispatch_step(
                 return _handle_failure(
                     state, step, chapter, "gate", project_dir, budget_pre_consumed=True
                 )
-            count = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
-            state.chapter_loop.retry_counts[retry_key] = count
+            count = state.increment_retry(chapter, step.skill)
             if count <= 1:
                 log.info(
                     "chapter_g4_retry_auto_hard",
@@ -4729,7 +4747,7 @@ def _run_serial_dispatch_step(
                 )
                 return False
             log.info("chapter_g4_continue_auto", chapter=chapter, step=step.step_num)
-            state.chapter_loop.retry_counts.pop(retry_key, None)
+            state.reset_retry(chapter, step.skill)
         # No hard fails → fall through to advance
 
     # G3: scoring independence for requires_independent_agent skills.
