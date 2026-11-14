@@ -614,7 +614,6 @@ class CheckContext:
     wc: int
     chapter_no: int | None
     memo_text: str | None
-    memo_path: Path | None
     memo_v2: bool
     memo_v3: bool
     scene_hook_plan_text: str | None
@@ -750,7 +749,6 @@ def _build_check_context(
         wc=wc,
         chapter_no=chapter_no(pf.name),
         memo_text=memo_text,
-        memo_path=memo_path,
         memo_v2=memo_v2,
         memo_v3=memo_v3,
         scene_hook_plan_text=scene_hook_plan_text,
