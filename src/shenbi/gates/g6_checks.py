@@ -3,7 +3,7 @@
 Extracted from g6.py to keep file length under 500 lines.
 """
 
-from shenbi.gates.shared import clip_with_disclosure
+from shenbi.gates.shared import chapter_no, clip_with_disclosure
 from shenbi.status import GateStatus
 
 import re
@@ -39,8 +39,7 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
     know_pat = re.compile(r"(?:知道|明白|意识到|了解|学会|懂得|掌握|想起|回忆)")
 
     def _chapter_num(ch: Path) -> int | None:
-        cn_match = re.search(r"chapter-(\d+)", ch.name)
-        return int(cn_match.group(1)) if cn_match else None
+        return chapter_no(ch.name)
 
     def _chapter_text(ch: Path, limit: int) -> str:
         nonlocal timeline_sampled
@@ -124,10 +123,9 @@ def check_pacing(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[str]]
 
     ch_types: list[dict[str, Any]] = []
     for ch in chapters:
-        cn_match = re.search(r"chapter-(\d+)", ch.name)
-        if not cn_match:
+        cn = chapter_no(ch.name)
+        if cn is None:
             continue
-        cn = int(cn_match.group(1))
         ct = ch.read_text(encoding="utf-8")
         body = ct
         for tag_pat in [

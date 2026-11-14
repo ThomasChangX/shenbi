@@ -113,7 +113,8 @@ Examples:
 
     elif gate == "G4":
         from shenbi.gates.g4 import gate_G4, gate_G4_bughunt, gate_G4_clean
-        from shenbi.gates.shared import PROJECT, write_gate_marker
+        from shenbi.gates.gate_manifest import write_gate_marker
+        from shenbi.gates.shared import PROJECT
         from shenbi.status import GateStatus
 
         g4_args = list(args)
@@ -199,7 +200,7 @@ Examples:
         result = gate_G5(phase_name=arg(0), round_dir=arg(1), project_dir=arg(2))
     elif gate == "G6":
         from shenbi.gates.g6 import gate_G6
-        from shenbi.gates.shared import write_gate_marker
+        from shenbi.gates.gate_manifest import write_gate_marker
 
         pipeline_name = arg(0)
         result = gate_G6(pipeline_name, arg(1), arg(2))

@@ -31,9 +31,9 @@ if [ "${1:-}" = "--validate" ]; then
 import sys
 from pathlib import Path
 sys.path.insert(0, 'src')
-from shenbi.gates.shared import ALL_SKILLS, parse_report_stem
+from shenbi.gates.shared import all_skills, parse_report_stem
 for f in Path(sys.argv[1]).glob('*.json'):
-    skill = parse_report_stem(f.stem, ALL_SKILLS)
+    skill = parse_report_stem(f.stem, all_skills())
     print(skill or f.stem)
 " "${ROUND_DIR}/t1-reports" | sort -u || true)
   if [ -n "$REPORT_SKILLS" ]; then

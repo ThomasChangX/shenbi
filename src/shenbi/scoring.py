@@ -13,7 +13,7 @@ from shenbi.cli_utils import emit_json
 from shenbi.contracts.enums import ScoredBy
 from shenbi.contracts.file_list import join_gate_file_list
 from shenbi.contracts.thresholds import CONDITIONAL_MIN, MARGINAL_MIN, TEST_PASS
-from shenbi.gates.shared import marker_filename
+from shenbi.gates.gate_manifest import marker_filename
 from shenbi.logging import configure_logging, get_logger
 from shenbi.status import ScoreClassification, ScoringStatus
 

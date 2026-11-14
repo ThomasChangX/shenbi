@@ -19,9 +19,13 @@ from shenbi.gates.g4.cross_chapter import load_memo_declarations
 from shenbi.gates.shared import (
     SCENE_INDEPENDENT_BAND,
     SCENE_PAIRED_BAND,
+    CHAPTER_NUM_RE,
+    chapter_no,
     chapter_word_min_max,
+    degrade,
     fail,
     jload,
+    load_facts_oracle,
     pack_scenes,
     parse_scene_declarations,
     passed,
@@ -72,7 +76,7 @@ def parse_prop_declarations(memo_text: str) -> list[tuple[str, str, str, str]]:
     return out
 
 
-def _declared_history(project_dir: str | None) -> dict[int, dict[str, Any]]:
+def declared_history(project_dir: str | None) -> dict[int, dict[str, Any]]:
     """Read completion-time declared snapshots from pipeline-state.json."""
     if not project_dir:
         return {}
@@ -114,7 +118,7 @@ def _spec82_sequence_gates(
     from shenbi.text.recall_weight import cold_chapter
 
     mp = (read_genre_config(project_dir) or {}).get("market_params", {})
-    hist = _declared_history(project_dir)
+    hist = declared_history(project_dir)
 
     # spec #82 T1: 回卷窗口跨卷界时只取本卷已生成章（audit-T4/C1）——
     # bundle_chapters 同源的 volume span 判定复用；无 volume_map 时全量。
@@ -548,7 +552,7 @@ def _spec82_core_motif_touch(
         )
         return
     max_gap = int(cmt.get("max_gap", 6))
-    hist = _declared_history(project_dir)
+    hist = declared_history(project_dir)
     # spec r6/N2 (audit-T9/I2): same-volume scope as T1 — the back-walk stops
     # at the current volume's start (parse_volume_spans, bundle_chapters
     # source); a first marker before the window doesn't count (docstring
@@ -650,8 +654,7 @@ def g4_chapter_planning(
                     "时间锚/余额/POV/事件/物象行）"
                 )
             continue
-        n_match = re.search(r"chapter-(\d+)", p_.name)
-        chapter_no = int(n_match.group(1)) if n_match else None
+        ch_n = chapter_no(p_.name)
         issues: list[str] = []
         if not 2 <= len(decls) <= 3:
             issues.append(f"场景数 {len(decls)} 不在 2-3")
@@ -677,19 +680,16 @@ def g4_chapter_planning(
             issues.append(f"章和 {total} 不在 [{chapter_band[0]},{chapter_band[1]}]")
         # 打包窗口：前章全场景（实际）+ 本声明 + 邻章备忘声明（R2 接缝联合）
         seq: list[int] = []
-        if chapter_no is not None and project_dir:
-            prev = Path(project_dir) / "chapters" / f"chapter-{chapter_no - 1}.md"
+        if ch_n is not None and project_dir:
+            prev = Path(project_dir) / "chapters" / f"chapter-{ch_n - 1}.md"
             if prev.is_file():
                 seq.extend(s for s, _ll in split_scenes(prev.read_text(encoding="utf-8")))
         seq.extend(sizes)
-        if chapter_no is not None:
+        if ch_n is not None:
             for cand in (
-                p_.parent / f"chapter-{chapter_no + 1}-plan.md",
-                Path(project_dir or ".")
-                / "staging"
-                / "plans"
-                / f"chapter-{chapter_no + 1}-plan.md",
-                Path(project_dir or ".") / "plans" / f"chapter-{chapter_no + 1}-plan.md",
+                p_.parent / f"chapter-{ch_n + 1}-plan.md",
+                Path(project_dir or ".") / "staging" / "plans" / f"chapter-{ch_n + 1}-plan.md",
+                Path(project_dir or ".") / "plans" / f"chapter-{ch_n + 1}-plan.md",
             ):
                 sib = _memo_decl_sizes(cand)
                 if sib:
@@ -720,10 +720,9 @@ def g4_chapter_planning(
         _props_facts = None
         if project_dir:
             from shenbi.facts.enums import FactsDim
-            from shenbi.facts.store import load_facts
 
-            _loaded = load_facts(Path(project_dir), FactsDim.PROPS)
-            if _loaded is not None and not _loaded.is_empty:
+            _loaded = load_facts_oracle(project_dir, FactsDim.PROPS)
+            if _loaded is not None:
                 _props_facts = _loaded.props()
         _prop_decls = parse_prop_declarations(content)
         if _props_facts is None:
@@ -732,7 +731,7 @@ def g4_chapter_planning(
                     "id": "cp.prop_decl",
                     "file": fp,
                     "s": GateStatus.WARN,
-                    "r": "no_facts — props facts absent/empty; F16 cp legality skipped (degradation visible)",
+                    "r": degrade("no_facts", "props facts absent/empty", "F16 cp legality skipped"),
                 }
             )
         elif not _prop_decls:
@@ -886,8 +885,10 @@ def g4_chapter_planning(
         # Golden-3 rules based on chapter number N — quality bonus, not hard gate.
         # Only fails if golden content is completely missing AND sections are also
         # incomplete. Warnings are more appropriate for automated pipelines.
-        ch_num = re.search(r"-(\d+)-plan", str(fp))
-        n = int(ch_num.group(1)) if ch_num else 0
+        _pl_m = CHAPTER_NUM_RE.search(
+            Path(fp).name
+        )  # basename 域+group 原文（零填充/嵌套 chapter 目录）
+        n = int(_pl_m.group(1)) if _pl_m and f"-{_pl_m.group(1)}-plan" in str(fp) else 0
         golden = {1: "三面墙", 2: "验证主角特殊性|对手", 3: "小高潮"}
         if n in golden:
             alternatives = golden[n].split("|")

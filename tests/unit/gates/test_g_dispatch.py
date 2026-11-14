@@ -64,10 +64,10 @@ class TestGTransition:
 
 @pytest.mark.unit
 def test_g_dispatch_passes_when_all_skills_completed(make_project) -> None:
-    """GD.1 PASS when completed_skill_names ⊇ ALL_SKILLS."""
-    from shenbi.gates.shared import ALL_SKILLS
+    """GD.1 PASS when completed_skill_names ⊇ all_skills()."""
+    from shenbi.gates.shared import all_skills
 
-    _, round_dir = make_project(progress={"completed_skill_names": sorted(ALL_SKILLS)})
+    _, round_dir = make_project(progress={"completed_skill_names": sorted(all_skills())})
     result = _result_dict(gate_G_DISPATCH("drafting", str(round_dir)))
     assert result["status"] == "PASS"
 

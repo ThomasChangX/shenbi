@@ -105,3 +105,64 @@ def count_punctuation(text: str) -> dict[str, int]:
     }
     counts["引号"] = count_quote_pairs(text)
     return counts
+
+
+QUOTE_PAIR = {"”": "“", "’": "‘", "」": "「", "』": "『"}
+# 迁自 skill_utils/style_learning/compute_stats.py（spec #71 单信源化：
+# G4.cd 与 compute_stats 同源切分；compute_stats re-export 保 API 兼容）。
+
+
+def segment_sentences(text: str) -> list[tuple[str, int]]:
+    r"""Segment Chinese text into sentences. Returns list of (sentence_text, char_count).
+
+    F628: ； terminates sentences (unified with SENT_ENDS).
+    F668: sentence-final punctuation inside open quotes does not split;
+    \n splits unconditionally (escape hatch for unterminated quotes).
+    """
+    sentences: list[tuple[str, int]] = []
+    current: list[str] = []
+    quote_stack: list[str] = []
+    ascii_quote_open = False
+
+    def flush() -> None:
+        sent = "".join(current).strip()
+        if sent:
+            char_count = len(sent.replace("\n", "").replace(" ", ""))
+            if char_count > 0:
+                sentences.append((sent, char_count))
+        current.clear()
+
+    for ch in text:
+        current.append(ch)
+        quote_closed = False
+        if ch in QUOTE_PAIR.values():
+            quote_stack.append(ch)
+        elif ch in QUOTE_PAIR:
+            if quote_stack and quote_stack[-1] == QUOTE_PAIR[ch]:
+                quote_stack.pop()
+                quote_closed = True
+        elif ch == '"':
+            if ascii_quote_open:
+                quote_closed = True
+            ascii_quote_open = not ascii_quote_open
+        in_quote = bool(quote_stack) or ascii_quote_open
+        if ch == "\n" or (ch in "。！？；" and not in_quote):
+            if ch == "\n":
+                # reset quote state so an unterminated quote on one line cannot
+                # suppress splitting on later lines (Copilot review, PR #100)
+                quote_stack.clear()
+                ascii_quote_open = False
+            flush()
+        elif (
+            quote_closed
+            and not quote_stack
+            and not ascii_quote_open
+            and len(current) >= 2
+            and current[-2] in "。！？；"
+        ):
+            # F668: sentence-final punct right before the OUTERMOST closing quote
+            # ends the sentence (nested inner closes do not split the outer one)
+            flush()
+    if current:
+        flush()
+    return sentences

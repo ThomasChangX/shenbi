@@ -32,7 +32,7 @@ class TestG7RoundClose:
 class TestG7ErrorPaths:
     """Error-path coverage for G7 round-close (PR-52 Step 7).
 
-    G7 reads ALL_SKILLS (from skills/) to validate t1-reports artifact coverage,
+    G7 reads all_skills() (from skills/) to validate t1-reports artifact coverage,
     scans round_dir/skill-output/ for placeholders and pending truth files,
     re-runs PASS gate markers. Tests use a round_dir under tmp_path and, where the gate
     references module-level constants, monkeypatch them.
@@ -200,15 +200,15 @@ def test_g716_phase_state_not_finalized_fails(tmp_path: Path) -> None:
 @pytest.mark.unit
 def test_parse_report_stem_contract(tmp_path: Path) -> None:
     """Direct contract pin for the shared stem parser (final review M2)."""
-    from shenbi.gates.shared import ALL_SKILLS, parse_report_stem
+    from shenbi.gates.shared import all_skills, parse_report_stem
 
-    assert parse_report_stem("shenbi-worldbuilding-generative-scores-subagent", ALL_SKILLS) == (
+    assert parse_report_stem("shenbi-worldbuilding-generative-scores-subagent", all_skills()) == (
         "shenbi-worldbuilding"
     )
-    assert parse_report_stem("shenbi-worldbuilding-generative", ALL_SKILLS) == (
+    assert parse_report_stem("shenbi-worldbuilding-generative", all_skills()) == (
         "shenbi-worldbuilding"
     )
-    assert parse_report_stem("hallucinated-skill-report", ALL_SKILLS) is None
+    assert parse_report_stem("hallucinated-skill-report", all_skills()) is None
 
 
 @pytest.mark.unit

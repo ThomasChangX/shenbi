@@ -10,7 +10,6 @@ generic adapter.
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 from typing import Any
 from collections.abc import Callable
@@ -19,7 +18,14 @@ from pydantic import ValidationError
 
 from shenbi.contracts.schemas.adapt import pydantic_err_to_gate_failures
 from shenbi.contracts.schemas.decisions import DecisionsDoc
-from shenbi.gates.shared import fail, finding, parse_decisions_payload, passed, resolve_input_path
+from shenbi.gates.shared import (
+    CHAPTER_NUM_RE,
+    fail,
+    finding,
+    parse_decisions_payload,
+    passed,
+    resolve_input_path,
+)
 from shenbi.status import GateStatus
 
 
@@ -62,10 +68,8 @@ def _check_adjacent_budget(project_dir: Path, chapter: int) -> list[str]:
 
 def _extract_chapter_number(filepath: str) -> int | None:
     """Extract chapter number from a decisions file path like 'chapter-6-decisions.json'."""
-    m = re.search(r"chapter-(\d+)-decisions\.json", filepath)
-    if m:
-        return int(m.group(1))
-    return None
+    m = CHAPTER_NUM_RE.search(Path(filepath).name)  # basename 域+group 原文（零填充/嵌套）
+    return int(m.group(1)) if m and f"chapter-{m.group(1)}-decisions.json" in filepath else None
 
 
 def g4_decisions(

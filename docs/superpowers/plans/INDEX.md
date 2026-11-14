@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-14（spec #88 完结归档——PR #334 squash，T1-T8 全 audit+终审 Ready to merge）
-> **活跃 plan 数**：1 | **已归档**：141（见 `archive/`）
+> **最后更新**：2026-11-14（spec #89 plan 建档 ✅ ready；前次 spec #88 完结归档——PR #334 squash）
+> **活跃 plan 数**：2 | **已归档**：141（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,6 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
+- **[2026-11-14-spec89-gates-internal-repair.md](2026-11-14-spec89-gates-internal-repair.md)** ✅ ready——对应 spec #89（r2.6）；六 task 施工序 T3→T2→T1→T4→T5→T6（四窄助手/章号单源+lint/CheckContext 拆分/shared 出鞘+7 破裂面/正名+文档/G0.12 真实现+GENERIC_ONLY_ROSTER）
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行完毕待归档**——T0-T3+首跑验收全落）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
 
 ## 待执行的 spec → plan 映射

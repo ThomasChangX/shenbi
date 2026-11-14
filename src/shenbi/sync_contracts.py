@@ -21,7 +21,7 @@ from shenbi.contracts import ContractError, load_contract, load_registry
 from shenbi.contracts.graph import dag_key, normalize_to_glob
 from shenbi.contracts.schemas.registry import TruthFilesRegistry
 from shenbi.safe_write import safe_write
-from shenbi.gates.shared import ALL_SKILLS, PROJECT, SKILLS
+from shenbi.gates.shared import PROJECT, SKILLS, all_skills
 from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
@@ -35,7 +35,7 @@ BODY_END = "<!-- END AUTO-GENERATED -->"
 def load_all_contracts() -> dict[str, dict[str, Any]]:
     """Load every skill's contract; skills without one (meta/pre-migration) are skipped."""
     out: dict[str, dict[str, Any]] = {}
-    for skill in ALL_SKILLS:
+    for skill in all_skills():
         try:
             c = load_contract(skill)
         except ContractError:

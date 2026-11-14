@@ -5,6 +5,7 @@ from shenbi.truth_format import find_hook_ids, split_frontmatter  # spec #85 T5/
 from shenbi.status import GateStatus
 from typing import Any
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 from shenbi.text.voice_lexicon import (
@@ -20,8 +21,12 @@ from shenbi.gates.shared import (
     META_NARRATIVE,
     chapter_word_floor,
     count_similes,
+    chapter_no,
+    chapter_no_raw,
     count_transition_words,
+    degrade,
     fail,
+    load_facts_oracle,
     passed,
     read_genre_config,
     resolve_input_path,
@@ -532,7 +537,12 @@ def ending_archetype_of(text: str) -> str | None:
 
 
 def _spec82_hook_rotation(
-    content: str, pf_name: str, project_dir: str | None, mf: list[str], c: list[dict[str, Any]]
+    content: str,
+    pf_name: str,
+    project_dir: str | None,
+    memo_text: str | None,
+    mf: list[str],
+    c: list[dict[str, Any]],
 ) -> None:
     """Spec #82 T4: 七型钩轮换门 + 收尾多样性哨兵（读 T0 快照+章文件）.
 
@@ -542,18 +552,16 @@ def _spec82_hook_rotation(
     Ending diversity (WARN): closing-archetype pattern firing three chapters
     in a row — 账目形态 first (>=2 digit runs in the closing window).
     """
-    from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
+    from shenbi.gates.g4.chapter_planning import declared_history
 
-    m_ch = re.search(r"chapter-(\d+)", pf_name)
-    if not m_ch or not project_dir:
+    n = chapter_no(pf_name)
+    if n is None or not project_dir:
         return
-    n = int(m_ch.group(1))
-    hist = _declared_history(project_dir)
+    hist = declared_history(project_dir)
 
-    mp = Path(project_dir) / "plans" / f"chapter-{n}-plan.md"
     cur: str | None = None
-    if mp.is_file():
-        mm = re.search(r"^章尾钩型[：:]\s*(\S+)", mp.read_text(encoding="utf-8"), re.M)
+    if memo_text is not None:
+        mm = re.search(r"^章尾钩型[：:]\s*(\S+)", memo_text, re.M)
         cur = mm.group(1).strip() if mm else None
     prev = (hist.get(n - 1) or {}).get("章尾钩型")
     if cur and prev and cur == prev:
@@ -581,6 +589,895 @@ def _spec82_hook_rotation(
         )
 
 
+# spec #71 golden-slot line predicates (compiled once at module level —
+# loop-body definitions trip ruff B023; hoisted out of main by spec #89 T1).
+_GOLDEN_PRE_RE = re.compile(r"^\s*-\s*本章金句位\s*[:：]\s*(.*)$", re.MULTILINE)
+_GOLDEN_POST_RE = re.compile(r"^\s*-\s*\[.\]\s*金句位\s*[:：]\s*(.+)$", re.MULTILINE)
+_EMPTY_VALUES = frozenset({"", "无", "N/A", "待定"})
+
+
+@dataclass
+class CheckContext:
+    """Per-chapter inputs assembled once at loop top (spec #89 T1).
+
+    Facts oracles are project-level (loaded once before the loop); everything
+    else is per-file. The project_dir-base plan/memo is read exactly once as
+    ``memo_text`` (four scattered memo re-reads collapse here). The scene-hook
+    rd-or-project_root plan keeps its own resolution (F407 order) as
+    ``scene_hook_plan_text`` — a DIFFERENT file when rd != project_dir; the
+    two bases must not be unified (plan review C1).
+    """
+
+    fp: str
+    pf: Path
+    content: str
+    wc: int
+    chapter_no: int | None
+    memo_text: str | None
+    memo_v2: bool
+    memo_v3: bool
+    scene_hook_plan_text: str | None
+    project_root: Path
+    total: int
+    narrative: str
+    paragraphs: list[str]
+    pre_block: re.Match[str] | None
+    post_block: re.Match[str] | None
+    props_facts: dict[str, dict[str, str]] | None
+    counters_facts: dict[str, dict[str, int]] | None
+    known_names: set[str] | None
+    owner_aliases: dict[str, set[str]]
+    project_dir: str | None
+    rd: str | None
+
+
+def _load_cd_oracles(
+    project_dir: str | None,
+) -> tuple[
+    dict[str, dict[str, str]] | None,
+    dict[str, dict[str, int]] | None,
+    set[str] | None,
+    dict[str, set[str]],
+]:
+    """Spec #80 T5 F16 oracle load — facts absent/empty => WARN-visible skip."""
+    props_facts: dict[str, dict[str, str]] | None = None
+    counters_facts: dict[str, dict[str, int]] | None = None
+    known_names: set[str] | None = None
+    owner_aliases: dict[str, set[str]] = {}
+    if project_dir:
+        from shenbi.facts.enums import FactsDim
+
+        loaded = load_facts_oracle(project_dir, FactsDim.PROPS)
+        if loaded is not None:
+            props_facts = {k: {"owner": v.owner} for k, v in loaded.props().items()}
+        # spec #80 T7 F17: counters oracle（空种子≡缺席，R4-M2）
+        cn_loaded = load_facts_oracle(project_dir, FactsDim.COUNTERS)
+        if cn_loaded is not None:
+            counters_facts = {k: {"value": v.value} for k, v in cn_loaded.counters().items()}
+        # F16「非 owner 人名」roster（2026-10-29 实弹校准）：owners ∪ identity
+        # 叙事名+别名 ∪ name_registry 名列；主角别名同时计入 owner-side
+        known_names = {info.get("owner", "") for info in (props_facts or {}).values()} - {""}
+        id_loaded = load_facts_oracle(project_dir, FactsDim.IDENTITY)
+        if id_loaded is not None:
+            idf = id_loaded.identity()
+            if idf is not None:
+                known_names |= {idf.narration_name, *idf.aliases}
+                owner_aliases[idf.narration_name] = set(idf.aliases)
+        nr = Path(project_dir) / "truth" / "name_registry.md"
+        if nr.is_file():
+            for line in nr.read_text(encoding="utf-8").splitlines():
+                m = re.match(r"^\|([^|]+)\|\s*([^|]+?)\s*\|", line)
+                if not m:
+                    continue
+                cat, name = m.group(1).strip(), m.group(2)
+                if cat in ("类别", "---", ":---") or name in ("名", "---"):
+                    continue
+                # 控制行不是角色注册（代词白名单的「他」入 roster 后人名要件被
+                # 代词恒满足；禁用名的「灯」同理）＋裸代词永不入册
+                if cat in ("代词白名单", "禁用名") or name in ("他", "她", "它", "我", "你"):
+                    continue
+                known_names.add(name)
+    return props_facts, counters_facts, known_names, owner_aliases
+
+
+def _build_check_context(
+    fp: str,
+    pf: Path,
+    rd: str | None,
+    project_dir: str | None,
+    props_facts: dict[str, dict[str, str]] | None,
+    counters_facts: dict[str, dict[str, int]] | None,
+    known_names: set[str] | None,
+    owner_aliases: dict[str, set[str]],
+) -> CheckContext:
+    """Assemble the per-chapter context once (spec #89 T1, dependency-closed)."""
+    content = pf.read_text(encoding="utf-8")
+    wc = word_count_md(str(pf))
+    ch_raw = chapter_no_raw(Path(fp).name)
+    memo_text: str | None = None
+    memo_path: Path | None = None
+    if project_dir and ch_raw is not None:
+        memo_path = Path(project_dir) / "plans" / f"chapter-{ch_raw}-plan.md"
+        if memo_path.is_file():
+            memo_text = memo_path.read_text(encoding="utf-8")
+    # spec #48 C34 (F407): project_root resolution order = explicit project_dir
+    # param (if it carries genre-config) > genre-config ancestor walk > pf.parent.
+    candidates: list[Path] = []
+    if project_dir:
+        candidates.append(Path(project_dir))
+    walk = pf.parent
+    while walk.parent != walk and not (walk / "genre-config.json").exists():
+        walk = walk.parent
+    candidates.append(walk if (walk / "genre-config.json").exists() else pf.parent)
+    project_root = next(
+        (cdir for cdir in candidates if (cdir / "genre-config.json").exists()),
+        candidates[-1],
+    )
+    # scene-hook plan keeps its own rd-or-project_root base (plan review C1).
+    scene_hook_plan_text: str | None = None
+    if ch_raw is not None and (rd or project_root):
+        plan_base = Path(rd) if rd else Path(project_root)
+        plan_path = plan_base / "plans" / f"chapter-{ch_raw}-plan.md"
+        if plan_path.is_file():
+            scene_hook_plan_text = plan_path.read_text(encoding="utf-8")
+    total = total_chars_md_text(content)
+    narrative = strip_narrative_body(content)
+    # paragraph surface: strip HOOK ledger blocks, META blocks, scene markers
+    # (canary #12 / probe #39: machine markup must not become the "last
+    # paragraph" for the end-hook window).
+    content_for_prose = re.sub(r"<!--HOOK-BEGIN-->.*?<!--HOOK-END-->", "", content, flags=re.DOTALL)
+    content_for_prose = META_BLOCK_RE.sub("", content_for_prose)
+    content_for_prose = strip_scene_markers(content_for_prose)
+    paragraphs = [p.strip() for p in content_for_prose.split("\n\n") if p.strip()]
+    pre_block = re.search(r"## PRE_WRITE_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL)
+    post_block = re.search(r"## POST_WRITE_SELF_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL)
+    # spec #76/#78 plan_format detection on the single memo read (v3 ⊇ v2,
+    # #78; v4 ⊇ v3, spec #82) — v[2-9] gate must not let v[3-9] hit v2.
+    memo_v2 = bool(
+        memo_text is not None
+        and re.search(r"^plan_format[：:]\s*v[2-9]\s*$", memo_text, re.MULTILINE)
+    )
+    memo_v3 = bool(
+        memo_v2
+        and memo_text is not None
+        and re.search(r"^plan_format[：:]\s*v[3-9]\s*$", memo_text, re.MULTILINE)
+    )
+    return CheckContext(
+        fp=fp,
+        pf=pf,
+        content=content,
+        wc=wc,
+        chapter_no=chapter_no(pf.name),
+        memo_text=memo_text,
+        memo_v2=memo_v2,
+        memo_v3=memo_v3,
+        scene_hook_plan_text=scene_hook_plan_text,
+        project_root=project_root,
+        total=total,
+        narrative=narrative,
+        paragraphs=paragraphs,
+        pre_block=pre_block,
+        post_block=post_block,
+        props_facts=props_facts,
+        counters_facts=counters_facts,
+        known_names=known_names,
+        owner_aliases=owner_aliases,
+        project_dir=project_dir,
+        rd=rd,
+    )
+
+
+def _check_prop_handoff(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #80 T5 F16 — 物象交接共现."""
+    # ── spec #80 T5 F16 G4.cd — 正文无源交付拍（per-chapter）──
+    if ctx.props_facts is None:
+        c.append(
+            {
+                "id": "cd.prop_handoff",
+                "file": ctx.fp,
+                "s": GateStatus.WARN,
+                "r": degrade("no_facts", "props facts absent/empty", "hand-off scan skipped"),
+            }
+        )
+    else:
+        # 束8 实弹（2026-11-09，ch49）：扫描面须剔除 META 块——PRE_WRITE_CHECK
+        # 的任务复述行（「把…班期表逐条对勘，补出…交上去」）含物象+交接动词+
+        # 人名，raw 面 4 假阳性 vs strip_narrative_body 后 0（其余内容检查同
+        # 口径：#86 候选「检查器表面比真值面宽」）。正文为真值源。
+        for issue in check_prop_handoffs(
+            strip_narrative_body(ctx.content),
+            ctx.memo_text or "",
+            ctx.props_facts,
+            ctx.known_names,
+            ctx.owner_aliases,
+        ):
+            mf.append(f"G4.{issue}")
+
+
+def _check_counters(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #80 T7 F17 — 计数器三方对账."""
+    # ── spec #80 T7 F17 — 计数器三方对账（激活判定在调用点，R3-M1）──
+    # M1（audit-T7）：计数名→prose 词族映射（未映射计数器跳过 prose 面，
+    # 多计数器不串扰）；M2：鉴录名数=那罕添加名口径（R2-I4a）——ch17 全书
+    # 口径靠 no_decl 跳过，backfill 范围钉 ch9-only（T13）
+    if ctx.counters_facts is None:
+        c.append(
+            {
+                "id": "cd.counter",
+                "file": ctx.fp,
+                "s": GateStatus.WARN,
+                "r": degrade("no_facts", "counters facts absent/empty", "reconciliation skipped"),
+            }
+        )
+    else:
+        _memo_decls = parse_counter_declarations(ctx.memo_text) if ctx.memo_text else []
+        if not _memo_decls:
+            c.append(
+                {
+                    "id": "cd.counter",
+                    "file": ctx.fp,
+                    "s": GateStatus.WARN,
+                    "r": degrade(
+                        "no_decl",
+                        "memo declares no counters this chapter",
+                        "reconciliation not activated",
+                        visible=False,
+                        tail=" (legacy-memo compat, ch17-class false-red guard)",
+                    ),
+                }
+            )
+        else:
+            _unknown = {n for n, _b, _d in _memo_decls} - set(ctx.counters_facts)
+            for _u in sorted(_unknown):
+                mf.append(
+                    f"G4.cd.counter:{ctx.fp}:「{_u}」备忘声明了 facts 未种子的计数器"
+                    "——先补 facts 种子（修复者: settling）"
+                )
+            # spec #83 T9: id-first 发射（r5.3 铁律——path-first 形态使
+            # check_id() 提取失效、shadow 静默失灵）
+            mf.extend(
+                f"G4.{issue}"
+                for issue in check_counter_reconciliation(
+                    ctx.content, ctx.memo_text or "", ctx.counters_facts, fp=ctx.fp
+                )
+            )
+
+
+def _check_balance_drift(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #83 T6 余额锚 + 来历锚."""
+    # ── spec #83 T6 余额锚（§10 行 8/9，shadow 起 L-D）──
+    # 取数：truth/particle_ledger.md check 时点现值（单一信源，不扫前章正文）；
+    # 缺席 → WARN 可见 skip（F16/F17 facts 三律同款）。
+    _ledger_path = (
+        Path(ctx.project_dir) / "truth" / "particle_ledger.md" if ctx.project_dir else None
+    )
+    _ledger_text = (
+        _ledger_path.read_text(encoding="utf-8")
+        if _ledger_path and _ledger_path.is_file()
+        else None
+    )
+    if _ledger_text is None:
+        c.append(
+            {
+                "id": "cd.balance_value_drift",
+                "file": ctx.fp,
+                "s": GateStatus.WARN,
+                "r": degrade("no_ledger", "particle_ledger.md absent", "balance anchor skipped"),
+            }
+        )
+    else:
+        from shenbi.gates.g4.post_declarations import (
+            check_balance_value_drift,
+            parse_ledger_current_value,
+            parse_spend_events,
+        )
+
+        _bal_fails, _bal_warns = check_balance_value_drift(
+            ctx.content,
+            parse_ledger_current_value(_ledger_text),
+            spend_events=parse_spend_events(ctx.memo_text or ""),
+        )
+        for _bf in _bal_fails:
+            _bf_id, _bf_detail = _bf.split(":", 1)
+            mf.append(f"G4.{_bf_id}:{ctx.fp}:{_bf_detail}")
+        for _bw in _bal_warns:
+            c.append(
+                {"id": "cd.balance_value_drift", "file": ctx.fp, "s": GateStatus.WARN, "r": _bw}
+            )
+    # spec #83 T6 来历锚（WARN-only 人工裁决面——存量缺列跳过；与 ledger
+    # 缺席无依赖，audit-T11 I1 清偿：原嵌 ledger-else 会在 particle_ledger
+    # 缺席时静默不跑）
+    _reg_path = Path(ctx.project_dir) / "truth" / "prop_registry.md" if ctx.project_dir else None
+    if _reg_path and _reg_path.is_file():
+        from shenbi.gates.g4.post_declarations import check_provenance_anchor
+
+        for _pv in check_provenance_anchor(ctx.content, _reg_path.read_text(encoding="utf-8")):
+            c.append({"id": "cd.provenance_anchor", "file": ctx.fp, "s": GateStatus.WARN, "r": _pv})
+
+
+def _check_pre_block(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """PRE_WRITE_CHECK presence."""
+    # PRE_WRITE_CHECK
+    if "## PRE_WRITE_CHECK" not in ctx.content:
+        mf.append(f"G4.pre_check:{ctx.fp}")
+    else:
+        c.append({"id": "G4.pre_check", "file": ctx.fp, "s": GateStatus.PASS})
+
+
+def _check_post_block(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """POST_WRITE_SELF_CHECK presence + spec #83 T1 引句两臂门."""
+    # POST_WRITE_SELF_CHECK
+    if "## POST_WRITE_SELF_CHECK" not in ctx.content:
+        mf.append(f"G4.post_check:{ctx.fp}")
+    else:
+        c.append({"id": "G4.post_check", "file": ctx.fp, "s": GateStatus.PASS})
+        # spec #83 T1: POST 声明引句两臂门（执法两行；WARN 臂进 c 列表交评审）。
+        # FAIL 项 id-first 发射（check_id() 按串首提取）；消费点走既有
+        # _shadow_route_g4 路径（§10 前提满足——经 :4333/:4016/:1387 自然 demote）。
+        from shenbi.gates.g4.post_declarations import check_post_quote_verbatim
+
+        _pq_fails, _pq_warns = check_post_quote_verbatim(ctx.content)
+        for _pq_f in _pq_fails:
+            _pq_id, _pq_detail = _pq_f.split(":", 1)
+            mf.append(f"G4.{_pq_id}:{ctx.fp}:{_pq_detail}")
+        for _w in _pq_warns:
+            c.append(
+                {"id": "cd.post_quote_verbatim", "file": ctx.fp, "s": GateStatus.WARN, "r": _w}
+            )
+
+
+def _check_transitions(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Transition density + spec #83 T1 POST 交叉/字数精度."""
+    # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
+    # Count on the narrative body only (probe escalation #4): the raw
+    # content includes the framework-mandated PRE_WRITE_CHECK checklist,
+    # which itself enumerates transition words — the gate was counting
+    # its own checklist (6 of 8 hits on probe chapter 1).
+    tc = count_transition_words(strip_narrative_body(ctx.content))
+    # spec #83 T1: POST 声明-门实测交叉（§10 行 2，shadow 起 L-D）＋字数行
+    # 虚假精度 WARN（评审面非 FAIL，不入 §10）。实测口径=total_chars_md_text
+    # （全字符剥后——ctx.wc 是 CJK 计数，与 POST 逐段全字符总计系统差 13-19%）。
+    from shenbi.gates.g4.post_declarations import (
+        check_post_transition_cross,
+        check_post_wordcount_precision,
+    )
+    from shenbi.gates.shared import total_chars_md_text as _tcmt
+
+    for _ptc in check_post_transition_cross(ctx.content):
+        _ptc_id, _ptc_detail = _ptc.split(":", 1)
+        mf.append(f"G4.{_ptc_id}:{ctx.fp}:{_ptc_detail}")
+    for _wcp in check_post_wordcount_precision(ctx.content, _tcmt(ctx.content)):
+        c.append(
+            {"id": "cd.post_wordcount_precision", "file": ctx.fp, "s": GateStatus.WARN, "r": _wcp}
+        )
+    max_t = max(5, ctx.wc // 1000)
+    if tc > max_t:
+        mf.append(f"G4.transition:{ctx.fp}:{tc}>{max_t}")
+    else:
+        c.append(
+            {
+                "id": "G4.transition",
+                "file": ctx.fp,
+                "s": GateStatus.PASS,
+                "density": f"{tc}/{ctx.wc}",
+            }
+        )
+
+
+def _check_fatigue(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Fatigue words <= 8 (genre-config 阈)."""
+    gc = read_genre_config(str(ctx.project_root))
+    fatigue_list = gc.get("fatigue_words", FATIGUE_BASE)
+    fatigue_hits = sum(ctx.content.count(w) for w in fatigue_list)
+    if fatigue_hits > 8:
+        mf.append(f"G4.fatigue:{ctx.fp}:{fatigue_hits}>8")
+    else:
+        c.append(
+            {
+                "id": "G4.fatigue",
+                "file": ctx.fp,
+                "s": GateStatus.PASS,
+                "hits": fatigue_hits,
+            }
+        )
+
+
+def _check_meta(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """meta-narrative phrases = 0 (body only)."""
+    # Meta-narrative phrases = 0 (check body only, not PRE/POST meta sections)
+    import re as _re2
+
+    _body = ctx.content
+    for tag in [
+        r"## PRE_WRITE_CHECK.*?(?=## |# |<!--META|\Z)",
+        r"## POST_WRITE_SELF_CHECK.*?(?=## |# |<!--META|\Z)",
+    ]:
+        _body = _re2.sub(tag, "", _body, flags=_re2.DOTALL)
+    meta_hits = {w: _body.count(w) for w in META_NARRATIVE if w in _body}
+    if meta_hits:
+        mf.append(f"G4.meta:{ctx.fp}:{meta_hits}")
+    else:
+        c.append({"id": "G4.meta", "file": ctx.fp, "s": GateStatus.PASS})
+
+
+def _check_word_count(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """total-chars floor (spec #72 口径)."""
+    # Word count ≥ floor, on the TOTAL non-whitespace 口径 (probe
+    # escalation #4): the memo layer plans length in total chars (~3400),
+    # so a CJK-only floor demanded ≈3565 total — plan-compliant chapters
+    # structurally failed (production fixture ch36/37/39/41 all 27xx-CJK).
+    # Spec #72 口径统一: floor reads chapter_word.min (the 2800-4000
+    # band's lower edge); default stays math-only (G0.3/G6 derivations).
+    word_floor = chapter_word_floor(str(ctx.project_root))
+    if ctx.total < word_floor:
+        mf.append(
+            f"G4.word_count:{ctx.fp}:{ctx.total}<{word_floor}（floor 来源: chapter_word_floor={word_floor}）"
+        )
+    else:
+        c.append(
+            {
+                "id": "G4.word_count",
+                "file": ctx.fp,
+                "s": GateStatus.PASS,
+                "wc": ctx.wc,
+                "total": ctx.total,
+                "floor": word_floor,
+            }
+        )
+
+
+def _check_scene_count(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #72 — durable markers delimit >= 2 scenes."""
+    # spec #72 G4.cd.scene_count — durable markers delimit >= 2 scenes
+    scene_markers = sum(1 for ln in ctx.content.split("\n") if is_scene_marker_line(ln))
+    if scene_markers < 2:
+        mf.append(f"G4.cd.scene_count:{ctx.fp}:{scene_markers}<2")
+    else:
+        c.append(
+            {
+                "id": "G4.cd.scene_count",
+                "file": ctx.fp,
+                "s": GateStatus.PASS,
+                "scenes": scene_markers,
+            }
+        )
+
+
+def _check_scene_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #72 — declared hooks land verbatim (rd 基 plan)."""
+    if ctx.scene_hook_plan_text is not None:
+        decls = parse_scene_declarations(ctx.scene_hook_plan_text)
+        if decls:
+            hook_issues = scene_hook_mismatches(decls, split_scenes(ctx.content))
+            if hook_issues:
+                mf.append(f"G4.cd.scene_hook_match:{ctx.fp}:{';'.join(hook_issues)}")
+            else:
+                c.append({"id": "G4.cd.scene_hook_match", "file": ctx.fp, "s": GateStatus.PASS})
+
+
+def _check_content_uniqueness(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """F415-0815 memoized overlap vs other chapters."""
+    # G4.cd.content_uniqueness: check this chapter against all other chapters
+    if ctx.rd:
+        chapters_dir = Path(ctx.rd) / "project-output" / "chapters"
+        if chapters_dir.exists():
+            other_chapters = list(chapters_dir.glob("chapter-*.md"))
+            if len(other_chapters) > 1:
+                this_fingerprint = _text_fingerprint(strip_scene_markers(ctx.content))
+                max_overlap = 0.0
+                for other in other_chapters:
+                    if str(other) == str(ctx.pf):
+                        continue
+                    # F415-0815 (C28 R3b): memoized per (path, mtime_ns,
+                    # size) — was a full re-read + re-hash of every other
+                    # chapter on each per-chapter invocation (O(N^2)).
+                    # Read failure yields an empty fingerprint (overlap 0),
+                    # matching the previous except-branch semantics.
+                    other_fp = _fingerprint_of(other)
+                    overlap = len(this_fingerprint & other_fp) / max(len(this_fingerprint), 1)
+                    max_overlap = max(max_overlap, overlap)
+                if max_overlap > 0.40:
+                    mf.append(f"G4.cd.content_overlap:{ctx.fp}:{max_overlap:.0%}")
+                else:
+                    c.append(
+                        {
+                            "id": "G4.cd.content_uniqueness",
+                            "file": ctx.fp,
+                            "s": GateStatus.PASS,
+                            "max_overlap": f"{max_overlap:.0%}",
+                        }
+                    )
+
+
+def _check_scene_concreteness(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Windowed visual-scene check (escalation #13/#37)."""
+    # Visual-scene check is WINDOWED (canary escalation #13): web-novel
+    # prose uses 50-100 CJK paragraphs, so a single-paragraph >=100
+    # measure is a granularity mismatch with the very style the SKILL
+    # teaches. A window of 1-3 consecutive body paragraphs counts when
+    # its combined CJK >= 100 and at least 2 paragraphs in it carry
+    # visual-narrative verbs or dialogue (size-1 windows keep the legacy
+    # >=1 requirement — long-paragraph styles see no regression).
+    body_paragraphs: list[tuple[bool, bool, int]] = []  # (has_vn, has_di, cjk)
+    for p in ctx.paragraphs:
+        if p.startswith("#") or p.startswith("##") or p.startswith(">") or p.startswith("---"):
+            continue
+        cjk_in_p = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", p))
+        has_vn = bool(re.search(r"(走|跑|推|拉|抓|坐|站|躺|倒|看|听|触|发现|看到|听到)", p))
+        has_di = bool(re.search(r"[「\u201c].*?[」\u201d]", p))
+        body_paragraphs.append((has_vn, has_di, cjk_in_p))
+    visual_windows = 0
+    # Window sizes up to 8 (probe escalation #37): extreme micro-paragraph
+    # web-novel prose averages ~13 CJK/paragraph — a 3-paragraph window
+    # never reaches the 100-CJK threshold, so the check structurally
+    # could not fire on that style. Larger windows keep the ≥100-CJK
+    # mass requirement and scale the vn/dialogue density with size.
+    for size in (1, 2, 3, 5, 8):
+        for i in range(len(body_paragraphs) - size + 1):
+            window = body_paragraphs[i : i + size]
+            if sum(w[2] for w in window) < 100:
+                continue
+            needed = {1: 1, 2: 2, 3: 2, 5: 3, 8: 4}[size]
+            if sum(1 for w in window if w[0] or w[1]) >= needed:
+                visual_windows += 1
+                break  # one qualifying window per size is enough
+    if visual_windows < 1:
+        mf.append(f"G4.cd.no_visual_scene:{ctx.fp}")
+    else:
+        c.append(
+            {
+                "id": "G4.cd.scene_concreteness",
+                "file": ctx.fp,
+                "s": GateStatus.PASS,
+                "visual_windows": visual_windows,
+            }
+        )
+
+
+def _check_chapter_end_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Windowed end-hook + spec #82 轮换 + v4 引句锚定（发射序保持内联）."""
+    # G4.cd.chapter_end_hook: unresolved tension in the closing beat.
+    # WINDOWED over the last 8 narrative paragraphs (probe escalation
+    # #4 opened the window to 5 because tension lands a few ctx.paragraphs
+    # before the final image beat; the merged-mass rewrite below needs
+    # the scene check's 8-cap (escalation #37) so stylistic closers at
+    # -6 stay inside). The >=30 CJK mass threshold lives on the MERGED
+    # window, not per paragraph (probe13, 2026-10-02): micro-paragraph
+    # closers put every tension beat below a per-paragraph floor
+    # (keyword paragraph at 29, real hook at 24 CJK) while the only
+    # checked paragraph was a neutral image — escalation #37 gave the
+    # visual-scene check the same windowed-mass treatment for this
+    # style. A window lighter than 30 CJK ctx.total stays unchecked.
+    # 没答 joins the 没说/瞒/藏 concealment family (escalation #38):
+    # asked-and-not-answered is unresolved tension.
+    if ctx.paragraphs:
+        hook_window = [
+            p for p in ctx.paragraphs[-8:] if not p.startswith(("#", "##", ">", "---", "- [ ]"))
+        ]
+        window_text = "".join(hook_window)
+        window_cjk = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", window_text))
+        from shenbi.gates.g4.quote_verbatim import extract_anchor_quotes, quote_in_chapter
+
+        _spec82_hook_rotation(ctx.content, ctx.pf.name, ctx.project_dir, ctx.memo_text, mf, c)
+        # spec #82 T1: quote anchoring (v4 张力拍引句回查本章正文——
+        # 与 #83 T1 verbatim 判定器共基；只验存在性，温度语义归 audit
+        # 判温 blocking finding）。audit-T5/C1: 读内存 ctx.content（与循环头
+        # 同源——Path(ctx.fp) 相对路径在子进程 CWD 下确定性假阳性）；
+        # audit-T5/I1: v4 memo 缺『』锚定形态 → FAIL（模板义务不可静默逃逸）。
+        if ctx.memo_text is not None:
+            if re.search(
+                r"^plan_format[：:]\s*v[4-9]\s*$", ctx.memo_text, re.M
+            ):  # v4+ 义务（audit-T5/I1 复审：v[3-9] 误伤 v3 全量）:
+                _anchors = extract_anchor_quotes(ctx.memo_text)
+                if _anchors:
+                    for _tier, _q in _anchors:
+                        if not quote_in_chapter(_q, ctx.content):
+                            mf.append(
+                                f"G4.cd.quote_verbatim:{ctx.fp}:『{_q[:24]}…』不在本章正文"
+                                f"（引句锚定——v4 张力拍引句须逐字取自章尾句原文；修复者: drafting 或 planning 同步改）"
+                            )
+                else:
+                    mf.append(
+                        f"G4.cd.quote_verbatim:{ctx.fp}:v4 备忘缺『』引句锚定形态"
+                        f"（章尾张力拍行须为 [微|章|大]｜『章尾句原文引句』；修复者: planning）"
+                    )
+        if window_cjk >= 30:
+            has_q = bool(re.search(r"[？?]", window_text))
+            has_t = bool(
+                re.search(
+                    r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏|账|欠|谜|未完|代价)",
+                    window_text,
+                )
+            )
+            # 账目钩 (P1-3, 2026-10-23): a cold ledger closer — two
+            # separate arabic digit runs in the merged window (伤亡 41
+            # 人…82 户…) — is a legal hook form from the seed's 章末钩
+            # 七型; the digits themselves are the unresolved tension.
+            # Runs, not bare chars: one stray "3" or a lone "4173" is
+            # not a ledger line (review calibration #5).
+            has_ledger = len(re.findall(r"\d+", window_text)) >= 2
+            if has_q or has_t or has_ledger:
+                c.append(
+                    {
+                        "id": "G4.cd.chapter_end_hook",
+                        "file": ctx.fp,
+                        "s": GateStatus.PASS,
+                        "window_cjk": window_cjk,
+                    }
+                )
+            else:
+                excerpt = window_text[:30]
+                mf.append(
+                    f"G4.cd.no_hook:{ctx.fp}:{window_cjk}字合并窗口未检出疑问句/张力词/账目行；"
+                    f"窗口开头「{excerpt}」"
+                )
+
+
+def _check_protagonist(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Protagonist presence >= threshold."""
+    # G4.cd.protagonist_presence: protagonist appears >= threshold times
+    protagonist_names = _load_protagonist_names(str(ctx.project_root)) if ctx.project_dir else []
+    if not protagonist_names:
+        c.append(
+            {
+                "id": "G4.cd.protagonist_presence",
+                "file": ctx.fp,
+                "s": GateStatus.SKIP,
+                "r": "no protagonist data",
+            }
+        )
+    else:
+        protagonist_issues = _check_protagonist_presence(ctx.content, protagonist_names)
+        if protagonist_issues:
+            mf.extend(protagonist_issues)
+        else:
+            c.append({"id": "G4.cd.protagonist_presence", "file": ctx.fp, "s": GateStatus.PASS})
+
+
+def _check_surge(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #71 narrative surge quota."""
+    sents = segment_sentences(ctx.narrative)
+    narrative_surge = sum(
+        1 for sent, slen in sents if slen >= 35 and dialogue_char_ratio(sent) < 0.5
+    )
+    surge_quota = max(1, ctx.total // 3000)
+    if narrative_surge < surge_quota:
+        c.append(
+            {
+                "id": "G4.cd.surge",
+                "file": ctx.fp,
+                "s": GateStatus.WARN,
+                "r": f"narrative surge sentences {narrative_surge} < quota {surge_quota}",
+            }
+        )
+    else:
+        c.append(
+            {
+                "id": "G4.cd.surge",
+                "file": ctx.fp,
+                "s": GateStatus.PASS,
+                "surge": narrative_surge,
+                "quota": surge_quota,
+            }
+        )
+
+
+def _check_simile_band(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #71 simile density band."""
+    simile_stats = count_similes(ctx.content)
+    if 2.0 <= simile_stats["per_1000"] <= 4.0:
+        c.append(
+            {
+                "id": "G4.cd.simile_band",
+                "file": ctx.fp,
+                "s": GateStatus.PASS,
+                "per_1000": simile_stats["per_1000"],
+            }
+        )
+    else:
+        c.append(
+            {
+                "id": "G4.cd.simile_band",
+                "file": ctx.fp,
+                "s": GateStatus.WARN,
+                "r": (
+                    f"simile density {simile_stats['per_1000']}/千字 outside "
+                    "[2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)"
+                ),
+                "per_1000": simile_stats["per_1000"],
+            }
+        )
+
+
+def _check_micro_hook_run(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #78 v3 连续微钩超限."""
+    _proj78 = Path(ctx.project_dir) if ctx.project_dir else None
+    if _proj78 is None:
+        return
+    # 连续微钩（读前章声明——spec #82 T1/I4：优先完成时快照（L-D 铁律），
+    # 快照缺席章（卷一 pre-T0 历史）回退 plan memo 解析——纯读幂等）
+    if ctx.chapter_no is not None:
+        from shenbi.gates.g4.chapter_planning import declared_history
+
+        _hist78 = declared_history(str(ctx.project_dir)) if _proj78 else {}
+        _tiers: list[str] = []
+        for _k in range(max(1, ctx.chapter_no - 3), ctx.chapter_no + 1):
+            _snap78 = (_hist78.get(_k) or {}).get("张力拍档位")
+            if isinstance(_snap78, str) and _snap78 in ("微", "章", "大"):
+                _tiers.append(_snap78)
+                continue
+            _mk = _proj78 / "plans" / f"chapter-{_k}-plan.md"
+            if not _mk.is_file():
+                continue
+            _tm = re.search(r"章尾张力拍[：:]\s*\[?(微|章|大)", _mk.read_text(encoding="utf-8"))
+            if _tm:
+                _tiers.append(_tm.group(1))
+        _micro_cap = (
+            (read_genre_config(str(ctx.project_dir)) or {})
+            .get("market_params", {})
+            .get("hook_grading", {})
+            .get("max_consecutive_micro", 2)
+        )
+        _run78 = 0
+        for _x in reversed(_tiers):
+            if _x == "微":
+                _run78 += 1
+            else:
+                break
+        if _run78 > _micro_cap:
+            mf.append(
+                f"G4.cd.micro_hook_run:{ctx.fp}:{_run78}>{_micro_cap} "
+                f"(v3 连续微钩超限——章/大钩轮换；修复者: planning)"
+            )
+
+
+def _check_payoff_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #78 v3 payoff 密度窗."""
+    _proj78 = Path(ctx.project_dir) if ctx.project_dir else None
+    if _proj78 is None:
+        return
+    # payoff 密度窗：window 内 v3 memo 无轴登记 payoff = WARN
+    _pdw = (
+        (read_genre_config(str(ctx.project_dir)) or {})
+        .get("market_params", {})
+        .get("payoff_density", {})
+    )
+    _win = int(_pdw.get("window", 3)) if _pdw else 3
+    _has_axis = False
+    if ctx.chapter_no is not None:
+        for _k in range(max(1, ctx.chapter_no - _win + 1), ctx.chapter_no + 1):
+            _mk = _proj78 / "plans" / f"chapter-{_k}-plan.md"
+            if _mk.is_file() and re.search(
+                r"\*\*payoff 拍\*\*[：:].*轴[（(]?(债|名声|名字数|进度)",
+                _mk.read_text(encoding="utf-8"),
+            ):
+                _has_axis = True
+                break
+    if not _has_axis:
+        c.append(
+            {
+                "id": "G4.cd.payoff_density",
+                "file": ctx.fp,
+                "s": GateStatus.WARN,
+                "r": f"v3 近{_win}章无轴登记 payoff（payoff_density 窗）",
+            }
+        )
+
+
+def _check_voice_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #76 v2 声口密度."""
+    _body = ctx.narrative
+    _cps: list[str] = []
+    if ctx.project_dir:
+        _pcard = Path(ctx.project_dir) / "characters" / "protagonist.md"
+        if _pcard.is_file():
+            _cps = catchphrases_from_card(_pcard.read_text(encoding="utf-8"))
+    _signals = distinct_voice_signals(_body, _cps)
+    _vdm = (
+        (read_genre_config(ctx.project_dir or str(ctx.pf.parent)) or {})
+        .get("market_params", {})
+        .get("voice_density_min", {})
+    )
+    _vmin = (
+        int(_vdm.get("min_per_chapter", DEFAULT_VOICE_DENSITY_MIN))
+        if _vdm
+        else DEFAULT_VOICE_DENSITY_MIN
+    )
+    if ctx.memo_v2 and _signals < _vmin:
+        # 束6 逐字化：逐字内联未在场的卡口癖——束5 实弹面是卡形差一字
+        # （正文『行，先记账』vs 卡『行，先算账』），语义近似但计分是
+        # 精确子串，报文不引卡原串模型无从对照；另列其余两类可计分
+        # 信号的确定形态。卡口癖全在场时换措辞——缺的是其余信号类，
+        # 不再出现『未计分卡口癖：已全在场』的自相矛盾形（PR #295 审查）。
+        _miss = [p for p in _cps if p not in _body]
+        _cp_part = (
+            f"未在场卡口癖（须逐字照抄、一字不可改）："
+            f"{'；'.join(f'『{p}』' for p in _miss[:4])}；另可计分："
+            if _miss
+            else "卡口癖已全在场——补其余信号；可计分："
+        )
+        mf.append(
+            f"G4.cd.voice_density:{ctx.fp}:{_signals}<{_vmin} "
+            f"(v2 章——备忘声口要求行未兑现；{_cp_part}"
+            f"账房动词任一（如『{'』『'.join(ACCOUNTING_VERBS[:3])}』）"
+            f"或自嘲反问收尾（『…吧？』『…呢？』句式）；修复者: drafting)"
+        )
+    else:
+        c.append(
+            {
+                "id": "G4.cd.voice_density",
+                "file": ctx.fp,
+                "s": GateStatus.PASS if ctx.memo_v2 else GateStatus.WARN,
+                "r": f"signals={_signals}/{_vmin}"
+                + ("" if ctx.memo_v2 else " (v1 章——dispatch 域外，WARN 口径)"),
+            }
+        )
+
+
+def _check_golden_slot(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
+    """Spec #71 金句位 + spec #76 三点同步."""
+    golden_issues: list[str] = []
+    pre_val: str | None = None
+    if ctx.pre_block:
+        m = _GOLDEN_PRE_RE.search(ctx.pre_block.group(0))
+        if m:
+            pre_val = m.group(1)
+    if pre_val is None or pre_val.strip().strip("[]").strip() in _EMPTY_VALUES:
+        golden_issues.append("PRE lacks non-empty 金句位 line")
+    post_ok = False
+    if ctx.post_block:
+        if _GOLDEN_POST_RE.search(ctx.post_block.group(0)):
+            post_ok = True
+    if not post_ok:
+        golden_issues.append("POST lacks 金句 excerpt line")
+    _quote_type_ok = True
+    if ctx.memo_v2:
+        # 三点同步：memo 段1 金句位行 → PRE 本章金句位行 → 章尾钩行 [?] 金句位行
+        _types: set[str] = set()
+        if ctx.memo_text is not None:
+            _mm = re.search(
+                r"^金句位[：:]\s*(静|燃)｜.*$",
+                ctx.memo_text,
+                re.MULTILINE,
+            )
+            if _mm:
+                _types.add(_mm.group(1))
+            else:
+                # spec §1(4) 三点同步——memo 点缺席即断链（v2 备忘必含类型金句位行）
+                _quote_type_ok = False
+        if pre_val is None or pre_val.strip() in ("", "无", "N/A", "待定"):
+            _quote_type_ok = False
+        else:
+            _qt = re.match(r"(静|燃)｜", pre_val.strip())
+            if _qt:
+                _types.add(_qt.group(1))
+            else:
+                _quote_type_ok = False
+        _post_m = _GOLDEN_POST_RE.search(ctx.post_block.group(0)) if ctx.post_block else None
+        if _post_m:
+            _qt2 = re.match(r"(静|燃)｜", _post_m.group(1).strip())
+            if _qt2:
+                _types.add(_qt2.group(1))
+            else:
+                _quote_type_ok = False
+        if not _types or len(_types) > 1 or not _quote_type_ok:
+            mf.append(
+                f"G4.cd.quote_type:{ctx.fp}:v2 金句位须「静/燃｜写法｜落点」三点同型"
+                f"（观测类型集={sorted(_types) or '∅'}；修复者: drafting）"
+            )
+    if golden_issues:
+        c.append(
+            {
+                "id": "G4.cd.golden_slot",
+                "file": ctx.fp,
+                "s": GateStatus.WARN,
+                "r": "; ".join(golden_issues),
+            }
+        )
+    else:
+        c.append({"id": "G4.cd.golden_slot", "file": ctx.fp, "s": GateStatus.PASS})
+
+
 def g4_chapter_drafting(
     fps: list[str],
     rd: str | None = None,
@@ -593,786 +1490,46 @@ def g4_chapter_drafting(
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
-    # spec #71 golden-slot line predicates (compiled once, outside the loop —
-    # loop-body definitions trip ruff B023).
-    _GOLDEN_PRE_RE = re.compile(r"^\s*-\s*本章金句位\s*[:：]\s*(.*)$", re.MULTILINE)
-    _GOLDEN_POST_RE = re.compile(r"^\s*-\s*\[.\]\s*金句位\s*[:：]\s*(.+)$", re.MULTILINE)
-    _EMPTY_VALUES = frozenset({"", "无", "N/A", "待定"})
-
-    # ── spec #80 T5 F16 G4.cd — 物象交接共现（挂 facts oracle）──
-    # facts 缺席/空 ⇒ WARN 可见 skip（rev4 R3-I2 三律；audit-T4 I3 先例：
-    # 损坏文件 raise 保持响亮）。备忘路径 = plans/chapter-N-plan.md。
-    _props_facts: dict[str, dict[str, str]] | None = None
-    _counters_facts: dict[str, dict[str, int]] | None = None
-    _known_names: set[str] | None = None
-    _owner_aliases: dict[str, set[str]] = {}
-    if project_dir:
-        from shenbi.facts.enums import FactsDim
-        from shenbi.facts.store import load_facts
-
-        _loaded = load_facts(Path(project_dir), FactsDim.PROPS)
-        if _loaded is not None and not _loaded.is_empty:
-            _props_facts = {k: {"owner": v.owner} for k, v in _loaded.props().items()}
-        # spec #80 T7 F17: counters oracle（空种子≡缺席，R4-M2）
-        _cn_loaded = load_facts(Path(project_dir), FactsDim.COUNTERS)
-        if _cn_loaded is not None and not _cn_loaded.is_empty:
-            _counters_facts = {k: {"value": v.value} for k, v in _cn_loaded.counters().items()}
-        # F16「非 owner 人名」roster（2026-10-29 实弹校准）：owners ∪ identity
-        # 叙事名+别名 ∪ name_registry 名列；主角别名同时计入 owner-side
-        _known_names = {info.get("owner", "") for info in (_props_facts or {}).values()} - {""}
-        _id_loaded = load_facts(Path(project_dir), FactsDim.IDENTITY)
-        if _id_loaded is not None and not _id_loaded.is_empty:
-            _id = _id_loaded.identity()
-            if _id is not None:
-                _known_names |= {_id.narration_name, *_id.aliases}
-                _owner_aliases[_id.narration_name] = set(_id.aliases)
-        _nr = Path(project_dir) / "truth" / "name_registry.md"
-        if _nr.is_file():
-            for _line in _nr.read_text(encoding="utf-8").splitlines():
-                _m = re.match(r"^\|([^|]+)\|\s*([^|]+?)\s*\|", _line)
-                if not _m:
-                    continue
-                _cat, _name = _m.group(1).strip(), _m.group(2)
-                if _cat in ("类别", "---", ":---") or _name in ("名", "---"):
-                    continue
-                # 控制行不是角色注册（2026-10-29 实弹：代词白名单的「他」入 roster
-                # 后人名要件被代词恒满足；禁用名的「灯」同理）＋裸代词永不入册
-                if _cat in ("代词白名单", "禁用名") or _name in ("他", "她", "它", "我", "你"):
-                    continue
-                _known_names.add(_name)
+    # spec #80 T5 F16 oracle（损坏 raise 响亮；缺席/空 ⇒ WARN 可见 skip）
+    props_facts, counters_facts, known_names, owner_aliases = _load_cd_oracles(project_dir)
 
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
         if not pf.exists():
             mf.append(f"G4.file_not_found:{fp}")
             continue
-
-        content = pf.read_text(encoding="utf-8")
-        wc = word_count_md(str(pf))
-
-        # per-file memo join (F16/F17 share)
-        _memo: str | None = None
-        _ch_m = re.search(r"chapter-(\d+)", Path(fp).name)
-        if project_dir and _ch_m:
-            _memo_path = Path(project_dir) / "plans" / f"chapter-{_ch_m.group(1)}-plan.md"
-            if _memo_path.is_file():
-                _memo = _memo_path.read_text(encoding="utf-8")
-
-        # ── spec #80 T5 F16 G4.cd — 正文无源交付拍（per-chapter）──
-        if _props_facts is None:
-            c.append(
-                {
-                    "id": "cd.prop_handoff",
-                    "file": fp,
-                    "s": GateStatus.WARN,
-                    "r": "no_facts — props facts absent/empty; hand-off scan skipped (degradation visible)",
-                }
-            )
-        else:
-            # 束8 实弹（2026-11-09，ch49）：扫描面须剔除 META 块——PRE_WRITE_CHECK
-            # 的任务复述行（「把…班期表逐条对勘，补出…交上去」）含物象+交接动词+
-            # 人名，raw 面 4 假阳性 vs strip_narrative_body 后 0（其余内容检查同
-            # 口径：#86 候选「检查器表面比真值面宽」）。正文为真值源。
-            for issue in check_prop_handoffs(
-                strip_narrative_body(content),
-                _memo or "",
-                _props_facts,
-                _known_names,
-                _owner_aliases,
-            ):
-                mf.append(f"G4.{issue}")
-
-        # ── spec #80 T7 F17 — 计数器三方对账（激活判定在调用点，R3-M1）──
-        # M1（audit-T7）：计数名→prose 词族映射（未映射计数器跳过 prose 面，
-        # 多计数器不串扰）；M2：鉴录名数=那罕添加名口径（R2-I4a）——ch17 全书
-        # 口径靠 no_decl 跳过，backfill 范围钉 ch9-only（T13）
-        if _counters_facts is None:
-            c.append(
-                {
-                    "id": "cd.counter",
-                    "file": fp,
-                    "s": GateStatus.WARN,
-                    "r": "no_facts — counters facts absent/empty; reconciliation skipped (degradation visible)",
-                }
-            )
-        else:
-            _memo_decls = parse_counter_declarations(_memo) if _memo else []
-            if not _memo_decls:
-                c.append(
-                    {
-                        "id": "cd.counter",
-                        "file": fp,
-                        "s": GateStatus.WARN,
-                        "r": "no_decl — memo declares no counters this chapter; reconciliation not activated (legacy-memo compat, ch17-class false-red guard)",
-                    }
-                )
-            else:
-                _unknown = {n for n, _b, _d in _memo_decls} - set(_counters_facts)
-                for _u in sorted(_unknown):
-                    mf.append(
-                        f"G4.cd.counter:{fp}:「{_u}」备忘声明了 facts 未种子的计数器"
-                        "——先补 facts 种子（修复者: settling）"
-                    )
-                # spec #83 T9: id-first 发射（r5.3 铁律——path-first 形态使
-                # check_id() 提取失效、shadow 静默失灵）
-                mf.extend(
-                    f"G4.{issue}"
-                    for issue in check_counter_reconciliation(
-                        content, _memo or "", _counters_facts, fp=fp
-                    )
-                )
-
-        # ── spec #83 T6 余额锚（§10 行 8/9，shadow 起 L-D）──
-        # 取数：truth/particle_ledger.md check 时点现值（单一信源，不扫前章正文）；
-        # 缺席 → WARN 可见 skip（F16/F17 facts 三律同款）。
-        _ledger_path = Path(project_dir) / "truth" / "particle_ledger.md" if project_dir else None
-        _ledger_text = (
-            _ledger_path.read_text(encoding="utf-8")
-            if _ledger_path and _ledger_path.is_file()
-            else None
+        ctx = _build_check_context(
+            fp,
+            pf,
+            rd,
+            project_dir,
+            props_facts,
+            counters_facts,
+            known_names,
+            owner_aliases,
         )
-        if _ledger_text is None:
-            c.append(
-                {
-                    "id": "cd.balance_value_drift",
-                    "file": fp,
-                    "s": GateStatus.WARN,
-                    "r": "no_ledger — particle_ledger.md absent; balance anchor skipped (degradation visible)",
-                }
-            )
-        else:
-            from shenbi.gates.g4.post_declarations import (
-                check_balance_value_drift,
-                parse_ledger_current_value,
-                parse_spend_events,
-            )
-
-            _bal_fails, _bal_warns = check_balance_value_drift(
-                content,
-                parse_ledger_current_value(_ledger_text),
-                spend_events=parse_spend_events(_memo or ""),
-            )
-            for _bf in _bal_fails:
-                _bf_id, _bf_detail = _bf.split(":", 1)
-                mf.append(f"G4.{_bf_id}:{fp}:{_bf_detail}")
-            for _bw in _bal_warns:
-                c.append(
-                    {"id": "cd.balance_value_drift", "file": fp, "s": GateStatus.WARN, "r": _bw}
-                )
-        # spec #83 T6 来历锚（WARN-only 人工裁决面——存量缺列跳过；与 ledger
-        # 缺席无依赖，audit-T11 I1 清偿：原嵌 ledger-else 会在 particle_ledger
-        # 缺席时静默不跑）
-        _reg_path = Path(project_dir) / "truth" / "prop_registry.md" if project_dir else None
-        if _reg_path and _reg_path.is_file():
-            from shenbi.gates.g4.post_declarations import check_provenance_anchor
-
-            for _pv in check_provenance_anchor(content, _reg_path.read_text(encoding="utf-8")):
-                c.append({"id": "cd.provenance_anchor", "file": fp, "s": GateStatus.WARN, "r": _pv})
-
-        # PRE_WRITE_CHECK
-        if "## PRE_WRITE_CHECK" not in content:
-            mf.append(f"G4.pre_check:{fp}")
-        else:
-            c.append({"id": "G4.pre_check", "file": fp, "s": GateStatus.PASS})
-
-        # POST_WRITE_SELF_CHECK
-        if "## POST_WRITE_SELF_CHECK" not in content:
-            mf.append(f"G4.post_check:{fp}")
-        else:
-            c.append({"id": "G4.post_check", "file": fp, "s": GateStatus.PASS})
-            # spec #83 T1: POST 声明引句两臂门（执法两行；WARN 臂进 c 列表交评审）。
-            # FAIL 项 id-first 发射（check_id() 按串首提取）；消费点走既有
-            # _shadow_route_g4 路径（§10 前提满足——经 :4333/:4016/:1387 自然 demote）。
-            from shenbi.gates.g4.post_declarations import check_post_quote_verbatim
-
-            _pq_fails, _pq_warns = check_post_quote_verbatim(content)
-            for _pq_f in _pq_fails:
-                _pq_id, _pq_detail = _pq_f.split(":", 1)
-                mf.append(f"G4.{_pq_id}:{fp}:{_pq_detail}")
-            for _w in _pq_warns:
-                c.append(
-                    {"id": "cd.post_quote_verbatim", "file": fp, "s": GateStatus.WARN, "r": _w}
-                )
-
-        # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
-        # Count on the narrative body only (probe escalation #4): the raw
-        # content includes the framework-mandated PRE_WRITE_CHECK checklist,
-        # which itself enumerates transition words — the gate was counting
-        # its own checklist (6 of 8 hits on probe chapter 1).
-        tc = count_transition_words(strip_narrative_body(content))
-        # spec #83 T1: POST 声明-门实测交叉（§10 行 2，shadow 起 L-D）＋字数行
-        # 虚假精度 WARN（评审面非 FAIL，不入 §10）。实测口径=total_chars_md_text
-        # （全字符剥后——wc 是 CJK 计数，与 POST 逐段全字符总计系统差 13-19%）。
-        from shenbi.gates.g4.post_declarations import (
-            check_post_transition_cross,
-            check_post_wordcount_precision,
-        )
-        from shenbi.gates.shared import total_chars_md_text as _tcmt
-
-        for _ptc in check_post_transition_cross(content):
-            _ptc_id, _ptc_detail = _ptc.split(":", 1)
-            mf.append(f"G4.{_ptc_id}:{fp}:{_ptc_detail}")
-        for _wcp in check_post_wordcount_precision(content, _tcmt(content)):
-            c.append(
-                {"id": "cd.post_wordcount_precision", "file": fp, "s": GateStatus.WARN, "r": _wcp}
-            )
-        max_t = max(5, wc // 1000)
-        if tc > max_t:
-            mf.append(f"G4.transition:{fp}:{tc}>{max_t}")
-        else:
-            c.append(
-                {
-                    "id": "G4.transition",
-                    "file": fp,
-                    "s": GateStatus.PASS,
-                    "density": f"{tc}/{wc}",
-                }
-            )
-
-        # Fatigue words ≤ 8 (relaxed from 3 for automated first-draft gen)
-        # Determine project dir from file path
-        # spec #48 C34 (F407): project_root resolution order = explicit
-        # project_dir param (if it carries genre-config) > genre-config
-        # ancestor walk (nearest on path; single-project assumption) > pf.parent.
-        candidates: list[Path] = []
-        if project_dir:
-            candidates.append(Path(project_dir))
-        walk = pf.parent
-        while walk.parent != walk and not (walk / "genre-config.json").exists():
-            walk = walk.parent
-        candidates.append(walk if (walk / "genre-config.json").exists() else pf.parent)
-        project_root = next(
-            (cdir for cdir in candidates if (cdir / "genre-config.json").exists()),
-            candidates[-1],
-        )
-        gc = read_genre_config(str(project_root))
-        fatigue_list = gc.get("fatigue_words", FATIGUE_BASE)
-        fatigue_hits = sum(content.count(w) for w in fatigue_list)
-        if fatigue_hits > 8:
-            mf.append(f"G4.fatigue:{fp}:{fatigue_hits}>8")
-        else:
-            c.append(
-                {
-                    "id": "G4.fatigue",
-                    "file": fp,
-                    "s": GateStatus.PASS,
-                    "hits": fatigue_hits,
-                }
-            )
-
-        # Meta-narrative phrases = 0 (check body only, not PRE/POST meta sections)
-        import re as _re2
-
-        _body = content
-        for tag in [
-            r"## PRE_WRITE_CHECK.*?(?=## |# |<!--META|\Z)",
-            r"## POST_WRITE_SELF_CHECK.*?(?=## |# |<!--META|\Z)",
-        ]:
-            _body = _re2.sub(tag, "", _body, flags=_re2.DOTALL)
-        meta_hits = {w: _body.count(w) for w in META_NARRATIVE if w in _body}
-        if meta_hits:
-            mf.append(f"G4.meta:{fp}:{meta_hits}")
-        else:
-            c.append({"id": "G4.meta", "file": fp, "s": GateStatus.PASS})
-
-        # Word count ≥ floor, on the TOTAL non-whitespace 口径 (probe
-        # escalation #4): the memo layer plans length in total chars (~3400),
-        # so a CJK-only floor demanded ≈3565 total — plan-compliant chapters
-        # structurally failed (production fixture ch36/37/39/41 all 27xx-CJK).
-        # Spec #72 口径统一: floor reads chapter_word.min (the 2800-4000
-        # band's lower edge); default stays math-only (G0.3/G6 derivations).
-        word_floor = chapter_word_floor(str(project_root))
-        total = total_chars_md_text(content)
-        if total < word_floor:
-            mf.append(
-                f"G4.word_count:{fp}:{total}<{word_floor}（floor 来源: chapter_word_floor={word_floor}）"
-            )
-        else:
-            c.append(
-                {
-                    "id": "G4.word_count",
-                    "file": fp,
-                    "s": GateStatus.PASS,
-                    "wc": wc,
-                    "total": total,
-                    "floor": word_floor,
-                }
-            )
-
-        # spec #72 G4.cd.scene_count — durable markers delimit >= 2 scenes
-        scene_markers = sum(1 for ln in content.split("\n") if is_scene_marker_line(ln))
-        if scene_markers < 2:
-            mf.append(f"G4.cd.scene_count:{fp}:{scene_markers}<2")
-        else:
-            c.append(
-                {
-                    "id": "G4.cd.scene_count",
-                    "file": fp,
-                    "s": GateStatus.PASS,
-                    "scenes": scene_markers,
-                }
-            )
-
-        # spec #72 G4.cd.scene_hook_match — declared hooks land verbatim on
-        # each scene's final line (predicate: 声明剥空白 ⊆ 场景末非空行)
-        _m_num = re.search(r"chapter-(\d+)", str(fp))
-        plan_text_src = None
-        if _m_num and (rd or project_root):
-            _plan_base = Path(rd) if rd else Path(project_root)
-            _plan_path = _plan_base / "plans" / f"chapter-{_m_num.group(1)}-plan.md"
-            if _plan_path.is_file():
-                plan_text_src = _plan_path.read_text(encoding="utf-8")
-        if plan_text_src is not None:
-            decls = parse_scene_declarations(plan_text_src)
-            if decls:
-                hook_issues = scene_hook_mismatches(decls, split_scenes(content))
-                if hook_issues:
-                    mf.append(f"G4.cd.scene_hook_match:{fp}:{';'.join(hook_issues)}")
-                else:
-                    c.append({"id": "G4.cd.scene_hook_match", "file": fp, "s": GateStatus.PASS})
-
-        # G4.cd.content_uniqueness: check this chapter against all other chapters
-        if rd:
-            chapters_dir = Path(rd) / "project-output" / "chapters"
-            if chapters_dir.exists():
-                other_chapters = list(chapters_dir.glob("chapter-*.md"))
-                if len(other_chapters) > 1:
-                    this_fingerprint = _text_fingerprint(strip_scene_markers(content))
-                    max_overlap = 0.0
-                    for other in other_chapters:
-                        if str(other) == str(pf):
-                            continue
-                        # F415-0815 (C28 R3b): memoized per (path, mtime_ns,
-                        # size) — was a full re-read + re-hash of every other
-                        # chapter on each per-chapter invocation (O(N^2)).
-                        # Read failure yields an empty fingerprint (overlap 0),
-                        # matching the previous except-branch semantics.
-                        other_fp = _fingerprint_of(other)
-                        overlap = len(this_fingerprint & other_fp) / max(len(this_fingerprint), 1)
-                        max_overlap = max(max_overlap, overlap)
-                    if max_overlap > 0.40:
-                        mf.append(f"G4.cd.content_overlap:{fp}:{max_overlap:.0%}")
-                    else:
-                        c.append(
-                            {
-                                "id": "G4.cd.content_uniqueness",
-                                "file": fp,
-                                "s": GateStatus.PASS,
-                                "max_overlap": f"{max_overlap:.0%}",
-                            }
-                        )
-
-        # G4.cd.scene_concreteness: at least 1 paragraph of >=100 CJK chars of visual narrative
-        # (Web novel style uses short paragraphs — lowered from 200 to 100)
-        # Strip META blocks first (word_count_md's own口径): the trailing
-        # POST_WRITE_SELF_CHECK checklist otherwise becomes the "last
-        # paragraph" for the end-hook check below and pollutes both consumers
-        # of this list (canary escalation #12, 2026-09-28).
-        # HOOK-BEGIN/END ledger blocks are machine markup like META (probe
-        # escalation #39): left in, the markup line became the "last
-        # paragraph" and short-circuited the end-hook window.
-        content_for_prose = re.sub(
-            r"<!--HOOK-BEGIN-->.*?<!--HOOK-END-->", "", content, flags=re.DOTALL
-        )
-        content_for_prose = META_BLOCK_RE.sub("", content_for_prose)
-        # spec #72: standalone SCENE marker lines are machine markup — keep
-        # them out of the paragraph surface (else a trailing marker becomes
-        # the "last paragraph" and pollutes the end-hook window).
-        content_for_prose = strip_scene_markers(content_for_prose)
-        paragraphs = [p.strip() for p in content_for_prose.split("\n\n") if p.strip()]
-        # Visual-scene check is WINDOWED (canary escalation #13): web-novel
-        # prose uses 50-100 CJK paragraphs, so a single-paragraph >=100
-        # measure is a granularity mismatch with the very style the SKILL
-        # teaches. A window of 1-3 consecutive body paragraphs counts when
-        # its combined CJK >= 100 and at least 2 paragraphs in it carry
-        # visual-narrative verbs or dialogue (size-1 windows keep the legacy
-        # >=1 requirement — long-paragraph styles see no regression).
-        body_paragraphs: list[tuple[bool, bool, int]] = []  # (has_vn, has_di, cjk)
-        for p in paragraphs:
-            if p.startswith("#") or p.startswith("##") or p.startswith(">") or p.startswith("---"):
-                continue
-            cjk_in_p = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", p))
-            has_vn = bool(re.search(r"(走|跑|推|拉|抓|坐|站|躺|倒|看|听|触|发现|看到|听到)", p))
-            has_di = bool(re.search(r"[「\u201c].*?[」\u201d]", p))
-            body_paragraphs.append((has_vn, has_di, cjk_in_p))
-        visual_windows = 0
-        # Window sizes up to 8 (probe escalation #37): extreme micro-paragraph
-        # web-novel prose averages ~13 CJK/paragraph — a 3-paragraph window
-        # never reaches the 100-CJK threshold, so the check structurally
-        # could not fire on that style. Larger windows keep the ≥100-CJK
-        # mass requirement and scale the vn/dialogue density with size.
-        for size in (1, 2, 3, 5, 8):
-            for i in range(len(body_paragraphs) - size + 1):
-                window = body_paragraphs[i : i + size]
-                if sum(w[2] for w in window) < 100:
-                    continue
-                needed = {1: 1, 2: 2, 3: 2, 5: 3, 8: 4}[size]
-                if sum(1 for w in window if w[0] or w[1]) >= needed:
-                    visual_windows += 1
-                    break  # one qualifying window per size is enough
-        if visual_windows < 1:
-            mf.append(f"G4.cd.no_visual_scene:{fp}")
-        else:
-            c.append(
-                {
-                    "id": "G4.cd.scene_concreteness",
-                    "file": fp,
-                    "s": GateStatus.PASS,
-                    "visual_windows": visual_windows,
-                }
-            )
-
-        # G4.cd.chapter_end_hook: unresolved tension in the closing beat.
-        # WINDOWED over the last 8 narrative paragraphs (probe escalation
-        # #4 opened the window to 5 because tension lands a few paragraphs
-        # before the final image beat; the merged-mass rewrite below needs
-        # the scene check's 8-cap (escalation #37) so stylistic closers at
-        # -6 stay inside). The >=30 CJK mass threshold lives on the MERGED
-        # window, not per paragraph (probe13, 2026-10-02): micro-paragraph
-        # closers put every tension beat below a per-paragraph floor
-        # (keyword paragraph at 29, real hook at 24 CJK) while the only
-        # checked paragraph was a neutral image — escalation #37 gave the
-        # visual-scene check the same windowed-mass treatment for this
-        # style. A window lighter than 30 CJK total stays unchecked.
-        # 没答 joins the 没说/瞒/藏 concealment family (escalation #38):
-        # asked-and-not-answered is unresolved tension.
-        if paragraphs:
-            hook_window = [
-                p for p in paragraphs[-8:] if not p.startswith(("#", "##", ">", "---", "- [ ]"))
-            ]
-            window_text = "".join(hook_window)
-            window_cjk = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", window_text))
-            _spec82_hook_rotation(content, pf.name, project_dir, mf, c)
-            # spec #82 T1: quote anchoring (v4 张力拍引句回查本章正文——
-            # 与 #83 T1 verbatim 判定器共基；只验存在性，温度语义归 audit
-            # 判温 blocking finding）。audit-T5/C1: 读内存 content（与循环头
-            # 同源——Path(fp) 相对路径在子进程 CWD 下确定性假阳性）；
-            # audit-T5/I1: v4 memo 缺『』锚定形态 → FAIL（模板义务不可静默逃逸）。
-            from shenbi.gates.g4.quote_verbatim import extract_anchor_quotes, quote_in_chapter
-
-            _cn82 = re.search(r"chapter-(\d+)", pf.name)
-            _mp82 = (
-                Path(project_dir) / "plans" / f"chapter-{int(_cn82.group(1))}-plan.md"
-                if _cn82 and project_dir
-                else None
-            )
-            if _mp82 is not None and _mp82.is_file():
-                _memo82 = _mp82.read_text(encoding="utf-8")
-                if re.search(
-                    r"^plan_format[：:]\s*v[4-9]\s*$", _memo82, re.M
-                ):  # v4+ 义务（audit-T5/I1 复审：v[3-9] 误伤 v3 全量）:
-                    _anchors = extract_anchor_quotes(_memo82)
-                    if _anchors:
-                        for _tier, _q in _anchors:
-                            if not quote_in_chapter(_q, content):
-                                mf.append(
-                                    f"G4.cd.quote_verbatim:{fp}:『{_q[:24]}…』不在本章正文"
-                                    f"（引句锚定——v4 张力拍引句须逐字取自章尾句原文；修复者: drafting 或 planning 同步改）"
-                                )
-                    else:
-                        mf.append(
-                            f"G4.cd.quote_verbatim:{fp}:v4 备忘缺『』引句锚定形态"
-                            f"（章尾张力拍行须为 [微|章|大]｜『章尾句原文引句』；修复者: planning）"
-                        )
-            if window_cjk >= 30:
-                has_q = bool(re.search(r"[？?]", window_text))
-                has_t = bool(
-                    re.search(
-                        r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏|账|欠|谜|未完|代价)",
-                        window_text,
-                    )
-                )
-                # 账目钩 (P1-3, 2026-10-23): a cold ledger closer — two
-                # separate arabic digit runs in the merged window (伤亡 41
-                # 人…82 户…) — is a legal hook form from the seed's 章末钩
-                # 七型; the digits themselves are the unresolved tension.
-                # Runs, not bare chars: one stray "3" or a lone "4173" is
-                # not a ledger line (review calibration #5).
-                has_ledger = len(re.findall(r"\d+", window_text)) >= 2
-                if has_q or has_t or has_ledger:
-                    c.append(
-                        {
-                            "id": "G4.cd.chapter_end_hook",
-                            "file": fp,
-                            "s": GateStatus.PASS,
-                            "window_cjk": window_cjk,
-                        }
-                    )
-                else:
-                    excerpt = window_text[:30]
-                    mf.append(
-                        f"G4.cd.no_hook:{fp}:{window_cjk}字合并窗口未检出疑问句/张力词/账目行；"
-                        f"窗口开头「{excerpt}」"
-                    )
-
-        # G4.cd.protagonist_presence: protagonist appears >= threshold times
-        protagonist_names = _load_protagonist_names(str(project_root)) if project_dir else []
-        if not protagonist_names:
-            c.append(
-                {
-                    "id": "G4.cd.protagonist_presence",
-                    "file": fp,
-                    "s": GateStatus.SKIP,
-                    "r": "no protagonist data",
-                }
-            )
-        else:
-            protagonist_issues = _check_protagonist_presence(content, protagonist_names)
-            if protagonist_issues:
-                mf.extend(protagonist_issues)
-            else:
-                c.append({"id": "G4.cd.protagonist_presence", "file": fp, "s": GateStatus.PASS})
-
-        # spec #71 prose-excellence WARN predicates (WARN-level: recorded in
-        # checks for the pipeline manifest, never in must_fix).
-        narrative = strip_narrative_body(content)
-        sents = segment_sentences(narrative)
-        narrative_surge = sum(
-            1 for sent, slen in sents if slen >= 35 and dialogue_char_ratio(sent) < 0.5
-        )
-        surge_quota = max(1, total // 3000)
-        if narrative_surge < surge_quota:
-            c.append(
-                {
-                    "id": "G4.cd.surge",
-                    "file": fp,
-                    "s": GateStatus.WARN,
-                    "r": f"narrative surge sentences {narrative_surge} < quota {surge_quota}",
-                }
-            )
-        else:
-            c.append(
-                {
-                    "id": "G4.cd.surge",
-                    "file": fp,
-                    "s": GateStatus.PASS,
-                    "surge": narrative_surge,
-                    "quota": surge_quota,
-                }
-            )
-
-        simile_stats = count_similes(content)
-        if 2.0 <= simile_stats["per_1000"] <= 4.0:
-            c.append(
-                {
-                    "id": "G4.cd.simile_band",
-                    "file": fp,
-                    "s": GateStatus.PASS,
-                    "per_1000": simile_stats["per_1000"],
-                }
-            )
-        else:
-            c.append(
-                {
-                    "id": "G4.cd.simile_band",
-                    "file": fp,
-                    "s": GateStatus.WARN,
-                    "r": (
-                        f"simile density {simile_stats['per_1000']}/千字 outside "
-                        "[2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)"
-                    ),
-                    "per_1000": simile_stats["per_1000"],
-                }
-            )
-
-        pre_block = re.search(r"## PRE_WRITE_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL)
-        post_block = re.search(
-            r"## POST_WRITE_SELF_CHECK.*?(?=## |# |<!--META|\Z)", content, re.DOTALL
-        )
-
-        # ── spec #76: plan_format v2 版本条件化（密度 + 金句位类型三点同步）──
-        # v2 判据 = memo plans/chapter-N-plan.md 段1 令牌；v1 旧路径持续可跑
-        # （#75 回归集/CI fixtures 全为 v1——密度 WARN、金句位旧格式 PASS）。
-        _memo_v2 = False
-        _mp: Path | None = None
-        _memo_text = ""
-        if project_dir:
-            _cn = re.search(r"chapter-(\d+)", pf.name)
-            if _cn:
-                _mp = Path(project_dir) / "plans" / f"chapter-{_cn.group(1)}-plan.md"
-                if _mp.is_file():
-                    _memo_text = _mp.read_text(encoding="utf-8")
-                    _pfv = re.search(
-                        r"^plan_format[：:]\s*v[2-9]\s*$", _memo_text, re.MULTILINE
-                    )  # v2 门（v3 ⊇ v2, #78；v4 ⊇ v3, spec #82）——不得 v[3-9] 误伤 v2
-                    _memo_v2 = _pfv is not None  # v3 ⊇ v2（#78）
-        # ── spec #78: plan_format v3（回触/分级/重量）──
-        _memo_v3 = False
-        if _memo_v2:
-            _memo_v3 = bool(re.search(r"^plan_format[：:]\s*v[3-9]\s*$", _memo_text, re.MULTILINE))
-        _proj78 = Path(project_dir) if project_dir else None
-        if _memo_v3 and _proj78 is not None:
-            # 连续微钩（读前章声明——spec #82 T1/I4：优先完成时快照（L-D 铁律），
-            # 快照缺席章（卷一 pre-T0 历史）回退 plan memo 解析——纯读幂等）
-            _cn78 = re.search(r"chapter-(\d+)", pf.name)
-            if _cn78:
-                from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
-
-                _hist78 = _declared_history(str(project_dir)) if _proj78 else {}
-                _tiers: list[str] = []
-                for _k in range(max(1, int(_cn78.group(1)) - 3), int(_cn78.group(1)) + 1):
-                    _snap78 = (_hist78.get(_k) or {}).get("张力拍档位")
-                    if isinstance(_snap78, str) and _snap78 in ("微", "章", "大"):
-                        _tiers.append(_snap78)
-                        continue
-                    _mk = _proj78 / "plans" / f"chapter-{_k}-plan.md"
-                    if not _mk.is_file():
-                        continue
-                    _tm = re.search(
-                        r"章尾张力拍[：:]\s*\[?(微|章|大)", _mk.read_text(encoding="utf-8")
-                    )
-                    if _tm:
-                        _tiers.append(_tm.group(1))
-                _micro_cap = (
-                    (read_genre_config(str(project_dir)) or {})
-                    .get("market_params", {})
-                    .get("hook_grading", {})
-                    .get("max_consecutive_micro", 2)
-                )
-                _run78 = 0
-                for _x in reversed(_tiers):
-                    if _x == "微":
-                        _run78 += 1
-                    else:
-                        break
-                if _run78 > _micro_cap:
-                    mf.append(
-                        f"G4.cd.micro_hook_run:{fp}:{_run78}>{_micro_cap} "
-                        f"(v3 连续微钩超限——章/大钩轮换；修复者: planning)"
-                    )
-            # payoff 密度窗：window 内 v3 memo 无轴登记 payoff = WARN
-            _pdw = (
-                (read_genre_config(str(project_dir)) or {})
-                .get("market_params", {})
-                .get("payoff_density", {})
-            )
-            _win = int(_pdw.get("window", 3)) if _pdw else 3
-            _has_axis = False
-            if _cn78:
-                for _k in range(max(1, int(_cn78.group(1)) - _win + 1), int(_cn78.group(1)) + 1):
-                    _mk = _proj78 / "plans" / f"chapter-{_k}-plan.md"
-                    if _mk.is_file() and re.search(
-                        r"\*\*payoff 拍\*\*[：:].*轴[（(]?(债|名声|名字数|进度)",
-                        _mk.read_text(encoding="utf-8"),
-                    ):
-                        _has_axis = True
-                        break
-            if not _has_axis:
-                c.append(
-                    {
-                        "id": "G4.cd.payoff_density",
-                        "file": fp,
-                        "s": GateStatus.WARN,
-                        "r": f"v3 近{_win}章无轴登记 payoff（payoff_density 窗）",
-                    }
-                )
-
-        _body = narrative
-        _cps: list[str] = []
-        if project_dir:
-            _pcard = Path(project_dir) / "characters" / "protagonist.md"
-            if _pcard.is_file():
-                _cps = catchphrases_from_card(_pcard.read_text(encoding="utf-8"))
-        _signals = distinct_voice_signals(_body, _cps)
-        _vdm = (
-            (read_genre_config(project_dir or str(pf.parent)) or {})
-            .get("market_params", {})
-            .get("voice_density_min", {})
-        )
-        _vmin = (
-            int(_vdm.get("min_per_chapter", DEFAULT_VOICE_DENSITY_MIN))
-            if _vdm
-            else DEFAULT_VOICE_DENSITY_MIN
-        )
-        if _memo_v2 and _signals < _vmin:
-            # 束6 逐字化：逐字内联未在场的卡口癖——束5 实弹面是卡形差一字
-            # （正文『行，先记账』vs 卡『行，先算账』），语义近似但计分是
-            # 精确子串，报文不引卡原串模型无从对照；另列其余两类可计分
-            # 信号的确定形态。卡口癖全在场时换措辞——缺的是其余信号类，
-            # 不再出现『未计分卡口癖：已全在场』的自相矛盾形（PR #295 审查）。
-            _miss = [p for p in _cps if p not in _body]
-            _cp_part = (
-                f"未在场卡口癖（须逐字照抄、一字不可改）："
-                f"{'；'.join(f'『{p}』' for p in _miss[:4])}；另可计分："
-                if _miss
-                else "卡口癖已全在场——补其余信号；可计分："
-            )
-            mf.append(
-                f"G4.cd.voice_density:{fp}:{_signals}<{_vmin} "
-                f"(v2 章——备忘声口要求行未兑现；{_cp_part}"
-                f"账房动词任一（如『{'』『'.join(ACCOUNTING_VERBS[:3])}』）"
-                f"或自嘲反问收尾（『…吧？』『…呢？』句式）；修复者: drafting)"
-            )
-        else:
-            c.append(
-                {
-                    "id": "G4.cd.voice_density",
-                    "file": fp,
-                    "s": GateStatus.PASS if _memo_v2 else GateStatus.WARN,
-                    "r": f"signals={_signals}/{_vmin}"
-                    + ("" if _memo_v2 else " (v1 章——dispatch 域外，WARN 口径)"),
-                }
-            )
-        golden_issues: list[str] = []
-        pre_val: str | None = None
-        if pre_block:
-            m = _GOLDEN_PRE_RE.search(pre_block.group(0))
-            if m:
-                pre_val = m.group(1)
-        if pre_val is None or pre_val.strip().strip("[]").strip() in _EMPTY_VALUES:
-            golden_issues.append("PRE lacks non-empty 金句位 line")
-        post_ok = False
-        if post_block:
-            if _GOLDEN_POST_RE.search(post_block.group(0)):
-                post_ok = True
-        if not post_ok:
-            golden_issues.append("POST lacks 金句 excerpt line")
-        _quote_type_ok = True
-        if _memo_v2:
-            # 三点同步：memo 段1 金句位行 → PRE 本章金句位行 → 章尾钩行 [?] 金句位行
-            _types: set[str] = set()
-            if _mp is not None and _mp.is_file():
-                _mm = re.search(
-                    r"^金句位[：:]\s*(静|燃)｜.*$",
-                    _memo_text,
-                    re.MULTILINE,
-                )
-                if _mm:
-                    _types.add(_mm.group(1))
-                else:
-                    # spec §1(4) 三点同步——memo 点缺席即断链（v2 备忘必含类型金句位行）
-                    _quote_type_ok = False
-            if pre_val is None or pre_val.strip() in ("", "无", "N/A", "待定"):
-                _quote_type_ok = False
-            else:
-                _qt = re.match(r"(静|燃)｜", pre_val.strip())
-                if _qt:
-                    _types.add(_qt.group(1))
-                else:
-                    _quote_type_ok = False
-            _post_m = _GOLDEN_POST_RE.search(post_block.group(0)) if post_block else None
-            if _post_m:
-                _qt2 = re.match(r"(静|燃)｜", _post_m.group(1).strip())
-                if _qt2:
-                    _types.add(_qt2.group(1))
-                else:
-                    _quote_type_ok = False
-            if not _types or len(_types) > 1 or not _quote_type_ok:
-                mf.append(
-                    f"G4.cd.quote_type:{fp}:v2 金句位须「静/燃｜写法｜落点」三点同型"
-                    f"（观测类型集={sorted(_types) or '∅'}；修复者: drafting）"
-                )
-        if golden_issues:
-            c.append(
-                {
-                    "id": "G4.cd.golden_slot",
-                    "file": fp,
-                    "s": GateStatus.WARN,
-                    "r": "; ".join(golden_issues),
-                }
-            )
-        else:
-            c.append({"id": "G4.cd.golden_slot", "file": fp, "s": GateStatus.PASS})
+        _check_prop_handoff(ctx, c, mf)
+        _check_counters(ctx, c, mf)
+        _check_balance_drift(ctx, c, mf)
+        _check_pre_block(ctx, c, mf)
+        _check_post_block(ctx, c, mf)
+        _check_transitions(ctx, c, mf)
+        _check_fatigue(ctx, c, mf)
+        _check_meta(ctx, c, mf)
+        _check_word_count(ctx, c, mf)
+        _check_scene_count(ctx, c, mf)
+        _check_scene_hook(ctx, c, mf)
+        _check_content_uniqueness(ctx, c, mf)
+        _check_scene_concreteness(ctx, c, mf)
+        _check_chapter_end_hook(ctx, c, mf)
+        _check_protagonist(ctx, c, mf)
+        _check_surge(ctx, c, mf)
+        _check_simile_band(ctx, c, mf)
+        if ctx.memo_v3 and ctx.project_dir:
+            _check_micro_hook_run(ctx, c, mf)
+            _check_payoff_density(ctx, c, mf)
+        _check_voice_density(ctx, c, mf)
+        _check_golden_slot(ctx, c, mf)
 
     if mf:
         return fail("G4-chapter-drafting", c, "scoring", mf)

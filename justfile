@@ -34,6 +34,7 @@ check:
     uv run python tools/lint_decisions_sources.py
     uv run python tools/lint_truth_format_single_source.py
     uv run python tools/lint_mustfix_emission.py
+    uv run python tools/lint_chapter_num_single_source.py
     uv run python tools/lint_gate_prompt_contract.py
     uv run python tools/lint_helper_usage.py
     uv run python tools/lint_increment_teaching.py

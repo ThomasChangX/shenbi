@@ -14,6 +14,7 @@ from typing import Any
 
 import pytest
 
+from shenbi.gates.g4 import chapter_drafting as cd
 from shenbi.gates.g4.chapter_drafting import check_hook_fulfillment, g4_chapter_drafting
 
 
@@ -753,3 +754,10 @@ def test_c_layer_fulfillment_kr_token_leaves_domain(tmp_path) -> None:
     ch.write_text("正文没有提。\n", encoding="utf-8")
     issues = check_hook_fulfillment(plan, ch)
     assert not any("KR-1" in i or "KR1" in i for i in issues)
+
+
+@pytest.mark.unit
+def test_no_report_private_usage_suppressions() -> None:
+    """Spec #89 T5 AC8: no pyright reportPrivateUsage suppressions remain."""
+    src = Path(cd.__file__).read_text(encoding="utf-8")
+    assert "reportPrivateUsage" not in src

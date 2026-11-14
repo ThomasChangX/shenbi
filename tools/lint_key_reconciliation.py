@@ -54,7 +54,7 @@ READ_KEY_REGISTRY: list[ReadKey] = [
         "src/shenbi/scoring.py: marker_filename",
         "gate-markers/G4-<skill>-<test_type>.json",
         [
-            "src/shenbi/gates/shared.py: def marker_filename",
+            "src/shenbi/gates/gate_manifest.py: def marker_filename",
             "src/shenbi/gates/cli.py: write_gate_marker(",
         ],
     ),
@@ -62,7 +62,7 @@ READ_KEY_REGISTRY: list[ReadKey] = [
         "marker/G6-family",
         "src/shenbi/scoring.py: marker_filename",
         "gate-markers/G6-<pipeline>-<test_type>.json",
-        ["src/shenbi/gates/shared.py: def marker_filename"],
+        ["src/shenbi/gates/gate_manifest.py: def marker_filename"],
     ),
     # --- g_reconcile status vocab (T4) ---
     ReadKey(
