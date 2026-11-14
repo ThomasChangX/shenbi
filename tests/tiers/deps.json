@@ -360,7 +360,7 @@
     "src/shenbi/skill_utils/revision_routing/route.py": "sha256:87c670ec7e59c679ac3c2ecb461985412494bc8a5eddb680e5db2f0af30788ef",
     "src/shenbi/skill_utils/revision_routing/__init__.py": "sha256:1910b9b3c1d6f5ed21f0b05647ee25af24ea046e9211084c5bd455bfcadda160",
     "src/shenbi/skill_utils/revision_routing/__main__.py": "sha256:cd66a77fe6aec06b1feb3dbb12a4d7d3f314b8ebbc7c26e4755292048b0ca79f",
-    "src/shenbi/skill_utils/style_learning/compute_stats.py": "sha256:48801aba38507c6d1b4eb3190e3076dc8d87886f9891d6e2ecb99af5387da6bc",
+    "src/shenbi/skill_utils/style_learning/compute_stats.py": "sha256:7f1730530d6afd017f657a01cd03dc610016671eb6a13085fd288cbbc9dfce92",
     "src/shenbi/skill_utils/style_learning/__init__.py": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "src/shenbi/skill_utils/style_learning/__main__.py": "sha256:4649c9ad27003f0c3fc730ef80ad087352bcbcb512b6db5ed10caa24de333709",
     "src/shenbi/skill_utils/escalation/check.py": "sha256:2212af915cbe6de0419ee411690334d417d30cddf6448fa9bf9b7c0005394023",

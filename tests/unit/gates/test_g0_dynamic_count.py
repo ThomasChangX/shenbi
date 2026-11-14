@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from shenbi.gates import shared
@@ -9,7 +11,7 @@ from shenbi.gates.shared import all_skills
 
 
 @pytest.mark.unit
-def test_all_skills_is_dynamic_not_hardcoded() -> None:
+def test_all_skills_is_dynamic_not_hardcoded(tmp_path: Path) -> None:
     """all_skills() is lazily scanned, cached, and directory-perceptive (spec #89 T4)."""
     first = all_skills()
     assert isinstance(first, list)
@@ -17,7 +19,7 @@ def test_all_skills_is_dynamic_not_hardcoded() -> None:
     assert len(first) >= 61  # current count, grows with new skills
     # 新目录可感知：monkeypatch SKILLS → cache_clear → 感知新技能；finally 恢复+再清
 
-    fake = shared.PROJECT / "tests" / "_tmp_skills_probe"
+    fake = tmp_path / "skills"  # 真树外（audit-T4 🟡：xdist 共享真树有竞争）
     fake.mkdir(parents=True, exist_ok=True)
     (fake / "shenbi-probe-skill").mkdir(exist_ok=True)
     (fake / "shenbi-probe-skill" / "SKILL.md").write_text("x", encoding="utf-8")
