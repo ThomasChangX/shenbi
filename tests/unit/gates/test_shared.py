@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pytest
 
+from shenbi.gates.gate_manifest import write_gate_marker
 from shenbi.gates.shared import (
     count_transition_words,
     fail,
@@ -27,7 +28,6 @@ from shenbi.gates.shared import (
     passed,
     read_genre_config,
     word_count_md,
-    write_gate_marker,
     yload,
 )
 

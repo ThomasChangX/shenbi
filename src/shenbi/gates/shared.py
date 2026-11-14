@@ -6,7 +6,6 @@ import these helpers to keep behavior identical to the legacy monolith.
 
 from shenbi.truth_format import split_frontmatter  # spec #85 T6
 from shenbi.logging import get_logger
-from shenbi.safe_write import safe_write
 from shenbi.status import GateResult, GateStatus
 from shenbi.text.cjk import find_quote_spans
 
@@ -15,6 +14,7 @@ log = get_logger(__name__)
 
 import json
 import re
+from functools import lru_cache
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -427,65 +427,10 @@ def strip_narrative_body(content: str) -> str:
     return strip_scene_markers(c)
 
 
-QUOTE_PAIR = {"”": "“", "’": "‘", "」": "「", "』": "『"}
-# 迁自 skill_utils/style_learning/compute_stats.py（spec #71 单信源化：
-# G4.cd 与 compute_stats 同源切分；compute_stats re-export 保 API 兼容）。
-
-
-def segment_sentences(text: str) -> list[tuple[str, int]]:
-    r"""Segment Chinese text into sentences. Returns list of (sentence_text, char_count).
-
-    F628: ； terminates sentences (unified with SENT_ENDS).
-    F668: sentence-final punctuation inside open quotes does not split;
-    \n splits unconditionally (escape hatch for unterminated quotes).
-    """
-    sentences: list[tuple[str, int]] = []
-    current: list[str] = []
-    quote_stack: list[str] = []
-    ascii_quote_open = False
-
-    def flush() -> None:
-        sent = "".join(current).strip()
-        if sent:
-            char_count = len(sent.replace("\n", "").replace(" ", ""))
-            if char_count > 0:
-                sentences.append((sent, char_count))
-        current.clear()
-
-    for ch in text:
-        current.append(ch)
-        quote_closed = False
-        if ch in QUOTE_PAIR.values():
-            quote_stack.append(ch)
-        elif ch in QUOTE_PAIR:
-            if quote_stack and quote_stack[-1] == QUOTE_PAIR[ch]:
-                quote_stack.pop()
-                quote_closed = True
-        elif ch == '"':
-            if ascii_quote_open:
-                quote_closed = True
-            ascii_quote_open = not ascii_quote_open
-        in_quote = bool(quote_stack) or ascii_quote_open
-        if ch == "\n" or (ch in "。！？；" and not in_quote):
-            if ch == "\n":
-                # reset quote state so an unterminated quote on one line cannot
-                # suppress splitting on later lines (Copilot review, PR #100)
-                quote_stack.clear()
-                ascii_quote_open = False
-            flush()
-        elif (
-            quote_closed
-            and not quote_stack
-            and not ascii_quote_open
-            and len(current) >= 2
-            and current[-2] in "。！？；"
-        ):
-            # F668: sentence-final punct right before the OUTERMOST closing quote
-            # ends the sentence (nested inner closes do not split the outer one)
-            flush()
-    if current:
-        flush()
-    return sentences
+from shenbi.text.cjk import (  # re-export（spec #89 T4：保 cd:28 与 test_shared_prose_primitives 零改）
+    QUOTE_PAIR as QUOTE_PAIR,  # noqa: PLC0414
+    segment_sentences as segment_sentences,  # noqa: PLC0414
+)
 
 
 def _non_dialogue_text(content: str) -> str:
@@ -767,43 +712,6 @@ def normalize_file_paths(
     return [str(p) for p in file_paths]
 
 
-def marker_filename(gate: str, target: str, test_type: str) -> str:
-    """Single source for gate-marker filenames (spec #27 T2).
-
-    Both the writer (write_gate_marker) and the reader
-    (scoring.check_gate_markers) must derive the name from here.
-    """
-    return f"{gate}-{target}-{test_type}.json"
-
-
-def write_gate_marker(
-    gate: str,
-    target: str,
-    test_type: str,
-    result_str: str,
-    round_dir: str | None,
-    file_paths: list[str] | None = None,
-) -> None:
-    """Write a gate marker file if result is PASS and round_dir is provided."""
-    if not round_dir:
-        return
-    try:
-        result = json.loads(result_str)
-        if result.get("status") != "PASS":
-            return
-        rd = Path(round_dir)
-        marker_dir = rd / "gate-markers"
-        marker_dir.mkdir(parents=True, exist_ok=True)
-        marker = {
-            **result,
-            "files_checked": [str(p) for p in (file_paths or [])],
-        }
-        marker_file = marker_dir / marker_filename(gate, target, test_type)
-        safe_write(marker_file, json.dumps(marker, indent=2, ensure_ascii=False))
-    except (json.JSONDecodeError, OSError):
-        pass  # best-effort marker write; non-PASS or unreadable result → skip marker
-
-
 def unimplemented(gate_name: str, note: str = "") -> str:
     """Return UNIMPLEMENTED JSON string for stub gates."""
     return json.dumps(
@@ -833,25 +741,36 @@ def read_genre_config(project_dir: str | Path) -> dict[str, Any]:
     return {}
 
 
-# Pre-compute the known skill names from the skills/ directory
-ALL_SKILLS = (
-    sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
-    if SKILLS.exists()
-    else []
-)
+@lru_cache(maxsize=1)
+def all_skills() -> list[str]:
+    """Known skill names from skills/ (lazy: no import-time FS scan, spec #89 T4).
 
-# F432: the t1-skill scaffold roster (tests/tiers/t1-skill/<skill>/) is the
-# coverage universe for G7.1b reverse coverage — skills without a T1 scaffold
-# (group-*/lifecycle) can never appear in a round summary and must not FAIL it.
-T1_SCAFFOLD_SKILLS: tuple[str, ...] = tuple(
-    sorted(
-        d.name
-        for d in (TESTS / "tiers" / "t1-skill").iterdir()
-        if d.is_dir() and d.name != "_template"
+    Missing directory degrades to [] exactly like the old module-level scan.
+    """
+    return (
+        sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
+        if SKILLS.exists()
+        else []
     )
-    if (TESTS / "tiers" / "t1-skill").exists()
-    else []
-)
+
+
+@lru_cache(maxsize=1)
+def t1_scaffold_skills() -> tuple[str, ...]:
+    """T1-skill scaffold roster (F432) — lazy, degrades to () when dir absent.
+
+    Skills without a T1 scaffold (group-*/lifecycle) can never appear in a
+    round summary and must not FAIL G7.1b reverse coverage.
+    """
+    return tuple(
+        sorted(
+            d.name
+            for d in (TESTS / "tiers" / "t1-skill").iterdir()
+            if d.is_dir() and d.name != "_template"
+        )
+        if (TESTS / "tiers" / "t1-skill").exists()
+        else ()
+    )
+
 
 # Skills that have dedicated (non-generic) G4 generative checkers
 G4_CHECKER_SKILLS = {

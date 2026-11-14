@@ -15,10 +15,10 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.gates.shared import (
+    all_skills,
     parse_report_stem,
-    ALL_SKILLS,
     PROJECT,
-    T1_SCAFFOLD_SKILLS,
+    t1_scaffold_skills,
     fail,
     jload,
     passed,
@@ -42,7 +42,7 @@ def gate_G7(round_dir: str) -> str:
         # F432: scaffold roster keeps the known-skill universe broad; unknown
         # stems are the hallucination signal (a hallucinated report file
         # matches no real skill and must FAIL, not be silently dropped).
-        known = sorted(set(ALL_SKILLS) | set(T1_SCAFFOLD_SKILLS))  # hoisted (PR #108 review)
+        known = sorted(set(all_skills()) | set(t1_scaffold_skills()))  # hoisted (PR #108 review)
         report_skills = set()
         unmatched_stems: set[str] = set()
         for rp in reports_dir_g71.glob("*.json"):
@@ -62,7 +62,7 @@ def gate_G7(round_dir: str) -> str:
                 }
             )
         # G7.1b — reverse coverage: every T1-scaffold skill has a report artifact
-        missing_in_reports = set(T1_SCAFFOLD_SKILLS) - report_skills  # F432
+        missing_in_reports = set(t1_scaffold_skills()) - report_skills  # F432
         if missing_in_reports:
             mf.append(f"G7.1:missing_coverage:{sorted(missing_in_reports)}")
     else:

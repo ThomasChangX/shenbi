@@ -99,7 +99,7 @@ class TestG0HappyPath:
         reaches G0.4 (see src/shenbi/gates/g0.py line 62 — returns passed()
         immediately after appending the G0.1 SKIP check). To exercise G0.4
         we must pass a real seed_file so the gate walks past G0.1/G0.2/G0.3.
-        ALL_SKILLS and SKILLS are module-level constants in shared.py
+        all_skills() is a lazy cached scan over SKILLS (spec #89 T4)
         pointing at the actual repo layout, so G0.4 inspects the real
         skills/ tree regardless of monkeypatch.
         """
@@ -254,9 +254,9 @@ def test_g010_warns_when_fewer_than_total_skills_generative_reports(tmp_path: Pa
 @pytest.mark.unit
 def test_g010_passes_when_total_skills_or_more_generative_reports(tmp_path: Path) -> None:
     """round_dir with >= total_skills generative reports -> G0.10 PASS (dynamic count, spec §9.4)."""
-    from shenbi.gates.shared import ALL_SKILLS
+    from shenbi.gates.shared import all_skills
 
-    total = len(ALL_SKILLS)
+    total = len(all_skills())
     seed = tmp_path / "seed.md"
     seed.write_text("目标字数：5000\n" + "正文内容。" * 200, encoding="utf-8")
     round_dir = tmp_path / "round"
@@ -292,9 +292,9 @@ def test_g015_gate_registry_consistency_passes_on_current_repo(tmp_path: Path) -
 def test_known_skill_names_is_single_source() -> None:
     """known_skill_names owns the authoritative skill vocabulary (judgement 5)."""
     from shenbi.contracts.registry import known_skill_names
-    from shenbi.gates.shared import ALL_SKILLS
+    from shenbi.gates.shared import all_skills
 
-    assert known_skill_names() == set(ALL_SKILLS)
+    assert known_skill_names() == set(all_skills())
 
 
 def test_g0_cc_reads_state_floor(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

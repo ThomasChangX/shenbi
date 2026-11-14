@@ -11,6 +11,7 @@ from typing import Any, cast
 import structlog
 
 from shenbi.exceptions import ShenbiError
+from shenbi.safe_write import safe_write
 
 log = structlog.get_logger()
 GATE_MANIFEST_FILENAME = "pipeline-manifest.json"
@@ -167,3 +168,40 @@ def get_gate_result(
         return cast(dict[str, Any], entry.get("result", entry)) if isinstance(entry, dict) else None
     except (KeyError, TypeError, IndexError):
         return None
+
+
+def marker_filename(gate: str, target: str, test_type: str) -> str:
+    """Single source for gate-marker filenames (spec #27 T2).
+
+    Both the writer (write_gate_marker) and the reader
+    (scoring.check_gate_markers) must derive the name from here.
+    """
+    return f"{gate}-{target}-{test_type}.json"
+
+
+def write_gate_marker(
+    gate: str,
+    target: str,
+    test_type: str,
+    result_str: str,
+    round_dir: str | None,
+    file_paths: list[str] | None = None,
+) -> None:
+    """Write a gate marker file if result is PASS and round_dir is provided."""
+    if not round_dir:
+        return
+    try:
+        result = json.loads(result_str)
+        if result.get("status") != "PASS":
+            return
+        rd = Path(round_dir)
+        marker_dir = rd / "gate-markers"
+        marker_dir.mkdir(parents=True, exist_ok=True)
+        marker = {
+            **result,
+            "files_checked": [str(p) for p in (file_paths or [])],
+        }
+        marker_file = marker_dir / marker_filename(gate, target, test_type)
+        safe_write(marker_file, json.dumps(marker, indent=2, ensure_ascii=False))
+    except (json.JSONDecodeError, OSError):
+        pass  # best-effort marker write; non-PASS or unreadable result → skip marker

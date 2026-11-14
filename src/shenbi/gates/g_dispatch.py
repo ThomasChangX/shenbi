@@ -14,7 +14,7 @@ import json
 from pathlib import Path
 
 from shenbi.gates.shared import (
-    ALL_SKILLS,
+    all_skills,
     fail,
     jload,
     passed,
@@ -45,8 +45,8 @@ def gate_G_DISPATCH(phase: str, round_dir: str) -> str:
         )
 
     completed = set(progress.get("completed_skill_names", []))
-    all_skills = set(ALL_SKILLS)
-    missing = all_skills - completed
+    known = set(all_skills())
+    missing = known - completed
 
     # GD.1 — completed_skill_names == all skills
     if missing:
@@ -58,7 +58,7 @@ def gate_G_DISPATCH(phase: str, round_dir: str) -> str:
                     "s": GateStatus.FAIL,
                     "missing": sorted(missing),
                     "completed": len(completed),
-                    "total": len(all_skills),
+                    "total": len(known),
                 }
             ],
             "phase_completion",

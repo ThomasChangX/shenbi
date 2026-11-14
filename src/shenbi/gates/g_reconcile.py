@@ -14,7 +14,7 @@ from typing import Any
 
 from shenbi.status import GateStatus, SkillProgressStatus
 from shenbi.gates.shared import (
-    ALL_SKILLS,
+    all_skills,
     find_report,
     fail,
     jload,
@@ -73,7 +73,7 @@ def gate_G_RECONCILE(round_dir: str | None = None) -> str:
                     continue
                 candidate_skill = parts[0]
                 candidate_tt = "-".join(parts[1:])
-                if candidate_skill in ALL_SKILLS:
+                if candidate_skill in all_skills():
                     matched = True
                     td = skills.get(candidate_skill, {}).get(candidate_tt, {})
                     if (

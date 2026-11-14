@@ -1258,7 +1258,7 @@ class TestSpec16MicroFixes:
 @pytest.mark.unit
 def test_check_gate_markers_generative_backward_compat(tmp_path):
     """Spec #27 T2: historical G4-*-generative.json markers stay readable."""
-    from shenbi.gates.shared import marker_filename
+    from shenbi.gates.gate_manifest import marker_filename
     from shenbi.scoring import check_gate_markers
 
     rd = tmp_path / "round"

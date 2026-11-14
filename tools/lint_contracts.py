@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from shenbi.contracts.graph import dag_key
 from shenbi.contracts.loader import ContractError, load_contract, load_registry
 from shenbi.contracts.schemas.registry import TruthFilesRegistry
-from shenbi.gates.shared import ALL_SKILLS
+from shenbi.gates.shared import all_skills
 from shenbi.sync_contracts import build_dag, load_all_contracts
 
 META_SKILLS = {"using-shenbi", "shenbi-writing-skills"}
@@ -24,7 +24,7 @@ META_SKILLS = {"using-shenbi", "shenbi-writing-skills"}
 
 def in_pipeline_skills() -> list[str]:
     """Return every skill that participates in a phase/DAG (excludes the 2 meta skills)."""
-    return [s for s in ALL_SKILLS if s not in META_SKILLS]
+    return [s for s in all_skills() if s not in META_SKILLS]
 
 
 def find_load_violations() -> list[str]:

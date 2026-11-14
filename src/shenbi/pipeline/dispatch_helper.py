@@ -3079,10 +3079,10 @@ def _collect_declared_truth_fields() -> dict[str, list[str]]:
     never block genesis on a single malformed skill.
     """
     from shenbi.contracts.loader import ContractError, load_contract
-    from shenbi.gates.shared import ALL_SKILLS
+    from shenbi.gates.shared import all_skills
 
     declared: dict[str, dict[str, None]] = {name: {} for name in _TRUTH_FILE_TITLES}
-    for skill in ALL_SKILLS:
+    for skill in all_skills():
         try:
             contract = load_contract(skill)
         except (ContractError, Exception):

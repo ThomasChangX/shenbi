@@ -189,7 +189,7 @@ class TestG0Integration:
         monkeypatch.setattr(g0mod, "SKILLS", skills_dir)
         monkeypatch.setattr(g0mod, "TESTS", tests_dir)
         monkeypatch.setattr(g0mod, "FIXTURES", fixtures_dir)
-        monkeypatch.setattr(g0mod, "ALL_SKILLS", [])
+        monkeypatch.setattr(g0mod, "all_skills", list)
         monkeypatch.setattr(g0mod, "G4_CHECKER_SKILLS", set())
 
         # Run with a seed file so gate_G0 does not short-circuit at G0.1.

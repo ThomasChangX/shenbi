@@ -108,7 +108,7 @@ from shenbi.gates.g0_purity import (
 )
 from shenbi.paths import Layout, detect_layout
 from shenbi.gates.shared import (
-    ALL_SKILLS,
+    all_skills,
     CHAPTER_WORD_FLOOR,
     FIXTURES,
     G4_CHECKER_SKILLS,
@@ -410,7 +410,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             }
         )
     else:
-        checks.append({"id": "G0.4", "s": GateStatus.PASS, "skills_count": len(ALL_SKILLS)})
+        checks.append({"id": "G0.4", "s": GateStatus.PASS, "skills_count": len(all_skills())})
 
     # G0.5 — rubric weight sum = 100% (C17 T5 / T1109: real implementation)
     checks.append(_g05_weight_check())
@@ -603,7 +603,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # G0.10 — completed generative test count (must cover all skills for full round;
     # WARN if fewer — allows incremental execution). Count is dynamic (scanned from
     # skills/ dir), not hardcoded — new skills auto-included.
-    total_skills = len(ALL_SKILLS)
+    total_skills = len(all_skills())
     if round_dir:
         rd = Path(round_dir)
         t1_reports = rd / "t1-reports"
@@ -712,13 +712,13 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # checkers for G4_CHECKER_SKILLS entries + g4_generic_generative fallback for the rest.
     # G0.12 verifies that the fallback exists (no skill returns UNIMPLEMENTED).
     dedicated_count = len(G4_CHECKER_SKILLS)
-    generic_count = len(ALL_SKILLS) - dedicated_count
+    generic_count = len(all_skills()) - dedicated_count
     checks.append(
         {
             "id": "G0.12",
             "s": GateStatus.PASS,
-            "note": f"G4 coverage: {dedicated_count}/{len(ALL_SKILLS)} dedicated, "
-            f"{generic_count}/{len(ALL_SKILLS)} generic fallback",
+            "note": f"G4 coverage: {dedicated_count}/{len(all_skills())} dedicated, "
+            f"{generic_count}/{len(all_skills())} generic fallback",
         }
     )
 

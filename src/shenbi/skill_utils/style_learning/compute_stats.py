@@ -16,10 +16,10 @@ from shenbi.gates.shared import (  # 单源别名（z11 F1301 扩展，spec #71�
     META_BLOCK_RE,
     QUOTE_PAIR as QUOTE_PAIR,  # noqa: PLC0414  # explicit re-export（basedpyright 契约），保既有 import 方
     count_similes,
-    segment_sentences as segment_sentences,  # noqa: PLC0414
     strip_narrative_body,
 )
 from shenbi.safe_write import safe_write
+from shenbi.text.cjk import segment_sentences as segment_sentences  # noqa: PLC0414  # explicit re-export（保 test_compute_stats 面）
 from shenbi.text.cjk import (
     TTR_EXCLUDED_CHARS,
     count_punctuation as cjk_count_punctuation,
