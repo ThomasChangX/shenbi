@@ -3408,30 +3408,9 @@ def _is_retryable(exception: BaseException) -> bool:
     return _is_retryable_exception_tree(exception)
 
 
-def classify_dispatch_failure(
-    exc: BaseException | None = None,
-    returncode: int | None = None,
-    *,
-    stderr: str = "",
-) -> FailureClass:
-    """C33 R1 (spec #47): classify a dispatch failure for every retry decision.
-
-    Classification points: ① tenacity predicate (_is_retryable), ② write-audit
-    rc=2 GATE_FAIL downgrade in _with_write_audit, ③ chapter_loop scoring
-    exits, ④ parallel wave retry branch.
-    """
-    if returncode == 2 and "write-audit GATE_FAIL" in stderr:
-        return FailureClass.DETERMINISTIC_GATE
-    if returncode == 2:
-        # rc=2 is the deterministic-violation exit (write-audit / validation);
-        # other nonzero exits (1/-1 subprocess crashes) stay transient —
-        # retrying those is spec S11 semantics, guarded by the budget.
-        return FailureClass.DETERMINISTIC_CONTENT
-    # Exception face: httpx direct OR openai SDK wrappers (cause chain) are
-    # transient (predicate: _is_retryable_exception_tree, wired into tenacity
-    # via _is_retryable); unknown failures also classify as TRANSIENT — the
-    # retry budget (retry_budget_consumed) guards their amplification.
-    return FailureClass.TRANSIENT
+from shenbi.contracts.failure import (  # re-export keeps the historical import path (spec #91 T2)
+    classify_dispatch_failure as classify_dispatch_failure,  # noqa: PLC0414
+)
 
 
 def _call_llm_streaming(

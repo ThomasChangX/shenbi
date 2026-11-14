@@ -61,3 +61,13 @@ T3 独立可先行；T4/T5 的 chapter_loop 调用点若与 #87 T3 撞面 → #8
 **r2.3 附注**：dispatcher/executor.py:208/:253 存在 log event 名 `gate_passed`（字符串），与 T1 新公共函数无实冲突——知悉即可，不改。
 
 **r2.3b 域外姊妹写点登记（阶段 2 发现，明确不并入本 spec）**：genesis 域 retry_feedback 裸写 6 点（genesis.py:632/:658、cli.py:1085/:1093/:1097/:1294）+pop 1 点（genesis.py:648）；genesis.retry_counts 裸写 2 点（genesis.py:444/:677）；closure_retry_counts 裸写 1 点（closure.py:217）——与 T4 同根因但属 genesis/closure 域，本 spec T4 定义域=chapter_loop 域（单 spec 原子性）；**记挂账**：若 T4 接线后需同域治理，另立小 spec 或并入后续批次。
+
+## 4. genesis 差异表（r2.3c 落盘——用户裁定输入；验收 4）
+
+| 场景 | genesis 现行为（count-only） | 接线后（failure_class 短路） | 差异 |
+|---|---|---|---|
+| dispatch rc=2（DETERMINISTIC_CONTENT/GATE） | `genesis._handle_failure` :445 count-only——烧满 `max_revision_retries`（默认 3 次尝试）才 escalation | 首败即 escalation（非 TRANSIENT 短路） | **有**：重试次数 3→0 |
+| dispatch rc=1/-1/异常（TRANSIENT） | 同上 count-only 重试 | 不短路，count-only 重试（行为同） | 无 |
+| G4/结构失败路径 | 不经 `_handle_failure` dispatch 分支 | 同左 | 无 |
+
+**裁定请求**：rc=2 类确定性失败在 genesis（创世重跑场景）是否切换为零重试直通 escalation。裁定通过 → follow-up 小批落「形参+短路+接线」三件；裁定驳回 → 保持 count-only（差异表归档备查）。
