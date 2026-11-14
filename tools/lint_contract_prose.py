@@ -101,6 +101,10 @@ def load_allowlist() -> tuple[tuple[str, str, str], ...]:
 
 ALLOWLIST: tuple[tuple[str, str, str], ...] = load_allowlist()
 
+#: Per-run allowlist hit tracking (spec #90 T4a: zero-hit entries → WARN, so
+#: stale carrier rows stay visible without blocking; main() clears/reports).
+_ALLOWLIST_HITS: set[str] = set()
+
 
 def _canonical(path: str) -> str:
     return _OFFSET_FORMS.sub("N", path)
@@ -188,7 +192,10 @@ def _covered(
         # one skill's dir while several prose bodies cite them).
         or ("/" not in cref and any(skills_root.glob(f"*/{base}")))  # b
         or any(fnmatch.fnmatch(cref, pat) for pat in reg_patterns)  # c
-        or any(fnmatch.fnmatch(f"{skill}:{cref}", pat) for _c, pat, _r in ALLOWLIST)
+        or any(
+            fnmatch.fnmatch(f"{skill}:{cref}", pat) and not _ALLOWLIST_HITS.add(pat)
+            for _c, pat, _r in ALLOWLIST
+        )
     )
 
 
@@ -243,9 +250,13 @@ def main(argv: list[str] | None = None) -> int:
         for cat, pat, reason in ALLOWLIST:
             print(f"allowlist[{cat}]: {pat} — {reason}")
         return 0
+    _ALLOWLIST_HITS.clear()
     r1, r2 = find_violations()
     for skill, ref, rule in r1:
         print(f"{rule}: skill={skill} ref={ref}", file=sys.stderr)
+    for _c, pat, _r in ALLOWLIST:
+        if pat not in _ALLOWLIST_HITS:
+            print(f"allowlist-stale: zero hits this run: {pat}", file=sys.stderr)
     for skill, target in r2:
         print(f"R2_NO_BODY_STEP: skill={skill} target={target}", file=sys.stderr)
     if r1 or r2:
