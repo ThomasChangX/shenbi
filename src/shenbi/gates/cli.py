@@ -19,8 +19,6 @@ import json
 from collections.abc import Callable
 import sys
 
-# Shorthand skill name -> full shenbi-* name. Mirrors legacy validate-gate.py.
-
 
 def main() -> int:
     from shenbi.cli_utils import emit_json

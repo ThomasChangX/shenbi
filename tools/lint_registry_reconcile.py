@@ -30,7 +30,7 @@ literal-contained patterns are exempt — plan r2/r3 rulings). The broad-glob-
 over-specialized-suffix shape (audits/volume-*.md ⊃ audits/volume-*-score.md)
 is the F432 cross-checker false-FAIL carrier.
 
-Reading mechanisms: non-importable faces (g5/generic/shared/registry/yaml)
+Reading mechanisms: non-importable faces (g5/shared/registry/yaml)
 are read by AST/text parsing so the lint works on temp repo copies
 (plan r2 I4 ruling).
 
