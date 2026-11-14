@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import re
 import shutil
 from pathlib import Path
 
@@ -25,7 +24,6 @@ _COPY_LIST = [
     "src/shenbi/gates/g4/generic.py",
     "src/shenbi/gates/g4/scoring_sections.py",
     "src/shenbi/contracts/registry.py",
-    "src/shenbi/gates/cli.py",  # SHORT_MAP face: AST-parsed (no import)
 ]
 _SCORE_EXEMPT = frozenset({"shenbi-score-arc", "shenbi-score-stratum", "shenbi-score-volume"})
 
@@ -65,15 +63,31 @@ def test_master_json_delete_live_fails(repo_copy: Path) -> None:
     assert any("master.json: missing-live" in v and "shenbi-worldbuilding" in v for v in vios)
 
 
-def test_short_map_deletion_fails(repo_copy: Path) -> None:
-    p = repo_copy / "src" / "shenbi" / "gates" / "cli.py"
-    orig = (_SRC / "src/shenbi/gates/cli.py").read_text(encoding="utf-8")
-    p.write_text(
-        re.sub(r'"chapter-drafting": "shenbi-chapter-drafting",\n', "", orig, count=1),
-        encoding="utf-8",
+def test_checker_keys_relocation_fails(repo_copy: Path) -> None:
+    """Structure-level guard: G4_CHECKER_KEYS literal moved away (alias left) → FAIL.
+
+    Spec #90 T2: SHORT_MAP/G4_CHECKER_SKILLS faces are gone (derived single
+    source); the lint guards *structure* — renamed/moved literal → empty
+    extraction → FAIL. Member-level drift (deleting one entry) is
+    runtime-guarded by generic.py build_checkers assert + test_build_checkers
+    + G0.12 — the lint deliberately does NOT guard it (spec #90 r2.3c).
+    """
+    p = repo_copy / "src" / "shenbi" / "gates" / "g4" / "generic.py"
+    orig = (_SRC / "src/shenbi/gates/g4/generic.py").read_text(encoding="utf-8")
+    relocated = orig.replace(
+        "G4_CHECKER_KEYS: frozenset[str] = frozenset(",
+        "G4_CHECKER_KEYS_MOVED: frozenset[str] = frozenset(",
+        1,
     )
+    assert relocated != orig, "anchor string drifted — recalibrate"
+    relocated = relocated.replace(
+        '        "shenbi-score-volume",\n    }\n)',
+        '        "shenbi-score-volume",\n    }\n)\nG4_CHECKER_KEYS = G4_CHECKER_KEYS_MOVED\n',
+        1,
+    )
+    p.write_text(relocated, encoding="utf-8")
     vios = lint_registry_reconcile(repo_copy)
-    assert any("SHORT_MAP: missing-checkers" in v and "shenbi-chapter-drafting" in v for v in vios)
+    assert any("extraction-empty" in v for v in vios), vios
 
 
 def test_g5_glob_deletion_fails(repo_copy: Path) -> None:
@@ -91,12 +105,13 @@ def test_g5_glob_deletion_fails(repo_copy: Path) -> None:
     )
 
 
-def test_g4_checker_skills_gap_fails(repo_copy: Path) -> None:
-    p = repo_copy / "src" / "shenbi" / "gates" / "shared.py"
-    orig = (_SRC / "src/shenbi/gates/shared.py").read_text(encoding="utf-8")
+def test_g4_checker_skills_face_removed_member_drift_lint_green(repo_copy: Path) -> None:
+    """Spec #90 r2.3c: member-level drift must NOT trip the lint (runtime guards own it)."""
+    p = repo_copy / "src" / "shenbi" / "gates" / "g4" / "generic.py"
+    orig = (_SRC / "src/shenbi/gates/g4/generic.py").read_text(encoding="utf-8")
     p.write_text(orig.replace('    "shenbi-worldbuilding",\n', "", 1), encoding="utf-8")
     vios = lint_registry_reconcile(repo_copy)
-    assert any("G4_CHECKER_SKILLS: !=checkers" in v and "shenbi-worldbuilding" in v for v in vios)
+    assert not any("G4_CHECKER_SKILLS" in v for v in vios), vios
 
 
 def test_index_md_row_deletion_fails(repo_copy: Path) -> None:
