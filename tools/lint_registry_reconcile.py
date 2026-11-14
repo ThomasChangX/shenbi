@@ -9,6 +9,7 @@ R1 invariants (per-face, bidirectional where stated):
                    single-source derivation; member drift is runtime-guarded)
   docs/skills/index.md ⊇ live skills (existence)
   t2 seed files    ⊇ per-phase prerequisites (literal token)
+  deps.json        ∩ DEPRECATED = ∅ (forbid-register, C21)
   using-shenbi trigger table ⊇ functional live - allow-missing (meta pre-exempted)
 
 R2 invariants (word-list closure):
