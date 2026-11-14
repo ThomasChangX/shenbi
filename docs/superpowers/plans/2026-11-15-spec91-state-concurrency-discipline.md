@@ -49,7 +49,7 @@ def _res(status):
 
 
 # Target semantics table: (site, input, expected_after_rewire)
-SITES = [
+SITES = [  # 9 single-compare sites (r3 审查 M2: 1597/4063 pinned in Task 2)
     ("triggers.py:505/_gate_passed", _res("PASS"), True),
     ("triggers.py:505/_gate_passed", _res("SKIP"), True),  # SKIP passes HERE ONLY
     ("triggers.py:505/_gate_passed", _res("FAIL"), False),
@@ -77,8 +77,11 @@ def test_gate_passed_accept_skip():
     assert gate_passed(_res(GateStatus.FAIL), accept_skip=True) is False
 
 
+# NOTE (r3 审查 M2): table covers the 9 single-compare sites; chapter_loop:1597
+# (compound None-passes) and :4063 (negative compare) are pinned by Task 2's
+# mapping comments + their post-rewire unit tests, not by this table.
 def test_semantics_table_covers_all_sites():
-    assert len(SITES) == 11
+    assert len(SITES) == 9
     for site, res, expected in SITES:
         assert isinstance(expected, bool) and site
 ```
@@ -212,11 +215,10 @@ git commit -m "refactor: spec #91 T1 11 判定点换装 gate_passed 单源——
 ```python
 """Spec #91 T1 lint: gate-status comparison guard (red-green)."""
 
-import ast, sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parents[3] / "tools"))
-import lint_gate_status_comparisons as lgc
+from tools.lint_gate_status_comparisons import (
+    scan,
+    scan_file,
+)  # repo convention (test_lint_status_strings.py:8)
 
 
 def test_clean_tree_zero_violations():
@@ -334,7 +336,7 @@ Run: `uv run pytest tests/unit/contracts/test_failure_classify.py tests/unit/pip
 - [ ] **Step 6: Commit**
 
 ```bash
-tests/lock-tool-hashes.sh && git add src/shenbi/contracts/failure.py src/shenbi/pipeline/dispatch_helper.py tests/tiers/deps.json docs/superpowers/specs/2026-11-01-spec91-state-concurrency-discipline.md
+tests/lock-tool-hashes.sh && git add src/shenbi/contracts/failure.py src/shenbi/pipeline/dispatch_helper.py tests/unit/contracts/test_failure_classify.py tests/tiers/deps.json docs/superpowers/specs/2026-11-01-spec91-state-concurrency-discipline.md
 git commit -m "refactor: spec #91 T2 classify_dispatch_failure 迁 contracts/failure.py+re-export——genesis 差异表落盘挂裁定"
 ```
 
@@ -362,7 +364,9 @@ import threading
 from pathlib import Path
 import pytest
 from shenbi.pipeline import ledger_archive as la
+
 # spy uses the PUBLIC probe added in this task (r2 审查 I2：tests 私有 import 会撞 lint_private_imports 基线增量=零)
+from shenbi.pipeline.truth_io import path_lock_held
 
 # fixture MUST pass POOL_SPEC shape gates: `## 总览` + `## 详情` + a
 # 详情-section matching HOOK_HEADING_RE (blueprint: tests/unit/pipeline/test_ledger_archive.py:150-155)
@@ -432,7 +436,7 @@ def test_green_read_holds_lock(tmp_path, monkeypatch):
 
     def spy(self, *a, **k):
         if self == live:  # only watch the live ledger file
-            seen.append(la.path_lock_held(self))  # public probe (truth_io)
+            seen.append(path_lock_held(self))  # public probe imported at module top (r3 审查 I2)
         return orig(self, *a, **k)
 
     monkeypatch.setattr(Path, "read_text", spy)
@@ -440,15 +444,23 @@ def test_green_read_holds_lock(tmp_path, monkeypatch):
     assert seen and all(seen)  # every live-read happened under the path lock
 
 
-def test_green_both_writers_survive(tmp_path):  # r2 审查 I5：spec 验收 2 绿侧第二断言
+def test_green_both_writers_survive(tmp_path):  # r2 审查 I5；断言落点 r3 审查 C1 修正
     live = tmp_path / "truth" / "pending_hooks.md"
     live.parent.mkdir(parents=True)
     live.write_text(LIVE_TEXT, encoding="utf-8")
-    _write_b(live)  # B commits first (properly locked)
+    _write_b(
+        live
+    )  # B commits first (properly locked) → B's line is INSIDE the section span A reads
     la.archive_ledger(tmp_path, 30, la.POOL_SPEC)  # A archives afterwards
-    final = live.read_text(encoding="utf-8")
-    assert B_LINE in final  # B's committed update survives
-    assert "### MH01" in final or "RESOLVED" in final  # A's tombstone/archive shape present
+    # archive semantics: the whole section span (INCLUDING B's line) is moved
+    # verbatim to the archive file and replaced by a tombstone in live.
+    # "Both writers survive" therefore asserts: B's line lives on in the
+    # ARCHIVE file, and the live file carries A's tombstone marker.
+    archive = tmp_path / "truth" / "pending_hooks_archive.md"
+    assert B_LINE in archive.read_text(encoding="utf-8")  # B's committed update preserved
+    assert (
+        "archived_to" in live.read_text(encoding="utf-8")
+    )  # A's tombstone present (marker per ledger_archive tombstone const; re-anchor on implementation)
 ```
 
 - [ ] **Step 4: 实现（:146-252 重排——`with path_lock(live_path):` 提前到 :158 读之前，函数体其余缩进一级；单写者行为零变化；归档半边不动）→ 跑双测**（红测断言现在**翻转**：修复后 B 不丢→`B_LINE not in` 失败——**将红测断言翻转为 `assert B_LINE in ...` 并改名**？**否**——spec 验收 2 要求「红绿非同一测试翻转」：保留红测文件原断言但在修复 commit 前将其标记 `pytest.mark.xfail(strict=True, reason="defect fixed")`，绿测独立存在。采用 xfail(strict) 形态：修复后红测变 xfail-strict 通过=防回潮哨兵，绿测=结构断言）
@@ -459,7 +471,7 @@ Run: `uv run pytest tests/unit/pipeline/test_ledger_archive_lock_window.py -q` �
 
 ```bash
 uv run pytest tests/unit/pipeline -q -k "ledger or archive" 2>&1 | tail -3
-tests/lock-tool-hashes.sh && git add src/shenbi/pipeline/ledger_archive.py tests/unit/pipeline/test_ledger_archive_lock_window.py tests/tiers/deps.json
+tests/lock-tool-hashes.sh && git add src/shenbi/pipeline/ledger_archive.py src/shenbi/pipeline/truth_io.py tests/unit/pipeline/test_ledger_archive_lock_window.py tests/tiers/deps.json
 git commit -m "fix: spec #91 T3 ledger_archive 锁窗口闭合——读-合-写全锁内+确定性红绿双测（xfail 哨兵防回潮）"
 ```
 
@@ -537,7 +549,7 @@ def get_retry_feedback(self, key: str) -> str | None:
 
 **写点换装穷举清单（re-anchor 后逐点）：**
 - `retry_counts`：:1954（`_handle_failure` 内 → `count = state.increment_retry(chapter, step.skill)`）；:4726-4727（g4_hard 自动重试路径 → 同）；`:4737` 裸 pop → `state.reset_retry(chapter, step.skill)`；`_reset_retries` :2056-2058 体 → `state.reset_retry(chapter, step.skill)`（7 调用方零改动）
-- `retry_budget_consumed` 索引写 3 区域 → `state.increment_retry_budget(chapter, skill)`（:1959-1960 `_handle_failure` 内[返回值供 `consumed` 判断]；:4412-4413 monitor_rewind；:4712-4713 g4_hard）；**事件发射顺序重排（r1 审查 I5）**：现码 `_emit_retry_event` 在增量**前**发射且 `loop_id=.get()+1`——换装后**先 `consumed = state.increment_retry_budget(...)` 再发射、`loop_id=consumed`**（返回值已含 +1，字面「返回值+1」会得旧值+2 的可观测漂移）；不新增 budget 读存取器（spec 未要求）
+- `retry_budget_consumed` 索引写 3 区域 → `state.increment_retry_budget(chapter, skill)`（:1959-1960 `_handle_failure` 内[返回值供 `consumed` 判断]；:4412-4413 monitor_rewind；:4712-4713 g4_hard）；**事件发射顺序重排（r1 审查 I5；r3 审查 M3：双站点同型都改）**：现码 monitor_rewind（:4402-4405）与 g4_hard（:4704-4708）**两处**均为 `_emit_retry_event` 在增量**前**发射且 `loop_id=.get()+1`——两处都换装为**先 `consumed = state.increment_retry_budget(...)` 再发射、`loop_id=consumed`**（返回值已含 +1，字面「返回值+1」会得旧值+2 的可观测漂移）；不新增 budget 读存取器（spec 未要求）
 - `retry_feedback` 赋值 12 点 → `state.set_retry_feedback(rk_or_fstring, accumulate_retry_feedback(state, rk, failures, ...))`（key 形态直传——chapter_loop :1879/:4191/:4220/:4252/:4272/:4387/:4524/:4589/:4629/:4697 + cli :1324-1329/:1345-1350）；裸 pop :2416（章闭 sweep——前缀批量清理，单键存取器接不住：新增 `clear_retry_feedback_prefix(prefix: str) -> None` 锁内批量 pop）；triggers:746 → `state.pop_retry_feedback(f"ch{chapter}-{step.skill}")`；`_clear_retry_feedback` :1244 体 → `state.pop_retry_feedback(retry_key)`（签名收 str key 直传，4 消费点零改动）；读点 :594(triggers)/:1316/:2030-2031 → `state.get_retry_feedback(key)`
 
 **三组测试（tests/unit/pipeline/test_retry_accessors.py；`_fresh_state()` 抄 tests/unit/pipeline/test_state_concurrency.py:11 同名助手形态——r1 审查 M3）：**
@@ -598,7 +610,7 @@ def test_clear_prefix_sweep():
 ```bash
 grep -n "retry_budget_consumed\[" src/shenbi/pipeline/chapter_loop.py        # 期望空
 grep -nE "retry_counts\[|retry_counts\.pop" src/shenbi/pipeline/chapter_loop.py  # 期望空
-grep -nE "retry_feedback\[" src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/triggers.py src/shenbi/pipeline/cli.py | grep -v "genesis.retry_feedback"  # 期望空（genesis 域 4 写点 r2.3b 挂账排除——过滤后零）
+grep -nE "retry_feedback\[|retry_feedback\.(pop|get)" src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/triggers.py src/shenbi/pipeline/cli.py | grep -v "genesis.retry_feedback"  # 期望空（r3 审查 M1：面扩到 pop/get；genesis 域 4 写点 r2.3b 挂账排除——过滤后零）
 ```
 
 - [ ] Step 7: 生产调用方 grep ≥1：
