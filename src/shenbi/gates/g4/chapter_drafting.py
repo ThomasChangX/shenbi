@@ -934,8 +934,8 @@ def _check_post_block(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str])
 def _check_transitions(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """Transition density + spec #83 T1 POST 交叉/字数精度."""
     # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
-    # Count on the ctx.narrative body only (probe escalation #4): the raw
-    # ctx.content includes the framework-mandated PRE_WRITE_CHECK checklist,
+    # Count on the narrative body only (probe escalation #4): the raw
+    # content includes the framework-mandated PRE_WRITE_CHECK checklist,
     # which itself enumerates transition words — the gate was counting
     # its own checklist (6 of 8 hits on probe chapter 1).
     tc = count_transition_words(strip_narrative_body(ctx.content))
@@ -989,7 +989,7 @@ def _check_fatigue(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) ->
 
 def _check_meta(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """meta-narrative phrases = 0 (body only)."""
-    # Meta-ctx.narrative phrases = 0 (check body only, not PRE/POST meta sections)
+    # Meta-narrative phrases = 0 (check body only, not PRE/POST meta sections)
     import re as _re2
 
     _body = ctx.content
@@ -1008,13 +1008,12 @@ def _check_meta(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> No
 def _check_word_count(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """total-chars floor (spec #72 口径)."""
     # Word count ≥ floor, on the TOTAL non-whitespace 口径 (probe
-    # escalation #4): the memo layer plans length in ctx.total chars (~3400),
-    # so a CJK-only floor demanded ≈3565 ctx.total — plan-compliant chapters
+    # escalation #4): the memo layer plans length in total chars (~3400),
+    # so a CJK-only floor demanded ≈3565 total — plan-compliant chapters
     # structurally failed (production fixture ch36/37/39/41 all 27xx-CJK).
     # Spec #72 口径统一: floor reads chapter_word.min (the 2800-4000
     # band's lower edge); default stays math-only (G0.3/G6 derivations).
     word_floor = chapter_word_floor(str(ctx.project_root))
-    ctx.total = total_chars_md_text(ctx.content)
     if ctx.total < word_floor:
         mf.append(
             f"G4.word_count:{ctx.fp}:{ctx.total}<{word_floor}（floor 来源: chapter_word_floor={word_floor}）"
@@ -1025,8 +1024,8 @@ def _check_word_count(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str])
                 "id": "G4.word_count",
                 "file": ctx.fp,
                 "s": GateStatus.PASS,
-                "ctx.wc": ctx.wc,
-                "ctx.total": ctx.total,
+                "wc": ctx.wc,
+                "total": ctx.total,
                 "floor": word_floor,
             }
         )
@@ -1098,11 +1097,11 @@ def _check_content_uniqueness(ctx: CheckContext, c: list[dict[str, Any]], mf: li
 def _check_scene_concreteness(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """Windowed visual-scene check (escalation #13/#37)."""
     # Visual-scene check is WINDOWED (canary escalation #13): web-novel
-    # prose uses 50-100 CJK ctx.paragraphs, so a single-paragraph >=100
+    # prose uses 50-100 CJK paragraphs, so a single-paragraph >=100
     # measure is a granularity mismatch with the very style the SKILL
-    # teaches. A window of 1-3 consecutive body ctx.paragraphs counts when
-    # its combined CJK >= 100 and at least 2 ctx.paragraphs in it carry
-    # visual-ctx.narrative verbs or dialogue (size-1 windows keep the legacy
+    # teaches. A window of 1-3 consecutive body paragraphs counts when
+    # its combined CJK >= 100 and at least 2 paragraphs in it carry
+    # visual-narrative verbs or dialogue (size-1 windows keep the legacy
     # >=1 requirement — long-paragraph styles see no regression).
     body_paragraphs: list[tuple[bool, bool, int]] = []  # (has_vn, has_di, cjk)
     for p in ctx.paragraphs:
@@ -1143,7 +1142,7 @@ def _check_scene_concreteness(ctx: CheckContext, c: list[dict[str, Any]], mf: li
 def _check_chapter_end_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """Windowed end-hook + spec #82 轮换 + v4 引句锚定（发射序保持内联）."""
     # G4.cd.chapter_end_hook: unresolved tension in the closing beat.
-    # WINDOWED over the last 8 ctx.narrative ctx.paragraphs (probe escalation
+    # WINDOWED over the last 8 narrative paragraphs (probe escalation
     # #4 opened the window to 5 because tension lands a few ctx.paragraphs
     # before the final image beat; the merged-mass rewrite below needs
     # the scene check's 8-cap (escalation #37) so stylistic closers at
@@ -1253,7 +1252,7 @@ def _check_surge(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> N
                 "id": "G4.cd.surge",
                 "file": ctx.fp,
                 "s": GateStatus.WARN,
-                "r": f"ctx.narrative surge sentences {narrative_surge} < quota {surge_quota}",
+                "r": f"narrative surge sentences {narrative_surge} < quota {surge_quota}",
             }
         )
     else:
@@ -1302,7 +1301,6 @@ def _check_micro_hook_run(ctx: CheckContext, c: list[dict[str, Any]], mf: list[s
         return
     # 连续微钩（读前章声明——spec #82 T1/I4：优先完成时快照（L-D 铁律），
     # 快照缺席章（卷一 pre-T0 历史）回退 plan memo 解析——纯读幂等）
-    ctx.chapter_no = chapter_no(ctx.pf.name)
     if ctx.chapter_no is not None:
         from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
 
