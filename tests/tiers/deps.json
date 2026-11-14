@@ -227,7 +227,7 @@
     "src/shenbi/gates/g_dispatch.py": "sha256:0516a280d1ff34a00485a49fb72494b5469cfc4eb296ef2e9e63aed2c403acb1",
     "src/shenbi/gates/shared.py": "sha256:6ac5085834754b01cc115edbabea1a5890cc8febf505e50c9b0fef2c013246d0",
     "src/shenbi/gates/g_transition.py": "sha256:b2b2a68d199491b9459e5358accffbe521eb8b7d083b68180d6af08fcb3ec485",
-    "src/shenbi/gates/cli.py": "sha256:af7730acd86d85eeb47a078489dd29f93cb34f98011a03dafe6d54112b516975",
+    "src/shenbi/gates/cli.py": "sha256:93dd01e109582eb33638b7933d6b34e7443857c474d6bdacfe92ab09b325c813",
     "src/shenbi/gates/g0_purity.py": "sha256:1ba934c61198e4fe3e44647ee7a3241d5d743cc3d43f7745f11cbdb902fc3a18",
     "src/shenbi/gates/g7_trace.py": "sha256:99f3682ad00ac534ced42e623be00f072bea1dcf259ecfeb29d57c751920c591",
     "src/shenbi/gates/g3_independence.py": "sha256:75df64b4fd08fe55b9d23c7a505e4a7f4ee41c2da09c612cc026f5a06873158d",
