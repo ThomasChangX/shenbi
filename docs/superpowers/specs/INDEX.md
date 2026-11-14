@@ -18,7 +18,7 @@
 - **文件**：`2026-11-01-spec91-state-concurrency-discipline.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r2.3c** 2026-11-15 价值门驳斥+两轮审查修订） ｜ **优先级**：🟠 P1
 - **依赖**：与 #87 的 chapter_loop 调用点撞面时 #87 先行、本 spec 适配新结构（**#87 已完结 2026-11-13，约束满足，r2.3 已按拆分后新树重锚**）
 - **内容**：gate_passed 单源（**r2.3c：判定面 11 点**——5 定义 + phase_runner:146/:378 + cli:223/:255 + chapter_loop:1597/:4063 漏网直比；SKIP 语义分歧收敛容忍度逐点显式 + characterization 钉死 + **比较侧 AST lint 守卫**封绕行[反演式/变量间接登记已知残余]）+ 失败协议纯函数共享（**r2.2 复用既有 classify_dispatch_failure**；**r2.3 安放改判 contracts 层主选**[status.py 保纯叶给 T1]/dispatch_helper re-export 保消费面；**r2.3c 钉死：本批=迁移+re-export+genesis 差异表落盘三件，genesis 形参/短路/接线整体挂用户裁定不落码**——rc=2 现 genesis 烧满 3 次重试 vs chapter_loop 零重试）+ ledger_archive 锁窗口闭合（确定性红测注入 _section_fields；红绿两测形态不同；**r2.3 附 path_lock 不可重入 docstring 警告**）+ dispatch_helper outline 合并同修（锁内重读重验锚）+ **retry 助手接线**（increment_retry/reset_retry 接线[**r2.3c 补 reset 侧**：_reset_retries 7 调用方+:4737]；新增 increment_retry_budget——charge 是幂等 max 不能承接串行增量；**r2.3c 红测重分类**：①tdd+预防性演示 ②③characterization[CPython dict 赋值原子，锁价值在 RMW 单点化非可见性]）+ retry_feedback 裸写回归封装（**r2.3 清单：赋值 12 点+裸 pop 已收编 4/5 残余 :2416+域外 triggers:746/cli 两点**；accumulate_retry_feedback 系内容封装不可升格为锁存取器，正交组合）+ **r2.3 范围缩减**：dispatch_with_retry/dispatch_serial_reviews 两正名已由 #87 偿还划除，余 run_post_draft_pair 改名（semaphore 改可选+nullcontext）/Semaphore(1) 戏法删除
-- **对应 plan**：待执行时建
+- **对应 plan**：`../plans/2026-11-15-spec91-state-concurrency-discipline.md`（九 task 全执行 2026-11-15）
 - **触及的不变量维度**：无（运行时状态纪律；SKIP 语义 characterization 先行）
 
 ---
