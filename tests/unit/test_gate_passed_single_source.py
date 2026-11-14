@@ -19,7 +19,11 @@ def _res(status):
 # in Task 2's rewiring, not here).
 SITES = [
     ("triggers.py:505/_gate_passed", _res("PASS"), True),
-    ("triggers.py:505/_gate_passed", _res("SKIP"), True),  # SKIP passes HERE ONLY
+    (
+        "triggers.py:505/_gate_passed",
+        _res("SKIP"),
+        True,
+    ),  # SKIP passes in the triggers/closure family
     ("triggers.py:505/_gate_passed", _res("FAIL"), False),
     ("closure.py:125/_gate_passed", _res("SKIP"), True),
     ("chapter_loop.py:1446/_gate_passed", _res("SKIP"), False),  # SKIP fails here
