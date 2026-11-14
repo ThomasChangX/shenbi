@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-11-14（**#88 完结归档**（PR #334——finding 契约统一：finding() 发射器+AST lint+四类拓扑改写[ss. 13 站点/纯中文 11 新 id/变量前缀 5 站点字节等价]+check_id 单源[数字安全]+精确 id 匹配[29→2 活键]+inventory 193 id 双向防漂+全 checker 参数化；REWRITE 一轮[PR #333]+七轮 spec 审查+五轮 plan 审查；T1-T8 全 audit+终审 Ready；有意修正三例全钉死）；前次 #88 r2.2→r2.8 修订链（**#87 完结归档**（PR #331——god 文件拆分：chapter_loop 4,820+dispatch_helper 4,663=9,483≤9,500；五体制出鞘+位置作用域四钩+ExtractSpec 注册表坍缩 11 臂[−252 行]+BuiltPrompt NamedTuple 63 位点零破坏+子串判定双路径根除+18 符号正名+tests 私有 import 基线 170 冻结；两轮驳斥+四轮 spec 审查+六轮 plan 审查；T0-T5 全 audit+终审 PASS；行为保持=T0 八路径 characterization 拆分时刻零改动）
-> **活跃 spec 数**：8
+> **最后更新**：2026-11-14（**#89 完结归档**（PR #337——门禁内部性修复：CheckContext 一次装载[主函数 805→57 行+22 检查函数+memo 四读归一+scene_hook 双基不归一]/五窄助手 chapter_no+chapter_no_raw+load_facts_oracle+degrade+require_roots[11 前导收敛]/章号单源[20 内联归零+AST lint+零填充 group 原文锚]/shared 出鞘[marker 迁 gate_manifest+文本原语迁 text.cjk+roster 惰性化+七破裂面换源]/declared_history 正名+g4_cross_chapter 非注册表门文档化/G0.12 真实现[GENERIC_ONLY_ROSTER 44 项集合对账+注入红测]；REWRITE 一轮[PR #336]+四轮 spec 审查 r2.7+三轮 plan 审查；六 task 全 audit[两轮首轮 FAIL 修复闭环]+终审 Ready+实弹差分逐字节一致）；前次 #88 完结归档（PR #334）
+> **活跃 spec 数**：7
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -10,14 +10,6 @@
 
 ## 执行队列
 
-
-### #89 · 门禁内部性修复（gates-internal-repair）
-
-- **文件**：`2026-11-01-spec89-gates-internal-repair.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r2.7** 2026-11-14——audit-T2 勘误[后缀锚 group 原文+basename 域+chapter_no_raw]；前链 r2.3 价值门驳斥/r2.4-r2.6 三轮设计审查） ｜ **优先级**：🟠 P1
-- **依赖**：无（#85/#87 均已归档就绪；CHAPTER_NUM_RE 在 gates/shared.py:183）
-- **内容**：g4_chapter_drafting CheckContext 一次装载（**796 行主函数**（r2.3 re-anchor）<300；plan 每章读 1 次非 5 次；**模板=cross_chapter.py:37-50 CrossChapterContext**）+ 章号正则归零（**gates 全域 20 处内联=g4 15+g6 5**；**tools/lint_chapter_num_single_source.py AST 判据**+justfile 接线+后缀锚 CHAPTER_NUM_RE group 原文包含式[零填充安全]+chapter_no_raw 第五助手；pipeline 域 7 处残余登记不收）+ 四窄助手（chapter_no/load_facts_oracle（6 处/3 文件）/degrade（**5 发射点+前缀变体参数化+输出逐字快照 characterization**）/**RoundPaths.require_roots 落 paths.py:55**[11 同串归 1、pacing 启发式先解析后调]；明确不做 table-DSL）+ shared.py 出鞘（write_gate_marker/marker_filename 迁 gate_manifest、**segment_sentences+QUOTE_PAIR 两符号迁 text/（shared 留双 re-export；strip_narrative_body 留原处）**、ALL_SKILLS/T1_SCAFFOLD_SKILLS 惰性化+lru_cache[缺目录降级 [] 保持]+**换源 7 破裂面穷尽**[round-exec.sh/test_g0_dynamic_count/test_g0_config_coherence/lint_contracts/lint_key_reconciliation --strict/test_shared/test_scoring]）+ 调用缝（**_ending_archetype_of 正名已被 #87 清偿划掉**；剩 `_declared_history` 正名+chapter_loop 惰性 import 登记接受态）+ g4_cross_chapter 非注册表门文档化（AC8）+ G0.12 假检查真实现（**双条件：tests 侧 30=30 断言已在场 + G0 侧 GENERIC_ONLY_ROSTER 44 项显式名单集合对账 set(ALL_SKILLS())，不 import g4**）；施工序 **T3→T2→T1→T4→T5→T6**
-- **对应 plan**：待执行时建
-- **触及的不变量维度**：无（门禁内部结构，characterization 先行）
 
 ---
 

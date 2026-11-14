@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-14（spec #89 plan 建档 ✅ ready；前次 spec #88 完结归档——PR #334 squash）
-> **活跃 plan 数**：2 | **已归档**：141（见 `archive/`）
+> **最后更新**：2026-11-14（spec #89 完结归档——PR #337 squash；六 task 全 audit+终审 Ready）
+> **活跃 plan 数**：1 | **已归档**：141（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **[2026-11-14-spec89-gates-internal-repair.md](2026-11-14-spec89-gates-internal-repair.md)** ✅ ready——对应 spec #89（r2.6）；六 task 施工序 T3→T2→T1→T4→T5→T6（四窄助手/章号单源+lint/CheckContext 拆分/shared 出鞘+7 破裂面/正名+文档/G0.12 真实现+GENERIC_ONLY_ROSTER）
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行完毕待归档**——T0-T3+首跑验收全落）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
 
 ## 待执行的 spec → plan 映射
@@ -39,6 +38,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 - **07-19 一致性与韧性集群**（`2026-07-19-01` ~ `-19`，19 个 plan，PR #19）
 
 最近归档项：
+- **2026-11-14 spec89-gates-internal-repair**（PR #337）——CheckContext 拆分+五窄助手+章号单源+shared 出鞘+G0.12 真实现
 - **2026-11-14 spec88-gate-finding-contract**（PR #334）——finding() 发射器+AST lint+三族改写+check_id 单源+精确匹配+id inventory
 
 - `2026-11-12-spec87-god-file-decomposition.md`（SDD #87 完结：PR #331 · 2026-11-13——god 文件拆分与正名：五体制出鞘/ExtractSpec 注册表/BuiltPrompt NamedTuple/26 名 roster/正名+基线冻结）
