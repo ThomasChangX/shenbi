@@ -166,6 +166,17 @@ def truth_file_flock(path: Path) -> Generator[None, None, None]:
 path_lock = _path_lock
 
 
+def path_lock_held(path: Path | str) -> bool:
+    """True when the per-path lock is currently held (spec #91 T3).
+
+    Read-only probe for lock-discipline tests (e.g. asserting that a file
+    read happens under the path lock). The registry entry is a
+    ``(threading.Lock, refcount)`` tuple — the lock is element ``[0]``.
+    """
+    entry = _PATH_LOCKS.get(str(path))
+    return entry is not None and entry[0].locked()
+
+
 def write_truth_file(
     project_dir: Path,
     filename: str,
