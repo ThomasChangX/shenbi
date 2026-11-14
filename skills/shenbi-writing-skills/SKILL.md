@@ -138,3 +138,11 @@ NO WORLD RULES WITHOUT CHECKING EXISTING TRUTH FILES FIRST
 | "文风不重要，故事好就行" | AI味一重，平台检测直接降权 |
 | "主角不能在这里失败" | 无挫折的成功 = 无张力的流水账 |
 | "这条伏笔太久了，算了放弃" | 放弃伏笔 = 违背读者信任，Chase Power 债务暴增 |
+
+## 机器契约（Machine Contract）
+
+技能作者必须遵守的机器可检契约——本节为入口索引，逐项的门禁归宿：
+
+- **`contract:` 块**：每个 functional 技能的 SKILL.md frontmatter 必须声明 `reads`/`writes`/`updates`（`shenbi.contracts.loader.load_contract` 消费；缺失/畸形在 lint_contracts 与 `just check` 契约三件红——具体子门以 `shenbi-validate G0` 输出实况为准）。
+- **decisions 边车**：产出自然语言/易变输出的技能须声明 `*-decisions.json` 写件（schema 见 docs/framework/decisions-schema.md；三源+值集+接线五面对账由 tools/lint_decisions_sources.py 执法）。
+- **write-semantics / plan_format**：字段级约束与 plan 版本契约由 loader `_validate` 与 G4 各 checker 消费（docs/framework/decisions-schema.md §schema 与 docs/framework/ 下的真值文件注册表 yaml 为数据面）。

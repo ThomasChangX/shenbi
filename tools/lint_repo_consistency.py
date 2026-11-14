@@ -184,6 +184,17 @@ def _is_dead_decisions_sidecar(
     return stem not in code_blob  # dead iff no code references it
 
 
+def find_missing_machine_contract_section(repo: Path) -> list[str]:
+    """Spec #90 T4: shenbi-writing-skills SKILL.md must carry the 机器契约 section."""
+    skill_md = repo / "skills" / "shenbi-writing-skills" / "SKILL.md"
+    if not skill_md.exists():
+        return []
+    text = skill_md.read_text(encoding="utf-8")
+    if "机器契约" not in text or "decisions" not in text:
+        return ["writing-skills: machine-contract section missing (spec #90)"]
+    return []
+
+
 def find_dead_decisions_sidecars() -> list[str]:
     """Flag decisions.json writes with no consumer (spec §3.5).
 
@@ -266,6 +277,8 @@ def main() -> int:
     for p in find_extra_contract_key_readers(py_files):
         vios.append(f"loader-uniqueness: {p} reads frontmatter contract: key")
     for v in find_dead_decisions_sidecars():
+        vios.append(v)
+    for v in find_missing_machine_contract_section(REPO):
         vios.append(v)
     for v in check_skill_deps_closure(REPO):
         vios.append(v)

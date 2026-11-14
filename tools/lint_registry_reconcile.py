@@ -3,13 +3,13 @@
 
 R1 invariants (per-face, bidirectional where stated):
   master.json      == live skill set  AND  master ∩ DEPRECATED = ∅  AND no ghosts
-  SHORT_MAP        ⊇ checker-having skills (30)
   G5_CHECKER_GLOBS ⊇ checker-having ∧ t2-prereq skills
-  G4_CHECKER_SKILLS == checker keys (30)
+  G4_CHECKER_KEYS extraction non-empty (structure guard, spec #90 — SHORT_MAP /
+                   G4_CHECKER_SKILLS / AGENTS-counts faces retired with spec #90's
+                   single-source derivation; member drift is runtime-guarded)
   docs/skills/index.md ⊇ live skills (existence)
   t2 seed files    ⊇ per-phase prerequisites (literal token)
-  AGENTS.md counts == disk when numeric claims present (transitional face; vacuous
-                     once de-numericized — spec acceptance 4 / C23 domain)
+  deps.json        ∩ DEPRECATED = ∅ (forbid-register, C21)
   using-shenbi trigger table ⊇ functional live - allow-missing (meta pre-exempted)
 
 R2 invariants (word-list closure):
@@ -30,10 +30,9 @@ literal-contained patterns are exempt — plan r2/r3 rulings). The broad-glob-
 over-specialized-suffix shape (audits/volume-*.md ⊃ audits/volume-*-score.md)
 is the F432 cross-checker false-FAIL carrier.
 
-Reading mechanisms: importable faces go through a temp-src sys.path injection
-(SHORT_MAP via cli.py, stdlib-only module level); non-importable faces
-(g5/generic/shared/registry/AGENTS/yaml) are read by AST/text parsing so the
-lint works on temp repo copies (plan r2 I4 ruling).
+Reading mechanisms: non-importable faces (g5/shared/registry/yaml)
+are read by AST/text parsing so the lint works on temp repo copies
+(plan r2 I4 ruling).
 
 Output: one violation line per finding, format ``[Rn] table: direction: entry``.
 Exit 1 on any FAIL-level violation. WARN-level notes go to stderr, don't count.
@@ -105,40 +104,12 @@ def _literal_str_set(source: str, assign_target: str) -> set[str]:
     return set()
 
 
-def _short_map_keys(repo: Path) -> set[str] | None:
-    """SHORT_MAP values via AST extraction of the repo's own cli.py.
-
-    AST (not import): importing a temp-copy cli.py would register the copy's
-    module lines in pytest-cov and tank the coverage gate (spec60 execution
-    finding); the map is a pure string-literal dict, so AST is exact.
-    """
-    cli = repo / "src" / "shenbi" / "gates" / "cli.py"
-    if not cli.exists():
-        return None
-    try:
-        tree = ast.parse(cli.read_text(encoding="utf-8"))
-    except SyntaxError:
-        return None
-    for node in ast.walk(tree):
-        if (
-            isinstance(node, ast.Assign)
-            and any(isinstance(tg, ast.Name) and tg.id == "SHORT_MAP" for tg in node.targets)
-            and isinstance(node.value, ast.Dict)
-        ):
-            return {
-                v.value
-                for v in node.value.values
-                if isinstance(v, ast.Constant) and isinstance(v.value, str)
-            }
-    return None
-
-
 def _checker_keys(repo: Path) -> set[str]:
-    """G4_CHECKER_KEYS from generic.py (AST; includes the 3 dynamic score keys)."""
-    generic = repo / "src" / "shenbi" / "gates" / "g4" / "generic.py"
-    if not generic.exists():
+    """G4_CHECKER_KEYS from shared.py (AST; spec #90 single source)."""
+    shared = repo / "src" / "shenbi" / "gates" / "shared.py"
+    if not shared.exists():
         return set()
-    return _literal_str_set(generic.read_text(encoding="utf-8"), "G4_CHECKER_KEYS")
+    return _literal_str_set(shared.read_text(encoding="utf-8"), "G4_CHECKER_KEYS")
 
 
 def _g5_checker_globs(repo: Path) -> dict[str, list[str]]:
@@ -211,36 +182,12 @@ def _face_master(repo: Path, live: set[str], all_dirs: set[str], dead: frozenset
     return errs
 
 
-def _face_short_map(repo: Path, checkers: set[str]) -> list[str]:
-    """SHORT_MAP ⊇ checker-having skills."""
-    short_map = _short_map_keys(repo)
-    if short_map is None:
-        _WARN.append("[R1] SHORT_MAP: unreadable (cli.py missing or SHORT_MAP unparseable)")
-        return []
-    gap = sorted(checkers - short_map)
-    return [f"[R1] SHORT_MAP: missing-checkers: {gap}"] if gap else []
-
-
 def _face_g5_globs(repo: Path, checkers: set[str]) -> list[str]:
     """G5_CHECKER_GLOBS ⊇ checker-having ∧ t2-prereq skills."""
     prereqs = _t2_prereqs(_deps(repo))
     globs = _g5_checker_globs(repo)
     gap = sorted((checkers & prereqs) - set(globs))
     return [f"[R1] G5_CHECKER_GLOBS: missing-checker-prereqs: {gap}"] if gap else []
-
-
-def _face_g4_checker_skills(repo: Path, checkers: set[str]) -> list[str]:
-    """G4_CHECKER_SKILLS == checker keys."""
-    shared = repo / "src" / "shenbi" / "gates" / "shared.py"
-    if not shared.exists():
-        return []
-    g4cs = _literal_str_set(shared.read_text(encoding="utf-8"), "G4_CHECKER_SKILLS")
-    if g4cs == checkers:
-        return []
-    return [
-        f"[R1] G4_CHECKER_SKILLS: !=checkers: only-in-shared={sorted(g4cs - checkers)} "
-        f"missing-from-shared={sorted(checkers - g4cs)}"
-    ]
 
 
 def _face_index_md(repo: Path, live: set[str]) -> list[str]:
@@ -271,18 +218,6 @@ def _face_t2_seeds(repo: Path) -> list[str]:
     return errs
 
 
-def _face_agents_counts(repo: Path, all_dirs: set[str]) -> list[str]:
-    """AGENTS.md numeric skill counts (transitional; vacuous once de-numericized)."""
-    agents = repo / "AGENTS.md"
-    if not agents.exists():
-        return []
-    atext = agents.read_text(encoding="utf-8")
-    for n in re.findall(r"(\d+)\s+(?:functional|meta|skills|total)", atext):
-        if int(n) != len(all_dirs):
-            return [f"[R1] AGENTS.md: count-drift: claims={n} disk={len(all_dirs)}"]
-    return []
-
-
 def _face_trigger_table(repo: Path, live: set[str], allow_missing: frozenset[str]) -> list[str]:
     """using-shenbi trigger table ⊇ functional live - allow_missing (meta exempt)."""
     table = repo / "skills" / "using-shenbi" / "SKILL.md"
@@ -309,13 +244,17 @@ def _r1_skill_closure(repo: Path, allow_missing: frozenset[str]) -> list[str]:
     live = all_dirs - dead
     checkers = _checker_keys(repo)
     errs: list[str] = []
+    if not checkers:
+        # Spec #90 structure guard: literal renamed/moved away (alias left behind)
+        # extracts as an empty set — every downstream face would silently pass.
+        errs.append(
+            "[R1] G4_CHECKER_KEYS: extraction-empty: literal not found at expected "
+            "site — renamed/moved away? (spec #90 structure guard)"
+        )
     errs += _face_master(repo, live, all_dirs, dead)
-    errs += _face_short_map(repo, checkers)
     errs += _face_g5_globs(repo, checkers)
-    errs += _face_g4_checker_skills(repo, checkers)
     errs += _face_index_md(repo, live)
     errs += _face_t2_seeds(repo)
-    errs += _face_agents_counts(repo, all_dirs)
     errs += _face_trigger_table(repo, live, allow_missing)
     errs += _face_deps_dead(repo, dead)
     return errs
@@ -513,6 +452,11 @@ def _r5_glob_validity(repo: Path) -> list[str]:
     deps = _deps(repo)
     globs = _g5_checker_globs(repo)
     checkers = _checker_keys(repo)
+    if not checkers:
+        return [
+            "[R5] G4_CHECKER_KEYS: extraction-empty: literal not found at expected "
+            "site — renamed/moved away? (spec #90 structure guard)"
+        ]
     phases = cast(dict[str, dict[str, object]], deps.get("t2-phases", {}))
     for phase, info in phases.items():
         plist = cast(list[str], info.get("prerequisites", []))

@@ -1,0 +1,11 @@
+[
+  {"category": "skill-bundle", "pattern": "*:anti-ai-reference.md", "reason": "捆绑参考文件, dispatcher 不注入 (T1.1 裁决 b)"},
+  {"category": "skill-bundle", "pattern": "shenbi-review-era:skills/shenbi-review-era/era-reference.md", "reason": "捆绑参考文件全路径消歧 (spec62 F857), dispatcher 不注入"},
+  {"category": "anti-example", "pattern": "shenbi-context-composing:chapters/chapter-*.md", "reason": "anti-rationalization 反例行引用, 非真实读依赖"},
+  {"category": "anti-example", "pattern": "shenbi-foundation-review:characters/villain.md", "reason": "证据引用格式的示例路径, 非真实读依赖"},
+  {"category": "anti-example", "pattern": "shenbi-book-spine-init:author_intent.md", "reason": "铁律 1 显式否定引用(创世层不读此文件), 非读依赖——reads 补声明即死声明"},
+  {"category": "repo-docs", "pattern": "shenbi-chapter-drafting:docs/framework/chapter-file-format.md", "reason": "仓库框架文档引用, 开发者参考, dispatcher 不注入"},
+  {"category": "repo-docs", "pattern": "shenbi-chapter-drafting:docs/framework/style-directives.md", "reason": "仓库框架文档引用(style_directives 规范), 开发者/用户参考, dispatcher 不注入"},
+  {"category": "repo-docs", "pattern": "shenbi-chapter-revision:docs/framework/status-vocab.md", "reason": "仓库框架文档引用, 开发者参考, dispatcher 不注入"},
+  {"category": "anti-example", "pattern": "shenbi-review-anti-ai:checklist.md", "reason": "否定引用(原文件已随 spec #33 T2 死资产清理删除), 非读依赖"}
+]

@@ -280,3 +280,42 @@ def test_r1_paren_fragment_trimmed(tmp_path):
     _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "种子指纹 (novel.json + genre-config.json)。")
     real = _registry_patterns(load_registry())
     assert not any("novel.json" in r for _s, r in _r1(c, tmp_path, reg=real))
+
+
+# --- appended: spec #90 T4a allowlist JSON carrier (fail-loud semantics) ---
+
+
+def test_json_carrier_exists_and_has_nine_entries() -> None:
+    import json
+
+    import tools.lint_contract_prose as lcp
+
+    data = json.loads(lcp.ALLOWLIST_PATH.read_text(encoding="utf-8"))
+    assert isinstance(data, list) and len(data) == 9
+    for entry in data:
+        assert set(entry) == {"category", "pattern", "reason"}
+
+
+def test_missing_json_fails_loud(tmp_path, monkeypatch) -> None:
+    """Carrier file missing → exit 1 (never silently fall back to empty allowlist)."""
+    import tools.lint_contract_prose as lcp
+
+    monkeypatch.setattr(lcp, "ALLOWLIST_PATH", tmp_path / "nonexistent.json")
+    with pytest.raises(SystemExit):
+        lcp.load_allowlist()
+
+
+def test_unknown_skill_key_fails_loud(tmp_path, monkeypatch) -> None:
+    """Typo'd skill key in the carrier → exit 1 (self-exposing, spec #90 r2.3d)."""
+    import json
+
+    import tools.lint_contract_prose as lcp
+
+    bad = tmp_path / "bad.json"
+    bad.write_text(
+        json.dumps([{"category": "x", "pattern": "shenbi-not-a-skill:foo.md", "reason": "r"}]),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(lcp, "ALLOWLIST_PATH", bad)
+    with pytest.raises(SystemExit):
+        lcp.load_allowlist()
