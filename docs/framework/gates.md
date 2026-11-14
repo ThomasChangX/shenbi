@@ -43,3 +43,10 @@ G1.4 对 in-place 修改型 skill（`BACKUP_SKILLS` 名单）在 dispatch 前创
 ## spec #80 前向门回放口径
 
 manifest 门行对**已生成章不回放**（spec #83 T7 文档化）：`pipeline-manifest.json` 的 G4 门记录为 latest-wins 面——历史失败重试记录被最新结果覆盖，对已生成章节回放历史门行既不可达也不构成验收面。卷一 10-29 章的记录剥离即此口径；卷二起 regen-accept 判据 2b 按本口径执行（读最新记录，不回放重放历史）。
+
+### g4_cross_chapter —— 非注册表门（spec #89 T5）
+
+`g4_cross_chapter`（src/shenbi/gates/g4/cross_chapter.py）**不在 build_checkers 注册表**：
+pipeline 于 chapter_loop.py 直连调用（需跨章上下文装配——上一章内容/前窗 plan——
+注册表的 per-round 单文件形态装不下）。注册表口径的「哪些门存在」不包含它；
+新增跨章门须同样走直连+本文档登记，不得默默进注册表。

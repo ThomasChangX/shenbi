@@ -76,7 +76,7 @@ def parse_prop_declarations(memo_text: str) -> list[tuple[str, str, str, str]]:
     return out
 
 
-def _declared_history(project_dir: str | None) -> dict[int, dict[str, Any]]:
+def declared_history(project_dir: str | None) -> dict[int, dict[str, Any]]:
     """Read completion-time declared snapshots from pipeline-state.json."""
     if not project_dir:
         return {}
@@ -118,7 +118,7 @@ def _spec82_sequence_gates(
     from shenbi.text.recall_weight import cold_chapter
 
     mp = (read_genre_config(project_dir) or {}).get("market_params", {})
-    hist = _declared_history(project_dir)
+    hist = declared_history(project_dir)
 
     # spec #82 T1: 回卷窗口跨卷界时只取本卷已生成章（audit-T4/C1）——
     # bundle_chapters 同源的 volume span 判定复用；无 volume_map 时全量。
@@ -552,7 +552,7 @@ def _spec82_core_motif_touch(
         )
         return
     max_gap = int(cmt.get("max_gap", 6))
-    hist = _declared_history(project_dir)
+    hist = declared_history(project_dir)
     # spec r6/N2 (audit-T9/I2): same-volume scope as T1 — the back-walk stops
     # at the current volume's start (parse_volume_spans, bundle_chapters
     # source); a first marker before the window doesn't count (docstring

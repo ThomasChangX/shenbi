@@ -552,12 +552,12 @@ def _spec82_hook_rotation(
     Ending diversity (WARN): closing-archetype pattern firing three chapters
     in a row — 账目形态 first (>=2 digit runs in the closing window).
     """
-    from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
+    from shenbi.gates.g4.chapter_planning import declared_history
 
     n = chapter_no(pf_name)
     if n is None or not project_dir:
         return
-    hist = _declared_history(project_dir)
+    hist = declared_history(project_dir)
 
     cur: str | None = None
     if memo_text is not None:
@@ -1302,9 +1302,9 @@ def _check_micro_hook_run(ctx: CheckContext, c: list[dict[str, Any]], mf: list[s
     # 连续微钩（读前章声明——spec #82 T1/I4：优先完成时快照（L-D 铁律），
     # 快照缺席章（卷一 pre-T0 历史）回退 plan memo 解析——纯读幂等）
     if ctx.chapter_no is not None:
-        from shenbi.gates.g4.chapter_planning import _declared_history  # pyright: ignore[reportPrivateUsage]
+        from shenbi.gates.g4.chapter_planning import declared_history
 
-        _hist78 = _declared_history(str(ctx.project_dir)) if _proj78 else {}
+        _hist78 = declared_history(str(ctx.project_dir)) if _proj78 else {}
         _tiers: list[str] = []
         for _k in range(max(1, ctx.chapter_no - 3), ctx.chapter_no + 1):
             _snap78 = (_hist78.get(_k) or {}).get("张力拍档位")
