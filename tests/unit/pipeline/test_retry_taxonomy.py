@@ -348,7 +348,7 @@ class TestLifecycleFailureRouting:
         state.chapter_loop.step_index = 7  # spec #72 shift
         with (
             patch(
-                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                "shenbi.pipeline.chapter_loop.run_post_draft_pair",
                 return_value=(
                     DispatchResult(False, 1, "", "x"),
                     DispatchResult(True, 0, "{}", ""),
@@ -385,7 +385,7 @@ class TestLifecycleFailureRouting:
         state.chapter_loop.step_index = 7  # spec #72 shift
         with (
             patch(
-                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                "shenbi.pipeline.chapter_loop.run_post_draft_pair",
                 return_value=(
                     DispatchResult(True, 0, "{}", ""),
                     DispatchResult(True, 0, "{}", ""),

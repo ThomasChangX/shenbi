@@ -18,7 +18,7 @@ from shenbi.pipeline.chapter_loop import (
     _pre_settle_guard,
     _revalidate_revised_chapter,
     run_chapter_step,
-    run_parallel_post_draft_steps,
+    run_post_draft_pair,
 )
 from shenbi.pipeline.cli import _execute_pending_re_dispatches
 from shenbi.pipeline.dispatch_helper import DispatchResult
@@ -71,7 +71,7 @@ def test_parallel_site_rejects_stale(tmp_path: Path) -> None:
         mock_dispatch.return_value = DispatchResult(
             success=True, returncode=0, stdout="", stderr=""
         )
-        lifecycle_result, settling_result = run_parallel_post_draft_steps(st)
+        lifecycle_result, settling_result = run_post_draft_pair(st)
         assert lifecycle_result.success  # lifecycle 派发不受影响
         assert not settling_result.success
         assert "ss.stale_declarations" in settling_result.stderr

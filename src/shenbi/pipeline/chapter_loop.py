@@ -3628,7 +3628,7 @@ _FORESHADOWING_LIFECYCLE_IDX = next(
 )
 
 
-def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
+def run_post_draft_pair(state: PipelineState) -> tuple[Any, Any]:
     """Execute foreshadowing-lifecycle then state-settling SEQUENTIALLY.
 
     Both steps depend on drafting completion. Their file sets are NOT
@@ -3766,13 +3766,10 @@ def dispatch_serial_reviews(
     up to MAX_RETRIES extra attempts. A 1-permit semaphore expresses the
     single-flight form its signature expects (C32 R4 follow-up).
     """
-    from threading import Semaphore
-
     from shenbi.pipeline.parallel_dispatch import (
         dispatch_with_retry,
     )
 
-    semaphore = Semaphore(1)
     results: list[DispatchResult] = []
     for t in serial_tasks:
         log.info(
@@ -3781,7 +3778,7 @@ def dispatch_serial_reviews(
             project_dir=str(project_dir),
             reason="WRITE_SHARED contract writes — excluded from parallel wave (F532)",
         )
-        results.append(dispatch_with_retry(t, semaphore, state))
+        results.append(dispatch_with_retry(t, state=state))
     return results
 
 
@@ -4171,7 +4168,7 @@ def _run_post_draft_pair_step(
     lifecycle_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX]
     settling_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX + 1]
 
-    lifecycle_result, settling_result = run_parallel_post_draft_steps(state)
+    lifecycle_result, settling_result = run_post_draft_pair(state)
 
     # State-settling failure: mark settling_failed and pause (spec §11).
     if not settling_result.success:

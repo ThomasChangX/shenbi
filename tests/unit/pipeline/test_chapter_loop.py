@@ -488,10 +488,10 @@ class TestConditionalResolveIntegration:
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 7  # spec #72: foreshadowing-lifecycle (step 8)
-        # Mock run_parallel_post_draft_steps to return success for both
+        # Mock run_post_draft_pair to return success for both
         with (
             patch(
-                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                "shenbi.pipeline.chapter_loop.run_post_draft_pair",
                 return_value=(DispatchResult(True, 0, "{}", ""), DispatchResult(True, 0, "{}", "")),
             ),
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}),
@@ -1282,7 +1282,7 @@ class TestParallelPostDraftFailureFeedback:
         guard_msg = "输出未落盘——append_dedup 增量包含整档脚手架……合法形态：表格行增量"
         with (
             patch(
-                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                "shenbi.pipeline.chapter_loop.run_post_draft_pair",
                 return_value=(
                     DispatchResult(False, -1, "", guard_msg),
                     DispatchResult(True, 0, "{}", ""),
@@ -1298,7 +1298,7 @@ class TestParallelPostDraftFailureFeedback:
         guard_msg = "settle 增量被拒：请只发本章增量行"
         with (
             patch(
-                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                "shenbi.pipeline.chapter_loop.run_post_draft_pair",
                 return_value=(
                     DispatchResult(True, 0, "{}", ""),
                     DispatchResult(False, -1, "", guard_msg),
