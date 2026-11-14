@@ -1,0 +1,1831 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-14-spec88-gate-finding-contract/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #88 gate-finding-contract Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #88 gate-finding-contract Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-14-spec88-gate-finding-contract.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-14-spec88-gate-finding-contract/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #88 gate-finding-contract Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-14-spec88-gate-finding-contract.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-88-gate-finding-contract-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #88 gate-finding-contract Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行纪律（v7）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="执行纪律（v7）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-finding-gatessharedpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: finding() 发射器（gates/shared.py）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-ast-lint-just" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: AST 输出契约 lint 工具 + 首跑红清单落盘 + just 接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-d-5-scoring_sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: (d) 变量前缀家族 5 站点改写 + scoring_sections 连带
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-b-retry_routing-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: (b) 裸家族改写 + retry_routing token + 有意修正记录
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-c-id-deviation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: (c) 纯中文项新 id 全批 + 嵌套升格 + deviation 记录
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-check_id-_extract_check_id-tools-stale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: check_id 单源（删 _extract_check_id + tools 第三副本换源 + 正则含数字 + stale 注释清偿）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-id-inventory-fixture-property-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: 分类精确 id 匹配 + 键删除 + inventory fixture/生成器/三断言 + property test + 连带测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-t4-floor-dedup-t5-checker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: T4 floor 两处静态引用标注 + dedup 断言 + T5 全 checker 参数化 + 批末终验
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-3-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec §3 → task → 验证命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review 记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-88-gate-finding-contract-implementation-plan">Spec #88 gate-finding-contract Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 把 must_fix finding 的「id 产生」收进单一契约——<code>G4.&lt;id&gt;</code> id-first 恒不变、分类改精确 id 匹配、check_id 单源、id 清单化防漂。</p>
+<p><strong>Architecture:</strong> 四类发射拓扑改写（(a) 分层契约不动/(b) 裸家族→id-first/(c) 纯中文→新 id/(d) 变量前缀→合法形态）由新 AST lint（首跑红清单=权威枚举）驱动收敛；<code>finding()</code> 发射器落 <code>gates/shared.py</code>；<code>_extract_check_id</code> 删除归一 <code>shadow.check_id</code>（含 tools 第三副本）；G4_CHECK_MAP 24 HARD 键+3 checks-only 键删除、匹配改点边界精确 id；inventory fixture+生成器双向防漂；floor 两发射面静态引用标注。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / ast（lint）/ pytest + hypothesis（property）/ just（check 接线）。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-11-01-spec88-gate-finding-contract.md</code>（r2.8，七轮设计审查收敛终态——本 plan 直接消费其锚点，全部锚经轮 1-7 亲验）</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>AGENTS.md：gate 检查器纯函数幂等；<code>src/shenbi/</code> 无 <code>print()</code>（structlog）；pathlib；Conventional Commits；pathspec commit（禁 <code>git add -A</code>）。</li>
+<li>G0.9：fixtures 只能是真实 skill 输出或构造的结构输入（<code>g4-id-inventory.json</code> 系生成器产物=inventory 类构造输入；对抗串 inline 合法）。</li>
+<li>验证走 <code>just</code>/<code>uv run</code>（与 CI <code>uv run --frozen</code> 同构）。</li>
+<li><strong>lint 语法（spec §2 T1）</strong>：合法形态 = <code>finding(...)</code> 调用 ｜ <code>"G4."</code> 开头 str 常量 ｜ JoinedStr 首常量段以 <code>"G4."</code> 开头；BinOp/<code>str.format</code>/<code>%</code> 不可判（登记残余）；跨函数间接登记残余（T5 运行时断言兜底）。</li>
+<li><strong>id charset 契约</strong>：<code>[a-z0-9_][a-z0-9_.]*</code>（新代码必须满足）；shadow 提取器正则本批改 <code>[a-z0-9_.]+</code>（宽松于契约，无害）。<strong>XC 大写豁免（plan 审查轮1 I2）</strong>：<code>XC</code> 系历史大写家族前缀（G4_CHECK_MAP :834 既有键即大写——轮3 M7 计准；GATE_TO_SHADOW_KEY 无 XC 键）——charset 谓词对家族段首 <code>XC</code> 豁免（其后缀段仍须 <code>[a-z0-9_.]+</code>）；提取走 split-colon fallback（正则不匹配大写→fallback 取首冒号段，产出正确）；spec-deviations 记录该豁免。</li>
+<li><strong>残余形态（本批不改写，登记挂账）</strong>：genre_config <code>G4.gc.{文件名}</code>、character_design <code>G4.cd.archetype.{中文}[{i}]</code>（<strong>经 <code>local_failures</code> 中转非 mf 直发——扫描域外</strong>而非语法过）、volume_outlining <code>G4.vo.*[{中文卷头}]</code>、pacing_design <code>G4.pd.{loc}</code>；保守代理谓词：id 槽（首个 <code>:</code> 前）含非常量插值 <strong>且非 (a)/(d) 已知合法变量形态</strong> → 残余候选（代理会误扫 chapter_drafting :718-719/:757/:791/:814 等运行时合法变量 id 站点——登记时人工剔除，M4 口径）。</li>
+<li><strong>F947</strong>：spec 全部验收离线可复验（结构断言/fixtures 回放/property），零真实 dispatch——无改写需求。</li>
+<li><strong>G3.4</strong>：本 spec 无评分场景——不适用（声明）。</li>
+<li>消息语义变更面（纯中文新 id、path-first 改写）＝模型可见 prompt 变化——spec §4 已声明排批次 A 殿后（已满足：束4 已验收）。</li>
+</ul>
+<h2 id="v7">执行纪律（v7）</h2>
+<ul>
+<li>
+<p>执行期卫生注记（plan 审查轮5 Minor 吸收）：①T4 deviation 条目补 (b) 家族前缀文本变更声明（与路由修正并列）；②T6 删 :873-876 后同文件内 :1206/:4702 锚按内容定位（<code>_extract_check_id</code> 引用字面）非行号；③T4 Step5 的 <code>"{fp}:{issue}"</code> 系源码形态 grep 恒零命中（有效目标仅 <code>chapters/ch025.md:cd.prop_handoff</code> 字面）；④T8 Step4 <code>grep -c "dedup"</code> 计数 0 时 exit 1 属预期（命令分行列出非 &amp;&amp; 链，勿读退出码为失败）。</p>
+</li>
+<li>
+<p>全部 task <strong>infra</strong> 级（gates/g4 域+pipeline 域+lint 基建）——<strong>协调者亲自实现</strong>，不分派 implementer。</p>
+</li>
+<li>每 task commit 后产出 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>（fresh-context 全量重审）；无 audit-T<N> 不得开始 T<N+1>。</li>
+<li>每 task commit 当轮更新 <code>spec-deviations.md</code> 的 <code>### T&lt;N&gt;</code> 段。</li>
+<li>中间 commit 不 push；批末一次 push 走 PR。</li>
+</ul>
+<hr />
+<h3 id="task-1-finding-gatessharedpy">Task 1: <code>finding()</code> 发射器（gates/shared.py）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/shared.py</code>（:583 <code>def fail(</code> 前——gate 级 helper 旁新增 item 级 helper）
+- Test: <code>tests/unit/gates/test_g4_finding.py</code>（新建独立文件——M1 定死，不追加 test_shared.py）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>finding(check_id: str, detail: str = "", file: str = "") -&gt; str</code>——恒产 <code>G4.&lt;check_id&gt;</code> 前缀串；slot 拼装 <code>G4.{check_id}:{file}:{detail}</code>（空槽收缩：file 空则 <code>G4.{check_id}:{detail}</code>；全空则 <code>G4.{check_id}</code>）。Task 3/4/5 的改写点消费它。</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> tdd_red_green ｜ <strong>测试层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/test_g4_finding.py</span>
+<span class="sd">&quot;&quot;&quot;finding() emitter contract tests (spec #88 T1).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">finding</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestFindingEmitter</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_id_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">finding</span><span class="p">(</span><span class="s2">&quot;cd.no_hook&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.no_hook&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_id_and_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">finding</span><span class="p">(</span><span class="s2">&quot;cd.no_hook&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s2">&quot;chapters/ch001.md&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.no_hook:chapters/ch001.md&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">finding</span><span class="p">(</span><span class="s2">&quot;ss.facts_ops&quot;</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;非法 op&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s2">&quot;truth/facts.md&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span>
+            <span class="s2">&quot;G4.ss.facts_ops:truth/facts.md:非法 op&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_id_and_detail_no_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">finding</span><span class="p">(</span><span class="s2">&quot;cd.counter&quot;</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;缺锚&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.counter:缺锚&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_prefix_never_doubled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 防 helper 无脑加前缀造 G4.G4.——传入已带前缀时先剥</span>
+        <span class="k">assert</span> <span class="n">finding</span><span class="p">(</span><span class="s2">&quot;G4.cd.title&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.title&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测确认红</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g4_finding.py -v</code>
+Expected: FAIL <code>ImportError: cannot import name 'finding'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: 最小实现</strong>（shared.py <code>fail</code> 定义之前插入）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">finding</span><span class="p">(</span><span class="n">check_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">detail</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emit a must_fix item string with the canonical ``G4.&lt;id&gt;`` prefix.</span>
+
+<span class="sd">    spec #88 T1 single emission point: callers pass the BARE check id</span>
+<span class="sd">    (``cd.no_hook``); a pre-prefixed input is stripped, never doubled.</span>
+<span class="sd">    Slot layout ``G4.&lt;id&gt;:&lt;file&gt;:&lt;detail&gt;`` with empty slots collapsed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">check_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.&quot;</span><span class="p">):</span>
+        <span class="n">check_id</span> <span class="o">=</span> <span class="n">check_id</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;G4.&quot;</span><span class="p">)</span> <span class="p">:]</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;G4.</span><span class="si">{</span><span class="n">check_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">detail</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">detail</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测确认绿</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g4_finding.py -v</code>
+Expected: 5 passed</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/shared.py<span class="w"> </span>tests/unit/gates/test_g4_finding.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: finding() must_fix emitter in gates/shared (spec #88 T1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-ast-lint-just">Task 2: AST 输出契约 lint 工具 + 首跑红清单落盘 + just 接线</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/lint_mustfix_emission.py</code>（样板=<code>tools/lint_truth_format_single_source.py</code> 头部结构）
+- Modify: <code>justfile</code>（check 块 lint 面追加一行）
+- 落盘: <code>.superpowers/sdd/lint-redlist-baseline.txt</code>（首跑红清单——(b)(c)(d) 权威枚举，工作态非交付物）</p>
+<p><strong>Interfaces:</strong>
+- Produces: lint 工具 exit 0（0 违规）/ exit 1（违规清单到 stderr）；<code>--list</code> 模式打印红清单供对账。
+- 扫描位：<code>src/shenbi/gates/g4/*.py</code> 中 <code>.append(...)</code>/<code>.extend(...)</code> 调用，当其<strong>接收者名</strong>为 <code>mf</code>（must_fix 列表惯例名——spec 全域 213 处实证）时的参数形态。
+- 判定（spec 语法）：合法 = <code>finding(...)</code> Call ｜ Str 常量 <code>"G4."</code> 开头 ｜ JoinedStr 且首常量段 <code>"G4."</code> 开头 ｜ GeneratorExp（<code>mf.extend(f"..." for ...)</code>——element 同语法判定）；<strong>不判定（登记盲区，轮2 I2 补）</strong>：Name 实参（<code>mf.extend(var)</code>——protagonist_issues/matrix_issues/_issues 等 8 处[轮3 M5 计准]）与非 finding() Call 实参（<code>mf.extend(helper(...))</code>——5 处）——跨函数间接形态，返回 True（不报）。
+- 豁免（AST 形态，无行锚）：<code>warns.append</code>/<code>c.append</code>（非 mf 接收者天然不扫）；残余形态家族不出红（genre_config/volume_outlining JoinedStr 首段已 "G4." 语法过；character_design 经 <code>local_failures</code> 中转在扫描域外——M4 口径）；<strong>盲区登记进模块 docstring</strong>：跨函数间接（mf.extend(变量)——变量来自 helper，state_settling ss. 批改写后仍属此盲区形态）与 BinOp/format/% 拼接不判定（与 lint_truth_format 同款登记惯例）。</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> tdd_red_green ｜ <strong>测试层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（工具存在性+判定表）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/tools/test_lint_mustfix_emission.py</span>
+<span class="sd">&quot;&quot;&quot;lint_mustfix_emission grammar unit tests (spec #88 T1).&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tools.lint_mustfix_emission</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_legal_argument</span><span class="p">,</span> <span class="n">REPO_ROOT</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_arg</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span><span class="p">:</span>
+    <span class="c1"># plan 审查轮1 I3：返回 Call 的**首实参**（is_legal_argument 保持纯表达式谓词）</span>
+    <span class="n">call</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">body</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">call</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">call</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestGrammar</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_finding_call_legal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">is_legal_argument</span><span class="p">(</span><span class="n">_arg</span><span class="p">(</span><span class="s1">&#39;mf.append(finding(&quot;cd.no_hook&quot;, file=fp))&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_g4_constant_legal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">is_legal_argument</span><span class="p">(</span><span class="n">_arg</span><span class="p">(</span><span class="s1">&#39;mf.append(&quot;G4.file_not_found:x&quot;)&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_joinedstr_g4_first_legal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">is_legal_argument</span><span class="p">(</span><span class="n">_arg</span><span class="p">(</span><span class="s1">&#39;mf.append(f&quot;G4.</span><span class="si">{issue}</span><span class="s1">&quot;)&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_joinedstr_path_first_illegal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_legal_argument</span><span class="p">(</span><span class="n">_arg</span><span class="p">(</span><span class="s1">&#39;mf.append(f&quot;</span><span class="si">{fp}</span><span class="s1">:</span><span class="si">{issue}</span><span class="s1">&quot;)&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_joinedstr_bare_family_illegal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_legal_argument</span><span class="p">(</span><span class="n">_arg</span><span class="p">(</span><span class="s1">&#39;mf.append(f&quot;cp.prop_decl:</span><span class="si">{fp}</span><span class="s1">:x&quot;)&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_variable_prefix_illegal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_legal_argument</span><span class="p">(</span><span class="n">_arg</span><span class="p">(</span><span class="s1">&#39;mf.append(f&quot;</span><span class="si">{code_prefix}</span><span class="s1">.not_found:</span><span class="si">{fp}</span><span class="s1">&quot;)&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_generator_element_judged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">is_legal_argument</span><span class="p">(</span><span class="n">_arg</span><span class="p">(</span><span class="s1">&#39;mf.extend(f&quot;G4.XC.x:</span><span class="si">{n}</span><span class="s1">:</span><span class="si">{i}</span><span class="s1">&quot; for n, i in pairs)&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_binop_not_judged_registered_blind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># BinOp 形态不判（登记盲区）——返回 True（不报）但 docstring 登记</span>
+        <span class="k">assert</span> <span class="n">is_legal_argument</span><span class="p">(</span><span class="n">_arg</span><span class="p">(</span><span class="s1">&#39;mf.append(&quot;G4.a&quot; + var)&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_name_arg_not_judged_registered_blind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 轮2 I2：跨函数间接（mf.extend(变量)）不判——登记盲区</span>
+        <span class="k">assert</span> <span class="n">is_legal_argument</span><span class="p">(</span><span class="n">_arg</span><span class="p">(</span><span class="s2">&quot;mf.extend(_issues)&quot;</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_helper_call_arg_not_judged_registered_blind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 轮2 I2：非 finding() Call 实参（helper 产列表）不判——登记盲区</span>
+        <span class="k">assert</span> <span class="n">is_legal_argument</span><span class="p">(</span><span class="n">_arg</span><span class="p">(</span><span class="s2">&quot;mf.extend(_check_hooks_structure(x))&quot;</span><span class="p">))</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测确认红</strong>（工具不存在）</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_mustfix_emission.py -v</code>
+Expected: FAIL ModuleNotFoundError</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: 实现工具</strong>（头部按 lint_truth_format 惯例：r-docstring 写扫描位/豁免/盲区登记；主体 ast.walk 找 Attribute <code>.append/.extend</code> on Name <code>mf</code>；<code>is_legal_argument</code> 按上表；<code>main()</code> 聚合违规输出 <code>file:line</code> + exit 码；<code>--list</code> 打印全集）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 跑测确认绿</strong></p>
+</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_mustfix_emission.py -v</code>
+Expected: 10 passed（轮4 M1——轮2 I2 增两盲区用例后计数）</p>
+<ul>
+<li>[ ] <strong>Step 5: 首跑红清单落盘 + 与 spec 站点表对账</strong></li>
+</ul>
+<p>Run: <code>uv run python tools/lint_mustfix_emission.py --list &gt; .superpowers/sdd/lint-redlist-baseline.txt; cat .superpowers/sdd/lint-redlist-baseline.txt</code>
+Expected 红清单（AST 真值 10 站点）：chapter_drafting:683、chapter_planning:752、chapter_planning:758、cross_chapter:949、cross_chapter:982、scoring_sections:40、scoring_sections:45、scoring_sections:47、decisions_validator:106、decisions_validator:117（M1：lint 报 Call.lineno）。
+<strong>对账断言</strong>：红清单 == spec (b)(cd:683/cp:752/cp:758/xc:949) + (c)(xc:982) + (d)(ss:40/:45/:47/dv:106/dv:117) 站点表——diff 为空。任何多出站点 = spec 枚举缺口 → 记 spec-deviations 并回补 spec 后继续。</p>
+<ul>
+<li>[ ] <strong>Step 6: just check 接线</strong></li>
+</ul>
+<p>justfile check 块（<code>lint_truth_format_single_source.py</code> 行后）追加：
+<div class="highlight"><pre><span></span><code>    uv run python tools/lint_mustfix_emission.py
+</code></pre></div>
+（本 task 时点该 lint 红——<strong>不跑全套 just check</strong>；批末 Task 8 后全绿。commit message 注明。）</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_mustfix_emission.py<span class="w"> </span>tests/unit/tools/test_lint_mustfix_emission.py<span class="w"> </span>justfile
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: AST must_fix emission-contract lint + red-list baseline (spec #88 T1; red until T3-T5 land)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-d-5-scoring_sections">Task 3: (d) 变量前缀家族 5 站点改写 + scoring_sections 连带</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/scoring_sections.py:40/:45/:47</code>（发射）+ <code>:49</code>（SKIP checks id 拼回）+ <strong>:19-23 <code>_SCORE_FAMILY</code> 三元组第三列值裸化（轮4 M2 锚准）（轮3 I4——生产实参源：register_score_checkers[generic.py:488 注册]经此表传 code_prefix，不裸化则产 <code>G4.G4.arc.*</code> 双前缀且测试全绿——测试直呼 helper 不经注册路径）</strong> + 模块头 <code>code_prefix</code> 实参语义注释
+- Modify: <code>src/shenbi/gates/g4/decisions_validator.py:106/:117-119</code>
+- Test: <code>tests/unit/gates/test_g4_score_checkers.py:18/:22/:26</code>（实参同步）+ <code>tests/unit/gates/g4/test_decisions_validator.py</code>（若无则追加到该域合适文件）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 <code>finding()</code>。
+- Produces: 改写后 must_fix 串<strong>与改写前逐字节相同</strong>（运行时零 delta——等价性由 characterization 测试钉死；<strong>边界（轮2 M5）</strong>：finding() 空槽收缩语义 vs 旧 f-string 尾冒号在 detail="" 时差一冒号——现行产者 r 恒非空，characterization 覆盖即可）；<code>G4_FORMAT_EXAMPLES</code> <code>G4.dec.*</code> 键（chapter_loop.py:939/:982/:987/:994/:1003）继续命中（id 文本逐字保留）。</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> characterization（改写前后输出逐字节等价）+ tdd_red_green（lint 面转绿）｜ <strong>测试层级:</strong> T1</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: characterization 钉死改写前输出</strong>（scoring_sections 三 prefix×not_found/no_route_c/no_route_a + decisions_validator 两 parse/pydantic 形态——对每形态断言完整串，如 <code>assert "G4.arc.not_found:ch1.md" in mf</code>）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: 跑测确认绿（改写前基线）</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 改写</strong>——
+scoring_sections（<code>code_prefix</code> 实参从 <code>"G4.arc"</code> 族改 <code>"arc"</code> 族——<strong>含 :19-23 <code>_SCORE_FAMILY</code> 三元组第三列同步裸化[轮3 I4]）</strong>）：
+<div class="highlight"><pre><span></span><code><span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.</span><span class="si">{</span><span class="n">code_prefix</span><span class="si">}</span><span class="s2">.not_found:</span><span class="si">{</span><span class="n">fp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.</span><span class="si">{</span><span class="n">code_prefix</span><span class="si">}</span><span class="s2">.no_route_c:must have Route C section&quot;</span><span class="p">)</span>
+<span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.</span><span class="si">{</span><span class="n">code_prefix</span><span class="si">}</span><span class="s2">.no_route_a:must have Route A anchor section&quot;</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;G4.</span><span class="si">{</span><span class="n">code_prefix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">SKIP</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="s2">&quot;no files&quot;</span><span class="p">})</span>
+</code></pre></div>
+decisions_validator（id 逐字保留，走 finding 剥前缀语义）：
+<div class="highlight"><pre><span></span><code><span class="n">mf</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">finding</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">file</span><span class="o">=</span><span class="n">fp</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">parse_failures</span><span class="p">)</span>
+<span class="n">mf</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+    <span class="n">finding</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">file</span><span class="o">=</span><span class="n">fp</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">pydantic_err_to_gate_failures</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="s2">&quot;G4.dec&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+测试实参 :18/:22/:26 <code>"G4.arc"</code>/<code>"G4.vol"</code>/<code>"G4.str"</code> → <code>"arc"</code>/<code>"vol"</code>/<code>"str"</code>。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 跑 characterization（仍绿=逐字节等价）+ lint 对应 5 红转绿</strong></p>
+</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g4_score_checkers.py tests/unit/gates/g4/test_decisions_validator.py -v &amp;&amp; uv run python tools/lint_mustfix_emission.py --list</code>
+Expected: 测试全绿；红清单剩 5（cd:683/cp:752/cp:758/xc:949/xc:982——Task 4/5 对象）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/scoring_sections.py<span class="w"> </span>src/shenbi/gates/g4/decisions_validator.py<span class="w"> </span>tests/unit/gates/test_g4_score_checkers.py<span class="w"> </span>tests/unit/gates/g4/test_decisions_validator.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: (d)-family variable-prefix emissions to legal form, byte-identical output (spec #88 T1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-b-retry_routing-token">Task 4: (b) 裸家族改写 + retry_routing token + 有意修正记录</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py:683</code>（path-first→分层契约形态）
+- Modify: <code>src/shenbi/gates/g4/chapter_planning.py:752/:758</code>
+- Modify: <code>src/shenbi/gates/g4/cross_chapter.py:949</code>
+- Modify: <code>src/shenbi/gates/g4/state_settling.py</code>（<strong>ss. 裸家族批——plan 审查轮1 C1 补；轮2 I1 修正</strong>：mf 面 13 站点（7 f-string + 6 plain string）<code>ss.…</code> → <code>G4.ss.…</code>（:838/:841/:878/:889/:904/:908/:921/:961/:971/:996/:1000/:1013/:1019）；<strong>warns 面两处不动</strong>（:434 diff_area + :940 旧 settle 兼容期——:926-927 注释「WARN, not FAIL」）；:1134 matrix_issues 形态实读核（非 ss. 前缀不改）——lint 盲区（跨函数间接）故红清单不含，以 <code>grep -n '"ss\.' state_settling.py</code> 对账<strong>预期 3 处残留（:434/:940 两 warns 面 + :1145 checks[] dict id <code>ss.matrix_structure.diff_area</code>——非 must_fix 面不改，轮3 I1）</strong>）
+- Modify: <code>src/shenbi/pipeline/retry_routing.py:24</code>（token 增补）
+- Test: <code>tests/unit/pipeline/test_spec83_retry_routing.py:24</code>（legacy 输入镜像更新）+ <code>tests/unit/pipeline/test_retry_routing_xc.py</code>（新建：XC 新形态 content 路由 + cd.prop_handoff 路由）+ 既有 ss. 断言测试同步（<code>grep -rln 'f\?"ss\.\|in i.*ss\.' tests/unit/gates/g4/</code> 命中面——实施时逐文件改期望串为 <code>G4.ss.</code> 前缀形态）</p>
+<p><strong>Interfaces:</strong>
+- Produces: path-first 消灭——<code>G4.cd.prop_handoff</code> 项的 check_id 提取从 <code>"chapters/ch025.md"</code>（路径）修正为 <code>"cd.prop_handoff"</code>；<code>_CONTENT_TOKENS = ("G4.cd", "XC:", "G4.XC")</code>。
+- 行为变化（<strong>有意修正</strong>，记入 spec-deviations 与测试断言）：①cd.prop_handoff 项新获 <code>"G4.cd"</code> content 路由（旧=other）；②lint 4 红转绿。</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> tdd_red_green ｜ <strong>测试层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_retry_routing_xc.py</span>
+<span class="sd">&quot;&quot;&quot;retry_routing coupling for spec #88 emission-contract rewrites.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.retry_routing</span><span class="w"> </span><span class="kn">import</span> <span class="n">classify_retry_family</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_prop_handoff_gains_content_routing</span><span class="p">():</span>
+    <span class="c1"># 有意修正：path-first 消灭后按 G4.cd 前缀路由</span>
+    <span class="k">assert</span> <span class="n">classify_retry_family</span><span class="p">(</span><span class="s2">&quot;G4.cd.prop_handoff:chapters/ch025.md:「灯」交接语境&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;content&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_xc_new_form_routes_content</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">classify_retry_family</span><span class="p">(</span><span class="s2">&quot;G4.XC.pronoun_mismatch:ch1.md:代词违例&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;content&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_legacy_xc_colon_form_still_routes_content</span><span class="p">():</span>
+    <span class="c1"># legacy 字面保留（历史反馈 blob 兼容）</span>
+    <span class="k">assert</span> <span class="n">classify_retry_family</span><span class="p">(</span><span class="s2">&quot;XC:chapter-1.md:角色「X」…&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;content&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_id_extracts_family_not_path</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.shadow</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_id</span>
+
+    <span class="k">assert</span> <span class="n">check_id</span><span class="p">(</span><span class="s2">&quot;G4.cd.prop_handoff:「灯」交接语境&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;cd.prop_handoff&quot;</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑测确认红</strong>（轮2 M4 改准：红者=<code>test_prop_handoff_gains_content_routing</code>[现产出 other] 与 <code>test_xc_new_form_routes_content</code>[token 未加]；<code>test_check_id_extracts_family_not_path</code> 为 born-green 合成串断言[防回归哨]）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 改写</strong>——
+chapter_drafting:683：<code>mf.append(f"{fp}:{issue}")</code> → <code>mf.append(f"G4.{issue}")</code>（与 :718-719 counter 族同构——helper 已返回 <code>cd.prop_handoff:…</code> 家族前缀串，调用点拼 G4. 即 id-first；fp 不入串，spec §1 file 槽不强制）。
+chapter_planning:752/:758：<code>f"cp.prop_decl:{fp}:…"</code> → <code>f"G4.cp.prop_decl:{fp}:…"</code>。
+cross_chapter:949：<code>f"XC.not_found:{fp}"</code> → <code>f"G4.XC.not_found:{fp}"</code>。
+state_settling ss. 批（C1 补；轮2 I1 修正）：mf 面 13 站点 <code>ss.…</code> → <code>G4.ss.…</code>（7 f-string+6 plain；warns 面 :434/:940 除外）。
+retry_routing:24：<code>_CONTENT_TOKENS = ("G4.cd", "XC:", "G4.XC")</code>。
+test_spec83_retry_routing:24 legacy <code>cp.prop_decl</code> 输入更新为新形态镜像（<code>G4.cp.prop_decl:…</code>，路由期望仍 "other"——非 cd 前缀）。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 跑测确认绿 + lint 转绿核对 + ss. 对账</strong></p>
+</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_retry_routing_xc.py tests/unit/pipeline/test_spec83_retry_routing.py tests/unit/gates/g4/ -v &amp;&amp; uv run python tools/lint_mustfix_emission.py --list &amp;&amp; grep -c '"ss\.' src/shenbi/gates/g4/state_settling.py</code>
+Expected: 测试全绿（g4 域含 ss. 期望串同步面）；红清单剩 1（xc:982）；grep ss. 残留恰 3（:434/:940 两 warns 面 + :1145 checks dict id——轮4 I1 与 Files 段对齐）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 5: 更新既有断言</strong>（grep <code>chapters/ch025.md:cd.prop_handoff</code> / <code>"{fp}:{issue}"</code> 于 tests/——若既有测试钉死 path-first 串，同批改为新形态；grep 自证零残留）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: Commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>src/shenbi/gates/g4/chapter_planning.py<span class="w"> </span>src/shenbi/gates/g4/cross_chapter.py<span class="w"> </span>src/shenbi/gates/g4/state_settling.py<span class="w"> </span>src/shenbi/pipeline/retry_routing.py<span class="w"> </span>tests/unit/pipeline/test_retry_routing_xc.py<span class="w"> </span>tests/unit/pipeline/test_spec83_retry_routing.py<span class="w"> </span>tests/unit/gates/g4/test_g4_ss_facts.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: (b)-family bare emissions to id-first (incl. ss. batch) + retry_routing G4.XC token; prop_handoff content-routing intentional (spec #88 T1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-c-id-deviation">Task 5: (c) 纯中文项新 id 全批 + 嵌套升格 + deviation 记录</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/cross_chapter.py</code>（issues 构造点 :625/:672/:684/:695/:705/:706/:714/:759/:790/:808/:825/:849/:860 + 包装点 :982）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:1766</code>（<strong>plan 审查轮2 C1 补</strong>：<code>check_cross_chapter</code> 的第二 src 调用方 <code>issues.extend(f"跨章复验 ch{_n}: {i}" for i in _xc_issues)</code> 改 unpacking <code>f"跨章复验 ch{_n}: G4.XC.{cid}:{det}" for cid, det in _xc_issues</code>——防 tuple repr 泄入修订重验反馈[retry_feedback :4556]模型可见面）
+- Test: <code>tests/unit/gates/g4/test_cross_chapter_ids.py</code>（新建）
+- Test（连带——plan 审查轮1 C2 补）：<code>tests/unit/gates/g4/test_xc_pov_name.py</code>、<code>test_xc_prop_card.py</code>、<code>test_xc_assets.py</code>、<code>test_xc_timeline.py</code>、<code>test_xc_regression.py</code>、<code>test_cross_chapter_skeleton.py</code>、<code>test_f15_narration_name.py</code>、<code>tests/gates/test_invariant_mutants.py</code>（tuple/新 id 形态断言同步——<code>"substring" in i</code> 对 tuple 是成员判定非子串，~25 断言改写）
+- Test（连带——轮2 C1）：<code>tests/pipeline/test_xc_wiring.py:105</code>（「跨章复验 ch2」断言钉 <code>G4.XC.</code> 新形态——防 tuple repr 假绿存活）
+- Test（连带——轮4 I3）：<code>tests/unit/gates/g4/test_f16_cd_handoffs.py:194-195</code>（<code>"物象" in i</code> 对 tuple 恒 False——XC 吸收回归哨静默失效的同类陷阱，改断言 tuple detail 元素）</p>
+<p><strong>Interfaces:</strong>
+- Produces: cross_chapter issues 元素从裸中文串改为 <code>(id, detail)</code> 二元组；包装点产 <code>G4.XC.{id}:{ch_path.name}:{detail}</code>。新 id 清单（spec §1.1 r2.7 定稿）：<code>pronoun_mismatch</code>(:672)/<code>title_violation</code>(:705)/<code>org_drift</code>(:684)/<code>residence_drift</code>(:695)/<code>reserved_name_hijack</code>(:706 经 reserved_name_hijack_hits——其返回形态按实际核)/<code>prop_chain_origin</code>(:759)/<code>prop_undeclared</code>(:790)/<code>pov_break</code>(:808)/<code>timeline_rollback</code>(:825)/<code>balance_jump</code>(:849/:860 双臂合一 id)＋嵌套 <code>narration_name</code>(:625——detail 剥内层前缀)。
+- 语义变更（deviation 记录）：must_fix 文本模型可见面变化（<code>XC:ch1.md:中文</code> → <code>G4.XC.&lt;id&gt;:ch1.md:中文</code>）。</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> tdd_red_green ｜ <strong>测试层级:</strong> T1</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: 写失败测试</strong>（对 11 个 check 各一构造输入断言 <code>G4.XC.&lt;id&gt;:</code> 前缀完整形态；嵌套项断言 <code>G4.XC.narration_name:ch1.md:叙述段出现别名…</code> 且 detail 无内层前缀残留；<code>reserved_name_hijack_hits</code> 返回形态按实读代码定断言；<strong>test_xc_wiring.py:105 改钉 <code>G4.XC.</code> 前缀形态[轮3 M8 显式步——唯一防 tuple repr 假绿哨]</strong>）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: 跑测确认红</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 改写</strong>——issues.append 改二元组 <code>("pronoun_mismatch", f"角色「{name}」正文用「她」而卡为男性代词（修复者: 卡修/settling）")</code> 形态；:625 <code>("narration_name", f"叙述段出现别名「{alias}」…")</code>（剥内层 <code>XC.narration_name:</code> 前缀）；:982 <code>mf.extend(f"G4.XC.{cid}:{ch_path.name}:{det}" for cid, det in issues)</code>。<strong>实施中逐点核形态</strong>：若某点现构造非裸中文（如 :714 extend 别的形态），按实读改并记 deviation。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 跑测确认绿 + lint 全绿 + 连带族回归</strong></p>
+</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_cross_chapter_ids.py tests/unit/gates/g4/test_xc_pov_name.py tests/unit/gates/g4/test_xc_prop_card.py tests/unit/gates/g4/test_xc_assets.py tests/unit/gates/g4/test_xc_timeline.py tests/unit/gates/g4/test_xc_regression.py tests/unit/gates/g4/test_cross_chapter_skeleton.py tests/unit/gates/g4/test_f15_narration_name.py tests/gates/test_invariant_mutants.py tests/pipeline/test_xc_wiring.py tests/unit/gates/g4/test_f16_cd_handoffs.py -v &amp;&amp; uv run python tools/lint_mustfix_emission.py</code>
+Expected: 全绿（C2 连带族+轮2 C1 接线同步后）；lint exit 0（10/10 红点清零——(b)(c)(d) 全消化）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 5: spec-deviations 记 <code>### T5</code>（新 id 全清单+文本变更声明+跨章复验反馈文本变更）</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: Commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/cross_chapter.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/gates/g4/test_cross_chapter_ids.py<span class="w"> </span>tests/unit/gates/g4/test_xc_pov_name.py<span class="w"> </span>tests/unit/gates/g4/test_xc_prop_card.py<span class="w"> </span>tests/unit/gates/g4/test_xc_assets.py<span class="w"> </span>tests/unit/gates/g4/test_xc_timeline.py<span class="w"> </span>tests/unit/gates/g4/test_xc_regression.py<span class="w"> </span>tests/unit/gates/g4/test_cross_chapter_skeleton.py<span class="w"> </span>tests/unit/gates/g4/test_f15_narration_name.py<span class="w"> </span>tests/gates/test_invariant_mutants.py<span class="w"> </span>tests/pipeline/test_xc_wiring.py<span class="w"> </span>tests/unit/gates/g4/test_f16_cd_handoffs.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: machine ids for all pure-Chinese XC findings + nested promotion; xc test family + revision-feedback caller synced (spec #88 T1c, model-visible text change recorded)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-check_id-_extract_check_id-tools-stale">Task 6: check_id 单源（删 <code>_extract_check_id</code> + tools 第三副本换源 + 正则含数字 + stale 注释清偿）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/shadow.py:64</code>（正则 <code>[a-z0-9_.]+</code>）+ <code>:24-25</code>（stale 注释改写）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:873-876</code>（删除）+ <code>:4702</code>（改 <code>from shenbi.gates.g4.shadow import check_id</code> 后调用）+ <code>:1206</code>（docstring 引用改写）
+- Modify: <code>tools/lint_shadow_promotion.py:74</code>（换源：先剥 <code>[shadow]</code>/<code>[shadow]</code> 前缀再 <code>check_id(item)</code>——M5：旧 pattern 的无括号 <code>shadow?</code> 容忍度随删，唯一产者 shadow.py:84 恒产带括号形，安全；<code>gate_id.split(".")[-1] in mf</code> 相邻启发<strong>不动</strong>仅注释）
+- Test: <code>tests/unit/gates/g4/test_shadow_demotion.py:46-48</code>（数字 id 断言追加）</p>
+<p><strong>Interfaces:</strong>
+- Produces: 全仓唯一 <code>G4\.</code> id 提取正则 owner = <code>shadow.check_id</code>（<code>[a-z0-9_.]+</code>）；数字 id 完整提取（<code>G4.cc.p1p2_empty</code> → <code>cc.p1p2_empty</code>）。</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> tdd_red_green ｜ <strong>测试层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（追加进 test_shadow_demotion.py）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_check_id_digit_ids_not_truncated</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">check_id</span><span class="p">(</span><span class="s2">&quot;G4.cc.p1p2_empty:ctx.md&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;cc.p1p2_empty&quot;</span>
+    <span class="k">assert</span> <span class="n">check_id</span><span class="p">(</span><span class="s2">&quot;G4.cp.s7_hook_ops:plan.md&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;cp.s7_hook_ops&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_extract_check_id_gone_single_owner</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cl</span>
+
+    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cl</span><span class="p">,</span> <span class="s2">&quot;_extract_check_id&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>（soft-tracker 行为等价由既有 test_g4_classification/test_soft_fail_tracker 族守护——:4702 换源后跑全量相关。）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑测确认红</strong>（数字断言红——现截成 <code>cc.p</code>/<code>cp.s</code>）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 改写</strong>——shadow.py:64 <code>re.match(r"G4\.([a-z0-9_.]+)", item)</code>；:24-25 注释「the <code>_extract_check_id</code> shape」改「the must_fix <code>G4.&lt;id&gt;:…</code> shape」；chapter_loop 删 :873-876、:4702 <code>tracker_key = check_id(s)</code>（文件头或函数内 import——按 chapter_loop import 惯例就地 <code>from shenbi.gates.g4.shadow import check_id</code>）；:1206 docstring 改指 shadow.check_id；lint_shadow_promotion:74 区域改 <code>item</code> 先 <code>re.sub(r"^\[shadow\]\s*", "", item)</code> 再 <code>check_id(stripped)</code>（双 pattern 副本删除）。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 跑测确认绿 + 全仓唯一性 grep</strong></p>
+</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_shadow_demotion.py tests/unit/pipeline/test_g4_classification.py -v &amp;&amp; grep -rn 'G4\\.(\[' src/ tools/ | grep -v shadow.py</code>
+Expected: 测试绿；过滤 shadow.py 后 grep 输出为空（唯一 owner 证据=过滤后零命中）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/shadow.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tools/lint_shadow_promotion.py<span class="w"> </span>tests/unit/gates/g4/test_shadow_demotion.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: check_id single owner in shadow (digit-safe regex); drop _extract_check_id + tools copy (spec #88 T2)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-id-inventory-fixture-property-test">Task 7: 分类精确 id 匹配 + 键删除 + inventory fixture/生成器/三断言 + property test + 连带测试</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:812-848</code>（G4_CHECK_MAP 瘦身至 2 活键）+ <code>:851-870</code>（_classify_g4_failures 精确匹配）
+- Create: <code>tools/gen_g4_id_inventory.py</code>（生成器：AST 枚举 mf 发射面 id → <code>tests/fixtures/g4-id-inventory.json</code>）
+- Create: <code>tests/fixtures/g4-id-inventory.json</code>（生成器产物——inventory 类构造输入，G0.9 合规）
+- Test: <code>tests/property/gates/test_g4_id_inventory.py</code>（新建：三断言 + hypothesis property）+ <code>tests/unit/pipeline/test_g4_classification.py</code>（:22-26/:28-29/:39-50 改写）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 6 <code>check_id</code>（含数字）。
+- Produces: <code>G4_CHECK_MAP</code> 仅 2 活键 <code>{"transition": SOFT, "fatigue": SOFT}</code>；<code>_classify_g4_failures</code> 匹配 <code>cid == key or cid.startswith(key + ".")</code>；inventory JSON <code>{"ids": [...], "generated_at": "&lt;iso&gt;", "generator": "tools/gen_g4_id_inventory.py"}</code>。
+- 有意修正（记 deviation+测试钉死）：<code>cd.post_transition_cross</code> 从 SOFT 误判改 HARD（promoted 项从 soft-tracker 3-in-window 改立即 HARD 重试）。</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> tdd_red_green + regression_guard（行为不回归表）｜ <strong>测试层级:</strong> T1 + property</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: 写失败测试</strong>——
+unit（test_g4_classification 改写）：
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_only_two_active_keys</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">G4_CHECK_MAP</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;transition&quot;</span><span class="p">,</span> <span class="s2">&quot;fatigue&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_exact_match_not_substring</span><span class="p">():</span>
+    <span class="n">hard</span><span class="p">,</span> <span class="n">soft</span><span class="p">,</span> <span class="n">warn</span> <span class="o">=</span> <span class="n">_classify_g4_failures</span><span class="p">([</span><span class="s2">&quot;G4.cd.post_transition_cross:p:t&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">hard</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">soft</span>  <span class="c1"># 有意修正：旧子串误判 SOFT</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dot_boundary_prefix</span><span class="p">():</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">soft</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_classify_g4_failures</span><span class="p">([</span><span class="s2">&quot;G4.transition.density:p:8&gt;7&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">soft</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># 真前缀族仍 SOFT</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_defaults_hard</span><span class="p">():</span>
+    <span class="n">hard</span><span class="p">,</span> <span class="n">soft</span><span class="p">,</span> <span class="n">warn</span> <span class="o">=</span> <span class="n">_classify_g4_failures</span><span class="p">([</span><span class="s2">&quot;G4.future.check:p:x&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">hard</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+</code></pre></div>
+property（三断言+不变量）：
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/gates/test_g4_id_inventory.py</span>
+<span class="n">INV</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/g4-id-inventory.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<span class="n">IDS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">INV</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_retained_keys_in_inventory</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">G4_CHECK_MAP</span>
+
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">G4_CHECK_MAP</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">IDS</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_inventory_subset_of_ast_enumeration</span><span class="p">():</span>
+    <span class="c1"># 反向防漂：生成器重跑产出 ⊆ 现树枚举（stale id 即红）</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.gen_g4_id_inventory</span><span class="w"> </span><span class="kn">import</span> <span class="n">enumerate_ids</span>
+
+    <span class="k">assert</span> <span class="n">IDS</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">enumerate_ids</span><span class="p">())</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">IDS</span><span class="p">)))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_any_id_extractable_roundtrip</span><span class="p">(</span><span class="n">cid</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.shadow</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_id</span>
+
+    <span class="k">assert</span> <span class="n">check_id</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.</span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="s2">:f:d&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">cid</span>
+
+
+<span class="nd">@given</span><span class="p">(</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">one_of</span><span class="p">(</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">([</span><span class="s2">&quot;transition&quot;</span><span class="p">,</span> <span class="s2">&quot;fatigue&quot;</span><span class="p">,</span> <span class="s2">&quot;transition.x&quot;</span><span class="p">,</span> <span class="s2">&quot;fatigue.density&quot;</span><span class="p">]),</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">alphabet</span><span class="o">=</span><span class="s2">&quot;abcdefghijklmnopqrstuvwxyz0123456789_.&quot;</span><span class="p">,</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_softwarn_implies_covered</span><span class="p">(</span><span class="n">seed</span><span class="p">):</span>
+    <span class="c1"># property 主不变量：任何被判 SOFT/WARN 的 item，其 extracted id ∈ 覆盖键集</span>
+    <span class="c1"># （轮4 I2：st.text 无字典导向，纯 text 生成 &quot;transition&quot; 概率 ~1e-16=事实空测——</span>
+    <span class="c1">#   sampled_from 种子臂保证 SOFT 臂非平凡执行，text 臂保持任意串对抗性）</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_classify_g4_failures</span>
+
+    <span class="n">item</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;G4.</span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s2">:f:d&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">soft</span><span class="p">,</span> <span class="n">warn</span> <span class="o">=</span> <span class="n">_classify_g4_failures</span><span class="p">([</span><span class="n">item</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">out</span> <span class="ow">in</span> <span class="p">(</span><span class="n">soft</span><span class="p">,</span> <span class="n">warn</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+            <span class="n">fam</span> <span class="o">=</span> <span class="n">it</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;G4.&quot;</span><span class="p">)</span> <span class="p">:]</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">fam</span> <span class="o">==</span> <span class="s2">&quot;transition&quot;</span>
+                <span class="ow">or</span> <span class="n">fam</span> <span class="o">==</span> <span class="s2">&quot;fatigue&quot;</span>
+                <span class="ow">or</span> <span class="n">fam</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;transition.&quot;</span><span class="p">,</span> <span class="s2">&quot;fatigue.&quot;</span><span class="p">))</span>
+            <span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: 跑测确认红</strong>（现 29 键/子串匹配全红）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 改写</strong>——G4_CHECK_MAP 收缩为 2 键（删 24 HARD+3 checks-only，删除处注释「severity 由发射点 checks[].s 携带（chapter_drafting:1093、chapter_planning:909/:1000/:1007）；未匹配默认 HARD（:868-869）与显式 HARD 等价」）；<code>_classify_g4_failures</code> 内层改 <code>cid = check_id(item)</code> + <code>if cid == key or cid.startswith(key + "."):</code>；写 <code>tools/gen_g4_id_inventory.py</code>——<strong>enumerate_ids() 单函数三源（M2）</strong>：①AST 枚举 mf 发射面常量 id 段 ②xc 二元组 <code>(cid, det)</code> 形态（Task 5 后的新形态）③变量前缀/分层契约补遗清单（<code>cd.post_transition_cross</code>/<code>cd.balance_value_drift</code>/counter 族等 AST 不可见 id——显式列表进生成器源码，注释来源锚）；<code>--write</code> 落 fixture，测试侧 import 同一函数（生成器只读不写）；生成并提交 <code>g4-id-inventory.json</code>。Task 8 豁免基线 = 该 fixture（补遗含变量形态活 id——防 <code>cd.post_transition_cross</code> 类被机械误判死 id，r2.7 missing_chapter_role 教训）。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 跑测确认绿 + cold_opening 不破确认</strong></p>
+</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_g4_classification.py tests/property/gates/test_g4_id_inventory.py tests/unit/gates/g4/test_cold_opening_triple.py -v</code>
+Expected: 全绿（cold_opening <code>not in G4_CHECK_MAP</code> 断言恒真不破）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 5: spec-deviations 记 <code>### T7</code>（post_transition_cross 有意修正+运行时 delta）</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: Commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tools/gen_g4_id_inventory.py<span class="w"> </span>tests/fixtures/g4-id-inventory.json<span class="w"> </span>tests/property/gates/test_g4_id_inventory.py<span class="w"> </span>tests/unit/pipeline/test_g4_classification.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: exact-id severity matching, 24+3 dead keys deleted, id inventory + bidirectional property invariants (spec #88 T3)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8-t4-floor-dedup-t5-checker">Task 8: T4 floor 两处静态引用标注 + dedup 断言 + T5 全 checker 参数化 + 批末终验</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py:887</code>（word_count 消息加 floor 来源）
+- Modify: <code>src/shenbi/gates/g4/length_normalizing.py:53</code>（below_floor 同）
+- Test: <code>tests/unit/gates/g4/test_word_floor_citation.py</code>（新建红测）+ <code>tests/property/gates/test_shadow_all_checkers.py</code>（<strong>Create</strong>——轮2 M3：该文件不存在，全新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces: 两处消息 detail 含 <code>chapter_word_floor</code> 静态函数引用（名+当前值，如 <code>（floor 来源: chapter_word_floor=3200）</code>）；T5 参数化语料=per-checker 单测构造输出聚合 + fixture 真实 must_fix（bracketed-list-only 解析）+ 死 id 豁免集机械推导（fixture 语料 id − AST inventory；已验真死唯 <code>G4.fp.no_hooks</code>（轮2 I3 修正：rr.detail_table[review_resonance:65]/rr.verdict[:79]/rules.count[worldbuilding:155]/protag.yaml_error[character_design:45]/ss.no_hook_state[state_settling:1217] 均为活 id 不得入例）——其余按推导结果定——豁免项仅走「等于期望 id」分支）。</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> tdd_red_green（floor 引用红测）+ regression_guard（T5 参数化套件 born-green——Tasks 3-7 已落地，M3 口径）｜ <strong>测试层级:</strong> T1 + property</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: 写失败测试</strong>——floor 引用红测：
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_word_count_message_cites_floor_source</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="c1"># 构造 under-floor 章节文件 → 跑 g4_chapter_drafting → 断言 must_fix 项含 &quot;chapter_word_floor&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_ln_below_floor_cites_floor_source</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="c1"># length_normalizing 同构断言</span>
+</code></pre></div>
+T5 参数化（test_shadow_all_checkers.py）：parametrize over「per-checker 单测构造输出聚合 + fixture 语料」，断言 <code>check_id(item) == expected or check_id(item) ∈ inventory</code>；豁免集在文件头由机械推导表达式生成（fixture 解析函数只取 <code>G4 ... check failed: [...]</code> 方括号段）。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: 跑测确认红</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 改写</strong>——两处消息 <code>f"G4.word_count:{fp}:{total}&lt;{floor}（floor 来源: chapter_word_floor={floor}）"</code> / <code>f"G4.ln.below_floor:{fp}:{wc}&lt;{floor}（floor 来源: chapter_word_floor={floor}）"</code>；:2230/volume_budget/chapter_loop:1779 <strong>不动</strong>（spec 排除面）。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 跑测确认绿 + dedup diff 断言 + 批末终验</strong></p>
+</li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv run pytest tests/unit/gates/g4/test_word_floor_citation.py tests/property/gates/test_shadow_all_checkers.py -v
+git diff main -- src/shenbi/gates/ | grep -c &quot;dedup&quot;   # expect 0（零新增 dedup 逻辑）
+uv run python tools/lint_mustfix_emission.py            # exit 0
+just check                                              # exit 0（全套）
+</code></pre></div>
+Expected: 全绿（just check 完整输出粘 progress.md）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>src/shenbi/gates/g4/length_normalizing.py<span class="w"> </span>tests/unit/gates/g4/test_word_floor_citation.py<span class="w"> </span>tests/property/gates/test_shadow_all_checkers.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: floor-source citations + all-checker check_id parameterization (spec #88 T4+T5)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="spec-3-task">验收覆盖表（spec §3 → task → 验证命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. lint 绿（AST 面 0 违规）；纯中文新 id 已记 deviation</td>
+<td>T2 接线+T3/T4/T5 消化</td>
+<td><code>uv run python tools/lint_mustfix_emission.py</code> exit 0；spec-deviations <code>### T5</code></td>
+</tr>
+<tr>
+<td>2. _extract_check_id 唯一定义（shadow；lint 工具换源）；数字正则红测；T5 参数化（213 面 checker 全集+死 id 豁免机械推导）；retry 锚 :1372</td>
+<td>T6+T8</td>
+<td>test_shadow_demotion 数字断言绿；grep 唯一 owner；test_shadow_all_checkers 参数化计数=checker 全集</td>
+</tr>
+<tr>
+<td>3. 恰 2 活键+3 checks-only 删除；inventory 三断言；post_transition_cross 有意修正（含运行时 delta）</td>
+<td>T7</td>
+<td>test_only_two_active_keys+property 三断言+deviation <code>### T7</code></td>
+</tr>
+<tr>
+<td>4. property test 绿；两处 floor 静态引用红测；dedup diff 级断言；G4.XC token+用例；test_spec83:24 镜像</td>
+<td>T4+T7+T8</td>
+<td>pytest 全绿；<code>git diff main -- src/shenbi/gates/ \| grep -c dedup</code>=0</td>
+</tr>
+<tr>
+<td>5. just check exit 0</td>
+<td>T8 批末</td>
+<td><code>just check</code> 完整输出</td>
+</tr>
+</tbody>
+</table>
+<h2 id="self-review">Self-Review 记录</h2>
+<ul>
+<li>Spec 覆盖：T1(a)(不动)+T1(b)(T4——<strong>含 state_settling ss. 批</strong>，plan 审查轮1 C1 补)+T1(c)(T5)+T1(d)(T3)+lint(T2)+finding(T1)｜T2 全(T6)｜T3 全(T7)｜T4 全(T8 前半)｜T5 全(T8 后半)——§3 五条全覆盖 ✓</li>
+<li>类型一致：<code>finding(check_id, detail, file)</code> 全 plan 统一；<code>check_id(item) -&gt; str</code> 与 shadow 现签名一致 ✓</li>
+<li>占位扫描：无 TBD/「适当处理」类残留；(c) 家族 :714/:706 形态标注「按实读核」——实施中逐点核（spec 已授权 plan 期机械枚举定稿）✓</li>
+<li><strong>Plan 审查轮 1 修订记录</strong>（2🔴3🟡5🟢 全吸收）：C1 ss. 批并入 Task 4（spec T1(b) prose vs r2.8 红清单矛盾——采纳改写路线非 deviation）；C2 Task 5 连带测试族 8 文件扩入 Files/Step 4/commit；I1 property alphabet 修空测；I2 XC 大写豁免句；I3 <code>_arg</code> 返 <code>.args[0]</code>；M1-M5 全吸收（test 文件定死/enumerate_ids 三源/test_kind 拆分/残余描述口径/[shadow] 注释）</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

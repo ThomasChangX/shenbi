@@ -1,0 +1,1681 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-18-spec40-master-closure/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #40 收官 pass Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #40 收官 pass Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-18-spec40-master-closure.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-18-spec40-master-closure/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #40 收官 pass Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-18-spec40-master-closure.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-40-pass-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #40 收官 pass Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#t1t2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        逐行注记映射表（权威表——T1/T2 脚本的字面源）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="逐行注记映射表（权威表——T1/T2 脚本的字面源）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#08-15-ledger37-34-3-f401f408" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        08-15 ledger（37 行编辑：34 关闭 + 3 改注；另 F401/F408 接受终态不编辑）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#08-14-ledger7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        08-14 ledger（7 行）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-0-task-4-git-mv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0: 计划登记（前置——否则 Task 4 的 git mv 对未跟踪文件报错）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-1-08-15-ledger-34-30-g4-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 08-15 ledger 回写补齐（34 关闭 = 30 簇行 + G×4；+ 3 改注）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-08-14-ledger-t126-f513-re-home" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 08-14 ledger 跨轮卫生（T12×6 镜像关闭 + F513 re-home）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-spec-67" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 登记 spec #67（孤儿残留收口）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: 总纲终稿 + 双库归档 + INDEX 终态
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec/设计验收 → task → 验证命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-40-pass-implementation-plan">Spec #40 收官 pass Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 补齐 2026-08-15/08-14 两份 findings-ledger 的回写缺口（44 行编辑：08-15 侧 37 行 + 08-14 侧 7 行）、登记孤儿残留微修 spec #67、终稿归档审计修复总纲（spec #40）——37 簇修复计划的收官。</p>
+<p><strong>Architecture:</strong> 纯 docs 变更、单 PR（Task 0 登记 commit + 四个 task commit + PR 号定稿 commit）。T1/T2 用确定性 python 脚本改写 ledger 行（按行 ID 定位、状态单元格改写或追加 <code>→</code> 列，映射表钉死新注记全文）；T3 登记 #67（spec 文件 + INDEX 行）；T4 总纲终稿（§9 收官记录 + §7 归档前注 + 头部 sunset）+ 双库归档移动 + INDEX/plans-INDEX 终态。所有注记文案以归档簇 spec 的回写/出账/驳斥修订节为权威源逐字转录。</p>
+<p><strong>Tech Stack:</strong> bash + python3（stdlib only，与仓库工具同构）；验证走 <code>just</code>/<code>uv run</code>。</p>
+<p><strong>复杂度:</strong> 全 leaf（单文件 docs 编辑，无 src/ 改动，协调者亲做）· <strong>test_kind:</strong> regression_guard（钉死终态 grep 断言 + 既有 lint 工具回归，无新逻辑）· <strong>测试层级:</strong> N/A（docs-only；验收 = 可执行 grep/lint 命令）· <strong>G3.4:</strong> N/A（无评分场景）· <strong>F947:</strong> N/A（零 LLM dispatch）</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>注记追加列必须以 <code>→</code> 起始（<code>tools/lint_audit_run.py:93</code> row_columns 规则）；注记文本禁止裸 <code>|</code> 字符</li>
+<li>08-14 ledger 属 frozen run（run 级 row_columns/pipe_escape 豁免）——lint 不覆盖本 pass 的 08-14 编辑，grep 判据承担验证负担</li>
+<li>ledger 只改状态列与追加注记列，<strong>不改证据列/标题列/严重度列</strong>（#42 出账协议「ledger 只改状态列与注记」）</li>
+<li>编号 append-only：#67 = 现有最大号 66 + 1；INDEX 删 #40 行不重排</li>
+<li>本 plan 文件与 #67 spec 正文引用总纲一律用「spec #40 总纲」措辞——除 Task 4 内部外<strong>不得出现总纲裸文件名</strong>（防额外引用 locus）</li>
+<li>禁 <code>git add -A</code>/<code>git add .</code>；所有 commit 显式列文件路径；conventional commits 前缀 <code>docs:</code></li>
+<li>分支：<code>chore/spec40-master-closure</code>；全程零真实 dispatch</li>
+</ul>
+<h2 id="t1t2">逐行注记映射表（权威表——T1/T2 脚本的字面源）</h2>
+<h3 id="08-15-ledger37-34-3-f401f408">08-15 ledger（37 行编辑：34 关闭 + 3 改注；另 F401/F408 接受终态不编辑）</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>现状尾（grep 亲验 2026-09-18）</th>
+<th>动作</th>
+<th>新注记全文</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1601</td>
+<td><code>verified</code>（11 列裸）</td>
+<td>状态列改写</td>
+<td><code>closed (C-28 spec #42, PR #153 · I/O 面吸收 T1614/F312；token 面 29% 冗余出账为产品决策非目标——产品裁决后另立 spec，记 spec #40 §8 deviation)</code></td>
+</tr>
+<tr>
+<td>T1603</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-28 spec #42, PR #153)</code></td>
+</tr>
+<tr>
+<td>T1604</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-28 spec #42, PR #153 · 吸收 F415-0814 行号锚点面)</code></td>
+</tr>
+<tr>
+<td>T1606</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-28 spec #42, PR #153)</code></td>
+</tr>
+<tr>
+<td>T1607</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (resolved-by-#26——差分快照随 spec #26 路径 3 整体移除（66e7f69d/PR #105），per C-28 spec #42 出账)</code></td>
+</tr>
+<tr>
+<td>T1608</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (transferred-to-#44 per C-28 spec #42 出账；spec #44 归档未提及 save_state 增量化——全量写为 #44 Done 终态，增量收益未裁决，记 spec #40 §8 deviation 可复活)</code></td>
+</tr>
+<tr>
+<td>T1609</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-28 spec #42, PR #153)</code></td>
+</tr>
+<tr>
+<td>T1610</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-28 spec #42, PR #153)</code></td>
+</tr>
+<tr>
+<td>T1613</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-28 spec #42, PR #153 · 吸收 F215)</code></td>
+</tr>
+<tr>
+<td>T1614</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-28 spec #42, PR #153)</code></td>
+</tr>
+<tr>
+<td>F215</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-28 spec #42, PR #153)</code></td>
+</tr>
+<tr>
+<td>F328</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-28 spec #42, PR #153)</code></td>
+</tr>
+<tr>
+<td>F415</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-28 spec #42, PR #153 · content_uniqueness 面（进程内范围注记）；g5.5 逐对重排面出账——随门禁进程内化才有意义，per #42 出账)</code></td>
+</tr>
+<tr>
+<td>F361</td>
+<td><code>open</code> 裸（C29 代表）</td>
+<td>改写</td>
+<td><code>closed (C-29 spec #43, PR #156)</code></td>
+</tr>
+<tr>
+<td>F235</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-29 spec #43, PR #156)</code></td>
+</tr>
+<tr>
+<td>F326</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-29 spec #43, PR #156)</code></td>
+</tr>
+<tr>
+<td>F330</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-29 spec #43, PR #156)</code></td>
+</tr>
+<tr>
+<td>F362</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-29 spec #43, PR #156)</code></td>
+</tr>
+<tr>
+<td>F459</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-29 spec #43, PR #156)</code></td>
+</tr>
+<tr>
+<td>F620</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-29 spec #43, PR #156)</code></td>
+</tr>
+<tr>
+<td>T1615</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-29 spec #43, PR #156 · 观测面已交付（R4）；量化消费方 C10/C28 未建——非缺陷，记 spec #40 §8)</code></td>
+</tr>
+<tr>
+<td>F764</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-24 spec #62 驳斥剔除——已被 PR #174/#132 系修复，per 2026-09-13 修订记录)</code></td>
+</tr>
+<tr>
+<td>F788</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-24 spec #62 驳斥剔除——已被 PR #174/#132 系修复，per 2026-09-13 修订记录)</code></td>
+</tr>
+<tr>
+<td>F937</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-24 spec #62 驳斥剔除——§2.9 已改，per 2026-09-13 修订记录)</code></td>
+</tr>
+<tr>
+<td>F940</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-24 spec #62 驳斥剔除——计数漂移已内联自洽披露，per 2026-09-13 修订记录)</code></td>
+</tr>
+<tr>
+<td>F944</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-24 spec #62 驳斥剔除——#3 已实际入 archive，标签不失实，per 2026-09-13 修订记录)</code></td>
+</tr>
+<tr>
+<td>F945</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-24 spec #62 驳斥剔除——矛盾文本已不存在，per 2026-09-13 修订记录)</code></td>
+</tr>
+<tr>
+<td>F954</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-24 spec #62 驳斥剔除——plans/INDEX 已刷新（PR #210/#211），per 2026-09-13 修订记录)</code></td>
+</tr>
+<tr>
+<td>F1025</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (C-24 spec #62 驳斥剔除——mutate-check 守卫已删除，对象消失，per 2026-09-13 修订记录)</code></td>
+</tr>
+<tr>
+<td>F1024</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (spec #66 PR #230 同体——Z10:275 所指 mypy python_version 3.12&gt;3.11 已统一 3.11，numpy &lt;2.5 封顶伴生；per C-24 spec #62 重归属 + #66 实施)</code></td>
+</tr>
+<tr>
+<td>F519</td>
+<td><code>open</code> + 追加列 <code>→ out-of-cluster: fixed by prior PR (verified 2026-09-07, spec #48 value gate)</code></td>
+<td><strong>替换追加列</strong></td>
+<td><code>→ 纠偏（2026-09-18 · spec #40 收官 pass）：2026-09-07 out-of-cluster「fixed by prior PR」注记不实——仅生产面（dispatch_helper Tier B wrapper）修复；legacy CLI 路由残留（executor.py PROJECT_DIR=REPO_ROOT + test_executor_audit.py monkeypatch 掩蔽）→ re-homed spec #67（C32 边界注记 F513 同面）</code></td>
+</tr>
+<tr>
+<td>F311</td>
+<td><code>open (P1 错位已修 PR #120 链；零消费面视 C37 R0 裁决)</code></td>
+<td>状态列收窄 + 追加列</td>
+<td>状态列 → <code>open (P1 错位已修 PR #120 链)</code>；追加列 → <code>→ curated 零消费者面 re-homed spec #67（wire-or-remove 裁决 · 2026-09-18 spec #40 收官 pass——C30↔C37 循环移交就此终结）</code></td>
+</tr>
+<tr>
+<td>T1108</td>
+<td><code>open (移交：独立设计裁决，spec #44 尾注)</code></td>
+<td>状态列收窄 + 追加列</td>
+<td>状态列 → <code>open (移交：离线可执行模式设计裁决)</code>；追加列 → <code>→ 移交目标钉 spec #67（2026-09-18 spec #40 收官 pass——原 spec #44 尾注移交无目标，就此终结）</code></td>
+</tr>
+<tr>
+<td>G601</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (裁决落账 4 项本批已补落——g6-meta-audit.md G601（:217）；严重度列已回写 F201/F340/F601/F401)</code></td>
+</tr>
+<tr>
+<td>G602</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (勘误已录 g6-meta-audit.md 复核表（:91/:142）——字符数误标字节：F777 4503-4504 实为字符（字节 12825）、F778 2494 实为字符（字节 6980）)</code></td>
+</tr>
+<tr>
+<td>G603</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (勘误已录 g6-meta-audit.md 复核表（:111）——「must_fix 全部 no_valid_verdict」实测 30/35)</code></td>
+</tr>
+<tr>
+<td>G604</td>
+<td><code>open</code> 裸</td>
+<td>改写</td>
+<td><code>closed (注记已录 g6-meta-audit.md §7.2 限制声明（:209）——route 分布子声称不可机械复现，核心面已精确复现)</code></td>
+</tr>
+</tbody>
+</table>
+<p>（F401/F408 无动作——out-of-cluster 注记终态，§8 记录接受。）</p>
+<h3 id="08-14-ledger7">08-14 ledger（7 行）</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>现状尾</th>
+<th>动作</th>
+<th>新注记全文</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T12-01</td>
+<td><code>verified</code> 裸</td>
+<td>改写</td>
+<td><code>closed (08-15 重立 T1206 双面闭合：属性注入面随 spec #22 R1 关闭（PR #91）、内容侧让渡 spec #45 R2 关闭（PR #161）——per #22 修订记录 + #45 归档承接注记)</code></td>
+</tr>
+<tr>
+<td>T12-02</td>
+<td><code>verified</code> 裸</td>
+<td>改写</td>
+<td><code>closed (写审计接线面已由 C32 R3 修复（commit 26db756）；判定伪造/env/路径/symlink 面随 spec #45 R3/R4 关闭（PR #161）——per spec #22 修订记录让渡链)</code></td>
+</tr>
+<tr>
+<td>T12-03</td>
+<td><code>verified</code> 裸</td>
+<td>改写</td>
+<td><code>closed (run_pipeline.sh 半面随 C26 spec #64 关闭（PR #220，F003/F1013/T1205 族）；round-exec.sh 半面随 spec #22 R2 关闭（PR #91）——per #22 修订记录让渡链)</code></td>
+</tr>
+<tr>
+<td>T12-04</td>
+<td><code>verified</code> 裸</td>
+<td>改写</td>
+<td><code>closed (08-15 重立 T1207 随 C31 spec #45 R4 关闭，PR #161)</code></td>
+</tr>
+<tr>
+<td>T12-05</td>
+<td><code>verified</code> 裸</td>
+<td>改写</td>
+<td><code>closed (08-15 重立 T1204 随 C31 spec #45 R3 关闭，PR #161；safe_write 零规范化边界注记同随 #45)</code></td>
+</tr>
+<tr>
+<td>T12-06</td>
+<td><code>verified</code> 裸</td>
+<td>改写</td>
+<td><code>closed (随 spec #22 R3 词法防御关闭，PR #91——per #45 归档承接注记)</code></td>
+</tr>
+<tr>
+<td>F513</td>
+<td><code>specced</code> 裸（11 列）</td>
+<td>状态列保持 + 追加列</td>
+<td><code>→ re-homed spec #67（2026-09-18 · spec #40 收官 pass；残留面 = legacy CLI 路由快照根 PROJECT_DIR=REPO_ROOT（executor.py）+ 掩蔽测试——与 08-15 F519 同面，C32 边界注记原指向 spec #46 已 Rejected；状态 specced 至 #67 实施后关闭）</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-0-task-4-git-mv">Task 0: 计划登记（前置——否则 Task 4 的 <code>git mv</code> 对未跟踪文件报错）</h3>
+<ul>
+<li>[x] <strong>Step 1: Commit 本 plan + plans/INDEX.md 登记</strong>（commit 21e7c9d1）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>docs/superpowers/plans/2026-09-18-spec40-master-closure.md<span class="w"> </span>docs/superpowers/plans/INDEX.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(plans): register spec #40 closure-pass plan (backfill + spec #67 + master archival)&quot;</span>
+</code></pre></div>
+<h3 id="task-1-08-15-ledger-34-30-g4-3">Task 1: 08-15 ledger 回写补齐（34 关闭 = 30 簇行 + G×4；+ 3 改注）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md</code>（37 行）</p>
+<p><strong>Interfaces:</strong> Consumes: 逐行注记映射表（08-15 节）。Produces: 终态 grep 基线（bare-open==0 / bare-verified==0 / <code>spec #67</code> 计数==3）。</p>
+<ul>
+<li>[x] <strong>Step 1: 预检基线</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nv">L15</span><span class="o">=</span>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md
+grep<span class="w"> </span>-cE<span class="w"> </span><span class="s1">&#39;\| open \| *$&#39;</span><span class="w"> </span><span class="nv">$L15</span><span class="w">   </span><span class="c1"># 期望 33（29 簇行 + G×4）</span>
+grep<span class="w"> </span>-cE<span class="w"> </span><span class="s1">&#39;\| verified \| *$&#39;</span><span class="w"> </span><span class="nv">$L15</span><span class="w">  </span><span class="c1"># 期望 1（T1601）</span>
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;spec #67&#39;</span><span class="w"> </span><span class="nv">$L15</span><span class="w">         </span><span class="c1"># 期望 0</span>
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;closed (&#39;</span><span class="w"> </span><span class="nv">$L15</span><span class="w">         </span><span class="c1"># 期望 721</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 2: 执行改写脚本（heredoc，映射表字面源）</strong></li>
+</ul>
+<p>python3 脚本逐行处理：按 <code>^\| &lt;ID&gt;</code> 定位行；「改写」= 用映射表新注记替换状态单元格（保留行内其余列原样）；「替换追加列」= 将既有 <code>→ out-of-cluster…</code> 追加列文本整段替换为新文本；「状态列收窄 + 追加列」= 先替换状态单元格、再在行尾追加 <code>| &lt;新注记&gt;</code>。脚本断言：每个目标 ID 恰好命中 1 行、改后行含新注记子串、列数变化按动作断言精确值：改写=0、追加列=+1、F519 替换=0（split('|') 长度差逐行校验）。37 个 ID 全部处理或 assert 失败。</p>
+<ul>
+<li>[x] <strong>Step 3: 终态验证</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-cE<span class="w"> </span><span class="s1">&#39;\| open \| *$&#39;</span><span class="w"> </span><span class="nv">$L15</span><span class="w">    </span><span class="c1"># 期望 0</span>
+grep<span class="w"> </span>-cE<span class="w"> </span><span class="s1">&#39;\| verified \| *$&#39;</span><span class="w"> </span><span class="nv">$L15</span><span class="w"> </span><span class="c1"># 期望 0</span>
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;spec #67&#39;</span><span class="w"> </span><span class="nv">$L15</span><span class="w">          </span><span class="c1"># 期望 3（F519/F311/T1108 各一）</span>
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;closed (&#39;</span><span class="w"> </span><span class="nv">$L15</span><span class="w">          </span><span class="c1"># 期望较基线 +34（30 改写 + F311/T1108 保持 open 不计 + G×4 计入 → 30+4=34）</span>
+just<span class="w"> </span>audit-lint<span class="w">  </span><span class="c1"># 期望绿（08-15 面在豁免清单内仍受 row_columns 规则约束）</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(ledger): backfill 08-15 closure notes — C28/C29/C24/G rows + F519 correction + F311/T1108 re-home (spec #40 closure pass)&quot;</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 5: 产出 <code>.superpowers/sdd/audit-T1.md</code></strong>（fresh-context 重审，见执行协议）</li>
+</ul>
+<h3 id="task-2-08-14-ledger-t126-f513-re-home">Task 2: 08-14 ledger 跨轮卫生（T12×6 镜像关闭 + F513 re-home）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/audit-runs/2026-08-14/findings-ledger.md</code>（7 行）</p>
+<p><strong>Interfaces:</strong> Consumes: 映射表 08-14 节。Produces: 08-14 T12-xx 零无注记基线。</p>
+<ul>
+<li>[x] <strong>Step 1: 预检</strong> <code>grep -cE '^\| T12-0[1-6] ' docs/superpowers/audit-runs/2026-08-14/findings-ledger.md</code> == 6，六行状态均裸 <code>verified</code>；F513 行 <code>specced</code> 裸。</li>
+<li>[x] <strong>Step 2: 执行改写脚本</strong>（同 T1 机制；T12 六行状态列改写、F513 状态保持 + 行尾追加 <code>| → re-homed …</code>）</li>
+<li>[x] <strong>Step 3: 终态验证</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nv">L14</span><span class="o">=</span>docs/superpowers/audit-runs/2026-08-14/findings-ledger.md
+<span class="k">for</span><span class="w"> </span>id<span class="w"> </span><span class="k">in</span><span class="w"> </span>T12-01<span class="w"> </span>T12-02<span class="w"> </span>T12-03<span class="w"> </span>T12-04<span class="w"> </span>T12-05<span class="w"> </span>T12-06<span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;^\| </span><span class="nv">$id</span><span class="s2"> &quot;</span><span class="w"> </span><span class="nv">$L14</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;closed (&#39;</span><span class="p">;</span><span class="w"> </span><span class="k">done</span><span class="w">  </span><span class="c1"># 每行期望 1</span>
+grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;^\| F513 &#39;</span><span class="w"> </span><span class="nv">$L14</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;spec #67&#39;</span><span class="w">  </span><span class="c1"># 期望 1</span>
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 4: Commit</strong> <code>docs(ledger): mirror-close 08-14 T12-01~06 via #22/#45/#64 chains + re-home F513 to spec #67 (frozen-run hygiene, spec #40 closure pass)</code>（显式列文件）</li>
+<li>[x] <strong>Step 5: 产出 audit-T2.md</strong></li>
+</ul>
+<h3 id="task-3-spec-67">Task 3: 登记 spec #67（孤儿残留收口）</h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/superpowers/specs/2026-09-18-orphan-residuals-closure.md</code>
+- Modify: <code>docs/superpowers/specs/INDEX.md</code>（#67 行 + 头部）</p>
+<p><strong>Interfaces:</strong> Produces: INDEX 活跃含 #67（与 #40 并存，活跃数暂 2——T4 删 #40 后回到 1）。</p>
+<ul>
+<li>[x] <strong>Step 1: 写 #67 spec 文件</strong>——头部（Date: 2026-09-18 | Status: Design | Severity: 🟠 P1（最高面 F513 P1）| 方法: 孤儿残留收口 | 系列: 2026-08-15 审计修复 · spec #40 收官 pass 登记 | 依赖: 无 | 范围: legacy CLI 写审计快照根、curated 层零消费者、离线可执行模式 | 核心洞察: 三个被已闭 spec 循环移交或被 Rejected spec 遗留的残留面）+ 三节内容（每节：finding 证据 file:line、修复方向、可执行验收）：</li>
+<li><strong>F519/F513 legacy 路由快照根</strong>：证据 <code>src/shenbi/dispatcher/executor.py:31-32</code>（<code>PROJECT_DIR = REPO_ROOT</code>）、<code>:309/:334</code>（<code>snapshot_tree(PROJECT_DIR, …)</code>）、<code>dispatcher/cli.py:11</code> legacy import、<code>tests/unit/dispatcher/test_executor_audit.py:18/:42</code> monkeypatch 掩蔽；方向 = 快照根对齐派发项目目录（生产面 dispatch_helper Tier B wrapper 已正确的语义）+ 揭掩蔽测试；验收 = <code>uv run pytest tests/unit/dispatcher/ -q</code> 绿 + 新断言不 monkeypatch PROJECT_DIR 也能定位项目根</li>
+<li><strong>F311 curated 零消费者</strong>：证据 <code>chapter_loop.py:1562</code>、<code>cli.py:1078-1080</code> 只写不读（grep 全仓零读方）；方向 = wire（context assembly 消费）或 remove（连写方一并清理）二选一裁决；验收 = 裁决落 spec 修订 + 对应接线/删除的回归测试</li>
+<li><strong>T1108 离线可执行模式</strong>：设计裁决项（internal 硬拒无 LLM、replay 非派发 stub）；方向 = 裁决做/不做/DEFER；验收 = 裁决记录 + 若做则离线 stub 的 T1 测试</li>
+<li>正文引用总纲一律「spec #40 收官 pass」措辞（无裸文件名）</li>
+<li>[x] <strong>Step 2: INDEX 登记</strong>——<code>### #67 · 孤儿残留收口（F519/F513 + F311 + T1108）</code> 节（文件/系列/状态 Design/优先级 🟠 P1/方法/依赖 无/内容 三行摘要）插入 #40 节之后；头部「活跃 spec 数」1→2、最后更新行追加登记注记</li>
+<li>[x] <strong>Step 3: 验证</strong> <code>uv run python tools/count_active_specs.py</code> 期望输出活跃 2 一致；<code>grep -c '2026-09-18-orphan-residuals-closure' docs/superpowers/specs/INDEX.md</code> == 1</li>
+<li>[x] <strong>Step 4: Commit</strong> <code>docs(specs): register spec #67 orphan-residuals closure (F519/F513 + F311 + T1108) — spec #40 closure pass registration)</code>（显式列两文件）</li>
+<li>[x] <strong>Step 5: 产出 audit-T3.md</strong></li>
+</ul>
+<h3 id="task-4-index">Task 4: 总纲终稿 + 双库归档 + INDEX 终态</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/specs/2026-08-16-audit-remediation-master.md</code>（头部 Status 定稿、§7 归档前注、§8→新增收官记录节）
+- Move: 该文件 → <code>docs/superpowers/specs/archive/</code>；本 plan → <code>docs/superpowers/plans/archive/</code>
+- Modify: <code>docs/superpowers/specs/INDEX.md</code>（#40 删行、头部终态）、<code>docs/superpowers/plans/INDEX.md</code>（归档计数 121→122、头部）</p>
+<p><strong>Interfaces:</strong> Consumes: T1-T3 终态。Produces: 活跃队列仅 #67；归档核验基线。</p>
+<ul>
+<li>[x] <strong>Step 1: 总纲三处编辑</strong></li>
+<li>头部 Status 链尾追加：<code>· 收官 pass Done — 2026-09-18（37 簇全闭 + 回写补齐 44 行 + 孤儿裁决登记 #67；§5「直到全部簇关闭」保留条件到期，随本 PR 归档）</code></li>
+<li>§7 节首（<code>spec 文件名为 2026-08-16 落盘实名</code> 行前）插入：<code>&gt; 归档注记（2026-09-18）：本文件自 specs/ 移入 specs/archive/；下文 archive/&lt;name&gt; 引用为作者时点相对路径，基名不变仍可检索。</code></li>
+<li>文件末尾新增 <code>## 9. 收官记录（2026-09-18 · 收官 pass）</code>：回写补齐清单（08-15 侧 37 行处置：34 关闭（30 簇行 + G×4）+ 3 改注（F519 纠偏/F311/T1108 re-home）；F401/F408 接受 out-of-cluster 终态不编辑；08-14 侧 T12×6 镜像关闭 + F513 re-home + F1204/F1205 frozen-run 出界声明一句——合计 44 行编辑；08-14 F415 行号漂移面已由 #42 R4 吸收（08-15 F415 孪生已关），frozen-run 政策不出回写面）；孤儿清单映射（legacy 快照根→#67、curated 零消费者→#67、T1108→#67、T1608 增量化→deviation 可复活、C28 token 架构→deviation（产品裁决后另立 spec））；终态约定（08-15 非 closed 字样行 = 3 re-homed open + 17 C18 merged 记法 + 2 out-of-cluster 终态；零 bare verified）；#67 登记声明（仅登记不实施，先例 2026-09-11 登记 #66）；文件名引用处置（6 处 append-only 历史引用：4 归档 plan + final-report.md + 本 pass plan（随本 PR 归档），基名可寻不改写）</li>
+<li>[x] <strong>Step 2: 归档移动</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>mv<span class="w"> </span>docs/superpowers/specs/2026-08-16-audit-remediation-master.md<span class="w"> </span>docs/superpowers/specs/archive/2026-08-16-audit-remediation-master.md
+git<span class="w"> </span>mv<span class="w"> </span>docs/superpowers/plans/2026-09-18-spec40-master-closure.md<span class="w"> </span>docs/superpowers/plans/archive/2026-09-18-spec40-master-closure.md
+</code></pre></div>
+<ul>
+<li>[x] <strong>Step 3: INDEX 终态</strong>——specs/INDEX.md：删 #40 整节；头部活跃 2→1、最后更新改写（收官注记 + 现序 #67）。plans/INDEX.md：头部活跃（此时无活跃 plan——本 plan 随 PR 归档）与已归档 121→122、最近归档项追加本 plan。</li>
+<li>[x] <strong>Step 4: 全量验证（阶段 7 前置 + 验收覆盖）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/count_active_specs.py<span class="w">        </span><span class="c1"># 期望 1（#67）</span>
+git<span class="w"> </span>grep<span class="w"> </span>-l<span class="w"> </span><span class="s1">&#39;2026-08-16-audit-remediation-master.md&#39;</span><span class="w"> </span><span class="c1"># 期望恰 6 文件 = {4 旧归档 plan, 本 pass 归档 plan, final-report.md}；specs/INDEX.md 与 plans/（活跃区）不得出现</span>
+just<span class="w"> </span>audit-lint<span class="w">                                   </span><span class="c1"># 绿</span>
+just<span class="w"> </span>check<span class="w">                                        </span><span class="c1"># EXIT=0（含 docs workflow 面 mkdocs --strict）</span>
+</code></pre></div>
+<p>（基线实测 2026-09-18：pass 前 7 处 = 4 旧归档 plan + final-report + 活跃 INDEX #40 行 + 本 plan 自身（Task 0 已跟踪）；pass 后仍 6 处，组成换为本 plan（随 PR 归档）替换 INDEX 行。总纲自身零自引。）
+- [x] <strong>Step 5: Commit + PR 流</strong>——commit <code>docs(archive): spec #40 master closure done — 37-cluster program complete, ledger backfilled, spec #67 registered</code>（显式列全部涉及文件）；PR 描述含价值裁决摘要 + spec-deviations 全文 + ledger 摘要；<code>gh pr create</code> 取得 PR 号后，追加一个小 commit 将总纲头部 Status 链尾的「随本 PR 归档」补为「随 PR #N 归档」再 push（CI 重跑）
+- [x] <strong>Step 6: 产出 audit-T4.md</strong></p>
+<h2 id="spec-task">验收覆盖表（spec/设计验收 → task → 验证命令）</h2>
+<table>
+<thead>
+<tr>
+<th>验收</th>
+<th>Task</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>08-15 回写补齐（37 行编辑全处置）</td>
+<td>T1</td>
+<td>Step 3 三 grep（0/0/3）+ closed 增量 +34</td>
+</tr>
+<tr>
+<td>08-14 跨轮卫生（T12×6 + F513）</td>
+<td>T2</td>
+<td>Step 3 逐行 grep</td>
+</tr>
+<tr>
+<td>#67 登记且仅登记</td>
+<td>T3</td>
+<td>count_active_specs==2（中间态）+ INDEX grep</td>
+</tr>
+<tr>
+<td>总纲终稿归档 + 活跃队列正确</td>
+<td>T4</td>
+<td>count_active_specs==1 + git grep locus 集合 + just check EXIT=0</td>
+</tr>
+<tr>
+<td>lint 不回归</td>
+<td>T1/T4</td>
+<td>just audit-lint 绿</td>
+</tr>
+</tbody>
+</table>
+<h2 id="self-review">Self-Review</h2>
+<ul>
+<li>覆盖：设计 v4 全部行动项（33+2+4+6+1 行、#67、终稿、归档、终态约定）均有 task 与命令 ✓</li>
+<li>无占位符：注记全文在映射表，脚本机制明确 ✓</li>
+<li>一致性：<code>spec #67</code> 计数判据与映射表三处出现点吻合；T4 中间态活跃数 2 与终态 1 区分声明 ✓</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
