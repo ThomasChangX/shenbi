@@ -15,9 +15,9 @@
 
 ### #91 · 状态与并发纪律（state-and-concurrency-discipline）
 
-- **文件**：`2026-11-01-spec91-state-concurrency-discipline.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.2） ｜ **优先级**：🟠 P1
-- **依赖**：与 #87 的 chapter_loop 调用点撞面时 #87 先行、本 spec 适配新结构
-- **内容**：gate_passed 单源（5 定义 SKIP 语义分歧收敛，容忍度逐点显式 + characterization 钉死）+ 失败协议纯函数共享（**r2.2：复用既有 classify_dispatch_failure——r2 的 is_deterministic_failure(gate_result) 系凭空新造**；genesis 补传 failure_class）+ ledger_archive 锁窗口闭合（**确定性红测重设计：注入 _section_fields；红绿两测形态不同**）+ dispatch_helper outline 合并同修 + **retry 助手接线**（increment_retry/reset_retry 接线；**新增 increment_retry_budget——charge 是幂等 max 不能承接串行增量**）+ retry_feedback 10 处裸写回归封装（含 pop 与 triggers/cli 点）+ dispatch_with_retry 正名/run_post_draft_pair 改名（**semaphore 改可选+nullcontext**）/信号量戏法删除
+- **文件**：`2026-11-01-spec91-state-concurrency-discipline.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r2.3** 2026-11-15 价值门驳斥修订） ｜ **优先级**：🟠 P1
+- **依赖**：与 #87 的 chapter_loop 调用点撞面时 #87 先行、本 spec 适配新结构（**#87 已完结 2026-11-13，约束满足，r2.3 已按拆分后新树重锚**）
+- **内容**：gate_passed 单源（**r2.3：判定面 8 点**——5 定义 + phase_runner:146/cli:223/:255 三漏网直比；SKIP 语义分歧收敛容忍度逐点显式 + characterization 钉死 + **比较侧 AST lint 守卫**封绕行）+ 失败协议纯函数共享（**r2.2 复用既有 classify_dispatch_failure**；**r2.3 安放改判 contracts 层主选**[status.py 保纯叶给 T1]/dispatch_helper re-export 保消费面；genesis 补传 failure_class；**差异表预判非空挂用户裁定**——rc=2 现 genesis 烧满 3 次重试 vs chapter_loop 零重试）+ ledger_archive 锁窗口闭合（确定性红测注入 _section_fields；红绿两测形态不同；**r2.3 附 path_lock 不可重入 docstring 警告**）+ dispatch_helper outline 合并同修（锁内重读重验锚）+ **retry 助手接线**（increment_retry/reset_retry 接线；新增 increment_retry_budget——charge 是幂等 max 不能承接串行增量）+ retry_feedback 裸写回归封装（**r2.3 清单：赋值 12 点+裸 pop 已收编 4/5 残余 :2416+域外 triggers:746/cli 两点**；accumulate_retry_feedback 系内容封装不可升格为锁存取器，正交组合）+ **r2.3 范围缩减**：dispatch_with_retry/dispatch_serial_reviews 两正名已由 #87 偿还划除，余 run_post_draft_pair 改名（semaphore 改可选+nullcontext）/Semaphore(1) 戏法删除
 - **对应 plan**：待执行时建
 - **触及的不变量维度**：无（运行时状态纪律；SKIP 语义 characterization 先行）
 
