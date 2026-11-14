@@ -381,7 +381,6 @@ def build_checkers() -> dict[str, Any]:
     actual construction so they cannot silently drift (F1017 recurrence guard).
     """
     from shenbi.gates.g4.anti_detect import g4_anti_detect
-    from shenbi.gates.g4.anchor_curate import g4_anchor_curate
     from shenbi.gates.g4.book_spine_init import g4_book_spine_init
     from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
     from shenbi.gates.g4.chapter_planning import g4_chapter_planning
@@ -418,7 +417,6 @@ def build_checkers() -> dict[str, Any]:
         return make_composite_checker(base, g4_decisions, pred)
 
     checkers: dict[str, Any] = {
-        "shenbi-anchor-curate": g4_anchor_curate,
         "shenbi-anti-detect": g4_anti_detect,
         "shenbi-chapter-drafting": comp(g4_chapter_drafting, "shenbi-chapter-drafting"),
         "shenbi-chapter-planning": comp(g4_chapter_planning, "shenbi-chapter-planning"),
