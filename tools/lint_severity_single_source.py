@@ -29,7 +29,9 @@ SCAN_DIRS = (
     REPO / "src" / "shenbi" / "contracts",
     REPO / "tools",
 )
-ALLOWED_FILE = "severity.py"
+#: Single allowed site by RESOLVED PATH (audit-S8 round 3: a bare basename
+#: check let a same-named severity.py elsewhere bypass the guard).
+ALLOWED_PATH = (REPO / "src" / "shenbi" / "contracts" / "severity.py").resolve()
 SEV_WORDS = ("BLOCKING", "CRITICAL", "MINOR", "WARNING", "ERROR")
 RE_FUNCS = ("compile", "search", "match", "fullmatch", "findall", "sub", "subn", "split")
 
@@ -113,7 +115,7 @@ def main() -> int:
     violations: list[str] = []
     for scan_dir in SCAN_DIRS:
         for py in sorted(scan_dir.rglob("*.py")):
-            if py.name == ALLOWED_FILE:
+            if py.resolve() == ALLOWED_PATH:
                 continue
             rel = py.relative_to(REPO)
             violations.extend(check_tree(ast.parse(py.read_text(encoding="utf-8")), str(rel)))
