@@ -69,9 +69,13 @@ module-coverage:
     uv run python tools/check_module_coverage.py coverage.json
 
 # Run the fast test suite (all not-last tests; spec #92 T3 merged test/test-all;
-# -p no:randomly pins order until the pytest-randomly flake root-fix spec lands)
+# -p no:randomly pins order until the pytest-randomly flake root-fix spec lands).
+# NOTE: no --dist loadscope here — macOS xdist's loadscope scheduler hits a
+# probabilistic INTERNALERROR (WorkerController KeyError) under just-nesting;
+# default load grouping completes reliably (known 束7 flake family, root-fix
+# specced separately).
 test *args:
-    uv run pytest -n auto --dist loadscope -m "not last" --no-cov -p no:randomly "$@"
+    uv run pytest -n auto -m "not last" --no-cov -p no:randomly "$@"
 
 # Run a single test file
 test-file file:
