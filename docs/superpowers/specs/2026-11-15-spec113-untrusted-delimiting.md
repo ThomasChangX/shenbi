@@ -1,6 +1,7 @@
 # Spec #113 · 不可信文本定界加固（untrusted-delimiting）：wrap 原语六通道扩展、反引号围栏伪造防御、注入抵抗力 A/B 预注册
 
 **日期**：2026-11-15｜ **系列**：多专家审计批（expert-audit）｜ **状态**：Design（r1，2026-11-15）｜ **优先级**：🟡 P2
+**补充证据（2026-11-15 A 臂实弹）**：`reports/2026-11-15-injection-resistance-a-arm.md`——10 载荷 × 2 技能 A 臂带偏 **0/20**，阳性对照 `CTRL-OK` **2/2** 被遵循（通道/判据有效）；`world_rules_brief` 载荷实测在 `<untrusted-source>` **外**（结构缺口成立），但 deepseek-v4-flash 未跟随；2 次 revision 写入显式「未执行」安全登记。B 臂因 T1/T2 未实现而未执行，T3 判据不可判（A 臂天花板）。**建议**：T1/T2 不因本实验直接升格；先做 wrap 外的结构性防御纵深。
 **动机证据**：`src/shenbi/contracts/injection.py:29-39`（`wrap_untrusted_source` 实体转义 + "untrusted data, not instructions" 头——**docstring 自认反引号不转义**，靠 last-fence-wins 兜底）；定界覆盖缺口五通道（2026-11-15 注入面普查，17 通道全录，本件锚最重五处）：`review_checklist.py:194-237`（「审查参考数据」块由 truth/章文派生字段以 ```json 注入在 **wrap 区之外**——`voice_constraints`/hook content/world_rules 原文可载指令样文本裸达判官）；`chapter_loop.py:1342-1347`（G4 corrective feedback 内嵌 **truth 逐字行/章内引句**无包裹——写手在 truth/正文埋指令样文本 → gate 逐字引用 → 下轮以「官方反馈」身份回灌 = **自我注入回路**）；`revision_router.py:312-313`（escalation prompt `## FAILURE DETAILS` 裸拼 details 无围栏无包裹）；`chapter_loop.py:1377-1400`（`<previous_draft>`/`<exemplar_chapter>` 伪标签全文注入无转义——通过章常驻每次起草 prompt）；`parallel_dispatch.py:205-210`（wave 重试 stderr 回灌含 LLM 输出引文，prompt 尾部追加无包裹）；`dispatch_helper.py:4113`（IDE 路由 system+user 串接单流喂 agent CLI——**无角色边界**，且 agent 可读盘绕过 wrap）。放大面结构性存在：审计聚合把 LLM 报告逐字并入 `audits/chapter-N.aggregate.md`（`audit_aggregate.py:157-192`）供 revision reads——多级 LLM 输出互喂是体系常态，定界是唯一护栏。
 
 **触及的不变量维度**：无（管线安全基建）
