@@ -6,16 +6,16 @@ import json
 from pathlib import Path
 
 from shenbi.gates.g4.decisions_validator import g4_decisions
+from tests.support.dispatch_payload import decisions_payload
 
 
 class TestG4DecisionsValidation:
     def test_valid_decisions_passes(self, tmp_path: Path) -> None:
-        decisions = {
-            "$schema": "shenbi-decisions-v1",
-            "skill": "shenbi-context-composing",
-            "chapter": 5,
-            "produced_at": "2026-07-07T12:00:00Z",
-            "selections": [
+        decisions = decisions_payload(
+            "shenbi-context-composing",
+            5,
+            produced_at="2026-07-07T12:00:00Z",
+            selections=[
                 {
                     "target": "truth/audit_drift.md",
                     "selected": ["drift_1"],
@@ -24,7 +24,7 @@ class TestG4DecisionsValidation:
                     "omitted": [],
                 }
             ],
-        }
+        )
         fp = tmp_path / "chapter-5-context-decisions.json"
         fp.write_text(json.dumps(decisions), encoding="utf-8")
         result = g4_decisions([str(fp)])

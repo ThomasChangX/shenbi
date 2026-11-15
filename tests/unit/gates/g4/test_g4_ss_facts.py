@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.gates.g4.state_settling import g4_state_settling_check
+from tests.support.dispatch_payload import decisions_payload
 
 
 def _seed(tmp_path: Path, props: dict[str, Any], identity: dict[str, Any] | None = None) -> None:
@@ -42,12 +43,7 @@ def _seed(tmp_path: Path, props: dict[str, Any], identity: dict[str, Any] | None
 def _sidecar(tmp_path: Path, facts_ops: dict[str, Any] | None, chapter: int = 20) -> Path:
     p = tmp_path / "chapters" / "chapter-20-decisions.json"
     p.parent.mkdir(parents=True, exist_ok=True)
-    doc: dict[str, Any] = {
-        "$schema": "shenbi-decisions-v1",
-        "skill": "shenbi-state-settling",
-        "chapter": chapter,
-        "produced_at": "2026-10-28T00:00:00Z",
-    }
+    doc: dict[str, Any] = decisions_payload("shenbi-state-settling", chapter)
     if facts_ops is not None:
         doc["facts_ops"] = facts_ops
     p.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
