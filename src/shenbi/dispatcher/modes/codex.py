@@ -279,7 +279,7 @@ def dispatch_codex(
     # scoring dispatch — first production consumer of scoring_bridge.
     _record_collapse_check(round_dir, skill, test_type, scores)
 
-    # Repo-root-relative (the only CWD-dependent path left in the dispatcher).
+    # Repo root via the single-source paths.REPO_ROOT constant.
     repo_root = REPO_ROOT
     rubric_path = Path(
         os.environ.get("RUBRIC", str(repo_root / f"tests/tiers/t1-skill/{skill}/rubric.md"))

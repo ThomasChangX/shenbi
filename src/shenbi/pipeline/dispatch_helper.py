@@ -83,9 +83,9 @@ from shenbi.status import GateStatus
 
 log = get_logger(__name__)
 
-#: Repository root, resolved from this file's location (match gates/shared.py pattern).
+#: Repository root — alias of the single-source paths.REPO_ROOT (spec #92 T2b).
 #: Used to locate bundled skills/ directory independently of CWD.
-_PROJECT_ROOT = REPO_ROOT  # single-source alias (spec #92 T2b)
+_PROJECT_ROOT = REPO_ROOT
 
 #: Environment variable names
 _ENV_LLM_API_KEY = "SHENBI_LLM_API_KEY"

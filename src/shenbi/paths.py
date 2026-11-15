@@ -6,10 +6,11 @@ bare-string path joins and silent CWD fallbacks.
 
 from __future__ import annotations
 
-# REPO_ROOT binds BEFORE the contracts import below: gates.shared (imported
-# transitively via shenbi.contracts -> ... -> g4.generic -> gates.shared)
-# imports REPO_ROOT from this module, so it must exist on the partially
-# initialized module when that import cycle re-enters paths (spec #92 T2b).
+# REPO_ROOT binds before any other project imports as defense-in-depth.
+# The paths->contracts->registry->gates.shared->paths import cycle is severed
+# by the LAZY import in _resolve below — do NOT hoist that import back to
+# module top (entering via contracts.loader first would re-activate the cycle
+# and loader.py needs PROJECT from a still-partial gates.shared) (spec #92 T2b).
 from pathlib import Path
 from typing import Final
 
