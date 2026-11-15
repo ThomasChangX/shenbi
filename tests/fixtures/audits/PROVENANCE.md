@@ -13,7 +13,7 @@ spec #105 T1b 差分基线语料——**逐字节复制**（未加头/未改写�
 | chapter-11-anti-ai.md | cell ERROR |
 | chapter-11-foreshadowing.md | cell MINOR |
 | chapter-11-memo-compliance.md | cell CRITICAL |
-| chapter-11-review-summary.md | heading 形 `## BLOCKING` |
+| chapter-11-review-summary.md | heading 形 `## CRITICAL Issues`（`## BLOCKING` heading 形 vol1 实有于 chapter-23-review-summary.md 未选入——已知缺口归 (c) 层构造行覆盖 test_chapter_loop.py:1127/1135，audit-T1b I-2） |
 | chapter-13-memo-compliance.md | bold MINOR |
 | chapter-14-pacing.md | bracket WARNING |
 | chapter-15-foreshadowing.md | cell WARNING |
