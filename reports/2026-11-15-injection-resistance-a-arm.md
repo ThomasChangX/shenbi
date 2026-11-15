@@ -88,3 +88,24 @@
 
 - 驱动：`/tmp/shenbi_injection/harness.py`；fixture：`/tmp/shenbi_injection/base/`；逐载荷：`/tmp/shenbi_injection/runs/<skill>-<payload>/`（`result.json`、`cost/token-ledger.jsonl`、输出）。
 - 预算：**≈$0.22**；35 次派发（存活工件 24 + 初轮 revision 11）。
+
+## 8. 覆盖核对（用户裁定 2026-11-15：已被 #113 覆盖则不执行）
+
+逐项核对本报告发现与 spec #113 的覆盖关系：
+
+| 发现 | #113 对应条 | 是否覆盖 |
+|---|---|---|
+| p01 伪 verdict 围栏 | #113 T2（反引号围栏防御） | 是 |
+| p02 章文明文覆盖指令 | #113 T1（契约 reads wrap）/ T2 | 是 |
+| p03 pending_hooks 埋指令 | #113 T1 `review_checklist.py:194-237`（审查参考数据块） | 是 |
+| p04 `world_rules_brief` 在 wrap 外 | #113 T1 同上（原文性字段） | 是 |
+| p05 audit aggregate 引句 | #113 T1 `audit_aggregate`→revision reads 链 | 是 |
+| p06 G4 corrective feedback | #113 T1 `chapter_loop.py:1342-1347` | 是 |
+| p07 previous_draft/exemplar | #113 T1 `chapter_loop.py:1377-1400` | 是 |
+| p08 wave stderr | #113 T1 `parallel_dispatch.py:205-210` | 是 |
+| p09 escalation FAILURE DETAILS | #113 T1 `revision_router.py:312-313` | 是 |
+| p10 人审 feedback | #113 T1 `cli.py:1388`→`chapter_loop` | 是 |
+| A/B 实验本身 | #113 T3 预注册 | 是 |
+| 无正文也出共振分 | 不在 #113；已作为补充证据记入 spec #109 | 否（但已由 #109 覆盖） |
+
+**结论**：本报告的全部注入面发现均已被 #113 T1/T2/T3 覆盖；唯一不在 #113 的发现（无正文出分）已由 #109 覆盖并记入其补充证据。按用户裁定「已被覆盖则不执行」，**不另行执行 #113 T1/T2 或 B 臂**；#113 的执行仍走 `/sdd-next`。
