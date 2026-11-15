@@ -306,7 +306,7 @@ def test_no_parents_magic_in_src() -> None:
         capture_output=True,
         text=True,
     )
-    hits = [l for l in result.stdout.splitlines() if "paths.py" not in l]
+    hits = [line for line in result.stdout.splitlines() if "paths.py" not in line]
     assert hits == [], f"parents[N] survivors: {hits}"
 ```
 
