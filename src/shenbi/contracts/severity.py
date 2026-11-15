@@ -56,8 +56,9 @@ ROUTING_CRITICAL_BRACKET_WORDS: tuple[str, ...] = ("CRITICAL", *ROUTING_HARD_TIE
 SEV_ENUM_TAIL = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
 
 #: 零声明守卫（F-5/probe22 #010）：bracket 载荷恰为否定词 = 零声明。
-_NEGATION_WORDS = r"(?:(?:无|暂无|没有)|(?i:none|n/?a)|0)"
-NEGATION_PAYLOAD_TAIL = rf"(?!\s*{_NEGATION_WORDS}\s*[。.!！]?\s*$)"
+#: 公开导出：revision_router.is_negation_payload 的 fullmatch 基底。
+NEGATION_WORDS = r"(?:(?:无|暂无|没有)|(?i:none|n/?a)|0)"
+NEGATION_PAYLOAD_TAIL = rf"(?!\s*{NEGATION_WORDS}\s*[。.!！]?\s*$)"
 
 #: 引号值守卫（#18-1/probe23）：紧随闭引号 = 模板字面量里的值，非声明。
 QUOTED_VALUE_TAIL = r'(?!\*{0,2}")'

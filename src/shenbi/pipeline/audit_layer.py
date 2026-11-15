@@ -23,6 +23,7 @@ from pathlib import Path
 from collections.abc import Callable, Mapping
 
 from shenbi.config.thresholds import resolve_audit_dimensions
+from shenbi.contracts.severity import ROUTING_HARD_TIER_ALIASES
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.status import gate_passed
@@ -35,7 +36,9 @@ AUDIT_DIR = "audits"
 #: Legacy hard-tier label from the review templates (fixcheck ch1): the
 #: bracketed ``- [ERROR]`` finding line. Matched as a structured bracket
 #: label only, so prose that merely mentions "ERROR" does not trip it.
-_ERROR_LABEL_RE = re.compile(r"^\s*-\s*\[ERROR\]", re.M)
+#: spec #105 T1b: 词组自 contracts.severity 别名单源组合（单字标签——AST lint
+#: 只防交替字面量的已知豁免口，import 证明覆盖）。
+_ERROR_LABEL_RE = re.compile(r"^\s*-\s*\[(" + "|".join(ROUTING_HARD_TIER_ALIASES) + r")\]", re.M)
 
 # ---------------------------------------------------------------------------
 # Genre-circle activation matrix (spec section 6.2)

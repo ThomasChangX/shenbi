@@ -67,8 +67,8 @@ from shenbi.pipeline.crash_recovery import (
     register_emergency_handlers,
 )
 from shenbi.pipeline.machine import save_state, set_checkpoint
+from shenbi.contracts.severity import NEGATION_PAYLOAD_TAIL
 from shenbi.pipeline.revision_router import (
-    NEGATION_PAYLOAD_TAIL,
     RevisionRoute,
     check_resonance,
     collect_audit_issues,
@@ -76,6 +76,10 @@ from shenbi.pipeline.revision_router import (
     route_chapter_revision,
 )
 from shenbi.contracts.enums import FailureClass
+from shenbi.contracts.severity import (
+    ROUTING_HARD_TIER_ALIASES,
+    ROUTING_TIERS,
+)
 from shenbi.pipeline.dispatch_helper import classify_dispatch_failure
 from shenbi.pipeline.state import (
     ChapterLoopStateData,
@@ -669,15 +673,17 @@ CASCADE_STREAK_LENGTH = 3  # N=3
 #: once to refresh the evidence.
 CASCADE_REVERIFY_GAP = 5
 
+# spec #105 T1b: heading/bracket 词组自 contracts.severity 单源组合（FAIL 为
+# GateStatus 渗漏非 severity 词表——本地字面量合法；两处词组展开后与原正则逐字符一致）。
 _BLOCKING_MARKER_RE = re.compile(
-    r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|CRITICAL|FAIL)\b)"
+    r"(?:^#{0,3}\s*##?\s*(?:" + "|".join((*ROUTING_TIERS, "FAIL")) + r")\b)"
     r"|(?:\|\s*\*\*BLOCKING\*\*)"
     # fixcheck ch1: bracketed template labels (enums form + legacy [ERROR]
     # hard tier) must count toward per-skill hard_failures — the cascade
     # streak logic and wave retry budget both consume this marker.
     # F-5 (probe22): a zero-declaration line (``- [BLOCKING] 无``) is the
     # report saying it has NO findings — end-anchored negation tail.
-    rf"|(?:^\s*-\s*\[(?:BLOCKING|CRITICAL|ERROR)\]"
+    r"|(?:^\s*-\s*\[(?:" + "|".join((*ROUTING_TIERS, *ROUTING_HARD_TIER_ALIASES)) + r")\]"
     rf"{NEGATION_PAYLOAD_TAIL})",
     re.M,
 )

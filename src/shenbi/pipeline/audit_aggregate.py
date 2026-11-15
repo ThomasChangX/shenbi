@@ -24,6 +24,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from shenbi.logging import get_logger
+from shenbi.contracts.severity import AGGREGATE_VOCAB, SEV_ENUM_TAIL
 from shenbi.pipeline.revision_router import AUDIT_DIR, is_negation_payload
 from shenbi.safe_write import safe_write
 
@@ -31,10 +32,10 @@ log = get_logger(__name__)
 
 AGGREGATE_SUFFIX = ".aggregate.md"
 
-#: Severity vocabulary shared by every anchored marker form. MINOR joined
-#: when the 21 review templates migrated to the enums vocabulary
-#: (BLOCKING/CRITICAL/MINOR brackets — commit b748f048).
-_SEV_WORDS = r"BLOCKING|CRITICAL|MINOR|WARNING|ERROR"
+#: Severity vocabulary shared by every anchored marker form — single source
+#: (spec #105 T1b). MINOR joined when the 21 review templates migrated to
+#: the enums vocabulary (BLOCKING/CRITICAL/MINOR brackets — commit b748f048).
+_SEV_WORDS = "|".join(AGGREGATE_VOCAB)  # spec #105 T1b: 词表单源组合
 #: Anchored finding markers (fixcheck ch2: the former bare ``\bWORD\b``
 #: IGNORECASE sensor counted the review-summary's counter lines
 #: (``- **BLOCKING Issues**: 2``), its per-report echoes, severity LABEL
@@ -54,7 +55,8 @@ _CELL_RE = re.compile(rf"(?:^|\|)\s*({_SEV_WORDS})\s*(?:\||$)", re.IGNORECASE)
 # CRITICAL / MINOR``, numbered list so _LABEL_ONLY_RE does not catch it) is
 # not a finding — reject values that continue an enum list (same guard as
 # revision_router / parallel_dispatch severity sensors).
-_ENUM_TAIL = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
+# spec #105 T1b: enum-tail 单源（contracts.severity.SEV_ENUM_TAIL 原文迁出）。
+_ENUM_TAIL = SEV_ENUM_TAIL
 _KEY_RE = re.compile(
     rf"(?:\*\*)?\s*(?:severity|严重度)\s*(?:\*\*)?\s*[：:]\s*({_SEV_WORDS})\b{_ENUM_TAIL}",
     re.IGNORECASE,

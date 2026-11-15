@@ -360,28 +360,26 @@ def consolidate_review_results(
         # the templates ('- [ERROR]' hard tier) and the sensors (BLOCKING/
         # CRITICAL literals) — bracketed labels are now sensed alongside the
         # enums forms so real hard findings cannot vanish into a zero summary.
-        # probe6 ch1: same enum-list guard as revision_router's severity
-        # sensors — a FORMAT DOCUMENTATION legend (``4. **严重度**：BLOCKING
-        # / CRITICAL / MINOR``) must not open a ``## BLOCKING Issues``
-        # section in the summary.
-        _enum_tail = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
-        # F-5 (probe22): bracket forms must not count a zero-declaration
-        # line (``- [BLOCKING] 无``) as a finding — shared negation tail.
-        # #18-1 (probe23): key forms must not count a severity value quoted
-        # inside a JSON template literal (``"severity": "BLOCKING"``) —
-        # shared quoted-value tail from the router's sensors.
-        from shenbi.pipeline.revision_router import NEGATION_PAYLOAD_TAIL, QUOTED_VALUE_TAIL
+        # probe6/F-5/#18-1 三尾巴与词组单源（spec #105 T1b）：语义注记全文见
+        # contracts/severity.py（legend 守卫/零声明守卫/引号值守卫）。
+        from shenbi.contracts.severity import (
+            NEGATION_PAYLOAD_TAIL,
+            QUOTED_VALUE_TAIL,
+            ROUTING_BLOCKING_BRACKET_WORDS,
+            ROUTING_CRITICAL_BRACKET_WORDS,
+            SEV_ENUM_TAIL,
+        )
 
         blocking_re = _re.compile(
             rf"(?-i:\*\*BLOCKING\*\*)|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b"
-            rf"{_enum_tail}{QUOTED_VALUE_TAIL}"
-            rf"|^\s*-\s*\[BLOCKING\]{NEGATION_PAYLOAD_TAIL}",
+            rf"{SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
+            rf"|^\s*-\s*\[(?:{'|'.join(ROUTING_BLOCKING_BRACKET_WORDS)})\]{NEGATION_PAYLOAD_TAIL}",
             _re.IGNORECASE | _re.M,
         )
         critical_re = _re.compile(
             rf"(?-i:\*\*CRITICAL\*\*)|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b"
-            rf"{_enum_tail}{QUOTED_VALUE_TAIL}"
-            rf"|^\s*-\s*\[(?:CRITICAL|ERROR)\]{NEGATION_PAYLOAD_TAIL}",
+            rf"{SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
+            rf"|^\s*-\s*\[(?:{'|'.join(ROUTING_CRITICAL_BRACKET_WORDS)})\]{NEGATION_PAYLOAD_TAIL}",
             _re.IGNORECASE | _re.M,
         )
         for audit_file in sorted(audit_dir.glob(f"chapter-{chapter}-*.md")):

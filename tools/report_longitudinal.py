@@ -19,6 +19,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from shenbi.contracts.severity import SECTION_HEADER_RE
 from shenbi.cost.ledger import TokenLedger
 from shenbi.gates.shared import word_count_md
 from shenbi.pipeline.audit_aggregate import FindingUnit, extract_finding_units
@@ -555,7 +556,10 @@ def _parse_aggregate_sections(content: str) -> list[FindingUnit]:
     units: list[FindingUnit] = []
     sev: str | None = None
     for line in content.splitlines():
-        m = re.match(r"^## (BLOCKING|CRITICAL|WARNING|ERROR) Findings", line)
+        # spec #105 T1b: 节头词表单源（SECTION_HEADER_RE 含 MINOR——修复旧正则
+        # 缺 MINOR 致遇 `## MINOR Findings` 即 break、MINOR/WARNING/ERROR 三节
+        # 静默丢弃的纵向报告腐化）。
+        m = SECTION_HEADER_RE.match(line)
         if m:
             sev = m.group(1)
             continue
