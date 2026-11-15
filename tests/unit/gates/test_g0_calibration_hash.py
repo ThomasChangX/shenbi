@@ -11,7 +11,7 @@ Function contract (mirrors the g0_purity tuple-returning helpers):
     ``(checks, fail_reason_or_None, must_fix)``.
 
     Failure modes:
-      * key missing from deps.json -> FAIL, hint: run tests/lock-tool-hashes.sh
+      * key missing from deps.json -> FAIL, hint: run tests/lock-calibration-hash.sh
       * hash mismatch             -> FAIL, hint: tamper/drift detected
       * match                     -> PASS
 """
@@ -34,7 +34,7 @@ def _write_deps(deps_path: Path, combined: str | None) -> dict[str, Any]:
 
     If ``combined`` is None the key is omitted entirely (missing-lock case).
     """
-    deps: dict[str, Any] = {"_tool_hashes": {}}
+    deps: dict[str, Any] = {}
     if combined is not None:
         deps["_calibration_hashes"] = {"combined": combined}
     deps_path.write_text(json.dumps(deps, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -83,7 +83,7 @@ def test_missing_lock_entry_fails_with_hint(tmp_path: Path) -> None:
     checks, fail_reason, must_fix = check_calibration_integrity(cal_dir, deps)
     assert fail_reason is not None
     assert checks[0]["s"] == "FAIL"
-    assert any("lock-tool-hashes.sh" in m for m in must_fix), must_fix
+    assert any("lock-calibration-hash.sh" in m for m in must_fix), must_fix
 
 
 @pytest.mark.unit
@@ -106,7 +106,7 @@ def test_tamper_then_restore(tmp_path: Path) -> None:
     assert fail_reason is not None
     assert checks[0]["s"] == "FAIL"
     assert checks[0]["r"].lower().startswith("calibration")  # terse FAIL reason
-    assert any("lock-tool-hashes.sh" in m for m in must_fix), must_fix
+    assert any("lock-calibration-hash.sh" in m for m in must_fix), must_fix
 
     # Restore: remove the anchor file, return to locked state.
     (cal_dir / "情感落地-high.md").unlink()

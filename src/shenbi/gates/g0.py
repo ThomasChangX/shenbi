@@ -184,7 +184,7 @@ def check_calibration_integrity(
     Compute a combined SHA256 over every file under ``calibration_dir``
     (recursively, excluding ``.gitkeep``) and compare to the locked value
     at ``deps_path._calibration_hashes.combined``. Mirrors the existing
-    ``_tool_hashes`` integrity pattern.
+    calibration lock in tests/lock-calibration-hash.sh.
 
     Returns ``(checks, fail_reason_or_None, must_fix)`` so it composes with
     the other tuple-returning G0 sub-checks. Failure modes:
@@ -215,7 +215,7 @@ def check_calibration_integrity(
         return (
             [{"id": "G0.14", "s": GateStatus.FAIL, "r": f"deps.json unreadable: {deps_path}"}],
             "deps.json unreadable",
-            ["G0.14: repair tests/tiers/deps.json then run tests/lock-tool-hashes.sh"],
+            ["G0.14: repair tests/tiers/deps.json then run tests/lock-calibration-hash.sh"],
         )
 
     locked = deps.get("_calibration_hashes", {}).get("combined")
@@ -229,10 +229,10 @@ def check_calibration_integrity(
                 }
             ],
             "_calibration_hashes.combined missing from deps.json",
-            ["G0.14: run tests/lock-tool-hashes.sh to lock calibration anchor hashes"],
+            ["G0.14: run tests/lock-calibration-hash.sh to lock calibration anchor hashes"],
         )
 
-    # Accept both bare hex and the "sha256:<hex>" envelope used by _tool_hashes.
+    # Accept both bare hex and the "sha256:<hex>" envelope.
     expected = locked.split(":", 1)[1] if str(locked).startswith("sha256:") else str(locked)
 
     if actual != expected:
@@ -248,7 +248,7 @@ def check_calibration_integrity(
                 }
             ],
             "calibration anchor hash mismatch",
-            ["G0.14: re-run tests/lock-tool-hashes.sh after intentional anchor changes"],
+            ["G0.14: re-run tests/lock-calibration-hash.sh after intentional anchor changes"],
         )
 
     return (

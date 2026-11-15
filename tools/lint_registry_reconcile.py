@@ -20,10 +20,6 @@ R2 invariants (word-list closure):
   F1106/F1152 class); hardcoded ``truth/…`` literals in src/shenbi are WARN-only
   when absent from the word list.
 
-R3 invariant: deps.json ``_tool_hashes`` entries are fresh (sha256 envelope per
-tests/lock-tool-hashes.sh; entries whose target file is absent from the linted
-tree are skipped — temp-copy semantics, plan r3 I3).
-
 R5 invariant: within a t2 phase, no checker glob pattern's file set strictly
 contains another same-phase checker's specialized glob (equal patterns and
 literal-contained patterns are exempt — plan r2/r3 rulings). The broad-glob-
@@ -42,7 +38,6 @@ from __future__ import annotations
 
 import argparse
 import ast
-import hashlib
 import json
 import re
 import sys
@@ -417,26 +412,6 @@ def _r2_orphan_warn(repo: Path, concepts: list[dict[str, str]]) -> None:
 # ------------------------------------------------------------- R3 face --
 
 
-def _r3_hash_freshness(repo: Path) -> list[str]:
-    """_tool_hashes entries fresh (sha256 envelope; absent targets skipped)."""
-    deps = _deps(repo)
-    hashes = deps.get("_tool_hashes")
-    if not isinstance(hashes, dict):
-        return []
-    errs: list[str] = []
-    stale: list[str] = []
-    for rel, expected in hashes.items():
-        target = repo / str(rel)
-        if not target.exists():
-            continue  # temp-copy semantics (plan r3 I3)
-        digest = hashlib.sha256(target.read_bytes()).hexdigest()
-        if expected != f"sha256:{digest}":
-            stale.append(str(rel))
-    if stale:
-        errs.append(f"[R3] _tool_hashes: stale[{len(stale)}]: {stale[:10]}")
-    return errs
-
-
 # -------------------------------------------------------------- R5 face --
 
 
@@ -489,7 +464,6 @@ def lint_registry_reconcile(repo: Path, allow_missing: frozenset[str] = frozense
     errs: list[str] = []
     errs += _r1_skill_closure(repo, allow_missing)
     errs += _r2_word_list(repo)
-    errs += _r3_hash_freshness(repo)
     errs += _r5_glob_validity(repo)
     return errs
 

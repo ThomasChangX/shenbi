@@ -65,7 +65,6 @@ def test_real_has_all_top_level_keys():
     d = _load()
     assert set(d.t2_phases)  # non-empty
     assert set(d.t3_pipelines)
-    assert d.tool_hashes  # _tool_hashes
     assert d.out_of_pipeline  # _out_of_pipeline
     assert d.calibration_hashes  # _calibration_hashes
 
@@ -103,7 +102,6 @@ def test_populate_by_name_roundtrip():
         {
             "t2-phases": {"genesis": {"prerequisites": ["s1"]}},
             "t3-pipelines": {"long-form": {"min_chapter_ratio": 0.5}},
-            "_tool_hashes": {"a": "h"},
             "_out_of_pipeline": {"t1_only_auxiliary": ["s2"], "_note": "n"},
             "_calibration_hashes": {"combined": "h2"},
         }
@@ -146,6 +144,5 @@ def test_deps_doc_defaults():
     d = DepsDoc.model_validate({})
     assert d.t2_phases == {}
     assert d.t3_pipelines == {}
-    assert d.tool_hashes == {}
     assert isinstance(d.out_of_pipeline, OutOfPipeline)
     assert d.calibration_hashes == {}

@@ -7,8 +7,9 @@ skill->phase lookup; the G3.1 prerequisite logic is deleted in a later task.
 
 Phase-0-verified facts reflected here:
 - top-level keys are hyphenated and several carry leading underscores
-  (``t2-phases``, ``t3-pipelines``, ``_tool_hashes``, ``_out_of_pipeline``,
-  ``_calibration_hashes``). Each maps to a snake_case python attribute via
+  (``t2-phases``, ``t3-pipelines``, ``_out_of_pipeline``,
+  ``_calibration_hashes`` — the G0.14 anchor lock). Each maps to a snake_case
+  python attribute via
   ``Field(alias=...)`` and ``populate_by_name=True``.
 - ``t2-phases`` is a DICT keyed by phase name (NOT a list). Each value is a
   :class:`PhaseDeps` with ``{prerequisites, expected_outputs, g4_checker,
@@ -59,7 +60,6 @@ class DepsDoc(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
     t2_phases: dict[str, PhaseDeps] = Field(default_factory=dict, alias="t2-phases")
     t3_pipelines: dict[str, PipelineDeps] = Field(default_factory=dict, alias="t3-pipelines")
-    tool_hashes: dict[str, str] = Field(default_factory=dict, alias="_tool_hashes")
     out_of_pipeline: OutOfPipeline = Field(default_factory=OutOfPipeline, alias="_out_of_pipeline")
     calibration_hashes: dict[str, str] = Field(default_factory=dict, alias="_calibration_hashes")
 

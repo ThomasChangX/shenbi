@@ -1,36 +1,8 @@
 #!/bin/bash
-# Lock current SHA256 hashes of tool scripts into deps.json.
-# Run after any intentional tool modification.
+# Lock the combined SHA256 of calibration anchors into deps.json.
+# Run after any intentional tests/fixtures/calibration change (G0.14 re-lock).
 set -euo pipefail
 PROJECT="$(cd "$(dirname "$0")/.." && pwd)"
-echo "=== Locking tool hashes ==="
-python3 -c "
-import json, hashlib
-from pathlib import Path
-project = Path('${PROJECT}')
-deps_path = project / 'tests' / 'tiers' / 'deps.json'
-deps = json.loads(deps_path.read_text(encoding='utf-8'))
-# PR-19 (P-1.E): validate-gate.py / scoring.py / phase-runner.py / summarize-round.py
-# moved to src/shenbi/. Hash the full src/shenbi/ tree so new helpers
-# (Wave 1+: revision_routing, escalation, etc.)
-# are auto-included without manual list maintenance.
-tool_paths = [
-    str(p.relative_to(project))
-    for p in (project / 'src' / 'shenbi').rglob('*.py')
-    if '__pycache__' not in str(p)
-]
-new = {}
-for rel in tool_paths:
-    p = project / rel
-    if p.exists():
-        h = hashlib.sha256(p.read_bytes()).hexdigest()
-        new[rel] = f'sha256:{h}'
-        print(f'  {rel}: {h}')
-deps['_tool_hashes'] = new
-deps_path.write_text(json.dumps(deps, indent=2, ensure_ascii=False) + '\n')
-print('Done.')
-"
-
 echo "=== Locking calibration anchor hashes ==="
 python3 -c "
 import json, hashlib
