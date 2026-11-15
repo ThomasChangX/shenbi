@@ -168,9 +168,12 @@ def test_load_deps_corrupt_fails(tmp_path: Path) -> None:
 
 
 def test_load_deps_extra_key_rejected(tmp_path: Path) -> None:
+    """Unknown top-level keys are rejected (extra=forbid; the retired
+    _tool_hashes key is gone from the schema — any rogue key proves it).
+    """
     from shenbi.contracts.schemas.deps import load_deps
 
     bad = tmp_path / "deps.json"
-    bad.write_text('{"_tool_hashes": {}}', encoding="utf-8")
+    bad.write_text('{"rogue_key": 1}', encoding="utf-8")
     with pytest.raises(ValidationError):
         load_deps(bad)
