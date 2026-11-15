@@ -1,10 +1,9 @@
 # Test Migration Record
 
-Existing test files have been adapted into the new T1 structure below. The original directories are kept for reference:
-
-- `tests/skill-behavior/` — original skill behavior tests
-- `tests/skill-triggering/` — original skill trigger tests
-- `tests/pressure-tests/` — original pressure tests
+Existing test files have been adapted into the new T1 structure below. The
+original directories were removed after migration (spec #92 T5, 2026-11-15 —
+`tests/skill-behavior/` and `tests/skill-triggering/` deleted; pressure-tests
+was removed earlier); this record preserves the mapping:
 
 ## Migration Mapping
 
@@ -68,7 +67,7 @@ Existing test files have been adapted into the new T1 structure below. The origi
 
 ## Notes
 
-- Original files are NOT deleted — they remain in their original locations
+- Original files were deleted after migration (spec #92 T5); the mapping below is the surviving record
 - Migrated files are added as additional test scenarios alongside scaffolded `scenario.md` files
 - All targets already had existing `scenario.md` files, so migrated files use alternative names:
   - `scenario-pressure.md` for pressure test migrations
