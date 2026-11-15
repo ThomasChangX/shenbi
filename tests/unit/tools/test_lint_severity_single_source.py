@@ -10,6 +10,10 @@ BAD = 'import re\nRE = re.compile(r"BLOCKING|CRITICAL")\n'
 BAD_KEY = 'import re\nx = re.search(r"severity: (MAJOR|CRITICAL|MINOR)", s)\n'
 GOOD_COMPOSED = 'import re\nfrom shenbi.contracts.severity import AGGREGATE_VOCAB\nRE = re.compile("|".join(AGGREGATE_VOCAB))\n'
 GOOD_KEYWORD = 'import re\nRE = re.compile(pattern=r"plain text")\n'
+BAD_KEYWORD = 'import re\nRE = re.compile(pattern=r"BLOCKING|CRITICAL")\n'  # M-2: keyword 形红钉
+BAD_NONADJACENT = (
+    'import re\nRE = re.compile(r"(?:BLOCKING|FAIL|CRITICAL)")\n'  # M-1: 非相邻交替红钉
+)
 GOOD_SINGLE_WORD = 'import re\nRE = re.compile(r"BLOCKING")\n'
 GOOD_NON_RE = 'x = "BLOCKING|CRITICAL"\n'
 
@@ -21,6 +25,8 @@ def _check(source: str) -> list[str]:
 def test_alternation_literal_flags() -> None:
     assert _check(BAD), "两词交替字面量必须违例"
     assert _check(BAD_KEY), "三词交替字面量必须违例"
+    assert _check(BAD_KEYWORD), "keyword 形必须违例（M-2 红钉）"
+    assert _check(BAD_NONADJACENT), "非相邻交替必须违例（M-1 段计数）"
 
 
 def test_composed_and_single_word_pass() -> None:

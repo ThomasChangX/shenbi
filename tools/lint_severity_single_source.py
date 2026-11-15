@@ -19,6 +19,7 @@ the literal alternation, so the lint cannot flag itself.
 from __future__ import annotations
 
 import ast
+import re
 import sys
 from pathlib import Path
 
@@ -30,10 +31,6 @@ SCAN_DIRS = (
 )
 ALLOWED_FILE = "severity.py"
 SEV_WORDS = ("BLOCKING", "CRITICAL", "MINOR", "WARNING", "ERROR")
-#: >=2 severity words joined by "|" anywhere in the pattern (the needle is
-#: composed, not a literal alternation — self-reference safe; a TUPLE so the
-#: membership scan is reusable across calls).
-_NEEDLE_PAIRS = tuple("|".join((a, b)) for a in SEV_WORDS for b in SEV_WORDS if a != b)
 RE_FUNCS = ("compile", "search", "match", "fullmatch", "findall", "sub", "subn", "split")
 
 
@@ -51,9 +48,20 @@ def _pattern_arg(node: ast.Call) -> str | None:
     return None
 
 
+#: plan 判据: 全串提取的交替词数 >= 2 (audit-T1c M-1: 相邻对包含判定漏判
+#: 非相邻交替如 (?:BLOCKING|FAIL|CRITICAL) — 按段计数实现).
+_MIN_ALT_WORDS = 2
+
+
 def _is_severity_alternation(pattern: str) -> bool:
-    """True when the pattern text contains a |-joined pair of severity words."""
-    return any(needle in pattern for needle in _NEEDLE_PAIRS)
+    """True when >= 2 distinct severity words appear across |-split segments."""
+    seen = {
+        m.group(0)
+        for seg in pattern.split("|")
+        for m in re.finditer(r"[A-Z]+", seg)
+        if m.group(0) in SEV_WORDS
+    }
+    return len(seen) >= _MIN_ALT_WORDS
 
 
 def check_tree(tree: ast.Module, rel_name: str) -> list[str]:
