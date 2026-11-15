@@ -1,6 +1,6 @@
 # Spec #97 · pre-commit hook rev 落地链（precommit-rev-landing）：C13 理由迁移、markdown 格式化冻结单源、新规 fallout 验收
 
-**日期**：2026-11-06 ｜ **系列**：工具链卫生批（pre-commit 修复续，PR #288 后件） ｜ **状态**：Active（r1 立项） ｜ **优先级**：🟠 P1（**死线驱动**——修复版工作流首跑 2026-11-09 02:00 UTC 周一；未清偿则 C13 守卫每周红灯拦 PR，属设计内升压）
+**日期**：2026-11-06 ｜ **系列**：工具链卫生批（pre-commit 修复续，PR #288 后件） ｜ **状态**：Done (PR #293 落地+首跑验收三指标全过 2026-11-09 run 42549398259；2026-11-15 归档——完结后归档动作遗留半月，纯行政清偿) ｜ **优先级**：🟠 P1（**死线驱动**——修复版工作流首跑 2026-11-09 02:00 UTC 周一；未清偿则 C13 守卫每周红灯拦 PR，属设计内升压）
 **依赖**：**T0 前置 = PR #288（autoupdate 工作流修复：两遍幂等验证/C13 noqa 剥除守卫/归档冻结 exclude）合并**；与批次 A 无文件域冲突（只动 `.pre-commit-config.yaml`＋`pyproject.toml`＋6 个 src 站点的注释行＋2 个活 md 文件），**先于批次 A 执行**（小件+死线；不触 chapter_loop 等最热文件）。
 **动机证据**（2026-11-05/06 取证，全部在盘可复现）：
 ①**8 周僵尸工作流根因链**（PR #288 已修）：仓库设置拒 Actions 建 PR（`can_approve_pull_request_reviews=false`，现已放行）→ 每周一 force-push 分支后建 PR 失败；且旧验证步骤 rc==1 判别力缺陷吞掉全部 local hook 失败（run 41376266687 日志：basedpyright＋9 个 lint hook 每周全 Failed 被当「autofix 正常」）。
