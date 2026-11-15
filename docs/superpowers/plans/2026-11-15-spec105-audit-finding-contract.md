@@ -18,6 +18,7 @@
 - 差分基线先冻结后换装（#99 先例）；换装 commit 前基线文件必须已在盘。
 - conventional commits：`feat:`/`chore:`/`test:`/`docs:`。
 - 每 task commit 后产出 `.superpowers/sdd/audit-T<N>.md`（fresh-context 重审）；无 audit 不得开下一 task。
+- **对 spec r2.6 的两处已裁定偏离（r3-MC 注记，执行期记入 spec-deviations.md）**：①spec T1 称「四锚定形态（bracket/bold/cell/key）编译正则单源」——plan 收缩为 bracket/bold 两锚定（cell/key 由 audit_aggregate 本地组合重建，行为保持且免零消费符号——YAGNI）；②spec (b) 面称「provenance 头注明来源章」——plan 改 PROVENANCE.md sidecar（逐字节副本保差分基线纯净，G0.11 MIRROR_MAP 不触及）。
 
 ---
 
@@ -100,7 +101,7 @@ def test_section_header_re_includes_minor():
 ```
 
 - [ ] **Step 2: 跑测确认失败**——`uv run pytest tests/unit/contracts/test_severity.py -x -q`（ModuleNotFoundError: shenbi.contracts.severity）
-- [ ] **Step 3: 落 `src/shenbi/contracts/severity.py`**——要点：模块 docstring 声明「severity 传感/词表单源（spec #105 T1）——登记域 RoutingTier/AggregateVocab 见 docs/framework/status-vocab.md」；常量与正则全部按 Interfaces 块定义；**四锚定形态正则以 `re.compile(rf"...\[({'|'.join(AGGREGATE_VOCAB)})\]"...)` 元组组合构造**（注释引用迁出来源 audit_aggregate.py:46-61/revision_router.py:127-146 保留原 probe 教训注释的压缩版）；`KEY_ANCHOR_RE` 携 `_ENUM_TAIL`/`QUOTED_VALUE_TAIL` 守卫与 `re.IGNORECASE`；`SECTION_HEADER_RE` 用 `re.M`；`AGGREGATE_VOCAB_SET = frozenset(AGGREGATE_VOCAB)` 同模块落定（T4 查表消费——I-2）。
+- [ ] **Step 3: 落 `src/shenbi/contracts/severity.py`**——要点：模块 docstring 声明「severity 传感/词表单源（spec #105 T1）——登记域 RoutingTier/AggregateVocab 见 docs/framework/status-vocab.md」；常量与正则全部按 Interfaces 块定义；**bracket/bold 两锚定形态正则以元组组合构造**（r3-I2：cell/key 传感不建模块锚定——audit_aggregate 换装时本地从 AGGREGATE_VOCAB 组合重建，行为保持；注释引用迁出来源 audit_aggregate.py:46-47/revision_router.py:127-146 保留原 probe 教训注释的压缩版）；`SECTION_HEADER_RE` 用 `re.M`；`AGGREGATE_VOCAB_SET = frozenset(AGGREGATE_VOCAB)` 同模块落定（T4 查表消费——I-2）。
 - [ ] **Step 4: 跑测通过**——`uv run pytest tests/unit/contracts/test_severity.py -q` 全绿
 - [ ] **Step 5: status-vocab.md 新增两行**——在 AuditSeverity 行（:21）后插入（5 列格式严格对齐邻行）：
 
@@ -169,7 +170,6 @@ def sensor_outputs(content: str) -> dict[str, object]:
     """Five sensors over one audit file's content (pre-swap call sites, kept stable)."""
     from shenbi.pipeline import audit_aggregate, audit_layer, chapter_loop, revision_router
     from shenbi.pipeline.parallel_dispatch import (
-        consolidate_review_results,  # parallel_dispatch.py:303（M-7 实名——草拟名 detect_wave_hard_failure 不存在）
     )  # 若函数名不同以实际为准——见 Step 3 注
 
     units, _ctx = audit_aggregate.extract_finding_units("x.md", content)
@@ -315,7 +315,7 @@ git commit -m "feat: spec #105 T1c — severity 交替字面量 AST lint（单�
   - `check_audit_severity_vocab(path: Path) -> list[str]`——issue 形态 `G4.av.vocab:{path.name} — 词表外严重度 "{token}"（{form} 形）：用 BLOCKING/CRITICAL/MINOR 重写本条`
   - `tools/replay_severity_vocab.py <project_dir> [--pattern 'chapter-*-*.md'] [--out FILE]`——回放报告（命中/清洗清单/误伤候选计数）
 
-- [ ] **Step 1: 失败测试（红六绿八全清单）**——`tests/unit/pipeline/test_check_audit_severity_vocab.py` 用 tmp_path 写文件逐条断言（红：`- [MAJOR] x`／`**BLOCKER**`／`严重度: 严重`／`严重度: 高`／`严重度: 高。`（尾部标点——r2-M2 捕获污染剥离的验收钉：不剥则 CJK 精确等值不命中=静默漏报）／`- [major]`／`Severity: MAJOR`；绿：`[MINOR]`／`- [minor]`／prose "major"／`severity:BLOCKING/CRITICAL/MINOR`／`**严重度**：BLOCKING / CRITICAL / MINOR`／`**判定**`+`**章节**`+`- [读者回报]`+`- [MINOR·观察]`／`**严重度**` 裸 key／`**Severity**`）：
+- [ ] **Step 1: 失败测试（红七绿十三全清单）**——`tests/unit/pipeline/test_check_audit_severity_vocab.py` 用 tmp_path 写文件逐条断言（红：`- [MAJOR] x`／`**BLOCKER**`／`严重度: 严重`／`严重度: 高`／`严重度: 高。`（尾部标点——r2-M2 捕获污染剥离的验收钉：不剥则 CJK 精确等值不命中=静默漏报）／`- [major]`／`Severity: MAJOR`；绿：`[MINOR]`／`- [minor]`／prose "major"／`severity:BLOCKING/CRITICAL/MINOR`／`**严重度**：BLOCKING / CRITICAL / MINOR`／`**判定**`+`**章节**`+`- [读者回报]`+`- [MINOR·观察]`／`**严重度**` 裸 key／`**Severity**`）：
 
 ```python
 """Spec #105 T2: G4.av.vocab — out-of-vocab severity is a hard, discriminated gate."""
@@ -340,6 +340,7 @@ def _issues(tmp_path: Path, content: str) -> list[str]:
         "**BLOCKER** 全章失控",
         "严重度: 严重",
         "严重度: 高",
+        "严重度: 高。",  # r3-I1: 尾部标点剥离红钉（进 parametrize 非 prose）
         "- [major] 节奏断裂",
         "Severity: MAJOR",
     ],
@@ -421,7 +422,7 @@ git commit -m "feat: spec #105 T2 — G4.av.vocab 词表外 fail-loud（三段�
   3. `check_audit_dispatch_integrity` 红绿：红=``- [BLOCKING] 派发完整性：请补齐 `chapters/chapter-40.md` 与 `plans/chapter-40-plan.md` 后重跑本维度``（chapter-40-reader-pull.md:44 原文）→ issue；红2=``- [BLOCKING] 输入缺失：请补入 `chapters/chapter-10.md` 后重跑``；绿=``- [BLOCKING] 字数不足，请补齐至 3200 字``（无路径 token）→ 无 issue；绿2=`- [MINOR] 派发完整性相关表述`（非 BLOCKING 行）→ 无 issue。
 - [ ] **Step 2: 确认失败**。
 - [ ] **Step 3: 实现 `missing_audit_reads`**（audit_layer.py）——语义按 revision_router.py:268-303 三态复刻：`_entry_file` 剥 dict 形 read；`resolved = str(rel).replace("chapter-N", f"chapter-{chapter}")`（chapter None 时保持 N 字面——与 :276-282 同）；produces 剔除；`any(fnmatch(resolved, pat) for pat in OPTIONAL_READS.get(skill, []))` 剔除；`"*" in resolved` 时 `Path(project_dir).glob(...)` 命中即非缺；其余 `.exists()` 判缺失。docstring 注明 spec #105 T3 与 M1 作用域（仅审计派发面）。
-- [ ] **Step 4: 实现 `check_audit_dispatch_integrity`**（llm_output_integrity.py）——逐行扫：行含 BLOCKING 锚定（bracket `- [BLOCKING]` 或 bold/key 词表内 BLOCKING——用 severity 单源锚定形）∧ 行内 `` `(chapters|plans|truth)/[^`]+` `` 反引号路径（无反引号时裸路径 `(?:chapters|plans|truth)/\S+\.(?:md|yaml|json)` 兜底）∧ 行内 `重跑|补齐|补入` → issue（每文件首条即断——幂等）。
+- [ ] **Step 4: 实现 `check_audit_dispatch_integrity`**（llm_output_integrity.py）——逐行扫：行含 BLOCKING 锚定（bracket `- [BLOCKING]` 或 bold 词表内 BLOCKING——用 severity 单源锚定形，r3-I2：无 key 形）∧ 行内 `` `(chapters|plans|truth)/[^`]+` `` 反引号路径（无反引号时裸路径 `(?:chapters|plans|truth)/\S+\.(?:md|yaml|json)` 兜底）∧ 行内 `重跑|补齐|补入` → issue（每文件首条即断——幂等）。
 - [ ] **Step 5: wave 预检接线**——`_run_audit_wave_step` 函数头（state/project_dir 就绪后、任何派发前）：
 
 ```python
@@ -445,7 +446,7 @@ if missing:
 （**预检名册（I-4 结构修正）**：`_run_audit_wave_step`（:3916）为双 wave 结构——预检圈定=core wave 名册 ∪ `get_active_genre_audits(genre_config)`（genre 圈——签名收 Mapping 非 project_dir，r2-M4 校准；genre-config.json 现由 chapter_loop:4009-4011 加载——**须将该加载+名册装配上提到 wave-1 派发之前**）∪ 串行分区成员（`_partition_review_wave` 输出）；预检置于**名册装配完成后、任一 `dispatch_*` 调用前**；**零派发红测两变体**（core 技能缺 read + genre 圈技能缺 read——I-4 自认「只圈 core 不被测试捕获」，genre 变体即钉住该结构）；**bundle 模式**：`bundle_chapters`（:1472）可返 `[N, N+1]`——预检循环按 `wave_chapters` 展开逐章查（r2-M7：follower 章输入缺失不漏检）——只圈 core wave 会漏 genre 审计派发的欠覆盖且不被任何测试捕获。`set_checkpoint` 签名 machine.py:69（chapter/context kwargs）；#51 同款 `return True` 停步语义。）
 - [ ] **Step 6: generic 第三路由落位**——`G4.av.dispatch_integrity` → `check_audit_dispatch_integrity`（Task 4 的未识别放行分支前插入）。
 - [ ] **Step 7: 全部测试绿**——`uv run pytest tests/unit/pipeline/test_audit_readiness.py tests/unit/pipeline/test_check_audit_severity_vocab.py -q` + `uv run pytest tests/pipeline -q`（零派发红测所在既有套件零回归）。
-- [ ] **Step 8: vol1 回放差集**——`uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --out /tmp/spec105-di-replay.md`（工具扩展：同时跑 dispatch_integrity checker 或单独小跑）——预期命中 ch10/12/14/16/20/40 实弹族（这些是历史框架 bug 产物，非误伤）；粘贴计数进 progress.md。
+- [ ] **Step 8: vol1 回放差集**——`uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --out /tmp/spec105-di-replay.md`（工具扩展：同时跑 dispatch_integrity checker 或单独小跑）——预期命中 ch10/12/14/16/20/40 实弹族（这些是历史框架 bug 产物，非误伤）；**非实弹族命中=误伤→停，记 BLOCKING deviation 报备**（r3-M4：与 T4 Step 6 同款停机分支）；粘贴计数进 progress.md。
 - [ ] **Step 9: Commit**
 
 ```bash
@@ -500,7 +501,7 @@ git commit -m "feat: spec #105 T4a — G4_FORMAT_EXAMPLES 补 scene_budget/vocab
 
 ```bash
 git add src/shenbi/pipeline/audit_aggregate.py tools/report_longitudinal.py \
-  tests/unit/pipeline/test_audit_aggregate.py tests/unit/tools/test_report_longitudinal.py
+  tests/pipeline/test_audit_aggregate.py tests/unit/tools/test_report_longitudinal.py
 git commit -m "feat: spec #105 T4b — aggregate 条目级 severity 渲染+longitudinal parser 双格式容差同步"
 ```
 
