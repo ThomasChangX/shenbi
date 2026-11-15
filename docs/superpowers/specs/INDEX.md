@@ -19,17 +19,17 @@
 
 1. **最深依赖链先开闸**：`#105→#106→#109→{#111,#112,#115,#113,#114}` 是全队最深链，且 **#109 是唯一 🔴 P0**（审计饿死 147/588+49 编造通过）。链头 #105 依赖全就绪（#92 已完结）——先开链整批早收：#105/#106 连跑解锁 6 件。
 2. **前序欠账早清**：#93（批次 A 残件，11-01 立项）无依赖且是 #116 的 justfile 前序（#92→#93→#116）——插在链开后第 4 位，#116/#110/#117 三件独立 P1 随即全解锁；#107 为 #111 链前序提序；#103 为 #115 前序提前。
-3. **#96 是后半场闸门**：#96 挡 #105 T4（review_checklist 面）/#102 全件/#113 review 面/#114 G4_FORMAT_EXAMPLES 面，自身等批次 A 清偿（#93/#94 后）——#94/#96 排 13/14 位自然衔接，#102/#104（写作工艺批）随 #96 后展开；#108 独立 dry-run 排后（#116 T4 换装源，spec 明示先用本地最小变异器）；#113/#114 双链尾收尾。
+3. **#96 是后半场闸门**：#96 挡 #102 全件/#113 review 面（~~#105 T4 review_checklist 面~~——**#105 r2 已将该面修入本件执行范围**：spec96 零逻辑重叠+串行无并发+验收完整性，#96 施工 re-anchor），自身等批次 A 清偿（#93/#94 后）——#94/#96 排 13/14 位自然衔接，#102/#104（写作工艺批）随 #96 后展开；#108 独立 dry-run 排后（#116 T4 换装源，spec 明示先用本地最小变异器）；#113/#114 双链尾收尾。
 
 付费实弹面不受本序约束（#108 实弹束/#113 A/B/#107 A/B/#115 T3 人工面板均随用户令）。
 
 ### #105 · 审计发现契约硬化（audit-finding-contract）
 
-- **文件**：`2026-11-15-spec105-audit-finding-contract.md` ｜ **系列**：评审工艺批 ｜ **状态**：Design（r1，2026-11-15） ｜ **优先级**：🟠 P1
-- **依赖**：无硬依赖；**与 #106 同文件序（#105 先）**[revision_router/chapter_loop]；T3 预检面 dispatch_helper 在 **#92 在飞 T2a 后**；T4 review_checklist 面在 **#96 后**（其余 T 不受限）
-- **内容**：severity 词表与传感正则单源化（新 `contracts/severity.py`：ROUTING_TIERS/AGGREGATE_VOCAB+四锚定形态+三尾巴迁入；五消费点换装[router 双正则/chapter_loop `_BLOCKING_MARKER_RE`/parallel_dispatch/audit_layer/aggregate 锚定形族]+AST lint 禁新手拼[#88/#91 先例]+**行为保持差分**[fixtures 全量审计产物回放，路由/聚合计数逐项一致]）+词表外 fail-loud（`llm_output_integrity.check_audit_severity_vocab`：锚定形 severity 词∉词表→G4.av.vocab FAIL 附重写指引——**静默丢包变门检拦截**；散文提及豁免；vol1 存量回放仅出报告不自动改写）+派发完整性语义拆分（审计派发前框架确定性预检 required reads[escalation reads 三态判定复用]——缺失走既有 failure 路径**不派 LLM**；「派发完整性」payload 的 BLOCKING→报告无效 FAIL——输入缺失从 LLM 语义域整体消失，实弹根因 chapter-40-reader-pull.md:44）+反馈与聚合卫生（G4_FORMAT_EXAMPLES 补 `G4.cp.scene_budget` 族+名册差集盘点/aggregate 渲染条目 `- **{sev}** · {text}` 携带 severity——修节标题继承丢失/ending_constraints 注入窗 **3→10 章**——消灭 group-craft SKILL:166 文档对模型撒谎）。**MAJOR 档明确不建**（fail-loud 先杀静默丢包，CRITICAL/MINOR 使用数据后议中间档）
+- **文件**：`2026-11-15-spec105-audit-finding-contract.md` ｜ **系列**：评审工艺批 ｜ **状态**：Design（**r2，2026-11-15 Revised**——价值门驳斥五问修正） ｜ **优先级**：🟠 P1
+- **依赖**：无硬依赖；**与 #106 同文件序（#105 先）**[revision_router/chapter_loop]；T3 预检面 dispatch_helper **#92 已归档就绪**；review_checklist ending 面 **r2 修入本件**（原 r1「#96 后」经核为批次文件面纪律：spec96 零逻辑重叠+串行无并发+验收完整性——#96 施工时 re-anchor）
+- **内容**：severity 词表与传感正则单源化（**对齐 enums.Severity 登记域**——status-vocab.md AuditSeverity 域先行修订[RoutingTiers/AggregateVocab 两列+修死线消费声明]，spec #34 纪律；新 `contracts/severity.py` 从 enums 派生：ROUTING_TIERS/AGGREGATE_VOCAB+四锚定形态+三尾巴迁入；**六消费点**换装[router 双正则/chapter_loop `_BLOCKING_MARKER_RE`/parallel_dispatch/audit_layer/aggregate 锚定形族/**report_longitudinal:558 节头正则连带修 MINOR 缺词**]+AST lint 禁新手拼[#88/#91 先例]+**行为保持差分**[fixtures 全量审计产物回放，路由/聚合计数逐项一致]；r2 升级根因：enums.Severity 已登记但零消费=status-vocab 死线）+词表外 fail-loud（`llm_output_integrity.check_audit_severity_vocab`：**校验正则与传感正则语义显式分离**——形态槽位通配捕获+查表，禁从传感正则推导[否则永不触发]；锚定形 severity 词∉词表→G4.av.vocab FAIL 附重写指引+**generic.py:252 分支扩展防 pwi stale 吞**；中英双红测[MAJOR/BLOCKER/严重/高]；散文提及豁免；vol1 存量回放仅出报告不自动改写）+派发完整性语义拆分（审计派发前框架确定性预检 required reads[**#51 ghost-chain guard 控制流先例**+escalation reads 三态判定]——缺失走既有 failure 路径**不派 LLM**；「派发完整性」payload 的 BLOCKING→报告无效 FAIL 次防线——输入缺失从 LLM 语义域整体消失，实弹根因 chapter-40-reader-pull.md:44+dispatch_helper `_resolve_read_with_fallback` 静默吞输入）+反馈与聚合卫生（G4_FORMAT_EXAMPLES[19 键]补 `G4.cp.scene_budget` 族+名册差集盘点/aggregate 渲染条目 `- **{sev}** · {text}` 携带 severity——**同步 report_longitudinal parser**/ending_constraints 注入窗 **3→10 章**连带 chapter<11+docstring——消灭 group-craft SKILL:166 文档对模型撒谎）。**MAJOR 档明确不建**（fail-loud 先杀静默丢包，CRITICAL/MINOR 使用数据后议中间档）
 - **对应 plan**：待执行时建
-- **触及的不变量维度**：无（审计发现契约基建——新 check id 族 G4.av.* 为审计产物有效性门，不挂叙事维度；P2 期 check-id 普查面自然覆盖）
+- **触及的不变量维度**：无（审计发现契约基建——新 check id `G4.av.vocab` 为审计产物有效性门[G4.av 族第二员]，不挂叙事维度；P2 期 check-id 普查面自然覆盖）
 
 ---
 
