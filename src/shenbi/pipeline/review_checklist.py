@@ -528,19 +528,23 @@ def _extract_hook_deliverables(
 
 
 def _get_recent_ending_types(project_dir: Path, chapter: int) -> list[str]:
-    """Get ending types from the last 3 chapters' final paragraphs.
+    """Get ending types from the last 10 chapters' final paragraphs.
 
     Classifies endings using regex patterns (ENDING_PATTERNS, defined above).
     Returns list of ending type strings (e.g., ['cliffhanger', 'hook',
     'resolution']). Gracefully handles missing chapters.
+
+    Spec #105 T4c: the window is 10 chapters (group-craft SKILL:166 promises
+    “近 10 章收尾型历史” for the 连续>=3 章同型收尾 rule; a 3-chapter window
+    could never support it — the doc lied to the model).
     """
     # Ending classification patterns (ENDING_PATTERNS, defined above).
 
-    if chapter < 4:
-        return []  # Not enough chapters for diversity check (need 3 prior chapters).
+    if chapter < 11:
+        return []  # Not enough chapters for diversity check (need 10 prior chapters).
 
     ending_types: list[str] = []
-    for offset in range(3, 0, -1):
+    for offset in range(10, 0, -1):
         ch = chapter - offset
         ch_path = project_dir / "chapters" / f"chapter-{ch}.md"
         if not ch_path.exists():

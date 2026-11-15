@@ -338,3 +338,38 @@ class TestFullChecklistPipeline:
         assert checklist.transition_budget > 0  # from chapter char count
         assert isinstance(checklist.ending_constraints, list)
         assert isinstance(checklist.world_rules_brief, str)
+
+
+class TestEndingWindowTen:
+    """Spec #105 T4c: the injection window is 10 (SKILL.md:166 tells the truth)."""
+
+    def _seed(self, tmp_path: Path, upto: int) -> None:
+        (tmp_path / "chapters").mkdir(exist_ok=True)
+        for ch in range(1, upto + 1):
+            (tmp_path / "chapters" / f"chapter-{ch}.md").write_text(
+                f"# Chapter {ch}\n\nContent.\n\n突然，门开了。\n",
+                encoding="utf-8",
+            )
+
+    def test_chapter_11_returns_ten_entries(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.review_checklist import _get_recent_ending_types
+
+        self._seed(tmp_path, 10)
+        result = _get_recent_ending_types(tmp_path, 11)
+        assert len(result) == 10, result
+        assert "missing" not in result
+
+    def test_chapter_10_returns_empty(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.review_checklist import _get_recent_ending_types
+
+        self._seed(tmp_path, 9)
+        assert _get_recent_ending_types(tmp_path, 10) == []
+
+    def test_chapter_11_missing_chapter_counts_as_missing(self, tmp_path: Path) -> None:
+        from shenbi.pipeline.review_checklist import _get_recent_ending_types
+
+        self._seed(tmp_path, 10)
+        (tmp_path / "chapters" / "chapter-3.md").unlink()
+        result = _get_recent_ending_types(tmp_path, 11)
+        assert len(result) == 10
+        assert result.count("missing") == 1
