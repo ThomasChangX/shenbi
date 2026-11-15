@@ -236,3 +236,92 @@ def check_year_anchors(path: Path) -> list[str]:
                 "引用锚名或相对表述"
             )
     return findings
+
+
+# --- Spec #105 T2: out-of-vocab severity gate (G4.av.vocab). ---
+#
+# 校验正则与传感正则语义显式分离：传感正则（contracts.severity，词表内
+# 锚定计数）只捕词表内词——复用它们做校验则 fail-loud 永不触发。本检查用
+# 形态槽位通配捕获 + 统一后处理管线（见 _vocab_violation）。
+#
+# r2.6 挂账注记两条：
+# 1. 捕获污染剥离规则(管线第 1 步)——`ERROR(对应 BLOCKING)` 括注后缀与
+#    `严重度：高。` 尾部标点不剥则 CJK 精确等值不命中=静默漏报（本件根因
+#    形态）；残余面（括注内嵌真词表外词）#117 发现级 parser 收编。
+# 2. key-名豁免形态域——现实现形态无关(任意锚定形捕获 SEVERITY/严重度
+#    token 均放行），动机仅 bold 裸 key 形；残余面同归 #117。
+#
+# key 形引号防御用 gap 类排除引号([^\w"'] 不吃引号——"severity": "low"
+# 全线无匹配）而非尾部负向前瞻：tail 前瞻放在可回溯通配捕获组后必然被
+# 回溯绕过(捕 low 后前瞻见引号失败→回溯交还一字符捕 lo→误伤; 与 spec
+# C1' 证伪 _SEV_ENUM_TAIL 照搬路径同机制——plan r4-I1 实测钉死）。
+from shenbi.contracts.severity import (
+    AGGREGATE_VOCAB_SET,
+    CJK_SEVERITY_WORDS,
+    KEY_NAME_TOKENS,
+)
+
+_VOCAB_BRACKET_RE = re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)
+_VOCAB_BOLD_RE = re.compile(r"\*\*([\w\-]+)\*\*")
+_VOCAB_KEY_RE = re.compile(
+    r"\*{0,2}(?:severity|严重度)\*{0,2}[^\w\"']{0,6}([^\s\"']+)", re.IGNORECASE
+)
+#: 捕获污染剥离：括注后缀（`ERROR（对应 BLOCKING）`→`ERROR`）+ 尾部标点。
+_POLLUTION_PAREN_RE = re.compile(r"[（(][^）)]*[）)]?\s*$")
+_TRAILING_PUNCT = "。．.,，;；:：!！?？"
+#: legend 拆分分隔符（模板形 `severity:BLOCKING/CRITICAL/MINOR` 全段∈词表=文档行非声明）。
+_LEGEND_SPLIT_RE = re.compile(r"[/／、,，]")
+
+
+def _vocab_violation(token: str) -> bool:
+    """Unified post-processing pipeline; True = out-of-vocab violation.
+
+    1. 捕获污染剥离(括注后缀+尾部标点) 2. upper 归一前置(`- [major]` 小写
+    词表外写法必须进判别器——后置则静默漏放) 3. key-名豁免 4. 判别器
+    (ASCII: isascii+isupper+len>=2, 禁止裸 isupper——`MINOR·观察`.isupper()
+    返 True, CJK 不参与大小写; CJK: 精确等值七词族, 禁止子串/前缀——
+    `**严重度**` 裸 key 75 份误伤面) 5. legend 拆分豁免(全段∈词表)
+    6. 查表。
+    """
+    token = _POLLUTION_PAREN_RE.sub("", token).rstrip(_TRAILING_PUNCT)
+    token = token.upper()
+    if token in KEY_NAME_TOKENS:
+        return False
+    ascii_hit = token.isascii() and token.isupper() and len(token) >= 2
+    cjk_hit = token in CJK_SEVERITY_WORDS
+    if not (ascii_hit or cjk_hit):
+        return False
+    parts = _LEGEND_SPLIT_RE.split(token)
+    if all(p in AGGREGATE_VOCAB_SET for p in parts):
+        return False
+    return token not in AGGREGATE_VOCAB_SET
+
+
+def check_audit_severity_vocab(path: Path) -> list[str]:
+    """Flag anchored-form severity tokens outside the aggregate vocabulary.
+
+    散文提及(非锚定形)不报; cell 形 v1 不建(| PASS | / | 通过 | / 置信度
+    | HIGH | 同形歧义面——词表外 cell 待 #116 标定数据后议)。
+    """
+    text = path.read_text(encoding="utf-8")
+    issues: list[str] = []
+    seen: set[tuple[int, str]] = set()
+    for form, regex in (
+        ("bracket", _VOCAB_BRACKET_RE),
+        ("bold", _VOCAB_BOLD_RE),
+        ("key", _VOCAB_KEY_RE),
+    ):
+        for m in regex.finditer(text):
+            token = m.group(1)
+            if not _vocab_violation(token):
+                continue
+            line_no = text.count("\n", 0, m.start()) + 1
+            key = (line_no, token)
+            if key in seen:
+                continue
+            seen.add(key)
+            issues.append(
+                f"G4.av.vocab:{path.name} — L{line_no}:词表外严重度「{token}」"
+                f"（{form} 形）：用 BLOCKING/CRITICAL/MINOR 重写本条"
+            )
+    return issues
