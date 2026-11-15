@@ -105,7 +105,7 @@ def test_section_header_re_includes_minor():
 - [ ] **Step 5: status-vocab.md 新增两行**——在 AuditSeverity 行（:21）后插入（5 列格式严格对齐邻行）：
 
 ```markdown
-| RoutingTier | shenbi.contracts.severity.RoutingTier | BLOCKING\|CRITICAL | 审计产出（escalation 路由两档；legacy `[ERROR]` 硬档别名=ROUTING_HARD_TIER_ALIASES，不入值集） | revision_router、chapter_loop、parallel_dispatch、audit_layer |
+| RoutingTier | shenbi.contracts.severity.RoutingTier | BLOCKING\|CRITICAL | 审计产出（escalation 路由两档；legacy `[ERROR]` 硬档别名=ROUTING_HARD_TIER_ALIASES，不入值集——audit_layer 消费别名非值集，r2-M8 写准） | revision_router、chapter_loop、parallel_dispatch |
 | AggregateVocab | shenbi.contracts.severity.AggregateVocab | BLOCKING\|CRITICAL\|MINOR\|WARNING\|ERROR | 审计产出（聚合面；WARNING/ERROR 为 legacy 词） | audit_aggregate、report_longitudinal |
 ```
 
