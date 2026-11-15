@@ -169,8 +169,6 @@ from pathlib import Path
 def sensor_outputs(content: str) -> dict[str, object]:
     """Five sensors over one audit file's content (pre-swap call sites, kept stable)."""
     from shenbi.pipeline import audit_aggregate, audit_layer, chapter_loop, revision_router
-    from shenbi.pipeline.parallel_dispatch import (
-    )  # 若函数名不同以实际为准——见 Step 3 注
 
     units, _ctx = audit_aggregate.extract_finding_units("x.md", content)
     return {
@@ -310,7 +308,7 @@ git commit -m "feat: spec #105 T1c — severity 交替字面量 AST lint（单�
 - Test: `tests/unit/pipeline/test_check_audit_severity_vocab.py`（新建）
 
 **Interfaces:**
-- Consumes: `AGGREGATE_VOCAB`/`CJK_SEVERITY_WORDS`/`KEY_NAME_TOKENS`（Task 1）；`QUOTED_VALUE_TAIL`。
+- Consumes: `AGGREGATE_VOCAB`/`CJK_SEVERITY_WORDS`/`KEY_NAME_TOKENS`（Task 1）。（QUOTED_VALUE_TAIL 不入本 task——r4-I1：引号防御走 gap 类，tail 前瞻在通配捕获下可回溯绕过）
 - Produces:
   - `check_audit_severity_vocab(path: Path) -> list[str]`——issue 形态 `G4.av.vocab:{path.name} — 词表外严重度 "{token}"（{form} 形）：用 BLOCKING/CRITICAL/MINOR 重写本条`
   - `tools/replay_severity_vocab.py <project_dir> [--pattern 'chapter-*-*.md'] [--out FILE]`——回放报告（命中/清洗清单/误伤候选计数）
@@ -373,7 +371,7 @@ def test_in_vocab_or_exempt_green(tmp_path, content):
 
 - [ ] **Step 2: 确认失败**——ImportError。
 - [ ] **Step 3: 实现 checker**（纯函数幂等，path 形与同族同构）：
-  - 捕获正则（模块级预编译）：bracket `re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)`；bold `re.compile(r"\*\*([\w\-]+)\*\*")`；key `re.compile(r"\*{0,2}(?:severity|严重度)\*{0,2}\W{0,6}(\S+)" + QUOTED_VALUE_TAIL, re.IGNORECASE)`（QUOTED_VALUE_TAIL 防引号值——`"severity": "low"` 的 `"low"` 带引号被 tail 前瞻拒绝：捕获 `"low` 不匹配 `\S+` 结尾引号？**注意**：tail 是负向前瞻 `(?!\*{0,2}")`——实现时验证 `"severity": "low"` 不触发：捕获 token 为 `"low`，upper 后 `"LOW` 含引号→isascii 假？引号是 ASCII→`"LOW`.isupper() 为 True→查表∉→会 FAIL **误伤**！**修正实现**：key 形捕获组改 `([^\s"]+)`（排除引号）——plan 钉死，测试补绿测 `"severity": "low"`→PASS）。
+  - 捕获正则（模块级预编译）：bracket `re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)`；bold `re.compile(r"\*\*([\w\-]+)\*\*")`；key `re.compile(r"\*{0,2}(?:severity|严重度)\*{0,2}[^\w"']{0,6}([^\s"']+)", re.IGNORECASE)`（**r4-I1 钉死——引号防御用 gap 类排除引号而非尾部负向前瞻**：tail 前瞻 `(?!"...)` 放在可回溯通配捕获组后必然被回溯绕过——`([^\s"]+)` 捕 `low` 后前瞻见 `"` 失败→回溯交还一字符捕 `lo`→`LO` 过判别器→FAIL 误伤（与 spec C1' 证伪 `_SEV_ENUM_TAIL` 照搬路径同机制）；gap 类 `[^\w"]{0,6}` 不吃引号→`"severity": "low"` 全线无匹配→PASS，`severity: MAJOR`/`**严重度**：BLOCKING` 行为不变；`severity: "BLOCKING"` 引号值=传感侧 #18-1 同判（非声明）→PASS 语义一致）。
   - **统一后处理管线**（模块内私有函数 `_vocab_violation(token: str) -> bool`；checker docstring 注记两条 r2.6 挂账：①捕获污染剥离规则 ②key-名豁免形态域[形态无关生效、动机仅 bold 裸 key——残余面 #117 收编]）：
     1. **捕获污染剥离（r2.6 plan 注记落位，I-3）**：`token = re.sub(r"[（(][^）)]*[）)]?\s*$", "", token)` 剥括注后缀（`ERROR（对应 BLOCKING）`→`ERROR`），再 `.rstrip("。．.,，;；:：!！?？")` 剥尾部标点（`严重度：高。`→`高`——不剥则 CJK 精确等值不命中=静默漏报，恰是本件根因形态）
     2. `token = token.upper()`
