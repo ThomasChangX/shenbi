@@ -19,6 +19,18 @@ from shenbi.pipeline.parallel_dispatch import (
 from shenbi.pipeline.write_safety import WriteSafety, classify_skill_write_safety
 
 
+@pytest.fixture(autouse=True)
+def _audit_reads_precheck_stub(monkeypatch):
+    """Spec #105 T3 orthogonal guard stub (audit-T5 C1).
+
+    This file tests state-machine/wave mechanics; its minimal tmp project
+    omits contract-required reads. Read-readiness has dedicated coverage in
+    tests/unit/pipeline/test_audit_readiness.py (zero-dispatch red tests plus
+    the production false-positive sweep).
+    """
+    monkeypatch.setattr("shenbi.pipeline.audit_layer.missing_audit_reads", lambda *a, **kw: [])
+
+
 class TestClassification:
     @pytest.mark.parametrize(
         "skill",

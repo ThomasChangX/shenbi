@@ -259,12 +259,18 @@ from shenbi.contracts.severity import (
     AGGREGATE_VOCAB_SET,
     CJK_SEVERITY_WORDS,
     KEY_NAME_TOKENS,
+    ROUTING_BLOCKING_BRACKET_WORDS,
 )
 
 _VOCAB_BRACKET_RE = re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)
 _VOCAB_BOLD_RE = re.compile(r"\*\*([\w\-]+)\*\*")
+#: audit-T4 I-1: capture must exclude `*` (bolded values like `**高**` leaked the
+#: markdown emphasis into the token -> false FAIL on `**BLOCKING**` and false PASS
+#: on `**高**`); gap excludes `\n` so a bold key never spans lines; optional
+#: `Level`/`级别` word (the `Severity Level: MAJOR` form captured `LEVEL:` before).
 _VOCAB_KEY_RE = re.compile(
-    r"\*{0,2}(?:severity|严重度)\*{0,2}[^\w\"']{0,6}([^\s\"']+)", re.IGNORECASE
+    r"\*{0,2}(?:severity|严重度)\*{0,2}(?:\s*(?:Level|级别))?\*{0,2}[^\w\"'\n]{0,6}([^\s\"'*]+)",
+    re.IGNORECASE,
 )
 #: 捕获污染剥离：括注后缀（`ERROR（对应 BLOCKING）`→`ERROR`）+ 尾部标点。
 _POLLUTION_PAREN_RE = re.compile(r"[（(][^）)]*[）)]?\s*$")
@@ -279,11 +285,11 @@ def _vocab_violation(token: str) -> bool:
     1. 捕获污染剥离(括注后缀+尾部标点) 2. upper 归一前置(`- [major]` 小写
     词表外写法必须进判别器——后置则静默漏放) 3. key-名豁免 4. 判别器
     (ASCII: isascii+isupper+len>=2, 禁止裸 isupper——`MINOR·观察`.isupper()
-    返 True, CJK 不参与大小写; CJK: 精确等值七词族, 禁止子串/前缀——
+    返 True, CJK 不参与大小写; CJK: 精确等值六词族, 禁止子串/前缀——
     `**严重度**` 裸 key 75 份误伤面) 5. legend 拆分豁免(全段∈词表)
     6. 查表。
     """
-    token = _POLLUTION_PAREN_RE.sub("", token).rstrip(_TRAILING_PUNCT)
+    token = _POLLUTION_PAREN_RE.sub("", token).strip("*").rstrip(_TRAILING_PUNCT)
     token = token.upper()
     if token in KEY_NAME_TOKENS:
         return False
@@ -305,11 +311,19 @@ PRODUCTION_VOCAB_FORMS: tuple[str, ...] = ("key",)
 ALL_VOCAB_FORMS: tuple[str, ...] = ("bracket", "bold", "key")
 
 
-def check_audit_severity_vocab(path: Path, forms: tuple[str, ...] = ALL_VOCAB_FORMS) -> list[str]:
+def check_audit_severity_vocab(
+    path: Path, forms: tuple[str, ...] = PRODUCTION_VOCAB_FORMS
+) -> list[str]:
     """Flag anchored-form severity tokens outside the aggregate vocabulary.
 
     散文提及(非锚定形)不报; cell 形 v1 不建(| PASS | / | 通过 | / 置信度
     | HIGH | 同形歧义面——词表外 cell 待 #116 标定数据后议)。
+
+    Args:
+        path: audit report file.
+        forms: anchored forms to check — defaults to PRODUCTION_VOCAB_FORMS
+            (key only; audit-T4 disposition a). Replay/#116 callers pass
+            ALL_VOCAB_FORMS explicitly.
     """
     text = path.read_text(encoding="utf-8")
     issues: list[str] = []
@@ -350,22 +364,27 @@ _DI_BARE_PATH_RE = re.compile(r"(?:chapters|plans|truth)/\S+\.(?:md|yaml|json)")
 _DI_ACTION_RE = re.compile(r"重跑|补齐|补入")
 
 
+#: BLOCKING 锚定（audit-T5 I1）：bracket 允许复合标签后缀（`[BLOCKING-INPUT]`
+#: 等 5 条 vol1 实弹，体例 `[BLOCKING-流程]`），tier 词取自单源常量；
+#: bold 形只认大写（与传感 probe24 校准一致）。
+_DI_BLOCKING_BRACKET_RE = re.compile(
+    rf"^\s*-\s*\[({ROUTING_BLOCKING_BRACKET_WORDS[0]})(?:[-·][^\]]*)?\]"
+)
+_DI_BLOCKING_BOLD_RE = re.compile(rf"\*\*({ROUTING_BLOCKING_BRACKET_WORDS[0]})\*\*")
+
+
 def check_audit_dispatch_integrity(path: Path) -> list[str]:
     """Invalidate reports whose BLOCKING payload is a dispatch-integrity complaint.
 
     Dispatch-integrity signatures in a BLOCKING payload mean a framework bug
     (spec #105 T3): the report is invalid and the framework must be fixed,
-    never expressed by the auditor.
+    never expressed by the auditor. Only BLOCKING-anchored lines count (audit-T5
+    I1: a MINOR anchor or an unanchored severity legend must never trip it).
     """
-    from shenbi.contracts.severity import BOLD_ANCHOR_RE, BRACKET_ANCHOR_RE
-
     text = path.read_text(encoding="utf-8")
     issues: list[str] = []
     for ln, line in enumerate(text.split("\n"), 1):
-        blocking_hit = "BLOCKING" in line and (
-            BRACKET_ANCHOR_RE.search(line) or BOLD_ANCHOR_RE.search(line)
-        )
-        if not blocking_hit:
+        if not (_DI_BLOCKING_BRACKET_RE.search(line) or _DI_BLOCKING_BOLD_RE.search(line)):
             continue
         has_path = _DI_BACKTICK_PATH_RE.search(line) or _DI_BARE_PATH_RE.search(line)
         if has_path and _DI_ACTION_RE.search(line):

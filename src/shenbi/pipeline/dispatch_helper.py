@@ -539,6 +539,15 @@ OPTIONAL_READS: dict[str, list[str]] = {
     # (step 6) — the grounding read is absent on the first pass and present
     # on scoped-redo re-dispatch (genesis-complete reject --redo-steps).
     "shenbi-faction-builder": ["outline/volume_map.md"],
+    # spec #105 T3 (audit-T5 I2): 框架级资产/文档声明可降级的读——
+    # benchmarks/anchors/ 是框架根目录资产（review-resonance SKILL:198-204
+    # "不复制到项目目录…为空或不存在 route A 降级为无锚点参照，不阻断但
+    # flag"；anchor-curate 在 genesis 是 optional 步骤且 init 不预建该目录）；
+    # era-reference.md 同属框架资产（review-era SKILL:83 指 skills/ 下本体）；
+    # source_canon/* 是 fanfic 模式的可选 canon 素材。预检不得因此硬停整波。
+    "shenbi-review-resonance": ["benchmarks/anchors/"],
+    "shenbi-review-era": ["era-reference.md"],
+    "shenbi-review-fanfic": ["source_canon/*"],
     # probe9: the context decisions sidecar exists only in user-routable
     # context-composing mode — the pipeline's deterministic step 3 never
     # writes it, so escalation availability tables must not read its absence

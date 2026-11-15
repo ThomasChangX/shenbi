@@ -265,7 +265,7 @@ def _revalidate_finding(project_dir: Path, file_field: str, finding: str) -> boo
             )
 
             emitted = check_audit_severity_vocab(target, forms=PRODUCTION_VOCAB_FORMS)
-        else:
+        elif finding.startswith("G4.av.stale_line_ref"):
             t_raw = chapter_no_raw(target.name)
             chapter_path = (
                 project_dir / "chapters" / f"chapter-{t_raw}.md" if t_raw is not None else None
@@ -274,6 +274,11 @@ def _revalidate_finding(project_dir: Path, file_field: str, finding: str) -> boo
                 log.warning("pwi_finding_stale_chapter_gone", finding=finding, file=file_field)
                 return False
             emitted = check_audit_line_refs(target, chapter_path)
+        else:
+            # audit-T5 M2 (plan Task 4 Step 7): 未识别的 G4.av.* 保守放行并留痕——
+            # 不能落进 line_refs 分支（含 chapter-gone 早退）被当 stale 静默吞。
+            log.warning("pwi_unmapped_av_finding", finding=finding, file=file_field)
+            return True
     else:
         return True
 

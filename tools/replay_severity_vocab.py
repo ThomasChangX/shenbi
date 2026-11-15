@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Spec #105 T2/T3: replay G4.av.vocab (+dispatch_integrity) over a project's audits.
+"""Spec #105 T2/T3/T5: replay G4.av.vocab (+dispatch_integrity) over a project's audits.
 
 判据与 _is_audit_file 完全对齐(r2-I1): audits/ 域 + chapter-NN-<dim> 形 +
 仅排除 .aggregate.md, 不排除 -resonance.md(生产 is_audit 块对 resonance
@@ -13,7 +13,10 @@ import re
 import sys
 from pathlib import Path
 
-from shenbi.pipeline.llm_output_integrity import check_audit_severity_vocab
+from shenbi.pipeline.llm_output_integrity import (
+    ALL_VOCAB_FORMS,
+    check_audit_severity_vocab,
+)
 
 _CHAPTER_NUM_RE = re.compile(r"^chapter-(\d+)")
 
@@ -34,6 +37,11 @@ def main() -> int:
     parser.add_argument("project_dir", type=Path)
     parser.add_argument("--out", type=Path, default=None, help="report path (default stdout)")
     parser.add_argument(
+        "--pattern",
+        default="chapter-*.md",
+        help="audit-filename glob (default chapter-*.md)",
+    )
+    parser.add_argument(
         "--dispatch-integrity",
         action="store_true",
         help="also replay check_audit_dispatch_integrity (spec #105 T5)",
@@ -49,23 +57,27 @@ def main() -> int:
         di_check = check_audit_dispatch_integrity
 
     audits = args.project_dir / "audits"
-    files = sorted(p for p in audits.glob("*.md") if _is_replay_target(p.stem))
+    files = sorted(p for p in audits.glob(args.pattern) if _is_replay_target(p.stem))
     total_files = sorted(audits.glob("*.md")) if audits.is_dir() else []
     aggregates = [p for p in total_files if p.stem.endswith(".aggregate")]
-    others = [p for p in total_files if p not in files and p not in aggregates]
+    escalations = [p for p in total_files if p.stem.startswith("escalation-")]
+    others = [
+        p for p in total_files if p not in files and p not in aggregates and p not in escalations
+    ]
 
     lines = [
         "# spec #105 severity-vocab replay report",
         "",
         f"- 分母（生产触达口径=_is_audit_file 同判据）: {len(files)} 章审计形（含 resonance）",
         f"- aggregate 差集: {len(aggregates)}",
-        f"- 其他差集（escalation/arc/volume/stratum 等）: {len(others)}",
+        f"- escalation 差集: {len(escalations)}",
+        f"- 其他差集（arc/volume/stratum 等）: {len(others)}",
         "",
     ]
     vocab_hits = 0
     di_hits = 0
     for p in files:
-        issues = check_audit_severity_vocab(p)
+        issues = check_audit_severity_vocab(p, forms=ALL_VOCAB_FORMS)
         if di_check is not None:
             issues = issues + di_check(p)
         for issue in issues:

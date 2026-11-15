@@ -306,28 +306,38 @@ def missing_audit_reads(project_dir: Path | str, skill: str, chapter: int | None
     from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
 
     project = Path(project_dir)
+    from shenbi.contracts.loader import ContractError
+
     try:
         contract = load_contract(skill)
-    except Exception:  # noqa: BLE001 — 契约装载失败非本预检职责（上游 G1 已拦）
+    except ContractError:
+        # audit-T5 I3: 契约装载失败非本预检职责（上游 G1 已拦）——但不静默：
+        # 记 error 让「预检跳过了该技能」可观测（rubric 吞错项）。
+        log.error("audit_readiness_contract_unavailable", skill=skill)
         return []
     optional_patterns = OPTIONAL_READS.get(skill, [])
 
     def _entry_file(entry: object) -> str:
         return str(entry.get("file", "")) if isinstance(entry, dict) else str(entry)
 
-    produces = {_entry_file(w) for w in contract.get("writes", [])} | {
-        _entry_file(u) for u in contract.get("updates", [])
+    def _resolve(rel: object) -> str:
+        if chapter is None:
+            return str(rel).replace("chapter-N", "N")
+        return str(rel).replace("chapter-N", f"chapter-{chapter}")
+
+    # writes/updates 同样做占位符替换（audit-T5 I4：raw 模板与 resolved read
+    # 直接比较永不相等——自身的产物豁免分支会整段失效）。
+    produces = {_resolve(_entry_file(w)) for w in contract.get("writes", [])} | {
+        _resolve(_entry_file(u)) for u in contract.get("updates", [])
     }
     missing: list[str] = []
     for rel in contract.get("reads", []):
-        resolved = (
-            str(rel).replace("chapter-N", "N")
-            if chapter is None
-            else str(rel).replace("chapter-N", f"chapter-{chapter}")
-        )
+        resolved = _resolve(rel)
         probe = project / resolved
         if probe.exists():
             continue
+        # 目录形读（如 benchmarks/anchors/）：dispatch 侧 _resolve_read_path 展开
+        # 目录内 *.md；目录存在但空视为 dispatch 拿到零文件——保持严格（缺）。
         if resolved in produces:
             continue
         if any(fnmatch(resolved, pat) for pat in optional_patterns):
