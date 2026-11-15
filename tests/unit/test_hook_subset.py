@@ -23,6 +23,16 @@ def test_hook_has_no_copied_threshold_flag() -> None:
     assert "--cov-fail-under" not in HOOK
 
 
+def test_hook_has_no_hand_copied_tool_lines() -> None:
+    """Constructive subset means the just recipes own the command lines —
+    hand-copied lint/mypy/pytest invocations in the hook are the anti-pattern
+    this task deletes (flag-set difference empty, spec §2.4).
+    """
+    assert not re.search(
+        r"uv run (python tools/lint_|python tools/check_|mypy|basedpyright|pytest)", HOOK
+    )
+
+
 def test_exception_faces_are_hook_only() -> None:
     # "mkdocs build --strict" (not bare "mkdocs" — justfile's docs: serve
     # recipe legitimately contains that word)

@@ -19,6 +19,17 @@ def _check_body() -> str:
     return JUSTFILE.split("check:", 1)[1].split("\n\n", 1)[0]
 
 
+def _lint_body() -> str:
+    return JUSTFILE.split("lint:", 1)[1].split("\n\n", 1)[0]
+
+
+def _check_effective_body() -> str:
+    """Check delegates its lint face to `just lint` (spec #92 T4) — the
+    effective body is check itself plus the lint recipe it invokes.
+    """
+    return _check_body() + "\n" + _lint_body()
+
+
 class TestCISingleSource:
     def test_ci_invokes_just_check(self):
         # `uvx just` would resolve PyPI 'just' (kootenpv/just) — an unrelated
@@ -62,12 +73,15 @@ class TestJustfileCheckScope:
         assert ".codex-plugin/" in check_body
 
     def test_check_runs_fixture_mirror(self):
-        assert "check_fixture_mirror.py" in _check_body()
+        # lint face lives in the `lint:` recipe invoked by check (spec #92 T4)
+        assert "just lint" in _check_body()
+        assert "check_fixture_mirror.py" in _lint_body()
 
     def test_check_includes_ci_only_lints(self):
-        check_body = _check_body()
-        assert "lint_no_forbid_with_computed_field.py" in check_body
-        assert "lint_no_fs_mutation.py" in check_body
+        assert "just lint" in _check_body()
+        lint_body = _lint_body()
+        assert "lint_no_forbid_with_computed_field.py" in lint_body
+        assert "lint_no_fs_mutation.py" in lint_body
 
     def test_codex_plugin_tracked(self):
         gi = (REPO_ROOT / ".gitignore").read_text(encoding="utf-8")

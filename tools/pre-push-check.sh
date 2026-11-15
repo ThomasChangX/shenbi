@@ -50,7 +50,7 @@ elif changed="$(git diff --name-only main...HEAD)" && grep -qE '^(docs/|mkdocs\.
       echo "$non_cairo_problems"; exit 1
     fi
   fi
-  uv sync --frozen --group dev >/dev/null  # restore dev env for subsequent pytest/mypy/ruff
+  uv sync --frozen --group dev >/dev/null  # restore dev env for subsequent just test-ci and 8/9
 fi
 
 # 5. Tests: constructive via just test-ci (both pytest legs + module
