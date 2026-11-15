@@ -15,7 +15,7 @@
 
 ### #92 · 测试与门禁管线卫生（test-ci-hygiene）
 
-- **文件**：`2026-11-01-spec92-test-ci-hygiene.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.2） ｜ **优先级**：🟠 P1
+- **文件**：`2026-11-01-spec92-test-ci-hygiene.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r3** 2026-11-15 价值门 REWRITE——T1 拆双职保 calibration 半段/判据补 audit-runs 排除面/定序钉同 commit/T6 改道 tests/support/） ｜ **优先级**：🟠 P1
 - **依赖**：无硬依赖（与 #90/#93/#95 共 justfile/lint_registry 文件面，顺序见「批次 A 共享文件面」表）
 - **内容**：deps.json **_tool_hashes 整删**（G7 不使用、唯一消费者是 R3 自洽检查；连带 lock-tool-hashes.sh/R3/**5 处测试+2 处 G0.14 断言+3 份活文档**/DepsDoc 字段）+ DepsDoc 单装载函数 **6 个 src 读者+3 tools** 换装（phase_runner 同名 load_deps 改薄包装）+ REPO_ROOT 常量替 parents[N] 魔法（7 点）+ **test 与 test-all 合并**（`unit` 标记退役**三选一**——`--strict-markers` 下删定义=全仓 1,153 处标注收集 ERROR，已复现）+ --cov-fail-under 四拷收敛 pyproject + just lint/type/test-ci 子配方（lint 20+#95 新增 1）+ pre-push hook 构造性子集（补 hypothesis profile 对齐）+ 死目录/幻影 norecursedirs/contract 孪生/per-file-ignores 整并 + dispatch_payload 构造器首批 5 文件；**＋tests/pipeline pytest-randomly 顺序 flake**（束7 实测：随机序 6 失败/固定序双侧全绿——顺序敏感根因待查，2026-11-08 束7 发现）
 - **对应 plan**：待执行时建
