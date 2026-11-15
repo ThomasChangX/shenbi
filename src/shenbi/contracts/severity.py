@@ -80,6 +80,8 @@ SECTION_HEADER_RE = re.compile(rf"^## ({_SECTION_WORDS}) Findings", re.M)
 # ── T4 判别器词汇 ─────────────────────────────────────────────────────────────
 
 #: CJK severity 判别词族（r2.5 C-1 精确等值集合成员判定，禁子串/前缀）。
-CJK_SEVERITY_WORDS: frozenset[str] = frozenset({"严重", "高", "重大", "中", "低", "警告", "阻断"})
+#: audit-T4 处置(d): `阻断` 属 ResonanceVerdict 注册域 (status-vocab.md), 误入本族
+#: 在 vol1 回放产生 13 处 bold 形误伤 -- 移出。
+CJK_SEVERITY_WORDS: frozenset[str] = frozenset({"严重", "高", "重大", "中", "低", "警告"})
 #: key 名 token 豁免集（归一后比较；封英文裸 key bold 形误报面）。
 KEY_NAME_TOKENS: frozenset[str] = frozenset({"SEVERITY", "严重度"})

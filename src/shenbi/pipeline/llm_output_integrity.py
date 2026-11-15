@@ -297,7 +297,15 @@ def _vocab_violation(token: str) -> bool:
     return token not in AGGREGATE_VOCAB_SET
 
 
-def check_audit_severity_vocab(path: Path) -> list[str]:
+#: 生产接线形态集——audit-T4 处置(a): 仅 key 形 (spec r2.4 自称 key 形=唯一
+#: 全通配槽位; vol1 613 份回放 key-only 零误伤)。bracket/bold 通配槽在真语料
+#: 承载状态/计数/配置标签生态 (Successful/OK/MISSING/maxGapFIRE...) 词法不可
+#: 零误伤 (199 误伤实证) -- 保留在回放工具做 #116 数据采集, 不接生产 FAIL。
+PRODUCTION_VOCAB_FORMS: tuple[str, ...] = ("key",)
+ALL_VOCAB_FORMS: tuple[str, ...] = ("bracket", "bold", "key")
+
+
+def check_audit_severity_vocab(path: Path, forms: tuple[str, ...] = ALL_VOCAB_FORMS) -> list[str]:
     """Flag anchored-form severity tokens outside the aggregate vocabulary.
 
     散文提及(非锚定形)不报; cell 形 v1 不建(| PASS | / | 通过 | / 置信度
@@ -311,6 +319,8 @@ def check_audit_severity_vocab(path: Path) -> list[str]:
         ("bold", _VOCAB_BOLD_RE),
         ("key", _VOCAB_KEY_RE),
     ):
+        if form not in forms:
+            continue
         for m in regex.finditer(text):
             token = m.group(1)
             if not _vocab_violation(token):

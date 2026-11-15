@@ -71,8 +71,10 @@ from shenbi.pipeline.read_extractors import (
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
+    PRODUCTION_VOCAB_FORMS,
     check_audit_dispatch_integrity,
     check_audit_line_refs,
+    check_audit_severity_vocab,
     check_markdown_fence_balance,
     check_prose_leakage,
     detect_write_failure,
@@ -2975,9 +2977,10 @@ def write_parsed_outputs(
             # spec #105 T3: dispatch-integrity signature → report invalid.
             # vol1 回放 108/108 全真阳性（历史框架事故族）——shadow 零误伤。
             issues += check_audit_dispatch_integrity(full_path)
-            # spec #105 T2: G4.av.vocab 发射 HELD——vol1 回放 199 全误伤
-            # （BLOCKING deviation 待用户裁定，见 spec-deviations.md）：
-            # issues += check_audit_severity_vocab(full_path)
+            # spec #105 T2/T4: key-only 发射（audit-T4 处置(a)）——bracket/bold
+            # 通配在真语料 199 误伤，保留于回放工具做 #116 采集；key 形=唯一
+            # 全通配槽位（spec r2.4 自证），vol1 613 份回放零误伤。
+            issues += check_audit_severity_vocab(full_path, forms=PRODUCTION_VOCAB_FORMS)
 
         for issue in issues:
             log.warning("llm_output_integrity_issue", path=str(full_path), finding=issue)

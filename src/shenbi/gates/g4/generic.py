@@ -259,9 +259,12 @@ def _revalidate_finding(project_dir: Path, file_field: str, finding: str) -> boo
 
             emitted = check_audit_dispatch_integrity(target)
         elif finding.startswith("G4.av.vocab"):
-            from shenbi.pipeline.llm_output_integrity import check_audit_severity_vocab
+            from shenbi.pipeline.llm_output_integrity import (
+                PRODUCTION_VOCAB_FORMS,
+                check_audit_severity_vocab,
+            )
 
-            emitted = check_audit_severity_vocab(target)
+            emitted = check_audit_severity_vocab(target, forms=PRODUCTION_VOCAB_FORMS)
         else:
             t_raw = chapter_no_raw(target.name)
             chapter_path = (
