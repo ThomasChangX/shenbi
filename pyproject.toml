@@ -568,9 +568,6 @@ norecursedirs = [
     "tests/baselines",
     "tests/coverage",
     "tests/tiers",
-    "tests/dispatcher",
-    "tests/skill-behavior",
-    "tests/skill-triggering",
     ".hypothesis",
 ]
 addopts = [
