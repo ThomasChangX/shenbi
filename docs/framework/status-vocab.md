@@ -18,7 +18,9 @@
 | ScoringStatus | shenbi.status.ScoringStatus | ok\|REJECT\|MARKER_MISSING\|UNIMPLEMENTED | scoring.py | dispatcher |
 | ScoreClassification | shenbi.status.ScoreClassification | PASS\|CONDITIONAL\|MARGINAL\|FAIL | scoring.classify | - |
 | SkillProgressStatus | shenbi.status.SkillProgressStatus | pending\|done\|skip | dispatcher/modes/codex.py | gates/g_reconcile.py（容错读旧大写 DONE，T906） |
-| AuditSeverity | shenbi.contracts.enums.Severity | BLOCKING\|CRITICAL\|MINOR | 审计产出 | escalation 路由（regex 域大小写归一后比对，revision_router.py、parallel_dispatch.py） |
+| AuditSeverity | shenbi.contracts.enums.Severity | BLOCKING\|CRITICAL\|MINOR | 审计产出 | 审计产出 severity 三档（G4.av.vocab 校验域；spec #105 修真——原「escalation 路由（revision_router、parallel_dispatch）」为登记死线，两文件实零 `Severity` import） |
+| RoutingTier | shenbi.contracts.severity.RoutingTier | BLOCKING\|CRITICAL | 审计产出（escalation 路由两档；legacy `[ERROR]` 硬档别名=ROUTING_HARD_TIER_ALIASES，不入值集——audit_layer 消费别名非值集） | revision_router、chapter_loop、parallel_dispatch（spec #105 T1） |
+| AggregateVocab | shenbi.contracts.severity.AggregateVocab | BLOCKING\|CRITICAL\|MINOR\|WARNING\|ERROR | 审计产出（聚合面；WARNING/ERROR 为 legacy 词） | audit_aggregate、report_longitudinal（spec #105 T1） |
 | ReviewVerdict | shenbi.contracts.enums.Verdict | 通过\|有瑕疵\|不通过 | review-* 技能 md | 评分/审计读取 |
 | ResonanceVerdict | shenbi.contracts.enums.ResonanceVerdict | 通过\|阻断\|待人机复核 | review-resonance 技能 md | gates/g4/review_resonance.py（T902：_VERDICTS 裸 tuple 收编） |
 | CPZone | shenbi.contracts.enums.CPZone | GREEN\|ORANGE\|RED | - | foreshadowing_resolve.py |
