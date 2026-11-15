@@ -38,7 +38,7 @@
   - `ROUTING_HARD_TIER_ALIASES: tuple[str, ...] = ("ERROR",)`
   - `SEV_ENUM_TAIL: str`（= revision_router.py:90 `_SEV_ENUM_TAIL` 原文迁入）
   - `NEGATION_PAYLOAD_TAIL: str`、`QUOTED_VALUE_TAIL: str`（:102/:120 原文迁入）
-  - `BRACKET_ANCHOR_RE`/`BOLD_ANCHOR_RE`/`CELL_ANCHOR_RE`/`KEY_ANCHOR_RE`: `re.Pattern[str]`——四锚定形态**传感**正则（词表内，语义同 audit_aggregate.py:46-61 现行族，词表由 AGGREGATE_VOCAB 组合构造，**无手写交替字面量**）
+  - `BRACKET_ANCHOR_RE`/`BOLD_ANCHOR_RE`: `re.Pattern[str]`——bracket/bold 两锚定形态**传感**正则（词表内，语义同 audit_aggregate.py:46-47 现行族，词表由 AGGREGATE_VOCAB 组合构造，**无手写交替字面量**；T5 dispatch_integrity 消费——r2-M5 YAGNI 收缩：**不建 CELL_ANCHOR_RE/KEY_ANCHOR_RE**——cell/key 传感由 audit_aggregate 换装时本地从 AGGREGATE_VOCAB 组合重建（行为保持），单源模块只建有生产消费方的锚定）
   - `SECTION_HEADER_RE`: `re.Pattern[str]`——`^## (BLOCKING|CRITICAL|MINOR|WARNING|ERROR) Findings`（元组组合，含 MINOR——修 report_longitudinal:558 缺词）
   - `CJK_SEVERITY_WORDS: frozenset[str] = frozenset({"严重","高","重大","中","低","警告","阻断"})`
   - `KEY_NAME_TOKENS: frozenset[str] = frozenset({"SEVERITY", "严重度"})`
@@ -50,10 +50,7 @@
 ```python
 """Spec #105 T1: severity single-source module (registry-aligned)."""
 
-import re
 from typing import get_args
-
-import pytest
 
 
 def test_routing_tier_literal_and_runtime_tuple():
@@ -84,16 +81,12 @@ def test_anchored_forms_match_in_vocab_words_only():
         AGGREGATE_VOCAB,
         BOLD_ANCHOR_RE,
         BRACKET_ANCHOR_RE,
-        CELL_ANCHOR_RE,
-        KEY_ANCHOR_RE,
     )
 
     assert BRACKET_ANCHOR_RE.search("- [MINOR] something")
     assert not BRACKET_ANCHOR_RE.search("- [MAJOR] something")  # 词表外不入传感域
     assert BOLD_ANCHOR_RE.search("**BLOCKING**")
     assert BOLD_ANCHOR_RE.search("**CRITICAL**")  # M-10: bold 形全词断言
-    assert CELL_ANCHOR_RE.search("| warning |")  # IGNORECASE legacy cell
-    assert KEY_ANCHOR_RE.search("4. **严重度**：BLOCKING / CRITICAL / MINOR") is None  # legend 守卫
     for w in AGGREGATE_VOCAB:
         assert BRACKET_ANCHOR_RE.search(f"- [{w}] x")
 
@@ -234,7 +227,7 @@ from pathlib import Path
 
 import pytest
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[3]  # r2-M6: tests/unit/pipeline/ → repo 根是 parents[3]
 CORPUS = REPO / "tests/fixtures/audits"
 BASELINE = REPO / "tests/baselines/severity-swap/baseline.json"
 
@@ -322,7 +315,7 @@ git commit -m "feat: spec #105 T1c — severity 交替字面量 AST lint（单�
   - `check_audit_severity_vocab(path: Path) -> list[str]`——issue 形态 `G4.av.vocab:{path.name} — 词表外严重度 "{token}"（{form} 形）：用 BLOCKING/CRITICAL/MINOR 重写本条`
   - `tools/replay_severity_vocab.py <project_dir> [--pattern 'chapter-*-*.md'] [--out FILE]`——回放报告（命中/清洗清单/误伤候选计数）
 
-- [ ] **Step 1: 失败测试（红六绿八全清单）**——`tests/unit/pipeline/test_check_audit_severity_vocab.py` 用 tmp_path 写文件逐条断言（红：`- [MAJOR] x`／`**BLOCKER**`／`严重度: 严重`／`严重度: 高`／`- [major]`／`Severity: MAJOR`；绿：`[MINOR]`／`- [minor]`／prose "major"／`severity:BLOCKING/CRITICAL/MINOR`／`**严重度**：BLOCKING / CRITICAL / MINOR`／`**判定**`+`**章节**`+`- [读者回报]`+`- [MINOR·观察]`／`**严重度**` 裸 key／`**Severity**`）：
+- [ ] **Step 1: 失败测试（红六绿八全清单）**——`tests/unit/pipeline/test_check_audit_severity_vocab.py` 用 tmp_path 写文件逐条断言（红：`- [MAJOR] x`／`**BLOCKER**`／`严重度: 严重`／`严重度: 高`／`严重度: 高。`（尾部标点——r2-M2 捕获污染剥离的验收钉：不剥则 CJK 精确等值不命中=静默漏报）／`- [major]`／`Severity: MAJOR`；绿：`[MINOR]`／`- [minor]`／prose "major"／`severity:BLOCKING/CRITICAL/MINOR`／`**严重度**：BLOCKING / CRITICAL / MINOR`／`**判定**`+`**章节**`+`- [读者回报]`+`- [MINOR·观察]`／`**严重度**` 裸 key／`**Severity**`）：
 
 ```python
 """Spec #105 T2: G4.av.vocab — out-of-vocab severity is a hard, discriminated gate."""
@@ -370,6 +363,7 @@ def test_out_of_vocab_red(tmp_path, content):
         "**严重度**",
         "**Severity**",
         '"severity": "low"',  # M-5: QUOTED_VALUE_TAIL 引号值绿测（Step 3 修正的验收钉，进首清单非后补）
+        "严重度: ERROR（对应 BLOCKING）",  # r2-M2: 括注剥离——剥后 ERROR∈词表 PASS（不剥=误报）
     ],
 )
 def test_in_vocab_or_exempt_green(tmp_path, content):
@@ -389,7 +383,7 @@ def test_in_vocab_or_exempt_green(tmp_path, content):
   - cell 形不建；散文豁免=仅锚定形捕获（正则天然保证）。
   - docstring 注明 spec #105 T2 与「禁从传感正则推导」原因。
 - [ ] **Step 4: 测试绿**——`uv run pytest tests/unit/pipeline/test_check_audit_severity_vocab.py -q`（含补的 `"severity": "low"` 绿测）。
-- [ ] **Step 5: 回放工具 `tools/replay_severity_vocab.py`**——遍历 `<project_dir>/audits/` 章审计形（`chapter-\d+-` 前缀、排除 `.aggregate.md`/`-resonance.md`），跑 checker，输出 markdown 报告：命中清单（file:line:token:form）+总数+分母三数（生产触达/aggregate 差集/escalation 差集——用 `_is_audit_file` 同判据本地复刻，不 import 私有）。
+- [ ] **Step 5: 回放工具 `tools/replay_severity_vocab.py`**——遍历 `<project_dir>/audits/` 章审计形——**判据与 `_is_audit_file` 完全对齐（r2-I1）：`audits/` 域 + `chapter-NN-<dim>` 形 + 仅排除 `.aggregate.md`，不排除 `-resonance.md`**（生产 is_audit 块对 resonance 同样生效——completeness/line_refs 现状即跑 resonance；回放排除 resonance 则 shadow 闸门永远测不到 46 份生产触达文件=闸门完整性缺口），跑 checker，输出 markdown 报告：命中清单（file:line:token:form）+总数+分母（生产触达/aggregate 差集/escalation 差集——`_is_audit_file` 同判据本地复刻，不 import 私有）。
 - [ ] **Step 6: vol1 回放（shadow 闸门）**——`uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --out /tmp/spec105-vocab-replay.md`；人工核命中条目全为真词表外违规（预期≈0——语料零命中词表外写法）；**零误伤→接线 FAIL；有误伤→停，记 BLOCKING deviation 报备**。报告关键数字粘贴 progress.md。
 - [ ] **Step 7: 接线双点位**：
   - `dispatch_helper.py` is_audit 块（:2970-2973）追加 `issues += check_audit_severity_vocab(full_path)`（import 入既有 from-import 列表 :71-78 位置——M-8 行号修正）。
@@ -423,7 +417,7 @@ git commit -m "feat: spec #105 T2 — G4.av.vocab 词表外 fail-loud（三段�
 
 - [ ] **Step 1: 失败测试**——三组：
   1. `missing_audit_reads` 单测：tmp project + stub contract（monkeypatch `load_contract` 返回 `{"reads": ["chapters/chapter-N.md", "truth/current_state.md", "characters/*.md"], "writes": ["audits/chapter-N-x.md"], "updates": []}`；OPTIONAL_READS monkeypatch 空或缺省）→ 缺 chapters 文件时返回含该路径、glob 有匹配时 characters 不缺、writes 产物（audits/...）不算缺。
-  2. **零派发红测**（`_must_not_dispatch` 先例 tests/pipeline/test_redispatch_g4_and_draft_precheck.py:107——执行期读该文件照搬 monkeypatch `dispatch_helper.dispatch_skill` 手法（M-8 行号修正））：构造 wave 内某审计技能 required read 缺失 → `_run_audit_wave_step` 不派任何 LLM（monkeypatch 派发函数断言零调用）+ escalation checkpoint 置位。
+  2. **零派发红测**（`_must_not_dispatch` 先例 tests/pipeline/test_redispatch_g4_and_draft_precheck.py:113（`_must_not_dispatch` def 行——r2-M3 校准）——执行期读该文件照搬 monkeypatch `dispatch_helper.dispatch_skill` 手法）：构造 wave 内某审计技能 required read 缺失 → `_run_audit_wave_step` 不派任何 LLM（monkeypatch 派发函数断言零调用）+ escalation checkpoint 置位。
   3. `check_audit_dispatch_integrity` 红绿：红=``- [BLOCKING] 派发完整性：请补齐 `chapters/chapter-40.md` 与 `plans/chapter-40-plan.md` 后重跑本维度``（chapter-40-reader-pull.md:44 原文）→ issue；红2=``- [BLOCKING] 输入缺失：请补入 `chapters/chapter-10.md` 后重跑``；绿=``- [BLOCKING] 字数不足，请补齐至 3200 字``（无路径 token）→ 无 issue；绿2=`- [MINOR] 派发完整性相关表述`（非 BLOCKING 行）→ 无 issue。
 - [ ] **Step 2: 确认失败**。
 - [ ] **Step 3: 实现 `missing_audit_reads`**（audit_layer.py）——语义按 revision_router.py:268-303 三态复刻：`_entry_file` 剥 dict 形 read；`resolved = str(rel).replace("chapter-N", f"chapter-{chapter}")`（chapter None 时保持 N 字面——与 :276-282 同）；produces 剔除；`any(fnmatch(resolved, pat) for pat in OPTIONAL_READS.get(skill, []))` 剔除；`"*" in resolved` 时 `Path(project_dir).glob(...)` 命中即非缺；其余 `.exists()` 判缺失。docstring 注明 spec #105 T3 与 M1 作用域（仅审计派发面）。
@@ -448,7 +442,7 @@ if missing:
     return True
 ```
 
-（**预检名册（I-4 结构修正）**：`_run_audit_wave_step`（:3916）为双 wave 结构——预检圈定=core wave 名册 ∪ `get_active_genre_audits(project_dir)`（genre 圈，读 genre-config.json）∪ 串行分区成员（`_partition_review_wave` 输出）；预检置于**名册装配完成后、任一 `dispatch_*` 调用前**——只圈 core wave 会漏 genre 审计派发的欠覆盖且不被任何测试捕获。`set_checkpoint` 签名 machine.py:69（chapter/context kwargs）；#51 同款 `return True` 停步语义。）
+（**预检名册（I-4 结构修正）**：`_run_audit_wave_step`（:3916）为双 wave 结构——预检圈定=core wave 名册 ∪ `get_active_genre_audits(genre_config)`（genre 圈——签名收 Mapping 非 project_dir，r2-M4 校准；genre-config.json 现由 chapter_loop:4009-4011 加载——**须将该加载+名册装配上提到 wave-1 派发之前**）∪ 串行分区成员（`_partition_review_wave` 输出）；预检置于**名册装配完成后、任一 `dispatch_*` 调用前**；**零派发红测两变体**（core 技能缺 read + genre 圈技能缺 read——I-4 自认「只圈 core 不被测试捕获」，genre 变体即钉住该结构）；**bundle 模式**：`bundle_chapters`（:1472）可返 `[N, N+1]`——预检循环按 `wave_chapters` 展开逐章查（r2-M7：follower 章输入缺失不漏检）——只圈 core wave 会漏 genre 审计派发的欠覆盖且不被任何测试捕获。`set_checkpoint` 签名 machine.py:69（chapter/context kwargs）；#51 同款 `return True` 停步语义。）
 - [ ] **Step 6: generic 第三路由落位**——`G4.av.dispatch_integrity` → `check_audit_dispatch_integrity`（Task 4 的未识别放行分支前插入）。
 - [ ] **Step 7: 全部测试绿**——`uv run pytest tests/unit/pipeline/test_audit_readiness.py tests/unit/pipeline/test_check_audit_severity_vocab.py -q` + `uv run pytest tests/pipeline -q`（零派发红测所在既有套件零回归）。
 - [ ] **Step 8: vol1 回放差集**——`uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --out /tmp/spec105-di-replay.md`（工具扩展：同时跑 dispatch_integrity checker 或单独小跑）——预期命中 ch10/12/14/16/20/40 实弹族（这些是历史框架 bug 产物，非误伤）；粘贴计数进 progress.md。
@@ -494,11 +488,11 @@ git commit -m "feat: spec #105 T4a — G4_FORMAT_EXAMPLES 补 scene_budget/vocab
 - Test: `tests/pipeline/test_audit_aggregate.py`（既有套件追加——integration 目录，M-8 修正）/`tests/unit/tools/test_report_longitudinal.py`（追加或新建）
 
 **Interfaces:**
-- Consumes: `SECTION_HEADER_RE`（Task 1）；`write_audit_aggregate`（audit_aggregate.py:157+）。
+- Consumes: `SECTION_HEADER_RE`（Task 1）；`write_audit_aggregate`（audit_aggregate.py:195+——r2-M3 校准：:157 是 render_aggregate）。
 - Produces: render 条目行 `- **{sev}** · {text}`；parser 兼容新旧两格式。
 
 - [ ] **Step 1: 失败测试**——render 测试：构造 FindingUnit(severity="MINOR", text="x") → 输出含 `- **MINOR** · x` 且节头保留 `## MINOR Findings`；parser 红绿：新格式 `- **BLOCKING** · 文本` → FindingUnit("BLOCKING", "文本")（前缀剥离）；旧格式 `- 文本` 在 BLOCKING 节 → FindingUnit("BLOCKING", "文本")（双格式容差）；`- 报告方: ...` 行仍跳过。
-- [ ] **Step 2: 实现 render**——:174 `parts.append(f"- {u.text}")` → `parts.append(f"- **{u.severity}** · {u.text}")`（报告方行不变）。
+- [ ] **Step 2: 实现 render**——:175 `parts.append(f"- {u.text}")` →（r2-M3 校准：:174 是 for 行） `parts.append(f"- **{u.severity}** · {u.text}")`（报告方行不变）。
 - [ ] **Step 3: 实现 parser 双格式**——`_parse_aggregate_sections` 条目行解析：`m = re.match(r"^-\s*\*\*([A-Z]+)\*\*\s*·\s*(.+)$", s)` 命中→（校验 m.group(1)==sev 或以其为准——**以条目级为准**，与节头不一致时条目级胜出并保留）；未命中→现行为 `s.lstrip("- ").strip()`；节头判定换 `SECTION_HEADER_RE`（已在 Task 2 换装——此处仅确认行为）。
 - [ ] **Step 4: 下游消费差分**——`git grep -rn "aggregate.md" -- src/ tools/ tests/ | grep -v test_` 列全消费面；对每面确认新旧格式兼容（report_longitudinal 已改；其余面 grep 确认无 `- {text}` 形态解析依赖——若发现新解析点，同批改并加测试）。
 - [ ] **Step 5: 全绿**——`uv run pytest tests/pipeline/test_audit_aggregate.py tests/unit/tools/test_report_longitudinal.py -q`。
