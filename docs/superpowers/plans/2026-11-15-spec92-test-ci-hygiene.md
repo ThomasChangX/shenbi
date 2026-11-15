@@ -142,31 +142,32 @@ git commit -m "chore: spec #92 T1 — delete _tool_hashes block, slim lock scrip
 
 **Interfaces:**
 - Consumes: Task 1's `DepsDoc` (without `tool_hashes`)
-- Produces: `def load_deps(deps_path: Path) -> DepsDoc` in `shenbi.contracts.schemas.deps` (raises `OSError`/`json.JSONDecodeError`/`pydantic.ValidationError` — callers own error mapping). NOTE: spec says `load_deps(repo_root)`; plan pins `load_deps(deps_path: Path)` taking the deps.json **file path** — all six call sites already hold/construct the full path (g0 receives it as a parameter), file-path is strictly more general. Recorded as deviation.
+- Produces: `def load_deps(deps_path: Path) -> DepsDoc` in `shenbi.contracts.schemas.deps` (raises `OSError`/`pydantic.ValidationError` — callers own error mapping; pydantic v2 wraps malformed JSON in ValidationError). NOTE: spec says `load_deps(repo_root)`; plan pins `load_deps(deps_path: Path)` taking the deps.json **file path** — all six call sites already hold/construct the full path (g0 receives it as a parameter), file-path is strictly more general. Recorded as deviation.
 
 - [ ] **Step 1: Write failing loader tests**
 
 Append to `tests/unit/contracts/schemas/test_deps.py`:
 
 ```python
-def test_load_deps_roundtrip(tmp_path: Path) -> None:
+def test_load_deps_roundtrip() -> None:
     """load_deps reads the real deps.json shape into DepsDoc."""
     from shenbi.contracts.schemas.deps import load_deps
 
-    src = Path("tests/tiers/deps.json")
+    src = Path(__file__).resolve().parents[4] / "tests" / "tiers" / "deps.json"
     d = load_deps(src)
     assert isinstance(d, DepsDoc)
     assert d.calibration_hashes  # real file carries the G0.14 lock
 
 
 def test_load_deps_corrupt_fails(tmp_path: Path) -> None:
+    """Malformed JSON surfaces as pydantic ValidationError (v2 contract)."""
     from shenbi.contracts.schemas.deps import load_deps
+    import pytest
+    from pydantic import ValidationError
 
     bad = tmp_path / "deps.json"
     bad.write_text("{not json", encoding="utf-8")
-    import pytest
-
-    with pytest.raises(json.JSONDecodeError):
+    with pytest.raises(ValidationError):
         load_deps(bad)
 
 
@@ -190,33 +191,34 @@ Expected: FAIL (ImportError: load_deps).
 - [ ] **Step 3: Implement loader in deps.py**
 
 ```python
-import json
 from pathlib import Path
 
 
 def load_deps(deps_path: Path) -> DepsDoc:
     """Load and validate tests/tiers/deps.json as :class:`DepsDoc`.
 
-    Raises OSError / json.JSONDecodeError / pydantic.ValidationError —
-    callers own the error surface (CLI exit, gate fail tuple, marker list).
+    Raises OSError / pydantic.ValidationError — callers own the error
+    surface (CLI exit, gate fail tuple, marker list). NOTE: pydantic v2
+    ``model_validate_json`` raises ValidationError for malformed JSON too
+    (repo precedent: state_settling.py:867 catches ValueError around it).
     """
     return DepsDoc.model_validate_json(deps_path.read_text(encoding="utf-8"))
 ```
 
-(`model_validate_json` gives ValidationError for both malformed JSON and schema violations; keep the docstring contract explicit.)
+Callers' catch-tuples become `(OSError, ValidationError)` — drop `json.JSONDecodeError` from new catch sites (ValidationError subsumes it for this loader).
 
 - [ ] **Step 4: Convert the six readers**
 
-For each reader: replace `json.loads(...)`/`jload(...)` with `from shenbi.contracts.schemas.deps import load_deps`, catch `(OSError, json.JSONDecodeError, ValidationError)` (import ValidationError from pydantic), and convert dict access to attribute access:
+For each reader: replace `json.loads(...)`/`jload(...)` with `from shenbi.contracts.schemas.deps import load_deps`, catch `(OSError, ValidationError)` (import ValidationError from pydantic — the 2-tuple is the loader's contract; see Step 3 note), and convert dict access to attribute access:
 
 - `phase_runner.py:295-305` & `:382-390`: `deps.get("t2-phases", {}).get(phase, {})` → `deps.t2_phases.get(phase)`; `phase_data.get("prerequisites", [])` → `phase_data.prerequisites if phase_data else []`. Thin wrapper `:38-54`:
 
 ```python
-def load_deps_typed() -> DepsDoc:
+def load_deps() -> DepsDoc:
     """Load tests/tiers/deps.json; exit structured on corruption (F145)."""
     try:
         return deps_load(TESTS / "tiers" / "deps.json")
-    except (OSError, json.JSONDecodeError, ValidationError) as exc:
+    except (OSError, ValidationError) as exc:
         log.error("t2_deps_json_corrupt", path=str(TESTS / "tiers" / "deps.json"), error=str(exc))
         emit_json(
             {"status": CommandStatus.ERROR, "phase": None, "message": "t2 deps.json unreadable"}
@@ -226,10 +228,10 @@ def load_deps_typed() -> DepsDoc:
 
 Keep the module-level name `load_deps` (monkeypatch target!) — i.e. rename existing `load_deps` body to call `deps_load` (alias import `from shenbi.contracts.schemas.deps import load_deps as deps_load`). Both `cmd_pre_score` and the `:384` site keep calling `load_deps()` with zero args.
 
-- `scoring.py:284-305`: loader + `phase_name in deps.t2_phases` + `deps.t2_phases[phase_name].prerequisites`; keep the fail-closed `return [f"t2_deps_json_corrupt:..."]` on the same exception tuple; also `deps["t3-pipelines"]` site in the t3 branch → `deps.t3_pipelines` (read the full branch before editing).
+- `scoring.py:284-305`: loader + `phase_name in deps.t2_phases` + `deps.t2_phases[phase_name].prerequisites`; keep the fail-closed `return [f"t2_deps_json_corrupt:..."]` on the same exception tuple. (The t3 branch :303-309 never reads deps — only the G6 marker file — so no t3 conversion exists; verified in plan review.)
 - `g5.py:82-90`: `deps.t2_phases.get(phase_name)`; keep `fail("G5", ...)` mapping.
-- `g6.py:39-47`: `deps.t3_pipelines.get(pipeline_name)` (drop the `, {}` default — attribute is a dict already); `min_ratio = pipe_data.min_chapter_ratio if pipe_data else 0.5` (preserve current default 0.5 exactly).
-- `g0.py:210-221`: `deps = load_deps(deps_path)` inside the existing try; `deps.calibration_hashes.get("combined")`; keep the FAIL tuple mapping (add ValidationError to the except tuple).
+- `g6.py:39-47`: `deps.t3_pipelines.get(pipeline_name)` (drop the `, {}` default — attribute is a dict already); `min_ratio = pipe_data.min_chapter_ratio if pipe_data else 0.5` (preserve current default 0.5 exactly). Add one comment at the site: PipelineDeps.min_chapter_ratio schema default is 0.0 — a future hand-added pipeline entry omitting the key would silently get 0.0 (gate passes anything); all 3 real entries carry explicit values (long-form 0.5 / short-form 1.0 / import-form 1.0) — verified in plan review.
+- `g0.py:210-221`: `deps = load_deps(deps_path)` inside the existing try; `deps.calibration_hashes.get("combined")`; keep the FAIL tuple mapping (except tuple becomes the 2-tuple `(OSError, ValidationError)`).
 
 - [ ] **Step 5: Adapt the 5 monkeypatch lambdas**
 
@@ -287,12 +289,6 @@ git commit -m "feat: spec #92 T2a — typed load_deps loader + six-reader conver
 ```python
 """spec #92 T2b: REPO_ROOT single-source + parents[N] purge."""
 
-from pathlib import Path
-
-import pytest
-
-pytest.importorskip("shenbi.paths")
-
 import subprocess
 
 
@@ -336,7 +332,7 @@ gates.shared and stays a consumer, not a definer.
 """
 ```
 
-Conversions (each file: `from shenbi.paths import REPO_ROOT` where needed):
+Conversions (each file: `from shenbi.paths import REPO_ROOT` where needed; ANCHOR BY SYMBOL not line — Task 2 shifts scoring.py line numbers before Task 3 runs, so grep `parents\[[234]\]` per file first):
 - `phase_runner.py:34`: `TESTS = REPO_ROOT / "tests"`
 - `scoring.py:286`: fold into Task 2's rewrite — `deps_path = REPO_ROOT / "tests" / "tiers" / "deps.json"`
 - `gates/shared.py:31`: `PROJECT = REPO_ROOT` (keep name PROJECT — downstream importers unchanged)
@@ -408,7 +404,7 @@ for p in Path("tests").rglob("test_*.py"):
 print(f"files changed: {changed}")
 ```
 
-Run it, then: `git diff --stat -- tests/ | tail -1` (expect ~197 files), `git grep -c "pytest.mark.unit" -- tests/ | wc -l` (expect 0 files).
+Then run `uv run ruff check --fix tests/ && uv run ruff format tests/` — the sweep strands ~110 files whose only remaining `pytest` reference was the marker (unused-import F401; NOT covered by the tests/** per-file-ignores amnesty), and re-format absorbs the blank lines the regex removal leaves behind. Then ALSO delete the dead marker smoke test `test_unit_marker_works` (tests/unit/test_pytest_framework.py:23-26 — its docstring carries the literal `@pytest.mark.unit`, which the grep would otherwise count; the marker's retirement makes the test meaningless). Then: `git diff --stat -- tests/ | tail -1` (expect ~197 files), `git grep -c "pytest.mark.unit" -- tests/ | wc -l` (expect 0 files).
 
 - [ ] **Step 3: Delete marker registrations**
 
@@ -435,11 +431,11 @@ Delete the `test-all` recipe. In `tests/test_justfile_injection.py` EXPECTED_CAL
 
 Run:
 ```bash
-uv run pytest --collect-only -q -m "not last" 2>/dev/null | tail -1   # == 6396 collected, ZERO errors
+uv run pytest --collect-only -q -m "not last" 2>/dev/null | tail -1   # == 6395 collected, ZERO errors
 time just test -q 2>&1 | tail -3                                       # <60s, all pass
 uv run pytest tests/test_justfile_injection.py -q
 ```
-Expected: 6396/6399 collected (identical to baseline — sweep removed only markers, not tests); `just test` green <60s; injection test PASS.
+Expected: **6395/6398** collected (baseline 6396 minus the deleted dead `test_unit_marker_works` — the ONLY test removal in this spec, authorized by plan review I3); `just test` green <60s; injection test PASS.
 
 - [ ] **Step 7: Full-suite sanity**
 
@@ -490,8 +486,12 @@ JUST = (REPO / "justfile").read_text(encoding="utf-8")
 
 
 def test_hook_calls_just_recipes() -> None:
-    for recipe in ("just lint", "just type", "just test-ci"):
-        assert recipe in HOOK, f"hook missing constructive call: {recipe}"
+    import re
+
+    for recipe in ("lint", "type", "test-ci"):
+        assert re.search(rf"^\s*just {recipe}\s*$", HOOK, re.M), (
+            f"hook missing constructive call line: just {recipe}"
+        )
 
 
 def test_hook_has_no_copied_threshold_flag() -> None:
@@ -499,9 +499,12 @@ def test_hook_has_no_copied_threshold_flag() -> None:
 
 
 def test_exception_faces_are_hook_only() -> None:
-    for face in ("pip-audit", "mkdocs", "dead code check"):
+    # "mkdocs build --strict" (not bare "mkdocs" — justfile's docs: serve
+    # recipe legitimately contains that word)
+    for face in ("pip-audit", "mkdocs build --strict", "dead code check"):
         assert face in HOOK
-    # pip-audit/mkdocs are hook/CI-only by design (spec exception table)
+        assert face not in JUST, f"{face} leaked into justfile"
+    # pip-audit/mkdocs/dead-code are hook(+CI security.yml)-only by design (spec exception table)
 
 
 def test_justfile_has_sub_recipes() -> None:
@@ -522,9 +525,10 @@ Extract from `check:` into three recipes (copy the exact lines; check then refer
 
 ```just
 # Lint face: 28 lint tools + ruff (spec #92 T4)
+# NOTE: spec #93 will later add --strict to lint_threshold_reconciliation here (batch-A re-anchor hook).
 lint:
     uv run python tools/lint_status_strings.py
-    <...all 27 uv run python tools/ lines and `just lint-contracts`...>
+    <...the REMAINING 26 `uv run python tools/` lines + `just lint-contracts`, copied verbatim from the pre-split check recipe...>
     uv run ruff check .
     uv run ruff format --check .
 
@@ -555,7 +559,9 @@ check:
     just test-ci
 ```
 
-Notes: `--cov-fail-under=85` is GONE from justfile (pyproject `[tool.coverage.report] fail_under = 85` at :601 is the single source); last leg gains `--timeout=60` (alignment, kills a diff source); shellcheck list uses the Task-1 renamed script.
+Notes: `--cov-fail-under=85` is GONE from justfile (pyproject `[tool.coverage.report] fail_under = 85` at :601 is the single source); last leg gains `--timeout=60` (alignment, kills a diff source — redundant with addopts but harmless); shellcheck list uses the Task-1 renamed script.
+
+Lossless-split check (M5 guard): before splitting, save the old check body (`git show HEAD:justfile | sed -n '/^check:/,/^[a-z]/p' > /tmp/check-before.txt`); after splitting, extract the union (`just -n check` plus the three recipe bodies) and diff the sorted non-echo command lines — expect zero lines lost (only reordering + the two intended deltas: cov flag drop, timeout add).
 
 - [ ] **Step 4: Rewrite hook to constructive subset**
 
@@ -569,7 +575,7 @@ just type
 just test-ci
 ```
 
-Keep: section 1 (lockfile), 4b pip-audit (exception face), 4c mkdocs conditional (exception face), 6 dead-code warn (exception face). Delete the `uv sync --frozen --group dev` restore dance ONLY if no remaining hook section needs the docs group (mkdocs section does its own sync/restore internally — verify by reading the full mkdocs block before deleting anything).
+Keep: section 1 (lockfile), 4b pip-audit (exception face), 4c mkdocs conditional (exception face), 6 dead-code warn (exception face). DELETE section 7 outright (serial `-m last` leg — `just test-ci` already contains it; keeping it would run the leg twice). KEEP sections 8/9 (codegen/autocheck idempotency) but re-comment them as "command-level copies of check's inline codegen face (spec #92 T4 — constructive ⊆ check by identical commands)". Delete the `uv sync --frozen --group dev` restore dance ONLY if no remaining hook section needs the docs group (mkdocs section does its own sync/restore internally — verify by reading the full mkdocs block before deleting anything).
 
 - [ ] **Step 5: nightly.yml**
 
@@ -729,7 +735,7 @@ git commit -m "test: spec #92 T6 — dispatch_payload constructors + first-5 fil
 
 - [ ] **Step 1: Acceptance 1** — `git grep -n "_tool_hashes" -- src tools tests justfile goal-prompt.md command-to-give.md ':!tests/fixtures'` rc=1; `git grep -n "lock-tool-hashes" -- ...` rc=1; `uv run pytest tests/unit/gates/test_g0_calibration_hash.py -q` PASS; rehearsal diff=0 (repeat Task 1 Step 9).
 - [ ] **Step 2: Acceptance 2** — `uv run pytest tests/unit/test_paths_repo_root.py -q` PASS; loader-convergence grep (Task 2 Step 7) zero.
-- [ ] **Step 3: Acceptance 3** — `just test` collection == 6,396 not-last; <60s; `--strict-markers` collection zero errors (`uv run pytest --collect-only -q 2>&1 | grep -ci error` == 0); `grep -rn "cov-fail-under" justfile tools/pre-push-check.sh .github/workflows/ pyproject.toml` rc=1.
+- [ ] **Step 3: Acceptance 3** — `just test` collection == 6,395 not-last (6,396 baseline − 1 dead marker test, Task 4); <60s; `--strict-markers` collection zero errors (`uv run pytest --collect-only -q 2>&1 | grep -ci error` == 0); `grep -rn "cov-fail-under" justfile tools/pre-push-check.sh .github/workflows/ pyproject.toml` rc=1.
 - [ ] **Step 4: Acceptance 4** — `uv run pytest tests/unit/test_hook_subset.py -q` PASS (exceptions annotated in-test).
 - [ ] **Step 5: Acceptance 5** — `just check` exit 0; `time just lint` <3min.
 - [ ] **Step 6: Record outputs** into `.superpowers/sdd/progress.md` 验收证据 section (full command + output per item).
