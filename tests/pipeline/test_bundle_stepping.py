@@ -294,6 +294,9 @@ def test_two_chapter_bundle_loop_drive(tmp_path: Path) -> None:
 
         mp.setattr(_time, "sleep", lambda *_a: None)  # retry backoff 免睡
         mp.setattr(cl, "dispatch_skill", _fake_dispatch)
+        # spec #105 T3: 正交守卫（staging 简化构造或缺根 plan——专测见
+        # tests/unit/pipeline/test_audit_readiness.py）
+        mp.setattr("shenbi.pipeline.audit_layer.missing_audit_reads", lambda *a, **kw: [])
         mp.setattr(
             cl,
             "run_gate_g4",

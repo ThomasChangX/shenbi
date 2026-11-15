@@ -289,3 +289,50 @@ def _issue(
     if detail is not None:
         issue["detail"] = detail
     return issue
+
+
+def missing_audit_reads(project_dir: Path | str, skill: str, chapter: int | None) -> list[str]:
+    """Required contract reads that do not exist for an audit dispatch (spec #105 T3).
+
+    Semantics mirror the escalation reads tri-state probe
+    (revision_router.py:268-303: OPTIONAL_READS fnmatch / self writes+updates /
+    glob expansion / existence). Scope (plan M1): consumed only by the audit
+    dispatch pre-check; the generic ``_resolve_read_with_fallback`` path and
+    the F10 legacy fail-open stay untouched.
+    """
+    from fnmatch import fnmatch
+
+    from shenbi.contracts.loader import load_contract
+    from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+    project = Path(project_dir)
+    try:
+        contract = load_contract(skill)
+    except Exception:  # noqa: BLE001 — 契约装载失败非本预检职责（上游 G1 已拦）
+        return []
+    optional_patterns = OPTIONAL_READS.get(skill, [])
+
+    def _entry_file(entry: object) -> str:
+        return str(entry.get("file", "")) if isinstance(entry, dict) else str(entry)
+
+    produces = {_entry_file(w) for w in contract.get("writes", [])} | {
+        _entry_file(u) for u in contract.get("updates", [])
+    }
+    missing: list[str] = []
+    for rel in contract.get("reads", []):
+        resolved = (
+            str(rel).replace("chapter-N", "N")
+            if chapter is None
+            else str(rel).replace("chapter-N", f"chapter-{chapter}")
+        )
+        probe = project / resolved
+        if probe.exists():
+            continue
+        if resolved in produces:
+            continue
+        if any(fnmatch(resolved, pat) for pat in optional_patterns):
+            continue
+        if "*" in resolved and any(project.glob(resolved)):
+            continue
+        missing.append(resolved)
+    return missing

@@ -71,6 +71,7 @@ from shenbi.pipeline.read_extractors import (
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
+    check_audit_dispatch_integrity,
     check_audit_line_refs,
     check_markdown_fence_balance,
     check_prose_leakage,
@@ -2971,6 +2972,12 @@ def write_parsed_outputs(
             issues += check_audit_completeness(full_path)
             chapter_path = _resolve_chapter_for_audit(full_path, project_dir)
             issues += check_audit_line_refs(full_path, chapter_path)
+            # spec #105 T3: dispatch-integrity signature → report invalid.
+            # vol1 回放 108/108 全真阳性（历史框架事故族）——shadow 零误伤。
+            issues += check_audit_dispatch_integrity(full_path)
+            # spec #105 T2: G4.av.vocab 发射 HELD——vol1 回放 199 全误伤
+            # （BLOCKING deviation 待用户裁定，见 spec-deviations.md）：
+            # issues += check_audit_severity_vocab(full_path)
 
         for issue in issues:
             log.warning("llm_output_integrity_issue", path=str(full_path), finding=issue)

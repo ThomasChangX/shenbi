@@ -325,3 +325,42 @@ def check_audit_severity_vocab(path: Path) -> list[str]:
                 f"（{form} 形）：用 BLOCKING/CRITICAL/MINOR 重写本条"
             )
     return issues
+
+
+# --- Spec #105 T3: dispatch-integrity signature gate (G4.av.dispatch_integrity). ---
+#
+# 次防线定位：主防线=审计派发前置预检（chapter_loop._run_audit_wave_step 头部，
+# #51 ghost-chain guard 控制流先例——不依赖措辞）。本兜底 pattern 自认是又一则
+# 手拼匹配、措辞改写可绕（spec 对抗回放 ④c）；签名合取（路径 token ∧ 重跑/补齐
+# 措辞，反引号形态优先——实弹族 ch10/12/14/16/20/40 全部反引号形态）压掉
+# 「内容 finding 引用裸路径+补齐措辞」的误伤面（r2.2 I5）。仅 BLOCKING 锚定行。
+
+_DI_BACKTICK_PATH_RE = re.compile(r"`(?:chapters|plans|truth)/[^`]+`")
+_DI_BARE_PATH_RE = re.compile(r"(?:chapters|plans|truth)/\S+\.(?:md|yaml|json)")
+_DI_ACTION_RE = re.compile(r"重跑|补齐|补入")
+
+
+def check_audit_dispatch_integrity(path: Path) -> list[str]:
+    """Invalidate reports whose BLOCKING payload is a dispatch-integrity complaint.
+
+    Dispatch-integrity signatures in a BLOCKING payload mean a framework bug
+    (spec #105 T3): the report is invalid and the framework must be fixed,
+    never expressed by the auditor.
+    """
+    from shenbi.contracts.severity import BOLD_ANCHOR_RE, BRACKET_ANCHOR_RE
+
+    text = path.read_text(encoding="utf-8")
+    issues: list[str] = []
+    for ln, line in enumerate(text.split("\n"), 1):
+        blocking_hit = "BLOCKING" in line and (
+            BRACKET_ANCHOR_RE.search(line) or BOLD_ANCHOR_RE.search(line)
+        )
+        if not blocking_hit:
+            continue
+        has_path = _DI_BACKTICK_PATH_RE.search(line) or _DI_BARE_PATH_RE.search(line)
+        if has_path and _DI_ACTION_RE.search(line):
+            issues.append(
+                f"G4.av.dispatch_integrity:{path.name} — L{ln}:派发完整性签名 BLOCKING"
+                "（框架 bug 非正文缺陷）：该报告判无效，须修框架不应由审计员表达"
+            )
+    return issues

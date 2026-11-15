@@ -3966,6 +3966,36 @@ def _run_audit_wave_step(
     # spec #72 T9: cluster dispatch — ONE prompt per skill covers the bundle;
     # reports stay PER-CHAPTER ({N+1} brace writes cover follower paths too).
     wave_chapters = bundle_chapters(project_dir, chapter)
+
+    # ── spec #105 T3: audit-dispatch read-readiness pre-check ────────────────
+    # #51 ghost-chain guard 控制流先例：缺失输入禁止派发 LLM 表达（派发完整
+    # 性语义拆分——「输入缺失」从 LLM 的 BLOCKING 语义域整体消失）。genre 名册
+    # 上提到 wave-1 派发前（plan r2-M4：只圈 core 会漏 genre 圈且不被测试捕获）；
+    # bundle 模式按 wave_chapters 逐章查（follower 章输入缺失不漏检，r2-M7）。
+    from shenbi.pipeline.audit_layer import missing_audit_reads
+
+    gc_path = project_dir / "genre-config.json"
+    genre_gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
+    genre_skills_precheck = get_active_genre_audits(genre_gc)
+    _missing_reads: dict[str, list[str]] = {}
+    for _skill in [*core_skills, *genre_skills_precheck]:
+        _gaps = {gap for n in wave_chapters for gap in missing_audit_reads(project_dir, _skill, n)}
+        if _gaps:
+            _missing_reads[_skill] = sorted(_gaps)
+    if _missing_reads:
+        log.error("audit_reads_missing_precheck", chapter=chapter, missing=_missing_reads)
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            chapter=chapter,
+            context=(
+                f"审计派发前置预检（spec #105 T3）：required reads 缺失 "
+                f"{_missing_reads}——禁止派发 LLM 表达输入缺失（派发完整性"
+                "语义拆分）。请人工核查输入产物后重试。"
+            ),
+        )
+        return True
+
     chapter_label = (
         f"{wave_chapters[0]},{wave_chapters[1]}" if len(wave_chapters) > 1 else str(chapter)
     )
@@ -4011,10 +4041,9 @@ def _run_audit_wave_step(
     core_results.extend(dispatch_serial_reviews(core_serial, project_dir, state))
 
     # Wave 2: Genre-circle reviews (conditionally active, in parallel;
-    # same WRITE_SHARED partition as wave 1)
-    gc_path = project_dir / "genre-config.json"
-    genre_gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
-    genre_skills = get_active_genre_audits(genre_gc)
+    # same WRITE_SHARED partition as wave 1) — genre roster hoisted above
+    # wave-1 for the spec #105 T3 pre-check; reuse the loaded roster.
+    genre_skills = genre_skills_precheck
     genre_tasks = [
         ReviewTask(
             skill=skill,
