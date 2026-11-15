@@ -173,7 +173,9 @@ def render_aggregate(
         parts.append(f"## {sev} Findings ({len(sev_units)})")
         parts.append("")
         for u in sev_units:
-            parts.append(f"- {u.text}")
+            # spec #105 T4b: 条目级 severity 随行渲染（节标题保留——条目不再
+            # 依赖继承；report_longitudinal parser 同步双格式容差）。
+            parts.append(f"- **{u.severity}** · {u.text}")
             parts.append(f"  - 报告方: {', '.join(u.reporters)}")
         parts.append("")
     if resonance_bodies:

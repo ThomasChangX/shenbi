@@ -886,6 +886,33 @@ _DEC_SIDECAR_EXAMPLE = (
 )
 
 G4_FORMAT_EXAMPLES: dict[str, str] = {
+    # spec #105 T4a（audit-T6 首批三键）：EXAMPLES 名册差集盘点见
+    # spec-deviations T4（287 名册 id vs 19+3 示例键）——只补有实弹兜底行
+    # 证据的族，其余 known-gap 不强补。
+    "G4.cp.scene_budget": (
+        "场景预算节格式（plan_format v3+ 备忘必含）：\n"
+        "### 场景预算与收束钩（#72 粒度契约）\n"
+        "| 场景 | 类型 | 字数带 | 时间锚 | 余额 | POV | 事件 | 物象 |\n"
+        "|------|------|--------|--------|------|-----|------|------|\n"
+        "| 场景1 | 推进型 | 900-1400 | ... | ... | ... | ... | ... |\n"
+        "| 场景2 | 配对型 | 900-1400 | ... | ... | ... | ... | ... |\n"
+        "注意：2-3 场景声明；配对型/推进型须落在带域内且组合可贪心打包；"
+        "缺该块即 FAIL（存量旧式备忘无 plan_format v3+ 声明时豁免）。"
+    ),
+    "G4.av.vocab": (
+        "严重度锚定格式：\n"
+        "- [BLOCKING] <缺陷描述>\n"
+        "- [CRITICAL] <缺陷描述>\n"
+        "- [MINOR] <建议>\n"
+        "注意：severity 必须是 BLOCKING/CRITICAL/MINOR（大小写不限）；"
+        "禁用词表外语（MAJOR/BLOCKER/严重/高）。"
+    ),
+    "G4.av.dispatch_integrity": (
+        "派发完整性 finding 不是审计员的职责：\n"
+        "输入缺失（章节/备忘文件不存在）由框架派发前预检拦截并转 escalation；"
+        "审计报告中出现「请补齐 `chapters/...` 后重跑」类 BLOCKING 即判报告无效"
+        "（框架 bug）。请勿在报告中表达派发/输入问题，只审计正文。"
+    ),
     "G4.rr.detail_table": (
         "评分明细表格式：\n"
         "| 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |\n"
