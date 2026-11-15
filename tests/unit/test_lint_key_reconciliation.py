@@ -4,12 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 REPO = Path(__file__).resolve().parents[2]
 
 
-@pytest.mark.unit
 def test_orphan_read_key_warns_and_strict_fails(tmp_path, monkeypatch):
     import tools.lint_key_reconciliation as lk
 
@@ -24,7 +21,6 @@ def test_orphan_read_key_warns_and_strict_fails(tmp_path, monkeypatch):
     assert lk.main(["--strict"]) == 1
 
 
-@pytest.mark.unit
 def test_healthy_read_key_passes_strict(monkeypatch):
     import tools.lint_key_reconciliation as lk
 
@@ -38,7 +34,6 @@ def test_healthy_read_key_passes_strict(monkeypatch):
     assert lk.main(["--strict"]) == 0
 
 
-@pytest.mark.unit
 def test_zero_writer_sources_flagged(monkeypatch):
     import tools.lint_key_reconciliation as lk
 
@@ -52,7 +47,6 @@ def test_zero_writer_sources_flagged(monkeypatch):
     assert lk.main(["--strict"]) == 1
 
 
-@pytest.mark.unit
 def test_real_registry_reconciled():
     """验收 3: the shipped registry runs clean in WARN mode (zero WARN)."""
     import subprocess

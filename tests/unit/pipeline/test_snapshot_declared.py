@@ -11,8 +11,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.pipeline.chapter_loop import DECLARED_WORDLISTS, _snapshot_declared
 from shenbi.pipeline.state import ChapterState
 
@@ -35,7 +33,6 @@ def _mk_project(tmp_path: Path, plan: str = V4_PLAN, *, ch: int = 37) -> Path:
     return tmp_path
 
 
-@pytest.mark.unit
 def test_snapshot_captures_six_keys_real_fixture() -> None:
     """Real-fixture six-key capture (plan C1 green test): ch36 plan copy.
 
@@ -50,7 +47,6 @@ def test_snapshot_captures_six_keys_real_fixture() -> None:
     assert "章尾钩型" not in snap  # v3 plan: no hook-type line
 
 
-@pytest.mark.unit
 def test_wordlist_external_tone_warns_and_kept_raw(tmp_path: Path, monkeypatch) -> None:
 
     # structlog 不经 stdlib caplog——用 monkeypatch 捕 get_logger 的 warning 调用
@@ -71,7 +67,6 @@ def test_wordlist_external_tone_warns_and_kept_raw(tmp_path: Path, monkeypatch) 
     assert calls[0][1]["value"] == "安"
 
 
-@pytest.mark.unit
 def test_node_markers_ingested_from_volume_map(tmp_path: Path) -> None:
     # 规范布局：outline/volume_map.md（fixture 真实节选拷贝进 tmp 项目）
     (tmp_path / "outline").mkdir()
@@ -84,7 +79,6 @@ def test_node_markers_ingested_from_volume_map(tmp_path: Path) -> None:
     assert "萤回触◆" in snap22["节点标记集"]
 
 
-@pytest.mark.unit
 def test_chapter_state_has_declared_field() -> None:
     cs = ChapterState()
     assert cs.declared == {}
@@ -92,7 +86,6 @@ def test_chapter_state_has_declared_field() -> None:
     assert json.loads(json.dumps(cs.declared))["emotion_tone"] == "悲"
 
 
-@pytest.mark.unit
 def test_declared_survives_state_roundtrip(tmp_path: Path) -> None:
     """audit-T2/C1: declared must persist through to_dict/from_dict —
     sequence gates (T4) read the snapshot from pipeline-state.json.
@@ -116,14 +109,12 @@ def test_declared_survives_state_roundtrip(tmp_path: Path) -> None:
     ]
 
 
-@pytest.mark.unit
 def test_ch2_fixture_big_hook_snapshot() -> None:
     """audit-T2/M2: ch2 fixture consumption — ch2 declares 大 (S1 evidence)."""
     snap = _snapshot_declared(FIX, 2)
     assert snap["张力拍档位"] == "大"
 
 
-@pytest.mark.unit
 def test_follower_snapshot_written_and_frozen(tmp_path: Path, monkeypatch) -> None:
     """audit-T2/I1: bundle wiring + freeze semantics against _complete_chapter.
 

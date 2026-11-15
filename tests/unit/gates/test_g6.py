@@ -10,8 +10,6 @@ import pytest
 
 from shenbi.gates.g6 import gate_G6
 
-pytestmark = pytest.mark.unit
-
 
 def _result_dict(result: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(result))
@@ -142,7 +140,6 @@ class TestG6ErrorPaths:
     min_chapters ~= 17, so any small chapter set triggers G6.1.
     """
 
-    @pytest.mark.unit
     def test_g6_no_chapters_dir_fails(self, tmp_path: Path) -> None:
         """A project_dir with no chapters/ directory -> G6.1:no_chapters_dir."""
         round_dir = tmp_path / "round"
@@ -153,7 +150,6 @@ class TestG6ErrorPaths:
         assert result["status"] == "FAIL"
         assert "G6.1:no_chapters_dir" in result["must_fix"]
 
-    @pytest.mark.unit
     def test_g6_below_min_chapter_count_fails(self, tmp_path: Path) -> None:
         """Fewer chapters than min_chapters -> G6.1:count<min reason."""
         round_dir = tmp_path / "round"
@@ -165,7 +161,6 @@ class TestG6ErrorPaths:
         # "(ceil(" is unique to this reason (not present in no_chapters_dir).
         assert any(mf.startswith("G6.1:") and "(ceil(" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g6_numbering_gap_warns(self, tmp_path: Path) -> None:
         """Chapters 1 and 3 (missing 2) -> G6.2:chapter_gaps."""
         round_dir = tmp_path / "round"
@@ -176,7 +171,6 @@ class TestG6ErrorPaths:
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         assert "G6.2:chapter_gaps" in result["must_fix"]
 
-    @pytest.mark.unit
     def test_g6_g4_failure_on_short_chapter(self, tmp_path: Path) -> None:
         """A chapter under the 3000-char floor fails G4 -> G6.3:{ch.name}."""
         round_dir = tmp_path / "round"
@@ -186,7 +180,6 @@ class TestG6ErrorPaths:
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         assert any(mf.startswith("G6.3:") for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g6_high_hook_density_warns(self, tmp_path: Path) -> None:
         """Many hooks across few chapters -> G6.7:high_hook_density (>3/chapter)."""
         round_dir = tmp_path / "round"
@@ -201,7 +194,6 @@ class TestG6ErrorPaths:
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         assert any("G6.7:high_hook_density" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g6_low_hook_density_warns(self, tmp_path: Path) -> None:
         """One hook across many chapters -> G6.7:low_hook_density (<0.3/chapter)."""
         round_dir = tmp_path / "round"
@@ -217,7 +209,6 @@ class TestG6ErrorPaths:
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         assert any("G6.7:low_hook_density" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g6_hook_max_distance_exceeded_warns(self, tmp_path: Path) -> None:
         """A hook planted early with a long-since-passed max_distance -> G6.7:max_distance_exceeded."""
         round_dir = tmp_path / "round"
@@ -234,7 +225,6 @@ class TestG6ErrorPaths:
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         assert any("G6.7:max_distance_exceeded" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g6_unresolved_hooks_reported_in_check(self, tmp_path: Path) -> None:
         """Unresolved hooks surface in the G6.7 check dict (status becomes WARN when the sub-check has must_fix entries)."""
         round_dir = tmp_path / "round"
@@ -250,7 +240,6 @@ class TestG6ErrorPaths:
         g67 = next(c for c in result["checks"] if c.get("id") == "G6.7")
         assert g67["unresolved"] >= 1
 
-    @pytest.mark.unit
     def test_g6_volume_mismatch_fails(self, tmp_path: Path) -> None:
         """A volume_map defining a range with no matching chapters -> G6.11:no_chapters."""
         round_dir = tmp_path / "round"
@@ -266,7 +255,6 @@ class TestG6ErrorPaths:
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         assert any(mf.startswith("G6.11:no_chapters") for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g6_ghost_character_detected(self, tmp_path: Path) -> None:
         """A dead character in character_matrix.md who still appears in a chapter -> G6.6."""
         round_dir = tmp_path / "round"
@@ -281,7 +269,6 @@ class TestG6ErrorPaths:
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         assert any(mf.startswith("G6.6:老王") for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g6_sensitive_words_detected(self, tmp_path: Path) -> None:
         """A chapter containing a sensitive-word token -> G6.12:{word}:{ch.name}."""
         round_dir = tmp_path / "round"
@@ -291,7 +278,6 @@ class TestG6ErrorPaths:
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         assert any(mf.startswith("G6.12:台独") for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g6_empty_chapters_yield_skip_for_continuity_and_pacing(self) -> None:
         """Empty chapters list -> check_continuity and check_pacing both SKIP.
         Exercised at the extracted-check level (G6.4/G6.5 delegates).
@@ -304,7 +290,6 @@ class TestG6ErrorPaths:
         assert any(c["s"] == "SKIP" and c["id"] == "G6.5" for c in pc)
 
 
-@pytest.mark.unit
 def test_g611_passes_with_volume_map_and_no_chapters(tmp_path: Path) -> None:
     """volume_map.md with volume ranges but no chapters/ -> G6.11 PASS with note."""
     project_dir = tmp_path / "project"
@@ -321,7 +306,6 @@ def test_g611_passes_with_volume_map_and_no_chapters(tmp_path: Path) -> None:
     assert g611["note"] == "no chapters/ to verify"
 
 
-@pytest.mark.unit
 def test_g6_volume_map_no_ranges_skips(tmp_path: Path) -> None:
     """volume_map.md without chapter ranges -> G6.11 SKIP."""
     project_dir = tmp_path / "project"
@@ -338,7 +322,6 @@ def test_g6_volume_map_no_ranges_skips(tmp_path: Path) -> None:
     assert g611["s"] == "SKIP"
 
 
-@pytest.mark.unit
 def test_g6_g61_passes_with_sufficient_chapters(tmp_path: Path) -> None:
     """Enough chapters to meet G6.1 min requirement -> G6.1 PASS."""
     round_dir = tmp_path / "round"
@@ -360,7 +343,6 @@ def test_g6_g61_passes_with_sufficient_chapters(tmp_path: Path) -> None:
     assert g61["s"] == "PASS"
 
 
-@pytest.mark.unit
 def test_g6_g66_passes_when_no_ghosts(tmp_path: Path) -> None:
     """character_matrix with no dead characters -> G6.6 PASS."""
     round_dir = tmp_path / "round"
@@ -390,7 +372,6 @@ def test_g6_g66_passes_when_no_ghosts(tmp_path: Path) -> None:
     assert g66["s"] == "PASS"
 
 
-@pytest.mark.unit
 def test_g6_volume_boundary_passes_with_chapters(tmp_path: Path) -> None:
     """volume_map.md with ranges and chapters -> G6.11 PASS."""
     round_dir = tmp_path / "round"
@@ -419,7 +400,6 @@ def test_g6_volume_boundary_passes_with_chapters(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_g68_ghost_voice_detected(tmp_path: Path) -> None:
     """A character without a voice_profile who appears in a chapter -> G6.8:ghost_voice.
 
@@ -438,7 +418,6 @@ def test_g68_ghost_voice_detected(tmp_path: Path) -> None:
     assert any("G6.8:ghost_voice:老王" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g68_catchphrase_not_found_warns(tmp_path: Path) -> None:
     """Character with a voice_profile whose catchphrase is absent from chapters -> G6.8 WARN.
 
@@ -459,7 +438,6 @@ def test_g68_catchphrase_not_found_warns(tmp_path: Path) -> None:
     assert any("主角" in c.get("r", "") for c in g68_warns)
 
 
-@pytest.mark.unit
 def test_g68_voice_profile_pass_when_catchphrase_present(tmp_path: Path) -> None:
     """Character whose catchphrase appears in a chapter -> no G6.8 WARN, PASS emitted.
 
@@ -482,7 +460,6 @@ def test_g68_voice_profile_pass_when_catchphrase_present(tmp_path: Path) -> None
     assert not any(c.get("s") == "WARN" and "主角" in c.get("r", "") for c in g68)
 
 
-@pytest.mark.unit
 def test_g69_world_rule_limit_exceeded(tmp_path: Path) -> None:
     """A chapter violating an upper-bound numerical rule -> G6.9:limit_exceeded.
 
@@ -502,7 +479,6 @@ def test_g69_world_rule_limit_exceeded(tmp_path: Path) -> None:
     assert any("G6.9:limit_exceeded" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g69_world_rule_pass_with_constraints_extracted(tmp_path: Path) -> None:
     """rules.md with a constraint no chapter violates -> G6.9 PASS with count.
 
@@ -523,7 +499,6 @@ def test_g69_world_rule_pass_with_constraints_extracted(tmp_path: Path) -> None:
     assert g69["constraints_extracted"] >= 1
 
 
-@pytest.mark.unit
 def test_g611_missing_ending_hook_on_non_final_volume(tmp_path: Path) -> None:
     """A non-final volume whose last chapter lacks a hook marker -> G6.11:no_ending_hook.
 
@@ -553,7 +528,6 @@ def test_g611_missing_ending_hook_on_non_final_volume(tmp_path: Path) -> None:
     assert any("G6.11:no_ending_hook" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g612_detects_sensitive_word_embedded_in_cjk(tmp_path: Path) -> None:
     r"""Sensitive word embedded mid-sentence (no spaces) -> G6.12 finds it.
 
@@ -568,7 +542,6 @@ def test_g612_detects_sensitive_word_embedded_in_cjk(tmp_path: Path) -> None:
     assert any(mf.startswith("G6.12:台独") for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g612_dedupes_repeated_sensitive_word_per_chapter(tmp_path: Path) -> None:
     r"""A sensitive word repeated many times in one chapter yields a single
     G6.12 entry for that (term, chapter), not one per occurrence.
@@ -585,7 +558,6 @@ def test_g612_dedupes_repeated_sensitive_word_per_chapter(tmp_path: Path) -> Non
     assert len(dupe_hits) == 1
 
 
-@pytest.mark.unit
 def test_g6_returns_fail_not_crash_when_deps_json_malformed(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -606,7 +578,6 @@ def test_g6_returns_fail_not_crash_when_deps_json_malformed(
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_g610_not_skipped_when_style_profile_exists(tmp_path: Path) -> None:
     r"""D16 canary: when style/style_profile.md exists, G6.10 runs (not SKIP).
 

@@ -32,7 +32,6 @@ def _task(idx: int) -> ReviewTask:
     )
 
 
-@pytest.mark.unit
 class TestWaveExceptionBranches:
     def test_worker_exception_becomes_failed_result_wave_survives(
         self, monkeypatch: pytest.MonkeyPatch
@@ -67,7 +66,6 @@ class TestWaveExceptionBranches:
         assert len(callbacks) == 2  # every successful task still reached the callback
 
 
-@pytest.mark.unit
 class TestContextCacheCharactersAndVolume:
     def test_characters_truncated_with_sentinel_raw_retained(self, tmp_path: Path) -> None:
         (tmp_path / "truth").mkdir()

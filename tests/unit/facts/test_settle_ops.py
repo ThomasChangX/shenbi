@@ -10,15 +10,11 @@ import pytest
 
 from shenbi.exceptions import FactsOpRejectedError
 from shenbi.facts.settle_ops import apply_sidecar_ops
+from tests.support.dispatch_payload import decisions_payload
 
 
 def _sidecar(tmp_path: Path, facts_ops: dict[str, Any] | None) -> Path:
-    doc: dict[str, Any] = {
-        "$schema": "shenbi-decisions-v1",
-        "skill": "shenbi-state-settling",
-        "chapter": 20,
-        "produced_at": "2026-10-28T00:00:00Z",
-    }
+    doc: dict[str, Any] = decisions_payload("shenbi-state-settling", 20)
     if facts_ops is not None:
         doc["facts_ops"] = facts_ops
     p = tmp_path / "chapters" / "chapter-20-decisions.json"
@@ -124,12 +120,7 @@ def _stage_sidecar(tmp_path: Path, facts_ops: dict[str, Any] | None) -> None:
 
     p = tmp_path / STAGING_DIR / "truth" / "state-settling-decisions.json"
     p.parent.mkdir(parents=True, exist_ok=True)
-    doc: dict[str, Any] = {
-        "$schema": "shenbi-decisions-v1",
-        "skill": "shenbi-state-settling",
-        "chapter": 20,
-        "produced_at": "2026-10-28T00:00:00Z",
-    }
+    doc: dict[str, Any] = decisions_payload("shenbi-state-settling", 20)
     if facts_ops is not None:
         doc["facts_ops"] = facts_ops
     p.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")

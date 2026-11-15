@@ -16,7 +16,6 @@ from shenbi.gates.g4.cross_chapter import (
 FIX = Path(__file__).resolve().parents[4] / "tests/fixtures/cross-chapter-regression"
 
 
-@pytest.mark.unit
 def test_pov_derivation_first_vs_third() -> None:
     assert derive_pov_mode("我趴在长案上。我的手很冷。") == "我"
     assert derive_pov_mode("他蹲过去问。他把手放下。") == "他"
@@ -46,18 +45,15 @@ def test_wound2_lamp_binding_fixture() -> None:
     assert any("称谓违例" in det and "灯" in det for _cid, det in issues)
 
 
-@pytest.mark.unit
 def test_inner_verb_binding_signal() -> None:
     hits = protagonist_binding_hits("灯在心里过了一遍米数。", "灯", ("临", "他"))
     assert hits  # 内汲动词 + 主语位双信号
 
 
-@pytest.mark.unit
 def test_whitelisted_name_passes() -> None:
     assert protagonist_binding_hits("临在心里过了一遍。", "临", ("临", "他")) == []
 
 
-@pytest.mark.unit
 def test_clean_adjacent_no_false_positive() -> None:
     """True negative: whitelisted naming + consistent POV."""
     import tempfile

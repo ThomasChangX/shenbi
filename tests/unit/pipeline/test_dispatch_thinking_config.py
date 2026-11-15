@@ -15,8 +15,6 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.unit
-
 
 def test_get_skill_thinking_reads_override(monkeypatch: pytest.MonkeyPatch) -> None:
     from shenbi.pipeline import dispatch_helper as dh

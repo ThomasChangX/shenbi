@@ -16,7 +16,6 @@ from shenbi.text.style_fingerprint import (
 )
 
 
-@pytest.mark.unit
 def test_question_density_dialogue_domain() -> None:
     body = "他问：「真的吗？为什么？怎么办？」他说完，走了很远很远的路，路过很多地方。"
     per_k, n_chars = question_density(body)
@@ -24,7 +23,6 @@ def test_question_density_dialogue_domain() -> None:
     assert per_k > 0
 
 
-@pytest.mark.unit
 def test_simile_domains_punctuation_window_and_morpheme_guard() -> None:
     body2 = "像一张纸。像那本账。像半张饼。"
     d2 = simile_domains(body2)
@@ -34,7 +32,6 @@ def test_simile_domains_punctuation_window_and_morpheme_guard() -> None:
     assert sum(d3.values()) == 0
 
 
-@pytest.mark.unit
 def test_classify_opener_skips_headings_and_quotes() -> None:
     body = "# Chapter 5:\n\n<!--META-->「谁？」\n\n他把米袋数了三遍。"
     # 数了 命中清点族（族序优先于数数族）
@@ -48,7 +45,6 @@ def _mk_proj(tmp_path: Path, chapters: dict[int, str]) -> Path:
     return tmp_path
 
 
-@pytest.mark.unit
 def test_question_warn_consecutive(tmp_path: Path) -> None:
     noisy = "「真的吗？为什么呢？怎么办呀？到底行不行？谁说了算？」" * 20
     quiet = "他推门，落座，研墨，抄写，一天过去。"
@@ -61,7 +57,6 @@ def test_question_warn_consecutive(tmp_path: Path) -> None:
     assert any("style-warn:问号密度" in r for r in rows2)
 
 
-@pytest.mark.unit
 def test_simile_same_domain_warn_constructed(tmp_path: Path) -> None:
     same = "像一张纸。像半本账。像那册子。像一页契。像粗布。像细绳。像旧簿。"
     d = _mk_proj(tmp_path, {1: same, 2: same, 3: same})
@@ -69,7 +64,6 @@ def test_simile_same_domain_warn_constructed(tmp_path: Path) -> None:
     assert any("style-warn:喻体域" in r and "纸账册" in r for r in rows), rows
 
 
-@pytest.mark.unit
 def test_other_domain_info_not_warn(tmp_path: Path) -> None:
     odd = "像一场梦。像某个梦。像另一场梦。像更多的梦。像无穷的梦。像梦中的梦。"
     d = _mk_proj(tmp_path, {1: odd, 2: odd, 3: odd})
@@ -78,7 +72,6 @@ def test_other_domain_info_not_warn(tmp_path: Path) -> None:
     assert not any("style-warn:喻体域" in r for r in rows)
 
 
-@pytest.mark.unit
 def test_opener_run_warn_constructed(tmp_path: Path) -> None:
     counting = "他把米袋数了三遍。然后出门。"
     other = "西仓的门朝北开着。风很大。"
@@ -89,7 +82,6 @@ def test_opener_run_warn_constructed(tmp_path: Path) -> None:
     assert not any("开头同构" in r for r in fingerprints(d2, 3))
 
 
-@pytest.mark.unit
 def test_pre_rev_excluded_from_window(tmp_path: Path) -> None:
     counting = "他把米袋数了三遍。"
     other = "西仓的门朝北开着。"
@@ -99,7 +91,6 @@ def test_pre_rev_excluded_from_window(tmp_path: Path) -> None:
     assert not any("开头同构" in r for r in fingerprints(d, 3))
 
 
-@pytest.mark.unit
 def test_genre_config_style_fingerprint_ranges(tmp_path: Path) -> None:
     import json
 
@@ -119,7 +110,6 @@ def test_genre_config_style_fingerprint_ranges(tmp_path: Path) -> None:
         GenreConfig.model_validate(bad)
 
 
-@pytest.mark.unit
 def test_hook_appends_style_warn_rows(tmp_path: Path) -> None:
     """接线面：fingerprints 行经 _append_style_warn 落盘（append-only）。"""
     from shenbi.pipeline.chapter_loop import _append_style_warn
@@ -134,7 +124,6 @@ def test_hook_appends_style_warn_rows(tmp_path: Path) -> None:
     assert count_drift_alerts(text) == 0  # 结构性排除验证
 
 
-@pytest.mark.unit
 def test_counting_opener_share_warn_constructed(tmp_path: Path) -> None:
     """指标 4：≥6 章窗内计数开篇占比超上限 → WARN（构造真阳性）。"""
     counting = "他把米袋数了三遍。然后出门。"

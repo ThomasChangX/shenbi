@@ -97,7 +97,10 @@ def mirror_digest(path: Path) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+from shenbi.contracts.schemas.deps import load_deps as deps_load
 from shenbi.gates.g0_config_coherence import check_config_coherence
+from pydantic import ValidationError
+
 from shenbi.gates.g0_purity import (
     check_scenario_dir_purity,
     check_scenario_file_purity,
@@ -184,7 +187,7 @@ def check_calibration_integrity(
     Compute a combined SHA256 over every file under ``calibration_dir``
     (recursively, excluding ``.gitkeep``) and compare to the locked value
     at ``deps_path._calibration_hashes.combined``. Mirrors the existing
-    ``_tool_hashes`` integrity pattern.
+    calibration lock in tests/lock-calibration-hash.sh.
 
     Returns ``(checks, fail_reason_or_None, must_fix)`` so it composes with
     the other tuple-returning G0 sub-checks. Failure modes:
@@ -210,15 +213,15 @@ def check_calibration_integrity(
     actual = h.hexdigest()
 
     try:
-        deps = json.loads(deps_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
+        deps = deps_load(deps_path)
+    except (OSError, ValidationError):
         return (
             [{"id": "G0.14", "s": GateStatus.FAIL, "r": f"deps.json unreadable: {deps_path}"}],
             "deps.json unreadable",
-            ["G0.14: repair tests/tiers/deps.json then run tests/lock-tool-hashes.sh"],
+            ["G0.14: repair tests/tiers/deps.json then run tests/lock-calibration-hash.sh"],
         )
 
-    locked = deps.get("_calibration_hashes", {}).get("combined")
+    locked = deps.calibration_hashes.get("combined")
     if locked is None:
         return (
             [
@@ -229,10 +232,10 @@ def check_calibration_integrity(
                 }
             ],
             "_calibration_hashes.combined missing from deps.json",
-            ["G0.14: run tests/lock-tool-hashes.sh to lock calibration anchor hashes"],
+            ["G0.14: run tests/lock-calibration-hash.sh to lock calibration anchor hashes"],
         )
 
-    # Accept both bare hex and the "sha256:<hex>" envelope used by _tool_hashes.
+    # Accept both bare hex and the "sha256:<hex>" envelope.
     expected = locked.split(":", 1)[1] if str(locked).startswith("sha256:") else str(locked)
 
     if actual != expected:
@@ -248,7 +251,7 @@ def check_calibration_integrity(
                 }
             ],
             "calibration anchor hash mismatch",
-            ["G0.14: re-run tests/lock-tool-hashes.sh after intentional anchor changes"],
+            ["G0.14: re-run tests/lock-calibration-hash.sh after intentional anchor changes"],
         )
 
     return (

@@ -21,8 +21,6 @@ guard decides, the merge does not pre-empt it.
 
 from __future__ import annotations
 
-import pytest
-
 from shenbi.pipeline.truth_io import upsert_markdown_row
 
 _LIVE_HOOKS = """## 钩子详情
@@ -44,7 +42,6 @@ _LIVE_HOOKS = """## 钩子详情
 """
 
 
-@pytest.mark.unit
 def test_hook_field_update_replaces_in_place_and_preserves_stable_lines():
     """A one-field colon-bullet increment patches the field; every stable
     line (type/plant_ch/trigger/resolve/depends_on) survives untouched.
@@ -67,7 +64,6 @@ def test_hook_field_update_replaces_in_place_and_preserves_stable_lines():
     assert "### MH-002" in merged, "sibling section untouched"
 
 
-@pytest.mark.unit
 def test_hook_new_field_inserted_into_existing_section():
     """A field absent from the live block (e.g. track's first 证据) is
     inserted INSIDE the section, not appended at file tail.
@@ -85,7 +81,6 @@ def test_hook_new_field_inserted_into_existing_section():
     assert "- 证据:" in mh2, "new field must land inside MH-002's section"
 
 
-@pytest.mark.unit
 def test_hook_heading_paraphrase_still_matches_by_id():
     """The model may paraphrase the hook title after the id; the section is
     located by (level, hook-id) so the update lands in the live block
@@ -99,7 +94,6 @@ def test_hook_heading_paraphrase_still_matches_by_id():
     assert "- plant_ch: 1（废矿道分拣芒晶残渣）" in merged
 
 
-@pytest.mark.unit
 def test_unknown_hook_section_appends_whole():
     """A genuinely new hook (plant) appends its whole section — legacy
     append semantics preserved.
@@ -111,7 +105,6 @@ def test_unknown_hook_section_appends_whole():
     assert "- lifecycle_state: PLANTED" in merged
 
 
-@pytest.mark.unit
 def test_hook_section_with_non_colon_lines_keeps_replace_semantics():
     """Discriminator: bullet-merge applies ONLY to all-colon-bullet bodies.
     Free-form content in the unit expresses a section REWRITE — the legacy
@@ -126,7 +119,6 @@ def test_hook_section_with_non_colon_lines_keeps_replace_semantics():
     assert "新证据（第 9 章）" in merged
 
 
-@pytest.mark.unit
 def test_hook_registry_row_same_shape_status_update_replaces():
     """The one legal row mutation — final status cell — replaces in place."""
     live = "## 主钩总览\n| MH-001 | 空白 | GENUINE | ITEM | 1 | 第4卷 | true | PLANTED |\n"

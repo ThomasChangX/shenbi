@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g4.chapter_planning import (
     g4_chapter_planning,
     parse_last_reinforced,
@@ -84,7 +82,6 @@ def _mf(tmp_path: Path, ch: int) -> list[str]:
     return json.loads(out).get("must_fix", [])
 
 
-@pytest.mark.unit
 def test_parse_last_reinforced_max_per_hook() -> None:
     got = parse_last_reinforced(HOOKS)
     assert got["MH03"] == 36  # max of 36/21
@@ -92,37 +89,31 @@ def test_parse_last_reinforced_max_per_hook() -> None:
     assert "MH06" not in got  # no bullet
 
 
-@pytest.mark.unit
 def test_parse_relevant_hooks_overview_filter() -> None:
     assert parse_relevant_hooks(HOOKS) == {"MH03", "MH06"}
 
 
-@pytest.mark.unit
 def test_overaged_untouched_hook_fails(tmp_path: Path) -> None:
     # MH03 last=36; ch45 → age 9 > 8; plan has no touch/defer for MH03
     _mk(tmp_path, ch=45)
     assert any("hook_age" in m and "MH03" in m for m in _mf(tmp_path, 45))
 
 
-@pytest.mark.unit
 def test_touched_hook_passes(tmp_path: Path) -> None:
     _mk(tmp_path, ch=45, plan_extra="- 钩账: MH03 本章推进（渡口夜哨声再响）\n")
     assert not any("hook_age" in m and "MH03" in m for m in _mf(tmp_path, 45))
 
 
-@pytest.mark.unit
 def test_defer_with_anchor_passes(tmp_path: Path) -> None:
     _mk(tmp_path, ch=45, plan_extra="- 挂起: MH03 至第三卷·KR1\n")
     assert not any("hook_age" in m and "MH03" in m for m in _mf(tmp_path, 45))
 
 
-@pytest.mark.unit
 def test_defer_without_anchor_fails(tmp_path: Path) -> None:
     _mk(tmp_path, ch=45, plan_extra="- 挂起: MH03\n")
     assert any("挂起缺有效清偿锚" in m and "MH03" in m for m in _mf(tmp_path, 45))
 
 
-@pytest.mark.unit
 def test_defer_budget_exceeded_fails(tmp_path: Path) -> None:
     extra = "".join(
         f"- 挂起: MH0{k} 至第三卷·KR1\n" for k in (2, 3, 4, 5)
@@ -131,20 +122,17 @@ def test_defer_budget_exceeded_fails(tmp_path: Path) -> None:
     assert any("hook_defer_budget" in m for m in _mf(tmp_path, 45))
 
 
-@pytest.mark.unit
 def test_within_age_passes(tmp_path: Path) -> None:
     _mk(tmp_path, ch=42)  # MH03 age 42-36=6 ≤ 8（MH06 零推进种植起算 39>8 属合法 FAIL——另测覆盖）
     assert not any("hook_age" in m and "MH03" in m for m in _mf(tmp_path, 42))
 
 
-@pytest.mark.unit
 def test_zero_bullet_hooks_age_from_plant_chapter(tmp_path: Path) -> None:
     """MH06 RELEVANT, no last_reinforced → age from 种植章 3: ch45 → 42 > 8 → FAIL."""
     _mk(tmp_path, ch=45)
     assert any("hook_age" in m and "MH06" in m for m in _mf(tmp_path, 45))
 
 
-@pytest.mark.unit
 def test_dangling_anchor_volume_not_in_map_fails(tmp_path: Path) -> None:
     """audit-T6/I1: dangling anchor -- cited volume 99 does not exist;
     fails even though KR1 hits (C1 composite: both legs must hit).
@@ -153,7 +141,6 @@ def test_dangling_anchor_volume_not_in_map_fails(tmp_path: Path) -> None:
     assert any("挂起缺有效清偿锚" in m for m in _mf(tmp_path, 45))
 
 
-@pytest.mark.unit
 def test_real_pending_hooks_fixture_parses() -> None:
     """audit-T6/I1+M2: real truth-file copy (G0.9) anchors parser behavior."""
     real = (FIX / "pending_hooks.md").read_text(encoding="utf-8")
@@ -163,7 +150,6 @@ def test_real_pending_hooks_fixture_parses() -> None:
     assert "MH01" in parse_relevant_hooks(real)
 
 
-@pytest.mark.unit
 def test_cn_composite_and_suffix_anchor_pinning() -> None:
     """audit-T6 final-round pinning: suffix form + CN composites."""
     from shenbi.gates.g4.chapter_planning import _cn_to_int, _defer_anchor_hits_volume
@@ -176,7 +162,6 @@ def test_cn_composite_and_suffix_anchor_pinning() -> None:
     assert _defer_anchor_hits_volume("至卷四十二·KR1", vm) is False  # dangling composite
 
 
-@pytest.mark.unit
 def test_v4_section7_table_forms_recognized(tmp_path: Path) -> None:
     """Stage-8/I1: v4 section-7 table forms.
     advance rows count as touch; defer rows enter anchor checks.
@@ -195,7 +180,6 @@ def test_v4_section7_table_forms_recognized(tmp_path: Path) -> None:
     assert any("挂起缺有效清偿锚" in m and "MH03" in m for m in _mf(tmp_path, 45))
 
 
-@pytest.mark.unit
 def test_v4_hook_type_presence_and_wordlist(tmp_path: Path) -> None:
     """Stage-8/I2: cp hook-type presence + seven-wordlist gate (v4+)."""
     import json as _json
@@ -228,7 +212,6 @@ def test_v4_hook_type_presence_and_wordlist(tmp_path: Path) -> None:
 # --- 束6 逐字化：hook_age 报文必须内联可照抄的逐字模板/活锚样例 ---
 
 
-@pytest.mark.unit
 def test_overaged_message_inlines_touch_row_template(tmp_path: Path) -> None:
     """束6 verbatim batch: over-age message inlines a section-7 table row
     template carrying the real hook id -- model can copy it verbatim.
@@ -239,7 +222,6 @@ def test_overaged_message_inlines_touch_row_template(tmp_path: Path) -> None:
     assert "| MH03 | advance |" in hit[0]  # 逐字模板行（含真实钩号）
 
 
-@pytest.mark.unit
 def test_anchor_miss_message_carries_live_volume_kr_sample(tmp_path: Path) -> None:
     """束6 verbatim batch: anchor-miss message carries a live sample extracted
     from volume_map (chapter's volume + that volume's KR); the sample itself
@@ -256,7 +238,6 @@ def test_anchor_miss_message_carries_live_volume_kr_sample(tmp_path: Path) -> No
 # --- spec #85 T4: acceptance-8 criterion 2 (hook_age domain pinning) ---
 
 
-@pytest.mark.unit
 def test_cp_relevant_rows_not_in_hook_age(tmp_path: Path) -> None:
     """CP-family overview rows must stay OUT of the hook_age judgment
     domain (spec #85 §2.3.1 B-layer, acceptance 8(2)).

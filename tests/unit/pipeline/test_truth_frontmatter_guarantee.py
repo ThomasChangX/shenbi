@@ -18,8 +18,6 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from shenbi.pipeline.checkpoint import _merge_staged_rows_keyed
 from shenbi.pipeline.confidence_calibration import record_anchor_outcome
 from shenbi.pipeline.truth_io import (
@@ -28,8 +26,6 @@ from shenbi.pipeline.truth_io import (
     ensure_truth_frontmatter,
     write_truth_file,
 )
-
-pytestmark = pytest.mark.unit
 
 
 def test_ensure_truth_frontmatter_prepends_when_missing() -> None:

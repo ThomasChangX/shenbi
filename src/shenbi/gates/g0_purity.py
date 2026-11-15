@@ -5,6 +5,7 @@ verify that test scenarios reference only tests/fixtures/ paths, not
 project-relative paths.
 """
 
+from shenbi.paths import REPO_ROOT
 from shenbi.status import GateStatus
 
 import json
@@ -102,7 +103,7 @@ def baseline_delta_note(check_id: str, current_violations: list[str]) -> str | N
     The baseline never drives WARN/FAIL judgement (that is live-scan only);
     a missing baseline file yields None ("no baseline") and never errors.
     """
-    baseline_path = Path(__file__).resolve().parents[3] / "tests/fixtures/provenance-baseline.json"
+    baseline_path = REPO_ROOT / "tests/fixtures/provenance-baseline.json"
     try:
         baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):

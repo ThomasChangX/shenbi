@@ -10,8 +10,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g0_purity import load_provenance
 
 # tests/unit/gates/<file>.py → parents[3] = repo root（对齐 test_g0.py:317 先例）
@@ -30,7 +28,6 @@ EXPECTED_FILES = frozenset(
 )
 
 
-@pytest.mark.unit
 def test_xinghuo_fixture_tree_complete_with_carriers() -> None:
     files = {
         p.relative_to(FIXTURE_ROOT).as_posix()

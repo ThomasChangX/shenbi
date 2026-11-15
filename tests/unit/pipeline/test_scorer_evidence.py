@@ -12,13 +12,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g3_independence import scoring_independence_status
 from shenbi.pipeline.dispatch_helper import record_scorer_evidence
 
 
-@pytest.mark.unit
 def test_writes_evidence_and_passes_g3_independence(tmp_path: Path) -> None:
     """Scorer route + generator routes land; G3.4 evaluates PASS."""
     record_scorer_evidence(
@@ -36,7 +33,6 @@ def test_writes_evidence_and_passes_g3_independence(tmp_path: Path) -> None:
     assert status == "PASS", reason
 
 
-@pytest.mark.unit
 def test_merges_existing_progress_keys(tmp_path: Path) -> None:
     """Pre-existing chapter-phase keys survive a genesis-phase update (F630)."""
     (tmp_path / "progress.json").write_text(
@@ -54,7 +50,6 @@ def test_merges_existing_progress_keys(tmp_path: Path) -> None:
     assert progress["current_scorer_agent"] == "genesis-dispatch:shenbi-foundation-review"
 
 
-@pytest.mark.unit
 def test_extra_progress_prevents_scorer_only_shell(tmp_path: Path) -> None:
     """With real progress fields the file is not a scorer-only shell (F1309)."""
     # F1313 isolation: the contract check also flags a missing ledger once
@@ -72,7 +67,6 @@ def test_extra_progress_prevents_scorer_only_shell(tmp_path: Path) -> None:
     assert check_product_contracts(tmp_path) == []
 
 
-@pytest.mark.unit
 def test_unreadable_progress_recovers_with_warning(tmp_path: Path) -> None:
     """Corrupt prior progress.json is replaced, not propagated (logged WARN)."""
     (tmp_path / "progress.json").write_text("{broken", encoding="utf-8")
@@ -86,7 +80,6 @@ def test_unreadable_progress_recovers_with_warning(tmp_path: Path) -> None:
     assert progress["current_scorer_agent"] == "genesis-dispatch:shenbi-foundation-review"
 
 
-@pytest.mark.unit
 def test_audit_classification_is_directory_scoped() -> None:
     """Plans are not audits: chapter-NN-<dim> NAME shape must not trigger
     audit-verdict checks outside audits/ (canary escalation #9).
@@ -102,7 +95,6 @@ def test_audit_classification_is_directory_scoped() -> None:
     assert _is_audit_file("chapters/chapter-1.md") is False
 
 
-@pytest.mark.unit
 def test_parameter_agent_match_is_phrase_level() -> None:
     """Phrase-level detection (probe27 #019 fix): parameter agents must be
     tagged with the explicit `_param:` prefix to be flagged.
@@ -123,7 +115,6 @@ def test_parameter_agent_match_is_phrase_level() -> None:
     assert _validate_character_matrix(body_tagged) != []
 
 
-@pytest.mark.unit
 def test_json_manifest_envelope_recovery() -> None:
     """A {"files":[...]} manifest envelope (model deviation from the taught
     ### FILE: form) parses instead of failing with zero files (canary
@@ -142,7 +133,6 @@ def test_json_manifest_envelope_recovery() -> None:
     assert _parse_structured_output("no files here").files == []
 
 
-@pytest.mark.unit
 def test_json_manifest_envelope_recovers_control_chars() -> None:
     """probe14 genesis step 12 (2026-10-02): the model shipped a 39KB
     {"files":[...]} envelope whose content strings carry RAW newlines/
@@ -169,7 +159,6 @@ def test_json_manifest_envelope_recovers_control_chars() -> None:
     assert "关系图谱" in out.files[0].content
 
 
-@pytest.mark.unit
 def test_json_manifest_envelope_recovers_with_trailing_junk() -> None:
     """Trailing text after the envelope must not block strict=False recovery
     (raw_decode takes the first complete object).

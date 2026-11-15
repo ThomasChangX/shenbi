@@ -12,9 +12,7 @@ from pathlib import Path
 
 import pytest
 
-pytestmark = pytest.mark.unit
-
-import tools.lint_audit_run as lar  # noqa: E402
+import tools.lint_audit_run as lar
 
 GOOD_ROW = "| F1 | 标题甲 | error | P1 | e | r | v | i | s | d | open |"
 

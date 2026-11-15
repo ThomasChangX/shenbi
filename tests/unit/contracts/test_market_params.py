@@ -20,31 +20,26 @@ _FULL = {
 }
 
 
-@pytest.mark.unit
 def test_genre_keys_twelve() -> None:
     assert "market_params" in GENRE_KEYS
     assert len(GENRE_KEYS) == 12
 
 
-@pytest.mark.unit
 def test_absent_block_passes() -> None:
     GenreConfig.model_validate(_base())  # 顶层缺块 PASS（可选——存量 fixture 全兼容）
 
 
-@pytest.mark.unit
 def test_full_block_passes() -> None:
     cfg = GenreConfig.model_validate(_base() | {"market_params": _FULL})
     assert cfg.market_params["payoff_density"]["window"] == 3
 
 
-@pytest.mark.unit
 def test_missing_subkey_fails() -> None:
     partial = {k: v for k, v in _FULL.items() if k != "payoff_density"}
     with pytest.raises(Exception, match="payoff_density"):
         GenreConfig.model_validate(_base() | {"market_params": partial})
 
 
-@pytest.mark.unit
 def test_out_of_range_fails() -> None:
     with pytest.raises(Exception, match="window"):
         GenreConfig.model_validate(
@@ -56,7 +51,6 @@ def test_out_of_range_fails() -> None:
         )
 
 
-@pytest.mark.unit
 def test_g4_three_state_via_real_checker(tmp_path: Path) -> None:
     """G4 genre_config three states: absent PASS / full PASS / out-of-range FAIL."""
     from shenbi.gates.g4.genre_config import g4_genre_config

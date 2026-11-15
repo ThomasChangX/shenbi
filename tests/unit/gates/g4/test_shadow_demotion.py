@@ -42,31 +42,26 @@ def proj(tmp_path: Path) -> Path:
     return tmp_path
 
 
-@pytest.mark.unit
 def test_check_id_prefix_extraction() -> None:
     assert check_id("G4.cp.cold_streak_window:path:4>3") == "cp.cold_streak_window"
     assert check_id("G4.cd.hook_type_rotation:file:同型") == "cd.hook_type_rotation"
 
 
-@pytest.mark.unit
 def test_shadow_true_demotes(proj: Path) -> None:
     out = apply_shadow(proj, "G4.cp.cold_streak_window:plans/ch37:4>3")
     assert out is not None and out.startswith("[shadow]")
 
 
-@pytest.mark.unit
 def test_promoted_stays_hard(proj: Path) -> None:
     """Promotion direction: shadow:false → HARD (the load-bearing case)."""
     assert apply_shadow(proj, "G4.cp.hot_hook_window:plans/ch37:0/10") is None
 
 
-@pytest.mark.unit
 def test_unlisted_stays_hard(proj: Path) -> None:
     """Fail-safe direction: unlisted check ids never demote."""
     assert apply_shadow(proj, "G4.cd.no_hook:chapters/ch37:未检出钩") is None
 
 
-@pytest.mark.unit
 def test_key_absent_defaults_to_shadow(proj: Path) -> None:
     """Spec L-D default-shadow semantics: key absent → shadow:true (demote).
 
@@ -80,13 +75,11 @@ def test_key_absent_defaults_to_shadow(proj: Path) -> None:
     assert apply_shadow(proj, "G4.cd.hook_type_rotation:ch37:同型") is not None
 
 
-@pytest.mark.unit
 def test_pacing_block_source(proj: Path) -> None:
     out = apply_shadow(proj, "G4.cp.core_motif_touch:plans/ch37:7>6")
     assert out is not None  # pacing.core_motif_touch.shadow=true demotes
 
 
-@pytest.mark.unit
 def test_single_gate_all_demoted_leaves_empty(proj: Path) -> None:
     dem, rem = demote_must_fix(proj, ["G4.cp.cold_streak_window:a:4>3"])
     assert dem and not rem
@@ -94,7 +87,6 @@ def test_single_gate_all_demoted_leaves_empty(proj: Path) -> None:
     assert len(dem2) == 1 and len(rem2) == 1
 
 
-@pytest.mark.unit
 def test_trace_writer_accepts_warn_action(tmp_path: Path) -> None:
     """Spec #82 T3: the #81 trace face accepts action="WARN" (free string).
 
@@ -120,7 +112,6 @@ def test_trace_writer_accepts_warn_action(tmp_path: Path) -> None:
     assert verify_chain(events) == []
 
 
-@pytest.mark.unit
 def test_wiring_all_demoted_routes_pass_with_warnings(tmp_path: Path) -> None:
     """audit-T3/I3 wiring test (mutation-pinned): drives the REAL shared
     routing function `_shadow_route_g4` — delete its demotion block and
@@ -167,7 +158,6 @@ def test_wiring_all_demoted_routes_pass_with_warnings(tmp_path: Path) -> None:
     assert latest is not None and str(latest.get("status")) in {"PASS", "pass"}
 
 
-@pytest.mark.unit
 def test_wiring_partial_demotion_keeps_hard_items_only(tmp_path: Path) -> None:
     """audit-T3/I3+C1: mixed must_fix → demoted items never reach the classifier."""
     from shenbi.pipeline.chapter_loop import _classify_g4_failures, _shadow_route_g4

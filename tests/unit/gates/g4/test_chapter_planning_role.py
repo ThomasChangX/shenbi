@@ -46,7 +46,6 @@ def _valid_plan(role: str | None = None) -> str:
     return content
 
 
-@pytest.mark.unit
 def test_plan_without_chapter_role_fails_g4(tmp_path: Path) -> None:
     """Otherwise-valid plan missing chapter_role -> FAIL with G4.cp.missing_chapter_role."""
     f = tmp_path / "chapter-001-plan.md"
@@ -56,7 +55,6 @@ def test_plan_without_chapter_role_fails_g4(tmp_path: Path) -> None:
     assert any("G4.cp.missing_chapter_role" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize("role", ["高潮", "兑现", "推进", "转折", "过渡", "铺垫"])
 def test_plan_with_chapter_role_passes(tmp_path: Path, role: str) -> None:
     """Plan declaring any allowed chapter_role value -> PASS."""
@@ -67,7 +65,6 @@ def test_plan_with_chapter_role_passes(tmp_path: Path, role: str) -> None:
     assert any(c["id"] == "G4.cp.chapter_role" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_chapter_role_accepts_fullwidth_colon(tmp_path: Path) -> None:
     """A fullwidth colon is also a valid separator for the chapter_role token."""
     f = tmp_path / "chapter-001-plan.md"
@@ -111,7 +108,6 @@ def _valid_plan_raw_role_line(raw_role_line: str) -> str:
     return content
 
 
-@pytest.mark.unit
 def test_canonical_template_role_token_passes_g4(tmp_path: Path) -> None:
     r"""Regression guard (P2 fix): the literal chapter_role token shown in the §1
     template of SKILL.md must pass the G4 checker. If the template is reverted to
@@ -129,7 +125,6 @@ def test_canonical_template_role_token_passes_g4(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.cp.chapter_role" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_invalid_chapter_role_value_rejected(tmp_path: Path) -> None:
     """A present-but-non-canonical value (无效) is rejected via the dedicated
     G4.cp.invalid_chapter_role id (spec #95 r1.6: present-but-illegal is not
@@ -144,7 +139,6 @@ def test_invalid_chapter_role_value_rejected(tmp_path: Path) -> None:
     assert not any("G4.cp.missing_chapter_role" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_invalid_role_message_inlines_enum_and_node_word_teaching(tmp_path: Path) -> None:
     """束6 verbatim batch: invalid_chapter_role message inlines the full legal
     enum plus the volume-map node-word anti-confusion teaching.
@@ -165,7 +159,6 @@ def test_invalid_role_message_inlines_enum_and_node_word_teaching(tmp_path: Path
     assert "节点角色" in m and "承接" in m
 
 
-@pytest.mark.unit
 def test_slash_form_rejected_not_passed(tmp_path: Path) -> None:
     """Spec #95 T1 (R1 aggravated): the slash form must FAIL - the old
     prefix-match regex returned match=True->PASS for it (coordinator-verified).
@@ -177,7 +170,6 @@ def test_slash_form_rejected_not_passed(tmp_path: Path) -> None:
     assert any("G4.cp.invalid_chapter_role" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_mixed_canonical_and_slash_still_fails(tmp_path: Path) -> None:
     """Spec #95 T1 (plan review C1): a canonical exemplar line plus a slash
     declaration must still FAIL - finditer collects every present value (the
@@ -192,7 +184,6 @@ def test_mixed_canonical_and_slash_still_fails(tmp_path: Path) -> None:
     assert any("G4.cp.invalid_chapter_role" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_space_separated_multi_value_fails_invalid(tmp_path: Path) -> None:
     """Spec #95 T1 (C1 follow-up): space-separated multi-value must not collapse
     into missing - every non-canonical present value maps to invalid_chapter_role.

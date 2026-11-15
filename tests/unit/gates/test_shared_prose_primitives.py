@@ -2,11 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
 from shenbi.gates.shared import QUOTE_PAIR, count_similes, segment_sentences
-
-pytestmark = pytest.mark.unit
 
 
 def test_segment_sentences_migration_anchor() -> None:

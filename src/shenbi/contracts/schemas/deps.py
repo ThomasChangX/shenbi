@@ -7,8 +7,9 @@ skill->phase lookup; the G3.1 prerequisite logic is deleted in a later task.
 
 Phase-0-verified facts reflected here:
 - top-level keys are hyphenated and several carry leading underscores
-  (``t2-phases``, ``t3-pipelines``, ``_tool_hashes``, ``_out_of_pipeline``,
-  ``_calibration_hashes``). Each maps to a snake_case python attribute via
+  (``t2-phases``, ``t3-pipelines``, ``_out_of_pipeline``,
+  ``_calibration_hashes`` — the G0.14 anchor lock). Each maps to a snake_case
+  python attribute via
   ``Field(alias=...)`` and ``populate_by_name=True``.
 - ``t2-phases`` is a DICT keyed by phase name (NOT a list). Each value is a
   :class:`PhaseDeps` with ``{prerequisites, expected_outputs, g4_checker,
@@ -20,6 +21,8 @@ Phase-0-verified facts reflected here:
 """
 
 from __future__ import annotations
+
+from pathlib import Path
 
 from pydantic import BaseModel, Field
 
@@ -59,7 +62,6 @@ class DepsDoc(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
     t2_phases: dict[str, PhaseDeps] = Field(default_factory=dict, alias="t2-phases")
     t3_pipelines: dict[str, PipelineDeps] = Field(default_factory=dict, alias="t3-pipelines")
-    tool_hashes: dict[str, str] = Field(default_factory=dict, alias="_tool_hashes")
     out_of_pipeline: OutOfPipeline = Field(default_factory=OutOfPipeline, alias="_out_of_pipeline")
     calibration_hashes: dict[str, str] = Field(default_factory=dict, alias="_calibration_hashes")
 
@@ -76,3 +78,14 @@ def phase_of(deps: DepsDoc, skill: str) -> str | None:
         if skill in p.prerequisites:
             return pname
     return None
+
+
+def load_deps(deps_path: Path) -> DepsDoc:
+    """Load and validate tests/tiers/deps.json as :class:`DepsDoc`.
+
+    Raises OSError / pydantic.ValidationError — callers own the error
+    surface (CLI exit, gate fail tuple, marker list). NOTE: pydantic v2
+    ``model_validate_json`` raises ValidationError for malformed JSON too
+    (repo precedent: state_settling.py:867 catches ValueError around it).
+    """
+    return DepsDoc.model_validate_json(deps_path.read_text(encoding="utf-8"))

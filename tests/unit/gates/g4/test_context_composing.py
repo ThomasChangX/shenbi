@@ -10,8 +10,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.context_composing import g4_context_composing
 
 
@@ -43,7 +41,6 @@ def _valid_output() -> str:
     )
 
 
-@pytest.mark.unit
 def test_fails_when_section_titles_missing(tmp_path: Path) -> None:
     """File missing layer-based section titles -> FAIL G4.cc.sections."""
     f = tmp_path / "ctx.md"
@@ -53,7 +50,6 @@ def test_fails_when_section_titles_missing(tmp_path: Path) -> None:
     assert any("G4.cc.sections" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_with_all_layer_sections(tmp_path: Path) -> None:
     """File with all 9 layer-based sections -> PASS G4.cc.sections."""
     f = tmp_path / "ctx.md"
@@ -63,7 +59,6 @@ def test_passes_with_all_layer_sections(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.cc.sections" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_rejects_obsolete_flat_titles(tmp_path: Path) -> None:
     """Old flat-model titles (P3 活跃伏笔) -> FAIL G4.cc.obsolete_titles."""
     f = tmp_path / "ctx.md"
@@ -73,7 +68,6 @@ def test_rejects_obsolete_flat_titles(tmp_path: Path) -> None:
     assert any("obsolete_titles" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_p1p2_empty(tmp_path: Path) -> None:
     """File with empty P1 content -> FAIL G4.cc.p1p2_empty."""
     f = tmp_path / "ctx.md"
@@ -84,7 +78,6 @@ def test_fails_when_p1p2_empty(tmp_path: Path) -> None:
     assert any("G4.cc.p1p2_empty" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_with_non_empty_p1p2(tmp_path: Path) -> None:
     """File with non-empty P1+P2 -> PASS G4.cc.p1p2."""
     f = tmp_path / "ctx.md"
@@ -93,7 +86,6 @@ def test_passes_with_non_empty_p1p2(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.cc.p1p2" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_fails_when_file_not_found(tmp_path: Path) -> None:
     """Missing file -> FAIL G4.cc.not_found."""
     result = _run([str(tmp_path / "nonexistent.md")])
@@ -101,7 +93,6 @@ def test_fails_when_file_not_found(tmp_path: Path) -> None:
     assert any("G4.cc.not_found" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_skips_on_empty_fps(tmp_path: Path) -> None:
     """Empty fps list -> SKIP."""
     result = _run([])

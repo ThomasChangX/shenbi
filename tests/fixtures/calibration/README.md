@@ -61,5 +61,5 @@ trips the gate until the lock is refreshed.
 Re-lock after authoring or editing anchors:
 
 ```bash
-tests/lock-tool-hashes.sh
+tests/lock-calibration-hash.sh
 ```

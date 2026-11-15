@@ -43,7 +43,6 @@ class TestG3DependencyCheck:
         assert "status" in parsed
 
 
-@pytest.mark.unit
 class TestG3ErrorPaths:
     """Error-path tests for G3 — pre-scoring dependency checks."""
 
@@ -100,7 +99,6 @@ class TestG3ErrorPaths:
         result = _result_dict(gate_G3(None, None, None))
         assert "timestamp" in result
 
-    @pytest.mark.unit
     def test_g33_passes_with_valid_output_files(self, tmp_path: Path) -> None:
         """progress.json with output_files that pass G2 -> G3.3 PASS.
 
@@ -125,7 +123,6 @@ class TestG3ErrorPaths:
         assert g33 is not None
         assert g33["s"] == "PASS"
 
-    @pytest.mark.unit
     def test_g33_skips_when_no_output_files(self, tmp_path: Path) -> None:
         """progress.json without output_files -> G3.3 SKIP."""
         rd = tmp_path / "round"
@@ -137,7 +134,6 @@ class TestG3ErrorPaths:
         assert g33 is not None
         assert g33["s"] == "SKIP"
 
-    @pytest.mark.unit
     def test_g33_skips_without_progress_json(self, tmp_path: Path) -> None:
         """No progress.json -> G3.3 SKIP."""
         rd = tmp_path / "round"
@@ -147,7 +143,6 @@ class TestG3ErrorPaths:
         assert g33 is not None
         assert g33["s"] == "SKIP"
 
-    @pytest.mark.unit
     def test_g34_fails_when_scorer_same_as_generator(self, tmp_path: Path) -> None:
         """Same agent for gen and scoring -> G3.4 FAIL."""
         rd = tmp_path / "round"
@@ -161,7 +156,6 @@ class TestG3ErrorPaths:
         result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
         assert any("G3.4" in mf for mf in result.get("must_fix", []))
 
-    @pytest.mark.unit
     def test_g34_skips_without_progress_json(self, tmp_path: Path) -> None:
         """No progress.json -> G3.4 SKIP."""
         rd = tmp_path / "round"
@@ -172,7 +166,6 @@ class TestG3ErrorPaths:
         assert g34["s"] == "SKIP"
 
 
-@pytest.mark.unit
 def test_g32_compares_report_scores_against_threshold(tmp_path: Path) -> None:
     """t1-reports with scores -> G3.2 PASS (>=threshold) and FAIL (<threshold).
 
@@ -190,7 +183,6 @@ def test_g32_compares_report_scores_against_threshold(tmp_path: Path) -> None:
     assert any("G3.2" in m and "b-generative-scores" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g33_runs_g2_when_output_files_present(tmp_path: Path) -> None:
     """progress.json with output_files -> G3.3 runs gate_G2 (covers g3.py:132-160)."""
     rd = tmp_path / "round"
@@ -211,7 +203,6 @@ def test_g33_runs_g2_when_output_files_present(tmp_path: Path) -> None:
     assert any("G3.3" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g34_fails_when_scorer_agent_equals_generator(tmp_path: Path) -> None:
     """agent_trace[skill] == current_scorer_agent -> G3.4 FAIL (covers g3.py:171)."""
     rd = tmp_path / "round"
@@ -226,7 +217,6 @@ def test_g34_fails_when_scorer_agent_equals_generator(tmp_path: Path) -> None:
     assert any("G3.4" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g34_fail_closed_when_generator_recorded_but_no_scorer(tmp_path: Path) -> None:
     """Generator ran (agent_trace[skill]) but no current_scorer_agent -> G3.4 FAIL.
 
@@ -244,7 +234,6 @@ def test_g34_fail_closed_when_generator_recorded_but_no_scorer(tmp_path: Path) -
     assert any("G3.4" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_compute_rubric_weighted_score_returns_none_when_rubric_missing() -> None:
     """Returns None when the rubric file does not exist."""
     from shenbi.gates.g3 import _compute_rubric_weighted_score
@@ -252,7 +241,6 @@ def test_compute_rubric_weighted_score_returns_none_when_rubric_missing() -> Non
     assert _compute_rubric_weighted_score({}, "shenbi-nonexistent-skill") is None
 
 
-@pytest.mark.unit
 def test_compute_rubric_weighted_score_returns_none_when_no_dimensions_match() -> None:
     """Returns None when no scored dimensions match rubric dimensions."""
     from shenbi.gates.g3 import _compute_rubric_weighted_score
@@ -267,7 +255,6 @@ def test_compute_rubric_weighted_score_returns_none_when_no_dimensions_match() -
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_g31_does_not_silently_query_missing_key() -> None:
     """D19 canary: G3.1 must not do the dead deps.get(skill_name) query.
 
@@ -315,7 +302,6 @@ def test_g31_does_not_silently_query_missing_key() -> None:
     )
 
 
-@pytest.mark.unit
 def test_g33_executes_on_real_producer_shape(tmp_path: Path) -> None:
     """F444: progress built by the REAL producer (_record_completion with
     output_files) → G3.3 actually executes (non-SKIP) on the production shape.
@@ -339,7 +325,6 @@ def test_g33_executes_on_real_producer_shape(tmp_path: Path) -> None:
     assert g33["s"] == "PASS"
 
 
-@pytest.mark.unit
 def test_g33_non_dict_progress_fails_not_crashes(tmp_path: Path) -> None:
     """F444 follow-on: non-dict JSON progress raises ValueError inside gate_G2's
     jload — g3.py must catch it and record FAIL, not propagate.
@@ -359,7 +344,6 @@ def test_g33_non_dict_progress_fails_not_crashes(tmp_path: Path) -> None:
     assert result["status"] == "FAIL"  # caught → FAIL, no exception propagated
 
 
-@pytest.mark.unit
 def test_g32_reads_canonical_scoring_shape(tmp_path: Path) -> None:
     """F130 (spec #27): canonical scoring.py output = final_score + nested
     dimensions list — G3.2 must read final_score / flatten nested dims.
@@ -384,7 +368,6 @@ def test_g32_reads_canonical_scoring_shape(tmp_path: Path) -> None:
     assert dims2 == {1: 80.0, 2: 90.0}
 
 
-@pytest.mark.unit
 def test_g32_genuine_zero_score_not_overwritten() -> None:
     """A real final_score of 0 (kill-switch) must NOT be replaced by the
     rubric/min fallback (false-PASS guard, spec #27 T4 review).
@@ -395,7 +378,6 @@ def test_g32_genuine_zero_score_not_overwritten() -> None:
     assert score == 0.0
 
 
-@pytest.mark.unit
 def test_g32_skips_sidecar_artifacts(tmp_path: Path) -> None:
     """Spec #31: collapse-check / dual-scorer sidecars are not readiness reports.
 

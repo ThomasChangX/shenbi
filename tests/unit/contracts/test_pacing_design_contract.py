@@ -75,7 +75,6 @@ def _const_payload(ratio: float) -> dict[str, object]:
     }
 
 
-@pytest.mark.unit
 def test_constellation_hard_band_covers_kaijuan_upper() -> None:
     from shenbi.contracts.skills.pacing_design import PacingDesign
 
@@ -85,7 +84,6 @@ def test_constellation_hard_band_covers_kaijuan_upper() -> None:
         PacingDesign.model_validate(_const_payload(41))
 
 
-@pytest.mark.unit
 def test_constellation_hard_band_lower_edge() -> None:
     from shenbi.contracts.skills.pacing_design import PacingDesign
 

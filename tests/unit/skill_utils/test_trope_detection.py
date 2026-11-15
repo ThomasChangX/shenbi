@@ -17,7 +17,6 @@ from shenbi.skill_utils.trope_detection.match_tropes import (
 )
 
 
-@pytest.mark.unit
 def test_count_hits_matches_signature_keywords() -> None:
     t = Trope("废柴逆袭", ["主角开局被退婚", "获得金手指"], 2, "淡化")
     beats = [
@@ -28,34 +27,29 @@ def test_count_hits_matches_signature_keywords() -> None:
     assert count_trope_hits(beats, t) == 2
 
 
-@pytest.mark.unit
 def test_overuse_flagged_above_threshold() -> None:
     t = Trope("天降系统", ["系统面板", "任务奖励"], 1, "改")
     assert trope_overuse(2, t) is True
     assert trope_overuse(1, t) is False
 
 
-@pytest.mark.unit
 def test_count_hits_zero_when_no_signature_present() -> None:
     t = Trope("废柴逆袭", ["主角开局被退婚", "获得金手指"], 2, "淡化")
     beats = ["主角吃了一碗面", "主角睡了一觉"]
     assert count_trope_hits(beats, t) == 0
 
 
-@pytest.mark.unit
 def test_count_hits_empty_beats() -> None:
     t = Trope("废柴逆袭", ["主角开局被退婚"], 2, "淡化")
     assert count_trope_hits([], t) == 0
 
 
-@pytest.mark.unit
 def test_count_hits_empty_signatures_never_matches() -> None:
     """A trope with no signatures never matches any beat."""
     t = Trope("空模板", [], 0, "")
     assert count_trope_hits(["任何内容", "主角开局被退婚"], t) == 0
 
 
-@pytest.mark.unit
 def test_count_hits_each_beat_counted_at_most_once() -> None:
     """A single beat matching multiple signatures counts as one hit."""
     t = Trope("天降系统", ["系统面板", "任务奖励"], 1, "改")
@@ -63,7 +57,6 @@ def test_count_hits_each_beat_counted_at_most_once() -> None:
     assert count_trope_hits(beats, t) == 1
 
 
-@pytest.mark.unit
 def test_trope_is_frozen() -> None:
     import dataclasses
 
@@ -72,7 +65,6 @@ def test_trope_is_frozen() -> None:
         t.trope = "改不了"  # type: ignore[misc]
 
 
-@pytest.mark.unit
 def test_trope_overuse_boundary_is_strict_greater() -> None:
     """overuse_threshold is exclusive: hit_count == threshold is NOT overuse."""
     t = Trope("t", ["s"], 3, "h")
@@ -83,7 +75,6 @@ def test_trope_overuse_boundary_is_strict_greater() -> None:
 FIXTURE = "tests/fixtures/trope-inventory-example.json"  # F787: genre-config-example is now a verbatim upstream copy with no tropeInventory
 
 
-@pytest.mark.unit
 def test_load_trope_inventory_reads_fixture() -> None:
     tropes = load_trope_inventory(FIXTURE)
     assert len(tropes) == 2
@@ -94,7 +85,6 @@ def test_load_trope_inventory_reads_fixture() -> None:
     assert "主角开局被退婚/受辱" in tropes[0].signatures
 
 
-@pytest.mark.unit
 def test_main_cli_outputs_json(tmp_path, capsys, monkeypatch) -> None:
     """main() loads --config tropeInventory and --beats-file, prints JSON."""
     config = tmp_path / "genre.json"
@@ -146,7 +136,6 @@ def test_main_cli_outputs_json(tmp_path, capsys, monkeypatch) -> None:
 from shenbi.skill_utils.trope_detection.match_tropes import match_all  # noqa: E402
 
 
-@pytest.mark.unit
 def test_fixture_overuse_detected_via_match_all() -> None:
     """Real fixture: 天降系统 over-triggered (>1 hit) → overuse flagged."""
     tropes = load_trope_inventory(FIXTURE)
@@ -164,7 +153,6 @@ def test_fixture_overuse_detected_via_match_all() -> None:
     assert results["废柴逆袭"]["overuse"] is False
 
 
-@pytest.mark.unit
 def test_fixture_overuse_result_carries_rewrite_hint() -> None:
     """An overused trope's result carries the actionable rewrite_hint."""
     tropes = load_trope_inventory(FIXTURE)
@@ -179,7 +167,6 @@ def test_fixture_overuse_result_carries_rewrite_hint() -> None:
     assert "系统" in flagged["rewrite_hint"]
 
 
-@pytest.mark.unit
 def test_fixture_clean_outline_no_overuse() -> None:
     """Beats with no trope signatures → every result overuse=False, zero hits."""
     tropes = load_trope_inventory(FIXTURE)
@@ -193,7 +180,6 @@ def test_fixture_clean_outline_no_overuse() -> None:
         assert r["overuse"] is False
 
 
-@pytest.mark.unit
 def test_fixture_selective_overuse_only_flagged_trope() -> None:
     """Only the trope exceeding its threshold is flagged; the other is not.
 
@@ -217,7 +203,6 @@ def test_fixture_selective_overuse_only_flagged_trope() -> None:
     assert by_trope["天降系统"]["overuse"] is True
 
 
-@pytest.mark.unit
 def test_match_all_full_report_structure() -> None:
     """Every match_all result exposes the full §10 report contract."""
     tropes = load_trope_inventory(FIXTURE)
@@ -233,7 +218,6 @@ def test_match_all_full_report_structure() -> None:
         }
 
 
-@pytest.mark.unit
 def test_fixture_cli_with_real_genre_config(tmp_path, capsys, monkeypatch) -> None:
     """main() against the real fixture config + a beats file → full JSON report."""
     beats = tmp_path / "beats.txt"

@@ -64,7 +64,6 @@ def _run_script(tmp_path: Path, project_dir: str, canned: str) -> subprocess.Com
     )
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize("dirname", HOSTILE_DIRS)
 def test_hostile_project_dir_loud_failure_no_python_breakout(tmp_path: Path, dirname: str) -> None:
     # Vacuity guard (precedent tests/test_round_exec_injection.py): the
@@ -83,7 +82,6 @@ def test_hostile_project_dir_loud_failure_no_python_breakout(tmp_path: Path, dir
     assert "FATAL" in proc.stdout + proc.stderr or "error" in (proc.stdout + proc.stderr).lower()
 
 
-@pytest.mark.unit
 def test_escalation_blocked_stops_without_approve_or_state_write(tmp_path: Path) -> None:
     proj = tmp_path / "proj"
     proj.mkdir()
@@ -104,7 +102,6 @@ def test_escalation_blocked_stops_without_approve_or_state_write(tmp_path: Path)
     assert state.read_text(encoding="utf-8") == before
 
 
-@pytest.mark.unit
 def test_error_with_gate_words_is_fatal_not_approved(tmp_path: Path) -> None:
     proc = _run_script(tmp_path, str(tmp_path / "proj2"), CANNED_ERROR)
     assert proc.returncode == 1

@@ -11,8 +11,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g4.state_settling import _check_hooks_structure, _check_matrix_structure
 from shenbi.pipeline.truth_io import hooks_stable_fields_hint
 
@@ -46,7 +44,6 @@ type: truth
 """
 
 
-@pytest.mark.unit
 def test_hooks_composite_finding_polarity(tmp_path: Path) -> None:
     """钩子基底行被丢 → 组合 finding=三段式（基底行重发）+ 对齐 wrapper。"""
     staged = _LIVE_HOOKS.replace("- trigger_condition: 塔群熔毁后地脉波形不再恢复\n", "")
@@ -85,7 +82,6 @@ type: truth
 """
 
 
-@pytest.mark.unit
 def test_matrix_composite_finding_polarity(tmp_path: Path) -> None:
     """矩阵（matrix）面基底行被丢 → 组合 finding=三段式 + 对齐 wrapper（无 increment-only 反极）。"""
     staged = _LIVE_MATRIX.replace("- 当前目标: 查清米缸账目\n", "")

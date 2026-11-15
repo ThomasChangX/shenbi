@@ -16,23 +16,19 @@ from shenbi.dispatcher.executor import (
 )
 
 
-@pytest.mark.unit
 def test_derive_file_type_returns_decisions_for_drafting() -> None:
     """Task 10: chapter-drafting now writes chapter-N-decisions.json -> 'decisions'."""
     assert derive_file_type("shenbi-chapter-drafting") == "decisions"
 
 
-@pytest.mark.unit
 def test_derive_file_type_returns_truth_for_state_settling() -> None:
     assert derive_file_type("shenbi-state-settling") == "truth"
 
 
-@pytest.mark.unit
 def test_derive_file_type_defaults_to_chapter_for_unknown() -> None:
     assert derive_file_type("shenbi-unknown-skill") == "chapter"
 
 
-@pytest.mark.unit
 def test_derive_file_type_returns_truth_for_foreshadowing_resolve() -> None:
     """New-I fix: resolve updates truth/pending_hooks.md -> 'truth' (not 'chapter').
 
@@ -43,7 +39,6 @@ def test_derive_file_type_returns_truth_for_foreshadowing_resolve() -> None:
     assert derive_file_type("shenbi-foreshadowing-resolve") == "truth"
 
 
-@pytest.mark.unit
 def test_derive_file_type_returns_report_for_report_kind_skill(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -63,7 +58,6 @@ def test_derive_file_type_returns_report_for_report_kind_skill(
     assert derive_file_type("shenbi-review-arc-payoff") == "report"
 
 
-@pytest.mark.unit
 def test_derive_file_type_returns_chapter_for_ephemeral_skill(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -83,7 +77,6 @@ def test_derive_file_type_returns_chapter_for_ephemeral_skill(
     assert derive_file_type("shenbi-ephemeral") == "chapter"
 
 
-@pytest.mark.unit
 def test_derive_files_delegate_to_contract_loader(monkeypatch: pytest.MonkeyPatch) -> None:
     """derive_input_files/derive_output_files delegate to load_contract (no regex)."""
     # derive_input_files lives in executor; derive_output_files moved to audit/_shared
@@ -105,7 +98,6 @@ def test_derive_files_delegate_to_contract_loader(monkeypatch: pytest.MonkeyPatc
     ]
 
 
-@pytest.mark.unit
 def test_derive_files_empty_when_skill_has_no_contract(monkeypatch: pytest.MonkeyPatch) -> None:
     """A skill outside the contract system (meta skill) raises ContractError -> []."""
     from shenbi.contracts import ContractError
@@ -119,7 +111,6 @@ def test_derive_files_empty_when_skill_has_no_contract(monkeypatch: pytest.Monke
     assert derive_output_files("using-shenbi") == []
 
 
-@pytest.mark.unit
 def test_derive_files_read_real_migrated_skill_contract() -> None:
     """Post-migration, derive_* read the real frontmatter contract end-to-end."""
     # chapter=None filters N/NNN placeholders (genesis mode); pass chapter number
@@ -161,7 +152,6 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
     ]
 
 
-@pytest.mark.unit
 def test_generate_agent_id_is_unique() -> None:
     round_dir = Path("/tmp/round-001")
     id1 = generate_agent_id(round_dir, "skill-x", "generative")
@@ -171,14 +161,12 @@ def test_generate_agent_id_is_unique() -> None:
     assert "generative" in id1
 
 
-@pytest.mark.unit
 def test_generate_agent_id_contains_round_dir_name() -> None:
     round_dir = Path("/tmp/round-042")
     agent_id = generate_agent_id(round_dir, "skill-y", "discriminating")
     assert "round-042" in agent_id
 
 
-@pytest.mark.unit
 def test_detect_mode_returns_internal_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
     """detect_mode returns 'internal' when no IDE CLI is available.
 
@@ -189,7 +177,6 @@ def test_detect_mode_returns_internal_by_default(monkeypatch: pytest.MonkeyPatch
     assert detect_mode() == "internal"
 
 
-@pytest.mark.unit
 def test_detect_mode_returns_internal_with_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
     """detect_mode returns 'internal' even when CODEX_API_KEY is set."""
     monkeypatch.setenv("CODEX_API_KEY", "sk-test-key")
@@ -197,7 +184,6 @@ def test_detect_mode_returns_internal_with_env_var(monkeypatch: pytest.MonkeyPat
     assert detect_mode() == "internal"
 
 
-@pytest.mark.unit
 def test_detect_mode_returns_internal_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
     """detect_mode returns 'internal' when neither codex nor env var is available."""
     monkeypatch.setattr(shutil, "which", lambda cmd: None)
@@ -207,7 +193,6 @@ def test_detect_mode_returns_internal_fallback(monkeypatch: pytest.MonkeyPatch) 
     assert dm() == "internal"
 
 
-@pytest.mark.unit
 def test_run_g1_returns_parsed_dict(monkeypatch: pytest.MonkeyPatch) -> None:
     """run_g1 parses subprocess stdout JSON into a dict."""
     import subprocess
@@ -222,7 +207,6 @@ def test_run_g1_returns_parsed_dict(monkeypatch: pytest.MonkeyPatch) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_run_g2_returns_parsed_dict(monkeypatch: pytest.MonkeyPatch) -> None:
     """run_g2 parses subprocess stdout JSON into a dict."""
     import subprocess
@@ -237,7 +221,6 @@ def test_run_g2_returns_parsed_dict(monkeypatch: pytest.MonkeyPatch) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_dispatch_returns_0_on_success(monkeypatch: pytest.MonkeyPatch) -> None:
     """Dispatch returns 0 when all gates pass and internal mode succeeds."""
     import subprocess
@@ -258,7 +241,6 @@ def test_dispatch_returns_0_on_success(monkeypatch: pytest.MonkeyPatch) -> None:
     assert result == 0
 
 
-@pytest.mark.unit
 def test_section_path_not_corrupted() -> None:
     """C2: uppercase N mid-token must NOT be replaced by chapter substitution.
 
@@ -276,7 +258,6 @@ def test_section_path_not_corrupted() -> None:
     assert resolve_chapter_path("no-placeholder.md", 5) == "no-placeholder.md"
 
 
-@pytest.mark.unit
 def test_derive_input_files_with_chapter_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
     """derive_input_files resolves NNN placeholders when chapter is provided."""
     monkeypatch.setattr(
@@ -293,7 +274,6 @@ def test_derive_input_files_with_chapter_resolution(monkeypatch: pytest.MonkeyPa
     assert "style/style_profile.md" in result
 
 
-@pytest.mark.unit
 def test_derive_input_files_filter_empty_sentinels(monkeypatch: pytest.MonkeyPatch) -> None:
     """derive_input_files skips unresolvable placeholders when chapter=None (genesis mode).
 
@@ -313,7 +293,6 @@ def test_derive_input_files_filter_empty_sentinels(monkeypatch: pytest.MonkeyPat
     assert derive_input_files("shenbi-x", chapter=None) == []
 
 
-@pytest.mark.unit
 def test_derive_file_type_returns_decisions_for_context_composing_after_migration(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -335,7 +314,6 @@ def test_derive_file_type_returns_decisions_for_context_composing_after_migratio
     assert derive_file_type("shenbi-context-composing") == "decisions"
 
 
-@pytest.mark.unit
 def test_derive_file_type_returns_decisions_for_chapter_drafting_after_migration(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

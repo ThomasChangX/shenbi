@@ -37,28 +37,24 @@ def _wounds(chapter: int) -> list[tuple[str, str]]:
     )
 
 
-@pytest.mark.unit
 def test_wound1_ch2_pov_break() -> None:
     """ch1 我-narration vs ch2 他-narration with no POV change declaration."""
     wounds = _wounds(2)
     assert any("POV 人称断裂" in w for _cid, w in wounds), wounds
 
 
-@pytest.mark.unit
 def test_wound2_protagonist_called_deng() -> None:
     """ch4-5 narrate the protagonist as 灯 — outside the name whitelist."""
     wounds = _wounds(5)
     assert any("称谓违例" in w and "灯" in w for _cid, w in wounds), wounds
 
 
-@pytest.mark.unit
 def test_wound3_timeline_rollback_ch2() -> None:
     """ch1 ends on 初十, ch2 opens on 初七/初八 — anchor rollback, no marker."""
     wounds = _wounds(2)
     assert any("时间锚回拨" in w for _cid, w in wounds), wounds
 
 
-@pytest.mark.unit
 def test_wound4_prop_chain_break(tmp_path: Path) -> None:
     """The red-paper bundle changes hands with no 经手 declaration.
 
@@ -102,14 +98,12 @@ def test_wound4_prop_chain_break(tmp_path: Path) -> None:
     assert any("红纸包" in w and "无经手声明" in w for _cid, w in issues), issues
 
 
-@pytest.mark.unit
 def test_wound5_xiaoman_card_conflict() -> None:
     """xiao-man's card pronoun/organization conflicts with the prose."""
     wounds = _wounds(1)
     assert any("卡" in w and ("代词" in w or "机构" in w) for _cid, w in wounds), wounds
 
 
-@pytest.mark.unit
 def test_clean_adjacent_pair_zero_false_positive(tmp_path: Path) -> None:
     """True negative: a constructed clean adjacent pair yields no issues."""
     from shenbi.gates.g4.cross_chapter import CrossChapterContext
@@ -134,7 +128,6 @@ def test_clean_adjacent_pair_zero_false_positive(tmp_path: Path) -> None:
     assert issues == [], issues
 
 
-@pytest.mark.unit
 def test_registry_absence_warn_not_fail(tmp_path: Path) -> None:
     """WARN state: registry tables absent → XC.registry WARN, gate still PASS."""
     ch_dir = tmp_path / "chapters"
@@ -154,7 +147,6 @@ def test_registry_absence_warn_not_fail(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_pure_idempotent_no_side_effects(tmp_path: Path) -> None:
     """Idempotence + purity: double run → identical output, files untouched."""
     import hashlib
@@ -189,7 +181,6 @@ def test_pure_idempotent_no_side_effects(tmp_path: Path) -> None:
 # ---------- final-review fix batch: false-positive pins + new coverage ----------
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize("n", [6, 8, 9, 10])
 def test_clean_chapters_zero_naming_hits(n: int) -> None:
     """Final-review C1 pin: non-wound chapters must produce NO 称谓违例.
@@ -201,7 +192,6 @@ def test_clean_chapters_zero_naming_hits(n: int) -> None:
     assert not any("称谓违例" in w or "禁用名" in w for _cid, w in wounds), wounds
 
 
-@pytest.mark.unit
 def test_wound2b_ch7_reserved_name_hijack() -> None:
     """Final-review Missing pin: ch7 井台女 carries the heroine's reserved
     name — dialogue vocative + 她-co-ref paragraphs must trip the hijack.
@@ -210,7 +200,6 @@ def test_wound2b_ch7_reserved_name_hijack() -> None:
     assert any("禁用名" in w and "灯" in w for _cid, w in wounds), wounds
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("probe", "want"),
     [
@@ -229,14 +218,12 @@ def test_twenty_and_arabic_day_forms(probe: str, want: tuple[int, int] | None) -
     assert normalize_anchor(probe, None) == want
 
 
-@pytest.mark.unit
 def test_year_wrap_not_rollback() -> None:
     """腊月末 → 正月 is FORWARD (year wrap), never a rollback flag."""
     issues = _wounds(8)  # ch7 ends 腊月, ch8 opens 正月初一 — clean seam
     assert not any("时间锚回拨" in w for _cid, w in issues), issues
 
 
-@pytest.mark.unit
 def test_mixed_pov_declarable() -> None:
     """A declared 混称 chapter must not be an undeclarable POV dead end."""
     from shenbi.gates.g4.cross_chapter import CrossChapterContext, check_cross_chapter
@@ -261,7 +248,6 @@ def test_mixed_pov_declarable() -> None:
         assert not any("POV" in det for _cid, det in issues), issues
 
 
-@pytest.mark.unit
 def test_event_reconciliation_mismatch_flagged() -> None:
     """A 1-文 event declaration cannot exempt a 180-文 jump."""
     from shenbi.gates.g4.cross_chapter import CrossChapterContext, check_cross_chapter
@@ -294,7 +280,6 @@ def test_event_reconciliation_mismatch_flagged() -> None:
         assert any("对账不符" in det for _cid, det in issues), issues
 
 
-@pytest.mark.unit
 def test_prev_gap_warns() -> None:
     """Chapter numbering gap → XC.prev_missing WARN, seam checks skipped."""
     import json as _json
@@ -310,7 +295,6 @@ def test_prev_gap_warns() -> None:
         assert warns, result["checks"]
 
 
-@pytest.mark.unit
 def test_relative_anchor_warns() -> None:
     """Month names with no parseable absolute anchor → visible WARN."""
     import json as _json

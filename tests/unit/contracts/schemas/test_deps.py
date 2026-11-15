@@ -65,7 +65,6 @@ def test_real_has_all_top_level_keys():
     d = _load()
     assert set(d.t2_phases)  # non-empty
     assert set(d.t3_pipelines)
-    assert d.tool_hashes  # _tool_hashes
     assert d.out_of_pipeline  # _out_of_pipeline
     assert d.calibration_hashes  # _calibration_hashes
 
@@ -103,7 +102,6 @@ def test_populate_by_name_roundtrip():
         {
             "t2-phases": {"genesis": {"prerequisites": ["s1"]}},
             "t3-pipelines": {"long-form": {"min_chapter_ratio": 0.5}},
-            "_tool_hashes": {"a": "h"},
             "_out_of_pipeline": {"t1_only_auxiliary": ["s2"], "_note": "n"},
             "_calibration_hashes": {"combined": "h2"},
         }
@@ -146,6 +144,34 @@ def test_deps_doc_defaults():
     d = DepsDoc.model_validate({})
     assert d.t2_phases == {}
     assert d.t3_pipelines == {}
-    assert d.tool_hashes == {}
     assert isinstance(d.out_of_pipeline, OutOfPipeline)
     assert d.calibration_hashes == {}
+
+
+def test_load_deps_roundtrip() -> None:
+    """load_deps reads the real deps.json shape into DepsDoc."""
+    from shenbi.contracts.schemas.deps import load_deps
+
+    d = load_deps(REAL)
+    assert isinstance(d, DepsDoc)
+    assert d.calibration_hashes  # real file carries the G0.14 lock
+
+
+def test_load_deps_corrupt_fails(tmp_path: Path) -> None:
+    """Malformed JSON surfaces as pydantic ValidationError (v2 contract)."""
+    from shenbi.contracts.schemas.deps import load_deps
+
+    bad = tmp_path / "deps.json"
+    bad.write_text("{not json", encoding="utf-8")
+    with pytest.raises(ValidationError):
+        load_deps(bad)
+
+
+def test_load_deps_extra_key_rejected(tmp_path: Path) -> None:
+    """Unknown top-level keys are rejected (extra=forbid; any rogue key proves it)."""
+    from shenbi.contracts.schemas.deps import load_deps
+
+    bad = tmp_path / "deps.json"
+    bad.write_text('{"rogue_key": 1}', encoding="utf-8")
+    with pytest.raises(ValidationError):
+        load_deps(bad)

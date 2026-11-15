@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from shenbi.pipeline.scene_splitter import BundleChapters, split_bundle, validate_split
 
 # 单章双场景 bundle（解剖序=真实章：PRE 块在前、双 H1 其后、SCENE 标记）
@@ -26,7 +24,6 @@ def _split() -> BundleChapters:
     return split_bundle(BUNDLE)
 
 
-@pytest.mark.unit
 def test_word_band_reports_scene_gap_and_expansion_hint() -> None:
     chapters = _split()
     issues: list[str] = []
@@ -38,7 +35,6 @@ def test_word_band_reports_scene_gap_and_expansion_hint() -> None:
     assert "扩写建议" in text and "禁整章重写" in text  # 扩拍位建议（TARGETED-EDIT 同款铁律）
 
 
-@pytest.mark.unit
 def test_in_band_clean_stays_clean() -> None:
     # 合法形状：两独立型 1900+1900（word_band 与 scene_domain 双过）
     s = (

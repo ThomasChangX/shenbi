@@ -4,10 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
-pytestmark = pytest.mark.unit
-
 FIXTURES = Path(__file__).resolve().parent.parent / "fixtures"
 AUDIT_SEEDS = [
     FIXTURES / "audits" / "chapter-1-character.md",

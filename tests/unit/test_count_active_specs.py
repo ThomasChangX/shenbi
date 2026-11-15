@@ -6,9 +6,7 @@ from pathlib import Path
 
 import pytest
 
-pytestmark = pytest.mark.unit
-
-import tools.count_active_specs as cas  # noqa: E402
+import tools.count_active_specs as cas
 
 
 def _write_specs(tmp_path: Path, n: int, header_count: int) -> Path:

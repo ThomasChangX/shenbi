@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 
 
-@pytest.mark.unit
 def test_ensure_truth_frontmatter_backfills_thematic_break(tmp_path: Path) -> None:
     """Presence flip: a `----` first line is NOT frontmatter (legacy loose
     startswith counted it) — ensure_truth_frontmatter now backfills the
@@ -19,7 +18,6 @@ def test_ensure_truth_frontmatter_backfills_thematic_break(tmp_path: Path) -> No
     assert out.startswith("---\n")  # canonical block backfilled
 
 
-@pytest.mark.unit
 def test_increment_thematic_break_not_frontmatter_violation() -> None:
     """Dispatch presence flip: `----` increment content is no longer flagged
     as carrying a frontmatter block.
@@ -35,7 +33,6 @@ def test_increment_thematic_break_not_frontmatter_violation() -> None:
         _validate_increment_package("---\nname: x\n---\n增量\n", key_field="名", base_text=base)
 
 
-@pytest.mark.unit
 def test_checkpoint_splice_single_blank_line(tmp_path: Path) -> None:
     """byte-form parity (audit I1): the spliced fm block keeps ONE blank
     line separator, matching the legacy find-splice output.
@@ -48,7 +45,6 @@ def test_checkpoint_splice_single_blank_line(tmp_path: Path) -> None:
     assert merged.startswith("---\nname: 主角\n---\n\n")  # 恰一空行（I1 字节形）
 
 
-@pytest.mark.unit
 def test_truth_index_thematic_break_has_no_frontmatter() -> None:
     """core-consumer flip: `----` first line → no frontmatter keys."""
     from shenbi.pipeline.truth_index import _parse_frontmatter

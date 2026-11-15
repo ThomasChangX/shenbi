@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
-import pytest
-
 from shenbi.gates.g2 import _check_meta_ratio, gate_G2
 
 
@@ -59,7 +57,6 @@ class TestG2FileInputs:
         assert "status" in parsed
 
 
-@pytest.mark.unit
 class TestG2ErrorPaths:
     """Error-path tests for G2.1-G2.5 file integrity checks.
 
@@ -123,7 +120,6 @@ class TestG2ErrorPaths:
         assert pass_count == 2
 
 
-@pytest.mark.unit
 class TestG2WordCountChecks:
     """G2.6-G2.7 word count floor/ceiling checks."""
 
@@ -159,7 +155,6 @@ class TestG2WordCountChecks:
         assert any("G2.7" in mf for mf in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 class TestG2CheckBlocks:
     """G2.8-G2.9 pre/post write check blocks."""
 
@@ -187,7 +182,6 @@ class TestG2CheckBlocks:
         assert any("G2.9" in mf for mf in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 class TestG2TemplatePlaceholder:
     """G2.10 template placeholder detection."""
 
@@ -213,7 +207,6 @@ class TestG2TemplatePlaceholder:
         assert g210["s"] == "PASS"
 
 
-@pytest.mark.unit
 class TestG2TruthFileDiff:
     """G2.11 truth file .bak comparison."""
 
@@ -242,7 +235,6 @@ class TestG2TruthFileDiff:
         assert g211["s"] == "PASS"
 
 
-@pytest.mark.unit
 class TestG2FileCompleteness:
     """G2.12 sentence-final punctuation check."""
 
@@ -274,7 +266,6 @@ class TestG2FileCompleteness:
         assert g212["s"] == "PASS"
 
 
-@pytest.mark.unit
 class TestG2YamlFrontmatter:
     """G2.5 YAML frontmatter edge cases."""
 
@@ -302,7 +293,6 @@ class TestG2YamlFrontmatter:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_g23_fails_on_non_utf8_file(tmp_path: Path) -> None:
     """A non-UTF-8 file -> G2.3 FAIL (covers g2.py:60-62)."""
     f = tmp_path / "bad.md"
@@ -311,7 +301,6 @@ def test_g23_fails_on_non_utf8_file(tmp_path: Path) -> None:
     assert any("G2.3" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g25_fails_when_structured_file_lacks_frontmatter(tmp_path: Path) -> None:
     """A truth/*.md without YAML frontmatter -> G2.5 FAIL (covers g2.py:86)."""
     truth = tmp_path / "truth"
@@ -322,8 +311,6 @@ def test_g25_fails_when_structured_file_lacks_frontmatter(tmp_path: Path) -> Non
     assert any("G2.5" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
-@pytest.mark.unit
 def test_g211_truth_file_with_removed_lines_fails(tmp_path: Path) -> None:
     """A truth file whose .bak shows removed lines -> G2.11 FAIL (covers g2.py:190-211)."""
     rd = tmp_path / "round"
@@ -339,7 +326,6 @@ def test_g211_truth_file_with_removed_lines_fails(tmp_path: Path) -> None:
     assert any("G2.11" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g211_truth_file_unchanged_passes(tmp_path: Path) -> None:
     """A truth file identical to its .bak -> G2.11 PASS (covers g2.py:212-213)."""
     rd = tmp_path / "round"
@@ -361,7 +347,6 @@ def test_g211_truth_file_unchanged_passes(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 class TestG2DecisionsBranch:
     """G2.dec.* — decisions.json validation (M4)."""
 
@@ -526,7 +511,6 @@ class TestG2DecisionsBranch:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_meta_ratio_returns_pass_when_under_50_percent(tmp_path: Path):
     chapter = tmp_path / "chapter-1.md"
     # 20% META content
@@ -546,7 +530,6 @@ Even more content here to make the prose section larger.
     assert meta_check[0]["s"] == "PASS"
 
 
-@pytest.mark.unit
 def test_meta_ratio_warns_when_over_50_percent(tmp_path: Path):
     chapter = tmp_path / "chapter-1.md"
     # 60% META content
@@ -564,7 +547,6 @@ short prose.
     assert any("G2.meta_ratio" in f for f in failures)
 
 
-@pytest.mark.unit
 def test_meta_ratio_skips_file_with_no_meta_blocks(tmp_path: Path):
     chapter = tmp_path / "chapter-1.md"
     chapter.write_text("Pure prose content with no META blocks at all.")
@@ -572,7 +554,6 @@ def test_meta_ratio_skips_file_with_no_meta_blocks(tmp_path: Path):
     assert len(failures) == 0
 
 
-@pytest.mark.unit
 def test_meta_ratio_calculates_correctly(tmp_path: Path):
     chapter = tmp_path / "chapter-1.md"
     # META block (including markers) = 36 chars, prose = 36 chars = 50% exactly
@@ -582,7 +563,6 @@ def test_meta_ratio_calculates_correctly(tmp_path: Path):
     assert len(failures) == 0
 
 
-@pytest.mark.unit
 def test_meta_ratio_single_warn_with_file_attribution(tmp_path: Path):
     """F481: over-50% META chapter emits exactly ONE G2.meta_ratio WARN entry
     (no caller-side duplicate) and the entry carries file attribution.

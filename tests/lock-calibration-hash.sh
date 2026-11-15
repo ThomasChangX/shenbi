@@ -1,0 +1,31 @@
+#!/bin/bash
+# Lock the combined SHA256 of calibration anchors into deps.json.
+# Run after any intentional tests/fixtures/calibration change (G0.14 re-lock).
+set -euo pipefail
+PROJECT="$(cd "$(dirname "$0")/.." && pwd)"
+echo "=== Locking calibration anchor hashes ==="
+python3 -c "
+import json, hashlib
+from pathlib import Path
+project = Path('${PROJECT}')
+deps_path = project / 'tests' / 'tiers' / 'deps.json'
+deps = json.loads(deps_path.read_text(encoding='utf-8'))
+# Combined SHA256 over every file under tests/fixtures/calibration/**
+# (excluding .gitkeep). Empty scaffolding state hashes the empty byte
+# stream, which is a stable, lockable value.
+cal_dir = project / 'tests' / 'fixtures' / 'calibration'
+h = hashlib.sha256()
+if cal_dir.exists():
+    for p in sorted(cal_dir.rglob('*')):
+        if p.is_file() and p.name != '.gitkeep':
+            h.update(p.read_bytes().replace(b'\r\n', b'\n'))
+combined = h.hexdigest()
+deps.setdefault('_calibration_hashes', {})['combined'] = combined
+deps_path.write_text(json.dumps(deps, indent=2, ensure_ascii=False) + '\n')
+file_count = sum(
+    1 for p in cal_dir.rglob('*') if p.is_file() and p.name != '.gitkeep'
+) if cal_dir.exists() else 0
+print(f'  calibration files: {file_count}')
+print(f'  combined: {combined}')
+print('Done.')
+"

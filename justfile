@@ -21,6 +21,17 @@ install group="dev":
 # Run all checks (single source of truth — CI calls this; see spec #63 C25)
 check:
     uv lock --check
+    just lint
+    just type
+    uv run shenbi-sync-contracts >/dev/null
+    uv run python tools/generate_autocheck_docs.py
+    uv run shenbi-generate-plugins
+    git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ .codex-plugin/
+    just test-ci
+
+# Lint face: lint tools + ruff (spec #92 T4)
+# NOTE: spec #93 will later add --strict to lint_threshold_reconciliation here (batch-A re-anchor hook).
+lint:
     uv run python tools/lint_status_strings.py
     uv run python tools/lint_invariant_coverage.py
     uv run python tools/lint_routing_faces.py
@@ -51,30 +62,32 @@ check:
     just lint-contracts
     uv run ruff check .
     uv run ruff format --check .
+
+# Type face (spec #92 T4)
+type:
     uv run mypy src/shenbi/
     uv run basedpyright
-    uv run shellcheck run_pipeline.sh tools/pre-push-check.sh tests/round-exec.sh tests/lock-tool-hashes.sh tests/test-gates.sh
-    uv run shenbi-sync-contracts >/dev/null
-    uv run python tools/generate_autocheck_docs.py
-    uv run shenbi-generate-plugins
-    git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ .codex-plugin/
-    uv run pytest -n auto --dist loadscope -m "not last" --hypothesis-profile=ci --timeout=120 --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing --cov-fail-under=85
-    uv run python tools/check_module_coverage.py coverage.json
-    uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
+    uv run shellcheck run_pipeline.sh tools/pre-push-check.sh tests/round-exec.sh tests/lock-calibration-hash.sh tests/test-gates.sh
 
-# Enforce per-module coverage floors only (spec #53 C15 T3) — self-sufficient:
-# runs the suite with a JSON coverage report, then checks tools/module-coverage-floors.json
+# CI-shaped test face: both pytest legs + module coverage (spec #92 T4).
+# Coverage threshold lives in pyproject [tool.coverage.report] fail_under (single source).
+test-ci:
+    uv run pytest -n auto --dist loadscope -m "not last" --hypothesis-profile=ci --timeout=120 --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing
+    uv run python tools/check_module_coverage.py coverage.json
+    uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci --timeout=60
+
 module-coverage:
     uv run pytest -n auto -m "not last" --cov=shenbi --cov-branch --cov-report=json:coverage.json -q
     uv run python tools/check_module_coverage.py coverage.json
 
-# Run tests only (fast unit tests)
+# Run the fast test suite (all not-last tests; spec #92 T3 merged test/test-all;
+# -p no:randomly pins order until the pytest-randomly flake root-fix spec lands).
+# NOTE: no --dist loadscope here — macOS xdist's loadscope scheduler hits a
+# probabilistic INTERNALERROR (WorkerController KeyError) under just-nesting;
+# default load grouping completes reliably (known 束7 flake family, root-fix
+# specced separately).
 test *args:
-    uv run pytest -n auto -m "unit" --no-cov "$@"
-
-# Run tests including integration
-test-all *args:
-    uv run pytest -n auto -m "not last" --no-cov "$@"
+    uv run pytest -n auto -m "not last" --no-cov -p no:randomly "$@"
 
 # Run a single test file
 test-file file:

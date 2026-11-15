@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from tools.lint_volume_nodes import lint
 
 VM_NO_GAINS = """# 卷纲
@@ -51,20 +49,17 @@ def _mk(tmp_path: Path, vm: str) -> Path:
     return tmp_path
 
 
-@pytest.mark.unit
 def test_missing_gains_column_finds_gaps(tmp_path: Path) -> None:
     findings = lint(_mk(tmp_path, VM_NO_GAINS), 1, window=10)
     assert any("获得槽" in f for f in findings)
     assert any("胜利预算" in f for f in findings)
 
 
-@pytest.mark.unit
 def test_gains_ok_no_findings(tmp_path: Path) -> None:
     findings = lint(_mk(tmp_path, VM_GAINS_OK), 1, window=10)
     assert not any("获得槽" in f or "胜利预算" in f or "连续无获得" in f for f in findings)
 
 
-@pytest.mark.unit
 def test_three_consecutive_no_gain_fails(tmp_path: Path) -> None:
     findings = lint(_mk(tmp_path, VM_GAINS_STREAK), 1, window=10)
     assert any("连续无获得" in f for f in findings)

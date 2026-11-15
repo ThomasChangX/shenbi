@@ -11,7 +11,7 @@ Function contract (mirrors the g0_purity tuple-returning helpers):
     ``(checks, fail_reason_or_None, must_fix)``.
 
     Failure modes:
-      * key missing from deps.json -> FAIL, hint: run tests/lock-tool-hashes.sh
+      * key missing from deps.json -> FAIL, hint: run tests/lock-calibration-hash.sh
       * hash mismatch             -> FAIL, hint: tamper/drift detected
       * match                     -> PASS
 """
@@ -24,8 +24,6 @@ import os
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g0 import check_calibration_integrity
 
 
@@ -34,7 +32,7 @@ def _write_deps(deps_path: Path, combined: str | None) -> dict[str, Any]:
 
     If ``combined`` is None the key is omitted entirely (missing-lock case).
     """
-    deps: dict[str, Any] = {"_tool_hashes": {}}
+    deps: dict[str, Any] = {}
     if combined is not None:
         deps["_calibration_hashes"] = {"combined": combined}
     deps_path.write_text(json.dumps(deps, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -57,7 +55,6 @@ def _compute_combined(calibration_dir: Path) -> str:
     return h.hexdigest()
 
 
-@pytest.mark.unit
 def test_empty_dir_with_locked_empty_hash_passs(tmp_path: Path) -> None:
     """Scaffolding state: no anchors yet, empty-set hash is locked -> PASS."""
     cal_dir = tmp_path / "calibration"
@@ -72,7 +69,6 @@ def test_empty_dir_with_locked_empty_hash_passs(tmp_path: Path) -> None:
     assert checks[0]["s"] == "PASS"
 
 
-@pytest.mark.unit
 def test_missing_lock_entry_fails_with_hint(tmp_path: Path) -> None:
     """deps.json without _calibration_hashes at all must FAIL and name the lock script."""
     cal_dir = tmp_path / "calibration"
@@ -83,10 +79,9 @@ def test_missing_lock_entry_fails_with_hint(tmp_path: Path) -> None:
     checks, fail_reason, must_fix = check_calibration_integrity(cal_dir, deps)
     assert fail_reason is not None
     assert checks[0]["s"] == "FAIL"
-    assert any("lock-tool-hashes.sh" in m for m in must_fix), must_fix
+    assert any("lock-calibration-hash.sh" in m for m in must_fix), must_fix
 
 
-@pytest.mark.unit
 def test_tamper_then_restore(tmp_path: Path) -> None:
     """Adding/modifying an anchor after locking must FAIL; restoring must PASS."""
     cal_dir = tmp_path / "calibration"
@@ -106,7 +101,7 @@ def test_tamper_then_restore(tmp_path: Path) -> None:
     assert fail_reason is not None
     assert checks[0]["s"] == "FAIL"
     assert checks[0]["r"].lower().startswith("calibration")  # terse FAIL reason
-    assert any("lock-tool-hashes.sh" in m for m in must_fix), must_fix
+    assert any("lock-calibration-hash.sh" in m for m in must_fix), must_fix
 
     # Restore: remove the anchor file, return to locked state.
     (cal_dir / "情感落地-high.md").unlink()
@@ -114,7 +109,6 @@ def test_tamper_then_restore(tmp_path: Path) -> None:
     assert fail_reason is None
 
 
-@pytest.mark.unit
 def test_multiple_anchors_content_change_detected(tmp_path: Path) -> None:
     """After authoring several anchors and locking, editing one's content fails."""
     cal_dir = tmp_path / "calibration"
@@ -134,7 +128,6 @@ def test_multiple_anchors_content_change_detected(tmp_path: Path) -> None:
     assert checks[0]["s"] == "FAIL"
 
 
-@pytest.mark.unit
 def test_nested_subdirectories_included(tmp_path: Path) -> None:
     """Anchors may live in per-dimension subdirs; all must be in the combined hash."""
     cal_dir = tmp_path / "calibration"

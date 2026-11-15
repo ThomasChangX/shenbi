@@ -20,38 +20,41 @@ from typing import Any, NoReturn, cast
 
 from shenbi.cli_utils import emit_json
 from shenbi.status import gate_passed
+from pydantic import ValidationError
+
 from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts.file_list import join_gate_file_list
+from shenbi.contracts.schemas.deps import DepsDoc
+from shenbi.contracts.schemas.deps import load_deps as deps_load
 from shenbi.contracts.loader import validate_skill_name
 from shenbi.exceptions import ShenbiError
 from shenbi.logging import configure_logging, get_logger
+from shenbi.paths import REPO_ROOT
 from shenbi.process_guard import run_subprocess_json
 from shenbi.safe_write import safe_write
 from shenbi.status import CommandStatus, GateStatus, PhaseState
 
 log = get_logger(__name__)
 
-TESTS = Path(__file__).resolve().parents[2] / "tests"
+TESTS = REPO_ROOT / "tests"
 PROJECT = TESTS.parent
 
 
-def load_deps() -> Any:
-    """Load tests/tiers/deps.json; exit structured on corruption (F145)."""
+def load_deps() -> DepsDoc:
+    """Load tests/tiers/deps.json; exit structured on corruption (F145).
+
+    Thin wrapper over the typed loader (spec #92 T2a): keeps the module-level
+    name (test monkeypatch target) and the CLI exit semantics; the
+    exception-to-structured-exit mapping lives here, not in the loader.
+    """
     try:
-        deps = json.loads((TESTS / "tiers" / "deps.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        return deps_load(TESTS / "tiers" / "deps.json")
+    except (OSError, ValidationError) as exc:
         log.error("t2_deps_json_corrupt", path=str(TESTS / "tiers" / "deps.json"), error=str(exc))
         emit_json(
             {"status": CommandStatus.ERROR, "phase": None, "message": "t2 deps.json unreadable"}
         )
         sys.exit(1)
-    if not isinstance(deps, dict):
-        log.error("t2_deps_json_not_object", type=type(deps).__name__)
-        emit_json(
-            {"status": CommandStatus.ERROR, "phase": None, "message": "t2 deps.json not an object"}
-        )
-        sys.exit(1)
-    return deps
 
 
 def _sanitize_phase(phase: str) -> str:
@@ -296,10 +299,10 @@ def cmd_pre_score(phase: str, round_dir: str) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["started"], "pre-score")
     deps = load_deps()
-    phase_data = deps.get("t2-phases", {}).get(phase, {})
+    phase_data = deps.t2_phases.get(phase)
     marker_dir = Path(round_dir) / "gate-markers"
     missing: list[str] = []
-    for skill in phase_data.get("prerequisites", []):
+    for skill in phase_data.prerequisites if phase_data else []:
         marker = marker_dir / f"G4-{skill}-generative.json"
         if not marker.exists():
             missing.append(skill)
@@ -313,7 +316,7 @@ def cmd_pre_score(phase: str, round_dir: str) -> None:
         )
         sys.exit(1)
     proj_dir = Path(round_dir) / "project-output"
-    for pattern in phase_data.get("expected_outputs", []):
+    for pattern in phase_data.expected_outputs if phase_data else []:
         if "*" in pattern:
             if not list(proj_dir.rglob(pattern)):
                 emit_json(
@@ -383,7 +386,8 @@ def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
         sys.exit(1)
     deps = load_deps()
     marker_dir = Path(round_dir) / "gate-markers"
-    for skill in deps.get("t2-phases", {}).get(phase, {}).get("prerequisites", []):
+    phase_data = deps.t2_phases.get(phase)
+    for skill in phase_data.prerequisites if phase_data else []:
         if not (marker_dir / f"G4-{skill}-generative.json").exists():
             emit_json(
                 {

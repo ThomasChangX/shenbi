@@ -13,7 +13,6 @@ from shenbi.plugins.generate import (
 )
 
 
-@pytest.mark.unit
 def test_load_master_returns_dict_with_required_fields() -> None:
     master = load_master()
     assert isinstance(master, dict)
@@ -21,7 +20,6 @@ def test_load_master_returns_dict_with_required_fields() -> None:
         assert field in master, f"missing required field: {field}"
 
 
-@pytest.mark.unit
 def test_common_header_returns_canonical_key_order() -> None:
     master = {
         "name": "test",
@@ -34,7 +32,6 @@ def test_common_header_returns_canonical_key_order() -> None:
     assert list(header.keys()) == ["name", "version", "description", "author"]
 
 
-@pytest.mark.unit
 def test_gen_codex_adds_marketplace_and_type() -> None:
     master = {
         "name": "test",
@@ -49,7 +46,6 @@ def test_gen_codex_adds_marketplace_and_type() -> None:
     assert result["type"] == "skill"
 
 
-@pytest.mark.unit
 def test_load_master_with_valid_master_fails_on_bad_data(tmp_path: Path, monkeypatch) -> None:
     """load_master raises FileNotFoundError on missing file, ValueError on invalid data.
 
@@ -72,7 +68,6 @@ def test_load_master_with_valid_master_fails_on_bad_data(tmp_path: Path, monkeyp
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_load_master_raises_on_non_dict_master(tmp_path: Path, monkeypatch) -> None:
     """master.json that parses to a non-object -> ValueError (expected JSON object)."""
     from shenbi.plugins import generate as gen_mod
@@ -84,7 +79,6 @@ def test_load_master_raises_on_non_dict_master(tmp_path: Path, monkeypatch) -> N
         gen_mod.load_master()
 
 
-@pytest.mark.unit
 def test_load_master_raises_on_missing_required_fields(tmp_path: Path, monkeypatch) -> None:
     """master.json missing required fields -> ValueError listing them."""
     import json as _json
@@ -98,7 +92,6 @@ def test_load_master_raises_on_missing_required_fields(tmp_path: Path, monkeypat
         gen_mod.load_master()
 
 
-@pytest.mark.unit
 def test_generate_all_writes_all_platform_manifests(tmp_path: Path, monkeypatch) -> None:
     """generate_all writes each platform manifest under REPO_ROOT/config.output.
 
@@ -131,7 +124,6 @@ def test_generate_all_writes_all_platform_manifests(tmp_path: Path, monkeypatch)
     assert (tmp_path / ".codex-plugin" / "plugin.json").exists()
 
 
-@pytest.mark.unit
 def test_generate_all_unknown_format_returns_1(tmp_path: Path, monkeypatch) -> None:
     """An unrecognized platform format -> generate_all returns 1 (covers 110-112)."""
     import json as _json
@@ -153,7 +145,6 @@ def test_generate_all_unknown_format_returns_1(tmp_path: Path, monkeypatch) -> N
     assert gen_mod.generate_all() == 1
 
 
-@pytest.mark.unit
 def test_main_delegates_to_generate_all(monkeypatch) -> None:
     """main() returns whatever generate_all returns (covers generate.py:130)."""
     from shenbi.plugins import generate as gen_mod

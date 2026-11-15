@@ -14,12 +14,9 @@ from __future__ import annotations
 
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g0 import check_independence_markers
 
 
-@pytest.mark.unit
 def test_report_skill_without_marker_fails() -> None:
     """A report-kind skill lacking the marker surfaces an issue."""
     skills: dict[str, dict[str, Any]] = {
@@ -29,7 +26,6 @@ def test_report_skill_without_marker_fails() -> None:
     assert any("shenbi-review-foo" in i for i in issues)
 
 
-@pytest.mark.unit
 def test_artifact_skill_without_marker_ok() -> None:
     """Artifact-kind skills are exempt from the independence requirement."""
     skills: dict[str, dict[str, Any]] = {
@@ -38,7 +34,6 @@ def test_artifact_skill_without_marker_ok() -> None:
     assert check_independence_markers(skills) == []
 
 
-@pytest.mark.unit
 def test_report_skill_with_marker_ok() -> None:
     """A report-kind skill declaring the marker passes cleanly."""
     skills: dict[str, dict[str, Any]] = {

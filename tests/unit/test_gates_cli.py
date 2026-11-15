@@ -24,7 +24,6 @@ def _run(argv: list[str], monkeypatch: pytest.MonkeyPatch) -> tuple[int, str]:
     return rc, out.getvalue()
 
 
-@pytest.mark.unit
 def test_no_args_prints_usage_and_returns_1(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -33,20 +32,17 @@ def test_no_args_prints_usage_and_returns_1(
     assert rc == 1
 
 
-@pytest.mark.unit
 def test_unknown_gate_returns_1(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rc, _ = _run(["BOGUS"], monkeypatch)
     assert rc == 1
 
 
-@pytest.mark.unit
 def test_g0_dispatch_emits_json(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rc, out = _run(["G0"], monkeypatch)
     assert rc == 0
     assert json.loads(out)["gate"] == "G0"
 
 
-@pytest.mark.unit
 def test_g1_dispatch_invalid_files_json_falls_back_to_empty(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -56,7 +52,6 @@ def test_g1_dispatch_invalid_files_json_falls_back_to_empty(
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g2_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     f = tmp_path / "x.md"
     f.write_text("# x\n", encoding="utf-8")
@@ -65,14 +60,12 @@ def test_g2_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g3_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rc, out = _run(["G3", "shenbi-worldbuilding", "generative", str(tmp_path)], monkeypatch)
     assert rc == 0
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g4_generative_dispatch_with_shorthand(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -84,21 +77,18 @@ def test_g4_generative_dispatch_with_shorthand(
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g4_bughunt_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rc, out = _run(["G4", "bughunt"], monkeypatch)
     assert rc == 0
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g4_clean_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rc, out = _run(["G4", "clean"], monkeypatch)
     assert rc == 0
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g5_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rd = tmp_path / "round"
     rd.mkdir()
@@ -107,7 +97,6 @@ def test_g5_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g6_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rd = tmp_path / "round"
     rd.mkdir()
@@ -116,7 +105,6 @@ def test_g6_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g7_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rd = tmp_path / "round"
     rd.mkdir()
@@ -125,7 +113,6 @@ def test_g7_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g_transition_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rd = tmp_path / "round"
     rd.mkdir()
@@ -134,7 +121,6 @@ def test_g_transition_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g_dispatch_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rd = tmp_path / "round"
     rd.mkdir()
@@ -143,7 +129,6 @@ def test_g_dispatch_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g_reconcile_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     rd = tmp_path / "round"
     rd.mkdir()
@@ -152,7 +137,6 @@ def test_g_reconcile_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     json.loads(out)
 
 
-@pytest.mark.unit
 def test_g4_test_type_flag_writes_bughunt_marker(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -188,7 +172,6 @@ def test_g4_test_type_flag_writes_bughunt_marker(
     assert payload["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_g4_test_type_flag_writes_clean_marker(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -207,7 +190,6 @@ def test_g4_test_type_flag_writes_clean_marker(
     assert (rd / "gate-markers" / "G4-shenbi-worldbuilding-clean.json").exists()
 
 
-@pytest.mark.unit
 def test_g4_test_type_flag_without_value_fails(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

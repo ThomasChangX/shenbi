@@ -17,7 +17,10 @@ import re
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
 from shenbi.contracts import ContractError, load_contract, load_registry
+from shenbi.contracts.schemas.deps import load_deps as deps_load
 from shenbi.contracts.graph import dag_key
 from shenbi.gates.shared import (
     PROJECT,
@@ -81,10 +84,10 @@ def gate_G5(
     c: list[Any] = []
     mf: list[Any] = []
     try:
-        deps = jload(TESTS / "tiers" / "deps.json")
-    except (json.JSONDecodeError, OSError, ValueError):
+        deps = deps_load(TESTS / "tiers" / "deps.json")
+    except (OSError, ValidationError):
         return fail("G5", [], "scoring", ["G5.0:deps.json unreadable or malformed"])
-    phase_data = deps.get("t2-phases", {}).get(phase_name)
+    phase_data = deps.t2_phases.get(phase_name) if phase_name else None
     if not phase_data:
         return fail("G5", [], "scoring", [f"unknown phase: {phase_name}"])
     try:
@@ -92,7 +95,7 @@ def gate_G5(
     except (json.JSONDecodeError, OSError, ValueError):
         return fail("G5", [], "scoring", ["G5.0:acceptance.json unreadable or malformed"])
     threshold = acceptance.get("t2", T2_PASS)
-    prereqs = phase_data.get("prerequisites", [])
+    prereqs = phase_data.prerequisites
     rd = Path(round_dir) if round_dir else None
 
     # G5.1: prereq T1 scores >= threshold (per-report files; the summary.json
@@ -288,7 +291,7 @@ def gate_G5(
         c.append({"id": "G5.3", "s": GateStatus.SKIP, "r": "need project_dir for this check"})
 
     # G5.4: expected outputs
-    for pattern in phase_data.get("expected_outputs", []):
+    for pattern in phase_data.expected_outputs:
         if "*" in pattern:
             pd = Path(project_dir) if project_dir else PROJECT
             matches = list(pd.rglob(pattern))
@@ -320,7 +323,7 @@ def gate_G5(
             return False
 
     # G5.5: No regression — re-run G4 checks for each prerequisite skill on phase outputs
-    phase_outputs = phase_data.get("expected_outputs", [])
+    phase_outputs = phase_data.expected_outputs
     # F432 (spec #60 R5): a checker-having prereq without a glob entry used to
     # silently fall back to *.md — the dedicated checker then swept every md
     # file and false-FAILed. Fail explicitly instead. Checker-less prereqs

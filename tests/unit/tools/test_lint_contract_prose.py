@@ -50,7 +50,6 @@ def _r2(contracts: Mapping[str, Mapping[str, object]], root: Path, reg: Sequence
     return set(r2)
 
 
-@pytest.mark.unit
 def test_r2_frontmatter_mention_is_not_prose(tmp_path):
     # The write target's filename appears ONLY inside the frontmatter block —
     # declarations are not prose evidence, must still be flagged.
@@ -70,7 +69,6 @@ def test_r2_frontmatter_mention_is_not_prose(tmp_path):
     assert ("shenbi-zz", "truth/zz-drift.md") in _r2(c, tmp_path)
 
 
-@pytest.mark.unit
 def test_r1_undeclared_relative_path_flagged(tmp_path):
     # zzdir/ 不在 truth-files.yaml 词表——registry 层不会兜底
     c = {"shenbi-zz": {"reads": ["truth/zz-declared.md"], "writes": [], "updates": []}}
@@ -78,21 +76,18 @@ def test_r1_undeclared_relative_path_flagged(tmp_path):
     assert ("shenbi-zz", "zzdir/zz-undeclared.md") in _r1(c, tmp_path)
 
 
-@pytest.mark.unit
 def test_r1_bare_basename_vs_declared_path_passes(tmp_path):
     c = {"shenbi-zz": {"reads": ["characters/protagonist.md"], "writes": [], "updates": []}}
     _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "先读 protagonist.md 的弧光。")
     assert not any(s == "shenbi-zz" and r == "protagonist.md" for s, r in _r1(c, tmp_path))
 
 
-@pytest.mark.unit
 def test_r1_body_glob_vs_declared_glob_passes(tmp_path):
     c = {"shenbi-zz": {"reads": ["characters/*.md"], "writes": [], "updates": []}}
     _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "expand 模式读 characters/**/*.md 全量。")
     assert not _r1(c, tmp_path)
 
 
-@pytest.mark.unit
 def test_r1_offset_form_canonicalization_passes(tmp_path):
     # isolated reg——否则 registry chapters/chapter-*.md glob 的 * 吞掉 (N-3)，
     # _canonical 分支零覆盖（audit-T2 kill-switch 实证）
@@ -107,7 +102,6 @@ def test_r1_offset_form_canonicalization_passes(tmp_path):
     assert not _r1(c, tmp_path)
 
 
-@pytest.mark.unit
 def test_r1_forward_offset_brace_form_extracted_whole(tmp_path):
     # {N+1}（#72 双章束 settle 读 follower 章）在 _SEG 无 '+' 时被 _LOOSE_REF_RE
     # 截成 '1}.md' 残片 → R1 误报（实弹：settle SKILL 正文引用触发）。整枝提取 +
@@ -123,7 +117,6 @@ def test_r1_forward_offset_brace_form_extracted_whole(tmp_path):
     assert not _r1(c, tmp_path)
 
 
-@pytest.mark.unit
 def test_r1_skill_bundle_reference_passes(tmp_path):
     c = {"shenbi-zz": {"reads": [], "writes": [], "updates": []}}
     # my-ref.md 不在 allowlist（anti-ai-reference.md 被 *: 通配遮蔽会空转，
@@ -138,7 +131,6 @@ def test_r1_skill_bundle_reference_passes(tmp_path):
     assert not any(s == "shenbi-zz" and r == "my-ref.md" for s, r in _r1(c, tmp_path))
 
 
-@pytest.mark.unit
 def test_r1_autogen_block_not_counted(tmp_path):
     c = {"shenbi-zz": {"reads": ["truth/zz-declared.md"], "writes": [], "updates": []}}
     _mk_skill(tmp_path, "shenbi-zz", c["shenbi-zz"], "无引用正文。")
@@ -146,7 +138,6 @@ def test_r1_autogen_block_not_counted(tmp_path):
     assert not any("zz-drift" in r for _s, r in _r1(c, tmp_path))
 
 
-@pytest.mark.unit
 def test_r1_registry_vocabulary_passes(tmp_path):
     # 默认 reg=() 隔离——本测试显式注入真实词表，独钉第⑤级 registry 覆盖
     from shenbi.contracts.loader import load_registry
@@ -158,7 +149,6 @@ def test_r1_registry_vocabulary_passes(tmp_path):
     assert not _r1(c, tmp_path, reg=real)
 
 
-@pytest.mark.unit
 def test_r2_declared_write_without_body_step_flagged(tmp_path):
     c = {
         "shenbi-zz": {
@@ -171,7 +161,6 @@ def test_r2_declared_write_without_body_step_flagged(tmp_path):
     assert ("shenbi-zz", "truth/zz-drift.md") in _r2(c, tmp_path)
 
 
-@pytest.mark.unit
 def test_r2_autogen_only_mention_still_flagged(tmp_path):
     # The write target appears ONLY in the AUTO-GENERATED summary block —
     # the exact F812 shape. Must still be a violation.
@@ -186,7 +175,6 @@ def test_r2_autogen_only_mention_still_flagged(tmp_path):
     assert ("shenbi-zz", "truth/zz-drift.md") in _r2(c, tmp_path)
 
 
-@pytest.mark.unit
 def test_r2_body_step_passes(tmp_path):
     c = {
         "shenbi-zz": {
@@ -199,7 +187,6 @@ def test_r2_body_step_passes(tmp_path):
     assert not any(s == "shenbi-zz" for s, _t in _r2(c, tmp_path))
 
 
-@pytest.mark.unit
 def test_meta_skills_exempt(tmp_path):
     c = {"using-shenbi": {"reads": [], "writes": [], "updates": []}}
     _mk_skill(tmp_path, "using-shenbi", c["using-shenbi"], "读 outline/zz-undeclared.md 全量。")
@@ -207,7 +194,6 @@ def test_meta_skills_exempt(tmp_path):
     assert not r1 and not r2
 
 
-@pytest.mark.unit
 def test_fail_flag_exit_semantics(monkeypatch: pytest.MonkeyPatch, capsys):
     monkeypatch.setattr(
         "tools.lint_contract_prose.find_violations",
@@ -225,7 +211,6 @@ def test_fail_flag_exit_semantics(monkeypatch: pytest.MonkeyPatch, capsys):
     assert "allowlist[skill-bundle]" in out
 
 
-@pytest.mark.unit
 def test_r1_cross_dir_basename_not_covered(tmp_path):
     # audit-T2 r2 加固：跨目录基名漂移必须违规（③级裸名门控的钉）
     c = {"shenbi-zz": {"reads": ["characters/protagonist.md"], "writes": [], "updates": []}}
@@ -233,7 +218,6 @@ def test_r1_cross_dir_basename_not_covered(tmp_path):
     assert ("shenbi-zz", "otherdir/protagonist.md") in _r1(c, tmp_path)
 
 
-@pytest.mark.unit
 def test_r2_dual_side_offset_canonicalization(tmp_path):
     # audit-T2 r2 加固：声明 {N-3} 写 + 正文 (N-3) 提及 → 双侧归一后不违规
     c = {
@@ -247,7 +231,6 @@ def test_r2_dual_side_offset_canonicalization(tmp_path):
     assert not any(s == "shenbi-zz" for s, _t in _r2(c, tmp_path))
 
 
-@pytest.mark.unit
 def test_r1_allowlist_entry_covers(tmp_path):
     # audit-T2 r2 加固：⑥级 allowlist 匹配行为钉（anti-ai-reference.md 无物理
     # 文件时仍由 *: 通配条目覆盖）
@@ -256,8 +239,6 @@ def test_r1_allowlist_entry_covers(tmp_path):
     assert not any(r == "anti-ai-reference.md" for _s, r in _r1(c, tmp_path))
 
 
-@pytest.mark.unit
-@pytest.mark.unit
 def test_r1_cross_skill_bundle_reference_passes(tmp_path):
     # audit-T7: reference docs bundled in a SIBLING skill's dir (hook-types.md
     # lives in shenbi-foreshadowing-plant/ while other skills cite it).
@@ -269,7 +250,6 @@ def test_r1_cross_skill_bundle_reference_passes(tmp_path):
     assert not _r1(c, tmp_path)
 
 
-@pytest.mark.unit
 def test_r1_paren_fragment_trimmed(tmp_path):
     # audit-T7 fixup: DOT-label enumeration "(novel.json + genre-config.json)"
     # yields the fragment "(novel.json" — trimmed to the registry-covered name.

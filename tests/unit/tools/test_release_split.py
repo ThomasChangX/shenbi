@@ -116,7 +116,6 @@ def _ledger(p: Path, platform: str) -> dict[str, Any]:
 # ── parse: scenes from durable markers ──────────────────────────────────
 
 
-@pytest.mark.unit
 def test_parse_extracts_scenes(tmp_path: Path) -> None:
     f = tmp_path / "chapter-1.md"
     f.write_text(_marker_chapter(1, [(950, HOOK1), (950, HOOK2)]), encoding="utf-8")
@@ -127,7 +126,6 @@ def test_parse_extracts_scenes(tmp_path: Path) -> None:
     assert ch.title == "章题1"
 
 
-@pytest.mark.unit
 def test_parse_real_fixture_zero_scenes(tmp_path: Path) -> None:
     ch = rs.parse_chapter(FIX / "chapter-1.md")
     assert ch.title == "明白纸"
@@ -137,7 +135,6 @@ def test_parse_real_fixture_zero_scenes(tmp_path: Path) -> None:
 # ── settled window ──────────────────────────────────────────────────────
 
 
-@pytest.mark.unit
 def test_settled_latest_per_key() -> None:
     p = _settle_mk({1: "PASS", 2: "FAIL", 3: "PASS"})
     assert settled_chapters(p) == {1, 3}
@@ -165,7 +162,6 @@ def _settle_mk(spec: dict[int, str]) -> Path:
     return p
 
 
-@pytest.mark.unit
 def test_follower_settles_via_split_key() -> None:
     """N+1 无 drafting 键（bundle 派发只落 leader）——拆分键即生成链证据。"""
     import tempfile
@@ -186,7 +182,6 @@ def test_follower_settles_via_split_key() -> None:
         assert settled_chapters(p) == {1, 2}
 
 
-@pytest.mark.unit
 def test_unsettled_excluded_missing_split_key() -> None:
     import tempfile
 
@@ -209,7 +204,6 @@ def test_unsettled_excluded_missing_split_key() -> None:
 # ── qidian tier: 1 章 = 1 更 ────────────────────────────────────────────
 
 
-@pytest.mark.unit
 def test_qidian_one_chapter_one_update(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1, 2))
     _settle(p, (1, 2))
@@ -229,7 +223,6 @@ def test_qidian_one_chapter_one_update(tmp_path: Path) -> None:
 # ── fanqie tier: scene-atomic packing ───────────────────────────────────
 
 
-@pytest.mark.unit
 def test_fanqie_packs_scenes_declared_hooks(tmp_path: Path) -> None:
     scenes = {
         1: [(950, HOOK1), (950, HOOK2), (950, HOOK3)],
@@ -254,7 +247,6 @@ def test_fanqie_packs_scenes_declared_hooks(tmp_path: Path) -> None:
         assert "<!--SCENE-->" not in f.read_text(encoding="utf-8")
 
 
-@pytest.mark.unit
 def test_fanqie_cross_chapter_group(tmp_path: Path) -> None:
     # seq [1913,960,963,1910,963,960] → [[1913][960,963]×跨章][1910][963,960]]
     scenes = {
@@ -269,7 +261,6 @@ def test_fanqie_cross_chapter_group(tmp_path: Path) -> None:
     assert led["totals"]["cross_chapter_groups"] >= 1
 
 
-@pytest.mark.unit
 def test_fanqie_unpackageable_defensive_exit1(tmp_path: Path) -> None:
     scenes = {1: [(1450, HOOK1), (1450, HOOK2), (1450, HOOK3)]}  # 灰域序列
     p = _proj(tmp_path, (1,), markered=scenes)
@@ -279,7 +270,6 @@ def test_fanqie_unpackageable_defensive_exit1(tmp_path: Path) -> None:
     assert "不可打包" in r.stderr
 
 
-@pytest.mark.unit
 def test_fanqie_missing_config_exit1(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1,), config=None, markered={1: [(950, HOOK1), (950, HOOK2)]})
     _settle(p, (1,))
@@ -288,7 +278,6 @@ def test_fanqie_missing_config_exit1(tmp_path: Path) -> None:
     assert "硬依赖" in r.stderr
 
 
-@pytest.mark.unit
 def test_unsettled_chapter_excluded(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1, 2))
     _settle(p, (1,), fail_chapter=2)
@@ -298,7 +287,6 @@ def test_unsettled_chapter_excluded(tmp_path: Path) -> None:
     assert [c["chapter"] for c in led["chapters"]] == [1]
 
 
-@pytest.mark.unit
 def test_through_narrows_not_forces(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1, 2, 3, 4))
     _settle(p, (1, 2, 3, 4))
@@ -308,7 +296,6 @@ def test_through_narrows_not_forces(tmp_path: Path) -> None:
     assert [c["chapter"] for c in led["chapters"]] == [1, 2]
 
 
-@pytest.mark.unit
 def test_platform_default_from_config(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1,), markered={1: [(950, HOOK1), (950, HOOK2)]})
     _settle(p, (1,))
@@ -318,7 +305,6 @@ def test_platform_default_from_config(tmp_path: Path) -> None:
     assert (p / "publish" / "qidian" / "releases.json").is_file()
 
 
-@pytest.mark.unit
 def test_platform_fallback_fanqie(tmp_path: Path) -> None:
     no_platform = json.dumps(
         {
@@ -338,7 +324,6 @@ def test_platform_fallback_fanqie(tmp_path: Path) -> None:
 # ── 冻结三元 + 账本生命周期（v2 语义保留） ─────────────────────────────
 
 
-@pytest.mark.unit
 def test_freeze_unchanged_semantics(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1,))
     _settle(p, (1,))
@@ -355,7 +340,6 @@ def test_freeze_unchanged_semantics(tmp_path: Path) -> None:
     assert led2["chapters"][0]["releases"][0]["published"] is True
 
 
-@pytest.mark.unit
 def test_freeze_hash_drift_blocked(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1,))
     _settle(p, (1,))
@@ -373,7 +357,6 @@ def test_freeze_hash_drift_blocked(tmp_path: Path) -> None:
     assert "冻结" in r.stderr
 
 
-@pytest.mark.unit
 def test_title_pattern_kept(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1,))
     _settle(p, (1,))
@@ -383,7 +366,6 @@ def test_title_pattern_kept(tmp_path: Path) -> None:
     assert led["chapters"][0]["releases"][0]["title"] == "《明白纸》"
 
 
-@pytest.mark.unit
 def test_no_settled_chapters_exit1(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1,))  # 无 manifest → 零已收束
     r = _run_tool(p, "--platform", "qidian")
@@ -391,7 +373,6 @@ def test_no_settled_chapters_exit1(tmp_path: Path) -> None:
     assert "已收束" in r.stderr
 
 
-@pytest.mark.unit
 def test_v1_heuristics_retired() -> None:
     import tools.release_split as mod
 
@@ -440,7 +421,6 @@ def test_real_split_step_manifest_settles(tmp_path: Path) -> None:
 # ── F5: 保留面补网（v1 迁移缩水面） ─────────────────────────────────────
 
 
-@pytest.mark.unit
 def test_freeze_seq_drift_requires_renumber(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1, 2))
     _settle(p, (1, 2))
@@ -457,7 +437,6 @@ def test_freeze_seq_drift_requires_renumber(tmp_path: Path) -> None:
     assert "renumber" in r.stderr
 
 
-@pytest.mark.unit
 def test_freeze_vanished_chapter_blocks(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1, 2))
     _settle(p, (1, 2))
@@ -474,7 +453,6 @@ def test_freeze_vanished_chapter_blocks(tmp_path: Path) -> None:
     assert "消失" in r.stderr
 
 
-@pytest.mark.unit
 def test_orphan_release_cleanup(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1,))
     _settle(p, (1,))
@@ -486,7 +464,6 @@ def test_orphan_release_cleanup(tmp_path: Path) -> None:
     assert not orphan.exists()
 
 
-@pytest.mark.unit
 def test_qidian_markers_stripped(tmp_path: Path) -> None:
     p = _proj(tmp_path, (1,), markered={1: [(1900, HOOK1), (1900, HOOK2)]})
     _settle(p, (1,))

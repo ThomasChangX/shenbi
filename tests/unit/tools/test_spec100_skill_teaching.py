@@ -9,12 +9,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 SKILL = Path(__file__).resolve().parents[3] / "skills" / "shenbi-chapter-drafting" / "SKILL.md"
 
 
-@pytest.mark.unit
 def test_net_new_teaching_phrases_present() -> None:
     text = SKILL.read_text(encoding="utf-8")
     assert "不得以 PRE 自检行或计划场景预算的总计充作 POST 总计" in text
@@ -23,7 +20,6 @@ def test_net_new_teaching_phrases_present() -> None:
     assert "带下限只是硬底线" in text
 
 
-@pytest.mark.unit
 def test_no_hardcoded_project_value() -> None:
     """Generic SKILL must not freeze the vol1-specific value (3200)."""
     text = SKILL.read_text(encoding="utf-8")

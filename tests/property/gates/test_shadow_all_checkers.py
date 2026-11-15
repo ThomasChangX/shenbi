@@ -76,14 +76,12 @@ def exempt() -> set[str]:
     return dead
 
 
-@pytest.mark.unit
 def test_corpus_nonempty_and_digit_pair_present(corpus):
     assert corpus, "corpus must not be empty"
     assert any("p1p2_empty" in i for i in corpus)
     assert any("s7_hook_ops" in i for i in corpus)
 
 
-@pytest.mark.unit
 def test_exempt_set_is_mechanically_bounded(exempt):
     """Dead-id exemption bound (audit-T8 R1: no tautological union arm).
 

@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
-
 from tools.lint_truth_pool import lint_pool
 
 
-@pytest.mark.unit
 def test_c_layer_p_family_now_visible_in_pool_findings() -> None:
     """P-family hooks enter the pool-lint findings face (was blind)."""
     t = (
@@ -19,7 +16,6 @@ def test_c_layer_p_family_now_visible_in_pool_findings() -> None:
     assert any("P0-4" in getattr(f, "code", str(f)) or "P0-4" in str(f) for f in findings)
 
 
-@pytest.mark.unit
 def test_c1_malformed_unpiped_row_skips_not_crashes() -> None:
     """audit-T5 C1 regression: un-piped table rows must be skipped, not
     raise TypeError (the weak-guard retirement needs None guards).
@@ -36,7 +32,6 @@ def test_c1_malformed_unpiped_row_skips_not_crashes() -> None:
 # --- spec #85 T8: M5 red test (D-tier thread visibility, both maps) ---
 
 
-@pytest.mark.unit
 def test_m5_d12_visible_in_both_maps() -> None:
     """M5: the thread row map and section map were ABC-blind - D-tier
     clue ids must now be visible in BOTH (single-sourced THREAD_ID_RE).

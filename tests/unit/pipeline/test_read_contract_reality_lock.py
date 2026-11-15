@@ -24,14 +24,10 @@ from __future__ import annotations
 import inspect
 from pathlib import Path
 
-import pytest
-
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.loader import Contract, load_contract
 from shenbi.gates.shared import SKILLS
 from shenbi.pipeline import read_extractors
-
-pytestmark = pytest.mark.unit
 
 SNAPSHOT = Path(__file__).resolve().parents[2] / "fixtures" / "snapshots" / "chapter-118"
 

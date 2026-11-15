@@ -13,7 +13,6 @@ from shenbi.gates.g6_checks import (
 )
 
 
-@pytest.mark.unit
 def test_check_continuity_passes_on_monotonic_timeline(tmp_path: Path) -> None:
     """Chapters with monotonically increasing days PASS."""
     chapters = []
@@ -26,7 +25,6 @@ def test_check_continuity_passes_on_monotonic_timeline(tmp_path: Path) -> None:
     assert any(c["id"] == "G6.4" and c["s"] == "PASS" for c in checks)
 
 
-@pytest.mark.unit
 def test_check_continuity_skips_when_no_chapters() -> None:
     """Empty chapters list returns SKIP."""
     checks, mf = check_continuity([])
@@ -34,7 +32,6 @@ def test_check_continuity_skips_when_no_chapters() -> None:
     assert mf == []
 
 
-@pytest.mark.unit
 def test_check_pacing_returns_action_dialogue_introspection_mix(tmp_path: Path) -> None:
     """Diverse chapter types produce a G6.5 check (PASS or with warnings)."""
     chapters = []
@@ -51,19 +48,16 @@ def test_check_pacing_returns_action_dialogue_introspection_mix(tmp_path: Path) 
     assert any(c["id"] == "G6.5" for c in checks)
 
 
-@pytest.mark.unit
 def test_check_pacing_skips_when_no_chapters() -> None:
     checks, mf = check_pacing([])
     assert any(c["s"] == "SKIP" for c in checks)
 
 
-@pytest.mark.unit
 def test_check_style_consistency_skips_when_no_style_profile(tmp_path: Path) -> None:
     checks, mf = check_style_consistency(tmp_path / "missing.md", [])
     assert any(c["s"] == "SKIP" for c in checks)
 
 
-@pytest.mark.unit
 def test_check_style_consistency_passes_within_ranges(tmp_path: Path) -> None:
     """Chapters fed through style_profile.md ranges produce a G6.10 outcome.
 
@@ -88,7 +82,6 @@ def test_check_style_consistency_passes_within_ranges(tmp_path: Path) -> None:
     assert not any(c["s"] == "SKIP" for c in checks)
 
 
-@pytest.mark.unit
 def test_check_style_consistency_extracts_ranges_from_table(tmp_path: Path) -> None:
     """Fallback table parsing extracts avg_sent/avg_para when ranges absent.
 
@@ -115,7 +108,6 @@ def test_check_style_consistency_extracts_ranges_from_table(tmp_path: Path) -> N
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_check_continuity_timeline_branch_retired(tmp_path: Path) -> None:
     """Spec #75: timeline branch retired — arabic-digit day rollback no longer
     reported by G6.4 (the Chinese-anchor wounds it missed are the cross_chapter
@@ -129,7 +121,6 @@ def test_check_continuity_timeline_branch_retired(tmp_path: Path) -> None:
     assert not any(e.startswith("G6.4:timeline_regression") for e in mf)
 
 
-@pytest.mark.unit
 @pytest.mark.c13_regression
 def test_check_continuity_future_knowledge_detected(tmp_path: Path) -> None:
     r"""F709 fixed: two-pass scan makes the guard reachable.
@@ -147,7 +138,6 @@ def test_check_continuity_future_knowledge_detected(tmp_path: Path) -> None:
     assert any(e.startswith("G6.4:future_knowledge") for e in mf)
 
 
-@pytest.mark.unit
 def test_check_continuity_future_knowledge_clean_when_intro_first(tmp_path: Path) -> None:
     """Positive control: introduce first, know later — no violation."""
     ch1 = tmp_path / "chapter-001.md"
@@ -158,7 +148,6 @@ def test_check_continuity_future_knowledge_clean_when_intro_first(tmp_path: Path
     assert not any(e.startswith("G6.4:future_knowledge") for e in mf)
 
 
-@pytest.mark.unit
 def test_check_pacing_four_consecutive_same_type(tmp_path: Path) -> None:
     """Four consecutive chapters classified as the same type -> G6.5 4_consecutive."""
     chapters = []
@@ -171,7 +160,6 @@ def test_check_pacing_four_consecutive_same_type(tmp_path: Path) -> None:
     assert any(e.startswith("G6.5:4_consecutive") for e in mf)
 
 
-@pytest.mark.unit
 def test_check_pacing_no_action_peaks_when_all_quiet(tmp_path: Path) -> None:
     """8+ chapters with zero action density peaks -> G6.5:no_action_peaks."""
     chapters = []
@@ -184,7 +172,6 @@ def test_check_pacing_no_action_peaks_when_all_quiet(tmp_path: Path) -> None:
     assert any("no_action_peaks" in e for e in mf)
 
 
-@pytest.mark.unit
 def test_check_style_consistency_sentence_out_of_range(tmp_path: Path) -> None:
     """A chapter with sentences far longer than the style range ->
     G6.10:sentence outlier in mf.
@@ -200,7 +187,6 @@ def test_check_style_consistency_sentence_out_of_range(tmp_path: Path) -> None:
     assert any(e.startswith("G6.10:sentence") for e in mf)
 
 
-@pytest.mark.unit
 def test_check_style_consistency_paragraph_out_of_range(tmp_path: Path) -> None:
     """A chapter with one giant paragraph -> paragraph avg outside range -> mf."""
     style = tmp_path / "style_profile.md"
@@ -212,7 +198,6 @@ def test_check_style_consistency_paragraph_out_of_range(tmp_path: Path) -> None:
     assert any(e.startswith("G6.10:paragraph") for e in mf)
 
 
-@pytest.mark.unit
 def test_check_style_consistency_dialogue_out_of_range(tmp_path: Path) -> None:
     """Zero dialogue in a chapter whose style profile requires >= some % -> mf."""
     style = tmp_path / "style_profile.md"
@@ -224,7 +209,6 @@ def test_check_style_consistency_dialogue_out_of_range(tmp_path: Path) -> None:
     assert any(e.startswith("G6.10:dialogue") for e in mf)
 
 
-@pytest.mark.unit
 def test_check_style_consistency_skips_when_ranges_unparseable(tmp_path: Path) -> None:
     """A style_profile.md with no recognizable ranges AND no table -> SKIP."""
     style = tmp_path / "style_profile.md"

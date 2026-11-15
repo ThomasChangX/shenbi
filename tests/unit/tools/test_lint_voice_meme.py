@@ -8,8 +8,6 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import pytest
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from tools.lint_voice_meme import _meme_list, lint_blind, lint_chapter, lint_volume
@@ -39,13 +37,11 @@ def _mk_project(tmp_path: Path) -> Path:
     return tmp_path
 
 
-@pytest.mark.unit
 def test_meme_list_extraction(tmp_path: Path) -> None:
     d = _mk_project(tmp_path)
     assert _meme_list(d / "outline" / "volume_map.md", 1) == ["班味的内核全球统一"]
 
 
-@pytest.mark.unit
 def test_volume_meme_deficit_warn(tmp_path: Path) -> None:
     d = _mk_project(tmp_path)
     (d / "chapters" / "chapter-1.md").write_text("正文。", encoding="utf-8")
@@ -53,7 +49,6 @@ def test_volume_meme_deficit_warn(tmp_path: Path) -> None:
     assert any("班味的内核全球统一" in r and "0/3" in r and "补触" in r for r in rows), rows
 
 
-@pytest.mark.unit
 def test_chapter_density_v1_warn_domain(tmp_path: Path) -> None:
     d = _mk_project(tmp_path)
     (d / "chapters" / "chapter-1.md").write_text("他推门。", encoding="utf-8")
@@ -61,7 +56,6 @@ def test_chapter_density_v1_warn_domain(tmp_path: Path) -> None:
     assert any("v1" in r and "WARN" in r for r in rows), rows
 
 
-@pytest.mark.unit
 def test_chapter_density_v2_fail_domain(tmp_path: Path) -> None:
     d = _mk_project(tmp_path)
     (d / "chapters" / "chapter-1.md").write_text("他推门。", encoding="utf-8")
@@ -72,7 +66,6 @@ def test_chapter_density_v2_fail_domain(tmp_path: Path) -> None:
     assert any("v2" in r and "FAIL 域" in r for r in rows), rows
 
 
-@pytest.mark.unit
 def test_file_predicate_excludes_pre_rev(tmp_path: Path) -> None:
     d = _mk_project(tmp_path)
     (d / "chapters" / "chapter-1.md").write_text("「班味的内核全球统一」出现了。", encoding="utf-8")
@@ -84,7 +77,6 @@ def test_file_predicate_excludes_pre_rev(tmp_path: Path) -> None:
     assert any("1/3" in r for r in rows), rows
 
 
-@pytest.mark.unit
 def test_blind_rollup_five_chars() -> None:
     correct, total, details = lint_blind()
     assert total == 5
@@ -93,7 +85,6 @@ def test_blind_rollup_five_chars() -> None:
     assert any("no-attribution" in d for d in details)
 
 
-@pytest.mark.unit
 def test_catchphrase_window_appearance_conditioned(tmp_path: Path) -> None:
     """Appearance-conditioned window: present + zero catchphrase = WARN."""
     d = _mk_project(tmp_path)

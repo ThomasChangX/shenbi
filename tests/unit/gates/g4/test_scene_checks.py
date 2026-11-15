@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 from shenbi.gates.shared import parse_scene_declarations
@@ -44,7 +42,6 @@ def _plan(tmp_path: Path, n: int, decls: list[tuple[int, str, str]]) -> Path:
     return f
 
 
-@pytest.mark.unit
 def test_parse_decl_roundtrip() -> None:
     memo = (
         _plan(Path("/tmp/unused"), 1, [(1900, "独立型", HOOK1)]).read_text(encoding="utf-8")
@@ -60,7 +57,6 @@ def test_parse_decl_roundtrip() -> None:
     assert decls == [(1, 1900, "独立型", HOOK1), (2, 1350, "配对型", HOOK2)]
 
 
-@pytest.mark.unit
 def test_scene_count_check(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     ok = _chapter(tmp_path, 1, [(1900, HOOK1), (1900, HOOK2)])
@@ -71,7 +67,6 @@ def test_scene_count_check(tmp_path: Path) -> None:
     assert "G4.cd.scene_count:" in result
 
 
-@pytest.mark.unit
 def test_scene_hook_match_verbatim(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     _plan(tmp_path, 1, [(1900, "独立型", HOOK1), (1900, "独立型", HOOK2)])
@@ -80,7 +75,6 @@ def test_scene_hook_match_verbatim(tmp_path: Path) -> None:
     assert "G4.cd.scene_hook_match:" not in result
 
 
-@pytest.mark.unit
 def test_scene_hook_match_drift(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     # 备忘声明钩 vs 章文件末行漂移
@@ -90,7 +84,6 @@ def test_scene_hook_match_drift(tmp_path: Path) -> None:
     assert "G4.cd.scene_hook_match:" in result
 
 
-@pytest.mark.unit
 def test_marker_lines_excluded_from_prose_surface(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     # 标记行不得成为「末段」污染章尾钩窗口（canary #12 同型）
@@ -111,7 +104,6 @@ def _cp_result(tmp_path: Path, n: int) -> str:
     return g4_chapter_planning([str(plan)], project_dir=str(tmp_path))
 
 
-@pytest.mark.unit
 def test_cp_gray_zone_fails(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     _plan(tmp_path, 1, [(1450, "独立型", HOOK1), (1450, "配对型", HOOK2)])
@@ -119,7 +111,6 @@ def test_cp_gray_zone_fails(tmp_path: Path) -> None:
     assert "灰域" in _cp_result(tmp_path, 1)
 
 
-@pytest.mark.unit
 def test_cp_domain_kind_mismatch(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     # 声明独立型但字数落配对域 → 违例
@@ -128,7 +119,6 @@ def test_cp_domain_kind_mismatch(tmp_path: Path) -> None:
     assert "G4.cp.scene_budget:" in result
 
 
-@pytest.mark.unit
 def test_cp_composition_violation(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     # 2 场景章须两独立型：1300×2 → 组合违例
@@ -138,7 +128,6 @@ def test_cp_composition_violation(tmp_path: Path) -> None:
     assert "2 场景" in result
 
 
-@pytest.mark.unit
 def test_cp_scene_count_upper_bound(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     # T5 审查转记：场景数 2-3 上限执法——4 场景违例
@@ -156,7 +145,6 @@ def test_cp_scene_count_upper_bound(tmp_path: Path) -> None:
     assert "G4.cp.scene_budget:" in result
 
 
-@pytest.mark.unit
 def test_cp_cross_chapter_unpackable(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     # 前章（章文件）尾场景 950 + 本章首声明 1950：950+1950=2900 > 2800 → FAIL
@@ -166,7 +154,6 @@ def test_cp_cross_chapter_unpackable(tmp_path: Path) -> None:
     assert "G4.cp.scene_budget:" in result
 
 
-@pytest.mark.unit
 def test_cp_first_bundle_skips_cross_chapter(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     # 章 1 无前章文件 → 跳过跨章段，仅本备忘自洽（3B 950×3=2850 ✓ 可打包）
@@ -179,7 +166,6 @@ def test_cp_first_bundle_skips_cross_chapter(tmp_path: Path) -> None:
     assert "G4.cp.scene_budget:" not in result
 
 
-@pytest.mark.unit
 def test_cp_no_scene_block_skips(tmp_path: Path) -> None:
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
     # 旧式备忘（无场景块）→ 检查跳过（存量兼容）
@@ -189,7 +175,6 @@ def test_cp_no_scene_block_skips(tmp_path: Path) -> None:
     assert "G4.cp.scene_budget" not in _cp_result(tmp_path, 1)
 
 
-@pytest.mark.unit
 def test_cp_relative_staging_path(tmp_path: Path, monkeypatch) -> None:
     """R1 regression: relative staging/ paths still detected when CWD != project."""
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
@@ -209,7 +194,6 @@ def test_cp_relative_staging_path(tmp_path: Path, monkeypatch) -> None:
     assert "灰域" in result
 
 
-@pytest.mark.unit
 def test_cp_bundle_seam_joint_packing(tmp_path: Path) -> None:
     """R2 regression: leader open-tail + follower first-independent seam packing."""
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")
@@ -224,7 +208,6 @@ def test_cp_bundle_seam_joint_packing(tmp_path: Path) -> None:
     assert "G4.cp.scene_budget:" in result
 
 
-@pytest.mark.unit
 def test_cp_prev_full_sequence_no_false_positive(tmp_path: Path) -> None:
     """Y1 regression: prev [1900,950,950] + own first 1900 must NOT false-positive."""
     (tmp_path / "genre-config.json").write_text(CW, encoding="utf-8")

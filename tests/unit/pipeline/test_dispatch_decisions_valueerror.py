@@ -17,7 +17,6 @@ from shenbi.exceptions import DispatchWriteFailureError
 from shenbi.pipeline.dispatch_helper import write_parsed_outputs
 
 
-@pytest.mark.unit
 def test_unrecoverable_decisions_json_raises_dispatch_write_failure(tmp_path):
     parsed = {"genre-config-decisions.json": "NOT JSON AT ALL"}
     with pytest.raises(DispatchWriteFailureError) as exc_info:
@@ -33,7 +32,6 @@ def test_unrecoverable_decisions_json_raises_dispatch_write_failure(tmp_path):
     assert not (tmp_path / "genre-config-decisions.json").exists()
 
 
-@pytest.mark.unit
 def test_schema_incomplete_decisions_json_also_classified(tmp_path):
     """A recovered-but-schema-incomplete decisions object is the same
     failure class (ValueError from the validator) — same routing.

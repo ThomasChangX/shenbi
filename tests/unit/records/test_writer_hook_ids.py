@@ -7,7 +7,6 @@ import pytest
 from shenbi.records.writer import _HOOK_ID_RE  # pyright: ignore[reportPrivateImportUsage]
 
 
-@pytest.mark.unit
 def test_m6_writer_free_ids_not_mangled() -> None:
     """M6: writer.py kept a verbatim copy of truth_index's mangled pattern
     ("Same pattern as pipeline/truth_index.py"). The swap must yield full

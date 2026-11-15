@@ -9,8 +9,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, TypedDict
 
+from pydantic import ValidationError
+
 from shenbi.cli_utils import emit_json
 from shenbi.contracts.enums import ScoredBy
+from shenbi.contracts.schemas.deps import load_deps as deps_load
+from shenbi.paths import REPO_ROOT
 from shenbi.contracts.file_list import join_gate_file_list
 from shenbi.contracts.thresholds import CONDITIONAL_MIN, MARGINAL_MIN, TEST_PASS
 from shenbi.gates.gate_manifest import marker_filename
@@ -283,19 +287,19 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
                 missing.append(f"G4-{skill_name}-{test_type}")
 
     elif "t2-phase" in rubric_p.parts:
-        deps_path = Path(__file__).resolve().parents[2] / "tests" / "tiers" / "deps.json"
+        deps_path = REPO_ROOT / "tests" / "tiers" / "deps.json"
         if deps_path.exists():
             try:
-                deps = json.loads(deps_path.read_text(encoding="utf-8"))
-            except json.JSONDecodeError as exc:
+                deps = deps_load(deps_path)
+            except (OSError, ValidationError) as exc:
                 # Fail closed: a corrupt deps registry must not silently pass
                 # prerequisite marker verification (gates cannot be skipped).
                 log.error("t2_deps_json_corrupt", path=str(deps_path), error=str(exc))
                 return [f"t2_deps_json_corrupt:{deps_path.name}"]
             idx = rubric_p.parts.index("t2-phase")
             phase_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
-            if phase_name and phase_name in deps.get("t2-phases", {}):
-                for skill in deps["t2-phases"][phase_name].get("prerequisites", []):
+            if phase_name and phase_name in deps.t2_phases:
+                for skill in deps.t2_phases[phase_name].prerequisites:
                     marker_file = marker_dir / marker_filename("G4", skill, "generative")
                     if not marker_file.exists():
                         missing.append(f"G4-{skill}-generative")

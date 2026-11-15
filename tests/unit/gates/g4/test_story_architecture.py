@@ -10,8 +10,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.story_architecture import g4_story_architecture
 
 
@@ -31,7 +29,6 @@ def _setup(tmp_path: Path) -> tuple[Path, Path]:
     return project_dir, marker
 
 
-@pytest.mark.unit
 def test_fails_when_story_frame_missing_conflict(tmp_path: Path) -> None:
     """story_frame.md without surface_conflict -> FAIL G4.sf.missing_surface_conflict."""
     project_dir, marker = _setup(tmp_path)
@@ -46,7 +43,6 @@ def test_fails_when_story_frame_missing_conflict(tmp_path: Path) -> None:
     assert any("G4.sf.missing_surface_conflict" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_story_frame_yaml_error(tmp_path: Path) -> None:
     """story_frame.md with invalid YAML -> FAIL G4.sf.yaml_error."""
     project_dir, marker = _setup(tmp_path)
@@ -58,7 +54,6 @@ def test_fails_when_story_frame_yaml_error(tmp_path: Path) -> None:
     assert any("G4.sf.yaml_error" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_when_all_conflicts_present(tmp_path: Path) -> None:
     """story_frame.md with all three conflicts + volume_map with OKRs -> PASS."""
     project_dir, marker = _setup(tmp_path)
@@ -77,7 +72,6 @@ def test_passes_when_all_conflicts_present(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_fails_when_volume_map_missing(tmp_path: Path) -> None:
     """Missing volume_map.md -> FAIL G4.volumes.not_found."""
     project_dir, marker = _setup(tmp_path)
@@ -88,7 +82,6 @@ def test_fails_when_volume_map_missing(tmp_path: Path) -> None:
     assert any("G4.volumes.not_found" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_volume_has_no_okrs(tmp_path: Path) -> None:
     """volume_map.md with volume but no Objective/KR -> FAIL G4.volumes.obj_kr."""
     project_dir, marker = _setup(tmp_path)

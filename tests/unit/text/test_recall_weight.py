@@ -18,7 +18,6 @@ from shenbi.text.recall_weight import (
 )
 
 
-@pytest.mark.unit
 def test_seeding_deng_alias_expansion(tmp_path: Path) -> None:
     (tmp_path / "characters" / "major").mkdir(parents=True)
     (tmp_path / "outline").mkdir()
@@ -37,7 +36,6 @@ def test_seeding_deng_alias_expansion(tmp_path: Path) -> None:
     assert any(e.death_chapter == 3 and "萤" in e.aliases and e.weight == "高" for e in entries)
 
 
-@pytest.mark.unit
 def test_seeding_minor_heuristic(tmp_path: Path) -> None:
     (tmp_path / "characters" / "minor").mkdir(parents=True)
     (tmp_path / "outline").mkdir()
@@ -51,7 +49,6 @@ def test_seeding_minor_heuristic(tmp_path: Path) -> None:
     assert any(e.name == "老塾师" for e in entries)
 
 
-@pytest.mark.unit
 def test_detect_recall_three_lexicons(tmp_path: Path) -> None:
     e = RecallEntry(name="萤", death_chapter=3, aliases=("那珂",))
     assert detect_recall("他把红纸包收好。", e, ["红纸包"])
@@ -59,7 +56,6 @@ def test_detect_recall_three_lexicons(tmp_path: Path) -> None:
     assert not detect_recall("他推门，落座，研墨。", e, [])
 
 
-@pytest.mark.unit
 def test_recall_window_warn_and_half_window(tmp_path: Path) -> None:
     (tmp_path / "truth").mkdir()
     (tmp_path / "chapters").mkdir()
@@ -85,7 +81,6 @@ def test_recall_window_warn_and_half_window(tmp_path: Path) -> None:
     assert recall_warnings(tmp_path, 10, recall_window=8, extra_lexicons=("红纸",)) == []
 
 
-@pytest.mark.unit
 def test_cold_run_and_escalation(tmp_path: Path) -> None:
     (tmp_path / "plans").mkdir(parents=True)
     (tmp_path / "outline").mkdir()
@@ -120,7 +115,6 @@ def test_cold_run_and_escalation(tmp_path: Path) -> None:
     assert any("[emotion-band]" in r and "冷章" in r for r in rows)
 
 
-@pytest.mark.unit
 def test_genre_recall_window_domain(tmp_path: Path) -> None:
     import json
 
@@ -137,7 +131,6 @@ def test_genre_recall_window_domain(tmp_path: Path) -> None:
         GenreConfig.model_validate(base)
 
 
-@pytest.mark.unit
 def test_injection_block_and_checkpoint(tmp_path: Path) -> None:
     """T3 接线面：dispatch 注入块（escalation/回触）+ 5 连熔断 set_checkpoint."""
     (tmp_path / "plans").mkdir(parents=True)
@@ -167,7 +160,6 @@ def test_injection_block_and_checkpoint(tmp_path: Path) -> None:
     assert any("萤" in r for r in rw)
 
 
-@pytest.mark.unit
 def test_suppression_gate() -> None:
     """跨族共发抑制：3 连冷时 genre-config 触发让位。"""
     import tempfile
@@ -186,7 +178,6 @@ def test_suppression_gate() -> None:
         assert not _emotion_injection_active(d, 8)
 
 
-@pytest.mark.unit
 def test_row_schema_structural_exclusion() -> None:
     from shenbi.pipeline.triggers import count_drift_alerts
 

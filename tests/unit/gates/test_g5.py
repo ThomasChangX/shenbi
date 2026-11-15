@@ -15,9 +15,6 @@ def _result_dict(result: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(result))
 
 
-pytestmark = pytest.mark.unit
-
-
 class TestG5PhaseCheck:
     def test_emits_valid_json_for_valid_args(self, tmp_path: Path) -> None:
         round_dir = tmp_path / "round"
@@ -55,7 +52,6 @@ class TestG5ErrorPaths:
     status + must_fix reasons), never structure.
     """
 
-    @pytest.mark.unit
     def test_g5_unknown_phase_fails(self, tmp_path: Path) -> None:
         """An unknown phase name -> FAIL with 'unknown phase' reason."""
         round_dir = tmp_path / "round"
@@ -64,7 +60,6 @@ class TestG5ErrorPaths:
         assert result["status"] == "FAIL"
         assert any("unknown phase" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g5_prereq_score_below_threshold_fails(self, tmp_path: Path) -> None:
         """A prerequisite with score < 94 threshold -> G5.1:score=... in must_fix."""
         round_dir = tmp_path / "round"
@@ -78,7 +73,6 @@ class TestG5ErrorPaths:
         assert result["status"] == "FAIL"
         assert any(mf.startswith("G5.1:") and "score=" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g5_missing_prereq_report_fails(self, tmp_path: Path) -> None:
         """A prerequisite with no report and no summary entry -> G5.1:no_report."""
         round_dir = tmp_path / "round"
@@ -89,7 +83,6 @@ class TestG5ErrorPaths:
             mf.startswith("G5.1:") and mf.endswith(":no_report") for mf in result["must_fix"]
         )
 
-    @pytest.mark.unit
     def test_g5_handoff_mismatch_detected(self, tmp_path: Path) -> None:
         """If a downstream skill Reads something the upstream never Writes,
         G5.2 reports a non-blocking WARN (not FAIL). Matching is glob-aware:
@@ -119,7 +112,6 @@ class TestG5ErrorPaths:
             assert all("->" not in m for m in chk["missing"])
         assert result["gate"] == "G5"
 
-    @pytest.mark.unit
     def test_g5_cross_skill_char_role_conflict_detected(self, tmp_path: Path) -> None:
         """Two character files with the same name but different role ->
         G5.3:char_role_conflict in must_fix.
@@ -135,7 +127,6 @@ class TestG5ErrorPaths:
         assert result["status"] == "FAIL"
         assert any("G5.3:char_role_conflict:林青" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     @pytest.mark.c13_regression
     def test_g5_numeric_inconsistency_detected(self, tmp_path: Path) -> None:
         r"""F708 fixed: unit group is now a capture group.
@@ -158,7 +149,6 @@ class TestG5ErrorPaths:
         result = _result_dict(gate_G5("genesis", str(round_dir), str(project_dir)))
         assert any(mf.startswith("G5.3:numeric") for mf in result.get("must_fix", []))
 
-    @pytest.mark.unit
     def test_g5_terminology_drift_detected(self, tmp_path: Path) -> None:
         """Mixed use of paired term variants (灵能 vs 灵力, etc.) ->
         G5.3:term_mix in must_fix.
@@ -175,7 +165,6 @@ class TestG5ErrorPaths:
         assert result["status"] == "FAIL"
         assert any(mf.startswith("G5.3:term_mix") for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_g5_conflict_detection_skips_without_project_dir(self, tmp_path: Path) -> None:
         """G5.3 SKIPs when project_dir is None -> PASS with SKIP check."""
         round_dir = tmp_path / "round"
@@ -190,7 +179,6 @@ class TestG5ErrorPaths:
         assert g53 is not None
         assert g53["s"] == "SKIP"
 
-    @pytest.mark.unit
     def test_g5_glob_pattern_matching_passes(self, tmp_path: Path) -> None:
         """G5.4 glob pattern finding existing files -> PASS."""
         round_dir = tmp_path / "round"
@@ -204,14 +192,12 @@ class TestG5ErrorPaths:
         assert g54, "G5.4 checks should exist"
         assert any(c["s"] == "PASS" for c in g54)
 
-    @pytest.mark.unit
     def test_g5_none_round_dir_with_valid_phase(self) -> None:
         """round_dir=None with valid phase -> no crash; gate runs with no summary."""
         result = _result_dict(gate_G5("genesis", None, None))
         assert "gate" in result
         assert result["gate"] == "G5"
 
-    @pytest.mark.unit
     def test_g5_corrupt_summary_json_falls_through(self, tmp_path: Path) -> None:
         """Corrupt summary.json -> silently ignored, prereqs fall through."""
         round_dir = tmp_path / "round"
@@ -225,7 +211,6 @@ class TestG5ErrorPaths:
         assert any(str(m).startswith("G5.1:") for m in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g5_returns_fail_not_crash_when_deps_json_malformed(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

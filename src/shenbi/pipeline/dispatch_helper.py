@@ -77,14 +77,15 @@ from shenbi.pipeline.llm_output_integrity import (
     detect_write_failure,
 )
 from shenbi.observability import archive_enabled, put_blob, skill_contract_sha
+from shenbi.paths import REPO_ROOT
 from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
 log = get_logger(__name__)
 
-#: Repository root, resolved from this file's location (match gates/shared.py pattern).
+#: Repository root — alias of the single-source paths.REPO_ROOT (spec #92 T2b).
 #: Used to locate bundled skills/ directory independently of CWD.
-_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+_PROJECT_ROOT = REPO_ROOT
 
 #: Environment variable names
 _ENV_LLM_API_KEY = "SHENBI_LLM_API_KEY"

@@ -16,8 +16,6 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-import pytest
-
 from shenbi.pipeline import chapter_loop as cl
 from shenbi.pipeline.chapter_loop import CHAPTER_STEPS, run_chapter_step
 from shenbi.pipeline.state import PipelinePhase, PipelineState
@@ -49,7 +47,6 @@ def _results_for(tasks):
     return [_ok_result() for _ in tasks]
 
 
-@pytest.mark.unit
 def test_audit_wave_regime(tmp_path: Path) -> None:
     """First audit step dispatches the parallel wave and advances.
 
@@ -102,7 +99,6 @@ def test_audit_wave_regime(tmp_path: Path) -> None:
     assert state.chapter_loop.step_index > _step_index_of(lambda s: s.is_audit) or reached
 
 
-@pytest.mark.unit
 def test_post_draft_pair_regime(tmp_path: Path) -> None:
     """Foreshadowing-lifecycle step runs the lifecycle+settling pair.
 
@@ -144,7 +140,6 @@ def test_post_draft_pair_regime(tmp_path: Path) -> None:
     )
 
 
-@pytest.mark.unit
 def test_context_assembly_regime(tmp_path: Path) -> None:
     """Step 3 (pipeline-context-prepare) assembles context packages, no dispatch."""
     idx = _step_index_of(lambda s: s.calls_context_assembly)
@@ -163,7 +158,6 @@ def test_context_assembly_regime(tmp_path: Path) -> None:
     assert state.chapter_loop.step_index > idx or reached
 
 
-@pytest.mark.unit
 def test_pipeline_internal_regime(tmp_path: Path) -> None:
     """pipeline-linguistic-drift-check advances without any dispatch."""
     idx = _step_index_of(lambda s: s.skill == "pipeline-linguistic-drift-check")
@@ -177,7 +171,6 @@ def test_pipeline_internal_regime(tmp_path: Path) -> None:
     assert state.chapter_loop.step_index > idx or reached
 
 
-@pytest.mark.unit
 def test_serial_dispatch_regime(tmp_path: Path) -> None:
     """chapter-planning dispatches through the serial regime with path context."""
     state = _state(tmp_path, _step_index_of(lambda s: s.skill == "shenbi-chapter-planning"))
@@ -210,7 +203,6 @@ def test_serial_dispatch_regime(tmp_path: Path) -> None:
     assert reached or state.chapter_loop.step_index > idx
 
 
-@pytest.mark.unit
 def test_conditional_skip_regime(tmp_path: Path) -> None:
     """chapter-revision with no audit findings skips without dispatch.
 
@@ -234,7 +226,6 @@ def test_conditional_skip_regime(tmp_path: Path) -> None:
     assert any("chapter-revision" in d for d in done)
 
 
-@pytest.mark.unit
 def test_serial_resonance_tail(tmp_path: Path) -> None:
     """Serial review-resonance success: two void tail calls fire exactly once,
     then the gate/add_step_done/_reset_retries bookkeeping still runs.
@@ -273,7 +264,6 @@ def test_serial_resonance_tail(tmp_path: Path) -> None:
     assert state.chapter_loop.step_index > idx or reached
 
 
-@pytest.mark.unit
 def test_serial_revision_tail(tmp_path: Path) -> None:
     """Serial chapter-revision success: decisions file ensured, stale flag
     flipped, chapter recorded done, cursor advances.

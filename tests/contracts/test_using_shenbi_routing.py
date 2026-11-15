@@ -4,13 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 SKILL_MD = Path(__file__).resolve().parents[2] / "skills" / "using-shenbi" / "SKILL.md"
 REPO = Path(__file__).resolve().parents[2]
 
 
-@pytest.mark.unit
 def test_no_deprecated_routed() -> None:
     """Full-text scan (table + default column + Phase list) — zero DEPRECATED names."""
     from shenbi.skill_utils.deprecated import deprecated_skill_names
@@ -21,7 +18,6 @@ def test_no_deprecated_routed() -> None:
     assert not hits, f"DEPRECATED named in using-shenbi: {hits}"
 
 
-@pytest.mark.unit
 def test_successors_have_rows() -> None:
     text = SKILL_MD.read_text(encoding="utf-8")
     rows = "\n".join(ln for ln in text.splitlines() if ln.startswith("| "))
@@ -35,7 +31,6 @@ def test_successors_have_rows() -> None:
         assert succ in rows, succ
 
 
-@pytest.mark.unit
 def test_merged_phrases_survive() -> None:
     """Deleting rows must not delete semantics: user trigger phrases from the
     14 removed rows must survive in the successor rows (plan T4 / review I1).

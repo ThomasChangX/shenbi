@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
 
 GENRE = {
@@ -73,25 +71,21 @@ def _mf(tmp_path: Path, ch: int) -> list[str]:
     return json.loads(out).get("must_fix", [])
 
 
-@pytest.mark.unit
 def test_consecutive_same_type_fails(tmp_path: Path) -> None:
     _mk(tmp_path, ch=38, hook_type="账目钩", prev_hooks={37: "账目钩"})
     assert any("hook_type_rotation" in m for m in _mf(tmp_path, 38))
 
 
-@pytest.mark.unit
 def test_different_type_passes(tmp_path: Path) -> None:
     _mk(tmp_path, ch=38, hook_type="悬念钩", prev_hooks={37: "账目钩"})
     assert not any("hook_type_rotation" in m for m in _mf(tmp_path, 38))
 
 
-@pytest.mark.unit
 def test_first_chapter_exempt(tmp_path: Path) -> None:
     _mk(tmp_path, ch=1)  # no history at all
     assert not any("hook_type_rotation" in m for m in _mf(tmp_path, 1))
 
 
-@pytest.mark.unit
 def test_absent_prev_type_skips(tmp_path: Path) -> None:
     # prev chapter declared before v4 (no 章尾钩型 key) → absent, skip
     _mk(tmp_path, ch=38, prev_hooks={37: "账目钩"})
@@ -110,7 +104,6 @@ def test_absent_prev_type_skips(tmp_path: Path) -> None:
     assert not any("hook_type_rotation" in m for m in _mf(tmp_path, 38))
 
 
-@pytest.mark.unit
 def test_ending_diversity_warn_ledger_form(tmp_path: Path) -> None:
     """账目形态 first: 末段 ≥2 数字串的数钱收尾连续 3 章 → WARN (checks, not must_fix)."""
     ledger_ch = "# 第38章\n<!--SCENE-->\n他把账翻开。工钱 87 文，还剩 103 文。他把两笔都记下。\n"
@@ -146,7 +139,6 @@ def test_ending_diversity_warn_ledger_form(tmp_path: Path) -> None:
 FIX = Path(__file__).resolve().parents[3] / "fixtures" / "spec82"
 
 
-@pytest.mark.unit
 def test_ending_archetype_ignores_meta_tail() -> None:
     """PR #263 Copilot: real chapters end with a META POST self-check whose
     digit-heavy tail made the raw-window classifier call every chapter
@@ -160,7 +152,6 @@ def test_ending_archetype_ignores_meta_tail() -> None:
         assert ending_archetype_of(raw) is None, name  # prose tail ≠ 账目形态
 
 
-@pytest.mark.unit
 def test_ending_archetype_ledger_prose_survives_meta_tail() -> None:
     """Discriminating pair: 账目形态 must fire on PROSE ledger digits even when
     a META block follows, and must not fire on prose digits + META-only digits.

@@ -24,10 +24,6 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-import pytest
-
-pytestmark = pytest.mark.unit
-
 _REPO = Path(__file__).resolve().parents[3]
 _DRAFTING_SKILL = _REPO / "skills" / "shenbi-chapter-drafting" / "SKILL.md"
 _PLANNING_SKILL = _REPO / "skills" / "shenbi-chapter-planning" / "SKILL.md"

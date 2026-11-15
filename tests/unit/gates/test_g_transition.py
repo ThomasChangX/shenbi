@@ -11,8 +11,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g_transition import gate_G_TRANSITION
 
 
@@ -20,7 +18,6 @@ def _result_dict(result_str: str) -> dict[str, Any]:
     return json.loads(result_str)
 
 
-@pytest.mark.unit
 def test_g_transition_passes_when_remaining_queue_empty(make_project) -> None:
     """remaining_drafting = [] -> PASS transition drafting -> review."""
     _, round_dir = make_project(progress={"remaining_drafting": []})
@@ -28,7 +25,6 @@ def test_g_transition_passes_when_remaining_queue_empty(make_project) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_g_transition_fails_when_remaining_queue_not_empty(make_project) -> None:
     """remaining_drafting non-empty -> FAIL with GT.1 reason."""
     _, round_dir = make_project(progress={"remaining_drafting": ["shenbi-chapter-drafting"]})
@@ -37,7 +33,6 @@ def test_g_transition_fails_when_remaining_queue_not_empty(make_project) -> None
     assert any("GT.1" in mf for mf in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g_transition_fails_when_progress_missing(tmp_path: Path) -> None:
     """Missing progress.json -> FAIL with GT.0:no_progress_file."""
     result = _result_dict(gate_G_TRANSITION("drafting", "review", str(tmp_path / "empty")))
@@ -45,7 +40,6 @@ def test_g_transition_fails_when_progress_missing(tmp_path: Path) -> None:
     assert any("GT.0" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g_transition_returns_gate_field(make_project) -> None:
     """Every response (PASS or FAIL) includes gate == 'G_TRANSITION'."""
     _, round_dir = make_project(progress={"remaining_drafting": []})
@@ -53,7 +47,6 @@ def test_g_transition_returns_gate_field(make_project) -> None:
     assert result["gate"] == "G_TRANSITION"
 
 
-@pytest.mark.unit
 def test_g_transition_fails_on_malformed_json_progress(make_project) -> None:
     """progress.json that is not valid JSON -> FAIL with GT.0:progress_json_invalid.
 
@@ -66,7 +59,6 @@ def test_g_transition_fails_on_malformed_json_progress(make_project) -> None:
     assert any("GT.0:progress_json_invalid" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g_transition_unknown_from_phase_passes_when_queue_absent(make_project) -> None:
     """Unknown from_phase -> remaining_<unknown> defaults to [] -> PASS.
 
@@ -79,7 +71,6 @@ def test_g_transition_unknown_from_phase_passes_when_queue_absent(make_project) 
     assert result["status"] == "PASS"  # pins current behavior
 
 
-@pytest.mark.unit
 def test_g_transition_unknown_from_phase_fails_when_queue_named(make_project) -> None:
     """Unknown from_phase but a remaining_<that> key is non-empty -> FAIL with GT.1."""
     _, round_dir = make_project(progress={"remaining_mystery-phase": ["shenbi-chapter-drafting"]})

@@ -10,8 +10,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g4.post_declarations import check_post_wordcount_precision
 from shenbi.gates.shared import total_chars_md_text
 from shenbi.pipeline.scene_splitter import SplitChapter, split_bundle
@@ -42,7 +40,6 @@ def _inline_chapter(number: int, body_lines: list[str], scenes: int = 3) -> Spli
     return SplitChapter(number=number, title="", body=body, scenes=spans)
 
 
-@pytest.mark.unit
 def test_false_in_band_claim_appends_clause_and_keeps_issue_ids() -> None:
     """① ch47 首派：声明 3210（在带）实测 2288<2800 → word_band 行尾追加反驳句；
     且 issue 前缀集合与无声明时一致（零新 id/零新行——I8）。
@@ -63,7 +60,6 @@ def test_false_in_band_claim_appends_clause_and_keeps_issue_ids() -> None:
     assert len([i for i in issues if i.startswith("word_band:")]) == 1
 
 
-@pytest.mark.unit
 def test_in_band_actual_no_clause() -> None:
     """② final ch48（声明 3006/实测 3093，均在带）→ 无 word_band、无子句；
     checker 层 WARN 仍产出（gate 接线由既有 test_spec83 覆盖）。
@@ -79,7 +75,6 @@ def test_in_band_actual_no_clause() -> None:
     assert check_post_wordcount_precision(body, total_chars_md_text(body))
 
 
-@pytest.mark.unit
 def test_over_band_actual_no_clause() -> None:
     """③ over-band false claim 不在本批域（r4 收窄）：actual 4100 → 无子句。"""
     from shenbi.pipeline.scene_splitter import validate_split
@@ -98,7 +93,6 @@ def test_over_band_actual_no_clause() -> None:
     assert not any("POST自检申报" in i for i in issues)
 
 
-@pytest.mark.unit
 def test_declared_out_of_band_no_clause() -> None:
     """④ F1 第二半唯一判别：actual 短但 declared 本就出带（ch44 首派形 2373/1788）
     → 无子句（模型没虚报，只是写短了）。
@@ -117,7 +111,6 @@ def test_declared_out_of_band_no_clause() -> None:
     assert "POST自检申报" not in wb
 
 
-@pytest.mark.unit
 def test_missing_declaration_no_crash() -> None:
     """⑤ C1 空守卫：短章无声明行（既有 test_length_feedback_scenes 形状）→
     word_band 正常产出、无子句、不抛 IndexError。

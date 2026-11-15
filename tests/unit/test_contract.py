@@ -32,7 +32,6 @@ def _setup(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, name: str, body: str
     monkeypatch.setattr("shenbi.contracts.loader.REGISTRY_PATH", reg)
 
 
-@pytest.mark.unit
 def test_valid_artifact_contract_loads(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     _setup(
         monkeypatch,
@@ -49,7 +48,6 @@ def test_valid_artifact_contract_loads(monkeypatch: pytest.MonkeyPatch, tmp_path
     assert c["writes"] == ["chapters/chapter-N.md"]
 
 
-@pytest.mark.unit
 def test_prose_writes_report_only_is_rejected(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -66,7 +64,6 @@ def test_prose_writes_report_only_is_rejected(
         load_contract("shenbi-bad")
 
 
-@pytest.mark.unit
 def test_invalid_kind_is_rejected(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     _setup(
         monkeypatch,
@@ -80,7 +77,6 @@ def test_invalid_kind_is_rejected(monkeypatch: pytest.MonkeyPatch, tmp_path: Pat
         load_contract("shenbi-bad")
 
 
-@pytest.mark.unit
 def test_non_list_reads_is_rejected(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     _setup(
         monkeypatch,
@@ -94,7 +90,6 @@ def test_non_list_reads_is_rejected(monkeypatch: pytest.MonkeyPatch, tmp_path: P
         load_contract("shenbi-bad")
 
 
-@pytest.mark.unit
 def test_unregistered_path_is_rejected(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     _setup(
         monkeypatch,
@@ -108,7 +103,6 @@ def test_unregistered_path_is_rejected(monkeypatch: pytest.MonkeyPatch, tmp_path
         load_contract("shenbi-bad")
 
 
-@pytest.mark.unit
 def test_missing_skill_raises(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     reg = tmp_path / "registry.yaml"
     reg.write_text(_TEST_REGISTRY, encoding="utf-8")
@@ -145,7 +139,6 @@ def test_contracts_registry_coexists_with_contract_py() -> None:
     assert c is not None
 
 
-@pytest.mark.unit
 class TestDecisionsRegistryPaths:
     """Integration-style: resolve decisions.json paths against the REAL registry.
 

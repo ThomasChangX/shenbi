@@ -10,12 +10,9 @@ from __future__ import annotations
 
 import json
 
-import pytest
-
 from shenbi.contracts.fields import filter_to_fields
 
 
-@pytest.mark.unit
 class TestFilterToFieldsMarkdown:
     def test_markdown_filter_keeps_declared_sections(self) -> None:
         text = "## goal\ncontent"
@@ -34,7 +31,6 @@ class TestFilterToFieldsMarkdown:
         assert result == text  # fallback to full text
 
 
-@pytest.mark.unit
 class TestFilterToFieldsJson:
     def test_json_filter_projects_declared_keys(self) -> None:
         text = json.dumps({"a": 1, "b": 2})
@@ -51,7 +47,6 @@ class TestFilterToFieldsJson:
         assert result == "not json"
 
 
-@pytest.mark.unit
 class TestFilterToFieldsPassthrough:
     def test_unknown_extension_no_filter(self) -> None:
         text = "some content"

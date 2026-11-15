@@ -25,7 +25,7 @@
 - 3 个 T3 pipeline: `tests/tiers/t3-pipeline/<pipeline>/`
 - 157 个 fixture 文件: `tests/fixtures/`
 - 工具脚本（entry points）: `shenbi-score`, `shenbi-validate`, `shenbi-phase`, `shenbi-dispatch`（源码在 `src/shenbi/`）
-- 辅助脚本: `tests/round-exec.sh`（round 创建 + G0 验证）, `tests/lock-tool-hashes.sh`（工具哈希锁定）
+- 辅助脚本: `tests/round-exec.sh`（round 创建 + G0 验证）, `tests/lock-calibration-hash.sh`（G0.14 校准锚哈希锁定）
 - 接受阈值：T1≥94, T2≥94, T3≥94（`tests/tiers/acceptance.json`）
 - 执行协议: `command-to-give.md`
 
@@ -33,8 +33,8 @@
 
 - Round 005 已废弃（含幻影 T2/T3 数据）——不再使用
 - **目标**：创建 Round 006，从零开始全量 T1+T2+T3 执行
-- 系统性根因已修复：gate 硬化、authoring 对齐、progress.json 一致性、评分独立性、工具哈希锁定
-- G0 全 19 项检查 PASS（含 G0.13-16 工具哈希验证、progress.json 内部一致性、summary.json 预填充防护）
+- 系统性根因已修复：gate 硬化、authoring 对齐、progress.json 一致性、评分独立性
+- G0 全 19 项检查 PASS（含 G0.14 校准锚哈希验证、progress.json 内部一致性、summary.json 预填充防护）
 
 ## 执行协议
 
@@ -85,7 +85,7 @@
 
 以下约束是硬性要求，不可绕过：
 
-1. **Tool Hash Lock**：`tests/tiers/deps.json` 的 `_tool_hashes` 锁定了 validate-gate.py、scoring.py、phase-runner.py、summarize-round.py 的 SHA256。**G0.13 在 round 创建时验证**（已实现），G7.17 在 round 关闭时重新验证。任何 mid-round 修改都会被检测到。修改工具后运行 `bash tests/lock-tool-hashes.sh`。
+1. **Calibration Anchor Lock（G0.14）**：`tests/tiers/deps.json` 的 `_calibration_hashes.combined` 锁定 `tests/fixtures/calibration/` 全部锚文件的合并 SHA256。锚文件增删改后运行 `bash tests/lock-calibration-hash.sh` 重新锁定，否则 G0.14 FAIL。（旧「Tool Hash Lock」机制已删除——工具哈希无运行时消费者。）
 2. **Gate Marker 强制**：scoring.py 在计算分数前必须检查 gate markers 存在（`--round-dir` 模式）。缺 marker → exit(3) `MARKER_MISSING`，拒绝评分。**G4 gate markers 覆盖 generative、bug-hunt、clean 三种测试类型。**
 3. **G7 Post-Round 审计**：summarize-round.py 必须运行 G7。G7 返回 FAIL（含 TOOL_TAMPER 或 GATE_MISMATCH）→ 拒绝生成 summary。
 4. **评分独立性**：Dispatcher 不得评分。`shenbi-score` 的 `_provenance` 字段记录评分者身份（`scored_by`）和 gate markers 验证状态。使用 `shenbi-dispatch` 进行独立 dispatch。

@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.faction_builder import g4_faction_builder
 
 
@@ -24,7 +22,6 @@ def _result(s: str) -> dict[str, Any]:
     return json.loads(s)
 
 
-@pytest.mark.unit
 def test_fails_when_factions_file_missing(tmp_path: Path) -> None:
     """Missing world/factions.md -> FAIL."""
     project_dir, marker = _setup(tmp_path)
@@ -32,7 +29,6 @@ def test_fails_when_factions_file_missing(tmp_path: Path) -> None:
     assert any("G4.factions.not_found" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_less_than_2_factions(tmp_path: Path) -> None:
     """Only 1 faction -> FAIL."""
     project_dir, marker = _setup(tmp_path)
@@ -43,7 +39,6 @@ def test_fails_when_less_than_2_factions(tmp_path: Path) -> None:
     assert any("G4.factions.count" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_with_2_complete_factions(tmp_path: Path) -> None:
     """2 factions with hierarchy, internal, cross, interest -> PASS."""
     project_dir, marker = _setup(tmp_path)

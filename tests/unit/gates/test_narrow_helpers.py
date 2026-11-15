@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.shared import (
     CHAPTER_NUM_RE,
     chapter_no,
@@ -14,7 +12,6 @@ from shenbi.gates.shared import (
 )
 
 
-@pytest.mark.unit
 def test_degrade_emission_strings_byte_exact() -> None:
     # 六条逐字快照（cd:668/:695/:740、cp:735、xc:964 五发射点 + cd:706 no_decl 变体）
     assert (
@@ -49,7 +46,6 @@ def test_degrade_emission_strings_byte_exact() -> None:
     )
 
 
-@pytest.mark.unit
 def test_chapter_no_search_semantics() -> None:
     assert chapter_no("chapter-42.md") == 42
     assert chapter_no("rounds/r1/chapter-7-plan.md") == 7
@@ -60,7 +56,6 @@ def test_chapter_no_search_semantics() -> None:
     assert m.group(1) == "3"
 
 
-@pytest.mark.unit
 def test_load_facts_oracle_empty_equals_absent(tmp_path: Path) -> None:
     from shenbi.facts.enums import FactsDim
 

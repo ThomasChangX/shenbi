@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.location_builder import g4_location_builder
 
 
@@ -24,14 +22,12 @@ def _result(s: str) -> dict[str, Any]:
     return json.loads(s)
 
 
-@pytest.mark.unit
 def test_fails_when_locations_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     result = _result(g4_location_builder([str(marker)], rd=str(project_dir)))
     assert any("G4.locations.not_found" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_no_location_sections(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "world").mkdir(parents=True)
@@ -40,7 +36,6 @@ def test_fails_when_no_location_sections(tmp_path: Path) -> None:
     assert any("G4.lb.no_locations" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_location_incomplete(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "world").mkdir(parents=True)
@@ -52,7 +47,6 @@ def test_fails_when_location_incomplete(tmp_path: Path) -> None:
     assert any("G4.lb.complete" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_with_valid_location(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "world").mkdir(parents=True)
@@ -74,7 +68,6 @@ def _full_location(name: str) -> str:
     )
 
 
-@pytest.mark.unit
 def test_line_mid_reference_to_location_heading_not_counted(tmp_path: Path) -> None:
     """probe15 world/locations.md L429: the self-check checklist carries the
     literal ``## 地点:{name}`` inside a non-heading line. The unanchored
@@ -99,7 +92,6 @@ def test_line_mid_reference_to_location_heading_not_counted(tmp_path: Path) -> N
     assert result["status"] == "PASS", result["must_fix"]
 
 
-@pytest.mark.unit
 def test_locations_denominator_counts_only_line_start_headings(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "world").mkdir(parents=True)

@@ -14,8 +14,6 @@ import os
 import subprocess
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # Six sample classes from the spec (T1.3). Marker variants prove zero
@@ -90,7 +88,6 @@ EXPECTED_CALLS: dict[str, list[list[str]]] = {
     # intercepts every one — no side effects, no LLM.
     "install": [["dev"], ["dev; touch pwned"]],
     "test": [["-q"]],
-    "test-all": [["-q"]],
     "test-file": [["tests/test x.py"]],
     "audit-lint": [["--help"]],
     "observe-report": [["--help"]],
@@ -121,7 +118,6 @@ EXPECTED_CALLS: dict[str, list[list[str]]] = {
 }
 
 
-@pytest.mark.unit
 def test_matrix_all_parameterized_recipes_pass_literals(tmp_path: Path) -> None:
     """Every recipe in EXPECTED_CALLS delivers payloads as literal argv."""
     bin_dir = make_uv_stub(tmp_path)
@@ -171,7 +167,6 @@ def test_matrix_all_parameterized_recipes_pass_literals(tmp_path: Path) -> None:
     assert "/tmp/dir with space" in lines
 
 
-@pytest.mark.unit
 def test_matrix_covers_every_parameterized_recipe() -> None:
     """Guard against new parameterized recipes escaping the matrix."""
     expected = set(EXPECTED_CALLS)

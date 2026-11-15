@@ -57,7 +57,6 @@ def _protagonist_md(overrides: dict[str, object] | None = None) -> str:
     return "---\n" + yaml.safe_dump(fm, allow_unicode=True) + "---\n\n# 主角\n"
 
 
-@pytest.mark.unit
 def test_fails_when_protagonist_missing_required_field(tmp_path: Path) -> None:
     """protagonist.md missing a required field (core_value) -> FAIL with G4.protag.missing_core_value."""
     project_dir, protag = _project(tmp_path)
@@ -70,7 +69,6 @@ def test_fails_when_protagonist_missing_required_field(tmp_path: Path) -> None:
     assert any("G4.protag.missing_core_value" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_protagonist_frontmatter_is_invalid_yaml(tmp_path: Path) -> None:
     """protagonist.md with unparseable frontmatter -> FAIL with G4.protag.yaml_error."""
     project_dir, protag = _project(tmp_path)
@@ -84,7 +82,6 @@ def test_fails_when_protagonist_frontmatter_is_invalid_yaml(tmp_path: Path) -> N
     assert any("G4.protag.yaml_error" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_voice_profile_array_below_minimum(tmp_path: Path) -> None:
     """voice_profile.speech_patterns with 1 entry (< 2) -> FAIL with G4.voice.speech_patterns."""
     project_dir, protag = _project(tmp_path)
@@ -113,7 +110,6 @@ def _protag_at_depth_two(tmp_path: Path) -> Path:
     return sub / "protagonist-01.md"
 
 
-@pytest.mark.unit
 def test_fails_when_major_chars_dir_has_fewer_than_three(tmp_path: Path) -> None:
     """characters/major/ with < 3 files -> FAIL with G4.cd.major_chars."""
     protag = _protag_at_depth_two(tmp_path)
@@ -128,7 +124,6 @@ def test_fails_when_major_chars_dir_has_fewer_than_three(tmp_path: Path) -> None
     assert any("G4.cd.major_chars" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_major_chars_dir_missing(tmp_path: Path) -> None:
     """No characters/major/ dir -> FAIL with G4.cd.major_chars:directory_missing."""
     protag = _protag_at_depth_two(tmp_path)
@@ -140,7 +135,6 @@ def test_fails_when_major_chars_dir_missing(tmp_path: Path) -> None:
     assert any("G4.cd.major_chars:directory_missing" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_when_relationships_has_three_pairs_and_major_chars(tmp_path: Path) -> None:
     """relationships.md with >=3 '## 关系对' and >=3 major chars -> both PASS.
 

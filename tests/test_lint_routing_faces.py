@@ -5,19 +5,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from tools.lint_routing_faces import lint_routing_faces
 
 REPO = Path(__file__).resolve().parents[1]
 
 
-@pytest.mark.unit
 def test_real_repo_baseline_zero() -> None:
     assert lint_routing_faces(REPO, REPO / "skills") == []
 
 
-@pytest.mark.unit
 def test_injected_deprecated_registration_fails(tmp_path: Path) -> None:
     skills = tmp_path / "skills"
     skills.mkdir()
@@ -33,7 +29,6 @@ def test_injected_deprecated_registration_fails(tmp_path: Path) -> None:
     assert any("shenbi-dead" in e for e in errs)
 
 
-@pytest.mark.unit
 def test_injected_table_ghost_name_fails(tmp_path: Path) -> None:
     """Spec T3.11(b) existence direction: a routed name without a skills/ dir."""
     skills = tmp_path / "skills"

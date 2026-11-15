@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.pacing_design import g4_pacing_design
 
 
@@ -24,7 +22,6 @@ def _result(s: str) -> dict[str, Any]:
     return json.loads(s)
 
 
-@pytest.mark.unit
 def test_fails_when_rhythm_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir()
@@ -32,7 +29,6 @@ def test_fails_when_rhythm_missing(tmp_path: Path) -> None:
     assert result["status"] == "FAIL"
 
 
-@pytest.mark.unit
 def test_fails_when_beats_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir(parents=True)
@@ -43,7 +39,6 @@ def test_fails_when_beats_missing(tmp_path: Path) -> None:
     assert result["status"] == "FAIL"
 
 
-@pytest.mark.unit
 def test_fails_without_three_lines(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir(parents=True)
@@ -58,7 +53,6 @@ def test_fails_without_three_lines(tmp_path: Path) -> None:
     )
 
 
-@pytest.mark.unit
 def test_fails_when_beat_sum_wrong(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir(parents=True)
@@ -70,7 +64,6 @@ def test_fails_when_beat_sum_wrong(tmp_path: Path) -> None:
     assert result["status"] == "FAIL"
 
 
-@pytest.mark.unit
 def test_passes_with_complete_rhythm(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir(parents=True)
@@ -85,7 +78,6 @@ def test_passes_with_complete_rhythm(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_fails_when_frontmatter_total_chapters_missing(tmp_path: Path) -> None:
     """probe6/7/8: three probes shipped rhythm_principles without the
     machine-readable total_chapters line — the five-way reconcile went
@@ -155,7 +147,6 @@ produced_at: 2026-10-01T00:00:00Z
 """
 
 
-@pytest.mark.unit
 def test_passes_with_canonical_template_tables(tmp_path: Path) -> None:
     """SKILL.md's own EXACT table shapes parse and validate end-to-end."""
     project_dir, marker = _setup(tmp_path)
@@ -167,7 +158,6 @@ def test_passes_with_canonical_template_tables(tmp_path: Path) -> None:
     assert result["status"] == "PASS", result.get("must_fix")
 
 
-@pytest.mark.unit
 def test_scene_type_scan_stops_at_next_table_header(tmp_path: Path) -> None:
     """Volume-table rows (numeric first cell) after the scene table don't inflate the count."""
     from shenbi.contracts.skills.pacing_design import PacingDesign

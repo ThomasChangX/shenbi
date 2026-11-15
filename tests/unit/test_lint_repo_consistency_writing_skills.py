@@ -3,10 +3,6 @@
 import importlib.util
 from pathlib import Path
 
-import pytest
-
-pytestmark = pytest.mark.unit
-
 REPO = Path(__file__).resolve().parents[2]
 LINT = REPO / "tools" / "lint_repo_consistency.py"
 

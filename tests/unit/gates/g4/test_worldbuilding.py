@@ -11,8 +11,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.worldbuilding import g4_worldbuilding
 
 
@@ -44,7 +42,6 @@ def _novel(project_dir: Path, **overrides: object) -> None:
     (project_dir / "novel.json").write_text(json.dumps(data), encoding="utf-8")
 
 
-@pytest.mark.unit
 def test_fails_when_novel_json_missing_required_field(tmp_path: Path) -> None:
     """novel.json missing a required field (title) -> FAIL with G4.novel.missing_title."""
     project_dir, marker = _setup(tmp_path)
@@ -58,7 +55,6 @@ def test_fails_when_novel_json_missing_required_field(tmp_path: Path) -> None:
     assert any("G4.novel.missing_title" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_novel_json_not_found(tmp_path: Path) -> None:
     """No novel.json at all -> FAIL with G4.novel.not_found."""
     project_dir, marker = _setup(tmp_path)
@@ -68,7 +64,6 @@ def test_fails_when_novel_json_not_found(tmp_path: Path) -> None:
     assert any(mf == "G4.novel.not_found" for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_genre_config_not_found(tmp_path: Path) -> None:
     """No genre-config.json -> FAIL with G4.genre_config.not_found."""
     project_dir, marker = _setup(tmp_path)
@@ -79,7 +74,6 @@ def test_fails_when_genre_config_not_found(tmp_path: Path) -> None:
     assert any(mf == "G4.genre_config.not_found" for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_story_bible_has_too_few_sections(tmp_path: Path) -> None:
     """story_bible.md with < 4 '## ' headings -> FAIL with G4.sb.sections."""
     project_dir, marker = _setup(tmp_path)
@@ -99,7 +93,6 @@ def test_fails_when_story_bible_has_too_few_sections(tmp_path: Path) -> None:
     assert any("G4.sb.sections:found_2_need_4" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_story_bible_bullet_density_above_threshold(tmp_path: Path) -> None:
     """story_bible.md dominated by bullet lines (>5%) -> FAIL with G4.sb.bullet_density."""
     project_dir, marker = _setup(tmp_path)
@@ -167,7 +160,6 @@ def _full_valid_project(tmp_path: Path) -> tuple[Path, Path]:
     return project_dir, marker
 
 
-@pytest.mark.unit
 def test_passes_when_all_worldbuilding_files_valid(tmp_path: Path) -> None:
     """A complete valid project -> overall PASS.
 
@@ -181,7 +173,6 @@ def test_passes_when_all_worldbuilding_files_valid(tmp_path: Path) -> None:
     assert result.get("must_fix", []) == []
 
 
-@pytest.mark.unit
 def test_fails_when_novel_missing_target_words(tmp_path: Path) -> None:
     """novel.json with target_words absent/null -> G4.novel.missing_target_words.
 
@@ -193,7 +184,6 @@ def test_fails_when_novel_missing_target_words(tmp_path: Path) -> None:
     assert any(mf == "G4.novel.missing_target_words" for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_novel_json_invalid(tmp_path: Path) -> None:
     """Malformed novel.json -> G4.novel.invalid_json (covers g4 lines 41-42)."""
     project_dir, marker = _setup(tmp_path)
@@ -202,7 +192,6 @@ def test_fails_when_novel_json_invalid(tmp_path: Path) -> None:
     assert any(mf == "G4.novel.invalid_json" for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_genre_config_invalid_json(tmp_path: Path) -> None:
     """Malformed genre-config.json -> G4.genre_config.invalid_json (covers g4 52-53)."""
     project_dir, marker = _setup(tmp_path)
@@ -212,7 +201,6 @@ def test_fails_when_genre_config_invalid_json(tmp_path: Path) -> None:
     assert any(mf == "G4.genre_config.invalid_json" for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_rules_count_out_of_range(tmp_path: Path) -> None:
     """rules.md with no valid '## 规则N' headers -> G4.rules.count (covers g4 86)."""
     project_dir, marker = _setup(tmp_path)
@@ -231,7 +219,6 @@ def test_fails_when_rules_count_out_of_range(tmp_path: Path) -> None:
     assert any("G4.rules.count:" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_truth_template_missing_field(tmp_path: Path) -> None:
     """A truth template missing a frontmatter field -> G4.truth.{tmpl}.missing_{field} (covers g4 123)."""
     project_dir, marker = _full_valid_project(tmp_path)
@@ -254,7 +241,6 @@ def _swap_rules_locations(project_dir: Path, rules_body: str, locations_body: st
     (project_dir / "world" / "locations.md").write_text(locations_body, encoding="utf-8")
 
 
-@pytest.mark.unit
 def test_passes_with_tielu_heading_rules_and_bare_name_locations(tmp_path: Path) -> None:
     """铁律-numbered rule headings + bare-name location H2s count correctly.
 
@@ -276,7 +262,6 @@ def test_passes_with_tielu_heading_rules_and_bare_name_locations(tmp_path: Path)
     assert locs_check["count"] == 3
 
 
-@pytest.mark.unit
 def test_tielu_rule_count_over_10_still_fails(tmp_path: Path) -> None:
     """铁律 headings beyond the 1-10 range still fail the count check."""
     project_dir, marker = _full_valid_project(tmp_path)
@@ -291,7 +276,6 @@ def test_tielu_rule_count_over_10_still_fails(tmp_path: Path) -> None:
     assert any("G4.rules.count:11" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_bare_h2_locations_out_of_range_still_fails(tmp_path: Path) -> None:
     """Bare-name H2 fallback respects the 3-5 bound (6 sections -> count:6)."""
     project_dir, marker = _full_valid_project(tmp_path)
@@ -301,7 +285,6 @@ def test_bare_h2_locations_out_of_range_still_fails(tmp_path: Path) -> None:
     assert any("G4.locations.count:6" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_story_bible_missing_timeline_gets_warn_not_fail(tmp_path: Path) -> None:
     """Batch #10 #18: a story_bible without the 世界史时间线 single-source
     table yields a WARN (G4.sb.timeline), not a must-fix — the section
@@ -324,7 +307,6 @@ def test_story_bible_missing_timeline_gets_warn_not_fail(tmp_path: Path) -> None
     assert any(c.get("id") == "G4.sb.timeline" and c.get("s") == "WARN" for c in checks), checks
 
 
-@pytest.mark.unit
 def test_story_bible_with_timeline_no_warn(tmp_path: Path) -> None:
     project_dir, marker = _full_valid_project(tmp_path)
     (project_dir / "world" / "story_bible.md").write_text(
@@ -342,7 +324,6 @@ def test_story_bible_with_timeline_no_warn(tmp_path: Path) -> None:
     assert not any(c.get("id") == "G4.sb.timeline" for c in checks), checks
 
 
-@pytest.mark.unit
 def test_story_bible_prose_bare_year_is_fail(tmp_path: Path) -> None:
     """Batch #21 fix (probe26 ch1 / probe28 ch1 表外复述年数): the
     story_bible.md prose sections MUST NOT contain bare year patterns
@@ -396,7 +377,6 @@ def test_story_bible_prose_bare_year_is_fail(tmp_path: Path) -> None:
     )
 
 
-@pytest.mark.unit
 def test_story_bible_relative_few_years_not_flagged(tmp_path: Path) -> None:
     """probe32 genesis escalation (3 gate attempts burned):「数年之后」/
     「半年」/「若干年后」are RELATIVE phrases (= 几年后), not absolute-year
@@ -449,7 +429,6 @@ def test_story_bible_relative_few_years_not_flagged(tmp_path: Path) -> None:
     )
 
 
-@pytest.mark.unit
 def test_story_bible_fuzzy_magnitude_years_still_flagged(tmp_path: Path) -> None:
     """Regression lock for the probe32 fix: magnitude-bearing fuzzy years
     (数十年 / 数百年前 / 若干百年) approximate absolute year anchors and

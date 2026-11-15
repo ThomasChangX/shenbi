@@ -1,9 +1,6 @@
 """Spec #87 T5: private-import baseline lint — subset invariant."""
 
-import pytest
 
-
-@pytest.mark.unit
 def test_baseline_subset_assertion() -> None:
     """Current tests' shenbi.pipeline private imports must be a subset of
     the version-controlled baseline (increment = zero).
@@ -20,7 +17,6 @@ def test_baseline_subset_assertion() -> None:
     assert r.returncode == 0, r.stdout + r.stderr
 
 
-@pytest.mark.unit
 def test_baseline_exists_and_sorted() -> None:
     from pathlib import Path
 

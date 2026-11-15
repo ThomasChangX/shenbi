@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 
 GENRE = {
@@ -70,20 +68,17 @@ def _mf(tmp_path: Path, ch: int) -> list[str]:
     return json.loads(out).get("must_fix", [])
 
 
-@pytest.mark.unit
 def test_gap_seven_fails(tmp_path: Path) -> None:
     # last 轮回触点◆ at ch38, current ch45 → gap 7 > 6
     _mk(tmp_path, ch=45, markers={38: ["轮回触点◆"], 40: ["萤回触◆"], 43: ["萤回触◆"]})
     assert any("core_motif_touch" in m for m in _mf(tmp_path, 45))
 
 
-@pytest.mark.unit
 def test_gap_six_passes(tmp_path: Path) -> None:
     _mk(tmp_path, ch=44, markers={38: ["轮回触点◆"]})  # gap 6 ≤ 6
     assert not any("core_motif_touch" in m for m in _mf(tmp_path, 44))
 
 
-@pytest.mark.unit
 def test_any_marker_union_does_not_mask(tmp_path: Path) -> None:
     """audit-plan R2/I1: 萤回触◆ must NOT mask a broken 轮回 chain (single
     chain per marker type — the union variant passed vol-1's 16-chapter
@@ -95,7 +90,6 @@ def test_any_marker_union_does_not_mask(tmp_path: Path) -> None:
     )  # union max gap 3 — must still FAIL
 
 
-@pytest.mark.unit
 def test_vol1_drought_specimen_fails(tmp_path: Path) -> None:
     """ch21-36 zero 轮回触点◆ (vol-1 specimen: last marker ch20)."""
     markers = {20: ["轮回触点◆"]}
@@ -105,7 +99,6 @@ def test_vol1_drought_specimen_fails(tmp_path: Path) -> None:
     assert any("core_motif_touch" in m for m in _mf(tmp_path, 36))
 
 
-@pytest.mark.unit
 def test_no_config_skips_gate(tmp_path: Path) -> None:
     genre = json.loads(json.dumps(GENRE))
     del genre["pacing"]["core_motif_touch"]
@@ -113,7 +106,6 @@ def test_no_config_skips_gate(tmp_path: Path) -> None:
     assert not any("core_motif_touch" in m for m in _mf(tmp_path, 45))
 
 
-@pytest.mark.unit
 def test_no_motif_history_no_fail_no_warn_row(tmp_path: Path) -> None:
     """audit-T9/M1: no ◆ history (last=None — first-marker rule) → no FAIL;
     config present → no WARN row either (gate simply satisfied).
@@ -128,7 +120,6 @@ def test_no_motif_history_no_fail_no_warn_row(tmp_path: Path) -> None:
     assert not any("core_motif_touch" in m for m in res["must_fix"])
 
 
-@pytest.mark.unit
 def test_config_absent_warn_row(tmp_path: Path) -> None:
     """audit-T9/M1: pacing.core_motif_touch absent → WARN row (checks)."""
     import json as _json

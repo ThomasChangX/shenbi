@@ -11,8 +11,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.state_settling import _validate_character_matrix, g4_state_settling
 
 
@@ -20,7 +18,6 @@ def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     return json.loads(g4_state_settling(fps, rd))
 
 
-@pytest.mark.unit
 def test_fails_when_current_state_missing_position(tmp_path: Path) -> None:
     """File named current_state without position markers -> WARN G4.ss.position (relaxed from FAIL)."""
     f = tmp_path / "current_state.md"
@@ -32,7 +29,6 @@ def test_fails_when_current_state_missing_position(tmp_path: Path) -> None:
     ), f"Expected G4.ss.position WARN in checks, got {result.get('checks', [])}"
 
 
-@pytest.mark.unit
 def test_passes_when_current_state_has_position(tmp_path: Path) -> None:
     """File named current_state with ## 位置 -> PASS G4.ss.position."""
     f = tmp_path / "current_state.md"
@@ -41,7 +37,6 @@ def test_passes_when_current_state_has_position(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.ss.position" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_fails_when_character_matrix_missing_chars(tmp_path: Path) -> None:
     """File named character_matrix without character sections -> WARN G4.ss.characters (relaxed from FAIL)."""
     f = tmp_path / "character_matrix.md"
@@ -53,7 +48,6 @@ def test_fails_when_character_matrix_missing_chars(tmp_path: Path) -> None:
     ), f"Expected G4.ss.characters WARN in checks, got {result.get('checks', [])}"
 
 
-@pytest.mark.unit
 def test_passes_when_character_matrix_has_chars(tmp_path: Path) -> None:
     """File named character_matrix with ## 角色 -> PASS."""
     f = tmp_path / "character_matrix.md"
@@ -62,7 +56,6 @@ def test_passes_when_character_matrix_has_chars(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.ss.characters" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_fails_when_pending_hooks_missing_state_keyword(tmp_path: Path) -> None:
     """File named pending_hooks without 'state' keyword -> FAIL."""
     f = tmp_path / "pending_hooks.md"
@@ -72,7 +65,6 @@ def test_fails_when_pending_hooks_missing_state_keyword(tmp_path: Path) -> None:
     assert any("G4.ss.no_hook_state" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_file_not_found(tmp_path: Path) -> None:
     """Missing file -> FAIL G4.ss.not_found."""
     result = _run([str(tmp_path / "nonexistent.md")])
@@ -80,14 +72,12 @@ def test_fails_when_file_not_found(tmp_path: Path) -> None:
     assert any("G4.ss.not_found" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_skips_on_empty_fps(tmp_path: Path) -> None:
     """Empty fps list -> SKIP."""
     result = _run([])
     assert any(c["id"] == "G4.ss" and c["s"] == "SKIP" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_passes_when_all_conditions_met(tmp_path: Path) -> None:
     """current_state + character_matrix + pending_hooks all valid -> PASS."""
     d = tmp_path / "sub"
@@ -102,7 +92,6 @@ def test_passes_when_all_conditions_met(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_passes_when_chapter_summaries_has_chapter_headings(tmp_path: Path) -> None:
     """chapter_summaries with '## 第N章' -> PASS G4.ss.summaries (covers g4 40-43)."""
     f = tmp_path / "chapter_summaries.md"
@@ -111,7 +100,6 @@ def test_passes_when_chapter_summaries_has_chapter_headings(tmp_path: Path) -> N
     assert any(c["id"] == "G4.ss.summaries" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_passes_when_emotional_arcs_has_chapter_headings(tmp_path: Path) -> None:
     """emotional_arcs with '### 第N章' -> PASS G4.ss.arcs (covers g4 46-49)."""
     f = tmp_path / "emotional_arcs.md"
@@ -120,7 +108,6 @@ def test_passes_when_emotional_arcs_has_chapter_headings(tmp_path: Path) -> None
     assert any(c["id"] == "G4.ss.arcs" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_passes_when_particle_ledger_has_particle_section(tmp_path: Path) -> None:
     """particle_ledger with '## 粒子账本' -> PASS G4.ss.particle_ledger (covers g4 52-55)."""
     f = tmp_path / "particle_ledger.md"
@@ -132,7 +119,6 @@ def test_passes_when_particle_ledger_has_particle_section(tmp_path: Path) -> Non
 # ── Task 6: Character Matrix Write-Protection ──────────────────────────────
 
 
-@pytest.mark.unit
 def test_state_settling_character_matrix_protection():
     """state_settling prevents parameter agent names in character_matrix.
 
@@ -266,7 +252,6 @@ def test_state_settling_skill_mentions_arc_log():
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_fails_when_staged_matrix_collapses_vs_live(tmp_path: Path) -> None:
     """A staged character_matrix with <90% of the live file's non-empty
     lines is a template regeneration, not an increment — fail loud.
@@ -291,7 +276,6 @@ def test_fails_when_staged_matrix_collapses_vs_live(tmp_path: Path) -> None:
     assert any("G4.ss.matrix_structure" in m and "line_collapse" in m for m in mf)
 
 
-@pytest.mark.unit
 def test_fails_when_staged_matrix_drops_boundary_or_resync(tmp_path: Path) -> None:
     """Same line count but the 信息边界 section or Re-sync history vanished
     — structure loss the line-count ratio alone cannot see.
@@ -316,7 +300,6 @@ def test_fails_when_staged_matrix_drops_boundary_or_resync(tmp_path: Path) -> No
     assert any("G4.ss.matrix_structure" in m and "content_dropped" in m for m in mf)
 
 
-@pytest.mark.unit
 def test_passes_when_staged_matrix_is_structural_increment(tmp_path: Path) -> None:
     """Live + new chapter rows + one more Re-sync heading passes."""
     body = "\n".join(f"行 {i}" for i in range(80))
@@ -337,7 +320,6 @@ def test_passes_when_staged_matrix_is_structural_increment(tmp_path: Path) -> No
     assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_fails_on_placeholder_produced_at(tmp_path: Path) -> None:
     """12:00:00Z / 00:00:00Z whole-hour placeholders are the four-times
     fabricated form — fail loud.
@@ -361,7 +343,6 @@ def test_fails_on_placeholder_produced_at(tmp_path: Path) -> None:
     assert any("G4.ss.produced_at" in m and "placeholder" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_fails_on_future_produced_at(tmp_path: Path) -> None:
     """A produced_at in the future (probe: 2026-10-04 while running
     2026-09-28) is fabricated.
@@ -385,7 +366,6 @@ def test_fails_on_future_produced_at(tmp_path: Path) -> None:
     assert any("G4.ss.produced_at" in m and "future" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_passes_on_real_produced_at(tmp_path: Path) -> None:
     dec = tmp_path / "staging" / "truth" / "state-settling-decisions.json"
     dec.parent.mkdir(parents=True)
@@ -406,7 +386,6 @@ def test_passes_on_real_produced_at(tmp_path: Path) -> None:
     assert not any("G4.ss.produced_at" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_fails_when_staged_matrix_replaces_sections_same_size(tmp_path: Path) -> None:
     """Fixcheck ch1/ch2: a same-size-or-bigger FORMAT REPLACEMENT passes the
     0.9x line check while dropping every live section — the settle writer
@@ -441,7 +420,6 @@ def test_fails_when_staged_matrix_replaces_sections_same_size(tmp_path: Path) ->
     assert any("G4.ss.matrix_structure" in m and "content_dropped" in m for m in mf)
 
 
-@pytest.mark.unit
 def test_passes_when_staged_matrix_keeps_sections_and_appends(tmp_path: Path) -> None:
     """Superset semantics: live sections verbatim + a new appended section
     (e.g. the ch1-approved 逐章角色状态) must pass.
@@ -469,7 +447,6 @@ def test_passes_when_staged_matrix_keeps_sections_and_appends(tmp_path: Path) ->
     assert not any("G4.ss.matrix_structure" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_fails_when_staged_matrix_swaps_prose_under_kept_headings(tmp_path: Path) -> None:
     """Fixcheck ch3 failure #4: the H2-superset check was bypassed by
     KEEPING every live heading while rewriting the prose under them. The
@@ -499,7 +476,6 @@ def test_fails_when_staged_matrix_swaps_prose_under_kept_headings(tmp_path: Path
     assert any("G4.ss.matrix_structure" in m and "content_dropped" in m for m in mf)
 
 
-@pytest.mark.unit
 def test_passes_when_staged_matrix_upserts_rows_and_touches_volatile_lines(tmp_path: Path) -> None:
     """Legitimate increment: table-row upsert (same key, updated cells),
     appended rows/sections, refreshed frontmatter timestamps and a
@@ -600,7 +576,6 @@ def _staged_settle_project(tmp_path: Path, declared: tuple[str, ...]) -> list[st
     return fps
 
 
-@pytest.mark.unit
 def test_fails_when_selections_under_report_staged_targets(tmp_path: Path) -> None:
     """probe21 #008 shape: sidecar declared 1/7 while seven files were staged
     — the review surface could not see what the settle touched.
@@ -615,7 +590,6 @@ def test_fails_when_selections_under_report_staged_targets(tmp_path: Path) -> No
     assert not any("pending_hooks" in m for m in uncovered)  # declared → covered
 
 
-@pytest.mark.unit
 def test_passes_when_selections_cover_all_staged_targets(tmp_path: Path) -> None:
     """probe21 #006 standard: 7/7 coverage — no findings."""
     fps = _staged_settle_project(tmp_path, declared=_SSC_TARGETS)
@@ -625,7 +599,6 @@ def test_passes_when_selections_cover_all_staged_targets(tmp_path: Path) -> None
     )
 
 
-@pytest.mark.unit
 def test_selections_coverage_ignores_co_writer_staged_files(tmp_path: Path) -> None:
     """#52 scope fix (probe22 adjudication #005): the obligation set is the
     skill's OWN contract targets, not every file in the shared staging dir —
@@ -646,7 +619,6 @@ def test_selections_coverage_ignores_co_writer_staged_files(tmp_path: Path) -> N
     )
 
 
-@pytest.mark.unit
 def test_selections_coverage_still_catches_own_undeclared_target(tmp_path: Path) -> None:
     """The narrowed scope must still catch the probe21 #008 shape: one of the
     skill's OWN contract targets staged but undeclared.
@@ -663,7 +635,6 @@ def test_selections_coverage_still_catches_own_undeclared_target(tmp_path: Path)
     assert not any("bridge_tracker" in m for m in uncovered)
 
 
-@pytest.mark.unit
 def test_state_settling_skill_declares_selections_must_cover_all_update_targets():
     """Batch #21 fix (probe28 ch4 selections_uncovered recurrence): the
     state-settling SKILL.md must explicitly require selections[] to cover
@@ -711,7 +682,6 @@ def test_state_settling_skill_declares_selections_must_cover_all_update_targets(
     )
 
 
-@pytest.mark.unit
 def test_state_settling_skill_declares_character_matrix_append_only():
     """Batch #22 fix (probe29 ch4 matrix_structure content_dropped): the
     state-settling SKILL.md must contain EXPLICIT binding language that
@@ -755,7 +725,6 @@ def test_state_settling_skill_declares_character_matrix_append_only():
     )
 
 
-@pytest.mark.unit
 def test_state_settling_skill_append_constraint_in_prominent_location():
     """Batch #22 fix (probe29 ch4 matrix_structure content_dropped): the
     state-settling SKILL.md must place the character_matrix append-only
@@ -808,7 +777,6 @@ def test_state_settling_skill_append_constraint_in_prominent_location():
     )
 
 
-@pytest.mark.unit
 def test_re_settle_replacing_own_chapter_block_passes_matrix_structure(tmp_path: Path) -> None:
     """probe31 ch2 escalation (2 identical G4 fails, attempts=1/2): an
     audit-routed re-settle ATOMICALLY REPLACES the current chapter's own
@@ -849,7 +817,6 @@ def test_re_settle_replacing_own_chapter_block_passes_matrix_structure(tmp_path:
     )
 
 
-@pytest.mark.unit
 def test_re_settle_still_flags_foreign_chapter_block_rewrites(tmp_path: Path) -> None:
     """Over-exemption guard: with sidecar chapter=2, rewriting a bullet
     inside the 第1章 block is STILL content_dropped — only the CURRENT
@@ -899,7 +866,6 @@ type: truth
 """
 
 
-@pytest.mark.unit
 def test_hook_row_lifecycle_bump_on_headerless_table_not_flagged(tmp_path: Path) -> None:
     """Batch #27 (probe32 ch2 settle 4-attempt deadlock): a genesis live
     pending_hooks registry table can be HEADERLESS (the shell base never
@@ -934,7 +900,6 @@ def test_hook_row_lifecycle_bump_on_headerless_table_not_flagged(tmp_path: Path)
     )
 
 
-@pytest.mark.unit
 def test_hook_row_real_stable_rewrite_on_headerless_table_still_flagged(tmp_path: Path) -> None:
     """Regression lock for the batch #27 value-inference fallback: a REAL
     stable-column rewrite (subtlety 0.5→0.8) on a headerless table must
@@ -957,7 +922,6 @@ def test_hook_row_real_stable_rewrite_on_headerless_table_still_flagged(tmp_path
     )
 
 
-@pytest.mark.unit
 def test_name_registry_shape_pass_and_warn(tmp_path: Path) -> None:
     """#75: name_registry keeps the seeded | 类别 | 名 | 备注 | layout (登记名 row)."""
     good = tmp_path / "name_registry.md"
@@ -973,7 +937,6 @@ def test_name_registry_shape_pass_and_warn(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.ss.name_registry" and c["s"] == "WARN" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_timeline_row_shape(tmp_path: Path) -> None:
     """#75: timeline increments are | 第 N 章 | <末锚> | rows."""
     good = tmp_path / "timeline.md"
@@ -989,7 +952,6 @@ def test_timeline_row_shape(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.ss.timeline" and c["s"] == "WARN" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_prop_registry_row_shape(tmp_path: Path) -> None:
     """#75: prop_registry rows are | 实体名 | 当前owner | 经手事件 |."""
     good = tmp_path / "prop_registry.md"

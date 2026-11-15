@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from shenbi.status import (
     STATUS_STRING_LITERALS,
     CommandStatus,
@@ -15,7 +13,6 @@ from shenbi.status import (
 )
 
 
-@pytest.mark.unit
 class TestGateStatusWireValues:
     def test_pass_serializes_to_uppercase_pass(self) -> None:
         assert GateStatus.PASS.value == "PASS"
@@ -25,7 +22,6 @@ class TestGateStatusWireValues:
         assert {g.value for g in GateStatus} == {"PASS", "FAIL", "SKIP", "WARN", "UNIMPLEMENTED"}
 
 
-@pytest.mark.unit
 class TestPhaseStateWireValues:
     def test_preserves_existing_lowercase_values(self) -> None:
         """State files already on disk use lowercase; serialization must match."""
@@ -40,7 +36,6 @@ class TestPhaseStateWireValues:
         }
 
 
-@pytest.mark.unit
 class TestCommandStatusWireValues:
     def test_values(self) -> None:
         assert {c.value for c in CommandStatus} == {
@@ -52,7 +47,6 @@ class TestCommandStatusWireValues:
         }
 
 
-@pytest.mark.unit
 class TestScoringAndClassification:
     def test_scoring_status_values(self) -> None:
         assert ScoringStatus.REJECT.value == "REJECT"
@@ -66,7 +60,6 @@ class TestScoringAndClassification:
         assert {s.value for s in ScoreClassification} == {"PASS", "CONDITIONAL", "MARGINAL", "FAIL"}
 
 
-@pytest.mark.unit
 class TestStatusStringLiteralSet:
     def test_set_is_complete_vocab(self) -> None:
         # The lint (Task 3) forbids these bare strings outside status.py.
@@ -76,7 +69,6 @@ class TestStatusStringLiteralSet:
         assert "MARGINAL" in STATUS_STRING_LITERALS
 
 
-@pytest.mark.unit
 class TestGateResultTyped:
     def test_status_field_is_gate_status_typed(self) -> None:
         # A GateResult's status field carries a GateStatus member, not a bare str.
@@ -89,7 +81,6 @@ class TestGateResultTyped:
         assert result["status"] is GateStatus.PASS
 
 
-@pytest.mark.unit
 class TestSharedHelpersUseEnums:
     def test_passed_result_has_gate_status_pass(self) -> None:
         import json

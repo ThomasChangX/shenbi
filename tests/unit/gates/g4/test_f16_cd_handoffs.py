@@ -8,8 +8,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g4.chapter_drafting import check_prop_handoffs
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 
@@ -216,7 +214,6 @@ def test_xc_fallback_full_severity_without_facts(tmp_path: Path):
 # --- 束8 实弹（2026-11-09 ch49）：META 面假阳性回归钉 ---
 
 
-@pytest.mark.unit
 def test_pre_write_check_meta_block_not_scanned(tmp_path: Path) -> None:
     """PRE_WRITE_CHECK 的任务复述行不得触发 prop_handoff（raw 面假阳性）。
 
@@ -259,7 +256,6 @@ def test_pre_write_check_meta_block_not_scanned(tmp_path: Path) -> None:
     assert not check_prop_handoffs(strip_narrative_body(raw), "", props, {"那罕", "赵瘸子"})
 
 
-@pytest.mark.unit
 def test_suffix_short_form_compound_embedding_not_a_reference() -> None:
     """束8 ch49 live fire：『旧红纸包』的尾短称『纸包』不得命中『油纸包』（异复合词）；
     但『红纸包』（实体自身字首延续）与边界独立出现仍算引用。

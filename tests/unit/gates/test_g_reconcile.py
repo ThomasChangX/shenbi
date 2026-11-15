@@ -16,8 +16,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g_reconcile import gate_G_RECONCILE
 
 
@@ -36,7 +34,6 @@ def _write_pattern2_report(
     )
 
 
-@pytest.mark.unit
 def test_gr2_production_scores_suffix_not_false_fail(tmp_path: Path) -> None:
     """F401: production report names must not falsely FAIL GR.2.
 
@@ -62,7 +59,6 @@ def test_gr2_production_scores_suffix_not_false_fail(tmp_path: Path) -> None:
         assert not any("GR.2" in mf and "status=?" in mf for mf in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g_reconcile_passes_when_done_skills_have_reports(
     make_project,
 ) -> None:
@@ -82,7 +78,6 @@ def test_g_reconcile_passes_when_done_skills_have_reports(
     assert result.get("must_fix", []) == []
 
 
-@pytest.mark.unit
 def test_g_reconcile_passes_when_no_done_skills(make_project) -> None:
     """progress.json present but no skill has status=DONE -> PASS (nothing to verify)."""
     _, round_dir = make_project(progress={"skills": {}})
@@ -90,7 +85,6 @@ def test_g_reconcile_passes_when_no_done_skills(make_project) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_g_reconcile_fails_when_no_progress(make_project) -> None:
     """Missing progress.json -> FAIL with no_progress in must_fix."""
     _, round_dir = make_project()  # no progress.json
@@ -99,7 +93,6 @@ def test_g_reconcile_fails_when_no_progress(make_project) -> None:
     assert "no_progress" in result["must_fix"]
 
 
-@pytest.mark.unit
 def test_g_reconcile_fails_when_done_skill_lacks_report(make_project) -> None:
     """DONE skill without matching t1-report -> FAIL with GR.1 reason."""
     _, round_dir = make_project(
@@ -115,7 +108,6 @@ def test_g_reconcile_fails_when_done_skill_lacks_report(make_project) -> None:
     assert any("GR.1" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g_reconcile_returns_valid_json_for_empty_round(tmp_path: Path) -> None:
     """Non-existent round_dir -> FAIL JSON with no_progress, no exception."""
     result = _result_dict(gate_G_RECONCILE(str(tmp_path / "empty")))
@@ -124,7 +116,6 @@ def test_g_reconcile_returns_valid_json_for_empty_round(tmp_path: Path) -> None:
     assert "no_progress" in result["must_fix"]
 
 
-@pytest.mark.unit
 def test_g_reconcile_unknown_skill_in_progress_handled_gracefully(make_project) -> None:
     """progress.json skills map referencing an unknown skill name must not crash.
 
@@ -150,7 +141,6 @@ def test_g_reconcile_unknown_skill_in_progress_handled_gracefully(make_project) 
     )
 
 
-@pytest.mark.unit
 def test_g_reconcile_gr1_missing_report_carries_skill_and_test_type(make_project) -> None:
     """GR.1 reason must embed both <skill> and <test_type> for traceability."""
     _, round_dir = make_project(
@@ -169,7 +159,6 @@ def test_g_reconcile_gr1_missing_report_carries_skill_and_test_type(make_project
     assert any(mf == "GR.1:shenbi-worldbuilding-bug-hunt:no_report" for mf in must_fix)
 
 
-@pytest.mark.unit
 def test_g_reconcile_non_dict_progress_structured_fail(make_project) -> None:
     """A progress.json that is valid JSON but not an object -> jload raises
     ValueError; T1b (spec #38) converts the crash to a structured FAIL.
@@ -183,7 +172,6 @@ def test_g_reconcile_non_dict_progress_structured_fail(make_project) -> None:
     assert "progress.json unreadable or malformed" in out
 
 
-@pytest.mark.unit
 def test_gr_status_writer_case_no_false_fail(tmp_path: Path) -> None:
     """F449/F710 (spec #27): writer emits lowercase "done" (codex.py) —
     GR.1/GR.2 must accept it; uppercase DONE stays accepted (dual-form).
@@ -206,7 +194,6 @@ def test_gr_status_writer_case_no_false_fail(tmp_path: Path) -> None:
     assert not must_fix
 
 
-@pytest.mark.unit
 def test_gr2_skips_sidecar_artifacts(tmp_path: Path) -> None:
     """Spec #31: collapse-check / dual-scorer sidecars must not spurious-FAIL GR.2."""
     skill = "shenbi-worldbuilding"

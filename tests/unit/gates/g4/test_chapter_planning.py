@@ -10,8 +10,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 
 
@@ -19,7 +17,6 @@ def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     return json.loads(g4_chapter_planning(fps, rd))
 
 
-@pytest.mark.unit
 def test_fails_when_less_than_8_sections(tmp_path: Path) -> None:
     """Plan file with < 8 numbered sections -> FAIL G4.cp.sections."""
     f = tmp_path / "chapter-001-plan.md"
@@ -29,7 +26,6 @@ def test_fails_when_less_than_8_sections(tmp_path: Path) -> None:
     assert any("G4.cp.sections" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_with_all_8_sections(tmp_path: Path) -> None:
     """Plan file with all 8 sections -> PASS G4.cp.sections."""
     f = tmp_path / "chapter-001-plan.md"
@@ -39,7 +35,6 @@ def test_passes_with_all_8_sections(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.cp.sections" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_golden_3_checks_chapter_1_three_walls(tmp_path: Path) -> None:
     """Chapter 1 plan missing '三面墙' -> WARN G4.cp.golden_1 (relaxed from FAIL)."""
     f = tmp_path / "chapter-1-plan.md"
@@ -54,7 +49,6 @@ def test_golden_3_checks_chapter_1_three_walls(tmp_path: Path) -> None:
     ), f"Expected G4.cp.golden_1 WARN in checks, got {result.get('checks', [])}"
 
 
-@pytest.mark.unit
 def test_fails_when_s5_choice_missing(tmp_path: Path) -> None:
     """Section 5 without 关键抉择 -> WARN G4.cp.s5_choice (relaxed from FAIL)."""
     sections = "\n".join(f"## {i}. Section {i}\ncontent\n" for i in range(1, 9))
@@ -67,7 +61,6 @@ def test_fails_when_s5_choice_missing(tmp_path: Path) -> None:
     ), f"Expected G4.cp.s5_choice WARN in checks, got {result.get('checks', [])}"
 
 
-@pytest.mark.unit
 def test_skips_golden_for_non_123_chapters(tmp_path: Path) -> None:
     """Chapter N with N>3 -> golden check SKIPs."""
     sections = "\n".join(f"## {i}. Section {i}\ncontent\n" for i in range(1, 9))
@@ -77,7 +70,6 @@ def test_skips_golden_for_non_123_chapters(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.cp.golden" and c["s"] == "SKIP" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_fails_when_file_not_found(tmp_path: Path) -> None:
     """Missing file -> FAIL G4.cp.not_found."""
     result = _run([str(tmp_path / "nonexistent.md")])
@@ -85,14 +77,12 @@ def test_fails_when_file_not_found(tmp_path: Path) -> None:
     assert any("G4.cp.not_found" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_skips_on_empty_fps(tmp_path: Path) -> None:
     """Empty fps list -> SKIP."""
     result = _run([])
     assert any(c["id"] == "G4.cp" and c["s"] == "SKIP" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_passes_when_all_conditions_met(tmp_path: Path) -> None:
     """Valid plan with all 8 sections, golden content, s5 choice, s7 hooks -> PASS."""
     content = "# Plan\n\n"
@@ -173,7 +163,6 @@ _POOL = (
 )
 
 
-@pytest.mark.unit
 def test_fails_on_unregistered_mh_hook(tmp_path: Path) -> None:
     (tmp_path / "truth").mkdir()
     (tmp_path / "truth" / "book_spine.md").write_text(_SPINE, encoding="utf-8")
@@ -188,7 +177,6 @@ def test_fails_on_unregistered_mh_hook(tmp_path: Path) -> None:
     assert any("G4.cp.hook_refs" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_on_registered_mh_hooks(tmp_path: Path) -> None:
     (tmp_path / "truth").mkdir()
     (tmp_path / "truth" / "book_spine.md").write_text(_SPINE, encoding="utf-8")
@@ -204,7 +192,6 @@ def test_passes_on_registered_mh_hooks(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.cp.hook_refs" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_cp_namespace_hooks_are_not_gated(tmp_path: Path) -> None:
     """New plants use the lifecycle's CP-NNN namespace — outside the MH
     registry check (SKILL.md flowchart: Assign ID at plant time).
@@ -221,7 +208,6 @@ def test_cp_namespace_hooks_are_not_gated(tmp_path: Path) -> None:
     assert not any("G4.cp.hook_refs" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_skips_when_registry_files_absent(tmp_path: Path) -> None:
     """Phase 1: neither the spine nor the pool exists — nothing to check
     against (SKILL.md L139 phase-1 placeholder branch).
@@ -241,7 +227,6 @@ def _plan_shell(body: str) -> str:
     return sections + "\n\n" + body
 
 
-@pytest.mark.unit
 def test_g4cp_new_format_missing_declaration_fails(tmp_path: Path) -> None:
     """New-format memo (scene-budget block) missing any 三声明行 → FAIL."""
     plan = tmp_path / "chapter-3-plan.md"
@@ -260,7 +245,6 @@ def test_g4cp_new_format_missing_declaration_fails(tmp_path: Path) -> None:
     assert any("G4.cp.declarations" in m and "余额" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g4cp_new_format_complete_passes(tmp_path: Path) -> None:
     plan = tmp_path / "chapter-3-plan.md"
     plan.write_text(
@@ -279,7 +263,6 @@ def test_g4cp_new_format_complete_passes(tmp_path: Path) -> None:
     assert decl and decl[0]["s"] == "PASS"
 
 
-@pytest.mark.unit
 def test_g4cp_legacy_format_warns_not_fails(tmp_path: Path) -> None:
     """Legacy memo without the scene-budget block → WARN exemption, never FAIL."""
     plan = tmp_path / "chapter-3-plan.md"
@@ -289,7 +272,6 @@ def test_g4cp_legacy_format_warns_not_fails(tmp_path: Path) -> None:
     assert decl and decl[0]["s"] == "WARN"
 
 
-@pytest.mark.unit
 def test_g4cp_v3_missing_scene_block_fails(tmp_path: Path) -> None:
     """v3-labeled memo without the scene-budget block → FAIL.
 

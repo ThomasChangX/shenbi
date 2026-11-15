@@ -8,7 +8,6 @@ from shenbi.orchestration.escalation_bridge import parse_resonance_scores
 from shenbi.orchestration.scoring_bridge import check_single_scorer_collapse, validate_dual_scorer
 
 
-@pytest.mark.unit
 def test_parse_resonance_scores_extracts_overall():
     import os
     import tempfile
@@ -22,7 +21,6 @@ def test_parse_resonance_scores_extracts_overall():
     assert scores == [82.0, 74.0]
 
 
-@pytest.mark.unit
 def test_validate_dual_scorer_flags_dispute():
     a = {1: 90.0, 2: 95.0}
     b = {1: 85.0, 2: 70.0}
@@ -30,7 +28,6 @@ def test_validate_dual_scorer_flags_dispute():
     assert result["needs_arbitration"] is True
 
 
-@pytest.mark.unit
 def test_check_single_scorer_collapse_detects_all_95():
     scores = {1: 95.0, 2: 95.0, 3: 95.0}
     result = check_single_scorer_collapse(scores)

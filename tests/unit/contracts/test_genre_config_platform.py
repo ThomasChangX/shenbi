@@ -32,19 +32,16 @@ def _base() -> dict[str, object]:
     }
 
 
-@pytest.mark.unit
 def test_primary_platform_in_genre_keys() -> None:
     assert "primary_platform" in GENRE_KEYS
     assert len(GENRE_KEYS) == 12  # spec #73: +market_params
 
 
-@pytest.mark.unit
 def test_optional_key_absent_still_valid() -> None:
     cfg = GenreConfig.model_validate(_base())
     assert cfg.primary_platform == ""
 
 
-@pytest.mark.unit
 def test_primary_platform_enum() -> None:
     data = _base() | {"primary_platform": "qidian"}
     assert GenreConfig.model_validate(data).primary_platform == "qidian"
@@ -52,19 +49,16 @@ def test_primary_platform_enum() -> None:
         GenreConfig.model_validate(_base() | {"primary_platform": "zongheng"})
 
 
-@pytest.mark.unit
 def test_fanqie_update_subkey_passes() -> None:
     # chapter_word 子键不受顶层闭键集约束（spec 施工面 1）
     GenreConfig.model_validate(_base())
 
 
-@pytest.mark.unit
 def test_unknown_top_level_key_rejected() -> None:
     with pytest.raises(Exception, match="unknown top-level key"):
         GenreConfig.model_validate(_base() | {"platforms": {}})
 
 
-@pytest.mark.unit
 def test_required_keys_still_eight() -> None:
     from shenbi.contracts.skills.genre_config import _REQUIRED_TOP_KEYS
 

@@ -43,7 +43,6 @@ overall 79 ≥ 80 ✗
 """
 
 
-@pytest.mark.unit
 def test_valid_report_passes(tmp_path: Path) -> None:
     f = tmp_path / "audits" / "volume-1-payoff.md"
     f.parent.mkdir(parents=True, exist_ok=True)
@@ -52,7 +51,6 @@ def test_valid_report_passes(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_missing_confidence_column_fails(tmp_path: Path) -> None:
     f = tmp_path / "audits" / "volume-1-payoff.md"
     f.parent.mkdir(parents=True, exist_ok=True)
@@ -65,7 +63,6 @@ def test_missing_confidence_column_fails(tmp_path: Path) -> None:
     assert any("G4.ap.detail_table" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_missing_dimension_row_fails(tmp_path: Path) -> None:
     # Table has all columns but only 4 of 5 dimensions (missing 角色弧推进).
     body = VALID.replace(
@@ -79,7 +76,6 @@ def test_missing_dimension_row_fails(tmp_path: Path) -> None:
     assert any("G4.ap.dims" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize("verdict", ["放行", "阻断"])
 def test_accepts_each_valid_verdict(tmp_path: Path, verdict: str) -> None:
     body = VALID.replace("判定: 阻断", f"判定: {verdict}")
@@ -91,7 +87,6 @@ def test_accepts_each_valid_verdict(tmp_path: Path, verdict: str) -> None:
     assert any(c["id"] == "G4.ap.verdict" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_missing_gate_section_fails(tmp_path: Path) -> None:
     body = VALID.replace("## 门判定", "## 其它")
     f = tmp_path / "audits" / "volume-1-payoff.md"
@@ -102,7 +97,6 @@ def test_missing_gate_section_fails(tmp_path: Path) -> None:
     assert any("G4.ap.verdict" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_invalid_verdict_value_fails(tmp_path: Path) -> None:
     body = VALID.replace("判定: 阻断", "判定: 优秀")
     f = tmp_path / "audits" / "volume-1-payoff.md"
@@ -113,7 +107,6 @@ def test_invalid_verdict_value_fails(tmp_path: Path) -> None:
     assert any("G4.ap.verdict" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_missing_foreshadow_subfloor_fails(tmp_path: Path) -> None:
     # Gate section present + valid verdict, but no 伏笔兑现质量 ≥15 line.
     body = VALID.replace("伏笔兑现质量 18 ≥ 子地板 15 ✓\n", "兑现检查略\n")
@@ -125,7 +118,6 @@ def test_missing_foreshadow_subfloor_fails(tmp_path: Path) -> None:
     assert any("G4.ap.foreshadow_floor" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_missing_file_line_evidence_fails(tmp_path: Path) -> None:
     # Strip every file/line ref from the evidence cells.
     body = VALID
@@ -145,14 +137,12 @@ def test_missing_file_line_evidence_fails(tmp_path: Path) -> None:
     assert any("G4.ap.evidence" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_empty_file_list_skips() -> None:
     result = _run([])
     assert result["status"] == "PASS"
     assert any(c.get("s") == "SKIP" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_nonexistent_file_fails(tmp_path: Path) -> None:
     result = _run([str(tmp_path / "nope.md")])
     assert result["status"] == "FAIL"

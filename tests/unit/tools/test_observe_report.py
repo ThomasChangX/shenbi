@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from tests.support.dispatch_payload import payload
+
 _TOOL = Path(__file__).resolve().parents[3] / "tools" / "observe_report.py"
 _spec = importlib.util.spec_from_file_location("observe_report", _TOOL)
 assert _spec is not None and _spec.loader is not None
@@ -27,27 +29,27 @@ def _seed_corpus(tmp_path: Path) -> None:
     _write_jsonl(
         tmp_path / "cost" / "token-ledger.jsonl",
         [
-            {
-                "skill": "shenbi-chapter-drafting",
-                "chapter": 1,
-                "prompt_tokens": 21000,
-                "attempt": 1,
-                "estimated": False,
-            },
-            {
-                "skill": "shenbi-chapter-drafting",
-                "chapter": 2,
-                "prompt_tokens": 23000,
-                "attempt": 1,
-                "estimated": False,
-            },
-            {
-                "skill": "shenbi-state-settling",
-                "chapter": 2,
-                "prompt_tokens": 42000,
-                "attempt": 1,
-                "estimated": False,
-            },
+            payload(
+                "shenbi-chapter-drafting",
+                chapter=1,
+                prompt_tokens=21000,
+                attempt=1,
+                estimated=False,
+            ),
+            payload(
+                "shenbi-chapter-drafting",
+                chapter=2,
+                prompt_tokens=23000,
+                attempt=1,
+                estimated=False,
+            ),
+            payload(
+                "shenbi-state-settling",
+                chapter=2,
+                prompt_tokens=42000,
+                attempt=1,
+                estimated=False,
+            ),
         ],
     )
     # trace: INIT + 2 DISPATCH (one loop_id=4 with a fields miss) + 1 RETRY

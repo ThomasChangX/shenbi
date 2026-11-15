@@ -11,13 +11,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g4.genre_config import g4_genre_config
 from shenbi.gates.g6_checks import check_continuity
 from shenbi.gates.shared import clip_with_disclosure
-
-pytestmark = pytest.mark.unit
 
 _FIXTURES = Path(__file__).resolve().parents[2] / "fixtures"
 

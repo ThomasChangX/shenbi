@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-14（spec #90 完结归档——PR #340 squash；五 task 全 audit+终审 Ready）
-> **活跃 plan 数**：1 | **已归档**：142（见 `archive/`——最近归档：[2026-11-15-spec91-state-concurrency-discipline.md](archive/2026-11-15-spec91-state-concurrency-discipline.md)，PR #343：名册单源+lint 收缩+decisions 换源+allowlist JSON）
+> **最后更新**：2026-11-15（spec #92 plan 建档——T1 拆双职删除+T2 load_deps/REPO_ROOT+T3 标记退役(b)+T4 子配方拆分+T5 沉积清除+T6 构造器，8 task）
+> **活跃 plan 数**：2 | **已归档**：142（见 `archive/`——最近归档：[2026-11-15-spec91-state-concurrency-discipline.md](archive/2026-11-15-spec91-state-concurrency-discipline.md)，PR #343：名册单源+lint 收缩+decisions 换源+allowlist JSON）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -10,6 +10,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 ## 活跃 Plan
 
 
+- **[2026-11-15-spec92-test-ci-hygiene.md](2026-11-15-spec92-test-ci-hygiene.md)** ✅ ready——对应 spec #92（r3.2）：8 task（T1 `_tool_hashes` 整删+脚本拆双职改名/T2a load_deps 六读者/T2b REPO_ROOT/T3 标记退役 option-b+配方合并/T4 阈值单源+lint·type·test-ci 子配方+hook 构造性/T5 沉积清除+per-file-ignores 整并/T6 dispatch_payload 前五换装/T8 终验）；判据全部 git grep 正面清单形
 - **[2026-11-06-spec97-precommit-rev-landing.md](2026-11-06-spec97-precommit-rev-landing.md)** ✅ ready（**执行完毕待归档**——T0-T3+首跑验收全落）——对应 spec #97；2026-11-06 建档时本 INDEX 漏登（陈旧漂移，2026-11-07 顺带清偿）
 
 ## 待执行的 spec → plan 映射

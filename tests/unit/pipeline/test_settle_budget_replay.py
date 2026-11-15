@@ -13,8 +13,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 FIXTURES = Path(__file__).resolve().parents[3] / "tests/fixtures/spec95/00189-reads"
 MANIFEST = FIXTURES / "manifest.json"
 
@@ -26,14 +24,12 @@ def _manifest() -> dict[str, Any]:
     return json.loads(MANIFEST.read_text(encoding="utf-8"))
 
 
-@pytest.mark.unit
 def test_fixture_manifest_present() -> None:
     m = _manifest()
     assert m["src_dispatch"].endswith("00189-shenbi-state-settling-ch041-a1.json")
     assert len(m["reads"]) == 15  # type: ignore[arg-type]
 
 
-@pytest.mark.unit
 def test_frozen_blobs_hash_pinned() -> None:
     """G0.11: fixture payloads byte-match the recorded sha256 (header excluded)."""
     m = _manifest()
@@ -47,7 +43,6 @@ def test_frozen_blobs_hash_pinned() -> None:
     assert hashlib.sha256(payload).hexdigest() == up["sha256_payload"]
 
 
-@pytest.mark.unit
 def test_baseline_assembly_numbers_recorded() -> None:
     """r1.2/r1.4 anchor numbers, re-recorded at freeze time (Step 2 authority).
 

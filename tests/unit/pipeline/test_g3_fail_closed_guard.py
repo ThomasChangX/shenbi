@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
-
 from shenbi.pipeline.dispatch_helper import run_gate_g3
 
 
-@pytest.mark.unit
 def test_g3_fail_closed_no_progress_fabrication(tmp_path):
     rd = tmp_path / "round"
     rd.mkdir()

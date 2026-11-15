@@ -18,8 +18,6 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-import pytest
-
 DOC = Path("docs/framework/invariants.md")
 COLUMNS = ("维度", "载体", "声明", "门检", "审计", "期相", "mutant 义务")
 FOUR_SLOTS = ("载体", "声明", "门检", "审计")
@@ -44,7 +42,6 @@ def _parse_census() -> tuple[list[str], list[dict[str, str]]]:
     return header, rows
 
 
-@pytest.mark.unit
 def test_census_doc_exists_with_exact_header() -> None:
     assert DOC.exists(), "docs/framework/invariants.md missing"
     header, _rows = _parse_census()
@@ -53,20 +50,17 @@ def test_census_doc_exists_with_exact_header() -> None:
         assert col in header, f"column {col!r} missing: {header}"
 
 
-@pytest.mark.unit
 def test_census_has_thirteen_dimension_rows() -> None:
     _header, rows = _parse_census()
     assert len(rows) == 13, f"expected 13 dims, got {len(rows)}"
 
 
-@pytest.mark.unit
 def test_phase_column_wellformed() -> None:
     _header, rows = _parse_census()
     for row in rows:
         assert row["期相"] in {"P1", "P2", "P3"}, f"bad 期相 in {row['维度']}: {row['期相']!r}"
 
 
-@pytest.mark.unit
 def test_p1_rows_have_all_four_slots_filled() -> None:
     _header, rows = _parse_census()
     for row in rows:
@@ -79,7 +73,6 @@ def test_p1_rows_have_all_four_slots_filled() -> None:
             )
 
 
-@pytest.mark.unit
 def test_mutant_obligation_only_f15_family_dims() -> None:
     """R3-I1 predicate: obligation hangs only on F15+-family / facts-backed
     dims — the P1 facts trio plus 能力活性 (F18 introduces its check id at P2).
@@ -96,7 +89,6 @@ def test_mutant_obligation_only_f15_family_dims() -> None:
     }, obligated
 
 
-@pytest.mark.unit
 def test_literal_sets_are_referenced_not_defined() -> None:
     """R3-I3: the census must point at status-vocab for literal value sets.
     Full-set restatements (audit-T10 I-1) drift silently when a StrEnum gains

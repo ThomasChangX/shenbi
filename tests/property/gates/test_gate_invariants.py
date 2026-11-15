@@ -28,7 +28,6 @@ from shenbi.gates.shared import (
 )
 
 
-@pytest.mark.unit
 @pytest.mark.property
 @given(st.text(alphabet=string.ascii_letters + " \n。！？，、", min_size=0, max_size=2000))
 @settings(max_examples=200, deadline=None)
@@ -43,7 +42,6 @@ def test_word_count_md_always_non_negative(content: str) -> None:
         Path(path).unlink(missing_ok=True)
 
 
-@pytest.mark.unit
 @pytest.mark.property
 @given(st.lists(st.text(min_size=0, max_size=100), max_size=20))
 @settings(max_examples=100, deadline=None)
@@ -53,7 +51,6 @@ def test_normalize_file_paths_returns_list(input_list: list[str]) -> None:
     assert isinstance(result, list)
 
 
-@pytest.mark.unit
 @pytest.mark.property
 @given(st.text())
 @settings(max_examples=100, deadline=None)
@@ -62,7 +59,6 @@ def test_count_transition_words_returns_non_negative(content: str) -> None:
     assert count_transition_words(content) >= 0
 
 
-@pytest.mark.unit
 @pytest.mark.property
 @given(
     st.dictionaries(
@@ -83,7 +79,6 @@ def test_jload_round_trips_dict(data: dict[str, int]) -> None:
         Path(path).unlink(missing_ok=True)
 
 
-@pytest.mark.unit
 @pytest.mark.property
 def test_gate_g0_returns_valid_json_for_empty_seed() -> None:
     """GATE G0 always returns parseable JSON even with no input."""

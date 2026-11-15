@@ -11,8 +11,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.style_polishing import g4_style_polishing
 
 
@@ -20,7 +18,6 @@ def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     return json.loads(g4_style_polishing(fps, rd))
 
 
-@pytest.mark.unit
 def test_reportless_merged_chapter_without_bak_passes(tmp_path: Path) -> None:
     """merge_prose 合并章（润色说明移出章文件）+ 无 .bak 基线 → PASS。
 
@@ -33,7 +30,6 @@ def test_reportless_merged_chapter_without_bak_passes(tmp_path: Path) -> None:
     assert result["status"] == "PASS", result["must_fix"]
 
 
-@pytest.mark.unit
 def test_fails_when_word_ratio_out_of_range(tmp_path: Path) -> None:
     """.bak file with much less CJK content -> ratio > 1.15 -> FAIL G4.sp.word_ratio."""
     f = tmp_path / "ch.md"
@@ -46,7 +42,6 @@ def test_fails_when_word_ratio_out_of_range(tmp_path: Path) -> None:
     assert any("G4.sp.word_ratio" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_when_word_ratio_in_range(tmp_path: Path) -> None:
     """.bak present with similar CJK content -> ratio in [0.85, 1.15] -> PASS."""
     body = "这是中文测试。\n" * 5
@@ -58,7 +53,6 @@ def test_passes_when_word_ratio_in_range(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.sp.word_ratio" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_fails_when_file_not_found(tmp_path: Path) -> None:
     """Missing file -> FAIL G4.sp.not_found."""
     result = _run([str(tmp_path / "nonexistent.md")])
@@ -66,7 +60,6 @@ def test_fails_when_file_not_found(tmp_path: Path) -> None:
     assert any("G4.sp.not_found" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_skips_on_empty_fps(tmp_path: Path) -> None:
     """Empty fps list -> SKIP."""
     result = _run([])

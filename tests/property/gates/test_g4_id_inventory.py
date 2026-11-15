@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -34,14 +33,12 @@ def test_any_id_extractable_roundtrip(cid):
     assert check_id(f"G4.{cid}:f:d") == cid or check_id(f"G4.{cid}:f:d").startswith(cid)
 
 
-@pytest.mark.unit
 def test_only_two_active_keys():
     from shenbi.pipeline.chapter_loop import G4_CHECK_MAP
 
     assert set(G4_CHECK_MAP) == {"transition", "fatigue"}
 
 
-@pytest.mark.unit
 def test_exact_match_not_substring():
     from shenbi.pipeline.chapter_loop import _classify_g4_failures
 
@@ -49,7 +46,6 @@ def test_exact_match_not_substring():
     assert len(hard) == 1 and not soft  # 有意修正：旧子串误判 SOFT
 
 
-@pytest.mark.unit
 def test_dot_boundary_prefix():
     from shenbi.pipeline.chapter_loop import _classify_g4_failures
 
@@ -57,7 +53,6 @@ def test_dot_boundary_prefix():
     assert len(soft) == 1  # 真前缀族仍 SOFT
 
 
-@pytest.mark.unit
 def test_unknown_defaults_hard():
     from shenbi.pipeline.chapter_loop import _classify_g4_failures
 
