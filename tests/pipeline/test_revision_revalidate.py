@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from shenbi.pipeline.chapter_loop import _revalidate_revised_chapter
 
 CW = json.dumps({"chapter_word": {"default": 3200, "min": 2800, "max": 4000}})
@@ -42,7 +40,6 @@ def _mk(
     return ch
 
 
-@pytest.mark.unit
 def test_clean_revision_passes(tmp_path: Path) -> None:
     ch = _mk(tmp_path, [(1900, HOOK1), (1900, HOOK2)], plan_hooks=[HOOK1, HOOK2])
     backup = tmp_path / "chapters" / "chapter-1-pre-rev.md"
@@ -50,7 +47,6 @@ def test_clean_revision_passes(tmp_path: Path) -> None:
     assert _revalidate_revised_chapter(tmp_path, 1) == []
 
 
-@pytest.mark.unit
 def test_marker_deleted_fails(tmp_path: Path) -> None:
     ch = _mk(tmp_path, [(1900, HOOK1), (1900, HOOK2)])
     backup = tmp_path / "chapters" / "chapter-1-pre-rev.md"
@@ -62,7 +58,6 @@ def test_marker_deleted_fails(tmp_path: Path) -> None:
     assert any("标记数变化" in i for i in issues)
 
 
-@pytest.mark.unit
 def test_hook_line_rewritten_fails(tmp_path: Path) -> None:
     ch = _mk(tmp_path, [(1900, HOOK1), (1900, HOOK2)], plan_hooks=[HOOK1, HOOK2])
     backup = tmp_path / "chapters" / "chapter-1-pre-rev.md"
@@ -73,7 +68,6 @@ def test_hook_line_rewritten_fails(tmp_path: Path) -> None:
     assert any("钩被改写" in i for i in issues)
 
 
-@pytest.mark.unit
 def test_band_drift_fails(tmp_path: Path) -> None:
     ch = _mk(tmp_path, [(1900, HOOK1), (1900, HOOK2)])
     backup = tmp_path / "chapters" / "chapter-1-pre-rev.md"
@@ -85,7 +79,6 @@ def test_band_drift_fails(tmp_path: Path) -> None:
     assert any("字数带漂移" in i for i in issues)
 
 
-@pytest.mark.unit
 def test_g6_excludes_pre_rev_backups(tmp_path: Path) -> None:
     """R4-I6 via the REAL gate: backups must not inflate G6.1 nor duplicate
     ids in G6.2 (tautology-free -- reverting the filter in g6.py turns red).
@@ -110,7 +103,6 @@ def test_g6_excludes_pre_rev_backups(tmp_path: Path) -> None:
     assert not any(m.startswith("G6.2:") for m in mfs)
 
 
-@pytest.mark.unit
 def test_scene_body_swap_fails_hook_order(tmp_path: Path) -> None:
     """Scene-body swap (observable marker-reorder variant): hook-order
     mismatch must be caught by revalidation.

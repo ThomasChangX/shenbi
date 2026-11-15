@@ -22,8 +22,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g0_purity import (
     check_scenario_dir_purity,
     check_scenario_file_purity,
@@ -40,7 +38,6 @@ def _build_t1_skill_dir(tmp_path: Path, skill_name: str, scenario_body: str) -> 
     return t1_root
 
 
-@pytest.mark.unit
 def test_check_scenario_file_purity_passes_when_all_refs_use_tests_fixtures(
     tmp_path: Path,
 ) -> None:
@@ -56,7 +53,6 @@ def test_check_scenario_file_purity_passes_when_all_refs_use_tests_fixtures(
     assert all(c["s"] == "PASS" for c in checks)
 
 
-@pytest.mark.unit
 def test_check_scenario_file_purity_fails_on_project_relative_refs(
     tmp_path: Path,
 ) -> None:
@@ -72,7 +68,6 @@ def test_check_scenario_file_purity_fails_on_project_relative_refs(
     assert must_fix  # non-empty must_fix list
 
 
-@pytest.mark.unit
 def test_check_scenario_dir_purity_passes_when_no_dirs_referenced(
     tmp_path: Path,
 ) -> None:
@@ -87,7 +82,6 @@ def test_check_scenario_dir_purity_passes_when_no_dirs_referenced(
     assert any(c["s"] == "PASS" for c in result)
 
 
-@pytest.mark.unit
 def test_check_skill_md_purity_passes_when_no_fixture_leak(
     tmp_path: Path,
 ) -> None:
@@ -104,7 +98,6 @@ def test_check_skill_md_purity_passes_when_no_fixture_leak(
     assert must_fix == []
 
 
-@pytest.mark.unit
 def test_check_skill_md_purity_fails_when_skill_md_leaks_fixture_path(
     tmp_path: Path,
 ) -> None:
@@ -134,7 +127,6 @@ def test_check_skill_md_purity_fails_when_skill_md_leaks_fixture_path(
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_scenario_file_placeholder_non_fixture_path_fails(tmp_path: Path) -> None:
     """A scenario referencing a placeholder file path that is not under
     tests/fixtures/ or skills/ -> check_scenario_file_purity FAILs.
@@ -150,7 +142,6 @@ def test_scenario_file_placeholder_non_fixture_path_fails(tmp_path: Path) -> Non
     assert must_fix  # non-empty
 
 
-@pytest.mark.unit
 def test_scenario_dir_non_fixture_directory_warns(tmp_path: Path) -> None:
     """A scenario referencing a directory path not under tests/fixtures/ or
     skills/ -> check_scenario_dir_purity emits a WARN (not blocking).
@@ -165,7 +156,6 @@ def test_scenario_dir_non_fixture_directory_warns(tmp_path: Path) -> None:
     assert any(c["s"] == "WARN" for c in result)
 
 
-@pytest.mark.unit
 def test_missing_scenario_file_returns_pass(tmp_path: Path) -> None:
     """When the t1 skill dir exists but has no scenario.md, there is nothing
     impure to flag -> file purity returns PASS (no scenario to scan).
@@ -181,7 +171,6 @@ def test_missing_scenario_file_returns_pass(tmp_path: Path) -> None:
     assert all(c["s"] == "PASS" for c in checks)
 
 
-@pytest.mark.unit
 def test_skill_md_meta_narrative_not_flagged_pins_behavior(tmp_path: Path) -> None:
     """SKILL.md stray meta-narrative is NOT flagged by check_skill_md_purity.
 
@@ -203,7 +192,6 @@ def test_skill_md_meta_narrative_not_flagged_pins_behavior(tmp_path: Path) -> No
     assert must_fix == []
 
 
-@pytest.mark.unit
 def test_skill_md_broken_frontmatter_not_flagged_pins_behavior(tmp_path: Path) -> None:
     """SKILL.md with broken/malformed frontmatter is NOT flagged here.
 

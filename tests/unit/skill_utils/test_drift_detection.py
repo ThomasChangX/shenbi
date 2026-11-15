@@ -16,54 +16,45 @@ from shenbi.skill_utils.drift_detection.compute_drift import (
 )
 
 
-@pytest.mark.unit
 def test_smooth_3_point_window() -> None:
     assert smooth([10.0, 10.0, 7.0, 7.0, 7.0]) == [10.0, 9.0, 8.0, 7.0, 7.0]
 
 
-@pytest.mark.unit
 def test_smooth_boundary_2_point() -> None:
     # first/last use 2-point (self + sole neighbor)
     assert smooth([10.0, 12.0]) == [11.0, 11.0]
 
 
-@pytest.mark.unit
 def test_smooth_empty() -> None:
     assert smooth([]) == []
 
 
-@pytest.mark.unit
 def test_smooth_single_element() -> None:
     assert smooth([5.0]) == [5.0]
 
 
-@pytest.mark.unit
 def test_chapter_drift_monotonic_decline_triggers() -> None:
     scores = [24.0, 23.0, 21.0, 18.0]  # smoothed: ~24, 22.67, 20.67, 18.0 — monotonic decline >=3
     f = detect_chapter_drift(scores, dim="情感落地", min_samples_sigma=6)
     assert any(f.kind == "monotonic_decline" for f in f)
 
 
-@pytest.mark.unit
 def test_chapter_drift_sigma_requires_min_samples() -> None:
     scores = [24.0, 10.0]  # only 2 samples — sigma trigger must NOT fire
     f = detect_chapter_drift(scores, dim="情感落地", min_samples_sigma=6)
     assert all(f.kind != "below_mean_2sigma" for f in f)
 
 
-@pytest.mark.unit
 def test_chapter_drift_stable_series_no_trigger() -> None:
     scores = [22.0] * 8
     assert detect_chapter_drift(scores, dim="情感落地", min_samples_sigma=6) == []
 
 
-@pytest.mark.unit
 def test_volume_drift_two_volume_decline_triggers() -> None:
     assert len(detect_volume_drift([82.0, 74.0])) == 1  # consecutive 2-volume decline
     assert detect_volume_drift([74.0, 82.0]) == []
 
 
-@pytest.mark.unit
 def test_chapter_drift_human_overridden_excluded() -> None:
     # spec §8.3: human_overridden chapters excluded from trigger stats.
     # Chapter index 2 overridden -> must break the decline run (no false trigger),
@@ -79,7 +70,6 @@ def test_chapter_drift_human_overridden_excluded() -> None:
 # --- parser tests (trend file format contract) ---
 
 
-@pytest.mark.unit
 def test_parse_resonance_trend_excludes_overridden(tmp_path) -> None:
     """human_overridden=true rows are flagged excluded from trigger stats."""
     trend = tmp_path / "resonance_trend.md"
@@ -100,7 +90,6 @@ def test_parse_resonance_trend_excludes_overridden(tmp_path) -> None:
     assert parsed["情感落地"][2] == (12.0, True)  # excluded=True
 
 
-@pytest.mark.unit
 def test_parse_skips_pending_rows(tmp_path) -> None:
     """Rows with non-numeric scores (e.g. overall=pending) are skipped entirely —
     not coerced, not counted toward sample N.
@@ -125,7 +114,6 @@ def test_parse_skips_pending_rows(tmp_path) -> None:
 # --- CLI tests (main entry point + --write-audit-drift) ---
 
 
-@pytest.mark.unit
 def test_main_cli_no_findings_exits_zero(tmp_path, capsys, monkeypatch) -> None:
     """Stable series -> no findings, exit code 0."""
     trend = tmp_path / "resonance_trend.md"
@@ -166,7 +154,6 @@ def test_main_cli_no_findings_exits_zero(tmp_path, capsys, monkeypatch) -> None:
     assert capsys.readouterr().out == ""
 
 
-@pytest.mark.unit
 def test_main_cli_findings_exit_nonzero_and_audit(tmp_path, capsys, monkeypatch) -> None:
     """Declining series -> findings printed, exit code 1, audit file appended."""
     trend = tmp_path / "resonance_trend.md"
@@ -215,7 +202,6 @@ def test_main_cli_findings_exit_nonzero_and_audit(tmp_path, capsys, monkeypatch)
     assert DriftFinding is not None  # exercise the import
 
 
-@pytest.mark.unit
 def test_chapter_drift_below_mean_2sigma_triggers() -> None:
     # 10 tight highs (20) + sustained deep dip (0): smoothed tail [0.0, 0.0]
     # falls below mean-2sigma (0.24), >= 2 consecutive -> sigma trigger fires.

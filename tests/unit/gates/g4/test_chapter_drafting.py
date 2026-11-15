@@ -31,7 +31,6 @@ _FP_PARA_A = "他沿着小路慢慢走着看着远方心中想着未来的种种
 _FP_PARA_B = "她站在窗前静静望着天空回想着过去发生的种种事情感到十分无奈。" * 2
 
 
-@pytest.mark.unit
 def test_fails_when_content_overlap_above_40_percent(tmp_path: Path) -> None:
     """Two near-identical chapters (>40% shared paragraphs) -> FAIL.
 
@@ -54,7 +53,6 @@ def test_fails_when_content_overlap_above_40_percent(tmp_path: Path) -> None:
     assert any("G4.cd.content_overlap" in m for m in mf)
 
 
-@pytest.mark.unit
 def test_fails_when_no_visual_scene(tmp_path: Path) -> None:
     """No paragraph with >=200 CJK chars of visual narrative -> FAIL."""
     ch = tmp_path / "chapter-001.md"
@@ -67,7 +65,6 @@ def test_fails_when_no_visual_scene(tmp_path: Path) -> None:
     assert any("G4.cd.no_visual_scene" in m for m in mf)
 
 
-@pytest.mark.unit
 def test_fails_when_no_chapter_end_hook(tmp_path: Path) -> None:
     """Last paragraph (>=30 CJK) with no question/tension marker -> FAIL."""
     ch = tmp_path / "chapter-001.md"
@@ -81,7 +78,6 @@ def test_fails_when_no_chapter_end_hook(tmp_path: Path) -> None:
     assert any("G4.cd.no_hook" in m for m in mf)
 
 
-@pytest.mark.unit
 def test_fails_when_pre_write_check_missing(tmp_path: Path) -> None:
     """Missing ## PRE_WRITE_CHECK block -> must_fix.
 
@@ -98,7 +94,6 @@ def test_fails_when_pre_write_check_missing(tmp_path: Path) -> None:
     assert any("G4.pre_check" in m for m in mf)
 
 
-@pytest.mark.unit
 def test_fails_when_post_write_check_missing(tmp_path: Path) -> None:
     """PRE_WRITE_CHECK present but POST_WRITE_SELF_CHECK absent -> must_fix.
 
@@ -114,7 +109,6 @@ def test_fails_when_post_write_check_missing(tmp_path: Path) -> None:
     assert any("G4.post_check" in m for m in mf)
 
 
-@pytest.mark.unit
 def test_fails_when_transition_density_too_high(tmp_path: Path) -> None:
     """Transition-word count exceeds the 1-per-3000-words budget -> FAIL."""
     ch = tmp_path / "chapter-001.md"
@@ -127,7 +121,6 @@ def test_fails_when_transition_density_too_high(tmp_path: Path) -> None:
     assert any("G4.transition" in m for m in mf)
 
 
-@pytest.mark.unit
 def test_fails_when_fatigue_words_exceeded(tmp_path: Path) -> None:
     """More than 8 fatigue-word hits -> FAIL (threshold relaxed from 3).
 
@@ -261,7 +254,6 @@ def test_hook_ids_inside_ledger_section_enforced(tmp_path) -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_visual_scene_window_two_short_paragraphs_pass(tmp_path: Path) -> None:
     """Two consecutive short visual paragraphs (99 + 40 CJK) satisfy the
     windowed measure — the exact canary shape (99-CJK rift description
@@ -277,7 +269,6 @@ def test_visual_scene_window_two_short_paragraphs_pass(tmp_path: Path) -> None:
     assert result["status"] != "FAIL" or not any("no_visual_scene" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_visual_scene_pure_introspection_still_fails(tmp_path: Path) -> None:
     """Long introspective paragraphs without visual verbs or dialogue still
     fail — the window does not hollow out the check.
@@ -300,7 +291,6 @@ def test_visual_scene_pure_introspection_still_fails(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_transition_words_in_meta_sections_not_counted(tmp_path: Path) -> None:
     """PRE/POST check blocks enumerate transition words themselves — counting
     raw content made the gate count its own checklist (probe ch1: 8 raw,
@@ -321,7 +311,6 @@ def test_transition_words_in_meta_sections_not_counted(tmp_path: Path) -> None:
     assert not any("G4.transition" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_word_floor_passes_on_total_chars_when_cjk_short(tmp_path: Path) -> None:
     """A plan-compliant chapter (~2860 CJK + punctuation ≈ 3400 total) must
     pass the 3000 floor on the total 口径 — CJK-only demanded ≈3565 total and
@@ -337,7 +326,6 @@ def test_word_floor_passes_on_total_chars_when_cjk_short(tmp_path: Path) -> None
     assert not any("G4.word_count" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_word_floor_still_fails_genuinely_short_chapter(tmp_path: Path) -> None:
     """The total 口径 must not hollow out the floor: a chapter far below 3000
     total chars still fails.
@@ -350,7 +338,6 @@ def test_word_floor_still_fails_genuinely_short_chapter(tmp_path: Path) -> None:
     assert any("G4.word_count" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_end_hook_window_catches_tension_in_closing_beat(tmp_path: Path) -> None:
     """Stylistic web-novel closure: tension lands a few paragraphs before the
     final image paragraph (probe ch1: explicit 不知 at -5, clean image at -1).
@@ -368,7 +355,6 @@ def test_end_hook_window_catches_tension_in_closing_beat(tmp_path: Path) -> None
     assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_end_hook_window_still_fails_flat_ending(tmp_path: Path) -> None:
     """Non-vacuous control: five closing paragraphs with no question or
     tension marker in any of them still fail the windowed hook check.
@@ -391,7 +377,6 @@ def test_end_hook_window_still_fails_flat_ending(tmp_path: Path) -> None:
     assert any("G4.cd.no_hook" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_end_hook_micro_paragraph_keyword_below_threshold_counts(tmp_path: Path) -> None:
     """probe13 regression (2026-10-02): micro-paragraph closures put the
     tension beats below the old per-paragraph >=30 CJK floor — the keyword
@@ -422,7 +407,6 @@ def test_end_hook_micro_paragraph_keyword_below_threshold_counts(tmp_path: Path)
     assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_end_hook_probe13_real_draft_passes_hook_check(tmp_path: Path) -> None:
     """The real probe13 ch1 draft (tests/fixtures/chapter-1-probe13-draft.md,
     real skill output per G0.9) carries its tension in 24-29 CJK closers —
@@ -438,7 +422,6 @@ def test_end_hook_probe13_real_draft_passes_hook_check(tmp_path: Path) -> None:
     assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_no_hook_failure_carries_window_diagnostics(tmp_path: Path) -> None:
     """A genuine no_hook miss must carry window diagnostics in the failure
     string (merged char count + excerpt) — probe13's retry feedback showed
@@ -466,7 +449,6 @@ def test_no_hook_failure_carries_window_diagnostics(tmp_path: Path) -> None:
     assert "「" in no_hook  # window excerpt marker
 
 
-@pytest.mark.unit
 def test_word_floor_reads_genre_config_chapter_word_default(tmp_path: Path) -> None:
     """Probe escalation #9: the floor must come from genre-config
     chapter_word.default — the same number G0.3/G6 use for chapter-count
@@ -484,7 +466,6 @@ def test_word_floor_reads_genre_config_chapter_word_default(tmp_path: Path) -> N
     assert not any("G4.word_count" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_word_floor_config_value_is_enforced(tmp_path: Path) -> None:
     """The config floor is a real floor: a chapter below the configured
     default still fails (non-vacuous control for the config read).
@@ -500,7 +481,6 @@ def test_word_floor_config_value_is_enforced(tmp_path: Path) -> None:
     assert any("G4.word_count" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_visual_scene_micro_paragraph_style_passes(tmp_path: Path) -> None:
     """Probe escalation #37: extreme micro-paragraph prose (~13 CJK/para)
     never reaches 100 CJK inside a 3-paragraph window — the visual-scene
@@ -517,7 +497,6 @@ def test_visual_scene_micro_paragraph_style_passes(tmp_path: Path) -> None:
     assert not any("no_visual_scene" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_end_hook_concealment_tension_counts(tmp_path: Path) -> None:
     """Probe escalation #38: concealment closures ("他没说……") are unresolved
     tension — the regex family lacked the 没说/瞒/藏 markers and the stylistic
@@ -537,7 +516,6 @@ def test_end_hook_concealment_tension_counts(tmp_path: Path) -> None:
     assert not any("G4.cd.no_hook" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_hook_ledger_markup_not_prose(tmp_path: Path) -> None:
     """Probe escalation #39: <!--HOOK-BEGIN--> ledger blocks are machine
     markup — left in the prose paragraph list, the markup line became the
@@ -586,7 +564,6 @@ def _warn_status(result: dict[str, Any], check_id: str) -> str | None:
     return None
 
 
-@pytest.mark.unit
 def test_cd_surge_warn_when_below_quota(tmp_path: Path) -> None:
     """0 narrative sentences >=35 chars with quota 1 -> WARN, never must_fix."""
     result = _run([str(_prose_chapter(tmp_path, "短句。又短。再短。" * 3))])
@@ -596,14 +573,12 @@ def test_cd_surge_warn_when_below_quota(tmp_path: Path) -> None:
     assert not any("G4.cd.surge" in m for m in _must_fix(result))
 
 
-@pytest.mark.unit
 def test_cd_surge_pass_when_quota_met(tmp_path: Path) -> None:
     assert len(_SURGE.replace(" ", "")) >= 35
     result = _run([str(_prose_chapter(tmp_path, _SURGE + "短句。" * 10))])
     assert _warn_status(result, "G4.cd.surge") == "PASS"
 
 
-@pytest.mark.unit
 def test_cd_surge_dialogue_sentences_excluded(tmp_path: Path) -> None:
     """Quoted sentences (dialogue ratio >=0.5) never count as narrative surge."""
     quoted = "「" + "长" * 40 + "。」"
@@ -611,7 +586,6 @@ def test_cd_surge_dialogue_sentences_excluded(tmp_path: Path) -> None:
     assert _warn_status(result, "G4.cd.surge") == "WARN"
 
 
-@pytest.mark.unit
 def test_cd_surge_quota_two_boundary(tmp_path: Path) -> None:
     """Spec §6.1 anchor: >=6000-char chapter has quota 2 — 2 pass / 1 warn."""
     filler = "夜色沉下去，他数着更漏，一更一更地挨。" * 320  # 19*320 = 6080 non-ws
@@ -622,7 +596,6 @@ def test_cd_surge_quota_two_boundary(tmp_path: Path) -> None:
     assert _warn_status(one, "G4.cd.surge") == "WARN"
 
 
-@pytest.mark.unit
 def test_cd_simile_band_three_states_and_edges(tmp_path: Path) -> None:
     from shenbi.gates.shared import count_similes
 
@@ -656,7 +629,6 @@ def test_cd_simile_band_three_states_and_edges(tmp_path: Path) -> None:
     assert _warn_status(_run([str(_prose_chapter(tmp_path, piled))]), "G4.cd.simile_band") == "WARN"
 
 
-@pytest.mark.unit
 def test_cd_golden_slot_full_states(tmp_path: Path) -> None:
     # complete PRE/POST -> PASS
     assert (
@@ -693,7 +665,6 @@ def test_cd_golden_slot_full_states(tmp_path: Path) -> None:
     )
 
 
-@pytest.mark.unit
 def test_cd_golden_slot_bare_h2_forms(tmp_path: Path) -> None:
     """Bare-H2 form (no META wrappers, real-fixture form) is equally checked."""
     fp = tmp_path / "chapter-912.md"
@@ -723,7 +694,6 @@ def test_chapter_drafting_skill_states_manual_override_rationale_combo():
 # --- spec #85 T5 (audit I2): fulfillment symmetric-swap phases ---
 
 
-@pytest.mark.unit
 def test_c_layer_fulfillment_unhyphenated_now_visible(tmp_path) -> None:
     """S2b: plan declares MH01 (un-hyphenated), chapter cites MH-01 →
     legacy regex was blind on the plan side (false PASS); the symmetric
@@ -740,7 +710,6 @@ def test_c_layer_fulfillment_unhyphenated_now_visible(tmp_path) -> None:
     assert not issues  # MH-01 ≡ MH01 经 canon 双侧一致
 
 
-@pytest.mark.unit
 def test_c_layer_fulfillment_kr_token_leaves_domain(tmp_path) -> None:
     r"""S3: KR-1 (volume anchor token) leaves the fulfillment domain —
     it was a legacy `[A-Z]{2,4}-\d+` false member.
@@ -756,7 +725,6 @@ def test_c_layer_fulfillment_kr_token_leaves_domain(tmp_path) -> None:
     assert not any("KR-1" in i or "KR1" in i for i in issues)
 
 
-@pytest.mark.unit
 def test_no_report_private_usage_suppressions() -> None:
     """Spec #89 T5 AC8: no pyright reportPrivateUsage suppressions remain."""
     src = Path(cd.__file__).read_text(encoding="utf-8")

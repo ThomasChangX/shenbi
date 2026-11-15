@@ -13,8 +13,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 from tools.plan_craft_backfill import RETENTION_WINDOW, backfill_text
 
@@ -43,7 +41,6 @@ def _run_gate(fp: Path) -> dict[str, Any]:
     return json.loads(g4_chapter_planning([str(fp)]))
 
 
-@pytest.mark.unit
 def test_legacy_plan_fails_gate_then_backfill_makes_it_pass(tmp_path: Path) -> None:
     """The breaking-change loop: legacy plan → 3 new must_fix → backfill → PASS."""
     plans = tmp_path / "plans"
@@ -82,7 +79,6 @@ def test_legacy_plan_fails_gate_then_backfill_makes_it_pass(tmp_path: Path) -> N
     assert after["status"] == "PASS", after.get("must_fix")
 
 
-@pytest.mark.unit
 def test_dry_run_is_default_and_writes_nothing(tmp_path: Path) -> None:
     content = _legacy_plan()
     new_content, actions = backfill_text(content, n=5)
@@ -111,7 +107,6 @@ def test_dry_run_is_default_and_writes_nothing(tmp_path: Path) -> None:
     assert fp.read_text(encoding="utf-8") == content
 
 
-@pytest.mark.unit
 def test_idempotent_second_run_is_noop(tmp_path: Path) -> None:
     content = _legacy_plan()
     once, actions1 = backfill_text(content, n=5)
@@ -121,7 +116,6 @@ def test_idempotent_second_run_is_noop(tmp_path: Path) -> None:
     assert twice == once
 
 
-@pytest.mark.unit
 def test_chapter_31_gets_no_retention_anchor(tmp_path: Path) -> None:
     content = _legacy_plan(chapter=31)
     new_content, actions = backfill_text(content, n=31)
@@ -130,14 +124,12 @@ def test_chapter_31_gets_no_retention_anchor(tmp_path: Path) -> None:
     assert "留存锚" not in new_content
 
 
-@pytest.mark.unit
 def test_window_boundary_matches_gate(tmp_path: Path) -> None:
     """N=30 is inclusive (same boundary as G4.cp)."""
     _, actions = backfill_text(_legacy_plan(), n=RETENTION_WINDOW)
     assert any("留存锚" in a for a in actions)
 
 
-@pytest.mark.unit
 def test_nonstandard_memo_without_sections_is_skipped() -> None:
     _, actions = backfill_text("# just a title\nno sections\n", n=5)
     assert actions and actions[0].startswith("SKIP")

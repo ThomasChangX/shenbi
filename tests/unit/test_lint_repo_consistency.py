@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from tools.lint_repo_consistency import (
     find_banned_synonyms,
     find_body_contract_blocks,
@@ -12,13 +10,11 @@ from tools.lint_repo_consistency import (
 )
 
 
-@pytest.mark.unit
 def test_body_reads_block_in_skills_is_flagged() -> None:
     md = "# X\n\n## 数据契约\n\n- **Reads:** `a.md`\n"
     assert find_body_contract_blocks([("skills/x/SKILL.md", md)]) == ["skills/x/SKILL.md"]
 
 
-@pytest.mark.unit
 def test_auto_generated_body_block_is_exempt() -> None:
     md = (
         "<!-- AUTO-GENERATED from frontmatter — do not edit -->\n\n## 数据契约\n\n"
@@ -28,7 +24,6 @@ def test_auto_generated_body_block_is_exempt() -> None:
     assert find_body_contract_blocks([("skills/x/SKILL.md", md)]) == []
 
 
-@pytest.mark.unit
 def test_handwritten_block_alongside_auto_gen_is_flagged() -> None:
     """A second, hand-written contract block must not hide behind the banner."""
     md = (
@@ -39,13 +34,11 @@ def test_handwritten_block_alongside_auto_gen_is_flagged() -> None:
     assert find_body_contract_blocks([("skills/x/SKILL.md", md)]) == ["skills/x/SKILL.md"]
 
 
-@pytest.mark.unit
 def test_hook_pool_synonym_flagged() -> None:
     md = "use the hook pool to ...\n"
     assert "hook pool" in find_banned_synonyms([("skills/x/SKILL.md", md)])[0][1]
 
 
-@pytest.mark.unit
 def test_banned_output_header_flagged() -> None:
     md = "# X\n\n## 输出契约\n\nbody\n"
     assert ("skills/x/SKILL.md", "输出契约") in find_section_header_deviants(
@@ -53,14 +46,12 @@ def test_banned_output_header_flagged() -> None:
     )
 
 
-@pytest.mark.unit
 def test_legitimate_non_canonical_header_not_flagged() -> None:
     """Skills legitimately have many section titles; only banned ones are drift."""
     md = "# X\n\n## 检查执行\n\n## 缺陷证据格式\n"
     assert find_section_header_deviants([("skills/x/SKILL.md", md)]) == []
 
 
-@pytest.mark.unit
 def test_loader_uniqueness_flags_contract_key_outside_contract_py() -> None:
     py = 'd = yload(p); c = d["contract"]\n'
     assert (
@@ -71,7 +62,6 @@ def test_loader_uniqueness_flags_contract_key_outside_contract_py() -> None:
     )
 
 
-@pytest.mark.unit
 def test_dead_decisions_sidecar_clean_tree() -> None:
     """On the real repo (after T4), 0 dead decisions sidecars remain.
 
@@ -83,7 +73,6 @@ def test_dead_decisions_sidecar_clean_tree() -> None:
     assert dead == [], f"expected 0 dead decisions sidecars after T4, got {dead}"
 
 
-@pytest.mark.unit
 def test_dead_decisions_sidecar_flags_synthetic_dead() -> None:
     """Positive control: a decisions.json write with no consumer IS flagged.
 
@@ -107,7 +96,6 @@ def test_dead_decisions_sidecar_flags_synthetic_dead() -> None:
     )
 
 
-@pytest.mark.unit
 def test_dead_decisions_sidecar_spares_g4_validated() -> None:
     """A decisions.json write consumed by G4 is NOT flagged (Task 4 disposition)."""
     from tools.lint_repo_consistency import _is_dead_decisions_sidecar
@@ -127,7 +115,6 @@ def test_dead_decisions_sidecar_spares_g4_validated() -> None:
 class TestSkillDepsClosure:
     """Spec #9 R1: skills/ dir <-> deps.json closure (both directions)."""
 
-    @pytest.mark.unit
     def test_all_registered_passes(self, tmp_path):
         from tools.lint_repo_consistency import check_skill_deps_closure
 
@@ -139,7 +126,6 @@ class TestSkillDepsClosure:
         )
         assert check_skill_deps_closure(tmp_path) == []
 
-    @pytest.mark.unit
     def test_missing_registration_fails(self, tmp_path):
         from tools.lint_repo_consistency import check_skill_deps_closure
 
@@ -151,7 +137,6 @@ class TestSkillDepsClosure:
         assert len(errs) == 1
         assert "shenbi-beta" in errs[0]
 
-    @pytest.mark.unit
     def test_deps_name_without_dir_fails(self, tmp_path):
         from tools.lint_repo_consistency import check_skill_deps_closure
 
@@ -163,13 +148,11 @@ class TestSkillDepsClosure:
         errs = check_skill_deps_closure(tmp_path)
         assert any("shenbi-ghost" in e for e in errs)
 
-    @pytest.mark.unit
     def test_missing_deps_json_reported(self, tmp_path):
         from tools.lint_repo_consistency import check_skill_deps_closure
 
         assert "not found" in check_skill_deps_closure(tmp_path)[0]
 
-    @pytest.mark.unit
     def test_deps_closure_deprecated_exempt_and_forbidden(self, tmp_path):
         """Spec #59 T1: DEPRECATED dirs need no registration; registration is forbidden."""
         from tools.lint_repo_consistency import check_skill_deps_closure
@@ -188,7 +171,6 @@ class TestSkillDepsClosure:
             "DEPRECATED skills registered" in e and "shenbi-dead" in e for e in errs
         )
 
-    @pytest.mark.unit
     def test_deps_closure_deprecated_unregistered_is_green(self, tmp_path):
         from tools.lint_repo_consistency import check_skill_deps_closure
 

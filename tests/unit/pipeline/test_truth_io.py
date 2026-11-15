@@ -808,7 +808,6 @@ def test_upsert_heading_less_block_keeps_dedup_behavior() -> None:
     assert result.count("- 第一条") == 1
 
 
-@pytest.mark.unit
 def test_upsert_markdown_row_key_match_is_whitespace_insensitive():
     """Fixcheck ch3: two settle attempts emitted the same chapter key with
     different spacing (``第 3 章`` vs ``第3章``); the exact-string key
@@ -838,7 +837,6 @@ def test_upsert_markdown_row_key_match_is_whitespace_insensitive():
         assert result.count("| 第 3 章 |") + result.count("| 第3章 |") == 1
 
 
-@pytest.mark.unit
 def test_has_markdown_row_key_match_is_whitespace_insensitive():
     """insert_markdown_row's existence probe must use the same normalized
     key semantics as the upsert (SDD #21 R1 symmetry).

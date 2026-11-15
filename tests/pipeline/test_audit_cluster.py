@@ -14,7 +14,6 @@ from shenbi.pipeline.state import PipelineState
 CW = json.dumps({"chapter_word": {"default": 3200, "min": 2800, "max": 4000}})
 
 
-@pytest.mark.unit
 def test_audit_skills_declare_next_chapter_writes() -> None:
     """Audit skills declare {N+1} brace writes (leader single-resolution)."""
     from shenbi.contracts.loader import load_contract
@@ -32,7 +31,6 @@ def test_audit_skills_declare_next_chapter_writes() -> None:
     assert "audits/chapter-2-character.md" in paths
 
 
-@pytest.mark.unit
 def test_no_phantom_paths_beyond_bundle() -> None:
     """Leader resolution yields no paths beyond the bundle (m+1+)."""
     from shenbi.pipeline.audit_layer import audit_report_paths

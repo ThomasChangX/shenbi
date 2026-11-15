@@ -33,8 +33,6 @@ import importlib
 import json
 from pathlib import Path
 
-import pytest
-
 # ---------------------------------------------------------------------------
 # Sentinel 7 — the cross-layer seam canary
 # ---------------------------------------------------------------------------
@@ -107,7 +105,6 @@ def _validation_error(loc: tuple[str, ...], msg: str) -> Exception:
     )
 
 
-@pytest.mark.unit
 class TestCrossLayerSeam:
     """Sentinel 7: g2 + g4 validate decisions.json through ONE shared DecisionsDoc."""
 
@@ -220,7 +217,6 @@ _EXTERNAL_SENTINELS: tuple[tuple[str, str], ...] = (
 )
 
 
-@pytest.mark.unit
 def test_sentinel_index_references_real_tests() -> None:
     """Every sentinel documented above must resolve to a real test object.
 

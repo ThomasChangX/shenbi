@@ -25,8 +25,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 FIX = Path(__file__).resolve().parents[3] / "fixtures" / "spec99"
 
 _MATRIX_KEY = "角色A,角色B"  # skills/shenbi-state-settling SKILL.md writes 声明
@@ -121,7 +119,6 @@ def _short_reason(mf: list[str]) -> str:
 SELF_LINE = "- 自陈: 「我描的。描了十一年，就记下这么一家。」"
 
 
-@pytest.mark.unit
 def test_spaced_own_block_exempt():
     """④前红：严格正则不容空格→47 own-block 未被剥离，自陈行残留基底质量比对。"""
     from shenbi.gates.g4.state_settling import _strip_increment_section
@@ -130,7 +127,6 @@ def test_spaced_own_block_exempt():
     assert SELF_LINE not in stripped, "空格形 own-block 未豁免（H4）：期望④落地后自陈行随 47 块剥离"
 
 
-@pytest.mark.unit
 def test_materialized_chain_no_drop(tmp_path: Path):
     """整链回放：束7 现场 staged（生产合并快照）/live 过 gate——期望无
     content_dropped（own-block 合法替换）。④前红（现行豁免失效→自陈短句行
@@ -143,7 +139,6 @@ def test_materialized_chain_no_drop(tmp_path: Path):
     )
 
 
-@pytest.mark.unit
 def test_write_path_increment_heading_normalized():
     """写径归一：重派标题形（无空格）与 live 形（空格）不一致时增量族替换仍
     命中（非 None 且含替换文本），不得失配退化为 EOF 追加重复块。④前红。
@@ -157,7 +152,6 @@ def test_write_path_increment_heading_normalized():
     assert "- 测试: 增量族标题形差异下的替换" in merged
 
 
-@pytest.mark.unit
 def test_bundle_twin_block_exempt(tmp_path: Path):
     """Bundle 孪生豁免（C1）：sidecar=47+volume_map 覆盖 47-48 时，staged 对
     live 48 块的合法更新不得判 content_dropped。④前红（现行无孪生豁免——

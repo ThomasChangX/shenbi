@@ -13,8 +13,6 @@ import math
 import re
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g2 import gate_G2
 from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
 from shenbi.gates.g4.length_normalizing import g4_length_normalizing
@@ -98,19 +96,16 @@ def _statuses(result: str) -> tuple[set[str], dict[str, str]]:
 # ---- floor source: min with fallback chain ----
 
 
-@pytest.mark.unit
 def test_floor_reads_min(tmp_path: Path) -> None:
     assert (
         chapter_word_floor(_project(tmp_path, {"default": 3200, "min": 2800, "max": 4000})) == 2800
     )
 
 
-@pytest.mark.unit
 def test_floor_fallback_default(tmp_path: Path) -> None:
     assert chapter_word_floor(_project(tmp_path, {"default": 3200, "max": 4000})) == 3200
 
 
-@pytest.mark.unit
 def test_floor_fallback_constant(tmp_path: Path) -> None:
     from shenbi.gates.shared import CHAPTER_WORD_FLOOR
 
@@ -120,7 +115,6 @@ def test_floor_fallback_constant(tmp_path: Path) -> None:
 # ---- marker predicate + exclusion ----
 
 
-@pytest.mark.unit
 def test_marker_predicate_single_source() -> None:
     assert is_scene_marker_line("<!--SCENE-->")
     assert is_scene_marker_line("  <!--SCENE-->  ")
@@ -128,7 +122,6 @@ def test_marker_predicate_single_source() -> None:
     assert not is_scene_marker_line("<!--scene-->")
 
 
-@pytest.mark.unit
 def test_marker_lines_excluded_from_count() -> None:
     text = "灯" * 100 + "\n<!--SCENE-->\n" + "灯" * 100
     assert total_chars_md_text(text) == 200
@@ -138,7 +131,6 @@ def test_marker_lines_excluded_from_count() -> None:
 # ---- G2 four-way band ----
 
 
-@pytest.mark.unit
 def test_g2_band_four_way(tmp_path: Path) -> None:
     proj = _project(tmp_path)
     for n, chars, g26_fail, g27_fail in (
@@ -155,7 +147,6 @@ def test_g2_band_four_way(tmp_path: Path) -> None:
         # must_fix 字符串形态（fail() helper）不携带 expected 数字——id 级断言即契约
 
 
-@pytest.mark.unit
 def test_marker_lines_excluded_g2(tmp_path: Path) -> None:
     # 2790 body + marker: old behavior counted the 12 marker chars (2802,
     # false pass); #72 exclusion → 2790 → FAIL. Proves G2.6 strips markers.
@@ -166,7 +157,6 @@ def test_marker_lines_excluded_g2(tmp_path: Path) -> None:
     assert "G2.6" not in ok
 
 
-@pytest.mark.unit
 def test_g4cd_same_counter_as_g2(tmp_path: Path) -> None:
     proj = _project(tmp_path)
     lo = _chapter(tmp_path, 11, 2799)
@@ -180,7 +170,6 @@ def test_g4cd_same_counter_as_g2(tmp_path: Path) -> None:
 # ---- G4.ln band ----
 
 
-@pytest.mark.unit
 def test_g4ln_band(tmp_path: Path) -> None:
     proj = _project(tmp_path)
     for n, chars, below, above in (
@@ -198,7 +187,6 @@ def test_g4ln_band(tmp_path: Path) -> None:
 # ---- 3300 保量 math ----
 
 
-@pytest.mark.unit
 def test_g03_ceil_3125(tmp_path: Path) -> None:
     proj = tmp_path
     (proj / "novel.json").write_text(
@@ -211,14 +199,12 @@ def test_g03_ceil_3125(tmp_path: Path) -> None:
     assert implied == -(-10_000_000 // 3200) == 3125
 
 
-@pytest.mark.unit
 def test_baoliang_inequality() -> None:
     assert 0.95 * 3200 == 3040
     assert 10_000_000 / 3300 <= 3040
     assert math.ceil(10_000_000 / 3300) == 3031  # target_total_chapters 自洽下界
 
 
-@pytest.mark.unit
 def test_loop_bounds_counter(tmp_path: Path) -> None:
     # _check_word_count_bounds: total_chars 口径 + 剥标记（WARN 观测面）
     from shenbi.pipeline.chapter_loop import _check_word_count_bounds

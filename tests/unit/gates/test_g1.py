@@ -32,7 +32,6 @@ class TestG1SkillLookup:
         assert "status" in parsed
 
 
-@pytest.mark.unit
 class TestG1ErrorPaths:
     """Error-path tests for G1.1-G1.5 file and lock checks.
 
@@ -88,7 +87,6 @@ class TestG1ErrorPaths:
         assert (tmp_path / "input.md.bak").exists()
 
 
-@pytest.mark.unit
 def test_g14_creates_bak_for_inplace_skill(tmp_path: Path) -> None:
     """In-place skill + round_dir -> .bak created (covers g1.py:92-94)."""
     src = tmp_path / "truth_state.json"
@@ -106,7 +104,6 @@ def test_g14_creates_bak_for_inplace_skill(tmp_path: Path) -> None:
     assert any(c.get("id") == "G1.4" and c.get("s") == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_compute_backup_targets_is_pure_decision() -> None:
     """Pure decision: which (src, bak) pairs to create. No I/O."""
     targets = compute_backup_targets(
@@ -115,13 +112,11 @@ def test_compute_backup_targets_is_pure_decision() -> None:
     assert targets == [("/abs/truth/current_state.md", "/abs/truth/current_state.md.bak")]
 
 
-@pytest.mark.unit
 def test_compute_backup_targets_empty_without_round_dir() -> None:
     """No round_dir -> no backups targeted."""
     assert compute_backup_targets("shenbi-state-settling", ["/x.md"], None) == []
 
 
-@pytest.mark.unit
 def test_compute_backup_targets_skips_non_backup_skill() -> None:
     """A skill not in BACKUP_SKILLS (e.g. a world-updater) -> no targets."""
     assert compute_backup_targets("shenbi-faction-builder", ["/x.md"], "/r") == []
@@ -130,7 +125,6 @@ def test_compute_backup_targets_skips_non_backup_skill() -> None:
 # ── G1 glob expansion tests ───────────────────────────────────────────
 
 
-@pytest.mark.unit
 def test_glob_expands_to_multiple_files(tmp_path: Path) -> None:
     """A glob pattern that matches multiple files should expand to all of them."""
     (tmp_path / "a.md").write_text("a")
@@ -145,7 +139,6 @@ def test_glob_expands_to_multiple_files(tmp_path: Path) -> None:
     assert len(g11_checks) == 2  # a.md, b.md (not c.txt)
 
 
-@pytest.mark.unit
 def test_glob_unmatched_optional_dropped(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """Unmatched optional glob (in SHENBI_G1_SKIP_READS) should be silently dropped."""
     monkeypatch.setenv("SHENBI_G1_SKIP_READS", "chapter-*-plan.md")
@@ -158,7 +151,6 @@ def test_glob_unmatched_optional_dropped(monkeypatch: pytest.MonkeyPatch, tmp_pa
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_glob_unmatched_optional_slash_form_dropped(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -177,7 +169,6 @@ def test_glob_unmatched_optional_slash_form_dropped(
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_optional_read_hit_matching_forms() -> None:
     """shared.optional_read_hit: basename / relative-literal / suffix forms."""
     from shenbi.gates.shared import optional_read_hit
@@ -192,7 +183,6 @@ def test_optional_read_hit_matching_forms() -> None:
     assert optional_read_hit("/proj/chapter-3-plan.md", pats) == "chapter-*-plan.md"  # suffix glob
 
 
-@pytest.mark.unit
 def test_glob_unmatched_required_surfaces_failure(tmp_path: Path) -> None:
     """Unmatched required glob (not in SHENBI_G1_SKIP_READS) must surface as G1.1."""
     result = _result_dict(

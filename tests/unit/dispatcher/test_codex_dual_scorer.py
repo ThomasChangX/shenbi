@@ -56,7 +56,6 @@ def _manifest(tmp_path: Path) -> dict[str, Any]:
     return json.loads((tmp_path / "pipeline-manifest.json").read_text(encoding="utf-8"))
 
 
-@pytest.mark.unit
 def test_dual_scorer_agreement_no_arbitration(tmp_path, monkeypatch):
     run, calls = _fake_codex_exec(dict(REAL_SCORES))  # 两份一致
     monkeypatch.setattr(subprocess, "run", run)
@@ -68,7 +67,6 @@ def test_dual_scorer_agreement_no_arbitration(tmp_path, monkeypatch):
     assert (tmp_path / "t1-reports" / "sk-generative-scores-subagent-2.json").exists()
 
 
-@pytest.mark.unit
 def test_dual_scorer_dispute_writes_arbitration(tmp_path, monkeypatch):
     disputed = dict(REAL_SCORES)
     disputed["2"] = 70  # 差 15 > 5
@@ -84,7 +82,6 @@ def test_dual_scorer_dispute_writes_arbitration(tmp_path, monkeypatch):
     assert entry["result"]["needs_arbitration"] is True
 
 
-@pytest.mark.unit
 def test_dual_scorer_disabled_by_default(tmp_path, monkeypatch):
     run, calls = _fake_codex_exec(dict(REAL_SCORES))
     monkeypatch.setattr(subprocess, "run", run)

@@ -148,7 +148,6 @@ def test_deps_doc_defaults():
     assert d.calibration_hashes == {}
 
 
-@pytest.mark.unit
 def test_load_deps_roundtrip() -> None:
     """load_deps reads the real deps.json shape into DepsDoc."""
     from shenbi.contracts.schemas.deps import load_deps
@@ -158,7 +157,6 @@ def test_load_deps_roundtrip() -> None:
     assert d.calibration_hashes  # real file carries the G0.14 lock
 
 
-@pytest.mark.unit
 def test_load_deps_corrupt_fails(tmp_path: Path) -> None:
     """Malformed JSON surfaces as pydantic ValidationError (v2 contract)."""
     from shenbi.contracts.schemas.deps import load_deps
@@ -169,7 +167,6 @@ def test_load_deps_corrupt_fails(tmp_path: Path) -> None:
         load_deps(bad)
 
 
-@pytest.mark.unit
 def test_load_deps_extra_key_rejected(tmp_path: Path) -> None:
     from shenbi.contracts.schemas.deps import load_deps
 

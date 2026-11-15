@@ -1258,7 +1258,6 @@ def test_write_audit_discloses_zero_change_vacuous_pass():
     assert "write_audit_no_changes" in src, "zero-change audit must warn loudly"
 
 
-@pytest.mark.unit
 def test_persist_failed_write_dump_carries_forensic_header(tmp_path: Path) -> None:
     """Fixcheck forensics gap: the genre-config failure dump carried ONLY
     '<!-- write-phase failure: no_files_parsed -->' with an empty body —

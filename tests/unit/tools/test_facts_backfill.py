@@ -10,8 +10,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from tools.facts_backfill import derive_seeds, main, plan_memo_backfill, registry_rewrites
 
 # ── tmp mini-project（镜像 novel-xinghuo-vol1 修复后正典形态）──
@@ -176,7 +174,6 @@ def test_registry_rewrites_surgical() -> None:
 # ── 验收 3：修复后语料全绿（per-chapter 前置态种子，R1-C3）──
 
 
-@pytest.mark.unit
 def test_acceptance3_ch9_green_with_pre_state(tmp_path: Path) -> None:
     from shenbi.gates.g4.chapter_drafting import check_counter_reconciliation
 
@@ -188,7 +185,6 @@ def test_acceptance3_ch9_green_with_pre_state(tmp_path: Path) -> None:
     assert issues == []
 
 
-@pytest.mark.unit
 def test_acceptance3_ch20_green_with_pre_state(tmp_path: Path) -> None:
     from shenbi.gates.g4.chapter_drafting import check_prop_handoffs
     from shenbi.gates.g4.cross_chapter import check_narration_name

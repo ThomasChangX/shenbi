@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.power_system import g4_power_system
 
 
@@ -24,14 +22,12 @@ def _result(s: str) -> dict[str, Any]:
     return json.loads(s)
 
 
-@pytest.mark.unit
 def test_fails_when_power_system_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     result = _result(g4_power_system([str(marker)], rd=str(project_dir)))
     assert any("G4.ps.not_found" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_with_few_table_rows(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "world").mkdir(parents=True)
@@ -42,7 +38,6 @@ def test_fails_with_few_table_rows(tmp_path: Path) -> None:
     assert any("G4.ps.level_table_rows" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_advancement_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "world").mkdir(parents=True)
@@ -53,7 +48,6 @@ def test_fails_when_advancement_missing(tmp_path: Path) -> None:
     assert any("G4.ps.advancement_rules" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_with_complete_power_system(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "world").mkdir(parents=True)

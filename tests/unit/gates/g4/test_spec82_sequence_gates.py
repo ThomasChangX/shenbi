@@ -12,8 +12,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 from shenbi.text.recall_weight import cold_chapter
 
@@ -84,7 +82,6 @@ def _must_fix(out: str) -> list[str]:
     return json.loads(out).get("must_fix", [])
 
 
-@pytest.mark.unit
 def test_cold_chapter_ordered_branches() -> None:
     assert cold_chapter("安", False) is True  # ① wordlist-external → cold
     assert cold_chapter("安", True) is True  # ① takes priority over golden
@@ -95,7 +92,6 @@ def test_cold_chapter_ordered_branches() -> None:
     assert cold_chapter("怒", True) is False
 
 
-@pytest.mark.unit
 def test_four_cold_run_fails(tmp_path: Path) -> None:
     hist = {
         n: {"emotion_tone": t, "金句位燃": False}
@@ -106,7 +102,6 @@ def test_four_cold_run_fails(tmp_path: Path) -> None:
     assert "G4.cp.cold_streak_window" in out
 
 
-@pytest.mark.unit
 def test_three_cold_plus_warm_passes(tmp_path: Path) -> None:
     hist = {
         n: {"emotion_tone": t, "金句位燃": False}
@@ -117,7 +112,6 @@ def test_three_cold_plus_warm_passes(tmp_path: Path) -> None:
     assert "G4.cp.cold_streak_window" not in out
 
 
-@pytest.mark.unit
 def test_ten_window_no_big_hook_fails(tmp_path: Path) -> None:
     hist = {n: {"张力拍档位": "微"} for n in range(27, 37)}
     _mk(tmp_path, tier="章", history=hist)  # no 大 in window
@@ -125,7 +119,6 @@ def test_ten_window_no_big_hook_fails(tmp_path: Path) -> None:
     assert "G4.cp.hot_hook_window" in out
 
 
-@pytest.mark.unit
 def test_six_window_all_small_payoff_fails(tmp_path: Path) -> None:
     hist = {n: {"payoff档": "小"} for n in range(31, 37)}
     _mk(tmp_path, payoff="小", history=hist)
@@ -133,7 +126,6 @@ def test_six_window_all_small_payoff_fails(tmp_path: Path) -> None:
     assert "G4.cp.payoff_magnitude" in out
 
 
-@pytest.mark.unit
 def test_hot_ratio_warn_only(tmp_path: Path) -> None:
     hist = {n: {"emotion_tone": "平", "张力拍档位": "微"} for n in range(27, 37)}
     _mk(tmp_path, tone="悲", tier="微", history=hist)
@@ -141,7 +133,6 @@ def test_hot_ratio_warn_only(tmp_path: Path) -> None:
     assert "temperature_profile" in out  # WARN-level emission
 
 
-@pytest.mark.unit
 def test_first_three_chapters_exempt(tmp_path: Path) -> None:
     hist = {1: {"emotion_tone": "悲"}, 2: {"emotion_tone": "悲"}}
     _mk(tmp_path, tone="悲", ch=3, history=hist)
@@ -149,7 +140,6 @@ def test_first_three_chapters_exempt(tmp_path: Path) -> None:
     assert "G4.cp.cold_streak_window" not in out
 
 
-@pytest.mark.unit
 def test_config_absent_degrades_to_warn(tmp_path: Path) -> None:
     genre = json.loads(json.dumps(GENRE))
     del genre["market_params"]["cold_streak_cap"]
@@ -161,7 +151,6 @@ def test_config_absent_degrades_to_warn(tmp_path: Path) -> None:
     assert not any("cold_streak_window" in m for m in _must_fix(out))  # absent → WARN row only
 
 
-@pytest.mark.unit
 def test_bootstrap_window_shorter_than_window_no_floor(tmp_path: Path) -> None:
     # ch38 planning: only ch37 exists in snapshot (1 < window 10)
     hist = {37: {"张力拍档位": "微"}}
@@ -170,7 +159,6 @@ def test_bootstrap_window_shorter_than_window_no_floor(tmp_path: Path) -> None:
     assert "G4.cp.hot_hook_window" not in out  # bootstrap: window not full → no floor
 
 
-@pytest.mark.unit
 def test_min_key_is_consumed(tmp_path: Path) -> None:
     """Payoff floor reads `min` (anti payoff_density precedent)."""
     hist = {n: {"payoff档": "小"} for n in range(31, 37)}
@@ -179,7 +167,6 @@ def test_min_key_is_consumed(tmp_path: Path) -> None:
     assert "G4.cp.payoff_magnitude" not in out
 
 
-@pytest.mark.unit
 def test_volume_boundary_excludes_previous_volume(tmp_path: Path) -> None:
     """audit-T4/C1: 回卷窗口跨卷界只取本卷已生成章.
 
@@ -200,7 +187,6 @@ def test_volume_boundary_excludes_previous_volume(tmp_path: Path) -> None:
     assert not any("cold_streak_window" in m for m in _must_fix(out))
 
 
-@pytest.mark.unit
 def test_hot_ratio_warn_not_in_must_fix(tmp_path: Path) -> None:
     """audit-T4/I2: WARN-level emission goes to checks, never must_fix."""
     hist = {n: {"emotion_tone": "平", "张力拍档位": "微"} for n in range(27, 37)}
@@ -213,7 +199,6 @@ def test_hot_ratio_warn_not_in_must_fix(tmp_path: Path) -> None:
     )  # WARN row present
 
 
-@pytest.mark.unit
 def test_config_absent_warn_row_present(tmp_path: Path) -> None:
     """audit-T4/I2: absent key emits a WARN row (not silent skip)."""
     genre = json.loads(json.dumps(GENRE))
@@ -224,7 +209,6 @@ def test_config_absent_warn_row_present(tmp_path: Path) -> None:
     assert any("cold_streak_window" in str(chk.get("id", "")) for chk in checks)
 
 
-@pytest.mark.unit
 def test_hot_hook_min_two_consumed(tmp_path: Path) -> None:
     """audit-T4/M2: hot_hook_floor.min=2 with exactly one 大 in window → FAIL."""
     genre = json.loads(json.dumps(GENRE))

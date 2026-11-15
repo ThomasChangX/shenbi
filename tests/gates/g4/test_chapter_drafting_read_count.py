@@ -9,7 +9,6 @@ import pytest
 from shenbi.gates.g4 import chapter_drafting as cd
 
 
-@pytest.mark.unit
 def test_plan_read_exactly_once_per_chapter(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

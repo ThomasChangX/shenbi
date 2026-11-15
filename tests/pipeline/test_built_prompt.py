@@ -4,12 +4,9 @@ The 63 existing destructure sites must keep working untouched; this pins
 the NamedTuple contract (fields, unpacking incl. star, named access).
 """
 
-import pytest
-
 from shenbi.pipeline.dispatch_helper import BuiltPrompt
 
 
-@pytest.mark.unit
 def test_built_prompt_is_namedtuple_with_five_fields() -> None:
     assert issubclass(BuiltPrompt, tuple)
     assert BuiltPrompt._fields == (
@@ -21,7 +18,6 @@ def test_built_prompt_is_namedtuple_with_five_fields() -> None:
     )
 
 
-@pytest.mark.unit
 def test_built_prompt_unpack_and_named_access() -> None:
     bp = BuiltPrompt("s", "u", ["p"], [{"r": 1}], {"d": "x"})
 

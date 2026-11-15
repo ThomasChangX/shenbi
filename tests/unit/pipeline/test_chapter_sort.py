@@ -4,11 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.pipeline.chapter_loop import chapter_sort_key
-
-pytestmark = pytest.mark.unit
 
 
 def test_sort_key_numeric_order():

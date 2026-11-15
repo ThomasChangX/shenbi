@@ -12,8 +12,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 
 HOOK_TABLE = """| ID | 操作 | 推进方式 | 沉默章数 |
@@ -36,35 +34,30 @@ def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
 
 
 class TestDeferSilence:
-    @pytest.mark.unit
     def test_defer_silent4_without_activation_fails(self, tmp_path: Path) -> None:
         f = tmp_path / "chapter-005-plan.md"
         f.write_text(_plan(4), encoding="utf-8")
         result = _run([str(f)])
         assert any("G4.cp.s7_defer_silence" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_defer_silent4_with_activation_passes(self, tmp_path: Path) -> None:
         f = tmp_path / "chapter-005-plan.md"
         f.write_text(_plan(4, tail="激活方案：第 6 章通过对话揭示。"), encoding="utf-8")
         result = _run([str(f)])
         assert not any("G4.cp.s7_defer_silence" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_defer_silent3_not_flagged(self, tmp_path: Path) -> None:
         f = tmp_path / "chapter-005-plan.md"
         f.write_text(_plan(3), encoding="utf-8")
         result = _run([str(f)])
         assert not any("G4.cp.s7_defer_silence" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_abandon_annotation_passes(self, tmp_path: Path) -> None:
         f = tmp_path / "chapter-005-plan.md"
         f.write_text(_plan(4, tail="ABANDON：放弃此伏笔"), encoding="utf-8")
         result = _run([str(f)])
         assert not any("G4.cp.s7_defer_silence" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
     def test_defer_silence_message_inlines_live_hook_ids(self, tmp_path: Path) -> None:
         """束6 verbatim batch: message inlines live hook id + silence count
         + a copy-ready fix template carrying the real hook id.

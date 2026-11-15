@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 
 def _run() -> int:
     import tools.lint_increment_teaching as mod
@@ -11,12 +9,10 @@ def _run() -> int:
     return mod.main()
 
 
-@pytest.mark.unit
 def test_green_on_current_tree() -> None:
     assert _run() == 0
 
 
-@pytest.mark.unit
 def test_tamper_red_missing_exclusion_clause(tmp_path, monkeypatch, capsys) -> None:
     import tools.lint_increment_teaching as mod
 
@@ -38,7 +34,6 @@ def test_tamper_red_missing_exclusion_clause(tmp_path, monkeypatch, capsys) -> N
     assert "缺 `排除条款`" in err and "缺 `自陈补全（第N章原句）`" in err
 
 
-@pytest.mark.unit
 def test_tamper_red_spaced_example_returns(tmp_path, monkeypatch, capsys) -> None:
     import tools.lint_increment_teaching as mod
 

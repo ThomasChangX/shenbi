@@ -13,8 +13,6 @@ from typing import Any
 
 import pytest
 
-pytestmark = pytest.mark.unit
-
 TREND_HEADER = (
     "| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报 "
     "| overall | confidence | human_overridden |"

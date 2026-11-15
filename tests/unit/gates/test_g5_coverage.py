@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
-import pytest
-
 from shenbi.gates.g5 import gate_G5
 
 
@@ -15,7 +13,6 @@ def _result_dict(result: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(result))
 
 
-@pytest.mark.unit
 def test_g53_detects_numeric_and_terminology_conflicts(tmp_path: Path) -> None:
     """Same concept with differing numbers across world files + mixed term pair -> G5.3 conflicts.
 

@@ -17,7 +17,6 @@ import shenbi.dispatcher.cli as dcli
 from shenbi.dispatcher import executor
 
 
-@pytest.mark.unit
 class TestCliMainArgvMatrix:
     def test_usage_returns_1_when_too_few_args(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(sys, "argv", ["shenbi-dispatch", "only-two"])
@@ -49,7 +48,6 @@ class TestCliMainArgvMatrix:
         assert dcli.main() == 2
 
 
-@pytest.mark.unit
 class TestExecutorFailureBranches:
     def _stub_green_g1(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(executor, "run_g1", lambda skill, files, rd: {"status": "PASS"})

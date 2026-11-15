@@ -11,7 +11,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
 import yaml
 
 from shenbi.gates.g4.foreshadowing_lifecycle import g4_foreshadowing_lifecycle
@@ -53,7 +52,6 @@ def _setup(tmp_path: Path, pending: str | None = None) -> tuple[Path, Path]:
 # — plant heritage —
 
 
-@pytest.mark.unit
 def test_fails_when_hook_missing_required_field(tmp_path: Path) -> None:
     hook = {
         "id": "h1",
@@ -72,7 +70,6 @@ def test_fails_when_hook_missing_required_field(tmp_path: Path) -> None:
     assert any(mf == "G4.fl.h1.missing_cultivation_interval" for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_hook_depends_on_is_null(tmp_path: Path) -> None:
     hook = {
         "id": "h1",
@@ -92,7 +89,6 @@ def test_fails_when_hook_depends_on_is_null(tmp_path: Path) -> None:
     assert any(mf == "G4.fl.h1.depends_on_null" for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_ops_count_exceeds_ceiling(tmp_path: Path) -> None:
     hooks = [
         {
@@ -116,7 +112,6 @@ def test_fails_when_ops_count_exceeds_ceiling(tmp_path: Path) -> None:
     assert any(mf == "G4.fl.ops:25>24" for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_smokescreen_hook_lacks_exit_note(tmp_path: Path) -> None:
     hook = {
         "id": "h1",
@@ -137,7 +132,6 @@ def test_fails_when_smokescreen_hook_lacks_exit_note(tmp_path: Path) -> None:
     assert any(mf == "G4.fl.h1.smokescreen_no_exit" for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_hooks_payload_with_non_dict_entry_fails(tmp_path: Path) -> None:
     """F409 heritage: a string element in the hooks list must not crash."""
     f = _hooks_file(tmp_path, ["just-a-string"])  # type: ignore[list-item]
@@ -151,7 +145,6 @@ def test_hooks_payload_with_non_dict_entry_fails(tmp_path: Path) -> None:
 # — track heritage —
 
 
-@pytest.mark.unit
 def test_fails_when_pending_hooks_missing(tmp_path: Path) -> None:
     project_dir = tmp_path / "project"
     sub_dir = project_dir / "skill-output"
@@ -164,7 +157,6 @@ def test_fails_when_pending_hooks_missing(tmp_path: Path) -> None:
     assert any("G4.fl.not_found_pending_hooks" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_no_state_changes(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path, pending="# Hooks\njust text\n")
 
@@ -172,7 +164,6 @@ def test_fails_when_no_state_changes(tmp_path: Path) -> None:
     assert any("G4.fl.no_changes" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_no_chapter_refs(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path, pending="# Hooks\n操作: PLANTED\n")
 
@@ -180,7 +171,6 @@ def test_fails_when_no_chapter_refs(tmp_path: Path) -> None:
     assert any("G4.fl.chapter_refs" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_with_changes_and_refs(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path, pending="# Hooks\n操作: PLANTED\n第1章 第2章\n")
 
@@ -191,7 +181,6 @@ def test_passes_with_changes_and_refs(tmp_path: Path) -> None:
 # — lifecycle-specific (recall vocabulary, r5 ruling) —
 
 
-@pytest.mark.unit
 def test_recall_phase_vocabulary_accepted(tmp_path: Path) -> None:
     """DORMANT/ACTIVE/ABANDONED transitions in free-form reports pass the state check."""
     project_dir, marker = _setup(tmp_path)
@@ -205,7 +194,6 @@ def test_recall_phase_vocabulary_accepted(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_free_form_output_without_states_fails(tmp_path: Path) -> None:
     project_dir, _ = _setup(tmp_path)
     report = tmp_path / "audit.md"
@@ -215,14 +203,12 @@ def test_free_form_output_without_states_fails(tmp_path: Path) -> None:
     assert any("G4.fl.no_hook_states" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_no_files_skips_per_file_checks(tmp_path: Path) -> None:
     project_dir, _ = _setup(tmp_path)
     result = _result(g4_foreshadowing_lifecycle([], rd=str(project_dir)))
     assert result["status"] == "PASS"  # project face still green; per-file SKIP recorded
 
 
-@pytest.mark.unit
 def test_empty_hooks_payload_fails_like_no_hooks(tmp_path: Path) -> None:
     """Ported regression: `## hooks: []` must FAIL (old plant no_hooks parity),
     not silently skip per-file checks.
@@ -236,7 +222,6 @@ def test_empty_hooks_payload_fails_like_no_hooks(tmp_path: Path) -> None:
     assert any("G4.fl.no_hook_states" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_scalar_yaml_hooks_body_fails_free_form(tmp_path: Path) -> None:
     """Ported regression: a scalar (non-list) `## hooks` body falls to the
     free-form state check and FAILs on state-less content.
@@ -250,7 +235,6 @@ def test_scalar_yaml_hooks_body_fails_free_form(tmp_path: Path) -> None:
     assert any("G4.fl.no_hook_states" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_pinned_grammar_bare_digit_fields_satisfy_chapter_refs(tmp_path: Path) -> None:
     """Batch #14 (probe19 adjudication #001): under the batch #13 pinned
     genesis grammar, chapter data lives in bare-digit plant_chapter/
@@ -270,7 +254,6 @@ def test_pinned_grammar_bare_digit_fields_satisfy_chapter_refs(tmp_path: Path) -
     assert not any("chapter_refs" in mf for mf in result["must_fix"]), result["must_fix"]
 
 
-@pytest.mark.unit
 def test_field_line_branch_anchored_no_prose_false_positive(tmp_path: Path) -> None:
     """The field-line branch is anchored — a prose mention of
     plant_chapter without a bare integer value must NOT satisfy the check

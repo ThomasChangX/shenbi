@@ -123,7 +123,6 @@ def test_g67_consumes_same_records(consumer: str, expected: set[str]) -> None:
 # --- spec #85 T3: M3 red test (CP family visible to the single parser) ---
 
 
-@pytest.mark.unit
 def test_m3_cp_visible_to_pending_hooks_reader(tmp_path: Path) -> None:
     """M3: the pending_hooks single parser was blind to CP-family ids
     (legacy alternation keyed ``CP-001`` as ``P-001``). Full tokens must

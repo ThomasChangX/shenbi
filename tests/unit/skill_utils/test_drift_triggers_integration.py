@@ -66,7 +66,6 @@ def _write_arc_trend(path, volumes: list[tuple[int, int]]) -> None:
 # --- full positive path: monotonic decline (spec §8.3 (a)) -------------------
 
 
-@pytest.mark.unit
 def test_full_path_monotonic_decline_fires(tmp_path) -> None:
     """Declining 情感落地 across a fixture → parse → detect fires MONOTONIC_DECLINE."""
     trend = tmp_path / "resonance_trend.md"
@@ -93,7 +92,6 @@ def test_full_path_monotonic_decline_fires(tmp_path) -> None:
 # --- full positive path: below mean - 2σ (spec §8.3 (b)) --------------------
 
 
-@pytest.mark.unit
 def test_full_path_below_mean_2sigma_fires(tmp_path) -> None:
     """>=6 tight highs then a sustained deep dip → BELOW_MEAN_2SIGMA fires."""
     trend = tmp_path / "resonance_trend.md"
@@ -115,7 +113,6 @@ def test_full_path_below_mean_2sigma_fires(tmp_path) -> None:
 # --- negative path: stable series does not fire (spec §8.3 negative) ---------
 
 
-@pytest.mark.unit
 def test_full_path_stable_series_no_finding(tmp_path) -> None:
     """A flat series across the fixture → no drift findings at all."""
     trend = tmp_path / "resonance_trend.md"
@@ -131,7 +128,6 @@ def test_full_path_stable_series_no_finding(tmp_path) -> None:
 # --- negative path: human_overridden chapter excluded (spec §8.3 记录语义) ----
 
 
-@pytest.mark.unit
 def test_full_path_overridden_chapter_breaks_decline(tmp_path) -> None:
     """A human_overridden chapter in the decline run is excluded → no trigger."""
     trend = tmp_path / "resonance_trend.md"
@@ -155,7 +151,6 @@ def test_full_path_overridden_chapter_breaks_decline(tmp_path) -> None:
 # --- full positive path: volume decline (spec §8.3 macro) -------------------
 
 
-@pytest.mark.unit
 def test_full_path_volume_decline_fires(tmp_path) -> None:
     """arc_payoff overall 82→74 (2-volume decline) → VOLUME_DECLINE fires."""
     arc = tmp_path / "arc_payoff_trend.md"
@@ -169,7 +164,6 @@ def test_full_path_volume_decline_fires(tmp_path) -> None:
     assert "declined" in findings[0].detail
 
 
-@pytest.mark.unit
 def test_full_path_volume_stable_no_finding(tmp_path) -> None:
     """arc_payoff overall rising (74→82) → no volume-drift finding."""
     arc = tmp_path / "arc_payoff_trend.md"
@@ -182,7 +176,6 @@ def test_full_path_volume_stable_no_finding(tmp_path) -> None:
 # --- end-to-end CLI: only positive cases write audit_drift (spec §10) --------
 
 
-@pytest.mark.unit
 def test_main_cli_positive_writes_audit_and_exits_nonzero(tmp_path, capsys, monkeypatch) -> None:
     """Declining fixtures → findings printed, exit 1, audit_drift.md written."""
     trend = tmp_path / "resonance_trend.md"
@@ -224,7 +217,6 @@ def test_main_cli_positive_writes_audit_and_exits_nonzero(tmp_path, capsys, monk
     assert "volume_decline" in audit
 
 
-@pytest.mark.unit
 def test_main_cli_negative_exits_zero_and_writes_nothing(tmp_path, capsys, monkeypatch) -> None:
     """Stable fixtures → no findings, exit 0, audit_drift.md never created."""
     trend = tmp_path / "resonance_trend.md"
@@ -314,7 +306,6 @@ def _write_clean_project(tmp_path, chapters: list[int]):
     return tmp_path
 
 
-@pytest.mark.unit
 def test_linguistic_drift_e2e_warn_writes_directive_to_disk(tmp_path) -> None:
     """Ratio drift (em-dash flood) → WARN → drift-warning directive on disk."""
     from shenbi.pipeline.chapter_loop import check_linguistic_drift
@@ -336,7 +327,6 @@ def test_linguistic_drift_e2e_warn_writes_directive_to_disk(tmp_path) -> None:
     assert "STYLE WARNING" in warning.read_text(encoding="utf-8")
 
 
-@pytest.mark.unit
 def test_linguistic_drift_e2e_escalate_pauses_pipeline(tmp_path) -> None:
     """System-term flood (>100‰) → ESCALATE → DriftEscalationError propagates
     out of the pipeline step (pause for human review).
@@ -352,7 +342,6 @@ def test_linguistic_drift_e2e_escalate_pauses_pipeline(tmp_path) -> None:
         _run_linguistic_drift_check(project, 4)
 
 
-@pytest.mark.unit
 def test_linguistic_drift_e2e_clean_chapter_no_intervention(tmp_path) -> None:
     """A clean chapter-4 matching the baseline: no drift, nothing written."""
     from shenbi.pipeline.chapter_loop import check_linguistic_drift

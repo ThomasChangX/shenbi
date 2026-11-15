@@ -1,7 +1,5 @@
 """Tests for typed exception hierarchy."""
 
-import pytest
-
 from shenbi.exceptions import (
     FrameworkError,
     GateError,
@@ -10,8 +8,6 @@ from shenbi.exceptions import (
     RegistryStaleError,
     ShenbiError,
 )
-
-pytestmark = pytest.mark.unit
 
 
 class TestHierarchy:

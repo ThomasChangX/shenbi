@@ -5,8 +5,6 @@ from __future__ import annotations
 import os
 import tempfile
 
-import pytest
-
 from shenbi.gates.g4.scoring_sections import g4_scoring_sections
 
 # Characterization (C37 F427): unified checker must behave identically to the
@@ -26,7 +24,6 @@ def _g4_score_stratum(fps):
     return g4_scoring_sections(fps, "G4-score-stratum", "str")
 
 
-@pytest.mark.unit
 def test_score_arc_passes_with_route_c_and_a():
     with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False, encoding="utf-8") as f:
         f.write("# Arc Score\n## Route C\ncontent\n## Route A\nAC-003")
@@ -36,7 +33,6 @@ def test_score_arc_passes_with_route_c_and_a():
     assert '"status": "PASS"' in result
 
 
-@pytest.mark.unit
 def test_score_arc_fails_without_route_c():
     with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False, encoding="utf-8") as f:
         f.write("# Arc Score\n## Route A\nAC-003")
@@ -46,7 +42,6 @@ def test_score_arc_fails_without_route_c():
     assert '"status": "FAIL"' in result
 
 
-@pytest.mark.unit
 def test_score_volume_passes_with_sections():
     with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False, encoding="utf-8") as f:
         f.write("# Volume Score\n## Route C\ncontent\n## Route A\nanchor")
@@ -56,7 +51,6 @@ def test_score_volume_passes_with_sections():
     assert '"status": "PASS"' in result
 
 
-@pytest.mark.unit
 def test_score_stratum_fails_without_route_c():
     with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False, encoding="utf-8") as f:
         f.write("# Stratum Score\n## some content without route sections")
@@ -66,7 +60,6 @@ def test_score_stratum_fails_without_route_c():
     assert '"status": "FAIL"' in result
 
 
-@pytest.mark.unit
 def test_router_registers_all_three_score_family_skills(tmp_path):
     """C37 F427 dead-wire guard: gate_G4 must route score-family skills."""
     from shenbi.gates.g4.generic import gate_G4
@@ -79,7 +72,6 @@ def test_router_registers_all_three_score_family_skills(tmp_path):
     assert '"SKIP"' in missing or '"FAIL"' in missing
 
 
-@pytest.mark.unit
 def test_emission_ids_byte_stable_across_prefix_bareization():
     """Spec #88 T1(d) characterization: must_fix ids byte-identical pre/post rewrite."""
     # not_found full form (absolute path — Task 15b removed CWD fallback)

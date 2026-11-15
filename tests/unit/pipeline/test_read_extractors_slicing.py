@@ -31,9 +31,6 @@ from shenbi.pipeline.read_extractors import (
     extract_recent_increments,
 )
 
-pytestmark = pytest.mark.unit
-
-
 _PENDING_HOOKS = """---
 type: truth
 category: state

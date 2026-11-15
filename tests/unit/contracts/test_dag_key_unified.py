@@ -7,8 +7,6 @@ import pytest
 from shenbi.contracts import load_registry
 from shenbi.contracts.graph import dag_key, normalize_to_glob
 
-pytestmark = pytest.mark.unit
-
 
 @pytest.mark.parametrize(
     "path",

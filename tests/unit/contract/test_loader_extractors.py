@@ -11,8 +11,6 @@ import pytest
 
 from shenbi.contracts.loader import ContractError, load_contract
 
-pytestmark = pytest.mark.unit
-
 
 def _write_skill(root: Path, name: str, reads_yaml: str) -> None:
     skills = root / "skills"

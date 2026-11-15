@@ -32,8 +32,6 @@ from shenbi.scoring import (
     validate_scores,
 )
 
-pytestmark = pytest.mark.unit
-
 # --- Fixtures --------------------------------------------------------------
 
 
@@ -545,9 +543,9 @@ class TestCheckGateMarkers:
             ),
             encoding="utf-8",
         )
-        monkeypatch.setattr(
-            scoring_mod, "__file__", str(fake_root / "src" / "shenbi" / "scoring.py")
-        )
+        # deps_path derives from the module-level REPO_ROOT constant since
+        # spec #92 T2b (was __file__-relative) — patch the constant, not __file__.
+        monkeypatch.setattr(scoring_mod, "REPO_ROOT", fake_root)
 
         phase_root = tmp_path / "t2-phase" / "_test_phase_marker_check"
         phase_root.mkdir(parents=True)
@@ -1255,7 +1253,6 @@ class TestSpec16MicroFixes:
         assert scores == {1: 90}
 
 
-@pytest.mark.unit
 def test_check_gate_markers_generative_backward_compat(tmp_path):
     """Spec #27 T2: historical G4-*-generative.json markers stay readable."""
     from shenbi.gates.gate_manifest import marker_filename
@@ -1273,7 +1270,6 @@ def test_check_gate_markers_generative_backward_compat(tmp_path):
     assert missing == []
 
 
-@pytest.mark.unit
 def test_gate_markers_verified_reflects_real_check(tmp_path, capsys, monkeypatch):
     """F136 (spec #27): provenance flag is the real marker-verification
     result — False when no marker check ran, True when it passed.

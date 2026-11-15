@@ -53,13 +53,11 @@ def project(tmp_path: Path) -> Path:
     return tmp_path
 
 
-@pytest.mark.unit
 def test_cold_triple_fires_finding(project: Path) -> None:
     res = _run(project, _plan("平", "静", "微"))
     assert any("cold_opening_triple" in mf for mf in res.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_any_hot_arm_suppresses(project: Path) -> None:
     for tone, golden, tier in (("悲", "静", "微"), ("平", "燃", "微"), ("平", "静", "章")):
         res = _run(project, _plan(tone, golden, tier))
@@ -70,7 +68,6 @@ def test_any_hot_arm_suppresses(project: Path) -> None:
         )
 
 
-@pytest.mark.unit
 def test_shadow_registry_defaults_warn(tmp_path: Path) -> None:
     assert GATE_TO_SHADOW_KEY["cp.cold_opening_triple"] == (
         "market_params",
@@ -82,7 +79,6 @@ def test_shadow_registry_defaults_warn(tmp_path: Path) -> None:
     assert out is not None and out.startswith("[shadow]")
 
 
-@pytest.mark.unit
 def test_shadow_false_promotes_hard_routing(tmp_path: Path) -> None:
     """audit-T5 I1: promotion must reach the HARD path end-to-end.
 
@@ -99,7 +95,6 @@ def test_shadow_false_promotes_hard_routing(tmp_path: Path) -> None:
     assert item in hard and not soft and not warn
 
 
-@pytest.mark.unit
 def test_shadow_false_promotes_hard(tmp_path: Path) -> None:
     cfg = {
         "market_params": {

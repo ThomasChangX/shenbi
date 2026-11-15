@@ -55,7 +55,6 @@ def test_wound5_card_gender_org_fixture() -> None:
     assert any("机构" in det or "星象局" in det for _cid, det in issues), issues
 
 
-@pytest.mark.unit
 def test_card_attributes_parsed() -> None:
     cards = load_card_attributes(FIX / "characters" / "major")
     # keyed by the card's name: frontmatter (the prose name), not the stem
@@ -64,7 +63,6 @@ def test_card_attributes_parsed() -> None:
     assert cards["小满"]["机构"] == "星象局"
 
 
-@pytest.mark.unit
 def test_handled_prop_passes() -> None:
     import tempfile
 
@@ -91,7 +89,6 @@ def test_handled_prop_passes() -> None:
         assert not any("经手" in det for _cid, det in issues)
 
 
-@pytest.mark.unit
 def test_plain_mention_with_registry_is_legal(tmp_path: Path) -> None:
     """Round-2 review: unchanged-owner mention (no hand-off) is LEGAL per
     spec invariant 4's 或-rule — the deterministic re-dispatch loop the
@@ -119,7 +116,6 @@ def test_plain_mention_with_registry_is_legal(tmp_path: Path) -> None:
     assert issues == [], issues
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     "body",
     [
@@ -155,7 +151,6 @@ def test_adverb_hai_plain_mentions_legal(tmp_path: Path, body: str) -> None:
     assert issues == [], issues
 
 
-@pytest.mark.unit
 def test_declaration_origin_cross_checked(tmp_path: Path) -> None:
     """Round-3 review: a declaration is not free text — its stated hand-off
     origin must sit inside the registry's recorded owner cell.
@@ -182,7 +177,6 @@ def test_declaration_origin_cross_checked(tmp_path: Path) -> None:
     assert any("经手起点" in det and "期望 owner" in det for _cid, det in issues), issues
 
 
-@pytest.mark.unit
 def test_transfer_declaration_exempts(tmp_path: Path) -> None:
     d = tmp_path
     (d / "chapter-1.md").write_text("他把红纸包收进袖子。", encoding="utf-8")
@@ -206,7 +200,6 @@ def test_transfer_declaration_exempts(tmp_path: Path) -> None:
     assert issues == [], issues
 
 
-@pytest.mark.unit
 def test_legacy_memo_exempts_prop_check(tmp_path: Path) -> None:
     """Legacy memo (no scene-budget block): declaration cross-check exempt —
     G4.cp already WARNs on the legacy shape.
@@ -229,7 +222,6 @@ def test_legacy_memo_exempts_prop_check(tmp_path: Path) -> None:
     assert issues == [], issues
 
 
-@pytest.mark.unit
 def test_bundle_follower_chain_advance(tmp_path: Path) -> None:
     """Round-4 review: the follower's check runs BEFORE the leader settles —
     the leader's on-disk memo hop must advance the expected origin.
@@ -260,7 +252,6 @@ def test_bundle_follower_chain_advance(tmp_path: Path) -> None:
     assert issues == [], issues
 
 
-@pytest.mark.unit
 def test_same_memo_two_lines_chain(tmp_path: Path) -> None:
     """Two declaration lines for one prop chain in order (round-4 fix — the
     old dict() collapsed them and failed the survivor).
@@ -287,7 +278,6 @@ def test_same_memo_two_lines_chain(tmp_path: Path) -> None:
     assert issues == [], issues
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("body", "label"),
     [
@@ -323,7 +313,6 @@ def test_metaphor_and_replacement_not_transfers(tmp_path: Path, body: str, label
     assert issues == [], f"{label}: {issues}"
 
 
-@pytest.mark.unit
 def test_comma_hijack_variant_clean() -> None:
     """Round-4 pin: the comma-joined inanimate clause (lamp goes out, she
     does not move) does not make the lamp a present character.
@@ -333,7 +322,6 @@ def test_comma_hijack_variant_clean() -> None:
     assert reserved_name_hijack_hits("灯灭了，她没动。\n\n灯灭了，她没动。", ("灯",)) == []
 
 
-@pytest.mark.unit
 def test_object_position_inner_verb_clean() -> None:
     """Round-4 pin: «他在心里记了灯的位置» — the reserved name is the inner
     verb's OBJECT, not the bound narrator.
@@ -343,7 +331,6 @@ def test_object_position_inner_verb_clean() -> None:
     assert protagonist_binding_hits("他在心里记了灯的位置。", "灯", ("临", "他")) == []
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("body", "label"),
     [

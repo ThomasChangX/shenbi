@@ -15,13 +15,11 @@ from shenbi.text.voice_lexicon import (
 FIX = Path(__file__).resolve().parents[3] / "tests/fixtures"
 
 
-@pytest.mark.unit
 def test_no_single_char_verbs_in_lexicon() -> None:
     """裸单字排除（「记」在旧九章 8-26 次/章——plan R1 实测）。"""
     assert all(len(v) >= 2 for v in ACCOUNTING_VERBS)
 
 
-@pytest.mark.unit
 def test_catchphrases_extracted_with_annotation_stripping() -> None:
     card = (
         "---\nname: 林烽\nvoice_profile:\n  catchphrases:\n"
@@ -30,19 +28,16 @@ def test_catchphrases_extracted_with_annotation_stripping() -> None:
     assert catchphrases_from_card(card) == ["这笔我先记下", "折旧完了，人就自由了"]
 
 
-@pytest.mark.unit
 def test_distinct_signals_counting() -> None:
     body = "他心里想：这笔我先记下。利息又涨了。这买卖不亏吧？\n他又数了一遍。"
     # catchphrase 命中(1) + 动词族命中(1, 利息) + 自嘲反问(1) = 3；重复 catchphrase 去重
     assert distinct_voice_signals(body, ["这笔我先记下"]) == 3
 
 
-@pytest.mark.unit
 def test_distinct_signals_empty_body() -> None:
     assert distinct_voice_signals("他推门。", ["这笔我先记下"]) == 0
 
 
-@pytest.mark.unit
 def test_genre_params_domains() -> None:
     import json
 

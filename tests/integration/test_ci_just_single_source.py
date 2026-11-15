@@ -47,9 +47,10 @@ class TestAddoptsCoverageIsolation:
         assert cov_flags == [], f"global addopts still carry coverage: {cov_flags}"
 
     def test_just_test_is_nocov(self):
+        """Fast recipe = not-last + no-cov + order pin (spec #92 T3 merged test/test-all)."""
         pytest_lines = [l.strip() for l in JUSTFILE.splitlines() if "uv run pytest" in l]
-        unit_only = [l for l in pytest_lines if '-m "unit"' in l]
-        assert unit_only and all("--no-cov" in l for l in unit_only), unit_only
+        fast = [l for l in pytest_lines if '-m "not last"' in l and "--no-cov" in l]
+        assert fast and all("-p no:randomly" in l for l in fast), fast
 
 
 class TestJustfileCheckScope:

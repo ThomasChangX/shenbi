@@ -14,15 +14,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 REPO = Path(__file__).resolve().parents[4]
 SKILL = REPO / "skills" / "shenbi-state-settling" / "SKILL.md"
 INJ_SRC = REPO / "src" / "shenbi" / "pipeline" / "dispatch_helper.py"
 GATE_SRC = REPO / "src" / "shenbi" / "gates" / "g4" / "state_settling.py"
 
 
-@pytest.mark.unit
 def test_tolerant_regex_implies_quote_example_and_exclusion_clause() -> None:
     """(a) tolerant regex (live helper form) present => quote example + clause."""
     from shenbi.gates.g4.state_settling import _format_drops
@@ -41,7 +38,6 @@ def test_tolerant_regex_implies_quote_example_and_exclusion_clause() -> None:
     assert "自陈补全（第N章原句）" in skill, "① SKILL 引语双行正例缺席"
 
 
-@pytest.mark.unit
 def test_bundle_exemption_iff_dual_chapter_injection() -> None:
     """(b) symmetric: gate twin exemption present <=> injection dual-chapter."""
     from shenbi.gates.g4.state_settling import _bundle_exempt_chapters

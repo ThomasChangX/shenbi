@@ -62,7 +62,6 @@ class TestGTransition:
         assert json.loads(result_str)
 
 
-@pytest.mark.unit
 def test_g_dispatch_passes_when_all_skills_completed(make_project) -> None:
     """GD.1 PASS when completed_skill_names ⊇ all_skills()."""
     from shenbi.gates.shared import all_skills
@@ -72,7 +71,6 @@ def test_g_dispatch_passes_when_all_skills_completed(make_project) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_g_dispatch_fails_when_progress_missing(tmp_path: Path) -> None:
     """Missing progress.json -> FAIL with GD.0:no_progress in must_fix."""
     result = _result_dict(gate_G_DISPATCH("drafting", str(tmp_path / "empty")))
@@ -80,7 +78,6 @@ def test_g_dispatch_fails_when_progress_missing(tmp_path: Path) -> None:
     assert any("GD.0" in mf for mf in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g_dispatch_fails_when_skills_incomplete(make_project) -> None:
     """completed_skill_names missing some -> FAIL with GD.1 listing missing."""
     _, round_dir = make_project(progress={"completed_skill_names": []})
@@ -89,7 +86,6 @@ def test_g_dispatch_fails_when_skills_incomplete(make_project) -> None:
     assert any("GD.1" in mf for mf in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g_dispatch_fails_on_invalid_json_progress(make_project, tmp_path: Path) -> None:
     """progress.json that is not valid JSON -> FAIL with GD.0:progress_json_invalid."""
     _, round_dir = make_project()
@@ -99,7 +95,6 @@ def test_g_dispatch_fails_on_invalid_json_progress(make_project, tmp_path: Path)
     assert any("GD.0:progress_json_invalid" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g_dispatch_fails_on_non_dict_progress(make_project) -> None:
     """progress.json holding a JSON array -> jload raises ValueError (not caught).
 
@@ -115,7 +110,6 @@ def test_g_dispatch_fails_on_non_dict_progress(make_project) -> None:
         gate_G_DISPATCH("drafting", str(round_dir))
 
 
-@pytest.mark.unit
 def test_g_dispatch_fails_when_completed_skill_names_key_absent(make_project) -> None:
     """progress.json without completed_skill_names -> defaults to [] -> GD.1 FAIL.
 

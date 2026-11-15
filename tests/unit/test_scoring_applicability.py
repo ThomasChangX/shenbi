@@ -11,8 +11,6 @@ from __future__ import annotations
 import textwrap
 from pathlib import Path
 
-import pytest
-
 from shenbi.scoring import (
     Dimension,
     filter_dimensions_by_test_type,
@@ -49,7 +47,6 @@ BOTH_TABLES = LEGACY_TABLE + "\n" + PER_DIM_TABLE
 
 
 class TestPerDimRowApplicability:
-    @pytest.mark.unit
     def test_real_worldbuilding_bug_hunt_excludes_dim4(self) -> None:
         dims = [
             Dimension(num=1, name="A", weight=20),
@@ -58,24 +55,20 @@ class TestPerDimRowApplicability:
         out = filter_dimensions_by_test_type(dims, str(WORLDBUILDING), "bug-hunt")
         assert [d["num"] for d in out] == [1]
 
-    @pytest.mark.unit
     def test_synthetic_per_dim_header_parsed(self, tmp_path: Path) -> None:
         app = load_applicability(_write_rubric(tmp_path, PER_DIM_TABLE))
         assert app["bug-hunt"]["dim 4"] is False
         assert app["bug-hunt"]["dim 1"] is True
         assert app["clean"]["dim 4"] is True
 
-    @pytest.mark.unit
     def test_no_applicability_section_exempt(self, tmp_path: Path) -> None:
         app = load_applicability(_write_rubric(tmp_path, "| # | Dimension |\n|---|---|\n| 1 | A |"))
         assert app == {}
 
-    @pytest.mark.unit
     def test_legacy_dimension_scope_still_parsed(self, tmp_path: Path) -> None:
         app = load_applicability(_write_rubric(tmp_path, LEGACY_TABLE))
         assert app["bug-hunt"]["dim 2"] is False
 
-    @pytest.mark.unit
     def test_legacy_then_per_dim_both_parsed(self, tmp_path: Path) -> None:
         app = load_applicability(_write_rubric(tmp_path, BOTH_TABLES))
         assert app["bug-hunt"]["dim 2"] is False  # legacy table

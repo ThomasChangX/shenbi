@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.relationship_map import g4_relationship_map
 
 
@@ -24,7 +22,6 @@ def _result(s: str) -> dict[str, Any]:
     return json.loads(s)
 
 
-@pytest.mark.unit
 def test_fails_when_relationships_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "characters").mkdir(parents=True)
@@ -32,7 +29,6 @@ def test_fails_when_relationships_missing(tmp_path: Path) -> None:
     assert any("G4.rel.not_found" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_less_than_3_pairs(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "characters").mkdir(parents=True)
@@ -43,7 +39,6 @@ def test_fails_when_less_than_3_pairs(tmp_path: Path) -> None:
     assert any("G4.rm.pairs" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_character_matrix_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "characters").mkdir(parents=True)
@@ -56,7 +51,6 @@ def test_fails_when_character_matrix_missing(tmp_path: Path) -> None:
     assert any("G4.rm.character_matrix" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_with_complete_data(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "characters").mkdir(parents=True)

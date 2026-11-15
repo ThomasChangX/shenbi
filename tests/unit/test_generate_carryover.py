@@ -6,9 +6,7 @@ from pathlib import Path
 
 import pytest
 
-pytestmark = pytest.mark.unit
-
-from tools.generate_carryover import generate_carryover  # noqa: E402
+from tools.generate_carryover import generate_carryover
 
 HEADER = (
     "# Findings Ledger\n\n"

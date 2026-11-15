@@ -11,7 +11,6 @@ import pytest
 from shenbi.gates import shared
 
 
-@pytest.mark.unit
 def test_import_shared_performs_no_iterdir(monkeypatch: pytest.MonkeyPatch) -> None:
     calls: list[str] = []
     real = Path.iterdir
@@ -33,7 +32,6 @@ def test_import_shared_performs_no_iterdir(monkeypatch: pytest.MonkeyPatch) -> N
         shared.__dict__.update(snapshot)
 
 
-@pytest.mark.unit
 def test_shared_has_no_write_functions() -> None:
     for name, member in vars(shared).items():
         if inspect.isfunction(member) and member.__module__ == "shenbi.gates.shared":

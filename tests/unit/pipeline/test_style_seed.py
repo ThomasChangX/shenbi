@@ -11,11 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.pipeline.style_seed import DEFAULT_STYLE_DIRECTIVES, seed_style_directives
-
-pytestmark = pytest.mark.unit
 
 
 def test_seed_writes_default_when_absent(tmp_path: Path) -> None:

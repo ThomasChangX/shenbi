@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from tools.lint_shadow_promotion import check_promotion
 
 GENRE = {
@@ -58,21 +56,18 @@ def _mk(tmp_path: Path, *, warn_chapters: dict[str, list[int]], ledger: str | No
     return tmp_path
 
 
-@pytest.mark.unit
 def test_two_clean_bundles_flagged(tmp_path: Path) -> None:
     _mk(tmp_path, warn_chapters={"cp.cold_streak_window": [37, 38]})
     f = check_promotion(tmp_path, None)
     assert any("cold_streak_window" in x and "转正" in x for x in f)
 
 
-@pytest.mark.unit
 def test_single_bundle_not_flagged(tmp_path: Path) -> None:
     _mk(tmp_path, warn_chapters={"cp.cold_streak_window": [37]})
     f = check_promotion(tmp_path, None)
     assert not any("cold_streak" in x for x in f)
 
 
-@pytest.mark.unit
 def test_promoted_gate_not_flagged(tmp_path: Path) -> None:
     # hot_hook_floor shadow:false in GENRE — WARN events for it are ignored
     _mk(tmp_path, warn_chapters={"cp.hot_hook_window": [37, 38]})
@@ -80,7 +75,6 @@ def test_promoted_gate_not_flagged(tmp_path: Path) -> None:
     assert not any("hot_hook" in x for x in f)
 
 
-@pytest.mark.unit
 def test_misfire_ruling_resets_streak(tmp_path: Path) -> None:
     _mk(
         tmp_path,
@@ -91,7 +85,6 @@ def test_misfire_ruling_resets_streak(tmp_path: Path) -> None:
     assert not any("cold_streak" in x and "转正" in x for x in f)
 
 
-@pytest.mark.unit
 def test_no_trace_degrades_visible(tmp_path: Path) -> None:
     _mk(tmp_path, warn_chapters={})
     f = check_promotion(tmp_path, None)

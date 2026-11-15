@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from shenbi.contracts.schemas.registry import TruthFilesRegistry
 from tools.lint_contracts import find_completeness_violations
 
@@ -18,7 +16,6 @@ _REG = TruthFilesRegistry.model_validate(
 )
 
 
-@pytest.mark.unit
 def test_report_consumed_downstream_without_writes_is_flagged() -> None:
     dag = {"edges": [{"producer": "R", "consumer": "X", "file": "audits/chapter-N-anti-ai.md"}]}
     contracts = {
@@ -34,7 +31,6 @@ def test_report_consumed_downstream_without_writes_is_flagged() -> None:
     assert any(v["skill"] == "R" for v in vios)
 
 
-@pytest.mark.unit
 def test_report_with_persisted_writes_is_clean() -> None:
     dag = {"edges": [{"producer": "R", "consumer": "X", "file": "audits/chapter-N-anti-ai.md"}]}
     contracts = {
@@ -54,7 +50,6 @@ def test_report_with_persisted_writes_is_clean() -> None:
     assert find_completeness_violations(contracts, dag, _REG) == []
 
 
-@pytest.mark.unit
 def test_glob_read_satisfied_by_concrete_report_write() -> None:
     """The completeness check is glob-aware: a concrete audit write satisfies
     a glob audit read (the real drift-guidance → review-* case).

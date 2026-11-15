@@ -34,8 +34,6 @@ from shenbi.phase_runner import (
     save_state,
 )
 
-pytestmark = pytest.mark.unit
-
 # --- Fixtures -------------------------------------------------------------
 
 
@@ -883,7 +881,6 @@ class TestPostSkillOutputDiscovery:
 # --- F158: phase name sanitization (path traversal) ---
 
 
-@pytest.mark.unit
 def test_load_state_rejects_traversal_phase(tmp_path):
     from shenbi.phase_runner import load_state
 
@@ -891,7 +888,6 @@ def test_load_state_rejects_traversal_phase(tmp_path):
         load_state(str(tmp_path), "../evil")
 
 
-@pytest.mark.unit
 def test_save_state_rejects_traversal_phase(tmp_path):
     from shenbi.phase_runner import save_state
 
@@ -900,7 +896,6 @@ def test_save_state_rejects_traversal_phase(tmp_path):
         save_state(str(tmp_path), {"phase": "../evil", "steps": []})
 
 
-@pytest.mark.unit
 def test_valid_phase_roundtrip(tmp_path):
     from shenbi.phase_runner import load_state, save_state
 

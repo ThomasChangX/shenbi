@@ -212,7 +212,6 @@ def test_archive_last_section_without_trailing_newline(tmp_path: Path) -> None:
 # --- spec #85 T5 (audit I2): C-layer ledger assertions ---
 
 
-@pytest.mark.unit
 def test_c_layer_p_family_detail_section_archivable(tmp_path) -> None:
     """P-family detail sections are now in the archival domain (was never)."""
     import re

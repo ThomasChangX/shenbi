@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g4.cross_chapter import (
     CrossChapterContext,
     check_cross_chapter,
@@ -13,7 +11,6 @@ from shenbi.gates.g4.cross_chapter import (
 )
 
 
-@pytest.mark.unit
 def test_cn_amount() -> None:
     assert cn_amount("一百九十二") == 192
     assert cn_amount("十二") == 12
@@ -21,7 +18,6 @@ def test_cn_amount() -> None:
     assert cn_amount("十") == 10
 
 
-@pytest.mark.unit
 def test_balance_jump_without_event_fails() -> None:
     import tempfile
 
@@ -45,7 +41,6 @@ def test_balance_jump_without_event_fails() -> None:
         assert any("余额跳变" in det for _cid, det in issues)
 
 
-@pytest.mark.unit
 def test_balance_jump_with_event_passes() -> None:
     import tempfile
 
@@ -70,7 +65,6 @@ def test_balance_jump_with_event_passes() -> None:
         assert not any("余额跳变" in det for _cid, det in issues)
 
 
-@pytest.mark.unit
 def test_small_delta_passes() -> None:
     import tempfile
 

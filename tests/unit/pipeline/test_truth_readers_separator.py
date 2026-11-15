@@ -12,14 +12,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.pipeline.truth_readers import read_pending_hooks
 
 _FIXTURE = Path(__file__).parents[2] / "fixtures" / "pending-hooks-probe13.md"
 
 
-@pytest.mark.unit
 def test_separatorless_genesis_table_keeps_first_row() -> None:
     import tempfile
 
@@ -36,7 +33,6 @@ def test_separatorless_genesis_table_keeps_first_row() -> None:
     assert len(ids) == 16
 
 
-@pytest.mark.unit
 def test_table_with_separator_still_parses() -> None:
     """The canonical form (separator present) must keep working — start at
     i+1 with separator-skip, not i+2.

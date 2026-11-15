@@ -10,13 +10,10 @@ with chapter non-None; dropping them would be live behavior tightening).
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
 from shenbi.pipeline.review_checklist import REVIEW_SKILLS, is_review_skill
 
 
-@pytest.mark.unit
 def test_review_resonance_substring_negative(tmp_path, monkeypatch) -> None:
     """A skill merely CONTAINING 'review-resonance' must not trigger the
     resonance post-processing (audit-T4: drive the PUBLIC entry with an
@@ -70,13 +67,11 @@ def test_review_resonance_substring_negative(tmp_path, monkeypatch) -> None:
     assert not is_review_skill("shenbi-xreview-resonance-y")
 
 
-@pytest.mark.unit
 def test_preview_named_skill_not_review() -> None:
     assert not is_review_skill("shenbi-preview-x")  # "review" substring trap
     assert not is_review_skill("shenbi-review")  # bare prefix is not a skill
 
 
-@pytest.mark.unit
 def test_escalation_review_keeps_injection() -> None:
     """r3.1: escalation/foundation review keep the checklist injection."""
     assert is_review_skill("shenbi-escalation-review")
@@ -84,7 +79,6 @@ def test_escalation_review_keeps_injection() -> None:
     assert is_review_skill("shenbi-review-resonance")
 
 
-@pytest.mark.unit
 def test_roster_scan_reconciles_with_skills_dir() -> None:
     """skills/ scan (prefix plus two explicit names, never a bare substring)
     must be a subset of the roster; a new review skill left unregistered
@@ -100,7 +94,6 @@ def test_roster_scan_reconciles_with_skills_dir() -> None:
     assert on_disk <= REVIEW_SKILLS, sorted(on_disk - REVIEW_SKILLS)
 
 
-@pytest.mark.unit
 def test_chapter_steps_flags_set() -> None:
     """Path A: the three steps carry their new attributes."""
     settling = next(s for s in CHAPTER_STEPS if s.skill == "shenbi-state-settling")

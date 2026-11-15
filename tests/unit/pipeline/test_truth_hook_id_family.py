@@ -16,8 +16,6 @@ the same hook, while chapter-local hooks (``CH1-L1``) stay non-family.
 
 from __future__ import annotations
 
-import pytest
-
 from shenbi.pipeline.truth_io import canon_hook_id, is_hook_heading, upsert_markdown_row
 
 #: probe15 live shape — genesis template form, id and name in one heading.
@@ -118,7 +116,6 @@ class TestLiveFormFieldMerge:
         assert merged.count("### MH02") == 1
 
 
-@pytest.mark.unit
 def test_live_form_registry_row_upsert_replaces_by_canon_key():
     """Table branch: a live-form registry row is keyed by its id cell."""
     live = (

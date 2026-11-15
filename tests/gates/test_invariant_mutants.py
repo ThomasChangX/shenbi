@@ -14,8 +14,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g4.chapter_drafting import (
     _ORDINAL_RE,
     check_counter_reconciliation,
@@ -41,14 +39,12 @@ def _ch08_baseline_count() -> int:
     return counts[-1]
 
 
-@pytest.mark.unit
 def test_ch08_baseline_derives_count_three():
     # 接线断言（plan R1-M9）：ch8 基线语料「添第三个名字」⇒ 鉴录名数=3。
     # counter-dup 的互斥判红依赖这个 3 不是硬编码。
     assert _ch08_baseline_count() == 3
 
 
-@pytest.mark.unit
 def test_mutant_name_swap_killed_by_f15():
     # ch20 pre-rev：叙述段林烽×10+（主语误名伤口）⇒ F15 必须拦
     identity = {"narration_name": "那罕", "from_ch": 3, "aliases": ["林烽"]}
@@ -56,7 +52,6 @@ def test_mutant_name_swap_killed_by_f15():
     assert any(i.startswith("XC.narration_name:") for i in issues)
 
 
-@pytest.mark.unit
 def test_mutant_prop_chain_break_killed_by_f16():
     # ch20 pre-rev L218：帖木哥交哨无 memo 声明（无源交付伤口）⇒ F16 必须拦。
     # known_names 传生产同款 roster（spec §4 人名要件，2026-10-29 实弹校准）
@@ -70,7 +65,6 @@ def test_mutant_prop_chain_break_killed_by_f16():
     assert any("cd.prop_handoff:" in i for i in issues)
 
 
-@pytest.mark.unit
 def test_mutant_counter_dup_killed_by_f17():
     # ch9 pre-rev「第一页两个名字」vs ch8 基线 3（跨文件互斥）⇒ F17 必须拦。
     # 基线值从 ch08 fixture 派生（非硬编码 3）——mutant 语料与基线语料同源对账
@@ -84,7 +78,6 @@ def test_mutant_counter_dup_killed_by_f17():
 # ── 绿语料对极（防误报面；完整 as-of 终态断言在 T13 test_facts_backfill）──
 
 
-@pytest.mark.unit
 def test_green_ch20_fixed_passes_f15_and_f16():
     text = CH20_GREEN.read_text(encoding="utf-8")
     identity = {"narration_name": "那罕", "from_ch": 3, "aliases": ["林烽"]}
@@ -94,7 +87,6 @@ def test_green_ch20_fixed_passes_f15_and_f16():
     assert check_prop_handoffs(text, memo_text=memo, props=props) == []
 
 
-@pytest.mark.unit
 def test_green_ch9_fixed_passes_f17():
     # 修复后 ch9：第一页三个名字 ≡ 基线 3；序数第四 ≡ 声明 3+1=4
     text = "那罕把《鉴录》摊在膝盖上。第一页三个名字，写得规矩。\n\n他添了第四个名字——赵三。"

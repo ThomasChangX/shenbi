@@ -15,7 +15,6 @@ from shenbi.gates.g4.cross_chapter import (
 FIX = Path(__file__).resolve().parents[4] / "tests/fixtures/cross-chapter-regression"
 
 
-@pytest.mark.unit
 def test_cn_anchor_normalization() -> None:
     assert normalize_anchor("腊月初十", None) == (12, 10)
     assert normalize_anchor("初十", 12) == (12, 10)  # 无月继承
@@ -36,7 +35,6 @@ def test_wound3_fixture_ch1_ch2() -> None:
     assert any("时间锚回拨" in det for _cid, det in issues)
 
 
-@pytest.mark.unit
 def test_flashback_marker_exempts() -> None:
     import tempfile
 
@@ -56,7 +54,6 @@ def test_flashback_marker_exempts() -> None:
         assert not any("时间锚回拨" in det for _cid, det in issues)
 
 
-@pytest.mark.unit
 def test_monotonic_forward_passes() -> None:
     import tempfile
 
@@ -70,7 +67,6 @@ def test_monotonic_forward_passes() -> None:
         assert not any("时间锚" in det for _cid, det in issues)
 
 
-@pytest.mark.unit
 def test_quantity_units_are_not_bare_days() -> None:
     """Regen v3 XC false positive: the 一十 inside 一百一十石 (110 dan of
     grain) was bare-day-anchored to (11,10), which then flagged ch11's real
@@ -103,7 +99,6 @@ def test_interest_rate_phrase_not_a_date_anchor():
     assert normalize_anchor("月息三分，四个月一百四十四文。", 1) is None
 
 
-@pytest.mark.unit
 def test_roster_counts_before_pause_punct_are_not_bare_days() -> None:
     """束4 ch42 实弹（2026-11-05）：名册计数「船工十二，」「加护卫二十三；」
     被裸十X/廿X 日形态捕获，carry 月后伪成 (2,12)/(2,23)——前章末锚被推到
@@ -151,7 +146,6 @@ def test_bare_tens_regex_shape_punct_guard() -> None:
     assert _BARE_DAY_INITIAL_RE.search("初十，") is not None
 
 
-@pytest.mark.unit
 def test_counting_unit_gen_after_tens_not_bare_day() -> None:
     """束5 ch44 实弹（2026-11-06）：算筹计数「第二十三根/二十四根」被裸日
     形态误锚 (2,23)/(2,24)——ch44 末锚被推到未来，ch45 真锚二月初六 误判

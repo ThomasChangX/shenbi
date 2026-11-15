@@ -10,8 +10,6 @@ import pytest
 from shenbi.gates import g5
 from shenbi.gates.g5 import gate_G5
 
-pytestmark = pytest.mark.unit
-
 MARKER = "missing G5_CHECKER_GLOBS entry"
 
 

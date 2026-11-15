@@ -431,7 +431,6 @@ class TestRoutingDeprecationExit:
         assert "shenbi-review-sensitivity" not in active  # F905: fixed step 14 is the sole source
 
 
-@pytest.mark.unit
 def test_audit_report_paths_derived_from_contract_writes():
     """Fixcheck ch2: grouped audit skills declare their real outputs in the
     contract (shenbi-review-group-character writes character/dialogue/
@@ -456,7 +455,6 @@ def test_audit_report_paths_derived_from_contract_writes():
     ], paths
 
 
-@pytest.mark.unit
 def test_audit_report_paths_falls_back_to_convention():
     from shenbi.pipeline.audit_layer import audit_relative_path, audit_report_paths
 

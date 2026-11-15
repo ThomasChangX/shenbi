@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.plot_thread_weaver import g4_plot_thread_weaver
 
 
@@ -24,7 +22,6 @@ def _result(s: str) -> dict[str, Any]:
     return json.loads(s)
 
 
-@pytest.mark.unit
 def test_fails_when_thread_map_missing(tmp_path: Path) -> None:
     """Missing thread_map.md -> FAIL."""
     project_dir, marker = _setup(tmp_path)
@@ -34,7 +31,6 @@ def test_fails_when_thread_map_missing(tmp_path: Path) -> None:
     assert any("G4.thread.not_found" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_fails_when_no_lines(tmp_path: Path) -> None:
     """thread_map.md without A/B/C lines -> FAIL."""
     project_dir, marker = _setup(tmp_path)
@@ -45,7 +41,6 @@ def test_fails_when_no_lines(tmp_path: Path) -> None:
     assert any("G4.pt.lines" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_passes_with_valid_thread_map(tmp_path: Path) -> None:
     """thread_map.md with A/B/C, table, blank detection -> PASS.
 
@@ -77,7 +72,6 @@ def test_passes_with_valid_thread_map(tmp_path: Path) -> None:
     assert result["status"] == "PASS", result.get("must_fix")
 
 
-@pytest.mark.unit
 def test_passes_with_legacy_literal_vocabulary(tmp_path: Path) -> None:
     """Legacy `## A 长线` literal headings still pass (backward compat)."""
     project_dir, marker = _setup(tmp_path)
@@ -94,7 +88,6 @@ def test_passes_with_legacy_literal_vocabulary(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_single_tier_still_passes_any_match_semantics(tmp_path: Path) -> None:
     """Any single tier match passes — missing_A/B/C fires only when ALL are absent.
 

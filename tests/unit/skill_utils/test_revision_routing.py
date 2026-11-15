@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-import pytest
-
 from shenbi.skill_utils.revision_routing.preserve_check import verify_preservation
 from shenbi.skill_utils.revision_routing.route import route_revision
 
 
-@pytest.mark.unit
 def test_pure_craft_issues_route_to_spot_fix() -> None:
     diagnosis = {
         "issues": [
@@ -23,7 +20,6 @@ def test_pure_craft_issues_route_to_spot_fix() -> None:
     assert route_revision(diagnosis) == "spot-fix"
 
 
-@pytest.mark.unit
 def test_unmet_blocking_goal_routes_to_regenerate() -> None:
     diagnosis = {
         "issues": [
@@ -38,7 +34,6 @@ def test_unmet_blocking_goal_routes_to_regenerate() -> None:
     assert route_revision(diagnosis) == "regenerate"
 
 
-@pytest.mark.unit
 def test_unmet_blocking_plus_craft_routes_to_constrained_regenerate() -> None:
     diagnosis = {
         "issues": [
@@ -59,7 +54,6 @@ def test_unmet_blocking_plus_craft_routes_to_constrained_regenerate() -> None:
     assert route_revision(diagnosis) == "constrained-regenerate"
 
 
-@pytest.mark.unit
 def test_unmet_non_blocking_goal_routes_to_spot_fix() -> None:
     diagnosis = {
         "issues": [
@@ -74,12 +68,10 @@ def test_unmet_non_blocking_goal_routes_to_spot_fix() -> None:
     assert route_revision(diagnosis) == "spot-fix"
 
 
-@pytest.mark.unit
 def test_empty_diagnosis_routes_to_spot_fix() -> None:
     assert route_revision({"issues": []}) == "spot-fix"
 
 
-@pytest.mark.unit
 def test_preservation_pass_when_all_items_retained() -> None:
     original = {
         "chapter": 5,
@@ -98,7 +90,6 @@ def test_preservation_pass_when_all_items_retained() -> None:
     assert violations == []
 
 
-@pytest.mark.unit
 def test_preservation_fails_when_hook_lost() -> None:
     original = {
         "chapter": 5,
@@ -117,7 +108,6 @@ def test_preservation_fails_when_hook_lost() -> None:
     assert any("H03" in v for v in violations)
 
 
-@pytest.mark.unit
 def test_preservation_fails_when_change_lost() -> None:
     original = {
         "chapter": 5,
@@ -136,7 +126,6 @@ def test_preservation_fails_when_change_lost() -> None:
     assert len(violations) == 1
 
 
-@pytest.mark.unit
 def test_preservation_fails_when_state_change_reverted() -> None:
     original = {
         "chapter": 5,

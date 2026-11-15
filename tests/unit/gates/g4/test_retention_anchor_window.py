@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 
 GENRE_BASE: dict[str, Any] = {
@@ -47,13 +45,11 @@ def _mf(tmp_path: Path, ch: int) -> list[str]:
     return json.loads(out).get("must_fix", [])
 
 
-@pytest.mark.unit
 def test_past_30_missing_anchor_fails_when_window_open(tmp_path: Path) -> None:
     _mk(tmp_path, ch=40, retention={"from_ch": 1, "to_ch": None})  # None = 全卷
     assert any("missing_retention_anchor" in m for m in _mf(tmp_path, 40))
 
 
-@pytest.mark.unit
 def test_legacy_absent_config_uses_hardcode(tmp_path: Path) -> None:
     """Config absent → 1-30 hardcode (existing-project compat)."""
     _mk(tmp_path, ch=40, retention=None)
@@ -62,7 +58,6 @@ def test_legacy_absent_config_uses_hardcode(tmp_path: Path) -> None:
     assert any("missing_retention_anchor" in m for m in _mf(tmp_path, 25))  # 25 inside
 
 
-@pytest.mark.unit
 def test_window_bounds_respected(tmp_path: Path) -> None:
     _mk(tmp_path, ch=5, retention={"from_ch": 10, "to_ch": 20})
     assert not any("missing_retention_anchor" in m for m in _mf(tmp_path, 5))  # below from_ch

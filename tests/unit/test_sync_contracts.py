@@ -40,13 +40,11 @@ def _reg(
     )
 
 
-@pytest.mark.unit
 def test_parametric_normalizes_to_glob() -> None:
     reg = _reg(patterns=[{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}])
     assert normalize_to_glob("chapters/chapter-N.md", reg) == "chapters/chapter-*.md"
 
 
-@pytest.mark.unit
 def test_normalize_falls_back_to_declared_glob_for_per_dim_literal() -> None:
     """A per-dimension audit literal (audits/chapter-N-anti-ai.md) is not the
     registered parametric (audits/chapter-N-<dim>.md), so the patterns lookup
@@ -61,7 +59,6 @@ def test_normalize_falls_back_to_declared_glob_for_per_dim_literal() -> None:
     assert normalize_to_glob("audits/chapter-N-anti-ai.md", reg) == "audits/chapter-*.md"
 
 
-@pytest.mark.unit
 def test_parametric_glob_wins_over_broader_declared_glob() -> None:
     """A registered parametric (chapters/chapter-N.md) matches both its own
     pattern and the broad chapters/*.md glob; the specific parametric glob must
@@ -74,7 +71,6 @@ def test_parametric_glob_wins_over_broader_declared_glob() -> None:
     assert normalize_to_glob("chapters/chapter-N.md", reg) == "chapters/chapter-*.md"
 
 
-@pytest.mark.unit
 def test_load_all_contracts_emits_kind() -> None:
     """load_all_contracts() must include ``kind`` per contract — the
     contract-completeness lint (lint_contracts.find_completeness_violations)
@@ -89,19 +85,16 @@ def test_load_all_contracts_emits_kind() -> None:
         assert "kind" in c, f"{skill} contract missing kind (completeness lint would skip it)"
 
 
-@pytest.mark.unit
 def test_declared_glob_passes_through() -> None:
     reg = _reg(globs=[{"pattern": "truth/*.md"}])
     assert normalize_to_glob("truth/*.md", reg) == "truth/*.md"
 
 
-@pytest.mark.unit
 def test_concrete_path_stays_concrete() -> None:
     reg = _reg(concepts=[{"name": "novel.json", "kind": "config"}])
     assert normalize_to_glob("novel.json", reg) == "novel.json"
 
 
-@pytest.mark.unit
 def test_dag_edge_from_producer_to_consumer() -> None:
     contracts = {
         "A": {"writes": ["chapters/chapter-N.md"], "updates": [], "reads": []},
@@ -112,7 +105,6 @@ def test_dag_edge_from_producer_to_consumer() -> None:
     assert {"producer": "A", "consumer": "B", "file": "chapters/chapter-N.md"} in dag["edges"]
 
 
-@pytest.mark.unit
 def test_dag_connects_concrete_write_to_glob_read() -> None:
     """A concrete audit write must join a glob audit read (glob-aware matching)."""
     contracts = {
@@ -124,7 +116,6 @@ def test_dag_connects_concrete_write_to_glob_read() -> None:
     assert any(e["producer"] == "reviewer" and e["consumer"] == "drift" for e in dag["edges"])
 
 
-@pytest.mark.unit
 def test_derive_expected_outputs_normalizes_and_dedups() -> None:
     """Two members writing the same glob -> one entry; parametric -> glob."""
     phase = {"prerequisites": ["A", "B"]}
@@ -136,7 +127,6 @@ def test_derive_expected_outputs_normalizes_and_dedups() -> None:
     assert derive_expected_outputs(phase, contracts, reg) == ["chapters/chapter-*.md"]
 
 
-@pytest.mark.unit
 def test_bijection_self_check_passes_when_complete() -> None:
     """Every member write is emitted and every emitted entry traces to a member."""
     phase = {"prerequisites": ["A"]}
@@ -147,7 +137,6 @@ def test_bijection_self_check_passes_when_complete() -> None:
     verify_bijection(generated, phase, contracts, reg)
 
 
-@pytest.mark.unit
 def test_bijection_self_check_rejects_dropped_member_write() -> None:
     """verify_bijection raises when a member write is missing from generated."""
     phase = {"prerequisites": ["A", "B"]}

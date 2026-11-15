@@ -24,8 +24,6 @@ import os
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from shenbi.gates.g0 import check_calibration_integrity
 
 
@@ -57,7 +55,6 @@ def _compute_combined(calibration_dir: Path) -> str:
     return h.hexdigest()
 
 
-@pytest.mark.unit
 def test_empty_dir_with_locked_empty_hash_passs(tmp_path: Path) -> None:
     """Scaffolding state: no anchors yet, empty-set hash is locked -> PASS."""
     cal_dir = tmp_path / "calibration"
@@ -72,7 +69,6 @@ def test_empty_dir_with_locked_empty_hash_passs(tmp_path: Path) -> None:
     assert checks[0]["s"] == "PASS"
 
 
-@pytest.mark.unit
 def test_missing_lock_entry_fails_with_hint(tmp_path: Path) -> None:
     """deps.json without _calibration_hashes at all must FAIL and name the lock script."""
     cal_dir = tmp_path / "calibration"
@@ -86,7 +82,6 @@ def test_missing_lock_entry_fails_with_hint(tmp_path: Path) -> None:
     assert any("lock-calibration-hash.sh" in m for m in must_fix), must_fix
 
 
-@pytest.mark.unit
 def test_tamper_then_restore(tmp_path: Path) -> None:
     """Adding/modifying an anchor after locking must FAIL; restoring must PASS."""
     cal_dir = tmp_path / "calibration"
@@ -114,7 +109,6 @@ def test_tamper_then_restore(tmp_path: Path) -> None:
     assert fail_reason is None
 
 
-@pytest.mark.unit
 def test_multiple_anchors_content_change_detected(tmp_path: Path) -> None:
     """After authoring several anchors and locking, editing one's content fails."""
     cal_dir = tmp_path / "calibration"
@@ -134,7 +128,6 @@ def test_multiple_anchors_content_change_detected(tmp_path: Path) -> None:
     assert checks[0]["s"] == "FAIL"
 
 
-@pytest.mark.unit
 def test_nested_subdirectories_included(tmp_path: Path) -> None:
     """Anchors may live in per-dimension subdirs; all must be in the combined hash."""
     cal_dir = tmp_path / "calibration"

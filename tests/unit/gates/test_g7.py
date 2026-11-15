@@ -15,9 +15,6 @@ def _result_dict(result: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(result))
 
 
-pytestmark = pytest.mark.unit
-
-
 class TestG7RoundClose:
     def test_emits_valid_json_for_empty_round(self, tmp_path: Path) -> None:
         """G7 must return a parseable result for any round_dir, even empty."""
@@ -39,7 +36,6 @@ class TestG7ErrorPaths:
     """
 
 
-@pytest.mark.unit
 def test_g7_template_placeholders_in_skill_output_fails(tmp_path: Path) -> None:
     """An output file with >10% '待填充' placeholder lines -> G7.5:placeholders."""
     round_dir = tmp_path / "round"
@@ -53,7 +49,6 @@ def test_g7_template_placeholders_in_skill_output_fails(tmp_path: Path) -> None:
     assert any("G7.5:placeholders" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g7_pending_truth_files_after_state_settling_fails(tmp_path: Path) -> None:
     """A truth/*.md with frontmatter status: pending -> G7.6:pending_truth."""
     round_dir = tmp_path / "round"
@@ -66,7 +61,6 @@ def test_g7_pending_truth_files_after_state_settling_fails(tmp_path: Path) -> No
     assert any("G7.6:pending_truth" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g713_g4_marker_pass_but_rerun_fails(tmp_path: Path) -> None:
     """A G4 marker claiming PASS whose re-run FAILs -> G7.13:marker_PASS_rerun_FAIL.
 
@@ -85,7 +79,6 @@ def test_g713_g4_marker_pass_but_rerun_fails(tmp_path: Path) -> None:
     assert any("G7.13:" in mf and "marker_PASS_rerun_FAIL" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g713_g6_marker_rerun_runs(tmp_path: Path) -> None:
     """A G6 marker claiming PASS triggers a gate_G6 re-run (G7.13 G6 branch).
 
@@ -103,7 +96,6 @@ def test_g713_g6_marker_rerun_runs(tmp_path: Path) -> None:
     assert any("G7.13:" in mf and "marker_PASS_rerun_FAIL" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_g714_timeline_warns_when_marker_newer_than_score(tmp_path: Path) -> None:
     """A gate marker newer than a score file -> G7.14 WARN.
 
@@ -130,7 +122,6 @@ def test_g714_timeline_warns_when_marker_newer_than_score(tmp_path: Path) -> Non
     assert g714_warns
 
 
-@pytest.mark.unit
 def test_g715_duplicate_score_pattern_warns_and_writes_audit(tmp_path: Path) -> None:
     """Three skills sharing an identical score vector -> G7.15 DUPLICATE_PATTERN WARN.
 
@@ -160,7 +151,6 @@ def test_g715_duplicate_score_pattern_warns_and_writes_audit(tmp_path: Path) -> 
     )
 
 
-@pytest.mark.unit
 def test_g715_raw_score_file_vector(tmp_path: Path) -> None:
     """A score file without a 'dimensions' key uses the raw-vector branch.
 
@@ -178,7 +168,6 @@ def test_g715_raw_score_file_vector(tmp_path: Path) -> None:
     assert g715 is not None  # raw-vector branch ran without crashing
 
 
-@pytest.mark.unit
 def test_g716_phase_state_not_finalized_fails(tmp_path: Path) -> None:
     """A phase-state file whose state is not 'finalized' -> G7.16 FAIL.
 
@@ -197,7 +186,6 @@ def test_g716_phase_state_not_finalized_fails(tmp_path: Path) -> None:
     assert any("G7.16:phase:genesis:state=started" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_parse_report_stem_contract(tmp_path: Path) -> None:
     """Direct contract pin for the shared stem parser (final review M2)."""
     from shenbi.gates.shared import all_skills, parse_report_stem
@@ -211,7 +199,6 @@ def test_parse_report_stem_contract(tmp_path: Path) -> None:
     assert parse_report_stem("hallucinated-skill-report", all_skills()) is None
 
 
-@pytest.mark.unit
 def test_g4_bughunt_alias_writes_canonical_marker(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

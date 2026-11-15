@@ -20,12 +20,6 @@ def test_sample_worldbuilding_fixture_writes_files(sample_worldbuilding_output: 
     assert (sample_worldbuilding_output / "world" / "story_bible.md").exists()
 
 
-@pytest.mark.unit
-def test_unit_marker_works() -> None:
-    """@pytest.mark.unit should not raise."""
-    assert True
-
-
 @pytest.mark.integration
 def test_integration_marker_works() -> None:
     """@pytest.mark.integration should not raise."""

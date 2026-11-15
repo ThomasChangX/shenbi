@@ -14,7 +14,6 @@ import pytest
 from shenbi.pipeline.registry_seeding import main, seed_name_registry
 
 
-@pytest.mark.unit
 def test_seed_creates_registry_with_core_rows(tmp_path: Path) -> None:
     target = seed_name_registry(tmp_path)
     assert target == tmp_path / "truth" / "name_registry.md"
@@ -25,7 +24,6 @@ def test_seed_creates_registry_with_core_rows(tmp_path: Path) -> None:
     assert "| 禁用名 | 灯 |" in text
 
 
-@pytest.mark.unit
 def test_seed_is_idempotent_existing_registry_untouched(tmp_path: Path) -> None:
     seed_name_registry(tmp_path)
     target = tmp_path / "truth" / "name_registry.md"
@@ -34,7 +32,6 @@ def test_seed_is_idempotent_existing_registry_untouched(tmp_path: Path) -> None:
     assert "已由 settling 演进的字典" in target.read_text(encoding="utf-8")
 
 
-@pytest.mark.unit
 def test_cli_main_returns_zero(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     rc = main([str(tmp_path)])
     assert rc == 0

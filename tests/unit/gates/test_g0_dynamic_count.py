@@ -4,13 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates import shared
 from shenbi.gates.shared import all_skills
 
 
-@pytest.mark.unit
 def test_all_skills_is_dynamic_not_hardcoded(tmp_path: Path) -> None:
     """all_skills() is lazily scanned, cached, and directory-perceptive (spec #89 T4)."""
     first = all_skills()

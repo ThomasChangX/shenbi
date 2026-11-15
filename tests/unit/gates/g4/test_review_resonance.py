@@ -36,7 +36,6 @@ VALID = """# 共鸣评分报告
 """
 
 
-@pytest.mark.unit
 def test_valid_report_passes(tmp_path: Path) -> None:
     f = tmp_path / "audits" / "chapter-1-resonance.md"
     f.parent.mkdir(parents=True, exist_ok=True)
@@ -45,7 +44,6 @@ def test_valid_report_passes(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_missing_confidence_column_fails(tmp_path: Path) -> None:
     f = tmp_path / "audits" / "chapter-1-resonance.md"
     f.parent.mkdir(parents=True, exist_ok=True)
@@ -58,7 +56,6 @@ def test_missing_confidence_column_fails(tmp_path: Path) -> None:
     assert any("G4.rr.detail_table" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_missing_full_score_column_fails(tmp_path: Path) -> None:
     f = tmp_path / "audits" / "chapter-1-resonance.md"
     f.parent.mkdir(parents=True, exist_ok=True)
@@ -71,7 +68,6 @@ def test_missing_full_score_column_fails(tmp_path: Path) -> None:
     assert any("G4.rr.detail_table" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize("verdict", ["通过", "阻断", "待人机复核"])
 def test_accepts_each_valid_verdict(tmp_path: Path, verdict: str) -> None:
     body = VALID.replace("判定: 通过", f"判定: {verdict}")
@@ -83,7 +79,6 @@ def test_accepts_each_valid_verdict(tmp_path: Path, verdict: str) -> None:
     assert any(c["id"] == "G4.rr.verdict" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_missing_calibration_section_fails(tmp_path: Path) -> None:
     f = tmp_path / "audits" / "chapter-1-resonance.md"
     f.parent.mkdir(parents=True, exist_ok=True)
@@ -99,7 +94,6 @@ def test_missing_calibration_section_fails(tmp_path: Path) -> None:
     assert any("G4.rr.verdict" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_invalid_verdict_value_fails(tmp_path: Path) -> None:
     body = VALID.replace("判定: 通过", "判定: 优秀")
     f = tmp_path / "audits" / "chapter-1-resonance.md"
@@ -110,7 +104,6 @@ def test_invalid_verdict_value_fails(tmp_path: Path) -> None:
     assert any("G4.rr.verdict" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_missing_file_line_evidence_fails(tmp_path: Path) -> None:
     # Table is structurally complete but the 证据 cell has no L<digits> ref.
     body = VALID.replace("`chapters/chapter-1.md` L45", "叙事平淡")
@@ -122,14 +115,12 @@ def test_missing_file_line_evidence_fails(tmp_path: Path) -> None:
     assert any("G4.rr.evidence" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_empty_file_list_skips() -> None:
     result = _run([])
     assert result["status"] == "PASS"
     assert any(c.get("s") == "SKIP" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_nonexistent_file_fails(tmp_path: Path) -> None:
     result = _run([str(tmp_path / "nope.md")])
     assert result["status"] == "FAIL"
@@ -139,32 +130,27 @@ def test_nonexistent_file_fails(tmp_path: Path) -> None:
 # ── _match_verdict unit tests ────────────────────────────────────────────
 
 
-@pytest.mark.unit
 def test_match_verdict_standard_already_handled():
     """The existing pattern already matches the standard format."""
     assert _match_verdict("判定: 通过") == "通过"
 
 
-@pytest.mark.unit
 def test_match_verdict_full_width_colon_already_handled():
     """Full-width colon is already accepted by the existing regex."""
     assert _match_verdict("判定：阻断") == "阻断"
 
 
-@pytest.mark.unit
 def test_match_verdict_no_space_already_handled():
     r"""No space after colon is already accepted (\s* is optional)."""
     assert _match_verdict("判定:通过") == "通过"
 
 
-@pytest.mark.unit
 def test_match_verdict_bold_format_is_the_genuine_gap():
     """Genuine gap 1: '**判定**: 通过' (markdown bold) needs a supplement pattern."""
     assert _match_verdict("**判定**: 通过") == "通过"
     assert _match_verdict("**判定**：阻断") == "阻断"
 
 
-@pytest.mark.unit
 def test_match_verdict_english_prefix_is_the_genuine_gap():
     """Genuine gap 2: 'Verdict: <token>' (English prefix) needs a supplement pattern.
 
@@ -177,7 +163,6 @@ def test_match_verdict_english_prefix_is_the_genuine_gap():
     assert _match_verdict("Verdict: PASS") == "PASS"
 
 
-@pytest.mark.unit
 def test_match_verdict_none_for_no_match():
     """No verdict-like pattern returns None."""
     assert _match_verdict("something else entirely") is None

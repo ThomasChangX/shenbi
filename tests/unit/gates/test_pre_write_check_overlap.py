@@ -26,8 +26,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 SKILLS_DIR = Path(__file__).resolve().parents[3] / "skills"
 
 NL_ARTIFACT_SKILLS = [
@@ -39,7 +37,6 @@ NL_ARTIFACT_SKILLS = [
 ]
 
 
-@pytest.mark.unit
 class TestPreWriteCheckOverlap:
     def test_audit_embedded_mechanisms(self) -> None:
         """Document which skills have PRE_WRITE_CHECK / POST_WRITE_SELF_CHECK.

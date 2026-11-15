@@ -31,8 +31,6 @@ from shenbi.gates.shared import (
     yload,
 )
 
-pytestmark = pytest.mark.unit
-
 # --- TestJload -----------------------------------------------------------
 
 
@@ -307,7 +305,6 @@ class TestSharedErrorPaths:
     added here to avoid duplication.
     """
 
-    @pytest.mark.unit
     def test_jload_raises_on_non_dict_json(self, tmp_path: Path) -> None:
         """Array JSON should raise ValueError, not silently return."""
         p = tmp_path / "array.json"
@@ -315,7 +312,6 @@ class TestSharedErrorPaths:
         with pytest.raises(ValueError, match="expected JSON object"):
             jload(str(p))
 
-    @pytest.mark.unit
     def test_jload_raises_on_primitive_json(self, tmp_path: Path) -> None:
         """A JSON string/primitive should raise ValueError, not silently return."""
         p = tmp_path / "str.json"
@@ -323,7 +319,6 @@ class TestSharedErrorPaths:
         with pytest.raises(ValueError):
             jload(str(p))
 
-    @pytest.mark.unit
     def test_yload_raises_on_non_dict_yaml(self, tmp_path: Path) -> None:
         """A YAML list is not a mapping -> ValueError with expected YAML mapping."""
         p = tmp_path / "list.yaml"
@@ -331,14 +326,12 @@ class TestSharedErrorPaths:
         with pytest.raises(ValueError, match="expected YAML mapping"):
             yload(str(p))
 
-    @pytest.mark.unit
     def test_yload_returns_empty_dict_for_empty_file(self, tmp_path: Path) -> None:
         """An empty file parses to an empty dict (no error)."""
         p = tmp_path / "empty.yaml"
         p.write_text("", encoding="utf-8")
         assert yload(str(p)) == {}
 
-    @pytest.mark.unit
     def test_unimplemented_returns_valid_json(self) -> None:
         """Unimplemented returns a parseable UNIMPLEMENTED JSON string."""
         from shenbi.gates.shared import unimplemented

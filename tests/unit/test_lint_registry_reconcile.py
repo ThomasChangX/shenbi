@@ -10,8 +10,6 @@ import pytest
 
 from tools.lint_registry_reconcile import lint_registry_reconcile
 
-pytestmark = pytest.mark.unit
-
 _SRC = Path(__file__).resolve().parents[2]
 _COPY_LIST = [
     "plugins/master.json",

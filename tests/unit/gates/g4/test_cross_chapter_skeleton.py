@@ -17,7 +17,6 @@ from shenbi.gates.g4.cross_chapter import (
 FIX = Path(__file__).resolve().parents[4] / "tests/fixtures/cross-chapter-regression"
 
 
-@pytest.mark.unit
 def test_fixture_provenance_real_output() -> None:
     from shenbi.gates.g0_purity import load_provenance
 
@@ -26,7 +25,6 @@ def test_fixture_provenance_real_output() -> None:
         assert p == "real-output", n
 
 
-@pytest.mark.unit
 def test_prev_chapter_n_minus_one() -> None:
     prev = prev_chapter_path(FIX / "chapters" / "chapter-2.md")
     assert prev is not None and prev.name == "chapter-1.md"
@@ -35,7 +33,6 @@ def test_prev_chapter_n_minus_one() -> None:
     assert p5 is not None and p5.name == "chapter-4.md"
 
 
-@pytest.mark.unit
 def test_first_chapter_skips_seam_items() -> None:
     issues = check_cross_chapter(
         FIX / "chapters" / "chapter-1.md", None, None, CrossChapterContext()
@@ -43,7 +40,6 @@ def test_first_chapter_skips_seam_items() -> None:
     assert issues == []
 
 
-@pytest.mark.unit
 def test_memo_declarations_parsed() -> None:
     import tempfile
 
@@ -78,7 +74,6 @@ def test_g4_entry_reports_wound1() -> None:
     assert any("POV 人称断裂" in m for m in result.get("must_fix", [])), result.get("must_fix", [])
 
 
-@pytest.mark.unit
 def test_registry_absence_degrades_to_warn() -> None:
     """#75: registry tables absent → cross-check layer WARN (visible, not fatal)."""
     import json as _json

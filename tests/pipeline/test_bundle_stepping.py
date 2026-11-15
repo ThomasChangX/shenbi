@@ -76,7 +76,6 @@ def _project(
     return tmp_path
 
 
-@pytest.mark.unit
 def test_steps_version_3_and_16_skills() -> None:
     assert PIPELINE_STEPS_VERSION == 3
     skills = [s.skill for s in CHAPTER_STEPS]
@@ -85,20 +84,17 @@ def test_steps_version_3_and_16_skills() -> None:
     assert skills.index("pipeline-scene-split") == skills.index("shenbi-chapter-drafting") + 1
 
 
-@pytest.mark.unit
 def test_drafting_step_no_md_output_path() -> None:
     drafting = next(s for s in CHAPTER_STEPS if s.skill == "shenbi-chapter-drafting")
     assert drafting.output_path == ""
     assert drafting.uses_staging is True
 
 
-@pytest.mark.unit
 def test_bundle_chapters_no_volume_map_singleton(tmp_path: Path) -> None:
     _project(tmp_path)  # no volume_map → singleton (conservative default)
     assert bundle_chapters(tmp_path, 1) == [1]
 
 
-@pytest.mark.unit
 def test_bundle_chapters_volume_end_singleton(tmp_path: Path) -> None:
     _project(tmp_path, ["## 第1卷 星火（第 1-4 章）", "## 第2卷 燎原（第 5-8 章）"])
     assert bundle_chapters(tmp_path, 3) == [3, 4]
@@ -367,7 +363,8 @@ def test_two_chapter_bundle_loop_drive(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 # regen v3 F1 (2026-10-27): bundle prompt must carry [path-context]
 # ---------------------------------------------------------------------------
-@pytest.mark.unit
+
+
 def test_chapter_step_dispatch_carries_path_context(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

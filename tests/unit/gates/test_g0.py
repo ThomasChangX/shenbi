@@ -67,7 +67,6 @@ class TestG0SeedFile:
         assert "G0.2" not in result.get("must_fix", [])
 
 
-@pytest.mark.unit
 class TestG0HappyPath:
     """Happy-path tests for G0.3-G0.9 — each exercises one check on valid input."""
 
@@ -134,7 +133,6 @@ class TestG0HappyPath:
         assert g06["s"] == "PASS"
 
 
-@pytest.mark.unit
 class TestG0ErrorPaths:
     """Error-path tests for G0 — each pins one FAIL/WARN branch."""
 
@@ -233,7 +231,6 @@ class TestG0ErrorPaths:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_g010_warns_when_fewer_than_total_skills_generative_reports(tmp_path: Path) -> None:
     """round_dir with < total_skills generative reports -> G0.10 WARN (dynamic count, spec §9.4)."""
     seed = tmp_path / "seed.md"
@@ -251,7 +248,6 @@ def test_g010_warns_when_fewer_than_total_skills_generative_reports(tmp_path: Pa
     assert g010["completed"] == 3
 
 
-@pytest.mark.unit
 def test_g010_passes_when_total_skills_or_more_generative_reports(tmp_path: Path) -> None:
     """round_dir with >= total_skills generative reports -> G0.10 PASS (dynamic count, spec §9.4)."""
     from shenbi.gates.shared import all_skills
@@ -273,7 +269,6 @@ def test_g010_passes_when_total_skills_or_more_generative_reports(tmp_path: Path
     assert g010["total"] == total
 
 
-@pytest.mark.unit
 def test_g015_gate_registry_consistency_passes_on_current_repo(tmp_path: Path) -> None:
     """G0.15 asserts G4_CHECKER_SKILLS is a subset of the single-source skill set.
 
@@ -288,7 +283,6 @@ def test_g015_gate_registry_consistency_passes_on_current_repo(tmp_path: Path) -
     assert g015["s"] == "PASS"
 
 
-@pytest.mark.unit
 def test_known_skill_names_is_single_source() -> None:
     """known_skill_names owns the authoritative skill vocabulary (judgement 5)."""
     from shenbi.contracts.registry import known_skill_names
@@ -404,7 +398,6 @@ def test_g011_flags_stale_mirror_and_ignores_frontmatter(
     assert g011 and "stale fixtures" in g011[0]["r"]
 
 
-@pytest.mark.unit
 class TestG02:
     """Spec #69 T4: G0.2 target-words anchored to the Basic Info section."""
 

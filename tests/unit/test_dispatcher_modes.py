@@ -11,7 +11,6 @@ from shenbi.dispatcher.modes.internal import dispatch_internal
 from shenbi.exceptions import DispatcherError
 
 
-@pytest.mark.unit
 def test_dispatch_internal_raises_dispatcher_error(tmp_path: Path) -> None:
     """dispatch_internal hard-rejects because internal mode has no LLM backend.
 
@@ -25,7 +24,6 @@ def test_dispatch_internal_raises_dispatcher_error(tmp_path: Path) -> None:
         )
 
 
-@pytest.mark.unit
 def test_dispatch_codex_api_raises_dispatcher_error() -> None:
     """codex-api mode is unimplemented and raises DispatcherError (covers codex_api.py:15)."""
     with pytest.raises(DispatcherError):

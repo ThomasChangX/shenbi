@@ -5,14 +5,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-import pytest
-
 from shenbi.truth_format import HOOK_ID_RE
 
 FIXTURE = Path("tests/fixtures/truth-pending_hooks-ch56.md")
 
 
-@pytest.mark.unit
 def test_m4_p_family_cell_and_heading() -> None:
     """M4: P-family ids in table cells (:29-35) and headings (:65) must be
     recognized by the truth_io hook faces (cell integral match + heading).
@@ -30,7 +27,6 @@ def test_m4_p_family_cell_and_heading() -> None:
     assert "P0-4" in heading_ids
 
 
-@pytest.mark.unit
 def test_m4_negative_no_partial_two_group_capture() -> None:
     """Negative: the retired two-group cell form captured only ``P0`` from
     ``P0-4`` (mid-number hyphen unmatched by ``-?``). The integral face

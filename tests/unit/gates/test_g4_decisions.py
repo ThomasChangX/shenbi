@@ -5,12 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g4.decisions_validator import g4_decisions
 
 
-@pytest.mark.unit
 class TestG4DecisionsValidation:
     def test_valid_decisions_passes(self, tmp_path: Path) -> None:
         decisions = {
@@ -119,7 +116,6 @@ class TestG4DecisionsValidation:
         assert data["status"] == "FAIL"
 
 
-@pytest.mark.unit
 class TestG4DecisionsFailureIdFormat:
     """Pin the micro-failure ID format as ``G4.dec.<type>``.
 
@@ -163,7 +159,6 @@ class TestG4DecisionsFailureIdFormat:
             assert id_part.count(".") == 2, f"expected shape G4.dec.<type>, got {id_part!r}"
 
 
-@pytest.mark.unit
 class TestG4DecisionsNonJsonSkip:
     """Critical: g4_decisions MUST skip non-JSON files.
 
@@ -202,7 +197,6 @@ class TestG4DecisionsNonJsonSkip:
         assert data["status"] == "PASS"
 
 
-@pytest.mark.unit
 class TestG4CompositeChecker:
     """Critical: make_composite_checker reads 'must_fix' key (not 'failures').
 
@@ -304,7 +298,6 @@ class TestG4CompositeChecker:
         assert "err_b" in result["must_fix"]
 
 
-@pytest.mark.unit
 class TestG4CompositeFilePartitioning:
     """C2: composite checker must partition fps by extension.
 

@@ -68,13 +68,10 @@ module-coverage:
     uv run pytest -n auto -m "not last" --cov=shenbi --cov-branch --cov-report=json:coverage.json -q
     uv run python tools/check_module_coverage.py coverage.json
 
-# Run tests only (fast unit tests)
+# Run the fast test suite (all not-last tests; spec #92 T3 merged test/test-all;
+# -p no:randomly pins order until the pytest-randomly flake root-fix spec lands)
 test *args:
-    uv run pytest -n auto -m "unit" --no-cov "$@"
-
-# Run tests including integration
-test-all *args:
-    uv run pytest -n auto -m "not last" --no-cov "$@"
+    uv run pytest -n auto --dist loadscope -m "not last" --no-cov -p no:randomly "$@"
 
 # Run a single test file
 test-file file:

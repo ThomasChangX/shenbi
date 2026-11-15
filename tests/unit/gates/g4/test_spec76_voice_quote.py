@@ -7,8 +7,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
 from shenbi.gates.g4.chapter_planning import g4_chapter_planning
 from shenbi.gates.g4.volume_outlining import g4_volume_outlining
@@ -73,7 +71,6 @@ def _mk_v2_project(tmp_path: Path, memo: str = _V2_MEMO, chapter: str = _V2_CHAP
     return tmp_path
 
 
-@pytest.mark.unit
 def test_g4cp_token_truth_table_real_gate(tmp_path: Path) -> None:
     """Real-gate invocation (I2-prime rewrite; the old copy was tautological)."""
 
@@ -109,7 +106,6 @@ def test_g4cp_token_truth_table_real_gate(tmp_path: Path) -> None:
     )
 
 
-@pytest.mark.unit
 def test_g4cp_full_gate_v2(tmp_path: Path) -> None:
     d = _mk_v2_project(tmp_path)
     result = json.loads(
@@ -119,7 +115,6 @@ def test_g4cp_full_gate_v2(tmp_path: Path) -> None:
     assert "G4.cp.plan_format" not in str(result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_g4cd_v2_density_pass_and_fail(tmp_path: Path) -> None:
     d = _mk_v2_project(tmp_path)
     ok = json.loads(
@@ -136,7 +131,6 @@ def test_g4cd_v2_density_pass_and_fail(tmp_path: Path) -> None:
     assert any("G4.cd.voice_density" in m for m in bad.get("must_fix", [])), bad.get("must_fix")
 
 
-@pytest.mark.unit
 def test_g4cd_voice_density_failure_quotes_missing_catchphrases_verbatim(
     tmp_path: Path,
 ) -> None:
@@ -162,7 +156,6 @@ def test_g4cd_voice_density_failure_quotes_missing_catchphrases_verbatim(
     assert "『这笔我先记下』" in hit[0]
 
 
-@pytest.mark.unit
 def test_g4cd_voice_density_all_catchphrases_present_no_contradiction(
     tmp_path: Path,
 ) -> None:
@@ -197,7 +190,6 @@ def test_g4cd_voice_density_all_catchphrases_present_no_contradiction(
     assert "未在场卡口癖" not in hit[0]
 
 
-@pytest.mark.unit
 def test_g4cd_quote_type_three_point_sync(tmp_path: Path) -> None:
     # 全一致（静/静/静）→ PASS（C1 回归钉：memo 点须贡献类型——_memo_text 赋值）
     okd = _mk_v2_project(tmp_path / "ok")
@@ -234,7 +226,6 @@ def test_g4cd_quote_type_three_point_sync(tmp_path: Path) -> None:
     assert any("G4.cd.quote_type" in m for m in r3.get("must_fix", [])), r3.get("must_fix")
 
 
-@pytest.mark.unit
 def test_g4vo_meme_grammar() -> None:
     good = "## 第一卷：x（第1—10章）\n\n**金句、母题物象与梗位**: 梗位复用：「班味」、记账式吐槽｜金句：x\n"
     bad = "## 第一卷：x（第1—10章）\n\n**金句、母题物象与梗位**: 梗位复用：记账式吐槽类｜金句：x\n"
@@ -265,7 +256,6 @@ emotion_tone: 平
 """
 
 
-@pytest.mark.unit
 def test_g4cp_v3_obligations(tmp_path: Path) -> None:
     def run(memo: str, tag: str) -> list[str]:
         d = tmp_path / tag
@@ -298,7 +288,6 @@ def test_g4cp_v3_obligations(tmp_path: Path) -> None:
     assert any("voice_line" in m for m in run(base.replace("声口要求: 账房腔+自嘲反问\n", ""), "d"))
 
 
-@pytest.mark.unit
 def test_g4cd_v3_micro_hook_run(tmp_path: Path) -> None:
     d = _mk_v2_project(tmp_path, memo=_V3_MEMO)
     for k in (1, 2, 3):
@@ -316,7 +305,6 @@ def test_g4cd_v3_micro_hook_run(tmp_path: Path) -> None:
     assert any("G4.cd.micro_hook_run" in m for m in r.get("must_fix", [])), r.get("must_fix")
 
 
-@pytest.mark.unit
 def test_g4cd_micro_hook_snapshot_overrides_plan_relabel(tmp_path: Path) -> None:
     """Spec #82 T1/I4 (audit-T4/I1): snapshot wins over plan relabel.
 

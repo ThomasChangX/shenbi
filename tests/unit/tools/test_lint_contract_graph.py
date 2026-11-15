@@ -19,7 +19,6 @@ LINT = REPO / "tools" / "lint_contract_graph.py"
 # without first importing the module under test (which would load contracts).
 
 
-@pytest.mark.unit
 def test_clean_repo_has_zero_orphan_reads() -> None:
     """Phase-0 found 0 orphan reads; the lint should pass (exit 0) on the real
     contract set. A regression that introduces a dangling read into a real
@@ -29,7 +28,6 @@ def test_clean_repo_has_zero_orphan_reads() -> None:
     assert r.returncode == 0, f"orphan reads:\n{r.stdout}\n{r.stderr}"
 
 
-@pytest.mark.unit
 def test_detects_injected_orphan(monkeypatch: pytest.MonkeyPatch) -> None:
     """Canary #1: a contract with a read no skill produces → ORPHAN_READ detected.
 

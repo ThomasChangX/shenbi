@@ -9,13 +9,11 @@ import pytest
 from shenbi.paths import RoundPaths
 
 
-@pytest.mark.unit
 def test_require_roots_raises_the_pinned_string() -> None:
     with pytest.raises(ValueError, match="round_dir or project_dir required"):
         RoundPaths.require_roots(None, None, Path("."))
 
 
-@pytest.mark.unit
 def test_require_roots_mutual_defaults() -> None:
     rp = RoundPaths.require_roots("/tmp/rd", None, "/repo")
     assert rp.round_dir == Path("/tmp/rd") and rp.project_dir == Path("/tmp/rd")
@@ -23,7 +21,6 @@ def test_require_roots_mutual_defaults() -> None:
     assert rp2.project_dir == Path("/proj") and rp2.round_dir == Path("/proj")
 
 
-@pytest.mark.unit
 def test_require_roots_explicit_both() -> None:
     rp = RoundPaths.require_roots("/tmp/rd", "/proj", "/repo")
     assert rp.round_dir == Path("/tmp/rd")

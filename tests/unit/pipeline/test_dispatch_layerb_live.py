@@ -18,8 +18,6 @@ from shenbi.contracts import fields as fields_mod
 from shenbi.pipeline import dispatch_helper as dh
 from shenbi.pipeline.dispatch_helper import build_skill_prompt
 
-pytestmark = pytest.mark.unit
-
 
 @pytest.fixture()
 def warn_spy(monkeypatch: pytest.MonkeyPatch) -> dict[str, list[str]]:

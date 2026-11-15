@@ -62,7 +62,6 @@ def _plan(
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_plan_without_emotion_tone_fails_g4(tmp_path: Path) -> None:
     f = tmp_path / "chapter-005-plan.md"
     f.write_text(_plan(emotion_tone=None), encoding="utf-8")
@@ -71,7 +70,6 @@ def test_plan_without_emotion_tone_fails_g4(tmp_path: Path) -> None:
     assert any("G4.cp.missing_emotion_tone" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize("tone", ["悲", "喜", "怒", "惧", "平"])
 def test_plan_with_valid_emotion_tone_passes(tmp_path: Path, tone: str) -> None:
     f = tmp_path / "chapter-005-plan.md"
@@ -81,7 +79,6 @@ def test_plan_with_valid_emotion_tone_passes(tmp_path: Path, tone: str) -> None:
     assert any(c["id"] == "G4.cp.emotion_tone" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_invalid_emotion_tone_value_rejected(tmp_path: Path) -> None:
     f = tmp_path / "chapter-005-plan.md"
     f.write_text(_plan(emotion_tone="emo"), encoding="utf-8")
@@ -95,7 +92,6 @@ def test_invalid_emotion_tone_value_rejected(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_plan_without_payoff_beat_fails_g4(tmp_path: Path) -> None:
     f = tmp_path / "chapter-005-plan.md"
     f.write_text(_plan(payoff=None), encoding="utf-8")
@@ -104,7 +100,6 @@ def test_plan_without_payoff_beat_fails_g4(tmp_path: Path) -> None:
     assert any("G4.cp.missing_payoff_beat" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_payoff_beat_no_payoff_escape_is_legal(tmp_path: Path) -> None:
     """A no-payoff escape value ("无" plus reason) is a legal payoff
     declaration — not every chapter pays off.
@@ -116,7 +111,6 @@ def test_payoff_beat_no_payoff_escape_is_legal(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.cp.payoff_beat" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_payoff_beat_bare_form_also_matches(tmp_path: Path) -> None:
     """A non-bold `payoff 拍: ...` line still satisfies the checker."""
     f = tmp_path / "chapter-005-plan.md"
@@ -130,7 +124,6 @@ def test_payoff_beat_bare_form_also_matches(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.unit
 def test_early_chapter_without_retention_anchor_fails(tmp_path: Path) -> None:
     f = tmp_path / "chapter-005-plan.md"
     f.write_text(_plan(anchor=None), encoding="utf-8")
@@ -139,7 +132,6 @@ def test_early_chapter_without_retention_anchor_fails(tmp_path: Path) -> None:
     assert any("G4.cp.missing_retention_anchor" in mf for mf in result["must_fix"])
 
 
-@pytest.mark.unit
 def test_early_chapter_non_anchor_escape_is_legal(tmp_path: Path) -> None:
     f = tmp_path / "chapter-005-plan.md"
     f.write_text(_plan(anchor="**留存锚**: 非锚章"), encoding="utf-8")
@@ -148,7 +140,6 @@ def test_early_chapter_non_anchor_escape_is_legal(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.cp.retention_anchor" and c["s"] == "PASS" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_chapter_31_without_anchor_is_skipped(tmp_path: Path) -> None:
     """Outside the retention window the anchor line is not required."""
     f = tmp_path / "chapter-031-plan.md"
@@ -158,7 +149,6 @@ def test_chapter_31_without_anchor_is_skipped(tmp_path: Path) -> None:
     assert any(c["id"] == "G4.cp.retention_anchor" and c["s"] == "SKIP" for c in result["checks"])
 
 
-@pytest.mark.unit
 def test_chapter_30_boundary_is_inclusive(tmp_path: Path) -> None:
     """N=30 is inside the window (inclusive upper bound); the anchor is required."""
     f = tmp_path / "chapter-030-plan.md"
@@ -185,7 +175,6 @@ def _template_lines(token: str) -> list[str]:
     return lines
 
 
-@pytest.mark.unit
 def test_canonical_emotion_tone_template_passes(tmp_path: Path) -> None:
     """The verbatim emotion_tone line from the SKILL.md §1 template block
     must pass the gate (template-drift guard, same as its payoff/anchor
@@ -204,7 +193,6 @@ def test_canonical_emotion_tone_template_passes(tmp_path: Path) -> None:
     assert result["status"] == "PASS"
 
 
-@pytest.mark.unit
 def test_canonical_payoff_and_anchor_templates_pass(tmp_path: Path) -> None:
     payoff_line = _template_lines("payoff 拍")[0]
     anchor_line = _template_lines("留存锚")[0]
@@ -230,7 +218,6 @@ def _run_cd(fps: list[str], rd: str | None = None) -> dict[str, Any]:
 _BODY = "他沿着矿道往前走，看了看手里的名册，又放回怀里。" * 140
 
 
-@pytest.mark.unit
 def test_ledger_line_ending_satisfies_hook_gate(tmp_path: Path) -> None:
     """A cold ledger closer (>=2 arabic digits, no tension word, no question)
     is the 账目钩 form from the seed's 章末钩七型 — it must pass G4.cd.
@@ -249,7 +236,6 @@ def test_ledger_line_ending_satisfies_hook_gate(tmp_path: Path) -> None:
     assert not any("G4.cd.no_hook" in m for m in result.get("must_fix", []))
 
 
-@pytest.mark.unit
 def test_single_digit_flat_ending_still_fails_hook_gate(tmp_path: Path) -> None:
     """Non-vacuous control: one stray digit is not a ledger line."""
     flat = "\n\n".join(
