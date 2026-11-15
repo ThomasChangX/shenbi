@@ -15,9 +15,9 @@
 
 ### #92 · 测试与门禁管线卫生（test-ci-hygiene）
 
-- **文件**：`2026-11-01-spec92-test-ci-hygiene.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r3** 2026-11-15 价值门 REWRITE——T1 拆双职保 calibration 半段/判据补 audit-runs 排除面/定序钉同 commit/T6 改道 tests/support/） ｜ **优先级**：🟠 P1
+- **文件**：`2026-11-01-spec92-test-ci-hygiene.md` ｜ **系列**：架构复审批次 A ｜ **状态**：Design（**r3.2** 2026-11-15 价值门 REWRITE[T1 拆双职保 calibration 半段/判据 git grep 定形/T6 改道 tests/support/] + 阶段 3 设计审查两轮批[T2 薄包装钉死+sync_contracts 排除/T4 例外表全枚举/pytest-randomly 根治移出另立挂账]） ｜ **优先级**：🟠 P1
 - **依赖**：无硬依赖（与 #90/#93/#95 共 justfile/lint_registry 文件面，顺序见「批次 A 共享文件面」表）
-- **内容**：deps.json **_tool_hashes 整删**（G7 不使用、唯一消费者是 R3 自洽检查；连带 lock-tool-hashes.sh/R3/**5 处测试+2 处 G0.14 断言+3 份活文档**/DepsDoc 字段）+ DepsDoc 单装载函数 **6 个 src 读者+3 tools** 换装（phase_runner 同名 load_deps 改薄包装）+ REPO_ROOT 常量替 parents[N] 魔法（7 点）+ **test 与 test-all 合并**（`unit` 标记退役**三选一**——`--strict-markers` 下删定义=全仓 1,153 处标注收集 ERROR，已复现）+ --cov-fail-under 四拷收敛 pyproject + just lint/type/test-ci 子配方（lint 20+#95 新增 1）+ pre-push hook 构造性子集（补 hypothesis profile 对齐）+ 死目录/幻影 norecursedirs/contract 孪生/per-file-ignores 整并 + dispatch_payload 构造器首批 5 文件；**＋tests/pipeline pytest-randomly 顺序 flake**（束7 实测：随机序 6 失败/固定序双侧全绿——顺序敏感根因待查，2026-11-08 束7 发现）
+- **内容**：deps.json **_tool_hashes 整删**（G7 不使用、唯一消费者是 R3 自洽检查；**r3 拆双职**：lock-tool-hashes.sh 瘦身保 calibration 半段改名 lock-calibration-hash.sh——它是 G0.14 运行时消费物 `_calibration_hashes.combined` 的唯一 re-lock writer；连带 R3 face/测试处置清单/活文档）+ DepsDoc 单装载（src 读者换装，**sync_contracts 与 tools 侧排除**——RMW 字节稳定；phase_runner 同名 load_deps 改薄包装保留 CLI-exit 语义）+ REPO_ROOT 常量替 parents[N] 魔法（7 点+注释行）+ **test 与 test-all 合并**（`unit` 标记退役**三选一**——`--strict-markers` 下删定义=全仓 1,296 处标注收集 ERROR，已复现）+ --cov-fail-under 收敛 pyproject + just lint/type/test-ci 子配方（lint 28）+ pre-push hook 构造性子集（补 hypothesis profile 对齐+例外表全枚举）+ 死目录/幻影 norecursedirs/contract 孪生/per-file-ignores（382 行）整并 + dispatch_payload 构造器（tests/support/ 落位，首批高置信文件换装不凑数）；**pytest-randomly 顺序 flake 根治已移出本批 scope 另立 spec 挂账（r3.1 裁定——束7 实测随机序 6 失败/固定序全绿）**
 - **对应 plan**：待执行时建
 - **触及的不变量维度**：无（测试/CI 基建）
 
