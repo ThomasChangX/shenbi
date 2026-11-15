@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Pre-push fast pre-flight — a SUBSET of the CI gates. The authority is
 # `just check` (spec #63 C25); this hook adds push-time ergonomics only.
+# Faces 2-5 are constructive (call the just sub-recipes); the remaining
+# hook-only faces are the spec #92 T4 exception table: pip-audit (4b),
+# mkdocs conditional (4c), dead-code warn (6); 8/9 are command-level
+# copies of check's inline codegen face.
 # Install: pre-commit install --hook-type pre-push
 set -euo pipefail
 
@@ -10,29 +14,12 @@ echo "=== pre-push: fast pre-flight (full gates: just check) ==="
 echo "--- uv lock --check ---"
 uv lock --check
 
-# 2. Ruff lint + format (just check ruff lines)
-echo "--- ruff check ---"
-uv run ruff check .
-echo "--- ruff format --check ---"
-uv run ruff format --check .
-
-# 3. Type checking (just check mypy/basedpyright lines)
-echo "--- mypy ---"
-uv run mypy src/shenbi/
-echo "--- basedpyright ---"
-uv run basedpyright || { echo "basedpyright failed"; exit 1; }
-
-# 4. Custom linters (subset of just check lint lines)
-echo "--- lint_status_strings ---"
-uv run python tools/lint_status_strings.py
-echo "--- lint_contracts ---"
-uv run python tools/lint_contracts.py
-echo "--- lint_repo_consistency ---"
-uv run python tools/lint_repo_consistency.py
-echo "--- lint_no_forbid ---"
-uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
-echo "--- lint_no_fs_mutation ---"
-uv run python tools/lint_no_fs_mutation.py src/shenbi
+# 2-3. Lint + type faces: constructive via just recipes (spec #92 T4 —
+# no hand-copied tool lines; the recipes are the single source)
+echo "--- just lint ---"
+just lint
+echo "--- just type ---"
+just type
 
 # 4b. Security audit (security workflow; not in just check)
 echo "--- pip-audit (uv.lock full set, mirroring CI security.yml — spec #41 R1) ---"
@@ -66,11 +53,10 @@ elif changed="$(git diff --name-only main...HEAD)" && grep -qE '^(docs/|mkdocs\.
   uv sync --frozen --group dev >/dev/null  # restore dev env for subsequent pytest/mypy/ruff
 fi
 
-# 5. Tests (just check pytest lines, flag-aligned)
-# --dist loadscope groups tests by module so ThreadPoolExecutor tests
-# don't interfere across modules. --timeout prevents indefinite hangs.
-echo "--- pytest (with coverage >= 85%) ---"
-uv run pytest -n auto --dist loadscope -m "not last" --cov=shenbi --cov-branch --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing --cov-fail-under=85 --timeout=120
+# 5. Tests: constructive via just test-ci (both pytest legs + module
+# coverage; threshold from pyproject fail_under — spec #92 T4)
+echo "--- just test-ci ---"
+just test-ci
 
 # 6. Dead code detection
 echo "--- dead code check (reportUnusedFunction) ---"
@@ -82,18 +68,14 @@ if [ "$UNUSED_COUNT" -gt 5 ]; then
     echo "Review with: grep -rn 'reportUnusedFunction' src/shenbi/"
 fi
 
-# 7. Coverage threshold test (serial, last only)
-# Must use --no-cov so this invocation doesn't overwrite coverage.xml
-# produced by step 5. The test reads the existing coverage.xml.
-echo "--- pytest coverage threshold ---"
-uv run pytest -p no:xdist -m "last" --no-cov --timeout=60
-
-# 8. Contract sync idempotency (just check codegen idempotency)
+# 8. Contract sync idempotency — command-level copy of check's inline
+# codegen face (spec #92 T4: constructive ⊆ check by identical commands)
 echo "--- contract-sync idempotency ---"
 uv run shenbi-sync-contracts >/dev/null
 git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ .codex-plugin/
 
-# 9. Auto-check docs idempotency
+# 9. Auto-check docs idempotency — command-level copy of check's inline
+# codegen face (spec #92 T4)
 echo "--- autocheck-docs idempotency ---"
 uv run python tools/generate_autocheck_docs.py >/dev/null
 git diff --exit-code -- skills/
