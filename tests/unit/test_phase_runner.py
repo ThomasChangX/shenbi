@@ -19,6 +19,7 @@ from typing import Any
 import pytest
 
 from shenbi import phase_runner
+from shenbi.contracts.schemas.deps import DepsDoc
 from shenbi.phase_runner import (
     cmd_finalize,
     cmd_post_score,
@@ -472,7 +473,7 @@ class TestCmdPreScore:
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        deps = {"t2-phases": {"design": {"prerequisites": ["shenbi-x"]}}}
+        deps = DepsDoc.model_validate({"t2-phases": {"design": {"prerequisites": ["shenbi-x"]}}})
         monkeypatch.setattr(phase_runner, "load_deps", lambda: deps)
         marker_dir = round_dir / "gate-markers"
         marker_dir.mkdir()
@@ -488,7 +489,9 @@ class TestCmdPreScore:
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        deps = {"t2-phases": {"design": {"prerequisites": ["shenbi-x", "shenbi-y"]}}}
+        deps = DepsDoc.model_validate(
+            {"t2-phases": {"design": {"prerequisites": ["shenbi-x", "shenbi-y"]}}}
+        )
         monkeypatch.setattr(phase_runner, "load_deps", lambda: deps)
         marker_dir = round_dir / "gate-markers"
         marker_dir.mkdir()
@@ -508,7 +511,9 @@ class TestCmdPreScore:
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        deps = {"t2-phases": {"design": {"prerequisites": [], "expected_outputs": ["report.md"]}}}
+        deps = DepsDoc.model_validate(
+            {"t2-phases": {"design": {"prerequisites": [], "expected_outputs": ["report.md"]}}}
+        )
         monkeypatch.setattr(phase_runner, "load_deps", lambda: deps)
         with pytest.raises(SystemExit) as exc:
             cmd_pre_score("design", str(round_dir))
@@ -525,7 +530,9 @@ class TestCmdPreScore:
         """Patterns containing '*' use rglob; presence of any match passes."""
         (round_dir / "project-output").mkdir()
         (round_dir / "project-output" / "ch-001.md").write_text("x", encoding="utf-8")
-        deps = {"t2-phases": {"design": {"prerequisites": [], "expected_outputs": ["ch-*.md"]}}}
+        deps = DepsDoc.model_validate(
+            {"t2-phases": {"design": {"prerequisites": [], "expected_outputs": ["ch-*.md"]}}}
+        )
         monkeypatch.setattr(phase_runner, "load_deps", lambda: deps)
         cmd_pre_score("design", str(round_dir))
         state = load_state(str(round_dir), "design")
@@ -634,7 +641,7 @@ class TestCmdFinalize:
         """Even on G5 PASS, finalize refuses if prerequisite markers are
         missing — they're independent quality gates.
         """
-        deps = {"t2-phases": {"design": {"prerequisites": ["shenbi-x"]}}}
+        deps = DepsDoc.model_validate({"t2-phases": {"design": {"prerequisites": ["shenbi-x"]}}})
         monkeypatch.setattr(phase_runner, "load_deps", lambda: deps)
         with pytest.raises(SystemExit) as exc:
             cmd_finalize("design", str(round_dir), project_dir=None)

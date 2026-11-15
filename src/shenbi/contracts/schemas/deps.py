@@ -22,6 +22,8 @@ Phase-0-verified facts reflected here:
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from pydantic import BaseModel, Field
 
 
@@ -76,3 +78,14 @@ def phase_of(deps: DepsDoc, skill: str) -> str | None:
         if skill in p.prerequisites:
             return pname
     return None
+
+
+def load_deps(deps_path: Path) -> DepsDoc:
+    """Load and validate tests/tiers/deps.json as :class:`DepsDoc`.
+
+    Raises OSError / pydantic.ValidationError — callers own the error
+    surface (CLI exit, gate fail tuple, marker list). NOTE: pydantic v2
+    ``model_validate_json`` raises ValidationError for malformed JSON too
+    (repo precedent: state_settling.py:867 catches ValueError around it).
+    """
+    return DepsDoc.model_validate_json(deps_path.read_text(encoding="utf-8"))

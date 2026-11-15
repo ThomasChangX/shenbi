@@ -97,7 +97,10 @@ def mirror_digest(path: Path) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+from shenbi.contracts.schemas.deps import load_deps as deps_load
 from shenbi.gates.g0_config_coherence import check_config_coherence
+from pydantic import ValidationError
+
 from shenbi.gates.g0_purity import (
     check_scenario_dir_purity,
     check_scenario_file_purity,
@@ -210,15 +213,15 @@ def check_calibration_integrity(
     actual = h.hexdigest()
 
     try:
-        deps = json.loads(deps_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
+        deps = deps_load(deps_path)
+    except (OSError, ValidationError):
         return (
             [{"id": "G0.14", "s": GateStatus.FAIL, "r": f"deps.json unreadable: {deps_path}"}],
             "deps.json unreadable",
             ["G0.14: repair tests/tiers/deps.json then run tests/lock-calibration-hash.sh"],
         )
 
-    locked = deps.get("_calibration_hashes", {}).get("combined")
+    locked = deps.calibration_hashes.get("combined")
     if locked is None:
         return (
             [

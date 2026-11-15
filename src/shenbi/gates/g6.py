@@ -15,6 +15,9 @@ import re
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
+from shenbi.contracts.schemas.deps import load_deps as deps_load
 from shenbi.gates.g6_checks import check_continuity, check_pacing, check_style_consistency
 from shenbi.text.cjk import find_terms
 from shenbi.gates.shared import (
@@ -38,11 +41,15 @@ def gate_G6(
     c: list[dict[str, Any]] = []
     mf: list[Any] = []
     try:
-        deps = jload(TESTS / "tiers" / "deps.json")
-    except (json.JSONDecodeError, OSError, ValueError):
+        deps = deps_load(TESTS / "tiers" / "deps.json")
+    except (OSError, ValidationError):
         return fail("G6", [], "scoring", ["G6.0:deps.json unreadable or malformed"])
-    pipe_data = deps.get("t3-pipelines", {}).get(pipeline_name, {})
-    min_ratio = pipe_data.get("min_chapter_ratio", 0.5)
+    # NOTE (spec #92 T2a): PipelineDeps.min_chapter_ratio schema default is 0.0;
+    # all 3 real entries carry explicit values (0.5/1.0/1.0) — a future
+    # hand-added entry omitting the key would silently get 0.0 (gate passes
+    # anything); preserving the historical missing-pipeline default of 0.5.
+    pipe_data = deps.t3_pipelines.get(pipeline_name) if pipeline_name else None
+    min_ratio = pipe_data.min_chapter_ratio if pipe_data else 0.5
     pd = Path(project_dir) if project_dir else PROJECT
 
     # G6.1: chapter count >= ceil(expected * min_ratio)
