@@ -42,6 +42,8 @@
   - `SECTION_HEADER_RE`: `re.Pattern[str]`——`^## (BLOCKING|CRITICAL|MINOR|WARNING|ERROR) Findings`（元组组合，含 MINOR——修 report_longitudinal:558 缺词）
   - `CJK_SEVERITY_WORDS: frozenset[str] = frozenset({"严重","高","重大","中","低","警告","阻断"})`
   - `KEY_NAME_TOKENS: frozenset[str] = frozenset({"SEVERITY", "严重度"})`
+  - `ROUTING_BLOCKING_BRACKET_WORDS: tuple[str, ...] = ("BLOCKING",)` 与 `ROUTING_CRITICAL_BRACKET_WORDS: tuple[str, ...] = ("CRITICAL", "ERROR")`（**bracket 形词组单源**——CRITICAL 形必须只含 CRITICAL|ERROR，混入 BLOCKING=行为变更，I-1 修正）
+  - `AGGREGATE_VOCAB_SET: frozenset[str] = frozenset(AGGREGATE_VOCAB)`（T4 管线查表消费——I-2 缝隙闭合：T1 即定义）
 
 - [ ] **Step 1: 失败测试先行**——`tests/unit/contracts/test_severity.py`：
 
@@ -89,6 +91,7 @@ def test_anchored_forms_match_in_vocab_words_only():
     assert BRACKET_ANCHOR_RE.search("- [MINOR] something")
     assert not BRACKET_ANCHOR_RE.search("- [MAJOR] something")  # 词表外不入传感域
     assert BOLD_ANCHOR_RE.search("**BLOCKING**")
+    assert BOLD_ANCHOR_RE.search("**CRITICAL**")  # M-10: bold 形全词断言
     assert CELL_ANCHOR_RE.search("| warning |")  # IGNORECASE legacy cell
     assert KEY_ANCHOR_RE.search("4. **严重度**：BLOCKING / CRITICAL / MINOR") is None  # legend 守卫
     for w in AGGREGATE_VOCAB:
@@ -104,7 +107,7 @@ def test_section_header_re_includes_minor():
 ```
 
 - [ ] **Step 2: 跑测确认失败**——`uv run pytest tests/unit/contracts/test_severity.py -x -q`（ModuleNotFoundError: shenbi.contracts.severity）
-- [ ] **Step 3: 落 `src/shenbi/contracts/severity.py`**——要点：模块 docstring 声明「severity 传感/词表单源（spec #105 T1）——登记域 RoutingTier/AggregateVocab 见 docs/framework/status-vocab.md」；常量与正则全部按 Interfaces 块定义；**四锚定形态正则以 `re.compile(rf"...\[({'|'.join(AGGREGATE_VOCAB)})\]"...)` 元组组合构造**（注释引用迁出来源 audit_aggregate.py:46-61/revision_router.py:127-146 保留原 probe 教训注释的压缩版）；`KEY_ANCHOR_RE` 携 `_ENUM_TAIL`/`QUOTED_VALUE_TAIL` 守卫与 `re.IGNORECASE`；`SECTION_HEADER_RE` 用 `re.M`。
+- [ ] **Step 3: 落 `src/shenbi/contracts/severity.py`**——要点：模块 docstring 声明「severity 传感/词表单源（spec #105 T1）——登记域 RoutingTier/AggregateVocab 见 docs/framework/status-vocab.md」；常量与正则全部按 Interfaces 块定义；**四锚定形态正则以 `re.compile(rf"...\[({'|'.join(AGGREGATE_VOCAB)})\]"...)` 元组组合构造**（注释引用迁出来源 audit_aggregate.py:46-61/revision_router.py:127-146 保留原 probe 教训注释的压缩版）；`KEY_ANCHOR_RE` 携 `_ENUM_TAIL`/`QUOTED_VALUE_TAIL` 守卫与 `re.IGNORECASE`；`SECTION_HEADER_RE` 用 `re.M`；`AGGREGATE_VOCAB_SET = frozenset(AGGREGATE_VOCAB)` 同模块落定（T4 查表消费——I-2）。
 - [ ] **Step 4: 跑测通过**——`uv run pytest tests/unit/contracts/test_severity.py -q` 全绿
 - [ ] **Step 5: status-vocab.md 新增两行**——在 AuditSeverity 行（:21）后插入（5 列格式严格对齐邻行）：
 
@@ -142,7 +145,7 @@ git commit -m "feat: spec #105 T1a — contracts/severity.py 单源模块+status
 
 **Interfaces:**
 - Consumes: Task 1 全部符号。
-- Produces: 六消费点全部 import 单源符号（无本地词表字面量）；`gen_severity_diff_baseline.py <corpus_dir> <out_json>` CLI。
+- Produces: 六消费点全部 import 单源符号（**无本地交替词表**——单词字面量分支[key/bold 单词面、table-bold、单字标签]按行为保持设计保留，M-11 措辞归真）；`gen_severity_diff_baseline.py <corpus_dir> <out_json>` CLI。
 
 - [ ] **Step 1: 语料选章**——按 r2.6 矩阵（文件数口径）选覆盖 union 的 ~10 份（每词≥1、每锚定形态≥1、含 heading 形 `## BLOCKING` 与 `## FAIL` 若语料有——用 grep 实测定稿；**真空洞组合仅 CRITICAL bold 与 ERROR bracket**，MINOR cell 22 份/CRITICAL cell 3 份语料实有必选）。执行期用：
 
@@ -173,7 +176,7 @@ def sensor_outputs(content: str) -> dict[str, object]:
     """Five sensors over one audit file's content (pre-swap call sites, kept stable)."""
     from shenbi.pipeline import audit_aggregate, audit_layer, chapter_loop, revision_router
     from shenbi.pipeline.parallel_dispatch import (
-        detect_wave_hard_failure,
+        consolidate_review_results,  # parallel_dispatch.py:303（M-7 实名——草拟名 detect_wave_hard_failure 不存在）
     )  # 若函数名不同以实际为准——见 Step 3 注
 
     units, _ctx = audit_aggregate.extract_finding_units("x.md", content)
@@ -182,6 +185,7 @@ def sensor_outputs(content: str) -> dict[str, object]:
         "router_critical": bool(revision_router._SEVERITY_CRITICAL_RE.search(content)),
         "loop_marker": bool(chapter_loop._BLOCKING_MARKER_RE.search(content)),
         "error_label": bool(audit_layer._ERROR_LABEL_RE.search(content)),
+        "consolidator_blocking": _consolidator_blocking_equiv(content),  # M-7: consolidator 传感键
         "aggregate_units": [[u.severity, u.text, list(u.reporters)] for u in units],
     }
 
@@ -203,7 +207,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 ```
 
-注：parallel_dispatch 的 consolidator 正则是**函数内局部编译**（:375-386）——生成器经其公开入口函数间接驱动（执行期 grep 定位函数名并替换上面 import；若局部编译无法隔离驱动，则在生成器内复制调用该函数的入参构造，以 `detect` 行为为准记录 bool）。执行期以实际函数名/签名修正本模板（**plan 不确定处仅此一处，实现时 grep 落定并在 task deviation 记录**）。
+注（M-7）：consolidator 正则是 `consolidate_review_results`（parallel_dispatch.py:303）**函数内局部编译**（:375-386）——生成器以模块级等价式 `_consolidator_blocking_equiv(content)` 记录第六键 `consolidator_blocking`（与换装前 blocking_re 逐字符等价——三形态+`_enum_tail`/QUOTED_VALUE_TAIL/NEGATION_PAYLOAD_TAIL 三尾巴，import severity 单源组合）；T2 换装后该键重跑仍须逐文件一致。
 - [ ] **Step 4: 冻结换装前基线**——`uv run python tools/gen_severity_diff_baseline.py tests/fixtures/audits tests/baselines/severity-swap/baseline.json`，**先 commit 基线**：
 
 ```bash
@@ -212,10 +216,10 @@ git commit -m "test: spec #105 T1b — 审计语料 fixtures 扩容（union 覆�
 ```
 
 - [ ] **Step 5: 六消费点换装**（全部 import 单源，行为逐字节保持——正则文本不变，词表来源换装）：
-  - `revision_router.py`:90-146——删 `_SEV_ENUM_TAIL`/`NEGATION_PAYLOAD_TAIL`/`QUOTED_VALUE_TAIL` 本地定义（:90/:102/:120），改 `from shenbi.contracts.severity import NEGATION_PAYLOAD_TAIL, QUOTED_VALUE_TAIL, SEV_ENUM_TAIL as _SEV_ENUM_TAIL`；`_SEVERITY_BLOCKING_RE`/`_SEVERITY_CRITICAL_RE` 的 bracket 分支词组从单源组合：`rf"|^\s*-\s*\[({'|'.join((*ROUTING_TIERS, *ROUTING_HARD_TIER_ALIASES))})\]{NEGATION_PAYLOAD_TAIL}"`（BLOCKING 形仍单词、CRITICAL 形 `CRITICAL|ERROR` 由交替列表显式列——与原文 `BLOCKING`/`(?:CRITICAL|ERROR)` 逐字符一致）；bold/key 分支词面用 f-string 插值单条词（`rf"...BLOCKING\b{...}"` 保持原文——单词字面量非交替，不触 lint）。
+  - `revision_router.py`:90-146——删 `_SEV_ENUM_TAIL`/`NEGATION_PAYLOAD_TAIL`/`QUOTED_VALUE_TAIL` 本地定义（:90/:102/:120），改 `from shenbi.contracts.severity import NEGATION_PAYLOAD_TAIL, QUOTED_VALUE_TAIL, SEV_ENUM_TAIL as _SEV_ENUM_TAIL, ROUTING_BLOCKING_BRACKET_WORDS, ROUTING_CRITICAL_BRACKET_WORDS`；`_SEVERITY_BLOCKING_RE` bracket 分支词组 `'|'.join(ROUTING_BLOCKING_BRACKET_WORDS)`（=单词 BLOCKING）、`_SEVERITY_CRITICAL_RE` bracket 分支 `'|'.join(ROUTING_CRITICAL_BRACKET_WORDS)`（=原文 `CRITICAL|ERROR` 逐字符一致——**禁用 `(*ROUTING_TIERS, *ALIASES)` 展开：会混入 BLOCKING 致 `- [BLOCKING]` 行误命中 CRITICAL 传感=行为变更**，I-1 修正）；bold/key 分支词面用 f-string 插值单条词（单词字面量非交替，不触 lint）。
   - `audit_aggregate.py`:34-79——删 `_SEV_WORDS` 本地定义，锚定族四正则（:46/:47/:51/:58-61）从 `AGGREGATE_VOCAB`/`SEV_ENUM_TAIL`/`QUOTED_VALUE_TAIL` 组合；`_KEY_RE` 的 `_ENUM_TAIL` 换源。
   - `chapter_loop.py`:672-683——`_BLOCKING_MARKER_RE` heading 分支 `(?:BLOCKING|CRITICAL|FAIL)` 改 `re.compile(r"(?:^#{0,3}\s*##?\s*(?:" + "|".join((*ROUTING_TIERS, "FAIL")) + r")\b)" r"|(?:\|\s*\*\*BLOCKING\*\*)" rf"|(?:^\s*-\s*\[(?:{'|'.join((*ROUTING_TIERS, *ROUTING_HARD_TIER_ALIASES))})\]" rf"{NEGATION_PAYLOAD_TAIL})", re.M)`——**与原正则逐字符等价**（拼开结果相同）；table-bold 分支单词字面量保留。
-  - `parallel_dispatch.py`:365-386——`_enum_tail` 本地定义（:367）删，换 `SEV_ENUM_TAIL` import；blocking_re/critical_re 主干与 router 同构换装（bracket 词组单源组合）。
+  - `parallel_dispatch.py`:365-386——`_enum_tail` 本地定义（:367）删，换 `SEV_ENUM_TAIL` import；blocking_re bracket 词组用 `ROUTING_BLOCKING_BRACKET_WORDS`、critical_re 用 `ROUTING_CRITICAL_BRACKET_WORDS`（与 router 同款 I-1 修正——禁 TIERS∪ALIASES 展开）。
   - `audit_layer.py`:38——`_ERROR_LABEL_RE` 改 `re.compile(r"^\s*-\s*\[(" + "|".join(ROUTING_HARD_TIER_ALIASES) + r")\]", re.M)`（单字标签 import 证明覆盖——lint 豁免口注记于此注释内）。
   - `tools/report_longitudinal.py`:558——节头正则改 `SECTION_HEADER_RE`（**行为变更点：MINOR 修复——差分单列，见 Step 6 测试豁免注记**）。
 - [ ] **Step 6: 差分测试 `tests/unit/pipeline/test_severity_swap_differential.py`**：
@@ -365,6 +369,7 @@ def test_out_of_vocab_red(tmp_path, content):
         "- [MINOR·观察] 观察",
         "**严重度**",
         "**Severity**",
+        '"severity": "low"',  # M-5: QUOTED_VALUE_TAIL 引号值绿测（Step 3 修正的验收钉，进首清单非后补）
     ],
 )
 def test_in_vocab_or_exempt_green(tmp_path, content):
@@ -374,20 +379,21 @@ def test_in_vocab_or_exempt_green(tmp_path, content):
 - [ ] **Step 2: 确认失败**——ImportError。
 - [ ] **Step 3: 实现 checker**（纯函数幂等，path 形与同族同构）：
   - 捕获正则（模块级预编译）：bracket `re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)`；bold `re.compile(r"\*\*([\w\-]+)\*\*")`；key `re.compile(r"\*{0,2}(?:severity|严重度)\*{0,2}\W{0,6}(\S+)" + QUOTED_VALUE_TAIL, re.IGNORECASE)`（QUOTED_VALUE_TAIL 防引号值——`"severity": "low"` 的 `"low"` 带引号被 tail 前瞻拒绝：捕获 `"low` 不匹配 `\S+` 结尾引号？**注意**：tail 是负向前瞻 `(?!\*{0,2}")`——实现时验证 `"severity": "low"` 不触发：捕获 token 为 `"low`，upper 后 `"LOW` 含引号→isascii 假？引号是 ASCII→`"LOW`.isupper() 为 True→查表∉→会 FAIL **误伤**！**修正实现**：key 形捕获组改 `([^\s"]+)`（排除引号）——plan 钉死，测试补绿测 `"severity": "low"`→PASS）。
-  - **统一后处理管线**（模块内私有函数 `_vocab_violation(token: str) -> bool`）：
-    1. `token = token.upper()`
-    2. key-名豁免：`if token in KEY_NAME_TOKENS: return False`
-    3. 判别器：`ascii_hit = token.isascii() and token.isupper() and len(token) >= 2`；`cjk_hit = token in CJK_SEVERITY_WORDS`（归一后 CJK 词 upper 不变，集合成员精确等值）；`if not (ascii_hit or cjk_hit): return False`
-    4. legend 拆分豁免：`parts = re.split(r"[/／、,，]", token)`；`if all(p in AGGREGATE_VOCAB_SET for p in parts): return False`（`AGGREGATE_VOCAB_SET = frozenset(AGGREGATE_VOCAB)`——severity.py 或本模块派生，倾向 severity.py 增 `AGGREGATE_VOCAB_SET`）
-    5. `return token not in AGGREGATE_VOCAB_SET`
+  - **统一后处理管线**（模块内私有函数 `_vocab_violation(token: str) -> bool`；checker docstring 注记两条 r2.6 挂账：①捕获污染剥离规则 ②key-名豁免形态域[形态无关生效、动机仅 bold 裸 key——残余面 #117 收编]）：
+    1. **捕获污染剥离（r2.6 plan 注记落位，I-3）**：`token = re.sub(r"[（(][^）)]*[）)]?\s*$", "", token)` 剥括注后缀（`ERROR（对应 BLOCKING）`→`ERROR`），再 `.rstrip("。．.,，;；:：!！?？")` 剥尾部标点（`严重度：高。`→`高`——不剥则 CJK 精确等值不命中=静默漏报，恰是本件根因形态）
+    2. `token = token.upper()`
+    3. key-名豁免：`if token in KEY_NAME_TOKENS: return False`
+    4. 判别器：`ascii_hit = token.isascii() and token.isupper() and len(token) >= 2`；`cjk_hit = token in CJK_SEVERITY_WORDS`（归一后 CJK 词 upper 不变，集合成员精确等值）；`if not (ascii_hit or cjk_hit): return False`
+    5. legend 拆分豁免：`parts = re.split(r"[/／、,，]", token)`；`if all(p in AGGREGATE_VOCAB_SET for p in parts): return False`（`AGGREGATE_VOCAB_SET` 已在 T1 severity.py 落定，此处 import）
+    6. `return token not in AGGREGATE_VOCAB_SET`
   - cell 形不建；散文豁免=仅锚定形捕获（正则天然保证）。
   - docstring 注明 spec #105 T2 与「禁从传感正则推导」原因。
 - [ ] **Step 4: 测试绿**——`uv run pytest tests/unit/pipeline/test_check_audit_severity_vocab.py -q`（含补的 `"severity": "low"` 绿测）。
 - [ ] **Step 5: 回放工具 `tools/replay_severity_vocab.py`**——遍历 `<project_dir>/audits/` 章审计形（`chapter-\d+-` 前缀、排除 `.aggregate.md`/`-resonance.md`），跑 checker，输出 markdown 报告：命中清单（file:line:token:form）+总数+分母三数（生产触达/aggregate 差集/escalation 差集——用 `_is_audit_file` 同判据本地复刻，不 import 私有）。
 - [ ] **Step 6: vol1 回放（shadow 闸门）**——`uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --out /tmp/spec105-vocab-replay.md`；人工核命中条目全为真词表外违规（预期≈0——语料零命中词表外写法）；**零误伤→接线 FAIL；有误伤→停，记 BLOCKING deviation 报备**。报告关键数字粘贴 progress.md。
 - [ ] **Step 7: 接线双点位**：
-  - `dispatch_helper.py` is_audit 块（:2970-2973）追加 `issues += check_audit_severity_vocab(full_path)`（import 入既有 from-import 列表 :239-244 位置）。
-  - `generic.py:252` G4.av. 分支改按 finding id 三路由：`stale_line_ref`→check_audit_line_refs；`vocab`→check_audit_severity_vocab；`dispatch_integrity`（Task 5 落地后）→对应 checker；未识别 G4.av. 前缀→`return True`（保守放行，log warning）。本 task 先落前两条+未识别放行；Task 5 补第三条。
+  - `dispatch_helper.py` is_audit 块（:2970-2973）追加 `issues += check_audit_severity_vocab(full_path)`（import 入既有 from-import 列表 :71-78 位置——M-8 行号修正）。
+  - `generic.py:252` G4.av. 分支改按 finding id 三路由：`stale_line_ref`→check_audit_line_refs；`vocab`→check_audit_severity_vocab；`dispatch_integrity`（Task 5 落地后）→对应 checker；未识别 G4.av. 前缀→`return True`（保守放行，log warning）。**M-9**：现行 chapter-gone 早退（:257-259）仅 `stale_line_ref` 路由保留——vocab/dispatch_integrity 不依赖 chapter 文件，继承早退会在章文件删除后把其 finding 误判 stale 吞掉。本 task 先落前两条+未识别放行；Task 5 补第三条。
 - [ ] **Step 8: 集成测试**——既有 dispatch G4 流测试（grep `check_audit_completeness` 在 tests/ 的调用面）追加一条：写含 `- [MAJOR]` 的审计文件到 tmp project → 走该集成路径断言 issue 发射；generic pwi 路由测试：构造 `G4.av.vocab:...` finding → pwi 复核命中。
 - [ ] **Step 9: Commit**
 
@@ -417,7 +423,7 @@ git commit -m "feat: spec #105 T2 — G4.av.vocab 词表外 fail-loud（三段�
 
 - [ ] **Step 1: 失败测试**——三组：
   1. `missing_audit_reads` 单测：tmp project + stub contract（monkeypatch `load_contract` 返回 `{"reads": ["chapters/chapter-N.md", "truth/current_state.md", "characters/*.md"], "writes": ["audits/chapter-N-x.md"], "updates": []}`；OPTIONAL_READS monkeypatch 空或缺省）→ 缺 chapters 文件时返回含该路径、glob 有匹配时 characters 不缺、writes 产物（audits/...）不算缺。
-  2. **零派发红测**（`_must_not_dispatch` 先例 tests/pipeline/test_redispatch_g4_and_draft_precheck.py:106——执行期读该文件照搬 monkeypatch 手法）：构造 wave 内某审计技能 required read 缺失 → `_run_audit_wave_step` 不派任何 LLM（monkeypatch 派发函数断言零调用）+ escalation checkpoint 置位。
+  2. **零派发红测**（`_must_not_dispatch` 先例 tests/pipeline/test_redispatch_g4_and_draft_precheck.py:107——执行期读该文件照搬 monkeypatch `dispatch_helper.dispatch_skill` 手法（M-8 行号修正））：构造 wave 内某审计技能 required read 缺失 → `_run_audit_wave_step` 不派任何 LLM（monkeypatch 派发函数断言零调用）+ escalation checkpoint 置位。
   3. `check_audit_dispatch_integrity` 红绿：红=``- [BLOCKING] 派发完整性：请补齐 `chapters/chapter-40.md` 与 `plans/chapter-40-plan.md` 后重跑本维度``（chapter-40-reader-pull.md:44 原文）→ issue；红2=``- [BLOCKING] 输入缺失：请补入 `chapters/chapter-10.md` 后重跑``；绿=``- [BLOCKING] 字数不足，请补齐至 3200 字``（无路径 token）→ 无 issue；绿2=`- [MINOR] 派发完整性相关表述`（非 BLOCKING 行）→ 无 issue。
 - [ ] **Step 2: 确认失败**。
 - [ ] **Step 3: 实现 `missing_audit_reads`**（audit_layer.py）——语义按 revision_router.py:268-303 三态复刻：`_entry_file` 剥 dict 形 read；`resolved = str(rel).replace("chapter-N", f"chapter-{chapter}")`（chapter None 时保持 N 字面——与 :276-282 同）；produces 剔除；`any(fnmatch(resolved, pat) for pat in OPTIONAL_READS.get(skill, []))` 剔除；`"*" in resolved` 时 `Path(project_dir).glob(...)` 命中即非缺；其余 `.exists()` 判缺失。docstring 注明 spec #105 T3 与 M1 作用域（仅审计派发面）。
@@ -442,7 +448,7 @@ if missing:
     return True
 ```
 
-（`wave_skills` 变量名/循环结构以 `_run_audit_wave_step` 实际代码为准——执行期 grep 落定；#51 同款 `return True` 停步语义。）
+（**预检名册（I-4 结构修正）**：`_run_audit_wave_step`（:3916）为双 wave 结构——预检圈定=core wave 名册 ∪ `get_active_genre_audits(project_dir)`（genre 圈，读 genre-config.json）∪ 串行分区成员（`_partition_review_wave` 输出）；预检置于**名册装配完成后、任一 `dispatch_*` 调用前**——只圈 core wave 会漏 genre 审计派发的欠覆盖且不被任何测试捕获。`set_checkpoint` 签名 machine.py:69（chapter/context kwargs）；#51 同款 `return True` 停步语义。）
 - [ ] **Step 6: generic 第三路由落位**——`G4.av.dispatch_integrity` → `check_audit_dispatch_integrity`（Task 4 的未识别放行分支前插入）。
 - [ ] **Step 7: 全部测试绿**——`uv run pytest tests/unit/pipeline/test_audit_readiness.py tests/unit/pipeline/test_check_audit_severity_vocab.py -q` + `uv run pytest tests/pipeline -q`（零派发红测所在既有套件零回归）。
 - [ ] **Step 8: vol1 回放差集**——`uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --out /tmp/spec105-di-replay.md`（工具扩展：同时跑 dispatch_integrity checker 或单独小跑）——预期命中 ch10/12/14/16/20/40 实弹族（这些是历史框架 bug 产物，非误伤）；粘贴计数进 progress.md。
@@ -467,7 +473,7 @@ git commit -m "feat: spec #105 T3 — 审计派发前置预检（#51 控制流�
 - Consumes: g4 checker 名册（`src/shenbi/gates/g4/` 各 checker 的 id 发射面）；`_enrich_g4_feedback`（chapter_loop.py:1120）。
 - Produces: EXAMPLES 新键 `G4.cp.scene_budget`/`G4.av.vocab`/`G4.av.dispatch_integrity`。
 
-- [ ] **Step 1: 名册差集盘点（一次性 diff）**——`grep -rhoE '"G4\.[a-z0-9_.]+"' src/shenbi/gates/g4/ | sort -u` vs `uv run python -c "from shenbi.pipeline.chapter_loop import G4_FORMAT_EXAMPLES; print('\n'.join(sorted(G4_FORMAT_EXAMPLES)))"`——差集落 plan deviation/progress.md（哪些族无示例=known gap，本 task 只补首批三键，其余登记不强补）。
+- [ ] **Step 1: 名册差集盘点（一次性 diff）**——`grep -rhoE "G4\.[a-z0-9_.]+" src/shenbi/gates/g4/ | sort -u`（M-12：**不带闭引号**——f-string 连续形 id 后随 `:` 非引号，带闭引号低估差集） vs `uv run python -c "from shenbi.pipeline.chapter_loop import G4_FORMAT_EXAMPLES; print('\n'.join(sorted(G4_FORMAT_EXAMPLES)))"`——差集落 plan deviation/progress.md（哪些族无示例=known gap，本 task 只补首批三键，其余登记不强补）。
 - [ ] **Step 2: 失败测试**——`test_g4_format_examples_roster.py`：断言三键在册 + 示例文案含期望格式关键词（scene_budget 例含「场景预算节」与表格/带域形态——文案从 `src/shenbi/gates/g4/chapter_planning.py:612-706` checker 期望结构提炼：`| 场景 | 类型 | 字数带 | 配对性 |` 型行）；断言示例非空字符串。
 - [ ] **Step 3: 补三键**——`G4.cp.scene_budget`（对照 escalation-35-report.md:33-37 兜底行形态写「期望格式」）；`G4.av.vocab`（示例：「严重度条目改写：`- [BLOCKING]`/`- [CRITICAL]`/`- [MINOR]` 三选一锚定形，禁用词表外语」）；`G4.av.dispatch_integrity`（示例：「该 finding 属框架 bug——不写派发完整性 BLOCKING，输入缺失由框架预检拦截；审计员只审计正文」）。
 - [ ] **Step 4: 判据验证**——`git grep -n "scene_budget" src/shenbi/pipeline/chapter_loop.py` 命中 EXAMPLES；`uv run pytest tests/unit/pipeline/test_g4_format_examples_roster.py -q` 绿。
@@ -485,7 +491,7 @@ git commit -m "feat: spec #105 T4a — G4_FORMAT_EXAMPLES 补 scene_budget/vocab
 **Files:**
 - Modify: `src/shenbi/pipeline/audit_aggregate.py:167-176`（render 条目行）
 - Modify: `tools/report_longitudinal.py:547-567`（`_parse_aggregate_sections` 双格式容差）
-- Test: `tests/unit/pipeline/test_audit_aggregate.py`（追加）/`tests/unit/tools/test_report_longitudinal.py`（追加或新建）
+- Test: `tests/pipeline/test_audit_aggregate.py`（既有套件追加——integration 目录，M-8 修正）/`tests/unit/tools/test_report_longitudinal.py`（追加或新建）
 
 **Interfaces:**
 - Consumes: `SECTION_HEADER_RE`（Task 1）；`write_audit_aggregate`（audit_aggregate.py:157+）。
@@ -495,7 +501,7 @@ git commit -m "feat: spec #105 T4a — G4_FORMAT_EXAMPLES 补 scene_budget/vocab
 - [ ] **Step 2: 实现 render**——:174 `parts.append(f"- {u.text}")` → `parts.append(f"- **{u.severity}** · {u.text}")`（报告方行不变）。
 - [ ] **Step 3: 实现 parser 双格式**——`_parse_aggregate_sections` 条目行解析：`m = re.match(r"^-\s*\*\*([A-Z]+)\*\*\s*·\s*(.+)$", s)` 命中→（校验 m.group(1)==sev 或以其为准——**以条目级为准**，与节头不一致时条目级胜出并保留）；未命中→现行为 `s.lstrip("- ").strip()`；节头判定换 `SECTION_HEADER_RE`（已在 Task 2 换装——此处仅确认行为）。
 - [ ] **Step 4: 下游消费差分**——`git grep -rn "aggregate.md" -- src/ tools/ tests/ | grep -v test_` 列全消费面；对每面确认新旧格式兼容（report_longitudinal 已改；其余面 grep 确认无 `- {text}` 形态解析依赖——若发现新解析点，同批改并加测试）。
-- [ ] **Step 5: 全绿**——`uv run pytest tests/unit/pipeline/test_audit_aggregate.py tests/unit/tools/test_report_longitudinal.py -q`。
+- [ ] **Step 5: 全绿**——`uv run pytest tests/pipeline/test_audit_aggregate.py tests/unit/tools/test_report_longitudinal.py -q`。
 - [ ] **Step 6: Commit**
 
 ```bash
@@ -516,7 +522,7 @@ git commit -m "feat: spec #105 T4b — aggregate 条目级 severity 渲染+longi
 - Consumes: 无新依赖。
 - Produces: 注入块 ending_constraints 列表长度 10（SKILL.md:166 文案零改动即重新为真）。
 
-- [ ] **Step 1: 定位既有测试**——`grep -rn "_get_recent_ending_types\|ending_constraints" tests/`——更新断言：chapter≥11 时长度 10、chapter=10 时长度 9（chapter-1..9 存在时）、chapter<11 返回 []。
+- [ ] **Step 1: 定位既有测试**——`grep -rn "_get_recent_ending_types\|ending_constraints" tests/`——更新断言（M-6 修正）：chapter≥11 且前章全在盘时长度 10；chapter=10 返回 []（守卫 `< 11` 先挡）；chapter=11 缺一章时长度 10 含一个 `"missing"`（:546-547 现行为）。
 - [ ] **Step 2: 实现**——`if chapter < 4` → `if chapter < 11`（注释 `(need 3 prior chapters)` → `(need 10 prior chapters)`）；`range(3, 0, -1)` → `range(10, 0, -1)`；docstring `last 3 chapters` → `last 10 chapters`。**SKILL.md 零改动**（判据：文案零改动即重新为真）。
 - [ ] **Step 3: 绿**——`uv run pytest -q -k "ending"`（或定位到的测试文件）。
 - [ ] **Step 4: Commit**
@@ -532,4 +538,4 @@ git commit -m "feat: spec #105 T4c — ending_constraints 注入窗 3→10（cha
 
 1. **Spec coverage**：spec T1（T1a 登记+模块/T1b 换装+差分三层/T1c lint）✓；T2（T4：判别器三段式+双点位+回放 shadow）✓；T3（T5：预检+dispatch_integrity+零派发红测）✓；T4（T6 EXAMPLES/T7 渲染+parser/T8 ending 窗）✓；验收 2 差分（T2b）/验收 3 bug-hunt 由 T4 红测+T5 零派发承载/验收 4 G3.4 ≥94 由阶段 6 收官评分承载。
 2. **Placeholder scan**：三处「执行期落定」均为**事实锚定指令**（parallel_dispatch 函数名/wave 技能名册变量/gen stdout 中转），非行为留白——实现时 grep 落定并记 deviation。
-3. **Type consistency**：`check_audit_severity_vocab(path: Path) -> list[str]` 与 dispatch_helper/generic 调用面一致；`missing_audit_reads(project_dir, skill, chapter)` 与 wave 预检调用一致；severity.py 符号名在 T1/T2/T4/T5/T7 间一致（AGGREGATE_VOCAB_SET 在 T4 落于 severity.py——T1 Interfaces 已含 frozenset 派生，实现时 T1 即落）。
+3. **Type consistency**：`check_audit_severity_vocab(path: Path) -> list[str]` 与 dispatch_helper/generic 调用面一致；`missing_audit_reads(project_dir, skill, chapter)` 与 wave 预检调用一致；severity.py 符号名在 T1/T2/T4/T5/T7 间一致（`AGGREGATE_VOCAB_SET`/`ROUTING_*_BRACKET_WORDS` 在 T1 Interfaces/Step 3 落定——r2 修正：初稿 Self-Review 误称「已含」，实为漏列，已在 T1 补齐）。
