@@ -67,8 +67,8 @@ from shenbi.pipeline.crash_recovery import (
     register_emergency_handlers,
 )
 from shenbi.pipeline.machine import save_state, set_checkpoint
+from shenbi.contracts.severity import NEGATION_PAYLOAD_TAIL
 from shenbi.pipeline.revision_router import (
-    NEGATION_PAYLOAD_TAIL,
     RevisionRoute,
     check_resonance,
     collect_audit_issues,
@@ -76,6 +76,10 @@ from shenbi.pipeline.revision_router import (
     route_chapter_revision,
 )
 from shenbi.contracts.enums import FailureClass
+from shenbi.contracts.severity import (
+    ROUTING_HARD_TIER_ALIASES,
+    ROUTING_TIERS,
+)
 from shenbi.pipeline.dispatch_helper import classify_dispatch_failure
 from shenbi.pipeline.state import (
     ChapterLoopStateData,
@@ -669,15 +673,17 @@ CASCADE_STREAK_LENGTH = 3  # N=3
 #: once to refresh the evidence.
 CASCADE_REVERIFY_GAP = 5
 
+# spec #105 T1b: heading/bracket 词组自 contracts.severity 单源组合（FAIL 为
+# GateStatus 渗漏非 severity 词表——本地字面量合法；两处词组展开后与原正则逐字符一致）。
 _BLOCKING_MARKER_RE = re.compile(
-    r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|CRITICAL|FAIL)\b)"
+    r"(?:^#{0,3}\s*##?\s*(?:" + "|".join((*ROUTING_TIERS, "FAIL")) + r")\b)"
     r"|(?:\|\s*\*\*BLOCKING\*\*)"
     # fixcheck ch1: bracketed template labels (enums form + legacy [ERROR]
     # hard tier) must count toward per-skill hard_failures — the cascade
     # streak logic and wave retry budget both consume this marker.
     # F-5 (probe22): a zero-declaration line (``- [BLOCKING] 无``) is the
     # report saying it has NO findings — end-anchored negation tail.
-    rf"|(?:^\s*-\s*\[(?:BLOCKING|CRITICAL|ERROR)\]"
+    r"|(?:^\s*-\s*\[(?:" + "|".join((*ROUTING_TIERS, *ROUTING_HARD_TIER_ALIASES)) + r")\]"
     rf"{NEGATION_PAYLOAD_TAIL})",
     re.M,
 )
@@ -880,6 +886,39 @@ _DEC_SIDECAR_EXAMPLE = (
 )
 
 G4_FORMAT_EXAMPLES: dict[str, str] = {
+    # spec #105 T4a（audit-T6 首批三键）：EXAMPLES 名册差集盘点见
+    # spec-deviations T4（287 名册 id vs 19+3 示例键）——只补有实弹兜底行
+    # 证据的族，其余 known-gap 不强补。
+    "G4.cp.scene_budget": (
+        "场景预算节格式（plan_format v3+ 备忘必含，列表形=真实解析契约\n"
+        "``_SCENE_DECL_RE``: `^-[ ]*场景N: <字数>字｜独立型|配对型｜收束钩：…`）：\n"
+        "### 场景预算与收束钩（#72 粒度契约）\n"
+        "- 场景1: 1850字｜独立型｜收束钩：<一句具体的收束动作/悬念>\n"
+        "- 场景2: 1850字｜独立型｜收束钩：<一句具体的收束动作/悬念>\n"
+        "- 章尾钩: <章尾悬念句>\n"
+        "- 时间锚: <相对表述>\n"
+        "- 余额: <N文>\n"
+        "- POV: <人物>\n"
+        "- 事件: <类型|金额|摘要>\n"
+        "- 物象: <物象名|持有链>\n"
+        "注意：2-3 场景；独立型须落 [1800,2000]、配对型须落 [900,1400]，"
+        "禁 1400-1800 灰带；2 场景章须两独立型（配对型至少两场景成对）；"
+        "组合须可贪心打包。缺该块=FAIL（存量旧式备忘无 plan_format v3+ 声明时豁免）。"
+    ),
+    "G4.av.vocab": (
+        "严重度锚定格式：\n"
+        "- [BLOCKING] <缺陷描述>\n"
+        "- [CRITICAL] <缺陷描述>\n"
+        "- [MINOR] <建议>\n"
+        "注意：severity 必须是 BLOCKING/CRITICAL/MINOR（大小写不限）；"
+        "禁用词表外语（MAJOR/BLOCKER/严重/高）。"
+    ),
+    "G4.av.dispatch_integrity": (
+        "派发完整性 finding 不是审计员的职责：\n"
+        "输入缺失（章节/备忘文件不存在）由框架派发前预检拦截并转 escalation；"
+        "审计报告中出现「请补齐 `chapters/...` 后重跑」类 BLOCKING 即判报告无效"
+        "（框架 bug）。请勿在报告中表达派发/输入问题，只审计正文。"
+    ),
     "G4.rr.detail_table": (
         "评分明细表格式：\n"
         "| 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |\n"
@@ -3960,6 +3999,44 @@ def _run_audit_wave_step(
     # spec #72 T9: cluster dispatch — ONE prompt per skill covers the bundle;
     # reports stay PER-CHAPTER ({N+1} brace writes cover follower paths too).
     wave_chapters = bundle_chapters(project_dir, chapter)
+
+    # ── spec #105 T3: audit-dispatch read-readiness pre-check ────────────────
+    # #51 ghost-chain guard 控制流先例：缺失输入禁止派发 LLM 表达（派发完整
+    # 性语义拆分——「输入缺失」从 LLM 的 BLOCKING 语义域整体消失）。genre 名册
+    # 上提到 wave-1 派发前（plan r2-M4：只圈 core 会漏 genre 圈且不被测试捕获）；
+    # bundle 模式按 wave_chapters 逐章查（follower 章输入缺失不漏检，r2-M7）。
+    from shenbi.pipeline.audit_layer import missing_audit_reads
+
+    gc_path = project_dir / "genre-config.json"
+    genre_gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
+    genre_skills_precheck = get_active_genre_audits(genre_gc)
+    _missing_reads: dict[str, list[str]] = {}
+    for _skill in [*core_skills, *genre_skills_precheck]:
+        # audit-T5 M1: cascade 跳过的技能不会派发——其缺读不拦整波。
+        if should_skip_audit(_audit_short_name(_skill), audit_history, current_chapter=chapter):
+            continue
+        # audit-S8 M-2: 产物已全部在盘的技能不会再派发（完成过滤语义），
+        # 其缺读同样不拦整波（复用 audit_report_paths 判据）。
+        _expected = audit_report_paths(chapter, _skill)
+        if _expected and all((project_dir / rel).exists() for rel in _expected):
+            continue
+        _gaps = {gap for n in wave_chapters for gap in missing_audit_reads(project_dir, _skill, n)}
+        if _gaps:
+            _missing_reads[_skill] = sorted(_gaps)
+    if _missing_reads:
+        log.error("audit_reads_missing_precheck", chapter=chapter, missing=_missing_reads)
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            chapter=chapter,
+            context=(
+                f"审计派发前置预检（spec #105 T3）：required reads 缺失 "
+                f"{_missing_reads}——禁止派发 LLM 表达输入缺失（派发完整性"
+                "语义拆分）。请人工核查输入产物后重试。"
+            ),
+        )
+        return True
+
     chapter_label = (
         f"{wave_chapters[0]},{wave_chapters[1]}" if len(wave_chapters) > 1 else str(chapter)
     )
@@ -4005,10 +4082,9 @@ def _run_audit_wave_step(
     core_results.extend(dispatch_serial_reviews(core_serial, project_dir, state))
 
     # Wave 2: Genre-circle reviews (conditionally active, in parallel;
-    # same WRITE_SHARED partition as wave 1)
-    gc_path = project_dir / "genre-config.json"
-    genre_gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
-    genre_skills = get_active_genre_audits(genre_gc)
+    # same WRITE_SHARED partition as wave 1) — genre roster hoisted above
+    # wave-1 for the spec #105 T3 pre-check; reuse the loaded roster.
+    genre_skills = genre_skills_precheck
     genre_tasks = [
         ReviewTask(
             skill=skill,

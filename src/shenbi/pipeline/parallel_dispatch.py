@@ -7,6 +7,8 @@ exponential backoff retry (up to MAX_RETRIES) with random jitter.
 
 from __future__ import annotations
 
+import re as _re
+
 import random
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -300,6 +302,37 @@ def dispatch_reviews_parallel(
     return [results[i] for i in range(len(tasks))]
 
 
+def build_consolidator_sensors() -> tuple[_re.Pattern[str], _re.Pattern[str]]:
+    """BLOCKING/CRITICAL sensors for the consolidator (single source).
+
+    audit-S8 I-3: the differential baseline keys off THIS builder, so any
+    change to the production sensing is caught by
+    ``tests/unit/pipeline/test_severity_swap_differential.py`` (the earlier
+    version hand-copied the regex in the generator and pinned nothing).
+    """
+    from shenbi.contracts.severity import (
+        NEGATION_PAYLOAD_TAIL,
+        QUOTED_VALUE_TAIL,
+        ROUTING_BLOCKING_BRACKET_WORDS,
+        ROUTING_CRITICAL_BRACKET_WORDS,
+        SEV_ENUM_TAIL,
+    )
+
+    blocking_re = _re.compile(
+        rf"(?-i:\*\*BLOCKING\*\*)|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b"
+        rf"{SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
+        rf"|^\s*-\s*\[(?:{'|'.join(ROUTING_BLOCKING_BRACKET_WORDS)})\]{NEGATION_PAYLOAD_TAIL}",
+        _re.IGNORECASE | _re.M,
+    )
+    critical_re = _re.compile(
+        rf"(?-i:\*\*CRITICAL\*\*)|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b"
+        rf"{SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
+        rf"|^\s*-\s*\[(?:{'|'.join(ROUTING_CRITICAL_BRACKET_WORDS)})\]{NEGATION_PAYLOAD_TAIL}",
+        _re.IGNORECASE | _re.M,
+    )
+    return blocking_re, critical_re
+
+
 def consolidate_review_results(
     results: list[DispatchResult],
     chapter: int,
@@ -351,39 +384,13 @@ def consolidate_review_results(
     # vacuous zero-findings both traced to scanning stdout only. Scan the
     # files with the severity regexes (same semantics as the router).
     if project_dir is not None:
-        import re as _re
-
         from pathlib import Path as _Path
 
         audit_dir = _Path(project_dir) / "audits"
-        # Fixcheck ch1 (2026-09-29): the severity vocabulary drifted between
-        # the templates ('- [ERROR]' hard tier) and the sensors (BLOCKING/
-        # CRITICAL literals) — bracketed labels are now sensed alongside the
-        # enums forms so real hard findings cannot vanish into a zero summary.
-        # probe6 ch1: same enum-list guard as revision_router's severity
-        # sensors — a FORMAT DOCUMENTATION legend (``4. **严重度**：BLOCKING
-        # / CRITICAL / MINOR``) must not open a ``## BLOCKING Issues``
-        # section in the summary.
-        _enum_tail = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
-        # F-5 (probe22): bracket forms must not count a zero-declaration
-        # line (``- [BLOCKING] 无``) as a finding — shared negation tail.
-        # #18-1 (probe23): key forms must not count a severity value quoted
-        # inside a JSON template literal (``"severity": "BLOCKING"``) —
-        # shared quoted-value tail from the router's sensors.
-        from shenbi.pipeline.revision_router import NEGATION_PAYLOAD_TAIL, QUOTED_VALUE_TAIL
-
-        blocking_re = _re.compile(
-            rf"(?-i:\*\*BLOCKING\*\*)|(?:severity|严重度)\*{{0,2}}\W{{0,6}}BLOCKING\b"
-            rf"{_enum_tail}{QUOTED_VALUE_TAIL}"
-            rf"|^\s*-\s*\[BLOCKING\]{NEGATION_PAYLOAD_TAIL}",
-            _re.IGNORECASE | _re.M,
-        )
-        critical_re = _re.compile(
-            rf"(?-i:\*\*CRITICAL\*\*)|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b"
-            rf"{_enum_tail}{QUOTED_VALUE_TAIL}"
-            rf"|^\s*-\s*\[(?:CRITICAL|ERROR)\]{NEGATION_PAYLOAD_TAIL}",
-            _re.IGNORECASE | _re.M,
-        )
+        # Fixcheck ch1 (2026-09-29) / probe6 / F-5 / #18-1 语义注记全文见
+        # build_consolidator_sensors（audit-S8 I-3：正则构造已上提为模块级
+        # builder——差分基线钉的就是这个生产构造）。
+        blocking_re, critical_re = build_consolidator_sensors()
         for audit_file in sorted(audit_dir.glob(f"chapter-{chapter}-*.md")):
             content = audit_file.read_text(encoding="utf-8")
             hit = None

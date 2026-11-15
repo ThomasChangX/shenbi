@@ -3,7 +3,7 @@
 Spec: 2026-07-19 output-structural-integrity-beyond-json-design (merged Spec 19
 + former Spec 20).
 
-This module is the single source of truth for the pattern catalog and the five
+This module is the single source of truth for the pattern catalog and the six
 check functions invoked from ``dispatch_helper.write_parsed_outputs``. The
 former Specs 19/20 maintained overlapping pattern lists; they are de-duplicated
 here, split by detection mode:
@@ -236,3 +236,160 @@ def check_year_anchors(path: Path) -> list[str]:
                 "引用锚名或相对表述"
             )
     return findings
+
+
+# --- Spec #105 T2: out-of-vocab severity gate (G4.av.vocab). ---
+#
+# 校验正则与传感正则语义显式分离：传感正则（contracts.severity，词表内
+# 锚定计数）只捕词表内词——复用它们做校验则 fail-loud 永不触发。本检查用
+# 形态槽位通配捕获 + 统一后处理管线（见 _vocab_violation）。
+#
+# r2.6 挂账注记两条：
+# 1. 捕获污染剥离规则(管线第 1 步)——`ERROR(对应 BLOCKING)` 括注后缀与
+#    `严重度：高。` 尾部标点不剥则 CJK 精确等值不命中=静默漏报（本件根因
+#    形态）；残余面（括注内嵌真词表外词）#117 发现级 parser 收编。
+# 2. key-名豁免形态域——现实现形态无关(任意锚定形捕获 SEVERITY/严重度
+#    token 均放行），动机仅 bold 裸 key 形；残余面同归 #117。
+#
+# key 形引号防御用 gap 类排除引号([^\w"'] 不吃引号——"severity": "low"
+# 全线无匹配）而非尾部负向前瞻：tail 前瞻放在可回溯通配捕获组后必然被
+# 回溯绕过(捕 low 后前瞻见引号失败→回溯交还一字符捕 lo→误伤; 与 spec
+# C1' 证伪 _SEV_ENUM_TAIL 照搬路径同机制——plan r4-I1 实测钉死）。
+from shenbi.contracts.severity import (
+    AGGREGATE_VOCAB_SET,
+    BLOCKING_BOLD_LABEL_RE,
+    BLOCKING_BRACKET_LABEL_RE,
+    CJK_SEVERITY_WORDS,
+    KEY_NAME_TOKENS,
+    NEGATION_WORDS,
+)
+
+_VOCAB_BRACKET_RE = re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)
+_VOCAB_BOLD_RE = re.compile(r"\*\*([\w\-]+)\*\*")
+#: audit-T4 I-1: capture must exclude `*` (bolded values like `**高**` leaked the
+#: markdown emphasis into the token -> false FAIL on `**BLOCKING**` and false PASS
+#: on `**高**`); gap excludes `\n` so a bold key never spans lines; optional
+#: `Level`/`级别` word (the `Severity Level: MAJOR` form captured `LEVEL:` before).
+_VOCAB_KEY_RE = re.compile(
+    r"\*{0,2}(?:severity|严重度)\*{0,2}(?:\s*(?:Level|级别))?\*{0,2}[^\w\"'\n]{0,6}([^\s\"'*]+)",
+    re.IGNORECASE,
+)
+#: 捕获污染剥离：括注后缀（`ERROR（对应 BLOCKING）`→`ERROR`）+ 尾部标点。
+_POLLUTION_PAREN_RE = re.compile(r"[（(][^）)]*[）)]?\s*$")
+_TRAILING_PUNCT = "。．.,，;；:：!！?？"
+#: legend 拆分分隔符（模板形 `severity:BLOCKING/CRITICAL/MINOR` 全段∈词表=文档行非声明）。
+_LEGEND_SPLIT_RE = re.compile(r"[/／、,，]")
+
+
+def _vocab_violation(token: str) -> bool:
+    """Unified post-processing pipeline; True = out-of-vocab violation.
+
+    1. 捕获污染剥离(括注后缀+尾部标点) 2. upper 归一前置(`- [major]` 小写
+    词表外写法必须进判别器——后置则静默漏放) 3. key-名豁免 4. 判别器
+    (ASCII: isascii+isupper+len>=2, 禁止裸 isupper——`MINOR·观察`.isupper()
+    返 True, CJK 不参与大小写; CJK: 精确等值六词族, 禁止子串/前缀——
+    `**严重度**` 裸 key 75 份误伤面) 5. legend 拆分豁免(全段∈词表)
+    6. 查表。
+    """
+    token = _POLLUTION_PAREN_RE.sub("", token).rstrip(_TRAILING_PUNCT)
+    token = token.upper()
+    if token in KEY_NAME_TOKENS:
+        return False
+    if re.fullmatch(NEGATION_WORDS, token, re.IGNORECASE):
+        return False
+    # audit-S8 I-1: zero-declaration values (`severity: N/A` / `严重度: none` /
+    # `严重度: 无`) are the F-5 vocabulary for "no findings" — never a
+    # violation (the new gate is FAIL-level; a false positive invalidates a
+    # legitimate report).
+
+    ascii_hit = token.isascii() and token.isupper() and len(token) >= 2
+    cjk_hit = token in CJK_SEVERITY_WORDS
+    if not (ascii_hit or cjk_hit):
+        return False
+    parts = _LEGEND_SPLIT_RE.split(token)
+    if all(p in AGGREGATE_VOCAB_SET for p in parts):
+        return False
+    return token not in AGGREGATE_VOCAB_SET
+
+
+#: 生产接线形态集——audit-T4 处置(a): 仅 key 形 (spec r2.4 自称 key 形=唯一
+#: 全通配槽位; vol1 613 份回放 key-only 零误伤)。bracket/bold 通配槽在真语料
+#: 承载状态/计数/配置标签生态 (Successful/OK/MISSING/maxGapFIRE...) 词法不可
+#: 零误伤 (198 误伤实证) -- 保留在回放工具做 #116 数据采集, 不接生产 FAIL。
+PRODUCTION_VOCAB_FORMS: tuple[str, ...] = ("key",)
+ALL_VOCAB_FORMS: tuple[str, ...] = ("bracket", "bold", "key")
+
+
+def check_audit_severity_vocab(
+    path: Path, forms: tuple[str, ...] = PRODUCTION_VOCAB_FORMS
+) -> list[str]:
+    """Flag anchored-form severity tokens outside the aggregate vocabulary.
+
+    散文提及(非锚定形)不报; cell 形 v1 不建(| PASS | / | 通过 | / 置信度
+    | HIGH | 同形歧义面——词表外 cell 待 #116 标定数据后议)。
+
+    Args:
+        path: audit report file.
+        forms: anchored forms to check — defaults to PRODUCTION_VOCAB_FORMS
+            (key only; audit-T4 disposition a). Replay/#116 callers pass
+            ALL_VOCAB_FORMS explicitly.
+    """
+    text = path.read_text(encoding="utf-8")
+    issues: list[str] = []
+    seen: set[tuple[int, str]] = set()
+    for form, regex in (
+        ("bracket", _VOCAB_BRACKET_RE),
+        ("bold", _VOCAB_BOLD_RE),
+        ("key", _VOCAB_KEY_RE),
+    ):
+        if form not in forms:
+            continue
+        for m in regex.finditer(text):
+            token = m.group(1)
+            if not _vocab_violation(token):
+                continue
+            line_no = text.count("\n", 0, m.start()) + 1
+            key = (line_no, token)
+            if key in seen:
+                continue
+            seen.add(key)
+            issues.append(
+                f"G4.av.vocab:{path.name} — L{line_no}:词表外严重度「{token}」"
+                f"（{form} 形）：用 BLOCKING/CRITICAL/MINOR 重写本条"
+            )
+    return issues
+
+
+# --- Spec #105 T3: dispatch-integrity signature gate (G4.av.dispatch_integrity). ---
+#
+# 次防线定位：主防线=审计派发前置预检（chapter_loop._run_audit_wave_step 头部，
+# #51 ghost-chain guard 控制流先例——不依赖措辞）。本兜底 pattern 自认是又一则
+# 手拼匹配、措辞改写可绕（spec 对抗回放 ④c）；签名合取（路径 token ∧ 重跑/补齐
+# 措辞，反引号形态优先——实弹族 ch10/12/14/16/20/40 全部反引号形态）压掉
+# 「内容 finding 引用裸路径+补齐措辞」的误伤面（r2.2 I5）。仅 BLOCKING 锚定行。
+
+_DI_BACKTICK_PATH_RE = re.compile(r"`(?:chapters|plans|truth)/[^`]+`")
+_DI_BARE_PATH_RE = re.compile(r"(?:chapters|plans|truth)/\S+\.(?:md|yaml|json)")
+_DI_ACTION_RE = re.compile(r"重跑|补齐|补入")
+
+
+def check_audit_dispatch_integrity(path: Path) -> list[str]:
+    """Invalidate reports whose BLOCKING payload is a dispatch-integrity complaint.
+
+    Dispatch-integrity signatures in a BLOCKING payload mean a framework bug
+    (spec #105 T3): the report is invalid and the framework must be fixed,
+    never expressed by the auditor. Only BLOCKING-anchored lines count (audit-T5
+    I1: a MINOR anchor or an unanchored severity legend must never trip it).
+    """
+    text = path.read_text(encoding="utf-8")
+    issues: list[str] = []
+    for ln, line in enumerate(text.split("\n"), 1):
+        if not (BLOCKING_BRACKET_LABEL_RE.search(line) or BLOCKING_BOLD_LABEL_RE.search(line)):
+            continue
+        has_path = _DI_BACKTICK_PATH_RE.search(line) or _DI_BARE_PATH_RE.search(line)
+        if has_path and _DI_ACTION_RE.search(line):
+            issues.append(
+                f"G4.av.dispatch_integrity:{path.name} — L{ln}:派发完整性签名 BLOCKING"
+                "（框架 bug 非正文缺陷）：该报告判无效，须修框架不应由审计员表达"
+            )
+    return issues

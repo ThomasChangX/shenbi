@@ -1,0 +1,659 @@
+{
+ "chapter-1-anti-ai.md": {
+  "aggregate_units": [
+   [
+    "CRITICAL",
+    "全章 [确定性检查缺失]：请框架在下次派发时注入 paragraph_cv / transition_count+transition_budget / ai_marker_hits，以完成第 1/4/5 项确定性判定。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "全章 [疲劳词]：建议在精确统计中复核慎用词（尤其「沉默了片刻」「不动声色」类）是否出现于对话标签。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": true,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": false,
+  "router_critical": true
+ },
+ "chapter-1-character.md": {
+  "aggregate_units": [
+   [
+    "WARNING",
+    "了字密度 | 不连续6句含\"了\" | 行59 连续6句含\"了\"",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "WARNING",
+    "1 | voice 行 59 | \"了\"字密度过高——\"觉醒检测过了，灵质海亲和度测了，基础修炼课程上了，钱借了，然后到期了。这流程咱这一片谁没走过？你又不是第一个。\" 连续6个\"了\"字，与 PRE_WRITE_CHECK 中\"了字不连续6句出现\"规则冲突。这是邻居对白的口语化特征，但密度确实超标",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": false,
+  "error_label": false,
+  "loop_marker": false,
+  "router_blocking": false,
+  "router_critical": false
+ },
+ "chapter-1-consistency.md": {
+  "aggregate_units": [
+   [
+    "ERROR",
+    "3 | 破折号 全文出现19处`——`，存在AI过度使用破折号的显著特征",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "WARNING",
+    "5 | AI标记词 `微微`出现2次（限额1次/词），均为同一段落中描述矿工体态",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": false,
+  "error_label": false,
+  "loop_marker": false,
+  "router_blocking": false,
+  "router_critical": false
+ },
+ "chapter-10-anti-ai.md": {
+  "aggregate_units": [
+   [
+    "BLOCKING",
+    "待第10章正文产出后重跑本审计。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": true,
+  "consolidator_critical": false,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": true,
+  "router_critical": false
+ },
+ "chapter-11-anti-ai.md": {
+  "aggregate_units": [
+   [
+    "ERROR",
+    "3 | 破折号检测（预算制 ≤2 处，仅咏叹收束/对话打断合法） 检出 1 处「——」：L85「这笔我先记下——道的宽度，是给人错身留的。」属**解释补充用法**（非咏叹收束、非对话打断），按 spec #71 判 ERROR；另 L163「未合拢之缝——」为备忘式标注行（章末张力拍标注），非正文叙事，不计入正文预算但建议剥离",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "CRITICAL",
+    "L85「这笔我先记下——道的宽度，是给人错身留的。」：破折号为解释补充用法，违反破折号预算制（spec #71，仅咏叹收束/对话打断合法）。修复：改为「这笔我先记下。道的宽度，是给人错身留的。」——句号断句，保留账房腔，破折号归零。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "L163 章末「未合拢之缝——马料账……」为备忘标注行，建议在定稿中剥离出正文（或改为无破折号标注），避免计入正文破折号预算。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": true,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": false,
+  "router_critical": true
+ },
+ "chapter-11-foreshadowing.md": {
+  "aggregate_units": [
+   [
+    "MINOR",
+    "MH01（遗物匣：三十世遗物） | RELEVANT | 606（十二卷） | advance：红纸包变奏为垫手套，血渗红纸角 | L175-177 垫手套 OK；**血渗红纸角未落地",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "`chapters/chapter-11.md` L173-177｜MH01｜「血渗红纸角」未落地、与伏笔池「前后映照」记载不符：补半句让本章血珠蹭上红纸，或修订 pending_hooks 该句。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "`truth/subplot_board.md`｜MH01｜缺第11章红纸包变奏条目：补一行登记第六次变奏（垫手套护伤）。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": false,
+  "error_label": false,
+  "loop_marker": false,
+  "router_blocking": false,
+  "router_critical": false
+ },
+ "chapter-11-memo-compliance.md": {
+  "aggregate_units": [
+   [
+    "MINOR",
+    "第2段 读者等待·延迟期待 | 帖木哥以身抵役不写；帖兰不出场，只留灶间方向一点热气 | 部分 OK — 帖木哥抵役确未写（仅写冻裂手与九年旧疤）；帖兰未出场，但正文**未落地任何「灶间方向的一点热气」",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "CRITICAL",
+    "第2段 读者等待·兑现期待 | 第5章「役分几档、各折多少粮」本章给出答案 | **MISSING** — 正文只写「役分三等（马夫、报点、核账）」的**具体档名与折粮数均未出现**；帖木哥口授的是三条罚则与报点/换马/扫道工序，未答「各折多少粮」。备忘第2段承诺的兑现期待未落地",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "CRITICAL",
+    "第3段 兑现·役分档与折粮 | 通过帖木哥口授与马料账核对着落，役分三等、折粮各不同、罚则各不同 | **MISSING** — 见上。正文有「罚则各不同」（三条罚则），无「役分三等」「折粮各不同」",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "CRITICAL",
+    "第4段 日常/过渡·工序信息铺设 | 报点、换马、封驿、核账落到四项马料、三等役、三条罚则 | 部分 OK — 四项马料 OK、三条罚则 OK；**三等役未落地**（同第2/3段缺陷）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "第4段 日常/过渡·帖木哥教核账角色塑造 | 九年核账、头一年核出三石一挨了十板、此后只报八斗的旧事 | **MISSING** — 正文只写「我核了九年账。九年里，罚粮没少过一升」（L169-171），**「头一年核出三石一挨了十板、此后只报八斗」这段具体旧事未出现",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "第4段 日常/过渡·冻裂手与红纸包垫衬 | 红纸包从垫册页变奏为垫手，血渗红纸角；骨哨贴肋烫一次 | 部分 OK — 红纸包垫手套 OK（L175-177）；骨哨烫一次 OK（L189）；**「血渗到红纸角上」未落地**——正文只写裂口「结了一粒红珠」，红纸包只写「一角有旧血印」，未写本章新血渗上红纸角",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "第6段 改变3 [物理] | 手背冻裂从旧伤处开，血渗红纸角；红纸包变奏为垫手套 | 部分 OK — 旧伤处开 OK、垫手套 OK；**「血渗红纸角」未落地**（见上）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "第7段 Hook账·MH01 | advance：红纸包变奏为垫手套，血渗红纸角 | 部分 OK — 变奏为垫手套 OK；血渗红纸角未落地（同第4/6段）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "CRITICAL",
+    "`chapters/chapter-11.md` L163-171（帖木哥立罚则处）｜备忘第2段「兑现期待」、第3段兑现清单第1条｜役分三等与各折多少粮未落地：补一段帖木哥口授（马夫/报点/核账三档、各折粮数、核账罚最重「数错了，上头要问」）。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "`chapters/chapter-11.md` L169-171（帖木哥自陈九年账处）｜备忘第4段第2条｜「头一年核出三石一挨了十板、此后只报八斗」旧事缺失：补一句。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "`chapters/chapter-11.md` L173-177（红纸包垫手套处）｜备忘第6段改变3、第7段 MH01｜「血渗红纸角」未落地：补半句让本章血珠蹭上红纸。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "`chapters/chapter-11.md` L77 或 L179 后｜备忘第2段延迟期待、第8段第1条｜帖兰灶间方向「一点热气」未落地：补一句环境细节，不写人。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": true,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": false,
+  "router_critical": true
+ },
+ "chapter-11-review-summary.md": {
+  "aggregate_units": [
+   [
+    "CRITICAL",
+    "chapter-11-memo-compliance.md (chapter-11-memo-compliance.md): | 第2段 读者等待·兑现期待 | 第5章「役分几档、各折多少粮」本章给出答案 | **MISSING** — 正文只写「役分三等（马夫、报点、核账）」的**具体档名与折粮数均未出现**；帖木哥口授的是三条罚则与报点/换马/扫道工序，未答「各折多少粮」。备忘第2段承诺的兑现期待未落地 — | 第3段 兑现·帝国的血管从记账开始 | 以马料账四项逐栏核对兑现 | OK — L89-119 四项逐栏 | —",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": false,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": false,
+  "router_critical": false
+ },
+ "chapter-13-memo-compliance.md": {
+  "aggregate_units": [
+   [
+    "ERROR",
+    "第6段 章尾改变2 | 四件东西分开放、从驿站启程赴衙门 | **MISSING（部分）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "ERROR",
+    "第7段 Hook账 | MH01/MH03/MH05/MH11 advance；MH06/MH08 defer | **MISMATCH（MH11）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "自嘲反问收尾：「这文书是替我办事，还是替它自己办事？」——落地于第3场，非章末。：备忘金句位标注「落点场景2」，实际落在第3场（回下处），位置偏移一场，不影响成立，记 minor。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "CRITICAL",
+    "`chapters/chapter-13.md` 第4场末段 [备忘第6段·改变2] 「启程」动作缺失：补一句动身/离驿的动作，或修订备忘使「启程」与正文一致。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "CRITICAL",
+    "`chapters/chapter-13.md` 第1场 [备忘第7段·MH11] 画押署名未落地而账本记 advance：补画押一笔，或改写备忘与 `truth/pending_hooks.md` MH11 推进方式为「接令未画押」。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "`chapters/chapter-13.md` 第3场 [备忘·金句位] 自嘲反问落在第3场而非标注的场景2：如无特殊用意，可把该句移至第2场账房对帖木哥说完之后，或更新备忘标注。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": true,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": false,
+  "router_critical": true
+ },
+ "chapter-14-pacing.md": {
+  "aggregate_units": [
+   [
+    "WARNING",
+    "近5章 investigation 占 75%，触发单一类型 > 50% 警告。建议第15章安排 constellation（情感／日常，如合剌关系深化、帖兰线回访）或 transition 章，打破 investigation 连续。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "WARNING",
+    "第13、14章连续 2 章 investigation 达 `maxConsecutive=2` 上限，第15章若再为 investigation 将触发 warningThreshold=3。建议第15章换类型。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "本卷至第14章仍无 FIRE 章，逼近 `maxChaptersPerCycle=15` 上限。建议在第15–16章内安排一处小型爆发（如三笔差的当面对质、或合剌关系的转折），避免读者流失。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": false,
+  "error_label": false,
+  "loop_marker": false,
+  "router_blocking": false,
+  "router_critical": false
+ },
+ "chapter-15-foreshadowing.md": {
+  "aggregate_units": [
+   [
+    "WARNING",
+    "MH08 | 598 | 15 | pending（超期 defer，靠既定激活点第18章兜底）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "MH01：第16章开篇须交代红纸包从靶脚砖缝取回（subplot_board 第16章行已记「压在新抄《鉴录》页上」，写作时确保有取回动作，否则藏物规矩失效）。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "MH01：统一纸的来历口径——建议以第9／11／15章的「半张饼的包纸」为准，回头修订第13章「包糖剩下的」一句。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "MH11：修订 `truth/pending_hooks.md` 总览表 plant_chapter 字段或加注说明，消除与证据链起点的矛盾。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "WARNING",
+    "MH08：按备忘既定方案在第18章「灰烬请酒」激活，本章不提前；若第17章仍无灰烬，需在第17章备忘中明确再压一章的理由。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": false,
+  "error_label": false,
+  "loop_marker": false,
+  "router_blocking": false,
+  "router_critical": false
+ },
+ "chapter-18-world-rules.md": {
+  "aggregate_units": [
+   [
+    "WARNING",
+    "十屯抽成总额 | 360 石 | 单屯明细推算 108 石/屯×10=1080 石 | 本章内部 | （见连续性审计）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "CRITICAL",
+    "数值换算链断裂（详见连续性审计 chapter-18-continuity.md）：灰烬开价段「一屯三十户一户十二石抽三石六斗，十屯三百六十石」单屯明细与十屯总数不符。此为世界规则审计关注的「数值一致性」问题，须修正换算句使 30×3.6×10 与 360 自洽，或改总数口径并同步缺口／折耗重算。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "「都统府」为本章新增权力层级术语，建议在 world/locations.md 或 story_bible 势力条目中登记，避免后续章节漂移。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": true,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": false,
+  "router_critical": true
+ },
+ "chapter-2-memo-compliance.md": {
+  "aggregate_units": [
+   [
+    "BLOCKING",
+    "第1段 当前任务 | 城破夜（依据 subplot_board「城破后账与命一并清算（第2章）」） | UNVERIFIABLE（正文未提供）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "第3段 兑现 | MH03 火纹骨哨交接（pending_hooks：留至第2章城破夜） | UNVERIFIABLE（正文未提供）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "第3段 兑现 | MH06 萤的小调实响，仍不点破哼调者（subplot_board 第1章条目「下一节点」） | UNVERIFIABLE（正文未提供）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "第3段 兑现 | MH01 第一件真遗物入匣（subplot_board 第1章条目「下一节点」） | UNVERIFIABLE（正文未提供）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "第7段 Hook账 | MH01／MH03／MH06／MH07／MH11 的第2章操作须回写 pending_hooks | UNVERIFIABLE（pending_hooks 中上述 hook 的 `last_reinforced` 仍停在第1章，无第2章证据行）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "第8段 禁止事项 | 禁止提前解释小调来历／禁止主角独自重建交通网（MH03 notes） | UNVERIFIABLE（正文未提供）",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "`chapters/chapter-2.md` · 全文 · 正文文件缺失，全部备忘段无法核对：补交第2章正文后重跑本审计。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "`plans/chapter-2-plan.md` · 全文 · 备忘文件缺失：补交备忘后重跑本审计。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "CRITICAL",
+    "`truth/pending_hooks.md` · MH03／MH06／MH01 详情 · 第2章证据行缺位，`last_reinforced` 未推进：正文落定后由 foreshadowing-track 回写，并保证 MH03 的「骨哨交出、系成空绳结」与 MH06 的「萤的小调实响、不点破哼调者」两条操作在账本中可检索。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": true,
+  "consolidator_critical": true,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": true,
+  "router_critical": true
+ },
+ "chapter-23-anti-ai.md": {
+  "aggregate_units": [
+   [
+    "ERROR",
+    "7 | 元叙事/编剧旁白 | | chapters/chapter-23.md L349-L351「他忽然明白，这一世的出生证，是别人替他签的。欠条上那个印，他认得。城破那年，盖在降表上的，也是这个印。」——「他忽然明白」是叙事者替角色完成认知的旁白句，且「城破那年，盖在降表上的，也是这个印」是叙述者直接向读者交付跨章信息，属编剧旁白。详见下方缺陷记录。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "CRITICAL",
+    "chapters/chapter-23.md L349-L351：删「他忽然明白，这一世的出生证，是别人替他签的」整句，以及「城破那年，盖在降表上的，也是这个印」整句。改为纯动作与身体反应：他把欠条折好塞进私账那一页，纸角压上骨哨；指腹在印上按了一下，抬起来，一点红；他把手按在册子上，按了一会儿，抖才停。让「这个印我见过」只以「手抖」与「按印」的重复动作暗示，不由叙述者说出。若须保留一点认知线索，可写「他把灯挪近，对着那方印看了一阵，又把灯挪远」——给动作，不给结论。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "MINOR",
+    "全章其余各项均达标，无其他修复项。段落变异度（CV 0.578）、零破折号、零转折词、零 AI 标记词、零疲劳词，均为本章的强项，修订时不要为了「顺」而把这些参差磨平。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": false,
+  "consolidator_critical": true,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": false,
+  "router_critical": true
+ },
+ "chapter-32-sensitivity.md": {
+  "aggregate_units": [
+   [
+    "BLOCKING",
+    "心中暗道 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "不由得想到 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "眼中闪过一丝 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "嘴角勾起一抹 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "空气仿佛凝固 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "瞳孔骤然一缩 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "一股寒意从脚底升起 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "拳头上青筋暴起 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "仿佛过了一个世纪那么久 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "与此同时，另一边 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "命运的齿轮开始转动 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "他不禁感慨万千 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "微微一笑 / 深吸一口气 / 缓缓开口 / 若有所思 / 意味深长 / 不动声色 / 五味杂陈 / 下意识地 / 不由自主 / 叹了口气 / 嘴角微微上扬 / 眼神复杂 / 沉默了片刻 / 苦笑一声 | 未检测",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "补齐 `chapters/chapter-32.md` 正文后重新 dispatch 本审计技能，对第32章执行完整的平台禁忌词、本书禁忌词、内容边界与平台合规性检测。",
+    [
+     "x.md"
+    ]
+   ],
+   [
+    "BLOCKING",
+    "在正文补齐前，第32章不得进入发布流程。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": true,
+  "consolidator_critical": false,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": true,
+  "router_critical": false
+ },
+ "chapter-40-reader-pull.md": {
+  "aggregate_units": [
+   [
+    "BLOCKING",
+    "派发完整性：请补齐 `chapters/chapter-40.md` 与 `plans/chapter-40-plan.md` 后重跑本维度；本报告不作通过判定。",
+    [
+     "x.md"
+    ]
+   ]
+  ],
+  "consolidator_blocking": true,
+  "consolidator_critical": false,
+  "error_label": false,
+  "loop_marker": true,
+  "router_blocking": true,
+  "router_critical": false
+ }
+}

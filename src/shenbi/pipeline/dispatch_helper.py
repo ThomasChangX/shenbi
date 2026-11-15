@@ -71,7 +71,10 @@ from shenbi.pipeline.read_extractors import (
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
+    PRODUCTION_VOCAB_FORMS,
+    check_audit_dispatch_integrity,
     check_audit_line_refs,
+    check_audit_severity_vocab,
     check_markdown_fence_balance,
     check_prose_leakage,
     detect_write_failure,
@@ -536,6 +539,15 @@ OPTIONAL_READS: dict[str, list[str]] = {
     # (step 6) — the grounding read is absent on the first pass and present
     # on scoped-redo re-dispatch (genesis-complete reject --redo-steps).
     "shenbi-faction-builder": ["outline/volume_map.md"],
+    # spec #105 T3 (audit-T5 I2): 框架级资产/文档声明可降级的读——
+    # benchmarks/anchors/ 是框架根目录资产（review-resonance SKILL:198-204
+    # "不复制到项目目录…为空或不存在 route A 降级为无锚点参照，不阻断但
+    # flag"；anchor-curate 在 genesis 是 optional 步骤且 init 不预建该目录）；
+    # era-reference.md 同属框架资产（review-era SKILL:83 指 skills/ 下本体）；
+    # source_canon/* 是 fanfic 模式的可选 canon 素材。预检不得因此硬停整波。
+    "shenbi-review-resonance": ["benchmarks/anchors/"],
+    "shenbi-review-era": ["era-reference.md"],
+    "shenbi-review-fanfic": ["source_canon/*"],
     # probe9: the context decisions sidecar exists only in user-routable
     # context-composing mode — the pipeline's deterministic step 3 never
     # writes it, so escalation availability tables must not read its absence
@@ -2971,6 +2983,13 @@ def write_parsed_outputs(
             issues += check_audit_completeness(full_path)
             chapter_path = _resolve_chapter_for_audit(full_path, project_dir)
             issues += check_audit_line_refs(full_path, chapter_path)
+            # spec #105 T3: dispatch-integrity signature → report invalid.
+            # vol1 回放 108/108 全真阳性（历史框架事故族）——shadow 零误伤。
+            issues += check_audit_dispatch_integrity(full_path)
+            # spec #105 T2/T4: key-only 发射（audit-T4 处置(a)）——bracket/bold
+            # 通配在真语料 198 误伤，保留于回放工具做 #116 采集；key 形=唯一
+            # 全通配槽位（spec r2.4 自证），vol1 613 份回放零误伤。
+            issues += check_audit_severity_vocab(full_path, forms=PRODUCTION_VOCAB_FORMS)
 
         for issue in issues:
             log.warning("llm_output_integrity_issue", path=str(full_path), finding=issue)

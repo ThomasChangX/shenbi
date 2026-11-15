@@ -19,6 +19,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from shenbi.contracts.severity import SECTION_HEADER_RE
 from shenbi.cost.ledger import TokenLedger
 from shenbi.gates.shared import word_count_md
 from shenbi.pipeline.audit_aggregate import FindingUnit, extract_finding_units
@@ -519,6 +520,8 @@ SUBSYSTEM_ROUTES: dict[str, str] = {
 }
 
 RAW_GLOB_RE = re.compile(r"^chapter-(\d+)-.+\.md$")
+#: spec #105 T4b: aggregate 条目级 severity 前缀（新格式 `- **SEV** · text`）。
+_ITEM_SEV_PREFIX_RE = re.compile(r"^\*\*([A-Z]+)\*\*\s*·\s*(.+)$")
 RESONANCE_NAME_RE = re.compile(r"^chapter-\d+-resonance\.md$")  # _RESONANCE_NAME_RE 同语义
 
 
@@ -547,15 +550,20 @@ def merge_units(reports: list[tuple[str, str]]) -> list[FindingUnit]:
 def _parse_aggregate_sections(content: str) -> list[FindingUnit]:
     """Parse the aggregate render format into finding units.
 
-    Sections are `## <SEV> Findings (n)` H2 blocks with severity-stripped
-    bullets (extract_finding_units returns zero on this format). Breaks at
-    the FIRST non-severity H2 — verbatim resonance bodies may contain their
-    own `## ` lines that would re-arm severity.
+    Sections are `## <SEV> Findings (n)` H2 blocks. Two entry formats are
+    tolerated (spec #105 T4b): the new item-level `- **<SEV>** · text` and the
+    legacy `- text` (old aggregates still parse; the next
+    write_audit_aggregate overwrites them). Breaks at the FIRST non-severity
+    H2 — verbatim resonance bodies may contain their own `## ` lines that
+    would re-arm severity.
     """
     units: list[FindingUnit] = []
     sev: str | None = None
     for line in content.splitlines():
-        m = re.match(r"^## (BLOCKING|CRITICAL|WARNING|ERROR) Findings", line)
+        # spec #105 T1b: 节头词表单源（SECTION_HEADER_RE 含 MINOR——修复旧正则
+        # 缺 MINOR 致遇 `## MINOR Findings` 即 break、MINOR/WARNING/ERROR 三节
+        # 静默丢弃的纵向报告腐化）。
+        m = SECTION_HEADER_RE.match(line)
         if m:
             sev = m.group(1)
             continue
@@ -563,7 +571,15 @@ def _parse_aggregate_sections(content: str) -> list[FindingUnit]:
             break  # Resonance 报告/报告上下文等非 severity 分节：终止解析
         s = line.strip()
         if sev and s.startswith("- ") and not s.startswith("- 报告方"):
-            units.append(FindingUnit(sev, s.lstrip("- ").strip(), ("aggregate",)))
+            text = s.lstrip("- ").strip()
+            # spec #105 T4b: item-level severity prefix `**SEV** · ` (new
+            # format) — the ITEM级 wins when present; legacy bullets pass
+            # through unchanged.
+            m_item = _ITEM_SEV_PREFIX_RE.match(text)
+            if m_item:
+                units.append(FindingUnit(m_item.group(1), m_item.group(2), ("aggregate",)))
+            else:
+                units.append(FindingUnit(sev, text, ("aggregate",)))
     return units
 
 

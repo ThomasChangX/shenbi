@@ -165,3 +165,22 @@ def test_fixcheck_ch2_debris_not_counted_and_summary_excluded(tmp_path: Path):
     # finding — the counts above already prove it produced no unit
     findings_part = body.split("## 报告上下文")[0]
     assert "CRITICAL 1 的 (a)" not in findings_part
+
+
+def test_render_entry_carries_item_level_severity():
+    """Spec #105 T4b: entries render with item-level severity.
+
+    Format is dash-bold-SEV-dot-text; downstream revision skills read the
+    tier off the entry instead of inheriting it from the section header.
+    """
+    from shenbi.pipeline.audit_aggregate import FindingUnit, render_aggregate
+
+    units = [
+        FindingUnit("MINOR", "措辞建议甲", ("r1",)),
+        FindingUnit("BLOCKING", "结构缺陷乙", ("r2",)),
+    ]
+    out = render_aggregate(9, units, {})
+    assert "- **MINOR** · 措辞建议甲" in out
+    assert "- **BLOCKING** · 结构缺陷乙" in out
+    assert "## MINOR Findings (1)" in out  # 节标题保留
+    assert out.count("报告方:") == 2

@@ -23,6 +23,7 @@ from pathlib import Path
 from collections.abc import Callable, Mapping
 
 from shenbi.config.thresholds import resolve_audit_dimensions
+from shenbi.contracts.severity import ROUTING_HARD_TIER_ALIASES, ROUTING_TIERS
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.status import gate_passed
@@ -35,7 +36,9 @@ AUDIT_DIR = "audits"
 #: Legacy hard-tier label from the review templates (fixcheck ch1): the
 #: bracketed ``- [ERROR]`` finding line. Matched as a structured bracket
 #: label only, so prose that merely mentions "ERROR" does not trip it.
-_ERROR_LABEL_RE = re.compile(r"^\s*-\s*\[ERROR\]", re.M)
+#: spec #105 T1b: 词组自 contracts.severity 别名单源组合（单字标签——AST lint
+#: 只防交替字面量的已知豁免口，import 证明覆盖）。
+_ERROR_LABEL_RE = re.compile(r"^\s*-\s*\[(" + "|".join(ROUTING_HARD_TIER_ALIASES) + r")\]", re.M)
 
 # ---------------------------------------------------------------------------
 # Genre-circle activation matrix (spec section 6.2)
@@ -250,12 +253,17 @@ def run_audit_layer(
         result.audit_reports.append(rel_path)
         if audit_file.exists():
             content = audit_file.read_text(encoding="utf-8")
-            if "BLOCKING" in content:
+            # audit-S8 M-6: tier words from the single source (non-anchored
+            # substring sensing is this layer's documented semantics — kept
+            # as-is, but the vocabulary is no longer hand-copied).
+            _blocking_tier = ROUTING_TIERS[0]
+            _critical_tier = ROUTING_TIERS[1]
+            if _blocking_tier in content:
                 result.blocking_found = True
-                result.issues.append(_issue(skill, chapter, "BLOCKING", "content", rel_path))
-            if "CRITICAL" in content:
+                result.issues.append(_issue(skill, chapter, _blocking_tier, "content", rel_path))
+            if _critical_tier in content:
                 result.critical_found = True
-                result.issues.append(_issue(skill, chapter, "CRITICAL", "content", rel_path))
+                result.issues.append(_issue(skill, chapter, _critical_tier, "content", rel_path))
             # Fixcheck ch1 (2026-09-29): the review templates' legacy hard
             # tier is the bracketed '- [ERROR]' label — drifted outputs carry
             # real hard findings that never hit the BLOCKING/CRITICAL match
@@ -286,3 +294,61 @@ def _issue(
     if detail is not None:
         issue["detail"] = detail
     return issue
+
+
+def missing_audit_reads(project_dir: Path | str, skill: str, chapter: int | None) -> list[str]:
+    """Required contract reads that do not exist for an audit dispatch (spec #105 T3).
+
+    Semantics mirror the escalation reads tri-state probe
+    (revision_router.py:268-303: OPTIONAL_READS fnmatch / self writes+updates /
+    glob expansion / existence). Scope (plan M1): consumed only by the audit
+    dispatch pre-check; the generic ``_resolve_read_with_fallback`` path and
+    the F10 legacy fail-open stay untouched.
+    """
+    from fnmatch import fnmatch
+
+    from shenbi.contracts.loader import load_contract
+    from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+    project = Path(project_dir)
+    from shenbi.contracts.loader import ContractError
+
+    try:
+        contract = load_contract(skill)
+    except ContractError:
+        # audit-T5 I3: 契约装载失败非本预检职责（上游 G1 已拦）——但不静默：
+        # 记 error 让「预检跳过了该技能」可观测（rubric 吞错项）。
+        log.error("audit_readiness_contract_unavailable", skill=skill)
+        return []
+    optional_patterns = OPTIONAL_READS.get(skill, [])
+
+    def _entry_file(entry: object) -> str:
+        return str(entry.get("file", "")) if isinstance(entry, dict) else str(entry)
+
+    def _resolve(rel: object) -> str:
+        if chapter is None:
+            return str(rel).replace("chapter-N", "N")
+        return str(rel).replace("chapter-N", f"chapter-{chapter}")
+
+    # writes/updates 同样做占位符替换（audit-T5 I4：raw 模板与 resolved read
+    # 直接比较永不相等——自身的产物豁免分支会整段失效）。
+    produces = {_resolve(_entry_file(w)) for w in contract.get("writes", [])} | {
+        _resolve(_entry_file(u)) for u in contract.get("updates", [])
+    }
+    missing: list[str] = []
+    for rel in contract.get("reads", []):
+        resolved = _resolve(rel)
+        probe = project / resolved
+        if probe.exists():
+            continue
+        # 目录形读（如 benchmarks/anchors/）：dispatch 侧 _resolve_read_path 展开
+        # 目录内 *.md；目录存在即放行（空目录与 resonance SKILL「为空或不存在
+        # route A 降级」一致——audit-T5 M-3 注释归真）。
+        if resolved in produces:
+            continue
+        if any(fnmatch(resolved, pat) for pat in optional_patterns):
+            continue
+        if "*" in resolved and any(project.glob(resolved)):
+            continue
+        missing.append(resolved)
+    return missing

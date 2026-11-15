@@ -81,49 +81,35 @@ DEFAULT_RESONANCE_FLOOR = 50
 # (``**BLOCKING**``), the English severity-key form (``severity: BLOCKING``,
 # ``**Severity**: BLOCKING``), and the CJK production form that all audit
 # skills actually emit (``**严重度**: BLOCKING``, ``严重度: BLOCKING``).
-# probe6 ch1 (2026-10-01): the value position alone is not enough — an
-# audit's FORMAT DOCUMENTATION legend (``4. **严重度**：BLOCKING / CRITICAL /
-# MINOR``, verbatim from a production sensitivity report) matched the key
-# form and routed a phantom regenerate. A value inside an ENUM LIST is never
-# a finding: the negative lookahead rejects it when further severity words
-# are enumerated after it.
-_SEV_ENUM_TAIL = r"(?!\s*[/／、,，]\s*(?:BLOCKING|CRITICAL|MINOR|WARNING|ERROR)\b)"
+# 词表/三尾巴单源（spec #105 T1b）：SEV_ENUM_TAIL/NEGATION_PAYLOAD_TAIL/
+# QUOTED_VALUE_TAIL/NEGATION_WORDS 与词组常量自 contracts.severity 迁入
+# （probe 教训注释全文见该模块）。
+from shenbi.contracts.severity import (
+    NEGATION_PAYLOAD_TAIL,
+    NEGATION_WORDS,
+    QUOTED_VALUE_TAIL,
+    ROUTING_CRITICAL_BRACKET_WORDS,
+    SEV_ENUM_TAIL as _SEV_ENUM_TAIL,
+)
 
-#: F-5 (probe22 adjudication #010): the audit templates declare ZERO findings
-#: as ``- [BLOCKING] 无`` — bracketed-marker sensors counted the declaration
-#: itself as a finding (review-summary "BLOCKING Issues: 1", wave audit
-#: hard_failures=2, pipeline-state blocking_found=true). A bracketed marker
-#: whose payload is EXACTLY a negation word is a zero-declaration, never a
-#: finding; a real finding like 「无法解析的引用」 keeps going past the word,
-#: so the end anchor leaves it live. Shared by every bracket-form sensor
-#: (parallel_dispatch consolidator, chapter_loop wave marker) and by the
-#: aggregate's payload check (:func:`is_negation_payload`).
-_NEGATION_WORDS = r"(?:(?:无|暂无|没有)|(?i:none|n/?a)|0)"
-NEGATION_PAYLOAD_TAIL = rf"(?!\s*{_NEGATION_WORDS}\s*[。.!！]?\s*$)"
+#: F-5 (probe22 adjudication #010) — 零声明守卫语义见 contracts.severity
+#: NEGATION_PAYLOAD_TAIL docstring（shared by every bracket-form sensor and
+#: the aggregate's payload check below）。
+_CRITICAL_BRACKET_WORDS = "|".join(ROUTING_CRITICAL_BRACKET_WORDS)
 
 
 def is_negation_payload(text: str) -> bool:
     """True when a severity marker's payload is a pure zero-declaration
     (``无`` / ``none`` / ``N/A`` …) rather than finding prose.
     """
-    return re.fullmatch(rf"{_NEGATION_WORDS}\s*[。.!！]?", text.strip(), re.IGNORECASE) is not None
-
-
-#: #18-1 (probe23 adjudication #004): the resonance report quotes its own
-#: output-contract JSON inside prose — ``{"category": "unmet_goal", "severity":
-#: "BLOCKING"}`` on a line that literally says the route is NOT triggered — and
-#: the key-form sensors read the quoted value as a live declaration. probe23
-#: ch1 routed to full regeneration on this phantom alone (both extracted
-#: issues were it and its review-summary echo). A severity word immediately
-#: followed by a closing quote is a quoted VALUE inside a literal, never a
-#: declaration; real reports declare bare values (``severity: BLOCKING``).
-QUOTED_VALUE_TAIL = r'(?!\*{0,2}")'
+    return re.fullmatch(rf"{NEGATION_WORDS}\s*[。.!！]?", text.strip(), re.IGNORECASE) is not None
 
 
 # #18-9 (probe24): the bold form is CASE-SENSITIVE — real declarations are
 # uppercase (``**BLOCKING**``); a lowercase bold ``**blocking**`` is a rule
 # TIER label (``| rule-003 | **blocking** | PASS |``), not a finding. The
-# key/bracket forms keep IGNORECASE.
+# key/bracket forms keep IGNORECASE. QUOTED_VALUE_TAIL（#18-1/probe23 引号值
+# 守卫）语义见 contracts.severity。
 _SEVERITY_BLOCKING_RE = re.compile(
     r"(?-i:\*\*BLOCKING\*\*)"  # bolded marker: **BLOCKING** (uppercase only)
     # severity key (English "severity" or CJK "严重度"): "severity: BLOCKING",
@@ -139,9 +125,10 @@ _SEVERITY_BLOCKING_RE = re.compile(
 _SEVERITY_CRITICAL_RE = re.compile(
     rf"(?-i:\*\*CRITICAL\*\*)"
     rf"|(?:severity|严重度)\*{{0,2}}\W{{0,6}}CRITICAL\b{_SEV_ENUM_TAIL}{QUOTED_VALUE_TAIL}"
-    # #18-7: same bracket vocabulary, both tiers ([ERROR] is the legacy
-    # hard-tier label per the fixcheck severity-vocabulary reconciliation).
-    rf"|^\s*-\s*\[(?:CRITICAL|ERROR)\]{NEGATION_PAYLOAD_TAIL}",
+    # #18-7: same bracket vocabulary, both tiers — word group from the
+    # single source (= ``CRITICAL|ERROR``; [ERROR] is the legacy hard-tier
+    # label per the fixcheck severity-vocabulary reconciliation).
+    rf"|^\s*-\s*\[(?:{_CRITICAL_BRACKET_WORDS})\]{NEGATION_PAYLOAD_TAIL}",
     re.IGNORECASE | re.M,
 )
 

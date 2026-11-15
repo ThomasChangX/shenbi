@@ -356,6 +356,8 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
             ),
         ),
         patch("shenbi.pipeline.audit_layer.get_active_genre_audits", return_value=[]),
+        # spec #105 T3: 正交守卫（read-readiness 自带专测）——本测试测波机制
+        patch("shenbi.pipeline.audit_layer.missing_audit_reads", return_value=[]),
         patch(
             "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
             side_effect=lambda tasks, on_task_complete=None, state=None: _results_for(tasks),

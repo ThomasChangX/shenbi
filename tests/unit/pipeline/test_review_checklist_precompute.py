@@ -36,7 +36,7 @@ def test_precompute_fields_present(tmp_path: Path) -> None:
     assert isinstance(cl.ai_marker_hits, dict)
     assert all(v >= 1 for v in cl.ai_marker_hits.values())
     assert cl.paragraph_cv is not None and cl.paragraph_cv >= 0  # real CV, not dead
-    assert cl.version == 1
+    assert cl.version == 2  # spec #105 T4c: window 3->10 bump
 
 
 def test_cache_version_mismatch_regenerates(tmp_path: Path) -> None:
@@ -54,9 +54,9 @@ def test_cache_version_mismatch_regenerates(tmp_path: Path) -> None:
     older = src.stat().st_mtime - 100
     os.utime(src, (older, older))
     cl = generate_review_checklist(tmp_path, 2)
-    assert cl.version == 1
+    assert cl.version == 2  # spec #105 T4c bump
     on_disk = json.loads(cache.read_text(encoding="utf-8"))
-    assert on_disk.get("version") == 1  # cache rewritten, not loaded stale
+    assert on_disk.get("version") == 2  # cache rewritten, not loaded stale
 
 
 def test_injection_json_carries_precompute(tmp_path: Path) -> None:

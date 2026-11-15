@@ -250,14 +250,35 @@ def _revalidate_finding(project_dir: Path, file_field: str, finding: str) -> boo
     elif finding.startswith("G4.pi.fence_imbalance"):
         emitted = check_markdown_fence_balance(target)
     elif finding.startswith("G4.av."):
-        t_raw = chapter_no_raw(target.name)
-        chapter_path = (
-            project_dir / "chapters" / f"chapter-{t_raw}.md" if t_raw is not None else None
-        )
-        if chapter_path is None or not chapter_path.exists():
-            log.warning("pwi_finding_stale_chapter_gone", finding=finding, file=file_field)
-            return False
-        emitted = check_audit_line_refs(target, chapter_path)
+        # spec #105 T4/T5: per-id routing — chapter-gone early-exit applies to
+        # stale_line_ref ONLY (vocab/dispatch_integrity do not depend on the
+        # chapter file; inheriting the early exit would stale-swallow their
+        # findings after a chapter deletion, plan M-9).
+        if finding.startswith("G4.av.dispatch_integrity"):
+            from shenbi.pipeline.llm_output_integrity import check_audit_dispatch_integrity
+
+            emitted = check_audit_dispatch_integrity(target)
+        elif finding.startswith("G4.av.vocab"):
+            from shenbi.pipeline.llm_output_integrity import (
+                PRODUCTION_VOCAB_FORMS,
+                check_audit_severity_vocab,
+            )
+
+            emitted = check_audit_severity_vocab(target, forms=PRODUCTION_VOCAB_FORMS)
+        elif finding.startswith("G4.av.stale_line_ref"):
+            t_raw = chapter_no_raw(target.name)
+            chapter_path = (
+                project_dir / "chapters" / f"chapter-{t_raw}.md" if t_raw is not None else None
+            )
+            if chapter_path is None or not chapter_path.exists():
+                log.warning("pwi_finding_stale_chapter_gone", finding=finding, file=file_field)
+                return False
+            emitted = check_audit_line_refs(target, chapter_path)
+        else:
+            # audit-T5 M2 (plan Task 4 Step 7): 未识别的 G4.av.* 保守放行并留痕——
+            # 不能落进 line_refs 分支（含 chapter-gone 早退）被当 stale 静默吞。
+            log.warning("pwi_unmapped_av_finding", finding=finding, file=file_field)
+            return True
     else:
         return True
 
