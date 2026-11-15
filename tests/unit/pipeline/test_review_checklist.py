@@ -227,17 +227,18 @@ class TestExtractHookDeliverables:
 
 class TestExtractEndingConstraints:
     def test_returns_recent_ending_types(self, tmp_path: Path):
-        """Recent chapter endings are classified and returned."""
+        """Recent chapter endings are classified and returned (10-window)."""
         from shenbi.pipeline.review_checklist import _get_recent_ending_types
 
         (tmp_path / "chapters").mkdir()
-        for ch in range(1, 6):
+        for ch in range(1, 11):
             (tmp_path / "chapters" / f"chapter-{ch}.md").write_text(
                 f"# Chapter {ch}\n\nContent here.\n\n突然，门开了。\n",
                 encoding="utf-8",
             )
-        result = _get_recent_ending_types(tmp_path, 6)
-        assert isinstance(result, list)
+        result = _get_recent_ending_types(tmp_path, 11)
+        assert len(result) == 10, result
+        assert all(t in {"cliffhanger", "hook", "resolution", "other"} for t in result)
 
 
 class TestSummarizeWorldRules:

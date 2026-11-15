@@ -98,7 +98,10 @@ class ReviewChecklist:
     transition_count: int = 0
     ai_marker_hits: dict[str, int] = field(default_factory=dict)
     paragraph_cv: float | None = None
-    version: int = 1
+    #: Cache format/behaviour version. v2 (spec #105 T4c): the ending window
+    #: widened 3 -> 10 — older in-flight caches carrying 3-entry windows must
+    #: be recomputed instead of served.
+    version: int = 2
     ai_blacklist: list[str] = field(default_factory=list)
     fatigue_warnings: dict[str, Any] = field(default_factory=dict)
     voice_constraints: dict[str, Any] = field(default_factory=dict)
