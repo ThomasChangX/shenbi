@@ -286,7 +286,7 @@ git commit -m "feat: spec #105 T1b — 六消费点 severity 传感换装（行�
 
 - [ ] **Step 1: 失败测试**——红测构造：tmp_path 写一个含 `re.compile(r"BLOCKING|CRITICAL")` 的 .py（模拟 pipeline 模块路径），断言 lint 判违例；白测：同文件仅 `re.compile("|".join(ROUTING_TIERS))` 通过；单源模块 `contracts/severity.py` 自身豁免。测试以函数级调用 lint 的 `check_tree`/`main`（参照 `tests/unit/tools/` 下 lint_chapter_num_single_source 同款测试结构——执行期读 `tools/lint_chapter_num_single_source.py` 全文与对应测试照搬骨架）。
 - [ ] **Step 2: 确认失败**——`uv run pytest tests/unit/tools/test_lint_severity_single_source.py -q`（ModuleNotFoundError）
-- [ ] **Step 3: 实现 lint**——骨架照 `lint_chapter_num_single_source.py`（#89 T2 先例）：`_pattern_arg` 只认 `ast.Constant` 字符串（positional 或 `pattern=`）；`RE_FUNCS = ("compile","search","match","fullmatch","findall","sub","subn","split")`；违例判据=pattern 字符串含「≥2 个 severity 词的交替」（`BLOCKING|CRITICAL` 等五词任意两词以上以 `|` 相连——精确判据：`re.search(r"(BLOCKING|CRITICAL|MINOR|WARNING|ERROR)(\|)+", pat)` 且全串提取的交替词数 ≥2）；允许文件=`src/shenbi/contracts/severity.py`；扫描域=`src/shenbi/pipeline`+`src/shenbi/contracts`+`tools`；输出违例清单 exit 1。
+- [ ] **Step 3: 实现 lint**——骨架照 `lint_chapter_num_single_source.py`（#89 T2 先例）：`_pattern_arg` 只认 `ast.Constant` 字符串（positional 或 `pattern=`）；`RE_FUNCS = ("compile","search","match","fullmatch","findall","sub","subn","split")`；违例判据=pattern 字符串含「≥2 个 severity 词的交替」（`BLOCKING|CRITICAL` 等五词任意两词以上以 `|` 相连——精确判据：`re.search(r"(BLOCKING|CRITICAL|MINOR|WARNING|ERROR)(\|)+", pat)` 且全串提取的交替词数 ≥2）；允许文件=`src/shenbi/contracts/severity.py`；扫描域=`src/shenbi/pipeline`+`src/shenbi/contracts`+`tools`；输出违例清单 exit 1。**r5-M3 自引用陷阱**：lint 自身的违例探测**禁用携带五词交替字面量的 re.* 调用**（tools/ 在扫描域内——照抄字面式会判己违例首跑即红）——探测器用元组 join 构造或 #89 先例的纯字符串包含判定。
 - [ ] **Step 4: justfile 接线**——`just check` 的 lint 链（与 lint_chapter_num_single_source 同一 recipe 行/相邻行）追加 `tools/lint_severity_single_source.py`；`just -n check` 语法自证 + 跑一次全绿。
 - [ ] **Step 5: 全量验证**——`uv run pytest tests/unit/tools/test_lint_severity_single_source.py -q` + `just check`（若 check 全量慢，跑 lint 面子配方）。
 - [ ] **Step 6: Commit**
@@ -361,7 +361,7 @@ def test_out_of_vocab_red(tmp_path, content):
         "- [MINOR·观察] 观察",
         "**严重度**",
         "**Severity**",
-        '"severity": "low"',  # M-5: QUOTED_VALUE_TAIL 引号值绿测（Step 3 修正的验收钉，进首清单非后补）
+        '"severity": "low"',  # M-5: 引号值绿测（r4-I1 gap 类防御验收钉——非 QUOTED_VALUE_TAIL，r5-M2 归因更正）
         "严重度: ERROR（对应 BLOCKING）",  # r2-M2: 括注剥离——剥后 ERROR∈词表 PASS（不剥=误报）
     ],
 )
@@ -371,7 +371,7 @@ def test_in_vocab_or_exempt_green(tmp_path, content):
 
 - [ ] **Step 2: 确认失败**——ImportError。
 - [ ] **Step 3: 实现 checker**（纯函数幂等，path 形与同族同构）：
-  - 捕获正则（模块级预编译）：bracket `re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)`；bold `re.compile(r"\*\*([\w\-]+)\*\*")`；key `re.compile(r"\*{0,2}(?:severity|严重度)\*{0,2}[^\w"']{0,6}([^\s"']+)", re.IGNORECASE)`（**r4-I1 钉死——引号防御用 gap 类排除引号而非尾部负向前瞻**：tail 前瞻 `(?!"...)` 放在可回溯通配捕获组后必然被回溯绕过——`([^\s"]+)` 捕 `low` 后前瞻见 `"` 失败→回溯交还一字符捕 `lo`→`LO` 过判别器→FAIL 误伤（与 spec C1' 证伪 `_SEV_ENUM_TAIL` 照搬路径同机制）；gap 类 `[^\w"]{0,6}` 不吃引号→`"severity": "low"` 全线无匹配→PASS，`severity: MAJOR`/`**严重度**：BLOCKING` 行为不变；`severity: "BLOCKING"` 引号值=传感侧 #18-1 同判（非声明）→PASS 语义一致）。
+  - 捕获正则（模块级预编译）：bracket `re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)`；bold `re.compile(r"\*\*([\w\-]+)\*\*")`；key `re.compile(r"\*{0,2}(?:severity|严重度)\*{0,2}[^\w"']{0,6}([^\s"']+)", re.IGNORECASE)`（**r4-I1 钉死——引号防御用 gap 类排除引号而非尾部负向前瞻**：tail 前瞻 `(?!"...)` 放在可回溯通配捕获组后必然被回溯绕过——`([^\s"]+)` 捕 `low` 后前瞻见 `"` 失败→回溯交还一字符捕 `lo`→`LO` 过判别器→FAIL 误伤（与 spec C1' 证伪 `_SEV_ENUM_TAIL` 照搬路径同机制）；gap 类 `[^\w"']{0,6}` 不吃引号（r5-M2 写全：防御面含单双引号）→`"severity": "low"` 全线无匹配→PASS，`severity: MAJOR`/`**严重度**：BLOCKING` 行为不变；`severity: "BLOCKING"` 引号值=传感侧 #18-1 同判（非声明）→PASS 语义一致）。
   - **统一后处理管线**（模块内私有函数 `_vocab_violation(token: str) -> bool`；checker docstring 注记两条 r2.6 挂账：①捕获污染剥离规则 ②key-名豁免形态域[形态无关生效、动机仅 bold 裸 key——残余面 #117 收编]）：
     1. **捕获污染剥离（r2.6 plan 注记落位，I-3）**：`token = re.sub(r"[（(][^）)]*[）)]?\s*$", "", token)` 剥括注后缀（`ERROR（对应 BLOCKING）`→`ERROR`），再 `.rstrip("。．.,，;；:：!！?？")` 剥尾部标点（`严重度：高。`→`高`——不剥则 CJK 精确等值不命中=静默漏报，恰是本件根因形态）
     2. `token = token.upper()`
@@ -530,5 +530,5 @@ git commit -m "feat: spec #105 T4c — ending_constraints 注入窗 3→10（cha
 ## Self-Review
 
 1. **Spec coverage**：spec T1（T1a 登记+模块/T1b 换装+差分三层/T1c lint）✓；T2（T4：判别器三段式+双点位+回放 shadow）✓；T3（T5：预检+dispatch_integrity+零派发红测）✓；T4（T6 EXAMPLES/T7 渲染+parser/T8 ending 窗）✓；验收 2 差分（T2b）/验收 3 bug-hunt 由 T4 红测+T5 零派发承载/验收 4 G3.4 ≥94 由阶段 6 收官评分承载。
-2. **Placeholder scan**：三处「执行期落定」均为**事实锚定指令**（parallel_dispatch 函数名/wave 技能名册变量/gen stdout 中转），非行为留白——实现时 grep 落定并记 deviation。
+2. **Placeholder scan**：两处「执行期落定」均为**事实锚定指令**（T5 wave 技能名册变量/T2 gen stdout 中转——r5-M1 更正：parallel_dispatch 函数名一项已随 r4-M1 空桩删除而消亡），非行为留白——实现时 grep 落定并记 deviation。
 3. **Type consistency**：`check_audit_severity_vocab(path: Path) -> list[str]` 与 dispatch_helper/generic 调用面一致；`missing_audit_reads(project_dir, skill, chapter)` 与 wave 预检调用一致；severity.py 符号名在 T1/T2/T4/T5/T7 间一致（`AGGREGATE_VOCAB_SET`/`ROUTING_*_BRACKET_WORDS` 在 T1 Interfaces/Step 3 落定——r2 修正：初稿 Self-Review 误称「已含」，实为漏列，已在 T1 补齐）。
