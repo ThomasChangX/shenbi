@@ -1,6 +1,6 @@
 """Loader extractor sidecar tests (spec #65 §4.2): closed registry,
 fields/extractor mutex, sidecar normalization. Staged-skill pattern from
-tests/unit/contract/test_dict_reads.py.
+tests/unit/contracts/test_dict_reads.py.
 """
 
 from __future__ import annotations
