@@ -196,3 +196,43 @@ class TestMergePwiIntoResult:
         merged = json.loads(_merge_pwi_into_result(base, pwi))
         assert merged["status"] == "PASS"
         assert merged["must_fix"] == []
+
+
+def test_vocab_and_dispatch_integrity_findings_fail_the_gate(tmp_path) -> None:
+    """Spec #105 M-7: new G4.av.* ids must map to FAIL with must_fix entries.
+
+    Existing post-write tests only cover G4.pi.*; the new gates share the
+    _POST_WRITE_FAIL_PREFIXES tuple, so the regression risk is low but was
+    previously unpinned.
+    """
+    import json
+
+    from shenbi.gates.g4.generic import g4_post_write_integrity
+
+    (tmp_path / "audits").mkdir()
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-5.md").write_text("# 第五章\n\n正文。\n", encoding="utf-8")
+    (tmp_path / "audits" / "chapter-5-x.md").write_text("严重度: 严重\n", encoding="utf-8")
+    (tmp_path / "audits" / "chapter-5-y.md").write_text(
+        "- [BLOCKING] 派发完整性：请补齐 `chapters/chapter-5.md` 后重跑\n", encoding="utf-8"
+    )
+    journal = tmp_path / "audits" / ".integrity-findings-5.jsonl"
+    rows = [
+        {
+            "finding": "G4.av.vocab:chapter-5-x.md — L1:词表外严重度",
+            "file": "audits/chapter-5-x.md",
+        },
+        {
+            "finding": "G4.av.dispatch_integrity:chapter-5-y.md — L1:派发完整性签名",
+            "file": "audits/chapter-5-y.md",
+        },
+    ]
+    journal.write_text(
+        "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8"
+    )
+
+    result = g4_post_write_integrity(tmp_path, chapter=5)
+    assert result["status"] == "FAIL", result
+    ids = [m.split(":")[0] for m in result.get("must_fix", [])]
+    assert "G4.av.vocab" in ids, ids
+    assert "G4.av.dispatch_integrity" in ids, ids

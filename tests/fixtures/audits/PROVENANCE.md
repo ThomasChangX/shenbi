@@ -21,5 +21,7 @@ spec #105 T1b 差分基线语料——**逐字节复制**（未加头/未改写�
 | chapter-23-anti-ai.md | bold ERROR |
 | chapter-32-sensitivity.md | bold BLOCKING+table-bold 形 |
 | chapter-40-reader-pull.md | 派发完整性实弹（T5 红测引文源 :44） |
+| chapter-1-character.md | **main 既有 fixture**（非本批复制；来源见 git log d7f22fb2）——被新差分基线消费，属早期真实 skill 输出 |
+| chapter-1-consistency.md | **main 既有 fixture**（非本批复制；来源见 git log 1939200e）——同上 |
 
 语料空洞（构造行内红绿补，G0.9 禁手造 fixture）：bracket ERROR、bold CRITICAL。

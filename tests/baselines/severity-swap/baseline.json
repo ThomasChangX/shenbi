@@ -17,6 +17,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": true,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": false,
@@ -40,6 +41,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": false,
   "error_label": false,
   "loop_marker": false,
   "router_blocking": false,
@@ -63,6 +65,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": false,
   "error_label": false,
   "loop_marker": false,
   "router_blocking": false,
@@ -79,6 +82,7 @@
    ]
   ],
   "consolidator_blocking": true,
+  "consolidator_critical": false,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": true,
@@ -109,6 +113,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": true,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": false,
@@ -139,6 +144,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": false,
   "error_label": false,
   "loop_marker": false,
   "router_blocking": false,
@@ -232,6 +238,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": true,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": false,
@@ -248,6 +255,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": false,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": false,
@@ -299,6 +307,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": true,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": false,
@@ -329,6 +338,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": false,
   "error_label": false,
   "loop_marker": false,
   "router_blocking": false,
@@ -373,6 +383,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": false,
   "error_label": false,
   "loop_marker": false,
   "router_blocking": false,
@@ -403,6 +414,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": true,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": false,
@@ -475,6 +487,7 @@
    ]
   ],
   "consolidator_blocking": true,
+  "consolidator_critical": true,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": true,
@@ -505,6 +518,7 @@
    ]
   ],
   "consolidator_blocking": false,
+  "consolidator_critical": true,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": false,
@@ -619,6 +633,7 @@
    ]
   ],
   "consolidator_blocking": true,
+  "consolidator_critical": false,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": true,
@@ -635,6 +650,7 @@
    ]
   ],
   "consolidator_blocking": true,
+  "consolidator_critical": false,
   "error_label": false,
   "loop_marker": true,
   "router_blocking": true,

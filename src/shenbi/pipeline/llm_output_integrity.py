@@ -261,6 +261,7 @@ from shenbi.contracts.severity import (
     BLOCKING_BRACKET_LABEL_RE,
     CJK_SEVERITY_WORDS,
     KEY_NAME_TOKENS,
+    NEGATION_WORDS,
 )
 
 _VOCAB_BRACKET_RE = re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)
@@ -293,6 +294,12 @@ def _vocab_violation(token: str) -> bool:
     token = _POLLUTION_PAREN_RE.sub("", token).rstrip(_TRAILING_PUNCT)
     token = token.upper()
     if token in KEY_NAME_TOKENS:
+        return False
+    # audit-S8 I-1: zero-declaration values (`severity: N/A` / `严重度: none` /
+    # `严重度: 无`) are the F-5 vocabulary for "no findings" — never a
+    # violation (the new gate is FAIL-level; a false positive invalidates a
+    # legitimate report).
+    if re.fullmatch(NEGATION_WORDS, token, re.IGNORECASE):
         return False
     ascii_hit = token.isascii() and token.isupper() and len(token) >= 2
     cjk_hit = token in CJK_SEVERITY_WORDS

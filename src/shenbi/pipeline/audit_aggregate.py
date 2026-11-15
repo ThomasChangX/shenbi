@@ -166,7 +166,7 @@ def render_aggregate(
     parts.append(f"- **来源报告数**: {len(context) + len(resonance_bodies or {})}")
     parts.append(f"- **去重后缺陷条目**: {len(units)}")
     parts.append("")
-    for sev in ("BLOCKING", "CRITICAL", "MINOR", "WARNING", "ERROR"):
+    for sev in AGGREGATE_VOCAB:  # spec #105: 渲染节序沿用单源词表顺序
         sev_units = [u for u in units if u.severity == sev]
         if not sev_units:
             continue

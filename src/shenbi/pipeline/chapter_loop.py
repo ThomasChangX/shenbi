@@ -4012,9 +4012,13 @@ def _run_audit_wave_step(
     genre_skills_precheck = get_active_genre_audits(genre_gc)
     _missing_reads: dict[str, list[str]] = {}
     for _skill in [*core_skills, *genre_skills_precheck]:
-        # audit-T5 M1: cascade 跳过的技能不会派发——其缺读不拦整波
-        # （已完成产物面仍按名册全量查，见 deviations 注记）。
+        # audit-T5 M1: cascade 跳过的技能不会派发——其缺读不拦整波。
         if should_skip_audit(_audit_short_name(_skill), audit_history, current_chapter=chapter):
+            continue
+        # audit-S8 M-2: 产物已全部在盘的技能不会再派发（完成过滤语义），
+        # 其缺读同样不拦整波（复用 audit_report_paths 判据）。
+        _expected = audit_report_paths(chapter, _skill)
+        if _expected and all((project_dir / rel).exists() for rel in _expected):
             continue
         _gaps = {gap for n in wave_chapters for gap in missing_audit_reads(project_dir, _skill, n)}
         if _gaps:

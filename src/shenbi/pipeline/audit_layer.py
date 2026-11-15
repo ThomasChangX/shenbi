@@ -23,7 +23,7 @@ from pathlib import Path
 from collections.abc import Callable, Mapping
 
 from shenbi.config.thresholds import resolve_audit_dimensions
-from shenbi.contracts.severity import ROUTING_HARD_TIER_ALIASES
+from shenbi.contracts.severity import ROUTING_HARD_TIER_ALIASES, ROUTING_TIERS
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.status import gate_passed
@@ -253,12 +253,17 @@ def run_audit_layer(
         result.audit_reports.append(rel_path)
         if audit_file.exists():
             content = audit_file.read_text(encoding="utf-8")
-            if "BLOCKING" in content:
+            # audit-S8 M-6: tier words from the single source (non-anchored
+            # substring sensing is this layer's documented semantics — kept
+            # as-is, but the vocabulary is no longer hand-copied).
+            _blocking_tier = ROUTING_TIERS[0]
+            _critical_tier = ROUTING_TIERS[1]
+            if _blocking_tier in content:
                 result.blocking_found = True
-                result.issues.append(_issue(skill, chapter, "BLOCKING", "content", rel_path))
-            if "CRITICAL" in content:
+                result.issues.append(_issue(skill, chapter, _blocking_tier, "content", rel_path))
+            if _critical_tier in content:
                 result.critical_found = True
-                result.issues.append(_issue(skill, chapter, "CRITICAL", "content", rel_path))
+                result.issues.append(_issue(skill, chapter, _critical_tier, "content", rel_path))
             # Fixcheck ch1 (2026-09-29): the review templates' legacy hard
             # tier is the bracketed '- [ERROR]' label — drifted outputs carry
             # real hard findings that never hit the BLOCKING/CRITICAL match

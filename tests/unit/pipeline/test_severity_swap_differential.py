@@ -11,6 +11,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[3]
 CORPUS = REPO / "tests" / "fixtures" / "audits"
 BASELINE = REPO / "tests" / "baselines" / "severity-swap" / "baseline.json"
+PATTERNS_BASELINE = REPO / "tests" / "baselines" / "severity-swap" / "baseline.patterns.json"
 
 
 def _current_outputs() -> dict[str, object]:
@@ -49,3 +50,18 @@ def test_longitudinal_section_header_now_includes_minor() -> None:
 
     assert SECTION_HEADER_RE.match("## MINOR Findings (2)")
     assert not SECTION_HEADER_RE.match("## Resonance 报告")
+
+
+def test_production_patterns_match_frozen_baseline() -> None:
+    """audit-S8 I-3: pattern-level freeze.
+
+    The corpus has no zero-declaration/legend samples, so data-level equality
+    alone cannot catch a builder change (verified by mutation). Pinning the
+    exact production pattern text closes that gap.
+    """
+    from tools.gen_severity_diff_baseline import production_patterns
+
+    frozen = json.loads(PATTERNS_BASELINE.read_text(encoding="utf-8"))
+    current = production_patterns()
+    for key, expected in frozen.items():
+        assert current[key] == expected, f"production pattern drifted: {key}"

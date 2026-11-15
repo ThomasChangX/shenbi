@@ -64,15 +64,30 @@ def _is_severity_alternation(pattern: str) -> bool:
     return len(seen) >= _MIN_ALT_WORDS
 
 
+def _re_aliases(tree: ast.Module) -> set[str]:
+    """Names bound to the ``re`` module (audit-S8 I-2: ``import re as _re``).
+
+    Also accepts ``from re import compile as _c`` via the same name set.
+    """
+    aliases: set[str] = {"re"}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name == "re" and alias.asname:
+                    aliases.add(alias.asname)
+    return aliases
+
+
 def check_tree(tree: ast.Module, rel_name: str) -> list[str]:
     """Return violation strings for one parsed module."""
     violations: list[str] = []
+    aliases = _re_aliases(tree)
     for node in ast.walk(tree):
         if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)):
             continue
         if node.func.attr not in RE_FUNCS or not isinstance(node.func.value, ast.Name):
             continue
-        if node.func.value.id != "re":
+        if node.func.value.id not in aliases:
             continue
         pattern = _pattern_arg(node)
         if pattern is not None and _is_severity_alternation(pattern):
