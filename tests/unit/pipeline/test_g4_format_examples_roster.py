@@ -9,12 +9,19 @@ from __future__ import annotations
 
 
 def test_scene_budget_key_present() -> None:
+    """The example must match the REAL parse contract (list form), not substrings."""
+    from shenbi.gates.shared import SCENE_INDEPENDENT_BAND, parse_scene_declarations
     from shenbi.pipeline.chapter_loop import G4_FORMAT_EXAMPLES
 
     example = G4_FORMAT_EXAMPLES["G4.cp.scene_budget"]
     assert "场景预算与收束钩" in example
-    assert "配对型" in example
-    assert "2-3 场景" in example
+    decls = parse_scene_declarations(example)
+    assert len(decls) == 2, decls  # 真实 _SCENE_DECL_RE 可解析
+    for _n, words, kind, hook in decls:
+        assert kind in ("独立型", "配对型")
+        assert hook.strip()
+        lo, hi = SCENE_INDEPENDENT_BAND if kind == "独立型" else (900, 1400)
+        assert lo <= words <= hi, (kind, words)
 
 
 def test_vocab_key_present() -> None:

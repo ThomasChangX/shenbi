@@ -21,7 +21,11 @@ _NEW = """# Chapter 9 — Audit Aggregate
 ## Resonance 报告（逐字保留）
 
 ### chapter-9-resonance.md
-正文…
+- [WARNING] 伪条目（正文引用，不得成 unit）
+
+## WARNING Findings (1)
+
+- [WARNING] 终止后伪节也不得成 unit
 """
 
 _OLD = """# Chapter 9 — Audit Aggregate
@@ -66,3 +70,29 @@ def test_minor_section_no_longer_breaks_parsing() -> None:
 def test_resonance_section_still_terminates() -> None:
     units = _parse_aggregate_sections(_NEW)
     assert all("正文" not in u.text for u in units)
+
+
+def test_item_level_severity_wins_over_section_header() -> None:
+    """Plan Step 3: 节头与条目级不一致时条目级胜出。"""
+    content = """# Chapter 9 — Audit Aggregate
+
+## BLOCKING Findings (1)
+
+- **MINOR** · 实为建议
+"""
+    units = _parse_aggregate_sections(content)
+    assert [(u.severity, u.text) for u in units] == [("MINOR", "实为建议")]
+
+
+def test_render_parse_round_trip() -> None:
+    """Render and parse are one contract: round-trip sets must match."""
+    from shenbi.pipeline.audit_aggregate import FindingUnit, render_aggregate
+
+    units = [
+        FindingUnit("BLOCKING", "结构缺陷甲", ("r1",)),
+        FindingUnit("MINOR", "措辞乙", ("r2",)),
+        FindingUnit("WARNING", "告警丙", ("r3",)),
+    ]
+    out = render_aggregate(7, units, {})
+    parsed = _parse_aggregate_sections(out)
+    assert {(u.severity, u.text) for u in parsed} == {(u.severity, u.text) for u in units}
