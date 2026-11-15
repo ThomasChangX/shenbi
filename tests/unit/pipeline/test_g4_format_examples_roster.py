@@ -1,6 +1,6 @@
 """Spec #105 T4a: G4_FORMAT_EXAMPLES roster — first three keys pinned.
 
-Roster diff ledger lives in .superpowers/sdd/spec-deviations.md (T4): 287
+Roster diff ledger lives in .superpowers/sdd/spec-deviations.md (§T6): 287
 checker ids vs 19+3 example keys — only keys with live-evidence fallback rows
 are backfilled; the rest stay known-gap on purpose.
 """
