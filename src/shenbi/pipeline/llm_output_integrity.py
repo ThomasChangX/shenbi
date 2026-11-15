@@ -3,7 +3,7 @@
 Spec: 2026-07-19 output-structural-integrity-beyond-json-design (merged Spec 19
 + former Spec 20).
 
-This module is the single source of truth for the pattern catalog and the five
+This module is the single source of truth for the pattern catalog and the six
 check functions invoked from ``dispatch_helper.write_parsed_outputs``. The
 former Specs 19/20 maintained overlapping pattern lists; they are de-duplicated
 here, split by detection mode:
@@ -257,9 +257,10 @@ def check_year_anchors(path: Path) -> list[str]:
 # C1' 证伪 _SEV_ENUM_TAIL 照搬路径同机制——plan r4-I1 实测钉死）。
 from shenbi.contracts.severity import (
     AGGREGATE_VOCAB_SET,
+    BLOCKING_BOLD_LABEL_RE,
+    BLOCKING_BRACKET_LABEL_RE,
     CJK_SEVERITY_WORDS,
     KEY_NAME_TOKENS,
-    ROUTING_BLOCKING_BRACKET_WORDS,
 )
 
 _VOCAB_BRACKET_RE = re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)
@@ -289,7 +290,7 @@ def _vocab_violation(token: str) -> bool:
     `**严重度**` 裸 key 75 份误伤面) 5. legend 拆分豁免(全段∈词表)
     6. 查表。
     """
-    token = _POLLUTION_PAREN_RE.sub("", token).strip("*").rstrip(_TRAILING_PUNCT)
+    token = _POLLUTION_PAREN_RE.sub("", token).rstrip(_TRAILING_PUNCT)
     token = token.upper()
     if token in KEY_NAME_TOKENS:
         return False
@@ -306,7 +307,7 @@ def _vocab_violation(token: str) -> bool:
 #: 生产接线形态集——audit-T4 处置(a): 仅 key 形 (spec r2.4 自称 key 形=唯一
 #: 全通配槽位; vol1 613 份回放 key-only 零误伤)。bracket/bold 通配槽在真语料
 #: 承载状态/计数/配置标签生态 (Successful/OK/MISSING/maxGapFIRE...) 词法不可
-#: 零误伤 (199 误伤实证) -- 保留在回放工具做 #116 数据采集, 不接生产 FAIL。
+#: 零误伤 (198 误伤实证) -- 保留在回放工具做 #116 数据采集, 不接生产 FAIL。
 PRODUCTION_VOCAB_FORMS: tuple[str, ...] = ("key",)
 ALL_VOCAB_FORMS: tuple[str, ...] = ("bracket", "bold", "key")
 
@@ -364,15 +365,6 @@ _DI_BARE_PATH_RE = re.compile(r"(?:chapters|plans|truth)/\S+\.(?:md|yaml|json)")
 _DI_ACTION_RE = re.compile(r"重跑|补齐|补入")
 
 
-#: BLOCKING 锚定（audit-T5 I1）：bracket 允许复合标签后缀（`[BLOCKING-INPUT]`
-#: 等 5 条 vol1 实弹，体例 `[BLOCKING-流程]`），tier 词取自单源常量；
-#: bold 形只认大写（与传感 probe24 校准一致）。
-_DI_BLOCKING_BRACKET_RE = re.compile(
-    rf"^\s*-\s*\[({ROUTING_BLOCKING_BRACKET_WORDS[0]})(?:[-·][^\]]*)?\]"
-)
-_DI_BLOCKING_BOLD_RE = re.compile(rf"\*\*({ROUTING_BLOCKING_BRACKET_WORDS[0]})\*\*")
-
-
 def check_audit_dispatch_integrity(path: Path) -> list[str]:
     """Invalidate reports whose BLOCKING payload is a dispatch-integrity complaint.
 
@@ -384,7 +376,7 @@ def check_audit_dispatch_integrity(path: Path) -> list[str]:
     text = path.read_text(encoding="utf-8")
     issues: list[str] = []
     for ln, line in enumerate(text.split("\n"), 1):
-        if not (_DI_BLOCKING_BRACKET_RE.search(line) or _DI_BLOCKING_BOLD_RE.search(line)):
+        if not (BLOCKING_BRACKET_LABEL_RE.search(line) or BLOCKING_BOLD_LABEL_RE.search(line)):
             continue
         has_path = _DI_BACKTICK_PATH_RE.search(line) or _DI_BARE_PATH_RE.search(line)
         if has_path and _DI_ACTION_RE.search(line):

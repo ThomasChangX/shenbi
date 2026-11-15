@@ -42,6 +42,11 @@ def main() -> int:
         help="audit-filename glob (default chapter-*.md)",
     )
     parser.add_argument(
+        "--forms",
+        default=",".join(ALL_VOCAB_FORMS),
+        help="comma-separated anchored forms to check (default all; production is key)",
+    )
+    parser.add_argument(
         "--dispatch-integrity",
         action="store_true",
         help="also replay check_audit_dispatch_integrity (spec #105 T5)",
@@ -77,7 +82,8 @@ def main() -> int:
     vocab_hits = 0
     di_hits = 0
     for p in files:
-        issues = check_audit_severity_vocab(p, forms=ALL_VOCAB_FORMS)
+        forms = tuple(f.strip() for f in args.forms.split(",") if f.strip())
+        issues = check_audit_severity_vocab(p, forms=forms)
         if di_check is not None:
             issues = issues + di_check(p)
         for issue in issues:

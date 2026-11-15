@@ -337,7 +337,8 @@ def missing_audit_reads(project_dir: Path | str, skill: str, chapter: int | None
         if probe.exists():
             continue
         # 目录形读（如 benchmarks/anchors/）：dispatch 侧 _resolve_read_path 展开
-        # 目录内 *.md；目录存在但空视为 dispatch 拿到零文件——保持严格（缺）。
+        # 目录内 *.md；目录存在即放行（空目录与 resonance SKILL「为空或不存在
+        # route A 降级」一致——audit-T5 M-3 注释归真）。
         if resolved in produces:
             continue
         if any(fnmatch(resolved, pat) for pat in optional_patterns):

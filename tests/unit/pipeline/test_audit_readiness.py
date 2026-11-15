@@ -298,3 +298,36 @@ def test_pwi_routes_vocab_and_dispatch_integrity(tmp_path: Path) -> None:
         _revalidate_finding(tmp_path, "audits/chapter-3-z.md", "G4.av.vocab:chapter-3-z.md — L1:y")
         is False
     )
+
+
+def test_dispatch_integrity_bold_anchor_red(tmp_path: Path) -> None:
+    """Bold anchor branch (audit-T5 M-2): BLOCKING bold + path + action."""
+    f = tmp_path / "chapter-5-x.md"
+    f.write_text(
+        "**BLOCKING** 派发完整性：请补齐 `chapters/chapter-5.md` 后重跑\n",
+        encoding="utf-8",
+    )
+    assert any(i.startswith("G4.av.dispatch_integrity:") for i in issues_of(f))
+
+
+def test_pwi_stale_line_ref_and_chapter_gone(tmp_path: Path) -> None:
+    """audit-T5 M-1: stale_line_ref red/green plus the M-9 chapter-gone bypass.
+
+    vocab/DI do not depend on the chapter file (they still reproduce after its
+    removal); stale_line_ref does (chapter-gone = stale).
+    """
+    from shenbi.gates.g4.generic import _revalidate_finding
+
+    (tmp_path / "audits").mkdir()
+    audit = tmp_path / "audits" / "chapter-4-x.md"
+    audit.write_text("严重度: 严重\n引文：chapters/chapter-4.md L999 超界。\n", encoding="utf-8")
+    rel = "audits/chapter-4-x.md"
+    finding_v = "G4.av.vocab:chapter-4-x.md — L1:x"
+    finding_s = "G4.av.stale_line_ref:chapter-4-x.md — references L999"
+    # 章文件缺失：vocab 仍复现（旁路正确），stale_line_ref 判 stale
+    assert _revalidate_finding(tmp_path, rel, finding_v) is True
+    assert _revalidate_finding(tmp_path, rel, finding_s) is False
+    # 章文件在盘：stale_line_ref 复现
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-4.md").write_text("# 第四章\n\n正文。\n", encoding="utf-8")
+    assert _revalidate_finding(tmp_path, rel, finding_s) is True

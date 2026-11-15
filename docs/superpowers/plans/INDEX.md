@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **[2026-11-15-spec105-audit-finding-contract.md](2026-11-15-spec105-audit-finding-contract.md)** — `✅ ready`（spec #105 r2.6：T1a/T1b/T1c/T4/T5/T6/T7/T8 八 task，全 infra 协调者亲实现）
+- **[2026-11-15-spec105-audit-finding-contract.md](2026-11-15-spec105-audit-finding-contract.md)** — `✅ ready`（spec #105 r2.7：T1a/T1b/T1c/T4/T5/T6/T7/T8 八 task，全 infra 协调者亲实现）
 
 
 ## 待执行的 spec → plan 映射

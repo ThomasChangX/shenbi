@@ -38,19 +38,24 @@ def test_bracket_word_groups_pin_the_two_routing_shapes():
     assert ROUTING_CRITICAL_BRACKET_WORDS == ("CRITICAL", "ERROR")
 
 
-def test_anchored_forms_match_in_vocab_words_only():
+def test_blocking_label_anchors_are_production_consumed():
+    """audit-T4 round-2 I-2: generic anchors deleted (zero-consumer dead surface).
+
+    The BLOCKING label anchors are the real consumers inside
+    G4.av.dispatch_integrity.
+    """
     from shenbi.contracts.severity import (
-        AGGREGATE_VOCAB,
-        BOLD_ANCHOR_RE,
-        BRACKET_ANCHOR_RE,
+        BLOCKING_BOLD_LABEL_RE,
+        BLOCKING_BRACKET_LABEL_RE,
     )
 
-    assert BRACKET_ANCHOR_RE.search("- [MINOR] something")
-    assert not BRACKET_ANCHOR_RE.search("- [MAJOR] something")  # 词表外不入传感域
-    assert BOLD_ANCHOR_RE.search("**BLOCKING**")
-    assert BOLD_ANCHOR_RE.search("**CRITICAL**")
-    for w in AGGREGATE_VOCAB:
-        assert BRACKET_ANCHOR_RE.search(f"- [{w}] x")
+    assert BLOCKING_BRACKET_LABEL_RE.search("- [BLOCKING] x").group(1) == "BLOCKING"  # type: ignore[union-attr]
+    assert BLOCKING_BRACKET_LABEL_RE.search("- [BLOCKING-流程] x")  # 复合标签
+    assert not BLOCKING_BRACKET_LABEL_RE.search("- [MINOR] x")
+    assert not BLOCKING_BRACKET_LABEL_RE.search("plain BLOCKING word")  # 裸词非锚定
+    assert BLOCKING_BOLD_LABEL_RE.search("**BLOCKING**")
+    assert not BLOCKING_BOLD_LABEL_RE.search("**BLOCKER**")  # 词表外
+    assert not BLOCKING_BOLD_LABEL_RE.search("plain BLOCKING word")
 
 
 def test_section_header_re_includes_minor():

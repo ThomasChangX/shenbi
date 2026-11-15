@@ -2987,7 +2987,7 @@ def write_parsed_outputs(
             # vol1 回放 108/108 全真阳性（历史框架事故族）——shadow 零误伤。
             issues += check_audit_dispatch_integrity(full_path)
             # spec #105 T2/T4: key-only 发射（audit-T4 处置(a)）——bracket/bold
-            # 通配在真语料 199 误伤，保留于回放工具做 #116 采集；key 形=唯一
+            # 通配在真语料 198 误伤，保留于回放工具做 #116 采集；key 形=唯一
             # 全通配槽位（spec r2.4 自证），vol1 613 份回放零误伤。
             issues += check_audit_severity_vocab(full_path, forms=PRODUCTION_VOCAB_FORMS)
 

@@ -385,9 +385,9 @@ def test_in_vocab_or_exempt_green(tmp_path, content):
 - [ ] **Step 5: 回放工具 `tools/replay_severity_vocab.py`**——遍历 `<project_dir>/audits/` 章审计形——**判据与 `_is_audit_file` 完全对齐（r2-I1）：`audits/` 域 + `chapter-NN-<dim>` 形 + 仅排除 `.aggregate.md`，不排除 `-resonance.md`**（生产 is_audit 块对 resonance 同样生效——completeness/line_refs 现状即跑 resonance；回放排除 resonance 则 shadow 闸门永远测不到 46 份生产触达文件=闸门完整性缺口），跑 checker，输出 markdown 报告：命中清单（file:line:token:form）+总数+分母（生产触达/aggregate 差集/escalation 差集——`_is_audit_file` 同判据本地复刻，不 import 私有）。
 - [ ] **Step 6: vol1 回放（shadow 闸门）**——`uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --out /tmp/spec105-vocab-replay.md`；人工核命中条目全为真词表外违规（预期≈0——语料零命中词表外写法）；**零误伤→接线 FAIL；有误伤→停，记 BLOCKING deviation 报备**。报告关键数字粘贴 progress.md。
 - [ ] **Step 7: 接线双点位**：
-  - `dispatch_helper.py` is_audit 块（:2970-2973）追加 `issues += check_audit_severity_vocab(full_path)`（import 入既有 from-import 列表 :71-78 位置——M-8 行号修正）。
+  - `dispatch_helper.py` is_audit 块（:2970-2973）追加 `issues += check_audit_severity_vocab(full_path, forms=PRODUCTION_VOCAB_FORMS)`（r2.7 key-only）（import 入既有 from-import 列表 :71-78 位置——M-8 行号修正）。
   - `generic.py:252` G4.av. 分支改按 finding id 三路由：`stale_line_ref`→check_audit_line_refs；`vocab`→check_audit_severity_vocab；`dispatch_integrity`（Task 5 落地后）→对应 checker；未识别 G4.av. 前缀→`return True`（保守放行，log warning）。**M-9**：现行 chapter-gone 早退（:257-259）仅 `stale_line_ref` 路由保留——vocab/dispatch_integrity 不依赖 chapter 文件，继承早退会在章文件删除后把其 finding 误判 stale 吞掉。本 task 先落前两条+未识别放行；Task 5 补第三条。
-- [ ] **Step 8: 集成测试**——既有 dispatch G4 流测试（grep `check_audit_completeness` 在 tests/ 的调用面）追加一条：写含 `- [MAJOR]` 的审计文件到 tmp project → 走该集成路径断言 issue 发射；generic pwi 路由测试：构造 `G4.av.vocab:...` finding → pwi 复核命中。
+- [ ] **Step 8: 集成测试**——既有 dispatch G4 流测试（grep `check_audit_completeness` 在 tests/ 的调用面）追加一条：写含 `严重度: 严重`（r2.7 key 形）的审计文件到 tmp project → 走该集成路径断言 issue 发射；generic pwi 路由测试：构造 `G4.av.vocab:...` finding → pwi 复核命中。
 - [ ] **Step 9: Commit**
 
 ```bash

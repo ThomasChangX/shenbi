@@ -68,12 +68,15 @@ QUOTED_VALUE_TAIL = r'(?!\*{0,2}")'
 #: 本地从 AGGREGATE_VOCAB 组合重建（行为保持）；本模块只建有生产消费方的锚定
 #: （BRACKET/BOLD_ANCHOR_RE → G4.av.dispatch_integrity 消费）。
 
-#: audit-T5 I1 修正: 交替必须 `(?:...)` 包裹——裸 join 会把 `^` 只绑定第一分支,
-#: 其余词退化为行内任意位置匹配 (`x MINOR` 即算锚定)。捕获组保留 severity 词
-#: 供消费点判 tier (G4.av.dispatch_integrity 只认 BLOCKING)。
-_BRACKET_WORDS = "|".join(AGGREGATE_VOCAB)
-BRACKET_ANCHOR_RE = re.compile(rf"^\s*-\s*\[({_BRACKET_WORDS})\]")
-BOLD_ANCHOR_RE = re.compile(rf"\*\*({_BRACKET_WORDS})\*\*")
+#: BLOCKING 标签锚定（G4.av.dispatch_integrity 生产消费——audit-T4 轮 2 I-2：
+#: 泛用 BRACKET/BOLD_ANCHOR_RE 无生产调用方已删除，避免零消费死面；本对是
+#: T3 次防线真消费的锚定）。交替必须 `(?:...)` 包裹（audit-T5 I1：裸 join
+#: 会把 `^` 只绑定第一分支，其余词退化为行内任意位置匹配）。
+#: bracket 允许复合标签后缀（`[BLOCKING-流程]`/`[BLOCKING-INPUT]` 等 5 条
+#: vol1 实弹，体例 `[BLOCKING-流程]`）；bold 只认大写（probe24 校准）。
+_BLOCKING = ROUTING_BLOCKING_BRACKET_WORDS[0]
+BLOCKING_BRACKET_LABEL_RE = re.compile(rf"^\s*-\s*\[({_BLOCKING})(?:[-·][^\]]*)?\]")
+BLOCKING_BOLD_LABEL_RE = re.compile(rf"\*\*({_BLOCKING})\*\*")
 
 # ── 聚合节头（修 report_longitudinal.py:558 缺 MINOR 分家） ────────────────────
 
