@@ -8,6 +8,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from shenbi.paths import REPO_ROOT
 from shenbi.safe_write import locked_transact, safe_write
 
 from shenbi.cli_utils import emit_json
@@ -279,8 +280,7 @@ def dispatch_codex(
     _record_collapse_check(round_dir, skill, test_type, scores)
 
     # Repo-root-relative (the only CWD-dependent path left in the dispatcher).
-    # parents[4]: modes -> dispatcher -> shenbi -> src -> <repo root>.
-    repo_root = Path(__file__).resolve().parents[4]
+    repo_root = REPO_ROOT
     rubric_path = Path(
         os.environ.get("RUBRIC", str(repo_root / f"tests/tiers/t1-skill/{skill}/rubric.md"))
     )

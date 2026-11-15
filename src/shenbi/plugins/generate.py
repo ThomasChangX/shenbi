@@ -7,10 +7,10 @@ Output: codex platform manifest (.codex-plugin/).
 import json
 
 from shenbi.logging import get_logger
+from shenbi.paths import REPO_ROOT
 
 log = get_logger(__name__)
 import sys
-from pathlib import Path
 from typing import Any, cast
 
 import structlog
@@ -19,7 +19,6 @@ from shenbi.safe_write import safe_write
 
 log = structlog.get_logger(__name__)
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
 MASTER_PATH = REPO_ROOT / "plugins" / "master.json"
 
 REQUIRED_FIELDS = {"name", "version", "description", "author", "skills", "platforms"}

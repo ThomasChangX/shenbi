@@ -14,6 +14,7 @@ from pydantic import ValidationError
 from shenbi.cli_utils import emit_json
 from shenbi.contracts.enums import ScoredBy
 from shenbi.contracts.schemas.deps import load_deps as deps_load
+from shenbi.paths import REPO_ROOT
 from shenbi.contracts.file_list import join_gate_file_list
 from shenbi.contracts.thresholds import CONDITIONAL_MIN, MARGINAL_MIN, TEST_PASS
 from shenbi.gates.gate_manifest import marker_filename
@@ -286,7 +287,7 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
                 missing.append(f"G4-{skill_name}-{test_type}")
 
     elif "t2-phase" in rubric_p.parts:
-        deps_path = Path(__file__).resolve().parents[2] / "tests" / "tiers" / "deps.json"
+        deps_path = REPO_ROOT / "tests" / "tiers" / "deps.json"
         if deps_path.exists():
             try:
                 deps = deps_load(deps_path)

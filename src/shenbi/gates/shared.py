@@ -6,6 +6,7 @@ import these helpers to keep behavior identical to the legacy monolith.
 
 from shenbi.truth_format import split_frontmatter  # spec #85 T6
 from shenbi.logging import get_logger
+from shenbi.paths import REPO_ROOT
 from shenbi.status import GateResult, GateStatus
 from shenbi.text.cjk import find_quote_spans
 
@@ -28,7 +29,7 @@ try:
 except ImportError:
     yaml = None  # type: ignore[assignment]
 
-PROJECT = Path(__file__).resolve().parents[3]
+PROJECT = REPO_ROOT  # single-source alias (spec #92 T2b); importers unchanged
 SKILLS = PROJECT / "skills"
 TESTS = PROJECT / "tests"
 FIXTURES = TESTS / "fixtures"

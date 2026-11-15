@@ -29,13 +29,14 @@ from shenbi.contracts.schemas.deps import load_deps as deps_load
 from shenbi.contracts.loader import validate_skill_name
 from shenbi.exceptions import ShenbiError
 from shenbi.logging import configure_logging, get_logger
+from shenbi.paths import REPO_ROOT
 from shenbi.process_guard import run_subprocess_json
 from shenbi.safe_write import safe_write
 from shenbi.status import CommandStatus, GateStatus, PhaseState
 
 log = get_logger(__name__)
 
-TESTS = Path(__file__).resolve().parents[2] / "tests"
+TESTS = REPO_ROOT / "tests"
 PROJECT = TESTS.parent
 
 

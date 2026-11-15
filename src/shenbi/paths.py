@@ -5,14 +5,39 @@ bare-string path joins and silent CWD fallbacks.
 """
 
 from __future__ import annotations
+
+# REPO_ROOT binds BEFORE the contracts import below: gates.shared (imported
+# transitively via shenbi.contracts -> ... -> g4.generic -> gates.shared)
+# imports REPO_ROOT from this module, so it must exist on the partially
+# initialized module when that import cycle re-enters paths (spec #92 T2b).
+from pathlib import Path
+from typing import Final
+
+REPO_ROOT: Final[Path] = Path(__file__).resolve().parents[2]
+"""Single source for the repository root (spec #92 T2b).
+
+Replaces the four same-value definitions (gates.shared.PROJECT,
+dispatch_helper._PROJECT_ROOT, plugins.generate.REPO_ROOT, codex local) and
+the per-file parents[N] derivations. sync_contracts imports PROJECT from
+gates.shared and stays a consumer, not a definer.
+"""
+
 from dataclasses import dataclass
 from enum import StrEnum
-from pathlib import Path
 
 from structlog import get_logger
 
 log = get_logger(__name__)
-from shenbi.contracts.paths import resolve_chapter_path
+
+
+def _resolve(rel: str, chapter: int | None) -> str:
+    """Lazy resolve: importing contracts.paths at module top creates a cycle
+    (paths -> contracts -> registry -> gates.shared -> paths); the method-local
+    import runs after all modules are initialized (spec #92 T2b).
+    """
+    from shenbi.contracts.paths import resolve_chapter_path
+
+    return resolve_chapter_path(rel, chapter)
 
 
 class Layout(StrEnum):
@@ -79,7 +104,7 @@ class RoundPaths:
         )
 
     def read(self, rel: str, chapter: int | None = None, *, strict: bool = False) -> Path:
-        resolved = resolve_chapter_path(rel, chapter)
+        resolved = _resolve(rel, chapter)
         rd = self.round_dir / resolved
         if rd.exists():
             return rd.resolve()
@@ -93,7 +118,7 @@ class RoundPaths:
         return (self.project_dir / resolved).resolve()
 
     def write(self, rel: str, chapter: int | None = None) -> Path:
-        resolved = resolve_chapter_path(rel, chapter)
+        resolved = _resolve(rel, chapter)
         return (self.round_dir / resolved).resolve()
 
     def repo(self, rel: str) -> Path:
