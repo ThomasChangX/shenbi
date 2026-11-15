@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -36,26 +37,32 @@ def sensor_outputs(content: str) -> dict[str, object]:
 _STDOUT_ARITY = 2
 
 
-def production_patterns() -> dict[str, str]:
-    """Compiled pattern strings of every production sensor (audit-S8 I-3).
+def production_patterns() -> dict[str, dict[str, object]]:
+    """Pattern text + flags of every production sensor (audit-S8 I-3/r2).
 
     Pattern-level freeze: the corpus has no zero-declaration/legend samples
     (known gap), so data-level equality alone cannot catch every builder
-    change — the exact pattern text is pinned alongside the data baseline.
+    change. Both the exact pattern text AND the compiled flags are pinned —
+    dropping IGNORECASE now breaks the baseline too.
     """
-    return {
-        "router_blocking": revision_router._SEVERITY_BLOCKING_RE.pattern,
-        "router_critical": revision_router._SEVERITY_CRITICAL_RE.pattern,
-        "loop_marker": chapter_loop._BLOCKING_MARKER_RE.pattern,
-        "error_label": audit_layer._ERROR_LABEL_RE.pattern,
-        "consolidator_blocking": _CONSOLIDATOR_BLOCKING_RE.pattern,
-        "consolidator_critical": _CONSOLIDATOR_CRITICAL_RE.pattern,
-        "aggregate_bracket": audit_aggregate._BRACKET_RE.pattern,
-        "aggregate_bold": audit_aggregate._BOLD_RE.pattern,
-        "aggregate_cell": audit_aggregate._CELL_RE.pattern,
-        "aggregate_key": audit_aggregate._KEY_RE.pattern,
-        "section_header": SECTION_HEADER_RE.pattern,
+
+    def _entry(regex: re.Pattern[str]) -> dict[str, object]:
+        return {"pattern": regex.pattern, "flags": regex.flags}
+
+    sensors: dict[str, re.Pattern[str]] = {
+        "router_blocking": revision_router._SEVERITY_BLOCKING_RE,
+        "router_critical": revision_router._SEVERITY_CRITICAL_RE,
+        "loop_marker": chapter_loop._BLOCKING_MARKER_RE,
+        "error_label": audit_layer._ERROR_LABEL_RE,
+        "consolidator_blocking": _CONSOLIDATOR_BLOCKING_RE,
+        "consolidator_critical": _CONSOLIDATOR_CRITICAL_RE,
+        "aggregate_bracket": audit_aggregate._BRACKET_RE,
+        "aggregate_bold": audit_aggregate._BOLD_RE,
+        "aggregate_cell": audit_aggregate._CELL_RE,
+        "aggregate_key": audit_aggregate._KEY_RE,
+        "section_header": SECTION_HEADER_RE,
     }
+    return {key: _entry(regex) for key, regex in sensors.items()}
 
 
 def main() -> int:

@@ -64,30 +64,41 @@ def _is_severity_alternation(pattern: str) -> bool:
     return len(seen) >= _MIN_ALT_WORDS
 
 
-def _re_aliases(tree: ast.Module) -> set[str]:
-    """Names bound to the ``re`` module (audit-S8 I-2: ``import re as _re``).
+def _re_aliases(tree: ast.Module) -> tuple[set[str], set[str]]:
+    """Names bound to the ``re`` module / its functions (audit-S8 I-2).
 
-    Also accepts ``from re import compile as _c`` via the same name set.
+    Returns (module_aliases, function_aliases): ``import re as _re`` puts
+    ``_re`` in the first set (attribute calls); ``from re import compile as
+    _c`` puts ``_c`` in the second (direct Name calls).
     """
-    aliases: set[str] = {"re"}
+    module_aliases: set[str] = {"re"}
+    function_aliases: set[str] = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
                 if alias.name == "re" and alias.asname:
-                    aliases.add(alias.asname)
-    return aliases
+                    module_aliases.add(alias.asname)
+        elif isinstance(node, ast.ImportFrom) and node.module == "re":
+            for alias in node.names:
+                if alias.name in RE_FUNCS:
+                    function_aliases.add(alias.asname or alias.name)
+    return module_aliases, function_aliases
 
 
 def check_tree(tree: ast.Module, rel_name: str) -> list[str]:
     """Return violation strings for one parsed module."""
     violations: list[str] = []
-    aliases = _re_aliases(tree)
+    module_aliases, function_aliases = _re_aliases(tree)
     for node in ast.walk(tree):
-        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)):
+        if not isinstance(node, ast.Call):
             continue
-        if node.func.attr not in RE_FUNCS or not isinstance(node.func.value, ast.Name):
-            continue
-        if node.func.value.id not in aliases:
+        is_re_call = False
+        if isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name):
+            is_re_call = node.func.attr in RE_FUNCS and node.func.value.id in module_aliases
+        elif isinstance(node.func, ast.Name):
+            # ``from re import compile as _c`` — direct Name call.
+            is_re_call = node.func.id in function_aliases
+        if not is_re_call:
             continue
         pattern = _pattern_arg(node)
         if pattern is not None and _is_severity_alternation(pattern):

@@ -32,7 +32,9 @@ def _current_outputs() -> dict[str, object]:
         )
         return json.loads(Path(out_path).read_text(encoding="utf-8"))
     finally:
-        Path(out_path).unlink(missing_ok=True)
+        out = Path(out_path)
+        out.unlink(missing_ok=True)
+        out.with_suffix(".patterns.json").unlink(missing_ok=True)
 
 
 def test_five_sensors_match_frozen_baseline() -> None:
@@ -64,4 +66,4 @@ def test_production_patterns_match_frozen_baseline() -> None:
     frozen = json.loads(PATTERNS_BASELINE.read_text(encoding="utf-8"))
     current = production_patterns()
     for key, expected in frozen.items():
-        assert current[key] == expected, f"production pattern drifted: {key}"
+        assert current[key] == expected, f"production pattern/flags drifted: {key}"

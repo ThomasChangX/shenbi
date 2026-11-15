@@ -331,3 +331,45 @@ def test_pwi_stale_line_ref_and_chapter_gone(tmp_path: Path) -> None:
     (tmp_path / "chapters").mkdir()
     (tmp_path / "chapters" / "chapter-4.md").write_text("# 第四章\n\n正文。\n", encoding="utf-8")
     assert _revalidate_finding(tmp_path, rel, finding_s) is True
+
+
+def test_wave_precheck_skips_skills_with_products_on_disk(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """audit-S8 M-2: on-disk products make the precheck skip that skill.
+
+    The real missing_audit_reads reports gaps for an empty project, so the
+    wave must NOT escalate when every report already exists. (Serial
+    WRITE_SHARED members still dispatch by design — only the precheck is
+    under test here.)
+    """
+    from shenbi.pipeline import chapter_loop as cl
+    from shenbi.pipeline.audit_layer import audit_report_paths
+
+    state, _ct = _wave_state(tmp_path)
+    # 让每个审计技能的产物路径全部在盘
+    from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
+    from shenbi.pipeline.review_checklist import is_review_skill
+
+    skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and is_review_skill(s.skill)]
+    for skill in skills:
+        for rel in audit_report_paths(2, skill):
+            f = tmp_path / rel
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text("## 判定: 通过\n", encoding="utf-8")
+    (tmp_path / "genre-config.json").write_text('{"auditDimensions": {}}', encoding="utf-8")
+
+    def _ok_results(tasks, *a: object, **kw: object) -> list[object]:
+        from types import SimpleNamespace
+
+        return [SimpleNamespace(success=False, returncode=-1, stdout="", stderr="") for _ in tasks]
+
+    monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel", _ok_results)
+    monkeypatch.setattr(cl, "dispatch_serial_reviews", _ok_results)
+    monkeypatch.setattr(
+        "shenbi.pipeline.revision_router.dispatch_escalation", lambda *a, **kw: None
+    )
+    # 真实 missing_audit_reads（空项目必报缺）——skip 生效才不 escalation
+    cl._run_audit_wave_step(state, tmp_path, 9, cl.CHAPTER_STEPS[9], 2)
+    cp = state.pending_checkpoint
+    assert cp is None or cp.type.value != "escalation", cp

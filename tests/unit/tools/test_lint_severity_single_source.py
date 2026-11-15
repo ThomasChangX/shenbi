@@ -15,6 +15,9 @@ BAD_NONADJACENT = (
     'import re\nRE = re.compile(r"(?:BLOCKING|FAIL|CRITICAL)")\n'  # M-1: 非相邻交替红钉
 )
 BAD_ALIAS = 'import re as _re\nRE = _re.compile(r"BLOCKING|CRITICAL")\n'  # S8 I-2 alias red pin
+BAD_FROM_IMPORT = (
+    'from re import compile as _c\nRE = _c(r"BLOCKING|CRITICAL")\n'  # S8 r2 from-import
+)
 GOOD_SINGLE_WORD = 'import re\nRE = re.compile(r"BLOCKING")\n'
 GOOD_NON_RE = 'x = "BLOCKING|CRITICAL"\n'
 
@@ -29,6 +32,7 @@ def test_alternation_literal_flags() -> None:
     assert _check(BAD_KEYWORD), "keyword 形必须违例（M-2 红钉）"
     assert _check(BAD_NONADJACENT), "非相邻交替必须违例（M-1 段计数）"
     assert _check(BAD_ALIAS), "import re as _re 别名必须违例（S8 I-2）"
+    assert _check(BAD_FROM_IMPORT), "from re import compile as _c 必须违例（S8 r2）"
 
 
 def test_composed_and_single_word_pass() -> None:

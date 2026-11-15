@@ -50,6 +50,12 @@ def test_out_of_vocab_red(tmp_path: Path, content: str) -> None:
         "**严重度**",
         "**Severity**",
         '"severity": "low"',  # M-5: 引号值绿测（r4-I1 gap 类防御验收钉——非 QUOTED_VALUE_TAIL，r5-M2 归因更正）
+        "severity: N/A",  # audit-S8 I-1: zero-declaration values (F-5 vocab) — removing the exemption must go red
+        "严重度: none",
+        "severity: NA",
+        "严重度: n/a",
+        "严重度: 无",
+        "严重度: 暂无",
         "严重度: ERROR（对应 BLOCKING）",  # r2-M2: 括注剥离——剥后 ERROR∈词表 PASS（不剥=误报）
         "| 严重度 | 结果 |",  # 表头 key 名——非声明
     ],
