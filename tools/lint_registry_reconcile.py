@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Registry reconciliation lint (spec #60 C22): R1 closure + R2 word list + R3 hashes + R5 globs.
+"""Registry reconciliation lint (spec #60 C22): R1 closure + R2 word list + R5 globs.
 
 R1 invariants (per-face, bidirectional where stated):
   master.json      == live skill set  AND  master ∩ DEPRECATED = ∅  AND no ghosts
@@ -407,9 +407,6 @@ def _r2_orphan_warn(repo: Path, concepts: list[dict[str, str]]) -> None:
         if any(fnmatch(name, k) or fnmatch(k, name_as_glob) for k in idx_keys):
             continue
         _WARN.append(f"[R2] orphan-concept: {name}")
-
-
-# ------------------------------------------------------------- R3 face --
 
 
 # -------------------------------------------------------------- R5 face --

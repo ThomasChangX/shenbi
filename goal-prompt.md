@@ -33,8 +33,8 @@
 
 - Round 005 已废弃（含幻影 T2/T3 数据）——不再使用
 - **目标**：创建 Round 006，从零开始全量 T1+T2+T3 执行
-- 系统性根因已修复：gate 硬化、authoring 对齐、progress.json 一致性、评分独立性、工具哈希锁定
-- G0 全 19 项检查 PASS（含 G0.13-16 工具哈希验证、progress.json 内部一致性、summary.json 预填充防护）
+- 系统性根因已修复：gate 硬化、authoring 对齐、progress.json 一致性、评分独立性
+- G0 全 19 项检查 PASS（含 G0.14 校准锚哈希验证、progress.json 内部一致性、summary.json 预填充防护）
 
 ## 执行协议
 
