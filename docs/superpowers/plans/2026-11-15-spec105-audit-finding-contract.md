@@ -39,9 +39,9 @@
   - `ROUTING_HARD_TIER_ALIASES: tuple[str, ...] = ("ERROR",)`
   - `SEV_ENUM_TAIL: str`（= revision_router.py:90 `_SEV_ENUM_TAIL` 原文迁入）
   - `NEGATION_PAYLOAD_TAIL: str`、`QUOTED_VALUE_TAIL: str`（:102/:120 原文迁入）
-  - `BRACKET_ANCHOR_RE`/`BOLD_ANCHOR_RE`: `re.Pattern[str]`——bracket/bold 两锚定形态**传感**正则（词表内，语义同 audit_aggregate.py:46-47 现行族，词表由 AGGREGATE_VOCAB 组合构造，**无手写交替字面量**；T5 dispatch_integrity 消费——r2-M5 YAGNI 收缩：**不建 CELL_ANCHOR_RE/KEY_ANCHOR_RE**——cell/key 传感由 audit_aggregate 换装时本地从 AGGREGATE_VOCAB 组合重建（行为保持），单源模块只建有生产消费方的锚定）
+  - `BLOCKING_BRACKET_LABEL_RE`/`BLOCKING_BOLD_LABEL_RE`: `re.Pattern[str]`——BLOCKING 标签锚定（bracket 含复合标签后缀；T5 dispatch_integrity 真消费）——r2-M5 YAGNI 收缩（audit-T4 轮 2：泛用四形态锚定删除，避免零消费死面：**不建 CELL_ANCHOR_RE/KEY_ANCHOR_RE**——cell/key 传感由 audit_aggregate 换装时本地从 AGGREGATE_VOCAB 组合重建（行为保持），单源模块只建有生产消费方的锚定）
   - `SECTION_HEADER_RE`: `re.Pattern[str]`——`^## (BLOCKING|CRITICAL|MINOR|WARNING|ERROR) Findings`（元组组合，含 MINOR——修 report_longitudinal:558 缺词）
-  - `CJK_SEVERITY_WORDS: frozenset[str] = frozenset({"严重","高","重大","中","低","警告","阻断"})`
+  - `CJK_SEVERITY_WORDS: frozenset[str] = frozenset({"严重","高","重大","中","低","警告"})`
   - `KEY_NAME_TOKENS: frozenset[str] = frozenset({"SEVERITY", "严重度"})`
   - `ROUTING_BLOCKING_BRACKET_WORDS: tuple[str, ...] = ("BLOCKING",)` 与 `ROUTING_CRITICAL_BRACKET_WORDS: tuple[str, ...] = ("CRITICAL", "ERROR")`（**bracket 形词组单源**——CRITICAL 形必须只含 CRITICAL|ERROR，混入 BLOCKING=行为变更，I-1 修正）
   - `AGGREGATE_VOCAB_SET: frozenset[str] = frozenset(AGGREGATE_VOCAB)`（T4 管线查表消费——I-2 缝隙闭合：T1 即定义）
@@ -301,7 +301,7 @@ git commit -m "feat: spec #105 T1c — severity 交替字面量 AST lint（单�
 ### Task 4: check_audit_severity_vocab + 双点位接线 + vol1 回放（spec T2）
 
 **Files:**
-- Modify: `src/shenbi/pipeline/llm_output_integrity.py`（新增 `check_audit_severity_vocab(path: Path) -> list[str]`）
+- Modify: `src/shenbi/pipeline/llm_output_integrity.py`（新增 `check_audit_severity_vocab(path: Path, forms: tuple[str, ...] = PRODUCTION_VOCAB_FORMS) -> list[str]`）
 - Create: `tools/replay_severity_vocab.py`
 - Modify: `src/shenbi/pipeline/dispatch_helper.py:2968-2973`（is_audit 块追加发射）
 - Modify: `src/shenbi/gates/g4/generic.py:252-260`（G4.av. 分支按 id 三路由）
@@ -310,8 +310,8 @@ git commit -m "feat: spec #105 T1c — severity 交替字面量 AST lint（单�
 **Interfaces:**
 - Consumes: `AGGREGATE_VOCAB`/`CJK_SEVERITY_WORDS`/`KEY_NAME_TOKENS`（Task 1）。（QUOTED_VALUE_TAIL 不入本 task——r4-I1：引号防御走 gap 类，tail 前瞻在通配捕获下可回溯绕过）
 - Produces:
-  - `check_audit_severity_vocab(path: Path) -> list[str]`——issue 形态 `G4.av.vocab:{path.name} — 词表外严重度 "{token}"（{form} 形）：用 BLOCKING/CRITICAL/MINOR 重写本条`
-  - `tools/replay_severity_vocab.py <project_dir> [--pattern 'chapter-*-*.md'] [--out FILE]`——回放报告（命中/清洗清单/误伤候选计数）
+  - `check_audit_severity_vocab(path: Path, forms: tuple[str, ...] = PRODUCTION_VOCAB_FORMS) -> list[str]`——issue 形态 `G4.av.vocab:{path.name} — 词表外严重度 "{token}"（{form} 形）：用 BLOCKING/CRITICAL/MINOR 重写本条`
+  - `tools/replay_severity_vocab.py <project_dir> [--pattern 'chapter-*-*.md'] [--forms all|key] [--out FILE]`——回放报告（命中/清洗清单/误伤候选计数）
 
 - [ ] **Step 1: 失败测试（红七绿十三全清单）**——`tests/unit/pipeline/test_check_audit_severity_vocab.py` 用 tmp_path 写文件逐条断言（红：`- [MAJOR] x`／`**BLOCKER**`／`严重度: 严重`／`严重度: 高`／`严重度: 高。`（尾部标点——r2-M2 捕获污染剥离的验收钉：不剥则 CJK 精确等值不命中=静默漏报）／`- [major]`／`Severity: MAJOR`；绿：`[MINOR]`／`- [minor]`／prose "major"／`severity:BLOCKING/CRITICAL/MINOR`／`**严重度**：BLOCKING / CRITICAL / MINOR`／`**判定**`+`**章节**`+`- [读者回报]`+`- [MINOR·观察]`／`**严重度**` 裸 key／`**Severity**`）：
 
@@ -383,7 +383,7 @@ def test_in_vocab_or_exempt_green(tmp_path, content):
   - docstring 注明 spec #105 T2 与「禁从传感正则推导」原因。
 - [ ] **Step 4: 测试绿**——`uv run pytest tests/unit/pipeline/test_check_audit_severity_vocab.py -q`（含补的 `"severity": "low"` 绿测）。
 - [ ] **Step 5: 回放工具 `tools/replay_severity_vocab.py`**——遍历 `<project_dir>/audits/` 章审计形——**判据与 `_is_audit_file` 完全对齐（r2-I1）：`audits/` 域 + `chapter-NN-<dim>` 形 + 仅排除 `.aggregate.md`，不排除 `-resonance.md`**（生产 is_audit 块对 resonance 同样生效——completeness/line_refs 现状即跑 resonance；回放排除 resonance 则 shadow 闸门永远测不到 46 份生产触达文件=闸门完整性缺口），跑 checker，输出 markdown 报告：命中清单（file:line:token:form）+总数+分母（生产触达/aggregate 差集/escalation 差集——`_is_audit_file` 同判据本地复刻，不 import 私有）。
-- [ ] **Step 6: vol1 回放（shadow 闸门）**——`uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --out /tmp/spec105-vocab-replay.md`；人工核命中条目全为真词表外违规（预期≈0——语料零命中词表外写法）；**零误伤→接线 FAIL；有误伤→停，记 BLOCKING deviation 报备**。报告关键数字粘贴 progress.md。
+- [ ] **Step 6: vol1 回放（shadow 闸门）**——`uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --forms key --out /tmp/spec105-vocab-replay.md`（r2.7：生产 key 形域）；人工核命中条目全为真词表外违规（key 形预期 0——语料零命中）；**零误伤→接线 FAIL；有误伤→停，记 BLOCKING deviation 报备**。默认 ALL 形态回放（#116 采集面）预期 198 全误伤，属已知。报告关键数字粘贴 progress.md。
 - [ ] **Step 7: 接线双点位**：
   - `dispatch_helper.py` is_audit 块（:2970-2973）追加 `issues += check_audit_severity_vocab(full_path, forms=PRODUCTION_VOCAB_FORMS)`（r2.7 key-only）（import 入既有 from-import 列表 :71-78 位置——M-8 行号修正）。
   - `generic.py:252` G4.av. 分支改按 finding id 三路由：`stale_line_ref`→check_audit_line_refs；`vocab`→check_audit_severity_vocab；`dispatch_integrity`（Task 5 落地后）→对应 checker；未识别 G4.av. 前缀→`return True`（保守放行，log warning）。**M-9**：现行 chapter-gone 早退（:257-259）仅 `stale_line_ref` 路由保留——vocab/dispatch_integrity 不依赖 chapter 文件，继承早退会在章文件删除后把其 finding 误判 stale 吞掉。本 task 先落前两条+未识别放行；Task 5 补第三条。
@@ -531,4 +531,4 @@ git commit -m "feat: spec #105 T4c — ending_constraints 注入窗 3→10（cha
 
 1. **Spec coverage**：spec T1（T1a 登记+模块/T1b 换装+差分三层/T1c lint）✓；T2（T4：判别器三段式+双点位+回放 shadow）✓；T3（T5：预检+dispatch_integrity+零派发红测）✓；T4（T6 EXAMPLES/T7 渲染+parser/T8 ending 窗）✓；验收 2 差分（T2b）/验收 3 bug-hunt 由 T4 红测+T5 零派发承载/验收 4 G3.4 ≥94 由阶段 6 收官评分承载。
 2. **Placeholder scan**：两处「执行期落定」均为**事实锚定指令**（T5 wave 技能名册变量/T2 gen stdout 中转——r5-M1 更正：parallel_dispatch 函数名一项已随 r4-M1 空桩删除而消亡），非行为留白——实现时 grep 落定并记 deviation。
-3. **Type consistency**：`check_audit_severity_vocab(path: Path) -> list[str]` 与 dispatch_helper/generic 调用面一致；`missing_audit_reads(project_dir, skill, chapter)` 与 wave 预检调用一致；severity.py 符号名在 T1/T2/T4/T5/T7 间一致（`AGGREGATE_VOCAB_SET`/`ROUTING_*_BRACKET_WORDS` 在 T1 Interfaces/Step 3 落定——r2 修正：初稿 Self-Review 误称「已含」，实为漏列，已在 T1 补齐）。
+3. **Type consistency**：`check_audit_severity_vocab(path: Path, forms: tuple[str, ...] = PRODUCTION_VOCAB_FORMS) -> list[str]` 与 dispatch_helper/generic 调用面一致；`missing_audit_reads(project_dir, skill, chapter)` 与 wave 预检调用一致；severity.py 符号名在 T1/T2/T4/T5/T7 间一致（`AGGREGATE_VOCAB_SET`/`ROUTING_*_BRACKET_WORDS` 在 T1 Interfaces/Step 3 落定——r2 修正：初稿 Self-Review 误称「已含」，实为漏列，已在 T1 补齐）。

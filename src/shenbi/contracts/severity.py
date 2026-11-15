@@ -66,7 +66,7 @@ QUOTED_VALUE_TAIL = r'(?!\*{0,2}")'
 # ── 锚定形态传感正则（bracket/bold 两形——语义同 audit_aggregate.py:46-47） ──
 #: r2-M5/r3-I2 YAGNI 收缩：cell/key 传感不建模块锚定——audit_aggregate 换装时
 #: 本地从 AGGREGATE_VOCAB 组合重建（行为保持）；本模块只建有生产消费方的锚定
-#: （BRACKET/BOLD_ANCHOR_RE → G4.av.dispatch_integrity 消费）。
+#: （泛用 BRACKET/BOLD_ANCHOR_RE 已于 audit-T4 轮 2 删除——零消费死面）。
 
 #: BLOCKING 标签锚定（G4.av.dispatch_integrity 生产消费——audit-T4 轮 2 I-2：
 #: 泛用 BRACKET/BOLD_ANCHOR_RE 无生产调用方已删除，避免零消费死面；本对是
