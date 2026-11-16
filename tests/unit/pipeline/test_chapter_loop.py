@@ -25,7 +25,7 @@ from shenbi.pipeline.chapter_loop import (
 )
 from shenbi.pipeline.crash_recovery import reset_emergency_state
 from shenbi.pipeline.dispatch_helper import DispatchResult
-from shenbi.pipeline.revision_router import RevisionRoute
+from shenbi.pipeline.revision_router import RevisionDecision, RevisionRoute
 from shenbi.pipeline.state import (
     CheckpointType,
     PipelineState,
@@ -644,9 +644,7 @@ class TestRevisionRoutingIntegration:
 
     @patch(
         "shenbi.pipeline.revision_router.decide_revision",
-        return_value=__import__(
-            "shenbi.pipeline.revision_router", fromlist=["RevisionDecision"]
-        ).RevisionDecision.PASS,
+        return_value=RevisionDecision.PASS,
     )
     def test_check_resonance_wired_after_review(self, mock_dd, tmp_path):
         """Spec #106: decide_revision is wired into revision routing with the

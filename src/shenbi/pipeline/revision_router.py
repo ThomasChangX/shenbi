@@ -195,6 +195,10 @@ def decide_revision(
     2. **No BLOCKING** + resonance >= floor -> :attr:`RevisionDecision.PASS`
     3. **No BLOCKING** + resonance < floor -> :attr:`RevisionDecision.REVISION`
        (route via :func:`route_chapter_revision`).
+
+    spec #106: *floor* is the effective (dynamic) floor supplied by the
+    caller; in shadow mode the caller only RECORDS the below-floor outcome as
+    a ``resonance_would_route`` event — routing happens in armed mode only.
     """
     if blocking:
         return RevisionDecision.REVISION

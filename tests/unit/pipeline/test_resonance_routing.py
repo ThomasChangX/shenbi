@@ -189,3 +189,34 @@ def test_docstring_matches_production():
     doc = revision_router.__doc__ or ""
     assert "borderline -> escalation checkpoint" not in doc
     assert "不路由" in doc
+
+
+def test_stale_reason_does_not_trigger_paid_resampling(tmp_path, monkeypatch):
+    """audit-T2 I-2: a stale resonance_route_reason from an earlier round must
+    NOT make a BLOCKING-driven cap exhaustion pay for a resonance re-sample —
+    the guard binds to THIS invocation's reason.
+    """
+    _seed_project(tmp_path, report=None, with_trend=True)
+    state = _make_state(policy={"mode": "armed"})
+    cs = state.chapter_loop.chapter_states["14"]
+    cs.revision_count = 2
+    cs.audit_results["resonance_route_reason"] = "resonance"  # 陈旧键（上轮残留）
+    # 本次 BLOCKING 驱动：issues 非空 → route=SPOT_FIX → reason=None
+    monkeypatch.setattr(
+        "shenbi.pipeline.chapter_loop.collect_audit_issues",
+        lambda *a, **k: ([{"severity": "BLOCKING", "file": "audits/x.md"}], True),
+    )
+    confirm_calls = []
+    monkeypatch.setattr(
+        "shenbi.pipeline.resonance_policy.resonance_cap_confirm_escalate",
+        lambda *a, **k: confirm_calls.append(1) or True,
+    )
+    escalated = []
+    monkeypatch.setattr(
+        "shenbi.pipeline.chapter_loop.dispatch_escalation",
+        lambda *a, **k: escalated.append(a) or True,
+    )
+    _route_revision_after_resonance(state, tmp_path, 14)
+    assert not confirm_calls, "陈旧 reason 不得触发付费二次采样"
+    assert escalated  # BLOCKING cap 耗尽照常升级
+    assert "double-below" not in str(escalated[0])  # context 不误标
