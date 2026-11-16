@@ -32,7 +32,7 @@
 ### T3 · trend 数据卫生三件
 - **完整性告警**：`check_trend_completeness` **挂 drift-guidance 卷界聚合行**（每卷一次，带 pending/缺行计数与章清单+束 follower 语境注记——#109 未落地前偶数章 pending 属 #72 双章束制度性状态，**禁逐章 WARN** 制造告警疲劳；与 #109「如实报告 follower 缺口」分工：本件报 trend 数据面，#109 报审计机制面）；
 - **`just resonance-backfill <dir> [--chapters a-b|c,d]`**：pending 章逐章补派 review-resonance（维护命令，ledger_archive/volume-budget 先例；resonance_trend 按 chapter 键 upsert——truth_io `insert_markdown_row` + `key_field="chapter"` 生产在用形态，报告覆写 audits/）；**无正文守卫**：补评前置 #105 审计预检面（目标章 `chapters/chapter-N.md` 在盘）+ 派发后产物校验（readiness 面复用）——**预检不过即拒绝补评该章并报告，不写 trend 行**（技能级「无正文→不评分」守卫不存在，63/81/63 无正文出分实锚在案；#109 落地后契约 reads 对称化自然覆盖 bundle 面）；
-- **`shenbi-pipeline override-resonance <dir> <chapter> --overall N [--dims 情感落地=a,…] [--note …]`**：写 trend 行 + `human_overridden=true`（**小写 `true`**——`report_longitudinal.py:105` 消费面只认小写；drift 排除消费面现成）；**行合并语义=cell-patch**：目标章已有富行（role/四维/confidence 含校准补丁 cell）时**只翻 human_overridden cell**，禁整行重建覆写（`upsert_markdown_row` 整行替换语义的坑）；行不存在时才按 9 列全行写——人因放行弱章的回流通道 CLI 化，escalation 报告建议终于有落点。
+- **`pipeline override-resonance <dir> <chapter> --overall N [--dims 情感落地=a,…] [--note …]`**（既有 console-script 入口 `pipeline = shenbi.pipeline.cli:main`，pyproject.toml:65——无 `shenbi-pipeline` 入口）：写 trend 行 + `human_overridden=true`（**统一写小写 `true`**——消费面 compute_drift/report_longitudinal 均 `strip().lower()=="true"` 大小写不敏感，写小写双侧安全）；**行合并语义=cell-patch**：目标章已有富行（role/四维/confidence 含校准补丁 cell）时**只翻 human_overridden cell**，禁整行重建覆写（`upsert_markdown_row` 整行替换语义的坑）；行不存在时才按 9 列全行写——人因放行弱章的回流通道 CLI 化，escalation 报告建议终于有落点。
 
 **判据**：红测（卷界聚合行含 pending 计数与章清单；backfill 对缺正文章拒绝且不写 trend 行；backfill 后行有分且 confidence 列合规；override 对富行仅翻 flag cell 不覆写维度分；override 后该行被 compute_drift 触发统计排除——用 `_OVERRIDE_HEADERS` 语义直接验证）。
 
