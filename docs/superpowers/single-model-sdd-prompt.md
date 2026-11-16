@@ -1,10 +1,6 @@
-# Single-Model SDD Workflow Prompt v7.1（自治版 · 价值门 + 解法门 + 回归 skill 机制）
+# Single-Model SDD Workflow Prompt v7.2（自治版 · 价值门 + 解法门 + 回归 skill 机制）
 
-> **v7.1 变更**（2026-11-15 · /sdd-next 多专家深审 14 findings 全修，启动面变更见 `docs/superpowers/sdd-next.md` 头部）：①新裁决 **ARCHIVE-AS-DONE**——步骤 3 ②命中「修复已落地」且可追溯为本 spec 自己的已合 PR 时走清偿归档（Done 归因），杜绝把成功 spec 错标 Rejected（实证：#97 完结后归档欠账半月、靠 PR #349 人工清偿）；②**audit_loop 空报告覆盖清单义务＋协调者覆盖抽查**——0 C/I 终止须附完整覆盖清单（读过的文件／跑过的命令／逐维度结论），无清单=无效轮（封「报少即收敛」博弈面，对齐 #116「能失败≠会失败」教训）；③审查轮预算警告线（单 task/阶段累计 >4 轮记 warning）；④**rubric 单源抽离**至 `docs/superpowers/review-rubric.md`——废除三源复制义务，子 agent 路径注入＋节标题回执；⑤门禁输出首行指纹（`git rev-parse --short HEAD`＋`date +%s`，供 overnight 五重终态校验机器复推）；⑥**单模型架构升格为用户裁定定案**——异血统多样性归立项／元审会话层（#115-#117 先例），不入 SDD 执行环路；⑦progress.md 模板增审查成本行；⑧阶段 0-5 步骤指针义务（无 ledger 阶段的 compaction 粒度）；⑨外部内容定界前导（规则在 `review-rubric.md` 头部）。补记：v7 后未升版补丁一笔——2026-11-10 `3b60895f`（阶段 10/11 分支删除硬化），现并入本版基线。
-
-> **v7 变更**（2026-10-30）：新增**解法门**——阶段 1 步骤 3 驳斥三问扩**五问**（④解法主张对抗回放 ⑤替代路径 buy-before-build）＋**缺位主张穷尽反查义务**＋证据源路由（findings-ledger 之外：运行项目工件/盲审报告）；freshness 修两缺陷（锚点改 spec 最后修订日（%cI 全时刻）；**GREEN-via-invisibility 禁令**——gitignored 路径 git 无输出 ≠ 未动，降级磁盘核验）；步骤 2 加正文 `#<N> T<N>` **任务级交叉引用对账**（机械提取＋语义裁定，失声明=REWRITE 触发）；阶段 2 范围扩运行项目工件＋行号容差 ±5→±3；rubric 升级（维度 2 **双向 dead-wire**／维度 5 新 FAIL 门**误报成本** shadow 纪律／新维度 8 **解法最小性**）；audit_loop 加**打摆熔断**（连续 3 轮新 C/I 跨模块→BLOCKING 报备）；REWRITE 连续 2 次停机；Plan rubric 加跨 spec 联动项归属检查；`$QUEUE` 标注遗留模式（现行无人值守批处理=外部 overnight 脚本）；Anti-Rationalization 增 6 行；progress.md 模板同步。**动机**：spec #82-#84 r1 外部审核 backtest——8 项缺陷（同域重复建设/门读可变数据源/gitignored 证据死胎/任务级依赖失声明等）中旧管线机制必拦 0 项；根因=价值门为 findings 型 repo 内 spec 设计，#72 起出现运行项目内容 spec 新属种＋「解法最优性」维度在全部阶段整体缺位（本仓历史 REJECT 全为失效型，无一为解法质量型）。
-
-> **v6 变更**（2026-08-15）：新增阶段 1 价值门（freshness / 注册表 / 驳斥三查 + GO·REJECT·DEFER·REWRITE 四裁决）；阶段重编号 0-12（无外部文档引用旧编号，无需同步）；新增队列模式、compaction 恢复协议、main 漂移 rebase 协议、验收可执行化（本项目无前端，以可执行验收替代截图类证据）、PR 线程 reply+resolve 协议（接入 AGENTS.md §PR Review Protocol）。**修正 v5 三处缺陷**：① 归档路径 `docs/superpowers/archive/` 不存在 → 实际为 `specs/archive/` + `plans/archive/` 双库；② rubric 引用的 I1/L1-L4/C-3 教训编号在本仓库无定义（fresh-context 子 agent 不可见）→ 全部改写为自包含检查描述；③ 补入本仓高频失败模式（dead-wire、契约三源同步、状态字面量单一信源、成本与状态纪律、环境同构）；④ INDEX 改为**仅追踪活跃 spec**（不维护归档计数），编号 append-only 不重编号（对齐 INDEX 登记与编号约定）。
+> **v7.2 变更**（2026-11-17 · 与 a-stock v6.2 跨仓收敛第一步，对齐 superpowers 6.2.0 实际契约）：① **审查循环重构**——修复轮由"无界全量重审"改为 **scoped re-review**（只验 ADDRESSED/NOT_ADDRESSED＋fix diff 内新破坏；未触碰代码的新发现→ledger 暂存）＋**5 轮封顶**（R1-3 复用原 implementer／R4-5 换新升档）＋封顶裁决（park-with-ruling／STOP）；Minor 改"当轮顺手修或 `minor (deferred)` 暂存→终审 triage"；**覆盖清单义务限全量轮**（首审/终审）——scoped 轮只覆盖增量，索清单自相矛盾；终审 fix 恰好一波（禁第二波）；打摆熔断保留，"轮"统一=fix round，裁决记录标注触发者。② **上下文卫生**——task-brief／每 task review-package（BASE 禁 `HEAD~1`）／报告文件／四值状态契约（DONE/DONE_WITH_CONCERNS/NEEDS_CONTEXT/BLOCKED）接入阶段 6。③ **plan 契约补 writing-plans 三部件**（Global Constraints 逐字段／Interfaces Consumes·Produces／bite-sized 步骤含期望输出）。④ 修复：阶段 2"task 标 BLOCKED"时序不可能（v6 重编号残留）；阶段 9 PR 描述补驳斥五问结论；阶段 7 增回归红绿回撤验证。⑤ 变更史移文末（执行者不读历史）。⑥ **B1 挂起**：flat `progress.md` → skill per-plan workspace（`scripts/sdd-workspace`）迁移因 overnight 外部脚本路径依赖未定位而挂起（仓内 grep 零引用已证外部性）——skill 6.2.0 把 flat 路径当 stray ledger 绕开的风险已知，待定位并同步适配后实施（参照 a-stock v6.2 同款协议）。⑦ 配套 INDEX 重构为紧凑队列表（lint_invariant_coverage face-4 数据源同步迁至 spec 文件本体，语义不变）。
 
 ---
 
@@ -29,7 +25,7 @@
 2. **审查不可绕过（机制化）**：所有审查（阶段 3/5/6/8）走 `superpowers:requesting-code-review` skill 调度 + `docs/superpowers/review-rubric.md`（项目补充 rubric 单源，v7.1 起路径注入＋子 agent 节标题回执）注入子 agent prompt。每个 task commit 后**必须**产出 `.superpowers/sdd/audit-T<N>.md`（fresh-context 子 agent 全量重审 findings 表）。阶段 7 核验 `audit-T*.md` 数量 == task 数，缺失即 BLOCKED。**audit-T<N>.md 与 skill ledger 分工**：ledger 是权威进度追踪（skill 原生，compaction 恢复用，答"task 完成了吗"）；audit-T<N>.md 是审查产物（本项目特有，阶段 7 计数核验用，答"task 审过了吗"）。两者并存不冲突。
 3. **基础设施代码由协调者亲自实现**：子 agent 只做叶子任务。
 4. **偏差实时记录**：每个 task commit 当轮即更新 `spec-deviations.md` 的 `### T<N>` 段。
-5. **重审无条件**：审查发现任一新 C/I → 修复后必须重新 fresh-context 全量审查（例外清单见 Anti-Rationalization 表，目前为空）。
+5. **每轮修复必被重审（scoped）**：任一 C/I 修复后必须跑 scoped re-review（只验 ADDRESSED/NOT_ADDRESSED＋fix diff 内新破坏）——不存在未经重审的修复。全量重审保留在两处：task 首审、阶段 8 终审（**覆盖清单义务只约束全量轮**）。修复轮 5 轮封顶＋打摆熔断，见 audit_loop。
 6. **价值与解法先于投入**：阶段 1 裁决 GO 之前零实施动作（不建代码分支、不写测试、不改 spec 以外的文件）。**GO 证明的是「问题真实且无人修过」，不证明「解法最优」**——解法侧由步骤 3 ④⑤问＋阶段 3 rubric（既有门健康度/解法最小性/误报成本）把关。REJECT/DEFER/REWRITE 是合法且期望的产出——硬修一份已失效 spec、或照单施工一份次优 spec = 浪费整轮 SDD。本仓 spec 两属：findings 驱动（786 条 audit findings 的 spec 化，main 持续合并修复 → 失效风险常态存在）；#72 起的**运行项目内容 spec**（动机证据在 gitignored `novel-*/` 工件/盲审报告，git 探针不可见 → 证据源路由见阶段 0/1）。
 7. **单 spec 原子性**：一次只执行一份 spec（其 `系列` 字段声明的簇分工联动项除外，以 spec 文本声明为准）。执行中发现应合并/应拆分/前提失效 → 停下回阶段 1 重裁，不就地膨胀 scope。
 8. **成本与状态纪律**：真实 LLM dispatch（`shenbi-dispatch` / `pipeline init|resume|review`）是付费**且写状态**的操作（truth/staging/progress 落盘）。SDD 全流程禁为「验证」目的触发真实 dispatch；LLM 产物相关验收一律用 `tests/fixtures/` 真实产物驱动的测试表达。
@@ -42,25 +38,49 @@
 
 **注入方式（v7.1 起，废除三源复制）**：`audit_loop` 的 `rubric` 参数 = skill 通用 rubric + `review-rubric.md` **路径注入**。派子 agent 时 prompt 附「先 Read `docs/superpowers/review-rubric.md`，报告开头回执其节标题清单」——**无回执 = 未注入，该轮审查无效**。禁止手工复制 rubric 文本进 prompt（派发副本不可审计是 v7 及之前的已知缺陷：rubric 改版后，progress.md 留存副本与单源漂移无察）。编辑审查维度只改 `review-rubric.md`，本 prompt 不留副本。
 
-### 审查循环 `audit_loop(scope, rubric, sha_range)` ← 可复用 pattern，阶段 3/5/6/8 显式调用
+### 审查循环 `audit_loop(scope, rubric, sha_range)` ← 可复用 pattern，阶段 3/5/6/8 显式调用（v7.2 对齐 skill 6.2.0）
 
 ```
 入参：
   scope      = 本次审查的文件清单（非 diff，list of paths）
-  rubric     = 注入子 agent 的审查维度（`docs/superpowers/review-rubric.md` 单源 + skill 通用 rubric）
-  sha_range  = (BASE_SHA, HEAD_SHA)，design review 用 (空树, 文件SHA)；code review 用 (上commit, 本commit) 或 (main, HEAD)
+  rubric     = 注入子 agent 的审查维度（`docs/superpowers/review-rubric.md` 单源 + skill 通用 rubric
+               + plan 的 Global Constraints 逐字块——spec 约束是 reviewer 的注意力透镜）
+  sha_range  = (BASE_SHA, HEAD_SHA)，design review 用 (空树, 文件SHA)；code review 用 (BASE, 本 task commit) 或 (merge-base main, HEAD)
 
-执行（每轮）：
-  1. 派 fresh-context 子 agent（不继承上轮），声明 "This is a FULL re-audit of ALL files in scope."
-  2. 子 agent prompt 含：scope 文件清单 + 读 spec/plan/AGENTS.md + `review-rubric.md` 路径注入（先读＋报告开头回执节标题）+ grep 调用方
-  3. 子 agent 报告所有 🔴C / 🟡I / 🟢M，附文件:行号；**末尾附覆盖清单（v7.1）**——读过的文件、执行过的 grep/命令、rubric 逐维度一行结论（✅ 干净／发现编号）
-  4. 协调者逐条 VERIFY（打开真实文件核对，不轻信子 agent）→ 修复 → 每修一个 issue 单独跑相关测试 → C/I/M 全修
+首审（每 scope 一次，全量）：
+  1. 有 commit 范围 → skill 的 `scripts/review-package PLAN_FILE BASE HEAD` 生成 diff 包（diff 走文件不过
+     协调者上下文；BASE = 派发前记录的 `git rev-parse HEAD`，禁 `HEAD~1`——多 commit task 会被截断；
+     **无 diff 文件禁止派审查者**）；design review（阶段 3/5）无 commit 范围 → scope 文件直读
+  2. 派 fresh-context 子 agent（不继承上轮），声明 "This is a FULL audit of ALL files in scope."
+  3. 子 agent prompt 含：scope 清单 + diff 包路径（如有）+ 读 spec/plan/AGENTS.md + `review-rubric.md`
+     路径注入（先读＋报告开头回执节标题——**无回执=未注入，该轮无效**）+ grep 调用方
+  4. 子 agent 报告所有 🔴C/🟡I/🟢M（附文件:行号）+ ⚠️"Cannot verify from diff"项 + **末尾覆盖清单**——
+     读过的文件、执行过的 grep/命令、rubric 逐维度一行结论（✅ 干净／发现编号）
+  5. 协调者逐条 VERIFY（打开真实文件核对，不轻信子 agent）+ 对覆盖清单抽查 ≥1 项复跑核验
+     （一条 grep／一个文件）；**无覆盖清单的空报告=无效轮，重派**；⚠️ 项由协调者亲自消解
+     （持有跨 task 上下文）——确认属实按 spec ❌ 进修复轮
 
-终止（v7.1 强化）：本轮 0 新 C/I **且覆盖清单完备** → 协调者对覆盖清单抽查 ≥1 项复跑核验（一条 grep／一个文件）→ 通过才终止；**无覆盖清单的空报告 = 无效轮，重派**。本轮有新 C/I → 回到第 1 步（fresh-context 重新审）。
-不设轮次上限，唯一**正常**终止条件是「净轮＋覆盖抽查通过」（异常出口=下方打摆熔断）。
-**轮预算警告线（v7.1）**：单 task／单阶段审查循环累计 >4 轮（正常收敛典型 1-3 轮）→ progress.md 记 warning 行并继续——软线不是闸门，是成本可见性（打摆熔断仍为异常出口）。
-**打摆熔断（v7）**：连续 3 轮每轮都出新 C/I 且分布在不同模块 → 停止修复循环，记 BLOCKING deviation 报备用户——这是设计/架构问题不是审查问题（对齐 systematic-debugging「3+ 次修复失败 = 质疑架构」），继续修只会互相打出新 finding。
-单 pass review 当全量重审 = 假审。
+修复轮（每轮 = 一次修复 + 一次 scoped re-review；5 轮封顶；"轮"=fix round）：
+  - 修复：R1-3 复用原 implementer（上下文在，知道自己的代码）；R4-5 换新 implementer 并升档
+    （infra task 协调者亲自修——本协议唯一例外：修复者=协调者，重审照走）；修复者每轮必须
+    改→跑覆盖测试→报告附命令与输出→才派重审
+  - 重审：scoped re-review（skill re-review-prompt 模板）——只验各 finding ADDRESSED/NOT_ADDRESSED
+    + fix diff 内新破坏；**未触碰代码的新发现 → ledger 暂存不入循环**（防漫游）
+  - Minor：当轮顺手修；不修则记 `Task <N>: minor (deferred): <一句话>` → 阶段 8 终审统一 triage
+  - 每轮 ledger 追加：`Task <N>: fix round <R>/5 (<X> addressed, <Y> open; commits <a>..<b>)`
+
+熔断（两个独立出口，**触发者必须写进裁决**）：
+  - **5 轮封顶**：第 5 轮仍有 open finding → 逐条裁决：审查者错/可争议 → park
+    （`Task <N>: parked — <finding> — ruling: <为何代码成立>`）；真实但无下游依赖 → park 注明 deferred；
+    真实且 load-bearing（后续 task 建于其上/plan 缺陷）→ STOP 报备用户。裁决只发生在封顶后，
+    每条必入 ledger——静默丢弃禁止
+  - **打摆熔断（v7）**：连续 3 个 fix round 每轮都出新 C/I 且分布跨模块 → 停止修复循环记 BLOCKING
+    报备——设计/架构问题不是审查问题（对齐 systematic-debugging「3+ 次修复失败 = 质疑架构」）
+  - 轮预算警告线（v7.1）：单 task／单阶段审查累计 >4 轮 → progress.md 记 warning 行并继续
+    （成本可见性，非闸门）
+
+终止：scoped re-review 全 ADDRESSED 且 fix diff 无新 C/I → complete；或任一熔断出口。
+单 pass 冒充全量 = 假审；scoped re-review 明示只验增量、不是冒充——覆盖清单义务因此只约束全量轮。
 ```
 
 *（设计级维度表 1-8 与文件级检查表已于 v7.1 抽出单源 `docs/superpowers/review-rubric.md`——注入协议见本节头部「注入方式」。）*
@@ -121,7 +141,7 @@
 
 - **引擎**：fresh-context 子 agent
 - **审什么**：spec 里**对代码库与运行项目工件的引用**（路径/签名/行号±3/import/F 编号 → findings-ledger 条目存在且状态仍为 specced/verified 而非已修；`novel-*/` 类 gitignored 工件按磁盘文件核）—— 查"对不对"。**±3 是硬容差（v7）**：v6 的 ±5 实证放行过恰好 5 行的偏移。freshness YELLOW → 受影响引用加倍核对
-- **动作**：机械漂移（行号偏移/路径错）→ 修 spec；歧义漂移（签名不符）→ 记 spec-deviations + task 标 BLOCKED；**证据失效（核心引用已不存在 / finding 已被修复）→ 回阶段 1 改判**
+- **动作**：机械漂移（行号偏移/路径错）→ 修 spec；歧义漂移（签名不符）→ 记入 spec-deviations `### 阶段2` 段（此时 plan/task 尚不存在，不标 task 号），作为阶段 4 plan 的约束传入——受影响 task 在 plan 中标 BLOCKED，plan 期仍无法消解 → 回阶段 1 重裁；**证据失效（核心引用已不存在 / finding 已被修复）→ 回阶段 1 改判**
 
 ### 阶段 3 · Spec 设计审查
 
@@ -135,8 +155,9 @@
 
 - **引擎**：`superpowers:writing-plans`
 - **输入**：阶段 1 价值裁决 GO + 阶段 2 机械核查过 + 阶段 3 设计审查过的 spec（基于已验证 spec 写 plan，避免 spec 缺陷导致 plan 白写）
-- **plan 必填字段**：
-  - 实际签名（从源码复制，非伪代码）
+- **plan 必填**（v7.2 补 writing-plans 契约三部件 ＋ 项目既有字段）：
+  - **Global Constraints 段**（spec 的项目级约束**逐字复制**——task reviewer 的注意力透镜，注入阶段 6/8 审查派发）
+  - 每 task：Files（精确路径:行）＋ **Interfaces Consumes/Produces**（实际签名，从源码复制非伪代码）＋ **bite-sized 步骤**（checkbox；代码步骤含真实代码；测试步骤含命令与**期望输出**，如 `Expected: FAIL with "NameError"`）
   - `复杂度: leaf|infra`
   - `test_kind: tdd_red_green | characterization | regression_guard`
   - 测试层级与 fixture：每个测试声明 T1|T2|T3 归属 + `tests/fixtures/` 引用路径（G0.9：scenario 输入只能引用真实产物）
@@ -163,7 +184,8 @@
 - **引擎**：`subagent-driven-development`（plan 路径：阶段 4 产出的 plan 文件）
 - **项目补充**（skill 不知的本项目特有规则）：
   - **leaf/infra 分流**：见下方 —— skill 假设 task 独立可分派，但本项目 infra 类 task（涉及 `src/shenbi/pipeline/` 派发与状态机、`src/shenbi/gates/g4/`、`src/shenbi/contracts/`、`src/shenbi/cost/`、`src/shenbi/audit/`、`src/shenbi/orchestration/` 等）必须协调者亲自实现，不分派
-  - **每 task commit 后**：`audit_loop(scope=该 task 改动的文件, rubric=review-rubric.md（单源注入）+ skill task-reviewer 两 verdict, sha_range=(上 task commit, 本 task commit))`，findings 写入 `.superpowers/sdd/audit-T<N>.md`。**无 audit-T<N>.md 不得开始 T<N+1>**（阶段 7 计数核验）
+  - **上下文卫生（v7.2，纯文件操作与核心原则 8 无冲突）**：task 文本走 skill 的 `scripts/task-brief PLAN_FILE N`（implementer 只读 brief 文件，禁读整个 plan；精确值只存在于 brief）；diff 走 `scripts/review-package PLAN_FILE BASE HEAD`（BASE = 派发前记录的 `git rev-parse HEAD`，**禁 `HEAD~1`**——多 commit task 会被截断）；implementer 报告落 `.superpowers/sdd/task-N-report.md`，返回只带四值状态契约之一：**DONE / DONE_WITH_CONCERNS**（先读 concerns 再进审查）**/ NEEDS_CONTEXT**（补上下文重派同 agent）**/ BLOCKED**（按 skill 四分支处置，禁无视或原样重试）
+  - **每 task commit 后首审**：`audit_loop(scope=该 task 改动的文件, rubric=review-rubric.md（单源注入）+ Global Constraints 逐字块, sha_range=(BASE, 本 task commit))`，findings 写入 `.superpowers/sdd/audit-T<N>.md`；修复轮按 audit_loop 协议（scoped re-review＋5 轮封顶＋打摆熔断）。**无 audit-T<N>.md 不得开始 T<N+1>**（阶段 7 计数核验）
   - **验收可执行化**：spec 每条 `**验收：**` 在对应 task 完成时实际运行其验证命令（pytest 场景 / `just gate` / `shenbi-validate` 等只读入口），命令+输出粘贴 progress.md `## 验收证据`——验收条目"写了但没跑" = task 未完成。LLM 产物验收用 fixtures 驱动测试表达，禁止现场 dispatch 取证（核心原则 8）
   - **前提失效中止**：实施中发现 spec 前提不成立（修复方案套不上 / 代码已根本变化）→ 停当前 task → 回阶段 1 重裁。禁止硬修、禁止绕过
 
@@ -180,7 +202,7 @@
 
 **Infra 强制审查项**：□ 并发实测通过（`parallel_dispatch.py` / `chapter_loop.py` 并行审计波不串扰、无 lost-update）？□ 契约/G4 schema 变更幂等且 `just generate` 同步 `deps.json`/`docs/`/`skills/`（diff 为空）？□ Literal 唯一定义在 `src/shenbi/contracts/enums.py`？□ 跨 task 签名兼容？□ 全量回归绿？
 
-**BLOCKED task**（阶段 2 歧义漂移 / 阶段 10 CI 无法运行）→ 阶段 10 决议：skip（手动实施）或 abort（归档标注未完成）。
+**BLOCKED task**（阶段 2 歧义漂移在 plan/执行期未消解 / 阶段 10 CI 无法运行）→ 阶段 10 决议：skip（手动实施）或 abort（归档标注未完成）。
 
 ### 阶段 7 · 验证
 
@@ -191,18 +213,19 @@
   - `uv lock --check`（CI 第一道门；仅当本分支改过 `pyproject.toml`/`uv.lock` 时必跑）
   - 所有命令走 `just`/`uv run`（与 CI `uv run --frozen` 同构）；系统 python 的验证不算证据
 - **额外核验**：`ls .superpowers/sdd/audit-T*.md | wc -l` == plan task 数（漏审=BLOCKED）；progress.md `## 验收证据` 覆盖 spec 全部验收条目
+- **回归红绿回撤验证**（test_kind=regression_guard 必做，v7.2）：写测试→过→**撤掉修复**→测试**必须红**→复原→过；四步输出全贴 progress.md——只红绿各跑一次 ≠ 回归测试有牙
 
 ### 阶段 8 · 最终审查
 
 - **引擎**：`requesting-code-review`
 - **动作**：`audit_loop(scope=全 branch 改动文件, rubric=review-rubric.md（单源注入）, sha_range=(main, HEAD))`（用 `subagent-driven-development` skill 的 `scripts/review-package <PLAN_FILE> <BASE> <HEAD>` 生成 diff 包给子 agent——PLAN_FILE=阶段 4 产出的 plan 路径；脚本硬校验 3-4 个参数，2 参调用 exit 2）
-- **fix 循环**：有 C/I → 单 fix 子 agent 携完整 findings（skill 的 fix dispatch 模式，避免 per-finding 重建 context）→ 回到 `audit_loop`（重审无条件，doc-only/gitignored 不例外）
+- **fix 循环（恰好一波，v7.2）**：有 C/I → **单** fix 子 agent 携完整 findings（禁 per-finding 多 fixer——各自重建上下文的成本曾超过全部 task 之和）→ 一次 scoped re-review → 余项按熔断裁决（park-with-ruling / STOP 报备）。**没有第二波**——load-bearing 余项在阶段 9/10 呈报用户；doc-only/gitignored 修复同样进重审
 
 ### 阶段 9 · PR
 
 - **引擎**：`finishing-a-development-branch`
 - **main 漂移检查**：`git fetch origin && git log HEAD..origin/main --oneline` 非空 → rebase `origin/main` → **重跑阶段 7 全部门禁**（rebase 前本地绿 ≠ 合并前绿）→ 再出 PR
-- **动作**：Option 2（push + create PR）；PR 描述含：**价值裁决摘要**（freshness 分级 + 驳斥结论 + GO 理由）+ spec-deviations 全文 + ledger 摘要
+- **动作**：Option 2（push + create PR）；PR 描述含：**价值裁决摘要**（freshness 分级 + 驳斥五问结论——含④对抗回放博弈路径清单与⑤候选机制清单 + GO 理由）+ spec-deviations 全文 + ledger 摘要（含 minor(deferred)/parked 清单）
 
 ### 阶段 10 · CI+合并
 
@@ -248,11 +271,13 @@
 
 | 模型可能说 | 回应 |
 |-----------|------|
-| "Minor 可以延后" / "已审查 N 轮可终止" | 禁止。唯一**正常**终止条件「本轮无新 C/I」（异常出口=打摆熔断），C/I/M 全修。 |
+| "Minor 可以静默丢弃" | 禁止。当轮顺手修，或记 `minor (deferred)` 入 ledger 由终审 triage——丢弃必须显式裁决入 ledger。 |
+| "已修 N 轮可终止" / "再修一轮就收敛" | 5 轮封顶＋打摆熔断（连续 3 轮跨模块新 C/I → BLOCKING）——不无限循环，也不提前放弃。 |
+| "终审再修一波" | 禁止。终审 fix 恰好一波＋一次 scoped re-review，余项走裁决——第二波是上下文与回归的放大器。 |
 | "测试应该通过" / "子 agent 报告成功" | 必须运行并粘贴输出，VCS diff + 测试独立验证。 |
 | "上一轮跑过 just check" | Iron Law：声称成立的当轮消息必须重跑。上一轮 ≠ 本轮。 |
 | "偏差可末尾补" | 每个 task commit 当轮即更新 spec-deviations 的 `### T<N>` 段。 |
-| "上轮查过 / diff 里没有" | 每轮全量重审，scope 由 task 定义不由 diff。 |
+| "上轮查过 / fix diff 里没有" | 首审全量（scope 由 task 定义）；修复轮 scoped re-review 只验增量——未触碰代码的新发现 → ledger 暂存，不是丢弃。 |
 | "这是 leaf 可分派" | 涉及 infra 模块/并发/契约 schema → 升级。 |
 | "这两个 task 改不同文件，可并行分派" | 禁止。共享工作树 → git 冲突。逐 task 串行（skill Red Flag）。 |
 | "doc-only 修改/gitignored 文件，不必重审" | 禁止。重审无条件（核心原则 5）。 |
@@ -300,7 +325,9 @@
 ## Plan 审查摘要（阶段 5）
 
 ## 执行 ledger（阶段 6）
-Task N: complete (commits ...) · audit-T<N>.md ✓
+Task N: complete (commits <base7>..<head7>, review clean | <K> parked) · audit-T<N>.md ✓
+Task N: fix round R/5 (<X> addressed, <Y> open; commits ...)（有修复轮时）
+Task N: minor (deferred): <一句话>（有暂存时）
 
 ## 验收证据（阶段 6 逐 task 累积）
 spec 验收条目 → 验证命令 + 完整输出（fixtures 驱动测试 / 只读 gate CLI）
@@ -317,3 +344,13 @@ spec 验收条目 → 验证命令 + 完整输出（fixtures 驱动测试 / 只�
 ## 最终状态
 merged PR #N | REJECTED | DEFERRED | ARCHIVE-AS-DONE (PR #M) — <日期>
 ```
+
+---
+
+## 变更史（v7.2 起自文件头部移此——执行者不读历史）
+
+> **v7.1 变更**（2026-11-15 · /sdd-next 多专家深审 14 findings 全修，启动面变更见 `docs/superpowers/sdd-next.md` 头部）：①新裁决 **ARCHIVE-AS-DONE**——步骤 3 ②命中「修复已落地」且可追溯为本 spec 自己的已合 PR 时走清偿归档（Done 归因），杜绝把成功 spec 错标 Rejected（实证：#97 完结后归档欠账半月、靠 PR #349 人工清偿）；②**audit_loop 空报告覆盖清单义务＋协调者覆盖抽查**——0 C/I 终止须附完整覆盖清单（读过的文件／跑过的命令／逐维度结论），无清单=无效轮（封「报少即收敛」博弈面，对齐 #116「能失败≠会失败」教训）；③审查轮预算警告线（单 task/阶段累计 >4 轮记 warning）；④**rubric 单源抽离**至 `docs/superpowers/review-rubric.md`——废除三源复制义务，子 agent 路径注入＋节标题回执；⑤门禁输出首行指纹（`git rev-parse --short HEAD`＋`date +%s`，供 overnight 五重终态校验机器复推）；⑥**单模型架构升格为用户裁定定案**——异血统多样性归立项／元审会话层（#115-#117 先例），不入 SDD 执行环路；⑦progress.md 模板增审查成本行；⑧阶段 0-5 步骤指针义务（无 ledger 阶段的 compaction 粒度）；⑨外部内容定界前导（规则在 `review-rubric.md` 头部）。补记：v7 后未升版补丁一笔——2026-11-10 `3b60895f`（阶段 10/11 分支删除硬化），现并入本版基线。
+
+> **v7 变更**（2026-10-30）：新增**解法门**——阶段 1 步骤 3 驳斥三问扩**五问**（④解法主张对抗回放 ⑤替代路径 buy-before-build）＋**缺位主张穷尽反查义务**＋证据源路由（findings-ledger 之外：运行项目工件/盲审报告）；freshness 修两缺陷（锚点改 spec 最后修订日（%cI 全时刻）；**GREEN-via-invisibility 禁令**——gitignored 路径 git 无输出 ≠ 未动，降级磁盘核验）；步骤 2 加正文 `#<N> T<N>` **任务级交叉引用对账**（机械提取＋语义裁定，失声明=REWRITE 触发）；阶段 2 范围扩运行项目工件＋行号容差 ±5→±3；rubric 升级（维度 2 **双向 dead-wire**／维度 5 新 FAIL 门**误报成本** shadow 纪律／新维度 8 **解法最小性**）；audit_loop 加**打摆熔断**（连续 3 轮新 C/I 跨模块→BLOCKING 报备）；REWRITE 连续 2 次停机；Plan rubric 加跨 spec 联动项归属检查；`$QUEUE` 标注遗留模式（现行无人值守批处理=外部 overnight 脚本）；Anti-Rationalization 增 6 行；progress.md 模板同步。**动机**：spec #82-#84 r1 外部审核 backtest——8 项缺陷（同域重复建设/门读可变数据源/gitignored 证据死胎/任务级依赖失声明等）中旧管线机制必拦 0 项；根因=价值门为 findings 型 repo 内 spec 设计，#72 起出现运行项目内容 spec 新属种＋「解法最优性」维度在全部阶段整体缺位（本仓历史 REJECT 全为失效型，无一为解法质量型）。
+
+> **v6 变更**（2026-08-15）：新增阶段 1 价值门（freshness / 注册表 / 驳斥三查 + GO·REJECT·DEFER·REWRITE 四裁决）；阶段重编号 0-12（无外部文档引用旧编号，无需同步）；新增队列模式、compaction 恢复协议、main 漂移 rebase 协议、验收可执行化（本项目无前端，以可执行验收替代截图类证据）、PR 线程 reply+resolve 协议（接入 AGENTS.md §PR Review Protocol）。**修正 v5 三处缺陷**：① 归档路径 `docs/superpowers/archive/` 不存在 → 实际为 `specs/archive/` + `plans/archive/` 双库；② rubric 引用的 I1/L1-L4/C-3 教训编号在本仓库无定义（fresh-context 子 agent 不可见）→ 全部改写为自包含检查描述；③ 补入本仓高频失败模式（dead-wire、契约三源同步、状态字面量单一信源、成本与状态纪律、环境同构）；④ INDEX 改为**仅追踪活跃 spec**（不维护归档计数），编号 append-only 不重编号（对齐 INDEX 登记与编号约定）。

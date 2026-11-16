@@ -32,18 +32,48 @@ def _full13(doc: str) -> str:
     return doc + filler
 
 
-GOOD_INDEX = """# Spec 执行索引
+GOOD_SPEC_80 = """# Spec #80 · 某spec（demo-slug）
 
-## 执行队列
+**日期**：2026-01-01｜ **系列**：demo｜ **状态**：Active｜ **优先级**：🟠 P1
 
-### #80 · 某spec
-- **文件**：a.md ｜ **状态**：Active
-- **触及的不变量维度**：恒等 identity／持有与经手 props
-
-### #81 · 另一spec
-- **文件**：b.md ｜ **状态**：Active
-- **触及的不变量维度**：无（观测域）
+**触及的不变量维度**：恒等 identity／持有与经手 props
 """
+
+GOOD_SPEC_81 = """# Spec #81 · 另一spec（obs-slug）
+
+**日期**：2026-01-01｜ **系列**：demo｜ **状态**：Active｜ **优先级**：🟡 P2
+
+**触及的不变量维度**：无（观测域）
+"""
+
+GOOD_SPEC_82_DESIGN = """# Spec #82 · 设计态spec（design-slug）
+
+**日期**：2026-01-01｜ **系列**：demo｜ **状态**：Design（r1，2026-01-01）｜ **优先级**：🟠 P1
+"""
+
+GOOD_SERIES_DESIGN_DOC = """# 某系列总设计（无 -spec 文件名）
+
+**状态**：Active
+
+（背景文档——非队列条目，不带维度行也不该被查）
+"""
+
+
+def _write_specs(tmp_path: Path, *texts: str) -> Path:
+    """Tmp specs dir mirroring the real one (face-4 source since 2026-11-17)."""
+    specs = tmp_path / "specs"
+    specs.mkdir()
+    names = [
+        "2026-01-01-spec80-demo.md",
+        "2026-01-01-spec81-obs.md",
+    ]
+    for name, text in zip(names, texts, strict=True):
+        (specs / name).write_text(text, encoding="utf-8")
+    (specs / "2026-01-01-market-overhaul-design.md").write_text(
+        GOOD_SERIES_DESIGN_DOC, encoding="utf-8"
+    )
+    return specs
+
 
 GOOD_MUTANTS = (
     "def test_mutant_name_swap_killed_by_f15():\n    pass\n"
@@ -71,7 +101,19 @@ def test_repo_real_docs_pass(tmp_path: Path) -> None:
 def test_good_tmp_corpus_passes(tmp_path: Path) -> None:
     problems = check(
         doc=_write(tmp_path, "inv.md", _full13(GOOD_DOC)),
-        index=_write(tmp_path, "INDEX.md", GOOD_INDEX),
+        specs_dir=_write_specs(tmp_path, GOOD_SPEC_80, GOOD_SPEC_81),
+        mutant_tests=_write(tmp_path, "m.py", GOOD_MUTANTS),
+    )
+    assert problems == []
+
+
+def test_design_status_and_series_docs_not_checked(tmp_path: Path) -> None:
+    # face-4 只查 Active 态：Design 态 spec 缺维度行不违规；
+    # 无 -spec 词干的系列设计文档同样不在查面（count_active_specs 同款判别）
+    specs = _write_specs(tmp_path, GOOD_SPEC_80, GOOD_SPEC_82_DESIGN)
+    problems = check(
+        doc=_write(tmp_path, "inv.md", _full13(GOOD_DOC)),
+        specs_dir=specs,
         mutant_tests=_write(tmp_path, "m.py", GOOD_MUTANTS),
     )
     assert problems == []
@@ -81,7 +123,7 @@ def test_p1_row_with_hole_fails(tmp_path: Path) -> None:
     bad = GOOD_DOC.replace("| a.json | 备忘行 | XC.x |", "| — | 备忘行 | XC.x |")
     problems = check(
         doc=_write(tmp_path, "inv.md", _full13(bad)),
-        index=_write(tmp_path, "INDEX.md", GOOD_INDEX),
+        specs_dir=_write_specs(tmp_path, GOOD_SPEC_80, GOOD_SPEC_81),
         mutant_tests=_write(tmp_path, "m.py", GOOD_MUTANTS),
     )
     assert any("载体" in p and "恒等" in p for p in problems)
@@ -91,7 +133,7 @@ def test_bad_phase_value_fails(tmp_path: Path) -> None:
     bad = GOOD_DOC.replace("| P3 | No |", "| P4 | No |", 1)
     problems = check(
         doc=_write(tmp_path, "inv.md", _full13(bad)),
-        index=_write(tmp_path, "INDEX.md", GOOD_INDEX),
+        specs_dir=_write_specs(tmp_path, GOOD_SPEC_80, GOOD_SPEC_81),
         mutant_tests=_write(tmp_path, "m.py", GOOD_MUTANTS),
     )
     assert any("期相" in p for p in problems)
@@ -101,7 +143,7 @@ def test_obligation_without_matching_test_fails(tmp_path: Path) -> None:
     mutants = GOOD_MUTANTS.replace("test_mutant_name_swap_killed_by_f15", "test_other")
     problems = check(
         doc=_write(tmp_path, "inv.md", _full13(GOOD_DOC)),
-        index=_write(tmp_path, "INDEX.md", GOOD_INDEX),
+        specs_dir=_write_specs(tmp_path, GOOD_SPEC_80, GOOD_SPEC_81),
         mutant_tests=_write(tmp_path, "m.py", mutants),
     )
     assert any("name-swap" in p for p in problems)
@@ -114,40 +156,29 @@ def test_p2_deferred_mutant_not_required_at_p1(tmp_path: Path) -> None:
     )
     problems = check(
         doc=_write(tmp_path, "inv.md", _full13(doc)),
-        index=_write(tmp_path, "INDEX.md", GOOD_INDEX),
+        specs_dir=_write_specs(tmp_path, GOOD_SPEC_80, GOOD_SPEC_81),
         mutant_tests=_write(tmp_path, "m.py", GOOD_MUTANTS),
     )
     assert problems == []
 
 
-def test_index_active_entry_missing_section_fails(tmp_path: Path) -> None:
-    idx = GOOD_INDEX.replace("- **触及的不变量维度**：无（观测域）\n", "")
+def test_spec_file_missing_section_fails(tmp_path: Path) -> None:
+    spec81 = GOOD_SPEC_81.replace("**触及的不变量维度**：无（观测域）\n", "")
     problems = check(
         doc=_write(tmp_path, "inv.md", _full13(GOOD_DOC)),
-        index=_write(tmp_path, "INDEX.md", idx),
+        specs_dir=_write_specs(tmp_path, GOOD_SPEC_80, spec81),
         mutant_tests=_write(tmp_path, "m.py", GOOD_MUTANTS),
     )
     assert any("#81" in p and "触及的不变量维度" in p for p in problems)
 
 
-def test_index_block_terminates_at_section_heading(tmp_path: Path) -> None:
-    # audit-T12 I-1 回归钉：末条目节线被删 + 无 --- 分隔——块不得落穿 EOF
-    # 吞掉登记约定段（该段自身含「触及的不变量维度」字面量，会掩盖缺节）
-    idx = GOOD_INDEX.replace("- **触及的不变量维度**：无（观测域）\n", "")
-    idx += "\n## 登记与编号约定\n\n- 活跃 spec 须含「触及的不变量维度」节\n"
-    problems = check(
-        doc=_write(tmp_path, "inv.md", _full13(GOOD_DOC)),
-        index=_write(tmp_path, "INDEX.md", idx),
-        mutant_tests=_write(tmp_path, "m.py", GOOD_MUTANTS),
+def test_spec_listing_no_census_dim_fails(tmp_path: Path) -> None:
+    spec80 = GOOD_SPEC_80.replace(
+        "恒等 identity／持有与经手 props", "不存在的维度甲／不存在的维度乙"
     )
-    assert any("#81" in p and "触及的不变量维度" in p for p in problems)
-
-
-def test_section_listing_no_census_dim_fails(tmp_path: Path) -> None:
-    idx = GOOD_INDEX.replace("恒等 identity／持有与经手 props", "不存在的维度甲／不存在的维度乙")
     problems = check(
         doc=_write(tmp_path, "inv.md", _full13(GOOD_DOC)),
-        index=_write(tmp_path, "INDEX.md", idx),
+        specs_dir=_write_specs(tmp_path, spec80, GOOD_SPEC_81),
         mutant_tests=_write(tmp_path, "m.py", GOOD_MUTANTS),
     )
     assert any("#80" in p and "普查表维度名" in p for p in problems)
@@ -157,7 +188,7 @@ def test_definition_leak_fails(tmp_path: Path) -> None:
     doc = GOOD_DOC + '\nop 集私定义 = "transfer"\n'
     problems = check(
         doc=_write(tmp_path, "inv.md", _full13(doc)),
-        index=_write(tmp_path, "INDEX.md", GOOD_INDEX),
+        specs_dir=_write_specs(tmp_path, GOOD_SPEC_80, GOOD_SPEC_81),
         mutant_tests=_write(tmp_path, "m.py", GOOD_MUTANTS),
     )
     assert any("只引用不定义" in p for p in problems)

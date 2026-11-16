@@ -14,11 +14,13 @@ rev4 R3-M10):
    have a matching ``test_mutant_<name>_killed_by_`` case in
    ``tests/gates/test_invariant_mutants.py`` (hyphen↔underscore normalized,
    plan R1-M13);
-4. **INDEX required section** — every Active spec entry in
-   ``docs/superpowers/specs/INDEX.md`` carries the 「触及的不变量维度」
-   line, and a non-无 listing must reference at least one census dim name
-   (existence-level check; full claimed⊆census reconciliation is P2+ scope
-   per plan R1-M16 narrowing);
+4. **Active-spec required section** — every Active spec *file* in
+   ``docs/superpowers/specs/`` carries the 「触及的不变量维度」 line, and a
+   non-无 listing must reference at least one census dim name (existence-level
+   check; full claimed⊆census reconciliation is P2+ scope per plan R1-M16
+   narrowing). Source moved INDEX→spec files at the 2026-11-17 INDEX
+   restructure (queue became a compact table; per-spec blocks live in the
+   spec file, which was always the authority) — semantics unchanged;
 5. **literal non-definition** — the census must not contain ``= "…"``
    value-definition forms (op/dim value sets live in src StrEnum →
    status-vocab.md; the census only references).
@@ -36,7 +38,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 DOC = REPO / "docs" / "framework" / "invariants.md"
-INDEX = REPO / "docs" / "superpowers" / "specs" / "INDEX.md"
+SPECS_DIR = REPO / "docs" / "superpowers" / "specs"
 MUTANT_TESTS = REPO / "tests" / "gates" / "test_invariant_mutants.py"
 
 CURRENT_PHASE = "P1"
@@ -99,27 +101,21 @@ def _due_mutant_names(cell: str) -> list[str]:
     return names
 
 
-def _index_active_entries(index: Path) -> list[tuple[str, str]]:
-    """Active spec entries -> (number, entry block text).
+def _active_spec_entries(specs_dir: Path) -> list[tuple[str, str]]:
+    """Active spec files -> (number, full text).
 
-    Blocks terminate at the next entry heading, any deeper heading level
-    (``##`` section heads — audit-T12 I-1: without this, a removed ``---``
-    rule lets the block run to EOF and swallow the convention section,
-    whose own 「触及的不变量维度」 literal then masks a missing entry line),
-    or a ``---`` rule.
+    One file per spec structurally replaces the old INDEX block-termination
+    parsing (audit-T12 I-1's EOF-swallow failure mode is gone with the
+    format). ``-spec`` stem discriminator matches count_active_specs —
+    series design docs without it are background, not queue entries.
     """
-    text = index.read_text("utf-8")
     entries: list[tuple[str, str]] = []
-    for m in re.finditer(r"^### #(\d+) · (.+)$", text, re.MULTILINE):
-        number = m.group(1)
-        # search from the END of the entry heading line — searching from
-        # start+1 lets ^#{1,3} match the heading's own remainder and
-        # truncates every block to one char (audit-T12 I-1 hardening bug,
-        # caught by the tmp negative tests as a silent vacuous face)
-        nxt = re.search(r"^### #\d+ ·|^#{1,3} |^---\s*$", text[m.end() :], re.MULTILINE)
-        block = text[m.start() : m.end() + nxt.start()] if nxt else text[m.start() :]
-        if "**状态**：Active" in block or "**Status**: Active" in block:
-            entries.append((number, block))
+    for spec in sorted(specs_dir.glob("*-spec*.md")):
+        text = spec.read_text("utf-8")
+        if "**状态**：Active" not in text and "**Status**: Active" not in text:
+            continue
+        m = re.search(r"^# Spec #(\d+)", text, re.MULTILINE)
+        entries.append((m.group(1) if m else spec.stem, text))
     return entries
 
 
@@ -157,34 +153,35 @@ def _census_faces(problems: list[str], doc: Path, mutant_tests: Path | None) -> 
     return census_names
 
 
-def _index_face(problems: list[str], index: Path, census_names: list[str]) -> None:
-    """Face 4: Active entries carry the required section (existence level)."""
-    for number, block in _index_active_entries(index):
-        if "触及的不变量维度" not in block:
+def _spec_face(problems: list[str], specs_dir: Path, census_names: list[str]) -> None:
+    """Face 4: Active spec files carry the required section (existence level)."""
+    for number, text in _active_spec_entries(specs_dir):
+        if "触及的不变量维度" not in text:
             problems.append(
-                f"{index}: 活跃 spec #{number} 缺「触及的不变量维度」必填节（INDEX 登记与编号约定）"
+                f"{specs_dir}: 活跃 spec #{number} 缺「触及的不变量维度」必填节"
+                "（INDEX 登记与编号约定）"
             )
             continue
-        line_m = re.search(r"触及的不变量维度\*\*：([^\n]+)", block)
+        line_m = re.search(r"触及的不变量维度\*\*：([^\n]+)", text)
         listing = line_m.group(1) if line_m else ""
         if listing.startswith("无"):
             continue
         if not any(name in listing for name in census_names):
             problems.append(
-                f"{index}: #{number}「触及的不变量维度」未引用任何普查表维度名——"
+                f"{specs_dir}: #{number}「触及的不变量维度」未引用任何普查表维度名——"
                 f"列表须引用 {DOC.name} 维度列（或写 无）"
             )
 
 
 def check(
     doc: Path = DOC,
-    index: Path = INDEX,
+    specs_dir: Path = SPECS_DIR,
     mutant_tests: Path | None = MUTANT_TESTS,
 ) -> list[str]:
     """All predicate faces; returns violation strings (empty = pass)."""
     problems: list[str] = []
     census_names = _census_faces(problems, doc, mutant_tests)
-    _index_face(problems, index, census_names)
+    _spec_face(problems, specs_dir, census_names)
     # face 5: literal non-definition
     if _DEF_LEAK.search(doc.read_text("utf-8")):
         problems.append(
