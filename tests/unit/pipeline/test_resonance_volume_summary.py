@@ -81,3 +81,52 @@ def test_summary_never_touches_route(tmp_path):
     state.chapter_loop.chapter_states["1"] = cs
     write_volume_resonance_summary(tmp_path, state, 1)
     assert cs.audit_results["revision_route"] == "no-revision"
+
+
+def test_volume_range_derivation(tmp_path):
+    """audit-T3 I-1: pin the 15-line range derivation (off-by-one guard)."""
+    from shenbi.pipeline.resonance_policy import _current_volume_chapter_range
+
+    outline = tmp_path / "outline"
+    outline.mkdir(parents=True)
+    (outline / "volume_map.md").write_text(
+        "## 第一卷\nChapters 1-30\n## 第二卷\nChapters 31-60\n", encoding="utf-8"
+    )
+    assert _current_volume_chapter_range(tmp_path, 25) == (1, 30)
+    assert _current_volume_chapter_range(tmp_path, 30) == (1, 30)  # 边界章自身含入
+    assert _current_volume_chapter_range(tmp_path, 31) == (31, 60)
+    assert _current_volume_chapter_range(tmp_path, 65) == (61, 65)  # 超尾界开区间
+    empty = tmp_path / "empty-proj"
+    empty.mkdir()
+    assert _current_volume_chapter_range(empty, 5) is None  # 无卷结构 → 降级
+
+
+def test_resolved_volume_filters_cross_volume_chapters(tmp_path):
+    """audit-T3 I-1: with a resolved volume map, cross-volume event chapters
+    are filtered out of the snapshot.
+    """
+    outline = tmp_path / "outline"
+    outline.mkdir(parents=True)
+    (outline / "volume_map.md").write_text("Chapters 1-3\n", encoding="utf-8")
+    _seed_trend(
+        tmp_path,
+        [
+            f"| {c} | 推进 | 21 | 20 | 21 | 15 | {s} | mid |  |"
+            for c, s in [(1, 78), (2, 74), (9, 76)]  # ch9 属下一卷（超尾界）
+        ],
+    )
+    state = PipelineState()
+    for ch in (1, 2, 9):
+        cs = ChapterState()
+        cs.audit_results["resonance_would_route"] = {
+            "floor": 78.0,
+            "score": 74,
+            "reason": "resonance",
+            "would_route": ch == 2,
+            "source": "p25",
+            "window_rows": 10,
+        }
+        state.chapter_loop.chapter_states[str(ch)] = cs
+    write_volume_resonance_summary(tmp_path, state, 3)  # ch3 = 卷边界（1-3）
+    text = (tmp_path / "truth" / "resonance_shadow.md").read_text(encoding="utf-8")
+    assert "| 1-3 | 1/2 | 2 |" in text  # 跨卷 ch9 被过滤；观测 2 章

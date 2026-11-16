@@ -73,43 +73,13 @@ def scored_trend_rows(project_dir: Path | str) -> list[tuple[int, float, bool]]:
     Semantics mirror compute_drift.parse_trend: ``pending`` / non-numeric
     overall rows are dropped; ``human_overridden`` rows are KEPT with their
     flag so the floor can exclude them (chapter ids retained — the window is
-    chapter-ordered, not file-ordered).
+    chapter-ordered, not file-ordered). Thin filter over _scored_rows_full
+    (audit-T3 M-2 collapse — one parser, two views).
     """
     path = Path(project_dir) / TREND_REL
     if not path.exists():
         return []
-    lines = path.read_text(encoding="utf-8").splitlines()
-    header_idx, header_cells = -1, []
-    for idx, line in enumerate(lines):
-        if "|" not in line:
-            continue
-        cells = _split_row(line)
-        if "chapter" in cells and "overall" in cells:
-            header_idx, header_cells = idx, cells
-            break
-    if header_idx < 0:
-        return []
-    col = {name: i for i, name in enumerate(header_cells)}
-    overall_col = col["overall"]
-    override_col = next((col[h] for h in _OVERRIDE_HEADERS if h in col), None)
-    rows: list[tuple[int, float, bool]] = []
-    for line in lines[header_idx + 1 :]:
-        if "|" not in line:
-            continue
-        cells = _split_row(line)
-        if not cells or all(c.replace("-", "").replace(":", "").strip() == "" for c in cells):
-            continue
-        ch = _try_int(cells[0]) if cells else None
-        if ch is None or overall_col >= len(cells):
-            continue
-        overall = _try_float(cells[overall_col])
-        if overall is None:
-            continue  # pending / non-numeric — not a scored row
-        overridden = False
-        if override_col is not None and override_col < len(cells):
-            overridden = cells[override_col].strip().lower() == "true"
-        rows.append((ch, overall, overridden))
-    return rows
+    return [(ch, overall, ov) for ch, overall, ov in _scored_rows_full(path) if overall is not None]
 
 
 def resonance_policy_of(config: PipelineConfig) -> dict[str, Any]:

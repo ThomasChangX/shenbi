@@ -2252,7 +2252,10 @@ def _write_resonance_shadow_summary(state: PipelineState, project_dir: Path, cha
 
     try:
         write_volume_resonance_summary(project_dir, state, chapter)
-    except OSError:
+    except (
+        OSError,
+        UnicodeDecodeError,
+    ):  # audit-T3 M5: corrupt trend file must not break chapter close
         log.warning("resonance_shadow_summary_failed", chapter=chapter)
 
 
