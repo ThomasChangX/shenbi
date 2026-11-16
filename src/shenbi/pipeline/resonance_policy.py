@@ -73,13 +73,13 @@ def scored_trend_rows(project_dir: Path | str) -> list[tuple[int, float, bool]]:
     Semantics mirror compute_drift.parse_trend: ``pending`` / non-numeric
     overall rows are dropped; ``human_overridden`` rows are KEPT with their
     flag so the floor can exclude them (chapter ids retained — the window is
-    chapter-ordered, not file-ordered). Thin filter over _scored_rows_full
+    chapter-ordered, not file-ordered). Thin filter over trend_rows_full
     (audit-T3 M-2 collapse — one parser, two views).
     """
     path = Path(project_dir) / TREND_REL
     if not path.exists():
         return []
-    return [(ch, overall, ov) for ch, overall, ov in _scored_rows_full(path) if overall is not None]
+    return [(ch, overall, ov) for ch, overall, ov in trend_rows_full(path) if overall is not None]
 
 
 def resonance_policy_of(config: PipelineConfig) -> dict[str, Any]:
@@ -233,7 +233,7 @@ def check_trend_completeness(project_dir: Path | str) -> dict[str, Any]:
     path = Path(project_dir) / TREND_REL
     if not path.exists():
         return {"pending": [], "missing": [], "max_chapter": 0}
-    rows = _scored_rows_full(path)
+    rows = trend_rows_full(path)
     pending = [ch for ch, overall, _ov in rows if overall is None]
     present = {ch for ch, _overall, _ov in rows}
     max_ch = max(present) if present else 0
@@ -241,7 +241,7 @@ def check_trend_completeness(project_dir: Path | str) -> dict[str, Any]:
     return {"pending": pending, "missing": missing, "max_chapter": max_ch}
 
 
-def _scored_rows_full(path: Path) -> list[tuple[int, float | None, bool]]:
+def trend_rows_full(path: Path) -> list[tuple[int, float | None, bool]]:
     """All trend data rows: (chapter, overall_or_None, overridden) — pending
     rows retained with None (completeness needs them; the floor does not).
     """

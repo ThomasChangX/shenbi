@@ -147,6 +147,10 @@ volume-budget *args:
 release-split *args:
     uv run python tools/release_split.py "$@"
 
+# Resonance backfill: re-dispatch review-resonance for pending trend rows (spec #106 T3, 维护命令)
+resonance-backfill *args:
+    uv run python -m shenbi.pipeline.resonance_backfill "$@"
+
 # Regen substrate (spec #79): quarantine old chapters + reset chapter-scoped state.
 # One-shot per tag (existing tag fails closed); --dry-run prints the plan only.
 regen-reset *args:
