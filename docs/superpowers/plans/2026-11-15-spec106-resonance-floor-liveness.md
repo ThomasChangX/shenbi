@@ -483,7 +483,8 @@ def test_role_gate_blocked_shadow_records_event_only(tmp_path, monkeypatch):
     _route_revision_after_resonance(state, tmp_path, 14)
     cs = state.chapter_loop.chapter_states["14"]
     assert cs.audit_results["revision_route"] == RevisionMode.NO_REVISION.value
-    assert cs.audit_results["resonance_would_route"]["reason"] == "role_gate"
+    event = cs.audit_results["resonance_would_route"]
+    assert event["reason"] == "role_gate"
 
 
 def test_role_gate_blocked_armed_routes(tmp_path, monkeypatch):
@@ -504,7 +505,8 @@ def test_negated_block_not_routed(tmp_path, monkeypatch):
     _no_issues(monkeypatch)
     _route_revision_after_resonance(state, tmp_path, 14)
     cs = state.chapter_loop.chapter_states["14"]
-    assert cs.audit_results["resonance_would_route"]["would_route"] is False
+    event = cs.audit_results["resonance_would_route"]
+    assert event["would_route"] is False
 
 
 def test_cap_confirm_pass_restores_no_revision(tmp_path, monkeypatch):
@@ -1193,7 +1195,8 @@ def test_replay_ignites_ch14_ch16_and_respects_cold_start(tmp_path):
     assert ignited == [14, 16]
     assert all(not r["would_route"] for r in rows if r["chapter"] <= 11)  # 冷启动边界
     by_ch = {r["chapter"]: r for r in rows}
-    assert by_ch[14]["floor"] == 78.0 and by_ch[16]["floor"] == 77.75
+    assert by_ch[14]["floor"] == 78.0
+    assert by_ch[16]["floor"] == 77.75
     assert (
         by_ch[17]["floor"] == 77.0 and by_ch[17]["would_route"] is False
     )  # 众数 79 章不命中（AC3c）
