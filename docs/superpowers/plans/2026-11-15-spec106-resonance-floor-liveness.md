@@ -859,7 +859,7 @@ def test_summary_never_touches_route(tmp_path):
 
 - [ ] **Step 3: 实现**
 
-`check_trend_completeness`：姊妹解析——保留 pending 行章号集与已出现章号集，`missing = 1..max(已出现章号) 中未出现者`；`write_volume_resonance_summary(project_dir, state, chapter)`：扫 `state.chapter_loop.chapter_states` 中带 `resonance_would_route` 键者，计数 `would_route=True`/总数；经 `write_truth_file(project_dir, "resonance_shadow.md", content, mode="replace")` 写 markdown：frontmatter（`type: truth / category: state / status: active / produced_at: <ISO>` 对齐 resonance_trend 头形态）+ would-route 汇总表 + completeness 聚合行 + 束 follower 语境注记行（「偶数章 pending 多为 #72 双章束 follower 形态——#109 机制件未落地前的制度性状态」）。chapter_loop 挂点（`_check_world_file_freshness` 旁新增）：
+`check_trend_completeness`：姊妹解析——保留 pending 行章号集与已出现章号集，`missing = 1..max(已出现章号) 中未出现者`；`write_volume_resonance_summary(project_dir, state, chapter)`：扫 `state.chapter_loop.chapter_states` 中带 `resonance_would_route` 键者，计数 `would_route=True`/总数；经 `write_truth_file(project_dir, "resonance_shadow.md", content, mode="replace")` 写 markdown：frontmatter（`type: truth / category: state / status: active`——**不带 produced_at**：current-state 快照逐写刷新，带逐次时间戳会破坏同卷幂等的字节比较——轮 3 复审 N5 残留修复）+ would-route 汇总表 + completeness 聚合行 + 束 follower 语境注记行（「偶数章 pending 多为 #72 双章束 follower 形态——#109 机制件未落地前的制度性状态」）。chapter_loop 挂点（`_check_world_file_freshness` 旁新增）：
 
 ```python
 def _write_resonance_shadow_summary(state: PipelineState, project_dir: Path, chapter: int) -> None:
