@@ -642,9 +642,16 @@ class TestRevisionRoutingIntegration:
                 if hasattr(p, "stop"):  # dict sidecar (started mocks) has none
                     p.stop()
 
-    @patch("shenbi.pipeline.chapter_loop.check_resonance", return_value=True)
-    def test_check_resonance_wired_after_review(self, mock_cr, tmp_path):
-        """check_resonance is called during revision routing."""
+    @patch(
+        "shenbi.pipeline.revision_router.decide_revision",
+        return_value=__import__(
+            "shenbi.pipeline.revision_router", fromlist=["RevisionDecision"]
+        ).RevisionDecision.PASS,
+    )
+    def test_check_resonance_wired_after_review(self, mock_dd, tmp_path):
+        """Spec #106: decide_revision is wired into revision routing with the
+        effective floor (was: check_resonance vs static config floor).
+        """
         mocks = self._setup_parallel_audit_mocks(tmp_path)
         try:
             state = PipelineState.default(str(tmp_path))
@@ -652,9 +659,10 @@ class TestRevisionRoutingIntegration:
             state.chapter_loop.step_index = _FIRST_AUDIT_IDX
 
             run_chapter_step(state, tmp_path)
-            mock_cr.assert_called_once()
-            args = mock_cr.call_args[0]
-            assert args[1] == state.config.resonance_global_floor
+            mock_dd.assert_called_once()
+            kwargs = mock_dd.call_args.kwargs
+            # no trend rows -> cold start -> floor falls back to the config value
+            assert kwargs["resonance_floor"] == float(state.config.resonance_global_floor)
         finally:
             for p in mocks.values():
                 if hasattr(p, "stop"):  # dict sidecar (started mocks) has none

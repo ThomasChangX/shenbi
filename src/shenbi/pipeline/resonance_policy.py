@@ -215,3 +215,39 @@ def emit_resonance_would_route_trace(
         )
     except Exception:  # noqa: BLE001 -- observability must not break the loop
         trace_log.warning("resonance_trace_emit_failed", chapter=chapter)
+
+
+def resonance_cap_confirm_escalate(
+    project_dir: Path | str, chapter: int, floor: float
+) -> bool | None:
+    """Armed cap 护栏(spec #106 T1). 重派前先把首份 below 报告复制为
+    ``audits/chapter-N-resonance-first.md``(重派会覆写原报告——升级审阅须见双报告), 再重派 review-resonance 解析新分. True=两次均 below(升级); False=复评 >=floor(pass); None=派发失败(保守升级——噪声成本 < 漏放行).
+    真实派发为付费调用——仅 armed 生产路径触达; 测试 monkeypatch
+    ``shenbi.pipeline.dispatch_helper.dispatch_skill``(本函数函数级局部 import).
+    """
+    from shenbi.safe_write import safe_write
+
+    # 函数级局部 import（F947：monkeypatch 源模块属性即生效）
+    from shenbi.pipeline.chapter_loop import parse_resonance_score
+    from shenbi.pipeline.dispatch_helper import dispatch_skill
+
+    project_dir = Path(project_dir)
+    report = project_dir / "audits" / f"chapter-{chapter}-resonance.md"
+    if report.exists():
+        # evidence copy routed through safe_write (atomic), mirroring the
+        # _create_pre_revision_backup precedent — purity lint forbids raw copy2.
+        safe_write(
+            project_dir / "audits" / f"chapter-{chapter}-resonance-first.md",
+            report.read_bytes(),
+        )
+    result = dispatch_skill(
+        "shenbi-review-resonance",
+        project_dir,
+        f"Re-evaluate chapter {chapter} resonance (cap guard).",
+    )
+    if not result.success:
+        return None
+    fresh = parse_resonance_score(report)
+    if fresh is None:
+        return None
+    return fresh < floor

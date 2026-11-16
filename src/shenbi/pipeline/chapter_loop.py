@@ -70,7 +70,6 @@ from shenbi.pipeline.machine import save_state, set_checkpoint
 from shenbi.contracts.severity import NEGATION_PAYLOAD_TAIL
 from shenbi.pipeline.revision_router import (
     RevisionRoute,
-    check_resonance,
     collect_audit_issues,
     dispatch_escalation,
     route_chapter_revision,
@@ -3018,6 +3017,7 @@ def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
 #: non-blocking-but-unresolved outcome. A pending verdict means the hard gate
 #: could NOT evaluate (e.g. its inputs were absent) — never a pass.
 _RESONANCE_PENDING_RE = re.compile(r"resonance_pending|待人机复核")
+_RESONANCE_BLOCKED_RE = re.compile(r"(?<!无)阻断")
 
 
 def _resonance_report_pending(report_path: Path) -> bool:
@@ -3031,6 +3031,22 @@ def _resonance_report_pending(report_path: Path) -> bool:
 
     fence = extract_fence(text)
     return bool(_RESONANCE_PENDING_RE.search(fence if fence is not None else text))
+
+
+def _resonance_report_blocked(report_path: Path) -> bool:
+    """Verdict-scoped role-gate blocked detection (spec #106 T1): the skill's
+    校准门 emits 阻断 when overall or a sub-floor is unmet. Fence-scoped like
+    pending; prose 阻断 and the negated form 无阻断 never route.
+    """
+    if not report_path.exists():
+        return False
+    from shenbi.gates.g4.verdict_fence import extract_fence
+
+    text = report_path.read_text(encoding="utf-8")
+    fence = extract_fence(text)
+    if fence is None:
+        return False
+    return bool(_RESONANCE_BLOCKED_RE.search(fence)) and not _RESONANCE_PENDING_RE.search(fence)
 
 
 def _wave_audit_entry(
@@ -3137,6 +3153,44 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
     issues, blocking = collect_audit_issues(project_dir, chapter)
     route = route_chapter_revision(issues, blocking)
     cs = _get_chapter_state(state, chapter)
+
+    # spec #106: dynamic floor + decide_revision production wiring (was a
+    # unit-test-only island). Shadow (default) records a durable would-route
+    # event and never touches routing; armed lets it route.
+    from shenbi.contracts.enums import ResonancePolicyMode
+    from shenbi.pipeline.resonance_policy import (
+        effective_resonance_floor,
+        emit_resonance_would_route_trace,
+        resonance_policy_of,
+    )
+    from shenbi.pipeline.revision_router import RevisionDecision, decide_revision
+
+    pol = resonance_policy_of(state.config)
+    fc = effective_resonance_floor(project_dir, chapter, state.config)
+    report_path = project_dir / resolve_chapter_path("audits/chapter-N-resonance.md", chapter)
+    role_blocked = _resonance_report_blocked(report_path)
+    decision = decide_revision(issues, blocking, cs.resonance_score, resonance_floor=fc.floor)
+    would_resonance = route == RevisionRoute.NO_REVISION and decision == RevisionDecision.REVISION
+    would_role_gate = route == RevisionRoute.NO_REVISION and role_blocked
+    would_route = would_resonance or would_role_gate
+    reason = "role_gate" if would_role_gate else ("resonance" if would_resonance else None)
+    event = {
+        "floor": fc.floor,
+        "score": cs.resonance_score,
+        "reason": reason,
+        "would_route": would_route,
+        "source": fc.source,
+        "window_rows": fc.window_rows,
+    }
+    cs.audit_results["resonance_would_route"] = event
+    if would_route:
+        log.info("resonance_would_route", chapter=chapter, **event)
+        emit_resonance_would_route_trace(project_dir, chapter, event)
+    if would_route and pol["mode"] == ResonancePolicyMode.ARMED:
+        route = RevisionRoute.SPOT_FIX
+        cs.audit_results["resonance_route_reason"] = reason
+        log.info("resonance_route_armed", chapter=chapter, reason=reason, floor=fc.floor)
+
     cs.audit_results[_REVISION_ROUTE_KEY] = route.value
 
     # Wire revision_count (spec §3.2): increment only on an actual revision
@@ -3161,25 +3215,42 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
                 chapter=chapter,
                 revision_count=cs.revision_count,
             )
-            if not cs.audit_results.get(_CAP_ESCALATED_KEY):
+            escalate_now = True
+            if cs.audit_results.get(
+                "resonance_route_reason"
+            ) == "resonance" and not cs.audit_results.get("resonance_cap_confirmed"):
+                from shenbi.pipeline.resonance_policy import resonance_cap_confirm_escalate
+
+                confirmed = resonance_cap_confirm_escalate(project_dir, chapter, fc.floor)
+                cs.audit_results["resonance_cap_confirmed"] = True  # 一次性采样守卫（防重复付费）
+                if confirmed is False:
+                    # 复评 ≥floor：首次 below 判为噪声——pass（不修订不升级）。
+                    # 回退本次 armed 改写（route/计数），绝不写 _CAP_ESCALATED_KEY
+                    # （一次性噪声 pass 不得永久压制该章后续真升级）。
+                    escalate_now = False
+                    cs.revision_count -= 1
+                    route = RevisionRoute.NO_REVISION
+                    cs.audit_results[_REVISION_ROUTE_KEY] = route.value
+                    log.info("resonance_cap_confirm_passed", chapter=chapter)
+            if escalate_now and not cs.audit_results.get(_CAP_ESCALATED_KEY):
                 dispatch_escalation(
                     project_dir,
                     chapter,
-                    context=f"revision cap exceeded for chapter {chapter}",
+                    context=(
+                        f"revision cap exceeded for chapter {chapter} "
+                        f"(resonance double-below confirmed; reports: "
+                        f"chapter-{chapter}-resonance-first.md + chapter-{chapter}-resonance.md)"
+                        if cs.audit_results.get("resonance_route_reason") == "resonance"
+                        else f"revision cap exceeded for chapter {chapter}"
+                    ),
                 )
                 cs.audit_results[_CAP_ESCALATED_KEY] = True
 
-    # Resonance floor check (spec §6.3). Full borderline/escalation handling
-    # is deferred pending chapter_role calibration (Wave 4+); for now a
-    # below-floor score with no audit issues is logged so it is visible.
-    resonance_ok = check_resonance(cs.resonance_score, state.config.resonance_global_floor)
-    if not resonance_ok and not issues:
-        log.warning(
-            "resonance_below_floor",
-            chapter=chapter,
-            score=cs.resonance_score,
-            floor=state.config.resonance_global_floor,
-        )
+    # spec #106: the old static floor segment (check_resonance vs
+    # config.resonance_global_floor + resonance_below_floor WARN) was replaced
+    # by the dynamic-floor wiring above — below-floor disclosure now rides the
+    # resonance_would_route event; the None fail-open disclosure stays inside
+    # decide_revision's check_resonance call (revision_router.py).
 
     log.info(
         "revision_routed",
