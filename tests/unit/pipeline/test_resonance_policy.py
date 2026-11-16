@@ -110,3 +110,31 @@ def test_policy_defaults_shadow_and_override():
     # 非法 mode 值降级 shadow（fail-safe：绝不 armed by accident）
     pol3 = resonance_policy_of(_config(resonance_policy={"mode": "yolo"}))
     assert pol3["mode"] is ResonancePolicyMode.SHADOW
+
+
+def test_percentile_knob_consumed(tmp_path):
+    # audit-T1 I-2: percentile is not a dead knob — P10 gives a lower floor
+    # than P25 on the same window (both linear interpolation).
+    rows = [
+        _row(ch, s) for ch, s in zip([1, 2, 3, 4, 5, 7, 9, 11, 12, 13], VOL1_FIRST13, strict=True)
+    ]
+    _trend(tmp_path, rows)
+    p25 = effective_resonance_floor(tmp_path, 14, _config()).floor
+    p10 = effective_resonance_floor(
+        tmp_path, 14, _config(resonance_policy={"mode": "shadow", "percentile": 10})
+    ).floor
+    assert p10 < p25 == 78.0
+
+
+def test_override_headers_sync_with_compute_drift():
+    # audit-T1 M3: the exclusion vocab must not fork from compute_drift.
+    from shenbi.pipeline import resonance_policy as rp
+    from shenbi.skill_utils.drift_detection import compute_drift
+
+    assert set(rp._OVERRIDE_HEADERS) == set(compute_drift._OVERRIDE_HEADERS)
+
+
+def test_non_dict_policy_degrades_to_shadow():
+    # audit-T1 I-1 (policy side): non-dict config value never crashes routing.
+    pol = resonance_policy_of(_config(resonance_policy="armed"))  # type: ignore[arg-type]
+    assert pol["mode"] is ResonancePolicyMode.SHADOW

@@ -118,7 +118,14 @@ def resonance_policy_of(config: PipelineConfig) -> dict[str, Any]:
     An absent, partial, or invalid-value dict yields the safe defaults; an
     invalid ``mode`` degrades to SHADOW with a WARN (never armed by accident).
     """
-    raw = dict(config.resonance_policy or {})
+    # Any at the guard seam: runtime JSON round-trips can violate the
+    # dataclass annotation (hand-edited state.json) — never crash routing.
+    raw: Any = config.resonance_policy
+    if raw is None:
+        raw = {}
+    if not isinstance(raw, dict):
+        log.warning("resonance_policy_invalid_type", value=repr(raw), fallback="defaults")
+        raw = {}
     mode: ResonancePolicyMode
     raw_mode = raw.get("mode", ResonancePolicyMode.SHADOW.value)
     try:
@@ -126,9 +133,13 @@ def resonance_policy_of(config: PipelineConfig) -> dict[str, Any]:
     except ValueError:
         log.warning("resonance_policy_mode_invalid", value=repr(raw_mode), fallback="shadow")
         mode = ResonancePolicyMode.SHADOW
+    percentile = raw.get("percentile", DEFAULT_THRESHOLDS.resonance_floor_percentile)
+    if isinstance(percentile, bool) or not isinstance(percentile, int) or not 1 <= percentile <= 99:
+        log.warning("resonance_policy_percentile_invalid", value=repr(percentile), fallback=25)
+        percentile = DEFAULT_THRESHOLDS.resonance_floor_percentile
     return {
         "mode": mode,
-        "percentile": raw.get("percentile", DEFAULT_THRESHOLDS.resonance_floor_percentile),
+        "percentile": percentile,
         "window": raw.get("window", DEFAULT_THRESHOLDS.resonance_floor_window),
         "cap": raw.get("cap", DEFAULT_THRESHOLDS.resonance_floor_cap),
     }
@@ -149,8 +160,11 @@ def effective_resonance_floor(
     policy = resonance_policy_of(config)
     window_size = int(policy["window"])
     cap = float(policy["cap"])
+    percentile = int(policy["percentile"])
     prior = [(ch, s, ov) for ch, s, ov in scored_trend_rows(project_dir) if ch < chapter]
-    eligible = [(ch, s) for ch, s, ov in prior if not ov]
+    # chapter-ordered by sort, not by file order (backfill can insert rows
+    # out of sequence) — audit-T1 M4.
+    eligible = sorted(((ch, s) for ch, s, ov in prior if not ov))
     overridden_in_window = sum(1 for _, _, ov in prior[-window_size:] if ov)
     fallback = float(config.resonance_global_floor)
     if len(eligible) < DEFAULT_THRESHOLDS.resonance_floor_cold_start_min:
@@ -164,8 +178,10 @@ def effective_resonance_floor(
             return FloorComputation(fallback, "window_starved", len(eligible), overridden_in_window)
         return FloorComputation(fallback, "config_fallback", len(eligible), overridden_in_window)
     window_vals = [s for _, s in eligible[-window_size:]]
-    p25 = quantiles(window_vals, n=4, method="inclusive")[0]
-    floor = min(cap, max(_FLOOR_CLAMP_MIN, p25))
+    # percentile consumed (audit-T1 I-2): quantiles(n=100, inclusive)[p-1] is
+    # the same linear-interpolation math as the pinned n=4 P25 at p=25.
+    p = quantiles(window_vals, n=100, method="inclusive")[percentile - 1]
+    floor = min(cap, max(_FLOOR_CLAMP_MIN, p))
     return FloorComputation(float(floor), "p25", len(window_vals), overridden_in_window)
 
 

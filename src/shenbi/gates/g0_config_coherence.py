@@ -69,6 +69,18 @@ def check_config_coherence(
 
     # --- Check 2b: resonance_policy shape (spec #106). Only when supplied. ---
     if resonance_policy is not None:
+        # Any at the guard seam: the value is hand-editable JSON (the armed
+        # switch is a state.json key) — runtime can violate the annotation.
+        policy_raw: Any = resonance_policy
+        if not isinstance(policy_raw, dict):
+            # Symmetric with floor_invalid_type (never crash, F606 read side):
+            # a bare string there must FAIL loudly, not AttributeError the gate.
+            issues.append(
+                f"G0.cc.resonance_policy_invalid_type:{policy_raw!r} "
+                f"({type(policy_raw).__name__}) — expected an object "
+                f"{{mode, percentile, window, cap}}"
+            )
+            resonance_policy = {}
         from shenbi.contracts.enums import ResonancePolicyMode
 
         mode = resonance_policy.get("mode")
