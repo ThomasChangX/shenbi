@@ -246,3 +246,77 @@ class TestGovernanceReadSide:
         (tmp_path / "genre-config.json").write_text("[1, 2]", encoding="utf-8")
         issues = check_config_coherence(tmp_path)
         assert any("malformed_audit_dimensions" in i for i in issues)
+
+
+class TestResonancePolicyCoherence:
+    """spec #106 T1: G0.cc validation of the resonance_policy config key."""
+
+    def test_mode_literal_validated(self, tmp_path):
+        issues = check_config_coherence(
+            tmp_path,
+            resonance_policy={"mode": "static", "percentile": 25, "window": 20, "cap": 80},
+        )
+        assert any("G0.cc.resonance_policy_mode" in i for i in issues)  # static 已砍——非法字面量
+
+    def test_numeric_ranges(self, tmp_path):
+        issues = check_config_coherence(
+            tmp_path,
+            resonance_policy={"mode": "armed", "percentile": 0, "window": 0, "cap": 40},
+        )
+        assert any("G0.cc.resonance_policy_percentile" in i for i in issues)
+        assert any("G0.cc.resonance_policy_window" in i for i in issues)
+        assert any("G0.cc.resonance_policy_cap" in i for i in issues)
+
+    def test_valid_policy_passes(self, tmp_path):
+        issues = check_config_coherence(
+            tmp_path,
+            resonance_policy={"mode": "shadow", "percentile": 25, "window": 20, "cap": 80},
+        )
+        assert not any("resonance_policy" in i for i in issues)
+
+    def test_none_skips(self, tmp_path):
+        assert check_config_coherence(tmp_path, resonance_policy=None) == check_config_coherence(
+            tmp_path
+        )
+
+    def test_non_dict_policy_flagged_not_crash(self, tmp_path):
+        # audit-T1 I-1: hand-edited bare string must FAIL loudly, not crash.
+        issues = check_config_coherence(tmp_path, resonance_policy="armed")  # type: ignore[arg-type]
+        assert any("G0.cc.resonance_policy_invalid_type" in i for i in issues)
+
+    def test_gate_g0_reads_policy_from_state(self, tmp_path, monkeypatch):
+        """audit-T1 M5: state.json resonance_policy -> check_config_coherence
+        pipeline (gate side), following the existing gate_G0 skeleton pattern.
+        """
+        import hashlib
+
+        project_dir = tmp_path / "novel-output" / "xinghuo"
+        project_dir.mkdir(parents=True)
+        (project_dir / "genre-config.json").write_text(
+            json.dumps({"version": "1.0", "auditDimensions": {}}), encoding="utf-8"
+        )
+        (project_dir / "pipeline-state.json").write_text(
+            json.dumps({"config": {"resonance_policy": {"mode": "static"}}}), encoding="utf-8"
+        )
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+        tests_dir = tmp_path / "tests"
+        tests_dir.mkdir()
+        (tests_dir / "fixtures").mkdir()
+        (tests_dir / "tiers").mkdir()
+        deps = {"_calibration_hashes": {"combined": hashlib.sha256(b"").hexdigest()}}
+        (tests_dir / "tiers" / "deps.json").write_text(json.dumps(deps), encoding="utf-8")
+
+        from shenbi.gates import g0 as g0mod
+
+        monkeypatch.setattr(g0mod, "PROJECT", tmp_path)
+        monkeypatch.setattr(g0mod, "SKILLS", skills_dir)
+        monkeypatch.setattr(g0mod, "TESTS", tests_dir)
+        monkeypatch.setattr(g0mod, "FIXTURES", tests_dir / "fixtures")
+        monkeypatch.setattr(g0mod, "all_skills", list)
+        monkeypatch.setattr(g0mod, "G4_CHECKER_SKILLS", set())
+
+        seed = tmp_path / "seed.md"
+        seed.write_text("目标字数：300000\n", encoding="utf-8")
+        result = g0mod.gate_G0(seed_file=str(seed))
+        assert "G0.cc.resonance_policy_mode" in result

@@ -37,6 +37,7 @@ def test_all_enums_complete() -> None:
         "NovelStatus",
         "WriteMode",
         "FailureClass",  # C33 (spec #47 R1): dispatch 失败分类域
+        "ResonancePolicyMode",  # spec #106 T1: resonance floor lifecycle modes
     }
 
 

@@ -105,12 +105,17 @@ def _run_wave(tmp_path: Path, monkeypatch, report_text: str | None) -> PipelineS
 
 class TestParallelWaveResonance:
     def test_low_score_parsed_and_disclosed(self, tmp_path: Path, monkeypatch, capsys) -> None:
-        """Below-floor score: parsed into cs.resonance_score + below-floor warning."""
+        """Below-floor score: parsed into cs.resonance_score + would-route event
+        (spec #106: the old resonance_below_floor WARN was superseded by the
+        durable resonance_would_route event — 低分必披露 semantics continue).
+        """
         configure_logging()
         state = _run_wave(tmp_path, monkeypatch, _REPORT_LOW)
         cs = state.chapter_loop.chapter_states["1"]
         assert cs.resonance_score == 42
-        assert "resonance_below_floor" in capsys.readouterr().err
+        event = cs.audit_results["resonance_would_route"]
+        assert event["would_route"] is True and event["reason"] == "resonance"
+        assert "resonance_would_route" in capsys.readouterr().err
 
     def test_high_score_parsed_no_warning(self, tmp_path: Path, monkeypatch, capsys) -> None:
         configure_logging()

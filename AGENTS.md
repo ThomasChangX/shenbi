@@ -38,6 +38,7 @@ Use entry points (not `python3 tests/X.py`):
 - `just pool-lint <dir>` — Pool + thread two-table reconciliation: pending_hooks overview rows vs detail sections, thread_map 线索总览表 vs 线索详情 (`--repair` re-derives stale rows)
 - `just pool-archive <dir> --resolved-through <ch>` — Pool evidence rolling archival: RESOLVED sections past the window move to `truth/pending_hooks_archive.md`
 - `just ledger-archive <dir> --resolved-through <ch>` — Both evidence ledgers (pool + thread_map) rolling archival in one command (B 批)
+- `just resonance-backfill <dir> [--chapters a-b|c,d]` — Re-dispatch review-resonance for pending trend rows (spec #106 T3, 维护命令)
 - `just volume-budget <dir> [--apply]` — Volume budget guardrails: re-budget pending / per-volume ±3 drift / 保量 floor; `--apply` performs deterministic total_chapters + skeleton writeback (C 批)
 - `just release-split <dir> [--platform fanqie|qidian]` — 发布切分层：已收束章节 → 平台档位发布更（`publish/<platform>/`，spec #70）
 - `just outline-drift <dir> [--volume N]` — 卷纲↔truth canon drift 对账：物象清单/来历短语/承诺件/欠账四面对账，finding 交人工裁定（只报不写，spec #83 T3）
@@ -47,6 +48,7 @@ Use entry points (not `python3 tests/X.py`):
 - `shenbi-score <rubric> <scores.json> --test-type generative` — Score output
 - `shenbi-phase start <phase> --round-dir <dir>` — Phase state machine
 - `shenbi-dispatch <skill> <test_type> <round_dir> <prompt>` — Sub-agent dispatch
+- `pipeline override-resonance <dir> <chapter> --overall N [--dims 情感落地=a,…] [--note …]` — Mark a resonance trend row human_overridden (spec #106 T3)
 
 Or via `just`:
 - `just gate G0 outline-example.md`

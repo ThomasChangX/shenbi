@@ -43,6 +43,7 @@ concepts:
   - {name: truth/volume_summaries.md, kind: truth}
   - {name: truth/parent_canon.md, kind: truth}
   - {name: truth/resonance_trend.md, kind: truth}
+  - {name: truth/resonance_shadow.md, kind: truth, producer: pipeline}  # spec #106 T3a shadow sink
   - {name: truth/arc_payoff_trend.md, kind: truth}
   - {name: truth/volume_score_trend.md, kind: truth}  # Wave 3: score-volume trend
   - {name: truth/book_spine.md, kind: truth}           # L5 book spine (book-spine-init)

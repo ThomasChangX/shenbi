@@ -55,7 +55,7 @@ def test_review_resonance_substring_negative(tmp_path, monkeypatch) -> None:
         ),
         patch.object(
             cl,
-            "_route_revision_after_resonance",
+            "route_revision_after_resonance",
             side_effect=lambda *a, **kw: tail_calls.append("route"),
         ),
     ):

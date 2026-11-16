@@ -90,7 +90,7 @@ def test_audit_wave_regime(tmp_path: Path) -> None:
             side_effect=lambda tasks, pd, state=None: _results_for(tasks),
         ),
         patch.object(cl, "_parse_and_persist_resonance"),
-        patch.object(cl, "_route_revision_after_resonance"),
+        patch.object(cl, "route_revision_after_resonance"),
         patch.object(cl, "write_audit_aggregate"),
         patch("shenbi.pipeline.revision_router.dispatch_escalation", lambda *a, **kw: None),
     ):
@@ -253,7 +253,7 @@ def test_serial_resonance_tail(tmp_path: Path) -> None:
         ),
         patch.object(
             cl,
-            "_route_revision_after_resonance",
+            "route_revision_after_resonance",
             side_effect=lambda *a, **kw: tail_calls.append("route"),
         ),
     ):

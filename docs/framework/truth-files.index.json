@@ -781,6 +781,13 @@
       "shenbi-review-resonance"
     ]
   },
+  "truth/resonance_shadow.md": {
+    "reads": [
+      "shenbi-drift-guidance"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "truth/volume_score_trend.md": {
     "reads": [
       "shenbi-drift-guidance",

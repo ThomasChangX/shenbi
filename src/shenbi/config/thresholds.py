@@ -31,6 +31,12 @@ class QualityThresholds:
     resonance_global_floor: int = 65
     # Below this → force revision even if the floor is otherwise met.
     resonance_revision_trigger: int = 60
+    # Dynamic resonance floor (spec #106): trailing-window P25 percentile floor.
+    resonance_floor_percentile: int = 25
+    resonance_floor_window: int = 20
+    resonance_floor_cap: int = 80
+    #: Prior scored rows below this → cold start, fall back to the static config floor.
+    resonance_floor_cold_start_min: int = 8
     # Minimum CJK characters per chapter (matches G4 chapter-word checks).
     word_count_floor: int = 3000
     # Minimum protagonist name mentions per chapter.

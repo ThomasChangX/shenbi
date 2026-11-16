@@ -4,12 +4,14 @@ Spec §6.3. Wraps ``shenbi.skill_utils.revision_routing.route.route_revision``
 and adds specialist skill delegation, a resonance threshold check, the full
 §6.3 decision tree, escalation dispatch, and audit issue collection.
 
-Decision tree (spec §6.3)::
+Decision tree (spec §6.3, spec #106 r3 wiring)::
 
     audit complete
       +-- no BLOCKING + resonance >= floor  -> pass
-      +-- no BLOCKING + resonance borderline -> escalation checkpoint
-      +-- no BLOCKING + resonance < floor    -> revision_routing
+      +-- no BLOCKING + resonance < floor   -> revision_routing (armed; shadow 记
+                                               resonance_would_route 事件不路由, spec #106)
+      +-- no BLOCKING + resonance borderline -> 不路由(见 resonance_would_route 事件;
+                                               spec #106 r3——drift 信号面不新建)
       +-- BLOCKING -> revision -> re-audit (max 3) -> 3 failures -> escalation
 """
 
@@ -163,7 +165,7 @@ def route_chapter_revision(issues: list[dict[str, Any]], blocking: bool) -> Revi
     return RevisionRoute.NO_REVISION
 
 
-def check_resonance(resonance_score: int | None, floor: int = DEFAULT_RESONANCE_FLOOR) -> bool:
+def check_resonance(resonance_score: int | None, floor: float = DEFAULT_RESONANCE_FLOOR) -> bool:
     """True if *resonance_score* meets or exceeds the global *floor*.
 
     A ``None`` score (not yet evaluated) is treated as passing so that the
@@ -181,7 +183,7 @@ def decide_revision(
     issues: list[dict[str, Any]],
     blocking: bool,
     resonance_score: int | None,
-    resonance_floor: int = DEFAULT_RESONANCE_FLOOR,
+    resonance_floor: float = DEFAULT_RESONANCE_FLOOR,
 ) -> RevisionDecision:
     """Apply the full spec §6.3 decision tree.
 
@@ -193,6 +195,10 @@ def decide_revision(
     2. **No BLOCKING** + resonance >= floor -> :attr:`RevisionDecision.PASS`
     3. **No BLOCKING** + resonance < floor -> :attr:`RevisionDecision.REVISION`
        (route via :func:`route_chapter_revision`).
+
+    spec #106: *floor* is the effective (dynamic) floor supplied by the
+    caller; in shadow mode the caller only RECORDS the below-floor outcome as
+    a ``resonance_would_route`` event — routing happens in armed mode only.
     """
     if blocking:
         return RevisionDecision.REVISION
