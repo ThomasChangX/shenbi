@@ -52,3 +52,11 @@ def test_override_row_visible_to_compute_drift_exclusion(tmp_path):
 
     pairs = parse_trend(tmp_path / "truth" / "resonance_trend.md", ["overall"])
     assert (76.0, True) in pairs["overall"]
+
+
+def test_override_idempotent_second_call(tmp_path):
+    _seed(tmp_path, ["| 3 | 推进 | 21 | 19 | 20 | 16 | 76 | high |  |"])
+    apply_resonance_override(tmp_path, 3, 76)
+    first = (tmp_path / "truth" / "resonance_trend.md").read_text(encoding="utf-8")
+    apply_resonance_override(tmp_path, 3, 76)  # 二次 override 幂等
+    assert (tmp_path / "truth" / "resonance_trend.md").read_text(encoding="utf-8") == first

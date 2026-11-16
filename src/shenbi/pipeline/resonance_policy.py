@@ -383,6 +383,7 @@ def apply_resonance_override(
     trend_path = project_dir / TREND_REL
     rows = trend_rows_full(trend_path) if trend_path.exists() else []
     current = {ch: (o, ov) for ch, o, ov in rows}
+    log.info("resonance_override_applied", chapter=chapter, overall=overall, note=note)
     row_overall = current.get(chapter, (None, False))[0]
     if row_overall is not None:
         existing = int(row_overall)
@@ -422,7 +423,6 @@ def _patch_override_cell(trend_path: Path, chapter: int) -> str | None:
     absent — the caller then writes a full row).
     """
     lines = trend_path.read_text(encoding="utf-8").splitlines()
-    out: list[str] = []
     patched: str | None = None
     for line in lines:
         if patched is None and "|" in line:
@@ -431,9 +431,6 @@ def _patch_override_cell(trend_path: Path, chapter: int) -> str | None:
             if ch == chapter and len(cells) >= 9:
                 cells[8] = "true"
                 patched = "|" + "|".join(f" {c.strip()} " for c in cells) + "|"
-                out.append(patched)
-                continue
-        out.append(line)
     if patched is None:
         return None
     from shenbi.pipeline.truth_io import write_truth_file
