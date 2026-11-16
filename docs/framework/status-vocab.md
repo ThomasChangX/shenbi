@@ -33,6 +33,7 @@
 | DecisionsTrim | shenbi.contracts.schemas.decisions.Trim | none\|oldest_first\|lowest_relevance\|manual | 技能 decisions.json | G2/G4 validator |
 | RevisionSeverity | shenbi.contracts.enums.RevisionSeverity | low\|medium\|high | chapter-revision 技能 revision-decisions | G4 值域校验；容错映射读旧值 blocking/critical/critical_per_audit→high、warning→medium、minor/info/none/observation→low（T903） |
 | RevisionMode | shenbi.contracts.enums.RevisionMode | spot-fix\|regenerate\|constrained-regenerate\|reconstruction\|no-revision | revision 路由/技能 | G4 值域校验；读旧值 no_op→no-revision（T910，route.py/revision_router.py 双域合一） |
+| ResonancePolicyMode | shenbi.contracts.enums.ResonancePolicyMode | shadow\|armed | pipeline/state.py config（resonance_policy.mode） | chapter_loop 路由面、g0_config_coherence（spec #106） |
 | RevisionStatus | shenbi.contracts.enums.RevisionStatus | preserved\|skipped\|delegated\|reconstructed_from_cross_source_evidence | chapter-revision 技能 revision-decisions | G4（T9 行 38/39 同键合一） |
 | ApprovalDecision | shenbi.contracts.enums.ApprovalDecision | approved\|rejected | genre-config novel.json | contracts/skills/genre_config.py validator（T909：与 ReviewDecision 命令域互斥分立） |
 | NovelStatus | shenbi.contracts.enums.NovelStatus | worldbuilding\|worldbuilding_complete | worldbuilding 技能 novel.json | -（T911：有生产值立域） |

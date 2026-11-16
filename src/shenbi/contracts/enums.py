@@ -31,6 +31,17 @@ class RevisionMode(StrEnum):
     NO_REVISION = "no-revision"
 
 
+class ResonancePolicyMode(StrEnum):
+    """spec #106: dynamic resonance floor lifecycle modes. SHADOW computes and
+    records would-route events without touching routing (default); ARMED lets
+    the floor route (spot-fix). No static mode — shadow is the compatibility
+    default and the strict-superset signal (r3 design ruling).
+    """
+
+    SHADOW = "shadow"
+    ARMED = "armed"
+
+
 # Legacy production value aliases (read-side normalization only, see registry)
 REVISION_MODE_ALIASES: dict[str, str] = {"no_op": "no-revision"}
 # spec #34 T9 行38/39 同键合一: revision-decisions 顶层 status
@@ -88,6 +99,7 @@ ALL_ENUMS: dict[str, Any] = {
     "ResonanceVerdict": ResonanceVerdict,
     "RevisionSeverity": RevisionSeverity,
     "RevisionMode": RevisionMode,
+    "ResonancePolicyMode": ResonancePolicyMode,
     "RevisionStatus": RevisionStatus,
     "ApprovalDecision": ApprovalDecision,
     "NovelStatus": NovelStatus,

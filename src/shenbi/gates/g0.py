@@ -879,6 +879,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             # Read the in-effect floor from pipeline-state.json when present
             # (was dead-wired: floor checks never ran from gate_G0 — spec 13 R1).
             floor: int | float | None = None
+            policy: dict[str, Any] | None = None
             state_path = project_dir / "pipeline-state.json"
             if state_path.exists():
                 try:
@@ -888,9 +889,14 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                         # Pass raw through: the checker flags non-numeric values
                         # loudly (floor_invalid_type) instead of silent skip.
                         floor = raw_floor  # pyright: ignore[reportAssignmentType]
+                    policy = state_data.get("config", {}).get("resonance_policy")
                 except (OSError, json.JSONDecodeError):
                     log.warning("g0_state_read_failed_for_floor", path=str(state_path))
-            cc_issues = check_config_coherence(project_dir, resonance_global_floor=floor)
+            cc_issues = check_config_coherence(
+                project_dir,
+                resonance_global_floor=floor,
+                resonance_policy=policy,
+            )
             for idx, issue in enumerate(cc_issues):
                 check_id = f"G0.cc.{idx + 1}"
                 checks.append({"id": check_id, "s": GateStatus.FAIL, "r": issue})

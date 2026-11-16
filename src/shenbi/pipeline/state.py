@@ -73,6 +73,10 @@ class PipelineConfig:
     #: OFF — the AGENTS.md independence minimum (dispatcher never scores) is
     #: already met by the subagent route; dual scoring doubles paid dispatches.
     dual_scorer: bool = False
+    #: spec #106: dynamic resonance floor policy. ``None`` = defaults
+    #: (mode=shadow + QualityThresholds values) — routing behavior identical
+    #: to pre-#106 for existing projects (contract-upgrade via explicit key).
+    resonance_policy: dict[str, Any] | None = None
 
 
 @dataclass
@@ -422,6 +426,7 @@ class PipelineState:
                 "genre_config_update_on_drift": self.config.genre_config_update_on_drift,
                 "resonance_global_floor": self.config.resonance_global_floor,
                 "dual_scorer": self.config.dual_scorer,
+                "resonance_policy": self.config.resonance_policy,
             },
         }
 

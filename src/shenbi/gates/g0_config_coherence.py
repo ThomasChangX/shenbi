@@ -48,6 +48,7 @@ def check_config_coherence(
     project_dir: Path,
     *,
     resonance_global_floor: int | float | None = None,
+    resonance_policy: dict[str, Any] | None = None,
 ) -> list[str]:
     """Validate genre-config + state-config coherence.
 
@@ -58,11 +59,31 @@ def check_config_coherence(
             threshold-mismatch / floor-reasonableness checks (e.g. when G0
             runs before any state exists). Non-numeric values are flagged
             as ``floor_invalid_type`` (never crash, F606 read side).
+        resonance_policy: The in-effect ``resonance_policy`` config dict
+            (spec #106). ``None`` skips its checks (key absent = defaults).
 
     Returns:
         List of ``G0.cc.*`` issue strings; empty means coherent.
     """
     issues: list[str] = []
+
+    # --- Check 2b: resonance_policy shape (spec #106). Only when supplied. ---
+    if resonance_policy is not None:
+        from shenbi.contracts.enums import ResonancePolicyMode
+
+        mode = resonance_policy.get("mode")
+        valid_modes = {m.value for m in ResonancePolicyMode}
+        if mode not in valid_modes:
+            issues.append(
+                f"G0.cc.resonance_policy_mode:{mode!r} — expected one of "
+                f"{sorted(valid_modes)} (spec #106: static 已砍，shadow 是兼容缺省)"
+            )
+        for key, lo, hi in (("percentile", 1, 99), ("window", 1, 10_000), ("cap", 50, 100)):
+            val = resonance_policy.get(key)
+            if isinstance(val, bool) or not isinstance(val, int) or not lo <= val <= hi:
+                issues.append(
+                    f"G0.cc.resonance_policy_{key}:{val!r} — expected int in [{lo}, {hi}]"
+                )
 
     # --- Check 1 & 2: floor coherence (only when a floor was supplied). ---
     if resonance_global_floor is not None:
@@ -79,12 +100,17 @@ def check_config_coherence(
             )
         else:
             if resonance_global_floor != DEFAULT_THRESHOLDS.resonance_global_floor:
-                lo, hi = sorted((resonance_global_floor, DEFAULT_THRESHOLDS.resonance_global_floor))
+                lo_f: float = min(
+                    float(resonance_global_floor), float(DEFAULT_THRESHOLDS.resonance_global_floor)
+                )
+                hi_f: float = max(
+                    float(resonance_global_floor), float(DEFAULT_THRESHOLDS.resonance_global_floor)
+                )
                 issues.append(
                     f"G0.cc.threshold_mismatch:resonance_floor "
                     f"state={resonance_global_floor} vs "
                     f"default={DEFAULT_THRESHOLDS.resonance_global_floor} — chapters "
-                    f"scoring {lo}-{hi - 1} will pass one gate but fail the other "
+                    f"scoring {lo_f:g}-{hi_f - 1:g} will pass one gate but fail the other "
                     f"silently"
                 )
             if resonance_global_floor < _FLOOR_TOO_LOW:

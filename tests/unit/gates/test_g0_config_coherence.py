@@ -246,3 +246,35 @@ class TestGovernanceReadSide:
         (tmp_path / "genre-config.json").write_text("[1, 2]", encoding="utf-8")
         issues = check_config_coherence(tmp_path)
         assert any("malformed_audit_dimensions" in i for i in issues)
+
+
+class TestResonancePolicyCoherence:
+    """spec #106 T1: G0.cc validation of the resonance_policy config key."""
+
+    def test_mode_literal_validated(self, tmp_path):
+        issues = check_config_coherence(
+            tmp_path,
+            resonance_policy={"mode": "static", "percentile": 25, "window": 20, "cap": 80},
+        )
+        assert any("G0.cc.resonance_policy_mode" in i for i in issues)  # static 已砍——非法字面量
+
+    def test_numeric_ranges(self, tmp_path):
+        issues = check_config_coherence(
+            tmp_path,
+            resonance_policy={"mode": "armed", "percentile": 0, "window": 0, "cap": 40},
+        )
+        assert any("G0.cc.resonance_policy_percentile" in i for i in issues)
+        assert any("G0.cc.resonance_policy_window" in i for i in issues)
+        assert any("G0.cc.resonance_policy_cap" in i for i in issues)
+
+    def test_valid_policy_passes(self, tmp_path):
+        issues = check_config_coherence(
+            tmp_path,
+            resonance_policy={"mode": "shadow", "percentile": 25, "window": 20, "cap": 80},
+        )
+        assert not any("resonance_policy" in i for i in issues)
+
+    def test_none_skips(self, tmp_path):
+        assert check_config_coherence(tmp_path, resonance_policy=None) == check_config_coherence(
+            tmp_path
+        )
