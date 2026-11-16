@@ -10,6 +10,7 @@ contract:
   - audits/chapter-N-*.md
   - truth/audit_drift_archive.md
   - truth/resonance_trend.md
+  - truth/resonance_shadow.md  # spec #106 T3a 卷界 would-route 汇总（框架单写者）
   - truth/volume_score_trend.md
   - truth/arc_payoff_trend.md
   - truth/audit_drift.md
@@ -32,7 +33,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, truth/audit_drift_archive.md, truth/resonance_trend.md, truth/volume_score_trend.md, truth/arc_payoff_trend.md, truth/audit_drift.md
+- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, truth/audit_drift_archive.md, truth/resonance_trend.md, truth/resonance_shadow.md, truth/volume_score_trend.md, truth/arc_payoff_trend.md, truth/audit_drift.md
 - **Writes:** truth/drift_guidance.md, truth/audit_drift_archive.md
 - **Updates:** truth/audit_drift.md
 

@@ -251,3 +251,135 @@ def resonance_cap_confirm_escalate(
     if fresh is None:
         return None
     return fresh < floor
+
+
+def check_trend_completeness(project_dir: Path | str) -> dict[str, Any]:
+    """Trend data completeness (spec #106 T3): pending rows and missing chapters.
+
+    Read-only computation — the aggregate lands in the volume-boundary sink
+    (write_volume_resonance_summary), never a per-chapter WARN (bundle-follower
+    pending rows are institutional state until #109 lands; 逐章 WARN = 告警疲劳).
+    """
+    path = Path(project_dir) / TREND_REL
+    if not path.exists():
+        return {"pending": [], "missing": [], "max_chapter": 0}
+    rows = _scored_rows_full(path)
+    pending = [ch for ch, overall, _ov in rows if overall is None]
+    present = {ch for ch, _overall, _ov in rows}
+    max_ch = max(present) if present else 0
+    missing = [ch for ch in range(1, max_ch + 1) if ch not in present]
+    return {"pending": pending, "missing": missing, "max_chapter": max_ch}
+
+
+def _scored_rows_full(path: Path) -> list[tuple[int, float | None, bool]]:
+    """All trend data rows: (chapter, overall_or_None, overridden) — pending
+    rows retained with None (completeness needs them; the floor does not).
+    """
+    lines = path.read_text(encoding="utf-8").splitlines()
+    header_idx, header_cells = -1, []
+    for idx, line in enumerate(lines):
+        if "|" not in line:
+            continue
+        cells = _split_row(line)
+        if "chapter" in cells and "overall" in cells:
+            header_idx, header_cells = idx, cells
+            break
+    if header_idx < 0:
+        return []
+    col = {name: i for i, name in enumerate(header_cells)}
+    overall_col = col["overall"]
+    override_col = next((col[h] for h in _OVERRIDE_HEADERS if h in col), None)
+    rows: list[tuple[int, float | None, bool]] = []
+    for line in lines[header_idx + 1 :]:
+        if "|" not in line:
+            continue
+        cells = _split_row(line)
+        if not cells or all(c.replace("-", "").replace(":", "").strip() == "" for c in cells):
+            continue
+        ch = _try_int(cells[0]) if cells else None
+        if ch is None or overall_col >= len(cells):
+            continue
+        overall = _try_float(cells[overall_col])
+        overridden = False
+        if override_col is not None and override_col < len(cells):
+            overridden = cells[override_col].strip().lower() == "true"
+        rows.append((ch, overall, overridden))
+    return rows
+
+
+def _current_volume_chapter_range(project_dir: Path | str, chapter: int) -> tuple[int, int] | None:
+    """Resolve the current volume's chapter span from the same source
+    is_volume_boundary uses (the volume structure file); None = unresolved
+    (callers degrade to all-event-chapters with a disclosure note).
+    """
+    from shenbi.pipeline._shared import read_volume_boundaries
+
+    try:
+        bounds = sorted(read_volume_boundaries(project_dir))
+    except Exception:  # noqa: BLE001 -- hygiene sink must not break the loop
+        return None
+    if not bounds:
+        return None
+    prev = 0
+    for b in bounds:
+        if chapter <= b:
+            return (prev + 1, b)
+        prev = b
+    return (prev + 1, chapter)  # beyond the last boundary — open-ended volume
+
+
+def write_volume_resonance_summary(project_dir: Path | str, state: Any, chapter: int) -> None:
+    """Volume-boundary shadow sink (spec #106 T3a): would-route counts +
+    trend completeness aggregate row -> truth/resonance_shadow.md.
+
+    Framework single-writer, mode="replace" = current-state snapshot (each
+    volume boundary rewrites the whole file; multi-volume history lives in
+    the trace event stream). Idempotent for identical state: the frontmatter
+    carries no per-write timestamp (a timestamp would break byte-identical
+    rewrites).
+    """
+    project_dir = Path(project_dir)
+    vol = _current_volume_chapter_range(project_dir, chapter)
+    events = []
+    for ch_str, cs in state.chapter_loop.chapter_states.items():
+        event = cs.audit_results.get("resonance_would_route")
+        if event is None:
+            continue
+        try:
+            ch_int = int(ch_str)
+        except (TypeError, ValueError):
+            continue
+        if vol is not None and not (vol[0] <= ch_int <= vol[1]):
+            continue
+        events.append((ch_int, event))
+    events.sort()
+    would_count = sum(1 for _ch, e in events if e.get("would_route"))
+    completeness = check_trend_completeness(project_dir)
+    lines = [
+        "---",
+        "type: truth",
+        "category: state",
+        "status: active",
+        "---",
+        "",
+        "# 共鸣影子台账（would-route 卷界汇总）",
+        "",
+        "> spec #106 T3a：shadow 期 would_route 事件卷界聚合——毕业判据的可回放数据面",
+        "> （audit_results 持久键 + trace 事件为逐章原始面，本文件为卷界快照）。",
+        "",
+        "| 卷章区间 | would_route 计数 | 观测章数 |",
+        "|-----------|------------------|----------|",
+        f"| {vol[0] if vol else '-'}-{vol[1] if vol else '-'} | {would_count}/{len(events)} | {len(events)} |",
+        "",
+        "## trend 完整性聚合",
+        "",
+        f"- pending 章：{completeness['pending'] or '无'}",
+        f"- missing 缺行章：{completeness['missing'] or '无'}（1..{completeness['max_chapter']} 内）",
+        "- 语境注记：偶数章 pending 多为 #72 双章束 follower 形态——#109 机制件未落地前的制度性状态",
+    ]
+    if vol is None:
+        lines.append("- 降级注记：卷结构不可解析，本快照聚合全部带事件章")
+    content = "\n".join(lines) + "\n"
+    from shenbi.pipeline.truth_io import write_truth_file
+
+    write_truth_file(project_dir, "resonance_shadow.md", content, mode="replace")

@@ -2240,6 +2240,22 @@ def _check_word_count_bounds(chapter_text: str, project_dir: Path | None = None)
 # ---------------------------------------------------------------------------
 
 
+def _write_resonance_shadow_summary(state: PipelineState, project_dir: Path, chapter: int) -> None:
+    """Spec #106 T3a: volume-boundary resonance shadow sink (would-route
+    summary + trend completeness aggregate row). Fire-and-forget.
+    """
+    from shenbi.pipeline.triggers import is_volume_boundary
+
+    if not is_volume_boundary(chapter, project_dir):
+        return
+    from shenbi.pipeline.resonance_policy import write_volume_resonance_summary
+
+    try:
+        write_volume_resonance_summary(project_dir, state, chapter)
+    except OSError:
+        log.warning("resonance_shadow_summary_failed", chapter=chapter)
+
+
 def _check_world_file_freshness(project_dir: Path, chapter: int) -> None:
     """Check if locations.md needs updating at volume boundaries."""
     from shenbi.pipeline.triggers import is_volume_boundary
@@ -2454,6 +2470,10 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
 
     # 10e: Check world file freshness at volume boundaries
     _check_world_file_freshness(project_dir, chapter)
+
+    # spec #106 T3a: volume-boundary resonance shadow sink (would-route
+    # summary + trend completeness aggregate -> truth/resonance_shadow.md).
+    _write_resonance_shadow_summary(state, project_dir, chapter)
 
     # 11a: Print per-step timing summary at chapter completion
     _print_timing_summary(state)
