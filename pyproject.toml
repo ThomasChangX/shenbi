@@ -15,14 +15,14 @@ dependencies = [
     # 注：去除 click>=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）
     # 注：sentence-transformers 与 numpy 移至 [project.optional-dependencies].embeddings
     #     避免 core install 拉入 torch/CUDA 等大型 ML 依赖
-    "openai>=3.1.0",
+    "openai>=3.45.0",
     "tenacity>=8.0.0",
 ]
 [project.optional-dependencies]
 # numpy 封顶 <2.5：2.5.0 面向 python>=3.12 且其 stubs 用 PEP 695 语法，
 # 在 F0-06 统一的 mypy 3.11 检查基准下不可解析（CI 3.12 leg 实炸）；
 # 3.11 下限项目消费 2.5+ 也与 requires-python 语义相悖。
-embeddings = ["sentence-transformers>=5.7.0", "numpy>=1.26.0,<2.5"]
+embeddings = ["sentence-transformers>=6.3.0", "numpy>=1.26.0,<2.5"]
 
 [dependency-groups]
 dev = [
@@ -30,7 +30,7 @@ dev = [
     "pytest-cov>=4.1.0",
     "pytest-xdist>=3.5.0",
     "pytest-timeout>=2.2.0",
-    "pytest-benchmark>=4.0.0",
+    "pytest-benchmark>=5.3.1",
     "pytest-randomly>=3.15.0",
     "hypothesis>=6.168.0",
     "mypy>=1.8.0",
@@ -41,16 +41,16 @@ dev = [
     "cyclonedx-bom>=7.3.1",
     "coverage>=7.16.1",
     "yamllint>=1.33.0",
-    "git-cliff>=2.4.0",
+    "git-cliff>=2.14.2",
     "types-PyYAML>=6.0.12",
-    "sentence-transformers>=5.7.0",
+    "sentence-transformers>=6.3.0",
     "shellcheck-py>=0.11.0.1",
 ]
 docs = [
     "mkdocs>=1.5.3",
     "mkdocs-material[imaging]>=9.5.4",
     "mkdocstrings[python]>=1.0.8",
-    "pymdown-extensions>=11.0.1",
+    "pymdown-extensions>=12.3",
 ]
 
 [project.scripts]
