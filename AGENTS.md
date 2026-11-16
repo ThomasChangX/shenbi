@@ -47,12 +47,14 @@ Use entry points (not `python3 tests/X.py`):
 - `shenbi-score <rubric> <scores.json> --test-type generative` — Score output
 - `shenbi-phase start <phase> --round-dir <dir>` — Phase state machine
 - `shenbi-dispatch <skill> <test_type> <round_dir> <prompt>` — Sub-agent dispatch
+- `pipeline override-resonance <dir> <chapter> --overall N [--dims 情感落地=a,…] [--note …]` — Mark a resonance trend row human_overridden (spec #106 T3)
 
 Or via `just`:
 - `just gate G0 outline-example.md`
 - `just dispatch shenbi-worldbuilding generative /tmp/round "prompt"`
 - `just pipeline-init <seed>` — Initialize novel pipeline from seed
 - `just pipeline-status <dir>` — Check pipeline status
+- `just resonance-backfill <dir> [--chapters a-b|c,d]` — Re-dispatch review-resonance for pending trend rows (spec #106 T3, 维护命令)
 - `just pipeline-review <dir> <decision>` — Submit checkpoint review
 - `just pipeline-resume <dir>` — Resume pipeline execution
 
