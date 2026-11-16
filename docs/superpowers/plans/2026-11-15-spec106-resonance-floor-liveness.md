@@ -670,17 +670,14 @@ if revision_cap_exceeded(cs.revision_count):
             cs.audit_results.pop("resonance_route_reason", None)  # M2：回退清键
             log.info("resonance_cap_confirm_passed", chapter=chapter)
     if escalate_now and not cs.audit_results.get(_CAP_ESCALATED_KEY):
-        dispatch_escalation(
-            project_dir,
-            chapter,
-            context=(
-                f"revision cap exceeded for chapter {chapter} "
-                f"(resonance double-below confirmed; reports: "
-                f"chapter-{chapter}-resonance-first.md + chapter-{chapter}-resonance.md)"
-                if cs.audit_results.get("resonance_route_reason") == "resonance"
-                else f"revision cap exceeded for chapter {chapter}"
-            ),
+        resonance_context = (
+            f"revision cap exceeded for chapter {chapter} "
+            f"(resonance double-below confirmed; reports: "
+            f"chapter-{chapter}-resonance-first.md + chapter-{chapter}-resonance.md)"
+            if reason == "resonance" and confirmed is True
+            else f"revision cap exceeded for chapter {chapter}"
         )
+        dispatch_escalation(project_dir, chapter, context=resonance_context)
         cs.audit_results[_CAP_ESCALATED_KEY] = True
 ```
 

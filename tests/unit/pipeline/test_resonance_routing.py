@@ -214,9 +214,9 @@ def test_stale_reason_does_not_trigger_paid_resampling(tmp_path, monkeypatch):
     escalated = []
     monkeypatch.setattr(
         "shenbi.pipeline.chapter_loop.dispatch_escalation",
-        lambda *a, **k: escalated.append(a) or True,
+        lambda *a, **k: escalated.append((a, k)) or True,
     )
     _route_revision_after_resonance(state, tmp_path, 14)
     assert not confirm_calls, "陈旧 reason 不得触发付费二次采样"
     assert escalated  # BLOCKING cap 耗尽照常升级
-    assert "double-below" not in str(escalated[0])  # context 不误标
+    assert "double-below" not in escalated[0][1]["context"]  # context 不误标
