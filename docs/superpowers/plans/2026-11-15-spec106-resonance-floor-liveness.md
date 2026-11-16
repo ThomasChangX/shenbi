@@ -651,8 +651,10 @@ cap 分支改造（:3152-3165 现块整体替换——**pass 路径禁写 `_CAP_
 ```python
 if revision_cap_exceeded(cs.revision_count):
     escalate_now = True
-    if cs.audit_results.get("resonance_route_reason") == "resonance" and not cs.audit_results.get(
-        "resonance_cap_confirmed"
+    confirmed: bool | None = None
+    if (
+        reason == "resonance"  # 本次 invocation 的 reason，禁读陈旧持久键（audit-T2 I-2）
+        and not cs.audit_results.get("resonance_cap_confirmed")
     ):
         from shenbi.pipeline.resonance_policy import resonance_cap_confirm_escalate
 
@@ -665,6 +667,7 @@ if revision_cap_exceeded(cs.revision_count):
             cs.revision_count -= 1
             route = RevisionRoute.NO_REVISION
             cs.audit_results[_REVISION_ROUTE_KEY] = route.value
+            cs.audit_results.pop("resonance_route_reason", None)  # M2：回退清键
             log.info("resonance_cap_confirm_passed", chapter=chapter)
     if escalate_now and not cs.audit_results.get(_CAP_ESCALATED_KEY):
         dispatch_escalation(
