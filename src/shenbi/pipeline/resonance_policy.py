@@ -383,7 +383,7 @@ def apply_resonance_override(
     trend_path = project_dir / TREND_REL
     rows = trend_rows_full(trend_path) if trend_path.exists() else []
     current = {ch: (o, ov) for ch, o, ov in rows}
-    log.info("resonance_override_applied", chapter=chapter, overall=overall, note=note)
+    log.info("resonance_override_attempted", chapter=chapter, overall=overall, note=note)
     row_overall = current.get(chapter, (None, False))[0]
     if row_overall is not None:
         existing = int(row_overall)
