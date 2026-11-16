@@ -26,6 +26,7 @@ PIPELINE_PRODUCED = {
     "pipeline-state.json",
     "audits/chapter-N-review-summary.md",
     "truth/pending_hooks_archive.md",
+    "truth/resonance_shadow.md",  # spec #106 T3a: volume-boundary shadow sink
 }
 
 # spec #58: co-written by a skill AND the pipeline — producer must be shared.
@@ -131,6 +132,7 @@ def test_default_producer_is_skill_for_truth_concepts() -> None:
         "truth/chapter_patterns.md",
         "truth/resonance_anchors.md",
         "truth/pending_hooks_archive.md",
+        "truth/resonance_shadow.md",  # spec #106 T3a
         "truth/facts/props.json",
         "truth/facts/counters.json",
         "truth/facts/identity.json",

@@ -16,8 +16,8 @@ def test_registry_has_full_domain_count() -> None:
     # Exact count pins the registry against silent row loss.
     # C37: RecoveryStrategy row removed with dead recovery.py (44 -> 43).
     # spec #80 T9: facts 四域入册 (43 -> 47: PropOp/CounterOp/IdentityOp/FactsDim).
-    assert len(rows) == 49, (
-        f"registry row count changed: {len(rows)}"  # spec #105 T1: +RoutingTier/AggregateVocab 两行
+    assert len(rows) == 50, (
+        f"registry row count changed: {len(rows)}"  # spec #106 T1: +ResonancePolicyMode 一行
     )
 
 
