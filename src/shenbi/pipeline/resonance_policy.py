@@ -107,11 +107,19 @@ def resonance_policy_of(config: PipelineConfig) -> dict[str, Any]:
     if isinstance(percentile, bool) or not isinstance(percentile, int) or not 1 <= percentile <= 99:
         log.warning("resonance_policy_percentile_invalid", value=repr(percentile), fallback=25)
         percentile = DEFAULT_THRESHOLDS.resonance_floor_percentile
+    window = raw.get("window", DEFAULT_THRESHOLDS.resonance_floor_window)
+    if isinstance(window, bool) or not isinstance(window, int) or window < 1:
+        log.warning("resonance_policy_window_invalid", value=repr(window), fallback=20)
+        window = DEFAULT_THRESHOLDS.resonance_floor_window
+    cap = raw.get("cap", DEFAULT_THRESHOLDS.resonance_floor_cap)
+    if isinstance(cap, bool) or not isinstance(cap, (int, float)) or not 50 <= cap <= 100:
+        log.warning("resonance_policy_cap_invalid", value=repr(cap), fallback=80)
+        cap = DEFAULT_THRESHOLDS.resonance_floor_cap
     return {
         "mode": mode,
         "percentile": percentile,
-        "window": raw.get("window", DEFAULT_THRESHOLDS.resonance_floor_window),
-        "cap": raw.get("cap", DEFAULT_THRESHOLDS.resonance_floor_cap),
+        "window": window,
+        "cap": cap,
     }
 
 

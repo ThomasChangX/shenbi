@@ -138,3 +138,12 @@ def test_non_dict_policy_degrades_to_shadow():
     # audit-T1 I-1 (policy side): non-dict config value never crashes routing.
     pol = resonance_policy_of(_config(resonance_policy="armed"))  # type: ignore[arg-type]
     assert pol["mode"] is ResonancePolicyMode.SHADOW
+
+
+def test_policy_window_cap_invalid_degrade_not_crash():
+    # 终审 I-1: hand-edited state.json with bad window/cap values must
+    # degrade to thresholds (never crash routing), mirroring percentile.
+    pol = resonance_policy_of(_config(resonance_policy={"window": "twenty", "cap": "high"}))
+    assert pol["window"] == 20 and pol["cap"] == 80
+    pol2 = resonance_policy_of(_config(resonance_policy={"window": 0, "cap": 40}))
+    assert pol2["window"] == 20 and pol2["cap"] == 80
