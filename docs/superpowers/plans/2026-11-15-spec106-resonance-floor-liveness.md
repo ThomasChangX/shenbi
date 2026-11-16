@@ -422,12 +422,12 @@ def _make_state(policy: dict | None = None) -> PipelineState:
     return state
 
 
-def _seed_project(tmp_path: Path, *, report: str | None, trend_rows: list[str] | None = None) -> None:
+def _seed_project(tmp_path: Path, *, report: str | None, with_trend: bool = True) -> None:
     audits = tmp_path / "audits"
     audits.mkdir(parents=True, exist_ok=True)
     if report is not None:
         (audits / "chapter-14-resonance.md").write_text(report, encoding="utf-8")
-    if trend_rows is not None:
+    if with_trend:
         truth = tmp_path / "truth"
         truth.mkdir(parents=True, exist_ok=True)
         rows = [
@@ -449,7 +449,7 @@ def test_shadow_mode_leaves_route_untouched(tmp_path, monkeypatch, capsys):
     from shenbi.logging import configure_logging
 
     configure_logging()
-    _seed_project(tmp_path, report=None, trend_rows=[])  # score=42 < floor 78.0
+    _seed_project(tmp_path, report=None, with_trend=True)  # score=42 < floor 78.0
     state = _make_state(policy=None)  # 缺省 shadow
     _no_issues(monkeypatch)
     _route_revision_after_resonance(state, tmp_path, 14)
@@ -461,12 +461,12 @@ def test_shadow_mode_leaves_route_untouched(tmp_path, monkeypatch, capsys):
     assert "resonance_route_reason" not in cs.audit_results
     assert cs.revision_count == 0
     assert "resonance_would_route" in capsys.readouterr().err
-    trace = tmp_path / "observability" / "trace.jsonl"
+    trace = tmp_path / "trace.jsonl"  # TraceWriter 落项目根（trace/writer.py:23 _TRACE_NAME）
     assert trace.exists() and "resonance" in trace.read_text(encoding="utf-8")
 
 
 def test_armed_mode_routes_spot_fix_with_reason(tmp_path, monkeypatch):
-    _seed_project(tmp_path, report=None, trend_rows=[])
+    _seed_project(tmp_path, report=None, with_trend=True)
     state = _make_state(policy={"mode": "armed"})
     _no_issues(monkeypatch)
     _route_revision_after_resonance(state, tmp_path, 14)
@@ -477,7 +477,7 @@ def test_armed_mode_routes_spot_fix_with_reason(tmp_path, monkeypatch):
 
 
 def test_role_gate_blocked_shadow_records_event_only(tmp_path, monkeypatch):
-    _seed_project(tmp_path, report=BLOCKED_REPORT, trend_rows=[])
+    _seed_project(tmp_path, report=BLOCKED_REPORT, with_trend=True)
     state = _make_state(policy=None)  # shadow：score 88 过 floor，但 verdict 阻断
     _no_issues(monkeypatch)
     _route_revision_after_resonance(state, tmp_path, 14)
@@ -487,7 +487,7 @@ def test_role_gate_blocked_shadow_records_event_only(tmp_path, monkeypatch):
 
 
 def test_role_gate_blocked_armed_routes(tmp_path, monkeypatch):
-    _seed_project(tmp_path, report=BLOCKED_REPORT, trend_rows=[])
+    _seed_project(tmp_path, report=BLOCKED_REPORT, with_trend=True)
     state = _make_state(policy={"mode": "armed"})
     _no_issues(monkeypatch)
     _route_revision_after_resonance(state, tmp_path, 14)
@@ -498,7 +498,7 @@ def test_role_gate_blocked_armed_routes(tmp_path, monkeypatch):
 
 def test_negated_block_not_routed(tmp_path, monkeypatch):
     report = BLOCKED_REPORT.replace("判定: 阻断", "判定: 无阻断")
-    _seed_project(tmp_path, report=report, trend_rows=[])
+    _seed_project(tmp_path, report=report, with_trend=True)
     state = _make_state(policy={"mode": "armed"})
     state.chapter_loop.chapter_states["14"].resonance_score = 85  # 过 floor
     _no_issues(monkeypatch)
@@ -509,7 +509,7 @@ def test_negated_block_not_routed(tmp_path, monkeypatch):
 
 def test_cap_confirm_pass_restores_no_revision(tmp_path, monkeypatch):
     # armed + 已 2 次修订 + 第 3 次 resonance 路由 → cap 耗尽 → 二次采样复评 85 ≥ floor → pass
-    _seed_project(tmp_path, report=None, trend_rows=[])
+    _seed_project(tmp_path, report=None, with_trend=True)
     state = _make_state(policy={"mode": "armed"})
     cs = state.chapter_loop.chapter_states["14"]
     cs.revision_count = 2
@@ -527,7 +527,7 @@ def test_cap_confirm_pass_restores_no_revision(tmp_path, monkeypatch):
 
 
 def test_cap_confirm_both_below_escalates_with_double_report(tmp_path, monkeypatch):
-    _seed_project(tmp_path, report=None, trend_rows=[])
+    _seed_project(tmp_path, report=None, with_trend=True)
     state = _make_state(policy={"mode": "armed"})
     cs = state.chapter_loop.chapter_states["14"]
     cs.revision_count = 2
@@ -546,6 +546,25 @@ def test_cap_confirm_both_below_escalates_with_double_report(tmp_path, monkeypat
     _route_revision_after_resonance(state, tmp_path, 14)
     assert escalated, "两次均 below 必须升级"
     assert (tmp_path / "audits" / "chapter-14-resonance-first.md").exists()  # 双报告保全
+
+
+def test_cap_confirm_dispatch_failure_conservative_escalation(tmp_path, monkeypatch):
+    # confirmed is None（派发失败）→ 保守升级（噪声成本 < 漏放行）
+    _seed_project(tmp_path, report=None, with_trend=True)
+    state = _make_state(policy={"mode": "armed"})
+    state.chapter_loop.chapter_states["14"].revision_count = 2
+    _no_issues(monkeypatch)
+    monkeypatch.setattr(
+        "shenbi.pipeline.dispatch_helper.dispatch_skill",
+        lambda *a, **k: SimpleNamespace(success=False, returncode=1, stderr="boom", stdout=""),
+    )
+    escalated = []
+    monkeypatch.setattr(
+        "shenbi.pipeline.chapter_loop.dispatch_escalation",
+        lambda *a, **k: escalated.append(1) or True,
+    )
+    _route_revision_after_resonance(state, tmp_path, 14)
+    assert escalated  # None → 保守升级
 
 
 def test_docstring_matches_production():
@@ -740,7 +759,10 @@ git commit -m "feat: spec #106 T2 — decide_revision 孤岛接活+role-gate 路
       # {"pending": [ch...], "missing": [ch...], "max_chapter": int} — 只算不写不逐章 WARN
   def write_volume_resonance_summary(project_dir: Path | str, state: PipelineState, chapter: int) -> None
       # 卷界：汇总本卷 would_route 计数/分布 + completeness 聚合行 → truth/resonance_shadow.md
-      #（框架单写者，mode="replace"，幂等——同卷重写同节）
+      #（框架单写者，mode="replace"=current-state 快照——每卷界全文件重写为当前卷
+      #  状态，多卷不留史（历史查 trace.jsonl 事件流）；同卷重写=同输出幂等。
+      #  本卷范围=与 is_volume_boundary 同源的卷界结构解析的当前卷章区间，
+      #  chapter_states 按章过滤；解析失败降级「全部带事件章」+ 注记行）
   ```
 
 - [ ] **Step 1: 写红测**
@@ -771,7 +793,7 @@ SEP = (
 def _seed_trend(tmp_path: Path, rows: list[str]) -> None:
     truth = tmp_path / "truth"
     truth.mkdir(parents=True, exist_ok=True)
-    (truth / "truth" / "resonance_trend.md").write_text(
+    (truth / "resonance_trend.md").write_text(
         "\n".join([HEADER, SEP, *rows]) + "\n", encoding="utf-8"
     )
 
@@ -918,6 +940,16 @@ def _seed(tmp_path: Path, *, chapter_file: bool, report_text: str | None) -> Non
         ch_dir = tmp_path / "chapters"
         ch_dir.mkdir(exist_ok=True)
         (ch_dir / "chapter-26.md").write_text("# 第二十六章\n\n正文。", encoding="utf-8")
+        # 契约预检 seed（N3）：missing_audit_reads 按 review-resonance 契约 6 条
+        # reads 严格判（plans/style/anchors/audit_drift 不在 OPTIONAL_READS）
+        (tmp_path / "plans").mkdir(exist_ok=True)
+        (tmp_path / "plans" / "chapter-26-plan.md").write_text("## 1. 当前任务\n", encoding="utf-8")
+        (tmp_path / "style").mkdir(exist_ok=True)
+        (tmp_path / "style" / "style_profile.md").write_text(
+            "# style\n## 11. 综合画像\n## 6. 修辞模式\n", encoding="utf-8"
+        )
+        (tmp_path / "benchmarks" / "anchors").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "truth" / "audit_drift.md").write_text("# drift\n", encoding="utf-8")
     audits = tmp_path / "audits"
     audits.mkdir(exist_ok=True)
     if report_text is not None:
@@ -1162,6 +1194,9 @@ def test_replay_ignites_ch14_ch16_and_respects_cold_start(tmp_path):
     assert all(not r["would_route"] for r in rows if r["chapter"] <= 11)  # 冷启动边界
     by_ch = {r["chapter"]: r for r in rows}
     assert by_ch[14]["floor"] == 78.0 and by_ch[16]["floor"] == 77.75
+    assert (
+        by_ch[17]["floor"] == 77.0 and by_ch[17]["would_route"] is False
+    )  # 众数 79 章不命中（AC3c）
     assert by_ch[19]["would_route"] is False  # 高分带不命中
 ```
 
