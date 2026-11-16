@@ -86,6 +86,7 @@ def test_settle_dispatch_sites_all_guarded() -> None:
         ("pipeline/chapter_loop.py", "_run_audit_close_for_chapter"),
         ("pipeline/cli.py", "cmd_resume"),
         ("pipeline/resonance_policy.py", "resonance_cap_confirm_escalate"),  # spec #106 T2
+        ("pipeline/resonance_backfill.py", "backfill_resonance"),  # spec #106 T3b
     }
     call_points: list[tuple[str, str]] = []
     for py in sorted(src.rglob("*.py")):
@@ -105,7 +106,7 @@ def test_settle_dispatch_sites_all_guarded() -> None:
             f"settle-capable 站点 {path}:{fn} 未过 _pre_settle_guard"
         )
     # canary：调用点总数钉死（增减都红——新增派发面强制重新分类）
-    assert len(call_points) == 13, f"dispatch_skill 调用点数变动: {len(call_points)} → 重新分类"
+    assert len(call_points) == 14, f"dispatch_skill 调用点数变动: {len(call_points)} → 重新分类"
 
 
 def _enclosing(path: Path, line: int) -> str:

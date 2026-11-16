@@ -3039,7 +3039,7 @@ def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
 #: probe21 adjudication #009 附记: the review-resonance verdict vocabulary's
 #: non-blocking-but-unresolved outcome. A pending verdict means the hard gate
 #: could NOT evaluate (e.g. its inputs were absent) — never a pass.
-_RESONANCE_PENDING_RE = re.compile(r"resonance_pending|待人机复核")
+RESONANCE_PENDING_RE = re.compile(r"resonance_pending|待人机复核")
 _RESONANCE_BLOCKED_RE = re.compile(r"(?<!无)阻断")
 
 
@@ -3053,7 +3053,7 @@ def _resonance_report_pending(report_path: Path) -> bool:
     from shenbi.gates.g4.verdict_fence import extract_fence
 
     fence = extract_fence(text)
-    return bool(_RESONANCE_PENDING_RE.search(fence if fence is not None else text))
+    return bool(RESONANCE_PENDING_RE.search(fence if fence is not None else text))
 
 
 def _resonance_report_blocked(report_path: Path) -> bool:
@@ -3069,7 +3069,7 @@ def _resonance_report_blocked(report_path: Path) -> bool:
     fence = extract_fence(text)
     if fence is None:
         return False
-    return bool(_RESONANCE_BLOCKED_RE.search(fence)) and not _RESONANCE_PENDING_RE.search(fence)
+    return bool(_RESONANCE_BLOCKED_RE.search(fence)) and not RESONANCE_PENDING_RE.search(fence)
 
 
 def _wave_audit_entry(

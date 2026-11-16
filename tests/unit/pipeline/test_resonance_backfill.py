@@ -93,3 +93,22 @@ def test_backfill_default_targets_pending(tmp_path, monkeypatch):
     _ok_dispatch(monkeypatch)
     result = backfill_resonance(tmp_path, None)  # None → 自动取 pending 行章
     assert result["filled"] == [26]
+
+
+def test_backfill_never_clobbers_skill_rich_row(tmp_path, monkeypatch):
+    """audit-T4 I1: a skill-written rich row for the target chapter is left
+    untouched (SDD #21 R1) — the framework placeholder only fills pending/
+    missing rows.
+    """
+    _seed(
+        tmp_path,
+        chapter_file=True,
+        report_text="```verdict\n判定: 通过\n共振: 81/100\n```\n",
+    )
+    rich = "| 26 | 推进 | 21 | 20 | 21 | 15 | 81 | high |  |"
+    trend = tmp_path / "truth" / "resonance_trend.md"
+    trend.write_text("\n".join([HEADER, SEP, rich]) + "\n", encoding="utf-8")
+    _ok_dispatch(monkeypatch)
+    result = backfill_resonance(tmp_path, [26])
+    assert result["filled"] == [26]
+    assert rich in trend.read_text(encoding="utf-8")  # 富行原样未动

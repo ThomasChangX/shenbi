@@ -87,9 +87,11 @@ def backfill_resonance(project_dir: Path | str, chapters: list[int] | None) -> d
         score = match_score_scoped(text)
         fence = extract_fence(text)
         fence_text = fence if fence is not None else ""
+        from shenbi.pipeline.chapter_loop import RESONANCE_PENDING_RE
+
         if (
             score is None
-            or ("待" in fence_text and "人机复核" in fence_text)
+            or RESONANCE_PENDING_RE.search(fence_text)  # audit-T4 M2 单源
             or _STARVED_FORM_RE.search(fence_text or text)
         ):
             result["refused_bad_product"].append(ch)
