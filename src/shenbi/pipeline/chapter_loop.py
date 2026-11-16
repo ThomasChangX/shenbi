@@ -3164,7 +3164,7 @@ def _parse_and_persist_resonance(
         record_anchor_outcome_from_report(project_dir, chapter, report_path, high_anchors)
 
 
-def _route_revision_after_resonance(state: PipelineState, project_dir: Path, chapter: int) -> None:
+def route_revision_after_resonance(state: PipelineState, project_dir: Path, chapter: int) -> None:
     """Collect audit issues and determine the revision route (spec §6.3).
 
     Called after the review-resonance step succeeds. Stores the route in the
@@ -4311,14 +4311,14 @@ def _run_audit_wave_step(
     # F304: parse the resonance score from the serially-dispatched
     # review-resonance report (file exists at this point) and persist the
     # trend row — mirrors the serial step-loop path. Must run BEFORE
-    # _route_revision_after_resonance so the floor check sees a real
+    # route_revision_after_resonance so the floor check sees a real
     # score instead of fail-opening on None.
     _parse_and_persist_resonance(state, project_dir, chapter, source="parallel_wave")
 
     # Run revision routing after all reviews complete (spec §6.3).
     # In the serial path this is called after review-resonance; in the
     # parallel path we call it once after consolidation.
-    _route_revision_after_resonance(state, project_dir, chapter)
+    route_revision_after_resonance(state, project_dir, chapter)
 
     _reset_retries(state, step, chapter)
     return _advance(
@@ -4660,7 +4660,7 @@ def _on_resonance_success(
     if step.emits_resonance:
         _parse_and_persist_resonance(state, project_dir, chapter, source="serial_step")
 
-        _route_revision_after_resonance(state, project_dir, chapter)
+        route_revision_after_resonance(state, project_dir, chapter)
 
 
 def _on_revision_success(

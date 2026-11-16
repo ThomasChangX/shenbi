@@ -69,7 +69,7 @@ def test_resonance_pending_blocks_chapter_completion(tmp_path: Path):
     cl._parse_and_persist_resonance(state, tmp_path, 2, source="serial_step")
     assert state.pending_checkpoint.type == CheckpointType.NONE  # parsing alone does not block
 
-    cl._route_revision_after_resonance(state, tmp_path, 2)
+    cl.route_revision_after_resonance(state, tmp_path, 2)
     cp = state.pending_checkpoint
     assert cp is not None and cp.type == CheckpointType.ESCALATION, cp
     assert "resonance_pending" in (cp.context or "") or "待人机复核" in (cp.context or "")
@@ -94,7 +94,7 @@ def test_resonance_normal_verdict_still_completes(tmp_path: Path):
     assert cs.resonance_score == 82
     assert not cs.audit_results.get("resonance_pending")
 
-    cl._route_revision_after_resonance(state, tmp_path, 2)
+    cl.route_revision_after_resonance(state, tmp_path, 2)
     assert state.pending_checkpoint.type == CheckpointType.NONE
 
 

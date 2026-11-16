@@ -85,16 +85,16 @@ def main(argv: list[str] | None = None) -> int:
 
     # --diff-route: same-snapshot code-level differential (see module docstring
     # for why we never reconcile against historical state.json routes). The
-    # wired side runs the REAL _route_revision_after_resonance on a scratch
+    # wired side runs the REAL route_revision_after_resonance on a scratch
     # in-memory state with mode=shadow and reads the persisted route key —
     # not a re-derivation of the baseline expression.
     import shutil as _shutil  # noqa: PLC0415 -- lazy: keeps --replay import-light
     import tempfile as _tempfile  # noqa: PLC0415 -- lazy: keeps --replay import-light
 
     from shenbi.pipeline.chapter_loop import (  # noqa: PLC0415 -- lazy: keeps --replay import-light
-        _route_revision_after_resonance,
         collect_audit_issues,
         route_chapter_revision,
+        route_revision_after_resonance,
     )
     from shenbi.pipeline.state import (  # noqa: PLC0415 -- lazy: keeps --replay import-light
         ChapterState,
@@ -102,7 +102,7 @@ def main(argv: list[str] | None = None) -> int:
         PipelineState,
     )
 
-    # audit-T6 C1: the wired side runs the REAL _route_revision_after_resonance,
+    # audit-T6 C1: the wired side runs the REAL route_revision_after_resonance,
     # whose first act is _create_pre_revision_backup — a WRITE. Run it on a
     # throwaway copy so the project directory stays byte-identical (zero-write
     # is pinned by test_diff_route_writes_nothing).
@@ -124,7 +124,7 @@ def main(argv: list[str] | None = None) -> int:
             scratch.chapter_loop.chapter_states[str(ch)] = ChapterState(
                 resonance_score=int(r["score"])  # type: ignore[arg-type]
             )
-            _route_revision_after_resonance(scratch, sandbox, ch)
+            route_revision_after_resonance(scratch, sandbox, ch)
             wired = scratch.chapter_loop.chapter_states[str(ch)].audit_results["revision_route"]
             checked += 1
             if baseline != wired:

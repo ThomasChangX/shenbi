@@ -328,7 +328,7 @@ def test_two_chapter_bundle_loop_drive(tmp_path: Path) -> None:
             )(),
         )
         mp.setattr(cl, "_parse_and_persist_resonance", lambda *a, **kw: None)
-        mp.setattr(cl, "_route_revision_after_resonance", lambda *a, **kw: None)
+        mp.setattr(cl, "route_revision_after_resonance", lambda *a, **kw: None)
         mp.setattr(cl, "write_audit_aggregate", lambda *a, **kw: None)
         mp.setattr(
             "shenbi.pipeline.revision_router.dispatch_escalation",

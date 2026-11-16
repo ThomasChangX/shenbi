@@ -6,7 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from shenbi.contracts.enums import RevisionMode
-from shenbi.pipeline.chapter_loop import _route_revision_after_resonance
+from shenbi.pipeline.chapter_loop import route_revision_after_resonance
 from shenbi.pipeline.state import ChapterState, PipelineConfig, PipelineState
 
 TREND_HEADER = (
@@ -66,7 +66,7 @@ def test_shadow_mode_leaves_route_untouched(tmp_path, monkeypatch, capsys):
     _seed_project(tmp_path, report=None, with_trend=True)  # score=42 < floor 78.0
     state = _make_state(policy=None)  # 缺省 shadow
     _no_issues(monkeypatch)
-    _route_revision_after_resonance(state, tmp_path, 14)
+    route_revision_after_resonance(state, tmp_path, 14)
     cs = state.chapter_loop.chapter_states["14"]
     assert cs.audit_results["revision_route"] == RevisionMode.NO_REVISION.value
     event = cs.audit_results["resonance_would_route"]
@@ -83,7 +83,7 @@ def test_armed_mode_routes_spot_fix_with_reason(tmp_path, monkeypatch):
     _seed_project(tmp_path, report=None, with_trend=True)
     state = _make_state(policy={"mode": "armed"})
     _no_issues(monkeypatch)
-    _route_revision_after_resonance(state, tmp_path, 14)
+    route_revision_after_resonance(state, tmp_path, 14)
     cs = state.chapter_loop.chapter_states["14"]
     assert cs.audit_results["revision_route"] == "spot-fix"  # 枚举实值（连字符）
     assert cs.audit_results["resonance_route_reason"] == "resonance"
@@ -94,7 +94,7 @@ def test_role_gate_blocked_shadow_records_event_only(tmp_path, monkeypatch):
     _seed_project(tmp_path, report=BLOCKED_REPORT, with_trend=True)
     state = _make_state(policy=None)  # shadow：score 88 过 floor，但 verdict 阻断
     _no_issues(monkeypatch)
-    _route_revision_after_resonance(state, tmp_path, 14)
+    route_revision_after_resonance(state, tmp_path, 14)
     cs = state.chapter_loop.chapter_states["14"]
     assert cs.audit_results["revision_route"] == RevisionMode.NO_REVISION.value
     assert cs.audit_results["resonance_would_route"]["reason"] == "role_gate"
@@ -104,7 +104,7 @@ def test_role_gate_blocked_armed_routes(tmp_path, monkeypatch):
     _seed_project(tmp_path, report=BLOCKED_REPORT, with_trend=True)
     state = _make_state(policy={"mode": "armed"})
     _no_issues(monkeypatch)
-    _route_revision_after_resonance(state, tmp_path, 14)
+    route_revision_after_resonance(state, tmp_path, 14)
     cs = state.chapter_loop.chapter_states["14"]
     assert cs.audit_results["revision_route"] == "spot-fix"
     assert cs.audit_results["resonance_route_reason"] == "role_gate"
@@ -116,7 +116,7 @@ def test_negated_block_not_routed(tmp_path, monkeypatch):
     state = _make_state(policy={"mode": "armed"})
     state.chapter_loop.chapter_states["14"].resonance_score = 85  # 过 floor
     _no_issues(monkeypatch)
-    _route_revision_after_resonance(state, tmp_path, 14)
+    route_revision_after_resonance(state, tmp_path, 14)
     cs = state.chapter_loop.chapter_states["14"]
     assert cs.audit_results["resonance_would_route"]["would_route"] is False
 
@@ -135,7 +135,7 @@ def test_cap_confirm_pass_restores_no_revision(tmp_path, monkeypatch):
     (tmp_path / "audits" / "chapter-14-resonance.md").write_text(
         "```verdict\n判定: 通过\n共振: 85/100\n```\n", encoding="utf-8"
     )
-    _route_revision_after_resonance(state, tmp_path, 14)
+    route_revision_after_resonance(state, tmp_path, 14)
     assert cs.audit_results["revision_route"] == RevisionMode.NO_REVISION.value  # pass 回退
     assert cs.revision_count == 2  # 增量已回退
     assert cs.audit_results["resonance_cap_confirmed"] is True
@@ -159,7 +159,7 @@ def test_cap_confirm_both_below_escalates_with_double_report(tmp_path, monkeypat
         "shenbi.pipeline.chapter_loop.dispatch_escalation",
         lambda *a, **k: escalated.append(1) or True,
     )
-    _route_revision_after_resonance(state, tmp_path, 14)
+    route_revision_after_resonance(state, tmp_path, 14)
     assert escalated, "两次均 below 必须升级"
     assert (tmp_path / "audits" / "chapter-14-resonance-first.md").exists()  # 双报告保全
 
@@ -179,7 +179,7 @@ def test_cap_confirm_dispatch_failure_conservative_escalation(tmp_path, monkeypa
         "shenbi.pipeline.chapter_loop.dispatch_escalation",
         lambda *a, **k: escalated.append(1) or True,
     )
-    _route_revision_after_resonance(state, tmp_path, 14)
+    route_revision_after_resonance(state, tmp_path, 14)
     assert escalated  # None → 保守升级
 
 
@@ -216,7 +216,7 @@ def test_stale_reason_does_not_trigger_paid_resampling(tmp_path, monkeypatch):
         "shenbi.pipeline.chapter_loop.dispatch_escalation",
         lambda *a, **k: escalated.append((a, k)) or True,
     )
-    _route_revision_after_resonance(state, tmp_path, 14)
+    route_revision_after_resonance(state, tmp_path, 14)
     assert not confirm_calls, "陈旧 reason 不得触发付费二次采样"
     assert escalated  # BLOCKING cap 耗尽照常升级
     assert "double-below" not in escalated[0][1]["context"]  # context 不误标

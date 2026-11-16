@@ -368,7 +368,7 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
             side_effect=lambda tasks, pd, state=None: _results_for(tasks),
         ),
         patch.object(cl, "_parse_and_persist_resonance"),
-        patch.object(cl, "_route_revision_after_resonance"),
+        patch.object(cl, "route_revision_after_resonance"),
     ):
         cl.run_chapter_step(state, tmp_path)
 

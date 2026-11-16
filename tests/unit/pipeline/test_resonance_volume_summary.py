@@ -85,20 +85,20 @@ def test_summary_never_touches_route(tmp_path):
 
 def test_volume_range_derivation(tmp_path):
     """audit-T3 I-1: pin the 15-line range derivation (off-by-one guard)."""
-    from shenbi.pipeline.resonance_policy import _current_volume_chapter_range
+    from shenbi.pipeline.resonance_policy import current_volume_chapter_range
 
     outline = tmp_path / "outline"
     outline.mkdir(parents=True)
     (outline / "volume_map.md").write_text(
         "## 第一卷\nChapters 1-30\n## 第二卷\nChapters 31-60\n", encoding="utf-8"
     )
-    assert _current_volume_chapter_range(tmp_path, 25) == (1, 30)
-    assert _current_volume_chapter_range(tmp_path, 30) == (1, 30)  # 边界章自身含入
-    assert _current_volume_chapter_range(tmp_path, 31) == (31, 60)
-    assert _current_volume_chapter_range(tmp_path, 65) == (61, 65)  # 超尾界开区间
+    assert current_volume_chapter_range(tmp_path, 25) == (1, 30)
+    assert current_volume_chapter_range(tmp_path, 30) == (1, 30)  # 边界章自身含入
+    assert current_volume_chapter_range(tmp_path, 31) == (31, 60)
+    assert current_volume_chapter_range(tmp_path, 65) == (61, 65)  # 超尾界开区间
     empty = tmp_path / "empty-proj"
     empty.mkdir()
-    assert _current_volume_chapter_range(empty, 5) is None  # 无卷结构 → 降级
+    assert current_volume_chapter_range(empty, 5) is None  # 无卷结构 → 降级
 
 
 def test_resolved_volume_filters_cross_volume_chapters(tmp_path):

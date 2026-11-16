@@ -277,7 +277,7 @@ def trend_rows_full(path: Path) -> list[tuple[int, float | None, bool]]:
     return rows
 
 
-def _current_volume_chapter_range(project_dir: Path | str, chapter: int) -> tuple[int, int] | None:
+def current_volume_chapter_range(project_dir: Path | str, chapter: int) -> tuple[int, int] | None:
     """Resolve the current volume's chapter span from the same source
     is_volume_boundary uses (the volume structure file); None = unresolved
     (callers degrade to all-event-chapters with a disclosure note).
@@ -311,7 +311,7 @@ def write_volume_resonance_summary(
     rewrites).
     """
     project_dir = Path(project_dir)
-    vol = _current_volume_chapter_range(project_dir, chapter)
+    vol = current_volume_chapter_range(project_dir, chapter)
     events = []
     for ch_str, cs in state.chapter_loop.chapter_states.items():
         event = cs.audit_results.get("resonance_would_route")

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from shenbi.pipeline.chapter_loop import _route_revision_after_resonance
+from shenbi.pipeline.chapter_loop import route_revision_after_resonance
 from shenbi.pipeline.revision_router import RevisionRoute
 from shenbi.pipeline.state import PipelineState
 
@@ -21,7 +21,7 @@ def test_revision_count_increments_on_non_noop_route(tmp_path: Path, monkeypatch
         lambda pd, ch: (["some issue"], False),
     )
 
-    _route_revision_after_resonance(s, tmp_path, chapter=1)
+    route_revision_after_resonance(s, tmp_path, chapter=1)
 
     cs = s.chapter_loop.chapter_states["1"]
     assert cs.revision_count == 1, f"revision_count should be 1, got {cs.revision_count}"
@@ -38,7 +38,7 @@ def test_revision_count_unchanged_on_no_revision(tmp_path: Path, monkeypatch):
         lambda pd, ch: ([], False),
     )
 
-    _route_revision_after_resonance(s, tmp_path, chapter=1)
+    route_revision_after_resonance(s, tmp_path, chapter=1)
 
     cs = s.chapter_loop.chapter_states["1"]
     assert cs.revision_count == 0, "NO_REVISION must not increment revision_count"
@@ -54,8 +54,8 @@ def test_revision_count_accumulates_across_routes(tmp_path: Path, monkeypatch):
         "shenbi.pipeline.chapter_loop.collect_audit_issues",
         lambda pd, ch: (["issue"], False),
     )
-    _route_revision_after_resonance(s, tmp_path, chapter=2)
-    _route_revision_after_resonance(s, tmp_path, chapter=2)
+    route_revision_after_resonance(s, tmp_path, chapter=2)
+    route_revision_after_resonance(s, tmp_path, chapter=2)
 
     assert s.chapter_loop.chapter_states["2"].revision_count == 2
 
@@ -77,7 +77,7 @@ def test_revision_cap_escalates_once_beyond_two(tmp_path: Path, monkeypatch):
         lambda pd, ch, context="": escalations.append(ch) or True,
     )
     for _ in range(4):
-        _route_revision_after_resonance(s, tmp_path, chapter=1)
+        route_revision_after_resonance(s, tmp_path, chapter=1)
     cs = s.chapter_loop.chapter_states["1"]
     assert cs.revision_count == 4
     assert escalations == [1]  # first exceedance only (3rd route), deduped after
