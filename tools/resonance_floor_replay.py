@@ -6,7 +6,8 @@ trend file and print ch | score | floor | source | would_route plus the
 ignition rate (calibration reproducibility, NOT validity proof — validity
 belongs to #115's external anchors).
 
---diff-route: SAME-SNAPSHOT code-level differential — for every evaluable
+--diff-route: SAME-SNAPSHOT code-level differential (runs the wired side on a
+throwaway copy — the project directory is never written) — for every evaluable
 chapter compute the route twice: (a) the pre-#106 expression
 ``route_chapter_revision(*collect_audit_issues(...))`` and (b) the same
 expression under the new wiring with mode=shadow (shadow never changes the
@@ -37,14 +38,10 @@ def replay_floors(project_dir: Path | str) -> list[dict[str, object]]:
     config = PipelineConfig()
     rows = trend_rows_full(trend) if trend.exists() else []
     out: list[dict[str, object]] = []
-    cold_min = 8
-    prior_scored = 0
     for ch, overall, _ov in rows:
         if overall is None:
             continue
         fc = effective_resonance_floor(project_dir, ch, config)
-        if prior_scored >= cold_min or fc.source == "p25":
-            pass  # evaluable: floor computation itself carries the semantics
         out.append(
             {
                 "chapter": ch,
@@ -54,12 +51,11 @@ def replay_floors(project_dir: Path | str) -> list[dict[str, object]]:
                 "would_route": overall < fc.floor,
             }
         )
-        prior_scored += 1
     return out
 
 
 def main(argv: list[str] | None = None) -> int:
-    """CLI entry: --replay / --diff-route (read-only)."""
+    """CLI entry: --replay (read-only) / --diff-route (sandboxed, zero-write)."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("project_dir", type=str)
     mode = parser.add_mutually_exclusive_group(required=True)
@@ -92,6 +88,9 @@ def main(argv: list[str] | None = None) -> int:
     # wired side runs the REAL _route_revision_after_resonance on a scratch
     # in-memory state with mode=shadow and reads the persisted route key —
     # not a re-derivation of the baseline expression.
+    import shutil as _shutil  # noqa: PLC0415 -- lazy: keeps --replay import-light
+    import tempfile as _tempfile  # noqa: PLC0415 -- lazy: keeps --replay import-light
+
     from shenbi.pipeline.chapter_loop import (  # noqa: PLC0415 -- lazy: keeps --replay import-light
         _route_revision_after_resonance,
         collect_audit_issues,
@@ -103,22 +102,34 @@ def main(argv: list[str] | None = None) -> int:
         PipelineState,
     )
 
-    rows = replay_floors(project_dir)
-    diff = 0
-    checked = 0
-    for r in rows:
-        ch = int(r["chapter"])  # type: ignore[arg-type]
-        baseline = route_chapter_revision(*collect_audit_issues(project_dir, ch)).value
-        scratch = PipelineState(config=PipelineConfig(resonance_policy={"mode": "shadow"}))
-        scratch.chapter_loop.chapter_states[str(ch)] = ChapterState(
-            resonance_score=int(r["score"])  # type: ignore[arg-type]
-        )
-        _route_revision_after_resonance(scratch, project_dir, ch)
-        wired = scratch.chapter_loop.chapter_states[str(ch)].audit_results["revision_route"]
-        checked += 1
-        if baseline != wired:
-            diff += 1
-            print(f"ch{ch}: route diff {baseline} != {wired}")
+    # audit-T6 C1: the wired side runs the REAL _route_revision_after_resonance,
+    # whose first act is _create_pre_revision_backup — a WRITE. Run it on a
+    # throwaway copy so the project directory stays byte-identical (zero-write
+    # is pinned by test_diff_route_writes_nothing).
+    with _tempfile.TemporaryDirectory(prefix="resonance-replay-") as tmp:
+        sandbox = Path(tmp)
+        for rel in ("truth", "audits", "chapters", "outline"):
+            src = project_dir / rel
+            if src.exists():
+                _shutil.copytree(src, sandbox / rel)
+        rows = replay_floors(sandbox)
+        diff = 0
+        checked = 0
+        for r in rows:
+            ch = int(r["chapter"])  # type: ignore[arg-type]
+            baseline = route_chapter_revision(*collect_audit_issues(sandbox, ch)).value
+            scratch = PipelineState(config=PipelineConfig(resonance_policy={"mode": "shadow"}))
+            # fresh ChapterState ⇒ revision_count starts at 0 ⇒ the armed cap
+            # branch (and any paid dispatch) is unreachable by construction.
+            scratch.chapter_loop.chapter_states[str(ch)] = ChapterState(
+                resonance_score=int(r["score"])  # type: ignore[arg-type]
+            )
+            _route_revision_after_resonance(scratch, sandbox, ch)
+            wired = scratch.chapter_loop.chapter_states[str(ch)].audit_results["revision_route"]
+            checked += 1
+            if baseline != wired:
+                diff += 1
+                print(f"ch{ch}: route diff {baseline} != {wired}")
     print(f"route-diff: {diff} (checked {checked} chapters, shadow wiring vs baseline expression)")
     return 0
 
