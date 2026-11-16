@@ -19,7 +19,7 @@ from shenbi.contracts.enums import ResonancePolicyMode
 from shenbi.logging import get_logger
 
 if TYPE_CHECKING:
-    from shenbi.pipeline.state import PipelineConfig
+    from shenbi.pipeline.state import PipelineConfig, PipelineState
 
 log = get_logger(__name__)
 
@@ -298,7 +298,9 @@ def _current_volume_chapter_range(project_dir: Path | str, chapter: int) -> tupl
     return (prev + 1, chapter)  # beyond the last boundary — open-ended volume
 
 
-def write_volume_resonance_summary(project_dir: Path | str, state: Any, chapter: int) -> None:
+def write_volume_resonance_summary(
+    project_dir: Path | str, state: PipelineState, chapter: int
+) -> None:
     """Volume-boundary shadow sink (spec #106 T3a): would-route counts +
     trend completeness aggregate row -> truth/resonance_shadow.md.
 
