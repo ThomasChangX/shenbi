@@ -1737,6 +1737,22 @@ def cmd_chapters(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_override_resonance(args: argparse.Namespace) -> int:
+    """Spec #106 T3c: mark a chapter's resonance trend row human_overridden."""
+    dims: dict[str, int] = {}
+    if args.dims:
+        for part in args.dims.split(","):
+            key, _, val = part.partition("=")
+            dims[key.strip()] = int(val)
+    from shenbi.pipeline.resonance_policy import apply_resonance_override
+
+    row = apply_resonance_override(
+        args.project_dir, args.chapter, args.overall, dims=dims, note=args.note
+    )
+    echo(f"override persisted: {row.strip()}")
+    return 0
+
+
 def cmd_backfill_context(args: argparse.Namespace) -> int:
     """Re-run deterministic context assembly for a chapter range.
 
@@ -1840,6 +1856,17 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_backfill.add_argument("--project-dir", type=str, default=".", help="Project directory")
     p_backfill.set_defaults(func=cmd_backfill_context)
+
+    p_override = sub.add_parser(
+        "override-resonance",
+        help="Mark a chapter's resonance trend row human_overridden (spec #106 T3)",
+    )
+    p_override.add_argument("project_dir", type=str)
+    p_override.add_argument("chapter", type=int)
+    p_override.add_argument("--overall", type=int, required=True)
+    p_override.add_argument("--dims", type=str, default=None, help="逗号分隔 维=分")
+    p_override.add_argument("--note", type=str, default=None)
+    p_override.set_defaults(func=cmd_override_resonance)
 
     args = parser.parse_args(argv)
     # argparse stores set_defaults(func=...) as Any; annotate so the dispatched

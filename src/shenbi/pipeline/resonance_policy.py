@@ -355,3 +355,94 @@ def write_volume_resonance_summary(
     from shenbi.pipeline.truth_io import write_truth_file
 
     write_truth_file(project_dir, "resonance_shadow.md", content, mode="replace")
+
+
+#: Dimension column order for a full override row (matches the trend header).
+_OVERRIDE_DIMS = ("情感落地", "场景临场感", "文笔质感", "读者回报")
+
+
+def apply_resonance_override(
+    project_dir: Path | str,
+    chapter: int,
+    overall: int,
+    dims: dict[str, int] | None = None,
+    note: str | None = None,
+) -> str:
+    """Mark a chapter's resonance trend row human_overridden (spec #106 T3c).
+
+    Rich row present (numeric overall): ``--overall`` must EQUAL the existing
+    score (guards accidental score rewrites) and ONLY the human_overridden
+    cell flips to ``true`` (lowercase — consumers compare
+    ``strip().lower() == "true"``). Pending/missing row: a full 9-column row
+    is written (role 未声明, dims default ``-``, confidence ``human`` — the
+    confidence column has no downstream consumer bound by header name beyond
+    chapter/overall/human_overridden). Returns the persisted row.
+    """
+    project_dir = Path(project_dir)
+    dims = dims or {}
+    trend_path = project_dir / TREND_REL
+    rows = trend_rows_full(trend_path) if trend_path.exists() else []
+    current = {ch: (o, ov) for ch, o, ov in rows}
+    row_overall = current.get(chapter, (None, False))[0]
+    if row_overall is not None:
+        existing = int(row_overall)
+        if existing != overall:
+            raise ValueError(
+                f"chapter {chapter} existing overall is {existing}, "
+                f"refusing rewrite to {overall}（override 只翻 flag，不改分）"
+            )
+        new_row = _patch_override_cell(trend_path, chapter)
+        if new_row is not None:
+            return new_row
+    all_cells = (
+        [str(chapter), "未声明"]
+        + [str(dims.get(dim, "-")) for dim in _OVERRIDE_DIMS]
+        + [
+            str(overall),
+            "human",
+            "true",
+        ]
+    )
+    new_row = "| " + " | ".join(all_cells) + " |"
+    from shenbi.pipeline.truth_io import write_truth_file
+
+    write_truth_file(
+        project_dir,
+        "resonance_trend.md",
+        new_row,
+        mode="upsert_markdown_row",
+        key_field="chapter",
+    )
+    return new_row
+
+
+def _patch_override_cell(trend_path: Path, chapter: int) -> str | None:
+    """Flip ONLY the human_overridden cell of the chapter's rich row
+    (read-modify-write; returns the persisted row or None if the row is
+    absent — the caller then writes a full row).
+    """
+    lines = trend_path.read_text(encoding="utf-8").splitlines()
+    out: list[str] = []
+    patched: str | None = None
+    for line in lines:
+        if patched is None and "|" in line:
+            cells = _split_row(line)
+            ch = _try_int(cells[0]) if cells else None
+            if ch == chapter and len(cells) >= 9:
+                cells[8] = "true"
+                patched = "|" + "|".join(f" {c.strip()} " for c in cells) + "|"
+                out.append(patched)
+                continue
+        out.append(line)
+    if patched is None:
+        return None
+    from shenbi.pipeline.truth_io import write_truth_file
+
+    write_truth_file(
+        trend_path.parent.parent,
+        "resonance_trend.md",
+        patched,
+        mode="upsert_markdown_row",
+        key_field="chapter",
+    )
+    return patched
