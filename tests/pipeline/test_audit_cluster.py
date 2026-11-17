@@ -97,3 +97,78 @@ def test_audit_skills_declare_next_chapter_reads() -> None:
     ):
         reads = load_contract(s).get("reads", [])
         assert any(str(r).endswith("chapter-{N+1}-plan.md") for r in reads), s
+
+
+@pytest.mark.integration
+def test_wave_close_routes_follower_blocking(tmp_path: Path, monkeypatch) -> None:
+    """Spec #109 T3: a follower-chapter BLOCKING report drives that n's
+    blocking_found + revision routing (the serial close loop's wave
+    equivalent — unreachable at :4938 under the wave interception).
+    """
+    import shenbi.pipeline.chapter_loop as cl
+    from shenbi.pipeline.state import PipelineState
+
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-25.md").write_text("锚", encoding="utf-8")
+    (tmp_path / "chapters" / "chapter-26.md").write_text("随", encoding="utf-8")
+    (tmp_path / "outline").mkdir()
+    (tmp_path / "outline" / "volume_map.md").write_text(
+        "## 第1卷（第 25-26 章）\n", encoding="utf-8"
+    )
+    audits = tmp_path / "audits"
+    audits.mkdir()
+    (audits / "chapter-26-texture.md").write_text(
+        "# 纹理\n\n**BLOCKING** 未核实：随章正文缺位，无法评估。\n",
+        encoding="utf-8",
+    )
+    routed: list[int] = []
+    monkeypatch.setattr(cl, "route_revision_after_resonance", lambda s, p, n: routed.append(n))
+    state = PipelineState.default(str(tmp_path))
+    cl._wave_close_for_n(
+        state,
+        tmp_path,
+        26,
+        results=[],
+        skills=["shenbi-review-group-craft"],
+        cascade_skipped=[],
+    )
+    cs26 = state.chapter_loop.chapter_states["26"]
+    assert cs26.audit_results["blocking_found"] is True
+    assert 26 in routed
+    assert (audits / "chapter-26-review-summary.md").exists()
+
+
+@pytest.mark.integration
+def test_wave_close_anchor_equivalence(tmp_path: Path, monkeypatch) -> None:
+    """Per-n close keeps the anchor side's behavior (blocking routes anchor
+    only when the anchor's own reports carry it).
+    """
+    import shenbi.pipeline.chapter_loop as cl
+    from shenbi.pipeline.state import PipelineState
+
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-25.md").write_text("锚", encoding="utf-8")
+    (tmp_path / "chapters" / "chapter-26.md").write_text("随", encoding="utf-8")
+    (tmp_path / "outline").mkdir()
+    (tmp_path / "outline" / "volume_map.md").write_text(
+        "## 第1卷（第 25-26 章）\n", encoding="utf-8"
+    )
+    audits = tmp_path / "audits"
+    audits.mkdir()
+    (audits / "chapter-25-texture.md").write_text(
+        "# 纹理\n\n**BLOCKING** 锚章节奏断裂。\n", encoding="utf-8"
+    )
+    routed: list[int] = []
+    monkeypatch.setattr(cl, "route_revision_after_resonance", lambda s, p, n: routed.append(n))
+    state = PipelineState.default(str(tmp_path))
+    cl._wave_close_for_n(
+        state,
+        tmp_path,
+        25,
+        results=[],
+        skills=["shenbi-review-group-craft"],
+        cascade_skipped=[],
+    )
+    cs25 = state.chapter_loop.chapter_states["25"]
+    assert cs25.audit_results["blocking_found"] is True
+    assert routed == [25]  # n=25 收口只路由 25；26 的报告面不含 BLOCKING 不误路由

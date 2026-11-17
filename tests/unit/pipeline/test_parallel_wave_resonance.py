@@ -82,9 +82,11 @@ def _run_wave(tmp_path: Path, monkeypatch, report_text: str | None) -> PipelineS
     def ok(tasks, on_task_complete=None, state=None):
         return [DispatchResult(True, 0, "", "") for _ in tasks]
 
+    # spec #109 T2/T3: the wave builds ONE bundle context (stub follows the
+    # migrated constructor — patching the old name stopped intercepting).
     monkeypatch.setattr(
-        "shenbi.pipeline.audit_context_cache.build_shared_audit_context",
-        lambda project_dir, chapter: SimpleNamespace(estimated_tokens=1),
+        "shenbi.pipeline.audit_context_cache.build_bundle_audit_context",
+        lambda project_dir, chapters: SimpleNamespace(estimated_tokens=1),
     )
     monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel", ok)
     monkeypatch.setattr("shenbi.pipeline.chapter_loop.dispatch_serial_reviews", _fake_serial)

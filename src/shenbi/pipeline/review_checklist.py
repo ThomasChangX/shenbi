@@ -622,6 +622,7 @@ def _summarize_world_rules(project_dir: Path) -> str:
 __all__ = [
     "ENDING_PATTERNS",
     "ReviewChecklist",
+    "generate_bundle_checklist",
     "generate_review_checklist",
     "inject_checklist_into_prompt",
 ]

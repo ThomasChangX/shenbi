@@ -324,6 +324,13 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
 
     (tmp_path / "audits").mkdir()
     (tmp_path / "genre-config.json").write_text("{}", encoding="utf-8")
+    # spec #109 T3 (M8): audit_reports is now the per-n ON-DISK dimension
+    # report set (glob) — phantom names are structurally impossible and a
+    # failed skill with zero products records nothing. A successful skill's
+    # product on disk is what gets recorded.
+    (tmp_path / "audits" / "chapter-2-factual-continuity.md").write_text(
+        "# 连续性\n\n## 判定\n通过。\n", encoding="utf-8"
+    )
 
     GROUP = "shenbi-review-group-character"
 
@@ -345,7 +352,7 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
 
     with (
         patch(
-            "shenbi.pipeline.audit_context_cache.build_shared_audit_context",
+            "shenbi.pipeline.audit_context_cache.build_bundle_audit_context",
             return_value=SimpleNamespace(
                 estimated_tokens=0,
                 raw_files={},
@@ -378,11 +385,13 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
     assert GROUP not in cs.steps_done, cs.steps_done
     # successful audit skills still are
     assert "shenbi-review-group-factual" in cs.steps_done
-    # 2. audit_reports carries the four real contract writes, not the phantom
+    # 2. audit_reports carries the ON-DISK dimension reports (spec #109 T3):
+    # the phantom convention name is structurally excluded (glob), the failed
+    # group's zero products record nothing, and a real on-disk product does.
     reports = cs.audit_results.get("audit_reports", [])
     assert "audits/chapter-2-group-character.md" not in reports, reports
-    assert "audits/chapter-2-character.md" in reports, reports
-    assert "audits/chapter-2-pov.md" in reports, reports
+    assert "audits/chapter-2-character.md" not in reports, reports  # failed → no product
+    assert "audits/chapter-2-factual-continuity.md" in reports, reports
     # 3. per-skill failure disclosed as before
     assert cs.audit_results.get("group-character", {}).get("passed") is False
 
