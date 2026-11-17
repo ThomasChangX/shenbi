@@ -208,8 +208,11 @@ def test_wave_audit_entry_grouped_follower_journal(tmp_path: Path) -> None:
 
     (tmp_path / "audits").mkdir()
     paths = ["audits/chapter-25-texture.md", "audits/chapter-26-texture.md"]
-    for rel in paths:
-        (tmp_path / rel).write_text("**判定**: 通过\n", encoding="utf-8")
+    (tmp_path / paths[0]).write_text("**判定**: 通过\n", encoding="utf-8")
+    # the follower file genuinely carries the marker so the journal finding
+    # REPRODUCES under revalidation (append-only journal + clean rewrite
+    # would be revalidated away — audit-T5 I1)
+    (tmp_path / paths[1]).write_text("**判定**: 无法评估（数据未注入）\n", encoding="utf-8")
     (tmp_path / "audits" / ".integrity-findings-26.jsonl").write_text(
         json.dumps(
             {
@@ -234,3 +237,36 @@ def test_consolidate_disclosure_when_failed_or_invalid() -> None:
     assert "输入缺口" in out and "chapter-26-texture.md" in out
     ok = consolidate_review_results([], 26)
     assert "No BLOCKING or CRITICAL issues found" in ok
+    # audit-T5 I2: the failed_count>0 half of the tightened condition (the
+    # original ch1 summary bug: Failed 5 + a clean sentence).
+    from shenbi.pipeline.dispatch_helper import DispatchResult
+
+    failed = consolidate_review_results(
+        [DispatchResult(success=False, returncode=-1, stdout="", stderr="")], 26
+    )
+    assert "No BLOCKING or CRITICAL issues found" not in failed
+
+
+@pytest.mark.integration
+def test_wave_audit_entry_stale_journal_finding_revalidated(tmp_path: Path) -> None:
+    """audit-T5 I1: the journal is append-only — a FAIL line for a report
+    that was since rewritten clean must not keep the product invalid.
+    """
+    import shenbi.pipeline.chapter_loop as cl
+
+    (tmp_path / "audits").mkdir()
+    rep = tmp_path / "audits" / "chapter-2-texture.md"
+    rep.write_text("**判定**: 通过\n", encoding="utf-8")  # rewritten clean
+    (tmp_path / "audits" / ".integrity-findings-2.jsonl").write_text(
+        json.dumps(
+            {
+                "file": "audits/chapter-2-texture.md",
+                "finding": "G4.av.starve_verdict:chapter-2-texture.md — L1:判定行饿死形态「待补」",
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    entry = cl._wave_audit_entry(True, 0, ["audits/chapter-2-texture.md"], tmp_path)
+    assert entry["valid"] is True  # stale finding revalidated away

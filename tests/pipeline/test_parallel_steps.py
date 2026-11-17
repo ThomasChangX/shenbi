@@ -503,15 +503,13 @@ def test_review_task_dispatch_carries_path_context(monkeypatch, tmp_path) -> Non
     _ = re, monkeypatch
 
 
-def test_wave_done_face_excludes_invalid_skill(tmp_path, monkeypatch):
+def test_wave_done_face_excludes_invalid_skill(tmp_path):
     """Spec #109 T4b (plan re-review M1): a skill whose products carry a
     FAIL-class post-write finding is NOT marked done — same wave, not the
     next one (the done face runs BEFORE the per-skill entry loop).
     """
     from types import SimpleNamespace
     from unittest.mock import patch
-
-    import pytest  # noqa: F401
 
     from shenbi.pipeline import chapter_loop as cl
     from shenbi.pipeline.audit_layer import audit_report_paths

@@ -3111,7 +3111,14 @@ def _fail_findings_for_reports(report_paths: list[str], project_dir: Path) -> li
             if finding.startswith("G4.pi.fence_imbalance"):
                 continue  # the single WARN class
             if any(finding.startswith(p) for p in _POST_WRITE_FAIL_PREFIXES):
-                if rel not in hits:
+                # audit-T5 🟡1: same read-side policy as the G4 reader — the
+                # journal is append-only, so a FAIL line for a report that was
+                # since rewritten clean must be revalidated away (probe2
+                # escalation-1 semantics; the per-id starve_verdict route is
+                # already wired in _revalidate_finding).
+                from shenbi.gates.g4.generic import _revalidate_finding  # pyright: ignore[reportPrivateUsage] — G4 复验单源
+
+                if _revalidate_finding(project_dir, rel, finding) and rel not in hits:
                     hits.append(rel)
                 break
     return hits
@@ -4361,7 +4368,12 @@ def _run_audit_wave_step(
     # spec #109 T4b (re-review M1): computed INLINE beside _failed_audit_skills
     # — the done face runs BEFORE the per-skill entry loop, so invalid
     # exclusion must not depend on entry products. Journal-derived (C1),
-    # never entry-derived.
+    # never entry-derived. UNIVERSE = the CHAPTER_STEPS audit skills (NOT the
+    # filtered wave lists): _filter_completed_audit_tasks empties the wave on
+    # a replay where all products exist, and cascade-skipped skills leave the
+    # lists — the done loop marks the full CHAPTER_STEPS range, so the
+    # exclusion set must span the same universe (audit-T5 implementation
+    # deviation, adjudicated correct).
     _invalid_audit_skills = {
         step.skill
         for step in CHAPTER_STEPS
