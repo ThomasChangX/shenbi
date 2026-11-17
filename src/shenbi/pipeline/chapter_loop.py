@@ -390,13 +390,28 @@ def committed_chapter_anchor(project_dir: Path) -> int:
     return anchor
 
 
-def _filter_completed_audit_tasks(tasks: list[ReviewTask]) -> list[ReviewTask]:
-    """C30 F377: drop audit tasks whose output product already exists.
+def _filter_completed_audit_tasks(tasks: list[ReviewTask], project_dir: Path) -> list[ReviewTask]:
+    """C30 F377 + spec #109 T5: drop audit tasks whose outputs all exist AND are valid.
 
-    After a mid-wave crash, re-entry replays only the unfinished segment —
-    skills that already wrote their audit report are not re-dispatched.
+    Existence alone marked starved/invalid follower products complete — the
+    resume path never re-dispatched them (147/588 vol1 evidence). Validity =
+    journal-derived FAIL findings (revalidated) OR a fresh starve-verdict
+    re-check of the on-disk file (the journal may be absent/torn after a
+    crash — the re-check is the deterministic bottom line).
     """
-    return [t for t in tasks if not all((t.project_dir / p).exists() for p in t.all_output_paths())]
+    from shenbi.pipeline.llm_output_integrity import check_audit_starve_verdict
+
+    out: list[ReviewTask] = []
+    for t in tasks:
+        paths = [project_dir / p for p in t.all_output_paths()]
+        if not all(p.exists() for p in paths):
+            out.append(t)
+            continue
+        if _fail_findings_for_reports(list(t.all_output_paths()), project_dir) or any(
+            check_audit_starve_verdict(p) for p in paths
+        ):
+            out.append(t)  # invalid product → re-dispatch with full inputs
+    return out
 
 
 def _run_audit_close_for_chapter(
@@ -3118,9 +3133,12 @@ def _fail_findings_for_reports(report_paths: list[str], project_dir: Path) -> li
                 # already wired in _revalidate_finding).
                 from shenbi.gates.g4.generic import _revalidate_finding  # pyright: ignore[reportPrivateUsage] — G4 复验单源
 
-                if _revalidate_finding(project_dir, rel, finding) and rel not in hits:
-                    hits.append(rel)
-                break
+                if _revalidate_finding(project_dir, rel, finding):
+                    if rel not in hits:
+                        hits.append(rel)
+                    break  # audit-T5 re-review Minor: only a SURVIVING finding
+                    # ends the scan — a revalidated-away line must not hide a
+                    # later surviving FAIL of a different class on the same rel
     return hits
 
 
@@ -4286,7 +4304,7 @@ def _run_audit_wave_step(
     core_tasks = [t for t in core_tasks if _keep_task(t)]
     core_wave, core_serial = _partition_review_wave(core_tasks)
 
-    core_wave = _filter_completed_audit_tasks(core_wave)
+    core_wave = _filter_completed_audit_tasks(core_wave, project_dir)
     core_results: list[DispatchResult] = []
     if core_wave:
         log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_wave))
@@ -4325,7 +4343,7 @@ def _run_audit_wave_step(
             state.add_audit_result(n, "cascade_skipped", sorted(set(cascade_skipped)))
     genre_wave, genre_serial = _partition_review_wave(genre_tasks)
 
-    genre_wave = _filter_completed_audit_tasks(genre_wave)
+    genre_wave = _filter_completed_audit_tasks(genre_wave, project_dir)
     genre_results: list[DispatchResult] = []
     if genre_wave:
         log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_wave))

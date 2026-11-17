@@ -270,3 +270,38 @@ def test_wave_audit_entry_stale_journal_finding_revalidated(tmp_path: Path) -> N
     )
     entry = cl._wave_audit_entry(True, 0, ["audits/chapter-2-texture.md"], tmp_path)
     assert entry["valid"] is True  # stale finding revalidated away
+
+
+@pytest.mark.integration
+def test_resume_redispatches_invalid_follower_report(tmp_path: Path) -> None:
+    """Spec #109 T5: mid-wave crash replay — an on-disk starvation product is
+    NOT completion; the skill's task re-enters the dispatch list (and will
+    re-dispatch with full inputs after T2).
+    """
+    import shenbi.pipeline.chapter_loop as cl
+    from shenbi.pipeline.audit_layer import audit_report_paths
+    from shenbi.pipeline.parallel_dispatch import ReviewTask
+
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-25.md").write_text("锚", encoding="utf-8")
+    (tmp_path / "chapters" / "chapter-26.md").write_text("随", encoding="utf-8")
+    # ALL six declared products on disk (else the existence branch fires
+    # first and the red test passes for the wrong reason); only the follower
+    # texture report is a starvation product. No journal (crash before the
+    # post-write hook could run) — the fresh starve re-check is the path.
+    for rel in audit_report_paths(25, "shenbi-review-group-craft"):
+        f = tmp_path / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text("## 判定: 通过\n", encoding="utf-8")
+    (tmp_path / "audits" / "chapter-26-texture.md").write_text(
+        "**判定**: 待补（正文未提供）\n", encoding="utf-8"
+    )
+    task = ReviewTask(
+        skill="shenbi-review-group-craft",
+        project_dir=tmp_path,
+        prompt="cluster",
+        output_path="audits/chapter-25-texture.md",
+        output_paths=audit_report_paths(25, "shenbi-review-group-craft"),
+    )
+    remaining = cl._filter_completed_audit_tasks([task], tmp_path)
+    assert [t.skill for t in remaining] == ["shenbi-review-group-craft"]
