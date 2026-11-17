@@ -172,3 +172,65 @@ def test_wave_close_anchor_equivalence(tmp_path: Path, monkeypatch) -> None:
     cs25 = state.chapter_loop.chapter_states["25"]
     assert cs25.audit_results["blocking_found"] is True
     assert routed == [25]  # n=25 收口只路由 25；26 的报告面不含 BLOCKING 不误路由
+
+
+@pytest.mark.integration
+def test_wave_audit_entry_invalid_from_journal(tmp_path: Path) -> None:
+    """Spec #109 T4b: journal FAIL finding on a report file flips valid=False
+    while passed stays orthogonal (three-state).
+    """
+    import shenbi.pipeline.chapter_loop as cl
+
+    (tmp_path / "audits").mkdir()
+    rep = tmp_path / "audits" / "chapter-26-texture.md"
+    rep.write_text("**判定**: 待补（正文未提供）\n", encoding="utf-8")
+    (tmp_path / "audits" / ".integrity-findings-26.jsonl").write_text(
+        json.dumps(
+            {
+                "file": "audits/chapter-26-texture.md",
+                "finding": "G4.av.starve_verdict:chapter-26-texture.md — L2:判定行饿死形态「待补」",
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    entry = cl._wave_audit_entry(True, 0, ["audits/chapter-26-texture.md"], tmp_path)
+    assert entry["passed"] is True and entry["valid"] is False
+
+
+@pytest.mark.integration
+def test_wave_audit_entry_grouped_follower_journal(tmp_path: Path) -> None:
+    """C1: grouped outputs span 25/26 — the follower-volume finding must flip
+    valid even though the FIRST report path resolves to the 25 journal.
+    """
+    import shenbi.pipeline.chapter_loop as cl
+
+    (tmp_path / "audits").mkdir()
+    paths = ["audits/chapter-25-texture.md", "audits/chapter-26-texture.md"]
+    for rel in paths:
+        (tmp_path / rel).write_text("**判定**: 通过\n", encoding="utf-8")
+    (tmp_path / "audits" / ".integrity-findings-26.jsonl").write_text(
+        json.dumps(
+            {
+                "file": "audits/chapter-26-texture.md",
+                "finding": "G4.av.starve_verdict:chapter-26-texture.md — L1:判定行饿死形态「待核」",
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    entry = cl._wave_audit_entry(True, 0, paths, tmp_path)
+    assert entry["valid"] is False
+
+
+def test_consolidate_disclosure_when_failed_or_invalid() -> None:
+    """Spec #109 T4b: failed>0 or invalid products forbid the clean summary."""
+    from shenbi.pipeline.parallel_dispatch import consolidate_review_results
+
+    out = consolidate_review_results([], 26, invalid_reports=["chapter-26-texture.md"])
+    assert "No BLOCKING or CRITICAL issues found" not in out
+    assert "输入缺口" in out and "chapter-26-texture.md" in out
+    ok = consolidate_review_results([], 26)
+    assert "No BLOCKING or CRITICAL issues found" in ok

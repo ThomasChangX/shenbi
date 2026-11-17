@@ -737,6 +737,8 @@ def should_skip_audit(
             return False  # Did not pass → break streak
         if result.get("hard_failures", 0) > 0:
             return False  # Any HARD failure → break streak
+        if result.get("valid") is False:
+            return False  # spec #109 T4b: invalid product → break streak
 
     # Staleness guard: skipped audits append no history, so an old streak
     # would otherwise satisfy the skip condition forever. Force a real run
@@ -785,6 +787,7 @@ def _get_audit_history(state: PipelineState, current_chapter: int) -> list[dict[
                         "passed": audit_result.get("passed", False),
                         "hard_failures": audit_result.get("hard_failures", 0),
                         "issues": audit_result.get("issues", []),
+                        "valid": audit_result.get("valid", True),
                     }
                 )
     return results
@@ -3072,6 +3075,48 @@ def _resonance_report_blocked(report_path: Path) -> bool:
     return bool(_RESONANCE_BLOCKED_RE.search(fence)) and not RESONANCE_PENDING_RE.search(fence)
 
 
+def _fail_findings_for_reports(report_paths: list[str], project_dir: Path) -> list[str]:
+    """Report files carrying FAIL-class post-write findings (spec #109 T4b).
+
+    Returns the offending project-relative report paths (deduped, input
+    order). The journal is VOLUMED BY THE WRITTEN FILE'S OWN CHAPTER
+    (_append_integrity_findings) — a grouped skill's follower findings live
+    in ``.integrity-findings-26.jsonl`` while the first report path is 25:
+    the lookup must walk EVERY report path against ITS OWN volume (C1). FAIL
+    classification reuses the G4 single source (prefixes + the single WARN
+    exception).
+    """
+    import json as _json
+
+    from shenbi.gates.g4.generic import _POST_WRITE_FAIL_PREFIXES  # pyright: ignore[reportPrivateUsage] — G4 FAIL 分类单源（settle_ops.py:39 先例）
+
+    hits: list[str] = []
+    for rel in report_paths:
+        m = re.search(r"chapter-(\d+)", rel)
+        if m is None:
+            continue
+        journal = project_dir / "audits" / f".integrity-findings-{m.group(1)}.jsonl"
+        if not journal.is_file():
+            continue
+        for line in journal.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                entry = _json.loads(line)
+            except _json.JSONDecodeError:
+                continue  # torn tail (crash) — same tolerance as the G4 reader
+            if str(entry.get("file", "")) != rel:
+                continue
+            finding = str(entry.get("finding", ""))
+            if finding.startswith("G4.pi.fence_imbalance"):
+                continue  # the single WARN class
+            if any(finding.startswith(p) for p in _POST_WRITE_FAIL_PREFIXES):
+                if rel not in hits:
+                    hits.append(rel)
+                break
+    return hits
+
+
 def _wave_close_for_n(
     state: PipelineState,
     project_dir: Path,
@@ -3096,23 +3141,40 @@ def _wave_close_for_n(
         consolidate_review_results,
     )
 
+    reports = [
+        p
+        for p in sorted((project_dir / "audits").glob(f"chapter-{n}-*.md"))
+        if "review-summary" not in p.name
+    ]
+    # spec #109 T4b: invalid face computed INLINE from the journal (order-safe
+    # — never derived from the per-skill entry loop that runs later). The
+    # names come from the on-disk glob, so the disclosure line can only name
+    # real product files (re-review N#1).
+    invalid_reports = _fail_findings_for_reports([f"audits/{p.name}" for p in reports], project_dir)
     consolidated = consolidate_review_results(
         results,
         n,
         skills=skills,
         project_dir=project_dir,
         cascade_skipped=sorted(set(cascade_skipped)) or None,
+        invalid_reports=invalid_reports,
     )
     safe_write(project_dir / "audits" / f"chapter-{n}-review-summary.md", consolidated)
     blocking_re, _critical_re = build_consolidator_sensors()
-    reports = [
-        p
-        for p in sorted((project_dir / "audits").glob(f"chapter-{n}-*.md"))
-        if "review-summary" not in p.name
-    ]
+
+    def _blocking_in(p: Path) -> bool:
+        # audit-T3 🟡1: an unreadable report must not crash the per-n close
+        # loop (poison file → every later n skipped; resume replays into the
+        # same raise). Same tolerance as the entry loop's read.
+        try:
+            return bool(blocking_re.search(p.read_text(encoding="utf-8")))
+        except OSError:
+            log.warning("audit_report_unreadable", path=str(p))
+            return False
+
     cs = _get_chapter_state(state, n)
     cs.audit_results["blocking_found"] = ("## BLOCKING Issues" in consolidated) or any(
-        blocking_re.search(p.read_text(encoding="utf-8")) for p in reports if p.is_file()
+        _blocking_in(p) for p in reports if p.is_file()
     )
     cs.audit_results["audit_reports"] = [f"audits/{p.name}" for p in reports]
 
@@ -3131,6 +3193,11 @@ def _wave_audit_entry(
     report itself said the hard gate could not evaluate.
     """
     entry: dict[str, Any] = {"passed": task_success and hard == 0, "hard_failures": hard}
+    # spec #109 T4b: valid is the third state, orthogonal to passed — a
+    # FAIL-class post-write finding on any report file means the audit ran
+    # without its inputs and the product is invalid (C1: per-file journal
+    # volume lookup).
+    entry["valid"] = not _fail_findings_for_reports(report_paths, project_dir)
     if task_success and hard == 0:
         for rel in report_paths:
             if "resonance" in rel and _resonance_report_pending(project_dir / rel):
@@ -4291,8 +4358,20 @@ def _run_audit_wave_step(
         )
         if not result.success
     }
+    # spec #109 T4b (re-review M1): computed INLINE beside _failed_audit_skills
+    # — the done face runs BEFORE the per-skill entry loop, so invalid
+    # exclusion must not depend on entry products. Journal-derived (C1),
+    # never entry-derived.
+    _invalid_audit_skills = {
+        step.skill
+        for step in CHAPTER_STEPS
+        if step.is_audit
+        and _fail_findings_for_reports(audit_report_paths(chapter, step.skill), project_dir)
+    }
     for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
-        if i < len(CHAPTER_STEPS) and CHAPTER_STEPS[i].skill not in _failed_audit_skills:
+        if i < len(CHAPTER_STEPS) and CHAPTER_STEPS[i].skill not in (
+            _failed_audit_skills | _invalid_audit_skills
+        ):
             state.add_step_done(chapter, CHAPTER_STEPS[i].skill)
 
     state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1

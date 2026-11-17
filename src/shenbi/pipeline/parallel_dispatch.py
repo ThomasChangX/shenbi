@@ -339,6 +339,7 @@ def consolidate_review_results(
     skills: list[str] | None = None,
     project_dir: Any = None,
     cascade_skipped: list[str] | None = None,
+    invalid_reports: list[str] | None = None,
 ) -> str:
     """Aggregate review results into a consolidated summary.
 
@@ -355,6 +356,9 @@ def consolidate_review_results(
             stdout is routinely empty).
         cascade_skipped: Skills skipped by the N-streak cascade this chapter
             (disclosed in the summary).
+        invalid_reports: Report files judged invalid (input gap — spec #109
+            T4b). Any failure or invalid product forbids the clean-summary
+            sentence; the disclosure line names the files explicitly.
 
     Returns:
         Markdown-formatted consolidation summary.
@@ -423,6 +427,7 @@ def consolidate_review_results(
 
     failed_count = sum(1 for r in results if not r.success)
     success_count = sum(1 for r in results if r.success)
+    invalid_reports = invalid_reports or []
 
     parts = [
         f"# Chapter {chapter} — Consolidated Review Results",
@@ -438,6 +443,14 @@ def consolidate_review_results(
             f"- **cascade-skipped** (N-streak heuristic, re-verified every few chapters): "
             f"{', '.join(cascade_skipped)}"
         )
+    if invalid_reports:
+        # spec #109 T4b: an invalid product is an input gap — it counts as
+        # neither pass nor fail and forbids the clean-summary sentence.
+        names = ", ".join(Path(p).name for p in invalid_reports)
+        parts.append(
+            f"- **输入缺口（invalid 产物）**: {len(invalid_reports)} 份（{names}）"
+            "——不计通过、不构成净结论，按输入缺口重派"
+        )
     parts += [
         "",
     ]
@@ -452,7 +465,7 @@ def consolidate_review_results(
         parts.extend(critical_lines)
         parts.append("")
 
-    if not blocking_lines and not critical_lines:
+    if not blocking_lines and not critical_lines and failed_count == 0 and not invalid_reports:
         parts.append("No BLOCKING or CRITICAL issues found across all reviews.")
         parts.append("")
 
