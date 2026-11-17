@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-11-17（#106 价值门 REWRITE 修订 r2：冷启动回落单源 65+P25 插值约定钉死+验收改冷启动边界+static/override 双护栏；同日早前 INDEX 结构重构；前次 2026-11-16 #105 完结归档 PR #351）
-> **活跃 spec 数**：18
+> **最后更新**：2026-11-17（#106 完结归档 PR #356——正向下限接线全链；前次同日 #106 价值门 REWRITE r2 PR #355）
+> **活跃 spec 数**：17
 
 本页只追踪活跃（待执行）spec，**表行序即推荐执行顺序**（依据见「排序依据」节）；优先级标注（🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量）仅作 tie-breaker 与视觉分层。**spec 详情（动机证据/根因/任务分解/验收）以 spec 文件本体为唯一权威**，本页只留一句话范围与依赖——INDEX 不做 spec 的第二份拷贝（拷贝必漂移）。已完成/驳回的 spec 移至 `archive/`，编号 append-only 不重排不复用（系列/依赖按编号交叉引用）；归档历史查 `archive/` 与 `git log`。
 
@@ -15,7 +15,6 @@
 
 | 编号 | 优先级 | spec 文件 | 状态 | 一句话范围 | 依赖 |
 |------|--------|-----------|------|-----------|------|
-| #106 | 🟠 P1 | `2026-11-15-spec106-resonance-floor-liveness.md` | Design r2 | 动态 floor（P25 插值 clamp 50-80，冷启动回落 65 单源）＋decide_revision/role 门 verdict 生产接线＋shadow 期缺省＋static/override 双护栏＋trend 数据卫生三件——修「合规的无聊章畅通」 | #105 已核销（PR #351）→ 现队头 |
 | #109 | 🔴 P0 | `2026-11-15-spec109-audit-bundle-coverage.md` | Design r1 | 双章批 follower 章审计系统性饿死修复：契约 reads 对称化＋派发双章化＋三 anchor-only 收口 per-n＋占位/失败三态＋resume 补跑（147/588 饿死、49 编造通过） | #106 后开闸（chapter_loop 同文件链）；T2 面在 #96 后 |
 | #93 | 🟠 P1 | `2026-11-01-spec93-threshold-authority.md` | Design r2.2 | 阈值权威化：lint 改 import 执法＋删 allowlist 第三源＋`--strict` 接线＋定价契约单源＋trend 列常量覆盖三消费者 | 无（justfile 前序解锁 #116） |
 | #116 | 🟠 P1 | `2026-11-15-spec116-gate-discriminative-power.md` | Design r1 | 门禁判别力仪表：真 G4 回放（10 散文门 50/50 恒真）→ `just gate-power`＋恒真登记＋WARN 哨兵＋六项标定提案（不改门行为，用户逐项裁定） | justfile 链 #92→#93→#116；T4 变异器 #108 后换装 |
