@@ -46,6 +46,10 @@ AGGREGATE_FORM = re.compile(r"chapter-(\d+)\.aggregate\.md$")
 
 NARROW6 = ("待补", "不适用", "无法核对", "附条件", "待正文核验", "正文未提供")
 WIDE12 = (*NARROW6, "待核验", "无法验证", "无法评估", "正文缺失", "未能提供", "未提供正文")
+# spec #109 T4 production-gate variants — single source (the spec's prose is a
+# gloss, never authoritative). NOT part of baseline metrics: the replay
+# comparisons stay pinned to narrow6/wide12 above.
+T4_VARIANTS = ("待核", "暂记", "留待后续核验", "建议复核", "数据未注入")
 FAMILY: dict[str, re.Pattern[str]] = {
     "narrow6": re.compile("|".join(NARROW6)),
     "wide12": re.compile("|".join(WIDE12)),
