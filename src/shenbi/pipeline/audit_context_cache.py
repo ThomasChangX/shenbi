@@ -57,23 +57,24 @@ def _rel(path: Path, project_dir: Path) -> str:
         return str(path)
 
 
-def build_shared_audit_context(project_dir: Path, chapter: int) -> SharedAuditContext:
-    """Build shared context once per chapter, reused across all audit LLM calls.
+def build_bundle_audit_context(project_dir: Path, chapters: list[int]) -> SharedAuditContext:
+    """Build shared context for a whole audit bundle (spec #109 T2).
 
-    C28 R1 (F312/T1614): the three builder paths were dead keys —
-    ``chapter-{chapter:03d}.md`` zero-padding (production writers are
-    unpadded), ``truth/world_rules.md`` (canonical is ``world/rules.md``),
-    ``truth/volume_map.md`` (canonical is ``outline/volume_map.md``) — so the
-    shared context was always empty and the audit wave re-read the chapter
-    file 9x per chapter. ``raw_files`` holds the full original bytes for the
-    read-suppression table.
+    Per-chapter faces (chapter prose in ``raw_files``) cover EVERY bundle
+    member — the follower's text enters the read-suppression table keyed by
+    its own project-relative path. Project-level faces (world/characters/
+    style/hooks) are extracted once. ``chapter_text`` carries the anchor
+    (``chapters[0]``); ``ending_history`` spans the bundle window.
     """
     ctx = SharedAuditContext()
 
-    chapter_file = project_dir / "chapters" / f"chapter-{chapter}.md"
-    if chapter_file.exists():
-        ctx.chapter_text = chapter_file.read_text(encoding="utf-8")
-        ctx.raw_files[_rel(chapter_file, project_dir)] = ctx.chapter_text
+    for n in chapters:
+        chapter_file = project_dir / "chapters" / f"chapter-{n}.md"
+        if chapter_file.exists():
+            raw = chapter_file.read_text(encoding="utf-8")
+            ctx.raw_files[_rel(chapter_file, project_dir)] = raw
+            if n == chapters[0]:
+                ctx.chapter_text = raw
 
     world_rules_file = project_dir / "world" / "rules.md"
     if world_rules_file.exists():
@@ -105,15 +106,17 @@ def build_shared_audit_context(project_dir: Path, chapter: int) -> SharedAuditCo
         ctx.raw_files[_rel(hooks_file, project_dir)] = raw
 
     # volume_context has zero consumers in the audit wave (C28 spec R2 drop)
-    # — path fixed for hygiene, extraction retained, not in raw_files.
+    # — path fixed for hygiene, extraction retained, not in raw_files. The
+    # extraction is chapter-parameterized; the bundle form reads the anchor
+    # node (chapters[0]).
     volume_map_file = project_dir / "outline" / "volume_map.md"
     if volume_map_file.exists():
         raw = volume_map_file.read_text(encoding="utf-8")
-        ctx.volume_context = _extract_volume_chapter(raw, chapter)
+        ctx.volume_context = _extract_volume_chapter(raw, chapters[0])
 
     log.info(
         "shared_audit_context_built",
-        chapter=chapter,
+        chapters=chapters,
         estimated_tokens=ctx.estimated_tokens,
     )
 
@@ -123,8 +126,8 @@ def build_shared_audit_context(project_dir: Path, chapter: int) -> SharedAuditCo
     try:
         from shenbi.gates.g4.chapter_drafting import ending_archetype_of
 
-        for k in range(max(1, chapter - 9), chapter + 1):
-            if k == chapter:
+        for k in range(max(1, min(chapters) - 9), max(chapters) + 1):
+            if k == chapters[0]:
                 text = ctx.chapter_text
             else:
                 cf = project_dir / "chapters" / f"chapter-{k}.md"
@@ -136,6 +139,20 @@ def build_shared_audit_context(project_dir: Path, chapter: int) -> SharedAuditCo
         pass
 
     return ctx
+
+
+def build_shared_audit_context(project_dir: Path, chapter: int) -> SharedAuditContext:
+    """Single-chapter wrapper over :func:`build_bundle_audit_context`.
+
+    C28 R1 (F312/T1614): the three builder paths were dead keys —
+    ``chapter-{chapter:03d}.md`` zero-padding (production writers are
+    unpadded), ``truth/world_rules.md`` (canonical is ``world/rules.md``),
+    ``truth/volume_map.md`` (canonical is ``outline/volume_map.md``) — so the
+    shared context was always empty and the audit wave re-read the chapter
+    file 9x per chapter. ``raw_files`` holds the full original bytes for the
+    read-suppression table.
+    """
+    return build_bundle_audit_context(project_dir, [chapter])
 
 
 def _summarize_if_large(text: str, max_chars: int = 5000) -> str:

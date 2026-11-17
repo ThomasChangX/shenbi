@@ -4060,14 +4060,23 @@ def _run_audit_wave_step(
     )
     from shenbi.safe_write import safe_write
 
-    # Build shared audit context ONCE per chapter so auditors skip
-    # re-reading the same files from disk (Task 6 Step 2 wiring).
-    from shenbi.pipeline.audit_context_cache import build_shared_audit_context
+    # Wave 1: core reviews in parallel; WRITE_SHARED members partitioned out
+    # to serial (assert_parallelizable rejects non-read-only; F532, C32 R4).
+    core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and is_review_skill(s.skill)]
+    # spec #72 T9: cluster dispatch — ONE prompt per skill covers the bundle;
+    # reports stay PER-CHAPTER ({N+1} brace writes cover follower paths too).
+    wave_chapters = bundle_chapters(project_dir, chapter)
 
-    shared_ctx = build_shared_audit_context(project_dir, chapter)
+    # Build shared audit context ONCE per wave so auditors skip re-reading
+    # the same files from disk (Task 6 Step 2 wiring). spec #109 T2: the
+    # context covers EVERY bundle member — the follower's prose enters
+    # raw_files under its own key (read-suppression + checklist content).
+    from shenbi.pipeline.audit_context_cache import build_bundle_audit_context
+
+    shared_ctx = build_bundle_audit_context(project_dir, wave_chapters)
     log.info(
         "shared_audit_context_built_for_wave",
-        chapter=chapter,
+        chapters=wave_chapters,
         estimated_tokens=shared_ctx.estimated_tokens,
     )
 
@@ -4083,13 +4092,6 @@ def _run_audit_wave_step(
             cascade_skipped.append(task.skill)
             return False
         return True
-
-    # Wave 1: core reviews in parallel; WRITE_SHARED members partitioned out
-    # to serial (assert_parallelizable rejects non-read-only; F532, C32 R4).
-    core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and is_review_skill(s.skill)]
-    # spec #72 T9: cluster dispatch — ONE prompt per skill covers the bundle;
-    # reports stay PER-CHAPTER ({N+1} brace writes cover follower paths too).
-    wave_chapters = bundle_chapters(project_dir, chapter)
 
     # ── spec #105 T3: audit-dispatch read-readiness pre-check ────────────────
     # #51 ghost-chain guard 控制流先例：缺失输入禁止派发 LLM 表达（派发完整
