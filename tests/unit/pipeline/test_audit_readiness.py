@@ -152,7 +152,13 @@ def test_wave_precheck_covers_genre_circle(tmp_path: Path, monkeypatch: pytest.M
 
     assert "shenbi-review-era" in real_roster({"auditDimensions": {"era": True}})
 
-    def _genre_only_gap(project_dir: Path | str, skill: str, chapter: int | None) -> list[str]:
+    def _genre_only_gap(
+        project_dir: Path | str,
+        skill: str,
+        chapter: int | None,
+        *,
+        bundle: list[int] | None = None,
+    ) -> list[str]:
         if skill == "shenbi-review-era":
             return ["era-reference.md"]
         return []  # core inputs all present (stubbed)
@@ -373,3 +379,80 @@ def test_wave_precheck_skips_skills_with_products_on_disk(
     cl._run_audit_wave_step(state, tmp_path, 9, cl.CHAPTER_STEPS[9], 2)
     cp = state.pending_checkpoint
     assert cp is None or cp.type.value != "escalation", cp
+
+
+# ── spec #109 T1: offset reads resolve + wave-conditional requiredness (a1/C1) ──
+
+
+_OFFSET_CONTRACT = {
+    "reads": [
+        "chapters/chapter-N.md",
+        "chapters/chapter-{N+1}.md",
+    ],
+    "writes": [],
+    "updates": [],
+}
+
+
+@pytest.fixture()
+def _offset_contract(monkeypatch: pytest.MonkeyPatch) -> None:
+    from shenbi.contracts import loader
+
+    monkeypatch.setattr(loader, "load_contract", lambda skill: _OFFSET_CONTRACT)  # type: ignore[arg-type]
+    monkeypatch.setattr("shenbi.pipeline.dispatch_helper.OPTIONAL_READS", {})
+
+
+def test_missing_audit_reads_resolves_offset_braces(tmp_path: Path, _offset_contract: None) -> None:
+    """A1: literal ``chapter-{N+1}`` reads resolve to the follower chapter."""
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-25.md").write_text("正文25", encoding="utf-8")
+    (tmp_path / "chapters" / "chapter-26.md").write_text("正文26", encoding="utf-8")
+    # bundle 双章：follower 在波内且在盘 → 零缺失（r1 事故形态：字面花括号 probe 必缺失）
+    assert missing_audit_reads(tmp_path, "shenbi-review-x", 25, bundle=[25, 26]) == []
+
+
+def test_missing_audit_reads_offset_required_only_inside_bundle(
+    tmp_path: Path, _offset_contract: None
+) -> None:
+    """C1: singleton waves (no volume_map / span end) legally omit offset reads."""
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-49.md").write_text("正文49", encoding="utf-8")
+    # singleton 波：50 ∉ [49] → offset read 不探测（下一章未起草是常态）
+    assert missing_audit_reads(tmp_path, "shenbi-review-x", 49, bundle=[49]) == []
+    # bundle=[49,50] 且 50 缺盘 → 报缺失（follower 在波内必须真实在盘）
+    assert missing_audit_reads(tmp_path, "shenbi-review-x", 49, bundle=[49, 50]) == [
+        "chapters/chapter-50.md"
+    ]
+
+
+def test_wave_precheck_passes_bundle_to_missing_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Spec #109 C1/I4: the precheck call site must pass bundle=wave_chapters."""
+    from shenbi.pipeline import chapter_loop as cl
+
+    received: list[dict[str, object]] = []
+
+    def _spy(project_dir: object, skill: str, chapter: int, *, bundle: list[int] | None = None):
+        received.append({"skill": skill, "chapter": chapter, "bundle": bundle})
+        return []
+
+    monkeypatch.setattr("shenbi.pipeline.audit_layer.missing_audit_reads", _spy)
+
+    def _ok_results(tasks: list[object], *a: object, **kw: object) -> list[object]:
+        from types import SimpleNamespace
+
+        return [SimpleNamespace(success=False, returncode=-1, stdout="", stderr="") for _ in tasks]
+
+    monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel", _ok_results)
+    monkeypatch.setattr(cl, "dispatch_serial_reviews", _ok_results)
+    monkeypatch.setattr(
+        "shenbi.pipeline.revision_router.dispatch_escalation", lambda *a, **kw: None
+    )
+    (tmp_path / "genre-config.json").write_text('{"auditDimensions": {}}', encoding="utf-8")
+    (tmp_path / "outline").mkdir()
+    (tmp_path / "outline" / "volume_map.md").write_text("## 第1卷（第 1-4 章）\n", encoding="utf-8")
+    state, _ct = _wave_state(tmp_path)
+    cl._run_audit_wave_step(state, tmp_path, 9, cl.CHAPTER_STEPS[9], 2)
+    assert received, "precheck never called missing_audit_reads"
+    assert any(r["bundle"] == [2, 3] for r in received), received[:3]

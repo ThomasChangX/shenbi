@@ -73,6 +73,7 @@ from shenbi.pipeline.llm_output_integrity import (
     check_audit_completeness,
     PRODUCTION_VOCAB_FORMS,
     check_audit_dispatch_integrity,
+    check_audit_starve_verdict,
     check_audit_line_refs,
     check_audit_severity_vocab,
     check_markdown_fence_balance,
@@ -1347,22 +1348,27 @@ def build_skill_prompt(
     # Inject shared review checklist for review skills (Phase 2.3).
     if is_review_skill(skill) and chapter is not None:
         try:
+            from shenbi.pipeline.chapter_loop import bundle_chapters
             from shenbi.pipeline.review_checklist import (
-                generate_review_checklist,
+                generate_bundle_checklist,
                 inject_checklist_into_prompt,
             )
 
-            # C28 R1: route the checklist's chapter reads through the shared
-            # raw-bytes table (3 full-text reads on the cold path).
-            chapter_content = (
-                shared_context.raw_files.get(f"chapters/chapter-{chapter}.md")
+            # spec #109 T2: one 审查参考数据 block per bundle member — the
+            # follower's precompute rides the same prompt (ch45-form
+            # "数据未注入" section starvation dies on both sides). C28 R1:
+            # route each chapter's reads through the shared raw-bytes table.
+            wave_chapters = bundle_chapters(project_dir, chapter)
+            chapter_contents = {
+                n: shared_context.raw_files.get(f"chapters/chapter-{n}.md")
                 if shared_context is not None
                 else None
+                for n in wave_chapters
+            }
+            checklists = generate_bundle_checklist(
+                project_dir, wave_chapters, chapter_contents=chapter_contents
             )
-            checklist = generate_review_checklist(
-                project_dir, chapter, chapter_content=chapter_content
-            )
-            user_prompt = inject_checklist_into_prompt(user_prompt, checklist)
+            user_prompt = inject_checklist_into_prompt(user_prompt, checklists)
         except Exception as e:
             log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
 
@@ -2986,6 +2992,9 @@ def write_parsed_outputs(
             # spec #105 T3: dispatch-integrity signature → report invalid.
             # vol1 回放 108/108 全真阳性（历史框架事故族）——shadow 零误伤。
             issues += check_audit_dispatch_integrity(full_path)
+            # spec #109 T4: starvation-verdict → report invalid (input gap —
+            # a verdict the audit could not legitimately issue).
+            issues += check_audit_starve_verdict(full_path)
             # spec #105 T2/T4: key-only 发射（audit-T4 处置(a)）——bracket/bold
             # 通配在真语料 198 误伤，保留于回放工具做 #116 采集；key 形=唯一
             # 全通配槽位（spec r2.4 自证），vol1 613 份回放零误伤。

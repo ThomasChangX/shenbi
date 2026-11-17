@@ -1326,3 +1326,19 @@ class TestParallelPostDraftFailureFeedback:
             run_chapter_step(state, tmp_path)
         fb = state.chapter_loop.retry_feedback.get("ch1-shenbi-state-settling")
         assert fb is not None and guard_msg in fb, state.chapter_loop.retry_feedback
+
+
+def test_should_skip_audit_rejects_invalid_streak() -> None:
+    """Spec #109 T4b: an invalid product never feeds the cascade streak."""
+    from shenbi.pipeline.chapter_loop import should_skip_audit
+
+    hist_ok = [
+        {"skill": "texture", "chapter": c, "passed": True, "hard_failures": 0, "valid": True}
+        for c in (1, 2, 3)
+    ]
+    assert should_skip_audit("texture", hist_ok, current_chapter=4) is True
+    hist_bad = [dict(r, valid=False) for r in hist_ok]
+    assert should_skip_audit("texture", hist_bad, current_chapter=4) is False
+    # legacy entries without the key stay valid (back-compat)
+    hist_legacy = [{k: v for k, v in r.items() if k != "valid"} for r in hist_ok]
+    assert should_skip_audit("texture", hist_legacy, current_chapter=4) is True

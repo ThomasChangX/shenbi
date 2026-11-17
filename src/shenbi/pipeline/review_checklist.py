@@ -194,42 +194,68 @@ def generate_review_checklist(
     return checklist
 
 
-def inject_checklist_into_prompt(prompt: str, checklist: ReviewChecklist) -> str:
-    """Inject a JSON checklist block into a review skill prompt.
+def generate_bundle_checklist(
+    project_dir: Path | str,
+    chapters: list[int],
+    *,
+    chapter_contents: dict[int, str | None] | None = None,
+) -> list[ReviewChecklist]:
+    """Generate the per-chapter checklists for a whole audit bundle (spec #109 T2).
+
+    Each chapter reuses the single-chapter mtime-cached path, so a bundle
+    costs at most two cold builds and the ch45-form "数据未注入" starvation
+    (missing precompute for a section) stops being possible on either side.
+    ``chapter_contents`` carries pre-read chapter bytes per chapter (C28 R1
+    shared raw-bytes table).
+    """
+    contents = chapter_contents or {}
+    return [
+        generate_review_checklist(project_dir, n, chapter_content=contents.get(n)) for n in chapters
+    ]
+
+
+def inject_checklist_into_prompt(
+    prompt: str, checklists: ReviewChecklist | list[ReviewChecklist]
+) -> str:
+    """Inject JSON checklist block(s) into a review skill prompt.
 
     The checklist is inserted as a ``审查参考数据`` block after the task
     description but before the input files section. If the prompt doesn't have
     an ``## Input Files`` marker, the checklist is appended at the end.
+    A list injects one block per chapter in list order (spec #109 T2).
 
     Args:
         prompt: The original review skill user prompt.
-        checklist: The ``ReviewChecklist`` to inject.
+        checklists: One ``ReviewChecklist`` or a list (bundle form).
 
     Returns:
-        The prompt with the checklist JSON block injected.
+        The prompt with the checklist JSON block(s) injected.
     """
-    # Serialize checklist to compact JSON.
-    checklist_json = json.dumps(
-        {
-            "chapter": checklist.chapter,
-            "version": checklist.version,
-            "transition_budget": checklist.transition_budget,
-            "transition_count": checklist.transition_count,
-            "ai_marker_hits": checklist.ai_marker_hits,
-            "paragraph_cv": checklist.paragraph_cv,
-            "ai_blacklist": checklist.ai_blacklist,
-            "fatigue_warnings": checklist.fatigue_warnings,
-            "voice_constraints": checklist.voice_constraints,
-            "pov_mode": checklist.pov_mode,
-            "hook_deliverables": checklist.hook_deliverables,
-            "ending_constraints": checklist.ending_constraints,
-            "world_rules_brief": checklist.world_rules_brief,
-            "sensitivity_flags": checklist.sensitivity_flags,
-        },
-        ensure_ascii=False,
-    )
+    items = [checklists] if isinstance(checklists, ReviewChecklist) else list(checklists)
 
-    checklist_block = f"\n## 审查参考数据\n```json\n{checklist_json}\n```\n"
+    def _block(checklist: ReviewChecklist) -> str:
+        checklist_json = json.dumps(
+            {
+                "chapter": checklist.chapter,
+                "version": checklist.version,
+                "transition_budget": checklist.transition_budget,
+                "transition_count": checklist.transition_count,
+                "ai_marker_hits": checklist.ai_marker_hits,
+                "ai_blacklist": checklist.ai_blacklist,
+                "paragraph_cv": checklist.paragraph_cv,
+                "fatigue_warnings": checklist.fatigue_warnings,
+                "voice_constraints": checklist.voice_constraints,
+                "pov_mode": checklist.pov_mode,
+                "hook_deliverables": checklist.hook_deliverables,
+                "ending_constraints": checklist.ending_constraints,
+                "world_rules_brief": checklist.world_rules_brief,
+                "sensitivity_flags": checklist.sensitivity_flags,
+            },
+            ensure_ascii=False,
+        )
+        return f"\n## 审查参考数据\n```json\n{checklist_json}\n```\n"
+
+    checklist_block = "".join(_block(c) for c in items)
 
     # Insert before "## Input Files" if that marker exists.
     input_pos = prompt.find("## Input Files")
@@ -596,6 +622,7 @@ def _summarize_world_rules(project_dir: Path) -> str:
 __all__ = [
     "ENDING_PATTERNS",
     "ReviewChecklist",
+    "generate_bundle_checklist",
     "generate_review_checklist",
     "inject_checklist_into_prompt",
 ]

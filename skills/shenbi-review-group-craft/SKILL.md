@@ -6,8 +6,10 @@ contract:
   kind: report
   reads:
     - chapters/chapter-N.md
+    - chapters/chapter-{N+1}.md
     - genre-config.json
     - plans/chapter-N-plan.md
+    - plans/chapter-{N+1}-plan.md
     - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
   writes:
     - file: audits/chapter-N-texture.md
@@ -34,7 +36,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, genre-config.json, plans/chapter-N-plan.md, truth/pending_hooks.md
+- **Reads:** chapters/chapter-N.md, chapters/chapter-{N+1}.md, genre-config.json, plans/chapter-N-plan.md, plans/chapter-{N+1}-plan.md, truth/pending_hooks.md
 - **Writes:** audits/chapter-N-texture.md, audits/chapter-{N+1}-texture.md, audits/chapter-N-reader-pull.md, audits/chapter-{N+1}-reader-pull.md, audits/chapter-N-anti-ai.md, audits/chapter-{N+1}-anti-ai.md
 - **Updates:** none
 

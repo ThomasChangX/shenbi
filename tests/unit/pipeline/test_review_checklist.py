@@ -374,3 +374,28 @@ class TestEndingWindowTen:
         result = _get_recent_ending_types(tmp_path, 11)
         assert len(result) == 10
         assert result.count("missing") == 1
+
+
+def test_inject_checklist_two_blocks() -> None:
+    """Spec #109 T2: bundle injection carries one block per chapter."""
+    from shenbi.pipeline.review_checklist import (
+        ReviewChecklist,
+        inject_checklist_into_prompt,
+    )
+
+    c25 = ReviewChecklist(chapter=25)
+    c26 = ReviewChecklist(chapter=26)
+    out = inject_checklist_into_prompt("## Input Files\n- x", [c25, c26])
+    assert out.count("## 审查参考数据") == 2
+    assert '"chapter": 25' in out and '"chapter": 26' in out
+
+
+def test_inject_checklist_single_object_compat() -> None:
+    """Single-object form still works (non-bundle callers unchanged)."""
+    from shenbi.pipeline.review_checklist import (
+        ReviewChecklist,
+        inject_checklist_into_prompt,
+    )
+
+    out = inject_checklist_into_prompt("## Input Files\n- x", ReviewChecklist(chapter=3))
+    assert out.count("## 审查参考数据") == 1

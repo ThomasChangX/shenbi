@@ -324,6 +324,13 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
 
     (tmp_path / "audits").mkdir()
     (tmp_path / "genre-config.json").write_text("{}", encoding="utf-8")
+    # spec #109 T3 (M8): audit_reports is now the per-n ON-DISK dimension
+    # report set (glob) — phantom names are structurally impossible and a
+    # failed skill with zero products records nothing. A successful skill's
+    # product on disk is what gets recorded.
+    (tmp_path / "audits" / "chapter-2-factual-continuity.md").write_text(
+        "# 连续性\n\n## 判定\n通过。\n", encoding="utf-8"
+    )
 
     GROUP = "shenbi-review-group-character"
 
@@ -345,7 +352,7 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
 
     with (
         patch(
-            "shenbi.pipeline.audit_context_cache.build_shared_audit_context",
+            "shenbi.pipeline.audit_context_cache.build_bundle_audit_context",
             return_value=SimpleNamespace(
                 estimated_tokens=0,
                 raw_files={},
@@ -378,11 +385,13 @@ def test_wave_failed_group_not_marked_done_and_real_paths_recorded(tmp_path, mon
     assert GROUP not in cs.steps_done, cs.steps_done
     # successful audit skills still are
     assert "shenbi-review-group-factual" in cs.steps_done
-    # 2. audit_reports carries the four real contract writes, not the phantom
+    # 2. audit_reports carries the ON-DISK dimension reports (spec #109 T3):
+    # the phantom convention name is structurally excluded (glob), the failed
+    # group's zero products record nothing, and a real on-disk product does.
     reports = cs.audit_results.get("audit_reports", [])
     assert "audits/chapter-2-group-character.md" not in reports, reports
-    assert "audits/chapter-2-character.md" in reports, reports
-    assert "audits/chapter-2-pov.md" in reports, reports
+    assert "audits/chapter-2-character.md" not in reports, reports  # failed → no product
+    assert "audits/chapter-2-factual-continuity.md" in reports, reports
     # 3. per-skill failure disclosed as before
     assert cs.audit_results.get("group-character", {}).get("passed") is False
 
@@ -492,3 +501,75 @@ def test_review_task_dispatch_carries_path_context(monkeypatch, tmp_path) -> Non
         is None
     )
     _ = re, monkeypatch
+
+
+def test_wave_done_face_excludes_invalid_skill(tmp_path):
+    """Spec #109 T4b (plan re-review M1): a skill whose products carry a
+    FAIL-class post-write finding is NOT marked done — same wave, not the
+    next one (the done face runs BEFORE the per-skill entry loop).
+    """
+    from types import SimpleNamespace
+    from unittest.mock import patch
+
+    from shenbi.pipeline import chapter_loop as cl
+    from shenbi.pipeline.audit_layer import audit_report_paths
+    from shenbi.pipeline.state import PipelineState
+
+    (tmp_path / "audits").mkdir()
+    (tmp_path / "genre-config.json").write_text("{}", encoding="utf-8")
+    GROUP = "shenbi-review-group-craft"
+    # every audit skill's declared products on disk; group-craft's follower
+    # report is a starvation product with a FAIL journal finding.
+    from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
+    from shenbi.pipeline.review_checklist import is_review_skill
+
+    skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and is_review_skill(s.skill)]
+    for skill in skills:
+        for rel in audit_report_paths(2, skill):
+            f = tmp_path / rel
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text("## 判定: 通过\n", encoding="utf-8")
+    starved = tmp_path / "audits" / "chapter-2-texture.md"
+    starved.write_text("**判定**: 待补（正文未提供）\n", encoding="utf-8")
+    (tmp_path / "audits" / ".integrity-findings-2.jsonl").write_text(
+        '{"file": "audits/chapter-2-texture.md", '
+        '"finding": "G4.av.starve_verdict:chapter-2-texture.md — L1:判定行饿死形态「待补」"}\n',
+        encoding="utf-8",
+    )
+
+    class _R:
+        success = True
+        returncode = 0
+        stdout = ""
+        stderr = ""
+
+    state = PipelineState()
+    state.project_dir = str(tmp_path)
+    state.chapter_loop.current_chapter = 2
+    state.chapter_loop.step_index = cl._FIRST_AUDIT_IDX
+
+    with (
+        patch(
+            "shenbi.pipeline.audit_context_cache.build_bundle_audit_context",
+            return_value=SimpleNamespace(estimated_tokens=0, raw_files={}),
+        ),
+        patch("shenbi.pipeline.audit_layer.get_active_genre_audits", return_value=[]),
+        patch("shenbi.pipeline.audit_layer.missing_audit_reads", return_value=[]),
+        patch(
+            "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
+            side_effect=lambda tasks, on_task_complete=None, state=None: [_R() for _ in tasks],
+        ),
+        patch.object(
+            cl,
+            "dispatch_serial_reviews",
+            side_effect=lambda tasks, pd, state=None: [_R() for _ in tasks],
+        ),
+        patch.object(cl, "_parse_and_persist_resonance"),
+        patch.object(cl, "route_revision_after_resonance"),
+    ):
+        cl.run_chapter_step(state, tmp_path)
+
+    cs = state.chapter_loop.chapter_states.get("2")
+    assert cs is not None
+    assert GROUP not in cs.steps_done, cs.steps_done
+    assert "shenbi-review-group-factual" in cs.steps_done  # healthy skills still done

@@ -108,7 +108,7 @@ def test_wave_audit_entry_marks_resonance_pending_not_passed(tmp_path: Path):
     report.write_text(PENDING_REPORT, encoding="utf-8")
 
     entry = cl._wave_audit_entry(True, 0, ["audits/chapter-2-resonance.md"], tmp_path)
-    assert entry == {"passed": False, "hard_failures": 0, "resonance_pending": True}
+    assert entry == {"passed": False, "hard_failures": 0, "resonance_pending": True, "valid": True}
 
 
 def test_wave_audit_entry_clean_resonance_report_passes(tmp_path: Path):
@@ -120,7 +120,7 @@ def test_wave_audit_entry_clean_resonance_report_passes(tmp_path: Path):
     )
 
     entry = cl._wave_audit_entry(True, 0, ["audits/chapter-2-resonance.md"], tmp_path)
-    assert entry == {"passed": True, "hard_failures": 0}
+    assert entry == {"passed": True, "hard_failures": 0, "valid": True}
 
 
 def test_wave_audit_entry_hard_failure_still_fails(tmp_path: Path):
@@ -129,4 +129,4 @@ def test_wave_audit_entry_hard_failure_still_fails(tmp_path: Path):
     report.write_text("| P1 | x | **BLOCKING** |\n", encoding="utf-8")
 
     entry = cl._wave_audit_entry(True, 1, ["audits/chapter-2-factual.md"], tmp_path)
-    assert entry == {"passed": False, "hard_failures": 1}
+    assert entry == {"passed": False, "hard_failures": 1, "valid": True}

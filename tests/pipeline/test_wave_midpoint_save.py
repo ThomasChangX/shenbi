@@ -92,7 +92,7 @@ def test_replay_scope_limited_to_unfinished(tmp_path: Path, monkeypatch) -> None
     audits = tmp_path / "audits"
     audits.mkdir()
     (audits / "chapter-1-factual.md").write_text("# done pre-crash\n", encoding="utf-8")
-    remaining = _filter_completed_audit_tasks(_tasks(tmp_path))
+    remaining = _filter_completed_audit_tasks(_tasks(tmp_path), tmp_path)
     assert [t.skill for t in remaining] == [FAILING_SKILL]
 
 

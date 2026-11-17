@@ -390,13 +390,28 @@ def committed_chapter_anchor(project_dir: Path) -> int:
     return anchor
 
 
-def _filter_completed_audit_tasks(tasks: list[ReviewTask]) -> list[ReviewTask]:
-    """C30 F377: drop audit tasks whose output product already exists.
+def _filter_completed_audit_tasks(tasks: list[ReviewTask], project_dir: Path) -> list[ReviewTask]:
+    """C30 F377 + spec #109 T5: drop audit tasks whose outputs all exist AND are valid.
 
-    After a mid-wave crash, re-entry replays only the unfinished segment —
-    skills that already wrote their audit report are not re-dispatched.
+    Existence alone marked starved/invalid follower products complete — the
+    resume path never re-dispatched them (147/588 vol1 evidence). Validity =
+    journal-derived FAIL findings (revalidated) OR a fresh starve-verdict
+    re-check of the on-disk file (the journal may be absent/torn after a
+    crash — the re-check is the deterministic bottom line).
     """
-    return [t for t in tasks if not all((t.project_dir / p).exists() for p in t.all_output_paths())]
+    from shenbi.pipeline.llm_output_integrity import check_audit_starve_verdict
+
+    out: list[ReviewTask] = []
+    for t in tasks:
+        paths = [project_dir / p for p in t.all_output_paths()]
+        if not all(p.exists() for p in paths):
+            out.append(t)
+            continue
+        if _fail_findings_for_reports(list(t.all_output_paths()), project_dir) or any(
+            check_audit_starve_verdict(p) for p in paths
+        ):
+            out.append(t)  # invalid product → re-dispatch with full inputs
+    return out
 
 
 def _run_audit_close_for_chapter(
@@ -737,6 +752,8 @@ def should_skip_audit(
             return False  # Did not pass → break streak
         if result.get("hard_failures", 0) > 0:
             return False  # Any HARD failure → break streak
+        if result.get("valid") is False:
+            return False  # spec #109 T4b: invalid product → break streak
 
     # Staleness guard: skipped audits append no history, so an old streak
     # would otherwise satisfy the skip condition forever. Force a real run
@@ -785,6 +802,7 @@ def _get_audit_history(state: PipelineState, current_chapter: int) -> list[dict[
                         "passed": audit_result.get("passed", False),
                         "hard_failures": audit_result.get("hard_failures", 0),
                         "issues": audit_result.get("issues", []),
+                        "valid": audit_result.get("valid", True),
                     }
                 )
     return results
@@ -3072,6 +3090,124 @@ def _resonance_report_blocked(report_path: Path) -> bool:
     return bool(_RESONANCE_BLOCKED_RE.search(fence)) and not RESONANCE_PENDING_RE.search(fence)
 
 
+def _fail_findings_for_reports(report_paths: list[str], project_dir: Path) -> list[str]:
+    """Report files carrying FAIL-class post-write findings (spec #109 T4b).
+
+    Returns the offending project-relative report paths (deduped, input
+    order). The journal is VOLUMED BY THE WRITTEN FILE'S OWN CHAPTER
+    (_append_integrity_findings) — a grouped skill's follower findings live
+    in ``.integrity-findings-26.jsonl`` while the first report path is 25:
+    the lookup must walk EVERY report path against ITS OWN volume (C1). FAIL
+    classification reuses the G4 single source (prefixes + the single WARN
+    exception).
+    """
+    import json as _json
+
+    from shenbi.gates.g4.generic import _POST_WRITE_FAIL_PREFIXES  # pyright: ignore[reportPrivateUsage] — G4 FAIL 分类单源（settle_ops.py:39 先例）
+
+    hits: list[str] = []
+    for rel in report_paths:
+        m = re.search(r"chapter-(\d+)", rel)
+        if m is None:
+            continue
+        journal = project_dir / "audits" / f".integrity-findings-{m.group(1)}.jsonl"
+        if not journal.is_file():
+            continue
+        for line in journal.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                entry = _json.loads(line)
+            except _json.JSONDecodeError:
+                continue  # torn tail (crash) — same tolerance as the G4 reader
+            if str(entry.get("file", "")) != rel:
+                continue
+            finding = str(entry.get("finding", ""))
+            if finding.startswith("G4.pi.fence_imbalance"):
+                continue  # the single WARN class
+            if any(finding.startswith(p) for p in _POST_WRITE_FAIL_PREFIXES):
+                # audit-T5 🟡1: same read-side policy as the G4 reader — the
+                # journal is append-only, so a FAIL line for a report that was
+                # since rewritten clean must be revalidated away (probe2
+                # escalation-1 semantics; the per-id starve_verdict route is
+                # already wired in _revalidate_finding).
+                from shenbi.gates.g4.generic import _revalidate_finding  # pyright: ignore[reportPrivateUsage] — G4 复验单源
+
+                if _revalidate_finding(project_dir, rel, finding):
+                    if rel not in hits:
+                        hits.append(rel)
+                    break  # audit-T5 re-review Minor: only a SURVIVING finding
+                    # ends the scan — a revalidated-away line must not hide a
+                    # later surviving FAIL of a different class on the same rel
+    return hits
+
+
+def _wave_close_for_n(
+    state: PipelineState,
+    project_dir: Path,
+    n: int,
+    results: list[DispatchResult],
+    skills: list[str],
+    cascade_skipped: list[str],
+) -> None:
+    """Per-n audit close for the wave path (spec #109 T3).
+
+    The serial loop's ``_run_audit_close_for_chapter`` is unreachable under
+    the wave interception (``_run_audit_wave_step`` advances past
+    ``_LAST_AUDIT_IDX``); this is its wave equivalent minus the genre
+    re-dispatch — ``run_audit_layer`` would re-dispatch wave-2 skills
+    (spec #109 d1/d2), so the close reuses the wave's own file surface:
+    per-n consolidation glob + the single-source sensors (the literal
+    ``"## BLOCKING Issues"`` H2 probe over DIMENSION reports was dead —
+    588 vol1 reports carry zero such H2, spec #109 f).
+    """
+    from shenbi.pipeline.parallel_dispatch import (
+        build_consolidator_sensors,
+        consolidate_review_results,
+    )
+
+    reports = [
+        p
+        for p in sorted((project_dir / "audits").glob(f"chapter-{n}-*.md"))
+        if "review-summary" not in p.name
+    ]
+    # spec #109 T4b: invalid face computed INLINE from the journal (order-safe
+    # — never derived from the per-skill entry loop that runs later). The
+    # names come from the on-disk glob, so the disclosure line can only name
+    # real product files (re-review N#1).
+    invalid_reports = _fail_findings_for_reports([f"audits/{p.name}" for p in reports], project_dir)
+    consolidated = consolidate_review_results(
+        results,
+        n,
+        skills=skills,
+        project_dir=project_dir,
+        cascade_skipped=sorted(set(cascade_skipped)) or None,
+        invalid_reports=invalid_reports,
+    )
+    safe_write(project_dir / "audits" / f"chapter-{n}-review-summary.md", consolidated)
+    blocking_re, _critical_re = build_consolidator_sensors()
+
+    def _blocking_in(p: Path) -> bool:
+        # audit-T3 🟡1: an unreadable report must not crash the per-n close
+        # loop (poison file → every later n skipped; resume replays into the
+        # same raise). Same tolerance as the entry loop's read.
+        try:
+            return bool(blocking_re.search(p.read_text(encoding="utf-8")))
+        except OSError:
+            log.warning("audit_report_unreadable", path=str(p))
+            return False
+
+    cs = _get_chapter_state(state, n)
+    cs.audit_results["blocking_found"] = ("## BLOCKING Issues" in consolidated) or any(
+        _blocking_in(p) for p in reports if p.is_file()
+    )
+    cs.audit_results["audit_reports"] = [f"audits/{p.name}" for p in reports]
+
+    # F304 per-n: the trend row must exist before the floor check routes.
+    _parse_and_persist_resonance(state, project_dir, n, source="parallel_wave")
+    route_revision_after_resonance(state, project_dir, n)
+
+
 def _wave_audit_entry(
     task_success: bool, hard: int, report_paths: list[str], project_dir: Path
 ) -> dict[str, Any]:
@@ -3082,6 +3218,11 @@ def _wave_audit_entry(
     report itself said the hard gate could not evaluate.
     """
     entry: dict[str, Any] = {"passed": task_success and hard == 0, "hard_failures": hard}
+    # spec #109 T4b: valid is the third state, orthogonal to passed — a
+    # FAIL-class post-write finding on any report file means the audit ran
+    # without its inputs and the product is invalid (C1: per-file journal
+    # volume lookup).
+    entry["valid"] = not _fail_findings_for_reports(report_paths, project_dir)
     if task_success and hard == 0:
         for rel in report_paths:
             if "resonance" in rel and _resonance_report_pending(project_dir / rel):
@@ -4049,7 +4190,6 @@ def _run_audit_wave_step(
     """Parallel review dispatch: core+genre circles in two waves (Task 7; spec #87 T3 extraction)."""
     from shenbi.pipeline.parallel_dispatch import (
         ReviewTask,
-        consolidate_review_results,
         dispatch_reviews_parallel,
     )
     from shenbi.pipeline.audit_layer import (
@@ -4058,16 +4198,24 @@ def _run_audit_wave_step(
         audit_suffix,
         get_active_genre_audits,
     )
-    from shenbi.safe_write import safe_write
 
-    # Build shared audit context ONCE per chapter so auditors skip
-    # re-reading the same files from disk (Task 6 Step 2 wiring).
-    from shenbi.pipeline.audit_context_cache import build_shared_audit_context
+    # Wave 1: core reviews in parallel; WRITE_SHARED members partitioned out
+    # to serial (assert_parallelizable rejects non-read-only; F532, C32 R4).
+    core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and is_review_skill(s.skill)]
+    # spec #72 T9: cluster dispatch — ONE prompt per skill covers the bundle;
+    # reports stay PER-CHAPTER ({N+1} brace writes cover follower paths too).
+    wave_chapters = bundle_chapters(project_dir, chapter)
 
-    shared_ctx = build_shared_audit_context(project_dir, chapter)
+    # Build shared audit context ONCE per wave so auditors skip re-reading
+    # the same files from disk (Task 6 Step 2 wiring). spec #109 T2: the
+    # context covers EVERY bundle member — the follower's prose enters
+    # raw_files under its own key (read-suppression + checklist content).
+    from shenbi.pipeline.audit_context_cache import build_bundle_audit_context
+
+    shared_ctx = build_bundle_audit_context(project_dir, wave_chapters)
     log.info(
         "shared_audit_context_built_for_wave",
-        chapter=chapter,
+        chapters=wave_chapters,
         estimated_tokens=shared_ctx.estimated_tokens,
     )
 
@@ -4083,13 +4231,6 @@ def _run_audit_wave_step(
             cascade_skipped.append(task.skill)
             return False
         return True
-
-    # Wave 1: core reviews in parallel; WRITE_SHARED members partitioned out
-    # to serial (assert_parallelizable rejects non-read-only; F532, C32 R4).
-    core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and is_review_skill(s.skill)]
-    # spec #72 T9: cluster dispatch — ONE prompt per skill covers the bundle;
-    # reports stay PER-CHAPTER ({N+1} brace writes cover follower paths too).
-    wave_chapters = bundle_chapters(project_dir, chapter)
 
     # ── spec #105 T3: audit-dispatch read-readiness pre-check ────────────────
     # #51 ghost-chain guard 控制流先例：缺失输入禁止派发 LLM 表达（派发完整
@@ -4111,7 +4252,11 @@ def _run_audit_wave_step(
         _expected = audit_report_paths(chapter, _skill)
         if _expected and all((project_dir / rel).exists() for rel in _expected):
             continue
-        _gaps = {gap for n in wave_chapters for gap in missing_audit_reads(project_dir, _skill, n)}
+        _gaps = {
+            gap
+            for n in wave_chapters
+            for gap in missing_audit_reads(project_dir, _skill, n, bundle=wave_chapters)
+        }
         if _gaps:
             _missing_reads[_skill] = sorted(_gaps)
     if _missing_reads:
@@ -4159,7 +4304,7 @@ def _run_audit_wave_step(
     core_tasks = [t for t in core_tasks if _keep_task(t)]
     core_wave, core_serial = _partition_review_wave(core_tasks)
 
-    core_wave = _filter_completed_audit_tasks(core_wave)
+    core_wave = _filter_completed_audit_tasks(core_wave, project_dir)
     core_results: list[DispatchResult] = []
     if core_wave:
         log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_wave))
@@ -4198,7 +4343,7 @@ def _run_audit_wave_step(
             state.add_audit_result(n, "cascade_skipped", sorted(set(cascade_skipped)))
     genre_wave, genre_serial = _partition_review_wave(genre_tasks)
 
-    genre_wave = _filter_completed_audit_tasks(genre_wave)
+    genre_wave = _filter_completed_audit_tasks(genre_wave, project_dir)
     genre_results: list[DispatchResult] = []
     if genre_wave:
         log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_wave))
@@ -4223,15 +4368,6 @@ def _run_audit_wave_step(
     ):
         if not gate_passed(rec["g3"]):
             log.warning("parallel_wave_g3_failed", chapter=chapter, skill=rec["skill"])
-    consolidated = consolidate_review_results(
-        all_results,
-        chapter,
-        skills=[t.skill for t in core_tasks + genre_tasks],
-        project_dir=project_dir,
-        cascade_skipped=sorted(set(cascade_skipped)) or None,
-    )
-    summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
-    safe_write(summary_path, consolidated)
 
     # Record review steps as done and advance past them — EXCEPT those
     # whose dispatch failed (fixcheck ch2: the character group failed on
@@ -4247,31 +4383,29 @@ def _run_audit_wave_step(
         )
         if not result.success
     }
+    # spec #109 T4b (re-review M1): computed INLINE beside _failed_audit_skills
+    # — the done face runs BEFORE the per-skill entry loop, so invalid
+    # exclusion must not depend on entry products. Journal-derived (C1),
+    # never entry-derived. UNIVERSE = the CHAPTER_STEPS audit skills (NOT the
+    # filtered wave lists): _filter_completed_audit_tasks empties the wave on
+    # a replay where all products exist, and cascade-skipped skills leave the
+    # lists — the done loop marks the full CHAPTER_STEPS range, so the
+    # exclusion set must span the same universe (audit-T5 implementation
+    # deviation, adjudicated correct).
+    _invalid_audit_skills = {
+        step.skill
+        for step in CHAPTER_STEPS
+        if step.is_audit
+        and _fail_findings_for_reports(audit_report_paths(chapter, step.skill), project_dir)
+    }
     for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
-        if i < len(CHAPTER_STEPS) and CHAPTER_STEPS[i].skill not in _failed_audit_skills:
+        if i < len(CHAPTER_STEPS) and CHAPTER_STEPS[i].skill not in (
+            _failed_audit_skills | _invalid_audit_skills
+        ):
             state.add_step_done(chapter, CHAPTER_STEPS[i].skill)
 
     state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1
     state.chapter_loop.current_step = ""
-
-    # Check for blocking issues
-    cs = _get_chapter_state(state, chapter)
-    # The consolidated summary always contains "- **BLOCKING Issues**: N".
-    # Only the "## BLOCKING Issues" H2 section is present when actual
-    # blocking issues exist (see consolidate_review_results in parallel_dispatch.py).
-    # C30 audit-T5 I1: on a post-crash replay where the whole wave was
-    # already filtered out (all outputs exist), ``consolidated`` is built
-    # from an empty result list and would under-report BLOCKING — derive
-    # from the durable artifacts of the FULL task set instead.
-    cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated or any(
-        "## BLOCKING Issues" in (project_dir / p).read_text(encoding="utf-8")
-        for task in core_tasks + genre_tasks
-        for p in task.all_output_paths()
-        if (project_dir / p).exists()
-    )
-    cs.audit_results["audit_reports"] = [
-        p for t in core_tasks + genre_tasks for p in t.all_output_paths()
-    ]
     # Per-skill history entries (F341/F726, spec #27 T5): the cascade
     # (should_skip_audit/_get_audit_history) consumes exactly this shape.
     # hard_failures counts BLOCKING/CRITICAL markers in the audit report
@@ -4290,6 +4424,7 @@ def _run_audit_wave_step(
             )
         ),
     )
+    cs = _get_chapter_state(state, chapter)
     for task, result in zip(
         core_wave + core_serial + genre_wave + genre_serial,
         core_results + genre_results,
@@ -4308,17 +4443,13 @@ def _run_audit_wave_step(
             bool(result.success), hard, list(task.all_output_paths()), project_dir
         )
 
-    # F304: parse the resonance score from the serially-dispatched
-    # review-resonance report (file exists at this point) and persist the
-    # trend row — mirrors the serial step-loop path. Must run BEFORE
-    # route_revision_after_resonance so the floor check sees a real
-    # score instead of fail-opening on None.
-    _parse_and_persist_resonance(state, project_dir, chapter, source="parallel_wave")
-
-    # Run revision routing after all reviews complete (spec §6.3).
-    # In the serial path this is called after review-resonance; in the
-    # parallel path we call it once after consolidation.
-    route_revision_after_resonance(state, project_dir, chapter)
+    # spec #109 T3: per-n close for EVERY bundle member — consolidation
+    # summary, blocking detection (single-source sensors over the per-n
+    # dimension reports), per-n state attribution, and revision routing
+    # (the serial close loop's wave equivalent; see _wave_close_for_n).
+    _close_skills = [t.skill for t in core_tasks + genre_tasks]
+    for n in wave_chapters:
+        _wave_close_for_n(state, project_dir, n, all_results, _close_skills, cascade_skipped)
 
     _reset_retries(state, step, chapter)
     return _advance(

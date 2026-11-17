@@ -67,7 +67,7 @@ def test_audit_wave_regime(tmp_path: Path) -> None:
 
     with (
         patch(
-            "shenbi.pipeline.audit_context_cache.build_shared_audit_context",
+            "shenbi.pipeline.audit_context_cache.build_bundle_audit_context",
             return_value=SimpleNamespace(
                 estimated_tokens=0,
                 raw_files={},

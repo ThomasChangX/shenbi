@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from shenbi.pipeline.llm_output_integrity import (
     check_audit_completeness,
     check_audit_line_refs,
@@ -140,3 +142,44 @@ class TestCheckAuditLineRefs:
         audit = tmp_path / "chapter-1-continuity.md"
         audit.write_text("参见 chapter-1.md L2-3。", encoding="utf-8")
         assert check_audit_line_refs(audit, tmp_path / "chapter-1.md") == []
+
+
+# ── spec #109 T4: starvation-verdict invalidation (all-verdict-lines anchor) ──
+
+
+def test_starve_verdict_catches_placeholder_pass(tmp_path: Path) -> None:
+    from shenbi.pipeline.llm_output_integrity import check_audit_starve_verdict
+
+    p = tmp_path / "chapter-48-memo-compliance.md"
+    p.write_text("# 审\n\n**判定**: 通过（附条件）\n", encoding="utf-8")
+    issues = check_audit_starve_verdict(p)
+    assert any("starve_verdict" in i and "附条件" in i for i in issues)
+
+
+def test_starve_verdict_catches_section_starvation_not_first_line(tmp_path: Path) -> None:
+    """ch45 form: the top verdict passes, a LATER verdict line starves — the
+    all-verdict-lines anchor must see it (spec I1).
+    """
+    from shenbi.pipeline.llm_output_integrity import check_audit_starve_verdict
+
+    p = tmp_path / "chapter-45-reader-pull.md"
+    p.write_text(
+        "# 审\n\n**判定**: 通过\n\n## 节\n\n- **判定**: 无法评估（数据未注入），不判缺陷。\n",
+        encoding="utf-8",
+    )
+    assert any("starve_verdict" in i for i in check_audit_starve_verdict(p))
+
+
+def test_starve_verdict_clean_pass_and_prose_untouched(tmp_path: Path) -> None:
+    """The six legitimate-odd class: clean verdict values + prose mentions
+    never count (ch9 form).
+    """
+    from shenbi.pipeline.llm_output_integrity import check_audit_starve_verdict
+
+    p = tmp_path / "chapter-1-pacing.md"
+    p.write_text(
+        "# 审\n\n**判定**: 通过（有 MINOR 瑕疵，不阻断）\n\n"
+        "散文：本条规则不适用（单章，多章窗口）。\n",
+        encoding="utf-8",
+    )
+    assert check_audit_starve_verdict(p) == []

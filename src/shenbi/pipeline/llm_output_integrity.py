@@ -393,3 +393,36 @@ def check_audit_dispatch_integrity(path: Path) -> list[str]:
                 "（框架 bug 非正文缺陷）：该报告判无效，须修框架不应由审计员表达"
             )
     return issues
+
+
+# --- Spec #109 T4: starvation-verdict invalidation (G4.av.starve_verdict). ---
+#
+# 生产门锚定=全部判定行值段（spec I1：ch45 形饿死标记在第 8 判定行——首行锚
+# 零检出）；散文提及豁免（ch9 形）；词族单源=audit_starve_family（erratum+I2，
+# 禁散文词表/禁另写）。基线/回放的首行语义是 TOOLS 侧消费形态，同一正则。
+
+
+def check_audit_starve_verdict(path: Path) -> list[str]:
+    """Invalidate reports whose verdict lines carry starvation markers (spec #109 T4).
+
+    A starvation marker on ANY line-anchored bold verdict line means the
+    audit ran without its inputs — the product is invalid (neither pass nor
+    fail) and must be re-dispatched with full inputs, never counted as a
+    verdict. Prose mentions never count (only the captured value segment is
+    evaluated).
+    """
+    from shenbi.pipeline.audit_starve_family import PRODUCTION_FAMILY, VERDICT_LINE_RE
+
+    text = path.read_text(encoding="utf-8")
+    issues: list[str] = []
+    for m in VERDICT_LINE_RE.finditer(text):
+        value = m.group(1)
+        for token in PRODUCTION_FAMILY:
+            if token in value:
+                ln = text.count("\n", 0, m.start()) + 1
+                issues.append(
+                    f"G4.av.starve_verdict:{path.name} — L{ln}:判定行饿死形态「{token}」"
+                    "（输入缺口——不得出具判定）——按输入缺口重派"
+                )
+                break
+    return issues

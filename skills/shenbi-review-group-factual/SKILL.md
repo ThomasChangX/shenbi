@@ -6,6 +6,7 @@ contract:
   kind: report
   reads:
     - chapters/chapter-N.md
+    - chapters/chapter-{N+1}.md
     - truth/current_state.md
     - truth/chapter_summaries.md
     - world/rules.md
@@ -43,7 +44,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, truth/current_state.md, truth/chapter_summaries.md, world/rules.md, world/power_system.md, world/locations.md, world/story_bible.md, genre-config.json
+- **Reads:** chapters/chapter-N.md, chapters/chapter-{N+1}.md, truth/current_state.md, truth/chapter_summaries.md, world/rules.md, world/power_system.md, world/locations.md, world/story_bible.md, genre-config.json
 - **Writes:** audits/chapter-N-continuity.md, audits/chapter-{N+1}-continuity.md, audits/chapter-N-world-rules.md, audits/chapter-{N+1}-world-rules.md, audits/chapter-N-pacing.md, audits/chapter-{N+1}-pacing.md
 - **Updates:** none
 

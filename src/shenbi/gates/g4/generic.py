@@ -258,6 +258,13 @@ def _revalidate_finding(project_dir: Path, file_field: str, finding: str) -> boo
             from shenbi.pipeline.llm_output_integrity import check_audit_dispatch_integrity
 
             emitted = check_audit_dispatch_integrity(target)
+        elif finding.startswith("G4.av.starve_verdict"):
+            # spec #109 T4: starvation-verdict re-validation route (same
+            # per-id pattern as dispatch_integrity — the input-gap checker
+            # does not depend on the chapter file either).
+            from shenbi.pipeline.llm_output_integrity import check_audit_starve_verdict
+
+            emitted = check_audit_starve_verdict(target)
         elif finding.startswith("G4.av.vocab"):
             from shenbi.pipeline.llm_output_integrity import (
                 PRODUCTION_VOCAB_FORMS,

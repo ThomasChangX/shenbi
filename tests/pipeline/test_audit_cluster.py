@@ -73,3 +73,235 @@ def test_cluster_savepoint_records_both_chapters(tmp_path: Path) -> None:
         assert cs is not None, n
         done = cs.audit_results.get("wave_completed") or []
         assert "shenbi-review-group-factual" in done, n
+
+
+def test_audit_skills_declare_next_chapter_reads() -> None:
+    """Spec #109 T1: bundle auditors must DECLARE the follower chapter read."""
+    from shenbi.contracts.loader import load_contract
+
+    six = [
+        "shenbi-review-group-craft",
+        "shenbi-review-group-plan",
+        "shenbi-review-group-factual",
+        "shenbi-review-group-character",
+        "shenbi-review-resonance",
+        "shenbi-review-sensitivity",
+    ]
+    for s in six:
+        reads = load_contract(s).get("reads", [])
+        assert any(str(r).endswith("chapter-{N+1}.md") for r in reads), s
+    for s in (
+        "shenbi-review-group-craft",
+        "shenbi-review-group-plan",
+        "shenbi-review-resonance",
+    ):
+        reads = load_contract(s).get("reads", [])
+        assert any(str(r).endswith("chapter-{N+1}-plan.md") for r in reads), s
+
+
+@pytest.mark.integration
+def test_wave_close_routes_follower_blocking(tmp_path: Path, monkeypatch) -> None:
+    """Spec #109 T3: a follower-chapter BLOCKING report drives that n's
+    blocking_found + revision routing (the serial close loop's wave
+    equivalent — unreachable at :4938 under the wave interception).
+    """
+    import shenbi.pipeline.chapter_loop as cl
+    from shenbi.pipeline.state import PipelineState
+
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-25.md").write_text("锚", encoding="utf-8")
+    (tmp_path / "chapters" / "chapter-26.md").write_text("随", encoding="utf-8")
+    (tmp_path / "outline").mkdir()
+    (tmp_path / "outline" / "volume_map.md").write_text(
+        "## 第1卷（第 25-26 章）\n", encoding="utf-8"
+    )
+    audits = tmp_path / "audits"
+    audits.mkdir()
+    (audits / "chapter-26-texture.md").write_text(
+        "# 纹理\n\n**BLOCKING** 未核实：随章正文缺位，无法评估。\n",
+        encoding="utf-8",
+    )
+    routed: list[int] = []
+    monkeypatch.setattr(cl, "route_revision_after_resonance", lambda s, p, n: routed.append(n))
+    state = PipelineState.default(str(tmp_path))
+    cl._wave_close_for_n(
+        state,
+        tmp_path,
+        26,
+        results=[],
+        skills=["shenbi-review-group-craft"],
+        cascade_skipped=[],
+    )
+    cs26 = state.chapter_loop.chapter_states["26"]
+    assert cs26.audit_results["blocking_found"] is True
+    assert 26 in routed
+    assert (audits / "chapter-26-review-summary.md").exists()
+
+
+@pytest.mark.integration
+def test_wave_close_anchor_equivalence(tmp_path: Path, monkeypatch) -> None:
+    """Per-n close keeps the anchor side's behavior (blocking routes anchor
+    only when the anchor's own reports carry it).
+    """
+    import shenbi.pipeline.chapter_loop as cl
+    from shenbi.pipeline.state import PipelineState
+
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-25.md").write_text("锚", encoding="utf-8")
+    (tmp_path / "chapters" / "chapter-26.md").write_text("随", encoding="utf-8")
+    (tmp_path / "outline").mkdir()
+    (tmp_path / "outline" / "volume_map.md").write_text(
+        "## 第1卷（第 25-26 章）\n", encoding="utf-8"
+    )
+    audits = tmp_path / "audits"
+    audits.mkdir()
+    (audits / "chapter-25-texture.md").write_text(
+        "# 纹理\n\n**BLOCKING** 锚章节奏断裂。\n", encoding="utf-8"
+    )
+    routed: list[int] = []
+    monkeypatch.setattr(cl, "route_revision_after_resonance", lambda s, p, n: routed.append(n))
+    state = PipelineState.default(str(tmp_path))
+    cl._wave_close_for_n(
+        state,
+        tmp_path,
+        25,
+        results=[],
+        skills=["shenbi-review-group-craft"],
+        cascade_skipped=[],
+    )
+    cs25 = state.chapter_loop.chapter_states["25"]
+    assert cs25.audit_results["blocking_found"] is True
+    assert routed == [25]  # n=25 收口只路由 25；26 的报告面不含 BLOCKING 不误路由
+
+
+@pytest.mark.integration
+def test_wave_audit_entry_invalid_from_journal(tmp_path: Path) -> None:
+    """Spec #109 T4b: journal FAIL finding on a report file flips valid=False
+    while passed stays orthogonal (three-state).
+    """
+    import shenbi.pipeline.chapter_loop as cl
+
+    (tmp_path / "audits").mkdir()
+    rep = tmp_path / "audits" / "chapter-26-texture.md"
+    rep.write_text("**判定**: 待补（正文未提供）\n", encoding="utf-8")
+    (tmp_path / "audits" / ".integrity-findings-26.jsonl").write_text(
+        json.dumps(
+            {
+                "file": "audits/chapter-26-texture.md",
+                "finding": "G4.av.starve_verdict:chapter-26-texture.md — L2:判定行饿死形态「待补」",
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    entry = cl._wave_audit_entry(True, 0, ["audits/chapter-26-texture.md"], tmp_path)
+    assert entry["passed"] is True and entry["valid"] is False
+
+
+@pytest.mark.integration
+def test_wave_audit_entry_grouped_follower_journal(tmp_path: Path) -> None:
+    """C1: grouped outputs span 25/26 — the follower-volume finding must flip
+    valid even though the FIRST report path resolves to the 25 journal.
+    """
+    import shenbi.pipeline.chapter_loop as cl
+
+    (tmp_path / "audits").mkdir()
+    paths = ["audits/chapter-25-texture.md", "audits/chapter-26-texture.md"]
+    (tmp_path / paths[0]).write_text("**判定**: 通过\n", encoding="utf-8")
+    # the follower file genuinely carries the marker so the journal finding
+    # REPRODUCES under revalidation (append-only journal + clean rewrite
+    # would be revalidated away — audit-T5 I1)
+    (tmp_path / paths[1]).write_text("**判定**: 无法评估（数据未注入）\n", encoding="utf-8")
+    (tmp_path / "audits" / ".integrity-findings-26.jsonl").write_text(
+        json.dumps(
+            {
+                "file": "audits/chapter-26-texture.md",
+                "finding": "G4.av.starve_verdict:chapter-26-texture.md — L1:判定行饿死形态「待核」",
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    entry = cl._wave_audit_entry(True, 0, paths, tmp_path)
+    assert entry["valid"] is False
+
+
+def test_consolidate_disclosure_when_failed_or_invalid() -> None:
+    """Spec #109 T4b: failed>0 or invalid products forbid the clean summary."""
+    from shenbi.pipeline.parallel_dispatch import consolidate_review_results
+
+    out = consolidate_review_results([], 26, invalid_reports=["chapter-26-texture.md"])
+    assert "No BLOCKING or CRITICAL issues found" not in out
+    assert "输入缺口" in out and "chapter-26-texture.md" in out
+    ok = consolidate_review_results([], 26)
+    assert "No BLOCKING or CRITICAL issues found" in ok
+    # audit-T5 I2: the failed_count>0 half of the tightened condition (the
+    # original ch1 summary bug: Failed 5 + a clean sentence).
+    from shenbi.pipeline.dispatch_helper import DispatchResult
+
+    failed = consolidate_review_results(
+        [DispatchResult(success=False, returncode=-1, stdout="", stderr="")], 26
+    )
+    assert "No BLOCKING or CRITICAL issues found" not in failed
+
+
+@pytest.mark.integration
+def test_wave_audit_entry_stale_journal_finding_revalidated(tmp_path: Path) -> None:
+    """audit-T5 I1: the journal is append-only — a FAIL line for a report
+    that was since rewritten clean must not keep the product invalid.
+    """
+    import shenbi.pipeline.chapter_loop as cl
+
+    (tmp_path / "audits").mkdir()
+    rep = tmp_path / "audits" / "chapter-2-texture.md"
+    rep.write_text("**判定**: 通过\n", encoding="utf-8")  # rewritten clean
+    (tmp_path / "audits" / ".integrity-findings-2.jsonl").write_text(
+        json.dumps(
+            {
+                "file": "audits/chapter-2-texture.md",
+                "finding": "G4.av.starve_verdict:chapter-2-texture.md — L1:判定行饿死形态「待补」",
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    entry = cl._wave_audit_entry(True, 0, ["audits/chapter-2-texture.md"], tmp_path)
+    assert entry["valid"] is True  # stale finding revalidated away
+
+
+@pytest.mark.integration
+def test_resume_redispatches_invalid_follower_report(tmp_path: Path) -> None:
+    """Spec #109 T5: mid-wave crash replay — an on-disk starvation product is
+    NOT completion; the skill's task re-enters the dispatch list (and will
+    re-dispatch with full inputs after T2).
+    """
+    import shenbi.pipeline.chapter_loop as cl
+    from shenbi.pipeline.audit_layer import audit_report_paths
+    from shenbi.pipeline.parallel_dispatch import ReviewTask
+
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-25.md").write_text("锚", encoding="utf-8")
+    (tmp_path / "chapters" / "chapter-26.md").write_text("随", encoding="utf-8")
+    # ALL six declared products on disk (else the existence branch fires
+    # first and the red test passes for the wrong reason); only the follower
+    # texture report is a starvation product. No journal (crash before the
+    # post-write hook could run) — the fresh starve re-check is the path.
+    for rel in audit_report_paths(25, "shenbi-review-group-craft"):
+        f = tmp_path / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text("## 判定: 通过\n", encoding="utf-8")
+    (tmp_path / "audits" / "chapter-26-texture.md").write_text(
+        "**判定**: 待补（正文未提供）\n", encoding="utf-8"
+    )
+    task = ReviewTask(
+        skill="shenbi-review-group-craft",
+        project_dir=tmp_path,
+        prompt="cluster",
+        output_path="audits/chapter-25-texture.md",
+        output_paths=audit_report_paths(25, "shenbi-review-group-craft"),
+    )
+    remaining = cl._filter_completed_audit_tasks([task], tmp_path)
+    assert [t.skill for t in remaining] == ["shenbi-review-group-craft"]

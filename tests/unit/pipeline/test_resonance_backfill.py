@@ -26,7 +26,8 @@ def _seed(tmp_path: Path, *, chapter_file: bool, report_text: str | None) -> Non
         ch_dir.mkdir(exist_ok=True)
         (ch_dir / "chapter-26.md").write_text("# 第二十六章\n\n正文。", encoding="utf-8")
         # 契约预检 seed（audit-plan N3）：missing_audit_reads 按 review-resonance
-        # 契约 6 条 reads 严格判（plans/style/anchors/audit_drift 不在 OPTIONAL_READS）
+        # 契约 reads 严格判（plans/style/anchors/audit_drift 不在 OPTIONAL_READS；
+        # #109 后 2 条 offset 读在 singleton 再派发（无 bundle）下按 wave 条件语义跳过）
         (tmp_path / "plans").mkdir(exist_ok=True)
         (tmp_path / "plans" / "chapter-26-plan.md").write_text("## 1. 当前任务\n", encoding="utf-8")
         (tmp_path / "style").mkdir(exist_ok=True)
