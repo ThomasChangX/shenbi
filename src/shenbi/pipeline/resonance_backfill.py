@@ -26,6 +26,11 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 #: #109 T4 饿死词族子集（产物侧判据）——命中即拒绝写 trend 行。
+#: spec #109 audit-T4 🟡1 裁定（2026-11-18）：**有意收窄**——本判据是 #106 的
+#: trend 行产物过滤（resonance 回放域），非 T4 判定行生产门；不 import
+#: audit_starve_family.PRODUCTION_FAMILY（扩词族=改 #106 行为，越权本批）。
+#: 词族漂移监督：tests/unit/tools/test_audit_starve_baseline.py 单源断言守
+#: 生产门侧；本子集变动须同步本注释。
 _STARVED_FORM_RE = re.compile(r"待补|不适用|附条件")
 
 
