@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-11-17（spec #106 完结归档 PR #356——正向下限接线六 task；前次 2026-11-16（spec #105 完结归档 PR #351；前次 2026-11-15（spec #105 plan 建档——T1a 登记域+severity.py/T1b 六消费点换装+差分三层/T1c AST lint/T4 vocab 判别器+双点位/T5 预检+dispatch_integrity/T6 EXAMPLES 三键/T7 聚合渲染+parser/T8 ending 窗）
-> **活跃 plan 数**：0 | **已归档**：144（见 `archive/`——最近归档：[2026-11-15-spec106-resonance-floor-liveness.md](archive/2026-11-15-spec106-resonance-floor-liveness.md)，PR #356：动态 floor+孤岛接活+数据卫生三件；前一枚：[2026-11-15-spec91-state-concurrency-discipline.md](archive/2026-11-15-spec91-state-concurrency-discipline.md)，PR #343：名册单源+lint 收缩+decisions 换源+allowlist JSON）；最近归档：[2026-11-15-spec92-test-ci-hygiene.md](archive/2026-11-15-spec92-test-ci-hygiene.md)，PR #346：_tool_hashes 整删+拆双职改名+load_deps/REPO_ROOT 单源+标记退役+just 子配方+沉积清除
+> **最后更新**：2026-11-18（spec #109 完结归档 PR #361——bundle 审计覆盖正确性七 task（契约对称/组装双章/per-n 收口/词族单源/invalid 三态/resume 感知/回放仲裁）；前次 2026-11-17（spec #106 完结归档 PR #356——正向下限接线六 task；前次 2026-11-16（spec #105 完结归档 PR #351；前次 2026-11-15（spec #105 plan 建档——T1a 登记域+severity.py/T1b 六消费点换装+差分三层/T1c AST lint/T4 vocab 判别器+双点位/T5 预检+dispatch_integrity/T6 EXAMPLES 三键/T7 聚合渲染+parser/T8 ending 窗）
+> **活跃 plan 数**：0 | **已归档**：145（见 `archive/`——最近归档：[2026-11-15-spec109-audit-bundle-coverage.md](archive/2026-11-15-spec109-audit-bundle-coverage.md)，PR #361：follower 审计饿死全链修复+基准脚本仲裁器；前一枚：[2026-11-15-spec106-resonance-floor-liveness.md](archive/2026-11-15-spec106-resonance-floor-liveness.md)，PR #356：动态 floor+孤岛接活+数据卫生三件；前一枚：[2026-11-15-spec91-state-concurrency-discipline.md](archive/2026-11-15-spec91-state-concurrency-discipline.md)，PR #343：名册单源+lint 收缩+decisions 换源+allowlist JSON）；最近归档：[2026-11-15-spec92-test-ci-hygiene.md](archive/2026-11-15-spec92-test-ci-hygiene.md)，PR #346：_tool_hashes 整删+拆双职改名+load_deps/REPO_ROOT 单源+标记退役+just 子配方+沉积清除
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
