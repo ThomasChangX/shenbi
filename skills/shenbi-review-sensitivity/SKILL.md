@@ -7,6 +7,7 @@ contract:
   kind: report
   reads:
   - chapters/chapter-N.md
+  - chapters/chapter-{N+1}.md
   - genre-config.json
   - novel.json
   writes:
@@ -26,7 +27,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, genre-config.json, novel.json
+- **Reads:** chapters/chapter-N.md, chapters/chapter-{N+1}.md, genre-config.json, novel.json
 - **Writes:** audits/chapter-N-sensitivity.md, audits/chapter-{N+1}-sensitivity.md
 - **Updates:** none
 

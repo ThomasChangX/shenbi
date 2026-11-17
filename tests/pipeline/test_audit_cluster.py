@@ -73,3 +73,27 @@ def test_cluster_savepoint_records_both_chapters(tmp_path: Path) -> None:
         assert cs is not None, n
         done = cs.audit_results.get("wave_completed") or []
         assert "shenbi-review-group-factual" in done, n
+
+
+def test_audit_skills_declare_next_chapter_reads() -> None:
+    """Spec #109 T1: bundle auditors must DECLARE the follower chapter read."""
+    from shenbi.contracts.loader import load_contract
+
+    six = [
+        "shenbi-review-group-craft",
+        "shenbi-review-group-plan",
+        "shenbi-review-group-factual",
+        "shenbi-review-group-character",
+        "shenbi-review-resonance",
+        "shenbi-review-sensitivity",
+    ]
+    for s in six:
+        reads = load_contract(s).get("reads", [])
+        assert any(str(r).endswith("chapter-{N+1}.md") for r in reads), s
+    for s in (
+        "shenbi-review-group-craft",
+        "shenbi-review-group-plan",
+        "shenbi-review-resonance",
+    ):
+        reads = load_contract(s).get("reads", [])
+        assert any(str(r).endswith("chapter-{N+1}-plan.md") for r in reads), s

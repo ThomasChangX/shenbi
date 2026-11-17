@@ -308,7 +308,10 @@
   },
   "plans/chapter-{N+1}-plan.md": {
     "reads": [
-      "shenbi-chapter-drafting"
+      "shenbi-chapter-drafting",
+      "shenbi-review-group-craft",
+      "shenbi-review-group-plan",
+      "shenbi-review-resonance"
     ],
     "writes": [
       "shenbi-chapter-planning"
@@ -1064,6 +1067,19 @@
       "shenbi-state-settling"
     ]
   },
+  "chapters/chapter-{N+1}.md": {
+    "reads": [
+      "shenbi-review-group-character",
+      "shenbi-review-group-craft",
+      "shenbi-review-group-factual",
+      "shenbi-review-group-plan",
+      "shenbi-review-resonance",
+      "shenbi-review-sensitivity",
+      "shenbi-state-settling"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "audits/chapter-{N+1}-character.md": {
     "reads": [],
     "writes": [
@@ -1344,13 +1360,6 @@
     "writes": [
       "shenbi-snapshot-manage"
     ],
-    "updates": []
-  },
-  "chapters/chapter-{N+1}.md": {
-    "reads": [
-      "shenbi-state-settling"
-    ],
-    "writes": [],
     "updates": []
   },
   "truth/particle_ledger.md": {

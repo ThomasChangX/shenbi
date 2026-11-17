@@ -296,7 +296,29 @@ def _issue(
     return issue
 
 
-def missing_audit_reads(project_dir: Path | str, skill: str, chapter: int | None) -> list[str]:
+_OFFSET_READ_RE = re.compile(r"chapter-\{N\+(\d+)\}")
+
+
+def _resolved_offset_chapter(rel: str, chapter: int | None) -> int | None:
+    """Chapter number an offset read (``chapter-{N+k}``) resolves to, else None.
+
+    spec #109 C1: plain ``chapter-N`` reads stay unconditionally required
+    (returning ``chapter`` for them would degrade the semantics); negative
+    offsets have no declarer today and stay out of the conditional branch.
+    """
+    if chapter is None:
+        return None
+    m = _OFFSET_READ_RE.search(rel)
+    return chapter + int(m.group(1)) if m else None
+
+
+def missing_audit_reads(
+    project_dir: Path | str,
+    skill: str,
+    chapter: int | None,
+    *,
+    bundle: list[int] | None = None,
+) -> list[str]:
     """Required contract reads that do not exist for an audit dispatch (spec #105 T3).
 
     Semantics mirror the escalation reads tri-state probe
@@ -304,6 +326,15 @@ def missing_audit_reads(project_dir: Path | str, skill: str, chapter: int | None
     glob expansion / existence). Scope (plan M1): consumed only by the audit
     dispatch pre-check; the generic ``_resolve_read_with_fallback`` path and
     the F10 legacy fail-open stay untouched.
+
+    spec #109 a1/C1: ``chapter-{N+1}`` offset reads resolve via
+    ``resolve_chapter_path`` (the naive ``str.replace`` never matched the
+    brace form — the probe fell on a literal path that never exists, so every
+    bundle wave would ESCALATE). Offset reads are REQUIRED only when the
+    resolved chapter is inside ``bundle`` (singleton waves legally lack the
+    follower: no volume_map / span end / uncovered span). Callers dispatching
+    inside a bundle MUST pass ``bundle=`` — omitting it silently skips the
+    offset-read probe (the single-Chapter re-dispatch path relies on this).
     """
     from fnmatch import fnmatch
 
@@ -326,17 +357,23 @@ def missing_audit_reads(project_dir: Path | str, skill: str, chapter: int | None
         return str(entry.get("file", "")) if isinstance(entry, dict) else str(entry)
 
     def _resolve(rel: object) -> str:
+        raw = _entry_file(rel) if isinstance(rel, dict) else str(rel)
         if chapter is None:
-            return str(rel).replace("chapter-N", "N")
-        return str(rel).replace("chapter-N", f"chapter-{chapter}")
+            return raw.replace("chapter-N", "N")
+        from shenbi.contracts.paths import resolve_chapter_path
+
+        return resolve_chapter_path(raw, chapter)
 
     # writes/updates 同样做占位符替换（audit-T5 I4：raw 模板与 resolved read
     # 直接比较永不相等——自身的产物豁免分支会整段失效）。
-    produces = {_resolve(_entry_file(w)) for w in contract.get("writes", [])} | {
-        _resolve(_entry_file(u)) for u in contract.get("updates", [])
+    produces = {_resolve(w) for w in contract.get("writes", [])} | {
+        _resolve(u) for u in contract.get("updates", [])
     }
     missing: list[str] = []
     for rel in contract.get("reads", []):
+        offset_ch = _resolved_offset_chapter(_entry_file(rel), chapter)
+        if offset_ch is not None and (bundle is None or offset_ch not in bundle):
+            continue  # spec #109 C1: offset read 在波外（singleton/卷尾）不探测
         resolved = _resolve(rel)
         probe = project / resolved
         if probe.exists():

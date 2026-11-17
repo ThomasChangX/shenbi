@@ -4111,7 +4111,11 @@ def _run_audit_wave_step(
         _expected = audit_report_paths(chapter, _skill)
         if _expected and all((project_dir / rel).exists() for rel in _expected):
             continue
-        _gaps = {gap for n in wave_chapters for gap in missing_audit_reads(project_dir, _skill, n)}
+        _gaps = {
+            gap
+            for n in wave_chapters
+            for gap in missing_audit_reads(project_dir, _skill, n, bundle=wave_chapters)
+        }
         if _gaps:
             _missing_reads[_skill] = sorted(_gaps)
     if _missing_reads:

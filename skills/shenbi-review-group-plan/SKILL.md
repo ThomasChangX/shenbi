@@ -6,7 +6,9 @@ contract:
   kind: report
   reads:
     - chapters/chapter-N.md
+    - chapters/chapter-{N+1}.md
     - plans/chapter-N-plan.md
+    - plans/chapter-{N+1}-plan.md
     - {file: truth/pending_hooks.md, extractor: hooks_audit_scoped}
     - truth/subplot_board.md
   writes:
@@ -30,7 +32,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, truth/pending_hooks.md, truth/subplot_board.md
+- **Reads:** chapters/chapter-N.md, chapters/chapter-{N+1}.md, plans/chapter-N-plan.md, plans/chapter-{N+1}-plan.md, truth/pending_hooks.md, truth/subplot_board.md
 - **Writes:** audits/chapter-N-memo-compliance.md, audits/chapter-{N+1}-memo-compliance.md, audits/chapter-N-foreshadowing.md, audits/chapter-{N+1}-foreshadowing.md
 - **Updates:** none
 

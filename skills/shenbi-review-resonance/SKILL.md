@@ -12,9 +12,11 @@ contract:
   # dispatch payload and forced resonance_pending on every chapter (canary
   # closure block, R1 2026-09-28).
   - chapters/chapter-N.md
+  - chapters/chapter-{N+1}.md
   - file: plans/chapter-N-plan.md
     fields:
     - 1. 当前任务
+  - plans/chapter-{N+1}-plan.md
   - file: style/style_profile.md
     fields:
     - 11. 综合画像
@@ -45,7 +47,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, style/style_profile.md, benchmarks/anchors/, truth/audit_drift.md, truth/resonance_trend.md
+- **Reads:** chapters/chapter-N.md, chapters/chapter-{N+1}.md, plans/chapter-N-plan.md, plans/chapter-{N+1}-plan.md, style/style_profile.md, benchmarks/anchors/, truth/audit_drift.md, truth/resonance_trend.md
 - **Writes:** audits/chapter-N-resonance.md, audits/chapter-{N+1}-resonance.md
 - **Updates:** truth/audit_drift.md, truth/resonance_trend.md
 
