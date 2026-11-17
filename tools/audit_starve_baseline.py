@@ -40,22 +40,32 @@ import re
 import sys
 from pathlib import Path
 
+REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO / "src"))
+sys.path.insert(0, str(REPO))
+
+# spec #109 T4 (I2): the families/anchor live in src (packaged surface); the
+# tool imports FROM src (tools→src, the repo-wide direction). Values are
+# verbatim — the pinned corpus manifest is unaffected by this migration.
+from shenbi.pipeline.audit_starve_family import (  # noqa: E402
+    NARROW6,
+    VERDICT_LINE_RE,
+    WIDE12,
+)
+from shenbi.pipeline.audit_starve_family import (  # noqa: E402 — re-export
+    T4_VARIANTS as T4_VARIANTS,  # noqa: PLC0414 — explicit re-export (spec #90 precedent)
+)
+
 DASH_FORM = re.compile(r"chapter-(\d+)-\w[\w-]*\.md$")
 SUMMARY_FORM = re.compile(r"chapter-(\d+)-review-summary\.md$")
 AGGREGATE_FORM = re.compile(r"chapter-(\d+)\.aggregate\.md$")
 
-NARROW6 = ("待补", "不适用", "无法核对", "附条件", "待正文核验", "正文未提供")
-WIDE12 = (*NARROW6, "待核验", "无法验证", "无法评估", "正文缺失", "未能提供", "未提供正文")
-# spec #109 T4 production-gate variants — single source (the spec's prose is a
-# gloss, never authoritative). NOT part of baseline metrics: the replay
-# comparisons stay pinned to narrow6/wide12 above.
-T4_VARIANTS = ("待核", "暂记", "留待后续核验", "建议复核", "数据未注入")
 FAMILY: dict[str, re.Pattern[str]] = {
     "narrow6": re.compile("|".join(NARROW6)),
     "wide12": re.compile("|".join(WIDE12)),
 }
 
-VERDICT_LINE = re.compile(r"^\s*(?:[-*>|#]+\s*)?\*\*判定\*\*\s*[：:]\s*(.*)$", re.MULTILINE)
+VERDICT_LINE = VERDICT_LINE_RE
 VERDICT_PASS = re.compile(r"^\*{0,2}\s*通过")
 
 
