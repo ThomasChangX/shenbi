@@ -311,7 +311,7 @@ def test_non_strict_drift_still_exits_zero(tmp_path: Path) -> None:
 ```
 
 Run: `uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -v`
-Expected: 新增 5 用例 FAIL（exit 2）；Task 2 存量 5 用例仍 PASS
+Expected: 新增 4 用例 FAIL（`--strict` 传参 argparse unrecognized exit 2）+新增非 strict 回归 1 用例 PASS（其语义 Task 2 已落地——作 strict 不改非 strict 行为的前置基线）；Task 2 存量 5 用例仍 PASS
 
 - [ ] **Step 2: 实现 --strict**
 
@@ -557,7 +557,7 @@ def _decisions_file_set() -> set[str]:
     return {name for name, kind in bootstrap_registry().items() if kind == "decisions"}
 ```
 
-（删 `_truth_files_cache`/`_decisions_files_cache` 两个全局与 `global` 语句；`bootstrap_registry` 已在 :25 import。同 commit 删 `tests/unit/conftest.py` 的 `reset_executor_caches` fixture 全体（含 `from shenbi.dispatcher import executor` import 行）。）
+（删 `_truth_files_cache`/`_decisions_files_cache` 两个全局与 `global` 语句；`bootstrap_registry` 已在 :25 import。同 commit 删 `tests/unit/conftest.py` 的 `reset_executor_caches` fixture 全体——`from shenbi.dispatcher import executor` 与 `import pytest` 两行 import 一并删，避免死 import（ruff F401 也会兜）。）
 
 - [ ] **Step 3: 跑新测+executor 存量测试+conftest 退役验证**
 
