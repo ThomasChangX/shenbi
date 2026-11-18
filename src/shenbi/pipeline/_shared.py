@@ -10,6 +10,9 @@ broken by sinking the shared volume-map symbols here.
 Migrated from: triggers.py (read_volume_boundaries/VOLUME_MAP_PATH/_END_RE/
 _RANGE_RE) + context_assemble.py (_BRIDGE_ACTIVATION_WINDOW/
 _resolve_volume_at_runtime). Behavior unchanged (spec §3.2).
+
+Spec #93 T5 extends this leaf with the resonance_trend.md column contract
+(TREND_COLUMNS) — still stdlib-only, no cycle member.
 """
 
 from __future__ import annotations
@@ -20,6 +23,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 __all__ = [
+    "TREND_COLUMNS",
+    "TREND_CONFIDENCE_IDX",
+    "TREND_OVERALL_IDX",
     "VOLUME_MAP_PATH",
     "VOL_NUMERAL",
     "VOL_SPAN_HEADING_RE",
@@ -549,3 +555,25 @@ def reconcile_first_appearances(project_dir: Path) -> list[str]:
                 f"!= relationships 索引 第{m.group(1)}章（以角色卡为准对齐）"
             )
     return issues
+
+
+#: resonance_trend.md column contract (spec #93 T5) — single source for the
+#: 9-column layout. Prose authority: skills/shenbi-review-resonance/SKILL.md
+#: table header. Consumers: chapter_loop.build_resonance_trend_row (writer),
+#: orchestration/escalation_bridge.parse_resonance_scores (overall reader),
+#: pipeline/confidence_calibration (confidence patcher).
+TREND_COLUMNS: tuple[str, ...] = (
+    "chapter",
+    "chapter_role",
+    "情感落地",
+    "场景临场感",
+    "文笔质感",
+    "读者回报",
+    "overall",
+    "confidence",
+    "human_overridden",
+)
+#: cell index of the overall score — what parse_resonance_scores reads.
+TREND_OVERALL_IDX: int = TREND_COLUMNS.index("overall")
+#: cell index of confidence — what confidence_calibration patches.
+TREND_CONFIDENCE_IDX: int = TREND_COLUMNS.index("confidence")

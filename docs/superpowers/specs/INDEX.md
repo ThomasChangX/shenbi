@@ -15,7 +15,7 @@
 
 | 编号 | 优先级 | spec 文件 | 状态 | 一句话范围 | 依赖 |
 |------|--------|-----------|------|-----------|------|
-| #93 | 🟠 P1 | `2026-11-01-spec93-threshold-authority.md` | Design r2.2 | 阈值权威化：lint 改 import 执法＋删 allowlist 第三源＋`--strict` 接线＋定价契约单源＋trend 列常量覆盖三消费者 | 无（justfile 前序解锁 #116） |
+| #93 | 🟠 P1 | `2026-11-01-spec93-threshold-authority.md` | Design r3 | 阈值权威化：lint 改 import 执法＋删 allowlist 第三源＋`--strict` 接线＋定价契约单源＋trend 列常量覆盖三消费者＋疲劳词门-契约键形接线（T6） | 无（justfile 前序解锁 #116） |
 | #116 | 🟠 P1 | `2026-11-15-spec116-gate-discriminative-power.md` | Design r1 | 门禁判别力仪表：真 G4 回放（10 散文门 50/50 恒真）→ `just gate-power`＋恒真登记＋WARN 哨兵＋六项标定提案（不改门行为，用户逐项裁定） | justfile 链 #92→#93→#116；T4 变异器 #108 后换装 |
 | #110 | 🟠 P1 | `2026-11-15-spec110-judge-reliability-harness.md` | Design r1 | 评审信度 harness：判官间一致性/效度/分布形状离线报告（κ≈0、α=0.311、更好=0/32 实证）＋在飞 spec 判据营养接线 | 独立；数据卫生面消费 #109 T4 口径 |
 | #117 | 🟠 P1 | `2026-11-15-spec117-audit-evidence-verifiability.md` | Design r1 | 审计证据可验证性：发现级 parser＋G4.av.evidence_* 逐字/行号/规则名对账＋消费三态（28.2% 引述无逐字来源实证） | #105 已核销；justfile #92→#116→#117 |

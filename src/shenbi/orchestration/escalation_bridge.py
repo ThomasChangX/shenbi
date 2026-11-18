@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from shenbi.pipeline._shared import TREND_OVERALL_IDX
 from shenbi.skill_utils.escalation.check import check_escalation, EscalationSignal
 
 
@@ -14,9 +15,9 @@ def parse_resonance_scores(trend_path: Path) -> list[float]:
     for line in content.split("\n"):
         if line.startswith("|") and "overall" not in line.lower():
             cells = [c.strip() for c in line.split("|")[1:-1]]
-            if len(cells) >= 7:
+            if len(cells) > TREND_OVERALL_IDX:
                 try:
-                    val = float(cells[6])
+                    val = float(cells[TREND_OVERALL_IDX])
                     if val >= 0:  # F513 (spec #39 T11): 0 is a real score
                         scores.append(val)
                 except (ValueError, IndexError):

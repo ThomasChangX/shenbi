@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Allowlist-driven threshold reconciliation lint (spec #35 T5).
+"""Allowlist-driven threshold reconciliation lint (spec #35 T5, re-anchored #93 T1b).
 
-Scans SKILL.md numeric ranges near an anchored pattern and compares them
-against the allowlist-declared bounds (the checker path is only verified to
-exist — parsing checker constants is out of scope). WARN-only in the first cycle
-(exit 0 always) so CI is never blocked by a documentation drift; flipping
-to FAIL is a deliberate later step once the allowlist has stabilized.
+Scans SKILL.md numeric ranges near an anchored pattern and reads the checker's
+own hard band constant (CONSTELLATION_HARD_BAND); containment test (SKILL range
+must sit inside the hard band); keyword is mandatory (an entry without keyword
+validates the wrong column). WARN-only by default (exit 0); --strict (spec #93
+T1c, wired into `just lint`) exits 1 on any warn line.
 
 Allowlist format (tools/threshold_allowlist.json):
-    {"entries": [{"skill", "pattern", "file", "checker", "bounds": [lo, hi]}]}
+    {"entries": [{"skill", "pattern", "keyword", "file", "checker"}]}
 """
 
 from __future__ import annotations
@@ -20,6 +20,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from shenbi.contracts.skills.pacing_design import CONSTELLATION_HARD_BAND
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ALLOWLIST = REPO_ROOT / "tools" / "threshold_allowlist.json"
 RANGE_RE = re.compile(r"(\d+)\s*[-\u2013]\s*(\d+)\s*%?")  # hyphen or EN dash
@@ -28,43 +30,48 @@ RANGE_RE = re.compile(r"(\d+)\s*[-\u2013]\s*(\d+)\s*%?")  # hyphen or EN dash
 def _scan_entry(entry: dict[str, Any]) -> str | None:
     """Return a WARN line for a drifted/missing entry, else None.
 
-    ``pattern`` selects the line(s); ``keyword`` (optional) narrows the scan
+    ``pattern`` selects the line(s); ``keyword`` (mandatory) narrows the scan
     to the text after its occurrence on that line — table rows pack several
     ranges per line (QUEST/FIRE/CONSTELLATION), so the keyword keeps the
-    comparison anchored to the column the checker actually enforces. A
-    keyword that vanishes from its line is itself drift (``keyword_missing``),
-    never a silent fallback to the whole line. Comparison is against the
-    checker's hard union band only — per-volume drift inside that band needs
-    a machine-readable per-volume source and is out of scope for this lint.
+    comparison anchored to the column the checker actually enforces; an
+    entry without one would validate the wrong column, so it is rejected up
+    front (``keyword_missing``). A keyword that vanishes from its line is
+    itself drift (same label), never a silent fallback to the whole line.
+    Comparison reads the checker's hard band constant
+    (CONSTELLATION_HARD_BAND) as the single source — the SKILL range must
+    sit fully inside that band (containment, not mere overlap); per-volume
+    drift inside that band needs a machine-readable per-volume source and
+    is out of scope for this lint.
     """
     file_path = REPO_ROOT / entry["file"]
     checker_path = REPO_ROOT / entry["checker"]
-    if not file_path.is_file():
-        return f"WARN threshold_entry file_missing skill={entry['skill']} file={entry['file']}"
-    if not checker_path.is_file():
-        return (
-            f"WARN threshold_entry checker_missing skill={entry['skill']}"
-            f" checker={entry['checker']}"
-        )
-    lines = file_path.read_text(encoding="utf-8").splitlines()
-    lo, hi = entry["bounds"]
+    for label, path in (("file", file_path), ("checker", checker_path)):
+        if not path.is_file():
+            return (
+                f"WARN threshold_entry {label}_missing skill={entry['skill']} "
+                f"{label}={entry[label]}"
+            )
     keyword = entry.get("keyword", "")
+    if not keyword:
+        return f"WARN threshold_entry keyword_missing skill={entry['skill']} file={entry['file']}"
+    lines = file_path.read_text(encoding="utf-8").splitlines()
+    lo, hi = CONSTELLATION_HARD_BAND
     found_any = False
     for line in lines:
         if entry["pattern"] not in line:
             continue
-        if keyword and keyword not in line:
+        if keyword not in line:
             return (
                 f"WARN threshold_entry keyword_missing skill={entry['skill']} "
                 f"keyword={keyword} file={entry['file']}"
             )
-        scope = line[line.index(keyword) + len(keyword) :] if keyword else line
+        scope = line[line.index(keyword) + len(keyword) :]
         match = RANGE_RE.search(scope)
         if match is None:
             continue
         found_any = True
         d_lo, d_hi = int(match.group(1)), int(match.group(2))
-        if d_hi < lo or d_lo > hi:
+        if not (d_lo >= lo and d_hi <= hi):
             return (
                 f"WARN threshold_drift skill={entry['skill']} "
                 f"file={entry['file']} found={d_lo}-{d_hi} expected=[{lo}, {hi}]"
@@ -78,25 +85,32 @@ def _scan_entry(entry: dict[str, Any]) -> str | None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Entry point: always exits 0 (WARN-only lint)."""
+    """Entry point: WARN-only by default; --strict exits 1 on any warn line."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--allowlist",
         default=str(DEFAULT_ALLOWLIST),
         help="path to the allowlist JSON (default: tools/threshold_allowlist.json)",
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="exit 1 if any entry drifted (spec #93 T1c; wired into `just lint`)",
+    )
     args = parser.parse_args(argv)
 
     allow_path = Path(args.allowlist)
     if not allow_path.is_file():
         print(f"WARN allowlist_missing path={allow_path}")
-        return 0
+        return 1 if args.strict else 0
     entries = json.loads(allow_path.read_text(encoding="utf-8")).get("entries", [])
+    warned = False
     for entry in entries:
         warn = _scan_entry(entry)
         if warn:
             print(warn)
-    return 0  # WARN-only: never blocks CI in the first cycle
+            warned = True
+    return 1 if (args.strict and warned) else 0
 
 
 if __name__ == "__main__":

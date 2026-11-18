@@ -14,7 +14,7 @@ from shenbi.cost.pricing import (
 
 class TestPricingTable:
     def test_default_model_is_deepseek_v4_flash(self):
-        # The repo default model is deepseek-v4-flash (dispatch_helper._DEFAULT_MODEL).
+        # The repo default model is deepseek-v4-flash (single source, dispatch_helper imports).
         # Pricing must default to the model that actually runs.
         assert DEFAULT_PRICING_MODEL == "deepseek-v4-flash"
 
@@ -161,3 +161,9 @@ class TestExperimentTiers:
             "input": 0.14 / 1_000_000,
             "output": 0.28 / 1_000_000,
         }
+
+
+def test_env_var_public_constant() -> None:
+    from shenbi.cost.pricing import LLM_MODEL_ENV_VAR
+
+    assert LLM_MODEL_ENV_VAR == "SHENBI_LLM_MODEL"

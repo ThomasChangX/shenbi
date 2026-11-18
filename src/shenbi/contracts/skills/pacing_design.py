@@ -14,6 +14,11 @@ import re
 
 from pydantic import BaseModel, Field, model_validator
 
+#: CONSTELLATION hard-fail band, in percent (spec #93 T1a). Single source —
+#: the reconciliation lint (tools/lint_threshold_reconciliation.py) imports
+#: this instead of carrying a hand-copied third copy in the allowlist JSON.
+CONSTELLATION_HARD_BAND: tuple[int, int] = (15, 40)
+
 
 class PacingDesign(BaseModel):
     """Validated pacing-design output structure."""
@@ -51,8 +56,9 @@ class PacingDesign(BaseModel):
     @model_validator(mode="after")
     def _constellation_range(self) -> PacingDesign:
         const = self.line_ratios.get("CONSTELLATION")
-        if const is not None and not 15 <= const <= 40:
-            raise ValueError(f"CONSTELLATION ratio {const} outside [15, 40]")
+        lo, hi = CONSTELLATION_HARD_BAND
+        if const is not None and not lo <= const <= hi:
+            raise ValueError(f"CONSTELLATION ratio {const} outside [{lo}, {hi}]")
         return self
 
     @model_validator(mode="after")

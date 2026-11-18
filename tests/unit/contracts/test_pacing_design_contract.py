@@ -90,3 +90,10 @@ def test_constellation_hard_band_lower_edge() -> None:
     assert PacingDesign.model_validate(_const_payload(15))
     with pytest.raises(ValidationError, match=r"\[15, 40\]"):
         PacingDesign.model_validate(_const_payload(14))
+
+
+def test_constellation_hard_band_constant() -> None:
+    """Spec #93 T1a — 带宽常量存在且为 (15, 40)(lint 单源消费锚点)。"""
+    from shenbi.contracts.skills.pacing_design import CONSTELLATION_HARD_BAND
+
+    assert CONSTELLATION_HARD_BAND == (15, 40)

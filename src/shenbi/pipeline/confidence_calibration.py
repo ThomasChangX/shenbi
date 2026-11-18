@@ -98,6 +98,7 @@ def calibrate_and_patch_trend(
     framework placeholder). When no row exists yet, a placeholder row is
     written first (requires ``overall``).
     """
+    from shenbi.pipeline._shared import TREND_CONFIDENCE_IDX
     from shenbi.pipeline.chapter_loop import build_resonance_trend_row
     from shenbi.pipeline.truth_io import patch_markdown_table_cell, write_truth_file
 
@@ -115,7 +116,9 @@ def calibrate_and_patch_trend(
             hit_rate=hr.high_confidence,
         )
     trend_path = project_dir / "truth" / "resonance_trend.md"
-    if not patch_markdown_table_cell(trend_path, str(chapter), "chapter", 7, calibrated):
+    if not patch_markdown_table_cell(
+        trend_path, str(chapter), "chapter", TREND_CONFIDENCE_IDX, calibrated
+    ):
         if overall is None:
             log.warning("calibration_patch_no_row", chapter=chapter)
             return
@@ -126,7 +129,9 @@ def calibrate_and_patch_trend(
             mode="insert_markdown_row",
             key_field="chapter",
         )
-        if not patch_markdown_table_cell(trend_path, str(chapter), "chapter", 7, calibrated):
+        if not patch_markdown_table_cell(
+            trend_path, str(chapter), "chapter", TREND_CONFIDENCE_IDX, calibrated
+        ):
             log.warning("calibration_patch_failed_after_placeholder", chapter=chapter)
 
 

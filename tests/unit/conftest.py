@@ -3,18 +3,8 @@
 The existing autouse fixture (_isolate_structlog_config) lives in
 tests/conftest.py (repo root). pytest merges conftest scopes, so both
 coexist correctly. This file is specifically for unit-test-scoped fixtures.
+
+The former autouse reset_executor_caches fixture was retired with the
+executor module-global caches it reset (spec #93 T4): the derived sets are
+now derived per call behind the loader's stat-key cache.
 """
-
-import pytest
-
-from shenbi.dispatcher import executor
-
-
-@pytest.fixture(autouse=True)
-def reset_executor_caches():
-    """Reset module-global caches before each test to prevent order-dependence."""
-    executor._truth_files_cache = None
-    executor._decisions_files_cache = None
-    yield
-    executor._truth_files_cache = None
-    executor._decisions_files_cache = None
