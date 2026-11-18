@@ -1,10 +1,9 @@
 """USD pricing per 1M tokens, keyed to the model that actually ran (spec §3.3).
 
-The dispatch path resolves the model as
-``os.environ.get("SHENBI_LLM_MODEL", "deepseek-v4-flash")`` — see
-``shenbi.pipeline.dispatch_helper`` constants ``_ENV_LLM_MODEL`` /
-``_DEFAULT_MODEL``. Pricing MUST use that same default so cost reflects what
-ran; do NOT hardcode other models here.
+This module is the single source for the dispatch-path model constants
+(``LLM_MODEL_ENV_VAR`` / ``DEFAULT_PRICING_MODEL``) — the dispatch path
+imports them from here (spec #93 T3). Pricing uses that same default so
+cost reflects what ran; do NOT hardcode other models here.
 """
 
 from __future__ import annotations
@@ -12,7 +11,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
-# The model the dispatch path defaults to (mirrors dispatch_helper._DEFAULT_MODEL).
+# The dispatch-path default model — single source (spec #93 T3).
 DEFAULT_PRICING_MODEL = "deepseek-v4-flash"
 
 #: USD per 1,000,000 tokens (official rates, cache-miss; spec #98 T1).
@@ -28,8 +27,8 @@ PRICING: dict[str, dict[str, float]] = {
     "deepseek-flash": {"input": 0.14 / 1_000_000, "output": 0.28 / 1_000_000},
 }
 
-# Env var name — must match shenbi.pipeline.dispatch_helper._ENV_LLM_MODEL.
-_ENV_LLM_MODEL = "SHENBI_LLM_MODEL"
+# Env var name — single source (spec #93 T3).
+LLM_MODEL_ENV_VAR: str = "SHENBI_LLM_MODEL"
 
 
 def resolve_model(model: str | None = None) -> str:
@@ -39,7 +38,7 @@ def resolve_model(model: str | None = None) -> str:
     """
     if model is not None:
         return model
-    return os.environ.get(_ENV_LLM_MODEL, DEFAULT_PRICING_MODEL)
+    return os.environ.get(LLM_MODEL_ENV_VAR, DEFAULT_PRICING_MODEL)
 
 
 def estimate_cost(usage: dict[str, Any], model: str | None = None) -> float:

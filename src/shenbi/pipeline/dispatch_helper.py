@@ -54,6 +54,7 @@ from shenbi.contracts.paths import (
     resolve_or_skip_ctx,
 )
 from shenbi.cost.ledger import TokenLedger
+from shenbi.cost.pricing import DEFAULT_PRICING_MODEL, LLM_MODEL_ENV_VAR
 from shenbi.logging import get_logger
 from shenbi.env_policy import build_child_env
 from shenbi.contracts.injection import wrap_untrusted_source
@@ -91,14 +92,13 @@ log = get_logger(__name__)
 #: Used to locate bundled skills/ directory independently of CWD.
 _PROJECT_ROOT = REPO_ROOT
 
-#: Environment variable names
+#: Environment variable names (SHENBI_LLM_MODEL + the default model live in
+#: shenbi.cost.pricing — single source, spec #93 T3; imported above).
 _ENV_LLM_API_KEY = "SHENBI_LLM_API_KEY"
 _ENV_LLM_BASE_URL = "SHENBI_LLM_BASE_URL"
-_ENV_LLM_MODEL = "SHENBI_LLM_MODEL"
 
 #: Dispatch configuration constants
 _DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
-_DEFAULT_MODEL = "deepseek-v4-flash"  # fallback when SHENBI_LLM_MODEL not set
 #: Hard ceiling for max_tokens cap-raise (spec §5.1 C1, §7 iron rule #2).
 #: The cap-raise on finish_reason=length will not exceed this × 0.9
 #: (spec mandates 0.9 safety factor below the ceiling).
@@ -3738,7 +3738,7 @@ def dispatch_via_api(
         # tenacity where usage_acc["attempts"] counts them.
         max_retries=0,
     )
-    model = os.environ.get(_ENV_LLM_MODEL, _DEFAULT_MODEL)
+    model = os.environ.get(LLM_MODEL_ENV_VAR, DEFAULT_PRICING_MODEL)
 
     chapter_path = (
         project_dir / "chapters" / f"chapter-{chapter}.md" if chapter is not None else None
