@@ -53,7 +53,7 @@
 
 ### T6 · 疲劳词门-契约键形接线（**r3 新增，代码修复**）
 `chapter_drafting.py:970` `gc.get("fatigue_words", FATIGUE_BASE)` 改读契约真实形状：camelCase 顶层 `fatigueWords` 嵌套对象，计数词表=**禁用∪慎用并集**（保持门的「疲劳词总量」语义与 >8 FAIL 阈不变——最小行为变更：现状对真实配置产物=仅 FATIGUE_BASE 计数，修复后=配置词表接管、FATIGUE_BASE 仅作缺配置回退）；非列表成员防御（形状异常→回退基表+WARN 日志，不炸门）。
-**测试重写义务**：`test_chapter_drafting_detect.py:13` 现以手工注入 `gc["fatigue_words"]=["咣当"]` snake 形状证「门读配置」——重写为真实 fixture 形状（genre-config-example.json 原样 + 写章节命中其 禁用 词 >8 次）。**红测**：fixture 禁用词「心中暗道」×9 → 现状 PASS（词不在 FATIGUE_BASE，回退计数 0 命中）→ 修复后 FAIL。
+**测试重写义务**：`test_chapter_drafting_detect.py:13` 现以手工注入 `gc["fatigue_words"]=["咣当"]` snake 形状证「门读配置」——重写为真实 fixture 形状（genre-config-example.json 原样 + 写章节命中其 禁用 词 >8 次）。**红测**：fixture 禁用词「眸光一凝」×9 → 现状 PASS（与 FATIGUE_BASE 零子串碰撞，回退计数 0 命中）→ 修复后 FAIL。**词选约束**：fixture 禁用词 8 条中 5 条与 FATIGUE_BASE 子串碰撞（心中暗道⊃暗道/眼中闪过一丝⊃眼中闪过/嘴角勾起一抹冷笑与嘴角抽搐了一下⊃嘴角/瞳孔猛地一缩⊃猛地）——碰撞词 ×9 现状即 base 计数 9>8 FAIL，红测不红；干净词仅 眸光一凝/深吸一口气/冷哼一声 三条。
 gates.md 裕度节疲劳词条目以 T6 后语义为准（T2 已预写）。
 
 ## 2. 验收
