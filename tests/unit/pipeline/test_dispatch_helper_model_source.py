@@ -12,9 +12,10 @@ def test_dispatch_helper_has_no_local_model_constants() -> None:
 
 
 def test_dispatch_uses_pricing_single_source() -> None:
-    # vars() dict access: basedpyright reportPrivateImportUsage flags both
-    # `dh.<name>` and getattr(dh, "<name>") string literals on non-re-exported
-    # imports; the __dict__ identity check stays fully runtime-real.
+    # vars() dict access: direct `dh.<name>` (and, under the pre-commit
+    # hook's basedpyright config, getattr(dh, "<name>") too) trips
+    # reportPrivateImportUsage on non-re-exported imports; the __dict__
+    # identity check stays fully runtime-real.
     dh_names = vars(dh)
     assert dh_names["LLM_MODEL_ENV_VAR"] is pricing.LLM_MODEL_ENV_VAR
     assert dh_names["DEFAULT_PRICING_MODEL"] is pricing.DEFAULT_PRICING_MODEL
