@@ -82,3 +82,61 @@ def test_bounds_field_ignored(tmp_path: Path) -> None:
     entry = _entry(skill, bounds=[0, 100])
     r = _run(["--allowlist", str(_allowlist(tmp_path, [entry]))])
     assert "threshold_drift" in r.stdout and "50-60" in r.stdout  # 常量带赢，残留 bounds 失效
+
+
+# --- T1c: --strict FAIL 态 (spec #93 Task 3) ---
+
+
+def test_repo_allowlist_strict_clean() -> None:
+    r = _run(["--strict"])
+    assert r.returncode == 0
+    assert r.stdout == ""
+
+
+def test_strict_drift_fails(tmp_path: Path) -> None:
+    skill = _skill_md(tmp_path, "50-60%")
+    r = _run(["--allowlist", str(_allowlist(tmp_path, [_entry(skill)])), "--strict"])
+    assert r.returncode == 1
+    assert "threshold_drift" in r.stdout
+
+
+def test_strict_partial_overlap_fails(tmp_path: Path) -> None:
+    # 包含式的核心增量判据面: 相交不包含 → strict FAIL (旧相交式下此断言红)
+    skill = _skill_md(tmp_path, "10-20%")
+    r = _run(["--allowlist", str(_allowlist(tmp_path, [_entry(skill)])), "--strict"])
+    assert r.returncode == 1
+    assert "threshold_drift" in r.stdout and "10-20" in r.stdout
+
+
+def test_strict_keyword_missing_fails(tmp_path: Path) -> None:
+    skill = _skill_md(tmp_path, "15-25%")
+    entry = _entry(skill)
+    del entry["keyword"]
+    r = _run(["--allowlist", str(_allowlist(tmp_path, [entry])), "--strict"])
+    assert r.returncode == 1
+    assert "keyword_missing" in r.stdout
+
+
+def test_non_strict_drift_still_exits_zero(tmp_path: Path) -> None:
+    skill = _skill_md(tmp_path, "50-60%")
+    r = _run(["--allowlist", str(_allowlist(tmp_path, [_entry(skill)]))])
+    assert r.returncode == 0
+    assert "threshold_drift" in r.stdout
+
+
+# --- 存在性 FAIL 面 (Task 2 审查 M-1 rider: 恢复被旧重写删除的覆盖) ---
+
+
+def test_file_missing_warns_strict_fails(tmp_path: Path) -> None:
+    entry = _entry(tmp_path / "ghost.md")  # file 字段指向不存在文件
+    r = _run(["--allowlist", str(_allowlist(tmp_path, [entry])), "--strict"])
+    assert r.returncode == 1
+    assert "file_missing" in r.stdout
+
+
+def test_checker_missing_warns_strict_fails(tmp_path: Path) -> None:
+    skill = _skill_md(tmp_path, "15-25%")
+    entry = _entry(skill, checker="src/none.py")
+    r = _run(["--allowlist", str(_allowlist(tmp_path, [entry])), "--strict"])
+    assert r.returncode == 1
+    assert "checker_missing" in r.stdout

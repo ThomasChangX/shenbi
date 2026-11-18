@@ -30,7 +30,6 @@ check:
     just test-ci
 
 # Lint face: lint tools + ruff (spec #92 T4)
-# NOTE: spec #93 will later add --strict to lint_threshold_reconciliation here (batch-A re-anchor hook).
 lint:
     uv run python tools/lint_status_strings.py
     uv run python tools/lint_invariant_coverage.py
@@ -50,7 +49,7 @@ lint:
     uv run python tools/lint_gate_prompt_contract.py
     uv run python tools/lint_helper_usage.py
     uv run python tools/lint_increment_teaching.py
-    uv run python tools/lint_threshold_reconciliation.py
+    uv run python tools/lint_threshold_reconciliation.py --strict
     uv run python tools/lint_dead_code_allowlist.py
     uv run python tools/lint_private_imports.py --check
     uv run python tools/lint_audit_run.py

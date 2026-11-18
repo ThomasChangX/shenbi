@@ -4,9 +4,8 @@
 Scans SKILL.md numeric ranges near an anchored pattern and reads the checker's
 own hard band constant (CONSTELLATION_HARD_BAND); containment test (SKILL range
 must sit inside the hard band); keyword is mandatory (an entry without keyword
-validates the wrong column). WARN-only in the first cycle (exit 0 always) so CI
-is never blocked by a documentation drift; flipping to FAIL is a deliberate
-later step once the allowlist has stabilized.
+validates the wrong column). WARN-only by default (exit 0); --strict (spec #93
+T1c, wired into `just lint`) exits 1 on any warn line.
 
 Allowlist format (tools/threshold_allowlist.json):
     {"entries": [{"skill", "pattern", "keyword", "file", "checker"}]}
@@ -86,25 +85,32 @@ def _scan_entry(entry: dict[str, Any]) -> str | None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Entry point: always exits 0 (WARN-only lint)."""
+    """Entry point: WARN-only by default; --strict exits 1 on any warn line."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--allowlist",
         default=str(DEFAULT_ALLOWLIST),
         help="path to the allowlist JSON (default: tools/threshold_allowlist.json)",
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="exit 1 if any entry drifted (spec #93 T1c; wired into `just lint`)",
+    )
     args = parser.parse_args(argv)
 
     allow_path = Path(args.allowlist)
     if not allow_path.is_file():
         print(f"WARN allowlist_missing path={allow_path}")
-        return 0
+        return 1 if args.strict else 0
     entries = json.loads(allow_path.read_text(encoding="utf-8")).get("entries", [])
+    warned = False
     for entry in entries:
         warn = _scan_entry(entry)
         if warn:
             print(warn)
-    return 0  # WARN-only: never blocks CI (--strict FAIL mode lands in spec #93 T1c)
+            warned = True
+    return 1 if (args.strict and warned) else 0
 
 
 if __name__ == "__main__":
