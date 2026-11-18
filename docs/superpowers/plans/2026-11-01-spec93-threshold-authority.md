@@ -23,9 +23,9 @@
 
 | Spec AC | Task | 验证 |
 |---|---|---|
-| AC1 T1a 常量化行为零变化 | Task 1 | 现存 pacing 测试全绿+边界四测 |
-| AC1 T1b 删 bounds 仍判越界+keyword 缺省 FAIL | Task 2 | tmp SKILL 注入 50% strict 红+keyword_missing strict 红 |
-| AC1 T1c strict 进 just lint FAIL 态可触发 | Task 3 | 常量临时 (18,45) → just lint 红（回滚）+接线测试 |
+| AC1 T1a 常量化行为零变化 | Task 1 | 现存 pacing 测试全绿（边界已由 :78-92 既有测试锁死）+常量断言 |
+| AC1 T1b 删 bounds 仍判越界+keyword 缺省 WARN | Task 2 | tmp SKILL 注入 50%/10-20 WARN+keyword_missing WARN（strict FAIL 态在 Task 3） |
+| AC1 T1c strict 进 just lint FAIL 态可触发 | Task 3 | 常量临时 (18,45) → just lint 红（回滚）+strict 5 用例（50%/10-20/keyword/repo-clean/非 strict 回归） |
 | AC1 lint 测试重写 strict 语义全绿 | Task 2/3 | test_lint_threshold_reconciliation 重写 |
 | AC2 gates.md 裕度节+g4 双向回指 | Task 8 | grep 双向锚 |
 | AC3 T3 grep=0 | Task 4 | `grep -rn "dispatch_helper" src/shenbi/cost/` = 0 |
@@ -46,41 +46,22 @@
 - Consumes: 无（既有 `_constellation_range` validator）
 - Produces: `CONSTELLATION_HARD_BAND: tuple[int, int] = (15, 40)`（模块级公共常量，Task 2 lint import 消费）
 
-- [ ] **Step 1: 追加边界 characterization 测试**（当前无 [15,40] 边界测——现存测试只用带内 25）
+- [ ] **Step 1: 追加常量 characterization 测试**
+
+（边界行为已由现存 `test_constellation_hard_band_covers_kaijuan_upper` / `test_constellation_hard_band_lower_edge`（本文件 :78-92，`_const_payload` 形状，锁 38/40/41/15/14+`[15, 40]` 报文）覆盖——本 task 只补常量存在性与值断言；行为零变化由现存测试在本 task 提交点复跑证明。）
 
 ```python
 # tests/unit/contracts/test_pacing_design_contract.py 追加
-from shenbi.contracts.skills.pacing_design import CONSTELLATION_HARD_BAND, PacingDesign
+def test_constellation_hard_band_constant() -> None:
+    """Spec #93 T1a — 带宽常量存在且为 (15, 40)（lint 单源消费锚点）。"""
+    from shenbi.contracts.skills.pacing_design import CONSTELLATION_HARD_BAND
 
-
-class TestConstellationHardBand:
-    """Spec #93 T1a — 带宽常量提取后行为零变化（characterization）。"""
-
-    def test_band_value(self) -> None:
-        assert CONSTELLATION_HARD_BAND == (15, 40)
-
-    def test_boundary_15_passes(self) -> None:
-        PacingDesign(line_ratios={"QUEST": 45.0, "FIRE": 40.0, "CONSTELLATION": 15.0})
-
-    def test_boundary_40_passes(self) -> None:
-        PacingDesign(line_ratios={"QUEST": 25.0, "FIRE": 35.0, "CONSTELLATION": 40.0})
-
-    def test_below_14_raises(self) -> None:
-        import pytest
-
-        with pytest.raises(ValueError, match=r"outside \[15, 40\]"):
-            PacingDesign(line_ratios={"QUEST": 46.0, "FIRE": 40.0, "CONSTELLATION": 14.0})
-
-    def test_above_41_raises(self) -> None:
-        import pytest
-
-        with pytest.raises(ValueError, match=r"outside \[15, 40\]"):
-            PacingDesign(line_ratios={"QUEST": 25.0, "FIRE": 34.0, "CONSTELLATION": 41.0})
+    assert CONSTELLATION_HARD_BAND == (15, 40)
 ```
 
 - [ ] **Step 2: 跑测试确认 import 红**
 
-Run: `uv run pytest tests/unit/contracts/test_pacing_design_contract.py -k ConstellationHardBand -v`
+Run: `uv run pytest tests/unit/contracts/test_pacing_design_contract.py -k hard_band_constant -v`
 Expected: FAIL with `ImportError: cannot import name 'CONSTELLATION_HARD_BAND'`
 
 - [ ] **Step 3: 提取常量（validator 改用，行为零变化）**
@@ -180,35 +161,29 @@ def _entry(skill_md: Path, **overrides: object) -> dict:
     return entry
 
 
-def test_repo_allowlist_strict_clean() -> None:
-    r = _run(["--strict"])
-    assert r.returncode == 0
-    assert r.stdout == ""
-
-
-def test_containment_rejects_partial_overlap(tmp_path: Path) -> None:
-    # SKILL 写 10-20 与硬带 [15,40] 相交但不包含 —— 旧相交式放行，包含式必拒
-    skill = _skill_md(tmp_path, "10-20%")
-    r = _run(["--allowlist", str(_allowlist(tmp_path, [_entry(skill)])), "--strict"])
-    assert r.returncode == 1
-    assert "threshold_drift" in r.stdout and "10-20" in r.stdout
-
-
-def test_out_of_band_50_rejected(tmp_path: Path) -> None:
+def test_out_of_band_50_warns(tmp_path: Path) -> None:
     skill = _skill_md(tmp_path, "50-60%")
     r = _run(["--allowlist", str(_allowlist(tmp_path, [_entry(skill)]))])
-    assert r.returncode == 0  # 非 strict 仍 WARN-only
+    assert r.returncode == 0  # WARN-only（--strict 在 Task 3 接线）
     assert "threshold_drift" in r.stdout and "50-60" in r.stdout
 
 
-def test_in_band_contained_passes(tmp_path: Path) -> None:
+def test_partial_overlap_10_20_rejected(tmp_path: Path) -> None:
+    # SKILL 写 10-20 与硬带 [15,40] 相交但不包含 —— 旧相交式放行，包含式必拒
+    skill = _skill_md(tmp_path, "10-20%")
+    r = _run(["--allowlist", str(_allowlist(tmp_path, [_entry(skill)]))])
+    assert r.returncode == 0
+    assert "threshold_drift" in r.stdout and "10-20" in r.stdout
+
+
+def test_in_band_contained_no_warn(tmp_path: Path) -> None:
     skill = _skill_md(tmp_path, "15-25%")
-    r = _run(["--allowlist", str(_allowlist(tmp_path, [_entry(skill)])), "--strict"])
+    r = _run(["--allowlist", str(_allowlist(tmp_path, [_entry(skill)]))])
     assert r.returncode == 0
     assert r.stdout == ""
 
 
-def test_missing_keyword_strict_fails(tmp_path: Path) -> None:
+def test_missing_keyword_warns(tmp_path: Path) -> None:
     skill = _skill_md(tmp_path, "15-25%")
     entry = _entry(skill)
     del entry["keyword"]
@@ -226,7 +201,7 @@ def test_bounds_field_ignored(tmp_path: Path) -> None:
 ```
 
 Run: `uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -v`
-Expected: FAIL（containment/keyword/bounds 用例红——现实现相交式+keyword 可选+读 bounds）
+Expected: FAIL（partial_overlap/keyword_missing/bounds 用例红——现实现相交式+keyword 可选+读 bounds）
 
 - [ ] **Step 2: 改写 lint 实现**
 
@@ -259,14 +234,15 @@ from shenbi.contracts.skills.pacing_design import CONSTELLATION_HARD_BAND
 - [ ] **Step 3: 删 allowlist bounds 字段**
 
 ```python
-# tools/threshold_allowlist.json — 4 条 entry 各删一行 "bounds": [15, 40]
-# （用 python 脚本改写保持 2 空格缩进 + 末尾换行；改后 git diff 应只有 4 行删除）
+# tools/threshold_allowlist.json — 4 条 entry 各删 "bounds": [15, 40] 行
+# （注意：各 entry 的 "checker" 行因后随 bounds 而带尾逗号，删 bounds 行须同步去掉
+#  checker 行尾逗号——diff 形状 = 4 行删除 + 4 行逗号修正，非纯删除）
 ```
 
 - [ ] **Step 4: 跑重写测试全绿**
 
 Run: `uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -v`
-Expected: 6 PASS
+Expected: 5 PASS（strict 系用例在 Task 3 落地——本 task 中间 commit 套件须绿）
 
 - [ ] **Step 5: 实跑 lint 现状（repo 数据面）**
 
@@ -293,15 +269,29 @@ git commit -m "feat: spec #93 T1b — lint 读 CONSTELLATION_HARD_BAND+删 bound
 - Consumes: Task 2 产出（keyword_missing/drift 行+`main(argv) -> int`）
 - Produces: `--strict` CLI flag（无 WARN 行 → exit 0；任一 WARN 条件 → exit 1）；justfile lint 配方含 `--strict`
 
-- [ ] **Step 1: 追加 strict 测试（红）**
+- [ ] **Step 1: 追加 strict 测试（红——`--strict` 未实现，argparse unrecognized exit 2）**
 
 ```python
 # 追加到 tests/unit/tools/test_lint_threshold_reconciliation.py
+def test_repo_allowlist_strict_clean() -> None:
+    r = _run(["--strict"])
+    assert r.returncode == 0
+    assert r.stdout == ""
+
+
 def test_strict_drift_fails(tmp_path: Path) -> None:
     skill = _skill_md(tmp_path, "50-60%")
     r = _run(["--allowlist", str(_allowlist(tmp_path, [_entry(skill)])), "--strict"])
     assert r.returncode == 1
     assert "threshold_drift" in r.stdout
+
+
+def test_strict_partial_overlap_fails(tmp_path: Path) -> None:
+    # 包含式的核心增量判据面：相交不包含 → strict FAIL（旧相交式下此断言红）
+    skill = _skill_md(tmp_path, "10-20%")
+    r = _run(["--allowlist", str(_allowlist(tmp_path, [_entry(skill)])), "--strict"])
+    assert r.returncode == 1
+    assert "threshold_drift" in r.stdout and "10-20" in r.stdout
 
 
 def test_strict_keyword_missing_fails(tmp_path: Path) -> None:
@@ -320,8 +310,8 @@ def test_non_strict_drift_still_exits_zero(tmp_path: Path) -> None:
     assert "threshold_drift" in r.stdout
 ```
 
-Run: `uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -k strict -v`
-Expected: FAIL with `returncode 0 != 1`（--strict 未实现，argparse 报 unrecognized exit 2 或直接 exit 0）
+Run: `uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -v`
+Expected: 新增 5 用例 FAIL（exit 2）；Task 2 存量 5 用例仍 PASS
 
 - [ ] **Step 2: 实现 --strict**
 
@@ -368,7 +358,7 @@ def main(argv: list[str] | None = None) -> int:
 - [ ] **Step 4: 跑全部 lint 测试+实跑 strict**
 
 Run: `uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -v && uv run python tools/lint_threshold_reconciliation.py --strict; echo exit=$?`
-Expected: 9 PASS；实跑无输出 exit=0
+Expected: 10 PASS；实跑无输出 exit=0
 
 - [ ] **Step 5: 红测证据——临时改常量验 FAIL 态（回滚）**
 
@@ -393,7 +383,7 @@ git commit -m "feat: spec #93 T1c — lint --strict FAIL 态+just lint 接线（
 ### Task 4: T3 · pricing 模型契约单源倒置（infra · tdd_red_green）
 
 **Files:**
-- Modify: `src/shenbi/cost/pricing.py:3-7,14-15,31-32,41`
+- Modify: `src/shenbi/cost/pricing.py:3-7,15-16,31-32,42`
 - Modify: `src/shenbi/pipeline/dispatch_helper.py:94-101,3741`
 - Test: `tests/unit/cost/test_pricing.py`（追加）+ `tests/unit/pipeline/test_dispatch_helper_model_source.py`（新建）
 
@@ -424,7 +414,8 @@ def test_dispatch_uses_pricing_single_source() -> None:
 ```
 
 ```python
-# tests/unit/cost/test_pricing.py 追加
+# tests/unit/cost/test_pricing.py 追加；同文件 :17 注释刷新
+# （原 "(dispatch_helper._DEFAULT_MODEL)" 指将被删的符号——改 "(single source, dispatch_helper imports)"）
 def test_env_var_public_constant() -> None:
     from shenbi.cost.pricing import LLM_MODEL_ENV_VAR
 
@@ -446,12 +437,12 @@ This module is the single source for the dispatch-path model constants
 imports them from here (spec #93 T3). Pricing uses that same default so
 cost reflects what ran; do NOT hardcode other models here.
 """
-# 2) :14-15 注释改：
+# 2) :15-16 注释改：
 # The dispatch-path default model — single source; dispatch_helper imports this (spec #93 T3).
 # 3) :31-32 改（私有转公共）：
 # Env var name — single source, dispatch_helper imports this (spec #93 T3).
 LLM_MODEL_ENV_VAR: str = "SHENBI_LLM_MODEL"
-# 4) resolve_model 内 :41：
+# 4) resolve_model 内 :42：
     return os.environ.get(LLM_MODEL_ENV_VAR, DEFAULT_PRICING_MODEL)
 ```
 
@@ -481,10 +472,11 @@ git commit -m "refactor: spec #93 T3 — dispatch 模型常量单源倒置（dis
 
 ---
 
-### Task 5: T4 · executor 派生集缓存 stat 键失效（leaf · tdd_red_green）
+### Task 5: T4 · executor 派生集缓存 stat 键失效（infra · tdd_red_green）
 
 **Files:**
 - Modify: `src/shenbi/dispatcher/executor.py:30-59`
+- Modify: `tests/unit/conftest.py:13-21`（删 autouse `reset_executor_caches` fixture——其全部目的即重置被删的两个全局；保留则每个测试静默复活死属性）
 - Test: `tests/unit/dispatcher/test_executor_derived_set_freshness.py`（新建）
 
 **Interfaces:**
@@ -507,7 +499,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import shenbi.contracts.loader as loader_mod
-from shenbi.contracts.enums import OutputKind
+from shenbi.contracts import (
+    OutputKind,
+)  # 定义在 contracts/loader.py:42，经包 __init__ 再导出（executor.py:17 同路径）
 import shenbi.dispatcher.executor as ex
 
 
@@ -563,18 +557,18 @@ def _decisions_file_set() -> set[str]:
     return {name for name, kind in bootstrap_registry().items() if kind == "decisions"}
 ```
 
-（删 `_truth_files_cache`/`_decisions_files_cache` 两个全局与 `global` 语句；`bootstrap_registry` 已在 :25 import。）
+（删 `_truth_files_cache`/`_decisions_files_cache` 两个全局与 `global` 语句；`bootstrap_registry` 已在 :25 import。同 commit 删 `tests/unit/conftest.py` 的 `reset_executor_caches` fixture 全体（含 `from shenbi.dispatcher import executor` import 行）。）
 
-- [ ] **Step 3: 跑新测+executor 存量测试**
+- [ ] **Step 3: 跑新测+executor 存量测试+conftest 退役验证**
 
-Run: `uv run pytest tests/unit/dispatcher/ -v`
-Expected: 全 PASS
+Run: `uv run pytest tests/unit/dispatcher/ -v && uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -q`
+Expected: 全 PASS（后者验证 conftest 删除对其他单测零影响）
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add src/shenbi/dispatcher/executor.py tests/unit/dispatcher/test_executor_derived_set_freshness.py
-git commit -m "fix: spec #93 T4 — executor 派生集缓存改经 bootstrap_registry stat 键失效（契约对齐）"
+git add src/shenbi/dispatcher/executor.py tests/unit/conftest.py tests/unit/dispatcher/test_executor_derived_set_freshness.py
+git commit -m "fix: spec #93 T4 — executor 派生集缓存改经 bootstrap_registry stat 键失效（契约对齐+conftest fixture 退役）"
 ```
 
 ---
@@ -585,8 +579,8 @@ git commit -m "fix: spec #93 T4 — executor 派生集缓存改经 bootstrap_reg
 - Modify: `src/shenbi/pipeline/_shared.py`（常量+charter 扩域+__all__）
 - Modify: `src/shenbi/pipeline/chapter_loop.py:2877-2906`
 - Modify: `src/shenbi/orchestration/escalation_bridge.py:10-25`
-- Modify: `src/shenbi/pipeline/confidence_calibration.py:116,128`
-- Test: `tests/unit/orchestration/test_bridges.py`（追加）+ `tests/unit/pipeline/test_trend_columns.py`（新建）
+- Modify: `src/shenbi/pipeline/confidence_calibration.py:118,129`
+- Test: `tests/unit/pipeline/test_trend_columns.py`（新建；escalation_bridge 存量回归经 tests/unit/orchestration/test_bridges.py 全跑覆盖）
 
 **Interfaces:**
 - Consumes: 无
@@ -729,8 +723,11 @@ from shenbi.pipeline._shared import TREND_CONFIDENCE_IDX
 
 - [ ] **Step 4: 跑新测+三消费者存量测试**
 
-Run: `uv run pytest tests/unit/pipeline/test_trend_columns.py tests/unit/orchestration/test_bridges.py tests/unit/pipeline/ -k "trend or resonance or calibration or bridge" -v`
-Expected: 全 PASS
+Run: `uv run pytest tests/unit/pipeline/test_trend_columns.py -v`
+Expected: 4 PASS（新文件**不过滤全跑**——`-k` 按函数名过滤会 deselect 无关键词用例）
+
+Run: `uv run pytest tests/unit/orchestration/test_bridges.py tests/unit/pipeline/ -k "trend or resonance or calibration or bridge" -v`
+Expected: 全 PASS（存量面零回归）
 
 - [ ] **Step 5: Commit**
 
@@ -881,7 +878,7 @@ git commit -m "fix: spec #93 T6 — 疲劳词门改读契约 camel 形状（禁�
 - [ ] **Step 3: 双向锚验收 grep**
 
 Run: `grep -n "散文↔门裕度" docs/framework/gates.md src/shenbi/gates/g4/chapter_drafting.py`
-Expected: gates.md ≥2 命中（节标题+正文回指）+ chapter_drafting.py 2 命中（双向锚成立）
+Expected: gates.md ≥1 命中（节标题）+ chapter_drafting.py 2 命中（g4→docs 回指锚成立；spec AC2「grep 双向锚」= 两文件互可定位）
 
 Run: `uv run pytest tests/unit/gates/g4/ -q`
 Expected: 全 PASS（注释改动零行为影响）
