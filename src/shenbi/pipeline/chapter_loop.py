@@ -2877,14 +2877,13 @@ def parse_resonance_score(report_path: Path) -> int | None:
 def build_resonance_trend_row(chapter: int, overall: int) -> str:
     """Build a 9-column markdown table row for resonance_trend.md.
 
-    Column layout matches the shenbi-review-resonance skill contract
-    (skills/shenbi-review-resonance/SKILL.md): a bare ``{N}`` key — NOT
-    ``Ch{N}`` — so framework and skill writers dedup onto the same row
-    (SDD #21 R1; whole-cell key comparison makes ``Ch55 != 55`` two rows).
-
-    Format stays parseable by the real trend reader
-    (skill_utils/drift_detection/compute_drift.py parse_trend): it requires
-    >=7 cells and reads cells[6] as the overall score — unchanged here.
+    Column layout is the TREND_COLUMNS contract (pipeline/_shared.py, spec
+    #93 T5; prose authority: skills/shenbi-review-resonance/SKILL.md): a
+    bare ``{N}`` key — NOT ``Ch{N}`` — so framework and skill writers dedup
+    onto the same row (SDD #21 R1; whole-cell key comparison makes
+    ``Ch55 != 55`` two rows). parse_resonance_scores reads
+    cells[TREND_OVERALL_IDX]; compute_drift's parse_trend is header-name
+    driven.
 
     Only the overall score (cs.resonance_score, an int) is available here;
     the upstream parser parse_resonance_score (chapter_loop.py:1389) returns
@@ -2894,15 +2893,20 @@ def build_resonance_trend_row(chapter: int, overall: int) -> str:
     The caller persists this row with mode="insert_markdown_row" so a
     skill-written rich row for the same chapter is never clobbered by this
     placeholder row.
-
-    Column layout (split("|")[1:-1] yields exactly these cells):
-        cells[0] = {N}       (key, matches skill contract)
-        cells[1..5] = "-"    (placeholder: role + 4 dimensions)
-        cells[6] = {overall} (7th column — what parse_trend reads)
-        cells[7] = "-"       (placeholder confidence)
-        cells[8] = ""        (human_overridden, blank like the skill)
     """
-    return f"| {chapter} | - | - | - | - | - | {overall} | - |  |"
+    from shenbi.pipeline._shared import TREND_COLUMNS
+
+    cells: list[str] = []
+    for name in TREND_COLUMNS:
+        if name == "chapter":
+            cells.append(str(chapter))
+        elif name == "overall":
+            cells.append(str(overall))
+        elif name == "human_overridden":
+            cells.append("")  # blank like the skill's convention
+        else:
+            cells.append("-")  # placeholder: role + 4 dimensions + confidence
+    return "| " + " | ".join(cells) + " |"
 
 
 # ---------------------------------------------------------------------------
