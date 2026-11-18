@@ -28,35 +28,23 @@ from shenbi.process_guard import run_subprocess_json
 
 log = get_logger(__name__)
 
-# Cached set of truth files; lazily built from truth-files.yaml concepts.
-_truth_files_cache: set[str] | None = None
-
 
 def _truth_file_set() -> set[str]:
     """Files listed as kind='truth' in truth-files.yaml concepts.
 
     Both truth and chapter edits have OutputKind.ARTIFACT, so OutputKind cannot
     distinguish them; the distinction lives in truth-files.yaml (spec New-I).
+    Spec #93 T4: derived per call via bootstrap_registry() — the loader's
+    (mtime_ns, size) stat-key cache makes this cheap and keeps the derived
+    sets fresh when truth-files.yaml is edited mid-process (frozen module
+    globals violated the loader's cache contract).
     """
-    global _truth_files_cache
-    if _truth_files_cache is None:
-        _truth_files_cache = {
-            name for name, kind in bootstrap_registry().items() if kind == "truth"
-        }
-    return _truth_files_cache
-
-
-_decisions_files_cache: set[str] | None = None
+    return {name for name, kind in bootstrap_registry().items() if kind == "truth"}
 
 
 def _decisions_file_set() -> set[str]:
     """Files listed as kind='decisions' in truth-files.yaml concepts."""
-    global _decisions_files_cache
-    if _decisions_files_cache is None:
-        _decisions_files_cache = {
-            name for name, kind in bootstrap_registry().items() if kind == "decisions"
-        }
-    return _decisions_files_cache
+    return {name for name, kind in bootstrap_registry().items() if kind == "decisions"}
 
 
 def generate_agent_id(round_dir: Path, skill: str, test_type: str) -> str:
