@@ -1,7 +1,7 @@
 # Spec #93 · 阈值权威化（threshold-authority）：对账 lint 读执法器、散文↔门裕度入 docs、小型契约漂移点清偿
 
 **日期**：2026-11-01（r2 修订 2026-11-02：带宽常量当前不存在须先提取；裕度声明改入 docs 不动 SKILL.md 散文——束4 验收后窗口的 prompt 行为红线；r2.2 全量对抗式审计修订——T1b 判定式改包含、T1c `--strict` 须新写、T5 parser 归属更正）｜ **r3 修订 2026-11-19**（价值门驳斥复核驱动：T2 疲劳词半边前提失真拆出 **T6 键形接线修复**（门-契约键形断裂实证）；T1b 吸收 keyword 必填硬化；验收补 lint 测试重写义务；全部行号刷新至 HEAD bdb1b3a3；④⑤ 预答栏补栏）｜ **系列**：架构复审批次 A ｜ **状态**：Design（r3 · Revised 2026-11-19） ｜ **优先级**：🟠 P1
-**动机证据**（行号=HEAD bdb1b3a3 亲验）：`pacing_design.py:51-56` 内联 `15 <= const <= 40`（无常量可读）；`threshold_allowlist.json` 4 条 entry 各带手拷 `bounds: [15,40]`；SKILL.md 转折词 1/3000 ×5 处（:92-94/:108/:185）vs 门执行 1/1000（`chapter_drafting.py:931/:943`）；**r3 新增**：疲劳词门读 `gc.get("fatigue_words")` snake 顶层列表（`chapter_drafting.py:970`）而技能契约写 camel 嵌套 `fatigueWords:{禁用,慎用,替换建议}`（`genre_config.py:50` alias；fixture `tests/fixtures/genre-config-example.json` 顶层仅 camel 键）且 `read_genre_config` 返回**原始 json**（`gates/shared.py:731-746`，无模型归一化）→ 门对真实技能产物**恒回退 FATIGUE_BASE**（`gates/shared.py:873` 27 词平面列表）；唯一「证明」门读配置的测试 `test_chapter_drafting_detect.py:13` 手工注入真实技能永不写的 snake 形状。
+**动机证据**（行号=HEAD bdb1b3a3 亲验）：`pacing_design.py:51-56` 内联 `15 <= const <= 40`（无常量可读）；`threshold_allowlist.json` 4 条 entry 各带手拷 `bounds: [15,40]`；SKILL.md 转折词 1/3000 ×5 处（:92-94/:108/:185）vs 门执行 1/1000（`chapter_drafting.py:931/:953`）；**r3 新增**：疲劳词门读 `gc.get("fatigue_words")` snake 顶层列表（`chapter_drafting.py:970`）而技能契约写 camel 嵌套 `fatigueWords:{禁用,慎用,替换建议}`（`genre_config.py:50` alias；fixture `tests/fixtures/genre-config-example.json` 顶层仅 camel 键）且 `read_genre_config` 返回**原始 json**（`gates/shared.py:731-746`，无模型归一化）→ 门对真实技能产物**恒回退 FATIGUE_BASE**（`gates/shared.py:873` 27 词平面列表）；唯一「证明」门读配置的测试 `test_chapter_drafting_detect.py:13` 手工注入真实技能永不写的 snake 形状。
 
 **触及的不变量维度**：情绪节奏（弱关联——pacing 域阈值声明单源化，不新增门检）；r3 增：疲劳词门输入权威（门行为修复面）
 
@@ -31,7 +31,7 @@
 
 ### T2 · 裕度决策成文（**docs only**；r3 内容重写）
 - `docs/framework/gates.md` 增「散文↔门裕度」节，**两行决策+出处**：
-  - 转折词：散文预算 1/3000（chapter-drafting SKILL ×5 处）/ 门限 1/1000（chapter_drafting.py:943 `max(5, wc//1000)`）——3× 自动化裕度，理由=自动化生成文本转折词天然偏多（门注释 :931 自认）；
+  - 转折词：散文预算 1/3000（chapter-drafting SKILL ×5 处）/ 门限 1/1000（chapter_drafting.py:953 `max(5, wc//1000)`）——3× 自动化裕度，理由=自动化生成文本转折词天然偏多（门注释 :931 自认）；
   - 疲劳词（T6 接线后的真实语义）：散文面=禁用词出现即报错+慎用词每章 >3 报警（genre-config SKILL.md:168-186）/ 门面=禁用∪慎用命中 >8 FAIL（chapter_drafting.py:972）——门对禁用词同样给了自动化裕度（散文零容忍 vs 门 ≤8），与转折词同一裕度模式；
 - g4 侧注释回指（`chapter_drafting.py:931` 转折词注释与 `:967` 疲劳词 docstring 各加「裕度裁定见 docs/framework/gates.md §散文↔门裕度」）；
 - **不改任何 SKILL.md 指令散文**（豁免：纯注释性 docs）；若用户裁定应把散文也对齐，另立内容批（属 prompt 变更）。
