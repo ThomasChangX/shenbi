@@ -964,10 +964,33 @@ def _check_transitions(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]
         )
 
 
+def _fatigue_word_list(gc: dict[str, Any]) -> list[str]:
+    """Fatigue word list from genre-config's contract shape (spec #93 T6).
+
+    The skill contract writes a camelCase nested object
+    ``fatigueWords: {禁用: [...], 慎用: [...], 替换建议: {...}}``
+    (contracts/skills/genre_config.py alias; read_genre_config returns the
+    raw JSON). The gate counts the 禁用∪慎用 union — the config replaces
+    FATIGUE_BASE entirely when present; missing/malformed shapes fall back
+    to FATIGUE_BASE (never crash the gate).
+    """
+    fw = gc.get("fatigueWords")
+    if isinstance(fw, dict):
+        words: list[str] = []
+        for key in ("禁用", "慎用"):
+            group = fw.get(key)
+            if isinstance(group, list):
+                words.extend(w for w in group if isinstance(w, str))
+        if words:
+            return words
+        log.warning("fatigue_words_config_empty_or_malformed", keys=sorted(fw.keys()))
+    return list(FATIGUE_BASE)
+
+
 def _check_fatigue(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """Fatigue words <= 8 (genre-config 阈)."""
     gc = read_genre_config(str(ctx.project_root))
-    fatigue_list = gc.get("fatigue_words", FATIGUE_BASE)
+    fatigue_list = _fatigue_word_list(gc)
     fatigue_hits = sum(ctx.content.count(w) for w in fatigue_list)
     if fatigue_hits > 8:
         mf.append(f"G4.fatigue:{ctx.fp}:{fatigue_hits}>8")
