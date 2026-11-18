@@ -929,6 +929,7 @@ def _check_post_block(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str])
 def _check_transitions(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """Transition density + spec #83 T1 POST 交叉/字数精度."""
     # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
+    # — 裕度裁定见 docs/framework/gates.md §散文↔门裕度 (spec #93 T2)
     # Count on the narrative body only (probe escalation #4): the raw
     # content includes the framework-mandated PRE_WRITE_CHECK checklist,
     # which itself enumerates transition words — the gate was counting
@@ -988,7 +989,7 @@ def _fatigue_word_list(gc: dict[str, Any]) -> list[str]:
 
 
 def _check_fatigue(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
-    """Fatigue words <= 8 (genre-config 阈)."""
+    """Fatigue words <= 8 (genre-config 阈). 裕度裁定见 docs/framework/gates.md §散文↔门裕度 (spec #93 T2)."""
     gc = read_genre_config(str(ctx.project_root))
     fatigue_list = _fatigue_word_list(gc)
     fatigue_hits = sum(ctx.content.count(w) for w in fatigue_list)

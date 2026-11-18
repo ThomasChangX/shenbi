@@ -50,3 +50,15 @@ manifest 门行对**已生成章不回放**（spec #83 T7 文档化）：`pipeli
 pipeline 于 chapter_loop.py 直连调用（需跨章上下文装配——上一章内容/前窗 plan——
 注册表的 per-round 单文件形态装不下）。注册表口径的「哪些门存在」不包含它；
 新增跨章门须同样走直连+本文档登记，不得默默进注册表。
+
+## 散文↔门裕度（spec #93 T2）
+
+散文（SKILL.md 教学面）与门（G4 执行面）的阈值**有意不同**——提示比门严是 prompt 工程设计：
+自动化生成文本在对应指标上天然偏多，门给裕度防重派风暴，散文保持高压引导模型自律。
+改任一侧前先读本节；把散文「对齐」到门值=改变 LLM 行为，属 prompt 变更须走内容批。
+
+- **转折词**：散文预算 1/3000（chapter-drafting SKILL 字面 ×5 :92-94/:108/:185＋公式形态 [字数/3000] :174）
+  / 门限 1/1000（chapter_drafting.py `max(5, wc//1000)`，:931 注释自认 relaxed for automated gen）——3× 裕度。
+- **疲劳词**：散文面=禁用词出现即报错＋慎用词每章 >3 报警（genre-config SKILL.md 疲劳词管理节）
+  / 门面=禁用∪慎用命中 >8 FAIL（chapter_drafting.py `_check_fatigue`，spec #93 T6 接线后门实读
+  genre-config 词表）——门对禁用词同样给自动化裕度（散文零容忍 vs 门 ≤8），与转折词同一裕度模式。
