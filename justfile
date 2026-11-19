@@ -33,6 +33,7 @@ check:
 lint:
     uv run python tools/lint_status_strings.py
     uv run python tools/lint_invariant_coverage.py
+    uv run python tools/lint_gate_power_baseline.py
     uv run python tools/lint_routing_faces.py
     uv run python tools/audit-skill-descriptions.py
     uv run python tools/lint_registry_reconcile.py --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume
@@ -62,6 +63,10 @@ lint:
     just lint-contracts
     uv run ruff check .
     uv run ruff format --check .
+
+# Spec #116 T1: offline gate discriminative-power replay (zero LLM, read-only)
+gate-power DIR *ARGS:
+    uv run python tools/gate_power_replay.py "$1" "${@:2}"
 
 # Type face (spec #92 T4)
 type:

@@ -1,0 +1,12 @@
+{
+  "provenance_note": "minimal hooks ledger for G4.cd.hook_type_rotation (spec #116 T4); reading shape mirrors declared_history (chapter_planning.py): chapter_loop.chapter_states.<k>.declared with 章尾钩型 key; declared value mirrors the v4 memo obligation line",
+  "chapter_loop": {
+    "chapter_states": {
+      "0": {
+        "declared": {
+          "章尾钩型": "悬念钩"
+        }
+      }
+    }
+  }
+}

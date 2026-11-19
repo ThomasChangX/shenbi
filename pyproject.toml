@@ -208,6 +208,18 @@ convention = "google"
 # vol1 probe ch6 escalation test: SKILL-guidance assertions quote the live
 # Chinese contract vocabulary — data, not drift.
 "tests/unit/gates/g4/test_chapter_drafting.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #116 T1: gate-power 回放——报告行/归因节/测试 docstring 均为中文
+# 仪表文案与章合成数据（同 lint_truth_pool 的 data-not-drift 类）。
+"tools/gate_power_replay.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_gate_power_replay.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #116 T4: 变异算子 docstring/provenance 模板与红测 docstring 均为中文
+# （真实章负例生成文案——同 T1 的 data-not-drift 类）。
+"tools/gen_gate_power_fixtures.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/g4/test_gate_power_negatives.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #116 T2: 恒真登记哨兵 lint——表列/口径/裁定文案与测试 docstring 均为
+# 中文仪表文案（同 T1 的 data-not-drift 类）。
+"tools/lint_gate_power_baseline.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_lint_gate_power_baseline.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/skill_utils/test_compute_stats.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/pipeline/test_context_assemble.py" = ["RUF001", "RUF002", "RUF003"]
 # Craft-contract backfill: the injected declaration lines ARE Chinese memo
