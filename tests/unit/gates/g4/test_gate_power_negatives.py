@@ -65,3 +65,24 @@ def test_meta_injected_fails_meta_gate() -> None:
     res = _g4("chapter-1-meta-injected.md")
     mf = res.get("must_fix", [])
     assert any(m.startswith("G4.meta:") and "由此可见" in m for m in mf), mf[:3]
+
+
+def test_word_count_truncated_fails_word_count_gate() -> None:
+    """正文截断（保 PRE/POST 块）→ total < floor（--full 面，NB6）."""
+    res = _g4("chapter-1-word-count-truncated.md")
+    mf = res.get("must_fix", [])
+    assert any(m.startswith("G4.word_count:") and "<" in m for m in mf), mf[:3]
+
+
+def test_post_removed_fails_post_check_gate() -> None:
+    """删 POST META 块 → post_check（--full：裁片不含 POST，红须来自变异，NB6）."""
+    res = _g4("chapter-1-post-removed.md")
+    mf = res.get("must_fix", [])
+    assert any(m.startswith("G4.post_check:") for m in mf), mf[:3]
+
+
+def test_pre_removed_fails_pre_check_gate() -> None:
+    """删 PRE META 块 → pre_check（--full 面，同 NB6）."""
+    res = _g4("chapter-1-pre-removed.md")
+    mf = res.get("must_fix", [])
+    assert any(m.startswith("G4.pre_check:") for m in mf), mf[:3]

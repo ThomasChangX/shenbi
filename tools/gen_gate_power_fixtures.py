@@ -160,6 +160,33 @@ def meta_injected(text: str) -> str:
     return _with_tail(text, [*tail[:-1], _META_PARA, tail[-1]])
 
 
+def _raw_paras(text: str) -> list[str]:
+    return text.split("\n\n")
+
+
+def word_count_truncated(text: str) -> str:
+    """正文截断（保 PRE/POST 结构块＋首 3 叙事段）→ total < floor → word_count.
+
+    NB6：--full 面——截断是块级手术，裁片本身已 < floor，红须来自变异非裁片。
+    POST 块跨多 raw 段（H2 标题段与清单段分离）——尾部保留自 POST 标题段起整段。
+    """
+    paras = _raw_paras(text)
+    post_start = max(i for i, p in enumerate(paras) if "## POST_WRITE_SELF_CHECK" in p)
+    return "\n\n".join([*paras[:8], *paras[post_start:]])
+
+
+def post_removed(text: str) -> str:
+    """删含 POST_WRITE_SELF_CHECK 的 META 块段 → post_check（NB6：--full 面）."""
+    paras = _raw_paras(text)
+    return "\n\n".join(p for p in paras if "## POST_WRITE_SELF_CHECK" not in p)
+
+
+def pre_removed(text: str) -> str:
+    """删含 PRE_WRITE_CHECK 的 META 块段 → pre_check（NB6：--full 面）."""
+    paras = _raw_paras(text)
+    return "\n\n".join(p for p in paras if "## PRE_WRITE_CHECK" not in p)
+
+
 MUTATIONS: dict[str, Callable[..., str]] = {
     "hook_killed": hook_killed,
     "protagonist_vanished": protagonist_vanished,
@@ -168,6 +195,9 @@ MUTATIONS: dict[str, Callable[..., str]] = {
     "scene_markers_removed": scene_markers_removed,
     "fatigue_flooded": fatigue_flooded,
     "meta_injected": meta_injected,
+    "word_count_truncated": word_count_truncated,
+    "post_removed": post_removed,
+    "pre_removed": pre_removed,
 }
 
 
