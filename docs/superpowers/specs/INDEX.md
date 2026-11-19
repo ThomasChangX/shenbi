@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-11-19（#93 完结归档 PR #365——阈值权威化全链；前次 #109 PR #361）
-> **活跃 spec 数**：15
+> **最后更新**：2026-11-20（#116 完结归档 PR #367——门禁判别力仪表全链；前次 #93 PR #365）
+> **活跃 spec 数**：14
 
 本页只追踪活跃（待执行）spec，**表行序即推荐执行顺序**（依据见「排序依据」节）；优先级标注（🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量）仅作 tie-breaker 与视觉分层。**spec 详情（动机证据/根因/任务分解/验收）以 spec 文件本体为唯一权威**，本页只留一句话范围与依赖——INDEX 不做 spec 的第二份拷贝（拷贝必漂移）。已完成/驳回的 spec 移至 `archive/`，编号 append-only 不重排不复用（系列/依赖按编号交叉引用）；归档历史查 `archive/` 与 `git log`。
 
@@ -15,7 +15,6 @@
 
 | 编号 | 优先级 | spec 文件 | 状态 | 一句话范围 | 依赖 |
 |------|--------|-----------|------|-----------|------|
-| #116 | 🟠 P1 | `2026-11-15-spec116-gate-discriminative-power.md` | Design r2 | 门禁判别力仪表：真 G4 回放（10 散文门 50/50 恒真）→ `just gate-power`＋恒真登记＋WARN 哨兵＋七项标定提案（含 voice_density，不改门行为，用户逐项裁定） | justfile 链 #92→#93→#116；T4 变异器 #108 后换装 |
 | #110 | 🟠 P1 | `2026-11-15-spec110-judge-reliability-harness.md` | Design r1 | 评审信度 harness：判官间一致性/效度/分布形状离线报告（κ≈0、α=0.311、更好=0/32 实证）＋在飞 spec 判据营养接线 | 独立；数据卫生面消费 #109 T4 口径 |
 | #117 | 🟠 P1 | `2026-11-15-spec117-audit-evidence-verifiability.md` | Design r1 | 审计证据可验证性：发现级 parser＋G4.av.evidence_* 逐字/行号/规则名对账＋消费三态（28.2% 引述无逐字来源实证） | #105 已核销；justfile #92→#116→#117 |
 | #107 | 🟡 P2 | `2026-11-15-spec107-reviewer-model-tier.md` | Design r1 | 评评分档：executor_config per-skill model 键单源接线＋量表 A/B 预注册（默认行为零变化差分钉死；第二模型随用户令） | #92 已完结（dispatch_helper 同文件无冲突）；A/B 随令 |
