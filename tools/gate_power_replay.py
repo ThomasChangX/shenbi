@@ -45,6 +45,10 @@ TRUTH_DEPENDENT_IDS = frozenset(
         "cd.counter.base_mismatch",
         "cd.counter.prose_mismatch",
         "G4.cd.hook_type_rotation",
+        # I-1 归位（Task 5 承批，Task 4 审查移交）：chapter_drafting.py:895 裸形
+        # WARN check 行，读 truth/prop_registry.md——读 truth oracle 入 truth 口径
+        # （发射面仅 WARN：无伪 FAIL 面，伪 WARN 面如实）；50 章回放 0 行发射。
+        "cd.provenance_anchor",
     }
 )
 STATE_FREE_IDS = frozenset(

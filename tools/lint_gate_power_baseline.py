@@ -47,12 +47,12 @@ GATE_SOURCE = REPO / "src" / "shenbi" / "gates" / "g4" / "chapter_drafting.py"
 BASELINE_DOC = REPO / "docs" / "framework" / "gate-power-baseline.md"
 INVENTORY_JSON = REPO / "tests" / "fixtures" / "g4-id-inventory.json"
 
-# M1 升格锚 = baseline 回填日 2026-11-19 ＋ 30 天（一个完整裁定周期；spec r2/I5
-# 「分类义务清偿后」以该日历日近似）。若 Task 5 实跑日晚于 2026-11-19，按
-# 「实跑日＋30 天」改此常量并在 task report 记录（docs/framework/
-# gate-power-baseline.md 头节同步声明）。
-ESCALATION_DATE = date(2026, 12, 19)
-PRE_ESCALATION = date(2026, 11, 19)
+# M1 升格锚 = baseline 回填日 ＋ 30 天（一个完整裁定周期；spec r2/I5
+# 「分类义务清偿后」以该日历日近似）。原计划回填日 2026-11-19；Task 5 实跑日
+# 2026-11-20（升格锚校正义务：按「实跑日＋30 天」修正常量并在 task report 记录，
+# docs/framework/gate-power-baseline.md 头节同步声明）。
+ESCALATION_DATE = date(2026, 12, 20)
+PRE_ESCALATION = date(2026, 11, 20)
 
 VALID_CLASSIFICATIONS = frozenset(
     {"unclassified", "floor-untested", "decorative", "discriminating", "retired"}
@@ -77,6 +77,10 @@ EXPLICIT_SUPPLEMENT = frozenset(
         "cd.post_quote_verbatim",  # check 行裸形（:925）＋ check_post_quote_verbatim 臂
         "cd.post_transition_cross",  # check_post_transition_cross helper 臂（无 check 行）
         "cd.post_wordcount_precision",  # WARN-only check 行裸形（:952，NB4 预列缺项）
+        # I-1 归位（Task 5 承批，Task 4 审查移交）：WARN-only 裸形 check 行
+        # （:895，读 truth/prop_registry.md），双扫描正则均不可见；口径裁定=
+        # truth（读 truth oracle；发射面仅 WARN，无伪 FAIL 面）——扩后 registry 32 行。
+        "cd.provenance_anchor",
     }
 )
 
