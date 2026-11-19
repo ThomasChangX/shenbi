@@ -212,6 +212,10 @@ convention = "google"
 # 仪表文案与章合成数据（同 lint_truth_pool 的 data-not-drift 类）。
 "tools/gate_power_replay.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/tools/test_gate_power_replay.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #116 T4: 变异算子 docstring/provenance 模板与红测 docstring 均为中文
+# （真实章负例生成文案——同 T1 的 data-not-drift 类）。
+"tools/gen_gate_power_fixtures.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/gates/g4/test_gate_power_negatives.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/skill_utils/test_compute_stats.py" = ["RUF001", "RUF002", "RUF003"]
 "tests/unit/pipeline/test_context_assemble.py" = ["RUF001", "RUF002", "RUF003"]
 # Craft-contract backfill: the injected declaration lines ARE Chinese memo
