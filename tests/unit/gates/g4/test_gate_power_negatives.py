@@ -103,3 +103,33 @@ def test_hookdecl_mismatched_fails_scene_hook_match_gate() -> None:
     res = _g4("chapter-1-post-removed.md")
     mf = res.get("must_fix", [])
     assert any(m.startswith("G4.cd.scene_hook_match:") and "场景2" in m for m in mf), mf[:3]
+
+
+def test_post_quote_broken_fails_post_quote_verbatim_gate() -> None:
+    """POST 金句位引句改一字 → 声明子句缺席 FAIL 臂（--full 面）."""
+    res = _g4("chapter-1-post-quote-broken.md")
+    mf = res.get("must_fix", [])
+    assert any(m.startswith("G4.cd.post_quote_verbatim:") and "声明子句缺席" in m for m in mf), mf[
+        :3
+    ]
+
+
+def test_post_transition_lied_fails_post_transition_cross_gate() -> None:
+    """章中注入连接词而 POST 仍报转折 0 → post_transition_cross FAIL（--full 面）."""
+    res = _g4("chapter-1-post-transition-lied.md")
+    mf = res.get("must_fix", [])
+    assert any(m.startswith("G4.cd.post_transition_cross:") for m in mf), mf[:3]
+
+
+def test_golden_emptied_warns_golden_slot() -> None:
+    """PRE 金句位值→无 → golden_slot WARN 行（负例=WARN-only，非 must_fix）."""
+    res = _g4("chapter-1-golden-emptied.md")
+    rows = [c for c in res["checks"] if c["id"] == "G4.cd.golden_slot"]
+    assert rows and rows[0]["s"] == "WARN" and "PRE lacks" in rows[0]["r"], rows
+
+
+def test_post_wordcount_lied_warns_precision() -> None:
+    """POST 总计改半（3625→1812）→ post_wordcount_precision WARN 行（I2）."""
+    res = _g4("chapter-1-post-wordcount-lied.md")
+    rows = [c for c in res["checks"] if c["id"] == "cd.post_wordcount_precision"]
+    assert rows and rows[0]["s"] == "WARN" and "1812" in rows[0]["r"], rows

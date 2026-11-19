@@ -228,6 +228,33 @@ def hookdecl_mismatched(text: str) -> str:
     )
 
 
+def post_quote_broken(text: str) -> str:
+    """POST 金句位引句改一字（通行通→通行不通）→ 子句缺席 FAIL 臂."""
+    return text.replace("场景2＝「灯在人在，路通行通。」", "场景2＝「灯在人在，路通行不通。」", 1)
+
+
+def post_transition_lied(text: str) -> str:
+    """章中段注入计数面连接词而 POST 仍报 0 → post_transition_cross."""
+    paras = _raw_paras(text)
+    out, done = [], False
+    for p in paras:
+        q = p
+        if not done and "「差三文？」小满挤进来" in p:
+            q, done = "不过，" + p, True
+        out.append(q)
+    return "\n\n".join(out)
+
+
+def golden_emptied(text: str) -> str:
+    """PRE 本章金句位值→无 → golden_slot WARN（值空集臂）."""
+    return re.sub(r"^(- 本章金句位: ).+$", r"\1无", text, count=1, flags=re.M)
+
+
+def post_wordcount_lied(text: str) -> str:
+    """POST 总计字数改半（3625→1812）→ post_wordcount_precision WARN."""
+    return re.sub(r"(正文字数（逐段计数合计）: .*总计 )3625", r"\g<1>1812", text, count=1)
+
+
 MUTATIONS: dict[str, Callable[..., str]] = {
     "hook_killed": hook_killed,
     "protagonist_vanished": protagonist_vanished,
@@ -241,6 +268,10 @@ MUTATIONS: dict[str, Callable[..., str]] = {
     "pre_removed": pre_removed,
     "voice_stripped": voice_stripped,
     "hookdecl_mismatched": hookdecl_mismatched,
+    "post_quote_broken": post_quote_broken,
+    "post_transition_lied": post_transition_lied,
+    "golden_emptied": golden_emptied,
+    "post_wordcount_lied": post_wordcount_lied,
 }
 
 
