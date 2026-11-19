@@ -69,7 +69,7 @@ uv run python tools/gen_gate_power_fixtures.py novel-xinghuo-vol1/chapters/chapt
 
 每个 fixture 头部带 `provenance: real-output-mutation (G0.9)` 注释块（源/变异/面宽/生成日期）。
 
-**已知偏差**：pre-commit end-of-file-fixer 为裁片段 join 无源尾换行的件补尾换行（hook-killed 及批C/D 的块手术件）——内容保真，非字节级精确，同 spec83 fixture 包先例；再生成产物与提交件相差至多一个 EOF 换行。
+**已知偏差**：pre-commit end-of-file-fixer 为裁片段 join 无源尾换行的件补尾换行（hook-killed 及批C/D 的块手术件）——内容保真，非字节级精确，同 spec83 fixture 包先例；再生成产物与提交件相差至多一个 EOF 换行。另：`reports/2026-11-20-gate-power-vol1.md` 提交件与重跑产物差 1 行尾空行（pre-commit EOF fixer 剥除 `render_report` 尾部空段——工具确定性由 `tests/unit/tools/test_gate_power_replay.py::test_same_input_same_report` 钉住）。
 
 ## 裁片与 `--full` 裁定
 

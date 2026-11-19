@@ -54,7 +54,7 @@ baseline 回填日 = Task 5 实跑日 **2026-11-20**（原计划 2026-11-19，�
 | `G4.cd.protagonist_presence` | state-free | — | unclassified | `tests/unit/gates/g4/test_gate_power_negatives.py::test_protagonist_vanished_real_chapter_fails_presence_gate` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 50 PASS；出现总数中位 76（再推导名单 那罕＋他）vs 阈值 3 |
 | `G4.cd.surge` | state-free | — | unclassified | `tests/unit/gates/g4/test_gate_power_negatives.py::test_surge_killed_warns_surge_quota_gap` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 50 PASS（长句配额恒真，附录 A 同） |
 | `G4.cd.simile_band` | state-free | — | unclassified | `tests/unit/gates/g4/test_gate_power_negatives.py::test_simile_flooded_warns_pileup_side` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md） | 22 PASS＋28 WARN（56% 带外仅 WARN；raw/narrative per_1000 均 2.02） |
-| `G4.cd.voice_density` | state-free | — | unclassified | — | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md） | 36 PASS＋14 FAIL（must_fix；附录 A 同数，Goodhart r2 15/18 同门主导失败） |
+| `G4.cd.voice_density` | state-free | — | unclassified | `tests/unit/gates/g4/test_gate_power_negatives.py::test_voice_stripped_fails_voice_density_gate` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md） | 36 PASS＋14 FAIL（must_fix；附录 A 同数，Goodhart r2 15/18 同门主导失败） |
 | `G4.cd.golden_slot` | state-free | — | unclassified | `tests/unit/gates/g4/test_gate_power_negatives.py::test_golden_emptied_warns_golden_slot` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md） | 47 PASS＋3 WARN（附录 A 同） |
 | `G4.cd.content_uniqueness` | state-free | — | unclassified | `tests/unit/gates/g4/test_gate_power_negatives.py::test_content_duplicated_fails_content_overlap_gate` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射：比对目录 `rd/project-output/chapters` 在真实项目布局缺席→检查静默不跑（发射面条件化，判别力盲区供裁定） |
 | `G4.cd.quote_verbatim` | state-free | — | unclassified | `tests/unit/gates/g4/test_gate_power_negatives.py::test_quote_verbatim_full_pipeline_fails_on_nonverbatim_anchor` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射（『』锚定引句对章尾实拍比对面未触发） |
@@ -91,9 +91,11 @@ baseline 回填日 = Task 5 实跑日 **2026-11-20**（原计划 2026-11-19，�
   （`tests/unit/tools/test_lint_gate_power_baseline.py::
   test_provenance_anchor_registered_truth_dependent_32_rows` 钉住）。
 - hook/protagonist/transition 三行证据列已填 spec #116 T4 红测（真实章变异→门
-  FAIL）；批C/D/E/F 红测覆盖行证据列已**全部实填**（fix r1 M-2 补齐 scene_hook/
-  golden/surge/simile/content_overlap 五行；另有 quote_verbatim/post 族三行/
-  ending/hook_type_rotation）——统一 `tests/unit/gates/g4/test_gate_power_negatives.py::
+  FAIL）；批C/D/E/F 红测覆盖行除批E helper 级 truth 族三行（prop_handoff/counter/
+  balance_value_drift——构造性输入红测，行证据仍 `—` 待人工裁定）外证据列已
+  **全部实填**（终审 fix 补 voice_density；fix r1 M-2 补齐 scene_hook/golden/
+  surge/simile/content_overlap 五行；另有 quote_verbatim/post 族三行/ending/
+  hook_type_rotation）——统一 `tests/unit/gates/g4/test_gate_power_negatives.py::
   <测试名>` 形态引用（M-1 裁定：不另造 t4_evidence 列）；其余行证据列 `—`
   （unclassified 允许），回放数据已落表，进入人工裁定。
 - 回放计数口径：报告行 FAIL/WARN 为**章数**（同章同 id 去重）；附录 A 的

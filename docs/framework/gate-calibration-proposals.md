@@ -29,7 +29,7 @@
 | 现状（数字） | 50/50 PASS 零 FAIL/WARN；归因再推导：**15/50（30%）章仅靠单字张力词命中**（窗内无？、无账目行、无多字标记）；单字命中 `还`=38 章、`账`=38 章——单字集 却但还仍瞒藏账欠谜 与主角声口「账房腔：用记账动词描述一切」（`novel-xinghuo-vol1/characters/protagonist.md` voice_profile）**同词表**：账房腔写法天然喂饱 hook 门，门测的是母题不是张力。 |
 | 提案 | **选项 A（多字/结构臂）**：窗口命中改为「多字张力词 ∨ ？ ∨ 账目行（≥2 独立数字串）」任一，单字命中降为 WARN 报告行；**选项 B（词表不相交）**：张力单字集与本项目母题词表（账/欠/还/藏）强制不相交——从 SINGLE_CHAR_TENSION 剔除母题字，或项目配置声明排除；**选项 C**：维持现状＋分类 `floor-untested`（登记依据＝15/50 单字-only 数据）。 |
 | 红测 | `test_hook_killed_real_chapter_fails_hook_gate`（尾 8 叙事段张力词全灭→FAIL——门能失败）。选项 A/B 落地批补：单字-only 章样本断言降级面（FAIL→WARN）。 |
-| 回滚 | 词表/臂权重回退＝单 commit（门本体张力词表＝`chapter_drafting.py` `_check_chapter_end_hook`（:1161 起）的**内联正则字面量**（:1205，多字＋单字同式），非独立常量；`tools/gate_power_replay.py` 的 `HOOK_TENSION_RE`/`SINGLE_CHAR_TENSION`（:110/:113）是回放工具的**诊断镜像**，改门词表须同步改镜像保持归因同源）。 |
+| 回滚 | 词表/臂权重回退＝单 commit（门本体张力词表＝`chapter_drafting.py` `_check_chapter_end_hook`（:1161 起）的**内联正则字面量**（:1211-1212，多字＋单字同式），非独立常量；`tools/gate_power_replay.py` 的 `HOOK_TENSION_RE`/`SINGLE_CHAR_TENSION`（:110/:113）是回放工具的**诊断镜像**，改门词表须同步改镜像保持归因同源）。 |
 
 ### protagonist（`G4.cd.protagonist_presence`）
 
