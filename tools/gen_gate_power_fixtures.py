@@ -43,6 +43,8 @@ _VN_SINGLE = frozenset("走跑推拉抓坐站躺倒看听触")
 _META_PARA = "由此可见：这一切早有注定。综上所述，各人有各人的账。"
 # 疲劳剂量：门阈 8（chapter_drafting.py:996），9 发必中且留 1 发余量
 _FATIGUE_DOSE = 9
+# surge 计数面句长阈（chapter_drafting.py:1265：slen>=35 且对白占比<0.5）
+_SURGE_SENT_LEN = 35
 # 比喻堆叠（simile_band WARN 面）：SIMILE_MARKERS（shared.py:246）闭集内取「像」
 _SIMILE_PARAS = [
     "火星像一粒算珠，飘到一半就灭了。",
@@ -255,6 +257,36 @@ def post_wordcount_lied(text: str) -> str:
     return re.sub(r"(正文字数（逐段计数合计）: .*总计 )3625", r"\g<1>1812", text, count=1)
 
 
+def _shorten_sent(m: re.Match[str]) -> str:
+    """≥35 字句内逗号→句号（surge 计数面＝segment_sentences ≥35 字句）."""
+    sent = m.group(0)
+    core, delim = sent[:-1], sent[-1]
+    if not delim or len(core) < _SURGE_SENT_LEN:
+        return sent
+    return core.replace("，", "。") + delim
+
+
+def surge_killed(text: str) -> str:
+    """尾窗长句（≥35 字）切短 → surge 配额缺口（WARN-only 臂）."""
+    paras = narrative_window(text)
+    new_tail = [re.sub(r"[^。！？；]+[。！？；]", _shorten_sent, p) for p in paras[-11:]]
+    return _with_tail(text, new_tail)
+
+
+def simile_flooded(text: str) -> str:
+    """尾窗追加 6 个闭集喻体句（SIMILE_MARKERS「像」面）→ per_1000>4 堆叠侧 WARN."""
+    paras = narrative_window(text)
+    return _with_tail(text, [*paras[-11:], *_SIMILE_PARAS])
+
+
+def ending_ledgered(text: str) -> str:
+    """末段追记账目收束句（≥2 阿拉伯数字串）→ ending_archetype_of=账目形态."""
+    paras = narrative_window(text)
+    tail = paras[-11:]
+    tail[-1] += _LEDGER_CLOSER
+    return _with_tail(text, tail)
+
+
 MUTATIONS: dict[str, Callable[..., str]] = {
     "hook_killed": hook_killed,
     "protagonist_vanished": protagonist_vanished,
@@ -272,6 +304,9 @@ MUTATIONS: dict[str, Callable[..., str]] = {
     "post_transition_lied": post_transition_lied,
     "golden_emptied": golden_emptied,
     "post_wordcount_lied": post_wordcount_lied,
+    "surge_killed": surge_killed,
+    "simile_flooded": simile_flooded,
+    "ending_ledgered": ending_ledgered,
 }
 
 
