@@ -20,7 +20,7 @@
 | 现状（数字） | vol1 50 章回放 **14/50 must_fix FAIL**（36 PASS，firing 0.28）——真语料唯一成规模开火的散文门；Goodhart r2 两臂 **15/18 章失败**（A 8/9、B 7/9），B 人格「按词表精确投放」也只把 0-1 个/章提到 1 个，未稳定到阈值 **≥2 逐字口癖/账房动词**（mf 形 `1<2`）；r1 A1 4/4 产出章同门失败。词表阈值与真实散文分布错位是两臂共同死因（r2 §4：「该门是词表阈值问题，不是写手博弈问题」）。 |
 | 提案 | **选项 A（重标定）**：阈值 ≥2 → ≥1（词表不变）——覆盖 14/50 must_fix 章的实弹分布（真语料 0-1 个/章）；**选项 B（两级拆分）**：「逐字口癖**在场**」保 hard（≥1 即过，absent 才 FAIL）＋「密度**下限**」降 WARN 报告行（劝谏面，不拦章）——把「在场性」与「密度」解耦，保留声口缺席的硬拦截；**选项 C**：词表按真语料命中分布收窄（扩账房动词实弹命中形）。 |
 | 红测 | 已有 `test_voice_stripped_fails_voice_density_gate`（钉 `1<2` 臂——选项 A/B 落地时该测试随阈值同步改钉）；落地批补：带内/带外样本双向（spec r2/C1 要求——≥1 过、0 个 FAIL、密度带 WARN 三态）。 |
-| 回滚 | 阈值/两级拆分回退＝单 commit（词表与阈值常量同文件 `chapter_drafting.py`，revert 即恢复 ≥2 单级）。 |
+| 回滚 | 阈值/两级拆分回退＝单 commit（回滚面＝`src/shenbi/text/voice_lexicon.py` 单文件：`DEFAULT_VOICE_DENSITY_MIN=2`（:33）＋`ACCOUNTING_VERBS`（:16）；`chapter_drafting.py` 仅 import（:11-13）非定义点。注意阈值可被 genre config `voice_density_min.min_per_chapter` 覆盖（`chapter_drafting.py:1403-1408`）——回滚须同查项目 config 覆盖键，revert 词表文件＋清覆盖键即恢复 ≥2 单级）。 |
 
 ### hook（`G4.cd.chapter_end_hook`）
 
@@ -29,7 +29,7 @@
 | 现状（数字） | 50/50 PASS 零 FAIL/WARN；归因再推导：**15/50（30%）章仅靠单字张力词命中**（窗内无？、无账目行、无多字标记）；单字命中 `还`=38 章、`账`=38 章——单字集 却但还仍瞒藏账欠谜 与主角声口「账房腔：用记账动词描述一切」（`novel-xinghuo-vol1/characters/protagonist.md` voice_profile）**同词表**：账房腔写法天然喂饱 hook 门，门测的是母题不是张力。 |
 | 提案 | **选项 A（多字/结构臂）**：窗口命中改为「多字张力词 ∨ ？ ∨ 账目行（≥2 独立数字串）」任一，单字命中降为 WARN 报告行；**选项 B（词表不相交）**：张力单字集与本项目母题词表（账/欠/还/藏）强制不相交——从 SINGLE_CHAR_TENSION 剔除母题字，或项目配置声明排除；**选项 C**：维持现状＋分类 `floor-untested`（登记依据＝15/50 单字-only 数据）。 |
 | 红测 | `test_hook_killed_real_chapter_fails_hook_gate`（尾 8 叙事段张力词全灭→FAIL——门能失败）。选项 A/B 落地批补：单字-only 章样本断言降级面（FAIL→WARN）。 |
-| 回滚 | 词表/臂权重回退＝单 commit（HOOK_TENSION_RE 与 SINGLE_CHAR_TENSION 常量同文件）。 |
+| 回滚 | 词表/臂权重回退＝单 commit（门本体张力词表＝`chapter_drafting.py` `_check_chapter_end_hook`（:1161 起）的**内联正则字面量**（:1205，多字＋单字同式），非独立常量；`tools/gate_power_replay.py` 的 `HOOK_TENSION_RE`/`SINGLE_CHAR_TENSION`（:110/:113）是回放工具的**诊断镜像**，改门词表须同步改镜像保持归因同源）。 |
 
 ### protagonist（`G4.cd.protagonist_presence`）
 
