@@ -115,7 +115,8 @@ class TestCollect:
         rd = _mk_project(tmp_path, {"chapter-1.md": CH_WITH_HOOK})
         rows = collect(rd, "chapter-*.md")  # 不抛 KeyError 即通过
         assert len(rows) == 1
-        assert rows[0]["must_fix"] == []  # 缺键回填空表
+        # NB1：合成章短于 3000 字下限且无场景标记——must_fix 必非空；只钉键存在性
+        assert isinstance(rows[0]["must_fix"], list)
 
     def test_collect_skips_non_pure_chapter_files(self, tmp_path: Path) -> None:
         rd = _mk_project(
@@ -284,7 +285,6 @@ TRUTH_DEPENDENT_IDS = frozenset(
         "cd.counter.base_mismatch",
         "cd.counter.prose_mismatch",
         "G4.cd.hook_type_rotation",
-        "G4.cd.scene_hook_match",
     }
 )
 STATE_FREE_IDS = frozenset(
@@ -297,6 +297,7 @@ STATE_FREE_IDS = frozenset(
         "G4.word_count",
         "G4.cd.scene_count",
         "G4.cd.scene_concreteness",
+        "G4.cd.scene_hook_match",  # NB5：回 state-free——对齐附录 A（读 plans 声明，非 truth oracle）
         "G4.cd.chapter_end_hook",
         "G4.cd.protagonist_presence",
         "G4.cd.surge",
@@ -342,7 +343,8 @@ def narrative_window(content: str) -> list[str]:
 def hook_window_attribution(content: str) -> dict[str, object]:
     """Re-derive the end-hook window arms (diagnostic only, gate verdict 不变)."""
     paras = narrative_window(content)
-    window = paras[-8:]
+    # NB3：与门同滤（chapter_drafting.py:1179——[-8:] 后再滤标题/引用/清单行）
+    window = [p for p in paras[-8:] if not p.startswith(("#", "##", ">", "---", "- [ ]"))]
     text = "".join(window)
     hits = set(HOOK_TENSION_RE.findall(text))
     has_q = bool(_Q_RE.search(text))
@@ -442,7 +444,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-FIX_DIR = Path(__file__).parents[3] / "tests" / "fixtures" / "gate-power"
+FIX_DIR = Path(__file__).resolve().parents[3] / "fixtures" / "gate-power"  # NB2：parents[3]=tests/
 
 
 def _g4(fixture_name: str) -> dict:
@@ -497,8 +499,10 @@ from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from gate_power_replay import narrative_window  # noqa: E402 (同目录工具互引)
+sys.path.insert(
+    0, str(Path(__file__).resolve().parent.parent)
+)  # repo 根——统一 tools. 包身份（NB 系）
+from tools.gate_power_replay import narrative_window  # noqa: E402 (同目录工具互引)
 
 PROVENANCE_TMPL = (
     "<!--\nprovenance: real-output-mutation (G0.9)\nsource: {source} (gitignored 项目真实产物)\n"
@@ -651,7 +655,7 @@ git commit -m "test: spec #116 T4 变异引擎+hook/protagonist/transition 真�
 
 **Files:**
 - Modify: `tools/gen_gate_power_fixtures.py`（MUTATIONS 扩展）
-- Create: `tests/fixtures/gate-power/`（下表每变异一 fixture＋前置物：`plans/chapter-1-plan.md`（v4 memo——voice_density/scene_hook/quote_verbatim/hook_type_rotation 消费）、`project-output/chapters/chapter-0.md`（content_uniqueness 比对章））
+- Create: `tests/fixtures/gate-power/`（下表每变异一 fixture＋前置物：`plans/chapter-1-plan.md`（v4 memo——voice_density/scene_hook/quote_verbatim/hook_type_rotation 消费）、`project-output/chapters/chapter-0.md`＋被测 `chapter-1-duplicated.md` 本体入驻同目录（I3：`_check_content_uniqueness` 基数门槛 `len(project-output/chapters/*.md) > 1`——被测章＋比对章共 2 文件，glob 排除自身后与 chapter-0 比对；红测的 `_g4("project-output/chapters/chapter-1-duplicated.md")` 传 FIX_DIR 为 rd））
 - Test: `tests/unit/gates/g4/test_gate_power_negatives.py`（追加）
 
 **Interfaces:**
@@ -665,17 +669,17 @@ git commit -m "test: spec #116 T4 变异引擎+hook/protagonist/transition 真�
 | mutation | 变换 | 期望 mf id | 前置物 |
 |---|---|---|---|
 | `scene_visuals_stripped` | 尾窗段视觉动词/对白删（→静态陈述） | `G4.cd.no_visual_scene`（:1149） | — |
-| `scene_markers_removed` | 删场景标记行 | `G4.cd.scene_count:…<2`（:1058） | — |
+| `scene_markers_removed` | 删场景标记行 | `G4.cd.scene_count:…<2`（:1058） | **默认 `--full`**（NB6 同因） |
 | `fatigue_flooded` | narrative 段尾追加「他心中暗道。」×9 | `G4.fatigue:…>8`（:997，阈值 8） | —（实词 grep `_fatigue_word_list` :968-989 核对，避开 #93 erratum 子串碰撞） |
 | `meta_injected` | 插入「由此可见：这一切早有注定。」＋「综上所述」段 | `G4.meta:…`（:1022；载荷取 META_NARRATIVE 7 词闭集——I1） | — |
 | `word_count_truncated` | 正文截断至 <带下限 | `G4.word_count`（mf 形态 grep :1027-1052） | —（带值 grep genre-config word_band） |
-| `post_removed` | 删 META 块（含 POST） | `G4.post_check:…`（:911） | — |
-| `pre_removed` | 删 `## PRE_WRITE_CHECK` 段 | `G4.pre_check:…`（:902） | — |
+| `post_removed` | 删 META 块（含 POST） | `G4.post_check:…`（:911） | **默认 `--full`**（NB6：裁片本身不含 POST——裁片模式红来自副作用非变异；README 注因果） |
+| `pre_removed` | 删 `## PRE_WRITE_CHECK` 段 | `G4.pre_check:…`（:902） | **默认 `--full`**（同 NB6） |
 | `voice_stripped` | 口癖短语（这笔我先记下/折旧完了/此账必有还之日/行，先算账）→中性语 | `G4.cd.voice_density:…` | `plans/chapter-1-plan.md` v2+（memo_v2 声口要求行——:1410/:1397-1424；实弹 14/50 已 FAIL，变异证下界） |
 | `hookdecl_mismatched` | plan 场景钩声明改「悬念」vs 章尾实拍 | `G4.cd.scene_hook_match:…`（:1077） | plans fixture 钩声明行（grep :717-722 读取形） |
 | `post_quote_broken` | POST 引句改一字 | mf 组合形（grep `_pq_id` 邻 :884-910） | — |
 | `post_transition_lied` | POST 转折申报与正文不符 | mf 组合形（:956 邻 `_ptc_id`） | — |
-| `content_duplicated` | **从 chapter-0 复制 ≥50 CJK 段**进被测章 | `G4.cd.content_overlap:…`（:1104） | `project-output/chapters/chapter-0.md`（I3：跨章＋集合指纹；fixture 目录布局对齐 `Path(rd)/"project-output"/"chapters"`） |
+| `content_duplicated` | **从 chapter-0 复制 ≥50 CJK 段**进被测章 | `G4.cd.content_overlap:…`（:1104） | 被测章落 `project-output/chapters/chapter-1-duplicated.md`＋比对章 `chapter-0.md` 同目录（I3：跨章＋集合指纹＋基数门槛 len>1 三条件齐） |
 
 **WARN-only 组（负例=断言 check 行 s==WARN；surge/post_wordcount 实勘无 mf 臂）**：`surge_killed`（长句切短→`G4.cd.surge` WARN——:1261-1288）、`simile_flooded`（堆比喻 per_1000>4→`G4.cd.simile_band` WARN）、`golden_emptied`（金句位值→无→WARN）、`post_wordcount_lied`（POST 实际字数改半→`cd.post_wordcount_precision` WARN——I2）、`ending_repeated`（helper 级：`ending_archetype_of` 三连续同型断言——fixture 两前置章＋被测章）。
 
@@ -797,13 +801,13 @@ Expected: FAIL with `ModuleNotFoundError`
 
 - [ ] **Step 3: 实现 lint＋registry＋baseline 骨架**
 
-`registry_drift()`（C4 修订）：对 `src/shenbi/gates/g4/chapter_drafting.py` **单文件**双扫描——(a) `re.findall(r'"id":\s*"(G4\.[a-zA-Z0-9_.]+)"', src)`（check 行 dict id）∪ (b) `re.findall(r'(?:mf|c)\.(?:append|extend)\(\s*f"(G4\.[a-zA-Z0-9_.]+):', src)`（mf 首常量 id）∪ 显式补充 `EXPLICIT_SUPPLEMENT = {"cd.protagonist_absent"}`（变量发射，扫描不可见——对齐 gen_g4_id_inventory Source 2 先例）；与 `CHECK_REGISTRY` 的 canonical∪fail_arms 集合相等（多=未登记新门→FAIL；少=死键→FAIL）。**不**读 g4-id-inventory.json 作等式源（含 character_design 交叉污染且缺 protagonist_absent——C4 实证）；存在时打印交叉参考 diff 到 stderr（信息行，不执法）。
+`registry_drift()`（C4 修订）：对 `src/shenbi/gates/g4/chapter_drafting.py` **单文件**双扫描——(a) `re.findall(r'"id":\s*"(G4\.[a-zA-Z0-9_.]+)"', src)`（check 行 dict id）∪ (b) `re.findall(r'(?:mf|c)\.(?:append|extend)\(\s*f"(G4\.[a-zA-Z0-9_.]+):', src)`（mf 首常量 id）；**前缀归一**：扫描产出统一剥 `G4.` 前缀后与裸形 registry 比较。**显式补充面（NB4 预列，免 drift 测试烧实现者一轮）**：`EXPLICIT_SUPPLEMENT`（扫描不可见的组合/变量发射臂）= `{cd.protagonist_absent, cd.prop_handoff, cd.counter, cd.counter.plan_conflict, cd.counter.base_mismatch, cd.counter.prose_mismatch, cd.balance_value_drift, cd.balance_value_drift.bundle, cd.post_quote_verbatim, cd.post_transition_cross}`；`SCAN_EXCLUDE`（非检查的错误/杂臂）= `{file_not_found}`；扫描侧多出的 `cd.quote_type`/`cd.micro_hook_run` **进 registry 行**（真实 in-scope 检查——micro_hook_run 需 memo_v3，回放面记 SKIP；quote_type 为引号型检查行）。两侧集合相等（多=未登记→FAIL；少=死键→FAIL）。**不**读 g4-id-inventory.json 作等式源（含 character_design 交叉污染且缺 protagonist_absent——C4 实证）；存在时打印交叉参考 diff 到 stderr（信息行，不执法）。
 
 `ESCALATION_DATE = date(2026, 12, 19)`（注释：锚=baseline 回填日 2026-11-19＋30 天=一个完整裁定周期，spec r2/I5「分类义务清偿后」以该日历日近似；若 Task 5 实跑日晚于 11-19，按「实跑日＋30 天」改此常量并在 task report 记录）。`PRE_ESCALATION = date(2026, 11, 19)`。
 
 `lint_file(path, today, require_full_registry=True)`：解析 baseline 表——`require_full_registry` 时行集==registry canonical 集；分类值域 `VALID_CLASSIFICATIONS`；非 discriminating 行证据列非空（`—` 仅 unclassified 允许，unclassified 证据列允许填红测链接供裁定参考）；unclassified 且「最近回放数」列含 `0 点火`：today≥ESCALATION_DATE → exit 1，否则 stderr WARN＋exit 0。
 
-`CHECK_REGISTRY` 骨架（18 逻辑行=附录 A 全行＋content_uniqueness 附录外行；canonical 集=STATE_FREE_IDS∪TRUTH_DEPENDENT_IDS（import Task 1 常量）；fail_arms=ARM_TO_CANONICAL 反转；warn_only=True：surge/simile_band/golden_slot/ending_diversity/post_wordcount_precision/post_quote_verbatim）。
+`CHECK_REGISTRY` 骨架（18 逻辑行=附录 A 全行＋content_uniqueness/quote_type/micro_hook_run 附录外行（NB4：后两者为扫描侧真实 in-scope 检查，回放面记 SKIP/0 观测）；canonical 集=STATE_FREE_IDS∪TRUTH_DEPENDENT_IDS（import Task 1 常量）；fail_arms=ARM_TO_CANONICAL 反转＋EXPLICIT_SUPPLEMENT 归并；warn_only=True：surge/simile_band/golden_slot/ending_diversity/post_wordcount_precision/post_quote_verbatim）。
 
 `docs/framework/gate-power-baseline.md` 骨架：头节（义务声明＋口径定义＋分类四值语义＋「分类必须人工裁定」＋升格锚声明「2026-11-19 回填＋30 天→2026-12-19」）＋全 registry 行表（分类全 `unclassified`、最近回放数 `—`——Task 5 回填；hook/protagonist/transition 三行证据列填 Task 2 红测路径）。
 
