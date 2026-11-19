@@ -59,6 +59,22 @@ def test_decorative_without_evidence_fails(tmp_path: Path) -> None:
     assert lint.lint_file(p, today=lint.PRE_ESCALATION, require_full_registry=False) == 1
 
 
+def test_caliber_mismatch_fails(tmp_path: Path, capsys) -> None:
+    """M-A+M-D 接线：baseline 行口径列值 != CHECK_REGISTRY 口径字段（Task 1
+    常量 `_caliber()` 单源派生）→ FAIL；正测对照＝surge 行 state-free 时
+    test_unclassified_zero_firing_warns_before_escalation 仍 exit 0。
+    """
+    body = HEADER + (
+        "| `G4.cd.surge` | truth | 0% | unclassified | — | 50 章 @ d (r) 1 点火 | — |\n"
+    )
+    p = _write_baseline(tmp_path, body)
+    assert lint.lint_file(p, today=lint.PRE_ESCALATION, require_full_registry=False) == 1
+    assert (
+        "FAIL caliber mismatch `G4.cd.surge`: doc='truth' registry='state-free'"
+        in capsys.readouterr().err
+    )
+
+
 def test_classification_vocab_closed() -> None:
     assert (
         frozenset({"unclassified", "floor-untested", "decorative", "discriminating", "retired"})

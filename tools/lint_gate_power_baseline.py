@@ -18,6 +18,9 @@
    unclassified 允许；unclassified 允许填红测链接供裁定参考）→FAIL。
 5. **升格判据**：unclassified 且最近回放数含「0 点火」的行——today ≥
    ESCALATION_DATE → FAIL；此前 stderr WARN＋exit 0（WARN 级不阻断）。
+6. **口径对账**（M-A+M-D 接线）：baseline 行口径列值 == ``CHECK_REGISTRY``
+   口径字段（Task 1 常量经 ``_caliber()`` 派生单源，禁 id 字面量双源）→
+   不符 FAIL。
 
 分类标签全部由人工裁定（spec 风险节：判别力≠正确性，0 点火可能是 floor
 有效也可能是门坏——仪表不得自动断言），本 lint 只强制「登记在册＋义务
@@ -96,6 +99,7 @@ _ROW_ID = re.compile(r"^`([^`]+)`$")
 # 主表 schema 表头——头节其余表（分类语义表等）不属执法面
 _BASELINE_HEADER = ("check", "口径", "期望点火带", "分类", "证据", "最近回放数", "归因")
 _BASELINE_COLUMNS = len(_BASELINE_HEADER)
+_IDX_CALIBER = 1
 _IDX_CLASSIFICATION, _IDX_EVIDENCE, _IDX_REPLAY = 3, 4, 5
 _ZERO_FIRING_MARK = "0 点火"
 
@@ -146,22 +150,9 @@ def registry_drift(gate_source: Path = GATE_SOURCE) -> list[str]:
     return drift
 
 
-# WARN-only 行（发射面仅 WARN，无 FAIL 臂——brief 指定六行；裸形域，与
-# CHECK_REGISTRY 键同域）
-_WARN_ONLY_IDS = frozenset(
-    {
-        "cd.surge",
-        "cd.simile_band",
-        "cd.golden_slot",
-        "cd.ending_diversity",
-        "cd.post_wordcount_precision",
-        "cd.post_quote_verbatim",
-    }
-)
-
-
+# 口径列（M3）：Task 1 常量集混前缀/裸形，双形查——CHECK_REGISTRY 每行的
+# 口径字段即此派生，baseline 表口径列与之对账（lint_file 第 6 面）。
 def _caliber(canonical: str) -> str:
-    """口径列（M3）——CHECK_REGISTRY 键为裸形，常量集混前缀/裸形，双形查."""
     prefixed = f"G4.{canonical}"
     if canonical in STATE_FREE_IDS or prefixed in STATE_FREE_IDS:
         return "state-free"
@@ -175,12 +166,13 @@ def _fail_arms(canonical: str) -> list[str]:
     return sorted(arm for arm, target in ARM_TO_CANONICAL.items() if _bare(target) == canonical)
 
 
-# CHECK_REGISTRY：canonical → {fail_arms, warn_only, 口径}（骨架——分类义务在
-# baseline 表，不在本表；本表是 lint 的 registry 分母与元数据单源）。
+# CHECK_REGISTRY：canonical → {fail_arms, 口径}（口径列对账单源——lint_file
+# 消费；分类义务在 baseline 表，不在本表；本表是 lint 的 registry 分母与
+# 元数据单源。原 _WARN_ONLY_IDS/warn_only 面零消费且口径对账用不上——终审
+# fix M-A+M-D 裁定删除，非接线）。
 CHECK_REGISTRY: dict[str, dict] = {
     canonical: {
         "fail_arms": _fail_arms(canonical),
-        "warn_only": canonical in _WARN_ONLY_IDS,
         "口径": _caliber(canonical),
     }
     for canonical in sorted(registry_canonical_ids())
@@ -214,14 +206,24 @@ def _parse_rows(doc: Path) -> list[tuple[str, list[str]]]:
     return rows
 
 
-def _row_findings(row_id: str, cells: list[str], today: date) -> tuple[list[str], list[str]]:
+def _row_findings(
+    row_id: str, cells: list[str], today: date, canonical: str
+) -> tuple[list[str], list[str]]:
     """单行检查 -> (FAIL 消息, WARN 消息)（行已知在 registry 内且列数合规）."""
     label = f"`{row_id}`"
+    caliber = cells[_IDX_CALIBER]
     classification = cells[_IDX_CLASSIFICATION]
     evidence = cells[_IDX_EVIDENCE]
     replay = cells[_IDX_REPLAY]
     fails: list[str] = []
     warns: list[str] = []
+    # 口径对账（M-A+M-D 接线）：baseline 行口径列 == CHECK_REGISTRY 口径字段
+    # （Task 1 常量 _caliber() 单源派生——不引入 id 字面量复制）。
+    expected_caliber = CHECK_REGISTRY[canonical]["口径"]
+    if caliber != expected_caliber:
+        fails.append(
+            f"FAIL caliber mismatch {label}: doc={caliber!r} registry={expected_caliber!r}"
+        )
     if classification not in VALID_CLASSIFICATIONS:
         fails.append(f"FAIL invalid classification {classification!r}: {label}")
     # 证据义务：非 discriminating 须有实证据；「—」仅 unclassified 允许
@@ -268,7 +270,7 @@ def lint_file(path: Path, today: date = PRE_ESCALATION, require_full_registry: b
             failed = True
             continue
         seen.add(canonical)
-        fails, warns = _row_findings(row_id, cells, today)
+        fails, warns = _row_findings(row_id, cells, today, canonical)
         for msg in fails + warns:
             print(msg, file=sys.stderr)
         failed = failed or bool(fails)
