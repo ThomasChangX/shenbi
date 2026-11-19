@@ -118,6 +118,21 @@ class TestCollect:
         # NB1：合成章短于 3000 字下限且无场景标记——must_fix 必非空；只钉键存在性
         assert isinstance(rows[0]["must_fix"], list)
 
+    def test_collect_passed_shape_json_without_must_fix_key(self, tmp_path, monkeypatch) -> None:
+        """C1 病灶路径直测：monkeypatch g4 返回 passed() 形 JSON（无 must_fix 键）。"""
+        import tools.gate_power_replay as gpr
+
+        rd = _mk_project(tmp_path, {"chapter-1.md": CH_WITH_HOOK})
+        monkeypatch.setattr(
+            gpr,
+            "g4_chapter_drafting",
+            lambda fps, rd=None, project_dir=None, repo_root=None: json.dumps(
+                {"gate": "G4-chapter-drafting", "status": "PASS", "checks": [], "timestamp": "t"}
+            ),
+        )
+        rows = gpr.collect(rd, "chapter-*.md")
+        assert rows[0]["must_fix"] == []
+
     def test_collect_skips_non_pure_chapter_files(self, tmp_path: Path) -> None:
         rd = _mk_project(
             tmp_path,
@@ -679,7 +694,7 @@ git commit -m "test: spec #116 T4 变异引擎+hook/protagonist/transition 真�
 | `hookdecl_mismatched` | plan 场景钩声明改「悬念」vs 章尾实拍 | `G4.cd.scene_hook_match:…`（:1077） | plans fixture 钩声明行（grep :717-722 读取形） |
 | `post_quote_broken` | POST 引句改一字 | mf 组合形（grep `_pq_id` 邻 :884-910） | — |
 | `post_transition_lied` | POST 转折申报与正文不符 | mf 组合形（:956 邻 `_ptc_id`） | — |
-| `content_duplicated` | **从 chapter-0 复制 ≥50 CJK 段**进被测章 | `G4.cd.content_overlap:…`（:1104） | 被测章落 `project-output/chapters/chapter-1-duplicated.md`＋比对章 `chapter-0.md` 同目录（I3：跨章＋集合指纹＋基数门槛 len>1 三条件齐） |
+| `content_duplicated` | **从 chapter-0 复制段落 append 至章尾**、段数按 `k/(m+k) > 0.40` 指纹占比取（实现时按 fixture 实际段数 m 计算 k，先跑三查验证） | `G4.cd.content_overlap:…`（:1104） | 被测章落 `project-output/chapters/chapter-1-duplicated.md`＋比对章 `chapter-0.md` 同目录（I3：跨章＋集合指纹＋基数门槛 len>1 三条件齐；复制段必须 append 章尾否则被裁片截掉） |
 
 **WARN-only 组（负例=断言 check 行 s==WARN；surge/post_wordcount 实勘无 mf 臂）**：`surge_killed`（长句切短→`G4.cd.surge` WARN——:1261-1288）、`simile_flooded`（堆比喻 per_1000>4→`G4.cd.simile_band` WARN）、`golden_emptied`（金句位值→无→WARN）、`post_wordcount_lied`（POST 实际字数改半→`cd.post_wordcount_precision` WARN——I2）、`ending_repeated`（helper 级：`ending_archetype_of` 三连续同型断言——fixture 两前置章＋被测章）。
 
