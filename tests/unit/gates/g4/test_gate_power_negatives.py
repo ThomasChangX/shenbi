@@ -86,3 +86,20 @@ def test_pre_removed_fails_pre_check_gate() -> None:
     res = _g4("chapter-1-pre-removed.md")
     mf = res.get("must_fix", [])
     assert any(m.startswith("G4.pre_check:") for m in mf), mf[:3]
+
+
+def test_voice_stripped_fails_voice_density_gate() -> None:
+    """口癖短语→中性语（v4 memo＋真实卡 catchphrases 前置物）→ signals<min."""
+    res = _g4("chapter-1-voice-stripped.md")
+    mf = res.get("must_fix", [])
+    assert any(m.startswith("G4.cd.voice_density:") for m in mf), mf[:3]
+
+
+def test_hookdecl_mismatched_fails_scene_hook_match_gate() -> None:
+    """Plan 场景2 收束钩改「悬念」形 vs 章尾实拍 → scene_hook_match（场景2 臂）.
+
+    被测章=post-removed 全章件（SCENE 标记在）；变异产物=plans/chapter-1-plan.md。
+    """
+    res = _g4("chapter-1-post-removed.md")
+    mf = res.get("must_fix", [])
+    assert any(m.startswith("G4.cd.scene_hook_match:") and "场景2" in m for m in mf), mf[:3]

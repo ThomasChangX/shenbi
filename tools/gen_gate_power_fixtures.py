@@ -164,6 +164,14 @@ def _raw_paras(text: str) -> list[str]:
     return text.split("\n\n")
 
 
+def _drop_meta_block(text: str, heading: str) -> str:
+    """删含 *heading* 的整个 META 块（H2 段→其后首个 <!--META-END--> 段，闭区间）."""
+    paras = _raw_paras(text)
+    start = next(i for i, p in enumerate(paras) if heading in p)
+    end = next(i for i in range(start, len(paras)) if "<!--META-END-->" in paras[i])
+    return "\n\n".join([*paras[:start], *paras[end + 1 :]])
+
+
 def word_count_truncated(text: str) -> str:
     """正文截断（保 PRE/POST 结构块＋首 3 叙事段）→ total < floor → word_count.
 
@@ -176,15 +184,48 @@ def word_count_truncated(text: str) -> str:
 
 
 def post_removed(text: str) -> str:
-    """删含 POST_WRITE_SELF_CHECK 的 META 块段 → post_check（NB6：--full 面）."""
-    paras = _raw_paras(text)
-    return "\n\n".join(p for p in paras if "## POST_WRITE_SELF_CHECK" not in p)
+    """删 POST 整块（H2 段→META-END 段）→ post_check（NB6：--full 面）."""
+    return _drop_meta_block(text, "## POST_WRITE_SELF_CHECK")
 
 
 def pre_removed(text: str) -> str:
-    """删含 PRE_WRITE_CHECK 的 META 块段 → pre_check（NB6：--full 面）."""
-    paras = _raw_paras(text)
-    return "\n\n".join(p for p in paras if "## PRE_WRITE_CHECK" not in p)
+    """删 PRE 整块（H2 段→META-END 段）→ pre_check（NB6：--full 面）."""
+    return _drop_meta_block(text, "## PRE_WRITE_CHECK")
+
+
+def voice_stripped(text: str) -> str:
+    """口癖短语（真实卡 voice_profile.catchphrases 原串）→中性语 → voice_density<min."""
+    for phrase, neutral in _VOICE_NEUTRAL:
+        text = text.replace(phrase, neutral)
+    return text
+
+
+_PLAN_V3_FMT = re.compile(r"^plan_format[：:]\s*v3\s*$", re.M)
+# 段6「必填一行（章尾张力拍）」形：首个？后的章尾句 → v4 引句锚定形态
+_PLAN_TIER_LINE = re.compile(r"^-\s*章尾张力拍[：:]\s*[^？]*？(.+)$", re.M)
+
+
+def plan_v4_upgrade(text: str) -> str:
+    """v3→v4 形升（plan_format v4＋张力拍『』引句锚定＋章尾钩型七型行）.
+
+    引句取自真实 plan 段6 原句（该句与章尾实拍本就不同文——真实病理，
+    quote_verbatim 臂的负例载荷即此）。基线形（无收束钩改写）供因果三查。
+    """
+    out = _PLAN_V3_FMT.sub("plan_format: v4", text, count=1)
+    out = _PLAN_TIER_LINE.sub(r"- 章尾张力拍: [微]｜『\1』", out, count=1)
+    return out.replace("plan_format: v4\n", "plan_format: v4\n\n章尾钩型: 悬念钩\n", 1)
+
+
+def hookdecl_mismatched(text: str) -> str:
+    """v4 升级＋场景2 收束钩声明改「悬念」形（章尾实拍不含）→ scene_hook_match."""
+    out = plan_v4_upgrade(text)
+    return re.sub(
+        r"(场景2: \d+字｜(?:独立型|配对型)｜收束钩：).+$",
+        r"\1悬念——城破那夜，他仍未参透老驼留下的切口。",
+        out,
+        count=1,
+        flags=re.M,
+    )
 
 
 MUTATIONS: dict[str, Callable[..., str]] = {
@@ -198,6 +239,8 @@ MUTATIONS: dict[str, Callable[..., str]] = {
     "word_count_truncated": word_count_truncated,
     "post_removed": post_removed,
     "pre_removed": pre_removed,
+    "voice_stripped": voice_stripped,
+    "hookdecl_mismatched": hookdecl_mismatched,
 }
 
 
