@@ -63,6 +63,10 @@ lint:
     uv run ruff check .
     uv run ruff format --check .
 
+# Spec #116 T1: offline gate discriminative-power replay (zero LLM, read-only)
+gate-power DIR *ARGS:
+    uv run python tools/gate_power_replay.py "$1" "${@:2}"
+
 # Type face (spec #92 T4)
 type:
     uv run mypy src/shenbi/
