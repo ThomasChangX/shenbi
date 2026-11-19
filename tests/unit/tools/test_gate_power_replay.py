@@ -168,11 +168,39 @@ class TestSummarise:
 
 class TestCaliberSplit:
     def test_state_free_and_truth_sets_partition(self) -> None:
-        assert "G4.cd.prop_handoff" in TRUTH_DEPENDENT_IDS
+        assert "cd.prop_handoff" in TRUTH_DEPENDENT_IDS  # I1：canonical=check 行裸形
         assert "cd.balance_value_drift" in TRUTH_DEPENDENT_IDS
         assert "G4.cd.hook_type_rotation" in TRUTH_DEPENDENT_IDS  # M3：读 plans 历史
         assert "G4.cd.payoff_density" in STATE_FREE_IDS  # M3：与 registry 对齐
         assert not (STATE_FREE_IDS & TRUTH_DEPENDENT_IDS)
+
+
+class TestTruthArmBackmap:
+    """I1 口径双形统一：truth 族 mf 臂（G4. 前缀包装形）回射 check 行裸形 canonical。"""
+
+    def test_balance_counter_arms_fold_to_bare_truth_rows(self) -> None:
+        """扩展后 mf 形不再以独立行存活——回射裸形并命中 truth 集（过滤面生效）。"""
+        rows = [
+            {
+                "file": "chapter-1.md",
+                "checks": [],
+                "must_fix": [
+                    "G4.cd.balance_value_drift:chapter-1.md:8文≠9文",
+                    "G4.cd.counter.base_mismatch:chapter-1.md:「钱」基值错",
+                ],
+            }
+        ]
+        s = summarise(rows)
+        assert "cd.balance_value_drift" in s and "G4.cd.balance_value_drift" not in s
+        assert "cd.counter.base_mismatch" in s and "G4.cd.counter.base_mismatch" not in s
+        # 回射后参与口径判定：裸形命中 truth 集 → --state-free-only 剔除这两行
+        assert "cd.balance_value_drift" in TRUTH_DEPENDENT_IDS
+        assert "cd.counter.base_mismatch" in TRUTH_DEPENDENT_IDS
+
+    def test_prop_handoff_canonical_is_check_row_bare_form(self) -> None:
+        """Check 行发射裸形 cd.prop_handoff——WARN 降级行与 mf 行同归一行。"""
+        assert ARM_TO_CANONICAL["G4.cd.prop_handoff"] == "cd.prop_handoff"
+        assert ARM_TO_CANONICAL["G4.cd.balance_value_drift"] == "cd.balance_value_drift"
 
 
 class TestDeterminism:

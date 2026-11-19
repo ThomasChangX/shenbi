@@ -33,6 +33,7 @@ check:
 lint:
     uv run python tools/lint_status_strings.py
     uv run python tools/lint_invariant_coverage.py
+    uv run python tools/lint_gate_power_baseline.py
     uv run python tools/lint_routing_faces.py
     uv run python tools/audit-skill-descriptions.py
     uv run python tools/lint_registry_reconcile.py --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume

@@ -29,12 +29,17 @@ from shenbi.gates.shared import (
     strip_scene_markers,
 )
 
-# 附录 A 口径列（spec r2）＋ M3 对齐（hook_type_rotation 读 plans 历史 → truth 依赖）
+# 附录 A 口径列（spec r2）＋ M3 对齐（hook_type_rotation 读 plans 历史 → truth 依赖）。
+# I1 口径双形统一（spec #116 Task 4 审查移交）：canonical id 统一取 check 行发射形
+# （truth 族 check 行均为裸形 cd.*——mf 臂的 G4. 前缀是 f"G4.{issue}" 包装产物，
+# 经 ARM_TO_CANONICAL 回射）。cd.balance_value_drift.bundle 已裁除：门族唯一发射点
+# 在 state_settling.py:305（settle 面束级升格，聚合章级 cd.balance_value_drift WARN），
+# g4_chapter_drafting 单文件回放面零发射——非本章门分母行，作 dead 键删除并在此记裁定
+# （shadow.py 路由键不受影响）；其 mf 串经 ARM_TO_CANONICAL 回射父行 cd.balance_value_drift。
 TRUTH_DEPENDENT_IDS = frozenset(
     {
-        "G4.cd.prop_handoff",
+        "cd.prop_handoff",
         "cd.balance_value_drift",
-        "cd.balance_value_drift.bundle",
         "cd.counter",
         "cd.counter.plan_conflict",
         "cd.counter.base_mismatch",
@@ -67,15 +72,33 @@ STATE_FREE_IDS = frozenset(
         "cd.post_transition_cross",
         "cd.post_wordcount_precision",
         "G4.cd.ending_diversity",
+        # 附录外行归位（I1：真实 in-scope 检查，两集合原均缺）——读 memo 声明
+        # （plans 面）非 truth oracle → state-free；micro_hook_run 需 memo_v3，
+        # v3 前置物缺席的语料回放面记 SKIP
+        "G4.cd.quote_type",
+        "G4.cd.micro_hook_run",
     }
 )
 
-# M2：mf-only 失败臂 → canonical 门行回射（Task 4 registry fail_arms 同源）
+# M2＋I1 口径双形统一：mf 发射臂 → canonical 门行回射（Task 4 registry fail_arms 同源）。
+# 前四条＝mf-only 失败臂（无独立 check 行）；truth/post 族＝f"G4.{issue}" 变量包装臂
+# 回射 check 行裸形（G4.cd.balance_value_drift→cd.balance_value_drift、
+# G4.cd.counter.*→cd.counter.* 等），使 mf 形与 check 行形在口径判定/过滤下同归一行。
 ARM_TO_CANONICAL: dict[str, str] = {
     "G4.cd.no_hook": "G4.cd.chapter_end_hook",
     "G4.cd.protagonist_absent": "G4.cd.protagonist_presence",
     "G4.cd.no_visual_scene": "G4.cd.scene_concreteness",
     "G4.cd.content_overlap": "G4.cd.content_uniqueness",
+    "G4.cd.prop_handoff": "cd.prop_handoff",
+    "G4.cd.balance_value_drift": "cd.balance_value_drift",
+    # settle 面束级升格臂（state_settling.py）——回射父行，不占回放分母
+    "G4.cd.balance_value_drift.bundle": "cd.balance_value_drift",
+    "G4.cd.counter": "cd.counter",
+    "G4.cd.counter.plan_conflict": "cd.counter.plan_conflict",
+    "G4.cd.counter.base_mismatch": "cd.counter.base_mismatch",
+    "G4.cd.counter.prose_mismatch": "cd.counter.prose_mismatch",
+    "G4.cd.post_quote_verbatim": "cd.post_quote_verbatim",
+    "G4.cd.post_transition_cross": "cd.post_transition_cross",
 }
 
 # 归因再推导（锚：chapter_drafting.py:728-731 预处理序＋:1178-1235 三臂——
@@ -126,13 +149,16 @@ def _pure_chapter(stem: str) -> bool:
 
 def collect(project_dir: Path, pattern: str = "chapter-*.md") -> list[dict]:
     """Run g4_chapter_drafting per pure chapter (chapter-NN.md) and keep raw rows."""
-    chapters = sorted(p for p in (project_dir / "chapters").glob(pattern) if _pure_chapter(p.stem))
+    # I1 顺手修：project_dir 一并 resolve——门内 truth/particle_ledger.md 等
+    # 相对拼接面与章路径同坑（相对 project_dir 会漏读 truth 前置物）
+    project_root = project_dir.resolve()
+    chapters = sorted(p for p in (project_root / "chapters").glob(pattern) if _pure_chapter(p.stem))
     rows: list[dict] = []
     for p in chapters:
         # 绝对路径直入 resolve_input_path（相对 fp 会被 rd 再拼一次 → file_not_found）
         pf = p.resolve()
         res = json.loads(
-            g4_chapter_drafting([str(pf)], str(project_dir), str(project_dir), repo_root=None)
+            g4_chapter_drafting([str(pf)], str(project_root), str(project_root), repo_root=None)
         )
         # C1：passed() 无 must_fix 键
         rows.append({"file": p.name, "checks": res["checks"], "must_fix": res.get("must_fix", [])})
