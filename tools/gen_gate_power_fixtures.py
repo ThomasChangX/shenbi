@@ -35,6 +35,33 @@ _TENSION_RE = re.compile(
 # I5：注入词必须取自 count_transition_words 计数面（shared.py:911 TRANSITION_SPECIFIC）
 _TRANSITION_FILLERS = ["不过，", "此时，", "突然，", "终于，", "于是，"]
 
+# 场景具体性门（chapter_drafting.py:1130）视觉动词面——多字词先替再换单字，
+# 替换字「在」不在任何门词表（张力/疲劳/元叙事/转折）上，零副作用。
+_VN_MULTI = ("发现", "看到", "听到")
+_VN_SINGLE = frozenset("走跑推拉抓坐站躺倒看听触")
+# I1：META_NARRATIVE 7 词闭集（shared.py:902-910）的子集注入——闭集内取词非生造
+_META_PARA = "由此可见：这一切早有注定。综上所述，各人有各人的账。"
+# 疲劳剂量：门阈 8（chapter_drafting.py:996），9 发必中且留 1 发余量
+_FATIGUE_DOSE = 9
+# 比喻堆叠（simile_band WARN 面）：SIMILE_MARKERS（shared.py:246）闭集内取「像」
+_SIMILE_PARAS = [
+    "火星像一粒算珠，飘到一半就灭了。",
+    "灯影像一页翻旧的账，边角卷着。",
+    "他的呼吸像账上挂着的利息，很轻，但没有停。",
+    "盐包像一方压舱的秤砣，坠在袖子里。",
+    "更鼓声像两笔记进红笔的账，一声一声。",
+    "雪落得像纸页翻动，没有声音。",
+]
+# 收尾多样性（账目形态原型）：strip 后尾窗 ≥2 个阿拉伯数字串即归类
+_LEDGER_CLOSER = "这一夜他合上册子，又数了一遍：外欠 30 文，袋底剩 17 文。"
+# 口癖短语（真实 protagonist.md voice_profile.catchphrases 原串）→中性语
+_VOICE_NEUTRAL = [
+    ("这笔我先记下", "这笔先放在一旁"),
+    ("折旧完了，人就自由了", "事情到此就过去了"),
+    ("此账必有还之日", "这件事以后再提"),
+    ("行，先算账", "行，先这样"),
+]
+
 
 def _frontmatter_end(paras: list[str]) -> int:
     if not paras or not paras[0].startswith("---"):
@@ -89,10 +116,58 @@ def transition_flooded(text: str) -> str:
     return "\n\n".join(out)
 
 
-MUTATIONS: dict[str, Callable[[str], str]] = {
+def _with_tail(text: str, new_tail: list[str], keep_after: int = 3) -> str:
+    """叙事尾窗段替换后回拼（头段＋新尾段；窗口面=narrative_window 尾 8+keep_after）."""
+    paras = narrative_window(text)
+    head, _old = paras[: -(8 + keep_after)], paras[-(8 + keep_after) :]
+    return "\n\n".join(head + new_tail)
+
+
+def scene_visuals_stripped(text: str) -> str:
+    """尾窗段视觉动词/对白标记剥除（→静态陈述）→ no_visual_scene."""
+    paras = narrative_window(text)
+    tail = paras[-11:]
+    out = []
+    for p in tail:
+        q = p
+        for w in _VN_MULTI:
+            q = q.replace(w, "在")
+        q = "".join("在" if ch in _VN_SINGLE else ch for ch in q)
+        q = q.replace("「", "").replace("」", "")
+        out.append(q)
+    return _with_tail(text, out)
+
+
+def scene_markers_removed(text: str) -> str:
+    """删场景标记行（is_scene_marker_line 同形：strip()==<!--SCENE-->）→ scene_count<2."""
+    return "\n".join(ln for ln in text.split("\n") if ln.strip() != "<!--SCENE-->")
+
+
+def fatigue_flooded(text: str) -> str:
+    """尾窗前 9 叙事段段尾追加「他心中暗道。」×9（FATIGUE_BASE「暗道」面）→ fatigue>8."""
+    paras = narrative_window(text)
+    tail = paras[-11:]
+    out = []
+    for i, p in enumerate(tail):
+        out.append(p + "他心中暗道。" if i < _FATIGUE_DOSE else p)
+    return _with_tail(text, out)
+
+
+def meta_injected(text: str) -> str:
+    """尾窗末段前插入 META_NARRATIVE 闭集词段（由此可见/综上所述）→ meta."""
+    paras = narrative_window(text)
+    tail = paras[-11:]
+    return _with_tail(text, [*tail[:-1], _META_PARA, tail[-1]])
+
+
+MUTATIONS: dict[str, Callable[..., str]] = {
     "hook_killed": hook_killed,
     "protagonist_vanished": protagonist_vanished,
     "transition_flooded": transition_flooded,
+    "scene_visuals_stripped": scene_visuals_stripped,
+    "scene_markers_removed": scene_markers_removed,
+    "fatigue_flooded": fatigue_flooded,
+    "meta_injected": meta_injected,
 }
 
 
