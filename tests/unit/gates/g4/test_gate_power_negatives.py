@@ -217,3 +217,10 @@ def test_hook_type_rotation_full_pipeline_fails_on_same_type() -> None:
     res = _g4("chapter-1-meta-injected.md")
     mf = res.get("must_fix", [])
     assert any(m.startswith("G4.cd.hook_type_rotation:ch1:") for m in mf), mf[:3]
+
+
+def test_content_duplicated_fails_content_overlap_gate() -> None:
+    """从比对章（chapter-3.md 同目录）复制 13 段 append 章尾 → 指纹占比 >40%（I3 三条件齐）."""
+    res = _g4("project-output/chapters/chapter-1-duplicated.md")
+    mf = res.get("must_fix", [])
+    assert any(m.startswith("G4.cd.content_overlap:") for m in mf), mf[:3]

@@ -18,6 +18,10 @@ from pathlib import Path
 sys.path.insert(
     0, str(Path(__file__).resolve().parent.parent)
 )  # repo 根——统一 tools. 包身份（NB 系）
+from shenbi.gates.g4.chapter_drafting import (
+    _text_fingerprint,  # 门指纹单源复用（测量面=执法面，C3）
+)
+from shenbi.gates.shared import strip_scene_markers
 from tools.gate_power_replay import (
     narrative_window,  # 同目录工具互引（E402 豁免 sys.path 修改）
 )
@@ -45,6 +49,8 @@ _META_PARA = "由此可见：这一切早有注定。综上所述，各人有各
 _FATIGUE_DOSE = 9
 # surge 计数面句长阈（chapter_drafting.py:1265：slen>=35 且对白占比<0.5）
 _SURGE_SENT_LEN = 35
+# 指纹段 CJK 下限（chapter_drafting.py:443 _text_fingerprint min_len=50 同值）
+_FINGERPRINT_MIN_CJK = 50
 # 比喻堆叠（simile_band WARN 面）：SIMILE_MARKERS（shared.py:246）闭集内取「像」
 _SIMILE_PARAS = [
     "火星像一粒算珠，飘到一半就灭了。",
@@ -287,6 +293,35 @@ def ending_ledgered(text: str) -> str:
     return _with_tail(text, tail)
 
 
+def verbatim_copy(text: str) -> str:
+    """无变异整本拷贝——比对章/基线章前置物（G0.9 real-output copy 面）."""
+    return text
+
+
+def content_duplicated(text: str, donor_text: str = "") -> str:
+    """从比对章复制 k 段 append 章尾（k/(m+k)>0.40 指纹占比）→ content_overlap.
+
+    I3 三条件：跨章复制＋集合指纹＋基数门槛 len(project-output/chapters/*.md)>1
+    （比对章 fixture 同目录落盘）。k 按本章 m 动态取：k=2m//3+1（>2/3·m）。
+    指纹口径=执法面（C3）：比对章按门侧 `_fingerprint_of` 无 strip 的 raw 形入
+    集合——复制候选须 raw 指纹成员（场景标记邻接段在裁片面被拆分、raw 面
+    合并，非成员段复制后不计交集；成员判定=同进程 hash 集合包含，语义等于
+    字符串等值，跨进程确定）。
+    """
+    m = len(_text_fingerprint(strip_scene_markers(text)))
+    k = 2 * m // 3 + 1
+    donor_raw_fp = _text_fingerprint(donor_text)
+    donor_paras = [
+        p
+        for p in narrative_window(donor_text)
+        if len(re.findall(r"[一-鿿]", p)) >= _FINGERPRINT_MIN_CJK and hash(p) in donor_raw_fp
+    ]
+    copies = donor_paras[:k]
+    if len(copies) < k:
+        raise ValueError(f"donor raw-fp-member paras {len(copies)} < required k={k}")
+    return text.rstrip("\n") + "\n\n" + "\n\n".join(copies) + "\n"
+
+
 MUTATIONS: dict[str, Callable[..., str]] = {
     "hook_killed": hook_killed,
     "protagonist_vanished": protagonist_vanished,
@@ -307,6 +342,8 @@ MUTATIONS: dict[str, Callable[..., str]] = {
     "surge_killed": surge_killed,
     "simile_flooded": simile_flooded,
     "ending_ledgered": ending_ledgered,
+    "verbatim_copy": verbatim_copy,
+    "content_duplicated": content_duplicated,
 }
 
 
@@ -317,9 +354,17 @@ def main() -> int:
     parser.add_argument("out", type=Path)
     parser.add_argument("--mutation", required=True, choices=sorted(MUTATIONS))
     parser.add_argument("--full", action="store_true", help="不裁片（默认裁片 M4）")
+    parser.add_argument(
+        "--donor", type=Path, default=None, help="比对章源（content_duplicated 必填）"
+    )
     args = parser.parse_args()
     src = args.source.read_text(encoding="utf-8")
-    mutated = MUTATIONS[args.mutation](src)
+    if args.mutation == "content_duplicated":
+        if args.donor is None:
+            parser.error("--donor required for content_duplicated")
+        mutated = content_duplicated(src, args.donor.read_text(encoding="utf-8"))
+    else:
+        mutated = MUTATIONS[args.mutation](src)
     note = (
         "全章（裁片不足以承载该变异——README 记裁定）"
         if args.full
