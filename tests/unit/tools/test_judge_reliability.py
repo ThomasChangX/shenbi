@@ -50,3 +50,74 @@ def test_real_starve_fixture_classified_invalid() -> None:
 
     fixture = REPO_ROOT / "tests/fixtures/audits/chapter-2-memo-compliance.md"
     assert fixture.exists() and check_audit_starve_verdict(fixture)
+
+
+def test_cohen_kappa_identical_raters() -> None:
+    from tools.judge_reliability import cohen_kappa
+
+    res = cohen_kappa([1, 0, 1, 0], [1, 0, 1, 0])
+    assert res.kappa == 1.0 and res.agreement == 1.0 and res.n == 4 and res.warning is None
+
+
+def test_cohen_kappa_prevalence_degenerate_warns() -> None:
+    from tools.judge_reliability import cohen_kappa
+
+    res = cohen_kappa([0, 0, 0, 0], [0, 0, 0, 0])  # 全零 flag 技能对
+    assert res.kappa is None and res.warning is not None and "prevalence" in res.warning
+
+
+def test_cronbach_alpha_identical_items_is_one() -> None:
+    from tools.judge_reliability import cronbach_alpha
+
+    assert cronbach_alpha([[1, 0, 1, 1], [1, 0, 1, 1], [1, 0, 1, 1]]) == 1.0
+
+
+def test_cronbach_alpha_independent_items_near_zero() -> None:
+    import random
+
+    from tools.judge_reliability import cronbach_alpha
+
+    rng = random.Random(110)
+    items = [[float(rng.randint(0, 1)) for _ in range(400)] for _ in range(8)]
+    alpha = cronbach_alpha(items)
+    assert alpha is not None and abs(alpha) < 0.10  # 独立→α≈0
+
+
+def test_pearson_and_slope_with_guards() -> None:
+    from tools.judge_reliability import SlopeResult, pearson, slope_regression
+
+    r = pearson([1, 2, 3, 4], [2, 4, 6, 8])
+    assert r is not None and abs(r - 1.0) < 1e-9
+    sr = slope_regression([1.0, 2.0, 3.0, 4.0], [78.0, 78.7, 79.4, 80.1])
+    assert abs(sr.slope - 0.7) < 1e-9 and sr.t == float("inf")  # r=±1→∞（M2）
+    assert slope_regression([1.0], [78.0]) == SlopeResult(0.0, 0.0, 0.0)  # n<2 自守
+
+
+def test_shape_stats_mode_sd_and_cold_start() -> None:
+    from tools.judge_reliability import shape_stats
+
+    st = shape_stats([79.0] * 12 + [78.0] * 3 + [86.0, 74.0], ["high"] * 15 + ["mid"] * 2)
+    sd = st["sd"]
+    assert st["mode"] == (79.0, 12) and isinstance(sd, float) and sd > 0
+    assert st["range"] == (74.0, 86.0)
+    assert st["high_rate"] == 15 / 17 and st.get("insufficient") is None
+    cold = shape_stats([79.0, 78.0, 77.0], ["high", "mid", "low"])
+    assert cold.get("insufficient") is True
+
+
+def test_anchor_position_counts_first_table_only(tmp_path) -> None:
+    from tools.judge_reliability import anchor_position_counts
+
+    audits = tmp_path / "audits"
+    _write(
+        audits,
+        "chapter-1-resonance.md",
+        "| 维度 | 得分 | 满分 | 置信度 | 对照锚点 | 相对位置 | 证据 | 裁判理由 |\n"
+        "|---|---|---|---|---|---|---|---|\n"
+        "| 情感落地 | 22 | 30 | high | AC-001 | 相当 | L45 | show 充分 |\n"
+        "| 场景临场感 | 20 | 25 | mid | AC-004 | 更差 | L12 | 概述偏多 |\n\n"
+        "## 其他表\n\n"
+        "| 列甲 | 列乙 |\n|---|---|\n| x | 相当 |\n",  # 次表不误计（M1）
+    )
+    c = anchor_position_counts(audits)
+    assert c["相当"] == 1 and c["更差"] == 1 and c["更好"] == 0
