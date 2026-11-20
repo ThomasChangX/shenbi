@@ -35,11 +35,12 @@ def test_scan_audits_dual_caliber_ratings_and_hygiene(tmp_path) -> None:
     assert res.file_total == 3  # summary 排除（aggregate 无 -skill 段不匹配）
     by = {(r.chapter, r.skill): r for r in res.records}
     assert by[(1, "texture")] == AuditRecord(
-        chapter=1, skill="texture", any_binary=1, hard_binary=1, hard_count=1
+        chapter=1, skill="texture", any_binary=1, hard_binary=1, hard_count=1, any_count=2
     )
     assert by[(1, "sensitivity")].any_binary == 1
     assert by[(1, "sensitivity")].hard_binary == 0
     assert by[(1, "sensitivity")].hard_count == 0
+    assert by[(1, "sensitivity")].any_count == 1
     assert (2, "texture") not in by  # invalid 剔除
     assert len(res.invalid) == 1 and "chapter-2-texture.md" in res.invalid[0]
 
@@ -121,3 +122,81 @@ def test_anchor_position_counts_first_table_only(tmp_path) -> None:
     )
     c = anchor_position_counts(audits)
     assert c["相当"] == 1 and c["更差"] == 1 and c["更好"] == 0
+
+
+MINI_TREND = (
+    "| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报 | overall | confidence | human_overridden |\n"
+    "|---|---|---|---|---|---|---|---|---|\n"
+    + "".join(f"| {i} | 推进 | 20 | 20 | 20 | 15 | {75 + i} | high |  |\n" for i in range(1, 9))
+)
+
+
+def _mini_project(tmp_path: Path) -> Path:
+    (tmp_path / "truth").mkdir(parents=True, exist_ok=True)  # 幂等（确定性测试二次调用）
+    (tmp_path / "truth" / "resonance_trend.md").write_text(
+        "---\ntype: truth\n---\n\n# 共鸣趋势\n\n" + MINI_TREND, encoding="utf-8"
+    )
+    audits = tmp_path / "audits"
+    for ch in range(1, 9):
+        _write(
+            audits,
+            f"chapter-{ch}-sensitivity.md",
+            f"**判定**：有瑕疵\n{HARD_LINE}" if ch % 2 else "**判定**：通过\n",
+        )
+        _write(
+            audits,
+            f"chapter-{ch}-resonance.md",
+            "**判定**：通过 (80/100)\n"
+            "| 维度 | 得分 | 满分 | 置信度 | 对照锚点 | 相对位置 | 证据 | 裁判理由 |\n"
+            "|---|---|---|---|---|---|---|---|\n"
+            "| 情感落地 | 22 | 30 | high | AC-001 | 相当 | L1 | x |\n",
+        )
+        _write(
+            audits, f"chapter-{ch}-world-rules.md", "**判定**：通过\n"
+        )  # 全零对→prevalence 退化行
+        _write(audits, f"chapter-{ch}-pacing.md", "**判定**：通过\n")
+    (tmp_path / "chapters").mkdir(parents=True, exist_ok=True)
+    for ch in range(1, 9):
+        (tmp_path / "chapters" / f"chapter-{ch}.md").write_text(
+            "字" * (1000 * ch), encoding="utf-8"
+        )
+    return tmp_path
+
+
+def test_build_report_sections_and_determinism(tmp_path) -> None:
+    from tools.judge_reliability import build_report
+
+    report = build_report(_mini_project(tmp_path))
+    for needle in (
+        "前置数据卫生",
+        "Cronbach α",
+        "效度相关",
+        "外部锚定未执行",
+        "观测面",
+        "prevalence",
+    ):
+        assert needle in report, f"报告缺节：{needle}"
+    assert build_report(_mini_project(tmp_path)) == report  # 同输入同输出（_mini_project 幂等）
+
+
+def test_group_pair_not_degrouped_emits_artifact_warning(tmp_path) -> None:
+    """④(c) 红测：同族对（pov×dialogue）带伪影注记+族 OR 合成 rater 行（I2）。"""
+    from tools.judge_reliability import build_report
+
+    proj = _mini_project(tmp_path)
+    for ch in range(1, 9):
+        _write(proj / "audits", f"chapter-{ch}-pov.md", "**判定**：通过\n")
+        _write(proj / "audits", f"chapter-{ch}-dialogue.md", "**判定**：通过\n")
+    report = build_report(proj)
+    assert "dialogue × pov" in report and "同派发伪影" in report
+    assert "group-character(OR)" in report and "族 OR 合成" in report
+
+
+def test_main_missing_trend_exits_two(tmp_path, capsys) -> None:
+    """M7：数据面缺失 → stderr + exit 2（report_longitudinal 先例）。"""
+    from tools.judge_reliability import main
+
+    empty = tmp_path / "proj"
+    (empty / "truth").mkdir(parents=True)
+    assert main([str(empty)]) == 2
+    assert "resonance_trend" in capsys.readouterr().err

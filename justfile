@@ -68,6 +68,10 @@ lint:
 gate-power DIR *ARGS:
     uv run python tools/gate_power_replay.py "$1" "${@:2}"
 
+# Judge reliability offline report (spec #110) — observation plane, not a gate
+judge-reliability DIR *ARGS:
+    uv run python tools/judge_reliability.py "$1" "${@:2}"
+
 # Type face (spec #92 T4)
 type:
     uv run mypy src/shenbi/

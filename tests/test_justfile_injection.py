@@ -100,6 +100,9 @@ EXPECTED_CALLS: dict[str, list[list[str]]] = {
     "release-split": [["--help"]],
     "resonance-backfill": [["--help"]],  # spec #106 T3b
     "gate-power": [["/tmp/d; touch pwned", "--help"]],  # spec #116 T1 (DIR is the NL position)
+    "judge-reliability": [
+        ["/tmp/d; touch pwned", "--help"]
+    ],  # spec #110 T1 (DIR is the NL position)
     "facts-query": [["--dim", "props", "--project", "/tmp/d; touch pwned"]],
     "regen-reset": [["--help"]],
     "regen-accept": [["--help"]],
