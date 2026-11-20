@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+ / pytest（unit T1 层）/ just task runner / structlog（`shenbi.logging.get_logger`）。
 
-## Global Constraints（spec 项目级约束逐字，每 task 隐含包含）
+## Global Constraints（编译自 spec 项目级约束＋§Profile——M-2 修正：spec 无逐字块，此为编译面；F947/G0.9/G0.11 出自 single-model-sdd-prompt.md §Profile「plan 加项」；`lint_threshold_reconciliation --strict` 判据经 just check:53 接线在阶段 7 全量门统一跑——本 plan 各 task 不单独跑该 lint）
 
 - **触面止于**（spec 验收 2，核验＝hunk 落点全在枚举内）：`chapter_drafting.py` 九函数（`_check_voice_density`/`_check_chapter_end_hook`/`_load_protagonist_names`/`_check_protagonist_presence`/`_check_protagonist`/`_check_transitions`/`_check_simile_band`/`ending_archetype_of`/`_check_content_uniqueness`）＋`voice_lexicon.py`＋`contracts/skills/genre_config.py`＋`tools/gate_power_replay.py`＋`tools/gen_gate_power_fixtures.py`＋`tools/lint_voice_meme.py`＋测试文件＋fixture 重摆＋baseline/提案 docs＋`reports/`——无未裁定检查被顺手改。
 - **红测改钉保留原 FAIL 方向样本**（C1 双向义务——防全绿漂移）。
@@ -121,7 +121,9 @@ git commit -m "test: spec #118 T8 payoff_density 变异负例＋三残行分类�
 - Modify: `src/shenbi/gates/g4/chapter_drafting.py:1391-1438`（`_check_voice_density` 两级化＋模块头 `from shenbi.logging import get_logger`/`log = get_logger(__name__)`——若文件尚无则加）
 - Modify: `src/shenbi/contracts/skills/genre_config.py:142-148`（validator 扩 `presence_min∈[1,5]`）
 - Modify: `tools/lint_voice_meme.py:123-127`（旧键消费跟随密度臂口径）
-- Test: `tests/unit/gates/g4/test_gate_power_negatives.py`（改钉 `test_voice_stripped_fails_voice_density_gate`＋新增三态样本）；Create `tests/unit/text/test_voice_threshold_single_source.py`（单源断言）
+- Modify: `tools/gen_gate_power_fixtures.py`（`voice_stripped` 变异扩展——Step 2；`ACCOUNTING_VERBS` 须显式 import：`from shenbi.text.voice_lexicon import ACCOUNTING_VERBS`，该文件现未导入）
+- Modify: `tests/fixtures/gate-power/chapter-1-voice-stripped.md`（Step 2 重生成）
+- Test: `tests/unit/gates/g4/test_gate_power_negatives.py`（改钉＋三态样本）；Create `tests/unit/text/test_voice_threshold_single_source.py`（单源断言）；`tests/unit/contracts/`（validator 红测两例）
 - Modify: `docs/framework/gate-power-baseline.md`（`G4.cd.voice_density` 行期望点火带＋归因）
 
 **Interfaces:**
@@ -182,8 +184,18 @@ def test_voice_density_two_level_three_states(tmp_path: Path) -> None:
 
     for label, inject, want_fail, want_warn in (
         ("absent", "", True, False),  # signals=0 → FAIL（=旧测同 fixture 面）
-        ("presence-only", "他把这笔先记下。", False, True),  # 口癖在场 1 类 → PASS＋密度 WARN
-        ("dense", "他把这笔先记下。入账的时辰到了。", False, False),  # 2 类 → 纯 PASS
+        (
+            "presence-only",
+            "他心想：这笔我先记下。",
+            False,
+            True,
+        ),  # 真实卡口癖原串「这笔我先记下。」逐字在场 → 1 类（C-1 修正：原注入缺「我」非口癖原串）
+        (
+            "dense",
+            "他心想：这笔我先记下。入账的时辰到了。",
+            False,
+            False,
+        ),  # 口癖＋账房动词「入账」→ 2 类 → 纯 PASS
     ):
         d = tmp_path / label
         d.mkdir()
@@ -297,14 +309,40 @@ def _check_voice_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[st
 `genre_config.py` :146-148 validator 扩展（旧键块后加新键块）：
 
 ```python
+        # （重审轮 2 新问题修正）旧键检查改在场守卫形——先改既有 :146-148 块：
+        #   旧形： if vdm is not None and not 0 <= vdm.get("min_per_chapter", -1) <= 5:
+        #   新形： if vdm is not None and "min_per_chapter" in vdm and not 0 <= vdm["min_per_chapter"] <= 5:
+        # 缺省 -1 会把 presence_min-only 新式 config 误拒（域违报文还使测试
+        # match="presence_min" 经 dict repr 错误通过）——守卫后缺席键不检查。
         # spec #118 T1: 两级拆分——在场臂新键（0 非法：堵逐书清零 hard 臂）；
         # 旧键 min_per_chapter 域不变（密度/WARN 臂，消费端 deprecate WARN）。
-        vpm = v.get("presence_min")
-        if vdm is not None and vpm is not None and not 1 <= int(vpm) <= 5:
+        # 嵌套层级（plan 审查 C-2 修正）：v=market_params，vdm=voice_density_min
+        # 子 dict——presence_min 是 vdm 的子键，非 v 的。
+        vpm = vdm.get("presence_min") if isinstance(vdm, dict) else None
+        if vpm is not None and not 1 <= int(vpm) <= 5:
             raise ValueError(f"market_params.voice_density_min.presence_min∈[1,5], got {vpm}")
 ```
 
-（注：vdm 为 None 而 presence_min 存在＝新键裸奔——同块 `if vdm is None and vpm is not None: raise` 拒绝，保持键族完整性。）
+（注：vdm 缺席而 presence_min 存在＝新键裸奔——同块 `if vdm is None and "presence_min" in v.get("voice_density_min", {}) ... ` 形不成立（vdm 即该 dict）；实际裸奔形=vdm 为非 dict/缺 presence_min——validator 只治域不治缺席，缺席走消费端缺省 1，键族完整性由 genre-config 契约文档同步声明。）
+
+**validator 红测**（追加到 `tests/unit/contracts/test_market_params.py`——复用其 `_base()`/`_FULL` 构造与 `GenreConfig.model_validate` 面；重审新缺陷 1 修正：真实校验面是 pydantic validator 经 model_validate 触发，且 hook_grading 须携带合法 `max_consecutive_micro∈[1,3]` 否则先被旧检查绊住）：
+
+```python
+def test_voice_presence_min_domain_rejects_zero() -> None:
+    """spec #118 T1(b): presence_min∈[1,5]——0 非法（堵逐书清零 hard 臂）."""
+    mp = _FULL | {"voice_density_min": {"presence_min": 0}}
+    with pytest.raises(ValueError, match="presence_min"):
+        GenreConfig.model_validate(_base() | {"market_params": mp})
+
+
+def test_voice_presence_min_only_config_accepted() -> None:
+    """旧键在场守卫：presence_min-only 新式 config 合法（不被旧键缺省 -1 误拒）."""
+    mp = _FULL | {"voice_density_min": {"presence_min": 2}}
+    cfg = GenreConfig.model_validate(_base() | {"market_params": mp})
+    assert cfg.market_params["voice_density_min"] == {"presence_min": 2}
+```
+
+**旧键→臂映射钉（pipeline 级，入 negatives 文件）**——signals=1（口癖在场）＋genre-config 旧键 min_per_chapter=2 → 断言无 `G4.cd.voice_density` must_fix 且密度 WARN 行在（风险 M-6「测试断言」义务；目录构造复用三态测试 presence-only 场景＋`genre-config.json` 写入 `{"market_params": {"voice_density_min": {"min_per_chapter": 2}}}`）。
 
 `tools/lint_voice_meme.py:123-127` 跟随：读键逻辑改为「density 臂取 `min_per_chapter`（缺省 `DEFAULT_VOICE_DENSITY_MIN`）」口径不变、注释补一句「spec #118 T1 起 min_per_chapter 语义=密度/WARN 臂」。
 
@@ -366,7 +404,7 @@ Expected: `G4.cd.voice_density` 行——新 FAIL 数＝Step 1 离线重算 `abs
 `gate-power-baseline.md` `G4.cd.voice_density` 行：归因追加「**裁定 B 已执行（spec #118 T1）**：hard 臂=在场 ≥1（absent X 章 FAIL——见 replay-T2），密度臂 WARN N 章」；期望点火带填「FAIL=absent 章数；WARN=密度带外章数」。
 
 ```bash
-git add src/shenbi/text/voice_lexicon.py src/shenbi/gates/g4/chapter_drafting.py src/shenbi/contracts/skills/genre_config.py tools/lint_voice_meme.py tests/unit/gates/g4/test_gate_power_negatives.py tests/unit/text/test_voice_threshold_single_source.py docs/framework/gate-power-baseline.md
+git add src/shenbi/text/voice_lexicon.py src/shenbi/gates/g4/chapter_drafting.py src/shenbi/contracts/skills/genre_config.py tools/lint_voice_meme.py tools/gen_gate_power_fixtures.py tests/fixtures/gate-power/chapter-1-voice-stripped.md tests/unit/gates/g4/test_gate_power_negatives.py tests/unit/text/test_voice_threshold_single_source.py tests/unit/contracts/ docs/framework/gate-power-baseline.md
 git commit -m "feat: spec #118 T1 voice_density 两级拆分——在场 hard＋密度 WARN＋genre-config 键迁移钉死＋单源断言"
 ```
 
@@ -398,7 +436,7 @@ def test_hook_single_char_only_warns_not_fails() -> None:
     assert not any(m.startswith("G4.cd.no_hook:") for m in mf), mf[:3]
 ```
 
-`tests/unit/tools/test_gate_power_replay.py` TestWindowAttribution 类内追加：
+`tests/unit/tools/test_gate_power_replay.py` **`TestNarrativeWindow` 类内追加**（M-1 修正：仓内无 TestWindowAttribution 类——既有窗口一致性测试 :96 在 TestNarrativeWindow）：
 
 ```python
 def test_mirror_gate_equivalence_single_only(self) -> None:
@@ -428,7 +466,7 @@ def test_mirror_gate_equivalence_hard_arms(self) -> None:
 
 - [ ] **Step 2: 跑红测确认失败**
 
-Run: `uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py::test_hook_single_char_only_warns_not_fails "tests/unit/tools/test_gate_power_replay.py::TestWindowAttribution::test_mirror_gate_equivalence_single_only" -v`
+Run: `uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py::test_hook_single_char_only_warns_not_fails "tests/unit/tools/test_gate_power_replay.py::TestNarrativeWindow::test_mirror_gate_equivalence_single_only" -v`
 Expected: FAIL——fixture 未生成（前）/现行门把单字-only 判 PASS（`gate_class` 键不存在，断言 KeyError）。
 
 - [ ] **Step 3: 新变异＋门三态化＋镜像同步**
@@ -508,13 +546,7 @@ HOOK_SINGLE_TENSION = frozenset("但却还仍瞒藏账欠谜")
 
 （原 :1211-1212 混编正则删除——多字项迁入 `HOOK_MULTI_TENSION_RE`，单字项迁入 `HOOK_SINGLE_TENSION`；但|却 在单字集内保留。）
 
-镜像同步（`gate_power_replay.py:110-147`）：`HOOK_TENSION_RE` 保留（全词表命中面），新增 `gate_class` 派生：
-
-```python
-    has_multi = bool(set(HOOK_MULTI_WORDS) & hits) if (HOOK_MULTI_WORDS := ...) else ...
-```
-
-——实取：镜像文件内与门同形定义 `HOOK_MULTI_TENSION_RE`/`HOOK_SINGLE_TENSION`（两文件同形注释互指锚），`hook_window_attribution` 返回 dict 增键：
+镜像同步（`gate_power_replay.py:110-147`）：镜像文件内与门同形定义 `HOOK_MULTI_TENSION_RE`/`HOOK_SINGLE_TENSION`（两文件同形注释互指锚；镜像的 `hits` 来自全词表 `HOOK_TENSION_RE`，multi 判定用 `hits - SINGLE_CHAR_TENSION` 与门 `HOOK_MULTI_TENSION_RE` 语义等价——plan 审查 M-5 已核），`hook_window_attribution` 返回 dict 增键：
 
 ```python
         "gate_class": (
@@ -542,6 +574,7 @@ git commit -m "feat: spec #118 T2 hook 多字/结构臂＋单字-only 降 WARN�
 
 **Files:**
 - Modify: `src/shenbi/gates/g4/chapter_drafting.py`（`_load_protagonist_names` :483-516 去重；`_check_protagonist_presence` :460-480 名字下限臂）
+- Modify: `tools/gate_power_replay.py`（I-4：`ARM_TO_CANONICAL` 增 `"G4.cd.protagonist_name_absent": "G4.cd.protagonist_presence"`＋`STATE_FREE_IDS` 增 `G4.cd.protagonist_presence` 族回射面——新 mf 臂须回射父行，否则 post118 报告出现无 baseline 行的未注册 canonical）；`tools/lint_gate_power_baseline.py`（`EXPLICIT_SUPPLEMENT` 同步增补——helper-append 形扫描不可见）
 - Test: `tests/unit/gates/g4/test_gate_power_negatives.py`（roster 单测＋名字 0/代词≥3 红）
 
 **Interfaces:**
@@ -632,13 +665,13 @@ Run: `uv run pytest tests/unit/gates/g4/ -v`
 Expected: 全 PASS——`test_protagonist_vanished_real_chapter_fails_presence_gate` 仍红方向（全替换→total<3 FAIL，C1 保留）。
 
 Run: `just gate-power novel-xinghuo-vol1 --out .superpowers/sdd/2026-11-20-spec118-gate-calibration-landing/replay-T4.md`
-Expected: 名字缺席章数＝**实测 X（预期 0；非 0 记 finding 回裁不放宽——I-5 判据）**；中位/最小刷新（去重后总计数下降约一半）；数字入 task-4-report.md。baseline 行归因追加「裁定 A+B 已执行（spec #118 T3）：roster 去重＋名字下限臂；C 阈值重标定推迟至本重跑取数后」。
+Expected: 名字缺席章数＝**实测 X（预期 0；非 0 记 finding 回裁不放宽——I-5 判据）**；**重放 protagonist 中位/最小不变（I-4 修正：镜像 `_protagonist_names` 本就单名去重——门侧去重修的是门内计数非镜像）**；数字入 task-4-report.md。baseline 行归因追加「裁定 A+B 已执行（spec #118 T3）：roster 去重＋名字下限臂；C 阈值重标定推迟至本重跑取数后」。
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/shenbi/gates/g4/chapter_drafting.py tests/unit/gates/g4/test_gate_power_negatives.py docs/framework/gate-power-baseline.md
-git commit -m "fix: spec #118 T3 protagonist roster 去重＋名字（非代词）单独 ≥1 下限臂"
+git add src/shenbi/gates/g4/chapter_drafting.py tools/gate_power_replay.py tools/lint_gate_power_baseline.py tests/unit/gates/g4/test_gate_power_negatives.py docs/framework/gate-power-baseline.md
+git commit -m "fix: spec #118 T3 protagonist roster 去重＋名字（非代词）单独 ≥1 下限臂＋回射注册"
 ```
 
 ### Task 5: spec T4 · transition per-1000 密度封顶（1.0/千字）
@@ -651,16 +684,7 @@ git commit -m "fix: spec #118 T3 protagonist roster 去重＋名字（非代词�
 - Consumes: `count_transition_words(strip_narrative_body(ctx.content))`（:937 口径不变）；`ctx.wc`（`word_count_md`＝叙事体 CJK 计数——**密度分母同口径**）。
 - Produces: 模块级 `TRANSITION_CAP_PER_1000 = 1.0`（单源常量＋定标注释）；判定 `tc / max(ctx.wc, 1) * 1000 > TRANSITION_CAP_PER_1000` → mf（报文带密度值与封顶）；mf id `G4.transition` 不变（报文形 `{tc}>{max_t}` → `{density:.2f}>{cap}/千字`）。
 
-- [ ] **Step 1: 单源常量＋失败测试**（chapter_drafting.py `FATIGUE` 常量区同款位放置）
-
-```python
-#: 转折词 per-1000 密度封顶（spec #118 T4 裁定 B；绝对阈 max(5, wc//1000) 退役）。
-#: vol1 定标（B5——跨书重跑复核）：50 纯章形 gate-caliber 实测（word_count_md
-#: 叙事体 CJK 分母＋strip_narrative_body 计数面，2026-11-20 replay-baseline 同源）
-#: median=0.000/P95≈0.36/max=0.809 → 取 1.0＝max·1.24 裕度（P95 作封顶与
-#: 「零新 FAIL」构造性互斥——r2.2 裁定记录）；flooded 负例密度 ≫1 仍 FAIL。
-TRANSITION_CAP_PER_1000 = 1.0
-```
+- [ ] **Step 1: 写失败测试**（常量**尚未落码**——I-5/重审新缺陷 3 修正：常量块已移除，只留测试；Step 2 的 ImportError 红钉成立；常量＋定标注释在 Step 3 与实现同落）
 
 Create `tests/unit/gates/g4/test_transition_cap_single_source.py`:
 
@@ -674,11 +698,35 @@ from pathlib import Path
 
 from shenbi.gates.g4.chapter_drafting import TRANSITION_CAP_PER_1000
 
-REPO = Path(__file__).resolve().parents[3]
+# 本文件在 tests/unit/gates/g4/ 下——parents[3]=tests/，repo 根须取 parents[4]
+# （plan 审查 I-2 修正：parents[3] 会 cwd 到 tests/ 使 grep 空输出断言虚设）。
+REPO = Path(__file__).resolve().parents[4]
 
 
 def test_cap_constant_pinned() -> None:
     assert TRANSITION_CAP_PER_1000 == 1.0
+
+
+def test_density_caliber_recaptured(tmp_path: Path) -> None:
+    """重标定行为区分红测（I-5）：旧阈带内/新封顶外章——tc=4, wc≈2000 →
+    旧 max(5,2)=5 PASS vs 新密度 2.0>1.0 FAIL（构造性输入，G0.9 允许面）."""
+    import json as _json
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    d = tmp_path
+    ch = d / "chapter-1.md"
+    # wc（word_count_md 叙事体 CJK）≈2000：每段 50 CJK ×40 段；tc=4：4 段首带
+    # 计数面连接词（不过，/此时，/突然，/终于，——count_transition_words 面）。
+    paras = [f"第{i}段" + "字" * 48 + "。" for i in range(40)]
+    paras[3] = "不过，" + paras[3]
+    paras[11] = "此时，" + paras[11]
+    paras[19] = "突然，" + paras[19]
+    paras[27] = "终于，" + paras[27]
+    ch.write_text("---\n---\n\n" + "\n\n".join(paras) + "\n", encoding="utf-8")
+    res = _json.loads(g4_chapter_drafting([str(ch)], str(d), str(d), repo_root=None))
+    mf = res.get("must_fix", [])
+    assert any(m.startswith("G4.transition:") for m in mf), mf[:3]  # 新封顶下 4/2.0>1.0 FAIL
 
 
 def test_no_bare_copies_outside_single_source() -> None:
@@ -700,7 +748,7 @@ def test_no_bare_copies_outside_single_source() -> None:
 Run: `uv run pytest tests/unit/gates/g4/test_transition_cap_single_source.py -v`
 Expected: FAIL with `ImportError: cannot import name 'TRANSITION_CAP_PER_1000'`。
 
-- [ ] **Step 3: 实现**（:954-956 替换）
+- [ ] **Step 3: 实现**（模块级常量落码＋:954-956 替换——常量定标注释：vol1 定标（B5——跨书重跑复核）：50 纯章形 gate-caliber 实测（word_count_md 叙事体 CJK 分母＋strip_narrative_body 计数面，2026-11-20 replay-baseline 同源）median=0.000/P95≈0.36/max=0.809 → 取 1.0＝max·1.24 裕度；flooded 负例密度 ≫1 仍 FAIL）
 
 ```python
     # spec #118 T4 裁定 B: per-1000 密度封顶（绝对阈 max(5, wc//1000) 退役）。
@@ -872,6 +920,7 @@ git commit -m "feat: spec #118 T6 ending 扩分类器（+K 形态，vol1 采样�
 **Files:**
 - Modify: `src/shenbi/gates/g4/chapter_drafting.py`（`_check_content_uniqueness` :1082-1113 目录对齐＋SKIP 行）
 - Move/Create: `tests/fixtures/gate-power/chapters/chapter-1-duplicated.md`＋`tests/fixtures/gate-power/chapters/chapter-3.md`（重摆＋维护者侧重生成）；Delete: `tests/fixtures/gate-power/project-output/`（旧路径残件）
+- Modify: `tests/unit/gates/g4/test_chapter_drafting.py:34-53`（C-3：既有 `test_fails_when_content_overlap_above_40_percent` 建 `rd/project-output/chapters` 布局——目录切换后必红；其 `chapters = rd / "project-output" / "chapters"` 改 `rd / "chapters"`，docstring 同步）
 - Test: `tests/unit/gates/g4/test_gate_power_negatives.py`（SKIP 显式红测＋既有 `test_content_duplicated...` 改路径）
 - Create: `reports/2026-11-20-gate-power-vol1-post118.md`（权威终版重跑报告）
 - Modify: `docs/framework/gate-power-baseline.md`（全行「最近回放数」终值刷新至 post118 报告）；`docs/framework/gate-calibration-proposals.md`（裁定表逐项标「已执行」）
@@ -887,22 +936,31 @@ git log --oneline -S "project-output" -- src/shenbi/gates/g4/chapter_drafting.py
 git log --all --oneline --diff-filter=A -- "**/project-output/chapters*" | head -5
 ```
 
-判定：门的 `rd/project-output/chapters` 布局是否曾对应任何真实生产布局（rd=round dir 语义下 chapters 落 `rd/chapters/`——预期结论「从未活过」；以考古输出为准）。
+判定：门的 `rd/project-output/chapters` 布局是否曾对应任何真实生产布局（rd=round dir 语义下 chapters 落 `rd/chapters/`——预期结论「从未活过」；以考古输出为准）。另记（M-3）：`ctx.rd is None` 时仍零行发射（生产 dispatch 恒传 rd——dispatch_helper 布局面；SKIP 义务覆盖目录缺席/基数不足两态，rd-None 态记 task report 注记不扩验收）。
 
 - [ ] **Step 2: 写失败红测**（SKIP 显式——空 rd 场景）
 
 ```python
 def test_content_uniqueness_skip_row_when_dir_absent(tmp_path: Path) -> None:
-    """spec #118 T7：比对目录缺席 → 显式 SKIP 行（含原因）非静默（r2/M-1 复用 SKIP 先例）."""
+    """spec #118 T7：目录缺席/基数≤1 → 显式 SKIP 行（含原因）非静默（r2/M-1 复用 SKIP 先例；I-3 双分支）."""
     from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
 
+    # 分支①（I-3 修正：章不落 chapters/ 下——目录缺席臂）：
     d = tmp_path / "proj"
-    (d / "chapters").mkdir(parents=True)
-    ch = d / "chapters" / "chapter-1.md"
+    d.mkdir()
+    ch = d / "chapter-1.md"
     ch.write_text("---\n---\n\n正文数段。\n", encoding="utf-8")
     res = json.loads(g4_chapter_drafting([str(ch)], str(d), str(d), repo_root=None))
     rows = [c for c in res["checks"] if c["id"] == "G4.cd.content_uniqueness"]
-    assert rows and rows[0]["s"] == "SKIP" and "chapters" in rows[0]["r"], rows
+    assert rows and rows[0]["s"] == "SKIP" and "比对目录缺席" in rows[0]["r"], rows
+    # 分支②：目录在但基数 ≤1——r 含「基数」
+    d2 = tmp_path / "proj2"
+    (d2 / "chapters").mkdir(parents=True)
+    ch2 = d2 / "chapters" / "chapter-1.md"
+    ch2.write_text("---\n---\n\n正文数段。\n", encoding="utf-8")
+    res2 = json.loads(g4_chapter_drafting([str(ch2)], str(d2), str(d2), repo_root=None))
+    rows2 = [c for c in res2["checks"] if c["id"] == "G4.cd.content_uniqueness"]
+    assert rows2 and rows2[0]["s"] == "SKIP" and "基数" in rows2[0]["r"], rows2
 ```
 
 Run: `uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py::test_content_uniqueness_skip_row_when_dir_absent -v`
@@ -971,11 +1029,11 @@ Expected: **史上首份 content_uniqueness 真实点火数据**（50 章 vs 82 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/shenbi/gates/g4/chapter_drafting.py tests/fixtures/gate-power/chapters/ tests/unit/gates/g4/test_gate_power_negatives.py reports/2026-11-20-gate-power-vol1-post118.md docs/framework/gate-power-baseline.md docs/framework/gate-calibration-proposals.md
+git add src/shenbi/gates/g4/chapter_drafting.py tests/fixtures/gate-power/chapters/ tests/fixtures/gate-power/project-output tests/unit/gates/g4/test_gate_power_negatives.py tests/unit/gates/g4/test_chapter_drafting.py reports/2026-11-20-gate-power-vol1-post118.md docs/framework/gate-power-baseline.md docs/framework/gate-calibration-proposals.md
 git commit -m "fix: spec #118 T7 content_uniqueness 比对目录对齐＋显式 SKIP＋首份真实点火数据（fixture 重摆+权威重跑报告）"
 ```
 
-（`git add` 的目录删除面：`tests/fixtures/gate-power/project-output` 删除由显式列路径 `git add tests/fixtures/gate-power/project-output` 一并纳入——pathspec 含已删路径合法。）
+（M-4 修正：`tests/fixtures/gate-power/project-output` 已列入上方 pathspec——已删目录的暂存由显式列路径承载，pathspec 含已删路径合法。）
 
 ---
 
@@ -984,7 +1042,7 @@ git commit -m "fix: spec #118 T7 content_uniqueness 比对目录对齐＋显式 
 | AC | task | 验证 |
 |---|---|---|
 | 1. T1-T8 判据全绿（三件套） | Task 1-8 | 各 task Step「重跑对照」＋task-N-report.md |
-| 2. diff 面止于九函数枚举 | 全部 | 阶段 7 `git diff origin/main..HEAD --stat` hunk 核验 |
+| 2. diff 面止于九函数枚举（**M-6：模块级 hunk 预期在列**——Task 2 logger/presence_min import、Task 3 HOOK_* 常量、Task 5 TRANSITION_CAP 常量产生的 chapter_drafting.py 模块级 hunk 属九函数改动的附属面，核验时按「函数体＋其模块级常量/import 附属」口径） | 全部 | 阶段 7 `git diff origin/main..HEAD --stat` hunk 核验 |
 | 3. just check 全绿（含哨兵零 WARN 残行） | 全部 | 阶段 7 `just check` |
 | 4. 50 章重跑报告落 reports/（前后对照） | Task 8 | reports/2026-11-20-gate-power-vol1-post118.md |
 | 5. 提案裁定表逐项「已执行」＋点火带首填 | Task 8 Step 5 | gate-calibration-proposals.md＋baseline 期望点火带列 |
