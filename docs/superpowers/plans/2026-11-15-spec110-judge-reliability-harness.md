@@ -485,7 +485,11 @@ def slope_regression(xs: Sequence[float], ys: Sequence[float]) -> SlopeResult:
     mx, my = sum(xs) / n, sum(ys) / n
     sxx = sum((x - mx) ** 2 for x in xs)
     slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys, strict=True)) / sxx if sxx else 0.0
-    t = float("inf") if abs(r) >= 1.0 else (r * sqrt((n - 2) / (1 - r * r)) if n > 2 else 0.0)
+    t = (
+        float("inf")
+        if abs(r) >= 1.0
+        else (r * sqrt((n - 2) / (1 - r * r)) if n > _SLOPE_MIN_N else 0.0)
+    )
     return SlopeResult(slope, r, t)
 
 
@@ -515,10 +519,11 @@ def shape_stats(overalls: Sequence[float], confidences: Sequence[str]) -> dict[s
 
 
 def anchor_position_counts(audits_dir: Path) -> Counter:
-    """Count Route-A anchor positions (相当/更差/更好), first header bound by name.
+    """Count Route-A anchor positions (相当/更差/更好), bound by header name.
 
-    Only the FIRST header containing 相对位置 binds; any later header row
-    unbinds (no cross-table leakage, plan-review M1).
+    A header row containing 相对位置 (re)binds the column; rows in tables
+    without that column cannot match at the bound index (column-position
+    mismatch), preventing cross-table leakage (plan-review M1).
     """
     counts: Counter = Counter()
     for path in sorted(audits_dir.glob("chapter-*-resonance.md")):
@@ -748,7 +753,7 @@ def _validity(project_dir: Path, scan: ScanResult, rows: dict[int, ResonanceRow]
     ]
 ```
 
-`build_report` 主体（节序①-⑦；rater 列表 = 个体技能四列（any/hard 二值+hard 计数 dict）+ 族 OR 两行（any/hard，无计数列）；κ 表七列：技能对/n/agreement(any)/κ(any)/κ(hard)/计数版 r/注记；族 rater 对非本族技能 note=「族 OR 合成」、同族成员对 note=「同派发伪影」、其余=warning 或空；③α 行在 any 二值×全 items 行尾追加「（证据锚：动机节 α=0.311/n=25 在本列复现）」注记；⑤形状节 kept=[非 excluded] 行、slope 行 t=∞ 渲染「∞（完美拟合）」；⑥⑦固定文案——文案逐字：
+`build_report` 主体（节序①-⑦；rater 列表 = 个体技能四列（any/hard 二值+hard 计数 dict）+ 族 OR 两行（any/hard，无计数列）；κ 表七列：技能对/n/agreement(any)/κ(any)/κ(hard)/计数版 r/注记；族 rater 参与全配对 note=「族 OR 合成」（含对本族成员的配对）、同族成员对 note=「同派发伪影」、其余=warning 或空；③α 行在 any 二值×全 items 行尾追加「（证据锚：动机节 α=0.311/n=25 在本列复现）」注记；⑤形状节 kept=[非 excluded] 行、slope 行 t=∞ 渲染「∞（完美拟合）」；⑥⑦固定文案——文案逐字：
 
 ```python
 def build_report(project_dir: Path) -> str:
