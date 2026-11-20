@@ -156,10 +156,12 @@ def test_surge_killed_warns_surge_quota_gap(tmp_path: Path) -> None:
 
 
 def test_simile_flooded_warns_pileup_side() -> None:
-    """堆叠 6 喻体句 → per_1000 > 4（堆叠侧；基线裁片为干侧 0.0——侧别钉死）."""
+    """Spec #118 T5 裁定 C+A 改钉：narrative 口径 flooded → 报告行（s=PASS＋per_1000 载荷），WARN 通道无行."""
     res = _g4("chapter-1-simile-flooded.md")
     rows = [c for c in res["checks"] if c["id"] == "G4.cd.simile_band"]
-    assert rows and rows[0]["s"] == "WARN" and rows[0].get("per_1000", 0.0) > 4.0, rows
+    assert rows, res["checks"][:3]
+    assert rows[0]["s"] == "PASS", rows  # 报告行非 WARN 通道
+    assert rows[0].get("per_1000", 0.0) > 4.0 and rows[0].get("r"), rows  # 计量载荷＋注记在
 
 
 def test_ending_repeated_helper_three_ledger_closers() -> None:

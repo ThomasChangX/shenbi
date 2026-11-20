@@ -1334,15 +1334,22 @@ def _check_surge(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> N
 
 
 def _check_simile_band(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
-    """Spec #71 simile density band."""
-    simile_stats = count_similes(ctx.content)
-    if 2.0 <= simile_stats["per_1000"] <= 4.0:
+    """Spec #71 simile density band（spec #118 T5 裁定 C+A 换装）.
+
+    计量面=narrative-only（strip_narrative_body——M7 对照列转正，消除
+    PRE/POST 污染）；带外降报告行（s=PASS＋per_1000 载荷，不进 WARN 通道
+    ——56% WARN 使劝谏通道失聪，裁定 A）。带 [2,4] 重设（裁定 B）推迟至
+    C 换装后用干净数字评估——本 task 不动带常数。
+    """
+    simile_stats = count_similes(strip_narrative_body(ctx.content))
+    per_1000 = simile_stats["per_1000"]
+    if 2.0 <= per_1000 <= 4.0:
         c.append(
             {
                 "id": "G4.cd.simile_band",
                 "file": ctx.fp,
                 "s": GateStatus.PASS,
-                "per_1000": simile_stats["per_1000"],
+                "per_1000": per_1000,
             }
         )
     else:
@@ -1350,12 +1357,12 @@ def _check_simile_band(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]
             {
                 "id": "G4.cd.simile_band",
                 "file": ctx.fp,
-                "s": GateStatus.WARN,
+                "s": GateStatus.PASS,
                 "r": (
-                    f"simile density {simile_stats['per_1000']}/千字 outside "
-                    "[2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)"
+                    f"simile density {per_1000}/千字 outside [2,4] (low = dry, high = pile-up; "
+                    "报告行非 WARN——spec #118 T5 裁定 A；俗套喻体抽检归审计)"
                 ),
-                "per_1000": simile_stats["per_1000"],
+                "per_1000": per_1000,
             }
         )
 

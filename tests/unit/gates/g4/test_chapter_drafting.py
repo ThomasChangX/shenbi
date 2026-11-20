@@ -607,9 +607,10 @@ def test_cd_simile_band_three_states_and_edges(tmp_path: Path) -> None:
         )
         == "PASS"
     )
-    # low (dry): 0 markers -> 0.0 < 2 -> WARN
+    # low (dry): 0 markers -> 0.0 < 2 -> 报告行（spec #118 T5 裁定 A：s=PASS＋注记，
+    # 不进 WARN 通道——56% WARN 失聪面）
     assert (
-        _warn_status(_run([str(_prose_chapter(tmp_path, filler))]), "G4.cd.simile_band") == "WARN"
+        _warn_status(_run([str(_prose_chapter(tmp_path, filler))]), "G4.cd.simile_band") == "PASS"
     )
     # exact lower edge: 500 non-ws + 1 marker -> 2.0 (closed band)
     edge_low = "山像伏兽。" + "他往前走。" * 99
@@ -624,9 +625,9 @@ def test_cd_simile_band_three_states_and_edges(tmp_path: Path) -> None:
         _warn_status(_run([str(_prose_chapter(tmp_path, edge_high))]), "G4.cd.simile_band")
         == "PASS"
     )
-    # high (pile-up): 16 markers / ~121 non-ws -> ~132 > 4 -> WARN
+    # high (pile-up): 16 markers / ~121 non-ws -> ~132 > 4 -> 报告行（同上改钉）
     piled = "山像伏兽，像伏兽中的伏兽。" * 8 + "他走了。" * 3
-    assert _warn_status(_run([str(_prose_chapter(tmp_path, piled))]), "G4.cd.simile_band") == "WARN"
+    assert _warn_status(_run([str(_prose_chapter(tmp_path, piled))]), "G4.cd.simile_band") == "PASS"
 
 
 def test_cd_golden_slot_full_states(tmp_path: Path) -> None:
