@@ -22,6 +22,7 @@
 
 ### T1 · 确定性选章 + playbook schema + G4 门
 - 选章函数（代码侧，零 LLM 判断，同 compute_stats 先例）：弧窗（ch%12）top-1 ∧ `confidence=high` ∧ 非 `human_overridden` ∧ `overall ≥ 全书 running median + 5`（**相对阈值抗通胀**）；卷界卷 top-1。同输入同选章，可重放；
+（**confidence 前置校准——spec #110 T3 接线**：judge-reliability 报告 confidence=high 基率 >50%，或 #115 T3 外部锚 ρ<0.3 回退成立，两闸任一触发 → confidence 从合取判据降为参考列，相对阈值单独承担；#103 plan 前置检查单须含此条）
 - `style/highlight_playbook.md`（**append_dedup** key=playbook_id）：手法卡四要素——出处（章号+引文 ≤200 字 **verbatim**）／三层归因（结构：蓄放曲线与拍位；节奏：章型序列位；语言：句式与词汇层）／复用条件（适用章型 ∧ 情绪带 ∧ 前置条件）／使用计数+最近命中+状态列；**活跃卡上限 12**（有界注入）；
 - G4 结构校验：四要素齐全 + 引文在出处章逐字存在（quote_verbatim 共基复用）。
 

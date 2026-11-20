@@ -206,3 +206,14 @@ def test_spec107_references_110_mcnemar() -> None:
     spec107 = REPO_ROOT / "docs/superpowers/specs/2026-11-15-spec107-reviewer-model-tier.md"
     text = spec107.read_text(encoding="utf-8")
     assert "#110" in text and "McNemar" in text, "#107 T2 须含 #110 McNemar 配对设计引用行"
+
+
+def test_spec103_references_110_confidence_gate() -> None:
+    spec103 = REPO_ROOT / "docs/superpowers/specs/2026-11-15-spec103-highlight-distill.md"
+    assert "#110" in spec103.read_text(encoding="utf-8"), (
+        "#103 T1 须含 #110 confidence 双闸裁定路径引用行"
+    )
+    skill = REPO_ROOT / "skills/shenbi-review-resonance/SKILL.md"
+    assert "锚点集内可比证据行" in skill.read_text(encoding="utf-8"), (
+        "resonance SKILL 须含校准口径行"
+    )
