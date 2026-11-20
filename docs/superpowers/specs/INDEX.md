@@ -15,7 +15,7 @@
 
 | 编号 | 优先级 | spec 文件 | 状态 | 一句话范围 | 依赖 |
 |------|--------|-----------|------|-----------|------|
-| #110 | 🟠 P1 | `2026-11-15-spec110-judge-reliability-harness.md` | Design r2 | 评审信度 harness：判官间一致性/效度/分布形状离线报告（κ≈0、α=0.311、更好=0/32 实证）＋#107/#103 判据营养接线＋#115 T4 双报对齐 | 独立；数据卫生面消费 #109 T4 口径（已落地）；T2/T3 与 #115 T4 对齐 |
+| #110 | 🟠 P1 | `2026-11-15-spec110-judge-reliability-harness.md` | Design r2.1 | 评审信度 harness：判官间一致性/效度/分布形状离线报告（κ≈0、α=0.311、更好=0/32 实证）＋#107/#103 判据营养接线＋#115 T4 双报对齐 | 独立；数据卫生面消费 #109 T4 口径（已落地）；T2/T3 与 #115 T4 对齐 |
 | #119 | 🟡 P2 | `2026-11-21-spec119-post118-calibration-cleanup.md` | Design r1 | post-118 标定收尾：uniqueness 纯章形池过滤（32 FAIL=100% pre-rev 污染，纯池 0/50 实证）＋review 预算单源派生＋SKILL 措辞清偿；**FINDING①（4 章纯代词）裁定零动作＝臂即修复** | #118 已完结（PR #370）；专家团四席推荐立项（2026-11-21 用户裁定） |
 | #117 | 🟠 P1 | `2026-11-15-spec117-audit-evidence-verifiability.md` | Design r1 | 审计证据可验证性：发现级 parser＋G4.av.evidence_* 逐字/行号/规则名对账＋消费三态（28.2% 引述无逐字来源实证） | #105 已核销；justfile #92→#116→#117 |
 | #107 | 🟡 P2 | `2026-11-15-spec107-reviewer-model-tier.md` | Design r1 | 评评分档：executor_config per-skill model 键单源接线＋量表 A/B 预注册（默认行为零变化差分钉死；第二模型随用户令） | #92 已完结（dispatch_helper 同文件无冲突）；A/B 随令 |
