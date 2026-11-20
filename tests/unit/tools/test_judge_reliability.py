@@ -200,3 +200,9 @@ def test_main_missing_trend_exits_two(tmp_path, capsys) -> None:
     (empty / "truth").mkdir(parents=True)
     assert main([str(empty)]) == 2
     assert "resonance_trend" in capsys.readouterr().err
+
+
+def test_spec107_references_110_mcnemar() -> None:
+    spec107 = REPO_ROOT / "docs/superpowers/specs/2026-11-15-spec107-reviewer-model-tier.md"
+    text = spec107.read_text(encoding="utf-8")
+    assert "#110" in text and "McNemar" in text, "#107 T2 须含 #110 McNemar 配对设计引用行"
