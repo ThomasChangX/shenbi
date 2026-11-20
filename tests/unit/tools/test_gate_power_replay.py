@@ -266,8 +266,11 @@ class TestHookMirrorGateEquivalence:
         multi_alts = set(HOOK_MULTI_TENSION_RE.pattern.strip("()").split("|"))
         mirror_all = set(gpr.HOOK_TENSION_RE.pattern.strip("()").split("|"))
         single = set(HOOK_SINGLE_TENSION)
-        # 多字臂词表 = 退役 20 词表 − 单字集（无损拆分：无丢失、无重叠）
+        # 多字臂词表 = 退役 20 词表 − 单字集（无损拆分：无丢失、无重叠）；
+        # 重审收紧：镜像 20 词表自身 = 多字 ∪ 单字（单字成员丢失也红——
+        # 否则 mirror single 词损可 desync single_only/none 两态）
         assert multi_alts == mirror_all - single
+        assert mirror_all == multi_alts | single
         assert not multi_alts & single
         # 镜像单字集与门单字集逐字一致
         assert single == set(gpr.SINGLE_CHAR_TENSION)
