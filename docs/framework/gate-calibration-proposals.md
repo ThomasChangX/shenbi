@@ -19,12 +19,12 @@
 |---|---|---|
 | voice_density | **B 两级拆分**（在场 ≥1 hard＋密度下限 WARN） | ✅ **已执行**（spec #118 T1，PR 本批）：36/13/1 与离线重算逐位吻合 |
 | hook | **A 多字/结构臂**（单字命中降 WARN 报告行） | ✅ **已执行**（spec #118 T2）：15 单字章转 WARN 与归因数一致 |
-| protagonist | **A roster 去重＋B 名字单独下限**；C 推迟至 A+B 后重跑 gate-power 再定 | ✅ **已执行**（spec #118 T3）：46/0/4——**4 章纯代词真阳性 FINDING 待回裁**（C 重标定随之推迟） |
+| protagonist | **A roster 去重＋B 名字单独下限**；C 推迟至 A+B 后重跑 gate-power 再定 | ✅ **已执行**（spec #118 T3）：46/0/4——4 章纯代词真阳性 **FINDING 已回裁（2026-11-21：零动作＝臂即修复，四章留红归档 finding；C 推迟跨书）** |
 | transition | **B 重标定 per-1000 密度口径**（封顶贴近观测分布） | ✅ **已执行**（spec #118 T4）：封顶 1.0/千字（max 0.809 定标），重放零新 FAIL |
 | scene_concreteness / surge / fatigue / meta | **floor-untested 直接回填**（红测链接已就位） | ✅ 已回填 baseline（无行为改动） |
 | simile | **C narrative-only 计量换装＋A WARN 路由报告行**；B 带重标定推迟至 C 后用干净数字评估 | ✅ **已执行**（spec #118 T5）：WARN 28→0（**audit 实证归零 100% 来自路由 A，C 为计量空转**——B 可径用现有数据评估） |
 | ending archetype | **A 扩分类器**（限工作量：采样 47 None 收尾归纳；扩后 None 仍高转 retire 提案） | ✅ **已执行**（spec #118 T6）：+4 形态，None 47/50→19/50=38%＜停手线；哨兵首开火 1 WARN（三连落笔收束真阳性） |
-| content_uniqueness（裁定二） | **P1 修**：git 考古断链时点＋门对齐 `rd/chapters/` 现实布局＋目录缺席/基数不足显式 SKIP 行＋修后重跑 gate-power 取首份真实点火数据 | ✅ **已执行**（spec #118 T7）：考古定案「从未活过」；**首份真实点火 18/32 FAIL——池口径 FINDING 待回裁（不放宽）** |
+| content_uniqueness（裁定二） | **P1 修**：git 考古断链时点＋门对齐 `rd/chapters/` 现实布局＋目录缺席/基数不足显式 SKIP 行＋修后重跑 gate-power 取首份真实点火数据 | ✅ **已执行**（spec #118 T7）：考古定案「从未活过」；首份真实点火 18/32 FAIL——**池口径 FINDING 已回裁（2026-11-21：批准纯形池过滤→spec #119）** |
 | 变异 fixture 脱敏（裁定三） | **接受不脱敏维持现状**（对齐既有 vol1 衍生先例，零不可逆风险；正式投稿前 revisit——README 政策节为登记位） | ✅ 无动作（README 已记） |
 
 分类回填已同步 `docs/framework/gate-power-baseline.md`（29/32 行；3 残行
