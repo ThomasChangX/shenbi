@@ -945,6 +945,14 @@ def _check_post_block(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str])
             )
 
 
+#: 转折词 per-1000 密度封顶（spec #118 T4 裁定 B；绝对阈 max(5, wc//1000) 退役）。
+#: vol1 定标（B5——跨书重跑复核）：50 纯章形 gate-caliber 实测（word_count_md
+#: 叙事体 CJK 分母＋strip_narrative_body 计数面，2026-11-20 replay-baseline 同源）
+#: median=0.000/P95≈0.36/max=0.809 → 取 1.0＝max·1.24 裕度（P95 作封顶与
+#: 「零新 FAIL」构造性互斥——spec r2.2 裁定记录）；flooded 负例密度 ≫1 仍 FAIL。
+TRANSITION_CAP_PER_1000 = 1.0
+
+
 def _check_transitions(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """Transition density + spec #83 T1 POST 交叉/字数精度."""
     # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
@@ -970,9 +978,10 @@ def _check_transitions(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]
         c.append(
             {"id": "cd.post_wordcount_precision", "file": ctx.fp, "s": GateStatus.WARN, "r": _wcp}
         )
-    max_t = max(5, ctx.wc // 1000)
-    if tc > max_t:
-        mf.append(f"G4.transition:{ctx.fp}:{tc}>{max_t}")
+    # spec #118 T4 裁定 B: per-1000 密度封顶（绝对阈 max(5, wc//1000) 退役）。
+    _density = tc / max(ctx.wc, 1) * 1000
+    if _density > TRANSITION_CAP_PER_1000:
+        mf.append(f"G4.transition:{ctx.fp}:{tc}次→{_density:.2f}/千字>{TRANSITION_CAP_PER_1000}")
     else:
         c.append(
             {
