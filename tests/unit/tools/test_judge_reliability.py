@@ -89,8 +89,11 @@ def test_pearson_and_slope_with_guards() -> None:
 
     r = pearson([1, 2, 3, 4], [2, 4, 6, 8])
     assert r is not None and abs(r - 1.0) < 1e-9
-    sr = slope_regression([1.0, 2.0, 3.0, 4.0], [78.0, 78.7, 79.4, 80.1])
-    assert abs(sr.slope - 0.7) < 1e-9 and sr.t == float("inf")  # r=±1→∞（M2）
+    # 数据用二进制精确可表示的 0.5 步仿射序列：全部中间量（离积/平方和/√积）精确，
+    # r 在任何 IEEE754 平台恒等于 1.0 → t=inf 判定跨 Python 版本确定
+    # （原 0.7 步数据在 3.11 上 r=0.9999…，abs(r)>=1.0 不触发——CI 3.11 双平台实证）
+    sr = slope_regression([1.0, 2.0, 3.0, 4.0], [78.0, 78.5, 79.0, 79.5])
+    assert sr.slope == 0.5 and sr.r == 1.0 and sr.t == float("inf")  # r=±1→∞（M2）
     assert slope_regression([1.0], [78.0]) == SlopeResult(0.0, 0.0, 0.0)  # n<2 自守
 
 
