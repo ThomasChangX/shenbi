@@ -12,10 +12,10 @@
 
 - **复用钉死**：卫生判定=复用 `check_audit_starve_verdict`（`src/shenbi/pipeline/llm_output_integrity.py:405`——#109 T4 单源分类器，全判定行值段匹配+散文提及豁免；词族常量由该函数内部消费自 `audit_starve_family` 单源，禁自写词表/自写扫描循环）；issue 计数=复用 `extract_finding_units`（`src/shenbi/pipeline/audit_aggregate.py:114`）；trend 解析=复用 `parse_resonance_trend`（`tools/report_longitudinal.py:68`——tools 互引走仓内既有 sys.path+E402 noqa 先例，无 lint 拦截）
 - **评级双口径**（spec r2.2）：any-severity 二值（任一 severity 的 finding 存在——**证据复现口径**：动机节 α=0.311/n=25 仅在此口径精确复现，plan 审查 C3 实证）＋ hard 二值（severity ∈ {BLOCKING, CRITICAL}——`src/shenbi/contracts/enums.py:9` Severity 词表）＋ hard 计数，三列并报
-- **κ 口径**：成对完整例+逐对披露 n；同派发族对（group-character 成员互对/group-craft 成员互对）附「同派发伪影——不作判官间一致性解读」注记；**族级聚合=OR**——group-character/group-craft 各产出合成 rater（章节=成员并集、评级=成员 OR），参与两两 κ（对非本族技能），报告标注「族 OR 合成」；prevalence 退化（边缘分布极端）κ 列输出「—」+警示
+- **κ 口径**：成对完整例+逐对披露 n；同派发族对（group-character 成员互对/group-craft 成员互对）附「同派发伪影——不作判官间一致性解读」注记；**族级聚合=OR**——group-character/group-craft 各产出合成 rater（章节=成员并集、评级=成员 OR），参与两两 κ 全配对（对本族成员的配对注记「族 OR 合成」而非伪影注记）；prevalence 退化（边缘分布极端）κ 列输出「—」+警示
 - **α 口径**：item 集两版（always-on 全 items——group-character 成员不入 items ／ 再剔 craft 三员 texture/reader-pull/anti-ai）× 评级三版（any 二值/hard 二值/hard 计数）= 六数并报；subjects = listwise 完整章；**证据锚=「always-on 全 × any 二值」列（α≈0.31、n=25）**
 - **效度相关口径**（spec r2.2）：join = 既有 scored trend 行 ∧ 该章 ≥1 份 valid 非 resonance 审计；「其余 issue 总量」= 该章全部非 resonance valid 审计的 **any-severity finding 总数**（证据字面「issue 总量」）；负对照 r(overall, 章长)；**验收=方向性判据 |r|<0.3（正交主张）+ n 披露**——原值 +0.068/n=28 判定不可逐字复现（原统计脚本不在盘，阶段 0 登记），报告披露此口径差
-- **分布形状**：模值频率表、sd、极差、相当/更差/更好计数（Route A 八列表按列名「相对位置」绑定、仅首表头）、通胀 slope（章号回归）、confidence 基率；`human_overridden`（excluded）行不入形状统计并披露行数（drift_gate 先例 `tools/report_longitudinal.py:301`）
+- **分布形状**：模值频率表、sd、极差、相当/更差/更好计数（Route A 八列表按列名「相对位置」绑定、首表头绑定+后续表头重绑防跨表泄漏）、通胀 slope（章号回归）、confidence 基率；`human_overridden`（excluded）行不入形状统计并披露行数（drift_gate 先例 `tools/report_longitudinal.py:301`）
 - **冷启动披露**：实评行 <8 时分布形状节输出「样本不足」披露行，不输出误导值
 - **报告双报义务**（#115 T4 对齐）：报告须同时含「分布形状」与「外部锚定效度引用」两节——后者未就绪时输出披露行「#115 T3 外部锚定未执行」，κ/α 不得单独作为判官可用性结论
 - **报告是仪表不是 gate**：命名与文档明确「观测面，不进生产读面」；生产代码禁读 `reports/`
@@ -314,7 +314,7 @@ git commit -m "feat: spec #110 T1——judge_reliability 扫描层（#109 T4 卫
   - `@dataclass(frozen=True) class SlopeResult: slope: float; r: float; t: float`——n<2 → 全 0；|r|≥1 → t=`float("inf")`（报告渲染「∞ 完美拟合」——M2）
   - `slope_regression(xs, ys) -> SlopeResult`（t = r·√((n−2)/(1−r²))）
   - `shape_stats(overalls, confidences) -> dict`（n<`_COLD_START_MIN`(8) 附 `insufficient`；含 mode/mode_table/sd 样本/range/high_rate）
-  - `anchor_position_counts(audits_dir: Path) -> Counter`——仅绑定首个含「相对位置」的表头（M1）
+  - `anchor_position_counts(audits_dir: Path) -> Counter`——首表头绑定+后续表头重绑（防跨表泄漏——M1）
 
 **复杂度: leaf · test_kind: tdd_red_green**
 
@@ -399,6 +399,9 @@ Expected: FAIL with `ImportError: cannot import name 'cohen_kappa'`
 from collections import Counter  # noqa: E402
 from math import sqrt  # noqa: E402
 
+_MIN_ITEMS = 2  # PLR2004：最小 item/样本数守卫（命名常量）
+_MIN_PAIR = 2
+_SLOPE_MIN_N = 3
 _COLD_START_MIN = 8
 _PREVALENCE_EPS = 0.999
 _ANCHOR_POSITIONS = ("相当", "更差", "更好")
@@ -435,7 +438,7 @@ def cronbach_alpha(items: Sequence[Sequence[float]]) -> float | None:
     """Cronbach alpha — items are rows (k), subjects are columns (n)."""
     k = len(items)
     n = len(items[0]) if k else 0
-    if k < 2 or n < 2 or any(len(row) != n for row in items):
+    if k < _MIN_ITEMS or n < _MIN_ITEMS or any(len(row) != n for row in items):
         return None
     sigma_i = 0.0
     for row in items:
@@ -450,9 +453,9 @@ def cronbach_alpha(items: Sequence[Sequence[float]]) -> float | None:
 
 
 def pearson(xs: Sequence[float], ys: Sequence[float]) -> float | None:
-    """Pearson r; None when constant input or n < 2."""
+    """Pearson r; None when constant input or n below the pair floor."""
     n = len(xs)
-    if n < 2 or n != len(ys):
+    if n < _MIN_PAIR or n != len(ys):
         return None
     mx, my = sum(xs) / n, sum(ys) / n
     sxy = sum((x - mx) * (y - my) for x, y in zip(xs, ys, strict=True))
@@ -475,7 +478,7 @@ class SlopeResult:
 def slope_regression(xs: Sequence[float], ys: Sequence[float]) -> SlopeResult:
     """OLS of ys on xs; guards n<2 (zeros) and |r|>=1 (t=inf)."""
     n = len(xs)
-    if n < 2 or n != len(ys):
+    if n < _MIN_PAIR or n != len(ys):
         return SlopeResult(0.0, 0.0, 0.0)
     r = pearson(xs, ys)
     r = 0.0 if r is None else r
@@ -582,7 +585,7 @@ MINI_TREND = (
 
 
 def _mini_project(tmp_path: Path) -> Path:
-    (tmp_path / "truth").mkdir()
+    (tmp_path / "truth").mkdir(parents=True, exist_ok=True)  # 幂等（确定性测试二次调用）
     (tmp_path / "truth" / "resonance_trend.md").write_text(
         "---\ntype: truth\n---\n\n# 共鸣趋势\n\n" + MINI_TREND, encoding="utf-8"
     )
@@ -605,7 +608,7 @@ def _mini_project(tmp_path: Path) -> Path:
             audits, f"chapter-{ch}-world-rules.md", "**判定**：通过\n"
         )  # 全零对→prevalence 退化行
         _write(audits, f"chapter-{ch}-pacing.md", "**判定**：通过\n")
-    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters").mkdir(parents=True, exist_ok=True)
     for ch in range(1, 9):
         (tmp_path / "chapters" / f"chapter-{ch}.md").write_text(
             "字" * (1000 * ch), encoding="utf-8"
@@ -624,14 +627,13 @@ def test_build_report_sections_and_determinism(tmp_path) -> None:
         "外部锚定未执行",
         "观测面",
         "prevalence",
-        "族 OR 合成",
     ):
         assert needle in report, f"报告缺节：{needle}"
-    assert build_report(_mini_project(tmp_path)) == report  # 同输入同输出
+    assert build_report(_mini_project(tmp_path)) == report  # 同输入同输出（_mini_project 幂等）
 
 
 def test_group_pair_not_degrouped_emits_artifact_warning(tmp_path) -> None:
-    """④(c) 红测：同族对（pov×dialogue）必须带伪影注记（表行按字母序）。"""
+    """④(c) 红测：同族对（pov×dialogue）带伪影注记+族 OR 合成 rater 行（I2）。"""
     from tools.judge_reliability import build_report
 
     proj = _mini_project(tmp_path)
@@ -640,6 +642,7 @@ def test_group_pair_not_degrouped_emits_artifact_warning(tmp_path) -> None:
         _write(proj / "audits", f"chapter-{ch}-dialogue.md", "**判定**：通过\n")
     report = build_report(proj)
     assert "dialogue × pov" in report and "同派发伪影" in report
+    assert "group-character(OR)" in report and "族 OR 合成" in report
 
 
 def test_main_missing_trend_exits_two(tmp_path, capsys) -> None:
@@ -705,7 +708,7 @@ def _alpha_versions(scan: ScanResult) -> list[tuple[str, str, int, float | None]
     ]
     out: list[tuple[str, str, int, float | None]] = []
     for set_name, items in item_sets:
-        if len(items) < 2:
+        if len(items) < _MIN_ITEMS:
             out.extend((set_name, ver, 0, None) for ver, _ in getters)
             continue
         chapters = sorted(set.intersection(*({c for c, sk in by if sk == s} for s in items)))
@@ -838,7 +841,7 @@ def build_report(project_dir: Path) -> str:
             f"- sd（样本）：{st['sd']}；极差：{st['range'][0]:g}-{st['range'][1]:g}",  # type: ignore[index]
             f"- confidence=high 基率：{st['high_rate']:.3f}",  # type: ignore[index]
         ]
-        if len(overs) >= 3:
+        if len(overs) >= _SLOPE_MIN_N:
             chs = [float(c) for c, _ in kept_rows]
             sr = slope_regression(chs, overs)
             t_txt = "∞（完美拟合）" if sr.t == float("inf") else f"{sr.t:+.2f}"
@@ -903,7 +906,7 @@ Expected: 全 PASS（含既有套件零回归）
 - [ ] **Step 5: vol1 基线回放（本地验收，不入 CI）**
 
 Run: `just judge-reliability novel-xinghuo-vol1`
-Expected: 报告落 `novel-xinghuo-vol1/reports/`；**证据锚核对**：α（always-on 全 × any 二值）∈[0.26,0.36] 且 n=25；更好=0 精确；模值 79×12 精确；high 24/32；invalid 剔除计数≈51（plan 审查 sim 实测参考值）；hard 口径数字（α≈0.71/0.58、效度 r≈-0.05/n=32）如实入报告作重派生基线——输出与核对结论粘 progress.md `## 验收证据`（证据锚带外→停查口径，不静默放过）
+Expected: 报告落 `novel-xinghuo-vol1/reports/`；**证据锚核对**：α（always-on 全 × any 二值）∈[0.26,0.36] 且 n=25；更好=0 精确；模值 79×12 精确；high 24/32；invalid 剔除计数≈51（plan 审查 sim 实测参考值）；any 口径效度 r 满足 |r|<0.3（方向性判据）；hard 口径数字（α≈0.71/0.58、效度 r≈-0.05/n=32）如实入报告作重派生基线——输出与核对结论粘 progress.md `## 验收证据`（证据锚带外→停查口径，不静默放过）
 
 - [ ] **Step 6: Commit**
 
