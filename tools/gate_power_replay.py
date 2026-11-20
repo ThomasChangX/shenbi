@@ -91,6 +91,7 @@ STATE_FREE_IDS = frozenset(
 ARM_TO_CANONICAL: dict[str, str] = {
     "G4.cd.no_hook": "G4.cd.chapter_end_hook",
     "G4.cd.protagonist_absent": "G4.cd.protagonist_presence",
+    "G4.cd.protagonist_name_absent": "G4.cd.protagonist_presence",  # spec #118 T3 名字下限臂
     "G4.cd.no_visual_scene": "G4.cd.scene_concreteness",
     "G4.cd.content_overlap": "G4.cd.content_uniqueness",
     "G4.cd.prop_handoff": "cd.prop_handoff",
@@ -105,15 +106,19 @@ ARM_TO_CANONICAL: dict[str, str] = {
     "G4.cd.post_transition_cross": "cd.post_transition_cross",
 }
 
-# 归因再推导（锚：chapter_drafting.py:728-731 预处理序＋:1178-1235 三臂——
+# 归因再推导（锚：chapter_drafting.py:728-731 预处理序＋:1220-1261 三臂——
 # narrative_window 与门同序是 C3 修订核心；漂移由一致性测试双向校验兜底）
 HOOK_TENSION_RE = re.compile(
     r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏|账|欠|谜|未完|代价)"
 )
+# spec #118 T2 三态镜像：multi 判定取既有 hits−SINGLE_CHAR_TENSION 的纯函数
+# （audit-T3/I-2：不另立第三份 11 词副本——词表族保持 门 20 词＋门 11 词＋
+# 引擎内联 11 词 三份；镜像↔门词表逐字一致由 TestHookMirrorGateEquivalence
+# 的 pattern 钉执法）。
 SINGLE_CHAR_TENSION = frozenset("但却还仍瞒藏账欠谜")
 _Q_RE = re.compile(r"[？?]")
 _CJK_RE = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf]")
-# 账目钩臂阈（锚 chapter_drafting.py:1222——窗口内 ≥2 个独立数字串才算账目行）
+# 账目钩臂阈（锚 chapter_drafting.py:1232——窗口内 ≥2 个独立数字串才算账目行）
 _LEDGER_MIN_RUNS = 2
 
 
@@ -128,7 +133,7 @@ def narrative_window(content: str) -> list[str]:
 def hook_window_attribution(content: str) -> dict[str, Any]:
     """Re-derive the end-hook window arms (diagnostic only, gate verdict 不变)."""
     paras = narrative_window(content)
-    # NB3：与门同滤（chapter_drafting.py:1179——[-8:] 后再滤标题/引用/清单行）
+    # NB3：与门同滤（chapter_drafting.py:1191——[-8:] 后再滤标题/引用/清单行）
     window = [p for p in paras[-8:] if not p.startswith(("#", "##", ">", "---", "- [ ]"))]
     text = "".join(window)
     hits = set(HOOK_TENSION_RE.findall(text))
@@ -144,6 +149,13 @@ def hook_window_attribution(content: str) -> dict[str, Any]:
         and (not has_ledger)
         and bool(hits & SINGLE_CHAR_TENSION)
         and not (hits - SINGLE_CHAR_TENSION),
+        # spec #118 T2: 门三态同名映射（hard=多字∨？∨账目行；single_only=仅单字；
+        # none=全灭——FAIL 态由门红测承担，镜像只作归因面）
+        "gate_class": (
+            "hard"
+            if (has_q or has_ledger or (hits - SINGLE_CHAR_TENSION))
+            else ("single_only" if (hits & SINGLE_CHAR_TENSION) else "none")
+        ),
     }
 
 
@@ -268,12 +280,14 @@ def render_report(
     # 触发归因（诊断再推导——门判定本身不变）
     lines += ["", "## 触发归因（诊断再推导，不改门判定）", ""]
     single_only_n = 0
+    gate_class_n = {"hard": 0, "single_only": 0, "none": 0}
     hai_n = 0
     zhang_n = 0
     for c in contents:
         attr = hook_window_attribution(c)
         if attr["single_char_only"]:
             single_only_n += 1
+        gate_class_n[attr.get("gate_class", "none")] += 1
         if "还" in attr["singles"]:
             hai_n += 1
         if "账" in attr["singles"]:
@@ -284,6 +298,8 @@ def render_report(
         f"- single_char_only 章数: {single_only_n}（仅单字张力词命中——最弱臂）",
         f"- 「还」命中章数: {hai_n}",
         f"- 「账」命中章数: {zhang_n}",
+        # audit-T3/M-3：gate_class 三向计数（报告消费面）
+        f"- gate_class 三向: {gate_class_n}（spec #118 T2）",
         "",
     ]
     names = _protagonist_names(project_dir)

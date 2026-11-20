@@ -156,10 +156,12 @@ def test_surge_killed_warns_surge_quota_gap(tmp_path: Path) -> None:
 
 
 def test_simile_flooded_warns_pileup_side() -> None:
-    """堆叠 6 喻体句 → per_1000 > 4（堆叠侧；基线裁片为干侧 0.0——侧别钉死）."""
+    """Spec #118 T5 裁定 C+A 改钉：narrative 口径 flooded → 报告行（s=PASS＋per_1000 载荷），WARN 通道无行."""
     res = _g4("chapter-1-simile-flooded.md")
     rows = [c for c in res["checks"] if c["id"] == "G4.cd.simile_band"]
-    assert rows and rows[0]["s"] == "WARN" and rows[0].get("per_1000", 0.0) > 4.0, rows
+    assert rows and len(rows) == 1, rows  # spec 判据字面：WARN 通道无行（单行且非 WARN）
+    assert rows[0]["s"] == "PASS", rows  # 报告行非 WARN 通道
+    assert rows[0].get("per_1000", 0.0) > 4.0 and rows[0].get("r"), rows  # 计量载荷＋注记在
 
 
 def test_ending_repeated_helper_three_ledger_closers() -> None:
@@ -221,6 +223,159 @@ def test_hook_type_rotation_full_pipeline_fails_on_same_type() -> None:
 
 def test_content_duplicated_fails_content_overlap_gate() -> None:
     """从比对章（chapter-3.md 同目录）复制 13 段 append 章尾 → 指纹占比 >40%（I3 三条件齐）."""
-    res = _g4("project-output/chapters/chapter-1-duplicated.md")
+    res = _g4("chapters/chapter-1-duplicated.md")
     mf = res.get("must_fix", [])
     assert any(m.startswith("G4.cd.content_overlap:") for m in mf), mf[:3]
+
+
+def test_payoff_stripped_warns_payoff_density() -> None:
+    """Spec #118 T8：chapter-9 plan 的 **payoff 拍** 轴登记被删 → payoff_density WARN 行.
+
+    负例=WARN-only（该门无 mf 臂）；变异产物=plans/chapter-9-plan.md
+    （引擎 payoff_axis_stripped）＋配对章 chapter-9-payoff-stripped.md（verbatim
+    --full）。窗口 k∈{7,8,9}：7/8 plan fixture 缺席＋9 轴被删 → 无轴 WARN 必发。
+    """
+    res = _g4("chapter-9-payoff-stripped.md")
+    rows = [c for c in res["checks"] if c["id"] == "G4.cd.payoff_density"]
+    assert rows and rows[0]["s"] == "WARN" and "无轴登记" in rows[0]["r"], rows
+
+
+def test_voice_density_two_level_three_states(tmp_path: Path) -> None:
+    """Spec #118 T1 裁定 B 三态：0 FAIL / 1 类在场过＋密度 WARN / ≥2 纯 PASS.
+
+    构造性输入（G0.9 允许面——结构级样本基于真实 fixture）：复用重生成后的
+    voice-stripped fixture（signals=0）＋真实卡/plan 前置物，逐态注入。
+    """
+    import shutil
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    for label, inject, want_fail, want_warn in (
+        ("absent", "", True, False),  # signals=0 → FAIL（=旧测同 fixture 面）
+        ("presence-only", "他心想：这笔我先记下。", False, True),  # 真实卡口癖原串逐字在场 → 1 类
+        (
+            "dense",
+            "他心想：这笔我先记下。入账的时辰到了。",
+            False,
+            False,
+        ),  # 口癖＋账房动词「入账」→ 2 类
+    ):
+        d = tmp_path / label
+        d.mkdir()
+        for sub in ("characters", "plans"):
+            shutil.copytree(FIX_DIR / sub, d / sub, dirs_exist_ok=True)
+        base = (FIX_DIR / "chapter-1-voice-stripped.md").read_text(encoding="utf-8")
+        (d / "chapter-1.md").write_text(base.rstrip("\n") + f"\n\n{inject}\n", encoding="utf-8")
+        res = json.loads(
+            g4_chapter_drafting([str(d / "chapter-1.md")], str(d), str(d), repo_root=None)
+        )
+        mf = res.get("must_fix", [])
+        warn_rows = [
+            c for c in res["checks"] if c["id"] == "G4.cd.voice_density" and c["s"] == "WARN"
+        ]
+        assert any(m.startswith("G4.cd.voice_density:") for m in mf) == want_fail, (label, mf[:3])
+        assert bool(warn_rows) == want_warn, (label, warn_rows)
+
+
+def test_voice_old_key_maps_to_density_arm(tmp_path: Path) -> None:
+    """Spec #118 T1(a) 映射钉：genre-config 旧键 min_per_chapter=2 时 signals=1 的章不 FAIL（密度 WARN 在）.
+
+    旧键若映射进 hard 臂，两级化裁定在携带旧覆盖的项目（vol1 实况）上静默
+    不生效——本钉把「旧键→密度臂」语义锁进断言（风险 M-6 测试断言义务）。
+    """
+    import json as _json
+    import shutil
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    d = tmp_path / "proj"
+    d.mkdir()
+    for sub in ("characters", "plans"):
+        shutil.copytree(FIX_DIR / sub, d / sub, dirs_exist_ok=True)
+    (d / "genre-config.json").write_text(
+        json.dumps({"market_params": {"voice_density_min": {"min_per_chapter": 2}}}),
+        encoding="utf-8",
+    )
+    base = (FIX_DIR / "chapter-1-voice-stripped.md").read_text(encoding="utf-8")
+    (d / "chapter-1.md").write_text(
+        base.rstrip("\n") + "\n\n他心想：这笔我先记下。\n", encoding="utf-8"
+    )
+    res = _json.loads(
+        g4_chapter_drafting([str(d / "chapter-1.md")], str(d), str(d), repo_root=None)
+    )
+    mf = res.get("must_fix", [])
+    assert not any(m.startswith("G4.cd.voice_density:") for m in mf), mf[:3]
+    warn_rows = [c for c in res["checks"] if c["id"] == "G4.cd.voice_density" and c["s"] == "WARN"]
+    assert warn_rows and "1<2" in warn_rows[0]["r"], warn_rows
+
+
+def test_hook_single_char_only_warns_not_fails() -> None:
+    """Spec #118 T2 裁定 A：单字-only 命中→WARN 行非 FAIL（三态中间档）.
+
+    fixture=引擎 hook_single_only 变异（多字→『还』、？→。、数字串→数）——
+    多字/？/账目行臂全灭、单字臂保留。
+    """
+    res = _g4("chapter-1-hook-single-only.md")
+    rows = [c for c in res["checks"] if c["id"] == "G4.cd.chapter_end_hook"]
+    mf = res.get("must_fix", [])
+    assert rows and rows[0]["s"] == "WARN" and "单字" in rows[0]["r"], rows
+    assert not any(m.startswith("G4.cd.no_hook:") for m in mf), mf[:3]
+
+
+def test_protagonist_roster_no_duplicate_append(tmp_path: Path) -> None:
+    """Spec #118 T3 裁定 A：frontmatter＋YAML 双源同名只入表一次（:495/:508 双 append 修复）."""
+    from shenbi.gates.g4.chapter_drafting import _load_protagonist_names
+
+    d = tmp_path / "proj"
+    (d / "characters").mkdir(parents=True)
+    (d / "characters" / "protagonist.md").write_text(
+        "---\nname: 那罕\n---\n\n声口：账房腔。\n", encoding="utf-8"
+    )
+    names = _load_protagonist_names(str(d))
+    assert names.count("那罕") == 1, names  # 双 append 实弹形 ['那罕','那罕','他']
+
+
+def test_protagonist_name_absent_fails_presence_gate() -> None:
+    """Spec #118 T3 裁定 B：名字 0/代词 ≥3 → G4.cd.protagonist_name_absent."""
+    from shenbi.gates.g4.chapter_drafting import _check_protagonist_presence
+
+    issues = _check_protagonist_presence("他数着账。他合上册。他睡了。", ["那罕", "他"])
+    assert any(i.startswith("G4.cd.protagonist_name_absent") for i in issues), issues
+
+
+def test_ending_four_new_forms_classified() -> None:
+    """Spec #118 T6：四新 archetype 各 ≥1 真实章样本归类（fixture=verbatim 真章拷贝）."""
+    from shenbi.gates.g4.chapter_drafting import ending_archetype_of
+
+    for name, form in (
+        ("chapter-10-ending-question.md", "未答问句"),
+        ("chapter-1-ending-evasion.md", "未答回避"),
+        ("chapter-3-ending-writing.md", "落笔收束"),
+        ("chapter-5-ending-scene.md", "景物余韵"),
+    ):
+        res = ending_archetype_of((FIX_DIR / name).read_text(encoding="utf-8"))
+        assert res == form, (name, res)
+
+
+def test_content_uniqueness_skip_rows_explicit(tmp_path: Path) -> None:
+    """Spec #118 T7：目录缺席/基数≤1 → 显式 SKIP 行（含原因）非静默（r2/M-1 复用 SKIP 先例）."""
+    import json as _json
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    # 分支①（章不落 chapters/ 下——目录缺席臂）
+    d = tmp_path / "proj"
+    d.mkdir()
+    ch = d / "chapter-1.md"
+    ch.write_text("---\n---\n\n正文数段。\n", encoding="utf-8")
+    res = _json.loads(g4_chapter_drafting([str(ch)], str(d), str(d), repo_root=None))
+    rows = [c for c in res["checks"] if c["id"] == "G4.cd.content_uniqueness"]
+    assert rows and rows[0]["s"] == "SKIP" and "比对目录缺席" in rows[0]["r"], rows
+    # 分支②：目录在但基数 ≤1——r 含「基数」
+    d2 = tmp_path / "proj2"
+    (d2 / "chapters").mkdir(parents=True)
+    ch2 = d2 / "chapters" / "chapter-1.md"
+    ch2.write_text("---\n---\n\n正文数段。\n", encoding="utf-8")
+    res2 = _json.loads(g4_chapter_drafting([str(ch2)], str(d2), str(d2), repo_root=None))
+    rows2 = [c for c in res2["checks"] if c["id"] == "G4.cd.content_uniqueness"]
+    assert rows2 and rows2[0]["s"] == "SKIP" and "基数" in rows2[0]["r"], rows2

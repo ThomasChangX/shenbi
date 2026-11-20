@@ -11,6 +11,7 @@ from pathlib import Path
 from shenbi.text.voice_lexicon import (
     ACCOUNTING_VERBS,
     DEFAULT_VOICE_DENSITY_MIN,
+    DEFAULT_VOICE_PRESENCE_MIN,
     catchphrases_from_card,
     distinct_voice_signals,
 )
@@ -44,6 +45,10 @@ from shenbi.logging import get_logger
 from shenbi.text.cjk import dialogue_char_ratio
 
 log = get_logger(__name__)
+
+#: spec #118 T1 旧键 deprecate 警告的每 config 路径去重（audit-T2/M-2——
+#: 50 章回放曾 50 行重复；读侧 memo 无输出副作用，门行幂等不变）。
+_VDM_DEPRECATE_SEEN: set[str | None] = set()
 
 
 _HOOK_LEDGER_HEADING = re.compile(
@@ -473,11 +478,20 @@ def _check_protagonist_presence(
         List of issue strings (empty if check passes).
     """
     total = sum(text.count(name) for name in protagonist_names)
+    # spec #118 T3 裁定 B：名字（非裸代词）单独 ≥1——堵「代词撑满门」面；
+    # POV 声明替代走实现取 ≥1 简单面（spec 声明）。
+    pronouns = {"他", "她", "它"}
+    name_roster = [n for n in protagonist_names if n not in pronouns]
+    issues: list[str] = []
     if total < threshold:
-        return [
+        issues.append(
             f"G4.cd.protagonist_absent: protagonist appears {total} times (threshold: {threshold})"
-        ]
-    return []
+        )
+    if name_roster and not any(text.count(n) for n in name_roster):
+        issues.append(
+            "G4.cd.protagonist_name_absent: 名字（非代词）0 次出现——代词不可撑门（spec #118 T3）"
+        )
+    return issues
 
 
 def _load_protagonist_names(project_dir: str) -> list[str]:
@@ -489,11 +503,10 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
     protag = chars_dir / "protagonist.md"
     if protag.exists():
         text = protag.read_text(encoding="utf-8")
-        # Try frontmatter name first
-        match = re.search(r"^name:\s*(.+)$", text, re.MULTILINE)
-        if match:
-            names.append(match.group(1).strip())
-        # Also try YAML frontmatter (boundary single-sourced, spec #85 T6)
+        # spec #118 T3 裁定 A：frontmatter regex 与 YAML 双解析同名双 append 修复
+        # ——YAML 单源优先（split_frontmatter 边界单源 #85 T6），regex 仅作
+        # YAML 失败时的回退（双源同名只入表一次）。
+        name: str | None = None
         fm_text, _body = split_frontmatter(text)
         if fm_text:
             try:
@@ -505,9 +518,15 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
                 )
                 fm = _yaml.safe_load(fm_core)
                 if isinstance(fm, dict) and "name" in fm:
-                    names.append(str(fm["name"]))
+                    name = str(fm["name"]).strip()
             except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
-                pass  # malformed YAML frontmatter → fall back to regex name match above
+                pass  # malformed YAML frontmatter → fall back to regex name match below
+        if name is None:
+            match = re.search(r"^name:\s*(.+)$", text, re.MULTILINE)
+            if match:
+                name = match.group(1).strip()
+        if name:
+            names.append(name)
     if not names:
         return []
     # Always include common pronoun
@@ -533,6 +552,22 @@ def ending_archetype_of(text: str) -> str | None:
         return "心里复述"
     if re.search(r"这一(笔|夜|章)", tail):
         return "复述起手"
+    # spec #118 T6 扩表（≤4 形态，vol1 47 None 采样归纳 2026-11-20——实跑
+    # 分布 未答回避 10/落笔收束 10/景物余韵 4/未答问句 4；扩后 None
+    # 19/50=38%<50% 停手线（replay-T7 权威数；与离线预估 16 的差异=分支序
+    # ch47/50 双匹配落笔先占＋离线景物窗过宽 ch16）。序 load-bearing：问句
+    # 收尾最具体先判→回避→落笔→景物（ch47/50 同中落笔与景物两形，序换
+    # 则翻面——audit-T7/⚠️-2）；逐形来源章号清单入 task-7-report）：
+    if re.search(r"？\s*$", tail[-40:].rstrip()):
+        return "未答问句"  # 实跑成员 ch4/10/29/36
+    if re.search(r"(没答|没说破|没再问|没敢往下|悬着|没落)", tail[-100:]):
+        return "未答回避"  # 实跑 10 章：ch1/7/14/15/21/22/25/38/39/48
+    if re.search(r"(记下|写下|写完|落笔|搁在|合上|添了|画了|翻开|记完|抄下|抄完)", tail[-60:]):
+        return "落笔收束"  # 实跑 10 章：ch3/8/18/26/27/32/45/46/47/50
+    if re.search(r"(雪落|灯光|光还|灯还|影子|更鼓|天亮|月|雨)", tail[-50:]) and not re.search(
+        r"[：？」]\s*$", tail[-50:]
+    ):
+        return "景物余韵"  # 实跑成员 ch5/19/30/44（audit-T7/M-1 修正；月/雨＋句读/对白收尾排除）
     return None
 
 
@@ -926,6 +961,14 @@ def _check_post_block(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str])
             )
 
 
+#: 转折词 per-1000 密度封顶（spec #118 T4 裁定 B；绝对阈 max(5, wc//1000) 退役）。
+#: vol1 定标（B5——跨书重跑复核）：50 纯章形 gate-caliber 实测（word_count_md
+#: 叙事体 CJK 分母＋strip_narrative_body 计数面，2026-11-20 replay-baseline 同源）
+#: median=0.000/P95≈0.36/max=0.809 → 取 1.0＝max·1.24 裕度（P95 作封顶与
+#: 「零新 FAIL」构造性互斥——spec r2.2 裁定记录）；flooded 负例密度 ≫1 仍 FAIL。
+TRANSITION_CAP_PER_1000 = 1.0
+
+
 def _check_transitions(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """Transition density + spec #83 T1 POST 交叉/字数精度."""
     # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
@@ -951,9 +994,10 @@ def _check_transitions(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]
         c.append(
             {"id": "cd.post_wordcount_precision", "file": ctx.fp, "s": GateStatus.WARN, "r": _wcp}
         )
-    max_t = max(5, ctx.wc // 1000)
-    if tc > max_t:
-        mf.append(f"G4.transition:{ctx.fp}:{tc}>{max_t}")
+    # spec #118 T4 裁定 B: per-1000 密度封顶（绝对阈 max(5, wc//1000) 退役）。
+    _density = tc / max(ctx.wc, 1) * 1000
+    if _density > TRANSITION_CAP_PER_1000:
+        mf.append(f"G4.transition:{ctx.fp}:{tc}次→{_density:.2f}/千字>{TRANSITION_CAP_PER_1000}")
     else:
         c.append(
             {
@@ -1082,35 +1126,60 @@ def _check_scene_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str])
 def _check_content_uniqueness(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """F415-0815 memoized overlap vs other chapters."""
     # G4.cd.content_uniqueness: check this chapter against all other chapters
+    # （rd=None 面：生产 dispatch 恒传 rd——SKIP 义务覆盖目录缺席/基数两态，
+    # rd-None 不发射，audit-T8/M-2 定界注记）
     if ctx.rd:
-        chapters_dir = Path(ctx.rd) / "project-output" / "chapters"
-        if chapters_dir.exists():
-            other_chapters = list(chapters_dir.glob("chapter-*.md"))
-            if len(other_chapters) > 1:
-                this_fingerprint = _text_fingerprint(strip_scene_markers(ctx.content))
-                max_overlap = 0.0
-                for other in other_chapters:
-                    if str(other) == str(ctx.pf):
-                        continue
-                    # F415-0815 (C28 R3b): memoized per (path, mtime_ns,
-                    # size) — was a full re-read + re-hash of every other
-                    # chapter on each per-chapter invocation (O(N^2)).
-                    # Read failure yields an empty fingerprint (overlap 0),
-                    # matching the previous except-branch semantics.
-                    other_fp = _fingerprint_of(other)
-                    overlap = len(this_fingerprint & other_fp) / max(len(this_fingerprint), 1)
-                    max_overlap = max(max_overlap, overlap)
-                if max_overlap > 0.40:
-                    mf.append(f"G4.cd.content_overlap:{ctx.fp}:{max_overlap:.0%}")
-                else:
-                    c.append(
-                        {
-                            "id": "G4.cd.content_uniqueness",
-                            "file": ctx.fp,
-                            "s": GateStatus.PASS,
-                            "max_overlap": f"{max_overlap:.0%}",
-                        }
-                    )
+        # spec #118 T7（裁定二 P1 修）：比对目录对齐真实布局 rd/chapters（原
+        # rd/project-output/chapters 在任何真实布局缺席——phase_runner 的
+        # project-output 亦无 chapters 子目录，git 考古=P-1.E PR-19 出生即
+        # 死路径「从未活过」，50 章回放 0 行发射＝#116 挖出的死门）；目录
+        # 缺席/基数 ≤1 显式 SKIP 行（先例 _check_protagonist SKIP 同构）。
+        chapters_dir = Path(ctx.rd) / "chapters"
+        if not chapters_dir.exists():
+            c.append(
+                {
+                    "id": "G4.cd.content_uniqueness",
+                    "file": ctx.fp,
+                    "s": GateStatus.SKIP,
+                    "r": f"比对目录缺席: {chapters_dir}（spec #118 T7 显式 SKIP）",
+                }
+            )
+            return
+        other_chapters = list(chapters_dir.glob("chapter-*.md"))
+        if len(other_chapters) <= 1:
+            c.append(
+                {
+                    "id": "G4.cd.content_uniqueness",
+                    "file": ctx.fp,
+                    "s": GateStatus.SKIP,
+                    "r": f"比对基数 ≤1（{len(other_chapters)}）——无跨章比对面（spec #118 T7）",
+                }
+            )
+            return
+        this_fingerprint = _text_fingerprint(strip_scene_markers(ctx.content))
+        max_overlap = 0.0
+        for other in other_chapters:
+            if str(other) == str(ctx.pf):
+                continue
+            # F415-0815 (C28 R3b): memoized per (path, mtime_ns,
+            # size) — was a full re-read + re-hash of every other
+            # chapter on each per-chapter invocation (O(N^2)).
+            # Read failure yields an empty fingerprint (overlap 0),
+            # matching the previous except-branch semantics.
+            other_fp = _fingerprint_of(other)
+            overlap = len(this_fingerprint & other_fp) / max(len(this_fingerprint), 1)
+            max_overlap = max(max_overlap, overlap)
+        if max_overlap > 0.40:
+            mf.append(f"G4.cd.content_overlap:{ctx.fp}:{max_overlap:.0%}")
+        else:
+            c.append(
+                {
+                    "id": "G4.cd.content_uniqueness",
+                    "file": ctx.fp,
+                    "s": GateStatus.PASS,
+                    "max_overlap": f"{max_overlap:.0%}",
+                }
+            )
 
 
 def _check_scene_concreteness(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
@@ -1156,6 +1225,13 @@ def _check_scene_concreteness(ctx: CheckContext, c: list[dict[str, Any]], mf: li
                 "visual_windows": visual_windows,
             }
         )
+
+
+#: 章尾钩多字张力词（spec #118 T2 裁定 A：多字∨？∨账目行=hard 臂；单字集
+#: 但却还仍瞒藏账欠谜 与账房腔母题同词表——单字-only 命中降 WARN）。
+#: vol1 定标，跨书重跑复核（B5）。镜像=tools/gate_power_replay.py:110（同形同步义务）。
+HOOK_MULTI_TENSION_RE = re.compile(r"(然而|不过|依然|尚未|未解|不知|等待|没说|没答|未完|代价)")
+HOOK_SINGLE_TENSION = frozenset("但却还仍瞒藏账欠谜")
 
 
 def _check_chapter_end_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
@@ -1206,13 +1282,11 @@ def _check_chapter_end_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list
                         f"（章尾张力拍行须为 [微|章|大]｜『章尾句原文引句』；修复者: planning）"
                     )
         if window_cjk >= 30:
+            # spec #118 T2 裁定 A 三态：多字张力词 ∨ ？ ∨ 账目行=hard（PASS）；
+            # 单字-only 命中降 WARN（单字集 但却还仍瞒藏账欠谜 与账房腔母题
+            # 同词表——门此前测的是母题不是张力）；全灭 FAIL 不变。
             has_q = bool(re.search(r"[？?]", window_text))
-            has_t = bool(
-                re.search(
-                    r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏|账|欠|谜|未完|代价)",
-                    window_text,
-                )
-            )
+            has_multi = bool(HOOK_MULTI_TENSION_RE.search(window_text))
             # 账目钩 (P1-3, 2026-10-23): a cold ledger closer — two
             # separate arabic digit runs in the merged window (伤亡 41
             # 人…82 户…) — is a legal hook form from the seed's 章末钩
@@ -1220,12 +1294,26 @@ def _check_chapter_end_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list
             # Runs, not bare chars: one stray "3" or a lone "4173" is
             # not a ledger line (review calibration #5).
             has_ledger = len(re.findall(r"\d+", window_text)) >= 2
-            if has_q or has_t or has_ledger:
+            has_single = any(ch in HOOK_SINGLE_TENSION for ch in window_text)
+            if has_multi or has_q or has_ledger:
                 c.append(
                     {
                         "id": "G4.cd.chapter_end_hook",
                         "file": ctx.fp,
                         "s": GateStatus.PASS,
+                        "window_cjk": window_cjk,
+                    }
+                )
+            elif has_single:
+                c.append(
+                    {
+                        "id": "G4.cd.chapter_end_hook",
+                        "file": ctx.fp,
+                        "s": GateStatus.WARN,
+                        "r": (
+                            "仅单字张力词命中（多字/？/账目行臂未中）——"
+                            "单字集与账房腔母题同词表，降劝谏面（spec #118 T2）"
+                        ),
                         "window_cjk": window_cjk,
                     }
                 )
@@ -1287,15 +1375,24 @@ def _check_surge(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> N
 
 
 def _check_simile_band(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
-    """Spec #71 simile density band."""
-    simile_stats = count_similes(ctx.content)
-    if 2.0 <= simile_stats["per_1000"] <= 4.0:
+    """Spec #71 simile density band（spec #118 T5 裁定 C+A 换装）.
+
+    计量面 call-site 显式钉死 narrative 口径（strip_narrative_body）——
+    audit-T6/I-1 实证：count_similes 内部经 _non_dialogue_text 已剥
+    （M7 双口径 2.02=2.02 等值），此处为幂等防御性钉口径**非计量变更**：
+    28→0 WARN 归零 100% 来自裁定 A（状态路由）。带外降报告行（s=PASS＋
+    per_1000 载荷，不进 WARN 通道——56% WARN 使劝谏通道失聪）。带 [2,4]
+    重设（裁定 B）推迟——换装前后数字逐位相同，B 可直接用现有重放评估。
+    """
+    simile_stats = count_similes(strip_narrative_body(ctx.content))
+    per_1000 = simile_stats["per_1000"]
+    if 2.0 <= per_1000 <= 4.0:
         c.append(
             {
                 "id": "G4.cd.simile_band",
                 "file": ctx.fp,
                 "s": GateStatus.PASS,
-                "per_1000": simile_stats["per_1000"],
+                "per_1000": per_1000,
             }
         )
     else:
@@ -1303,12 +1400,12 @@ def _check_simile_band(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]
             {
                 "id": "G4.cd.simile_band",
                 "file": ctx.fp,
-                "s": GateStatus.WARN,
+                "s": GateStatus.PASS,
                 "r": (
-                    f"simile density {simile_stats['per_1000']}/千字 outside "
-                    "[2,4] (low = dry, high = pile-up; 俗套喻体抽检归审计)"
+                    f"simile density {per_1000}/千字 outside [2,4] (low = dry, high = pile-up; "
+                    "报告行非 WARN——spec #118 T5 裁定 A；俗套喻体抽检归审计)"
                 ),
-                "per_1000": simile_stats["per_1000"],
+                "per_1000": per_1000,
             }
         )
 
@@ -1389,7 +1486,14 @@ def _check_payoff_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[s
 
 
 def _check_voice_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
-    """Spec #76 v2 声口密度."""
+    """Spec #76 v2 声口密度（spec #118 T1 裁定 B 两级拆分）.
+
+    hard 臂＝在场性（distinct_voice_signals ≥ presence_min，absent＝口癖/
+    账房动词/自嘲反问三类全零才 FAIL——r2/I-4 钉死操作数）；密度臂＝原 ≥2
+    语义降 WARN 报告行（劝谏面不拦章）。旧 config 键 min_per_chapter 只填
+    密度臂（T1(a)：映射进 hard 臂会使裁定在携带旧覆盖的项目——如 vol1=2
+    ——上静默不生效）；在场臂由 presence_min 治理（T1(b)：域 [1,5]，0 非法）。
+    """
     _body = ctx.narrative
     _cps: list[str] = []
     if ctx.project_dir:
@@ -1402,17 +1506,27 @@ def _check_voice_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[st
         .get("market_params", {})
         .get("voice_density_min", {})
     )
-    _vmin = (
-        int(_vdm.get("min_per_chapter", DEFAULT_VOICE_DENSITY_MIN))
+    _presence_min = (
+        int(_vdm.get("presence_min", DEFAULT_VOICE_PRESENCE_MIN))
         if _vdm
-        else DEFAULT_VOICE_DENSITY_MIN
+        else DEFAULT_VOICE_PRESENCE_MIN
     )
-    if ctx.memo_v2 and _signals < _vmin:
-        # 束6 逐字化：逐字内联未在场的卡口癖——束5 实弹面是卡形差一字
-        # （正文『行，先记账』vs 卡『行，先算账』），语义近似但计分是
-        # 精确子串，报文不引卡原串模型无从对照；另列其余两类可计分
-        # 信号的确定形态。卡口癖全在场时换措辞——缺的是其余信号类，
-        # 不再出现『未计分卡口癖：已全在场』的自相矛盾形（PR #295 审查）。
+    if _vdm and "min_per_chapter" in _vdm:
+        # T1(a): 旧键只填密度/WARN 臂——映射进 hard 臂会使两级化裁定在
+        # 携带旧覆盖的项目上静默不生效（vol1 genre-config 即此形）。
+        _density_min = int(_vdm["min_per_chapter"])
+        if ctx.project_dir not in _VDM_DEPRECATE_SEEN:  # 每 config 路径一次（audit-T2/M-2）
+            _VDM_DEPRECATE_SEEN.add(ctx.project_dir)
+            log.warning(
+                "genre_config voice_density_min.min_per_chapter deprecated: fills density(WARN) arm only; use presence_min for the hard arm (spec #118 T1)",
+                project_dir=ctx.project_dir,
+                value=_density_min,
+            )
+    else:
+        _density_min = DEFAULT_VOICE_DENSITY_MIN
+    if ctx.memo_v2 and _signals < _presence_min:
+        # 束6 逐字化报文保留（缺席修复指引不变——三类全零时未在场卡癖
+        # 必列全部）；spec #118 起 hard 臂语义＝在场性非密度。
         _miss = [p for p in _cps if p not in _body]
         _cp_part = (
             f"未在场卡口癖（须逐字照抄、一字不可改）："
@@ -1421,21 +1535,31 @@ def _check_voice_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[st
             else "卡口癖已全在场——补其余信号；可计分："
         )
         mf.append(
-            f"G4.cd.voice_density:{ctx.fp}:{_signals}<{_vmin} "
-            f"(v2 章——备忘声口要求行未兑现；{_cp_part}"
+            f"G4.cd.voice_density:{ctx.fp}:{_signals}<{_presence_min} "
+            f"(v2 章——声口信号完全缺席；{_cp_part}"
             f"账房动词任一（如『{'』『'.join(ACCOUNTING_VERBS[:3])}』）"
             f"或自嘲反问收尾（『…吧？』『…呢？』句式）；修复者: drafting)"
         )
-    else:
+        return
+    if ctx.memo_v2 and _signals < _density_min:
         c.append(
             {
                 "id": "G4.cd.voice_density",
                 "file": ctx.fp,
-                "s": GateStatus.PASS if ctx.memo_v2 else GateStatus.WARN,
-                "r": f"signals={_signals}/{_vmin}"
-                + ("" if ctx.memo_v2 else " (v1 章——dispatch 域外，WARN 口径)"),
+                "s": GateStatus.WARN,
+                "r": f"声口密度 {_signals}<{_density_min}（劝谏面不拦章——spec #118 T1 两级拆分）",
             }
         )
+        return
+    c.append(
+        {
+            "id": "G4.cd.voice_density",
+            "file": ctx.fp,
+            "s": GateStatus.PASS if ctx.memo_v2 else GateStatus.WARN,
+            "r": f"signals={_signals}/presence≥{_presence_min}"
+            + ("" if ctx.memo_v2 else " (v1 章——dispatch 域外，WARN 口径)"),
+        }
+    )
 
 
 def _check_golden_slot(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:

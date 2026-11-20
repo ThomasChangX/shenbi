@@ -120,6 +120,8 @@ def lint_chapter(project: Path, chapter: int) -> list[str]:
     if pcard.is_file():
         cps = catchphrases_from_card(pcard.read_text(encoding="utf-8"))
     signals = distinct_voice_signals(strip_narrative_body(body), cps)
+    # spec #118 T1 起 min_per_chapter 语义=密度/WARN 臂（本工具报告密度面——
+    # 取键口径不变；在场 hard 臂归门侧 presence_min，非本工具面）。
     vmin = int(
         _genre_params(project)
         .get("voice_density_min", {})
@@ -127,7 +129,8 @@ def lint_chapter(project: Path, chapter: int) -> list[str]:
     )
     tag = "v2" if v2 else "v1"
     if signals < vmin:
-        domain = "FAIL 域(v2)" if v2 else "WARN 域(v1)"
+        # spec #118 T1: v2 密度缺口=劝谏面（门侧 WARN 臂；FAIL 仅在场性缺席）
+        domain = "WARN 密度域(v2)" if v2 else "WARN 域(v1)"
         return [f"[声口] ch{chapter}({tag}) 密度 {signals}/{vmin} 缺——{domain}"]
     return [f"[声口] ch{chapter}({tag}) 密度 {signals}/{vmin} 达标"]
 

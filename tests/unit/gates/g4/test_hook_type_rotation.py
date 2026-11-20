@@ -149,7 +149,10 @@ def test_ending_archetype_ignores_meta_tail() -> None:
 
     for name in ("chapter-1", "chapter-6"):
         raw = (FIX / "chapters" / f"{name}.md").read_text(encoding="utf-8")
-        assert ending_archetype_of(raw) is None, name  # prose tail ≠ 账目形态
+        # spec #118 T6 扩表改钉：意图=「META 数字尾不算账目形态」（strip 后
+        # prose 窗判）——扩表后同尾窗可合法命中散文形态（如 未答回避），
+        # is None 过钉；保意图改钉为 ≠ 账目形态。
+        assert ending_archetype_of(raw) != "账目形态", name
 
 
 def test_ending_archetype_ledger_prose_survives_meta_tail() -> None:

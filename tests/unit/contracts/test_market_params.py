@@ -76,3 +76,17 @@ def test_g4_three_state_via_real_checker(tmp_path: Path) -> None:
     )
     r2 = g4_genre_config([str(bad)], rd=str(tmp_path))
     assert "window" in r2 or "market_params" in r2
+
+
+def test_voice_presence_min_domain_rejects_zero() -> None:
+    """Spec #118 T1(b): presence_min in [1,5] -- 0 illegal (blocks per-book zeroing of the hard arm)."""
+    mp = _FULL | {"voice_density_min": {"presence_min": 0}}
+    with pytest.raises(ValueError, match="presence_min"):
+        GenreConfig.model_validate(_base() | {"market_params": mp})
+
+
+def test_voice_presence_min_only_config_accepted() -> None:
+    """Old-key presence guard: presence_min-only new-style config is legal (not wrongly rejected by the old-key default -1)."""
+    mp = _FULL | {"voice_density_min": {"presence_min": 2}}
+    cfg = GenreConfig.model_validate(_base() | {"market_params": mp})
+    assert cfg.market_params["voice_density_min"] == {"presence_min": 2}

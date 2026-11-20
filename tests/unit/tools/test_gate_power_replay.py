@@ -113,9 +113,11 @@ class TestNarrativeWindow:
         if attr["window_cjk"] < 30:
             assert not hook_rows and not no_hook  # 窗口质量不足→两口径都不判
         else:
-            assert bool(hook_rows) != no_hook  # PASS 行与 no_hook mf 互斥
+            # spec #118 T2 起 hook_rows 含 WARN 行（三态）：行存在 ⟺ 非 no_hook；
+            # 旧「PASS⟺三臂任一」口径已由 TestHookMirrorGateEquivalence 接管
+            assert bool(hook_rows) != no_hook
             if hook_rows:
-                assert hit  # PASS ⟺ 三臂任一命中
+                assert hit
 
 
 class TestSummarise:
@@ -217,3 +219,58 @@ class TestDeterminism:
         before = sorted(p.name for p in (rd / "chapters").iterdir())
         gpr.render_report(rd, "chapter-*.md")
         assert sorted(p.name for p in (rd / "chapters").iterdir()) == before
+
+
+class TestHookMirrorGateEquivalence:
+    """Spec #118 T2/I-6：镜像↔门等价钉两例（镜像漂移=验收数字失真面）."""
+
+    def test_mirror_gate_equivalence_single_only(self) -> None:
+        from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+        fp = Path("tests/fixtures/gate-power/chapter-1-hook-single-only.md").resolve()
+        attr = hook_window_attribution(fp.read_text(encoding="utf-8"))
+        res = json.loads(
+            g4_chapter_drafting([str(fp)], str(fp.parent), str(fp.parent), repo_root=None)
+        )
+        rows = [c for c in res["checks"] if c["id"] == "G4.cd.chapter_end_hook"]
+        assert attr["gate_class"] == "single_only" and attr["single_char_only"]
+        # hook 面断言收窄到 no_hook mf（裁片 fixture 可有其他无关 mf——如字数）
+        assert rows and rows[0]["s"] == "WARN"
+        assert not any(m.startswith("G4.cd.no_hook:") for m in res.get("must_fix", []))
+
+    def test_mirror_gate_equivalence_hard_arms(self) -> None:
+        from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+        fp = Path("tests/fixtures/gate-power/chapter-1-fatigue-flooded.md").resolve()
+        attr = hook_window_attribution(fp.read_text(encoding="utf-8"))
+        res = json.loads(
+            g4_chapter_drafting([str(fp)], str(fp.parent), str(fp.parent), repo_root=None)
+        )
+        rows = [c for c in res["checks"] if c["id"] == "G4.cd.chapter_end_hook"]
+        assert attr["gate_class"] == "hard"
+        assert attr["has_q"] or attr["multi"] or attr["has_ledger"]
+        assert rows and rows[0]["s"] == "PASS"
+
+    def test_mirror_gate_wordlists_pinned(self) -> None:
+        """Spec #118 T2/audit-T3 I-1：镜像↔门词表逐字一致钉＋20 词无损拆分钉.
+
+        等价钉（三态映射）对词级漂移零执法——monkeypatch 实证丢词/清空仍绿；
+        本钉补词表面（pattern 逐字节相等）。
+        """
+        import tools.gate_power_replay as gpr
+        from shenbi.gates.g4.chapter_drafting import (
+            HOOK_MULTI_TENSION_RE,
+            HOOK_SINGLE_TENSION,
+        )
+
+        multi_alts = set(HOOK_MULTI_TENSION_RE.pattern.strip("()").split("|"))
+        mirror_all = set(gpr.HOOK_TENSION_RE.pattern.strip("()").split("|"))
+        single = set(HOOK_SINGLE_TENSION)
+        # 多字臂词表 = 退役 20 词表 − 单字集（无损拆分：无丢失、无重叠）；
+        # 重审收紧：镜像 20 词表自身 = 多字 ∪ 单字（单字成员丢失也红——
+        # 否则 mirror single 词损可 desync single_only/none 两态）
+        assert multi_alts == mirror_all - single
+        assert mirror_all == multi_alts | single
+        assert not multi_alts & single
+        # 镜像单字集与门单字集逐字一致
+        assert single == set(gpr.SINGLE_CHAR_TENSION)
