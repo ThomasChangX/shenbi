@@ -159,7 +159,7 @@ def test_simile_flooded_warns_pileup_side() -> None:
     """Spec #118 T5 裁定 C+A 改钉：narrative 口径 flooded → 报告行（s=PASS＋per_1000 载荷），WARN 通道无行."""
     res = _g4("chapter-1-simile-flooded.md")
     rows = [c for c in res["checks"] if c["id"] == "G4.cd.simile_band"]
-    assert rows, res["checks"][:3]
+    assert rows and len(rows) == 1, rows  # spec 判据字面：WARN 通道无行（单行且非 WARN）
     assert rows[0]["s"] == "PASS", rows  # 报告行非 WARN 通道
     assert rows[0].get("per_1000", 0.0) > 4.0 and rows[0].get("r"), rows  # 计量载荷＋注记在
 

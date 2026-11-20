@@ -564,6 +564,11 @@ def _warn_status(result: dict[str, Any], check_id: str) -> str | None:
     return None
 
 
+def _rows(result: dict[str, Any], check_id: str) -> list[dict[str, Any]]:
+    """Spec #118 T5 形态钉：取同 id 全行（报告行 r/per_1000 载荷断言面）."""
+    return [ch for ch in result.get("checks", []) if ch.get("id") == check_id]
+
+
 def test_cd_surge_warn_when_below_quota(tmp_path: Path) -> None:
     """0 narrative sentences >=35 chars with quota 1 -> WARN, never must_fix."""
     result = _run([str(_prose_chapter(tmp_path, "短句。又短。再短。" * 3))])
@@ -608,10 +613,10 @@ def test_cd_simile_band_three_states_and_edges(tmp_path: Path) -> None:
         == "PASS"
     )
     # low (dry): 0 markers -> 0.0 < 2 -> 报告行（spec #118 T5 裁定 A：s=PASS＋注记，
-    # 不进 WARN 通道——56% WARN 失聪面）
-    assert (
-        _warn_status(_run([str(_prose_chapter(tmp_path, filler))]), "G4.cd.simile_band") == "PASS"
-    )
+    # 不进 WARN 通道——56% WARN 失聪面）；形态钉（M-3）：r 在场＋per_1000 载荷
+    dry_rows = _rows(_run([str(_prose_chapter(tmp_path, filler))]), "G4.cd.simile_band")
+    assert dry_rows and dry_rows[0]["s"] == "PASS" and dry_rows[0].get("r")
+    assert dry_rows[0].get("per_1000", 99.0) < 2.0
     # exact lower edge: 500 non-ws + 1 marker -> 2.0 (closed band)
     edge_low = "山像伏兽。" + "他往前走。" * 99
     assert count_similes(edge_low)["per_1000"] == 2.0
@@ -625,9 +630,11 @@ def test_cd_simile_band_three_states_and_edges(tmp_path: Path) -> None:
         _warn_status(_run([str(_prose_chapter(tmp_path, edge_high))]), "G4.cd.simile_band")
         == "PASS"
     )
-    # high (pile-up): 16 markers / ~121 non-ws -> ~132 > 4 -> 报告行（同上改钉）
+    # high (pile-up): 16 markers / ~121 non-ws -> ~132 > 4 -> 报告行（同上改钉＋形态钉）
     piled = "山像伏兽，像伏兽中的伏兽。" * 8 + "他走了。" * 3
-    assert _warn_status(_run([str(_prose_chapter(tmp_path, piled))]), "G4.cd.simile_band") == "PASS"
+    piled_rows = _rows(_run([str(_prose_chapter(tmp_path, piled))]), "G4.cd.simile_band")
+    assert piled_rows and piled_rows[0]["s"] == "PASS" and piled_rows[0].get("r")
+    assert piled_rows[0].get("per_1000", 0.0) > 4.0
 
 
 def test_cd_golden_slot_full_states(tmp_path: Path) -> None:

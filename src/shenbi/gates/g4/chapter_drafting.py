@@ -1336,10 +1336,12 @@ def _check_surge(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> N
 def _check_simile_band(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """Spec #71 simile density band（spec #118 T5 裁定 C+A 换装）.
 
-    计量面=narrative-only（strip_narrative_body——M7 对照列转正，消除
-    PRE/POST 污染）；带外降报告行（s=PASS＋per_1000 载荷，不进 WARN 通道
-    ——56% WARN 使劝谏通道失聪，裁定 A）。带 [2,4] 重设（裁定 B）推迟至
-    C 换装后用干净数字评估——本 task 不动带常数。
+    计量面 call-site 显式钉死 narrative 口径（strip_narrative_body）——
+    audit-T6/I-1 实证：count_similes 内部经 _non_dialogue_text 已剥
+    （M7 双口径 2.02=2.02 等值），此处为幂等防御性钉口径**非计量变更**：
+    28→0 WARN 归零 100% 来自裁定 A（状态路由）。带外降报告行（s=PASS＋
+    per_1000 载荷，不进 WARN 通道——56% WARN 使劝谏通道失聪）。带 [2,4]
+    重设（裁定 B）推迟——换装前后数字逐位相同，B 可直接用现有重放评估。
     """
     simile_stats = count_similes(strip_narrative_body(ctx.content))
     per_1000 = simile_stats["per_1000"]
