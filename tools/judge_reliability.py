@@ -289,11 +289,14 @@ def _alpha_versions(scan: ScanResult) -> list[tuple[str, str, int, float | None]
 def _validity(project_dir: Path, scan: ScanResult, rows: dict[int, ResonanceRow]) -> list[str]:
     """④ 效度相关：join = scored 非 excluded 行 ∧ 该章 ≥1 valid 非 resonance 审计."""
     any_sum: dict[int, int] = {}
+    hard_sum: dict[int, int] = {}
     for r in scan.records:
         if r.skill != "resonance":
             any_sum[r.chapter] = any_sum.get(r.chapter, 0) + r.any_count
+            hard_sum[r.chapter] = hard_sum.get(r.chapter, 0) + r.hard_count
     joined = sorted(c for c, r in rows.items() if not r.excluded and c in any_sum)
     r_val = pearson([float(rows[c].overall) for c in joined], [float(any_sum[c]) for c in joined])
+    r_hard = pearson([float(rows[c].overall) for c in joined], [float(hard_sum[c]) for c in joined])
     lens: list[float] = []
     overs: list[float] = []
     for c in joined:
@@ -309,6 +312,7 @@ def _validity(project_dir: Path, scan: ScanResult, rows: dict[int, ResonanceRow]
 
     return [
         f"- resonance overall × 其余 issue 总量（any）：r = {fmt(r_val)}（n = {len(joined)}）",
+        f"- resonance overall × 其余硬发现总量（hard）：r = {fmt(r_hard)}（n = {len(joined)}）",
         "- join 规则：scored 非 excluded trend 行 ∧ 该章 ≥1 valid 非 resonance 审计（n 如上披露）",
         f"- human_overridden 行剔除：{n_over} 行（不入效度/形状统计）",
         f"- 长度负对照：overall × 章长（去空白字符）r = {fmt(r_len)}（n = {len(lens)}）",
