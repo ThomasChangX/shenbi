@@ -57,13 +57,14 @@ def test_chapter_density_v1_warn_domain(tmp_path: Path) -> None:
 
 
 def test_chapter_density_v2_fail_domain(tmp_path: Path) -> None:
+    """Spec #118 T1 repin: v2 density shortfall is advisory (WARN domain; FAIL is presence-only)."""
     d = _mk_project(tmp_path)
     (d / "chapters" / "chapter-1.md").write_text("他推门。", encoding="utf-8")
     (d / "plans" / "chapter-1-plan.md").write_text(
         "# 第1章 章节备忘\nplan_format: v2\n", encoding="utf-8"
     )
     rows = lint_chapter(d, 1)
-    assert any("v2" in r and "FAIL 域" in r for r in rows), rows
+    assert any("v2" in r and "WARN 密度域" in r for r in rows), rows
 
 
 def test_file_predicate_excludes_pre_rev(tmp_path: Path) -> None:
