@@ -224,3 +224,15 @@ def test_content_duplicated_fails_content_overlap_gate() -> None:
     res = _g4("project-output/chapters/chapter-1-duplicated.md")
     mf = res.get("must_fix", [])
     assert any(m.startswith("G4.cd.content_overlap:") for m in mf), mf[:3]
+
+
+def test_payoff_stripped_warns_payoff_density() -> None:
+    """Spec #118 T8：chapter-9 plan 的 **payoff 拍** 轴登记被删 → payoff_density WARN 行.
+
+    负例=WARN-only（该门无 mf 臂）；变异产物=plans/chapter-9-plan.md
+    （引擎 payoff_axis_stripped）＋配对章 chapter-9-payoff-stripped.md（verbatim
+    --full）。窗口 k∈{7,8,9}：7/8 plan fixture 缺席＋9 轴被删 → 无轴 WARN 必发。
+    """
+    res = _g4("chapter-9-payoff-stripped.md")
+    rows = [c for c in res["checks"] if c["id"] == "G4.cd.payoff_density"]
+    assert rows and rows[0]["s"] == "WARN" and "无轴登记" in rows[0]["r"], rows

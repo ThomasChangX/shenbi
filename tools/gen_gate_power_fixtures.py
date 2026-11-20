@@ -322,6 +322,20 @@ def content_duplicated(text: str, donor_text: str = "") -> str:
     return text.rstrip("\n") + "\n\n" + "\n\n".join(copies) + "\n"
 
 
+def payoff_axis_stripped(text: str) -> str:
+    r"""删 **payoff 拍** 行的轴登记段（轴(债|名声|名字数|进度)→无轴）→ payoff_density WARN.
+
+    变异源=plan 文件（先例 hookdecl_mismatched）；门侧正则锚
+    chapter_drafting.py:1374-1375（\*\*payoff 拍\*\*[：:].*轴[（(]?(债|名声|名字数|进度)）。
+    spec #118 T8（r2/I-7 收窄后唯一必建变异）。
+    """
+    return re.sub(
+        r"(\*\*payoff 拍\*\*[：:][^｜\n]*?)｜轴[（(](?:债|名声|名字数|进度)[)）]",
+        r"\1",
+        text,
+    )
+
+
 MUTATIONS: dict[str, Callable[..., str]] = {
     "hook_killed": hook_killed,
     "protagonist_vanished": protagonist_vanished,
@@ -344,6 +358,7 @@ MUTATIONS: dict[str, Callable[..., str]] = {
     "ending_ledgered": ending_ledgered,
     "verbatim_copy": verbatim_copy,
     "content_duplicated": content_duplicated,
+    "payoff_axis_stripped": payoff_axis_stripped,
 }
 
 

@@ -37,7 +37,7 @@ baseline 回填日 = Task 5 实跑日 **2026-11-20**（原计划 2026-11-19，�
 「0 点火」的行由 lint 升格为红（此前仅 stderr WARN）。校正记录见 task-5-report
 （`tools/lint_gate_power_baseline.py` `ESCALATION_DATE` 同步）。
 
-## 登记表（32 行；**分类裁定记录 2026-11-20**：用户对 spec #116 七项提案＋对账类逐项裁定「全部同意」——29 行已分类（12 discriminating＋17 floor-untested），3 残行 `unclassified` 待 spec #118 T8 红测补后分类。裁定动作（阈值/词表/结构改动）由落地批 spec #118 执行，本表只记分类与依据）
+## 登记表（32 行；**分类裁定记录 2026-11-20**：用户对 spec #116 七项提案＋对账类逐项裁定「全部同意」——29 行已分类（12 discriminating＋17 floor-untested），3 残行已分类（spec #118 T8：payoff_density 变异红测＋quote_type/provenance_anchor 既有测试证据链，r2/I-7 收窄）。裁定动作（阈值/词表/结构改动）由落地批 spec #118 执行，本表只记分类与依据）
 
 | check | 口径 | 期望点火带 | 分类 | 证据 | 最近回放数 | 归因 |
 |---|---|---|---|---|---|---|
@@ -58,8 +58,8 @@ baseline 回填日 = Task 5 实跑日 **2026-11-20**（原计划 2026-11-19，�
 | `G4.cd.golden_slot` | state-free | — | discriminating | — | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md） | 47 PASS＋3 WARN（附录 A 同；WARN 开火故 discriminating，裁定 2026-11-20） |
 | `G4.cd.content_uniqueness` | state-free | — | floor-untested | `tests/unit/gates/g4/test_gate_power_negatives.py::test_content_duplicated_fails_content_overlap_gate` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射：比对目录 `rd/project-output/chapters` 在真实项目布局缺席→检查静默不跑（发射面条件化，判别力盲区）；**裁定：P1 修——布局对齐＋显式 SKIP＋重跑取数（spec #118 T7）** |
 | `G4.cd.quote_verbatim` | state-free | — | floor-untested | `tests/unit/gates/g4/test_gate_power_negatives.py::test_quote_verbatim_full_pipeline_fails_on_nonverbatim_anchor` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射（『』锚定引句对章尾实拍比对面未触发；裁定 2026-11-20） |
-| `G4.cd.payoff_density` | state-free | — | unclassified | — | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射（memo_v3 门内激活臂，本语料 0 观测；**无红测——spec #118 T8 补负例后分类**） |
-| `G4.cd.quote_type` | state-free | — | unclassified | — | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射（引号型检查行，0 观测；**无红测——spec #118 T8 补负例后分类**） |
+| `G4.cd.payoff_density` | state-free | — | floor-untested | `tests/unit/gates/g4/test_gate_power_negatives.py::test_payoff_stripped_warns_payoff_density` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射（v3 近窗无轴登记章为 0——WARN-only 臂；**spec #118 T8 变异红测已建**）；裁定 2026-11-20 floor-untested |
+| `G4.cd.quote_type` | state-free | — | floor-untested | `tests/unit/gates/g4/test_spec76_voice_quote.py::test_g4cd_quote_type_three_point_sync` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射（引号型检查行，0 观测）；既有行为红测（真实 g4 管线三场景 must_fix 点火）为分类证据——spec #118 T8 r2/I-7 裁定依据：不为 M-1 形态同源重复建测；裁定 2026-11-20 floor-untested |
 | `G4.cd.micro_hook_run` | state-free | — | discriminating | — | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md） | 1 FAIL（mf 臂；v3+ plans 前置物章开火——真开火，裁定 2026-11-20） |
 | `cd.post_quote_verbatim` | state-free | — | discriminating | `tests/unit/gates/g4/test_gate_power_negatives.py::test_post_quote_broken_fails_post_quote_verbatim_gate` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md） | 12 WARN（附录 A「post_quote WARN 行」同源；WARN 开火故 discriminating，裁定 2026-11-20） |
 | `cd.post_transition_cross` | state-free | — | floor-untested | `tests/unit/gates/g4/test_gate_power_negatives.py::test_post_transition_lied_fails_post_transition_cross_gate` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射（POST 转折交叉面未触发；裁定 2026-11-20） |
@@ -72,7 +72,7 @@ baseline 回填日 = Task 5 实跑日 **2026-11-20**（原计划 2026-11-19，�
 | `cd.counter.base_mismatch` | truth | — | discriminating | — | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md） | 1 FAIL（真开火，裁定 2026-11-20） |
 | `cd.counter.prose_mismatch` | truth | — | floor-untested | `tests/unit/gates/g4/test_gate_power_negatives.py::test_counter_reconciliation_helper_flags_plan_prose_conflict` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射（family helper 红测为据；裁定 2026-11-20） |
 | `G4.cd.hook_type_rotation` | truth | — | discriminating | `tests/unit/gates/g4/test_gate_power_negatives.py::test_hook_type_rotation_full_pipeline_fails_on_same_type` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md） | 1 FAIL（读 pipeline-state 声明历史；真开火，裁定 2026-11-20） |
-| `cd.provenance_anchor` | truth | — | unclassified | — | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射（WARN-only 来历锚：50 章无违例；I-1 归位行，见脚注；**无红测——spec #118 T8 补负例后分类**） |
+| `cd.provenance_anchor` | truth | — | floor-untested | `tests/unit/gates/g4/test_spec83_provenance_anchor.py::test_provenance_mismatch_warns_and_match_green` | 50 章 @ 2026-11-20（reports/2026-11-20-gate-power-vol1.md）0 点火 | 回放 0 行发射（WARN-only 来历锚：50 章无违例；I-1 归位行，见脚注）；既有 helper 级红测（直调真实 helper WARN 点火）为分类证据——spec #118 T8 r2/I-7 同；裁定 2026-11-20 floor-untested |
 
 脚注：
 
