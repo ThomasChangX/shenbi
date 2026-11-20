@@ -488,7 +488,7 @@ def slope_regression(xs: Sequence[float], ys: Sequence[float]) -> SlopeResult:
     t = (
         float("inf")
         if abs(r) >= 1.0
-        else (r * sqrt((n - 2) / (1 - r * r)) if n > _SLOPE_MIN_N else 0.0)
+        else (r * sqrt((n - 2) / (1 - r * r)) if n >= _SLOPE_MIN_N else 0.0)
     )
     return SlopeResult(slope, r, t)
 
