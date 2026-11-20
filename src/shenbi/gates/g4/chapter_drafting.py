@@ -1126,6 +1126,8 @@ def _check_scene_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str])
 def _check_content_uniqueness(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """F415-0815 memoized overlap vs other chapters."""
     # G4.cd.content_uniqueness: check this chapter against all other chapters
+    # （rd=None 面：生产 dispatch 恒传 rd——SKIP 义务覆盖目录缺席/基数两态，
+    # rd-None 不发射，audit-T8/M-2 定界注记）
     if ctx.rd:
         # spec #118 T7（裁定二 P1 修）：比对目录对齐真实布局 rd/chapters（原
         # rd/project-output/chapters 在任何真实布局缺席——phase_runner 的

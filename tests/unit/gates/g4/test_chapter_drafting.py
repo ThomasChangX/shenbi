@@ -35,7 +35,7 @@ def test_fails_when_content_overlap_above_40_percent(tmp_path: Path) -> None:
     """Two near-identical chapters (>40% shared paragraphs) -> FAIL.
 
     The overlap check only runs when a round_dir is supplied and a sibling
-    chapter exists under project-output/chapters.
+    chapter exists under rd/chapters (spec #118 T7 aligned layout).
     """
     rd = tmp_path / "round"
     chapters = (

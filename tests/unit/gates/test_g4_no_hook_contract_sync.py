@@ -21,7 +21,6 @@ into the primary contracts:
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[3]
@@ -31,13 +30,21 @@ _GATE_SRC = _REPO / "src" / "shenbi" / "gates" / "g4" / "chapter_drafting.py"
 
 
 def _gate_tension_tokens() -> list[str]:
-    """Extract the G4.cd tension word list from the gate regex literal."""
-    src = _GATE_SRC.read_text(encoding="utf-8")
-    m = re.search(
-        r"但\|然而\|却\|不过\|还\|仍\|依然\|尚未\|未解\|不知\|等待\|没说\|没答\|瞒\|藏", src
+    """Extract the G4.cd tension word list from the gate wordlist constants.
+
+    Spec #118 T2 repin: the inline mixed regex was split into module constants
+    (HOOK_MULTI_TENSION_RE + HOOK_SINGLE_TENSION) — extract from the constants
+    directly (same source as the mirror pin in test_gate_power_replay.py).
+    """
+    from shenbi.gates.g4.chapter_drafting import (
+        HOOK_MULTI_TENSION_RE,
+        HOOK_SINGLE_TENSION,
     )
-    assert m is not None, "G4.cd tension word regex not found in gate source"
-    return m.group(0).split("|")
+
+    multi = HOOK_MULTI_TENSION_RE.pattern.strip("()").split("|")
+    singles = list(HOOK_SINGLE_TENSION)
+    assert len(multi) == 11 and len(singles) == 9, (multi, singles)
+    return [*multi, *singles]
 
 
 def test_drafting_skill_decouples_variety_from_hard_marker() -> None:
