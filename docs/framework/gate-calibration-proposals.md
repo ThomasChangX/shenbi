@@ -13,6 +13,23 @@
 > `docs/framework/gate-power-baseline.md` 证据列同源形态，不另造 t4_evidence
 > 列）；「落地批补」= 提案落地批次新增红测（本件不写）。
 
+## 裁定记录（2026-11-20 · 用户「全部同意」）
+
+| 门 | 裁定 | 落地批 |
+|---|---|---|
+| voice_density | **B 两级拆分**（在场 ≥1 hard＋密度下限 WARN） | spec #118 T1 |
+| hook | **A 多字/结构臂**（单字命中降 WARN 报告行） | spec #118 T2 |
+| protagonist | **A roster 去重＋B 名字单独下限**；C 推迟至 A+B 后重跑 gate-power 再定 | spec #118 T3 |
+| transition | **B 重标定 per-1000 密度口径**（封顶贴近观测分布） | spec #118 T4 |
+| scene_concreteness / surge / fatigue / meta | **floor-untested 直接回填**（红测链接已就位） | 已回填 baseline（无行为改动） |
+| simile | **C narrative-only 计量换装＋A WARN 路由报告行**；B 带重标定推迟至 C 后用干净数字评估 | spec #118 T5 |
+| ending archetype | **A 扩分类器**（限工作量：采样 47 None 收尾归纳；扩后 None 仍高转 retire 提案） | spec #118 T6 |
+| content_uniqueness（裁定二） | **P1 修**：git 考古断链时点＋门对齐 `rd/chapters/` 现实布局＋目录缺席/基数不足显式 SKIP 行＋修后重跑 gate-power 取首份真实点火数据 | spec #118 T7 |
+| 变异 fixture 脱敏（裁定三） | **接受不脱敏维持现状**（对齐既有 vol1 衍生先例，零不可逆风险；正式投稿前 revisit——README 政策节为登记位） | 无动作（README 已记） |
+
+分类回填已同步 `docs/framework/gate-power-baseline.md`（29/32 行；3 残行
+payoff_density/quote_type/provenance_anchor 无红测，spec #118 T8 补负例后分类）。
+
 ### voice_density（`G4.cd.voice_density`，最高优先项）
 
 | 栏 | 内容 |
