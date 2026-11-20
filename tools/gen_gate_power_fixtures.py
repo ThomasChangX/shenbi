@@ -103,6 +103,23 @@ def hook_killed(text: str) -> str:
     return "\n\n".join(head + out)
 
 
+def hook_single_only(text: str) -> str:
+    """尾窗多字张力词→单字（还）、？→。、数字串→数 → 单字-only 命中（spec #118 T2）.
+
+    三态中间档负例：多字/？/账目行臂全灭、单字臂保留（单字集与账房腔母题
+    同词表——门降 WARN 面的判别依据）。
+    """
+    paras = narrative_window(text)
+    head, tail = paras[:-8], paras[-8:]
+    out = []
+    for p_ in tail:
+        q = re.sub(r"然而|不过|依然|尚未|未解|不知|等待|没说|没答|未完|代价", "还", p_)
+        q = re.sub(r"[？?]", "。", q)
+        q = re.sub(r"\d+", "数", q)
+        out.append(q)
+    return "\n\n".join(head + out)
+
+
 def protagonist_vanished(text: str) -> str:
     """主角名→术赤；「他」全替换（含「」归属位）→ total < 3."""
     text = text.replace("那罕", "术赤")
@@ -349,6 +366,7 @@ def payoff_axis_stripped(text: str) -> str:
 
 MUTATIONS: dict[str, Callable[..., str]] = {
     "hook_killed": hook_killed,
+    "hook_single_only": hook_single_only,
     "protagonist_vanished": protagonist_vanished,
     "transition_flooded": transition_flooded,
     "scene_visuals_stripped": scene_visuals_stripped,

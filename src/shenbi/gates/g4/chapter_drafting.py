@@ -1163,6 +1163,13 @@ def _check_scene_concreteness(ctx: CheckContext, c: list[dict[str, Any]], mf: li
         )
 
 
+#: 章尾钩多字张力词（spec #118 T2 裁定 A：多字∨？∨账目行=hard 臂；单字集
+#: 但却还仍瞒藏账欠谜 与账房腔母题同词表——单字-only 命中降 WARN）。
+#: vol1 定标，跨书重跑复核（B5）。镜像=tools/gate_power_replay.py:110（同形同步义务）。
+HOOK_MULTI_TENSION_RE = re.compile(r"(然而|不过|依然|尚未|未解|不知|等待|没说|没答|未完|代价)")
+HOOK_SINGLE_TENSION = frozenset("但却还仍瞒藏账欠谜")
+
+
 def _check_chapter_end_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
     """Windowed end-hook + spec #82 轮换 + v4 引句锚定（发射序保持内联）."""
     # G4.cd.chapter_end_hook: unresolved tension in the closing beat.
@@ -1211,13 +1218,11 @@ def _check_chapter_end_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list
                         f"（章尾张力拍行须为 [微|章|大]｜『章尾句原文引句』；修复者: planning）"
                     )
         if window_cjk >= 30:
+            # spec #118 T2 裁定 A 三态：多字张力词 ∨ ？ ∨ 账目行=hard（PASS）；
+            # 单字-only 命中降 WARN（单字集 但却还仍瞒藏账欠谜 与账房腔母题
+            # 同词表——门此前测的是母题不是张力）；全灭 FAIL 不变。
             has_q = bool(re.search(r"[？?]", window_text))
-            has_t = bool(
-                re.search(
-                    r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏|账|欠|谜|未完|代价)",
-                    window_text,
-                )
-            )
+            has_multi = bool(HOOK_MULTI_TENSION_RE.search(window_text))
             # 账目钩 (P1-3, 2026-10-23): a cold ledger closer — two
             # separate arabic digit runs in the merged window (伤亡 41
             # 人…82 户…) — is a legal hook form from the seed's 章末钩
@@ -1225,12 +1230,26 @@ def _check_chapter_end_hook(ctx: CheckContext, c: list[dict[str, Any]], mf: list
             # Runs, not bare chars: one stray "3" or a lone "4173" is
             # not a ledger line (review calibration #5).
             has_ledger = len(re.findall(r"\d+", window_text)) >= 2
-            if has_q or has_t or has_ledger:
+            has_single = any(ch in HOOK_SINGLE_TENSION for ch in window_text)
+            if has_multi or has_q or has_ledger:
                 c.append(
                     {
                         "id": "G4.cd.chapter_end_hook",
                         "file": ctx.fp,
                         "s": GateStatus.PASS,
+                        "window_cjk": window_cjk,
+                    }
+                )
+            elif has_single:
+                c.append(
+                    {
+                        "id": "G4.cd.chapter_end_hook",
+                        "file": ctx.fp,
+                        "s": GateStatus.WARN,
+                        "r": (
+                            "仅单字张力词命中（多字/？/账目行臂未中）——"
+                            "单字集与账房腔母题同词表，降劝谏面（spec #118 T2）"
+                        ),
                         "window_cjk": window_cjk,
                     }
                 )

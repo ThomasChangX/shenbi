@@ -305,3 +305,16 @@ def test_voice_old_key_maps_to_density_arm(tmp_path: Path) -> None:
     assert not any(m.startswith("G4.cd.voice_density:") for m in mf), mf[:3]
     warn_rows = [c for c in res["checks"] if c["id"] == "G4.cd.voice_density" and c["s"] == "WARN"]
     assert warn_rows and "1<2" in warn_rows[0]["r"], warn_rows
+
+
+def test_hook_single_char_only_warns_not_fails() -> None:
+    """Spec #118 T2 裁定 A：单字-only 命中→WARN 行非 FAIL（三态中间档）.
+
+    fixture=引擎 hook_single_only 变异（多字→『还』、？→。、数字串→数）——
+    多字/？/账目行臂全灭、单字臂保留。
+    """
+    res = _g4("chapter-1-hook-single-only.md")
+    rows = [c for c in res["checks"] if c["id"] == "G4.cd.chapter_end_hook"]
+    mf = res.get("must_fix", [])
+    assert rows and rows[0]["s"] == "WARN" and "单字" in rows[0]["r"], rows
+    assert not any(m.startswith("G4.cd.no_hook:") for m in mf), mf[:3]

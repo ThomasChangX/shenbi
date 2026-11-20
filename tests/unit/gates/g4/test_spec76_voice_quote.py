@@ -159,9 +159,10 @@ def test_g4cd_voice_density_failure_quotes_missing_catchphrases_verbatim(
 def test_g4cd_voice_density_all_catchphrases_present_no_contradiction(
     tmp_path: Path,
 ) -> None:
-    """PR #295 review: catchphrases all present but signals still short (vmin=3,
-    only 2 catchphrase signals) -- the message must switch wording instead of
-    the self-contradictory "missing catchphrases: none missing" form.
+    """PR #295 review wording, repinned for spec #118 T1: catchphrases all
+    present but signals short of presence_min=2 (only 1 catchphrase signal) --
+    the hard-arm message must switch wording instead of the self-contradictory
+    "missing catchphrases: none missing" form.
     """
     chapter = _V2_CHAPTER.replace(
         "他把这笔我先记下。利息又涨了。这买卖不亏吧？", "他把这笔我先记下。又记一笔。他推门。"
@@ -175,7 +176,7 @@ def test_g4cd_voice_density_all_catchphrases_present_no_contradiction(
                     "payoff_density": {"window": 3, "min": 1},
                     "emotion_band": {"window": 1, "min": 1},
                     "hook_grading": {"max_consecutive_micro": 2},
-                    "voice_density_min": {"min_per_chapter": 3},
+                    "voice_density_min": {"presence_min": 2},
                 },
             }
         ),
@@ -185,7 +186,7 @@ def test_g4cd_voice_density_all_catchphrases_present_no_contradiction(
         g4_chapter_drafting([str(d / "chapters" / "chapter-1.md")], rd=str(d), project_dir=str(d))
     )
     hit = [m for m in bad.get("must_fix", []) if "G4.cd.voice_density" in m]
-    assert hit  # 1 catchphrase signal < 3
+    assert hit  # 1 catchphrase signal < presence_min 2 (spec #118 T1 改钉：旧键→密度臂不再 FAIL)
     assert "卡口癖已全在场——补其余信号" in hit[0]
     assert "未在场卡口癖" not in hit[0]
 

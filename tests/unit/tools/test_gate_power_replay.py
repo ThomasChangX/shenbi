@@ -217,3 +217,34 @@ class TestDeterminism:
         before = sorted(p.name for p in (rd / "chapters").iterdir())
         gpr.render_report(rd, "chapter-*.md")
         assert sorted(p.name for p in (rd / "chapters").iterdir()) == before
+
+
+class TestHookMirrorGateEquivalence:
+    """Spec #118 T2/I-6：镜像↔门等价钉两例（镜像漂移=验收数字失真面）."""
+
+    def test_mirror_gate_equivalence_single_only(self) -> None:
+        from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+        fp = Path("tests/fixtures/gate-power/chapter-1-hook-single-only.md").resolve()
+        attr = hook_window_attribution(fp.read_text(encoding="utf-8"))
+        res = json.loads(
+            g4_chapter_drafting([str(fp)], str(fp.parent), str(fp.parent), repo_root=None)
+        )
+        rows = [c for c in res["checks"] if c["id"] == "G4.cd.chapter_end_hook"]
+        assert attr["gate_class"] == "single_only" and attr["single_char_only"]
+        # hook 面断言收窄到 no_hook mf（裁片 fixture 可有其他无关 mf——如字数）
+        assert rows and rows[0]["s"] == "WARN"
+        assert not any(m.startswith("G4.cd.no_hook:") for m in res.get("must_fix", []))
+
+    def test_mirror_gate_equivalence_hard_arms(self) -> None:
+        from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+        fp = Path("tests/fixtures/gate-power/chapter-1-fatigue-flooded.md").resolve()
+        attr = hook_window_attribution(fp.read_text(encoding="utf-8"))
+        res = json.loads(
+            g4_chapter_drafting([str(fp)], str(fp.parent), str(fp.parent), repo_root=None)
+        )
+        rows = [c for c in res["checks"] if c["id"] == "G4.cd.chapter_end_hook"]
+        assert attr["gate_class"] == "hard"
+        assert attr["has_q"] or attr["multi"] or attr["has_ledger"]
+        assert rows and rows[0]["s"] == "PASS"

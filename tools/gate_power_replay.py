@@ -110,6 +110,9 @@ ARM_TO_CANONICAL: dict[str, str] = {
 HOOK_TENSION_RE = re.compile(
     r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏|账|欠|谜|未完|代价)"
 )
+# spec #118 T2 三态镜像（与门 HOOK_MULTI_TENSION_RE/HOOK_SINGLE_TENSION 同形——
+# chapter_drafting.py 模块级；漂移由 TestHookMirrorGateEquivalence 等价钉执法）
+HOOK_MULTI_TENSION_RE = re.compile(r"(然而|不过|依然|尚未|未解|不知|等待|没说|没答|未完|代价)")
 SINGLE_CHAR_TENSION = frozenset("但却还仍瞒藏账欠谜")
 _Q_RE = re.compile(r"[？?]")
 _CJK_RE = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf]")
@@ -144,6 +147,13 @@ def hook_window_attribution(content: str) -> dict[str, Any]:
         and (not has_ledger)
         and bool(hits & SINGLE_CHAR_TENSION)
         and not (hits - SINGLE_CHAR_TENSION),
+        # spec #118 T2: 门三态同名映射（hard=多字∨？∨账目行；single_only=仅单字；
+        # none=全灭——FAIL 态由门红测承担，镜像只作归因面）
+        "gate_class": (
+            "hard"
+            if (has_q or has_ledger or HOOK_MULTI_TENSION_RE.search(text))
+            else ("single_only" if (hits & SINGLE_CHAR_TENSION) else "none")
+        ),
     }
 
 
