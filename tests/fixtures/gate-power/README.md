@@ -37,6 +37,9 @@ uv run python tools/gen_gate_power_fixtures.py novel-xinghuo-vol1/chapters/chapt
 # Task 3 批F 跨章重复门（--donor 比对章）
 uv run python tools/gen_gate_power_fixtures.py novel-xinghuo-vol1/chapters/chapter-3.md tests/fixtures/gate-power/project-output/chapters/chapter-3.md --mutation verbatim_copy --full
 uv run python tools/gen_gate_power_fixtures.py novel-xinghuo-vol1/chapters/chapter-1.md tests/fixtures/gate-power/project-output/chapters/chapter-1-duplicated.md --mutation content_duplicated --full --donor novel-xinghuo-vol1/chapters/chapter-3.md
+# spec #118 T8 payoff_density 负例（变异产物=plan 文件＋配对 verbatim 章）
+uv run python tools/gen_gate_power_fixtures.py novel-xinghuo-vol1/plans/chapter-9-plan.md tests/fixtures/gate-power/plans/chapter-9-plan.md --mutation payoff_axis_stripped --full
+uv run python tools/gen_gate_power_fixtures.py novel-xinghuo-vol1/chapters/chapter-9.md tests/fixtures/gate-power/chapter-9-payoff-stripped.md --mutation verbatim_copy --full
 ```
 
 `characters/protagonist.md` 为手工落盘前置物（C2：`_load_protagonist_names` 非 SKIP 前提；Task 3 批C 扩 frontmatter `voice_profile.catchphrases` 四口癖原串——`G4.cd.voice_density` 计分前提），frontmatter 注明衍生自真实卡的 name 行＋catchphrases 行。`pipeline-state.json` 为手工落盘最小 hooks 台账（`declared_history` 读取形：`chapter_loop.chapter_states.0.declared.章尾钩型`＝悬念钩，供 `G4.cd.hook_type_rotation` 前一章历史）。
@@ -66,6 +69,8 @@ uv run python tools/gen_gate_power_fixtures.py novel-xinghuo-vol1/chapters/chapt
 | `chapter-{1,2,3}-ending-ledgered.md` | `ending_ledgered` | 裁片×3 | 末段追记账目收束句（外欠 30 文/剩 17 文） | `ending_archetype_of` 三连「账目形态」（helper 级） |
 | `project-output/chapters/chapter-3.md` | `verbatim_copy` | 全章 | 无变异整本拷贝（比对章前置物；G0.9 real-output copy） | —（I3 基数门槛分母） |
 | `project-output/chapters/chapter-1-duplicated.md` | `content_duplicated` | 全章＋复制段 | 从 chapter-3 复制 13 段（raw 指纹成员段）append 章尾 | `G4.cd.content_overlap:42%` |
+| `plans/chapter-9-plan.md` | `payoff_axis_stripped` | 全本（plan 源） | **payoff 拍** 行剥轴登记段（轴(进度)→无轴） | `G4.cd.payoff_density` WARN |
+| `chapter-9-payoff-stripped.md` | `verbatim_copy` | 全章 | 无变异整本拷贝（配对章——chapter_no=9 窗口激活） | —（与上行成对：k∈{7,8,9} 窗口无轴→WARN） |
 
 每个 fixture 头部带 `provenance: real-output-mutation (G0.9)` 注释块（源/变异/面宽/生成日期）。
 
